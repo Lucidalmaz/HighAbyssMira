@@ -9299,6 +9299,14 @@ WORLD_MODS.push(['Ausrüstung', async () => {
     'Der Handscheinwerfer im Ladegerät ist voll geladen. Die Tankstelle hat seit Jahren keinen Strom.',
     'Das Ladegerät ist leer. Die grüne Lampe leuchtet trotzdem weiter.',
     () => { if (!ch3.on) { toast('Ein Feuerwehr-Handscheinwerfer steckt in einem Ladegerät. Der Akku ist tot. Die Ladelampe ist aus.', 4200); return false; } flashUpgrade(2); }, spot3); // STORY-HOOK: wer lädt ihn?
+  // --- Kapitel 2: Keramiksicherung im Archiv (Aktenschrank); ohne sie hat der Sicherungskasten einen leeren Steckplatz
+  ausruestung_spot('c2_sicherung', [.9, .5, .3], [C2.x + 28, 1.05, C2.z - 5.2], 'Aktenschrank',
+    'Zwischen den Hängeregistern, mit Klebeband umwickelt: eine alte Keramiksicherung. Auf dem Band, in Kinderschrift: „RAUM 7“.',
+    'Hängeregister, alphabetisch. Bei „B“ fehlt ein Name. Nur der Reiter ist noch da.', () => addItem('sicherung'));
+  { const orig = fuseOpenPanel; fuseOpenPanel = function (...a) {
+      if (!ch2.power && !S.fuseIn) { if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts.', 5200);
+        S.fuseIn = true; story.items = story.items.filter(k => k !== 'sicherung'); Audio.play('switch1', { gain: .6, x: C2.x + 33, y: 1.5, z: C2.z + 7.8, ref: 2 }); toast('Du drehst die Sicherung ein. Irgendwo im Beton tickt ein Relais.', 3400); }
+      return orig.apply(this, a); }; }
   // --- Villa-Gelände (hinter dem Tor, erst mit Drahtschneider): Kerzenkreis auf dem Kiesweg
   try {
     const cs = await msFBX('candles', 'model.fbx', { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', r: 'Extra_for_candles_Roughness.jpg' } });
@@ -9479,7 +9487,7 @@ const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
 const GEHEIM_WORDS = ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben'];
 const GEHEIM_WRECKS = [
   [-4.6, 4.2, 'Verbogenes Blech, verrußt und eiskalt. Darin eingedrückt: zwei Kinderhände. Von innen.'],
-  [-4.5, 36, 'Kein Flugzeugteil. Die Nieten sind von Hand geschmiedet.'],
+  [-7.2, 37, 'Kein Flugzeugteil. Die Nieten sind von Hand geschmiedet.'],
   [128, -36, 'Unter dem Rost ein Stempel: ein Turm über einem Abgrund.'],
   [-145, 6, 'Das Blech ist gewölbt wie ein Brustpanzer. Zu klein für einen Mann. Genau richtig für ein Kind.'],
   [50, 88, 'Das letzte Stück passt an die anderen, als hätte es darauf gewartet.']];
@@ -9587,6 +9595,216 @@ WORLD_TICK.push((dt, t) => {
     T.seen = looking; }
 });
 const _geheimFwd = new THREE.Vector3();
+// =====================================================================  FIGUREN (Modul „figuren“): echte Unreal-Figuren statt der Mannequin-Puppe
+// Quelle: unreal/Export_Figuren.bat → game/assets/ue/chars/<rolle>/manifest.json  { "mesh": "0_mesh.glb", "anims": { "idle": "1_Idle.glb", "walk": …, "talk": … }, "yaw": 0 }
+// Rollen: kind_junge, kind_maedchen (Echo-Kinder), erwachsener (Echo-Erwachsene), alter_mann (Walter Albers).
+// Fehlt eine Rolle, bleibt das bisherige Modell – das Spiel läuft unverändert.
+const figuren_S = { cache: new Map(), sk: null, kids: [] };
+async function figuren_load(role) {
+  if (figuren_S.cache.has(role)) return figuren_S.cache.get(role);
+  const p = (async () => { try {
+    const base = 'assets/ue/chars/' + role + '/', r = await fetch(base + 'manifest.json'); if (!r.ok) return null; const man = await r.json();
+    const g = await MSL.gl.loadAsync(base + man.mesh), clips = {};
+    for (const [k, f] of Object.entries(man.anims || {})) { try { const a = await MSL.gl.loadAsync(base + f); if (a.animations[0]) { const c = a.animations[0].clone(); c.name = k; clips[k] = c; } } catch (e) { console.warn('Figur ' + role + ' Animation ' + k, e); } }
+    for (const a of g.animations || []) { if (!clips.idle && /idle/i.test(a.name)) clips.idle = a; if (!clips.walk && /walk/i.test(a.name)) clips.walk = a; }
+    return { scene: g.scene, clips, yaw: man.yaw || 0 };
+  } catch (e) { return null; } })();
+  figuren_S.cache.set(role, p); return p;
+}
+// Klon auf Zielhöhe, Füße auf 0, Blickrichtung +z (yaw aus dem Manifest gleicht die Export-Achse aus)
+async function figuren_clone(F, height) {
+  if (!figuren_S.sk) figuren_S.sk = (await import('three/addons/utils/SkeletonUtils.js')).clone;
+  const o = figuren_S.sk(F.scene); o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o), s = height / Math.max(.01, bb.max.y - bb.min.y);
+  o.scale.setScalar(s); o.position.y = -bb.min.y * s; o.rotation.y = F.yaw; o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } });
+  const w = new THREE.Group(); w.add(o); w.userData.noCol = true; return w;
+}
+// Geistermaterial, das die Textur (Gesicht, Kleidung) als Helligkeit durchscheinen lässt – statt eines einfarbigen Umrisses
+function figuren_ghostMat(src) {
+  const m = new THREE.MeshStandardMaterial({ map: src && src.map || null, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  m.onBeforeCompile = sh => { sh.uniforms.uGhost = FAB.ghostU || { value: 0 }; sh.fragmentShader = 'uniform float uGhost;\n' + sh.fragmentShader.replace('#include <dithering_fragment>',
+    '#include <dithering_fragment>\n float frG = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 2.2);\n float lum = dot(diffuseColor.rgb, vec3(.3, .59, .11));\n gl_FragColor = vec4((vec3(.55, .74, 1.) * (.1 + 1.5 * frG) + vec3(.82, .9, 1.) * lum * .95) * uGhost, 1.);'); };
+  m.customProgramCacheKey = () => 'figuren_ghost'; return m;
+}
+WORLD_MODS.push(['Figuren', async () => {
+  const boy = await figuren_load('kind_junge'), girl = await figuren_load('kind_maedchen'), adult = await figuren_load('erwachsener');
+  const kids = [boy, girl].filter(Boolean); if ((!kids.length && !adult) || !FAB.figs) return;
+  let n = 0;
+  for (const g of echoFigs) {
+    const F = FAB.figs.find(x => x.g === g); if (!F) continue;
+    const add = async (src, which) => { const w = await figuren_clone(src, 1.94); w.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(figuren_ghostMat); if (m.material.length === 1) m.material = m.material[0]; m.castShadow = false; } });
+      w.visible = false; g.add(w); const mx = new THREE.AnimationMixer(w.children[0]); const idle = src.clips.idle && mx.clipAction(src.clips.idle); if (idle) { idle.play(); mx.update(Math.random() * 3); idle.timeScale = .85 + Math.random() * .25; }
+      figuren_S.kids.push({ g, w, mx, which, orig: F }); };
+    if (kids.length) await add(kids[n++ % kids.length], 'kind');
+    if (adult) await add(adult, 'erw');
+  }
+}]);
+// Pro Bild: sichtbare Echo-Gestalt je nach Größe (Kind < 0,8) auf das passende echte Modell umschalten, Animation weiterlaufen lassen
+WORLD_TICK.push(dt => {
+  for (const K of figuren_S.kids) {
+    const kid = K.g.scale.x < .8, want = K.g.visible && (K.which === 'kind' ? kid : !kid); K.w.visible = want;
+    const other = K.g.children.find(c => c !== K.w && !figuren_S.kids.some(x => x.w === c) && c.isObject3D && c.type !== 'Mesh'); // das Mannequin
+    if (other && K.g.visible) other.visible = !figuren_S.kids.some(x => x.g === K.g && x.w.visible);
+    if (want) K.mx.update(dt);
+  }
+});
+// =====================================================================  ALBERS (Modul „albers“): Walter Albers, Nr. 3, in Kapitel 3
+// Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
+// Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
+// Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Walter Albers' Spinnereien“ hakt sie ab).
+// Unreal-Modell „alter_mann“ (unreal/Export_Figuren.bat): dann steht er sichtbar im Türspalt. Ohne Modell: nur Licht, Schatten und Stimme – keine Ersatzpuppe.
+const albers_S = { door: { x: -28, y: 1.45, z: -12.2 }, talked: new Set(), hissed: false, busy: false, fig: null, mx: null, act: {}, light: null, beam: null, t: 0, confirmed: new Set() };
+const ALBERS_CLAIMS = [
+  { id: 'laternen', text: '„Die Laternen zählen mit.“', ok: () => ch3.lampsOff },
+  { id: '1312', text: '„Der Blecheimer ist von 1312.“', ok: () => story.lore.some(l => l.key === 'c3chronik' || l.key === 'nord_suehnekreuz') },
+  { id: 'funk', text: '„Die senden auf einunddreißig-zehn.“', ok: () => ch3.radio },
+  { id: 'siebzehn', text: '„Alle siebzehn Jahre holt es Kinder.“', ok: () => story.lore.some(l => l.key === 'c3chronik' || l.key === 'c3buch') },
+  { id: 'augen', text: '„Du hast die falschen Augen, Junge.“', ok: () => story.photos.has(4) || ch3.room1 }];
+// Gespräche: Bedingung → höchstens drei Sätze (danach ist wieder der Spieler dran)
+const ALBERS_TALKS = [
+  { id: 't1', when: () => true, claim: 'laternen', lines: [
+    ['„Nicht so laut, Junge. Die hören mit.“', 3000], ['„Die Laternen. Hast du\'s gesehen? Die atmen. Die zählen mit Licht, seit fünfundsiebzig.“', 4600],
+    ['„Wenn du über die Kreuzung musst: Lampe aus. Frag nicht. Mach einfach.“', 3800]] },
+  { id: 't2', when: () => ch3.met, claim: '1312', lines: [
+    ['„Du hast ihn gesehen. Den Blecheimer. Ich riech\'s an dir – Rost und Schnee.“', 4200], ['„Der ist älter als die Kapelle. Dreizehnhundertzwölf. Steht alles in der Chronik, aber die liest ja keiner.“', 5000],
+    ['„Der Pfarrer hat gesagt, ich trink zu viel. Der Pfarrer ist neunzehnhundertzweiundneunzig in den Nebel gegangen.“', 5000]] },
+  { id: 't3', when: () => ch3.met && story.items.includes('buch'), claim: 'siebzehn', lines: [
+    ['„Hildes Buch. Die hat alles gezählt, die alte Krähe. Und keiner hat ihr geglaubt. Mir auch nicht.“', 4800], ['„Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Rechne nach, Junge. Siebzehn. Jedes Mal siebzehn.“', 5200],
+    ['„Und dieses Jahr ist wieder so eins.“', 3000]] },
+  { id: 't4', when: () => ch3.met && ch3.radio, claim: 'funk', lines: [
+    ['„Einunddreißig-zehn. Hab ich\'s nicht gesagt? Die senden. Die haben nie aufgehört.“', 4400], ['„Das Amt, Junge. Ebene minus zwei. Stühle mit Riemen. Ich hab fünfundsiebzig auf so einem gesessen.“', 5000],
+    ['„Du auch. Ich seh\'s dir an.“', 2800]] },
+  { id: 't5', when: () => ch3.lampsOff || (ch3.radio && story.items.includes('buch')), claim: 'augen', lines: [
+    ['„Wenn du da reingehst, ins Weiße: Zähl nicht mit. Egal, was sie dir vorsagt.“', 4400], ['„Ich hab euch zweitausendneun auf der Kreuzung gezählt. Sieben, hab ich gesagt. Gott sei Dank.“', 4800],
+    ['„Aber du, Junge … deine Augen waren blau. Damals waren sie blau.“', 4200]] }];
+function albers_claimCheck() {
+  const q = story.side.albers_spinn; if (!q) return;
+  for (const c of ALBERS_CLAIMS) if (albers_S.talked.has(c.id) && !albers_S.confirmed.has(c.id) && c.ok()) { albers_S.confirmed.add(c.id); questPop('ALBERS HATTE RECHT', c.text); Audio.chime(); }
+  q.desc = ALBERS_CLAIMS.filter(c => albers_S.talked.has(c.id)).map(c => (albers_S.confirmed.has(c.id) ? '✓ ' : '? ') + c.text).join('\n') || q.desc;
+  if (albers_S.confirmed.size === ALBERS_CLAIMS.length && q.state !== 'done') { sideDone('albers_spinn'); // STORY-HOOK: Albers glaubwürdig – er kann im Finale gebraucht werden
+    setTimeout(() => openNote('Walter Albers hatte recht', 'Die Laternen. Der Ritter von 1312. Die siebzehn Jahre. Die Sender. Deine Augen.\n\nAlles, worüber im Ort gelacht wurde, stimmt.\n\n<span class="hand">Das Schlimmste am Rechthaben, hat er gesagt, ist, dass es keiner hören will.</span>', 'albers_recht'), 1600); }
+}
+async function albers_talk() {
+  const S = albers_S; if (S.busy || state.talking) return;
+  const next = ALBERS_TALKS.find(T => !S.talked.has(T.claim) && T.when());
+  S.busy = true; state.talking = true; Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  if (next) {
+    await say(next.lines.map(([t, ms]) => [t, ms, 'WALTER ALBERS']));
+    S.talked.add(next.claim); story.lore.push({ key: 'albers_' + next.id, title: 'Albers an der Tür', html: next.lines.map(l => l[0]).join('\n') });
+    sideStart('albers_spinn'); albers_claimCheck();
+    if (!ALBERS_TALKS.some(T => !S.talked.has(T.claim) && T.when())) setTimeout(() => subtitle('Die Kette rasselt. Die Tür geht zu. Drinnen knurrt Bruno, bis die Schritte weg sind.', 4200), 600);
+  } else await say([[S.talked.size >= ALBERS_TALKS.length ? '„Ich hab gesagt, was ich weiß. Jetzt geh. Und mach die Lampe aus.“' : '„Geh weg. Komm wieder, wenn du was gesehen hast. Dann reden wir.“', 3800, 'WALTER ALBERS']]);
+  S.open = 0; Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); state.talking = false; S.busy = false;
+}
+WORLD_MODS.push(['Albers', async () => {
+  const S = albers_S, D = S.door;
+  story.side.albers_spinn = { title: 'Walter Albers\' Spinnereien', desc: 'Der alte Albers erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
+  S.light = new VLight(0xffb070, 0, 4, 2); S.light.position.set(D.x, 1.9, D.z + .25); scene.add(S.light);   // Lampenlicht aus dem Türspalt
+  S.beam = new VLight(0xffc890, 0, 5, 2); S.beam.position.set(D.x + .3, 1.2, D.z + 1.4); scene.add(S.beam);    // Taschenlampe, die dich anleuchtet
+  S.hit = box(1.1, 2.1, .3, D.x, 1.5, D.z + .15, hidden, { cast: false }); uninteract(S.hit);
+  interact(S.hit, () => ALBERS_TALKS.some(T => !albers_S.talked.has(T.claim) && T.when()) ? 'An Albers\' Tür klopfen' : 'Albers\' Tür', () => albers_talk()); uninteract(S.hit);
+  const F = await figuren_load('alter_mann');
+  if (F) { const w = await figuren_clone(F, 1.74); w.position.set(D.x + .2, .45, D.z + .45); // tritt einen Schritt auf die Veranda, die Tür hinter sich angelehnt w.visible = false; scene.add(w); S.fig = w;
+    S.mx = new THREE.AnimationMixer(w.children[0]); for (const k of ['idle', 'talk']) if (F.clips[k]) S.act[k] = S.mx.clipAction(F.clips[k]); if (S.act.idle) S.act.idle.play(); }
+}]);
+WORLD_TICK.push((dt, t) => {
+  const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } return; }
+  if (!S.on) { S.on = true; if (!interactables.includes(S.hit)) interactables.push(S.hit); for (const T of ALBERS_TALKS) if (story.lore.some(l => l.key === 'albers_' + T.id)) S.talked.add(T.claim); } // nach Laden: geführte Gespräche wiederherstellen
+  const P = player.pos, d = Math.hypot(P.x - S.door.x, P.z - S.door.z);
+  if (!S.hissed && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.hissed = true; subtitle('<i>„Psst! Junge! Hierher. Leise, verdammt!“</i> – aus dem Türspalt von Nr. 3.', 4200); Audio.whisper(S.door.x, 1.5, S.door.z, 1.2); Audio.bark(S.door.x - 1, S.door.z - 2, true); }
+  // Spalt auf/zu: Licht und Figur weich ein- und ausblenden, Taschenlampen-Zittern
+  S.t += ((S.open ? 1 : 0) - S.t) * Math.min(1, dt * 4); S.light.intensity = S.t * (.9 + Math.sin(t * 13) * .05); S.beam.intensity = S.t * (1.4 + Math.sin(t * 7.3) * .15 + Math.sin(t * 17) * .06);
+  if (S.fig) { S.fig.visible = S.t > .05; if (S.fig.visible) { const want = state.talking && S.act.talk ? S.act.talk : S.act.idle;
+      if (want && want !== S.cur) { want.reset().fadeIn(.3).play(); if (S.cur) S.cur.fadeOut(.3); S.cur = want; } S.mx.update(dt);
+      const a = Math.atan2(P.x - S.fig.position.x, P.z - S.fig.position.z); S.fig.rotation.y += Math.atan2(Math.sin(a - S.fig.rotation.y), Math.cos(a - S.fig.rotation.y)) * Math.min(1, dt * 3); } }
+  S.chk = (S.chk || 0) - dt; if (S.chk < 0) { S.chk = 1; if (S.talked.size) albers_claimCheck(); }
+});
+// =====================================================================  GEDANKEN (Modul „gedanken“): Kais Stimme
+// Kurze Selbstgespräche, die das Seltsame beim Namen nennen, hinterfragen und fühlen – damit Kai auf das Krasse reagiert und die Geschichte
+// verständlicher und persönlicher wird. Regeln gegen Nerven: jeder Gedanke nur einmal, nie während Dialogen/Notizen/anderen Untertiteln,
+// Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Kai über den nächsten Schritt nach (Hinweis ohne Textwand).
+const GEDANKEN = { gap: 9, stuck: 150, who: 'KAI' };
+const gedanken_S = { said: new Set(), q: [], cd: 6, obj: '', objT: 0, scares: 0, lastScare: 0, area: new Set(), battEmpty: false };
+function gedanke(id, text, delay = 0, prio = 1) {
+  const S = gedanken_S; if (S.said.has(id)) return; S.said.add(id);
+  S.q.push({ id, text, at: performance.now() + delay, until: performance.now() + delay + 25000, prio }); S.q.sort((a, b) => b.prio - a.prio || a.at - b.at);
+}
+const GEDANKEN_SCHRECK = ['Das war nicht der Wind. Oder? … Atmen, Kai. Einfach atmen.', 'Ich hab das gesehen. Ich weiß, dass ich das gesehen hab.',
+  'Lena hätte gelacht. „Großer, du bist ein Angsthase.“ … Wo bist du, Lena?', 'Ich sollte gehen. Ins Auto, weg. … Und dann? Wer sucht sie dann?',
+  'Reiß dich zusammen. Das ist ein Haus. Nur ein Haus.', 'Irgendwas will, dass ich Angst habe. Und es funktioniert.',
+  'Wenn ich gerade verrückt werde – merk ich das dann überhaupt?', 'Mein Herz. Hör auf. Hör einfach auf.'];
+const GEDANKEN_ECHO = {
+  echo_kreuzung: 'Sieben Kinder. Albers hat gezählt. Und ich … war ich dabei? Ich war doch einer von ihnen. Oder?',
+  echo_kueche: '„Fast wie Ben.“ Sie haben ihr einen Ersatz angeboten. Wie einen Hund aus dem Tierheim.',
+  echo_kinderzimmer: 'Er wusste nicht, wie unser Hund hieß. Flocke. Der Hund hieß Flocke. … Warum musste ich gerade nachdenken?',
+  echo_brand: 'Sie wollte zurück. Dahin, wo es warm war. Was ist da oben, dass ein Kind sein eigenes Haus anzündet?',
+  echo_archiv: '„Augenfarbe stimmt nicht.“ … Meine Augen sind braun. Waren sie immer braun?',
+  echo_messraum: 'Kinder, festgeschnallt, mit offenen Augen. Einer hatte meine Jacke an. Meine alte, blaue Jacke.',
+  echo_1975: 'Albers. Als Kind. An der Hand vom Mann in Eisen. Der alte Mann hat es die ganze Zeit gewusst.',
+  echo_mira: 'Sieben für Papa. Einen für sich, aus Papa gemacht. … Und welcher davon bin ich?' };
+// Erste Eindrücke an Orten: [id, x0, x1, z0, z1, Bedingung, Text]
+const GEDANKEN_ORTE = [
+  ['ort_friedhof', -75, -30, 66, 95, () => true, 'Kindergräber. Ich les die Namen nicht. Noch nicht.'],
+  ['ort_kapelle', -80, 60, 40, 66, () => true, 'Die Kapelle. Als Kind hab ich mich nie reingetraut. Jetzt weiß ich nicht mehr, warum.'],
+  ['ort_tankstelle', 97, 128, 4, 31, () => true, 'Tankstelle Kranz. Hier hab ich mit Lena Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?'],
+  ['ort_garten', -140, -90, 8, 45, () => true, 'Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen.'],
+  ['ort_hof', -150, -110, -45, -10, () => true, 'Der Hof. Mo hat hier gewohnt. Mo … wie sah Mo eigentlich aus?'],
+  ['ort_villa', -145, -105, 58, 90, () => true, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
+  ['ort_sperre', 138, 158, -20, 20, () => true, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.']];
+// Festhängen: Kai denkt laut über den nächsten Schritt nach (sanft, ohne Rätsellösung)
+const GEDANKEN_FADEN = [
+  [/Finde Haus Nr\. 7/, 'Nr. 7. Hilde Wendts Haus. Die Straße entlang … ich erkenne es, wenn ich davorstehe.'],
+  [/Weg in Haus Nr\. 7/, 'Lena hat Schlüssel immer irgendwo versteckt, wo man nicht sucht. Was hat sie mir vor der Tür hinterlassen?'],
+  [/Durchsuche Haus Nr\. 7/, 'Irgendwo hier muss es einen Hinweis geben. Zettel, Kalender, alles, was Hilde aufgeschrieben hat.'],
+  [/Kellertür/, 'Vier Ziffern. Welche Tasten sind abgegriffen? Und was hat Hilde in ihrem Kalender angestrichen?'],
+  [/Lena hinterlassen/, 'Lena war hier unten. Sie hat etwas für mich liegen lassen. Etwas zum Anhören.'],
+  [/Keller von Nr\. 7/, 'Die Wand mit den Zeichnungen. Mit bloßen Händen geht das nicht. Oben war doch eine Werkbank.'],
+  [/Gang hinter der Wand|Folge dem Tunnel/, 'Nur ein Weg. Also geh ihn, Kai.'],
+  [/Amt über die Kinder/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
+  [/Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
+  [/Birkenhain geschehen/, 'Irgendwer muss wach sein. Der alte Albers in Nr. 3 hat früher nie geschlafen.'],
+  [/./, 'Was hab ich übersehen? Im Tagebuch steht, was ich weiß. Tab.']];
+WORLD_MODS.push(['Gedanken', async () => {
+  const S = gedanken_S;
+  // Story-Ereignisse: die vorhandenen Funktionen bleiben, Kai reagiert danach (Aufruf per Name → Umhüllung greift überall)
+  const after = (orig, fn) => async function (...a) { const r = await orig.apply(this, a); try { fn(...a); } catch (e) {} return r; };
+  startOutage = after(startOutage, () => gedanke('stromausfall', 'Strom weg. Alles. Und dieses Brummen … das ist kein Trafo. Das kommt von oben.', 3500, 3));
+  { const o = startPhase2; startPhase2 = function (...a) { const r = o.apply(this, a); gedanke('wendt_strasse', 'Frau Wendt? Im Nachthemd, mitten auf der Straße. Sie steht da wie ein Kind, das auf jemanden wartet.', 5200, 3); return r; }; }
+  ending = after(ending, () => gedanke('wendt_weg', 'Sie ist weg. Einfach hochgezogen. Und ich hab nichts gemacht. Ich hab nur dagestanden und zugesehen.', 1500, 3));
+  cowDrop = after(cowDrop, () => gedanke('kuh', 'Eine Kuh. Vom Himmel. Ich sollte schreien. Warum bin ich so ruhig? … Warum fühlt sich das an, als hätte ich das schon mal gesehen?', 2500, 3));
+  justinArrives = after(justinArrives, () => gedanke('ritter', 'Ein Ritter. Ein echter. Er riecht nach Schnee. Ich müsste wegrennen – und will ihn fragen, ob er mich kennt.', 1500, 3));
+  broadcast = after(broadcast, () => gedanke('funk', 'Das war Lenas Stimme. Aus einem Funkgerät. Das geht nicht. Das. Geht. Nicht.', 1200, 3));
+  lampsOut = after(lampsOut, () => gedanke('laternen', 'Alle Laternen aus. Der alte Albers hatte recht. Und wenn er damit recht hatte …', 2000, 3));
+  enterWhite = after(enterWhite, () => gedanke('weiss', 'Weiß. Kein Oben, kein Unten. Und irgendwo zählt ein Kind.', 2500, 3));
+  enterCanal = after(enterCanal, () => gedanke('kanal', 'Eine Stadt unter Birkenhain. Das gehört nicht hierher. Oder ich gehöre nicht hierher.', 9000, 2));
+  enterBasement = after(enterBasement, () => gedanke('keller', 'Ein Keller, den Lena kannte und ich nicht. Wie viel von ihr kenne ich eigentlich?', 4500, 2));
+  spiderEvent = after(spiderEvent, () => gedanke('spinnen', 'Raus aus meinem Kopf. Das war nicht echt. … Es hat sich echt angefühlt.', 1500, 3));
+  caught = after(caught, () => gedanke('gefangen', 'Er hat mich nicht gebissen. Er hat mich festgehalten. Wie jemanden, den man lange vermisst hat.', 1500, 3));
+  playEcho = after(playEcho, E => { if (GEDANKEN_ECHO[E.id]) gedanke('echo_' + E.id, GEDANKEN_ECHO[E.id], 900, 3); });
+  CH2_BEGIN.push(() => gedanke('tuer', 'Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.', 7500, 3));
+  CH2_END.push(() => gedanke('lena_tank', 'Lena war da drin. „Weißt du es jetzt?“ – Was soll ich wissen? … Ich will es nicht wissen.', 14000, 3));
+}]);
+WORLD_TICK.push((dt, t) => {
+  const S = gedanken_S; if (!state.started || menu.attract) return; const now = performance.now(), P = player.pos;
+  // Schreckmomente (alle zählen scareCount hoch): danach eine eigene, kurze Reaktion
+  if (scareCount !== S.scares) { S.scares = scareCount; const i = S.said.size % GEDANKEN_SCHRECK.length, k = GEDANKEN_SCHRECK.findIndex((_, j) => !S.said.has('schreck_' + ((i + j) % GEDANKEN_SCHRECK.length)));
+    if (k >= 0) { const n = (i + k) % GEDANKEN_SCHRECK.length; gedanke('schreck_' + n, GEDANKEN_SCHRECK[n], 2600, 2); } }
+  // Orte
+  for (const [id, x0, x1, z0, z1, ok, text] of GEDANKEN_ORTE) if (!S.said.has(id) && P.x > x0 && P.x < x1 && P.z > z0 && P.z < z1 && !state.inBasement && ok()) gedanke(id, text, 800, 1);
+  if (story.items.includes('brechstange')) gedanke('brechstange', 'Kalk an der Spitze. Frisch. Jemand hat hier vor kurzem etwas aufgebrochen. Oder zugemauert.', 4600, 1);
+  if (story.items.includes('drahtschneider')) gedanke('drahtschneider', 'Kinderpflaster auf den Griffen. Wer lässt so was in einem Schuppen liegen? Für wen?', 4600, 1);
+  if (FLASH.charge <= 0 && flashOn) gedanke('akku_leer', 'Nein. Nein, nein, nein. Nicht jetzt. Nicht hier im Dunkeln.', 300, 3);
+  if (typeof albers_S !== 'undefined') { if (albers_S.talked.has('laternen')) gedanke('albers1', 'Ein alter Mann, der Stimmen in Laternen hört. … Aber sie haben wirklich geatmet.', 1500, 2);
+    if (albers_S.talked.has('augen')) gedanke('albers5', 'Blau. Meine Augen waren blau. Er irrt sich. Er muss sich irren.', 1500, 3); }
+  // Festhängen an einer Aufgabe
+  const obj = document.getElementById('objText').textContent; if (obj !== S.obj) { S.obj = obj; S.objT = 0; } else if (!state.talking && !ui.overlay) S.objT += dt;
+  if (S.objT > GEDANKEN.stuck) { S.objT = -GEDANKEN.stuck; const f = GEDANKEN_FADEN.find(([re]) => re.test(obj)); if (f) { const id = 'faden_' + obj.slice(0, 30); S.said.delete(id); gedanke(id, f[1], 0, 0); } }
+  // Ausgabe: nur wenn nichts anderes läuft
+  S.cd -= dt; if (S.cd > 0 || !S.q.length || state.talking || ui.overlay || state.ending) return;
+  if (+document.getElementById('subtitle').style.opacity > .05) return;
+  S.q = S.q.filter(x => x.until > now); const g = S.q.find(x => x.at <= now); if (!g) return; S.q.splice(S.q.indexOf(g), 1);
+  const ms = Math.max(3200, Math.min(6800, 1800 + g.text.length * 48)); subtitle('<i>' + g.text + '</i>', ms, GEDANKEN.who); S.cd = ms / 1000 + GEDANKEN.gap;
+});
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)

@@ -37,6 +37,14 @@ WORLD_MODS.push(['Ausrüstung', async () => {
     'Der Handscheinwerfer im Ladegerät ist voll geladen. Die Tankstelle hat seit Jahren keinen Strom.',
     'Das Ladegerät ist leer. Die grüne Lampe leuchtet trotzdem weiter.',
     () => { if (!ch3.on) { toast('Ein Feuerwehr-Handscheinwerfer steckt in einem Ladegerät. Der Akku ist tot. Die Ladelampe ist aus.', 4200); return false; } flashUpgrade(2); }, spot3); // STORY-HOOK: wer lädt ihn?
+  // --- Kapitel 2: Keramiksicherung im Archiv (Aktenschrank); ohne sie hat der Sicherungskasten einen leeren Steckplatz
+  ausruestung_spot('c2_sicherung', [.9, .5, .3], [C2.x + 28, 1.05, C2.z - 5.2], 'Aktenschrank',
+    'Zwischen den Hängeregistern, mit Klebeband umwickelt: eine alte Keramiksicherung. Auf dem Band, in Kinderschrift: „RAUM 7“.',
+    'Hängeregister, alphabetisch. Bei „B“ fehlt ein Name. Nur der Reiter ist noch da.', () => addItem('sicherung'));
+  { const orig = fuseOpenPanel; fuseOpenPanel = function (...a) {
+      if (!ch2.power && !S.fuseIn) { if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts.', 5200);
+        S.fuseIn = true; story.items = story.items.filter(k => k !== 'sicherung'); Audio.play('switch1', { gain: .6, x: C2.x + 33, y: 1.5, z: C2.z + 7.8, ref: 2 }); toast('Du drehst die Sicherung ein. Irgendwo im Beton tickt ein Relais.', 3400); }
+      return orig.apply(this, a); }; }
   // --- Villa-Gelände (hinter dem Tor, erst mit Drahtschneider): Kerzenkreis auf dem Kiesweg
   try {
     const cs = await msFBX('candles', 'model.fbx', { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', r: 'Extra_for_candles_Roughness.jpg' } });

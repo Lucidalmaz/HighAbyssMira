@@ -13,7 +13,7 @@ const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
 const GEHEIM_WORDS = ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben'];
 const GEHEIM_WRECKS = [
   [-4.6, 4.2, 'Verbogenes Blech, verrußt und eiskalt. Darin eingedrückt: zwei Kinderhände. Von innen.'],
-  [-4.5, 36, 'Kein Flugzeugteil. Die Nieten sind von Hand geschmiedet.'],
+  [-7.2, 37, 'Kein Flugzeugteil. Die Nieten sind von Hand geschmiedet.'],
   [128, -36, 'Unter dem Rost ein Stempel: ein Turm über einem Abgrund.'],
   [-145, 6, 'Das Blech ist gewölbt wie ein Brustpanzer. Zu klein für einen Mann. Genau richtig für ein Kind.'],
   [50, 88, 'Das letzte Stück passt an die anderen, als hätte es darauf gewartet.']];
