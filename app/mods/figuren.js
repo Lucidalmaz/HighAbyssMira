@@ -1,6 +1,6 @@
 // =====================================================================  FIGUREN (Modul „figuren“): echte Unreal-Figuren statt der Mannequin-Puppe
 // Quelle: unreal/Export_Figuren.bat → game/assets/ue/chars/<rolle>/manifest.json  { "mesh": "0_mesh.glb", "anims": { "idle": "1_Idle.glb", "walk": …, "talk": … }, "yaw": 0 }
-// Rollen: kind_junge, kind_maedchen (Echo-Kinder), erwachsener (Echo-Erwachsene), alter_mann (Walter Albers).
+// Rollen: kind_junge, kind_maedchen (Echo-Kinder), erwachsener (Echo-Erwachsene), alter_mann (Lars Vegas).
 // Fehlt eine Rolle, bleibt das bisherige Modell – das Spiel läuft unverändert.
 const figuren_S = { cache: new Map(), sk: null, kids: [] };
 async function figuren_load(role) {

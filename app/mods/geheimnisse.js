@@ -8,7 +8,7 @@
 const geheimnisse_S = { ready: false, stones: [], wrecks: [], totems: [], litHint: false, t: 0 };
 const geheimnisse_has = k => story.lore.some(l => l.key === k);
 const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
-  [-12.2, -9.4, 'Wo Jana verbrannte.'], [3.4, -39.6, 'Wo Lena gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
+  [-12.2, -9.4, 'Wo Roxy verbrannte.'], [3.4, -39.6, 'Wo Lucy gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
   [126.5, 12.5, 'Wo es nach Benzin riecht.'], [-115.5, 21.5, 'Wo Hilde gegärtnert hat.'], [-128.5, -29.5, 'Wo die Pferde fehlen.']];
 const GEHEIM_WORDS = ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben'];
 const GEHEIM_WRECKS = [
@@ -38,7 +38,7 @@ WORLD_MODS.push(['Geheimnisse', async () => {
   const S = geheimnisse_S, V = THREE.Vector3;
   story.side.geh_steine = { title: 'Die sieben Zähler', desc: 'Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.', state: 'hidden' };
   story.side.geh_wrack = { title: 'Blech vom Himmel', desc: 'Verbogene Metallteile, dort wo das Licht war.', state: 'hidden' };
-  story.side.geh_totem = { title: 'Die Zählgestelle', desc: 'Jemand hat an den Rändern von Birkenhain etwas aufgestellt.', state: 'hidden' };
+  story.side.geh_totem = { title: 'Die Zählgestelle', desc: 'Jemand hat an den Rändern von Lost Eyengless etwas aufgestellt.', state: 'hidden' };
   // --- Lichtsteine
   try {
     const rock = await msModel('../boulder', 'model.gltf'), hTex = msTex('../boulder/T_wfstcdnaw_1K_H.jpg', false);
@@ -98,7 +98,7 @@ function geheimnisse_wreck(i, text, key) {
   story.lore.push({ key, title: 'Blech vom Himmel · ' + (i + 1), html: text }); sideStart('geh_wrack'); Audio.play('metalSheet', { gain: .35, rate: .8 });
   const n = geheimnisse_S.wrecks.filter(x => geheimnisse_has(x.key)).length; story.side.geh_wrack.desc = `Metallteile: ${n} / 5.`; toast(text, 5200);
   if (n === 5) setTimeout(() => { sideDone('geh_wrack', 'Alle fünf Teile gefunden.'); // STORY-HOOK: Fallwand-Frage „Was ist das Ding am Himmel?“ – bewusst offen
-    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da über Birkenhain schwebt, hat jemand aus Eisen gebaut, das sein Kind tragen sollte. Oder es sich so erträumt.</span>', 'geh_wappen'); }, 5400);
+    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da über Lost Eyengless schwebt, hat jemand aus Eisen gebaut, das sein Kind tragen sollte. Oder es sich so erträumt.</span>', 'geh_wappen'); }, 5400);
 }
 function geheimnisse_totem(i, key) {
   const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];

@@ -92,7 +92,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
       else if (seed % 3 === 1) { x.strokeStyle = '#101010'; x.beginPath(); x.ellipse(128, 110, 80, 22, 0, 0, 7); x.stroke(); x.strokeStyle = '#e8e8f0'; x.lineWidth = 14; for (let i = 0; i < 5; i++) { x.beginPath(); x.moveTo(90 + i * 18, 130); x.lineTo(70 + i * 28, 320); x.stroke(); } x.lineWidth = 4; x.strokeStyle = '#2040c0'; x.beginPath(); x.arc(128, 300, 10, 0, 7); x.stroke(); x.fillStyle = '#c02020'; x.font = '28px Caveat'; x.fillText('DAS LICHT', 60, 40); }
       else { x.strokeStyle = '#404040'; x.lineWidth = 6; x.beginPath(); x.moveTo(90, 120); x.lineTo(90, 300); x.moveTo(60, 170); x.lineTo(120, 170); x.moveTo(90, 300); x.lineTo(70, 340); x.moveTo(90, 300); x.lineTo(110, 340); x.stroke(); x.beginPath(); x.arc(90, 100, 22, 0, 7); x.stroke(); x.lineWidth = 3; x.strokeStyle = '#2040c0'; x.beginPath(); x.arc(170, 240, 10, 0, 7); x.moveTo(170, 250); x.lineTo(170, 290); x.moveTo(170, 262); x.lineTo(125, 175); x.stroke(); x.fillStyle = '#101010'; x.font = '26px Caveat'; x.fillText('der eiserne Mann', 40, 40); }
       return c; }
-    x.fillStyle = '#222'; x.font = 'bold 13px Courier New'; x.fillText('AMT FÜR RÜCKFÜHRUNG', 18, 30); x.font = '10px Courier New'; x.fillText('Außenstelle Birkenhain · Ebene −2', 18, 44); x.fillRect(18, 50, 220, 1.5);
+    x.fillStyle = '#222'; x.font = 'bold 13px Courier New'; x.fillText('AMT FÜR RÜCKFÜHRUNG', 18, 30); x.font = '10px Courier New'; x.fillText('Außenstelle Lost Eyengless · Ebene −2', 18, 44); x.fillRect(18, 50, 220, 1.5);
     x.fillText(['Az. R-2009/0' + (seed % 8 + 1), 'Protokoll · Zyklus 17', 'Formblatt 8 · Rückführung', 'Laufzettel'][seed % 4], 18, 66);
     if (seed % 4 === 0) { x.fillStyle = '#2a2622'; x.fillRect(176, 60, 58, 72); x.fillStyle = '#4a443c'; x.beginPath(); x.arc(205, 88, 13, 0, 7); x.fill(); x.fillRect(190, 104, 30, 28); }
     for (let i = 0; i < 17; i++) { const y = 84 + i * 14; if (r(0, 1) < .15) continue; x.fillStyle = `rgba(30,30,30,${r(.55, .85)})`; x.fillRect(18, y, r(60, seed % 4 === 0 ? 150 : 215), 5); }
@@ -140,8 +140,8 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     find((o, c) => o.material && o.material.color && o.material.color.getHex() === 0x0c0f10 && near(c, XA + 7, .02, ZA + .4, .2)).forEach(hide);
     flat(puddleMat, XA + 7, ZA + .3, 3.2, 2.2, .4, .02); flat(puddleMat, XA + 11.5, ZA - .6, 1.8, 1.2, 2.2, .02); flat(puddleMat, XA + 15.6, ZA + 1.1, 1.3, 1, 1, .02);
     for (let x = XA + 1.5; x < XA + 17; x += R(2.2, 3.4)) { onWall(damp, x, .22, zS + .01, R(1.8, 2.8), R(.45, .6), 0, R(-.05, .05)); onWall(damp, x + 1.2, .2, zN - .01, R(1.6, 2.6), R(.4, .55), Math.PI, R(-.05, .05)); }
-    // Die Tür, durch die Kai gekommen ist (Westwand) – echte Tür, Kinderzeichnungen drumherum
-    { // einzeln statt als Instanz, damit sie sich bewegen kann: sie steht offen, wenn Kai aus dem Gang kommt, und fällt dann zu (Modul uebergang)
+    // Die Tür, durch die Luke gekommen ist (Westwand) – echte Tür, Kinderzeichnungen drumherum
+    { // einzeln statt als Instanz, damit sie sich bewegen kann: sie steht offen, wenn Luke aus dem Gang kommt, und fällt dann zu (Modul uebergang)
       const dm = put(kDoor, 0, ZA, { ry: Math.PI / 2, minX: XA + .155 }); kDoor.list.pop();
       const dg = new THREE.Group(); for (const p of kDoor.parts) { const mm = new THREE.Mesh(p.geo, p.mat); mm.castShadow = mm.receiveShadow = true; dg.add(mm); }
       dg.applyMatrix4(dm); scene.add(dg); innen_kapitel_S.westDoor = dg; }
@@ -354,7 +354,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     put(kChairW, XW + 14.2, ZW - 3.6, { ry: 2.23 });
     put(kFrameW, 0, ZW + 3.4, { ry: -Math.PI / 2, y: 1.3, maxX: XW + 19.845 });
     const fam = plane(.53, .77, XW + 19.845 - .02, 1.3 + .45, ZW + 3.4, photoMat('white'), 0, -Math.PI / 2);
-    interact(fam, 'Familienfoto', note('Familienfoto', 'Mama, Lena, ein Junge mit Sommersprossen. Sommer 2008.\n\nDas Gesicht des Jungen ist hell geworden, als stünde er zu nah am Blitz. Je länger du hinsiehst, desto weniger ist davon übrig.', 'familienfoto'));
+    interact(fam, 'Familienfoto', note('Familienfoto', 'Mama, Lucy, ein Junge mit Sommersprossen. Sommer 2008.\n\nDas Gesicht des Jungen ist hell geworden, als stünde er zu nah am Blitz. Je länger du hinsiehst, desto weniger ist davon übrig.', 'familienfoto'));
     put(kLampW, XW + 19.4, ZW - 5.35, { ry: .4 });
     flat(kidMats[0], XW + 13.8, ZW - 1.5, .26, .36, .4, .012); flat(kidMats[2], XW + 14.3, ZW - 1.2, .26, .36, -.7, .012);
 
@@ -372,7 +372,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     put(kLampW, XW + 21.2, ZW + 5.2, { ry: 1 }); put(kCanW, XW + 28.8, ZW + 5.4, { ry: .5 });
     put(kFrameW, XW + 22.9, 0, { ry: Math.PI, y: 1.3, maxZ: ZW + 5.845 });
     const ben = plane(.53, .77, XW + 22.9, 1.3 + .45, ZW + 5.845 - .02, photoMat('white'), 0, Math.PI);
-    interact(ben, 'Foto von Ben', note('Ben, 10', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Ben, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
+    interact(ben, 'Foto von Zayn', note('Zayn, 10', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Zayn, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
     flat(whiteGrime, XW + 26, ZW + 3.6, 3.2, 2.6, .2, .012);
 
     // Der Hohe Abgrund: acht weiße Stühle, alte Blutspur von der Tür bis zum Rand des Lichts, Zeichnungen

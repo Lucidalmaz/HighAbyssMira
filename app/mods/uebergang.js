@@ -1,5 +1,5 @@
 // =====================================================================  ÜBERGANG (Modul „uebergang“): Kapitel 1 → 2 ohne Schnitt
-// Hinter der Zeichnungswand im Keller von Nr. 7 (Südwand z = 296) liegt ein Versorgungsgang. Mit der Brechstange bricht Kai die Wand auf
+// Hinter der Zeichnungswand im Keller von Nr. 7 (Südwand z = 296) liegt ein Versorgungsgang. Mit der Brechstange bricht Luke die Wand auf
 // und läuft hinunter ins Amt. Technik: zwei baugleiche Gangstücke K1 (am Keller) und K2 (am Amtstunnel, Westtür bei x = 600).
 // In der Mitte des geraden Stücks wird der Spieler unbemerkt von K1 nach K2 versetzt (und zurück, falls er umkehrt): Knicke an beiden
 // Enden verhindern, dass man weiter als bis zum baugleichen Teil sieht. Betritt er den Amtstunnel, beginnt Kapitel 2 und die Stahltür
@@ -81,7 +81,7 @@ WORLD_TICK.push((dt, t) => {
 });
 
 // =====================================================================  Kapitel 2 → 3: Wartungsschacht aus dem Tankraum bis unter den Gully an der Kreuzung
-// Nach dem Finale öffnet sich eine Luke in der Tankraum-Decke, eine Leiter fällt herab. Kai klettert; in der Mitte des gleichförmigen Schachts wird er
+// Nach dem Finale öffnet sich eine Luke in der Tankraum-Decke, eine Leiter fällt herab. Luke klettert; in der Mitte des gleichförmigen Schachts wird er
 // unbemerkt in den baugleichen Schacht unter der Kreuzung versetzt (Kapitel 3 beginnt), oben stemmt er den Gullydeckel auf und steigt auf die Straße.
 const uebergang3_S = { SH: { x: 716.5, z: -2598.5 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: 1.1, open: false, lampTaken: false };
 function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
@@ -147,7 +147,7 @@ function uebergang3_climb(takeLamp, ladHit) {
     }
     if (phase === 'lid') { hold += dt; if (hold > .7) { phase = 'out'; S.town.cap.visible = false; msHide(S.town.cap); for (const m of S.lid) tween(m, { pos: m.position.clone().add(new THREE.Vector3(.95, 0, .2)) }, .6); Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03; } return true; }
     if (phase === 'out') { P.y = Math.min(0, P.y + S.speed * 1.2 * dt); if (P.y >= 0) { side += dt; P.x = T.x + Math.min(1, side / .5) * 1.0; if (side >= .5) {
-          questPop('KAPITEL 3', 'Das Licht'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Birkenhain. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
+          questPop('KAPITEL 3', 'Das Licht'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Lost Eyengless. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
     return false;
   });
 }

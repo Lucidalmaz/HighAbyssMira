@@ -28,7 +28,7 @@ WORLD_MODS.push(['Ausrüstung', async () => {
     'Lappen, Drahtrollen, ein Zollstock, bei 1,31 m abgebrochen.', () => { addItem('brechstange'); addBattery(1); }, crow);
   // --- Tankstelle Kranz (Ost): Tresen-Schublade, Regal links, Ladegerät mit Handscheinwerfer (Kap. 3) im Regal rechts
   ausruestung_spot('tank_tresen', [.9, .35, .5], [109.4, 1.0, 25.6], 'Schublade unter dem Tresen',
-    'Quittungsblöcke, Kaugummis von 2009, ein Päckchen Batterien. Zwei sind noch gut.', 'Quittungsblöcke. Auf dem obersten: „Kai – 31.10. – offen“.', () => addBattery(2));
+    'Quittungsblöcke, Kaugummis von 2009, ein Päckchen Batterien. Zwei sind noch gut.', 'Quittungsblöcke. Auf dem obersten: „Luke – 31.10. – offen“.', () => addBattery(2));
   ausruestung_spot('tank_regal', [1.1, 1.6, .5], [108, 1.0, 30.0], 'Regal',
     'Motoröl, Scheibenfrost, eine Blisterpackung Batterien hinter den Dosen.', 'Motoröl, Scheibenfrost. Eine Dose ist innen voller Milchzähne.', () => addBattery(1));
   const spot3 = await ausruestung_ue('lampe3', .42); if (spot3) { spot3.position.set(116.3, 1.02, 30.15); spot3.rotation.y = PI; scene.add(spot3); }

@@ -226,12 +226,12 @@ async function ausbau_nord_build() {
     inst(gp, G, {});
     // Friedhofstafel am Tor (Rahmen eines Scan-Schilds, Aushang als Papier darauf)
     const note = ausbau_nord_paper(.58, .44, (x, w, h) => { x.fillStyle = '#d9d1bd'; x.fillRect(0, 0, w, h); x.fillStyle = '#1d1d1d'; x.textAlign = 'center';
-      x.font = 'bold 34px Georgia'; x.fillText('FRIEDHOF', w / 2, 46); x.font = '20px Georgia'; x.fillText('BIRKENHAIN · AM KIRCHBERG', w / 2, 74);
+      x.font = 'bold 34px Georgia'; x.fillText('FRIEDHOF', w / 2, 46); x.font = '20px Georgia'; x.fillText('LOST EYENGLESS · AM KIRCHBERG', w / 2, 74);
       x.fillRect(40, 88, w - 80, 2); x.font = '18px Georgia'; x.textAlign = 'left'; ['Das Tor wird bei Einbruch der', 'Dunkelheit geschlossen.', '', 'Gedenkfeld „Sommer 2009“', 'rechts, bei der Madonna.'].forEach((l, i) => x.fillText(l, 44, 118 + i * 24));
-      ausbau_nord_hand(x, 'Ben Jana Lena Tim Mo Sophie Kai', 44, h - 26, 24, '#27305a'); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(60,50,30,${R() * .12})`; x.fillRect(R() * w, R() * h, 2, 2); } });
+      ausbau_nord_hand(x, 'Zayn Roxy Lucy Mike Dina Heidi Luke', 44, h - 26, 24, '#27305a'); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(60,50,30,${R() * .12})`; x.fillRect(R() * w, R() * h, 2, 2); } });
     ausbau_nord_board(psignP, -48.9, 66.35, PI, note);
     const hit = box(.8, .7, .25, -48.9, 1.5, 66.35, hidden, { cast: false });
-    interact(hit, 'Aushang lesen', () => openNote('Friedhof Birkenhain · Aushang', '<b>FRIEDHOFSORDNUNG</b>\nDas Tor wird bei Einbruch der Dunkelheit geschlossen.\nGrablichter bitte nicht unbeaufsichtigt brennen lassen.\n\n<b>GEDENKFELD „SOMMER 2009“</b>\nRechts hinter dem Tor, bei der Madonna.\nDie Gemeinde gedenkt ihrer Kinder.\n\nDarunter, mit Kugelschreiber, sieben Namen. Jemand hat sie so oft nachgezogen, dass das Papier durchgerieben ist:\n<span class="hand">Ben · Jana · Lena · Tim · Mo · Sophie · Kai</span>\n\n<i>Die Kinder kamen zurück. Das weiß jeder im Ort. Warum also ein Gedenkfeld?</i>', 'nord_aushang', () => ausbau_nord_quest('names'))); // STORY-HOOK: Gedenkfeld für Kinder, die zurückkamen
+    interact(hit, 'Aushang lesen', () => openNote('Friedhof Lost Eyengless · Aushang', '<b>FRIEDHOFSORDNUNG</b>\nDas Tor wird bei Einbruch der Dunkelheit geschlossen.\nGrablichter bitte nicht unbeaufsichtigt brennen lassen.\n\n<b>GEDENKFELD „SOMMER 2009“</b>\nRechts hinter dem Tor, bei der Madonna.\nDie Gemeinde gedenkt ihrer Kinder.\n\nDarunter, mit Kugelschreiber, sieben Namen. Jemand hat sie so oft nachgezogen, dass das Papier durchgerieben ist:\n<span class="hand">Zayn · Roxy · Lucy · Mike · Dina · Heidi · Luke</span>\n\n<i>Die Kinder kamen zurück. Das weiß jeder im Ort. Warum also ein Gedenkfeld?</i>', 'nord_aushang', () => ausbau_nord_quest('names'))); // STORY-HOOK: Gedenkfeld für Kinder, die zurückkamen
     blocked.push([-73.5, -31.5, 66.3, 67.6], [-73.6, -72.4, 66.3, 94.6], [-73.5, -31.5, 93.4, 94.6], [-32.6, -31.4, 66.3, 94.6]);
   }
 
@@ -263,10 +263,10 @@ async function ausbau_nord_build() {
   };
   // Besondere Gräber (Positionen fest, Texte weiter unten)
   const SPECIAL = [
-    { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Albers-Brief)
+    { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Vegas-Brief)
     { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof. Wind und Regen haben die Schrift fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA …“</b>\nund eine Jahreszahl, die mit <b>13</b> beginnt.\n\nJemand hat frische Kreide in die Buchstaben gerieben. Die Fingerabdrücke daneben sind klein. Kinderhände.' }, // STORY-HOOK: Mira, 1312
     { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1975\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
-    { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LENA</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Kais Mutter, Lena
+    { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LUCY</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Lukes Mutter, Lucy
   ];
   for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
     const hit = box(1, 1.3, .8, S.x, .7, S.z - .2, hidden, { cast: false });
@@ -290,13 +290,13 @@ async function ausbau_nord_build() {
 
   // ---- Das Gedenkfeld: sieben Kindergräber, eines offen (Aufgabe „Sieben Namen“ und „Ein Licht für jeden“)
   const KIDS = [
-    { n: 'Ben', t: '<b>BEN WENDT</b>\n† 28. Juli 2009\n\nDer Einzige, der offiziell nie zurückkam. Auf dem Grab liegen frische Astern.\nIns Moos am Sockel sind Striche gekratzt. Reihe um Reihe. Gezählt.' },          // STORY-HOOK: Hilde zählt
-    { n: 'Jana', t: '<b>JANA</b>\n† 28. Juli 2009\n\nJana kam zurück. Das weiß jeder im Ort. Trotzdem steht ihr Name hier – und das Moos über den Buchstaben ist siebzehn Jahre alt.' },
-    { n: 'Lena', t: '<b>LENA</b>\n† 28. Juli 2009\n\nDeine Schwester.\nDer Stein ist alt, aber jemand hat ihn sauber gewischt. Erst vor Kurzem – im Moos sind noch die Spuren von Fingern.' }, // STORY-HOOK: Lena
-    { n: 'Tim', t: '<b>TIM</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2021</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
-    { n: 'Mo', t: '<b>MO</b>\n† 28. Juli 2009\n\nUm den Namen hat jemand mit Kreide Kreise gemalt. Viele. Einen in den anderen, immer kleiner, bis nur noch ein Punkt übrig ist.' },
-    { n: 'Sophie', t: '<b>SOPHIE</b>\n† 28. Juli 2009\n\nAn den Stein gelehnt: eine Postkarte ohne Absender, aufgeweicht vom Regen.\n<span class="hand">„Sind sie wieder da?“</span>' },
-    { n: 'Kai', open: true, t: '<b>KAI</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.' }, // STORY-HOOK: das leere Grab – Kai / der Ersatz
+    { n: 'Zayn', t: '<b>ZAYN WENDT</b>\n† 28. Juli 2009\n\nDer Einzige, der offiziell nie zurückkam. Auf dem Grab liegen frische Astern.\nIns Moos am Sockel sind Striche gekratzt. Reihe um Reihe. Gezählt.' },          // STORY-HOOK: Hilde zählt
+    { n: 'Roxy', t: '<b>ROXY</b>\n† 28. Juli 2009\n\nJana kam zurück. Das weiß jeder im Ort. Trotzdem steht ihr Name hier – und das Moos über den Buchstaben ist siebzehn Jahre alt.' },
+    { n: 'Lucy', t: '<b>LUCY</b>\n† 28. Juli 2009\n\nDeine Schwester.\nDer Stein ist alt, aber jemand hat ihn sauber gewischt. Erst vor Kurzem – im Moos sind noch die Spuren von Fingern.' }, // STORY-HOOK: Lucy
+    { n: 'Mike', t: '<b>MIKE</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2021</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
+    { n: 'Dina', t: '<b>DINA</b>\n† 28. Juli 2009\n\nUm den Namen hat jemand mit Kreide Kreise gemalt. Viele. Einen in den anderen, immer kleiner, bis nur noch ein Punkt übrig ist.' },
+    { n: 'Heidi', t: '<b>HEIDI</b>\n† 28. Juli 2009\n\nAn den Stein gelehnt: eine Postkarte ohne Absender, aufgeweicht vom Regen.\n<span class="hand">„Sind sie wieder da?“</span>' },
+    { n: 'Luke', open: true, t: '<b>LUKE</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.' }, // STORY-HOOK: das leere Grab – Luke / der Ersatz
   ];
   {
     const tk = [];
@@ -315,7 +315,7 @@ async function ausbau_nord_build() {
       interact(K.hit, 'Grabstein lesen', () => ausbau_nord_readKid(i));
       blocked.push([x - .6, x + .6, z - 1.7, z + .4]);
     });
-    // neuer, heller Stein für Kai
+    // neuer, heller Stein für Luke
     const kidP = tombP.map(p => ({ geo: p.geo, mat: p.mat })), kaiMat = tombP.map(p => { const m = p.mat.clone(); m.color = new THREE.Color(0xd8d4cc); return { geo: p.geo, mat: m }; });
     inst(kidP, tk.slice(0, 6), {}); inst(kaiMat, [tk[6]], {});
     N.kids = KIDS;
@@ -425,11 +425,11 @@ async function ausbau_nord_build() {
     const hop = ausbau_nord_paper(1.3, 3.2, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(235,228,205,.85)'; x.lineWidth = 7; x.lineCap = 'round'; x.fillStyle = 'rgba(235,228,205,.85)'; x.textAlign = 'center'; x.font = 'bold 60px Georgia';
       const s = w / 2, rows = [[1], [2], [3], [4, 5], [6], [7, 8]]; let yy = h - 20;
       rows.forEach(rw => { const bw = rw.length === 1 ? s : s; const y0 = yy - s * .9; rw.forEach((n, j) => { const x0 = rw.length === 1 ? w / 2 - s / 2 : j * s; x.strokeRect(x0 + 6, y0, bw - 12, s * .9 - 6); x.fillText(n, x0 + bw / 2, y0 + s * .6); }); yy = y0; });
-      x.font = '34px Caveat, cursive'; x.fillStyle = 'rgba(160,30,30,.9)'; x.fillText('KAI', w * .75, 118);
+      x.font = '34px Caveat, cursive'; x.fillStyle = 'rgba(160,30,30,.9)'; x.fillText('LUKE', w * .75, 118);
       x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${R() * .5})`; x.beginPath(); x.arc(R() * w, R() * h * .8 + h * .2, R() * 10 + 2, 0, 7); x.fill(); } }, 256);
     hop.material.depthWrite = false; hop.rotation.x = -PI / 2; hop.position.set(-7.1, .032, 20.5); hop.rotation.z = PI; scene.add(hop);
     const hh = box(1.3, .15, 3.2, -7.1, .05, 20.5, hidden, { cast: false });
-    interact(hh, 'Kreidezeichnung', () => openNote('Himmel und Hölle', 'Ein Hüpfspiel, mit Kreide aufs Pflaster gemalt. Der Regen hat fast alles weggewaschen.\n\nNur die Acht nicht. Die Acht ist frisch nachgezogen.\nUnd in der Acht, klein, in einer Kinderschrift, die du kennst:\n<span class="hand" style="color:#8a1010">KAI</span>', 'nord_hupfspiel')); // STORY-HOOK: die Acht
+    interact(hh, 'Kreidezeichnung', () => openNote('Himmel und Hölle', 'Ein Hüpfspiel, mit Kreide aufs Pflaster gemalt. Der Regen hat fast alles weggewaschen.\n\nNur die Acht nicht. Die Acht ist frisch nachgezogen.\nUnd in der Acht, klein, in einer Kinderschrift, die du kennst:\n<span class="hand" style="color:#8a1010">LUKE</span>', 'nord_hupfspiel')); // STORY-HOOK: die Acht
     // Kreidepfeile den Weg hinauf (wie die Pfeile im Ort)
     for (const [x, z, ry] of [[-6.4, 12, -PI / 2], [-7.6, 29, -PI / 2 - .2], [-6.8, 43.5, -PI / 2 + .15], [-12.5, 58.5, PI], [-30, 58.2, PI], [-50.5, 62.2, PI + .75]]) chalkArrow(x, z, ry, .035);
   }
@@ -448,12 +448,12 @@ async function ausbau_nord_build() {
       ausbau_nord_hand(x, '03:13 nur für Kinder', 60, h - 60, 40, '#101a50'); x.strokeStyle = '#101a50'; x.lineWidth = 3; for (let k = 0; k < 3; k++) { x.beginPath(); x.moveTo(60, h - 48 + k * 6); x.lineTo(330, h - 50 + k * 6); x.stroke(); } }, 360);
     tt.position.set(8.4, 1.55, 51.98); scene.add(tt);
     const th = box(.6, .8, .3, 8.4, 1.55, 52.1, hidden, { cast: false });
-    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Birkenhain Kirchberg → Kreisstadt\n\nMo–Fr 6:12 · 7:12 · 13:40 · 16:55\nSa 8:12\nSo und feiertags kein Verkehr\n\n<i>Gültig ab 1. Juni 2009. Die Linie wurde im August 2009 eingestellt.</i>\n\nUnten, mit Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan'); }); // STORY-HOOK: Linie 7, 03:13
+    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Lost Eyengless Kirchberg → Kreisstadt\n\nMo–Fr 6:12 · 7:12 · 13:40 · 16:55\nSa 8:12\nSo und feiertags kein Verkehr\n\n<i>Gültig ab 1. Juni 2009. Die Linie wurde im August 2009 eingestellt.</i>\n\nUnten, mit Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan'); }); // STORY-HOOK: Linie 7, 03:13
     // Fahrkarte auf der Sitzbank
     const tk = ausbau_nord_paper(.075, .05, (x, w, h) => { x.fillStyle = '#eee6c8'; x.fillRect(0, 0, w, h); x.fillStyle = '#b8201c'; x.fillRect(0, 0, w, 26); x.fillStyle = '#222'; x.font = 'bold 20px Arial'; x.fillText('KIND · EINFACH', 14, 60); x.font = '18px Arial'; x.fillText('28.07.2009  03:13', 14, 92); x.fillText('Kirchberg → ——', 14, 122); }, 256);
     tk.rotation.set(-PI / 2, 0, .4); tk.position.set(11.3, .468, 52.35); scene.add(tk); N.ticketMesh = tk;
     const kh = box(.3, .15, .3, 11.3, .47, 52.35, hidden, { cast: false });
-    interact(kh, 'Fahrkarte', () => openNote('Eine Fahrkarte', 'Kinderfahrkarte, einfache Fahrt.\n\n<b>28.07.2009 · 03:13</b>\nvon: Birkenhain Kirchberg\nnach: ——\n\nDas Zielfeld ist leer. Nicht verwaschen. Nie bedruckt.\nDie Karte ist trocken. Alles andere hier ist nass.', 'nord_fahrkarte')); // STORY-HOOK: die Nacht vom 28. Juli
+    interact(kh, 'Fahrkarte', () => openNote('Eine Fahrkarte', 'Kinderfahrkarte, einfache Fahrt.\n\n<b>28.07.2009 · 03:13</b>\nvon: Lost Eyengless Kirchberg\nnach: ——\n\nDas Zielfeld ist leer. Nicht verwaschen. Nie bedruckt.\nDie Karte ist trocken. Alles andere hier ist nass.', 'nord_fahrkarte')); // STORY-HOOK: die Nacht vom 28. Juli
     // Haltestellenschild „H“ (Scan-Schild, gelbe Scheibe als Aufkleber)
     const sgp = ausbau_nord_piece(signM, 'Road_Sign_01', .01);
     if (sgp) { msFit(sgp, 2.55); const s2 = msGround(sgp); s2.position.set(6.3, 0, 56.3); s2.rotation.y = 0; scene.add(s2);
@@ -492,7 +492,7 @@ async function ausbau_nord_build() {
     put(toy('SM_Ball'), 35.9, 69.2, 0); put(toy('SM_ToyTrain'), 28.6, 79.6, 1.2, 0); put(toy('SM_ToyBunny'), 39.2, 80.3, 2.6, 1.45);
     const gir = giraffeS.clone(); gir.scale.setScalar(1.3); const gg = msGround(gir); gg.userData.noCol = true; gg.position.set(25.9, .02, 74.3); gg.rotation.y = -.7; scene.add(gg);
     const gh = box(.3, .3, .3, 25.9, .1, 74.3, hidden, { cast: false });
-    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>M.</b>\n\nMo hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Mo, Erinnerungen, die nicht Kais sind
+    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>M.</b>\n\nMo hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Dina, Erinnerungen, die nicht Lukes sind
     // Spielzeug auf den Kindergräbern
     put(toy('SM_ToyBunny'), KIDS[1].x - .15, KIDS[1].z - .45, .4); put(toy('SM_ToyRobot'), KIDS[0].x - .2, KIDS[0].z - .42, -.3); put(toy('SM_ToyBoat'), KIDS[4].x - .15, KIDS[4].z - .5, .8);
     put(toy('SM_ToyCube_01a'), KIDS[5].x - .2, KIDS[5].z - .45, .3); put(toy('SM_ToyCube_02a'), KIDS[5].x - .08, KIDS[5].z - .56, 1.1); put(toy('SM_ToyTrain'), KIDS[3].x - .18, KIDS[3].z - .46, -.5);
@@ -598,12 +598,12 @@ function ausbau_nord_readKid(i) {
     if (!first) return; ausbau_nord_save();
     if (n < 7) { q.desc = `Die Gräber der Kinder vom Sommer 2009. Gefunden: ${n}/7. Die übrigen stehen in derselben Reihe, bei der Madonna.`; subtitle(`${K.n}. (${n}/7)`, 2200); if (K.open) setTimeout(() => { Audio.whisper(K.x, .4, K.z - 1.1, 1.8); }, 900); return; }
     sideDone('nord_names', 'Sieben Namen, sieben Steine. Alle mit demselben Todestag. Das Grab mit deinem Namen ist offen – und leer.');
-    story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Ben, Jana, Lena, Tim, Mo, Sophie, Kai.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier – als hätte jemand gewusst, dass nicht sie es sind, die zurückkamen.\n\nDas Grab mit deinem Namen ist frisch ausgehoben. Leer.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
+    story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Zayn, Roxy, Lucy, Mike, Dina, Heidi, Luke.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier – als hätte jemand gewusst, dass nicht sie es sind, die zurückkamen.\n\nDas Grab mit deinem Namen ist frisch ausgehoben. Leer.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
     ausbau_nord_counting(K.x, K.z);
     if (!N.echo) { N.echo = true; setTimeout(() => { addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Echo · Friedhof am Kirchberg, vor drei Nächten', // STORY-HOOK: wer das Grab ausgehoben hat
       figs: [E_(N.pit.x - .95, N.pit.z + .1, 1.4, 1), E_(N.pit.x + .95, N.pit.z - .3, -1.6, 1.02), E_(N.pit.x - .1, N.pit.z - 1.35, 0, .58)],
       lines: [['Nacht. Zwei Männer in Mänteln heben eine Grube aus. Ein Kind steht daneben und hält eine Laterne.', 4200], ['„Tief genug?“', 2000, 'MANN VOM AMT'], ['„Für den Ersatz reicht es. Die Regel ist die Regel.“', 3600, 'MANN VOM AMT'],
-        ['„Und wenn er nicht kommt?“', 2400, 'MANN VOM AMT'], ['Das Kind hebt die Laterne. Es hat dein Gesicht. Mit neun.', 3800], ['„Er kommt. Ich hab ihn gerufen.“', 3000, 'KAI, 9']] }); subtitle('Über der Grube schimmert etwas in der Luft.', 3600); }, 9000); }
+        ['„Und wenn er nicht kommt?“', 2400, 'MANN VOM AMT'], ['Das Kind hebt die Laterne. Es hat dein Gesicht. Mit neun.', 3800], ['„Er kommt. Ich hab ihn gerufen.“', 3000, 'LUKE, 9']] }); subtitle('Über der Grube schimmert etwas in der Luft.', 3600); }, 9000); }
   });
 }
 // Gänsehaut: Zählen am Gedenkfeld (nach dem siebten Namen)

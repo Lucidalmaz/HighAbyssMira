@@ -213,7 +213,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     for (let i = 0; i < all.length - 1; i++) for (const o of [-.9, 0, .9]) { const a = new V3(all[i], 8.08, 7.6 + o), c = new V3(all[i + 1], 8.08, 7.6 + o), mid = a.clone().lerp(c, .5); mid.y -= .9; wires.push(new T.TubeGeometry(new T.QuadraticBezierCurve3(a, mid, c), 16, .015, 4, false)); }
     R.wRoad.g.add(new T.Mesh(mergeGeometries(wires), M.dark)); }
 
-  // ---------------------------------------------------------------- Schrebergärten „Birkenhain e. V.“ (x −140 … −90, z 3 … 48)
+  // ---------------------------------------------------------------- Schrebergärten „Lost Eyengless e. V.“ (x −140 … −90, z 3 … 48)
   const A = R.allot.g;
   flat('gravel', 3.2, 44, -115, 25.2, { tint: 0x8a857a, p: A }); flat('gravel', 30, 2.4, -128, 19.4, { tint: 0x8a857a, p: A });
   flat('wet_asphalt', 3, 8.5, -115, 50.6, { tint: 0x746e62, p: R.villa.g }); flat('wet_asphalt', 13, 2.6, -120.2, 55.4, { tint: 0x746e62, p: R.villa.g }); flat('wet_asphalt', 3, 6.2, -125.5, 59.4, { tint: 0x746e62, p: R.villa.g });
@@ -232,7 +232,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   }
   // Parzelle W1: alter Schuppen mit offenen Türen, Schubkarre
   { const s = fit(shedOldS.clone(true), 2.9); put(s, -123.5, 14, -PI / 2, 0, A); const w = wbarS.clone(true); put(w, -119.4, 10.2, .6, 0, A); }
-  // Parzelle W2: Vogelscheuche im Gemüsebeet – trägt Kais Kinderjacke
+  // Parzelle W2: Vogelscheuche im Gemüsebeet – trägt Lukes Kinderjacke
   const scare = fit(scareS.clone(true), 2.15); put(scare, -121.2, 24.8, PI / 2, 0, A);
   // Parzelle W3: verwilderte Parzelle 7 (Wendt) mit Geräteschuppen
   { const s = fit(shedUtilS.clone(true), 2.7); put(s, -122.8, 36.2, -PI / 2, 0, A); }
@@ -251,7 +251,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const wellG = fit(well, 2.9); put(wellG, -108, 35.5, .4, 0, A);
   // Vereinsplatz: Schwarzes Brett
   const boardTx = canvasTex(512, 384, (c, w, h) => { c.fillStyle = '#3a2e22'; c.fillRect(0, 0, w, h); const note = (x, y, rw, rh, r, lines) => { c.save(); c.translate(x, y); c.rotate(r); c.fillStyle = '#ddd4bc'; c.fillRect(0, 0, rw, rh); c.fillStyle = '#222'; c.font = '15px Georgia'; lines.forEach((l, i) => c.fillText(l, 10, 24 + i * 19)); c.fillStyle = '#9a1a12'; c.beginPath(); c.arc(rw / 2, 6, 5, 0, 7); c.fill(); c.restore(); };
-    note(20, 20, 220, 160, -.04, ['KLEINGARTENVEREIN', 'BIRKENHAIN e. V.', '', 'Parzellen 1–7 sind bis', '31.10. zu räumen.', 'Der Vorstand']); note(270, 30, 210, 140, .05, ['VERMISST', 'Ben Wendt, 10 J.', 'zuletzt gesehen:', 'Parzelle 7, 28.7.09']); note(60, 200, 190, 150, .03, ['Gartenfest', 'fällt aus.', '', 'Bitte keine Kinder', 'nach Einbruch der', 'Dunkelheit.']); note(290, 200, 190, 140, -.06, ['Wer hat die Laternen', 'wieder angezündet?', '— H. W.']); });
+    note(20, 20, 220, 160, -.04, ['KLEINGARTENVEREIN', 'LOST EYENGLESS e. V.', '', 'Parzellen 1–7 sind bis', '31.10. zu räumen.', 'Der Vorstand']); note(270, 30, 210, 140, .05, ['VERMISST', 'Zayn Wendt, 10 J.', 'zuletzt gesehen:', 'Parzelle 7, 28.7.09']); note(60, 200, 190, 150, .03, ['Gartenfest', 'fällt aus.', '', 'Bitte keine Kinder', 'nach Einbruch der', 'Dunkelheit.']); note(290, 200, 190, 140, -.06, ['Wer hat die Laternen', 'wieder angezündet?', '— H. W.']); });
   wbox('planks_painted', 1.8, 1.2, .08, -129, 1.35, 21.3, { tint: 0x6a5a48, p: A }); decal(boardTx, 1.7, 1.12, -129, 1.35, 21.35, 0, 0, { p: A, mat: { transparent: false, depthWrite: true, alphaTest: 0 } });
   for (const x of [-129.85, -128.15]) wbox('planks_painted', .1, 1.9, .1, x, .95, 21.25, { tint: 0x4a3e32, p: A });
   // Laternen der Nebenaufgabe (zunächst aus)
@@ -292,7 +292,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   { const w = wbarS.clone(true); put(w, -137.5, -19, 2.4, 0, F); }
   // Bauernhaus (makeHouse, Kisten-Hitbox wie die anderen Häuser); das Fassaden-Team veredelt alle HOUSES
   const farmhouse = makeHouse({ x: -117.5, z: -13, facing: -1, w: 11, d: 9, H: 6, tint: 0x8d877c, lit: [4], chimney: true, porch: true, porchLight: false, shutters: M.dark, boarded: [1] });
-  const fhDoor = hit(1.2, 2.3, .35, -117.5, 1.6, -13 - 4.65, 'Klopfen', () => { Audio.knock(); toast(['Niemand öffnet. Hinter der Tür scharrt ein Hund. Dann nicht mehr.', 'Du klopfst. Oben knarrt ein Dielenbrett. Genau über dir.', 'Verschlossen. Am Klingelschild: BRANDT. Darunter, mit Kinderschrift: und Ben.'][Math.floor(rand(0, 3))], 4200); });
+  const fhDoor = hit(1.2, 2.3, .35, -117.5, 1.6, -13 - 4.65, 'Klopfen', () => { Audio.knock(); toast(['Niemand öffnet. Hinter der Tür scharrt ein Hund. Dann nicht mehr.', 'Du klopfst. Oben knarrt ein Dielenbrett. Genau über dir.', 'Verschlossen. Am Klingelschild: BRANDT. Darunter, mit Kinderschrift: und Zayn.'][Math.floor(rand(0, 3))], 4200); });
   { const b = fit(bikeS.clone(true), 1.75, 'max'); put(b, -121.6, -18.6, .3, 0, F); b.rotateX(PI / 2 - .1); b.position.y = .27; } // liegt auf der Seite im Matsch
 
   // ---------------------------------------------------------------- Die alte Villa (−125, 70) – Wahrzeichen, verschlossen
@@ -346,7 +346,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // ================================================================= ENTDECKBARES · OST
   // STORY-HOOK: Kassenbuch der Tankstelle Kranz endet am 31.10.2009 um 03:13
   const readBook = () => { Q.book = true; Audio.paper();
-    openNote('Kassenbuch · Tankstelle Kranz', noteHand('30.10.2009 — Super 22,40 · Diesel 41,00 · Zigaretten\n31.10. 01:02 — Kaffee, Herr Albers. „Kann nicht schlafen.“\n31.10. 02:47 — niemand. Die Klingel ging trotzdem.\n<b>31.10. 03:13 — ein Junge, allein, barfuß. 10 Liter in einem roten Kanister.\nBezahlt mit einem Foto. Ich hab nicht gefragt, wofür er Benzin braucht.</b>\n\n') + '<i>Danach nur noch leere Zeilen. Auf der letzten Seite, andere Handschrift:</i>\n' + noteHand('Kassette: was vom Preisschild noch hängt. Von oben nach unten.\n— P. K.'), 'ow_kassenbuch', () => { sideStart('ow_kasse'); sideStart('ow_kanister'); }); };
+    openNote('Kassenbuch · Tankstelle Kranz', noteHand('30.10.2009 — Super 22,40 · Diesel 41,00 · Zigaretten\n31.10. 01:02 — Kaffee, Herr Vegas. „Kann nicht schlafen.“\n31.10. 02:47 — niemand. Die Klingel ging trotzdem.\n<b>31.10. 03:13 — ein Junge, allein, barfuß. 10 Liter in einem roten Kanister.\nBezahlt mit einem Foto. Ich hab nicht gefragt, wofür er Benzin braucht.</b>\n\n') + '<i>Danach nur noch leere Zeilen. Auf der letzten Seite, andere Handschrift:</i>\n' + noteHand('Kassette: was vom Preisschild noch hängt. Von oben nach unten.\n— P. K.'), 'ow_kassenbuch', () => { sideStart('ow_kasse'); sideStart('ow_kanister'); }); };
   hit(1.1, .7, .5, 115.1, 1.3, 24.8, () => !Q.book ? 'Nachtschalter' : !Q.kasse ? 'Geldkassette öffnen' : 'Kassenbuch', () => {
     if (!Q.book) return readBook();
     if (Q.kasse) return readBook();
@@ -354,7 +354,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     openPuzzle(`<h3>GELDKASSETTE</h3><p>Vier Rädchen. Die Zahlen sind abgegriffen.</p><div class="row" id="owW">${v.map((d, i) => `<button data-i="${i}" style="font:28px Georgia;min-width:52px">${d}</button>`).join('')}</div><div class="row" style="margin-top:14px"><button id="owOk">ÖFFNEN</button></div><p class="small">Auf dem Deckel eingeritzt: <i>P. K.</i></p>`, bx => {
       bx.querySelectorAll('#owW button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; v[i] = (v[i] + 1) % 10; b.textContent = v[i]; Audio.flick(); });
       bx.querySelector('#owOk').onclick = e => { e.stopPropagation(); if (v.join('') === '0313') { closeOverlay(); Q.kasse = true; Audio.play('lockOpen', { gain: .6 }); Audio.play('metalOpen', { gain: .4, rate: 1.4, delay: .3 });
-          setTimeout(() => openNote('In der Geldkassette', 'Kein Geld. Nur ein Polaroid und ein gefalteter Zettel.\n\nAuf dem Foto: ein Junge an der Zapfsäule, einen roten Kanister in der Hand. Das Gesicht ist verwackelt. Hinten drauf:\n' + noteHand('„Kai B., 31.10.09 – 03:13. Hat mit diesem Foto bezahlt.\nEs ist ein Foto von ihm selbst. Von morgen.“') + '\n\nDer Zettel:\n' + noteHand('Peter, wenn du das findest: Ich hab die Säulen abbauen lassen. Die kommen nachts und wollen tanken. Kinder tanken nicht. — Vater'), 'ow_kassette', () => sideDone('ow_kasse', 'Die Kassette war leer – bis auf ein Foto, das es nicht geben dürfte.')), 500); }
+          setTimeout(() => openNote('In der Geldkassette', 'Kein Geld. Nur ein Polaroid und ein gefalteter Zettel.\n\nAuf dem Foto: ein Junge an der Zapfsäule, einen roten Kanister in der Hand. Das Gesicht ist verwackelt. Hinten drauf:\n' + noteHand('„Luke B., 31.10.09 – 03:13. Hat mit diesem Foto bezahlt.\nEs ist ein Foto von ihm selbst. Von morgen.“') + '\n\nDer Zettel:\n' + noteHand('Peter, wenn du das findest: Ich hab die Säulen abbauen lassen. Die kommen nachts und wollen tanken. Kinder tanken nicht. — Vater'), 'ow_kassette', () => sideDone('ow_kasse', 'Die Kassette war leer – bis auf ein Foto, das es nicht geben dürfte.')), 500); }
         else { Audio.beep(false); toast('Das Schloss hält. Irgendwo hinter dir klingelt die Ladenglocke. Einmal.', 3200); Audio.bell(112, 25); } };
     }); });
   // STORY-HOOK: Preistafel = Zahlencode 0-3-1-3
@@ -366,8 +366,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       Audio.play('metalHit1', { gain: .4, x, y: .3, z: 15, ref: 2 }); OW.canopyDie = 3.5; setTimeout(() => { Audio.giggle(x - 2, 1, 11); subtitle('Aus dem Kanister tropft es. Kein Benzin. Wasser. Kalt, wie aus einem Brunnen.', 4800); OW.footsteps = { x: x, z: 13, t: 0 }; }, 1800);
       setTimeout(() => { story.lore.push({ key: 'ow_kanister', title: 'Der rote Kanister', html: 'Du hast den Kanister zurückgebracht. Aus ihm tropfte Wasser, kein Benzin. Kleine nasse Fußabdrücke führten von der Zapfinsel nach Osten – zur Sperre.' }); sideDone('ow_kanister', 'Zurückgebracht. Die Fußabdrücke führten zur Sperre.'); }, 4500); return; }
     toast('Vier abgeschnittene Bolzen, wo die Säulen standen. Jemand hat Kreidestriche daneben gemacht: acht Stück.', 4200); });
-  hit(.7, .6, .6, 133.6, .3, -10.2, 'Roter Kanister', () => { if (Q.kanisterHave) return; Q.kanisterHave = true; redCan.visible = false; item('ow_kanister', 'Roter Kanister', 'Aus dem Schrott der Tankstelle Kranz. Innen schwappt etwas. Auf dem Griff, eingeritzt: KAI.');
-    subtitle('Der Kanister ist nicht leer. Auf dem Griff, eingeritzt: KAI.', 4200); if (story.side.ow_kanister.state === 'hidden') sideStart('ow_kanister'); story.side.ow_kanister.desc = 'Bring den roten Kanister zurück zur Zapfinsel der Tankstelle.'; });
+  hit(.7, .6, .6, 133.6, .3, -10.2, 'Roter Kanister', () => { if (Q.kanisterHave) return; Q.kanisterHave = true; redCan.visible = false; item('ow_kanister', 'Roter Kanister', 'Aus dem Schrott der Tankstelle Kranz. Innen schwappt etwas. Auf dem Griff, eingeritzt: LUKE.');
+    subtitle('Der Kanister ist nicht leer. Auf dem Griff, eingeritzt: LUKE.', 4200); if (story.side.ow_kanister.state === 'hidden') sideStart('ow_kanister'); story.side.ow_kanister.desc = 'Bring den roten Kanister zurück zur Zapfinsel der Tankstelle.'; });
   hit(2.1, 1.4, 1.3, 120.4, .7, 28.2, 'Müllcontainer', () => { Audio.play('metalOpen', { gain: .35, rate: .9, x: 120, y: 1, z: 28, ref: 2 }); toast('Im Container: Kinderschuhe. Sieben Paar, ordentlich nebeneinander. Und ein einzelner.', 4200); });
   hit(3.5, 1.2, 3, 124.2, .6, 23.5, 'Reifenstapel', () => toast('Auf den Reifen, mit weißer Kreide gezählt: I II III IV V VI VII. Der achte Strich ist frisch.', 4200));
   hit(4.4, 1.6, 2, 122.5, .8, -14.5, 'Ausgebranntes Auto', () => toast('Auf dem Rücksitz: ein geschmolzener Kindersitz. Der Gurt ist noch geschlossen.', 4200));
@@ -379,8 +379,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   hit(2, 2.6, 1.2, 144.4, 1.3, -6.9, 'Verkehrsschild', () => toast('Einfahrt verboten. Jemand hat mit Filzstift daruntergeschrieben: AUSFAHRT AUCH.', 3600));
 
   // ================================================================= ENTDECKBARES · WEST
-  // STORY-HOOK: Vogelscheuche trägt Kais Kinderjacke
-  hit(1.3, 2.2, 1, -121.2, 1.1, 24.8, 'Vogelscheuche', () => { if (!Q.jacket) { Q.jacket = true; openNote('Die Vogelscheuche', 'Sie trägt eine Kinderjacke. Blau, abgewetzt, zu klein für einen Erwachsenen.\n\nIm Kragen, mit Filzstift:\n' + noteHand('KAI B.') + '\n\nDu hattest so eine Jacke. Du bist sicher, dass du so eine hattest.\nIn der Tasche steckt ein gefaltetes Blatt – aus einem Schulheft gerissen.', 'ow_jacke', () => owPage('jacke')); }
+  // STORY-HOOK: Vogelscheuche trägt Lukes Kinderjacke
+  hit(1.3, 2.2, 1, -121.2, 1.1, 24.8, 'Vogelscheuche', () => { if (!Q.jacket) { Q.jacket = true; openNote('Die Vogelscheuche', 'Sie trägt eine Kinderjacke. Blau, abgewetzt, zu klein für einen Erwachsenen.\n\nIm Kragen, mit Filzstift:\n' + noteHand('LUKE B.') + '\n\nDu hattest so eine Jacke. Du bist sicher, dass du so eine hattest.\nIn der Tasche steckt ein gefaltetes Blatt – aus einem Schulheft gerissen.', 'ow_jacke', () => owPage('jacke')); }
     else toast(['Die Jacke riecht nach Heu. Und nach dir.', 'Der Sackkopf ist dir zugewandt. Oder war er das vorher schon?'][Math.floor(rand(0, 2))], 3600); });
   const owPage = k => { if (Q.pages.has(k)) return; Q.pages.add(k); Audio.paper(); item('ow_seiten', 'Heftseiten', 'Aus einem Schulheft gerissen. Kinderschrift, mit Bleistift.');
     const txt = { jacke: '„…der Mann in Eisen sagt, ich darf nicht nach Hause. Da schläft schon einer in meinem Bett…“', schuppen: '„…ich wohne jetzt im Stall. Die Pferde sind weg, aber es riecht noch nach ihnen. Die Frau aus Nr. 7 bringt mir Brot…“', tor: '„…in dem großen Haus brennt ein Licht. Da oben wohnt die, die uns zählt…“' }[k];
@@ -401,9 +401,9 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       tween(pv, { ry: -1.2 }, 2.4); toast('Die Kette gibt nach. Das Tor schwingt von selbst auf – langsam, als hätte jemand dahinter gewartet.', 4800); return; } // STORY-HOOK: Villa-Gelände geöffnet
     Audio.play('ironDoor', { gain: .35, rate: 1.3, x: -125, y: 1, z: 57, ref: 3 }); toast('Kette und Schloss. Das Schloss ist neu, die Kette dünn und rostig. Hinter dem Tor: Kiesweg, keine Spur. Oben brennt ein einziges Fenster.', 4600); }); // STORY-HOOK: Villa zunächst verschlossen
   hit(30, 4.5, .4, -125, 3.9, 57.9, 'Die Villa', () => toast(['Die Villa der Familie von Hain. Seit 1975 unbewohnt, sagen sie. Das Licht oben brennt trotzdem jede Nacht.', 'Aus dem Schornstein steigt kein Rauch. Aber das Fenster ist beschlagen – von innen.'][Math.floor(rand(0, 2))], 4600)); // STORY-HOOK: Villa/„die uns zählt“
-  hit(1.8, 1.4, 1.8, -108, .8, 35.5, 'Brunnen', () => { Audio.play('stones1', { gain: .4, x: -108, y: .5, z: 35.5, ref: 2 }); toast('Du lässt einen Kiesel fallen. Er schlägt nicht auf.', 2600); setTimeout(() => { Audio.drip(-108, -.5, 35.5); Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>… Kai? Bist du das oben?</i>', 2600); }, 2400); }); // STORY-HOOK: Brunnen – Stimmen von unten (versunkene Stadt?)
+  hit(1.8, 1.4, 1.8, -108, .8, 35.5, 'Brunnen', () => { Audio.play('stones1', { gain: .4, x: -108, y: .5, z: 35.5, ref: 2 }); toast('Du lässt einen Kiesel fallen. Er schlägt nicht auf.', 2600); setTimeout(() => { Audio.drip(-108, -.5, 35.5); Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>… Luke? Bist du das oben?</i>', 2600); }, 2400); }); // STORY-HOOK: Brunnen – Stimmen von unten (versunkene Stadt?)
   hit(2.2, 1, 2.2, -108, .5, 13.2, 'Picknicktisch', () => toast('Acht Teller, acht Gabeln. Auf jedem Teller liegt ein Kiesel. Auf dem achten zwei.', 3800));
-  hit(1.9, 1.3, .2, -129, 1.35, 21.4, 'Schwarzes Brett', () => openNote('Schwarzes Brett · Kleingartenverein', '<b>Parzellen 1–7 sind bis 31.10. zu räumen.</b> — Der Vorstand\n\n<b>VERMISST</b>: Ben Wendt, 10 J., zuletzt gesehen Parzelle 7, 28.7.09\n\nGartenfest fällt aus. Bitte keine Kinder nach Einbruch der Dunkelheit.\n\n' + noteHand('Wer hat die Laternen wieder angezündet? — H. W.'), 'ow_brett')); // STORY-HOOK: Ben Wendt, Parzelle 7
+  hit(1.9, 1.3, .2, -129, 1.35, 21.4, 'Schwarzes Brett', () => openNote('Schwarzes Brett · Kleingartenverein', '<b>Parzellen 1–7 sind bis 31.10. zu räumen.</b> — Der Vorstand\n\n<b>VERMISST</b>: Zayn Wendt, 10 J., zuletzt gesehen Parzelle 7, 28.7.09\n\nGartenfest fällt aus. Bitte keine Kinder nach Einbruch der Dunkelheit.\n\n' + noteHand('Wer hat die Laternen wieder angezündet? — H. W.'), 'ow_brett')); // STORY-HOOK: Zayn Wendt, Parzelle 7
   hit(2.6, 2.4, 2.6, -122.8, 1.2, 36.2, 'Parzelle 7', () => { Audio.knock(); toast('Schuppen von Parzelle 7, Wendt. Durch die Ritzen: eine Kinderschaukel, abmontiert, sorgfältig in Zeitung eingewickelt.', 4600); });
   hit(3.2, 2.6, 3.2, -107.2, 1.3, 25, () => Q.matches ? 'Laube' : 'Laube (Licht)', () => { if (!Q.matches) { Q.matches = true; Audio.play('doorCreak', { gain: .3, rate: 1.2, x: -107, y: 1, z: 25, ref: 2 });
       openNote('In der Laube', 'Drinnen brennt eine Petroleumlampe. Niemand da. Auf dem Tisch: eine Schachtel Streichhölzer und ein Zettel, mit Reißzwecke auf das Holz geheftet.\n\n' + noteHand('Wenn es dunkel wird, zündet die Laternen an, damit sie heimfinden.\nDrei. Immer drei.\n— H. W.'), 'ow_laube', () => { item('ow_streich', 'Streichhölzer', 'Aus der Laube. Die Schachtel ist feucht, aber es sind genug.'); sideStart('ow_laternen'); story.side.ow_laternen.desc = 'Zünde die drei Laternen in den Schrebergärten an (0 / 3).'; }); }
@@ -417,7 +417,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     if (Q.lit === 3) { Q.laternDone = true; story.items = story.items.filter(k => k !== 'ow_streich'); OW.villaDark = 18; setTimeout(() => { Audio.slam(); subtitle('Oben in der Villa geht das Licht aus. Dann, auf dem Kiesweg zum Tor: Schritte. Kleine. Viele. Sie gehen nicht zu dir. Sie gehen heim.', 6500); }, 1400);
       setTimeout(() => sideDone('ow_laternen', 'Drei Laternen brennen. Die Schritte gingen zur Villa.'), 6000); story.lore.push({ key: 'ow_laternen', title: 'Drei Laternen', html: 'Hilde Wendt hat jede Nacht drei Laternen in den Schrebergärten angezündet, „damit sie heimfinden“. Als die dritte brannte, erlosch das Licht in der Villa. Kleine Schritte gingen auf das Tor zu.' }); } }));
   hit(4.4, 2.2, 4.4, -132, 1.1, -20.5, 'Traktor', () => toast('Der Schlüssel steckt. Der Tank ist leer, der Sitz nass. Auf dem Kotflügel, mit Kreide: ein Pfeil nach Osten. Zur Tankstelle.', 4400)); // STORY-HOOK: Verbindung Hof ↔ Tankstelle
-  hit(1.9, .9, 1, -121.6, .45, -18.6, 'Fahrrad', () => toast('Ein rotes Damenrad. Am Gepäckträger ein Aufkleber, halb abgerissen: „L. B. – 4b“. Lenas Rad. Es stand nie hier. Es stand bei euch im Keller.', 5200)); // STORY-HOOK: Lenas Fahrrad
+  hit(1.9, .9, 1, -121.6, .45, -18.6, 'Fahrrad', () => toast('Ein rotes Damenrad. Am Gepäckträger ein Aufkleber, halb abgerissen: „L. B. – 4b“. Lucys Rad. Es stand nie hier. Es stand bei euch im Keller.', 5200)); // STORY-HOOK: Lucys Fahrrad
   hit(8, 2, 3, -125, 1, -33.4, 'Heuballen', () => toast('In einen Ballen hat jemand eine Mulde gegraben. Kindergroß. Darin: acht Kieselsteine, im Kreis gelegt.', 4200));
   hit(1.4, 2.3, 3, barnDoor.x + .4, 1.15, barnDoor.z, 'Stalltür', () => toast('Innen hängt eine Laterne, die brennt. Über dem Eingang, eingeschnitzt: 1312. Darunter, frischer: 2026.', 4400)); // STORY-HOOK: 1312/2026
 

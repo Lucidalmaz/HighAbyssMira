@@ -901,7 +901,7 @@ function leben_bell313(c3) { // STORY-HOOK: 03:13 · sieben Schläge und ein hal
 }
 function leben_clockTick(dt, c1, c3, live) {
   const S = leben_S, K = S.clk;
-  if (c1 && state.started && !state.ending) { if (K.min < 0) K.min = 2 * 60 + 47; K.min += dt / 25; // 25 Sekunden = eine Minute in Birkenhain
+  if (c1 && state.started && !state.ending) { if (K.min < 0) K.min = 2 * 60 + 47; K.min += dt / 25; // 25 Sekunden = eine Minute in Lost Eyengless
     if (!K.three && K.min >= 180 && live && S.zone === 'town') { K.three = true; for (let i = 0; i < 3; i++) setTimeout(() => leben_bellStrike(.65, false), i * 3300); }
     if (!K.b313 && K.min >= 193 && live && S.zone === 'town') { K.b313 = true; leben_bell313(false); } }
   if (c3 && ch3.part === 'town' && ch3.cowSeen && !K.c3) { K.c3t = (K.c3t || 0) + dt; if (K.c3t > 40 && live && ch3.chase !== 'run') { K.c3 = true; leben_bell313(true); } }
@@ -915,7 +915,7 @@ const leben_EV = {
     const h = Audio.play('dog', { gain: .6, vary: .06, x, y: .6, z, ref: 7 }); if (!h) return false;
     const cut = Math.min(Audio.buf.dog.duration * 700, rand(2600, 4300)); // mitten im Bellen: abgeschnitten
     setTimeout(() => { h.stop(.02); setTimeout(() => leben_hush(rand(7, 10)), 700); }, cut);
-    if (story.items && story.items.includes('collar') && !leben_S.far.bruno) { leben_S.far.bruno = true; setTimeout(() => { if (!state.talking && !ui.overlay) subtitle('Ein Hund, irgendwo hinter den Höfen. Er klingt wie Bruno. Dann – nichts mehr.', 4600); }, cut + 1800); } // STORY-HOOK: Bruno / Herr Albers
+    if (story.items && story.items.includes('collar') && !leben_S.far.bruno) { leben_S.far.bruno = true; setTimeout(() => { if (!state.talking && !ui.overlay) subtitle('Ein Hund, irgendwo hinter den Höfen. Er klingt wie Bruno. Dann – nichts mehr.', 4600); }, cut + 1800); } // STORY-HOOK: Bruno / Herr Vegas
     return true; },
   car() { // Ein Auto in der Ferne kommt die Landstraße herauf, hält hinter der Sperre. Motor aus. Eine Tür. Niemand kommt.
     if (dir.carState === 'drive' || leben_S.far.car || !Audio.ctx || !Audio.buf.carEngine) return false;

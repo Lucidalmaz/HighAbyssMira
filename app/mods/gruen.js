@@ -496,7 +496,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       const sh = box(1.6, .3, 1.1, sx, .15, sz, hidden, { cast: false, parent: gruen_R });
       interact(sh, 'Ansehen', () => gruen_find('gruen_steine', 'Sieben Steine', 'Sieben Steine im Kreis, auf frisch umgegrabener Erde. Jemand hat sie gewaschen. Die Stelle ist genau so lang wie ein Kind.', 6000));
     }
-    // STORY-HOOK: Grenze – was am Weidezaun hängt (Lena, 7/8, etwas ging hinaus)
+    // STORY-HOOK: Grenze – was am Weidezaun hängt (Lucy, 7/8, etwas ging hinaus)
     const O = gruen_OUT, SPOTS = [[-20, O.z1 - .15, 0, 'Der Draht ist nach außen gebogen. Als wäre etwas hinaus. Oder herein.'],
       [O.x1 - .15, 18, PI / 2, 'Am Stacheldraht hängen lange, helle Haare. Sie sind noch nass.'],
       [O.x0 + .15, -6, PI / 2, 'In den Pfahl sind Kerben geschnitten. Sieben alte. Eine frische.'],

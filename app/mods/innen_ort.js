@@ -164,14 +164,14 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const crt = await GL('crt', 'model.glb'); crt.scale.setScalar(1.45); const gTV = put(crt, { x: 24.66, z: -12.5, y: midY, ry: PI / 2 }, G7);
   { const b = bbox(gTV); tvScreen.position.set((b.min.x + b.max.x) / 2, b.min.y + (b.max.y - b.min.y) * .535, b.min.z - .004); tvScreen.scale.set(.42 / .8, .31 / .58, 1);
     tvLight.position.set(tvScreen.position.x, tvScreen.position.y, tvScreen.position.z - .8); }
-  // Mos Foto + Kerze: im Regal neben dem Fernseher (Hildes kleiner Altar)
+  // Dinas Foto + Kerze: im Regal neben dem Fernseher (Hildes kleiner Altar)
   PHOTOS[3].mesh.position.set(25.2, midY + .006, -12.5); PHOTOS[3].candle.g.position.set(24.2, midY, -12.48);
   { const f = await GL('frame_deco'); f.rotation.x = -.22; f.scale.setScalar(.55); put(f, { x: 24.45, maxZ: -12.28, y: lowY, ry: PI }, G7);
     const f2 = await GL('frame_dmg'); f2.rotation.x = -.18; f2.scale.setScalar(.6); put(f2, { x: 25.05, maxZ: -12.3, y: lowY, ry: PI + .05 }, G7); }
   const toysSrc = await FBX('toys_old', toySpec);
   const toy = (name, par, x, y, z, ry, s = .01) => { const t = part(toysSrc, name, s); if (!t) return null; t.position.set(x, y, z); t.rotation.y = ry; par.add(t); return t; };
   const robot = toy('SM_ToyRobot', G7, 25.18, topY, -12.47, PI + .35); toy('SM_ToyBoat', G7, 24.35, topY, -12.5, PI - .5);
-  if (robot) interact(robot, 'Blechroboter', () => toast('Ein Blechroboter. Auf der Unterseite, mit rotem Nagellack: BEN. Kein Staub darauf – als hätte ihn jemand erst heute Nacht hingestellt.', 5600)); // STORY-HOOK: Ben Wendt
+  if (robot) interact(robot, 'Blechroboter', () => toast('Ein Blechroboter. Auf der Unterseite, mit rotem Nagellack: ZAYN. Kein Staub darauf – als hätte ihn jemand erst heute Nacht hingestellt.', 5600)); // STORY-HOOK: Zayn Wendt
   // Stehlampe am Fenster (trägt das Wohnzimmerlicht), Hildes Stuhl mit Blick auf die Kreuzung
   const gLamp = put(await GL('floorlamp'), { x: 20.58, z: -13.35, y: Y, ry: .6 }, G7);
   let shadeMat = null; { const ms = meshes(gLamp).map(m => ({ m, y: bbox(m).max.y })).sort((a, b) => b.y - a.y); const sm = ms[0].m; shadeMat = sm.material.clone(); shadeMat.emissive = new T.Color(0xffa050); shadeMat.emissiveMap = shadeMat.map; shadeMat.emissiveIntensity = .55; sm.material = shadeMat; }
@@ -228,12 +228,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   hideAt(21.2, .68, -20.7, [2, .5, 2.2]); hideAt(21.2, .93, -21.8, [2, .8, .15]); hideAt(25, 1.53, -21.5, [1.6, 2.2, .6]);
   const gBed7 = await bed(G7, 0xa8a098, .009, { x: 21.42, minZ: -21.77, y: Y });
   interact(firstMesh(gBed7, /blanket/), 'Bett', () => toast('Die Decke ist zurückgeschlagen, als wäre sie mitten in der Nacht aufgestanden. Auf dem Laken: kleine, nasse Fußabdrücke. Barfuß.', 5600));
-  // Bens Kinderbett – Hilde hat es nie weggegeben
+  // Zayns Kinderbett – Hilde hat es nie weggegeben
   const crib = await FBX('crib', { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xcfc6b6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xc8c0b0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } });
   crib.scale.setScalar(.024); const gCrib = put(crib, { x: 24.9, minZ: -21.76, y: Y }, G7);
   const cribTop = surfY(gCrib, 24.9, -21.4, Y + .75);
   const gFrB = await frame(G7, 'frame_deco', { x: 24.9, minZ: -21.79, yc: Y + 1.85, rz: .04, s: .7 });
-  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Ben, 10. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
+  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Zayn, 10. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
   await winIn(G7, 23, -21.8, '+z', { tint: 0xc8c0b0 });
   // Eine Kerze brennt neben dem Bett – niemand ist im Haus
   { const c = candle(G7, 'Candle_large_big_used_low001', 22.38, Y, -21.5); const L = light(G7, 0xffa048, 1.0, 3.6, 22.38, Y + .3, -21.4); flames[flames.length - 1].L = L;
@@ -283,7 +283,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   put(await GL('floorlamp'), { x: -49.45, z: -12.7, y: Y, ry: 2.2, rz: .025 }, G1);
   if (sheets[0]) { const tb = await GL('teddy_scan', 'model.glb'); msFit(tb, .3, 'y'); const top = surfY(sheets[0], -44.72, -14.55, 2); const g = put(tb, { x: -44.72, z: -14.55, y: top - .01, ry: PI / 2 + .25 }, G1);
     g.traverse(m => { if (m.isMesh) m.castShadow = false; });
-    interact(firstMesh(g), 'Teddy', () => toast('Lenas Teddy. Ein Ohr ist mit rotem Faden angenäht – Lenas erste Naht, mit neun. Staub liegt hier überall. Nur nicht auf ihm.', 5600)); }
+    interact(firstMesh(g), 'Teddy', () => toast('Lucys Teddy. Ein Ohr ist mit rotem Faden angenäht – Lucys erste Naht, mit neun. Staub liegt hier überall. Nur nicht auf ihm.', 5600)); }
   // Bild verkehrt herum (mit dem Gesicht zur Wand)
   { const f = await GL('frame_dmg'); const g = put(f, { x: -45.25, minZ: -16.89, yc: Y + 1.68, ry: PI, rz: .06 }, G1);
     const b = bbox(g), bk = new T.Mesh(new T.PlaneGeometry(.44, .64), await surf('floor_wood', { rx: .25, ry: .35, tint: 0x6a5846 })); bk.position.set((b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, b.max.z - .012); bk.rotation.z = .06; G1.add(bk);
@@ -321,12 +321,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     musicBox.material = mbMat; mbLidPiv.children.forEach(m => { if (m.isMesh) m.material = mbMat; });
     const gi = await GL('giraffe'); put(gi, { x: -52.85, z: -21.68, y: sTop, ry: .5 }, G1); }
   const gBun = toy('SM_ToyBunny', G1, -55.2, surfY(gBedL, -55.2, -21.35, Y + 1.4), -21.35, .25);
-  if (gBun) interact(gBun, 'Stoffhase', () => toast('Lenas Stoffhase. Ein Auge fehlt. Ihr habt euch darum gestritten, das weißt du noch. Nicht mehr, wer von euch gewonnen hat.', 5600));
+  if (gBun) interact(gBun, 'Stoffhase', () => toast('Lucys Stoffhase. Ein Auge fehlt. Ihr habt euch darum gestritten, das weißt du noch. Nicht mehr, wer von euch gewonnen hat.', 5600));
   toy('SM_ToyTrain', G1, -53.95, Y, -19.8, .9); toy('SM_ToyCube_01a', G1, -52.6, Y, -18.75, .4); toy('SM_ToyCube_02a', G1, -52.48, Y, -18.62, 1.1);
   const ball = toy('SM_Ball', G1, -55.05, Y, -20.85, 0); if (ball) { ball.userData.noCol = true; ball.userData.ioDyn = true; ball.geometry.translate(0, -.1, 0); ball.position.y = Y + .1; }
   S.ball = ball ? { m: ball, from: ball.position.clone(), to: V(-53.3, Y + .1, -18.2), t: -1, inT: 0 } : null;
-  if (ball) interact(ball, 'Ball', () => { if (S.ball.t < 1) return toast('Ein alter Gummiball, halb unter Lenas Bett.', 3000);
-    toast('Er ist zu dir gerollt. Langsam. Als hätte ihn jemand angestoßen, der unter Lenas Bett liegt.', 5200); Audio.giggle(-55.1, .6, -20.9); });
+  if (ball) interact(ball, 'Ball', () => { if (S.ball.t < 1) return toast('Ein alter Gummiball, halb unter Lucys Bett.', 3000);
+    toast('Er ist zu dir gerollt. Langsam. Als hätte ihn jemand angestoßen, der unter Lucys Bett liegt.', 5200); Audio.giggle(-55.1, .6, -20.9); });
   await decal(G1, 'grime', 1.3, 1.3, -53.0, 3.196, -19.5, 'ceil', 1.3, 0x6a5a48, .7);
   await decal(G1, 'grime', 1.2, .9, -54.9, Y + .004, -18.6, 'floor', .4, 0x5a4a38, .7);
   web(G1, -55.62, Y + 2.5, -17.28, PI / 4 + PI, .7); web(G1, -50.28, Y + 2.45, -17.28, -PI / 4 + PI, .6); web(G1, -52.95, Y + .35, -21.62, 0, .35);
@@ -334,7 +334,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Elternschlafzimmer (x −49.9…−44.2, z −21.8…−17.1)
   hideAt(-47, .68, -20.8, [1.6, .5, 2.1]); hideAt(-47, .88, -21.85, [1.6, .9, .12]); hideAt(-44.74, 1.05, -18.6, [.1, .02, .02]); hide(wardrobe1); hideAt(-44.12, 1.93, -20.3, [0, 1.4, .6]);
   const gBedP = await bed(G1, 0xb0a8a0, .009, { x: -47.02, minZ: -21.77, y: Y });
-  interact(firstMesh(gBedP, /blanket/), 'Bett', () => toast('Nur eine Seite ist benutzt. Auf dem Kissen der anderen: ein Milchzahn in einem Taschentuch. Mit Kuli: „Kai, 7“.', 5400)); // STORY-HOOK
+  interact(firstMesh(gBedP, /blanket/), 'Bett', () => toast('Nur eine Seite ist benutzt. Auf dem Kissen der anderen: ein Milchzahn in einem Taschentuch. Mit Kuli: „Luke, 7“.', 5400)); // STORY-HOOK
   // Kommode (Unterschrank des Buffets) mit flacher Schublade unter der Platte – die alte Kiste bleibt unsichtbare Klickfläche
   dresser.material = hidden; if (dresser.userData.col) dresser.userData.col.minX = dresser.userData.col.maxX = -9999; unOcc(dresser);
   const gKom = put(await lowerCab(0xffffff, 1, .9), { maxX: -44.21, z: -18.6, y: Y, ry: -PI / 2 }, G1);
@@ -416,7 +416,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     const D = S.doll = { holder, head, spots, stage: 0, seen: 0, seenPos: 0, away: false, moved: false, lastYaw: 0, creak: 0, said: {} };
     D.place = i => { const [x, y, z, ry] = spots[i]; holder.position.set(x, y, z); holder.rotation.y = ry; head.rotation.set(0, 0, 0); };
     D.place(0);
-    if (bodyMesh) interact(bodyMesh, 'Puppe', () => toast('Porzellan, kalt und feucht. Am Handgelenk ein Namensband aus dem Krankenhaus: „Wendt, Ben“. Das Messer in ihrer Hand ist echt.', 5800)); } // STORY-HOOK: Ben / die Puppe
+    if (bodyMesh) interact(bodyMesh, 'Puppe', () => toast('Porzellan, kalt und feucht. Am Handgelenk ein Namensband aus dem Krankenhaus: „Wendt, Zayn“. Das Messer in ihrer Hand ist echt.', 5800)); } // STORY-HOOK: Zayn / die Puppe
 
   // ------------------------------------------------------------------ jedes Bild: Sichtbarkeit, Uhr, Puppe, Ball, Kerzen, Fenster
   const R7 = { x0: 20.1, x1: 26, zb: -21.9, zf: -17 }; // Schlafzimmer Nr. 7

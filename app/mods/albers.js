@@ -1,7 +1,7 @@
-// =====================================================================  ALBERS (Modul „albers“): Walter Albers, Nr. 3, in Kapitel 3
+// =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3, in Kapitel 3
 // Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
 // Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
-// Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Walter Albers' Spinnereien“ hakt sie ab).
+// Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Lars Vegas' Spinnereien“ hakt sie ab).
 // Unreal-Modell „alter_mann“ (unreal/Export_Figuren.bat): dann steht er sichtbar im Türspalt. Ohne Modell: nur Licht, Schatten und Stimme – keine Ersatzpuppe.
 const albers_S = { door: { x: -28, y: 1.45, z: -12.2 }, talked: new Set(), hissed: false, busy: false, fig: null, mx: null, act: {}, light: null, beam: null, t: 0, confirmed: new Set() };
 const ALBERS_CLAIMS = [
@@ -29,30 +29,30 @@ const ALBERS_TALKS = [
     ['„Aber du, Junge … deine Augen waren blau. Damals waren sie blau.“', 4200]] }];
 function albers_claimCheck() {
   const q = story.side.albers_spinn; if (!q) return;
-  for (const c of ALBERS_CLAIMS) if (albers_S.talked.has(c.id) && !albers_S.confirmed.has(c.id) && c.ok()) { albers_S.confirmed.add(c.id); questPop('ALBERS HATTE RECHT', c.text); Audio.chime(); }
+  for (const c of ALBERS_CLAIMS) if (albers_S.talked.has(c.id) && !albers_S.confirmed.has(c.id) && c.ok()) { albers_S.confirmed.add(c.id); questPop('VEGAS HATTE RECHT', c.text); Audio.chime(); }
   q.desc = ALBERS_CLAIMS.filter(c => albers_S.talked.has(c.id)).map(c => (albers_S.confirmed.has(c.id) ? '✓ ' : '? ') + c.text).join('\n') || q.desc;
-  if (albers_S.confirmed.size === ALBERS_CLAIMS.length && q.state !== 'done') { sideDone('albers_spinn'); // STORY-HOOK: Albers glaubwürdig – er kann im Finale gebraucht werden
-    setTimeout(() => openNote('Walter Albers hatte recht', 'Die Laternen. Der Ritter von 1312. Die siebzehn Jahre. Die Sender. Deine Augen.\n\nAlles, worüber im Ort gelacht wurde, stimmt.\n\n<span class="hand">Das Schlimmste am Rechthaben, hat er gesagt, ist, dass es keiner hören will.</span>', 'albers_recht'), 1600); }
+  if (albers_S.confirmed.size === ALBERS_CLAIMS.length && q.state !== 'done') { sideDone('albers_spinn'); // STORY-HOOK: Vegas glaubwürdig – er kann im Finale gebraucht werden
+    setTimeout(() => openNote('Lars Vegas hatte recht', 'Die Laternen. Der Ritter von 1312. Die siebzehn Jahre. Die Sender. Deine Augen.\n\nAlles, worüber im Ort gelacht wurde, stimmt.\n\n<span class="hand">Das Schlimmste am Rechthaben, hat er gesagt, ist, dass es keiner hören will.</span>', 'albers_recht'), 1600); }
 }
 async function albers_talk() {
   const S = albers_S; if (S.busy || state.talking) return;
   const next = ALBERS_TALKS.find(T => !S.talked.has(T.claim) && T.when());
   S.busy = true; state.talking = true; Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
   if (next) {
-    await say(next.lines.map(([t, ms]) => [t, ms, 'WALTER ALBERS']));
-    S.talked.add(next.claim); story.lore.push({ key: 'albers_' + next.id, title: 'Albers an der Tür', html: next.lines.map(l => l[0]).join('\n') });
+    await say(next.lines.map(([t, ms]) => [t, ms, 'LARS VEGAS']));
+    S.talked.add(next.claim); story.lore.push({ key: 'albers_' + next.id, title: 'Vegas an der Tür', html: next.lines.map(l => l[0]).join('\n') });
     sideStart('albers_spinn'); albers_claimCheck();
     if (!ALBERS_TALKS.some(T => !S.talked.has(T.claim) && T.when())) setTimeout(() => subtitle('Die Kette rasselt. Die Tür geht zu. Drinnen knurrt Bruno, bis die Schritte weg sind.', 4200), 600);
-  } else await say([[S.talked.size >= ALBERS_TALKS.length ? '„Ich hab gesagt, was ich weiß. Jetzt geh. Und mach die Lampe aus.“' : '„Geh weg. Komm wieder, wenn du was gesehen hast. Dann reden wir.“', 3800, 'WALTER ALBERS']]);
+  } else await say([[S.talked.size >= ALBERS_TALKS.length ? '„Ich hab gesagt, was ich weiß. Jetzt geh. Und mach die Lampe aus.“' : '„Geh weg. Komm wieder, wenn du was gesehen hast. Dann reden wir.“', 3800, 'LARS VEGAS']]);
   S.open = 0; Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); state.talking = false; S.busy = false;
 }
-WORLD_MODS.push(['Albers', async () => {
+WORLD_MODS.push(['Vegas', async () => {
   const S = albers_S, D = S.door;
-  story.side.albers_spinn = { title: 'Walter Albers\' Spinnereien', desc: 'Der alte Albers erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
+  story.side.albers_spinn = { title: 'Lars Vegas\' Spinnereien', desc: 'Der alte Vegas erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
   S.light = new VLight(0xffb070, 0, 4, 2); S.light.position.set(D.x, 1.9, D.z + .25); scene.add(S.light);   // Lampenlicht aus dem Türspalt
   S.beam = new VLight(0xffc890, 0, 5, 2); S.beam.position.set(D.x + .3, 1.2, D.z + 1.4); scene.add(S.beam);    // Taschenlampe, die dich anleuchtet
   S.hit = box(1.1, 2.1, .3, D.x, 1.5, D.z + .15, hidden, { cast: false }); uninteract(S.hit);
-  interact(S.hit, () => ALBERS_TALKS.some(T => !albers_S.talked.has(T.claim) && T.when()) ? 'An Albers\' Tür klopfen' : 'Albers\' Tür', () => albers_talk()); uninteract(S.hit);
+  interact(S.hit, () => ALBERS_TALKS.some(T => !albers_S.talked.has(T.claim) && T.when()) ? 'An Vegas\' Tür klopfen' : 'Vegas\' Tür', () => albers_talk()); uninteract(S.hit);
   const F = await figuren_load('alter_mann');
   if (F) { const w = await figuren_clone(F, 1.74); w.position.set(D.x + .2, .45, D.z + .45); // tritt einen Schritt auf die Veranda, die Tür hinter sich angelehnt w.visible = false; scene.add(w); S.fig = w;
     S.mx = new THREE.AnimationMixer(w.children[0]); for (const k of ['idle', 'talk']) if (F.clips[k]) S.act[k] = S.mx.clipAction(F.clips[k]); if (S.act.idle) S.act.idle.play(); }

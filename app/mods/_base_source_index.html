@@ -253,7 +253,7 @@
   <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AM ANFANG JEDES KAPITELS</div></div></div>
 <div id="endcard" class="overlay">
   <h1>KAPITEL 1 — ENDE</h1>
-  <p>Frau Wendt ist fort. Lenas Stimme auf dem Band sagte: <i>„Du auch.“</i><br>Warum erinnerst du dich nicht an den Sommer 2009?</p>
+  <p>Frau Wendt ist fort. Lucys Stimme auf dem Band sagte: <i>„Du auch.“</i><br>Warum erinnerst du dich nicht an den Sommer 2009?</p>
   <div class="stats" id="endStats"></div>
   <p class="next" style="margin-top:26px;letter-spacing:.3em;font-size:13px;font-family:Georgia">KAPITEL 2 · DAS ACHTE KIND</p>
   <div class="go">KLICKEN FÜR KAPITEL 2</div>
@@ -264,7 +264,7 @@
   <div id="menu">
     <h1><span class="l">HIGH ABYSS</span>MIRA</h1>
     <svg class="orn" viewBox="0 0 320 14"><path d="M0 7h132M188 7h132" stroke="#c9a36a" stroke-width="1"/><path d="M160 1l6 6-6 6-6-6z" fill="none" stroke="#c9a36a"/><circle cx="146" cy="7" r="1.5" fill="#c9a36a"/><circle cx="174" cy="7" r="1.5" fill="#c9a36a"/></svg>
-    <div class="sub">EIN HORRORSPIEL · BIRKENHAIN</div>
+    <div class="sub">EIN HORRORSPIEL · LOST EYENGLESS</div>
     <div id="loadBar"><i></i></div><div id="goText">LADE …</div>
     <div id="mainMenu" style="display:none">
       <button id="mCont" style="display:none">Weiterspielen<small id="mContSub"></small></button>
@@ -277,7 +277,7 @@
     </div>
   </div>
   <div id="subPanel" class="panel"></div>
-  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.0</span><span>KAPITEL 1–3 · BIRKENHAIN</span></div>
+  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.0</span><span>KAPITEL 1–3 · LOST EYENGLESS</span></div>
 </div>
 <div id="introSeq"><div id="intro"></div><div class="skip">KLICKEN ZUM ÜBERSPRINGEN</div></div>
 
@@ -678,7 +678,7 @@ let flashOn = true;
 // --- TASCHENLAMPE: drei Stufen im Spielverlauf + Batterie. Nie blockierend: leer = schwaches Restglimmen, nie völlig blind.
 // life = Sekunden Dauerlicht pro Batterie · angle = halber Öffnungswinkel (rad) · Werte hier zentral abstimmen
 const FLASH_TIERS = [
-  { key: 'lampe1', name: 'Lenas alte Taschenlampe', desc: 'Blechgehäuse, Glühbirne, „L.B.“ eingeritzt. Warmes, kurzes Licht. Frisst Batterien.', intensity: 12, distance: 24, angle: .46, color: 0xffdcae, life: 420 },
+  { key: 'lampe1', name: 'Lucys alte Taschenlampe', desc: 'Blechgehäuse, Glühbirne, „L.B.“ eingeritzt. Warmes, kurzes Licht. Frisst Batterien.', intensity: 12, distance: 24, angle: .46, color: 0xffdcae, life: 420 },
   { key: 'lampe2', name: 'Stablampe (LED)', desc: 'Aus dem Wachraum des Amts. Kaltes, weites Licht. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“.', intensity: 16, distance: 33, angle: .5, color: 0xf1f3ff, life: 780 },
   { key: 'lampe3', name: 'Feuerwehr-Handscheinwerfer', desc: 'Schwer, orange, Tragegriff. Lag in der Tankstelle Kranz, als hätte ihn jemand für dich hingelegt.', intensity: 21, distance: 42, angle: .58, color: 0xf7f8ff, life: 1200 },
 ];
@@ -863,7 +863,7 @@ box(2.4, .6, .25, 21, Y + .55, -15.8, fabricMat(0x4a3030));
 box(1.2, .42, .7, 23.3, Y + .21, -15.1, M.wood, { collide: true });
 plane(3.2, 2.2, 22.5, Y + .005, -15, new THREE.MeshStandardMaterial({ color: 0x3a1c16, roughness: 1, normalMap: M.fabric.normalMap }));
 const newspaper = plane(.5, .36, 23.3, Y + .43, -15.1, new THREE.MeshStandardMaterial({ roughness: .9, map: tex(cnv(256, (c, w, h) => {
-  c.fillStyle = '#cbc4b0'; c.fillRect(0, 0, w, h); c.fillStyle = '#222'; c.font = 'bold 22px Georgia'; c.fillText('BIRKENHAIN-KURIER', 12, 34); c.fillRect(10, 42, w - 20, 2);
+  c.fillStyle = '#cbc4b0'; c.fillRect(0, 0, w, h); c.fillStyle = '#222'; c.font = 'bold 22px Georgia'; c.fillText('LOST EYENGLESS-KURIER', 12, 34); c.fillRect(10, 42, w - 20, 2);
   c.font = 'bold 18px Georgia'; c.fillText('Dritte Vermisste', 12, 72); c.fillText('in diesem Jahr', 12, 94); c.fillStyle = '#555'; for (let i = 0; i < 10; i++) c.fillRect(12, 110 + i * 12, rand(90, 150), 5); c.fillStyle = '#333'; c.fillRect(170, 60, 70, 80); }), true) }), -PI / 2, .3);
 const tvCanvas = document.createElement('canvas'); tvCanvas.width = 96; tvCanvas.height = 72; const tvCtx = tvCanvas.getContext('2d'); const tvTex = new THREE.CanvasTexture(tvCanvas);
 box(1.4, .6, .5, 21.3, Y + .3, -12.6, M.wood, { collide: true });
@@ -951,7 +951,7 @@ const crayon = tex(cnv(512, (c, w, h) => {
     if (i === 4) { for (let k = 0; k < 8; k++) { const sx = px + 12 + k * 15; c.beginPath(); c.arc(sx, py + 50, 5, 0, 7); c.moveTo(sx, py + 55); c.lineTo(sx, py + 80); c.moveTo(sx, py + 80); c.lineTo(sx - 5, py + 95); c.moveTo(sx, py + 80); c.lineTo(sx + 5, py + 95); c.stroke(); } c.font = '18px Caveat'; c.fillStyle = '#101010'; c.fillText('wir 8', px + 40, py + 20); }
     else { c.beginPath(); c.ellipse(px + 60, py + 35, 45, 10, 0, 0, 7); c.stroke(); c.beginPath(); c.moveTo(px + 45, py + 42); c.lineTo(px + 20, py + 105); c.moveTo(px + 75, py + 42); c.lineTo(px + 100, py + 105); c.stroke();
       c.beginPath(); c.arc(px + 60, py + 80, 5, 0, 7); c.stroke(); } }
-  c.font = '44px Caveat'; c.fillStyle = '#8a1010'; c.fillText('KAI + LENA', 150, 500);
+  c.font = '44px Caveat'; c.fillStyle = '#8a1010'; c.fillText('LUKE + LUCY', 150, 500);
 }), true);
 plane(4.8, 2.4, -53, Y + 1.5, -21.77, new THREE.MeshStandardMaterial({ map: crayon, transparent: true, roughness: 1 }), 0, 0);
 // Elternschlafzimmer
@@ -1203,7 +1203,7 @@ addCol(-14, -4.2, -47, -31); addCol(4.2, 14, -47, -31); addCol(-5, 5, -47, -46);
 // Ortsschild
 (() => {
   const t = tex(cnv(256, (c, w) => { c.fillStyle = '#d0b64a'; c.fillRect(0, 0, w, w / 2); c.strokeStyle = '#111'; c.lineWidth = 6; c.strokeRect(6, 6, w - 12, w / 2 - 12);
-    c.fillStyle = '#111'; c.font = 'bold 36px Arial'; c.textAlign = 'center'; c.fillText('Birkenhain', w / 2, 62); c.font = '18px Arial'; c.fillText('Einwohner: 214', w / 2, 96);
+    c.fillStyle = '#111'; c.font = 'bold 36px Arial'; c.textAlign = 'center'; c.fillText('Lost Eyengless', w / 2, 62); c.font = '18px Arial'; c.fillText('Einwohner: 214', w / 2, 96);
     c.strokeStyle = '#7a0000'; c.lineWidth = 5; c.beginPath(); c.moveTo(70, 90); c.lineTo(190, 100); c.stroke(); c.fillStyle = '#7a0000'; c.font = 'bold 22px Arial'; c.fillText('211', 212, 118); }), true);
   t.repeat.set(1, .5); t.offset.set(0, .5);
   const s = new THREE.Mesh(new THREE.PlaneGeometry(1.6, .8), new THREE.MeshStandardMaterial({ map: t, roughness: .5 })); s.position.set(-72, 2.1, 6.2); s.rotation.y = PI / 2; scene.add(s);
@@ -1759,7 +1759,7 @@ async function renderEditor() {
   const tabs = [['regeln', 'NAMEN & REGELN'], ['texte', 'ALLE TEXTE'], ['sichern', 'SICHERN']];
   let body = '';
   if (edTab === 'regeln') {
-    const chips = ['Justin', 'Mira', 'Lena', 'Kai', 'Hilde Wendt', 'Frau Wendt', 'Albers', 'Bruno', 'Birkenhain', 'Amt für Rückführung', 'Ratte', 'Krähe', 'Spinne', 'Fledermaus', 'Zombie', 'Ritter'];
+    const chips = ['Justin', 'Mira', 'Lucy', 'Luke', 'Hilde Wendt', 'Frau Wendt', 'Vegas', 'Bruno', 'Lost Eyengless', 'Amt für Rückführung', 'Ratte', 'Krähe', 'Spinne', 'Fledermaus', 'Zombie', 'Ritter'];
     body = `<p class="eh">Eine Regel ersetzt einen Namen oder Begriff <b>überall im Spiel</b> – in Untertiteln, Notizen, Aufgaben, Tagebuch und Abspann. Groß-/Kleinschreibung zählt.</p>
       <div class="rules">${TXT.rules.map((R, i) => `<div class="rule"><input data-i="${i}" data-f="from" value="${esc(R.from)}" placeholder="Original"><span>→</span><input data-i="${i}" data-f="to" value="${esc(R.to)}" placeholder="Neu"><button data-del="${i}">✕</button></div>`).join('')}</div>
       <div class="row"><button id="edAdd">+ NEUE REGEL</button></div><p class="eh">Schnell hinzufügen:</p><div class="chips">${chips.map(c => `<button data-chip="${esc(c)}">${c}</button>`).join('')}</div>`;
@@ -1816,12 +1816,12 @@ function kpPress(k) {
 // =====================================================================  STORY & AUFGABEN
 const state = { started: false, hasKey: false, readPaper: false, readFridge: false, readCal: false, cellarOpen: false, heardTape: false, inBasement: false, outage: false, ending: false,
   wrongCodes: 0, watcherGone: false, phase2: false, talking: false, flashFail: 0, ufoT: 0, p2t: 0 };
-const MAIN = ['Finde Haus Nr. 7.', 'Finde einen Weg in Haus Nr. 7.', 'Durchsuche Haus Nr. 7.', 'Öffne die Kellertür.', 'Finde heraus, was Lena hinterlassen hat.', 'Geh wieder nach oben.', 'Raus aus dem Haus. Sofort.', 'Zurück in den Keller von Nr. 7. Die Wand mit den Zeichnungen klang hohl.', 'Folge dem Gang hinter der Wand.'];
+const MAIN = ['Finde Haus Nr. 7.', 'Finde einen Weg in Haus Nr. 7.', 'Durchsuche Haus Nr. 7.', 'Öffne die Kellertür.', 'Finde heraus, was Lucy hinterlassen hat.', 'Geh wieder nach oben.', 'Raus aus dem Haus. Sofort.', 'Zurück in den Keller von Nr. 7. Die Wand mit den Zeichnungen klang hohl.', 'Folge dem Gang hinter der Wand.'];
 const story = { main: 0, lore: [], photos: new Set(),
   side: {
     home: { title: 'Das alte Zuhause', desc: 'Euer Elternhaus, Nr. 1. Mama hat es nie verkauft.', state: 'hidden', steps: {} },
-    bruno: { title: 'Bruno', desc: 'Herr Albers (Nr. 3) vermisst seinen Hund. Er lief zum abgebrannten Haus Nr. 5.', state: 'hidden' },
-    car: { title: 'Lenas Auto', desc: 'Lenas Wagen steht mit offener Tür an der Straßensperre.', state: 'hidden' },
+    bruno: { title: 'Bruno', desc: 'Herr Vegas (Nr. 3) vermisst seinen Hund. Er lief zum abgebrannten Haus Nr. 5.', state: 'hidden' },
+    car: { title: 'Lucys Auto', desc: 'Lucys Wagen steht mit offener Tür an der Straßensperre.', state: 'hidden' },
     seven: { title: 'Die Sieben', desc: 'Sieben Kerzen, sieben Polaroids. Folge den Kreidepfeilen.', state: 'hidden' },
     call: { title: 'Der Anruf', desc: 'Das Telefon an der Kreuzung klingelt.', state: 'hidden' },
   } };
@@ -1833,13 +1833,13 @@ setMain(0);
 
 // ---- Polaroids: sieben Kinder, sieben Orte – jedes mit Kerze, Hinweis und eigenem Moment auf dem Weg
 const PHOTOS = [
-  { name: 'Jana', hint: 'Im Aschekreis des abgebrannten Hauses Nr. 5.', text: 'Jana, 8. Ihr Haus ist im Dezember 2009 abgebrannt – genau dieses hier. Die Feuerwehr fand keinen Brandherd. Nur einen Kreis im Garten, in dem nie wieder Gras wuchs.', pos: [-13, .2, -10.2], candle: [-13.4, .2, -10.5], zone: [-13, -10.2, 9] },
-  { name: 'Lena', hint: 'In Lenas Auto an der Straßensperre.', text: 'Lena, 9. Hinten drauf, in Lenas Schrift:\n<span class="hand">„Damit ich mich erinnere, wer ich war.“</span>', car: [-.5, .7, .35], candle: [4.2, 0, -35.5], zone: [1.9, -37, 12] },
-  { name: 'Tim', hint: 'In der Telefonzelle an der Kreuzung.', text: 'Tim, 10. Tim ist 2021 verschwunden. Diesmal kam er nicht zurück.', booth: [.2, 1.15, -.35], candle: [8.9, .14, 8.4], zone: [8, 7.6, 8] },
-  { name: 'Mo', hint: 'Bei Frau Wendt (Nr. 7), neben dem Fernseher.', text: 'Mo, 9. Frau Wendts Handschrift auf der Rückseite:\n<span class="hand">„Klinik Sonnenhang. Malt nur noch Kreise.“</span>', pos: [21.9, Y + .61, -12.55], candle: [20.7, Y + .6, -12.55], zone: [21.3, -13.5, 3.2] },
-  { name: 'Kai', scratch: true, hint: 'In eurem Kinderzimmer (Nr. 1), auf deinem alten Bett.', text: 'Kai, 9. Das bist du.\n\nDas Kind auf dem Foto hat hellblaue Augen. Deine sind braun.\n\nWaren sie immer braun?', pos: [-50.6, Y + .46, -19], candle: [-50.6, Y + .45, -20.2], zone: [-53, -19.5, 3.2] },
-  { name: 'Sophie', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Sophie, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
-  { name: 'Ben', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Ben Wendt, 10. Frau Wendts Sohn.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Albers hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
+  { name: 'Roxy', hint: 'Im Aschekreis des abgebrannten Hauses Nr. 5.', text: 'Roxy, 8. Ihr Haus ist im Dezember 2009 abgebrannt – genau dieses hier. Die Feuerwehr fand keinen Brandherd. Nur einen Kreis im Garten, in dem nie wieder Gras wuchs.', pos: [-13, .2, -10.2], candle: [-13.4, .2, -10.5], zone: [-13, -10.2, 9] },
+  { name: 'Lucy', hint: 'In Lucys Auto an der Straßensperre.', text: 'Lucy, 9. Hinten drauf, in Lucys Schrift:\n<span class="hand">„Damit ich mich erinnere, wer ich war.“</span>', car: [-.5, .7, .35], candle: [4.2, 0, -35.5], zone: [1.9, -37, 12] },
+  { name: 'Mike', hint: 'In der Telefonzelle an der Kreuzung.', text: 'Mike, 10. Mike ist 2021 verschwunden. Diesmal kam er nicht zurück.', booth: [.2, 1.15, -.35], candle: [8.9, .14, 8.4], zone: [8, 7.6, 8] },
+  { name: 'Dina', hint: 'Bei Frau Wendt (Nr. 7), neben dem Fernseher.', text: 'Dina, 9. Frau Wendts Handschrift auf der Rückseite:\n<span class="hand">„Klinik Sonnenhang. Malt nur noch Kreise.“</span>', pos: [21.9, Y + .61, -12.55], candle: [20.7, Y + .6, -12.55], zone: [21.3, -13.5, 3.2] },
+  { name: 'Luke', scratch: true, hint: 'In eurem Kinderzimmer (Nr. 1), auf deinem alten Bett.', text: 'Luke, 9. Das bist du.\n\nDas Kind auf dem Foto hat hellblaue Augen. Deine sind braun.\n\nWaren sie immer braun?', pos: [-50.6, Y + .46, -19], candle: [-50.6, Y + .45, -20.2], zone: [-53, -19.5, 3.2] },
+  { name: 'Heidi', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Heidi, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
+  { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 10. Frau Wendts Sohn.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
 ];
 function polaroidCanvas(p) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 310; const x = c.getContext('2d');
@@ -1901,19 +1901,19 @@ PHOTOS.forEach((p, i) => {
 // Auf dem Weg zu jedem Foto passiert etwas Eigenes
 const kidShadow = makeFigure(M.skin); kidShadow.scale.setScalar(.58); kidShadow.visible = false;
 const photoWay = [
-  // Jana: im Aschekreis steht ein kleiner Schatten – im Taschenlampenlicht zerfällt er
+  // Roxy: im Aschekreis steht ein kleiner Schatten – im Taschenlampenlicht zerfällt er
   () => { kidShadow.position.set(-13, .03, -10.2); kidShadow.visible = true; state.kidShadowT = 0; Audio.giggle(-13, 1, -10.2); subtitle('Im Kreis steht jemand. Klein. Barfuß.', 3500); },
-  // Lena: Autoradio geht an, Lenas Stimme, Innenlicht flackert
-  () => { Audio.radio(1.9, -37); setTimeout(() => say([['*Radio-Rauschen*', 1800], ['„…nicht nach Hause… Kai… nicht nach Hau–“', 3200, 'AUTORADIO'], ['*Klick*', 800]]), 600); },
-  // Tim: Telefon klingelt genau einmal, dann bricht das Licht der Zelle
+  // Lucy: Autoradio geht an, Lucys Stimme, Innenlicht flackert
+  () => { Audio.radio(1.9, -37); setTimeout(() => say([['*Radio-Rauschen*', 1800], ['„…nicht nach Hause… Luke… nicht nach Hau–“', 3200, 'AUTORADIO'], ['*Klick*', 800]]), 600); },
+  // Mike: Telefon klingelt genau einmal, dann bricht das Licht der Zelle
   () => { Audio.ring(.12); setTimeout(() => { booth.light.userData.dead = true; Audio.buzz(8, 2.3, 7.6); setTimeout(() => { booth.light.userData.dead = false; }, 6000); }, 2400); },
-  // Mo: der Fernseher zeigt kurz einen Kreis, das Wohnzimmerlicht stirbt
+  // Dina: der Fernseher zeigt kurz einen Kreis, das Wohnzimmerlicht stirbt
   () => { state.tvCircle = 2.5; livingLight.userData.dim = 4; setTimeout(() => livingLight.userData.dim = 0, 4000); Audio.buzz(25.3, 2, -16.5); },
-  // Kai: Spieluhr, und auf der Wand erscheint ein achtes Strichmännchen
+  // Luke: Spieluhr, und auf der Wand erscheint ein achtes Strichmännchen
   () => { Audio.musicBox(); setTimeout(() => { eighthFigure.visible = true; Audio.whisper(-53, 1.5, -21.5, 1.6); subtitle('<i>… das bin ich …</i>', 2200); }, 2200); },
-  // Sophie: der Wasserhahn tropft, dann schwingt der Schrank über der Spüle auf
+  // Heidi: der Wasserhahn tropft, dann schwingt der Schrank über der Spüle auf
   () => { for (let i = 0; i < 5; i++) setTimeout(() => Audio.drip(-53.4, Y + 1, -12.6), i * 700); setTimeout(() => { state.cupboardOpen = true; Audio.creak(.3); }, 3800); },
-  // Ben: die Ketten an der Kellerwand schwingen von allein
+  // Zayn: die Ketten an der Kellerwand schwingen von allein
   () => { state.chainsT = 6; Audio.chains(B.x - 4.8, 1.5, B.z - 1.5); },
 ];
 const photoAfter = [
@@ -1951,7 +1951,7 @@ interact(mailbox7, 'Briefkasten öffnen', () => {
   if (state.hasKey) return toast('Leer. Nur ein toter Falter.');
   state.hasKey = true; door7.locked = false; setMain(1); setTimeout(() => addItem('key'), 900);
   tween(mailbox7.userData.lid, { rx: 1.45 }, .5); Audio.play('metalOpen', { gain: .35, rate: 1.4, x: 28.4, y: 1.2, z: -6.9, ref: 2 });
-  setTimeout(() => { Audio.chime(); liftTo(keyMesh, () => openNote('Im Briefkasten', 'Ein Schlüssel an einem roten Band. Am Anhänger, in Lenas Handschrift:\n\n<span class="hand">„Nr. 7 – falls ich nicht zurückkomme. L.“</span>\n\nAuf der Rückseite, kleiner:\n<span class="hand">„Hilde hat unsere Fotos verteilt. Sie hat Kerzen dazugestellt. Folge den Pfeilen.“</span>', 'key'), false); }, 520);
+  setTimeout(() => { Audio.chime(); liftTo(keyMesh, () => openNote('Im Briefkasten', 'Ein Schlüssel an einem roten Band. Am Anhänger, in Lucys Handschrift:\n\n<span class="hand">„Nr. 7 – falls ich nicht zurückkomme. L.“</span>\n\nAuf der Rückseite, kleiner:\n<span class="hand">„Hilde hat unsere Fotos verteilt. Sie hat Kerzen dazugestellt. Folge den Pfeilen.“</span>', 'key'), false); }, 520);
   setTimeout(() => sideStart('seven'), 5000);
   setTimeout(() => sideStart('call'), 20000);
 });
@@ -1962,41 +1962,41 @@ function doorAction(D, lockedText) {
     if (D === door7 && D.open) setMain(2);
   };
 }
-interact(door7.leaf, () => door7.open ? 'Tür schließen' : 'Tür öffnen', doorAction(door7, 'Abgeschlossen. Lena hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.'));
+interact(door7.leaf, () => door7.open ? 'Tür schließen' : 'Tür öffnen', doorAction(door7, 'Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.'));
 interact(newspaper, 'Zeitung lesen', () => { state.readPaper = true;
-  liftTo(newspaper, () => openNote('BIRKENHAIN-KURIER · 29. Oktober', '<b>Dritte Vermisste in diesem Jahr</b>\n\nLena B. (24) wird seit dem <b>23. Oktober</b> vermisst. Zuletzt wurde sie an der Kreuzung Ahornstraße / Birkenweg gesehen.\n\nAnwohner berichten erneut von „Lichtern über dem Wald“. Die Polizei sieht keinen Zusammenhang.\n\nAm Rand, mit Kuli:\n<span class="hand">„Sie war nie weg. Nicht richtig.“</span>', 'paper')); });
+  liftTo(newspaper, () => openNote('LOST EYENGLESS-KURIER · 29. Oktober', '<b>Dritte Vermisste in diesem Jahr</b>\n\nLena B. (24) wird seit dem <b>23. Oktober</b> vermisst. Zuletzt wurde sie an der Kreuzung Ahornstraße / Birkenweg gesehen.\n\nAnwohner berichten erneut von „Lichtern über dem Wald“. Die Polizei sieht keinen Zusammenhang.\n\nAm Rand, mit Kuli:\n<span class="hand">„Sie war nie weg. Nicht richtig.“</span>', 'paper')); });
 interact(fridgeNote, 'Zettel lesen', () => { state.readFridge = true; setMain(3);
   openNote('Zettel am Kühlschrank', '<span class="hand">KELLER BLEIBT ZU!!\n\nCode = der Tag, an dem sie <u>zurückkam</u>.\n(Tag + Monat. Ich vergesse sonst alles.)\n\n– H. Wendt</span>', 'fridge', () => { if (!state.scFridge) { state.scFridge = true; setTimeout(() => armBehind(6, Y, 'wendt'), 200); } }); });
 interact(calendar, 'Kalender ansehen', () => { if (!state.readCal) Audio.stinger(false); state.readCal = true;
-  openNote('Kalender · Oktober', 'Der <b>23.</b> ist rot durchgestrichen. Daneben: <span class="hand">„weg“</span>\n\nDer <b>31.</b> ist dick eingekreist. Darunter, mehrfach nachgezogen:\n\n<span class="hand" style="color:#8a1010">„SIE IST ZURÜCK.\nABER DAS IST NICHT LENA.“</span>', 'calendar'); });
+  openNote('Kalender · Oktober', 'Der <b>23.</b> ist rot durchgestrichen. Daneben: <span class="hand">„weg“</span>\n\nDer <b>31.</b> ist dick eingekreist. Darunter, mehrfach nachgezogen:\n\n<span class="hand" style="color:#8a1010">„SIE IST ZURÜCK.\nABER DAS IST NICHT LUCY.“</span>', 'calendar'); });
 interact(cellarDoor, 'Kellertür', () => toast('Eine Stahltür. Frische Kratzspuren. Von innen.'));
 interact(keypadMesh, 'Tastenfeld benutzen', () => { setMain(3); if (state.cellarOpen) return enterBasement(); kpValue = ''; kpRender(); openOverlay('keypad'); });
 interact(tvScreen, 'Fernseher', () => toast(state.tvSeen ? 'Nur Rauschen. Jetzt.' : 'Rauschen. Du könntest schwören, darin bewegt sich etwas.'));
 interact(B.tape, 'Kassette abspielen', async () => {
   if (state.talking) return; state.talking = true; Audio.tape(true); state.tapeOn = true; Audio.play('switch1', { gain: .5, x: B.x + 2, y: .9, z: B.z - 3.2, ref: 1.5 });
-  await say([['*Rauschen*', 2200], ['„Wenn das jemand findet … ich bin’s. Lena.“', 3600, 'LENA · TONBAND'], ['„Die Leute hier sind nicht mehr die Leute von früher.“', 3600, 'LENA · TONBAND'],
-    ['„Frau Wendt steht nachts im Garten und starrt nach oben. Stundenlang.“', 4200, 'LENA · TONBAND'], ['„Ich weiß jetzt, warum ich mich an den Sommer 2009 nicht erinnern kann.“', 4400, 'LENA · TONBAND'],
-    ['„Wir waren beide weg. Du auch.“', 3600, 'LENA · TONBAND']]);
+  await say([['*Rauschen*', 2200], ['„Wenn das jemand findet … ich bin’s. Lucy.“', 3600, 'LUCY · TONBAND'], ['„Die Leute hier sind nicht mehr die Leute von früher.“', 3600, 'LUCY · TONBAND'],
+    ['„Frau Wendt steht nachts im Garten und starrt nach oben. Stundenlang.“', 4200, 'LUCY · TONBAND'], ['„Ich weiß jetzt, warum ich mich an den Sommer 2009 nicht erinnern kann.“', 4400, 'LUCY · TONBAND'],
+    ['„Wir waren beide weg. Du auch.“', 3600, 'LUCY · TONBAND']]);
   await basementScare();
-  await say([['„Sie haben uns zurückgebracht. Aber nicht alles von uns.“', 4200, 'LENA · TONBAND'], ['„Wenn du das hörst … komm nicht nach Hause.“', 4200, 'LENA · TONBAND'], ['*Klick*', 1500]]);
+  await say([['„Sie haben uns zurückgebracht. Aber nicht alles von uns.“', 4200, 'LUCY · TONBAND'], ['„Wenn du das hörst … komm nicht nach Hause.“', 4200, 'LUCY · TONBAND'], ['*Klick*', 1500]]);
   Audio.tape(false); state.tapeOn = false; Audio.play('switch2', { gain: .5, x: B.x + 2, y: .9, z: B.z - 3.2, ref: 1.5 }); Audio.stinger(true); state.heardTape = true; state.talking = false; setMain(5); addItem('tape');
-  story.lore.push({ key: 'tape', title: 'Lenas Tonband', html: '„Wir waren beide weg. Du auch.\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst … komm nicht nach Hause.“' });
+  story.lore.push({ key: 'tape', title: 'Lucys Tonband', html: '„Wir waren beide weg. Du auch.\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst … komm nicht nach Hause.“' });
 });
 interact(B.wallArt, 'Zeichnungen ansehen', () => toast('Kinderzeichnungen. Immer dasselbe Motiv. Manche sind mit deinem Namen signiert.', 4500));
 const stairs = box(1.2, 2, 1, B.x + 4.2, 1, B.z - .5, hidden, { cast: false });
-interact(stairs, 'Nach oben gehen', () => { if (!state.heardTape) return toast('Noch nicht. Lena wollte, dass du hier etwas findest.'); leaveBasement(); });
+interact(stairs, 'Nach oben gehen', () => { if (!state.heardTape) return toast('Noch nicht. Lucy wollte, dass du hier etwas findest.'); leaveBasement(); });
 
 // ---- Nr. 1 – Elternhaus
 interact(door1.leaf, () => door1.open ? 'Tür schließen' : 'Tür öffnen', () => {
   if (!state.home1) { state.home1 = true; sideStart('home'); toast('Der Schlüssel liegt noch unter der Fußmatte. Wie früher.'); }
   doorAction(door1, '')();
 });
-interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lena, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt.\n\nDu kannst dich nicht erinnern, wer da neben dir stand.', 'familyphoto'));
+interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt.\n\nDu kannst dich nicht erinnern, wer da neben dir stand.', 'familyphoto'));
 interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen.', 'album')));
 interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
 interact(loose, 'Lose Diele untersuchen', () => {
   state.diary = true; uninteract(loose); tween(loose, { pos: loose.position.clone().setY(loose.position.y + .07), rz: .3 }, .45); Audio.play('woodCrack', { gain: .6, x: -53.2, y: .5, z: -18.4, ref: 2 }); story.side.home.steps.diary = true; checkHome();
-  openNote('Lenas Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Kai sagt, es summt. Ich hör nichts.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\n\n5. August 2009 — Kai ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Kai nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
+  openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
   setTimeout(() => { if (!state.ghostDone) { ghost.visible = true; ghost.position.set(-45.3, Y, -13.2); ghost.rotation.y = rand(0, 6); state.ghostArmed = true; } }, 500);
 });
 const openDrawer = () => {
@@ -2005,15 +2005,15 @@ const openDrawer = () => {
   setTimeout(() => { ui.onClose2 = () => { tween(drawer, { pos: drawer.position.clone().setX(-44.55) }, .4); Audio.play('woodClose1', { gain: .35, delay: .3, x: -44.5, y: 1, z: -18.6, ref: 2 }); }; openNote('Ein Brief, nie abgeschickt', '<span class="hand">Meine Kinder,\n\ndie Männer vom „Amt“ kamen jeden Donnerstag. Sie haben euch vermessen, gewogen, euch Fragen gestellt, an die ihr euch hinterher nicht erinnert habt.\n\nIch habe unterschrieben, damit sie euch zurückbringen.\n\nIch wusste nicht, dass sie nicht <u>beide</u> von euch zurückbringen würden.\n\nVerzeiht mir.\n— Mama</span>', 'letter'); }, 420);
 };
 interact(dresser, 'Schublade öffnen', openDrawer); interact(drawer, 'Schublade öffnen', openDrawer);
-interact(wLeaf, () => state.wOpen ? 'Schrank schließen' : 'Schrank öffnen', () => { state.wOpen = !state.wOpen; tween(wPiv, { ry: state.wOpen ? 1.5 : 0 }, .6); Audio.creak(state.wOpen ? .3 : .15); if (!state.wOpen) return; if (!state.scWardrobe) { state.scWardrobe = true; setTimeout(scareWardrobe, 350); setTimeout(() => toast('Nur Mäntel. Mamas Mäntel. Sie riechen noch nach ihr. Und nach Motten.', 4500), 2600); } else toast('Mamas Mäntel. Ganz hinten: ein Kinderschuh. Nicht deiner. Nicht Lenas.'); });
-function checkHome() { const s = story.side.home.steps; if (s.diary && s.letter) sideDone('home', 'Lenas Tagebuch und Mamas Brief gefunden.'); else if (s.diary || s.letter) story.side.home.desc = s.diary ? 'Lenas Tagebuch gefunden. Hat Mama etwas hinterlassen?' : 'Mamas Brief gefunden. Lena hatte früher ein Versteck im Kinderzimmer.'; }
+interact(wLeaf, () => state.wOpen ? 'Schrank schließen' : 'Schrank öffnen', () => { state.wOpen = !state.wOpen; tween(wPiv, { ry: state.wOpen ? 1.5 : 0 }, .6); Audio.creak(state.wOpen ? .3 : .15); if (!state.wOpen) return; if (!state.scWardrobe) { state.scWardrobe = true; setTimeout(scareWardrobe, 350); setTimeout(() => toast('Nur Mäntel. Mamas Mäntel. Sie riechen noch nach ihr. Und nach Motten.', 4500), 2600); } else toast('Mamas Mäntel. Ganz hinten: ein Kinderschuh. Nicht deiner. Nicht Lucys.'); });
+function checkHome() { const s = story.side.home.steps; if (s.diary && s.letter) sideDone('home', 'Lucys Tagebuch und Mamas Brief gefunden.'); else if (s.diary || s.letter) story.side.home.desc = s.diary ? 'Lucys Tagebuch gefunden. Hat Mama etwas hinterlassen?' : 'Mamas Brief gefunden. Lucy hatte früher ein Versteck im Kinderzimmer.'; }
 
-// ---- Nr. 3 – Herr Albers
+// ---- Nr. 3 – Herr Vegas
 interact(doorOf[3], 'Klopfen', async () => {
   if (state.talking) return; state.talking = true; Audio.knock(); await wait(1200);
-  const A = 'HERR ALBERS · HINTER DER TÜR';
+  const A = 'HERR VEGAS · HINTER DER TÜR';
   if (story.side.bruno.state === 'hidden') {
-    await say([['„Wer ist da? … Kai? Kai Brandt? Mein Gott, bist du groß geworden.“', 4200, A], ['„Ich mach nicht auf. Nicht nachts. Nicht mehr.“', 3400, A],
+    await say([['„Wer ist da? … Luke? Luke Brandt? Mein Gott, bist du groß geworden.“', 4200, A], ['„Ich mach nicht auf. Nicht nachts. Nicht mehr.“', 3400, A],
       ['„Bruno ist weg, mein Hund. Seit Dienstag. Ist rüber zum Brandhaus und nicht zurückgekommen.“', 4800, A], ['„Wenn du ihn siehst … bitte.“', 3000, A]]);
     sideStart('bruno');
   } else if (story.side.bruno.state === 'active' && !state.hasCollar) {
@@ -2021,9 +2021,9 @@ interact(doorOf[3], 'Klopfen', async () => {
   } else if (state.hasCollar && story.side.bruno.state !== 'done') {
     await say([['„Das ist … Brunos Halsband.“', 3200, A], ['„Hast du den Kreis gesehen? Im Gras? Den gab es 2009 auch.“', 4200, A],
       ['„Der Sommer, in dem ihr Kinder vier Tage weg wart. Sieben sind gegangen.“', 4500, A], ['„Und eines Morgens standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“', 4800, A],
-      ['„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“', 4400, A], ['„Geh nach Hause, Kai. Solange du noch weißt, wo das ist.“', 4000, A]]);
-    sideDone('bruno', 'Albers hat das Halsband bekommen. Und sieben Kinder gezählt.');
-    story.lore.push({ key: 'albers', title: 'Was Albers gesehen hat', html: '„Sieben sind gegangen. Und eines Morgens standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“\n\n„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“' });
+      ['„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“', 4400, A], ['„Geh nach Hause, Luke. Solange du noch weißt, wo das ist.“', 4000, A]]);
+    sideDone('bruno', 'Vegas hat das Halsband bekommen. Und sieben Kinder gezählt.');
+    story.lore.push({ key: 'albers', title: 'Was Vegas gesehen hat', html: '„Sieben sind gegangen. Und eines Morgens standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“\n\n„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“' });
     porchLights[0].dead = true;
   } else await say([['…', 1500], ['Hinter der Tür bleibt es still. Aber das Licht im Flur ist aus.', 3500]]);
   state.talking = false;
@@ -2031,15 +2031,15 @@ interact(doorOf[3], 'Klopfen', async () => {
 interact(collar, 'Halsband aufheben', () => {
   state.hasCollar = true; Audio.chime(); addItem('collar'); liftTo(collar.parent, () => {
   if (story.side.bruno.state === 'hidden') { story.side.bruno.state = 'active'; questPop('NEUE NEBENAUFGABE', 'Bruno'); }
-  story.side.bruno.desc = 'Bring Herrn Albers (Nr. 3) das Halsband.'; updateSideInfo();
-  openNote('Ein Hundehalsband', 'Rotes Leder, eine Messingmarke: <b>BRUNO · Albers · Ahornstr. 3</b>\n\nEs liegt genau am Rand des verbrannten Kreises. Die Schnalle ist noch geschlossen.', 'collar'); }, false);
+  story.side.bruno.desc = 'Bring Herrn Vegas (Nr. 3) das Halsband.'; updateSideInfo();
+  openNote('Ein Hundehalsband', 'Rotes Leder, eine Messingmarke: <b>BRUNO · Vegas · Ahornstr. 3</b>\n\nEs liegt genau am Rand des verbrannten Kreises. Die Schnalle ist noch geschlossen.', 'collar'); }, false);
 });
 
-// ---- Lenas Auto & Telefon
-interact(lenaPhone, 'Lenas Handy', () => {
+// ---- Lucys Auto & Telefon
+interact(lenaPhone, 'Lucys Handy', () => {
   if (!lenaCar.userData.open) return toast('Die Tür ist zu. Nicht abgeschlossen – nur zu.');
-  sideDone('car', 'Lenas Handy gefunden.'); addItem('phone');
-  liftTo(lenaPhone, () => openNote('Lenas Handy · 3 % Akku', 'Verpasste Anrufe: <b>Kai</b> (23.10., 23:41) · <b>Kai</b> (23.10., 23:52)\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Kai, gestern, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
+  sideDone('car', 'Lucys Handy gefunden.'); addItem('phone');
+  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Verpasste Anrufe: <b>Luke</b> (23.10., 23:41) · <b>Luke</b> (23.10., 23:52)\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, gestern, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
 });
 const heldHandset = box(.06, .24, .05, .3, -.2, -.42, M.dark, { parent: camera, cast: false }); heldHandset.rotation.set(.4, 0, .7); heldHandset.visible = false;
 function handset(up) { booth.handset.visible = !up; heldHandset.visible = up; Audio.play(up ? 'metalHit2' : 'switch1', { gain: .35, rate: up ? 1.6 : 1, x: 8, y: 1.5, z: 7.6, ref: 2 }); }
@@ -2047,9 +2047,9 @@ interact(booth.phone, 'Hörer abnehmen', async () => {
   if (state.talking) return;
   if (!state.ringing) { state.talking = true; handset(true); await wait(1400); toast('Tot. Kein Freizeichen.'); await wait(900); handset(false); state.talking = false; return; }
   state.talking = true; state.ringing = false; state.callDone = true; handset(true); await wait(600);
-  await say([['*Rauschen*', 2000], ['„…Kai? Hörst du mich?“', 2800, 'STIMME'], ['„Geh nicht in den Keller. Da unten ist nicht Lena.“', 4000, 'STIMME'], ['Die Stimme. Das ist … deine eigene.', 3600], ['*Freizeichen*', 1800]]);
+  await say([['*Rauschen*', 2000], ['„…Luke? Hörst du mich?“', 2800, 'STIMME'], ['„Geh nicht in den Keller. Da unten ist nicht Lucy.“', 4000, 'STIMME'], ['Die Stimme. Das ist … deine eigene.', 3600], ['*Freizeichen*', 1800]]);
   handset(false); state.talking = false; sideDone('call', 'Jemand hat dich mit deiner eigenen Stimme gewarnt.'); setTimeout(() => armBehind(8, 0, 'doppel'), 400);
-  story.lore.push({ key: 'call', title: 'Der Anruf', html: '„…Kai? Hörst du mich? Geh nicht in den Keller. Da unten ist nicht Lena.“\n\nDie Stimme war deine eigene.' });
+  story.lore.push({ key: 'call', title: 'Der Anruf', html: '„…Luke? Hörst du mich? Geh nicht in den Keller. Da unten ist nicht Lucy.“\n\nDie Stimme war deine eigene.' });
 });
 
 // ---- Sequenzen
@@ -2080,7 +2080,7 @@ async function ending() {
   if (state.ending) return; state.ending = true; Audio.stinger(true);
   for (let i = 0; i < 20; i++) { filmPass.uniforms.flash.value = i / 20; await wait(30); }
   await fade(1, 400); filmPass.uniforms.flash.value = 0; Audio.hum(false); if (Audio.drone) Audio.drone.gain.value = 0;
-  if (SEAMLESS) { // kein Schnitt, keine Endkarte: das Licht ist fort, Frau Wendt mit ihm – Kai steht noch auf der Straße
+  if (SEAMLESS) { // kein Schnitt, keine Endkarte: das Licht ist fort, Frau Wendt mit ihm – Luke steht noch auf der Straße
     state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; ufo.userData.beam.uniforms.opacity.value = 0; ufo.userData.motes.material.opacity = 0; victim.visible = false; vel.set(0, 0, 0);
     await wait(1800); state.ending = false; state.ch1Done = true; state.cellarOpen = true; saveFlag('ch2'); if (Audio.drone) Audio.drone.gain.value = .02;
     fade(0, 2600); await wait(1400); subtitle('Stille. Kein Brummen mehr. Wo sie stand, glänzt der Asphalt, als hätte es nur dort geregnet.', 5200);
@@ -2146,7 +2146,7 @@ function beginGame() {
   Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie');
   $('fade').style.transition = 'none'; $('fade').style.opacity = 1; lockPointer();
   setTimeout(async () => { await fade(0, 2800); }, 250);
-  setTimeout(() => subtitle('Birkenhain. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000), 1800);
+  setTimeout(() => subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000), 1800);
   setTimeout(() => sideStart('home'), 8500); saveGame(1);
 }
 
@@ -2323,7 +2323,7 @@ function drawFace(kind = 'pale') {
     x.fillStyle = 'rgba(0,0,0,.08)'; x.fillRect(0, 0, W, H); grain(18); x.restore();
     x.font = '38px Caveat, cursive'; x.fillStyle = '#8a1010'; x.fillText('das bin ich', 300, 560);
   } else if (kind === 'lena') {
-    // Lena – halb vertraut, halb Bildstörung, ein Auge weiß
+    // Lucy – halb vertraut, halb Bildstörung, ein Auge weiß
     const sk = x.createRadialGradient(256, 270, 30, 256, 320, 240); sk.addColorStop(0, '#d9c9b5'); sk.addColorStop(.7, '#8a7462'); sk.addColorStop(1, '#221a14'); x.fillStyle = sk; x.fillRect(0, 0, W, H);
     eye(186, 258, 22, '#3a2a1a', true); const g = x.createRadialGradient(326, 258, 2, 326, 258, 34); g.addColorStop(0, '#fff'); g.addColorStop(.7, '#e8e8f0'); g.addColorStop(1, 'rgba(200,200,220,0)'); x.fillStyle = g; x.beginPath(); x.arc(326, 258, 34, 0, 7); x.fill();
     x.strokeStyle = '#2a1a12'; x.lineWidth = 5; x.beginPath(); x.moveTo(150, 215); x.quadraticCurveTo(186, 200, 222, 214); x.moveTo(290, 214); x.quadraticCurveTo(326, 200, 362, 215); x.stroke();
@@ -2411,7 +2411,7 @@ async function scareChair() {
     if (i === 0) { Audio.scareSound('whisperBurst'); shake = .06; } await wait(i === 2 ? 320 : 110);
     b.dark = true; b.bulb.material.emissiveIntensity = 0; sitter.visible = false; await wait(rand(180, 420));
   }
-  await wait(500); Audio.whisper(B.x - 1, 1.5, B.z, 1.2); subtitle('<i>… Kai …</i>', 1500); await wait(900);
+  await wait(500); Audio.whisper(B.x - 1, 1.5, B.z, 1.2); subtitle('<i>… Luke …</i>', 1500); await wait(900);
   b.dark = false; b.bulb.material.emissiveIntensity = 5; state.blackout = false; flashOn = true; state.flashFail = 1.2;
   toast('Der Stuhl ist leer. Die Riemen sind geschlossen. Als hätte nie jemand darin gesessen.', 5000);
 }
@@ -2433,7 +2433,7 @@ async function scareWardrobe() {
   await wait(650); for (let k = 1; k > .05; k -= .12) { kidShadow.scale.set(.58 * (1 + (1 - k) * .5), .58 * k, .58); await wait(16); } kidShadow.visible = false; kidShadow.scale.setScalar(.58);
   Audio.play('woodClose1', { gain: .5, x: wx, y: 1, z: wz, ref: 2 });
 }
-// 5) Lenas Auto: Innenlicht an – auf dem Rücksitz sitzt ein Kind, die Türen verriegeln sich
+// 5) Lucys Auto: Innenlicht an – auf dem Rücksitz sitzt ein Kind, die Türen verriegeln sich
 async function scareBackseat() {
   scareCount++; Audio.horn(lenaCar.position.x, lenaCar.position.z); shake = .04; glitchV = .3;
   lenaCar.traverse(o => { if (o.isSpotLight) o.intensity = 280; });
@@ -2488,7 +2488,7 @@ async function scareZombieGrab() {
   for (let k = 0; k < 1; k += .07) { player.pitch = -.9 * k; camY = 1.65 - .9 * k; await wait(16); }
   await wait(250);
 }
-// 11) Kapitel 2, Finale: hinter Lenas Tank presst sich ein graues Gesicht an das Glas
+// 11) Kapitel 2, Finale: hinter Lucys Tank presst sich ein graues Gesicht an das Glas
 const tankFace = new THREE.Mesh(new THREE.PlaneGeometry(.5, .6), new THREE.MeshBasicMaterial({ map: faceTexes.grey, transparent: true, color: new THREE.Color(.8, .9, 1) }));
 tankFace.visible = false; scene.add(tankFace);
 async function scareTankFace() {
@@ -2542,7 +2542,7 @@ function runEvent(indoor) {
     for (let i = 0; i < 6; i++) setTimeout(() => { const g = flatDir(); Audio.stepAt(player.pos.x - g.x * 3.2 + rand(-.2, .2), player.pos.z - g.z * 3.2, .35); }, i * 520);
   } else if (ev === 'whisper') {
     const g = flatDir(); Audio.whisper(P.x - g.x * 1.2 + g.z * .6, 1.7, P.z - g.z * 1.2 - g.x * .6);
-    if (Math.random() < .5) setTimeout(() => subtitle('<i>… Kai …</i>', 1800), 600);
+    if (Math.random() < .5) setTimeout(() => subtitle('<i>… Luke …</i>', 1800), 600);
   } else if (ev === 'bark') {
     const a = rand(0, 6.28); Audio.bark(P.x + Math.cos(a) * 35, P.z + Math.sin(a) * 35, Math.random() < .5);
   } else if (ev === 'lampOut') {
@@ -2817,7 +2817,7 @@ function gatesUpdate() { for (const g of gates) { if (!g.open && Math.abs(player
 gardenGate(23, -7.2, 1); gardenGate(-47, -7.2, 1); gardenGate(-28, -7.2, 1); gardenGate(50, -7.2, 1);
 gardenGate(-50, 7.2, -1); gardenGate(-28, 7.2, -1); gardenGate(22, 7.2, -1); gardenGate(46, 7.2, -1);
 // =====================================================================  KAPITEL 2 · DAS ACHTE KIND
-// Ein Untergrund unter Birkenhain: das „Amt für Rückführung“. Eigener Bereich, weit weg vom Ort.
+// Ein Untergrund unter Lost Eyengless: das „Amt für Rückführung“. Eigener Bereich, weit weg vom Ort.
 const C2 = { x: 600, z: -2600, h: 2.5 }; const SEAMLESS = true; // SEAMLESS: Kapitelübergänge gelaufen (Gang hinter der Kellerwand → Amt) statt Endkarte + Ortswechsel
 const ch2 = { on: false, power: false, archiveSolved: false, fuseOpen: false, spiderPhase: 'idle', spiderT: 0, onPlayer: 0, shake: 0, chase: 'idle', caught: 0, piano: [], safeOpen: false, lenaMet: false, lampsCrazy: 0 };
 const c2Lights = [];
@@ -2851,7 +2851,7 @@ for (let i = 0; i < 3; i++) box(.16, .16, 18, X + 9, C2.h - .25, Z - 1.6 + i * .
 for (let x = X + 3; x < X + 18; x += 5) box(.2, 2.5, .2, x, 1.25, Z - 1.85, M.rust);
 c2Tube(X + 4, Z, 1.2, 'x', 0xffd9a0, 1.2, 6).mode = 'flicker'; c2Tube(X + 13, Z, 1.2, 'x', 0xffd9a0, 1.2, 6);
 plane(2.2, 2.2, X + 7, .02, Z + .4, new THREE.MeshStandardMaterial({ color: 0x0c0f10, roughness: .05, metalness: .3 }));
-const tunnelSign = plane(1.2, .5, X + 17.8, 1.7, Z - 1.2, new THREE.MeshStandardMaterial({ roughness: .7, map: tex(cnv(256, (c, w) => { c.fillStyle = '#6a6a5e'; c.fillRect(0, 0, w, w / 2); c.fillStyle = '#111'; c.font = 'bold 30px Arial'; c.textAlign = 'center'; c.fillText('AMT FÜR RÜCKFÜHRUNG', w / 2, 44); c.font = '20px Arial'; c.fillText('Außenstelle Birkenhain · Ebene −2', w / 2, 84); c.fillStyle = 'rgba(120,20,10,.6)'; for (let i = 0; i < 8; i++) c.fillRect(rand(0, w), rand(60, 128), rand(3, 10), rand(20, 60)); }), true) }), 0, -PI / 2);
+const tunnelSign = plane(1.2, .5, X + 17.8, 1.7, Z - 1.2, new THREE.MeshStandardMaterial({ roughness: .7, map: tex(cnv(256, (c, w) => { c.fillStyle = '#6a6a5e'; c.fillRect(0, 0, w, w / 2); c.fillStyle = '#111'; c.font = 'bold 30px Arial'; c.textAlign = 'center'; c.fillText('AMT FÜR RÜCKFÜHRUNG', w / 2, 44); c.font = '20px Arial'; c.fillText('Außenstelle Lost Eyengless · Ebene −2', w / 2, 84); c.fillStyle = 'rgba(120,20,10,.6)'; for (let i = 0; i < 8; i++) c.fillRect(rand(0, w), rand(60, 128), rand(3, 10), rand(20, 60)); }), true) }), 0, -PI / 2);
 tunnelSign.material.map.repeat.set(1, .5); tunnelSign.material.map.offset.set(0, .5);
 
 // --- Archiv (618–630, z 594–606)
@@ -2860,15 +2860,15 @@ for (let i = 0; i < 5; i++) { box(1, 2.2, .5, X + 20 + i * 2, 1.1, Z - 5.6, M.me
 for (let i = 0; i < 4; i++) box(1, 2.2, .5, X + 21 + i * 2, 1.1, Z + 5.6, M.metal, { collide: true });
 box(3, .8, 1.2, X + 24, .4, Z, M.wood, { collide: true });
 c2Tube(X + 24, Z, 2, 'x', 0xd8ecff, 1.5, 9);
-const files = ['Jana', 'Lena', 'Tim', 'Mo', 'Sophie', 'Kai', 'Ben'].map((n, i) => { const f = plane(.22, .3, X + 22.8 + i * .4, .81, Z + (i % 2 ? .2 : -.25), paperMat, -PI / 2, rand(-.4, .4)); f.userData.name = n; return f; });
+const files = ['Roxy', 'Lucy', 'Mike', 'Dina', 'Heidi', 'Luke', 'Zayn'].map((n, i) => { const f = plane(.22, .3, X + 22.8 + i * .4, .81, Z + (i % 2 ? .2 : -.25), paperMat, -PI / 2, rand(-.4, .4)); f.userData.name = n; return f; });
 const FILE_TEXT = {
-  Jana: 'AKTE 01 · Jana R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Reagiert nicht auf ihren Hundenamen.',
-  Lena: 'AKTE 02 · Lena B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>01.08.2009, 23:55</b> – „in der Nacht“.\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen.',
-  Tim: 'AKTE 03 · Tim K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig. Zweite Entnahme 2021 – <u>keine</u> Rückführung.',
-  Mo: 'AKTE 04 · Mohammed „Mo“ A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
-  Sophie: 'AKTE 05 · Sophie W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
-  Kai: 'AKTE 06 · Kai B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
-  Ben: 'AKTE 07 · Ben W., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
+  Roxy: 'AKTE 01 · Roxy R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Reagiert nicht auf ihren Hundenamen.',
+  Lucy: 'AKTE 02 · Lucy B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>01.08.2009, 23:55</b> – „in der Nacht“.\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen.',
+  Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig. Zweite Entnahme 2021 – <u>keine</u> Rückführung.',
+  Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
+  Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
+  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
+  Zayn: 'AKTE 07 · Zayn W., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
 // Ordnungstafel: 7 Plätze, sortiert nach Rückführung
@@ -2878,7 +2878,7 @@ function drawBoard() { const c = boardTex.image.getContext('2d'), w = 512; c.fil
   boardTex.needsUpdate = true; }
 ch2.slots = ['', '', '', '', '', '', '']; drawBoard();
 const board = plane(3, 1.5, X + 29.83, 1.5, Z + 2.5, new THREE.MeshStandardMaterial({ map: boardTex, roughness: .8 }), 0, -PI / 2);
-const NAMES = ['Ben', 'Jana', 'Kai', 'Lena', 'Mo', 'Sophie', 'Tim'], ORDER = ['Jana', 'Lena', 'Tim', 'Mo', 'Sophie', 'Kai', 'Ben'];
+const NAMES = ['Dina', 'Heidi', 'Lucy', 'Luke', 'Mike', 'Roxy', 'Zayn'], ORDER = ['Roxy', 'Lucy', 'Mike', 'Dina', 'Heidi', 'Luke', 'Zayn'];
 interact(board, 'Ordnungstafel', () => {
   if (ch2.archiveSolved) return toast('Sieben Namen in der richtigen Reihenfolge. Der Schrank hat sich geöffnet.');
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
@@ -2921,7 +2921,7 @@ async function powerOn() {
   c2Lights.forEach((L, i) => setTimeout(() => { L.mode = L.mode === 'flicker' ? 'flicker' : 'on'; L.k = 1; }, i * 120));
   spiderDoorIn.locked = false; spiderDoorIn.lockedText = '';
   await wait(1800); Audio.intercomClick();
-  await say([['*Knacken* — „Notstrom aktiv. Außenstelle Birkenhain.“', 3600, 'LAUTSPRECHER'], ['„Rückführungsprotokoll Nummer acht … wird fortgesetzt.“', 3800, 'LAUTSPRECHER'], ['„Willkommen zurück, Kai.“', 3000, 'LAUTSPRECHER']]);
+  await say([['*Knacken* — „Notstrom aktiv. Außenstelle Lost Eyengless.“', 3600, 'LAUTSPRECHER'], ['„Rückführungsprotokoll Nummer acht … wird fortgesetzt.“', 3800, 'LAUTSPRECHER'], ['„Willkommen zurück, Luke.“', 3000, 'LAUTSPRECHER']]);
 }
 
 // --- Spinnenraum (636–646, z 595–605)
@@ -3049,22 +3049,22 @@ for (let i = 0; i < 8; i++) { const cx = X + 109 + (i % 4) * 3.2, cz = Z - 5 + M
   const tag = plane(.3, .12, cx, 1.35, cz - .34, new THREE.MeshStandardMaterial({ map: tex(cnv(128, (c, w) => { c.fillStyle = '#d8d0b8'; c.fillRect(0, 0, w, w / 2); c.fillStyle = '#222'; c.font = 'bold 34px Arial'; c.textAlign = 'center'; c.fillText(i < 7 ? ORDER[i].toUpperCase() : '—', w / 2, 44); }), true) }), 0, 0); tag.material.map.repeat.set(1, .5); tag.material.map.offset.set(0, .5); }
 const machine = box(2.4, 1.8, 1, X + 121.3, .9, Z, M.metal, { collide: true });
 for (let i = 0; i < 12; i++) box(.08, .08, .02, X + 120.8 + (i % 6) * .18, 1.3 + Math.floor(i / 6) * .2, Z - .6 + .0, new THREE.MeshStandardMaterial({ color: 0x111111, emissive: [0x40ff60, 0xffa020, 0xff3030][i % 3], emissiveIntensity: 2 }), { cast: false });
-// Tank mit Lena
+// Tank mit Lucy
 const tank = new THREE.Mesh(new THREE.CylinderGeometry(.9, .9, 2.4, 24, 1, true), new THREE.MeshPhysicalMaterial({ color: 0x8fb8b0, roughness: .05, metalness: 0, transparent: true, opacity: .28, side: THREE.DoubleSide })); tank.position.set(X + 118, 1.2, Z + 6); scene.add(tank); addCol(X + 117, X + 119, Z + 5, Z + 7);
 box(2.2, .3, 2.2, X + 118, .15, Z + 6, M.metal); box(2.2, .3, 2.2, X + 118, 2.5, Z + 6, M.metal);
 const tankLight = new VLight(0x6fe0c0, 2.2, 6, 2); tankLight.position.set(X + 118, 1.2, Z + 6); scene.add(tankLight);
 const lenaFig = makeFigure(new THREE.MeshStandardMaterial({ color: 0x3a3a40, roughness: .8 })); lenaFig.position.set(X + 118, .3, Z + 6); lenaFig.scale.setScalar(.92);
 const lenaFace = new THREE.Mesh(new THREE.PlaneGeometry(.26, .31), new THREE.MeshBasicMaterial({ map: faceTexes.lena, transparent: true, color: new THREE.Color(.6, .6, .6) })); lenaFace.position.set(0, 1.8, .15); lenaFig.add(lenaFace);
-// Klavier-Rätsel: Lenas Spieluhr-Lied
+// Klavier-Rätsel: Lucys Spieluhr-Lied
 const piano = box(1.6, 1, .6, X + 110, .5, Z + 7.5, M.wood, { collide: true }); box(1.5, .05, .3, X + 110, 1.02, Z + 7.3, M.paint);
-const noteSheet = plane(.5, .6, X + 110, 1.5, Z + 7.83, new THREE.MeshStandardMaterial({ map: tex(cnv(256, (c, w) => { c.fillStyle = '#d9d0b8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = '20px Georgia'; c.fillText('Lenas Lied (Spieluhr)', 20, 40); c.strokeStyle = '#333'; for (let l = 0; l < 5; l++) { c.beginPath(); c.moveTo(20, 90 + l * 14); c.lineTo(236, 90 + l * 14); c.stroke(); }
+const noteSheet = plane(.5, .6, X + 110, 1.5, Z + 7.83, new THREE.MeshStandardMaterial({ map: tex(cnv(256, (c, w) => { c.fillStyle = '#d9d0b8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = '20px Georgia'; c.fillText('Lucys Lied (Spieluhr)', 20, 40); c.strokeStyle = '#333'; for (let l = 0; l < 5; l++) { c.beginPath(); c.moveTo(20, 90 + l * 14); c.lineTo(236, 90 + l * 14); c.stroke(); }
   [[40, 90], [80, 104], [120, 118], [160, 132], [200, 118]].forEach(([x, y], i) => { c.fillStyle = i < 2 ? '#222' : 'rgba(34,34,34,.15)'; c.beginPath(); c.ellipse(x, y, 7, 5, -.3, 0, 7); c.fill(); });
   c.fillStyle = '#8a1010'; c.font = '18px Caveat'; c.fillText('E  D  ?  ?  ?', 40, 190); c.fillText('„Die Spieluhr weiß den Rest.“', 30, 225); }), true) }), 0, 0);
-interact(noteSheet, 'Notenblatt', () => openNote('Lenas Lied', 'Fünf Töne. Die ersten beiden stehen da: <b>E · D</b>.\nDer Rest ist verwaschen.\n\n<span class="hand">„Die Spieluhr weiß den Rest.“</span>\n\nDu hast sie gehört. Im Kinderzimmer. Sie leierte – aber die Melodie war klar.', 'sheet'));
+interact(noteSheet, 'Notenblatt', () => openNote('Lucys Lied', 'Fünf Töne. Die ersten beiden stehen da: <b>E · D</b>.\nDer Rest ist verwaschen.\n\n<span class="hand">„Die Spieluhr weiß den Rest.“</span>\n\nDu hast sie gehört. Im Kinderzimmer. Sie leierte – aber die Melodie war klar.', 'sheet'));
 const MELODY = ['E', 'D', 'C', 'H', 'C'];
 interact(piano, 'Klavier spielen', () => {
   if (ch2.safeOpen) return toast('Die Tasten sind stumm geworden.');
-  openPuzzle(`<h3>KLAVIER</h3><p>Spiel Lenas Lied. Fünf Töne.</p><div class="keysrow">${['C', 'D', 'E', 'F', 'G', 'A', 'H'].map(k => `<button class="pk" data-k="${k}">${k}</button>`).join('')}</div><p class="small" id="pkSeq">·  ·  ·  ·  ·</p>`, box => {
+  openPuzzle(`<h3>KLAVIER</h3><p>Spiel Lucys Lied. Fünf Töne.</p><div class="keysrow">${['C', 'D', 'E', 'F', 'G', 'A', 'H'].map(k => `<button class="pk" data-k="${k}">${k}</button>`).join('')}</div><p class="small" id="pkSeq">·  ·  ·  ·  ·</p>`, box => {
     ch2.piano = [];
     box.querySelectorAll('.pk').forEach(b => b.onclick = e => { e.stopPropagation(); const k = b.dataset.k; Audio.pianoNote(k); ch2.piano.push(k); box.querySelector('#pkSeq').textContent = ch2.piano.concat(Array(5 - ch2.piano.length).fill('·')).join('  ');
       if (ch2.piano.length === 5) { if (ch2.piano.join() === MELODY.join()) { setTimeout(() => { closeOverlay(); safeOpens(); }, 700); } else { setTimeout(() => { ch2.piano = []; box.querySelector('#pkSeq').textContent = '·  ·  ·  ·  ·'; Audio.beep(false); toast('Falsch. Das Klavier verstimmt sich ein Stück weiter.'); }, 500); } } });
@@ -3074,15 +3074,15 @@ async function safeOpens() {
   ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.');
   subtitle('Ein Fach in der Maschine springt auf. Darin: eine Akte ohne Namen.', 4000);
   const file8 = plane(.22, .3, X + 120.7, 1.81, Z - .2, paperMat, -PI / 2, .2);
-  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name]', 'Abgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b>.\n\nBefund: <u>Ersatz</u>. Ausgeliefert im Austausch für Rückführung Nr. 01–05. Original (Kai B.) verbleibt beim Partner.\n\nVermerk: Ersatz weiß nichts. Ersatz glaubt, Kai zu sein. Mutter unterschreibt. <b>Schwester ahnt.</b>\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren. Sonst holen sie ihn zurück.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
+  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name]', 'Abgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b>.\n\nBefund: <u>Ersatz</u>. Ausgeliefert im Austausch für Rückführung Nr. 01–05. Original (Luke B.) verbleibt beim Partner.\n\nVermerk: Ersatz weiß nichts. Ersatz glaubt, Luke zu sein. Mutter unterschreibt. <b>Schwester ahnt.</b>\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren. Sonst holen sie ihn zurück.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
 }
 async function finale() {
   ch2.lenaMet = true; state.talking = true; Audio.tankHum(true);
   await wait(800); Audio.thump(X + 118, 1.5, Z + 6); await wait(700); Audio.thump(X + 118, 1.5, Z + 6);
   subtitle('Im Tank: eine Hand an der Scheibe.', 3000); await wait(3200);
-  await say([['„Kai … du hast gelesen.“', 3000, 'LENA · IM TANK'], ['„Ich wollte nicht, dass du herkommst. Ich wollte, dass du <i>du</i> bleibst.“', 4200, 'LENA · IM TANK'],
-    ['„Der Kai, mit dem ich aufgewachsen bin, ist da oben. In dem Licht. Seit 2009.“', 4600, 'LENA · IM TANK'], ['„Aber du bist der, der mich jede Nacht angerufen hat. Der, der gekommen ist.“', 4600, 'LENA · IM TANK'],
-    ['„Sie holen dich zurück, wenn du es weißt. Das ist die Regel.“', 4000, 'LENA · IM TANK'], ['„Also … weißt du es jetzt?“', 3000, 'LENA · IM TANK']]);
+  await say([['„Luke … du hast gelesen.“', 3000, 'LUCY · IM TANK'], ['„Ich wollte nicht, dass du herkommst. Ich wollte, dass du <i>du</i> bleibst.“', 4200, 'LUCY · IM TANK'],
+    ['„Der Luke, mit dem ich aufgewachsen bin, ist da oben. In dem Licht. Seit 2009.“', 4600, 'LUCY · IM TANK'], ['„Aber du bist der, der mich jede Nacht angerufen hat. Der, der gekommen ist.“', 4600, 'LUCY · IM TANK'],
+    ['„Sie holen dich zurück, wenn du es weißt. Das ist die Regel.“', 4000, 'LUCY · IM TANK'], ['„Also … weißt du es jetzt?“', 3000, 'LUCY · IM TANK']]);
   state.talking = false;
   c2Lights.forEach(L => L.mode = 'dying'); Audio.hum(true); shake = .03;
   await wait(2200); subtitle('Das Brummen. Es kommt durch den Beton. Von oben.', 4000); await wait(4200);
@@ -3090,7 +3090,7 @@ async function finale() {
   stalker.position.set(X + 112, 0, Z); stalker.lookAt(camera.position.x, 0, camera.position.z); stalkerFace.material.map = faceTexes.grey; stalker.visible = true;
   await wait(2500); await scareTankFace(); stalker.visible = false;
   await fade(1, 600); Audio.hum(false); Audio.tankHum(false);
-  if (SEAMLESS) { // „Das graue Gesicht am Glas. Dann nichts.“ – kein Schnitt: Kai kommt im dunklen Tankraum wieder zu sich, über ihm steht eine Luke offen
+  if (SEAMLESS) { // „Das graue Gesicht am Glas. Dann nichts.“ – kein Schnitt: Luke kommt im dunklen Tankraum wieder zu sich, über ihm steht eine Luke offen
     saveFlag('ch3'); for (const f of CH2_END) try { f(); } catch (e) { console.warn('Kapitel-2-Ende', e); }
     await wait(2600); fade(0, 2400); await wait(900);
     subtitle('Du liegst auf dem Beton. Der Tank ist leer. Nur deine Hand ist noch an der Scheibe abgedrückt.', 5200); await wait(5600);
@@ -3151,7 +3151,7 @@ const MYST = {
   brief: { title: 'Mamas letzter Brief', hint: 'Euer Elternhaus, Nr. 1 – auf der Kommode.' },
   buch: { title: 'Hilde Wendts Zählbuch', hint: 'Frau Wendts Wohnzimmer, Nr. 7.' },
   stimme: { title: 'Die Stimme am Telefon', hint: 'Das Telefon an der Kreuzung klingelt wieder.' },
-  albers: { title: 'Albers, 1975', hint: 'Der Briefkasten vor Nr. 3.' },
+  albers: { title: 'Vegas, 1975', hint: 'Der Briefkasten vor Nr. 3.' },
 };
 function mystFound(k) { if (ch3.myst.has(k)) return; ch3.myst.add(k); questPop(`GEHEIMNIS ${ch3.myst.size} / 5`, MYST[k].title); c3Info(); saveGame(3); }
 function c3Info() { if (ch3.on) $('sideInfo').textContent = `GEHEIMNISSE ${ch3.myst.size} / 5 · TAB`; }
@@ -3213,15 +3213,15 @@ const pillarLight = new VLight(0xe8f0ff, 0, 26, 1.6); pillarLight.position.set(4
 
 // ---- Kreuzung: Chronik-Tafel
 const chronTex = tex(cnv(512, (c, w) => { c.fillStyle = '#3a3226'; c.fillRect(0, 0, w, w); c.fillStyle = '#d9d0b8'; c.fillRect(24, 60, 280, 380); c.fillStyle = '#cfc4a6'; c.fillRect(320, 90, 170, 220); c.fillStyle = '#e6dcaa'; c.fillRect(300, 330, 180, 140);
-  c.fillStyle = '#e8e0c8'; c.font = 'bold 30px Georgia'; c.textAlign = 'center'; c.fillText('GEMEINDE BIRKENHAIN', w / 2, 44);
+  c.fillStyle = '#e8e0c8'; c.font = 'bold 30px Georgia'; c.textAlign = 'center'; c.fillText('GEMEINDE LOST EYENGLESS', w / 2, 44);
   c.fillStyle = '#222'; c.font = 'bold 22px Georgia'; c.fillText('Aus der Chronik', 164, 100); c.font = '15px Georgia'; c.textAlign = 'left';
   ['Anno 1312 stand ein weißes', 'Licht über dem Hohen Abgrund …', '', 'Sieben Kinder gingen hinein.', 'Eines kam als ein anderes.', '', 'Der Ritter Justin ritt nach', 'und ward nicht mehr gesehen.'].forEach((l, i) => c.fillText(l, 40, 140 + i * 24));
   c.fillStyle = '#8a1010'; c.font = '26px Caveat'; c.fillText('1975 · 1992 · 2009', 40, 390); c.fillText('2026 ???', 40, 424);
-  c.fillStyle = '#333'; c.font = '14px Arial'; c.fillText('VERMISST', 360, 120); c.fillText('Lena B., 24', 350, 146); c.fillText('seit 23.10.', 356, 170);
+  c.fillStyle = '#333'; c.font = '14px Arial'; c.fillText('VERMISST', 360, 120); c.fillText('Lucy B., 24', 350, 146); c.fillText('seit 23.10.', 356, 170);
   c.fillStyle = '#555'; c.fillText('Laternenfest', 330, 360); c.fillText('fällt aus', 340, 384); }), true);
 const chronik = box(1.6, 1.15, .08, -6.8, 1.55, -6.55, new THREE.MeshStandardMaterial({ map: chronTex, roughness: .85 }), { collide: true });
 for (const s of [-.72, .72]) box(.08, 1.1, .08, -6.8 + s, .55, -6.55, M.wood);
-interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Birkenhain', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, zu Ende des Heumonds, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen Tochter <b>Mira</b> unter ihnen war, ritt dem Licht nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder soweit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
+interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, zu Ende des Heumonds, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen Tochter <b>Mira</b> unter ihnen war, ritt dem Licht nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder soweit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
 
 // ---- Kreuzung: Funkkasten des Amts
 const radioBox = box(.6, 1.1, .4, 5.4, .55, -6.6, new THREE.MeshStandardMaterial({ color: 0x5c6258, roughness: .6, metalness: .5 }), { collide: true });
@@ -3243,10 +3243,10 @@ function radioPuzzle() {
 }
 async function broadcast() {
   if (ch3.radio) return; ch3.radio = true; state.talking = true; radioLed.material.emissive.set(0x30ff60); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz';
-  await say([['*Gong* – *Rauschen*', 2200], ['„Hier Außenstelle Birkenhain. Zyklus siebzehn.“', 3600, F], ['„Das Weiße ist offen. Protokoll MIRA läuft.“', 3600, F],
+  await say([['*Gong* – *Rauschen*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['„Das Weiße ist offen. Protokoll MIRA läuft.“', 3600, F],
     ['„Löschfolge der Leuchten: fünf. drei. eins. sieben.“', 4200, F], ['„Wiederhole: fünf – drei – eins – sieben.“', 3800, F], ['„Ersatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“', 4600, F], ['*Rauschen*', 1600]]);
   state.talking = false; setC3('Schalte die Laternen ab – an den Kästen vor Nr. 5, 3, 1 und 7. In dieser Reihenfolge.');
-  story.lore.push({ key: 'c3funk', title: 'Funkspruch · 31,10 MHz', html: '„Hier Außenstelle Birkenhain. Zyklus siebzehn. Das Weiße ist offen. Protokoll MIRA läuft.\nLöschfolge der Leuchten: <b>fünf – drei – eins – sieben</b>.\nErsatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“' });
+  story.lore.push({ key: 'c3funk', title: 'Funkspruch · 31,10 MHz', html: '„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Das Weiße ist offen. Protokoll MIRA läuft.\nLöschfolge der Leuchten: <b>fünf – drei – eins – sieben</b>.\nErsatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“' });
 }
 
 // ---- Schaltkästen vor den Häusern: Laternen in der richtigen Reihenfolge löschen
@@ -3320,7 +3320,7 @@ async function c3Safe() {
   ch3.pillarK = 1; tween(pillar, { pos: new THREE.Vector3(justin.g.position.x, 35, justin.g.position.z) }, 2.5); pillarLight.position.set(justin.g.position.x, 3, justin.g.position.z);
   Audio.hum(true); shake = .03;
   await say([['Die Schatten bleiben am Rand des Lichts stehen. Keiner tritt hinein.', 3600], ['„Sie dürfen nicht ins Weiße. Nur wir zwei.“', 3200, JS],
-    ['„Das Licht hat keine Lampen mehr, an die es sich halten kann. Es steigt herab.“', 3800, JS], ['„Nimm meine Hand, Kai. Und lass sie nicht los, was immer du drinnen siehst.“', 4200, JS]]);
+    ['„Das Licht hat keine Lampen mehr, an die es sich halten kann. Es steigt herab.“', 3800, JS], ['„Nimm meine Hand, Luke. Und lass sie nicht los, was immer du drinnen siehst.“', 4200, JS]]);
   state.talking = false; enterWhite();
 }
 
@@ -3332,24 +3332,24 @@ function c3Phone() {
     state.talking = true; ch3.ringing = false; ch3.callDone = true; handset(true); await wait(700);
     await say([['*Rauschen*', 1800], ['„Haus Nummer 7. Der Keller.“', 2800, 'LENAS STIMME'], ['Das ist der Anruf von damals. Wort für Wort.', 3200],
       ['„Haus … Nummer … sieben …“', 3200, 'LENAS STIMME'], ['Die Stimme wird langsamer. Höher. Die Stimme eines kleinen Mädchens.', 3800],
-      ['„Das war nicht Lena, Bruder. Das war ich.“', 3400, '???'], ['„Ich kann alle Stimmen. Die von Lena. Deine. Die von Papa.“', 4000, '???'],
+      ['„Das war nicht Lucy, Bruder. Das war ich.“', 3400, '???'], ['„Ich kann alle Stimmen. Die von Lucy. Deine. Die von Papa.“', 4000, '???'],
       ['„Du solltest es wissen. Wer es weiß, gehört mir.“', 3600, '???'], ['*Freizeichen*', 1600]]);
     handset(false); state.talking = false; mystFound('stimme'); Audio.stinger(false); setTimeout(() => { Audio.whisper(player.pos.x - 1, 1.6, player.pos.z); glitchV = .7; subtitle('Direkt hinter dir kichert etwas. Als du dich umdrehst, ist da nur Nebel.', 3800); }, 700);
-    story.lore.push({ key: 'c3stimme', title: 'Die Stimme am Telefon', html: '„Haus Nummer 7. Der Keller.“ – derselbe Anruf wie damals. Dann wird die Stimme höher, die eines kleinen Mädchens:\n\n„Das war nicht Lena, Bruder. Das war ich. Ich kann alle Stimmen. Die von Lena. Deine. Die von Papa.\nDu solltest es wissen. Wer es weiß, gehört mir.“' });
+    story.lore.push({ key: 'c3stimme', title: 'Die Stimme am Telefon', html: '„Haus Nummer 7. Der Keller.“ – derselbe Anruf wie damals. Dann wird die Stimme höher, die eines kleinen Mädchens:\n\n„Das war nicht Lucy, Bruder. Das war ich. Ich kann alle Stimmen. Die von Lucy. Deine. Die von Papa.\nDu solltest es wissen. Wer es weiß, gehört mir.“' });
   })();
 }
 
 // ---- Nr. 1: Mamas letzter Brief (auf der Kommode im Wohnzimmer)
 const letter2 = plane(.24, .3, -44.45, Y + .905, -18.3, new THREE.MeshStandardMaterial({ color: 0xe6dcaa, roughness: 1 }), -PI / 2, .3); letter2.visible = false;
-function readLetter2() { liftTo(letter2, () => openNote('Ein Brief, an dich adressiert', '<span class="hand">Kai,\n\nwenn du das liest, bist du nach Hause gekommen. Ich wusste, dass du das tust.\n\nIch wusste es vom ersten Morgen an. Du hattest <u>braune</u> Augen. Mein Kai hatte blaue. Die Männer vom Amt sagten: „Nehmen Sie ihn, oder Sie haben gar keinen.“\nIch habe dich genommen. Und ich habe dich geliebt, mehr als ich mir je erlaubt habe.\n\nIn der ersten Nacht stand ein Mann in unserem Garten. In einer Rüstung, wie aus deinem Märchenbuch. Er sah zu deinem Fenster hoch und <b>weinte</b>. Als ich die Tür aufmachte, war nur noch weißer Nebel da.\n\nIch glaube, er kannte dich. Länger als ich.\n\n— Mama, im Frühjahr 2011</span>', 'c3brief', () => mystFound('brief')), false); }
+function readLetter2() { liftTo(letter2, () => openNote('Ein Brief, an dich adressiert', '<span class="hand">Luke,\n\nwenn du das liest, bist du nach Hause gekommen. Ich wusste, dass du das tust.\n\nIch wusste es vom ersten Morgen an. Du hattest <u>braune</u> Augen. Mein Luke hatte blaue. Die Männer vom Amt sagten: „Nehmen Sie ihn, oder Sie haben gar keinen.“\nIch habe dich genommen. Und ich habe dich geliebt, mehr als ich mir je erlaubt habe.\n\nIn der ersten Nacht stand ein Mann in unserem Garten. In einer Rüstung, wie aus deinem Märchenbuch. Er sah zu deinem Fenster hoch und <b>weinte</b>. Als ich die Tür aufmachte, war nur noch weißer Nebel da.\n\nIch glaube, er kannte dich. Länger als ich.\n\n— Mama, im Frühjahr 2011</span>', 'c3brief', () => mystFound('brief')), false); }
 
 // ---- Nr. 7: Hilde Wendts Zählbuch
 const zbook = box(.2, .04, .27, 23.9, Y + .45, -15.45, fabricMat(0x2a3a2a)); zbook.visible = false;
-function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Ben ist einer davon.\n1. August – Jana steht auf der Kreuzung. Barfuß.\n2.–3. August – Lena, Tim, Mo, Sophie.\n<b>5. August, 03:13</b> – Der Kai-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nBen kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lenas Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
+function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nBen kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
 
-// ---- Nr. 3: Albers' Brief im Briefkasten
+// ---- Nr. 3: Vegas' Brief im Briefkasten
 const albersNote = box(.24, .02, .16, -25.4, 1.18, -8.2, new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 1 })); albersNote.visible = false;
-function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Kai,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach trotzdem nicht auf. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben, und zu siebt kamen wir zurück – nur war Peter Kranz nicht mehr Peter Kranz. 1992 ist er in den Nebel gegangen, freiwillig, und niemand hat ihn vermisst außer mir.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n\nHilde sagt, er ist schuld an allem. Ich sage: <b>Er ist der Einzige, der jedes Mal aufräumt.</b>\n\nVielleicht stimmt beides.\n— W. Albers</span>', 'c3albers', () => mystFound('albers')), false); }
+function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Luke,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach trotzdem nicht auf. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben, und zu siebt kamen wir zurück – nur war Peter Kranz nicht mehr Peter Kranz. 1992 ist er in den Nebel gegangen, freiwillig, und niemand hat ihn vermisst außer mir.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n\nHilde sagt, er ist schuld an allem. Ich sage: <b>Er ist der Einzige, der jedes Mal aufräumt.</b>\n\nVielleicht stimmt beides.\n— L. Vegas</span>', 'c3albers', () => mystFound('albers')), false); }
 
 // ---- Justin spricht
 async function jHint() {
@@ -3419,11 +3419,11 @@ const door1w = whiteDoor(X3 + 20, Z3);
 box(1.1, .5, 2.1, X3 + 10.5, .25, Z3 - 4.6, whiteMat, { collide: true }); box(1.1, .12, 2.1, X3 + 10.5, .56, Z3 - 4.6, fabricMat(0x9aa6c0));
 box(.5, .7, .5, X3 + 12, .35, Z3 - 5.5, M.wood, { collide: true });
 const r1Items = {
-  spieluhr: { m: box(.18, .12, .13, X3 + 12, .76, Z3 - 5.5, M.wood), name: 'Die Spieluhr', text: 'Lenas Spieluhr. Die Melodie, die du auch im Keller gehört hast. Sie gehört ihr seit ihrer Geburt.' },
+  spieluhr: { m: box(.18, .12, .13, X3 + 12, .76, Z3 - 5.5, M.wood), name: 'Die Spieluhr', text: 'Lucys Spieluhr. Die Melodie, die du auch im Keller gehört hast. Sie gehört ihr seit ihrer Geburt.' },
   licht: { m: new THREE.Mesh(new THREE.SphereGeometry(.1, 16, 8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0x7c9cff, emissiveIntensity: 3 })), name: 'Das Nachtlicht', text: 'Blau. Es brannte jede Nacht. Auch in der letzten, in der der Junge noch da war.' },
   kalender: { m: plane(.5, .7, X3 + 8.2, 1.6, Z3 - 2.6, new THREE.MeshStandardMaterial({ roughness: .9, map: tex(cnv(256, (c, w) => { c.fillStyle = '#eee8d8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = 'bold 30px Georgia'; c.textAlign = 'center'; c.fillText('JULI 2009', w / 2, 44); c.font = '16px Georgia'; for (let d = 1; d <= 31; d++) c.fillText(String(d), 30 + ((d - 1) % 7) * 33, 80 + Math.floor((d - 1) / 7) * 34); c.strokeStyle = '#a01010'; c.lineWidth = 3; c.beginPath(); c.arc(30 + 5 * 33, 80 + 3 * 34 - 6, 15, 0, 7); c.stroke(); }), true) }), 0, PI / 2), name: 'Der Kalender', text: 'Juli 2009. Der 27. ist rot umkringelt. „Sommerfest!“ steht darunter, in Mamas Schrift.' },
   zeichnung: { m: plane(.6, .45, X3 + 16, 1.5, Z3 - 5.84, new THREE.MeshStandardMaterial({ roughness: .9, map: crayon }), 0, 0), name: 'Die Zeichnung', text: 'Buntstift. Sieben Kinder an der Kreuzung, darüber ein Kreis. Und ein Mann aus grauem Stift, ganz klein, am Rand.' },
-  karte: { m: plane(.22, .3, X3 + 10.3, .63, Z3 - 4.2, new THREE.MeshStandardMaterial({ roughness: .8, map: tex(cnv(128, (c, w) => { c.fillStyle = '#f2d24a'; c.fillRect(0, 0, w, w); c.fillStyle = '#b02020'; c.font = 'bold 20px Georgia'; c.textAlign = 'center'; c.fillText('ALLES', w / 2, 44); c.fillText('GUTE!', w / 2, 70); c.font = '44px Georgia'; c.fillText('10', w / 2, 116); }), true) }), -PI / 2, .4), name: 'Die Geburtstagskarte', text: '„Für Kai zum 10.! Alles Liebe, Mama und Lena.“ Datiert: <b>5. Mai 2010</b>.' },
+  karte: { m: plane(.22, .3, X3 + 10.3, .63, Z3 - 4.2, new THREE.MeshStandardMaterial({ roughness: .8, map: tex(cnv(128, (c, w) => { c.fillStyle = '#f2d24a'; c.fillRect(0, 0, w, w); c.fillStyle = '#b02020'; c.font = 'bold 20px Georgia'; c.textAlign = 'center'; c.fillText('ALLES', w / 2, 44); c.fillText('GUTE!', w / 2, 70); c.font = '44px Georgia'; c.fillText('10', w / 2, 116); }), true) }), -PI / 2, .4), name: 'Die Geburtstagskarte', text: '„Für Luke zum 10.! Alles Liebe, Mama und Lucy.“ Datiert: <b>5. Mai 2010</b>.' },
 };
 r1Items.licht.m.position.set(X3 + 11.4, .3, Z3 - 5.7); scene.add(r1Items.licht.m);
 r1Items.spieluhr.m.visible = true;
@@ -3476,8 +3476,8 @@ function clockPuzzle() {
 }
 async function hildeTalks() {
   ch3.hildeSpoke = true; state.talking = true; const W = 'HILDE WENDT';
-  await say([['Am Küchentisch sitzt Frau Wendt. Die Frau, die das Licht vor deinen Augen nach oben gerissen hat.', 4400], ['„Kai. Oder wie immer du heißt.“', 2800, W],
-    ['„Ich hab 2009 Nein gesagt. Keinen Ersatz. Ich wollte meinen Ben oder keinen.“', 4400, W], ['„Deshalb ist Ben hiergeblieben. Und jetzt bin ich es auch.“', 3600, W],
+  await say([['Am Küchentisch sitzt Frau Wendt. Die Frau, die das Licht vor deinen Augen nach oben gerissen hat.', 4400], ['„Luke. Oder wie immer du heißt.“', 2800, W],
+    ['„Ich hab 2009 Nein gesagt. Keinen Ersatz. Ich wollte meinen Zayn oder keinen.“', 4400, W], ['„Deshalb ist Zayn hiergeblieben. Und jetzt bin ich es auch.“', 3600, W],
     ['„Hat der Ritter dir erzählt, wer den ersten Handel gemacht hat? Nein?“', 4000, W], ['„Frag ihn. Er soll es dir ins Gesicht sagen.“', 3000, W],
     ['„Und die Uhr da … stell sie auf die Zeit, zu der sie dich gebracht haben. Dann lässt es euch durch.“', 4600, W]]);
   state.talking = false; setC3('Stell die Küchenuhr auf die Zeit, zu der man dich gebracht hat.');
@@ -3511,7 +3511,7 @@ async function room3Scene() {
     ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'MIRA'], ['„Aus dir. Aus deinem Blut an meinen Händen, als du mich holen wolltest.“', 4600, 'MIRA'],
     ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'MIRA']]);
   const extra = [];
-  if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lenas Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'MIRA']);
+  if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'MIRA']);
   if (ch3.myst.has('brief')) extra.push(['Der Mann in Mamas Garten. Das warst du, Justin.', 3200, 'DU'], ['„Ich wollte sehen, was sie aus mir gemacht hat.“', 3400, JS]);
   if (ch3.myst.has('buch')) extra.push(['„Die alte Frau zählt immer acht. Weil ihr immer acht seid. Sieben Geholte und einer von Papa.“', 4800, 'MIRA']);
   if (ch3.myst.has('albers')) extra.push(['„Papa räumt auf. Immer. Er bringt sie mir weg.“', 3200, 'MIRA']);
@@ -3519,7 +3519,7 @@ async function room3Scene() {
   if (extra.length) await say(extra);
   await say([['„Jedes achte Kind mache ich aus dir, Papa. Damit du irgendwo da draußen bist. Damit jemand nach Hause geht, der zu mir gehört.“', 5600, 'MIRA'],
     ['Justin steht auf. Langsam. Seine Hand liegt auf dem Schwert, aber er zieht es nicht.', 4200],
-    ['„Kai. So heißt du – ganz gleich, wer dich gemacht hat. Hör mich an.“', 4000, JS],
+    ['„Luke. So heißt du – ganz gleich, wer dich gemacht hat. Hör mich an.“', 4000, JS],
     ['„Wenn ich hinabsteige, und mit mir das Kind, das aus mir ist, dann ist der Handel erfüllt. Der Abgrund schließt sich. Für immer.“', 5600, JS],
     ['„Die Geholten kommen heim. Deine Schwester kommt heim. Nur du nicht.“', 4000, JS],
     ['„Bleibst du, gehe ich allein. Vielleicht genügt es ihr. Vielleicht nicht. Dann kommt sie in siebzehn Jahren wieder.“', 5400, JS],
@@ -3529,8 +3529,8 @@ async function room3Scene() {
 function showChoice() {
   if (ch3.choice) return;
   openPuzzle(`<h3>DER HOHE ABGRUND</h3><p>Justin wartet. Mira lächelt. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
-    <button id="chA" style="min-width:340px">MIT JUSTIN HINABSTEIGEN<br><small style="opacity:.7">Der Abgrund schließt sich. Lena kommt heim. Du nicht.</small></button>
-    <button id="chB" style="min-width:340px">ZURÜCKBLEIBEN<br><small style="opacity:.7">Justin geht allein. Du bleibst bei Lena. Vielleicht genügt es.</small></button></div>`, box => {
+    <button id="chA" style="min-width:340px">MIT JUSTIN HINABSTEIGEN<br><small style="opacity:.7">Der Abgrund schließt sich. Lucy kommt heim. Du nicht.</small></button>
+    <button id="chB" style="min-width:340px">ZURÜCKBLEIBEN<br><small style="opacity:.7">Justin geht allein. Du bleibst bei Lucy. Vielleicht genügt es.</small></button></div>`, box => {
     box.querySelector('#chA').onclick = e => { e.stopPropagation(); ch3.choice = 'A'; closeOverlay(); endingA(); };
     box.querySelector('#chB').onclick = e => { e.stopPropagation(); ch3.choice = 'B'; closeOverlay(); endingB(); };
   });
@@ -3551,7 +3551,7 @@ async function endingA() {
     ['Mira streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
   $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
   await wait(800); Audio.bell(0, 0); await wait(1500);
-  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Birkenhain, 1. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Siebzehn Jahre waren sie fort. Ein Mann ruft den Namen Ben.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lena sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 1. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Siebzehn Jahre waren sie fort. Ein Mann ruft den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
 }
 async function endingB() {
   state.talking = true;
@@ -3560,7 +3560,7 @@ async function endingB() {
   await wait(2600); Audio.screech(); glitchV = 1; shake = .08;
   await say([['Mira schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
-  c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lena liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist nach Hause gekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
+  c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist nach Hause gekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
 }
 
 async function enterWhite() {
@@ -3679,7 +3679,7 @@ interact(gullyHit, () => ch3.on && ch3.part === 'town' && ch3.met ? 'Gullydeckel
   if (!ch3.on || !ch3.met || ch3.part !== 'town') return toast('Ein schwerer Gullydeckel. Darunter rauscht Wasser.');
   enterCanal(); });
 // ---- Kapitel-Start & Takt
-const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · DAS LICHT</p><p class="on">Du erinnerst dich an das graue Gesicht am Glas. Dann an nichts.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Es ist 03:13.</p><p class="on">Birkenhain ist still. Die Laternen <i>atmen</i>.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
+const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · DAS LICHT</p><p class="on">Du erinnerst dich an das graue Gesicht am Glas. Dann an nichts.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Es ist 03:13.</p><p class="on">Lost Eyengless ist still. Die Laternen <i>atmen</i>.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
 async function startChapter3() { // Weiterspielen / Kapitel wählen: Zustand setzen, an die Kreuzung, Intro
   $('endcard').classList.remove('show'); $('subPanel').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
   chapter3Begin();
@@ -3707,7 +3707,7 @@ function chapter3Begin() {
   ch3.on = true; saveFlag('ch3'); c3Info(); saveGame(3); flashOn = true;
 }
 // Erste Minute von Kapitel 3 (Aufgabe, Stimmung, die Kuh fällt vom Himmel) – gemeinsam für beide Wege hinein
-async function chapter3Opening() { setC3('Finde heraus, was mit Birkenhain geschehen ist.'); await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3200); cowDrop(); cowHit.position.set(-7.5, .6, .8); }
+async function chapter3Opening() { setC3('Finde heraus, was mit Lost Eyengless geschehen ist.'); await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3200); cowDrop(); cowHit.position.set(-7.5, .6, .8); }
 function ch3Update(dt, t) {
   if (!ch3.on) return;
   ch3.t += dt; jUpdate(dt); cowUpdate(dt);
@@ -3945,19 +3945,19 @@ const moteTex = tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, 
 const E_ = (x, z, ry = 0, s = 1) => [x, z, ry, s];
 const ECHOES = [
   { id: 'echo_kreuzung', at: [2.5, 1.1, -2.5], title: 'Echo · Die Kreuzung, 5. August 2009', figs: [E_(-1.5, -4, 0, .58), E_(-.9, -4, 0, .58), E_(-.3, -4, 0, .6), E_(.3, -4, 0, .56), E_(.9, -4, 0, .6), E_(1.5, -4, 0, .58), E_(2.1, -4, 0, .57), E_(4.5, -1.5, -1.9, 1)],
-    lines: [['Morgengrauen. Sieben Kinder stehen barfuß auf dem Asphalt.', 3600], ['„… fünf, sechs, sieben.“', 2800, 'ALBERS, 2009'], ['„Sieben. Gott sei Dank. Alle sieben.“', 3000, 'ALBERS, 2009'], ['Eine Kinderstimme, ganz nah an deinem Ohr:', 2600], ['„Acht.“', 2200, '???']] },
+    lines: [['Morgengrauen. Sieben Kinder stehen barfuß auf dem Asphalt.', 3600], ['„… fünf, sechs, sieben.“', 2800, 'VEGAS, 2009'], ['„Sieben. Gott sei Dank. Alle sieben.“', 3000, 'VEGAS, 2009'], ['Eine Kinderstimme, ganz nah an deinem Ohr:', 2600], ['„Acht.“', 2200, '???']] },
   { id: 'echo_kueche', at: [28.8, Y + 1.1, -16.2], title: 'Echo · Küche Nr. 7, Oktober 2009', figs: [E_(27.6, -16.5, 1.4, 1), E_(30.2, -15.4, -1.8, 1.04), E_(30.4, -16.9, -1.5, 1.02)],
-    lines: [['Zwei Männer in Mänteln. Frau Wendt am Tisch, die Hände um eine kalte Tasse.', 4000], ['„Wir könnten Ihnen einen Jungen geben, Frau Wendt. Er wäre … fast wie Ben.“', 4400, 'MANN VOM AMT'], ['„Ich will meinen Ben.“', 2600, 'HILDE WENDT'], ['„So funktioniert das nicht. Das Licht gibt nie genau zurück, was es nimmt.“', 4400, 'MANN VOM AMT'], ['„Dann will ich gar keinen.“', 2800, 'HILDE WENDT']] },
+    lines: [['Zwei Männer in Mänteln. Frau Wendt am Tisch, die Hände um eine kalte Tasse.', 4000], ['„Wir könnten Ihnen einen Jungen geben, Frau Wendt. Er wäre … fast wie Zayn.“', 4400, 'MANN VOM AMT'], ['„Ich will meinen Zayn.“', 2600, 'HILDE WENDT'], ['„So funktioniert das nicht. Das Licht gibt nie genau zurück, was es nimmt.“', 4400, 'MANN VOM AMT'], ['„Dann will ich gar keinen.“', 2800, 'HILDE WENDT']] },
   { id: 'echo_kinderzimmer', at: [-52, Y + 1, -20], title: 'Echo · Kinderzimmer Nr. 1, August 2009', figs: [E_(-52.8, -19.4, 1.2, 1), E_(-51.4, -20.2, -1.6, .6)],
-    lines: [['Mama sitzt auf der Bettkante. Vor ihr ein Junge mit nassen Haaren.', 3800], ['„Wie heißt unser Hund, Kai?“', 2800, 'MAMA'], ['Der Junge sieht sie an. Lange. Er lächelt – an der falschen Stelle.', 4000], ['„Egal. Ist egal, mein Schatz. Du bist da.“', 3200, 'MAMA']] },
+    lines: [['Mama sitzt auf der Bettkante. Vor ihr ein Junge mit nassen Haaren.', 3800], ['„Wie heißt unser Hund, Luke?“', 2800, 'MAMA'], ['Der Junge sieht sie an. Lange. Er lächelt – an der falschen Stelle.', 4000], ['„Egal. Ist egal, mein Schatz. Du bist da.“', 3200, 'MAMA']] },
   { id: 'echo_brand', at: [-13, 1, -10.2], title: 'Echo · Haus Nr. 5, Dezember 2009', figs: [E_(-13, -10.2, 0, .58)],
-    lines: [['Ein Mädchen steht im Garten. In der Hand ein Feuerzeug. Hinter ihr brennt das Haus.', 4200], ['„Ich will zurück. Da oben war es warm.“', 3200, 'JANA, 8'], ['„Wenn das Haus weg ist, muss es mich wieder holen.“', 3600, 'JANA, 8']] },
+    lines: [['Ein Mädchen steht im Garten. In der Hand ein Feuerzeug. Hinter ihr brennt das Haus.', 4200], ['„Ich will zurück. Da oben war es warm.“', 3200, 'ROXY, 8'], ['„Wenn das Haus weg ist, muss es mich wieder holen.“', 3600, 'ROXY, 8']] },
   { id: 'echo_archiv', at: [C2.x + 24, 1.2, C2.z + 1.2], title: 'Echo · Archiv, Ebene −2, 2009', figs: [E_(C2.x + 23, C2.z + 1.4, 1.6, 1), E_(C2.x + 25.2, C2.z + .8, -1.4, 1)],
     lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Ersatz‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann holt es ihn zurück. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
   { id: 'echo_messraum', at: [C2.x + 113, 1.2, C2.z - 1.5], title: 'Echo · Messraum, 4. August 2009', figs: [E_(C2.x + 109, C2.z - 4.6, PI, .58), E_(C2.x + 112.2, C2.z - 4.6, PI, .58), E_(C2.x + 115.4, C2.z - 4.6, PI, .58), E_(C2.x + 119.5, C2.z - 2.2, -2.2, 1.14)],
     lines: [['Kinder auf den Stühlen, festgeschnallt. Sie schlafen mit offenen Augen.', 3800], ['In der Ecke: ein großer Mann in Eisen. Er rührt sich nicht.', 3600], ['„Wer ist der Mann in der Rüstung?“', 2800, 'KIND'], ['„Er kommt mit dem Licht. Er nimmt keins mit. Er bringt sie heim.“', 4200, 'ÄRZTIN'], ['„Warum weint er dann?“', 2600, 'KIND']] },
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Echo · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
-    lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'WALTER ALBERS, 9'], ['„Lass nicht los. Wer loslässt, bleibt im Weißen.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
+    lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, bleibt im Weißen.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
   { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Echo · Das Weiße, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
     lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['„Sieben für Papa. Damit er mich holen kommt.“', 3400, 'MIRA'], ['„Und einen für mich. Aus Papa gemacht. Damit ich nicht allein bin.“', 4200, 'MIRA']] },
 ];
@@ -4013,7 +4013,7 @@ async function greyCaught() {
 }
 
 // =====================================================================  DIE VERSUNKENE STADT (Kanal) – nur in der App
-// Unter Birkenhain: ein ganzes Viertel aus einer anderen Zeit und einem anderen Land – alles, was das Licht über Jahrhunderte genommen hat.
+// Unter Lost Eyengless: ein ganzes Viertel aus einer anderen Zeit und einem anderen Land – alles, was das Licht über Jahrhunderte genommen hat.
 // Bauteile aus „Asian Canal Environment“ (Unreal), als Instanzen gezeichnet; Kollision per BVH-Strahltest.
 const C4 = { x: 0, z: 2600 };
 const canal = { loaded: false, loading: false, root: new THREE.Group(), bvh: null, colMesh: null, spawn: new THREE.Vector3(), back: new THREE.Vector3(9, 0, -1.3), dt: .016, t: 0, lights: [], points: [], scareT: 25, drown: null };
@@ -4080,7 +4080,7 @@ async function enterCanal() {
     try { await renderer.compileAsync(scene, camera); } catch (e) {} }
   ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
   await wait(400); fade(0, 1600); state.talking = false; saveGame(3);
-  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Birkenhain.', 4200], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
+  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
 }
 function canalAtmo(on) {
   sky.visible = !on; scene.background = on ? new THREE.Color(0x020303) : null;
@@ -4130,8 +4130,8 @@ function applySave(d) {
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s)); updateSideInfo();
 }
 const RECAP = {
-  2: ['WAS BISHER GESCHAH', 'Lena verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
-  3: ['WAS BISHER GESCHAH', 'Unter Birkenhain lag das Amt für Rückführung. Sieben Kinder, acht Protokolle.', 'Akte 08 hatte keinen Namen. <b>Du bist der Ersatz.</b>', 'Lena lebt – in einem Tank. Und hinter dem Glas: ein graues Gesicht.'],
+  2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
+  3: ['WAS BISHER GESCHAH', 'Unter Lost Eyengless lag das Amt für Rückführung. Sieben Kinder, acht Protokolle.', 'Akte 08 hatte keinen Namen. <b>Du bist der Ersatz.</b>', 'Lucy lebt – in einem Tank. Und hinter dem Glas: ein graues Gesicht.'],
 };
 function showRecap(ch, then) {
   const L = RECAP[ch]; if (!L) return then();
@@ -4150,15 +4150,15 @@ function continueGame() {
 const CASES = [
   { id: 'amt', q: 'Was ist das Amt für Rückführung?', clues: { echo_kueche: 'Echo: Wendts Küche', echo_archiv: 'Echo: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
     a: 'Eine Behörde, die mit dem Licht verhandelt. Sie liefert keine Kinder – nur Papiere. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, wird „Ersatz“ genannt. Unterschreiben müssen die Mütter.' },
-  { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lenas Tagebuch', tape: 'Lenas Tonband', albers: 'Was Albers gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
+  { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
     a: 'Sieben Kinder wurden geholt. Sieben kamen zurück – und eines davon war ein anderes. Auf dem Foto stehen acht, weil einer zweimal da ist: das Original und der Ersatz.' },
-  { id: 'kai', q: 'Wer ist Kai wirklich?', clues: { aktekai: 'Akte 06 · Kai B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
+  { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
     a: 'Du bist der Ersatz, drei Tage zu spät geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
-  { id: 'lena', q: 'Was ist mit Lena passiert?', clues: { phone: 'Lenas Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
-    a: 'Lena ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Die Anrufe, die dich nach Birkenhain lockten, kamen nicht von ihr. Etwas spielt mit ihren Stimmen.' },
+  { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
+    a: 'Lucy ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Die Anrufe, die dich nach Lost Eyengless lockten, kamen nicht von ihr. Etwas spielt mit ihren Stimmen.' },
   { id: 'licht', q: 'Was ist das Licht?', clues: { c3chronik: 'Die Chronik von 1312', c3funk: 'Der Funkspruch', c3buch: 'Hilde Wendts Zählbuch', echo_mira: 'Echo: Das Mädchen im Weißen' },
-    a: 'Das Amt nennt es MIRA. Alle siebzehn Jahre öffnet es sich über Birkenhain – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
-  { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Albers, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Echo: Der Messraum', echo_1975: 'Echo: Sommer 1975' },
+    a: 'Das Amt nennt es MIRA. Alle siebzehn Jahre öffnet es sich über Lost Eyengless – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
+  { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Vegas, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Echo: Der Messraum', echo_1975: 'Echo: Sommer 1975' },
     a: 'Justin vom Hohen Abgrund. Er steht am Anfang von allem – und jedes Mal, wenn das Weiße sich öffnet, führt er die Kinder heim. Schuld und Wiedergutmachung in einer Rüstung.' },
 ];
 const loreHas = k => story.lore.some(l => l.key.toLowerCase() === k);
@@ -4470,12 +4470,12 @@ const ICONS = {
   paper: '<svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
 };
 const ITEMS = {
-  key: { name: 'Schlüssel zu Nr. 7', desc: 'An einem roten Band. Lena hat ihn im Briefkasten hinterlassen – für den Fall, dass sie nicht zurückkommt.' },
-  collar: { name: 'Brunos Halsband', desc: 'Rotes Leder, Messingmarke. Lag am Rand des Aschekreises. Herr Albers (Nr. 3) wartet darauf.' },
-  phone: { name: 'Lenas Handy', desc: '3 % Akku. Die letzte Nachricht an dich hat dich nie erreicht.' },
+  key: { name: 'Schlüssel zu Nr. 7', desc: 'An einem roten Band. Lucy hat ihn im Briefkasten hinterlassen – für den Fall, dass sie nicht zurückkommt.' },
+  collar: { name: 'Brunos Halsband', desc: 'Rotes Leder, Messingmarke. Lag am Rand des Aschekreises. Herr Vegas (Nr. 3) wartet darauf.' },
+  phone: { name: 'Lucys Handy', desc: '3 % Akku. Die letzte Nachricht an dich hat dich nie erreicht.' },
   fuse: { name: 'Schlüssel Sicherungsraum', desc: 'Lag mit einer Klammer am achten Protokoll.' },
   buch: { name: 'Hilde Wendts Zählbuch', desc: 'Jede Nacht seit 2009: gezählte Kinder auf der Kreuzung. Immer acht. Zuletzt: neun.' },
-  tape: { name: 'Lenas Tonband', desc: '„Wir waren beide weg. Du auch.“' },
+  tape: { name: 'Lucys Tonband', desc: '„Wir waren beide weg. Du auch.“' },
   batterie: { get name() { return `Batterien × ${FLASH.spare}`; }, get desc() { return `Für die Taschenlampe. [R] wechseln. Ladung der eingelegten: ${Math.round(FLASH.charge * 100)} %.`; } },
   drahtschneider: { name: 'Drahtschneider', desc: 'Rote Griffe, die Schneiden stumpf, aber es reicht für Maschendraht und dünne Ketten.' },
   brechstange: { name: 'Brechstange', desc: 'Schwer, am Ende verbogen. Jemand hat damit schon einmal etwas aufgehebelt – an der Spitze klebt Kalk.' },
@@ -4526,7 +4526,7 @@ $('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
 { const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
 $('mCont').onclick = e => { e.stopPropagation(); continueGame(); };
 if (window.IS_APP) { $('mQuit').style.display = ''; $('mQuit').onclick = e => { e.stopPropagation(); window.close(); }; }
-$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>BIRKENHAIN · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'BIRKENHAIN · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button></div>`);
+$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button></div>`);
   $('c3').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch3) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter3(); };
   $('c1').onclick = ev => { ev.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); runIntro(); };
   $('c2').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch2) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter2(); }; };
@@ -4569,7 +4569,7 @@ function attractUpdate(dt, t) {
 // Intro nach „Neues Spiel“
 async function runIntro() {
   $('start').classList.remove('show'); $('introSeq').classList.add('show'); Audio.init();
-  const lines = ['Am 23. Oktober verschwand deine Schwester Lena.', 'Heute ist der 4. November. Die Polizei sucht nicht mehr.', 'Letzte Nacht hat sie dich angerufen. Sie flüsterte nur:', '<i>„Haus Nummer 7. Der Keller.“</i>'];
+  const lines = ['Am 23. Oktober verschwand deine Schwester Lucy.', 'Heute ist der 4. November. Die Polizei sucht nicht mehr.', 'Letzte Nacht hat sie dich angerufen. Sie flüsterte nur:', '<i>„Haus Nummer 7. Der Keller.“</i>'];
   const box = $('intro'); box.innerHTML = lines.map(l => `<p>${l}</p>`).join(''); let skipped = false;
   $('introSeq').onclick = () => { skipped = true; };
   for (const p of box.querySelectorAll('p')) { if (skipped) break; await wait(1600); p.classList.add('on'); if (p === box.lastElementChild) Audio.stinger(false); }
@@ -4710,7 +4710,7 @@ function update(dt, t) {
     tvCtx.putImageData(img, 0, 0);
     const dTV = camera.position.distanceTo(tvScreen.position);
     if (state.tvCircle > 0) { tvCtx.strokeStyle = 'rgba(0,0,0,.85)'; tvCtx.lineWidth = 4; tvCtx.beginPath(); tvCtx.arc(48, 36, 22 + Math.random() * 2, 0, 7); tvCtx.stroke(); }
-    else if (dTV < 3.2 && Math.random() < .06) { state.tvSeen = true; tvCtx.fillStyle = 'rgba(0,0,0,.75)'; tvCtx.font = 'bold 22px Georgia'; tvCtx.textAlign = 'center'; tvCtx.fillText('HALLO KAI', 48, 44); }
+    else if (dTV < 3.2 && Math.random() < .06) { state.tvSeen = true; tvCtx.fillStyle = 'rgba(0,0,0,.75)'; tvCtx.font = 'bold 22px Georgia'; tvCtx.textAlign = 'center'; tvCtx.fillText('HALLO LUKE', 48, 44); }
     tvTex.needsUpdate = true; tvLight.intensity = 1.2 + Math.random() * 1.6;
   } else if (tvLight.userData.dead) tvLight.intensity = 0;
   if (Audio.tv) Audio.tv.gain.value = tvLight.userData.dead ? 0 : Math.max(0, .05 * (1 - camera.position.distanceTo(tvScreen.position) / 7));
@@ -4725,7 +4725,7 @@ function update(dt, t) {
   if (!state.nearHouse && Math.abs(P.x - 26) < 7 && P.z < -2 && P.z > -9) { state.nearHouse = true; setMain(1); subtitle('Nr. 7. Im Wohnzimmer brennt Licht. Aber niemand bewegt sich.', 4500); }
   if (!state.slammed && door7.open && rect === s7 && P.z < s7.zf - 1.8) { state.slammed = true; setTimeout(() => { door7.slamming = true; door7.set(false); Audio.slam(); toast('Der Wind. Nur der Wind.'); setTimeout(() => door7.slamming = false, 600); }, 900); }
   if (!state.kidsRoom && rect === s1 && P.x < -50 && P.z < -17) { state.kidsRoom = true; Audio.musicBox(); subtitle('Euer altes Kinderzimmer. Die Spieluhr … spielt.', 4500); }
-  if (!state.carSeen && Math.hypot(P.x - 1.9, P.z + 37) < 22) { state.carSeen = true; sideStart('car'); subtitle('Scheinwerfer. Das ist … Lenas Auto.', 4000); }
+  if (!state.carSeen && Math.hypot(P.x - 1.9, P.z + 37) < 22) { state.carSeen = true; sideStart('car'); subtitle('Scheinwerfer. Das ist … Lucys Auto.', 4000); }
   const dCar = Math.hypot(P.x - 1.9, P.z + 37); dingT -= dt; if (dCar < 16 && dingT < 0 && !state.outage) { dingT = 1.6; Audio.ding(.05 * (1 - dCar / 16)); }
   if (story.side.call.state === 'active' && !state.callDone && !state.outage) {
     const dB = Math.hypot(P.x - 8, P.z - 7.6);
