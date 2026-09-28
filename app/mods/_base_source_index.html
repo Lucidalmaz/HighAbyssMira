@@ -103,6 +103,13 @@
   #questPop small { color: var(--gold); font-size: 10px; letter-spacing: .38em; }
   #prompt { top: 56%; padding: 6px 14px 6px 10px; background: rgba(8,7,6,.6); border: 1px solid rgba(201,163,106,.35); border-radius: 3px; font-size: 16px; letter-spacing: .04em; }
   #prompt kbd { font: 12px Georgia, serif; color: #1a1612; background: linear-gradient(#e6dcc4, #b8ad94); border: 0; border-radius: 3px; padding: 1px 7px; margin-right: 10px; box-shadow: 0 1px 0 #6a5e48; }
+  #batt { position: absolute; left: 28px; bottom: 24px; display: flex; gap: 3px; align-items: center; opacity: 0; transition: opacity .6s; }
+  #batt.show { opacity: .85; }
+  #batt i { width: 9px; height: 14px; border: 1px solid rgba(216,210,196,.55); background: transparent; }
+  #batt i.on { background: rgba(216,210,196,.75); }
+  #batt.low i.on { background: #c0503a; border-color: #c0503a; animation: battBlink 1s steps(2) infinite; }
+  #batt span { margin-left: 8px; font: 13px Georgia, serif; color: var(--dim); letter-spacing: .1em; }
+  @keyframes battBlink { 50% { opacity: .3; } }
   #perf { display: none; position: fixed; top: 8px; right: 8px; z-index: 50; margin: 0; padding: 8px 10px; background: rgba(0,0,0,.72); color: #cfe8c8; font: 12px/1.35 Consolas, monospace; pointer-events: none; white-space: pre; }
   #hudHint { position: absolute; right: 28px; bottom: 22px; font: 11px Georgia, serif; letter-spacing: .25em; color: #6f6656; }
   #hudHint kbd.k { margin-right: 6px; font-size: 10px; }
@@ -664,6 +671,16 @@ flashlight.map = cookie; flashlight.castShadow = true; flashlight.shadow.mapSize
 flashRig.add(flashlight); flashlight.position.set(0, 0, 0); flashlight.target.position.set(0, 0, -1); flashRig.add(flashlight.target);
 const bounce = new THREE.PointLight(0xffe2c0, 0, 7, 2); scene.add(bounce);
 let flashOn = true;
+// --- TASCHENLAMPE: drei Stufen im Spielverlauf + Batterie. Nie blockierend: leer = schwaches Restglimmen, nie völlig blind.
+// life = Sekunden Dauerlicht pro Batterie · angle = halber Öffnungswinkel (rad) · Werte hier zentral abstimmen
+const FLASH_TIERS = [
+  { key: 'lampe1', name: 'Lenas alte Taschenlampe', desc: 'Blechgehäuse, Glühbirne, „L.B.“ eingeritzt. Warmes, kurzes Licht. Frisst Batterien.', intensity: 12, distance: 24, angle: .46, color: 0xffdcae, life: 420 },
+  { key: 'lampe2', name: 'Stablampe (LED)', desc: 'Aus dem Wachraum des Amts. Kaltes, weites Licht. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“.', intensity: 16, distance: 33, angle: .5, color: 0xf1f3ff, life: 780 },
+  { key: 'lampe3', name: 'Feuerwehr-Handscheinwerfer', desc: 'Schwer, orange, Tragegriff. Lag in der Tankstelle Kranz, als hätte ihn jemand für dich hingelegt.', intensity: 21, distance: 42, angle: .58, color: 0xf7f8ff, life: 1200 },
+];
+const FLASH = { tier: 0, charge: 1, spare: 1, LOW: .15, GLOW: .1, lowTold: false, hudT: 0 };
+function flashApply() { const T = FLASH_TIERS[FLASH.tier]; flashlight.color.set(T.color); flashlight.distance = T.distance; flashlight.angle = T.angle; }
+flashApply();
 
 // =====================================================================  BODEN & STRASSEN
 plane(320, 320, 0, 0, 0, M.grass).receiveShadow = true;
@@ -1552,7 +1569,8 @@ const Audio = {
     const want = !active || chase ? 'off' : fearV > MUSIC.danger ? 'danger' : (fearV > MUSIC.uneasy || basement) ? 'uneasy' : 'calm';
     if (want !== M.want) { M.want = want; M.hold = want === 'danger' || want === 'off' ? 0 : MUSIC.hold; } // Gefahr/Aus sofort, Entspannung verzögert
     M.hold -= dt; if (M.hold <= 0 && M.level !== M.want) { const up = MUSIC.order.indexOf(M.want) > MUSIC.order.indexOf(M.level); M.level = M.want;
-      if (M.cur && (M.level === 'off' || M.cur.level !== M.level)) { M.cur.stop(up ? 1.5 : 6); M.cur = null; M.rest = up ? 0 : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } }
+      if (M.cur && (M.level === 'off' || M.cur.level !== M.level)) { M.cur.stop(up ? 1.5 : 6); M.cur = null; }
+      if (!M.cur) M.rest = up ? (M.level === 'danger' ? 0 : Math.min(M.rest, 4)) : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } // steigende Spannung: sofort bzw. bald, fallende: erst Stille
     if (M.level === 'off' || M.cur) return;
     M.rest -= dt; if (M.rest > 0) return;
     const L = M.level, pool = M.tracks[L].filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : M.tracks[L][0];
@@ -1794,7 +1812,7 @@ function kpPress(k) {
 // =====================================================================  STORY & AUFGABEN
 const state = { started: false, hasKey: false, readPaper: false, readFridge: false, readCal: false, cellarOpen: false, heardTape: false, inBasement: false, outage: false, ending: false,
   wrongCodes: 0, watcherGone: false, phase2: false, talking: false, flashFail: 0, ufoT: 0, p2t: 0 };
-const MAIN = ['Finde Haus Nr. 7.', 'Finde einen Weg in Haus Nr. 7.', 'Durchsuche Haus Nr. 7.', 'Öffne die Kellertür.', 'Finde heraus, was Lena hinterlassen hat.', 'Geh wieder nach oben.', 'Raus aus dem Haus. Sofort.'];
+const MAIN = ['Finde Haus Nr. 7.', 'Finde einen Weg in Haus Nr. 7.', 'Durchsuche Haus Nr. 7.', 'Öffne die Kellertür.', 'Finde heraus, was Lena hinterlassen hat.', 'Geh wieder nach oben.', 'Raus aus dem Haus. Sofort.', 'Zurück in den Keller von Nr. 7. Die Wand mit den Zeichnungen klang hohl.', 'Folge dem Gang hinter der Wand.'];
 const story = { main: 0, lore: [], photos: new Set(),
   side: {
     home: { title: 'Das alte Zuhause', desc: 'Euer Elternhaus, Nr. 1. Mama hat es nie verkauft.', state: 'hidden', steps: {} },
@@ -2042,7 +2060,7 @@ async function enterBasement() {
 async function leaveBasement() {
   await fade(1, 900); state.inBasement = false;
   player.pos.set(30, 0, -20.6); player.yaw = 0; player.pitch = 0; vel.set(0, 0, 0); camY = Y + 1.65;
-  await wait(500); fade(0, 1200); await wait(1800); startOutage();
+  await wait(500); fade(0, 1200); await wait(1800); if (!state.outage) startOutage(); // zweites Hinaufgehen startet den Ausfall nicht erneut
 }
 async function startOutage() {
   state.outage = true; Audio.stinger(true); setMain(6);
@@ -2058,7 +2076,13 @@ async function ending() {
   if (state.ending) return; state.ending = true; Audio.stinger(true);
   for (let i = 0; i < 20; i++) { filmPass.uniforms.flash.value = i / 20; await wait(30); }
   await fade(1, 400); filmPass.uniforms.flash.value = 0; Audio.hum(false); if (Audio.drone) Audio.drone.gain.value = 0;
-  const sd = Object.values(story.side).filter(q => q.state === 'done').length;
+  if (SEAMLESS) { // kein Schnitt, keine Endkarte: das Licht ist fort, Frau Wendt mit ihm – Kai steht noch auf der Straße
+    state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; ufo.userData.beam.uniforms.opacity.value = 0; ufo.userData.motes.material.opacity = 0; victim.visible = false; vel.set(0, 0, 0);
+    await wait(1800); state.ending = false; state.ch1Done = true; state.cellarOpen = true; saveFlag('ch2'); if (Audio.drone) Audio.drone.gain.value = .02;
+    fade(0, 2600); await wait(1400); subtitle('Stille. Kein Brummen mehr. Wo sie stand, glänzt der Asphalt, als hätte es nur dort geregnet.', 5200);
+    await wait(5600); setMain(7); subtitle('Der Keller. Die Wand mit den Zeichnungen. Dahinter hat es hohl geklungen.', 4600); return;
+  }
+  const sd =Object.values(story.side).filter(q => q.state === 'done').length;
   $('endStats').innerHTML = `NEBENAUFGABEN ${sd} / 5<br>POLAROIDS ${story.photos.size} / 7<br>FUNDE ${story.lore.length}`;
   document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); document.body.classList.add('ov'); $('fade').style.opacity = 0;
   saveFlag('ch2'); $('endcard').querySelector('.go').onclick = () => startChapter2();
@@ -2082,7 +2106,8 @@ addEventListener('keydown', e => {
   }
   if (ui.overlay || !state.started) return;
   if (e.code === 'KeyE' && target) target.userData.action();
-  if (e.code === 'KeyF') { flashOn = !flashOn; Audio.beep(true); }
+  if (e.code === 'KeyF') { flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }
+  if (e.code === 'KeyR' && state.started && !ui.overlay) flashReload();
   if (e.code === 'Space') { e.preventDefault(); jumpQueued = true; }
   if (e.code === 'Tab' || e.code === 'KeyJ') { renderJournal(); openOverlay('journal'); }
 });
@@ -2114,6 +2139,7 @@ $('journal').onclick = () => closeOverlay();
 function beginGame() {
   if (state.started) return; state.started = true; menu.attract = false; Audio.init(); document.body.classList.remove('menu');
   player.pos.set(-66, 0, 2); player.yaw = -PI / 2; player.pitch = 0; camY = 1.65; vel.set(0, 0, 0);
+  Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie');
   $('fade').style.transition = 'none'; $('fade').style.opacity = 1; lockPointer();
   setTimeout(async () => { await fade(0, 2800); }, 250);
   setTimeout(() => subtitle('Birkenhain. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000), 1800);
@@ -2781,7 +2807,7 @@ gardenGate(23, -7.2, 1); gardenGate(-47, -7.2, 1); gardenGate(-28, -7.2, 1); gar
 gardenGate(-50, 7.2, -1); gardenGate(-28, 7.2, -1); gardenGate(22, 7.2, -1); gardenGate(46, 7.2, -1);
 // =====================================================================  KAPITEL 2 · DAS ACHTE KIND
 // Ein Untergrund unter Birkenhain: das „Amt für Rückführung“. Eigener Bereich, weit weg vom Ort.
-const C2 = { x: 600, z: -2600, h: 2.5 };
+const C2 = { x: 600, z: -2600, h: 2.5 }; const SEAMLESS = true; // SEAMLESS: Kapitelübergänge gelaufen (Gang hinter der Kellerwand → Amt) statt Endkarte + Ortswechsel
 const ch2 = { on: false, power: false, archiveSolved: false, fuseOpen: false, spiderPhase: 'idle', spiderT: 0, onPlayer: 0, shake: 0, chase: 'idle', caught: 0, piano: [], safeOpen: false, lenaMet: false, lampsCrazy: 0 };
 const c2Lights = [];
 function c2Tube(x, z, len, axis = 'x', color = 0xd8ecff, intensity = 1.6, dist = 7) {
@@ -2808,7 +2834,8 @@ const paperMat = new THREE.MeshStandardMaterial({ color: 0xd9d0b8, roughness: 1 
 const X = C2.x, Z = C2.z;
 
 // --- Tunnel (600–618)
-c2Room(X, X + 18, Z - 2, Z + 2, { e: [{ at: Z, w: 1.6 }] });
+c2Room(X, X + 18, Z - 2, Z + 2, { e: [{ at: Z, w: 1.6 }], w: SEAMLESS ? [{ at: Z, w: 1.6 }] : [] }); // Westtür: Gang aus dem Keller von Nr. 7
+const CH2_BEGIN = []; // Welt-Module hängen sich an den Beginn von Kapitel 2 (z. B. die Tür, die hinter dem Spieler zufällt)
 for (let i = 0; i < 3; i++) box(.16, .16, 18, X + 9, C2.h - .25, Z - 1.6 + i * .35, M.rust, { cast: false });
 for (let x = X + 3; x < X + 18; x += 5) box(.2, 2.5, .2, x, 1.25, Z - 1.85, M.rust);
 c2Tube(X + 4, Z, 1.2, 'x', 0xffd9a0, 1.2, 6).mode = 'flicker'; c2Tube(X + 13, Z, 1.2, 'x', 0xffd9a0, 1.2, 6);
@@ -3064,11 +3091,17 @@ async function finale() {
 // --- Kapitel-Steuerung
 const C2_MAIN = ['Folge dem Tunnel.', 'Finde heraus, was das Amt über die Kinder wusste.', 'Bring die Namen in die richtige Reihenfolge.'];
 function setC2Objective(t) { $('objText').textContent = trX(t); }
-async function startChapter2() {
-  $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.outage = false; state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; victim.visible = false; Audio.hum(false);
+// Kapitel 2 beginnen, wo der Spieler gerade ist (nahtlos aus dem Gang hinter der Kellerwand); räumt Kapitel 1 ab
+function chapter2Begin() {
+  if (ch2.on) return; state.ending = false; state.outage = false; state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; victim.visible = false; Audio.hum(false);
   if (Audio.drone) Audio.drone.gain.value = .028;
+  ch2.on = true; state.ch2 = true; state.inBasement = true; state.started = true; story.main = 99; saveFlag('ch2'); saveGame(2); flashOn = true;
+  Audio.setArea(true, true); for (const f of CH2_BEGIN) try { f(); } catch (e) { console.warn('Kapitel-2-Beginn', e); }
+}
+async function startChapter2() { // Weiterspielen / Kapitel wählen
+  $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
   $('fade').style.opacity = 1; await wait(300);
-  ch2.on = true; state.ch2 = true; saveGame(2); state.inBasement = true; state.started = true; story.main = 99;
+  chapter2Begin();
   player.pos.set(X + 1.2, 0, Z); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; flashOn = true;
   Audio.setArea(true, true);
   $('intro').innerHTML = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 2 · DAS ACHTE KIND</p><p class="on">Hinter der Zeichnungswand im Keller von Nr. 7: eine Tür.</p><p class="on">Sie war nie verputzt. Nur übermalt. Von Kinderhand.</p><p class="on"><i>„AMT FÜR RÜCKFÜHRUNG – EBENE −2“</i></p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
@@ -3643,6 +3676,7 @@ async function startChapter3() {
   shade.material.emissiveIntensity = 0; tube.material.emissiveIntensity = 0; tvScreen.material.emissiveIntensity = 0; houseLit.forEach(m => m.emissiveIntensity = 0);
   letter2.visible = true; interact(letter2, 'Brief lesen', readLetter2); zbook.visible = true; interact(zbook, 'Zählbuch lesen', readBook); albersNote.visible = true; interact(albersNote, 'Umschlag nehmen', readAlbers);
   interact(booth.phone, 'Hörer abnehmen', c3Phone);
+  if (FLASH.tier < 1) { FLASH.tier = 1; FLASH.charge = 1; flashApply(); story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift('lampe2'); }
   ch3.on = true; saveFlag('ch3'); c3Info(); saveGame(3);
   player.pos.set(.8, 0, 1.6); player.yaw = -PI / 2 + .3; player.pitch = .25; vel.set(0, 0, 0); camY = .3; flashOn = true;
   Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03;
@@ -3869,7 +3903,7 @@ function fabUpdate(dt, t) {
     const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz);
   }
   if (outdoor && !state.talking && !ui.overlay && state.started) { FAB.batT -= dt; if (FAB.batT < 0) { FAB.batT = rand(55, 110); const b = FAB.bats[Math.floor(rand(0, FAB.bats.length))]; b.swoop = 2.4; setTimeout(() => Audio.flap(P.x, 1.8, P.z), 900); } }
-  for (const f of FAB.flies) { if (Math.abs(f.c.x - P.x) > 30 || Math.abs(f.c.z - P.z) > 30) continue; f.ph += dt * f.sp; f.o.position.set(f.c.x + Math.cos(f.ph) * f.r + Math.sin(f.ph * 3.1) * .05, f.c.y + Math.sin(f.ph * 1.7) * .12, f.c.z + Math.sin(f.ph * 1.3) * f.r); f.o.rotation.y = -f.ph; }
+  for (const f of FAB.flies) { const far = Math.abs(f.c.x - P.x) > 30 || Math.abs(f.c.z - P.z) > 30; f.o.visible = !far; if (far) continue; f.ph += dt * f.sp; f.o.position.set(f.c.x + Math.cos(f.ph) * f.r + Math.sin(f.ph * 3.1) * .05, f.c.y + Math.sin(f.ph * 1.7) * .12, f.c.z + Math.sin(f.ph * 1.3) * f.r); f.o.rotation.y = -f.ph; }
   for (const S of FAB.spiders) {
     if (Math.hypot(P.x - S.g.position.x, P.z - S.g.position.z) > 25) continue;
     S.mx.update(dt); S.t -= dt;
@@ -4058,13 +4092,16 @@ const SAVE_KEY = 'ham_save';
 const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht' };
 const solved = new Set();
 function saveGame(chapter) {
-  try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved],
+  try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
     side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])) };
     localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) {}
 }
 function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return null; } }
 function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
+  // Ausrüstung: ältere Spielstände haben keine → Stufe nach Kapitel (Kap. 3 hat die LED-Lampe aus dem Amt)
+  const f = d.flash || {}; FLASH.tier = Math.max(f.tier || 0, d.chapter >= 3 ? 1 : 0); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
+  story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s)); updateSideInfo();
 }
@@ -4115,7 +4152,7 @@ const fear = { v: 0, beatT: 0, whisperT: 8, told: false };
 const fearVig = document.createElement('div'); fearVig.id = 'fearVig'; document.body.appendChild(fearVig);
 function fearUpdate(dt, indoor) {
   if (!state.started || state.ending || menu.attract) { fearVig.style.opacity = 0; return; }
-  const P = player.pos; let lit = flashOn && state.flashFail <= 0;
+  const P = player.pos; let lit = flashOn && state.flashFail <= 0 && FLASH.charge > 0;
   if (!lit && !state.inBasement) for (const L of lamps) if (L.k > .35 && Math.hypot(L.wx - P.x, L.wz - P.z) < 7) { lit = true; break; }
   if (!lit && indoor && !state.blackout) lit = true; // beleuchtete Räume
   if (!lit && state.zone === 'canal') for (const L of canal.lights) if (L.v.intensity > .4 && Math.hypot(L.v.position.x - P.x, L.v.position.z - P.z) < 6) { lit = true; break; }
@@ -4337,9 +4374,46 @@ addEventListener('keydown', e => { if (e.code === 'F3') { e.preventDefault(); pe
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
+// --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
+// 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
+function perfMergeGroups(g) {
+  const G0 = g.groups; if (!G0 || G0.length < 2) return false;
+  const byMat = new Map(); for (const gr of G0) { const k = gr.materialIndex ?? 0; if (!byMat.has(k)) byMat.set(k, []); byMat.get(k).push(gr); }
+  if (byMat.size === G0.length) return false;
+  const src = g.index ? g.index.array : null, total = G0.reduce((s, gr) => s + gr.count, 0), out = g.attributes.position.count < 65536 ? new Uint16Array(total) : new Uint32Array(total);
+  let o = 0; g.clearGroups();
+  for (const [k, list] of [...byMat.entries()].sort((a, b) => a[0] - b[0])) { const s0 = o; for (const gr of list) for (let i = gr.start, e = gr.start + gr.count; i < e; i++) out[o++] = src ? src[i] : i; g.addGroup(s0, o - s0, k); }
+  g.setIndex(new THREE.BufferAttribute(out, 1)); if (g.boundsTree) g.boundsTree = null; return true;
+}
+{ const seen = new Set(); let n = 0, before = 0; scene.traverse(o => { if (!o.isMesh || !Array.isArray(o.material) || seen.has(o.geometry)) return; seen.add(o.geometry); const c = o.geometry.groups.length; if (perfMergeGroups(o.geometry)) { n++; before += c; } });
+  if (n) console.info(`Leistung: ${n} Geometrien zusammengefasst (${before} Abschnitte → je 1 pro Material)`); }
 { try { stage('Kollision'); await buildSolids(); } catch (e) { console.warn('Kollision', e); } }
+// Bewegte Körper (Türen, Tore) stehen im Kollisionsraster noch an ihrer Ladeposition → nach einer Bewegung neu einsortieren
+function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
+// 2) Instanz-Wälder/-Gräser, die über die ganze Welt reichen (Begrenzungskugel > PERF_CULL.span): nur Instanzen im Nebel-Sichtbereich zeichnen.
+//    Kollision nutzt eigene Kopien der Matrizen und ist davon unberührt. Schreibt ein Modul selbst in die Instanzen, wird die Auslese dort abgeschaltet.
+const PERF_CULL = { R: 85, span: 120, every: .25, t: 0, list: [] };
+scene.traverse(o => { if (!o.isInstancedMesh || o.count < 8 || o.userData.noCull) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
+  if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const n = o.count, all = o.instanceMatrix.array.slice(0, n * 16), col = o.instanceColor ? o.instanceColor.array.slice(0, n * 3) : null, cx = new Float32Array(n), cz = new Float32Array(n), rr = new Float32Array(n), m = new THREE.Matrix4();
+  for (let i = 0; i < n; i++) { m.fromArray(all, i * 16); const e = m.elements; cx[i] = e[12]; cz[i] = e[14]; rr[i] = o.geometry.boundingSphere.radius * m.getMaxScaleOnAxis(); }
+  PERF_CULL.list.push({ o, n, all, col, cx, cz, rr, ver: -1, off: false }); });
+function perfCullTick(dt) {
+  PERF_CULL.t -= dt; if (PERF_CULL.t > 0) return; PERF_CULL.t = PERF_CULL.every; const px = camera.position.x, pz = camera.position.z, R = PERF_CULL.R;
+  for (const C of PERF_CULL.list) { if (C.off) continue; const o = C.o, A = o.instanceMatrix;
+    if (C.ver >= 0 && A.version !== C.ver) { C.off = true; o.count = C.n; continue; } // fremde Änderung → Finger weg
+    let k = 0; for (let i = 0; i < C.n; i++) { const dx = C.cx[i] - px, dz = C.cz[i] - pz, r = R + C.rr[i]; if (dx * dx + dz * dz > r * r) continue;
+      A.array.set(C.all.subarray(i * 16, i * 16 + 16), k * 16); if (C.col) o.instanceColor.array.set(C.col.subarray(i * 3, i * 3 + 3), k * 3); k++; }
+    o.count = k; A.needsUpdate = true; if (C.col) o.instanceColor.needsUpdate = true; C.ver = A.version; o.computeBoundingSphere(); }
+}
 // =====================================================================  HAUPTMENÜ & INVENTAR
 const ICONS = {
+  lampe1: '<svg viewBox="0 0 24 24"><path d="M5 9h9v6H5z"/><path d="M14 8l5-3v14l-5-3"/><path d="M7 9V7M10 9V7"/></svg>',
+  lampe2: '<svg viewBox="0 0 24 24"><path d="M3 10h12v4H3z"/><path d="M15 9l5-2v10l-5-2"/></svg>',
+  lampe3: '<svg viewBox="0 0 24 24"><rect x="4" y="9" width="11" height="8" rx="1"/><path d="M15 8l5-2v12l-5-2M6 9c0-4 7-4 7 0"/></svg>',
+  batterie: '<svg viewBox="0 0 24 24"><rect x="8" y="5" width="8" height="15" rx="1"/><path d="M10 3h4M10 12h4"/></svg>',
+  drahtschneider: '<svg viewBox="0 0 24 24"><path d="M9 13l-5 8M15 13l5 8M9 13l3-10 3 10"/><circle cx="12" cy="12" r="1.2"/></svg>',
+  brechstange: '<svg viewBox="0 0 24 24"><path d="M5 20L18 5c1-1 3 0 2 2"/><path d="M5 20l-1-2"/></svg>',
+  sicherung: '<svg viewBox="0 0 24 24"><rect x="8" y="4" width="8" height="16" rx="3"/><path d="M8 8h8M8 16h8"/></svg>',
   key: '<svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2"/></svg>',
   collar: '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="11" rx="8" ry="5"/><path d="M12 16v3M10 21h4"/></svg>',
   phone: '<svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>',
@@ -4357,8 +4431,13 @@ const ITEMS = {
   fuse: { name: 'Schlüssel Sicherungsraum', desc: 'Lag mit einer Klammer am achten Protokoll.' },
   buch: { name: 'Hilde Wendts Zählbuch', desc: 'Jede Nacht seit 2009: gezählte Kinder auf der Kreuzung. Immer acht. Zuletzt: neun.' },
   tape: { name: 'Lenas Tonband', desc: '„Wir waren beide weg. Du auch.“' },
+  batterie: { get name() { return `Batterien × ${FLASH.spare}`; }, get desc() { return `Für die Taschenlampe. [R] wechseln. Ladung der eingelegten: ${Math.round(FLASH.charge * 100)} %.`; } },
+  drahtschneider: { name: 'Drahtschneider', desc: 'Rote Griffe, die Schneiden stumpf, aber es reicht für Maschendraht und dünne Ketten.' },
+  brechstange: { name: 'Brechstange', desc: 'Schwer, am Ende verbogen. Jemand hat damit schon einmal etwas aufgehebelt – an der Spitze klebt Kalk.' },
+  sicherung: { name: 'Keramiksicherung', desc: 'Alt, 25 A, mit Klebeband umwickelt. Auf dem Band: „RAUM 7“.' },
 };
-story.items = [];
+for (const T of FLASH_TIERS) ITEMS[T.key] = T;
+story.items = ['lampe1'];
 function addItem(key) { if (!story.items.includes(key)) { story.items.push(key); questPop('INVENTAR', ITEMS[key].name); } }
 let jTab = 'aufgaben';
 function renderJournal() {
@@ -4427,6 +4506,7 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">LEERTASTE</kbd></span><span>Springen · an Kanten hochziehen</span>
   <span><kbd class="k">E</kbd></span><span>Benutzen, aufheben, lesen (auch halten: Gitter aufschieben)</span>
   <span><kbd class="k">F</kbd></span><span>Taschenlampe</span>
+  <span><kbd class="k">R</kbd></span><span>Batterie wechseln</span>
   <span><kbd class="k">TAB</kbd></span><span>Tagebuch: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
@@ -4453,9 +4533,37 @@ async function runIntro() {
 }
 // =====================================================================  LOOP
 const clock = new THREE.Clock(), fwd = new THREE.Vector3(), tmp = new THREE.Vector3(), flashOff = new THREE.Vector3(.2, -.22, .05);
+// Akku: verbraucht nur im laufenden Spiel (nicht in Menüs, Notizen, Zwischensequenzen)
+function flashPower(dt) {
+  const T = FLASH_TIERS[FLASH.tier], live = state.started && !ui.overlay && !state.ending && !menu.attract;
+  if (live) FLASH.charge = Math.max(0, FLASH.charge - dt / T.life);
+  if (FLASH.charge <= 0) { flashlight.distance = T.distance * .35; return T.intensity * FLASH.GLOW * (.8 + Math.random() * .2); } // Restglimmen
+  flashlight.distance = T.distance;
+  if (FLASH.charge < FLASH.LOW) { // schwach: dunkler und unruhig, gelegentlich kurzes Aussetzen
+    if (live && !FLASH.lowTold) { FLASH.lowTold = true; FLASH.hudT = 6; toast(FLASH.spare ? `Die Lampe wird schwach. [R] Batterie wechseln (${FLASH.spare} übrig).` : 'Die Lampe wird schwach. Keine Ersatzbatterie – such in Schubladen, Werkbänken, Spinden.', 4200); }
+    const k = .45 + .55 * FLASH.charge / FLASH.LOW; return T.intensity * k * (Math.random() < dt * 1.5 ? .15 : 1);
+  }
+  return T.intensity;
+}
+function flashReload() {
+  if (!FLASH.spare) { toast('Keine Ersatzbatterie.', 1800); FLASH.hudT = 3; return; }
+  if (FLASH.charge > .97) { toast('Die Batterie ist noch voll.', 1600); FLASH.hudT = 3; return; }
+  FLASH.spare--; FLASH.charge = 1; FLASH.lowTold = false; FLASH.hudT = 4; state.flashFail = Math.max(state.flashFail, .35);
+  Audio.play('switch1', { gain: .35, rate: 1.3 }); Audio.play('keys1', { gain: .18, rate: 1.6, delay: .12, dur: .25 }); flashHud(); if (ui.overlay === 'journal') renderJournal();
+}
+function addBattery(n = 1) { FLASH.spare += n; FLASH.hudT = 4; if (!story.items.includes('batterie')) story.items.push('batterie'); questPop('GEFUNDEN', n > 1 ? `${n} Batterien` : 'Batterie'); Audio.play('keys2', { gain: .22, rate: 1.4, dur: .3 }); flashHud(); }
+// Neue Lampenstufe: ersetzt die alte im Inventar, volle Batterie
+function flashUpgrade(tier) {
+  if (tier <= FLASH.tier) return; const old = FLASH_TIERS[FLASH.tier].key; FLASH.tier = tier; FLASH.charge = 1; FLASH.lowTold = false; flashApply();
+  story.items = story.items.filter(k => k !== old); if (!story.items.includes(FLASH_TIERS[tier].key)) story.items.unshift(FLASH_TIERS[tier].key);
+  questPop('AUSRÜSTUNG', FLASH_TIERS[tier].name); flashOn = true; state.flashFail = .5; Audio.play('switch2', { gain: .5 }); FLASH.hudT = 5;
+}
+const battEl = document.createElement('div'); battEl.id = 'batt'; battEl.innerHTML = '<i></i><i></i><i></i><i></i><span></span>'; document.getElementById('hud').appendChild(battEl);
+function flashHud() { const segs = battEl.querySelectorAll('i'), c = FLASH.charge; segs.forEach((el, i) => el.classList.toggle('on', c > i / 4 + .01)); battEl.classList.toggle('low', c < FLASH.LOW); battEl.querySelector('span').textContent = FLASH.spare ? `+${FLASH.spare}` : ''; }
+function flashHudTick(dt) { FLASH.hudT -= dt; const show = state.started && !menu.attract && (FLASH.hudT > 0 || FLASH.charge < FLASH.LOW || ui.overlay === 'journal'); battEl.classList.toggle('show', show); if (show) flashHud(); }
 let tvFrame = 0, indoorK = 0, ringT = 0, dingT = 0, heartT = 0, lastArea = '';
 function update(dt, t) {
-  attractUpdate(dt, t);
+  attractUpdate(dt, t); flashHudTick(dt); perfCullTick(dt);
   const canMove = (document.pointerLockElement === renderer.domElement || window.__testMove) && !ui.overlay && !state.ending;
   // --- Bewegung mit Beschleunigung
   const run = keys.ShiftLeft || keys.ShiftRight;
@@ -4506,7 +4614,7 @@ function update(dt, t) {
   flashRig.position.copy(flashOff).applyQuaternion(camera.quaternion).add(camera.position);
   flashRig.quaternion.slerp(camera.quaternion, 1 - Math.exp(-dt * 16));
   renderer.toneMappingExposure += ((state.blackout ? .02 : 1.3 * settings.bright) - renderer.toneMappingExposure) * Math.min(1, dt * 18);
-  let fi = flashOn ? 14 : 0;
+  let fi = flashOn ? flashPower(dt) : 0;
   if (state.flashFail > 0) { state.flashFail -= dt; fi *= Math.random() < .5 ? 0 : Math.random(); }
   flashlight.intensity = fi;
   camera.getWorldDirection(fwd);
@@ -4655,7 +4763,7 @@ addEventListener('resize', () => {
   const pr = Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
 });
-window.G = { HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
+window.G = { ui, chapter2Begin, CH2_BEGIN, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
 </script>
 </body>
 </html>

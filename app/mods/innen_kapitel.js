@@ -141,7 +141,10 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     flat(puddleMat, XA + 7, ZA + .3, 3.2, 2.2, .4, .02); flat(puddleMat, XA + 11.5, ZA - .6, 1.8, 1.2, 2.2, .02); flat(puddleMat, XA + 15.6, ZA + 1.1, 1.3, 1, 1, .02);
     for (let x = XA + 1.5; x < XA + 17; x += R(2.2, 3.4)) { onWall(damp, x, .22, zS + .01, R(1.8, 2.8), R(.45, .6), 0, R(-.05, .05)); onWall(damp, x + 1.2, .2, zN - .01, R(1.6, 2.6), R(.4, .55), Math.PI, R(-.05, .05)); }
     // Die Tür, durch die Kai gekommen ist (Westwand) – echte Tür, Kinderzeichnungen drumherum
-    put(kDoor, 0, ZA, { ry: Math.PI / 2, minX: XA + .155 });
+    { // einzeln statt als Instanz, damit sie sich bewegen kann: sie steht offen, wenn Kai aus dem Gang kommt, und fällt dann zu (Modul uebergang)
+      const dm = put(kDoor, 0, ZA, { ry: Math.PI / 2, minX: XA + .155 }); kDoor.list.pop();
+      const dg = new THREE.Group(); for (const p of kDoor.parts) { const mm = new THREE.Mesh(p.geo, p.mat); mm.castShadow = mm.receiveShadow = true; dg.add(mm); }
+      dg.applyMatrix4(dm); scene.add(dg); innen_kapitel_S.westDoor = dg; }
     [[ZA - 1.2, 1.45, 0], [ZA - 1.55, .95, 1], [ZA + 1.15, 1.35, 2], [ZA + 1.5, .85, 0], [ZA - .95, .7, 2]].forEach(([z, y, k], i) => onWall(kidMats[k], XA + .158 + i * .001, y, z, .26, .36, Math.PI / 2, R(-.15, .15)));
     spot(XA + .35, 1.1, ZA, .3, 2, 1.2, 'Die Tür', note('Die Tür', 'Von dieser Seite hat sie keine Klinke. Nur Kratzspuren, knapp über dem Boden – so hoch, wie ein Kind reicht.\n\nRingsum, mit Reißzwecken: Zeichnungen. Sieben Kinder an einer Kreuzung. Auf einer sind es acht.\n\n<span class="hand">Jemand hat sie von innen aufgehängt.</span>', 'tuer'));
     // Kreidestriche: gezählte Jahre
