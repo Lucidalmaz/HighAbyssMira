@@ -74,6 +74,54 @@ Die Prägepresse im Garten braucht Strom, und der kommt erst am Morgen nach dem 
 - Wölfe mit einem Welpen in der Drahtschlinge („Die Schlinge“, Drahtschneider; im Draht Jonas’ Taschenmesser)
 - Zayns Hütte und Cleos Baumhaus
 
+**Der tiefe Wald** (Modul `tiefwald.js`). Hinter Zayns Hütte ist der Nordzaun eingedrückt. Dahinter wird der Wald immer dichter und dunkler (Nebel und Mondlicht hängen an der Tiefe). Nebenaufgabe **„Der rote Faden“**: Jonas Wendt hat seinen Bruder von 2009 bis 2016 vierzig Mal gesucht und die rote Wolle seiner Mutter von Baum zu Baum gespannt. Fünf Zettel:
+- Suche Nr. 1 (30.07.2009, Jonas ist neun) an der Zaunlücke
+- Nr. 6 am Hochsitz („ein Licht, hinten, wo der Wald aufhört“)
+- Nr. 17 am überwucherten Amtsbus (sieben Kindersitze; Fahrtenbuch: 28.07.2009 23:40 verschwunden 7, 05.08.2009 03:13 rückgeführt 6, offen 1, gez. Seiler)
+- Nr. 29 am Steinkreis (sieben Stöckchenmänner, 2013 ein achter, tiefer: „08 · L.“)
+- Nr. 40 am Weiher (23.07.2016: „Falls du da unten bist: zieh dran.“). Beim Lesen zieht jemand.
+
+Der Weiher hat keinen Grund.
+
+Tiere im tiefen Wald:
+- **ein Wolfsrudel am Steinkreis:** lauert, weicht dem Lampenlicht, springt einmal warnend an – friedlich, wenn der Welpe befreit ist
+- **eine Wildschweinrotte am Bus** („Die Rotte“: Jonas’ Vorratsdose)
+- **Rehe**
+
+Nebenorte:
+- Autowrack mit der Zeichnung „Die Frau mit der Laterne – Sie kommt noch.“ (leiser Mira-Hinweis, ohne Namen)
+- Jonas’ Lager mit seiner Karte
+- eine Schaukel, die nicht stillhält
+
+**Die Akte Abgrund** (Modul `akte.js`). Dr. Edda Brand, 1994–2012 Ärztin der Außenstelle der **Bundesstelle für Rückführung (BfR)** – im Ort „das Amt“ –, versteckte vor der Auflösung zehn Durchschläge. Sie liegen dort, wo Kinder spielen und Erwachsene nicht hinsehen. Kanon daraus:
+- **1958:** Bonn vermerkt: „verwalten, nicht beseitigen“. Die BfR übernimmt Justins Sühnevertrag.
+- **1975:** Die Schlagzeile „UFO über dem Abgrund“ hat Seiler selbst lanciert.
+- **Bergungstrupps in den Zyklusnächten:** Sie holen auch nicht menschliche Wesen heraus: augenlose Kühe, einen rückwärts laufenden Hund. Gefreiter Hofer kommt 1992 mit fremdem Gesicht zurück.
+- **Rückläufer („R-Fälle“):** So heißen die Kopien intern. Dienstanweisung: beobachten, nicht aufklären.
+- **Versuchsreihe K (1994–2011):** Das Amt versuchte, Peter Kranz „zurückzuübersetzen“. Am 3. März 2011 riss er das Gitter heraus, zwei Pfleger starben; offiziell war es ein Gasleck.
+- **2009:** Die Südsperre („Unwetterwarnung“) hielt fliehende Familien auf; die weißen Autos sind keine Unfälle. Die Anweisung aus Berlin lautete „Beobachtung statt Evakuierung“.
+- **Akte 08:** Andere Blutgruppe, die Narbe in der linken Hand ist neu. Die Mutter wurde nicht informiert.
+- **19.11.2012:** Auflösung. Die Akten wandern nach unten zu den Wassern. Edda Brand fährt zu einer Hamburger Zeitung und kommt nie an.
+
+**Entdecker** (Modul `entdecker.js`): **17 Kerben**, Kreidestriche an Laternenmasten in der ganzen Stadt und eine am Hochsitz. Jede gibt eine Zeile des Abzählreims der Kleinen. Dazu gibt es Belohnungsstufen nach Zahl der Funde:
+- 10: Batterien
+- 20: längerer Akku
+- 30: schnellerer Kinderblick
+- 45: weiterer Lichtkegel
+- 60: die Erinnerung an die Nacht des 28. Juli 2009
+- 80: eine Zeile von „M.“ auf der letzten Seite der Fibel
+
+**Schrecken** (Modul `schrecken.js`): Außerhalb der Hauptstraße gibt es feste Schreckmomente:
+- Kind am achten Stein
+- Kapellenglocke von innen
+- Spielplatz
+- Gestalt in den Schrebergärten
+- Baumhaus
+- Fuchsschrei
+- Villenfenster
+
+Dazu kommen seltene Zufallsmomente: der Laternenmann, Schritte hinter dir, eine Gestalt zwischen den Bäumen.
+
 ---
 
 ## Die Geschichte in einem Satz, Kernfrage, Ton & Vorbilder

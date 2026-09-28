@@ -9,7 +9,7 @@ function hintAdd(h) { HINTS.push(h); return h; } // { id, x, y, z, open: () => b
 const HINT_COL = { echo: 0x9cc4ff, foto: 0xfff0cc, geheim: 0x7ff0d8, werkzeug: 0xffc070, story: 0xff7060, teil: 0xd9b3ff, gefahr: 0xff2a1a };
 MOD_SAVE.push(['visionen', () => [...visionen_S.shown], v => v.forEach(id => visionen_S.shown.add(id))]);
 const visionen_S = { kb: { charges: 0, rech: 0, t: 0, used: 0 }, pillars: [], V: null, shown: new Set(), deutT: 0, el: null, vig: null, flash: null, force: null };
-const VISION_RECHARGE = 75; // s pro Ladung
+let VISION_RECHARGE = 75; // s pro Ladung
 // --- Lichtsäule: durch Wände sichtbar (depthTest aus), von unten nach oben ausblendend, pulsierend
 const _kbMat = col => new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide,
   uniforms: { col: { value: new THREE.Color(col) }, a: { value: 0 }, t: { value: 0 } },

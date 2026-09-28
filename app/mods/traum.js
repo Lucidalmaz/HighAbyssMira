@@ -83,4 +83,5 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Und jetzt träume ich von Raben.', 0, 3); }, 2500);
   story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
 }
+WORLD_TICK.push(() => {}); // Eintrag für die Messanzeige (ein Tick je Modul)
 window.__traum = { S: traum_S, start: () => runIntro(), applySave: d => applySave(d), loadSave: () => loadSave(), saveGame: c => saveGame(c) }; // Testzugriff

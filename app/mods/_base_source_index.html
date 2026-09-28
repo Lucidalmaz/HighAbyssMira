@@ -4136,6 +4136,7 @@ const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht' }
 const solved = new Set();
 // Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
 const MOD_SAVE = [];
+let ENV_DARK = 0; // 0…1: Module (z. B. der tiefe Wald) dunkeln Himmels- und Mondlicht ab
 function saveGame(chapter) {
   try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
     side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])),
@@ -4727,9 +4728,9 @@ function update(dt, t) {
   moonShadowFollow(camera.position.x, camera.position.z, dt);
   // --- Innen/Außen-Übergang
   indoorK += ((indoor ? 1 : 0) - indoorK) * Math.min(1, dt * 3);
-  hemi.intensity = THREE.MathUtils.lerp(.55, .05, indoorK) * (state.outage ? .7 : 1) + lightBoost * (indoor ? .25 : 2.2);
+  hemi.intensity = (THREE.MathUtils.lerp(.55, .05, indoorK) * (state.outage ? .7 : 1) + lightBoost * (indoor ? .25 : 2.2)) * (1 - ENV_DARK * .6);
   scene.environmentIntensity = THREE.MathUtils.lerp(.5, .1, indoorK);
-  moon.intensity = state.inBasement || state.zone === 'canal' ? 0 : .6 + lightBoost * 4;
+  moon.intensity = state.inBasement || state.zone === 'canal' ? 0 : (.6 + lightBoost * 4) * (1 - ENV_DARK * .75);
   if (state.zone === 'canal') hemi.intensity = .22 + lightBoost;
   const area = state.inBasement ? 'b' : indoor ? 'i' : 'o';
   if (area !== lastArea) { lastArea = area; Audio.setArea(indoor, state.inBasement); }

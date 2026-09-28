@@ -8,7 +8,8 @@ const WALD = { x0: -40, x1: 110, z0: 99, z1: 156, hut: { x: 58, z: 149.5 }, tree
 const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
   [[30, 96], [29.5, 104], [27, 111], [21, 118], [18.5, 124], [23, 130], [31, 134], [41, 138], [50, 142.5], [57, 146.8]],
   [[21, 118], [13, 115], [6, 113]], [[18.5, 124], [8, 128], [-4, 133], [-15, 138], [-21, 139.3]],
-  [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]]];
+  [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]],
+  [[50, 142.5], [46, 149], [42, 157]]]; // zur eingedrückten Stelle im Nordzaun → der tiefe Wald (Modul tiefwald)
 const wald_S = { chunks: [], chunkT: 0, ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
 function wald_in(x, z) { return x > WALD.x0 && x < WALD.x1 && z > WALD.z0 && z < WALD.z1; }
 function wald_pathDist(x, z) { let d = 1e9; for (const P of WALD_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
@@ -29,7 +30,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 4.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 4.3) {
     const x = gx + rand(-1.7, 1.7), z = gz + rand(-1.7, 1.7), ins = wald_in(x, z);
     if (ins) { if (!wald_free(x, z) || Math.random() < .12) continue; if (Math.abs(x - WALD.x0) < 1.3 || Math.abs(x - WALD.x1) < 1.3 || Math.abs(z - WALD.z1) < 1.3) continue; }
-    else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; }
+    else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; if (z > WALD.z1 - 1 && x > -24 && x < 94) continue; } // nördlich: der tiefe Wald (eigene Bäume)
     (Math.random() < .55 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.85, 1.55), rand(-.07, .07), rand(-.07, .07)));
   }
   chunk(t1, A, true); chunk(t3, B, true); S.nTrees = A.length + B.length;
@@ -44,7 +45,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   // --- Grenzzaun (West, Ost, Nord) – sichtbar, alt, schief
   { const F = []; const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
       for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F.push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
-    run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, WALD.x1, WALD.z1); run(WALD.x1, WALD.z1, WALD.x1, 98.2);
+    run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, 39.6, WALD.z1); run(44.4, WALD.z1, WALD.x1, WALD.z1); // Lücke 39,6…44,4: eingedrückt, dahinter der tiefe Wald run(WALD.x1, WALD.z1, WALD.x1, 98.2);
     chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
   try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;

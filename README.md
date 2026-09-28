@@ -12,7 +12,8 @@ alle `mods/<bereich>_patch.py` und `mods/<bereich>.js` in der Reihenfolge
 Kirchberg (`ausbau_nord`) → Ost/West (`ausbau_ost_west`) → `strasse` → `gruen` → `fassaden` → `innen_ort` → `innen_kapitel` → `leben`
 → `ausruestung` (Batterien, Werkzeuge) → `uebergang` (gelaufene Kapitelwechsel) → `geheimnisse` (Lichtsteine, Wrackteile, Totems) → `figuren` (Unreal-Figuren)
 → `albers` (Lars Vegas) → `gedanken` (Lukes Selbstgespräche) → `whiskey` (der Rabe) → `visionen` (Totem-Visionen, Kinderblick) → `anwesen` (Villa Seiler, Kapitel 4)
-→ `wald` (Forbidden Dustwoods) → `zayn` (Nebenquest „Versprochen ist versprochen“) → `cleo` (Die Vergessene).
+→ `wald` (Forbidden Dustwoods) → `tiefwald` (der tiefe Wald, „Der rote Faden“) → `zayn` (Nebenquest „Versprochen ist versprochen“) → `cleo` (Die Vergessene)
+→ `schrecken` (Schreckmomente außerhalb der Hauptstraße) → `entdecker` (17 Kerben, Belohnungsstufen) → `akte` (Die Akte Abgrund) → `klang` (Musik, Geräusche) → `traum` (Prolog).
 Änderungen am Grundspiel also in `_base_source_index.html`, an der Welt in den Modulen – danach neu zusammensetzen.
 Alle Anforderungen mit Status: `app/story/anforderungen.md`. Gültige Geschichte: `app/story/story_final.md`.
 

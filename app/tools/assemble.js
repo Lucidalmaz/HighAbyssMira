@@ -4,7 +4,7 @@
 // dann jedes mods/<bereich>.js vor der Zeile // @@WELT-MODULE@@ – Reihenfolge laut BRIEF.md.
 const fs = require('fs'), path = require('path'), cp = require('child_process');
 const APP = path.resolve(__dirname, '..'), MODS = path.join(APP, 'mods');
-const ORDER = ['ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'zayn', 'cleo', 'klang', 'traum'];
+const ORDER = ['ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'tiefwald', 'zayn', 'cleo', 'schrecken', 'entdecker', 'akte', 'klang', 'traum'];
 const OUT = path.resolve(process.argv[2] || path.join(APP, '..', 'game', 'index.html'));
 const MARK = '// @@WELT-MODULE@@';
 const PY = process.platform === 'win32' ? 'python' : 'python3';
