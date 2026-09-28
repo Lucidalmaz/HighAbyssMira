@@ -4,10 +4,11 @@
  "description": "",
  "main": "main.js",
  "scripts": {
-  "build": "node build.js",
+  "assemble": "node tools/assemble.js",
+  "build": "node tools/assemble.js && node build.js",
   "start": "electron .",
   "selftest": "electron . --selftest",
-  "release": "node build.js && electron-packager . \"High Abyss Mira\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=icon.ico --ignore=\"^/(dist|shots[0-9]*|pv|selftest|exetest|steps.*.json|prep_assets.py|fix_exe.js|tools)$\" && node fix_exe.js"
+  "release": "node tools/assemble.js && node build.js && electron-packager . \"High Abyss Mira\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=icon.ico --ignore=\"^/(dist|shots[0-9]*|pv|selftest|exetest|steps.*.json|prep_assets.py|fix_exe.js|tools)$\" && node fix_exe.js"
  },
  "keywords": [],
  "author": "",

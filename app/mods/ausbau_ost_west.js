@@ -50,8 +50,9 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       for (let j = 0; j < 3; j++) { B.p.push(P.getX(i + j), P.getY(i + j), P.getZ(i + j)); if (N) B.n.push(N.getX(i + j), N.getY(i + j), N.getZ(i + j));
         const v = j === 0 ? a : j === 1 ? b : c; const u = ay >= ax && ay >= az ? [v.x, v.z] : ax >= az ? [v.z, v.y] : [v.x, v.y]; B.uv.push(u[0] / tl, u[1] / tl); }
     }
-    const g = new T.BufferGeometry(), pos = [], nor = [], uv = []; let start = 0;
-    buckets.forEach((B, k) => { if (!B.p.length) return; pos.push(...B.p); nor.push(...B.n); uv.push(...B.uv); g.addGroup(start, B.p.length / 3, k); start += B.p.length / 3; });
+    // Flach kopieren statt push(...B.p): große Modelle (Remise) hätten sonst hunderttausende Argumente → Stapelüberlauf
+    const g = new T.BufferGeometry(), pos = [], nor = [], uv = [], add = (dst, src) => { for (let i = 0; i < src.length; i++) dst.push(src[i]); }; let start = 0;
+    buckets.forEach((B, k) => { if (!B.p.length) return; add(pos, B.p); add(nor, B.n); add(uv, B.uv); g.addGroup(start, B.p.length / 3, k); start += B.p.length / 3; });
     g.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); if (nor.length) g.setAttribute('normal', new T.Float32BufferAttribute(nor, 3)); else g.computeVertexNormals(); g.setAttribute('uv', new T.Float32BufferAttribute(uv, 2));
     mesh.geometry = g; mesh.material = mats;
   };

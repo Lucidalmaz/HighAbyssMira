@@ -1,5 +1,5 @@
 // Private Testkopie des Spiels für einen Bereich (parallel zu anderen), ohne die Assets zu kopieren.
-//   node tools/work.js make <bereich> [patch.py] [modul.js]  -> work/<bereich>/ (index.html = game/index.html + Patch + Modul vor // @@WELT-MODULE@@)
+//   node tools/work.js make <bereich> [patch.py] [modul.js]  -> work/<bereich>/ (index.html = game/index_base.html + Patch + Modul vor // @@WELT-MODULE@@)
 //   node tools/work.js run  <bereich> <steps.json> <ausgabeordner> [timeoutSek] [seite, z. B. 'preview.html?a=ms/door1' oder '...&f=fbx&file=Car.fbx']  -> Selbsttest mit Screenshots (eigenes Profil, stiehlt keinen Fokus)
 const fs = require('fs'), path = require('path'), cp = require('child_process');
 const APP = path.resolve(__dirname, '..'), GAME = path.join(APP, 'game');
@@ -8,13 +8,14 @@ if (!area || !/^[a-z0-9_]+$/.test(area)) { console.error('Bereichsname fehlt/ung
 const W = path.join(APP, 'work', area);
 if (cmd === 'make') {
   fs.mkdirSync(W, { recursive: true });
-  for (const d of ['assets', 'vendor']) { const l = path.join(W, d); if (!fs.existsSync(l)) cp.execSync(`mklink /J "${l}" "${path.join(GAME, d)}"`, { shell: 'cmd.exe', stdio: 'ignore' }); }
-  for (const f of fs.readdirSync(GAME)) { const p = path.join(GAME, f); if (fs.statSync(p).isFile() && f !== 'index.html') fs.copyFileSync(p, path.join(W, f)); }
-  let html = fs.readFileSync(path.join(GAME, 'index.html'), 'utf8');
+  for (const d of ['assets', 'vendor']) { const l = path.join(W, d); if (!fs.existsSync(l)) fs.symlinkSync(path.join(GAME, d), l, 'junction'); } // Windows: Junction, sonst Symlink
+  for (const f of fs.readdirSync(GAME)) { const p = path.join(GAME, f); if (fs.statSync(p).isFile() && !/^index(_base)?\.html$/.test(f)) fs.copyFileSync(p, path.join(W, f)); }
+  // Basis ohne die übrigen Welt-Module (build.js schreibt sie), damit das getestete Modul nicht doppelt drin ist
+  const base = path.join(GAME, 'index_base.html'); let html = fs.readFileSync(fs.existsSync(base) ? base : path.join(GAME, 'index.html'), 'utf8');
   if (a1 && a1 !== '-') { const tmp = path.join(W, '_in.html'), out = path.join(W, '_out.html'); fs.writeFileSync(tmp, html);
-    cp.execFileSync('python', ['-c', `import importlib.util,sys\nspec=importlib.util.spec_from_file_location('p',r'''${path.resolve(a1)}''');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\ns=open(r'''${tmp}''',encoding='utf-8').read();s=m.apply(s);open(r'''${out}''','w',encoding='utf-8').write(s)`], { stdio: 'inherit' });
+    cp.execFileSync(process.platform === 'win32' ? 'python' : 'python3', ['-c', `import importlib.util,sys\nspec=importlib.util.spec_from_file_location('p',r'''${path.resolve(a1)}''');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\ns=open(r'''${tmp}''',encoding='utf-8').read();s=m.apply(s);open(r'''${out}''','w',encoding='utf-8').write(s)`], { stdio: 'inherit' });
     html = fs.readFileSync(out, 'utf8'); }
-  if (a2 && a2 !== '-') { const mark = '// @@WELT-MODULE@@'; if (!html.includes(mark)) throw new Error('Marke fehlt'); html = html.replace(mark, fs.readFileSync(path.resolve(a2), 'utf8') + '\n' + mark); }
+  if (a2 && a2 !== '-') { const mark = '// @@WELT-MODULE@@'; if (!html.includes(mark)) throw new Error('Marke fehlt'); const src = fs.readFileSync(path.resolve(a2), 'utf8'); html = html.replace(mark, () => src + '\n' + mark); }
   fs.writeFileSync(path.join(W, 'index.html'), html); console.log('Testkopie bereit:', W);
 } else if (cmd === 'run') {
   const steps = path.resolve(a1), out = path.resolve(a2), to = (+a3 || 300) * 1000, page = process.argv[7];
@@ -27,7 +28,7 @@ if (cmd === 'make') {
   }
   process.on('exit', () => { try { slot && fs.rmSync(slot, { force: true }); } catch (e) {} });
   fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
-  const electron = path.join(APP, 'node_modules', 'electron', 'dist', 'electron.exe');
+  const electron = require(path.join(APP, 'node_modules', 'electron')); // Pfad zur Electron-Programmdatei (alle Plattformen)
   const r = cp.spawnSync(electron, [APP, '--selftest', '--window', `--root=${W}`, `--udd=${path.join(APP, 'work', '_udd_' + area)}`, `--out=${out}`, `--steps=${steps}`, ...(page ? [`--page=${page}`] : [])], { timeout: to, stdio: 'ignore' });
   const sj = path.join(out, 'steps.json'), rj = path.join(out, 'result.json');
   console.log(fs.existsSync(sj) ? fs.readFileSync(sj, 'utf8') : 'KEINE steps.json (Absturz/Timeout?)');
