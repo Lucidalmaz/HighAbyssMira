@@ -34,7 +34,7 @@ WORLD_MODS.push(['Cleo', async () => {
     const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); }
   { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false });
     const piv = new T.Group(); piv.position.set(cx, y + .36, cz + .22); scene.add(piv); const lid = box(.72, .06, .46, 0, .03, -.22, wood, { parent: piv }); S.lid = piv;
-    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false });
+    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false }); S.lock = lock;
     const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); }
   if (typeof hintAdd === 'function') { hintAdd({ id: 'cleo_stein', x: CLEO_STONE.x, y: 0, z: CLEO_STONE.z, kind: 'story', near: 30, open: () => !cleo_has('cleo_gedenk') || (story.items.includes('cleo_kreide') && !cleo_has('cleo_ende')) });
     hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
@@ -78,6 +78,8 @@ function cleo_chest(lock) {
     if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', 500, 3); });
 }
 function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
+applySave = (o => d => { o(d); const S = cleo_S; if (cleo_has('cleo_ende') && S.name) S.name.visible = true;
+  if (cleo_has('cleo_baumhaus') && S.lid) { S.lid.rotation.x = -1.9; if (S.lock) S.lock.visible = false; } })(applySave);
 async function cleo_end() {
   const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
   await say([['Du schreibst ihren Namen. C – L – E – O. Die Kreide kratzt über den Stein. Er nimmt sie an.', 4800]]); S.name.visible = true; story.items = story.items.filter(k => k !== 'cleo_kreide');

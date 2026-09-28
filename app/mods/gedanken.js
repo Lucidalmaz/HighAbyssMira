@@ -3,6 +3,7 @@
 // verständlicher und persönlicher wird. Regeln gegen Nerven: jeder Gedanke nur einmal, nie während Dialogen/Notizen/anderen Untertiteln,
 // Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Luke über den nächsten Schritt nach (Hinweis ohne Textwand).
 const GEDANKEN = { gap: 9, stuck: 150, who: 'LUKE' };
+MOD_SAVE.push(['gedanken', () => [...gedanken_S.said], v => v.forEach(id => gedanken_S.said.add(id))]);
 const gedanken_S = { said: new Set(), q: [], cd: 6, obj: '', objT: 0, scares: 0, lastScare: 0, area: new Set(), battEmpty: false };
 function gedanke(id, text, delay = 0, prio = 1) {
   const S = gedanken_S; if (S.said.has(id)) return; S.said.add(id);

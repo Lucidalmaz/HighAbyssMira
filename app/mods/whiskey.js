@@ -46,6 +46,7 @@ function whiskey_tradeTalk() {
   S.trade = true; FLASH.spare--; if (!FLASH.spare) story.items = story.items.filter(k => k !== 'batterie');
   addItem('baumhausschluessel'); whiskey_caw(); toast('Du hältst ihm eine Batterie hin. Er nimmt sie, prüft sie mit dem Schnabel – und lässt einen kleinen Messingschlüssel in deine Hand fallen.', 5200); // STORY-HOOK: Schlüssel zu Cleos Kiste im Baumhaus
 }
+MOD_SAVE.push(['whiskey', () => ({ met: [...whiskey_S.met], trade: whiskey_S.trade, named: whiskey_S.named }), v => { const S = whiskey_S; (v.met || []).forEach(m => S.met.add(m)); S.trade = !!v.trade || story.items.includes('baumhausschluessel') || story.lore.some(l => l.key === 'cleo_baumhaus'); S.named = !!v.named || S.trade; }]);
 WORLD_MODS.push(['Whiskey', async () => {
   const S = whiskey_S; modItem('baumhausschluessel', 'Kleiner Messingschlüssel', 'Von Whiskey, gegen eine Batterie getauscht. In den Bart ist ein „C“ gefeilt.', 'key');
   try {

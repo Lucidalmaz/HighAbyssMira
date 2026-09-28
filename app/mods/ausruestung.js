@@ -11,7 +11,7 @@ async function ausruestung_ue(role, size) {
 }
 // Durchsuchbare Stelle: unsichtbare Klickfläche an einem echten Möbel; einmalig, danach nur noch Beschreibung
 function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, model) {
-  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label });
+  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label, model });
   interact(m, () => ausruestung_S.taken.has(id) ? label : label + ' durchsuchen', () => {
     if (ausruestung_S.taken.has(id)) return toast(empty, 3200);
     const r = give(); if (r === false) return; // Bedingung nicht erfüllt: give() hat selbst erklärt
@@ -19,6 +19,7 @@ function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, m
   });
   return m;
 }
+MOD_SAVE.push(['ausruestung', () => [...ausruestung_S.taken], v => { for (const id of v) ausruestung_S.taken.add(id); for (const sp of ausruestung_S.spots) if (ausruestung_S.taken.has(sp.id) && sp.model) sp.model.visible = false; }]);
 WORLD_MODS.push(['Ausrüstung', async () => {
   const S = ausruestung_S;
   // --- Nr. 7, Hauswirtschaftsraum: Werkbank (Hildes). Brechstange + Batterie. Die Kerzen am anderen Ende gehören innen_ort.

@@ -98,9 +98,9 @@ async function wald_beasts() {
   for (let i = 0; i < 3; i++) { const V = leben_beast(i === 0 && L.M.stag ? 'stag' : 'deer', rand(.95, 1.08)); if (!V) continue; V.home = [C.x + rand(-4, 4), C.z + rand(-4, 4)]; V.g.position.set(V.home[0], 0, V.home[1]); V.g.rotation.y = rand(0, 6.28);
     V.g.visible = true; V.st = 'graze'; V.t = rand(1, 5); V.stag = i === 0; leben_play(V, 'IdleGraze', 0); S.deer.push(V); }
   const F = leben_beast('fox', 1); if (F) { F.g.position.set(WALD.den.x - 9, 0, WALD.den.z - 6); F.g.visible = true; F.st = 'wait'; F.t = 0; leben_play(F, 'IdleLookAround', 0); S.fox = F;
-    const shoe = wald_shoe(); shoe.position.set(0, .28, .38); shoe.rotation.set(0, PI / 2, 0); shoe.scale.setScalar(.8); F.g.add(shoe); S.shoe = shoe; }
+    const shoe = wald_shoe(); shoe.position.set(0, .28, .38); shoe.rotation.set(0, PI / 2, 0); shoe.scale.setScalar(.8); F.g.add(shoe); S.shoe = shoe; if (story.lore.some(l => l.key === 'zayn_spur_schuh')) shoe.removeFromParent(); }
   for (let i = 0; i < 2; i++) { const W = leben_beast('wolf', rand(1.05, 1.15)); if (!W) continue; W.g.position.set(WALD.wolf.x + (i ? 3 : -3.5), 0, WALD.wolf.z - 3 + i); W.g.visible = true; W.st = 'guard'; W.t = rand(2, 6); leben_play(W, 'IdleBreathe', 0); S.wolves.push(W); }
-  const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup;
+  const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup; if (story.lore.some(l => l.key === 'wald_welpe')) { pup.st = 'gone'; pup.g.visible = false; }
     const snare = new THREE.Mesh(new THREE.TorusGeometry(.18, .008, 6, 24), new THREE.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); snare.rotation.x = PI / 2; snare.position.set(WALD.wolf.x + .25, .18, WALD.wolf.z); scene.add(snare); S.snare = snare;
     const pole = box(.06, .7, .06, WALD.wolf.x + .5, .35, WALD.wolf.z + .1, M.wood, { collide: false });
     const hit = box(1.2, .8, 1.2, WALD.wolf.x, .4, WALD.wolf.z, hidden, { cast: false });
@@ -108,6 +108,9 @@ async function wald_beasts() {
   S.beasts = [...S.deer, ...(S.fox ? [S.fox] : []), ...S.wolves, ...(S.pup ? [S.pup] : [])];
 }
 // Kinderschuh (klein, Stoff und Gummi) – gehört zu Zayns Spur
+applySave = (o => d => { o(d); const S = wald_S, has = k => story.lore.some(l => l.key === k);
+  if (has('wald_welpe') && S.pup) { S.pup.st = 'gone'; S.pup.g.visible = false; }
+  if (has('zayn_spur_schuh') && S.shoe) S.shoe.removeFromParent(); })(applySave);
 function wald_shoe() {
   const g = new THREE.Group(), cloth = new THREE.MeshStandardMaterial({ color: 0x2a3a6a, roughness: .9 }), sole = new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: .8 }), lace = new THREE.MeshStandardMaterial({ color: 0xc02020, roughness: .7 });
   const s = new THREE.Mesh(new THREE.BoxGeometry(.075, .025, .19), sole); s.position.y = .012; g.add(s);

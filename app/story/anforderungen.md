@@ -9,7 +9,7 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | A2 | Messbare Performance (Frame-Zeiten, Ruckler, Draw Calls) | ✅ F3-Messanzeige; Draw Calls Hauptstraße 447 320 → 1 553. Schatten-Diät + Figuren-Sichtprüfung (Dreiecke je Bild inkl. Schatten): Villa 21,0 → 8,8 Mio., Wald 14,7 → 8,9, Spielplatz 27,4 → 20,7, Hauptstraße 24,8 → 20,4, Friedhof 35,9 → 26,5 |
 | A3 | Ruckler/Steuerung/Abläufe; Mondschatten folgt dem Spieler | ✅ + Grafikqualität Niedrig/Mittel/Hoch (Onboard-Grafik startet auf Mittel) |
 | A4 | Kollision: nirgends durch Wände/Decken sehen oder glitchen (Tisch + Doppelsprung) | ✅ Prüfskript, 0 Verstöße |
-| A5 | Robuste Abläufe (Menü, Laden, Kapitelwechsel, Pause) | 🟡 wird im Gesamtdurchlauf erneut geprüft |
+| A5 | Robuste Abläufe (Menü, Laden, Kapitelwechsel, Pause) | ✅ Kapitel 3 → Endkarte → Kapitel 4 → Presse → Tür → Halle → Endkarte durchgespielt; Spielstand sichert jetzt auch den Fortschritt der Welt-Module (Zayn, Cleo, Wald, Villa, Whiskey, durchsuchte Stellen, Visionen) – Laden geprüft; erledigte Aufgaben werden sofort gesichert |
 | A6 | Audio: natürlich, gruselig, nicht nervig; adaptive Musik + passende Aufnahmen | ✅ Musiksystem, Mischregeln |
 | A7 | Story verständlich, tief, spannend, mit Twists; Vergleich mit Top-Genre-Spielen | 🟡 Story-Bibel; Stimmigkeitsprüfung aller Texte (Abschnitt F) |
 | A8 | Abschlussbericht: überprüft / nicht überprüft / empfohlen | ✅ im Chat + `ANLEITUNG.md` |
@@ -53,6 +53,13 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | F3 | Weltgeräusche prüfen: Regen, Schritte je Untergrund, Türen, bewegte Gegenstände | 🟡 nasser Asphalt, Laub, Kies, Wasser, Holz, Beton; Tür auf/zu verschieden; Aufheben klingt |
 | F4 | Anfangsstory: Traum, Rabe flüstert, gibt Auftrag + Abenteuerfibel; Aufwachen: „Huh…? Warum stehe ich …“ | ✅ `traum.js`: 5 Kamerafahrten mit Rabe (Bilder geprüft), Fibel im Inventar, Aufwach-Sätze |
 | F5 | Startbildschirm: Name eindrucksvoll/gruselig, Vermerk Lucidworkz, schaurige Musik, kein Birkenhain | ✅ Menümusik läuft, Titel flackert; Layout für niedrige Fenster korrigiert |
+
+## Automatische Fehlersuche (Ergebnis)
+- Code hinter Zeilenkommentaren (2 Stellen): Lars Vegas’ Unreal-Figur wurde nie in die Szene gesetzt; Zayns sechstes Foto war eine Kopie – beide behoben, restliche Module ohne Befund.
+- Unbehandelte Browser-Ablehnung der Maussperre beim Aufwachen aus dem Traum – abgefangen.
+- Fehlender Klang „flick“ (Menü) – ersetzt; alle übrigen 81 benutzten Klänge und alle Audio-Funktionen vorhanden (Laufzeitprüfung).
+- Instanz-Auslese schaltete sich nach Zayns Fotos ab (doppelte/fehlende Bäume möglich) – behoben.
+- Spielstand verlor den Fortschritt der neuen Nebenquests – behoben (siehe A5).
 
 ## E. Gesamtziel
 Das Spiel soll ohne Fehler, Hänger und Ruckler durchspielbar sein. Die Geschichte soll stimmig sein: keine Widersprüche und keine falschen Details.

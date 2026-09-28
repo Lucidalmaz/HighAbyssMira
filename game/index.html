@@ -1843,7 +1843,7 @@ const story = { main: 0, lore: [], photos: new Set(),
   } };
 function setMain(i) { if (i < story.main) return; story.main = i; $('objText').textContent = trX(MAIN[i]); }
 function sideStart(k) { const q = story.side[k]; if (q.state !== 'hidden') return; q.state = 'active'; questPop('NEUE NEBENAUFGABE', q.title); updateSideInfo(); }
-function sideDone(k, desc) { const q = story.side[k]; if (q.state === 'done') return; if (q.state === 'hidden') q.state = 'active'; q.state = 'done'; if (desc) q.desc = desc; questPop('ERLEDIGT', q.title); updateSideInfo(); }
+function sideDone(k, desc) { const q = story.side[k]; if (q.state === 'done') return; if (q.state === 'hidden') q.state = 'active'; q.state = 'done'; if (desc) q.desc = desc; questPop('ERLEDIGT', q.title); updateSideInfo(); if (state.started && !state.ending) saveGame(curChapter()); } // erledigte Aufgaben sofort sichern
 function updateSideInfo() { const a = Object.values(story.side).filter(q => q.state === 'active').length; $('sideInfo').textContent = a ? `${a} offene Nebenaufgabe${a > 1 ? 'n' : ''} · TAB` : ''; }
 setMain(0);
 
@@ -4136,11 +4136,15 @@ async function canalScare() {
 const SAVE_KEY = 'ham_save';
 const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht' };
 const solved = new Set();
+// Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
+const MOD_SAVE = [];
 function saveGame(chapter) {
   try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
-    side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])) };
+    side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])),
+      mods: Object.fromEntries(MOD_SAVE.map(([k, get]) => { try { return [k, get()]; } catch (e) { return [k, null]; } })) };
     localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) {}
 }
+function curChapter() { return (typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; }
 function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return null; } }
 function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
@@ -4148,7 +4152,9 @@ function applySave(d) {
   const f = d.flash || {}; FLASH.tier = Math.max(f.tier || 0, d.chapter >= 3 ? 1 : 0); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
-  (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s)); updateSideInfo();
+  (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
+  for (const [k, , set] of MOD_SAVE) if (d.mods && d.mods[k] != null) try { set(d.mods[k]); } catch (e) { console.warn('Spielstand ' + k, e); }
+  updateSideInfo();
 }
 const RECAP = {
   2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
@@ -9295,7 +9301,7 @@ async function ausruestung_ue(role, size) {
 }
 // Durchsuchbare Stelle: unsichtbare Klickfläche an einem echten Möbel; einmalig, danach nur noch Beschreibung
 function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, model) {
-  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label });
+  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label, model });
   interact(m, () => ausruestung_S.taken.has(id) ? label : label + ' durchsuchen', () => {
     if (ausruestung_S.taken.has(id)) return toast(empty, 3200);
     const r = give(); if (r === false) return; // Bedingung nicht erfüllt: give() hat selbst erklärt
@@ -9303,6 +9309,7 @@ function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, m
   });
   return m;
 }
+MOD_SAVE.push(['ausruestung', () => [...ausruestung_S.taken], v => { for (const id of v) ausruestung_S.taken.add(id); for (const sp of ausruestung_S.spots) if (ausruestung_S.taken.has(sp.id) && sp.model) sp.model.visible = false; }]);
 WORLD_MODS.push(['Ausrüstung', async () => {
   const S = ausruestung_S;
   // --- Nr. 7, Hauswirtschaftsraum: Werkbank (Hildes). Brechstange + Batterie. Die Kerzen am anderen Ende gehören innen_ort.
@@ -9748,6 +9755,7 @@ WORLD_TICK.push((dt, t) => {
 // verständlicher und persönlicher wird. Regeln gegen Nerven: jeder Gedanke nur einmal, nie während Dialogen/Notizen/anderen Untertiteln,
 // Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Luke über den nächsten Schritt nach (Hinweis ohne Textwand).
 const GEDANKEN = { gap: 9, stuck: 150, who: 'LUKE' };
+MOD_SAVE.push(['gedanken', () => [...gedanken_S.said], v => v.forEach(id => gedanken_S.said.add(id))]);
 const gedanken_S = { said: new Set(), q: [], cd: 6, obj: '', objT: 0, scares: 0, lastScare: 0, area: new Set(), battEmpty: false };
 function gedanke(id, text, delay = 0, prio = 1) {
   const S = gedanken_S; if (S.said.has(id)) return; S.said.add(id);
@@ -9878,6 +9886,7 @@ function whiskey_tradeTalk() {
   S.trade = true; FLASH.spare--; if (!FLASH.spare) story.items = story.items.filter(k => k !== 'batterie');
   addItem('baumhausschluessel'); whiskey_caw(); toast('Du hältst ihm eine Batterie hin. Er nimmt sie, prüft sie mit dem Schnabel – und lässt einen kleinen Messingschlüssel in deine Hand fallen.', 5200); // STORY-HOOK: Schlüssel zu Cleos Kiste im Baumhaus
 }
+MOD_SAVE.push(['whiskey', () => ({ met: [...whiskey_S.met], trade: whiskey_S.trade, named: whiskey_S.named }), v => { const S = whiskey_S; (v.met || []).forEach(m => S.met.add(m)); S.trade = !!v.trade || story.items.includes('baumhausschluessel') || story.lore.some(l => l.key === 'cleo_baumhaus'); S.named = !!v.named || S.trade; }]);
 WORLD_MODS.push(['Whiskey', async () => {
   const S = whiskey_S; modItem('baumhausschluessel', 'Kleiner Messingschlüssel', 'Von Whiskey, gegen eine Batterie getauscht. In den Bart ist ein „C“ gefeilt.', 'key');
   try {
@@ -9941,6 +9950,7 @@ WORLD_TICK.push((dt, t) => {
 const HINTS = [];
 function hintAdd(h) { HINTS.push(h); return h; } // { id, x, y, z, open: () => bool, kind, near (m, nur in dieser Nähe) }
 const HINT_COL = { echo: 0x9cc4ff, foto: 0xfff0cc, geheim: 0x7ff0d8, werkzeug: 0xffc070, story: 0xff7060, teil: 0xd9b3ff, gefahr: 0xff2a1a };
+MOD_SAVE.push(['visionen', () => [...visionen_S.shown], v => v.forEach(id => visionen_S.shown.add(id))]);
 const visionen_S = { kb: { charges: 0, rech: 0, t: 0, used: 0 }, pillars: [], V: null, shown: new Set(), deutT: 0, el: null, vig: null, flash: null, force: null };
 const VISION_RECHARGE = 75; // s pro Ladung
 // --- Lichtsäule: durch Wände sichtbar (depthTest aus), von unten nach oben ausblendend, pulsierend
@@ -10231,6 +10241,7 @@ function anwesen_press() {
     sideDone('anw_teile', 'Acht Teile, ein Schlüssel. Die Tür der Villa wartet.'); setC3('Die Villa Seiler. Schließ die Tür auf.');
     subtitle('Die Presse stampft dreimal. Dann liegt da ein Schlüssel, so lang wie deine Hand. Sieben Zähne – und eine Lücke, wo der achte sein müsste.', 5600); }, 4200);
 }
+applySave = (o => d => { o(d); const S = anwesen_S; S.key = story.items.includes('villaschluessel'); try { anwesen_sockets(); } catch (e) {} })(applySave);
 function anwesen_sockets() { const S = anwesen_S; S.sockets.forEach((s, i) => s.material.emissiveIntensity = anwesen_in(i) ? 2.2 : 0); S.lock.forEach((d, i) => d.material.opacity = S.key ? .9 : 0); }
 function anwesen_door() {
   const S = anwesen_S; Audio.knock();
@@ -10435,9 +10446,9 @@ async function wald_beasts() {
   for (let i = 0; i < 3; i++) { const V = leben_beast(i === 0 && L.M.stag ? 'stag' : 'deer', rand(.95, 1.08)); if (!V) continue; V.home = [C.x + rand(-4, 4), C.z + rand(-4, 4)]; V.g.position.set(V.home[0], 0, V.home[1]); V.g.rotation.y = rand(0, 6.28);
     V.g.visible = true; V.st = 'graze'; V.t = rand(1, 5); V.stag = i === 0; leben_play(V, 'IdleGraze', 0); S.deer.push(V); }
   const F = leben_beast('fox', 1); if (F) { F.g.position.set(WALD.den.x - 9, 0, WALD.den.z - 6); F.g.visible = true; F.st = 'wait'; F.t = 0; leben_play(F, 'IdleLookAround', 0); S.fox = F;
-    const shoe = wald_shoe(); shoe.position.set(0, .28, .38); shoe.rotation.set(0, PI / 2, 0); shoe.scale.setScalar(.8); F.g.add(shoe); S.shoe = shoe; }
+    const shoe = wald_shoe(); shoe.position.set(0, .28, .38); shoe.rotation.set(0, PI / 2, 0); shoe.scale.setScalar(.8); F.g.add(shoe); S.shoe = shoe; if (story.lore.some(l => l.key === 'zayn_spur_schuh')) shoe.removeFromParent(); }
   for (let i = 0; i < 2; i++) { const W = leben_beast('wolf', rand(1.05, 1.15)); if (!W) continue; W.g.position.set(WALD.wolf.x + (i ? 3 : -3.5), 0, WALD.wolf.z - 3 + i); W.g.visible = true; W.st = 'guard'; W.t = rand(2, 6); leben_play(W, 'IdleBreathe', 0); S.wolves.push(W); }
-  const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup;
+  const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup; if (story.lore.some(l => l.key === 'wald_welpe')) { pup.st = 'gone'; pup.g.visible = false; }
     const snare = new THREE.Mesh(new THREE.TorusGeometry(.18, .008, 6, 24), new THREE.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); snare.rotation.x = PI / 2; snare.position.set(WALD.wolf.x + .25, .18, WALD.wolf.z); scene.add(snare); S.snare = snare;
     const pole = box(.06, .7, .06, WALD.wolf.x + .5, .35, WALD.wolf.z + .1, M.wood, { collide: false });
     const hit = box(1.2, .8, 1.2, WALD.wolf.x, .4, WALD.wolf.z, hidden, { cast: false });
@@ -10445,6 +10456,9 @@ async function wald_beasts() {
   S.beasts = [...S.deer, ...(S.fox ? [S.fox] : []), ...S.wolves, ...(S.pup ? [S.pup] : [])];
 }
 // Kinderschuh (klein, Stoff und Gummi) – gehört zu Zayns Spur
+applySave = (o => d => { o(d); const S = wald_S, has = k => story.lore.some(l => l.key === k);
+  if (has('wald_welpe') && S.pup) { S.pup.st = 'gone'; S.pup.g.visible = false; }
+  if (has('zayn_spur_schuh') && S.shoe) S.shoe.removeFromParent(); })(applySave);
 function wald_shoe() {
   const g = new THREE.Group(), cloth = new THREE.MeshStandardMaterial({ color: 0x2a3a6a, roughness: .9 }), sole = new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: .8 }), lace = new THREE.MeshStandardMaterial({ color: 0xc02020, roughness: .7 });
   const s = new THREE.Mesh(new THREE.BoxGeometry(.075, .025, .19), sole); s.position.y = .012; g.add(s);
@@ -10527,7 +10541,7 @@ const ZAYN_SPUR = [
   ['kreide', 'Ein Stück Kreide', 'Gelbe Straßenkreide, halb abgebrochen. Daneben, auf dem Waldboden, ein Hüpfkästchen – wie das, das ihr jeden Sommer vor Nr. 7 gemalt habt.\n\nZayn durfte immer nur die Acht malen. Die war am weitesten weg.'],
   ['brause', 'Eine Süßigkeitenverpackung', 'Brausestäbchen, Waldmeister. Die gab es an der Tankstelle Kranz, fünf Stück für eine Mark – später für fünfzig Cent.\n\nJonas hat Zayn immer die Hälfte abgegeben. Du nie.']];
 const zayn_has = k => story.lore.some(l => l.key === k);
-function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; }
+function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; if (state.started) saveGame(curChapter()); }
 WORLD_MODS.push(['Zayn', async () => {
   const S = zayn_S, T = THREE;
   story.side.zayn = { title: 'Versprochen ist versprochen', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
@@ -10695,11 +10709,16 @@ WORLD_TICK.push((dt, t) => {
   const S = zayn_S; if (!S.ready || !state.started) return;
   // Der Rucksack liegt erst da, wenn Nr. 7 verlassen ist (Kapitel 3 und 4) – Platz nach dem Kollisionsaufbau suchen
   const open = ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4);
-  if (open && S.stage < 1 && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
+  if (open && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
   if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
   const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
   if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', 300, 3); } else if (!inHut) S.hutIn = false;
 });
+// Spielstand: gespeichert werden nur Funde, Gegenstände und Aufgaben – der Fortschritt ergibt sich aus den Funden
+applySave = (o => d => { o(d); const S = zayn_S;
+  S.stage = zayn_has('zayn_radio') ? 5 : zayn_has('zayn_versprechen') ? 4 : zayn_has('zayn_fotos') ? (ZAYN_SPUR.some(p => zayn_has('zayn_spur_' + p[0])) ? 3 : 2) : zayn_has('zayn_rucksack') ? 1 : 0;
+  for (const sp of S.spots) if (zayn_has('zayn_spur_' + sp.k)) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); }
+  if (S.stage >= 5 && S.floor) { S.floor.visible = true; if (!interactables.includes(S.floorHit)) interactables.push(S.floorHit); } })(applySave);
 window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff
 // =====================================================================  CLEO (Modul „cleo“): Die Vergessene
 // Cleo, 8, wohnte im Birkenweg. Zu ihrem Geburtstag am 25. Juli 2009 kam niemand außer Lucy. Drei Tage später, als die Sieben geholt wurden,
@@ -10737,7 +10756,7 @@ WORLD_MODS.push(['Cleo', async () => {
     const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); }
   { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false });
     const piv = new T.Group(); piv.position.set(cx, y + .36, cz + .22); scene.add(piv); const lid = box(.72, .06, .46, 0, .03, -.22, wood, { parent: piv }); S.lid = piv;
-    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false });
+    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false }); S.lock = lock;
     const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); }
   if (typeof hintAdd === 'function') { hintAdd({ id: 'cleo_stein', x: CLEO_STONE.x, y: 0, z: CLEO_STONE.z, kind: 'story', near: 30, open: () => !cleo_has('cleo_gedenk') || (story.items.includes('cleo_kreide') && !cleo_has('cleo_ende')) });
     hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
@@ -10781,6 +10800,8 @@ function cleo_chest(lock) {
     if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', 500, 3); });
 }
 function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
+applySave = (o => d => { o(d); const S = cleo_S; if (cleo_has('cleo_ende') && S.name) S.name.visible = true;
+  if (cleo_has('cleo_baumhaus') && S.lid) { S.lid.rotation.x = -1.9; if (S.lock) S.lock.visible = false; } })(applySave);
 async function cleo_end() {
   const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
   await say([['Du schreibst ihren Namen. C – L – E – O. Die Kreide kratzt über den Stein. Er nimmt sie an.', 4800]]); S.name.visible = true; story.items = story.items.filter(k => k !== 'cleo_kreide');
@@ -11060,7 +11081,7 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Und jetzt träume ich von Raben.', 0, 3); }, 2500);
   story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
 }
-window.__traum = { S: traum_S, start: () => runIntro() }; // Testzugriff
+window.__traum = { S: traum_S, start: () => runIntro(), applySave: d => applySave(d), loadSave: () => loadSave(), saveGame: c => saveGame(c) }; // Testzugriff
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)

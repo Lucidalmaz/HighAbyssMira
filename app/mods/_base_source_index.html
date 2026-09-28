@@ -1841,7 +1841,7 @@ const story = { main: 0, lore: [], photos: new Set(),
   } };
 function setMain(i) { if (i < story.main) return; story.main = i; $('objText').textContent = trX(MAIN[i]); }
 function sideStart(k) { const q = story.side[k]; if (q.state !== 'hidden') return; q.state = 'active'; questPop('NEUE NEBENAUFGABE', q.title); updateSideInfo(); }
-function sideDone(k, desc) { const q = story.side[k]; if (q.state === 'done') return; if (q.state === 'hidden') q.state = 'active'; q.state = 'done'; if (desc) q.desc = desc; questPop('ERLEDIGT', q.title); updateSideInfo(); }
+function sideDone(k, desc) { const q = story.side[k]; if (q.state === 'done') return; if (q.state === 'hidden') q.state = 'active'; q.state = 'done'; if (desc) q.desc = desc; questPop('ERLEDIGT', q.title); updateSideInfo(); if (state.started && !state.ending) saveGame(curChapter()); } // erledigte Aufgaben sofort sichern
 function updateSideInfo() { const a = Object.values(story.side).filter(q => q.state === 'active').length; $('sideInfo').textContent = a ? `${a} offene Nebenaufgabe${a > 1 ? 'n' : ''} · TAB` : ''; }
 setMain(0);
 
@@ -4134,11 +4134,15 @@ async function canalScare() {
 const SAVE_KEY = 'ham_save';
 const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht' };
 const solved = new Set();
+// Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
+const MOD_SAVE = [];
 function saveGame(chapter) {
   try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
-    side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])) };
+    side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])),
+      mods: Object.fromEntries(MOD_SAVE.map(([k, get]) => { try { return [k, get()]; } catch (e) { return [k, null]; } })) };
     localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) {}
 }
+function curChapter() { return (typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; }
 function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return null; } }
 function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
@@ -4146,7 +4150,9 @@ function applySave(d) {
   const f = d.flash || {}; FLASH.tier = Math.max(f.tier || 0, d.chapter >= 3 ? 1 : 0); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
-  (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s)); updateSideInfo();
+  (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
+  for (const [k, , set] of MOD_SAVE) if (d.mods && d.mods[k] != null) try { set(d.mods[k]); } catch (e) { console.warn('Spielstand ' + k, e); }
+  updateSideInfo();
 }
 const RECAP = {
   2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],

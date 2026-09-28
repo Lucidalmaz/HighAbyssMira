@@ -13,7 +13,7 @@ const ZAYN_SPUR = [
   ['kreide', 'Ein Stück Kreide', 'Gelbe Straßenkreide, halb abgebrochen. Daneben, auf dem Waldboden, ein Hüpfkästchen – wie das, das ihr jeden Sommer vor Nr. 7 gemalt habt.\n\nZayn durfte immer nur die Acht malen. Die war am weitesten weg.'],
   ['brause', 'Eine Süßigkeitenverpackung', 'Brausestäbchen, Waldmeister. Die gab es an der Tankstelle Kranz, fünf Stück für eine Mark – später für fünfzig Cent.\n\nJonas hat Zayn immer die Hälfte abgegeben. Du nie.']];
 const zayn_has = k => story.lore.some(l => l.key === k);
-function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; }
+function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; if (state.started) saveGame(curChapter()); }
 WORLD_MODS.push(['Zayn', async () => {
   const S = zayn_S, T = THREE;
   story.side.zayn = { title: 'Versprochen ist versprochen', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
@@ -181,9 +181,14 @@ WORLD_TICK.push((dt, t) => {
   const S = zayn_S; if (!S.ready || !state.started) return;
   // Der Rucksack liegt erst da, wenn Nr. 7 verlassen ist (Kapitel 3 und 4) – Platz nach dem Kollisionsaufbau suchen
   const open = ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4);
-  if (open && S.stage < 1 && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
+  if (open && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
   if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
   const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
   if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', 300, 3); } else if (!inHut) S.hutIn = false;
 });
+// Spielstand: gespeichert werden nur Funde, Gegenstände und Aufgaben – der Fortschritt ergibt sich aus den Funden
+applySave = (o => d => { o(d); const S = zayn_S;
+  S.stage = zayn_has('zayn_radio') ? 5 : zayn_has('zayn_versprechen') ? 4 : zayn_has('zayn_fotos') ? (ZAYN_SPUR.some(p => zayn_has('zayn_spur_' + p[0])) ? 3 : 2) : zayn_has('zayn_rucksack') ? 1 : 0;
+  for (const sp of S.spots) if (zayn_has('zayn_spur_' + sp.k)) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); }
+  if (S.stage >= 5 && S.floor) { S.floor.visible = true; if (!interactables.includes(S.floorHit)) interactables.push(S.floorHit); } })(applySave);
 window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff
