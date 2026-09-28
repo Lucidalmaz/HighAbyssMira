@@ -54,6 +54,16 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | F4 | Anfangsstory: Traum, Rabe flüstert, gibt Auftrag + Abenteuerfibel; Aufwachen: „Huh…? Warum stehe ich …“ | ✅ `traum.js`: 5 Kamerafahrten mit Rabe (Bilder geprüft), Fibel im Inventar, Aufwach-Sätze |
 | F5 | Startbildschirm: Name eindrucksvoll/gruselig, Vermerk Lucidworkz, schaurige Musik, kein Birkenhain | ✅ Menümusik läuft, Titel flackert; Layout für niedrige Fenster korrigiert |
 
+## G. Wald, Schrecken, Belohnung, Vorgeschichte (Nachtrag)
+| # | Anforderung | Status |
+|---|---|---|
+| G1 | Wald nie leer: dicht, viele Bäume, viel Laub und Gestrüpp, düster, geheimnisvoll, immer tiefer hinein | ✅ `tiefwald.js`: 110 m tiefer Teil hinter dem Zaun, 792 Bäume, 34 umgestürzte Stämme, Unterholz, Totholz-Gestrüpp, Laubflecken, fallende Blätter, Nebelschwaden; Dunkelheit und Nebel wachsen mit der Tiefe; alle Wege begehbar (Laufzeittest), 6–9 Mio. Dreiecke je Bild |
+| G2 | Viel zu erkunden und zu erledigen im Wald | ✅ Nebenaufgaben „Der rote Faden“ (5 Zettel, Hochsitz zum Klettern, Amtsbus, Steinkreis, Weiher) und „Die Rotte“; Autowrack, Jonas’ Lager mit Karte, Schaukel, Stein in den Weiher – alles durchgespielt |
+| G3 | Lebendig, wilde Tiere begegnen | ✅ Wolfsrudel (lauert, weicht Licht, springt einmal an – friedlich nach „Die Schlinge“), Wildschweinrotte (Angriff, Flucht), Rehe, Augen im Dunkeln, Krähen, Käuzchen, Fuchs – Laufzeittest |
+| G4 | Schreckmomente und Jumpscares im ganzen Spiel und Wald | ✅ `schrecken.js`: 7 feste Momente außerhalb der Hauptstraße + Zufallsmomente (Laternenmann, Schritte hinter dir, Gestalt zwischen Bäumen); im tiefen Wald 7 weitere (Krähen, Kind unter dem Hochsitz, Keiler, Wolf, achter Stöckchenmann, Gesicht im Weiher, Schritte/Läufer) |
+| G5 | Erkunden soll sich belohnend anfühlen, überall etwas zu entdecken | ✅ `entdecker.js`: 17 Kerben (Abzählreim) über die ganze Stadt, 6 Belohnungsstufen nach Funden (Batterien, Akku, Kinderblick, Lichtkegel, Erinnerung 2009, „M.“), Fortschritt in der Fibel |
+| G6 | Whistleblower-Notizen: Vorgeschichte, Vertuschung, Bergung nicht menschlicher Wesen, entgleiste Experimente (Zombie) | ✅ `akte.js`: „Die Akte Abgrund“ – 10 Durchschläge von Dr. Edda Brand (1958–2012), kanonisch in `story_final.md` |
+
 ## Automatische Fehlersuche (Ergebnis)
 - Code hinter Zeilenkommentaren (2 Stellen): Lars Vegas’ Unreal-Figur wurde nie in die Szene gesetzt; Zayns sechstes Foto war eine Kopie – beide behoben, restliche Module ohne Befund.
 - Unbehandelte Browser-Ablehnung der Maussperre beim Aufwachen aus dem Traum – abgefangen.

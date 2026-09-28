@@ -92,5 +92,7 @@ Die Stellen, die ich hier nur ohne echte Grafik prüfen konnte:
 6. **Zayn:**
    - Rucksack in Nr. 7 → Kamera.
    - Die 6 Fotos zeigen den Spielplatz, jedes Mal fehlt etwas.
-7. **Villa Seiler:** Die acht Schlüsselteile, die Presse (nach Kapitel 3) und die Halle in Kapitel 4.
-8. **Wände:** Nirgends durch Wände oder Decken sehen, auch nicht beim Springen an Tischen oder Kanten.
+7. **Der tiefe Wald** (eingedrückter Zaun hinter Zayns Hütte): Bildrate, Dunkelheit (mit Lampe gut lesbar?), Wölfe am Steinkreis, Wildschweine am Bus, Weiher-Szene.
+8. **Entdecker:** Kreidestriche an Laternen, Umschläge „VERTRAULICH“, Fortschritt in der Fibel unter FUNDE.
+9. **Villa Seiler:** Die acht Schlüsselteile, die Presse (nach Kapitel 3) und die Halle in Kapitel 4.
+10. **Wände:** Nirgends durch Wände oder Decken sehen, auch nicht beim Springen an Tischen oder Kanten.
