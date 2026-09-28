@@ -163,7 +163,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(C.x, .5, C.z, () => tief_has('tief_lager') ? 'Jonas’ Lager' : 'Ein eingefallenes Zelt', () => tief_lager(), 2.2, 1, 2.6); }
   // --- Nebelschwaden und fallende Blätter (nur in der Nähe des Spielers, laufen mit)
   { const n = 220, g = new T.BufferGeometry(), pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) { pos[i * 3] = rand(-16, 16); pos[i * 3 + 1] = rand(0, 9); pos[i * 3 + 2] = rand(-16, 16); } g.setAttribute('position', new T.BufferAttribute(pos, 3));
-    const lf = new T.Points(g, new T.PointsMaterial({ color: 0x5a4028, size: .07, transparent: true, opacity: .85, depthWrite: false })); lf.frustumCulled = false; lf.visible = false; lf.userData.noCol = true; scene.add(lf); S.leaves = lf;
+    const leafTex = tex(cnv(64, (c, w) => { c.clearRect(0, 0, w, w); c.translate(w / 2, w / 2); c.rotate(.6); c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, 0, 11, 24, 0, 0, 7); c.fill(); c.fillRect(-1, 18, 2, 10); }), true);
+    const lf = new T.Points(g, new T.PointsMaterial({ map: leafTex, color: 0x7a5634, size: .11, alphaTest: .5, transparent: false, depthWrite: true })); lf.frustumCulled = false; lf.visible = false; lf.userData.noCol = true; scene.add(lf); S.leaves = lf;
     const m = 46, mg = new T.BufferGeometry(), mp = new Float32Array(m * 3); for (let i = 0; i < m; i++) { mp[i * 3] = rand(-22, 22); mp[i * 3 + 1] = rand(.2, 1.3); mp[i * 3 + 2] = rand(-22, 22); } mg.setAttribute('position', new T.BufferAttribute(mp, 3));
     const mist = new T.Points(mg, new T.PointsMaterial({ map: typeof fogTex !== 'undefined' ? fogTex : poolTex, color: 0x7a8898, size: 4.2, transparent: true, opacity: .09, depthWrite: false })); mist.frustumCulled = false; mist.visible = false; mist.userData.noCol = true; scene.add(mist); S.mist = mist; }
   // --- Augen im Dunkeln: vier Paare, verschwinden im Lampenlicht
@@ -311,7 +312,7 @@ WORLD_TICK.push((dt, t) => {
   if (!S.beastsOk && typeof leben_S !== 'undefined' && leben_S.ready) S.beastsOk = tief_beasts() || (S.beastTry = (S.beastTry || 0) + 1) > 3;
   // Tiefe → Dunkelheit und Nebel (nur hier; beim Verlassen zurück)
   const k = inside ? Math.max(0, Math.min(1, (P.z - 160) / 70)) : 0; S.k += (k - S.k) * Math.min(1, dt * 1.5);
-  if (S.k > .005 && state.zone !== 'canal') { ENV_DARK = S.k * .85; scene.fog.density = .034 * (1 + S.k * .9); S.fogSet = true; }
+  if (S.k > .005 && state.zone !== 'canal') { ENV_DARK = S.k * .6; scene.fog.density = .034 * (1 + S.k * .75); S.fogSet = true; }
   else if (S.fogSet) { ENV_DARK = 0; if (state.zone !== 'canal') scene.fog.density = .034; S.fogSet = false; S.k = 0; }
   if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); sideStart('tief_faden'); if (typeof gedanke === 'function') gedanke('tief_rein', 'Hier waren wir nie. Nicht mal wir. … Die Wolle führt tiefer rein.', 600, 3);
       // Schreckmoment: Krähen brechen über dir aus den Bäumen

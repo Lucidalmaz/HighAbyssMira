@@ -50,7 +50,7 @@ WORLD_TICK.push((dt, t) => {
     if (F.run) { stalker.position.x += F.dx * F.sp * dt; stalker.position.z += F.dz * F.sp * dt; if (Math.floor(F.t * 5) !== F.st) { F.st = Math.floor(F.t * 5); Audio.stepAt(stalker.position.x, stalker.position.z, .45); } }
     _sft.set(stalker.position.x - camera.position.x, 1.2 * stalker.scale.y + stalker.position.y - camera.position.y, stalker.position.z - camera.position.z); const d = _sft.length(); _sft.normalize();
     camera.getWorldDirection(_sfw); if (_sfw.dot(_sft) > .972) F.seen += dt;
-    if (F.seen > .35 || d < 6 || F.t > F.ttl || state.talking) { if (F.seen > .35) { if (F.big) { Audio.scareSound('violin'); glitchV = .55; shake = .04; } else Audio.stinger(false); if (F.onSeen) F.onSeen(); }
+    const need = F.big ? .7 : .35; if (F.seen > need || d < 6 || F.t > F.ttl || state.talking) { if (F.seen > need) { if (F.big) { Audio.scareSound('violin'); glitchV = .55; shake = .04; } else Audio.stinger(false); if (F.onSeen) F.onSeen(); }
       if (F.lamp) { const L = F.lamp, prev = L.mode; L.mode = 'off'; setTimeout(() => { if (L.mode === 'off') L.mode = prev; }, 700); } schreck_weg(); } }
   // Schritte hinter dir: halten an, wenn du anhältst – dann ein Flüstern
   if (S.follow) { const F = S.follow, spd = Math.hypot(vel.x, vel.z), f = schreck_fwd(); F.t -= dt;
