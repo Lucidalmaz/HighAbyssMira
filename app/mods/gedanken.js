@@ -43,7 +43,7 @@ const GEDANKEN_FADEN = [
   [/Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
   [/Lost Eyengless geschehen/, 'Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.'],
-  [/./, 'Was hab ich übersehen? Im Tagebuch steht, was ich weiß. Tab.']];
+  [/./, 'Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.']];
 WORLD_MODS.push(['Gedanken', async () => {
   const S = gedanken_S;
   // Story-Ereignisse: die vorhandenen Funktionen bleiben, Luke reagiert danach (Aufruf per Name → Umhüllung greift überall)

@@ -45,5 +45,14 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | D7 | Rabe Whiskey: begleitet, gibt Hinweise und Aufgaben, Justin klärt auf | 🟡 `whiskey.js` |
 | D8 | Mansion in Lost Eyengless: sofort erreichbar, verschlossen; 8 Schlüsselteile in Kap. 1–3 an schwer zugänglichen Orten; Maschine nach Kap. 3; Betreten in Kap. 4; Unreal-Mansion + Grusel-Flair | ⬜ |
 
+## F. Klang, Anfang, Startbildschirm (Nachtrag)
+| # | Anforderung | Status |
+|---|---|---|
+| F1 | Sounds/Musik: nichts störend oder überladen, aber nie still; schaurige Musikstücke je Ort | 🟡 `klang.js`: 10 komponierte Stücke, gerendert beim Start, Ortswahl, kürzere Pausen |
+| F2 | Passende Hintergrundgeräusche (Tiere usw.) | 🟡 Waldkauz, Fuchs, Reh, Krähen, Hunde, Dachrinnen, Totholz; keine Grillen im November |
+| F3 | Weltgeräusche prüfen: Regen, Schritte je Untergrund, Türen, bewegte Gegenstände | 🟡 nasser Asphalt, Laub, Kies, Wasser, Holz, Beton; Tür auf/zu verschieden; Aufheben klingt |
+| F4 | Anfangsstory: Traum, Rabe flüstert, gibt Auftrag + Abenteuerfibel; Aufwachen: „Huh…? Warum stehe ich …“ | 🟡 `traum.js` |
+| F5 | Startbildschirm: Name eindrucksvoll/gruselig, Vermerk Lucidworkz, schaurige Musik, kein Birkenhain | 🟡 |
+
 ## E. Gesamtziel
 Das Spiel soll ohne Fehler, Hänger und Ruckler durchspielbar sein. Die Geschichte soll stimmig sein: keine Widersprüche und keine falschen Details.

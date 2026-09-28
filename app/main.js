@@ -10,6 +10,7 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: t
 app.commandLine.appendSwitch('force_high_performance_gpu');
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required'); // Menümusik ohne ersten Klick
 // Testläufe: Fenster außerhalb des Bildschirms, weiterhin gerendert (keine Verdeckungs-Drosselung)
 if (process.argv.includes('--selftest')) app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 

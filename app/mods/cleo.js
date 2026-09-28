@@ -47,7 +47,7 @@ function cleo_stone() {
   if (!cleo_has('cleo_gedenk')) story.lore.push({ key: 'cleo_gedenk', title: 'Der achte Stein', html: 'Links neben Zayns Grab ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt, bis der Stein weiß war. Nur am Rand, wo der Meißel abgerutscht ist: ein C.\n\nDas Datum ist stehen geblieben. † 28. Juli 2009. Derselbe Tag wie bei den anderen.' });
   cleo_start('Ein achter Stein am Gedenkfeld, der Name weggekratzt. Nur ein C ist geblieben. Lucy hat jeden Tag ein C. in ihr Tagebuch geschrieben.');
   openNote('Der achte Stein', 'Links neben Zayns Grab steht ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt – so gründlich, dass der Stein darunter weiß geworden ist.\n\nNur am Rand, wo der Meißel abgerutscht ist: ein <b>C</b>.\n\nDas Datum ist stehen geblieben: † 28. Juli 2009. Derselbe Tag.');
-  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1, 3);
+  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1000, 3);
 }
 function cleo_akte() {
   if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
@@ -55,7 +55,7 @@ function cleo_akte() {
   story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
   cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
   openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
-  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1, 3);
+  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1000, 3);
 }
 function cleo_climb(up) {
   const S = cleo_S, P = WALD.tree, y = wald_S.treeY || 2.2; if (S.climbing || (up && player.pos.y > 1) || (!up && player.pos.y < 1)) return; S.climbing = true; state.talking = true; let t = 0;
@@ -75,7 +75,7 @@ function cleo_chest(lock) {
   story.lore.push({ key: 'cleo_baumhaus', title: 'Cleos Kiste', html: 'Eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen: CLEO. Neben ihr, kleiner geschrieben: LUCY.\n\nEin Brief an Lucy. Und ein Stück weiße Kreide.\n\n' + cleo_letter() });
   cleo_start('Cleos Baumhaus. Ein Brief an Lucy – „Geschenkt ist geschenkt.“ Und ein Stück Kreide. Ihr Name steht auf keinem Stein. Noch nicht.');
   openNote('Cleos Kiste', 'Obenauf eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen, darüber in großen Buchstaben: <b>CLEO</b>. Daneben, kleiner: LUCY.\n\nDarunter ein Brief. Und ein Stück weiße Kreide, mit Klebeband umwickelt.\n\n' + cleo_letter(), null, () => {
-    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', .5, 3); });
+    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', 500, 3); });
 }
 function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
 async function cleo_end() {

@@ -6,7 +6,7 @@ const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null,
 // Stationen: when() = aktiv, done() = erledigt (dann fliegt er weiter/fort). at = [x, z] Sitzplatz (Oberfläche wird per Strahl gesucht), talk = Klick
 const WHISKEY_ST = [
   { id: 'start', at: [-44.2, 3.4], when: () => state.started && !ch2.on && !ch3.on && story.main <= 1, done: () => story.main >= 1 || Math.hypot(player.pos.x + 44.2, player.pos.z - 3.4) < 6,
-    talk: 'Ein Rabe. Groß, schwarz, die Augen fast weiß. Er sieht mich an, als hätte er auf mich gewartet.' },
+    talk: 'Ein Rabe. Groß, schwarz, die Augen fast weiß. Der aus meinem Traum. Er sieht mich an, als hätte er auf mich gewartet.' },
   { id: 'briefkasten', at: [28.4, -6.9], when: () => state.started && !ch2.on && !ch3.on && story.main <= 2, done: () => state.hasKey, peck: true,
     talk: 'Er pickt am Briefkasten von Nr. 7. Immer wieder, genau an der Klappe. … Okay. Ich hab verstanden.' },
   { id: 'nr7', at: [26, -11.4], when: () => state.ch1Done && !ch2.on, done: () => state.inBasement,
@@ -17,9 +17,9 @@ const WHISKEY_ST = [
     talk: 'Er sitzt am Rand der Luke. Als ich hinsehe, fliegt er hinauf in den Schacht. Ich soll ihm folgen.' },
   { id: 'vegas', at: [-27.2, -11.2], when: () => ch3.on && ch3.part === 'town', done: () => whiskey_S.trade && whiskey_S.named,
     talk: () => whiskey_tradeTalk() },
-  { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk'),
+  { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk') || whiskey_S.met.has('gedenkfeld'),
     talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
-  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
+  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && whiskey_S.trade && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
     talk: 'Am Waldrand. Er fliegt ein Stück hinein und wartet. Forbidden Dustwoods. Da wollte als Kind keiner rein.' }];
 // Oberseite des höchsten festen Körpers unter (x, z) – Laternenkopf, Briefkasten, Geländer, Grabstein
 function whiskey_perch(x, z) {

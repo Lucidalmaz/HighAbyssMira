@@ -22,7 +22,7 @@ function anwesen_give(i, text) {
   sideStart('anw_teile'); story.side.anw_teile.desc = `Die Tür der Villa Seiler hat acht Schlüssellöcher. Teile gefunden: ${c} / 8.` + (c < 8 ? '' : ' Die Presse im Garten fügt sie zusammen.');
   openNote('Schlüsselteil ' + n, text + `\n\n<b>${name}</b>. Eingeschlagen: <b>${n}</b> – und ein Turm über einem Abgrund.`);
   Audio.play('metalHit1', { gain: .25, rate: 1.6 }); questPop('SCHLÜSSELTEIL ' + c + ' / 8', name);
-  if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1.5, 3);
+  if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1500, 3);
   if (typeof saveGame === 'function') saveGame(anwesen_S.ch4 ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1); return true;
 }
 // Kleines geschmiedetes Teil (für sichtbare Fundstellen); Unreal-Export „schluesselteil“ ersetzt es
@@ -160,7 +160,7 @@ function anwesen_door() {
   S.open = true; anwesen_sockets(); anwesen_enterHall();
 }
 // ---- Kapitel 4
-const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Bruno liegt vor ihren Füßen.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
   const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4');
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
@@ -174,7 +174,7 @@ async function chapter4Begin() {
   $('intro').innerHTML = C4_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
-    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1.5, 3); };
+    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3); };
   saveGame(4); anwesen_sockets(); if (typeof c3Info === 'function') c3Info();
 }
 async function startChapter4() { // Weiterspielen / Kapitel wählen
@@ -251,4 +251,5 @@ WORLD_TICK.push((dt, t) => {
 });
 const _anwFwd = new THREE.Vector3();
 const anwesen_hand = s => '<span class="hand">' + s + '</span>';
+if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
 window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count }; // Testzugriff

@@ -166,6 +166,12 @@
   #start h1 { font-size: clamp(38px, 6.2vw, 78px); letter-spacing: .3em; margin: 0; color: #d9cdb0; text-shadow: 0 0 40px rgba(201,163,106,.25), 0 2px 0 #000; position: relative; white-space: nowrap; text-align: left; }
   #start h1 .l { display: block; font-size: .5em; letter-spacing: .58em; color: var(--gold); margin-bottom: 6px; opacity: .85; }
   #start h1.glitch { animation: glt .38s steps(4); }
+  /* Titel: MIRA groß, blasse Buchstaben mit blutrotem Glühen, das unruhig flackert; jeder Buchstabe zittert für sich */
+  #start h1 .m { display: block; font-size: 1.9em; letter-spacing: .16em; line-height: .95; color: #e6dcc6; text-shadow: 0 0 18px rgba(150,20,14,.55), 0 0 60px rgba(120,10,8,.45), 0 3px 0 #000, 0 0 2px #fff; }
+  #start h1 .m i { font-style: normal; display: inline-block; animation: mflick 7s infinite; }
+  #start h1 .m i:nth-child(2) { animation-delay: -2.3s; animation-duration: 9s; } #start h1 .m i:nth-child(3) { animation-delay: -4.1s; animation-duration: 6.2s; } #start h1 .m i:nth-child(4) { animation-delay: -1.2s; animation-duration: 11s; }
+  @keyframes mflick { 0%, 91%, 100% { opacity: 1; transform: none; filter: none; } 92% { opacity: .35; transform: translate(1px, -1px) skewX(-4deg); filter: blur(1px); } 93% { opacity: 1; } 95% { opacity: .6; transform: translate(-2px, 1px); } 96% { opacity: 1; transform: none; } }
+  #start .dir { font-family: Georgia, serif; font-style: italic; font-size: 13px; letter-spacing: .28em; color: #7a6f5c; margin: -30px 0 40px; } #start .dir b { font-style: normal; font-weight: 400; letter-spacing: .42em; color: #a8392c; text-shadow: 0 0 10px rgba(160,30,20,.45); }
   @keyframes glt { 0% { transform: translate(-4px, 0) skewX(-6deg); text-shadow: -4px 0 #b83a2e, 4px 0 #3a6bb8; } 40% { transform: translate(3px, 1px) skewX(4deg); text-shadow: 3px 0 #b83a2e, -3px 0 #3a6bb8; } 70% { transform: translate(-2px, 0); text-shadow: -2px 0 #b83a2e, 2px 0 #3a6bb8; } 100% { transform: none; text-shadow: 0 0 40px rgba(201,163,106,.25), 0 2px 0 #000; } }
   #start .orn { width: 320px; height: 14px; margin: 18px 0 8px; opacity: .8; }
   #start .sub { font-family: Georgia, serif; font-size: 11px; letter-spacing: .5em; color: #8b7f68; margin: 0 0 42px; }
@@ -226,6 +232,7 @@
   #editor .tx .orig { color: #8b7f68; font-size: 13px; margin-bottom: 4px; white-space: pre-wrap; }
 </style>
 <script src="sounds.js"></script>
+<script src="sounds_extra.js"></script>
 <script src="justin.js"></script>
 <script type="importmap">
 { "imports": {
@@ -242,14 +249,14 @@
   <div id="prompt"><kbd>E</kbd><span id="promptText"></span></div>
   <div id="toast"></div>
   <div id="subtitle"></div>
-  <div id="hudHint"><kbd class="k">TAB</kbd>TAGEBUCH</div>
+  <div id="hudHint"><kbd class="k">TAB</kbd>ABENTEUERFIBEL</div>
 </div>
 <div id="fade"></div>
 
 <div id="note" class="overlay"><div class="paper"></div><div class="hint">[E] · [ESC] SCHLIESSEN</div></div>
 <div id="keypad" class="overlay"><div class="box"><div id="kpDisplay"></div><div class="grid"></div></div><div class="hint">ZIFFERN · ENTER · ESC</div></div>
 <div id="journal" class="overlay"><div class="book"><div id="jTabs"><button data-t="aufgaben">AUFGABEN</button><button data-t="inventar">INVENTAR</button><button data-t="funde">FUNDE</button><button data-t="fotos">FOTOS</button><button data-t="fallwand">FALLWAND</button></div><div id="jBody"></div></div><div class="hint">[TAB] · [ESC] SCHLIESSEN</div></div>
-<div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">TAGEBUCH</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
+<div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">ABENTEUERFIBEL</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
   <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AM ANFANG JEDES KAPITELS</div></div></div>
 <div id="endcard" class="overlay">
   <h1>KAPITEL 1 — ENDE</h1>
@@ -262,9 +269,9 @@
 <div id="start" class="overlay show">
   <div class="shade"></div><div class="fog"></div><div class="fog2"></div><div class="vig"></div>
   <div id="menu">
-    <h1><span class="l">HIGH ABYSS</span>MIRA</h1>
+    <h1><span class="l">HIGH ABYSS</span><span class="m"><i>M</i><i>I</i><i>R</i><i>A</i></span></h1>
     <svg class="orn" viewBox="0 0 320 14"><path d="M0 7h132M188 7h132" stroke="#c9a36a" stroke-width="1"/><path d="M160 1l6 6-6 6-6-6z" fill="none" stroke="#c9a36a"/><circle cx="146" cy="7" r="1.5" fill="#c9a36a"/><circle cx="174" cy="7" r="1.5" fill="#c9a36a"/></svg>
-    <div class="sub">EIN HORRORSPIEL · LOST EYENGLESS</div>
+    <div class="sub">EIN HORROR, DER DICH DAS FÜRCHTEN LEHRT</div><div class="dir">directed by <b>LUCIDWORKZ</b></div>
     <div id="loadBar"><i></i></div><div id="goText">LADE …</div>
     <div id="mainMenu" style="display:none">
       <button id="mCont" style="display:none">Weiterspielen<small id="mContSub"></small></button>
@@ -277,7 +284,7 @@
     </div>
   </div>
   <div id="subPanel" class="panel"></div>
-  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.0</span><span>KAPITEL 1–3 · LOST EYENGLESS</span></div>
+  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.1</span><span>KAPITEL 1–4 · LOST EYENGLESS · © LUCIDWORKZ</span></div>
 </div>
 <div id="introSeq"><div id="intro"></div><div class="skip">KLICKEN ZUM ÜBERSPRINGEN</div></div>
 
@@ -1201,7 +1208,7 @@ for (const s of [-1, 1]) box(.12, 1, .12, s * 2.8, .5, -45.5, M.metal);
 addCol(-79.4, -4.75, -33.4, -32.55); addCol(4.75, 79.4, -33.4, -32.55);
 addCol(-79.25, -78.4, -53.4, -32.55); addCol(78.4, 79.25, -53.4, -32.55);
 addCol(-14, -4.75, -47, -32.55); addCol(4.75, 14, -47, -32.55); addCol(-5, 5, -47, -46);
-addCol(-159.6, 159.6, -54.2, -53.25); addCol(-159.6, 159.6, 98.25, 99.2); addCol(-159.6, -158.25, -54.2, 99.2); addCol(158.25, 159.6, -54.2, 99.2);
+addCol(-159.6, 159.6, -54.2, -53.25); addCol(-159.6, 25.6, 98.25, 99.2); addCol(34.4, 159.6, 98.25, 99.2); addCol(-159.6, -158.25, -54.2, 99.2); addCol(158.25, 159.6, -54.2, 99.2);
 // Ortsschild
 (() => {
   const t = tex(cnv(256, (c, w) => { c.fillStyle = '#d0b64a'; c.fillRect(0, 0, w, w / 2); c.strokeStyle = '#111'; c.lineWidth = 6; c.strokeRect(6, 6, w - 12, w / 2 - 12);
@@ -1391,8 +1398,8 @@ stage('Geschichte laden'); await wait(30);
 // Mischregeln gegen Überladung: gleichzeitige Einmal-Geräusche, ab denen leise weggelassen werden · Mindestabstände (s)
 const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 6, stingerGap: 8 };
 // Musik: Spannungsschwellen (fear 0…1), Haltezeit vor Entspannung, Pausen (s) zwischen Phrasen je Stufe, Grundlautstärke
-const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [45, 80], restAfter: [25, 50],
-  rest: { calm: [70, 150], uneasy: [25, 55], danger: [0, 2] }, gain: .9 };
+const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [6, 12], restAfter: [12, 22],
+  rest: { calm: [12, 28], uneasy: [10, 22], danger: [0, 2] }, gain: .9 }; // kurze Pausen: die Welt atmet, verstummt aber nie
 const ctx0 = A => A.ctx;
 const Audio = {
   ctx: null,
@@ -1466,7 +1473,7 @@ const Audio = {
       this.loop('crickets', { dest: this.crickets, gain: 1, lp: 5200 });
       const w1 = this.loop(this.buf.wind1 ? 'wind1' : 'wind2', { dest: this.wind, gain: .8, rate: .92 }); if (w1) this.lfo(.05, .35, w1.g.gain);
       const w2 = this.loop('wind2', { dest: this.wind, gain: .45, rate: .85 }); if (w2) this.lfo(.031, .3, w2.g.gain);
-      const ambient = () => { if (this.area === 'o' && Math.random() < .85) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
+      const ambient = () => { if (this.area === 'o' && !window.klang_ambient && Math.random() < .85) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
           if (r < .3) this.bark(Math.cos(a) * d, Math.sin(a) * d, Math.random() < .3); else if (r < .45) this.trainHorn(); else if (r < .8) this.treeCreak(rand(-40, 40), rand(-30, 30)); else this.bang(Math.cos(a) * 40, Math.sin(a) * 40, .3); }
         setTimeout(ambient, rand(18000, 45000)); };
       setTimeout(ambient, 12000);
@@ -1477,7 +1484,7 @@ const Audio = {
   setArea(indoor, basement) {
     if (!this.ctx) return; this.pendingArea = [indoor, basement]; this.area = basement ? 'b' : indoor ? 'i' : 'o'; if (!this.amb) return;
     const t = this.ctx.currentTime;
-    this.crickets.gain.setTargetAtTime(basement ? 0 : indoor ? .02 : .16, t, .8);
+    this.crickets.gain.setTargetAtTime(0, t, .8); // Novembernacht im Regen: keine Grillen
     this.wind.gain.setTargetAtTime(basement ? 0 : indoor ? .1 : .5, t, .8);
     this.rain.gain.setTargetAtTime(basement ? 0 : indoor ? .16 : .5, t, .5); this.rainLP.frequency.setTargetAtTime(indoor ? 700 : 9000, t, .4);
     this.rev.gain.setTargetAtTime(basement ? .5 : indoor ? .32 : .12, t, .3);
@@ -1579,14 +1586,15 @@ const Audio = {
       if (!M.cur) M.rest = up ? (M.level === 'danger' ? 0 : Math.min(M.rest, 4)) : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } // steigende Spannung: sofort bzw. bald, fallende: erst Stille
     if (M.level === 'off' || M.cur) return;
     M.rest -= dt; if (M.rest > 0) return;
-    const L = M.level, pool = M.tracks[L].filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : M.tracks[L][0];
+    const L = M.level, area = typeof klang_area === 'function' ? klang_area() : null, fit = M.tracks[L].filter(x => !x.area || x.area === area), own = fit.filter(x => x.area === area), use = own.length ? own : fit.filter(x => !x.area),
+      pool = use.filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : use[0];
     if (rec) { M.last = rec; M.cur = this.musicTrack(rec, L); }
     else M.cur = L === 'calm' ? (indoor ? null : this.phraseCalm()) : L === 'uneasy' ? this.phraseUneasy() : this.phraseDanger();
     if (!M.cur) M.rest = rand(20, 40);
   },
   musicTrack(rec, level) { const ctx = this.ctx, M = this.mus, src = ctx.createBufferSource(), g = ctx.createGain(), t = ctx.currentTime; src.buffer = rec.b; src.loop = level === 'danger';
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(rec.gain, t + 4); src.connect(g); g.connect(M.bus); src.start();
-    const h = { level, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); try { src.stop(n + f + .1); } catch (e) {} } };
+    const h = { level, area: rec.area || null, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); try { src.stop(n + f + .1); } catch (e) {} } };
     src.onended = () => { if (M.cur === h) { M.cur = null; M.rest = rand(...MUSIC.rest[level]); } }; return h; },
   // Synth-Ersatz: Phrasen mit festem Ende, danach Pause
   phrase(level, dur, build) { const ctx = this.ctx, M = this.mus, g = ctx.createGain(), t = ctx.currentTime, nodes = []; g.gain.value = 0; g.connect(M.bus);
@@ -1960,7 +1968,7 @@ interact(mailbox7, 'Briefkasten öffnen', () => {
 function doorAction(D, lockedText) {
   return () => {
     if (D.locked) return toast(lockedText);
-    D.set(!D.open); Audio.creak(.18);
+    D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18);
     if (D === door7 && D.open) setMain(2);
   };
 }
@@ -2149,12 +2157,13 @@ function beginGame() {
   Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie');
   $('fade').style.transition = 'none'; $('fade').style.opacity = 1; lockPointer();
   setTimeout(async () => { await fade(0, 2800); }, 250);
-  setTimeout(() => subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000), 1800);
+  setTimeout(() => { if (window.__traumWake) window.__traumWake(); else subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000); }, 1800); // Modul traum: Aufwachen nach dem Traum
   setTimeout(() => sideStart('home'), 8500); saveGame(1);
 }
 
 // =====================================================================  BEWEGUNG & KOLLISION
 const R = .3, vel = new THREE.Vector3(), wish = new THREE.Vector3();
+function stepSurface(indoor) { const k = typeof klang_surface === 'function' ? klang_surface(indoor) : null; return k || (indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
 // Fremdgesteuerte Bewegung (z. B. Leiter): scripted(dt) setzt player.pos selbst, Rückgabe false = fertig. Solange aktiv: keine Schwerkraft, keine Kollision.
 let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
@@ -9771,7 +9780,7 @@ const GEDANKEN_FADEN = [
   [/Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
   [/Lost Eyengless geschehen/, 'Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.'],
-  [/./, 'Was hab ich übersehen? Im Tagebuch steht, was ich weiß. Tab.']];
+  [/./, 'Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.']];
 WORLD_MODS.push(['Gedanken', async () => {
   const S = gedanken_S;
   // Story-Ereignisse: die vorhandenen Funktionen bleiben, Luke reagiert danach (Aufruf per Name → Umhüllung greift überall)
@@ -9821,7 +9830,7 @@ const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null,
 // Stationen: when() = aktiv, done() = erledigt (dann fliegt er weiter/fort). at = [x, z] Sitzplatz (Oberfläche wird per Strahl gesucht), talk = Klick
 const WHISKEY_ST = [
   { id: 'start', at: [-44.2, 3.4], when: () => state.started && !ch2.on && !ch3.on && story.main <= 1, done: () => story.main >= 1 || Math.hypot(player.pos.x + 44.2, player.pos.z - 3.4) < 6,
-    talk: 'Ein Rabe. Groß, schwarz, die Augen fast weiß. Er sieht mich an, als hätte er auf mich gewartet.' },
+    talk: 'Ein Rabe. Groß, schwarz, die Augen fast weiß. Der aus meinem Traum. Er sieht mich an, als hätte er auf mich gewartet.' },
   { id: 'briefkasten', at: [28.4, -6.9], when: () => state.started && !ch2.on && !ch3.on && story.main <= 2, done: () => state.hasKey, peck: true,
     talk: 'Er pickt am Briefkasten von Nr. 7. Immer wieder, genau an der Klappe. … Okay. Ich hab verstanden.' },
   { id: 'nr7', at: [26, -11.4], when: () => state.ch1Done && !ch2.on, done: () => state.inBasement,
@@ -9832,9 +9841,9 @@ const WHISKEY_ST = [
     talk: 'Er sitzt am Rand der Luke. Als ich hinsehe, fliegt er hinauf in den Schacht. Ich soll ihm folgen.' },
   { id: 'vegas', at: [-27.2, -11.2], when: () => ch3.on && ch3.part === 'town', done: () => whiskey_S.trade && whiskey_S.named,
     talk: () => whiskey_tradeTalk() },
-  { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk'),
+  { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk') || whiskey_S.met.has('gedenkfeld'),
     talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
-  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
+  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && whiskey_S.trade && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
     talk: 'Am Waldrand. Er fliegt ein Stück hinein und wartet. Forbidden Dustwoods. Da wollte als Kind keiner rein.' }];
 // Oberseite des höchsten festen Körpers unter (x, z) – Laternenkopf, Briefkasten, Geländer, Grabstein
 function whiskey_perch(x, z) {
@@ -10026,7 +10035,7 @@ function visionen_end() {
   story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
   const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für ein Haus, in dem seit Jahren keiner mehr wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
     wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
-  if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1.2, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
+  if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1200, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
 }
 WORLD_MODS.push(['Visionen', async () => {
   const S = visionen_S;
@@ -10087,7 +10096,7 @@ function anwesen_give(i, text) {
   sideStart('anw_teile'); story.side.anw_teile.desc = `Die Tür der Villa Seiler hat acht Schlüssellöcher. Teile gefunden: ${c} / 8.` + (c < 8 ? '' : ' Die Presse im Garten fügt sie zusammen.');
   openNote('Schlüsselteil ' + n, text + `\n\n<b>${name}</b>. Eingeschlagen: <b>${n}</b> – und ein Turm über einem Abgrund.`);
   Audio.play('metalHit1', { gain: .25, rate: 1.6 }); questPop('SCHLÜSSELTEIL ' + c + ' / 8', name);
-  if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1.5, 3);
+  if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1500, 3);
   if (typeof saveGame === 'function') saveGame(anwesen_S.ch4 ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1); return true;
 }
 // Kleines geschmiedetes Teil (für sichtbare Fundstellen); Unreal-Export „schluesselteil“ ersetzt es
@@ -10225,7 +10234,7 @@ function anwesen_door() {
   S.open = true; anwesen_sockets(); anwesen_enterHall();
 }
 // ---- Kapitel 4
-const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Bruno liegt vor ihren Füßen.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
   const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4');
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
@@ -10239,7 +10248,7 @@ async function chapter4Begin() {
   $('intro').innerHTML = C4_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
-    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1.5, 3); };
+    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3); };
   saveGame(4); anwesen_sockets(); if (typeof c3Info === 'function') c3Info();
 }
 async function startChapter4() { // Weiterspielen / Kapitel wählen
@@ -10316,6 +10325,7 @@ WORLD_TICK.push((dt, t) => {
 });
 const _anwFwd = new THREE.Vector3();
 const anwesen_hand = s => '<span class="hand">' + s + '</span>';
+if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
 window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count }; // Testzugriff
 // =====================================================================  WALD (Modul „wald“): Forbidden Dustwoods – der Wald hinter dem Spielplatz
 // Nördlich des Spielplatzes (x −40…110, z 99…156). Eingang: Lücke im Nordzaun bei x 26–34 (gruen.js lässt dort den Zaun weg).
@@ -10328,7 +10338,7 @@ const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
   [[30, 96], [29.5, 104], [27, 111], [21, 118], [18.5, 124], [23, 130], [31, 134], [41, 138], [50, 142.5], [57, 146.8]],
   [[21, 118], [13, 115], [6, 113]], [[18.5, 124], [8, 128], [-4, 133], [-15, 138], [-21, 139.3]],
   [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]]];
-const wald_S = { ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
+const wald_S = { chunks: [], chunkT: 0, ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
 function wald_in(x, z) { return x > WALD.x0 && x < WALD.x1 && z > WALD.z0 && z < WALD.z1; }
 function wald_pathDist(x, z) { let d = 1e9; for (const P of WALD_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
   d = Math.min(d, Math.hypot(x - ax - vx * k, z - az - vz * k)); } return d; }
@@ -10339,11 +10349,14 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   const S = wald_S, T = THREE, m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), new T.Quaternion().setFromEuler(new T.Euler(tx, ry, tz)), new T.Vector3(s, s, s));
   const [t1, t3, fence, elder, rasp, wg1, wg2] = await Promise.all([msBake('deadtree1'), msBake('deadtree3'), msBake('fencepost'), msBake('elderberry'), msBake('raspberry'), msBake('wildgrass1'), msBake('wildgrass2')]);
   for (const p of [...t1, ...t3]) { p.mat = p.mat.clone(); p.mat.side = T.DoubleSide; p.mat.color.setScalar(.5); }
-  const chunk = (parts, list, shadow) => { const out = []; for (let i = 0; i < list.length; i += 900) out.push(...msInst(parts, list.slice(i, i + 900), { shadow })); out.forEach(im => scene.add(im)); return out; };
+  // Blöcke von 20 m: jeder Block wird nach Kameraabstand ein-/ausgeblendet (vis) und wirft nur nah Schatten (sh) – der Nebel verschluckt ohnehin alles ab ~50 m
+  const chunk = (parts, list, shadow, vis = 56, sh = 24) => { const cells = new Map(), v = new T.Vector3();
+    for (const m of list) { v.setFromMatrixPosition(m); const k = Math.floor(v.x / 20) + ',' + Math.floor(v.z / 20); let c = cells.get(k); if (!c) cells.set(k, c = { x: 0, z: 0, n: 0, L: [] }); c.L.push(m); c.x += v.x; c.z += v.z; c.n++; }
+    for (const c of cells.values()) { const meshes = msInst(parts, c.L, { shadow }); S.chunks.push({ x: c.x / c.n, z: c.z / c.n, meshes, vis, sh: shadow ? sh : 0 }); } };
   // --- Bäume: dicht im Wald, noch dichter als Gürtel hinter dem Grenzzaun
   const A = [], B = [];
-  for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 3.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 3.3) {
-    const x = gx + rand(-1.3, 1.3), z = gz + rand(-1.3, 1.3), ins = wald_in(x, z);
+  for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 4.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 4.3) {
+    const x = gx + rand(-1.7, 1.7), z = gz + rand(-1.7, 1.7), ins = wald_in(x, z);
     if (ins) { if (!wald_free(x, z) || Math.random() < .12) continue; if (Math.abs(x - WALD.x0) < 1.3 || Math.abs(x - WALD.x1) < 1.3 || Math.abs(z - WALD.z1) < 1.3) continue; }
     else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; }
     (Math.random() < .55 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.85, 1.55), rand(-.07, .07), rand(-.07, .07)));
@@ -10352,16 +10365,16 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   // Der Baum für Cleos Baumhaus: groß, gerade
   chunk(t1, [m4(WALD.tree.x, -.1, WALD.tree.z + 1.2, .4, 1.9)], true);
   // --- Unterholz (weich), Gras
-  const eA = elder.filter(p => /VarE_LOD1$|VarG$/.test(p.name)), eR = rasp.filter(p => /VarA$/.test(p.name)), SH = [], SR = [], G1 = [], G2 = [];
-  for (let i = 0; i < 1400; i++) { const x = rand(WALD.x0 + 1, WALD.x1 - 1), z = rand(WALD.z0 + 1, WALD.z1 - 1); const pd = wald_pathDist(x, z); if (pd < 1.6) continue;
+  const eA = elder.filter(p => /VarG_LOD1$/.test(p.name)), eR = rasp.filter(p => /VarB_LOD1$/.test(p.name)), gA = wg1.filter(p => /VarG_LOD1$/.test(p.name)), gB = wg2.filter(p => /VarB_LOD1$/.test(p.name)), SH = [], SR = [], G1 = [], G2 = []; // leichte Detailstufen der Scans
+  for (let i = 0; i < 1100; i++) { const x = rand(WALD.x0 + 1, WALD.x1 - 1), z = rand(WALD.z0 + 1, WALD.z1 - 1); const pd = wald_pathDist(x, z); if (pd < 1.6) continue;
     if (Math.hypot(x - WALD.hut.x, z - WALD.hut.z) < 4.5 || Math.hypot(x - WALD.tree.x, z - WALD.tree.z) < 2.5) continue;
     const r = Math.random(); if (r < .28) SH.push(m4(x, 0, z, rand(0, 6.28), rand(.7, 1.2))); else if (r < .45) SR.push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.3))); else (r < .72 ? G1 : G2).push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.4))); }
-  if (eA.length) chunk(eA.slice(0, 1), SH, false); if (eR.length) chunk(eR.slice(0, 1), SR, false); chunk(wg1, G1, false); chunk(wg2, G2, false);
+  if (eA.length) chunk(eA, SH, false, 42); if (eR.length) chunk(eR, SR, false, 40); if (gA.length) chunk(gA, G1, false, 34); if (gB.length) chunk(gB, G2, false, 34);
   // --- Grenzzaun (West, Ost, Nord) – sichtbar, alt, schief
-  { const F = fence.map(() => []); const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
-      for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F[Math.floor(rand(0, F.length))].push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
+  { const F = []; const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
+      for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F.push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
     run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, WALD.x1, WALD.z1); run(WALD.x1, WALD.z1, WALD.x1, 98.2);
-    fence.forEach((p, i) => { if (F[i].length) msInst([p], F[i], { shadow: true }).forEach(im => scene.add(im)); }); }
+    chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
   try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
     const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; } catch (e) { console.warn('Wald: Boden', e); }
@@ -10443,11 +10456,12 @@ function wald_pup() {
   S.wolves.forEach((W, i) => { W.st = 'leave'; W.t = 2 + i * .6; });
   setTimeout(() => { leben_howl(WALD.wolf.x + 10, 1, WALD.wolf.z); setTimeout(() => leben_howl(WALD.wolf.x + 14, 1, WALD.wolf.z - 3), 1400); }, 1600);
   openNote('Ein Taschenmesser', 'Im Draht der Schlinge steckt ein Taschenmesser, rostig, zugeklappt. In den Griff hat jemand mit der Spitze geritzt:\n\n<b>JONAS W.</b>\n\nJonas. Zayns großer Bruder. Dein bester Freund, damals. Er war hier draußen – irgendwann nach 2009. Er hat seinen Bruder gesucht. Allein.');
-  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6, 3);
+  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6000, 3);
 }
 WORLD_TICK.push((dt, t) => {
   const S = wald_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;
-  const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', .8, 2); } }
+  S.chunkT -= dt; if (S.chunkT < 0) { S.chunkT = .25; const cx = camera.position.x, cz = camera.position.z; for (const c of S.chunks) { const d = Math.hypot(c.x - cx, c.z - cz), v = d < c.vis; for (const m of c.meshes) { m.visible = v; m.castShadow = d < c.sh; } } }
+  const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', 800, 2); } }
   if (S.noBeasts && leben_S.ready && !S.beastTry) { S.beastTry = true; S.noBeasts = false; wald_beasts().catch(e => console.warn('Wald: Tiere', e)); }
   for (const V of S.beasts) if (V.st !== 'gone') V.g.visible = near; // weit weg: nicht zeichnen
   if (!near) return;
@@ -10464,7 +10478,7 @@ WORLD_TICK.push((dt, t) => {
     else if (D.st === 'look') { D.g.rotation.y = leben_ang(D.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 2)); D.t -= dt;
       if (D.t < 0) { D.st = 'lead'; D.tx = WALD.tree.x + 3; D.tz = WALD.tree.z - 4; D.sp = 1.3; leben_play(D, 'WalkGraze', .4); sideStart('wald_hirsch');
         story.lore.push({ key: 'wald_hirsch', title: 'Die Lichtung', html: 'Du bist leise gekommen, im Dunkeln. Der Hirsch hat dich angesehen – lange, ohne Angst. Dann ist er nach Westen gegangen, langsam, als sollst du folgen.' });
-        sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', .5, 3); } }
+        sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', 500, 3); } }
     else if (D.st === 'lead') { if (leben_beastMove(D, dt) || d > 40) { D.st = 'gone'; D.g.visible = false; D.t = 120; } }
     else if (D.st === 'flee') { leben_beastMove(D, dt); if (d > 45 || !leben_free(p.x + Math.sin(D.g.rotation.y) * 1.5, p.z + Math.cos(D.g.rotation.y) * 1.5, .7, .4)) { D.st = 'gone'; D.g.visible = false; D.t = rand(60, 120); } } }
   // Fuchs: trägt den Schuh. Kommt man näher, läuft er zu seinem Bau, lässt den Schuh fallen und verschwindet im Unterholz
@@ -10581,7 +10595,7 @@ function zayn_takePhotos() {
   const out = [];
   try {
     for (const [zz, hide, what] of shots) {
-      if (zz) { pc.position.set(31.2, 1.3, 60.5); pc.lookAt(31, 1.1, 92); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      if (zz) { pc.position.set(26.6, 1.35, 61.4); pc.lookAt(32.4, 1, 88); } // links an der Laterne (31 | 63,5) vorbei else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
       camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
@@ -10624,7 +10638,7 @@ function zayn_solved() {
   zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Er wollte, dass ich ihm folge.“');
   story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, die Bank, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
   openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
-  if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1.2, 3);
+  if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1200, 3);
 }
 // ---- 3) Spur
 function zayn_shoeDropped(shoe) { const S = zayn_S; const hit = box(.4, .3, .4, shoe.position.x, .12, shoe.position.z, hidden, { cast: false }); S.spots.push({ k: 'schuh', x: shoe.position.x, z: shoe.position.z, mesh: shoe, hit });
@@ -10644,7 +10658,7 @@ function zayn_drawing() {
     story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nIhr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden, habt euch auseinandergelebt. Und Zayn wurde einfach der kleine Bruder, den irgendwann keiner mehr beachtet hat.' });
     state.talking = true; setTimeout(async () => { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
       ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Ihr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden. Und Zayn war nur noch der kleine Bruder, den keiner mehr beachtet hat.', 6400]]);
-      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1, 3); }, 300); });
+      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1000, 3); }, 300); });
 }
 async function zayn_radio() {
   const S = zayn_S, H = WALD.hut; if (S.radioBusy) return;
@@ -10674,7 +10688,7 @@ WORLD_TICK.push((dt, t) => {
   if (open && S.stage < 1 && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
   if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
   const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
-  if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', .3, 3); } else if (!inHut) S.hutIn = false;
+  if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', 300, 3); } else if (!inHut) S.hutIn = false;
 });
 window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff
 // =====================================================================  CLEO (Modul „cleo“): Die Vergessene
@@ -10726,7 +10740,7 @@ function cleo_stone() {
   if (!cleo_has('cleo_gedenk')) story.lore.push({ key: 'cleo_gedenk', title: 'Der achte Stein', html: 'Links neben Zayns Grab ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt, bis der Stein weiß war. Nur am Rand, wo der Meißel abgerutscht ist: ein C.\n\nDas Datum ist stehen geblieben. † 28. Juli 2009. Derselbe Tag wie bei den anderen.' });
   cleo_start('Ein achter Stein am Gedenkfeld, der Name weggekratzt. Nur ein C ist geblieben. Lucy hat jeden Tag ein C. in ihr Tagebuch geschrieben.');
   openNote('Der achte Stein', 'Links neben Zayns Grab steht ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt – so gründlich, dass der Stein darunter weiß geworden ist.\n\nNur am Rand, wo der Meißel abgerutscht ist: ein <b>C</b>.\n\nDas Datum ist stehen geblieben: † 28. Juli 2009. Derselbe Tag.');
-  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1, 3);
+  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1000, 3);
 }
 function cleo_akte() {
   if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
@@ -10734,7 +10748,7 @@ function cleo_akte() {
   story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
   cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
   openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
-  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1, 3);
+  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1000, 3);
 }
 function cleo_climb(up) {
   const S = cleo_S, P = WALD.tree, y = wald_S.treeY || 2.2; if (S.climbing || (up && player.pos.y > 1) || (!up && player.pos.y < 1)) return; S.climbing = true; state.talking = true; let t = 0;
@@ -10754,7 +10768,7 @@ function cleo_chest(lock) {
   story.lore.push({ key: 'cleo_baumhaus', title: 'Cleos Kiste', html: 'Eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen: CLEO. Neben ihr, kleiner geschrieben: LUCY.\n\nEin Brief an Lucy. Und ein Stück weiße Kreide.\n\n' + cleo_letter() });
   cleo_start('Cleos Baumhaus. Ein Brief an Lucy – „Geschenkt ist geschenkt.“ Und ein Stück Kreide. Ihr Name steht auf keinem Stein. Noch nicht.');
   openNote('Cleos Kiste', 'Obenauf eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen, darüber in großen Buchstaben: <b>CLEO</b>. Daneben, kleiner: LUCY.\n\nDarunter ein Brief. Und ein Stück weiße Kreide, mit Klebeband umwickelt.\n\n' + cleo_letter(), null, () => {
-    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', .5, 3); });
+    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', 500, 3); });
 }
 function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
 async function cleo_end() {
@@ -10771,6 +10785,266 @@ async function cleo_end() {
 WORLD_TICK.push(() => { const S = cleo_S; if (!S.ready || !state.started) return;
   if (state.diary && story.side.cleo.state === 'hidden') cleo_start('In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C. Zu C.s Geburtstag kam 2009 niemand außer Lucy.'); });
 window.__cleo = { S: cleo_S, stone: () => cleo_stone(), akte: () => cleo_akte(), climb: u => cleo_climb(u), end: () => cleo_end() }; // Testzugriff
+// =====================================================================  KLANG (Modul „klang“): Musik je Ort, Tierstimmen der Jahreszeit, Schritte je Untergrund, Türen, Gegenstände
+// Musik: eigens komponierte Stücke, beim Start einmalig im Hintergrund zu Audiospuren gerendert (OfflineAudioContext – kostet zur Laufzeit nichts).
+// Leitmotiv ist Lucys Spieluhr (E – D – C – H – C). Jedes Stück hat seinen Ort; beim Ortswechsel blendet die Musik langsam über.
+// Regel: nie überladen, nie tot still. Musik ist leise und hat Luft; dazwischen trägt die Umgebung (Regen, Wind, Tiere).
+// Novembernacht, Regen: keine Grillen – dafür Waldkauz, Fuchs, Krähen, ferne Hunde, tropfende Dachrinnen, knackendes Totholz.
+const klang_S = { pending: [], tracks: {}, rendering: false, menu: null, menuG: null, dream: null, area: 'ort', areaT: 0, ambT: 10 };
+const KN = n => { const m = /^([A-G])(#|b)?(-?\d)$/.exec(n), i = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); return 440 * Math.pow(2, (i + (m[3] - 4) * 12) / 12); };
+// ---------------------------------------------------------------- Instrumente (für jeden Kontext, auch offline)
+const KI = {
+  ir(c, sec, dec) { const n = Math.floor(c.sampleRate * sec), b = c.createBuffer(2, n, c.sampleRate); for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, dec) * (i < 600 ? i / 600 : 1); } return b; },
+  chain(c, wet = .45, sec = 5.5) { const dry = c.createGain(), comp = c.createDynamicsCompressor(), master = c.createGain(); comp.threshold.value = -18; comp.ratio.value = 3; master.gain.value = .9;
+    const conv = c.createConvolver(); conv.buffer = KI.ir(c, sec, 2.6); const wg = c.createGain(); wg.gain.value = wet; dry.connect(comp); dry.connect(conv); conv.connect(wg); wg.connect(comp); comp.connect(master); master.connect(c.destination); return dry; },
+  env(c, t, a, peak, d, hold = 0) { const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); if (hold) g.gain.setValueAtTime(peak, t + a + hold); g.gain.exponentialRampToValueAtTime(.0001, t + a + hold + d); return g; },
+  osc(c, type, f, t, dur) { const o = c.createOscillator(); o.type = type; o.frequency.value = f; o.start(t); o.stop(t + dur + .05); return o; },
+  // Klavier: Obertöne mit eigener Abklingzeit, leichter Anschlag
+  piano(c, out, t, f, v = .3, len = 5) { [[1, 1, len], [2, .42, len * .6], [3, .2, len * .4], [4.02, .09, len * .3], [5.05, .05, len * .2]].forEach(([m, a, d]) => { const o = KI.osc(c, 'sine', f * m * (1 + (m - 1) * .0007), t, d + .1), g = KI.env(c, t, .006, v * a, d); o.connect(g); g.connect(out); });
+    const n = c.createBufferSource(); n.buffer = KI.noise(c); const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = Math.min(4000, f * 6); const g = KI.env(c, t, .002, v * .05, .05); n.connect(bp); bp.connect(g); g.connect(out); n.start(t); n.stop(t + .12); },
+  // Spieluhr: helle Zinke, unharmonischer Oberton, kurzer metallischer Anschlag
+  box(c, out, t, f, v = .12) { [[1, 1, 2.6], [2, .3, 1.4], [5.93, .12, .5]].forEach(([m, a, d]) => { const o = KI.osc(c, 'sine', f * m, t, d), g = KI.env(c, t, .003, v * a, d); o.connect(g); g.connect(out); }); },
+  bell(c, out, t, f, v = .2, d = 7) { [[1, 1], [2.01, .5], [2.76, .35], [4.07, .18], [5.4, .1]].forEach(([m, a], i) => { const o = KI.osc(c, 'sine', f * m, t, d), g = KI.env(c, t, .004, v * a, d * (1 - i * .15)); o.connect(g); g.connect(out); }); },
+  // Fläche: je Ton zwei verstimmte Sägezähne durch einen weichen Tiefpass, langsames Ein- und Ausblenden
+  pad(c, out, t, fs, dur, v = .05, cut = 900) { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cut; lp.Q.value = .3; const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + Math.min(4, dur * .35)); g.gain.setValueAtTime(v, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur); lp.connect(g); g.connect(out);
+    for (const f of fs) for (const d of [-.006, .006]) { const o = KI.osc(c, 'sawtooth', f * (1 + d), t, dur); o.connect(lp); } },
+  // Chor „oh“: Sägezahn mit Vibrato durch drei Formanten
+  choir(c, out, t, fs, dur, v = .05) { const sum = c.createGain(); const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 3); g.gain.setValueAtTime(v, t + dur - 3); g.gain.linearRampToValueAtTime(0, t + dur); g.connect(out);
+    for (const [ff, q, a] of [[520, 8, 1], [900, 9, .6], [2500, 12, .18]]) { const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = ff; bp.Q.value = q; const bg = c.createGain(); bg.gain.value = a; sum.connect(bp); bp.connect(bg); bg.connect(g); }
+    for (const f of fs) for (const d of [-.004, 0, .005]) { const o = KI.osc(c, 'sawtooth', f * (1 + d), t, dur), lf = KI.osc(c, 'sine', 4.6 + Math.random() * .8, t, dur), lg = c.createGain(); lg.gain.value = f * .006; lf.connect(lg); lg.connect(o.frequency); o.connect(sum); } },
+  // gestrichene Saite (Cello/Bratsche): langsamer Bogen, Vibrato, Tiefpass
+  bow(c, out, t, f, dur, v = .06, cut = 1100) { const o = KI.osc(c, 'sawtooth', f, t, dur), lf = KI.osc(c, 'sine', 5.2, t, dur), lg = c.createGain(); lg.gain.value = f * .005; lf.connect(lg); lg.connect(o.frequency);
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cut; const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + Math.min(2.2, dur * .4)); g.gain.setValueAtTime(v, t + dur * .75); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(lp); lp.connect(g); g.connect(out); },
+  // Flöte, gehaucht
+  flute(c, out, t, f, dur, v = .05) { const o = KI.osc(c, 'sine', f, t, dur), lf = KI.osc(c, 'sine', 5, t, dur), lg = c.createGain(); lg.gain.value = f * .004; lf.connect(lg); lg.connect(o.frequency);
+    const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .25); g.gain.setValueAtTime(v * .85, t + dur - .3); g.gain.linearRampToValueAtTime(0, t + dur); o.connect(g); g.connect(out);
+    const n = c.createBufferSource(); n.buffer = KI.noise(c); n.loop = true; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * 2; bp.Q.value = 6; const ng = c.createGain(); ng.gain.value = .25; n.connect(bp); bp.connect(ng); ng.connect(g); n.start(t); n.stop(t + dur + .05); },
+  // Glasharmonika: zwei fast gleiche Sinus, Schwebung
+  glass(c, out, t, f, dur, v = .05) { for (const d of [0, .0035]) { const o = KI.osc(c, 'sine', f * (1 + d), t, dur), g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .5); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g); g.connect(out); } },
+  // Cembalo-artig gezupft
+  pluck(c, out, t, f, v = .08, d = 1.6) { const o = KI.osc(c, 'sawtooth', f, t, d), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(f * 9, t); lp.frequency.exponentialRampToValueAtTime(f * 1.2, t + d * .6); const g = KI.env(c, t, .003, v, d); o.connect(lp); lp.connect(g); g.connect(out); },
+  knock(c, out, t, v = .2) { const n = c.createBufferSource(); n.buffer = KI.noise(c); const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; const g = KI.env(c, t, .002, v, .12); n.connect(lp); lp.connect(g); g.connect(out); n.start(t); n.stop(t + .2);
+    const o = KI.osc(c, 'sine', 95, t, .15), og = KI.env(c, t, .002, v * .8, .12); o.connect(og); og.connect(out); },
+  drone(c, out, t, fs, dur, v = .05) { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180; const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 6); g.gain.setValueAtTime(v, t + dur - 6); g.gain.linearRampToValueAtTime(0, t + dur); lp.connect(g); g.connect(out);
+    for (const f of fs) for (const d of [0, .003]) { const o = KI.osc(c, 'triangle', f * (1 + d), t, dur); o.connect(lp); } },
+  wind(c, out, t, dur, v = .03) { const n = c.createBufferSource(); n.buffer = KI.noise(c); n.loop = true; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; bp.frequency.setValueAtTime(300, t);
+    for (let k = 0; k < dur; k += 4) bp.frequency.linearRampToValueAtTime(250 + Math.random() * 500, t + k); const g = c.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + dur * .3); g.gain.linearRampToValueAtTime(0, t + dur); n.connect(bp); bp.connect(g); g.connect(out); n.start(t); n.stop(t + dur); },
+  noise(c) { if (c._nz) return c._nz; const n = c.sampleRate * 2, b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1; return c._nz = b; },
+};
+const KL_MOTIV = ['E5', 'D5', 'C5', 'B4', 'C5']; // Lucys Spieluhr
+// ---------------------------------------------------------------- Die Stücke: [Name, Länge s, Stufe, Ort, Lautstärke, Bau]
+const KL_PIECES = [
+  ['menue', 76, null, null, .9, (c, o, w) => { KI.drone(c, o, 0, [KN('A1'), KN('E2')], 76, .05); KI.wind(c, o, 0, 76, .025);
+    [['A2', 'C3', 'E3'], ['F2', 'A2', 'C3'], ['D2', 'F2', 'A2'], ['E2', 'G#2', 'B2'], ['A2', 'C3', 'E3']].forEach((ch, i) => KI.pad(c, o, i * 13, ch.map(KN), 15, .03, 700));
+    KI.bell(c, o, .5, KN('A2'), .12, 9); KI.bell(c, o, 39, KN('E2'), .1, 9);
+    let t = 3; for (let rep = 0; rep < 3; rep++) { const det = 1 - rep * .012; KL_MOTIV.forEach((n, i) => { KI.box(c, o, t, KN(n) * det, .1 - rep * .02); t += .62 + i * .06 + rep * .08; }); t += 4.5 + rep; }
+    KI.choir(c, o, 26, [KN('A3'), KN('C4'), KN('E4')], 22, .03); KI.choir(c, o, 50, [KN('F3'), KN('A3'), KN('D4')], 20, .026);
+    [['A4', 60], ['G4', 62.2], ['E4', 64.6], ['A3', 68]].forEach(([n, tt]) => KI.piano(c, o, tt, KN(n), .16, 6)); }],
+  ['ort', 64, 'calm', 'ort', .85, (c, o) => { KI.pad(c, o, 0, [KN('A2'), KN('E3')], 30, .018, 500); KI.pad(c, o, 30, [KN('F2'), KN('C3')], 32, .016, 480);
+    [['A3', 1], ['E4', 5], ['C4', 9.5], ['B3', 14], ['A3', 20], ['E4', 26], ['D4', 29.5], ['C4', 33], ['B3', 36.5], ['C4', 40], ['G3', 48], ['A3', 53]].forEach(([n, t]) => KI.piano(c, o, t, KN(n), .14, 6)); }],
+  ['unruhe', 44, 'uneasy', null, .8, (c, o) => { KI.bow(c, o, 0, KN('A1'), 40, .05, 700); KI.bow(c, o, 6, KN('Bb1'), 30, .035, 600); KI.bow(c, o, 14, KN('E5') * 2, 20, .006, 5000);
+    KI.piano(c, o, 21, KN('A1'), .22, 8); KI.piano(c, o, 21.02, KN('Bb1'), .16, 8); KI.glass(c, o, 30, KN('F6'), 9, .012); }],
+  ['friedhof', 62, 'calm', 'friedhof', .85, (c, o) => { [['D3', 'F3', 'A3'], ['Bb2', 'D3', 'F3'], ['G2', 'Bb2', 'D3'], ['A2', 'C#3', 'E3']].forEach((ch, i) => KI.choir(c, o, i * 14, ch.map(KN), 17, .03));
+    for (let t = 1; t < 60; t += 13) KI.bell(c, o, t, KN('D3'), .09, 10); KI.flute(c, o, 30, KN('A4'), 3, .018); KI.flute(c, o, 33.5, KN('F4'), 4, .016); }],
+  ['wald', 66, 'calm', 'wald', .85, (c, o) => { KI.drone(c, o, 0, [KN('D2'), KN('A2')], 66, .045); KI.wind(c, o, 0, 66, .03);
+    for (let t = 4; t < 62; t += 5 + Math.random() * 6) KI.knock(c, o, t, .06 + Math.random() * .05);
+    [['D5', 12, 1.6], ['F5', 13.8, 1.2], ['E5', 15.2, 2.4], ['C5', 18, 3], ['D5', 34, 2], ['A4', 36.2, 1.6], ['C5', 38, 1.4], ['D5', 39.6, 4]].forEach(([n, t, d]) => KI.flute(c, o, t, KN(n), d, .026));
+    KI.bow(c, o, 44, KN('D3'), 18, .02, 900); }],
+  ['amt', 54, 'uneasy', 'amt', .8, (c, o) => { for (let t = 0; t < 52; t += 1.8) { const s = KI.osc(c, 'sine', 44, t, .6), g = KI.env(c, t, .01, .12, .5); s.connect(g); g.connect(o); }
+    KI.bell(c, o, 2, KN('C#2'), .1, 12); KI.bell(c, o, 24, KN('G2'), .08, 12); KI.glass(c, o, 10, KN('C#6'), 12, .008); KI.glass(c, o, 11, KN('D6'), 10, .007); KI.drone(c, o, 0, [KN('C#1') * 2], 54, .04); }],
+  ['kanal', 60, 'calm', 'kanal', .85, (c, o) => { KI.drone(c, o, 0, [KN('A1'), KN('E2')], 60, .03);
+    [['A5', 4], ['C6', 6.5], ['D6', 9], ['E6', 11.5], ['C6', 15], ['A5', 19], ['G5', 23], ['E5', 27], ['G5', 32], ['A5', 36], ['D6', 42], ['C6', 46], ['A5', 50]].forEach(([n, t]) => KI.glass(c, o, t, KN(n), 5, .02)); }],
+  ['villa', 50, 'calm', 'villa', .8, (c, o) => { const beat = 60 / 64; let t = 1; const mel = ['E5', 'D5', 'C5', 'B4', 'C5', null, 'E5', 'A4', null, 'D5', 'C5', 'B4', 'A4', 'G#4', 'A4', null];
+    for (let bar = 0; bar < 16; bar++) { const bass = ['A2', 'E2', 'D2', 'E2'][bar % 4]; KI.pluck(c, o, t, KN(bass), .07, 1.8); KI.pluck(c, o, t + beat, KN(bass) * 1.5, .035, .9); KI.pluck(c, o, t + beat * 2, KN(bass) * 2, .03, .9);
+      const n = mel[bar]; if (n) KI.pluck(c, o, t + beat * .02, KN(n) * (bar > 11 ? .985 : 1), .06, 2.2); t += beat * 3; }
+    KL_MOTIV.forEach((n, i) => KI.box(c, o, t + .5 + i * .7, KN(n) * .97, .05)); }],
+  ['weiss', 54, 'calm', 'weiss', .8, (c, o) => { KI.pad(c, o, 0, [KN('A4'), KN('E5'), KN('B5')], 54, .014, 3000); KI.choir(c, o, 8, [KN('E5'), KN('A5')], 30, .015);
+    KL_MOTIV.forEach((n, i) => KI.glass(c, o, 20 + i * 2.2, KN(n), 4, .02)); }],
+  ['traum', 64, null, null, .9, (c, o) => { KI.pad(c, o, 0, [KN('A3'), KN('E4'), KN('C5')], 64, .02, 2400); KI.wind(c, o, 0, 64, .02); KI.drone(c, o, 0, [KN('A1')], 64, .04);
+    let t = 6; for (let rep = 0; rep < 2; rep++) { KL_MOTIV.forEach((n, i) => { KI.box(c, o, t, KN(n) * (1 - rep * .02), .07); t += .9 + i * .1; }); t += 9; }
+    KI.choir(c, o, 22, [KN('A3'), KN('E4')], 26, .02); KI.bell(c, o, 50, KN('A2'), .1, 10); }]];
+async function klang_render(name) {
+  const P = KL_PIECES.find(p => p[0] === name); if (!P || klang_S.tracks[name]) return klang_S.tracks[name]; const sr = 32000, c = new OfflineAudioContext(2, Math.ceil(sr * (P[1] + 5)), sr);
+  const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_S.tracks[name] = b; return b;
+}
+// Nacheinander im Hintergrund rendern (Menü und Traum zuerst), dann in die Musikauswahl einreihen
+async function klang_renderAll() {
+  const S = klang_S; if (S.rendering) return; S.rendering = true;
+  for (const P of [KL_PIECES[0], KL_PIECES.find(p => p[0] === 'traum'), ...KL_PIECES.filter(p => p[0] !== 'menue' && p[0] !== 'traum')]) {
+    try { const b = await klang_render(P[0]); if (P[2]) S.pending.push([P[2], { b, gain: P[4] * .8, name: P[0], area: P[3] }]); } catch (e) { console.warn('Klang: ' + P[0], e); }
+    await new Promise(r => setTimeout(r, 400)); }
+}
+// ---------------------------------------------------------------- Wo bin ich? (Musik- und Klangorte)
+function klang_area() {
+  const P = player.pos;
+  if (state.zone === 'canal') return 'kanal'; if (ch3.on && ch3.part === 'white') return 'weiss';
+  if (state.inBasement || P.x > 250) return 'amt'; if (P.x < -800) return 'villa';
+  if (P.x < -104 && P.x > -146 && P.z > 46 && P.z < 92) return 'villa';
+  if (P.z > 97 && P.x > -44 && P.x < 114) return 'wald';
+  if (Math.hypot(P.x + 48, P.z - 80) < 24) return 'friedhof';
+  return 'ort';
+}
+// Untergrund unter den Füßen (für die Schritte)
+function klang_surface(indoor) {
+  const P = player.pos; if (state.zone === 'canal') return 'water'; if (state.inBasement || P.x > 250) return 'hard';
+  if (indoor) return 'wood'; if (P.y > 1.2) return 'wood'; // Baumhaus, Treppen
+  if (P.z > 97 && P.x > -44 && P.x < 114) return 'leaves';
+  if (P.x < -104 && P.x > -146 && P.z > 46 && P.z < 92) return 'gravel';
+  return isWalk(P.x, P.z) ? 'wet' : null; // null: wie bisher (Gras)
+}
+// ---------------------------------------------------------------- Tiere und Umgebung (synthetisch, wo keine Aufnahme da ist)
+Object.assign(Audio, {
+  owlPair(x, z) { if (!this.ctx) return; const d = this.at(x, 9, z, 12), t0 = this.ctx.currentTime; // Waldkauz: Männchen „huu … hu-hu-huuu“, das Weibchen antwortet „ke-wick“
+    const hoot = (t, f, dur) => { const o = this.osc('sine', f, t, dur), g = this.ctx.createGain(), tt = t0 + t; g.gain.setValueAtTime(0, tt); g.gain.linearRampToValueAtTime(.22, tt + .08); g.gain.setValueAtTime(.22, tt + dur - .15); g.gain.linearRampToValueAtTime(0, tt + dur); o.frequency.setValueAtTime(f, tt); o.frequency.linearRampToValueAtTime(f * .93, tt + dur); this.lfo(7, 5, o.frequency); o.connect(g); g.connect(d); };
+    hoot(0, 440, .75); hoot(3.1, 420, .2); hoot(3.35, 420, .2); hoot(3.65, 440, 1.3);
+    if (Math.random() < .6) { const d2 = this.at(x + rand(-30, 30), 7, z + rand(-30, 30), 10), t = t0 + 6; const o = this.osc('sawtooth', 1500, 6, .35), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 3; o.frequency.setValueAtTime(1300, t); o.frequency.linearRampToValueAtTime(2100, t + .12); o.frequency.linearRampToValueAtTime(1500, t + .3); o.connect(bp); this.env(bp, .07, .01, .28, 6, d2); } },
+  fox(x, z) { if (!this.ctx) return; const d = this.at(x, .6, z, 8), t = this.ctx.currentTime; // Fuchsschrei: heiser, fast menschlich
+    const o = this.osc('sawtooth', 700, 0, .9); o.frequency.setValueAtTime(620, t); o.frequency.linearRampToValueAtTime(1050, t + .18); o.frequency.linearRampToValueAtTime(560, t + .8); this.lfo(38, 30, o.frequency);
+    const bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 1.2; o.connect(bp); this.env(bp, .16, .03, .8, 0, d);
+    const n = this.noise(false), hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2500; n.connect(hp); this.env(hp, .05, .02, .7, 0, d); n.stop(t + 1); },
+  deerBark(x, z) { if (!this.ctx) return; const d = this.at(x, 1, z, 8), t = this.ctx.currentTime; for (let k = 0; k < 2; k++) { const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 650; bp.Q.value = 2; n.connect(bp); this.env(bp, .35, .01, .22, k * .9, d); n.stop(t + 2);
+      const o = this.osc('sawtooth', 190, k * .9, .25), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); this.env(lp, .08, .01, .2, k * .9, d); } },
+  twig(x, z) { if (!this.ctx) return; const d = this.at(x, .2, z, 3), n = this.noise(false), hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); this.env(hp, .5, .001, .03, 0, d); if (Math.random() < .6) this.env(hp, .3, .001, .02, .06, d); n.stop(this.ctx.currentTime + .3); },
+  gutter(x, z) { if (!this.ctx) return; for (let k = 0; k < 6 + Math.random() * 6; k++) setTimeout(() => this.drip(x + rand(-.2, .2), rand(1.5, 3.5), z + rand(-.2, .2)), k * rand(260, 700)); },
+  pickup(key) { if (!this.ctx) return; if (/schluessel|key|kreide|murmel/.test(key)) this.play(this.pick('keys1', 'keys2', 'keys3'), { gain: .25, rate: rand(1.1, 1.3) }); else this.play(this.pick('items1', 'items2'), { gain: .3, vary: .06 }); },
+  doorSound(open, x, z) { if (!this.ctx) return; const o = { x, y: 1.2, z, ref: 3 };
+    if (open) { this.play('woodMisc1', { gain: .35, rate: 1.2, ...o }); this.play('doorCreak', { gain: .28, rate: rand(.85, 1.05), offset: rand(0, .4), dur: rand(1.1, 1.7), delay: .08, ...o }); }
+    else { this.play('doorCreak', { gain: .18, rate: rand(1.1, 1.3), dur: .5, ...o }); this.play(this.pick('woodClose1', 'woodClose2'), { gain: .5, delay: .38, ...o }); } },
+});
+// Schritte: nasser Asphalt, Laub, Kies, Wasser – zusätzlich zu Holz, Beton und Gras
+{ const base = Audio.step.bind(Audio); Audio.step = function (s) { if (!this.ctx) return;
+    if (s === 'wet') { this.play(this.pick('stepWet1', 'stepWet2', 'stepWet3'), { gain: .34, vary: .07, varyGain: .25 }); if (Math.random() < .12) this.play('waterLoop', { gain: .06, offset: rand(0, 3), dur: .25, rate: 1.3, hp: 600 }); return; }
+    if (s === 'water') { this.play(this.pick('stepWet1', 'stepWet2', 'stepWet3'), { gain: .42, vary: .1, rate: .85 }); this.play('waterLoop', { gain: .14, offset: rand(0, 4), dur: .35, rate: rand(.9, 1.2) }); return; }
+    if (s === 'leaves') { this.play(this.pick('stepG1', 'stepG2', 'stepG3'), { gain: .32, vary: .12, varyGain: .3 }); const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2500, 4200); bp.Q.value = .8; n.connect(bp); this.env(bp, .05, .01, .16); n.stop(this.ctx.currentTime + .3);
+      if (Math.random() < .05) this.twig(player.pos.x + rand(-.4, .4), player.pos.z + rand(-.4, .4)); return; }
+    if (s === 'gravel') { this.play(this.pick('stepC1', 'stepC3', 'stepC5'), { gain: .3, vary: .1, rate: .9 }); this.play('stones1', { gain: .08, offset: rand(0, 1.2), dur: .18, rate: rand(1.3, 1.6), hp: 1200 }); return; }
+    return base(s); }; }
+// ---------------------------------------------------------------- Umgebung je Ort
+function klang_ambient() {
+  const P = player.pos, A = klang_S.area, a = rand(0, 6.28), far = (d0, d1) => { const d = rand(d0, d1); return [P.x + Math.cos(a) * d, P.z + Math.sin(a) * d]; }, r = Math.random();
+  if (A === 'amt' || A === 'kanal') { if (r < .5) { const [x, z] = far(4, 14); Audio.drip(x, rand(1, 2.5), z); } else if (r < .7) { const [x, z] = far(10, 25); Audio.play('metalHit1', { gain: .08, rate: rand(.5, .7), x, y: 1, z, ref: 6 }); } return; }
+  if (A === 'weiss') return;
+  if (A === 'wald') { if (r < .22) Audio.owlPair(...far(18, 40)); else if (r < .34) Audio.fox(...far(20, 45)); else if (r < .56) { const [x, z] = far(6, 16); Audio.twig(x, z); if (Math.random() < .5) setTimeout(() => Audio.twig(x + .5, z + .3), rand(300, 900)); }
+    else if (r < .7) Audio.caw(...(([x, z]) => [x, rand(5, 9), z])(far(15, 35))); else if (r < .82) Audio.treeCreak(...far(8, 20)); else if (r < .9) Audio.deerBark(...far(25, 50)); else Audio.flap(...(([x, z]) => [x, 4, z])(far(6, 12))); return; }
+  if (A === 'friedhof') { if (r < .35) Audio.caw(...(([x, z]) => [x, 7, z])(far(10, 30))); else if (r < .6) Audio.owlPair(...far(25, 50)); else if (r < .75) Audio.gust(rand(3, 5)); return; }
+  if (A === 'villa') { if (r < .25) Audio.owlPair(...far(20, 45)); else if (r < .4) { Audio.play('woodSqueak1', { gain: .12, rate: .7, x: -125, y: 6, z: 70, ref: 6 }); } else if (r < .55) Audio.caw(-125 + rand(-8, 8), 14, 70 + rand(-8, 8)); return; }
+  // Ort: Dachrinnen, ferne Hunde, Waldkauz, Krähen, Totholz, selten ein Zug in der Ferne
+  if (r < .22) { const [x, z] = far(4, 12); Audio.gutter(x, z); } else if (r < .38) Audio.owlPair(...far(40, 80)); else if (r < .52) Audio.bark(...far(60, 110), Math.random() < .3);
+  else if (r < .64) Audio.caw(...(([x, z]) => [x, 8, z])(far(20, 50))); else if (r < .76) Audio.treeCreak(...far(10, 30)); else if (r < .82) Audio.fox(...far(50, 90)); else if (r < .85) Audio.trainHorn();
+}
+// ---------------------------------------------------------------- Menümusik
+function klang_menu(on) {
+  const S = klang_S, A = Audio; if (!A.ctx || A.ctx.state !== 'running') return;
+  if (on && !S.menu && S.tracks.menue) { const g = A.ctx.createGain(); g.gain.value = 0; g.connect(A.master); const src = A.ctx.createBufferSource(); src.buffer = S.tracks.menue; src.loop = true; src.connect(g); src.start();
+    g.gain.linearRampToValueAtTime(.8 * (settings.music ?? 1), A.ctx.currentTime + 3); S.menu = src; S.menuG = g; }
+  else if (!on && S.menu) { const t = A.ctx.currentTime, g = S.menuG, s = S.menu; g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 2.5); try { s.stop(t + 2.6); } catch (e) {} S.menu = null; }
+}
+function klang_dream(on) { // Traummusik (Intro)
+  const S = klang_S, A = Audio; if (!A.ctx) return;
+  if (on && !S.dream && S.tracks.traum) { const g = A.ctx.createGain(); g.gain.value = 0; g.connect(A.master); const src = A.ctx.createBufferSource(); src.buffer = S.tracks.traum; src.connect(g); src.start(); g.gain.linearRampToValueAtTime(.85, A.ctx.currentTime + 2); S.dream = src; S.dreamG = g; }
+  else if (!on && S.dream) { const t = A.ctx.currentTime; S.dreamG.gain.cancelScheduledValues(t); S.dreamG.gain.setValueAtTime(S.dreamG.gain.value, t); S.dreamG.gain.linearRampToValueAtTime(0, t + 1.5); try { S.dream.stop(t + 1.6); } catch (e) {} S.dream = null; }
+}
+// Türen: Grundspiel ruft Audio.doorSound (Öffnen/Schließen verschieden)
+// Gegenstände: Aufheben klingt
+addItem = (orig => key => { const had = story.items.includes(key); orig(key); if (!had) Audio.pickup(key); })(addItem);
+WORLD_MODS.push(['Klang', async () => { window.klang_ambient = klang_ambient; }]);
+WORLD_TICK.push(dt => {
+  const S = klang_S; if (!Audio.ctx) return;
+  if (!S.rendering && Audio.ctx.state === 'running') klang_renderAll();
+  if (S.pending.length && Audio.mus) for (const [lv, tr] of S.pending.splice(0)) Audio.mus.tracks[lv].push(tr); // fertige Stücke in die Musikauswahl
+  const menuOn = !state.started && $('start').classList.contains('show') && !S.intro; klang_menu(menuOn);
+  if (!state.started) return;
+  S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; } S.areaSince = (S.areaSince || 0) + 1;
+    const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = 3; } } // Ort gewechselt: langsam über
+  S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(8, 20); if (!state.talking && !ui.overlay) try { klang_ambient(); } catch (e) {} }
+});
+window.__klang = { S: klang_S, area: () => klang_area(), surface: i => klang_surface(i), render: n => klang_render(n) }; // Testzugriff
+// =====================================================================  TRAUM (Modul „traum“): Der Anfang – ein Traum, ein Rabe, die Abenteuerfibel
+// Luke ist nach Lucys Anruf („Haus Nummer 7. Der Keller.“) die ganze Nacht nach Lost Eyengless gefahren und am Ortsschild im Auto eingeschlafen.
+// Im Traum: die leere Straße seiner Kindheit im weißen Nebel. Ein Rabe landet auf einer Laterne und flüstert ihm zu, worum es geht –
+// Lucy hat sich versteckt, die Stadt versteckt ein Geheimnis, und Luke versteckt sich vor sich selbst. Er gibt ihm die Abenteuerfibel zurück,
+// das Heft, das Luke als Kind mit Jonas und Zayn vollgeschrieben hat: Darin steht ab jetzt jede Aufgabe und jeder Fund (Taste Tab).
+// Dann wacht Luke auf – nicht im Auto, sondern mitten auf der Straße, im Regen: „Huh…? Warum stehe ich denn jetzt mitten in der Nacht bei Regen auf der Straße?“
+// Filmische Umsetzung: Kamerafahrten (setCamOverride), Letterbox, Traumfilter, eigener Nebel, echter Raben-Scan (Modul whiskey), Traummusik (Modul klang).
+const traum_S = { on: false, t: 0, shot: -1, book: null, skip: false, fog0: null, crow: null };
+const TRAUM_SHOTS = [ // Kamera von → nach, Blick, Dauer, Zeilen [Text, Sprecher, Zeitpunkt in s]
+  { from: [-44, 1.3, .6], to: [-18, 1.5, .2], look: 'perch', dur: 11, lines: [['Die Straße deiner Kindheit. Lost Eyengless. Kein Mensch. Kein Laut.', '', .8], ['Nur irgendwo ein Kind, das zählt. Leise. Bis siebzehn.', '', 6]] },
+  { rel: 'perch', from: [-6, -1.6, 5], to: [-3.4, -1.2, 3.2], look: 'crow', dur: 10, crow: 'land', lines: [['Luke.', 'DER RABE', 2.2], ['Du hast lange geschlafen. Siebzehn Jahre lang.', 'DER RABE', 4.4]] },
+  { rel: 'perch', from: [-1.7, -.3, 1.4], to: [-.95, -.05, .85], look: 'crow', dur: 13, lines: [['Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.', 'DER RABE', .5], ['In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind.', 'DER RABE', 5.6], ['Und du … vor dir selbst.', 'DER RABE', 10.4]] },
+  { rel: 'book', from: [1.1, 1.25, 1.9], to: [.5, .65, 1.0], look: 'book', dur: 16, crow: 'book', lines: [['Das ist deine Abenteuerfibel. Du hast sie als Kind geschrieben – mit Jonas und dem Kleinen.', 'DER RABE', 1], ['Sie schreibt weiter. Alles, was du findest. Jeden Weg, den du gehen musst.', 'DER RABE', 6.2], ['Sieh hinein, wenn du nicht weiterweißt. Sie gehört wieder dir.', 'DER RABE', 11]] },
+  { rel: 'book', from: [.38, .5, .62], to: [.28, .42, .46], look: 'crowHead', dur: 10, lines: [['Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist.', 'DER RABE', .6], ['Und finde heraus, wer du bist.', 'DER RABE', 5.2]] }];
+const TRAUM_BOOK = { x: .1, z: .2 }, TRAUM_PERCH = { x: 0, y: 3, z: 0 }; // zur Laufzeit: die Laterne an der Kreuzung
+function traum_css() { if (document.getElementById('traumCss')) return; const s = document.createElement('style'); s.id = 'traumCss';
+  s.textContent = `body.cine #hud, body.cine #crosshair, body.cine #prompt, body.cine #objective, body.cine #sideInfo, body.cine #hudHint, body.cine #batt, body.cine #kbHud, body.cine #toast { opacity: 0 !important; transition: opacity .6s; }
+  #traumBars::before, #traumBars::after { content: ''; position: fixed; left: 0; right: 0; height: 11vh; background: #000; z-index: 8; transition: transform 1.2s ease; } #traumBars::before { top: 0; transform: translateY(-100%); } #traumBars::after { bottom: 0; transform: translateY(100%); }
+  body.cine #traumBars::before, body.cine #traumBars::after { transform: none; }
+  #traumTitle { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 9; pointer-events: none; opacity: 0; transition: opacity 2s; font: italic 34px Georgia, serif; letter-spacing: .3em; color: #cfc6b2; text-shadow: 0 0 30px rgba(160,190,255,.35); }
+  #traumSkip { position: fixed; right: 26px; bottom: 13vh; z-index: 9; font: 11px Georgia, serif; letter-spacing: .3em; color: #6d6555; opacity: 0; transition: opacity 1s; } body.cine #traumSkip { opacity: .8; }`;
+  document.head.appendChild(s); for (const [id, txt] of [['traumBars', ''], ['traumTitle', 'Du träumst.'], ['traumSkip', 'KLICK · ÜBERSPRINGEN']]) { const d = document.createElement('div'); d.id = id; d.textContent = txt; document.body.appendChild(d); } }
+WORLD_MODS.push(['Traum', async () => {
+  traum_css(); const T = THREE;
+  // Die Fibel: ein altes Kinderheft mit festem Einband, das im Traum auf dem nassen Asphalt liegt
+  const cover = new T.MeshStandardMaterial({ roughness: .8, map: tex(cnv(256, (c, w) => { c.fillStyle = '#5a2a22'; c.fillRect(0, 0, w, w); for (let i = 0; i < 400; i++) { c.fillStyle = `rgba(0,0,0,${rand(.02, .08)})`; c.fillRect(rand(0, w), rand(0, w), rand(2, 18), 1); }
+    c.strokeStyle = '#c9a36a'; c.lineWidth = 4; c.strokeRect(14, 14, w - 28, w - 28); c.fillStyle = '#e8dcc0'; c.font = 'bold 26px "Comic Sans MS", cursive'; c.textAlign = 'center'; c.fillText('MEINE', w / 2, 92); c.fillText('ABENTEUER-', w / 2, 128); c.fillText('FIBEL', w / 2, 164);
+    c.font = '18px "Comic Sans MS", cursive'; c.fillStyle = '#d88a70'; c.fillText('GEHEIM!!', w / 2, 210); }), true) });
+  const pages = new T.MeshStandardMaterial({ color: 0xe6dcc4, roughness: 1 });
+  const book = new T.Group(); const b = new T.Mesh(new T.BoxGeometry(.22, .03, .3), [pages, pages, cover, pages, pages, pages]); book.add(b); book.position.set(TRAUM_BOOK.x, .017, TRAUM_BOOK.z); book.rotation.y = .5; book.visible = false; book.userData.noCol = true; scene.add(book); traum_S.book = book;
+  modItem('fibel', 'Abenteuerfibel', 'Dein Kinderheft, fester roter Einband, auf dem Deckel: MEINE ABENTEUERFIBEL – GEHEIM!! Früher standen eure Abenteuer darin. Jetzt schreibt es weiter: jede Aufgabe, jeder Fund. [Tab]', 'paper');
+}]);
+// Neuer Anfang statt der Texttafel: Traum → Aufwachen auf der Straße
+runIntro = async function traum_intro() {
+  const S = traum_S; if (S.on) return; S.on = true; S.skip = false; S.t = 0; S.shot = -1; if (typeof klang_S !== 'undefined') klang_S.intro = true;
+  $('start').classList.remove('show'); Audio.init(); menu.attract = false; document.body.classList.remove('menu'); document.body.classList.add('cine');
+  player.pos.set(-66, 0, 2); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
+  $('fade').style.transition = 'none'; $('fade').style.background = '#000'; $('fade').style.opacity = 1;
+  const title = $('traumTitle'); title.style.opacity = 1; Audio.whisper(-66, 1.6, 3, 2.6); if (typeof klang_dream === 'function') klang_dream(true);
+  S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; scene.fog.color.set(0x8a93a0); scene.fog.density = .05; renderer.domElement.style.filter = 'grayscale(.6) brightness(1.3) contrast(.86) blur(.4px)';
+  if (Audio.rain) Audio.rain.gain.setTargetAtTime(.02, Audio.ctx.currentTime, .5);
+  { const L = [...lamps].sort((a, b) => Math.hypot(a.wx, a.wz) - Math.hypot(b.wx, b.wz))[0]; if (L) { TRAUM_PERCH.x = L.wx; TRAUM_PERCH.z = L.wz; TRAUM_PERCH.y = Math.max(2.4, typeof whiskey_perch === 'function' ? whiskey_perch(L.wx, L.wz) : 3); TRAUM_BOOK.x = L.wx + 1.3; TRAUM_BOOK.z = L.wz + 1.1; } }
+  S.book.position.set(TRAUM_BOOK.x, .017, TRAUM_BOOK.z); S.book.visible = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; S.crow = W && W.g ? W : null;
+  if (S.crow) { S.crow.g.visible = true; S.crow.g.position.set(-30, 9, -20); S.crow.mode = 'intro'; }
+  const skip = () => { S.skip = true; }; $('introSeq').classList.remove('show'); renderer.domElement.addEventListener('pointerdown', skip, { once: true }); document.addEventListener('keydown', e => { if (e.code === 'Escape' || e.code === 'Space') skip(); }, { once: true });
+  await wait(3200); if (!S.skip) { title.style.opacity = 0; await wait(1400); }
+  $('fade').style.transition = 'opacity 2.2s'; $('fade').style.opacity = 0; S.shot = 0; S.t = 0; traum_lines();
+  setCamOverride((cam, dt) => traum_cam(cam, dt));
+};
+function traum_lines() { const sh = TRAUM_SHOTS[traum_S.shot]; if (!sh) return; const id = traum_S.shot;
+  for (const [txt, who, at] of sh.lines) setTimeout(() => { if (traum_S.shot === id && !traum_S.skip) { subtitle(`<i>${txt}</i>`, Math.max(3600, txt.length * 58), who); if (who) { if (traum_S.crow) Audio.whisper(traum_S.crow.g.position.x, traum_S.crow.g.position.y, traum_S.crow.g.position.z, 1.4); } } }, at * 1000); }
+function traum_crowPos(what) { const S = traum_S, W = S.crow; if (!W) return;
+  if (what === 'land') { const p = TRAUM_PERCH; if (typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(p.x, p.y, p.z), () => { if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', .3); });
+    else W.g.position.set(p.x, p.y, p.z); Audio.flap(p.x, p.y, p.z); setTimeout(() => Audio.caw(p.x, p.y, p.z), 1800); }
+  if (what === 'book') { if (typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(TRAUM_BOOK.x + .05, .05, TRAUM_BOOK.z + .02), () => { if (typeof whiskey_play === 'function') whiskey_play('Hop', .2, true); }); Audio.flap(TRAUM_BOOK.x, .6, TRAUM_BOOK.z); } }
+const _trV = new THREE.Vector3();
+function traum_cam(cam, dt) {
+  const S = traum_S; if (!S.on) return; S.t += dt; const sh = TRAUM_SHOTS[S.shot]; if (!sh) return;
+  if (S.crow && S.crow.mx) S.crow.mx.update(dt); if (S.crow && S.crow.fl && typeof whiskey_S !== 'undefined') { /* Flug läuft im Modul whiskey nur mit gestartetem Spiel – hier selbst fortschreiben */ const F = S.crow.fl, g = S.crow.g; F.t = Math.min(1, F.t + dt / F.dur); const k = F.t, a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
+    g.position.set(a * F.from.x + b * F.ctrl.x + c * F.to.x, a * F.from.y + b * F.ctrl.y + c * F.to.y, a * F.from.z + b * F.ctrl.z + c * F.to.z); if (F.t >= 1) { S.crow.fl = null; F.then && F.then(); } }
+  if (S.t === dt || S.shotStarted !== S.shot) { S.shotStarted = S.shot; if (sh.crow) traum_crowPos(sh.crow); }
+  const k = Math.min(1, S.t / sh.dur), e = k * k * (3 - 2 * k), o = sh.rel === 'perch' ? [TRAUM_PERCH.x, TRAUM_PERCH.y, TRAUM_PERCH.z] : sh.rel === 'book' ? [TRAUM_BOOK.x, 0, TRAUM_BOOK.z] : [0, 0, 0];
+  cam.position.set(o[0] + sh.from[0] + (sh.to[0] - sh.from[0]) * e, Math.max(.25, o[1] + sh.from[1] + (sh.to[1] - sh.from[1]) * e), o[2] + sh.from[2] + (sh.to[2] - sh.from[2]) * e);
+  if (sh.look === 'crow' && S.crow) _trV.copy(S.crow.g.position).add({ x: 0, y: .25, z: 0 }); else if (sh.look === 'crowHead' && S.crow) _trV.copy(S.crow.g.position).add({ x: 0, y: .32, z: 0 }); else if (sh.look === 'book') _trV.set(TRAUM_BOOK.x, .05, TRAUM_BOOK.z); else if (sh.look === 'perch') _trV.set(TRAUM_PERCH.x, 1.6, TRAUM_PERCH.z); else _trV.set(...(Array.isArray(sh.look) ? sh.look : [0, 1, 0]));
+  cam.lookAt(_trV); cam.rotateZ(Math.sin(S.t * .4) * .02); if (typeof PERF_CULL !== 'undefined' && S.t < dt * 1.5) PERF_CULL.t = 0;
+  if (S.skip || S.t >= sh.dur) { if (S.skip || S.shot >= TRAUM_SHOTS.length - 1) return traum_wake(); S.shot++; S.t = 0; traum_lines(); }
+}
+async function traum_wake() {
+  const S = traum_S; if (S.waking) return; S.waking = true;
+  if (!S.skip) { Audio.caw(0, .6, .4); Audio.scareSound('whisperBurst'); glitchV = 1; } $('fade').style.transition = 'opacity .25s'; $('fade').style.background = '#fff'; $('fade').style.opacity = 1; await wait(600);
+  setCamOverride(null); S.on = false; document.body.classList.remove('cine'); renderer.domElement.style.filter = ''; scene.fog.color.setHex(S.fog0.c); scene.fog.density = S.fog0.d; S.book.visible = false;
+  if (typeof klang_dream === 'function') klang_dream(false); if (typeof klang_S !== 'undefined') klang_S.intro = false;
+  if (S.crow) { S.crow.g.visible = false; S.crow.mode = 'gone'; S.crow.fl = null; }
+  $('fade').style.background = '#000'; await wait(500);
+  window.__traumWake = () => traum_awake(); beginGame();
+}
+async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
+  window.__traumWake = null; shake = .03; Audio.heart(); if (Audio.rain) Audio.rain.gain.setTargetAtTime(.5, Audio.ctx.currentTime, 1.5); addItem('fibel');
+  state.talking = true;
+  await say([['Huh…? Warum stehe ich denn jetzt mitten in der Nacht bei Regen auf der Straße?', 5200, 'LUKE'], ['Das Auto … steht noch am Ortsschild. Ich bin hergelaufen. Im Schlaf.', 4600, 'LUKE'],
+    ['In der Jackentasche: ein Kinderheft mit rotem Einband. Meine Abenteuerfibel. Die hab ich seit zwanzig Jahren nicht gesehen.', 5600]]);
+  state.talking = false; questPop('ABENTEUERFIBEL', 'Taste Tab – Aufgaben, Funde, Inventar, Fotos');
+  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Und jetzt träume ich von Raben.', 0, 3); }, 2500);
+  story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
+}
+window.__traum = { S: traum_S, start: () => runIntro() }; // Testzugriff
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
@@ -10791,7 +11065,7 @@ function perfMergeGroups(g) {
 function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
 // 2) Instanz-Gruppen (Wälder, Gräser, tote Sträucher mit bis zu 105 000 Dreiecken je Strauch), die über mehr als PERF_CULL.span m verteilt sind: nur Instanzen im Nebel-Sichtbereich zeichnen.
 //    Kollision nutzt eigene Kopien der Matrizen und ist davon unberührt. Schreibt ein Modul selbst in die Instanzen, wird die Auslese dort abgeschaltet.
-const PERF_CULL = { R: 65, span: 30, every: .25, t: 0, list: [], FOG_R: 70, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) > 98 %
+const PERF_CULL = { R: 58, span: 30, every: .25, t: 0, list: [], FOG_R: 62, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) ≥ 98 % (58 m: 1,9 % sichtbar)
 scene.traverse(o => { if (!o.isInstancedMesh || o.count < 4 || o.userData.noCull || o.frustumCulled === false) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
   if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const n = o.count, all = o.instanceMatrix.array.slice(0, n * 16), col = o.instanceColor ? o.instanceColor.array.slice(0, n * 3) : null, cx = new Float32Array(n), cz = new Float32Array(n), rr = new Float32Array(n), m = new THREE.Matrix4();
   for (let i = 0; i < n; i++) { m.fromArray(all, i * 16); const e = m.elements; cx[i] = e[12]; cz[i] = e[14]; rr[i] = o.geometry.boundingSphere.radius * m.getMaxScaleOnAxis(); }
@@ -10914,7 +11188,7 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">F</kbd></span><span>Taschenlampe</span>
   <span><kbd class="k">R</kbd></span><span>Batterie wechseln</span>
   <span><kbd class="k">G</kbd></span><span>Lichtstein hochhalten (Kinderblick)</span>
-  <span><kbd class="k">TAB</kbd></span><span>Tagebuch: Aufgaben, Inventar, Funde, Fotos</span>
+  <span><kbd class="k">TAB</kbd></span><span>Abenteuerfibel: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
 function saveSettings() { try { localStorage.setItem('ham_settings', JSON.stringify(settings)); } catch (e) {} document.documentElement.style.setProperty('--subScale', settings.sub); }
@@ -10998,7 +11272,7 @@ function update(dt, t) {
   player.bob += dt * spd * 2.35;
   const si = Math.floor(player.bob / PI);
   const rect = indoorRect(), indoor = state.inBasement || !!rect;
-  if (si !== player.stepIdx) { player.stepIdx = si; if (spd > .6) Audio.step(indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
+  if (si !== player.stepIdx) { player.stepIdx = si; if (spd > .6) Audio.step(stepSurface(indoor)); }
   const amp = (settings.bob ? .042 : 0) * Math.min(spd / 4, 1);
   const floorY = rect ? rect.y : 0;
   if (!mantle && !scripted) {
@@ -11010,7 +11284,7 @@ function update(dt, t) {
         if (player.pos.y + HEAD_CLEAR > cy) { player.pos.y = cy - HEAD_CLEAR; vy = 0; Audio.thump(player.pos.x, cy, player.pos.z); shake = Math.max(shake, .008); } }
       if (player.pos.y < floorY) player.pos.y = floorY;
       const g = groundAt(floorY);
-      if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; if (vy < -4) { Audio.step(indoor ? 'wood' : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); shake = Math.max(shake, .012); } } player.pos.y = g; vy = 0; }
+      if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; if (vy < -4) { Audio.step(stepSurface(indoor)); shake = Math.max(shake, .012); } } player.pos.y = g; vy = 0; }
       else if (player.pos.y > g + .05) grounded = false;
     }
   }

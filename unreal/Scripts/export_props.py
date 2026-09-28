@@ -26,6 +26,7 @@ ROLES = {
     'wrack':          (['scrap_metal', 'metal_scrap', 'metal_debris', 'debris_metal', 'sheet_metal', 'wreck', 'metal_panel', 'scrap'], ['car', 'wood'], 40, 250),
     'leiter':         (['ladder', 'leiter', 'rung_ladder', 'maintenance_ladder'], ['step_ladder', 'wood'], 150, 600),
     'totem':          (['totem', 'effigy', 'idol', 'shrine', 'wicker', 'voodoo', 'stick_figure', 'fetish', 'ritual'], ['fire'], 50, 260),
+    'schluesselteil': (['key_old', 'old_key', 'antique_key', 'skeleton_key', 'iron_key', 'key'], ['keyboard', 'monkey', 'turkey', 'keypad'], 6, 25),
 }
 
 def words(path):

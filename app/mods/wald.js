@@ -9,7 +9,7 @@ const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
   [[30, 96], [29.5, 104], [27, 111], [21, 118], [18.5, 124], [23, 130], [31, 134], [41, 138], [50, 142.5], [57, 146.8]],
   [[21, 118], [13, 115], [6, 113]], [[18.5, 124], [8, 128], [-4, 133], [-15, 138], [-21, 139.3]],
   [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]]];
-const wald_S = { ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
+const wald_S = { chunks: [], chunkT: 0, ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
 function wald_in(x, z) { return x > WALD.x0 && x < WALD.x1 && z > WALD.z0 && z < WALD.z1; }
 function wald_pathDist(x, z) { let d = 1e9; for (const P of WALD_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
   d = Math.min(d, Math.hypot(x - ax - vx * k, z - az - vz * k)); } return d; }
@@ -20,11 +20,14 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   const S = wald_S, T = THREE, m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), new T.Quaternion().setFromEuler(new T.Euler(tx, ry, tz)), new T.Vector3(s, s, s));
   const [t1, t3, fence, elder, rasp, wg1, wg2] = await Promise.all([msBake('deadtree1'), msBake('deadtree3'), msBake('fencepost'), msBake('elderberry'), msBake('raspberry'), msBake('wildgrass1'), msBake('wildgrass2')]);
   for (const p of [...t1, ...t3]) { p.mat = p.mat.clone(); p.mat.side = T.DoubleSide; p.mat.color.setScalar(.5); }
-  const chunk = (parts, list, shadow) => { const out = []; for (let i = 0; i < list.length; i += 900) out.push(...msInst(parts, list.slice(i, i + 900), { shadow })); out.forEach(im => scene.add(im)); return out; };
+  // Blöcke von 20 m: jeder Block wird nach Kameraabstand ein-/ausgeblendet (vis) und wirft nur nah Schatten (sh) – der Nebel verschluckt ohnehin alles ab ~50 m
+  const chunk = (parts, list, shadow, vis = 56, sh = 24) => { const cells = new Map(), v = new T.Vector3();
+    for (const m of list) { v.setFromMatrixPosition(m); const k = Math.floor(v.x / 20) + ',' + Math.floor(v.z / 20); let c = cells.get(k); if (!c) cells.set(k, c = { x: 0, z: 0, n: 0, L: [] }); c.L.push(m); c.x += v.x; c.z += v.z; c.n++; }
+    for (const c of cells.values()) { const meshes = msInst(parts, c.L, { shadow }); S.chunks.push({ x: c.x / c.n, z: c.z / c.n, meshes, vis, sh: shadow ? sh : 0 }); } };
   // --- Bäume: dicht im Wald, noch dichter als Gürtel hinter dem Grenzzaun
   const A = [], B = [];
-  for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 3.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 3.3) {
-    const x = gx + rand(-1.3, 1.3), z = gz + rand(-1.3, 1.3), ins = wald_in(x, z);
+  for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 4.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 4.3) {
+    const x = gx + rand(-1.7, 1.7), z = gz + rand(-1.7, 1.7), ins = wald_in(x, z);
     if (ins) { if (!wald_free(x, z) || Math.random() < .12) continue; if (Math.abs(x - WALD.x0) < 1.3 || Math.abs(x - WALD.x1) < 1.3 || Math.abs(z - WALD.z1) < 1.3) continue; }
     else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; }
     (Math.random() < .55 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.85, 1.55), rand(-.07, .07), rand(-.07, .07)));
@@ -33,16 +36,16 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   // Der Baum für Cleos Baumhaus: groß, gerade
   chunk(t1, [m4(WALD.tree.x, -.1, WALD.tree.z + 1.2, .4, 1.9)], true);
   // --- Unterholz (weich), Gras
-  const eA = elder.filter(p => /VarE_LOD1$|VarG$/.test(p.name)), eR = rasp.filter(p => /VarA$/.test(p.name)), SH = [], SR = [], G1 = [], G2 = [];
-  for (let i = 0; i < 1400; i++) { const x = rand(WALD.x0 + 1, WALD.x1 - 1), z = rand(WALD.z0 + 1, WALD.z1 - 1); const pd = wald_pathDist(x, z); if (pd < 1.6) continue;
+  const eA = elder.filter(p => /VarG_LOD1$/.test(p.name)), eR = rasp.filter(p => /VarB_LOD1$/.test(p.name)), gA = wg1.filter(p => /VarG_LOD1$/.test(p.name)), gB = wg2.filter(p => /VarB_LOD1$/.test(p.name)), SH = [], SR = [], G1 = [], G2 = []; // leichte Detailstufen der Scans
+  for (let i = 0; i < 1100; i++) { const x = rand(WALD.x0 + 1, WALD.x1 - 1), z = rand(WALD.z0 + 1, WALD.z1 - 1); const pd = wald_pathDist(x, z); if (pd < 1.6) continue;
     if (Math.hypot(x - WALD.hut.x, z - WALD.hut.z) < 4.5 || Math.hypot(x - WALD.tree.x, z - WALD.tree.z) < 2.5) continue;
     const r = Math.random(); if (r < .28) SH.push(m4(x, 0, z, rand(0, 6.28), rand(.7, 1.2))); else if (r < .45) SR.push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.3))); else (r < .72 ? G1 : G2).push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.4))); }
-  if (eA.length) chunk(eA.slice(0, 1), SH, false); if (eR.length) chunk(eR.slice(0, 1), SR, false); chunk(wg1, G1, false); chunk(wg2, G2, false);
+  if (eA.length) chunk(eA, SH, false, 42); if (eR.length) chunk(eR, SR, false, 40); if (gA.length) chunk(gA, G1, false, 34); if (gB.length) chunk(gB, G2, false, 34);
   // --- Grenzzaun (West, Ost, Nord) – sichtbar, alt, schief
-  { const F = fence.map(() => []); const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
-      for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F[Math.floor(rand(0, F.length))].push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
+  { const F = []; const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
+      for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F.push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
     run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, WALD.x1, WALD.z1); run(WALD.x1, WALD.z1, WALD.x1, 98.2);
-    fence.forEach((p, i) => { if (F[i].length) msInst([p], F[i], { shadow: true }).forEach(im => scene.add(im)); }); }
+    chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
   try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
     const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; } catch (e) { console.warn('Wald: Boden', e); }
@@ -124,11 +127,12 @@ function wald_pup() {
   S.wolves.forEach((W, i) => { W.st = 'leave'; W.t = 2 + i * .6; });
   setTimeout(() => { leben_howl(WALD.wolf.x + 10, 1, WALD.wolf.z); setTimeout(() => leben_howl(WALD.wolf.x + 14, 1, WALD.wolf.z - 3), 1400); }, 1600);
   openNote('Ein Taschenmesser', 'Im Draht der Schlinge steckt ein Taschenmesser, rostig, zugeklappt. In den Griff hat jemand mit der Spitze geritzt:\n\n<b>JONAS W.</b>\n\nJonas. Zayns großer Bruder. Dein bester Freund, damals. Er war hier draußen – irgendwann nach 2009. Er hat seinen Bruder gesucht. Allein.');
-  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6, 3);
+  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6000, 3);
 }
 WORLD_TICK.push((dt, t) => {
   const S = wald_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;
-  const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', .8, 2); } }
+  S.chunkT -= dt; if (S.chunkT < 0) { S.chunkT = .25; const cx = camera.position.x, cz = camera.position.z; for (const c of S.chunks) { const d = Math.hypot(c.x - cx, c.z - cz), v = d < c.vis; for (const m of c.meshes) { m.visible = v; m.castShadow = d < c.sh; } } }
+  const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', 800, 2); } }
   if (S.noBeasts && leben_S.ready && !S.beastTry) { S.beastTry = true; S.noBeasts = false; wald_beasts().catch(e => console.warn('Wald: Tiere', e)); }
   for (const V of S.beasts) if (V.st !== 'gone') V.g.visible = near; // weit weg: nicht zeichnen
   if (!near) return;
@@ -145,7 +149,7 @@ WORLD_TICK.push((dt, t) => {
     else if (D.st === 'look') { D.g.rotation.y = leben_ang(D.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 2)); D.t -= dt;
       if (D.t < 0) { D.st = 'lead'; D.tx = WALD.tree.x + 3; D.tz = WALD.tree.z - 4; D.sp = 1.3; leben_play(D, 'WalkGraze', .4); sideStart('wald_hirsch');
         story.lore.push({ key: 'wald_hirsch', title: 'Die Lichtung', html: 'Du bist leise gekommen, im Dunkeln. Der Hirsch hat dich angesehen – lange, ohne Angst. Dann ist er nach Westen gegangen, langsam, als sollst du folgen.' });
-        sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', .5, 3); } }
+        sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', 500, 3); } }
     else if (D.st === 'lead') { if (leben_beastMove(D, dt) || d > 40) { D.st = 'gone'; D.g.visible = false; D.t = 120; } }
     else if (D.st === 'flee') { leben_beastMove(D, dt); if (d > 45 || !leben_free(p.x + Math.sin(D.g.rotation.y) * 1.5, p.z + Math.cos(D.g.rotation.y) * 1.5, .7, .4)) { D.st = 'gone'; D.g.visible = false; D.t = rand(60, 120); } } }
   // Fuchs: trägt den Schuh. Kommt man näher, läuft er zu seinem Bau, lässt den Schuh fallen und verschwindet im Unterholz

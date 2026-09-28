@@ -89,7 +89,7 @@ function zayn_takePhotos() {
   const out = [];
   try {
     for (const [zz, hide, what] of shots) {
-      if (zz) { pc.position.set(31.2, 1.3, 60.5); pc.lookAt(31, 1.1, 92); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      if (zz) { pc.position.set(26.6, 1.35, 61.4); pc.lookAt(32.4, 1, 88); } // links an der Laterne (31 | 63,5) vorbei else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
       camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
@@ -132,7 +132,7 @@ function zayn_solved() {
   zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Er wollte, dass ich ihm folge.“');
   story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, die Bank, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
   openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
-  if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1.2, 3);
+  if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1200, 3);
 }
 // ---- 3) Spur
 function zayn_shoeDropped(shoe) { const S = zayn_S; const hit = box(.4, .3, .4, shoe.position.x, .12, shoe.position.z, hidden, { cast: false }); S.spots.push({ k: 'schuh', x: shoe.position.x, z: shoe.position.z, mesh: shoe, hit });
@@ -152,7 +152,7 @@ function zayn_drawing() {
     story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nIhr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden, habt euch auseinandergelebt. Und Zayn wurde einfach der kleine Bruder, den irgendwann keiner mehr beachtet hat.' });
     state.talking = true; setTimeout(async () => { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
       ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Ihr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden. Und Zayn war nur noch der kleine Bruder, den keiner mehr beachtet hat.', 6400]]);
-      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1, 3); }, 300); });
+      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1000, 3); }, 300); });
 }
 async function zayn_radio() {
   const S = zayn_S, H = WALD.hut; if (S.radioBusy) return;
@@ -182,6 +182,6 @@ WORLD_TICK.push((dt, t) => {
   if (open && S.stage < 1 && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
   if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
   const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
-  if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', .3, 3); } else if (!inHut) S.hutIn = false;
+  if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', 300, 3); } else if (!inHut) S.hutIn = false;
 });
 window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff

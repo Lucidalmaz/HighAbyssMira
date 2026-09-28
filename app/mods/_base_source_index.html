@@ -166,6 +166,12 @@
   #start h1 { font-size: clamp(38px, 6.2vw, 78px); letter-spacing: .3em; margin: 0; color: #d9cdb0; text-shadow: 0 0 40px rgba(201,163,106,.25), 0 2px 0 #000; position: relative; white-space: nowrap; text-align: left; }
   #start h1 .l { display: block; font-size: .5em; letter-spacing: .58em; color: var(--gold); margin-bottom: 6px; opacity: .85; }
   #start h1.glitch { animation: glt .38s steps(4); }
+  /* Titel: MIRA groß, blasse Buchstaben mit blutrotem Glühen, das unruhig flackert; jeder Buchstabe zittert für sich */
+  #start h1 .m { display: block; font-size: 1.9em; letter-spacing: .16em; line-height: .95; color: #e6dcc6; text-shadow: 0 0 18px rgba(150,20,14,.55), 0 0 60px rgba(120,10,8,.45), 0 3px 0 #000, 0 0 2px #fff; }
+  #start h1 .m i { font-style: normal; display: inline-block; animation: mflick 7s infinite; }
+  #start h1 .m i:nth-child(2) { animation-delay: -2.3s; animation-duration: 9s; } #start h1 .m i:nth-child(3) { animation-delay: -4.1s; animation-duration: 6.2s; } #start h1 .m i:nth-child(4) { animation-delay: -1.2s; animation-duration: 11s; }
+  @keyframes mflick { 0%, 91%, 100% { opacity: 1; transform: none; filter: none; } 92% { opacity: .35; transform: translate(1px, -1px) skewX(-4deg); filter: blur(1px); } 93% { opacity: 1; } 95% { opacity: .6; transform: translate(-2px, 1px); } 96% { opacity: 1; transform: none; } }
+  #start .dir { font-family: Georgia, serif; font-style: italic; font-size: 13px; letter-spacing: .28em; color: #7a6f5c; margin: -30px 0 40px; } #start .dir b { font-style: normal; font-weight: 400; letter-spacing: .42em; color: #a8392c; text-shadow: 0 0 10px rgba(160,30,20,.45); }
   @keyframes glt { 0% { transform: translate(-4px, 0) skewX(-6deg); text-shadow: -4px 0 #b83a2e, 4px 0 #3a6bb8; } 40% { transform: translate(3px, 1px) skewX(4deg); text-shadow: 3px 0 #b83a2e, -3px 0 #3a6bb8; } 70% { transform: translate(-2px, 0); text-shadow: -2px 0 #b83a2e, 2px 0 #3a6bb8; } 100% { transform: none; text-shadow: 0 0 40px rgba(201,163,106,.25), 0 2px 0 #000; } }
   #start .orn { width: 320px; height: 14px; margin: 18px 0 8px; opacity: .8; }
   #start .sub { font-family: Georgia, serif; font-size: 11px; letter-spacing: .5em; color: #8b7f68; margin: 0 0 42px; }
@@ -226,6 +232,7 @@
   #editor .tx .orig { color: #8b7f68; font-size: 13px; margin-bottom: 4px; white-space: pre-wrap; }
 </style>
 <script src="sounds.js"></script>
+<script src="sounds_extra.js"></script>
 <script src="justin.js"></script>
 <script type="importmap">
 { "imports": {
@@ -242,14 +249,14 @@
   <div id="prompt"><kbd>E</kbd><span id="promptText"></span></div>
   <div id="toast"></div>
   <div id="subtitle"></div>
-  <div id="hudHint"><kbd class="k">TAB</kbd>TAGEBUCH</div>
+  <div id="hudHint"><kbd class="k">TAB</kbd>ABENTEUERFIBEL</div>
 </div>
 <div id="fade"></div>
 
 <div id="note" class="overlay"><div class="paper"></div><div class="hint">[E] · [ESC] SCHLIESSEN</div></div>
 <div id="keypad" class="overlay"><div class="box"><div id="kpDisplay"></div><div class="grid"></div></div><div class="hint">ZIFFERN · ENTER · ESC</div></div>
 <div id="journal" class="overlay"><div class="book"><div id="jTabs"><button data-t="aufgaben">AUFGABEN</button><button data-t="inventar">INVENTAR</button><button data-t="funde">FUNDE</button><button data-t="fotos">FOTOS</button><button data-t="fallwand">FALLWAND</button></div><div id="jBody"></div></div><div class="hint">[TAB] · [ESC] SCHLIESSEN</div></div>
-<div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">TAGEBUCH</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
+<div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">ABENTEUERFIBEL</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
   <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AM ANFANG JEDES KAPITELS</div></div></div>
 <div id="endcard" class="overlay">
   <h1>KAPITEL 1 — ENDE</h1>
@@ -262,9 +269,9 @@
 <div id="start" class="overlay show">
   <div class="shade"></div><div class="fog"></div><div class="fog2"></div><div class="vig"></div>
   <div id="menu">
-    <h1><span class="l">HIGH ABYSS</span>MIRA</h1>
+    <h1><span class="l">HIGH ABYSS</span><span class="m"><i>M</i><i>I</i><i>R</i><i>A</i></span></h1>
     <svg class="orn" viewBox="0 0 320 14"><path d="M0 7h132M188 7h132" stroke="#c9a36a" stroke-width="1"/><path d="M160 1l6 6-6 6-6-6z" fill="none" stroke="#c9a36a"/><circle cx="146" cy="7" r="1.5" fill="#c9a36a"/><circle cx="174" cy="7" r="1.5" fill="#c9a36a"/></svg>
-    <div class="sub">EIN HORRORSPIEL · LOST EYENGLESS</div>
+    <div class="sub">EIN HORROR, DER DICH DAS FÜRCHTEN LEHRT</div><div class="dir">directed by <b>LUCIDWORKZ</b></div>
     <div id="loadBar"><i></i></div><div id="goText">LADE …</div>
     <div id="mainMenu" style="display:none">
       <button id="mCont" style="display:none">Weiterspielen<small id="mContSub"></small></button>
@@ -277,7 +284,7 @@
     </div>
   </div>
   <div id="subPanel" class="panel"></div>
-  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.0</span><span>KAPITEL 1–3 · LOST EYENGLESS</span></div>
+  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.1</span><span>KAPITEL 1–4 · LOST EYENGLESS · © LUCIDWORKZ</span></div>
 </div>
 <div id="introSeq"><div id="intro"></div><div class="skip">KLICKEN ZUM ÜBERSPRINGEN</div></div>
 
@@ -1389,8 +1396,8 @@ stage('Geschichte laden'); await wait(30);
 // Mischregeln gegen Überladung: gleichzeitige Einmal-Geräusche, ab denen leise weggelassen werden · Mindestabstände (s)
 const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 6, stingerGap: 8 };
 // Musik: Spannungsschwellen (fear 0…1), Haltezeit vor Entspannung, Pausen (s) zwischen Phrasen je Stufe, Grundlautstärke
-const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [45, 80], restAfter: [25, 50],
-  rest: { calm: [70, 150], uneasy: [25, 55], danger: [0, 2] }, gain: .9 };
+const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [6, 12], restAfter: [12, 22],
+  rest: { calm: [12, 28], uneasy: [10, 22], danger: [0, 2] }, gain: .9 }; // kurze Pausen: die Welt atmet, verstummt aber nie
 const ctx0 = A => A.ctx;
 const Audio = {
   ctx: null,
@@ -1464,7 +1471,7 @@ const Audio = {
       this.loop('crickets', { dest: this.crickets, gain: 1, lp: 5200 });
       const w1 = this.loop(this.buf.wind1 ? 'wind1' : 'wind2', { dest: this.wind, gain: .8, rate: .92 }); if (w1) this.lfo(.05, .35, w1.g.gain);
       const w2 = this.loop('wind2', { dest: this.wind, gain: .45, rate: .85 }); if (w2) this.lfo(.031, .3, w2.g.gain);
-      const ambient = () => { if (this.area === 'o' && Math.random() < .85) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
+      const ambient = () => { if (this.area === 'o' && !window.klang_ambient && Math.random() < .85) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
           if (r < .3) this.bark(Math.cos(a) * d, Math.sin(a) * d, Math.random() < .3); else if (r < .45) this.trainHorn(); else if (r < .8) this.treeCreak(rand(-40, 40), rand(-30, 30)); else this.bang(Math.cos(a) * 40, Math.sin(a) * 40, .3); }
         setTimeout(ambient, rand(18000, 45000)); };
       setTimeout(ambient, 12000);
@@ -1475,7 +1482,7 @@ const Audio = {
   setArea(indoor, basement) {
     if (!this.ctx) return; this.pendingArea = [indoor, basement]; this.area = basement ? 'b' : indoor ? 'i' : 'o'; if (!this.amb) return;
     const t = this.ctx.currentTime;
-    this.crickets.gain.setTargetAtTime(basement ? 0 : indoor ? .02 : .16, t, .8);
+    this.crickets.gain.setTargetAtTime(0, t, .8); // Novembernacht im Regen: keine Grillen
     this.wind.gain.setTargetAtTime(basement ? 0 : indoor ? .1 : .5, t, .8);
     this.rain.gain.setTargetAtTime(basement ? 0 : indoor ? .16 : .5, t, .5); this.rainLP.frequency.setTargetAtTime(indoor ? 700 : 9000, t, .4);
     this.rev.gain.setTargetAtTime(basement ? .5 : indoor ? .32 : .12, t, .3);
@@ -1577,14 +1584,15 @@ const Audio = {
       if (!M.cur) M.rest = up ? (M.level === 'danger' ? 0 : Math.min(M.rest, 4)) : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } // steigende Spannung: sofort bzw. bald, fallende: erst Stille
     if (M.level === 'off' || M.cur) return;
     M.rest -= dt; if (M.rest > 0) return;
-    const L = M.level, pool = M.tracks[L].filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : M.tracks[L][0];
+    const L = M.level, area = typeof klang_area === 'function' ? klang_area() : null, fit = M.tracks[L].filter(x => !x.area || x.area === area), own = fit.filter(x => x.area === area), use = own.length ? own : fit.filter(x => !x.area),
+      pool = use.filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : use[0];
     if (rec) { M.last = rec; M.cur = this.musicTrack(rec, L); }
     else M.cur = L === 'calm' ? (indoor ? null : this.phraseCalm()) : L === 'uneasy' ? this.phraseUneasy() : this.phraseDanger();
     if (!M.cur) M.rest = rand(20, 40);
   },
   musicTrack(rec, level) { const ctx = this.ctx, M = this.mus, src = ctx.createBufferSource(), g = ctx.createGain(), t = ctx.currentTime; src.buffer = rec.b; src.loop = level === 'danger';
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(rec.gain, t + 4); src.connect(g); g.connect(M.bus); src.start();
-    const h = { level, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); try { src.stop(n + f + .1); } catch (e) {} } };
+    const h = { level, area: rec.area || null, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); try { src.stop(n + f + .1); } catch (e) {} } };
     src.onended = () => { if (M.cur === h) { M.cur = null; M.rest = rand(...MUSIC.rest[level]); } }; return h; },
   // Synth-Ersatz: Phrasen mit festem Ende, danach Pause
   phrase(level, dur, build) { const ctx = this.ctx, M = this.mus, g = ctx.createGain(), t = ctx.currentTime, nodes = []; g.gain.value = 0; g.connect(M.bus);
@@ -1958,7 +1966,7 @@ interact(mailbox7, 'Briefkasten öffnen', () => {
 function doorAction(D, lockedText) {
   return () => {
     if (D.locked) return toast(lockedText);
-    D.set(!D.open); Audio.creak(.18);
+    D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18);
     if (D === door7 && D.open) setMain(2);
   };
 }
@@ -2147,12 +2155,13 @@ function beginGame() {
   Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie');
   $('fade').style.transition = 'none'; $('fade').style.opacity = 1; lockPointer();
   setTimeout(async () => { await fade(0, 2800); }, 250);
-  setTimeout(() => subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000), 1800);
+  setTimeout(() => { if (window.__traumWake) window.__traumWake(); else subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000); }, 1800); // Modul traum: Aufwachen nach dem Traum
   setTimeout(() => sideStart('home'), 8500); saveGame(1);
 }
 
 // =====================================================================  BEWEGUNG & KOLLISION
 const R = .3, vel = new THREE.Vector3(), wish = new THREE.Vector3();
+function stepSurface(indoor) { const k = typeof klang_surface === 'function' ? klang_surface(indoor) : null; return k || (indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
 // Fremdgesteuerte Bewegung (z. B. Leiter): scripted(dt) setzt player.pos selbst, Rückgabe false = fertig. Solange aktiv: keine Schwerkraft, keine Kollision.
 let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
@@ -4436,7 +4445,7 @@ function perfMergeGroups(g) {
 function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
 // 2) Instanz-Gruppen (Wälder, Gräser, tote Sträucher mit bis zu 105 000 Dreiecken je Strauch), die über mehr als PERF_CULL.span m verteilt sind: nur Instanzen im Nebel-Sichtbereich zeichnen.
 //    Kollision nutzt eigene Kopien der Matrizen und ist davon unberührt. Schreibt ein Modul selbst in die Instanzen, wird die Auslese dort abgeschaltet.
-const PERF_CULL = { R: 65, span: 30, every: .25, t: 0, list: [], FOG_R: 70, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) > 98 %
+const PERF_CULL = { R: 58, span: 30, every: .25, t: 0, list: [], FOG_R: 62, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) ≥ 98 % (58 m: 1,9 % sichtbar)
 scene.traverse(o => { if (!o.isInstancedMesh || o.count < 4 || o.userData.noCull || o.frustumCulled === false) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
   if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const n = o.count, all = o.instanceMatrix.array.slice(0, n * 16), col = o.instanceColor ? o.instanceColor.array.slice(0, n * 3) : null, cx = new Float32Array(n), cz = new Float32Array(n), rr = new Float32Array(n), m = new THREE.Matrix4();
   for (let i = 0; i < n; i++) { m.fromArray(all, i * 16); const e = m.elements; cx[i] = e[12]; cz[i] = e[14]; rr[i] = o.geometry.boundingSphere.radius * m.getMaxScaleOnAxis(); }
@@ -4559,7 +4568,7 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">F</kbd></span><span>Taschenlampe</span>
   <span><kbd class="k">R</kbd></span><span>Batterie wechseln</span>
   <span><kbd class="k">G</kbd></span><span>Lichtstein hochhalten (Kinderblick)</span>
-  <span><kbd class="k">TAB</kbd></span><span>Tagebuch: Aufgaben, Inventar, Funde, Fotos</span>
+  <span><kbd class="k">TAB</kbd></span><span>Abenteuerfibel: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
 function saveSettings() { try { localStorage.setItem('ham_settings', JSON.stringify(settings)); } catch (e) {} document.documentElement.style.setProperty('--subScale', settings.sub); }
@@ -4643,7 +4652,7 @@ function update(dt, t) {
   player.bob += dt * spd * 2.35;
   const si = Math.floor(player.bob / PI);
   const rect = indoorRect(), indoor = state.inBasement || !!rect;
-  if (si !== player.stepIdx) { player.stepIdx = si; if (spd > .6) Audio.step(indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
+  if (si !== player.stepIdx) { player.stepIdx = si; if (spd > .6) Audio.step(stepSurface(indoor)); }
   const amp = (settings.bob ? .042 : 0) * Math.min(spd / 4, 1);
   const floorY = rect ? rect.y : 0;
   if (!mantle && !scripted) {
@@ -4655,7 +4664,7 @@ function update(dt, t) {
         if (player.pos.y + HEAD_CLEAR > cy) { player.pos.y = cy - HEAD_CLEAR; vy = 0; Audio.thump(player.pos.x, cy, player.pos.z); shake = Math.max(shake, .008); } }
       if (player.pos.y < floorY) player.pos.y = floorY;
       const g = groundAt(floorY);
-      if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; if (vy < -4) { Audio.step(indoor ? 'wood' : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); shake = Math.max(shake, .012); } } player.pos.y = g; vy = 0; }
+      if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; if (vy < -4) { Audio.step(stepSurface(indoor)); shake = Math.max(shake, .012); } } player.pos.y = g; vy = 0; }
       else if (player.pos.y > g + .05) grounded = false;
     }
   }

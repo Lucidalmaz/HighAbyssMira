@@ -109,7 +109,7 @@ function visionen_end() {
   story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
   const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für ein Haus, in dem seit Jahren keiner mehr wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
     wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
-  if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1.2, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
+  if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1200, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
 }
 WORLD_MODS.push(['Visionen', async () => {
   const S = visionen_S;

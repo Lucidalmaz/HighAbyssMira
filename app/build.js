@@ -5,7 +5,7 @@ const SRC = process.env.HAM_SRC ? path.resolve(process.env.HAM_SRC) : path.join(
 const OUT = path.join(__dirname, 'game');
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
 const copy = (a, b) => fs.cpSync(a, b, { recursive: true });
-for (const f of ['sounds.js', 'justin.js']) if (fs.existsSync(path.join(SRC, f))) copy(path.join(SRC, f), path.join(OUT, f));
+for (const f of ['sounds.js', 'sounds_extra.js', 'justin.js']) if (fs.existsSync(path.join(SRC, f))) copy(path.join(SRC, f), path.join(OUT, f));
 if (fs.existsSync(path.join(SRC, 'assets'))) copy(path.join(SRC, 'assets'), path.join(OUT, 'assets'));
 // Three.js und Schriften lokal
 copy(path.join(__dirname, 'node_modules/three/build'), path.join(OUT, 'vendor/three/build'));
