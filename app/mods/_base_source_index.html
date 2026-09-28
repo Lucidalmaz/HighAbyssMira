@@ -4553,7 +4553,7 @@ let saveFlags = {}; try { saveFlags = JSON.parse(localStorage.getItem('ham_flags
 function saveFlag(k) { saveFlags[k] = true; try { localStorage.setItem('ham_flags', JSON.stringify(saveFlags)); } catch (e) {} }
 function menuSound() { try { Audio.init(); Audio.play('switch1', { gain: .18, rate: 1.6 }); } catch (e) {} }
 function showSub(html) { $('subPanel').innerHTML = html + '<div class="close"><button id="subClose">ZURÜCK</button></div>'; $('subPanel').classList.add('show'); $('subClose').onclick = e => { e.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); }; }
-$('mainMenu').querySelectorAll('button').forEach(b => { b.onmouseenter = () => { try { if (Audio.ctx && Audio.ctx.state === 'running') Audio.play('flick', { gain: .1 }); } catch (e) {} }; });
+$('mainMenu').querySelectorAll('button').forEach(b => { b.onmouseenter = () => { try { if (Audio.ctx && Audio.ctx.state === 'running') Audio.play('switch1', { gain: .05, rate: 1.7 }); } catch (e) {} }; });
 $('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
 { const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
 $('mCont').onclick = e => { e.stopPropagation(); continueGame(); };

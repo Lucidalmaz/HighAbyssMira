@@ -42,11 +42,13 @@ WORLD_MODS.push(['Figuren', async () => {
   }
 }]);
 // Pro Bild: sichtbare Echo-Gestalt je nach Größe (Kind < 0,8) auf das passende echte Modell umschalten, Animation weiterlaufen lassen
-WORLD_TICK.push(dt => {
+// auch direkt aufrufbar (z. B. vor einem Foto, das zwischen zwei Bildern gerendert wird)
+function figuren_sync(dt = 0) {
   for (const K of figuren_S.kids) {
     const kid = K.g.scale.x < .8, want = K.g.visible && (K.which === 'kind' ? kid : !kid); K.w.visible = want;
     const other = K.g.children.find(c => c !== K.w && !figuren_S.kids.some(x => x.w === c) && c.isObject3D && c.type !== 'Mesh'); // das Mannequin
     if (other && K.g.visible) other.visible = !figuren_S.kids.some(x => x.g === K.g && x.w.visible);
-    if (want) K.mx.update(dt);
+    if (want && dt) K.mx.update(dt);
   }
-});
+}
+WORLD_TICK.push(dt => figuren_sync(dt));

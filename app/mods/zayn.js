@@ -77,32 +77,32 @@ function zayn_bag() {
 function zayn_hideAt(x, z, r, onlyInst) { // alles in Reichweite kurz ausblenden; gibt eine Rücknahme zurück
   const undo = [], m4 = new THREE.Matrix4(), v = new THREE.Vector3(), bb = new THREE.Box3(), zero = new THREE.Matrix4().makeScale(0, 0, 0);
   scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || !o.visible) return;
-    if (o.isInstancedMesh) { for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (Math.hypot(v.x - x, v.z - z) < r) { const keep = m4.clone(); o.setMatrixAt(i, zero); o.instanceMatrix.needsUpdate = true;
-          undo.push(() => { o.setMatrixAt(i, keep); o.instanceMatrix.needsUpdate = true; const C = typeof PERF_CULL !== 'undefined' && PERF_CULL.list.find(c => c.o === o); if (C) C.ver = o.instanceMatrix.version + 1; }); } } return; }
+    if (o.isInstancedMesh) { for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (Math.hypot(v.x - x, v.z - z) < r) { const keep = m4.clone(), C = typeof PERF_CULL !== 'undefined' && PERF_CULL.list.find(c => c.o === o); o.setMatrixAt(i, zero); o.instanceMatrix.needsUpdate = true; if (C) C.ver = o.instanceMatrix.version;
+          undo.push(() => { o.setMatrixAt(i, keep); o.instanceMatrix.needsUpdate = true; if (C) C.ver = o.instanceMatrix.version; }); } } return; } // Auslese (PERF_CULL) bleibt aktiv und baut beim nächsten Durchlauf aus der Originalliste neu auf
     if (onlyInst) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); const s = bb.getSize(v);
     if (s.x > 6 || s.z > 6 || s.y > 6) return; bb.getCenter(v); if (Math.hypot(v.x - x, v.z - z) < r) { o.visible = false; undo.push(() => { o.visible = true; }); } });
   return () => undo.forEach(f => f()); }
 function zayn_takePhotos() {
-  const T = THREE, W = 400, Hh = 300, rt = new T.WebGLRenderTarget(W, Hh), pc = new T.PerspectiveCamera(58, W / Hh, .1, 160), buf = new Uint8Array(W * Hh * 4);
+  const T = THREE, W = 400, Hh = 300, rt = new T.WebGLRenderTarget(W, Hh), pc = new T.PerspectiveCamera(66, W / Hh, .1, 160), buf = new Uint8Array(W * Hh * 4);
   const c0 = camera.position.clone(), q0 = camera.quaternion.clone(), fr0 = { p: flashRig.position.clone(), q: flashRig.quaternion.clone(), i: flashlight.intensity }, F = echoFigs[0], op0 = echoMat.opacity;
-  const shots = [[70.5, [40.6, 78.8, 1.9], 'Schaukel'], [76, [35.9, 69.2, .6], 'Ball'], [81.5, [21.4, 67.2, 1.3], 'Bank'], [87, [30, 86.5, 1.4], 'Baum'], [92, [34, 71.2, 1.6], 'Karussell'], [null, null, 'Waldrand']];
+  const shots = [[70.5, [40.6, 78.8, 1.9], 'Schaukel'], [76, [35.9, 69.2, .6], 'Ball'], [81.5, [25.9, 74.3, .6], 'Giraffe'], [87, [30, 86.5, 1.4], 'Baum'], [92, [34, 71.2, 1.6], 'Karussell'], [null, null, 'Waldrand']];
   const out = [], hemi0 = hemi.intensity, fogD0 = scene.fog.density;
   try {
     hemi.intensity = hemi0 * 3.2; scene.fog.density = fogD0 * .55; // der Blitz der Kinderkamera hellt alles auf, was vor der Linse steht
     for (const [zz, hide, what] of shots) {
-      // links an der Laterne (31 | 63,5) vorbei auf den Spielplatz; das letzte Bild zeigt den Waldrand
-      if (zz) { pc.position.set(26.6, 1.45, 61.4); pc.lookAt(31.8, .9, 80); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      // vom Eingang (links neben der Laterne 31 | 63,5) weitwinklig über den ganzen Spielplatz; das letzte Bild zeigt den Waldrand
+      if (zz) { pc.position.set(27.6, 1.5, 63.2); pc.lookAt(31.8, .8, 78); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
       camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
-      const undo = hide ? zayn_hideAt(hide[0], hide[1], hide[2], what === 'Baum' || what === 'Bank') : () => {};
-      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.62); F.visible = true; echoMat.opacity = 1; echoMat.color.setHex(0xe8eeff); } // blasser Junge, gut zu erkennen (1,2 m)
+      const undo = hide ? zayn_hideAt(hide[0], hide[1], hide[2], what === 'Baum') : () => {};
+      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.62); F.visible = true; echoMat.opacity = 1; echoMat.color.setHex(0xe8eeff); if (FAB.ghostU) FAB.ghostU.value = 3.2; if (typeof figuren_sync === 'function') figuren_sync(0); } // blasser Junge, gut zu erkennen (1,2 m)
       renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene, pc); renderer.readRenderTargetPixels(rt, 0, 0, W, Hh, buf); renderer.setRenderTarget(null);
-      undo(); if (F) F.visible = false;
+      undo(); if (F) { F.visible = false; if (typeof figuren_sync === 'function') figuren_sync(0); }
       out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
     }
   } finally {
-    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; echoMat.color.setHex(0x8fb6ff); camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
+    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; echoMat.color.setHex(0x8fb6ff); if (FAB.ghostU) FAB.ghostU.value = op0 * 3.2; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
     try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {} rt.dispose();
   }
   return out;
@@ -132,7 +132,7 @@ function zayn_camera() {
 }
 function zayn_solved() {
   zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Er wollte, dass ich ihm folge.“');
-  story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, die Bank, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
+  story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, Dinas Holzgiraffe, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
   openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
   if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1200, 3);
 }

@@ -6,7 +6,7 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | # | Anforderung | Status |
 |---|---|---|
 | A1 | Projekt verstehen, Ausgangszustand sichern, Build prüfbar | ✅ `app/tools/assemble.js` (Syntaxprüfung je Modul) |
-| A2 | Messbare Performance (Frame-Zeiten, Ruckler, Draw Calls) | ✅ F3-Messanzeige; Draw Calls Hauptstraße 447 320 → 1 051 |
+| A2 | Messbare Performance (Frame-Zeiten, Ruckler, Draw Calls) | ✅ F3-Messanzeige; Draw Calls Hauptstraße 447 320 → 1 553. Schatten-Diät + Figuren-Sichtprüfung (Dreiecke je Bild inkl. Schatten): Villa 21,0 → 8,8 Mio., Wald 14,7 → 8,9, Spielplatz 27,4 → 20,7, Hauptstraße 24,8 → 20,4, Friedhof 35,9 → 26,5 |
 | A3 | Ruckler/Steuerung/Abläufe; Mondschatten folgt dem Spieler | ✅ + Grafikqualität Niedrig/Mittel/Hoch (Onboard-Grafik startet auf Mittel) |
 | A4 | Kollision: nirgends durch Wände/Decken sehen oder glitchen (Tisch + Doppelsprung) | ✅ Prüfskript, 0 Verstöße |
 | A5 | Robuste Abläufe (Menü, Laden, Kapitelwechsel, Pause) | 🟡 wird im Gesamtdurchlauf erneut geprüft |
