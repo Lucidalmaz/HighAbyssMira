@@ -79,3 +79,76 @@ WORLD_TICK.push((dt, t) => {
     setTimeout(() => subtitle('Hinter dir fällt die Tür ins Schloss. Auf dieser Seite hat sie keine Klinke. Es riecht nach Rost – und nach Sommer 2009.', 5200), 900);
   }
 });
+
+// =====================================================================  Kapitel 2 → 3: Wartungsschacht aus dem Tankraum bis unter den Gully an der Kreuzung
+// Nach dem Finale öffnet sich eine Luke in der Tankraum-Decke, eine Leiter fällt herab. Kai klettert; in der Mitte des gleichförmigen Schachts wird er
+// unbemerkt in den baugleichen Schacht unter der Kreuzung versetzt (Kapitel 3 beginnt), oben stemmt er den Gullydeckel auf und steigt auf die Straße.
+const uebergang3_S = { SH: { x: 716.5, z: -2598.5 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: 1.1, open: false, lampTaken: false };
+function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
+  const S = uebergang3_S, H = S.H, w = 1.2, t = .2, y = y0 + H / 2, b = (sx, sz, x, z) => box(sx, H, sz, x, y, z, M.wall, { collide: true });
+  b(w + 2 * t, t, cx, cz - w / 2 - t / 2); b(w + 2 * t, t, cx, cz + w / 2 + t / 2); b(t, w, cx - w / 2 - t / 2, cz); b(t, w, cx + w / 2 + t / 2, cz);
+  // Leiter an der Nordwand: zwei Holme + Sprossen alle 30 cm, eine zusammengefasste Geometrie (Rost-Scan)
+  const parts = []; for (const dx of [-.22, .22]) { const g = new THREE.BoxGeometry(.05, H, .05); g.translate(cx + dx, y, cz + w / 2 - .08); parts.push(g); }
+  for (let k = .3; k < H; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(cx, y0 + k, cz + w / 2 - .1); parts.push(g); }
+  const lad = new THREE.Mesh(mergeGeometries(parts), ladderMat); lad.castShadow = lad.receiveShadow = true; lad.userData.noCol = true; scene.add(lad);
+  const l = new VLight(0xbfd0ff, .35, 5, 2); l.position.set(cx, y0 + H - .6, cz); scene.add(l); // schwaches Licht oben (gleich in beiden Schächten)
+  const cap = box(w + .3, .1, w + .3, cx, y0 + H + .05, cz, M.ceil, { cast: false }); // Abschluss oben (im Ort: Unterseite des Gullys)
+  return { lad, cap };
+}
+WORLD_MODS.push(['Übergang Kapitel 3', async () => {
+  if (!SEAMLESS) return; const S = uebergang3_S, SH = S.SH;
+  const wall = msSurfMat('facade_concrete', { tint: 0x7c7a74 }), ceil = msSurfMat('rust_sheet', { tint: 0x6a6660 }), rust = msSurfMat('rust_sheet', { tint: 0x9a8e80 });
+  for (const m of [wall, ceil, rust]) m.userData.tile = 1.5;
+  const M = { wall, ceil };
+  S.c2 = uebergang3_shaft(SH.x, SH.z, S.C2Y, M, rust);
+  S.town = uebergang3_shaft(S.TOWN.x, S.TOWN.z, -S.H, M, rust);
+  box(1.6, .2, 1.6, S.TOWN.x, -S.H - .1, S.TOWN.z, wall, { collide: true }); // Schachtsohle im Ort
+  const red = new VLight(0xff3a20, .6, 5, 2); red.position.set(S.TOWN.x, -S.H + .8, S.TOWN.z); scene.add(red); // rotes Restlicht unten – wie der Notlicht-Tankraum
+  // Tankraum-Decke mit Lukenöffnung neu bauen (Original ausblenden), Luke verschlossen bis zum Ende von Kapitel 2
+  const X = C2.x, Z = C2.z, ceilOld = msFind((m, bb) => m.geometry && m.geometry.type === 'BoxGeometry' && Math.abs((bb.min.y + bb.max.y) / 2 - 2.6) < .15 && Math.abs((bb.min.x + bb.max.x) / 2 - (X + 114)) < .5 && Math.abs((bb.min.z + bb.max.z) / 2 - Z) < .5 && bb.max.x - bb.min.x > 15);
+  const cm = ceilOld[0] ? ceilOld[0].material : wall; ceilOld.forEach(msHide);
+  const x0 = X + 105.7, x1 = X + 122.3, z0 = Z - 8.3, z1 = Z + 8.3, hx0 = SH.x - .6, hx1 = SH.x + .6, hz0 = SH.z - .6, hz1 = SH.z + .6;
+  const slab = (a, b2, c, d) => box(b2 - a, .2, d - c, (a + b2) / 2, 2.6, (c + d) / 2, cm, { cast: false });
+  slab(x0, hx0, z0, z1); slab(hx1, x1, z0, z1); slab(hx0, hx1, z0, hz0); slab(hx0, hx1, hz1, z1);
+  S.hatch = box(1.2, .12, 1.2, SH.x, 2.56, SH.z, rust, { cast: false });
+  // Leiterstück im Raum (0 … 2,5 m): erscheint erst, wenn die Luke aufgeht
+  const parts = []; for (const dx of [-.22, .22]) { const g = new THREE.BoxGeometry(.05, 2.5, .05); g.translate(SH.x + dx, 1.25, SH.z + .52); parts.push(g); }
+  for (let k = .3; k < 2.5; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(SH.x, k, SH.z + .5); parts.push(g); }
+  S.roomLadder = new THREE.Mesh(mergeGeometries(parts), rust); S.roomLadder.visible = false; S.roomLadder.userData.noCol = true; scene.add(S.roomLadder);
+  S.emerg = new VLight(0xff3a20, 0, 9, 2); S.emerg.position.set(X + 114, 2.1, Z); scene.add(S.emerg);
+  // Gullydeckel im Ort (falls als Einzelmodell vorhanden) – wird beim Aufstemmen zur Seite geschoben
+  S.lid = msFind((m, bb) => !m.isInstancedMesh && Math.hypot((bb.min.x + bb.max.x) / 2 - S.TOWN.x, (bb.min.z + bb.max.z) / 2 - S.TOWN.z) < .6 && bb.max.y < .3 && bb.max.x - bb.min.x < 1.6 && bb.max.x - bb.min.x > .4);
+  // Stablampe (LED) am Haken neben der Leiter: Unreal-Modell, falls exportiert
+  const lamp = await ausruestung_ue('lampe2', .32); if (lamp) { lamp.position.set(SH.x + .95, 1.3, SH.z + .6); lamp.rotation.z = PI / 2; lamp.visible = false; scene.add(lamp); S.lamp = lamp; }
+  const lampHit = box(.5, .6, .4, SH.x + .95, 1.35, SH.z + .55, hidden, { cast: false });
+  const ladHit = box(.9, 2.2, .7, SH.x, 1.1, SH.z + .2, hidden, { cast: false });
+  const takeLamp = () => { if (S.lampTaken) return; S.lampTaken = true; uninteract(lampHit); if (S.lamp) S.lamp.visible = false; flashUpgrade(1); };
+  CH2_END.push(() => {
+    S.open = true; msHide(S.hatch); S.roomLadder.visible = true; S.emerg.intensity = 1.4; Audio.play('metalOpen', { gain: .7, rate: .8, x: SH.x, y: 2.5, z: SH.z, ref: 3 }); Audio.play('metalSheet', { gain: .5, delay: .4, x: SH.x, y: 1, z: SH.z, ref: 3 });
+    if (S.lamp) S.lamp.visible = true;
+    interact(lampHit, 'Stablampe vom Haken nehmen', () => { takeLamp(); toast('Eine schwere LED-Stablampe. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“. Du entfernst sie.', 4600); });
+    interact(ladHit, 'Die Leiter hinaufsteigen', () => uebergang3_climb(takeLamp, ladHit));
+  });
+  S.ready = true;
+}]);
+function uebergang3_climb(takeLamp, ladHit) {
+  const S = uebergang3_S, SH = S.SH, T = S.TOWN, P = player.pos; if (scripted) return;
+  if (!S.lampTaken) { takeLamp(); toast('Im Vorbeigehen nimmst du die Stablampe vom Haken. Unten wird es dunkel bleiben.', 3800); }
+  uninteract(ladHit); let phase = 'c2', rung = 0, hold = 0, side = 0;
+  const lx = SH.x, lz = SH.z; setC2Objective('Klettern.');
+  setScripted(dt => {
+    if (phase === 'c2' || phase === 'town') {
+      P.x += (lx + (phase === 'town' ? T.x - SH.x : 0) - P.x) * Math.min(1, dt * 6); P.z += (lz + (phase === 'town' ? T.z - SH.z : 0) - P.z) * Math.min(1, dt * 6);
+      P.y += S.speed * dt; rung += S.speed * dt; if (rung > .32) { rung = 0; Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .08, rate: rand(1.5, 1.8), x: P.x, y: P.y, z: P.z, ref: 1.5 }); }
+      if (phase === 'c2' && P.y >= S.TR) { // unsichtbar in den Schacht unter der Kreuzung
+        const dy = -(S.C2Y + S.H); P.x += T.x - SH.x; P.z += T.z - SH.z; P.y += dy; camY += dy; phase = 'town'; chapter3Begin(); }
+      if (phase === 'town' && P.y >= -1.75) { phase = 'lid'; hold = 0; Audio.play('stones1', { gain: .5, x: T.x, y: 0, z: T.z, ref: 3 }); Audio.play('metalOpen', { gain: .8, rate: .7, delay: .3, x: T.x, y: 0, z: T.z, ref: 3 }); shake = Math.max(shake, .02); }
+      return true;
+    }
+    if (phase === 'lid') { hold += dt; if (hold > .7) { phase = 'out'; S.town.cap.visible = false; msHide(S.town.cap); for (const m of S.lid) tween(m, { pos: m.position.clone().add(new THREE.Vector3(.95, 0, .2)) }, .6); Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03; } return true; }
+    if (phase === 'out') { P.y = Math.min(0, P.y + S.speed * 1.2 * dt); if (P.y >= 0) { side += dt; P.x = T.x + Math.min(1, side / .5) * 1.0; if (side >= .5) {
+          questPop('KAPITEL 3', 'Das Licht'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Birkenhain. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
+    return false;
+  });
+}
+WORLD_TICK.push(() => {});

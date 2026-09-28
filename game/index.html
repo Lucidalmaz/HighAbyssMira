@@ -2155,15 +2155,21 @@ function beginGame() {
 // =====================================================================  BEWEGUNG & KOLLISION
 const R = .3, vel = new THREE.Vector3(), wish = new THREE.Vector3();
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
-function collide(axis) {
+// Fremdgesteuerte Bewegung (z. B. Leiter): scripted(dt) setzt player.pos selbst, Rückgabe false = fertig. Solange aktiv: keine Schwerkraft, keine Kollision.
+let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
+function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Achse
   if (state.zone === 'canal') return canalCollide(axis);
-  let hit = false;
+  let hit = false; const v = step;
   for (const c of colliders) {
     if (c.top <= player.pos.y + .36 || c.base >= player.pos.y + 1.7) continue; // darunter (stehen wir drauf) oder darüber
     if (player.pos.x + R > c.minX && player.pos.x - R < c.maxX && player.pos.z + R > c.minZ && player.pos.z - R < c.maxZ) {
+      // nur auflösen, wenn GENAU dieser Achsenschritt hineingeführt hat, und dann dorthin zurück, woher man kam.
+      // Vorher: „zum nächsten Ende“ – in Raumecken schob das durch die Nachbarwand nach draußen.
+      if (Math.abs(v) < 1e-6) continue; const prev = (axis === 'x' ? player.pos.x : player.pos.z) - step, lo = axis === 'x' ? c.minX : c.minZ, hi = axis === 'x' ? c.maxX : c.maxZ;
+      if (prev + R > lo && prev - R < hi) continue; // war schon vorher auf dieser Achse überlappend → Überlappung kommt von der anderen Achse
       hit = true;
-      if (axis === 'x') player.pos.x = (player.pos.x - c.minX < c.maxX - player.pos.x) ? c.minX - R - .001 : c.maxX + R + .001;
-      else player.pos.z = (player.pos.z - c.minZ < c.maxZ - player.pos.z) ? c.minZ - R - .001 : c.maxZ + R + .001;
+      if (axis === 'x') player.pos.x = v > 0 ? c.minX - R - .001 : c.maxX + R + .001;
+      else player.pos.z = v > 0 ? c.minZ - R - .001 : c.maxZ + R + .001;
     }
   }
   return hit;
@@ -2190,6 +2196,7 @@ function mantleTarget() {
   for (const c of colliders) { const h = c.top - player.pos.y; if (h < .45 || h > 1.65) continue;
     if (px > c.minX - .1 && px < c.maxX + .1 && pz > c.minZ - .1 && pz < c.maxZ + .1 && !(best && best.top < c.top)) best = c; }
   if (!best) return null;
+  if (headCeiling(px, best.top + .1, pz) - best.top < HEAD_CLEAR) return null; // oben kein Platz zum Stehen → nicht hochziehen (sonst Kopf durch die Decke)
   const above = colliders.some(c => c !== best && c.base < best.top + 1.7 && c.top > best.top + .3 && px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ);
   return above ? null : { top: best.top, x: px, z: pz };
 }
@@ -2841,7 +2848,7 @@ const X = C2.x, Z = C2.z;
 
 // --- Tunnel (600–618)
 c2Room(X, X + 18, Z - 2, Z + 2, { e: [{ at: Z, w: 1.6 }], w: SEAMLESS ? [{ at: Z, w: 1.6 }] : [] }); // Westtür: Gang aus dem Keller von Nr. 7
-const CH2_BEGIN = []; // Welt-Module hängen sich an den Beginn von Kapitel 2 (z. B. die Tür, die hinter dem Spieler zufällt)
+const CH2_BEGIN = [], CH2_END = []; // Welt-Module hängen sich an Beginn/Ende von Kapitel 2 (Tür fällt zu · Luke im Tankraum öffnet sich)
 for (let i = 0; i < 3; i++) box(.16, .16, 18, X + 9, C2.h - .25, Z - 1.6 + i * .35, M.rust, { cast: false });
 for (let x = X + 3; x < X + 18; x += 5) box(.2, 2.5, .2, x, 1.25, Z - 1.85, M.rust);
 c2Tube(X + 4, Z, 1.2, 'x', 0xffd9a0, 1.2, 6).mode = 'flicker'; c2Tube(X + 13, Z, 1.2, 'x', 0xffd9a0, 1.2, 6);
@@ -3085,6 +3092,12 @@ async function finale() {
   stalker.position.set(X + 112, 0, Z); stalker.lookAt(camera.position.x, 0, camera.position.z); stalkerFace.material.map = faceTexes.grey; stalker.visible = true;
   await wait(2500); await scareTankFace(); stalker.visible = false;
   await fade(1, 600); Audio.hum(false); Audio.tankHum(false);
+  if (SEAMLESS) { // „Das graue Gesicht am Glas. Dann nichts.“ – kein Schnitt: Kai kommt im dunklen Tankraum wieder zu sich, über ihm steht eine Luke offen
+    saveFlag('ch3'); for (const f of CH2_END) try { f(); } catch (e) { console.warn('Kapitel-2-Ende', e); }
+    await wait(2600); fade(0, 2400); await wait(900);
+    subtitle('Du liegst auf dem Beton. Der Tank ist leer. Nur deine Hand ist noch an der Scheibe abgedrückt.', 5200); await wait(5600);
+    setC2Objective('Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben.'); subtitle('Über dir zieht Luft durch die Decke. Kalt. Sie riecht nach Regen.', 4200); return;
+  }
   const sd = Object.values(story.side).filter(q => q.state === 'done').length;
   $('endcard').querySelector('h1').textContent = 'KAPITEL 2 — ENDE';
   $('endcard').querySelector('p').innerHTML = 'Du weißt es jetzt.<br>Und die Regel gilt.';
@@ -3669,8 +3682,18 @@ interact(gullyHit, () => ch3.on && ch3.part === 'town' && ch3.met ? 'Gullydeckel
   enterCanal(); });
 // ---- Kapitel-Start & Takt
 const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · DAS LICHT</p><p class="on">Du erinnerst dich an das graue Gesicht am Glas. Dann an nichts.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Es ist 03:13.</p><p class="on">Birkenhain ist still. Die Laternen <i>atmen</i>.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
-async function startChapter3() {
-  $('endcard').classList.remove('show'); $('subPanel').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false;
+async function startChapter3() { // Weiterspielen / Kapitel wählen: Zustand setzen, an die Kreuzung, Intro
+  $('endcard').classList.remove('show'); $('subPanel').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
+  chapter3Begin();
+  player.pos.set(.8, 0, 1.6); player.yaw = -PI / 2 + .3; player.pitch = .25; vel.set(0, 0, 0); camY = .3; flashOn = true;
+  Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03;
+  $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
+  $('intro').innerHTML = C3_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('introSeq').onclick = async () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer(); chapter3Opening(); };
+}
+// Kapitel 3 beginnen, wo der Spieler gerade ist (nahtlos: im Schacht unter der Kreuzung); räumt Kapitel 1 und 2 ab
+function chapter3Begin() {
+  if (ch3.on) return; state.ending = false;
   // Kapitel 1 und 2 zur Ruhe bringen
   ch2.on = false; state.ch2 = false; ch2.chase = 'done'; zombie.g.visible = false; spiders.visible = false; Audio.chaseMusic(false); Audio.hum(false); Audio.tankHum(false);
   state.ufoOn = false; state.phase2 = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; ufo.userData.beam.uniforms.opacity.value = 0; victim.visible = false;
@@ -3683,13 +3706,10 @@ async function startChapter3() {
   letter2.visible = true; interact(letter2, 'Brief lesen', readLetter2); zbook.visible = true; interact(zbook, 'Zählbuch lesen', readBook); albersNote.visible = true; interact(albersNote, 'Umschlag nehmen', readAlbers);
   interact(booth.phone, 'Hörer abnehmen', c3Phone);
   if (FLASH.tier < 1) { FLASH.tier = 1; FLASH.charge = 1; flashApply(); story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift('lampe2'); }
-  ch3.on = true; saveFlag('ch3'); c3Info(); saveGame(3);
-  player.pos.set(.8, 0, 1.6); player.yaw = -PI / 2 + .3; player.pitch = .25; vel.set(0, 0, 0); camY = .3; flashOn = true;
-  Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03;
-  $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = C3_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
-  $('introSeq').onclick = async () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer(); setC3('Finde heraus, was mit Birkenhain geschehen ist.'); await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3200); cowDrop(); cowHit.position.set(-7.5, .6, .8); };
+  ch3.on = true; saveFlag('ch3'); c3Info(); saveGame(3); flashOn = true;
 }
+// Erste Minute von Kapitel 3 (Aufgabe, Stimmung, die Kuh fällt vom Himmel) – gemeinsam für beide Wege hinein
+async function chapter3Opening() { setC3('Finde heraus, was mit Birkenhain geschehen ist.'); await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3200); cowDrop(); cowHit.position.set(-7.5, .6, .8); }
 function ch3Update(dt, t) {
   if (!ch3.on) return;
   ch3.t += dt; jUpdate(dt); cowUpdate(dt);
@@ -4223,6 +4243,21 @@ function solidLive(it) { // unsichtbar, aufgehoben oder als „keine Wand“ mar
   return true;
 }
 const solidNear = (x, z) => SOL.grid.get(_sk(Math.floor(x / SOL.B), Math.floor(z / SOL.B))) || [];
+// --- Kopffreiheit: tiefste Fläche über (x, y, z) – Decken, Balken, Regalböden, Dächer, Kollisionskisten. Nie durch Decken sehen oder springen.
+const HEAD_CLEAR = 1.87; // Füße → Oberkante Kopf inkl. Abstand für die Kamera-Nahebene (Kamera sitzt bei 1,65 m)
+const _cRay = new THREE.Ray(), _cO = new THREE.Vector3(), _cD = new THREE.Vector3();
+function ceilingAt(x, y, z, maxUp = 3.5) {
+  let best = Infinity;
+  for (const c of colliders) if (c.base > y && c.base < y + maxUp && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) best = Math.min(best, c.base);
+  if (state.zone === 'canal') return best;
+  for (const it of solidNear(x, z)) { const bb = it.bb; if (x < bb.min.x || x > bb.max.x || z < bb.min.z || z > bb.max.z || bb.max.y < y || bb.min.y > y + maxUp || it.soft || !solidLive(it)) continue;
+    _cO.set(x, y, z).applyMatrix4(it.inv); _cD.set(0, 1, 0).transformDirection(it.inv); _cRay.set(_cO, _cD);
+    const h = it.o.geometry.boundsTree.raycastFirst(_cRay, THREE.DoubleSide); if (!h) continue;
+    _sw.copy(h.point).applyMatrix4(it.mw); if (_sw.y > y && _sw.y < best) best = _sw.y; }
+  return best;
+}
+// über den ganzen Kopf (Mitte + vier Randpunkte), damit man nicht mit der Kopfkante durch eine Deckenkante rutscht
+function headCeiling(x, y, z) { let b = ceilingAt(x, y, z); for (const [dx, dz] of [[.2, 0], [-.2, 0], [0, .2], [0, -.2]]) b = Math.min(b, ceilingAt(x + dx, y, z + dz)); return b; }
 // Körper = drei Kugeln (Knie, Hüfte, Brust). Alles unterhalb der Stufenhöhe darf man betreten.
 function solidPush() {
   if (state.zone === 'canal') return;
@@ -4232,7 +4267,7 @@ function solidPush() {
     for (const it of list) {
       const bb = it.bb; if (P.x + R < bb.min.x || P.x - R > bb.max.x || P.z + R < bb.min.z || P.z - R > bb.max.z || P.y + 1.8 < bb.min.y || P.y + .37 > bb.max.y) continue;
       if (!solidLive(it)) continue;
-      for (const h of [.62, 1.05, 1.5]) {
+      for (const h of [.62, 1.05, 1.5, 1.72]) { // Knie, Hüfte, Brust, Kopf (Kopf: nicht in Hängeschränke/Balken/Dachschrägen laufen)
         const cy = P.y + h; if (cy + R < it.bb.min.y || cy - R > it.bb.max.y) continue;
         _sp.set(P.x, cy, P.z).applyMatrix4(it.inv);
         const r = it.o.geometry.boundsTree.closestPointToPoint(_sp, _stgt, 0, R / it.sc); if (!r) continue;
@@ -9356,6 +9391,202 @@ WORLD_TICK.push((dt, t) => {
     setTimeout(() => subtitle('Hinter dir fällt die Tür ins Schloss. Auf dieser Seite hat sie keine Klinke. Es riecht nach Rost – und nach Sommer 2009.', 5200), 900);
   }
 });
+
+// =====================================================================  Kapitel 2 → 3: Wartungsschacht aus dem Tankraum bis unter den Gully an der Kreuzung
+// Nach dem Finale öffnet sich eine Luke in der Tankraum-Decke, eine Leiter fällt herab. Kai klettert; in der Mitte des gleichförmigen Schachts wird er
+// unbemerkt in den baugleichen Schacht unter der Kreuzung versetzt (Kapitel 3 beginnt), oben stemmt er den Gullydeckel auf und steigt auf die Straße.
+const uebergang3_S = { SH: { x: 716.5, z: -2598.5 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: 1.1, open: false, lampTaken: false };
+function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
+  const S = uebergang3_S, H = S.H, w = 1.2, t = .2, y = y0 + H / 2, b = (sx, sz, x, z) => box(sx, H, sz, x, y, z, M.wall, { collide: true });
+  b(w + 2 * t, t, cx, cz - w / 2 - t / 2); b(w + 2 * t, t, cx, cz + w / 2 + t / 2); b(t, w, cx - w / 2 - t / 2, cz); b(t, w, cx + w / 2 + t / 2, cz);
+  // Leiter an der Nordwand: zwei Holme + Sprossen alle 30 cm, eine zusammengefasste Geometrie (Rost-Scan)
+  const parts = []; for (const dx of [-.22, .22]) { const g = new THREE.BoxGeometry(.05, H, .05); g.translate(cx + dx, y, cz + w / 2 - .08); parts.push(g); }
+  for (let k = .3; k < H; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(cx, y0 + k, cz + w / 2 - .1); parts.push(g); }
+  const lad = new THREE.Mesh(mergeGeometries(parts), ladderMat); lad.castShadow = lad.receiveShadow = true; lad.userData.noCol = true; scene.add(lad);
+  const l = new VLight(0xbfd0ff, .35, 5, 2); l.position.set(cx, y0 + H - .6, cz); scene.add(l); // schwaches Licht oben (gleich in beiden Schächten)
+  const cap = box(w + .3, .1, w + .3, cx, y0 + H + .05, cz, M.ceil, { cast: false }); // Abschluss oben (im Ort: Unterseite des Gullys)
+  return { lad, cap };
+}
+WORLD_MODS.push(['Übergang Kapitel 3', async () => {
+  if (!SEAMLESS) return; const S = uebergang3_S, SH = S.SH;
+  const wall = msSurfMat('facade_concrete', { tint: 0x7c7a74 }), ceil = msSurfMat('rust_sheet', { tint: 0x6a6660 }), rust = msSurfMat('rust_sheet', { tint: 0x9a8e80 });
+  for (const m of [wall, ceil, rust]) m.userData.tile = 1.5;
+  const M = { wall, ceil };
+  S.c2 = uebergang3_shaft(SH.x, SH.z, S.C2Y, M, rust);
+  S.town = uebergang3_shaft(S.TOWN.x, S.TOWN.z, -S.H, M, rust);
+  box(1.6, .2, 1.6, S.TOWN.x, -S.H - .1, S.TOWN.z, wall, { collide: true }); // Schachtsohle im Ort
+  const red = new VLight(0xff3a20, .6, 5, 2); red.position.set(S.TOWN.x, -S.H + .8, S.TOWN.z); scene.add(red); // rotes Restlicht unten – wie der Notlicht-Tankraum
+  // Tankraum-Decke mit Lukenöffnung neu bauen (Original ausblenden), Luke verschlossen bis zum Ende von Kapitel 2
+  const X = C2.x, Z = C2.z, ceilOld = msFind((m, bb) => m.geometry && m.geometry.type === 'BoxGeometry' && Math.abs((bb.min.y + bb.max.y) / 2 - 2.6) < .15 && Math.abs((bb.min.x + bb.max.x) / 2 - (X + 114)) < .5 && Math.abs((bb.min.z + bb.max.z) / 2 - Z) < .5 && bb.max.x - bb.min.x > 15);
+  const cm = ceilOld[0] ? ceilOld[0].material : wall; ceilOld.forEach(msHide);
+  const x0 = X + 105.7, x1 = X + 122.3, z0 = Z - 8.3, z1 = Z + 8.3, hx0 = SH.x - .6, hx1 = SH.x + .6, hz0 = SH.z - .6, hz1 = SH.z + .6;
+  const slab = (a, b2, c, d) => box(b2 - a, .2, d - c, (a + b2) / 2, 2.6, (c + d) / 2, cm, { cast: false });
+  slab(x0, hx0, z0, z1); slab(hx1, x1, z0, z1); slab(hx0, hx1, z0, hz0); slab(hx0, hx1, hz1, z1);
+  S.hatch = box(1.2, .12, 1.2, SH.x, 2.56, SH.z, rust, { cast: false });
+  // Leiterstück im Raum (0 … 2,5 m): erscheint erst, wenn die Luke aufgeht
+  const parts = []; for (const dx of [-.22, .22]) { const g = new THREE.BoxGeometry(.05, 2.5, .05); g.translate(SH.x + dx, 1.25, SH.z + .52); parts.push(g); }
+  for (let k = .3; k < 2.5; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(SH.x, k, SH.z + .5); parts.push(g); }
+  S.roomLadder = new THREE.Mesh(mergeGeometries(parts), rust); S.roomLadder.visible = false; S.roomLadder.userData.noCol = true; scene.add(S.roomLadder);
+  S.emerg = new VLight(0xff3a20, 0, 9, 2); S.emerg.position.set(X + 114, 2.1, Z); scene.add(S.emerg);
+  // Gullydeckel im Ort (falls als Einzelmodell vorhanden) – wird beim Aufstemmen zur Seite geschoben
+  S.lid = msFind((m, bb) => !m.isInstancedMesh && Math.hypot((bb.min.x + bb.max.x) / 2 - S.TOWN.x, (bb.min.z + bb.max.z) / 2 - S.TOWN.z) < .6 && bb.max.y < .3 && bb.max.x - bb.min.x < 1.6 && bb.max.x - bb.min.x > .4);
+  // Stablampe (LED) am Haken neben der Leiter: Unreal-Modell, falls exportiert
+  const lamp = await ausruestung_ue('lampe2', .32); if (lamp) { lamp.position.set(SH.x + .95, 1.3, SH.z + .6); lamp.rotation.z = PI / 2; lamp.visible = false; scene.add(lamp); S.lamp = lamp; }
+  const lampHit = box(.5, .6, .4, SH.x + .95, 1.35, SH.z + .55, hidden, { cast: false });
+  const ladHit = box(.9, 2.2, .7, SH.x, 1.1, SH.z + .2, hidden, { cast: false });
+  const takeLamp = () => { if (S.lampTaken) return; S.lampTaken = true; uninteract(lampHit); if (S.lamp) S.lamp.visible = false; flashUpgrade(1); };
+  CH2_END.push(() => {
+    S.open = true; msHide(S.hatch); S.roomLadder.visible = true; S.emerg.intensity = 1.4; Audio.play('metalOpen', { gain: .7, rate: .8, x: SH.x, y: 2.5, z: SH.z, ref: 3 }); Audio.play('metalSheet', { gain: .5, delay: .4, x: SH.x, y: 1, z: SH.z, ref: 3 });
+    if (S.lamp) S.lamp.visible = true;
+    interact(lampHit, 'Stablampe vom Haken nehmen', () => { takeLamp(); toast('Eine schwere LED-Stablampe. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“. Du entfernst sie.', 4600); });
+    interact(ladHit, 'Die Leiter hinaufsteigen', () => uebergang3_climb(takeLamp, ladHit));
+  });
+  S.ready = true;
+}]);
+function uebergang3_climb(takeLamp, ladHit) {
+  const S = uebergang3_S, SH = S.SH, T = S.TOWN, P = player.pos; if (scripted) return;
+  if (!S.lampTaken) { takeLamp(); toast('Im Vorbeigehen nimmst du die Stablampe vom Haken. Unten wird es dunkel bleiben.', 3800); }
+  uninteract(ladHit); let phase = 'c2', rung = 0, hold = 0, side = 0;
+  const lx = SH.x, lz = SH.z; setC2Objective('Klettern.');
+  setScripted(dt => {
+    if (phase === 'c2' || phase === 'town') {
+      P.x += (lx + (phase === 'town' ? T.x - SH.x : 0) - P.x) * Math.min(1, dt * 6); P.z += (lz + (phase === 'town' ? T.z - SH.z : 0) - P.z) * Math.min(1, dt * 6);
+      P.y += S.speed * dt; rung += S.speed * dt; if (rung > .32) { rung = 0; Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .08, rate: rand(1.5, 1.8), x: P.x, y: P.y, z: P.z, ref: 1.5 }); }
+      if (phase === 'c2' && P.y >= S.TR) { // unsichtbar in den Schacht unter der Kreuzung
+        const dy = -(S.C2Y + S.H); P.x += T.x - SH.x; P.z += T.z - SH.z; P.y += dy; camY += dy; phase = 'town'; chapter3Begin(); }
+      if (phase === 'town' && P.y >= -1.75) { phase = 'lid'; hold = 0; Audio.play('stones1', { gain: .5, x: T.x, y: 0, z: T.z, ref: 3 }); Audio.play('metalOpen', { gain: .8, rate: .7, delay: .3, x: T.x, y: 0, z: T.z, ref: 3 }); shake = Math.max(shake, .02); }
+      return true;
+    }
+    if (phase === 'lid') { hold += dt; if (hold > .7) { phase = 'out'; S.town.cap.visible = false; msHide(S.town.cap); for (const m of S.lid) tween(m, { pos: m.position.clone().add(new THREE.Vector3(.95, 0, .2)) }, .6); Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03; } return true; }
+    if (phase === 'out') { P.y = Math.min(0, P.y + S.speed * 1.2 * dt); if (P.y >= 0) { side += dt; P.x = T.x + Math.min(1, side / .5) * 1.0; if (side >= .5) {
+          questPop('KAPITEL 3', 'Das Licht'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Birkenhain. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
+    return false;
+  });
+}
+WORLD_TICK.push(() => {});
+// =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Miras Spielsachen – drei Sammelreihen, die sich gegenseitig verraten
+// · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – Mira versteckt sich vor dem Licht.
+//   Jeder flüstert eine Zahl (Mira zählt). Alle sieben: Neben-Twist „Miras Versteck“.
+// · 5 Wrackteile: verbogenes Rostblech (Scan-Oberfläche) mit eingedrückten Kinderhänden. Zusammen: das Wappen vom Hohen Abgrund.
+// · 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel der Grauen).
+//   Alle vier: Kreide-Hinweise, wo die Lichtsteine liegen.
+// Fortschritt steckt in story.lore (wird mit dem Spielstand gespeichert). Unreal-Modelle aus unreal/Export_Requisiten.bat ersetzen die Zusammenbauten.
+const geheimnisse_S = { ready: false, stones: [], wrecks: [], totems: [], litHint: false, t: 0 };
+const geheimnisse_has = k => story.lore.some(l => l.key === k);
+const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
+  [-12.2, -9.4, 'Wo Jana verbrannte.'], [3.4, -39.6, 'Wo Lena gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
+  [126.5, 12.5, 'Wo es nach Benzin riecht.'], [-115.5, 21.5, 'Wo Hilde gegärtnert hat.'], [-128.5, -29.5, 'Wo die Pferde fehlen.']];
+const GEHEIM_WORDS = ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben'];
+const GEHEIM_WRECKS = [
+  [-4.6, 4.2, 'Verbogenes Blech, verrußt und eiskalt. Darin eingedrückt: zwei Kinderhände. Von innen.'],
+  [-4.5, 36, 'Kein Flugzeugteil. Die Nieten sind von Hand geschmiedet.'],
+  [128, -36, 'Unter dem Rost ein Stempel: ein Turm über einem Abgrund.'],
+  [-145, 6, 'Das Blech ist gewölbt wie ein Brustpanzer. Zu klein für einen Mann. Genau richtig für ein Kind.'],
+  [50, 88, 'Das letzte Stück passt an die anderen, als hätte es darauf gewartet.']];
+const GEHEIM_TOTEMS = [[-150, 40], [136, 30], [-20, 92], [100, -38]]; // Westrand · hinter der Tankstelle · Kirchberg oben · südlich des Schrottplatzes
+// Glimmende Adern: Höhenkarte des Felsen-Scans invertiert → Risse leuchten, pulsierend (gemeinsame Uniform für alle Steine)
+const geheimnisse_glow = { value: 1 };
+function geheimnisse_glowMat(src, hTex) {
+  const m = src.clone(); m.emissive = new THREE.Color(0xcfe6ff); m.emissiveIntensity = 1;
+  m.onBeforeCompile = sh => { sh.uniforms.hMap = { value: hTex }; sh.uniforms.glow = geheimnisse_glow;
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D hMap; uniform float glow;')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_MAP\n totalEmissiveRadiance *= pow(1.0 - texture2D(hMap, vMapUv).r, 4.0) * 5.0 * glow;\n#endif'); };
+  m.customProgramCacheKey = () => 'geheim_glow'; return m;
+}
+// Rostblech, verbogen und zerknittert (Scan-Oberfläche auf verformter Fläche), mit Kinderhänden als Prägung
+function geheimnisse_plate(mat, handMat) {
+  const g = new THREE.PlaneGeometry(1.1, .75, 16, 12), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i); p.setZ(i, Math.sin(x * 2.6) * .12 + Math.cos(y * 3.1 + x) * .05 + (Math.random() - .5) * .025); }
+  g.computeVertexNormals(); const o = new THREE.Group(), m = new THREE.Mesh(g, mat); m.castShadow = m.receiveShadow = true; o.add(m);
+  const h = new THREE.Mesh(new THREE.PlaneGeometry(.42, .3), handMat); h.position.set(.05, .02, .14); o.add(h); return o;
+}
+WORLD_MODS.push(['Geheimnisse', async () => {
+  const S = geheimnisse_S, V = THREE.Vector3;
+  story.side.geh_steine = { title: 'Die sieben Zähler', desc: 'Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.', state: 'hidden' };
+  story.side.geh_wrack = { title: 'Blech vom Himmel', desc: 'Verbogene Metallteile, dort wo das Licht war.', state: 'hidden' };
+  story.side.geh_totem = { title: 'Die Zählgestelle', desc: 'Jemand hat an den Rändern von Birkenhain etwas aufgestellt.', state: 'hidden' };
+  // --- Lichtsteine
+  try {
+    const rock = await msModel('../boulder', 'model.gltf'), hTex = msTex('../boulder/T_wfstcdnaw_1K_H.jpg', false);
+    let srcMat = null; rock.traverse(m => { if (m.isMesh && !srcMat) srcMat = [].concat(m.material)[0]; }); const gm = geheimnisse_glowMat(srcMat, hTex);
+    GEHEIM_STONES.forEach(([x, z, hint], i) => {
+      const o = msGround(msFit(rock.clone(true), .2, 'max')); o.traverse(m => { if (m.isMesh) { m.material = gm; m.castShadow = false; } }); o.userData.noCol = true;
+      o.position.set(x, -.03, z); o.rotation.y = i * 1.7; o.visible = false; scene.add(o);
+      const hit = box(.5, .4, .5, x, .15, z, hidden, { cast: false }); uninteract(hit);
+      const key = 'geh_stein_' + i; S.stones.push({ o, hit, key, i, hint, on: false });
+      interact(hit, 'Glimmenden Stein aufheben', () => geheimnisse_takeStone(S.stones[i])); uninteract(hit);
+    });
+  } catch (e) { console.warn('Geheimnisse: Steine', e); }
+  // --- Wrackteile
+  try {
+    const wr = msSurfMat('rust_sheet', { tint: 0x8a8078 }); wr.side = THREE.DoubleSide;
+    const hc = document.createElement('canvas'); hc.width = 256; hc.height = 180; const c = hc.getContext('2d');
+    c.fillStyle = 'rgba(20,14,10,.55)'; for (const [cx, cy, s] of [[80, 95, 1], [170, 88, .95]]) { c.save(); c.translate(cx, cy); c.scale(s, s);
+      c.beginPath(); c.ellipse(0, 18, 26, 30, 0, 0, 7); c.fill(); for (let f = 0; f < 5; f++) { c.beginPath(); c.ellipse(-24 + f * 12, -22 + Math.abs(f - 2) * 6, 5, 16, (f - 2) * .18, 0, 7); c.fill(); } c.restore(); }
+    const ht = new THREE.CanvasTexture(hc); ht.colorSpace = THREE.SRGBColorSpace;
+    const hm = new THREE.MeshStandardMaterial({ map: ht, transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4 });
+    const ueWreck = await ausruestung_ue('wrack', 1.2);
+    GEHEIM_WRECKS.forEach(([x, z, text], i) => {
+      const o = ueWreck ? ueWreck.clone(true) : geheimnisse_plate(wr, hm); o.position.set(x, .06, z); o.rotation.set(-PI / 2 + .25, i * 1.3, .15); o.userData.noCol = true; scene.add(o);
+      const hit = box(1.1, .5, .9, x, .25, z, hidden, { cast: false }), key = 'geh_wrack_' + i; S.wrecks.push({ o, key, i });
+      interact(hit, () => geheimnisse_has(key) ? 'Metallteil' : 'Metallteil untersuchen', () => geheimnisse_wreck(i, text, key));
+    });
+  } catch (e) { console.warn('Geheimnisse: Wrack', e); }
+  // --- Zähl-Totems
+  try {
+    const pole = await msModel('pole_old'), bear = await msModel('teddy_scan', 'model.glb');
+    const cs = await msFBX('candles', 'model.fbx', { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', r: 'Extra_for_candles_Roughness.jpg' } });
+    const ueTotem = await ausruestung_ue('totem', 1.9);
+    GEHEIM_TOTEMS.forEach(([x, z], i) => {
+      const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
+      if (ueTotem) g.add(ueTotem.clone(true));
+      else { const p = msGround(msFit(pole.clone(true), 1.9, 'y')); g.add(p); const b = msGround(msFit(bear.clone(true), .34, 'max')); b.position.set(0, 1.18, .07); b.rotation.x = -.25; g.add(b);
+        for (let k = 0; k < 3; k++) { const cc = msGround(msFit(cs.clone(true), .16, 'y')); cc.position.set(Math.cos(k * 2.1) * .35, 0, Math.sin(k * 2.1) * .35); g.add(cc); } }
+      g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true;
+      const l = new VLight(0xffa860, .6, 3.5, 2); l.position.set(x, .4, z); scene.add(l);
+      const hit = box(.8, 1.9, .8, x, .95, z, hidden, { cast: false }), key = 'geh_totem_' + i; S.totems.push({ g, key, i, seen: true, turned: 0 });
+      interact(hit, () => geheimnisse_has(key) ? 'Zählgestell' : 'Zählgestell ansehen', () => geheimnisse_totem(i, key));
+    });
+  } catch (e) { console.warn('Geheimnisse: Totems', e); }
+  S.ready = true;
+}]);
+function geheimnisse_takeStone(s) {
+  if (!s.on || geheimnisse_has(s.key)) return; story.lore.push({ key: s.key, title: 'Lichtstein · ' + GEHEIM_WORDS[s.i], html: `Ein kleiner Stein, warm wie eine Hand. Im Dunkeln leuchten seine Risse.\n\n${s.hint}` });
+  s.o.visible = false; uninteract(s.hit); sideStart('geh_steine');
+  const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
+  Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
+  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Miras Versteck“ (Ende B: wer gefunden wird, muss zählen)
+    openNote('Miras Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
+    setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
+}
+function geheimnisse_wreck(i, text, key) {
+  if (geheimnisse_has(key)) return toast(text, 3600);
+  story.lore.push({ key, title: 'Blech vom Himmel · ' + (i + 1), html: text }); sideStart('geh_wrack'); Audio.play('metalSheet', { gain: .35, rate: .8 });
+  const n = geheimnisse_S.wrecks.filter(x => geheimnisse_has(x.key)).length; story.side.geh_wrack.desc = `Metallteile: ${n} / 5.`; toast(text, 5200);
+  if (n === 5) setTimeout(() => { sideDone('geh_wrack', 'Alle fünf Teile gefunden.'); // STORY-HOOK: Fallwand-Frage „Was ist das Ding am Himmel?“ – bewusst offen
+    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da über Birkenhain schwebt, hat jemand aus Eisen gebaut, das sein Kind tragen sollte. Oder es sich so erträumt.</span>', 'geh_wappen'); }, 5400);
+}
+function geheimnisse_totem(i, key) {
+  const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];
+  if (geheimnisse_has(key)) return toast(lines[i], 3600);
+  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16);
+  const n = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4.`;
+  if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); sideStart('geh_steine');
+    openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 5000);
+}
+WORLD_TICK.push((dt, t) => {
+  const S = geheimnisse_S; if (!S.ready) return; S.t -= dt; geheimnisse_glow.value = .55 + .45 * Math.sin(t * 1.3) * Math.sin(t * .37 + 1);
+  const P = player.pos, dark = !flashOn || FLASH.charge <= 0 || state.flashFail > 0;
+  for (const s of S.stones) { const want = dark && !geheimnisse_has(s.key); if (want !== s.on) { s.on = want; s.o.visible = want; if (want) { if (!interactables.includes(s.hit)) interactables.push(s.hit); } else uninteract(s.hit); }
+    if (want && !S.litHint && Math.hypot(s.o.position.x - P.x, s.o.position.z - P.z) < 12) { S.litHint = true; subtitle('Da. Im Dunkeln. Am Boden glimmt etwas – als hätte es nur gewartet, bis du das Licht ausmachst.', 5000); } }
+  // Totems: drehen sich zu dir, sobald du wegsiehst (nur in der Nähe)
+  camera.getWorldDirection(_geheimFwd);
+  for (const T of S.totems) { const dx = T.g.position.x - P.x, dz = T.g.position.z - P.z, d = Math.hypot(dx, dz); if (d > 28) continue;
+    const looking = (_geheimFwd.x * dx + _geheimFwd.z * dz) / d > .45;
+    if (!looking && T.seen) { const want = Math.atan2(-dx, -dz); if (Math.abs(want - T.g.rotation.y) > .3) { T.g.rotation.y = want; if (d < 15) Audio.play('woodSqueak1', { gain: .12, rate: .6, x: T.g.position.x, y: 1.2, z: T.g.position.z, ref: 3 }); } }
+    T.seen = looking; }
+});
+const _geheimFwd = new THREE.Vector3();
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
@@ -9374,10 +9605,10 @@ function perfMergeGroups(g) {
 { try { stage('Kollision'); await buildSolids(); } catch (e) { console.warn('Kollision', e); } }
 // Bewegte Körper (Türen, Tore) stehen im Kollisionsraster noch an ihrer Ladeposition → nach einer Bewegung neu einsortieren
 function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
-// 2) Instanz-Wälder/-Gräser, die über die ganze Welt reichen (Begrenzungskugel > PERF_CULL.span): nur Instanzen im Nebel-Sichtbereich zeichnen.
+// 2) Instanz-Gruppen (Wälder, Gräser, tote Sträucher mit bis zu 105 000 Dreiecken je Strauch), die über mehr als PERF_CULL.span m verteilt sind: nur Instanzen im Nebel-Sichtbereich zeichnen.
 //    Kollision nutzt eigene Kopien der Matrizen und ist davon unberührt. Schreibt ein Modul selbst in die Instanzen, wird die Auslese dort abgeschaltet.
-const PERF_CULL = { R: 65, span: 120, every: .25, t: 0, list: [], FOG_R: 70, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) > 98 %
-scene.traverse(o => { if (!o.isInstancedMesh || o.count < 8 || o.userData.noCull) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
+const PERF_CULL = { R: 65, span: 30, every: .25, t: 0, list: [], FOG_R: 70, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) > 98 %
+scene.traverse(o => { if (!o.isInstancedMesh || o.count < 4 || o.userData.noCull || o.frustumCulled === false) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
   if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const n = o.count, all = o.instanceMatrix.array.slice(0, n * 16), col = o.instanceColor ? o.instanceColor.array.slice(0, n * 3) : null, cx = new Float32Array(n), cz = new Float32Array(n), rr = new Float32Array(n), m = new THREE.Matrix4();
   for (let i = 0; i < n; i++) { m.fromArray(all, i * 16); const e = m.elements; cx[i] = e[12]; cz[i] = e[14]; rr[i] = o.geometry.boundingSphere.radius * m.getMaxScaleOnAxis(); }
   PERF_CULL.list.push({ o, n, all, col, cx, cz, rr, ver: -1, off: false }); });
@@ -9565,14 +9796,15 @@ function update(dt, t) {
   }
   const acc = 1 - Math.exp(-dt * (wish.lengthSq() > 0 ? 9 : 11));
   vel.x += (wish.x - vel.x) * acc; vel.z += (wish.z - vel.z) * acc;
-  if (mantle) { // Hochziehen: erst hoch, dann über die Kante
+  if (scripted) { vel.set(0, 0, 0); if (scripted(dt) === false) { scripted = null; grounded = true; vy = 0; } }
+  else if (mantle) { // Hochziehen: erst hoch, dann über die Kante
     mantle.t += dt / .55; const k = Math.min(1, mantle.t), e = k < .55 ? (k / .55) : 1, e2 = k < .55 ? 0 : (k - .55) / .45;
     player.pos.y = mantle.y0 + (mantle.top - mantle.y0) * (e * e * (3 - 2 * e)) + Math.sin(k * PI) * .12;
     player.pos.x = mantle.x0 + (mantle.x - mantle.x0) * e2; player.pos.z = mantle.z0 + (mantle.z - mantle.z0) * e2; vel.set(0, 0, 0);
     if (k >= 1) { player.pos.y = mantle.top; mantle = null; grounded = true; Audio.step('hard'); }
   } else {
-    player.pos.x += vel.x * dt; if (collide('x')) vel.x *= .3;
-    player.pos.z += vel.z * dt; if (collide('z')) vel.z *= .3;
+    player.pos.x += vel.x * dt; if (collide('x', vel.x * dt)) vel.x *= .3;
+    player.pos.z += vel.z * dt; if (collide('z', vel.z * dt)) vel.z *= .3;
     solidPush();
     if (SOL.soft > 0 && Math.hypot(vel.x, vel.z) > .5) { vel.x *= 1 - SOL.soft * dt * 6; vel.z *= 1 - SOL.soft * dt * 6; SOL.rustleT -= dt; if (SOL.rustleT < 0) { SOL.rustleT = rand(.25, .45); Audio.step('grass'); } } // Gestrüpp bremst und raschelt
   }
@@ -9583,11 +9815,13 @@ function update(dt, t) {
   if (si !== player.stepIdx) { player.stepIdx = si; if (spd > .6) Audio.step(indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
   const amp = (settings.bob ? .042 : 0) * Math.min(spd / 4, 1);
   const floorY = rect ? rect.y : 0;
-  if (!mantle) {
+  if (!mantle && !scripted) {
     if (jumpQueued && canMove && grounded) { const m = mantleTarget(); if (m) { mantle = { t: 0, y0: player.pos.y, x0: player.pos.x, z0: player.pos.z, ...m }; Audio.play(Audio.pick('stepC2', 'stepC4'), { gain: .5, rate: .8 }); } else { vy = 5.6; grounded = false; Audio.play(Audio.pick('stepG1', 'stepC3'), { gain: .35, rate: 1.1 }); } }
     if (!grounded && vy < 2 && (keys.KeyW || keys.ArrowUp)) { const m = mantleTarget(); if (m && m.top - player.pos.y < 1.2) { mantle = { t: 0, y0: player.pos.y, x0: player.pos.x, z0: player.pos.z, ...m }; vy = 0; } }
     if (!mantle) {
       vy -= 15 * dt; player.pos.y += vy * dt;
+      if (vy > 0) { const cy = headCeiling(player.pos.x, player.pos.y + 1, player.pos.z); // Kopfstoß: nie durch Decken springen
+        if (player.pos.y + HEAD_CLEAR > cy) { player.pos.y = cy - HEAD_CLEAR; vy = 0; Audio.thump(player.pos.x, cy, player.pos.z); shake = Math.max(shake, .008); } }
       if (player.pos.y < floorY) player.pos.y = floorY;
       const g = groundAt(floorY);
       if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; if (vy < -4) { Audio.step(indoor ? 'wood' : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); shake = Math.max(shake, .012); } } player.pos.y = g; vy = 0; }
@@ -9597,6 +9831,7 @@ function update(dt, t) {
   jumpQueued = false;
   camY += (player.pos.y + 1.65 - camY) * Math.min(1, dt * (grounded ? 9 : 30));
   camera.position.set(player.pos.x + Math.cos(player.yaw) * Math.sin(player.bob) * amp * .5, camY + Math.abs(Math.sin(player.bob)) * amp, player.pos.z - Math.sin(player.yaw) * Math.sin(player.bob) * amp * .5);
+  { const cy = ceilingAt(camera.position.x, player.pos.y + .9, camera.position.z); if (camera.position.y > cy - .12) { camera.position.y = cy - .12; camY = Math.min(camY, camera.position.y); } } // Kamera nie in/über der Decke
   camera.rotation.set(player.pitch, player.yaw, Math.sin(player.bob) * .004 * Math.min(spd / 3, 1));
   const tf = settings.fov + (run && spd > 3.5 ? 5 : 0); if (Math.abs(tf - fov) > .01) { fov += (tf - fov) * Math.min(1, dt * 5); camera.fov = fov; camera.updateProjectionMatrix(); }
 
@@ -9753,7 +9988,7 @@ addEventListener('resize', () => {
   const pr = Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
 });
-window.G = { ui, chapter2Begin, CH2_BEGIN, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
+window.G = { ui, ceilingAt, headCeiling, chapter2Begin, CH2_BEGIN, CH2_END, chapter3Begin, finale, setScripted, get scripted() { return scripted; }, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
 </script>
 </body>
 </html>

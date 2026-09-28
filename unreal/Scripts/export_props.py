@@ -24,6 +24,7 @@ ROLES = {
     'sicherung':      (['fuse', 'ceramic_fuse', 'circuit_fuse'], ['box', 'panel'], 3, 20),
     'lichtstein':     (['pebble', 'rock_small', 'stone_small', 'small_rock', 'river_stone', 'gravel_stone', 'rock'], ['cliff', 'wall', 'large', 'huge', 'mountain', 'formation'], 8, 45),
     'wrack':          (['scrap_metal', 'metal_scrap', 'metal_debris', 'debris_metal', 'sheet_metal', 'wreck', 'metal_panel', 'scrap'], ['car', 'wood'], 40, 250),
+    'leiter':         (['ladder', 'leiter', 'rung_ladder', 'maintenance_ladder'], ['step_ladder', 'wood'], 150, 600),
     'totem':          (['totem', 'effigy', 'idol', 'shrine', 'wicker', 'voodoo', 'stick_figure', 'fetish', 'ritual'], ['fire'], 50, 260),
 }
 
