@@ -86,10 +86,12 @@ function zayn_takePhotos() {
   const T = THREE, W = 400, Hh = 300, rt = new T.WebGLRenderTarget(W, Hh), pc = new T.PerspectiveCamera(58, W / Hh, .1, 160), buf = new Uint8Array(W * Hh * 4);
   const c0 = camera.position.clone(), q0 = camera.quaternion.clone(), fr0 = { p: flashRig.position.clone(), q: flashRig.quaternion.clone(), i: flashlight.intensity }, F = echoFigs[0], op0 = echoMat.opacity;
   const shots = [[70.5, [40.6, 78.8, 1.9], 'Schaukel'], [76, [35.9, 69.2, .6], 'Ball'], [81.5, [21.4, 67.2, 1.3], 'Bank'], [87, [30, 86.5, 1.4], 'Baum'], [92, [34, 71.2, 1.6], 'Karussell'], [null, null, 'Waldrand']];
-  const out = [];
+  const out = [], hemi0 = hemi.intensity, fogD0 = scene.fog.density;
   try {
+    hemi.intensity = hemi0 * 3.2; scene.fog.density = fogD0 * .55; // der Blitz der Kinderkamera hellt alles auf, was vor der Linse steht
     for (const [zz, hide, what] of shots) {
-      if (zz) { pc.position.set(26.6, 1.35, 61.4); pc.lookAt(32.4, 1, 88); } // links an der Laterne (31 | 63,5) vorbei else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      // links an der Laterne (31 | 63,5) vorbei auf den Spielplatz; das letzte Bild zeigt den Waldrand
+      if (zz) { pc.position.set(26.6, 1.45, 61.4); pc.lookAt(31.8, .9, 80); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
       camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
@@ -100,7 +102,7 @@ function zayn_takePhotos() {
       out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
     }
   } finally {
-    echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
+    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
     try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {} rt.dispose();
   }
   return out;

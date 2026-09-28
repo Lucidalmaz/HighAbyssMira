@@ -37,7 +37,7 @@ runIntro = async function traum_intro() {
   player.pos.set(-66, 0, 2); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
   $('fade').style.transition = 'none'; $('fade').style.background = '#000'; $('fade').style.opacity = 1;
   const title = $('traumTitle'); title.style.opacity = 1; Audio.whisper(-66, 1.6, 3, 2.6); if (typeof klang_dream === 'function') klang_dream(true);
-  S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; scene.fog.color.set(0x8a93a0); scene.fog.density = .05; renderer.domElement.style.filter = 'grayscale(.6) brightness(1.3) contrast(.86) blur(.4px)';
+  S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; scene.fog.color.set(0x3a414c); scene.fog.density = .046; renderer.domElement.style.filter = 'grayscale(.55) brightness(1.12) contrast(.92) blur(.4px)';
   if (Audio.rain) Audio.rain.gain.setTargetAtTime(.02, Audio.ctx.currentTime, .5);
   { const L = [...lamps].sort((a, b) => Math.hypot(a.wx, a.wz) - Math.hypot(b.wx, b.wz))[0]; if (L) { TRAUM_PERCH.x = L.wx; TRAUM_PERCH.z = L.wz; TRAUM_PERCH.y = Math.max(2.4, typeof whiskey_perch === 'function' ? whiskey_perch(L.wx, L.wz) : 3); TRAUM_BOOK.x = L.wx + 1.3; TRAUM_BOOK.z = L.wz + 1.1; } }
   S.book.position.set(TRAUM_BOOK.x, .017, TRAUM_BOOK.z); S.book.visible = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; S.crow = W && W.g ? W : null;

@@ -186,6 +186,10 @@
   #loadBar { width: 320px; height: 1px; background: #2a2620; margin: 22px 0 8px; position: relative; overflow: visible; }
   #loadBar i { display: block; height: 100%; width: 0; background: var(--gold); box-shadow: 0 0 10px var(--gold); transition: width .3s; }
   #goText { font-family: Georgia, serif; font-size: 10px; letter-spacing: .38em; color: #8b7f68; }
+  /* niedrige Fenster (Laptop, 720p): alles nach Höhe skalieren, damit Titel und Menü nie abgeschnitten werden oder die Fußzeile überdecken */
+  #menu { padding: 28px 0 52px; }
+  @media (max-height: 860px) { #start h1 { font-size: clamp(26px, min(6.2vw, 7.4vh), 78px); } #start .orn { margin: 1.4vh 0 .6vh; } #start .sub { margin-bottom: 3.2vh; } #start .dir { margin: -2.6vh 0 3.4vh; font-size: 12px; }
+    #mainMenu { gap: 0; } #mainMenu button { font-size: clamp(17px, 3.5vh, 25px); padding: .7vh 0 .7vh 30px; } #mainMenu button small { font-size: 11px; margin-top: 0; } #loadBar { margin: 1.8vh 0 .8vh; } }
   #start .foot { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: space-between; padding: 0 28px; font: 10px Georgia, serif; letter-spacing: .3em; color: #4f4838; z-index: 2; }
   #subPanel { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, 90vw); padding: 30px 38px; display: none; }
   #subPanel.show { display: block; }
@@ -1715,7 +1719,8 @@ function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); const el
 async function say(lines) { for (const l of lines) { const [t, ms, who] = l; subtitle(t, ms + 250, who); await wait(ms); } }
 function fade(to, ms = 1500) { const f = $('fade'); f.style.transition = `opacity ${ms}ms`; f.style.opacity = to; return wait(ms); }
 function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), 4500); Audio.chime(); }
-function lockPointer() { const el = renderer.domElement; try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => el.requestPointerLock()); } catch (e) { el.requestPointerLock(); } }
+function lockPointer() { const el = renderer.domElement, quiet = r => { if (r && r.catch) r.catch(() => {}); }; // ohne Nutzergeste lehnt der Browser ab – dann sperrt der nächste Klick
+  try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => { try { quiet(el.requestPointerLock()); } catch (e) {} }); } catch (e) { try { quiet(el.requestPointerLock()); } catch (e2) {} } }
 function openOverlay(id) { ui.overlay = id; $(id).classList.add('show'); document.body.classList.add('ov'); if (id !== 'note' && id !== 'journal') document.exitPointerLock(); }
 function closeOverlay() { if (!ui.overlay) return; $(ui.overlay).classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); if (document.pointerLockElement !== renderer.domElement) lockPointer(); const cb = ui.onClose; ui.onClose = null; if (cb) cb(); const cb2 = ui.onClose2; ui.onClose2 = null; if (cb2) cb2(); }
 function openNote(title, html, loreKey, onClose) {

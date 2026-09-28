@@ -78,7 +78,13 @@ const KL_PIECES = [
     KI.choir(c, o, 22, [KN('A3'), KN('E4')], 26, .02); KI.bell(c, o, 50, KN('A2'), .1, 10); }]];
 async function klang_render(name) {
   const P = KL_PIECES.find(p => p[0] === name); if (!P || klang_S.tracks[name]) return klang_S.tracks[name]; const sr = 32000, c = new OfflineAudioContext(2, Math.ceil(sr * (P[1] + 5)), sr);
-  const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_S.tracks[name] = b; return b;
+  const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_level(b); klang_S.tracks[name] = b; return b;
+}
+// Lautheit angleichen: jedes Stück auf dieselbe mittlere Lautstärke (RMS 0,042), Spitzen nie über 0,7 – kein Ort zu leise, keiner zu laut
+function klang_level(b) {
+  let sq = 0, pk = 0, n = 0; for (let ch = 0; ch < b.numberOfChannels; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < d.length; i += 4) { const v = d[i]; sq += v * v; n++; const a = v < 0 ? -v : v; if (a > pk) pk = a; } }
+  const rms = Math.sqrt(sq / Math.max(1, n)); if (rms < 1e-5) return; const k = Math.min(.042 / rms, .7 / Math.max(pk, 1e-4), 4);
+  for (let ch = 0; ch < b.numberOfChannels; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < d.length; i++) d[i] *= k; }
 }
 // Nacheinander im Hintergrund rendern (Menü und Traum zuerst), dann in die Musikauswahl einreihen
 async function klang_renderAll() {

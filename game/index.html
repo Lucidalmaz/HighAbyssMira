@@ -186,6 +186,10 @@
   #loadBar { width: 320px; height: 1px; background: #2a2620; margin: 22px 0 8px; position: relative; overflow: visible; }
   #loadBar i { display: block; height: 100%; width: 0; background: var(--gold); box-shadow: 0 0 10px var(--gold); transition: width .3s; }
   #goText { font-family: Georgia, serif; font-size: 10px; letter-spacing: .38em; color: #8b7f68; }
+  /* niedrige Fenster (Laptop, 720p): alles nach Höhe skalieren, damit Titel und Menü nie abgeschnitten werden oder die Fußzeile überdecken */
+  #menu { padding: 28px 0 52px; }
+  @media (max-height: 860px) { #start h1 { font-size: clamp(26px, min(6.2vw, 7.4vh), 78px); } #start .orn { margin: 1.4vh 0 .6vh; } #start .sub { margin-bottom: 3.2vh; } #start .dir { margin: -2.6vh 0 3.4vh; font-size: 12px; }
+    #mainMenu { gap: 0; } #mainMenu button { font-size: clamp(17px, 3.5vh, 25px); padding: .7vh 0 .7vh 30px; } #mainMenu button small { font-size: 11px; margin-top: 0; } #loadBar { margin: 1.8vh 0 .8vh; } }
   #start .foot { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: space-between; padding: 0 28px; font: 10px Georgia, serif; letter-spacing: .3em; color: #4f4838; z-index: 2; }
   #subPanel { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, 90vw); padding: 30px 38px; display: none; }
   #subPanel.show { display: block; }
@@ -1717,7 +1721,8 @@ function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); const el
 async function say(lines) { for (const l of lines) { const [t, ms, who] = l; subtitle(t, ms + 250, who); await wait(ms); } }
 function fade(to, ms = 1500) { const f = $('fade'); f.style.transition = `opacity ${ms}ms`; f.style.opacity = to; return wait(ms); }
 function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), 4500); Audio.chime(); }
-function lockPointer() { const el = renderer.domElement; try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => el.requestPointerLock()); } catch (e) { el.requestPointerLock(); } }
+function lockPointer() { const el = renderer.domElement, quiet = r => { if (r && r.catch) r.catch(() => {}); }; // ohne Nutzergeste lehnt der Browser ab – dann sperrt der nächste Klick
+  try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => { try { quiet(el.requestPointerLock()); } catch (e) {} }); } catch (e) { try { quiet(el.requestPointerLock()); } catch (e2) {} } }
 function openOverlay(id) { ui.overlay = id; $(id).classList.add('show'); document.body.classList.add('ov'); if (id !== 'note' && id !== 'journal') document.exitPointerLock(); }
 function closeOverlay() { if (!ui.overlay) return; $(ui.overlay).classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); if (document.pointerLockElement !== renderer.domElement) lockPointer(); const cb = ui.onClose; ui.onClose = null; if (cb) cb(); const cb2 = ui.onClose2; ui.onClose2 = null; if (cb2) cb2(); }
 function openNote(title, html, loreKey, onClose) {
@@ -10326,7 +10331,7 @@ WORLD_TICK.push((dt, t) => {
 const _anwFwd = new THREE.Vector3();
 const anwesen_hand = s => '<span class="hand">' + s + '</span>';
 if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
-window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count }; // Testzugriff
+window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a) }; // Testzugriff
 // =====================================================================  WALD (Modul „wald“): Forbidden Dustwoods – der Wald hinter dem Spielplatz
 // Nördlich des Spielplatzes (x −40…110, z 99…156). Eingang: Lücke im Nordzaun bei x 26–34 (gruen.js lässt dort den Zaun weg).
 // Dicht, tot, lebendig: Totholz-Scans in Blöcken (≤ 1000 Instanzen je Block → echte Kollision), Unterholz (weich: bremst, raschelt), Findlinge, Laub.
@@ -10592,10 +10597,12 @@ function zayn_takePhotos() {
   const T = THREE, W = 400, Hh = 300, rt = new T.WebGLRenderTarget(W, Hh), pc = new T.PerspectiveCamera(58, W / Hh, .1, 160), buf = new Uint8Array(W * Hh * 4);
   const c0 = camera.position.clone(), q0 = camera.quaternion.clone(), fr0 = { p: flashRig.position.clone(), q: flashRig.quaternion.clone(), i: flashlight.intensity }, F = echoFigs[0], op0 = echoMat.opacity;
   const shots = [[70.5, [40.6, 78.8, 1.9], 'Schaukel'], [76, [35.9, 69.2, .6], 'Ball'], [81.5, [21.4, 67.2, 1.3], 'Bank'], [87, [30, 86.5, 1.4], 'Baum'], [92, [34, 71.2, 1.6], 'Karussell'], [null, null, 'Waldrand']];
-  const out = [];
+  const out = [], hemi0 = hemi.intensity, fogD0 = scene.fog.density;
   try {
+    hemi.intensity = hemi0 * 3.2; scene.fog.density = fogD0 * .55; // der Blitz der Kinderkamera hellt alles auf, was vor der Linse steht
     for (const [zz, hide, what] of shots) {
-      if (zz) { pc.position.set(26.6, 1.35, 61.4); pc.lookAt(32.4, 1, 88); } // links an der Laterne (31 | 63,5) vorbei else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      // links an der Laterne (31 | 63,5) vorbei auf den Spielplatz; das letzte Bild zeigt den Waldrand
+      if (zz) { pc.position.set(26.6, 1.45, 61.4); pc.lookAt(31.8, .9, 80); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
       camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
@@ -10606,7 +10613,7 @@ function zayn_takePhotos() {
       out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
     }
   } finally {
-    echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
+    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
     try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {} rt.dispose();
   }
   return out;
@@ -10865,7 +10872,13 @@ const KL_PIECES = [
     KI.choir(c, o, 22, [KN('A3'), KN('E4')], 26, .02); KI.bell(c, o, 50, KN('A2'), .1, 10); }]];
 async function klang_render(name) {
   const P = KL_PIECES.find(p => p[0] === name); if (!P || klang_S.tracks[name]) return klang_S.tracks[name]; const sr = 32000, c = new OfflineAudioContext(2, Math.ceil(sr * (P[1] + 5)), sr);
-  const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_S.tracks[name] = b; return b;
+  const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_level(b); klang_S.tracks[name] = b; return b;
+}
+// Lautheit angleichen: jedes Stück auf dieselbe mittlere Lautstärke (RMS 0,042), Spitzen nie über 0,7 – kein Ort zu leise, keiner zu laut
+function klang_level(b) {
+  let sq = 0, pk = 0, n = 0; for (let ch = 0; ch < b.numberOfChannels; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < d.length; i += 4) { const v = d[i]; sq += v * v; n++; const a = v < 0 ? -v : v; if (a > pk) pk = a; } }
+  const rms = Math.sqrt(sq / Math.max(1, n)); if (rms < 1e-5) return; const k = Math.min(.042 / rms, .7 / Math.max(pk, 1e-4), 4);
+  for (let ch = 0; ch < b.numberOfChannels; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < d.length; i++) d[i] *= k; }
 }
 // Nacheinander im Hintergrund rendern (Menü und Traum zuerst), dann in die Musikauswahl einreihen
 async function klang_renderAll() {
@@ -10998,7 +11011,7 @@ runIntro = async function traum_intro() {
   player.pos.set(-66, 0, 2); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
   $('fade').style.transition = 'none'; $('fade').style.background = '#000'; $('fade').style.opacity = 1;
   const title = $('traumTitle'); title.style.opacity = 1; Audio.whisper(-66, 1.6, 3, 2.6); if (typeof klang_dream === 'function') klang_dream(true);
-  S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; scene.fog.color.set(0x8a93a0); scene.fog.density = .05; renderer.domElement.style.filter = 'grayscale(.6) brightness(1.3) contrast(.86) blur(.4px)';
+  S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; scene.fog.color.set(0x3a414c); scene.fog.density = .046; renderer.domElement.style.filter = 'grayscale(.55) brightness(1.12) contrast(.92) blur(.4px)';
   if (Audio.rain) Audio.rain.gain.setTargetAtTime(.02, Audio.ctx.currentTime, .5);
   { const L = [...lamps].sort((a, b) => Math.hypot(a.wx, a.wz) - Math.hypot(b.wx, b.wz))[0]; if (L) { TRAUM_PERCH.x = L.wx; TRAUM_PERCH.z = L.wz; TRAUM_PERCH.y = Math.max(2.4, typeof whiskey_perch === 'function' ? whiskey_perch(L.wx, L.wz) : 3); TRAUM_BOOK.x = L.wx + 1.3; TRAUM_BOOK.z = L.wz + 1.1; } }
   S.book.position.set(TRAUM_BOOK.x, .017, TRAUM_BOOK.z); S.book.visible = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; S.crow = W && W.g ? W : null;
