@@ -1,6 +1,6 @@
-// =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Miras Spielsachen – drei Sammelreihen, die sich gegenseitig verraten
-// · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – Mira versteckt sich vor dem Licht.
-//   Jeder flüstert eine Zahl (Mira zählt). Alle sieben: Neben-Twist „Miras Versteck“.
+// =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Spielsachen des Kindes im Licht – drei Sammelreihen, die sich gegenseitig verraten
+// · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – das Kind versteckt sich vor dem Licht.
+//   Jeder flüstert eine Zahl (das Kind zählt). Alle sieben: Neben-Twist „Das Versteck“.
 // · 5 Wrackteile: verbogenes Rostblech (Scan-Oberfläche) mit eingedrückten Kinderhänden. Zusammen: das Wappen vom Hohen Abgrund.
 // · 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel der Grauen).
 //   Alle vier: Kreide-Hinweise, wo die Lichtsteine liegen.
@@ -89,8 +89,8 @@ function geheimnisse_takeStone(s) {
   s.o.visible = false; uninteract(s.hit); sideStart('geh_steine');
   const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
   Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
-  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Miras Versteck“ (Ende B: wer gefunden wird, muss zählen)
-    openNote('Miras Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
+  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Das Versteck“ (Ende B: wer gefunden wird, muss zählen)
+    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
     setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
 }
 function geheimnisse_wreck(i, text, key) {
@@ -102,8 +102,9 @@ function geheimnisse_wreck(i, text, key) {
 }
 function geheimnisse_totem(i, key) {
   const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];
-  if (geheimnisse_has(key)) return toast(lines[i], 3600);
-  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16);
+  if (geheimnisse_has(key)) { if (!(typeof visionen_totem === 'function' && visionen_totem(i))) toast(lines[i], 3600); return; }
+  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16); // Berührung: Vision (Modul visionen)
+  if (typeof visionen_totem === 'function') setTimeout(() => visionen_totem(i), 1400);
   const n = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4.`;
   if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); sideStart('geh_steine');
     openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 5000);

@@ -1761,7 +1761,7 @@ async function renderEditor() {
   const tabs = [['regeln', 'NAMEN & REGELN'], ['texte', 'ALLE TEXTE'], ['sichern', 'SICHERN']];
   let body = '';
   if (edTab === 'regeln') {
-    const chips = ['Justin', 'Mira', 'Lucy', 'Luke', 'Hilde Wendt', 'Frau Wendt', 'Vegas', 'Bruno', 'Lost Eyengless', 'Amt für Rückführung', 'Ratte', 'Krähe', 'Spinne', 'Fledermaus', 'Zombie', 'Ritter'];
+    const chips = ['Justin', 'Lucy', 'Luke', 'Hilde Wendt', 'Frau Wendt', 'Vegas', 'Bruno', 'Lost Eyengless', 'Amt für Rückführung', 'Ratte', 'Krähe', 'Spinne', 'Fledermaus', 'Zombie', 'Ritter'];
     body = `<p class="eh">Eine Regel ersetzt einen Namen oder Begriff <b>überall im Spiel</b> – in Untertiteln, Notizen, Aufgaben, Tagebuch und Abspann. Groß-/Kleinschreibung zählt.</p>
       <div class="rules">${TXT.rules.map((R, i) => `<div class="rule"><input data-i="${i}" data-f="from" value="${esc(R.from)}" placeholder="Original"><span>→</span><input data-i="${i}" data-f="to" value="${esc(R.to)}" placeholder="Neu"><button data-del="${i}">✕</button></div>`).join('')}</div>
       <div class="row"><button id="edAdd">+ NEUE REGEL</button></div><p class="eh">Schnell hinzufügen:</p><div class="chips">${chips.map(c => `<button data-chip="${esc(c)}">${c}</button>`).join('')}</div>`;
@@ -1837,7 +1837,7 @@ setMain(0);
 const PHOTOS = [
   { name: 'Roxy', hint: 'Im Aschekreis des abgebrannten Hauses Nr. 5.', text: 'Roxy, 8. Ihr Haus ist im Dezember 2009 abgebrannt – genau dieses hier. Die Feuerwehr fand keinen Brandherd. Nur einen Kreis im Garten, in dem nie wieder Gras wuchs.', pos: [-13, .2, -10.2], candle: [-13.4, .2, -10.5], zone: [-13, -10.2, 9] },
   { name: 'Lucy', hint: 'In Lucys Auto an der Straßensperre.', text: 'Lucy, 9. Hinten drauf, in Lucys Schrift:\n<span class="hand">„Damit ich mich erinnere, wer ich war.“</span>', car: [-.5, .7, .35], candle: [4.2, 0, -35.5], zone: [1.9, -37, 12] },
-  { name: 'Mike', hint: 'In der Telefonzelle an der Kreuzung.', text: 'Mike, 10. Mike ist 2021 verschwunden. Diesmal kam er nicht zurück.', booth: [.2, 1.15, -.35], candle: [8.9, .14, 8.4], zone: [8, 7.6, 8] },
+  { name: 'Mike', hint: 'In der Telefonzelle an der Kreuzung.', text: 'Mike, 10. Im Juli ist er wieder verschwunden, barfuß, aus der geschlossenen Tankstelle. Diesmal kam er nicht zurück.', booth: [.2, 1.15, -.35], candle: [8.9, .14, 8.4], zone: [8, 7.6, 8] },
   { name: 'Dina', hint: 'Bei Frau Wendt (Nr. 7), neben dem Fernseher.', text: 'Dina, 9. Frau Wendts Handschrift auf der Rückseite:\n<span class="hand">„Klinik Sonnenhang. Malt nur noch Kreise.“</span>', pos: [21.9, Y + .61, -12.55], candle: [20.7, Y + .6, -12.55], zone: [21.3, -13.5, 3.2] },
   { name: 'Luke', scratch: true, hint: 'In eurem Kinderzimmer (Nr. 1), auf deinem alten Bett.', text: 'Luke, 9. Das bist du.\n\nDas Kind auf dem Foto hat hellblaue Augen. Deine sind braun.\n\nWaren sie immer braun?', pos: [-50.6, Y + .46, -19], candle: [-50.6, Y + .45, -20.2], zone: [-53, -19.5, 3.2] },
   { name: 'Heidi', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Heidi, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
@@ -1897,7 +1897,7 @@ PHOTOS.forEach((p, i) => {
     p.candle.on = false; p.candle.flame.visible = false; p.candle.light.intensity = 0; p.candle.pool.visible = false;
     if (story.photos.size === 1) sideStart('seven');
     liftTo(m, () => openNote(`Polaroid · ${story.photos.size}/7`, `<img src="${p.url}">${p.text}`, 'photo' + i, () => photoAfter[i] && photoAfter[i]()), false);
-    if (story.photos.size === 7) setTimeout(() => { sideDone('seven', 'Alle sieben Fotos gefunden.'); story.lore.push({ key: 'eight', title: 'Das achte Kind', html: 'Sieben Fotos. Auf jede Rückseite hat Hilde Wendt dieselbe Frage geschrieben:\n\n<span class="hand">„Wer ist das achte Kind?“</span>' }); toast('Auf jeder Rückseite steht dieselbe Frage: „Wer ist das achte Kind?“', 6000); }, 300);
+    if (story.photos.size === 7) setTimeout(() => { sideDone('seven', 'Alle sieben Fotos gefunden.'); story.lore.push({ key: 'eight', title: 'Das achte Kind', html: 'Sieben Fotos. Auf jede Rückseite hat jemand mit Kinderkreide dieselbe Frage geschrieben:\n\n<span class="hand">„Wer ist das achte Kind?“</span>' }); toast('Auf jeder Rückseite steht dieselbe Frage: „Wer ist das achte Kind?“', 6000); }, 300);
   });
 });
 // Auf dem Weg zu jedem Foto passiert etwas Eigenes
@@ -1966,7 +1966,7 @@ function doorAction(D, lockedText) {
 }
 interact(door7.leaf, () => door7.open ? 'Tür schließen' : 'Tür öffnen', doorAction(door7, 'Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.'));
 interact(newspaper, 'Zeitung lesen', () => { state.readPaper = true;
-  liftTo(newspaper, () => openNote('LOST EYENGLESS-KURIER · 29. Oktober', '<b>Dritte Vermisste in diesem Jahr</b>\n\nLena B. (24) wird seit dem <b>23. Oktober</b> vermisst. Zuletzt wurde sie an der Kreuzung Ahornstraße / Birkenweg gesehen.\n\nAnwohner berichten erneut von „Lichtern über dem Wald“. Die Polizei sieht keinen Zusammenhang.\n\nAm Rand, mit Kuli:\n<span class="hand">„Sie war nie weg. Nicht richtig.“</span>', 'paper')); });
+  liftTo(newspaper, () => openNote('LOST EYENGLESS-KURIER · 29. Oktober', '<b>Dritte Vermisste in diesem Jahr</b>\n\nLucy B. (26) wird seit dem <b>23. Oktober</b> vermisst. Zuletzt wurde sie an der Kreuzung Ahornstraße / Birkenweg gesehen.\n\nAnwohner berichten erneut von „Lichtern über dem Wald“. Die Polizei sieht keinen Zusammenhang.\n\nAm Rand, mit Kuli:\n<span class="hand">„Sie war nie weg. Nicht richtig.“</span>', 'paper')); });
 interact(fridgeNote, 'Zettel lesen', () => { state.readFridge = true; setMain(3);
   openNote('Zettel am Kühlschrank', '<span class="hand">KELLER BLEIBT ZU!!\n\nCode = der Tag, an dem sie <u>zurückkam</u>.\n(Tag + Monat. Ich vergesse sonst alles.)\n\n– H. Wendt</span>', 'fridge', () => { if (!state.scFridge) { state.scFridge = true; setTimeout(() => armBehind(6, Y, 'wendt'), 200); } }); });
 interact(calendar, 'Kalender ansehen', () => { if (!state.readCal) Audio.stinger(false); state.readCal = true;
@@ -2114,6 +2114,7 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyE' && target) target.userData.action();
   if (e.code === 'KeyF') { flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }
   if (e.code === 'KeyR' && state.started && !ui.overlay) flashReload();
+  if (KEY_HOOKS[e.code] && state.started && !ui.overlay && !e.repeat) KEY_HOOKS[e.code](); // Tasten der Welt-Module (z. B. G = Lichtstein)
   if (e.code === 'Space') { e.preventDefault(); jumpQueued = true; }
   if (e.code === 'Tab' || e.code === 'KeyJ') { renderJournal(); openOverlay('journal'); }
 });
@@ -2157,6 +2158,9 @@ const R = .3, vel = new THREE.Vector3(), wish = new THREE.Vector3();
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
 // Fremdgesteuerte Bewegung (z. B. Leiter): scripted(dt) setzt player.pos selbst, Rückgabe false = fertig. Solange aktiv: keine Schwerkraft, keine Kollision.
 let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
+let camOverride = null; function setCamOverride(fn) { camOverride = fn; }
+const KEY_HOOKS = {}; // Welt-Module: KEY_HOOKS['KeyG'] = () => …
+function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
 function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Achse
   if (state.zone === 'canal') return canalCollide(axis);
   let hit = false; const v = step;
@@ -2866,7 +2870,7 @@ const files = ['Roxy', 'Lucy', 'Mike', 'Dina', 'Heidi', 'Luke', 'Zayn'].map((n, 
 const FILE_TEXT = {
   Roxy: 'AKTE 01 · Roxy R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Reagiert nicht auf ihren Hundenamen.',
   Lucy: 'AKTE 02 · Lucy B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>01.08.2009, 23:55</b> – „in der Nacht“.\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen.',
-  Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig. Zweite Entnahme 2021 – <u>keine</u> Rückführung.',
+  Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig.\n<i>Mit Kuli, neu, in Hildes Schrift: 12.07.2026 – wieder weg. Keine Rückführung.</i>',
   Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
   Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
   Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
@@ -3223,7 +3227,7 @@ const chronTex = tex(cnv(512, (c, w) => { c.fillStyle = '#3a3226'; c.fillRect(0,
   c.fillStyle = '#555'; c.fillText('Laternenfest', 330, 360); c.fillText('fällt aus', 340, 384); }), true);
 const chronik = box(1.6, 1.15, .08, -6.8, 1.55, -6.55, new THREE.MeshStandardMaterial({ map: chronTex, roughness: .85 }), { collide: true });
 for (const s of [-.72, .72]) box(.08, 1.1, .08, -6.8 + s, .55, -6.55, M.wood);
-interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, zu Ende des Heumonds, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen Tochter <b>Mira</b> unter ihnen war, ritt dem Licht nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder soweit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
+interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, zu Ende des Heumonds, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen einzige Tochter als Erste im Licht verschwunden war, ritt ihm nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder soweit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
 
 // ---- Kreuzung: Funkkasten des Amts
 const radioBox = box(.6, 1.1, .4, 5.4, .55, -6.6, new THREE.MeshStandardMaterial({ color: 0x5c6258, roughness: .6, metalness: .5 }), { collide: true });
@@ -3245,10 +3249,10 @@ function radioPuzzle() {
 }
 async function broadcast() {
   if (ch3.radio) return; ch3.radio = true; state.talking = true; radioLed.material.emissive.set(0x30ff60); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz';
-  await say([['*Gong* – *Rauschen*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['„Das Weiße ist offen. Protokoll MIRA läuft.“', 3600, F],
+  await say([['*Gong* – *Rauschen*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['„Das Weiße ist offen. Protokoll SIEBZEHN läuft.“', 3600, F],
     ['„Löschfolge der Leuchten: fünf. drei. eins. sieben.“', 4200, F], ['„Wiederhole: fünf – drei – eins – sieben.“', 3800, F], ['„Ersatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“', 4600, F], ['*Rauschen*', 1600]]);
   state.talking = false; setC3('Schalte die Laternen ab – an den Kästen vor Nr. 5, 3, 1 und 7. In dieser Reihenfolge.');
-  story.lore.push({ key: 'c3funk', title: 'Funkspruch · 31,10 MHz', html: '„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Das Weiße ist offen. Protokoll MIRA läuft.\nLöschfolge der Leuchten: <b>fünf – drei – eins – sieben</b>.\nErsatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“' });
+  story.lore.push({ key: 'c3funk', title: 'Funkspruch · 31,10 MHz', html: '„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Das Weiße ist offen. Protokoll SIEBZEHN läuft.\nLöschfolge der Leuchten: <b>fünf – drei – eins – sieben</b>.\nErsatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“' });
 }
 
 // ---- Schaltkästen vor den Häusern: Laternen in der richtigen Reihenfolge löschen
@@ -3415,7 +3419,7 @@ function whiteDoor(x, z) {
 }
 // Eingang
 c3Room(X3, X3 + 8, Z3 - 3, Z3 + 3, { e: [{ at: Z3, w: 1.6 }] }); c3Light(X3 + 4, Z3, 2.6, 10);
-// Raum 1: das Kinderzimmer, Nacht des 27. Juli 2009
+// Raum 1: das Kinderzimmer, Nacht des 28. Juli 2009, 23:39
 c3Room(X3 + 8, X3 + 20, Z3 - 6, Z3 + 6, { w: [{ at: Z3, w: 1.6 }], e: [{ at: Z3, w: 1.6 }] }); c3Light(X3 + 14, Z3 - 2, 2.2, 12); c3Light(X3 + 14, Z3 + 3, 1.6, 10, 0xdce8ff);
 const door1w = whiteDoor(X3 + 20, Z3);
 box(1.1, .5, 2.1, X3 + 10.5, .25, Z3 - 4.6, whiteMat, { collide: true }); box(1.1, .12, 2.1, X3 + 10.5, .56, Z3 - 4.6, fabricMat(0x9aa6c0));
@@ -3433,7 +3437,7 @@ for (const [k, it] of Object.entries(r1Items)) interact(it.m, () => it.name, () 
 const r1Panel = plane(.9, .5, X3 + 19.8, 1.7, Z3 - 1.3, new THREE.MeshStandardMaterial({ roughness: .8, emissive: 0x222222, map: tex(cnv(256, (c, w) => { c.fillStyle = '#f4f4f6'; c.fillRect(0, 0, w, w); c.fillStyle = '#333'; c.font = 'italic 24px Georgia'; c.textAlign = 'center'; c.fillText('Was gehört nicht', w / 2, 100); c.fillText('in diese Nacht?', w / 2, 140); }), true) }), 0, -PI / 2);
 interact(r1Panel, 'Die Frage an der Tür', () => {
   if (ch3.room1) return toast('Die Tür steht offen.');
-  openPuzzle(`<h3>WAS GEHÖRT NICHT IN DIESE NACHT?</h3><p>Das Zimmer des Jungen, 27. Juli 2009. Alles ist genau so, wie es war. Bis auf eines.</p><div class="row">${Object.entries(r1Items).map(([k, it]) => `<button data-k="${k}">${it.name.replace(/^(Die|Der|Das) /, '')}</button>`).join('')}</div>`, box => {
+  openPuzzle(`<h3>WAS GEHÖRT NICHT IN DIESE NACHT?</h3><p>Das Zimmer des Jungen, 28. Juli 2009, 23:39. Alles ist genau so, wie es war. Bis auf eines.</p><div class="row">${Object.entries(r1Items).map(([k, it]) => `<button data-k="${k}">${it.name.replace(/^(Die|Der|Das) /, '')}</button>`).join('')}</div>`, box => {
     box.querySelectorAll('button[data-k]').forEach(b => b.onclick = e => { e.stopPropagation(); closeOverlay(); room1Answer(b.dataset.k); });
   });
 });
@@ -3487,8 +3491,8 @@ async function hildeTalks() {
 async function room2Solved() {
   ch3.room2 = true; Audio.chime(); state.talking = true; tween(hilde, { pos: hilde.position.clone().setY(-2.4) }, 3);
   await say([['Die Uhr schlägt einmal. Frau Wendt löst sich auf wie Atem an einer Scheibe.', 4000], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000],
-    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 kam das Weiße zum ersten Mal. Es nahm meine Tochter. Mira. Sie war sieben.“', 4800, JS],
-    ['„Ich ritt hinein und bot ihm, was es wollte: sieben Kinder des Dorfes – für meine eine.“', 4800, JS], ['„Es nahm die sieben. Und es behielt Mira. Und es lernte zu handeln.“', 4400, JS],
+    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 kam das Weiße zum ersten Mal. Es nahm meine Tochter. Sie war sieben. Ihren Namen spreche ich nicht mehr aus.“', 4800, JS],
+    ['„Ich ritt hinein und bot ihm, was es wollte: sieben Kinder des Dorfes – für meine eine.“', 4800, JS], ['„Es nahm die sieben. Und es behielt sie. Und es lernte zu handeln.“', 4400, JS],
     ['„Seitdem wirft es mich alle siebzehn Jahre in eure Welt, damit ich zusehe, was ich angefangen habe. Und die Kinder heimführe.“', 5600, JS], ['„Das ist meine Strafe. Und meine Schuld.“', 3000, JS]]);
   state.talking = false; door2w.set(true); Audio.slide(X3 + 32, Z3); setC3('Der Hohe Abgrund. Geh hinein.');
 }
@@ -3509,17 +3513,17 @@ async function room3Scene() {
   ch3.room3 = true; state.talking = true; justin.look = false; Audio.hum(true);
   jWalk(X3 + 37.5, Z3 + 1.4, () => { justin.g.rotation.y = PI / 2; jPlay('kneel'); });
   await say([['Acht Stühle im Kreis. Auf sieben sitzen Kinder. Sie drehen die Köpfe. Alle gleichzeitig.', 4400], ['Der achte Stuhl ist leer. Er steht mit der Lehne zu dir.', 3600],
-    ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Papa. Du hast ihn mitgebracht.“', 3000, 'MIRA'],
-    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'MIRA'], ['„Aus dir. Aus deinem Blut an meinen Händen, als du mich holen wolltest.“', 4600, 'MIRA'],
-    ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'MIRA']]);
+    ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Papa. Du hast ihn mitgebracht.“', 3000, 'DAS KIND'],
+    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen, als du mich holen wolltest.“', 4600, 'DAS KIND'],
+    ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'DAS KIND']]);
   const extra = [];
-  if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'MIRA']);
+  if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'DAS KIND']);
   if (ch3.myst.has('brief')) extra.push(['Der Mann in Mamas Garten. Das warst du, Justin.', 3200, 'DU'], ['„Ich wollte sehen, was sie aus mir gemacht hat.“', 3400, JS]);
-  if (ch3.myst.has('buch')) extra.push(['„Die alte Frau zählt immer acht. Weil ihr immer acht seid. Sieben Geholte und einer von Papa.“', 4800, 'MIRA']);
-  if (ch3.myst.has('albers')) extra.push(['„Papa räumt auf. Immer. Er bringt sie mir weg.“', 3200, 'MIRA']);
-  if (ch3.myst.has('chronik')) extra.push(['„Siebenhundertvierzehn Jahre, Papa. Zweiundvierzig Mal hab ich dich gerufen.“', 4400, 'MIRA']);
+  if (ch3.myst.has('buch')) extra.push(['„Die alte Frau zählt immer acht. Weil ihr immer acht seid. Sieben Geholte und einer von Papa.“', 4800, 'DAS KIND']);
+  if (ch3.myst.has('albers')) extra.push(['„Papa räumt auf. Immer. Er bringt sie mir weg.“', 3200, 'DAS KIND']);
+  if (ch3.myst.has('chronik')) extra.push(['„Siebenhundertvierzehn Jahre, Papa. Zweiundvierzig Mal hab ich dich gerufen.“', 4400, 'DAS KIND']);
   if (extra.length) await say(extra);
-  await say([['„Jedes achte Kind mache ich aus dir, Papa. Damit du irgendwo da draußen bist. Damit jemand nach Hause geht, der zu mir gehört.“', 5600, 'MIRA'],
+  await say([['„Jedes achte Kind mache ich aus dir, Papa. Damit du irgendwo da draußen bist. Damit jemand nach Hause geht, der zu mir gehört.“', 5600, 'DAS KIND'],
     ['Justin steht auf. Langsam. Seine Hand liegt auf dem Schwert, aber er zieht es nicht.', 4200],
     ['„Luke. So heißt du – ganz gleich, wer dich gemacht hat. Hör mich an.“', 4000, JS],
     ['„Wenn ich hinabsteige, und mit mir das Kind, das aus mir ist, dann ist der Handel erfüllt. Der Abgrund schließt sich. Für immer.“', 5600, JS],
@@ -3530,7 +3534,7 @@ async function room3Scene() {
 }
 function showChoice() {
   if (ch3.choice) return;
-  openPuzzle(`<h3>DER HOHE ABGRUND</h3><p>Justin wartet. Mira lächelt. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
+  openPuzzle(`<h3>DER HOHE ABGRUND</h3><p>Justin wartet. Das Kind lächelt. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
     <button id="chA" style="min-width:340px">MIT JUSTIN HINABSTEIGEN<br><small style="opacity:.7">Der Abgrund schließt sich. Lucy kommt heim. Du nicht.</small></button>
     <button id="chB" style="min-width:340px">ZURÜCKBLEIBEN<br><small style="opacity:.7">Justin geht allein. Du bleibst bei Lucy. Vielleicht genügt es.</small></button></div>`, box => {
     box.querySelector('#chA').onclick = e => { e.stopPropagation(); ch3.choice = 'A'; closeOverlay(); endingA(); };
@@ -3550,17 +3554,17 @@ function c3Endcard(title, text, next) {
 async function endingA() {
   state.talking = true; justin.look = true; jPlay('idle');
   await say([['Du gehst zu ihm. Er nimmt deine Hand. Sein Handschuh ist kalt und zittert.', 4200], ['„Danke, Sohn.“', 2400, JS], ['Das Wort trifft dich härter als alles, was du heute Nacht gesehen hast.', 4000],
-    ['Mira streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
+    ['Das Mädchen streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
   $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
   await wait(800); Audio.bell(0, 0); await wait(1500);
-  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 1. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Siebzehn Jahre waren sie fort. Ein Mann ruft den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Siebzehn Jahre waren sie fort. Ein Mann ruft den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
 }
 async function endingB() {
   state.talking = true;
   await say([['Du bleibst stehen. Justin nickt, als hätte er nichts anderes erwartet.', 3800], ['„Dann pass auf sie auf. Auf deine Schwester. Sie hat dich gewählt, lange bevor du es wusstest.“', 5000, JS]]);
   justin.look = false; jWalk(X3 + 41.2, Z3, () => { tween(justin.g, { pos: new THREE.Vector3(X3 + 42, -3, Z3) }, 2.6); });
   await wait(2600); Audio.screech(); glitchV = 1; shake = .08;
-  await say([['Mira schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
+  await say([['Das Kind schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
   c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist nach Hause gekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
 }
@@ -3577,7 +3581,7 @@ async function enterWhite() {
 }
 function c3WhiteUpdate(dt, t) {
   const P = player.pos;
-  if (!ch3.r1Seen && P.x > X3 + 8.6) { ch3.r1Seen = true; setC3('Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.'); say([['Dein Kinderzimmer. Nein – seines. 27. Juli 2009, der letzte Abend, bevor er ging.', 4400], ['„Alles hier ist aus dieser Nacht. Bis auf eine Sache.“', 3600, JS]]); }
+  if (!ch3.r1Seen && P.x > X3 + 8.6) { ch3.r1Seen = true; setC3('Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.'); say([['Dein Kinderzimmer. Nein – seines. 28. Juli 2009, eine Minute bevor er ging.', 4400], ['„Alles hier ist aus dieser Nacht. Bis auf eine Sache.“', 3600, JS]]); }
   if (ch3.room1 && !ch3.hildeSpoke && !state.talking && P.x > X3 + 22.5) hildeTalks();
   if (ch3.room2 && !ch3.room3 && P.x > X3 + 33.5) room3Scene();
   // Justin folgt – ohne durch geschlossene Türen zu laufen
@@ -3961,7 +3965,7 @@ const ECHOES = [
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Echo · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
     lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, bleibt im Weißen.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
   { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Echo · Das Weiße, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
-    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['„Sieben für Papa. Damit er mich holen kommt.“', 3400, 'MIRA'], ['„Und einen für mich. Aus Papa gemacht. Damit ich nicht allein bin.“', 4200, 'MIRA']] },
+    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['„Sieben für Papa. Damit er mich holen kommt.“', 3400, 'DAS KIND'], ['„Und einen für mich. Aus Papa gemacht. Damit ich nicht allein bin.“', 4200, 'DAS KIND']] },
 ];
 const echoAnchors = [];
 function addEcho(E) {
@@ -4153,13 +4157,13 @@ const CASES = [
   { id: 'amt', q: 'Was ist das Amt für Rückführung?', clues: { echo_kueche: 'Echo: Wendts Küche', echo_archiv: 'Echo: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
     a: 'Eine Behörde, die mit dem Licht verhandelt. Sie liefert keine Kinder – nur Papiere. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, wird „Ersatz“ genannt. Unterschreiben müssen die Mütter.' },
   { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
-    a: 'Sieben Kinder wurden geholt. Sieben kamen zurück – und eines davon war ein anderes. Auf dem Foto stehen acht, weil einer zweimal da ist: das Original und der Ersatz.' },
+    a: 'Sieben Kinder wurden geholt. Sieben kamen zurück – und eines davon war ein anderes. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
   { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
     a: 'Du bist der Ersatz, drei Tage zu spät geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
   { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
     a: 'Lucy ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Die Anrufe, die dich nach Lost Eyengless lockten, kamen nicht von ihr. Etwas spielt mit ihren Stimmen.' },
   { id: 'licht', q: 'Was ist das Licht?', clues: { c3chronik: 'Die Chronik von 1312', c3funk: 'Der Funkspruch', c3buch: 'Hilde Wendts Zählbuch', echo_mira: 'Echo: Das Mädchen im Weißen' },
-    a: 'Das Amt nennt es MIRA. Alle siebzehn Jahre öffnet es sich über Lost Eyengless – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
+    a: 'Das Amt nennt es „das Weiße“. Alle siebzehn Jahre öffnet es sich über Lost Eyengless – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
   { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Vegas, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Echo: Der Messraum', echo_1975: 'Echo: Sommer 1975' },
     a: 'Justin vom Hohen Abgrund. Er steht am Anfang von allem – und jedes Mal, wenn das Weiße sich öffnet, führt er die Kinder heim. Schuld und Wiedergutmachung in einer Rüstung.' },
 ];
@@ -4679,7 +4683,7 @@ async function ausbau_nord_build() {
   // Besondere Gräber (Positionen fest, Texte weiter unten)
   const SPECIAL = [
     { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Vegas-Brief)
-    { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof. Wind und Regen haben die Schrift fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA …“</b>\nund eine Jahreszahl, die mit <b>13</b> beginnt.\n\nJemand hat frische Kreide in die Buchstaben gerieben. Die Fingerabdrücke daneben sind klein. Kinderhände.' }, // STORY-HOOK: Mira, 1312
+    { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof, an der Kapellenmauer. Die Schrift ist fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA · HAUSFRAU DES RITTERS …“</b>\nEin Geburtsjahr, das mit <b>13</b> beginnt. Das Sterbejahr ist nie eingemeißelt worden.\n\nDarunter, jünger: <i>„Sie ist nicht hier begraben. Sie kommt noch.“</i>' }, // STORY-HOOK: Mira = Justins Frau, Retterin aus der Zukunft (spätere Kapitel)
     { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1975\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
     { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LUCY</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Lukes Mutter, Lucy
   ];
@@ -4706,9 +4710,9 @@ async function ausbau_nord_build() {
   // ---- Das Gedenkfeld: sieben Kindergräber, eines offen (Aufgabe „Sieben Namen“ und „Ein Licht für jeden“)
   const KIDS = [
     { n: 'Zayn', t: '<b>ZAYN WENDT</b>\n† 28. Juli 2009\n\nDer Einzige, der offiziell nie zurückkam. Auf dem Grab liegen frische Astern.\nIns Moos am Sockel sind Striche gekratzt. Reihe um Reihe. Gezählt.' },          // STORY-HOOK: Hilde zählt
-    { n: 'Roxy', t: '<b>ROXY</b>\n† 28. Juli 2009\n\nJana kam zurück. Das weiß jeder im Ort. Trotzdem steht ihr Name hier – und das Moos über den Buchstaben ist siebzehn Jahre alt.' },
+    { n: 'Roxy', t: '<b>ROXY</b>\n† 28. Juli 2009\n\nRoxy kam zurück. Das weiß jeder im Ort. Trotzdem steht ihr Name hier – und das Moos über den Buchstaben ist siebzehn Jahre alt.' },
     { n: 'Lucy', t: '<b>LUCY</b>\n† 28. Juli 2009\n\nDeine Schwester.\nDer Stein ist alt, aber jemand hat ihn sauber gewischt. Erst vor Kurzem – im Moos sind noch die Spuren von Fingern.' }, // STORY-HOOK: Lucy
-    { n: 'Mike', t: '<b>MIKE</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2021</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
+    { n: 'Mike', t: '<b>MIKE</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2026</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
     { n: 'Dina', t: '<b>DINA</b>\n† 28. Juli 2009\n\nUm den Namen hat jemand mit Kreide Kreise gemalt. Viele. Einen in den anderen, immer kleiner, bis nur noch ein Punkt übrig ist.' },
     { n: 'Heidi', t: '<b>HEIDI</b>\n† 28. Juli 2009\n\nAn den Stein gelehnt: eine Postkarte ohne Absender, aufgeweicht vom Regen.\n<span class="hand">„Sind sie wieder da?“</span>' },
     { n: 'Luke', open: true, t: '<b>LUKE</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.' }, // STORY-HOOK: das leere Grab – Luke / der Ersatz
@@ -5468,7 +5472,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     o.traverse(m => { if (m.isMesh) reUV(m, k => [2.4, 1.6, 2, 1.2, 1, 1][k], (n, y, name) => name === 'notGlass' ? 4 : name === 'glass' ? 5 : (n.y > .35 && y > 8.6) ? 1 : y < .85 ? 2 : (y > 12.6 && Math.abs(n.y) < .5) ? 3 : 0, [wall, roof, plinth, brick, metal, lglass]); });
     return o; })();
   const villaG = msGround(villa); put(villaG, -125, 70, PI, 0, VG); villaG.updateMatrixWorld(true);
-  const vbb = new T.Box3().setFromObject(villaG);
+  const vbb = new T.Box3().setFromObject(villaG); OW.villa = villaG; OW.vbb = vbb; // Modul anwesen
   // Fenster: dunkles Glas hinter den Rahmen, ein einziges erleuchtetes Fenster (per Strahl an die Fassade gesetzt)
   const vray = new T.Raycaster(), vMeshes = []; villaG.traverse(m => { if (m.isMesh) vMeshes.push(m); });
   const vq = new T.Quaternion(); villa.getWorldQuaternion(vq);
@@ -6093,14 +6097,14 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   const posterDefs = {
     lena: { draw: x => { x.fillStyle = '#111'; x.font = 'bold 44px Arial'; x.fillText('VERMISST', 16, 52); x.fillStyle = '#6a6a66'; x.fillRect(40, 70, 176, 150); x.fillStyle = 'rgba(30,30,30,.7)'; x.beginPath(); x.ellipse(128, 138, 38, 48, 0, 0, 7); x.fill(); x.fillRect(80, 180, 96, 40);
       x.fillStyle = '#111'; x.font = 'bold 26px Arial'; x.fillText('Lucy B., 24', 52, 256); x.font = '17px Arial'; x.fillText('seit 23. Oktober', 64, 282); x.fillText('zuletzt: Kreuzung Ahornstr.', 20, 306); x.fillText('Hinweise bitte an Fam. Brandt', 12, 330); },
-      note: ['Zettel: VERMISST', 'Lucy B., 24 Jahre. Vermisst seit dem <b>23. Oktober</b>. Zuletzt gesehen an der Kreuzung Ahornstraße / Birkenweg.\n\nDarunter eure alte Festnetznummer. Dort geht seit Jahren niemand mehr ran.\n\nJemand hat mit Bleistift ein Datum dazugeschrieben: <span class="hand">31.10.</span>', 'strasse_p_lena'] }, // STORY-HOOK: Lucy
+      note: ['Zettel: VERMISST', 'Lucy B., 26 Jahre. Vermisst seit dem <b>23. Oktober</b>. Zuletzt gesehen an der Kreuzung Ahornstraße / Birkenweg.\n\nDarunter eure alte Festnetznummer. Dort geht seit Jahren niemand mehr ran.\n\nJemand hat mit Bleistift ein Datum dazugeschrieben: <span class="hand">31.10.</span>', 'strasse_p_lena'] }, // STORY-HOOK: Lucy
     bruno: { draw: x => { x.fillStyle = '#111'; x.font = 'bold 30px Arial'; x.fillText('HUND ENTLAUFEN', 8, 44); x.fillStyle = '#7a6a52'; x.fillRect(40, 60, 176, 130); x.fillStyle = 'rgba(40,28,18,.8)'; x.beginPath(); x.ellipse(120, 130, 60, 40, .2, 0, 7); x.fill();
       x.fillStyle = '#111'; x.font = 'bold 40px Arial'; x.fillText('BRUNO', 60, 236); x.font = '17px Arial'; x.fillText('braun, rotes Halsband', 40, 264); x.fillText('zuletzt beim Brandhaus Nr. 5', 14, 290); x.fillText('E. Vegas, Ahornstr. 3', 36, 316);
       x.fillStyle = '#ddd8c8'; x.fillRect(158, 334, 26, 28); },
       note: ['Zettel: HUND ENTLAUFEN', '<b>BRUNO</b>. Mischling, braun, rotes Halsband mit Messingmarke. Hört auf seinen Namen.\nZuletzt gesehen: beim abgebrannten Haus Nr. 5.\n— E. Vegas, Ahornstr. 3\n\nDie Abreißzettel mit der Nummer sind alle abgerissen. Bis auf einen.', 'strasse_p_bruno'] }, // STORY-HOOK: Bruno (Hinweis aufs Brandhaus)
-    tim: { draw: (x, w) => { x.globalAlpha = .55; x.fillStyle = '#111'; x.font = 'bold 44px Arial'; x.fillText('VERMISST', 16, 52); x.fillStyle = '#8a8a86'; x.fillRect(40, 70, 176, 150); x.fillStyle = '#111'; x.font = 'bold 30px Arial'; x.fillText('MIKE, 10', 70, 258); x.font = '18px Arial'; x.fillText('seit 14. August 2021', 40, 288); x.globalAlpha = 1;
+    tim: { draw: (x, w) => { x.globalAlpha = .55; x.fillStyle = '#111'; x.font = 'bold 44px Arial'; x.fillText('VERMISST', 16, 52); x.fillStyle = '#8a8a86'; x.fillRect(40, 70, 176, 150); x.fillStyle = '#111'; x.font = 'bold 30px Arial'; x.fillText('MIKE K., 27', 58, 258); x.font = '18px Arial'; x.fillText('seit 12. Juli 2026', 40, 288); x.globalAlpha = 1;
       x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.moveTo(0, 300); x.lineTo(90, 320); x.lineTo(160, 290); x.lineTo(w, 330); x.lineTo(w, 362); x.lineTo(0, 362); x.fill(); x.globalCompositeOperation = 'source-over'; },
-      note: ['Altes Plakat', 'Halb weggeweicht. VERMISST: <b>Mike, 10 Jahre</b>. Seit dem 14. August 2021.\n\nÜber das alte Plakat hat jemand ein neues geklebt – und wieder abgerissen. Nur ein Streifen ist geblieben:\n<i>„… wieder da …“</i>', 'strasse_p_tim'] },
+      note: ['Altes Plakat', 'Halb weggeweicht. VERMISST: <b>Mike K., 27 Jahre</b>. Seit dem 12. Juli 2026.\n\nÜber das alte Plakat hat jemand ein neues geklebt – und wieder abgerissen. Nur ein Streifen ist geblieben:\n<i>„… wieder da …“</i>', 'strasse_p_tim'] },
     fest: { draw: x => { x.fillStyle = '#2a3a6a'; x.fillRect(0, 0, 256, 70); x.fillStyle = '#f0e6c0'; x.font = 'bold 30px Georgia'; x.fillText('Laternenfest', 36, 46); x.fillStyle = '#111'; x.font = '18px Georgia'; x.fillText('der Grundschule', 60, 100); x.fillText('Fr. 31.10. · 18 Uhr', 50, 130); x.fillText('ab der Kreuzung', 60, 158);
       for (let i = 0; i < 8; i++) { x.fillStyle = i === 7 ? '#ffffff' : ['#e0a030', '#d05030', '#e0c040', '#c04060', '#e08030', '#d0a040', '#c05030'][i]; x.beginPath(); x.arc(30 + i * 28, 220 + Math.sin(i) * 10, 11, 0, 7); x.fill(); }
       x.save(); x.translate(128, 290); x.rotate(-.18); x.fillStyle = '#c01a14'; x.fillRect(-110, -26, 220, 50); x.fillStyle = '#fff'; x.font = 'bold 34px Arial'; x.textAlign = 'center'; x.fillText('FÄLLT AUS', 0, 12); x.restore(); },
@@ -8132,8 +8136,8 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     flat(bloodDrops, XA + 114, ZA + .5, 1.6, 1.6, 2, .013); flat(soot, XA + 118, ZA + 6, 3.2, 3.2, .4, .011);
     // Plan an der Wand
     put(kFrameG, 0, ZA + 4.2, { ry: Math.PI / 2, y: 1.15, minX: XA + 106.155 });
-    const plan = plane(.4, .58, XA + 106.18, 1.15 + .345, ZA + 4.2, new THREE.MeshStandardMaterial({ roughness: .8, map: tex(cnv(256, (x, w) => { x.fillStyle = '#d6cfb8'; x.fillRect(0, 0, w, w); x.strokeStyle = '#2a2a2a'; x.lineWidth = 2; x.beginPath(); x.arc(128, 140, 70, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) { const a = i / 8 * 6.283; x.fillStyle = i === 4 ? '#8a1010' : '#2a2a2a'; x.beginPath(); x.arc(128 + Math.cos(a) * 70, 140 + Math.sin(a) * 70, 10, 0, 7); x.fill(); } x.fillStyle = '#2a2a2a'; x.font = 'bold 16px Courier New'; x.textAlign = 'center'; x.fillText('PROTOKOLL MIRA', 128, 34); x.font = '12px Courier New'; x.fillText('Anordnung · Zyklus 17', 128, 52); x.fillStyle = '#8a1010'; x.fillText('Platz 8: bleibt frei', 128, 244); }), true) }), 0, Math.PI / 2);
-    interact(plan, 'Plan an der Wand', note('Protokoll MIRA · Anordnung', 'Acht Plätze im Kreis. Sieben sind mit Bleistift nummeriert. Der achte ist rot umrandet.\n\n<i>„Platz 8 bleibt frei. Er wird mitgebracht.“</i>\n\nDarunter, mit Kugelschreiber: <span class="hand">von wem?</span>', 'plan'));
+    const plan = plane(.4, .58, XA + 106.18, 1.15 + .345, ZA + 4.2, new THREE.MeshStandardMaterial({ roughness: .8, map: tex(cnv(256, (x, w) => { x.fillStyle = '#d6cfb8'; x.fillRect(0, 0, w, w); x.strokeStyle = '#2a2a2a'; x.lineWidth = 2; x.beginPath(); x.arc(128, 140, 70, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) { const a = i / 8 * 6.283; x.fillStyle = i === 4 ? '#8a1010' : '#2a2a2a'; x.beginPath(); x.arc(128 + Math.cos(a) * 70, 140 + Math.sin(a) * 70, 10, 0, 7); x.fill(); } x.fillStyle = '#2a2a2a'; x.font = 'bold 16px Courier New'; x.textAlign = 'center'; x.fillText('PROTOKOLL SIEBZEHN', 128, 34); x.font = '12px Courier New'; x.fillText('Anordnung · Zyklus 17', 128, 52); x.fillStyle = '#8a1010'; x.fillText('Platz 8: bleibt frei', 128, 244); }), true) }), 0, Math.PI / 2);
+    interact(plan, 'Plan an der Wand', note('Protokoll SIEBZEHN · Anordnung', 'Acht Plätze im Kreis. Sieben sind mit Bleistift nummeriert. Der achte ist rot umrandet.\n\n<i>„Platz 8 bleibt frei. Er wird mitgebracht.“</i>\n\nDarunter, mit Kugelschreiber: <span class="hand">von wem?</span>', 'plan'));
     for (let i = 0; i < 6; i++) (i % 2 ? edgeWeb(XA + 107.5 + i * 2.6, ZA - 7.85, 1, R(.7, 1)) : edgeWeb(XA + 107.5 + i * 2.6, ZA + 7.85, -1, R(.7, 1))); edgeWebX(XA + 106.15, ZA - 6, 1, .8); edgeWebX(XA + 121.85, ZA + 6.5, -1, .8);
   }
 
@@ -8155,7 +8159,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     r1Items.spieluhr.m.material = (() => { const m = msSurfMat('floor_wood', { tint: 0x9a6a48 }); m.emissive = new THREE.Color(0x100a06); return m; })();
     put(kCrib, XW + 16.6, 0, { ry: 0, minZ: ZW - 5.83 });
     spot(XW + 16.6, .5, ZW - 5.45, 1.25, .8, .7, 'Babybett', note('Ein Babybett', 'Viel zu klein für einen Neunjährigen. Mama hat es nie weggegeben – „für später“, hat sie gesagt.\n\nDas Laken hat eine Mulde, noch warm. Als hätte gerade eben jemand darin gelegen. Jemand sehr Kleines.\n\n<span class="hand">Wer hat hier geschlafen, bevor du kamst?</span>', 'babybett'));
-    // STORY-HOOK: Babybett – das „gemachte“ achte Kind (Mira: „Ich habe ihn gemacht“)
+    // STORY-HOOK: Babybett – das „gemachte“ achte Kind (das Kind: „Ich habe ihn gemacht“)
     const w2 = put(kWardW, 0, ZW + 4.2, { ry: 0, minX: XW + 8.165 }); put(kCrtW, XW + 8.5, ZW + 4.2, { ry: 0, y: surfY(kWardW, w2, XW + 8.5, ZW + 4.2, .6) });
     spot(XW + 8.6, .3, ZW + 4.2, .45, .45, .5, 'Fernseher', () => { toast('Der Fernseher ist aus. In der schwarzen Scheibe spiegelt sich das Zimmer – mit einem Kind auf dem Bett. Du drehst dich um. Das Bett ist leer.', 5200); try { Audio.whisper(XW + 10.5, 1, ZW - 4.6, 1.2); } catch (e) {} });
     put(kChairW, XW + 14.2, ZW - 3.6, { ry: 2.23 });
@@ -9265,7 +9269,7 @@ function leben_debug() { return { S: leben_S, EV: leben_EV, bell: () => leben_be
 // gefunden wird durch Durchsuchen von Werkbank, Tresen, Regal; der Rest sind Scan-Modelle). Lampenlogik/Akku: Grundspiel (FLASH).
 // Wo später Unreal-Modelle aus unreal/Export_Requisiten.bat vorliegen (assets/ue/<rolle>/model.glb), liegen sie sichtbar am Fundort.
 // Werkzeug-Einsätze: Drahtschneider → Villentor (ausbau_ost_west) · Brechstange → Zeichnungswand Keller Nr. 7 (Übergang Kap. 2).
-const ausruestung_S = { taken: new Set(), ue: {} };
+const ausruestung_S = { taken: new Set(), ue: {}, spots: [] }; // spots: für den Kinderblick (Modul visionen)
 // Unreal-Export (optional): lädt assets/ue/<rolle>/model.glb, sonst null
 async function ausruestung_ue(role, size) {
   try { const g = await msModel('../ue/' + role, 'model.glb'); const o = msGround(msFit(g.clone(true), size, 'max')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.userData.noCol = true; return o; }
@@ -9273,7 +9277,7 @@ async function ausruestung_ue(role, size) {
 }
 // Durchsuchbare Stelle: unsichtbare Klickfläche an einem echten Möbel; einmalig, danach nur noch Beschreibung
 function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, model) {
-  const m = box(w, h, d, x, y, z, hidden, { cast: false });
+  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label });
   interact(m, () => ausruestung_S.taken.has(id) ? label : label + ' durchsuchen', () => {
     if (ausruestung_S.taken.has(id)) return toast(empty, 3200);
     const r = give(); if (r === false) return; // Bedingung nicht erfüllt: give() hat selbst erklärt
@@ -9315,7 +9319,7 @@ WORLD_MODS.push(['Ausrüstung', async () => {
   } catch (e) { console.warn('Ausrüstung: Kerzen', e); }
   ausruestung_spot('villa_kreis', [1.8, .5, 1.8], [-125, .25, 61.5], 'Kerzenkreis',
     'Sieben Kerzen, alle brennen. In der Mitte, sorgfältig gestapelt: vier Batterien. Als hätte jemand gewusst, dass du im Dunkeln kommst.',
-    'Die Kerzen brennen weiter. Keine ist kürzer geworden.', () => { addBattery(4); Audio.whisper(-125, 1.2, 64, 1.6); }); // STORY-HOOK: Mira legt Dinge bereit
+    'Die Kerzen brennen weiter. Keine ist kürzer geworden.', () => { addBattery(4); Audio.whisper(-125, 1.2, 64, 1.6); }); // STORY-HOOK: jemand legt Dinge bereit
 }]);
 WORLD_TICK.push((dt, t) => { const S = ausruestung_S; if (S.led) S.led.intensity = ch3.on && !S.taken.has('tank_lampe3') ? .35 + Math.sin(t * 3) * .15 : 0; });
 // =====================================================================  ÜBERGANG (Modul „uebergang“): Kapitel 1 → 2 ohne Schnitt
@@ -9472,9 +9476,9 @@ function uebergang3_climb(takeLamp, ladHit) {
   });
 }
 WORLD_TICK.push(() => {});
-// =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Miras Spielsachen – drei Sammelreihen, die sich gegenseitig verraten
-// · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – Mira versteckt sich vor dem Licht.
-//   Jeder flüstert eine Zahl (Mira zählt). Alle sieben: Neben-Twist „Miras Versteck“.
+// =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Spielsachen des Kindes im Licht – drei Sammelreihen, die sich gegenseitig verraten
+// · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – das Kind versteckt sich vor dem Licht.
+//   Jeder flüstert eine Zahl (das Kind zählt). Alle sieben: Neben-Twist „Das Versteck“.
 // · 5 Wrackteile: verbogenes Rostblech (Scan-Oberfläche) mit eingedrückten Kinderhänden. Zusammen: das Wappen vom Hohen Abgrund.
 // · 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel der Grauen).
 //   Alle vier: Kreide-Hinweise, wo die Lichtsteine liegen.
@@ -9563,8 +9567,8 @@ function geheimnisse_takeStone(s) {
   s.o.visible = false; uninteract(s.hit); sideStart('geh_steine');
   const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
   Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
-  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Miras Versteck“ (Ende B: wer gefunden wird, muss zählen)
-    openNote('Miras Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
+  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Das Versteck“ (Ende B: wer gefunden wird, muss zählen)
+    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
     setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
 }
 function geheimnisse_wreck(i, text, key) {
@@ -9576,8 +9580,9 @@ function geheimnisse_wreck(i, text, key) {
 }
 function geheimnisse_totem(i, key) {
   const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];
-  if (geheimnisse_has(key)) return toast(lines[i], 3600);
-  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16);
+  if (geheimnisse_has(key)) { if (!(typeof visionen_totem === 'function' && visionen_totem(i))) toast(lines[i], 3600); return; }
+  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16); // Berührung: Vision (Modul visionen)
+  if (typeof visionen_totem === 'function') setTimeout(() => visionen_totem(i), 1400);
   const n = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4.`;
   if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); sideStart('geh_steine');
     openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 5000);
@@ -9805,6 +9810,256 @@ WORLD_TICK.push((dt, t) => {
   S.q = S.q.filter(x => x.until > now); const g = S.q.find(x => x.at <= now); if (!g) return; S.q.splice(S.q.indexOf(g), 1);
   const ms = Math.max(3200, Math.min(6800, 1800 + g.text.length * 48)); subtitle('<i>' + g.text + '</i>', ms, GEDANKEN.who); S.cd = ms / 1000 + GEDANKEN.gap;
 });
+// =====================================================================  WHISKEY (Modul „whiskey“): der Rabe, der Luke durch alle drei Kapitel begleitet
+// Echtes, gerigtes Modell (Unreal Animal Variety Pack, animal_crow), dunkler und größer als die Dorfkrähen. Sitzt an Stationen, die zum
+// Fortschritt passen, fliegt voraus, pickt an Hinweisen, gibt eine Aufgabe (Tausch: etwas Glänzendes gegen einen Schlüssel).
+// Den Namen hat ihm Lars Vegas gegeben (er saß abends auf seinem Geländer). Justin erklärt in Kapitel 3, was es mit ihm auf sich hat.
+const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null, mode: 'gone', fl: null, idleT: 2, met: new Set(), named: false, hit: null, trade: false, jHit: null, jAsked: false };
+// Stationen: when() = aktiv, done() = erledigt (dann fliegt er weiter/fort). at = [x, z] Sitzplatz (Oberfläche wird per Strahl gesucht), talk = Klick
+const WHISKEY_ST = [
+  { id: 'start', at: [-44.2, 3.4], when: () => state.started && !ch2.on && !ch3.on && story.main <= 1, done: () => story.main >= 1 || Math.hypot(player.pos.x + 44.2, player.pos.z - 3.4) < 6,
+    talk: 'Ein Rabe. Groß, schwarz, die Augen fast weiß. Er sieht mich an, als hätte er auf mich gewartet.' },
+  { id: 'briefkasten', at: [28.4, -6.9], when: () => state.started && !ch2.on && !ch3.on && story.main <= 2, done: () => state.hasKey, peck: true,
+    talk: 'Er pickt am Briefkasten von Nr. 7. Immer wieder, genau an der Klappe. … Okay. Ich hab verstanden.' },
+  { id: 'nr7', at: [26, -11.4], when: () => state.ch1Done && !ch2.on, done: () => state.inBasement,
+    talk: 'Da ist er wieder. Auf dem Geländer von Nr. 7. Er schaut zur Kellertür, nicht zu mir.' },
+  { id: 'akte', at: [C2.x + 28, C2.z - 5.6], when: () => ch2.on && !ch3.on, done: () => story.lore.some(l => l.key === 'cleo_akte08') || ch2.power, peck: true,
+    talk: 'Ein Rabe. Hier unten. Zwanzig Meter unter der Erde. Er pickt an einer Schublade: „AKTE 08“. Das Schild daneben ist geschwärzt.' },
+  { id: 'luke', at: [716.5, -2598.5], hover: 2.45, when: () => ch2.on && ch2.lenaMet, done: () => ch3.on,
+    talk: 'Er sitzt am Rand der Luke. Als ich hinsehe, fliegt er hinauf in den Schacht. Ich soll ihm folgen.' },
+  { id: 'vegas', at: [-27.2, -11.2], when: () => ch3.on && ch3.part === 'town', done: () => whiskey_S.trade && whiskey_S.named,
+    talk: () => whiskey_tradeTalk() },
+  { id: 'gedenkfeld', at: [-44.5, 86.5], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk'),
+    talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
+  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
+    talk: 'Am Waldrand. Er fliegt ein Stück hinein und wartet. Forbidden Dustwoods. Da wollte als Kind keiner rein.' }];
+// Oberseite des höchsten festen Körpers unter (x, z) – Laternenkopf, Briefkasten, Geländer, Grabstein
+function whiskey_perch(x, z) {
+  let top = 0; const ray = new THREE.Ray(), o = new THREE.Vector3(), d = new THREE.Vector3(), w = new THREE.Vector3();
+  for (const it of solidNear(x, z)) { const bb = it.bb; if (x < bb.min.x || x > bb.max.x || z < bb.min.z || z > bb.max.z || it.soft || !solidLive(it) || bb.max.y > 9) continue;
+    o.set(x, bb.max.y + .5, z).applyMatrix4(it.inv); d.set(0, -1, 0).transformDirection(it.inv); ray.set(o, d); const h = it.o.geometry.boundsTree.raycastFirst(ray, THREE.DoubleSide);
+    if (h) { w.copy(h.point).applyMatrix4(it.mw); if (w.y > top) top = w.y; } }
+  return top;
+}
+function whiskey_play(k, fade = .25, once = false, ts = 1) { const S = whiskey_S, a = S.A[k]; if (!a || a === S.cur) return; a.reset(); a.timeScale = ts;
+  if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; }
+function whiskey_caw() { const g = whiskey_S.g; Audio.play('crow1', { gain: .7, rate: .78, vary: .06, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5 }); }
+// Flug in einem Bogen (quadratische Bezierkurve) zu einem Ziel
+function whiskey_fly(to, then) {
+  const S = whiskey_S, from = S.g.position.clone(), dist = from.distanceTo(to), apex = Math.max(from.y, to.y) + Math.min(8, 2 + dist * .25);
+  S.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, apex, (from.z + to.z) / 2), t: 0, dur: Math.max(1.6, dist / 7.5), then };
+  S.mode = 'take'; S.tt = .45; whiskey_play('TakeOff', .08, true, 1.2); whiskey_caw();
+}
+function whiskey_tradeTalk() {
+  const S = whiskey_S;
+  if (!S.named) { S.named = true; subtitle('„Lass den Vogel in Ruhe, Junge. Das ist Whiskey. Sitzt jeden Abend auf meinem Geländer, wenn ich einen trink. Gehört keinem.“', 5600, 'LARS VEGAS (HINTER DER TÜR)'); return; }
+  if (S.trade) return toast('Whiskey putzt sich. Der Schlüssel ist weg – er hat ihn dir gegeben, und er bereut nichts.', 3600);
+  if (!FLASH.spare) return toast('Er hat etwas im Schnabel: einen kleinen Messingschlüssel. Er legt den Kopf schief. Er will tauschen – gegen etwas, das glänzt.', 4800);
+  S.trade = true; FLASH.spare--; if (!FLASH.spare) story.items = story.items.filter(k => k !== 'batterie');
+  addItem('baumhausschluessel'); whiskey_caw(); toast('Du hältst ihm eine Batterie hin. Er nimmt sie, prüft sie mit dem Schnabel – und lässt einen kleinen Messingschlüssel in deine Hand fallen.', 5200); // STORY-HOOK: Schlüssel zu Cleos Kiste im Baumhaus
+}
+WORLD_MODS.push(['Whiskey', async () => {
+  const S = whiskey_S; modItem('baumhausschluessel', 'Kleiner Messingschlüssel', 'Von Whiskey, gegen eine Batterie getauscht. In den Bart ist ein „C“ gefeilt.', 'key');
+  try {
+    const src = await msModel('animal_crow', 'model.glb'), sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src);
+    m.scale.setScalar(1.45); m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
+      o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
+    const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g;
+    S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) S.A[c.name.replace(/^.*\|/, '')] = S.mx.clipAction(c);
+    S.hit = box(.8, .8, .8, 0, -50, 0, hidden, { cast: false });
+    interact(S.hit, () => S.named ? 'Whiskey' : 'Rabe', () => { const st = S.st; if (!st) return; whiskey_caw(); if (typeof st.talk === 'function') return st.talk();
+      S.met.add(st.id); subtitle('<i>' + st.talk + '</i>', Math.max(3600, st.talk.length * 50), 'LUKE'); if (st.id === 'luke' || st.id === 'waldrand') setTimeout(() => whiskey_leave(), 1200); });
+    uninteract(S.hit);
+    // Justin nach dem Raben fragen (Kapitel 3, ab der dritten Begegnung)
+    S.jHit = box(.9, 2.2, .9, 0, -50, 0, hidden, { cast: false });
+    interact(S.jHit, 'Justin nach dem Raben fragen', async () => { if (S.jAsked || state.talking) return; S.jAsked = true; uninteract(S.jHit); state.talking = true;
+      await say([['„Der Rabe? Er gehörte meiner Frau. Er war schon alt, als ich sie kennenlernte.“', 4200, 'JUSTIN'], ['„Er fliegt zwischen dem Weißen und euch hin und her. Er hat nie gelernt, auf welcher Seite er zu Hause ist.“', 5200, 'JUSTIN'],
+        ['„Er hatte viele Namen. Bei euch heißt er Whiskey. Sie hat gesagt, er findet immer heim. Zu ihr.“', 5000, 'JUSTIN']]); state.talking = false; // STORY-HOOK: Whiskey = Bote von Justins Frau (Mira, spätere Kapitel – hier namenlos)
+      story.lore.push({ key: 'whiskey_justin', title: 'Whiskey', html: 'Laut Justin gehörte der Rabe seiner Frau. Er fliegt zwischen dem Weißen und Lost Eyengless.\n\n„Sie hat gesagt, er findet immer heim. Zu ihr.“' });
+      setTimeout(() => subtitle('<i>Seine Frau. Er redet von ihr, als wäre sie nicht tot. Als würde sie noch kommen.</i>', 4200, 'LUKE'), 900); });
+    uninteract(S.jHit);
+    S.ready = true;
+  } catch (e) { console.warn('Whiskey', e); }
+}]);
+function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; const p = S.g.position; whiskey_fly(new THREE.Vector3(p.x + rand(-25, 25), p.y + 18, p.z + rand(-25, 25)), () => { S.g.visible = false; S.mode = 'gone'; }); S.left = S.st; }
+WORLD_TICK.push((dt, t) => {
+  const S = whiskey_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, g = S.g;
+  // aktuelle Station (letzte, deren Bedingung gilt und die nicht erledigt ist)
+  let st = null; for (const s of WHISKEY_ST) if (s.when() && !s.done()) st = s;
+  if (st !== S.st && S.mode !== 'take' && S.mode !== 'fly') {
+    S.st = st; uninteract(S.hit);
+    if (st && S.left !== st) { const y = st.hover ?? whiskey_perch(st.at[0], st.at[1]), to = new THREE.Vector3(st.at[0], y, st.at[1]);
+      if (S.mode === 'gone' || !g.visible) { g.position.set(to.x + rand(-18, 18), to.y + 14, to.z + rand(-18, 18)); g.visible = true; } whiskey_fly(to, () => { S.mode = 'perch'; S.idleT = 1.5; if (!interactables.includes(S.hit)) interactables.push(S.hit); }); }
+    else if (!st && g.visible) whiskey_leave();
+  }
+  if (!g.visible) return;
+  // Flug
+  if (S.fl) { const F = S.fl; F.t = Math.min(1, F.t + dt / F.dur); const k = F.t, a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
+    const nx = a * F.from.x + b * F.ctrl.x + c * F.to.x, ny = a * F.from.y + b * F.ctrl.y + c * F.to.y, nz = a * F.from.z + b * F.ctrl.z + c * F.to.z;
+    const dx = nx - g.position.x, dz = nz - g.position.z; if (dx * dx + dz * dz > 1e-6) g.rotation.y = Math.atan2(dx, dz); g.position.set(nx, ny, nz);
+    if (S.mode === 'take') { S.tt -= dt; if (S.tt < 0) { S.mode = 'fly'; whiskey_play('Fly', .2); } }
+    else if (F.t > .82 && S.cur !== S.A.Landing) whiskey_play('Landing', .15, true); else if (F.t < .82 && Math.sin(t * .9) > .3 && S.cur !== S.A.Glide) whiskey_play('Glide', .4); else if (F.t < .82 && Math.sin(t * .9) <= .3 && S.cur !== S.A.Fly) whiskey_play('Fly', .4);
+    if (F.t >= 1) { S.fl = null; S.mode = 'perch'; whiskey_play('IdleLookAround', .3); F.then && F.then(); }
+  } else if (S.mode === 'perch') {
+    // sitzen: zum Spieler drehen, ab und zu picken/hüpfen/putzen, krächzen, wenn Luke näher kommt
+    const dx = P.x - g.position.x, dz = P.z - g.position.z, d = Math.hypot(dx, dz), want = Math.atan2(dx, dz);
+    g.rotation.y += Math.atan2(Math.sin(want - g.rotation.y), Math.cos(want - g.rotation.y)) * Math.min(1, dt * 2.5);
+    S.idleT -= dt; if (S.idleT < 0) { S.idleT = rand(2.5, 5); const opts = S.st && S.st.peck ? ['EatSomething', 'EatSomething', 'IdleLookAround'] : ['IdleLookAround', 'IdleScratchWing', 'Hop']; const k = opts[Math.floor(Math.random() * opts.length)]; whiskey_play(S.A[k] ? k : 'IdleLookAround', .3); if (d < 14 && Math.random() < .4) whiskey_caw(); }
+    S.hit.position.set(g.position.x, g.position.y + .25, g.position.z);
+    if (S.st && !S.met.has(S.st.id) && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.met.add(S.st.id); whiskey_caw(); } // erste Sichtung
+  }
+  S.mx.update(dt);
+  // Justin-Frage anbieten
+  if (ch3.on && ch3.met && !S.jAsked && S.met.size >= 3 && justin.g.visible && ch3.part === 'town') { S.jHit.position.set(justin.g.position.x, 1.1, justin.g.position.z); if (!interactables.includes(S.jHit)) interactables.push(S.jHit); }
+});
+// =====================================================================  VISIONEN (Modul „visionen“): Hinweis-System aus Totems und Lichtsteinen
+// · HINTS: gemeinsames Register offener Fundorte (Echos, Polaroids, Geheimnisse, Werkzeug, Story-Orte). Andere Module tragen sich mit hintAdd() ein.
+// · Totem-Visionen: Wer ein Zählgestell berührt, sieht für ein paar Sekunden durch fremde Augen – einen Ort, der später wichtig wird.
+//   Welche Vision kommt, hängt vom Spielstand ab (die wichtigste noch offene, die noch nicht gezeigt wurde). Danach: „Deutung“ (Säule zum nächsten Ziel).
+// · Kinderblick (Taste G): Die gesammelten Lichtsteine hochhalten. Für einige Sekunden sieht Luke wie ein Kind: Lichtsäulen durch Wände
+//   an allem, was hier noch zu finden ist; Gefahr (die Graue) leuchtet rot. Ladungen = Anzahl Steine, laden langsam nach.
+const HINTS = [];
+function hintAdd(h) { HINTS.push(h); return h; } // { id, x, y, z, open: () => bool, kind, near (m, nur in dieser Nähe) }
+const HINT_COL = { echo: 0x9cc4ff, foto: 0xfff0cc, geheim: 0x7ff0d8, werkzeug: 0xffc070, story: 0xff7060, teil: 0xd9b3ff, gefahr: 0xff2a1a };
+const visionen_S = { kb: { charges: 0, rech: 0, t: 0, used: 0 }, pillars: [], V: null, shown: new Set(), deutT: 0, el: null, vig: null, flash: null, force: null };
+const VISION_RECHARGE = 75; // s pro Ladung
+// --- Lichtsäule: durch Wände sichtbar (depthTest aus), von unten nach oben ausblendend, pulsierend
+const _kbMat = col => new THREE.ShaderMaterial({ transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, side: THREE.DoubleSide,
+  uniforms: { col: { value: new THREE.Color(col) }, a: { value: 0 }, t: { value: 0 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }',
+  fragmentShader: 'uniform vec3 col; uniform float a, t; varying vec2 vUv; void main(){ float v = pow(1. - vUv.y, 2.2) * (.75 + .25 * sin(t * 5. + vUv.y * 20.)); float e = 1. - abs(vUv.x * 2. - 1.); gl_FragColor = vec4(col * v * (.35 + .65 * e) * a, 1.); }' });
+function visionen_pillar() {
+  const g = new THREE.Group(), m = _kbMat(0xffffff), beam = new THREE.Mesh(new THREE.CylinderGeometry(.32, .32, 24, 18, 1, true), m); beam.position.y = 12; beam.renderOrder = 998;
+  const ring = new THREE.Mesh(new THREE.RingGeometry(.35, .75, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  ring.rotation.x = -PI / 2; ring.position.y = .05; ring.renderOrder = 998; g.add(beam, ring); g.visible = false; g.userData = { m, ring, delay: 0, life: 0, far: false }; g.traverse(o => { o.userData.noCol = true; o.frustumCulled = false; }); scene.add(g); return g;
+}
+function visionen_open(h) { try { return h.open(); } catch (e) { return false; } }
+function visionen_near(maxD, P = player.pos) { // offene Hinweise nach Entfernung (nur in derselben „Welt“: Höhe und Kapitelbereich über die Distanz)
+  return HINTS.filter(h => visionen_open(h)).map(h => ({ h, d: Math.hypot(h.x - P.x, h.z - P.z) })).filter(o => o.d < Math.min(maxD, o.h.near || 1e9) && Math.abs((o.h.y || 0) - P.y) < 12).sort((a, b) => a.d - b.d);
+}
+function visionen_stones() { return story.lore.filter(l => /^geh_stein_/.test(l.key)).length; }
+function visionen_show(list, dur) { // Säulen setzen; erscheinen nacheinander wie eine Welle, die von Luke ausgeht
+  const S = visionen_S; while (S.pillars.length < list.length) S.pillars.push(visionen_pillar());
+  S.pillars.forEach((p, i) => { const o = list[i]; if (!o) { p.visible = false; p.userData.life = 0; return; }
+    p.position.set(o.h.x, o.h.y || 0, o.h.z); const c = new THREE.Color(HINT_COL[o.h.kind] || 0xffffff); p.userData.m.uniforms.col.value.copy(c); p.userData.ring.material.color.copy(c);
+    p.userData.delay = o.d / 30; p.userData.life = dur; p.userData.far = !!o.far; p.scale.set(o.far ? 1.8 : 1, 1, o.far ? 1.8 : 1); p.userData.track = o.track || null; p.visible = true; });
+}
+// --- Kinderblick (G)
+function kinderblick() {
+  const S = visionen_S, K = S.kb, n = visionen_stones();
+  if (!n) { if (!K.hintT || performance.now() - K.hintT > 20000) { K.hintT = performance.now(); toast('Nichts in den Taschen, das im Dunkeln leuchtet.', 2600); } return; }
+  if (K.t > 0) return;
+  if (K.charges < 1) return toast(`Die Steine sind kalt. Sie brauchen noch ${Math.ceil(VISION_RECHARGE - K.rech)} Sekunden.`, 2600);
+  K.charges--; K.t = 6.5 + n * .5; K.used++; const R = 38 + n * 6; // mehr Steine: länger und weiter
+  const list = visionen_near(R).slice(0, 14);
+  if (typeof hunt !== 'undefined' && hunt.on && grey.visible) list.unshift({ h: { x: grey.position.x, y: 0, z: grey.position.z, kind: 'gefahr' }, d: Math.hypot(grey.position.x - player.pos.x, grey.position.z - player.pos.z), track: grey });
+  let say = '';
+  if (!list.length) { const far = visionen_near(900)[0]; if (far) { list.push({ ...far, far: true }); say = 'Hier ist nichts mehr. Aber dort … weiter weg.'; } else say = 'Die Steine bleiben still. Hier ist alles gefunden.'; }
+  visionen_show(list, K.t); S.el.classList.add('on'); renderer.domElement.style.filter = 'saturate(.35) contrast(1.12) brightness(1.08) hue-rotate(-8deg)';
+  Audio.duck(K.t); Audio.heart(); glitchV = Math.max(glitchV, .35);
+  const first = list.find(o => !o.far && o.h.kind !== 'gefahr') || list[0]; if (first) Audio.whisper(first.h.x, 1.4, first.h.z, 2.2);
+  if (say) setTimeout(() => subtitle(`<i>${say}</i>`, 3600), 700);
+  else if (K.used === 1) setTimeout(() => subtitle('<i>Die Steine werden warm. Und plötzlich sehe ich alles, wie ich es als Kind gesehen hab: wo man suchen muss.</i>', 5200, 'LUKE'), 900);
+  if (list.some(o => o.h.kind === 'gefahr')) setTimeout(() => subtitle('<i>Rot. Da. Sie steht hinter der Wand. Sie wartet.</i>', 3600, 'LUKE'), 1600);
+  visionen_hud(true);
+}
+function visionen_hud(show) { const S = visionen_S, n = visionen_stones(); if (!S.hud) return; S.hud.style.opacity = n && (show || S.kb.t > 0 || S.kb.charges < n) ? 1 : 0;
+  S.hud.innerHTML = n ? `<b>G</b> ${'◆'.repeat(S.kb.charges)}<span style="opacity:.3">${'◆'.repeat(Math.max(0, n - S.kb.charges))}</span>` : ''; }
+// --- Totem-Visionen: kleine Kamerafahrten durch fremde Augen (Luke bleibt stehen, der Blick geht woanders hin)
+const VISIONS = [
+  { id: 'keller', title: 'Hinter den Zeichnungen', open: () => !ch2.on && !ch3.on && !story.items.includes('brechstange'),
+    shots: [{ from: [26, 2.4, -2.5], to: [26, 2.1, -6.5], look: [26, 2.6, -15], dur: 4.2, text: 'Nr. 7. Hildes Haus. Das Licht im Hauswirtschaftsraum geht an. Niemand drin.' },
+      { from: [24.5, 1.9, -19.5], to: [25.8, 1.7, -20.2], look: [26.5, 1.05, -20.7], dur: 4.4, text: 'Ihre Werkbank. Unter dem Tuch: Eisen. Schwer genug für eine Wand.', inside: true },
+      { from: [B.x - 1, 1.55, B.z - 1], to: [B.x - 1.6, 1.4, B.z - 2.4], look: [B.x - 2, 1.2, B.z - 4], dur: 4, text: 'Die Kinderzeichnungen im Keller. Dahinter klingt die Wand hohl.', inside: true }] },
+  { id: 'anwesen', title: 'Das Haus der von Hains', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
+    shots: [{ from: [-125, 1.8, 47], to: [-125, 2.6, 53], look: [-125, 6.5, 70], dur: 4.6, text: 'Das Anwesen. Oben brennt das eine Fenster. Es hat immer gebrannt.' },
+      { from: [-122.5, 1.8, 60.5], to: [-124.2, 1.7, 62.2], look: [-125, 1.7, 65.5], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
+      { from: [-118, 5.5, 66], to: [-121, 7.5, 64], look: [-125, 3, 70], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
+  { id: 'gedenk', title: 'Das achte Grab', open: () => !story.lore.some(l => l.key === 'cleo_gedenk'),
+    shots: [{ from: [-44.5, 2.3, 79], to: [-44.5, 1.9, 83], look: [-44.5, 1, 87.5], dur: 4.6, text: 'Das Gedenkfeld. Sieben Gräber. Daneben ein achter Stein, weiß gekratzt.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } },
+      { from: [-43.6, 1.1, 85.8], to: [-43.9, 1, 86.3], look: [-43.3, .9, 87.4], dur: 4.2, text: 'Ein Mädchen steht davor. Sie wartet, dass jemand ihren Namen sagt. Keiner tut es.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } }] },
+  { id: 'wald', title: 'Er wollte, dass ich ihm folge', open: () => !story.lore.some(l => l.key === 'zayn_ende'),
+    shots: [{ from: [31, 2.1, 79], to: [31, 2, 86], look: [30, 1.4, 100], dur: 5.2, text: 'Der Spielplatz. Die Schaukel bewegt sich. Kein Wind.', fig: { at: [30, 93], to: [30, 99.5], rot: 0, s: .6 } },
+      { from: [30.5, 1.5, 92], to: [30.2, 1.4, 94.5], look: [30, 1, 100], dur: 4.4, text: 'Er dreht sich um. Er winkt nicht. Er wartet nur. Dahinter: der Wald, in den keiner durfte.', fig: { at: [30, 100], rot: PI, s: .6 } }] },
+  { id: 'rabe', title: 'Etwas, das warm ist', open: () => ch3.on && typeof whiskey_S !== 'undefined' && !whiskey_S.trade,
+    shots: [{ from: [-27, 2.2, -2.5], to: [-27.1, 2, -6.8], look: [-27.2, 1.9, -11.2], dur: 4.8, text: 'Der Rabe auf Vegas’ Geländer. Er legt den Kopf schief. Zwischen seinen Füßen: ein Schlüssel.' },
+      { from: [-26, 1.6, -9.5], to: [-26.6, 1.6, -10.3], look: [-27.2, 1.7, -11.2], dur: 3.8, text: 'Er will tauschen. Etwas, das warm ist und leuchtet.' }] },
+  { id: 'steine', title: 'Sieben, die im Dunkeln zählen', open: () => visionen_stones() < 7,
+    shots: [{ from: [-12.2, 1.5, -13.4], to: [-12.2, .9, -11.2], look: [-12.2, 0, -9.4], dur: 4.8, text: 'Mach das Licht aus. Dann siehst du uns. Wir zählen. Wir leuchten, wenn du uns hältst.', dark: true }] }];
+function visionen_totem(i) {
+  const S = visionen_S; if (S.V || state.talking || state.ending) return false;
+  const v = VISIONS.find(x => !S.shown.has(x.id) && (() => { try { return x.open(); } catch (e) { return false; } })());
+  if (!v) { // Deutung: das Gestell zeigt die Richtung zum wichtigsten offenen Ort
+    if (S.deutT > 0) return toast('Das Gestell ist still. Der Teddy sieht zum Wald.', 2600), true;
+    const far = visionen_near(900).filter(o => o.d > 8)[0]; S.deutT = 45;
+    if (!far) return toast('Das Gestell ist still. Hier hat niemand mehr etwas zu sagen.', 3000), true;
+    visionen_show([{ ...far, far: true }], 22); Audio.whisper(far.h.x, 1.4, far.h.z, 2.4); subtitle('<i>Die Knoten der Schnur zeigen alle in eine Richtung. Dort ist noch etwas.</i>', 4600, 'LUKE'); return true;
+  }
+  S.shown.add(v.id); visionen_play(v); return true;
+}
+function visionen_play(v) {
+  const S = visionen_S; S.V = { v, i: -1, t: 0, fig: null }; state.talking = true; setScripted(() => S.V ? undefined : false);
+  S.flash.style.transition = 'none'; S.flash.style.opacity = 1; Audio.stinger(false); Audio.duck(v.shots.reduce((a, s) => a + s.dur, 0) + 2); Audio.whisper(player.pos.x + 1, 1.6, player.pos.z, 2.6);
+  renderer.domElement.style.filter = 'grayscale(.75) sepia(.35) contrast(1.25) brightness(1.12)'; S.vig.classList.add('on'); glitchV = .9; visionen_next();
+  setCamOverride((cam, dt) => { const V = S.V; if (!V) return; const sh = v.shots[V.i], k = Math.min(1, V.t / sh.dur), e = k * k * (3 - 2 * k);
+    cam.position.set(sh.from[0] + (sh.to[0] - sh.from[0]) * e, sh.from[1] + (sh.to[1] - sh.from[1]) * e, sh.from[2] + (sh.to[2] - sh.from[2]) * e);
+    cam.lookAt(sh.look[0], sh.look[1], sh.look[2]); cam.rotateZ(Math.sin(V.t * 1.7) * .012); });
+}
+function visionen_next() {
+  const S = visionen_S, V = S.V, v = V.v; V.i++; V.t = 0;
+  if (V.fig) { V.fig.visible = false; V.fig = null; echoMat.opacity = 0; }
+  if (V.i >= v.shots.length) return visionen_end();
+  const sh = v.shots[V.i]; if (V.i > 0) { S.flash.style.transition = 'none'; S.flash.style.opacity = .85; glitchV = .6; Audio.play('static', { gain: .08, dur: .3 }); }
+  requestAnimationFrame(() => { S.flash.style.transition = 'opacity .7s'; S.flash.style.opacity = 0; });
+  if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; // Kamera springt: Instanzen um den neuen Blickpunkt einblenden
+  if (sh.fig) { const F = echoFigs[0]; F.position.set(sh.fig.at[0], 0, sh.fig.at[1]); F.rotation.y = sh.fig.rot; F.scale.setScalar(sh.fig.s); F.visible = true; V.fig = F; echoMat.opacity = .3; }
+  V.flashWas = flashOn; if (sh.dark && flashOn) flashOn = false;
+  subtitle(`<i>${sh.text}</i>`, sh.dur * 1000 - 200, V.i === 0 ? 'VISION' : '');
+}
+function visionen_end() {
+  const S = visionen_S, v = S.V.v; S.flash.style.transition = 'none'; S.flash.style.opacity = 1; requestAnimationFrame(() => { S.flash.style.transition = 'opacity 1.2s'; S.flash.style.opacity = 0; });
+  if (S.V.flashWas) flashOn = true; S.V = null; setCamOverride(null); state.talking = false; renderer.domElement.style.filter = ''; S.vig.classList.remove('on'); glitchV = .5; shake = .02;
+  if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
+  story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
+  const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für das Haus, in dem nie jemand wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
+    wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
+  if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1.2, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
+}
+WORLD_MODS.push(['Visionen', async () => {
+  const S = visionen_S;
+  const css = document.createElement('style'); css.textContent = `#kbVig{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .8s;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 45%,rgba(40,90,140,.28) 80%,rgba(10,30,60,.6) 100%);z-index:4}
+#kbVig.on{opacity:1}#visVig{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 35%,rgba(0,0,0,.55) 75%,#000 100%);z-index:4}#visVig.on{opacity:1}
+#visFlash{position:fixed;inset:0;pointer-events:none;opacity:0;background:#e8f0ff;z-index:5;mix-blend-mode:screen}#kbHud{position:fixed;left:22px;bottom:64px;font:13px/1 system-ui,sans-serif;letter-spacing:.2em;color:#bfe6ff;text-shadow:0 0 8px #58a8ff;opacity:0;transition:opacity .6s;pointer-events:none;z-index:6}#kbHud b{border:1px solid #bfe6ff88;border-radius:3px;padding:1px 5px;margin-right:6px;font-weight:600}`;
+  document.head.appendChild(css);
+  for (const [id, k] of [['kbVig', 'el'], ['visVig', 'vig'], ['visFlash', 'flash'], ['kbHud', 'hud']]) { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); S[k] = d; }
+  KEY_HOOKS.KeyG = kinderblick;
+  if (window.G) G.vis = { S, HINTS, kinderblick, visionen_totem, VISIONS, near: visionen_near }; // Testzugriff
+  if (window.G) G.mods = { whiskey: typeof whiskey_S !== 'undefined' ? whiskey_S : null, albers: typeof albers_S !== 'undefined' ? albers_S : null, geheimnisse: typeof geheimnisse_S !== 'undefined' ? geheimnisse_S : null, ausruestung: typeof ausruestung_S !== 'undefined' ? ausruestung_S : null, ow: ausbau_ost_west_OW, anwesen: typeof anwesen_S !== 'undefined' ? anwesen_S : null };
+  // --- Register füllen: alles, was im Grundspiel und in den Modulen gefunden werden kann
+  for (const a of echoAnchors) hintAdd({ id: a.E.id, x: a.E.at[0], y: a.E.at[1] > 1.3 ? Y : 0, z: a.E.at[2], kind: 'echo', open: () => !echoSeen.has(a.E.id) });
+  PHOTOS.forEach((p, i) => { const at = p.pos || p.candle || [p.zone[0], 0, p.zone[1]]; hintAdd({ id: 'foto' + i, x: at[0], y: i === 6 ? 0 : (at[1] > 2 ? Y : 0), z: at[2], kind: 'foto', open: () => !story.photos.has(i) && (i === 6) === !!state.inBasement }); });
+  if (typeof geheimnisse_S !== 'undefined') {
+    geheimnisse_S.stones.forEach(s => hintAdd({ id: s.key, x: s.o.position.x, y: 0, z: s.o.position.z, kind: 'geheim', near: 30, open: () => !geheimnisse_has(s.key) }));
+    geheimnisse_S.wrecks.forEach(w => hintAdd({ id: w.key, x: w.o.position.x, y: 0, z: w.o.position.z, kind: 'geheim', open: () => !geheimnisse_has(w.key) }));
+    geheimnisse_S.totems.forEach(T => hintAdd({ id: T.key, x: T.g.position.x, y: 0, z: T.g.position.z, kind: 'geheim', open: () => !geheimnisse_has(T.key) }));
+  }
+  if (typeof ausruestung_S !== 'undefined') for (const sp of ausruestung_S.spots) hintAdd({ id: sp.id, x: sp.x, y: sp.y > 2 ? Y : 0, z: sp.z, kind: 'werkzeug', open: () => !ausruestung_S.taken.has(sp.id) });
+  if (typeof whiskey_S !== 'undefined') hintAdd({ id: 'whiskey', get x() { return whiskey_S.g ? whiskey_S.g.position.x : 0; }, get z() { return whiskey_S.g ? whiskey_S.g.position.z : 0; }, y: 0, kind: 'story', open: () => !!(whiskey_S.st && whiskey_S.mode === 'perch' && whiskey_S.g.visible) });
+}]);
+WORLD_TICK.push((dt, t) => {
+  const S = visionen_S, K = S.kb; if (!S.el || !state.started) return; const n = visionen_stones();
+  if (K.max !== n) { K.charges += Math.max(0, n - (K.max || 0)); K.max = n; K.charges = Math.min(K.charges, n); visionen_hud(true); setTimeout(() => visionen_hud(false), 4000); }
+  if (K.charges < n) { K.rech += dt; if (K.rech >= VISION_RECHARGE) { K.rech = 0; K.charges++; visionen_hud(true); setTimeout(() => visionen_hud(false), 3000); } } else K.rech = 0;
+  if (S.deutT > 0) S.deutT -= dt;
+  if (K.t > 0) { K.t -= dt; if (K.t <= 0) { S.el.classList.remove('on'); if (!S.V) renderer.domElement.style.filter = ''; visionen_hud(false); } }
+  for (const p of S.pillars) { if (!p.visible) continue; const u = p.userData; if (u.delay > 0) { u.delay -= dt; u.m.uniforms.a.value = 0; u.ring.material.opacity = 0; continue; }
+    u.life -= dt; if (u.life <= 0) { p.visible = false; continue; } if (u.track) p.position.set(u.track.position.x, 0, u.track.position.z);
+    const a = Math.min(1, (u.age = (u.age || 0) + dt) * 2) * Math.min(1, u.life / 1.2); u.m.uniforms.a.value = a * (u.far ? .8 : 1); u.m.uniforms.t.value = t; u.ring.material.opacity = a * .6; u.ring.scale.setScalar(1 + (t * .8 % 1) * .6); if (u.life <= dt * 1.5) u.age = 0; }
+  if (S.V) { S.V.t += dt; const V = S.V, sh = V.v.shots[V.i];
+    if (V.fig && sh.fig && sh.fig.to) { const k = Math.min(1, V.t / sh.dur); V.fig.position.x = sh.fig.at[0] + (sh.fig.to[0] - sh.fig.at[0]) * k; V.fig.position.z = sh.fig.at[1] + (sh.fig.to[1] - sh.fig.at[1]) * k; }
+    if (V.fig) echoMat.opacity = .3 * (Math.random() < .06 ? .3 : 1);
+    if (V.t >= sh.dur) visionen_next(); }
+});
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
@@ -9946,6 +10201,7 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">E</kbd></span><span>Benutzen, aufheben, lesen (auch halten: Gitter aufschieben)</span>
   <span><kbd class="k">F</kbd></span><span>Taschenlampe</span>
   <span><kbd class="k">R</kbd></span><span>Batterie wechseln</span>
+  <span><kbd class="k">G</kbd></span><span>Lichtstein hochhalten (Kinderblick)</span>
   <span><kbd class="k">TAB</kbd></span><span>Tagebuch: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
@@ -10051,6 +10307,7 @@ function update(dt, t) {
   camera.position.set(player.pos.x + Math.cos(player.yaw) * Math.sin(player.bob) * amp * .5, camY + Math.abs(Math.sin(player.bob)) * amp, player.pos.z - Math.sin(player.yaw) * Math.sin(player.bob) * amp * .5);
   { const cy = ceilingAt(camera.position.x, player.pos.y + .9, camera.position.z); if (camera.position.y > cy - .12) { camera.position.y = cy - .12; camY = Math.min(camY, camera.position.y); } } // Kamera nie in/über der Decke
   camera.rotation.set(player.pitch, player.yaw, Math.sin(player.bob) * .004 * Math.min(spd / 3, 1));
+  if (camOverride) camOverride(camera, dt); // Visionen u. Ä.: Kamera kurz übernehmen (der Spieler bleibt, wo er ist)
   const tf = settings.fov + (run && spd > 3.5 ? 5 : 0); if (Math.abs(tf - fov) > .01) { fov += (tf - fov) * Math.min(1, dt * 5); camera.fov = fov; camera.updateProjectionMatrix(); }
 
   // --- Taschenlampe (träge)

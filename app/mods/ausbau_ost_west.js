@@ -302,7 +302,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     o.traverse(m => { if (m.isMesh) reUV(m, k => [2.4, 1.6, 2, 1.2, 1, 1][k], (n, y, name) => name === 'notGlass' ? 4 : name === 'glass' ? 5 : (n.y > .35 && y > 8.6) ? 1 : y < .85 ? 2 : (y > 12.6 && Math.abs(n.y) < .5) ? 3 : 0, [wall, roof, plinth, brick, metal, lglass]); });
     return o; })();
   const villaG = msGround(villa); put(villaG, -125, 70, PI, 0, VG); villaG.updateMatrixWorld(true);
-  const vbb = new T.Box3().setFromObject(villaG);
+  const vbb = new T.Box3().setFromObject(villaG); OW.villa = villaG; OW.vbb = vbb; // Modul anwesen
   // Fenster: dunkles Glas hinter den Rahmen, ein einziges erleuchtetes Fenster (per Strahl an die Fassade gesetzt)
   const vray = new T.Raycaster(), vMeshes = []; villaG.traverse(m => { if (m.isMesh) vMeshes.push(m); });
   const vq = new T.Quaternion(); villa.getWorldQuaternion(vq);

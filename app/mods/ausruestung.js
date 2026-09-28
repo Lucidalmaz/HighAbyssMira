@@ -3,7 +3,7 @@
 // gefunden wird durch Durchsuchen von Werkbank, Tresen, Regal; der Rest sind Scan-Modelle). Lampenlogik/Akku: Grundspiel (FLASH).
 // Wo später Unreal-Modelle aus unreal/Export_Requisiten.bat vorliegen (assets/ue/<rolle>/model.glb), liegen sie sichtbar am Fundort.
 // Werkzeug-Einsätze: Drahtschneider → Villentor (ausbau_ost_west) · Brechstange → Zeichnungswand Keller Nr. 7 (Übergang Kap. 2).
-const ausruestung_S = { taken: new Set(), ue: {} };
+const ausruestung_S = { taken: new Set(), ue: {}, spots: [] }; // spots: für den Kinderblick (Modul visionen)
 // Unreal-Export (optional): lädt assets/ue/<rolle>/model.glb, sonst null
 async function ausruestung_ue(role, size) {
   try { const g = await msModel('../ue/' + role, 'model.glb'); const o = msGround(msFit(g.clone(true), size, 'max')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.userData.noCol = true; return o; }
@@ -11,7 +11,7 @@ async function ausruestung_ue(role, size) {
 }
 // Durchsuchbare Stelle: unsichtbare Klickfläche an einem echten Möbel; einmalig, danach nur noch Beschreibung
 function ausruestung_spot(id, [w, h, d], [x, y, z], label, found, empty, give, model) {
-  const m = box(w, h, d, x, y, z, hidden, { cast: false });
+  const m = box(w, h, d, x, y, z, hidden, { cast: false }); ausruestung_S.spots.push({ id, x, y, z, label });
   interact(m, () => ausruestung_S.taken.has(id) ? label : label + ' durchsuchen', () => {
     if (ausruestung_S.taken.has(id)) return toast(empty, 3200);
     const r = give(); if (r === false) return; // Bedingung nicht erfüllt: give() hat selbst erklärt
@@ -53,6 +53,6 @@ WORLD_MODS.push(['Ausrüstung', async () => {
   } catch (e) { console.warn('Ausrüstung: Kerzen', e); }
   ausruestung_spot('villa_kreis', [1.8, .5, 1.8], [-125, .25, 61.5], 'Kerzenkreis',
     'Sieben Kerzen, alle brennen. In der Mitte, sorgfältig gestapelt: vier Batterien. Als hätte jemand gewusst, dass du im Dunkeln kommst.',
-    'Die Kerzen brennen weiter. Keine ist kürzer geworden.', () => { addBattery(4); Audio.whisper(-125, 1.2, 64, 1.6); }); // STORY-HOOK: Mira legt Dinge bereit
+    'Die Kerzen brennen weiter. Keine ist kürzer geworden.', () => { addBattery(4); Audio.whisper(-125, 1.2, 64, 1.6); }); // STORY-HOOK: jemand legt Dinge bereit
 }]);
 WORLD_TICK.push((dt, t) => { const S = ausruestung_S; if (S.led) S.led.intensity = ch3.on && !S.taken.has('tank_lampe3') ? .35 + Math.sin(t * 3) * .15 : 0; });
