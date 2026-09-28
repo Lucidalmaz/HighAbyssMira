@@ -1,6 +1,6 @@
 """Sucht in der eigenen Unreal-Bibliothek Figuren (Skeletal Meshes) für High Abyss Mira und exportiert sie mit Animationen ins Spiel:
 <Repo>/game/assets/ue/chars/<rolle>/ 0_mesh.glb + je Animation eine GLB + manifest.json  (liest mods/figuren.js)
-Rollen: kind_junge, kind_maedchen (Echo-Kinder), erwachsener (Echo-Erwachsene), alter_mann (Walter Albers).
+Rollen: kind_junge, kind_maedchen (Echo-Kinder), erwachsener (Echo-Erwachsene), alter_mann (Lars Vegas).
 Aufruf: Export_Figuren.bat (Doppelklick) – oder UnrealEditor-Cmd.exe <Projekt> -ExecutePythonScript="<Repo>/unreal/Scripts/export_figures.py"
 Eigene Wahl erzwingen: unreal/Scripts/export_figures_pick.json  {"alter_mann": "/Game/…/SK_OldMan"}
 Animationen: nur solche mit demselben Skelett (Idle/Walk/Talk werden gesucht). Log mit allen Kandidaten: unreal/Scripts/export_figures_log.txt

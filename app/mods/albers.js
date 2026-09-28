@@ -54,7 +54,7 @@ WORLD_MODS.push(['Vegas', async () => {
   S.hit = box(1.1, 2.1, .3, D.x, 1.5, D.z + .15, hidden, { cast: false }); uninteract(S.hit);
   interact(S.hit, () => ALBERS_TALKS.some(T => !albers_S.talked.has(T.claim) && T.when()) ? 'An Vegas\' Tür klopfen' : 'Vegas\' Tür', () => albers_talk()); uninteract(S.hit);
   const F = await figuren_load('alter_mann');
-  if (F) { const w = await figuren_clone(F, 1.74); w.position.set(D.x + .2, .45, D.z + .45); // tritt einen Schritt auf die Veranda, die Tür hinter sich angelehnt w.visible = false; scene.add(w); S.fig = w;
+  if (F) { const w = await figuren_clone(F, 1.74); w.position.set(D.x + .2, .45, D.z + .45); w.visible = false; scene.add(w); S.fig = w; // tritt einen Schritt auf die Veranda, die Tür hinter sich angelehnt
     S.mx = new THREE.AnimationMixer(w.children[0]); for (const k of ['idle', 'talk']) if (F.clips[k]) S.act[k] = S.mx.clipAction(F.clips[k]); if (S.act.idle) S.act.idle.play(); }
 }]);
 WORLD_TICK.push((dt, t) => {

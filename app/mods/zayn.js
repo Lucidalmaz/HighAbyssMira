@@ -96,13 +96,13 @@ function zayn_takePhotos() {
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
       const undo = hide ? zayn_hideAt(hide[0], hide[1], hide[2], what === 'Baum' || what === 'Bank') : () => {};
-      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.5); F.visible = true; echoMat.opacity = .45; }
+      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.62); F.visible = true; echoMat.opacity = 1; echoMat.color.setHex(0xe8eeff); } // blasser Junge, gut zu erkennen (1,2 m)
       renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene, pc); renderer.readRenderTargetPixels(rt, 0, 0, W, Hh, buf); renderer.setRenderTarget(null);
       undo(); if (F) F.visible = false;
       out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
     }
   } finally {
-    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
+    hemi.intensity = hemi0; scene.fog.density = fogD0; echoMat.opacity = op0; echoMat.color.setHex(0x8fb6ff); camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
     try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {} rt.dispose();
   }
   return out;

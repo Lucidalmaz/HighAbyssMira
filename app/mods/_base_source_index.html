@@ -195,6 +195,7 @@
   #subPanel.show { display: block; }
   #subPanel .row { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 14px 0; font-size: 17px; }
   #subPanel .row span { color: #c9c0ad; } #subPanel input[type=range] { width: 220px; accent-color: var(--gold); }
+  #subPanel select { width: 220px; background: #14120f; color: #d9cdb0; border: 1px solid #4a4032; padding: 5px 8px; font: 15px Georgia, serif; letter-spacing: .06em; }
   #subPanel .keys { display: grid; grid-template-columns: auto 1fr; gap: 10px 22px; font-size: 16px; align-items: center; }
   #subPanel .close { margin-top: 24px; text-align: center; }
   #subPanel .close button, #subPanel .chap button { background: none; border: 1px solid var(--line); color: #b9ae96; font-family: Georgia, serif; font-size: 11px; letter-spacing: .35em; padding: 10px 22px; cursor: pointer; }
@@ -1773,7 +1774,7 @@ async function renderEditor() {
   let body = '';
   if (edTab === 'regeln') {
     const chips = ['Justin', 'Lucy', 'Luke', 'Hilde Wendt', 'Frau Wendt', 'Vegas', 'Bruno', 'Lost Eyengless', 'Amt für Rückführung', 'Ratte', 'Krähe', 'Spinne', 'Fledermaus', 'Zombie', 'Ritter'];
-    body = `<p class="eh">Eine Regel ersetzt einen Namen oder Begriff <b>überall im Spiel</b> – in Untertiteln, Notizen, Aufgaben, Tagebuch und Abspann. Groß-/Kleinschreibung zählt.</p>
+    body = `<p class="eh">Eine Regel ersetzt einen Namen oder Begriff <b>überall im Spiel</b> – in Untertiteln, Notizen, Aufgaben, Abenteuerfibel und Abspann. Groß-/Kleinschreibung zählt.</p>
       <div class="rules">${TXT.rules.map((R, i) => `<div class="rule"><input data-i="${i}" data-f="from" value="${esc(R.from)}" placeholder="Original"><span>→</span><input data-i="${i}" data-f="to" value="${esc(R.to)}" placeholder="Neu"><button data-del="${i}">✕</button></div>`).join('')}</div>
       <div class="row"><button id="edAdd">+ NEUE REGEL</button></div><p class="eh">Schnell hinzufügen:</p><div class="chips">${chips.map(c => `<button data-chip="${esc(c)}">${c}</button>`).join('')}</div>`;
   } else if (edTab === 'texte') {
@@ -4469,6 +4470,18 @@ function perfCullTick(dt) {
   for (const o of PERF_CULL.fog) { const s = o.geometry.boundingSphere; _pcv.copy(s.center).applyMatrix4(o.matrixWorld); const far = Math.hypot(_pcv.x - px, _pcv.z - pz) - s.radius * o.matrixWorld.getMaxScaleOnAxis() > PERF_CULL.FOG_R;
     if (far) o.layers.disable(0); else o.layers.enable(0); }
 }
+// 4) Schatten-Diät, laufend in kleinen Portionen (auch für später geladene Kapitel):
+//    - winzige Teile (Kerzen, Dosen, Kleinkram < 30 cm) werfen keinen Schatten mehr – sparte bis zu 6,9 Mio. Dreiecke je Schattendurchgang
+//    - animierte Figuren (SkinnedMesh) mit abgeschalteter Sichtprüfung bekommen eine großzügige Hüllkugel: weit entfernte Figuren (Kapitel-2/3-Räume) kosten nichts mehr
+const DIET = { t: 0, i: 0, done: new WeakSet(), s: new THREE.Sphere() };
+function sceneDietTick(dt) {
+  DIET.t -= dt; if (DIET.t > 0) return; DIET.t = .5; const K = scene.children, n = Math.max(1, Math.ceil(K.length / 12));
+  for (let j = 0; j < n; j++) { const c = K[DIET.i++ % Math.max(1, K.length)]; if (!c) continue;
+    c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry || o.userData.keepShadow) return; DIET.done.add(o);
+      if (o.isSkinnedMesh && o.frustumCulled === false && !o.userData.noCull) { try { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const b = o.geometry.boundingSphere.clone(); b.radius = Math.max(b.radius * 2, 1.2); o.boundingSphere = b; o.frustumCulled = true; } catch (e) {} return; } // Hülle aus der Ruhepose, doppelt so groß: Animationen bleiben sicher drin
+      if (!o.castShadow || o.isInstancedMesh || o.isSkinnedMesh) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); if (!o.geometry.boundingSphere) return;
+      o.updateWorldMatrix(true, false); DIET.s.copy(o.geometry.boundingSphere).applyMatrix4(o.matrixWorld); if (DIET.s.radius < .3) o.castShadow = false; }); }
+}
 // =====================================================================  HAUPTMENÜ & INVENTAR
 const ICONS = {
   lampe1: '<svg viewBox="0 0 24 24"><path d="M5 9h9v6H5z"/><path d="M14 8l5-3v14l-5-3"/><path d="M7 9V7M10 9V7"/></svg>',
@@ -4558,7 +4571,9 @@ $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class
   <div class="row"><span>Sichtfeld</span><input type="range" min="60" max="95" step="1" value="${settings.fov}" id="sFov"></div>
   <div class="row"><span>Untertitelgröße</span><input type="range" min="0.8" max="1.5" step="0.05" value="${settings.sub}" id="sSub"></div>
   <div class="row"><span>Maus invertieren</span><input type="checkbox" id="sInv" ${settings.invert ? 'checked' : ''}></div>
-  <div class="row"><span>Kopfbewegung beim Gehen</span><input type="checkbox" id="sBob" ${settings.bob ? 'checked' : ''}></div>`);
+  <div class="row"><span>Kopfbewegung beim Gehen</span><input type="checkbox" id="sBob" ${settings.bob ? 'checked' : ''}></div>
+  <div class="row"><span>Grafikqualität</span><select id="sGfx">${['Niedrig (schnell)', 'Mittel', 'Hoch'].map((n, i) => `<option value="${i}" ${settings.gfx === i ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`);
+  $('sGfx').onchange = ev => { settings.gfx = +ev.target.value; saveSettings(); applyQuality(); };
   $('sFov').oninput = ev => { settings.fov = +ev.target.value; saveSettings(); }; $('sSub').oninput = ev => { settings.sub = +ev.target.value; saveSettings(); };
   $('sInv').onchange = ev => { settings.invert = ev.target.checked; saveSettings(); }; $('sBob').onchange = ev => { settings.bob = ev.target.checked; saveSettings(); };
   $('sSens').oninput = ev => { sens = +ev.target.value; $('sens').value = sens; try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
@@ -4578,6 +4593,15 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
 function saveSettings() { try { localStorage.setItem('ham_settings', JSON.stringify(settings)); } catch (e) {} document.documentElement.style.setProperty('--subScale', settings.sub); }
 document.documentElement.style.setProperty('--subScale', settings.sub);
+// Grafikqualität: 2 hoch · 1 mittel · 0 niedrig. Ohne gespeicherte Wahl: Onboard-/Software-Grafik startet auf „mittel“.
+if (settings.gfx === undefined) { let gpu = ''; try { const gl = renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info'); gpu = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) {} settings.gfx = /Intel|UHD|Iris|Basic Render|SwiftShader|llvmpipe|Mali|Adreno/i.test(gpu) ? 1 : 2; }
+const qualityPR = () => Math.min(devicePixelRatio, [.75, 1, 1.5][settings.gfx] ?? 1.5);
+function applyQuality() {
+  const q = settings.gfx, pr = qualityPR(); renderer.setPixelRatio(pr); composer.setPixelRatio(pr); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+  const ms = q >= 2 ? 2048 : 1024; if (moon.shadow.mapSize.x !== ms) { moon.shadow.mapSize.set(ms, ms); if (moon.shadow.map) { moon.shadow.map.dispose(); moon.shadow.map = null; } }
+  bloom.enabled = q > 0; PERF_CULL.R = q > 0 ? 58 : 50; PERF_CULL.t = 0;
+}
+applyQuality();
 // Titel-Störung alle paar Sekunden
 setInterval(() => { if (!$('start').classList.contains('show')) return; const h = $('start').querySelector('h1'); h.classList.add('glitch'); setTimeout(() => h.classList.remove('glitch'), 380); }, 7000 + Math.random() * 4000);
 // Kamera gleitet vor dem Start durch die Straße
@@ -4629,7 +4653,7 @@ function flashHud() { const segs = battEl.querySelectorAll('i'), c = FLASH.charg
 function flashHudTick(dt) { FLASH.hudT -= dt; const show = state.started && !menu.attract && (FLASH.hudT > 0 || FLASH.charge < FLASH.LOW || ui.overlay === 'journal'); battEl.classList.toggle('show', show); if (show) flashHud(); }
 let tvFrame = 0, indoorK = 0, ringT = 0, dingT = 0, heartT = 0, lastArea = '';
 function update(dt, t) {
-  attractUpdate(dt, t); flashHudTick(dt); perfCullTick(dt);
+  attractUpdate(dt, t); flashHudTick(dt); perfCullTick(dt); sceneDietTick(dt);
   const canMove = (document.pointerLockElement === renderer.domElement || window.__testMove) && !ui.overlay && !state.ending;
   // --- Bewegung mit Beschleunigung
   const run = keys.ShiftLeft || keys.ShiftRight;
@@ -4831,7 +4855,7 @@ stage('Erstes Bild fertig');
 ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  const pr = Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
+  const pr = typeof qualityPR === 'function' ? qualityPR() : Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
 });
 window.G = { ui, ceilingAt, headCeiling, chapter2Begin, CH2_BEGIN, CH2_END, chapter3Begin, finale, setScripted, get scripted() { return scripted; }, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };

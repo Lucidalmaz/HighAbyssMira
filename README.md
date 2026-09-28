@@ -18,7 +18,7 @@ Alle Anforderungen mit Status: `app/story/anforderungen.md`. Gültige Geschichte
 
 ## Tasten
 WASD bewegen · Maus umsehen · Umschalt laufen · Leertaste springen/hochziehen · E benutzen · F Taschenlampe · R Batterie wechseln
-· **G Lichtsteine hochhalten (Kinderblick)** · Tab Tagebuch · F3 Messanzeige (Bildzeiten, Draw Calls, Dreiecke, Kosten je Modul).
+· **G Lichtsteine hochhalten (Kinderblick)** · Tab Abenteuerfibel · F3 Messanzeige (Bildzeiten, Draw Calls, Dreiecke, Kosten je Modul).
 
 ## Unreal-Modelle
 `unreal/Export_Requisiten.bat` und `unreal/Export_Figuren.bat` im eigenen Unreal-Projekt ausführen (siehe `unreal/Scripts`).

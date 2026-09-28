@@ -1,5 +1,5 @@
 @echo off
-rem High Abyss Mira: sucht Figuren (Geisterkinder, Erwachsene, Walter Albers) in deiner Unreal-Bibliothek
+rem High Abyss Mira: sucht Figuren (Geisterkinder, Erwachsene, Lars Vegas) in deiner Unreal-Bibliothek
 rem und exportiert sie nach game\assets\ue\. Einfach doppelklicken. Dauert je nach Bibliothek 2-10 Minuten.
 setlocal
 set "HAM_REPO=%~dp0.."
