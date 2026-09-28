@@ -122,6 +122,53 @@ Nebenorte:
 
 Dazu kommen seltene Zufallsmomente: der Laternenmann, Schritte hinter dir, eine Gestalt zwischen den Bäumen.
 
+**Der Nachhall (warum Luke Erinnerungen sieht)** (Modul `figuren.js`, Gedanken in `gedanken.js`). Wo das Licht jemanden holt oder zurückbringt, bleibt ein **Abdruck** zurück: der Ort erinnert sich. Das Amt nannte das intern „Nachhall“. Sehen kann ihn nur, wer Justins Blut trägt – und Luke ist ganz aus Justin gemacht („Einen für sich, aus Papa gemacht“). Darum brennt seine halbrunde Narbe in der linken Hand, sobald er einen Abdruck berührt, und darum sieht **nur er** die Szenen an der Kreuzung, in Hildes Küche, im Messraum, 1975 und 1312: Vegas hat nichts gesehen, Hilde hat gezählt und nie gesehen. Die Erinnerungen sind keine Erinnerungen *von Luke*, sondern Abdrücke der Orte, durch Justins Blut gelesen.
+- **Darstellung:** Alle Gestalten in einem Nachhall sind erkennbar Erinnerung, nie ein Mensch, der vor einem steht: kalt leuchtend, durchscheinend, an den Rändern zerfallend, mit Filmflimmern; das Bild wird entsättigt und leicht sepiafarben. Sie tragen aber die echten Gesichter und Körper der Personen (siehe Besetzung).
+- **Hinweise im Spiel:** nach der ersten Erinnerung „Die Narbe in der Hand. Sie hat gebrannt …“, nach der dritten „Nur ich seh, was da nachhallt. Warum ich?“, Akte 08 (Narbe neu, andere Blutgruppe), Hofers Dienstbuch (Seiler: „nur einer im Ort kann ihn sehen – der Junge, den sie aus dem Ritter gemacht haben“).
+
+**Besetzung (Modul `figuren.js`, Werkstatt `app/tools/forge.html`, Rezepte `app/tools/cast.json`).** Jede Person und jedes Wesen hat ein eigenes Aussehen; alle Figuren sind aus lizenzierten Modellen zusammengesetzt (Kinder: NoEdge-Kinderkörper mit gebackenen Haut-, Kleidungs- und Haartexturen; Erwachsene: Tony-Flanagan-Körper mit NoEdge-/Bust-Köpfen). Bewegungen sind echte Aufnahmen (Idle, Gehen, Umsehen, Nervös, Telefon, Fenster), auf jedes Skelett übertragen.
+- Kinder 2009: **Roxy** (rotblond, Sommersprossen, kariertes Hemd), **Lucy** (braun, Panda-Top), **Mike** (blond, blaues Shirt), **Dina** (Mädchen, schwarzes Haar, olivfarbene Haut, rotes Trägertop), **Luke** (Kopie: braunes Haar, braune Augen) und **der echte Luke** (blond, **blaue Augen**, gestreifter Schlafanzug, barfuß), **Heidi** (hellblond, rosa Shirt), **Zayn** (braune Locken, rotes Shirt), **Cleo** (8, das vergessene Kind), **die Kleine** (weiß, für immer sieben).
+- Schreckgestalten: **die Graue** (die Kleine mit schwarzen Augen), **die Gezählten** (bleiche Kinder aus dem Messraum).
+- Erwachsene: **Mama** (Marion, hochgesteckt), **Hilde** (60, sieht aus wie 80, weißer Dutt) und **Hilde tot**, **Lucy erwachsen** (26), **Lars Vegas** (Hut, Bart), **die Männer vom Amt** (zwei), **Daniel Lorenz**, **Frau Aydın**, **Dina erwachsen**, **Gefreiter Hofer** (Uniform), **Justin** (der Ritter).
+- Polaroids: die sieben Kinderfotos an den Kerzen zeigen die echten Gesichter (Sofortbild-Look, Lukes Foto ist der echte Luke mit blauen Augen).
+
+**Der Hungrige** (Modul `hungrige.js`; Nebenaufgabe „Der Hungrige“; **Kapitel 6**). Ein Gestaltwandler in den Forbidden Dustwoods, der im Ort nur als Gerücht existiert („der Wald hat kein Echo“).
+- **Herkunft:** In der Zyklusnacht 12./13. Juli 1992 holte Bergungstrupp 3 (Gefreiter Hofer) um 03:13 etwas aus der Senke, „das sich hinstellte wie ein Hirsch, aber nicht wie einer aufstand“. Es sprach mit Seilers Stimme. Keiner wollte es anfassen; sie ließen es in den Wald laufen. Hofer kam „mit fremdem Gesicht“ zurück: Es war nicht Hofer. Es kam mit Hofers Gesicht zurück und schrieb sein Dienstbuch mit dessen Hand zu Ende.
+- **Was es ist:** Es frisst den **Nachhall** – die Abdrücke, die das Licht hinterlässt. Deshalb ist der Wald leer, obwohl er voll ist: Dort gibt es keine Erinnerungen mehr, nur Fraßstellen. Aus den Abdrücken lernt es Stimmen (Lucy: „Großer“, Seiler, Hofer, der Funk von 1992). Das Fleisch der Tiere, die es frisst, trägt es als Haut – **falsch**: der Kopf sitzt nie richtig (rückwärts gehendes Reh, Fuchs mit verdrehtem Kopf, Hirsch, dessen Kopf sich ohne den Hals dreht). Seine „Nackten“ sind Tiere ohne Fell, nasses Fleisch, frisch angezogen. Seine wahre Gestalt ist ein aufrechtes, zu großes Hirschding aus Knochen und rohem Fleisch.
+- **Warum Luke:** Luke ist der vollständigste Abdruck, der je herumgelaufen ist – ein ganzer Mensch aus Justins Blut. Für den Hungrigen ist er das größte Mahl im Ort. Deshalb lockt es ihn tiefer in den Wald, mit Lucys Wort.
+- **Regeln:** Es hasst **Licht** (nicht das Weiße – Lampenlicht; „eine Lampe reicht, wenn man sie nicht senkt“). Und es fürchtet **den Raben**: Whiskey gehört Mira, und ihr Licht ist das Gegenteil dessen, was der Hungrige frisst.
+- **Ablauf (jede Begegnung nur einmal, gespeichert):** 1. Reh, das rückwärts geht · 2. Krähe, die „Großer“ sagt · 3. Fuchs mit verdrehtem Kopf (ab hier Nebenaufgabe) · 4. Fraßstelle auf dem Weg zum Wrack: angefressenes Reh, Blut, **Hofers Dienstbuch Seite 1** · 5. Hirsch-Angriff, der einen Meter vor Luke stehen bleibt · 6. Heulen, das zu Funk wird (31,10 MHz, Hofer 1992) · 7. die Silhouette im tiefen Wald, die im Lampenlicht zu Nebel wird · 8. Gefreiter Hofer zwischen den Bäumen, der Kopf dreht sich, der Körper nicht · 9. **der Bau** hinter dem Autowrack: Tierschädel auf dem Pfahl, Knochen, Blut, **Hofers letzte Seite**. Garantiert dazu: die Nackten am Hochsitz (Reh, kommt langsam näher) und am Amtsbus (Wolf, der wie tot daliegt und jedes Mal näher ist, wenn man wegsieht).
+- **Luke:** reagiert in Gedanken auf jede Stufe („Ein Reh geht nicht rückwärts“ … „Ich bin ein einziger Abdruck, der herumläuft“).
+
+## Kapitel 6 – Der Hungrige (Enthüllung)
+
+*Kapitel 5 bleibt frei (Miras Rückkehr aus dem Weißen ist für spätere Kapitel angelegt). Die Enthüllung des Hungrigen ist im Spiel bereits am Bau spielbar (Ende der Nebenaufgabe) und wird in Kapitel 6 zum Kapitelkern.*
+
+### Überblick
+Luke hat gelernt, warum er die Erinnerungen sieht (Nachhall, Justins Blut). Jetzt lernt er, wer sie **frisst**. Kapitel 6 spielt im tiefen Wald und endet am Bau hinter dem Autowrack. Ton: keine Kapelle, keine Akten – nur Wald, Tiere, die falsch sind, und ein Freund, der zwei Mal da ist.
+
+### Verbindungen zur Hauptgeschichte
+- **Zayn und Jonas:** Jonas’ Zettel („Der Wald hört nicht auf“, „acht Stöckchenmänner“) waren die ersten Spuren des Hungrigen: Er hat Jonas’ Suchen als Abdruck gefressen, deshalb findet Luke im Wald kein Echo von Zayn. Der Hungrige ist auch der Grund, warum Zayns Hütte im Wald „still“ ist.
+- **Das Amt:** Bergung 3 (1992), Seilers Wort „Nachhall“, die Dienstanweisung „beobachten, nicht aufklären“ – das Amt wusste von beiden: vom Abdruck und vom Fresser. Hofers Dienstbuch ist die elfte Akte, die Edda Brand nie bekommen hat.
+- **Whiskey und Mira:** Whiskey ist Miras Rabe („er findet immer heim. Zu ihr“). Der Hungrige hat ihn kopiert, weil er Lukes Vertrauen kopieren wollte. Die Kopie ist spiegelverkehrt, atmet nicht und sagt „Großer“ – Lucys Wort aus dem gefressenen Abdruck.
+- **Die Kleine und das Licht:** Der Hungrige ist kein Kind des Lichts, sondern sein Schatten: Er lebt von dem, was das Licht übrig lässt. Wo die Kleine spielt, frisst er. Beide brauchen Luke, aus entgegengesetzten Gründen.
+
+### Szenen in Reihenfolge
+1. **Der Bau.** Hinter dem Wrack: der Pfahl mit dem Tierschädel, Knochen, Blut. Hofers letzte Seite („Es ist mit meinem Gesicht zurückgekommen. Ich schreibe das mit seiner Hand.“). Luke: „Ich bin ein einziger Abdruck, der herumläuft.“
+2. **Whiskey kommt.** Der Rabe fliegt über Luke hinweg und landet auf dem Pfahl. „Du bist mir nachgeflogen.“
+3. **Der zweite Whiskey.** Ein zweiter Rabe landet daneben – spiegelverkehrt, ohne zu atmen. „Zwei. Da sind zwei.“ Der zweite sagt „Großer …“ mit Lucys Stimme. Der erste schreit und hüpft auf ihn zu. Luke erkennt es: „Der linke atmet nicht. Der linke hat noch nie geatmet.“
+4. **Die Verwandlung.** Der Kopf des falschen dreht sich um 180 Grad. Knacken. Die Federn fallen ab, der Hals wird lang, der Leib bläht sich, die Haut wird zu rohem Fleisch – und aus dem Vogel steigt das Hirschding, zu groß, zu aufrecht. Lukes Lampe flackert. Es macht zwei Schritte auf ihn zu.
+5. **Whiskey greift an.** Der echte Rabe steigt auf, kreist einmal – und stößt drei Mal herab. Mit jedem Stoß wird sein Licht heller (ein kaltes, weißes Licht, das nicht seins ist: Miras). Beim dritten Stoß blitzt der Wald auf wie bei Tag. Der Hungrige weicht, brüllt, flieht rückwärts in die Dunkelheit.
+6. **Danach.** Whiskey landet wieder auf dem Pfahl. „Er hat ihn vertrieben. Nicht ich – er.“ „Und der Hungrige weiß, wem du gehörst, Whiskey. Deshalb hat er Angst.“ Der Rabe fliegt davon. Nebenaufgabe erledigt, Fibel-Eintrag „Die Enthüllung“.
+
+### Enthüllungen
+- Der Hungrige ist nicht tot. Er ist vertrieben – und er weiß jetzt, dass Luke nicht allein ist.
+- Whiskey trägt Miras Licht. Das ist der bisher deutlichste Hinweis, dass „sie noch kommt“.
+- Hofer war seit 1992 der Hungrige. Alles, was das Amt danach über die Bergungen wusste, stammte von ihm.
+
+### Kapitel-Ende
+Luke geht mit dem Raben aus dem Wald. Hinter ihm, ganz weit, hört er ein Reh – oder etwas, das ein Reh übt.
+
 ---
 
 ## Die Geschichte in einem Satz, Kernfrage, Ton & Vorbilder
@@ -205,7 +252,7 @@ Jeder Schrecken in Lost Eyengless ist ein **Kinderspiel mit festen Regeln**. Wei
   - **Juni:** Roxy geht aus ihrer Gartenlaube „heim". Laterne vor **Nr. 5** aus.
   - Heidi (6.7.) wird übersprungen, sie lebt weit weg. Ihre Postkarten kommen aber jedes Jahr näher.
   - **12. Juli, 03:13:** Mike verlässt barfuß die geschlossene Tankstelle. Laterne vor **Nr. 3** aus.
-  - Dina (10.7.) wird übersprungen. Er ist im September aus der Klinik geflohen und hält die Augen verbunden. Wer die Augen zu hat, den sieht sie nicht.
+  - Dina (10.7.) wird übersprungen. Sie ist im September aus der Klinik geflohen und hält die Augen verbunden. Wer die Augen zu hat, den sieht sie nicht.
   - Ab August wacht Luke jede Nacht um 03:13 auf.
 - **20.–22. Oktober 2026.** Hilde zeigt Lucy das Amt und die Akten. Lucy erfährt, was Luke ist. Sie bespricht im Keller ein **Tonband** für ihn und legt Hildes Hausschlüssel mit einem Zettel in Hildes Briefkasten.
 - **23. Oktober 2026.** Zwischen 23:41 und 23:57 ruft Lucy Luke **elfmal** an. Er geht nicht ran. Um 23:58 fotografiert sie an der Kreuzung das Licht, rennt, lässt das Auto an der Südsperre stehen, schreit „Hilde!" und schafft es bis Nr. 7. Hilde bringt sie nach unten ins Amt und legt sie in den **Rückführungstank**, denn unter der Erde findet die Kleine niemanden. Aber das Licht hatte Lucy schon berührt: Die Hälfte von ihr ist bei der Kleinen. Laterne vor **Nr. 1** aus. In dieser Nacht zählt Hilde im Echo auf der Kreuzung zum ersten Mal **neun**.
@@ -339,7 +386,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - Mamas Bruder, Kopie von 1975. Wusste es 1992. Kam „nacherzählt" zurück, ein Gesicht aus Zähnen. Seit 1992 im unteren Gang eingesperrt. Er jagt nicht aus Bosheit, er sucht den Ausgang. Fängt er Luke, hält er dessen Gesicht fest und sagt: „**Bruder.**" Er ist Lukes Onkel und, als Kind aus Justins Blut, zugleich sein Bruder.
 
 ### Dina Aydın (26) – Scheune im Westen
-- Einer der Sieben von 2009. Floh im September aus der Klinik. Lebt mit **Augenbinde** im Heuboden der Scheune, weil er die Regel gefunden hat. Spricht fast nicht. Malt Kreise; seine Kreise sind **Karten**: „Die Kreise sind von unten."
+- Eine der Sieben von 2009. Floh im September aus der Klinik. Lebt mit **Augenbinde** im Heuboden der Scheune, weil sie die Regel gefunden hat. Spricht fast nicht. Malt Kreise; ihre Kreise sind **Karten**: „Die Kreise sind von unten."
 
 ### Weitere Figuren (nur kurz, bewusst klein gehalten)
 - **Zayn Wendt (für immer 7):** Hildes Jüngster, Jonas’ kleiner Bruder, verlost. Sitzt in Raum 3 mit Bruno im Arm.

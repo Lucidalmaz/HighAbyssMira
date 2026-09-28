@@ -64,6 +64,19 @@ Stand der Sammlung: 28.09.2026. Status: ✅ umgesetzt + zur Laufzeit geprüft ·
 | G5 | Erkunden soll sich belohnend anfühlen, überall etwas zu entdecken | ✅ `entdecker.js`: 17 Kerben (Abzählreim) über die ganze Stadt, 6 Belohnungsstufen nach Funden (Batterien, Akku, Kinderblick, Lichtkegel, Erinnerung 2009, „M.“), Fortschritt in der Fibel |
 | G6 | Whistleblower-Notizen: Vorgeschichte, Vertuschung, Bergung nicht menschlicher Wesen, entgleiste Experimente (Zombie) | ✅ `akte.js`: „Die Akte Abgrund“ – 10 Durchschläge von Dr. Edda Brand (1958–2012), kanonisch in `story_final.md` |
 
+## H. Figuren, Nachhall, der Hungrige, Fotos (Nachtrag 29.09.2026)
+| # | Anforderung | Status |
+|---|---|---|
+| H1 | Jede Person/jedes Wesen mit eigenem, persönlichem Aussehen; Bearbeitetes optisch nicht von Unbearbeitetem zu unterscheiden | ✅ 24 Figuren aus `app/tools/cast.json` in der Werkstatt `forge.html` gebaut (NoEdge-Kinder mit gebackener Haut/Kleidung/Haar, Erwachsene aus Tony-Flanagan-Körpern + CC-Köpfen mit Kopftausch, Augenfarbe, Alter, Bart); Kontaktbögen geprüft, `chars_pack.mjs` (≤45k Dreiecke), KTX2 |
+| H2 | Natürliche Bewegung (nicht generiert) | ✅ Motion-Capture-Clips (Idle, Gehen, Umsehen, Nervös, Telefon, Fenster) auf alle Skelette übertragen (`F.retarget`), Sitzposen |
+| H3 | Polaroids zeigen die echten Kinder | ✅ `game/assets/polaroid/*.jpg` aus den Figuren gerendert (Sofortbild-Look, Luke = echter Luke mit blauen Augen) |
+| H4 | Erinnerungen geisterhaft/schemenhaft, klar als Erinnerung erkennbar; warum Luke sie sieht, muss Sinn ergeben | ✅ Geistermaterial v2 (additiv, Fresnel, Zerfall an den Rändern, Filmflimmern) + entsättigtes Bild; Kanon „Nachhall“ (Abdrücke des Lichts, nur für Justins Blut sichtbar, Narbe brennt) in `story_final.md`, Gedanken nach 1./3. Erinnerung, Hofers Dienstbuch |
+| H5 | Wendigo-Gestaltwandler im Wald mit tieferer Story; erst als Tier, Bedrohung wird mit der Zeit klar | ✅ `hungrige.js`: 9 Stufen (Reh rückwärts → Krähe „Großer“ → Fuchs → Fraßstelle/Dienstbuch → Hirsch-Angriff → Heulen/Funk → Silhouette → Hofer → Bau), jede nur einmal, gespeichert; Nebenaufgabe „Der Hungrige“ |
+| H6 | Gruselige, fleischige, nackte Tierwesen – garantiert | ✅ „die Nackten“: Reh am Hochsitz, Wolf am Amtsbus (Fell weg, Megascans-Fleisch), Deer Thing als wahre Gestalt |
+| H7 | Enthüllung: zweiter Whiskey, Verwandlung mit Animation, der echte Whiskey vertreibt ihn cinematisch (Kapitel 6) | ✅ Finale am Bau: Rabe landet, spiegelverkehrter zweiter Rabe ohne Atem, Kopfdrehung, Federn fallen, Hals streckt sich, Fleisch, Hirschding steigt auf; drei Sturzflüge mit wachsendem Licht, Blitz, Flucht; Kapitel 6 in `story_final.md` |
+| H8 | UFO-Bilder im Keller und im Elternhaus als realistische Fotos mit Hinweisen | ✅ `fotos.js`: 7 Fotos in der Spielwelt aufgenommen (`game/assets/fotos`), Hildes Fotowand im Keller, Lucys Pinnwand in Nr. 1; „Foto genau ansehen“ zeigt Vergrößerung + Lukes Beobachtung, Fibel-Eintrag |
+| H9 | CC-BY-Nennungen | ✅ `CREDITS.md` |
+
 ## Automatische Fehlersuche (Ergebnis)
 - Code hinter Zeilenkommentaren (2 Stellen): Lars Vegas’ Unreal-Figur wurde nie in die Szene gesetzt; Zayns sechstes Foto war eine Kopie – beide behoben, restliche Module ohne Befund.
 - Unbehandelte Browser-Ablehnung der Maussperre beim Aufwachen aus dem Traum – abgefangen.

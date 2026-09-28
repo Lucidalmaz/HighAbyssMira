@@ -48,16 +48,22 @@ app.whenReady().then(() => {
     fs.mkdirSync(out, { recursive: true });
     const logs = [];
     win.webContents.on('console-message', (_e, level, msg) => { if (level >= 2) logs.push(msg); });
+    let started = false; // mehrere wartende Abfragen dürfen die Schritte nur einmal starten (sonst laufen sie parallel mehrfach)
     const poll = setInterval(async () => {
       let ready = false; try { ready = await win.webContents.executeJavaScript('!!window.__ready'); } catch (e) {}
       if (ready || Date.now() - t0 > (+(process.argv.find(x => x.startsWith('--readyTimeout='))?.slice(15)) || 120000)) {
-        clearInterval(poll);
+        clearInterval(poll); if (started) return; started = true;
         const info = await win.webContents.executeJavaScript('JSON.stringify({ready: !!window.__ready, stage: window.__stage, log: window.__log, info: window.__info})').catch(e => String(e));
         const stepsFile = process.argv.find(a => a.startsWith('--steps='))?.slice(8);
         if (stepsFile) {
           const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); const res = {};
           for (const st of steps) {
             try { res[st.name] = await win.webContents.executeJavaScript(st.js); } catch (e) { res[st.name] = 'FEHLER ' + e; }
+            // Werkzeug-Seiten (tools/forge.html) liefern Dateien als "FILES:" + JSON [{path, b64}] zurück
+            if (typeof res[st.name] === 'string' && res[st.name].startsWith('FILES:')) {
+              const list = JSON.parse(res[st.name].slice(6)); for (const f of list) { fs.mkdirSync(path.dirname(f.path), { recursive: true }); fs.writeFileSync(f.path, Buffer.from(f.b64, 'base64')); }
+              res[st.name] = list.map(f => f.path + ' (' + Math.round(f.b64.length * .75 / 1024) + ' KB)' + (f.note ? ' ' + f.note : ''));
+            }
             if (st.profile) { // CPU-Profil (Chrome DevTools-Format) über st.profile ms aufzeichnen
               const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
               await d.sendCommand('Profiler.enable'); await d.sendCommand('Profiler.setSamplingInterval', { interval: 200 }); await d.sendCommand('Profiler.start');

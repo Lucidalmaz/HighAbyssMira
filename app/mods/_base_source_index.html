@@ -1889,13 +1889,19 @@ const PHOTOS = [
   { name: 'Heidi', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Heidi, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
   { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 7. Frau Wendts Jüngster. Der kleine Bruder von Jonas, deinem besten Freund damals.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
 ];
+// Echte Fotos der Kinder (Sommer 2009) – gerendert in der Figuren-Werkstatt (app/tools/forge.html), assets/polaroid/<name>.jpg; ohne Datei: gezeichnete Silhouette
+const POLA_IMG = {};
+await Promise.all(PHOTOS.map(p => new Promise(r => { const im = new Image(); im.onload = () => { POLA_IMG[p.name] = im; r(); }; im.onerror = () => r(); im.src = 'assets/polaroid/' + p.name.toLowerCase() + '.jpg'; })));
 function polaroidCanvas(p) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 310; const x = c.getContext('2d');
   x.fillStyle = '#ece6d6'; x.fillRect(0, 0, 256, 310); x.save(); x.beginPath(); x.rect(16, 16, 224, 224); x.clip();
   const g = x.createLinearGradient(0, 16, 0, 240); g.addColorStop(0, '#e9d6a0'); g.addColorStop(.55, '#c9b27a'); g.addColorStop(.56, '#6f7a44'); g.addColorStop(1, '#3e4a2a'); x.fillStyle = g; x.fillRect(16, 16, 224, 224);
   x.filter = 'blur(1.5px)'; x.fillStyle = 'rgba(60,50,40,.5)'; x.fillRect(20, 90, 60, 50); x.fillRect(170, 85, 70, 55);
-  x.fillStyle = '#2b2520'; x.beginPath(); x.arc(128, 120, 16, 0, 7); x.fill(); x.fillRect(110, 136, 36, 62); x.fillRect(114, 196, 10, 34); x.fillRect(132, 196, 10, 34); x.filter = 'none';
-  if (p.scratch) { x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 2; for (let i = 0; i < 40; i++) { x.beginPath(); x.moveTo(110 + rand(0, 36), 102 + rand(0, 36)); x.lineTo(110 + rand(0, 36), 102 + rand(0, 36)); x.stroke(); } }
+  const img = POLA_IMG[p.name];
+  if (img) { x.filter = 'none'; x.drawImage(img, 16, 16, 224, 224); }
+  else { x.fillStyle = '#2b2520'; x.beginPath(); x.arc(128, 120, 16, 0, 7); x.fill(); x.fillRect(110, 136, 36, 62); x.fillRect(114, 196, 10, 34); x.fillRect(132, 196, 10, 34); }
+  x.filter = 'none';
+  if (p.scratch) { const hx = img ? 104 : 110, hy = img ? 44 : 102, hw = img ? 48 : 36; x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 2; for (let i = 0; i < 46; i++) { x.beginPath(); x.moveTo(hx + rand(0, hw), hy + rand(0, hw)); x.lineTo(hx + rand(0, hw), hy + rand(0, hw)); x.stroke(); } }
   const lg = x.createRadialGradient(230, 30, 0, 230, 30, 180); lg.addColorStop(0, 'rgba(255,140,60,.55)'); lg.addColorStop(1, 'rgba(255,140,60,0)'); x.fillStyle = lg; x.fillRect(16, 16, 224, 224);
   const vg = x.createRadialGradient(128, 128, 60, 128, 128, 170); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); x.fillStyle = vg; x.fillRect(16, 16, 224, 224); x.restore();
   x.fillStyle = '#2a2a55'; x.font = '32px Caveat, cursive'; x.fillText(p.name + ', Sommer 09', 22, 286);
@@ -2429,7 +2435,9 @@ const ghostCar = car(95, -2, 0, 0x1c1e22, { lights: true, noCol: true }); ghostC
 // Kein Vollbild-Gesicht mehr: jeder Moment spielt in der Welt und gehört zu seiner Geschichte.
 let shake = 0, glitchV = 0, scareCount = 0, lightBoost = 0;
 const scareQueue = []; function jumpScare() { /* alt – bewusst leer, siehe staged() */ return Promise.resolve(); }
-function setFace(fig, kind) { const f = fig.userData.face; if (f) { f.material.map = faceTexes[kind]; f.material.needsUpdate = true; f.visible = !!kind; } }
+// FACE_HOOK.fn (Modul figuren): Gestalt bekommt je Gesicht eine echte Person statt Puppe + gemaltem Gesicht
+const FACE_HOOK = { fn: null };
+function setFace(fig, kind) { const f = fig.userData.face; if (f) { f.material.map = faceTexes[kind]; f.material.needsUpdate = true; f.visible = !!kind; } if (FACE_HOOK.fn) FACE_HOOK.fn(fig, kind); }
 // Alle Lichter kurz tot (Belichtung runter, Taschenlampe aus) – danach flackert alles wieder an
 async function cutLights(ms) { state.blackout = true; flashOn = false; await wait(ms); state.blackout = false; flashOn = true; state.flashFail = 1.1; }
 const vecA = new THREE.Vector3(), vecB = new THREE.Vector3();
@@ -4003,6 +4011,7 @@ function fabUpdate(dt, t) {
 const echoMat = new THREE.MeshBasicMaterial({ color: 0x8fb6ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
 const echoFigs = Array.from({ length: 9 }, () => { const f = makeFigure(echoMat); f.traverse(o => { if (o.isMesh) o.castShadow = false; }); f.visible = false; return f; });
 const echoSeen = new Set();
+const ECHO_CAST = { start: null, end: null }; // Modul figuren: Besetzung der Erinnerungen
 const moteTex = tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(200,225,255,1)'); g.addColorStop(.3, 'rgba(150,190,255,.5)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w); }), true);
 const E_ = (x, z, ry = 0, s = 1) => [x, z, ry, s];
 const ECHOES = [
@@ -4037,10 +4046,11 @@ async function playEcho(E) {
   const A = echoAnchors.find(a => a.E === E); uninteract(A.hit); A.s.visible = false;
   Audio.stinger(false); Audio.whisper(E.at[0], 1.6, E.at[2], 2.4); glitchV = .7; shake = .02;
   E.figs.forEach((f, i) => { const F = echoFigs[i]; F.position.set(f[0], E.floor !== undefined ? E.floor : (E.at[1] > 1.2 ? Y : 0), f[1]); F.rotation.y = f[2]; F.scale.setScalar(f[3]); F.visible = true; });
+  if (ECHO_CAST.start) try { await ECHO_CAST.start(E); } catch (e) { console.warn('Echo-Besetzung', e); } // Modul figuren: echte Personen als Erinnerung
   for (let k = 0; k <= 20; k++) { echoMat.opacity = k / 20 * .32; await wait(40); }
   await say(E.lines);
   for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .32 * (Math.random() < .3 ? .3 : 1); await wait(45); }
-  echoFigs.forEach(F => F.visible = false); state.talking = false;
+  echoFigs.forEach(F => F.visible = false); state.talking = false; if (ECHO_CAST.end) ECHO_CAST.end(E);
   story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
   questPop('ERINNERUNG', E.title.replace('Echo · ', '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
 }

@@ -53,9 +53,9 @@ WORLD_MODS.push(['Vegas', async () => {
   S.beam = new VLight(0xffc890, 0, 5, 2); S.beam.position.set(D.x + .3, 1.2, D.z + 1.4); scene.add(S.beam);    // Taschenlampe, die dich anleuchtet
   S.hit = box(1.1, 2.1, .3, D.x, 1.5, D.z + .15, hidden, { cast: false }); uninteract(S.hit);
   interact(S.hit, () => ALBERS_TALKS.some(T => !albers_S.talked.has(T.claim) && T.when()) ? 'An Vegas\' Tür klopfen' : 'Vegas\' Tür', () => albers_talk()); uninteract(S.hit);
-  const F = await figuren_load('alter_mann');
+  const F = await figuren_load('vegas'); // Lars Vegas, 60: eigene Figur aus der Figuren-Werkstatt
   if (F) { const w = await figuren_clone(F, 1.74); w.position.set(D.x + .2, .45, D.z + .45); w.visible = false; scene.add(w); S.fig = w; // tritt einen Schritt auf die Veranda, die Tür hinter sich angelehnt
-    S.mx = new THREE.AnimationMixer(w.children[0]); for (const k of ['idle', 'talk']) if (F.clips[k]) S.act[k] = S.mx.clipAction(F.clips[k]); if (S.act.idle) S.act.idle.play(); }
+    S.mx = new THREE.AnimationMixer(w.children[0]); for (const [k, c] of [['idle', 'idle'], ['talk', F.clips.talk ? 'talk' : 'look']]) if (F.clips[c]) S.act[k] = S.mx.clipAction(F.clips[c]); /* beim Reden sieht er sich unruhig um */ if (S.act.idle) S.act.idle.play(); }
 }]);
 WORLD_TICK.push((dt, t) => {
   const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } return; }

@@ -99,7 +99,7 @@ function visionen_next() {
   const sh = v.shots[V.i]; if (V.i > 0) { S.flash.style.transition = 'none'; S.flash.style.opacity = .85; glitchV = .6; Audio.play('static', { gain: .08, dur: .3 }); }
   requestAnimationFrame(() => { S.flash.style.transition = 'opacity .7s'; S.flash.style.opacity = 0; });
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; // Kamera springt: Instanzen um den neuen Blickpunkt einblenden
-  if (sh.fig) { const F = echoFigs[0]; F.position.set(sh.fig.at[0], 0, sh.fig.at[1]); F.rotation.y = sh.fig.rot; F.scale.setScalar(sh.fig.s); F.visible = true; V.fig = F; echoMat.opacity = .3; }
+  if (sh.fig) { const F = echoFigs[0]; F.position.set(sh.fig.at[0], 0, sh.fig.at[1]); F.rotation.y = sh.fig.rot; F.scale.setScalar(sh.fig.s); F.visible = true; V.fig = F; echoMat.opacity = .3; if (typeof figuren_person === 'function') figuren_person(F, sh.fig.s < .58 ? 'kleine' : 'zayn'); } // Mädchen am achten Stein / Zayn auf dem Weg zum Wald
   V.flashWas = flashOn; if (sh.dark && flashOn) flashOn = false;
   subtitle(`<i>${sh.text}</i>`, sh.dur * 1000 - 200, V.i === 0 ? 'VISION' : '');
 }

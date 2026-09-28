@@ -96,7 +96,7 @@ function zayn_takePhotos() {
       try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
       flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
       const undo = hide ? zayn_hideAt(hide[0], hide[1], hide[2], what === 'Baum') : () => {};
-      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.62); F.visible = true; echoMat.opacity = 1; echoMat.color.setHex(0xe8eeff); if (FAB.ghostU) FAB.ghostU.value = 3.2; if (typeof figuren_sync === 'function') figuren_sync(0); } // blasser Junge, gut zu erkennen (1,2 m)
+      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.62); F.visible = true;  echoMat.opacity = 1; echoMat.color.setHex(0xe8eeff); if (FAB.ghostU) FAB.ghostU.value = 3.2; if (typeof figuren_sync === 'function') figuren_sync(0); } // blasser Junge, gut zu erkennen (1,2 m)
       renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene, pc); renderer.readRenderTargetPixels(rt, 0, 0, W, Hh, buf); renderer.setRenderTarget(null);
       undo(); if (F) { F.visible = false; if (typeof figuren_sync === 'function') figuren_sync(0); }
       out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
@@ -116,9 +116,10 @@ function zayn_print(buf, W, H, stamp, last) {
   if (last) { x.save(); x.translate(26, H - 30); x.rotate(-.04); x.fillStyle = 'rgba(250,245,235,.92)'; x.font = '24px "Comic Sans MS", cursive'; x.fillText('Er wollte, dass ich ihm folge.', 0, 0); x.restore(); }
   return c.toDataURL('image/jpeg', .85);
 }
-function zayn_camera() {
+async function zayn_camera() {
   const S = zayn_S; if (S.stage >= 2) return openNote('Zayns Kinderkamera', 'Das letzte Bild: nur der Waldrand hinter dem Spielplatz.\n\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
   toast('Die Kamera surrt. Das Display flackert – dann: Fotos.', 2400);
+  if (!S.photos && typeof figuren_person === 'function') await figuren_person(echoFigs[0], 'zayn'); // Zayn als Erinnerung auf den Fotos
   if (!S.photos) try { S.photos = zayn_takePhotos(); } catch (e) { console.warn('Zayn: Fotos', e); S.photos = []; }
   const order = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - .5); let step = 0;
   openPuzzle(`<h3>ZAYNS KAMERA</h3><p>Sechs Fotos vom alten Spielplatz. Auf jedem fehlt etwas. Auf jedem steht ein kleiner Junge – nie an derselben Stelle.<br>Tippe die Fotos in der richtigen Reihenfolge an.</p>

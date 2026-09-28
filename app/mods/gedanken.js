@@ -61,7 +61,10 @@ WORLD_MODS.push(['Gedanken', async () => {
   enterBasement = after(enterBasement, () => gedanke('keller', 'Ein Keller, den Lucy kannte und ich nicht. Wie viel von ihr kenne ich eigentlich?', 4500, 2));
   spiderEvent = after(spiderEvent, () => gedanke('spinnen', 'Raus aus meinem Kopf. Das war nicht echt. … Es hat sich echt angefühlt.', 1500, 3));
   caught = after(caught, () => gedanke('gefangen', 'Er hat mich nicht gebissen. Er hat mich festgehalten. Wie jemanden, den man lange vermisst hat.', 1500, 3));
-  playEcho = after(playEcho, E => { if (GEDANKEN_ECHO[E.id]) gedanke('echo_' + E.id, GEDANKEN_ECHO[E.id], 900, 3); });
+  playEcho = after(playEcho, E => { if (GEDANKEN_ECHO[E.id]) gedanke('echo_' + E.id, GEDANKEN_ECHO[E.id], 900, 3);
+    // Nachhall: warum Luke die Abdrücke sieht (Narbe = Justins Blut) – nach der ersten und dritten Erinnerung
+    const n = echoSeen.size; if (n === 1) gedanke('nachhall_1', 'Die Narbe in der Hand. Sie hat gebrannt, sobald ich den Ort angefasst hab. … Als würde sich die Hand erinnern, nicht ich.', 7000, 3);
+    if (n === 3) gedanke('nachhall_2', 'Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh, was da nachhallt. Warum ich?', 7000, 3); });
   CH2_BEGIN.push(() => gedanke('tuer', 'Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.', 7500, 3));
   CH2_END.push(() => gedanke('lena_tank', 'Lucy war da drin. „Weißt du es jetzt?“ – Was soll ich wissen? … Ich will es nicht wissen.', 14000, 3));
 }]);
