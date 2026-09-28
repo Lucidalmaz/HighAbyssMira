@@ -1367,6 +1367,12 @@ const victim = makeFigure(new THREE.MeshStandardMaterial({ color: 0x8a8a90, roug
 
 stage('Geschichte laden'); await wait(30);
 // =====================================================================  AUDIO (prozedural)
+// Mischregeln gegen Überladung: gleichzeitige Einmal-Geräusche, ab denen leise weggelassen werden · Mindestabstände (s)
+const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 6, stingerGap: 8 };
+// Musik: Spannungsschwellen (fear 0…1), Haltezeit vor Entspannung, Pausen (s) zwischen Phrasen je Stufe, Grundlautstärke
+const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [45, 80], restAfter: [25, 50],
+  rest: { calm: [70, 150], uneasy: [25, 55], danger: [0, 2] }, gain: .9 };
+const ctx0 = A => A.ctx;
 const Audio = {
   ctx: null,
   build(ctx) {
@@ -1406,9 +1412,11 @@ const Audio = {
     next();
   },
   done() { this.ready++; if (this.ready >= this.total && this.onLoaded) { const f = this.onLoaded; this.onLoaded = null; f(); } },
-  init() { if (!this.ctx) this.preload(); if (this.ctx.state !== 'running') this.ctx.resume(); if (this.master && typeof settings !== 'undefined') this.master.gain.value = .9 * settings.vol; if (!this.started) { this.started = true; this.startAmbience(); } },
+  init() { if (!this.ctx) this.preload(); if (this.ctx.state !== 'running') this.ctx.resume(); if (this.master && typeof settings !== 'undefined') this.master.gain.value = .9 * settings.vol; if (!this.started) { this.started = true; this.startAmbience(); this.musicInit(); } },
   play(name, o = {}) {
     const b = this.buf && this.buf[name]; if (!b) return null;
+    // Nicht überladen: ab AUDIO_MIX.voices gleichzeitigen Einmal-Geräuschen werden leise (Umgebungs-)Geräusche ausgelassen
+    if (!o.loop && (this.voices || 0) >= AUDIO_MIX.voices && (o.gain ?? 1) < AUDIO_MIX.quiet) return null;
     const ctx = this.ctx, t = ctx.currentTime + (o.delay || 0);
     const src = ctx.createBufferSource(); src.buffer = b; src.loop = !!o.loop; if (o.loop && o.loopStart) { src.loopStart = o.loopStart; src.loopEnd = o.loopEnd || b.duration; }
     src.playbackRate.value = (o.rate || 1) * (o.vary ? rand(1 - o.vary, 1 + o.vary) : 1);
@@ -1422,10 +1430,14 @@ const Audio = {
     if (o.pan !== undefined) { const p = ctx.createStereoPanner(); p.pan.value = o.pan; g.connect(p); p.connect(o.dest || this.master); }
     else g.connect(o.x !== undefined ? this.at(o.x, o.y ?? 1, o.z, o.ref || 3) : (o.dest || this.master));
     src.start(t, o.offset || 0, o.loop ? undefined : (o.dur ? o.dur + .05 : undefined));
+    if (!o.loop) { this.voices = (this.voices || 0) + 1; src.onended = () => { this.voices--; }; }
     return { src, g, stop: (f = .3) => { try { g.gain.setTargetAtTime(0, ctx.currentTime, f / 3); src.stop(ctx.currentTime + f + .1); } catch (e) {} } };
   },
   loop(name, o) { return this.play(name, { ...o, loop: true }); },
-  pick(...names) { return names[Math.floor(Math.random() * names.length)]; },
+  pick(...names) { // nie zweimal hintereinander dieselbe Aufnahme aus derselben Auswahl (klingt sonst nach Kopie)
+    if (names.length < 2) return names[0]; const key = names.join('|'), last = (this.lastPick || (this.lastPick = {}))[key];
+    let n = names[Math.floor(Math.random() * names.length)]; if (n === last) n = names[(names.indexOf(n) + 1 + Math.floor(Math.random() * (names.length - 1))) % names.length];
+    return this.lastPick[key] = n; },
   startAmbience() {
     const go = () => {
       if (this.amb) return; this.amb = true;
@@ -1524,7 +1536,58 @@ const Audio = {
   noise(loop) { const s = this.ctx.createBuffer ? this.ctx.createBufferSource() : null; s.buffer = this.noiseBuf; s.loop = loop; s.start(0, Math.random()); return s; },
   env(node, peak, a, dcy, t0 = 0, dest) { const g = this.ctx.createGain(), t = this.ctx.currentTime + t0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + dcy); node.connect(g); g.connect(dest || this.master); return g; },
   osc(type, f, t0 = 0, dur = 1) { const o = this.ctx.createOscillator(); o.type = type; o.frequency.value = f; o.start(this.ctx.currentTime + t0); o.stop(this.ctx.currentTime + t0 + dur); return o; },
+  // ---- MUSIK (adaptiv): Stufen ruhig / unruhig / Gefahr, Verfolgung übernimmt chaseMusic. Viel Stille – Musik ist die Ausnahme.
+  // Echte Aufnahmen: game/assets/music/music.json = [{ "file": "x.ogg", "level": "calm|uneasy|danger", "gain": 0.8 }] – sonst Synth-Ersatz.
+  duck(sec) { if (!this.mus) return; const g = this.mus.duck.gain, t = this.ctx.currentTime; g.cancelScheduledValues(t); g.setTargetAtTime(.25, t, .08); g.setTargetAtTime(1, t + sec, 1.2); },
+  musicVol() { if (this.mus) this.mus.bus.gain.setTargetAtTime(MUSIC.gain * (typeof settings !== 'undefined' ? settings.music ?? 1 : 1), this.ctx.currentTime, .3); },
+  musicInit() {
+    if (this.mus || !this.ctx) return; const ctx = this.ctx;
+    const bus = ctx.createGain(), duck = ctx.createGain(); bus.connect(duck); duck.connect(this.master);
+    this.mus = { bus, duck, level: 'calm', want: 'calm', hold: 0, rest: rand(MUSIC.firstRest[0], MUSIC.firstRest[1]), cur: null, tracks: { calm: [], uneasy: [], danger: [] }, last: null };
+    this.musicVol();
+    fetch('assets/music/music.json').then(r => r.ok ? r.json() : []).then(list => list.forEach(e => fetch('assets/music/' + e.file).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a))
+      .then(b => (this.mus.tracks[e.level] || this.mus.tracks.calm).push({ b, gain: e.gain ?? .8, name: e.file })).catch(() => console.warn('Musik fehlt:', e.file)))).catch(() => {});
+  },
+  // Pro Bild aus update(): Stufe bestimmen (mit Haltezeit gegen Hin-und-her-Springen), Phrasen starten, Pausen einhalten
+  musicUpdate(dt, fearV, chase, indoor, basement, active) {
+    const M = this.mus; if (!M) return;
+    const want = !active || chase ? 'off' : fearV > MUSIC.danger ? 'danger' : (fearV > MUSIC.uneasy || basement) ? 'uneasy' : 'calm';
+    if (want !== M.want) { M.want = want; M.hold = want === 'danger' || want === 'off' ? 0 : MUSIC.hold; } // Gefahr/Aus sofort, Entspannung verzögert
+    M.hold -= dt; if (M.hold <= 0 && M.level !== M.want) { const up = MUSIC.order.indexOf(M.want) > MUSIC.order.indexOf(M.level); M.level = M.want;
+      if (M.cur && (M.level === 'off' || M.cur.level !== M.level)) { M.cur.stop(up ? 1.5 : 6); M.cur = null; M.rest = up ? 0 : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } }
+    if (M.level === 'off' || M.cur) return;
+    M.rest -= dt; if (M.rest > 0) return;
+    const L = M.level, pool = M.tracks[L].filter(x => x !== M.last), rec = pool.length ? pool[Math.floor(Math.random() * pool.length)] : M.tracks[L][0];
+    if (rec) { M.last = rec; M.cur = this.musicTrack(rec, L); }
+    else M.cur = L === 'calm' ? (indoor ? null : this.phraseCalm()) : L === 'uneasy' ? this.phraseUneasy() : this.phraseDanger();
+    if (!M.cur) M.rest = rand(20, 40);
+  },
+  musicTrack(rec, level) { const ctx = this.ctx, M = this.mus, src = ctx.createBufferSource(), g = ctx.createGain(), t = ctx.currentTime; src.buffer = rec.b; src.loop = level === 'danger';
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(rec.gain, t + 4); src.connect(g); g.connect(M.bus); src.start();
+    const h = { level, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); try { src.stop(n + f + .1); } catch (e) {} } };
+    src.onended = () => { if (M.cur === h) { M.cur = null; M.rest = rand(...MUSIC.rest[level]); } }; return h; },
+  // Synth-Ersatz: Phrasen mit festem Ende, danach Pause
+  phrase(level, dur, build) { const ctx = this.ctx, M = this.mus, g = ctx.createGain(), t = ctx.currentTime, nodes = []; g.gain.value = 0; g.connect(M.bus);
+    build(g, t, nodes); const h = { level, stop: (f = 3) => { const n = ctx.currentTime; g.gain.cancelScheduledValues(n); g.gain.setValueAtTime(g.gain.value, n); g.gain.linearRampToValueAtTime(0, n + f); nodes.forEach(o => { try { o.stop(n + f + .1); } catch (e) {} }); } };
+    setTimeout(() => { if (M.cur === h) { M.cur = null; M.rest = rand(...MUSIC.rest[level]); } }, dur * 1000); nodes.forEach(o => { try { o.stop(t + dur + .2); } catch (e) {} }); return h; },
+  // ruhig: ein fernes, tiefes Klavier – 3 bis 5 Töne aus a-Moll, viel Hall
+  phraseCalm() { const scale = [110, 130.8, 146.8, 164.8, 196, 220], n = 3 + Math.floor(Math.random() * 3), gap = rand(2.2, 3.4);
+    return this.phrase('calm', n * gap + 7, (g, t, nodes) => { g.gain.setValueAtTime(1, t); g.connect(this.rev);
+      for (let i = 0; i < n; i++) { const f = scale[Math.floor(Math.random() * scale.length)], t0 = t + i * gap + rand(0, .4);
+        [1, 2, 3.01].forEach((m, j) => { const o = ctx0(this).createOscillator(); o.type = 'sine'; o.frequency.value = f * m; const e = ctx0(this).createGain(); e.gain.setValueAtTime(0, t0); e.gain.linearRampToValueAtTime([.05, .016, .006][j], t0 + .01); e.gain.exponentialRampToValueAtTime(.0001, t0 + 5.5 - j); o.connect(e); e.connect(g); o.start(t0); nodes.push(o); }); } }); },
+  // unruhig: dunkle Streicherfläche, die anschwillt und wieder verschwindet (Halbton-Reibung a/b)
+  phraseUneasy() { const dur = rand(16, 24);
+    return this.phrase('uneasy', dur, (g, t, nodes) => { const c = ctx0(this), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t); lp.frequency.linearRampToValueAtTime(620, t + dur * .55); lp.frequency.linearRampToValueAtTime(200, t + dur); lp.connect(g); g.connect(this.rev);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.075, t + dur * .5); g.gain.linearRampToValueAtTime(0, t + dur);
+      [55, 55.25, 58.27, 82.4, 116.5].forEach((f, i) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const v = c.createGain(); v.gain.value = [.5, .5, .32, .22, i === 4 ? .08 : .2][i]; o.connect(v); v.connect(lp); o.start(t); nodes.push(o); }); }); },
+  // Gefahr: tiefer Puls + hohe, zitternde Glasklänge; läuft, bis die Stufe wechselt
+  phraseDanger() { const dur = 40;
+    return this.phrase('danger', dur, (g, t, nodes) => { const c = ctx0(this); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + 3);
+      const sub = c.createOscillator(); sub.frequency.value = 41.2; const sg = c.createGain(); sg.gain.value = 0; sub.connect(sg); sg.connect(g); sub.start(t); nodes.push(sub);
+      for (let b = 0; b < dur / .9; b++) { const tb = t + b * .9; sg.gain.setValueAtTime(0, tb); sg.gain.linearRampToValueAtTime(.9, tb + .04); sg.gain.exponentialRampToValueAtTime(.001, tb + .5); }
+      [1864.7, 1975.5].forEach(f => { const o = c.createOscillator(); o.frequency.value = f; const v = c.createGain(); v.gain.value = .012; this.lfo(6.5 + Math.random(), 9, o.frequency); o.connect(v); v.connect(g); v.connect(this.rev); o.start(t); nodes.push(o); }); }); },
   stinger(big) { if (!this.ctx) return; const t = this.ctx.currentTime;
+    if (!big && t - (this.lastStinger || -99) < AUDIO_MIX.stingerGap) return; this.lastStinger = t; this.duck(big ? 6 : 3.5);
     (big ? [98, 103.8, 146.8, 207.7] : [196, 207.7]).forEach(fq => { const o = this.osc('sawtooth', fq, 0, 4); o.frequency.setValueAtTime(fq, t); o.frequency.exponentialRampToValueAtTime(fq * .5, t + 3); const f = this.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1400; o.connect(f); this.env(f, big ? .13 : .07, .01, big ? 3.5 : 1.6); });
     const n = this.noise(false); this.env(n, big ? .3 : .12, .005, .6); n.stop(t + 1); },
   beep(ok) { if (!this.ctx) return; const o = this.osc(ok ? 'sine' : 'square', ok ? 1200 : 110, 0, .5); this.env(o, ok ? .07 : .1, .005, ok ? .09 : .35); },
@@ -1546,7 +1609,9 @@ const Audio = {
     const b = this.osc('sine', 60, 0, 1.2); b.frequency.exponentialRampToValueAtTime(28, t + .8); this.env(b, 1.1, .002, .9);
     const b2 = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 200; b2.connect(lp); this.env(lp, 1.2, .002, .6); b2.stop(t + 1); },
   flap(x, y, z) { if (!this.ctx) return; const d = this.at(x, y, z, 3); for (let i = 0; i < 6; i++) { const n = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 600; n.connect(lp); this.env(lp, .25, .01, .07, i * .09, d); n.stop(this.ctx.currentTime + 1); } },
-  whisper(x, y, z, dur = 2.2) { if (!this.ctx) return; const d = this.at(x, y, z, 2); const t = this.ctx.currentTime;
+  whisper(x, y, z, dur = 2.2) { if (!this.ctx) return; const t = this.ctx.currentTime;
+    if (t < (this.whisperUntil || 0)) return; this.whisperUntil = t + dur + AUDIO_MIX.whisperGap; // nie zwei Flüstern übereinander, dazwischen Stille
+    const d = this.at(x, y, z, 2);
     const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 4;
     for (let k = 0; k < dur * 6; k++) bp.frequency.setValueAtTime(rand(900, 3200), t + k / 6);
     const am = this.ctx.createGain(); am.gain.value = 0; for (let k = 0; k < dur * 7; k++) am.gain.setValueAtTime(Math.random() < .7 ? rand(.3, 1) : 0, t + k / 7);
@@ -1557,7 +1622,7 @@ const Audio = {
   drip(x, y, z) { if (!this.ctx) return; const d = this.at(x, y, z, 2); const o = this.osc('sine', rand(900, 1500), 0, .2); o.frequency.exponentialRampToValueAtTime(2400, this.ctx.currentTime + .05); this.env(o, .15, .002, .08, 0, d); },
   trainHorn() { if (!this.ctx) return; const d = this.at(rand(-150, 150), 4, -160, 30); [311, 370, 466].forEach(f => { const o = this.osc('sawtooth', f, 0, 2.4); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); const g = this.ctx.createGain(), t = this.ctx.currentTime; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.09, t + .5); g.gain.setValueAtTime(.09, t + 1.8); g.gain.linearRampToValueAtTime(0, t + 2.3); lp.connect(g); g.connect(d); }); },
   // Sechs verschiedene Schreckklänge
-  scareSound(kind) { if (!this.ctx) return; const t = this.ctx.currentTime;
+  scareSound(kind) { if (!this.ctx) return; const t = this.ctx.currentTime; this.duck(5);
     const bassHit = (v = 1) => { const b = this.osc('sine', 62, 0, 1.2); b.frequency.exponentialRampToValueAtTime(26, t + .8); this.env(b, 1.1 * v, .002, .9); const n = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 240; n.connect(lp); this.env(lp, 1.1 * v, .002, .5); n.stop(t + 1); };
     if (kind === 'screech') { bassHit(); const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = .6; n.connect(bp); this.env(bp, 1.3, .004, 1.1); n.stop(t + 2);
       [740, 1046, 1480, 2093, 2960].forEach((f, i) => { const o = this.osc('sawtooth', f * (1 + i * .013), 0, 1.8); o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 1.6, t + .5); o.frequency.exponentialRampToValueAtTime(f * .7, t + 1.5); this.lfo(17 + i * 3, f * .04, o.frequency); this.env(o, .15, .004, 1.3); }); }
@@ -9185,6 +9250,7 @@ $('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
 $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">EINSTELLUNGEN</div>
   <div class="row"><span>Mausempfindlichkeit</span><input type="range" min="0.5" max="4" step="0.1" value="${sens}" id="sSens"></div>
   <div class="row"><span>Lautstärke</span><input type="range" min="0" max="1" step="0.05" value="${settings.vol}" id="sVol"></div>
+  <div class="row"><span>Musik</span><input type="range" min="0" max="1" step="0.05" value="${settings.music}" id="sMus"></div>
   <div class="row"><span>Helligkeit</span><input type="range" min="0.6" max="1.6" step="0.05" value="${settings.bright}" id="sBright"></div>
   <div class="row"><span>Sichtfeld</span><input type="range" min="60" max="95" step="1" value="${settings.fov}" id="sFov"></div>
   <div class="row"><span>Untertitelgröße</span><input type="range" min="0.8" max="1.5" step="0.05" value="${settings.sub}" id="sSub"></div>
@@ -9194,6 +9260,7 @@ $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class
   $('sInv').onchange = ev => { settings.invert = ev.target.checked; saveSettings(); }; $('sBob').onchange = ev => { settings.bob = ev.target.checked; saveSettings(); };
   $('sSens').oninput = ev => { sens = +ev.target.value; $('sens').value = sens; try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
   $('sVol').oninput = ev => { settings.vol = +ev.target.value; if (Audio.master) Audio.master.gain.value = .9 * settings.vol; saveSettings(); };
+  $('sMus').oninput = ev => { settings.music = +ev.target.value; Audio.musicVol(); saveSettings(); };
   $('sBright').oninput = ev => { settings.bright = +ev.target.value; saveSettings(); }; };
 $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">STEUERUNG</div><div class="keys">
   <span><kbd class="k">W</kbd><kbd class="k">A</kbd><kbd class="k">S</kbd><kbd class="k">D</kbd></span><span>Gehen</span>
@@ -9203,7 +9270,7 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">F</kbd></span><span>Taschenlampe</span>
   <span><kbd class="k">TAB</kbd></span><span>Tagebuch: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
-let settings = { vol: 1, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
+let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
 function saveSettings() { try { localStorage.setItem('ham_settings', JSON.stringify(settings)); } catch (e) {} document.documentElement.style.setProperty('--subScale', settings.sub); }
 document.documentElement.style.setProperty('--subScale', settings.sub);
 // Titel-Störung alle paar Sekunden
@@ -9381,7 +9448,7 @@ function update(dt, t) {
       if (state.p2t > 14) ending();
     }
   }
-  lifeUpdate(dt, t, indoor, rect); ch2Update(dt, t); ch3Update(dt, t); fabUpdate(dt, t); fearUpdate(dt, indoor); echoUpdate(dt, t); greyUpdate(dt); canalUpdate(dt, t);
+  lifeUpdate(dt, t, indoor, rect); ch2Update(dt, t); ch3Update(dt, t); fabUpdate(dt, t); fearUpdate(dt, indoor); Audio.musicUpdate(dt, fear.v, ch2.chase === 'run' || ch3.chase === 'run', indoor, state.inBasement, state.started && !state.ending && !menu.attract); echoUpdate(dt, t); greyUpdate(dt); canalUpdate(dt, t);
   if (PERF.on) for (let i = 0; i < WORLD_TICK.length; i++) { const a = performance.now(); WORLD_TICK[i](dt, t, indoor); PERF.tick[i] = (PERF.tick[i] || 0) * .95 + (performance.now() - a) * .05; }
   else for (const f of WORLD_TICK) f(dt, t, indoor);
   // --- Shader-Zeit
