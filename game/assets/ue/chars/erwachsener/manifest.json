@@ -1,0 +1,8 @@
+{
+ "mesh": "0_mesh.glb",
+ "anims": {
+  "walk": "1_walk.glb"
+ },
+ "yaw": 0,
+ "source": "/Game/HAM_Import/erwachsener/office_worker_4"
+}

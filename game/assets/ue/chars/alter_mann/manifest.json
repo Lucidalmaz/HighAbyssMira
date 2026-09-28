@@ -1,0 +1,8 @@
+{
+ "mesh": "0_mesh.glb",
+ "anims": {
+  "idle": "1_idle.glb"
+ },
+ "yaw": 0,
+ "source": "/Game/HAM_Import/alter_mann/alkashka_low"
+}

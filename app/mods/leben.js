@@ -106,7 +106,7 @@ WORLD_TICK.push((dt, t, indoor) => { if (leben_S.ok) leben_tick(dt, t, indoor); 
 
 // Echte Tiere (Unreal ANIMAL VARIETY PACK, assets/ms/animal_*): laden, Texturen auf 1024² verkleinern (2048² × 3 je Tier wäre zu viel Grafikspeicher)
 function leben_shrink(root, px) { const done = new Set(); root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap']) {
-    const t = m[k]; if (!t || !t.image || done.has(t)) continue; done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue;
+    const t = m[k]; if (!t || !t.image || t.isCompressedTexture || done.has(t)) continue; // komprimierte (KTX2) sind schon klein genug done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue;
     const c = document.createElement('canvas'), f = px / Math.max(w, h); c.width = Math.round(w * f); c.height = Math.round(h * f); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); t.image = c; t.needsUpdate = true; } }); }
 async function leben_loadModels() {
   const S = leben_S; S.M = {};

@@ -8,6 +8,8 @@ const { pathToFileURL } = require('url');
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
 // Immer die starke Grafikkarte, keine Drosselung im Hintergrund
 app.commandLine.appendSwitch('force_high_performance_gpu');
+// Grafik-Übersetzer wählbar (Test): --angle=gl|vulkan|d3d11
+const _ang = process.argv.find(x => x.startsWith('--angle='))?.slice(8); if (_ang) app.commandLine.appendSwitch('use-angle', _ang);
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required'); // Menümusik ohne ersten Klick
@@ -48,7 +50,7 @@ app.whenReady().then(() => {
     win.webContents.on('console-message', (_e, level, msg) => { if (level >= 2) logs.push(msg); });
     const poll = setInterval(async () => {
       let ready = false; try { ready = await win.webContents.executeJavaScript('!!window.__ready'); } catch (e) {}
-      if (ready || Date.now() - t0 > 120000) {
+      if (ready || Date.now() - t0 > (+(process.argv.find(x => x.startsWith('--readyTimeout='))?.slice(15)) || 120000)) {
         clearInterval(poll);
         const info = await win.webContents.executeJavaScript('JSON.stringify({ready: !!window.__ready, stage: window.__stage, log: window.__log, info: window.__info})').catch(e => String(e));
         const stepsFile = process.argv.find(a => a.startsWith('--steps='))?.slice(8);
@@ -56,6 +58,12 @@ app.whenReady().then(() => {
           const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); const res = {};
           for (const st of steps) {
             try { res[st.name] = await win.webContents.executeJavaScript(st.js); } catch (e) { res[st.name] = 'FEHLER ' + e; }
+            if (st.profile) { // CPU-Profil (Chrome DevTools-Format) über st.profile ms aufzeichnen
+              const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
+              await d.sendCommand('Profiler.enable'); await d.sendCommand('Profiler.setSamplingInterval', { interval: 200 }); await d.sendCommand('Profiler.start');
+              await new Promise(r => setTimeout(r, st.profile)); const { profile } = await d.sendCommand('Profiler.stop');
+              fs.writeFileSync(path.join(out, st.name + '.cpuprofile'), JSON.stringify(profile)); d.detach();
+            }
             await new Promise(r => setTimeout(r, st.wait || 1200));
             if (st.shot !== false) fs.writeFileSync(path.join(out, st.name + '.png'), (await win.webContents.capturePage()).toPNG());
           }

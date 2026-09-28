@@ -19,3 +19,8 @@ __pycache__/
 unreal/Scripts/polyhaven/
 unreal/Scripts/audit/
 HAM_FabDownloads/
+
+# Komprimierte Texturen: werden von "npm run ktx" (app/tools/ktx.mjs) erzeugt
+game/assets/**/*.ktx2
+game/assets/**/*.ktx.glb
+game/assets/ktx2.json
