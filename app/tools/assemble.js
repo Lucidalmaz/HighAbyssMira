@@ -38,5 +38,9 @@ for (const area of ORDER) {
 // Einheitliche Zeilenenden wie in der Basis (Python-Patches liefern \n, die Module teils \r\n)
 const crlf = /\r\n/.test(fs.readFileSync(path.join(MODS, '_base_source_index.html'), 'utf8').slice(0, 4000));
 html = html.replace(/\r\n/g, '\n'); if (crlf) html = html.replace(/\n/g, '\r\n');
+// Gesamtes Modul-Script (Basis + Module) auf Syntaxfehler prüfen – ein Fehler dort stoppt das ganze Spiel
+{ const re = /<script type="module">([\s\S]*?)<\/script>/g; let m, i = 0;
+  while ((m = re.exec(html))) { const tmp = path.join(require('os').tmpdir(), `ham_${process.pid}_${i++}.mjs`); fs.writeFileSync(tmp, m[1]);
+    try { cp.execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { throw new Error('Syntaxfehler im zusammengesetzten Spiel:\n' + String(e.stderr).slice(0, 1500)); } finally { fs.rmSync(tmp, { force: true }); } } }
 fs.writeFileSync(OUT, html);
 console.log(`Zusammengebaut (${used.length} Teile): ${used.join(', ')}\n→ ${OUT} (${(html.length / 1024).toFixed(0)} KB)`);
