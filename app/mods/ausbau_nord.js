@@ -265,7 +265,7 @@ async function ausbau_nord_build() {
   const SPECIAL = [
     { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Vegas-Brief)
     { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof, an der Kapellenmauer. Die Schrift ist fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA · HAUSFRAU DES RITTERS …“</b>\nEin Geburtsjahr, das mit <b>13</b> beginnt. Das Sterbejahr ist nie eingemeißelt worden.\n\nDarunter, jünger: <i>„Sie ist nicht hier begraben. Sie kommt noch.“</i>' }, // STORY-HOOK: Mira = Justins Frau, Retterin aus der Zukunft (spätere Kapitel)
-    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1975\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
+    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1958\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
     { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LUCY</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Lukes Mutter, Lucy
   ];
   for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
@@ -492,7 +492,7 @@ async function ausbau_nord_build() {
     put(toy('SM_Ball'), 35.9, 69.2, 0); put(toy('SM_ToyTrain'), 28.6, 79.6, 1.2, 0); put(toy('SM_ToyBunny'), 39.2, 80.3, 2.6, 1.45);
     const gir = giraffeS.clone(); gir.scale.setScalar(1.3); const gg = msGround(gir); gg.userData.noCol = true; gg.position.set(25.9, .02, 74.3); gg.rotation.y = -.7; scene.add(gg);
     const gh = box(.3, .3, .3, 25.9, .1, 74.3, hidden, { cast: false });
-    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>M.</b>\n\nMo hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Dina, Erinnerungen, die nicht Lukes sind
+    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>D.</b>\n\nDina hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Dina, Erinnerungen, die nicht Lukes sind
     // Spielzeug auf den Kindergräbern
     put(toy('SM_ToyBunny'), KIDS[1].x - .15, KIDS[1].z - .45, .4); put(toy('SM_ToyRobot'), KIDS[0].x - .2, KIDS[0].z - .42, -.3); put(toy('SM_ToyBoat'), KIDS[4].x - .15, KIDS[4].z - .5, .8);
     put(toy('SM_ToyCube_01a'), KIDS[5].x - .2, KIDS[5].z - .45, .3); put(toy('SM_ToyCube_02a'), KIDS[5].x - .08, KIDS[5].z - .56, 1.1); put(toy('SM_ToyTrain'), KIDS[3].x - .18, KIDS[3].z - .46, -.5);

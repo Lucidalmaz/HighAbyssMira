@@ -1839,7 +1839,7 @@ const PHOTOS = [
   { name: 'Dina', hint: 'Bei Frau Wendt (Nr. 7), neben dem Fernseher.', text: 'Dina, 9. Frau Wendts Handschrift auf der Rückseite:\n<span class="hand">„Klinik Sonnenhang. Malt nur noch Kreise.“</span>', pos: [21.9, Y + .61, -12.55], candle: [20.7, Y + .6, -12.55], zone: [21.3, -13.5, 3.2] },
   { name: 'Luke', scratch: true, hint: 'In eurem Kinderzimmer (Nr. 1), auf deinem alten Bett.', text: 'Luke, 9. Das bist du.\n\nDas Kind auf dem Foto hat hellblaue Augen. Deine sind braun.\n\nWaren sie immer braun?', pos: [-50.6, Y + .46, -19], candle: [-50.6, Y + .45, -20.2], zone: [-53, -19.5, 3.2] },
   { name: 'Heidi', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Heidi, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
-  { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 10. Frau Wendts Sohn.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
+  { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 7. Frau Wendts Jüngster. Der kleine Bruder von Jonas, deinem besten Freund damals.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
 ];
 function polaroidCanvas(p) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 310; const x = c.getContext('2d');
@@ -1992,11 +1992,11 @@ interact(door1.leaf, () => door1.open ? 'Tür schließen' : 'Tür öffnen', () =
   doorAction(door1, '')();
 });
 interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt.\n\nDu kannst dich nicht erinnern, wer da neben dir stand.', 'familyphoto'));
-interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen.', 'album')));
+interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen. Das achte Kind ist ein blasses Mädchen im weißen Kleid, ganz am Rand. Es hält deine Hand.\n\nUnd zwischen Lucy und den anderen ist eine Lücke. Lucys Hand hält dort in die leere Luft – als hielte sie jemanden, der nicht mehr auf dem Bild ist.', 'album')));
 interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
 interact(loose, 'Lose Diele untersuchen', () => {
   state.diary = true; uninteract(loose); tween(loose, { pos: loose.position.clone().setY(loose.position.y + .07), rz: .3 }, .45); Audio.play('woodCrack', { gain: .6, x: -53.2, y: .5, z: -18.4, ref: 2 }); story.side.home.steps.diary = true; checkHome();
-  openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
+  openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n25. Juli 2009 — Zu C.s Geburtstag ist keiner gekommen. Nur ich. Sie hat trotzdem acht Kerzen ausgepustet. Eine für jeden von uns, sagt sie.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\nC. ist nicht zurück. Mama sagt, es gibt keine C. Ich schreib sie jeden Tag hier rein, damit ich sie behalte. C. C. C.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
   setTimeout(() => { if (!state.ghostDone) { ghost.visible = true; ghost.position.set(-45.3, Y, -13.2); ghost.rotation.y = rand(0, 6); state.ghostArmed = true; } }, 500);
 });
 const openDrawer = () => {
@@ -2039,7 +2039,7 @@ interact(collar, 'Halsband aufheben', () => {
 interact(lenaPhone, 'Lucys Handy', () => {
   if (!lenaCar.userData.open) return toast('Die Tür ist zu. Nicht abgeschlossen – nur zu.');
   sideDone('car', 'Lucys Handy gefunden.'); addItem('phone');
-  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Verpasste Anrufe: <b>Luke</b> (23.10., 23:41) · <b>Luke</b> (23.10., 23:52)\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, gestern, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
+  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10.: 23:41 · 23:42 · 23:44 · 23:46 · 23:47 · 23:49 · 23:51 · 23:52 · 23:54 · 23:55 · 23:57 – elfmal. Keiner angenommen.\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, heuten, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
 });
 const heldHandset = box(.06, .24, .05, .3, -.2, -.42, M.dark, { parent: camera, cast: false }); heldHandset.rotation.set(.4, 0, .7); heldHandset.visible = false;
 function handset(up) { booth.handset.visible = !up; heldHandset.visible = up; Audio.play(up ? 'metalHit2' : 'switch1', { gain: .35, rate: up ? 1.6 : 1, x: 8, y: 1.5, z: 7.6, ref: 2 }); }
@@ -2872,7 +2872,7 @@ const FILE_TEXT = {
   Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
   Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
   Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
-  Zayn: 'AKTE 07 · Zayn W., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
+  Zayn: 'AKTE 07 · Zayn W., 7 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
 // Ordnungstafel: 7 Plätze, sortiert nach Rückführung
@@ -2888,7 +2888,7 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sieben kamen zurück – eines davon <u>drei Tage zu spät</u>, und eines davon war ein anderes.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Notiz:\n<span class="hand">„Ersatz geliefert. Original nicht zurückgeführt. Mutter unterschreibt.“</span>\n\nDaneben, mit Klammer: ein Schlüssel. <b>SICHERUNGSRAUM</b>.', 'protokoll', () => { ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }));
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück – einer davon <u>drei Tage zu spät</u>, und er war ein anderer. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Notiz:\n<span class="hand">„Ersatz geliefert. Original nicht zurückgeführt. Mutter unterschreibt.“</span>\n\nDaneben, mit Klammer: ein Schlüssel. <b>SICHERUNGSRAUM</b>.', 'protokoll', () => { ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }));
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
       else { Audio.beep(false); const wrong = ch2.slots.filter((s, i) => s && s !== ORDER[i]).length; toast(wrong === 7 ? 'Nichts passiert.' : `Ein Summen. ${7 - wrong} Namen sitzen. Der Rest nicht.`, 3500); if (++ch2.archiveTries === 4) { toast('Aus dem Lautsprecher: „Die Akten wissen es genauer als du.“', 4500); Audio.intercomClick(); } } };
   });
@@ -3349,7 +3349,7 @@ function readLetter2() { liftTo(letter2, () => openNote('Ein Brief, an dich adre
 
 // ---- Nr. 7: Hilde Wendts Zählbuch
 const zbook = box(.2, .04, .27, 23.9, Y + .45, -15.45, fabricMat(0x2a3a2a)); zbook.visible = false;
-function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nBen kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
+function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nZayn kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
 
 // ---- Nr. 3: Vegas' Brief im Briefkasten
 const albersNote = box(.24, .02, .16, -25.4, 1.18, -8.2, new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 1 })); albersNote.visible = false;
@@ -3489,8 +3489,8 @@ async function hildeTalks() {
 async function room2Solved() {
   ch3.room2 = true; Audio.chime(); state.talking = true; tween(hilde, { pos: hilde.position.clone().setY(-2.4) }, 3);
   await say([['Die Uhr schlägt einmal. Frau Wendt löst sich auf wie Atem an einer Scheibe.', 4000], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000],
-    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 kam das Weiße zum ersten Mal. Es nahm meine Tochter. Sie war sieben. Ihren Namen spreche ich nicht mehr aus.“', 4800, JS],
-    ['„Ich ritt hinein und bot ihm, was es wollte: sieben Kinder des Dorfes – für meine eine.“', 4800, JS], ['„Es nahm die sieben. Und es behielt sie. Und es lernte zu handeln.“', 4400, JS],
+    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 fiel das Weiße in die Senke hinter meinem Hof. Meine Tochter spielte Verstecken. Sie war sieben. Sie versteckte sich im Licht.“', 6200, JS],
+    ['„Ich ging bis an den Rand. Keinen Schritt weiter. Ich hatte Angst. Also schickte ich sieben Kinder des Dorfes hinein, mit Laternen – sieben für meine eine.“', 6800, JS], ['„Aus dem Licht rief sie: ‚Such mich, Papa.‘ Ich habe sie nie gesucht. Seitdem sucht sie mich.“', 5200, JS],
     ['„Seitdem wirft es mich alle siebzehn Jahre in eure Welt, damit ich zusehe, was ich angefangen habe. Und die Kinder heimführe.“', 5600, JS], ['„Das ist meine Strafe. Und meine Schuld.“', 3000, JS]]);
   state.talking = false; door2w.set(true); Audio.slide(X3 + 32, Z3); setC3('Der Hohe Abgrund. Geh hinein.');
 }
@@ -3512,7 +3512,7 @@ async function room3Scene() {
   jWalk(X3 + 37.5, Z3 + 1.4, () => { justin.g.rotation.y = PI / 2; jPlay('kneel'); });
   await say([['Acht Stühle im Kreis. Auf sieben sitzen Kinder. Sie drehen die Köpfe. Alle gleichzeitig.', 4400], ['Der achte Stuhl ist leer. Er steht mit der Lehne zu dir.', 3600],
     ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Papa. Du hast ihn mitgebracht.“', 3000, 'DAS KIND'],
-    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen, als du mich holen wolltest.“', 4600, 'DAS KIND'],
+    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen. Weißt du noch? Bevor du angefangen hast zu zählen.“', 5200, 'DAS KIND'],
     ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'DAS KIND']]);
   const extra = [];
   if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'DAS KIND']);
@@ -4072,7 +4072,7 @@ async function loadCanal() {
   // Zwei Echos, die nur hier unten zu finden sind
   const far = (k) => pts.slice().sort((a, b) => b.distanceTo(canal.spawn) - a.distanceTo(canal.spawn))[k] || canal.spawn;
   const e1 = far(0), e2 = pts[Math.floor(pts.length * .5)] || canal.spawn;
-  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Echo · Die versunkene Stadt, ohne Jahr', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)],
+  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Echo · Atlantschiss, ohne Jahr', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)],
     lines: [['Ein Mann in Eisen kniet am Wasser und wäscht seine Hände. Das Wasser wird nicht rot. Es wird weiß.', 4400], ['„Jede Stadt, die es verschluckt, legt es hier ab. Häuser. Straßen. Kinder.“', 4200, 'DER MANN IN EISEN'], ['„Es sammelt, was ich ihm schulde.“', 3000, 'DER MANN IN EISEN']] });
   addEcho({ id: 'echo_kanal_laterne', at: [e2.x, e2.y + 1, e2.z], floor: e2.y, title: 'Echo · Laternenfest', figs: [E_(e2.x + .6, e2.z, 1, .58), E_(e2.x - .6, e2.z + .3, 1.5, .58), E_(e2.x, e2.z - .7, 0, .58)],
     lines: [['Kinder mit Papierlaternen. Sie lachen. Sie sprechen eine Sprache, die du nicht kennst – und verstehst trotzdem jedes Wort.', 4600], ['„Wer hat uns hergebracht?“', 2600, 'KIND'], ['„Das Mädchen im Weißen. Sie sagt, hier wird niemand erwachsen.“', 3800, 'KIND']] });
@@ -4082,9 +4082,9 @@ async function enterCanal() {
   if (state.talking) return; state.talking = true; Audio.creak(.4); await fade(1, 900);
   if (!canal.loaded) { subtitle('Du steigst hinab. Die Sprossen sind kalt und nass. Es sind viel zu viele.', 6000); await loadCanal();
     try { await renderer.compileAsync(scene, camera); } catch (e) {} }
-  ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
+  ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
   await wait(400); fade(0, 1600); state.talking = false; saveGame(3);
-  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
+  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Auf einem Brückenpfeiler, in Kinderschrift, mit Kreide: ATLANTSCHISS. Darunter ein Pfeil nach unten. Noch tiefer.', 4600], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
 }
 function canalAtmo(on) {
   sky.visible = !on; scene.background = on ? new THREE.Color(0x020303) : null;
@@ -4136,6 +4136,7 @@ function applySave(d) {
 const RECAP = {
   2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
   3: ['WAS BISHER GESCHAH', 'Unter Lost Eyengless lag das Amt für Rückführung. Sieben Kinder, acht Protokolle.', 'Akte 08 hatte keinen Namen. <b>Du bist der Ersatz.</b>', 'Lucy lebt – in einem Tank. Und hinter dem Glas: ein graues Gesicht.'],
+  4: ['WAS BISHER GESCHAH', 'Im Weißen wartete ein Kind. Es hat Luke aus dem Blut seines Vaters gemacht – aus Justins Blut.', 'Luke ist geblieben. Justin ging allein hinab. Lucy ist wieder da.', 'Und die Villa Seiler hat acht Schlüssellöcher.'],
 };
 function showRecap(ch, then) {
   const L = RECAP[ch]; if (!L) return then();
@@ -4146,7 +4147,7 @@ function continueGame() {
   const d = loadSave(); if (!d) return;
   menuSound(); $('subPanel').classList.remove('show'); Audio.init(); applySave(d);
   const go = () => { menu.attract = false; document.body.classList.remove('menu'); $('start').classList.remove('show');
-    if (d.chapter === 3) { state.started = true; startChapter3(); } else if (d.chapter === 2) { state.started = true; startChapter2(); } else beginGame(); };
+    if (d.chapter === 4 && typeof startChapter4 === 'function') { state.started = true; startChapter4(); } else if (d.chapter === 3) { state.started = true; startChapter3(); } else if (d.chapter === 2) { state.started = true; startChapter2(); } else beginGame(); };
   $('start').classList.remove('show'); showRecap(d.chapter, go);
 }
 
@@ -4155,7 +4156,7 @@ const CASES = [
   { id: 'amt', q: 'Was ist das Amt für Rückführung?', clues: { echo_kueche: 'Echo: Wendts Küche', echo_archiv: 'Echo: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
     a: 'Eine Behörde, die mit dem Licht verhandelt. Sie liefert keine Kinder – nur Papiere. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, wird „Ersatz“ genannt. Unterschreiben müssen die Mütter.' },
   { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
-    a: 'Sieben Kinder wurden geholt. Sieben kamen zurück – und eines davon war ein anderes. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
+    a: 'Sieben Kinder wurden geholt. Sechs kamen zurück, einer davon als ein anderer; Zayn kam nie. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
   { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
     a: 'Du bist der Ersatz, drei Tage zu spät geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
   { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
@@ -4530,7 +4531,8 @@ $('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
 { const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
 $('mCont').onclick = e => { e.stopPropagation(); continueGame(); };
 if (window.IS_APP) { $('mQuit').style.display = ''; $('mQuit').onclick = e => { e.stopPropagation(); window.close(); }; }
-$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button></div>`);
+$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button><button id="c4" ${saveFlags.ch4 ? '' : 'disabled'}>Kapitel 4 · Die Villa<small>${saveFlags.ch4 ? 'DER MORGEN DANACH · VILLA SEILER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 3'}</small></button></div>`);
+  $('c4').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch4 || typeof startChapter4 !== 'function') return; menuSound(); Audio.init(); startChapter4(); };
   $('c3').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch3) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter3(); };
   $('c1').onclick = ev => { ev.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); runIntro(); };
   $('c2').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch2) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter2(); }; };

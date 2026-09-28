@@ -1,5 +1,8 @@
 # HIGH ABYSS MIRA – Story-Kanon (Stand 28.09.2026)
 
+> **Hinweis (28.09.2026):** Dieses Dokument ist ein älterer Arbeitsstand, zum Teil noch mit alten Namen (Kai, Lena, Birkenhain …). Verbindlich ist **app/story/story_final.md** mit dem Abschnitt „Verbindliche Ergänzungen“.
+
+
 Quelle: `games/birkenhain/index.html` (Browser-Fassung, identisch mit `HighAbyssMira-App/game/index.html` bis auf App-Schalter) und Projekt-Memory `high-abyss-mira-game.md`.
 Zeilenangaben (Z.) beziehen sich auf `games/birkenhain/index.html`. Alle Texte laufen durch den Story-Editor (`trX`); hier steht der **Originaltext** im Quellcode.
 

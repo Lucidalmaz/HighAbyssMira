@@ -155,7 +155,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     spot(XA + 5.5, 1.25, zN - .2, 1.3, 1.2, .4, 'Kreidestriche', note('Kreidestriche', 'Fünfergruppen, sauber gezogen. Siebzehn Gruppen – und ganz unten, mit anderer Hand: <b>+ 1</b>.\n\nSiebzehn Jahre. Und einer mehr.', 'striche'));
     // Aushang neben dem Schild
     onWall(new THREE.MeshStandardMaterial({ map: tex(paperCanvas('doc', 3), true), roughness: .95 }), XA + 17.84, 1.45, ZA - 1.0, .24, .34, -Math.PI / 2, .04);
-    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, 05.08.2009, <b>03:13</b>.\nBegleitung: <i>„der Eiserne“</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Warum steht hier „Nr. 6“, wenn Nr. 6 schon am 2. zurück war?</span>', 'laufzettel'));
+    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, 05.08.2009, <b>03:13</b>.\nBegleitung: <i>„der Eiserne“</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Nr. 6. Deine Nummer. Und niemand hat quittiert, dass ich angekommen bin.</span>', 'laufzettel'));
     // Müll, umgekippter Stuhl, verlorene Akten
     put(kBag, XA + 12.3, 0, { ry: .4, minZ: zS + .02 }); put(kBag, XA + 12.95, 0, { ry: 2.1, s: .8, minZ: zS + .3 }); put(kBag, XA + 13.6, 0, { ry: 4, s: .9, minZ: zS + .02 });
     put(kChair, XA + 9.6, ZA + 1.2, { ry: 1.9, rz: Math.PI / 2 });
@@ -372,7 +372,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     put(kLampW, XW + 21.2, ZW + 5.2, { ry: 1 }); put(kCanW, XW + 28.8, ZW + 5.4, { ry: .5 });
     put(kFrameW, XW + 22.9, 0, { ry: Math.PI, y: 1.3, maxZ: ZW + 5.845 });
     const ben = plane(.53, .77, XW + 22.9, 1.3 + .45, ZW + 5.845 - .02, photoMat('white'), 0, Math.PI);
-    interact(ben, 'Foto von Zayn', note('Zayn, 10', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Zayn, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
+    interact(ben, 'Foto von Zayn', note('Zayn, 7', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Zayn, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
     flat(whiteGrime, XW + 26, ZW + 3.6, 3.2, 2.6, .2, .012);
 
     // Der Hohe Abgrund: acht weiße Stühle, alte Blutspur von der Tür bis zum Rand des Lichts, Zeichnungen

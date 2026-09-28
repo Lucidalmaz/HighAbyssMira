@@ -1,5 +1,8 @@
 # HIGH ABYSS MIRA – Story-Entwurf „Mystery" (Kapitel 1–3)
 
+> **Hinweis (28.09.2026):** Dieses Dokument ist ein älterer Arbeitsstand, zum Teil noch mit alten Namen (Kai, Lena, Birkenhain …). Verbindlich ist **app/story/story_final.md** mit dem Abschnitt „Verbindliche Ergänzungen“.
+
+
 **Stand:** 28.09.2026 · **Schwerpunkt:** Mystery/Detektiv – glasklare Kausalität, faire Hinweise, mehrere Ebenen von Wahrheit, Fallwand-Deduktion
 **Grundlage:** `story/kanon.md` (Ist-Stand), `mods/BRIEF.md` (Welt-Karte mit Kirchberg, Landstraße Ost, Schrebergärten/Hof/Villa)
 **Status:** Entwurf zum Ausarbeiten. Alles hier darf gestrichen, umgebaut, umbenannt werden. Die tragenden Elemente des Kanons bleiben, werden aber umgedeutet und fest verknüpft.

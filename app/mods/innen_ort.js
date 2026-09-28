@@ -233,7 +233,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   crib.scale.setScalar(.024); const gCrib = put(crib, { x: 24.9, minZ: -21.76, y: Y }, G7);
   const cribTop = surfY(gCrib, 24.9, -21.4, Y + .75);
   const gFrB = await frame(G7, 'frame_deco', { x: 24.9, minZ: -21.79, yc: Y + 1.85, rz: .04, s: .7 });
-  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Zayn, 10. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
+  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Zayn, 7. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
   await winIn(G7, 23, -21.8, '+z', { tint: 0xc8c0b0 });
   // Eine Kerze brennt neben dem Bett – niemand ist im Haus
   { const c = candle(G7, 'Candle_large_big_used_low001', 22.38, Y, -21.5); const L = light(G7, 0xffa048, 1.0, 3.6, 22.38, Y + .3, -21.4); flames[flames.length - 1].L = L;

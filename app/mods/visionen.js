@@ -57,13 +57,13 @@ const VISIONS = [
     shots: [{ from: [26, 2.4, -2.5], to: [26, 2.1, -6.5], look: [26, 2.6, -15], dur: 4.2, text: 'Nr. 7. Hildes Haus. Das Licht im Hauswirtschaftsraum geht an. Niemand drin.' },
       { from: [24.5, 1.9, -19.5], to: [25.8, 1.7, -20.2], look: [26.5, 1.05, -20.7], dur: 4.4, text: 'Ihre Werkbank. Unter dem Tuch: Eisen. Schwer genug für eine Wand.', inside: true },
       { from: [B.x - 1, 1.55, B.z - 1], to: [B.x - 1.6, 1.4, B.z - 2.4], look: [B.x - 2, 1.2, B.z - 4], dur: 4, text: 'Die Kinderzeichnungen im Keller. Dahinter klingt die Wand hohl.', inside: true }] },
-  { id: 'anwesen', title: 'Das Haus der von Hains', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
+  { id: 'anwesen', title: 'Die Villa Seiler', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
     shots: [{ from: [-125, 1.8, 47], to: [-125, 2.6, 53], look: [-125, 6.5, 70], dur: 4.6, text: 'Das Anwesen. Oben brennt das eine Fenster. Es hat immer gebrannt.' },
-      { from: [-122.5, 1.8, 60.5], to: [-124.2, 1.7, 62.2], look: [-125, 1.7, 65.5], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
-      { from: [-118, 5.5, 66], to: [-121, 7.5, 64], look: [-125, 3, 70], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
+      { from: [-122.6, 1.8, 57.8], to: [-124.3, 1.7, 59.6], look: [-125, 1.6, 61.4], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
+      { from: [-110, 5.5, 57.5], to: [-113.5, 7.5, 55.5], look: [-125, 4, 66], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
   { id: 'gedenk', title: 'Das achte Grab', open: () => !story.lore.some(l => l.key === 'cleo_gedenk'),
-    shots: [{ from: [-44.5, 2.3, 79], to: [-44.5, 1.9, 83], look: [-44.5, 1, 87.5], dur: 4.6, text: 'Das Gedenkfeld. Sieben Gräber. Daneben ein achter Stein, weiß gekratzt.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } },
-      { from: [-43.6, 1.1, 85.8], to: [-43.9, 1, 86.3], look: [-43.3, .9, 87.4], dur: 4.2, text: 'Ein Mädchen steht davor. Sie wartet, dass jemand ihren Namen sagt. Keiner tut es.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } }] },
+    shots: [{ from: [-41, 2.4, 66.5], to: [-45, 1.9, 68.2], look: [-47.5, .7, 72.9], dur: 4.6, text: 'Das Gedenkfeld. Sieben Gräber. Daneben ein achter Stein, weiß gekratzt.', fig: { at: [-48.65, 72.1], rot: 0, s: .56 } },
+      { from: [-47.4, 1.2, 70.2], to: [-47.9, 1.1, 70.8], look: [-48.65, .8, 72.3], dur: 4.2, text: 'Ein Mädchen steht davor. Sie wartet, dass jemand ihren Namen sagt. Keiner tut es.', fig: { at: [-48.65, 72.1], rot: 0, s: .56 } }] },
   { id: 'wald', title: 'Er wollte, dass ich ihm folge', open: () => !story.lore.some(l => l.key === 'zayn_ende'),
     shots: [{ from: [31, 2.1, 79], to: [31, 2, 86], look: [30, 1.4, 100], dur: 5.2, text: 'Der Spielplatz. Die Schaukel bewegt sich. Kein Wind.', fig: { at: [30, 93], to: [30, 99.5], rot: 0, s: .6 } },
       { from: [30.5, 1.5, 92], to: [30.2, 1.4, 94.5], look: [30, 1, 100], dur: 4.4, text: 'Er dreht sich um. Er winkt nicht. Er wartet nur. Dahinter: der Wald, in den keiner durfte.', fig: { at: [30, 100], rot: PI, s: .6 } }] },
@@ -107,7 +107,7 @@ function visionen_end() {
   if (S.V.flashWas) flashOn = true; S.V = null; setCamOverride(null); state.talking = false; renderer.domElement.style.filter = ''; S.vig.classList.remove('on'); glitchV = .5; shake = .02;
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
   story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
-  const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für das Haus, in dem nie jemand wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
+  const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für ein Haus, in dem seit Jahren keiner mehr wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
     wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
   if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1.2, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
 }
@@ -119,8 +119,8 @@ WORLD_MODS.push(['Visionen', async () => {
   document.head.appendChild(css);
   for (const [id, k] of [['kbVig', 'el'], ['visVig', 'vig'], ['visFlash', 'flash'], ['kbHud', 'hud']]) { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); S[k] = d; }
   KEY_HOOKS.KeyG = kinderblick;
-  if (window.G) G.vis = { S, HINTS, kinderblick, visionen_totem, VISIONS, near: visionen_near }; // Testzugriff
-  if (window.G) G.mods = { whiskey: typeof whiskey_S !== 'undefined' ? whiskey_S : null, albers: typeof albers_S !== 'undefined' ? albers_S : null, geheimnisse: typeof geheimnisse_S !== 'undefined' ? geheimnisse_S : null, ausruestung: typeof ausruestung_S !== 'undefined' ? ausruestung_S : null, ow: ausbau_ost_west_OW, anwesen: typeof anwesen_S !== 'undefined' ? anwesen_S : null };
+  const exp = () => { if (!window.G) return setTimeout(exp, 250); G.vis = { S, HINTS, kinderblick, visionen_totem, VISIONS, near: visionen_near }; // Testzugriff (G entsteht erst nach den Modulen)
+    G.mods = { whiskey: typeof whiskey_S !== 'undefined' ? whiskey_S : null, albers: typeof albers_S !== 'undefined' ? albers_S : null, geheimnisse: typeof geheimnisse_S !== 'undefined' ? geheimnisse_S : null, ausruestung: typeof ausruestung_S !== 'undefined' ? ausruestung_S : null, ow: ausbau_ost_west_OW, anwesen: typeof anwesen_S !== 'undefined' ? anwesen_S : null }; }; exp();
   // --- Register füllen: alles, was im Grundspiel und in den Modulen gefunden werden kann
   for (const a of echoAnchors) hintAdd({ id: a.E.id, x: a.E.at[0], y: a.E.at[1] > 1.3 ? Y : 0, z: a.E.at[2], kind: 'echo', open: () => !echoSeen.has(a.E.id) });
   PHOTOS.forEach((p, i) => { const at = p.pos || p.candle || [p.zone[0], 0, p.zone[1]]; hintAdd({ id: 'foto' + i, x: at[0], y: i === 6 ? 0 : (at[1] > 2 ? Y : 0), z: at[2], kind: 'foto', open: () => !story.photos.has(i) && (i === 6) === !!state.inBasement }); });

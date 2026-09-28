@@ -16,6 +16,8 @@ function gruen_n(x, z) { const ix = Math.floor(x), iz = Math.floor(z), fx = x - 
   const a = gruen_h(ix, iz), b = gruen_h(ix + 1, iz), c = gruen_h(ix, iz + 1), d = gruen_h(ix + 1, iz + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
 function gruen_areaOf(x, z, m = 0) { for (let i = 0; i < gruen_AREAS.length; i++) { const [a, b, c, e] = gruen_AREAS[i]; if (x >= a - m && x <= b + m && z >= c - m && z <= e + m) return i; } return -1; }
 function gruen_areaDist(x, z) { let d = 1e9; for (const [a, b, c, e] of gruen_AREAS) d = Math.min(d, Math.hypot(Math.max(a - x, 0, x - b), Math.max(c - z, 0, z - e))); return d; }
+const gruen_dust = (x, z) => z > 99 && x > -44 && x < 114; // Forbidden Dustwoods (Modul wald): eigenes Waldgebiet nördlich des Spielplatzes
+const gruen_dustGap = (x, z, m = 0) => Math.abs(z - 98) < 1 + m && x > 26 - m && x < 34 + m; // Lücke im Nordzaun
 const gruen_inside = (x, z) => x > gruen_OUT.x0 && x < gruen_OUT.x1 && z > gruen_OUT.z0 && z < gruen_OUT.z1;
 function gruen_fenceDist(x, z) { const O = gruen_OUT;
   let d = gruen_inside(x, z) ? Math.min(x - O.x0, O.x1 - x, z - O.z0, O.z1 - z) : Math.hypot(Math.max(O.x0 - x, 0, x - O.x1), Math.max(O.z0 - z, 0, z - O.z1));
@@ -355,7 +357,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     if (!parts.length) { const P = await msBake('fencepost'); P.forEach(p => { p.geo.computeBoundingBox(); p.mat.color.setScalar(.7); }); parts = P.filter(p => p.geo.boundingBox.max.x - p.geo.boundingBox.min.x > 2.5); }
     const CH = new Map(), O = gruen_OUT; let cnt = 0;
     const run = (x0, z0, x1, z1) => { const Ln = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.round(Ln / 3.05)), s = Ln / (n * 3.0), a = Math.atan2(-(z1 - z0), x1 - x0);
-      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k, key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
+      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k; if (gruen_dustGap(x, z)) continue; const key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
         c.L[Math.floor(rand(0, parts.length))].push(gruen_m4(x, 0, z, a, 1, rand(.95, 1.05), 1, rand(-.05, .05), rand(-.05, .05)).multiply(new THREE.Matrix4().makeScale(s, 1, 1))); c.x += x; c.z += z; c.n++; cnt++; } };
     run(O.x0, O.z0, O.x1, O.z0); run(O.x1, O.z0, O.x1, O.z1); run(O.x1, O.z1, O.x0, O.z1); run(O.x0, O.z1, O.x0, O.z0);
     run(79.4, -32.4, 79.4, O.z0); run(-79.4, -32.4, -79.4, O.z0);
@@ -372,7 +374,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     const add = (x, z, m) => { const k = Math.floor(x / 26) + ',' + Math.floor(z / 26); let c = chunks.get(k); if (!c) chunks.set(k, c = { x: 0, z: 0, n: 0, L: treeParts.map(() => []) }); c.L[Math.min(treeParts.length - 1, Math.random() < .6 ? 0 : 1)].push(m); c.x += x; c.z += z; c.n++; };
     for (let gx = -176; gx <= 176; gx += 4.6) for (let gz = -70; gz <= 115; gz += 4.6) {
       const x = gx + rand(-1.8, 1.8), z = gz + rand(-1.8, 1.8), ins = gruen_inside(x, z), ad = gruen_areaDist(x, z), fd = gruen_fenceDist(x, z);
-      if (ins && ad < 2.5) continue;
+      if (ins && ad < 2.5) continue; if (gruen_dust(x, z)) continue; // Forbidden Dustwoods: eigener Wald (Modul wald)
       if (!ins && fd > 13) continue;
       if (fd < 1.7) continue;
       if (Math.abs(x) < 3.4 && z < -45 && z > -54) continue;                                   // alter Straßenrest hinter der Sperre
@@ -438,11 +440,11 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       }
     }
     // Waldmantel und Unterholz (auch außerhalb des Zauns, damit der Wald auf Augenhöhe dicht ist)
-    for (const [x, z, ad] of forestShrubs) { if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
+    for (const [x, z, ad] of forestShrubs) { if (gruen_dust(x, z) || gruen_dustGap(x, z, 3)) continue; if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
       for (let i = 0; i < 2; i++) if (Math.random() < .75) addG2(x + rand(-1.8, 1.8), z + rand(-1.8, 1.8), rand(.9, 1.4)); }
     // Am Weidezaun innen: Himbeergestrüpp und hohes Gras
     const O = gruen_OUT, along = (x0, z0, x1, z1, nx, nz) => { const Ln = Math.hypot(x1 - x0, z1 - z0); for (let t = 0; t < Ln; t += rand(.9, 1.6)) { const k = t / Ln, d = rand(.9, 3.2), x = x0 + (x1 - x0) * k + nx * d, z = z0 + (z1 - z0) * k + nz * d;
-        if (gruen_occ(x, z) >= 2) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
+        if (gruen_occ(x, z) >= 2 || gruen_dustGap(x, z, 3.5)) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
     along(O.x0, O.z0, O.x1, O.z0, 0, 1); along(O.x1, O.z0, O.x1, O.z1, -1, 0); along(O.x0, O.z1, O.x1, O.z1, 0, -1); along(O.x0, O.z0, O.x0, O.z1, 1, 0);
     // Übergänge an den alten Grenzlinien: Feldrain mit Lücken statt Zaun (Kirchweg-Gasse bei x ≈ −7 bleibt frei)
     for (let x = -77; x < 58; x += rand(1.6, 3.2)) { if (x > -14 && x < 0) continue; if (gruen_n(x * .08, 3.3) < .42) continue; const z = rand(30.6, 34.5); if (gruen_occ(x, z) >= 2) continue; shrub(x, z, Math.random() < .6); addG2(x + rand(-1, 1), z + rand(-1, 1), rand(.9, 1.3)); }

@@ -22,6 +22,58 @@ Stand: 28.09.2026 · Finale Story-Bibel · verschmolzen aus Kanon, Mystery-, Hor
 
 ---
 
+## Verbindliche Ergänzungen (Stand 28.09.2026, gehen allem Folgenden vor)
+
+**Namen.** Kinder: Zayn, Roxy, Lucy (Lukes Zwillingsschwester), Luke (Spieler), Heidi, Dina (Mädchen), Mike, Cleo. Nachbar in Nr. 3: **Lars Vegas**, sein Hund **Bruno**. Der Ort heißt **Lost Eyengless**, die versunkene Kanalstadt **Atlantschiss**, der Wald hinter dem Spielplatz **Forbidden Dustwoods**.
+
+**Das Kind im Licht ist namenlos.** Justins Tochter von 1312 hat im Spiel keinen Namen. Justin spricht ihn nicht mehr aus, im Finale spricht „DAS KIND“. In diesem Dokument heißt sie als Arbeitsname **„die Kleine“**. Die Frage „Wie heißt sie?“ bleibt offen.
+
+**Mira ist Justins Frau, die Retterin aus der Zukunft.** Sie wird die Gefangenen im Weißen später befreien, aber erst in späteren Kapiteln. Bis Kapitel 4 gibt es nur leise Spuren:
+- der älteste Stein an der Kapellenmauer („… IRA · HAUSFRAU DES RITTERS“, kein Sterbejahr, „Sie ist nicht hier begraben. Sie kommt noch.“),
+- der Rabe Whiskey („Er gehörte meiner Frau … er findet immer heim. Zu ihr.“),
+- das Porträt in der Villa Seiler (Frau mit Laterne, „… IRA“, *gemalt 2043*),
+- die Stimme ganz am Ende von Kapitel 4 („Noch nicht, Luke. Aber bald.“).
+Der Spieltitel *High Abyss Mira* deutet auf sie voraus.
+
+**Zayn und Jonas.** Zayn Wendt (geb. 2002, 2009 sieben Jahre alt) ist Hildes Jüngster. Sein großer Bruder **Jonas Wendt** (geb. 2000) war Lukes bester Freund. Zayn kam 2009 als Einziger nie zurück. Nebenquest „Versprochen ist versprochen“ (Modul `zayn.js`):
+1. Rucksack in Nr. 7 (ab Kapitel 3)
+2. Kinderkamera mit sechs Fotos
+3. Spur im Wald: Murmel, Schuh, Kreide, Brause
+4. Hütte mit der Zeichnung und dem Radio
+5. Die letzte Zeichnung: „Hast du dich an mich erinnert?“ Keine Antwort.
+
+Die Erinnerungen, die Luke dabei hat, gehören eigentlich dem echten Luke. Er spürt das („Ich weiß nur nicht mehr, ob ich das war.“).
+
+**Cleo, die Vergessene** (Modul `cleo.js`). Cleo, 8, hatte am 25.7.2009 Geburtstag, und nur Lucy kam. Am 28.7. ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ Das ist der Spiegel zu Justins „Sieben für meine eine“. Dazu kommt die neue Kinderregel des Lichts:
+
+11. **Geschenkt ist geschenkt, wiederholen ist gestohlen.** Wer sich selbst verschenkt, gehört der Kleinen ganz, mit Namen und Erinnerung. Deshalb kennt niemand Cleo mehr, auch ihre Eltern nicht. Nur Lucy schrieb jeden Tag „C.“ in ihr Tagebuch. Auf dem Sommerfest-Foto stehen acht Kinder (die Sieben und die Kleine), und zwischen Lucy und den anderen ist eine Lücke.
+
+Cleos Spuren:
+- Kapitel 1: Lucys Tagebuch, die Foto-Lücke, der weiß gekratzte achte Stein links neben Zayns Grab
+- Kapitel 2: die Akte ohne Nummer („FREIWILLIG“)
+- Kapitel 3: Whiskey tauscht den Baumhausschlüssel, dann das Baumhaus in den Dustwoods
+
+Zum Schluss schreibt Luke ihren Namen mit Kreide auf den Stein. Er stiehlt ihn zurück, und ein letztes Echo zeigt Cleo lächelnd.
+
+**Der Rabe Whiskey** (Modul `whiskey.js`) begleitet Luke durch alle Kapitel und gibt Hinweise. Lars Vegas gibt ihm den Namen, Justin erklärt, dass der Rabe seiner Frau gehörte.
+
+**Lars Vegas** (Nr. 3, Mikes Großvater, 1975 selbst unter den Sieben) wirkt wie ein Verschwörungstheoretiker und behält in allem recht. Er gibt Luke das sechste Schlüsselteil.
+
+**Die Villa Seiler** (Modul `anwesen.js`). Dr. Theodor Seiler gründete 1958 das Amt und starb 2019 allein in seiner Villa am Westrand. Die Villa ist von Anfang an erreichbar, aber die Tür hat acht Schlüssellöcher. Die acht Teile sind wie die Akten mit 01–08 gestempelt und liegen dort, wo sich die Kinder versteckten:
+- 01 Brunnen, 02 Vogelscheuche, 03 Spielplatz, 04 Kellerfenster
+- 05 und 08 im Amt
+- 06 bei Vegas, 07 in Whiskeys Nest
+
+Die Prägepresse im Garten braucht Strom, und der kommt erst am Morgen nach dem Licht zurück. **Kapitel 4 · Die Villa** setzt Ende B fort. Hat man Teile übersehen, hat Whiskey sie im Nest gesammelt. In der Eingangshalle liegt Seilers Brief, und das Kapitel endet an der eingebrochenen Treppe.
+
+**Die Forbidden Dustwoods** (Modul `wald.js`) liegen nördlich des Spielplatzes, der Eingang ist die Lücke im Nordzaun. Dort gibt es:
+- Rehe und einen Hirsch („Die Lichtung“: leise und im Dunkeln nähern)
+- einen Fuchs mit Zayns Schuh
+- Wölfe mit einem Welpen in der Drahtschlinge („Die Schlinge“, Drahtschneider; im Draht Jonas’ Taschenmesser)
+- Zayns Hütte und Cleos Baumhaus
+
+---
+
 ## Die Geschichte in einem Satz, Kernfrage, Ton & Vorbilder
 
 ### Die Geschichte in einem Satz
@@ -30,7 +82,7 @@ Ein junger Mann kehrt nach Lost Eyengless zurück, um seine verschwundene Zwilli
 
 ### Die Kernwahrheit (das muss jeder Spieler am Ende von Kapitel 3 sagen können)
 
-> 1312 hat sich die kleine Mira beim Versteckspiel im Licht versteckt. Ihr Vater Justin hat sie nie gesucht. Aus Angst hat er stattdessen sieben Dorfkinder mit Laternen hineingeschickt. Das Licht ist zu Mira geworden. Seitdem zählt sie bis siebzehn und sucht ihren Vater, und er versteckt sich. Luke ist eines der Kinder, die sie aus Justins Blut gemacht hat. Seit Luke weiß, was er ist, sieht sie durch seine Augen, und durch ihn hat sie Justin heute Nacht gefunden.
+> 1312 hat sich die Kleine beim Versteckspiel im Licht versteckt. Ihr Vater Justin hat sie nie gesucht. Aus Angst hat er stattdessen sieben Dorfkinder mit Laternen hineingeschickt. Das Licht ist zur Kleinen geworden. Seitdem zählt sie bis siebzehn und sucht ihren Vater, und er versteckt sich. Luke ist eines der Kinder, die sie aus Justins Blut gemacht hat. Seit Luke weiß, was er ist, sieht sie durch seine Augen, und durch ihn hat sie Justin heute Nacht gefunden.
 
 ### Die Kernfrage
 
@@ -39,7 +91,7 @@ Ein junger Mann kehrt nach Lost Eyengless zurück, um seine verschwundene Zwilli
 - In Kapitel 2 erst: „Das bin nicht ich, es ist ein Mädchen, das nie altert." Dann, zehn Minuten später: „Doch. Ich bin es."
 - Nach Kapitel 3 weiß er: Es gibt zwei achte Kinder. Sie, die mitspielen wollte. Und ihn, den sie gemacht hat.
 
-**Die emotionale Frage darunter:** Darf man jemanden lieben, der nicht der ist, für den man ihn gehalten hat? Die Frage wird viermal gespiegelt: Lucy und Luke, Mama und Luke, Hilde und Zayn, Justin und Mira.
+**Die emotionale Frage darunter:** Darf man jemanden lieben, der nicht der ist, für den man ihn gehalten hat? Die Frage wird viermal gespiegelt: Lucy und Luke, Mama und Luke, Hilde und Zayn, Justin und die Kleine.
 
 ### Das Grundsystem: Das Licht ist ein Kind, und es spielt
 
@@ -55,14 +107,14 @@ Jeder Schrecken in Lost Eyengless ist ein **Kinderspiel mit festen Regeln**. Wei
 - **Twin Peaks:** Ein ganzes Dorf mit einem Geheimnis, verschlüsselt in Brauchtum (Laternenfest, Abzählreim, Hufeisen über den Türen).
 - **Dark:** 17-Jahres-Zyklus, Generationen, dieselben Rollen in neuen Körpern.
 
-**Tonregeln:** Mira schreit nie, sie **zählt, summt und kichert**. Die schlimmsten Geräusche sind Kindergeräusche an Orten ohne Kinder. Luke spricht wenig, aber nach jeder großen Enthüllung **genau einen Satz**.
+**Tonregeln:** Die Kleine schreit nie, sie **zählt, summt und kichert**. Die schlimmsten Geräusche sind Kindergeräusche an Orten ohne Kinder. Luke spricht wenig, aber nach jeder großen Enthüllung **genau einen Satz**.
 
 ### Wie erzählt wird (keine Textwände)
 
 - **Umwelt statt Notiz:** Kinderschuhe vor Türen, frische Kreide, Uhren auf 03:13, abgegriffene Tasten, Hufeisen über jeder Haustür.
 - **Echos:** Geisterszenen von 10 bis 20 Sekunden am Ort des Geschehens, mit einem Satz, der hängen bleibt.
-- **Drei Handschriften:** **Weiße Kreidepfeile in Kinderschrift** gehören Mira (Schnitzeljagd). **Blaue Pfeile mit einem kleinen Kreis am Schaft** gehören Lucy (ihr Kinderzeichen). **Kerzen an Polaroids** gehören Hilde (Laternen, damit die Kinder heimfinden).
-- **Die Spieluhr unter der Stimme:** Unter jeder Stimme, die Mira sich leiht, läuft ganz leise Lucys Spieluhr. Echte Stimmen haben keine. Luke ist Tontechniker; er bemerkt es einmal laut, danach muss der Spieler selbst hinhören.
+- **Drei Handschriften:** **Weiße Kreidepfeile in Kinderschrift** gehören der Kleinen (Schnitzeljagd). **Blaue Pfeile mit einem kleinen Kreis am Schaft** gehören Lucy (ihr Kinderzeichen). **Kerzen an Polaroids** gehören Hilde (Laternen, damit die Kinder heimfinden).
+- **Die Spieluhr unter der Stimme:** Unter jeder Stimme, die die Kleine sich leiht, läuft ganz leise Lucys Spieluhr. Echte Stimmen haben keine. Luke ist Tontechniker; er bemerkt es einmal laut, danach muss der Spieler selbst hinhören.
 - **Die „Du"-Seite im Tagebuch:** ein Steckbrief von Luke, der von Anfang an wahr ist. Einzelne Gedanken darauf werden später **durchgestrichen und korrigiert** (Luke hat sich selbst belogen).
 - **Die Fallwand:** Fragen mit drei Antwortmöglichkeiten statt fertiger Absätze. Richtig gefolgert heißt, Luke schreibt einen Satz in eigener Handschrift dazu.
 - **Wissen ist Werkzeug:** Viele Geheimnisse ändern etwas Spielbares (eine Antwort, eine Szene, ein Ende).
@@ -73,11 +125,11 @@ Jeder Schrecken in Lost Eyengless ist ein **Kinderspiel mit festen Regeln**. Wei
 
 ### Chronologie 1312 → 2026
 
-- **10. November 1312, Abend (Vorabend von St. Martin).** In die Senke hinter dem Hof des Ritters **Justin** fällt ein weißes Licht, später „der Hohe Abgrund" genannt. Justin schneidet sich beim Aufsitzen die linke Hand am Schwert. Seine Tochter **Mira (7)** wischt das Blut lachend mit den Händen ab: „Jetzt hab ich dich an mir." Am Rand der Senke spielen sie **Verstecken**. Justin zählt mit geschlossenen Augen bis **siebzehn**, Miras höchste Zahl, ihr ganzer Stolz. Sie versteckt sich im Leuchten.
-- **11. November 1312, 03:13.** „Die dritte Stunde, dreizehn Atemzüge": Justin öffnet die Augen. Mira ist fort. Aus dem Licht ruft ihre Stimme: „Such mich, Papa." Justin geht bis zum Rand und **keinen Schritt weiter**. Er hat Angst. Er glaubt, ein Dämon habe sie und wolle Kinder. Er holt **sieben Kinder** seiner Hörigen aus den Betten, gibt ihnen Laternen, nennt es eine Prozession und schickt sie hinein: „**Sieben für meine eine.**"
-- **15. November 1312.** Vier Tage später stehen sieben Kinder barfuß auf dem Anger, der heutigen Kreuzung. Sechs sind sie selbst. **Eines ist ein anderes**: aus Justins Blut an Miras Händen geformt, mit Justins braunen Augen. Das Original, ein Junge namens **Konrad**, behält Mira als Spielkamerad. Mira selbst kommt nie zurück. Das Licht ist zu ihr **geworden**: ein Himmel mit dem Willen eines Kindes.
+- **10. November 1312, Abend (Vorabend von St. Martin).** In die Senke hinter dem Hof des Ritters **Justin** fällt ein weißes Licht, später „der Hohe Abgrund" genannt. Justin schneidet sich beim Aufsitzen die linke Hand am Schwert. Seine Tochter, **die Kleine (7)**, wischt das Blut lachend mit den Händen ab: „Jetzt hab ich dich an mir." Am Rand der Senke spielen sie **Verstecken**. Justin zählt mit geschlossenen Augen bis **siebzehn**, die höchste Zahl der Kleinen, ihr ganzer Stolz. Sie versteckt sich im Leuchten.
+- **11. November 1312, 03:13.** „Die dritte Stunde, dreizehn Atemzüge": Justin öffnet die Augen. Die Kleine ist fort. Aus dem Licht ruft ihre Stimme: „Such mich, Papa." Justin geht bis zum Rand und **keinen Schritt weiter**. Er hat Angst. Er glaubt, ein Dämon habe sie und wolle Kinder. Er holt **sieben Kinder** seiner Hörigen aus den Betten, gibt ihnen Laternen, nennt es eine Prozession und schickt sie hinein: „**Sieben für meine eine.**"
+- **15. November 1312.** Vier Tage später stehen sieben Kinder barfuß auf dem Anger, der heutigen Kreuzung. Sechs sind sie selbst. **Eines ist ein anderes**: aus Justins Blut an den Händen der Kleinen geformt, mit Justins braunen Augen. Das Original, ein Junge namens **Konrad**, behält die Kleine als Spielkamerad. Die Kleine selbst kommt nie zurück. Das Licht ist zu ihr **geworden**: ein Himmel mit dem Willen eines Kindes.
 - **1313.** Ein Kirchengericht zwingt Justin in einen **Sühnevertrag**: Kapelle bauen, die Kinder heimführen, „sooft das Licht sie nimmt – **bis dass er die Seine selbst suche und finde**". Die **Kapelle St. Martin** entsteht. Aus der Tat wird das **Laternenfest am 11.11.**, eine Heiligenlegende über einem Verbrechen. Das Dorf wächst aus den Familien der sieben Kinder. Es heißt „Lost Eyengless" nach dem Lost Eyengless am Abgrund, in dem sich der Ritter versteckt hat.
-- **1329 und alle 17 Jahre danach.** Mira hat bis siebzehn gezählt: „**Ich komme!**" Sie sucht ihren Vater. Justin **versteckt sich in Eisen**. Er führt die Kinder, die sie zurückgibt, an der Hand heim (das verlangt der Vertrag), geht aber nie ins Licht hinein. Jedes Mal behält Mira ein Kind und legt ihm eine **Kopie aus seinem Blut** in die Hand. Justin lebt seither am Rand des Weißen, wo Jahre wie Tage vergehen. Deshalb altert er nicht.
+- **1329 und alle 17 Jahre danach.** Die Kleine hat bis siebzehn gezählt: „**Ich komme!**" Sie sucht ihren Vater. Justin **versteckt sich in Eisen**. Er führt die Kinder, die sie zurückgibt, an der Hand heim (das verlangt der Vertrag), geht aber nie ins Licht hinein. Jedes Mal behält die Kleine ein Kind und legt ihm eine **Kopie aus seinem Blut** in die Hand. Justin lebt seither am Rand des Weißen, wo Jahre wie Tage vergehen. Deshalb altert er nicht.
 - **1891.** Pfarrer **Friedrich Ahrens** erlebt einen Zyklus und schreibt die **Chronik von Lost Eyengless**. Im Gesangbuch der Kapelle notiert er die **Urfassung des Abzählreims**, die mit einer Bitte endet statt mit einer Drohung.
 - **1941.** Unter den Sieben ist **Theodor Seiler (7)**. Er kommt als er selbst zurück und erinnert sich als Einziger an das Weiße.
 - **1958.** Seiler, junger Beamter und später Amtsarzt, gründet unter dem Haus, das heute Nr. 7 ist, die **„Außenstelle Lost Eyengless" des Amts für Rückführung**, getarnt als Nachkriegsbehörde für heimkehrende Kinder. Die Idee: Wenn man dem Licht eine **Liste** gibt (vermessene, von den Eltern „eingewilligte" Kinder), nimmt es genau diese und keine anderen. Seiler fotografiert Justin. Der Ritter sieht 1958 aus wie heute.
@@ -87,10 +139,10 @@ Jeder Schrecken in Lost Eyengless ist ein **Kinderspiel mit festen Regeln**. Wei
 - **5. Mai 2000.** **Luke und Lucy Brandt**, Zwillinge, werden geboren. Luke ist vier Minuten älter, deshalb nennt Lucy ihn „**Großer**". Eltern: Marion und Thomas Brandt, Nr. 1. Hund: **Flocke**.
 - **1. Juli 2009.** **Losziehung** in Zimmer 7 der Außenstelle. Sieben Holzkugeln, eingebrannte Namen: Roxy, Lucy, Mike, Dina, Heidi, Luke – und **Zayn**. Hilde zieht die Kugel ihres eigenen Sohnes. Sie zieht nicht neu. „Das Los ist das Los."
 - **Juli 2009.** Die Eltern unterschreiben die **Einwilligung**: Reuter (Roxy, Nr. 5) am 3.7., Winter (Heidi, Nr. 2) am 6.7., **Lars Vegas** für seinen Enkel **Mike** (Nr. 3) am 8.7., Aydın (Dina, Hof) am 10.7., **Marion Brandt** für beide Zwillinge (Nr. 1) am 14.7., zittrig, zweimal angesetzt, und **Hilde Wendt** für Zayn (Nr. 7) als Letzte am 21.7.
-- **27. Juli 2009, Sommerfest.** Hilde verteilt Lampions nur an die sieben. Ein blasses Mädchen im weißen Kleid fragt: „Darf ich mitspielen?" Der echte Luke sagt: „**Klar.**" Auf dem Gruppenfoto sind **acht Kinder**; das achte hält Lukes Hand. Es ist **Mira**. Er war der Einzige, der sie mitspielen ließ. Darum behält sie ihn.
+- **27. Juli 2009, Sommerfest.** Hilde verteilt Lampions nur an die sieben. Ein blasses Mädchen im weißen Kleid fragt: „Darf ich mitspielen?" Der echte Luke sagt: „**Klar.**" Auf dem Gruppenfoto sind **acht Kinder**; das achte hält Lukes Hand. Es ist **die Kleine**. Er war der Einzige, der sie mitspielen ließ. Darum behält sie ihn.
 - **28. Juli 2009, 23:40.** Die Sieben verschwinden barfuß aus ihren Betten. Die Schuhe bleiben vor den Betten stehen.
 - **1.–3. August 2009.** Rückkehr, einzeln: Roxy 1.8. 05:10, Lucy 1.8. 23:55, Mike 2.8. 06:00, Dina 2.8. 21:30, Heidi 3.8. 04:45.
-- **5. August 2009, 03:13.** Die fünf Heimgekehrten schlafwandeln zur Kreuzung. Justin führt einen Jungen an der Hand heran. Unterwegs hat Mira die Hand des echten Luke aus Justins Hand genommen und **die Kopie hineingelegt**. Justin merkte es nicht, denn die Hand war aus seinem Blut und fühlte sich an wie seine eigene. Am Nebelrand steht einen Atemzug lang der **echte Luke** mit blauen Augen, dann geht er zurück ins Weiße. **Vegas** zählt vom Fenster aus **sieben** und hält den Blauäugigen für Zayn: „Gott sei Dank." Eine Kinderstimme flüstert: „**Acht.**" Mira zählt sich mit. Zayn kommt nie.
+- **5. August 2009, 03:13.** Die fünf Heimgekehrten schlafwandeln zur Kreuzung. Justin führt einen Jungen an der Hand heran. Unterwegs hat die Kleine die Hand des echten Luke aus Justins Hand genommen und **die Kopie hineingelegt**. Justin merkte es nicht, denn die Hand war aus seinem Blut und fühlte sich an wie seine eigene. Am Nebelrand steht einen Atemzug lang der **echte Luke** mit blauen Augen, dann geht er zurück ins Weiße. **Vegas** zählt vom Fenster aus **sieben** und hält den Blauäugigen für Zayn: „Gott sei Dank." Eine Kinderstimme flüstert: „**Acht.**" die Kleine zählt sich mit. Zayn kommt nie.
 - **August 2009.** Mama fragt den Jungen nach dem Hundenamen. Er weiß ihn nicht. Das Amt: „Nehmen Sie ihn, oder Sie haben gar keinen." Sie nimmt ihn und liebt ihn, wie sie 1975 ihren Bruder Peter geliebt hat. In Hildes Keller („Nachsorge") malt die Kopie das Innere des Weißen und signiert mit „LUKE, 9". Im Prüfraum des Amts zeigt sie keine Angst vor Spinnen (das Original hatte große) und lacht.
 - **6. August 2009.** Das Amt versucht, die Kopie auf Stuhl 8 gegen das Original „zurückzutauschen". Justin erscheint und zerschlägt die Maschine; ein Splitter bricht aus seiner Klinge.
 - **Oktober 2009.** Das Amt bietet Hilde ein Kind „fast wie Zayn" an. Hilde: „Dann will ich gar keinen."
@@ -99,25 +151,25 @@ Jeder Schrecken in Lost Eyengless ist ein **Kinderspiel mit festen Regeln**. Wei
 - **Frühjahr 2011.** Mama schreibt Luke einen letzten Brief und geht mit einer Laterne in die Senke, um den echten Luke zu holen. Sie kommt nicht zurück. Die Zwillinge wachsen bei **Oma Erna Kranz** in Nr. 4 auf, schräg gegenüber dem verhüllten Elternhaus. Dina kommt in die Klinik Sonnenhang.
 - **2012.** Die Außenstelle wird aufgelöst. Die Liste endet. Hilde behält die Schlüssel und zählt jede Nacht.
 - **2018.** Luke geht mit 18 in die Stadt, wird Tontechniker und arbeitet nachts. Lucy bleibt. **2019** stirbt Seiler allein in seiner Villa. **2020** stirbt Oma Kranz.
-- **2026, das Zyklusjahr.** Ohne Liste holt Mira ihre Spielkameraden von 2009 zurück, und zwar **in der Reihenfolge, in der man sie hergegeben hat**. Wen sie nicht findet, überspringt sie. Vor jedem Haus, dessen Kind sie holt, **bläst sie die Laterne aus**.
+- **2026, das Zyklusjahr.** Ohne Liste holt die Kleine ihre Spielkameraden von 2009 zurück, und zwar **in der Reihenfolge, in der man sie hergegeben hat**. Wen sie nicht findet, überspringt sie. Vor jedem Haus, dessen Kind sie holt, **bläst sie die Laterne aus**.
   - **Juni:** Roxy geht aus ihrer Gartenlaube „heim". Laterne vor **Nr. 5** aus.
   - Heidi (6.7.) wird übersprungen, sie lebt weit weg. Ihre Postkarten kommen aber jedes Jahr näher.
   - **12. Juli, 03:13:** Mike verlässt barfuß die geschlossene Tankstelle. Laterne vor **Nr. 3** aus.
   - Dina (10.7.) wird übersprungen. Er ist im September aus der Klinik geflohen und hält die Augen verbunden. Wer die Augen zu hat, den sieht sie nicht.
   - Ab August wacht Luke jede Nacht um 03:13 auf.
 - **20.–22. Oktober 2026.** Hilde zeigt Lucy das Amt und die Akten. Lucy erfährt, was Luke ist. Sie bespricht im Keller ein **Tonband** für ihn und legt Hildes Hausschlüssel mit einem Zettel in Hildes Briefkasten.
-- **23. Oktober 2026.** Zwischen 23:41 und 23:57 ruft Lucy Luke **elfmal** an. Er geht nicht ran. Um 23:58 fotografiert sie an der Kreuzung das Licht, rennt, lässt das Auto an der Südsperre stehen, schreit „Hilde!" und schafft es bis Nr. 7. Hilde bringt sie nach unten ins Amt und legt sie in den **Rückführungstank**, denn unter der Erde findet Mira niemanden. Aber das Licht hatte Lucy schon berührt: Die Hälfte von ihr ist bei Mira. Laterne vor **Nr. 1** aus. In dieser Nacht zählt Hilde im Echo auf der Kreuzung zum ersten Mal **neun**.
-- **31. Oktober 2026, 03:13.** „Lucy" klopft an Hildes Tür: barfuß, trocken, im Sommerkleid, fremdes Gras zwischen den Zehen. Es ist **Mira in Lucys Gestalt**, der Hälfte, die sie genommen hat. Hilde fragt nach dem Hundenamen; die Gestalt lacht an der falschen Stelle. Hilde lockt sie in den Keller, schnallt sie auf den Gurtstuhl und schließt ab. Unter der Erde ist die Gestalt „aus" und kann nicht mehr mitspielen. Hilde schreibt in den Kalender: „SIE IST ZURÜCK. ABER DAS IST NICHT LUCY." Durch Lucys Handy im Auto schickt Mira an Luke: „bin wieder da. komm nach hause."
+- **23. Oktober 2026.** Zwischen 23:41 und 23:57 ruft Lucy Luke **elfmal** an. Er geht nicht ran. Um 23:58 fotografiert sie an der Kreuzung das Licht, rennt, lässt das Auto an der Südsperre stehen, schreit „Hilde!" und schafft es bis Nr. 7. Hilde bringt sie nach unten ins Amt und legt sie in den **Rückführungstank**, denn unter der Erde findet die Kleine niemanden. Aber das Licht hatte Lucy schon berührt: Die Hälfte von ihr ist bei der Kleinen. Laterne vor **Nr. 1** aus. In dieser Nacht zählt Hilde im Echo auf der Kreuzung zum ersten Mal **neun**.
+- **31. Oktober 2026, 03:13.** „Lucy" klopft an Hildes Tür: barfuß, trocken, im Sommerkleid, fremdes Gras zwischen den Zehen. Es ist **die Kleine in Lucys Gestalt**, der Hälfte, die sie genommen hat. Hilde fragt nach dem Hundenamen; die Gestalt lacht an der falschen Stelle. Hilde lockt sie in den Keller, schnallt sie auf den Gurtstuhl und schließt ab. Unter der Erde ist die Gestalt „aus" und kann nicht mehr mitspielen. Hilde schreibt in den Kalender: „SIE IST ZURÜCK. ABER DAS IST NICHT LUCY." Durch Lucys Handy im Auto schickt die Kleine an Luke: „bin wieder da. komm nach hause."
 - **3. November 2026 (Dienstag).** Hinter der Kellertür übt die Gestalt Lucys Stimme. Hilde notiert: „Sie will ihn anrufen." Bruno, der Hund, läuft zum Aschekreis und ist fort.
-- **4. November, 02:14.** Anruf an Luke von Lucys Handy, vier Sekunden: „Haus Nummer 7. Der Keller." Mira lockt den einzigen Menschen, der die Tür für „Lucy" öffnen würde.
+- **4. November, 02:14.** Anruf an Luke von Lucys Handy, vier Sekunden: „Haus Nummer 7. Der Keller." Die Kleine lockt den einzigen Menschen, der die Tür für „Lucy" öffnen würde.
 - **4. November, ca. 23:00 → 5. November, Morgengrauen.** Kapitel 1, 2 und 3 in **einer einzigen Nacht**.
 
 ### Die Regeln des Lichts
 
 Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wird vorher mindestens zweimal **gezeigt**.
 
-1. **Verstecken bis siebzehn.** Mira zählt siebzehn Jahre, dann sucht sie. „Das Spiel ist erst aus, wenn **alle** gefunden sind."
-2. **Laternelaufen.** Brennende Laternen sind Miras Augen über dem Dorf; sie hält sich an ihnen fest. Das „UFO" ist **ihre Laterne**, von unten gesehen. Will sie jemanden holen, bläst sie die Laterne vor seinem Haus aus und kommt herunter. **Sind alle Lampen aus, muss sie herunterkommen**, und dann kann man zu ihr hinein.
+1. **Verstecken bis siebzehn.** Die Kleine zählt siebzehn Jahre, dann sucht sie. „Das Spiel ist erst aus, wenn **alle** gefunden sind."
+2. **Laternelaufen.** Brennende Laternen sind die Augen der Kleinen über dem Dorf; sie hält sich an ihnen fest. Das „UFO" ist **ihre Laterne**, von unten gesehen. Will sie jemanden holen, bläst sie die Laterne vor seinem Haus aus und kommt herunter. **Sind alle Lampen aus, muss sie herunterkommen**, und dann kann man zu ihr hinein.
 3. **Ochs am Berg.** Ihre Gestalt, **die Graue**, bewegt sich nur, wenn niemand hinsieht.
 4. **Augen zu.** Wer die Augen zu hat, den sieht sie nicht (Kinderglaube, bei ihr wahr). **Ausnahme:** ihre eigenen Kinder aus Justins Blut, sobald sie wissen, was sie sind.
 5. **Stille Post.** Sie kann jede Stimme nachmachen, die sie gehört hat. Aber sie sagt, was *sie* sagen würde („Luke", „nach Hause", „Bruder"), und sie kennt **kein Wort, das nie laut gesagt wurde**. Unter ihren Stimmen läuft die Spieluhr. Wen sie zurückgibt, gibt sie „nacherzählt" zurück (der Zahn-Mann).
@@ -125,21 +177,21 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 7. **Eisen ist Freimal.** Wer Eisen trägt oder anfasst, kann nicht gefangen werden, und in ihrem Licht ist Eisen ein blinder Fleck. Deshalb die Hufeisen über allen Türen. Deshalb Justins Rüstung. Kinder malen ihn als **grauen Fleck am Bildrand**.
 8. **Die Kette.** Wer aus dem Weißen kommt, braucht eine Hand. „**Wer loslässt, bleibt im Weißen.**"
 9. **Wer einmal drin war, den findet sie wieder.** Das gilt auch für sein Blut. (Kellerwand: SIE NEHMEN NUR DIE, DIE SCHON MAL WEG WAREN.)
-10. **Wer es weiß, durch den sieht sie.** Ihre Kinder aus Justins Blut sind geschlossen, solange sie sich für Menschen halten. Wer erfährt, woher er kommt, dem steht die Tür offen: Mira sieht und hört durch ihn. Durch **menschliche Augen** sieht sie auch, was ihr Licht nicht sieht: den Mann in Eisen.
+10. **Wer es weiß, durch den sieht sie.** Ihre Kinder aus Justins Blut sind geschlossen, solange sie sich für Menschen halten. Wer erfährt, woher er kommt, dem steht die Tür offen: die Kleine sieht und hört durch ihn. Durch **menschliche Augen** sieht sie auch, was ihr Licht nicht sieht: den Mann in Eisen.
 
 **03:13** ist der Augenblick, in dem Justin 1312 „siebzehn" rief und die Augen öffnete. Im Weißen ist immer 03:13. Die Kapellenglocke schlägt in Zyklusnächten **drei Schläge, Pause, dreizehn Schläge**.
 
-**Warum Kopien?** Für Mira ist es ein einziger Kindergedanke mit drei Seiten: Papa soll draußen nicht allein sein; sie behält das Original als Spielkameraden; und irgendwann sieht eines ihrer Kinder Papa. Das Amt hat davon nur den Tausch verstanden und schrieb „Ersatz".
+**Warum Kopien?** Für die Kleine ist es ein einziger Kindergedanke mit drei Seiten: Papa soll draußen nicht allein sein; sie behält das Original als Spielkameraden; und irgendwann sieht eines ihrer Kinder Papa. Das Amt hat davon nur den Tausch verstanden und schrieb „Ersatz".
 
-**Die Kuh** ist Blinde Kuh: Mira holt Tiere vom Hof, spielt mit ihnen und lässt sie fallen. Die Augen fehlen mit glatten Rändern. In die Flanke gebrannt sind **sieben Kreise und ein halber achter**: ihre Zählung von 2009, unfertig, weil ihr achtes Kind noch nicht heim ist.
+**Die Kuh** ist Blinde Kuh: die Kleine holt Tiere vom Hof, spielt mit ihnen und lässt sie fallen. Die Augen fehlen mit glatten Rändern. In die Flanke gebrannt sind **sieben Kreise und ein halber achter**: ihre Zählung von 2009, unfertig, weil ihr achtes Kind noch nicht heim ist.
 
-**Die Grauen** sind die Behaltenen. Wer lange im Weißen bleibt, verliert zuerst den Mund, dann die Farbe. Große schwarze Augen, kein Mund: ein Kind, das seit Jahrzehnten „dran" ist. Die Graue ist Mira selbst, wie sie nach 714 Jahren aussieht.
+**Die Grauen** sind die Behaltenen. Wer lange im Weißen bleibt, verliert zuerst den Mund, dann die Farbe. Große schwarze Augen, kein Mund: ein Kind, das seit Jahrzehnten „dran" ist. Die Graue ist die Kleine selbst, wie sie nach 714 Jahren aussieht.
 
 ### Wer ist wer, wirklich
 
-- **Luke:** die Kopie von 2009, aus Justins Blut, seit 5.8.2009 03:13 auf der Welt. Will Lucy. Wird zu Miras Augen.
-- **Lucy:** echt, Zwilling, weiß es seit dem ersten Morgen und hat ihn trotzdem gewählt. Liegt halb im Tank, halb bei Mira.
-- **Mira:** das Licht, die Stimme, die Heimkehrerin, die Graue, das Mädchen auf dem Foto. Will, dass Papa sie findet, und versteht es selbst nur als Spiel.
+- **Luke:** die Kopie von 2009, aus Justins Blut, seit 5.8.2009 03:13 auf der Welt. Will Lucy. Wird zu den Augen der Kleinen.
+- **Lucy:** echt, Zwilling, weiß es seit dem ersten Morgen und hat ihn trotzdem gewählt. Liegt halb im Tank, halb bei der Kleinen.
+- **Die Kleine:** das Licht, die Stimme, die Heimkehrerin, die Graue, das Mädchen auf dem Foto. Will, dass Papa sie findet, und versteht es selbst nur als Spiel.
 - **Justin:** der Ritter, der Beobachter, der Mann in Eisen. Hat alles begonnen. Versteckt sich seit 714 Jahren und will doch gefunden werden, traut sich aber nicht.
 - **Hilde:** Zählerin des Amts, die das Los ihres Sohnes zog, und Wächterin, die den Keller zuhielt.
 - **Der echte Luke:** für immer neun, blaue Augen. Hat 17 Jahre zugesehen, wie ein anderer sein Leben lebt, und warnt ihn.
@@ -151,11 +203,11 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 
 - Luke und Lucy sind **Zwillinge**, geboren 5.5.2000, 2026 also **26** (Zeitung korrigieren).
 - **Mike** verschwand nicht 2021, sondern am **12.7.2026**. Er ist Vegas' Enkel und wohnte bei ihm in Nr. 3.
-- Das achte Kind auf dem Sommerfest-Foto ist **Mira** (Akte 08 bleibt trotzdem der Luke-Twist).
+- Das achte Kind auf dem Sommerfest-Foto ist **die Kleine** (Akte 08 bleibt trotzdem der Luke-Twist).
 - Raum 1 zeigt den **28.7.2009, 23:39** (nicht 27.7.). Ende A spielt am **5. November** (nicht 1. November).
-- Die Frage „Wer ist das achte Kind?" auf den Polaroids ist **Kinderschrift in Kreide** (Mira), nicht von Hilde.
+- Die Frage „Wer ist das achte Kind?" auf den Polaroids ist **Kinderschrift in Kreide** (die Kleine), nicht von Hilde.
 - Lucys Zettel und Hildes Kühlschrankzettel sind **datiert** und widersprechen sich deshalb nicht mehr.
-- Der Beobachter ist **Justin**. Der Zombie ist **Peter Kranz**. Die Stimme im Amt ist **Mira**, die „Amt" spielt. Das Amt ist seit 2012 aufgelöst.
+- Der Beobachter ist **Justin**. Der Zombie ist **Peter Kranz**. Die Stimme im Amt ist **die Kleine**, die „Amt" spielt. Das Amt ist seit 2012 aufgelöst.
 - Das „neunte Kind" im Zählbuch ist **Lucy**.
 
 ---
@@ -188,7 +240,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 
 ✏️ DEINE IDEEN:
 
-### Mira – das Licht, die Stimme, die Graue (714 Jahre alt, für immer sieben)
+### Die Kleine – das Licht, die Stimme, die Graue (714 Jahre alt, für immer sieben)
 - **Rolle:** Gegenspielerin, die kein Bösewicht ist. Ein Kind mit der Macht eines Himmels.
 - **Ziel:** Papa finden. Spielen. Nie wieder allein sein. Ganz tief darunter: dass er *sie* sucht.
 - **Geheimnis:** Sie ist nicht im Licht gefangen, sie **ist** das Licht. Sie hat nie verstanden, dass ihre Spielkameraden verblassen.
@@ -200,7 +252,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 ### Justin vom Hohen Abgrund – der Ritter
 - **Rolle:** scheinbarer Retter, tatsächlich der Ursprung.
 - **Ziel (gesagt):** die Kinder heimführen, das Licht schließen. **Ziel (wahr):** gefunden werden, ohne selbst den Mut dazu aufzubringen.
-- **Geheimnis:** Er ist 1312 **nie hineingegangen**. Er versteckt sich seit 714 Jahren in Eisen vor seiner Tochter. Jedes geholte Kind existiert, weil er sich nicht finden lässt. Er hat Luke benutzt, um gefunden zu werden, denn durch Lukes Augen sieht Mira auch den Mann in Eisen.
+- **Geheimnis:** Er ist 1312 **nie hineingegangen**. Er versteckt sich seit 714 Jahren in Eisen vor seiner Tochter. Jedes geholte Kind existiert, weil er sich nicht finden lässt. Er hat Luke benutzt, um gefunden zu werden, denn durch Lukes Augen sieht die Kleine auch den Mann in Eisen.
 - **Erkennungszeichen:** sagt „Knabe" und „Kind", nie „Luke" (bis Ende C). Kalte Eisenhände. Eine Kerbe in der Klinge. Unter dem Helm braune Augen; in der linken Hand dieselbe halbrunde Narbe wie Luke.
 - **Entwicklung:** Beobachter (Kap. 1) → nur im Echo (Kap. 2) → Verbündeter (Kap. 3) → entlarvt (Raum 3) → bittet, statt zu zwingen: „Das habe ich einmal getan, mit sieben Kindern. Nie wieder."
 - **Erste Erscheinung:** Kap. 1, Ostende der Straße: Er dreht die Laterne über sich aus und ist fort.
@@ -240,7 +292,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - Einer der Sieben von 2009. Floh im September aus der Klinik. Lebt mit **Augenbinde** im Heuboden der Scheune, weil er die Regel gefunden hat. Spricht fast nicht. Malt Kreise; seine Kreise sind **Karten**: „Die Kreise sind von unten."
 
 ### Weitere Figuren (nur kurz, bewusst klein gehalten)
-- **Zayn Wendt (für immer 10):** Hildes Sohn, verlost. Sitzt in Raum 3 mit Bruno im Arm.
+- **Zayn Wendt (für immer 7):** Hildes Jüngster, Jonas’ kleiner Bruder, verlost. Sitzt in Raum 3 mit Bruno im Arm.
 - **Roxy Reuter (25):** zündete 2009 Nr. 5 an, ging im Juni 2026 freiwillig „heim". Die Einzige, die in Raum 3 lächelt.
 - **Mike Kessler (27):** Vegas' Enkel, verschwand am 12.7.2026 aus der Tankstelle.
 - **Heidi Winter (25):** zog 2010 weg. Nie im Bild. Ihre Postkarten kommen jedes Jahr näher.
@@ -267,13 +319,13 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - *Stimmung:* Möbel unter Laken, kalter Kaffeegeruch, die Spieluhr, die jemand kürzlich aufgezogen hat.
 - *Kap. 1:* Nebenquest „Das alte Zuhause". Lucys Tagebuch unter der Diele, Mamas Brief 1, Fotoalbum Sommerfest (acht Kinder), Familienfoto (blauäugiger Junge, Papas Gesicht zerkratzt), Spiegel im Bad (braune Augen, kein Kommentar), Hundenapf „FLOCKE" (Luke: „Flocke … nie gehört."), sieben Becher mit Namen und einer ohne, **Liederheft** neben der Spieluhr mit Noten und Abzählreim. Im Schrank ein Kinderschuh, Größe 33, links.
 - *Kap. 3:* Die Laken sind weg. Alles ist warm und hell wie 2009. **Der gedeckte Tisch** der Heimkehrerin (Pflicht). Die Flurschleife. Mamas Brief 2 auf der Kommode.
-- *Geheimnis:* Hier wurde am 14.7.2009 unterschrieben. Hier wohnt jetzt Mira.
+- *Geheimnis:* Hier wurde am 14.7.2009 unterschrieben. Hier wohnt jetzt die Kleine.
 
 **Nr. 2 – Familie Winter (Heidi), leer seit 2010**
 - *Stimmung:* Schaukel im Vorgarten, die als einzige schwingt.
 - *Kap. 1:* Nebenquest „Post für Heidi": 16 Postkarten im überquellenden Briefkasten. Ein Polaroid der Schaukel zeigt ein Mädchen in Weiß darauf.
 - *Kap. 3:* Eine neue Karte, Poststempel 2026, Kinderschrift: „**Ja.**"
-- *Geheimnis:* Heidi kommt näher, ohne es zu wollen. Sie ist die Nächste, die Mira übersprungen hat.
+- *Geheimnis:* Heidi kommt näher, ohne es zu wollen. Sie ist die Nächste, die die Kleine übersprungen hat.
 
 **Nr. 3 – Lars Vegas**
 - *Stimmung:* Verandalicht, Hufeisen über der Tür, ein Mann, der durch Holz spricht.
@@ -320,7 +372,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 **Kreuzung, Funkkasten, Telefonzelle, Gully**
 - *Stimmung:* Die Mitte von allem, hier stehen die Barfüßigen.
 - *Kap. 1:* Nebenquest „Der Anruf" (Telefonzelle). Echo 5.8.2009 (Vegas zählt sieben, eine Stimme sagt „Acht"). Der Gully summt; wer lange lauscht, hört Kinderlachen in einer fremden Sprache. Aufkleber am Funkkasten: „Notfrequenz: siehe Dienstbuch H. Wendt".
-- *Kap. 3:* Kuh-Absturz, Telefon (Mira zeigt sich), **Funk 31,10** (Pflicht), Chronik-Tafel, Echo 03:13 „Zählen", Gully zur Kanalstadt, am Ende die Lichtsäule.
+- *Kap. 3:* Kuh-Absturz, Telefon (die Kleine zeigt sich), **Funk 31,10** (Pflicht), Chronik-Tafel, Echo 03:13 „Zählen", Gully zur Kanalstadt, am Ende die Lichtsäule.
 
 **Südstraße und Lucys Auto**
 - *Stimmung:* Absperrung, offene Fahrertür, Schlüssel steckt, Handbremse angezogen.
@@ -348,7 +400,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - *Stimmung:* Kreidebilder, ein Karussell mit acht Sitzen, Ort des Sommerfest-Fotos.
 - *Kap. 1:* Tafel am Spielhaus: Strophen des Abzählreims. Kreidelinie „EINS, ZWEI, DREI – OCHS AM BERG". Kreide am Klettergerüst: „EISEN IST FREI". Ein Teddy, der bei jedem Umdrehen näher sitzt (Tutorial ohne Gefahr).
 - *Kap. 3:* Echo Sommerfest 27.7.2009: „Darf ich mitspielen?" – „Klar." Das Mädchen nimmt Lukes Hand.
-- *Geheimnis:* Warum Mira gerade den echten Luke behalten hat.
+- *Geheimnis:* Warum die Kleine gerade den echten Luke behalten hat.
 
 **Bushaltestelle**
 - *Stimmung:* Wartehäuschen im Nebel, übereinander geklebte Plakate.
@@ -399,7 +451,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - *Stimmung:* Wahrzeichen am Nordwestrand, Tor verkettet, ein Licht im Dachfenster um 01:00.
 - *Kap. 1:* Verschlossen. Durchs Tor: Im Dachfenster steht jemand und winkt. Auf dem Polaroid ist das Fenster leer.
 - *Kap. 3:* Offen. Seilers Büro: Foto 1958 (Justin unverändert), **Stammbaum Lost Eyengless 1312–2009** mit roten Fäden (jede Familie führt auf eines der sieben Kinder zurück), Krankenbett mit Seilers Band, Teil 1 und 3.
-- *Geheimnis:* Das ganze Dorf ist Miras Familie. Deshalb findet sie alle.
+- *Geheimnis:* Das ganze Dorf ist die Familie der Kleinen. Deshalb findet sie alle.
 
 ### Unter der Erde und im Weißen
 
@@ -414,8 +466,8 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 
 **Die versunkene Kanalstadt (unter dem Gully, Kap. 3, optional)**
 - *Stimmung:* Wasser, Papierlaternen, Wäsche über Gassen aus einem fernen Land und einer anderen Zeit.
-- *Funktion:* Miras Dachboden, alles, was das Licht verschluckt hat, und etwas, das nicht ihr gehört. Echos: Justin wäscht sich die Hände, das Wasser wird weiß. Kinder in fremder Sprache: „Das Mädchen im Weißen sagt, hier wird niemand erwachsen." Und ein Kind auf Deutsch: „Ihr Papa zählt nur. Er sucht nie."
-- *Geheimnis:* Das Mädchen, von dem die fremden Kinder reden, ist **nicht Mira**. Justin: „Das ist nicht ihre Stadt. Sie ist nicht die Einzige, die spielt."
+- *Funktion:* Der Dachboden der Kleinen, alles, was das Licht verschluckt hat, und etwas, das nicht ihr gehört. Echos: Justin wäscht sich die Hände, das Wasser wird weiß. Kinder in fremder Sprache: „Das Mädchen im Weißen sagt, hier wird niemand erwachsen." Und ein Kind auf Deutsch: „Ihr Papa zählt nur. Er sucht nie."
+- *Geheimnis:* Das Mädchen, von dem die fremden Kinder reden, ist **nicht die Kleine**. Justin: „Das ist nicht ihre Stadt. Sie ist nicht die Einzige, die spielt."
 
 ✏️ DEINE IDEEN:
 
@@ -425,7 +477,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 
 ### Überblick
 **4. November 2026, ca. 23:00 bis 01:00. Die ganze Oberwelt ist frei erkundbar.**
-Das Dorf wird zum Tatort, Lucy zum Ziel, Mira zur Stimme, Hilde zur scheinbaren Bedrohung. Am Ende hat der Spieler **etwas Falsches getan, ohne es zu wissen**. Dass mit Luke etwas nicht stimmt, wird nur leise angedeutet, damit Akte 08 in Kapitel 2 wirklich trifft.
+Das Dorf wird zum Tatort, Lucy zum Ziel, die Kleine zur Stimme, Hilde zur scheinbaren Bedrohung. Am Ende hat der Spieler **etwas Falsches getan, ohne es zu wissen**. Dass mit Luke etwas nicht stimmt, wird nur leise angedeutet, damit Akte 08 in Kapitel 2 wirklich trifft.
 **Neue Mechaniken:** die **Polaroid-Kamera** (Hildes, begrenzter Film; das Foto zeigt, was wirklich da ist) und **Augen zu** (Taste halten, Bild schwarz, Ton bleibt).
 
 ### Intro
@@ -690,7 +742,7 @@ Drei Fragen, beliebige Reihenfolge, keine ist Pflicht:
 - „Ich bin nicht rangegangen. Elfmal." – „Ich weiß. Jetzt bist du ja da."
 Dann Lucy, von selbst: „Du bist nicht der, mit dem ich geboren wurde. Du bist der, mit dem ich groß geworden bin. Das ist mehr." Pause. „Wer es weiß, durch den sieht sie. Deshalb hab ich nie was gesagt. … Du hast die Akte gelesen. Weißt du es jetzt?"
 
-**Beat 12 – Finale.** Luke antwortet nicht; das Spiel antwortet für ihn. Alle Lampen sterben. Brummen von oben, durch zwanzig Meter Erde. In der Tankscheibe spiegelt sich Lukes Gesicht, und **genau dort, wo seine Augen sind**, erscheint von innen das graue Gesicht und presst sich ans Glas. Mira sieht Lucy, durch ihn. Lucy schreit: „**Mach die Augen zu!**" Der Spieler drückt Augen zu (Taste wird eingeblendet, falls Dina verpasst wurde). Schwarz. Kleine nackte Füße gehen um Luke herum. Ein Atem am Ohr, Kinderstimme, fast zärtlich: „**Das hilft bei dir nicht, Bruder. Ich seh ja durch dich.**" Die Augen öffnen sich von selbst. **Perspektivwechsel, drei Sekunden:** Wir sehen Luke von hinten, aus Hüfthöhe, grau vignettiert, durch *ihre* Augen. Er dreht sich langsam zur Kamera um. Weiß.
+**Beat 12 – Finale.** Luke antwortet nicht; das Spiel antwortet für ihn. Alle Lampen sterben. Brummen von oben, durch zwanzig Meter Erde. In der Tankscheibe spiegelt sich Lukes Gesicht, und **genau dort, wo seine Augen sind**, erscheint von innen das graue Gesicht und presst sich ans Glas. Die Kleine sieht Lucy, durch ihn. Lucy schreit: „**Mach die Augen zu!**" Der Spieler drückt Augen zu (Taste wird eingeblendet, falls Dina verpasst wurde). Schwarz. Kleine nackte Füße gehen um Luke herum. Ein Atem am Ohr, Kinderstimme, fast zärtlich: „**Das hilft bei dir nicht, Bruder. Ich seh ja durch dich.**" Die Augen öffnen sich von selbst. **Perspektivwechsel, drei Sekunden:** Wir sehen Luke von hinten, aus Hüfthöhe, grau vignettiert, durch *ihre* Augen. Er dreht sich langsam zur Kamera um. Weiß.
 
 ### Hauptquest-Schritte
 1. Folge dem Summen.
@@ -785,7 +837,7 @@ Endkarte:
 ### Überblick
 **5. November 2026, 03:13 bis Morgengrauen. Die ganze Oberwelt, dann das Weiße.**
 Lost Eyengless liegt jetzt **am Rand des Weißen**. Das Dorf ist echt, aber die Zeit steht auf 03:13, wer nie drin war, schläft wie Stein, und die Straße hinaus führt zurück hinein. Alles, was bisher unheimlich war, bekommt eine Regel, und der Spieler **benutzt** die Regeln.
-**Das Ziel wird in den ersten zwei Minuten klar gesagt:** Lucy hält nicht bis zum Morgen, und wenn Mira nicht findet, was sie sucht, nimmt sie das ganze Dorf. Also: **Nimm ihr die Lampen, damit sie herunterkommen muss, und hol Lucy zurück.**
+**Das Ziel wird in den ersten zwei Minuten klar gesagt:** Lucy hält nicht bis zum Morgen, und wenn die Kleine nicht findet, was sie sucht, nimmt sie das ganze Dorf. Also: **Nimm ihr die Lampen, damit sie herunterkommen muss, und hol Lucy zurück.**
 **Neue Mechaniken:** die **Graue** als Jagd mit Story-Kosten (bekannte Mechanik, neue Regel) und ein kleines **Schreiben in den Staub** (Wort auswählen). Die Kamera kehrt mit neuem Film zurück.
 
 ### Intro
@@ -820,7 +872,7 @@ Wer den Klingensplitter hat, kann ihn zeigen: Er passt in die Kerbe der Klinge. 
 
 > Wenn ich weg bin: Notfunk auf dem Tag, an dem SIE kam. Nicht Lucy. SIE.
 
-**Beat 6 – Funk 31,10: Zwei Lucys (Pflicht).** Regler auf 31,10 (Rausch-Anzeige hilft). Zwei Lucy-Stimmen auf zwei Kanälen, beide flüstern: „Großer? Großer, bist du das?" Luke: „Beide sagen Großer." Das alte Erkennungszeichen ist wertlos, denn seit sie durch Luke hört, kennt Mira es auch. Rätsel „Welche ist echt?", siehe unten. Die echte Lucy, halb hier, halb im Tank, gibt die Regel: „Sie hat die Lampen ausgeblasen, wie sie uns geholt hat. Mach's genauso, dann denkt sie, es ist ihr eigenes Spiel. Vor unseren Häusern. In ihrer Reihenfolge. Und Nr. 1 ist abgeschlossen, der Schlüssel hängt an Mamas Bund. In Mamas Haus. Setz dich nicht an ihren Tisch, Großer."
+**Beat 6 – Funk 31,10: Zwei Lucys (Pflicht).** Regler auf 31,10 (Rausch-Anzeige hilft). Zwei Lucy-Stimmen auf zwei Kanälen, beide flüstern: „Großer? Großer, bist du das?" Luke: „Beide sagen Großer." Das alte Erkennungszeichen ist wertlos, denn seit sie durch Luke hört, kennt die Kleine es auch. Rätsel „Welche ist echt?", siehe unten. Die echte Lucy, halb hier, halb im Tank, gibt die Regel: „Sie hat die Lampen ausgeblasen, wie sie uns geholt hat. Mach's genauso, dann denkt sie, es ist ihr eigenes Spiel. Vor unseren Häusern. In ihrer Reihenfolge. Und Nr. 1 ist abgeschlossen, der Schlüssel hängt an Mamas Bund. In Mamas Haus. Setz dich nicht an ihren Tisch, Großer."
 
 **Beat 7 – Der gedeckte Tisch (Nr. 1, Pflicht).** Justin bleibt an der Schwelle stehen; seine Rüstung glüht dort: „Das ist ihr Haus." Drinnen keine Laken, alles warm und hell wie 2009, im Radio ein Wunschkonzert von damals. Die **Heimkehrerin** (Lucy, Sommerkleid, barfuß, trocken, Gras zwischen den Zehen) stellt Teller hin: „Setz dich, Bruder. Ich hab gekocht." Vier Gedecke; der vierte Teller ist ein Kinderteller mit Häschen. Mamas Schlüsselbund hängt an ihrer Stuhllehne.
 - Luke kann sich setzen. Auf seinem Teller: Gras, nass vom Tau, und ein Milchzahn. Sie lacht an der falschen Stelle.
@@ -849,14 +901,14 @@ Wer den Klingensplitter hat, kann ihn zeigen: Er passt in die Kerbe der Klinge. 
 **Beat 12 – Raum 3: Die Nacht von 1312.** Eine weiße, gefrorene Wiese am Rand eines Abgrunds, Birken, Fackeln stehen still in der Luft. Sieben Kinder mit Laternen gehen in das Licht, vorn ein Mädchen. Am Rand ein Mann in Eisen mit seinem Pferd. Der echte Justin erzählt seine Fassung dazu: „Ich suchte sie die ganze Nacht. Ich ging hinein, bis das Licht mich verbrannte. Erst dann holte ich die Kinder."
 **Rätsel „Eine Erinnerung lügt"**, siehe unten: Die Fußspuren von Justin und seinem Pferd **enden genau am Rand**. Justin sinkt auf die Knie: „Ich bin nie hineingegangen. Ich hatte Angst. Also habe ich bezahlt. Mit ihren Kindern." Dann, kaum hörbar: „Siebzehn Jahre später rief sie: Ich komme. Und ich habe mich versteckt. Seitdem. Jedes Mal."
 
-**Beat 13 – Der Hohe Abgrund.** Die Wiese kippt ins Weiß. Ein leuchtender Kreis, **acht Stühle**. Darauf die, die Luke kennt: **Zayn** mit Bruno im Arm, **Mike**, **Roxy** (lächelt), **Hilde**, **Mama** (nur wenn sie in Raum 1 „Flocke" gehört hat, sonst ein fremdes graues Kind), der **echte Luke** setzt sich dazu, und ein Stuhl **flackert: Lucy**, halb hier, halb im Tank. Der achte Stuhl ist leer, die Lehne zu Luke. Am Rand eine einzelne weiße Birke. **Über allem hängt die Laterne:** Aus der Nähe ist die Scheibe, die alle für ein UFO hielten, eine riesige **Papierlaterne mit Bambusrippen**, bemalt mit den Zeichnungen aus Hildes Keller, innen eine Flamme so groß wie ein Haus. Ihr Stab verschwindet oben im Weiß. Luke: „Dina hatte recht. Man sieht es nur von unten." Darunter schwebt Mira, mit dem Rücken zu ihnen, und zählt leise.
+**Beat 13 – Der Hohe Abgrund.** Die Wiese kippt ins Weiß. Ein leuchtender Kreis, **acht Stühle**. Darauf die, die Luke kennt: **Zayn** mit Bruno im Arm, **Mike**, **Roxy** (lächelt), **Hilde**, **Mama** (nur wenn sie in Raum 1 „Flocke" gehört hat, sonst ein fremdes graues Kind), der **echte Luke** setzt sich dazu, und ein Stuhl **flackert: Lucy**, halb hier, halb im Tank. Der achte Stuhl ist leer, die Lehne zu Luke. Am Rand eine einzelne weiße Birke. **Über allem hängt die Laterne:** Aus der Nähe ist die Scheibe, die alle für ein UFO hielten, eine riesige **Papierlaterne mit Bambusrippen**, bemalt mit den Zeichnungen aus Hildes Keller, innen eine Flamme so groß wie ein Haus. Ihr Stab verschwindet oben im Weiß. Luke: „Dina hatte recht. Man sieht es nur von unten." Darunter schwebt die Kleine, mit dem Rücken zu ihnen, und zählt leise.
 Die Szene in kurzen Schlägen, jeder an eine Handlung gekoppelt (Luke sieht etwas an, geht einen Schritt):
-1. Justin tritt mit Luke an der Hand in den Kreis. Mira hört auf zu zählen. „… Papa?" Sie dreht sich um: das graue Gesicht, und für einen Atemzug das Gesicht eines echten Mädchens mit Zahnlücke.
+1. Justin tritt mit Luke an der Hand in den Kreis. Die Kleine hört auf zu zählen. „… Papa?" Sie dreht sich um: das graue Gesicht, und für einen Atemzug das Gesicht eines echten Mädchens mit Zahnlücke.
 2. „**Gefunden.**" Sie lacht, glücklich wie ein Kind. Die sieben auf den Stühlen lachen mit, **ohne Münder**.
 3. Zu Luke: „Und du hast ihn mitgebracht, Bruder. Ich hab dich gemacht. Aus seinem Blut an meinen Händen. Darum hast du seine Augen. **Ich hab die ganze Nacht durch dich geguckt.**" Blitze durch Lukes Augen: Justin am Straßenende, Justin im Licht, Justins Hand. Jeder Moment, in dem Luke ihn angesehen hat. „Im Eisen seh ich ihn nicht. Durch dich schon."
 4. Justin nimmt den Helm ab. Ein Gesicht nicht älter als vierzig, **braune Augen**, dieselben wie Lukes. In seiner linken Hand dieselbe halbrunde Narbe. „Ich wusste es, als ich dich an der Kreuzung sah. Ich habe dich gebraucht, um gefunden zu werden. Allein hätte ich es nie gekonnt."
 5. Zusatzzeilen je nach Geheimnissen, je genau eine: Kapelle: „Siebenhundertvierzehn Jahre, Papa. Zweiundvierzig Mal hab ich gerufen." · Seilers Band: Luke: „Seiler hat gesagt, eines ihrer Kinder hält dich an der Hand, dann ist es vorbei." Justin: „Seiler war klüger als ich." · Vegas-Brief: „Peter war auch mein Bruder." · Sommerfest-Echo: „Er hat Klar gesagt. Als Einziger." · Zählbuch: „Die Frau hat so schön gezählt."
-6. Mira, ernst, wie ein Kind, das eine Regel erklärt: „Das Spiel ist erst aus, wenn **alle** gefunden sind. Papa ist gefunden. Aber ein Stück von Papa ist noch draußen." Sie sieht Luke an.
+6. Die Kleine, ernst, wie ein Kind, das eine Regel erklärt: „Das Spiel ist erst aus, wenn **alle** gefunden sind. Papa ist gefunden. Aber ein Stück von Papa ist noch draußen." Sie sieht Luke an.
 7. **Justins Angebot:** „Wenn ich mit dem hinabsteige, was von mir ist, ist ihre Suche zu Ende. Dann lässt sie alle los. Deine Schwester. Die Kinder. Nur dich nicht." – „Wenn du bleibst, gehe ich allein. Vielleicht genügt es ihr. Vielleicht zählt sie wieder." – „Ich zwinge dich nicht. Das habe ich einmal getan, mit sieben Kindern. Nie wieder."
 8. **Die letzte Frage.** Justin kniet sich vor Luke: „Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: **Was will sie?**" Die Antworten kommen aus der Fallwand (siehe Enden).
 
@@ -959,7 +1011,7 @@ Die Szene in kurzen Schlägen, jeder an eine Handlung gekoppelt (Luke sieht etwa
 4. Der echte Luke lebt. Der Tausch war ein Handtausch. *(Raum 1, Pflicht)*
 5. Hilde wollte dich schützen. *(Raum 2, Pflicht)*
 6. Justin ging nie hinein. Er versteckt sich seit 714 Jahren. Der Zyklus ist ihr Versteckspiel. *(Raum 3, Pflicht)*
-7. Das UFO ist ihre Laterne. Sie heißt Mira. Sie hat Justin durch deine Augen gefunden. *(Hoher Abgrund, Pflicht)*
+7. Das UFO ist ihre Laterne. Einen Namen hat sie nicht mehr. Sie hat Justin durch deine Augen gefunden. *(Hoher Abgrund, Pflicht)*
 8. Optional: Das Laternenfest ist die Tat. Das Dorf ist ihre Familie. Mama war 1975 drin. Onkel Peter war auch ein Kind aus Justins Blut. Sie hat Luke behalten, weil er „Klar" gesagt hat. Sie ist nicht die Einzige.
 
 ### Kapitel-Ende: die Wahl und die Enden
@@ -967,20 +1019,20 @@ Die Szene in kurzen Schlägen, jeder an eine Handlung gekoppelt (Luke sieht etwa
 Die Antwort auf „**Was will sie?**" wählt der Spieler aus der Fallwand. Die dritte Antwort erscheint nur mit **mindestens drei Versteck-Hinweisen**.
 
 **„Dich. Dein Blut. Sie will es zurück." → Ende A „Das Siegel"**
-Luke nimmt Justins Hand. „Danke, Sohn." Mira sieht zum ersten Mal aus wie ein Kind, nicht grau, sondern weiß. Sie nimmt Lukes andere Hand. Die Stühle werden leer. Die Laterne erlischt.
+Luke nimmt Justins Hand. „Danke, Sohn." Die Kleine sieht zum ersten Mal aus wie ein Kind, nicht grau, sondern weiß. Sie nimmt Lukes andere Hand. Die Stühle werden leer. Die Laterne erlischt.
 > 5. November 2026, Morgengrauen. Auf der Kreuzung stehen Menschen barfuß.
 > Ein Junge, zehn, mit einem weißen Hund im Arm. Ein Junge, neun, mit blauen Augen [und Schuhen in der Hand]. Mike. Roxy. Hilde Wendt. [Eine Frau im Sommerkleid.] Lucy, nass, in eine Decke gewickelt.
 > Lars Vegas ruft den Namen Mike. Dann den Namen Zayn. In der Mitte der Kreuzung steckt ein Schwert im Asphalt.
 > Lucy zählt die Barfüßigen. Sie kommt jedes Mal auf acht. Das achte ist ein Mädchen mit einer erloschenen Laterne.
 
 **„Den Handel. Sieben Kinder, wie damals." → Ende B „Die Regel"**
-Justin nickt. „Dann pass auf sie auf. Auf deine Schwester. Sie hat dich gewählt, lange bevor du es wusstest." Er geht allein in das Licht. Mira schreit, wie etwas, das sehr lange gewartet hat. Dann wird der Schrei ein Lachen. Dann ein Zählen: „Eins … zwei …" Weil Luke ihr Papa gebracht hat, lässt sie ihm seine Schwester.
+Justin nickt. „Dann pass auf sie auf. Auf deine Schwester. Sie hat dich gewählt, lange bevor du es wusstest." Er geht allein in das Licht. Die Kleine schreit, wie etwas, das sehr lange gewartet hat. Dann wird der Schrei ein Lachen. Dann ein Zählen: „Eins … zwei …" Weil Luke ihr Papa gebracht hat, lässt sie ihm seine Schwester.
 > Du wachst auf der Kreuzung auf. Es wird hell. Lucy hält deine Hand. „Du bist heimgekommen", sagt sie. „Du."
 > Die anderen sind nicht da. In deiner Jackentasche steckt ein Polaroid, das niemand gemacht hat: ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen. Auf der Rückseite: 2043.
 > Lucy sieht dir in die Augen. Für einen Moment spiegelt sich darin kein Morgenlicht. Nur Weiß. Sie sagt nichts.
 
 **„Dass du sie suchst. Du hast immer nur gezählt." (verdeckt) → Ende C „Such mich"**
-Justin sieht Luke an, zum ersten Mal richtig. Er legt Schwert und Helm auf den leeren achten Stuhl, das Eisen, in dem er sich 714 Jahre versteckt hat. Er dreht sich um, legt die Hände vor die Augen und zählt laut: „Eins. Zwei. Drei …" Die sieben auf den Stühlen flüstern mit. „… Siebzehn." Mira hat **zum ersten Mal einen Mund** und lacht mit **ihrer eigenen Stimme**, hell und kindlich. Sie rennt weg. Das Weiße wird zur Wiese von 1312, mit Birken. Justin: „Ich komme." Er geht zwischen die Bäume und sucht. Über die Schulter: „Danke, **Luke**." Zum ersten Mal sagt er den Namen. Die Laterne sinkt langsam, wie am Ende eines Martinszugs, und erlischt.
+Justin sieht Luke an, zum ersten Mal richtig. Er legt Schwert und Helm auf den leeren achten Stuhl, das Eisen, in dem er sich 714 Jahre versteckt hat. Er dreht sich um, legt die Hände vor die Augen und zählt laut: „Eins. Zwei. Drei …" Die sieben auf den Stühlen flüstern mit. „… Siebzehn." Die Kleine hat **zum ersten Mal einen Mund** und lacht mit **ihrer eigenen Stimme**, hell und kindlich. Sie rennt weg. Das Weiße wird zur Wiese von 1312, mit Birken. Justin: „Ich komme." Er geht zwischen die Bäume und sucht. Über die Schulter: „Danke, **Luke**." Zum ersten Mal sagt er den Namen. Die Laterne sinkt langsam, wie am Ende eines Martinszugs, und erlischt.
 > 5. November 2026, Morgengrauen. Auf der Kreuzung stehen sie alle, barfuß. Zayn. Mike. Roxy. Hilde. [Mama.]
 > Lucy hält zwei Hände: die eines Jungen mit hellblauen Augen – und deine.
 > Über dem Wald ist der Himmel zum ersten Mal einfach nur Himmel.
@@ -1021,19 +1073,19 @@ Justin sieht Luke an, zum ersten Mal richtig. Er legt Schwert und Helm auf den l
 - **Wirkung:** Identitätsbruch. Weil Twist 2 die Spur gerade „entlastet" hat, trifft es voll.
 
 ### 5. „Ich seh ja durch dich"
-- **Twist:** Wer weiß, was er ist, durch den sieht Mira. Seit Akte 08 ist Luke ihr Fenster in die Welt: Durch ihn hat sie Lucy gesehen, und durch ihn findet sie in Kap. 3 den Mann in Eisen, den ihr Licht nie sieht.
+- **Twist:** Wer weiß, was er ist, durch den sieht die Kleine. Seit Akte 08 ist Luke ihr Fenster in die Welt: Durch ihn hat sie Lucy gesehen, und durch ihn findet sie in Kap. 3 den Mann in Eisen, den ihr Licht nie sieht.
 - **Vorbereitet durch:** Abzählreim „wer es weiß, ist dran" (Spielhaus, Kap. 1) · Daniel Lorenz „Frag nicht. Frag nie." (Nr. 9) · Zelle „ICH WEISS ES JETZT" (Kap. 2, sichtbar) · Echo Archiv „Dann sieht sie durch ihn." · Akte 08 „Sonst sieht sie durch ihn." · Lucy „Wer es weiß, durch den sieht sie." · Dina: „Den Eisernen sieht sie nie." · Kinderzeichnungen mit grauem Fleck am Rand (sichtbar).
 - **Enthüllung:** Teil 1, Kap. 2 Finale: „Das hilft bei dir nicht, Bruder." plus drei Sekunden durch ihre Augen. Teil 2, Kap. 3 Hoher Abgrund: „Ich hab die ganze Nacht durch dich geguckt." plus Blitze durch Lukes Augen.
 - **Wirkung:** Der Spieler war das Werkzeug. Jeder Blick auf Justin in Kap. 3 war Verrat, ohne dass er es wusste. Moralische Last für die Wahl.
 
-### 6. Die Heimkehrerin ist Mira, und die Graue auch
+### 6. Die Heimkehrerin ist die Kleine, und die Graue auch
 - **Twist:** Die „Lucy", die am gedeckten Tisch sitzt, ist dasselbe Wesen wie die Stimme, die Gestalt auf dem Gurtstuhl, das Gesicht am Tank und die Graue.
 - **Vorbereitet durch:** Kalender „DAS IST NICHT LUCY" · trockene Füße, fremdes Gras (Küche Kap. 1, sichtbar) · Polaroid des Gurtstuhls mit grauem Gesicht (sichtbar) · Lucy im Funk: „Setz dich nicht an ihren Tisch." · sie sagt „Bruder" wie die Stimme am Telefon · Spieluhr läuft im Haus (hörbar).
 - **Enthüllung:** Kap. 3, Nr. 1: Das Polaroid entwickelt sich, graues Gesicht, kein Mund. „Wir tragen beide ein geliehenes Gesicht, Bruder." Danach jagt sie als die Graue.
 - **Wirkung:** Alle Schrecken haben ein Gesicht, und es ist ein Kind. Die Angst vor der eigenen Schwester, dann das Mitleid mit einem Kind, das ein Leben will.
 
 ### 7. Der echte Luke lebt und hat dich gewarnt
-- **Twist:** Das Original, für immer neun, ist die Kinderstimme am Telefon, das Kind auf dem Rücksitz und das Laken-Gespenst. Der Tausch 2009 war ein **Handtausch**: Mira nahm seine Hand aus Justins und legte die Kopie hinein. Justin merkte es nicht, weil die Hand seine eigene war.
+- **Twist:** Das Original, für immer neun, ist die Kinderstimme am Telefon, das Kind auf dem Rücksitz und das Laken-Gespenst. Der Tausch 2009 war ein **Handtausch**: die Kleine nahm seine Hand aus Justins und legte die Kopie hinein. Justin merkte es nicht, weil die Hand seine eigene war.
 - **Vorbereitet durch:** „Deine eigene Stimme. Als Kind." und „Keine Spieluhr. Nur Rauschen." (Telefonzelle, hörbar) · „Nur die Augen nicht. Die waren hellblau." (sichtbar) · „NICHT SIE" auf der Heckscheibe (sichtbar) · Laken „geh nicht in den Keller" · Kinderschuh Gr. 33 im Schrank · Früheste Erinnerung „eine kalte Hand" (Du-Seite) · Echo Kreuzung: blauäugiger Junge am Nebelrand.
 - **Enthüllung:** Kap. 3, Raum 1: „Du hast mich gefunden. Das hat noch keiner." – „Sie hat meine Hand aus deiner genommen und seine reingelegt."
 - **Wirkung:** Die gruseligste Figur aus Kap. 1 wird die traurigste. Zwei Lukes: Einer hat das Leben gelebt, einer hat gewartet.
@@ -1109,13 +1161,13 @@ Welcher Hinweis liegt wo, und auf welche Wahrheit zeigt er. Die Ziffer in Klamme
 
 **1. Wo spielt Kapitel 3?**
 - a) **Echtes Lost Eyengless am Rand des Weißen** (so steht es jetzt): Zeit steht, Menschen schlafen wie Stein, die Straße hinaus führt zurück. Einsatz bleibt echt.
-- b) **Puppenstube:** Mira hat das Dorf im Weißen nachgebaut, mit Fehlern (AHORNSTRASE, Nr. 5 unverbrannt, „Einwohner: 8"). Unheimlicher, aber der Spieler könnte denken „ist ja nicht echt".
+- b) **Puppenstube:** Die Kleine hat das Dorf im Weißen nachgebaut, mit Fehlern (AHORNSTRASE, Nr. 5 unverbrannt, „Einwohner: 8"). Unheimlicher, aber der Spieler könnte denken „ist ja nicht echt".
 - c) Mischform: echt bis zur letzten Laterne, danach kippt das Dorf sichtbar in eine Puppenstube.
 
 **2. Welches Ende ist das „wahre" Ende C?**
 - a) **„Such mich"** (so steht es jetzt): Justin legt das Eisen ab, zählt und sucht.
 - b) **„Alle frei":** Luke rennt zur Birke und schlägt alle frei. Nach der Kinderregel muss er danach selbst zählen; die Endkarte zeigt ihn mit Händen vor den Augen.
-- c) **„Der Tausch":** Luke bleibt freiwillig bei Mira, damit sie nicht allein ist, und gibt dem echten Luke sein Leben zurück.
+- c) **„Der Tausch":** Luke bleibt freiwillig bei der Kleinen, damit sie nicht allein ist, und gibt dem echten Luke sein Leben zurück.
 
 **3. Mama: Wie viel Hoffnung?**
 - a) Sie ist im Weißen (Raum 1) und kommt in Ende A/C heim (so steht es jetzt).

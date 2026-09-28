@@ -1841,7 +1841,7 @@ const PHOTOS = [
   { name: 'Dina', hint: 'Bei Frau Wendt (Nr. 7), neben dem Fernseher.', text: 'Dina, 9. Frau Wendts Handschrift auf der Rückseite:\n<span class="hand">„Klinik Sonnenhang. Malt nur noch Kreise.“</span>', pos: [21.9, Y + .61, -12.55], candle: [20.7, Y + .6, -12.55], zone: [21.3, -13.5, 3.2] },
   { name: 'Luke', scratch: true, hint: 'In eurem Kinderzimmer (Nr. 1), auf deinem alten Bett.', text: 'Luke, 9. Das bist du.\n\nDas Kind auf dem Foto hat hellblaue Augen. Deine sind braun.\n\nWaren sie immer braun?', pos: [-50.6, Y + .46, -19], candle: [-50.6, Y + .45, -20.2], zone: [-53, -19.5, 3.2] },
   { name: 'Heidi', hint: 'In der Küche von Nr. 1, am Kühlschrank.', text: 'Heidi, 8. Zog 2010 weg. Schickt jedes Jahr eine Karte ohne Absender:\n<span class="hand">„Sind sie wieder da?“</span>', pos: [-53.3, Y + .76, -14.9], candle: [-53.8, Y + .95, -12.5], zone: [-53.3, -14, 2.8] },
-  { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 10. Frau Wendts Sohn.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
+  { name: 'Zayn', hint: 'Im Keller von Nr. 7, auf dem Tisch.', text: 'Zayn Wendt, 7. Frau Wendts Jüngster. Der kleine Bruder von Jonas, deinem besten Freund damals.\nOffiziell ist er als einziges Kind 2009 nicht zurückgekommen.\n\nAber Herr Vegas hat sieben Kinder auf der Kreuzung gezählt.', pos: [B.x + 1.6, .76, B.z - 3.4], candle: [B.x + 2.55, .76, B.z - 3.5], zone: [B.x + 2, B.z - 3, 3.5] },
 ];
 function polaroidCanvas(p) {
   const c = document.createElement('canvas'); c.width = 256; c.height = 310; const x = c.getContext('2d');
@@ -1994,11 +1994,11 @@ interact(door1.leaf, () => door1.open ? 'Tür schließen' : 'Tür öffnen', () =
   doorAction(door1, '')();
 });
 interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt.\n\nDu kannst dich nicht erinnern, wer da neben dir stand.', 'familyphoto'));
-interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen.', 'album')));
+interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen. Das achte Kind ist ein blasses Mädchen im weißen Kleid, ganz am Rand. Es hält deine Hand.\n\nUnd zwischen Lucy und den anderen ist eine Lücke. Lucys Hand hält dort in die leere Luft – als hielte sie jemanden, der nicht mehr auf dem Bild ist.', 'album')));
 interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
 interact(loose, 'Lose Diele untersuchen', () => {
   state.diary = true; uninteract(loose); tween(loose, { pos: loose.position.clone().setY(loose.position.y + .07), rz: .3 }, .45); Audio.play('woodCrack', { gain: .6, x: -53.2, y: .5, z: -18.4, ref: 2 }); story.side.home.steps.diary = true; checkHome();
-  openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
+  openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n25. Juli 2009 — Zu C.s Geburtstag ist keiner gekommen. Nur ich. Sie hat trotzdem acht Kerzen ausgepustet. Eine für jeden von uns, sagt sie.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\nC. ist nicht zurück. Mama sagt, es gibt keine C. Ich schreib sie jeden Tag hier rein, damit ich sie behalte. C. C. C.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.</span>', 'diary');
   setTimeout(() => { if (!state.ghostDone) { ghost.visible = true; ghost.position.set(-45.3, Y, -13.2); ghost.rotation.y = rand(0, 6); state.ghostArmed = true; } }, 500);
 });
 const openDrawer = () => {
@@ -2041,7 +2041,7 @@ interact(collar, 'Halsband aufheben', () => {
 interact(lenaPhone, 'Lucys Handy', () => {
   if (!lenaCar.userData.open) return toast('Die Tür ist zu. Nicht abgeschlossen – nur zu.');
   sideDone('car', 'Lucys Handy gefunden.'); addItem('phone');
-  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Verpasste Anrufe: <b>Luke</b> (23.10., 23:41) · <b>Luke</b> (23.10., 23:52)\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, gestern, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
+  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10.: 23:41 · 23:42 · 23:44 · 23:46 · 23:47 · 23:49 · 23:51 · 23:52 · 23:54 · 23:55 · 23:57 – elfmal. Keiner angenommen.\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, heuten, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
 });
 const heldHandset = box(.06, .24, .05, .3, -.2, -.42, M.dark, { parent: camera, cast: false }); heldHandset.rotation.set(.4, 0, .7); heldHandset.visible = false;
 function handset(up) { booth.handset.visible = !up; heldHandset.visible = up; Audio.play(up ? 'metalHit2' : 'switch1', { gain: .35, rate: up ? 1.6 : 1, x: 8, y: 1.5, z: 7.6, ref: 2 }); }
@@ -2874,7 +2874,7 @@ const FILE_TEXT = {
   Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
   Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
   Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
-  Zayn: 'AKTE 07 · Zayn W., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
+  Zayn: 'AKTE 07 · Zayn W., 7 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
 // Ordnungstafel: 7 Plätze, sortiert nach Rückführung
@@ -2890,7 +2890,7 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sieben kamen zurück – eines davon <u>drei Tage zu spät</u>, und eines davon war ein anderes.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Notiz:\n<span class="hand">„Ersatz geliefert. Original nicht zurückgeführt. Mutter unterschreibt.“</span>\n\nDaneben, mit Klammer: ein Schlüssel. <b>SICHERUNGSRAUM</b>.', 'protokoll', () => { ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }));
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück – einer davon <u>drei Tage zu spät</u>, und er war ein anderer. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Notiz:\n<span class="hand">„Ersatz geliefert. Original nicht zurückgeführt. Mutter unterschreibt.“</span>\n\nDaneben, mit Klammer: ein Schlüssel. <b>SICHERUNGSRAUM</b>.', 'protokoll', () => { ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }));
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
       else { Audio.beep(false); const wrong = ch2.slots.filter((s, i) => s && s !== ORDER[i]).length; toast(wrong === 7 ? 'Nichts passiert.' : `Ein Summen. ${7 - wrong} Namen sitzen. Der Rest nicht.`, 3500); if (++ch2.archiveTries === 4) { toast('Aus dem Lautsprecher: „Die Akten wissen es genauer als du.“', 4500); Audio.intercomClick(); } } };
   });
@@ -3351,7 +3351,7 @@ function readLetter2() { liftTo(letter2, () => openNote('Ein Brief, an dich adre
 
 // ---- Nr. 7: Hilde Wendts Zählbuch
 const zbook = box(.2, .04, .27, 23.9, Y + .45, -15.45, fabricMat(0x2a3a2a)); zbook.visible = false;
-function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nBen kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
+function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nZayn kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
 
 // ---- Nr. 3: Vegas' Brief im Briefkasten
 const albersNote = box(.24, .02, .16, -25.4, 1.18, -8.2, new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 1 })); albersNote.visible = false;
@@ -3491,8 +3491,8 @@ async function hildeTalks() {
 async function room2Solved() {
   ch3.room2 = true; Audio.chime(); state.talking = true; tween(hilde, { pos: hilde.position.clone().setY(-2.4) }, 3);
   await say([['Die Uhr schlägt einmal. Frau Wendt löst sich auf wie Atem an einer Scheibe.', 4000], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000],
-    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 kam das Weiße zum ersten Mal. Es nahm meine Tochter. Sie war sieben. Ihren Namen spreche ich nicht mehr aus.“', 4800, JS],
-    ['„Ich ritt hinein und bot ihm, was es wollte: sieben Kinder des Dorfes – für meine eine.“', 4800, JS], ['„Es nahm die sieben. Und es behielt sie. Und es lernte zu handeln.“', 4400, JS],
+    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 fiel das Weiße in die Senke hinter meinem Hof. Meine Tochter spielte Verstecken. Sie war sieben. Sie versteckte sich im Licht.“', 6200, JS],
+    ['„Ich ging bis an den Rand. Keinen Schritt weiter. Ich hatte Angst. Also schickte ich sieben Kinder des Dorfes hinein, mit Laternen – sieben für meine eine.“', 6800, JS], ['„Aus dem Licht rief sie: ‚Such mich, Papa.‘ Ich habe sie nie gesucht. Seitdem sucht sie mich.“', 5200, JS],
     ['„Seitdem wirft es mich alle siebzehn Jahre in eure Welt, damit ich zusehe, was ich angefangen habe. Und die Kinder heimführe.“', 5600, JS], ['„Das ist meine Strafe. Und meine Schuld.“', 3000, JS]]);
   state.talking = false; door2w.set(true); Audio.slide(X3 + 32, Z3); setC3('Der Hohe Abgrund. Geh hinein.');
 }
@@ -3514,7 +3514,7 @@ async function room3Scene() {
   jWalk(X3 + 37.5, Z3 + 1.4, () => { justin.g.rotation.y = PI / 2; jPlay('kneel'); });
   await say([['Acht Stühle im Kreis. Auf sieben sitzen Kinder. Sie drehen die Köpfe. Alle gleichzeitig.', 4400], ['Der achte Stuhl ist leer. Er steht mit der Lehne zu dir.', 3600],
     ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Papa. Du hast ihn mitgebracht.“', 3000, 'DAS KIND'],
-    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen, als du mich holen wolltest.“', 4600, 'DAS KIND'],
+    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen. Weißt du noch? Bevor du angefangen hast zu zählen.“', 5200, 'DAS KIND'],
     ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'DAS KIND']]);
   const extra = [];
   if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'DAS KIND']);
@@ -4074,7 +4074,7 @@ async function loadCanal() {
   // Zwei Echos, die nur hier unten zu finden sind
   const far = (k) => pts.slice().sort((a, b) => b.distanceTo(canal.spawn) - a.distanceTo(canal.spawn))[k] || canal.spawn;
   const e1 = far(0), e2 = pts[Math.floor(pts.length * .5)] || canal.spawn;
-  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Echo · Die versunkene Stadt, ohne Jahr', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)],
+  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Echo · Atlantschiss, ohne Jahr', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)],
     lines: [['Ein Mann in Eisen kniet am Wasser und wäscht seine Hände. Das Wasser wird nicht rot. Es wird weiß.', 4400], ['„Jede Stadt, die es verschluckt, legt es hier ab. Häuser. Straßen. Kinder.“', 4200, 'DER MANN IN EISEN'], ['„Es sammelt, was ich ihm schulde.“', 3000, 'DER MANN IN EISEN']] });
   addEcho({ id: 'echo_kanal_laterne', at: [e2.x, e2.y + 1, e2.z], floor: e2.y, title: 'Echo · Laternenfest', figs: [E_(e2.x + .6, e2.z, 1, .58), E_(e2.x - .6, e2.z + .3, 1.5, .58), E_(e2.x, e2.z - .7, 0, .58)],
     lines: [['Kinder mit Papierlaternen. Sie lachen. Sie sprechen eine Sprache, die du nicht kennst – und verstehst trotzdem jedes Wort.', 4600], ['„Wer hat uns hergebracht?“', 2600, 'KIND'], ['„Das Mädchen im Weißen. Sie sagt, hier wird niemand erwachsen.“', 3800, 'KIND']] });
@@ -4084,9 +4084,9 @@ async function enterCanal() {
   if (state.talking) return; state.talking = true; Audio.creak(.4); await fade(1, 900);
   if (!canal.loaded) { subtitle('Du steigst hinab. Die Sprossen sind kalt und nass. Es sind viel zu viele.', 6000); await loadCanal();
     try { await renderer.compileAsync(scene, camera); } catch (e) {} }
-  ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
+  ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
   await wait(400); fade(0, 1600); state.talking = false; saveGame(3);
-  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
+  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Auf einem Brückenpfeiler, in Kinderschrift, mit Kreide: ATLANTSCHISS. Darunter ein Pfeil nach unten. Noch tiefer.', 4600], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
 }
 function canalAtmo(on) {
   sky.visible = !on; scene.background = on ? new THREE.Color(0x020303) : null;
@@ -4138,6 +4138,7 @@ function applySave(d) {
 const RECAP = {
   2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
   3: ['WAS BISHER GESCHAH', 'Unter Lost Eyengless lag das Amt für Rückführung. Sieben Kinder, acht Protokolle.', 'Akte 08 hatte keinen Namen. <b>Du bist der Ersatz.</b>', 'Lucy lebt – in einem Tank. Und hinter dem Glas: ein graues Gesicht.'],
+  4: ['WAS BISHER GESCHAH', 'Im Weißen wartete ein Kind. Es hat Luke aus dem Blut seines Vaters gemacht – aus Justins Blut.', 'Luke ist geblieben. Justin ging allein hinab. Lucy ist wieder da.', 'Und die Villa Seiler hat acht Schlüssellöcher.'],
 };
 function showRecap(ch, then) {
   const L = RECAP[ch]; if (!L) return then();
@@ -4148,7 +4149,7 @@ function continueGame() {
   const d = loadSave(); if (!d) return;
   menuSound(); $('subPanel').classList.remove('show'); Audio.init(); applySave(d);
   const go = () => { menu.attract = false; document.body.classList.remove('menu'); $('start').classList.remove('show');
-    if (d.chapter === 3) { state.started = true; startChapter3(); } else if (d.chapter === 2) { state.started = true; startChapter2(); } else beginGame(); };
+    if (d.chapter === 4 && typeof startChapter4 === 'function') { state.started = true; startChapter4(); } else if (d.chapter === 3) { state.started = true; startChapter3(); } else if (d.chapter === 2) { state.started = true; startChapter2(); } else beginGame(); };
   $('start').classList.remove('show'); showRecap(d.chapter, go);
 }
 
@@ -4157,7 +4158,7 @@ const CASES = [
   { id: 'amt', q: 'Was ist das Amt für Rückführung?', clues: { echo_kueche: 'Echo: Wendts Küche', echo_archiv: 'Echo: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
     a: 'Eine Behörde, die mit dem Licht verhandelt. Sie liefert keine Kinder – nur Papiere. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, wird „Ersatz“ genannt. Unterschreiben müssen die Mütter.' },
   { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
-    a: 'Sieben Kinder wurden geholt. Sieben kamen zurück – und eines davon war ein anderes. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
+    a: 'Sieben Kinder wurden geholt. Sechs kamen zurück, einer davon als ein anderer; Zayn kam nie. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
   { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
     a: 'Du bist der Ersatz, drei Tage zu spät geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
   { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
@@ -4684,7 +4685,7 @@ async function ausbau_nord_build() {
   const SPECIAL = [
     { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Vegas-Brief)
     { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof, an der Kapellenmauer. Die Schrift ist fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA · HAUSFRAU DES RITTERS …“</b>\nEin Geburtsjahr, das mit <b>13</b> beginnt. Das Sterbejahr ist nie eingemeißelt worden.\n\nDarunter, jünger: <i>„Sie ist nicht hier begraben. Sie kommt noch.“</i>' }, // STORY-HOOK: Mira = Justins Frau, Retterin aus der Zukunft (spätere Kapitel)
-    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1975\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
+    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1958\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
     { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LUCY</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Lukes Mutter, Lucy
   ];
   for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
@@ -4911,7 +4912,7 @@ async function ausbau_nord_build() {
     put(toy('SM_Ball'), 35.9, 69.2, 0); put(toy('SM_ToyTrain'), 28.6, 79.6, 1.2, 0); put(toy('SM_ToyBunny'), 39.2, 80.3, 2.6, 1.45);
     const gir = giraffeS.clone(); gir.scale.setScalar(1.3); const gg = msGround(gir); gg.userData.noCol = true; gg.position.set(25.9, .02, 74.3); gg.rotation.y = -.7; scene.add(gg);
     const gh = box(.3, .3, .3, 25.9, .1, 74.3, hidden, { cast: false });
-    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>M.</b>\n\nMo hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Dina, Erinnerungen, die nicht Lukes sind
+    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>D.</b>\n\nDina hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Dina, Erinnerungen, die nicht Lukes sind
     // Spielzeug auf den Kindergräbern
     put(toy('SM_ToyBunny'), KIDS[1].x - .15, KIDS[1].z - .45, .4); put(toy('SM_ToyRobot'), KIDS[0].x - .2, KIDS[0].z - .42, -.3); put(toy('SM_ToyBoat'), KIDS[4].x - .15, KIDS[4].z - .5, .8);
     put(toy('SM_ToyCube_01a'), KIDS[5].x - .2, KIDS[5].z - .45, .3); put(toy('SM_ToyCube_02a'), KIDS[5].x - .08, KIDS[5].z - .56, 1.1); put(toy('SM_ToyTrain'), KIDS[3].x - .18, KIDS[3].z - .46, -.5);
@@ -5421,7 +5422,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const wellG = fit(well, 2.9); put(wellG, -108, 35.5, .4, 0, A);
   // Vereinsplatz: Schwarzes Brett
   const boardTx = canvasTex(512, 384, (c, w, h) => { c.fillStyle = '#3a2e22'; c.fillRect(0, 0, w, h); const note = (x, y, rw, rh, r, lines) => { c.save(); c.translate(x, y); c.rotate(r); c.fillStyle = '#ddd4bc'; c.fillRect(0, 0, rw, rh); c.fillStyle = '#222'; c.font = '15px Georgia'; lines.forEach((l, i) => c.fillText(l, 10, 24 + i * 19)); c.fillStyle = '#9a1a12'; c.beginPath(); c.arc(rw / 2, 6, 5, 0, 7); c.fill(); c.restore(); };
-    note(20, 20, 220, 160, -.04, ['KLEINGARTENVEREIN', 'LOST EYENGLESS e. V.', '', 'Parzellen 1–7 sind bis', '31.10. zu räumen.', 'Der Vorstand']); note(270, 30, 210, 140, .05, ['VERMISST', 'Zayn Wendt, 10 J.', 'zuletzt gesehen:', 'Parzelle 7, 28.7.09']); note(60, 200, 190, 150, .03, ['Gartenfest', 'fällt aus.', '', 'Bitte keine Kinder', 'nach Einbruch der', 'Dunkelheit.']); note(290, 200, 190, 140, -.06, ['Wer hat die Laternen', 'wieder angezündet?', '— H. W.']); });
+    note(20, 20, 220, 160, -.04, ['KLEINGARTENVEREIN', 'LOST EYENGLESS e. V.', '', 'Parzellen 1–7 sind bis', '31.10. zu räumen.', 'Der Vorstand']); note(270, 30, 210, 140, .05, ['VERMISST', 'Zayn Wendt, 7 J.', 'zuletzt gesehen:', 'Parzelle 7, 28.7.09']); note(60, 200, 190, 150, .03, ['Gartenfest', 'fällt aus.', '', 'Bitte keine Kinder', 'nach Einbruch der', 'Dunkelheit.']); note(290, 200, 190, 140, -.06, ['Wer hat die Laternen', 'wieder angezündet?', '— H. W.']); });
   wbox('planks_painted', 1.8, 1.2, .08, -129, 1.35, 21.3, { tint: 0x6a5a48, p: A }); decal(boardTx, 1.7, 1.12, -129, 1.35, 21.35, 0, 0, { p: A, mat: { transparent: false, depthWrite: true, alphaTest: 0 } });
   for (const x of [-129.85, -128.15]) wbox('planks_painted', .1, 1.9, .1, x, .95, 21.25, { tint: 0x4a3e32, p: A });
   // Laternen der Nebenaufgabe (zunächst aus)
@@ -5462,7 +5463,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   { const w = wbarS.clone(true); put(w, -137.5, -19, 2.4, 0, F); }
   // Bauernhaus (makeHouse, Kisten-Hitbox wie die anderen Häuser); das Fassaden-Team veredelt alle HOUSES
   const farmhouse = makeHouse({ x: -117.5, z: -13, facing: -1, w: 11, d: 9, H: 6, tint: 0x8d877c, lit: [4], chimney: true, porch: true, porchLight: false, shutters: M.dark, boarded: [1] });
-  const fhDoor = hit(1.2, 2.3, .35, -117.5, 1.6, -13 - 4.65, 'Klopfen', () => { Audio.knock(); toast(['Niemand öffnet. Hinter der Tür scharrt ein Hund. Dann nicht mehr.', 'Du klopfst. Oben knarrt ein Dielenbrett. Genau über dir.', 'Verschlossen. Am Klingelschild: BRANDT. Darunter, mit Kinderschrift: und Zayn.'][Math.floor(rand(0, 3))], 4200); });
+  const fhDoor = hit(1.2, 2.3, .35, -117.5, 1.6, -13 - 4.65, 'Klopfen', () => { Audio.knock(); toast(['Niemand öffnet. Hinter der Tür scharrt ein Hund. Dann nicht mehr.', 'Du klopfst. Oben knarrt ein Dielenbrett. Genau über dir.', 'Verschlossen. Am Klingelschild: AYDIN. Darunter, mit Kinderschrift: und Dina.'][Math.floor(rand(0, 3))], 4200); });
   { const b = fit(bikeS.clone(true), 1.75, 'max'); put(b, -121.6, -18.6, .3, 0, F); b.rotateX(PI / 2 - .1); b.position.y = .27; } // liegt auf der Seite im Matsch
 
   // ---------------------------------------------------------------- Die alte Villa (−125, 70) – Wahrzeichen, verschlossen
@@ -5559,7 +5560,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // STORY-HOOK: Kinderschlafplatz im Heu
   hit(2, .6, 1.8, nestP.x, .3, nestP.z, () => Q.pages.size === 3 && !Q.heftDone ? 'Seiten ins Heft legen' : 'Schlafplatz im Heu', () => {
     if (Q.pages.size === 3 && !Q.heftDone) { Q.heftDone = true; story.items = story.items.filter(k => k !== 'ow_seiten'); Audio.paper();
-      openNote('Das Heft im Heu', 'Die drei Seiten passen genau. Zusammen ergibt es einen Brief, ungelenk, mit Bleistift:\n\n' + noteHand('An Mama.\nDer Mann in Eisen sagt, ich darf nicht nach Hause. Da schläft schon einer in meinem Bett, und er heißt wie ich.\nIch wohne jetzt im Stall. Die Frau aus Nr. 7 bringt mir Brot.\nIn dem großen Haus brennt ein Licht. Da oben wohnt die, die uns zählt.\nIch bin nicht böse auf den anderen. Sag ihm, er soll meine Jacke behalten.\n— K.') + '\n\nAuf der Rückseite, ganz klein: <i>Sommer 2009</i>.', 'ow_heft', () => { sideDone('ow_heft', 'Ein Brief an eine Mutter. Unterschrieben mit K.'); setTimeout(() => { Audio.whisper(nestP.x, 1, nestP.z, 2); subtitle('<i>… danke …</i>', 2200); }, 1200); }); return; }
+      openNote('Das Heft im Heu', 'Die drei Seiten passen genau. Zusammen ergibt es einen Brief, ungelenk, mit Bleistift:\n\n' + noteHand('An Mama.\nDer Mann in Eisen sagt, ich darf nicht nach Hause. Da schläft schon einer in meinem Bett, und er heißt wie ich.\nIch wohne jetzt im Stall. Die Frau aus Nr. 7 bringt mir Brot.\nIn dem großen Haus brennt ein Licht. Da oben wohnt der Doktor, der uns vermisst hat.\nIch bin nicht böse auf den anderen. Sag ihm, er soll meine Jacke behalten.\n— L.') + '\n\nAuf der Rückseite, ganz klein: <i>Sommer 2009</i>.', 'ow_heft', () => { sideDone('ow_heft', 'Ein Brief an eine Mutter. Unterschrieben mit L.'); setTimeout(() => { Audio.whisper(nestP.x, 1, nestP.z, 2); subtitle('<i>… danke …</i>', 2200); }, 1200); }); return; }
     if (!Q.heftSeen) { Q.heftSeen = true; openNote('Ein Schlafplatz', 'Jemand hat hier geschlafen. Eine Decke, ein Stoffhase, ein heruntergebrannter Kerzenstumpen. Das Heu ist in der Mitte eingedrückt – so groß wie ein Kind.\n\nUnter der Decke: ein Schulheft. Name ausgeradiert. Drei Seiten sind herausgerissen.\n\nDas Heu ist noch warm.', 'ow_nest', () => { sideStart('ow_heft'); story.side.ow_heft.desc = `Seiten gefunden: ${Q.pages.size} / 3. Bring sie zurück zum Schlafplatz im Stall.`; }); }
     else toast(Q.heftDone ? 'Der Hase liegt jetzt anders. Mit dem Gesicht zur Tür.' : 'Das Heft wartet. Drei Seiten fehlen.', 3600); });
   hit(1.6, 2.2, 2.6, -123.5, 1.1, 14, 'Alter Schuppen', () => { if (!Q.pages.has('schuppen')) { toast('Zwischen Spaten und Säcken klemmt ein Blatt Papier.', 2800); setTimeout(() => owPage('schuppen'), 900); } else if (!story.items.includes('drahtschneider')) { addItem('drahtschneider'); Audio.play('metalHit1', { gain: .35, rate: 1.4, x: -123.5, y: 1, z: 14, ref: 2 }); toast('Zwischen den Spaten, an einem Nagel: ein Drahtschneider. Die Griffe sind mit Kinderpflastern umwickelt.', 4400); }
@@ -5570,10 +5571,10 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       OW.chain.visible = false; msHide(OW.gate); const pv = new T.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); VG.add(pv);
       tween(pv, { ry: -1.2 }, 2.4); toast('Die Kette gibt nach. Das Tor schwingt von selbst auf – langsam, als hätte jemand dahinter gewartet.', 4800); return; } // STORY-HOOK: Villa-Gelände geöffnet
     Audio.play('ironDoor', { gain: .35, rate: 1.3, x: -125, y: 1, z: 57, ref: 3 }); toast('Kette und Schloss. Das Schloss ist neu, die Kette dünn und rostig. Hinter dem Tor: Kiesweg, keine Spur. Oben brennt ein einziges Fenster.', 4600); }); // STORY-HOOK: Villa zunächst verschlossen
-  hit(30, 4.5, .4, -125, 3.9, 57.9, 'Die Villa', () => toast(['Die Villa der Familie von Hain. Seit 1975 unbewohnt, sagen sie. Das Licht oben brennt trotzdem jede Nacht.', 'Aus dem Schornstein steigt kein Rauch. Aber das Fenster ist beschlagen – von innen.'][Math.floor(rand(0, 2))], 4600)); // STORY-HOOK: Villa/„die uns zählt“
+  hit(30, 4.5, .4, -125, 3.9, 57.9, 'Die Villa', () => toast(['Die Villa Seiler. Der alte Amtsarzt ist 2019 darin gestorben, allein. Seitdem brennt oben jede Nacht ein Licht.', 'Aus dem Schornstein steigt kein Rauch. Aber das Fenster ist beschlagen – von innen.'][Math.floor(rand(0, 2))], 4600)); // STORY-HOOK: Villa/„die uns zählt“
   hit(1.8, 1.4, 1.8, -108, .8, 35.5, 'Brunnen', () => { Audio.play('stones1', { gain: .4, x: -108, y: .5, z: 35.5, ref: 2 }); toast('Du lässt einen Kiesel fallen. Er schlägt nicht auf.', 2600); setTimeout(() => { Audio.drip(-108, -.5, 35.5); Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>… Luke? Bist du das oben?</i>', 2600); }, 2400); }); // STORY-HOOK: Brunnen – Stimmen von unten (versunkene Stadt?)
   hit(2.2, 1, 2.2, -108, .5, 13.2, 'Picknicktisch', () => toast('Acht Teller, acht Gabeln. Auf jedem Teller liegt ein Kiesel. Auf dem achten zwei.', 3800));
-  hit(1.9, 1.3, .2, -129, 1.35, 21.4, 'Schwarzes Brett', () => openNote('Schwarzes Brett · Kleingartenverein', '<b>Parzellen 1–7 sind bis 31.10. zu räumen.</b> — Der Vorstand\n\n<b>VERMISST</b>: Zayn Wendt, 10 J., zuletzt gesehen Parzelle 7, 28.7.09\n\nGartenfest fällt aus. Bitte keine Kinder nach Einbruch der Dunkelheit.\n\n' + noteHand('Wer hat die Laternen wieder angezündet? — H. W.'), 'ow_brett')); // STORY-HOOK: Zayn Wendt, Parzelle 7
+  hit(1.9, 1.3, .2, -129, 1.35, 21.4, 'Schwarzes Brett', () => openNote('Schwarzes Brett · Kleingartenverein', '<b>Parzellen 1–7 sind bis 31.10. zu räumen.</b> — Der Vorstand\n\n<b>VERMISST</b>: Zayn Wendt, 7 J., zuletzt gesehen Parzelle 7, 28.7.09\n\nGartenfest fällt aus. Bitte keine Kinder nach Einbruch der Dunkelheit.\n\n' + noteHand('Wer hat die Laternen wieder angezündet? — H. W.'), 'ow_brett')); // STORY-HOOK: Zayn Wendt, Parzelle 7
   hit(2.6, 2.4, 2.6, -122.8, 1.2, 36.2, 'Parzelle 7', () => { Audio.knock(); toast('Schuppen von Parzelle 7, Wendt. Durch die Ritzen: eine Kinderschaukel, abmontiert, sorgfältig in Zeitung eingewickelt.', 4600); });
   hit(3.2, 2.6, 3.2, -107.2, 1.3, 25, () => Q.matches ? 'Laube' : 'Laube (Licht)', () => { if (!Q.matches) { Q.matches = true; Audio.play('doorCreak', { gain: .3, rate: 1.2, x: -107, y: 1, z: 25, ref: 2 });
       openNote('In der Laube', 'Drinnen brennt eine Petroleumlampe. Niemand da. Auf dem Tisch: eine Schachtel Streichhölzer und ein Zettel, mit Reißzwecke auf das Holz geheftet.\n\n' + noteHand('Wenn es dunkel wird, zündet die Laternen an, damit sie heimfinden.\nDrei. Immer drei.\n— H. W.'), 'ow_laube', () => { item('ow_streich', 'Streichhölzer', 'Aus der Laube. Die Schachtel ist feucht, aber es sind genug.'); sideStart('ow_laternen'); story.side.ow_laternen.desc = 'Zünde die drei Laternen in den Schrebergärten an (0 / 3).'; }); }
@@ -5886,7 +5887,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   // =====================================================================  BRIEFKÄSTEN (mailbox_cc0: Kasten mit Klappe und Fähnchen auf Holzpfosten)
   const bodies = msFind(m => !!(m.userData && m.userData.lid && m.userData.group)); // alle mailboxAt()-Kästen (Nr. 1, 2, 3, 4, 6, 7, 8, 9)
   const mbDefs = { // neue Stelle neben dem Gartentor (vor dem Zaun, außerhalb des Tor-Schwenkbereichs) + Inhalt
-    '-25.4,-8.2': { at: [-26.55, -6.72, 0], who: 'Vegas', note: ['Post für E. Vegas', 'Eine Karte der Tierarztpraxis: <b>Impferinnerung für BRUNO – fällig seit 23.10.</b>\n\nAuf der Rückseite, mit Bleistift, in Kinderschrift:\n<span class="hand">„er ist jetzt bei uns. er friert nicht mehr.“</span>', 'strasse_mb3'] }, // STORY-HOOK: Bruno
+    '-25.4,-8.2': { at: [-26.55, -6.72, 0], who: 'Vegas', note: ['Post für L. Vegas', 'Eine Karte der Tierarztpraxis: <b>Impferinnerung für BRUNO – fällig seit 23.10.</b>\n\nAuf der Rückseite, mit Bleistift, in Kinderschrift:\n<span class="hand">„er ist jetzt bei uns. er friert nicht mehr.“</span>', 'strasse_mb3'] }, // STORY-HOOK: Bruno
     '52.6,-8.2': { at: [51.45, -6.72, 0], who: 'Nr. 9', note: ['Vergilbte Post · Nr. 9', 'Der Kasten ist vollgestopft. Werbung, Rechnungen – alles von 2009. Ganz unten ein Behördenbrief, nie geöffnet:\n\n<b>Amt für Rückführung · Außenstelle Lost Eyengless</b>\n„Terminerinnerung: Nachuntersuchung Ihres Kindes am Donnerstag, 6. August 2009, <b>03:00 Uhr</b>. Bitte bringen Sie das Kind barfuß. Begleitpersonen warten draußen.“', 'strasse_mb9'] }, // STORY-HOOK: Amt 2009
     '-52.6,8.2': { at: [-51.45, 6.72, PI], who: 'Nr. 2', note: ['Postkarte ohne Absender', 'Vorn: die Kreuzung von Lost Eyengless, bei Tag, im Sommer. Hinten kein Absender, nur ein Poststempel vom 23.10.2026 und ein Satz in runder Kinderschrift:\n\n<span class="hand">„Sind sie wieder da?“</span>', 'strasse_mb2'] }, // STORY-HOOK: Heidi
     '-30.6,8.2': { at: [-29.45, 6.72, PI], who: 'Nr. 4', empty: 'Leer. Nur feuchte Erde auf dem Boden des Kastens. Und ein Milchzahn.' },
@@ -6099,9 +6100,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       x.fillStyle = '#111'; x.font = 'bold 26px Arial'; x.fillText('Lucy B., 24', 52, 256); x.font = '17px Arial'; x.fillText('seit 23. Oktober', 64, 282); x.fillText('zuletzt: Kreuzung Ahornstr.', 20, 306); x.fillText('Hinweise bitte an Fam. Brandt', 12, 330); },
       note: ['Zettel: VERMISST', 'Lucy B., 26 Jahre. Vermisst seit dem <b>23. Oktober</b>. Zuletzt gesehen an der Kreuzung Ahornstraße / Birkenweg.\n\nDarunter eure alte Festnetznummer. Dort geht seit Jahren niemand mehr ran.\n\nJemand hat mit Bleistift ein Datum dazugeschrieben: <span class="hand">31.10.</span>', 'strasse_p_lena'] }, // STORY-HOOK: Lucy
     bruno: { draw: x => { x.fillStyle = '#111'; x.font = 'bold 30px Arial'; x.fillText('HUND ENTLAUFEN', 8, 44); x.fillStyle = '#7a6a52'; x.fillRect(40, 60, 176, 130); x.fillStyle = 'rgba(40,28,18,.8)'; x.beginPath(); x.ellipse(120, 130, 60, 40, .2, 0, 7); x.fill();
-      x.fillStyle = '#111'; x.font = 'bold 40px Arial'; x.fillText('BRUNO', 60, 236); x.font = '17px Arial'; x.fillText('braun, rotes Halsband', 40, 264); x.fillText('zuletzt beim Brandhaus Nr. 5', 14, 290); x.fillText('E. Vegas, Ahornstr. 3', 36, 316);
+      x.fillStyle = '#111'; x.font = 'bold 40px Arial'; x.fillText('BRUNO', 60, 236); x.font = '17px Arial'; x.fillText('braun, rotes Halsband', 40, 264); x.fillText('zuletzt beim Brandhaus Nr. 5', 14, 290); x.fillText('L. Vegas, Ahornstr. 3', 36, 316);
       x.fillStyle = '#ddd8c8'; x.fillRect(158, 334, 26, 28); },
-      note: ['Zettel: HUND ENTLAUFEN', '<b>BRUNO</b>. Mischling, braun, rotes Halsband mit Messingmarke. Hört auf seinen Namen.\nZuletzt gesehen: beim abgebrannten Haus Nr. 5.\n— E. Vegas, Ahornstr. 3\n\nDie Abreißzettel mit der Nummer sind alle abgerissen. Bis auf einen.', 'strasse_p_bruno'] }, // STORY-HOOK: Bruno (Hinweis aufs Brandhaus)
+      note: ['Zettel: HUND ENTLAUFEN', '<b>BRUNO</b>. Mischling, braun, rotes Halsband mit Messingmarke. Hört auf seinen Namen.\nZuletzt gesehen: beim abgebrannten Haus Nr. 5.\n— L. Vegas, Ahornstr. 3\n\nDie Abreißzettel mit der Nummer sind alle abgerissen. Bis auf einen.', 'strasse_p_bruno'] }, // STORY-HOOK: Bruno (Hinweis aufs Brandhaus)
     tim: { draw: (x, w) => { x.globalAlpha = .55; x.fillStyle = '#111'; x.font = 'bold 44px Arial'; x.fillText('VERMISST', 16, 52); x.fillStyle = '#8a8a86'; x.fillRect(40, 70, 176, 150); x.fillStyle = '#111'; x.font = 'bold 30px Arial'; x.fillText('MIKE K., 27', 58, 258); x.font = '18px Arial'; x.fillText('seit 12. Juli 2026', 40, 288); x.globalAlpha = 1;
       x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.moveTo(0, 300); x.lineTo(90, 320); x.lineTo(160, 290); x.lineTo(w, 330); x.lineTo(w, 362); x.lineTo(0, 362); x.fill(); x.globalCompositeOperation = 'source-over'; },
       note: ['Altes Plakat', 'Halb weggeweicht. VERMISST: <b>Mike K., 27 Jahre</b>. Seit dem 12. Juli 2026.\n\nÜber das alte Plakat hat jemand ein neues geklebt – und wieder abgerissen. Nur ein Streifen ist geblieben:\n<i>„… wieder da …“</i>', 'strasse_p_tim'] },
@@ -6168,6 +6169,8 @@ function gruen_n(x, z) { const ix = Math.floor(x), iz = Math.floor(z), fx = x - 
   const a = gruen_h(ix, iz), b = gruen_h(ix + 1, iz), c = gruen_h(ix, iz + 1), d = gruen_h(ix + 1, iz + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
 function gruen_areaOf(x, z, m = 0) { for (let i = 0; i < gruen_AREAS.length; i++) { const [a, b, c, e] = gruen_AREAS[i]; if (x >= a - m && x <= b + m && z >= c - m && z <= e + m) return i; } return -1; }
 function gruen_areaDist(x, z) { let d = 1e9; for (const [a, b, c, e] of gruen_AREAS) d = Math.min(d, Math.hypot(Math.max(a - x, 0, x - b), Math.max(c - z, 0, z - e))); return d; }
+const gruen_dust = (x, z) => z > 99 && x > -44 && x < 114; // Forbidden Dustwoods (Modul wald): eigenes Waldgebiet nördlich des Spielplatzes
+const gruen_dustGap = (x, z, m = 0) => Math.abs(z - 98) < 1 + m && x > 26 - m && x < 34 + m; // Lücke im Nordzaun
 const gruen_inside = (x, z) => x > gruen_OUT.x0 && x < gruen_OUT.x1 && z > gruen_OUT.z0 && z < gruen_OUT.z1;
 function gruen_fenceDist(x, z) { const O = gruen_OUT;
   let d = gruen_inside(x, z) ? Math.min(x - O.x0, O.x1 - x, z - O.z0, O.z1 - z) : Math.hypot(Math.max(O.x0 - x, 0, x - O.x1), Math.max(O.z0 - z, 0, z - O.z1));
@@ -6507,7 +6510,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     if (!parts.length) { const P = await msBake('fencepost'); P.forEach(p => { p.geo.computeBoundingBox(); p.mat.color.setScalar(.7); }); parts = P.filter(p => p.geo.boundingBox.max.x - p.geo.boundingBox.min.x > 2.5); }
     const CH = new Map(), O = gruen_OUT; let cnt = 0;
     const run = (x0, z0, x1, z1) => { const Ln = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.round(Ln / 3.05)), s = Ln / (n * 3.0), a = Math.atan2(-(z1 - z0), x1 - x0);
-      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k, key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
+      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k; if (gruen_dustGap(x, z)) continue; const key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
         c.L[Math.floor(rand(0, parts.length))].push(gruen_m4(x, 0, z, a, 1, rand(.95, 1.05), 1, rand(-.05, .05), rand(-.05, .05)).multiply(new THREE.Matrix4().makeScale(s, 1, 1))); c.x += x; c.z += z; c.n++; cnt++; } };
     run(O.x0, O.z0, O.x1, O.z0); run(O.x1, O.z0, O.x1, O.z1); run(O.x1, O.z1, O.x0, O.z1); run(O.x0, O.z1, O.x0, O.z0);
     run(79.4, -32.4, 79.4, O.z0); run(-79.4, -32.4, -79.4, O.z0);
@@ -6524,7 +6527,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     const add = (x, z, m) => { const k = Math.floor(x / 26) + ',' + Math.floor(z / 26); let c = chunks.get(k); if (!c) chunks.set(k, c = { x: 0, z: 0, n: 0, L: treeParts.map(() => []) }); c.L[Math.min(treeParts.length - 1, Math.random() < .6 ? 0 : 1)].push(m); c.x += x; c.z += z; c.n++; };
     for (let gx = -176; gx <= 176; gx += 4.6) for (let gz = -70; gz <= 115; gz += 4.6) {
       const x = gx + rand(-1.8, 1.8), z = gz + rand(-1.8, 1.8), ins = gruen_inside(x, z), ad = gruen_areaDist(x, z), fd = gruen_fenceDist(x, z);
-      if (ins && ad < 2.5) continue;
+      if (ins && ad < 2.5) continue; if (gruen_dust(x, z)) continue; // Forbidden Dustwoods: eigener Wald (Modul wald)
       if (!ins && fd > 13) continue;
       if (fd < 1.7) continue;
       if (Math.abs(x) < 3.4 && z < -45 && z > -54) continue;                                   // alter Straßenrest hinter der Sperre
@@ -6590,11 +6593,11 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       }
     }
     // Waldmantel und Unterholz (auch außerhalb des Zauns, damit der Wald auf Augenhöhe dicht ist)
-    for (const [x, z, ad] of forestShrubs) { if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
+    for (const [x, z, ad] of forestShrubs) { if (gruen_dust(x, z) || gruen_dustGap(x, z, 3)) continue; if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
       for (let i = 0; i < 2; i++) if (Math.random() < .75) addG2(x + rand(-1.8, 1.8), z + rand(-1.8, 1.8), rand(.9, 1.4)); }
     // Am Weidezaun innen: Himbeergestrüpp und hohes Gras
     const O = gruen_OUT, along = (x0, z0, x1, z1, nx, nz) => { const Ln = Math.hypot(x1 - x0, z1 - z0); for (let t = 0; t < Ln; t += rand(.9, 1.6)) { const k = t / Ln, d = rand(.9, 3.2), x = x0 + (x1 - x0) * k + nx * d, z = z0 + (z1 - z0) * k + nz * d;
-        if (gruen_occ(x, z) >= 2) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
+        if (gruen_occ(x, z) >= 2 || gruen_dustGap(x, z, 3.5)) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
     along(O.x0, O.z0, O.x1, O.z0, 0, 1); along(O.x1, O.z0, O.x1, O.z1, -1, 0); along(O.x0, O.z1, O.x1, O.z1, 0, -1); along(O.x0, O.z0, O.x0, O.z1, 1, 0);
     // Übergänge an den alten Grenzlinien: Feldrain mit Lücken statt Zaun (Kirchweg-Gasse bei x ≈ −7 bleibt frei)
     for (let x = -77; x < 58; x += rand(1.6, 3.2)) { if (x > -14 && x < 0) continue; if (gruen_n(x * .08, 3.3) < .42) continue; const z = rand(30.6, 34.5); if (gruen_occ(x, z) >= 2) continue; shrub(x, z, Math.random() < .6); addG2(x + rand(-1, 1), z + rand(-1, 1), rand(.9, 1.3)); }
@@ -7553,7 +7556,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   crib.scale.setScalar(.024); const gCrib = put(crib, { x: 24.9, minZ: -21.76, y: Y }, G7);
   const cribTop = surfY(gCrib, 24.9, -21.4, Y + .75);
   const gFrB = await frame(G7, 'frame_deco', { x: 24.9, minZ: -21.79, yc: Y + 1.85, rz: .04, s: .7 });
-  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Zayn, 10. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
+  interact(firstMesh(gFrB), 'Bilderrahmen', () => toast('Leer. Auf der Rückwand, mit Bleistift: „Zayn, 7. Sommer 2009.“ Darunter, frischer: „Er kommt zurück.“', 5600)); // STORY-HOOK
   await winIn(G7, 23, -21.8, '+z', { tint: 0xc8c0b0 });
   // Eine Kerze brennt neben dem Bett – niemand ist im Haus
   { const c = candle(G7, 'Candle_large_big_used_low001', 22.38, Y, -21.5); const L = light(G7, 0xffa048, 1.0, 3.6, 22.38, Y + .3, -21.4); flames[flames.length - 1].L = L;
@@ -7966,7 +7969,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     spot(XA + 5.5, 1.25, zN - .2, 1.3, 1.2, .4, 'Kreidestriche', note('Kreidestriche', 'Fünfergruppen, sauber gezogen. Siebzehn Gruppen – und ganz unten, mit anderer Hand: <b>+ 1</b>.\n\nSiebzehn Jahre. Und einer mehr.', 'striche'));
     // Aushang neben dem Schild
     onWall(new THREE.MeshStandardMaterial({ map: tex(paperCanvas('doc', 3), true), roughness: .95 }), XA + 17.84, 1.45, ZA - 1.0, .24, .34, -Math.PI / 2, .04);
-    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, 05.08.2009, <b>03:13</b>.\nBegleitung: <i>„der Eiserne“</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Warum steht hier „Nr. 6“, wenn Nr. 6 schon am 2. zurück war?</span>', 'laufzettel'));
+    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, 05.08.2009, <b>03:13</b>.\nBegleitung: <i>„der Eiserne“</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Nr. 6. Deine Nummer. Und niemand hat quittiert, dass ich angekommen bin.</span>', 'laufzettel'));
     // Müll, umgekippter Stuhl, verlorene Akten
     put(kBag, XA + 12.3, 0, { ry: .4, minZ: zS + .02 }); put(kBag, XA + 12.95, 0, { ry: 2.1, s: .8, minZ: zS + .3 }); put(kBag, XA + 13.6, 0, { ry: 4, s: .9, minZ: zS + .02 });
     put(kChair, XA + 9.6, ZA + 1.2, { ry: 1.9, rz: Math.PI / 2 });
@@ -8183,7 +8186,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     put(kLampW, XW + 21.2, ZW + 5.2, { ry: 1 }); put(kCanW, XW + 28.8, ZW + 5.4, { ry: .5 });
     put(kFrameW, XW + 22.9, 0, { ry: Math.PI, y: 1.3, maxZ: ZW + 5.845 });
     const ben = plane(.53, .77, XW + 22.9, 1.3 + .45, ZW + 5.845 - .02, photoMat('white'), 0, Math.PI);
-    interact(ben, 'Foto von Zayn', note('Zayn, 10', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Zayn, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
+    interact(ben, 'Foto von Zayn', note('Zayn, 7', 'Ein Junge mit Zahnlücke und viel zu großem Fußballtrikot. Unten am Rand, in Hildes Schrift: <i>„Zayn, Juli 2009. Kommt wieder.“</i>\n\nDas „wieder“ ist durchgestrichen. Dann neu geschrieben. Dann wieder durchgestrichen. Siebzehn Mal.', 'ben'));
     flat(whiteGrime, XW + 26, ZW + 3.6, 3.2, 2.6, .2, .012);
 
     // Der Hohe Abgrund: acht weiße Stühle, alte Blutspur von der Tür bis zum Rand des Lichts, Zeichnungen
@@ -9823,13 +9826,13 @@ const WHISKEY_ST = [
     talk: 'Er pickt am Briefkasten von Nr. 7. Immer wieder, genau an der Klappe. … Okay. Ich hab verstanden.' },
   { id: 'nr7', at: [26, -11.4], when: () => state.ch1Done && !ch2.on, done: () => state.inBasement,
     talk: 'Da ist er wieder. Auf dem Geländer von Nr. 7. Er schaut zur Kellertür, nicht zu mir.' },
-  { id: 'akte', at: [C2.x + 28, C2.z - 5.6], when: () => ch2.on && !ch3.on, done: () => story.lore.some(l => l.key === 'cleo_akte08') || ch2.power, peck: true,
-    talk: 'Ein Rabe. Hier unten. Zwanzig Meter unter der Erde. Er pickt an einer Schublade: „AKTE 08“. Das Schild daneben ist geschwärzt.' },
+  { id: 'akte', at: [C2.x + 22, C2.z - 5.6], when: () => ch2.on && !ch3.on, done: () => story.lore.some(l => l.key === 'cleo_akte') || ch2.power, peck: true,
+    talk: 'Ein Rabe. Hier unten. Zwanzig Meter unter der Erde. Er pickt an der untersten Schublade eines Aktenschranks. Das Schild daneben ist geschwärzt.' },
   { id: 'luke', at: [716.5, -2598.5], hover: 2.45, when: () => ch2.on && ch2.lenaMet, done: () => ch3.on,
     talk: 'Er sitzt am Rand der Luke. Als ich hinsehe, fliegt er hinauf in den Schacht. Ich soll ihm folgen.' },
   { id: 'vegas', at: [-27.2, -11.2], when: () => ch3.on && ch3.part === 'town', done: () => whiskey_S.trade && whiskey_S.named,
     talk: () => whiskey_tradeTalk() },
-  { id: 'gedenkfeld', at: [-44.5, 86.5], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk'),
+  { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk'),
     talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
   { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
     talk: 'Am Waldrand. Er fliegt ein Stück hinein und wartet. Forbidden Dustwoods. Da wollte als Kind keiner rein.' }];
@@ -9971,13 +9974,13 @@ const VISIONS = [
     shots: [{ from: [26, 2.4, -2.5], to: [26, 2.1, -6.5], look: [26, 2.6, -15], dur: 4.2, text: 'Nr. 7. Hildes Haus. Das Licht im Hauswirtschaftsraum geht an. Niemand drin.' },
       { from: [24.5, 1.9, -19.5], to: [25.8, 1.7, -20.2], look: [26.5, 1.05, -20.7], dur: 4.4, text: 'Ihre Werkbank. Unter dem Tuch: Eisen. Schwer genug für eine Wand.', inside: true },
       { from: [B.x - 1, 1.55, B.z - 1], to: [B.x - 1.6, 1.4, B.z - 2.4], look: [B.x - 2, 1.2, B.z - 4], dur: 4, text: 'Die Kinderzeichnungen im Keller. Dahinter klingt die Wand hohl.', inside: true }] },
-  { id: 'anwesen', title: 'Das Haus der von Hains', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
+  { id: 'anwesen', title: 'Die Villa Seiler', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
     shots: [{ from: [-125, 1.8, 47], to: [-125, 2.6, 53], look: [-125, 6.5, 70], dur: 4.6, text: 'Das Anwesen. Oben brennt das eine Fenster. Es hat immer gebrannt.' },
-      { from: [-122.5, 1.8, 60.5], to: [-124.2, 1.7, 62.2], look: [-125, 1.7, 65.5], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
-      { from: [-118, 5.5, 66], to: [-121, 7.5, 64], look: [-125, 3, 70], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
+      { from: [-122.6, 1.8, 57.8], to: [-124.3, 1.7, 59.6], look: [-125, 1.6, 61.4], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
+      { from: [-110, 5.5, 57.5], to: [-113.5, 7.5, 55.5], look: [-125, 4, 66], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
   { id: 'gedenk', title: 'Das achte Grab', open: () => !story.lore.some(l => l.key === 'cleo_gedenk'),
-    shots: [{ from: [-44.5, 2.3, 79], to: [-44.5, 1.9, 83], look: [-44.5, 1, 87.5], dur: 4.6, text: 'Das Gedenkfeld. Sieben Gräber. Daneben ein achter Stein, weiß gekratzt.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } },
-      { from: [-43.6, 1.1, 85.8], to: [-43.9, 1, 86.3], look: [-43.3, .9, 87.4], dur: 4.2, text: 'Ein Mädchen steht davor. Sie wartet, dass jemand ihren Namen sagt. Keiner tut es.', fig: { at: [-43.3, 87.4], rot: PI, s: .56 } }] },
+    shots: [{ from: [-41, 2.4, 66.5], to: [-45, 1.9, 68.2], look: [-47.5, .7, 72.9], dur: 4.6, text: 'Das Gedenkfeld. Sieben Gräber. Daneben ein achter Stein, weiß gekratzt.', fig: { at: [-48.65, 72.1], rot: 0, s: .56 } },
+      { from: [-47.4, 1.2, 70.2], to: [-47.9, 1.1, 70.8], look: [-48.65, .8, 72.3], dur: 4.2, text: 'Ein Mädchen steht davor. Sie wartet, dass jemand ihren Namen sagt. Keiner tut es.', fig: { at: [-48.65, 72.1], rot: 0, s: .56 } }] },
   { id: 'wald', title: 'Er wollte, dass ich ihm folge', open: () => !story.lore.some(l => l.key === 'zayn_ende'),
     shots: [{ from: [31, 2.1, 79], to: [31, 2, 86], look: [30, 1.4, 100], dur: 5.2, text: 'Der Spielplatz. Die Schaukel bewegt sich. Kein Wind.', fig: { at: [30, 93], to: [30, 99.5], rot: 0, s: .6 } },
       { from: [30.5, 1.5, 92], to: [30.2, 1.4, 94.5], look: [30, 1, 100], dur: 4.4, text: 'Er dreht sich um. Er winkt nicht. Er wartet nur. Dahinter: der Wald, in den keiner durfte.', fig: { at: [30, 100], rot: PI, s: .6 } }] },
@@ -10021,7 +10024,7 @@ function visionen_end() {
   if (S.V.flashWas) flashOn = true; S.V = null; setCamOverride(null); state.talking = false; renderer.domElement.style.filter = ''; S.vig.classList.remove('on'); glitchV = .5; shake = .02;
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
   story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
-  const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für das Haus, in dem nie jemand wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
+  const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für ein Haus, in dem seit Jahren keiner mehr wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
     wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
   if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1.2, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
 }
@@ -10033,8 +10036,8 @@ WORLD_MODS.push(['Visionen', async () => {
   document.head.appendChild(css);
   for (const [id, k] of [['kbVig', 'el'], ['visVig', 'vig'], ['visFlash', 'flash'], ['kbHud', 'hud']]) { const d = document.createElement('div'); d.id = id; document.body.appendChild(d); S[k] = d; }
   KEY_HOOKS.KeyG = kinderblick;
-  if (window.G) G.vis = { S, HINTS, kinderblick, visionen_totem, VISIONS, near: visionen_near }; // Testzugriff
-  if (window.G) G.mods = { whiskey: typeof whiskey_S !== 'undefined' ? whiskey_S : null, albers: typeof albers_S !== 'undefined' ? albers_S : null, geheimnisse: typeof geheimnisse_S !== 'undefined' ? geheimnisse_S : null, ausruestung: typeof ausruestung_S !== 'undefined' ? ausruestung_S : null, ow: ausbau_ost_west_OW, anwesen: typeof anwesen_S !== 'undefined' ? anwesen_S : null };
+  const exp = () => { if (!window.G) return setTimeout(exp, 250); G.vis = { S, HINTS, kinderblick, visionen_totem, VISIONS, near: visionen_near }; // Testzugriff (G entsteht erst nach den Modulen)
+    G.mods = { whiskey: typeof whiskey_S !== 'undefined' ? whiskey_S : null, albers: typeof albers_S !== 'undefined' ? albers_S : null, geheimnisse: typeof geheimnisse_S !== 'undefined' ? geheimnisse_S : null, ausruestung: typeof ausruestung_S !== 'undefined' ? ausruestung_S : null, ow: ausbau_ost_west_OW, anwesen: typeof anwesen_S !== 'undefined' ? anwesen_S : null }; }; exp();
   // --- Register füllen: alles, was im Grundspiel und in den Modulen gefunden werden kann
   for (const a of echoAnchors) hintAdd({ id: a.E.id, x: a.E.at[0], y: a.E.at[1] > 1.3 ? Y : 0, z: a.E.at[2], kind: 'echo', open: () => !echoSeen.has(a.E.id) });
   PHOTOS.forEach((p, i) => { const at = p.pos || p.candle || [p.zone[0], 0, p.zone[1]]; hintAdd({ id: 'foto' + i, x: at[0], y: i === 6 ? 0 : (at[1] > 2 ? Y : 0), z: at[2], kind: 'foto', open: () => !story.photos.has(i) && (i === 6) === !!state.inBasement }); });
@@ -10060,6 +10063,714 @@ WORLD_TICK.push((dt, t) => {
     if (V.fig) echoMat.opacity = .3 * (Math.random() < .06 ? .3 : 1);
     if (V.t >= sh.dur) visionen_next(); }
 });
+// =====================================================================  ANWESEN (Modul „anwesen“): Die Villa Seiler – acht Schlüsselteile, die Prägepresse, Kapitel 4
+// Die Villa (Mansion-Scan aus dem Unreal/Fab-Paket, Modul ausbau_ost_west) ist von Anfang an sichtbar und erreichbar, aber verschlossen:
+// Die Tür hat acht Schlüssellöcher. Dr. Theodor Seiler, der 1958 das Amt gründete und 2019 allein in dieser Villa starb, hat die acht Teile
+// dort versteckt, wo sich die Kinder früher versteckt haben (gestempelt 01–08 wie die acht Akten). Kapitel 1 und 3 (Ort), Kapitel 2 (Amt), Kapitel 3 (Vegas, Whiskey).
+// Die Prägepresse im Garten setzt sie zusammen – aber nur mit Strom, und der ist seit dem Licht die ganze Nacht weg. Er kommt am Morgen zurück: Kapitel 4.
+// Verpasste Teile hat in Kapitel 4 der Rabe Whiskey in seinem Nest gesammelt (nie blockierend).
+const anwesen_S = { ready: false, ch4: false, key: false, open: false, sockets: [], lock: [], wheel: null, nestParts: null, hall: null, seen: new Set(), endArmed: false, t: 0, faceT: 30, face: null, flick: null };
+const ANW_HALL = { x: -900, z: 900, w: 14, d: 12, h: 6.4 };
+const ANW_TEILE = [ // Stempel, Name, Ort (für das Tagebuch), Kapitel-Bereich
+  ['01', 'Reide, linke Hälfte', 'Brunnen in den Schrebergärten', 'ort'], ['02', 'Reide, rechte Hälfte', 'Vogelscheuche im Gemüsebeet', 'ort'],
+  ['03', 'Halm, oben', 'Spielplatz, an der Rutsche', 'ort'], ['04', 'Halm, unten', 'Kellerfenster der Villa', 'ort'],
+  ['05', 'Bart, erster Zahn', 'Amt, Gang unter dem Regal', 'amt'], ['06', 'Bart, zweiter Zahn', 'Lars Vegas', 'kap3'],
+  ['07', 'Bart, dritter Zahn', 'Whiskeys Nest', 'kap3'], ['08', 'Schließkern', 'Messraum, Stuhl 8', 'amt']];
+const anwesen_has = i => story.lore.some(l => l.key === 'anw_teil_' + i);
+const anwesen_in = i => story.lore.some(l => l.key === 'anw_slot_' + i);
+const anwesen_count = () => ANW_TEILE.filter((_, i) => anwesen_has(i)).length;
+function anwesen_give(i, text) {
+  if (anwesen_has(i)) return false; const [n, name] = ANW_TEILE[i];
+  story.lore.push({ key: 'anw_teil_' + i, title: 'Schlüsselteil ' + n, html: text + `\n\n<b>${name}</b>. Eingeschlagen: <b>${n}</b> – und ein Turm über einem Abgrund.` });
+  const c = anwesen_count(); modItem('schluesselteile', 'Schlüsselteile', `Geschmiedete Teile eines großen Schlüssels, gestempelt 01–08. Gefunden: ${c} / 8.`, 'key'); addItem('schluesselteile');
+  try { ITEMS.schluesselteile.desc = `Geschmiedete Teile eines großen Schlüssels, gestempelt 01–08. Gefunden: ${c} / 8.`; } catch (e) {}
+  sideStart('anw_teile'); story.side.anw_teile.desc = `Die Tür der Villa Seiler hat acht Schlüssellöcher. Teile gefunden: ${c} / 8.` + (c < 8 ? '' : ' Die Presse im Garten fügt sie zusammen.');
+  openNote('Schlüsselteil ' + n, text + `\n\n<b>${name}</b>. Eingeschlagen: <b>${n}</b> – und ein Turm über einem Abgrund.`);
+  Audio.play('metalHit1', { gain: .25, rate: 1.6 }); questPop('SCHLÜSSELTEIL ' + c + ' / 8', name);
+  if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1.5, 3);
+  if (typeof saveGame === 'function') saveGame(anwesen_S.ch4 ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1); return true;
+}
+// Kleines geschmiedetes Teil (für sichtbare Fundstellen); Unreal-Export „schluesselteil“ ersetzt es
+function anwesen_partMesh(mat) {
+  const g = new THREE.Group(), a = new THREE.Mesh(new THREE.TorusGeometry(.045, .012, 8, 18, 3.6), mat), b = new THREE.Mesh(new THREE.BoxGeometry(.11, .018, .018), mat);
+  b.position.x = .08; g.add(a, b); g.traverse(m => { if (m.isMesh) m.castShadow = true; }); g.userData.noCol = true; return g;
+}
+// Vorhandene Interaktion eines anderen Moduls erweitern (Label + Aktion), gefunden über Label und Nähe
+function anwesen_wrap(label, x, z, fn) {
+  const m = interactables.find(o => o.userData.label === label && Math.hypot(o.position.x - x, o.position.z - z) < 2.5); if (!m) { console.warn('Anwesen: nicht gefunden', label); return null; }
+  const orig = m.userData.action; fn(m, orig); return m;
+}
+WORLD_MODS.push(['Anwesen', async () => {
+  const S = anwesen_S, OW = ausbau_ost_west_OW, T = THREE, X = C2.x, Z = C2.z;
+  story.side.anw_teile = { title: 'Acht Schlösser', desc: 'Die Tür der Villa Seiler hat acht Schlüssellöcher.', state: 'hidden' };
+  const rust = msSurfMat('rust_sheet', { tint: 0x7a6a5e }); rust.metalness = .55; rust.roughness = .75;
+  const iron = new T.MeshStandardMaterial({ color: 0x2a2826, roughness: .5, metalness: .85 });
+  const ue = await ausruestung_ue('schluesselteil', .16), partMesh = () => ue ? ue.clone(true) : anwesen_partMesh(rust);
+  const reg = (i, x, y, z) => { if (typeof hintAdd === 'function') hintAdd({ id: 'anw_teil_' + i, x, y, z, kind: 'teil', near: 14, open: () => !anwesen_has(i) }); };
+  // --- 01 Brunnen (Schrebergärten): der Kiesel schlägt nie auf. Wer wiederkommt, zieht die Kette hoch.
+  anwesen_wrap('Brunnen', -108, 35.5, (m, orig) => { let first = true;
+    m.userData.label = () => anwesen_has(0) ? 'Brunnen' : first ? 'Brunnen' : 'Brunnen · Kette hochziehen';
+    m.userData.action = () => { if (first || anwesen_has(0)) { first = false; return orig(); }
+      Audio.chains(-108, .5, 35.5); setTimeout(() => anwesen_give(0, 'Du ziehst an der Kette. Sie kommt hoch, Glied um Glied – viel zu lang für diesen Brunnen. Am Ende hängt kein Eimer. Ein Stück Eisen, mit einem roten Kinderhaarband festgeknotet.'), 1400); }; });
+  reg(0, -108, 0, 35.5);
+  // --- 02 Vogelscheuche (Parzelle W2): Brust mit Draht zugenäht → Drahtschneider
+  anwesen_wrap('Vogelscheuche', -121.2, 24.8, (m, orig) => {
+    m.userData.label = () => OW.q && OW.q.jacket && !anwesen_has(1) ? 'Vogelscheuche · Brust abtasten' : 'Vogelscheuche';
+    m.userData.action = () => { if (!OW.q || !OW.q.jacket || anwesen_has(1)) return orig();
+      if (!story.items.includes('drahtschneider')) return toast('Unter der Jacke ist etwas Hartes. Die Brust ist mit Draht zugenäht – eng, sorgfältig. Mit bloßen Händen keine Chance.', 4400);
+      Audio.play('metalHit2', { gain: .2, rate: 1.8 }); anwesen_give(1, 'Du schneidest den Draht auf. Stroh quillt heraus, trocken, obwohl es seit Stunden regnet. Mittendrin, wo ein Herz wäre: ein Stück Eisen, geformt wie ein halber Ring.'); }; });
+  reg(1, -121.2, 0, 24.8);
+  // --- 03 Spielplatz: aufgewühlter Sand am Ende der Rutsche
+  { const hit = box(.8, .3, .6, 24.3, .12, 74.15, hidden, { cast: false }); const glint = partMesh(); glint.position.set(24.35, .02, 74.1); glint.rotation.set(-PI / 2, 0, .6); glint.scale.setScalar(.8); scene.add(glint);
+    interact(hit, () => anwesen_has(2) ? 'Sand' : 'Aufgewühlter Sand', () => { if (anwesen_has(2)) return toast('Nur Sand. Und die Mulde, die deine Hände gegraben haben.', 2600);
+      glint.visible = false; Audio.step('grass'); anwesen_give(2, 'Du gräbst mit den Fingern. Unter dem Sand ein flacher Stein, darunter, in Wachstuch gewickelt, ein Stück geschmiedetes Eisen. Vergraben, wie Kinder Schätze vergraben – mit einem Stein obendrauf, damit man die Stelle wiederfindet.'); }); reg(2, 24.3, 0, 74.15); }
+  // --- 04 Kellerfenster der Villa (Ostseite, hinter dem Tor): Gitter festgerostet → Brechstange
+  const vb = OW.vbb || new T.Box3(new T.Vector3(-133.5, 0, 61.3), new T.Vector3(-116.5, 16, 78.7)), kx = vb.max.x + .2, kz = (vb.min.z + vb.max.z) / 2;
+  { const grate = box(.06, .5, .9, kx + .02, .3, kz, iron, { cast: true }); const shaft = box(.5, .02, .9, kx + .25, .02, kz, new T.MeshStandardMaterial({ color: 0x0a0908, roughness: 1 }), { cast: false });
+    const hit = box(.5, .7, 1.1, kx + .2, .35, kz, hidden, { cast: false }); let open = false;
+    interact(hit, () => anwesen_has(3) ? 'Kellerfenster' : 'Kellerfenster (Gitter)', () => { if (anwesen_has(3)) return toast('Der Lichtschacht ist leer. Aus dem Keller zieht kalte Luft – und es riecht nach Äther.', 3600);
+      if (!open && !story.items.includes('brechstange')) return toast('Ein Kellerfenster, vergittert. Das Gitter ist festgerostet. Im Lichtschacht darunter liegt etwas zwischen dem Laub. Du kommst nicht heran.', 4600);
+      if (!open) { open = true; Audio.play('metalHit2', { gain: .5, rate: .7, x: kx, y: .3, z: kz, ref: 3 }); tween(grate, { rz: -1.2 }, .6); }
+      anwesen_give(3, 'Du hebelst das Gitter ab. Im Lichtschacht, zwischen nassem Laub und einem Kinderhandschuh: ein Eisenstück mit einer Nummer. Hinter der Scheibe, im dunklen Keller, fällt etwas um.'); }); reg(3, kx, 0, kz); shaft.userData.noCol = true; }
+  // --- 05 Amt, Gang: unter dem umgestürzten Regal (Kapitel 2)
+  { const hit = box(1.1, .3, .6, X + 87.6, .15, Z - 1.55, hidden, { cast: false }); const p = partMesh(); p.position.set(X + 87.7, .03, Z - 1.6); p.rotation.x = -PI / 2; scene.add(p);
+    interact(hit, () => anwesen_has(4) ? 'Umgestürztes Regal' : 'Unter das Regal greifen', () => { if (anwesen_has(4)) return toast('Nur Staub und ein abgerissener Streifen Klebeband.', 2400);
+      p.visible = false; anwesen_give(4, 'Du legst dich flach auf den Beton und greifst unter das Regal. Kalt. Metall. Mit Klebeband an die Unterseite geklebt – so, dass man es nur findet, wenn man sich hinlegt wie ein Kind beim Versteckspielen.'); }); reg(4, X + 87.6, 0, Z - 1.55); }
+  // --- 08 Messraum: unter Stuhl 8, dem ohne Namen (Kapitel 2)
+  { const hit = box(.6, .35, .5, X + 118.6, .28, Z + 4.55, hidden, { cast: false });
+    interact(hit, () => anwesen_has(7) ? 'Stuhl 8' : 'Stuhl 8 · unter die Sitzfläche tasten', () => { if (anwesen_has(7)) return toast('Der Stuhl ohne Namen. Die Gurte sind offen.', 2400);
+      anwesen_give(7, 'Unter der Sitzfläche von Stuhl 8, dem Stuhl ohne Namen, klebt etwas. Ein schweres Eisenstück, rund, mit einem Loch in der Mitte. Der Kern eines Schlosses.'); }); reg(7, X + 118.6, 0, Z + 4.55); }
+  // --- 07 Whiskeys Nest: toter Baum hinter dem Friedhof (ab Kapitel 3; in Kapitel 4 sammelt er dort alles, was du übersehen hast)
+  try { const tr = await msModel('deadtree1'); const t = msGround(msFit(tr.clone(true), 5.2, 'y')); t.position.set(-40, 0, 96); t.rotation.y = 1.1; scene.add(t);
+    t.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+    const bark = msSurfMat('bark', { tint: 0x5a4a3a }); const nest = new T.Group(); nest.position.set(-39.62, 1.95, 96.2); scene.add(nest);
+    for (let k = 0; k < 14; k++) { const tw = new T.Mesh(new T.CylinderGeometry(.012, .008, .42, 5), bark); tw.position.set(Math.cos(k * 2.4) * .12, (k % 3) * .025, Math.sin(k * 2.4) * .12); tw.rotation.set(PI / 2 + rand(-.3, .3), k * .45, rand(-.4, .4)); nest.add(tw); }
+    const glint = partMesh(); glint.position.set(0, .06, 0); glint.scale.setScalar(.7); nest.add(glint); nest.userData.noCol = true; S.nest = nest;
+    const hit = box(.6, .5, .6, -39.62, 2.0, 96.2, hidden, { cast: false });
+    interact(hit, () => S.ch4 && anwesen_count() < 8 ? 'Whiskeys Nest' : (ch3.on || S.ch4) && !anwesen_has(6) ? 'Nest in der Astgabel' : 'Nest', () => {
+      if (S.ch4 && anwesen_count() < 8) { const miss = ANW_TEILE.map((_, i) => i).filter(i => !anwesen_has(i)); for (const i of miss) story.lore.push({ key: 'anw_teil_' + i, title: 'Schlüsselteil ' + ANW_TEILE[i][0], html: 'Aus Whiskeys Nest. Er hat es irgendwo aufgelesen, wo du nicht hingesehen hast.' });
+        const c = anwesen_count(); modItem('schluesselteile', 'Schlüsselteile', `Geschmiedete Teile eines großen Schlüssels, gestempelt 01–08. Gefunden: ${c} / 8.`, 'key'); addItem('schluesselteile'); story.side.anw_teile.desc = 'Alle acht Teile. Die Presse im Garten der Villa fügt sie zusammen.';
+        glint.visible = false; if (typeof whiskey_caw === 'function') whiskey_caw();
+        return openNote('Whiskeys Nest', `Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, ein Ehering, eine Kinderspange – und <b>${miss.length === 1 ? 'ein Schlüsselteil' : miss.length + ' Schlüsselteile'}</b>, gestempelt ${miss.map(i => ANW_TEILE[i][0]).join(', ')}.\n\nEr hat gesammelt, was du übersehen hast.`); }
+      if (!ch3.on && !S.ch4) return toast('Ein Nest in der Astgabel. Leer. Groß – für einen sehr großen Vogel.', 2800);
+      if (anwesen_has(6)) return toast('Kronkorken, Stanniol, eine Kinderspange. Whiskey sammelt, was glänzt.', 3000);
+      glint.visible = false; anwesen_give(6, 'Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, eine Kinderspange, ein Ehering – und ein Stück geschmiedetes Eisen. Whiskey sammelt, was glänzt. Oder was man ihm aufträgt.'); });
+    reg(6, -39.62, 0, 96.2);
+  } catch (e) { console.warn('Anwesen: Nest', e); }
+  // --- 06 Lars Vegas (Kapitel 3): gibt das Teil durch den Briefschlitz, sobald du ihm drei Dinge geglaubt hast
+  if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { const r = await o(...a);
+    if (ch3.on && albers_S.talked.size >= 3 && !anwesen_has(5) && !state.talking) { state.talking = true;
+      await say([['Die Klappe vom Briefschlitz geht auf. Etwas Schweres fällt auf die Fußmatte.', 3600], ['„Seiler, der Doktor. Hat mir das zwanzigachtzehn in die Hand gedrückt. ‚Für den, der fragt.‘“', 5200, 'VEGAS'], ['„Du fragst. Also nimm.“', 2600, 'VEGAS']]);
+      state.talking = false; anwesen_give(5, 'Es lag in einem alten Tabaksbeutel, der nach Vegas riecht. Ein Stück Eisen mit drei Zähnen – nein, mit einem. Die anderen fehlen noch.'); }
+    return r; })(albers_talk);
+  // --- Die Prägepresse im Garten (Ostseite des Vorgartens, geschützt unter einem Blechdach)
+  { const mx = -109.5, mz = 66, g = new T.Group(); g.position.set(mx, 0, mz); g.rotation.y = -PI / 2; scene.add(g); g.userData.noCol = true;
+    const conc = msSurfMat('facade_concrete', { tint: 0x6a665e }), wood = msSurfMat('planks_painted', { tint: 0x5a4c3e }), roofM = msSurfMat('corrugated', { tint: 0x6e6a62 }); roofM.side = T.DoubleSide;
+    const add = (geo, mat, x, y, z, rx = 0, ry = 0, rz = 0) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+    add(new T.BoxGeometry(1.9, .5, 1.3), conc, 0, .25, 0); add(new T.CylinderGeometry(.44, .44, 1.3, 28), rust, 0, .98, -.05, 0, 0, PI / 2);
+    add(new T.BoxGeometry(.5, .9, .5), rust, -.45, .95, .15); add(new T.BoxGeometry(.18, .6, .18), iron, .45, 1.55, -.05); add(new T.BoxGeometry(1.2, .08, .3), iron, .15, 1.88, -.05);
+    const wheel = new T.Group(); wheel.position.set(1.0, .98, -.05); g.add(wheel); S.wheel = wheel;
+    const rim = new T.Mesh(new T.TorusGeometry(.5, .045, 10, 36), iron); rim.rotation.y = PI / 2; wheel.add(rim);
+    for (let k = 0; k < 6; k++) { const sp = new T.Mesh(new T.BoxGeometry(.03, .96, .03), iron); sp.rotation.x = k * PI / 6; wheel.add(sp); }
+    const crank = new T.Mesh(new T.CylinderGeometry(.025, .025, .25, 8), wood); crank.position.set(.1, .38, 0); crank.rotation.z = PI / 2; wheel.add(crank);
+    const plate = add(new T.BoxGeometry(.05, .5, .95), iron, -.72, .98, -.05);
+    for (let k = 0; k < 8; k++) { const sm = new T.MeshStandardMaterial({ color: 0x151412, emissive: 0xffa040, emissiveIntensity: 0, roughness: .4, metalness: .6 });
+      const s = add(new T.CylinderGeometry(.04, .04, .04, 12), sm, -.755, 1.1 - Math.floor(k / 4) * .22, -.38 + (k % 4) * .22, 0, 0, PI / 2); S.sockets.push(s); }
+    const sign = new T.Mesh(new T.PlaneGeometry(.7, .16), new T.MeshStandardMaterial({ roughness: .6, metalness: .5, map: tex(cnv(256, (c, w) => { c.fillStyle = '#6a5a3a'; c.fillRect(0, 0, w, w); c.fillStyle = '#1a1510'; c.font = 'bold 26px Georgia'; c.textAlign = 'center'; c.fillText('SEILER · PRÄGEWERK · 1958', w / 2, 40); }), true) }));
+    sign.material.map.repeat.set(1, .23); sign.material.map.offset.set(0, .77); sign.position.set(-.3, .38, .66); g.add(sign);
+    for (const [px, pz] of [[-1.3, -1], [1.5, -1], [-1.3, 1], [1.5, 1]]) add(new T.CylinderGeometry(.06, .07, 2.5, 8), wood, px, 1.25, pz);
+    add(new T.PlaneGeometry(3.4, 2.6), roofM, .1, 2.55, 0, -PI / 2 + .12);
+    box(1.9, 1.7, 2.6, mx, .85, mz, hidden, { collide: true, cast: false });
+    const L = new VLight(0xffb070, .0, 4, 2); L.position.set(mx, 1.6, mz); scene.add(L); S.pressLight = L;
+    const hit = box(1.6, 1.4, 2.3, mx, .9, mz, hidden, { cast: false });
+    interact(hit, () => S.key ? 'Prägepresse' : 'Prägepresse · Seiler & Sohn', () => anwesen_press());
+    if (typeof hintAdd === 'function') hintAdd({ id: 'anw_presse', x: mx, y: 0, z: mz, kind: 'story', near: 60, open: () => S.ch4 && !S.key && anwesen_count() === 8 }); }
+  // --- Die Tür: eine Eisenplatte mit acht Schlüssellöchern
+  { const dz = vb.min.z - .04, plate = new T.Mesh(new T.PlaneGeometry(.46, .62), new T.MeshStandardMaterial({ color: 0x3a3632, roughness: .45, metalness: .8, map: tex(cnv(256, (c, w) => {
+      c.fillStyle = '#6c665e'; c.fillRect(0, 0, w, w); c.fillStyle = '#0c0b0a'; for (let k = 0; k < 8; k++) { const x = 64 + (k % 2) * 128, y = 34 + Math.floor(k / 2) * 62; c.beginPath(); c.arc(x, y, 11, 0, 7); c.fill(); c.fillRect(x - 4, y, 8, 22); }
+      c.strokeStyle = '#2a2622'; c.lineWidth = 6; c.strokeRect(6, 6, w - 12, w - 12); }), true) }));
+    plate.position.set(-125, 1.42, dz); plate.rotation.y = PI; scene.add(plate);
+    for (let k = 0; k < 8; k++) { const d = new T.Mesh(new T.CircleGeometry(.018, 12), new T.MeshBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0 })); d.position.set(-125 + .115 - (k % 2) * .23, 1.42 + .235 - Math.floor(k / 2) * .145, dz - .004); d.rotation.y = PI; scene.add(d); S.lock.push(d); }
+    const hit = box(1.6, 2.4, .5, -125, 1.2, dz - .2, hidden, { cast: false }); S.doorHit = hit;
+    interact(hit, () => S.key ? 'Die Tür der Villa aufschließen' : 'Tür der Villa Seiler', () => anwesen_door()); }
+  // --- Grusel: flackernde Kerze im Erdgeschoss, ein Gesicht am Fenster, eine Spieluhr hinter der Tür
+  { const fl = new VLight(0xffa050, 0, 5, 2); fl.position.set(-129.7, 2.1, vb.min.z + .9); scene.add(fl); S.flick = fl;
+    const face = new T.Mesh(new T.PlaneGeometry(.3, .36), new T.MeshBasicMaterial({ map: faceTexes.child, transparent: true, opacity: 0, color: new T.Color(.7, .72, .78), depthWrite: false }));
+    face.position.set(-120.28, 2.05, vb.min.z - .03); face.rotation.y = PI; scene.add(face); S.face = face; }
+  // --- Kapitel 4: Eingangshalle der Villa (eigener Innenraum; die Haustür führt hinein)
+  await anwesen_buildHall();
+  S.ready = true;
+}]);
+function anwesen_press() {
+  const S = anwesen_S, have = ANW_TEILE.map((_, i) => i).filter(i => anwesen_has(i) && !anwesen_in(i));
+  if (S.key) return toast('Die Presse steht still. Das Schwungrad ist noch warm.', 2600);
+  if (have.length) { for (const i of have) story.lore.push({ key: 'anw_slot_' + i, title: 'Presse · ' + ANW_TEILE[i][0], html: 'Eingesetzt.' }); Audio.play('metalHit1', { gain: .3, rate: 1.2 }); }
+  const n = ANW_TEILE.filter((_, i) => anwesen_in(i)).length; anwesen_sockets();
+  if (n < 8) return toast(have.length ? `${have.length === 1 ? 'Das Teil passt' : 'Die Teile passen'} in die Fassungen – ${n} von 8 sitzen. Die anderen Fassungen sind leer.` : n ? `${n} von 8 Fassungen sind belegt. Die übrigen warten.` : 'Eine alte Prägepresse. Vorn acht leere Fassungen, nummeriert 01 bis 08. Auf dem Schild: SEILER · PRÄGEWERK · 1958.', 4200);
+  if (!S.ch4) return toast('Alle acht Fassungen sind belegt. Du drehst am Schwungrad – nichts. Der Motor braucht Strom, und in ganz Lost Eyengless ist der Strom weg, seit das Licht kam.', 5200);
+  S.key = true; state.talking = true; S.pressT = 4.5; Audio.powerUp(); shake = .02;
+  modItem('villaschluessel', 'Schlüssel der Villa Seiler', 'Aus acht Teilen gepresst. Schwer, noch warm. Der Bart hat sieben Zähne und eine Lücke.', 'key');
+  setTimeout(() => { Audio.play('metalHit2', { gain: .5, rate: .6 }); story.items = story.items.filter(k => k !== 'schluesselteile'); addItem('villaschluessel'); state.talking = false;
+    sideDone('anw_teile', 'Acht Teile, ein Schlüssel. Die Tür der Villa wartet.'); setC3('Die Villa Seiler. Schließ die Tür auf.');
+    subtitle('Die Presse stampft dreimal. Dann liegt da ein Schlüssel, so lang wie deine Hand. Sieben Zähne – und eine Lücke, wo der achte sein müsste.', 5600); }, 4200);
+}
+function anwesen_sockets() { const S = anwesen_S; S.sockets.forEach((s, i) => s.material.emissiveIntensity = anwesen_in(i) ? 2.2 : 0); S.lock.forEach((d, i) => d.material.opacity = S.key ? .9 : 0); }
+function anwesen_door() {
+  const S = anwesen_S; Audio.knock();
+  if (S.open) return;
+  if (!S.key) { const c = anwesen_count();
+    if (!S.knocked) { S.knocked = true; setTimeout(() => { Audio.knock(); subtitle('<i>Von drinnen klopft es zurück. Dreimal. Dann, ganz leise, eine Spieluhr.</i>', 4200); if (Audio.musicBox) Audio.musicBox(); }, 1400); }
+    sideStart('anw_teile'); return toast(`Kein Griff, kein Klingelschild. Eine Eisenplatte mit acht Schlüssellöchern.${c ? ` Du hast ${c} von 8 Teilen.` : ''} Wer hat eine Tür gebaut, die man nur zu acht öffnen kann?`, 5200); }
+  if (!S.ch4) return;
+  S.open = true; anwesen_sockets(); anwesen_enterHall();
+}
+// ---- Kapitel 4
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Bruno liegt vor ihren Füßen.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+async function chapter4Begin() {
+  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4');
+  $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
+  ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
+  state.zone = null; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
+  lamps.forEach(L => { L.mode = 'on'; L.dead = 0; });
+  { const OW = ausbau_ost_west_OW; if (!OW.gateOpen && OW.gate) { OW.gateOpen = true; if (OW.chain) OW.chain.visible = false; msHide(OW.gate); // wie im Tor-Code: Flügel an einem Scharnier, offen
+    const pv = new THREE.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); pv.rotation.y = -1.2; OW.gate.parent.add(pv); } }
+  player.pos.set(.8, 0, 1.6); player.yaw = PI / 2 + .6; player.pitch = .05; vel.set(0, 0, 0); camY = player.pos.y + 1.65; flashOn = true;
+  $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
+  $('intro').innerHTML = C4_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
+    const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
+    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1.5, 3); };
+  saveGame(4); anwesen_sockets(); if (typeof c3Info === 'function') c3Info();
+}
+async function startChapter4() { // Weiterspielen / Kapitel wählen
+  $('subPanel').classList.remove('show'); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show');
+  chapter3Begin(); ch3.met = true; anwesen_S.ch4 = false; await chapter4Begin();
+}
+async function anwesen_enterHall() {
+  const S = anwesen_S, H = ANW_HALL; state.talking = true; Audio.play('ironDoor', { gain: .5, rate: .7 }); Audio.creak(.3);
+  for (let k = 0; k < 8; k++) setTimeout(() => Audio.play('metalHit1', { gain: .15, rate: 1.4 + k * .05 }), 300 + k * 180);
+  await fade(1, 1200); player.pos.set(H.x, 0, H.z - H.d / 2 + 1.2); player.yaw = PI; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
+  Audio.setArea(true, false); await wait(300); await fade(0, 1200); state.talking = false; S.inHall = true; S.hallT = 0;
+  setC3('Die Villa Seiler. Sieh dich um.');
+  subtitle('<i>Hinter dir fällt die Tür ins Schloss. Acht Riegel. Einer nach dem anderen.</i>', 4200);
+  story.lore.push({ key: 'anw_halle', title: 'Die Villa Seiler', html: 'Acht Teile, eine Presse, ein Schlüssel. Hinter der Tür: die Eingangshalle eines Hauses, in dem seit 2019 niemand mehr gewohnt hat. Oben brennt Licht.' });
+}
+async function anwesen_buildHall() {
+  const S = anwesen_S, H = ANW_HALL, T = THREE, x0 = H.x - H.w / 2, x1 = H.x + H.w / 2, z0 = H.z - H.d / 2, z1 = H.z + H.d / 2;
+  const wp = msSurfMat('wallpaper_old', { tint: 0x8a7c6c }); wp.userData.tile = 1.4; const fl = msSurfMat('floor_wood', { tint: 0x4a3626 }); fl.userData.tile = .9; fl.roughness = .5;
+  const pl = msSurfMat('wall_plaster', { tint: 0x6a665e }); pl.userData.tile = 2; const dark = msSurfMat('planks_painted', { tint: 0x3a2e24 }); dark.userData.tile = 1;
+  plane(H.w, H.d, H.x, .01, H.z, fl); box(H.w + .4, .2, H.d + .4, H.x, H.h + .1, H.z, pl, { cast: false });
+  wall('x', z0, x0, x1, H.h, wp, [{ at: H.x, w: 1.6 }], .3); wall('x', z1, x0, x1, H.h, wp, [], .3); wall('z', x0, z0, z1, H.h, wp, [], .3); wall('z', x1, z0, z1, H.h, wp, [], .3);
+  box(1.6, 2.62, .12, H.x, 1.31, z0 - .05, dark, { collide: true }); // Haustür (von innen zu)
+  indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 });
+  // Treppe nach oben (eingebrochen): Stufen, auf halber Höhe zersplittert
+  for (let k = 0; k < 9; k++) box(3, .2, .42, H.x, .1 + k * .2, z1 - 3.6 + k * .38, dark, { collide: k < 3 });
+  box(3.4, 1.2, .5, H.x, .6, z1 - 3.9, hidden, { collide: true, cast: false });
+  for (let k = 0; k < 5; k++) { const b = box(.14, .14, 2.6, H.x + rand(-1.2, 1.2), 1.9 + rand(-.3, .3), z1 - 2.2 + rand(-.5, .5), dark); b.rotation.set(rand(-.5, .5), rand(-1, 1), rand(-.6, .6)); }
+  const put = async (key, file, size, axis, x, z, ry, y = 0) => { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry; o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); return o; } catch (e) { console.warn('Halle ' + key, e); return null; } };
+  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .6, H.z - 2.5, PI / 2); await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
+  await put('floorlamp', 'model.gltf', 1.7, 'y', x0 + .7, z1 - 1, .4); await put('floorlamp', 'model.gltf', 1.7, 'y', x1 - .7, z0 + 1.2, -.4);
+  await put('shelf', 'model.gltf', 1.9, 'y', x1 - .35, H.z - 3.2, -PI / 2); await put('radio', 'model.gltf', .45, 'max', x1 - 1.4, z0 + 2.4, -PI / 2, .78);
+  const desk = box(1.6, .76, .8, x1 - 1.4, .38, z0 + 2.4, dark, { collide: true });
+  const letter = plane(.24, .32, x1 - 1.6, .77, z0 + 2.3, paperMat, -PI / 2, .3);
+  const portrait = await put('frame_dmg', 'model.gltf', 1.2, 'y', x0 + .12, H.z + 1.5, PI / 2, 1.5);
+  for (const [lx, lz] of [[x0 + .7, z1 - 1], [x1 - .7, z0 + 1.2]]) { const L = new VLight(0xffa860, 1.1, 7, 2); L.position.set(lx, 1.6, lz); scene.add(L); }
+  const up = new VLight(0xfff0d8, .9, 9, 2); up.position.set(H.x, H.h - .6, z1 - 1.2); scene.add(up); S.upLight = up;
+  // Seilers Brief, das Porträt, die Uhr – dann die Treppe
+  interact(letter, 'Brief auf dem Schreibtisch', () => { S.seen.add('brief'); openNote('Ein Brief, März 2019', anwesen_hand('An den, der die acht Teile gefunden hat.\n\nIch habe 1958 das Amt gegründet. Ich habe Listen geschrieben, damit das Licht nur nimmt, wen wir ihm geben. Ich dachte, das sei Barmherzigkeit.\n\nDie Teile habe ich dorthin gebracht, wo sich die Kinder früher versteckt haben. Wer sie findet, hat hingesehen. Das hat keiner von uns.\n\nOben liegt, was ich nie jemandem zeigen konnte.\n— Dr. Theodor Seiler'), 'anw_brief'); });
+  const ph = box(.2, 1.3, 1.1, x0 + .15, 1.5, H.z + 1.5, hidden, { cast: false });
+  interact(ph, 'Porträt', () => { S.seen.add('bild'); openNote('Ein Porträt', 'Eine Frau in einem langen, dunklen Kleid. In der Hand eine Laterne, deren Flamme gerade steht. Das Bild ist alt, der Rahmen zerbrochen – aber die Farbe ist frisch, fast noch feucht.\n\nAuf dem Messingschild, fast blank gerieben: <b>„… IRA“</b>.\nAuf der Rückseite, mit Bleistift: <i>gemalt 2043</i>.', 'anw_bild'); });
+  const ch = box(.3, .9, .9, x1 - .25, 1.95, H.z + 1, hidden, { cast: false }); interact(ch, 'Wanduhr', () => toast('Drei Uhr dreizehn. Die Zeiger stehen. Das Pendel schwingt.', 2600));
+  const stairs = box(3, 2, .6, H.x, 1, z1 - 3.1, hidden, { cast: false });
+  interact(stairs, 'Treppe nach oben', () => anwesen_hallEnd());
+}
+async function anwesen_hallEnd() {
+  const S = anwesen_S; if (S.hallDone) return;
+  if (S.seen.size < 2) return toast('Die Treppe ist auf halber Höhe eingebrochen. Oben brennt Licht. Irgendwo muss es einen anderen Weg geben – sieh dich erst hier unten um.', 4200);
+  S.hallDone = true; state.talking = true;
+  await say([['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600], ['Eine Spieluhr. Dieselbe Melodie wie in Lucys Zimmer.', 3400],
+    ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah:', 3600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?']]);
+  if (Audio.musicBox) Audio.musicBox(); state.talking = false; saveGame(4);
+  state.ending = true; Audio.hum(false); $('endcard').querySelector('h1').textContent = 'KAPITEL 4 · DIE VILLA';
+  $('endcard').querySelector('p').innerHTML = 'Die Villa Seiler hat ihr erstes Geheimnis preisgegeben.<br>Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.';
+  $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; $('endcard').querySelector('.next').textContent = 'HIGH ABYSS MIRA · KAPITEL 4 WIRD FORTGESETZT';
+  const go = $('endcard').querySelector('.go'); go.style.display = ''; go.textContent = 'ZURÜCK ZUM HAUPTMENÜ'; go.onclick = () => location.reload();
+  document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); document.body.classList.add('ov');
+}
+// Endkarte von Kapitel 3: zusätzlicher Knopf „Weiter · Kapitel 4“
+c3Endcard = (o => (...a) => { o(...a); let b = $('endcard').querySelector('.go4');
+  if (!b) { b = document.createElement('div'); b.className = 'go go4'; b.style.marginBottom = '18px'; $('endcard').querySelector('.go').before(b); }
+  b.style.display = ''; b.textContent = ch3.choice === 'A' ? 'WEITER · KAPITEL 4 (setzt Ende B fort)' : 'WEITER · KAPITEL 4 · DIE VILLA';
+  b.onclick = e => { e.stopPropagation(); b.style.display = 'none'; chapter4Begin(); }; })(c3Endcard);
+WORLD_TICK.push((dt, t) => {
+  const S = anwesen_S; if (!S.ready || !state.started) return; const P = player.pos;
+  if (S.pressT > 0) { S.pressT -= dt; if (S.wheel) S.wheel.rotation.x += dt * 7; if (S.pressLight) S.pressLight.intensity = 1.2 + Math.random() * .6; if (S.pressT <= 0 && S.pressLight) S.pressLight.intensity = 0; }
+  const dv = Math.hypot(P.x + 125, P.z - 66); if (dv > 45 || S.inHall) return;
+  // flackernde Kerze hinter dem Fenster, die manchmal wandert
+  if (S.flick) { S.fT = (S.fT || 0) - dt; if (S.fT < 0) { S.fT = rand(4, 11); S.flickOn = Math.random() < .6; } S.flick.intensity = S.flickOn ? .5 + Math.sin(t * 13) * .12 + Math.random() * .15 : Math.max(0, S.flick.intensity - dt); }
+  // ein Kindergesicht am Fenster, nur wenn man gerade hinsieht, und nie länger als einen Atemzug
+  if (S.face) { S.faceT -= dt; const f = S.face, d = Math.hypot(P.x - f.position.x, P.z - f.position.z);
+    if (S.faceT < 0 && d > 7 && d < 28 && !state.talking) { camera.getWorldDirection(_anwFwd); const dx = f.position.x - camera.position.x, dz = f.position.z - camera.position.z, k = (_anwFwd.x * dx + _anwFwd.z * dz) / Math.hypot(dx, dz);
+      if (k > .93) { S.faceT = rand(90, 160); S.faceShow = .5; Audio.whisper(f.position.x, 2, f.position.z, 1.2); } }
+    if (S.faceShow > 0) { S.faceShow -= dt; f.material.opacity = S.faceShow > 0 ? .85 : 0; } }
+});
+const _anwFwd = new THREE.Vector3();
+const anwesen_hand = s => '<span class="hand">' + s + '</span>';
+window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count }; // Testzugriff
+// =====================================================================  WALD (Modul „wald“): Forbidden Dustwoods – der Wald hinter dem Spielplatz
+// Nördlich des Spielplatzes (x −40…110, z 99…156). Eingang: Lücke im Nordzaun bei x 26–34 (gruen.js lässt dort den Zaun weg).
+// Dicht, tot, lebendig: Totholz-Scans in Blöcken (≤ 1000 Instanzen je Block → echte Kollision), Unterholz (weich: bremst, raschelt), Findlinge, Laub.
+// Grenze: Weidezaun + Dickicht (sichtbar, keine unsichtbaren Wände). Wege sind freigeschlagen und mit Laub/Schlamm markiert.
+// Tiere (echte, gerigte Modelle aus leben.js): Rehe und ein Hirsch auf der Lichtung · ein Fuchs mit einem Kinderschuh · Wölfe und ein Welpe in einer Drahtschlinge.
+// Orte: Zayns Hütte (Modul zayn) · Cleos Baumhaus (Modul cleo) · das Waldschild. Aufgaben: „Die Schlinge“ (Drahtschneider), „Die Lichtung“ (leise sein).
+const WALD = { x0: -40, x1: 110, z0: 99, z1: 156, hut: { x: 58, z: 149.5 }, tree: { x: -22, z: 141 }, den: { x: 74, z: 129.5 }, wolf: { x: 96, z: 146.5 }, clear: { x: 4, z: 113, r: 8 } };
+const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
+  [[30, 96], [29.5, 104], [27, 111], [21, 118], [18.5, 124], [23, 130], [31, 134], [41, 138], [50, 142.5], [57, 146.8]],
+  [[21, 118], [13, 115], [6, 113]], [[18.5, 124], [8, 128], [-4, 133], [-15, 138], [-21, 139.3]],
+  [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]]];
+const wald_S = { ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
+function wald_in(x, z) { return x > WALD.x0 && x < WALD.x1 && z > WALD.z0 && z < WALD.z1; }
+function wald_pathDist(x, z) { let d = 1e9; for (const P of WALD_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
+  d = Math.min(d, Math.hypot(x - ax - vx * k, z - az - vz * k)); } return d; }
+function wald_free(x, z) { // Platz für einen Baum?
+  if (wald_pathDist(x, z) < 2.4) return false; const C = WALD.clear; if (Math.hypot(x - C.x, z - C.z) < C.r) return false;
+  for (const [p, r] of [[WALD.hut, 5.5], [WALD.tree, 3.2], [WALD.den, 4], [WALD.wolf, 5.5]]) if (Math.hypot(x - p.x, z - p.z) < r) return false; return true; }
+WORLD_MODS.push(['Forbidden Dustwoods', async () => {
+  const S = wald_S, T = THREE, m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), new T.Quaternion().setFromEuler(new T.Euler(tx, ry, tz)), new T.Vector3(s, s, s));
+  const [t1, t3, fence, elder, rasp, wg1, wg2] = await Promise.all([msBake('deadtree1'), msBake('deadtree3'), msBake('fencepost'), msBake('elderberry'), msBake('raspberry'), msBake('wildgrass1'), msBake('wildgrass2')]);
+  for (const p of [...t1, ...t3]) { p.mat = p.mat.clone(); p.mat.side = T.DoubleSide; p.mat.color.setScalar(.5); }
+  const chunk = (parts, list, shadow) => { const out = []; for (let i = 0; i < list.length; i += 900) out.push(...msInst(parts, list.slice(i, i + 900), { shadow })); out.forEach(im => scene.add(im)); return out; };
+  // --- Bäume: dicht im Wald, noch dichter als Gürtel hinter dem Grenzzaun
+  const A = [], B = [];
+  for (let gx = WALD.x0 - 12; gx <= WALD.x1 + 12; gx += 3.3) for (let gz = WALD.z0 + .5; gz <= WALD.z1 + 14; gz += 3.3) {
+    const x = gx + rand(-1.3, 1.3), z = gz + rand(-1.3, 1.3), ins = wald_in(x, z);
+    if (ins) { if (!wald_free(x, z) || Math.random() < .12) continue; if (Math.abs(x - WALD.x0) < 1.3 || Math.abs(x - WALD.x1) < 1.3 || Math.abs(z - WALD.z1) < 1.3) continue; }
+    else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; }
+    (Math.random() < .55 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.85, 1.55), rand(-.07, .07), rand(-.07, .07)));
+  }
+  chunk(t1, A, true); chunk(t3, B, true); S.nTrees = A.length + B.length;
+  // Der Baum für Cleos Baumhaus: groß, gerade
+  chunk(t1, [m4(WALD.tree.x, -.1, WALD.tree.z + 1.2, .4, 1.9)], true);
+  // --- Unterholz (weich), Gras
+  const eA = elder.filter(p => /VarE_LOD1$|VarG$/.test(p.name)), eR = rasp.filter(p => /VarA$/.test(p.name)), SH = [], SR = [], G1 = [], G2 = [];
+  for (let i = 0; i < 1400; i++) { const x = rand(WALD.x0 + 1, WALD.x1 - 1), z = rand(WALD.z0 + 1, WALD.z1 - 1); const pd = wald_pathDist(x, z); if (pd < 1.6) continue;
+    if (Math.hypot(x - WALD.hut.x, z - WALD.hut.z) < 4.5 || Math.hypot(x - WALD.tree.x, z - WALD.tree.z) < 2.5) continue;
+    const r = Math.random(); if (r < .28) SH.push(m4(x, 0, z, rand(0, 6.28), rand(.7, 1.2))); else if (r < .45) SR.push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.3))); else (r < .72 ? G1 : G2).push(m4(x, 0, z, rand(0, 6.28), rand(.8, 1.4))); }
+  if (eA.length) chunk(eA.slice(0, 1), SH, false); if (eR.length) chunk(eR.slice(0, 1), SR, false); chunk(wg1, G1, false); chunk(wg2, G2, false);
+  // --- Grenzzaun (West, Ost, Nord) – sichtbar, alt, schief
+  { const F = fence.map(() => []); const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
+      for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F[Math.floor(rand(0, F.length))].push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
+    run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, WALD.x1, WALD.z1); run(WALD.x1, WALD.z1, WALD.x1, 98.2);
+    fence.forEach((p, i) => { if (F[i].length) msInst([p], F[i], { shadow: true }).forEach(im => scene.add(im)); }); }
+  // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
+  try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
+    const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; } catch (e) { console.warn('Wald: Boden', e); }
+  try { const rock = await msModel('../boulder', 'model.gltf'); for (let i = 0; i < 26; i++) { const x = rand(WALD.x0 + 3, WALD.x1 - 3), z = rand(WALD.z0 + 3, WALD.z1 - 3); if (wald_pathDist(x, z) < 3 || !wald_free(x, z)) continue;
+      const o = msGround(msFit(rock.clone(true), rand(.6, 1.6), 'max')); o.position.set(x, -.08, z); o.rotation.y = rand(0, 6.28); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(o); }
+    // Der Kreidestein (Zayns Spur) am Weg
+    const cs = msGround(msFit(rock.clone(true), 1.1, 'max')); cs.position.set(16.6, -.05, 123.8); cs.rotation.y = .8; scene.add(cs); S.chalkStone = cs; } catch (e) { console.warn('Wald: Felsen', e); }
+  // --- Schild am Eingang
+  { const post = box(.1, 1.7, .1, 27.2, .85, 99.3, M.wood, { collide: true }); const sign = new T.Mesh(new T.PlaneGeometry(1.1, .55), new T.MeshStandardMaterial({ roughness: .9, map: tex(cnv(512, (c, w) => {
+      c.fillStyle = '#5a4a36'; c.fillRect(0, 0, w, w); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(0,0,0,${rand(.05, .2)})`; c.fillRect(0, rand(0, w / 2), w, rand(1, 4)); }
+      c.fillStyle = '#e8e0cc'; c.font = 'bold 44px Georgia'; c.textAlign = 'center'; c.fillText('FORSTBEZIRK NORD', w / 2, 70); c.font = '34px Georgia'; c.fillText('Betreten verboten', w / 2, 118); c.fillText('Einsturzgefahr · Totholz', w / 2, 160);
+      c.save(); c.translate(w / 2, 222); c.rotate(-.06); c.fillStyle = '#b02a20'; c.font = 'bold 40px "Comic Sans MS", cursive'; c.fillText('FORBIDDEN DUSTWOODS', 0, 0); c.restore(); }), true) }));
+    sign.material.map.repeat.set(1, .5); sign.material.map.offset.set(0, .5); sign.position.set(27.2, 1.5, 99.24); sign.rotation.y = PI; scene.add(sign);
+    const hit = box(1.2, .7, .3, 27.2, 1.5, 99.3, hidden, { cast: false });
+    interact(hit, 'Schild lesen', () => { if (!story.lore.some(l => l.key === 'wald_schild')) story.lore.push({ key: 'wald_schild', title: 'Forbidden Dustwoods', html: 'Ein Forstschild, Betreten verboten. Darüber, in roter Kinderschrift: FORBIDDEN DUSTWOODS.\n\nSo habt ihr ihn genannt. Weil hier der Staub nie nass wird, egal wie lange es regnet.' });
+      openNote('Forbidden Dustwoods', 'FORSTBEZIRK NORD · Betreten verboten · Einsturzgefahr, Totholz.\n\nDarüber, mit roter Farbe, in Kinderschrift: <b>FORBIDDEN DUSTWOODS</b>.\n\nSo habt ihr ihn genannt, damals. Weil hier der Staub nie nass wird, egal wie lange es regnet. Keiner durfte rein. Alle wollten.'); }); }
+  // --- Zayns Hütte: Bretterhütte mit Blechdach (Innenraum; Inhalt im Modul zayn)
+  { const H = WALD.hut, w = 3.4, d = 3.8, h = 2.45, x0 = H.x - w / 2, x1 = H.x + w / 2, z0 = H.z - d / 2, z1 = H.z + d / 2;
+    const pl = msSurfMat('planks_painted', { tint: 0x5a5046 }); pl.userData.tile = 1.1; const fl = msSurfMat('floor_worn', { tint: 0x4a4038 }); fl.userData.tile = 1;
+    const roofM = msSurfMat('corrugated', { tint: 0x6a5a4a }); roofM.side = T.DoubleSide;
+    wall('x', z0, x0, x1, h, pl, [{ at: H.x - .6, w: .95 }], .12, 1.95); wall('x', z1, x0, x1, h, pl, [], .12); wall('z', x0, z0, z1, h, pl, [], .12); wall('z', x1, z0, z1, h, pl, [{ at: H.z + .6, w: .7 }], .12, 1.9);
+    box(.12, .9, .7, x1, .45, H.z + .6, pl, { collide: true }); // Fensterbrüstung
+    plane(w, d, H.x, .03, H.z, fl); const roof = box(w + .6, .06, d + .6, H.x, h + .08, H.z, roofM, { cast: true }); roof.rotation.x = .08;
+    indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 }); S.hutRect = { x0, x1, z0, z1 };
+    const L = new VLight(0xffb070, 0, 4, 2); L.position.set(H.x + .8, 1.2, H.z + 1.2); scene.add(L); S.hutLight = L; }
+  // --- Cleos Baumhaus: Plattform in 2,2 m Höhe, Geländer, Dach, Strickleiter (Inhalt im Modul cleo)
+  { const P = WALD.tree, y = 2.2, pl = msSurfMat('planks_painted', { tint: 0x6a5a48 }); pl.userData.tile = 1; const roofM = msSurfMat('corrugated', { tint: 0x5e564c }); roofM.side = T.DoubleSide;
+    const floor = box(2.6, .14, 2.6, P.x, y - .07, P.z, pl, { collide: false });
+    for (const [x, z, w_, d_] of [[P.x, P.z + 1.25, 2.6, .08], [P.x - 1.25, P.z, .08, 2.6], [P.x + 1.25, P.z, .08, 2.6]]) box(w_, .8, d_, x, y + .4, z, pl, { collide: false });
+    box(.9, .8, .08, P.x - .85, y + .4, P.z - 1.25, pl, { collide: false }); box(.9, .8, .08, P.x + .85, y + .4, P.z - 1.25, pl, { collide: false });
+    for (const [px, pz] of [[-1.2, -1.2], [1.2, -1.2], [-1.2, 1.2], [1.2, 1.2]]) box(.09, 2.2, .09, P.x + px, y + 1.1, P.z + pz, pl, { collide: false });
+    const roof = box(3, .05, 3, P.x, y + 2.25, P.z, roofM, { cast: true }); roof.rotation.z = .1;
+    for (const [px] of [[-.3], [.3]]) box(.04, y, .04, P.x + px, y / 2, P.z - 1.4, M.wood, { collide: false }); // Strickleiter (Seile)
+    for (let k = 0; k < 7; k++) box(.66, .035, .05, P.x, .3 + k * .3, P.z - 1.4, M.wood, { collide: false });
+    S.treeY = y; }
+  // --- Tiere
+  try { await wald_beasts(); } catch (e) { console.warn('Wald: Tiere', e); }
+  // --- Hinweise für den Kinderblick
+  if (typeof hintAdd === 'function') { hintAdd({ id: 'wald_welpe', x: WALD.wolf.x, y: 0, z: WALD.wolf.z, kind: 'geheim', near: 40, open: () => !story.lore.some(l => l.key === 'wald_welpe') });
+    hintAdd({ id: 'wald_hirsch', x: WALD.clear.x, y: 0, z: WALD.clear.z, kind: 'geheim', near: 40, open: () => !story.lore.some(l => l.key === 'wald_hirsch') }); }
+  story.side.wald_welpe = { title: 'Die Schlinge', desc: 'Irgendwo im Osten der Dustwoods jault etwas. Hoch, dünn, verzweifelt.', state: 'hidden' };
+  story.side.wald_hirsch = { title: 'Die Lichtung', desc: 'Auf einer Lichtung grasen Rehe. Sie fliehen vor Licht und schnellen Schritten.', state: 'hidden' };
+  S.ready = true;
+}]);
+// ---------------------------------------------------------------- Tiere
+async function wald_beasts() {
+  const S = wald_S, L = leben_S; if (!L || !L.M || !L.skc || !L.root) { S.noBeasts = true; return; }
+  try { if (!L.M.stag) { const sc = await msModel('animal_deerstag', 'model.glb'); leben_shrink(sc, 1024); L.M.stag = { src: sc, clips: sc.animations || [] }; } } catch (e) { console.warn('Wald: Hirsch', e); }
+  const C = WALD.clear;
+  for (let i = 0; i < 3; i++) { const V = leben_beast(i === 0 && L.M.stag ? 'stag' : 'deer', rand(.95, 1.08)); if (!V) continue; V.home = [C.x + rand(-4, 4), C.z + rand(-4, 4)]; V.g.position.set(V.home[0], 0, V.home[1]); V.g.rotation.y = rand(0, 6.28);
+    V.g.visible = true; V.st = 'graze'; V.t = rand(1, 5); V.stag = i === 0; leben_play(V, 'IdleGraze', 0); S.deer.push(V); }
+  const F = leben_beast('fox', 1); if (F) { F.g.position.set(WALD.den.x - 9, 0, WALD.den.z - 6); F.g.visible = true; F.st = 'wait'; F.t = 0; leben_play(F, 'IdleLookAround', 0); S.fox = F;
+    const shoe = wald_shoe(); shoe.position.set(0, .28, .38); shoe.rotation.set(0, PI / 2, 0); shoe.scale.setScalar(.8); F.g.add(shoe); S.shoe = shoe; }
+  for (let i = 0; i < 2; i++) { const W = leben_beast('wolf', rand(1.05, 1.15)); if (!W) continue; W.g.position.set(WALD.wolf.x + (i ? 3 : -3.5), 0, WALD.wolf.z - 3 + i); W.g.visible = true; W.st = 'guard'; W.t = rand(2, 6); leben_play(W, 'IdleBreathe', 0); S.wolves.push(W); }
+  const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup;
+    const snare = new THREE.Mesh(new THREE.TorusGeometry(.18, .008, 6, 24), new THREE.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); snare.rotation.x = PI / 2; snare.position.set(WALD.wolf.x + .25, .18, WALD.wolf.z); scene.add(snare); S.snare = snare;
+    const pole = box(.06, .7, .06, WALD.wolf.x + .5, .35, WALD.wolf.z + .1, M.wood, { collide: false });
+    const hit = box(1.2, .8, 1.2, WALD.wolf.x, .4, WALD.wolf.z, hidden, { cast: false });
+    interact(hit, () => story.lore.some(l => l.key === 'wald_welpe') ? 'Die offene Schlinge' : 'Der Welpe in der Schlinge', () => wald_pup()); }
+  S.beasts = [...S.deer, ...(S.fox ? [S.fox] : []), ...S.wolves, ...(S.pup ? [S.pup] : [])];
+}
+// Kinderschuh (klein, Stoff und Gummi) – gehört zu Zayns Spur
+function wald_shoe() {
+  const g = new THREE.Group(), cloth = new THREE.MeshStandardMaterial({ color: 0x2a3a6a, roughness: .9 }), sole = new THREE.MeshStandardMaterial({ color: 0xd8d2c4, roughness: .8 }), lace = new THREE.MeshStandardMaterial({ color: 0xc02020, roughness: .7 });
+  const s = new THREE.Mesh(new THREE.BoxGeometry(.075, .025, .19), sole); s.position.y = .012; g.add(s);
+  const b = new THREE.Mesh(new THREE.CapsuleGeometry(.036, .1, 4, 10), cloth); b.rotation.x = PI / 2; b.scale.set(1, 1, .75); b.position.set(0, .045, .015); g.add(b);
+  const h = new THREE.Mesh(new THREE.CylinderGeometry(.034, .036, .06, 10), cloth); h.position.set(0, .07, -.055); g.add(h);
+  for (let k = 0; k < 3; k++) { const l = new THREE.Mesh(new THREE.BoxGeometry(.05, .006, .008), lace); l.position.set(0, .08 - k * .006, .02 + k * .025); g.add(l); }
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.noCol = true; return g;
+}
+function wald_pup() {
+  const S = wald_S; if (story.lore.some(l => l.key === 'wald_welpe')) return toast('Die Schlinge liegt offen im Laub. Von den Wölfen keine Spur – aber du weißt, dass sie da sind.', 3600);
+  sideStart('wald_welpe');
+  if (!story.items.includes('drahtschneider')) { story.side.wald_welpe.desc = 'Ein Wolfswelpe hängt in einer Drahtschlinge. Mit bloßen Händen bekommst du den Draht nicht auf.'; return toast('Ein Wolfswelpe. Der Draht hat sich um sein Hinterbein gezogen, er zittert. Hinter dir knurrt es, tief und leise. Mit bloßen Händen bekommst du den Draht nicht auf.', 5200); }
+  Audio.play('metalHit2', { gain: .3, rate: 1.9 }); if (S.snare) S.snare.visible = false;
+  story.lore.push({ key: 'wald_welpe', title: 'Die Schlinge', html: 'Ein Wolfswelpe in einer Drahtschlinge. Du hast sie aufgeschnitten. Die Wölfe haben zugesehen und nichts getan.\n\nIn den Draht war ein Taschenmesser gewickelt. In den Griff geritzt: <b>JONAS W.</b>\nZayns großer Bruder war hier. Irgendwann. Er hat gesucht.' });
+  sideDone('wald_welpe', 'Der Welpe ist frei. Im Draht: ein Taschenmesser mit dem Namen JONAS W.');
+  if (S.pup) { S.pup.st = 'free'; S.pup.tx = WALD.wolf.x + 14; S.pup.tz = WALD.wolf.z - 4; S.pup.sp = 3.2; leben_play(S.pup, 'Run', .15); }
+  S.wolves.forEach((W, i) => { W.st = 'leave'; W.t = 2 + i * .6; });
+  setTimeout(() => { leben_howl(WALD.wolf.x + 10, 1, WALD.wolf.z); setTimeout(() => leben_howl(WALD.wolf.x + 14, 1, WALD.wolf.z - 3), 1400); }, 1600);
+  openNote('Ein Taschenmesser', 'Im Draht der Schlinge steckt ein Taschenmesser, rostig, zugeklappt. In den Griff hat jemand mit der Spitze geritzt:\n\n<b>JONAS W.</b>\n\nJonas. Zayns großer Bruder. Dein bester Freund, damals. Er war hier draußen – irgendwann nach 2009. Er hat seinen Bruder gesucht. Allein.');
+  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6, 3);
+}
+WORLD_TICK.push((dt, t) => {
+  const S = wald_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;
+  const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', .8, 2); } }
+  if (S.noBeasts && leben_S.ready && !S.beastTry) { S.beastTry = true; S.noBeasts = false; wald_beasts().catch(e => console.warn('Wald: Tiere', e)); }
+  for (const V of S.beasts) if (V.st !== 'gone') V.g.visible = near; // weit weg: nicht zeichnen
+  if (!near) return;
+  // Geräusche: Totholz knackt, ferne Krähen, ein Käuzchen, manchmal Stille
+  if (inside && !state.talking) { S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(5, 13); const a = rand(0, 6.28), d = rand(8, 22), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d, r = Math.random();
+    if (r < .35) Audio.treeCreak(x, z); else if (r < .55) Audio.caw(x, rand(4, 8), z); else if (r < .7) Audio.owl(x, z); else if (r < .85) Audio.stepAt(x, z, .18); else Audio.flap(x, 3, z); } }
+  const spd = Math.hypot(vel.x, vel.z);
+  // Rehe: grasen; Licht, Laufen oder Nähe → aufmerksam, dann Flucht. Wer langsam und im Dunkeln kommt, dem sieht der Hirsch nach.
+  for (const D of S.deer) { if (D.st === 'gone') { D.t -= dt; if (D.t < 0 && Math.hypot(P.x - WALD.clear.x, P.z - WALD.clear.z) > 45) { D.g.position.set(D.home[0], 0, D.home[1]); D.g.visible = true; D.st = 'graze'; leben_play(D, 'IdleGraze', .3); } continue; }
+    leben_beastUpd(D, dt, 70); const p = D.g.position, d = Math.hypot(p.x - P.x, p.z - P.z), lit = flashOn && d < 26 && leben_facing(p.x, p.y + .9, p.z) > .96;
+    if (D.st === 'graze') { D.t -= dt; if (D.t < 0) { D.t = rand(3, 8); leben_play(D, Math.random() < .7 ? 'IdleGraze' : 'IdleChew', .4); }
+      if (d < 20 && (lit || spd > 3.2 || d < 4.5)) { D.st = 'flee'; D.sp = 7; const a = Math.atan2(p.x - P.x, p.z - P.z) + rand(-.5, .5); D.tx = p.x + Math.sin(a) * 40; D.tz = p.z + Math.cos(a) * 40; leben_play(D, 'Run', .15); if (d < 14) sideStart('wald_hirsch'); }
+      else if (D.stag && d < 7.5 && !flashOn && spd < 3 && !story.lore.some(l => l.key === 'wald_hirsch')) { D.st = 'look'; D.t = 4; leben_play(D, 'IdleLookAround', .3); } }
+    else if (D.st === 'look') { D.g.rotation.y = leben_ang(D.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 2)); D.t -= dt;
+      if (D.t < 0) { D.st = 'lead'; D.tx = WALD.tree.x + 3; D.tz = WALD.tree.z - 4; D.sp = 1.3; leben_play(D, 'WalkGraze', .4); sideStart('wald_hirsch');
+        story.lore.push({ key: 'wald_hirsch', title: 'Die Lichtung', html: 'Du bist leise gekommen, im Dunkeln. Der Hirsch hat dich angesehen – lange, ohne Angst. Dann ist er nach Westen gegangen, langsam, als sollst du folgen.' });
+        sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', .5, 3); } }
+    else if (D.st === 'lead') { if (leben_beastMove(D, dt) || d > 40) { D.st = 'gone'; D.g.visible = false; D.t = 120; } }
+    else if (D.st === 'flee') { leben_beastMove(D, dt); if (d > 45 || !leben_free(p.x + Math.sin(D.g.rotation.y) * 1.5, p.z + Math.cos(D.g.rotation.y) * 1.5, .7, .4)) { D.st = 'gone'; D.g.visible = false; D.t = rand(60, 120); } } }
+  // Fuchs: trägt den Schuh. Kommt man näher, läuft er zu seinem Bau, lässt den Schuh fallen und verschwindet im Unterholz
+  const F = S.fox; if (F) { leben_beastUpd(F, dt, 60); const p = F.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
+    if (F.st === 'wait') { F.t -= dt; if (F.t < 0) { F.t = rand(2, 5); leben_play(F, Math.random() < .6 ? 'IdleLookAround' : 'Walk', .3); } F.g.rotation.y = leben_ang(F.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt));
+      if (d < 13) { F.st = 'run'; F.tx = WALD.den.x; F.tz = WALD.den.z - 1.2; F.sp = 3.4; leben_play(F, 'Run', .15); } }
+    else if (F.st === 'run') { if (leben_beastMove(F, dt)) { F.st = 'drop'; F.t = 1.2; leben_play(F, 'IdleLookAround', .2); } }
+    else if (F.st === 'drop') { F.t -= dt; if (F.t < 0) { wald_dropShoe(); F.st = 'hide'; F.tx = WALD.den.x + 6; F.tz = WALD.den.z + 7; F.sp = 4; leben_play(F, 'Run', .15); } }
+    else if (F.st === 'hide') { if (leben_beastMove(F, dt) || d > 40) { F.st = 'gone'; F.g.visible = false; } }
+    if (F.st !== 'drop' && F.st !== 'gone' && Math.hypot(P.x - WALD.den.x, P.z - WALD.den.z) < 4 && S.shoe && S.shoe.parent === F.g) wald_dropShoe(); } // wer zuerst am Bau ist, findet den Schuh trotzdem
+  // Wölfe: bewachen den Welpen. Näher als 9 m: sie knurren und kommen einen Schritt. Nach der Befreiung ziehen sie ab.
+  for (const W of S.wolves) { leben_beastUpd(W, dt, 70); const p = W.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
+    if (W.st === 'guard') { W.g.rotation.y = leben_ang(W.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 2)); W.t -= dt;
+      if (d < 9 && W.t < 0) { W.t = rand(2.5, 4); Audio.play('dog', { gain: .25, rate: .55, x: p.x, y: .6, z: p.z, ref: 3, dur: .7 }); leben_play(W, 'IdleLookAround', .2); sideStart('wald_welpe'); }
+      else if (W.t < 0) { W.t = rand(4, 9); if (d < 45 && Math.random() < .3) { leben_play(W, 'Howl', .3, 1, true); leben_howl(p.x, p.y + .8, p.z); } else leben_play(W, 'IdleBreathe', .4); } }
+    else if (W.st === 'leave') { W.t -= dt; if (W.t < 0) { W.st = 'go'; W.tx = WALD.wolf.x + 18; W.tz = WALD.wolf.z - 6; W.sp = 3; leben_play(W, 'Run', .2); } }
+    else if (W.st === 'go') { if (leben_beastMove(W, dt)) { W.st = 'gone'; W.g.visible = false; } } }
+  const pup = S.pup; if (pup) { leben_beastUpd(pup, dt, 50); if (pup.st === 'caught') { pup.t = (pup.t || 0) - dt; if (pup.t < 0 && Math.hypot(P.x - pup.g.position.x, P.z - pup.g.position.z) < 30) { pup.t = rand(3, 7); Audio.play('dog', { gain: .1, rate: 1.9, x: pup.g.position.x, y: .3, z: pup.g.position.z, ref: 2, dur: .35 }); } }
+    else if (pup.st === 'free') { if (leben_beastMove(pup, dt)) { pup.st = 'gone'; pup.g.visible = false; } } }
+});
+function wald_dropShoe() {
+  const S = wald_S; if (!S.shoe || S.shoe.parent === scene) return; S.shoe.removeFromParent(); S.shoe.position.set(WALD.den.x - .3, .02, WALD.den.z - 1.6); S.shoe.rotation.set(0, .7, .12); S.shoe.scale.setScalar(1); scene.add(S.shoe);
+  if (typeof zayn_shoeDropped === 'function') zayn_shoeDropped(S.shoe);
+}
+window.__wald = { S: wald_S, W: WALD, paths: WALD_PATHS }; // Testzugriff
+// =====================================================================  ZAYN (Modul „zayn“): Nebenquest „Versprochen ist versprochen“
+// Zayn Wendt, 7 (2009) – Hildes Jüngster, der kleine Bruder von Jonas, Lukes bestem Freund. Er kam 2009 als Einziger nie zurück.
+// 1) Nr. 7, ab Kapitel 3 verlassen: ein kleiner Rucksack, Anhänger „ZAYN“.  2) Darin eine Kinderkamera: sechs Fotos vom alten Spielplatz,
+// auf jedem fehlt ein Detail, auf jedem steht Zayn einen Schritt näher am Wald → Reihenfolge finden. Letztes Bild: nur der Waldrand, „Er wollte, dass ich ihm folge.“
+// 3) Spur durch die Forbidden Dustwoods: Murmel, Schuh (der Fuchs trägt ihn), Kreide, Süßigkeitenverpackung – Dinge aus Lukes eigener Kindheit.
+// 4) Die Hütte: Kinderzeichnungen („Versprochen ist versprochen.“), die Erinnerung an das Versprechen, das alte Radio mit Zayns Stimme.
+// 5) Auf dem Boden die letzte Zeichnung – Zayn hat sich selbst herausgemalt. Keine Antwortmöglichkeit. Die Quest endet einfach.
+// Die Fotos sind echte Aufnahmen der Spielwelt (einmalig gerendert, mit dem Taschenlampenlicht als Kamerablitz).
+const zayn_S = { ready: false, stage: 0, photos: null, bag: null, bagHit: null, spots: [], found: new Set(), shoeHit: null, drawing: null, floor: null, radio: null, hutIn: false };
+const ZAYN_SPUR = [
+  ['murmel', 'Eine Murmel', 'Eine Glasmurmel mit rotem Wirbel. Deine Lieblingsmurmel. Du hast sie mit acht an Jonas verloren – hinter der Kapelle, beim Spiel „Wer trifft die Wand“.\n\nWie kommt sie hierher?'],
+  ['schuh', 'Ein Kinderschuh', 'Ein blauer Kinderschuh, Größe 26, rot-weiße Schnürsenkel. Genau solche hattest du. Mama hat sie gekauft, weil du keine anderen wolltest.\n\nZayn wollte dann auch welche. Natürlich.'],
+  ['kreide', 'Ein Stück Kreide', 'Gelbe Straßenkreide, halb abgebrochen. Daneben, auf dem Waldboden, ein Hüpfkästchen – wie das, das ihr jeden Sommer vor Nr. 7 gemalt habt.\n\nZayn durfte immer nur die Acht malen. Die war am weitesten weg.'],
+  ['brause', 'Eine Süßigkeitenverpackung', 'Brausestäbchen, Waldmeister. Die gab es an der Tankstelle Kranz, fünf Stück für eine Mark – später für fünfzig Cent.\n\nJonas hat Zayn immer die Hälfte abgegeben. Du nie.']];
+const zayn_has = k => story.lore.some(l => l.key === k);
+function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; }
+WORLD_MODS.push(['Zayn', async () => {
+  const S = zayn_S, T = THREE;
+  story.side.zayn = { title: 'Versprochen ist versprochen', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
+  modItem('zayn_kamera', 'Zayns Kinderkamera', 'Eine kleine Kamera aus buntem Plastik. Sechs Fotos, alle vom alten Spielplatz.', 'paper');
+  // --- Rucksack (Mesh jetzt, Platz im Haus erst nach dem Kollisionsaufbau)
+  { const g = new T.Group(), fab = new T.MeshStandardMaterial({ color: 0x2c4a7a, roughness: .92 }), strap = new T.MeshStandardMaterial({ color: 0x1a1a1e, roughness: .8 });
+    const body = new T.Mesh(new T.BoxGeometry(.26, .32, .14), fab); body.position.y = .16; g.add(body);
+    const top = new T.Mesh(new T.CylinderGeometry(.13, .13, .26, 14, 1, false, 0, PI), fab); top.rotation.set(0, 0, PI / 2); top.scale.set(1, 1, .55); top.position.y = .32; g.add(top);
+    const pocket = new T.Mesh(new T.BoxGeometry(.2, .12, .05), fab); pocket.position.set(0, .1, .09); g.add(pocket);
+    for (const s of [-1, 1]) { const st = new T.Mesh(new T.BoxGeometry(.03, .28, .012), strap); st.position.set(s * .07, .18, -.075); g.add(st); }
+    const tag = new T.Mesh(new T.PlaneGeometry(.06, .04), new T.MeshStandardMaterial({ roughness: .8, map: tex(cnv(128, (c, w) => { c.fillStyle = '#e8e0c8'; c.fillRect(0, 0, w, w); c.fillStyle = '#1a2a6a'; c.font = 'bold 34px Arial'; c.textAlign = 'center'; c.fillText('ZAYN', w / 2, 76); }), true) }));
+    tag.position.set(.1, .26, .076); tag.rotation.z = -.2; g.add(tag); g.rotation.x = -.18; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); g.userData.noCol = true; g.visible = false; scene.add(g); S.bag = g; }
+  // --- Spur im Wald
+  const glass = new T.MeshStandardMaterial({ color: 0xd8e8f0, roughness: .05, metalness: .1, transparent: true, opacity: .85, emissive: 0x304050, emissiveIntensity: .4 });
+  const spot = (k, x, y, z, mesh, w = .45) => { if (mesh) { mesh.position.set(x, y, z); scene.add(mesh); } const hit = box(w, .35, w, x, y + .1, z, hidden, { cast: false }); S.spots.push({ k, x, z, mesh, hit });
+    interact(hit, () => zayn_has('zayn_spur_' + k) ? '' : ZAYN_SPUR.find(s => s[0] === k)[1], () => zayn_take(k));
+    if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_' + k, x, y: 0, z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_spur_' + k) }); };
+  { const m = new T.Group(), b = new T.Mesh(new T.SphereGeometry(.014, 14, 10), glass), sw = new T.Mesh(new T.TorusGeometry(.009, .003, 6, 14), new T.MeshStandardMaterial({ color: 0xc02020, emissive: 0x400000 })); m.add(b, sw); spot('murmel', 30.6, .015, 107.2, m); }
+  { const c = new T.Mesh(new T.CylinderGeometry(.009, .009, .07, 8), new T.MeshStandardMaterial({ color: 0xe8d060, roughness: 1 })); c.rotation.set(PI / 2, 0, .6); spot('kreide', 17.6, .012, 122.9, c);
+    const hop = new T.Mesh(new T.PlaneGeometry(1.1, 2.6), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(256, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(230,220,160,.55)'; x.lineWidth = 5;
+      const cells = [[0, 0], [0, 1], [-1, 2], [1, 2], [0, 3], [-1, 4], [1, 4], [0, 5]]; cells.forEach(([cx, cy], i) => { const px = 128 + cx * 38 - 19, py = 236 - cy * 40 - 36; x.strokeRect(px, py, 38, 38); x.fillStyle = i === 7 ? 'rgba(250,240,170,.9)' : 'rgba(230,220,160,.5)'; x.font = 'bold 26px Arial'; x.fillText(String(i + 1), px + 12, py + 28); }); }), true) }));
+    hop.rotation.set(-PI / 2, 0, .3); hop.position.set(19, .016, 122); scene.add(hop); }
+  { const wr = new T.Mesh(new T.PlaneGeometry(.12, .045), new T.MeshStandardMaterial({ side: T.DoubleSide, roughness: .4, metalness: .3, map: tex(cnv(128, (c, w) => { c.fillStyle = '#2e8a3a'; c.fillRect(0, 0, w, w); c.fillStyle = '#f4f0a0'; c.font = 'bold 22px Arial'; c.textAlign = 'center'; c.fillText('BRAUSE', w / 2, 44); c.font = '15px Arial'; c.fillText('Waldmeister', w / 2, 70); }), true) }));
+    wr.rotation.set(-.6, .8, .3); spot('brause', 35.3, .42, 135.4, wr); }
+  // --- Hütte: Zeichnungen, Radio, Decke, Kerze
+  const H = WALD.hut, draw = (fn, w, h, x, y, z, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ roughness: .95, map: tex(cnv(512, fn), true) })); m.position.set(x, y, z); m.rotation.y = ry; scene.add(m); return m; };
+  const kid = (x, c, px, py, s, col) => { x.strokeStyle = col; x.lineWidth = 7 * s; x.lineCap = 'round'; x.beginPath(); x.arc(px, py, 26 * s, 0, 7); x.stroke(); x.beginPath(); x.moveTo(px, py + 26 * s); x.lineTo(px, py + 110 * s); x.moveTo(px - 40 * s, py + 60 * s); x.lineTo(px + 40 * s, py + 60 * s); x.moveTo(px, py + 110 * s); x.lineTo(px - 28 * s, py + 170 * s); x.moveTo(px, py + 110 * s); x.lineTo(px + 28 * s, py + 170 * s); x.stroke(); };
+  const paper = x => { x.fillStyle = '#ece4cc'; x.fillRect(0, 0, 512, 512); for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(90,70,40,${rand(.02, .06)})`; x.fillRect(rand(0, 512), rand(0, 512), rand(20, 90), rand(2, 8)); } };
+  S.drawing = draw(x => { paper(x); kid(x, 0, 150, 150, 1, '#2a4ac0'); kid(x, 0, 290, 150, 1, '#c03a2a'); kid(x, 0, 400, 205, .7, '#2a9a3a');
+    x.fillStyle = '#333'; x.font = '28px "Comic Sans MS", cursive'; x.fillText('LUKE', 110, 380); x.fillText('JONAS', 245, 380); x.fillText('ICH', 375, 380); x.fillStyle = '#a02020'; x.font = 'bold 34px "Comic Sans MS", cursive'; x.fillText('Versprochen ist versprochen.', 40, 460); }, .62, .62, H.x - .3, 1.45, H.z + 1.84, PI);
+  draw(x => { paper(x); x.strokeStyle = '#5a3a1a'; x.lineWidth = 12; for (let i = 0; i < 7; i++) { x.beginPath(); x.moveTo(40 + i * 70, 470); x.lineTo(60 + i * 70, 120); x.stroke(); } x.fillStyle = '#e8c020'; x.beginPath(); x.arc(256, 70, 40, 0, 7); x.fill(); kid(x, 0, 256, 260, .6, '#2a9a3a'); }, .5, .5, H.x - 1.64, 1.5, H.z - .4, PI / 2);
+  draw(x => { paper(x); x.strokeStyle = '#444'; x.lineWidth = 8; x.strokeRect(80, 260, 90, 200); x.beginPath(); x.moveTo(250, 460); x.lineTo(330, 280); x.lineTo(410, 460); x.stroke(); kid(x, 0, 330, 120, .55, '#2a9a3a'); x.fillStyle = '#333'; x.font = '30px "Comic Sans MS", cursive'; x.fillText('ich warte hier', 150, 60); }, .45, .45, H.x - 1.64, 1.45, H.z + .6, PI / 2);
+  { const hit = box(.7, .7, .15, H.x - .3, 1.45, H.z + 1.8, hidden, { cast: false }); interact(hit, 'Kinderzeichnung', () => zayn_drawing()); }
+  box(1.4, .12, .75, H.x + .7, .06, H.z + 1.4, new T.MeshStandardMaterial({ color: 0x4a3a30, roughness: 1 }), { collide: false }); // Decke auf dem Boden
+  box(.5, .45, .4, H.x + 1.1, .225, H.z - 1.3, M.wood, { collide: true }); // Kiste
+  try { const r = await msModel('radio'); const o = msGround(msFit(r.clone(true), .38, 'max')); o.position.set(H.x + 1.1, .45, H.z - 1.3); o.rotation.y = -PI / 2 - .3; scene.add(o); S.radio = o; } catch (e) { console.warn('Zayn: Radio', e); }
+  { const hit = box(.5, .4, .45, H.x + 1.1, .65, H.z - 1.3, hidden, { cast: false }); interact(hit, () => zayn_has('zayn_radio') ? 'Altes Radio' : 'Altes Radio einschalten', () => zayn_radio()); }
+  // Die letzte Zeichnung (erscheint nach dem Radio)
+  S.floor = draw(x => { paper(x); kid(x, 0, 150, 150, 1, '#2a4ac0'); kid(x, 0, 290, 150, 1, '#c03a2a'); x.fillStyle = 'rgba(236,228,204,.95)'; x.fillRect(340, 120, 130, 260);
+    for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(120,110,90,${rand(.04, .12)})`; x.fillRect(rand(345, 460), rand(130, 370), rand(10, 40), rand(2, 6)); } x.fillStyle = '#333'; x.font = '28px "Comic Sans MS", cursive'; x.fillText('LUKE', 110, 380); x.fillText('JONAS', 245, 380); }, .48, .48, H.x - .2, .012, H.z - .3, 0);
+  S.floor.rotation.set(-PI / 2, 0, .4); S.floor.visible = false;
+  { const hit = box(.6, .12, .6, H.x - .2, .05, H.z - .3, hidden, { cast: false }); S.floorHit = hit; interact(hit, 'Zeichnung auf dem Boden', () => zayn_last()); uninteract(hit); }
+  if (typeof hintAdd === 'function') { hintAdd({ id: 'zayn_rucksack', x: 24.8, y: Y, z: -13.2, kind: 'story', near: 30, open: () => (ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4)) && zayn_S.stage < 1 });
+    hintAdd({ id: 'zayn_huette', x: H.x, y: 0, z: H.z, kind: 'story', near: 60, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_ende') }); }
+  S.ready = true;
+}]);
+// ---- 1) Rucksack (bleibt liegen: bis das Rätsel gelöst ist, öffnet er die Kamera erneut)
+const zayn_bagLabel = () => zayn_S.stage < 1 ? 'Kleiner Rucksack' : zayn_S.stage < 2 ? 'Zayns Kamera ansehen' : 'Zayns Rucksack';
+function zayn_placeBag() { // freie Stelle auf dem Boden im Wohnzimmer von Nr. 7, nahe Zayns Blechroboter
+  const S = zayn_S; for (let r = 0; r < 2.4; r += .25) for (let a = 0; a < 6.28; a += .5) { const x = 24.8 + Math.cos(a) * r, z = -13.3 + Math.sin(a) * r * .7;
+    if (x < 21 || x > 31 || z > -12.6 || z < -21.5) continue; if (!leben_free(x, z, Y + .25, .3) || !leben_free(x, z, Y + .9, .3)) continue;
+    S.bag.position.set(x, Y, z); S.bag.rotation.y = rand(-.6, .6); S.bagHit = box(.45, .5, .4, x, Y + .22, z, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); uninteract(S.bagHit); return true; }
+  return false; }
+function zayn_bag() {
+  const S = zayn_S; if (S.stage >= 1) return S.stage < 2 ? zayn_camera() : toast('Zayns Rucksack. Leer bis auf ein Kaugummipapier und einen Zettel mit einer 8 darauf.', 3200); addItem('zayn_kamera');
+  story.lore.push({ key: 'zayn_rucksack', title: 'Ein kleiner Rucksack', html: 'Blau, ausgeblichen. Auf dem Anhänger: ZAYN.\n\nZayn Wendt. Jonas’ kleiner Bruder. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen. Du hast ihn seit Jahren nicht gesehen.\n\nIm Rucksack: eine Kinderkamera.' });
+  zayn_stage(1, 'Zayns Rucksack lag in Nr. 7. Darin eine Kinderkamera mit sechs Fotos vom alten Spielplatz. (Inventar)');
+  openNote('Ein kleiner Rucksack', 'Blau, ausgeblichen, mit einem Anhänger. Darauf, in Druckbuchstaben: <b>ZAYN</b>.\n\nDu erkennst den Namen sofort. Zayn – der kleine Bruder von Jonas, deinem besten Freund damals. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen.\n\nDu hast ihn seit Jahren nicht gesehen.\n\nIm Rucksack: eine alte Kinderkamera.', null, () => setTimeout(() => zayn_camera(), 250));
+}
+// ---- 2) Kamera: sechs echte Aufnahmen vom Spielplatz
+function zayn_hideAt(x, z, r, onlyInst) { // alles in Reichweite kurz ausblenden; gibt eine Rücknahme zurück
+  const undo = [], m4 = new THREE.Matrix4(), v = new THREE.Vector3(), bb = new THREE.Box3(), zero = new THREE.Matrix4().makeScale(0, 0, 0);
+  scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || !o.visible) return;
+    if (o.isInstancedMesh) { for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); v.setFromMatrixPosition(m4).applyMatrix4(o.matrixWorld); if (Math.hypot(v.x - x, v.z - z) < r) { const keep = m4.clone(); o.setMatrixAt(i, zero); o.instanceMatrix.needsUpdate = true;
+          undo.push(() => { o.setMatrixAt(i, keep); o.instanceMatrix.needsUpdate = true; const C = typeof PERF_CULL !== 'undefined' && PERF_CULL.list.find(c => c.o === o); if (C) C.ver = o.instanceMatrix.version + 1; }); } } return; }
+    if (onlyInst) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); bb.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); const s = bb.getSize(v);
+    if (s.x > 6 || s.z > 6 || s.y > 6) return; bb.getCenter(v); if (Math.hypot(v.x - x, v.z - z) < r) { o.visible = false; undo.push(() => { o.visible = true; }); } });
+  return () => undo.forEach(f => f()); }
+function zayn_takePhotos() {
+  const T = THREE, W = 400, Hh = 300, rt = new T.WebGLRenderTarget(W, Hh), pc = new T.PerspectiveCamera(58, W / Hh, .1, 160), buf = new Uint8Array(W * Hh * 4);
+  const c0 = camera.position.clone(), q0 = camera.quaternion.clone(), fr0 = { p: flashRig.position.clone(), q: flashRig.quaternion.clone(), i: flashlight.intensity }, F = echoFigs[0], op0 = echoMat.opacity;
+  const shots = [[70.5, [40.6, 78.8, 1.9], 'Schaukel'], [76, [35.9, 69.2, .6], 'Ball'], [81.5, [21.4, 67.2, 1.3], 'Bank'], [87, [30, 86.5, 1.4], 'Baum'], [92, [34, 71.2, 1.6], 'Karussell'], [null, null, 'Waldrand']];
+  const out = [];
+  try {
+    for (const [zz, hide, what] of shots) {
+      if (zz) { pc.position.set(31.2, 1.3, 60.5); pc.lookAt(31, 1.1, 92); } else { pc.position.set(30.8, 1.35, 88.5); pc.lookAt(30.2, 1.25, 104); } pc.updateMatrixWorld(true);
+      camera.position.copy(pc.position); camera.quaternion.copy(pc.quaternion); camera.updateMatrixWorld(true);
+      try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {}
+      flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fr0.i, 1) * 3.2;
+      const undo = hide ? zayn_hideAt(hide[0], hide[1], hide[2], what === 'Baum' || what === 'Bank') : () => {};
+      if (zz && F) { F.position.set(30.6 + (zz - 80) * .03, 0, zz); F.rotation.y = 0; F.scale.setScalar(.5); F.visible = true; echoMat.opacity = .45; }
+      renderer.setRenderTarget(rt); renderer.clear(); renderer.render(scene, pc); renderer.readRenderTargetPixels(rt, 0, 0, W, Hh, buf); renderer.setRenderTarget(null);
+      undo(); if (F) F.visible = false;
+      out.push(zayn_print(buf, W, Hh, zz ? '07 · 09' : '07 · 09', !zz));
+    }
+  } finally {
+    echoMat.opacity = op0; camera.position.copy(c0); camera.quaternion.copy(q0); camera.updateMatrixWorld(true); flashRig.position.copy(fr0.p); flashRig.quaternion.copy(fr0.q); flashlight.intensity = fr0.i;
+    try { gruen_refreshAll(true); } catch (e) {} if (typeof PERF_CULL !== 'undefined') { PERF_CULL.t = 0; perfCullTick(0); } try { assignLampPool(); } catch (e) {} rt.dispose();
+  }
+  return out;
+}
+// Rohbild (linear, kopfüber) → Kinderkamera-Abzug: Belichtung, leicht warm, Vignette, Rauschen, Datumsstempel
+function zayn_print(buf, W, H, stamp, last) {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'), im = x.createImageData(W, H), d = im.data;
+  for (let y = 0; y < H; y++) for (let i = 0; i < W; i++) { const s = ((H - 1 - y) * W + i) * 4, t = (y * W + i) * 4, vx = i / W - .5, vy = y / H - .5, vig = 1 - (vx * vx + vy * vy) * 1.5, n = (Math.random() - .5) * 26;
+    for (let k = 0; k < 3; k++) { let v = buf[s + k] / 255; v = Math.pow(Math.min(1, v * 2.6), 1 / 2.2) * 255 * vig * [1.06, 1, .9][k] + n; d[t + k] = Math.max(0, Math.min(255, v)); } d[t + 3] = 255; }
+  x.putImageData(im, 0, 0); x.font = 'bold 18px monospace'; x.fillStyle = 'rgba(255,150,40,.85)'; x.fillText(stamp, W - 92, H - 14);
+  if (last) { x.save(); x.translate(26, H - 30); x.rotate(-.04); x.fillStyle = 'rgba(250,245,235,.92)'; x.font = '24px "Comic Sans MS", cursive'; x.fillText('Er wollte, dass ich ihm folge.', 0, 0); x.restore(); }
+  return c.toDataURL('image/jpeg', .85);
+}
+function zayn_camera() {
+  const S = zayn_S; if (S.stage >= 2) return openNote('Zayns Kinderkamera', 'Das letzte Bild: nur der Waldrand hinter dem Spielplatz.\n\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
+  toast('Die Kamera surrt. Das Display flackert – dann: Fotos.', 2400);
+  if (!S.photos) try { S.photos = zayn_takePhotos(); } catch (e) { console.warn('Zayn: Fotos', e); S.photos = []; }
+  const order = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - .5); let step = 0;
+  openPuzzle(`<h3>ZAYNS KAMERA</h3><p>Sechs Fotos vom alten Spielplatz. Auf jedem fehlt etwas. Auf jedem steht ein kleiner Junge – nie an derselben Stelle.<br>Tippe die Fotos in der richtigen Reihenfolge an.</p>
+    <div class="zph" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:640px;margin:0 auto">${order.map(i => `<button data-i="${i}" style="position:relative;padding:0;border:2px solid #444;background:#111;cursor:pointer">${S.photos[i] ? `<img src="${S.photos[i]}" style="width:100%;display:block">` : `<div style="height:120px;color:#888;padding:40px 6px">Foto ${i + 1}</div>`}<span style="position:absolute;left:6px;top:4px;font:bold 22px Georgia;color:#ffd080;text-shadow:0 0 4px #000"></span></button>`).join('')}</div>
+    <p style="opacity:.6;font-size:13px;margin-top:10px">Esc: später weitermachen</p>`, box => {
+    const btns = [...box.querySelectorAll('button[data-i]')];
+    btns.forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; if (b.dataset.done) return;
+      if (i === step) { b.dataset.done = 1; b.style.borderColor = '#c9a36a'; b.querySelector('span').textContent = String(step + 1); step++; Audio.play('switch1', { gain: .2, rate: 1.6 });
+        if (step === 6) setTimeout(() => { closeOverlay(); zayn_solved(); }, 700); }
+      else { Audio.beep(false); step = 0; btns.forEach(o => { delete o.dataset.done; o.style.borderColor = '#444'; o.querySelector('span').textContent = ''; }); toast('Nein. Sieh genauer hin: Wo steht er auf jedem Bild?', 2600); } }); });
+}
+function zayn_solved() {
+  zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Er wollte, dass ich ihm folge.“');
+  story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, die Bank, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
+  openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
+  if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1.2, 3);
+}
+// ---- 3) Spur
+function zayn_shoeDropped(shoe) { const S = zayn_S; const hit = box(.4, .3, .4, shoe.position.x, .12, shoe.position.z, hidden, { cast: false }); S.spots.push({ k: 'schuh', x: shoe.position.x, z: shoe.position.z, mesh: shoe, hit });
+  interact(hit, () => zayn_has('zayn_spur_schuh') ? '' : 'Ein Kinderschuh', () => zayn_take('schuh'));
+  if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_schuh', x: shoe.position.x, y: 0, z: shoe.position.z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_spur_schuh') }); }
+function zayn_take(k) {
+  const S = zayn_S, key = 'zayn_spur_' + k; if (zayn_has(key)) return; const sp = S.spots.find(s => s.k === k), def = ZAYN_SPUR.find(s => s[0] === k);
+  if (sp) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); } story.lore.push({ key, title: 'Zayns Spur · ' + def[1], html: def[2] }); Audio.paper();
+  const n = ZAYN_SPUR.filter(s => zayn_has('zayn_spur_' + s[0])).length; openNote(def[1], def[2]);
+  if (S.stage >= 2) zayn_stage(3, `Kleine Dinge am Weg durch die Forbidden Dustwoods (${n} / 4).` + (n === 4 ? ' Alles Dinge aus deiner eigenen Kindheit. Weiter hinten im Wald steht eine Hütte.' : ''));
+  if (n === 4) setTimeout(() => say([['Eine Murmel. Ein Schuh. Kreide. Brause.', 3200], ['Das sind keine Zufälle. Das sind deine Sachen – deine Sommer, dein Spielplatz, deine Tankstelle.', 5200], ['Zayn hat sie nicht verloren. Er hat Erinnerungen nachgestellt. Für dich.', 4800]]), 900);
+}
+// ---- 4) Die Hütte
+function zayn_drawing() {
+  const S = zayn_S; openNote('Kinderzeichnung', 'Buntstift, an die Bretter gepinnt. Drei Kinder: ein blaues, ein rotes, ein kleines grünes am Rand. Darunter die Namen: <b>LUKE · JONAS · ICH</b>.\n\nUnd quer darunter, in Rot, mit viel zu viel Druck:\n<span class="hand">„Versprochen ist versprochen.“</span>', 'zayn_zeichnung', () => {
+    if (S.stage < 2 || zayn_has('zayn_versprechen')) return; zayn_stage(4, 'Die Hütte im Wald. Eine Zeichnung: „Versprochen ist versprochen.“ Das alte Radio in der Ecke.');
+    story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nIhr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden, habt euch auseinandergelebt. Und Zayn wurde einfach der kleine Bruder, den irgendwann keiner mehr beachtet hat.' });
+    state.talking = true; setTimeout(async () => { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
+      ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Ihr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden. Und Zayn war nur noch der kleine Bruder, den keiner mehr beachtet hat.', 6400]]);
+      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1, 3); }, 300); });
+}
+async function zayn_radio() {
+  const S = zayn_S, H = WALD.hut; if (S.radioBusy) return;
+  if (zayn_has('zayn_radio')) return toast('Nur noch Rauschen. Und das Summen einer Batterie, die es nicht gibt.', 3000);
+  if (!zayn_has('zayn_versprechen')) return toast('Ein altes Kofferradio. Es rauscht leise – obwohl kein Strom da ist und das Batteriefach leer.', 3400);
+  S.radioBusy = true; state.talking = true; Audio.radio(H.x + 1.1, H.z - 1.3); if (wald_S.hutLight) wald_S.hutLight.intensity = .6;
+  await say([['*Rauschen* – dann ein Klicken. Eine Aufnahme.', 2600], ['„Ich weiß noch, was ihr gesagt habt.“', 3800, 'ZAYN']]); await wait(1800);
+  await say([['„Ihr habt gesagt, ihr holt mich.“', 3800, 'ZAYN']]); Audio.giggle(H.x + 1.1, 1, H.z - 1.3); subtitle('<i>Kinderlachen. Mehrere Kinder. Ganz nah – dann weit weg.</i>', 3000); await wait(3200);
+  await say([['„Deshalb hab ich gewartet.“', 4200, 'ZAYN'], ['Die Aufnahme endet.', 2400]]);
+  Audio.radio(H.x + 1.1, H.z - 1.3, true); state.talking = false; S.radioBusy = false;
+  story.lore.push({ key: 'zayn_radio', title: 'Das Radio', html: '„Ich weiß noch, was ihr gesagt habt.“\n„Ihr habt gesagt, ihr holt mich.“\n<i>Kinderlachen.</i>\n„Deshalb hab ich gewartet.“' });
+  zayn_stage(5, 'Zayns Stimme im Radio. „Deshalb hab ich gewartet.“ Auf dem Boden der Hütte liegt eine Zeichnung.');
+  S.floor.visible = true; interactables.push(S.floorHit); Audio.paper();
+}
+// ---- 5) Das Ende: keine Antwort
+function zayn_last() {
+  if (zayn_has('zayn_ende')) return openNote('Die letzte Zeichnung', 'Die Rückseite:\n<span class="hand">„Hast du dich an mich erinnert?“</span>');
+  openNote('Die letzte Zeichnung', 'Wieder die drei Kinder. Jonas. Du. Und daneben – nichts. Zayn hat sich selbst aus dem Bild herausgemalt. Man sieht noch, wo er stand: Radiergummi, bis das Papier dünn wurde.\n\nAuf der Rückseite:\n<span class="hand">„Vielleicht wird man nicht vergessen, weil die Menschen aufhören, sich an einen zu erinnern.“\n„Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“</span>\n\nUnd darunter nur:\n<span class="hand">„Hast du dich an mich erinnert?“</span>', null, () => {
+    story.lore.push({ key: 'zayn_ende', title: 'Hast du dich an mich erinnert?', html: '„Vielleicht wird man nicht vergessen, weil die Menschen aufhören, sich an einen zu erinnern.“\n„Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“\n\n„Hast du dich an mich erinnert?“' });
+    sideDone('zayn', 'Hast du dich an mich erinnert?'); if (wald_S.hutLight) wald_S.hutLight.intensity = 0;
+    setTimeout(() => { if (typeof gedanke === 'function') gedanke('zayn_nach', 'Ich suche Lucy, als gäbe es niemanden sonst. Aber Zayn war auch jemandes kleiner Bruder. Hilde hat siebzehn Jahre lang jede Nacht gezählt. Und Jonas hat allein im Wald gesucht.', 0, 3); }, 30000); });
+}
+WORLD_TICK.push((dt, t) => {
+  const S = zayn_S; if (!S.ready || !state.started) return;
+  // Der Rucksack liegt erst da, wenn Nr. 7 verlassen ist (Kapitel 3 und 4) – Platz nach dem Kollisionsaufbau suchen
+  const open = ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4);
+  if (open && S.stage < 1 && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
+  if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
+  const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
+  if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', .3, 3); } else if (!inHut) S.hutIn = false;
+});
+window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff
+// =====================================================================  CLEO (Modul „cleo“): Die Vergessene
+// Cleo, 8, wohnte im Birkenweg. Zu ihrem Geburtstag am 25. Juli 2009 kam niemand außer Lucy. Drei Tage später, als die Sieben geholt wurden,
+// ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ (Spiegel von Justins „Sieben für meine eine“).
+// Kinderregel des Lichts: „Geschenkt ist geschenkt, wiederholen ist gestohlen.“ Wer sich verschenkt, gehört dem Kind im Licht ganz – mit Namen und Erinnerung.
+// Darum erinnert sich niemand an Cleo, nicht einmal ihre Eltern. Nur Lucy hat sie jeden Tag in ihr Tagebuch geschrieben: „C.“
+// Spuren: Kap. 1 – Lucys Tagebuch, die Lücke im Gruppenfoto, der weiß gekratzte achte Stein am Gedenkfeld · Kap. 2 – die Akte ohne Nummer („FREIWILLIG“)
+// Kap. 3 – Whiskey tauscht den Baumhausschlüssel, das Baumhaus in den Forbidden Dustwoods · Ende: Luke schreibt ihren Namen mit Kreide auf den Stein. Er „stiehlt“ ihn zurück.
+const cleo_S = { ready: false, stone: null, name: null, up: false, lid: null };
+const CLEO_STONE = { x: -48.65, z: 72.95 };
+const cleo_has = k => story.lore.some(l => l.key === k);
+function cleo_start(desc) { sideStart('cleo'); if (desc) story.side.cleo.desc = desc; }
+WORLD_MODS.push(['Cleo', async () => {
+  const S = cleo_S, T = THREE, X = C2.x, Z = C2.z;
+  story.side.cleo = { title: 'Die Vergessene', desc: 'In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C.', state: 'hidden' };
+  modItem('cleo_kreide', 'Weiße Kreide', 'Ein Stück Kreide, mit Klebeband umwickelt. Auf dem Band, in Kinderschrift: C.', 'paper');
+  // --- Der achte Stein am Gedenkfeld, links neben Zayn
+  try { const g = await msModel('grave_weathered', 'model.glb'); const o = msGround(msFit(g.clone(true), .62, 'y')); o.position.set(CLEO_STONE.x, -.03, CLEO_STONE.z); o.rotation.y = .06;
+    o.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(q => { const c = q.clone(); c.color = new T.Color(1.35, 1.32, 1.25); return c; }); if (m.material.length === 1) m.material = m.material[0]; m.castShadow = true; m.receiveShadow = true; } }); scene.add(o); S.stone = o; } catch (e) { console.warn('Cleo: Stein', e); }
+  const plate = (fn) => { const m = new T.Mesh(new T.PlaneGeometry(.34, .24), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(256, fn), true) }));
+    m.position.set(CLEO_STONE.x, .36, CLEO_STONE.z - .16); m.rotation.y = PI; scene.add(m); return m; };
+  plate((x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = 'rgba(240,238,230,.75)'; for (let i = 0; i < 90; i++) { x.save(); x.translate(rand(30, 226), rand(40, 150)); x.rotate(rand(-.5, .5)); x.fillRect(0, 0, rand(20, 70), rand(1, 3)); x.restore(); }
+    x.fillStyle = 'rgba(40,36,30,.7)'; x.font = 'bold 40px Georgia'; x.fillText('C', 28, 110); x.font = '26px Georgia'; x.textAlign = 'center'; x.fillText('† 28. 7. 2009', w / 2, 200); });
+  S.name = plate((x, w) => { x.clearRect(0, 0, w, w); x.save(); x.translate(w / 2, 100); x.rotate(-.05); x.fillStyle = 'rgba(250,250,245,.95)'; x.font = 'bold 62px "Comic Sans MS", cursive'; x.textAlign = 'center'; x.fillText('CLEO', 0, 0); x.restore(); });
+  S.name.position.z -= .004; S.name.visible = false;
+  { const hit = box(.6, .8, .5, CLEO_STONE.x, .4, CLEO_STONE.z, hidden, { cast: false });
+    interact(hit, () => cleo_has('cleo_ende') ? 'CLEO' : story.items.includes('cleo_kreide') ? 'Ihren Namen auf den Stein schreiben' : 'Der achte Stein', () => cleo_stone()); }
+  // --- Kapitel 2: die Akte ohne Nummer (Archiv, zweiter Schrank, unterste Schublade)
+  { const hit = box(.9, .3, .45, X + 22, .32, Z - 5.3, hidden, { cast: false });
+    interact(hit, () => cleo_has('cleo_akte') ? 'Aktenschrank' : 'Unterste Schublade', () => cleo_akte());
+    if (typeof hintAdd === 'function') hintAdd({ id: 'cleo_akte', x: X + 22, y: 0, z: Z - 5.3, kind: 'story', near: 20, open: () => !cleo_has('cleo_akte') }); }
+  // --- Kapitel 3: das Baumhaus (Plattform aus dem Modul wald) – Strickleiter, Kiste
+  const P = WALD.tree, y = wald_S.treeY || 2.2;
+  { const up = box(.8, 1.6, .5, P.x, .9, P.z - 1.55, hidden, { cast: false }); interact(up, 'Strickleiter hinaufklettern', () => cleo_climb(true));
+    const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); }
+  { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false });
+    const piv = new T.Group(); piv.position.set(cx, y + .36, cz + .22); scene.add(piv); const lid = box(.72, .06, .46, 0, .03, -.22, wood, { parent: piv }); S.lid = piv;
+    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false });
+    const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); }
+  if (typeof hintAdd === 'function') { hintAdd({ id: 'cleo_stein', x: CLEO_STONE.x, y: 0, z: CLEO_STONE.z, kind: 'story', near: 30, open: () => !cleo_has('cleo_gedenk') || (story.items.includes('cleo_kreide') && !cleo_has('cleo_ende')) });
+    hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
+  S.ready = true;
+}]);
+function cleo_stone() {
+  const S = cleo_S;
+  if (cleo_has('cleo_ende')) return toast('CLEO. In Kreide, ein bisschen schief. Der Regen wäscht es nicht ab.', 3200);
+  if (story.items.includes('cleo_kreide')) return cleo_end();
+  if (!cleo_has('cleo_gedenk')) story.lore.push({ key: 'cleo_gedenk', title: 'Der achte Stein', html: 'Links neben Zayns Grab ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt, bis der Stein weiß war. Nur am Rand, wo der Meißel abgerutscht ist: ein C.\n\nDas Datum ist stehen geblieben. † 28. Juli 2009. Derselbe Tag wie bei den anderen.' });
+  cleo_start('Ein achter Stein am Gedenkfeld, der Name weggekratzt. Nur ein C ist geblieben. Lucy hat jeden Tag ein C. in ihr Tagebuch geschrieben.');
+  openNote('Der achte Stein', 'Links neben Zayns Grab steht ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt – so gründlich, dass der Stein darunter weiß geworden ist.\n\nNur am Rand, wo der Meißel abgerutscht ist: ein <b>C</b>.\n\nDas Datum ist stehen geblieben: † 28. Juli 2009. Derselbe Tag.');
+  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1, 3);
+}
+function cleo_akte() {
+  if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
+  Audio.play('metalOpen', { gain: .4, rate: 1.1 });
+  story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
+  cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
+  openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
+  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1, 3);
+}
+function cleo_climb(up) {
+  const S = cleo_S, P = WALD.tree, y = wald_S.treeY || 2.2; if (S.climbing || (up && player.pos.y > 1) || (!up && player.pos.y < 1)) return; S.climbing = true; state.talking = true; let t = 0;
+  const from = player.pos.clone(), mid = new THREE.Vector3(P.x, up ? 0 : y, P.z - 1.75), to = up ? new THREE.Vector3(P.x, y, P.z - .5) : new THREE.Vector3(P.x, 0, P.z - 2.3);
+  Audio.play('woodSqueak1', { gain: .3, rate: .9 });
+  setScripted(dt => { t += dt; const p = player.pos;
+    if (t < .4) p.lerpVectors(from, mid, t / .4);
+    else if (t < 2.2) { const k = (t - .4) / 1.8; p.set(P.x, up ? y * k : y * (1 - k), P.z - 1.75); if (Math.floor(t * 3) !== Math.floor((t - dt) * 3)) Audio.play('woodSqueak1', { gain: .12, rate: rand(.9, 1.2) }); }
+    else if (t < 2.7) p.lerpVectors(new THREE.Vector3(P.x, up ? y : 0, P.z - 1.75), to, (t - 2.2) / .5);
+    else { p.copy(to); S.climbing = false; S.up = up; state.talking = false; return false; } });
+}
+function cleo_chest(lock) {
+  const S = cleo_S;
+  if (cleo_has('cleo_baumhaus')) return openNote('Cleos Brief', cleo_letter());
+  if (!story.items.includes('baumhausschluessel')) { cleo_start(); return toast('Eine Holzkiste mit einem kleinen Vorhängeschloss aus Messing. In den Deckel geritzt: C. Der Schlüssel fehlt.', 4000); }
+  lock.visible = false; tween(S.lid, { rx: -1.9 }, .8); Audio.creak(.3); story.items = story.items.filter(k => k !== 'baumhausschluessel'); addItem('cleo_kreide');
+  story.lore.push({ key: 'cleo_baumhaus', title: 'Cleos Kiste', html: 'Eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen: CLEO. Neben ihr, kleiner geschrieben: LUCY.\n\nEin Brief an Lucy. Und ein Stück weiße Kreide.\n\n' + cleo_letter() });
+  cleo_start('Cleos Baumhaus. Ein Brief an Lucy – „Geschenkt ist geschenkt.“ Und ein Stück Kreide. Ihr Name steht auf keinem Stein. Noch nicht.');
+  openNote('Cleos Kiste', 'Obenauf eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen, darüber in großen Buchstaben: <b>CLEO</b>. Daneben, kleiner: LUCY.\n\nDarunter ein Brief. Und ein Stück weiße Kreide, mit Klebeband umwickelt.\n\n' + cleo_letter(), null, () => {
+    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', .5, 3); });
+}
+function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
+async function cleo_end() {
+  const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
+  await say([['Du schreibst ihren Namen. C – L – E – O. Die Kreide kratzt über den Stein. Er nimmt sie an.', 4800]]); S.name.visible = true; story.items = story.items.filter(k => k !== 'cleo_kreide');
+  const F = echoFigs[0]; F.position.set(CLEO_STONE.x + .7, 0, CLEO_STONE.z - .9); F.rotation.y = -.9; F.scale.setScalar(.52); F.visible = true;
+  for (let k = 0; k <= 20; k++) { echoMat.opacity = k / 20 * .34; await wait(45); }
+  await say([['Neben dem Stein steht ein Mädchen. Acht, vielleicht. Rote Zöpfe. Sie liest ihren Namen. Dann sieht sie dich an – und lächelt.', 5800], ['„Wiederholen ist gestohlen“, sagt sie. „Du hast mich zurückgestohlen.“', 4600, 'CLEO']]);
+  for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .34; await wait(60); } F.visible = false; state.talking = false;
+  story.lore.push({ key: 'cleo_ende', title: 'Cleo', html: 'Cleo, 8. Sie ist 2009 freiwillig ins Licht gegangen, damit die anderen heimkommen: eine für sieben. Danach hat sie niemand mehr gekannt – außer Lucy.\n\nJetzt steht ihr Name auf dem achten Stein. In Kreide. Wiederholen ist gestohlen: Du hast sie zurückgestohlen.' });
+  sideDone('cleo', 'Ihr Name steht auf dem Stein: CLEO.'); questPop('ERINNERUNG', 'Cleo');
+  setTimeout(() => { if (typeof gedanke === 'function') gedanke('cleo_nach', 'Lucy hat sie nie vergessen. Siebzehn Jahre lang, jeden Tag ein C. … Jetzt vergesse ich sie auch nicht mehr.', 0, 3); }, 8000);
+}
+WORLD_TICK.push(() => { const S = cleo_S; if (!S.ready || !state.started) return;
+  if (state.diary && story.side.cleo.state === 'hidden') cleo_start('In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C. Zu C.s Geburtstag kam 2009 niemand außer Lucy.'); });
+window.__cleo = { S: cleo_S, stone: () => cleo_stone(), akte: () => cleo_akte(), climb: u => cleo_climb(u), end: () => cleo_end() }; // Testzugriff
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
@@ -10175,7 +10886,8 @@ $('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
 { const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
 $('mCont').onclick = e => { e.stopPropagation(); continueGame(); };
 if (window.IS_APP) { $('mQuit').style.display = ''; $('mQuit').onclick = e => { e.stopPropagation(); window.close(); }; }
-$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button></div>`);
+$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button><button id="c4" ${saveFlags.ch4 ? '' : 'disabled'}>Kapitel 4 · Die Villa<small>${saveFlags.ch4 ? 'DER MORGEN DANACH · VILLA SEILER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 3'}</small></button></div>`);
+  $('c4').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch4 || typeof startChapter4 !== 'function') return; menuSound(); Audio.init(); startChapter4(); };
   $('c3').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch3) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter3(); };
   $('c1').onclick = ev => { ev.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); runIntro(); };
   $('c2').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch2) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter2(); }; };

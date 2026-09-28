@@ -1,0 +1,94 @@
+// =====================================================================  CLEO (Modul „cleo“): Die Vergessene
+// Cleo, 8, wohnte im Birkenweg. Zu ihrem Geburtstag am 25. Juli 2009 kam niemand außer Lucy. Drei Tage später, als die Sieben geholt wurden,
+// ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ (Spiegel von Justins „Sieben für meine eine“).
+// Kinderregel des Lichts: „Geschenkt ist geschenkt, wiederholen ist gestohlen.“ Wer sich verschenkt, gehört dem Kind im Licht ganz – mit Namen und Erinnerung.
+// Darum erinnert sich niemand an Cleo, nicht einmal ihre Eltern. Nur Lucy hat sie jeden Tag in ihr Tagebuch geschrieben: „C.“
+// Spuren: Kap. 1 – Lucys Tagebuch, die Lücke im Gruppenfoto, der weiß gekratzte achte Stein am Gedenkfeld · Kap. 2 – die Akte ohne Nummer („FREIWILLIG“)
+// Kap. 3 – Whiskey tauscht den Baumhausschlüssel, das Baumhaus in den Forbidden Dustwoods · Ende: Luke schreibt ihren Namen mit Kreide auf den Stein. Er „stiehlt“ ihn zurück.
+const cleo_S = { ready: false, stone: null, name: null, up: false, lid: null };
+const CLEO_STONE = { x: -48.65, z: 72.95 };
+const cleo_has = k => story.lore.some(l => l.key === k);
+function cleo_start(desc) { sideStart('cleo'); if (desc) story.side.cleo.desc = desc; }
+WORLD_MODS.push(['Cleo', async () => {
+  const S = cleo_S, T = THREE, X = C2.x, Z = C2.z;
+  story.side.cleo = { title: 'Die Vergessene', desc: 'In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C.', state: 'hidden' };
+  modItem('cleo_kreide', 'Weiße Kreide', 'Ein Stück Kreide, mit Klebeband umwickelt. Auf dem Band, in Kinderschrift: C.', 'paper');
+  // --- Der achte Stein am Gedenkfeld, links neben Zayn
+  try { const g = await msModel('grave_weathered', 'model.glb'); const o = msGround(msFit(g.clone(true), .62, 'y')); o.position.set(CLEO_STONE.x, -.03, CLEO_STONE.z); o.rotation.y = .06;
+    o.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(q => { const c = q.clone(); c.color = new T.Color(1.35, 1.32, 1.25); return c; }); if (m.material.length === 1) m.material = m.material[0]; m.castShadow = true; m.receiveShadow = true; } }); scene.add(o); S.stone = o; } catch (e) { console.warn('Cleo: Stein', e); }
+  const plate = (fn) => { const m = new T.Mesh(new T.PlaneGeometry(.34, .24), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(256, fn), true) }));
+    m.position.set(CLEO_STONE.x, .36, CLEO_STONE.z - .16); m.rotation.y = PI; scene.add(m); return m; };
+  plate((x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = 'rgba(240,238,230,.75)'; for (let i = 0; i < 90; i++) { x.save(); x.translate(rand(30, 226), rand(40, 150)); x.rotate(rand(-.5, .5)); x.fillRect(0, 0, rand(20, 70), rand(1, 3)); x.restore(); }
+    x.fillStyle = 'rgba(40,36,30,.7)'; x.font = 'bold 40px Georgia'; x.fillText('C', 28, 110); x.font = '26px Georgia'; x.textAlign = 'center'; x.fillText('† 28. 7. 2009', w / 2, 200); });
+  S.name = plate((x, w) => { x.clearRect(0, 0, w, w); x.save(); x.translate(w / 2, 100); x.rotate(-.05); x.fillStyle = 'rgba(250,250,245,.95)'; x.font = 'bold 62px "Comic Sans MS", cursive'; x.textAlign = 'center'; x.fillText('CLEO', 0, 0); x.restore(); });
+  S.name.position.z -= .004; S.name.visible = false;
+  { const hit = box(.6, .8, .5, CLEO_STONE.x, .4, CLEO_STONE.z, hidden, { cast: false });
+    interact(hit, () => cleo_has('cleo_ende') ? 'CLEO' : story.items.includes('cleo_kreide') ? 'Ihren Namen auf den Stein schreiben' : 'Der achte Stein', () => cleo_stone()); }
+  // --- Kapitel 2: die Akte ohne Nummer (Archiv, zweiter Schrank, unterste Schublade)
+  { const hit = box(.9, .3, .45, X + 22, .32, Z - 5.3, hidden, { cast: false });
+    interact(hit, () => cleo_has('cleo_akte') ? 'Aktenschrank' : 'Unterste Schublade', () => cleo_akte());
+    if (typeof hintAdd === 'function') hintAdd({ id: 'cleo_akte', x: X + 22, y: 0, z: Z - 5.3, kind: 'story', near: 20, open: () => !cleo_has('cleo_akte') }); }
+  // --- Kapitel 3: das Baumhaus (Plattform aus dem Modul wald) – Strickleiter, Kiste
+  const P = WALD.tree, y = wald_S.treeY || 2.2;
+  { const up = box(.8, 1.6, .5, P.x, .9, P.z - 1.55, hidden, { cast: false }); interact(up, 'Strickleiter hinaufklettern', () => cleo_climb(true));
+    const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); }
+  { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false });
+    const piv = new T.Group(); piv.position.set(cx, y + .36, cz + .22); scene.add(piv); const lid = box(.72, .06, .46, 0, .03, -.22, wood, { parent: piv }); S.lid = piv;
+    const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false });
+    const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); }
+  if (typeof hintAdd === 'function') { hintAdd({ id: 'cleo_stein', x: CLEO_STONE.x, y: 0, z: CLEO_STONE.z, kind: 'story', near: 30, open: () => !cleo_has('cleo_gedenk') || (story.items.includes('cleo_kreide') && !cleo_has('cleo_ende')) });
+    hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
+  S.ready = true;
+}]);
+function cleo_stone() {
+  const S = cleo_S;
+  if (cleo_has('cleo_ende')) return toast('CLEO. In Kreide, ein bisschen schief. Der Regen wäscht es nicht ab.', 3200);
+  if (story.items.includes('cleo_kreide')) return cleo_end();
+  if (!cleo_has('cleo_gedenk')) story.lore.push({ key: 'cleo_gedenk', title: 'Der achte Stein', html: 'Links neben Zayns Grab ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt, bis der Stein weiß war. Nur am Rand, wo der Meißel abgerutscht ist: ein C.\n\nDas Datum ist stehen geblieben. † 28. Juli 2009. Derselbe Tag wie bei den anderen.' });
+  cleo_start('Ein achter Stein am Gedenkfeld, der Name weggekratzt. Nur ein C ist geblieben. Lucy hat jeden Tag ein C. in ihr Tagebuch geschrieben.');
+  openNote('Der achte Stein', 'Links neben Zayns Grab steht ein achter Stein, kleiner als die anderen. Der Name ist weggekratzt – so gründlich, dass der Stein darunter weiß geworden ist.\n\nNur am Rand, wo der Meißel abgerutscht ist: ein <b>C</b>.\n\nDas Datum ist stehen geblieben: † 28. Juli 2009. Derselbe Tag.');
+  if (typeof gedanke === 'function') gedanke('cleo_stein', 'C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.', 1, 3);
+}
+function cleo_akte() {
+  if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
+  Audio.play('metalOpen', { gain: .4, rate: 1.1 });
+  story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
+  cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
+  openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
+  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1, 3);
+}
+function cleo_climb(up) {
+  const S = cleo_S, P = WALD.tree, y = wald_S.treeY || 2.2; if (S.climbing || (up && player.pos.y > 1) || (!up && player.pos.y < 1)) return; S.climbing = true; state.talking = true; let t = 0;
+  const from = player.pos.clone(), mid = new THREE.Vector3(P.x, up ? 0 : y, P.z - 1.75), to = up ? new THREE.Vector3(P.x, y, P.z - .5) : new THREE.Vector3(P.x, 0, P.z - 2.3);
+  Audio.play('woodSqueak1', { gain: .3, rate: .9 });
+  setScripted(dt => { t += dt; const p = player.pos;
+    if (t < .4) p.lerpVectors(from, mid, t / .4);
+    else if (t < 2.2) { const k = (t - .4) / 1.8; p.set(P.x, up ? y * k : y * (1 - k), P.z - 1.75); if (Math.floor(t * 3) !== Math.floor((t - dt) * 3)) Audio.play('woodSqueak1', { gain: .12, rate: rand(.9, 1.2) }); }
+    else if (t < 2.7) p.lerpVectors(new THREE.Vector3(P.x, up ? y : 0, P.z - 1.75), to, (t - 2.2) / .5);
+    else { p.copy(to); S.climbing = false; S.up = up; state.talking = false; return false; } });
+}
+function cleo_chest(lock) {
+  const S = cleo_S;
+  if (cleo_has('cleo_baumhaus')) return openNote('Cleos Brief', cleo_letter());
+  if (!story.items.includes('baumhausschluessel')) { cleo_start(); return toast('Eine Holzkiste mit einem kleinen Vorhängeschloss aus Messing. In den Deckel geritzt: C. Der Schlüssel fehlt.', 4000); }
+  lock.visible = false; tween(S.lid, { rx: -1.9 }, .8); Audio.creak(.3); story.items = story.items.filter(k => k !== 'baumhausschluessel'); addItem('cleo_kreide');
+  story.lore.push({ key: 'cleo_baumhaus', title: 'Cleos Kiste', html: 'Eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen: CLEO. Neben ihr, kleiner geschrieben: LUCY.\n\nEin Brief an Lucy. Und ein Stück weiße Kreide.\n\n' + cleo_letter() });
+  cleo_start('Cleos Baumhaus. Ein Brief an Lucy – „Geschenkt ist geschenkt.“ Und ein Stück Kreide. Ihr Name steht auf keinem Stein. Noch nicht.');
+  openNote('Cleos Kiste', 'Obenauf eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen, darüber in großen Buchstaben: <b>CLEO</b>. Daneben, kleiner: LUCY.\n\nDarunter ein Brief. Und ein Stück weiße Kreide, mit Klebeband umwickelt.\n\n' + cleo_letter(), null, () => {
+    if (typeof gedanke === 'function') gedanke('cleo_regel', 'Geschenkt ist geschenkt, wiederholen ist gestohlen. Das haben wir als Kinder gesagt. Wer etwas zurückhaben will, muss es stehlen.', .5, 3); });
+}
+function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
+async function cleo_end() {
+  const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
+  await say([['Du schreibst ihren Namen. C – L – E – O. Die Kreide kratzt über den Stein. Er nimmt sie an.', 4800]]); S.name.visible = true; story.items = story.items.filter(k => k !== 'cleo_kreide');
+  const F = echoFigs[0]; F.position.set(CLEO_STONE.x + .7, 0, CLEO_STONE.z - .9); F.rotation.y = -.9; F.scale.setScalar(.52); F.visible = true;
+  for (let k = 0; k <= 20; k++) { echoMat.opacity = k / 20 * .34; await wait(45); }
+  await say([['Neben dem Stein steht ein Mädchen. Acht, vielleicht. Rote Zöpfe. Sie liest ihren Namen. Dann sieht sie dich an – und lächelt.', 5800], ['„Wiederholen ist gestohlen“, sagt sie. „Du hast mich zurückgestohlen.“', 4600, 'CLEO']]);
+  for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .34; await wait(60); } F.visible = false; state.talking = false;
+  story.lore.push({ key: 'cleo_ende', title: 'Cleo', html: 'Cleo, 8. Sie ist 2009 freiwillig ins Licht gegangen, damit die anderen heimkommen: eine für sieben. Danach hat sie niemand mehr gekannt – außer Lucy.\n\nJetzt steht ihr Name auf dem achten Stein. In Kreide. Wiederholen ist gestohlen: Du hast sie zurückgestohlen.' });
+  sideDone('cleo', 'Ihr Name steht auf dem Stein: CLEO.'); questPop('ERINNERUNG', 'Cleo');
+  setTimeout(() => { if (typeof gedanke === 'function') gedanke('cleo_nach', 'Lucy hat sie nie vergessen. Siebzehn Jahre lang, jeden Tag ein C. … Jetzt vergesse ich sie auch nicht mehr.', 0, 3); }, 8000);
+}
+WORLD_TICK.push(() => { const S = cleo_S; if (!S.ready || !state.started) return;
+  if (state.diary && story.side.cleo.state === 'hidden') cleo_start('In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C. Zu C.s Geburtstag kam 2009 niemand außer Lucy.'); });
+window.__cleo = { S: cleo_S, stone: () => cleo_stone(), akte: () => cleo_akte(), climb: u => cleo_climb(u), end: () => cleo_end() }; // Testzugriff
