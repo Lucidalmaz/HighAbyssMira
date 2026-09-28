@@ -1,0 +1,25 @@
+{
+ "name": "high-abyss-mira",
+ "version": "0.3.0",
+ "description": "",
+ "main": "main.js",
+ "scripts": {
+  "build": "node build.js",
+  "start": "electron .",
+  "selftest": "electron . --selftest",
+  "release": "node build.js && electron-packager . \"High Abyss Mira\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=icon.ico --ignore=\"^/(dist|shots[0-9]*|pv|selftest|exetest|steps.*.json|prep_assets.py|fix_exe.js|tools)$\" && node fix_exe.js"
+ },
+ "keywords": [],
+ "author": "",
+ "license": "ISC",
+ "type": "commonjs",
+ "devDependencies": {
+  "@electron/packager": "^20.3.0",
+  "electron": "^44.4.5"
+ },
+ "dependencies": {
+  "three": "^0.170.0",
+  "three-mesh-bvh": "^0.8.3"
+ },
+ "productName": "High Abyss Mira"
+}

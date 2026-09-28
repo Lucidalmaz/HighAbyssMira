@@ -1,0 +1,18 @@
+{
+ "name": "justin",
+ "mesh": "/Game/Polyphoria/Polyphoria/Paladin/Meshes/UE5/Male/SK_ma_pala_combine_a",
+ "anims": [
+  "/Game/Characters/Mannequins/Anims/Unarmed/MM_Idle",
+  "/Game/Characters/Mannequins/Anims/Unarmed/Walk/MF_Unarmed_Walk_Fwd",
+  "/Game/Characters/Mannequins/Anims/Unarmed/Attack/MM_Attack_01",
+  "/Game/Characters/Mannequins/Anims/Death/MM_Death_Front_01"
+ ],
+ "props": [
+  "/Game/Polyphoria/Polyphoria/Paladin/Meshes/UE5/Weapons/SM_wp_1h_sword_03",
+  "/Game/Polyphoria/Polyphoria/Paladin/Meshes/UE5/Weapons/SM_wp_shield_tri_01_a"
+ ],
+ "parts": [
+  "/Game/Polyphoria/Polyphoria/Paladin/Meshes/UE5/Male/Hats/SK_ma_tal_nrw_heavy_helm_paladin_a",
+  "/Game/Polyphoria/Polyphoria/Base/Meshes/Male/SK_ma_meta_body_head_01"
+ ]
+}

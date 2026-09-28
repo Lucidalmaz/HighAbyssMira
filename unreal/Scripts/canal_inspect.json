@@ -1,0 +1,152 @@
+{
+ "/Game/Singapore_Canal/Map/Night01": {
+  "actors": 9,
+  "lights": 1,
+  "kinds": {
+   "PlayerStart": 1,
+   "InstancedFoliageActor": 1,
+   "StaticMeshActor": 1,
+   "SphereReflectionCapture": 1,
+   "BP_Sky_Sphere_C": 1,
+   "DirectionalLight": 1,
+   "SkyLight": 1,
+   "PostProcessVolume": 1,
+   "ExponentialHeightFog": 1
+  },
+  "mesh_types": 2,
+  "mesh_uses": 2,
+  "top_meshes": {
+   "SM_Template_Map_Floor": 1,
+   "SM_SkySphere": 1
+  },
+  "bounds_cm": [
+   [
+    -1638400.0,
+    -1637920.0,
+    -1638140.0
+   ],
+   [
+    1638400.0,
+    1638880.0,
+    1638660.0
+   ]
+  ]
+ },
+ "/Game/Singapore_Canal/Map/Singapore_Canal": {
+  "actors": 4635,
+  "lights": 71,
+  "kinds": {
+   "StaticMeshActor": 4502,
+   "PointLight": 56,
+   "SphereReflectionCapture": 30,
+   "SpotLight": 8,
+   "BP_Building_01_C": 7,
+   "BP_Building_03_C": 6,
+   "RectLight": 4,
+   "PlayerStart": 3,
+   "InstancedFoliageActor": 3,
+   "DirectionalLight": 3,
+   "SkyLight": 3,
+   "PostProcessVolume": 3,
+   "ExponentialHeightFog": 3,
+   "BP_Sky_Sphere_C": 2,
+   "BP_Building_02_C": 1
+  },
+  "mesh_types": 166,
+  "mesh_uses": 5758,
+  "top_meshes": {
+   "SM_WoodPanel1x2_02": 747,
+   "SM_Floor2x2_01": 453,
+   "SM_Roof_01_Straight": 418,
+   "SM_WoodPanel1x2_01": 301,
+   "SM_Window_04": 212,
+   "SM_Beamx2_01": 164,
+   "SM_Roof_02_Straight": 154,
+   "SM_Ceiling2x2_01": 152,
+   "SM_Roof_01_Corner": 136,
+   "SM_River_2x2": 136,
+   "SM_Stairsx3_01": 134,
+   "SM_Stonex1_01": 116,
+   "SM_WoodPanel1_5x2_01": 115,
+   "SM_Stonex2_01": 110,
+   "SM_WallCanal2x2_01": 84,
+   "SM_WallBase2x2_01": 79,
+   "SM_Wall4x2_Simple_02": 69,
+   "SM_WoodPanel1x2_02_RED": 68,
+   "SM_Plank_01": 64,
+   "SM_WallBase1x2_01": 55,
+   "SM_WallBase1x2_03": 50,
+   "SM_Column_06": 50,
+   "SM_Plank_03": 48,
+   "SM_Roof_02_Side_01": 46,
+   "SM_Wall4x2_05": 46
+  },
+  "bounds_cm": [
+   [
+    -1638400.0,
+    -1637920.0,
+    -1638140.0
+   ],
+   [
+    1638400.0,
+    1638880.0,
+    1638660.0
+   ]
+  ]
+ },
+ "/Game/Singapore_Canal/Map/AssetsShowcase": {
+  "actors": 185,
+  "lights": 1,
+  "kinds": {
+   "StaticMeshActor": 178,
+   "DirectionalLight": 1,
+   "PlayerStart": 1,
+   "InstancedFoliageActor": 1,
+   "AtmosphericFog": 1,
+   "BP_Sky_Sphere_C": 1,
+   "SkyLight": 1,
+   "SphereReflectionCapture": 1
+  },
+  "mesh_types": 179,
+  "mesh_uses": 179,
+  "top_meshes": {
+   "SM_Template_Map_Floor": 1,
+   "SM_SkySphere": 1,
+   "SM_Bamboo_01": 1,
+   "SM_Bamboo_02": 1,
+   "SM_Bamboo_03": 1,
+   "SM_Bamboo_04": 1,
+   "SM_Banner_01": 1,
+   "SM_Barrel_01": 1,
+   "SM_Barrel_01_Ropes_01": 1,
+   "SM_Barrel_01_Ropes_02": 1,
+   "SM_Barrel_01_Top": 1,
+   "SM_Basket_01": 1,
+   "SM_Basket_02": 1,
+   "SM_Beamx1_01_Corner": 1,
+   "SM_Beamx2_01": 1,
+   "SM_BigDoor_01": 1,
+   "SM_BigWood_01": 1,
+   "SM_BigWood_01_RED": 1,
+   "SM_Bridge_Long_01": 1,
+   "SM_Bridge_Side_01": 1,
+   "SM_Bucket_01": 1,
+   "SM_Ceiling1x2_01": 1,
+   "SM_Ceiling2x2_01": 1,
+   "SM_ClothesHanged_2": 1,
+   "SM_ClothesHanged_3": 1
+  },
+  "bounds_cm": [
+   [
+    -1638400.003349115,
+    -1638360.000011444,
+    -1638375.9065551758
+   ],
+   [
+    1638399.996650885,
+    1638439.999988556,
+    1638424.0934448242
+   ]
+  ]
+ }
+}

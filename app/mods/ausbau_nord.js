@@ -1,0 +1,751 @@
+// =====================================================================  AUSBAU NORD · DER KIRCHBERG
+// Kirchweg-Gasse (x ≈ −7) vom Ortskern hinauf zur Straße „Am Kirchberg“ (z ≈ 60). Nördlich der Straße: Kapelle mit Friedhof
+// (Westen) und Spielplatz (Osten), südlich: Bushaltestelle und vier Häuser. Drei Nebenaufgaben, leise Schreckmomente.
+// Alles Sichtbare sind Scans/Modelle aus assets/ms (Flächen = Scan-Oberflächen). Koordinaten: siehe mods/ausbau_nord_report.md
+const ausbau_nord = {
+  ok: false, names: new Set(), lights: new Set(), bear: 'grave', restored: false,
+  kids: [], cand: [], quest: [], hits: {}, bus: { phase: 'idle', t: 0, near: 0, x: 80 },
+  merry: null, swing: null, teddy: null, lantern: null, bell: false, figT: 45, crowT: 18, lampT: 9, gateZ: 0,
+  eighth: null, echo: false, busArmed: 0,
+};
+WORLD_MODS.push(['Kirchberg', async () => { await ausbau_nord_build(); }]);
+WORLD_TICK.push((dt, t, indoor) => { if (ausbau_nord.ok) ausbau_nord_tick(dt, t, indoor); });
+
+// ---- kleine Werkzeuge
+function ausbau_nord_rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+// Teile eines (bereits skalierten) Objekts mit eingebackener Transformation – für InstancedMesh
+function ausbau_nord_parts(root, pred = () => true) {
+  root.updateMatrixWorld(true); const out = [];
+  root.traverse(o => { if (o.isMesh && o.visible && pred(o)) out.push({ geo: o.geometry.clone().applyMatrix4(o.matrixWorld), mat: o.material, name: o.name }); });
+  return out;
+}
+// Einzelnes Teilnetz (per Name) aus einer FBX-Szene lösen – mit seiner Welt-Drehung/-Skalierung, ohne Verschiebung
+function ausbau_nord_piece(root, name, s = 1) {
+  root.updateMatrixWorld(true); const src = root.getObjectByName(name); if (!src) return null;
+  const m = src.clone(); const q = new THREE.Quaternion(), sc = new THREE.Vector3(); src.matrixWorld.decompose(new THREE.Vector3(), q, sc);
+  m.position.set(0, 0, 0); m.quaternion.copy(q); m.scale.copy(sc).multiplyScalar(s); return msGround(m);
+}
+// Dreiecke nach Material sortieren (der Kapellen-Scan hat pro Dreieck eine eigene Gruppe → sonst ~900 000 Zeichenaufrufe je Bild)
+function ausbau_nord_regroup(geo) {
+  if (!geo.index || geo.groups.length < 16) return geo;
+  const src = geo.index.array, cnt = new Map();
+  for (const g of geo.groups) cnt.set(g.materialIndex, (cnt.get(g.materialIndex) || 0) + g.count);
+  const keys = [...cnt.keys()].sort((a, b) => a - b), off = new Map(); let o = 0; for (const k of keys) { off.set(k, o); o += cnt.get(k); }
+  const dst = new src.constructor(o), at = new Map(off);
+  for (const g of geo.groups) { const d = at.get(g.materialIndex); dst.set(src.subarray(g.start, g.start + g.count), d); at.set(g.materialIndex, d + g.count); }
+  geo.setIndex(new THREE.BufferAttribute(dst, 1)); geo.clearGroups(); for (const k of keys) geo.addGroup(off.get(k), cnt.get(k), k);
+  return geo;
+}
+// Scan lotrecht stellen: die Richtung, die auf allen Wandflächen senkrecht steht (kleinster Eigenvektor von Σ n·nᵀ), wird zu +Y
+function ausbau_nord_level(mesh) {
+  const g = mesh.geometry, p = g.attributes.position, ix = g.index, mw = mesh.matrixWorld, a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3();
+  let y0 = Infinity; for (let i = 0; i < p.count; i += 50) y0 = Math.min(y0, a.fromBufferAttribute(p, i).applyMatrix4(mw).y);
+  const S = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], tri = ix ? ix.count / 3 : p.count / 3, I = k => ix ? ix.getX(k) : k;
+  for (let t = 0; t < tri; t += 2) { a.fromBufferAttribute(p, I(t * 3)).applyMatrix4(mw); b.fromBufferAttribute(p, I(t * 3 + 1)).applyMatrix4(mw); c.fromBufferAttribute(p, I(t * 3 + 2)).applyMatrix4(mw);
+    const cy = (a.y + b.y + c.y) / 3 - y0; if (cy < 1.5 || cy > 7) continue;
+    n.subVectors(b, a).cross(c.sub(a)); const w = n.length(); if (w < 1e-8) continue; n.divideScalar(w); if (Math.abs(n.y) > .5) continue;
+    const v = [n.x, n.y, n.z]; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) S[i][j] += w * v[i] * v[j]; }
+  // Jacobi-Eigenzerlegung (symmetrisch 3 × 3)
+  const A = S.map(r => r.slice()), V = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  for (let it = 0; it < 40; it++) { let pI = 0, q = 1; for (const [i, j] of [[0, 1], [0, 2], [1, 2]]) if (Math.abs(A[i][j]) > Math.abs(A[pI][q])) { pI = i; q = j; }
+    if (Math.abs(A[pI][q]) < 1e-12) break; const th = (A[q][q] - A[pI][pI]) / (2 * A[pI][q]), tt = Math.sign(th || 1) / (Math.abs(th) + Math.sqrt(th * th + 1)), cs = 1 / Math.sqrt(tt * tt + 1), sn = tt * cs;
+    for (let k = 0; k < 3; k++) { const x = A[k][pI], y = A[k][q]; A[k][pI] = cs * x - sn * y; A[k][q] = sn * x + cs * y; }
+    for (let k = 0; k < 3; k++) { const x = A[pI][k], y = A[q][k]; A[pI][k] = cs * x - sn * y; A[q][k] = sn * x + cs * y; }
+    for (let k = 0; k < 3; k++) { const x = V[k][pI], y = V[k][q]; V[k][pI] = cs * x - sn * y; V[k][q] = sn * x + cs * y; } }
+  let m = 0; for (let k = 1; k < 3; k++) if (A[k][k] < A[m][m]) m = k;
+  const up = new THREE.Vector3(V[0][m], V[1][m], V[2][m]).normalize(); if (up.y < 0) up.negate();
+  if (up.y < .9) return new THREE.Quaternion(); // unplausibel → nichts drehen
+  return new THREE.Quaternion().setFromUnitVectors(up, new THREE.Vector3(0, 1, 0));
+}
+// Höhe des mitgescannten Bodenstücks (Randzellen ohne Mauerwerk): gewähltes Quantil der Oberkanten
+function ausbau_nord_groundTop(mesh, q = .35) {
+  mesh.updateMatrixWorld(true); const p = mesh.geometry.attributes.position, v = new THREE.Vector3(), cells = new Map();
+  for (let i = 0; i < p.count; i += 3) { v.fromBufferAttribute(p, i).applyMatrix4(mesh.matrixWorld); const k = Math.round(v.x * 2) + ',' + Math.round(v.z * 2); const c = cells.get(k); if (c) { c[0] = Math.min(c[0], v.y); c[1] = Math.max(c[1], v.y); } else cells.set(k, [v.y, v.y]); }
+  const tops = [...cells.values()].filter(c => c[1] - c[0] < .9).map(c => c[1]).sort((a, b) => a - b);
+  return tops.length ? tops[Math.floor(tops.length * q)] : 0;
+}
+// Objekt auf Höhe/Größe bringen und mit der Unterkante auf y = 0 stellen (Mitte x/z = 0) – liefert Gruppe
+function ausbau_nord_fit(o, size, axis = 'y') { msFit(o, size, axis); return msGround(o); }
+// Ebene mit Scan-Oberfläche in Weltmetern (tile 2 m)
+function ausbau_nord_surf(key, tint = 0xffffff, nrm = 1) { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = 2; return m; }
+// Kerze (Scan-Modell per Instanz) + Flamme/Licht/Lichtschein wie die Kerzen im Ort (flackern über candlesUpdate)
+function ausbau_nord_flame(x, y, z, on, k = 1) {
+  const g = new THREE.Group(); g.position.set(x, y, z); scene.add(g);
+  const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); flame.scale.set(.07 * k, .11 * k, 1); flame.position.y = .05 * k; g.add(flame);
+  const light = new VLight(0xffa040, 1.1, 3.2, 2); light.position.y = .1; g.add(light);
+  const pool = new THREE.Mesh(new THREE.PlaneGeometry(.9, .9), new THREE.MeshBasicMaterial({ map: poolTex, color: 0xff9a40, transparent: true, opacity: .35, blending: THREE.AdditiveBlending, depthWrite: false }));
+  pool.rotation.x = -PI / 2; pool.position.y = .012 - y; g.add(pool);
+  const C = { g, flame, light, pool, seed: rand(0, 9), on: true }; candles.push(C); ausbau_nord_setFlame(C, on); return C;
+}
+function ausbau_nord_setFlame(C, on) { C.on = on; C.flame.visible = on; C.pool.visible = on; C.light.intensity = on ? 1.1 : 0; }
+// Freie Bühne: keine Story-Sequenz, kein Menü, keine Verfolgung
+function ausbau_nord_free() {
+  return state.started && !state.talking && !ui.overlay && !state.ending && !state.inBasement && state.zone !== 'canal' && !state.ch2 && !state.scaring
+    && !(state.outage && !ch3.on) && !(ch3.on && (ch3.part !== 'town' || ch3.chase === 'run' || ch3.lampsOff)) && !menu.attract;
+}
+function ausbau_nord_items() {
+  if (ITEMS.nord_lantern) return;
+  ITEMS.nord_lantern = { name: 'Grablaterne', desc: 'Die Laterne der Madonna. Die Flamme darin neigt sich nicht, egal wie du sie hältst.' };
+  ITEMS.nord_baer = { name: 'Bärli', desc: 'Ein alter Teddy, nass vom Regen. Er saß am Rand der offenen Grube und sah hinein.' };
+  ICONS.nord_lantern = '<svg viewBox="0 0 24 24"><path d="M9 5h6M12 2v3M8 8h8l-1 10H9z"/><path d="M10 21h4"/><path d="M12 11c1.2 1.6 1.2 3 0 4c-1.2-1-1.2-2.4 0-4z"/></svg>';
+  ICONS.nord_baer = '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><circle cx="7.8" cy="5.4" r="1.7"/><circle cx="16.2" cy="5.4" r="1.7"/><ellipse cx="12" cy="17.5" rx="5" ry="4.3"/></svg>';
+}
+function ausbau_nord_dropItem(k) { const i = story.items.indexOf(k); if (i >= 0) story.items.splice(i, 1); }
+function ausbau_nord_save() { try { const N = ausbau_nord; localStorage.setItem('ham_nord', JSON.stringify({ names: [...N.names], lights: [...N.lights], bear: N.bear })); } catch (e) {} }
+// Papier/Schild als Textur-Ebene (Decal) – Text wird auf Leinwand gemalt
+function ausbau_nord_paper(w, h, draw, px = 512) {
+  const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * h / w); draw(c.getContext('2d'), c.width, c.height);
+  const t = tex(c, true); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .95, transparent: true, alphaTest: .05, polygonOffset: true, polygonOffsetFactor: -2 }));
+}
+// Aushang auf dem Rahmen eines Scan-Schilds (das alte Schild wird vorn und hinten überklebt)
+function ausbau_nord_board(parts, x, z, ry, paper, y = 1.56) {
+  msInst(parts, [msM4(x, 0, z, ry)], {}); const nx = Math.sin(ry), nz = Math.cos(ry);
+  for (const s of [1, -1]) { const p = s > 0 ? paper : paper.clone(); p.position.set(x + nx * .042 * s, y, z + nz * .042 * s); p.rotation.y = s > 0 ? ry : ry + PI; scene.add(p); }
+}
+const ausbau_nord_hand = (x, t, px, py, size = 26, col = '#1c1a2e') => { x.font = `${size}px Caveat, cursive`; x.fillStyle = col; x.fillText(t, px, py); };
+
+async function ausbau_nord_build() {
+  const N = ausbau_nord, R = ausbau_nord_rng(1312), r = (a, b) => a + R() * (b - a);
+  const T0 = performance.now();
+  // ---------------------------------------------------------------- Modelle parallel laden
+  const kidSpec = f => ({ '*': f });
+  const [chapelM, lampM, madreM, crossStoneM, crossIronM, fenceM, tombM, collM, lanternM, candlesM, slideM, merryM, swingM, toysM, signM,
+    grave1P, grave2P, gwP, wall1P, wall2P, benchP, tree1P, tree3P, grass1P, grass2P, elderP, raspP, bushP, boulderP, stopS, giraffeS, teddyS, psignP, lattP] = await Promise.all([
+    msFBX('chapel', 'model.fbx', Object.fromEntries(['u1_v1', 'u2_v1', 'u3_v1', 'u1_v2', 'u2_v2'].map(k => ['kaplicka_' + k, { b: 'kaplicka_' + k + '.jpg', rough: .92 }]))),
+    msFBX('../lamp', 'model.fbx', kidSpec({ b: 'color.jpg', n: 'normal.jpg', rough: .55, metal: .7 })),
+    msFBX('madre', 'model.fbx', kidSpec({ b: 'madrestatue_Color_4k.jpg', n: 'MadeStatue_normal_4k.jpg', ao: 'madrestatue_AO_4ks.jpg', color: 0xc8c4bc })),
+    msFBX('cross_concil', 'model.fbx', { material0: { b: 'chlumec-cross.jpg' }, material1: { b: 'chlumec-cross1.jpg' } }),
+    msFBX('cross_field', 'model.fbx', kidSpec({ color: 0x1b1a1a, rough: .55, metal: .75 })),
+    msFBX('ironfence_cc0', 'model.fbx', kidSpec({ b: 'IronFenceAlbedo.jpg', n: 'IronFenceNormal.jpg', r: 'IronFenceRough.jpg', m: 'IronFenceMetal.jpg', ao: 'IronFenceAO.jpg', color: 0x8a8580, ds: true })),
+    msFBX('tomb_cc0', 'model.fbx', kidSpec({ b: 'TomstoneAlbedo.jpg', n: 'TomstoneNormal.jpg', r: 'TomstoneRough.jpg', ao: 'TomstoneAO.jpg' })),
+    msFBX('grave_coll', 'model.fbx', kidSpec({ b: 'Gravestones_2K_Albedo.jpg', n: 'Gravestones_2K_Normal.jpg', r: 'Gravestones_2K_Roughness.jpg', ao: 'Gravestones_2K_AO.jpg', color: 0xa8a49c })),
+    msFBX('lantern1', 'model.fbx', { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' },
+      buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', n: 'lantern_and_bulb_buln_Normal.1001.jpg', r: 'lantern_and_bulb_buln_Roughness.1001.jpg', emissive: 0xffa24a } }),
+    msFBX('candles', 'model.fbx', { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg', color: 0xd8cfbf },
+      Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg', color: 0xd8cfbf },
+      Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', n: 'Extra_for_candles_Normal.jpg', r: 'Extra_for_candles_Roughness.jpg', m: 'Extra_for_candles_Metallic.jpg' } }),
+    msFBX('slide', 'model.fbx', kidSpec({ b: 'Playground Slide_color.jpg', n: 'Playground Slide_normal.jpg', r: 'Playground Slide_roughness.jpg', m: 'Playground Slide_metallic.jpg', color: 0xb8b8b8 })),
+    msFBX('roundabout', 'model.fbx', kidSpec({ b: 'roundabout_Base_color.jpg', n: 'roundabout_Normal_OpenGL.jpg', r: 'roundabout_Roughness.jpg', m: 'roundabout_Metallic.jpg', color: 0x8c8884 })),
+    msFBX('../swings', 'model.fbx', kidSpec({ b: 'color.jpg', n: 'normal.jpg', r: 'rough.jpg', m: 'metal.jpg', color: 0x9c9690 })),
+    msFBX('toys_old', 'model.fbx', kidSpec({ b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg', r: 'T_Toys_ORM.jpg', ao: 'T_Toys_ORM.jpg', color: 0x9a948c })),
+    msFBX('roadsigns', 'model.fbx', kidSpec({ b: 'road_sign_pack_MAT_RoadSign_BaseColor.jpg', n: 'road_sign_pack_MAT_RoadSign_Normal.jpg', r: 'road_sign_pack_MAT_RoadSign_Roughness.jpg', m: 'road_sign_pack_MAT_RoadSign_Metallic.jpg' })),
+    msBake('grave1'), msBake('grave2'), msBake('grave_weathered', 'model.glb'), msBake('stonewall1'), msBake('stonewall2'), msBake('../bench'),
+    msBake('deadtree1'), msBake('deadtree3'), msBake('wildgrass1'), msBake('wildgrass2'), msBake('elderberry'), msBake('raspberry'), msBake('../deadshrubs'), msBake('../boulder'),
+    msModel('busstop2', 'model.glb'), msModel('giraffe'), msModel('teddy_scan', 'model.glb'), msBake('parksign'), msBake('ironfence_ms'),
+  ]);
+  const tLoad = performance.now() - T0;
+
+  // ---------------------------------------------------------------- Platz schaffen: alter Grenzgürtel im neuen Viertel, Lücke für den Kirchweg
+  {
+    const P = new THREE.Vector3(), m4 = new THREE.Matrix4(), zero = new THREE.Matrix4().makeScale(0, 0, 0);
+    const lane = (x, z) => x > -10.8 && x < -3.2 && z > 5 && z < 60, district = (x, z) => x > -83 && x < 63 && z > 33.6 && z < 104;
+    const cut = (im, test) => { let ch = false; for (let i = 0; i < im.count; i++) { im.getMatrixAt(i, m4); P.setFromMatrixPosition(m4); if (test(P.x, P.z)) { im.setMatrixAt(i, zero); ch = true; } } if (ch) { im.instanceMatrix.needsUpdate = true; im.computeBoundingSphere(); } };
+    for (const im of MS.trees || []) cut(im, (x, z) => lane(x, z) || district(x, z));
+    scene.children.forEach(o => {
+      if (!o.isInstancedMesh) return; const mt = [].concat(o.material)[0] || {};
+      if (/xh0rah1iy/.test(mt.name || '')) cut(o, (x, z) => Math.abs(z - 32.4) < .5 && x > -9.45 && x < -3.3); // Weidezaun: Lücke für den Kirchweg
+      else if (o.count === 6000 && mt.alphaTest > .3 && mt.alphaTest < .45) cut(o, (x, z) => x > -9 && x < -5 && z > 5.6 && z < 33); // Grasbüschel nicht auf dem Pflaster
+    });
+    scene.children.forEach(o => { if (o.isGroup && Math.abs(o.position.x + 7) < 3.2 && o.position.z > 6 && o.position.z < 33) { let dead = false; o.traverse(m => { if (m.isMesh && /vdknafgha/.test([].concat(m.material)[0]?.name || '')) dead = true; }); if (dead) o.visible = false; } });
+    for (let i = treeSpots.length - 1; i >= 0; i--) if (lane(treeSpots[i][0], treeSpots[i][1])) treeSpots.splice(i, 1);
+    msDropCols(-80.01, 80.01, 31.99, 33.01); // alte Nordgrenze (Kiste): Der Weidezaun selbst bleibt sichtbar und hält durch seine echte Form auf
+  }
+
+  // ---------------------------------------------------------------- Böden: Gasse, Straße, Gehwege, Wege
+  const pave = ausbau_nord_surf('pavement', 0xa9a49a), gravel = ausbau_nord_surf('gravel', 0x9a948a), leaves = ausbau_nord_surf('../leaves', 0x8a8078, 1.2), dirt = ausbau_nord_surf('wet_asphalt', 0x6d6256, 1.3), tiles = ausbau_nord_surf('sidewalk_tiles', 0xa0a0a0);
+  plane(3.1, 48.9, -7, .024, 30.45, pave);                                    // Kirchweg-Gasse z 6 … 54.9
+  plane(140, 7, -10, .02, 60, M.asphalt);                                     // Am Kirchberg
+  for (let i = 0; i < 4; i++) { const cx = -80 + 17.5 + i * 35;               // Gehwege (Segmente < 80 m, damit sie begehbare Stufen sind)
+    box(35, .14, 2, cx, .07, 55.5, M.sidewalk, { cast: false }); box(35, .16, .16, cx, .08, 56.45, M.sidewalk, { cast: false });
+    box(35, .14, 2, cx, .07, 64.5, M.sidewalk, { cast: false }); box(35, .16, .16, cx, .08, 63.55, M.sidewalk, { cast: false }); }
+  plane(3.4, 14.5, -52.5, .03, 73.9, gravel);                                 // Friedhof: Hauptweg vom Tor zur Kapelle
+  plane(39, 2.2, -52.5, .031, 76.2, gravel);                                  // Querweg
+  plane(2.2, 3, 27, .026, 65.9, gravel);                                      // Zugang Spielplatz (liegt unter dem Gehweg-Rand)
+  plane(6.2, 3.2, 10, .022, 53.1, tiles);                                     // Boden der Haltestelle
+
+  // Laternen im Stil des Ortes (Licht, Lichtkegel, Pool aus lamp(); sichtbar ist das Laternenmodell)
+  {
+    lampM.updateMatrixWorld(true); const lb = new THREE.Box3().setFromObject(lampM), ls = 5.45 / (lb.max.y - lb.min.y);
+    for (const [x, z, ax, az, mode] of [[-4.45, 17, -1, 0, 'on'], [-9.55, 33.5, 1, 0, 'flicker'], [-4.45, 47.5, -1, 0, 'on'],
+      [-70, 54.75, 0, 1, 'on'], [-50, 65.25, 0, -1, 'flicker'], [-30, 54.75, 0, 1, 'on'], [-10, 65.25, 0, -1, 'on'], [16, 54.75, 0, 1, 'on'], [31, 65.25, 0, -1, 'flicker'], [50, 54.75, 0, 1, 'off']]) {
+      const L = lamp(x, z, ax, az, mode); L.nord = true;
+      L.g.children.forEach(c => { if (c !== L.bulb && c !== L.cone) c.visible = false; });
+      const m = lampM.clone(); m.scale.multiplyScalar(ls); m.position.y = -lb.min.y * ls; m.rotation.y = Math.atan2(-az, ax); L.g.add(m);
+      m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+      L.g.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(m);
+      if (ax) { m.position.x += ax > 0 ? -.08 - (bb.min.x - x) : .08 - (bb.max.x - x); m.position.z -= (bb.min.z + bb.max.z) / 2 - z; }
+      else { m.position.z += az > 0 ? -.08 - (bb.min.z - z) : .08 - (bb.max.z - z); m.position.x -= (bb.min.x + bb.max.x) / 2 - x; }
+      if (x === 50) N.deadLamp = L;
+    }
+  }
+
+  // ---------------------------------------------------------------- Häuser (Südseite, Haustür zur Straße)
+  const KNOCK = {
+    11: ['Hinter der Tür läuft ein Radio. Ein Kinderlied, immer dieselbe Zeile.', 'Niemand öffnet. Aber drinnen wird leise die Kette vorgelegt.'],
+    13: ['Die Tür ist zugenagelt. Auf den Brettern, mit Kreide: 2009. Und ein Pfeil zum Friedhof.'],
+    15: ['Eine Frauenstimme, direkt hinter dem Holz: „Nicht jetzt. Es ist noch nicht drei Uhr dreizehn.“', 'Stille. Dann, ganz nah: „Bist du schon auf dem Friedhof gewesen?“'],
+    17: ['Du klopfst. Im Haus klopft es zurück – von unten. Aus dem Keller.', 'Nichts. Nur dein eigenes Klopfen, das im Haus nachhallt. Zu lange.'],
+  };
+  for (const h of [
+    { n: 11, x: -60, z: 45, facing: 1, w: 11, d: 9, tint: 0x747c86, lit: [1], chimney: true, porch: true, shutters: M.dark },
+    { n: 13, x: -38, z: 45.5, facing: 1, w: 10, d: 9, brick: true, lit: [], boarded: [0, 1, 6, 7, 12], chimney: true },
+    { n: 15, x: 26, z: 45, facing: 1, w: 11, d: 9, tint: 0x8a8274, lit: [0, 4], porch: true, porchLight: true },
+    { n: 17, x: 46, z: 45, facing: 1, w: 10, d: 9, tint: 0x66706c, floors: 1, H: 3.4, lit: [0], garage: 1 }]) {
+    makeHouse(h);
+    numberSign(h.n, h.x + .95, 2.2, h.z + h.d / 2 + .08, 0);
+    plane(1.4, 5, h.x, .027, h.z + h.d / 2 + 2.5, pave);
+    const di = box(1.2, 2.3, .35, h.x, 1.6, h.z + h.d / 2 + .15, hidden, { cast: false }); let k = 0;
+    interact(di, h.n === 13 ? 'Tür' : 'Klopfen', () => { if (h.n !== 13) Audio.knock(); toast(KNOCK[h.n][k++ % KNOCK[h.n].length], 4200); }); // STORY-HOOK: Nachbarn am Kirchberg
+  }
+
+  // ---------------------------------------------------------------- Friedhof: Mauern, Zaun, Tor
+  const blocked = [];
+  const inst = (parts, list, o) => list.length ? msInst(parts, list, o) : [];
+  {
+    const W1 = [], W2 = [], F = [], w1len = 3.98, w2len = 3.1;
+    const wall = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), a = -Math.atan2(z1 - z0, x1 - x0); let s = 0; const segs = [];
+      while (s < L - .5) { const one = R() < .55, len = one ? w1len : w2len; segs.push([one, len]); s += len; }
+      const k = L / s; let p = 0;
+      for (const [one, len] of segs) { const c = (p + len * k / 2) / L, x = x0 + (x1 - x0) * c, z = z0 + (z1 - z0) * c;
+        (one ? W1 : W2).push(msM4(x, -.02, z, a + r(-.015, .015), new THREE.Vector3(k * 1.04, r(.95, 1.12), r(.9, 1.1)))); p += len * k; } };
+    wall(-73, 66.9, -54.4, 66.9); wall(-50.6, 66.9, -32, 66.9); wall(-73, 67.2, -73, 94);  // vorne (mit Tor), Westseite
+    inst(wall1P, W1, {}); inst(wall2P, W2, {});
+    // Eisenzaun Ost + hinten
+    const fg = ausbau_nord_fit(fenceM, 1.45); const fb = new THREE.Box3().setFromObject(fg), fw = fb.max.x - fb.min.x; const fp = ausbau_nord_parts(fg);
+    const fence = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.round(L / fw)), a = -Math.atan2(z1 - z0, x1 - x0), k = L / (n * fw);
+      for (let i = 0; i < n; i++) { const c = (i + .5) / n; F.push(msM4(x0 + (x1 - x0) * c, -.03, z0 + (z1 - z0) * c, a, new THREE.Vector3(k * 1.01, r(.97, 1.03), 1), 0, r(-.02, .02))); } };
+    fence(-72.8, 94, -32.2, 94); fence(-32, 67.2, -32, 93.8);
+    inst(fp, F, {});
+    // Tor: zwei Eisenflügel, nach innen aufgeschwungen
+    const gp = ausbau_nord_parts(ausbau_nord_fit(fenceM.clone(), 1.3));
+    const gb = new THREE.Box3(); gp.forEach(p => { p.geo.computeBoundingBox(); gb.union(p.geo.boundingBox); }); const gw = gb.max.x - gb.min.x, gsx = 1.75 / gw;
+    const G = []; for (const [hx, s] of [[-54.35, 1], [-50.65, -1]]) { // Scharnier an der Mauer, Flügel schwingt nach innen (+z)
+      const m = new THREE.Matrix4().compose(new THREE.Vector3(hx, 0, 66.95), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, s > 0 ? -1.37 : PI + 1.37, 0)), new THREE.Vector3(gsx, 1, 1)).multiply(new THREE.Matrix4().makeTranslation(-gb.min.x, 0, 0));
+      G.push(m); }
+    inst(gp, G, {});
+    // Friedhofstafel am Tor (Rahmen eines Scan-Schilds, Aushang als Papier darauf)
+    const note = ausbau_nord_paper(.58, .44, (x, w, h) => { x.fillStyle = '#d9d1bd'; x.fillRect(0, 0, w, h); x.fillStyle = '#1d1d1d'; x.textAlign = 'center';
+      x.font = 'bold 34px Georgia'; x.fillText('FRIEDHOF', w / 2, 46); x.font = '20px Georgia'; x.fillText('BIRKENHAIN · AM KIRCHBERG', w / 2, 74);
+      x.fillRect(40, 88, w - 80, 2); x.font = '18px Georgia'; x.textAlign = 'left'; ['Das Tor wird bei Einbruch der', 'Dunkelheit geschlossen.', '', 'Gedenkfeld „Sommer 2009“', 'rechts, bei der Madonna.'].forEach((l, i) => x.fillText(l, 44, 118 + i * 24));
+      ausbau_nord_hand(x, 'Ben Jana Lena Tim Mo Sophie Kai', 44, h - 26, 24, '#27305a'); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(60,50,30,${R() * .12})`; x.fillRect(R() * w, R() * h, 2, 2); } });
+    ausbau_nord_board(psignP, -48.9, 66.35, PI, note);
+    const hit = box(.8, .7, .25, -48.9, 1.5, 66.35, hidden, { cast: false });
+    interact(hit, 'Aushang lesen', () => openNote('Friedhof Birkenhain · Aushang', '<b>FRIEDHOFSORDNUNG</b>\nDas Tor wird bei Einbruch der Dunkelheit geschlossen.\nGrablichter bitte nicht unbeaufsichtigt brennen lassen.\n\n<b>GEDENKFELD „SOMMER 2009“</b>\nRechts hinter dem Tor, bei der Madonna.\nDie Gemeinde gedenkt ihrer Kinder.\n\nDarunter, mit Kugelschreiber, sieben Namen. Jemand hat sie so oft nachgezogen, dass das Papier durchgerieben ist:\n<span class="hand">Ben · Jana · Lena · Tim · Mo · Sophie · Kai</span>\n\n<i>Die Kinder kamen zurück. Das weiß jeder im Ort. Warum also ein Gedenkfeld?</i>', 'nord_aushang', () => ausbau_nord_quest('names'))); // STORY-HOOK: Gedenkfeld für Kinder, die zurückkamen
+    blocked.push([-73.5, -31.5, 66.3, 67.6], [-73.6, -72.4, 66.3, 94.6], [-73.5, -31.5, 93.4, 94.6], [-32.6, -31.4, 66.3, 94.6]);
+  }
+
+  // ---------------------------------------------------------------- Kapelle (Foto-Scan, 1866) mit Kerzenlicht hinter dem Gitter
+  {
+    chapelM.scale.setScalar(.01); let cm = null; chapelM.traverse(o => { if (o.isMesh && !cm) cm = o; });
+    ausbau_nord_regroup(cm.geometry);                       // 445 000 Materialgruppen → 5 Zeichenaufrufe
+    chapelM.updateMatrixWorld(true); chapelM.quaternion.premultiply(ausbau_nord_level(cm)); chapelM.updateMatrixWorld(true); // Scan lotrecht stellen (Wände senkrecht)
+    const cb = new THREE.Box3().setFromObject(chapelM), cc = cb.getCenter(new THREE.Vector3());
+    const gy = ausbau_nord_groundTop(cm, .35);              // Oberkante des mitgescannten Bodenstücks: großteils knapp unter der Wiese
+    const g = new THREE.Group(); chapelM.position.set(-cc.x, -gy, -cc.z); g.add(chapelM); g.position.set(-52.5, 0, 86.6); g.rotation.y = PI; scene.add(g);
+    N.chapelInfo = { gy: +gy.toFixed(3), size: cb.getSize(new THREE.Vector3()).toArray().map(v => +v.toFixed(2)) };
+    chapelM.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    N.chapel = g; blocked.push([-60, -45, 79.3, 94]);
+  }
+
+  // ---------------------------------------------------------------- Gräber
+  const graveMats = { g1: [], g2: [], tomb: [], c1: [], c2: [], c3: [], c4: [], gw: [] };
+  const tombG = ausbau_nord_fit(tombM, 1); const tombP = ausbau_nord_parts(tombG);                  // Grundform 1 m hoch, Instanzen skalieren
+  const collP = n => ausbau_nord_parts(ausbau_nord_piece(collM, n, .01));
+  const coll = { c1: collP('Grave1'), c2: collP('Grave2'), c3: collP('Grave3'), c4: collP('Grave4') };
+  const bedGeos = [], candleSpots = [];
+  const addGrave = (type, x, z, ry, s = 1, bed = true) => {
+    const list = graveMats[type]; if (!list) return;
+    const sc = type === 'tomb' ? s : s; list.push(msM4(x, -.02, z, ry, sc, r(-.02, .02), r(-.025, .025)));
+    blocked.push([x - .7, x + .7, z - 1.4, z + .5]);
+    if (bed && type !== 'c1') { const b = new THREE.PlaneGeometry(.9, 1.7); planeUV(b, .9, 1.7, 2); b.rotateX(-PI / 2); b.rotateY(ry); b.translate(x - Math.sin(ry) * .95, .012 + R() * .004, z - Math.cos(ry) * .95); bedGeos.push(b); }
+    if (R() < .38) candleSpots.push([x - Math.sin(ry) * .3 + r(-.25, .25), z - Math.cos(ry) * .3]);
+  };
+  // Besondere Gräber (Positionen fest, Texte weiter unten)
+  const SPECIAL = [
+    { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1966 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Albers-Brief)
+    { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof. Wind und Regen haben die Schrift fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA …“</b>\nund eine Jahreszahl, die mit <b>13</b> beginnt.\n\nJemand hat frische Kreide in die Buchstaben gerieben. Die Fingerabdrücke daneben sind klein. Kinderhände.' }, // STORY-HOOK: Mira, 1312
+    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1975\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
+    { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LENA</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Kais Mutter, Lena
+  ];
+  for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
+    const hit = box(1, 1.3, .8, S.x, .7, S.z - .2, hidden, { cast: false });
+    interact(hit, 'Grabstein lesen', () => openNote(S.title, S.html, 'nord_grab_' + S.id)); }
+  // feste Dinge zwischen den Gräbern (Bäume, Eisenkreuz, Bänke, Grabgitter) – dort entsteht kein Grab
+  const occ = [[-71.8, -69.2, 91, 93.6], [-35.6, -32.6, 91.2, 94], [-71.4, -69, 67.4, 69.9], [-36.2, -33.8, 67.4, 69.9], [-67.4, -65, 76.9, 80.2], [-59.4, -57.2, 77.2, 78.4], [-47.8, -45.6, 77.2, 78.4], [-58.6, -55.8, 68.4, 71.9]];
+  for (const S of SPECIAL) occ.push([S.x - 1.1, S.x + 1.1, S.z - 1.9, S.z + .7]);
+  const free = (x, z) => !occ.some(([a, b, c, d]) => x + .55 > a && x - .55 < b && z + .4 > c && z - 1.8 < d);
+  const pick = () => { const q = R(); return q < .26 ? 'g1' : q < .5 ? 'g2' : q < .7 ? 'tomb' : q < .84 ? 'c3' : q < .95 ? 'c2' : 'c1'; };
+  const gen = (x, z) => { const gx = x + r(-.25, .25), gz = z + r(-.2, .2); if (!free(gx, gz) || R() < .1) return; const t = pick();
+    addGrave(t, gx, gz, r(-.06, .06), t === 'tomb' ? r(.8, 1.02) : t === 'g1' ? r(.66, .8) : r(.9, 1.05)); occ.push([gx - .6, gx + .6, gz - 1.8, gz + .4]); };
+  for (const z of [69.8, 72.6, 79.5, 82.4, 85.4, 88.4, 91.4]) for (let x = -71; x <= -56.2; x += 2.4) { if (z > 78.5 && x > -61.8) continue; if (Math.abs(x + 52.5) < 2.8) continue; gen(x, z); }
+  for (const z of [79.5, 82.4, 85.4, 88.4, 91.4]) for (let x = -43.6; x <= -33.5; x += 2.4) gen(x, z);
+  addGrave('gw', -34.2, 89.3, .1, .8);
+  // Grab mit Gusseisen-Einfassung
+  addGrave('g2', -57.2, 71.4, 0, .95);
+  inst(grave1P, graveMats.g1, {}); inst(grave2P, graveMats.g2, {}); inst(gwP, graveMats.gw, {}); inst(tombP, graveMats.tomb, {});
+  for (const k of ['c1', 'c2', 'c3', 'c4']) inst(coll[k], graveMats[k], {});
+  // Grabbeete (flache Erde/Laub-Flächen, zusammengefasst)
+  if (bedGeos.length) { const m = new THREE.Mesh(mergeGeometries(bedGeos), leaves); m.receiveShadow = true; scene.add(m); }
+
+  // ---- Das Gedenkfeld: sieben Kindergräber, eines offen (Aufgabe „Sieben Namen“ und „Ein Licht für jeden“)
+  const KIDS = [
+    { n: 'Ben', t: '<b>BEN WENDT</b>\n† 28. Juli 2009\n\nDer Einzige, der offiziell nie zurückkam. Auf dem Grab liegen frische Astern.\nIns Moos am Sockel sind Striche gekratzt. Reihe um Reihe. Gezählt.' },          // STORY-HOOK: Hilde zählt
+    { n: 'Jana', t: '<b>JANA</b>\n† 28. Juli 2009\n\nJana kam zurück. Das weiß jeder im Ort. Trotzdem steht ihr Name hier – und das Moos über den Buchstaben ist siebzehn Jahre alt.' },
+    { n: 'Lena', t: '<b>LENA</b>\n† 28. Juli 2009\n\nDeine Schwester.\nDer Stein ist alt, aber jemand hat ihn sauber gewischt. Erst vor Kurzem – im Moos sind noch die Spuren von Fingern.' }, // STORY-HOOK: Lena
+    { n: 'Tim', t: '<b>TIM</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2021</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
+    { n: 'Mo', t: '<b>MO</b>\n† 28. Juli 2009\n\nUm den Namen hat jemand mit Kreide Kreise gemalt. Viele. Einen in den anderen, immer kleiner, bis nur noch ein Punkt übrig ist.' },
+    { n: 'Sophie', t: '<b>SOPHIE</b>\n† 28. Juli 2009\n\nAn den Stein gelehnt: eine Postkarte ohne Absender, aufgeweicht vom Regen.\n<span class="hand">„Sind sie wieder da?“</span>' },
+    { n: 'Kai', open: true, t: '<b>KAI</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.' }, // STORY-HOOK: das leere Grab – Kai / der Ersatz
+  ];
+  {
+    const tk = [];
+    let faceZ = 0; for (const p of tombP) { const a = p.geo.attributes.position; for (let j = 0; j < a.count; j++) if (a.getY(j) > .5) faceZ = Math.min(faceZ, a.getZ(j)); } // Vorderseite der Platte
+    KIDS.forEach((K, i) => {
+      const x = -47 + i * 1.65 + (i === 6 ? .15 : r(-.08, .08)), z = 72.95 + (i === 6 ? 0 : r(-.07, .07)), ry = i === 6 ? 0 : r(-.05, .05), sc = i === 6 ? .74 : r(.66, .72);
+      K.x = x; K.z = z; tk.push(msM4(x, -.03, z, ry, sc, 0, 0));
+      // Name auf dem Stein (vorne, Richtung Süden)
+      const plate = ausbau_nord_paper(.3, .19, (x2, w, h) => { x2.clearRect(0, 0, w, h); x2.textAlign = 'center';
+        x2.fillStyle = i === 6 ? 'rgba(20,18,16,.85)' : 'rgba(25,22,18,.62)'; x2.font = `bold ${K.n.length > 5 ? 64 : 76}px Georgia`; x2.fillText(K.n.toUpperCase(), w / 2, h * .48);
+        x2.font = '34px Georgia'; x2.fillText('† 28. 7. 2009', w / 2, h * .82); }, 384);
+      plate.material.roughness = 1; plate.material.transparent = true; plate.material.depthWrite = false;
+      plate.position.set(x + Math.sin(ry) * faceZ * sc, .45 * sc / .7, z + Math.cos(ry) * faceZ * sc - .006); plate.rotation.y = PI + ry; K.plate = plate; scene.add(plate);
+      if (!K.open) { const b = new THREE.PlaneGeometry(.72, 1.25); planeUV(b, .72, 1.25, 2); b.rotateX(-PI / 2); b.translate(x, .014, z - .78); const bm = new THREE.Mesh(b, leaves); bm.receiveShadow = true; scene.add(bm); }
+      K.hit = box(.62, .62, .3, x, .46, z, hidden, { cast: false });
+      interact(K.hit, 'Grabstein lesen', () => ausbau_nord_readKid(i));
+      blocked.push([x - .6, x + .6, z - 1.7, z + .4]);
+    });
+    // neuer, heller Stein für Kai
+    const kidP = tombP.map(p => ({ geo: p.geo, mat: p.mat })), kaiMat = tombP.map(p => { const m = p.mat.clone(); m.color = new THREE.Color(0xd8d4cc); return { geo: p.geo, mat: m }; });
+    inst(kidP, tk.slice(0, 6), {}); inst(kaiMat, [tk[6]], {});
+    N.kids = KIDS;
+  }
+
+  // ---- Das offene Grab: Grube (Wände/Boden mit Erd-Scan), Tiefenmaske statt Loch im Boden, Erdhügel daneben
+  {
+    const K = KIDS[6], gx = K.x, gz = K.z - 1.12, W = .9, L = 1.95, D = 1.15;
+    const pit = new THREE.Group(); pit.position.set(gx, 0, gz); scene.add(pit);
+    const wallM = dirt, rO = -3;
+    const addW = (w, h, d, x, y, z) => { const m = box(w, h, d, x, y, z, wallM, { parent: pit, cast: false }); m.renderOrder = rO; return m; };
+    addW(W + .1, D, .05, 0, -D / 2, L / 2 + .025); addW(W + .1, D, .05, 0, -D / 2, -L / 2 - .025); addW(.05, D, L, W / 2 + .025, -D / 2, 0); addW(.05, D, L, -W / 2 - .025, -D / 2, 0);
+    const floor = plane(W, L, 0, -D, 0, dirt, -PI / 2, 0, pit); floor.renderOrder = rO;
+    const mask = new THREE.Mesh(new THREE.PlaneGeometry(W, L), new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true })); mask.rotation.x = -PI / 2; mask.position.y = .004; mask.renderOrder = -2; pit.add(mask);
+    // Erdhügel: verformte Fläche mit nasser Erde
+    const mg = new THREE.SphereGeometry(1, 28, 14, 0, PI * 2, 0, PI / 2), mp = mg.attributes.position;
+    for (let i = 0; i < mp.count; i++) { const x = mp.getX(i), y = mp.getY(i), z = mp.getZ(i), n = Math.sin(x * 9.1 + z * 4.3) * Math.sin(z * 7.7) * .09 + Math.sin(x * 23 + z * 19) * .03; mp.setXYZ(i, x * (1 + n * .4), Math.max(0, y * (.85 + n) - .02), z * (1 + n * .3)); }
+    mg.computeVertexNormals(); const uv = mg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2.2, uv.getY(i) * 1.1);
+    const mound = new THREE.Mesh(mg, dirt); mound.scale.set(.62, .42, 1.15); mound.position.set(gx + 1.02, 0, gz + .05); mound.rotation.y = .06; mound.castShadow = true; mound.receiveShadow = true; scene.add(mound);
+    addCol(gx - W / 2, gx + W / 2, gz - L / 2, gz + L / 2);   // in die Grube fällt man nicht – der Rand hält auf
+    N.pit = { x: gx, z: gz }; blocked.push([gx - 1, gx + 1.8, gz - 1.3, gz + 1.3]);
+  }
+
+  // ---- Madonna mit der Laterne (Aufgabe „Ein Licht für jeden“)
+  {
+    const g = ausbau_nord_fit(madreM, 1.72); g.position.set(-42.05, 0, 74.75); g.rotation.y = PI; scene.add(g); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    const hit = box(.8, 1.8, .7, -42.05, .9, 74.75, hidden, { cast: false });
+    interact(hit, 'Madonna ansehen', () => openNote('Die Madonna am Gedenkfeld', 'Eine steinerne Madonna, die Hände gefaltet. Um ihre Handgelenke ist ein rotes Kinderhaarband geknotet, zweimal, fest.\n\nZu ihren Füßen ein laminierter Zettel:\n<span class="hand">Für unsere Sieben.\nWer ihnen ein Licht bringt,\nden vergessen sie nicht.\n— H. W.</span>\n\nDie Grablichter auf dem Gedenkfeld sind alle aus. Nur die Laterne zu ihren Füßen brennt.', 'nord_madonna', () => ausbau_nord_quest('lights'))); // STORY-HOOK: H. W. = Hilde Wendt
+    const lg = ausbau_nord_fit(lanternM, .42); lg.position.set(-41.45, 0, 74.2); lg.rotation.y = .5; scene.add(lg);
+    lg.traverse(o => { if (o.isMesh) { o.castShadow = true; if (o.material.name === 'buln') { o.material.emissiveMap = msTex('lantern1/lantern_and_bulb_buln_Emissive.1001.jpg', true); o.material.emissiveIntensity = 3; } } });
+    const lf = ausbau_nord_flame(-41.45, .2, 74.2, true, .9); lf.light.color.set(0xffb060);
+    const lhit = box(.35, .5, .35, -41.45, .25, 74.2, hidden, { cast: false });
+    N.lantern = { g: lg, flame: lf, hit: lhit, home: lg.position.clone() };
+    interact(lhit, () => ausbau_nord.lantern.taken ? '' : 'Laterne nehmen', () => ausbau_nord_takeLantern());
+    blocked.push([-43, -40.8, 74, 76]);
+  }
+
+  // ---- Grablichter: sieben (aus) auf dem Gedenkfeld, dazu brennende Kerzen auf alten Gräbern
+  {
+    const pieces = n => ausbau_nord_parts(ausbau_nord_piece(candlesM, n, .01));
+    const pillar = pieces('Candle_large_big_used_low'), holder = pieces('Steel_holder_candle_small_relief_low'), tea = pieces('Candle_small_used_low'), thin = pieces('Thin_candle_used_low001');
+    const P1 = [], P2 = [], P3 = [];
+    KIDS.forEach((K, i) => { const x = i === 6 ? K.x - .58 : K.x + .13, z = i === 6 ? K.z - .12 : K.z - .36; P1.push(msM4(x, 0, z, r(0, 6), 1.25));
+      const C = ausbau_nord_flame(x, .155, z, false, .9); C.kid = i; N.cand.push(C);
+      const hit = box(.26, .3, .26, x, .15, z, hidden, { cast: false }); C.hit = hit;
+      interact(hit, () => C.on ? '' : story.items.includes('nord_lantern') ? 'Grablicht anzünden' : 'Grablicht', () => ausbau_nord_lightCandle(C)); });
+    // Das achte Licht (erscheint erst am Ende) – auf nacktem Boden neben dem offenen Grab
+    { const x = KIDS[6].x + 2.05, z = KIDS[6].z - .2; P1.push(msM4(x, -.2, z, 1, 1.25)); N.eighth = ausbau_nord_flame(x, .155, z, false, .9); N.eighthPos = [x, z]; N.eighthIdx = P1.length - 1; }
+    candleSpots.forEach(([x, z], i) => { if (i % 2) { P2.push(msM4(x, 0, z, r(0, 6), 1.1)); ausbau_nord_flame(x, .025, z, true, .6); } else { P3.push(msM4(x, 0, z, r(0, 6), 1)); ausbau_nord_flame(x, .165, z, true, .75); } });
+    // Kerzen im Inneren der Kapelle (hinter dem Gitter)
+    N.pillar = inst(pillar, P1, { shadow: false }); inst(holder, P2, { shadow: false }); inst(tea, P2, { shadow: false }); inst(thin, P3, { shadow: false });
+    // das achte Licht ist anfangs unsichtbar (Instanz im Boden versenkt)
+  }
+
+  // ---- Schmiedeeisernes Kreuz mit Haarbändern
+  {
+    let big = null, bv = 0; crossIronM.traverse(o => { if (o.isMesh) { o.geometry.computeBoundingBox(); const s = o.geometry.boundingBox.getSize(new THREE.Vector3()); const v = s.x * s.y * s.z; if (v > bv) { bv = v; big = o; } } });
+    if (big) big.visible = false; // der Felsen gehört nicht aufs Grab
+    const tmpB = new THREE.Box3(); crossIronM.updateMatrixWorld(true); crossIronM.traverse(o => { if (o.isMesh && o.visible) tmpB.expandByObject(o); });
+    const cg = new THREE.Group(); cg.add(crossIronM); const hgt = tmpB.max.y - tmpB.min.y; crossIronM.scale.multiplyScalar(1.95 / hgt);
+    crossIronM.updateMatrixWorld(true); const b2 = new THREE.Box3(); crossIronM.traverse(o => { if (o.isMesh && o.visible) b2.expandByObject(o); }); const c2 = b2.getCenter(new THREE.Vector3());
+    crossIronM.position.set(-c2.x, -b2.min.y - .15, -c2.z); cg.position.set(-66.2, 0, 77.9); cg.rotation.y = .12; scene.add(cg); cg.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    const hit = box(.8, 1.9, .5, -66.2, .95, 77.9, hidden, { cast: false });
+    interact(hit, 'Eisenkreuz', () => openNote('Das Eisenkreuz', 'Ein schmiedeeisernes Grabkreuz, fast zwei Meter hoch. Der Name darunter ist weggerostet.\n\nAn den Ranken hängen sieben ausgebleichte Haarbänder, vom Regen grau.\nEin achtes ist neu. Rot. Der Knoten ist noch fest.', 'nord_eisenkreuz')); // STORY-HOOK: acht Haarbänder
+    blocked.push([-67.2, -65.2, 77, 78.8]);
+  }
+
+  // ---- Grabgitter um ein altes Grab (Scan-Gusseisen)
+  {
+    const L = [], s = 1.7, ex = -57.2, ez = 70.45; // Einfassung 1,02 × 2,04 m um das Grab (Stein am Kopfende bei z 71.4)
+    for (const zz of [ez - 1.02, ez + 1.02]) L.push(msM4(ex - .51, 0, zz, 0, s));          // Modell beginnt bei x = 0 und läuft nach +x
+    for (const xx of [ex - .51, ex + .51]) for (const zz of [ez + 1.02, ez]) L.push(msM4(xx, 0, zz, PI / 2, s)); // gedreht: läuft nach −z
+    inst(lattP, L, {});
+  }
+
+  // ---- Bänke
+  inst(benchP, [msM4(-58.3, 0, 77.75, 0), msM4(-46.7, 0, 77.75, 0), msM4(21.4, 0, 67.2, 0), msM4(44.2, 0, 67.2, 0)], {});
+
+  // ---------------------------------------------------------------- Sühnekreuz an der Ecke Kirchweg / Am Kirchberg
+  {
+    // Steinkreuz aufrichten: der längste Arm (Schaft) zeigt nach unten
+    const g0 = new THREE.Group(); g0.add(crossStoneM); crossStoneM.updateMatrixWorld(true);
+    const bb = new THREE.Box3().setFromObject(crossStoneM), c = bb.getCenter(new THREE.Vector3()); let far = null, fd = 0; const v = new THREE.Vector3();
+    crossStoneM.traverse(o => { if (!o.isMesh) return; const p = o.geometry.attributes.position; for (let i = 0; i < p.count; i += 7) { v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); const d = Math.hypot(v.x - c.x, v.y - c.y); if (d > fd) { fd = d; far = v.clone(); } } });
+    const a = Math.atan2(far.y - c.y, far.x - c.x); crossStoneM.rotation.z += -PI / 2 - a;
+    const g = ausbau_nord_fit(g0, 1.08); g.position.set(-10.7, -.1, 53.3); g.rotation.y = PI / 2 + .25; scene.add(g); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    const hit = box(.8, 1.1, .6, -10.7, .55, 53.3, hidden, { cast: false });
+    interact(hit, 'Steinkreuz', () => openNote('Das Sühnekreuz', 'Ein altes Steinkreuz, schief und halb im Boden versunken. Solche Kreuze stellte man im Mittelalter auf – als Buße für einen Mord.\n\nIn den Stein geritzt, kaum noch zu erkennen: ein Schwert. Daneben eine Jahreszahl: <b>1312</b>.\n\nAm Fuß liegen sieben glatte Kiesel in einer Reihe. Ein achter liegt ein Stück abseits, als wäre er weggerollt.', 'nord_suehnekreuz')); // STORY-HOOK: Justin, 1312
+  }
+
+  // ---------------------------------------------------------------- Kirchweg: Mauern, Wegweiser, Himmel und Hölle
+  {
+    const A = [], B = [];
+    const run = (x, z0, z1) => { let z = z0; while (z < z1 - 1) { const one = R() < .5, len = one ? 3.98 : 3.1; (one ? A : B).push(msM4(x + r(-.05, .05), -.02, z + len / 2, PI / 2 + r(-.02, .02), new THREE.Vector3(1.02, r(.9, 1.05), r(.9, 1.05)))); z += len; } };
+    run(-9.35, 9.5, 22.5); run(-9.35, 38, 49); run(-4.55, 22.5, 31.2); run(-4.55, 35, 44.5);
+    inst(wall1P, A, {}); inst(wall2P, B, {});
+    blocked.push([-9.9, -8.8, 9.5, 22.5], [-9.9, -8.8, 38, 49], [-5.1, -4, 22.5, 31.2], [-5.1, -4, 35, 44.5]);
+    // Wegweiser am Beginn der Gasse
+    const sign = ausbau_nord_paper(.58, .44, (x, w, h) => { x.fillStyle = '#1f3b2a'; x.fillRect(0, 0, w, h); x.strokeStyle = '#d8d2c0'; x.lineWidth = 6; x.strokeRect(10, 10, w - 20, h - 20);
+      x.fillStyle = '#e4dfcf'; x.textAlign = 'center'; x.font = 'bold 46px Georgia'; x.fillText('KIRCHWEG', w / 2, 76); x.font = '26px Georgia';
+      ['↑ Friedhof · Kapelle', '↑ Am Kirchberg', '↑ Spielplatz'].forEach((l, i) => x.fillText(l, w / 2, 130 + i * 38));
+      x.strokeStyle = '#7a1010'; x.lineWidth = 5; x.beginPath(); x.moveTo(140, 196); x.lineTo(375, 202); x.stroke(); ausbau_nord_hand(x, 'NICHT NACHTS', 170, 240, 34, '#9a1414'); });
+    ausbau_nord_board(psignP, -9.45, 6.9, PI, sign);
+    const sh = box(.7, .6, .2, -9.45, 1.5, 6.9, hidden, { cast: false });
+    interact(sh, 'Wegweiser', () => toast('KIRCHWEG – zum Friedhof, zur Kapelle, zum Spielplatz. „Spielplatz“ ist durchgestrichen. Darunter, in Rot: NICHT NACHTS.', 5200));
+    // Himmel und Hölle (Kreide, Kinderhand)
+    const hop = ausbau_nord_paper(1.3, 3.2, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(235,228,205,.85)'; x.lineWidth = 7; x.lineCap = 'round'; x.fillStyle = 'rgba(235,228,205,.85)'; x.textAlign = 'center'; x.font = 'bold 60px Georgia';
+      const s = w / 2, rows = [[1], [2], [3], [4, 5], [6], [7, 8]]; let yy = h - 20;
+      rows.forEach(rw => { const bw = rw.length === 1 ? s : s; const y0 = yy - s * .9; rw.forEach((n, j) => { const x0 = rw.length === 1 ? w / 2 - s / 2 : j * s; x.strokeRect(x0 + 6, y0, bw - 12, s * .9 - 6); x.fillText(n, x0 + bw / 2, y0 + s * .6); }); yy = y0; });
+      x.font = '34px Caveat, cursive'; x.fillStyle = 'rgba(160,30,30,.9)'; x.fillText('KAI', w * .75, 118);
+      x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${R() * .5})`; x.beginPath(); x.arc(R() * w, R() * h * .8 + h * .2, R() * 10 + 2, 0, 7); x.fill(); } }, 256);
+    hop.material.depthWrite = false; hop.rotation.x = -PI / 2; hop.position.set(-7.1, .032, 20.5); hop.rotation.z = PI; scene.add(hop);
+    const hh = box(1.3, .15, 3.2, -7.1, .05, 20.5, hidden, { cast: false });
+    interact(hh, 'Kreidezeichnung', () => openNote('Himmel und Hölle', 'Ein Hüpfspiel, mit Kreide aufs Pflaster gemalt. Der Regen hat fast alles weggewaschen.\n\nNur die Acht nicht. Die Acht ist frisch nachgezogen.\nUnd in der Acht, klein, in einer Kinderschrift, die du kennst:\n<span class="hand" style="color:#8a1010">KAI</span>', 'nord_hupfspiel')); // STORY-HOOK: die Acht
+    // Kreidepfeile den Weg hinauf (wie die Pfeile im Ort)
+    for (const [x, z, ry] of [[-6.4, 12, -PI / 2], [-7.6, 29, -PI / 2 - .2], [-6.8, 43.5, -PI / 2 + .15], [-12.5, 58.5, PI], [-30, 58.2, PI], [-50.5, 62.2, PI + .75]]) chalkArrow(x, z, ry, .035);
+  }
+
+  // ---------------------------------------------------------------- Bushaltestelle „Kirchberg“ (Linie 7)
+  {
+    const src = stopS; const g = new THREE.Group(); const pick = ['Cube008', 'Cube008_1']; const found = [];
+    src.updateMatrixWorld(true); src.traverse(o => { if (o.isMesh && pick.includes(o.name)) found.push(o); });
+    const inner = new THREE.Group(); found.forEach(o => { const m = new THREE.Mesh(o.geometry, o.material); m.applyMatrix4(o.matrixWorld); inner.add(m); });
+    const sg = msGround(inner); sg.position.set(10, 0, 53.15); sg.rotation.y = PI / 2; scene.add(sg);
+    sg.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material.transparent || o.material.opacity < 1 || /glass/i.test(o.material.name)) { const m = o.material = o.material.clone(); m.transparent = true; m.opacity = .42; m.depthWrite = false; m.roughness = .18; m.color = new THREE.Color(0x9aa6a8); N.glass = N.glass || []; N.glass.push(o); } } });
+    N.stop = sg;
+    // Fahrplan im Wartehäuschen (Rückwand, innen)
+    const tt = ausbau_nord_paper(.42, .6, (x, w, h) => { x.fillStyle = '#e9e4d2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1a3d8a'; x.fillRect(0, 0, w, 64); x.fillStyle = '#fff'; x.font = 'bold 40px Arial'; x.fillText('7', 22, 48); x.font = 'bold 26px Arial'; x.fillText('Kirchberg', 74, 44);
+      x.fillStyle = '#222'; x.font = '19px Arial'; ['Richtung Kreisstadt', '', 'Mo–Fr   6:12  7:12  13:40  16:55', 'Sa         8:12', 'So        —', '', 'gültig ab 1. Juni 2009'].forEach((l, i) => x.fillText(l, 22, 104 + i * 30));
+      ausbau_nord_hand(x, '03:13 nur für Kinder', 60, h - 60, 40, '#101a50'); x.strokeStyle = '#101a50'; x.lineWidth = 3; for (let k = 0; k < 3; k++) { x.beginPath(); x.moveTo(60, h - 48 + k * 6); x.lineTo(330, h - 50 + k * 6); x.stroke(); } }, 360);
+    tt.position.set(8.4, 1.55, 51.98); scene.add(tt);
+    const th = box(.6, .8, .3, 8.4, 1.55, 52.1, hidden, { cast: false });
+    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Birkenhain Kirchberg → Kreisstadt\n\nMo–Fr 6:12 · 7:12 · 13:40 · 16:55\nSa 8:12\nSo und feiertags kein Verkehr\n\n<i>Gültig ab 1. Juni 2009. Die Linie wurde im August 2009 eingestellt.</i>\n\nUnten, mit Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan'); }); // STORY-HOOK: Linie 7, 03:13
+    // Fahrkarte auf der Sitzbank
+    const tk = ausbau_nord_paper(.075, .05, (x, w, h) => { x.fillStyle = '#eee6c8'; x.fillRect(0, 0, w, h); x.fillStyle = '#b8201c'; x.fillRect(0, 0, w, 26); x.fillStyle = '#222'; x.font = 'bold 20px Arial'; x.fillText('KIND · EINFACH', 14, 60); x.font = '18px Arial'; x.fillText('28.07.2009  03:13', 14, 92); x.fillText('Kirchberg → ——', 14, 122); }, 256);
+    tk.rotation.set(-PI / 2, 0, .4); tk.position.set(11.3, .468, 52.35); scene.add(tk); N.ticketMesh = tk;
+    const kh = box(.3, .15, .3, 11.3, .47, 52.35, hidden, { cast: false });
+    interact(kh, 'Fahrkarte', () => openNote('Eine Fahrkarte', 'Kinderfahrkarte, einfache Fahrt.\n\n<b>28.07.2009 · 03:13</b>\nvon: Birkenhain Kirchberg\nnach: ——\n\nDas Zielfeld ist leer. Nicht verwaschen. Nie bedruckt.\nDie Karte ist trocken. Alles andere hier ist nass.', 'nord_fahrkarte')); // STORY-HOOK: die Nacht vom 28. Juli
+    // Haltestellenschild „H“ (Scan-Schild, gelbe Scheibe als Aufkleber)
+    const sgp = ausbau_nord_piece(signM, 'Road_Sign_01', .01);
+    if (sgp) { msFit(sgp, 2.55); const s2 = msGround(sgp); s2.position.set(6.3, 0, 56.3); s2.rotation.y = 0; scene.add(s2);
+      s2.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(s2); N.hTop = b.max.y;
+      const disc = ausbau_nord_paper(.5, .5, (x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = '#e9c21c'; x.beginPath(); x.arc(w / 2, w / 2, w / 2 - 4, 0, 7); x.fill(); x.strokeStyle = '#1c5e2e'; x.lineWidth = 14; x.beginPath(); x.arc(w / 2, w / 2, w / 2 - 14, 0, 7); x.stroke();
+        x.fillStyle = '#1c5e2e'; x.font = 'bold 250px Arial'; x.textAlign = 'center'; x.fillText('H', w / 2, w / 2 + 88); }, 512);
+      const dy = b.max.y - .52; for (const s of [1, -1]) { const d = disc.clone(); d.position.set(6.3, dy, 56.3 + s * ((b.max.z - b.min.z) / 2 + .004)); d.rotation.y = s > 0 ? 0 : PI; d.scale.setScalar(1.17); scene.add(d); } }
+    blocked.push([7, 13, 51.5, 57]);
+  }
+
+  // ---------------------------------------------------------------- Spielplatz
+  {
+    const cx = 31.5, cz = 74;
+    const lg = new THREE.CircleGeometry(1, 40); lg.rotateX(-PI / 2); const lp = lg.attributes.position, lu = lg.attributes.uv;
+    for (let i = 0; i < lp.count; i++) { const x = lp.getX(i), z = lp.getZ(i), a = Math.atan2(z, x), k = i === 0 ? 1 : 1 + Math.sin(a * 5) * .06 + Math.sin(a * 11) * .03; lp.setXYZ(i, x * 13.5 * k, 0, z * 9.2 * k); lu.setXY(i, x * 13.5 * k / 2, z * 9.2 * k / 2); }
+    const lm = new THREE.Mesh(lg, leaves); lm.position.set(cx, .021, cz); lm.receiveShadow = true; scene.add(lm);
+    // Rutsche
+    const sl = ausbau_nord_fit(slideM, 2.25); sl.position.set(24.3, 0, 76.4); sl.rotation.y = PI; scene.add(sl); sl.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    const sb = new THREE.Box3().setFromObject(sl);
+    const sh = box(sb.max.x - sb.min.x, 1.2, sb.max.z - sb.min.z, (sb.min.x + sb.max.x) / 2, .6, (sb.min.z + sb.max.z) / 2, hidden, { cast: false });
+    interact(sh, 'Rutsche', () => toast('Kleine, nasse Handabdrücke auf dem Blech. Sie führen hinauf. Keine führen herunter.', 4800));
+    blocked.push([sb.min.x - .5, sb.max.x + .5, sb.min.z - .5, sb.max.z + .5]);
+    // Karussell (dreht sich – manchmal ohne dich)
+    const mm = ausbau_nord_fit(merryM, 2.05, 'x'); const piv = new THREE.Group(); piv.position.set(34, 0, 71.2); piv.add(mm); scene.add(piv);
+    mm.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    N.merry = { piv, w: 0, auto: true, frozen: false, away: 0, creak: 0, told: false };
+    const mh = box(2.1, .8, 2.1, 34, .4, 71.2, hidden, { cast: false });
+    interact(mh, 'Karussell anstoßen', () => { const M_ = ausbau_nord.merry; M_.w = Math.min(2.2, M_.w + 1.1); M_.frozen = false; Audio.play('metalHit2', { gain: .25, rate: .7, x: 34, y: .5, z: 71.2, ref: 2 });
+      if (!M_.told) { M_.told = true; setTimeout(() => toast('Es dreht sich. Und dreht sich. Viel länger, als es dürfte.', 4200), 2500); } });
+    blocked.push([32.6, 35.4, 69.8, 72.6]);
+    // Schaukel: Sitze mit Ketten vom Gerüst gelöst, damit sie schwingen können
+    N.swing = ausbau_nord_swing(swingM, 40.6, 78.8, 0);
+    // Spielzeug im Laub
+    const toy = n => { const g = ausbau_nord_piece(toysM, n, .01); if (!g) return null; g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); g.userData.noCol = true; return g; };
+    const put = (g, x, z, ry, rz = 0) => { if (!g) return; g.position.set(x, .02, z); g.rotation.set(0, ry, rz); scene.add(g); };
+    put(toy('SM_Ball'), 35.9, 69.2, 0); put(toy('SM_ToyTrain'), 28.6, 79.6, 1.2, 0); put(toy('SM_ToyBunny'), 39.2, 80.3, 2.6, 1.45);
+    const gir = giraffeS.clone(); gir.scale.setScalar(1.3); const gg = msGround(gir); gg.userData.noCol = true; gg.position.set(25.9, .02, 74.3); gg.rotation.y = -.7; scene.add(gg);
+    const gh = box(.3, .3, .3, 25.9, .1, 74.3, hidden, { cast: false });
+    interact(gh, 'Holzgiraffe', () => openNote('Eine Holzgiraffe', 'Abgeschabt, die Farbe fast ganz ab. Unten, eingebrannt: <b>M.</b>\n\nMo hatte so eine. Du erinnerst dich daran.\nDu erinnerst dich nicht, woher.', 'nord_giraffe')); // STORY-HOOK: Mo, Erinnerungen, die nicht Kais sind
+    // Spielzeug auf den Kindergräbern
+    put(toy('SM_ToyBunny'), KIDS[1].x - .15, KIDS[1].z - .45, .4); put(toy('SM_ToyRobot'), KIDS[0].x - .2, KIDS[0].z - .42, -.3); put(toy('SM_ToyBoat'), KIDS[4].x - .15, KIDS[4].z - .5, .8);
+    put(toy('SM_ToyCube_01a'), KIDS[5].x - .2, KIDS[5].z - .45, .3); put(toy('SM_ToyCube_02a'), KIDS[5].x - .08, KIDS[5].z - .56, 1.1); put(toy('SM_ToyTrain'), KIDS[3].x - .18, KIDS[3].z - .46, -.5);
+    // Schild
+    const ps = ausbau_nord_paper(.58, .44, (x, w, h) => { x.fillStyle = '#e8e2cf'; x.fillRect(0, 0, w, h); x.fillStyle = '#1d5a2a'; x.fillRect(0, 0, w, 80); x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = 'bold 50px Georgia'; x.fillText('SPIELPLATZ', w / 2, 58);
+      x.fillStyle = '#222'; x.font = '21px Georgia'; ['Für Kinder bis 12 Jahre.', 'Benutzung auf eigene Gefahr.', 'Nach Einbruch der Dunkelheit', 'ist das Betreten verboten.'].forEach((l, i) => x.fillText(l, w / 2, 124 + i * 30));
+      ausbau_nord_hand(x, 'sie spielen trotzdem', 150, h - 30, 34, '#a01818'); });
+    ausbau_nord_board(psignP, 19.3, 66.2, PI, ps);
+    const psh = box(.7, .6, .25, 19.3, 1.5, 66.2, hidden, { cast: false });
+    interact(psh, 'Schild lesen', () => toast('SPIELPLATZ · Nach Einbruch der Dunkelheit ist das Betreten verboten. Darunter, in Rot: sie spielen trotzdem.', 5200));
+    // Zettel auf der Bank (Aufgabe „Bärli“)
+    const bn = ausbau_nord_paper(.16, .21, (x, w, h) => { x.fillStyle = '#e6dfc4'; x.fillRect(0, 0, w, h); ['BÄRLI IST', 'WEG!!', 'bitte wieder', 'auf die Bank'].forEach((l, i) => ausbau_nord_hand(x, l, 20, 70 + i * 62, 50, i < 2 ? '#8a1010' : '#1c1a2e')); }, 256);
+    bn.rotation.set(-PI / 2, 0, -.3); bn.position.set(20.8, .595, 67.2); scene.add(bn);
+    const bh = box(1.6, .7, .5, 21.4, .35, 67.2, hidden, { cast: false }); N.benchHit = bh;
+    interact(bh, () => story.items.includes('nord_baer') ? 'Bärli auf die Bank setzen' : 'Zettel lesen', () => ausbau_nord_bench());
+    blocked.push([18, 45, 64, 83]);
+  }
+
+  // ---- Bärli: sitzt am Rand der offenen Grube
+  {
+    const t = teddyS.clone(); const g = ausbau_nord_fit(t, .36); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); g.userData.noCol = true;
+    const P0 = N.pit; g.position.set(P0.x + .8, .3, P0.z + .5); g.rotation.y = -PI / 2 - .3; scene.add(g);
+    const hit = box(.4, .45, .4, 0, .2, 0, hidden, { cast: false, parent: g });
+    N.teddy = { g, hit, t: 0, seen: 0 };
+    interact(hit, () => ausbau_nord.bear === 'bench' || ausbau_nord.bear === 'moved' ? 'Bärli' : 'Teddy aufheben', () => ausbau_nord_teddy());
+  }
+
+  // ---------------------------------------------------------------- Bäume, Sträucher, Gras, Felsen
+  {
+    for (const p of [...tree1P, ...tree3P]) { p.mat = p.mat.clone(); p.mat.side = THREE.DoubleSide; p.mat.color.setScalar(.62); }
+    const TA = [], TB = [], spots = [[-12.2, 19.5, 1], [-1.9, 26.2, .9], [-12, 41, 1.1], [-2.2, 44, .95], [-67, 36.8, 1.1], [-47.5, 37.5, 1], [-24, 38, 1.2], [-17, 47, .9], [2.5, 49, 1],
+      [18.5, 36.6, 1], [35, 36.3, 1.15], [55, 38.5, 1], [-70.5, 92.2, 1.2], [-34.2, 92.6, 1.05], [-70.2, 68.6, .95], [-35, 68.6, .9], [-24.5, 71, 1.1], [-13.5, 84, 1.25],
+      [-2.5, 75.5, 1], [8.5, 90.5, 1.2], [-21, 92, 1], [19.2, 82.2, 1], [44.6, 83.6, 1.1], [30, 86.5, .95], [56.5, 67.5, 1.1], [-78, 67, 1.1], [5, 70, .85]];
+    spots.forEach(([x, z, s], i) => { (i % 3 === 1 ? TB : TA).push(msM4(x, -.05, z, r(0, 6.28), s * (i % 3 === 1 ? .85 : 1.1), r(-.04, .04), r(-.04, .04))); treeSpots.push([x, z, s]); });
+    inst(tree1P, TA, { shadow: true }); inst(tree3P, TB, { shadow: true });
+    const isFree = (x, z) => !blocked.some(([a, b, c, d]) => x > a && x < b && z > c && z < d) && !(Math.abs(x + 7) < 2.1 && z < 57) && !(z > 54.2 && z < 65.8);
+    const houseR = [[-66.5, -53.5, 40, 50.5], [-43.5, -32.5, 40.5, 51], [19.5, 32.5, 40, 50.5], [40.5, 56, 40, 50.5]];
+    const freeH = (x, z) => isFree(x, z) && !houseR.some(([a, b, c, d]) => x > a && x < b && z > c && z < d) && !houseR.some(([a, b, c, d]) => Math.abs(x - (a + b) / 2) < .9 && z > d - .6 && z < 54.6);
+    // Sträucher (weich: bremsen und rascheln)
+    const E = { A: [], B: [], C: [] }, eParts = { A: elderP.filter(p => /VarE_LOD1$/.test(p.name)), B: elderP.filter(p => /VarG$/.test(p.name)), C: raspP.filter(p => /VarA$/.test(p.name)) };
+    const shrubAt = (x, z, s) => { if (!freeH(x, z)) return; const k = R() < .4 ? 'A' : R() < .6 ? 'B' : 'C'; E[k].push(msM4(x, 0, z, r(0, 6.28), s * r(.8, 1.2))); };
+    for (let x = -79; x < 58; x += r(2.2, 4.5)) { shrubAt(x, r(33.8, 36), 1.2); }                        // Rückseite der Gärten
+    for (const hx of [-49, -27.5, 13.5, 36.2]) for (let z = 38; z < 53; z += r(1.8, 2.8)) shrubAt(hx + r(-.3, .3), z, 1);  // Grundstücksgrenzen
+    for (let z = 8; z < 53; z += r(2.5, 4)) { shrubAt(-10.6 + r(-.3, .3), z, 1); shrubAt(-3.3 + r(-.3, .3), z, .9); }  // Gasse
+    for (let x = -72; x < -33; x += r(2.5, 5)) { shrubAt(x, 67.9, .7); shrubAt(x, 93.2, .9); }            // Friedhofsmauer
+    for (let z = 66.5; z < 95; z += r(2, 4)) { shrubAt(-74.2, z, 1); shrubAt(-31, z, .9); shrubAt(16.8, z + 2, 1); shrubAt(46.2, z, 1); }
+    for (let i = 0; i < 30; i++) shrubAt(r(-29, 15), r(67, 97), r(.9, 1.4));                                  // Wiese
+    for (const k of ['A', 'B', 'C']) inst(eParts[k].length ? eParts[k] : elderP.slice(0, 1), E[k], { shadow: true }).forEach(im => { addWind(im.material, .05); });
+    // Gras (ohne Kollision)
+    const gp = [/VarE_LOD2$/, /VarG_LOD2$/, /VarD_LOD2$/].map(re => grass1P.filter(p => re.test(p.name))).concat([/VarC$/, /VarB_LOD1$/].map(re => grass2P.filter(p => re.test(p.name))));
+    const GL = gp.map(() => []); const tuft = (x, z, s = 1) => { if (!isFree(x, z) && R() < .8) return; if (Math.abs(x + 7) < 1.6 && z < 57) return; if (z > 56 && z < 64) return; GL[Math.floor(R() * GL.length)].push(msM4(x, 0, z, r(0, 6.28), s * r(.8, 1.3))); };
+    for (let i = 0; i < 700; i++) { const x = r(-80, 60), z = r(33.5, 98); tuft(x, z); }
+    for (let z = 6.5; z < 55; z += .55) { tuft(-8.75 + r(-.15, .1), z, .8); tuft(-5.25 + r(-.1, .15), z, .8); }
+    for (let x = -72.5; x < -32; x += .5) { tuft(x, 67.45 + r(0, .3), .8); tuft(x, 66.3 - r(0, .2), .8); }
+    GL.forEach((L, i) => { if (!L.length || !gp[i].length) return; const pp = gp[i].map(p => { const m = p.mat.clone(); m.side = THREE.DoubleSide; m.color = new THREE.Color(0x8a9278); addWind(m, .6); return { geo: p.geo, mat: m }; }); msInst(pp, L, { shadow: false }).forEach(im => im.userData.noCol = true); });
+    // tote Büsche und Felsen
+    const DS = [], BO = []; for (let i = 0; i < 18; i++) { const x = r(-78, 58), z = r(34, 97); if (freeH(x, z)) DS.push(msM4(x, 0, z, r(0, 6), r(1.3, 2))); }
+    for (const [x, z, s] of [[-20, 78, 1.1], [3, 83, .8], [-27, 88.5, 1.3], [52, 72, 1], [-76, 56, .9], [58.5, 57, 1.2]]) BO.push(msM4(x, -.05, z, r(0, 6), s));
+    inst(bushP.map(p => { const m = p.mat.clone(); m.alphaTest = .45; m.side = THREE.DoubleSide; return { geo: p.geo, mat: m }; }), DS, {}); inst(boulderP, BO, {});
+  }
+
+  // ---------------------------------------------------------------- Bodennebel über dem Kirchberg (gleicher Nebel wie im Ort)
+  for (const y of [.25, .7, 1.25]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(150, 60), fogMat); m.rotation.x = -PI / 2; m.position.set(-10, y, 71.5); m.renderOrder = 2; scene.add(m); }
+
+  // ---------------------------------------------------------------- Aufgaben (Nebenaufgaben im Tagebuch)
+  story.side.nord_names = { title: 'Sieben Namen', desc: 'Auf dem Friedhof am Kirchberg gibt es ein Gedenkfeld für die Kinder vom Sommer 2009. Finde ihre Gräber. (0/7)', state: 'hidden' };
+  story.side.nord_lights = { title: 'Ein Licht für jeden', desc: 'Die Grablichter der sieben Kinder sind aus. Die Laterne der Madonna brennt noch. (0/7)', state: 'hidden' };
+  story.side.nord_baer = { title: 'Bärli', desc: 'Auf dem Spielplatz sucht jemand einen Teddy. Er soll zurück auf die Bank.', state: 'hidden' };
+  window.ausbau_nord = N;
+  N.ok = true; N.tLoad = Math.round(tLoad); N.tBuild = Math.round(performance.now() - T0);
+}
+
+// Schaukel-Scan: Sitze samt Ketten aus dem Gesamtnetz lösen und an der Querstange aufhängen
+function ausbau_nord_swing(src, x, z, ry) {
+  const g0 = ausbau_nord_fit(src, 2.3); g0.updateMatrixWorld(true);
+  let mesh = null; g0.traverse(o => { if (o.isMesh && !mesh) mesh = o; });
+  const root = new THREE.Group(); root.position.set(x, 0, z); root.rotation.y = ry; scene.add(root);
+  if (!mesh) return null;
+  const geo = (mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone()).applyMatrix4(mesh.matrixWorld);
+  geo.computeBoundingBox(); const bb = geo.boundingBox, W = bb.max.x - bb.min.x, H = bb.max.y - bb.min.y, cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2;
+  const pos = geo.attributes.position, nTri = pos.count / 3, sel = [[], [], []];
+  for (let t = 0; t < nTri; t++) { let mx = 0, my = 0, mz = 0; for (let k = 0; k < 3; k++) { mx += pos.getX(t * 3 + k); my += pos.getY(t * 3 + k); mz += pos.getZ(t * 3 + k); } mx /= 3; my /= 3; mz /= 3;
+    const seat = my < bb.min.y + H * .9 && Math.abs(mx - cx) < W * .36 && Math.abs(mz - cz) < .3; sel[seat ? (mx < cx ? 1 : 2) : 0].push(t); }
+  const sub = list => { const g = new THREE.BufferGeometry(); for (const [n, a] of Object.entries(geo.attributes)) { const arr = new a.array.constructor(list.length * 3 * a.itemSize); list.forEach((t, j) => { for (let k = 0; k < 3 * a.itemSize; k++) arr[j * 3 * a.itemSize + k] = a.array[t * 3 * a.itemSize + k]; }); g.setAttribute(n, new THREE.BufferAttribute(arr, a.itemSize, a.normalized)); } return g; };
+  const frame = new THREE.Mesh(sub(sel[0]), mesh.material); frame.castShadow = true; frame.receiveShadow = true; root.add(frame);
+  const seats = [];
+  for (const s of [1, 2]) { if (!sel[s].length) continue; const g = sub(sel[s]); g.computeBoundingBox(); const b = g.boundingBox; const px = (b.min.x + b.max.x) / 2, py = b.max.y, pz = (b.min.z + b.max.z) / 2;
+    g.translate(-px, -py, -pz); const piv = new THREE.Group(); piv.position.set(px, py, pz); root.add(piv); const m = new THREE.Mesh(g, mesh.material); m.castShadow = true; piv.add(m); piv.userData.noCol = true; seats.push({ piv, a: 0, v: 0, drive: 0 }); }
+  const hit = box(W * .8, 1.2, .7, x, .9, z, hidden, { cast: false });
+  interact(hit, 'Schaukel anhalten', () => { const S = ausbau_nord.swing; S.seats.forEach(q => { q.v *= .1; q.drive = 0; }); S.hold = 12; toast(S.told ? 'Die Kette ist kalt. Jetzt.' : 'Du hältst die Kette fest. Sie ist warm. Als hätte gerade noch jemand darauf gesessen.', 4200); S.told = true; });
+  return { root, seats, hold: 0, told: false, x, z, t: 0 };
+}
+
+// ---- Aufgaben-Logik
+function ausbau_nord_quest(k) {
+  const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; ausbau_nord.touched = true; sideStart('nord_' + k);
+}
+function ausbau_nord_readKid(i) {
+  const N = ausbau_nord, K = N.kids[i]; const first = !N.names.has(i); N.names.add(i);
+  if (first) ausbau_nord_quest('names');
+  const q = story.side.nord_names, n = N.names.size;
+  openNote(K.open ? 'Das offene Grab' : 'Grabstein · ' + K.n, K.t, 'nord_kind_' + K.n.toLowerCase(), () => {
+    if (!first) return; ausbau_nord_save();
+    if (n < 7) { q.desc = `Die Gräber der Kinder vom Sommer 2009. Gefunden: ${n}/7. Die übrigen stehen in derselben Reihe, bei der Madonna.`; subtitle(`${K.n}. (${n}/7)`, 2200); if (K.open) setTimeout(() => { Audio.whisper(K.x, .4, K.z - 1.1, 1.8); }, 900); return; }
+    sideDone('nord_names', 'Sieben Namen, sieben Steine. Alle mit demselben Todestag. Das Grab mit deinem Namen ist offen – und leer.');
+    story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Ben, Jana, Lena, Tim, Mo, Sophie, Kai.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier – als hätte jemand gewusst, dass nicht sie es sind, die zurückkamen.\n\nDas Grab mit deinem Namen ist frisch ausgehoben. Leer.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
+    ausbau_nord_counting(K.x, K.z);
+    if (!N.echo) { N.echo = true; setTimeout(() => { addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Echo · Friedhof am Kirchberg, vor drei Nächten', // STORY-HOOK: wer das Grab ausgehoben hat
+      figs: [E_(N.pit.x - .95, N.pit.z + .1, 1.4, 1), E_(N.pit.x + .95, N.pit.z - .3, -1.6, 1.02), E_(N.pit.x - .1, N.pit.z - 1.35, 0, .58)],
+      lines: [['Nacht. Zwei Männer in Mänteln heben eine Grube aus. Ein Kind steht daneben und hält eine Laterne.', 4200], ['„Tief genug?“', 2000, 'MANN VOM AMT'], ['„Für den Ersatz reicht es. Die Regel ist die Regel.“', 3600, 'MANN VOM AMT'],
+        ['„Und wenn er nicht kommt?“', 2400, 'MANN VOM AMT'], ['Das Kind hebt die Laterne. Es hat dein Gesicht. Mit neun.', 3800], ['„Er kommt. Ich hab ihn gerufen.“', 3000, 'KAI, 9']] }); subtitle('Über der Grube schimmert etwas in der Luft.', 3600); }, 9000); }
+  });
+}
+// Gänsehaut: Zählen am Gedenkfeld (nach dem siebten Namen)
+async function ausbau_nord_counting(x, z) {
+  const N = ausbau_nord; await wait(1600); state.talking = true; nat.calm = Math.max(nat.calm, 25);
+  for (const C of candles) if (C.on && Math.hypot(C.g.position.x - x, C.g.position.z - z) < 30) { C.dim = true; ausbau_nord_setFlame(C, false); }
+  Audio.flick();
+  const W = ['… eins …', '… zwei …', '… drei …', '… vier …', '… fünf …', '… sechs …', '… sieben …'];
+  for (let i = 0; i < 7; i++) { const K = N.kids[i]; Audio.whisper(K.x, .6, K.z, 1); subtitle(`<i>${W[i]}</i>`, 900); await wait(820); }
+  await wait(1500); const f = flatDir(); Audio.whisper(player.pos.x - f.x * .9, 1.6, player.pos.z - f.z * .9, 1.6); subtitle('<i>… acht.</i>', 2200); glitchV = .35;
+  await wait(1400); for (const C of candles) if (C.dim) { C.dim = false; ausbau_nord_setFlame(C, true); }
+  state.talking = false; setTimeout(() => toast('Die Stimme kam von dort, wo du gerade stehst.', 4200), 600);
+}
+function ausbau_nord_takeLantern() {
+  const N = ausbau_nord, L = N.lantern; if (L.taken) return; ausbau_nord_items(); ausbau_nord_quest('lights');
+  L.taken = true; uninteract(L.hit); ausbau_nord_setFlame(L.flame, false);
+  liftTo(L.g, () => openNote('Die Grablaterne', 'Du nimmst die Laterne. Sie ist schwerer als gedacht, und warm.\n\nDie Flamme darin steht still. Sie neigt sich nicht, egal wie du die Laterne hältst.', 'nord_laterne', () => { addItem('nord_lantern'); story.side.nord_lights.desc = 'Bring das Licht der Laterne zu den Grablichtern der sieben Kinder. (' + N.lights.size + '/7)'; }), false);
+}
+function ausbau_nord_lightCandle(C) {
+  const N = ausbau_nord; if (C.on) return;
+  if (!story.items.includes('nord_lantern')) { ausbau_nord_quest('lights'); return toast(N.lights.size ? 'Du hast nichts mehr, um es anzuzünden.' : 'Das Grablicht ist aus. Der Docht ist nass – als hätte es gerade erst jemand ausgedrückt.', 4200); }
+  ausbau_nord_setFlame(C, true); N.lights.add(C.kid); Audio.play('switch1', { gain: .12, rate: 2.2, x: C.g.position.x, y: .2, z: C.g.position.z, ref: 1 }); uninteract(C.hit); ausbau_nord_save();
+  const n = N.lights.size, q = story.side.nord_lights; q.desc = `Bring das Licht der Laterne zu den Grablichtern der sieben Kinder. (${n}/7)`;
+  if (n < 7) { subtitle(`${N.kids[C.kid].n}. Das Licht brennt. (${n}/7)`, 2000); return; }
+  ausbau_nord_eighthLight();
+}
+// Gänsehaut: das achte Licht
+async function ausbau_nord_eighthLight() {
+  const N = ausbau_nord; state.talking = true; nat.calm = Math.max(nat.calm, 25); await wait(1400);
+  for (const C of N.cand) ausbau_nord_setFlame(C, false); Audio.play('wind3', { gain: .5, rate: 1.3, dur: 2.2, fadeIn: .4 });
+  await wait(1800);
+  const [x, z] = N.eighthPos; for (const im of N.pillar || []) { const m = new THREE.Matrix4(); im.getMatrixAt(N.eighthIdx, m); m.elements[13] = 0; im.setMatrixAt(N.eighthIdx, m); im.instanceMatrix.needsUpdate = true; }
+  ausbau_nord_setFlame(N.eighth, true); Audio.play('switch1', { gain: .2, rate: 1.9, x, y: .2, z, ref: 1.5 }); Audio.giggle(x, .5, z);
+  await wait(900); for (const C of N.cand) ausbau_nord_setFlame(C, true);
+  state.talking = false; subtitle('Sieben Lichter. Und ein achtes, das du nicht angezündet hast.', 4600);
+  sideDone('nord_lights', 'Sieben Lichter brennen auf dem Gedenkfeld. Ein achtes brennt daneben – auf einem Grab, das es nicht gibt.');
+  story.lore.push({ key: 'nord_achtes_licht', title: 'Das achte Licht', html: 'Als das siebte Grablicht brannte, flammte daneben ein achtes auf. Auf nacktem Boden, neben dem offenen Grab.\n\nNiemand hat es angezündet.' }); // STORY-HOOK: das achte Kind
+  ausbau_nord_dropItem('nord_lantern');
+  setTimeout(() => { const L = N.lantern; L.g.visible = true; L.g.scale.setScalar(1); L.g.position.copy(L.home); L.g.rotation.set(0, .5, 0); ausbau_nord_setFlame(L.flame, true); L.back = true; }, 12000);
+}
+function ausbau_nord_teddy() {
+  const N = ausbau_nord, T = N.teddy;
+  if (N.bear === 'bench' || N.bear === 'moved') return toast(N.bear === 'moved' ? 'Er sitzt da, als hätte er dich erwartet.' : 'Bärli sitzt auf der Bank und schaut zur Straße.', 3600);
+  ausbau_nord_items(); ausbau_nord_quest('baer'); N.bear = 'carried'; uninteract(T.hit);
+  liftTo(T.g, () => openNote('Ein Teddy', 'Ein alter Teddy, nass vom Regen, die Knopfaugen stumpf. Er saß am Rand der offenen Grube, als würde er hineinsehen.\n\nAm Etikett, mit Kuli: <span class="hand">BÄRLI</span>', 'nord_teddy', () => { addItem('nord_baer'); story.side.nord_baer.desc = 'Bärli gehört auf die Bank am Spielplatz.'; ausbau_nord_save(); }), false);
+}
+function ausbau_nord_bench() {
+  const N = ausbau_nord, T = N.teddy;
+  if (!story.items.includes('nord_baer')) { ausbau_nord_quest('baer');
+    return openNote('Ein Zettel auf der Bank', '<span class="hand">BÄRLI IST WEG!!\nEr ist braun und hat Knopfaugen.\nEr wollte nur zu den anderen.\nBitte setzt ihn wieder auf die Bank,\nsonst findet er nicht heim.</span>\n\nKeine Unterschrift. Eine Kinderschrift. Das Papier ist vergilbt und trocken, obwohl es seit Stunden regnet.', 'nord_zettel'); } // STORY-HOOK: wer sucht Bärli?
+  ausbau_nord_dropItem('nord_baer'); N.bear = 'bench'; ausbau_nord_save();
+  T.g.visible = true; T.g.scale.setScalar(1); T.g.position.set(21.05, .585, 67.35); T.g.rotation.set(0, 0, 0); T.g.userData.noCol = true; interact(T.hit, 'Bärli', () => ausbau_nord_teddy()); T.t = 0; T.seen = 0;
+  Audio.paper(); sideDone('nord_baer', 'Bärli sitzt wieder auf der Bank. Er schaut zur Straße. Er wartet.');
+  setTimeout(() => Audio.giggle(40.6, 1, 78.8), 2500);
+}
+
+// ---- pro Bild
+function ausbau_nord_tick(dt, t, indoor) {
+  const N = ausbau_nord, P = player.pos;
+  if (!N.solid && typeof SOL !== 'undefined' && SOL.items.length) { N.solid = true; try { for (const g of N.glass || []) solidAdd(g, true); } catch (e) {} } // Glas der Haltestelle hält auf
+  if (!N.restored && state.started) { N.restored = true; ausbau_nord_restore(); }
+  const near = P.z > 30 && P.x > -90 && P.x < 70, onLane = P.z > 4 && P.z < 58 && Math.abs(P.x + 7) < 6;
+  // --- Karussell
+  const M_ = N.merry; if (M_) { const d = Math.hypot(P.x - 34, P.z - 71.2);
+    if (M_.auto && !M_.frozen && d < 17 && ausbau_nord_free()) M_.w += (.45 - M_.w) * Math.min(1, dt * .5);
+    if (!M_.frozen && M_.w > .05 && flashOn && d < 16 && d > 2.5) { tmp.set(34 - camera.position.x, .5 - camera.position.y, 71.2 - camera.position.z).normalize(); if (fwd.dot(tmp) > .965) { M_.frozen = true; M_.w = 0; M_.auto = false; M_.away = 0; } } // im Lichtkegel: sofort still
+    if (M_.frozen && d > 26) { M_.away += dt; if (M_.away > 40) { M_.frozen = false; M_.auto = true; } }
+    M_.w *= 1 - dt * (M_.auto && !M_.frozen ? .02 : .12); M_.piv.rotation.y += M_.w * dt;
+    if (M_.w > .12) { M_.creak -= dt * M_.w; if (M_.creak < 0) { M_.creak = 1.4; if (d < 30) Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .18 * Math.min(1, M_.w), rate: .55, x: 34, y: .4, z: 71.2, ref: 2 }); } } }
+  // --- Schaukel: schwingt an, wenn niemand hinsieht
+  const S = N.swing; if (S && S.seats.length) { const d = Math.hypot(P.x - S.x, P.z - S.z); S.hold = Math.max(0, S.hold - dt);
+    tmp.set(S.x - camera.position.x, 1.2 - camera.position.y, S.z - camera.position.z).normalize(); const looking = fwd.dot(tmp) > .75;
+    const q = S.seats[1] || S.seats[0];
+    if (d < 20 && !looking && !S.hold && ausbau_nord_free()) q.drive = Math.min(1, q.drive + dt * .15); else q.drive = Math.max(0, q.drive - dt * (looking ? .08 : .3));
+    for (const s of S.seats) { const push = s === q ? q.drive * .9 * Math.sign(s.v || 1) : 0; s.v += (-9.8 / 1.9 * Math.sin(s.a) + push * (Math.abs(s.a) < .15 ? 1 : 0)) * dt; s.v *= 1 - dt * .12; s.a += s.v * dt; s.piv.rotation.x = s.a;
+      if (Math.abs(s.a) > .12 && Math.sign(s.v) !== Math.sign(s.lv || 0)) { if (d < 22) Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .12 * Math.min(1, Math.abs(s.a) * 2), rate: .8, x: S.x, y: 2, z: S.z, ref: 2 }); } s.lv = s.v; } }
+  if (!near && !onLane) return;
+  const free = ausbau_nord_free();
+  // --- tote Laterne am Ende der Straße: kämpft sich ab und zu an
+  if (N.deadLamp && N.deadLamp.mode === 'off' && !ch3.on && !state.outage) { N.lampT -= dt; if (N.lampT < 0) { N.lampT = rand(9, 22); const L = N.deadLamp; L.mode = 'flicker'; Audio.buzz(L.wx, 5, L.wz); setTimeout(() => { if (L.mode === 'flicker') L.mode = 'off'; }, rand(250, 700)); } }
+  // --- Krähen auf der Kapelle
+  N.crowT -= dt; if (N.crowT < 0) { N.crowT = rand(22, 48); if (Math.hypot(P.x + 52.5, P.z - 86) < 45) Audio.caw(-52.5 + rand(-3, 3), 11, 86 + rand(-3, 3)); }
+  // --- Friedhofstor: einmal die Glocke
+  if (!N.bell && P.z > 67.4 && P.z < 70 && Math.abs(P.x + 52.5) < 2 && free) { N.bell = true; setTimeout(() => { ausbau_nord_bellToll(); setTimeout(() => { try { crowFlock(); } catch (e) {} }, 1400); }, 500); }
+  // --- Gestalt zwischen den Gräbern
+  N.figT -= dt;
+  if (N.figT < 0 && free && !dir.busy && !stalker.visible && P.x > -73 && P.x < -32 && P.z > 67.5 && P.z < 80 && nat.calm <= 0) {
+    const f = flatDir(); const c = [[-68.5, 88.6], [-64, 91.8], [-40.4, 88.7], [-36.2, 85.6], [-43, 91.8], [-69.6, 83], [-38.6, 82.6]].filter(([x, z]) => { const dx = x - P.x, dz = z - P.z, d = Math.hypot(dx, dz); return d > 13 && d < 24 && (dx * f.x + dz * f.z) / d > .8; });
+    if (c.length) { const [x, z] = c[Math.floor(Math.random() * c.length)]; setFace(stalker, Math.random() < .5 ? 'child' : 'pale'); stalker.position.set(x, 0, z); stalker.lookAt(P.x, 0, P.z); stalker.visible = true; dir.busy = true;
+      dir.fig = { t: 0, seen: 0, crossing: false, dx: 0, dz: 0 }; N.figT = rand(120, 200); nat.calm = Math.max(nat.calm, 12); } else N.figT = 3;
+  }
+  // --- Der letzte Bus (Haltestelle)
+  ausbau_nord_busTick(dt, P, free);
+  // --- Bärli hat sich bewegt
+  const T = N.teddy; if (T && N.bear === 'bench') { const d = Math.hypot(P.x - 21, P.z - 67.3); tmp.set(21 - camera.position.x, .7 - camera.position.y, 67.3 - camera.position.z).normalize(); const vis = fwd.dot(tmp) > .6 && d < 40;
+    if (d > 9 && !vis) T.t += dt; else if (vis) T.t = 0;
+    if (T.t > 4 && free) { N.bear = 'moved'; T.g.position.set(22.4, 0, 69.6); T.g.lookAt(P.x, 0, P.z); T.g.rotation.x = 0; T.g.rotation.z = 0; T.watch = true; T.seen = 0; ausbau_nord_save(); } }
+  if (T && T.watch) { const d = Math.hypot(P.x - T.g.position.x, P.z - T.g.position.z); tmp.set(T.g.position.x - camera.position.x, .3 - camera.position.y, T.g.position.z - camera.position.z).normalize();
+    if (fwd.dot(tmp) > .9 && d < 22) { T.seen += dt; if (T.seen > .5) { T.watch = false; subtitle('Bärli sitzt nicht mehr auf der Bank. Er sitzt im Laub. Und sieht dich an.', 4200); Audio.stinger(false); } } }
+}
+// Glocke (synthetisch, groß, weit)
+function ausbau_nord_bellToll() {
+  if (!Audio.ctx) return; const d = Audio.at(-52.5, 11, 88, 14);
+  [[.5, .5, 7], [1, .9, 5.5], [1.19, .35, 4], [1.5, .3, 3.2], [2, .45, 2.6], [2.52, .15, 1.8], [3, .12, 1.4]].forEach(([m, a, dur]) => { const o = Audio.osc('sine', 138 * m, 0, dur + .2); Audio.env(o, a * .32, .004, dur, 0, d); });
+  const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .002, .15, 0, d); n.stop(Audio.ctx.currentTime + .5);
+}
+// Der letzte Bus: nur Licht und Klang, kein Fahrzeug
+function ausbau_nord_busTick(dt, P, free) {
+  const N = ausbau_nord, B = N.bus;
+  if (B.phase === 'done') return;
+  if (B.phase === 'idle') {
+    const d = Math.hypot(P.x - 10, P.z - 54.8); if (d < 4.5) B.near += dt; else B.near = Math.max(0, B.near - dt * .5);
+    if (N.busArmed) N.busArmed += dt;
+    if (free && nat.calm <= 0 && (B.near > 5 || N.busArmed > 7) && d < 14) {
+      B.phase = 'come'; B.t = 0; B.x = 78; nat.calm = Math.max(nat.calm, 30); dir.busy = true;
+      if (!B.fl) { const mk = c => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: poolTex, color: c, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); s.scale.setScalar(.9); scene.add(s); return s; };
+        B.fl = [mk(0xfff2d8), mk(0xfff2d8)]; B.light = new VLight(0xfff0d0, 0, 22, 1.6); scene.add(B.light); }
+      if (Audio.ctx) { B.pan = Audio.at(B.x, .8, 58.3, 6); B.eng = Audio.play('carEngine', { loop: true, gain: 0, lp: 520, rate: .72, dest: B.pan }); if (B.eng) B.eng.g.gain.linearRampToValueAtTime(.9, Audio.ctx.currentTime + 5); }
+    }
+    return;
+  }
+  B.t += dt; const setPos = (x, c) => { B.x = x; B.fl.forEach((s, i) => { s.visible = true; s.position.set(x, .85, 58.3 + (i ? .75 : -.75)); s.material.color.set(c === 'r' ? 0xff2a18 : 0xfff2d8); s.scale.setScalar(c === 'r' ? .5 : .95); });
+    B.light.position.set(c === 'r' ? x + 1 : x - 3, 1.2, 58.3); if (B.pan && B.pan.positionX) B.pan.positionX.value = x; };
+  if (B.phase === 'come') { const k = Math.min(1, B.t / 11), e = 1 - Math.pow(1 - k, 2.2); setPos(78 + (13 - 78) * e, 'w'); B.light.intensity = 5 * Math.min(1, B.t / 2);
+    if (k >= 1) { B.phase = 'stop'; B.t = 0; if (Audio.ctx) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'highpass'; bp.frequency.value = 2500; n.connect(bp); Audio.env(bp, .22, .02, 1.2, 0, Audio.at(13, .6, 58.3, 4)); n.stop(Audio.ctx.currentTime + 2); } } }
+  else if (B.phase === 'stop') {
+    if (B.t > .8 && !B.s1) { B.s1 = true; Audio.play('metalOpen', { gain: .7, rate: .8, x: 10.5, y: 1.2, z: 57.6, ref: 3 }); subtitle('Zischen. Türen, die sich öffnen. Da ist kein Bus. Nur Licht.', 4200); }
+    if (B.t > 2.6 && !B.s2) { B.s2 = true; const f = flatDir(); Audio.stepAt(P.x + f.z * .9, P.z - f.x * .9, .5); }
+    if (B.t > 3.4 && !B.s3) { B.s3 = true; const f = flatDir(); Audio.stepAt(P.x - f.x * .7, P.z - f.z * .7, .45); }
+    if (B.t > 5 && !B.s4) { B.s4 = true; Audio.play('metalClose', { gain: .6, rate: .8, x: 10.5, y: 1.2, z: 57.6, ref: 3 }); }
+    if (B.t > 6) { B.phase = 'go'; B.t = 0; } }
+  else if (B.phase === 'go') { const k = Math.min(1, B.t / 12), e = k * k; setPos(13 + (-90 - 13) * e, 'r'); B.light.intensity = 5 * (1 - k);
+    if (B.eng && Audio.ctx && !B.fade) { B.fade = true; B.eng.g.gain.cancelScheduledValues(Audio.ctx.currentTime); B.eng.g.gain.setValueAtTime(.9, Audio.ctx.currentTime); B.eng.g.gain.linearRampToValueAtTime(0, Audio.ctx.currentTime + 11); }
+    if (k >= 1) { B.phase = 'done'; B.fl.forEach(s => s.visible = false); B.light.intensity = 0; if (B.eng) B.eng.stop(.5); dir.busy = false; setTimeout(() => toast('Du bist nicht eingestiegen. Irgendetwas anderes schon.', 4200), 1200); } }
+}
+// Fortschritt nach „Weiterspielen“ wiederherstellen
+function ausbau_nord_restore() {
+  const N = ausbau_nord; if (N.touched) return;
+  if (!['nord_names', 'nord_lights', 'nord_baer'].some(k => story.side[k] && story.side[k].state !== 'hidden')) return;
+  let d = null; try { d = JSON.parse(localStorage.getItem('ham_nord') || 'null'); } catch (e) {} if (!d) return;
+  (d.names || []).forEach(i => N.names.add(i));
+  if (story.side.nord_lights.state !== 'hidden') (d.lights || []).forEach(i => { const C = N.cand.find(c => c.kid === i); if (C) { ausbau_nord_setFlame(C, true); N.lights.add(i); uninteract(C.hit); } });
+  if (story.side.nord_lights.state === 'done' && N.eighth) ausbau_nord_setFlame(N.eighth, true);
+  if (story.side.nord_baer.state === 'done' && N.teddy) { const T = N.teddy; N.bear = 'bench'; T.g.position.set(21.05, .585, 67.35); T.g.rotation.set(0, 0, 0); }
+}
