@@ -1,0 +1,21 @@
+# Geheimnisse
+.env
+*.env
+*.pem
+*.key
+# Abhängigkeiten, Builds, Tests, Downloads
+node_modules/
+app/game/
+app/dist/
+app/work/
+app/audit/
+app/view/
+app/pv*/
+app/shots*/
+app/selftest/
+app/exetest/
+__pycache__/
+*.log
+unreal/Scripts/polyhaven/
+unreal/Scripts/audit/
+HAM_FabDownloads/
