@@ -669,6 +669,10 @@ const flashRig = new THREE.Object3D(); scene.add(flashRig);
 const flashlight = new THREE.SpotLight(0xffe9cc, 14, 32, .5, .75, 1.7);
 flashlight.map = cookie; flashlight.castShadow = true; flashlight.shadow.mapSize.set(1024, 1024); flashlight.shadow.bias = -.0004; flashlight.shadow.camera.near = .2;
 flashRig.add(flashlight); flashlight.position.set(0, 0, 0); flashlight.target.position.set(0, 0, -1); flashRig.add(flashlight.target);
+// Schatten der Taschenlampe nur im Nahbereich (sichtbar ist er ohnehin nur dort): spart je Bild einen Schattenpass über alles im Lichtkegel
+const FLASH_SHADOW_FAR = 14, _lightShadowUpd = Object.getPrototypeOf(Object.getPrototypeOf(flashlight.shadow)).updateMatrices; // LightShadow ist in three r170 nicht exportiert
+flashlight.shadow.updateMatrices = function (light) { const cam = this.camera, fov = THREE.MathUtils.RAD2DEG * 2 * light.angle * this.focus, aspect = this.mapSize.width / this.mapSize.height, far = Math.min(light.distance || cam.far, FLASH_SHADOW_FAR);
+  if (fov !== cam.fov || aspect !== cam.aspect || far !== cam.far) { cam.fov = fov; cam.aspect = aspect; cam.far = far; cam.updateProjectionMatrix(); } _lightShadowUpd.call(this, light); };
 const bounce = new THREE.PointLight(0xffe2c0, 0, 7, 2); scene.add(bounce);
 let flashOn = true;
 // --- TASCHENLAMPE: drei Stufen im Spielverlauf + Batterie. Nie blockierend: leer = schwaches Restglimmen, nie völlig blind.
@@ -9372,11 +9376,15 @@ function perfMergeGroups(g) {
 function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
 // 2) Instanz-Wälder/-Gräser, die über die ganze Welt reichen (Begrenzungskugel > PERF_CULL.span): nur Instanzen im Nebel-Sichtbereich zeichnen.
 //    Kollision nutzt eigene Kopien der Matrizen und ist davon unberührt. Schreibt ein Modul selbst in die Instanzen, wird die Auslese dort abgeschaltet.
-const PERF_CULL = { R: 85, span: 120, every: .25, t: 0, list: [] };
+const PERF_CULL = { R: 65, span: 120, every: .25, t: 0, list: [], FOG_R: 70, fog: [] }; // R/FOG_R: ab hier verschluckt der Nebel (Dichte .034) > 98 %
 scene.traverse(o => { if (!o.isInstancedMesh || o.count < 8 || o.userData.noCull) return; if (!o.boundingSphere) o.computeBoundingSphere(); if (o.boundingSphere.radius < PERF_CULL.span) return;
   if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const n = o.count, all = o.instanceMatrix.array.slice(0, n * 16), col = o.instanceColor ? o.instanceColor.array.slice(0, n * 3) : null, cx = new Float32Array(n), cz = new Float32Array(n), rr = new Float32Array(n), m = new THREE.Matrix4();
   for (let i = 0; i < n; i++) { m.fromArray(all, i * 16); const e = m.elements; cx[i] = e[12]; cz[i] = e[14]; rr[i] = o.geometry.boundingSphere.radius * m.getMaxScaleOnAxis(); }
   PERF_CULL.list.push({ o, n, all, col, cx, cz, rr, ver: -1, off: false }); });
+// 3) Schwere Einzelmodelle (> 15 000 Dreiecke, z. B. Kapelle mit 839 000) jenseits des Nebels nicht zeichnen: Layer 0 aus (auch kein Schatten, kein Strahltest)
+scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry) return; const m = [].concat(o.material)[0]; if (!m || m.fog === false) return;
+  const tri = (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; if (tri < 15000) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); PERF_CULL.fog.push(o); });
+const _pcv = new THREE.Vector3();
 function perfCullTick(dt) {
   PERF_CULL.t -= dt; if (PERF_CULL.t > 0) return; PERF_CULL.t = PERF_CULL.every; const px = camera.position.x, pz = camera.position.z, R = PERF_CULL.R;
   for (const C of PERF_CULL.list) { if (C.off) continue; const o = C.o, A = o.instanceMatrix;
@@ -9384,6 +9392,8 @@ function perfCullTick(dt) {
     let k = 0; for (let i = 0; i < C.n; i++) { const dx = C.cx[i] - px, dz = C.cz[i] - pz, r = R + C.rr[i]; if (dx * dx + dz * dz > r * r) continue;
       A.array.set(C.all.subarray(i * 16, i * 16 + 16), k * 16); if (C.col) o.instanceColor.array.set(C.col.subarray(i * 3, i * 3 + 3), k * 3); k++; }
     o.count = k; A.needsUpdate = true; if (C.col) o.instanceColor.needsUpdate = true; C.ver = A.version; o.computeBoundingSphere(); }
+  for (const o of PERF_CULL.fog) { const s = o.geometry.boundingSphere; _pcv.copy(s.center).applyMatrix4(o.matrixWorld); const far = Math.hypot(_pcv.x - px, _pcv.z - pz) - s.radius * o.matrixWorld.getMaxScaleOnAxis() > PERF_CULL.FOG_R;
+    if (far) o.layers.disable(0); else o.layers.enable(0); }
 }
 // =====================================================================  HAUPTMENÜ & INVENTAR
 const ICONS = {
