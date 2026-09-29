@@ -33,11 +33,20 @@ function hungrige_done(id, thought) {
 }
 // ---------------------------------------------------------------- Helfer: Platz vor dem Spieler zwischen den Bäumen, Blick, Licht, Knochen
 const hungrige_V = new THREE.Vector3(), hungrige_Q = new THREE.Quaternion(), hungrige_E = new THREE.Euler();
-function hungrige_spot(dMin, dMax, spread = .55, behind = false) {
+// Freie Sicht von der Kamera auf (x, y, z)? Strahl gegen die Kollisionskörper (Bäume, Wände, Autos; Gras und Laub zählen nicht)
+const hungrige_ray = new THREE.Ray(), hungrige_R2 = new THREE.Ray(), hungrige_W = new THREE.Vector3();
+function hungrige_los(x, y, z) {
+  const c = camera.position, dir = hungrige_W.set(x - c.x, y - c.y, z - c.z), L = dir.length(); if (L < .5) return true; dir.divideScalar(L); hungrige_ray.set(c, dir); const seen = new Set();
+  for (let s = .5; s < L; s += 1.2) { for (const it of solidNear(c.x + dir.x * s, c.z + dir.z * s)) { if (seen.has(it)) continue; seen.add(it); if (it.soft || !solidLive(it) || !hungrige_ray.intersectsBox(it.bb)) continue;
+    const bt = it.o.geometry && it.o.geometry.boundsTree; if (!bt) continue; hungrige_R2.copy(hungrige_ray).applyMatrix4(it.inv); const h = bt.raycastFirst(hungrige_R2, THREE.DoubleSide); if (!h) continue;
+    if (h.point.applyMatrix4(it.mw).distanceTo(c) < L - .45) return false; } }
+  return true;
+}
+function hungrige_spot(dMin, dMax, spread = .55, behind = false, h = .7) {
   const P = player.pos, f = flatDir(); if (behind) f.negate();
   for (let k = 0; k < 28; k++) { const a = Math.atan2(f.x, f.z) + rand(-spread, spread), d = rand(dMin, dMax), x = P.x + Math.sin(a) * d, z = P.z + Math.cos(a) * d;
     if (!hungrige_inWald(x, z) || leben_inHouse(x, z, 1.5) || !leben_free(x, z, .5, .9)) continue; if (typeof tief_pond === 'function' && tief_pond(x, z, 2)) continue;
-    const sg = solidGround(x, .6, z); return [x, sg > -1 ? Math.max(0, sg) : 0, z]; }
+    const sg = solidGround(x, .6, z), y = sg > -1 ? Math.max(0, sg) : 0; if (!behind && (!hungrige_los(x, y + h, z) || !hungrige_los(x, y + h * .45, z))) continue; return [x, y, z]; }
   return null;
 }
 function hungrige_facePlayer(V, k = 1) { const p = V.g.position, P = player.pos; V.g.rotation.y = leben_ang(V.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, k)); }
@@ -122,13 +131,13 @@ const HUNGRIGE_EV = {
     end() { hungrige_off(this.V); hungrige_done('reh', 'Ein Reh geht nicht rückwärts. … Es hat mich angesehen. Die ganze Zeit, beim Rückwärtsgehen.'); } },
   // 2) Eine Krähe landet vor dir und sagt Lucys Wort. Dann fliegt sie – falsch herum – davon.
   kraehe: { need: () => hungrige_inWald(player.pos.x, player.pos.z),
-    start() { const sp = hungrige_spot(5, 8, .4); if (!sp) return false; const V = hungrige_beast('crow', 1.15); if (!V) return false;
+    start() { const sp = hungrige_spot(5, 8, .4, false, .3); if (!sp) return false; const V = hungrige_beast('crow', 1.15); if (!V) return false;
       V.g.position.set(sp[0], sp[1] + 6, sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'Landing', 0, 1, true); Audio.flap(sp[0], sp[1] + 4, sp[2]); this.V = V; this.t = 0; this.ph = 'land'; this.said = false; return true; },
     tick(dt) { const V = this.V, p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 60); hungrige_facePlayer(V, dt * 3);
       if (this.ph === 'land') { p.y += (V.ty - p.y) * Math.min(1, dt * 3.2); if (this.t > 1.1) { this.ph = 'sit'; leben_play(V, 'IdleLookAround', .3); p.y = V.ty; } }
-      else if (this.ph === 'sit') { if (!this.said && this.t > 2.4 && hungrige_seen(V, .8, .3)) { this.said = true; hungrige_lucy(p.x, p.y + .3, p.z, '„Großer …“', 2000); this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); }
+      else if (this.ph === 'sit') { if (!this.said && this.t > 2.4 && hungrige_seen(V, .8, .3)) { this.said = true; this.saidT = this.t; hungrige_lucy(p.x, p.y + .3, p.z, '„Großer …“', 2000); this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); }
         if (this.tw) this.tw.k = Math.min(1, this.tw.k + dt * 1.2);
-        if ((this.said && this.t > 6.5) || hungrige_lit(V, 12, .985, .3) && this.said || hungrige_dist(V) < 2.2) { this.ph = 'fly'; leben_play(V, 'TakeOff', .1, 1.2, true); Audio.flap(p.x, p.y + .5, p.z); Audio.caw(p.x, p.y + 1, p.z); this.ft = 0; const f = flatDir(); this.dir = new THREE.Vector3(-f.x, .55, -f.z).normalize(); }
+        if ((this.said && this.t > 6.5) || (this.said && this.t > this.saidT + 2 && hungrige_lit(V, 12, .985, .3)) || hungrige_dist(V) < 2.2) { this.ph = 'fly'; leben_play(V, 'TakeOff', .1, 1.2, true); Audio.flap(p.x, p.y + .5, p.z); Audio.caw(p.x, p.y + 1, p.z); this.ft = 0; const f = flatDir(); this.dir = new THREE.Vector3(-f.x, .55, -f.z).normalize(); }
         else if (this.t > 30) return false; }
       else { this.ft += dt; if (this.ft > .5) leben_play(V, 'Fly', .2, -1); p.addScaledVector(this.dir, dt * 7.5); if (this.ft > 4) return false; }
       hungrige_applyTwist(V); return true; },
@@ -143,7 +152,7 @@ const HUNGRIGE_EV = {
     end() { hungrige_off(this.V); hungrige_done('fuchs', 'Der Kopf saß falsch. Umgedreht. Als hätte jemand den Fuchs angezogen und hinten den Reißverschluss vergessen.'); } },
   // 5) Ein Hirsch bricht aus dem Dunkel, stürmt auf dich zu, bleibt einen Meter vor dir stehen – und der Kopf dreht sich ohne den Hals.
   hirsch: { need: () => hungrige_deep() > .15 && hungrige_has('spuren'),
-    start() { const sp = hungrige_spot(24, 30, .3); if (!sp) return false; const V = hungrige_beast('stag', 1.12); if (!V) return false;
+    start() { const sp = hungrige_spot(24, 30, .3, false, 1.3); if (!sp) return false; const V = hungrige_beast('stag', 1.12); if (!V) return false;
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'IdleLookAround', 0); this.V = V; this.t = 0; this.ph = 'watch'; this.hT = 0; this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); return true; },
     tick(dt) { const V = this.V, d = hungrige_dist(V), p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 90);
       if (this.ph === 'watch') { hungrige_facePlayer(V, dt * 2); if ((hungrige_seen(V, .92, 1.2) && this.t > 1.5) || this.t > 12) { this.ph = 'run'; V.sp = 9; leben_play(V, 'Run', .15); Audio.deerBark ? Audio.deerBark(p.x, p.z) : Audio.grunt(p.x, p.z, true); leben_crowScare(p.x, p.z, 20); } }
@@ -164,20 +173,20 @@ const HUNGRIGE_EV = {
     end() { hungrige_done('wolf_funk', 'Ein Wolf heult nicht auf 31,10 Megahertz. Das war Funk. Das war eine Stimme, die Heulen übt.'); } },
   // 7) Die wahre Gestalt, weit hinten zwischen den Stämmen. Aufrecht, zu groß. Wer sie anleuchtet, sieht nur Nebel.
   blick: { need: () => hungrige_deep() > .4 && hungrige_has('wolf_funk') && !!hungrige_S.dt,
-    start() { const sp = hungrige_spot(17, 23, .35); if (!sp) return false; const D = hungrige_S.dt; D.g.position.set(sp[0], sp[1], sp[2]); D.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); D.g.visible = true; this.t = 0; this.seen = 0; this.sw = rand(0, 6); return true; },
+    start() { const sp = hungrige_spot(17, 23, .35, false, 1.9); if (!sp) return false; const D = hungrige_S.dt; D.g.position.set(sp[0], sp[1], sp[2]); D.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); D.g.visible = true; this.t = 0; this.seen = 0; this.sw = rand(0, 6); return true; },
     tick(dt) { const D = hungrige_S.dt, g = D.g; this.t += dt; this.sw += dt; g.rotation.y += Math.sin(this.sw * .7) * dt * .05;
       const p = g.position; if (leben_facing(p.x, p.y + 1.8, p.z) > .9 && hungrige_dist(D) < 40) this.seen += dt; if (this.seen > .6 && !this.sn) { this.sn = true; Audio.whisper(p.x, 1.8, p.z, 1.6); glitchV = Math.max(glitchV, .3); }
-      if (hungrige_lit(D, 30, .975, 1.6) && this.seen > .4) { Audio.twig(p.x, p.z); Audio.treeCreak(p.x, p.z); scareCount++; return false; } if (hungrige_dist(D) < 7) { Audio.growl(p.x, p.z, true); glitchV = .6; return false; } if (this.t > 45) return false; return true; },
+      if (hungrige_lit(D, 30, .975, 1.6) && this.seen > 1.5) { Audio.twig(p.x, p.z); Audio.treeCreak(p.x, p.z); scareCount++; return false; } if (hungrige_dist(D) < 7) { Audio.growl(p.x, p.z, true); glitchV = .6; return false; } if (this.t > 45) return false; return true; },
     end() { hungrige_dtHide(); hungrige_done('blick', 'Zu groß für einen Hirsch. Zu aufrecht. Und als das Licht draufkam, war da nur noch Nebel.'); } },
   // 8) Gefreiter Hofer. Uniform von damals, mit dem Rücken zu dir. Der Kopf dreht sich zu dir um – der Körper bleibt stehen.
   hofer: { need: () => hungrige_deep() > .4 && hungrige_has('blick') && typeof figuren_embody === 'function',
-    start() { const sp = hungrige_spot(11, 15, .35); if (!sp) return false; const S = hungrige_S; if (!S.hoferG) { S.hoferG = new THREE.Group(); scene.add(S.hoferG); }
+    start() { const sp = hungrige_spot(11, 15, .35, false, 1.6); if (!sp) return false; const S = hungrige_S; if (!S.hoferG) { S.hoferG = new THREE.Group(); scene.add(S.hoferG); }
       const g = S.hoferG; g.position.set(sp[0], sp[1], sp[2]); g.rotation.y = Math.atan2(sp[0] - player.pos.x, sp[2] - player.pos.z); g.visible = true; this.t = 0; this.ph = 'wait'; this.P = null;
       figuren_embody(g, 'polizist', { clip: 'idle' }).then(P => { if (!P) { this.fail = true; return; } this.P = P; this.head = hungrige_bone(P.obj, /^(mixamorig)?Head$|Head$/i); }); return true; },
     tick(dt) { this.t += dt; if (this.fail) return false; const g = hungrige_S.hoferG, p = g.position, d = Math.hypot(p.x - player.pos.x, p.z - player.pos.z), f = leben_facing(p.x, p.y + 1.5, p.z);
       if (this.ph === 'wait') { if (f > .9 && d < 30) this.seen = (this.seen || 0) + dt; if (this.seen > 1.4) { this.ph = 'turn'; this.k = 0; Audio.crack(); } else if (this.t > 40) return false; }
-      else if (this.ph === 'turn') { this.k = Math.min(1, this.k + dt * .55); if (this.k >= 1 && !this.sp) { this.sp = true; Audio.whisper(p.x, 1.7, p.z, 1.8); subtitle('<i>„… Bergung drei … ich hab Hunger, Junge …“</i>', 3000, 'HOFER?'); }
-        if (this.sp && ((flashOn && f > .975 && d < 20) || d < 3.5)) { this.ph = 'gone'; glitchV = .7; shake = .05; scareCount++; Audio.growl(p.x, p.z, true); cutLights(700); return false; } if (this.t > 60) return false; }
+      else if (this.ph === 'turn') { this.k = Math.min(1, this.k + dt * .55); if (this.k >= 1 && !this.sp) { this.sp = true; this.spT = this.t; Audio.whisper(p.x, 1.7, p.z, 1.8); subtitle('<i>„… Bergung drei … ich hab Hunger, Junge …“</i>', 3000, 'HOFER?'); }
+        if (this.sp && ((flashOn && f > .975 && d < 20 && this.t > this.spT + 3) || d < 3.5 || this.t > this.spT + 9)) { this.ph = 'gone'; glitchV = .7; shake = .05; scareCount++; Audio.growl(p.x, p.z, true); cutLights(700); return false; } if (this.t > 60) return false; }
       if (this.head && this.k) { if (!this.base) this.base = this.head.quaternion.clone(); hungrige_Q.setFromEuler(hungrige_E.set(0, PI * this.k, 0)); this.head.quaternion.copy(this.base).multiply(hungrige_Q); } return true; },
     end() { const g = hungrige_S.hoferG; if (g) g.visible = false; hungrige_done('hofer', 'Eine Uniform vom Amt. Vom alten. Der Kopf hat sich zu mir gedreht, und der Körper ist stehen geblieben.'); } },
 };
@@ -228,7 +237,7 @@ async function hungrige_finale() {
   await wait_(2700); leben_play(A, 'Landing', .1, 1, true); await wait_(700); leben_play(A, 'IdleLookAround', .3);
   await say([['Whiskey. … Du bist mir nachgeflogen.', 2400, 'LUKE']]);
   // 2) Ein zweiter landet – spiegelverkehrt, ohne zu atmen
-  const sp = hungrige_spot(4.5, 6.5, 1.1) || [B.x + 2.6, Math.max(0, solidGround(B.x + 2.6, .6, B.z + .8)), B.z + .8], bx = sp[0], bz = sp[2], by = sp[1]; Bv.g.position.set(bx + 6, 4, bz + 5); Bv.g.visible = true; hungrige_flyTo(Bv, W.set(bx, by, bz), 2, 1.5); C.look.set(bx, by + .4, bz);
+  const sp = hungrige_spot(4.5, 6.5, 1.1, false, 1.2) || [B.x + 2.6, Math.max(0, solidGround(B.x + 2.6, .6, B.z + .8)), B.z + .8], bx = sp[0], bz = sp[2], by = sp[1]; Bv.g.position.set(bx + 6, 4, bz + 5); Bv.g.visible = true; hungrige_flyTo(Bv, W.set(bx, by, bz), 2, 1.5); C.look.set(bx, by + .4, bz);
   await wait_(2100); leben_play(Bv, 'IdleLookAround', 0); Bv.mx.update(.3); if (Bv.cur) Bv.cur.timeScale = 0;
   await say([['… Zwei. Da sind zwei.', 2200, 'LUKE']]);
   C.look.set((P.x + bx) / 2, top * .6, (P.z + bz) / 2);
