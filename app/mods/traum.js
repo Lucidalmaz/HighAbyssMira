@@ -10,7 +10,7 @@ const TRAUM_SHOTS = [ // Kamera von → nach, Blick, Dauer, Zeilen [Text, Sprech
   { from: [-44, 1.3, .6], to: [-18, 1.5, .2], look: 'perch', dur: 11, lines: [['Die Straße deiner Kindheit. Lost Eyengless. Kein Mensch. Kein Laut.', '', .8], ['Nur irgendwo ein Kind, das zählt. Leise. Bis siebzehn.', '', 6]] },
   { rel: 'perch', from: [-6, -1.6, 5], to: [-3.4, -1.2, 3.2], look: 'crow', dur: 10, crow: 'land', lines: [['Luke.', 'DER RABE', 2.2], ['Du hast lange geschlafen. Siebzehn Jahre lang.', 'DER RABE', 4.4]] },
   { rel: 'perch', from: [-1.7, -.3, 1.4], to: [-.95, -.05, .85], look: 'crow', dur: 13, lines: [['Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.', 'DER RABE', .5], ['In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind.', 'DER RABE', 5.6], ['Und du … vor dir selbst.', 'DER RABE', 10.4]] },
-  { rel: 'book', from: [1.1, 1.25, 1.9], to: [.5, .65, 1.0], look: 'book', dur: 16, crow: 'book', lines: [['Das ist deine Abenteuerfibel. Du hast sie als Kind geschrieben – mit Jonas und dem Kleinen.', 'DER RABE', 1], ['Sie schreibt weiter. Alles, was du findest. Jeden Weg, den du gehen musst.', 'DER RABE', 6.2], ['Sieh hinein, wenn du nicht weiterweißt. Sie gehört wieder dir.', 'DER RABE', 11]] },
+  { rel: 'book', from: [1.1, 1.25, 1.9], to: [.5, .65, 1.0], look: 'book', dur: 16, crow: 'book', lines: [['Das ist deine Abenteuerfibel. Du hast sie als Kind geschrieben – mit Jonas und Zayn.', 'DER RABE', 1], ['Sie schreibt weiter. Alles, was du findest. Jeden Weg, den du gehen musst.', 'DER RABE', 6.2], ['Sieh hinein, wenn du nicht weiterweißt. Sie gehört wieder dir.', 'DER RABE', 11]] },
   { rel: 'book', from: [.38, .5, .62], to: [.28, .42, .46], look: 'crowHead', dur: 10, lines: [['Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist.', 'DER RABE', .6], ['Und finde heraus, wer du bist.', 'DER RABE', 5.2]] }];
 const TRAUM_BOOK = { x: .1, z: .2 }, TRAUM_PERCH = { x: 0, y: 3, z: 0 }; // zur Laufzeit: die Laterne an der Kreuzung
 function traum_css() { if (document.getElementById('traumCss')) return; const s = document.createElement('style'); s.id = 'traumCss';
@@ -78,9 +78,9 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   window.__traumWake = null; shake = .03; Audio.heart(); if (Audio.rain) Audio.rain.gain.setTargetAtTime(.5, Audio.ctx.currentTime, 1.5); addItem('fibel');
   state.talking = true;
   await say([['Huh…? Warum stehe ich denn jetzt mitten in der Nacht bei Regen auf der Straße?', 5200, 'LUKE'], ['Das Auto … steht noch am Ortsschild. Ich bin hergelaufen. Im Schlaf.', 4600, 'LUKE'],
-    ['In der Jackentasche: ein Kinderheft mit rotem Einband. Meine Abenteuerfibel. Die hab ich seit zwanzig Jahren nicht gesehen.', 5600]]);
+    ['In der Jackentasche: ein Kinderheft mit rotem Einband. Meine Abenteuerfibel. Die hab ich seit siebzehn Jahren nicht gesehen.', 5600]]);
   state.talking = false; questPop('ABENTEUERFIBEL', 'Taste Tab – Aufgaben, Funde, Inventar, Fotos');
-  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Und jetzt träume ich von Raben.', 0, 3); }, 2500);
+  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Ich bin durchgefahren und im Auto eingeschlafen. Jetzt ist es schon wieder Nacht.', 0, 3); }, 2500);
   story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
 }
 WORLD_TICK.push(() => {}); // Eintrag für die Messanzeige (ein Tick je Modul)

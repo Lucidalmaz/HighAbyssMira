@@ -9,9 +9,9 @@
 const zayn_S = { ready: false, stage: 0, photos: null, bag: null, bagHit: null, spots: [], found: new Set(), shoeHit: null, drawing: null, floor: null, radio: null, hutIn: false };
 const ZAYN_SPUR = [
   ['murmel', 'Eine Murmel', 'Eine Glasmurmel mit rotem Wirbel. Deine Lieblingsmurmel. Du hast sie mit acht an Jonas verloren – hinter der Kapelle, beim Spiel „Wer trifft die Wand“.\n\nWie kommt sie hierher?'],
-  ['schuh', 'Ein Kinderschuh', 'Ein blauer Kinderschuh, Größe 26, rot-weiße Schnürsenkel. Genau solche hattest du. Mama hat sie gekauft, weil du keine anderen wolltest.\n\nZayn wollte dann auch welche. Natürlich.'],
+  ['schuh', 'Ein Kinderschuh', 'Ein blauer Kinderschuh, Größe 30, rot-weiße Schnürsenkel. Genau solche hattest du. Mama hat sie gekauft, weil du keine anderen wolltest.\n\nZayn wollte dann auch welche. Natürlich.'],
   ['kreide', 'Ein Stück Kreide', 'Gelbe Straßenkreide, halb abgebrochen. Daneben, auf dem Waldboden, ein Hüpfkästchen – wie das, das ihr jeden Sommer vor Nr. 7 gemalt habt.\n\nZayn durfte immer nur die Acht malen. Die war am weitesten weg.'],
-  ['brause', 'Eine Süßigkeitenverpackung', 'Brausestäbchen, Waldmeister. Die gab es an der Tankstelle Kranz, fünf Stück für eine Mark – später für fünfzig Cent.\n\nJonas hat Zayn immer die Hälfte abgegeben. Du nie.']];
+  ['brause', 'Eine Süßigkeitenverpackung', 'Brausestäbchen, Waldmeister. Die gab es an der Tankstelle Kranz, fünf Stück für fünfzig Cent.\n\nJonas hat Zayn immer die Hälfte abgegeben. Du nie.']];
 const zayn_has = k => story.lore.some(l => l.key === k);
 function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; if (state.started) saveGame(curChapter()); }
 WORLD_MODS.push(['Zayn', async () => {
@@ -69,9 +69,9 @@ function zayn_placeBag() { // freie Stelle auf dem Boden im Wohnzimmer von Nr. 7
   return false; }
 function zayn_bag() {
   const S = zayn_S; if (S.stage >= 1) return S.stage < 2 ? zayn_camera() : toast('Zayns Rucksack. Leer bis auf ein Kaugummipapier und einen Zettel mit einer 8 darauf.', 3200); addItem('zayn_kamera');
-  story.lore.push({ key: 'zayn_rucksack', title: 'Ein kleiner Rucksack', html: 'Blau, ausgeblichen. Auf dem Anhänger: ZAYN.\n\nZayn Wendt. Jonas’ kleiner Bruder. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen. Du hast ihn seit Jahren nicht gesehen.\n\nIm Rucksack: eine Kinderkamera.' });
+  story.lore.push({ key: 'zayn_rucksack', title: 'Ein kleiner Rucksack', html: 'Blau, ausgeblichen. Auf dem Anhänger: ZAYN.\n\nZayn Wendt. Jonas’ kleiner Bruder. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen. Seit dem Sommer 2009 hat ihn niemand mehr gesehen.\n\nIm Rucksack: eine Kinderkamera.' });
   zayn_stage(1, 'Zayns Rucksack lag in Nr. 7. Darin eine Kinderkamera mit sechs Fotos vom alten Spielplatz. (Inventar)');
-  openNote('Ein kleiner Rucksack', 'Blau, ausgeblichen, mit einem Anhänger. Darauf, in Druckbuchstaben: <b>ZAYN</b>.\n\nDu erkennst den Namen sofort. Zayn – der kleine Bruder von Jonas, deinem besten Freund damals. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen.\n\nDu hast ihn seit Jahren nicht gesehen.\n\nIm Rucksack: eine alte Kinderkamera.', null, () => setTimeout(() => zayn_camera(), 250));
+  openNote('Ein kleiner Rucksack', 'Blau, ausgeblichen, mit einem Anhänger. Darauf, in Druckbuchstaben: <b>ZAYN</b>.\n\nDu erkennst den Namen sofort. Zayn – der kleine Bruder von Jonas, deinem besten Freund damals. Er war immer dabei, obwohl er viel zu klein war, um bei euch mitzuspielen.\n\nSeit dem Sommer 2009 hat ihn niemand mehr gesehen.\n\nIm Rucksack: eine alte Kinderkamera.', null, () => setTimeout(() => zayn_camera(), 250));
 }
 // ---- 2) Kamera: sechs echte Aufnahmen vom Spielplatz
 function zayn_hideAt(x, z, r, onlyInst) { // alles in Reichweite kurz ausblenden; gibt eine Rücknahme zurück
@@ -113,11 +113,11 @@ function zayn_print(buf, W, H, stamp, last) {
   for (let y = 0; y < H; y++) for (let i = 0; i < W; i++) { const s = ((H - 1 - y) * W + i) * 4, t = (y * W + i) * 4, vx = i / W - .5, vy = y / H - .5, vig = 1 - (vx * vx + vy * vy) * 1.5, n = (Math.random() - .5) * 26;
     for (let k = 0; k < 3; k++) { let v = buf[s + k] / 255; v = Math.pow(Math.min(1, v * 2.6), 1 / 2.2) * 255 * vig * [1.06, 1, .9][k] + n; d[t + k] = Math.max(0, Math.min(255, v)); } d[t + 3] = 255; }
   x.putImageData(im, 0, 0); x.font = 'bold 18px monospace'; x.fillStyle = 'rgba(255,150,40,.85)'; x.fillText(stamp, W - 92, H - 14);
-  if (last) { x.save(); x.translate(26, H - 30); x.rotate(-.04); x.fillStyle = 'rgba(250,245,235,.92)'; x.font = '24px "Comic Sans MS", cursive'; x.fillText('Er wollte, dass ich ihm folge.', 0, 0); x.restore(); }
+  if (last) { x.save(); x.translate(26, H - 30); x.rotate(-.04); x.fillStyle = 'rgba(250,245,235,.92)'; x.font = '24px "Comic Sans MS", cursive'; x.fillText('Kommst du mir nach?', 0, 0); x.restore(); }
   return c.toDataURL('image/jpeg', .85);
 }
 async function zayn_camera() {
-  const S = zayn_S; if (S.stage >= 2) return openNote('Zayns Kinderkamera', 'Das letzte Bild: nur der Waldrand hinter dem Spielplatz.\n\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
+  const S = zayn_S; if (S.stage >= 2) return openNote('Zayns Kinderkamera', 'Das letzte Bild: nur der Waldrand hinter dem Spielplatz.\n\n<span class="hand">„Kommst du mir nach?“</span>');
   toast('Die Kamera surrt. Das Display flackert – dann: Fotos.', 2400);
   if (!S.photos && typeof figuren_person === 'function') await figuren_person(echoFigs[0], 'zayn'); // Zayn als Erinnerung auf den Fotos
   if (!S.photos) try { S.photos = zayn_takePhotos(); } catch (e) { console.warn('Zayn: Fotos', e); S.photos = []; }
@@ -132,9 +132,9 @@ async function zayn_camera() {
       else { Audio.beep(false); step = 0; btns.forEach(o => { delete o.dataset.done; o.style.borderColor = '#444'; o.querySelector('span').textContent = ''; }); toast('Nein. Sieh genauer hin: Wo steht er auf jedem Bild?', 2600); } }); });
 }
 function zayn_solved() {
-  zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Er wollte, dass ich ihm folge.“');
-  story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, Dinas Holzgiraffe, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>' });
-  openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Er wollte, dass ich ihm folge.“</span>');
+  zayn_stage(2, 'Auf jedem Foto ist Zayn einen Schritt näher am Wald. Das letzte zeigt nur noch den Waldrand hinter dem Spielplatz: „Kommst du mir nach?“ Er wollte, dass ich ihm folge.');
+  story.lore.push({ key: 'zayn_fotos', title: 'Zayns Fotos', html: 'Sechs Fotos vom alten Spielplatz. Auf jedem fehlt ein anderes Detail – die Schaukel, der Ball, Dinas Holzgiraffe, ein Baum, das Karussell. Und auf jedem steht Zayn einen Schritt weiter Richtung Wald.\n\nDas letzte Bild zeigt nur noch den Waldrand. Darauf, in Kinderschrift:\n<span class="hand">„Kommst du mir nach?“</span>' });
+  openNote('Das letzte Foto', 'Kein Spielplatz mehr. Nur der Waldrand, dahinter Dunkel.\n\nQuer über das Bild, in Kinderschrift:\n<span class="hand">„Kommst du mir nach?“</span>');
   if (typeof gedanke === 'function') gedanke('zayn_folge', 'Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.', 1200, 3);
 }
 // ---- 3) Spur
@@ -152,9 +152,9 @@ function zayn_take(k) {
 function zayn_drawing() {
   const S = zayn_S; openNote('Kinderzeichnung', 'Buntstift, an die Bretter gepinnt. Drei Kinder: ein blaues, ein rotes, ein kleines grünes am Rand. Darunter die Namen: <b>LUKE · JONAS · ICH</b>.\n\nUnd quer darunter, in Rot, mit viel zu viel Druck:\n<span class="hand">„Versprochen ist versprochen.“</span>', 'zayn_zeichnung', () => {
     if (S.stage < 2 || zayn_has('zayn_versprechen')) return; zayn_stage(4, 'Die Hütte im Wald. Eine Zeichnung: „Versprochen ist versprochen.“ Das alte Radio in der Ecke.');
-    story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nIhr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden, habt euch auseinandergelebt. Und Zayn wurde einfach der kleine Bruder, den irgendwann keiner mehr beachtet hat.' });
+    story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nDann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.' });
     state.talking = true; setTimeout(async () => { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
-      ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Ihr habt es vergessen. Nicht absichtlich. Ihr seid älter geworden. Und Zayn war nur noch der kleine Bruder, den keiner mehr beachtet hat.', 6400]]);
+      ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Dann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.', 6400]]);
       state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1000, 3); }, 300); });
 }
 async function zayn_radio() {

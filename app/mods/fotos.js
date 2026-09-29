@@ -9,8 +9,8 @@
 const FOTOS = [
   { id: 'kreuzung', wall: 'keller', nr: 1, u: .075, v: .56, w: .085, rot: -.03, datum: '28.07.2009 · 23:41', ort: 'Kreuzung Ahornstraße', quelle: 'H. Wendt, Fenster Nr. 7', hand: 'Alle sieben. Zayn sieht her.', title: 'Beweis 1 · Kreuzung, 28. Juli 2009, 23:41',
     clue: 'Wenn du genau hinsiehst: Das Licht über der Laterne hat keinen Rand. Das ist kein Scheinwerfer – das ist ein Loch im Himmel. Die Kinder sehen nach oben. Bis auf eins: Das Kind ganz rechts sieht in die Kamera. Zayn. Als hätte er gewusst, dass es das letzte Foto ist.' },
-  { id: 'nr3', wall: 'keller', nr: 2, u: .19, v: .34, w: .085, rot: .025, datum: '12.07.2009 · 03:13', ort: 'Straße vor Nr. 3', quelle: 'H. Wendt, Fenster Nr. 7', hand: 'Laterne aus. Mike barfuß. Von der Tankstelle her!', title: 'Beweis 2 · Nr. 3, 12. Juli 2009, 03:13',
-    clue: 'Die Laterne vor Nr. 3 ist aus. Alle anderen brennen. Auf der Straße ein Junge – barfuß, im Schlafanzug, mit dem Rücken zur Kamera. Mike. Er geht nicht zur Tankstelle. Er kommt von dort.\n\nUnd über den Dächern, wo Hilde gar nicht hingezielt hat: ein Schimmer, der auf keinem anderen Foto so tief hängt.' },
+  { id: 'nr3', wall: 'keller', nr: 2, u: .19, v: .34, w: .085, rot: .025, datum: '12.07.2026 · 03:13', ort: 'Straße vor Nr. 3', quelle: 'H. Wendt, Fenster Nr. 7', hand: 'Laterne aus. Mike barfuß. Von der Tankstelle her!', title: 'Beweis 2 · Nr. 3, 12. Juli 2026, 03:13',
+    clue: 'Die Laterne vor Nr. 3 ist aus. Alle anderen brennen. Auf der Straße ein Mann – barfuß, mit dem Rücken zur Kamera. Mike. Er geht nicht zur Tankstelle. Er kommt von dort.\n\nUnd über den Dächern, wo Hilde gar nicht hingezielt hat: ein Schimmer, der auf keinem anderen Foto so tief hängt.' },
   { id: 'nr7', wall: 'keller', nr: 3, u: .56, v: .56, w: .085, rot: .04, datum: '01.08.2009 · 23:55', ort: 'Straße vor Nr. 7', quelle: 'Jonas W. (9), Mamas Kamera', hand: 'Mama guckt. – J.', title: 'Beweis 3 · Nr. 7, 1. August 2009, 23:55',
     clue: 'Hilde, im Nachthemd, mitten auf der Straße. Sie sieht nach oben. 23:55 – das ist die Minute, in der Lucy zurückkam.\n\nWer hat das fotografiert, wenn Hilde im Bild steht? Die Karteikarte sagt es: Jonas. Neun Jahre alt. Er hat mitgezählt, damit sie nicht allein zählt.' },
   { id: 'ufo1975', wall: 'keller', nr: 4, u: .71, v: .33, w: .085, rot: -.05, datum: 'Sommer 1975', ort: 'über dem Wald (Senke)', quelle: 'Lokalzeitung, Foto: Dr. T. Seiler', hand: 'Keine Lichter. Löcher.', title: 'Beweis 4 · „UFO über dem Abgrund“, 1975',
@@ -54,7 +54,7 @@ function fotos_wand(list, imgs, W, H, { mitte, mitteText, tinte = '#1f2a55', ext
 }
 function fotos_open(f) {
   const k = 'foto_' + f.wall + '_' + f.id;
-  const akte = `<div style="font-family:'Courier New',monospace;font-size:13px;line-height:1.5;background:#efe6cc;border:1px solid #b9ad8a;padding:8px 12px;margin:0 0 12px"><b>BEWEIS Nr. ${f.nr}</b><br>DATUM&nbsp;&nbsp;${f.datum}<br>ORT&nbsp;&nbsp;&nbsp;&nbsp;${f.ort}<br>QUELLE&nbsp;&nbsp;${f.quelle}</div>`;
+  const akte = `<div class="beweis"><b>BEWEIS Nr. ${f.nr}</b><br>DATUM&nbsp;&nbsp;${f.datum}<br>ORT&nbsp;&nbsp;&nbsp;&nbsp;${f.ort}<br>QUELLE&nbsp;&nbsp;${f.quelle}</div>`;
   const html = akte + `<img src="assets/fotos/${f.id}.jpg" style="width:100%;max-width:520px;box-shadow:0 6px 30px rgba(0,0,0,.6);transform:rotate(${f.rot * 20}deg)"><span class="hand">${f.hand}</span>\n\n` + f.clue.replace(/\n/g, '<br>');
   Audio.paper(); openNote(f.title, html, k);
   if (!fotos_S.seen.size && typeof gedanke === 'function') gedanke('fotos_1', 'Das sind keine Zeichnungen. Das ist eine Ermittlung. Datum, Ort, Quelle – jemand hat das alles gesehen, sortiert und niemandem gezeigt.', 1500, 3);

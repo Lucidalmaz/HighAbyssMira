@@ -56,8 +56,8 @@ function entd_reimFertig() {
   openNote('Der Abzählreim', html); if (typeof gedanke === 'function') gedanke('kerbe_alle', 'Siebzehn. Sie zählt nicht, um zu suchen. Sie zählt, damit sich alle rechtzeitig verstecken können.', 2500, 3);
 }
 function entd_erinnerung() {
-  const html = 'Es kommt ohne Vorwarnung, beim Zählen der Funde:\n\nNackte Füße auf warmem Asphalt. Die Nacht ist heiß, der 28. Juli. Sieben Kinder im Schlafanzug, Hand in Hand, auf der Kreuzung. Niemand hat Angst. Vorne hält dich eine Hand, kalt wie Eisen.\n\nUnd irgendwo, ganz leise, zählt ein Mädchen. Bis siebzehn.\n\n<i>Deine früheste Erinnerung. Du hast sie nie verstanden.</i>';
-  story.lore.push({ key: 'entd_2009', title: 'Erinnerung: 28. Juli 2009', html }); setTimeout(() => { openNote('Eine Erinnerung', html); if (typeof gedanke === 'function') gedanke('entd_2009', 'Die kalte Hand. Das war kein Traum. Das war Eisen. Das war er.', 2500, 3); }, 900);
+  const html = 'Es kommt ohne Vorwarnung, beim Zählen der Funde:\n\nNackte Füße auf warmem Asphalt. Die Nacht ist heiß, der 5. August, drei Uhr dreizehn. Fünf Kinder im Schlafanzug stehen auf der Kreuzung und sehen dich an. Dich hält eine Hand, kalt wie Eisen.\n\nUnd irgendwo, ganz leise, sagt ein Mädchen: „Acht.“\n\n<i>Deine früheste Erinnerung. Du hast sie nie verstanden.</i>';
+  story.lore.push({ key: 'entd_2009', title: 'Erinnerung: 5. August 2009', html }); setTimeout(() => { openNote('Eine Erinnerung', html); if (typeof gedanke === 'function') gedanke('entd_2009', 'Die kalte Hand. Das war kein Traum. Das war Eisen. Das war er.', 2500, 3); }, 900);
 }
 function entd_letzteSeite() {
   const html = 'Auf der letzten Seite der Abenteuerfibel steht etwas, das vorher nicht da war. Nicht deine Schrift. Ruhig, geschwungen, mit Tinte:\n\n<span class="hand">„Du hast hingesehen, wo alle weggesehen haben. Das reicht fürs Erste.\nHalt die Laterne gerade.\n— M.“</span>';
@@ -73,7 +73,7 @@ WORLD_TICK.push(dt => { const S = ENTD_S; if (!S.ready || !state.started) return
 MOD_SAVE.push(['entdecker', () => [...ENTD_S.granted], v => { ENTD_S.granted.clear(); for (const i of v) { ENTD_S.granted.add(i); try { ENTD_STUFEN[i][3](true); } catch (e) {} } }]);
 // Abenteuerfibel → FUNDE: Fortschritt und nächste Belohnung
 renderJournal = (o => () => { o(); if (jTab !== 'funde') return; const B = $('jBody'), n = entd_funde(), next = ENTD_STUFEN.find((s, i) => !ENTD_S.granted.has(i)), got = ENTD_STUFEN.filter((s, i) => ENTD_S.granted.has(i));
-  const d = document.createElement('div'); d.style.cssText = 'margin:0 0 14px;padding:10px 12px;border:1px solid rgba(201,163,106,.35);font:13px Georgia,serif;letter-spacing:.04em;color:#cfc4ab;line-height:1.6';
-  d.innerHTML = `<b style="letter-spacing:.2em;color:#c9a36a">ENTDECKER</b> · ${n} Funde · Kerben ${entd_kerbenN()} / ${ENTD_S.total || 17}` + (next ? `<br>Nächste Belohnung bei <b>${next[0]}</b> Funden: ${next[2]}` : '<br>Alle Belohnungen erhalten.') + (got.length ? `<br><span style="color:#8b7f68">Erhalten: ${got.map(s => s[1]).join(' · ')}</span>` : '');
+  const d = document.createElement('div'); d.className = 'entdBox';
+  d.innerHTML = `<b>ENTDECKER</b> · ${n} Funde · Kerben ${entd_kerbenN()} / ${ENTD_S.total || 17}` + (next ? `<br>Nächste Belohnung bei <b>${next[0]}</b> Funden: ${next[2]}` : '<br>Alle Belohnungen erhalten.') + (got.length ? `<br><span>Erhalten: ${got.map(s => s[1]).join(' · ')}</span>` : '');
   B.prepend(d); })(renderJournal);
 window.__entd = { S: ENTD_S, kerbe: id => entd_kerbe(id), check: () => entd_check(false), stufen: ENTD_STUFEN }; // Testzugriff

@@ -43,6 +43,7 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const x = gx + rand(-1.6, 1.6), z = gz + rand(-1.6, 1.6); if (z < TIEF.z0 + 1.2) continue;
     if (tief_in(x, z)) { if (!tief_free(x, z) || Math.random() < .05) continue; if (Math.abs(x - TIEF.x0) < 1.3 || Math.abs(x - TIEF.x1) < 1.3 || Math.abs(z - TIEF.z1) < 1.3) continue; }
     else { if (tief_in(x, z, 1.3)) continue; if (z < 171 && (x < -24 || x > 94)) continue; }
+    if (tief_in(x, z) && Math.random() < .38) { WL_SLOTS.push([x, z]); continue; } // Platz für lebende Bäume (Modul waldleben)
     const deep = Math.min(1, Math.max(0, (z - 160) / 80)); (Math.random() < .5 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.95, 1.45) + deep * .35, rand(-.08, .08), rand(-.08, .08)));
   }
   chunk(T1, A, true); chunk(T3, B, true); S.nTrees = A.length + B.length;
@@ -111,8 +112,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const roof = box(2.4, .06, 2.4, H.x, y + 1.95, H.z, wood); roof.rotation.x = -.12; for (const [dx, dz] of [[-1.05, -1.05], [1.05, -1.05], [-1.05, 1.05], [1.05, 1.05]]) box(.07, 1.9, .07, H.x + dx, y + .95, H.z + dz, wood);
     const lad = new T.Group(); lad.position.set(H.x, 0, H.z - 1.55); lad.rotation.x = -.28; scene.add(lad);
     for (const s of [-.28, .28]) box(.07, 3.4, .07, s, 1.7, 0, wood, { parent: lad }); for (let k = 0; k < 10; k++) box(.6, .045, .06, 0, .3 + k * .32, 0, wood, { parent: lad });
-    const tin = box(.14, .1, .1, H.x + .32, .9, H.z - 1.45, new T.MeshStandardMaterial({ color: 0x6a6258, roughness: .5, metalness: .7 }));
-    note(H.x + .32, .9, H.z - 1.45, () => tief_has('tief_zettel_2') ? 'Jonas’ Blechdose' : 'Blechdose an der Leiter', () => tief_zettel(2), .3, .3, .3);
+    msModel('w_barrel', 'model.glb').then(src => { const o = msGround(msFit(src.clone(true), .15, 'y')); o.position.set(H.x + .36, .82, H.z - 1.8); o.rotation.set(-.28, .4, 0); scene.add(o); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.material = m.material.clone(); m.material.color.setRGB(.55, .55, .6); } }); }).catch(() => {}); // Jonas' Blechdose, mit Draht an der Leiter
+    note(H.x + .36, .9, H.z - 1.8, () => tief_has('tief_zettel_2') ? 'Jonas’ Blechdose' : 'Blechdose an der Leiter', () => tief_zettel(2), .3, .3, .3);
     note(H.x, 1.1, H.z - 1.8, () => player.pos.y > 1.5 ? '' : 'Hochsitz hinaufsteigen', () => tief_climb(true), 1, 2.2, .5);
     note(H.x, y + .7, H.z - .6, () => player.pos.y > 1.5 ? 'Hinuntersteigen' : '', () => tief_climb(false), 1.4, .8, .5); S.standY = y; }
   // --- 3) Der Amtsbus: überwuchert, eingesunken, mitten im Wald ohne Weg
@@ -132,7 +133,7 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     for (let i = 0; i < 9; i++) { const a = i / 9 * PI * 2 + .2, o = msGround(msFit(rock.clone(true), rand(1.1, 1.6), 'max')); o.position.set(R.x + Math.cos(a) * R.r, -.1, R.z + Math.sin(a) * R.r); o.rotation.y = rand(0, 6.28); msPlace(o, o.position.x, -.1, o.position.z, o.rotation.y); }
     for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28, o = msGround(msFit(rock.clone(true), .32, 'max')); msPlace(o, R.x + Math.cos(a) * .7, -.03, R.z + Math.sin(a) * .7, rand(0, 6)); }
     const ash = new T.Mesh(new T.CircleGeometry(.62, 16), new T.MeshStandardMaterial({ color: 0x0e0c0a, roughness: 1 })); ash.rotation.x = -PI / 2; ash.position.set(R.x, .02, R.z); ash.userData.noCol = true; scene.add(ash);
-    const twig = new T.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1 }), wool = new T.MeshBasicMaterial({ color: 0x5a4a3a });
+    const twig = msSurfMat('bark', { tint: 0x6a5a48 }), wool = new T.MeshBasicMaterial({ color: 0x5a4a3a });
     const stick = (s) => { const g = new T.Group(); const b = (w, h, d, x, y, z, rz = 0) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), twig); m.position.set(x, y, z); m.rotation.z = rz; m.castShadow = true; g.add(m); return m; };
       b(.035, .62, .035, 0, 0, 0); b(.5, .03, .03, 0, .14, 0, .12); b(.03, .34, .03, -.07, -.44, 0, .25); b(.03, .34, .03, .07, -.44, 0, -.25);
       const hd = new T.Mesh(new T.TorusGeometry(.08, .014, 5, 10), twig); hd.position.y = .4; g.add(hd);
@@ -200,8 +201,8 @@ Object.assign(Audio, {
 // ---------------------------------------------------------------- Die Zettel
 const TIEF_ZETTEL = {
   1: ['Suche Nr. 1 · 30. Juli 2009', 'Ich hab Mamas rote Wolle genommen. Die ganze Rolle.\nIch binde sie an die Bäume, damit ich zurückfinde. Und damit Zayn sie findet, falls er rausläuft. Rot sieht man auch nachts.\n\nWenn du das liest und nicht Zayn bist: Geh nach Hause.\n— Jonas W., 9'],
-  2: ['Suche Nr. 6 · Oktober 2009', 'Vom Hochsitz sieht man ein Licht. Hinten, wo der Wald aufhört.\nAber er hört da nicht auf. Ich bin zwei Stunden gelaufen und er hört nicht auf.\n\nMama weiß nicht, dass ich hier bin. Sie zählt jede Nacht die Kinder auf den Fotos. Ich zähl mit, damit sie nicht allein zählt.\n— J.'],
-  3: ['Suche Nr. 17 · März 2011', 'Ein Bus vom Amt. Mitten im Wald. Es gibt keinen Weg hierher, und die Bäume um ihn rum sind älter als der Bus.\nDrinnen sieben Kindersitze. Auf einem klebt ein Z. Ich hab es abgemacht und in die Tasche gesteckt.\n\nIch hab Mama nichts gesagt. Sie hat aufgehört, beim Amt anzurufen. Die sagen, das Amt gibt es nicht.\n— J.'],
+  2: ['Suche Nr. 6 · Oktober 2009', 'Vom Hochsitz sieht man ein Licht. Hinten, wo der Wald aufhört.\nAber er hört da nicht auf. Ich bin zwei Stunden gelaufen und er hört nicht auf.\n\nMama weiß nicht, dass ich hier bin. Sie zählt jede Nacht die Kinder auf der Kreuzung. Ich sitz daneben, damit sie nicht allein zählt.\n— J.'],
+  3: ['Suche Nr. 17 · März 2011', 'Ein Bus vom Amt. Mitten im Wald. Es gibt keinen Weg hierher, und die Bäume um ihn rum sind älter als der Bus.\nDrinnen sieben Kindersitze. Auf einem klebt ein Z. Ich hab es abgemacht und in die Tasche gesteckt.\n\nIch hab Mama nichts gesagt. Sie geht jeden Morgen ins Amt. Wenn ich frage, was sie da macht, sagt sie: Das Amt gibt es nicht.\n— J.'],
   4: ['Suche Nr. 29 · Juli 2013', 'Die Stöckchenmänner. Sieben hängen im Kreis. Die hat keiner von uns gemacht.\nIch hab sie jedes Mal gezählt. Vier Jahre lang sieben.\n\nHeute waren es acht.\nDer achte hängt tiefer. Als wäre er kleiner. Oder als wäre er für einen, der noch wächst.\n— J.'],
   5: ['Suche Nr. 40 · 23. Juli 2016', 'Hier hört die Wolle auf. Die Rolle ist leer. Der Wald nicht.\n\nIch hör auf zu suchen, Zayn. Nicht weil ich dich vergessen hab. Mama sagt, wir müssen weiterleben. Ich weiß nicht, wie das geht, ohne dass es sich anfühlt wie Vergessen.\n\nIch lass das Ende ins Wasser hängen. Falls du da unten bist: zieh dran. Dann weiß ich es.\n— Jonas'],
 };
@@ -214,7 +215,7 @@ function tief_zettel(i) {
   openNote(t, tief_note(txt));
   if (i === 5) return tief_weiher();
   const G = { 1: ['tief_z1', 'Jonas. Neun Jahre alt, allein, mit einem Wollknäuel gegen einen ganzen Wald.'], 2: ['tief_z2', 'Ein Licht, hinten, wo der Wald aufhört … Vom Hochsitz müsste man es sehen.'],
-    3: ['tief_z3', 'Ein Bus vom Amt. Sieben Sitze. Das Amt hat die Kinder nicht abgeholt – es hat sie hergebracht.'], 4: ['tief_z4', 'Für einen, der noch wächst. … Ich war elf. Ich bin gewachsen.'] }[i];
+    3: ['tief_z3', 'Ein Bus vom Amt. Sieben Sitze. Mitten im Wald, wo keine Straße hinführt. Wer ist damit gefahren – und wohin?'], 4: ['tief_z4', 'Für einen, der noch wächst. … Ich war dreizehn. Ich bin gewachsen.'] }[i];
   if (G && typeof gedanke === 'function') gedanke(G[0], G[1], 1200, 3);
   if (typeof saveGame === 'function') saveGame(curChapter());
 }
@@ -249,9 +250,9 @@ function tief_dig() {
 // ---------------------------------------------------------------- Der achte Stöckchenmann
 function tief_achter() {
   const S = tief_S; if (tief_has('tief_achter')) return openNote('Der achte Stöckchenmann', 'Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>');
-  story.lore.push({ key: 'tief_achter', title: 'Der achte Stöckchenmann', html: 'Sieben Stöckchenmänner hängen im Steinkreis. Der achte hängt tiefer – für einen, der noch wächst. Am Hals ein Pappschild: <b>08 · L.</b>\n\nAkte 08. Der Ersatz.' });
+  story.lore.push({ key: 'tief_achter', title: 'Der achte Stöckchenmann', html: 'Sieben Stöckchenmänner hängen im Steinkreis. Der achte hängt tiefer – für einen, der noch wächst. Am Hals ein Pappschild: <b>08 · L.</b>\n\nL. Wie Luke? Oder wie Lucy?' });
   Audio.play('woodCrack', { gain: .25, rate: 1.4 }); openNote('Der achte Stöckchenmann', 'Kleiner als die anderen. Die Zweige sind frischer, die Wolle ist rot. Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>\n\nL.\nWie Luke.');
-  S.behind = { armed: true, t: 0 }; if (typeof gedanke === 'function') gedanke('tief_achter', 'Akte 08. Der achte ist für mich. Seit 2013 hängt er hier und wartet, dass ich groß genug bin.', 1500, 3);
+  S.behind = { armed: true, t: 0 }; if (typeof gedanke === 'function') gedanke('tief_achter', '08 · L. Seit 2013 hängt er hier. Für einen, der noch wächst. … Warum denk ich sofort an mich?', 1500, 3);
 }
 // ---------------------------------------------------------------- Weiher: das Ende der Wolle
 async function tief_weiher() {
@@ -288,7 +289,7 @@ function tief_schaukel() {
 }
 function tief_wrack() {
   const h = 'Auf dem Beifahrersitz, vom Regen gewellt, eine Kinderzeichnung: eine große Frau in einem langen, dunklen Kleid. In der Hand eine Laterne, deren Flamme gerade nach oben steht. An ihrem Rock halten sich sieben kleine Strichkinder fest.\n\nDarunter, in Erwachsenenschrift, fast weggewischt:\n<span class="hand">„Sie kommt noch.“</span>';
-  if (!tief_has('tief_wrack')) { story.lore.push({ key: 'tief_wrack', title: 'Die Frau mit der Laterne', html: h }); if (typeof gedanke === 'function') gedanke('tief_wrack', 'Die Frau mit der Laterne. Wie auf dem Grabstein am Kirchberg. „Sie kommt noch.“ … Wer?', 1500, 3); }
+  if (!tief_has('tief_wrack')) { story.lore.push({ key: 'tief_wrack', title: 'Die Frau mit der Laterne', html: h }); if (typeof gedanke === 'function') gedanke('tief_wrack', 'Die Frau mit der Laterne. „Sie kommt noch.“ Genau das steht auf dem ältesten Stein am Kirchberg. … Wer?', 1500, 3); }
   openNote('Die Zeichnung im Wrack', h);
 }
 function tief_lager() {

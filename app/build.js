@@ -3,8 +3,14 @@
 const fs = require('fs'), path = require('path');
 const SRC = process.env.HAM_SRC ? path.resolve(process.env.HAM_SRC) : path.join(__dirname, '..', 'game');
 const OUT = path.join(__dirname, 'game');
-fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT, { recursive: true });
-const copy = (a, b) => fs.cpSync(a, b, { recursive: true });
+// Nicht mehr löschen und neu kopieren: laufende Spielfenster (Selbsttests) verlören sonst mitten im Lauf ihre Dateien. Nur Geändertes wird kopiert
+// (Größe/Zeitstempel). Vollständig neu: HAM_CLEAN=1 node build.js
+if (process.env.HAM_CLEAN) fs.rmSync(OUT, { recursive: true, force: true });
+fs.mkdirSync(OUT, { recursive: true });
+const copy = (a, b) => { const st = fs.statSync(a);
+  if (st.isDirectory()) { fs.mkdirSync(b, { recursive: true }); for (const f of fs.readdirSync(a)) copy(path.join(a, f), path.join(b, f)); return; }
+  try { const t = fs.statSync(b); if (t.size === st.size && t.mtimeMs >= st.mtimeMs) return; } catch (e) {}
+  const tmp = b + '.tmp' + process.pid; fs.copyFileSync(a, tmp); fs.renameSync(tmp, b); };
 for (const f of ['sounds.js', 'sounds_extra.js', 'justin.js']) if (fs.existsSync(path.join(SRC, f))) copy(path.join(SRC, f), path.join(OUT, f));
 if (fs.existsSync(path.join(SRC, 'assets'))) copy(path.join(SRC, 'assets'), path.join(OUT, 'assets'));
 // Three.js und Schriften lokal
@@ -24,6 +30,7 @@ const localize = file => {
   html = html.replace(/<link href="https:\/\/fonts\.googleapis\.com[^>]*>/, '<link href="vendor/fonts/fonts.css" rel="stylesheet">');
   return html.replace('<head>', '<head>\n<script>window.IS_APP = true;</script>');
 };
-fs.writeFileSync(path.join(OUT, 'index.html'), localize(path.join(SRC, 'index.html')));
-fs.writeFileSync(path.join(OUT, 'index_base.html'), localize(path.join(__dirname, 'mods', '_base_source_index.html')));
+const put = (f, txt) => { const tmp = f + '.tmp' + process.pid; fs.writeFileSync(tmp, txt); fs.renameSync(tmp, f); };
+put(path.join(OUT, 'index.html'), localize(path.join(SRC, 'index.html')));
+put(path.join(OUT, 'index_base.html'), localize(path.join(__dirname, 'mods', '_base_source_index.html')));
 console.log('Spiel kopiert:', fs.readdirSync(OUT).join(', '));

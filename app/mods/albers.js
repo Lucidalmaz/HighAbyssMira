@@ -26,7 +26,7 @@ const ALBERS_TALKS = [
     ['„Du auch. Ich seh\'s dir an.“', 2800]] },
   { id: 't5', when: () => ch3.lampsOff || (ch3.radio && story.items.includes('buch')), claim: 'augen', lines: [
     ['„Wenn du da reingehst, ins Weiße: Zähl nicht mit. Egal, was sie dir vorsagt.“', 4400], ['„Ich hab euch zweitausendneun auf der Kreuzung gezählt. Sieben, hab ich gesagt. Gott sei Dank.“', 4800],
-    ['„Aber du, Junge … deine Augen waren blau. Damals waren sie blau.“', 4200]] }];
+    ['„Aber du, Junge … bis zu dem Sommer hattest du blaue Augen. Ich kenn dich, seit du laufen kannst.“', 4200]] }];
 function albers_claimCheck() {
   const q = story.side.albers_spinn; if (!q) return;
   for (const c of ALBERS_CLAIMS) if (albers_S.talked.has(c.id) && !albers_S.confirmed.has(c.id) && c.ok()) { albers_S.confirmed.add(c.id); questPop('VEGAS HATTE RECHT', c.text); Audio.chime(); }
@@ -42,7 +42,7 @@ async function albers_talk() {
     await say(next.lines.map(([t, ms]) => [t, ms, 'LARS VEGAS']));
     S.talked.add(next.claim); story.lore.push({ key: 'albers_' + next.id, title: 'Vegas an der Tür', html: next.lines.map(l => l[0]).join('\n') });
     sideStart('albers_spinn'); albers_claimCheck();
-    if (!ALBERS_TALKS.some(T => !S.talked.has(T.claim) && T.when())) setTimeout(() => subtitle('Die Kette rasselt. Die Tür geht zu. Drinnen knurrt Bruno, bis die Schritte weg sind.', 4200), 600);
+    if (!ALBERS_TALKS.some(T => !S.talked.has(T.claim) && T.when())) setTimeout(() => subtitle('Die Kette rasselt. Die Tür geht zu. Drinnen ist es still. Kein Hund, der knurrt. Nicht mehr.', 4200), 600);
   } else await say([[S.talked.size >= ALBERS_TALKS.length ? '„Ich hab gesagt, was ich weiß. Jetzt geh. Und mach die Lampe aus.“' : '„Geh weg. Komm wieder, wenn du was gesehen hast. Dann reden wir.“', 3800, 'LARS VEGAS']]);
   S.open = 0; Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); state.talking = false; S.busy = false;
 }
@@ -61,7 +61,7 @@ WORLD_TICK.push((dt, t) => {
   const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } return; }
   if (!S.on) { S.on = true; if (!interactables.includes(S.hit)) interactables.push(S.hit); for (const T of ALBERS_TALKS) if (story.lore.some(l => l.key === 'albers_' + T.id)) S.talked.add(T.claim); } // nach Laden: geführte Gespräche wiederherstellen
   const P = player.pos, d = Math.hypot(P.x - S.door.x, P.z - S.door.z);
-  if (!S.hissed && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.hissed = true; subtitle('<i>„Psst! Junge! Hierher. Leise, verdammt!“</i> – aus dem Türspalt von Nr. 3.', 4200); Audio.whisper(S.door.x, 1.5, S.door.z, 1.2); Audio.bark(S.door.x - 1, S.door.z - 2, true); }
+  if (!S.hissed && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.hissed = true; subtitle('<i>„Psst! Junge! Hierher. Leise, verdammt!“</i> – aus dem Türspalt von Nr. 3.', 4200); Audio.whisper(S.door.x, 1.5, S.door.z, 1.2); }
   // Spalt auf/zu: Licht und Figur weich ein- und ausblenden, Taschenlampen-Zittern
   S.t += ((S.open ? 1 : 0) - S.t) * Math.min(1, dt * 4); S.light.intensity = S.t * (.9 + Math.sin(t * 13) * .05); S.beam.intensity = S.t * (1.4 + Math.sin(t * 7.3) * .15 + Math.sin(t * 17) * .06);
   if (S.fig) { S.fig.visible = S.t > .05; if (S.fig.visible) { const want = state.talking && S.act.talk ? S.act.talk : S.act.idle;

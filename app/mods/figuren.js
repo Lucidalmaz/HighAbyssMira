@@ -65,13 +65,13 @@ function figuren_play(P, k, first) { const a = P.acts[k] || P.acts.idle || Objec
 function figuren_release(g) { const P = g.userData.person; if (!P) return; g.remove(P.obj); P.mx.stopAllAction(); P.hide.forEach(c => c.visible = true); g.userData.person = null; figuren_S.embodied.delete(g); }
 // Sitzen: Oberschenkel nach vorn, Unterschenkel nach unten, Hände in den Schoß (Drehungen um die Querachse der Figur, unabhängig vom Skelett)
 function figuren_bones(obj) { const map = { Hip: 'Hips', L_Thigh: 'LeftUpLeg', R_Thigh: 'RightUpLeg', L_Calf: 'LeftLeg', R_Calf: 'RightLeg', L_Upperarm: 'LeftArm', R_Upperarm: 'RightArm', L_Forearm: 'LeftForeArm', R_Forearm: 'RightForeArm', Spine01: 'Spine1', L_Foot: 'LeftFoot', R_Foot: 'RightFoot' }, m = {};
-  obj.traverse(o => { if (!o.isBone) return; const n = o.name.replace(/^mixamorig[:_]?/i, '').replace(/_\d+$/, ''), c = map[n] || n; if (!m[c]) m[c] = o; }); return m; }
-function figuren_seat(P, seatY) { const g = P.g, b = figuren_bones(P.obj); if (!b.LeftUpLeg || !b.Hips) return; P.mx.stopAllAction(); P.cur = null;
+  obj.traverse(o => { if (!o.isBone && !(o.type === 'Object3D' && o.children.length)) return; const n = o.name.replace(/^mixamorig[:_]?/i, '').replace(/_\d+$/, ''), c = map[n] || n; if (!m[c]) m[c] = o; }); return m; }
+function figuren_seat(P, seatY) { const g = P.g, b = figuren_bones(P.obj); if (!b.LeftUpLeg || !b.Hips) return; P.mx.update(0); const snap = []; P.obj.traverse(o => { if (o.isBone || o.type === 'Object3D') snap.push([o, o.quaternion.clone(), o.position.clone()]); }); P.mx.stopAllAction(); P.cur = null; for (const [o, q, p] of snap) { o.quaternion.copy(q); o.position.copy(p); }
   const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); P.obj.scale.setScalar(s); g.updateMatrixWorld(true);
   const _pw = new THREE.Quaternion(), _bw = new THREE.Quaternion(), _d = new THREE.Quaternion(), ax = new THREE.Vector3(1, 0, 0).applyQuaternion(g.getWorldQuaternion(new THREE.Quaternion()));
   const bend = (bn, ang) => { if (!bn) return; bn.parent.getWorldQuaternion(_pw); bn.getWorldQuaternion(_bw); _d.setFromAxisAngle(ax, ang); bn.quaternion.copy(_pw.invert().multiply(_d).multiply(_bw)); bn.updateMatrixWorld(true); };
   bend(b.LeftUpLeg, -1.5); bend(b.RightUpLeg, -1.5); bend(b.LeftLeg, 1.45); bend(b.RightLeg, 1.45); bend(b.LeftFoot, .1); bend(b.RightFoot, .1);
-  bend(b.LeftArm, -.6); bend(b.RightArm, -.6); bend(b.LeftForeArm, -.45); bend(b.RightForeArm, -.45); bend(b.Spine1, .1);
+  bend(b.LeftArm, -.35); bend(b.RightArm, -.35); bend(b.LeftForeArm, -.7); bend(b.RightForeArm, -.7); bend(b.Spine1, .12);
   // Becken auf die Sitzfläche: Weltlage der Hüfte messen und die Person innerhalb der Gruppe verschieben
   const hip = new THREE.Vector3(); b.Hips.getWorldPosition(hip); const gs = g.getWorldScale(new THREE.Vector3()).y || 1;
   P.obj.position.y += (seatY + .08 - hip.y) / gs; P.sit = true; }

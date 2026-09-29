@@ -227,7 +227,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Schlafzimmer (x 20.2…25.9, z −21.8…−17.1)
   hideAt(21.2, .68, -20.7, [2, .5, 2.2]); hideAt(21.2, .93, -21.8, [2, .8, .15]); hideAt(25, 1.53, -21.5, [1.6, 2.2, .6]);
   const gBed7 = await bed(G7, 0xa8a098, .009, { x: 21.42, minZ: -21.77, y: Y });
-  interact(firstMesh(gBed7, /blanket/), 'Bett', () => toast('Die Decke ist zurückgeschlagen, als wäre sie mitten in der Nacht aufgestanden. Auf dem Laken: kleine, nasse Fußabdrücke. Barfuß.', 5600));
+  interact(firstMesh(gBed7, /blanket/), 'Bett', () => toast('Die Decke ist zurückgeschlagen, als wäre sie mitten in der Nacht aufgestanden. Auf dem Laken: kleine, trockene Fußabdrücke. Barfuß. Grashalme darin, die hier nirgends wachsen.', 5600));
   // Zayns Kinderbett – Hilde hat es nie weggegeben
   const crib = await FBX('crib', { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xcfc6b6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xc8c0b0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } });
   crib.scale.setScalar(.024); const gCrib = put(crib, { x: 24.9, minZ: -21.76, y: Y }, G7);
@@ -398,6 +398,67 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   await decal(GB, 'grime', 2.4, 1.2, 300.5, .6, 303.895, '-z', 0, 0x5a4a38, .9);
   await decal(GB, 'grime', 1.8, 1.8, 302.5, 2.495, 298.5, 'ceil', 2, 0x5a4a38, .8);
   web(GB, 295.4, 2.2, 301.2, PI / 4, .7); web(GB, 304.6, .6, 303.5, -PI / 4, .5); web(GB, 300.2, 2.3, 296.3, 0, .6);
+
+  // =====================================================================  BELEBT: zusätzliche Einrichtung (nur Scan-Modelle), damit kein Raum leer wirkt
+  // Laufwege bleiben frei: Nr. 7 Haustür x 23 → Schlafzimmer (x 23, z −17) / Küche (x 26, z −14) / HWR (x 29,5, z −17); Nr. 1 entsprechend x −47 / −53 / z −14,5.
+  const rug = async (par, x, z, w, h, rot, tint, y = Y) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), await surf('wallpaper_fabric', { rx: w / 1.3, ry: h / 1.3, tint, nrm: .5 }));
+    m.material.polygonOffset = true; m.material.polygonOffsetFactor = -2; m.material.polygonOffsetUnits = -2; m.rotation.set(-PI / 2, 0, rot); m.position.set(x, y + .014, z); m.receiveShadow = true; par.add(m); return m; };
+  const teddySrc = await FBX('teddy_retro', { material0: { b: 'teddy-bear.jpg', color: 0xb8aa98 }, material1: { b: 'teddy-bear1.jpg', color: 0xb8aa98 } }).catch(() => null);
+  const trashcan = async (par, p) => put(await GL('trashcan'), p, par);
+  // ---------- Nr. 7 Wohnzimmer: Anrichte unter der Pendeluhr, Bild an der Trennwand, ausgetretener Laufweg
+  { const g = put(await lowerCab(0xd8cfb8, .55, .86), { minX: 20.21, z: -15.35, y: Y, ry: PI / 2 }, G7); const top = surfY(g, 20.5, -15.35, Y + 1.6);
+    candle(G7, 'Candle_large_small_used_low001', 20.45, top, -15.85, false); candle(G7, 'Thin_candle_used_low002', 20.52, top, -15.68, false);
+    const f = await GL('frame_deco'); f.rotation.x = -.2; f.scale.setScalar(.5); put(f, { minX: 20.24, z: -14.95, y: top, ry: PI / 2 }, G7);
+    interact(firstMesh(g), 'Anrichte', () => toast('In der Schublade: Streichhölzer, Gummibänder, ein Stapel Trauerkarten. Alle unbeschrieben. Und sieben Kinderlöffel, sauber poliert.', 5400)); } // STORY-HOOK: sieben Kinder
+  await frame(G7, 'frame_dmg', { maxX: 25.89, z: -15.3, yc: Y + 1.62, ry: -PI / 2, rz: -.08, s: .8 });
+  await decal(G7, 'grime', 1.2, 3.2, 23.0, Y + .004, -14.6, 'floor', 0, 0x4a3a2a, .55);
+  web(G7, 20.4, Y + .45, -16.72, PI / 4, .45);
+  // ---------- Nr. 7 Küche: Buffet an der Rückwand, Mülleimer
+  { const g = put(await hutch(0xa89e8c, .3, 2.1), { x: 27.12, minZ: -16.88, y: Y }, G7); const b = bbox(g), sy = surfY(g, 27.12, b.max.z - .12, Y + 1.3);
+    candle(G7, 'Candle_large_big_used_low', 26.8, sy, b.max.z - .15, false); candle(G7, 'Candle_small_used_low', 27.45, sy, b.max.z - .14, false);
+    // in den Fächern: Grablichter in Reihen, sauber abgezählt (Hilde: „jede Nacht eins“)
+    const zc = -16.88 + .2, lv = [...new Set([Y + 2.05, Y + 1.8, Y + 1.55].map(f => +surfY(g, 27.12, zc, f, -1).toFixed(3)))].filter(y => y > sy + .15);
+    const nm = ['Candle_large_small_new', 'Candle_large_big_new', 'Candle_small_new001', 'Candle_large_small_new001', 'Candle_small_new', 'Candle_large_small_used_low', 'Candle_small_used_low001'];
+    lv.forEach((y, r) => { for (let i = 0; i < 7; i++) candle(G7, nm[(i + r) % 7], 26.72 + i * .135, y, zc + (i % 2) * .03, false); }); }
+  await trashcan(G7, { x: 31.38, z: -14.75, y: Y, ry: 1.2 });
+  // ---------- Nr. 7 Schlafzimmer: Kleiderschrank, Stuhl vor dem Kinderbett (darauf ein alter Teddy, der hineinsieht), Teppich
+  put(await hutch(0x8a7a68, .6, 2.15), { maxX: 25.89, z: -19.25, y: Y, ry: -PI / 2 }, G7);
+  { const c = await FBX('chair', chairSpec); msFit(c, .92, 'y'); const g = put(c, { x: 24.55, z: -20.35, y: Y, ry: PI + .28 }, G7);
+    if (teddySrc) { const tb = teddySrc.clone(true); msFit(tb, .34, 'y'); const seat = surfY(g, 24.55, -20.3, Y + 1.2); const gt = put(tb, { x: 24.55, z: -20.32, y: seat - .01, ry: PI + .28 }, G7);
+      interact(firstMesh(gt), 'Teddy auf dem Stuhl', () => toast('Jemand hat den Stuhl vor das Kinderbett gestellt und den Teddy daraufgesetzt. Zum Aufpassen. Er ist warm, als hätte ihn gerade noch jemand gehalten.', 5600)); } }
+  await rug(G7, 23.2, -19.1, 1.9, 1.3, .06, 0x544440);
+  // ---------- Nr. 7 Hauswirtschaftsraum: angelehnte Palette, Mülleimer
+  { const p = await GL('pallet_ms'); p.rotation.x = -PI / 2 + .22; put(p, { x: 27.3, maxZ: -17.12, y: Y }, G7); }
+  await trashcan(G7, { x: 28.3, z: -21.5, y: Y, ry: 2.4 });
+  await decal(G7, 'grime', 1.5, 1.1, 28.2, Y + .004, -18.6, 'floor', 2.6, 0x4a3a2a, .7);
+  // ---------- Nr. 1 Kinderzimmer: Kommode, Stuhl zur Ecke gedreht, Teppich, verstreutes Spielzeug
+  { const g = put(await lowerCab(0xe8e0d0, .8, .8), { minX: -55.79, z: -18.45, y: Y, ry: PI / 2 }, G1); const top = surfY(g, -55.5, -18.45, Y + 1.5);
+    toy('SM_ToyBoat', G1, -55.45, top, -18.8, PI / 2 + .3); candle(G1, 'Candle_small_used_low', -55.5, top, -18.05, false);
+    const f = await GL('frame_deco'); f.rotation.x = -.2; f.scale.setScalar(.45); put(f, { minX: -55.76, z: -18.45, y: top, ry: PI / 2 }, G1); }
+  { const c = await FBX('chair', chairSpec); msFit(c, .74, 'y'); const g = put(c, { x: -50.55, z: -17.58, y: Y, ry: PI / 4 + PI }, G1);
+    interact(firstMesh(g), 'Kinderstuhl', () => toast('Dein alter Stuhl. Er steht in der Ecke, zur Wand gedreht – wie damals, zur Strafe. Du weißt nicht mehr, was du getan hattest. Nur, dass Mama geweint hat.', 5600)); } // STORY-HOOK: Lukes Kindheit
+  await rug(G1, -53.1, -19.2, 1.8, 1.25, -.08, 0x4c5058);
+  toy('SM_ToyCube_01a', G1, -51.9, Y, -19.9, 2.1); toy('SM_ToyRobot', G1, -52.2, Y, -20.6, PI - .6);
+  // ---------- Nr. 1 Elternschlafzimmer: Stehlampe, Stuhl, Bild an der Trennwand, Teppich
+  put(await GL('floorlamp'), { x: -49.5, z: -17.5, y: Y, ry: .8 }, G1);
+  await chair(G1, { x: -48.75, z: -18.35, y: Y, ry: PI / 2 + .5 });
+  await frame(G1, 'frame_deco', { x: -45.3, maxZ: -17.11, yc: Y + 1.65, ry: PI, rz: .05, s: .72 });
+  await rug(G1, -47.0, -18.55, 2.0, 1.2, .03, 0x5a4c46);
+  // ---------- Nr. 1 Küche: Unterschrank mit altem Fernseher, Wandbord, Mülleimer + Säcke
+  { const g = put(await lowerCab(0xffffff, 1), { x: -54.45, minZ: -16.89, y: Y }, G1); const top = surfY(g, -54.45, -16.6, Y + 1.6);
+    const tv = await GL('crt', 'model.glb'); tv.scale.setScalar(1.25); put(tv, { x: -54.6, z: -16.58, y: top, ry: .12 }, G1); candle(G1, 'Candle_large_small_used_low002', -53.98, top, -16.55, false); }
+  { const g = put(await GL('shelf'), { x: -51.35, minZ: -16.89, yc: Y + 1.55 }, G1); const sTop = surfY(g, -51.35, -16.78, Y + 2.2);
+    candle(G1, 'Candle_large_big_used_low001', -51.6, sTop, -16.78, false); candle(G1, 'Thin_candle_used_low', -51.15, sTop, -16.8, false); }
+  await trashcan(G1, { x: -50.48, z: -16.5, y: Y, ry: .4 }); await trashbag(G1, { x: -51.05, z: -16.35, y: Y, ry: 1.9, s: .8 });
+  await decal(G1, 'grime', 1.0, 1.0, -50.8, Y + .004, -16.3, 'floor', 1.4, 0x4a3a2a, .8);
+  // ---------- Keller: Eisenbett mit Riemen an der Südwand, angelehnte Palette, Kanister, Mülleimer
+  { const g = await bed(GB, 0x8a8278, .0085, { x: 300.6, maxZ: 303.93, y: 0, ry: PI / 2 });
+    interact(firstMesh(g, /mattress/) || firstMesh(g), 'Eisenbett', () => toast('Ein Eisenbett im Keller. Die Matratze ist fleckig und nach der Mitte zu durchgelegen – von einem Kind. An den Pfosten: Lederriemen, sehr kurz eingestellt.', 5800)); // STORY-HOOK
+    const top = surfY(g, 300.2, 303.4, 1.4, .5); toy('SM_ToyBunny', GB, 301.1, top, 303.45, PI + .4); }
+  { const p = await GL('pallet_ms'); p.rotation.z = -(PI / 2 - .24); put(p, { minX: 295.12, z: 297.3, y: 0 }, GB); }
+  put(await GL('jerrycan'), { x: 304.3, z: 300.3, y: 0, ry: 2.2 }, GB); put(await GL('jerrycan'), { x: 304.35, z: 299.85, y: 0, ry: 1.1, s: .9 }, GB);
+  await trashcan(GB, { x: 304.3, z: 296.55, y: 0, ry: .7 });
+  web(GB, 304.6, 2.2, 296.4, -PI / 4, .6); web(GB, 295.4, .5, 303.6, PI / 4, .5);
 
   // ------------------------------------------------------------------ Puppe (Nr. 7, Schlafzimmer): dreht den Kopf, wenn man wegsieht – und wandert
   { const src = await FBX('doll', { Body: { b: 'body_diff.png', n: 'body_norm.png', r: 'body_rough.png', color: 0xb4aca4 }, Cloth: { b: 'cloth_diff.png', n: 'cloth_norm.png', r: 'cloth_rough.png', ds: 1, color: 0x8a8276 },

@@ -8,7 +8,7 @@
 const geheimnisse_S = { ready: false, stones: [], wrecks: [], totems: [], litHint: false, t: 0 };
 const geheimnisse_has = k => story.lore.some(l => l.key === k);
 const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
-  [-12.2, -9.4, 'Wo Roxy verbrannte.'], [3.4, -39.6, 'Wo Lucy gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
+  [-12.2, -9.4, 'Wo Roxy Feuer gemacht hat.'], [3.4, -39.6, 'Wo Lucy gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
   [126.5, 12.5, 'Wo es nach Benzin riecht.'], [-115.5, 21.5, 'Wo Hilde gegärtnert hat.'], [-128.5, -29.5, 'Wo die Pferde fehlen.']];
 const GEHEIM_WORDS = ['eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben'];
 const GEHEIM_WRECKS = [
@@ -90,7 +90,7 @@ function geheimnisse_takeStone(s) {
   const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
   Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
   if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Das Versteck“ (Ende B: wer gefunden wird, muss zählen)
-    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer bis sieben zählt, sucht.\n\nAber sie hat nie gesucht. Sie hat sich versteckt – 1312, im Licht, unter der Birke am Anger. Keiner hat sie gefunden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
+    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer zählt, sucht.\n\n1312 hat sie sich versteckt, im Licht. Keiner hat sie gesucht. Seitdem zählt sie selbst – und sucht den, der sich hinter der Birke versteckt.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
     setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
 }
 function geheimnisse_wreck(i, text, key) {
@@ -98,7 +98,7 @@ function geheimnisse_wreck(i, text, key) {
   story.lore.push({ key, title: 'Blech vom Himmel · ' + (i + 1), html: text }); sideStart('geh_wrack'); Audio.play('metalSheet', { gain: .35, rate: .8 });
   const n = geheimnisse_S.wrecks.filter(x => geheimnisse_has(x.key)).length; story.side.geh_wrack.desc = `Metallteile: ${n} / 5.`; toast(text, 5200);
   if (n === 5) setTimeout(() => { sideDone('geh_wrack', 'Alle fünf Teile gefunden.'); // STORY-HOOK: Fallwand-Frage „Was ist das Ding am Himmel?“ – bewusst offen
-    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da über Lost Eyengless schwebt, hat jemand aus Eisen gebaut, das sein Kind tragen sollte. Oder es sich so erträumt.</span>', 'geh_wappen'); }, 5400);
+    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da vom Himmel fällt, ist kein Flugzeug. Es ist die Rüstung eines Kindes. Wer schmiedet so etwas – für eine Tochter, die er nie holen ging?</span>', 'geh_wappen'); }, 5400);
 }
 function geheimnisse_totem(i, key) {
   const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];

@@ -59,7 +59,7 @@ Zum Schluss schreibt Luke ihren Namen mit Kreide auf den Stein. Er stiehlt ihn z
 
 **Der Rabe Whiskey** (Modul `whiskey.js`) begleitet Luke durch alle Kapitel und gibt Hinweise. Lars Vegas gibt ihm den Namen, Justin erklärt, dass der Rabe seiner Frau gehörte.
 
-**Lars Vegas** (Nr. 3, Mikes Großvater, 1975 selbst unter den Sieben) wirkt wie ein Verschwörungstheoretiker und behält in allem recht. Er gibt Luke das sechste Schlüsselteil.
+**Lars Vegas** (Nr. 3, Jahrgang 1966, Mikes Großvater, 1975 selbst unter den Sieben; er wurde mit 17 Vater, seine Tochter bekam Mike 1999 selbst sehr jung – deshalb ist Vegas mit Anfang dreißig schon Großvater geworden) wirkt wie ein Verschwörungstheoretiker und behält in allem recht. Er gibt Luke das sechste Schlüsselteil.
 
 **Die Villa Seiler** (Modul `anwesen.js`). Dr. Theodor Seiler gründete 1958 das Amt und starb 2019 allein in seiner Villa am Westrand. Die Villa ist von Anfang an erreichbar, aber die Tür hat acht Schlüssellöcher. Die acht Teile sind wie die Akten mit 01–08 gestempelt und liegen dort, wo sich die Kinder versteckten:
 - 01 Brunnen, 02 Vogelscheuche, 03 Spielplatz, 04 Kellerfenster
@@ -108,7 +108,7 @@ Nebenorte:
 - 20: längerer Akku
 - 30: schnellerer Kinderblick
 - 45: weiterer Lichtkegel
-- 60: die Erinnerung an die Nacht des 28. Juli 2009
+- 60: Lukes früheste Erinnerung: die Nacht des 5. August 2009, 03:13 (warmer Asphalt, fünf Kinder auf der Kreuzung, eine Hand, kalt wie Eisen)
 - 80: eine Zeile von „M.“ auf der letzten Seite der Fibel
 
 **Schrecken** (Modul `schrecken.js`): Außerhalb der Hauptstraße gibt es feste Schreckmomente:
@@ -296,7 +296,7 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - **Luke:** die Kopie von 2009, aus Justins Blut, seit 5.8.2009 03:13 auf der Welt. Will Lucy. Wird zu den Augen der Kleinen.
 - **Lucy:** echt, Zwilling, weiß es seit dem ersten Morgen und hat ihn trotzdem gewählt. Liegt halb im Tank, halb bei der Kleinen.
 - **Die Kleine:** das Licht, die Stimme, die Heimkehrerin, die Graue, das Mädchen auf dem Foto. Will, dass Papa sie findet, und versteht es selbst nur als Spiel.
-- **Justin:** der Ritter, der Beobachter, der Mann in Eisen. Hat alles begonnen. Versteckt sich seit 714 Jahren und will doch gefunden werden, traut sich aber nicht.
+- **Justin:** der Ritter, der Laternen-Beobachter am Straßenende, der Mann in Eisen. Hat alles begonnen. Versteckt sich seit 714 Jahren und will doch gefunden werden, traut sich aber nicht.
 - **Hilde:** Zählerin des Amts, die das Los ihres Sohnes zog, und Wächterin, die den Keller zuhielt.
 - **Der echte Luke:** für immer neun, blaue Augen. Hat 17 Jahre zugesehen, wie ein anderer sein Leben lebt, und warnt ihn.
 - **Mama:** war 1975 selbst drin, hat 2009 unterschrieben, hat die Kopie trotzdem geliebt, ist 2011 hineingegangen.
@@ -311,8 +311,8 @@ Jede Regel steht irgendwann einmal als Satz irgendwo (Wand, Reim, Figur) und wir
 - Raum 1 zeigt den **28.7.2009, 23:39** (nicht 27.7.). Ende A spielt am **5. November** (nicht 1. November).
 - Die Frage „Wer ist das achte Kind?" auf den Polaroids ist **Kinderschrift in Kreide** (die Kleine), nicht von Hilde.
 - Lucys Zettel und Hildes Kühlschrankzettel sind **datiert** und widersprechen sich deshalb nicht mehr.
-- Der Beobachter ist **Justin**. Der Zombie ist **Peter Kranz**. Die Stimme im Amt ist **die Kleine**, die „Amt" spielt. Das Amt ist seit 2012 aufgelöst.
-- Das „neunte Kind" im Zählbuch ist **Lucy**.
+- Der Laternen-Beobachter am Ostende der Straße (Kap. 1) ist **Justin**. Der neue „Beobachter“ (Nebenaufgabe, Modul `beobachter.js`) ist dagegen der kleine weiße Außerirdische (siehe Verbindliche Ergänzungen). Der Zombie ist **Peter Kranz**. Die Stimme im Amt ist **die Kleine**, die „Amt" spielt. Das Amt ist seit 2012 aufgelöst.
+- Das „neunte Kind" im Zählbuch ist der **Beobachter**, der kleine weiße Außerirdische (siehe Verbindliche Ergänzungen: „Hilde hat mich mitgezählt. Sie hat nie gefragt, wer der Neunte ist.“). Er stellt sich am 23.10.2026 zum ersten Mal dazu. Hilde sieht die Kinder nicht, sie hört ihre nackten Füße.
 
 ---
 
@@ -959,7 +959,7 @@ Luke, leise: „Sie hat mich elfmal angerufen. Diesmal geh ich ran."
 **Beat 2 – Das Telefon.** Die Zelle klingelt. Zuerst Lucys Anruf von damals, Wort für Wort. Dann dieselbe Stimme, heller, jünger, mit Spieluhr darunter: „Das war nicht Lucy, Bruder. Das war ich. Ich war im Keller. **Du hast mich freigeschlagen. Danke.**" Kichern, direkt hinter Luke.
 *Gefühl:* Die Gegenspielerin hat eine Stimme und einen Namen, den man noch nicht kennt.
 
-**Beat 3 – Justin.** Am Ostende steht eine weiße Lichtsäule, **genau dort, wo in Kap. 1 der Beobachter stand**. Der Ritter tritt heraus. Drei kurze Wechsel, keine Rede:
+**Beat 3 – Justin.** Am Ostende steht eine weiße Lichtsäule, **genau dort, wo in Kap. 1 der Mann mit der Laterne stand**. Der Ritter tritt heraus. Drei kurze Wechsel, keine Rede:
 - Justin: „Du hast mich schon gesehen. Am Ende der Straße. Ich durfte nicht näher."
 - Justin: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und findet sie nicht, was sie sucht, nimmt sie alle."
 - Justin: „Sie hält sich an den Lampen fest. Nimm sie ihr, dann muss sie herunter, und wir können hinein." Luke: „Zu wem?" Justin sieht weg. „Zu meiner Tochter."
@@ -969,7 +969,7 @@ Wer den Klingensplitter hat, kann ihn zeigen: Er passt in die Kerbe der Klinge. 
 
 **Beat 5 – Das Zählbuch (Nr. 7).** Auf Hildes Wohnzimmertisch, fünf Seiten, je höchstens fünf Zeilen:
 > Es sind immer acht. Vegas zählt sieben. Er sieht sie nicht.
-> 23.10.: Neun. Die Neunte ist groß. Sie ist nass. Sie trägt Schuhe.
+> 23.10.: Neun. Ich höre neun Paar Füße. Eins ist ganz klein. Keins von unseren.
 
 > 2026, Laternen aus: Juni – vor 5 (Roxy). 12.7. – vor 3 (Mike).
 > 23.10. – vor 1 (Lucy). Sie holt sie, wie wir sie hergegeben haben.
@@ -1080,7 +1080,7 @@ Die Szene in kurzen Schlägen, jeder an eine Handlung gekoppelt (Luke sieht etwa
 - *Enthüllung:* Dina: „Sie sieht dich an. Von innen." Er öffnet die Augen nicht.
 
 ### Geheimnisse & Sammelstücke
-- **Echo 03:13 – Zählen (Kreuzung, nach dem Zählbuch):** Das Echo vom 5.8.2009 läuft ab. Luke zählt mit der Taschenlampe (jede Figur leuchtet kurz): fünf Schlafwandler, der Ritter mit einem kleinen braunäugigen Jungen an der Hand, am Nebelrand ein blauäugiger Junge, dann ein Mädchen in Weiß: „Acht." Wer es zweimal ansieht, sieht eine neunte Gestalt, groß, nass, mit Schuhen: Lucy, am 23.10.
+- **Echo 03:13 – Zählen (Kreuzung, nach dem Zählbuch):** Das Echo vom 5.8.2009 läuft ab. Luke zählt mit der Taschenlampe (jede Figur leuchtet kurz): fünf Schlafwandler, der Ritter mit einem kleinen braunäugigen Jungen an der Hand, am Nebelrand ein blauäugiger Junge, dann ein Mädchen in Weiß: „Acht." Wer es zweimal ansieht, sieht am Rand eine neunte Gestalt, klein, weiß, mit großen dunklen Augen – und im nächsten Moment ist sie fort (der Beobachter).
 - **Nr. 4, Peters Akte** (Onkel Peter, „Ich weiß es jetzt, Mama. Sie ruft."). **Nr. 6, Echo Hilde 1975**. **Nr. 9, Daniel am Tisch**. **Nr. 2, die Karte „Ja."**. **Praxis Seiler, die zwei Karteikarten** (Gr. 33 und 35). **Pfarrhaus, Ahrens' Randnotiz**. **Am Kirchberg 3, das Gedeck von 1958**. **Bus um 03:13** (Abkürzung zum Hof; hinten drehen sich die Gezählten nacheinander um). **Mamas Brief 2** (Kommode Nr. 1): „Ich wusste es am ersten Morgen. Deine Augen. Das Amt sagte: Nehmen Sie ihn, oder Sie haben gar keinen. In der ersten Nacht stand ein Ritter im Garten und weinte. Du bist nicht er. Aber du bist meiner."
 - **Versteck-Hinweise für Ende C (mindestens drei nötig):** Lukes Traum auf der Du-Seite (zählt, sobald der Spieler ihn an die Fallwand heftet) · Gesangbuch-Urfassung · Sühnevertrag · Gründungsakte 1958 (Kap. 2) · Tankstellenband · Kanalstadt-Echo · Raum 3 (zählt automatisch).
 
@@ -1205,7 +1205,7 @@ Justin sieht Luke an, zum ersten Mal richtig. Er legt Schwert und Helm auf den l
 - **Mama war 1975 drin.** Hinweise: Liederheft „Hab ich 1975 gelernt", Kellerwand, Vegas-Brief. Wirkung: Sie hat Luke gewählt, wie sie Peter gewählt hat.
 - **Das Laternenfest ist die Tat.** Hinweise: Aushang „fällt aus", Plakate, Roxys Lampen, Fundamentstein mit Laterne, Chorfenster. Enthüllung: Kapellenfenster Feld 4.
 - **Sie hat Luke behalten, weil er „Klar" gesagt hat.** Enthüllung: Echo Spielplatz.
-- **Die Neunte ist Lucy.** Zählbuch, Echo 03:13.
+- **Der Neunte ist der Beobachter.** Zählbuch („Zuletzt: neun“), Beobachter-Zettel an der Kreuzung und der letzte Zettel.
 - **Sie ist nicht die Einzige.** Kanalstadt, gemeinsamer Haken.
 
 ---
@@ -1223,7 +1223,7 @@ Welcher Hinweis liegt wo, und auf welche Wahrheit zeigt er. Die Ziffer in Klamme
 - **Nr. 4:** Peter 1974 blau / 1976 braun (4, Zahn-Mann) · Kap. 3 Peters Akte „Ich weiß es jetzt" (5).
 - **Nr. 5:** Aschekreis, Halsband · Kap. 3 erste Laterne.
 - **Nr. 6:** Kinderzeichnungen 1975 (Hilde war drin) · Kap. 3 „Es will, dass ich für es zähle."
-- **Nr. 7:** Zeitung, Fernseher „HALLO LUKE" (6) · Kalender 31.10. und 3.11. (1) · Kühlschrank „Egal mit welcher Stimme" (1) · Hilde „Nicht du", Narbe (4) · Fußspuren von innen (1) · Stahltür-Stimme mit Spieluhr (1) · Zeichnungen „LUKE, 9" (4) mit grauem Fleck (5, 8) · Tonband ohne Spieluhr, „unter der Erde findet sie niemanden" (Regel Aus) · Kap. 3 Zählbuch: Frequenz, Laternendaten, „Neun" (Lucy).
+- **Nr. 7:** Zeitung, Fernseher „HALLO LUKE" (6) · Kalender 31.10. und 3.11. (1) · Kühlschrank „Egal mit welcher Stimme" (1) · Hilde „Nicht du", Narbe (4) · Fußspuren von innen (1) · Stahltür-Stimme mit Spieluhr (1) · Zeichnungen „LUKE, 9" (4) mit grauem Fleck (5, 8) · Tonband ohne Spieluhr, „unter der Erde findet sie niemanden" (Regel Aus) · Kap. 3 Zählbuch: Frequenz, Laternendaten, „Neun" (der Beobachter).
 - **Nr. 8:** „Augen zu, bis es vorbei ist" (Regel) · Windspiel sieben plus eins.
 - **Nr. 9:** „Frag nicht" (5) · braunes Auge (4) · Kap. 3 „Sie holt mich trotzdem" (Einsatz).
 - **Kreuzung:** Echo „Acht." (2, 7) · Funkkasten „Dienstbuch H. Wendt" (3) · Telefonzelle, Kinderstimme ohne Spieluhr (7) · Doppelgänger hellblau (4, 7) · Gully mit fremdem Lachen (Haken) · Kap. 3 Telefon (1, 6), Funk (Laternen), Echo „Zählen".

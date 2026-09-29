@@ -192,7 +192,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     // Gruppenfoto an der Westwand
     put(kFrameG, 0, ZA + 3.2, { ry: Math.PI / 2, y: 1.2, minX: XA + 18.155 });
     const ph = plane(.4, .58, XA + 18.18, 1.2 + .345, ZA + 3.2, photoMat('group'), 0, Math.PI / 2);
-    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder vor dem Gemeindehaus, in einer Reihe. Du zählst: <b>acht</b>.\n\nDer Achte steht ganz rechts. Sein Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. Nicht vernichten. Wird benötigt, wenn Nr. 8 fragt.“</i>', 'gruppenfoto'));
+    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder an der Kreuzung, in einer Reihe. Du zählst: <b>acht</b>.\n\nDas achte Kind steht ganz rechts, ein Mädchen im weißen Kleid. Ihr Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. Partner anwesend. Wird benötigt, wenn Nr. 8 fragt.“</i>', 'gruppenfoto'));
     for (let x = XA + 19; x < XA + 29; x += R(2.5, 3.5)) onWall(damp, x, .22, ZA + 5.84, R(1.8, 2.6), R(.4, .55), Math.PI);
     papers(XA + 21, ZA - 3.8, 7, 1.2); papers(XA + 27, ZA + 3.6, 6, 1.2); papers(XA + 19.5, ZA + .5, 3, .5);
     flat(soot, XA + 20, ZA - 4.7, .9, 1.3, 0, .01); // Staub und Abrieb vor der leergeräumten Schublade
@@ -212,7 +212,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     put(kChair, XA + 31.5, ZA + 4.7, { ry: -Math.PI / 2 - .35 });
     put(kCan, XA + 35.5, ZA + 2.6, { ry: 1 });
     flat(paperMats[1], XA + 30.62, ZA + 6.25, .21, .297, 1.4, tt + .003);
-    spot(XA + 30.62, tt + .05, ZA + 6.25, .3, .1, .35, 'Wartungsbuch', note('Wartungsbuch · Notstrom Ebene −2', '<span class="hand">14.06.1992 – Ausfall 03:13. Kreise 2 + 5. Neu verdrahtet.\n28.07.2009 – Ausfall 03:13. Alle Kreise. Lampen „atmen“. Anordnung: niemand berührt den Kasten allein.\n05.08.2009 – Ausfall 03:13. Die Lampen gingen erst wieder an, als der Junge durch die Tür war.\n\n23.10.2026 – </span>\n\nDer letzte Eintrag hat kein Ende. Nur ein langer Strich, der vom Papier rutscht.', 'wartung'));
+    spot(XA + 30.62, tt + .05, ZA + 6.25, .3, .1, .35, 'Wartungsbuch', note('Wartungsbuch · Notstrom Ebene −2', '<span class="hand">13.07.1992 – Ausfall 03:13. Kreise 2 + 5. Neu verdrahtet.\n28.07.2009 – Ausfall 03:13. Alle Kreise. Lampen „atmen“. Anordnung: niemand berührt den Kasten allein.\n05.08.2009 – Ausfall 03:13. Die Lampen gingen erst wieder an, als der Junge durch die Tür war.\n\n23.10.2026 – </span>\n\nDer letzte Eintrag hat kein Ende. Nur ein langer Strich, der vom Papier rutscht.', 'wartung'));
     spot(XA + 30.47, tt + .18, ZA + 4.9, .4, .4, 2.0, 'Überwachungsmonitore', () => { try { Audio.flick(); Audio.whisper(XA + 30.5, 1, ZA + 4.9, 1.6); } catch (e) {} toast('Zwei Bilder, grau und körnig. Links: der lange Gang. Am Ende steht jemand und sieht in die Kamera. Rechts: acht Stühle. Auf dem achten sitzt ein Junge. Du blinzelst – leer.', 6200); });
     papers(XA + 33.5, ZA + 4.5, 3, .8); flat(soot, XA + 33, ZA + 7.3, 1.2, .9, 0, .01);
     flat(puddleMat, XA + 31.2, ZA - 1.2, 1.1, .8, .6, .02); papers(XA + 34.2, ZA + .9, 2, .4);
@@ -335,7 +335,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     // Eingang: leerer Rahmen, ein Stuhl mit dem Gesicht zur Ecke
     put(kFrameW, XW + 4.6, 0, { ry: 0, y: 1.25, minZ: ZW - 2.845 });
     const pw = plane(.53, .77, XW + 4.6, 1.25 + .45, ZW - 2.845 + .02, photoMat('white'), 0, 0);
-    interact(pw, 'Leerer Rahmen', note('Ein Rahmen', 'Das Foto darin ist weiß. Nicht vergilbt, nicht ausgeblichen – <b>weiß</b>, als hätte jemand zu lange hineingesehen.\n\nWenn du blinzelst, steht für einen Moment eine Familie darauf. Vier Menschen. Einer davon bist nicht du.', 'rahmenweiss'));
+    interact(pw, 'Leerer Rahmen', note('Ein Rahmen', 'Das Foto darin ist weiß. Nicht vergilbt, nicht ausgeblichen – <b>weiß</b>, als hätte jemand zu lange hineingesehen.\n\nWenn du blinzelst, steht für einen Moment eine Familie darauf. Vier Menschen. Der Junge darauf sieht aus wie du. Er ist es nicht.', 'rahmenweiss'));
     put(kChairW, XW + .75, ZW + 2.3, { ry: -Math.PI * .75 });
     flat(whiteGrime, XW + 4, ZW, 4, 3, .5, .012);
 

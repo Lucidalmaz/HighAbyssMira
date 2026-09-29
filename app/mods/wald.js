@@ -4,6 +4,7 @@
 // Grenze: Weidezaun + Dickicht (sichtbar, keine unsichtbaren Wände). Wege sind freigeschlagen und mit Laub/Schlamm markiert.
 // Tiere (echte, gerigte Modelle aus leben.js): Rehe und ein Hirsch auf der Lichtung · ein Fuchs mit einem Kinderschuh · Wölfe und ein Welpe in einer Drahtschlinge.
 // Orte: Zayns Hütte (Modul zayn) · Cleos Baumhaus (Modul cleo) · das Waldschild. Aufgaben: „Die Schlinge“ (Drahtschneider), „Die Lichtung“ (leise sein).
+const WL_SLOTS = []; // freigehaltene Baumplätze im Wald: dort wachsen Kiefern und Laubbäume (waldleben.js)
 const WALD = { x0: -40, x1: 110, z0: 99, z1: 156, hut: { x: 58, z: 149.5 }, tree: { x: -22, z: 141 }, den: { x: 74, z: 129.5 }, wolf: { x: 96, z: 146.5 }, clear: { x: 4, z: 113, r: 8 } };
 const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
   [[30, 96], [29.5, 104], [27, 111], [21, 118], [18.5, 124], [23, 130], [31, 134], [41, 138], [50, 142.5], [57, 146.8]],
@@ -31,6 +32,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
     const x = gx + rand(-1.7, 1.7), z = gz + rand(-1.7, 1.7), ins = wald_in(x, z);
     if (ins) { if (!wald_free(x, z) || Math.random() < .12) continue; if (Math.abs(x - WALD.x0) < 1.3 || Math.abs(x - WALD.x1) < 1.3 || Math.abs(z - WALD.z1) < 1.3) continue; }
     else { if (z < WALD.z0 + 1) continue; if (x > WALD.x0 - 1.3 && x < WALD.x1 + 1.3 && z < WALD.z1 + 1.3) continue; if (z > WALD.z1 - 1 && x > -24 && x < 94) continue; } // nördlich: der tiefe Wald (eigene Bäume)
+    if (ins && Math.random() < .42) { WL_SLOTS.push([x, z]); continue; } // Platz für lebende Bäume (Modul waldleben)
     (Math.random() < .55 ? A : B).push(m4(x, -.1, z, rand(0, 6.28), rand(.85, 1.55), rand(-.07, .07), rand(-.07, .07)));
   }
   chunk(t1, A, true); chunk(t3, B, true); S.nTrees = A.length + B.length;
@@ -69,7 +71,8 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
     const roofM = msSurfMat('corrugated', { tint: 0x6a5a4a }); roofM.side = T.DoubleSide;
     wall('x', z0, x0, x1, h, pl, [{ at: H.x - .6, w: .95 }], .12, 1.95); wall('x', z1, x0, x1, h, pl, [], .12); wall('z', x0, z0, z1, h, pl, [], .12); wall('z', x1, z0, z1, h, pl, [{ at: H.z + .6, w: .7 }], .12, 1.9);
     box(.12, .9, .7, x1, .45, H.z + .6, pl, { collide: true }); // Fensterbrüstung
-    plane(w, d, H.x, .03, H.z, fl); const roof = box(w + .6, .06, d + .6, H.x, h + .08, H.z, roofM, { cast: true }); roof.rotation.x = .08;
+    plane(w, d, H.x, .03, H.z, fl); const roof = box(w + .6, .06, d + .6, H.x, h + .12, H.z, roofM, { cast: true }); roof.rotation.x = .08;
+    box(w + .12, .34, .12, H.x, h + .17, z0, pl); box(.12, .3, d, x0, h + .15, H.z, pl); box(.12, .3, d, x1, h + .15, H.z, pl); // Giebelbretter: kein Spalt zwischen Wand und schrägem Dach
     indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 }); S.hutRect = { x0, x1, z0, z1 };
     const L = new VLight(0xffb070, 0, 4, 2); L.position.set(H.x + .8, 1.2, H.z + 1.2); scene.add(L); S.hutLight = L; }
   // --- Cleos Baumhaus: Plattform in 2,2 m Höhe, Geländer, Dach, Strickleiter (Inhalt im Modul cleo)
@@ -131,7 +134,7 @@ function wald_pup() {
   S.wolves.forEach((W, i) => { W.st = 'leave'; W.t = 2 + i * .6; });
   setTimeout(() => { leben_howl(WALD.wolf.x + 10, 1, WALD.wolf.z); setTimeout(() => leben_howl(WALD.wolf.x + 14, 1, WALD.wolf.z - 3), 1400); }, 1600);
   openNote('Ein Taschenmesser', 'Im Draht der Schlinge steckt ein Taschenmesser, rostig, zugeklappt. In den Griff hat jemand mit der Spitze geritzt:\n\n<b>JONAS W.</b>\n\nJonas. Zayns großer Bruder. Dein bester Freund, damals. Er war hier draußen – irgendwann nach 2009. Er hat seinen Bruder gesucht. Allein.');
-  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich? Ich war da schon in der Stadt und hab nicht mal angerufen.', 6000, 3);
+  if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich hab zwei Häuser weiter gewohnt und nie gefragt, wo er nachmittags hingeht.', 6000, 3);
 }
 WORLD_TICK.push((dt, t) => {
   const S = wald_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;

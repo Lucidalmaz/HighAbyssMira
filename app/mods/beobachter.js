@@ -31,7 +31,7 @@ const BEOB_DYN = [
   { id: 'd_erst', kind: 'gruselig', when: () => ch2.on, item: 1, text: 'DU BIST DURCH DIE WAND GEGANGEN. ICH AUCH.\nDEINE LAMPE HAT NOCH {pct} %. DAS REICHT NICHT FÜR UNTEN.\nHIER.' },
   { id: 'd_archiv', kind: 'hilfe', when: () => ch2.on && !ch2.archiveSolved && !ch2.power, stuck: true, text: 'WER ZUERST HEIMKAM, STEHT LINKS.\nDAS MÄDCHEN MIT DEN SCHWARZEN HAAREN KAM ZUERST.\nDER MIT DEN LOCKEN KAM NIE.' },
   { id: 'd_schalter', kind: 'hilfe', when: () => ch2.on && ch2.archiveSolved && !ch2.power, stuck: true, text: 'DIE SCHALTER MÖGEN ES NICHT, WENN MAN AM RAND ANFÄNGT.\nZWEI. DREI. VIER. FÜNF.' },
-  { id: 'd_klavier', kind: 'hilfe', when: () => ch2.on && ch2.power && !ch2.safeOpen && /Klavier|Maschine/.test(beob_obj()), stuck: true, text: 'DIE SPIELUHR IN NR. 7 HAT ES DIR SCHON VORGESPIELT.\nE. DANN ABWÄRTS. GANZ UNTEN KEHRT ES UM.\nDU HAST ES ALS KIND GESUMMT. ODER ER.' },
+  { id: 'd_klavier', kind: 'hilfe', when: () => ch2.on && ch2.power && !ch2.safeOpen && /Klavier|Maschine/.test(beob_obj()), stuck: true, text: 'DIE SPIELUHR IN NR. 1 HAT ES DIR SCHON VORGESPIELT.\nE. DANN ABWÄRTS. GANZ UNTEN KEHRT ES UM.\nDU HAST ES ALS KIND GESUMMT. ODER ER.' },
   { id: 'd_akte', kind: 'gruselig', when: () => ch2.on && ch2.safeOpen, text: 'DIE ACHTE AKTE IST DÜNNER ALS DIE ANDEREN.\nWEIL ES DICH NOCH NICHT SO LANGE GIBT.' },
   { id: 'd_umdrehen', kind: 'gruselig', when: () => ch2.on, text: 'DU HAST DICH {turns} MAL UMGEDREHT, SEIT DU HIER UNTEN BIST.\nICH WAR JEDES MAL NICHT DA.' },
   { id: 'd_kopie', kind: 'frage', when: () => ch2.on, text: 'WENN DU EINE KOPIE BIST –\nWESSEN HEIMWEH HAST DU DANN?' },
@@ -58,14 +58,14 @@ const BEOB_DYN = [
 const BEOB_NOT = { id: 'd_not', kind: 'hilfe', item: 2, text: 'DU HAST KEINE MEHR. UND DEINE LAMPE HAT NOCH {pct} %.\nIM DUNKELN BIST DU LAUT.\nHIER. ZWEI.' };
 // Zettel an Orten: die Belohnung fürs Erkunden (ab Kapitel 3 in der Stadt und im Wald; Rätsel-Verstecke bringen zusätzlich Batterien)
 const BEOB_ORTE = [
-  { id: 'kreuzung', name: 'Kreuzung', x: 3.5, z: 3.2, text: 'KREUZUNG.\nHIER HAST DU ALS KIND GESTANDEN, BARFUSS, UND GEZÄHLT.\nICH HABE MITGEZÄHLT. HILDE AUCH. ES WAREN NEUN.' },
+  { id: 'kreuzung', name: 'Kreuzung', x: 3.5, z: 3.2, text: 'KREUZUNG.\nHIER HAST DU ALS KIND GESTANDEN, BARFUSS.\nICH HABE MITGEZÄHLT. ES WAREN ACHT. MICH HAT KEINER GEZÄHLT.' },
   { id: 'nr1', name: 'Nr. 1', x: -47, z: -8.8, text: 'EUER HAUS. DAS BETT AM FENSTER.\nDU HAST DORT GESCHLAFEN, ALS WÄRE ES DEINS.\nES HAT DICH NIE GESTÖRT, DASS ES NACH JEMAND ANDEREM ROCH.' },
   { id: 'nr3', name: 'Nr. 3', x: -28, z: -8.8, text: 'DER ALTE MANN HAT MIT ALLEM RECHT GEHABT.\nAUCH MIT MIR.\nER HAT MICH NUR NIE GESEHEN. ER HAT IMMER NACH OBEN GESCHAUT.' },
   { id: 'briefkasten', name: 'Briefkasten Nr. 7', x: 28.4, z: -5.9, bonus: 2, text: 'GUT GERATEN.\nDER BRIEFKASTEN HAT NICHTS GESAGT. ICH AUCH NICHT.\nZWEI FÜR DEINE LAMPE.' },
-  { id: 'kapelle', name: 'Kirchberg', x: -4.5, z: 45.5, text: 'DIE GLOCKE SCHLÄGT SIEBEN UND EINEN HALBEN.\nDER HALBE BIN NICHT ICH.\nDER HALBE IST DER, DER NICHT GANZ ZURÜCKKAM.' },
+  { id: 'kapelle', name: 'Kirchberg', x: -4.5, z: 45.5, text: 'AM SÜHNEKREUZ LIEGEN SIEBEN KIESEL. DER ACHTE IST WEGGEROLLT.\nDER ACHTE BIN NICHT ICH.\nDER ACHTE IST DER, DER NICHT GANZ ZURÜCKKAM.' },
   { id: 'friedhof', name: 'Gedenkfeld', x: -47.6, z: 71.6, bonus: 1, text: 'DER ACHTE STEIN.\nSIE HABEN IHREN NAMEN WEGGEKRATZT. IHRE SCHRITTE NICHT.\nSIE GEHT HIER NACHTS IM KREIS. SIEBEN RUNDEN. DANN SETZT SIE SICH.' },
   { id: 'spielplatz', name: 'Spielplatz', x: 31, z: 70, text: 'DIE SCHAUKEL HÄLT NIE STILL.\nNICHT WEGEN DES WINDES.\nWEIL JEMAND DRAUFSITZT, DEN DU NICHT SIEHST. SAG HALLO. SIE FREUT SICH.' },
-  { id: 'tankstelle', name: 'Tankstelle', x: 109.5, z: 20, bonus: 1, text: 'HIER HAT MIKE BARFUSS GESTANDEN. 3:13.\nDER TANKWART HAT ABGESCHLOSSEN UND DIE AUGEN ZUGEMACHT.\nDAS WAR KLUG. ER LEBT NOCH.' },
+  { id: 'tankstelle', name: 'Tankstelle', x: 109.5, z: 20, bonus: 1, text: 'HIER HAT MIKE BARFUSS GESTANDEN. 3:13.\nDIE TANKSTELLE IST SEIT JAHREN ZU. ER HATTE TROTZDEM EINEN SCHLÜSSEL.\nFRAG DICH, VON WEM.' },
   { id: 'sperre', name: 'Straßensperre', x: 145.5, z: 2.5, text: 'DIE WEISSEN AUTOS SIND NICHT KAPUTT. SIE WARTEN.\nWER HIER RAUSWILL, MUSS WISSEN, WOHIN.\nWEISST DU ES?' },
   { id: 'schreber', name: 'Schrebergärten', x: -114, z: 24, text: 'HILDE HAT HIER GEMÜSE GEZOGEN. FÜR ACHT TELLER.\nES WAREN IMMER ZU VIELE.\nFRAG DICH, FÜR WEN DER ACHTE WAR.' },
   { id: 'hof', name: 'Hof', x: -127, z: -26, text: 'DINA HAT GELERNT, DIE AUGEN ZUZUMACHEN.\nDU NICHT. DU SIEHST IMMER HIN.\nDAS MAG ICH AN DIR.' },
@@ -78,7 +78,7 @@ const BEOB_ORTE = [
   { id: 'wrack', name: 'Autowrack', x: -6.2, z: 201.5, bonus: 1, text: 'HINTER DEM WRACK WOHNT, WAS FRISST.\nES HAT ANGST VOR DEM VOGEL.\nVOR MIR NICHT. DENK DARÜBER NACH.' },
   { id: 'weiher', name: 'Weiher', x: 43, z: 245.4, text: 'DER WEIHER HAT KEINEN GRUND.\nICH HABE ES GEPRÜFT.\nJONAS HAT DAS ENDE DER WOLLE HINEINGEHÄNGT. JEMAND HAT DARAN GEZOGEN. NICHT ICH.' },
 ];
-const BEOB_FINAL = 'NEUNZEHN ORTE. DU HAST SIE ALLE GESEHEN.\nICH AUCH. JEDES MAL MIT DIR.\nIN DER NACHT, IN DER DU ZURÜCKKAMST, STAND ICH AUF DER KREUZUNG.\nHILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT, WER DER NEUNTE IST.\nDU FRAGST AUCH NICHT.\nNOCH NICHT.';
+const BEOB_FINAL = 'NEUNZEHN ORTE. DU HAST SIE ALLE GESEHEN.\nICH AUCH. JEDES MAL MIT DIR.\nAM 23. OKTOBER HABE ICH MICH ZUM ERSTEN MAL DAZUGESTELLT.\nHILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT, WER DER NEUNTE IST.\nDU FRAGST AUCH NICHT.\nNOCH NICHT.';
 function beob_obj() { const el = document.getElementById('objText'); return el ? el.textContent : ''; }
 function beob_desc() { const q = story.side.beobachter; if (!q) return; const n = BEOB_ORTE.filter(o => beob_S.found.has(o.id)).length;
   q.desc = beob_S.done ? 'Alle Zettel des Beobachters gefunden. Er war an jedem Ort vor dir. Und nach dir.' : `Jemand Kleines folgt dir und legt Zettel aus, gezeichnet „∴“. Zettel an Orten: ${n} / ${BEOB_ORTE.length}.`; }
@@ -144,13 +144,13 @@ function beob_sound() {
 // ---------------------------------------------------------------- Kurz zu sehen: am Rand des Blickfelds; länger als 1 s angesehen → weg, taucht woanders auf
 async function beob_loadModel() {
   const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; scene.add(g);
-    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); g.updateMatrixWorld(true);
+    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; const mm = o.material.clone(); mm.color.setRGB(.62, .62, .66); mm.roughness = 1; mm.metalness = 0; mm.envMapIntensity = .25; o.material = mm; } }); g.updateMatrixWorld(true);
     const head = m.getObjectByName('Kopf'), body = m.getObjectByName('Koerper'), uT = { value: 0 };
     // Fühler: nur die Eckpunkte oberhalb der Kopfkugel wippen (Shader), Stärke wächst zur Spitze hin
     const hm = []; (m.getObjectByName('kopf_Group28799') || head || m).traverse(o => { if (o.isMesh) hm.push(o); });
     for (const mesh of hm) { const toHead = new THREE.Matrix4().copy(head.matrixWorld).invert().multiply(mesh.matrixWorld), P = mesh.geometry.attributes.position, v = new THREE.Vector3(); let bulb = -1e9, top = -1e9;
       for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(toHead); top = Math.max(top, v.y); if (Math.abs(v.x) < .012) bulb = Math.max(bulb, v.y); }
-      const mat = mesh.material.clone(), fromHead = new THREE.Matrix4().copy(toHead).invert(), base = bulb - .01;
+      const mat = mesh.material, fromHead = new THREE.Matrix4().copy(toHead).invert(), base = bulb - .01;
       mat.onBeforeCompile = sh => { sh.uniforms.uT = uT; sh.uniforms.uToHead = { value: toHead }; sh.uniforms.uFromHead = { value: fromHead }; sh.uniforms.uBase = { value: base }; sh.uniforms.uTop = { value: top };
         sh.vertexShader = 'uniform float uT, uBase, uTop; uniform mat4 uToHead, uFromHead;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
           vec3 hp = (uToHead * vec4(position, 1.)).xyz; float k = smoothstep(uBase, uTop, hp.y); k *= k;
@@ -161,13 +161,13 @@ async function beob_loadModel() {
 }
 // Lebendig ohne Skelett: atmen, Kopf neugierig schief legen, zu Luke drehen, Fühler wippen
 function beob_anim(dt) { const V = beob_S.V; if (!V || !V.g.visible) return; V.t += dt; V.uT.value = V.t;
-  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(.6, 1.6); V.tilt = rand(-.35, .35); }
+  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(1.5, 4); V.tilt = Math.random() < .35 ? rand(-.75, .75) : rand(-.25, .25); V.jerk = .18; } if (V.jerk > 0) V.jerk -= dt;
   if (V.body) V.body.scale.set(1 + Math.sin(V.t * 2.3) * .008, 1 + Math.sin(V.t * 2.3) * .014, 1 + Math.sin(V.t * 2.3) * .008);
-  if (V.head) { V.head.rotation.z += (V.tilt + Math.sin(V.t * .9) * .05 - V.head.rotation.z) * Math.min(1, dt * 5); V.head.rotation.x = Math.sin(V.t * 1.4) * .04 - .06; V.head.rotation.y += (Math.sin(V.t * .7) * .25 - V.head.rotation.y) * Math.min(1, dt * 3); V.head.position.y = V.head.userData.y0 ?? (V.head.userData.y0 = V.head.position.y); V.head.position.y += Math.sin(V.t * 2.3) * .003; } }
+  if (V.head) { V.head.rotation.z += (V.tilt + Math.sin(V.t * .9) * .03 - V.head.rotation.z) * Math.min(1, dt * (V.jerk > 0 ? 40 : 1.2)); V.head.rotation.x = Math.sin(V.t * 1.4) * .04 - .06; V.head.rotation.y += (Math.sin(V.t * .7) * .25 - V.head.rotation.y) * Math.min(1, dt * 3); V.head.position.y = V.head.userData.y0 ?? (V.head.userData.y0 = V.head.position.y); V.head.position.y += Math.sin(V.t * 2.3) * .003; } }
 function beob_peekSpot(minF, maxF, far = [12, 22]) {
   const P = player.pos, trees = (typeof leben_S !== 'undefined' && leben_S.treePts) || [];
   for (let k = 0; k < 40; k++) { let x, z; if (trees.length && Math.random() < .7) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue;
-      const sx = (P.z - tz) / d * (Math.random() < .5 ? .45 : -.45), sz = -(P.x - tx) / d * (sx > 0 ? .45 : -.45); x = tx + sx + (P.x - tx) / d * .15; z = tz + sz + (P.z - tz) / d * .15; }
+      const side = Math.random() < .5 ? .34 : -.34, sx = (P.z - tz) / d * side, sz = -(P.x - tx) / d * side; x = tx + sx - (P.x - tx) / d * .1; z = tz + sz - (P.z - tz) / d * .1; }
     else { const a = rand(0, 6.28), d = rand(far[0], far[1]); x = P.x + Math.cos(a) * d; z = P.z + Math.sin(a) * d; }
     const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF || !beob_free(x, z)) continue; const gy = beob_gy(x, z); if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x, gy + BEOB.h * .75, z)) continue; return [x, gy, z]; }
   return null;
@@ -178,7 +178,7 @@ function beob_vanish() { const S = beob_S, V = S.V, p = V.g.position; V.g.visibl
 function beob_peekTick(dt) {
   const S = beob_S, V = S.V, K = S.peek; if (!V || !K) return; K.t += dt;
   if (K.st === 'show') { beob_anim(dt); const p = V.g.position, dx = player.pos.x - p.x, dz = player.pos.z - p.z, d = Math.hypot(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 3));
-    const f = beob_facing(p.x, p.y + BEOB.h * .7, p.z), inView = f > .7 && d < 45, lit = flashOn && !state.blackout && d < 26 && f > .96;
+    const f = beob_facing(p.x, p.y + BEOB.h * .7, p.z), inView = f > .7 && d < 45, lit = flashOn && !state.blackout && d < 26 && f > .96; if (f > .93) K.seen += dt * .6;
     if (inView) K.seen += dt; if (lit && V.head) V.head.rotation.y += (-.9 - V.head.rotation.y) * Math.min(1, dt * 6); if (K.seen > BEOB.seenMax || d < 3.5) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2.5, 6); } else if (K.t > 40) { V.g.visible = false; S.peek = null; } }
   else if (K.st === 'gone') { if (K.t < K.wait) return; if (K.n >= 2 || beob_quiet() || !beob_active()) { S.peek = null; return; }
     // ganz woanders wieder auftauchen: gegenüber, außerhalb des Blickfelds – am Rand, wo man ihn beim Umdrehen erwischt
@@ -212,6 +212,6 @@ WORLD_TICK.push((dt, t) => {
   // Zettel hinter Luke
   S.noteT -= dt; if (S.noteT < 0) { const d = beob_nextNote(); S.noteT = d && beob_drop(d) ? rand(BEOB.gap[0], BEOB.gap[1]) : 25; }
   // kurz zu sehen (nur mit Modell, draußen)
-  if (S.V && !S.peek && !beob_indoor()) { S.peekT -= dt; if (S.peekT < 0) { S.peekT = rand(BEOB.peekGap[0], BEOB.peekGap[1]); const sp = beob_peekSpot(.72, .9); if (sp) { beob_show(sp); S.peek = { st: 'show', t: 0, seen: 0, n: 0 }; beob_rustle(sp[0], sp[2], .6); } } }
+  if (S.V && !S.peek && !beob_indoor()) { S.peekT -= dt; if (S.peekT < 0) { S.peekT = rand(BEOB.peekGap[0], BEOB.peekGap[1]); const sp = beob_peekSpot(.62, .86, [14, 24]); if (sp) { beob_show(sp); S.peek = { st: 'show', t: 0, seen: 0, n: 0 }; beob_rustle(sp[0], sp[2], .6); } } }
 });
 window.__beob = { S: beob_S, drop: id => beob_drop(BEOB_DYN.find(d => d.id === id) || BEOB_NOT), peek: () => { const sp = beob_peekSpot(.72, .95); if (sp && beob_S.V) { beob_show(sp); beob_S.peek = { st: 'show', t: 0, seen: 0, n: 0 }; } return sp; }, sound: () => beob_sound(), orte: BEOB_ORTE }; // Testzugriff

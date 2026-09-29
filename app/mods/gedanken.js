@@ -16,7 +16,7 @@ const GEDANKEN_SCHRECK = ['Das war nicht der Wind. Oder? … Atmen, Luke. Einfac
 const GEDANKEN_ECHO = {
   echo_kreuzung: 'Sieben Kinder. Vegas hat gezählt. Und ich … war ich dabei? Ich war doch einer von ihnen. Oder?',
   echo_kueche: '„Fast wie Zayn.“ Sie haben ihr einen Ersatz angeboten. Wie einen Hund aus dem Tierheim.',
-  echo_kinderzimmer: 'Er wusste nicht, wie unser Hund hieß. Flocke. Der Hund hieß Flocke. … Warum musste ich gerade nachdenken?',
+  echo_kinderzimmer: 'Er wusste nicht, wie unser Hund hieß. … Ich weiß es auch nicht. Warum weiß ich das nicht?',
   echo_brand: 'Sie wollte zurück. Dahin, wo es warm war. Was ist da oben, dass ein Kind sein eigenes Haus anzündet?',
   echo_archiv: '„Augenfarbe stimmt nicht.“ … Meine Augen sind braun. Waren sie immer braun?',
   echo_messraum: 'Kinder, festgeschnallt, mit offenen Augen. Einer hatte meine Jacke an. Meine alte, blaue Jacke.',
@@ -26,7 +26,7 @@ const GEDANKEN_ECHO = {
 const GEDANKEN_ORTE = [
   ['ort_friedhof', -75, -30, 66, 95, () => true, 'Kindergräber. Ich les die Namen nicht. Noch nicht.'],
   ['ort_kapelle', -80, 60, 40, 66, () => true, 'Die Kapelle. Als Kind hab ich mich nie reingetraut. Jetzt weiß ich nicht mehr, warum.'],
-  ['ort_tankstelle', 97, 128, 4, 31, () => true, 'Tankstelle Kranz. Hier hab ich mit Lucy Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?'],
+  ['ort_tankstelle', 97, 128, 4, 31, () => true, 'Tankstelle Kranz. Opas Tankstelle. Hier hab ich mit Lucy Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?'],
   ['ort_garten', -140, -90, 8, 45, () => true, 'Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen.'],
   ['ort_hof', -150, -110, -45, -10, () => true, 'Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?'],
   ['ort_villa', -145, -105, 58, 90, () => true, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
@@ -54,7 +54,7 @@ WORLD_MODS.push(['Gedanken', async () => {
   ending = after(ending, () => gedanke('wendt_weg', 'Sie ist weg. Einfach hochgezogen. Und ich hab nichts gemacht. Ich hab nur dagestanden und zugesehen.', 1500, 3));
   cowDrop = after(cowDrop, () => gedanke('kuh', 'Eine Kuh. Vom Himmel. Ich sollte schreien. Warum bin ich so ruhig? … Warum fühlt sich das an, als hätte ich das schon mal gesehen?', 2500, 3));
   justinArrives = after(justinArrives, () => gedanke('ritter', 'Ein Ritter. Ein echter. Er riecht nach Schnee. Ich müsste wegrennen – und will ihn fragen, ob er mich kennt.', 1500, 3));
-  broadcast = after(broadcast, () => gedanke('funk', 'Das war Lucys Stimme. Aus einem Funkgerät. Das geht nicht. Das. Geht. Nicht.', 1200, 3));
+  broadcast = after(broadcast, () => gedanke('funk', 'Eine Stimme vom Amt. Aus einem Kasten, der seit 2012 tot sein müsste. … Und sie weiß, dass ich es weiß.', 1200, 3));
   lampsOut = after(lampsOut, () => gedanke('laternen', 'Alle Laternen aus. Der alte Vegas hatte recht. Und wenn er damit recht hatte …', 2000, 3));
   enterWhite = after(enterWhite, () => gedanke('weiss', 'Weiß. Kein Oben, kein Unten. Und irgendwo zählt ein Kind.', 2500, 3));
   enterCanal = after(enterCanal, () => gedanke('kanal', 'Eine Stadt unter Lost Eyengless. Das gehört nicht hierher. Oder ich gehöre nicht hierher.', 9000, 2));
@@ -66,7 +66,7 @@ WORLD_MODS.push(['Gedanken', async () => {
     const n = echoSeen.size; if (n === 1) gedanke('nachhall_1', 'Die Narbe in der Hand. Sie hat gebrannt, sobald ich den Ort angefasst hab. … Als würde sich die Hand erinnern, nicht ich.', 7000, 3);
     if (n === 3) gedanke('nachhall_2', 'Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh, was da nachhallt. Warum ich?', 7000, 3); });
   CH2_BEGIN.push(() => gedanke('tuer', 'Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.', 7500, 3));
-  CH2_END.push(() => gedanke('lena_tank', 'Lucy war da drin. „Weißt du es jetzt?“ – Was soll ich wissen? … Ich will es nicht wissen.', 14000, 3));
+  CH2_END.push(() => gedanke('lena_tank', 'Lucy war da drin. „Weißt du es jetzt?“ … Ja. Und ich wünschte, ich wüsste es nicht.', 14000, 3));
 }]);
 WORLD_TICK.push((dt, t) => {
   const S = gedanken_S; if (!state.started || menu.attract) return; const now = performance.now(), P = player.pos;

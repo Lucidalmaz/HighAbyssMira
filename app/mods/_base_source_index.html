@@ -235,6 +235,324 @@
   #editor .rule { display: grid; grid-template-columns: 1fr 24px 1fr 48px; gap: 8px; align-items: center; margin-bottom: 8px; }
   #editor .tx { border-left: 2px solid rgba(201,163,106,.2); padding: 6px 10px; margin: 10px 0; } #editor .tx.mod { border-left-color: var(--gold); }
   #editor .tx .orig { color: #8b7f68; font-size: 13px; margin-bottom: 4px; white-space: pre-wrap; }
+
+  /* ===================================================================== PREMIUM-OBERFLÄCHE
+     Ein Stil für alles: verkohltes Archivholz, gealtertes Messing, Knochenweiß, getrocknetes Blut.
+     Texturen sind CSS/SVG (keine Dateien). Körnung und schwere Effekte nur in Menüs und Overlays – nie über dem laufenden Spiel. */
+  :root {
+    --bone: #ece2cb; --ink: #d9d1bf; --dim: #8e8169; --gold: #c9a36a; --gold2: #8a6f45; --brass: #b08a52;
+    --blood: #8e1d15; --blood2: #c23a2b; --char: #0c0a08; --line: rgba(201,163,106,.22);
+    --panel: rgba(13,10,8,.97);
+    --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.4 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .24 0 0 0 0 .12 0 0 0 .7 -.22'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+    --blot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .28 0 0 0 0 .12 0 0 0 1.1 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
+    --paper: #d8ccae;
+    --orn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='14' viewBox='0 0 300 14'%3E%3Cpath d='M0 7h128M172 7h128' stroke='%23c9a36a' stroke-width='1'/%3E%3Cpath d='M150 1l6 6-6 6-6-6z' fill='none' stroke='%23c9a36a'/%3E%3Ccircle cx='136' cy='7' r='1.5' fill='%23c9a36a'/%3E%3Ccircle cx='164' cy='7' r='1.5' fill='%23c9a36a'/%3E%3C/svg%3E");
+    --pink: #2a2016; --pdim: #5a4a35; --pred: #7c2418;
+  }
+  ::selection { background: rgba(142,29,21,.55); color: #fff; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(201,163,106,.28); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: rgba(201,163,106,.5); }
+
+  /* ---------- Filmkorn + Vignette: nur Menü, Pause, Overlays, Zwischentitel */
+  #grain { position: fixed; inset: -60px; z-index: 58; pointer-events: none; display: none; opacity: .075; background: var(--grain); animation: grainShift .6s steps(5) infinite; }
+  body.menu #grain, body.ov #grain, body:has(#pause.show) #grain, body:has(#introSeq.show) #grain { display: block; }
+  @keyframes grainShift { 0% { transform: translate(0, 0); } 20% { transform: translate(-23px, 14px); } 40% { transform: translate(17px, -29px); } 60% { transform: translate(-9px, 31px); } 80% { transform: translate(28px, 6px); } 100% { transform: translate(0, 0); } }
+
+  /* ---------- Overlays allgemein */
+  .overlay { background: radial-gradient(ellipse 70% 65% at 50% 48%, rgba(6,4,3,.55), rgba(0,0,0,.93) 100%); }
+  .hint, #keypad .hint, #puzzle .hint, #journal .hint, #note .hint { display: block; bottom: 4.2%; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .42em; color: #8a7d66; text-shadow: 0 1px 2px #000; }
+  .hint kbd { display: inline-block; min-width: 14px; padding: 2px 7px 1px; margin: 0 5px; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .08em; color: #1d1712; background: linear-gradient(#efe6d0, #bfb293); border-radius: 3px; box-shadow: 0 1px 0 #5d5140, 0 2px 4px rgba(0,0,0,.7); }
+
+  /* ---------- Panel: verkohltes Holz, Messingecken, Kerzenschein von oben */
+  .panel { background: var(--noise), radial-gradient(120% 70% at 50% 0%, rgba(120,70,30,.13), transparent 60%), linear-gradient(180deg, #15110d, #0b0907); border: 1px solid rgba(201,163,106,.26);
+    box-shadow: inset 0 0 0 4px rgba(0,0,0,.55), inset 0 0 0 5px rgba(201,163,106,.1), inset 0 0 70px rgba(0,0,0,.7), 0 40px 120px rgba(0,0,0,.9), 0 0 0 1px #000; }
+  .panel::before { content: ''; position: absolute; inset: 9px; width: auto; height: auto; border: 0; transform: none; opacity: .85; pointer-events: none;
+    background: linear-gradient(var(--gold), var(--gold)) top left / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top left / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) top right / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) top right / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) bottom left / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom left / 1px 18px no-repeat,
+      linear-gradient(var(--gold), var(--gold)) bottom right / 18px 1px no-repeat, linear-gradient(var(--gold), var(--gold)) bottom right / 1px 18px no-repeat; }
+  .panel::after { content: ''; position: absolute; left: 50%; top: -5px; bottom: auto; right: auto; width: 9px; height: 9px; margin-left: -5px; border: 1px solid var(--gold); background: #0d0a08; transform: rotate(45deg); opacity: 1; box-shadow: 0 0 10px rgba(201,163,106,.35); }
+  .ptitle { font: 600 13px "Cormorant Garamond", Georgia, serif; letter-spacing: .52em; text-indent: .52em; color: var(--gold); text-shadow: 0 0 14px rgba(201,163,106,.3); margin: 2px 0 22px; padding-bottom: 14px; border-bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(201,163,106,.5) 30%, rgba(201,163,106,.5) 70%, transparent) bottom / 100% 1px no-repeat; }
+  kbd.k { min-width: 20px; padding: 3px 8px 2px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .06em; color: #1d1712; background: radial-gradient(120% 90% at 50% 10%, #f6eedb, #c9bb9b 70%, #a99a7a); border-radius: 4px;
+    box-shadow: inset 0 -2px 0 rgba(70,55,35,.45), inset 0 1px 0 rgba(255,255,255,.6), 0 2px 0 #4a3f30, 0 3px 6px rgba(0,0,0,.7); margin-right: 4px; }
+
+  /* ---------- Schieberegler, Kästchen, Auswahl (Einstellungen, Pause, Funk) */
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 22px; background: transparent; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(90deg, var(--gold) var(--p, 50%), rgba(201,163,106,.18) var(--p, 50%)); box-shadow: 0 0 8px rgba(201,163,106,.15); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -5px; background: radial-gradient(circle at 35% 35%, #fff3d6, #c9a36a 60%, #6b5230); transform: rotate(45deg); border: 0; box-shadow: 0 0 10px rgba(230,180,100,.55), 0 0 0 3px rgba(0,0,0,.6); transition: box-shadow .2s; }
+  input[type=range]:hover::-webkit-slider-thumb { box-shadow: 0 0 16px rgba(240,190,110,.9), 0 0 0 3px rgba(0,0,0,.6); }
+  input[type=checkbox] { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin: 0; border: 1px solid rgba(201,163,106,.55); background: rgba(0,0,0,.5); cursor: pointer; box-shadow: inset 0 0 6px #000; position: relative; }
+  input[type=checkbox]:checked { background: rgba(0,0,0,.5) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M3.5 9.5l3.6 3.6L14.8 4.2' fill='none' stroke='%23e8c88c' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 14px no-repeat; border-color: var(--gold); box-shadow: inset 0 0 6px #000, 0 0 10px rgba(201,163,106,.3); }
+  select { -webkit-appearance: none; appearance: none; cursor: pointer; }
+  #subPanel select { background: rgba(0,0,0,.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23c9a36a' stroke-width='1.2'/%3E%3C/svg%3E") right 10px center / 10px no-repeat; border: 0; border-bottom: 1px solid rgba(201,163,106,.45); color: var(--bone); padding: 6px 30px 6px 10px; font: 17px "Cormorant Garamond", Georgia, serif; letter-spacing: .06em; }
+  #subPanel select option { background: #15110d; color: var(--bone); }
+
+  /* ---------- Hauptmenü */
+  #start .shade { background: linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.78) 30%, rgba(0,0,0,.2) 62%, rgba(0,0,0,.45) 100%), linear-gradient(0deg, rgba(0,0,0,.7), transparent 30%); }
+  #start .vig { background: radial-gradient(ellipse 85% 80% at 55% 45%, transparent 45%, rgba(0,0,0,.85) 100%); }
+  #start .ember { position: absolute; left: -10%; top: 5%; width: 70%; height: 95%; pointer-events: none; background: radial-gradient(50% 45% at 35% 55%, rgba(150,60,20,.14), transparent 70%); animation: candle 5.3s ease-in-out infinite; }
+  #start .ember2 { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; pointer-events: none; background: linear-gradient(0deg, rgba(80,12,8,.22), transparent); }
+  #start:not(.ready) .ember { animation: none; }
+  @keyframes candle { 0%, 100% { opacity: .85; } 12% { opacity: 1; } 18% { opacity: .7; } 22% { opacity: .95; } 47% { opacity: .8; } 55% { opacity: 1; } 71% { opacity: .75; } 80% { opacity: .92; } }
+  #menu::before { content: ''; position: absolute; left: -46px; top: 6%; bottom: 10%; width: 1px; background: linear-gradient(180deg, transparent, rgba(201,163,106,.35) 20%, rgba(142,29,21,.55) 60%, transparent); }
+  #start h1 .l { letter-spacing: .62em; font-weight: 600; font-size: .44em; color: #b99a67; text-shadow: 0 0 18px rgba(201,163,106,.3); }
+  #start h1 .m { color: #efe5cf; text-shadow: 0 0 22px rgba(160,22,14,.6), 0 0 70px rgba(130,10,8,.5), 0 4px 0 #000, 0 0 2px #fff; }
+  #start .sub { color: #9a8c72; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .55em; }
+  #start .dir { color: #6f6452; }
+  #mainMenu { gap: 2px; }
+  #mainMenu button { color: #b4a78d; font-size: 26px; letter-spacing: .2em; padding: 8px 60px 8px 34px; text-shadow: 0 2px 6px #000; transition: color .25s, padding-left .25s, letter-spacing .35s; }
+  #mainMenu button::after { content: ''; position: absolute; left: 0; top: 10%; bottom: 10%; width: 100%; background: linear-gradient(90deg, rgba(142,29,21,.38), rgba(142,29,21,.12) 45%, transparent 80%); opacity: 0; transform: scaleX(.3); transform-origin: left; transition: opacity .3s, transform .45s cubic-bezier(.2,.7,.2,1); z-index: -1; }
+  #mainMenu button::before { left: 10px; width: 8px; height: 8px; border: 0; background: radial-gradient(circle, #ffd9a0, #c9a36a 45%, rgba(201,163,106,0) 75%); transform: rotate(45deg) scale(0); box-shadow: 0 0 12px rgba(255,190,110,.9); }
+  #mainMenu button:hover, #mainMenu button:focus-visible { color: #fbf3e0; padding-left: 42px; letter-spacing: .24em; text-shadow: 0 0 18px rgba(255,200,140,.35), 0 2px 6px #000; }
+  #mainMenu button:hover::after, #mainMenu button:focus-visible::after { opacity: 1; transform: none; }
+  #mainMenu button:hover::before { transform: rotate(45deg) scale(1); animation: ember .9s ease-in-out infinite alternate; }
+  @keyframes ember { from { opacity: .65; } to { opacity: 1; } }
+  #mainMenu button small { font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; color: #7d705b; margin-top: 3px; }
+  #mainMenu button:hover small { color: #a8926c; }
+  #mainMenu button:disabled::after { display: none; }
+  #start .foot { color: #574d3d; font: 600 10px "Cormorant Garamond", Georgia, serif; letter-spacing: .36em; }
+  /* Laden */
+  #loadBar { height: 1px; width: 340px; background: rgba(201,163,106,.14); margin: 26px 0 12px; }
+  #loadBar i { position: relative; background: linear-gradient(90deg, rgba(142,29,21,.6), var(--gold)); box-shadow: 0 0 8px rgba(201,163,106,.6); }
+  #loadBar i::after { content: ''; position: absolute; right: -4px; top: -3px; width: 7px; height: 7px; border-radius: 50%; background: #fff1d0; box-shadow: 0 0 10px 3px rgba(255,190,110,.8), 0 0 26px 8px rgba(190,70,30,.35); animation: ember .7s ease-in-out infinite alternate; }
+  #goText { font: 12px "Special Elite", monospace; letter-spacing: .22em; color: #9a8c72; }
+  /* Unterfenster: Einstellungen, Steuerung, Kapitel */
+  #subPanel { width: min(600px, 90vw); padding: 38px 48px 32px; max-height: 86vh; overflow: auto; }
+  #subPanel .row { margin: 0; padding: 11px 2px; font-size: 19px; border-bottom: 1px solid rgba(201,163,106,.08); }
+  #subPanel .row:last-of-type { border-bottom: 0; }
+  #subPanel .row span { color: #d6ccb6; letter-spacing: .03em; }
+  #subPanel input[type=range] { width: 230px; }
+  #subPanel .keys { gap: 13px 26px; font: 18px/1.3 "Cormorant Garamond", Georgia, serif; letter-spacing: .02em; color: #d6ccb6; }
+  #start #menu { transition: opacity .35s, filter .35s; } #start:has(#subPanel.show) #menu { opacity: .18; filter: blur(2px); }
+  body { font-variant-numeric: lining-nums; }
+  #subPanel .keys > span:nth-child(odd) { text-align: right; white-space: nowrap; }
+  #subPanel .close { margin-top: 28px; }
+  #subPanel .close button, #pause .pbtns button, .case button { position: relative; background: linear-gradient(180deg, rgba(201,163,106,.06), rgba(0,0,0,.2)); border: 1px solid rgba(201,163,106,.35); color: #d9cdb0; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .42em; padding: 11px 30px 11px 34px; cursor: pointer; transition: all .25s; }
+  #subPanel .close button:hover, #pause .pbtns button:hover { border-color: var(--gold); color: #fff6e2; background: linear-gradient(180deg, rgba(201,163,106,.16), rgba(142,29,21,.12)); box-shadow: 0 0 22px rgba(201,163,106,.18), inset 0 0 12px rgba(201,163,106,.1); }
+  #subPanel .chap { counter-reset: ch; gap: 12px; }
+  #subPanel .chap button { position: relative; min-height: 74px; padding: 14px 54px 14px 86px; font: 22px "Cormorant Garamond", Georgia, serif; letter-spacing: .08em; color: #e6dcc4; border: 1px solid rgba(201,163,106,.2);
+    background: var(--noise), linear-gradient(90deg, rgba(201,163,106,.08), rgba(0,0,0,.25) 60%); box-shadow: inset 0 0 30px rgba(0,0,0,.6); transition: border-color .25s, background .25s, box-shadow .25s; }
+  #subPanel .chap button::before { counter-increment: ch; content: counter(ch, upper-roman); position: absolute; left: 0; top: 0; bottom: 0; width: 66px; display: flex; align-items: center; justify-content: center; font: 600 30px "Cormorant Garamond", Georgia, serif; color: var(--gold); border-right: 1px solid rgba(201,163,106,.2); text-shadow: 0 0 16px rgba(201,163,106,.35); }
+  #subPanel .chap button small { font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; color: #8a7c62; margin-top: 6px; }
+  #subPanel .chap button:not(:disabled):hover { border-color: var(--gold); background: var(--noise), linear-gradient(90deg, rgba(142,29,21,.3), rgba(0,0,0,.25) 70%); box-shadow: inset 0 0 30px rgba(0,0,0,.4), 0 0 24px rgba(142,29,21,.25); }
+  #subPanel .chap button:disabled { color: #5d5344; cursor: not-allowed; background: repeating-linear-gradient(135deg, rgba(255,255,255,.012) 0 6px, transparent 6px 12px), rgba(0,0,0,.35); }
+  #subPanel .chap button:disabled::before { color: #4f4535; text-shadow: none; }
+  #subPanel .chap button:disabled small { color: #6e3a2e; }
+  #subPanel .chap button:disabled::after { content: ''; position: absolute; right: 20px; top: 50%; width: 16px; height: 20px; margin-top: -10px; opacity: .55;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath d='M4 9V6a4 4 0 0 1 8 0v3' fill='none' stroke='%23a08a64' stroke-width='1.4'/%3E%3Crect x='1.5' y='9' width='13' height='10' rx='1' fill='none' stroke='%23a08a64' stroke-width='1.4'/%3E%3Ccircle cx='8' cy='14' r='1.4' fill='%23a08a64'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+  /* ---------- Zwischentitel: Intro, „Was bisher geschah“ */
+  #introSeq { background: radial-gradient(ellipse 60% 55% at 50% 50%, #0d0a09, #000 75%); }
+  #introSeq::before, #introSeq::after { content: ''; position: absolute; left: 50%; width: 300px; height: 14px; margin-left: -150px; opacity: .5; background: var(--orn) center / contain no-repeat; -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+  #introSeq::before { top: 17%; } #introSeq::after { bottom: 17%; }
+  #introSeq #intro { max-width: 700px; font-size: 27px; line-height: 1.75; color: #e3d9c3; text-shadow: 0 0 22px rgba(0,0,0,.9); }
+  #introSeq #intro p { transition: opacity 1.6s, filter 1.8s, transform 2s; filter: blur(6px); transform: translateY(6px); margin-bottom: 12px; }
+  #introSeq #intro p.on { filter: none; transform: none; }
+  #introSeq #intro i { color: #f1e6cc; text-shadow: 0 0 20px rgba(160,22,14,.55); }
+  #introSeq .skip { font: 600 10px "Cormorant Garamond", Georgia, serif; letter-spacing: .45em; color: #6d6352; animation: pulse 3s infinite; }
+
+  /* ---------- HUD */
+  #objective { top: 16px; left: 34px; padding: 20px 56px 22px 22px; border-left: 0; background: radial-gradient(closest-side, rgba(0,0,0,.5), rgba(0,0,0,.32) 55%, rgba(0,0,0,0)); max-width: 460px; font-size: 21px; color: #eee5d1; text-shadow: 0 1px 2px #000, 0 0 12px rgba(0,0,0,.9); }
+  #objective::before { content: ''; position: absolute; left: 0; top: 24px; bottom: 16px; width: 1px; background: linear-gradient(180deg, var(--gold), rgba(201,163,106,0)); }
+  #objective::after { content: ''; position: absolute; left: -3px; top: 22px; width: 5px; height: 5px; background: var(--gold); transform: rotate(45deg); box-shadow: 0 0 8px var(--gold); }
+  #objective b { font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; color: var(--gold); margin-bottom: 4px; text-shadow: 0 0 2px #000, 0 0 6px #000, 0 0 12px #000; }
+  #sideInfo { font-size: 15px; color: #b3a589; margin-top: 6px; }
+  #questPop { top: 22px; right: 34px; padding: 14px 24px 24px 64px; border-right: 0; background: radial-gradient(closest-side, rgba(0,0,0,.55), rgba(0,0,0,.34) 55%, rgba(0,0,0,0)); transform: translateX(26px); transition: opacity .6s, transform .7s cubic-bezier(.2,.8,.2,1); }
+  #questPop::before { content: ''; position: absolute; right: 0; top: 16px; bottom: 18px; width: 1px; background: linear-gradient(180deg, var(--blood2), rgba(194,58,43,0)); }
+  #questPop::after { content: ''; position: absolute; right: 24px; bottom: 16px; height: 1px; width: 80%; background: linear-gradient(-90deg, var(--gold), transparent); transform: scaleX(0); transform-origin: right; transition: transform 1.1s .25s cubic-bezier(.2,.8,.2,1); }
+  #questPop.show::after { transform: scaleX(1); }
+  #questPop small { font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; color: #e0604f; margin-bottom: 3px; text-shadow: 0 0 2px #000, 0 0 6px #000, 0 0 12px #000; }
+  #questPop span { font-size: 25px; color: #f3ead6; text-shadow: 0 1px 2px #000, 0 0 16px rgba(0,0,0,.9); }
+  #crosshair { width: 3px; height: 3px; margin: -1.5px; background: rgba(240,230,210,.55); box-shadow: 0 0 3px rgba(0,0,0,.9); }
+  #crosshair.on { width: 20px; height: 20px; margin: -10px; background: radial-gradient(circle, rgba(255,240,215,.95) 0 1.6px, transparent 2.2px); border: 1px solid rgba(255,232,195,.75); box-shadow: 0 0 8px rgba(255,200,130,.35), inset 0 0 6px rgba(255,200,130,.2); }
+  #prompt { top: calc(50% + 28px); padding: 12px 40px; background: radial-gradient(closest-side, rgba(0,0,0,.6), rgba(0,0,0,.4) 55%, rgba(0,0,0,0)); border: 0; font-size: 19px; color: #f1e8d4; letter-spacing: .05em; text-shadow: 0 1px 2px #000, 0 0 10px rgba(0,0,0,.9); }
+  #prompt kbd { display: inline-block; min-width: 12px; text-align: center; font: 600 14px "Cormorant Garamond", Georgia, serif; padding: 2px 8px 1px; margin-right: 12px; color: #1d1712; background: radial-gradient(120% 90% at 50% 10%, #f6eedb, #c9bb9b 70%, #a99a7a); border-radius: 4px; box-shadow: inset 0 -2px 0 rgba(70,55,35,.45), 0 2px 0 #4a3f30, 0 0 14px rgba(255,210,150,.25); vertical-align: 1px; }
+  #subtitle { bottom: 8%; max-width: min(1000px, 76%); padding: 16px 70px 18px; font-size: calc(25px * var(--subScale, 1)); line-height: 1.42; color: #f5eee0; letter-spacing: .01em;
+    background: radial-gradient(closest-side, rgba(0,0,0,.62), rgba(0,0,0,.46) 50%, rgba(0,0,0,.18) 80%, rgba(0,0,0,0)); text-shadow: 0 1px 2px #000, 0 0 6px #000, 0 0 16px rgba(0,0,0,.8); }
+  #subtitle .who { display: flex; align-items: center; justify-content: center; gap: 12px; font: 600 calc(12px * var(--subScale, 1)) "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; text-indent: .5em; color: #e0bd82; margin-bottom: 5px; text-shadow: 0 0 2px #000, 0 0 6px #000, 0 0 12px #000; }
+  #subtitle .who::before, #subtitle .who::after { content: ''; width: 26px; height: 1px; background: linear-gradient(90deg, transparent, rgba(217,181,122,.8)); }
+  #subtitle .who::after { background: linear-gradient(-90deg, transparent, rgba(217,181,122,.8)); }
+  #subtitle.thought { font-style: italic; color: #dfe4ea; }
+  #subtitle.thought .who { color: #9fb3c8; font-style: normal; }
+  #subtitle.thought .who::before, #subtitle.thought .who::after { background: linear-gradient(90deg, transparent, rgba(159,179,200,.7)); }
+  #subtitle.thought .who::after { background: linear-gradient(-90deg, transparent, rgba(159,179,200,.7)); }
+  #toast { top: 63%; padding: 16px 70px; font-size: 21px; color: #eee5d2; background: radial-gradient(closest-side, rgba(0,0,0,.58), rgba(0,0,0,.4) 50%, rgba(0,0,0,.14) 80%, rgba(0,0,0,0)); text-shadow: 0 1px 2px #000, 0 0 12px rgba(0,0,0,.9); }
+  #batt { left: 34px; bottom: 30px; gap: 2px; padding: 3px 5px 3px 4px; border: 1px solid rgba(230,220,200,.55); border-radius: 2px; box-shadow: 0 0 10px rgba(0,0,0,.8), inset 0 0 4px rgba(0,0,0,.6); background: rgba(0,0,0,.35); }
+  #batt::after { content: ''; position: absolute; left: 100%; top: 50%; width: 3px; height: 8px; margin-top: -4px; background: rgba(230,220,200,.55); border-radius: 0 1px 1px 0; }
+  #batt i { width: 8px; height: 12px; border: 0; background: rgba(230,220,200,.08); }
+  #batt i.on { background: linear-gradient(180deg, #f3ead4, #c9bc9c); box-shadow: 0 0 6px rgba(255,235,190,.35); }
+  #batt.low { border-color: rgba(194,58,43,.8); } #batt.low::after { background: rgba(194,58,43,.8); }
+  #batt.low i.on { background: linear-gradient(180deg, #e0553f, #9c2a1d); border: 0; box-shadow: 0 0 8px rgba(224,85,63,.7); }
+  #batt span { position: absolute; left: calc(100% + 12px); margin: 0; font: 600 14px "Cormorant Garamond", Georgia, serif; color: #cfc2a6; letter-spacing: .1em; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+  #hudHint { right: 34px; bottom: 28px; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .38em; color: #a4967d; text-shadow: 0 0 2px #000, 0 0 6px #000, 0 0 10px #000; }
+  body #kbHud { left: 34px; bottom: 66px; font: 600 13px/1 "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; }
+  body #kbHud b { border-radius: 3px; background: rgba(191,230,255,.1); }
+
+  /* ---------- Papier: Briefe, Zettel, Akten, Beweisfotos */
+  #note .paper { box-sizing: border-box; width: min(620px, 88vw); max-height: 82vh; padding: 56px 58px 50px; color: var(--pink); font-size: 16.5px; line-height: 1.8; border-radius: 1px; transform: rotate(-.7deg);
+    background: var(--fibre), var(--blot), radial-gradient(circle at 86% 90%, rgba(110,70,28,.04) 31px, rgba(110,70,28,.16) 34px, rgba(110,70,28,.05) 38px, transparent 42px), radial-gradient(140% 100% at 50% 40%, #e3d8bc 0%, #d6c9a8 55%, #bba983 100%);
+    box-shadow: inset 0 0 70px rgba(95,62,24,.45), inset 0 0 6px rgba(80,50,20,.4), 0 2px 0 rgba(0,0,0,.4), 0 30px 90px rgba(0,0,0,.95), 0 0 0 1px rgba(40,25,10,.3);
+    background-size: 240px 240px, 1400px 1400px, auto, auto; scrollbar-color: rgba(90,60,30,.45) transparent; animation: paperIn .45s cubic-bezier(.2,.8,.2,1); }
+  @keyframes paperIn { from { opacity: 0; transform: translateY(18px) rotate(-2deg) scale(.97); } to { opacity: 1; transform: rotate(-.7deg); } }
+  #note .paper::-webkit-scrollbar-thumb { background-color: rgba(90,60,30,.4); }
+  #note .paper::before { content: ''; position: absolute; top: 10px; left: 50%; width: 130px; height: 30px; margin-left: -65px; transform: rotate(-2.5deg); pointer-events: none;
+    background: linear-gradient(90deg, rgba(0,0,0,.05), rgba(255,255,255,.1) 30%, rgba(0,0,0,.04)), rgba(236,228,200,.55); box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    -webkit-mask: linear-gradient(90deg, transparent 0 2px, #000 2px calc(100% - 2px), transparent calc(100% - 2px)); }
+  #note .paper::after { content: none; }
+  #note .paper h2 { font: 20px "Special Elite", monospace; letter-spacing: .04em; margin: 4px 0 20px; padding-bottom: 12px; color: #1d150d; border-bottom: 1px solid rgba(60,40,20,.35); box-shadow: 0 3px 0 -2px rgba(60,40,20,.2); }
+  #note .paper b { color: #1a120a; } #note .paper u { text-decoration-color: rgba(124,36,24,.8); text-decoration-thickness: 2px; }
+  #note .paper .hand { font-size: 27px; color: #1e2b5c; text-shadow: 0 0 1px rgba(30,43,92,.35); display: inline-block; transform: rotate(-1.2deg); }
+  #note .paper img { box-sizing: border-box; padding: 10px 10px 36px; background: linear-gradient(180deg, #f4efe4, #e4dccb); box-shadow: 0 2px 3px rgba(0,0,0,.35), 0 12px 30px rgba(0,0,0,.5) !important; margin: 10px auto 18px; }
+  #note .paper .beweis { position: relative; font: 13px/1.6 "Special Elite", monospace; color: #2a2016; margin: 0 0 18px; padding: 12px 16px 10px 18px; transform: rotate(.6deg);
+    background: repeating-linear-gradient(180deg, transparent 0 20px, rgba(60,90,160,.18) 20px 21px) 0 30px / 100% calc(100% - 30px) no-repeat, linear-gradient(180deg, transparent 29px, rgba(170,40,30,.55) 29px 30px, transparent 30px), #efe7d0; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  #note .paper .beweis b { font-weight: 400; letter-spacing: .2em; color: #7c2418; }
+  #note .paper .beweis::after { content: ''; position: absolute; right: 14px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a7a, #a3170c 60%, #4d0804); box-shadow: 0 3px 4px rgba(0,0,0,.45); }
+
+  /* ---------- Rätsel: Geräte aus Eisen und Messing */
+  #puzzle .box, #keypad .box { position: relative; padding: 38px 42px 32px; min-width: 400px; max-width: 640px; color: #e3d9c3;
+    background: var(--noise), radial-gradient(4px 4px at 14px 14px, #7d6848, #2a2118 70%, transparent 75%), radial-gradient(4px 4px at calc(100% - 14px) 14px, #7d6848, #2a2118 70%, transparent 75%),
+      radial-gradient(4px 4px at 14px calc(100% - 14px), #7d6848, #2a2118 70%, transparent 75%), radial-gradient(4px 4px at calc(100% - 14px) calc(100% - 14px), #7d6848, #2a2118 70%, transparent 75%),
+      radial-gradient(120% 80% at 50% 0%, rgba(201,163,106,.1), transparent 60%), linear-gradient(180deg, #1a1612, #0d0b09);
+    border: 1px solid rgba(201,163,106,.3); box-shadow: inset 0 0 0 5px rgba(0,0,0,.5), inset 0 0 0 6px rgba(201,163,106,.1), inset 0 0 60px rgba(0,0,0,.7), 0 40px 120px rgba(0,0,0,.95); animation: boxIn .35s cubic-bezier(.2,.8,.2,1); }
+  @keyframes boxIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+  #puzzle h3 { display: inline-block; font: 600 14px "Cormorant Garamond", Georgia, serif; letter-spacing: .45em; text-indent: .45em; color: #1b140c; margin: -4px 0 18px; padding: 7px 22px 6px;
+    background: linear-gradient(180deg, #e2c68c, #b08a52 55%, #8a6a3c); border-radius: 2px; box-shadow: inset 0 1px 0 rgba(255,245,215,.6), inset 0 -1px 0 rgba(0,0,0,.3), 0 2px 6px rgba(0,0,0,.7); text-shadow: 0 1px 0 rgba(255,235,190,.4); }
+  #puzzle p { font-size: 19px; line-height: 1.5; color: #ddd3bd; }
+  #puzzle p i { color: #f0e2c0; }
+  #puzzle .small { font-size: 15px; color: #9d917b; }
+  #puzzle button, #keypad button { position: relative; font: 600 15px "Cormorant Garamond", Georgia, serif; letter-spacing: .12em; color: #eadfc6; padding: 11px 16px; min-width: 64px; cursor: pointer; border-radius: 2px;
+    background: linear-gradient(180deg, #37302a, #221d18 55%, #1a1612); border: 1px solid #0a0806; box-shadow: inset 0 1px 0 rgba(255,235,200,.14), inset 0 0 0 1px rgba(201,163,106,.12), 0 3px 0 #060504, 0 4px 8px rgba(0,0,0,.6);
+    transition: background .15s, box-shadow .15s, transform .08s, color .15s; }
+  #puzzle button:hover, #keypad button:hover { background: linear-gradient(180deg, #463b30, #2b241d 55%, #211b16); color: #fff5dc; box-shadow: inset 0 1px 0 rgba(255,235,200,.2), inset 0 0 0 1px rgba(201,163,106,.4), 0 3px 0 #060504, 0 0 16px rgba(201,163,106,.18); }
+  #puzzle button:active, #keypad button:active { transform: translateY(2px); box-shadow: inset 0 1px 4px rgba(0,0,0,.6), inset 0 0 0 1px rgba(201,163,106,.3), 0 1px 0 #060504; }
+  #puzzle #pzOk, #puzzle #rOk, #puzzle #cOk { margin-top: 18px; letter-spacing: .4em; padding: 12px 30px; color: #1b140c; background: linear-gradient(180deg, #e2c68c, #b08a52 55%, #8a6a3c); box-shadow: inset 0 1px 0 rgba(255,245,215,.6), 0 3px 0 #3d2d17, 0 6px 14px rgba(0,0,0,.6); }
+  #puzzle #pzOk:hover, #puzzle #rOk:hover, #puzzle #cOk:hover { background: linear-gradient(180deg, #f0d6a0, #c49c62 55%, #9a7846); color: #000; box-shadow: inset 0 1px 0 rgba(255,245,215,.7), 0 3px 0 #3d2d17, 0 0 22px rgba(230,180,100,.4); }
+  #puzzle button small { font: italic 14px "Cormorant Garamond", Georgia, serif; letter-spacing: .02em; }
+  /* Ordnungstafel: Karteikarten */
+  #puzzle .slots { gap: 10px; margin: 8px 0 4px; }
+  #puzzle .slots button { min-width: 78px; height: 64px; padding: 20px 8px 8px; font: 15px "Special Elite", monospace; letter-spacing: .04em; color: #231a10; border: 0; border-radius: 2px 10px 2px 2px;
+    background: linear-gradient(180deg, transparent 13px, rgba(170,40,30,.5) 13px 14px, transparent 14px), repeating-linear-gradient(180deg, transparent 0 13px, rgba(60,90,160,.14) 13px 14px) 0 14px / 100% 100% no-repeat, linear-gradient(180deg, #efe6cc, #d9ccaa);
+    box-shadow: 0 3px 0 #6f5f44, 0 6px 12px rgba(0,0,0,.6), inset 0 0 12px rgba(120,90,50,.2); }
+  #puzzle .slots button:nth-child(odd) { transform: rotate(-1deg); } #puzzle .slots button:nth-child(even) { transform: rotate(.8deg); }
+  #puzzle .slots button:hover { color: #000; background: linear-gradient(180deg, transparent 13px, rgba(170,40,30,.6) 13px 14px, transparent 14px), linear-gradient(180deg, #faf2da, #e6d9b8); box-shadow: 0 3px 0 #6f5f44, 0 0 18px rgba(240,210,150,.35); }
+  /* Sicherungen */
+  #puzzle .fuses { gap: 12px; margin: 10px 0; }
+  #puzzle .fuse { min-width: 56px; padding: 14px 10px 12px; gap: 10px; font: 600 14px "Cormorant Garamond", Georgia, serif; }
+  #puzzle .fuse span { width: 16px; height: 16px; background: radial-gradient(circle at 35% 30%, #6a2a22, #2a0c08 70%); box-shadow: inset 0 0 4px #000, 0 0 0 2px #0a0806, 0 0 0 3px rgba(201,163,106,.25); }
+  #puzzle .fuse.on span { background: radial-gradient(circle at 35% 30%, #fff0d8, #ff4a32 45%, #a1150a); box-shadow: 0 0 14px 3px rgba(255,70,45,.75), 0 0 0 2px #0a0806, 0 0 0 3px rgba(255,120,90,.45); }
+  /* Klavier: Elfenbein */
+  #puzzle .keysrow { gap: 3px; padding: 14px 16px 18px; margin: 6px auto; width: max-content; background: linear-gradient(180deg, #1b0f0a, #2c1a12); border-radius: 3px; box-shadow: inset 0 6px 10px rgba(0,0,0,.8), 0 0 0 1px #000, 0 0 0 3px rgba(201,163,106,.18); }
+  #puzzle .pk { min-width: 50px; height: 170px; padding: 0 0 12px; display: flex; align-items: flex-end; justify-content: center; font: 600 16px "Cormorant Garamond", Georgia, serif; color: #57493a; border: 0; border-radius: 0 0 5px 5px;
+    background: linear-gradient(180deg, #cfc3a8 0, #f6f0e1 12%, #efe7d4 80%, #d7ccb2 100%); box-shadow: inset -2px 0 0 rgba(0,0,0,.15), inset 0 -6px 0 #cbbf9f, 0 4px 6px rgba(0,0,0,.6); }
+  #puzzle .pk:hover { background: linear-gradient(180deg, #d8cdb2 0, #fffaf0 12%, #f8f1e2 80%, #e3d9c0 100%); color: #2a1f15; box-shadow: inset -2px 0 0 rgba(0,0,0,.15), inset 0 -6px 0 #cbbf9f, 0 0 16px rgba(255,230,180,.3); }
+  #puzzle .pk:active { transform: none; height: 168px; box-shadow: inset -2px 0 0 rgba(0,0,0,.2), inset 0 -3px 0 #cbbf9f, inset 0 8px 12px rgba(0,0,0,.2); }
+  #puzzle #pkSeq { font: 16px "Special Elite", monospace; letter-spacing: .3em; color: #c9a36a; }
+  /* Funk, Uhr */
+  #puzzle #rOut { font: 30px "Special Elite", monospace !important; color: #ffb45a; text-shadow: 0 0 12px rgba(255,150,50,.65); background: #120a04; border: 1px solid #000; box-shadow: inset 0 0 18px rgba(0,0,0,.9), 0 0 0 1px rgba(201,163,106,.2); padding: 8px 0; }
+  #puzzle #rNoise { font: 13px "Special Elite", monospace !important; color: #b39970 !important; }
+  #puzzle #clk { display: block; margin-left: auto !important; margin-right: auto !important; border-radius: 50%; box-shadow: 0 0 0 6px #2a2018, 0 0 0 8px #8a6a3c, 0 0 0 9px #000, 0 10px 30px rgba(0,0,0,.8); margin: 8px 0 14px; }
+  #puzzle .row { gap: 10px; margin-top: 6px; }
+  /* Tastenfeld Keller: Messing-Tastatur mit Leuchtanzeige */
+  #keypad .box { min-width: 0; padding: 34px 32px 30px; }
+  #kpDisplay { font: 38px "Special Elite", monospace; letter-spacing: .45em; text-indent: .45em; color: #7dffa0; padding: 12px 10px 8px; margin-bottom: 20px; min-height: 46px; border-radius: 3px;
+    background: repeating-linear-gradient(180deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, #0f2a16, #04100a 80%); border: 1px solid #000; box-shadow: inset 0 0 22px rgba(0,0,0,.95), 0 0 0 2px #2b251d, 0 0 0 3px rgba(201,163,106,.25);
+    text-shadow: 0 0 6px #3f3, 0 0 18px rgba(60,255,90,.45); }
+  #kpDisplay.err { color: #ff6a55; text-shadow: 0 0 6px #f33, 0 0 18px rgba(255,50,40,.5); background: repeating-linear-gradient(180deg, rgba(0,0,0,.25) 0 1px, transparent 1px 3px), radial-gradient(ellipse at center, #2c0c08, #100302 80%); }
+  #keypad .grid { grid-template-columns: repeat(3, 70px); gap: 12px; }
+  #keypad button { height: 62px; font: 24px "Special Elite", monospace; color: #f1e4c4; border-radius: 50%; width: 62px; margin: 0 auto; padding: 0; min-width: 0;
+    background: radial-gradient(circle at 38% 30%, #5e5040, #2a231b 62%, #17120d); box-shadow: inset 0 1px 1px rgba(255,235,200,.3), inset 0 -3px 6px rgba(0,0,0,.6), 0 0 0 2px #0a0806, 0 0 0 3px rgba(201,163,106,.35), 0 5px 10px rgba(0,0,0,.7); }
+  #keypad button:hover { background: radial-gradient(circle at 38% 30%, #756350, #342b21 62%, #1b150f); box-shadow: inset 0 1px 1px rgba(255,235,200,.35), inset 0 -3px 6px rgba(0,0,0,.6), 0 0 0 2px #0a0806, 0 0 0 3px rgba(230,190,120,.7), 0 0 16px rgba(230,180,100,.35); }
+  #keypad button:nth-child(10), #keypad button:nth-child(12) { font-size: 17px; letter-spacing: .1em; }
+  #keypad button:nth-child(12) { color: #9dffb4; } #keypad button:nth-child(10) { color: #ff9a88; }
+
+  /* ---------- Abenteuerfibel: Ledereinband, Papierseiten */
+  #journal .book { width: min(1000px, 94vw); max-height: 88vh; padding: 16px 18px 18px; border: 0; border-radius: 6px 10px 10px 6px; overflow: visible;
+    background: var(--noise), radial-gradient(120% 90% at 30% 15%, #43291a, #26170e 55%, #150c07 100%);
+    box-shadow: inset 0 0 0 1px rgba(255,220,170,.08), inset 0 0 40px rgba(0,0,0,.75), inset 10px 0 18px -8px rgba(0,0,0,.8), 0 50px 120px rgba(0,0,0,.95), 0 0 0 1px #000; animation: boxIn .35s cubic-bezier(.2,.8,.2,1); }
+  #journal .book::before { content: ''; position: absolute; inset: 7px; border: 1px dashed rgba(214,176,118,.32); border-radius: 4px 7px 7px 4px; pointer-events: none; }
+  #journal .book { position: relative; }
+  #jTabs { position: relative; z-index: 1; gap: 4px; border: 0; background: none; padding: 0 16px; }
+  #jTabs button { flex: 1; border: 0; border-radius: 6px 6px 0 0; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .34em; color: #c8ae84; padding: 13px 0 11px;
+    background: linear-gradient(180deg, rgba(255,230,190,.07), rgba(0,0,0,.25)); box-shadow: inset 0 1px 0 rgba(255,230,190,.1); transition: color .2s, background .2s; }
+  #jTabs button:hover { color: #f4e3c2; background: linear-gradient(180deg, rgba(255,230,190,.14), rgba(0,0,0,.2)); }
+  #jTabs button.on { color: var(--pred); background: linear-gradient(180deg, #e4d8ba, #d8cbaa); box-shadow: 0 -2px 6px rgba(0,0,0,.35); text-shadow: none; }
+  #jBody { position: relative; background-size: 240px 240px, 1400px 1400px, auto !important; padding: 30px 44px 34px; max-height: calc(88vh - 90px); color: var(--pink); border-radius: 2px;
+    background: var(--fibre), var(--blot), radial-gradient(140% 110% at 50% 30%, #e4d8ba 0%, #d8cbaa 60%, #c3b18b 100%);
+    box-shadow: inset 0 0 60px rgba(95,62,24,.35), inset 0 0 3px rgba(80,50,20,.5), 0 2px 10px rgba(0,0,0,.6); scrollbar-color: rgba(90,60,30,.45) transparent; }
+  #jBody::-webkit-scrollbar-thumb { background-color: rgba(90,60,30,.4); }
+  #journal { --dim: var(--pdim); }
+  #jBody h2 { font: 600 13px "Cormorant Garamond", Georgia, serif; letter-spacing: .45em; color: var(--pred); margin: 0 0 16px; padding-bottom: 9px; border-bottom: 0;
+    background: linear-gradient(90deg, rgba(60,40,20,.55), rgba(60,40,20,.08)) bottom / 100% 1px no-repeat; }
+  #jBody li { font-size: 20px; line-height: 1.32; padding-left: 22px; margin-bottom: 12px; color: #2a2016; }
+  #jBody li::before { content: ''; top: 9px; left: 3px; width: 6px; height: 6px; background: var(--pred); transform: rotate(45deg); font-size: 0; }
+  #jBody li.done { color: #85765e; text-decoration-color: rgba(124,36,24,.65); text-decoration-thickness: 1.5px; } #jBody li.done::before { background: #a89878; }
+  #jBody li small { color: var(--pdim); font-size: 16px; margin-top: 2px; line-height: 1.35; }
+  #jBody li.lore { transition: color .2s, padding-left .2s; } #jBody li.lore:hover { color: var(--pred); padding-left: 28px; }
+  #jBody p { color: var(--pdim) !important; }
+  #jBody .two { position: relative; gap: 64px; }
+  #jBody .two::before { content: ''; position: absolute; left: 50%; top: -30px; bottom: -34px; width: 44px; margin-left: -22px; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(70,45,20,.16) 42%, rgba(40,25,10,.32) 50%, rgba(70,45,20,.16) 58%, transparent); }
+  #jBody .slot { background: rgba(90,60,28,.06); border: 1px solid rgba(60,40,20,.35); box-shadow: inset 0 0 14px rgba(90,60,28,.18); border-radius: 2px; }
+  #jBody .slot svg { stroke: #2d2117; stroke-width: 1.5; }
+  #jBody .slot .n { font: 600 13px "Cormorant Garamond", Georgia, serif; color: var(--pred); }
+  #jBody .slot.has { cursor: pointer; } #jBody .slot.has:hover { border-color: var(--pred); background: rgba(124,36,24,.07); box-shadow: inset 0 0 14px rgba(124,36,24,.15), 0 0 0 1px rgba(124,36,24,.25); }
+  #jBody .slot.empty { opacity: .45; border-style: dashed; box-shadow: none; }
+  #invDesc { border: 0; border-left: 3px solid var(--pred); background: rgba(90,60,28,.08); color: #2f2419; font-size: 18px; line-height: 1.45; margin-top: 18px; padding: 12px 18px; }
+  #invDesc b { font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .38em; color: var(--pred); margin-bottom: 5px; }
+  #jBody .photos { gap: 14px; }
+  #jBody .photos .ph { box-sizing: border-box; padding: 6px 6px 20px; background: linear-gradient(180deg, #f5f0e6, #e4dccb); border: 0; box-shadow: 0 2px 3px rgba(0,0,0,.25), 0 8px 16px rgba(60,40,20,.3); font: 600 10px "Cormorant Garamond", Georgia, serif; letter-spacing: .15em; color: #8a7a60; text-align: center; transition: transform .25s; }
+  #jBody .photos .ph:nth-child(odd) { transform: rotate(-2deg); } #jBody .photos .ph:nth-child(even) { transform: rotate(1.6deg); }
+  #jBody .photos .ph:hover { transform: rotate(0) scale(1.06); z-index: 1; }
+  #jBody .photos .ph:not(:has(img)) { background: transparent; border: 1px dashed rgba(60,40,20,.4); box-shadow: none; padding: 6px; }
+  #jBody .cases { gap: 22px; }
+  #jBody .case { position: relative; border: 0; padding: 22px 20px 16px; color: #2a2016; background: repeating-linear-gradient(180deg, transparent 0 25px, rgba(60,90,160,.13) 25px 26px) 0 50px / 100% calc(100% - 50px) no-repeat, linear-gradient(180deg, transparent 49px, rgba(170,40,30,.45) 49px 50px, transparent 50px), #efe7cf;
+    box-shadow: 0 2px 3px rgba(0,0,0,.2), 0 10px 20px rgba(60,40,20,.28); transform: rotate(-.5deg); }
+  #jBody .case:nth-child(even) { transform: rotate(.6deg); }
+  #jBody .case::before { content: ''; position: absolute; top: 7px; left: 50%; width: 13px; height: 13px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff8a7a, #a3170c 60%, #4d0804); box-shadow: 0 3px 4px rgba(0,0,0,.45); }
+  #jBody .case.solved { box-shadow: 0 2px 3px rgba(0,0,0,.2), 0 10px 20px rgba(60,40,20,.28); }
+  #jBody .case.solved::after { content: 'GELÖST'; position: absolute; right: 14px; top: 14px; padding: 3px 9px 2px; font: 15px "Special Elite", monospace; letter-spacing: .2em; color: rgba(150,30,20,.8); border: 2px solid rgba(150,30,20,.7); border-radius: 3px; transform: rotate(-9deg); mix-blend-mode: multiply; }
+  #jBody .case .cq { font-size: 21px; color: #1d150d; font-weight: 600; margin: 0 0 10px; line-height: 1.2; }
+  #jBody .case ul { margin: 0 0 6px; }
+  #jBody .case li { font: 14px/1.5 "Special Elite", monospace; padding-left: 18px; margin-bottom: 4px; }
+  #jBody .case li::before { top: 7px; }
+  #jBody .case li.done { text-decoration: none; color: #2a2016; } #jBody .case li.done::before { background: var(--pred); }
+  #jBody .case li.miss { color: #9b8b70; font-style: normal; } #jBody .case li.miss::before { background: transparent; border: 1px solid #a89878; }
+  #jBody .case small { font: 12px "Special Elite", monospace; color: var(--pdim); letter-spacing: .06em; }
+  #jBody .case .ca { font: italic 18px/1.45 "Cormorant Garamond", Georgia, serif; color: #1e2b5c; margin-top: 10px; }
+  #jBody .case button { margin-top: 10px; background: transparent; color: var(--pred); border: 2px solid rgba(124,36,24,.75); padding: 7px 16px 6px; font: 13px "Special Elite", monospace; letter-spacing: .25em; transform: rotate(-1deg); }
+  #jBody .case button:hover { background: rgba(124,36,24,.1); color: #5a1208; box-shadow: none; }
+  #jBody .entdBox { margin: 0 0 18px; padding: 12px 16px; border: 1px dashed rgba(60,40,20,.45); font: 15px/1.6 "Cormorant Garamond", Georgia, serif; color: #3a2d20; background: rgba(90,60,28,.05); }
+  #jBody .entdBox b { letter-spacing: .2em; color: var(--pred); } #jBody .entdBox span { color: var(--pdim); }
+
+  /* ---------- Pause */
+  #pause { background: radial-gradient(ellipse 60% 70% at 50% 50%, rgba(8,5,4,.72), rgba(0,0,0,.94)); }
+  #pause .panel { padding: 44px 64px 34px; min-width: 380px; }
+  #pause .panel > .t:first-child { font: 400 44px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; text-indent: .5em; color: #efe5cf; margin: 0 0 26px; text-shadow: 0 0 22px rgba(160,22,14,.6), 0 0 60px rgba(130,10,8,.4), 0 3px 0 #000; }
+  #pause .pbtns { gap: 10px; margin: 0 0 26px; }
+  #pause .pbtns button { font-size: 13px; padding: 13px 30px 12px 36px; }
+  #pause .panel label { margin-top: 10px; font-size: 17px; color: #b5a88e; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+  #pause input { width: 190px; }
+
+  /* ---------- Kapitelende */
+  #endcard { background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(24,8,6,.92), #000 80%); }
+  #endcard h1 { font-size: clamp(34px, 5.2vw, 66px); letter-spacing: .38em; text-indent: .38em; color: #efe5cf; margin: 0 0 12px; text-shadow: 0 0 24px rgba(160,22,14,.6), 0 0 80px rgba(130,10,8,.45), 0 3px 0 #000; animation: endIn 3s ease-out; }
+  #endcard h1::after { content: ''; display: block; width: 300px; height: 14px; margin: 18px auto 10px; background: var(--orn) center / contain no-repeat; opacity: .75; -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+  @keyframes endIn { from { opacity: 0; letter-spacing: .6em; filter: blur(8px); } to { opacity: 1; filter: none; } }
+  #endcard p { font-size: 23px; line-height: 1.65; color: #cfc4ab; max-width: 680px; }
+  #endcard p i { color: #f0e3c6; }
+  #endcard .stats { font: 14px/2.1 "Special Elite", monospace; letter-spacing: .22em; color: #a8997c; margin-top: 22px; padding: 12px 36px; border-top: 1px solid rgba(201,163,106,.22); border-bottom: 1px solid rgba(201,163,106,.22); }
+  #endcard .next { color: var(--gold) !important; font: 600 13px "Cormorant Garamond", Georgia, serif !important; letter-spacing: .5em !important; }
+  #endcard .go { font: 600 13px "Cormorant Garamond", Georgia, serif; letter-spacing: .45em; color: #f0e2c4; padding: 13px 34px 12px 40px; border: 1px solid rgba(201,163,106,.5); background: linear-gradient(180deg, rgba(142,29,21,.25), rgba(0,0,0,.3)); box-shadow: 0 0 24px rgba(142,29,21,.3); transition: all .25s; }
+  #endcard .go:hover { animation: none; border-color: var(--gold); color: #fff; box-shadow: 0 0 34px rgba(201,120,80,.4); }
+
+  /* ---------- Story-Editor */
+  #editor .edbook { position: relative; background: var(--noise), linear-gradient(180deg, #15110d, #0b0907); border: 1px solid rgba(201,163,106,.3); box-shadow: inset 0 0 0 4px rgba(0,0,0,.5), inset 0 0 0 5px rgba(201,163,106,.1), 0 40px 120px #000; }
+  #editor .edhead { font: 600 14px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; padding-bottom: 12px; border-bottom: 1px solid rgba(201,163,106,.2); }
+  #editor .edtabs button, #editor .edhead button, #editor .row button, #editor .chips button, #editor .rule button { font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .25em; }
+  #editor input, #editor textarea { border-color: rgba(201,163,106,.22); border-radius: 2px; } #editor input:focus, #editor textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 12px rgba(201,163,106,.2); }
 </style>
 <script src="sounds.js"></script>
 <script src="sounds_extra.js"></script>
@@ -258,9 +576,9 @@
 </div>
 <div id="fade"></div>
 
-<div id="note" class="overlay"><div class="paper"></div><div class="hint">[E] · [ESC] SCHLIESSEN</div></div>
-<div id="keypad" class="overlay"><div class="box"><div id="kpDisplay"></div><div class="grid"></div></div><div class="hint">ZIFFERN · ENTER · ESC</div></div>
-<div id="journal" class="overlay"><div class="book"><div id="jTabs"><button data-t="aufgaben">AUFGABEN</button><button data-t="inventar">INVENTAR</button><button data-t="funde">FUNDE</button><button data-t="fotos">FOTOS</button><button data-t="fallwand">FALLWAND</button></div><div id="jBody"></div></div><div class="hint">[TAB] · [ESC] SCHLIESSEN</div></div>
+<div id="note" class="overlay"><div class="paper"></div><div class="hint"><kbd>E</kbd><kbd>ESC</kbd> SCHLIESSEN</div></div>
+<div id="keypad" class="overlay"><div class="box"><div id="kpDisplay"></div><div class="grid"></div></div><div class="hint"><kbd>0–9</kbd> ZIFFERN · <kbd>ENTER</kbd> PRÜFEN · <kbd>ESC</kbd> SCHLIESSEN</div></div>
+<div id="journal" class="overlay"><div class="book"><div id="jTabs"><button data-t="aufgaben">AUFGABEN</button><button data-t="inventar">INVENTAR</button><button data-t="funde">FUNDE</button><button data-t="fotos">FOTOS</button><button data-t="fallwand">FALLWAND</button></div><div id="jBody"></div></div><div class="hint"><kbd>TAB</kbd><kbd>ESC</kbd> SCHLIESSEN</div></div>
 <div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">ABENTEUERFIBEL</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
   <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AM ANFANG JEDES KAPITELS</div></div></div>
 <div id="endcard" class="overlay">
@@ -270,9 +588,9 @@
   <p class="next" style="margin-top:26px;letter-spacing:.3em;font-size:13px;font-family:Georgia">KAPITEL 2 · DAS ACHTE KIND</p>
   <div class="go">KLICKEN FÜR KAPITEL 2</div>
 </div>
-<div id="puzzle" class="overlay"><div class="box"></div><div class="hint">[ESC] SCHLIESSEN</div></div>
+<div id="puzzle" class="overlay"><div class="box"></div><div class="hint"><kbd>ESC</kbd> SCHLIESSEN</div></div>
 <div id="start" class="overlay show">
-  <div class="shade"></div><div class="fog"></div><div class="fog2"></div><div class="vig"></div>
+  <div class="shade"></div><div class="ember"></div><div class="ember2"></div><div class="fog"></div><div class="fog2"></div><div class="vig"></div>
   <div id="menu">
     <h1><span class="l">HIGH ABYSS</span><span class="m"><i>M</i><i>I</i><i>R</i><i>A</i></span></h1>
     <svg class="orn" viewBox="0 0 320 14"><path d="M0 7h132M188 7h132" stroke="#c9a36a" stroke-width="1"/><path d="M160 1l6 6-6 6-6-6z" fill="none" stroke="#c9a36a"/><circle cx="146" cy="7" r="1.5" fill="#c9a36a"/><circle cx="174" cy="7" r="1.5" fill="#c9a36a"/></svg>
@@ -292,6 +610,7 @@
   <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.1</span><span>KAPITEL 1–4 · LOST EYENGLESS · © LUCIDWORKZ</span></div>
 </div>
 <div id="introSeq"><div id="intro"></div><div class="skip">KLICKEN ZUM ÜBERSPRINGEN</div></div>
+<div id="grain"></div>
 
 <script>
   // Fehler sichtbar machen statt stumm beim Laden zu hängen
@@ -406,6 +725,9 @@ const filmPass = new ShaderPass({
       float l = dot(c, vec3(.299, .587, .114));
       c = mix(c, c * vec3(.88, 1.0, 1.1), (1. - smoothstep(0., .5, l)) * .6);
       c = mix(c, c * vec3(1.06, 1.0, .9), smoothstep(.4, 1., l) * .4);
+      c = mix(vec3(l), c, .84);
+      c = clamp(c, 0., 1.); c = mix(c, c * c * (3. - 2. * c), .22);
+      c = c * .965 + vec3(.006, .009, .012) * (1. - l);
       c *= mix(1., smoothstep(.95, .2, length(d) * 1.25), vig);
       c += (rnd(vUv * vec2(1920., 1080.) + fract(time) * 100.) - .5) * .04;
       c = mix(c, c * vec3(1.5, .55, .5), glitch * .6); c += (rnd(uv * 400. + time) - .5) * glitch * .25;
@@ -1749,11 +2071,14 @@ try { Audio.preload(); } catch (e) { console.warn('Audio', e); }
 // =====================================================================  UI
 const ui = { overlay: null };
 let toastT, subT, popT;
-function toast(t, ms = 3600) { const el = $('toast'); el.textContent = trX(t); el.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => el.style.opacity = 0, ms); }
-function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); const el = $('subtitle'); el.innerHTML = (who ? `<span class="who">${who}</span>` : '') + t; el.style.opacity = 1; clearTimeout(subT); if (ms) subT = setTimeout(() => el.style.opacity = 0, ms); }
-async function say(lines) { for (const l of lines) { const [t, ms, who] = l; subtitle(t, ms + 250, who); await wait(ms); } }
+// Lesezeit: Texte bleiben lange genug stehen (Zeichen ohne HTML)
+const plainLen = t => String(t || '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').trim().length;
+const readMs = (t, base = 1800, per = 65) => base + plainLen(t) * per;
+function toast(t, ms = 3600) { const el = $('toast'); el.textContent = trX(t); ms = Math.max(ms, readMs(el.textContent, 2500, 60)); el.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => el.style.opacity = 0, ms); }
+function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); if (ms) ms = Math.max(ms, readMs(t)); const el = $('subtitle'); el.classList.toggle('thought', !!who && who === trX('LUKE')); el.innerHTML = (who ? `<span class="who">${who}</span>` : '') + t; el.style.opacity = 1; clearTimeout(subT); if (ms) subT = setTimeout(() => el.style.opacity = 0, ms); }
+async function say(lines) { for (const l of lines) { const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await wait(d); } }
 function fade(to, ms = 1500) { const f = $('fade'); f.style.transition = `opacity ${ms}ms`; f.style.opacity = to; return wait(ms); }
-function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), 4500); Audio.chime(); }
+function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), Math.max(4500, readMs(text, 2200, 55))); Audio.chime(); }
 function lockPointer() { const el = renderer.domElement, quiet = r => { if (r && r.catch) r.catch(() => {}); }; // ohne Nutzergeste lehnt der Browser ab – dann sperrt der nächste Klick
   try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => { try { quiet(el.requestPointerLock()); } catch (e) {} }); } catch (e) { try { quiet(el.requestPointerLock()); } catch (e2) {} } }
 function openOverlay(id) { ui.overlay = id; $(id).classList.add('show'); document.body.classList.add('ov'); if (id !== 'note' && id !== 'journal') document.exitPointerLock(); }
@@ -1841,7 +2166,11 @@ async function renderEditor() {
 }
 addEventListener('keydown', e => { if (ui.overlay === 'editor' && e.code === 'Escape') { e.stopImmediatePropagation(); closeEditor(); } }, true);
 
-function openPuzzle(html, init) { const box = $('puzzle').querySelector('.box'); box.innerHTML = html; openOverlay('puzzle'); init(box); }
+function openPuzzle(html, init) { const box = $('puzzle').querySelector('.box'); box.innerHTML = html; openOverlay('puzzle'); init(box); box.querySelectorAll('input[type=range]').forEach(rangeFill); }
+// Schieberegler: gefüllter Teil der Spur folgt dem Wert (nur Anzeige)
+function rangeFill(r) { const a = +r.min || 0, b = +r.max || 100; r.style.setProperty('--p', ((+r.value - a) / (b - a) * 100) + '%'); }
+addEventListener('input', e => { if (e.target && e.target.type === 'range') rangeFill(e.target); }, true);
+document.querySelectorAll('input[type=range]').forEach(rangeFill);
 $('puzzle').onclick = e => { if (e.target.id === 'puzzle') closeOverlay(); };
 // Tastenfeld
 let kpValue = '';
@@ -2028,13 +2357,13 @@ interact(keypadMesh, 'Tastenfeld benutzen', () => { setMain(3); if (state.cellar
 interact(tvScreen, 'Fernseher', () => toast(state.tvSeen ? 'Nur Rauschen. Jetzt.' : 'Rauschen. Du könntest schwören, darin bewegt sich etwas.'));
 interact(B.tape, 'Kassette abspielen', async () => {
   if (state.talking) return; state.talking = true; Audio.tape(true); state.tapeOn = true; Audio.play('switch1', { gain: .5, x: B.x + 2, y: .9, z: B.z - 3.2, ref: 1.5 });
-  await say([['*Rauschen*', 2200], ['„Wenn das jemand findet … ich bin’s. Lucy.“', 3600, 'LUCY · TONBAND'], ['„Die Leute hier sind nicht mehr die Leute von früher.“', 3600, 'LUCY · TONBAND'],
+  await say([['*Rauschen*', 2200], ['„Hey, Großer. Wenn du das findest … ich bin’s.“', 3600, 'LUCY · TONBAND'], ['„Die Leute hier sind nicht mehr die Leute von früher.“', 3600, 'LUCY · TONBAND'],
     ['„Frau Wendt steht nachts im Garten und starrt nach oben. Stundenlang.“', 4200, 'LUCY · TONBAND'], ['„Ich weiß jetzt, warum ich mich an den Sommer 2009 nicht erinnern kann.“', 4400, 'LUCY · TONBAND'],
     ['„Wir waren beide weg. Du auch.“', 3600, 'LUCY · TONBAND']]);
   await basementScare();
-  await say([['„Sie haben uns zurückgebracht. Aber nicht alles von uns.“', 4200, 'LUCY · TONBAND'], ['„Wenn du das hörst … komm nicht nach Hause.“', 4200, 'LUCY · TONBAND'], ['*Klick*', 1500]]);
+  await say([['„Sie haben uns zurückgebracht. Aber nicht alles von uns.“', 4200, 'LUCY · TONBAND'], ['„Wenn du das hörst … fahr heim, Großer. Bitte.“', 4200, 'LUCY · TONBAND'], ['*Klick*', 1500], ['Hinter dir klickt eine Schnalle. Der Stuhl ist leer. Die Riemen sind offen.', 4200]]);
   Audio.tape(false); state.tapeOn = false; Audio.play('switch2', { gain: .5, x: B.x + 2, y: .9, z: B.z - 3.2, ref: 1.5 }); Audio.stinger(true); state.heardTape = true; state.talking = false; setMain(5); addItem('tape');
-  story.lore.push({ key: 'tape', title: 'Lucys Tonband', html: '„Wir waren beide weg. Du auch.\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst … komm nicht nach Hause.“' });
+  story.lore.push({ key: 'tape', title: 'Lucys Tonband', html: '„Wir waren beide weg. Du auch.\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst … fahr heim, Großer. Bitte.“' });
 });
 interact(B.wallArt, 'Zeichnungen ansehen', () => toast('Kinderzeichnungen. Immer dasselbe Motiv. Manche sind mit deinem Namen signiert.', 4500));
 const stairs = box(1.2, 2, 1, B.x + 4.2, 1, B.z - .5, hidden, { cast: false });
@@ -2045,7 +2374,7 @@ interact(door1.leaf, () => door1.open ? 'Tür schließen' : 'Tür öffnen', () =
   if (!state.home1) { state.home1 = true; sideStart('home'); toast('Der Schlüssel liegt noch unter der Fußmatte. Wie früher.'); }
   doorAction(door1, '')();
 });
-interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt.\n\nDu kannst dich nicht erinnern, wer da neben dir stand.', 'familyphoto'));
+interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt. Papa. Er ist 2010 gegangen und hat dich nie wieder angesehen.\n\nDer Junge auf dem Foto hat blaue Augen. Das Blitzlicht, wahrscheinlich.', 'familyphoto'));
 interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen. Das achte Kind ist ein blasses Mädchen im weißen Kleid, ganz am Rand. Es hält deine Hand.\n\nUnd zwischen Lucy und den anderen ist eine Lücke. Lucys Hand hält dort in die leere Luft – als hielte sie jemanden, der nicht mehr auf dem Bild ist.', 'album')));
 interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
 interact(loose, 'Lose Diele untersuchen', () => {
@@ -2068,16 +2397,16 @@ interact(doorOf[3], 'Klopfen', async () => {
   const A = 'HERR VEGAS · HINTER DER TÜR';
   if (story.side.bruno.state === 'hidden') {
     await say([['„Wer ist da? … Luke? Luke Brandt? Mein Gott, bist du groß geworden.“', 4200, A], ['„Ich mach nicht auf. Nicht nachts. Nicht mehr.“', 3400, A],
-      ['„Bruno ist weg, mein Hund. Seit Dienstag. Ist rüber zum Brandhaus und nicht zurückgekommen.“', 4800, A], ['„Wenn du ihn siehst … bitte.“', 3000, A]]);
+      ['„Bruno ist weg, mein Hund. Seit gestern Nacht. Ist rüber zum Brandhaus und nicht zurückgekommen.“', 4800, A], ['„Wenn du ihn siehst … bitte.“', 3000, A]]);
     sideStart('bruno');
   } else if (story.side.bruno.state === 'active' && !state.hasCollar) {
     await say([['„Hast du Bruno gefunden? … Nein. Natürlich nicht.“', 3600, A]]);
   } else if (state.hasCollar && story.side.bruno.state !== 'done') {
     await say([['„Das ist … Brunos Halsband.“', 3200, A], ['„Hast du den Kreis gesehen? Im Gras? Den gab es 2009 auch.“', 4200, A],
-      ['„Der Sommer, in dem ihr Kinder vier Tage weg wart. Sieben sind gegangen.“', 4500, A], ['„Und eines Morgens standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“', 4800, A],
+      ['„Der Sommer, in dem ihr Kinder vier Tage weg wart. Sieben sind gegangen.“', 4500, A], ['„Und eines Nachts standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“', 4800, A],
       ['„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“', 4400, A], ['„Geh nach Hause, Luke. Solange du noch weißt, wo das ist.“', 4000, A]]);
     sideDone('bruno', 'Vegas hat das Halsband bekommen. Und sieben Kinder gezählt.');
-    story.lore.push({ key: 'albers', title: 'Was Vegas gesehen hat', html: '„Sieben sind gegangen. Und eines Morgens standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“\n\n„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“' });
+    story.lore.push({ key: 'albers', title: 'Was Vegas gesehen hat', html: '„Sieben sind gegangen. Und eines Nachts standet ihr barfuß auf der Kreuzung. Sieben. Ich hab gezählt.“\n\n„Hilde Wendt hat immer gesagt, einer von euch gehört nicht hierher.“' });
     porchLights[0].dead = true;
   } else await say([['…', 1500], ['Hinter der Tür bleibt es still. Aber das Licht im Flur ist aus.', 3500]]);
   state.talking = false;
@@ -2093,7 +2422,7 @@ interact(collar, 'Halsband aufheben', () => {
 interact(lenaPhone, 'Lucys Handy', () => {
   if (!lenaCar.userData.open) return toast('Die Tür ist zu. Nicht abgeschlossen – nur zu.');
   sideDone('car', 'Lucys Handy gefunden.'); addItem('phone');
-  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10.: 23:41 · 23:42 · 23:44 · 23:46 · 23:47 · 23:49 · 23:51 · 23:52 · 23:54 · 23:55 · 23:57 – elfmal. Keiner angenommen.\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n\nAusgehende Anrufe: <b>Luke, heuten, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
+  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10.: 23:41 · 23:42 · 23:44 · 23:46 · 23:47 · 23:49 · 23:51 · 23:52 · 23:54 · 23:55 · 23:57 – elfmal. Keiner angenommen.\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n„Nach Hause.“ So hat Lucy nie geredet. Sie sagt „heim“.\n\nAusgehende Anrufe: <b>Luke, heute, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
 });
 const heldHandset = box(.06, .24, .05, .3, -.2, -.42, M.dark, { parent: camera, cast: false }); heldHandset.rotation.set(.4, 0, .7); heldHandset.visible = false;
 function handset(up) { booth.handset.visible = !up; heldHandset.visible = up; Audio.play(up ? 'metalHit2' : 'switch1', { gain: .35, rate: up ? 1.6 : 1, x: 8, y: 1.5, z: 7.6, ref: 2 }); }
@@ -2101,7 +2430,7 @@ interact(booth.phone, 'Hörer abnehmen', async () => {
   if (state.talking) return;
   if (!state.ringing) { state.talking = true; handset(true); await wait(1400); toast('Tot. Kein Freizeichen.'); await wait(900); handset(false); state.talking = false; return; }
   state.talking = true; state.ringing = false; state.callDone = true; handset(true); await wait(600);
-  await say([['*Rauschen*', 2000], ['„…Luke? Hörst du mich?“', 2800, 'STIMME'], ['„Geh nicht in den Keller. Da unten ist nicht Lucy.“', 4000, 'STIMME'], ['Die Stimme. Das ist … deine eigene.', 3600], ['*Freizeichen*', 1800]]);
+  await say([['*Rauschen*', 2000], ['„…Luke? Hörst du mich?“', 2800, 'STIMME'], ['„Geh nicht in den Keller. Da unten ist nicht Lucy.“', 4000, 'STIMME'], ['Die Stimme. Das ist … deine eigene.', 3600], ['Keine Spieluhr darunter. Nur Rauschen.', 2600], ['*Freizeichen*', 1800]]);
   handset(false); state.talking = false; sideDone('call', 'Jemand hat dich mit deiner eigenen Stimme gewarnt.'); setTimeout(() => armBehind(8, 0, 'doppel'), 400);
   story.lore.push({ key: 'call', title: 'Der Anruf', html: '„…Luke? Hörst du mich? Geh nicht in den Keller. Da unten ist nicht Lucy.“\n\nDie Stimme war deine eigene.' });
 });
@@ -2149,7 +2478,7 @@ async function ending() {
 // =====================================================================  EINGABE
 const keys = {};
 let sens = 2; try { sens = +localStorage.getItem('bh_sens') || 2; } catch (e) {}
-$('sens').value = sens; $('sens').oninput = e => { sens = +e.target.value; try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
+$('sens').value = sens; rangeFill($('sens')); $('sens').oninput = e => { sens = +e.target.value; try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
 addEventListener('keydown', e => {
   if (e.code === 'Tab') e.preventDefault();
   keys[e.code] = true;
@@ -2452,7 +2781,7 @@ async function scareWendtKitchen() {
   Audio.play('glass1', { gain: .7, rate: .9 }); kitchenLight.userData.dead = true; tube.material.emissiveIntensity = 0;
   await cutLights(750);
   hideStalker(); kitchenLight.userData.dead = false;
-  toast('Der Flur ist leer. Auf dem Boden: nasse Fußabdrücke. Von der Kellertür her.', 5000);
+  toast('Der Flur ist leer. Auf den Fliesen: kleine, nackte Fußabdrücke, fremde Grashalme darin. Sie führen zur Kellertür. Und hören dort auf.', 5000);
 }
 // 2) Kellertür: der dritte falsche Code – von innen schlägt etwas gegen die Stahltür
 async function scareCellarDoor() {
@@ -2932,12 +3261,12 @@ box(3, .8, 1.2, X + 24, .4, Z, M.wood, { collide: true });
 c2Tube(X + 24, Z, 2, 'x', 0xd8ecff, 1.5, 9);
 const files = ['Roxy', 'Lucy', 'Mike', 'Dina', 'Heidi', 'Luke', 'Zayn'].map((n, i) => { const f = plane(.22, .3, X + 22.8 + i * .4, .81, Z + (i % 2 ? .2 : -.25), paperMat, -PI / 2, rand(-.4, .4)); f.userData.name = n; return f; });
 const FILE_TEXT = {
-  Roxy: 'AKTE 01 · Roxy R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Reagiert nicht auf ihren Hundenamen.',
+  Roxy: 'AKTE 01 · Roxy R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Friert nicht. Sagt, da oben war es warm.',
   Lucy: 'AKTE 02 · Lucy B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>01.08.2009, 23:55</b> – „in der Nacht“.\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen.',
   Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig.\n<i>Mit Kuli, neu, in Hildes Schrift: 12.07.2026 – wieder weg. Keine Rückführung.</i>',
   Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
-  Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an die Außenstelle: „Sind sie wieder da?“',
-  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
+  Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an ihr leeres Elternhaus: „Sind sie wieder da?“',
+  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen (Flocke) nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
   Zayn: 'AKTE 07 · Zayn W., 7 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
@@ -3034,7 +3363,7 @@ function spiderUpdate(dt, t) {
   for (let i = spFrame & 1; i < ch2.spawned; i += 2) { const d = spData[i]; if (!d.on) { if (!d.hidden) { d.hidden = true; spP.set(0, -100, 0); spM.makeTranslation(0, -100, 0); spiders.setMatrixAt(i, spM); } continue; }
     const dx = P.x - d.x, dz = P.z - d.z, dist = Math.hypot(dx, dz) || .001; const jit = Math.sin(t * 9 + d.ph) * .5;
     d.x += (dx / dist * d.sp + -dz / dist * jit) * dt2; d.z += (dz / dist * d.sp + dx / dist * jit) * dt2; if (d.y > 1) d.y = Math.max(.02, d.y - dt2 * 1.6 * (dist < 3 ? 1 : .2));
-    if (dist < .45) { d.on = false; ch2.onPlayer++; if (spiderLayer.children.length < 70 && Math.random() < (ch2.spiderPhase === 'swarm' ? .5 : .3)) screenSpider(); if (ch2.onPlayer > 260 && ch2.spiderPhase === 'swarm') { ch2.spiderPhase = 'shake'; Audio.heart(); subtitle('Sie sind auf dir. <b>Schüttel sie ab!</b>', 2500); } }
+    if (dist < .45) { d.on = false; ch2.onPlayer++; if (spiderLayer.children.length < 70 && Math.random() < (ch2.spiderPhase === 'swarm' ? .5 : .3)) screenSpider(); if (ch2.onPlayer > 260 && ch2.spiderPhase === 'swarm') { ch2.spiderPhase = 'shake'; Audio.heart(); subtitle('Sie sind auf dir. <b>Schüttle sie ab!</b>', 2500); } }
     spQ.setFromAxisAngle(spUp, Math.atan2(dx, dz)); spP.set(d.x, d.y + Math.abs(Math.sin(t * 25 + d.ph)) * .006, d.z); spM.compose(spP, spQ, spS); spiders.setMatrixAt(i, spM); }
   spiders.instanceMatrix.needsUpdate = true;
   if (ch2.spiderPhase === 'shake') {
@@ -3049,7 +3378,7 @@ async function spidersGone() {
   subtitle('Weg. Als wären sie nie da gewesen. Nur der Kokon ist aufgerissen. Und leer.', 5000);
   cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478);
   spiderDoorOut.locked = false; setC2Objective('Die östliche Stahltür ist frei. Geh weiter.');
-  await wait(2500); Audio.intercomClick(); await say([['„Reaktion auf Reiz: hoch. Wie damals.“', 3200, 'LAUTSPRECHER']]);
+  await wait(2500); Audio.intercomClick(); await say([['„Reaktion auf Reiz: hoch. Abweichung von 2009.“', 3200, 'LAUTSPRECHER']]);
 }
 
 // --- Der lange Gang (646–706): Flucht
@@ -3144,15 +3473,15 @@ async function safeOpens() {
   ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.');
   subtitle('Ein Fach in der Maschine springt auf. Darin: eine Akte ohne Namen.', 4000);
   const file8 = plane(.22, .3, X + 120.7, 1.81, Z - .2, paperMat, -PI / 2, .2);
-  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name]', 'Abgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b>.\n\nBefund: <u>Ersatz</u>. Ausgeliefert im Austausch für Rückführung Nr. 01–05. Original (Luke B.) verbleibt beim Partner.\n\nVermerk: Ersatz weiß nichts. Ersatz glaubt, Luke zu sein. Mutter unterschreibt. <b>Schwester ahnt.</b>\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren. Sonst holen sie ihn zurück.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
+  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name]', 'Abgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b>.\n\nBefund: <u>Ersatz</u>. Ausgeliefert im Austausch für Rückführung Nr. 01–05. Original (Luke B.) verbleibt beim Partner.\n\nVermerk: Ersatz weiß nichts. Ersatz glaubt, Luke zu sein. Mutter unterschreibt. <b>Schwester weiß es.</b>\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren. Wer es weiß, durch den sieht sie.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
 }
 async function finale() {
   ch2.lenaMet = true; state.talking = true; Audio.tankHum(true);
   await wait(800); Audio.thump(X + 118, 1.5, Z + 6); await wait(700); Audio.thump(X + 118, 1.5, Z + 6);
   subtitle('Im Tank: eine Hand an der Scheibe.', 3000); await wait(3200);
-  await say([['„Luke … du hast gelesen.“', 3000, 'LUCY · IM TANK'], ['„Ich wollte nicht, dass du herkommst. Ich wollte, dass du <i>du</i> bleibst.“', 4200, 'LUCY · IM TANK'],
-    ['„Der Luke, mit dem ich aufgewachsen bin, ist da oben. In dem Licht. Seit 2009.“', 4600, 'LUCY · IM TANK'], ['„Aber du bist der, der mich jede Nacht angerufen hat. Der, der gekommen ist.“', 4600, 'LUCY · IM TANK'],
-    ['„Sie holen dich zurück, wenn du es weißt. Das ist die Regel.“', 4000, 'LUCY · IM TANK'], ['„Also … weißt du es jetzt?“', 3000, 'LUCY · IM TANK']]);
+  await say([['„Großer … du hast es gelesen.“', 3000, 'LUCY · IM TANK'], ['„Ich wollte nicht, dass du herkommst. Ich wollte, dass du <i>du</i> bleibst.“', 4200, 'LUCY · IM TANK'],
+    ['„Der, mit dem ich geboren wurde, ist da oben. In dem Licht. Seit 2009.“', 4600, 'LUCY · IM TANK'], ['„Du bist der, mit dem ich groß geworden bin. Das ist mehr.“', 4600, 'LUCY · IM TANK'],
+    ['„Wer es weiß, durch den sieht sie. Deshalb hab ich nie was gesagt.“', 4000, 'LUCY · IM TANK'], ['„Also … weißt du es jetzt?“', 3000, 'LUCY · IM TANK']]);
   state.talking = false;
   c2Lights.forEach(L => L.mode = 'dying'); Audio.hum(true); shake = .03;
   await wait(2200); subtitle('Das Brummen. Es kommt durch den Beton. Von oben.', 4000); await wait(4200);
@@ -3291,7 +3620,7 @@ const chronTex = tex(cnv(512, (c, w) => { c.fillStyle = '#3a3226'; c.fillRect(0,
   c.fillStyle = '#555'; c.fillText('Laternenfest', 330, 360); c.fillText('fällt aus', 340, 384); }), true);
 const chronik = box(1.6, 1.15, .08, -6.8, 1.55, -6.55, new THREE.MeshStandardMaterial({ map: chronTex, roughness: .85 }), { collide: true });
 for (const s of [-.72, .72]) box(.08, 1.1, .08, -6.8 + s, .55, -6.55, M.wood);
-interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, zu Ende des Heumonds, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen einzige Tochter als Erste im Licht verschwunden war, ritt ihm nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder soweit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
+interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, am Vorabend von Sankt Martin, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen einzige Tochter als Erste im Licht verschwunden war, ritt ihm nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder so weit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
 
 // ---- Kreuzung: Funkkasten des Amts
 const radioBox = box(.6, 1.1, .4, 5.4, .55, -6.6, new THREE.MeshStandardMaterial({ color: 0x5c6258, roughness: .6, metalness: .5 }), { collide: true });
@@ -3314,7 +3643,7 @@ function radioPuzzle() {
 async function broadcast() {
   if (ch3.radio) return; ch3.radio = true; state.talking = true; radioLed.material.emissive.set(0x30ff60); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz';
   await say([['*Gong* – *Rauschen*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['„Das Weiße ist offen. Protokoll SIEBZEHN läuft.“', 3600, F],
-    ['„Löschfolge der Leuchten: fünf. drei. eins. sieben.“', 4200, F], ['„Wiederhole: fünf – drei – eins – sieben.“', 3800, F], ['„Ersatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“', 4600, F], ['*Rauschen*', 1600]]);
+    ['„Löschfolge der Leuchten: fünf. drei. eins. sieben.“', 4200, F], ['„Wiederhole: fünf – drei – eins – sieben.“', 3800, F], ['„Ersatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“', 4600, F], ['*Rauschen*', 1600], ['Das Amt gibt es seit 2012 nicht mehr. Wer sendet da?', 3200, 'DU']]);
   state.talking = false; setC3('Schalte die Laternen ab – an den Kästen vor Nr. 5, 3, 1 und 7. In dieser Reihenfolge.');
   story.lore.push({ key: 'c3funk', title: 'Funkspruch · 31,10 MHz', html: '„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Das Weiße ist offen. Protokoll SIEBZEHN läuft.\nLöschfolge der Leuchten: <b>fünf – drei – eins – sieben</b>.\nErsatz Nummer acht befindet sich im Feld. Nicht ansprechen. Er weiß es jetzt.“' });
 }
@@ -3390,7 +3719,7 @@ async function c3Safe() {
   ch3.pillarK = 1; tween(pillar, { pos: new THREE.Vector3(justin.g.position.x, 35, justin.g.position.z) }, 2.5); pillarLight.position.set(justin.g.position.x, 3, justin.g.position.z);
   Audio.hum(true); shake = .03;
   await say([['Die Schatten bleiben am Rand des Lichts stehen. Keiner tritt hinein.', 3600], ['„Sie dürfen nicht ins Weiße. Nur wir zwei.“', 3200, JS],
-    ['„Das Licht hat keine Lampen mehr, an die es sich halten kann. Es steigt herab.“', 3800, JS], ['„Nimm meine Hand, Luke. Und lass sie nicht los, was immer du drinnen siehst.“', 4200, JS]]);
+    ['„Das Licht hat keine Lampen mehr, an die es sich halten kann. Es steigt herab.“', 3800, JS], ['„Nimm meine Hand, Kind. Und lass sie nicht los, was immer du drinnen siehst.“', 4200, JS]]);
   state.talking = false; enterWhite();
 }
 
@@ -3400,8 +3729,8 @@ function c3Phone() {
   if (ch3.callDone || !ch3.ringing) { state.talking = true; handset(true); setTimeout(() => { toast('Tot. Nur dein eigener Atem in der Muschel.'); handset(false); state.talking = false; }, 1500); return; }
   (async () => {
     state.talking = true; ch3.ringing = false; ch3.callDone = true; handset(true); await wait(700);
-    await say([['*Rauschen*', 1800], ['„Haus Nummer 7. Der Keller.“', 2800, 'LENAS STIMME'], ['Das ist der Anruf von damals. Wort für Wort.', 3200],
-      ['„Haus … Nummer … sieben …“', 3200, 'LENAS STIMME'], ['Die Stimme wird langsamer. Höher. Die Stimme eines kleinen Mädchens.', 3800],
+    await say([['*Rauschen*', 1800], ['„Haus Nummer 7. Der Keller.“', 2800, 'LUCYS STIMME'], ['Das ist der Anruf von damals. Wort für Wort.', 3200],
+      ['„Haus … Nummer … sieben …“', 3200, 'LUCYS STIMME'], ['Die Stimme wird langsamer. Höher. Die Stimme eines kleinen Mädchens.', 3800],
       ['„Das war nicht Lucy, Bruder. Das war ich.“', 3400, '???'], ['„Ich kann alle Stimmen. Die von Lucy. Deine. Die von Papa.“', 4000, '???'],
       ['„Du solltest es wissen. Wer es weiß, gehört mir.“', 3600, '???'], ['*Freizeichen*', 1600]]);
     handset(false); state.talking = false; mystFound('stimme'); Audio.stinger(false); setTimeout(() => { Audio.whisper(player.pos.x - 1, 1.6, player.pos.z); glitchV = .7; subtitle('Direkt hinter dir kichert etwas. Als du dich umdrehst, ist da nur Nebel.', 3800); }, 700);
@@ -3415,11 +3744,11 @@ function readLetter2() { liftTo(letter2, () => openNote('Ein Brief, an dich adre
 
 // ---- Nr. 7: Hilde Wendts Zählbuch
 const zbook = box(.2, .04, .27, 23.9, Y + .45, -15.45, fabricMat(0x2a3a2a)); zbook.visible = false;
-function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß.\n2.–3. August – Lucy, Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nZayn kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Lucys Tag. Die haben Humor.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
+function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendts Zählbuch', '<span class="hand">28. Juli 2009 – Sieben weg. Zayn ist einer davon.\n1. August – Roxy steht auf der Kreuzung. Barfuß. Kurz vor Mitternacht: Lucy.\n2.–3. August – Mike, Dina, Heidi.\n<b>5. August, 03:13</b> – Der Luke-Junge. Drei Tage zu spät. Ein Mann in Eisen hält ihn an der Hand. Der Mann leuchtet nicht. Aber der Nebel um ihn ist weiß.\nZayn kommt nicht. Sie haben mir einen anderen angeboten. Ich habe NEIN gesagt.\n\nSeitdem zähle ich jede Nacht die Kinder auf der Kreuzung.\nIch sehe sie nicht. Ich höre ihre nackten Füße.\nEs sind immer acht.\n\n23. Oktober 2026 – Es sind <u>neun</u>.\n\nWenn das Weiße kommt, sendet das Amt auf Notfunk.\n<b>31,10 MHz</b>. Seit 1958 dieselbe Zahl. Und am 31.10. kam SIE. Als hätte sie sich den Tag danach ausgesucht.</span>', 'c3buch', () => { mystFound('buch'); if (!ch3.radio) setC3('Stell den Funkkasten an der Kreuzung auf 31,10 MHz.'); }), false); }
 
 // ---- Nr. 3: Vegas' Brief im Briefkasten
 const albersNote = box(.24, .02, .16, -25.4, 1.18, -8.2, new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 1 })); albersNote.visible = false;
-function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Luke,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach trotzdem nicht auf. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben, und zu siebt kamen wir zurück – nur war Peter Kranz nicht mehr Peter Kranz. 1992 ist er in den Nebel gegangen, freiwillig, und niemand hat ihn vermisst außer mir.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n\nHilde sagt, er ist schuld an allem. Ich sage: <b>Er ist der Einzige, der jedes Mal aufräumt.</b>\n\nVielleicht stimmt beides.\n— L. Vegas</span>', 'c3albers', () => mystFound('albers')), false); }
+function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Luke,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach die Tür nicht weiter auf als bis zur Kette. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben, und zu siebt kamen wir zurück – nur war Peter Kranz nicht mehr Peter Kranz. 1992 ist er in den Nebel gegangen, freiwillig. Deine Mutter hat ihn vermisst. Und ich.\n\nIch hab Mike unterschrieben. Deine Mutter war 1975 mit uns weg. Sie wusste, was sie tut, als sie dich genommen hat.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n\nHilde sagt, er ist schuld an allem. Ich sage: <b>Er ist der Einzige, der jedes Mal aufräumt.</b>\n\nVielleicht stimmt beides.\n— L. Vegas</span>', 'c3albers', () => mystFound('albers')), false); }
 
 // ---- Justin spricht
 async function jHint() {
@@ -3429,7 +3758,7 @@ async function jHint() {
   const react = [['chronik', [['„Die Tafel. Ja. Das bin ich. Man hat mich zur Sage gemacht, damit man mich nicht fürchten muss.“', 4600, JS]]],
     ['brief', [['„Die Frau im Garten … Ich stand dort. Ich wollte sehen, wem sie dich gegeben haben.“', 4400, JS], ['„Frag nicht, warum. Noch nicht.“', 2800, JS]]],
     ['buch', [['„Die alte Frau zählt richtig. Sie hat immer richtig gezählt.“', 3800, JS]]],
-    ['stimme', [['„Ein Mädchen? Am Fernsprecher?“', 2800, JS], ['Zum ersten Mal zittert seine Stimme.', 2800], ['„… Nein. Das kann nicht sein. Nicht nach siebenhundert Jahren.“', 4200, JS]]],
+    ['stimme', [['„Sie hat mit dir gesprochen?“', 2800, JS], ['Zum ersten Mal zittert seine Stimme.', 2800], ['„Mit mir spricht sie nicht. Seit siebenhundert Jahren ruft sie nur.“', 4200, JS]]],
     ['albers', [['„Der Alte mit dem Hund. Ich habe ihn 1975 heimgeführt. Er hat meine Hand nicht losgelassen, bis er seine Mutter sah.“', 5000, JS]]]];
   for (const [k, lines] of react) if (ch3.myst.has(k) && !ch3.said.has(k)) { ch3.said.add(k); await say(lines); state.talking = false; return; }
   let lines;
@@ -3457,7 +3786,7 @@ async function justinArrives() {
   ch3.pillarK = .35; Audio.hum(false); justin.sp = 1.35;
   await say([['„Bleib stehen, Kind. Ich tu dir nichts.“', 3000, J], ['„Ich bin Justin. Ritter vom Hohen Abgrund. Dies ist nicht meine Zeit.“', 4200, J],
     ['„Das Weiße spuckt mich aus, jedes Mal, wenn es sich öffnet. Und jedes Mal stehst du irgendwo in der Nähe.“', 4800, J],
-    ['Jedes Mal?', 2000, 'DU'], ['„Du trägst den Namen eines anderen Knaben. Ich weiß es. Ich war dabei, als man dich brachte.“', 4800, J],
+    ['Jedes Mal?', 2000, 'DU'], ['„Du trägst den Namen eines anderen Knaben. Ich habe dich selbst heimgeführt. Erst an der Kreuzung sah ich deine Augen.“', 4800, J],
     ['„Hör zu. Das Licht hält sich an den Lampen dieser Straße fest. Nimm ihm die Lampen, dann muss es herabsteigen – und wir können hinein.“', 5600, J],
     ['„Die Leute vom Amt kannten die Reihenfolge. Ihr eiserner Kasten an der Kreuzung spricht noch.“', 4400, J]]);
   state.talking = false; setC3('Finde die Reihenfolge, in der die Laternen erlöschen müssen. Der Funkkasten an der Kreuzung.');
@@ -3489,7 +3818,7 @@ const door1w = whiteDoor(X3 + 20, Z3);
 box(1.1, .5, 2.1, X3 + 10.5, .25, Z3 - 4.6, whiteMat, { collide: true }); box(1.1, .12, 2.1, X3 + 10.5, .56, Z3 - 4.6, fabricMat(0x9aa6c0));
 box(.5, .7, .5, X3 + 12, .35, Z3 - 5.5, M.wood, { collide: true });
 const r1Items = {
-  spieluhr: { m: box(.18, .12, .13, X3 + 12, .76, Z3 - 5.5, M.wood), name: 'Die Spieluhr', text: 'Lucys Spieluhr. Die Melodie, die du auch im Keller gehört hast. Sie gehört ihr seit ihrer Geburt.' },
+  spieluhr: { m: box(.18, .12, .13, X3 + 12, .76, Z3 - 5.5, M.wood), name: 'Die Spieluhr', text: 'Lucys Spieluhr. Die Melodie, die du im Kinderzimmer gehört hast. Und leise unter jeder falschen Stimme. Sie gehört ihr seit ihrer Geburt.' },
   licht: { m: new THREE.Mesh(new THREE.SphereGeometry(.1, 16, 8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0x7c9cff, emissiveIntensity: 3 })), name: 'Das Nachtlicht', text: 'Blau. Es brannte jede Nacht. Auch in der letzten, in der der Junge noch da war.' },
   kalender: { m: plane(.5, .7, X3 + 8.2, 1.6, Z3 - 2.6, new THREE.MeshStandardMaterial({ roughness: .9, map: tex(cnv(256, (c, w) => { c.fillStyle = '#eee8d8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = 'bold 30px Georgia'; c.textAlign = 'center'; c.fillText('JULI 2009', w / 2, 44); c.font = '16px Georgia'; for (let d = 1; d <= 31; d++) c.fillText(String(d), 30 + ((d - 1) % 7) * 33, 80 + Math.floor((d - 1) / 7) * 34); c.strokeStyle = '#a01010'; c.lineWidth = 3; c.beginPath(); c.arc(30 + 5 * 33, 80 + 3 * 34 - 6, 15, 0, 7); c.stroke(); }), true) }), 0, PI / 2), name: 'Der Kalender', text: 'Juli 2009. Der 27. ist rot umkringelt. „Sommerfest!“ steht darunter, in Mamas Schrift.' },
   zeichnung: { m: plane(.6, .45, X3 + 16, 1.5, Z3 - 5.84, new THREE.MeshStandardMaterial({ roughness: .9, map: crayon }), 0, 0), name: 'Die Zeichnung', text: 'Buntstift. Sieben Kinder an der Kreuzung, darüber ein Kreis. Und ein Mann aus grauem Stift, ganz klein, am Rand.' },
@@ -3589,7 +3918,7 @@ async function room3Scene() {
   if (extra.length) await say(extra);
   await say([['„Jedes achte Kind mache ich aus dir, Papa. Damit du irgendwo da draußen bist. Damit jemand nach Hause geht, der zu mir gehört.“', 5600, 'DAS KIND'],
     ['Justin steht auf. Langsam. Seine Hand liegt auf dem Schwert, aber er zieht es nicht.', 4200],
-    ['„Luke. So heißt du – ganz gleich, wer dich gemacht hat. Hör mich an.“', 4000, JS],
+    ['„Knabe. Wie immer man dich nennt – hör mich an.“', 4000, JS],
     ['„Wenn ich hinabsteige, und mit mir das Kind, das aus mir ist, dann ist der Handel erfüllt. Der Abgrund schließt sich. Für immer.“', 5600, JS],
     ['„Die Geholten kommen heim. Deine Schwester kommt heim. Nur du nicht.“', 4000, JS],
     ['„Bleibst du, gehe ich allein. Vielleicht genügt es ihr. Vielleicht nicht. Dann kommt sie in siebzehn Jahren wieder.“', 5400, JS],
@@ -3621,7 +3950,7 @@ async function endingA() {
     ['Das Mädchen streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
   $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
   await wait(800); Audio.bell(0, 0); await wait(1500);
-  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Siebzehn Jahre waren sie fort. Ein Mann ruft den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Manche waren siebzehn Jahre fort, manche nur eine Nacht. Lars Vegas ruft den Namen Mike. Dann den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
 }
 async function endingB() {
   state.talking = true;
@@ -3630,7 +3959,7 @@ async function endingB() {
   await wait(2600); Audio.screech(); glitchV = 1; shake = .08;
   await say([['Das Kind schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
-  c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist nach Hause gekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
+  c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist heimgekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
 }
 
 async function enterWhite() {
@@ -4016,7 +4345,7 @@ const moteTex = tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, 
 const E_ = (x, z, ry = 0, s = 1) => [x, z, ry, s];
 const ECHOES = [
   { id: 'echo_kreuzung', at: [2.5, 1.1, -2.5], title: 'Echo · Die Kreuzung, 5. August 2009', figs: [E_(-1.5, -4, 0, .58), E_(-.9, -4, 0, .58), E_(-.3, -4, 0, .6), E_(.3, -4, 0, .56), E_(.9, -4, 0, .6), E_(1.5, -4, 0, .58), E_(2.1, -4, 0, .57), E_(4.5, -1.5, -1.9, 1)],
-    lines: [['Morgengrauen. Sieben Kinder stehen barfuß auf dem Asphalt.', 3600], ['„… fünf, sechs, sieben.“', 2800, 'VEGAS, 2009'], ['„Sieben. Gott sei Dank. Alle sieben.“', 3000, 'VEGAS, 2009'], ['Eine Kinderstimme, ganz nah an deinem Ohr:', 2600], ['„Acht.“', 2200, '???']] },
+    lines: [['Drei Uhr dreizehn. Sieben Kinder stehen barfuß auf dem Asphalt.', 3600], ['„… fünf, sechs, sieben.“', 2800, 'VEGAS, 2009'], ['„Sieben. Gott sei Dank. Alle sieben.“', 3000, 'VEGAS, 2009'], ['Eine Kinderstimme, ganz nah an deinem Ohr:', 2600], ['„Acht.“', 2200, '???']] },
   { id: 'echo_kueche', at: [28.8, Y + 1.1, -16.2], title: 'Echo · Küche Nr. 7, Oktober 2009', figs: [E_(27.6, -16.5, 1.4, 1), E_(30.2, -15.4, -1.8, 1.04), E_(30.4, -16.9, -1.5, 1.02)],
     lines: [['Zwei Männer in Mänteln. Frau Wendt am Tisch, die Hände um eine kalte Tasse.', 4000], ['„Wir könnten Ihnen einen Jungen geben, Frau Wendt. Er wäre … fast wie Zayn.“', 4400, 'MANN VOM AMT'], ['„Ich will meinen Zayn.“', 2600, 'HILDE WENDT'], ['„So funktioniert das nicht. Das Licht gibt nie genau zurück, was es nimmt.“', 4400, 'MANN VOM AMT'], ['„Dann will ich gar keinen.“', 2800, 'HILDE WENDT']] },
   { id: 'echo_kinderzimmer', at: [-52, Y + 1, -20], title: 'Echo · Kinderzimmer Nr. 1, August 2009', figs: [E_(-52.8, -19.4, 1.2, 1), E_(-51.4, -20.2, -1.6, .6)],
@@ -4024,7 +4353,7 @@ const ECHOES = [
   { id: 'echo_brand', at: [-13, 1, -10.2], title: 'Echo · Haus Nr. 5, Dezember 2009', figs: [E_(-13, -10.2, 0, .58)],
     lines: [['Ein Mädchen steht im Garten. In der Hand ein Feuerzeug. Hinter ihr brennt das Haus.', 4200], ['„Ich will zurück. Da oben war es warm.“', 3200, 'ROXY, 8'], ['„Wenn das Haus weg ist, muss es mich wieder holen.“', 3600, 'ROXY, 8']] },
   { id: 'echo_archiv', at: [C2.x + 24, 1.2, C2.z + 1.2], title: 'Echo · Archiv, Ebene −2, 2009', figs: [E_(C2.x + 23, C2.z + 1.4, 1.6, 1), E_(C2.x + 25.2, C2.z + .8, -1.4, 1)],
-    lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Ersatz‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann holt es ihn zurück. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
+    lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Ersatz‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann sieht es durch ihn. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
   { id: 'echo_messraum', at: [C2.x + 113, 1.2, C2.z - 1.5], title: 'Echo · Messraum, 4. August 2009', figs: [E_(C2.x + 109, C2.z - 4.6, PI, .58), E_(C2.x + 112.2, C2.z - 4.6, PI, .58), E_(C2.x + 115.4, C2.z - 4.6, PI, .58), E_(C2.x + 119.5, C2.z - 2.2, -2.2, 1.14)],
     lines: [['Kinder auf den Stühlen, festgeschnallt. Sie schlafen mit offenen Augen.', 3800], ['In der Ecke: ein großer Mann in Eisen. Er rührt sich nicht.', 3600], ['„Wer ist der Mann in der Rüstung?“', 2800, 'KIND'], ['„Er kommt mit dem Licht. Er nimmt keins mit. Er bringt sie heim.“', 4200, 'ÄRZTIN'], ['„Warum weint er dann?“', 2600, 'KIND']] },
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Echo · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
@@ -4235,7 +4564,7 @@ const CASES = [
   { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
     a: 'Du bist der Ersatz, drei Tage zu spät geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
   { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
-    a: 'Lucy ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Die Anrufe, die dich nach Lost Eyengless lockten, kamen nicht von ihr. Etwas spielt mit ihren Stimmen.' },
+    a: 'Lucy ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Der Anruf, der dich nach Lost Eyengless lockte, kam nicht von ihr. Ihre elf Anrufe am 23. Oktober schon. Etwas spielt mit ihren Stimmen.' },
   { id: 'licht', q: 'Was ist das Licht?', clues: { c3chronik: 'Die Chronik von 1312', c3funk: 'Der Funkspruch', c3buch: 'Hilde Wendts Zählbuch', echo_mira: 'Echo: Das Mädchen im Weißen' },
     a: 'Das Amt nennt es „das Weiße“. Alle siebzehn Jahre öffnet es sich über Lost Eyengless – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
   { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Vegas, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Echo: Der Messraum', echo_1975: 'Echo: Sommer 1975' },
@@ -4706,7 +5035,7 @@ const menu = { attract: true, t: 0 };
 let saveFlags = {}; try { saveFlags = JSON.parse(localStorage.getItem('ham_flags') || '{}'); } catch (e) {}
 function saveFlag(k) { saveFlags[k] = true; try { localStorage.setItem('ham_flags', JSON.stringify(saveFlags)); } catch (e) {} }
 function menuSound() { try { Audio.init(); Audio.play('switch1', { gain: .18, rate: 1.6 }); } catch (e) {} }
-function showSub(html) { $('subPanel').innerHTML = html + '<div class="close"><button id="subClose">ZURÜCK</button></div>'; $('subPanel').classList.add('show'); $('subClose').onclick = e => { e.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); }; }
+function showSub(html) { $('subPanel').innerHTML = html + '<div class="close"><button id="subClose">ZURÜCK</button></div>'; $('subPanel').classList.add('show'); $('subPanel').querySelectorAll('input[type=range]').forEach(rangeFill); $('subClose').onclick = e => { e.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); }; }
 $('mainMenu').querySelectorAll('button').forEach(b => { b.onmouseenter = () => { try { if (Audio.ctx && Audio.ctx.state === 'running') Audio.play('switch1', { gain: .05, rate: 1.7 }); } catch (e) {} }; });
 $('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
 { const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
@@ -4730,7 +5059,7 @@ $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class
   $('sGfx').onchange = ev => { settings.gfx = +ev.target.value; saveSettings(); applyQuality(); };
   $('sFov').oninput = ev => { settings.fov = +ev.target.value; saveSettings(); }; $('sSub').oninput = ev => { settings.sub = +ev.target.value; saveSettings(); };
   $('sInv').onchange = ev => { settings.invert = ev.target.checked; saveSettings(); }; $('sBob').onchange = ev => { settings.bob = ev.target.checked; saveSettings(); };
-  $('sSens').oninput = ev => { sens = +ev.target.value; $('sens').value = sens; try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
+  $('sSens').oninput = ev => { sens = +ev.target.value; $('sens').value = sens; rangeFill($('sens')); try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
   $('sVol').oninput = ev => { settings.vol = +ev.target.value; if (Audio.master) Audio.master.gain.value = .9 * settings.vol; saveSettings(); };
   $('sMus').oninput = ev => { settings.music = +ev.target.value; Audio.musicVol(); saveSettings(); };
   $('sBright').oninput = ev => { settings.bright = +ev.target.value; saveSettings(); }; };
@@ -4959,7 +5288,7 @@ function update(dt, t) {
       const mp = ufo.userData.motes.geometry.attributes.position; for (let i = 0; i < mp.count; i++) { let y = mp.getY(i) + dt * 2.5; if (y > 0) y -= 30; mp.setY(i, y); } mp.needsUpdate = true;
       if (state.p2t > 4.5 && !state.finalScare) { victim.position.y = Math.min(18, (state.p2t - 4.5) * 1.6); victim.rotation.y += dt * .6; victim.rotation.z = Math.sin(state.p2t * 1.3) * .2;
         camera.position.x += (Math.random() - .5) * .025; camera.position.y += (Math.random() - .5) * .025; }
-      if (state.p2t > 6 && !state.lookLine) { state.lookLine = true; subtitle('Sie dreht den Kopf. Zu dir. Und lächelt.', 4000); }
+      if (state.p2t > 6 && !state.lookLine) { state.lookLine = true; subtitle('„Du hast sie rausgelassen“, flüstert sie. Dann lächelt sie. Traurig.', 4000); }
       if (state.p2t > 11.2 && !state.finalScare) { state.finalScare = true; scareLifted(); }
       if (state.p2t > 14) ending();
     }
@@ -5049,6 +5378,7 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
 });
 window.G = { ui, ceilingAt, headCeiling, chapter2Begin, CH2_BEGIN, CH2_END, chapter3Begin, finale, setScripted, get scripted() { return scripted; }, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
+window.HAM_UI = { openNote, openPuzzle, openOverlay, closeOverlay, subtitle, toast, questPop, showRecap, renderJournal, kpRender, fuseOpenPanel, radioPuzzle, clockPuzzle, showChoice, fotos_open: typeof fotos_open === 'function' ? fotos_open : null, FOTOS: typeof FOTOS !== 'undefined' ? FOTOS : null, akte_lesen: typeof akte_lesen === 'function' ? akte_lesen : null, AKTE: typeof AKTE !== 'undefined' ? AKTE : null }; // Oberflächen-Testzugriff (nur Anzeige)
 </script>
 </body>
 </html>

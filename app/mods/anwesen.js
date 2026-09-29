@@ -121,10 +121,13 @@ WORLD_MODS.push(['Anwesen', async () => {
     interact(hit, () => S.key ? 'Prägepresse' : 'Prägepresse · Seiler & Sohn', () => anwesen_press());
     if (typeof hintAdd === 'function') hintAdd({ id: 'anw_presse', x: mx, y: 0, z: mz, kind: 'story', near: 60, open: () => S.ch4 && !S.key && anwesen_count() === 8 }); }
   // --- Die Tür: eine Eisenplatte mit acht Schlüssellöchern
-  { const dz = vb.min.z - .04, plate = new T.Mesh(new T.PlaneGeometry(.46, .62), new T.MeshStandardMaterial({ color: 0x3a3632, roughness: .45, metalness: .8, map: tex(cnv(256, (c, w) => {
-      c.fillStyle = '#6c665e'; c.fillRect(0, 0, w, w); c.fillStyle = '#0c0b0a'; for (let k = 0; k < 8; k++) { const x = 64 + (k % 2) * 128, y = 34 + Math.floor(k / 2) * 62; c.beginPath(); c.arc(x, y, 11, 0, 7); c.fill(); c.fillRect(x - 4, y, 8, 22); }
-      c.strokeStyle = '#2a2622'; c.lineWidth = 6; c.strokeRect(6, 6, w - 12, w - 12); }), true) }));
-    plate.position.set(-125, 1.42, dz); plate.rotation.y = PI; scene.add(plate);
+  { const dz = vb.min.z - .04, pg = new T.BoxGeometry(.46, .62, .02); worldUV(pg, .46, .62, .02, 1.2);
+    const plateMat = msSurfMat('rust_sheet', { tint: 0x7a6e64 }); plateMat.metalness = .55; plateMat.roughness = .7; // Eisenplatte: Rost-Scan statt einfarbiger Fläche
+    const plate = new T.Mesh(pg, plateMat); plate.position.set(-125, 1.42, dz + .008); plate.castShadow = true; plate.receiveShadow = true; scene.add(plate);
+    const holes = new T.Mesh(new T.PlaneGeometry(.46, .62), new T.MeshBasicMaterial({ transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, map: tex(cnv(256, (c, w) => {
+      c.clearRect(0, 0, w, w); c.fillStyle = '#080706'; for (let k = 0; k < 8; k++) { const x = 64 + (k % 2) * 128, y = 34 + Math.floor(k / 2) * 62; c.beginPath(); c.arc(x, y, 11, 0, 7); c.fill(); c.fillRect(x - 4, y, 8, 22); }
+      c.fillStyle = 'rgba(20,16,12,.85)'; for (const [x, y] of [[16, 16], [w - 16, 16], [16, w - 16], [w - 16, w - 16]]) { c.beginPath(); c.arc(x, y, 7, 0, 7); c.fill(); } }), true) }));
+    holes.position.set(-125, 1.42, dz - .003); holes.rotation.y = PI; scene.add(holes);
     for (let k = 0; k < 8; k++) { const d = new T.Mesh(new T.CircleGeometry(.018, 12), new T.MeshBasicMaterial({ color: 0xffb060, transparent: true, opacity: 0 })); d.position.set(-125 + .115 - (k % 2) * .23, 1.42 + .235 - Math.floor(k / 2) * .145, dz - .004); d.rotation.y = PI; scene.add(d); S.lock.push(d); }
     const hit = box(1.6, 2.4, .5, -125, 1.2, dz - .2, hidden, { cast: false }); S.doorHit = hit;
     interact(hit, () => S.key ? 'Die Tür der Villa aufschließen' : 'Tür der Villa Seiler', () => anwesen_door()); }
@@ -161,7 +164,7 @@ function anwesen_door() {
   S.open = true; anwesen_sockets(); anwesen_enterHall();
 }
 // ---- Kapitel 4
-const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen brennen, als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus, wie an jedem Morgen. Als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
   const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4');
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
@@ -204,11 +207,12 @@ async function anwesen_buildHall() {
   box(3.4, 1.2, .5, H.x, .6, z1 - 3.9, hidden, { collide: true, cast: false });
   for (let k = 0; k < 5; k++) { const b = box(.14, .14, 2.6, H.x + rand(-1.2, 1.2), 1.9 + rand(-.3, .3), z1 - 2.2 + rand(-.5, .5), dark); b.rotation.set(rand(-.5, .5), rand(-1, 1), rand(-.6, .6)); }
   const put = async (key, file, size, axis, x, z, ry, y = 0) => { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry; o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); return o; } catch (e) { console.warn('Halle ' + key, e); return null; } };
-  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .6, H.z - 2.5, PI / 2); await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
+  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .44, H.z - 2.5, 0); await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
   await put('floorlamp', 'model.gltf', 1.7, 'y', x0 + .7, z1 - 1, .4); await put('floorlamp', 'model.gltf', 1.7, 'y', x1 - .7, z0 + 1.2, -.4);
-  await put('shelf', 'model.gltf', 1.9, 'y', x1 - .35, H.z - 3.2, -PI / 2); await put('radio', 'model.gltf', .45, 'max', x1 - 1.4, z0 + 2.4, -PI / 2, .78);
-  const desk = box(1.6, .76, .8, x1 - 1.4, .38, z0 + 2.4, dark, { collide: true });
-  const letter = plane(.24, .32, x1 - 1.6, .77, z0 + 2.3, paperMat, -PI / 2, .3);
+  const shelfO = await put('shelf', 'model.gltf', 1.2, 'x', x1 - .3, H.z - 3.2, -PI / 2, 1.45); await put('radio', 'model.gltf', .45, 'max', x1 - 1.4, z0 + 2.4, -PI / 2, .78);
+  // Schreibtisch: gescannter Metalltisch statt Kiste
+  { const t = (await msModel('metaltable')).clone(true); t.scale.set(.5, .9, 1); const o = msGround(t); o.position.set(x1 - 1.4, 0, z0 + 2.4); o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); }
+  const letter = plane(.24, .32, x1 - 1.6, .785, z0 + 2.3, paperMat, -PI / 2, .3);
   const portrait = await put('frame_dmg', 'model.gltf', 1.2, 'y', x0 + .12, H.z + 1.5, PI / 2, 1.5);
   for (const [lx, lz] of [[x0 + .7, z1 - 1], [x1 - .7, z0 + 1.2]]) { const L = new VLight(0xffa860, 1.1, 7, 2); L.position.set(lx, 1.6, lz); scene.add(L); }
   const up = new VLight(0xfff0d8, .9, 9, 2); up.position.set(H.x, H.h - .6, z1 - 1.2); scene.add(up); S.upLight = up;
@@ -217,8 +221,70 @@ async function anwesen_buildHall() {
   const ph = box(.2, 1.3, 1.1, x0 + .15, 1.5, H.z + 1.5, hidden, { cast: false });
   interact(ph, 'Porträt', () => { S.seen.add('bild'); openNote('Ein Porträt', 'Eine Frau in einem langen, dunklen Kleid. In der Hand eine Laterne, deren Flamme gerade steht. Das Bild ist alt, der Rahmen zerbrochen – aber die Farbe ist frisch, fast noch feucht.\n\nAuf dem Messingschild, fast blank gerieben: <b>„… IRA“</b>.\nAuf der Rückseite, mit Bleistift: <i>gemalt 2043</i>.', 'anw_bild'); });
   const ch = box(.3, .9, .9, x1 - .25, 1.95, H.z + 1, hidden, { cast: false }); interact(ch, 'Wanduhr', () => toast('Drei Uhr dreizehn. Die Zeiger stehen. Das Pendel schwingt.', 2600));
+  await anwesen_dressHall(H, x0, x1, z0, z1, put, shelfO);
   const stairs = box(3, 2, .6, H.x, 1, z1 - 3.1, hidden, { cast: false });
   interact(stairs, 'Treppe nach oben', () => anwesen_hallEnd());
+}
+// Halle einrichten: nur Scan-Modelle (Sofa, Stühle, Buffet, Kinderbett, Bilder, Kerzen, Spielzeug, Teddy, Teppich, Spinnweben)
+async function anwesen_dressHall(H, x0, x1, z0, z1, put, shelfO) {
+  const T = THREE, V = (x, y, z) => new T.Vector3(x, y, z), wx0 = x0 + .15, wx1 = x1 - .15, wz0 = z0 + .15, wz1 = z1 - .15;
+  const add = (o, x, z, ry = 0, y = 0) => { const g = msGround(o); g.position.set(x, y, z); g.rotation.y = ry; g.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(g); g.updateMatrixWorld(true); return g; };
+  const mesh1 = o => { let m = null; o.traverse(q => { if (!m && q.isMesh) m = q; }); return m; };
+  const rc = new T.Raycaster(), topOf = (o, x, z, from = 3) => { rc.set(V(x, from, z), V(0, -1, 0)); rc.far = 5; const h = rc.intersectObject(o, true)[0]; return h ? h.point.y : 0; };
+  const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg`, color: 0x7a6e60 });
+  const hutchSpec = { 'Wood-1': W_('Wood-1'), 'Wood-2': W_('Wood-2'), 'Wood-3': W_('Wood-3'), Metal: { b: 'T_Metal_BaseColor.jpg', n: 'T_Metal_Normal.jpg', r: 'T_Metal_Roughness.jpg', m: 'T_Metal_Metallic.jpg' } };
+  const chairSpec = { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg', color: 0x8a8078 } };
+  const candleSpec = { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', n: 'Extra_for_candles_Normal.jpg', r: 'Extra_for_candles_Roughness.jpg', m: 'Extra_for_candles_Metallic.jpg' } };
+  const safe = p => p.catch(e => { console.warn('Halle', e); return null; });
+  const [sofa, hutch, crib, cSrc, tSrc, teddy] = await Promise.all([
+    safe(msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x7a6a62 } })), safe(msFBX('dresser', 'model.fbx', hutchSpec)),
+    safe(msFBX('crib', 'model.fbx', { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xdcd6ca }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xe0dcd4 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } })),
+    safe(msFBX('candles', 'model.fbx', candleSpec)), safe(msFBX('toys_old', 'model.fbx', { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg', r: 'T_Toys_ORM.jpg', ao: 'T_Toys_ORM.jpg' } })), safe(msFBX('teddy_retro', 'model.fbx', { material0: { b: 'teddy-bear.jpg', color: 0xb8aa98 }, material1: { b: 'teddy-bear1.jpg', color: 0xb8aa98 } }))]);
+  const part = (src, name, s) => { if (!src) return null; src.updateMatrixWorld(true); let m = null; src.traverse(q => { if (q.isMesh && q.name === name) m = q; }); if (!m) return null;
+    const g = m.geometry.clone().applyMatrix4(m.matrixWorld); g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); g.scale(s, s, s); g.computeBoundingBox(); g.computeBoundingSphere();
+    const r = new T.Mesh(g, m.material); r.castShadow = true; r.receiveShadow = true; return r; };
+  const at = (o, x, y, z, ry = 0) => { if (!o) return null; o.position.set(x, y, z); o.rotation.y = ry; scene.add(o); return o; };
+  const candle = (name, x, y, z, lit) => { const c = at(part(cSrc, name, .01), x, y, z, rand(0, 6)); if (c && lit) { const fl = new T.Sprite(new T.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: T.AdditiveBlending })); fl.scale.set(.05, .085, 1); fl.position.set(x, y + c.geometry.boundingBox.max.y + .035, z); scene.add(fl); } return c; };
+  // Sitzecke an der Westwand: Sofa, ein Stuhl davor, einer umgeworfen
+  if (sofa) { msFit(sofa, 2.0, 'x'); add(sofa, wx0 + .55, H.z + 3.3, PI / 2); }
+  const chair = async () => { const c = await msFBX('chair', 'model.fbx', chairSpec); msFit(c, .92, 'y'); return c; };
+  add(await chair(), wx0 + 2.35, H.z + 3.5, -PI / 2 + .25);
+  { const c = await chair(); c.rotation.x = -PI / 2 + .06; add(c, wx0 + 2.6, H.z + 1.7, 2.1); }
+  add(await chair(), x1 - 1.4, z0 + 3.25, PI + .15); // Schreibtischstuhl
+  // Buffet an der Ostwand mit heruntergebrannten Kerzen
+  if (hutch) { msFit(hutch, 2.2, 'y'); const g = add(hutch, wx1 - .31, H.z + 3.6, -PI / 2); const b = new T.Box3().setFromObject(g), sy = topOf(g, b.min.x + .12, H.z + 3.6, 1.3);
+    candle('Candle_large_big_used_low', b.min.x + .14, sy, H.z + 3.2); candle('Thin_candle_used_low', b.min.x + .12, sy, H.z + 3.45); candle('Candle_large_small_used_low', b.min.x + .15, sy, H.z + 4.0);
+    const xc = wx1 - .2, lv = [...new Set([2.05, 1.8, 1.55].map(f => +topOf(g, xc, H.z + 3.6, f).toFixed(3)))].filter(y => y > sy + .15);
+    lv.forEach((y, r) => { for (let i = 0; i < 5; i++) candle(['Candle_large_small_used_low001', 'Thin_candle_used_low001', 'Candle_small_used_low', 'Candle_large_big_used_low', 'Candle_small_used_low001'][(i + r) % 5], xc - (i % 2) * .03, y, H.z + 3.12 + i * .2); }); }
+  if (shelfO) { const sy = topOf(shelfO, x1 - .3, H.z - 3.2, 2.5); if (sy > 1) { candle('Candle_small_used_low', x1 - .28, sy, H.z - 3.5); candle('Candle_large_small_used_low001', x1 - .28, sy, H.z - 2.9); } }
+  // Ein Kinderbett mitten in der Halle, zur Treppe gedreht – frisch bezogen. Davor Kerzen, eine brennt.
+  if (crib) { crib.scale.setScalar(.024); add(crib, H.x + 2.6, H.z + .6, .35);
+    const hit = box(1.3, 1, .8, H.x + 2.6, .5, H.z + .6, hidden, { cast: false }); hit.rotation.y = .35;
+    interact(hit, 'Kinderbett', () => toast('Ein Kinderbett, mitten in der Halle, zur Treppe gedreht. Das Laken ist frisch bezogen. Überall liegt Staub – nur hier nicht.', 5200)); } // STORY-HOOK: Mira
+  candle('Candle_large_big_used_low001', H.x + 1.75, 0, H.z - .2, true); candle('Big_Wax_leak_low', H.x + 1.9, .001, H.z - .05, false); candle('Candle_small_used_low001', H.x + 3.4, 0, H.z - .25, false); candle('Thin_candle_used_low001', H.x + 1.6, 0, H.z + 1.3, false);
+  // Zwei offene Regale neben der Haustür (Kerzen, Spielzeug, ein alter Fernseher)
+  for (const [x, fill] of [[H.x - 4.8, 0], [H.x + 4.4, 1]]) { const g = add((await msModel('wardrobe')).clone(true), x, wz0 + .27, -PI / 2);
+    const lv = [.8, 1.45, 2.1].map(f => topOf(g, x, wz0 + .25, f)).filter(y => y > .05).sort((a, b) => a - b); if (!lv.length) continue;
+    if (fill) { const tv = (await msModel('crt', 'model.glb')).clone(true); msFit(tv, .34, 'y'); add(tv, x - .3, wz0 + .26, .15, lv[0]); candle('Candle_large_small_used_low002', x + .45, lv[1] ?? lv[0], wz0 + .25); candle('Thin_candle_used_low002', x + .25, lv[1] ?? lv[0], wz0 + .22); }
+    else { at(part(tSrc, 'SM_ToyRobot', .01), x - .35, lv[1] ?? lv[0], wz0 + .25, .3); at(part(tSrc, 'SM_ToyBoat', .01), x + .3, lv[0], wz0 + .25, -.2); candle('Candle_small_used_low', x + .1, lv[2] ?? lv[0], wz0 + .24); } }
+  // Seilers Krankenbett: die letzten Monate hat er hier unten geschlafen, mit Blick auf die Treppe
+  { const spec = { blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: 1, color: 0x8a8278 }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg', color: 0xa8a094 }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } };
+    const b = await safe(msFBX('hospbed', 'model.fbx', spec)); if (b) { b.scale.set(.009, .009, -.009); const g = add(b, H.x - 2.35, wz0 + 1.12, 0);
+      interact(mesh1(g), 'Krankenbett', () => toast('Ein Krankenbett, mitten im Erdgeschoss, zur Treppe gedreht. Seiler hat die letzten Monate hier unten geschlafen. In das Kopfteil sind acht Striche geritzt.', 5600)); } // STORY-HOOK: Seiler
+    add(await chair(), H.x - 3.5, wz0 + 1.6, PI / 2 + .3); candle('Candle_large_big_used_low', H.x - 1.55, 0, wz0 + .4, false);
+    add((await msModel('trashcan')).clone(true), H.x - 1.6, wz0 + 2.3, .5); }
+  // Spielzeug auf der eingebrochenen Treppe, der Teddy wartet auf der vierten Stufe
+  at(part(tSrc, 'SM_ToyTrain', .01), H.x - .9, .4, z1 - 3.6 + .38, .6); at(part(tSrc, 'SM_ToyCube_01a', .01), H.x + .6, .6, z1 - 3.6 + .76, .3);
+  if (teddy) { msFit(teddy, .36, 'y'); const g = add(teddy, H.x + .7, z1 - 3.6 + 4 * .38 - .05, PI, 1.0);
+    interact(mesh1(g), 'Teddy auf der Treppe', () => toast('Ein alter Teddy, sorgfältig auf die Stufe gesetzt. Mit dem Gesicht zur Tür. Er hat auf jemanden gewartet.', 4600)); }
+  // Bilder an allen Wänden (schief, eines zerbrochen)
+  for (const [k, sz, x, z, ry, y] of [['frame_deco', .9, H.x - 4.2, wz1 - .03, PI, 1.9], ['frame_dmg', 1.1, H.x + 4.2, wz1 - .03, PI, 1.75], ['frame_dmg', .8, H.x - 3.2, wz0 + .03, 0, 1.6], ['frame_deco', .7, H.x + 3.2, wz0 + .03, 0, 1.8], ['frame_deco', .7, wx1 - .03, H.z - 1, -PI / 2, 1.65]]) {
+    const f = await put(k, 'model.gltf', sz, 'y', x, z, ry, y); if (f) f.rotation.z = rand(-.07, .07); }
+  // Teppich unter dem Kinderbett, Spinnweben in den Ecken und am Buffet
+  { const m = msSurfMat('wallpaper_fabric', { tint: 0x4a3e38 }); m.userData.tile = 1.3; m.polygonOffset = true; m.polygonOffsetFactor = -1; plane(4.2, 3, H.x + 1.5, .012, H.z + .3, m); }
+  let cob = null; scene.traverse(m => { if (!cob && m.isMesh && m.material && m.material.transparent && m.material.map && m.material.color && m.material.color.getHex() === 0xd8d4c8 && m.geometry.type === 'BufferGeometry') cob = m; });
+  if (cob) for (const [x, y, z, ry, s] of [[wx0 + .2, 5.8, wz0 + .2, -PI / 4, 1.4], [wx1 - .2, 5.8, wz0 + .2, PI / 4, 1.4], [wx0 + .2, 5.8, wz1 - .2, PI * 1.25, 1.5], [wx1 - .2, 5.8, wz1 - .2, -PI / 4, 1.5], [wx1 - .2, 2.3, H.z + 4.3, -PI / 4, .7], [wx0 + .2, 1.2, H.z + 2.2, PI * 1.25, .5]]) {
+    const w = cob.clone(); w.position.set(x, y, z); w.rotation.set(0, ry, rand(-.3, .3)); w.scale.setScalar(.0105 * s); scene.add(w); }
 }
 async function anwesen_hallEnd() {
   const S = anwesen_S; if (S.hallDone) return;
