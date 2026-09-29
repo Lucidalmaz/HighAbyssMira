@@ -143,11 +143,27 @@ function beob_sound() {
 }
 // ---------------------------------------------------------------- Kurz zu sehen: am Rand des Blickfelds; länger als 1 s angesehen → weg, taucht woanders auf
 async function beob_loadModel() {
-  const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; scene.add(g);
-    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
-    const mx = new THREE.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.toLowerCase()] = mx.clipAction(c);
-    const pick = re => Object.keys(A).find(k => re.test(k)); S.V = { g, m, mx, A, idle: pick(/idle|look|breath|stand/) || Object.keys(A)[0], run: pick(/run|walk|flee/) }; if (S.V.idle) A[S.V.idle].play(); S.model = true; } catch (e) { S.model = false; }
+  const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; scene.add(g);
+    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); g.updateMatrixWorld(true);
+    const head = m.getObjectByName('Kopf'), body = m.getObjectByName('Koerper'), uT = { value: 0 };
+    // Fühler: nur die Eckpunkte oberhalb der Kopfkugel wippen (Shader), Stärke wächst zur Spitze hin
+    const hm = []; (m.getObjectByName('kopf_Group28799') || head || m).traverse(o => { if (o.isMesh) hm.push(o); });
+    for (const mesh of hm) { const toHead = new THREE.Matrix4().copy(head.matrixWorld).invert().multiply(mesh.matrixWorld), P = mesh.geometry.attributes.position, v = new THREE.Vector3(); let bulb = -1e9, top = -1e9;
+      for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(toHead); top = Math.max(top, v.y); if (Math.abs(v.x) < .012) bulb = Math.max(bulb, v.y); }
+      const mat = mesh.material.clone(), fromHead = new THREE.Matrix4().copy(toHead).invert(), base = bulb - .01;
+      mat.onBeforeCompile = sh => { sh.uniforms.uT = uT; sh.uniforms.uToHead = { value: toHead }; sh.uniforms.uFromHead = { value: fromHead }; sh.uniforms.uBase = { value: base }; sh.uniforms.uTop = { value: top };
+        sh.vertexShader = 'uniform float uT, uBase, uTop; uniform mat4 uToHead, uFromHead;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+          vec3 hp = (uToHead * vec4(position, 1.)).xyz; float k = smoothstep(uBase, uTop, hp.y); k *= k;
+          vec3 off = vec3(sin(uT * 3.1 + hp.x * 30.) * .018 + sin(uT * 7.3) * .004, 0., cos(uT * 2.6 + hp.x * 22.) * .014) * k;
+          transformed += (uFromHead * vec4(off, 0.)).xyz;`); };
+      mat.customProgramCacheKey = () => 'beob_fuehler'; mesh.material = mat; }
+    S.V = { g, m, head, body, uT, t: rand(0, 9), tilt: 0, tiltT: 0, look: 0 }; S.model = true; } catch (e) { console.warn('Beobachter: Modell', e); S.model = false; }
 }
+// Lebendig ohne Skelett: atmen, Kopf neugierig schief legen, zu Luke drehen, Fühler wippen
+function beob_anim(dt) { const V = beob_S.V; if (!V || !V.g.visible) return; V.t += dt; V.uT.value = V.t;
+  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(.6, 1.6); V.tilt = rand(-.35, .35); }
+  if (V.body) V.body.scale.set(1 + Math.sin(V.t * 2.3) * .008, 1 + Math.sin(V.t * 2.3) * .014, 1 + Math.sin(V.t * 2.3) * .008);
+  if (V.head) { V.head.rotation.z += (V.tilt + Math.sin(V.t * .9) * .05 - V.head.rotation.z) * Math.min(1, dt * 5); V.head.rotation.x = Math.sin(V.t * 1.4) * .04 - .06; V.head.rotation.y += (Math.sin(V.t * .7) * .25 - V.head.rotation.y) * Math.min(1, dt * 3); V.head.position.y = V.head.userData.y0 ?? (V.head.userData.y0 = V.head.position.y); V.head.position.y += Math.sin(V.t * 2.3) * .003; } }
 function beob_peekSpot(minF, maxF, far = [12, 22]) {
   const P = player.pos, trees = (typeof leben_S !== 'undefined' && leben_S.treePts) || [];
   for (let k = 0; k < 40; k++) { let x, z; if (trees.length && Math.random() < .7) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue;
@@ -156,14 +172,14 @@ function beob_peekSpot(minF, maxF, far = [12, 22]) {
     const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF || !beob_free(x, z)) continue; const gy = beob_gy(x, z); if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x, gy + BEOB.h * .75, z)) continue; return [x, gy, z]; }
   return null;
 }
-function beob_show(sp) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); V.g.visible = true; if (V.idle) { for (const a of Object.values(V.A)) a.stop(); V.A[V.idle].reset().play(); } }
+function beob_show(sp) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); V.g.visible = true; V.tiltT = 0; }
 function beob_vanish() { const S = beob_S, V = S.V, p = V.g.position; V.g.visible = false; beob_rustle(p.x, p.z, 1.2); beob_patter(p.x, p.z, 5); if (Math.random() < .4) beob_chirp(p.x, p.z);
   if (typeof gedanke === 'function') gedanke('beob_sehen', 'Da war was. Klein. Weiß. Große Augen. … Und jetzt ist es weg. Als hätte es gewusst, dass ich hinsehe.', 1200, 3); }
 function beob_peekTick(dt) {
   const S = beob_S, V = S.V, K = S.peek; if (!V || !K) return; K.t += dt;
-  if (K.st === 'show') { V.mx.update(dt); const p = V.g.position, dx = player.pos.x - p.x, dz = player.pos.z - p.z, d = Math.hypot(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 3));
+  if (K.st === 'show') { beob_anim(dt); const p = V.g.position, dx = player.pos.x - p.x, dz = player.pos.z - p.z, d = Math.hypot(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 3));
     const f = beob_facing(p.x, p.y + BEOB.h * .7, p.z), inView = f > .7 && d < 45, lit = flashOn && !state.blackout && d < 26 && f > .96;
-    if (inView) K.seen += dt; if (K.seen > BEOB.seenMax || lit || d < 4) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2.5, 6); if (lit) K.n = 9; } else if (K.t > 40) { V.g.visible = false; S.peek = null; } }
+    if (inView) K.seen += dt; if (lit && V.head) V.head.rotation.y += (-.9 - V.head.rotation.y) * Math.min(1, dt * 6); if (K.seen > BEOB.seenMax || d < 3.5) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2.5, 6); } else if (K.t > 40) { V.g.visible = false; S.peek = null; } }
   else if (K.st === 'gone') { if (K.t < K.wait) return; if (K.n >= 2 || beob_quiet() || !beob_active()) { S.peek = null; return; }
     // ganz woanders wieder auftauchen: gegenüber, außerhalb des Blickfelds – am Rand, wo man ihn beim Umdrehen erwischt
     const sp = beob_peekSpot(-.9, .15, [14, 26]); if (!sp) { S.peek = null; return; } K.n++; beob_show(sp); K.st = 'show'; K.t = 0; K.seen = 0; }
