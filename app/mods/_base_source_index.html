@@ -470,7 +470,8 @@
   #keypad button:nth-child(12) { color: #9dffb4; } #keypad button:nth-child(10) { color: #ff9a88; }
   /* Kellercode fair: 0, 1, 3 blank gegriffen (Messing glänzt, Ziffer halb abgerieben), die übrigen Ziffern verstaubt */
   #keypad button.dust { color: #9d9486; background: radial-gradient(circle at 38% 30%, #5d5a54, #2e2b26 62%, #17140f); filter: saturate(.5); }
-  #keypad button.worn { color: rgba(241,228,196,.45); text-shadow: 0 0 1px rgba(0,0,0,.7); background: radial-gradient(circle at 44% 36%, #e0bd82 0, #a07a44 20%, #4a3a28 60%, #17120d); }
+  #kpMsg { margin: 18px auto 0; max-width: 236px; min-height: 2.7em; font: italic 15px Georgia, serif; line-height: 1.35; color: #b9ab8e; text-align: center; text-shadow: 0 1px 2px #000; }
+  #keypad button.worn { color: rgba(241,228,196,.58); text-shadow: 0 0 1px rgba(0,0,0,.7); background: radial-gradient(circle at 44% 36%, #e0bd82 0, #a07a44 20%, #4a3a28 60%, #17120d); }
 
   /* ---------- Abenteuerfibel: Ledereinband, Papierseiten */
   #journal .book { width: min(1000px, 94vw); max-height: 88vh; padding: 16px 18px 18px; border: 0; border-radius: 6px 10px 10px 6px; overflow: visible;
@@ -2339,6 +2340,8 @@ let kpValue = '';
 const kpGrid = $('keypad').querySelector('.grid');
 ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'].forEach(k => { const b = document.createElement('button'); b.textContent = k; b.className = '013'.includes(k) ? 'worn' : /\d/.test(k) ? 'dust' : ''; b.onclick = e => { e.stopPropagation(); kpPress(k); }; kpGrid.appendChild(b); });
 const kpRender = () => $('kpDisplay').textContent = kpValue.padEnd(4, '·');
+const kpMsg = document.createElement('div'); kpMsg.id = 'kpMsg'; $('keypad').querySelector('.box').appendChild(kpMsg); // Beobachtungen/Fehlversuche im Tastenfeld selbst (Einblendungen liegen hinter dem Fenster)
+const kpSay = t => { if (ui.overlay === 'keypad') kpMsg.textContent = trX(t); else toast(t, 5200); };
 let kpBusy = 0; // nach „OK“ kurz gesperrt: gehaltene Eingabetaste zählt nicht dreimal als Fehlversuch
 function kpPress(k) {
   if (performance.now() < kpBusy || ui.overlay !== 'keypad') return;
@@ -2348,7 +2351,7 @@ function kpPress(k) {
     if (kpValue === '3110') { Audio.beep(true); closeOverlay(); state.cellarOpen = true; Audio.play('lockOpen', { gain: .8, x: 30, y: 1.2, z: -21.8, ref: 2 }); setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35); }, 350); setTimeout(enterBasement, 1500); return; }
     Audio.beep(false); void disp.offsetWidth; disp.classList.add('err'); kpValue = ''; state.wrongCodes++;
     if (state.wrongCodes === 3) { closeOverlay(); scareCellarDoor(); setTimeout(() => toast('Lies, was im Haus liegt. Der Kalender weiß den Tag.'), 7000); return; }
-    setTimeout(() => { if (kpValue === '' && state.wrongCodes === 1) toast('Falsch. Unter deinen Füßen kratzt etwas am Holz.'); else if (state.wrongCodes === 2) toast('Das Kratzen hört auf. Es lauscht.'); else if (state.wrongCodes > 3) toast('Der Kalender weiß den Tag. Erst der Tag, dann der Monat.', 5200); }, 400);
+    setTimeout(() => { if (kpValue === '' && state.wrongCodes === 1) kpSay('Falsch. Unter deinen Füßen kratzt etwas am Holz.'); else if (state.wrongCodes === 2) kpSay('Das Kratzen hört auf. Es lauscht.'); else if (state.wrongCodes > 3) kpSay('Der Kalender weiß den Tag. Erst der Tag, dann der Monat.'); }, 400);
   } else if (kpValue.length < 4) { kpValue += k; Audio.beep(true); }
   kpRender();
 }
@@ -2529,7 +2532,7 @@ interact(calendar, 'Kalender ansehen', () => { if (!state.readCal) Audio.stinger
   openNote('Kalender · Oktober', 'Der <b>23.</b> ist rot durchgestrichen. Daneben: <span class="hand">„weg“</span>\n\nDer <b>31.</b> ist dick eingekreist. Darunter, mehrfach nachgezogen:\n\n<span class="hand" style="color:#8a1010">„SIE IST ZURÜCK.\nABER DAS IST NICHT LUCY.“</span>', 'calendar'); });
 interact(cellarDoor, 'Kellertür', () => toast('Eine Stahltür. Frische Kratzspuren. Von innen.'));
 interact(keypadMesh, 'Tastenfeld benutzen', () => { setMain(3); if (state.cellarOpen) return enterBasement(); kpValue = ''; kpRender(); openOverlay('keypad');
-  if (!state.kpWorn) { state.kpWorn = true; setTimeout(() => { if (ui.overlay === 'keypad') toast('Drei Tasten sind abgegriffen, fast blank: 0, 1 und 3. Auf den anderen liegt Staub.', 5200); }, 700); } });
+  kpSay('Drei Tasten sind abgegriffen, fast blank: 0, 1 und 3. Auf den anderen liegt Staub.'); });
 interact(tvScreen, 'Fernseher', () => toast(state.tvSeen ? 'Nur Rauschen. Jetzt.' : 'Rauschen. Du könntest schwören, darin bewegt sich etwas.'));
 interact(B.tape, 'Kassette abspielen', async () => {
   if (state.talking) return; state.talking = true; Audio.tape(true); state.tapeOn = true; Audio.play('switch1', { gain: .5, x: B.x + 2, y: .9, z: B.z - 3.2, ref: 1.5 });
@@ -2646,8 +2649,8 @@ async function ending() {
     state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; ufo.userData.beam.uniforms.opacity.value = 0; ufo.userData.motes.material.opacity = 0; victim.visible = false; vel.set(0, 0, 0);
     await wait(1800); state.ending = false; state.ch1Done = true; state.cellarOpen = true; if (typeof kapEnde === 'function') kapEnde(1); else saveFlag('ch2'); if (Audio.drone) Audio.drone.gain.value = .02;
     if (typeof kino_play === 'function') { // Kinosequenz K1 „Du hast sie rausgelassen“ (kino.js) statt der beiden Untertitel; danach steht Luke wieder auf der Straße
-      let k1 = null; try { k1 = kino_play('k1'); } catch (e) { console.error('Kino k1', e); } fade(0, 1200); try { await k1; } catch (e) { console.error('Kino k1', e); }
-      fade(0, 1200); setMain(7); return; }
+      try { await kino_play('k1', { aufblenden: 1600 }); } catch (e) { console.error('Kino k1', e); } // beginnt auf Schwarz (Weißblitz → Schwarz), endet mit Aufblende
+      fade(0, 1600); setMain(7); return; }
     fade(0, 2600); await wait(1400); subtitle('Stille. Kein Brummen mehr. Wo sie stand, glänzt der Asphalt, als hätte es nur dort geregnet.', 5200);
     await wait(5600); setMain(7); subtitle('Der Keller. Die Wand mit den Zeichnungen. Dahinter hat es hohl geklungen.', 4600); return;
   }
@@ -3470,7 +3473,7 @@ const FILE_TEXT = {
   Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig.\n<i>Mit Kuli, neu, in Hildes Schrift: 12.07.2026 – wieder weg. Keine Rückführung.</i>',
   Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
   Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an ihr leeres Elternhaus: „Sind sie wieder da?“',
-  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – <u>drei Tage nach den anderen</u>.\nBefund: Augenfarbe abweichend (Akte: blau / Rückführung: braun). Kennt den Hundenamen (Flocke) nicht. Lacht an falschen Stellen.\n<span class="hand">Vermerk H.W.: „Das ist nicht der Junge, den wir hingegeben haben.“</span>',
+  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – zwei Tage nach den anderen, als Letzter.\nBefund: Vollständig. Schläft viel. Summt im Schlaf eine Melodie.\n<span class="hand">Angeheftet, Vermessungsbogen vom 12.03.2009: „Augen: blau. Ängste: Spinnen, Dunkelheit. Hund: Flocke.“</span>',
   Zayn: 'AKTE 07 · Zayn W., 7 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
@@ -3487,7 +3490,7 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück – einer davon <u>drei Tage zu spät</u>, und er war ein anderer. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Notiz:\n<span class="hand">„Ersatz geliefert. Original nicht zurückgeführt. Mutter unterschreibt.“</span>\n\nDaneben, mit Klammer: ein Schlüssel. <b>SICHERUNGSRAUM</b>.', 'protokoll', () => { ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }));
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest, 27.07.2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält. Stempel: <b>PARTNER ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); })); // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
       else { Audio.beep(false); const wrong = ch2.slots.filter((s, i) => s && s !== ORDER[i]).length; toast(wrong === 7 ? 'Nichts passiert.' : `Ein Summen. ${7 - wrong} Namen sitzen. Der Rest nicht.`, 3500); if (++ch2.archiveTries === 4) { toast('Aus dem Lautsprecher: „Die Akten wissen es genauer als du.“', 4500); Audio.intercomClick(); } } };
   });
@@ -3499,7 +3502,7 @@ const archiveDrawer = box(.86, .5, .48, X + 20, .3, Z - 5.6, M.dark);
 c2Room(X + 30, X + 36, Z - 2, Z + 2, { w: [{ at: Z, w: 1.6 }], e: [{ at: Z, w: 1.6 }], n: [{ at: X + 33, w: 1.2 }] });
 c2Room(X + 30, X + 36, Z + 2, Z + 8, { s: [{ at: X + 33, w: 1.2 }] });
 const fuseDoor = makeDoor(X + 33, Z + 2.1, 1.2, -1.5, M.metal); fuseDoor.locked = true;
-interact(fuseDoor.leaf, () => fuseDoor.open ? 'Tür schließen' : 'Sicherungsraum', () => { if (fuseDoor.locked) { if (ch2.fuseKey) { fuseDoor.locked = false; Audio.beep(true); toast('Der Schlüssel passt.'); } else return toast('Abgeschlossen. Ein Schild: SICHERUNGSRAUM – NUR BEFUGTE.'); } fuseDoor.set(!fuseDoor.open); Audio.creak(.2); });
+interact(fuseDoor.leaf, () => fuseDoor.open ? 'Tür schließen' : 'Sicherungsraum', () => { if (fuseDoor.locked) { if (ch2.fuseKey) { fuseDoor.locked = false; Audio.beep(true); toast('Der Schlüssel passt.'); } else return toast(ch2.z7Key ? 'Abgeschlossen. Der Schlüssel aus der Schublade passt nicht – auf seinem Schild steht ZIMMER 7.' : 'Abgeschlossen. Ein Schild: SICHERUNGSRAUM – NUR BEFUGTE.'); } fuseDoor.set(!fuseDoor.open); Audio.creak(.2); }); // Schlüssel „sicherung“ nur aus Zimmer 7 (ch2.fuseKey, zimmer7.js)
 c2Tube(X + 33, Z, 1.2, 'x', 0xffd9a0, 1.1, 6).mode = 'flicker';
 const fusePanel = box(1.4, 1.2, .12, X + 33, 1.5, Z + 7.8, M.metal);
 const fuseCoverPiv = new THREE.Group(); fuseCoverPiv.position.set(X + 32.3, 1.5, Z + 7.72); scene.add(fuseCoverPiv); const fuseCover = box(1.4, 1.2, .03, .7, 0, 0, M.metal, { parent: fuseCoverPiv });
@@ -3692,6 +3695,7 @@ async function finale() {
       box => box.querySelectorAll('button[data-i]').forEach(b => b.onclick = e => { e.stopPropagation(); fin(+b.dataset.i); }));
     addEventListener('keydown', key, true); ui.onClose = () => { if (!done) { done = true; removeEventListener('keydown', key, true); res(-1); } }; });
   await wait(800); Audio.thump(X + 118, 1.5, Z + 6); await wait(700); Audio.thump(X + 118, 1.5, Z + 6);
+  setC2Objective('Lucy.'); lenaFig.lookAt(player.pos.x, lenaFig.position.y, player.pos.z); // sie sieht ihn an, die Hand an der Scheibe
   subtitle('Im Tank: eine Hand an der Scheibe.', 3000); await turn(X + 118, 1.4, Z + 6, 1.6); await wait(1600);
   await say([['Ich hab nie gewusst, wie der Hund hieß.', 3000, 'LUKE'], ['„Flocke. … Hey, Großer.“', 3400, LU]]);
   const Q = [['„Seit wann weißt du es?“', [['„Seit dem ersten Morgen. Mir hat die Hälfte gefehlt.“', 3600, LU], ['„Und dann warst du da und hast mich angesehen, als wär ich das Wichtigste auf der Welt.“', 4800, LU]]],
@@ -3706,6 +3710,7 @@ async function finale() {
   c2Lights.forEach(L => L.mode = 'dying'); Audio.hum(true); shake = .03;
   await wait(2200); subtitle('Das Brummen. Es kommt durch den Beton. Von oben.', 4000); await wait(3400); await turn(X + 118, 1.35, Z + 6, .9);
   Audio.stinger(true); filmPass.uniforms.flash.value = 1; await wait(120); filmPass.uniforms.flash.value = 0;
+  tankFace.material.depthTest = false; tankFace.renderOrder = 20; // sonst verdeckt die Tankscheibe (schreibt Tiefe) das Gesicht dahinter
   await wait(900); await scareTankFace(); tankFace.visible = true; tankFace.lookAt(camera.position); // das graue Gesicht bleibt am Glas – genau in Höhe seiner Augen
   subtitle('„Mach die Augen zu!“', 2600, LU); Audio.play('glass1', { gain: .6, rate: .55, x: X + 118, y: 1.3, z: Z + 5, ref: 3 });
   const eyes = typeof augenzu_frei === 'function'; if (eyes) augenzu_frei({ wirkt: false, hinweis: 'Q halten – Augen zu' });

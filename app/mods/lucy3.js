@@ -373,15 +373,16 @@ function lucy3_arrowTex() { const c = document.createElement('canvas'); c.width 
   x.globalCompositeOperation = 'source-over'; for (let i = 0; i < 90; i++) { x.fillStyle = 'rgba(70,150,255,.5)'; x.beginPath(); x.arc(104 + rand(-80, 120), 128 + rand(-80, 80), rand(.8, 2), 0, 7); x.fill(); } // Sprühnebel
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 function lucy3_puffTex() { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(235,238,240,.55)'); g.addColorStop(.5, 'rgba(220,224,228,.22)'); g.addColorStop(1, 'rgba(210,214,218,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); }
+function lucy3_hitMat(h) { const m = h.object.material; return Array.isArray(m) ? m[h.face ? h.face.materialIndex : 0] || m[0] : m; }
 function lucy3_visibleHit(o) { for (let p = o; p; p = p.parent) if (!p.visible) return false; const m = [].concat(o.material)[0]; return !!m && m.visible !== false; }
 function lucy3_buildCar() {
   const C = lucy3_S.car, car = lenaCar; car.updateMatrixWorld(true); const rc = new THREE.Raycaster(), V = (a, b, c) => new THREE.Vector3(a, b, c);
   const hitsAt = (y, z) => { const o = car.localToWorld(V(4.5, y, z)), t = car.localToWorld(V(-4.5, y, z)); rc.set(o, t.sub(o).normalize()); rc.far = 9; return rc.intersectObject(car, true).filter(h => lucy3_visibleHit(h.object)); };
   // Heckscheibe suchen: von hinten waagerecht auf das Auto zielen; der erste Treffer auf Glas ist die Scheibe
   const pts = []; let nrm = null;
-  for (let y = .8; y <= 1.5; y += .03) { const H = hitsAt(y, 0)[0]; if (!H) continue; const m = [].concat(H.object.material)[0]; const glass = /glass|window/i.test(m.name || '') || (m.transparent && m.opacity < .95);
+  for (let y = .8; y <= 1.5; y += .03) { const H = hitsAt(y, 0)[0]; if (!H) continue; const m = lucy3_hitMat(H); const glass = /glass|window/i.test(m.name || '') || (m.transparent && m.opacity < .95);
     if (glass) { pts.push(car.worldToLocal(H.point.clone())); if (!nrm && H.face) nrm = H.face.normal.clone().transformDirection(H.object.matrixWorld); } }
-  C.info = { glassHits: pts.length, probe: [.9, 1.1, 1.3].map(y => hitsAt(y, 0).slice(0, 3).map(h => `${h.object.name}|${[].concat(h.object.material)[0].name}|${car.worldToLocal(h.point.clone()).toArray().map(v => v.toFixed(2))}`)) };
+  C.info = { glassHits: pts.length, probe: [.9, 1.1, 1.3].map(y => hitsAt(y, 0).slice(0, 3).map(h => `${h.object.name}|${(lucy3_hitMat(h) || {}).name}|${car.worldToLocal(h.point.clone()).toArray().map(v => v.toFixed(2))}`)) };
   if (pts.length < 3) { // Ersatz (Primitiv-Auto ohne Scan): feste Lage der hinteren Scheibe
     pts.length = 0; pts.push(V(1.15, 1.0, 0), V(.72, 1.34, 0)); nrm = V(1, 1.1, 0).normalize().transformDirection(car.matrixWorld); }
   const lo = pts[0], hi = pts[pts.length - 1], mid = lo.clone().add(hi).multiplyScalar(.5), len = lo.distanceTo(hi);

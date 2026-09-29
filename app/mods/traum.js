@@ -84,39 +84,26 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Ich bin durchgefahren und im Auto eingeschlafen. Jetzt ist es schon wieder Nacht.', 0, 3); }, 2500);
   story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Die Eltern vor dem, was sie unterschrieben haben. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
 }
-// ---------------------------------------------------------------- Kapitel 1 (W2-P3): Ortsschild „210“ und der UFO-Kegel
-// Ortsschild (Zusatzschild aus strasse.js: „Einwohner 214“, rot 211): nach Kapitel 1 steht daneben frisch in Kreide 210 (in K1 zu sehen, danach bleibt es).
-// Die Textur wird beim Laden vorbereitet und hochgeladen; getauscht wird nur die Karte des vorhandenen Materials (keine Shader-Neukompilierung).
-// UFO-Kegel (Kanon Beat 8): das Licht im Kegel flackert wie eine Kerze – nur die Intensität des vorhandenen Spots, kein neues Licht –
-// und wer im Kegel steht, hört leise Papier rascheln.
-const K1_S = { zus: null, plate: null, mat: null, map0: null, map210: null, act0: null, actP0: null, want: null, fl: 1, flTar: 1, flT: 0, rsT: 0 };
+// ---------------------------------------------------------------- Kapitel 1 (W2-P3): der UFO-Kegel und die Ortstafel
+// UFO-Kegel (Kanon Beat 8): das Licht im Kegel flackert wie eine Kerze – nur die Intensität des vorhandenen Spots (und die Deckkraft des Strahls),
+// kein neues Licht – und wer im Kegel steht, hört leise Papier rascheln.
+// Ortstafel: die Kreide-210 malt kino.js in K1 (kino_schild, bleibt danach). Hier nur der passende Text beim Ansehen, sobald Kapitel 1 vorbei ist.
+const K1_S = { zus: null, plate: null, act0: null, actP0: null, act210: null, want: null, fl: 1, flTar: 1, flT: 0, rsT: 0 };
 function k1_ortsschildPrep() {
   const S = K1_S; scene.traverse(o => { if (!o.isMesh || !o.geometry || !o.geometry.parameters || Math.abs(o.position.x + 72.3) > .2 || Math.abs(o.position.z - 6.3) > .2) return; const p = o.geometry.parameters;
     if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .3) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
-  const m = S.zus && Array.isArray(S.zus.material) ? S.zus.material[4] : null, src = m && m.map && m.map.image; if (!src || !src.width) return;
-  const c = document.createElement('canvas'), W = c.width = src.width, H = c.height = src.height, x = c.getContext('2d'), k = W / 512; x.drawImage(src, 0, 0);
-  // Kreide: helle, körnige Ziffern mit feuchtem, grauem Rand (auf dem hellen Blech sonst unsichtbar), leicht schief, links neben der roten 211
-  const cc = document.createElement('canvas'); cc.width = W; cc.height = H; const y = cc.getContext('2d');
-  y.translate(300 * k, 196 * k); y.rotate(-.06); y.font = `${Math.round(70 * k)}px Caveat, "Comic Sans MS", cursive`; y.textAlign = 'center'; y.lineJoin = 'round';
-  y.strokeStyle = 'rgba(70,72,74,.55)'; y.lineWidth = 5 * k; y.strokeText('210', 0, 0); y.fillStyle = 'rgba(252,252,248,.97)'; y.fillText('210', 0, 0);
-  y.setTransform(1, 0, 0, 1, 0, 0); y.globalCompositeOperation = 'destination-out';
-  for (let i = 0; i < 1400 * k * k; i++) { y.fillStyle = `rgba(0,0,0,${rand(.25, .8)})`; y.fillRect(rand(230, 380) * k, rand(130, 214) * k, rand(1, 2.4) * k, rand(1, 2.4) * k); }
-  x.drawImage(cc, 0, 0);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = m.map.colorSpace; t.anisotropy = m.map.anisotropy; t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT;
-  try { if (renderer.initTexture) renderer.initTexture(t); } catch (e) {}
-  S.mat = m; S.map0 = m.map; S.map210 = t; S.act0 = S.zus.userData.action; S.actP0 = S.plate ? S.plate.userData.action : null;
+  if (S.zus) S.act0 = S.zus.userData.action; if (S.plate) S.actP0 = S.plate.userData.action;
+  S.act210 = () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.', 5200);
 }
-// Schnittstelle (auch für kino.js): ortsschild210(true|false) – Kreide-210 an/aus
-function ortsschild210(on = true) { const S = K1_S; if (!S.mat) return false; S.want = !!on; S.mat.map = on ? S.map210 : S.map0;
-  const act = on ? () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.', 5200) : null;
-  if (S.zus.userData.action) S.zus.userData.action = act || S.act0; if (S.plate && S.plate.userData.action) S.plate.userData.action = act || S.actP0; return true; }
+function k1_schildText(on) { const S = K1_S; S.want = on;
+  if (S.zus && S.act0) S.zus.userData.action = on ? S.act210 : S.act0; if (S.plate && S.actP0) S.plate.userData.action = on ? S.act210 : S.actP0; }
 function k1_rascheln(px, pz) { // leises Papierrascheln: ein paar kurze, bandgefilterte Knister-Stöße aus dem Rauschen (keine Aufnahme vorhanden)
   const A = Audio; if (!A.ctx || !A.noiseBuf) return; const d = A.at(px + rand(-.7, .7), 1.2, pz + rand(-.7, .7), 1.5); if (A.cut) return;
   const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2600, 4400); bp.Q.value = .9; n.connect(bp);
   const k = 3 + Math.floor(Math.random() * 4); let at = 0; for (let i = 0; i < k; i++) { A.env(bp, rand(.03, .07), .004, rand(.025, .08), at, d); at += rand(.04, .12); }
   n.stop(A.ctx.currentTime + at + .4); }
 WORLD_TICK.push((dt, t, indoor) => { const S = K1_S;
-  if (S.mat) { const want = !!state.ch1Done || (typeof kap === 'function' ? kap() : curChapter()) >= 2; if (want !== S.want) ortsschild210(want); } // nur bei Wechsel – spätere Kapitel dürfen das Schild selbst ändern
+  if (S.zus) { const want = !!state.ch1Done || (typeof kap === 'function' ? kap() : curChapter()) >= 2; if (want !== S.want) k1_schildText(want); } // nur bei Wechsel
   if (!state.ufoOn || !state.phase2) return; const sp = ufo.userData.spot; if (!(sp.intensity > 0)) return;
   S.flT -= dt; if (S.flT <= 0) { S.flT = rand(.05, .16); S.flTar = Math.random() < .07 ? rand(.35, .55) : rand(.72, 1); } // Kerze: unruhig, ab und zu ein kurzes Einknicken
   S.fl += (S.flTar - S.fl) * Math.min(1, dt * 16); const f = S.fl * (.95 + .05 * Math.sin(t * 13.7));

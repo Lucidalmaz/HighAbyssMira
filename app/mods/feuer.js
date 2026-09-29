@@ -35,25 +35,33 @@ const FEU_VS = `attribute vec3 iPos; attribute vec4 iD; uniform float uCyl, uAsp
     vec3 r = mix(camR, normalize(vec3(camR.x, 0., camR.z) + vec3(1e-4, 0., 0.)), uCyl); vec3 u = mix(camU, vec3(0., 1., 0.), uCyl);
     float c = cos(iD.z), s = sin(iD.z); vec2 p = position.xy; p.y = (p.y + .5 * uCyl) * uAsp - .12 * uCyl * uAsp; p = vec2(c * p.x - s * p.y, s * p.x + c * p.y);
     vW = iPos + (r * p.x + u * p.y) * iD.x; gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.); }`;
-// Flamme: turbulentes Rauschen steigt durch eine sich verjüngende Form; Temperatur → weiß – gelb – orange – rot – Ruß
+// Flamme: turbulentes Rauschen steigt durch eine sich verjüngende Form (doppelt verwirbelt → Zungen, die sich ablösen); Farbe als Temperatur eines
+// rußenden Heizölfeuers: tiefrot – orange – gelb, blass-heiß nur ganz unten am Brennstoff. Weiche Ränder, oben ausfransend; deckend genug, dass sich
+// Schichten nicht zu Weiß aufaddieren (sonst „Pappflammen“).
 const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
   void main(){ float y = vUv.y, t = uTime * 1.6 + vSeed * 13.;
-    // Hülle: unten breit und rund, oben schmal; Rauschen, das nach oben strömt, frisst sie zu Zungen an
-    vec2 q = vec2(vUv.x * 3.1 + vSeed * 7.3, y * 2.6 - t * 2.2); float nz = fB(q + vec2(fB(q * .8 + vec2(0., t * .6)) * 1.1 - .55, 0.));
-    float x = (vUv.x - .5 + (nz - .5) * .38 * y) * 2.; float env = (1. - x * x * (1.6 + y * 2.4)) * (1. - y * .92) * smoothstep(0., .14, y);
-    float f = env * (nz * 1.45 + .12 + uCore * .35 * (1. - y)) - y * .16;
-    float heat = smoothstep(.1, .95, f) * smoothstep(0., .12, vAge) * (1. - smoothstep(.5, 1., vAge));
-    if (heat < .02) discard;
-    vec3 col = mix(vec3(.35, .04, .01), vec3(.95, .26, .03), smoothstep(.02, .28, heat)); col = mix(col, vec3(1., .58, .14), smoothstep(.28, .6, heat)); col = mix(col, vec3(1., .88, .62), smoothstep(.6, .95, heat) * (.35 + .65 * uCore));
-    float a = clamp(heat * 1.3, 0., 1.); gl_FragColor = vec4(col * uInt * (.35 + heat * .8) * a, a * .42); }`;
+    vec2 q = vec2(vUv.x * 2.7 + vSeed * 7.3, y * 2.3 - t * 2.4);
+    vec2 w1 = vec2(fB(q * .7 + vec2(0., t * .5)), fB(q * .7 + vec2(5.2, t * .45))) - .5;
+    float nz = fB(q + w1 * vec2(1.6, 1.1)); float fine = fN(q * 3.3 + w1 * 2. - vec2(0., t * 1.3));
+    float x = (vUv.x - .5 + (nz - .5) * .5 * y + w1.x * .12 * y) * 2.;
+    float env = (1. - x * x * (1.45 + y * 2.9)) * (1. - y * .86) * smoothstep(0., .16, y);
+    float f = env * (nz * 1.35 + fine * .35 + .06 + uCore * .3 * (1. - y)) - y * .22 - .04;
+    float heat = smoothstep(.06, .9, f) * smoothstep(0., .12, vAge) * (1. - smoothstep(.45, 1., vAge));
+    if (heat < .015) discard;
+    float base = 1. - smoothstep(.0, .35, y);
+    vec3 col = mix(vec3(.28, .03, .005), vec3(.86, .2, .02), smoothstep(.0, .3, heat));
+    col = mix(col, vec3(1., .47, .07), smoothstep(.25, .6, heat)); col = mix(col, vec3(1., .72, .28), smoothstep(.55, .9, heat) * (.45 + .55 * base));
+    col = mix(col, vec3(1., .88, .66), smoothstep(.8, 1., heat) * base * uCore);
+    float a = smoothstep(.0, .45, heat) * (1. - smoothstep(.62, 1., y + (fine - .5) * .25));
+    gl_FragColor = vec4(col * uInt * (.25 + heat * .75) * a, a * .55); }`;
 // Rauch: weiche, rollende Schwaden; von unten und zum Feuer hin orange angestrahlt; nah an der Kamera ausgeblendet (keine bildfüllenden Flächen)
 const FEU_FS_SMOKE = `uniform float uTime, uA, uGlow; uniform vec3 uCol, uGlowPos; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
   void main(){ vec2 q = vUv - .5; float r = length(q) * 2.;
     float n1 = fB(vUv * 2.2 + vec2(vSeed * 9., uTime * .06 + vAge * .9)), n2 = fB(vUv * 4.6 - vec2(uTime * .08 + vAge, vSeed * 3.));
     float d = smoothstep(1., .15, r + (n1 - .5) * .9) * (.5 + .5 * n2);
     float a = d * smoothstep(0., .2, vAge) * (1. - smoothstep(.6, 1., vAge)) * uA * smoothstep(.5, 2.2, distance(vW, cameraPosition)); if (a < .004) discard;
-    float lit = uGlow * exp(-distance(vW, uGlowPos) * .33) * (1.15 - vUv.y * .7) * (.55 + .45 * n2);
-    gl_FragColor = vec4(uCol * (.65 + .6 * n1) + vec3(1., .42, .12) * lit, min(a, .9)); }`;
+    float lit = uGlow * exp(-distance(vW, uGlowPos) * .5) * (1.2 - vUv.y * .9) * (.45 + .55 * n2);
+    gl_FragColor = vec4(uCol * (.6 + .7 * n1) + vec3(.9, .3, .07) * lit, min(a, .92)); }`;
 const FEU_FS_DOT = `uniform sampler2D map; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW;
   void main(){ float a = texture2D(map, vUv).r * (1. - smoothstep(.55, 1., vAge)) * (.55 + .45 * sin(vAge * 40. + vSeed * 20.)); if (a < .01) discard; gl_FragColor = vec4(mix(vec3(1., .8, .45), vec3(1., .35, .08), vAge) * 1.6, a); }`;
 function feuer_sys(N, mat, order) {
@@ -232,8 +240,8 @@ WORLD_MODS.push(['Feuer', async () => {
   { const dot = feuer_texDot(), T = S.timeU = { value: 0 };
     const mkMat = (fs, u, blend) => { const m = new THREE.ShaderMaterial({ uniforms: u, vertexShader: FEU_VS, fragmentShader: fs, transparent: true, depthWrite: false, blending: blend, fog: false }); if (blend === THREE.CustomBlending) { m.blendSrc = THREE.OneFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor; m.blendSrcAlpha = THREE.ZeroFactor; m.blendDstAlpha = THREE.OneFactor; } return m; };
     const fl = (int, core, asp) => mkMat(FEU_FS_FLAME, { uTime: T, uInt: { value: int }, uCore: { value: core }, uCyl: { value: 1 }, uAsp: { value: asp } }, THREE.CustomBlending);
-    S.pw = feuer_sys(120, fl(.7, 0, 1.25), 12); S.pf = feuer_sys(300, fl(.85, .25, 1.7), 13); S.pc = feuer_sys(140, fl(.8, .45, 1.4), 14);
-    S.ps = feuer_sys(320, mkMat(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x191511) }, uA: { value: .62 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
+    S.pw = feuer_sys(120, fl(.5, 0, 1.3), 12); S.pf = feuer_sys(300, fl(.58, .2, 1.8), 13); S.pc = feuer_sys(140, fl(.52, .5, 1.4), 14);
+    S.ps = feuer_sys(320, mkMat(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x0c0a08) }, uA: { value: .74 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
     S.pe = feuer_sys(300, mkMat(FEU_FS_DOT, { map: { value: dot }, uCyl: { value: 0 }, uAsp: { value: 3.2 } }, THREE.AdditiveBlending), 15); }
   // Licht: ein echtes Punktlicht mit Schatten (Wände, Möbel, der Körper werfen flackernde Schatten), Schatten nur während des Feuers neu gezeichnet
   { const L = S.fireP = new THREE.PointLight(0xff7a30, 0, 16, 2); L.castShadow = true; L.shadow.mapSize.set(512, 512); L.shadow.bias = -.006; L.shadow.normalBias = .02; L.shadow.camera.near = .15; L.shadow.autoUpdate = false; L.shadow.needsUpdate = true; L.position.set(X + 97, .9, Z); scene.add(L); }
@@ -624,7 +632,7 @@ WORLD_TICK.push((dt, t) => {
       if (Math.random() < dt * 11 * S.H) { const p = feuer_burnPoint(); if (p) FEU_SND.crackle(p.x, p.z); }
       if (Math.random() < dt * .9 * S.H) { const p = feuer_burnPoint(); if (p) { FEU_SND.pop(p.x, p.z); for (let k = 0; k < 6; k++) feuer_emit(S.pe, p.x, .3, p.z, rand(-1, 1), rand(2, 4), rand(-1, 1), rand(.6, 1.4), .018, .01, 0, 0); } }
       S.colT = (S.colT ?? 4) - dt; if (S.colT < 0 && S.burnT > 3) { S.colT = rand(5, 9); const p = feuer_burnPoint(); if (p) { FEU_SND.collapse(p.x, p.z); shake = Math.max(shake, .02); for (let k = 0; k < 16; k++) feuer_emit(S.pe, p.x, 1.2, p.z, rand(-1.4, 1.4), rand(-.5, 2.5), rand(-1.4, 1.4), rand(.8, 1.8), .02, .012, 0, 0); } }
-      S.ps.m.material.uniforms.uGlowPos.value.set(S.fireP.position.x, .5, Z); S.ps.m.material.uniforms.uGlow.value = S.H * .55 * fl;
+      S.ps.m.material.uniforms.uGlowPos.value.set(S.fireP.position.x, .5, Z); S.ps.m.material.uniforms.uGlow.value = S.H * .38 * fl;
       // Hitzeflimmern über den Flammen (Bildmitte des Brandes auf dem Schirm)
       if (S.haze) { _fhz.set(S.fireP.position.x, .9, Z).project(camera); const on = _fhz.z < 1 && Math.abs(_fhz.x) < 1.6 && Math.abs(_fhz.y) < 1.6; const U = S.haze.uniforms;
         U.uAmt.value = on ? S.H * (S.phase === 'escape' ? .8 : 1) : 0; U.uC.value.set(_fhz.x * .5 + .5, _fhz.y * .5 + .5); U.uR.value = Math.min(.6, 1.5 / Math.max(1.5, camera.position.distanceTo(S.fireP.position))); U.uT.value = t; U.uAsp.value = camera.aspect; }

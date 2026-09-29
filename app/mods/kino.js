@@ -171,11 +171,12 @@ function kino_schild(which) { const S = kino_S; if (!S.zus) { const hits = []; s
 
 // ---------------------------------------------------------------- Laden: Figuren vorwärmen/klonen, Requisiten unsichtbar anlegen
 WORLD_MODS.push(['Kino', async () => {
-  kino_css(); const S = kino_S, T = THREE;
+  kino_css(); const S = kino_S, T = THREE, t0 = performance.now(), lap = n => { S.loadT.push(n + ' ' + Math.round(performance.now() - t0)); }; S.loadT = [];
   // Figuren (figuren.js hat sie beim Laden schon geholt – hier nur klonen)
   const casts = [['lucy', 'lucy_erw'], ['hilde', 'hilde'], ['zayn', 'zayn'], ['mike', 'mike'], ['roxy', 'roxy'], ['junge', 'gezaehlt_j'], ['maedchen', 'gezaehlt_m'], ['frau', 'aydin'],
     ['kleine', 'kleine'], ['echt', 'luke_echt'], ['graue', 'graue'], ['kopie', 'luke']];
   if (typeof figuren_load === 'function') await Promise.all(casts.map(([k, id]) => kino_mkFig(k, id)));
+  lap('figuren');
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
   try { const src = await msModel('animal_crow', 'model.glb'), sk = await figuren_skc(), m = sk(src); m.scale.setScalar(1.45);
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
@@ -185,27 +186,33 @@ WORLD_MODS.push(['Kino', async () => {
   // Schwert (Scan) – Ende A: im Asphalt; Ende C: auf dem achten Stuhl
   await ld('schwert', async () => { const s = (await msModel('w_schwert', 'model.glb')).clone(true); msFit(s, 1.15, 'max'); const g = new T.Group(); const b = new T.Box3().setFromObject(s), c = b.getCenter(new T.Vector3()); s.position.sub(c); g.add(s);
     s.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); const sz = b.getSize(new T.Vector3()); S.swordAxis = sz.x > sz.y ? (sz.x > sz.z ? 'x' : 'z') : sz.y > sz.z ? 'y' : 'z'; kino_obj('schwert', g); });
+  lap('schwert');
   // Sturmlaterne (lantern1, Vegas' Laterne): Lucy in Ende K5; ohne Glut beim Mädchen in K3A
   const lanternSpec = { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2 } };
   for (const key of ['laterne', 'laterneAus']) await ld(key, async () => { const o = await msFBX('lantern1', 'model.fbx', lanternSpec); const g = msGround(msFit(o, .36, 'y')); g.traverse(m => { if (m.isMesh && m.material.name === 'buln') { m.material = m.material.clone(); m.material.emissive = new T.Color(key === 'laterne' ? 0xffb060 : 0); m.material.emissiveIntensity = key === 'laterne' ? 3 : 0; } }); kino_obj(key, g); });
   S.lucyLight = new VLight(0xffb060, 0, 7, 2); scene.add(S.lucyLight); // Laternenlicht K5 (beim Laden mit 0)
   S.rabeLight = new VLight(0xdfe9ff, 0, 7, 1.6); scene.add(S.rabeLight); // Whiskeys kaltes Licht K6
   S.coldLight = new VLight(0xdfe8ff, 0, 6, 2); scene.add(S.coldLight); // K1: das Kalte hinter der Kellerwand
+  lap('laterne');
   // Strickjacke (K6) über dem schlafenden Jungen
   await ld('jacke', async () => { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95 } }); const g = msGround(msFit(o, .62, 'y')); kino_obj('jacke', g); });
+  lap('jacke');
   // Hirschding (K5): eigener Klon, halb im Nebel
   await ld('hirsch', async () => { const src = await msModel('wendigo', 'hirschding.glb'); const o = msGround(msFit(src.clone(true), 2.75, 'y')); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; } });
     let head = null; o.traverse(b => { if (!head && b.isBone && /head/i.test(b.name)) head = b; }); S.hirschHead = head; S.hirschQ = head ? head.quaternion.clone() : null; kino_obj('hirsch', o); });
+  lap('hirsch');
   // Birken und Wiese von 1312 (K3C): eigener kleiner Aufbau im Weißen, nördlich von Raum 3
   await ld('wiese', async () => { const W = new T.Group(), cx = X3 + 42, cz = Z3 + 46; W.position.set(0, 0, 0);
     const gm = msSurfMat('lawn1', { tint: 0xb8b8a8, rep: 18 }); const ground = new T.Mesh(new T.PlaneGeometry(70, 70), gm); ground.rotation.x = -PI / 2; ground.position.set(cx, .02, cz); ground.receiveShadow = true; W.add(ground);
-    const bs = await msBake('w_birke', 'model.glb'); let hB = 0; for (const p of bs) { p.geo.computeBoundingBox(); hB = Math.max(hB, p.geo.boundingBox.max.y); }
+    const bs = await msBake('w_birke', 'lod.glb'); let hB = 0; for (const p of bs) { p.geo.computeBoundingBox(); hB = Math.max(hB, p.geo.boundingBox.max.y); }
     const sc = hB > 0 ? 11 / hB : 1, L = []; for (const [dx, dz] of [[-6, 4], [-2.5, 8], [3, 6], [7, 10], [-9, 12], [0, 15], [5, 17], [-5, 19], [10, 20], [-12, 6], [12, 13], [2, 24], [-3, 29], [8, 28]]) L.push(msM4(cx + dx + rand(-.8, .8), 0, cz + dz + rand(-.8, .8), rand(0, 6.28), sc * rand(.85, 1.15)));
     const im = bs.map(p => { const m = new T.InstancedMesh(p.geo, p.mat, L.length); L.forEach((M, i) => m.setMatrixAt(i, M)); m.castShadow = true; m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); return m; });
     const gr = await msBake('wildgrass1'); if (gr.length) { const G = []; for (let i = 0; i < 260; i++) G.push(msM4(cx + rand(-20, 20), 0, cz + rand(-6, 34), rand(0, 6.28), rand(.8, 1.3))); gr.forEach(p => { const m = new T.InstancedMesh(p.geo, p.mat, G.length); G.forEach((M, i) => m.setMatrixAt(i, M)); m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); }); }
     void im; S.wiese = { cx, cz }; kino_obj('wiese', W); });
+  lap('wiese');
   // Die große Papierlaterne (K3C): Innenleuchten nur über Emissive, kein Licht
   await ld('lampion', async () => { const o = await msFBX('w_papierlaterne', 'model.fbx', {}); const g = msGround(msFit(o, 14, 'y')); const mats = []; g.traverse(m => { if (m.isMesh) { m.castShadow = false; m.material = [].concat(m.material).map(x => { const c = x.clone(); c.emissive = new T.Color(0xffc27a); c.emissiveIntensity = 1.6; if (c.map) c.emissiveMap = c.map; mats.push(c); return c; }); if (m.material.length === 1) m.material = m.material[0]; } }); S.lampionMats = mats; kino_obj('lampion', g); });
+  lap('lampion');
   // Polaroid Zayn (K1): Bild nach oben, Rückseite Papier
   { const P = typeof PHOTOS !== 'undefined' ? PHOTOS.find(p => p.name === 'Zayn') : null, front = P && typeof polaroidCanvas === 'function' ? polaroidCanvas(P) : kino_polaBack('Zayn');
     const g = new T.Group(), mf = new T.MeshStandardMaterial({ map: tex(front, true), roughness: .55 }), mb = new T.MeshStandardMaterial({ map: tex(kino_polaBack(''), true), roughness: .8 });
@@ -227,11 +234,10 @@ WORLD_MODS.push(['Kino', async () => {
   kino_sprite('flamme', S.tex.flame, 0xe8f0ff, 1.1, false).scale.set(.32, .9, 1); kino_sprite('flammeSchein', S.tex.glow, 0x9fb8ff, 2.2, false);
   kino_sprite('puls', S.tex.glow, 0xf4f8ff, 30, false); kino_sprite('rabeSchein', S.tex.glow, 0xcfe0ff, 1.4, true);
   // Polaroid K3B („2043“): einmal beim Laden im Weißen fotografiert – Ritter, graues Mädchen, Junge mit braunen Augen
-  try { S.pola2043 = kino_foto2043(); } catch (e) { console.warn('Kino: Foto 2043', e); }
-  kino_defs(); S.ready = true;
+  kino_defs(); S.ready = true; lap('fertig');
 }]);
 
-// Einmalige Aufnahme beim Laden (kein Rendern zur Laufzeit): Blitzlicht über die Punktlicht-Reserve der Basis, danach alles zurück
+// Einmalige Aufnahme (beim ersten Start von k3b, solange das Bild noch schwarz ist – nie sichtbar gerendert): Blitzlicht über die Punktlicht-Reserve der Basis, danach alles zurück
 function kino_foto2043() {
   const S = kino_S, cv = document.createElement('canvas'); cv.width = 256; cv.height = 310; const x = cv.getContext('2d'); x.fillStyle = '#ece6d6'; x.fillRect(0, 0, 256, 310);
   const G = S.fig.graue, K = S.fig.kopie, J = justin && justin.g; let ok = false;
@@ -273,6 +279,7 @@ async function kino_play(id, opts = {}) {
   document.body.classList.add('cine', 'kino'); document.body.classList.toggle('kinoNoSkip', D.skipAfter > 0);
   if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .7s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(750); }
   else { fd.style.background = '#000'; }
+  if (id === 'k3b' && !S.pola2043) { try { S.pola2043 = kino_foto2043(); } catch (e) { console.warn('Kino: Foto 2043', e); } await wait(60); }
   $('subtitle').style.opacity = 0; S.prevCam = camOverride; setCamOverride(kino_cam);
   const done = new Promise(r => { S.res = r; });
   kino_next(); if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
@@ -595,5 +602,5 @@ function kino_eyes(key, white) { const P = kino_S.fig[key]; if (!P) return; if (
 // ---------------------------------------------------------------- Testzugriff
 window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w),
   cam: (p, l, f = 60) => { setCamOverride(cam => { cam.position.set(...p); cam.lookAt(...l); if (cam.fov !== f) { cam.fov = f; cam.updateProjectionMatrix(); } }); }, free: () => { setCamOverride(null); camera.fov = fov; camera.updateProjectionMatrix(); },
-  info: () => ({ figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
+  info: () => ({ loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
   mats: key => { const P = kino_S.fig[key]; return P ? P.mats.map(([m]) => m.name + ':' + [].concat(m.material).map(x => x.name).join('/')) : null; } };

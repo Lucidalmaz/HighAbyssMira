@@ -317,7 +317,7 @@ async function anwesen_hallEnd() {
 // Endkarte Kapitel 4 (PK-H) mit dem Übergang zu Kapitel 5
 function anwesen_endcard() {
   const ec = $('endcard'); state.ending = true; state.talking = false; Audio.hum(false);
-  ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · DIE VILLA SEILER';
+  ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · DIE VILLA SEILER'; // Titel bricht als Ganzes um
   ec.querySelector('p').innerHTML = 'Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.<br>Am Abend brennt auch in eurem Elternhaus Licht.';
   $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; ec.querySelector('.next').textContent = '';
   const b4 = ec.querySelector('.go4'); if (b4) b4.style.display = 'none';
@@ -368,7 +368,7 @@ const ANW_SMOKE_FS = `uniform float uTime, uA, fogD; uniform vec3 uCol, fogC, fl
   float fb(vec2 p){ return n(p) * .5 + n(p * 2.03 + 1.7) * .3 + n(p * 4.11 + 3.1) * .2; }
   void main(){ vec2 q = vUv - .5; float r = length(q) * 2.;
     float n1 = fb(vUv * 1.9 + vec2(vSeed * 9., uTime * .05 + vAge * .7)), n2 = fb(vUv * 4.2 - vec2(uTime * .06 + vAge * .9, vSeed * 3.));
-    float d = smoothstep(1., .05, r + (n1 - .5) * 1.1) * (.25 + .75 * n2 * n2);
+    float d = smoothstep(1., .05, r + (n1 - .5) * 1.1) * (.15 + .85 * n2 * n2 * n2);
     float dc = distance(vW, cameraPosition);
     float a = d * smoothstep(0., .18, vAge) * (1. - smoothstep(.3, 1., vAge)) * uA * smoothstep(.5, 1.8, dc) * smoothstep(0., .3, vW.y); if (a < .003) discard;
     vec3 L = vW - flP; float dl = max(length(L), .001), beam = flK.x * smoothstep(flK.y, flK.y + (1. - flK.y) * .5, dot(L / dl, flD)) / (1. + dl * dl * .06);
@@ -380,17 +380,17 @@ function anwesen_smokeBuild() {
   const ip = new T.InstancedBufferAttribute(new Float32Array(N * 3), 3), id = new T.InstancedBufferAttribute(new Float32Array(N * 4), 4); ip.setUsage(T.DynamicDrawUsage); id.setUsage(T.DynamicDrawUsage);
   g.setAttribute('iPos', ip); g.setAttribute('iD', id); g.instanceCount = 0; g.boundingSphere = new T.Sphere(new T.Vector3(ANW_GULLY.x + 1.5, 2, ANW_GULLY.z), 7);
   const FU = typeof fogUniforms !== 'undefined' ? fogUniforms : null;
-  const u = { uTime: { value: 0 }, uA: { value: .26 }, uCol: { value: new T.Color(.034, .038, .046) }, fogC: { value: scene.fog.color }, fogD: { value: scene.fog.density },
+  const u = { uTime: { value: 0 }, uA: { value: .19 }, uCol: { value: new T.Color(.034, .034, .037) }, fogC: { value: scene.fog.color }, fogD: { value: scene.fog.density },
     flP: FU ? FU.flP : { value: new T.Vector3() }, flD: FU ? FU.flD : { value: new T.Vector3(0, 0, -1) }, flK: FU ? FU.flK : { value: new T.Vector2() } };
   const mat = new T.ShaderMaterial({ uniforms: u, vertexShader: ANW_SMOKE_VS, fragmentShader: ANW_SMOKE_FS, transparent: true, depthWrite: false, fog: false });
   const m = new T.Mesh(g, mat); m.renderOrder = 11; m.userData.noCol = true; m.castShadow = false; m.receiveShadow = false; scene.add(m); // sichtbar lassen: Shader wird beim Laden übersetzt
-  const F = () => new Float32Array(N), M = { m, g, ip, id, u, N, n: 0, acc: 0, rate: 3.4, on: false, chk: 0, said: false, x: F(), y: F(), z: F(), vx: F(), vy: F(), vz: F(), age: F(), life: F(), s0: F(), s1: F(), rot: F(), rv: F(), seed: F() };
+  const F = () => new Float32Array(N), M = { m, g, ip, id, u, N, n: 0, acc: 0, rate: 3.0, on: false, chk: 0, said: false, x: F(), y: F(), z: F(), vx: F(), vy: F(), vz: F(), age: F(), life: F(), s0: F(), s1: F(), rot: F(), rv: F(), seed: F() };
   M.arr = [M.x, M.y, M.z, M.vx, M.vy, M.vz, M.age, M.life, M.s0, M.s1, M.rot, M.rv, M.seed]; anwesen_S.smoke = M; return M;
 }
 function anwesen_smokeEmit(M) {
   if (M.n >= M.N) return; const i = M.n++, a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * .28; // aus den Schlitzen des Deckels (ø 0,6 m)
   M.x[i] = ANW_GULLY.x + Math.cos(a) * r; M.y[i] = .06; M.z[i] = ANW_GULLY.z + Math.sin(a) * r; M.vx[i] = rand(-.03, .03); M.vy[i] = rand(.28, .42); M.vz[i] = rand(-.03, .03);
-  M.age[i] = 0; M.life[i] = rand(6.5, 9.5); M.s0[i] = rand(.18, .28); M.s1[i] = rand(1.3, 1.9); M.rot[i] = rand(0, 6.283); M.rv[i] = rand(-.25, .25); M.seed[i] = Math.random();
+  M.age[i] = 0; M.life[i] = rand(6.5, 9.5); M.s0[i] = rand(.18, .28); M.s1[i] = rand(.9, 1.4); M.rot[i] = rand(0, 6.283); M.rv[i] = rand(-.25, .25); M.seed[i] = Math.random();
 }
 function anwesen_smokeTick(M, dt, t, P) {
   M.chk -= dt; if (M.chk <= 0) { M.chk = .5; const S = anwesen_S; M.on = S.ch4 && !S.inHall && !S.hallDone && (typeof kap === 'function' ? kap() : curChapter()) === 4; }
@@ -402,7 +402,7 @@ function anwesen_smokeTick(M, dt, t, P) {
   if (near) { M.acc += dt * M.rate; while (M.acc >= 1) { M.acc -= 1; anwesen_smokeEmit(M); }
     if (!M.said && !state.talking && !ui.overlay && Math.hypot(P.x - ANW_GULLY.x, P.z - ANW_GULLY.z) < 6) { M.said = true; // Gedanke beim Nähern (PK-H)
       if (typeof gedanke === 'function') gedanke('k4_rauch', 'Rauch. Von ganz unten. Der Gang brennt noch.', 0, 3); else subtitle('Rauch. Von ganz unten. Der Gang brennt noch.', 4200, 'LUKE'); } }
-  const ip = M.ip.array, id = M.id.array, A = M.arr, wx = .2 + Math.sin(t * .13) * .06, wz = -.05 + Math.sin(t * .09 + 1) * .05;
+  const ip = M.ip.array, id = M.id.array, A = M.arr, wx = .32 + Math.sin(t * .13) * .08, wz = -.05 + Math.sin(t * .09 + 1) * .05;
   for (let i = 0; i < M.n; i++) {
     M.age[i] += dt; if (M.age[i] >= M.life[i]) { const j = --M.n; if (i !== j) for (let k = 0; k < A.length; k++) A[k][i] = A[k][j]; i--; continue; }
     const k = M.age[i] / M.life[i], hw = Math.min(1, M.y[i] / 1.4); // der Wind greift erst über dem Boden

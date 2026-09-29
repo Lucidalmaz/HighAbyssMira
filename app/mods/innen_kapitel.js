@@ -192,7 +192,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     // Gruppenfoto an der Westwand
     put(kFrameG, 0, ZA + 3.2, { ry: Math.PI / 2, y: 1.2, minX: XA + 18.155 });
     const ph = plane(.4, .58, XA + 18.18, 1.2 + .345, ZA + 3.2, photoMat('group'), 0, Math.PI / 2);
-    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder an der Kreuzung, in einer Reihe. Du zählst: <b>acht</b>.\n\nDas achte Kind steht ganz rechts, ein Mädchen im weißen Kleid. Ihr Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. Partner anwesend. Wird benötigt, wenn Nr. 8 fragt.“</i>', 'gruppenfoto'));
+    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder an der Kreuzung, in einer Reihe. Du zählst: <b>acht</b>.\n\nDas achte Kind steht ganz rechts, ein Mädchen im weißen Kleid. Ihr Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. Partner anwesend. Auswahl bestätigt.“</i>', 'gruppenfoto'));
     for (let x = XA + 19; x < XA + 29; x += R(2.5, 3.5)) onWall(damp, x, .22, ZA + 5.84, R(1.8, 2.6), R(.4, .55), Math.PI);
     papers(XA + 21, ZA - 3.8, 7, 1.2); papers(XA + 27, ZA + 3.6, 6, 1.2); papers(XA + 19.5, ZA + .5, 3, .5);
     flat(soot, XA + 20, ZA - 4.7, .9, 1.3, 0, .01); // Staub und Abrieb vor der leergeräumten Schublade
@@ -408,6 +408,8 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     const fam = plane(.53, .77, XW + 19.845 - .02, 1.3 + .45, ZW + 3.4, photoMat('white'), 0, -Math.PI / 2);
     interact(fam, 'Familienfoto', note('Familienfoto', 'Mama, Lucy, ein Junge mit Sommersprossen. Sommer 2008.\n\nDas Gesicht des Jungen ist hell geworden, als stünde er zu nah am Blitz. Je länger du hinsiehst, desto weniger ist davon übrig.', 'familienfoto'));
     put(kLampW, XW + 19.4, ZW - 5.35, { ry: .4 });
+    // Schrank (K3-6): Küchenschrank an der Nordwand; Spalt, Atmen und „leer beim Hinsehen“ macht weiss.js
+    { const m = put(kDresserW, XW + 14.4, 0, { ry: Math.PI, maxZ: ZW + 5.83 }); S.schrank = aabb(kDresserW, m); }
     flat(kidMats[0], XW + 13.8, ZW - 1.5, .26, .36, .4, .012); flat(kidMats[2], XW + 14.3, ZW - 1.2, .26, .36, -.7, .012);
 
     // Küche (x +20…+32): Tisch, Stühle, Küchenbuffet, Regulator-Uhr, Radio
@@ -429,11 +431,12 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
 
     // Der Hohe Abgrund: acht weiße Stühle, alte Blutspur von der Tür bis zum Rand des Lichts, Zeichnungen
     find((o, c, s) => o.material === M.metal && c.x > XW + 35 && c.x < XW + 49 && s.y < .75).forEach(hide);
-    for (let i = 0; i < 8; i++) { const a = i / 8 * PI2, cx = XW + 42 + Math.cos(a) * 5.1, cz = ZW + Math.sin(a) * 5.1; const cm = put(kChairW, cx, cz, { ry: Math.atan2(XW + 42 - cx, ZW - cz) }); if (i === 0) S.seatW = surfY(kChairW, cm, cx - Math.cos(a) * .05, cz - Math.sin(a) * .05, .8); }
+    const kChairR3 = variant(kChairW, m => m); // eigene Instanzen ('chair**'): weiss.js blendet die Stühle erst in Raum 3, Teil 2 ein
+    for (let i = 0; i < 8; i++) { const a = i / 8 * PI2, cx = XW + 42 + Math.cos(a) * 5.1, cz = ZW + Math.sin(a) * 5.1; const cm = put(kChairR3, cx, cz, { ry: Math.atan2(XW + 42 - cx, ZW - cz) }); if (i === 0) S.seatW = surfY(kChairR3, cm, cx - Math.cos(a) * .05, cz - Math.sin(a) * .05, .8); }
     for (let x = XW + 32.6, i = 0; x < XW + 38.8; x += R(.5, .9), i++) flat(i % 2 ? bloodOld : bloodOldS, x, ZW + R(-.25, .25) + Math.sin(i) * .2, R(.35, .6), R(.35, .8), R(0, 6), .013);
     for (let i = 0; i < 8; i++) { if (i === 4) continue; const a = i / 8 * PI2; flat(kidMats[i % 3], XW + 42 + Math.cos(a) * 4.1, ZW + Math.sin(a) * 4.1, .26, .36, -a + Math.PI / 2 + R(-.3, .3), .012); }
     const kd = plane(.3, .42, XW + 38.2, .013, ZW + .1, new THREE.MeshStandardMaterial({ map: tex(paperCanvas('kid', 2), true), roughness: .95, emissive: 0x111111 }), -Math.PI / 2, -Math.PI / 2 + .1);
-    interact(kd, 'Zeichnung vor dem leeren Stuhl', note('Vor dem achten Stuhl', 'Buntstift, sorgfältig. Ein großer Mann aus grauem Eisen, daneben ein kleiner Junge mit braunen Augen. Sie halten sich an der Hand.\n\nDarunter, in Kinderschrift: <b>PAPA + ICH</b>.\n\nDas Papier ist so alt, dass es an den Rändern zu Staub zerfällt.', 'papaich'));
+    interact(kd, 'Zeichnung vor dem leeren Stuhl', note('Vor dem achten Stuhl', 'Buntstift, sorgfältig. Ein großer Mann aus grauem Eisen, daneben ein kleiner Junge mit braunen Augen. Sie halten sich an der Hand.\n\nDarunter, in Kinderschrift: <b>PAPA + ICH</b>.\n\nDas Papier ist so alt, dass es an den Rändern zu Staub zerfällt.', 'papaich')); S.papaich = kd;
     // STORY-HOOK: Zeichnung „PAPA + ICH“ – das achte Kind, aus Justin gemacht
   }
 
