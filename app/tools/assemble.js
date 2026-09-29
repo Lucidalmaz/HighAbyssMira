@@ -4,7 +4,7 @@
 // dann jedes mods/<bereich>.js vor der Zeile // @@WELT-MODULE@@ – Reihenfolge laut BRIEF.md.
 const fs = require('fs'), path = require('path'), cp = require('child_process');
 const APP = path.resolve(__dirname, '..'), MODS = path.join(APP, 'mods');
-const ORDER = ['kapitel', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'fotos', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'akte', 'klang', 'spannung', 'traum', 'kino', 'tod', 'feuer', 'augenzu', 'zimmer7', 'lucy3', 'kamera', 'kapitel5', 'kapitel6', 'raender'];
+const ORDER = ['kapitel', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'fotos', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'akte', 'klang', 'spannung', 'traum', 'weiss', 'kino', 'tod', 'feuer', 'augenzu', 'zimmer7', 'lucy3', 'kamera', 'kapitel5', 'kapitel6', 'raender'];
 // Veröffentlichung: --release (oder HAM_RELEASE=1) → ../game/index.release.html; die Test-index.html bleibt unberührt (parallele Selbsttests).
 // Setzt window.IS_RELEASE (Basis: DEV = false → kein Story-Editor, keine F3-Messanzeige, keine Entwickler-Hinweise) und entfernt alle
 // Testzugriffe: Zuweisungen an window.G, window.HAM_UI und window.__* – außer denen, die das Spiel selbst liest (Ladeanzeige, __traumWake).

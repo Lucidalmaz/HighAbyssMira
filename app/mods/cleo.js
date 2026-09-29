@@ -5,7 +5,7 @@
 // Darum erinnert sich niemand an Cleo, nicht einmal ihre Eltern. Nur Lucy hat sie jeden Tag in ihr Tagebuch geschrieben: „C.“
 // Spuren: Kap. 1 – Lucys Tagebuch, die Lücke im Gruppenfoto, der weiß gekratzte achte Stein am Gedenkfeld · Kap. 2 – die Akte ohne Nummer („FREIWILLIG“)
 // Kap. 3 – Whiskey tauscht den Baumhausschlüssel, das Baumhaus in den Forbidden Dustwoods · Ende: Luke schreibt ihren Namen mit Kreide auf den Stein. Er „stiehlt“ ihn zurück.
-const cleo_S = { ready: false, stone: null, name: null, up: false, lid: null };
+const cleo_S = { ready: false, stone: null, name: null, up: false, lid: null, baum: [], baumHits: [], k: 0 };
 const CLEO_STONE = { x: -48.65, z: 72.95 };
 const cleo_has = k => story.lore.some(l => l.key === k);
 function cleo_start(desc) { sideStart('cleo'); if (desc) story.side.cleo.desc = desc; }
@@ -31,14 +31,14 @@ WORLD_MODS.push(['Cleo', async () => {
   // --- Kapitel 3: das Baumhaus (Plattform aus dem Modul wald) – Strickleiter, Kiste
   const P = WALD.tree, y = wald_S.treeY || 2.2;
   { const up = box(.8, 1.6, .5, P.x, .9, P.z - 1.55, hidden, { cast: false }); interact(up, 'Strickleiter hinaufklettern', () => cleo_climb(true));
-    const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); }
-  { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false });
+    const down = box(.8, .6, .4, P.x, y + .4, P.z - 1.05, hidden, { cast: false }); interact(down, 'Hinunterklettern', () => cleo_climb(false)); S.baumHits.push(up, down); }
+  { const wood = msSurfMat('planks_painted', { tint: 0x6a4a34 }), cx = P.x + .55, cz = P.z + .15; S.baum.push(box(.7, .36, .44, cx, y + .18, cz, wood, { collide: false }));
     const piv = new T.Group(); piv.position.set(cx, y + .36, cz + .22); scene.add(piv); const lid = box(.72, .06, .46, 0, .03, -.22, wood, { parent: piv }); S.lid = piv;
     const lock = box(.07, .08, .02, cx, y + .3, cz - .23, new T.MeshStandardMaterial({ color: 0xa08040, metalness: .8, roughness: .35 }), { collide: false }); S.lock = lock;
-    const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); }
+    const hit = box(.8, .5, .55, cx, y + .25, cz, hidden, { cast: false }); interact(hit, () => cleo_has('cleo_baumhaus') ? 'Cleos Kiste' : 'Kiste mit Vorhängeschloss', () => cleo_chest(lock)); S.baum.push(piv); S.baumHits.push(hit); }
   if (typeof hintAdd === 'function') { hintAdd({ id: 'cleo_stein', x: CLEO_STONE.x, y: 0, z: CLEO_STONE.z, kind: 'story', near: 30, open: () => !cleo_has('cleo_gedenk') || (story.items.includes('cleo_kreide') && !cleo_has('cleo_ende')) });
-    hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
-  S.ready = true;
+    hintAdd({ id: 'cleo_baumhaus', x: P.x, y: 0, z: P.z, kind: 'story', near: 45, open: () => kapAb(6) && story.items.includes('baumhausschluessel') && !cleo_has('cleo_baumhaus') }); }
+  cleo_sperre(); S.ready = true;
 }]);
 function cleo_stone() {
   const S = cleo_S;
@@ -79,7 +79,13 @@ function cleo_chest(lock) {
 }
 function cleo_letter() { return '<span class="hand">Liebe Lucy,\nich hab gehört, wie die Männer vom Amt gesagt haben: sieben. Ich hab gefragt, ob auch eine reicht. Eine für sieben. Dann dürfen alle heim.\nWenn ihr mich vergesst, ist das nicht schlimm. Dann hat es geklappt.\nGeschenkt ist geschenkt.\n– Cleo, 8</span>'; }
 applySave = (o => d => { o(d); const S = cleo_S; if (cleo_has('cleo_ende') && S.name) S.name.visible = true;
-  if (cleo_has('cleo_baumhaus') && S.lid) { S.lid.rotation.x = -1.9; if (S.lock) S.lock.visible = false; } })(applySave);
+  if (cleo_has('cleo_baumhaus') && S.lid) { S.lid.rotation.x = -1.9; if (S.lock) S.lock.visible = false; } cleo_sperre(); })(applySave);
+// Kapitel-Sperre (PK-A A12): das Baumhaus steht in den Dustwoods → Kiste und Strickleiter erst ab Kapitel 6; vorher unsichtbar und nicht anklickbar
+function cleo_sperre() {
+  const S = cleo_S, on = kapAb(6); for (const m of S.baum) m.visible = on; if (S.lock) S.lock.visible = on && !cleo_has('cleo_baumhaus');
+  for (const h of S.baumHits) { const i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); }
+}
+for (let n = 1; n <= 6; n++) KAP_BEGIN[n].push(() => cleo_sperre());
 async function cleo_end() {
   const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
   try { // state.talking wird immer zurückgesetzt
@@ -94,6 +100,6 @@ async function cleo_end() {
   sideDone('cleo', 'Ihr Name steht auf dem Stein: CLEO.'); questPop('ERINNERUNG', 'Cleo');
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('cleo_nach', 'Lucy hat sie nie vergessen. Siebzehn Jahre lang, jeden Tag ein C. … Jetzt vergesse ich sie auch nicht mehr.', 0, 3); }, 8000);
 }
-WORLD_TICK.push(() => { const S = cleo_S; if (!S.ready || !state.started) return;
+WORLD_TICK.push(() => { const S = cleo_S; if (!S.ready) return; const k = kap(); if (k !== S.k) { S.k = k; cleo_sperre(); } if (!state.started) return;
   if (state.diary && story.side.cleo.state === 'hidden') cleo_start('In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C. Zu C.s Geburtstag kam 2009 niemand außer Lucy.'); });
 window.__cleo = { S: cleo_S, stone: () => cleo_stone(), akte: () => cleo_akte(), climb: u => cleo_climb(u), end: () => cleo_end() }; // Testzugriff

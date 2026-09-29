@@ -55,7 +55,7 @@ function lucy3_isK3() { if (!ch3.on || ch3.part !== 'town') return false; if (ty
   .l3 .dust { position: relative; height: 78px; max-width: 540px; margin: 10px auto 4px; border-radius: 3px; overflow: hidden;
     background: radial-gradient(60% 90% at 30% 40%, rgba(214,206,186,.35), transparent 70%), radial-gradient(40% 70% at 80% 70%, rgba(190,180,160,.3), transparent 70%), var(--noise), linear-gradient(180deg, #6d675b, #56514a 60%, #4a463f);
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 2px 10px rgba(0,0,0,.5), 0 0 0 4px #14100c, 0 0 0 5px rgba(201,163,106,.12); }
-  .l3 .dust::before { content: ''; position: absolute; inset: 0; background: repeating-radial-gradient(circle at 17% 33%, rgba(230,222,200,.09) 0 1px, transparent 1px 7px), repeating-radial-gradient(circle at 71% 61%, rgba(230,222,200,.07) 0 1px, transparent 1px 9px); }
+  .l3 .dust::before { content: ''; position: absolute; inset: 0; opacity: .5; background: radial-gradient(circle, rgba(236,228,206,.5) .6px, transparent 1.2px) 0 0 / 5px 6px, radial-gradient(circle, rgba(20,16,12,.35) .6px, transparent 1.3px) 2px 3px / 7px 5px; }
   .l3 .dust span { position: absolute; left: 0; right: 0; top: 0; font: 62px/80px Caveat, cursive; letter-spacing: .03em; color: #1f1c18; text-shadow: 0 1px 0 rgba(255,250,230,.18), 0 -1px 2px rgba(0,0,0,.7); clip-path: inset(0 100% 0 0); animation: l3write 1.4s steps(28) forwards; }
   .l3 .dust span.gone { animation: l3wipe .9s ease-in forwards; clip-path: none; }
   .l3 .dust em { position: absolute; left: 0; right: 0; top: 26px; font: italic 17px "Cormorant Garamond", Georgia, serif; color: rgba(40,34,28,.8); }
@@ -126,16 +126,17 @@ chapter3Opening = lucy3_opening;
 const LUCY3_BANDS = [[3.3, '90 m'], [4.9, '60 m'], [6.0, '49 m'], [7.2, '41 m'], [9.6, '31 m'], [11.8, '25 m'], [13.7, '22 m'], [15.4, '19 m'], [17.7, '16 m'], [21.6, '13 m'], [25.8, '11 m']];
 function lucy3_drawDial(c, f, sig, t) {
   const x = c.getContext('2d'), w = c.width, h = c.height, fx = v => 34 + (v - 3) / 29 * (w - 68);
-  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#2a1606'); g.addColorStop(.5, '#3c220a'); g.addColorStop(1, '#1a0d04'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-  const glow = x.createRadialGradient(w / 2, h * .55, 10, w / 2, h * .55, w * .6); glow.addColorStop(0, `rgba(255,170,70,${.22 + sig * .1})`); glow.addColorStop(1, 'rgba(255,120,30,0)'); x.fillStyle = glow; x.fillRect(0, 0, w, h);
-  x.strokeStyle = 'rgba(40,20,6,.85)'; x.fillStyle = 'rgba(40,20,6,.9)'; x.textAlign = 'center';
-  for (let v = 3; v <= 32.001; v += .5) { const X = fx(v), big = Math.abs(v - Math.round(v)) < .01; x.lineWidth = big ? 2 : 1; x.beginPath(); x.moveTo(X, 58); x.lineTo(X, big ? 80 : 70); x.stroke();
-    if (big && Math.round(v) % 2 === 1) { x.font = '600 17px "Cormorant Garamond", Georgia, serif'; x.fillText(String(Math.round(v)), X, 100); } }
-  x.lineWidth = 2; x.beginPath(); x.moveTo(fx(3), 80); x.lineTo(fx(32), 80); x.stroke();
-  x.font = 'italic 14px "Cormorant Garamond", Georgia, serif'; x.fillStyle = 'rgba(60,30,8,.8)';
-  for (const [v, s] of LUCY3_BANDS) { const X = fx(v); x.fillText(s, X, 30); x.beginPath(); x.moveTo(X - 12, 38); x.lineTo(X + 12, 38); x.stroke(); }
-  x.font = '600 11px "Cormorant Garamond", Georgia, serif'; x.fillStyle = 'rgba(60,30,8,.75)'; x.fillText('KURZWELLE · MHz', w / 2, 118);
-  const X = fx(f) + Math.sin(t * 31) * .6; x.strokeStyle = '#b3120a'; x.lineWidth = 3; x.shadowColor = 'rgba(255,40,20,.7)'; x.shadowBlur = 8; x.beginPath(); x.moveTo(X, 6); x.lineTo(X, h - 6); x.stroke(); x.shadowBlur = 0;
+  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#6e4515'); g.addColorStop(.5, '#b07a34'); g.addColorStop(1, '#5a370f'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  const glow = x.createRadialGradient(w / 2, h * .55, 10, w / 2, h * .55, w * .6); glow.addColorStop(0, `rgba(255,205,120,${.35 + sig * .15})`); glow.addColorStop(1, 'rgba(255,120,30,0)'); x.fillStyle = glow; x.fillRect(0, 0, w, h);
+  x.strokeStyle = 'rgba(28,12,2,.9)'; x.fillStyle = 'rgba(28,12,2,.92)'; x.textAlign = 'center';
+  for (let v = 3; v <= 32.001; v += .5) { const X = fx(v), big = Math.abs(v - Math.round(v)) < .01; x.lineWidth = big ? 2 : 1; x.beginPath(); x.moveTo(X, 92); x.lineTo(X, big ? 140 : 120); x.stroke();
+    if (big && Math.round(v) % 2 === 1) { x.font = '600 34px "Cormorant Garamond", Georgia, serif'; x.fillText(String(Math.round(v)), X, 180); } }
+  x.lineWidth = 3; x.beginPath(); x.moveTo(fx(3), 140); x.lineTo(fx(32), 140); x.stroke();
+  x.font = 'italic 28px "Cormorant Garamond", Georgia, serif'; x.fillStyle = 'rgba(40,18,4,.85)';
+  for (const [v, s] of LUCY3_BANDS) { const X = fx(v); x.fillText(s, X, 50); x.beginPath(); x.moveTo(X - 20, 64); x.lineTo(X + 20, 64); x.stroke(); }
+  x.font = '600 22px "Cormorant Garamond", Georgia, serif'; x.fillStyle = 'rgba(40,18,4,.8)'; x.fillText('K U R Z W E L L E  ·  M H z', w / 2, 226);
+  const X = fx(f) + Math.sin(t * 31) * .6; x.strokeStyle = '#a30d06'; x.lineWidth = 5; x.shadowColor = 'rgba(255,40,20,.7)'; x.shadowBlur = 8; x.beginPath(); x.moveTo(X, 6); x.lineTo(X, h - 6); x.stroke(); x.shadowBlur = 0;
+  const v = x.createLinearGradient(0, 0, w, 0); v.addColorStop(0, 'rgba(0,0,0,.55)'); v.addColorStop(.12, 'rgba(0,0,0,0)'); v.addColorStop(.88, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)'); x.fillStyle = v; x.fillRect(0, 0, w, h);
   x.fillStyle = 'rgba(0,0,0,.25)'; for (let i = 0; i < 40; i++) x.fillRect(Math.random() * w, Math.random() * h, 1, 1);
 }
 function lucy3_drawEye(c, sig, t) {
@@ -342,22 +343,25 @@ wrongSwitch = lucy3_wrongSwitch;
 // ---------------------------------------------------------------- K3-3: Lucys Auto an der Südsperre (Decals, Abgas, Motor, Radio, Handabdruck)
 // Beschlagene Heckscheibe: Beschlag mit Tropfen; GROSSER mit dem Finger freigewischt (von innen), darunter älter HASEN…, der Rest mit dem Ärmel weg
 function lucy3_fogTex() { const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d'), w = 1024, h = 512;
-  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(206,212,216,.62)'); g.addColorStop(1, 'rgba(190,196,200,.72)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-  for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(255,255,255,${rand(.03, .12)})`; x.beginPath(); x.arc(rand(0, w), rand(0, h), rand(.6, 2.6), 0, 7); x.fill(); } // Beschlag-Körnung
+  const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(196,204,210,.34)'); g.addColorStop(1, 'rgba(186,194,200,.46)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(235,240,244,${rand(.03, .1)})`; x.beginPath(); x.arc(rand(0, w), rand(0, h), rand(.6, 2.6), 0, 7); x.fill(); } // Beschlag-Körnung
   // Ränder dichter (Scheibe beschlägt vom Rand her)
-  const e = x.createRadialGradient(w / 2, h / 2, h * .2, w / 2, h / 2, w * .62); e.addColorStop(0, 'rgba(0,0,0,0)'); e.addColorStop(1, 'rgba(225,230,232,.35)'); x.fillStyle = e; x.fillRect(0, 0, w, h);
+  const e = x.createRadialGradient(w / 2, h / 2, h * .2, w / 2, h / 2, w * .62); e.addColorStop(0, 'rgba(0,0,0,0)'); e.addColorStop(1, 'rgba(215,222,226,.22)'); x.fillStyle = e; x.fillRect(0, 0, w, h);
   x.globalCompositeOperation = 'destination-out';
   // GROSSER – Fingerschrift, frisch
-  x.save(); x.translate(w * .5, h * .4); x.rotate(-.035); x.font = '700 190px Caveat, cursive'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(0,0,0,.93)'; x.fillText('GROSSER', 0, 0);
+  x.save(); x.translate(w * .5, h * .4); x.rotate(-.035); x.font = '500 196px Caveat, cursive'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(0,0,0,.93)'; x.fillText('GROSSER', 0, 0);
   x.lineWidth = 3; x.strokeStyle = 'rgba(0,0,0,.6)'; x.strokeText('GROSSER', 0, 0); x.restore();
   // Tropfen, die aus den Buchstaben herunterlaufen
   for (let i = 0; i < 22; i++) { const px = rand(w * .17, w * .83), py = rand(h * .45, h * .52), L = rand(30, 150); x.lineWidth = rand(3, 6); x.strokeStyle = 'rgba(0,0,0,.75)'; x.beginPath(); x.moveTo(px, py); x.bezierCurveTo(px + rand(-4, 4), py + L * .4, px + rand(-6, 6), py + L * .7, px + rand(-5, 5), py + L); x.stroke(); x.beginPath(); x.arc(px, py + L, x.lineWidth * .9, 0, 7); x.fill(); }
   // HASEN… – älter, halb wieder beschlagen
-  x.save(); x.translate(w * .34, h * .8); x.rotate(.03); x.font = '700 104px Caveat, cursive'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(0,0,0,.5)'; x.fillText('HASEN', 0, 0); x.restore();
+  x.save(); x.translate(w * .34, h * .8); x.rotate(.03); x.font = '500 110px Caveat, cursive'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(0,0,0,.5)'; x.fillText('HASEN', 0, 0); x.restore();
   // … der Rest mit dem Ärmel weggewischt: breiter, weicher Bogen
   for (let i = 0; i < 9; i++) { const y = h * .76 + i * 5; x.lineWidth = 22; x.lineCap = 'round'; x.strokeStyle = `rgba(0,0,0,${.07 + Math.random() * .05})`; x.beginPath(); x.moveTo(w * .56, y + 26); x.quadraticCurveTo(w * .7, y - 30, w * .9, y + 12); x.stroke(); }
   x.globalCompositeOperation = 'source-over';
   for (let i = 0; i < 26; i++) { x.fillStyle = `rgba(215,220,224,${rand(.1, .25)})`; x.beginPath(); x.arc(rand(w * .2, w * .5), rand(h * .72, h * .9), rand(3, 12), 0, 7); x.fill(); } // neu beschlagen
+  // weiche Ränder: der Beschlag endet am Scheibenrahmen nicht als Rechteck
+  x.globalCompositeOperation = 'destination-in'; const fx = x.createLinearGradient(0, 0, w, 0); fx.addColorStop(0, 'rgba(0,0,0,0)'); fx.addColorStop(.06, '#000'); fx.addColorStop(.94, '#000'); fx.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = fx; x.fillRect(0, 0, w, h);
+  const fy = x.createLinearGradient(0, 0, 0, h); fy.addColorStop(0, 'rgba(0,0,0,0)'); fy.addColorStop(.08, '#000'); fy.addColorStop(.92, '#000'); fy.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = fy; x.fillRect(0, 0, w, h); x.globalCompositeOperation = 'source-over';
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 function lucy3_handTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
   x.fillStyle = 'rgba(14,18,22,.72)'; x.translate(128, 150); x.rotate(-.18);
@@ -394,7 +398,7 @@ function lucy3_buildCar() {
   const mk = (tx, w, h, off, o = {}) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tx, transparent: true, depthWrite: false, roughness: .32, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, ...o }));
     const z = nrm.clone(), y = up.clone().sub(z.clone().multiplyScalar(up.dot(z))).normalize(), x = new THREE.Vector3().crossVectors(y, z); m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
     m.position.copy(wMid).addScaledVector(nrm, off); m.renderOrder = 3; m.userData.noCol = true; m.castShadow = false; m.receiveShadow = false; scene.add(m); return m; };
-  C.fog = mk(lucy3_fogTex(), W, Hh, .012, { color: 0xe8eef2 });
+  C.fog = mk(lucy3_fogTex(), W * 1.04, Hh * 1.12, .012, { color: 0xb4bec6, roughness: .6 });
   C.fog.visible = false; C.hand = mk(lucy3_handTex(), .2, .2, .016, { opacity: 0, color: 0xffffff }); C.hand.visible = false; C.hand.position.addScaledVector(up, Hh * .05).add(new THREE.Vector3().crossVectors(up, nrm).normalize().multiplyScalar(W * .3));
   // zwei Untersuchungsstellen: Scheibe oben (GROSSER), Scheibe unten (HASEN…)
   const hb = (dy, lab, fn) => { const p = wMid.clone().addScaledVector(up, dy).addScaledVector(nrm, .12); const b = box(W * .9, .2, .2, p.x, p.y, p.z, hidden, { cast: false }); b.quaternion.copy(C.fog.quaternion); b.userData.noCol = true; b.userData.l3 = [lab, fn]; return b; };
@@ -425,7 +429,7 @@ function lucy3_carSound(on) { const S = lucy3_S, A = Audio, C = S.car; if (!A.ct
 WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
   // Justin tritt erst nach dem Intro (Glocke, Kuh) aus dem Licht – Sperre VOR gedanken' Umhüllung, damit dessen Gedanke erst mit Justin kommt
   { const ja = justinArrives; justinArrives = function (...a) { if (lucy3_S.opening) return; return ja.apply(this, a); }; }
-  try { await document.fonts.load('700 190px Caveat'); } catch (e) {}
+  try { await document.fonts.load('500 190px Caveat'); await document.fonts.load('500 104px Caveat'); } catch (e) {}
   try { lucy3_buildCar(); } catch (e) { console.warn('Lucy3: Auto', e); }
   try { lucy3_buildArrows(); } catch (e) { console.warn('Lucy3: Pfeile', e); }
   // Nachhall-Gestalten der Unterschriften beim Laden besetzen (nie während des Spiels laden)
@@ -448,7 +452,7 @@ WORLD_TICK.push((dt, t) => {
   // Abgas im Leerlauf: Wölkchen steigen aus dem Auspuff, treiben nach hinten und vergehen (nur in Sichtweite)
   const near = dC < 45;
   for (const s of S.smoke) { if (!near) { s.visible = false; continue; } s.userData.a += dt; if (s.userData.a > 2.6) s.userData.a -= 2.6; const a = s.userData.a, u = a / 2.6;
-    s.position.set(C.exh.x + C.dir.x * (.1 + a * .55) + Math.sin(a * 2 + s.id) * .05, C.exh.y + a * a * .06, C.exh.z + C.dir.z * (.1 + a * .55)); s.scale.setScalar(.18 + u * .75); s.material.opacity = .32 * Math.sin(Math.min(1, u * 1.2) * PI) * (1 - u * .4); s.visible = true; }
+    s.position.set(C.exh.x + C.dir.x * (.1 + a * .55) + Math.sin(a * 2 + s.id) * .05, C.exh.y + a * a * .06, C.exh.z + C.dir.z * (.1 + a * .55)); s.scale.setScalar(.22 + u * 1.1); s.material.opacity = .55 * Math.sin(Math.min(1, u * 1.2) * PI) * (1 - u * .4); s.visible = true; }
   // Handabdruck von innen: erscheint einmal, wenn man die Heckscheibe aus der Nähe ansieht
   if (!S.handOn && dC < 5.5 && flashOn) { const hx = C.fog.position.x - camera.position.x, hy = C.fog.position.y - camera.position.y, hz = C.fog.position.z - camera.position.z, hl = Math.hypot(hx, hy, hz) || 1;
     if ((fwd.x * hx + fwd.y * hy + fwd.z * hz) / hl > .93) { S.handOn = true; C.hand.visible = true; Audio.play('glass1', { gain: .18, rate: .55, x: C.fog.position.x, y: C.fog.position.y, z: C.fog.position.z, ref: 2 }); } }

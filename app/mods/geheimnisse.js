@@ -90,7 +90,7 @@ function geheimnisse_takeStone(s) {
   const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
   Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
   if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Das Versteck“ (Ende B: wer gefunden wird, muss zählen)
-    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer zählt, sucht.\n\n1312 hat sie sich versteckt, im Licht. Keiner hat sie gesucht. Seitdem zählt sie selbst – und sucht den, der sich hinter der Birke versteckt.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
+    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer zählt, hat die Augen zu.\n\nUnd wer die Augen zu hat, sucht niemanden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
     setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
 }
 function geheimnisse_wreck(i, text, key) {
@@ -98,7 +98,7 @@ function geheimnisse_wreck(i, text, key) {
   story.lore.push({ key, title: 'Blech vom Himmel · ' + (i + 1), html: text }); sideStart('geh_wrack'); Audio.play('metalSheet', { gain: .35, rate: .8 });
   const n = geheimnisse_S.wrecks.filter(x => geheimnisse_has(x.key)).length; story.side.geh_wrack.desc = `Metallteile: ${n} / 5.`; toast(text, 5200);
   if (n === 5) setTimeout(() => { sideDone('geh_wrack', 'Alle fünf Teile gefunden.'); // STORY-HOOK: Fallwand-Frage „Was ist das Ding am Himmel?“ – bewusst offen
-    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie den Rücken einer Rüstung. Klein. Kindergröße.\n\n<span class="hand">Was da vom Himmel fällt, ist kein Flugzeug. Es ist die Rüstung eines Kindes. Wer schmiedet so etwas – für eine Tochter, die er nie holen ging?</span>', 'geh_wappen'); }, 5400);
+    openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie einen Bügel. Einen Haken, wie er oben an einer Kinderlaterne sitzt – nur so groß wie ein Scheunentor.\n\n<span class="hand">Was da über dem Dorf hängt, hält jemand an einem Stab. Wer schmiedet so etwas für ein Kind – und geht dann nie hinterher?</span>', 'geh_wappen'); }, 5400);
 }
 function geheimnisse_totem(i, key) {
   const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];
@@ -111,8 +111,8 @@ function geheimnisse_totem(i, key) {
 }
 WORLD_TICK.push((dt, t) => {
   const S = geheimnisse_S; if (!S.ready) return; S.t -= dt; geheimnisse_glow.value = .55 + .45 * Math.sin(t * 1.3) * Math.sin(t * .37 + 1);
-  const P = player.pos, dark = !flashOn || FLASH.charge <= 0 || state.flashFail > 0;
-  for (const s of S.stones) { const want = dark && !geheimnisse_has(s.key); if (want !== s.on) { s.on = want; s.o.visible = want; if (want) { if (!interactables.includes(s.hit)) interactables.push(s.hit); } else uninteract(s.hit); }
+  const P = player.pos, dark = !flashOn || FLASH.charge <= 0 || state.flashFail > 0, k3 = kapAb(3); // Lichtsteine erst ab Kapitel 3 (PK-A A24: gehören zur 03:13-Nacht)
+  for (const s of S.stones) { const want = dark && k3 && !geheimnisse_has(s.key); if (want !== s.on) { s.on = want; s.o.visible = want; if (want) { if (!interactables.includes(s.hit)) interactables.push(s.hit); } else uninteract(s.hit); }
     if (want && !S.litHint && Math.hypot(s.o.position.x - P.x, s.o.position.z - P.z) < 12) { S.litHint = true; subtitle('Da. Im Dunkeln. Am Boden glimmt etwas – als hätte es nur gewartet, bis du das Licht ausmachst.', 5000); } }
   // Totems: drehen sich zu dir, sobald du wegsiehst (nur in der Nähe)
   camera.getWorldDirection(_geheimFwd);

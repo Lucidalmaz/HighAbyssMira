@@ -12,7 +12,7 @@ const beob_S = { ready: false, found: new Set(), given: new Set(), bonus: new Se
   sndT: 8, noteT: 90, peekT: 40, model: null, V: null, peek: null, notes: [], spots: [], chirpT: 0 };
 MOD_SAVE.push(['beobachter', () => ({ found: [...beob_S.found], given: [...beob_S.given], bonus: [...beob_S.bonus], done: beob_S.done }),
   v => { const S = beob_S; (v.found || []).forEach(k => S.found.add(k)); (v.given || []).forEach(k => S.given.add(k)); (v.bonus || []).forEach(k => S.bonus.add(k)); S.done = !!v.done; for (const n of S.spots) if (S.found.has(n.id)) beob_hideSpot(n); beob_desc(); }]);
-function beob_ch() { return typeof curChapter === 'function' ? curChapter() : 1; }
+function beob_ch() { return typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; }
 function beob_active() { if (beob_ch() < 2 || !state.started || menu.attract || state.ending) return false; if (ch3.on && ch3.part === 'white') return false; return true; }
 function beob_quiet() { return state.talking || !!ui.overlay || !!scripted || dir.busy || state.blackout || (typeof hunt !== 'undefined' && hunt.on) || (typeof hungrige_S !== 'undefined' && (hungrige_S.cine || hungrige_S.ev)); }
 function beob_indoor() { return ch2.on && !ch3.on || state.inBasement || state.zone === 'canal' || (typeof indoorRect === 'function' && !!indoorRect()); }
@@ -34,12 +34,12 @@ const BEOB_DYN = [
   { id: 'd_klavier', kind: 'hilfe', when: () => ch2.on && ch2.power && !ch2.safeOpen && /Klavier|Maschine/.test(beob_obj()), stuck: true, text: 'DIE SPIELUHR IN NR. 1 HAT ES DIR SCHON VORGESPIELT.\nE. DANN ABWÄRTS. GANZ UNTEN KEHRT ES UM.\nDU HAST ES ALS KIND GESUMMT. ODER ER.' },
   { id: 'd_akte', kind: 'gruselig', when: () => ch2.on && ch2.safeOpen, text: 'DIE ACHTE AKTE IST DÜNNER ALS DIE ANDEREN.\nWEIL ES DICH NOCH NICHT SO LANGE GIBT.' },
   { id: 'd_umdrehen', kind: 'gruselig', when: () => ch2.on, text: 'DU HAST DICH {turns} MAL UMGEDREHT, SEIT DU HIER UNTEN BIST.\nICH WAR JEDES MAL NICHT DA.' },
-  { id: 'd_kopie', kind: 'frage', when: () => ch2.on, text: 'WENN DU EINE KOPIE BIST –\nWESSEN HEIMWEH HAST DU DANN?' },
+  { id: 'd_kopie', kind: 'frage', when: () => ch2.on && ch2.lenaMet, text: 'WENN DU EINE KOPIE BIST –\nWESSEN HEIMWEH HAST DU DANN?' },
   { id: 'd_spinnen', kind: 'gruselig', when: () => ch2.on && ch2.spiderPhase === 'done', text: 'SIE SIND AN DIR HOCHGEKROCHEN, WEIL DU WARM BIST.\nAN MIR NIE. ICH BIN KALT.' },
   // Kapitel 3 · Stadt
   { id: 'd_auto', kind: 'gruselig', when: () => ch3.on, text: 'IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.\nICH HABE GEWARTET, BIS DU AUFWACHST.\nDU HAST VON DER STRASSE GETRÄUMT. ICH WEISS ES, WEIL ICH DRIN WAR.' },
   { id: 'd_funk', kind: 'hilfe', when: () => ch3.on && !ch3.radio && /31,10|Funkkasten/.test(beob_obj()), stuck: true, text: 'DER KASTEN AN DER KREUZUNG HÖRT NUR AUF EINE ZAHL.\nHILDE HAT SIE IN IHR ZÄHLBUCH GESCHRIEBEN.\nEINUNDDREISSIG. KOMMA. ZEHN.' },
-  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && /Laternen/.test(beob_obj()), stuck: true, text: 'SO SIND SIE GEGANGEN: FÜNF. DREI. EINS. SIEBEN.\nSO GEHEN DIE LICHTER AUS.' },
+  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && /Laternen/.test(beob_obj()), stuck: true, text: 'ERST DIE MIT DEM FEUER.\nDANN DER ENKEL.\nDANN DEINE SCHWESTER.\nDANN DIE, DIE GEZÄHLT HAT.' },
   { id: 'd_uhr', kind: 'hilfe', when: () => ch3.on && /Küchenuhr/.test(beob_obj()), stuck: true, text: 'DREI UHR DREIZEHN.\nDAS WAR DIE ZEIT. DAS WAR DEIN ERSTER ATEMZUG.' },
   { id: 'd_nacht', kind: 'hilfe', when: () => ch3.on && /nicht in diese Nacht/.test(beob_obj()), stuck: true, text: 'EINE KARTE MIT EINER ZAHL, DIE ES IN DIESER NACHT NOCH NICHT GAB.\nZÄHL DIE KERZEN. DANN ZÄHL DIE JAHRE.' },
   { id: 'd_licht', kind: 'gruselig', when: () => ch3.on, text: 'DU HAST DIE LAMPE {off} MAL AUSGEMACHT.\nIM DUNKELN SIEHST DU MEHR.\nICH AUCH.' },
@@ -47,13 +47,13 @@ const BEOB_DYN = [
   { id: 'r_stein', kind: 'raetsel', when: () => beob_town(), cache: 'friedhof', text: 'WO SIEBEN NAMEN STEHEN UND EINER WEISS GEKRATZT IST,\nLIEGT, WAS DEIN LICHT LÄNGER MACHT.' },
   { id: 'd_hund', kind: 'frage', when: () => ch3.on, text: 'WIE HIESS EUER HUND?\nNICHT NACHDENKEN. EINFACH WISSEN.\n… SIEHST DU.' },
   { id: 'd_stehen', kind: 'gruselig', when: () => ch3.on, text: 'DU HAST {still} SEKUNDEN GANZ STILL GESTANDEN.\nICH AUCH. DIREKT HINTER DIR.' },
-  { id: 'r_hochsitz', kind: 'raetsel', when: () => beob_town() && player.pos.z > 90, cache: 'hochsitz', text: 'ICH STEHE AUF VIER BEINEN IM WALD UND HABE KEINEN KOPF.\nWER AUF MICH STEIGT, SIEHT, WO DER WALD AUFHÖRT.\nUNTER MIR HABE ICH ETWAS VERGESSEN. MIT ABSICHT.' },
-  { id: 'r_bus', kind: 'raetsel', when: () => beob_town() && player.pos.z > 150, cache: 'bus', text: 'ICH TRAGE DIE, DIE NIE ANGEKOMMEN SIND.\nMEINE RÄDER SIND ÄLTER ALS DIE BÄUME UM MICH.\nNEBEN MIR SCHLAFEN DIE SCHWEINE. UND MEIN GESCHENK.' },
-  { id: 'd_wald', kind: 'gruselig', when: () => typeof hungrige_S !== 'undefined' && hungrige_S.done.size >= 2, text: 'DAS REH IST NICHT RÜCKWÄRTS GEGANGEN.\nDU HAST NUR NICHT GESEHEN, WO VORNE WAR.\nGEH NICHT OHNE LICHT IN DEN WALD. ER FRISST, WAS ICH SAMMLE.' },
+  { id: 'r_hochsitz', kind: 'raetsel', when: () => kapAb(6) && beob_town() && player.pos.z > 90, cache: 'hochsitz', text: 'ICH STEHE AUF VIER BEINEN IM WALD UND HABE KEINEN KOPF.\nWER AUF MICH STEIGT, SIEHT, WO DER WALD AUFHÖRT.\nUNTER MIR HABE ICH ETWAS VERGESSEN. MIT ABSICHT.' },
+  { id: 'r_bus', kind: 'raetsel', when: () => kapAb(6) && beob_town() && player.pos.z > 150, cache: 'bus', text: 'ICH TRAGE DIE, DIE NIE ANGEKOMMEN SIND.\nMEINE RÄDER SIND ÄLTER ALS DIE BÄUME UM MICH.\nNEBEN MIR SCHLAFEN DIE SCHWEINE. UND MEIN GESCHENK.' },
+  { id: 'd_wald', kind: 'gruselig', when: () => kapAb(6) && typeof hungrige_S !== 'undefined' && hungrige_S.done.size >= 2, text: 'DAS REH IST NICHT RÜCKWÄRTS GEGANGEN.\nDU HAST NUR NICHT GESEHEN, WO VORNE WAR.\nGEH NICHT OHNE LICHT IN DEN WALD. ER FRISST, WAS ICH SAMMLE.' },
   { id: 'd_lucy', kind: 'frage', when: () => ch3.on, text: 'WENN DU SIE FINDEST –\nWEN VON EUCH BEIDEN WIRD SIE ERKENNEN?' },
   // Kapitel 4 · Villa
   { id: 'd_villa', kind: 'hilfe', when: () => typeof anwesen_S !== 'undefined' && (anwesen_S.ch4 || /Villa Seiler. Schließ/.test(beob_obj())) && !anwesen_S.open, stuck: true, text: 'ACHT LÖCHER. ACHT TEILE.\nWAS DU LIEGEN GELASSEN HAST, HAT DER RABE GESAMMELT.\nSIEH IN SEIN NEST.' },
-  { id: 'd_zugesehen', kind: 'frage', when: () => typeof hungrige_S !== 'undefined' && hungrige_S.finale, text: 'ICH HABE DICH NICHT GERETTET.\nDER VOGEL HAT DAS GEMACHT.\nICH HABE NUR ZUGESEHEN. FRAG DICH, WARUM.' },
+  { id: 'd_zugesehen', kind: 'frage', when: () => kapAb(6) && typeof hungrige_S !== 'undefined' && hungrige_S.epilog, text: 'ICH HABE DICH NICHT GERETTET.\nDER VOGEL HAT DAS GEMACHT.\nICH HABE NUR ZUGESEHEN. FRAG DICH, WARUM.' },
 ];
 const BEOB_NOT = { id: 'd_not', kind: 'hilfe', item: 2, text: 'DU HAST KEINE MEHR. UND DEINE LAMPE HAT NOCH {pct} %.\nIM DUNKELN BIST DU LAUT.\nHIER. ZWEI.' };
 // Zettel an Orten: die Belohnung fürs Erkunden (ab Kapitel 3 in der Stadt und im Wald; Rätsel-Verstecke bringen zusätzlich Batterien)
@@ -78,6 +78,7 @@ const BEOB_ORTE = [
   { id: 'wrack', name: 'Autowrack', x: -6.2, z: 201.5, bonus: 1, text: 'HINTER DEM WRACK WOHNT, WAS FRISST.\nES HAT ANGST VOR DEM VOGEL.\nVOR MIR NICHT. DENK DARÜBER NACH.' },
   { id: 'weiher', name: 'Weiher', x: 43, z: 245.4, text: 'DER WEIHER HAT KEINEN GRUND.\nICH HABE ES GEPRÜFT.\nJONAS HAT DAS ENDE DER WOLLE HINEINGEHÄNGT. JEMAND HAT DARAN GEZOGEN. NICHT ICH.' },
 ];
+const BEOB_WALD = { lichtung: 1, huette: 1, hochsitz: 1, bus: 1, steinkreis: 1, wrack: 1, weiher: 1 }; // Orte in den Dustwoods (PK-A A29)
 const BEOB_FINAL = 'NEUNZEHN ORTE. DU HAST SIE ALLE GESEHEN.\nICH AUCH. JEDES MAL MIT DIR.\nAM 23. OKTOBER HABE ICH MICH ZUM ERSTEN MAL DAZUGESTELLT.\nHILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT, WER DER NEUNTE IST.\nDU FRAGST AUCH NICHT.\nNOCH NICHT.';
 function beob_obj() { const el = document.getElementById('objText'); return el ? el.textContent : ''; }
 function beob_desc() { const q = story.side.beobachter; if (!q) return; const n = BEOB_ORTE.filter(o => beob_S.found.has(o.id)).length;
@@ -197,8 +198,10 @@ function beob_freeAt(x, z) { try { return !leben_inHouse(x, z, 1) && leben_free(
 WORLD_TICK.push((dt, t) => {
   const S = beob_S; if (!S.ready) return;
   if (!S.item) { S.item = true; ITEMS.murmel = { name: 'Milchweiße Murmel', desc: 'Lag beim letzten Zettel des Beobachters. Sie ist warm. Im Dunkeln leuchtet sie ganz schwach – wie ein Auge, das zurücksieht.' }; } // ITEMS entsteht erst nach den Modulen
-  // Orts-Zettel ab Kapitel 3 (Stadt und Wald) freischalten
-  const town = beob_ch() >= 3; for (const n of S.spots) { if (n.gone) continue; if (town && !n.live) { n.live = true; n.m.visible = true; interact(n.hit, 'Zettel', () => beob_readSpot(n)); } }
+  // Orts-Zettel: Stadt ab Kapitel 3, Wald ab Kapitel 6, „wrack“ erst nach der Fraßstelle (PK-A A29) – auch rückwärts (Kapitelwahl, Laden)
+  const k = beob_ch(), town = k >= 3, wald = k >= 6, spuren = wald && typeof hungrige_S !== 'undefined' && hungrige_S.done.has('spuren');
+  for (const n of S.spots) { if (n.gone) continue; const want = town && (!BEOB_WALD[n.id] || (wald && (n.id !== 'wrack' || spuren)));
+    if (want !== n.live) { n.live = want; n.m.visible = want; if (want) { if (!interactables.includes(n.hit)) interactables.push(n.hit); } else uninteract(n.hit); } }
   if (!beob_active()) { if (S.V && S.V.g.visible) { S.V.g.visible = false; S.peek = null; } return; }
   // Beobachtungen für die Zettel (was Luke tut)
   const st = S.stat, P = player.pos, spd = Math.hypot(vel.x, vel.z); st.t += dt; let dy = player.yaw - st.lastYaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); st.acc = (st.acc || 0) * Math.exp(-dt * 2) + dy; st.lastYaw = player.yaw; if (Math.abs(st.acc) > 2.4) { st.turns++; st.acc = 0; }

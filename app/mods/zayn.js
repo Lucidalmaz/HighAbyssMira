@@ -6,7 +6,7 @@
 // 4) Die Hütte: Kinderzeichnungen („Versprochen ist versprochen.“), die Erinnerung an das Versprechen, das alte Radio mit Zayns Stimme.
 // 5) Auf dem Boden die letzte Zeichnung – Zayn hat sich selbst herausgemalt. Keine Antwortmöglichkeit. Die Quest endet einfach.
 // Die Fotos sind echte Aufnahmen der Spielwelt (einmalig gerendert, mit dem Taschenlampenlicht als Kamerablitz).
-const zayn_S = { ready: false, stage: 0, photos: null, bag: null, bagHit: null, spots: [], found: new Set(), shoeHit: null, drawing: null, floor: null, radio: null, hutIn: false };
+const zayn_S = { ready: false, stage: 0, photos: null, bag: null, bagHit: null, spots: [], found: new Set(), shoeHit: null, drawing: null, floor: null, radio: null, hutIn: false, wald: [], hutHits: [], k: 0, gitter: false };
 const ZAYN_SPUR = [
   ['murmel', 'Eine Murmel', 'Eine Glasmurmel mit rotem Wirbel. Deine Lieblingsmurmel. Du hast sie mit acht an Jonas verloren – hinter der Kapelle, beim Spiel „Wer trifft die Wand“.\n\nWie kommt sie hierher?'],
   ['schuh', 'Ein Kinderschuh', 'Ein blauer Kinderschuh, Größe 30, rot-weiße Schnürsenkel. Genau solche hattest du. Mama hat sie gekauft, weil du keine anderen wolltest.\n\nZayn wollte dann auch welche. Natürlich.'],
@@ -30,35 +30,35 @@ WORLD_MODS.push(['Zayn', async () => {
   const glass = new T.MeshStandardMaterial({ color: 0xd8e8f0, roughness: .05, metalness: .1, transparent: true, opacity: .85, emissive: 0x304050, emissiveIntensity: .4 });
   const spot = (k, x, y, z, mesh, w = .45) => { if (mesh) { mesh.position.set(x, y, z); scene.add(mesh); } const hit = box(w, .35, w, x, y + .1, z, hidden, { cast: false }); S.spots.push({ k, x, z, mesh, hit });
     interact(hit, () => zayn_has('zayn_spur_' + k) ? '' : ZAYN_SPUR.find(s => s[0] === k)[1], () => zayn_take(k));
-    if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_' + k, x, y: 0, z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_spur_' + k) }); };
+    if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_' + k, x, y: 0, z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_spur_' + k) }); };
   { const m = new T.Group(), b = new T.Mesh(new T.SphereGeometry(.014, 14, 10), glass), sw = new T.Mesh(new T.TorusGeometry(.009, .003, 6, 14), new T.MeshStandardMaterial({ color: 0xc02020, emissive: 0x400000 })); m.add(b, sw); spot('murmel', 30.6, .015, 107.2, m); }
   { const c = new T.Mesh(new T.CylinderGeometry(.009, .009, .07, 8), new T.MeshStandardMaterial({ color: 0xe8d060, roughness: 1 })); c.rotation.set(PI / 2, 0, .6); spot('kreide', 17.6, .012, 122.9, c);
     const hop = new T.Mesh(new T.PlaneGeometry(1.1, 2.6), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(256, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(230,220,160,.55)'; x.lineWidth = 5;
       const cells = [[0, 0], [0, 1], [-1, 2], [1, 2], [0, 3], [-1, 4], [1, 4], [0, 5]]; cells.forEach(([cx, cy], i) => { const px = 128 + cx * 38 - 19, py = 236 - cy * 40 - 36; x.strokeRect(px, py, 38, 38); x.fillStyle = i === 7 ? 'rgba(250,240,170,.9)' : 'rgba(230,220,160,.5)'; x.font = 'bold 26px Arial'; x.fillText(String(i + 1), px + 12, py + 28); }); }), true) }));
-    hop.rotation.set(-PI / 2, 0, .3); hop.position.set(19, .016, 122); scene.add(hop); }
+    hop.rotation.set(-PI / 2, 0, .3); hop.position.set(19, .016, 122); scene.add(hop); S.wald.push(hop); }
   { const wr = new T.Mesh(new T.PlaneGeometry(.12, .045), new T.MeshStandardMaterial({ side: T.DoubleSide, roughness: .4, metalness: .3, map: tex(cnv(128, (c, w) => { c.fillStyle = '#2e8a3a'; c.fillRect(0, 0, w, w); c.fillStyle = '#f4f0a0'; c.font = 'bold 22px Arial'; c.textAlign = 'center'; c.fillText('BRAUSE', w / 2, 44); c.font = '15px Arial'; c.fillText('Waldmeister', w / 2, 70); }), true) }));
     wr.rotation.set(-.6, .8, .3); spot('brause', 35.3, .42, 135.4, wr); }
   // --- Hütte: Zeichnungen, Radio, Decke, Kerze
-  const H = WALD.hut, draw = (fn, w, h, x, y, z, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ roughness: .95, map: tex(cnv(512, fn), true) })); m.position.set(x, y, z); m.rotation.y = ry; scene.add(m); return m; };
+  const H = WALD.hut, draw = (fn, w, h, x, y, z, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ roughness: .95, map: tex(cnv(512, fn), true) })); m.position.set(x, y, z); m.rotation.y = ry; scene.add(m); S.wald.push(m); return m; };
   const kid = (x, c, px, py, s, col) => { x.strokeStyle = col; x.lineWidth = 7 * s; x.lineCap = 'round'; x.beginPath(); x.arc(px, py, 26 * s, 0, 7); x.stroke(); x.beginPath(); x.moveTo(px, py + 26 * s); x.lineTo(px, py + 110 * s); x.moveTo(px - 40 * s, py + 60 * s); x.lineTo(px + 40 * s, py + 60 * s); x.moveTo(px, py + 110 * s); x.lineTo(px - 28 * s, py + 170 * s); x.moveTo(px, py + 110 * s); x.lineTo(px + 28 * s, py + 170 * s); x.stroke(); };
   const paper = x => { x.fillStyle = '#ece4cc'; x.fillRect(0, 0, 512, 512); for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(90,70,40,${rand(.02, .06)})`; x.fillRect(rand(0, 512), rand(0, 512), rand(20, 90), rand(2, 8)); } };
   S.drawing = draw(x => { paper(x); kid(x, 0, 150, 150, 1, '#2a4ac0'); kid(x, 0, 290, 150, 1, '#c03a2a'); kid(x, 0, 400, 205, .7, '#2a9a3a');
     x.fillStyle = '#333'; x.font = '28px "Comic Sans MS", cursive'; x.fillText('LUKE', 110, 380); x.fillText('JONAS', 245, 380); x.fillText('ICH', 375, 380); x.fillStyle = '#a02020'; x.font = 'bold 34px "Comic Sans MS", cursive'; x.fillText('Versprochen ist versprochen.', 40, 460); }, .62, .62, H.x - .3, 1.45, H.z + 1.84, PI);
   draw(x => { paper(x); x.strokeStyle = '#5a3a1a'; x.lineWidth = 12; for (let i = 0; i < 7; i++) { x.beginPath(); x.moveTo(40 + i * 70, 470); x.lineTo(60 + i * 70, 120); x.stroke(); } x.fillStyle = '#e8c020'; x.beginPath(); x.arc(256, 70, 40, 0, 7); x.fill(); kid(x, 0, 256, 260, .6, '#2a9a3a'); }, .5, .5, H.x - 1.64, 1.5, H.z - .4, PI / 2);
   draw(x => { paper(x); x.strokeStyle = '#444'; x.lineWidth = 8; x.strokeRect(80, 260, 90, 200); x.beginPath(); x.moveTo(250, 460); x.lineTo(330, 280); x.lineTo(410, 460); x.stroke(); kid(x, 0, 330, 120, .55, '#2a9a3a'); x.fillStyle = '#333'; x.font = '30px "Comic Sans MS", cursive'; x.fillText('ich warte hier', 150, 60); }, .45, .45, H.x - 1.64, 1.45, H.z + .6, PI / 2);
-  { const hit = box(.7, .7, .15, H.x - .3, 1.45, H.z + 1.8, hidden, { cast: false }); interact(hit, 'Kinderzeichnung', () => zayn_drawing()); }
-  box(1.4, .12, .75, H.x + .7, .06, H.z + 1.4, new T.MeshStandardMaterial({ color: 0x4a3a30, roughness: 1 }), { collide: false }); // Decke auf dem Boden
-  box(.5, .45, .4, H.x + 1.1, .225, H.z - 1.3, M.wood, { collide: true }); // Kiste
-  try { const r = await msModel('radio'); const o = msGround(msFit(r.clone(true), .38, 'max')); o.position.set(H.x + 1.1, .45, H.z - 1.3); o.rotation.y = -PI / 2 - .3; scene.add(o); S.radio = o; } catch (e) { console.warn('Zayn: Radio', e); }
-  { const hit = box(.5, .4, .45, H.x + 1.1, .65, H.z - 1.3, hidden, { cast: false }); interact(hit, () => zayn_has('zayn_radio') ? 'Altes Radio' : 'Altes Radio einschalten', () => zayn_radio()); }
+  { const hit = box(.7, .7, .15, H.x - .3, 1.45, H.z + 1.8, hidden, { cast: false }); interact(hit, 'Kinderzeichnung', () => zayn_drawing()); S.hutHits.push(hit); }
+  S.wald.push(box(1.4, .12, .75, H.x + .7, .06, H.z + 1.4, new T.MeshStandardMaterial({ color: 0x4a3a30, roughness: 1 }), { collide: false })); // Decke auf dem Boden
+  S.wald.push(box(.5, .45, .4, H.x + 1.1, .225, H.z - 1.3, M.wood, { collide: true })); // Kiste
+  try { const r = await msModel('radio'); const o = msGround(msFit(r.clone(true), .38, 'max')); o.position.set(H.x + 1.1, .45, H.z - 1.3); o.rotation.y = -PI / 2 - .3; scene.add(o); S.radio = o; S.wald.push(o); } catch (e) { console.warn('Zayn: Radio', e); }
+  { const hit = box(.5, .4, .45, H.x + 1.1, .65, H.z - 1.3, hidden, { cast: false }); interact(hit, () => zayn_has('zayn_radio') ? 'Altes Radio' : 'Altes Radio einschalten', () => zayn_radio()); S.hutHits.push(hit); }
   // Die letzte Zeichnung (erscheint nach dem Radio)
   S.floor = draw(x => { paper(x); kid(x, 0, 150, 150, 1, '#2a4ac0'); kid(x, 0, 290, 150, 1, '#c03a2a'); x.fillStyle = 'rgba(236,228,204,.95)'; x.fillRect(340, 120, 130, 260);
     for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(120,110,90,${rand(.04, .12)})`; x.fillRect(rand(345, 460), rand(130, 370), rand(10, 40), rand(2, 6)); } x.fillStyle = '#333'; x.font = '28px "Comic Sans MS", cursive'; x.fillText('LUKE', 110, 380); x.fillText('JONAS', 245, 380); }, .48, .48, H.x - .2, .012, H.z - .3, 0);
   S.floor.rotation.set(-PI / 2, 0, .4); S.floor.visible = false;
   { const hit = box(.6, .12, .6, H.x - .2, .05, H.z - .3, hidden, { cast: false }); S.floorHit = hit; interact(hit, 'Zeichnung auf dem Boden', () => zayn_last()); uninteract(hit); }
   if (typeof hintAdd === 'function') { hintAdd({ id: 'zayn_rucksack', x: 24.8, y: Y, z: -13.2, kind: 'story', near: 30, open: () => (ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4)) && zayn_S.stage < 1 });
-    hintAdd({ id: 'zayn_huette', x: H.x, y: 0, z: H.z, kind: 'story', near: 60, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_ende') }); }
-  S.ready = true;
+    hintAdd({ id: 'zayn_huette', x: H.x, y: 0, z: H.z, kind: 'story', near: 60, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_ende') }); }
+  zayn_sperre(); S.ready = true;
 }]);
 // ---- 1) Rucksack (bleibt liegen: bis das Rätsel gelöst ist, öffnet er die Kamera erneut)
 const zayn_bagLabel = () => zayn_S.stage < 1 ? 'Kleiner Rucksack' : zayn_S.stage < 2 ? 'Zayns Kamera ansehen' : 'Zayns Rucksack';
@@ -140,7 +140,7 @@ function zayn_solved() {
 // ---- 3) Spur
 function zayn_shoeDropped(shoe) { const S = zayn_S; const hit = box(.4, .3, .4, shoe.position.x, .12, shoe.position.z, hidden, { cast: false }); S.spots.push({ k: 'schuh', x: shoe.position.x, z: shoe.position.z, mesh: shoe, hit });
   interact(hit, () => zayn_has('zayn_spur_schuh') ? '' : 'Ein Kinderschuh', () => zayn_take('schuh'));
-  if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_schuh', x: shoe.position.x, y: 0, z: shoe.position.z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && !zayn_has('zayn_spur_schuh') }); }
+  if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_schuh', x: shoe.position.x, y: 0, z: shoe.position.z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_spur_schuh') }); }
 function zayn_take(k) {
   const S = zayn_S, key = 'zayn_spur_' + k; if (zayn_has(key)) return; const sp = S.spots.find(s => s.k === k), def = ZAYN_SPUR.find(s => s[0] === k);
   if (sp) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); } story.lore.push({ key, title: 'Zayns Spur · ' + def[1], html: def[2] }); Audio.paper();
@@ -179,18 +179,30 @@ function zayn_last() {
     sideDone('zayn', 'Hast du dich an mich erinnert?'); if (wald_S.hutLight) wald_S.hutLight.intensity = 0;
     setTimeout(() => { if (typeof gedanke === 'function') gedanke('zayn_nach', 'Ich suche Lucy, als gäbe es niemanden sonst. Aber Zayn war auch jemandes kleiner Bruder. Hilde hat siebzehn Jahre lang jede Nacht gezählt. Und Jonas hat allein im Wald gesucht.', 0, 3); }, 30000); });
 }
+// Kapitel-Sperre (PK-A A10): Spur, Hütte und letzte Zeichnung liegen in den Dustwoods → erst ab Kapitel 6; vorher unsichtbar und nicht anklickbar
+function zayn_sperre() {
+  const S = zayn_S, on = kapAb(6), ia = (h, o) => { if (!h) return; const i = interactables.indexOf(h); if (o && i < 0) interactables.push(h); else if (!o && i >= 0) interactables.splice(i, 1); };
+  for (const m of S.wald) m.visible = on;
+  for (const sp of S.spots) { const o = on && !zayn_has('zayn_spur_' + sp.k); if (sp.mesh) sp.mesh.visible = o; ia(sp.hit, o); }
+  for (const h of S.hutHits) ia(h, on);
+  if (S.floor) { const o = on && S.stage >= 5; S.floor.visible = o; ia(S.floorHit, o); }
+}
+for (let n = 1; n <= 6; n++) KAP_BEGIN[n].push(() => zayn_sperre());
 WORLD_TICK.push((dt, t) => {
-  const S = zayn_S; if (!S.ready || !state.started) return;
+  const S = zayn_S; if (!S.ready) return; const k = kap(); if (k !== S.k) { S.k = k; zayn_sperre(); } if (!state.started) return;
   // Der Rucksack liegt erst da, wenn Nr. 7 verlassen ist (Kapitel 3 und 4) – Platz nach dem Kollisionsaufbau suchen
   const open = ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4);
   if (open && !S.bagPlaced && SOL.items.length) { S.bagPlaced = zayn_placeBag(); if (!S.bagPlaced) { S.bag.position.set(24.4, Y, -13.4); S.bagHit = box(.45, .5, .4, 24.4, Y + .22, -13.4, hidden, { cast: false }); interact(S.bagHit, zayn_bagLabel, () => zayn_bag()); S.bagPlaced = true; } }
   if (S.bagPlaced) { const vis = open; if (S.bag.visible !== vis) { S.bag.visible = vis; if (vis) { if (!interactables.includes(S.bagHit)) interactables.push(S.bagHit); } else uninteract(S.bagHit); } }
-  const P = player.pos, r = wald_S.hutRect; const inHut = r && P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
+  const P = player.pos, r = wald_S.hutRect;
+  // Vor Kapitel 6 endet Zayns Spur am Absperrgitter der Nordzaun-Lücke (A10)
+  if (!S.gitter && k < 6 && S.stage >= 2 && Math.abs(P.x - 30) < 6 && P.z > 91 && P.z < 100) { S.gitter = true; if (typeof gedanke === 'function') gedanke('zayn_gitter', 'Die Dustwoods. Zu. Irgendwann geh ich da rein. Nicht heute.', 300, 3); }
+  const inHut = r&& P.x > r.x0 && P.x < r.x1 && P.z > r.z0 && P.z < r.z1;
   if (inHut && !S.hutIn) { S.hutIn = true; if (S.stage >= 2 && !zayn_has('zayn_versprechen') && typeof gedanke === 'function') gedanke('zayn_huette', 'Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.', 300, 3); } else if (!inHut) S.hutIn = false;
 });
 // Spielstand: gespeichert werden nur Funde, Gegenstände und Aufgaben – der Fortschritt ergibt sich aus den Funden
 applySave = (o => d => { o(d); const S = zayn_S;
   S.stage = zayn_has('zayn_radio') ? 5 : zayn_has('zayn_versprechen') ? 4 : zayn_has('zayn_fotos') ? (ZAYN_SPUR.some(p => zayn_has('zayn_spur_' + p[0])) ? 3 : 2) : zayn_has('zayn_rucksack') ? 1 : 0;
   for (const sp of S.spots) if (zayn_has('zayn_spur_' + sp.k)) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); }
-  if (S.stage >= 5 && S.floor) { S.floor.visible = true; if (!interactables.includes(S.floorHit)) interactables.push(S.floorHit); } })(applySave);
+  if (S.stage >= 5 && S.floor) { S.floor.visible = true; if (!interactables.includes(S.floorHit)) interactables.push(S.floorHit); } zayn_sperre(); })(applySave);
 window.__zayn = { S: zayn_S, bag: () => zayn_bag(), camera: () => zayn_camera(), solved: () => zayn_solved(), take: k => zayn_take(k), drawing: () => zayn_drawing(), radio: () => zayn_radio(), last: () => zayn_last(), photos: () => zayn_takePhotos() }; // Testzugriff

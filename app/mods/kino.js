@@ -169,6 +169,30 @@ function kino_schild(which) { const S = kino_S; if (!S.zus) { const hits = []; s
       x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 58px "Comic Sans MS", cursive'; x.save(); x.translate(56, 204); x.rotate(.05); x.fillText('ALLE', 0, 0); x.restore(); }) : S.zusOrig;
   Z.material[face].map = t; Z.material[face].needsUpdate = true; S.schild = which; return true; }
 
+// ---------------------------------------------------------------- Requisiten je Kapitel (im Hintergrund geladen, danach unsichtbar vorkompiliert)
+const kino_ld = async (key, fn) => { try { return await fn(); } catch (e) { console.warn('Kino: ' + key, e); return null; } };
+async function kino_lantern(key, lit) { const spec = { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2 } };
+  const o = await msFBX('lantern1', 'model.fbx', spec); const g = msGround(msFit(o, .36, 'y')); g.traverse(m => { if (m.isMesh && m.material.name === 'buln') { m.material = m.material.clone(); m.material.emissive = new THREE.Color(lit ? 0xffb060 : 0); m.material.emissiveIntensity = lit ? 3 : 0; } }); kino_obj(key, g); }
+const KINO_SETS = {
+  k3: [['schwert', async () => { const T = THREE, S = kino_S, s = (await msModel('w_schwert', 'model.glb')).clone(true); msFit(s, 1.15, 'max'); const g = new T.Group(); const b = new T.Box3().setFromObject(s), c = b.getCenter(new T.Vector3()); s.position.sub(c); g.add(s);
+      s.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); const sz = b.getSize(new T.Vector3()); S.swordAxis = sz.x > sz.y ? (sz.x > sz.z ? 'x' : 'z') : sz.y > sz.z ? 'y' : 'z'; kino_obj('schwert', g); }],
+    ['laterneAus', () => kino_lantern('laterneAus', false)],
+    ['wiese', async () => { const T = THREE, S = kino_S, W = new T.Group(), cx = X3 + 42, cz = Z3 + 46;
+      const gm = msSurfMat('lawn1', { tint: 0xb8b8a8, rep: 18 }); const ground = new T.Mesh(new T.PlaneGeometry(70, 70), gm); ground.rotation.x = -PI / 2; ground.position.set(cx, .02, cz); ground.receiveShadow = true; W.add(ground);
+      const bs = await msBake('w_birke', 'lod.glb'); let hB = 0; for (const p of bs) { p.geo.computeBoundingBox(); hB = Math.max(hB, p.geo.boundingBox.max.y); }
+      const sc = hB > 0 ? 11 / hB : 1, L = []; for (const [dx, dz] of [[-6, 4], [-2.5, 8], [3, 6], [7, 10], [-9, 12], [0, 15], [5, 17], [-5, 19], [10, 20], [-12, 6], [12, 13], [2, 24], [-3, 29], [8, 28]]) L.push(msM4(cx + dx + rand(-.8, .8), 0, cz + dz + rand(-.8, .8), rand(0, 6.28), sc * rand(.85, 1.15)));
+      for (const p of bs) { const m = new T.InstancedMesh(p.geo, p.mat, L.length); L.forEach((M, i) => m.setMatrixAt(i, M)); m.castShadow = true; m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); }
+      const gr = await msBake('wildgrass1'); if (gr.length) { const G = []; for (let i = 0; i < 260; i++) G.push(msM4(cx + rand(-20, 20), 0, cz + rand(-6, 34), rand(0, 6.28), rand(.8, 1.3))); gr.forEach(p => { const m = new T.InstancedMesh(p.geo, p.mat, G.length); G.forEach((M, i) => m.setMatrixAt(i, M)); m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); }); }
+      S.wiese = { cx, cz }; kino_obj('wiese', W); }],
+    ['lampion', async () => { const T = THREE, o = await msFBX('w_papierlaterne', 'model.fbx', {}); const g = msGround(msFit(o, 14, 'y')); const mats = []; g.traverse(m => { if (m.isMesh) { m.castShadow = false; m.material = [].concat(m.material).map(x => { const c = x.clone(); c.emissive = new T.Color(0xffc27a); c.emissiveIntensity = 1.6; if (c.map) c.emissiveMap = c.map; mats.push(c); return c; }); if (m.material.length === 1) m.material = m.material[0]; } }); kino_S.lampionMats = mats; kino_obj('lampion', g); }]],
+  k5: [['hirsch', async () => { const S = kino_S, src = await msModel('wendigo', 'hirschding.glb'); const o = msGround(msFit(src.clone(true), 2.75, 'y')); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; } });
+      let head = null; o.traverse(b => { if (!head && b.isBone && /head/i.test(b.name)) head = b; }); S.hirschHead = head; S.hirschQ = head ? head.quaternion.clone() : null; kino_obj('hirsch', o); }]],
+  k6: [['jacke', async () => { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95 } }); const g = msGround(msFit(o, .62, 'y')); kino_obj('jacke', g); }]],
+};
+const KINO_SET_OF = { k3a: 'k3', k3b: 'k3', k3c: 'k3', k5: 'k5', k6: 'k6' };
+function kino_preload(set) { const S = kino_S; S.sets = S.sets || {}; if (S.sets[set]) return S.sets[set];
+  return S.sets[set] = (async () => { for (const [k, fn] of KINO_SETS[set] || []) { await kino_ld(k, fn); const o = S.obj[k]; if (o && renderer.compileAsync) { o.visible = true; try { await renderer.compileAsync(o, camera, scene); } catch (e) {} o.visible = false; } } })(); }
+
 // ---------------------------------------------------------------- Laden: Figuren vorwärmen/klonen, Requisiten unsichtbar anlegen
 WORLD_MODS.push(['Kino', async () => {
   kino_css(); const S = kino_S, T = THREE, t0 = performance.now(), lap = n => { S.loadT.push(n + ' ' + Math.round(performance.now() - t0)); }; S.loadT = [];
@@ -182,37 +206,13 @@ WORLD_MODS.push(['Kino', async () => {
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
     const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
   } catch (e) { console.warn('Kino: Rabe', e); }
-  const ld = async (key, fn) => { try { return await fn(); } catch (e) { console.warn('Kino: ' + key, e); return null; } };
-  // Schwert (Scan) – Ende A: im Asphalt; Ende C: auf dem achten Stuhl
-  await ld('schwert', async () => { const s = (await msModel('w_schwert', 'model.glb')).clone(true); msFit(s, 1.15, 'max'); const g = new T.Group(); const b = new T.Box3().setFromObject(s), c = b.getCenter(new T.Vector3()); s.position.sub(c); g.add(s);
-    s.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); const sz = b.getSize(new T.Vector3()); S.swordAxis = sz.x > sz.y ? (sz.x > sz.z ? 'x' : 'z') : sz.y > sz.z ? 'y' : 'z'; kino_obj('schwert', g); });
-  lap('schwert');
-  // Sturmlaterne (lantern1, Vegas' Laterne): Lucy in Ende K5; ohne Glut beim Mädchen in K3A
-  const lanternSpec = { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2 } };
-  for (const key of ['laterne', 'laterneAus']) await ld(key, async () => { const o = await msFBX('lantern1', 'model.fbx', lanternSpec); const g = msGround(msFit(o, .36, 'y')); g.traverse(m => { if (m.isMesh && m.material.name === 'buln') { m.material = m.material.clone(); m.material.emissive = new T.Color(key === 'laterne' ? 0xffb060 : 0); m.material.emissiveIntensity = key === 'laterne' ? 3 : 0; } }); kino_obj(key, g); });
+  const ld = kino_ld;
+  // Sturmlaterne (lantern1, Vegas' Laterne, vom Ort ohnehin geladen): Lucy in K5
+  await ld('laterne', () => kino_lantern('laterne', true));
   S.lucyLight = new VLight(0xffb060, 0, 7, 2); scene.add(S.lucyLight); // Laternenlicht K5 (beim Laden mit 0)
   S.rabeLight = new VLight(0xdfe9ff, 0, 7, 1.6); scene.add(S.rabeLight); // Whiskeys kaltes Licht K6
   S.coldLight = new VLight(0xdfe8ff, 0, 6, 2); scene.add(S.coldLight); // K1: das Kalte hinter der Kellerwand
-  lap('laterne');
-  // Strickjacke (K6) über dem schlafenden Jungen
-  await ld('jacke', async () => { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95 } }); const g = msGround(msFit(o, .62, 'y')); kino_obj('jacke', g); });
-  lap('jacke');
-  // Hirschding (K5): eigener Klon, halb im Nebel
-  await ld('hirsch', async () => { const src = await msModel('wendigo', 'hirschding.glb'); const o = msGround(msFit(src.clone(true), 2.75, 'y')); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; } });
-    let head = null; o.traverse(b => { if (!head && b.isBone && /head/i.test(b.name)) head = b; }); S.hirschHead = head; S.hirschQ = head ? head.quaternion.clone() : null; kino_obj('hirsch', o); });
-  lap('hirsch');
-  // Birken und Wiese von 1312 (K3C): eigener kleiner Aufbau im Weißen, nördlich von Raum 3
-  await ld('wiese', async () => { const W = new T.Group(), cx = X3 + 42, cz = Z3 + 46; W.position.set(0, 0, 0);
-    const gm = msSurfMat('lawn1', { tint: 0xb8b8a8, rep: 18 }); const ground = new T.Mesh(new T.PlaneGeometry(70, 70), gm); ground.rotation.x = -PI / 2; ground.position.set(cx, .02, cz); ground.receiveShadow = true; W.add(ground);
-    const bs = await msBake('w_birke', 'lod.glb'); let hB = 0; for (const p of bs) { p.geo.computeBoundingBox(); hB = Math.max(hB, p.geo.boundingBox.max.y); }
-    const sc = hB > 0 ? 11 / hB : 1, L = []; for (const [dx, dz] of [[-6, 4], [-2.5, 8], [3, 6], [7, 10], [-9, 12], [0, 15], [5, 17], [-5, 19], [10, 20], [-12, 6], [12, 13], [2, 24], [-3, 29], [8, 28]]) L.push(msM4(cx + dx + rand(-.8, .8), 0, cz + dz + rand(-.8, .8), rand(0, 6.28), sc * rand(.85, 1.15)));
-    const im = bs.map(p => { const m = new T.InstancedMesh(p.geo, p.mat, L.length); L.forEach((M, i) => m.setMatrixAt(i, M)); m.castShadow = true; m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); return m; });
-    const gr = await msBake('wildgrass1'); if (gr.length) { const G = []; for (let i = 0; i < 260; i++) G.push(msM4(cx + rand(-20, 20), 0, cz + rand(-6, 34), rand(0, 6.28), rand(.8, 1.3))); gr.forEach(p => { const m = new T.InstancedMesh(p.geo, p.mat, G.length); G.forEach((M, i) => m.setMatrixAt(i, M)); m.receiveShadow = true; m.computeBoundingSphere(); m.userData.noCull = true; W.add(m); }); }
-    void im; S.wiese = { cx, cz }; kino_obj('wiese', W); });
-  lap('wiese');
-  // Die große Papierlaterne (K3C): Innenleuchten nur über Emissive, kein Licht
-  await ld('lampion', async () => { const o = await msFBX('w_papierlaterne', 'model.fbx', {}); const g = msGround(msFit(o, 14, 'y')); const mats = []; g.traverse(m => { if (m.isMesh) { m.castShadow = false; m.material = [].concat(m.material).map(x => { const c = x.clone(); c.emissive = new T.Color(0xffc27a); c.emissiveIntensity = 1.6; if (c.map) c.emissiveMap = c.map; mats.push(c); return c; }); if (m.material.length === 1) m.material = m.material[0]; } }); S.lampionMats = mats; kino_obj('lampion', g); });
-  lap('lampion');
+  // Schwere Requisiten (Birkenwiese, Riesenlaterne, Hirschding, Jacke) erst im jeweiligen Kapitel im Hintergrund – spart Grafikspeicher (kino_preload)
   // Polaroid Zayn (K1): Bild nach oben, Rückseite Papier
   { const P = typeof PHOTOS !== 'undefined' ? PHOTOS.find(p => p.name === 'Zayn') : null, front = P && typeof polaroidCanvas === 'function' ? polaroidCanvas(P) : kino_polaBack('Zayn');
     const g = new T.Group(), mf = new T.MeshStandardMaterial({ map: tex(front, true), roughness: .55 }), mb = new T.MeshStandardMaterial({ map: tex(kino_polaBack(''), true), roughness: .8 });
@@ -233,7 +233,6 @@ WORLD_MODS.push(['Kino', async () => {
   S.tex.flame = kino_glowTex('flame'); S.tex.glow = kino_glowTex('glow');
   kino_sprite('flamme', S.tex.flame, 0xe8f0ff, 1.1, false).scale.set(.32, .9, 1); kino_sprite('flammeSchein', S.tex.glow, 0x9fb8ff, 2.2, false);
   kino_sprite('puls', S.tex.glow, 0xf4f8ff, 30, false); kino_sprite('rabeSchein', S.tex.glow, 0xcfe0ff, 1.4, true);
-  // Polaroid K3B („2043“): einmal beim Laden im Weißen fotografiert – Ritter, graues Mädchen, Junge mit braunen Augen
   kino_defs(); S.ready = true; lap('fertig');
 }]);
 
@@ -263,7 +262,7 @@ function kino_foto2043() {
 // ---------------------------------------------------------------- Abspielen
 async function kino_play(id, opts = {}) {
   const S = kino_S, D = KINO[id]; if (!D) { console.warn('Kino: unbekannte Sequenz ' + id); return; } if (S.on) { console.warn('Kino: läuft schon (' + S.id + ')'); return; }
-  kino_css(); S.on = true; S.id = id; S.def = D; S.opts = opts; S.i = -1; S.sh = null; S.t = 0; S.T = 0; S.skip = false; S.ending = false; S.ev.length = 0; S.act.length = 0; S.lit.length = 0; S.flash = null; S.pose.ok = false;
+  kino_css(); $('subtitle').style.opacity = 0; if (typeof toastT !== 'undefined') { clearTimeout(toastT); $('toast').style.opacity = 0; } S.on = true; S.id = id; S.def = D; S.opts = opts; S.i = -1; S.sh = null; S.t = 0; S.T = 0; S.skip = false; S.ending = false; S.ev.length = 0; S.act.length = 0; S.lit.length = 0; S.flash = null; S.pose.ok = false;
   const A = Audio, fd = $('fade'), cv = renderer.domElement;
   S.sv = { cine: document.body.classList.contains('cine'), fogC: scene.fog.color.getHex(), fogD: scene.fog.density, skyH: skyMat.uniforms.horizon.value.clone(), skyZ: skyMat.uniforms.zenith.value.clone(), skyDim: skyMat.uniforms.dim.value,
     gfC: fogUniforms.color.value.clone(), hemiC: hemi.color.clone(), hemiG: hemi.groundColor.clone(), moonC: moon.color.clone(), vig: filmPass.uniforms.vig.value, ca: filmPass.uniforms.ca.value, toe: filmPass.uniforms.toe.value,
@@ -279,6 +278,7 @@ async function kino_play(id, opts = {}) {
   document.body.classList.add('cine', 'kino'); document.body.classList.toggle('kinoNoSkip', D.skipAfter > 0);
   if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .7s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(750); }
   else { fd.style.background = '#000'; }
+  if (KINO_SET_OF[id]) await kino_preload(KINO_SET_OF[id]);
   if (id === 'k3b' && !S.pola2043) { try { S.pola2043 = kino_foto2043(); } catch (e) { console.warn('Kino: Foto 2043', e); } await wait(60); }
   $('subtitle').style.opacity = 0; S.prevCam = camOverride; setCamOverride(kino_cam);
   const done = new Promise(r => { S.res = r; });
@@ -313,7 +313,7 @@ function kino_cam(cam, dt) {
     if (S.T >= S.def.skipAfter && document.body.classList.contains('kinoNoSkip')) document.body.classList.remove('kinoNoSkip');
     let sh = S.sh; if (sh && S.t >= sh.dur) { kino_next(); sh = S.sh; if (!sh) return; }
     // Zeilen und Geräusche
-    const L = sh.lines; while (L && S.li < L.length && S.t >= L[S.li][2]) { const [txt, who, , ms] = L[S.li++]; subtitle(txt, ms || Math.max(3400, Math.min(7000, (sh.dur - S.t) * 1000)), who || ''); }
+    const L = sh.lines; while (L && S.li < L.length && S.t >= L[S.li][2]) { const [txt, who, , ms] = L[S.li++]; S.own = true; try { subtitle(txt, ms || Math.max(3400, Math.min(7000, (sh.dur - S.t) * 1000)), who || ''); } finally { S.own = false; } }
     const X = sh.sfx; while (X && S.si < X.length && S.t >= X[S.si][1]) { const f = X[S.si++][0]; try { typeof f === 'function' ? f(sh) : Audio.play(f, { gain: .5 }); } catch (e) { console.warn('Kino: Klang', e); } }
     const k = Math.min(1, S.t / sh.dur), e = kino_e(k), v = S.v, w = S.w;
     if (sh.black || sh.card || sh.white) { if (S.pose.ok) { cam.position.copy(S.pose.p); cam.quaternion.copy(S.pose.q); } if (sh.tick) sh.tick(k, S.t, dt, sh); return; }
@@ -352,7 +352,13 @@ function kino_restore() {
   if (A.ctx) { const t = A.ctx.currentTime; if (A.mus) { const g = A.mus.duck.gain; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(1, t + 2.5); }
     for (const [n, v0] of [[A.world, sv.world], [A.bedTrim, sv.bed]]) if (n) { n.gain.cancelScheduledValues(t); n.gain.setValueAtTime(n.gain.value, t); n.gain.linearRampToValueAtTime(v0, t + 1.2); } }
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; S.sv = null;
+  if (typeof gedanken_S !== 'undefined') gedanken_S.cd = Math.max(gedanken_S.cd || 0, 6); // kein Gedanke direkt aus dem Schwarz heraus
+  if (S.qp && S.qp.length) { const q = S.qp.splice(0); setTimeout(() => q.forEach(([k, t]) => questPop(k, t)), 2500); }
 }
+// Während einer Sequenz spricht nur das Kino: fremde Untertitel, Gedanken, Hinweise und Aufgaben-Einblendungen warten bzw. entfallen
+subtitle = (o => function (t, ms, who) { if (kino_S.on && !kino_S.own) return; return o(t, ms, who); })(subtitle);
+toast = (o => function (t, ms) { if (kino_S.on) return; return o(t, ms); })(toast);
+questPop = (o => function (kind, text) { if (kino_S.on) { (kino_S.qp || (kino_S.qp = [])).push([kind, text]); return; } return o(kind, text); })(questPop); // nach der Sequenz nachgereicht
 
 // ---------------------------------------------------------------- Takt: Figuren, Umgebung, geliehene Lichter (keine Zuweisungen)
 function kino_tick(dt) {
@@ -373,7 +379,8 @@ WORLD_TICK.push(dt => { kino_tick(dt); kino_persist(dt); });
 // Was eine Sequenz dauerhaft verändert, bleibt – auch nach dem Laden: „210“ auf der Ortstafel ab Kapitel 1-Ende
 function kino_persist(dt) { const S = kino_S; S.pT = (S.pT || 0) - dt; if (S.pT > 0 || S.on) return; S.pT = 1.5;
   const after1 = state.ch1Done || state.ch2 || (typeof ch3 !== 'undefined' && ch3.on) || (typeof kap === 'function' && kap() >= 2);
-  if (after1 && S.schild !== '210') kino_schild('210'); }
+  if (after1 && S.schild !== '210') kino_schild('210');
+  const k = typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; if (k === 3 || k === 5 || k === 6) kino_preload('k' + k); }
 function kino_rabeClip(k, once = false) { const R = kino_S.rabe; if (!R) return; const a = R.A[k]; if (!a || a === R.cur) return; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(.2).play(); if (R.cur) R.cur.fadeOut(.2); R.cur = a; }
 function kino_rabeFly(from, to, dur) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur }; kino_rabeClip('Flying'); if (!R.A.Flying) kino_rabeClip('TakeOff'); }
 function kino_lamps(fn) { if (typeof lamps === 'undefined') return; for (const L of lamps) fn(L); }

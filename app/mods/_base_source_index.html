@@ -1810,7 +1810,7 @@ const ufo = new THREE.Group(); ufo.position.set(0, -800, 0); scene.add(ufo);
   iris.rotation.x = PI / 2; iris.position.y = -1.03; ufo.add(iris); ufo.userData.iris = iris;
   // --- Traktorstrahl: volumetrischer Kegel mit wirbelndem Rauschen
   const bm = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
-    uniforms: { color: { value: new THREE.Color(0xcff4ff) }, opacity: { value: 0 }, time: { value: 0 } },
+    uniforms: { color: { value: new THREE.Color(0xffe0b8) }, opacity: { value: 0 }, time: { value: 0 } },
     vertexShader: `varying vec3 vN, vW; varying vec2 vUv; void main(){ vUv = uv; vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: `uniform vec3 color; uniform float opacity, time; varying vec3 vN, vW; varying vec2 vUv;
       float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -1820,8 +1820,8 @@ const ufo = new THREE.Group(); ufo.position.set(0, -800, 0); scene.add(ufo);
         float swirl = fbm(vec2(vUv.x * 9. + time * .35, vUv.y * 3. + time * 1.1)) * .8 + fbm(vec2(vUv.x * 23. - time * .2, vUv.y * 7. + time * 2.)) * .4;
         float a = pow(f, 1.6) * (.35 + swirl) * pow(vUv.y, .6) * opacity * smoothstep(.0, .12, vUv.y); gl_FragColor = vec4(color * a * 1.6, 1.); }` });
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 4.8, 30, 96, 1, true), bm); beam.position.y = -16; ufo.add(beam); ufo.userData.beam = bm;
-  const spot = new THREE.SpotLight(0xcff4ff, 0, 70, .3, .5, 1); spot.position.y = -1.1; ufo.add(spot); spot.target.position.set(0, -40, 0); ufo.add(spot.target); ufo.userData.spot = spot;
-  const under = new THREE.PointLight(0x9fe8ff, 0, 55, 1.4); under.position.y = -2; ufo.add(under); ufo.userData.under = under;
+  const spot = new THREE.SpotLight(0xffdcae, 0, 70, .3, .5, 1); spot.position.y = -1.1; ufo.add(spot); spot.target.position.set(0, -40, 0); ufo.add(spot.target); ufo.userData.spot = spot;
+  const under = new THREE.PointLight(0xffc98f, 0, 55, 1.4); under.position.y = -2; ufo.add(under); ufo.userData.under = under;
   // Aufsteigender Staub im Strahl
   const N = 420, pp = new Float32Array(N * 3); for (let i = 0; i < N; i++) { const a = rand(0, 6.28), r = rand(0, 3.6); pp[i * 3] = Math.cos(a) * r; pp[i * 3 + 1] = rand(-30, 0); pp[i * 3 + 2] = Math.sin(a) * r; }
   const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.BufferAttribute(pp, 3));
@@ -4191,6 +4191,7 @@ async function endingA() {
     ['Das Mädchen streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
   $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
   await wait(800); Audio.bell(0, 0); await wait(1500);
+  if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3a');
   c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Manche waren siebzehn Jahre fort, manche nur eine Nacht. Lars Vegas ruft den Namen Mike. Dann den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
 }
 async function endingB() {
@@ -4200,6 +4201,7 @@ async function endingB() {
   await wait(2600); Audio.screech(); glitchV = 1; shake = .08;
   await say([['Das Kind schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
+  if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3b');
   c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist heimgekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
 }
 

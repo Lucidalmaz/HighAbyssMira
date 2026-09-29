@@ -31,15 +31,15 @@ function kamera_zu() { if (kamera_S.hoch) kamera_heben(false); } // für Szenen,
   #kamSucher .sp { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); font: italic 15px "Cormorant Garamond", Georgia, serif; color: #d8cfb8; opacity: 0; transition: opacity .4s; white-space: nowrap; text-shadow: 0 0 6px #000; }
   #kamSucher .sp.on { opacity: 1; }
   #kamBlitz { position: fixed; inset: 0; pointer-events: none; background: #fffaf0; opacity: 0; z-index: 4; }
-  #kamPola { position: fixed; left: 50%; bottom: 7vh; width: min(30vw, 46vh); pointer-events: none; z-index: 4; opacity: 0; transform: translate(-50%, 110%) rotate(-2.2deg);
+  #kamPola { position: fixed; left: 50%; bottom: 6vh; width: 34vh; box-sizing: border-box; pointer-events: none; z-index: 4; opacity: 0; transform: translate(-50%, 110%) rotate(-2.2deg);
     transition: transform 1.1s cubic-bezier(.2,.8,.25,1), opacity .5s; background: linear-gradient(170deg, #f3efe6, #e4ddcf); padding: 5.5% 5.5% 20% 5.5%; box-shadow: 0 16px 40px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.25); }
   #kamPola.raus { opacity: 1; transform: translate(-50%, 0) rotate(-2.2deg); }
-  #kamPola .bild { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #1b1d1a; overflow: hidden; }
+  #kamPola .bild { position: relative; width: 100%; height: 22.7vh; background: #1b1d1a; overflow: hidden; }
   #kamPola img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: contrast(.6) saturate(.2) brightness(.5) sepia(.3); }
   #kamPola .chem { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 45%, #3c4239, #262a26 70%); }
   #kamPola.dev img { opacity: 1; filter: none; transition: opacity 2.6s .4s, filter 4s ease-out; }
   #kamPola.dev .chem { opacity: 0; transition: opacity 3.6s .2s; }
-  #kamPola .hand { position: absolute; left: 7%; right: 7%; bottom: 5%; font: 22px Caveat, "Comic Sans MS", cursive; color: #2a2a3a; opacity: 0; transition: opacity 1.2s 3.4s; text-align: center; }
+  #kamPola .hand { position: absolute; left: 7%; right: 7%; bottom: 3%; font: 22px Caveat, "Comic Sans MS", cursive; color: #2a2a3a; opacity: 0; transition: opacity 1.2s 3.4s; text-align: center; }
   #kamPola.dev .hand { opacity: .85; }
   #kamTip { position: absolute; right: 34px; bottom: 118px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .22em; color: #d9cdb2; text-shadow: 0 0 4px #000, 0 0 12px #000; opacity: 0; transition: opacity .8s; text-align: right; }
   #kamTip.on { opacity: 1; } #kamTip kbd { font: 600 11px Georgia; border: 1px solid rgba(201,163,106,.6); padding: 1px 6px; margin: 0 3px; color: var(--gold, #c9a36a); border-radius: 2px; }`;

@@ -10,6 +10,7 @@ const ausbau_nord = {
 };
 WORLD_MODS.push(['Kirchberg', async () => { await ausbau_nord_build(); }]);
 WORLD_TICK.push((dt, t, indoor) => { if (ausbau_nord.ok) ausbau_nord_tick(dt, t, indoor); });
+for (let n = 1; n <= 6; n++) KAP_BEGIN[n].push(() => ausbau_nord_sperre());
 
 // ---- kleine Werkzeuge
 function ausbau_nord_rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -270,7 +271,7 @@ async function ausbau_nord_build() {
   ];
   for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
     const hit = box(1, 1.3, .8, S.x, .7, S.z - .2, hidden, { cast: false });
-    interact(hit, 'Grabstein lesen', () => openNote(S.title, S.html, 'nord_grab_' + S.id)); }
+    interact(hit, 'Grabstein lesen', () => S.id === 'kranz' && kapAb(4) ? ausbau_nord_peter() : openNote(S.title, S.html, 'nord_grab_' + S.id)); }
   // feste Dinge zwischen den Gräbern (Bäume, Eisenkreuz, Bänke, Grabgitter) – dort entsteht kein Grab
   const occ = [[-71.8, -69.2, 91, 93.6], [-35.6, -32.6, 91.2, 94], [-71.4, -69, 67.4, 69.9], [-36.2, -33.8, 67.4, 69.9], [-67.4, -65, 76.9, 80.2], [-59.4, -57.2, 77.2, 78.4], [-47.8, -45.6, 77.2, 78.4], [-58.6, -55.8, 68.4, 71.9]];
   for (const S of SPECIAL) occ.push([S.x - 1.1, S.x + 1.1, S.z - 1.9, S.z + .7]);
@@ -403,7 +404,7 @@ async function ausbau_nord_build() {
     const a = Math.atan2(far.y - c.y, far.x - c.x); crossStoneM.rotation.z += -PI / 2 - a;
     const g = ausbau_nord_fit(g0, 1.08); g.position.set(-10.7, -.1, 53.3); g.rotation.y = PI / 2 + .25; scene.add(g); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     const hit = box(.8, 1.1, .6, -10.7, .55, 53.3, hidden, { cast: false });
-    interact(hit, 'Steinkreuz', () => openNote('Das Sühnekreuz', 'Ein altes Steinkreuz, schief und halb im Boden versunken. Solche Kreuze stellte man im Mittelalter auf – als Buße für einen Mord.\n\nIn den Stein geritzt, kaum noch zu erkennen: ein Schwert. Daneben eine Jahreszahl: <b>1312</b>.\n\nAm Fuß liegen sieben glatte Kiesel in einer Reihe. Ein achter liegt ein Stück abseits, als wäre er weggerollt.', 'nord_suehnekreuz')); // STORY-HOOK: Justin, 1312
+    interact(hit, 'Steinkreuz', () => openNote('Das Sühnekreuz', 'Ein altes Steinkreuz, schief und halb im Boden versunken. Solche Kreuze stellte man im Mittelalter auf – als Buße für einen Mord.\n\nIn den Stein geritzt, kaum noch zu erkennen: ein Schwert. Daneben eine Jahreszahl: <b>1312</b>.\n\nDarunter, in der Umschrift, noch lesbar: „… bis dass er die Seine selbst suche und finde.“\n\nAm Fuß liegen sieben glatte Kiesel in einer Reihe. Ein achter liegt ein Stück abseits, als wäre er weggerollt.', 'nord_suehnekreuz')); // STORY-HOOK: Justin, 1312
   }
 
   // ---------------------------------------------------------------- Kirchweg: Mauern, Wegweiser, Himmel und Hölle
@@ -600,11 +601,30 @@ function ausbau_nord_readKid(i) {
     sideDone('nord_names', 'Sieben Namen, sieben Steine. Alle mit demselben Todestag. Das Grab mit deinem Namen ist offen – und leer.');
     story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Zayn, Roxy, Lucy, Mike, Dina, Heidi, Luke.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier – als hätte niemand damit gerechnet, dass sie zurückkommen.\n\nDas Grab mit deinem Namen ist frisch ausgehoben. Leer.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
     ausbau_nord_counting(K.x, K.z);
-    if (!N.echo) { N.echo = true; setTimeout(() => { addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Echo · Friedhof am Kirchberg, vor drei Nächten', // STORY-HOOK: wer das Grab ausgehoben hat
-      figs: [E_(N.pit.x - .95, N.pit.z + .1, 1.4, 1), E_(N.pit.x + .95, N.pit.z - .3, -1.6, 1.02), E_(N.pit.x - .1, N.pit.z - 1.35, 0, .58)],
-      lines: [['Nacht. Zwei Männer in Mänteln heben eine Grube aus. Ihre Gesichter sind glatt und grau, wie Kinder Beamte malen. Ein Kind hält die Laterne.', 4600], ['„Tief genug?“', 2000, 'MANN VOM AMT?'], ['„Für den Ersatz reicht es. Die Regel ist die Regel.“', 3600, 'MANN VOM AMT?'],
-        ['„Und wenn er nicht kommt?“', 2400, 'MANN VOM AMT?'], ['Das Kind hebt die Laterne. Es hat dein Gesicht. Mit neun. Unter seiner Stimme läuft leise eine Spieluhr.', 4400], ['„Er kommt. Ich hab ihn angerufen. Mit Lucys Stimme.“', 3200, '???']] }); subtitle('Über der Grube schimmert etwas in der Luft.', 3600); }, 9000); }
+    if (kapAb(5)) ausbau_nord_echo(true); // Echo erst ab Kapitel 5 (PK-A A21) – sonst legt es ausbau_nord_sperre() beim Kapitelwechsel an
   });
+}
+// Gedenkfeld-Echo (PK-A A21, Text PK-G T12): erst ab Kapitel 5 und erst nach den sieben Namen
+function ausbau_nord_echo(neu) {
+  const N = ausbau_nord; if (N.echo || !N.pit) return; N.echo = true;
+  const mk = () => { N.echoA = addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Echo · Friedhof am Kirchberg, 1. November 2026', // STORY-HOOK: wer das Grab ausgehoben hat
+    figs: [E_(N.pit.x - .95, N.pit.z + .1, 1.4, 1), E_(N.pit.x + .95, N.pit.z - .3, -1.6, 1.02), E_(N.pit.x - .1, N.pit.z - 1.35, 0, .58)],
+    lines: [['Nacht. Zwei Männer in Mänteln heben eine Grube aus. Ihre Gesichter sind glatt und grau, wie Kinder Beamte malen.', 4600], ['„Tief genug?“', 2000, 'MANN VOM AMT?'], ['„Für ein Kind reicht es. Er ist ja eins. Ein bisschen.“', 3600, 'MANN VOM AMT?'],
+      ['Ein Mädchen im weißen Kleid hält die Laterne. Ihr Gesicht ist grau wie Asche. Unter ihrer Stimme läuft leise eine Spieluhr.', 4800], ['„Er kommt. Ich hab ihn eingeladen.“', 3200, '???']] });
+    if (neu) subtitle('Über der Grube schimmert etwas in der Luft.', 3600); ausbau_nord_sperre(); };
+  if (neu) setTimeout(mk, 9000); else mk();
+}
+// Peters Grab ab Kapitel 4 (PK-A A39, Text PK-D K2-6): Folge von Peters Feuertod
+function ausbau_nord_peter() {
+  openNote('Grabstein · Peter Kranz', '<b>PETER KRANZ</b>\n1965 – 1992\n„Heimgegangen in den Nebel“\n\nDie Erde ist eingesunken. Über Nacht. Als hätte sich endlich jemand hingelegt.\n\nUnter der alten Kreide, frisch, in Kinderschrift: <span class="hand">HEIM</span>.', 'nord_grab_kranz_heim',
+    () => { if (typeof gedanke === 'function') gedanke('nord_peter_heim', 'Onkel Peter. Ich hab dich heimgeschickt. Mit Mamas Feuerzeug.', 600, 3); });
+}
+// Kapitel-Sperren am Kirchberg: bei jedem Kapitelwechsel (KAP_BEGIN, Takt, Laden) – nie im Takt selbst allozieren
+function ausbau_nord_sperre() {
+  const N = ausbau_nord; if (!N.ok) return; const k5 = kapAb(5);
+  if (k5 && !N.echo && (N.names.size >= 7 || story.lore.some(l => l.key === 'nord_gedenkfeld')) && !story.lore.some(l => l.key === 'echo_nord_grab')) ausbau_nord_echo(false);
+  const A = N.echoA; if (!A || echoSeen.has('echo_nord_grab')) return; const i = interactables.indexOf(A.hit); A.s.visible = k5;
+  if (k5 && i < 0) interactables.push(A.hit); else if (!k5 && i >= 0) interactables.splice(i, 1);
 }
 // Gänsehaut: Zählen am Gedenkfeld (nach dem siebten Namen)
 async function ausbau_nord_counting(x, z) {
@@ -662,9 +682,9 @@ function ausbau_nord_bench() {
 
 // ---- pro Bild
 function ausbau_nord_tick(dt, t, indoor) {
-  const N = ausbau_nord, P = player.pos;
+  const N = ausbau_nord, P = player.pos, k = kap(); if (k !== N.kap) { N.kap = k; ausbau_nord_sperre(); }
   if (!N.solid && typeof SOL !== 'undefined' && SOL.items.length) { N.solid = true; try { for (const g of N.glass || []) solidAdd(g, true); } catch (e) {} } // Glas der Haltestelle hält auf
-  if (!N.restored && state.started) { N.restored = true; ausbau_nord_restore(); }
+  if (!N.restored && state.started) { N.restored = true; ausbau_nord_restore(); ausbau_nord_sperre(); }
   const near = P.z > 30 && P.x > -90 && P.x < 70, onLane = P.z > 4 && P.z < 58 && Math.abs(P.x + 7) < 6;
   // --- Karussell
   const M_ = N.merry; if (M_) { const d = Math.hypot(P.x - 34, P.z - 71.2);
@@ -681,6 +701,8 @@ function ausbau_nord_tick(dt, t, indoor) {
     for (const s of S.seats) { const push = s === q ? q.drive * .9 * Math.sign(s.v || 1) : 0; s.v += (-9.8 / 1.9 * Math.sin(s.a) + push * (Math.abs(s.a) < .15 ? 1 : 0)) * dt; s.v *= 1 - dt * .12; s.a += s.v * dt; s.piv.rotation.x = s.a;
       if (Math.abs(s.a) > .12 && Math.sign(s.v) !== Math.sign(s.lv || 0)) { if (d < 22) Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .12 * Math.min(1, Math.abs(s.a) * 2), rate: .8, x: S.x, y: 2, z: S.z, ref: 2 }); } s.lv = s.v; } }
   if (!near && !onLane) return;
+  // T20: Paragraf vier – Gedanke am Gedenkfeld, sobald Luke die Einwilligungen aus Zimmer 7 bei sich hat
+  if (!N.t20 && N.pit && Math.abs(P.x - N.pit.x) < 8 && Math.abs(P.z - N.pit.z) < 6 && story.items.includes('einwilligungen')) { N.t20 = true; if (typeof gedanke === 'function') gedanke('nord_paragraf4', 'Paragraf vier. Am Tag der Übergabe ein Gedenkstein. Sie haben uns begraben, bevor sie uns hergegeben haben.', 800, 3); }
   const free = ausbau_nord_free();
   // --- tote Laterne am Ende der Straße: kämpft sich ab und zu an
   if (N.deadLamp && N.deadLamp.mode === 'off' && !ch3.on && !state.outage) { N.lampT -= dt; if (N.lampT < 0) { N.lampT = rand(9, 22); const L = N.deadLamp; L.mode = 'flicker'; Audio.buzz(L.wx, 5, L.wz); setTimeout(() => { if (L.mode === 'flicker') L.mode = 'off'; }, rand(250, 700)); } }

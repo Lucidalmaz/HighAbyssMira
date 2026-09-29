@@ -12,7 +12,7 @@ const k5_i = b => K5_BEATS.indexOf(b);
 const k5_ab = b => k5_i(k5.beat) >= k5_i(b);
 const k5_vor = b => k5_i(k5.beat) < k5_i(b);
 const K5_Y = .43; // Fußboden der Häuser
-const K5_POS = { veranda: [-27.2, 0, -9.6, PI], nr7: [23.6, K5_Y, -14.6, -PI / 2], tuer: [-47, 0, -9.4, 0], kinder: [-53.2, K5_Y, -19.4, PI], kreuz: [1.8, 0, 3.2, -2.4], stall: [-135.6, 0, -30.1, PI / 2], tor: [-52.5, 0, 64.6, PI] };
+const K5_POS = { veranda: [-27.2, 0, -10.55, PI], nr7: [23.6, K5_Y, -14.6, -PI / 2], tuer: [-47, 0, -9.4, 0], kinder: [-53.2, K5_Y, -19.4, PI], kreuz: [1.8, 0, 3.2, -2.4], stall: [-135.6, 0, -30.1, PI / 2], tor: [-52.5, 0, 64.6, PI] };
 // Kinderstimme, Spieluhr darunter usw.: Sprecher wie im Produktionsplan
 const K5_W = { V: 'VEGAS', L: 'LUCY', LU: 'LUKE', H: 'HEIMKEHRERIN', K: 'DAS KIND', E: 'ECHTER LUKE', M: 'MAMA', A: 'ANRUF' };
 const _k5v = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], _k5q = new THREE.Quaternion(), _k5q2 = new THREE.Quaternion();
@@ -112,7 +112,7 @@ function k5_sprite(canvas, color, sx, sy, fog = true) { const m = new THREE.Spri
 // ---------------------------------------------------------------- Aussehen: Auswahl-Leiste, Sitz-Hinweis, eigene Schwarzblende (falls augenzu.js fehlt)
 {
   const css = document.createElement('style');
-  css.textContent = `#k5Wahl { position: absolute; left: 50%; bottom: 21%; transform: translateX(-50%); display: none; flex-direction: column; gap: 7px; min-width: 340px; max-width: 64vw; z-index: 6; }
+  css.textContent = `#k5Wahl { position: absolute; left: 6%; bottom: 24%; display: none; flex-direction: column; gap: 7px; min-width: 340px; max-width: 64vw; z-index: 6; }
   #k5Wahl.on { display: flex; } #k5Wahl div { font: 18px/1.35 "Cormorant Garamond", Georgia, serif; color: #e9dfc8; text-shadow: 0 0 3px #000, 0 0 12px #000; padding: 5px 14px; background: linear-gradient(90deg, rgba(8,7,6,.62), rgba(8,7,6,.12)); border-left: 1px solid rgba(201,163,106,.55); cursor: pointer; pointer-events: auto; }
   #k5Wahl div:hover { color: #fff4dc; border-left-color: #c9a36a; } #k5Wahl b { display: inline-block; width: 22px; color: #c9a36a; font: 700 14px Georgia; }
   #k5Tip { position: absolute; left: 50%; bottom: 30%; transform: translateX(-50%); font: 600 14px "Cormorant Garamond", Georgia, serif; letter-spacing: .28em; color: #e9dfc8; text-shadow: 0 0 3px #000, 0 0 12px #000; opacity: 0; transition: opacity .6s; white-space: nowrap; }
@@ -162,35 +162,39 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     S.win3 = { x: wx, y: wy, z: wz };
     const er = new T.Mesh(new T.PlaneGeometry(.86, 1.5), new T.ShaderMaterial({ vertexShader: 'void main(){ vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.); p.z = p.w * .99999; gl_Position = p; }', fragmentShader: 'void main(){ gl_FragColor = vec4(0.); }', colorWrite: false, depthFunc: T.AlwaysDepth }));
     er.position.set(wx, wy, wz - .03); er.renderOrder = 20; er.visible = false; er.userData.noCol = true; er.frustumCulled = false; scene.add(er); S.o.radierer = er;
-    if (S.g.lucyWin) S.g.lucyWin.position.set(wx + .05, .45, wz - .42);
-    S.o.pfeil = k5_decal(k5_tPfeil(), .42, .42, { op: 0 }); S.o.pfeil.position.set(wx - .15, wy + .12, wz + .012);
-    S.L.win3 = new VLight(0xffc890, 0, 4, 2); S.L.win3.position.set(wx, wy + .6, wz - 1.1); scene.add(S.L.win3); }
+    if (S.g.lucyWin) S.g.lucyWin.position.set(wx + .05, .45, wz - .3);
+    S.o.pfeil = k5_decal(k5_tPfeil(), .42, .42, { op: 0 }); S.o.pfeil.position.set(wx - .24, wy - .22, wz + .012);
+    S.L.win3 = new VLight(0xffc890, 0, 4, 2); S.L.win3.position.set(wx + .3, wy + .4, wz + .6); scene.add(S.L.win3); }
   // --- Nr. 1: Tisch, Gedecke, Stühle, Lampen, Decals
   const G1 = scene.getObjectByName('io_nr1') || scene;
   const bb = new T.Box3(), within = (o, x0, x1, z0, z1) => { bb.setFromObject(o); const cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2; return cx > x0 && cx < x1 && cz > z0 && cz < z1; };
-  let tisch = null; if (G1 !== scene) for (const c of G1.children) { if (within(c, -53.6, -52.4, -15.4, -14.2)) { bb.setFromObject(c); if (bb.max.y - bb.min.y > .6 && bb.max.y - bb.min.y < 1.1 && bb.max.x - bb.min.x < 1.2) { tisch = bb.clone(); break; } } }
-  if (!tisch) tisch = new T.Box3(new T.Vector3(-53.3, K5_Y, -15.5), new T.Vector3(-52.7, K5_Y + .77, -14.1));
+  let tisch = null; if (G1 !== scene) { const rc = new T.Raycaster(new T.Vector3(-53, 3, -14.8), new T.Vector3(0, -1, 0), 0, 3); const h = rc.intersectObject(G1, true).find(q => q.object.isMesh && q.object.visible && q.point.y > K5_Y + .4 && q.point.y < K5_Y + 1.1);
+    if (h) { let o = h.object; while (o.parent && o.parent !== G1) o = o.parent; bb.setFromObject(o); if (bb.max.x - bb.min.x < 2 && bb.max.z - bb.min.z < 2.5) { tisch = bb.clone(); tisch.max.y = h.point.y; } } }
+  if (!tisch) { tisch = new T.Box3(new T.Vector3(-53.3, K5_Y, -15.5), new T.Vector3(-52.7, K5_Y + .77, -14.1)); console.warn('Kapitel 5: Tisch nicht gefunden'); }
   S.tisch = tisch; const tx = (tisch.min.x + tisch.max.x) / 2, tz = (tisch.min.z + tisch.max.z) / 2, ty = tisch.max.y + .004;
   S.plaetze = { papa: [tx, tisch.max.z - .17], mama: [tx, tisch.min.z + .17], luke: [tisch.min.x + .15, tz], kind: [tisch.max.x - .15, tz] };
   const put = (o, x, y, z, ry = 0) => { const g = msGround(o); g.position.set(x, y, z); g.rotation.y = ry; g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true; g.visible = false; scene.add(g); return g; };
   const part = (src, re) => { let r = null; src.traverse(m => { if (!r && m.isMesh && re.test(m.name + ' ' + (m.parent ? m.parent.name : ''))) r = m; }); return r; };
-  const solo = (src, re) => { const c = src.clone(true); const keep = part(c, re); if (keep) c.traverse(m => { if (m.isMesh && m !== keep) m.visible = false; }); return c; };
+  const teil = (src, re, size, axis = 'max') => { src.updateMatrixWorld(true); const ms = []; src.traverse(m => { if (m.isMesh && (!re || re.test(m.name + ' ' + (m.parent ? m.parent.name : '') + ' ' + (m.material && m.material.name)))) ms.push(m); });
+    if (!ms.length) return null; const g = new T.Group(); const b = new T.Box3(); for (const m of ms) { const geo = m.geometry.clone().applyMatrix4(m.matrixWorld); geo.computeBoundingBox(); b.union(geo.boundingBox); const mm = new T.Mesh(geo, m.material); g.add(mm); }
+    const sz = b.getSize(new T.Vector3()), cur = axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[axis], k = size / Math.max(1e-6, cur);
+    for (const mm of g.children) { mm.geometry.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); mm.geometry.scale(k, k, k); mm.geometry.computeBoundingBox(); mm.geometry.computeBoundingSphere(); } return g; };
   S.ged = { papa: [], mama: [], luke: [], kind: [] }; S.gras = [];
   try {
     const [teller, becher, besteck, brot] = await Promise.all(['w_teller', 'w_becher', 'w_besteck', 'w_brot'].map(k => msModel(k, 'model.glb')));
-    const plate = () => msFit(solo(teller, /plate_dinner/i), .26, 'max'), kid = () => msFit(solo(teller, /plate_salad/i), .2, 'max');
+    const plate = () => teil(teller, /plate_dinner/i, .26) || teil(teller, null, .26), kid = () => teil(teller, /plate_salad/i, .2) || teil(teller, null, .2);
     for (const k of ['papa', 'mama', 'luke']) { const [x, z] = S.plaetze[k]; if (k !== 'papa') S.ged[k].push(put(plate(), x, ty, z)); }
-    { const [x, z] = S.plaetze.kind; const p = put(kid(), x, ty, z); S.ged.kind.push(p); const d = k5_decal(k5_tHase(), .15, .15); d.rotation.x = -PI / 2; bb.setFromObject(p); d.position.set(x, bb.max.y - .004, z); S.ged.kind.push(d); }
-    { const [x, z] = S.plaetze.papa; S.ged.papa.push(put(msFit(becher.clone(true), .11, 'y'), x + .12, ty, z - .02));
-      const l = msFit(besteck.clone(true), .19, 'max'); l.rotation.x = -PI / 2; S.ged.papa.push(put(l, x - .1, ty, z + .02, .15));
-      const br = brot.clone(true); br.traverse(m => { if (m.isMesh && /cookie/i.test(m.name + (m.material && m.material.name))) m.visible = false; }); S.brot = put(msFit(br, .16, 'max'), x - .01, ty, z - .05, .6); S.ged.papa.push(S.brot);
+    { const [x, z] = S.plaetze.kind; const p = put(kid(), x, ty, z); p.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color = new T.Color(0xe8e2d8); } }); S.ged.kind.push(p); const d = k5_decal(k5_tHase(), .15, .15); d.rotation.x = -PI / 2; bb.setFromObject(p); d.position.set(x, bb.max.y - .004, z); S.ged.kind.push(d); }
+    { const [x, z] = S.plaetze.papa; S.ged.papa.push(put(teil(becher, null, .11, 'y'), x + .13, ty, z - .03));
+      const l = teil(besteck, /Object_5|spoon|loeffel/i, .19) || teil(besteck, null, .19); l.children.forEach(m => { m.geometry.rotateX(-PI / 2); m.geometry.computeBoundingBox(); }); S.ged.papa.push(put(l, x - .15, ty, z, .1));
+      S.brot = put(teil(brot, /Bread_2|Bread_1/i, .15) || teil(brot, null, .15), x - .01, ty, z - .06, .6); S.ged.papa.push(S.brot);
       S.brotHalb = []; S.brot.traverse(m => { if (m.isMesh && m.visible) S.brotHalb.push(m); }); }
     { const [x, z] = S.plaetze.mama; const f = k5_decal(k5_tFeder(), .045, .18); f.rotation.set(-PI / 2, 0, .9); f.position.set(x + .15, ty + .003, z + .02); S.ged.mama.push(f); }
     { const [x, z] = S.plaetze.luke; const d = k5_decal(k5_tZahn(), .022, .022); d.rotation.x = -PI / 2; d.position.set(x + .03, ty + .03, z + .04); S.zahn = d; S.ged.luke.push(d); }
     // Gras vom Tau auf den Tellern (Scan-Gras, klein): Lukes Platz sofort, in Runde 3 auf allen
-    try { const gs = await msModel('w_grassgame', 'model.glb'); for (const k of ['luke', 'papa', 'mama', 'kind']) { const [x, z] = S.plaetze[k]; const g = put(msFit(gs.clone(true), .07, 'y'), x, ty + .018, z, rand(0, 6)); g.scale.multiplyScalar(1); S.gras.push([k, g]); } } catch (e) { console.warn('Kapitel 5: Gras', e); }
+    try { const gs = await msModel('w_grassgame', 'model.glb'); for (const k of ['luke', 'papa', 'mama', 'kind']) { const [x, z] = S.plaetze[k]; const g = put(teil(gs, null, .06, 'y'), x, ty + .014, z, rand(0, 6)); g.scale.set(.6, 1, .6); g.scale.multiplyScalar(1); S.gras.push([k, g]); } } catch (e) { console.warn('Kapitel 5: Gras', e); }
     // Stall: sauber abgeleckter Teller auf der Palette, Brot (das Luke mitbringt)
-    S.stallTeller = put(plate(), 0, -30, 0); S.stallBrot = put(msFit((() => { const b = brot.clone(true); b.traverse(m => { if (m.isMesh && /cookie/i.test(m.name + (m.material && m.material.name))) m.visible = false; }); return b; })(), .16, 'max'), 0, -30, 0);
+    S.stallTeller = put(plate(), 0, -30, 0); S.stallBrot = put(teil(brot, /Bread_2|Bread_1/i, .15) || teil(brot, null, .15), 0, -30, 0);
     S.stallBrotTeile = []; S.stallBrot.traverse(m => { if (m.isMesh && m.visible) S.stallBrotTeile.push(m); });
   } catch (e) { console.warn('Kapitel 5: Gedecke', e); }
   // Mamas Kerze (neu, nie angezündet) auf ihrem Teller + Kerze in der Hand am Grab
@@ -200,7 +204,7 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     const mk = () => { const g = pick.geometry.clone().applyMatrix4(pick.matrixWorld); g.computeBoundingBox(); const b = g.boundingBox; g.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); const s = .16 / Math.max(.001, b.max.y - b.min.y); g.scale(s, s, s); g.computeBoundingBox(); g.computeBoundingSphere();
       const m = new T.Mesh(g, pick.material); m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; m.visible = false; scene.add(m); return m; };
     { const [x, z] = S.plaetze.mama; const tellerH = .016; S.kerzeTisch = mk(); S.kerzeTisch.position.set(x, ty + tellerH, z); S.ged.mama.push(S.kerzeTisch); }
-    S.kerzeHand = mk(); S.kerzeHand.scale.setScalar(.85);
+    S.kerzeHand = mk(); S.kerzeHand.scale.setScalar(.7);
   } catch (e) { console.warn('Kapitel 5: Kerze', e); }
   S.flHand = k5_sprite(k5_tFlamme(false), 0xffffff, .035, .07); S.flKalt = k5_sprite(k5_tFlamme(true), 0xffffff, .03, .085); S.flZeug = k5_sprite(k5_tFlamme(false), 0xffffff, .025, .05);
   S.L.hand = new VLight(0xffb060, 0, 5, 2); S.L.hand.position.set(0, -50, 0); scene.add(S.L.hand);
@@ -212,11 +216,11 @@ WORLD_MODS.push(['Kapitel 5', async () => {
   try { const fl = await msModel('floorlamp'); const g = put(fl.clone(true), -55.45, K5_Y, -12.75, .9); g.visible = true; g.userData.noCol = false;
     const ms = []; g.traverse(m => { if (m.isMesh) { bb.setFromObject(m); ms.push([m, bb.max.y]); } }); ms.sort((a, b) => b[1] - a[1]);
     if (ms[0]) { const sm = ms[0][0].material.clone(); sm.emissive = new T.Color(0xffb46b); sm.emissiveMap = sm.map; sm.emissiveIntensity = 0; ms[0][0].material = sm; S.lampMats.push(sm); }
-    bb.setFromObject(g); S.L.kueche = new VLight(0xffb46b, 0, 7, 2); S.L.kueche.position.set(-55.2, bb.max.y - .25, -12.95); scene.add(S.L.kueche);
+    bb.setFromObject(g); S.L.kueche = new VLight(0xffb46b, 0, 8.5, 2); S.L.kueche.position.set(-55.1, bb.max.y - .2, -13.05); scene.add(S.L.kueche);
     addCol(-55.7, -55.2, -13.0, -12.5); } catch (e) { console.warn('Kapitel 5: Küchenlampe', e); S.L.kueche = new VLight(0xffb46b, 0, 7, 2); S.L.kueche.position.set(-53, K5_Y + 2.2, -14.6); scene.add(S.L.kueche); }
   { let wl = null; if (G1 !== scene) for (const c of G1.children) if (within(c, -49.9, -49, -13.2, -12.2)) { bb.setFromObject(c); if (bb.max.y - bb.min.y > 1.2) { wl = c; break; } }
     if (wl) { const ms = []; wl.traverse(m => { if (m.isMesh) { bb.setFromObject(m); ms.push([m, bb.max.y]); } }); ms.sort((a, b) => b[1] - a[1]); if (ms[0]) { const sm = ms[0][0].material.clone(); sm.emissive = new T.Color(0xffb46b); sm.emissiveMap = sm.map; sm.emissiveIntensity = 0; ms[0][0].material = sm; S.lampMats.push(sm); } }
-    S.L.wohn = new VLight(0xffb46b, 0, 7, 2); S.L.wohn.position.set(-49.45, K5_Y + 1.42, -12.75); scene.add(S.L.wohn); }
+    S.L.wohn = new VLight(0xffb46b, 0, 8.5, 2); S.L.wohn.position.set(-49.45, K5_Y + 1.42, -12.75); scene.add(S.L.wohn); }
   // zwei weitere Stühle (Scan) an die Kopfenden
   try { const spec = { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } };
     for (const [z, ry] of [[tisch.max.z + .32, PI], [tisch.min.z - .32, 0]]) { const c = await msFBX('chair', 'model.fbx', spec); msFit(c, .92, 'y'); const g = put(c, tx, K5_Y, z, ry); g.userData.noCol = false; S.o['stuhl' + (ry ? 'N' : 'S')] = g; } } catch (e) { console.warn('Kapitel 5: Stühle', e); }
@@ -248,7 +252,8 @@ WORLD_MODS.push(['Kapitel 5', async () => {
   try { const pal = await msModel('pallet_ms'); S.o.palette = put(msFit(pal.clone(true), .95, 'max'), 0, -30, 0); } catch (e) { console.warn('Kapitel 5: Palette', e); }
   S.o.striche = k5_decal(k5_tKreide('striche'), 1.8, .9); S.o.augen = k5_decal(k5_tKreide('augen'), .5, .25); S.o.duich = k5_decal(k5_tKreide('duich'), 1.0, .5); S.o.erde = k5_decal(k5_tErde(), 1.1, .55, { op: .9 }); S.o.erde.rotation.x = -PI / 2;
   // Vegas' Sturmlaterne (lantern2) für Lucy am Ende, Licht beim Laden auf 0
-  try { const ln = await msFBX('lantern1', 'model.fbx', { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2, emissive: 0xffb060 } }); S.o.laterne = put(msFit(ln, .34, 'y'), 0, -30, 0); } catch (e) { console.warn('Kapitel 5: Laterne', e); }
+  try { const ln = await msFBX('lantern1', 'model.fbx', { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2, emissive: 0xffb060 } }); S.o.laterne = put(msFit(ln, .34, 'y'), 0, -30, 0);
+    const lm = ln.clone(true); lm.traverse(m => { if (m.isMesh) m.material = figuren_ghostMat(m.material); }); S.o.laterneM = put(lm, 0, -30, 0); if (S.o.anrichte) S.anrichteY = new T.Box3().setFromObject(S.o.anrichte).max.y; } catch (e) { console.warn('Kapitel 5: Laterne', e); }
   S.L.laterne = new VLight(0xffb060, 0, 7, 2); S.L.laterne.position.set(0, -50, 0); scene.add(S.L.laterne);
   S.L.stall = new VLight(0xc8d4e8, 0, 5, 2); S.L.stall.position.set(0, -50, 0); scene.add(S.L.stall);
   // Klickflächen (unsichtbar; nur im passenden Takt in interactables)
@@ -300,7 +305,7 @@ function k5_merker() {
 
 // ---------------------------------------------------------------- Zustand je Takt (Neustart am Speicherpunkt, Laden, Tests)
 function k5_setup(beat, spring) {
-  const S = K5, b = k5_i(beat); k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5_tip('');
+  const S = K5, b = k5_i(beat); k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
   const vis = (key, on) => { const o = S.g[key] || S.o[key]; if (o) o.visible = !!on; };
   const hits = (key, on) => { const h = S.hit[key]; if (!h) return; const i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); };
   for (const k in S.hit) hits(k, false);
@@ -318,6 +323,8 @@ function k5_setup(beat, spring) {
   for (const k of ['papa', 'mama', 'luke', 'kind']) for (const o of S.ged[k]) o.visible = tischVoll || (k === 'luke' && b > k5_i('spieluhr'));
   if (S.brot) S.brot.visible = !k5_hat('brot') && !k5.f.brotStall && b <= k5_i('stall');
   if (S.kerzeTisch) S.kerzeTisch.visible = tischVoll && !k5_hat('mamas_kerze');
+  if (typeof album !== 'undefined') { if (S.albumY === undefined) S.albumY = album.position.y; album.position.y = tischVoll ? -40 : S.albumY; }
+  try { const pm = PHOTOS[5] && PHOTOS[5].mesh; if (pm) { if (S.p5Y === undefined) S.p5Y = pm.position.y; pm.position.y = tischVoll ? -40 : S.p5Y; } } catch (e) {}
   for (const [k, g] of S.gras) g.visible = k === 'luke' && drin;
   if (S.zahn) S.zahn.visible = b >= k5_i('licht');
   (S.laken || []).forEach(m => { m.visible = !drin; }); for (const k of ['sofa', 'anrichte', 'sessel']) vis(k, drin);
@@ -405,7 +412,7 @@ async function k5_takt(beat, wieder) {
   if (beat === 'veranda') { // K5-1 · 18:10 · Ruhe
     if (!wieder) k5_sp('k5_veranda'); k5_task('Lucy schläft bei Vegas. Warte auf der Veranda.');
     let t = 0; state.talking = true; setScripted(dt => { t += dt; return t < 4.2; });
-    setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.0 + .65 * (k * k * (3 - 2 * k)); if (t > 4.3) setCamOverride(null); });
+    setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.22 + .43 * (k * k * (3 - 2 * k)); if (t > 4.3) setCamOverride(null); });
     for (let i = 0; i < 4; i++) setTimeout(() => Audio.drip(-26.2, 2.6, -10.9), 600 + i * rand(700, 1300));
     await wait(4400); if (!ok()) return; state.talking = false;
     await wait(1200); if (!ok()) return; Audio.chains(-28, 1.2, -12.2); Audio.creak(.25); if (typeof albers_S !== 'undefined') albers_S.open = 1; await wait(900);
@@ -642,7 +649,7 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   if (S.stallBrot) S.stallBrot.position.set(px + .1, top + .02, pz);
   S.o.augen.visible = true; S.o.augen.rotation.set(-PI / 2, 0, 0); S.o.augen.position.set(px - .25, top + .004, pz + .2);
   S.o.duich.rotation.set(-PI / 2, 0, 0); S.o.duich.position.set(px - .1, top + .005, pz - .18); S.o.duich.scale.setScalar(.55);
-  S.o.striche.visible = true; S.o.striche.position.set(px + .4, 1.2, z1 - .08); S.o.striche.rotation.set(0, PI, 0);
+  S.o.striche.visible = true; S.o.striche.scale.set(.85, .7, 1); S.o.striche.position.set(px + .4, .52, z1 - .1); S.o.striche.rotation.set(0, PI, 0);
   if (S.hit.stallTeller) S.hit.stallTeller.position.set(px + .1, top + .15, pz);
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }
 async function k5_brotHin() {
@@ -794,7 +801,7 @@ WORLD_TICK.push((dt, t) => {
   const S = K5; if (!S.ready) return;
   // Lichtübergänge in Nr. 1 (auch außerhalb des Kapitels auf 0 halten)
   if (S.lichtK !== S.lichtZiel) { const z = S.lichtZiel || 0; S.lichtK = Math.abs(z - (S.lichtK || 0)) < .02 ? z : (S.lichtK || 0) + (z - (S.lichtK || 0)) * Math.min(1, dt * 1.6); }
-  const lk = k5.on ? (S.lichtK || 0) : 0; if (S.L.kueche) S.L.kueche.intensity = 1.1 * lk; if (S.L.wohn) S.L.wohn.intensity = .8 * lk; for (const m of S.lampMats) m.emissiveIntensity = .6 * lk;
+  const lk = k5.on ? (S.lichtK || 0) : 0; if (S.L.kueche) S.L.kueche.intensity = 2.6 * lk; if (S.L.wohn) S.L.wohn.intensity = 1.8 * lk; for (const m of S.lampMats) m.emissiveIntensity = .6 * lk;
   if (!k5.on || !state.started) return;
   k5.bt += dt; const P = player.pos, b = k5.beat;
   if (rain && rain.m) rain.m.visible = false; // nach dem Regen: klar und kalt
@@ -806,7 +813,7 @@ WORLD_TICK.push((dt, t) => {
   if (b === 'fenster' && k5.bt > 2.8 && !k5.f.fensterGesagt && !state.talking && k5_dist(S.win3.x, S.win3.z) < 5.5) k5_fensterReden();
   // --- K5-6 an der Tür: Speicherpunkt, dann Spuren und HASENBROT
   if (b === 'licht') { k5.radioT = (k5.radioT || 0) - dt; if (k5.radioT < 0) k5.radioT = k5_radio(-54.9, K5_Y + 1.1, -12.7) + 2; k5.klirrT -= dt; if (k5.klirrT < 0) { k5.klirrT = rand(1.8, 5); k5_klirr(-53, K5_Y + .9, -14.8); }
-    const h = S.g.heim; if (h && h.visible) { const k = .5 + .5 * Math.sin(k5.bt * .45); h.position.x = -54.4 + 1.3 * k; h.position.z = -15.7 + 1.6 * k; h.rotation.y = Math.cos(k5.bt * .45) > 0 ? .7 : -2.4; }
+    const h = S.g.heim; if (h && h.visible) { const k = .5 + .5 * Math.sin(k5.bt * .45); h.position.x = -53.9 + 1.5 * k; h.position.z = -14.3 + .95 * k; h.rotation.y = Math.cos(k5.bt * .45) > 0 ? 1.0 : -2.1; }
     if (Math.hypot(P.x + 47, P.z + 11.2) < 3.2 && !k5.f.tuerSP) { k5.f.tuerSP = true; k5.beat = 'tuer'; k5_setup('tuer', true); } }
   if (b === 'tuer') { k5.radioT = (k5.radioT || 0) - dt; if (k5.radioT < 0) k5.radioT = k5_radio(-54.9, K5_Y + 1.1, -12.7) + 2;
     if (typeof door1 !== 'undefined' && door1.openAngle < 1 && k5_dist(-47, -12) < 2) { door1.openAngle = 1.55; door1.set(true); }
@@ -864,11 +871,11 @@ function k5_haendeVorsGesicht(h) { const P = h.userData.person; if (!P) return; 
   bend(b.LeftArm, -1.25); bend(b.RightArm, -1.25); bend(b.LeftForeArm, -1.5); bend(b.RightForeArm, -1.5); }
 // Runde 2: Nachhall – Mama, 2011, schreibt einen Brief und zündet eine Laterne an
 async function k5_mama() { const S = K5, g = S.g.mama; if (!g || state.talking) return; state.talking = true;
-  try { g.position.set(-46.9, K5_Y, -16.0); g.rotation.y = PI; g.visible = true; if (typeof figuren_memoryLook === 'function') figuren_memoryLook(true); Audio.whisper(-46.9, 1.4, -16, 1.6);
+  try { g.position.set(-48.35, K5_Y, -16.05); g.rotation.y = PI + .35; g.visible = true; if (S.o.laterneM) { S.o.laterneM.visible = true; S.o.laterneM.position.set(-47.95, S.anrichteY || K5_Y + 1, -16.45); } if (typeof figuren_memoryLook === 'function') figuren_memoryLook(true); Audio.whisper(-46.9, 1.4, -16, 1.6);
     for (let i = 0; i <= 20; i++) { echoMat.opacity = .35 * i / 20; await wait(40); }
     await say([['Im Wohnzimmer flackert es. Mama, 2011, schreibt einen Brief. Dann zündet sie eine Laterne an.', 4800], ['„Ich hol ihn. Und dann komm ich zu dir zurück.“', 3800, K5_W.M]]);
     for (let i = 20; i >= 0; i--) { echoMat.opacity = .35 * i / 20; await wait(40); }
-  } finally { g.visible = false; echoMat.opacity = 0; if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false); state.talking = false; }
+  } finally { g.visible = false; if (S.o.laterneM) S.o.laterneM.visible = false; echoMat.opacity = 0; if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false); state.talking = false; }
   await wait(2500); if (k5.on && k5.beat === 'schleife') k5_denk('Die Kamera. Sie hat sich weggedreht, als ich sie gehoben hab. Warum hat sie Angst davor?', 5600); }
 // K5-11: die Graue (vorhandene Figur „grey“) – bewegt sich nur ungesehen, zerfällt im Licht
 function k5_jagd(dt) { const J = k5.jagd, P = player.pos, gy = grey;
@@ -902,12 +909,12 @@ function k5_grabTick(dt) { const G = k5.gr, S = K5, P = player.pos, pit = S.pit,
   const f = S.flZeug; if (G.zeugT > 0) { G.zeugT -= dt; f.visible = true; f.position.copy(camera.position).addScaledVector(fwd, .42); f.position.y -= .12; } else f.visible = false; }
 // Mamas Kerze in Lukes Hand (vor der Kamera), Flamme gelb → kerzengerade kalt-weiß → gelb → aus
 function k5_handKerze(dt) { const H = k5.hand, S = K5, c = S.kerzeHand; H.t += dt; if (!c) return;
-  const r = _k5v[1].set(-fwd.z, 0, fwd.x).normalize(); c.position.copy(camera.position).addScaledVector(fwd, .44).addScaledVector(r, .08); c.position.y -= .32; c.rotation.set(0, 0, 0);
-  const top = c.position.y + .16 * c.scale.y + .04; for (const f of [S.flHand, S.flKalt]) f.position.set(c.position.x, top, c.position.z);
+  const r = _k5v[1].set(-fwd.z, 0, fwd.x).normalize(); c.position.copy(camera.position).addScaledVector(fwd, .5).addScaledVector(r, .1); c.position.y -= .36; c.rotation.set(0, 0, 0);
+  const top = c.position.y + .16 * c.scale.y + .03; for (const f of [S.flHand, S.flKalt]) f.position.set(c.position.x, top, c.position.z);
   S.flHand.scale.set(.035 * (1 + Math.sin(H.t * 17) * .08), .07 * (1 + Math.sin(H.t * 23) * .1), 1);
   S.L.hand.position.set(c.position.x, top + .05, c.position.z);
-  if (H.phase === 'brennt' || H.phase === 'gelb') { S.L.hand.color.setHex(0xffb060); S.L.hand.intensity = .9 + Math.sin(H.t * 13) * .12; }
-  else if (H.phase === 'kalt') { S.L.hand.color.setHex(0xdfe8ff); S.L.hand.intensity = 1.1; }
+  if (H.phase === 'brennt' || H.phase === 'gelb') { S.L.hand.color.setHex(0xffb060); S.L.hand.intensity = .3 + Math.sin(H.t * 13) * .04; }
+  else if (H.phase === 'kalt') { S.L.hand.color.setHex(0xdfe8ff); S.L.hand.intensity = .4; }
   else S.L.hand.intensity = 0; }
 function k5_haltLaterne(L) { const S = K5, ln = S.o.laterne; if (!ln) return; const P = L.userData.person; let hand = null; if (P) { const b = P.b || (P.b = figuren_bones(P.obj)); hand = b.RightHand || null; }
   if (hand) { hand.getWorldPosition(ln.position); ln.position.y -= .32; } else ln.position.set(L.position.x + .3, .7, L.position.z + .2);

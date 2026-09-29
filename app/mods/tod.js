@@ -172,8 +172,13 @@ const TOD_ANIM = {
     // Knochen nach dem Animations-Mixer (im Tick): Hände am Gesicht, beim Niedersinken beugt er sich mit hinunter
     A.bones = t => { if (!Zm || !Zm.b) return; const k = tod_ease(Math.min(1, Math.max(0, (t - 2.4) / 2.2))); Zm.zm.getWorldQuaternion(_tdq2); _tax.set(1, 0, 0).applyQuaternion(_tdq2);
       tod_bend(Zm.b.spine_01, _tax, .3 * k); tod_bend(Zm.b.spine_02, _tax, -.25 + .5 * k); tod_bend(Zm.b.spine_03, _tax, .25 * k);
-      tod_bend(Zm.b.upperarm_l, _tax, .1 + .25 * k); tod_bend(Zm.b.upperarm_r, _tax, .1 + .25 * k); tod_bend(Zm.b.lowerarm_l, _tax, -.45 + .1 * k); tod_bend(Zm.b.lowerarm_r, _tax, -.45 + .1 * k);
-      tod_bend(Zm.b.neck_01, _tax, -.1 + .25 * k); tod_bend(Zm.b.head, _tax, .1 + .2 * k); };
+      tod_bend(Zm.b.neck_01, _tax, -.1 + .25 * k); tod_bend(Zm.b.head, _tax, .1 + .2 * k);
+      // beide Hände an Lukes Gesicht (Wangen), die Ellbogen leicht gebeugt – sie folgen ihm, wenn er in die Knie geht
+      const w = Math.min(1, t / .35), cp = camera.position, rx = Math.cos(B.yaw), rz = -Math.sin(B.yaw), g = Zm.b;
+      for (const [sd, ua, la, hd] of [[1, g.upperarm_l, g.lowerarm_l, g.hand_l], [-1, g.upperarm_r, g.lowerarm_r, g.hand_r]]) {
+        if (!ua || !la) continue; const hand = hd || la.children.find(c => c.isBone); if (!hand) continue;
+        _taT.set(cp.x + rx * .13 * sd + f.x * .1, cp.y - .07, cp.z + rz * .13 * sd + f.z * .1);
+        _taE.copy(_taT); _taE.y -= .2; tod_aim(ua, la, _taE, w * .9); tod_aim(la, hand, _taT, w); } };
     const at = (ms, fn) => gtAfter(ms, fn);
     at(800, () => subtitle('<i>„Bruder.“</i>', 1700));
     at(1500, () => Audio.groan(zx, zz, false));
@@ -213,6 +218,11 @@ const TOD_ANIM = {
 };
 TOD_ANIM.feuer = TOD_ANIM.rauch;
 const _tpw = new THREE.Quaternion(), _tbw = new THREE.Quaternion(), _tdq = new THREE.Quaternion(), _tdq2 = new THREE.Quaternion(), _tax = new THREE.Vector3();
+const _taA = new THREE.Vector3(), _taB = new THREE.Vector3(), _taC = new THREE.Vector3(), _taT = new THREE.Vector3(), _taE = new THREE.Vector3(), _taQ = new THREE.Quaternion();
+// Knochen b so drehen, dass sein Kind c auf target zeigt (Weltraum, Anteil w) – einfache Zwei-Glieder-Ausrichtung ohne Zuweisungen
+function tod_aim(b, c, target, w) { if (!b || !c || !b.parent || w <= 0) return; b.updateMatrixWorld(true); b.getWorldPosition(_taA); c.getWorldPosition(_taB);
+  _taB.sub(_taA).normalize(); _taC.copy(target).sub(_taA).normalize(); _taQ.setFromUnitVectors(_taB, _taC); _tdq.identity().slerp(_taQ, w);
+  b.parent.getWorldQuaternion(_tpw); b.getWorldQuaternion(_tbw); b.quaternion.copy(_tpw.invert().multiply(_tdq).multiply(_tbw)); b.updateMatrixWorld(true); }
 function tod_bend(b, axis, ang) { if (!b || !b.parent) return; b.parent.getWorldQuaternion(_tpw); b.getWorldQuaternion(_tbw); _tdq.setFromAxisAngle(axis, ang); b.quaternion.copy(_tpw.invert().multiply(_tdq).multiply(_tbw)); }
 async function todDie(kind = 'zombie', opts = {}) {
   const S = tod_S; if (S.dying) return; S.dying = true; S.deaths++; S.kind = kind;

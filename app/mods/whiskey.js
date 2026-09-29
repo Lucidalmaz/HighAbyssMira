@@ -19,7 +19,7 @@ const WHISKEY_ST = [
     talk: () => whiskey_tradeTalk() },
   { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => ch3.on && ch3.part === 'town' && ch3.met, done: () => story.lore.some(l => l.key === 'cleo_gedenk') || whiskey_S.met.has('gedenkfeld'),
     talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
-  { id: 'waldrand', at: [30, 96.2], when: () => ch3.on && ch3.part === 'town' && ch3.met && whiskey_S.trade && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
+  { id: 'waldrand', at: [30, 96.2], when: () => kapAb(6) && ch3.on && ch3.part === 'town' && ch3.met && whiskey_S.trade && story.lore.some(l => /^zayn_|^cleo_/.test(l.key)), done: () => player.pos.z > 100,
     talk: 'Am Waldrand. Er fliegt ein Stück hinein und wartet. Forbidden Dustwoods. Da durfte als Kind keiner rein.' }];
 // Oberseite des höchsten festen Körpers unter (x, z) – Laternenkopf, Briefkasten, Geländer, Grabstein
 function whiskey_perch(x, z) {

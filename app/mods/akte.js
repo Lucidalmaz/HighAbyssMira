@@ -13,11 +13,15 @@ const AKTE = [ // [Nr, Titel, Ort (Anker: x, yProbe, z | Funktion), Text]
   [5, 'Die Rückläufer', () => [-110.4, 1.2, 27.8], 'Intern heißen sie R-Fälle. Rückläufer.\n\nSie essen, schlafen, lieben ihre Eltern. Sie bluten. Aber sie werden nie krank, und wenn im Radio 31,10 rauscht, zählen sie im Schlaf leise mit.\n\nDienstanweisung 4: beobachten, nicht aufklären. Wer weiß, was er ist, durch den sieht sie – und dann holt sie ihn. Das haben wir 1992 gelernt.'],
   [6, '1992 · Kranz', () => [127.6, 1.2, -27.2], 'Peter Kranz hat 1992 seine eigene Akte gelesen. Jemand hat sie ihm gegeben. Ich weiß bis heute nicht, wer.\n\nIn derselben Nacht hat das Licht ihn geholt und zurückgegeben – so, wie ein Kind sich an ihn erinnert hat: Lachen und Zähne.\n\nDas Amt hat ihn nicht getötet. Man tötet keine Beweise. Man sperrt sie in den unteren Gang.'],
   [7, 'Versuchsreihe K', () => (typeof C2 !== 'undefined' ? [C2.x + 86.1, 1.2, C2.z - 1.1] : null), 'Versuchsreihe K, 1994–2011. Ziel: den Rückläufer „zurückübersetzen“, um den Verbleib des Originals zu erfahren. Licht, Kälte, Tonbänder mit der Stimme seiner Schwester Marion.\n\nErgebnis 41: Er hat meine Hand gehalten und „Bruder“ gesagt.\nErgebnis 212: Er hat seine Zähne gezählt, bis sie bluteten.\n\nAm 3. März 2011 hat er das Gitter aus der Wand gerissen. Zwei Pfleger. Offiziell: ein Gasleck.\nEr sucht keine Opfer. Er sucht den Ausgang.'],
-  [8, '2009 · Die Sperre', () => [61.6, 1.2, 146.4], 'Wir kannten das Jahr. Den Tag hat uns die Liste verraten.\n\nAm 27. Juli wollten Familien wegfahren. Die Sperre im Osten stand da schon: „Unwetterwarnung“. Wer durchbrechen wollte, blieb stehen. Die weißen Autos da draußen sind keine Unfälle.\n\nAnweisung aus Berlin: Beobachtung statt Evakuierung. Sieben Kinder.\nIch habe die Anweisung abgezeichnet. Ich schreibe es auf, weil ich es nicht mehr ungeschrieben machen kann.'],
+  [8, '2009 · Die Sperre', () => [144.2, 1.2, 4.1], 'Wir kannten das Jahr. Den Tag hat uns die Liste verraten.\n\nAm 27. Juli wollten Familien wegfahren. Die Sperre im Osten stand da schon: „Unwetterwarnung“. Wer durchbrechen wollte, blieb stehen. Die weißen Autos da draußen sind keine Unfälle.\n\nAnweisung aus Berlin: Beobachtung statt Evakuierung. Sieben Kinder.\nIch habe die Anweisung abgezeichnet. Ich schreibe es auf, weil ich es nicht mehr ungeschrieben machen kann.'],
   [9, 'Akte 08', () => (typeof TIEF !== 'undefined' ? [TIEF.stand.x - .5, 3.9, TIEF.stand.z + .4] : null), 'Am 5. August 2009 um 03:13 brachte der Ritter den Letzten zurück. Er war nicht der, der gegangen war.\n\nDer Ritter hat es nicht gemerkt. Wir schon: eine andere Blutgruppe als vorher. In der linken Hand eine halbrunde Narbe, die er vorher nicht hatte.\n\nWir haben ihm eine Nummer gegeben – 08 – und seiner Mutter nichts gesagt. Den Rest findest du unten, im Messraum.'],
   [10, '2012 · Die Auflösung', () => (typeof ANW_HALL !== 'undefined' ? [ANW_HALL.x + 5.6, 1.2, ANW_HALL.z - 3.4] : null), 'Heute wird die Außenstelle aufgelöst. Die Akten gehen nach unten, zu den Wassern, dorthin, wo nichts gefunden wird.\n\nSeiler weigert sich, die Schlüssel abzugeben. Er sagt, 2026 komme jemand, und dann solle wenigstens einer die Wahrheit finden können. Acht Schlösser, wie die acht Akten.\n\nIch fahre heute Nacht nach Hamburg, zu einer Zeitung. Wenn du nie etwas davon gehört hast, bin ich nicht angekommen.\n\n— E. B., 19. November 2012'],
 ];
 const akte_has = n => story.lore.some(l => l.key === 'akte_' + n);
+// Kapitel-Sperren (PK-A A14–A20): ab welchem Kapitel ein Durchschlag ausliegt (fehlt = ab Kapitel 1)
+const AKTE_AB = { 5: 3, 6: 3, 7: 2, 8: 3, 9: 6, 10: 4 };
+const akte_offen = n => kapAb(AKTE_AB[n] || 1);
+function akte_sperre() { for (const d of AKTE_S.docs) { const on = akte_offen(d.n), i = interactables.indexOf(d.hit); d.m.visible = on && !akte_has(d.n); if (on && i < 0) interactables.push(d.hit); else if (!on && i >= 0) interactables.splice(i, 1); } }
 const akte_n = () => AKTE.filter(a => akte_has(a[0])).length;
 function akte_tex() { return tex(cnv(256, (c, w) => { c.fillStyle = '#b89a6a'; c.fillRect(0, 0, w, w); for (let i = 0; i < 60; i++) { c.fillStyle = `rgba(60,40,20,${rand(.03, .12)})`; c.fillRect(rand(0, w), rand(0, w), rand(4, 40), rand(2, 10)); }
   c.fillStyle = '#efe8d8'; c.fillRect(30, 18, 196, 60); c.fillStyle = '#2a2a2a'; c.font = 'bold 22px Courier New'; c.textAlign = 'center'; c.fillText('BfR · AST LE', w / 2, 44); c.font = '16px Courier New'; c.fillText('DURCHSCHLAG', w / 2, 66);
@@ -26,9 +30,9 @@ WORLD_MODS.push(['Die Akte Abgrund', async () => {
   const S = AKTE_S, mat = new THREE.MeshStandardMaterial({ map: akte_tex(), roughness: .85 });
   for (const [n, title, at] of AKTE) { const p = at(); if (!p) continue; const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .012, .32), mat); m.position.set(p[0], .02, p[2]); m.rotation.y = rand(-.6, .6); m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; scene.add(m);
     const hit = box(.45, .3, .5, p[0], .15, p[2], hidden, { cast: false }); interact(hit, () => akte_has(n) ? `Durchschlag ${n} / 10` : 'Ein Umschlag, gestempelt VERTRAULICH', () => akte_lesen(n));
-    S.docs.push({ n, m, hit, x: p[0], yP: p[1], z: p[2] }); if (typeof hintAdd === 'function') hintAdd({ id: 'akte_' + n, x: p[0], y: 0, z: p[2], kind: 'geheim', near: 24, open: () => !akte_has(n) }); }
+    S.docs.push({ n, m, hit, x: p[0], yP: p[1], z: p[2] }); if (typeof hintAdd === 'function') hintAdd({ id: 'akte_' + n, x: p[0], y: 0, z: p[2], kind: 'geheim', near: 24, open: () => !akte_has(n) && akte_offen(n) }); }
   story.side.akte = { title: 'Die Akte Abgrund', desc: 'Jemand aus dem Amt hat Durchschläge versteckt. Es muss noch mehr davon geben.', state: 'hidden' };
-  S.ready = true;
+  akte_sperre(); S.ready = true;
 }]);
 function akte_lesen(n) {
   const [, title, , txt] = AKTE.find(a => a[0] === n), html = '<span style="font-family:\'Courier New\',monospace;font-size:.93em;line-height:1.55">' + txt.replace(/\n/g, '<br>') + '</span>';
@@ -47,8 +51,10 @@ function akte_fertig() {
   if (typeof gedanke === 'function') gedanke('akte_ganz', 'Sie ist nie angekommen. … Dann muss ich es sein.', 3000, 3);
 }
 WORLD_TICK.push(() => { // Umschläge auf die echte Oberfläche legen (Tisch, Plattform, Boden), sobald die Kollision steht
-  const S = AKTE_S; if (!S.ready || S.placed || typeof SOL === 'undefined' || !SOL.items.length) return; S.placed = true;
-  for (const d of S.docs) { const g = solidGround(d.x, d.yP, d.z), y = g > -1 ? g + .012 : .02; d.m.position.y = y; d.hit.position.y = y + .15; if (akte_has(d.n)) d.m.visible = false; }
+  const S = AKTE_S; if (!S.ready) return; const k = kap(); if (k !== S.k) { S.k = k; akte_sperre(); } // Kapitelwechsel (auch Laden/Kapitelwahl): Sperren nachziehen
+  if (S.placed || typeof SOL === 'undefined' || !SOL.items.length) return; S.placed = true;
+  for (const d of S.docs) { const g = solidGround(d.x, d.yP, d.z), y = g > -1 ? g + .012 : .02; d.m.position.y = y; d.hit.position.y = y + .15; } akte_sperre();
 });
-MOD_SAVE.push(['akte', () => 1, () => { for (const d of AKTE_S.docs) d.m.visible = !akte_has(d.n); }]);
+MOD_SAVE.push(['akte', () => 1, () => akte_sperre()]);
+for (let n = 1; n <= 6; n++) KAP_BEGIN[n].push(() => akte_sperre());
 window.__akte = { S: AKTE_S, lesen: n => akte_lesen(n), liste: AKTE }; // Testzugriff
