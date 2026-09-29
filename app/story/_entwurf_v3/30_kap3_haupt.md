@@ -10,7 +10,7 @@
 - **Neue Mechanik:** Funk (Frequenz einstellen, Wort in den Staub schreiben, Kanal wählen); Laternen löschen, während das Graukind Ochs am Berg spielt; Freimal (Eisen anfassen macht drei Sekunden sicher); erzwungenes Blinzeln; Deduktion (Stellen im Bild untersuchen und wählen); die Kette (Hand halten, nie loslassen).
 - **Spielzeit:** Hauptweg etwa zwei Stunden, mit Nebenaufgaben drei bis vier.
 - **Danach weiß der Spieler:** Das Licht ist ein lebendes Schiff, das abgestürzt ist. Das Kind darin heißt Luna und ist Justins Tochter. Justin sucht seit siebenhundert Jahren seine Frau Mira und seine Tochter. Luke ist aus Justins Hand gemacht, und Luna hat die ganze Nacht durch Lukes Augen geguckt. Nicht Mira hat losgelassen, Justins Hand ist aufgegangen. Der Name im Nebel in Kapitel 1 war „Luna“. Lucy ist zurück, mit einem Rest Weiß in den Augen.
-- **Neue Fragen:** Warum sieht Luna ihren Papa nicht, wenn er direkt vor ihr steht? Wer ist der graue Mann im Kombi, und warum kennt Justin ihn seit „einem anderen Rand“? Wer ist das kleine Weiße, das die ganze Nacht hinter Luke hergetrippelt ist, ohne sich zu zeigen? Was ist das Weiß in Lucys Augen? Und was hat Justin gemeint mit „Vielleicht muss sie mich dabei sehen“?
+- **Neue Fragen:** Warum sieht Luna ihren Papa nicht, wenn er direkt vor ihr steht? Wer ist der graue Mann im Kombi, und warum kennt Justin ihn seit „einem anderen Rand“? Wer ist das kleine weiße Ding, das die ganze Nacht hinter Luke hergetrippelt ist, ohne sich zu zeigen? Was ist das Weiß in Lucys Augen? Und was hat Justin gemeint mit „Vielleicht muss sie mich dabei sehen“?
 
 ---
 
@@ -33,7 +33,7 @@ Beim dreizehnten Schlag, direkt am linken Ohr, so nah, dass man den Atem spürt:
 
 KINDERSTIMME: „… siebzehn. Ich komme!“
 
-Sämtliche Laternen der Straße gehen gleichzeitig an, auch die drei, die im Sommer und im Oktober ausgeblasen worden sind. Sie flackern nicht, sie atmen: hell, dunkler, hell, wie ein Brustkorb im Schlaf. Ein Summen setzt ein, tief, im Bauch, nicht in den Ohren.
+Sämtliche Laternen der Straße gehen gleichzeitig an, auch die drei, die im Sommer und im Oktober ausgeblasen worden sind. Sie werden hell, dunkler, wieder hell, gleichmäßig wie ein Brustkorb im Schlaf. Ein Summen setzt ein, tief, im Bauch, nicht in den Ohren.
 
 LUKE (leise): „Elf Anrufe. Diesmal geh ich ran.“
 
@@ -134,9 +134,9 @@ LUKE (Gedanke): „Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen
 
 **Über Mira (nur wenn der Spieler fragt: „Was sucht sie?“):** JUSTIN: „Ihre Mama. Und mich.“ Er sieht auf seine linke Hand. „Meine Frau hat in der Nacht sechs Kinder herausgeholt, eins nach dem anderen, an der Hand. Dann ist sie noch mal hinein, für Luna. Ich hab sie festgehalten, am Rand.“ *(Spieler kann nachfragen. Luke tut es.)* JUSTIN: „Die Luft ist aufgerissen wie Stoff. Das Schiff war kaputt, es hat die Zeit mit aufgerissen. Es hat gezogen. Sie hat losgelassen.“ Er sagt es glatt, wie einen Satz, den man oft gesagt hat.
 
-**Über die Rüstung (nur wenn der Spieler fragt: „Was ist das für ein Metall?“):** JUSTIN: „Kein Eisen. Die drei kleinen Weißen, die übrig waren, haben mir Platten von ihrem Schiff gegeben, im Winter danach. Der Schmied hat sie geschmiedet und danach nie wieder gesprochen.“ LUKE: „Was für kleine Weiße?“ JUSTIN: „Zwei haben die grauen Mäntel geholt. Den dritten hab ich nie wieder gesehen.“ Pause. „Manchmal hör ich was hinter mir, wenn ich nicht hinschau.“ *(Hinter Luke raschelt ein Busch. Wer sich umdreht, sieht nichts.)* JUSTIN: „Nur darin komme ich wieder heraus. Ohne wird man grau. Frag nicht, wie ich das weiß.“
+**Über die Rüstung (nur wenn der Spieler fragt: „Was ist das für ein Metall?“):** JUSTIN: „Kein Eisen. Drei Kleine, weiß wie Reif, die übrig waren, haben mir Platten von ihrem Schiff gegeben, im Winter danach. Der Schmied hat sie geschmiedet und danach nie wieder gesprochen.“ LUKE: „Was für Kleine?“ JUSTIN: „Zwei haben die grauen Mäntel geholt. Den dritten hab ich nie wieder gesehen.“ Pause. „Manchmal hör ich was hinter mir, wenn ich nicht hinschau.“ *(Hinter Luke raschelt ein Busch. Wer sich umdreht, sieht nichts.)* JUSTIN: „Nur darin komme ich wieder heraus. Ohne wird man grau. Frag nicht, wie ich das weiß.“
 
-**Warum er sie nie gefunden hat (nur wenn der Spieler fragt: „Und in siebenhundert Jahren hast du sie nie gefunden?“; zählt als Rüstungs-Hinweis RH-3):** JUSTIN: „Sie hört mich rufen und sieht niemanden. Sie hält es für Mogeln. Wie wenn Erwachsene beim Verstecken schummeln.“ *(Spieler geht einen Schritt.)* JUSTIN: „Also versteckt sie sich besser. Jedes Mal. Wir sind beide sehr gut geworden, in einem Spiel, das nie aufhört.“
+**Warum er sie nie gefunden hat (nur wenn der Spieler fragt: „Und in siebenhundert Jahren hast du sie nie gefunden?“; zählt als Rüstungs-Hinweis RH-3):** JUSTIN: „Sie hört mich rufen und sieht niemanden. Sie hält es für Mogeln. Wie wenn Erwachsene beim Verstecken schummeln.“ *(Spieler geht einen Schritt.)* JUSTIN: „Also versteckt sie sich besser. Jedes Mal. Darin sind wir beide sehr gut geworden.“
 
 **Peter (immer, weil Peter verbrannt ist):** JUSTIN: „Du riechst nach Rauch. Nach dem unteren Gang.“ Pause. „Er war auch einer von meinen.“ LUKE (ein Satz): „Ich weiß.“
 
@@ -263,13 +263,13 @@ Danach nur Rauschen, und ganz hinten, sehr leise, jemand, der atmet. Aufgabe: **
 
 **Auslöser:** Die Aufgabe nach dem Funk. Schaltkästen mit Hebel („LEUCHTE AUS“) stehen vor Nr. 5, 3, 1 und 7.
 
-**Lösung:** **5 → 3 → 1 → 7.** Niemand sagt die Folge vor. Herleitung (drei faire Wege): Hildes Zählbuch (Juni vor 5, Juli vor 3, Ende Oktober vor 1, und Hilde selbst heute Nacht vor 7); die Einwilligungen aus Zimmer 7 in Kapitel 2 (Reuter Nr. 5, Winter Nr. 2, Vegas für Kessler Nr. 3, Aydın Hof, Brandt Nr. 1, Wendt Nr. 7; wer nicht mehr an der Ahornstraße wohnt, wird übersprungen); Dinas Karte in der Scheune (Nebenaufgabe „Leg sie auf den Ort“).
+**Lösung:** **5 → 3 → 1 → 7.** Niemand sagt die Folge vor. Herleitung (drei faire Wege): Hildes Zählbuch (Juni vor 5, Juli vor 3, Ende Oktober vor 1, und Hilde selbst heute Nacht vor 7); die Einwilligungen aus Zimmer 7 in Kapitel 2 (Reuter Nr. 5, Winter Nr. 2, Vegas für Kessler Nr. 3, Aydın Hof, Brandt Nr. 1, Wendt Nr. 7; wer nicht mehr an der Ahornstraße wohnt, wird übersprungen); Dinas Karte in der Remise am Hof (Nebenaufgabe „Leg sie auf den Ort“; Dina bleibt in Kapitel 3 bis 5 in der Remise, 02 F9).
 
 **Das Graukind jagt, sobald der erste Hebel fällt.** Regel 3, Ochs am Berg: Es bewegt sich nur, wenn Luke nicht hinsieht. Im Taschenlampenlicht steht es still, ein Mädchen im Sommerkleid, grau, große schwarze Augen, kein Mund, und hält den Kopf schief wie ein Kind, das wartet, bis man sich umdreht. Sieht Luke weg, hört er nackte Füße auf Asphalt, schnell, und wenn er wieder hinsieht, ist es näher. **Augen zu hilft nicht mehr:** Drückt Luke die Taste, zeigt der Bildschirm für eine Sekunde Luke selbst von hinten, aus ihren Augen (Regel 4, Ausnahme: ihre Wechselbälger, sobald sie es wissen). Der Spieler lernt das genau einmal und tut es nie wieder.
 
 **Erwischt** („Kleine, kalte Finger an deinem Hals. Sie riechen nach Gras.“ Kinderstimme: „Du bist.“): keine Verletzung, kein Neustart. **Eine schon gelöschte Laterne geht wieder an**, mit dem Geräusch einer Kerze, die jemand anpustet, nur rückwärts. Der Hebel steht wieder auf EIN. Man muss zurück.
 
-**Freimal:** Wer einen eisernen Laternenpfahl, den Eisenzaun von Nr. 7 oder das Geländer von Nr. 3 berührt, ist drei Sekunden sicher; das Graukind bleibt stehen, auch wenn man wegsieht, und wippt ungeduldig auf den Zehen. (Kreide am Spielplatz, seit Kapitel 1: EISEN IST FREI. Regel 7, jetzt benutzt.)
+**Freimal:** Wer einen eisernen Laternenpfahl, den Eisenzaun von Nr. 7 oder das Geländer von Nr. 3 berührt, ist drei Sekunden sicher; das Graukind bleibt stehen, auch wenn man wegsieht, und wippt ungeduldig auf den Zehen. (Kreide am Spielplatz, seit Kapitel 1: EISEN IST FREI. Regel 7, jetzt benutzt.) Beim ersten Freimal, die Arme um einen Laternenpfahl: LUKE: „Ich hab noch nie einen Laternenpfahl so gern gehabt. Nicht mal nach Schützenfest.“
 
 **Unterschriften-Nachbilder:** Jede richtig gelöschte Laterne zeigt drei Sekunden lang ein Nachbild am Haus (vorhandene Nachbild-Darstellung, je höchstens eine Zeile):
 - Nr. 5: Frau Reuter am Küchentisch, Kugelschreiber, Zigarette: „Wenn’s denn sein muss.“
@@ -321,6 +321,8 @@ JUSTIN (ruft, von der Kreuzung): „Jetzt! Zu mir! Sie kommen!“
 
 **Fangen:** Luke muss zur Kreuzung, zu Justin, der in der Lichtsäule steht. **Eisen ist Freimal:** Laternenpfähle, der Zaun von Nr. 7, das Geländer von Nr. 3, der Funkkasten, der Gullydeckel, Wolters Kaugummipapier nicht. Wer Eisen anfasst, ist drei Sekunden sicher; die Kinder bleiben stehen und warten, ganz nah, und atmen nicht. Wer erwischt wird: eine Kinderstimme direkt am Ohr, „Du bist!“, Schwarz, und Luke liegt wieder vor Nr. 7. Kein Tod, nur die Runde von vorn. Beim zweiten Mal steht das Graukind vor Nr. 7 und wippt.
 
+**Vegas (Schmunzler mitten in der Jagd):** Wer an Nr. 3 vorbeirennt, hört durch den Türspalt, Kette vor: VEGAS: „Lauf, Junge! Lauf!“ Pause. „Und nicht durch meine Dahlien!“ Er war drin, er schläft nicht, und er kommt nicht heraus.
+
 **Bei Justin:** Die Kinder bleiben am Rand des Lichts stehen. Keins tritt hinein. Sie sehen Luke an, alle gleichzeitig, und dann alle gleichzeitig weg, zur Senke.
 
 JUSTIN: „Sie dürfen nicht hinein. Sie sind schon drin. Nur wir zwei.“
@@ -355,7 +357,7 @@ JUSTIN: „Dein Zimmer.“ Pause. „Nein. Seines. Der Abend, bevor er ging.“
 1. **Die Spieluhr** auf dem Nachttisch, aufgezogen, still. „Lucys. Sie stand immer bei ihm, weil sie Angst hatte, dass sie nachts angeht.“
 2. **Das blaue Nachtlicht** in der Steckdose, brennt. „Sein Fisch. Der ging beim Umzug kaputt. Nein. Der ging kaputt, als ich elf war.“
 3. **Der Kalender** Juli 2009. „27. Sommerfest. Ausrufezeichen. Er hat sich gefreut.“
-4. **Eine Zeichnung**, mit Tesa an der Wand: das Laternenfest, Kinder mit Lampions, in Wachsmalstift, „für Luke von Dina“. Ganz am Rand ein grauer Fleck, ein Mensch ohne Gesicht, mit grauem Stift so fest gemalt, dass das Papier glänzt. „Am Rand hat sie einen gemalt, der keine Farbe hat. Ohne Gesicht. Als würde man ihn nur halb sehen. Wir haben ihn alle so gemalt. Ich auch.“ *(Rüstungs-Hinweis RH-5, zählt beim Untersuchen; wer Dinas Zeichnung schon in der Scheune gesehen hat, bekommt ihn nicht doppelt.)*
+4. **Eine Zeichnung**, mit Tesa an der Wand: das Laternenfest, Kinder mit Lampions, in Wachsmalstift, „für Luke von Dina“. Ganz am Rand ein grauer Fleck, ein Mensch ohne Gesicht, mit grauem Stift so fest gemalt, dass das Papier glänzt. „Am Rand hat sie einen gemalt, der keine Farbe hat. Ohne Gesicht. Als würde man ihn nur halb sehen. Wir haben ihn alle so gemalt. Ich auch.“ *(Rüstungs-Hinweis RH-5, zählt beim Untersuchen; wer Dinas Zeichnung schon in der Remise gesehen hat, bekommt ihn nicht doppelt.)*
 5. **Eine Geburtstagskarte** auf der Kommode, aufgestellt: „Zum 10. Geburtstag, Luke! Deine Oma Erna“, drinnen ein Fünf-Euro-Schein mit Büroklammer und in Omas Schrift: „Nicht alles auf einmal für Süßes. Ich seh das.“
 
 **Lösung:** Die Geburtstagskarte. Der zehnte Geburtstag war im Mai danach. Den hatte Luke. Der Junge, der hier schlief, nicht.
@@ -372,7 +374,7 @@ JUSTIN: „Dein Zimmer.“ Pause. „Nein. Seines. Der Abend, bevor er ging.“
 
 **Auslöser:** Der zweite Raum: Hildes Küche in Nr. 7, genau wie in Kapitel 1, aber aufgeräumt, und die Küchenuhr hat keine Ziffern. Am Tisch sitzt Hilde in derselben Nachtjacke wie im Lichtstrahl. Die Kaffeekanne ist voll.
 
-**Am Rand des Raums, auf einem Stuhl an der Wand, sitzt ein erwachsener Behaltener (N-06):** ein Mann im schwarzen Talar mit weißem Beffchen, grau, glatt, ohne Mund, eine beschlagene Brille auf der Nase, zwischen den gefalteten Händen eine Laterne ohne Kerze. Er sieht Luke nicht an. Er sieht auf die Uhr. Untersuchen: „Ein Pfarrer. Grau wie die Kinder. Erwachsene behält sie nicht, hat Justin gesagt. Fast nie.“ JUSTIN (leise): „Der wollte die Kinder aus dem Dorf bringen. Die in den grauen Mänteln haben die Straße zugemacht.“ *(Luke sieht ihn an.)* JUSTIN: „Da hat er sie in den Keller unter der Kapelle gebracht. Und ist selbst in den Nebel gegangen, damit sie einen hat.“ *(1992, 02 C11: kein Kind behalten, nur er.)* *(Wer die Nebenaufgabe „Die dreizehnte Predigt“ hat, weiß, dass es Voss ist, und Luke sagt es: „Voss. Das ist Pfarrer Voss.“ Voss hebt die Hand, ein Stück, und legt sie wieder in den Schoß.)* Er ist der einzige Behaltene, der nicht nach Lukes Hand greift. Wer die Predigtmappe aus dem Pfarrhaus bei sich trägt, kann sie neben den Stuhl legen; Voss öffnet dann die Hände. LUKE (nur mit der Nebenaufgabe): „Ich bring Ihnen die Reifen in Ordnung.“ Ohne die Nebenaufgabe legt die Fibel unter „Behaltene“ nur an: „Ein Erwachsener. Ein Pfarrer?“
+**Am Rand des Raums, auf einem Stuhl an der Wand, sitzt ein erwachsener Behaltener (N-06):** ein Mann im schwarzen Talar mit weißem Beffchen, grau, glatt, ohne Mund, eine beschlagene Brille auf der Nase, zwischen den gefalteten Händen eine Laterne ohne Kerze. Er sieht Luke nicht an. Er sieht auf die Uhr. Untersuchen: „Ein Pfarrer. Grau wie die Kinder. Ich dachte, sie behält nur Kinder.“ JUSTIN (leise): „Der wollte die Kinder aus dem Dorf bringen. Die in den grauen Mänteln haben die Straße zugemacht.“ *(Luke sieht ihn an.)* JUSTIN: „Da hat er sie in den Keller unter der Kapelle gebracht. Und ist selbst in den Nebel gegangen, damit sie einen hat.“ *(1992, 02 C11: kein Kind behalten, nur er.)* *(Wer die Nebenaufgabe „Die dreizehnte Predigt“ hat, weiß, dass es Voss ist, und Luke sagt es: „Voss. Das ist Pfarrer Voss.“ Voss hebt die Hand, ein Stück, und legt sie wieder in den Schoß.)* Er ist der einzige Behaltene, der nicht nach Lukes Hand greift. Wer die Predigtmappe aus dem Pfarrhaus bei sich trägt, kann sie neben den Stuhl legen; Voss öffnet dann die Hände. LUKE (nur mit der Nebenaufgabe): „Ich bring Ihnen die Reifen in Ordnung.“ Ohne die Nebenaufgabe legt die Fibel unter „Behaltene“ nur an: „Ein Erwachsener. Ein Pfarrer?“
 
 **Hilde, Auswahl-Dialog:** Sie fängt von selbst an.
 
@@ -383,7 +385,7 @@ HILDE: „So lange hab ich auf meinen Zayn gewartet. Jetzt bin ich bei ihm. Nur 
 - „Sie haben mich angegriffen. In der Küche.“ – HILDE: „Ich wollte dich festhalten, Junge. Weg von der Tür. Du warst schneller. Du warst immer schneller als der andere.“
 - „Sie haben Zayn gezogen.“ – HILDE: „Das Los war das Los. Ich hab siebzehn Jahre gezählt, ob sie ihn wieder hergibt. Sie hat nie.“ *(Wer Hildes Dienstbuch in Kapitel 2 nicht gelesen hat, hört es beim Aufstehen trotzdem: „Ich hab die Lose gezogen, Junge. Auch seins.“)*
 - „Wer hat angefangen?“ – HILDE: „Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“ *(Sie sieht zu Justin. Justin sieht auf den Boden.)*
-- „Wer ist der Neunte?“ *(nur mit dem Zählbuch)* – HILDE: „Der Kleine. Der zählt mit. Der ist nicht von ihr. Der ist von früher. Er hat mir mal einen Zettel gebracht, ich hab ihn nicht gelesen. Man liest so was nicht.“
+- „Wer ist der Neunte?“ *(nur mit dem Zählbuch)* – HILDE: „Einer von früher. Klein wie ein Kind, aber keins. Der zählt mit. Der ist nicht von ihr.“ *(Spieler.)* HILDE: „Er hat mir mal einen Zettel gebracht. Ich hab ihn nicht gelesen. Man liest so was nicht.“
 - „Und Jonas?“ *(nur mit Zayns Rucksack aus der Nebenaufgabe „Hast du dich an mich erinnert?“)* – HILDE: „Er ruft jeden Sonntag an. Ich geh nie ran. Wenn ich seine Stimme höre, zähl ich falsch.“ *(Kein Witz in diesem Satz. Nichts danach.)*
 
 HILDE (von selbst, am Ende): „Die Uhr da. Stell sie auf die Zeit, zu der sie dich gebracht haben. Dann lässt es euch durch.“
@@ -474,7 +476,7 @@ Unter dem Schiff, mit dem Rücken zu ihnen, schwebt eine Handbreit über dem Bod
 
 1. *Schritt.* Das Kind hört auf zu zählen. LUNA: „… Papa?“ Sie dreht sich um. Das graue Gesicht. Und für einen Atemzug das Gesicht eines echten Mädchens mit Zahnlücke, das gerade aufgewacht ist.
 2. *Ansehen.* LUNA: „Bruder. Du hast ihn mitgebracht.“ Sie lacht, ganz glücklich. Die sieben auf den Stühlen lachen mit, ohne Münder. Das Lachen kommt aus dem Schiff, nicht aus ihnen.
-3. *Schritt.* LUNA: „Ich hab dich gemacht. Aus seinem Blut an meinen Händen. Darum hast du seine Augen.“ *(Spieler: Luke will etwas sagen. Es geht nicht.)* LUNA: „Ich hab die ganze Nacht durch dich geguckt.“ Drei harte Schnitte, je eine halbe Sekunde, wie Blitze durch Lukes Augen: Justin am Ende der Straße in Kapitel 1, Justin in der Lichtsäule, Justins Handschuh um Lukes Hand an der Kreuzung. Jeder Moment, in dem Luke ihn angesehen hat.
+3. *Schritt.* LUNA: „Ich hab dich gemacht. Aus seiner Hand. Darum hast du seine Augen.“ *(Spieler: Luke will etwas sagen. Es geht nicht.)* LUNA: „Ich hab die ganze Nacht durch dich geguckt.“ Drei harte Schnitte, je eine halbe Sekunde, wie Blitze durch Lukes Augen: Justin am Ende der Straße in Kapitel 1, Justin in der Lichtsäule, Justins Handschuh um Lukes Hand an der Kreuzung. Jeder Moment, in dem Luke ihn angesehen hat.
 
 → **Der Höhepunkt, Teil 2** (Kinosequenz unten): das erzwungene Blinzeln. Die Behaltenen rücken bei jedem Blinzeln näher.
 
@@ -510,7 +512,7 @@ Justin sieht Luke lange an. JUSTIN: „Das tue ich seit siebenhundert Jahren.“
 
 **Rüstungs-Hinweise ≥ 3 (unabhängig von der Wahl, direkt nach den letzten Worten):** LUKE: „Sie sieht dich nicht. Wegen der Rüstung. Das Schiff sieht sie nicht, und sie sieht durch das Schiff.“ Justin steht still. Whiskey auf seiner Schulter wird noch stiller. JUSTIN: „… Dann muss ich sie eines Tages ausziehen.“ Er bricht einen losen Flicken von der Innenseite des rechten Armschutzes, so groß wie eine Münze, mattgrau, warm, und gibt ihn Luke. JUSTIN: „Fang schon mal an. Das da ist das erste Stück.“ *(Gegenstand „Flicken“, zusätzlich zum Geschenk der Antwort, 02 B3; Einlösung Kapitel 4 in der Villa bei der Analyse S-7, „Substanz S, anorganisch erstarrt“.)* *(Mit weniger als drei Hinweisen fehlt dieser Wechsel; Luke denkt nur: „Sie sieht ihn nicht. Er steht direkt da. Irgendwas an ihm ist für sie nicht da.“)*
 
-**„Noch eine Runde“ (alle Wege):** Justin lässt Lukes Hand los. Erst jetzt. Er dreht sich zu Luna, in Rüstung, mit Helm. Sie sieht durch ihn hindurch, wie durch Luft, und sucht mit den Augen in Lukes Gesicht. LUNA: „Papa? … Papa, du mogelst wieder.“ Sie kichert, unsicher. Dann, leise, ein Kind, das etwas beschlossen hat: LUNA: „Noch eine Runde.“ Sie legt die Hände vor die Augen. „Eins.“ Die sieben auf den Stühlen legen die Hände vor die Augen. „Zwei.“ Justin geht in das Dunkel, wo die Rippen zusammenlaufen, und wird kleiner, bis man nur noch das Schaben hört. „Drei.“
+**„Noch eine Runde“ (alle Wege):** Justin lässt Lukes Hand los. Erst jetzt. Whiskey hüpft von Justins Schulter auf Lukes; Justin sieht es und nickt. Er dreht sich zu Luna, in Rüstung, mit Helm. Sie sieht durch ihn hindurch, wie durch Luft, und sucht mit den Augen in Lukes Gesicht. LUNA: „Papa? … Papa, du mogelst wieder.“ Sie kichert, unsicher. Dann, leise, ein Kind, das etwas beschlossen hat: LUNA: „Noch eine Runde.“ Sie legt die Hände vor die Augen. „Eins.“ Die sieben auf den Stühlen legen die Hände vor die Augen. „Zwei.“ Justin geht in das Dunkel, wo die Rippen zusammenlaufen, und wird kleiner, bis man nur noch das Schaben hört. „Drei.“
 
 **Lucy:** Ihr Stuhl flackert, und dann steht sie neben Luke, nass, und hält seine Hand, richtig, mit fünf Fingern und Nägeln, die sie abgekaut hat. LUCY (heiser): „Großer. Du atmest immer noch.“ Sie hat Weiß in den Augen, an den Rändern, wie Milch in Wasser. Es geht nicht weg. *(Luna gibt sie zurück, fast ganz, weil Luke ihr ihren Papa einen Atemzug lang gezeigt hat. Niemand sagt das. Man versteht es an der Reihenfolge.)*
 
@@ -572,8 +574,8 @@ Liste für den zweiten Autor (Ausarbeitung in `31_kap3_neben.md`). Alle Namen na
 
 **Ortskern**
 1. **„Rot eingekreist“** · Nr. 3, Lars Vegas · Auslöser: Vegas ruft nach der Kuh durch die Tür (Unterkapitel 2), später liegt ein Umschlag im Briefkasten. · Vegas’ Brief mit dem Kapellenschlüssel und sein Ordner, in dem jedes „(hw)“ rot eingekreist ist (Z-01 „Wetterballon über dem Hohen Abgrund niedergegangen“, Z-10 „Aus aller Welt“); wer Wolters Kaugummipapier von der Bank daneben legt, versteht, wer „(hw)“ ist, ohne dass es jemand sagt. *(Name: Vegas’ roter Filzstift, seit 1975.)*
-2. **„Zähl bis siebzehn, Augen zu“** · Kapelle St. Martin, innen · Auslöser: Vegas’ Kapellenschlüssel. · Das Kapellenfenster in acht Feldern zeigt die wahre Nacht von 1312 (Mira mit Laterne, sechs Kinder an ihrer Hand, der Riss, der Ritter mit offener Hand, im letzten Feld steht der Ritter mitten im Licht und das Kind sucht mit dem Rücken zu ihm), dazu Sühnekreuz, Gesangbuch mit Miras Wiegenlied in der Urfassung, Z-11 in der Sakristei und das Glockenseil als Joker (dreimal, dann dreizehnmal ziehen: alles erstarrt, auch das Graukind, einmal im Kapitel). **[RH-6]** *(Name: letzte Zeile der Urfassung im Gesangbuch.)*
-3. **„Die dreizehnte Predigt“** · Pfarrhaus (Giselas Schlüssel) → Kapelle, Sockel des Bettlers · N-06 · Auslöser: die Predigtmappe auf dem Schreibtisch. · Voss’ Predigtnotizen sind eine Karte zu den alten Kirchenbüchern, in denen er 1992 die Wahrheit über 1312 fand („Harnisch aus dem, was die drei Kleinen brachten, und ward nicht gesehen“); danach erkennt Luke ihn in Raum 2. **[RH-7]**
+2. **„Zähl bis siebzehn, Augen zu“** · Kapelle St. Martin, innen · Auslöser: Vegas’ Kapellenschlüssel. · Das Kapellenfenster in acht Feldern zeigt die wahre Nacht von 1312 (02 F5): ein Stern fällt · ein Kind mit Laterne geht ins Licht, sechs hinterher · eine Frau mit Laterne führt die sechs heraus · die Frau geht allein hinein · zwei Hände, ein Riss im Himmel · der Ritter allein am Rand · drei kleine weiße Gestalten im Schnee geben ihm etwas · der Laternenzug des Dorfes. Feld 7 ist der Rüstungs-Hinweis (02 I2): Was die drei dem Ritter geben, ist aus demselben Glas wie das Licht. Dazu Sühnekreuz, Gesangbuch (Abschrift aus dem Seelbuch) mit Miras Wiegenlied, Strophe 1 und 2 mit Miras eigener Schlusszeile „Ich find dich überall. – Ist das wahr? – Ja.“ (02 G1), Z-11 in der Sakristei und das Glockenseil als Joker (dreimal, dann dreizehnmal ziehen: alles erstarrt, auch das Graukind, einmal im Kapitel). **[RH-6]** *(Name: Zeile aus dem Gesangbuch der Kapelle; Herkunft im Einzelnen: `31_kap3_neben.md`.)*
+3. **„Die dreizehnte Predigt“** · Pfarrhaus (Giselas Schlüssel) → Kapelle, Sockel des Bettlers · N-06 · Auslöser: die Predigtmappe auf dem Schreibtisch. · Voss’ Predigtnotizen sind eine Karte zum **Seelbuch** von 1312 (02 F4), in dem er 1992 die Wahrheit über 1312 fand („Harnisch aus dem, was die drei Kleinen brachten, und ward nicht gesehen“); danach erkennt Luke ihn in Raum 2. **[RH-7]**
 4. **„Dürfen Ritter weinen?“** · Nr. 4, Peters Zimmer, das diese Nacht offen steht · Auslöser: der Stuhl am Fenster, zum Garten gedreht (S-13). · SB-05: Marion schenkt Justin 1975 eine Butterblume, und Peter kam an Justins Hand heraus, mit „meinen Augen“; Luke begreift, dass Onkel Peter und er aus derselben Hand sind. *(Name: Marions Frage auf SB-05.)*
 5. **„Ich hol sie selbst“** · Villa Seiler, Briefkasten am Tor · Auslöser: der Briefkasten quillt über, obenauf ein Blatt mit Holzsplitter. · SB-06: 1941, zwei Jungen an Justins Händen, Theodor und Heinrich, und Grete, die nicht aufstehen wollte; der Name Heinrich sagt Luke noch nichts. *(Name: Heinrichs Satz auf SB-06; zweiter Sinn in Kapitel 4, wenn klar ist, wie er es versucht hat.)*
 6. **„Bitte lächeln, Sie werden gefilmt“** · Tankstelle Kranz (hat als Einzige Strom) · Auslöser: der Aufkleber an der Tür und der flimmernde Monitor über der Kasse. · Das Überwachungsband der Nacht, in der Mike ging, Standbild für Standbild: Mike zieht die Schuhe aus und geht; ein Kindergesicht drückt sich von innen an die Linse und ist beim Zurückspulen in jedem Bild näher; am Rand steht Justin und ruft, und der Lichtkegel gleitet über ihn weg und leuchtet den Asphalt neben ihm aus, als stünde da keiner. **[RH-8]** Slapstick, falls Justin mitkommt: die Drehtür (Kern §13).
@@ -582,9 +584,9 @@ Liste für den zweiten Autor (Ausarbeitung in `31_kap3_neben.md`). Alle Namen na
 9. **„Außenstelle 3“** · Gully an der Kreuzung → Atlantschiss · Auslöser: der Gullydeckel (Eisen), darunter eine Leiter. · Unter der Erde (Regel „Aus!“, hier sieht sie niemand) Wasser, darin ein zweites, fremdes Licht; ein Nachbild fremder Kinder, eins sagt auf Deutsch: „Ihr Papa ruft, aber sie sieht ihn nicht.“ Eine LWO-Kiste mit Aufdruck „Außenstelle 3 · Lagune“. **[RH-9]** *(Name: der Kistenaufdruck; zweiter Sinn: Lost Eyengless ist nicht die einzige.)*
 
 **Westen und Hof**
-10. **„Leg sie auf den Ort“** · Scheune am Hof, Dina mit Augenbinde · Auslöser: Frau Aydın am Fenster (Nr. 8) / Dinas Satz aus Kapitel 1 „Die Kreise sind von unten“. · Dinas Kreis-Zeichnung passt auf den Grundriss der Ahornstraße (vier Kreise um Nr. 5, 3, 1, 7, nummeriert): dritter Weg zur Laternenfolge. Daneben ihre Zeichnung vom Laternenfest mit dem grauen Fleck am Rand. **[RH-5]** (zählt nur einmal, hier oder in Raum 1)
+10. **„Leg sie auf den Ort“** · Remise am Hof, Dina mit Augenbinde (02 F9) · Auslöser: Frau Aydın am Fenster (Nr. 8) / Dinas Satz aus Kapitel 1 „Die Kreise sind von unten“. · Dinas Kreis-Zeichnung passt auf den Grundriss der Ahornstraße (vier Kreise um Nr. 5, 3, 1, 7, nummeriert): dritter Weg zur Laternenfolge. Daneben ihre Zeichnung vom Laternenfest mit dem grauen Fleck am Rand. **[RH-5]** (zählt nur einmal, hier oder in Raum 1)
 11. **„Der Bus um 03:13“** · Bushaltestelle am Westende · Auslöser: Ein Amtsbus hält, obwohl hier nie einer fährt, Tür offen. · Abkürzung zum Hof; hinten sitzen Behaltene, die sich nacheinander umdrehen, sobald Luke an ihnen vorbei ist; auf einem Sitz ein ausgelecktes, gefaltetes Bonbonpapier, der Sitz ist warm (S-07, S-11).
-12. **„Vierzig Mal“** · Ahornstraße, Nr. 7, Nordzaun · `zayn.js` Schritte 1–2 · Auslöser: rote Wolle an einem Zaunpfahl. · Zayns Rucksack und seine Kinderkamera; Jonas’ rote Wolle zeigt, wo er seinen Bruder gesucht hat. Schaltet Hildes Zeile über Jonas in Raum 2 frei. *(Name: so oft hat Jonas gesucht.)*
+12. **„Hast du dich an mich erinnert?“** · Nr. 7, Wohnzimmer (Zayns Rucksack neben dem Blechroboter) · `zayn.js` Schritte 1–2 · Auslöser: der blaue Rucksack mit dem Anhänger „ZAYN“. · Zayns Rucksack und seine Kinderkamera (sechs Fotos, auf jedem ist Zayn einen Schritt näher am Wald); Hildes Anrufbeantworter mit Jonas’ Sonntagsanruf. Am Nordzaun hängt ein Stück rote Wolle, das in den Wald führt: nur ein Vorbote von Jonas’ „Vierzig Mal“ (Kapitel 6, 02 A3). Schaltet Hildes Zeile über Jonas in Raum 2 frei; geht in Kapitel 6 weiter (Hütte, Radio, Zeichnung). *(Name: Zayns Frage auf der Rückseite seiner letzten Zeichnung, Kapitel 6; hier fängt sein Faden an, 02 A3.)*
 13. **„Eine für sieben“** · wo Whiskey gerade sitzt · `cleo.js` · Auslöser: Whiskey trägt einen fremden Schlüsselanhänger (ein Plastikpony). · Schlüsseltausch mit Whiskey; der Anhänger gehörte Cleo, an die sich außer Lucy keiner erinnert; Luke erkennt sie in Nimmerheim auf dem Stuhl nicht, der Spieler schon. *(Name: Cleos Satz von 2009.)*
 14. **„Warm wie eine Hand“** · sieben Orte im Dorf, sichtbar nur bei ausgeschalteter Taschenlampe · `geheimnisse.js` · Auslöser: der erste glimmende Kiesel. · Die Lichtsteine sind Splitter der Schiffshaut; hält Luke einen in Justins Nähe, summen Stein und Rüstung im selben Ton. **[RH-10]** *(Name: der vorhandene Lore-Text „warm wie eine Hand“.)*
 15. **„Ja.“** · Nr. 2, Familie Winter · Auslöser: im überquellenden Briefkasten eine neue Karte, heute Nacht eingeworfen. · Heidis letzte Postkarte trägt nur ein Wort, die Antwort auf die Frage aus Kapitel 1 („Sind sie wieder da?“); das Motiv ist die Ahornstraße von oben.
@@ -598,12 +600,12 @@ Liste für den zweiten Autor (Ausarbeitung in `31_kap3_neben.md`). Alle Namen na
 
 | ID | Kap. | Ort | Fundstück | was es zeigt |
 |---|---|---|---|---|
-| RH-1 | 2 | Amt, Schranktür | Zettel B-K2-5 „SEINS IST KEIN EISEN ∴“ | Die Rüstung ist etwas anderes als die Eisenkapuzen. |
+| RH-1 | 2 | Amt, Schranktür | Zettel B-K2-05 „… SEINS IST KEIN EISEN ∴“ | Die Rüstung ist etwas anderes als die Eisenkapuzen. |
 | RH-2 | 1 | Scheune, Justins Lager | SB-01 („Sie hat gelacht, ganz nah … und ist nicht gekommen.“) | Sie war nah und hat ihn nicht gefunden. |
 | RH-3 | 3 | Unterkapitel 4, Frage an Justin | „Sie hört mich rufen und sieht niemanden.“ | Sie sieht ihn nicht, obwohl er da ist. |
-| RH-4 | 3 | Unterkapitel 10, Lichtsäule | Zettel B-3-06 „… SIE GUCKT DURCH IHN DURCH. WIE DURCH IHR HAUS ∴“ | Er ist für sie wie ihr eigenes Haus. |
-| RH-5 | 3 | Raum 1 oder Scheune | Dinas Zeichnung mit dem grauen Fleck | Kinder malen ihn ohne Gesicht, halb da. |
-| RH-6 | 3 | Kapelle, Fensterfeld 8 | Der Ritter im Licht, das Kind sucht mit dem Rücken zu ihm | Er steht mitten drin und wird nicht gesehen. |
+| RH-4 | 3 | Unterkapitel 10, Lichtsäule | Zettel B-K3-08, zweites Blatt: „… SIE GUCKT DURCH IHN DURCH. WIE DURCH IHR HAUS ∴“ | Er ist für sie wie ihr eigenes Haus. |
+| RH-5 | 3 | Raum 1 oder Remise am Hof | Dinas Zeichnung mit dem grauen Fleck | Kinder malen ihn ohne Gesicht, halb da. |
+| RH-6 | 3 | Kapelle, Fensterfeld 7 (02 I2) | Drei kleine weiße Gestalten im Schnee geben dem Ritter etwas, aus demselben Glas wie das Licht | Die Rüstung ist vom Schiff; wer sie trägt, gehört fürs Licht dazu. |
 | RH-7 | 3 | Kapelle, Sockel (Voss) | Seelbuch: „Harnisch aus dem, was die drei Kleinen brachten, und ward nicht gesehen“ | Woraus die Rüstung ist. |
 | RH-8 | 3 | Tankstelle | Band: Das Licht gleitet über ihn weg | Das Licht sieht ihn nicht. |
 | RH-9 | 3 | Atlantschiss | „Ihr Papa ruft, aber sie sieht ihn nicht.“ | Sogar fremde Kinder wissen es. |
@@ -629,15 +631,16 @@ Vollständige Texte auf dem Hauptweg. Was schon in den Beats wörtlich steht (Z�
 
 **Schaltkasten an jeder Laterne** (Blechschild, Stadtwerke): „LEUCHTE AUS / EIN · Nur für befugtes Personal · Schlüssel beim Amt“. Am Kasten vor Nr. 7 klebt darüber ein Zettel in Hildes Druckschrift: „ZULETZT.“
 
-**Beobachter-Zettel Kapitel 3** (Druckbuchstaben, Bleistift, liegen hinter Lukes Füßen; Papier, Trippeln):
-- **B-3-01** (Kuh): „DU HAST DREI MAL SCHEISSE GESAGT. IST DAS EIN GEBET ∴“
-- **B-3-02** (Bushaltestelle, unter der Bank): „DER GRAUE MANN RIECHT NACH MEINER SCHWESTER. STEIG NICHT IN SEINE KUTSCHE ∴“
-- **B-3-03** (Funkkasten, Hilfe nach dem dritten Fehlversuch): „SIE KANN ALLES NACHSPRECHEN. SIE KANN NICHT LESEN WAS NIE LAUT WAR ∴“
-- **B-3-04** (Lichtsäule): „DA DRIN HÖRST DU MICH NICHT. ICH DARF NICHT REIN. SIE SAGT ICH BIN KOMISCH ∴“
-- **B-3-05** (überall, nach dem dritten Anleuchten): „MACH DAS LICHT AUS WENN DU MICH SEHEN WILLST. NEIN. DOCH NICHT ∴“
-- **B-3-06** (Lichtsäule, Rüstungs-Hinweis RH-4): „SIE SUCHT IHN UND ER STEHT DA. SIE GUCKT DURCH IHN DURCH. WIE DURCH IHR HAUS ∴“
-- **B-3-07** (Ketten am Rand): „ICH WAR LEISE. DU HAST ES GEMERKT. GUT. MERK DIR DAS ∴“
-- **B-3-08** (Abspann, nach Wolters „Gute Nacht“): „WARUM SAGT IHR GUTE NACHT WENN SIE NICHT GUT IST ∴“
+**Beobachter-Zettel Kapitel 3** (Kennungen und Wortlaut: Dossier 82, Abschnitt 5.3, 02 A1; Druckbuchstaben, Bleistift, liegen hinter Lukes Füßen; Papier, Trippeln). Hier nur Fundort und erste Zeile:
+- **B-K3-01** „Ist das ein Gebet“ (Kuh): „DU HAST DREI MAL SCHEISSE GESAGT.“ (Wortlaut: Dossier 82, B-K3-01)
+- **B-K3-02** „Offener Mund“ (hinter der Telefonzelle, Luke steht nach der ersten Sichtung still): „IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.“ (Wortlaut: Dossier 82, B-K3-02)
+- **B-K3-03** „Kutsche“ (Bushaltestelle, unter der Bank): „DER GRAUE MANN RIECHT NACH MEINER SCHWESTER.“ (Wortlaut: Dossier 82, B-K3-03, dritte Zeile bei miserablem Vertrauen)
+- **B-K3-04** „Nicht nachdenken“ (vor Nr. 3, nach Brunos Bellen): „WIE HIESS EUER HUND. NICHT NACHDENKEN. EINFACH WISSEN.“ (Wortlaut: Dossier 82, B-K3-04)
+- **B-K3-05** „Unhöflich“ (verhaltensabhängig: dreimal angeleuchtet, sonst dreimal die Lampe aus): „DU HAST MICH DREI MAL ANGELEUCHTET.“ (Wortlaut: Dossier 82, B-K3-05, Fassung A oder B)
+- **B-K3-06** „Leise“ (Rückweg von den Traktorspuren): „ICH WAR LEISE. DU HAST ES GEMERKT. GUT.“ (Wortlaut: Dossier 82, B-K3-06)
+- **B-K3-07** „Das Glück läuft raus“ (Hufeisen über der Stalltür): „ICH HAB DAS EISEN ÜBER DER TÜR GEDREHT.“ (Wortlaut: Dossier 82, B-K3-07)
+- **B-K3-08** „Sie sagt ich bin komisch“ (Doppelzettel an der Lichtsäule; das zweite Blatt ist RH-4): „DA DRIN HÖRST DU MICH NICHT.“ (Wortlaut: Dossier 82, B-K3-08)
+- Hilfe-Zettel: **B-K3-H1** Funkkasten („DER EISERNE KASTEN HÖRT NUR AUF EINE ZAHL.“), **B-K3-H2** Hasenbrot („SIE KANN ALLES NACHSPRECHEN. SIE KANN NICHT LESEN WAS NIE LAUT WAR ∴“), **B-K3-H3** Laternen („SIE HAT DIE LICHTER NICHT DURCHEINANDER AUSGEPUSTET.“); Wortlaut: Dossier 82.
 
 **Grauer Kasten** (optional, Innentasche, Unterkapitel 9): „Kleiner als eine Streichholzschachtel. Warm. Kein Knopf, keine Schrift, nur das Auge. Es tickt nicht. Es tut gar nichts. Das ist das Schlimmste daran.“
 
@@ -681,19 +684,19 @@ Nach dem Rätsel ist „Sie hat losgelassen“ mit Bleistift durchgestrichen (Fi
 **1 · Die Notfrequenz (Unterkapitel 7)**
 - **Lösung:** 31,10.
 - **Faire Herleitung:** Zählbuch, Seite 3: „Notfunk auf dem Tag, an dem SIE kam. Nicht Lucy. SIE.“ Der Tag, an dem das Ding im Keller auftauchte, ist der 31. Oktober; den kennt der Spieler als Kellercode 3110 aus Kapitel 1 und aus Lucys letzter SMS. Der Aufkleber im Kasten verweist auf Hildes Dienstbuch, also auf ihre Art zu denken: Tag vor Monat.
-- **Hilfeleiter:** (1) Die Rauschanzeige wird ruhiger, je näher der Regler kommt; ganz nah ein Atmen. (2) Luke-Gedanke: „Der Tag, an dem sie kam. Den Tag hab ich heute Nacht schon mal irgendwo eingetippt.“ (3) Im Zählbuch ist „SIE“ beim zweiten Öffnen mit Bleistift unterstrichen (Beobachter, S-09). (4) Whiskey W-07, Teil 1: mit Vegas’ Stimme „… einunddreißig-zehn.“
+- **Hilfeleiter:** (1) Die Rauschanzeige wird ruhiger, je näher der Regler kommt; ganz nah ein Atmen. (2) Luke-Gedanke: „Der Tag, an dem sie kam. Den Tag hab ich heute Nacht schon mal irgendwo eingetippt.“ (3) Nach über hundert Sekunden am Regler liegt **B-K3-H1** hinter Lukes Füßen (Wortlaut: Dossier 82; nennt die Zahl nicht). (4) Im Zählbuch ist „SIE“ beim zweiten Öffnen mit Bleistift unterstrichen (Beobachter, S-09). (5) Whiskey W-07, Teil 1: mit Vegas’ Stimme „… einunddreißig-zehn.“
 - **Fehlschlag:** keiner im eigentlichen Sinn. Auf falschen Frequenzen Rauschen, auf 13,10 und 10,31 kurz eine Kinderstimme, die „kalt, kalt, eiskalt“ flüstert.
 
 **2 · Zwei Lucys (Unterkapitel 7)**
 - **Lösung:** HASENBROT in den Staub schreiben und an **Kanal B** senden.
 - **Faire Herleitung:** Lucys Tagebuch (Kapitel 1): Das Wort haben die Zwillinge nie laut gesagt, nur geschrieben. Regel 5 (Stille Post, in Kapitel 1 und 2 gezeigt): Luna kann jede Stimme, aber kein Wort, das nie laut war. Kanal A will, dass Luke es zuerst sagt; Kanal B will, dass er es schreibt.
-- **Hilfeleiter:** (1) Luke-Gedanke: „Eine von beiden hört durch mich mit. Was weiß Lucy, das ich nie laut gesagt hab?“ (2) Kanal B wiederholt nach einer Minute leise: „Schreib’s, Großer.“ (3) Whiskey W-07, Teil 2: kratzt Striche in den Staub. (4) B-3-03. (5) Justin: „Stimmen kann sie nachmachen. Was nie gesagt wurde, nicht.“
+- **Hilfeleiter:** (1) Luke-Gedanke: „Eine von beiden hört durch mich mit. Was weiß Lucy, das ich nie laut gesagt hab?“ (2) Kanal B wiederholt nach einer Minute leise: „Schreib’s, Großer.“ (3) Whiskey W-07, Teil 2: kratzt Striche in den Staub. (4) **B-K3-H2** hinter Lukes Füßen. (5) Justin: „Stimmen kann sie nachmachen. Was nie gesagt wurde, nicht.“
 - **Fehlschlag:** HASENBROT an A oder ein anderes Wort: Kanal A lacht und flüstert die falsche Folge „Sieben, eins, drei, fünf“, alle Laternen flammen auf, Kinderlachen aus dem Nebel, der Kasten schließt sich für zehn Sekunden. Sagt Luke das Wort laut ins Mikrofon (möglich über die Auswahl „Sagen“), ist es verbraucht: Kanal A sagt es ab jetzt auch, und die Lösung geht nur noch über Frage 2 („Wo bist du?“: nur B weiß vom Tank). Das ist der einzige dauerhafte Fehler des Kapitels und macht es schwerer, nicht unlösbar.
 
 **3 · Die Laternen (Unterkapitel 8)**
 - **Lösung:** 5 → 3 → 1 → 7.
-- **Faire Herleitung (drei Wege):** Hildes Zählbuch, Seite 2 (Juni vor 5, Juli vor 3, Ende Oktober vor 1, „wenn sie mich holt, geht meine aus“); die Einwilligungen aus Zimmer 7 in Kapitel 2, in der Reihenfolge der Unterschriften, ohne die, die nicht mehr an der Ahornstraße wohnen; Dinas Karte in der Scheune (Nebenaufgabe „Leg sie auf den Ort“). Lucy liefert die Regel („wie sie uns geholt hat“), nie die Zahlen.
-- **Hilfeleiter:** (1) Lucy im Funk: „In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann.“ (2) Nach dem ersten Fehler Luke-Gedanke: „Juni, Juli, Oktober. Die hat nicht nach Hausnummern geholt. Nach Kalender.“ (3) Nach dem zweiten Fehler knackt der Funkkasten, Lucy: „Hilde hat als Letzte unterschrieben. Sie hat sie als Letzte geholt.“ (4) Der Zettel „ZULETZT.“ am Kasten vor Nr. 7 leuchtet im Taschenlampenlicht auf. (5) Justin: „Fang bei der an, die zuerst gegangen ist. Die mit dem Feuer.“
+- **Faire Herleitung (drei Wege):** Hildes Zählbuch, Seite 2 (Juni vor 5, Juli vor 3, Ende Oktober vor 1, „wenn sie mich holt, geht meine aus“); die Einwilligungen aus Zimmer 7 in Kapitel 2, in der Reihenfolge der Unterschriften, ohne die, die nicht mehr an der Ahornstraße wohnen; Dinas Karte in der Remise (Nebenaufgabe „Leg sie auf den Ort“). Lucy liefert die Regel („wie sie uns geholt hat“), nie die Zahlen.
+- **Hilfeleiter:** (1) Lucy im Funk: „In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann.“ (2) Nach dem ersten Fehler Luke-Gedanke: „Juni, Juli, Oktober. Die hat nicht nach Hausnummern geholt. Nach Kalender.“ (3) Nach dem zweiten Fehler liegt **B-K3-H3** hinter Lukes Füßen (Wortlaut: Dossier 82; nennt die Folge nicht). (4) Nach dem dritten Fehler knackt der Funkkasten, Lucy: „Hilde hat als Letzte unterschrieben. Sie hat sie als Letzte geholt.“ Gleichzeitig leuchtet der Zettel „ZULETZT.“ am Kasten vor Nr. 7 im Taschenlampenlicht auf. (5) Justin: „Fang bei der an, die zuerst gegangen ist. Die mit dem Feuer.“
 - **Fehlschlag:** Alle Laternen flammen gleichzeitig auf, Kinderlachen, die Hebel springen zurück, Untertitel „Falsch. So hat sie sie nicht geholt.“ Wer Wolters Folge (1, 3, 5, 7) glaubt, scheitert schon am ersten Kasten; danach hat Lukes Gedanke einen Nachsatz: „Wie die Post. Sehr witzig, Herr Wolter.“
 
 **4 · „Was gehört nicht in diese Nacht?“ (Raum 1, Unterkapitel 11)**
@@ -721,7 +724,7 @@ Nach dem Rätsel ist „Sie hat losgelassen“ mit Bleistift durchgestrichen (Fi
 | # | Moment | Unterkapitel | Stufe | danach |
 |---|---|---|---|---|
 | 1 | „… siebzehn. Ich komme!“ direkt am linken Ohr, alle Laternen springen an | 1 | 2 | Luke steht auf, sieht sich um |
-| 2 | **Die Kuh** schlägt neben Luke auf, ohne Augen (Höhepunkt Teil 1) | 2 | **3** | **Atempause:** Whiskey und das Wort, B-3-01, Vegas durch die Tür |
+| 2 | **Die Kuh** schlägt neben Luke auf, ohne Augen (Höhepunkt Teil 1) | 2 | **3** | **Atempause:** Whiskey und das Wort, B-K3-01, Vegas durch die Tür |
 | 3 | Die Telefonstimme wird zu einem Kind, Kichern im Nacken, ∴ in der beschlagenen Scheibe | 3 | 2 | **Atempause:** Justin kommt, Wîse, Schokoriegel |
 | 4 | Der Beobachter: Kiesel, Trippeln, Rascheln, das eine Sekunde lang Gesehene | ab 1, durchgehend | 1 | – |
 | 5 | Die Straße hinaus führt wieder hinein | 5 | 1 | Justin: „Hier gibt es kein Draußen.“ |
@@ -730,7 +733,7 @@ Nach dem Rätsel ist „Sie hat losgelassen“ mit Bleistift durchgestrichen (Fi
 | 8 | Zwei Lucys flüstern gleichzeitig „Großer“; Kanal A kreischt | 7 | 2 | **Atempause:** die echte Lucy, „Hör nicht auf damit“ |
 | 9 | Das Graukind rückt bei jedem Wegsehen näher; Augen zu zeigt Luke von hinten, aus ihren Augen | 8 | 2 | Unterschriften-Nachbilder (Trauer) |
 | 10 | Erwischt: kalte Finger am Hals, „Du bist.“, eine Laterne geht wieder an | 8 | 2 | – |
-| 11 | Der Blechmann dreht sich um, Lampe ins Gesicht, „K-3 gesichtet“ | 8 | 2 | Justin: „Drinnen halten sie so lange, wie ein Mensch die Luft anhält.“ |
+| 11 | Der Blechmann dreht sich um, Lampe ins Gesicht, Funk: „… Ein Erwachsener. K-3?“ | 8 | 2 | Justin: „Drinnen halten sie so lange, wie ein Mensch die Luft anhält.“ |
 | 12 | Sieben Blechmänner am Rand, und hinter Luke ist es zum ersten Mal still | 9 | 1 | **Atempause:** der zweite Riegel (Lacher), dann der graue Kasten |
 | 13 | Die Behaltenen kommen aus allen Türen und wollen seine Hand | 10 | 2 | **Atempause:** Justins Hand, „Kum!“, Weißblende |
 | 14 | Nimmerheim: kein einziges Beobachter-Geräusch mehr | 10 | 1 | – |
@@ -747,15 +750,16 @@ Nie zwei Dreier ohne Pause: Zwischen der Kuh und dem Blinzeln liegen fast das ga
 
 ### Humor in diesem Kapitel
 
-- **Das Wort** (Unterkapitel 2): Luke sagt dreimal „Scheiße“, Whiskey beim dritten Mal gleichzeitig mit ihm. LUKE: „Das ist mein Wort. Such dir ein eigenes.“ Danach B-3-01: „IST DAS EIN GEBET ∴“
+- **Das Wort** (Unterkapitel 2): Luke sagt dreimal „Scheiße“, Whiskey beim dritten Mal gleichzeitig mit ihm. LUKE: „Das ist mein Wort. Such dir ein eigenes.“ Danach B-K3-01: „IST DAS EIN GEBET ∴“
 - **Vegas und die Kuh:** „Die nehmen erst die Kühe, dann die Leute. Steht alles im Ordner. Seit ’58!“ (Aliens, Verschwörung, und er hat fast recht.)
 - **Justin und die Neuzeit:** „Eure Kutschen sind lauter geworden. Und eure Nächte heller. Beides hilft nicht.“ – der Beichtstuhl am Funkkasten – der Schokoriegel mit Papier: „Das ist das Beste, was eure Zeit hervorgebracht hat.“ – „Dann hat die Tankstelle etwas richtig gemacht.“
 - **Pfandflaschen** (Unterkapitel 6): „Ist das ein Heiliger?“ – „Hier im Dorf? Fast.“
 - **Whiskey gegen Wolter** (K3-4): gezielt auf die Windschutzscheibe, Wolter: „… Das ist bedauerlich.“
 - **Hildes Lesebrille:** Whiskey auf dem Kühlschrank, Tausch nur gegen Glänzendes. Man braucht die Brille nicht. Whiskey findet schon.
-- **Der Beobachter, der Menschen falsch versteht:** „SIE SAGT ICH BIN KOMISCH“, „MACH DAS LICHT AUS … NEIN. DOCH NICHT“, „WARUM SAGT IHR GUTE NACHT …“; Luke: „Das ist wie mit meinem Vermieter.“
+- **Der Beobachter, der Menschen falsch versteht:** „SIE SAGT ICH BIN KOMISCH“, „ES TUT NICHT WEH. ES IST NUR UNHÖFLICH.“ (B-K3-05), „UND DER VOM ALTEN MANN … WIE HEISST DER“ (B-K3-04), „JETZT LÄUFT DAS GLÜCK RAUS. SAGT IHR DOCH SO.“ (B-K3-07); Luke: „Das ist wie mit meinem Vermieter.“ und „Und ich schlafe nicht mit offenem Mund.“
 - **Luke, trocken:** „Beide sagen Großer.“ – „Schreiben. Ja. Danke. Ich kann auch selber –“ – „Die stehen da wie Leute am Bahnsteig. Nur dass sie den Zug festhalten wollen.“ – „Wie die Post. Sehr witzig, Herr Wolter.“
 - **Der zweite Riegel:** „Für drinnen. Da gibt es nichts.“
+- **Freimal und Dahlien** (Unterkapitel 8 und 10): Luke umarmt einen Laternenpfahl („Ich hab noch nie einen Laternenpfahl so gern gehabt. Nicht mal nach Schützenfest.“); Vegas brüllt mitten in der Jagd durch den Türspalt: „Und nicht durch meine Dahlien!“
 - **Abspann:** Vegas trägt Lucy und schimpft auf den Gully; Whiskeys Mikrowellen-Pling nach der Stille, „… Ich hab dich auch vermisst.“
 
 Kein Witz in Raum 2, Raum 3 und nach „Noch eine Runde“ bis zum Morgengrauen (Kern §13).
@@ -769,8 +773,8 @@ Kein Witz in Raum 2, Raum 3 und nach „Noch eine Runde“ bis zum Morgengrauen 
 | ID | Ort | Auslöser | Was passiert | Vertrauen |
 |---|---|---|---|---|
 | Grund-Zufall | Ahornstraße, im Nebel | Ende der Kuh-Sequenz | Ein Auto springt an und fährt ohne Licht weg | – |
-| AG-09 | Bushaltestelle, grauer Kombi | erstes Herauskommen am Westende (Unterkapitel 5) | Wolter, Tee, falsche Laternenfolge, „Das ist bedauerlich.“, Sender in die Jacke | Tee +5 / ablehnen −5; Lüge über Lucy −5; nach den Handschuhen fragen −3 |
-| AG-10 | Nebel am Ostende | Weg zum Kasten vor Nr. 7 (Unterkapitel 8) | Blechmann dreht sich um, Lampe, „K-3 gesichtet … Nicht anfassen.“ | – |
+| AG-09 | Bushaltestelle, grauer Kombi | erstes Herauskommen am Westende (Unterkapitel 5) | Wolter, Tee, falsche Laternenfolge, „Das ist bedauerlich.“, Sender in die Jacke (V-11, 02 C3) | nach Dossier 80: Tee annehmen +5; Wahrheit über Lucy +3; Lüge über Lucy −5; nach der Hand fragen −3 |
+| AG-10 | Nebel am Ostende | Weg zum Kasten vor Nr. 7 (Unterkapitel 8) | Blechmann dreht sich um, Lampe, Funk: „… kein Kind. Ein Erwachsener. K-3?“ – Wolter: „Weitergehen.“ (Wortlaut: Dossier 80, AG-10) | – |
 | AG-08 | Rand der Senke, Blick von den Traktorspuren | dritte Laterne aus (Unterkapitel 9) | sieben Blechmänner, Ketten, „Ernte in Position“ | – |
 | V-01, V-02, V-03, V-06 | Ahornstraße, Bushaltestelle, Hof | nur bei miserablem Vertrauen (< 30), je einmal | Kombi ohne Licht rollt nach; Pat und Patachon hinter Luke; Anruf mit Atmen („Sie waren am Dienstag um zwei im Studio. Sie sollten schlafen, Herr Brandt.“); Blechmann am Gartentor („Nicht bergen. Noch nicht.“) | Kombi anfassen −10 |
 | V-13 | Ahornstraße | nur bei hohem Vertrauen (≥ 70) | Der Kombi fährt vorbei, eine Hand im grauen Handschuh hebt sich | – |
@@ -782,12 +786,12 @@ Pat und Patachon treten auf dem Hauptweg nicht auf (Kern §6.6 sieht sie für Ka
 - W-06, Unterkapitel 4: landet auf Justins Handschuh, „Wîse. Du alter Dieb.“
 - W-07, Unterkapitel 7: Frequenz mit Vegas’ Stimme, dann die Schreibgeste; nur wenn der Spieler festhängt.
 - W-08, ab Unterkapitel 10: fliegt mit hinein, sitzt auf Justins Schulter, kein Laut; Pegel für Lunas Nähe; im Blinzeln ein einziges Schnabelklappern; Pling erst draußen im Morgengrauen.
-- Charakterszenen: das Wort (Unterkapitel 2), Riegelpapier geklaut (4), Wolters Windschutzscheibe (5, K3-4), Hildes Lesebrille (6), still auf dem Dach von Nr. 1 während der Jagd (8, Grusel-Signal), „Kum!“ (10, K3-3), Miras Fußabdrücke (13, K3-7), bleibt bei „Noch eine Runde“ bei Luke, nicht bei Justin; Justin sieht es, nickt und geht.
+- Charakterszenen: das Wort (Unterkapitel 2), Riegelpapier geklaut (4), Wolters Windschutzscheibe (5, K3-4), Hildes Lesebrille (6), still auf dem Dach von Nr. 1 während der Jagd (8, Grusel-Signal), „Kum!“ (10, K3-3), Miras Fußabdrücke (13, K3-7), bleibt bei „Noch eine Runde“ bei Luke, nicht bei Justin; Justin sieht es, nickt und geht. Im Abspann setzt er sich auf Lucys Schulter und macht die Taubenlaute; LUCY: „Hallo, du. Du hast ihn ja doch hergebracht.“ (02 E6, `83_whiskey.md`).
 
 **Beobachter (Kern §7, ab diesem Kapitel durchgehend)**
 - Folgt Luke vom ersten Glockenschlag an; Verstecke: Telefonzelle, Funkkasten, Altglascontainer, Mülltonnen von Nr. 5, Zaun von Nr. 7, halb hinter Justins Rücken. Ein-Sekunden-Regel, ständige Geräusche; bleibt Luke stehen, kommt er näher; Katzen fauchen in seine Richtung, nie auf Luke.
-- Nie in einem Bild mit Wolter oder den Blechmännern. Am Rand der Senke still (B-3-07). In Nimmerheim gar nicht (`beob_active` ist dort schon aus). Erstes Geräusch nach der Rückkehr: ein Kiesel.
-- Zettel B-3-01 bis B-3-08 (Wortlaut unter „Fundstücke“), dazu die Orts-Zettel der Nebenaufgabe „Hinter deinen Füßen“.
+- Nie in einem Bild mit Wolter oder den Blechmännern. Am Rand der Senke still, danach B-K3-06 „Leise“. In Nimmerheim gar nicht (`beob_active` ist dort schon aus). Erstes Geräusch nach der Rückkehr: ein Kiesel.
+- Zettel B-K3-01 bis B-K3-08 und die Hilfe-Zettel B-K3-H1 bis H3 (Fundorte unter „Fundstücke“, Wortlaut Dossier 82), dazu die Orts-Zettel B-O… der Nebenaufgabe „Hinter deinen Füßen“ (02 A1).
 - Spuren auf dem Hauptweg: ∴ in der Scheibe der Telefonzelle (S-03), ausgelecktes Riegelpapier unter der Bushaltestelle (S-07-Variante), warme Bank (S-11), acht Pfandflaschen und eine neunte (S-15), unterstrichenes „SIE“ im Zählbuch (S-09), die neunte Gestalt im Nachbild.
 
 **Neue Figuren**
@@ -814,7 +818,7 @@ Pat und Patachon treten auf dem Hauptweg nicht auf (Kern §6.6 sieht sie für Ka
 | Justin summt die Spieluhr-Melodie | Mamas Liederheft „Hab ich 1975 gelernt, weiß nicht mehr, von wem“ |
 | **Seine Hand ist aufgegangen, nicht ihre** (Wendung 6) | jeder frühere Satz „Sie hat losgelassen“, SB-07, Hildes „Frag ihn nach seiner Hand“ |
 | **Luna hat die ganze Nacht durch Luke geguckt; Justin wusste es** (Wendung 5 eingelöst) | Kapitel 2 „Ich seh ja durch dich“; dass Justin nie von Lukes Seite wich; „Augen zu“ zeigt Luke von hinten |
-| Luke ist aus Justins Blut gemacht, Peter auch (Luna, SB-05) | „Bruder“ vom Zahn-Mann (Kapitel 2) |
+| Luke ist aus Justins Hand gemacht, Peter auch (Luna, SB-05, 02 B8) | „Bruder“ vom Zahn-Mann (Kapitel 2) |
 | Die LWO hält das Licht für einen Wolf und steht mit Ketten am Rand | Stempel, Kaugummipapier, Funk „K-3“ aus Kapitel 2 |
 | Warum Luna ihn nicht sieht: **nur mit drei Rüstungs-Hinweisen ausgesprochen** | ohne sie bleibt es Lukes offene Frage für Kapitel 4 (LWO-Analyse) und 6 |
 
@@ -826,13 +830,14 @@ Neue Fäden: der Sender (Kapitel 6), Grete mit dem Kreisel (Kapitel 4 und 5), �
 
 | | A „Dich. Dass du bleibst.“ | B „Spielen. Sieben Kinder, wie damals.“ | C „Dass du sie suchst.“ |
 |---|---|---|---|
-| Kap. 3 letzte Worte | „Wenn du sie wieder aufrufst, den Kasten: Sag ihr, Papa ist da. Auch wenn sie’s nicht glaubt.“ | „Pass auf deine Schwester auf. Sie hat dich gewählt, bevor du wusstest, was du bist. Das tun nicht viele.“ | „Wenn ich sie das nächste Mal finde, will ich, dass sie es merkt. Halt mir die Augen offen, Knabe. Deine.“ |
-| Geschenk | Ranzenriemen (Marion, 1975) | Cowboy-Schnalle (ein Junge, 1958) | Laternenbügel (1312, Eisen) |
-| Kap. 4 | Lucy: „… ein Mann in Eisen … hat die ganze Zeit gerufen.“ | Lucy: „Mein Bruder spielt nicht. Der arbeitet nachts.“ | Lucy: „Sie hat gesagt, du hast ihr was gezeigt.“ (Wortlaut `40_kap4.md`) |
-| Kap. 4/5 Gegenstand | Lucy erkennt den Riemen: „Das ist Mamas. Vom Schulranzen.“ | Villa, Foto von 1958: ein Junge trägt den Gürtel | Freimal am gedeckten Tisch; bricht die Schleife für eine Runde |
-| Kap. 5 | Lucy: „… weil einer bei ihr geblieben ist.“ | Lucy: „… einen zum Spielen.“ | Lucy: „Der Papa sucht mich. Ich hab ihn gehört.“ (Wortlaut `50_kap5.md`) |
-| Kap. 6 | SB-12, vierte Zeile A | SB-12, vierte Zeile B | SB-12, vierte Zeile C (Wortlaut `81_justin.md`) |
-| ≥ 3 RH | zusätzlich: „Sie sieht dich nicht. Wegen der Rüstung.“ – „… Dann muss ich sie eines Tages ausziehen.“ und der Flicken (Kapitel 4, Analyse Substanz S) | | |
+| Kap. 3, was Justin tut | versucht, die Brustplatte zu lösen; sie ist mit ihm verwachsen (02 B1) | will laut zählen, damit sie es hört | will laut suchen, damit sie es merkt |
+| Kap. 3 letzte Worte | „Ich bleib hier, Knabe. Wenn du sie mal suchst: Ich bin der, der ruft.“ | „Pass auf deine Schwester auf. Sie hat dich gewählt, bevor du wusstest, was du bist. Das tun nicht viele.“ | „Wenn ich sie das nächste Mal finde, will ich, dass sie es merkt. Halt mir die Augen offen, Knabe. Deine.“ |
+| Geschenk (02 B3) | Ranzenriemen „H. R.“ (Hänschen Rieke, 1958) | der halbe Schokoriegel in Silberpapier | Gürtelschnalle mit dem Turm über dem Abgrund |
+| Einlösung | Kap. 5: Gisela erkennt den Riemen, als sie Luke die Katze gibt („Das ist Hänschens.“), und behält ihn | Kap. 5: Luke legt ihn in Nr. 7 auf Hildes Küchentisch, „für die, die gezählt hat“ | Kap. 5: Die Schnalle passt in die Vertiefung im Fundamentstein im Heu der Scheune |
+| Kap. 4, Lucy | „Da drin war ein Mann in Eisen. Der hat die ganze Zeit gerufen. …“ | „… Mein Bruder spielt nicht. Der arbeitet nachts.“ | „Sie hat gesagt, du hast ihr was gezeigt. …“ (Wortlaut `40_kap4.md`) |
+| Kap. 5, Lucy | „Sie hat mich gehen lassen, weil einer bei ihr geblieben ist. …“ | „Sie hat gesagt, sie hat jetzt einen zum Spielen. …“ | „Sie hat gesagt: ‚Der Papa sucht mich. Ich hab ihn gehört.‘ …“ (Wortlaut `50_kap5.md`) |
+| Kap. 6 | SB-12, eine Zeile A | SB-12, eine Zeile B | SB-12, eine Zeile C (Wortlaut `81_justin.md`); dazu B-K6-07, vierte Zeile je nach Wahl (Dossier 82) |
+| ≥ 3 RH (alle Wege) | zusätzlich: „Sie sieht dich nicht. Wegen der Rüstung.“ – „… Dann muss ich sie eines Tages ausziehen.“ und **der Flicken** (Einlösung Kap. 4, Analyse S-7 in der Villa, 02 B3) | | |
 
 ---
 
@@ -840,9 +845,9 @@ Neue Fäden: der Sender (Kapitel 6), Grete mit dem Kreisel (Kapitel 4 und 5), �
 
 **„Noch eine Runde“** (alle Wege, Beats in Unterkapitel 14): Justin lässt Lukes Hand los, geht in Rüstung ins Dunkel, wo die Rippen zusammenlaufen, Luna zählt, Lucy steht neben Luke. Weißblende. Dann die Abspann-Kinosequenz, dann die Endkarte.
 
-#### Abspann-Kinosequenz · „Wie jeden Morgen“ (56 s, überspringbar nach 3 s)
+#### Abspann-Kinosequenz · „Wie jeden Morgen“ (60 s, überspringbar nach 3 s)
 
-Tageszeit: Morgengrauen, die ersten Minuten nach 03:13. Kein Spieler-Input. Musik: keine bis Sekunde 44, dann Lucys Spieluhr-Motiv auf dem Klavier, eine Phrase, ohne Spieluhr darunter.
+Tageszeit: Morgengrauen, die ersten Minuten nach 03:13. Kein Spieler-Input. Musik: keine bis Sekunde 48, dann Lucys Spieluhr-Motiv auf dem Klavier, eine Phrase, ohne Spieluhr darunter.
 
 | s | Kamera | Bild | Licht | Ton / Musik | Untertitel |
 |---|---|---|---|---|---|
@@ -852,15 +857,14 @@ Tageszeit: Morgengrauen, die ersten Minuten nach 03:13. Kein Spieler-Input. Musi
 | 16–22 | halbnah, über Lukes Schulter (Luke nie von vorn), auf Lucy | Lucy, nass, in Lukes Jacke, hält seine Hand, fünf Finger, abgekaute Nägel. Sie sieht ihn an. Am Rand ihrer Iris ein dünner weißer Ring. | Morgengrau | Ihr Atem. Seiner. | LUCY: „Guck nicht so. Ich bin’s.“ |
 | 22–30 | Totale von der Tür von Nr. 3 aus | Die Tür geht auf, **ohne Kette**, zum ersten Mal. Vegas, barfuß, im Unterhemd, eine Wolldecke über dem Arm, rennt über die Straße, soweit Vegas rennt. Bruno hinterher. | Verandalampe von Nr. 3, gelb | Vegas’ Schritte, Brunos Krallen auf Asphalt. | VEGAS: „Mädchen. Himmelherrgott. Du bist ja pitschnass.“ |
 | 30–36 | halbnah | Vegas wickelt Lucy in die Decke und hebt sie hoch, ächzend. Lucy hält Lukes Hand, bis es nicht mehr geht, dann lässt sie los, ganz langsam. | – | VEGAS: „Wo warst du denn, im Gully?“ | LUCY: „Fast.“ |
-| 36–40 | Luke-Perspektive, frei, aber ohne Steuerung, Blick nach oben | Whiskey landet auf der Telefonzelle, sieht Luke an. | – | Whiskey, nach der ganzen Stille in Nimmerheim, das Mikrowellen-Pling. | LUKE: „… Ich hab dich auch vermisst.“ |
-| 40–44 | Luke-Perspektive, Schwenk zur Bushaltestelle | Der graue Kombi steht dort, Motor an, Licht aus. Das Seitenfenster geht einen Spalt herunter. | Standlicht | Motor im Standgas. Ein Satz, je nach Vertrauen. Dann fährt der Kombi ohne Licht davon. | WOLTER: „Gute Nacht, Herr Brandt.“ (hoch: „Gute Nacht, Luke.“ / miserabel: „Gute Nacht, K-3.“) |
-| 44–50 | Bodenhöhe, hinter Luke, Blick auf seine Fersen | Hinter Lukes Schuh rollt ein Kiesel aus dem Nebel und bleibt liegen. Daneben ein gefalteter Zettel (B-3-08). | – | Kiesel, Papier, kleines Trippeln, weg. Klavier setzt ein. | LUKE: „Hast du gewartet? … Du hast gewartet.“ |
-| 50–54 | Totale von oben über der Kreuzung, steigend, Blick nach Norden über den Wald | Der Himmel über der Senke ist grau wie überall. Nur ganz hinten atmet noch ein schwacher weißer Schein, langsam, wie ein Tier im Stall. Die Telefonzelle unten klingelt nicht. | Morgengrau, weißer Schein | Klavier, letzte Note hängt. | – |
-| 54–56 | Schwarz | Endkarte | – | Stille | – |
+| 36–40 | halbnah, über Lukes Schulter auf Lucy in Vegas’ Armen | Whiskey landet auf Lucys Schulter, auf der Decke, macht sich klein und gibt die Taubenlaute von sich, die er sonst bei niemandem macht. Lucy dreht den Kopf zu ihm, müde. | – | Taubenlaute. Vegas’ Atem, schwer. | LUCY: „Hallo, du. Du hast ihn ja doch hergebracht.“ |
+| 40–44 | Luke-Perspektive, frei, aber ohne Steuerung, Blick nach oben | Whiskey hüpft von Lucys Schulter auf die Telefonzelle und sieht Luke an. | – | Whiskey, nach der ganzen Stille in Nimmerheim, das Mikrowellen-Pling. | LUKE: „… Ich hab dich auch vermisst.“ |
+| 44–48 | Luke-Perspektive, Schwenk zur Bushaltestelle | Der graue Kombi steht dort, Motor an, Licht aus. Das Seitenfenster geht einen Spalt herunter. | Standlicht | Motor im Standgas. Ein Satz, je nach Vertrauen. Dann fährt der Kombi ohne Licht davon. | WOLTER: „Gute Nacht, Herr Brandt.“ (hoch: „Gute Nacht, Luke.“ / miserabel: „Gute Nacht, K-3.“) |
+| 48–54 | Bodenhöhe, hinter Luke, Blick auf seine Fersen | Hinter Lukes Schuh rollt ein Kiesel aus dem Nebel und bleibt an zwei anderen liegen: drei Kiesel übereinander, frisch gestapelt. Kein Zettel. | – | Kiesel, kleines Trippeln, weg. Klavier setzt ein. | LUKE: „Hast du gewartet? … Du hast gewartet.“ |
+| 54–58 | Totale von oben über der Kreuzung, steigend, Blick nach Norden über den Wald | Der Himmel über der Senke ist grau wie überall. Nur ganz hinten atmet noch ein schwacher weißer Schein, langsam, wie ein Tier im Stall. Die Telefonzelle unten klingelt nicht. | Morgengrau, weißer Schein | Klavier, letzte Note hängt. | – |
+| 58–60 | Schwarz | Endkarte | – | Stille | – |
 
 **Justins Ruf aus dem Dunkel (0–6 s), je nach Wahl:** A: „Luna! Ich bin da! Ich bleib da!“ · B: ein Mann, der mitzählt, eine Zahl hinter ihr her, „… fünf … sechs …“ · C: „Luna! Ich such dich! Hörst du? Ich such dich!“ Luna zählt in allen Fassungen über ihn hinweg, und ihre Stimme stockt genau einmal, bei „sieben“.
-
-**B-3-08** (der Zettel am Kiesel): „WARUM SAGT IHR GUTE NACHT WENN SIE NICHT GUT IST ∴“
 
 #### Endkarte
 
@@ -921,6 +925,7 @@ Danach Knopf „WEITER · KAPITEL 4“. Kapitel 4 beginnt an der Kreuzung, hell,
 | „Echo der Unterschrift“ | **Unterschriften-Nachbild** | Kern §2 |
 | „Versteck-Hinweise für Ende C“ | **Rüstungs-Hinweise (RH-1 bis RH-11)** | Kern §12 |
 | „Fallwand“ | **Tafel „Was will sie?“** | Justins Frage |
+| „Vierzig Mal“ (erster Entwurf, Zayns Rucksack und Kamera; `zayn.js`) | **„Hast du dich an mich erinnert?“** | Rückseite von Zayns letzter Zeichnung (Kapitel 6); „Vierzig Mal“ bleibt Jonas’ Wolle (02 A3) |
 | alte Nebenquests (Kapelle, Vegas’ Brief, Seilers Villa, Tankstellenband, eigenes Grab, Sommerfest, Kanalstadt, Dinas Karte), Geheimnis „Lichtsteine“ | Namen und Herkunft stehen in der Nebenaufgaben-Liste oben (Nr. 1–20) | Kern §14 |
 
 ---
@@ -941,31 +946,36 @@ Danach Knopf „WEITER · KAPITEL 4“. Kapitel 4 beginnt an der Kreuzung, hell,
 - `showChoice()` (Anker „MIT JUSTIN HINABSTEIGEN“): drei Knöpfe mit den Antworten, darunter kein Untertext (der Spieler soll die Folgen nicht sehen). `endingA()` (Anker „Danke, Sohn.“) und `endingB()` werden durch „Noch eine Runde“ + Abspann ersetzt; „Danke, Sohn“ entfällt ganz (Justin sagt Lukes Namen nur auf SB-12).
 - `whiskey.js`: `S.jHit` („Justin nach dem Raben fragen“) wird W-06, ausgelöst durch Nähe zu `justin.g` statt `S.met.size >= 3` (Vorschlag aus `83_whiskey.md`). Stationen `handschuh`, `funk`, `senke` (Sitzplatz auf Justins Schulterplatte, Mixer stumm bis zum Abspann).
 - `geheimnisse.js`: Lichtsteine (Anker „Ein kleiner Stein, warm wie eine Hand“) bekommen den Summton der Rüstung in Justins Nähe und zählen RH-10.
-- `beobachter.js`: `beob_active()` ist in `ch3.part === 'white'` schon aus; zusätzlich Sperre in der Nähe von Wolter/Blechmännern (AG-08, AG-09, AG-10) und das 45-Sekunden-Schweigen am Rand (B-3-07).
+- `beobachter.js`: `beob_active()` ist in `ch3.part === 'white'` schon aus; zusätzlich Sperre in der Nähe von Wolter/Blechmännern (AG-08, AG-09, AG-10) und das Schweigen am Rand bis B-K3-06.
 
 **Neu (klein, ohne neue Lichtquellen):**
 - Blinzel-Overlay: zwei schwarze Balken (DOM), 0,15 s zu, 0,15 s auf, per Timeline; Stühle/Behaltene werden nur während „zu“ versetzt (Ochs-am-Berg-Logik aus der Graukind-Jagd).
 - Deduktions-Tafel Raum 3: `openPuzzle` mit fünf Stellen (Status untersucht/nicht), Tafel ab drei Stellen.
-- Gegenstände: Polaroid „Sieben und ein halber“, Zählbuch (geht nach Kapitel 4), grauer Kasten (optional), Ranzenriemen / Cowboy-Schnalle / Laternenbügel (je nach Antwort), Flicken (≥ 3 RH).
+- Gegenstände: Polaroid „Sieben und ein halber“, Zählbuch (geht nach Kapitel 4), grauer Kasten (optional), Ranzenriemen „H. R.“ / halber Schokoriegel / Gürtelschnalle mit dem Turm (je nach Antwort, 02 B3), Flicken (≥ 3 RH); alle bleiben im Inventar bis zu ihrer Einlösung in Kapitel 4 oder 5.
 - Figurenmodelle: Heinrich Wolter, Blechmann (Kern §13); Grete als vorhandenes Behaltenen-Modell mit Kreisel-Requisit; Anni mit Lampion-Requisit.
 - Sound: Justins Schritte (tiefes Schaben, Stein auf Stein) getrennt vom Kettenschleifen der Blechmänner; Wimpernschlag-Geräusch; Relais-Klacken der Laternen am Morgen.
 
-**Sperren nach Kapitel:** Justin ist nach „Noch eine Runde“ nie mehr als Figur zu sehen (nur Seite, Nachbild, Stimme). Nimmerheim-Räume nicht wieder betretbar. Funkkasten danach tot. Laternenkästen in Kapitel 4 mit Absperrband (AG-11). Nebenaufgaben dieses Kapitels schließen mit der vierten Laterne; offene werden in Kapitel 4 nicht fortgesetzt, außer „Siebzehn Näpfe“ und „Vierzig Mal“.
+**Sperren nach Kapitel:** Justin ist nach „Noch eine Runde“ nie mehr als Figur zu sehen (nur Seite, Nachbild, Stimme). Nimmerheim-Räume nicht wieder betretbar. Funkkasten danach tot. Laternenkästen in Kapitel 4 mit Absperrband (AG-11). Nebenaufgaben dieses Kapitels schließen mit der vierten Laterne; offene werden in Kapitel 4 nicht fortgesetzt, außer „Siebzehn Näpfe“ und „Hast du dich an mich erinnert?“ (Fortsetzung in Kapitel 6, 02 A3).
 
 ---
 
-### Offene Abstimmungen
+### Abstimmungen (erledigt)
 
-1. **Abschiedsgeschenke:** Ich behalte die drei Geschenke des ersten Kapitel-3-Entwurfs (Ranzenriemen von Marion, Cowboy-Schnalle von 1958, Laternenbügel), weil sie im Kapitel schon verdrahtet sind, und übernehme aus `81_justin.md` §3.15 nur den Flicken (≥ 3 RH). Das Justin-Dossier schlägt Riemen „H. R.“ (Hänschen → Gisela), halben Riegel und Hof-Schnalle vor. Keins von beiden steht bisher in `40_kap4.md` oder `50_kap5.md`; die Kapitel-4/5-Autoren müssen die Rückzahlung einbauen (Tabelle „Die Wahl und ihre kleinen Folgen“).
-2. **Helm:** Der Auftrag lässt Justin in Nimmerheim den Helm abnehmen (braune Augen). Das Justin-Dossier (Abstimmung 4) will ihn nur draußen zeigen. Ich folge dem Auftrag. Bei Antwort A versucht Justin deshalb, die Brustplatte zu lösen (Kern §12 sagt „Helm“); die Aussage bleibt dieselbe: Die Rüstung ist mit ihm verwachsen.
-3. **Justins Name für Luke:** nur auf Papier (SB-12), wie im Justin-Dossier. Er sagt ihn in keiner Fassung laut.
-4. **Rüstungs-Hinweise:** elf Quellen (RH-1 bis RH-11) statt der sieben Vorschläge im Justin-Dossier; dessen (c) (Blechmänner-Satz) und (d) (Whiskey pickt an der Platte) zählen nicht, weil sie das Eisen erklären, nicht die Unsichtbarkeit. Lunas „In der Haut seh ich ihn nicht“ entfällt, weil es den Hinweis für alle ausspricht.
-5. **Beobachter-Zettel-Nummern:** Kapitel 2 schreibt „B-K2-5“, Kapitel 4 „B-4.1“, ich „B-3-01“. Vereinheitlichen beim Zusammenführen. B-3-05 hat das Beobachter-Dossier schon als „MACH DAS LICHT AUS …“ belegt; ich habe es übernommen und die Rüstungs-Zeile auf B-3-06 verschoben.
-6. **Kapitelübergang:** `20_kap2.md` lässt Kapitel 3 mit dem Aufstieg beginnen; mein Intro („Hände, die dich tragen“) setzt danach ein: Luke sackt am Gully zusammen, die Tafel kommt, er wacht auf dem Asphalt der Kreuzung auf. K2-2 (Whiskey am Schachtrand) bleibt in Kapitel 2.
-7. **Gisela wach oder schlafend:** `86_neue_figuren.md` lässt sie in Kapitel 3 wach in der Küche sitzen. Die Regel „Wer nie drin war, schläft wie ein Stein“ (Auftrag) spricht dagegen. Mein Vorschlag an den Nebenaufgaben-Autor: Auf dem Hauptweg schläft sie; in „Siebzehn Näpfe“ wecken die Katzen sie (siebzehn Katzen auf einer Frau), und sie ist genau so lange wach, wie die Katzen auf ihr sitzen. Humor, und die Regel bleibt heil.
-8. **Der Sender (V-11):** Das LWO-Dossier will ihn in Kapitel 6 als Überraschung und gleichzeitig in Kapitel 3 findbar. Lösung: Er ist in Unterkapitel 9 nur fühlbar; ansehen ist freiwillig. Kapitel 6 braucht zwei Varianten (Überraschung / Luke hat ihn weggeworfen oder behalten).
-9. **Whiskey bei AG-09:** `80_lwo.md` lässt ihn still auf dem Haltestellendach sitzen, `83_whiskey.md` auf dem Kombi (K3-4). Ich nehme K3-4 (Humor nach dem ersten Wolter-Satz), die Stille bekommt er am Rand der Senke und in Nimmerheim.
-10. **Grete und das Blinzeln:** Fünf Behaltene rücken, Grete und Lucy bleiben sitzen (nach `86_neue_figuren.md`); die Kinosequenz ist entsprechend angepasst.
-11. **Pfarrer Voss** sitzt in Raum 2, nicht auf den acht Stühlen; so bleiben die acht Stühle bei den Kindern (plus Hilde), wie im Kern.
-12. **Nebenaufgaben „Ja.“, „Schläft wie ein Stein“, „Damit keiner fehlt“, „Zweiundvierzig Kerben“** sind neu und klein; der zweite Autor darf sie zusammenlegen, wenn Platz fehlt (Vorschlag: „Ja.“ und „Damit keiner fehlt“ als eine Runde durch die leeren Häuser).
-13. **Umfang:** Die Datei liegt deutlich über den 45–60 KB des Auftrags, weil zwei Entwürfe zusammengeführt wurden und Kinosequenzen, Wahl-Tabelle, Rätsel und Rüstungs-Hinweise vollständig drinstehen. Kürzbar ohne Verlust: die Fibel-Regelzeilen, die Humor-Liste (wiederholt Zeilen aus den Beats) und die Enthüllungs-Tabelle.
+- **Abschiedsgeschenke** durch 02 B3: Ranzenriemen „H. R.“ (A), halber Schokoriegel (B), Gürtelschnalle mit dem Turm (C), bei ≥ 3 Rüstungs-Hinweisen zusätzlich der Flicken; Wahl-Tabelle und Umsetzungsnotizen angeglichen.
+- **Helm** durch 02 B1: Visier zwei Sekunden an der Kreuzung, Helm ab im Hohen Abgrund; bei Antwort A versucht Justin, die Brustplatte zu lösen.
+- **Lukes Name** durch 02 B2: Justin sagt ihn nie laut, nur auf SB-12.
+- **Rüstungs-Hinweise** durch 02 B4 und I2: RH-1 bis RH-11, Schwelle 3; RH-6 liegt auf Kapellenfenster-Feld 7.
+- **Justins Satz über Whiskey** durch 02 B5: „Sie kennt ihn. Er ist der Vogel ihrer Mutter. Wenn er ruft, kommt sie.“
+- **Beobachter-Kennungen** durch 02 A1: B-K3-01 bis B-K3-08, Hilfe-Zettel B-K3-H1 bis H3, Wortlaut aus Dossier 82. Der alte Abspann-Zettel „WARUM SAGT IHR GUTE NACHT …“ entfällt, er gehört zu B-K1-02; im Abspann bleiben die drei Kiesel.
+- **Kapitelübergang** durch 02 H2.
+- **Gisela** durch 02 F1: schläft auf dem Hauptweg, in „Siebzehn Näpfe“ wecken sie die Katzen.
+- **Sender** durch 02 C3; **Whiskey bei AG-09** auf dem Kombi durch 02 C4.
+- **Pfarrer Voss** durch 02 F4 und C11: sitzt in Raum 2; das Buch von 1312 heißt Seelbuch.
+- **Zayns Faden** durch 02 A3: Nebenaufgabe 12 heißt „Hast du dich an mich erinnert?“, „Vierzig Mal“ bleibt Jonas’ Wolle in Kapitel 6.
+- **Kapellenfenster und Gesangbuch** durch 02 F5 und G1.
+- **Lucy zu Whiskey** durch 02 E6: „Hallo, du. Du hast ihn ja doch hergebracht.“ im Abspann.
+- **Dina** durch 02 F9: Remise am Hof.
+
+### Noch offen für den Autor
+
+- **Umfang:** Die Datei liegt mit gut 130 KB weit über den 45–60 KB des Auftrags. Gekürzt wurde nur, was wörtlich doppelt war oder jetzt auf Dossier 82 verweist. Weiter kürzen ginge ohne Verlust bei den Fibel-Regelzeilen, der Humor-Liste und der Enthüllungs-Tabelle, weil sie Zeilen aus den Beats wiederholen. Soll gekürzt werden?
