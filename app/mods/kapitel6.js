@@ -161,7 +161,7 @@ function k6_gitter(dt) {
   K6.kidT -= dt; if (K6.kidT < 0) { K6.kidT = 1; D.setKid(typeof kapAb === 'function' ? kapAb(5) : K6.on); }
   if (K6.openT >= 0) { K6.openT += dt; D.setOpen(Math.min(1, K6.openT / 1.3)); if (K6.openT >= 1.3) K6.openT = -1; return; }
   if (!K6.on || D.open) return; const P = player.pos, near = Math.abs(P.x - 30.1) < 5 && P.z > 95.3 && P.z < 98.3;
-  if (near && keys.KeyE && !state.talking && !ui.overlay) { K6.holdT += dt; if (K6.holdT % .3 < dt) Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .1, rate: rand(1.4, 1.9), dur: .15, x: 33, y: .6, z: 98 });
+  if (near && keys.KeyE && !ui.overlay && !scripted) { /* nicht auf state.talking warten: Whiskey sitzt an der Station „waldrand“ direkt daneben */ K6.holdT += dt; if (K6.holdT % .3 < dt) Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .1, rate: rand(1.4, 1.9), dur: .15, x: 33, y: .6, z: 98 });
     if (K6.holdT > 1.6) { K6.holdT = 0; K6.openT = 0; Audio.play('metalSheet', { gain: .35, rate: .8, x: 32, y: .5, z: 98.3 }); Audio.play('scrape2', { gain: .25, rate: .9, x: 32, y: .2, z: 98.5 }); $('sideInfo').textContent = '';
       if (K6.beat === 'gitter') { k6_obj('Folge den Brotkrumen.'); k6_set('krumen'); } } }
   else K6.holdT = Math.max(0, K6.holdT - dt * 2);
@@ -198,7 +198,7 @@ function k6_taste(n, ms) { return new Promise(res => { let done = false; const k
 async function k6_hochsitz() {
   K6.epiBusy = true; k6_set('oben'); state.talking = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
   try {
-    await k6_wait(800); if (typeof gedanke === 'function') gedanke('k6_nichthin', 'Nicht hinsehen.', 0, 3); else k6_luke('Nicht hinsehen.', 2200);
+    await k6_wait(800); k6_luke('Nicht hinsehen.', 2400); await k6_wait(1600);
     if (typeof augenzu_frei === 'function') augenzu_frei({ wirkt: true, hinweis: 'Q halten – Augen zu' }); else { $('fade').style.background = '#000'; await fade(1, 1200); }
     await k6_zuWarten(); await k6_wait(900);
     const P = player.pos; Audio.play('heartbeat', { gain: .12, rate: .8, dur: .9, lp: 300 }); if (W && W.g) Audio.flap(W.g.position.x, W.g.position.y, W.g.position.z);

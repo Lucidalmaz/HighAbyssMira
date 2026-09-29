@@ -232,7 +232,7 @@ WORLD_MODS.push(['Kino', async () => {
   // Leuchten: kalte, kerzengerade Flamme (Villafenster), weißes Pulsieren (Schacht), Whiskeys Licht
   S.tex.flame = kino_glowTex('flame'); S.tex.glow = kino_glowTex('glow');
   kino_sprite('flamme', S.tex.flame, 0xe8f0ff, 1.1, false).scale.set(.32, .9, 1); kino_sprite('flammeSchein', S.tex.glow, 0x9fb8ff, 2.2, false);
-  kino_sprite('puls', S.tex.glow, 0xf4f8ff, 30, false); kino_sprite('rabeSchein', S.tex.glow, 0xcfe0ff, 1.4, true);
+  kino_sprite('puls', S.tex.glow, 0xf4f8ff, 30, false); kino_sprite('veranda', S.tex.glow, 0xffb060, 1.6, true); kino_sprite('lampe', S.tex.glow, 0xfff0d8, .9, true); kino_sprite('rabeSchein', S.tex.glow, 0xcfe0ff, 1.4, true);
   kino_defs(); S.ready = true; lap('fertig');
 }]);
 
@@ -391,14 +391,14 @@ function kino_defs() {
   const SH3 = typeof uebergang3_S !== 'undefined' ? uebergang3_S.TOWN : { x: 9, z: -1.3 };
   // ---- K1 · „Du hast sie rausgelassen“ – nach Hilde im Strahl
   kino_def('k1', [
-    { from: [29, 16, 6], to: [20, 18, 2], look: [-20, 0, 0], dur: 7, fov: 52, fadeIn: 1800, hand: .2,
-      setup(sh) { sh.porch = porchLights[0] ? porchLights[0].dead : true; if (porchLights[0]) porchLights[0].dead = false; if (typeof Audio.hum === 'function') Audio.hum(false); kino_regen(.5); },
-      sfx: [[() => { if (porchLights[0]) { porchLights[0].dead = true; Audio.play('switch1', { gain: .5, rate: .7, x: -27.1, y: 2.3, z: -12, ref: 4 }); } }, 5]],
-      teardown(sh) { if (porchLights[0]) porchLights[0].dead = sh.porch; } },
-    { from: [14.6, .35, 3.2], to: [14.2, .25, 2.2], look: [14, 0, 1.5], dur: 7, fov: 50,
+    { from: [29, 16, 6], to: [20, 18, 2], look: [-22, 0, -7], dur: 7, fov: 46, fadeIn: 1800, hand: .2, env: { fog: [0x0d1220, .021] },
+      setup(sh) { const v = kino_show('veranda', -27.1, 2.3, -11.95); v.material.opacity = .95; sh.porch = porchLights[0] ? porchLights[0].dead : true; if (porchLights[0]) porchLights[0].dead = false; if (typeof Audio.hum === 'function') Audio.hum(false); kino_regen(.5); },
+      sfx: [[() => { kino_hide('veranda'); if (porchLights[0]) { porchLights[0].dead = true; Audio.play('switch1', { gain: .5, rate: .7, x: -27.1, y: 2.3, z: -12, ref: 4 }); } }, 5]],
+      teardown(sh) { kino_hide('veranda'); if (porchLights[0]) porchLights[0].dead = sh.porch; } },
+    { from: [14.7, .42, 3.4], to: [14.4, .36, 2.75], look: [14.05, .05, 1.55], dur: 7, fov: 46,
       setup() { kino_show('nass', 14, .012, 1.5); const p = kino_show('pola', 14.35, 3.4, 2.1); p.rotation.set(.8, .3, .4); },
       tick(k, t) { const p = kino_S.obj.pola; if (t < 2) { p.position.y = 3.4; p.visible = false; return; } p.visible = true; const u = Math.min(1, (t - 2) / 3.2), y = 3.4 * (1 - u) * (1 - u * .15) + .004 * u;
-        p.position.set(14.35 - .25 * u + Math.sin(t * 3.1) * .07 * (1 - u), Math.max(.004, y), 2.1 - .2 * u + Math.cos(t * 2.3) * .05 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
+        p.position.set(14.3 - .2 * u + Math.sin(t * 3.1) * .07 * (1 - u), Math.max(.004, y), 1.95 - .2 * u + Math.cos(t * 2.3) * .05 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
         if (u >= 1 && !kino_S.polaDown) { kino_S.polaDown = true; if (Audio.paper) Audio.paper(); } },
       teardown() { kino_S.polaDown = false; } },
     { from: [24, 1.6, -4], to: [26, 1.55, -7.4], look: [24.4, 1.5, -13], dur: 7, fov: 48, lines: [['Im Wohnzimmer brennt kurz Licht. Aber niemand bewegt sich.', '', .9, 5600]],
@@ -415,7 +415,7 @@ function kino_defs() {
         D.m.geometry.attributes.position.needsUpdate = true; },
       sfx: [[() => Audio.play('rumble', { gain: .25, rate: .6, lp: 300 }), .2], [() => Audio.giggle(300, -3, 294), 5]],
       teardown(sh) { for (const [o, sc, z0] of sh.art || []) { o.scale.copy(sc); o.position.z = z0; } kino_hide('staub'); kino_S.coldLight.intensity = 0; } },
-    { from: [-68.5, 1.8, 4.5], to: [-69.5, 1.95, 5.4], look: [-72.2, 1.62, 6.3], dur: 4.5, fov: 36,
+    { from: [-68.9, 1.7, 4.9], to: [-69.6, 1.8, 5.5], look: [-72.28, 1.55, 6.3], dur: 4.5, fov: 30, env: { exp: 1.9 },
       setup() { kino_schild('orig'); },
       sfx: [[() => { kino_schild('2'); kino_kreide(-72.2, 1.5, 6.3); }, .8], [() => kino_schild('21'), 1.35], [() => kino_schild('210'), 1.9]] },
     { card: ['KAPITEL 1 — ENDE · DAS HAUS NUMMER 7', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.'], dur: 8.5, fadeOut: 900,
@@ -538,14 +538,15 @@ function kino_defs() {
   // ---- K4 · „Noch nicht“ – nach der Stimme in der Villa
   kino_def('k4', [
     { from: [H.x, 1.2, H.z + 1], to: [H.x, 1.6, H.z + 2.2], look: [H.x, 5.8, H.z + 4.8], dur: 8, fov: 50, fadeIn: 1200,
-      tick(k, t) { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (A && A.upLight) A.upLight.intensity = .9 * (.75 + .35 * Math.sin(t * 1.3)); },
+      tick(k, t) { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null, b = .75 + .35 * Math.sin(t * 1.3); if (A && A.upLight) A.upLight.intensity = .9 * b;
+        kino_S.lit[0] = kino_S.litU || (kino_S.litU = { p: kino_V(H.x, 5.6, H.z + 4.6), c: 0xfff0d8, d: 9, i: 0 }); kino_S.litU.i = 2.6 * b; }, env: { exp: 1.5 },
       sfx: [[() => Audio.stepAt && Audio.stepAt(H.x - .4, H.z + 4.6, .5), 1.2], [() => Audio.stepAt && Audio.stepAt(H.x, H.z + 4.8, .45), 1.65], [() => Audio.stepAt && Audio.stepAt(H.x + .4, H.z + 4.7, .4), 2.1], [() => Audio.musicBox && Audio.musicBox(), 3]],
       teardown() { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (A && A.upLight) A.upLight.intensity = .9; } },
-    { from: [H.x - 5.7, 1.6, H.z + 1.5], to: [H.x - 6.1, 1.55, H.z + 1.5], look: [H.x - 6.88, 1.5, H.z + 1.5], dur: 7, fov: 40, setup() { kino_still(true, 1.5); }, teardown() { kino_still(false, 1); } },
+    { from: [H.x - 5.7, 1.6, H.z + 1.5], to: [H.x - 6.1, 1.55, H.z + 1.5], look: [H.x - 6.88, 1.5, H.z + 1.5], dur: 7, fov: 40, env: { exp: 1.5 },
+      setup() { kino_still(true, 1.5); kino_S.lit[0] = { p: kino_V(H.x - H.w / 2 + .7, 1.6, H.z + H.d / 2 - 1), c: 0xffa860, d: 8, i: 2.4 }; }, teardown() { kino_still(false, 1); } },
     { from: [-127, 1.7, 50], to: [-126, 2.4, 53], look: [-125, 8, 66], dur: 9, fov: 44,
       setup(sh) { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, R = OW && OW.dbg && OW.dbg.R; sh.reg = []; if (R) for (const k of ['villa', 'allot', 'wRoad']) if (R[k]) { sh.reg.push([R[k], R[k].g.visible]); R[k].g.visible = true; }
-        kino_show('flamme', -125, 8.05, 66.2); kino_show('flammeSchein', -125, 8.05, 66.25); kino_S.obj.flamme.material.opacity = 0; kino_S.obj.flammeSchein.material.opacity = 0;
-        const vb = OW && OW.vbb; sh.gable = vb ? kino_V(-125, vb.max.y + .05, (vb.min.z + vb.max.z) / 2) : kino_V(-125, 12.5, 70); },
+        const vb = OW && OW.vbb, fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 0; kino_S.obj.flammeSchein.material.opacity = 0; sh.gable = vb ? kino_V(-125, vb.max.y + .05, (vb.min.z + vb.max.z) / 2) : kino_V(-125, 12.5, 70); },
       tick(k, t) { const f = t > 2 && t < 4 ? Math.min(1, (t - 2) / .15, (4 - t) / .25) : 0; kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
       sfx: [[sh => kino_rabeFly(kino_V(-110, 16, 58), sh.gable, 3.2), 4.6], [sh => Audio.caw(sh.gable.x, sh.gable.y, sh.gable.z), 8]],
       teardown(sh) { for (const [r, v] of sh.reg) r.g.visible = v; kino_hide('flamme', 'flammeSchein', 'rabe'); } },
@@ -562,18 +563,18 @@ function kino_defs() {
       sfx: [[() => kino_atem(.1, .8), 4.2]], teardown(sh) { waldAus(sh); } },
     { from: [31, 1.4, 101], to: [31, 1.2, 99.5], look: [30, 1.4, 92], dur: 8, fov: 48,
       setup(sh) { waldZeigen(sh); waldTick(sh, 30, 98); const P = kino_S.sv.pos; sh.lk = [P.x, P.z]; kino_S.flash = { p: kino_V(P.x, 1.5, P.z), at: kino_V(31.5, 1.2, 104), i: 14 };
-        kino_fig('lucy', 30.4, 0, 86.5, 0, 'walk', { ts: .7 }); kino_show('laterne'); const s = kino_show('schatten', P.x, 1.1, 97.9); s.lookAt(P.x, 1.1, 90); },
+        kino_fig('lucy', 30.4, 0, 86.5, 0, 'walk', { ts: .7 }); kino_show('laterne'); kino_show('lampe', P.x + .15, 1.45, P.z + .25); },
       tick(k, t, dt, sh) { const L = kino_S.fig.lucy, z = 86.5 + 5 * Math.min(1, t / 7); if (L) { L.g.position.z = z; } const l = kino_S.obj.laterne; l.position.set(30.62, .72, z + .25); l.rotation.set(Math.sin(t * 3) * .12, 0, Math.sin(t * 2.4) * .1);
         kino_S.lucyLight.position.set(30.62, .9, z + .25); kino_S.lucyLight.intensity = 2.4 * (.94 + .06 * Math.sin(t * 11)); kino_S.lit[0] = kino_S.litL || (kino_S.litL = { p: kino_V(0, 0, 0), c: 0xffb060, d: 7, i: 0 }); kino_S.litL.p.copy(kino_S.lucyLight.position); kino_S.litL.i = kino_S.lucyLight.intensity;
-        const s = kino_S.obj.schatten, near = Math.min(1, t / 7); s.scale.set(1.2 + near * .6, 1.4 + near * .8, 1); s.material.opacity = .25 + .45 * near; },
+        kino_S.obj.lampe.material.opacity = .75 + .1 * Math.sin(t * 9); },
       lines: [['„Großer.“', 'LUCY', 4.4, 3200]],
-      teardown(sh) { waldAus(sh); kino_figOff('lucy'); kino_hide('laterne', 'schatten'); kino_S.lucyLight.intensity = 0; } },
+      teardown(sh) { waldAus(sh); kino_figOff('lucy'); kino_hide('laterne', 'lampe'); kino_S.lucyLight.intensity = 0; } },
     { from: [26, 3, 90], to: [10, 30, 70], look: [-40, 0, 40], lookTo: [-48, 0, 58], dur: 10, fov: 52, env: 'vista', hand: .2,
-      setup() { kino_show('flamme', -125, 8.05, 66.2); kino_show('flammeSchein', -125, 8.05, 66.25); kino_S.obj.flamme.material.opacity = 1; kino_S.obj.flammeSchein.material.opacity = .45; },
+      setup() { const fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 1; kino_S.obj.flammeSchein.material.opacity = .45; },
       tick(k, t) { const f = t < 6 ? 1 : Math.max(0, 1 - (t - 6) / .5); kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
       teardown() { kino_hide('flamme', 'flammeSchein'); } },
-    { from: [60, 12, 92], to: [60.4, 11.8, 92.6], look: [72, 2, 125], dur: 8, fov: 30, hand: .15,
-      setup(sh) { waldZeigen(sh); waldTick(sh, 66, 110); kino_show('hirsch', 72, 0, 125, -2.6); },
+    { from: [60, 9, 94], to: [60.4, 8.8, 94.6], look: [70, 2, 119], dur: 8, fov: 32, hand: .15,
+      setup(sh) { waldZeigen(sh); waldTick(sh, 66, 110); kino_show('hirsch', 70, 0, 119, -2.6); },
       tick(k, t) { const o = kino_S.obj.hirsch; o.visible = t > 2.4 && t < 3.6; const Hd = kino_S.hirschHead; if (Hd && kino_S.hirschQ) { Hd.quaternion.copy(kino_S.hirschQ); if (t > 2.6) Hd.rotateY(Math.min(1, (t - 2.6) / .8) * 1.9); } },
       sfx: [[() => kino_reh(64, 3, 118), 4.6]],
       teardown(sh) { waldAus(sh); kino_hide('hirsch'); if (kino_S.hirschHead && kino_S.hirschQ) kino_S.hirschHead.quaternion.copy(kino_S.hirschQ); } },
@@ -584,21 +585,24 @@ function kino_defs() {
   kino_def('k6', [
     { black: true, dur: 8, lines: [['Du machst die Augen erst auf, als du unten bist.', '', 1.2, 6200]],
       sfx: [[() => kino_stoff(.06), .5], [() => kino_atem(.06, 1.25), 1.6], [() => Audio.flap && Audio.flap(kino_S.sv.pos.x + .5, 2, kino_S.sv.pos.z), 3.4], [() => kino_atem(.05, 1.25), 4.8], [() => kino_stoff(.04), 6.4]] },
-    { from: [14, 1.2, 175], to: [14.4, 2.2, 175.3], look: [16, 3.3, 176.2], lookTo: [16.2, 3.7, 176.2], dur: 8, fov: 46, env: 'dawn', fadeIn: 1400,
-      setup() { const P = kino_fig('echt', 16.3, 3.12, 176.6, PI * .25, 'idle', { sit: 3.52 }); const j = kino_show('jacke', 16.3, 3.55, 176.55, PI * .25); j.rotation.set(.25, PI * .25, 0);
-        const R = kino_S.rabe; if (R) { R.g.position.set(15.4, 4.25, 176.9); R.g.rotation.y = 1.2; R.g.visible = true; kino_rabeClip('IdleLookAround'); } kino_show('rabeSchein', 15.4, 4.5, 176.9); kino_S.rabeLight.position.set(15.4, 4.5, 176.9); void P; },
-      tick(k, t) { const f = Math.max(0, 1 - t / 7); kino_S.rabeLight.intensity = 1.6 * f; kino_S.obj.rabeSchein.material.opacity = .8 * f; kino_S.lit[0] = kino_S.litR || (kino_S.litR = { p: kino_V(15.4, 4.5, 176.9), c: 0xdfe9ff, d: 7, i: 0 }); kino_S.litR.i = 1.6 * f; },
+    { from: [15.6, 1.2, 174.6], to: [15.2, 2.1, 175.2], look: [14, 3.3, 177.6], lookTo: [14, 3.7, 177.8], dur: 8, fov: 46, env: 'dawn', fadeIn: 1400,
+      setup() { const HS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }; kino_fig('echt', HS.x + .1, 3.1, HS.z - .92, PI, 'idle', { sit: 3.1 }); const j = kino_show('jacke', HS.x + .1, 3.2, HS.z - .98, PI); j.rotation.set(-.12, PI, 0);
+        const R = kino_S.rabe, rx = HS.x - .95, ry = 4.02, rz = HS.z + .2; if (R) { R.g.position.set(rx, ry, rz); R.g.rotation.y = -1.2; R.g.visible = true; kino_rabeClip('IdleLookAround'); } kino_show('rabeSchein', rx, ry + .25, rz); kino_S.rabeLight.position.set(rx, ry + .25, rz); },
+      tick(k, t) { const f = Math.max(0, 1 - t / 7), o = kino_S.obj.rabeSchein; kino_S.rabeLight.intensity = 1.6 * f; o.material.opacity = .8 * f; kino_S.lit[0] = kino_S.litR || (kino_S.litR = { p: kino_V(0, 0, 0), c: 0xdfe9ff, d: 7, i: 0 }); kino_S.litR.p.copy(o.position); kino_S.litR.i = 1.6 * f; },
       sfx: [[() => kino_vogel(6, 8, 184), 2], [() => kino_vogel(24, 9, 170, 4), 5.5]] },
-    { from: [14, 5, 178.5], to: [13.6, 5.05, 177.9], look: [0, 2, 0], dur: 10, fov: 44, env: 'haze', hand: .2,
+    { from: [14, 21, 180], to: [13.4, 21.4, 178.8], look: [-8, 3, 60], dur: 10, fov: 42, env: 'haze', hand: .2,
       setup() { kino_lamps(L => { L._m = L.mode; L.mode = 'on'; }); kino_S.k6i = 0; },
       tick(k, t) { const n = Math.floor((t - 2) / .9); if (typeof lamps !== 'undefined') while (kino_S.k6i < Math.min(n, lamps.length)) lamps[kino_S.k6i++].mode = 'off'; },
       sfx: [[() => kino_vogel(8, 9, 186), .8], [() => kino_vogel(22, 10, 172, 4), 3], [() => kino_vogel(-4, 8, 180), 6.4]] },
-    { from: [-12.5, 1.6, 205], to: [-12.7, 1.6, 205.4], look: [-13.9, 1.6, 207.6], dur: 8, fov: 42, env: 'dawn',
+    { from: [-12.2, 1.5, 205.2], to: [-12.6, 1.45, 205.8], look: [-13.9, 1.3, 207.6], dur: 8, fov: 38, env: 'dawn',
       setup(sh) { const H = typeof hungrige_S !== 'undefined' ? hungrige_S : null; sh.sk = H && H.skull ? H.skull.visible : null; if (H && H.skull) H.skull.visible = false; },
       sfx: [[() => kino_reh(-4, 2, 214), 3.5]] },
     { black: true, dur: 8, fadeOut: 1400, setup() { kino_still(true, 3); } },
   ], { name: 'Der Morgen', done() { kino_lamps(L => { if (L._m !== undefined) { L.mode = L._m; delete L._m; } }); kino_figOff('echt'); } });
 }
+// Dachfenster der Villa Seiler (Mansion-Scan aus ausbau_ost_west): vorn in der linken Gaube; ohne Hülle die Planwerte aus PK-F
+function kino_villaFenster() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, vb = OW && OW.vbb; if (!vb) return { x: -125, y: 8.05, z: 66.2 };
+  const w = vb.max.x - vb.min.x, h = vb.max.y - vb.min.y; return { x: vb.min.x + w * (kino_S.dachX ?? .36), y: vb.min.y + h * (kino_S.dachY ?? .78), z: vb.min.z + (kino_S.dachZ ?? .9) }; }
 // Justins Helm (eigenes Teil am Skelett): für Ende C abnehmen
 function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
   for (const m of S.helm) m.visible = on; return S.helm.length; }
@@ -609,5 +613,5 @@ function kino_eyes(key, white) { const P = kino_S.fig[key]; if (!P) return; if (
 // ---------------------------------------------------------------- Testzugriff
 window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w),
   cam: (p, l, f = 60) => { setCamOverride(cam => { cam.position.set(...p); cam.lookAt(...l); if (cam.fov !== f) { cam.fov = f; cam.updateProjectionMatrix(); } }); }, free: () => { setCamOverride(null); camera.fov = fov; camera.updateProjectionMatrix(); },
-  info: () => ({ loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
+  info: () => ({ vbb: typeof ausbau_ost_west_OW !== 'undefined' && ausbau_ost_west_OW.vbb ? [ausbau_ost_west_OW.vbb.min.toArray().map(v => +v.toFixed(2)), ausbau_ost_west_OW.vbb.max.toArray().map(v => +v.toFixed(2))] : null, zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
   mats: key => { const P = kino_S.fig[key]; return P ? P.mats.map(([m]) => m.name + ':' + [].concat(m.material).map(x => x.name).join('/')) : null; } };

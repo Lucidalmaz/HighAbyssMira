@@ -82,7 +82,8 @@ function z7_takeAushang() {
   addItem('einwilligungen'); if (z7_S.aushang) z7_S.aushang.visible = false; if (z7_S.aushangRest) z7_S.aushangRest.visible = true; if (z7_S.aushangSpot) z7_S.aushangSpot.userData.label = 'Klebereste';
   Audio.paper(); setTimeout(() => say([['Sie hat uns aufgeschrieben. Mama auch.', 3400, 'LUKE']]), 500);
 }
-function z7_syncAushang() { const t = story.items.includes('einwilligungen'); if (z7_S.aushang) z7_S.aushang.visible = !t; if (z7_S.aushangRest) z7_S.aushangRest.visible = t; }
+// story.items entsteht erst nach den Modulen (Aufbau ruft das hier schon auf)
+function z7_syncAushang() { const t = !!story.items && story.items.includes('einwilligungen'); if (z7_S.aushang) z7_S.aushang.visible = !t; if (z7_S.aushangRest) z7_S.aushangRest.visible = t; }
 
 // ---------------------------------------------------------------- Spielstand
 MOD_SAVE.push(['zimmer7', () => ({ k7: !!ch2.z7Key, open: z7_S.door ? !z7_S.door.locked : false, sk: !!z7_S.took, rel: !!z7_S.reliefDone, pr: !!z7_S.printed }), v => { z7_S.pending = v; }]);
@@ -102,10 +103,19 @@ CH2_BEGIN.push(() => {
   } catch (e) { console.warn('zimmer7 Wiederherstellung', e); } }, 0);
 });
 function z7_lampSet(on) {
-  const L = z7_S.lamp; if (!L) return; L.intensity = on ? 1.5 : 0;
+  const L = z7_S.lamp; if (!L) return; L.intensity = on ? 3.2 : 0;
   for (const m of z7_S.lampMats) m.emissiveIntensity = on ? 1.1 : 0;
 }
 
+// Skelett-Modell (Strickjacke) → feste Geometrie in der Ruhepose (kein Skinning im Bild, sauberer Hüllkörper)
+function z7_static(root) {
+  root.updateMatrixWorld(true); const g = new THREE.Group(), v = new THREE.Vector3(); let n = 0;
+  root.traverse(o => { if (!o.isMesh) return; const geo = o.geometry.clone();
+    if (o.isSkinnedMesh) { o.skeleton.update(); const P = geo.attributes.position; for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); o.applyBoneTransform(i, v); P.setXYZ(i, v.x, v.y, v.z); } geo.deleteAttribute('skinIndex'); geo.deleteAttribute('skinWeight'); }
+    geo.applyMatrix4(o.matrixWorld);
+    geo.computeVertexNormals(); geo.computeBoundingBox(); const m = new THREE.Mesh(geo, o.material); g.add(m); n++; });
+  g.userData.parts = n; return g;
+}
 // ---------------------------------------------------------------- Aufbau
 WORLD_MODS.push(['Zimmer 7', async () => {
   const S = z7_S, V = THREE.Vector3, X = C2.x, Z = C2.z, H = C2.h;
@@ -184,7 +194,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     load('w_urne', async () => (await msModel('w_urne', 'model.glb')).clone(true)),
     load('w_buch', async () => (await msModel('w_buch', 'model.glb')).clone(true)),
     load('w_tasse', async () => (await msModel('w_tasse', 'model.glb')).clone(true)),
-    load('w_jacke', () => msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true } }))]);
+    load('w_jacke', async () => z7_static(await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true } })))]);
 
   // Schreibtisch: Stahltisch, 1,45 × 0,75 m, mitten im Raum vor der Südwand – Hilde saß mit dem Gesicht zur Tür
   const DX = X + 33.55, DZ = z0 + 1.55; let deskTop = .76, desk = null;
@@ -209,7 +219,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     const lb = new THREE.Box3().setFromObject(lg); lg.traverse(o => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o); if ((b.min.y + b.max.y) / 2 < lb.min.y + (lb.max.y - lb.min.y) * .55) return;
       o.material = [].concat(o.material).map(m => { const n = m.clone(); n.emissive = new THREE.Color(0xffb46a); n.emissiveMap = n.map || null; n.emissiveIntensity = 0; S.lampMats.push(n); return n; }); if (o.material.length === 1) o.material = o.material[0]; });
     S.lampTop = lb.max.y; }
-  const lamp = S.lamp = new VLight(0xffc27e, 0, 4.6, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
+  const lamp = S.lamp = new VLight(0xffc27e, 0, 5.2, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
   KEY.list.push({ v: lamp, I: 3.2, on: () => !!ch2.on && z7_in(-.05) });
 
   // Auf dem Schreibtisch: Dienstbuch (aufgeschlagen liegt die Brille nicht – das Buch ist zu), Tasse mit eingetrocknetem Tee, Aktenstapel, Stifte (Papier-Decals)

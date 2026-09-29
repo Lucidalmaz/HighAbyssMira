@@ -6,7 +6,7 @@
 // Zustandsmaschine: k5.beat (K5_BEATS). Speicherpunkte SP5-1 … SP5-7 über todCheckpoint (tod.js); Todesart „tisch“ über TOD_ANIM/TOD_LINES von außen.
 // Fremde Module werden nicht geändert: Objekte werden gesucht und gesteuert, Interaktionen umhüllt (innen_ort, albers, ausbau_nord, ausbau_ost_west, base).
 const K5_BEATS = ['aus', 'intro', 'veranda', 'fenster', 'kamera', 'foto1', 'licht', 'tuer', 'tisch', 'schleife', 'foto2', 'spieluhr', 'heimweg', 'lucy', 'anruf', 'brot', 'stall', 'augenauf', 'tappen', 'grab', 'zaun', 'ende'];
-const k5 = { on: false, beat: 'aus', bt: 0, sp: '', runde: 0, f: {}, pend: null, tok: 0, sitzt: false, pust: false, atem: 0, verpasst: 0, gz: 0, laden: false };
+const k5 = { stallTok: 0, on: false, beat: 'aus', bt: 0, sp: '', runde: 0, f: {}, pend: null, tok: 0, sitzt: false, pust: false, atem: 0, verpasst: 0, gz: 0, laden: false };
 const K5 = { ready: false, g: {}, o: {}, L: {}, hit: {}, dec: {}, eyes: {}, path: null, v: null };
 const k5_i = b => K5_BEATS.indexOf(b);
 const k5_ab = b => k5_i(k5.beat) >= k5_i(b);
@@ -81,8 +81,8 @@ function k5_tFuss(links) { return k5_cv(96, 192, (c, w, h) => { c.clearRect(0, 0
   c.beginPath(); c.ellipse(46, 118, 20, 44, .08, 0, 7); c.fill(); c.beginPath(); c.ellipse(52, 60, 22, 22, 0, 0, 7); c.fill();
   [[30, 30, 8], [44, 22, 7], [57, 22, 6.5], [68, 28, 6], [77, 38, 5]].forEach(([x, y, r]) => { c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); });
   c.filter = 'none'; c.strokeStyle = 'rgba(70,96,40,.9)'; c.lineWidth = 2; for (let i = 0; i < 5; i++) { const x = rand(28, 70), y = rand(40, 150); c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + rand(-8, 8), y - 8, x + rand(-10, 10), y - rand(12, 22)); c.stroke(); } c.restore(); }); }
-function k5_tHasen() { return k5_cv(512, 256, (c, w, h) => { c.clearRect(0, 0, w, h); const g = c.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, 250); g.addColorStop(0, 'rgba(225,228,226,.34)'); g.addColorStop(.7, 'rgba(210,214,212,.18)'); g.addColorStop(1, 'rgba(200,200,200,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
-  c.globalCompositeOperation = 'destination-out'; c.font = '86px Caveat, "Comic Sans MS", cursive'; c.textAlign = 'center'; c.lineWidth = 9; c.strokeStyle = 'rgba(0,0,0,.85)'; c.save(); c.translate(w / 2, h / 2 + 30); c.rotate(-.05); c.strokeText('HASENBROT', 0, 0); c.restore();
+function k5_tHasen() { return k5_cv(512, 256, (c, w, h) => { c.clearRect(0, 0, w, h); c.save(); c.translate(w / 2, h / 2); c.scale(2, 1); const g = c.createRadialGradient(0, 0, 10, 0, 0, 124); g.addColorStop(0, 'rgba(222,226,228,.3)'); g.addColorStop(.65, 'rgba(210,214,216,.16)'); g.addColorStop(1, 'rgba(200,200,200,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, 124, 0, 7); c.fill(); c.restore();
+  c.globalCompositeOperation = 'destination-out'; c.font = '56px "Comic Sans MS", Caveat, cursive'; c.textAlign = 'center'; c.lineWidth = 7; c.strokeStyle = 'rgba(0,0,0,.85)'; c.save(); c.translate(w / 2, h / 2 + 30); c.rotate(-.05); c.strokeText('HASENBROT', 0, 0); c.restore();
   c.globalCompositeOperation = 'source-over'; c.strokeStyle = 'rgba(190,200,205,.25)'; c.lineWidth = 2; for (let i = 0; i < 6; i++) { const x = 80 + i * 62 + rand(-10, 10); c.beginPath(); c.moveTo(x, 150 + rand(0, 20)); c.lineTo(x + rand(-3, 3), 220 + rand(0, 30)); c.stroke(); } }); }
 function k5_tPfeil() { return k5_cv(256, 256, (c, w, h) => { c.clearRect(0, 0, w, h); const g = c.createRadialGradient(128, 128, 10, 128, 128, 126); g.addColorStop(0, 'rgba(220,226,230,.3)'); g.addColorStop(1, 'rgba(220,226,230,0)'); c.fillStyle = g; c.fillRect(0, 0, w, h);
   c.translate(w, 0); c.scale(-1, 1); c.strokeStyle = 'rgba(120,160,215,.8)'; c.lineWidth = 11; c.lineCap = 'round'; c.beginPath(); c.arc(128, 128, 62, -.4, PI * 1.55); c.stroke(); // von innen gemalt: von außen spiegelverkehrt
@@ -163,7 +163,7 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     const er = new T.Mesh(new T.PlaneGeometry(.86, 1.5), new T.ShaderMaterial({ vertexShader: 'void main(){ vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.); p.z = p.w * .99999; gl_Position = p; }', fragmentShader: 'void main(){ gl_FragColor = vec4(0.); }', colorWrite: false, depthFunc: T.AlwaysDepth }));
     er.position.set(wx, wy, wz - .03); er.renderOrder = 20; er.visible = false; er.userData.noCol = true; er.frustumCulled = false; scene.add(er); S.o.radierer = er;
     if (S.g.lucyWin) S.g.lucyWin.position.set(wx + .05, .45, wz - .3);
-    S.o.pfeil = k5_decal(k5_tPfeil(), .42, .42, { op: 0 }); S.o.pfeil.position.set(wx - .24, wy - .22, wz + .012);
+    S.o.pfeil = k5_decal(k5_tPfeil(), .42, .42, { op: 0 }); S.o.pfeil.position.set(wx + .22, wy - .24, wz + .012);
     S.L.win3 = new VLight(0xffc890, 0, 4, 2); S.L.win3.position.set(wx + .3, wy + .4, wz + .6); scene.add(S.L.win3); }
   // --- Nr. 1: Tisch, Gedecke, Stühle, Lampen, Decals
   const G1 = scene.getObjectByName('io_nr1') || scene;
@@ -172,7 +172,10 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     if (h) { let o = h.object; while (o.parent && o.parent !== G1) o = o.parent; bb.setFromObject(o); if (bb.max.x - bb.min.x < 2 && bb.max.z - bb.min.z < 2.5) { tisch = bb.clone(); tisch.max.y = h.point.y; } } }
   if (!tisch) { tisch = new T.Box3(new T.Vector3(-53.3, K5_Y, -15.5), new T.Vector3(-52.7, K5_Y + .77, -14.1)); console.warn('Kapitel 5: Tisch nicht gefunden'); }
   S.tisch = tisch; const tx = (tisch.min.x + tisch.max.x) / 2, tz = (tisch.min.z + tisch.max.z) / 2, ty = tisch.max.y + .004;
-  S.plaetze = { papa: [tx, tisch.max.z - .17], mama: [tx, tisch.min.z + .17], luke: [tisch.min.x + .15, tz], kind: [tisch.max.x - .15, tz] };
+  const alongX = tisch.max.x - tisch.min.x >= tisch.max.z - tisch.min.z; S.alongX = alongX;
+  S.plaetze = alongX ? { papa: [tisch.max.x - .17, tz], mama: [tisch.min.x + .17, tz], luke: [tx - .12, tisch.min.z + .15], kind: [tx + .14, tisch.max.z - .14] }
+    : { papa: [tx, tisch.max.z - .17], mama: [tx, tisch.min.z + .17], luke: [tisch.min.x + .15, tz], kind: [tisch.max.x - .15, tz] };
+  S.sitz = alongX ? { x: tx - .12, z: tisch.min.z - .42, yaw: PI, hx: tx - .12, hz: tisch.min.z - .5 } : { x: tisch.min.x - .42, z: tz, yaw: -PI / 2, hx: tisch.min.x - .55, hz: tz };
   const put = (o, x, y, z, ry = 0) => { const g = msGround(o); g.position.set(x, y, z); g.rotation.y = ry; g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true; g.visible = false; scene.add(g); return g; };
   const part = (src, re) => { let r = null; src.traverse(m => { if (!r && m.isMesh && re.test(m.name + ' ' + (m.parent ? m.parent.name : ''))) r = m; }); return r; };
   const teil = (src, re, size, axis = 'max') => { src.updateMatrixWorld(true); const ms = []; src.traverse(m => { if (m.isMesh && (!re || re.test(m.name + ' ' + (m.parent ? m.parent.name : '') + ' ' + (m.material && m.material.name)))) ms.push(m); });
@@ -185,16 +188,19 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     const plate = () => teil(teller, /plate_dinner/i, .26) || teil(teller, null, .26), kid = () => teil(teller, /plate_salad/i, .2) || teil(teller, null, .2);
     for (const k of ['papa', 'mama', 'luke']) { const [x, z] = S.plaetze[k]; if (k !== 'papa') S.ged[k].push(put(plate(), x, ty, z)); }
     { const [x, z] = S.plaetze.kind; const p = put(kid(), x, ty, z); p.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color = new T.Color(0xe8e2d8); } }); S.ged.kind.push(p); const d = k5_decal(k5_tHase(), .15, .15); d.rotation.x = -PI / 2; bb.setFromObject(p); d.position.set(x, bb.max.y - .004, z); S.ged.kind.push(d); }
-    { const [x, z] = S.plaetze.papa; S.ged.papa.push(put(teil(becher, null, .11, 'y'), x + .13, ty, z - .03));
+    { const [x, z] = S.plaetze.papa; S.ged.papa.push(put(teil(becher, null, .085, 'y'), x - .03, ty, z + (S.alongX ? .16 : 0) - (S.alongX ? 0 : .03)));
       const l = teil(besteck, /Object_5|spoon|loeffel/i, .19) || teil(besteck, null, .19); l.children.forEach(m => { m.geometry.rotateX(-PI / 2); m.geometry.computeBoundingBox(); }); S.ged.papa.push(put(l, x - .15, ty, z, .1));
-      S.brot = put(teil(brot, /Bread_2|Bread_1/i, .15) || teil(brot, null, .15), x - .01, ty, z - .06, .6); S.ged.papa.push(S.brot);
+      S.brot = put(teil(brot, /Bread_1/i, .15) || teil(brot, null, .15), x - .01, ty, z - .06, .6); S.ged.papa.push(S.brot);
       S.brotHalb = []; S.brot.traverse(m => { if (m.isMesh && m.visible) S.brotHalb.push(m); }); }
     { const [x, z] = S.plaetze.mama; const f = k5_decal(k5_tFeder(), .045, .18); f.rotation.set(-PI / 2, 0, .9); f.position.set(x + .15, ty + .003, z + .02); S.ged.mama.push(f); }
-    { const [x, z] = S.plaetze.luke; const d = k5_decal(k5_tZahn(), .022, .022); d.rotation.x = -PI / 2; d.position.set(x + .03, ty + .03, z + .04); S.zahn = d; S.ged.luke.push(d); }
+    { const [x, z] = S.plaetze.luke; const d = k5_decal(k5_tZahn(), .03, .03); d.rotation.x = -PI / 2; d.position.set(x + .04, ty + .026, z + .03); S.zahn = d; S.ged.luke.push(d); }
     // Gras vom Tau auf den Tellern (Scan-Gras, klein): Lukes Platz sofort, in Runde 3 auf allen
-    try { const gs = await msModel('w_grassgame', 'model.glb'); for (const k of ['luke', 'papa', 'mama', 'kind']) { const [x, z] = S.plaetze[k]; const g = put(teil(gs, null, .06, 'y'), x, ty + .014, z, rand(0, 6)); g.scale.set(.6, 1, .6); g.scale.multiplyScalar(1); S.gras.push([k, g]); } } catch (e) { console.warn('Kapitel 5: Gras', e); }
+    { const gt = k5_cv(256, 256, c => { c.clearRect(0, 0, 256, 256); c.lineCap = 'round'; for (let i = 0; i < 90; i++) { const a = rand(0, 6.28), r = rand(0, 70), x = 128 + Math.cos(a) * r, y = 128 + Math.sin(a) * r, b = rand(-1.2, 1.2), L = rand(18, 46);
+        c.strokeStyle = `rgba(${90 + rand(0, 50)},${150 + rand(0, 60)},${50 + rand(0, 30)},.95)`; c.lineWidth = rand(2, 3.6); c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + Math.cos(b) * L * .5 + rand(-6, 6), y + Math.sin(b) * L * .5, x + Math.cos(b) * L, y + Math.sin(b) * L); c.stroke(); }
+        c.fillStyle = 'rgba(210,225,235,.5)'; for (let i = 0; i < 40; i++) { c.beginPath(); c.arc(rand(60, 196), rand(60, 196), rand(1, 2.4), 0, 7); c.fill(); } });
+      for (const k of ['luke', 'papa', 'mama', 'kind']) { const [x, z] = S.plaetze[k]; const g = k5_decal(gt, .17, .17); g.rotation.set(-PI / 2, 0, rand(0, 6)); g.position.set(x, ty + .02, z); S.gras.push([k, g]); } }
     // Stall: sauber abgeleckter Teller auf der Palette, Brot (das Luke mitbringt)
-    S.stallTeller = put(plate(), 0, -30, 0); S.stallBrot = put(teil(brot, /Bread_2|Bread_1/i, .15) || teil(brot, null, .15), 0, -30, 0);
+    S.stallTeller = put(plate(), 0, -30, 0); S.stallBrot = put(teil(brot, /Bread_1/i, .15) || teil(brot, null, .15), 0, -30, 0);
     S.stallBrotTeile = []; S.stallBrot.traverse(m => { if (m.isMesh && m.visible) S.stallBrotTeile.push(m); });
   } catch (e) { console.warn('Kapitel 5: Gedecke', e); }
   // Mamas Kerze (neu, nie angezündet) auf ihrem Teller + Kerze in der Hand am Grab
@@ -223,7 +229,8 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     S.L.wohn = new VLight(0xffb46b, 0, 8.5, 2); S.L.wohn.position.set(-49.45, K5_Y + 1.42, -12.75); scene.add(S.L.wohn); }
   // zwei weitere Stühle (Scan) an die Kopfenden
   try { const spec = { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } };
-    for (const [z, ry] of [[tisch.max.z + .32, PI], [tisch.min.z - .32, 0]]) { const c = await msFBX('chair', 'model.fbx', spec); msFit(c, .92, 'y'); const g = put(c, tx, K5_Y, z, ry); g.userData.noCol = false; S.o['stuhl' + (ry ? 'N' : 'S')] = g; } } catch (e) { console.warn('Kapitel 5: Stühle', e); }
+    const plz = alongX ? [[tisch.max.x + .34, tz, -PI / 2, 'N'], [S.sitz.x, tisch.min.z - .36, 0, 'S']] : [[tx, tisch.max.z + .32, PI, 'N'], [tx, tisch.min.z - .32, 0, 'S']];
+    for (const [x, z, ry, k] of plz) { const c = await msFBX('chair', 'model.fbx', spec); msFit(c, .92, 'y'); const g = put(c, x, K5_Y, z, ry); g.userData.noCol = false; S.o['stuhl' + k] = g; } } catch (e) { console.warn('Kapitel 5: Stühle', e); }
   // Laken → Möbel (Sofa, Anrichte), damit nichts schwebt (der Teddy sitzt dann auf dem Sofa)
   S.laken = msFind((m, b) => m.geometry && m.geometry.type === 'BoxGeometry' && m.geometry.parameters.widthSegments === 10 && b.min.x > -50.5 && b.max.x < -43.5 && b.min.z > -17.2 && b.max.z < -12);
   try { const so = await msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x9a8a7c } }); msFit(so, 2.0, 'x'); S.o.sofa = put(so, -44.72, K5_Y, -15.2, -PI / 2); S.o.sofa.userData.noCol = false;
@@ -363,7 +370,7 @@ function k5_setup(beat, spring) {
   if (spring) k5_takt(beat);
 }
 function k5_hitsTisch() { const S = K5, ty = S.tisch.max.y; for (const k of ['papa', 'mama', 'luke', 'kind']) { const h = S.hit['g_' + k]; if (h) h.position.set(S.plaetze[k][0], ty + .1, S.plaetze[k][1]); }
-  if (S.hit.stuhl) S.hit.stuhl.position.set(S.tisch.min.x - .55, K5_Y + .45, (S.tisch.min.z + S.tisch.max.z) / 2); }
+  if (S.hit.stuhl) S.hit.stuhl.position.set(S.sitz.hx, K5_Y + .45, S.sitz.hz); }
 function k5_sitzY(x, z, obj) { const rc = k5_sitzY.rc || (k5_sitzY.rc = new THREE.Raycaster()); rc.camera = camera; rc.set(_k5v[3].set(x, 3, z), _k5v[1].set(0, -1, 0)); rc.far = 3; const h = rc.intersectObject(obj || scene, true).find(q => q.object.isMesh && !q.object.isInstancedMesh && q.object.visible && !q.object.userData.noCol && q.object.material !== hidden && !(q.object.material && q.object.material.transparent)); return h ? h.point.y : K5_Y + .47; }
 function k5_lichter1(k, sofort) { const S = K5; S.lichtZiel = k; if (sofort) S.lichtK = k; }
 function k5_augen(key, k) { for (const m of K5.eyes[key] || []) m.emissiveIntensity = 1.4 * k; K5['augenK_' + key] = k; }
@@ -497,7 +504,7 @@ function k5_filmNehmen() { if (k5.f.film) return; k5.f.film = true; uninteract(K
 function k5_kameraZiel(cam) {
   if (!k5.on) return null; const S = K5, P = player.pos;
   if (k5.beat === 'foto1' && S.g.lucyWin && S.g.lucyWin.visible && k5_dist(S.win3.x, S.win3.z) < 16 && k5_blick(S.win3.x, S.win3.y, S.win3.z) > .9) return {
-    stempel: '05 · 11 · 26', vorFoto() { const g = S.g.graue; if (!g) return; const L = S.g.lucyWin; g.position.set(L.position.x + .22, L.position.y, L.position.z - .32); g.rotation.y = .3; g.visible = true; g.traverse(o => { if (o.isMesh) { o.renderOrder = 21; o.castShadow = false; } }); k5_graueArm(true); },
+    stempel: '05 · 11 · 26', fov: 24, blitz: .35, vorFoto() { const g = S.g.graue; if (!g) return; const L = S.g.lucyWin; g.position.set(L.position.x + .22, L.position.y, L.position.z - .32); g.rotation.y = .3; g.visible = true; g.traverse(o => { if (o.isMesh) { o.renderOrder = 21; o.castShadow = false; } }); k5_graueArm(true); },
     nachFoto() { const g = S.g.graue; if (g) { g.visible = false; k5_graueArm(false); g.traverse(o => { if (o.isMesh) o.renderOrder = 0; }); } }, halten: 6,
     async nachEntwickeln() { k5_lore('k5_foto1', 'Das erste Foto', 'Lucy hinter dem Glas. Auf ihrer Schulter eine kleine graue Hand, die nicht da ist, wenn man hinsieht.'); state.talking = true;
       await k5_sag([['„Ist sie noch da?“', 2600, K5_W.L], ['„… Ja.“', 2000, K5_W.LU], ['„Dann spielt sie noch mit mir.“', 3200, K5_W.L]]); state.talking = false;
@@ -537,14 +544,14 @@ async function k5_gedeck(k) {
 }
 function k5_setzen() {
   if (!k5.on || k5.sitzt || state.talking || !(k5.beat === 'tisch' || k5.beat === 'schleife')) return;
-  const S = K5, cz = (S.tisch.min.z + S.tisch.max.z) / 2, sx = S.tisch.min.x - .42; k5.sitzt = true; k5.sitzT = 0; const tok = k5.tok;
-  player.pos.set(sx, K5_Y, cz); player.yaw = -PI / 2; player.pitch = -.25; vel.set(0, 0, 0);
+  const S = K5, cz = S.sitz.z, sx = S.sitz.x; k5.sitzt = true; k5.sitzT = 0; const tok = k5.tok;
+  player.pos.set(sx, K5_Y, cz); player.yaw = S.sitz.yaw; player.pitch = -.25; vel.set(0, 0, 0);
   setScripted(() => k5.sitzt); setCamOverride((cam, dt) => { if (!k5.sitzt) return; cam.position.set(sx, K5_Y + 1.12, cz); });
-  if (typeof kamera_zu === 'function') kamera_zu();
+  if (typeof kamera_zu === 'function') kamera_zu(); for (const k of ['g_papa', 'g_mama', 'g_luke', 'g_kind', 'stuhl']) uninteract(K5.hit[k]);
   subtitle('„Iss, Bruder.“', 2600, K5_W.H);
   setTimeout(() => { if (k5.sitzt && tok === k5.tok) k5_tip('<kbd>E</kbd> essen &nbsp;·&nbsp; <kbd>LEERTASTE</kbd> aufstehen'); }, 3000);
 }
-function k5_aufstehen() { if (!k5.sitzt) return; k5.sitzt = false; k5_tip(''); setScripted(null); setCamOverride(null); player.pitch = 0; camY = player.pos.y + 1.65; player.pos.x -= .25; }
+function k5_aufstehen() { if (!k5.sitzt) return; k5.sitzt = false; for (const k of ['g_papa', 'g_mama', 'g_luke', 'g_kind', 'stuhl']) if (!interactables.includes(K5.hit[k])) interactables.push(K5.hit[k]); k5_tip(''); setScripted(null); setCamOverride(null); player.pitch = 0; camY = player.pos.y + 1.65; player.pos.x -= .25; }
 function k5_essen() { if (!k5.sitzt) return; k5_tip(''); k5.sitzt = false; setScripted(null); setCamOverride(null); if (typeof todDie === 'function') todDie('tisch'); else { subtitle('Du hast aufgegessen. Jetzt bleibst du über Nacht.', 5000); k5_wieder('k5_tuer'); } }
 addEventListener('keydown', e => { if (!k5.sitzt || e.repeat || ui.overlay) return; if (e.code === 'KeyE') { e.preventDefault(); e.stopImmediatePropagation(); if (k5.sitzT > 3) k5_essen(); } else if (e.code === 'Space') { e.preventDefault(); e.stopImmediatePropagation(); k5_aufstehen(); } }, true);
 addEventListener('keydown', e => { if (!k5.on || !k5.pust || e.code !== 'KeyF' || e.repeat) return; if (!k5.f.pustF) { k5.f.pustF = true; toast('Die Lampe bleibt aus. Als hätte sie keinen Strom mehr – nie gehabt.', 3200); } Audio.beep(false); }, true);
@@ -568,7 +575,7 @@ function k5_schwelle() { // Versetzen ohne Schnitt: an die Tür Wohnzimmer → K
   if (S.foto && S.foto[r]) familyPhoto.material.map = S.foto[r];
   k5.boxT = .5; k5.rT = 0;
   const hs = S.g.heimSitz; if (hs) hs.visible = r === 1;
-  if (r === 1) { if (h) h.visible = false; if (hs) { const cz = (S.tisch.min.z + S.tisch.max.z) / 2; hs.position.set(S.tisch.max.x + .42, K5_Y, cz); hs.rotation.y = -PI / 2; S.o.fussGras.position.set(hs.position.x, K5_Y + .004, cz); }
+  if (r === 1) { if (h) h.visible = false; if (hs) { const cz = (S.tisch.min.z + S.tisch.max.z) / 2; if (S.alongX) { hs.position.set(-52.55, K5_Y, S.tisch.max.z + .5); hs.rotation.y = PI + .25; } else { hs.position.set(S.tisch.max.x + .42, K5_Y, cz); hs.rotation.y = -PI / 2; } }
     setTimeout(() => { if (k5.runde === 1 && k5.on) subtitle('„Setz dich, Bruder.“', 2800, K5_W.H); }, 2200); }
   if (r === 2) { if (h) h.visible = false; K5.o.fussGras.visible = false; k5.mamaT = 1.5; if (typeof kamera_S !== 'undefined' && kamera_S.film <= 0 && !k5.f.film) { K5.o.film.visible = true; const hf = K5.hit.film; hf.position.set(-44.55, K5_Y + .8, -18.6); if (!interactables.includes(hf)) interactables.push(hf); } }
   if (r === 3) { if (h) h.visible = false; for (const [, g] of S.gras) g.visible = true; k5.stille = 1; k5.atemT = 3.6; k5.atem = 0; if (typeof leben_hush === 'function') leben_hush(8);
@@ -595,7 +602,7 @@ async function k5_heimkehrerin() {
     mb(); await say([['„Jetzt weißt du\'s.“', 2600, K5_W.K]]); await say([['„Wir tragen beide ein geliehenes Gesicht, Bruder.“', 3600, K5_W.K]]); mb(); await say([['„Warum darfst du bleiben und ich nicht?“', 3600, K5_W.K]]);
     // Licht aus (1,5 s): Luke greift nach der Tischkante – Wachs
     k5_lichter1(0, true); flashOn = false; Audio.slam && Audio.play('woodHit2', { gain: .15, rate: .7 }); await wait(700);
-    if (h) h.visible = false; const cz = (S.tisch.min.z + S.tisch.max.z) / 2; player.pos.set(S.plaetze.mama[0] - .1, K5_Y, S.tisch.min.z - .55); player.yaw = 0; player.pitch = -.2; camY = K5_Y + 1.65;
+    if (h) h.visible = false; const cz = (S.tisch.min.z + S.tisch.max.z) / 2; if (S.alongX) { player.pos.set(S.tisch.min.x - .5, K5_Y, (S.tisch.min.z + S.tisch.max.z) / 2); player.yaw = -PI / 2; } else { player.pos.set(S.plaetze.mama[0] - .1, K5_Y, S.tisch.min.z - .55); player.yaw = 0; } player.pitch = -.2; camY = K5_Y + 1.65;
     if (S.kerzeTisch) S.kerzeTisch.visible = false; subtitle('Du hältst sie fest, bis das Licht wiederkommt.', 3200); await wait(1600);
     k5_item('mamas_kerze', 'Mamas Kerze', 'Vom gedeckten Tisch. Nie angezündet. Das Wachs ist kalt.', 'paper'); await wait(900);
     k5_lichter1(1, true); flashOn = true; await wait(900);
@@ -647,8 +654,8 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   const top = S.o.palette ? new THREE.Box3().setFromObject(S.o.palette).max.y : .15;
   if (S.stallTeller) { S.stallTeller.visible = true; S.stallTeller.position.set(px + .1, top + .002, pz); }
   if (S.stallBrot) S.stallBrot.position.set(px + .1, top + .02, pz);
-  S.o.augen.visible = true; S.o.augen.rotation.set(-PI / 2, 0, 0); S.o.augen.position.set(px - .25, top + .004, pz + .2);
-  S.o.duich.rotation.set(-PI / 2, 0, 0); S.o.duich.position.set(px - .1, top + .005, pz - .18); S.o.duich.scale.setScalar(.55);
+  S.o.augen.visible = true; S.o.augen.scale.setScalar(.75); S.o.augen.rotation.set(-PI / 2, 0, 0); S.o.augen.position.set(px + .12, top + .004, pz + .3);
+  S.o.duich.rotation.set(-PI / 2, 0, 0); S.o.duich.position.set(px - .22, top + .005, pz - .08); S.o.duich.scale.setScalar(.62);
   S.o.striche.visible = true; S.o.striche.scale.set(.85, .7, 1); S.o.striche.position.set(px + .4, .52, z1 - .1); S.o.striche.rotation.set(0, PI, 0);
   if (S.hit.stallTeller) S.hit.stallTeller.position.set(px + .1, top + .15, pz);
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }
@@ -695,7 +702,7 @@ async function k5_stallSzene() {
 function k5_kichern(x, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x, 1, z, 1); for (let i = 0; i < 3; i++) { const o = A.osc('sine', rand(620, 760), i * .13, .2); A.env(o, .02, .01, .1, i * .13, d); } }
 // K5-14 · Augen auf (20:30)
 async function k5_augenAuf(zwang) {
-  const S = K5, [dx, dz] = S.stallTuer, L = S.g.luke; k5.beat = 'augenauf'; k5.stallTok++; state.talking = true;
+  const S = K5, [dx, dz] = S.stallTuer, L = S.g.luke; k5.beat = 'augenauf'; k5.stallTok++; state.talking = true; uninteract(S.hit.stallTeller);
   try {
     await say([['„Augen auf, Bruder.“', 2400, K5_W.K]]);
     if (typeof augenzu_oeffnen === 'function') augenzu_oeffnen(); k5_qFrei(false); K5.v.el.zu.classList.remove('on'); k5_uhr(20, 30);
@@ -801,7 +808,7 @@ WORLD_TICK.push((dt, t) => {
   const S = K5; if (!S.ready) return;
   // Lichtübergänge in Nr. 1 (auch außerhalb des Kapitels auf 0 halten)
   if (S.lichtK !== S.lichtZiel) { const z = S.lichtZiel || 0; S.lichtK = Math.abs(z - (S.lichtK || 0)) < .02 ? z : (S.lichtK || 0) + (z - (S.lichtK || 0)) * Math.min(1, dt * 1.6); }
-  const lk = k5.on ? (S.lichtK || 0) : 0; if (S.L.kueche) S.L.kueche.intensity = 2.6 * lk; if (S.L.wohn) S.L.wohn.intensity = 1.8 * lk; for (const m of S.lampMats) m.emissiveIntensity = .6 * lk;
+  const lk = k5.on ? (S.lichtK || 0) : 0; if (S.L.kueche) S.L.kueche.intensity = 3.6 * lk; if (S.L.wohn) S.L.wohn.intensity = 1.8 * lk; for (const m of S.lampMats) m.emissiveIntensity = .6 * lk;
   if (!k5.on || !state.started) return;
   k5.bt += dt; const P = player.pos, b = k5.beat;
   if (rain && rain.m) rain.m.visible = false; // nach dem Regen: klar und kalt
@@ -809,6 +816,7 @@ WORLD_TICK.push((dt, t) => {
   if (k5.pust) flashOn = false;
   if (k5.sitzt) k5.sitzT += dt;
   // --- Lucy am Fenster: Kreispfeil erscheint, Augen manchmal weiß
+  if (S.g.lucyWin && S.g.lucyWin.visible) { const L = S.g.lucyWin, a = Math.max(-.7, Math.min(.7, Math.atan2(P.x - L.position.x, P.z - L.position.z))); L.rotation.y += (a - L.rotation.y) * Math.min(1, dt * 1.5); }
   if (S.o.pfeil && S.o.pfeil.visible && S.o.pfeil.material.opacity < 1) S.o.pfeil.material.opacity = Math.min(1, S.o.pfeil.material.opacity + dt * .35);
   if (b === 'fenster' && k5.bt > 2.8 && !k5.f.fensterGesagt && !state.talking && k5_dist(S.win3.x, S.win3.z) < 5.5) k5_fensterReden();
   // --- K5-6 an der Tür: Speicherpunkt, dann Spuren und HASENBROT

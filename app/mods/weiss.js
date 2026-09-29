@@ -125,6 +125,10 @@ WORLD_MODS.push(['Das Weiße · Raum 3 und Ende C', async () => {
   const jb = .3, jx = CX + Math.cos(jb) * 2.95, jz = CZ + Math.sin(jb) * 2.95; S.jPos = new V(jx, 0, jz);
   try { if (justin.model && justin.mixer) { const sk = await figuren_skc(), c = sk(justin.model); const g = new THREE.Group(); g.add(c); g.position.set(jx, 0, jz); g.rotation.y = Math.atan2(CX - jx, CZ - jz); N.add(g);
       const mx = new THREE.AnimationMixer(c), idle = justin.acts.idle; if (idle) { mx.clipAction(idle.getClip()).play(); mx.update(1.3); } weiss_ghostify(c); S.jGhost = g; S.jGhostMx = mx;
+      // dunkler Umriss derselben Haltung für die Blitze durch Lukes Augen (beim Laden angelegt, damit nichts nachübersetzt wird)
+      const c2 = sk(justin.model), g2 = new THREE.Group(); g2.add(c2); const sil = new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: .9 }); c2.traverse(m => { if (m.isMesh) { m.material = sil; m.frustumCulled = false; } });
+      const mx2 = new THREE.AnimationMixer(c2); if (idle) { mx2.clipAction(idle.getClip()).play(); mx2.update(1.3); } g2.position.set(X3 + 2, 0, Z3 - 1.2); g2.visible = false; scene.add(g2); S.jSil = g2; S.jSilPar = scene;
+      g2.traverse(b => { if (b.isBone && b.name === 'hand_l') S.jsHandL = b; });
       g.updateMatrixWorld(true); c.traverse(b => { if (b.isBone && b.name === 'hand_l') S.jgHandL = b; if (b.isBone && b.name === 'hand_r') S.jgHandR = b; }); } } catch (e) { console.warn('weiss Ritter-Nachhall', e); }
   // Spuren (Decals): Stiefel und Hufe vom Hof bis genau an die Kante, sieben Paar Kinderfüße hinein
   { const pm = c => weiss_decalMat(c, { color: 0x9aa89e }); const boots = weiss_trail(CX + 9.4, CZ + 2.6, jx + .35, jz + .1, .72, .13);
@@ -317,17 +321,17 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   state.talking = false; S.phase = 'wahl'; showChoice(); }
 
 // Blitze durch Lukes Augen: drei harte Schnitte à 0,3 s – Ostende der Straße (Kap. 1), die Lichtsäule, Justins Hand an der Kreuzung
-async function weiss_blitze() { const S = weiss_S, jg = S.jGhost; if (!jg) return; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
+async function weiss_blitze() { const S = weiss_S, jg = S.jSil || S.jGhost; if (!jg) return; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
   const px = pillar.position.x, hand = new THREE.Vector3();
   const shots = [{ j: [67, 4.6, -Math.PI / 2], cam: [61.6, 1.66, 4.1], look: () => [67, 1.35, 4.6] }, { j: [px, .6, px > 0 ? -Math.PI / 2 : Math.PI / 2], cam: [px + (px > 0 ? -6 : 6), 1.6, 1.9], look: () => [px, 2.1, .4], pillar: true },
-    { j: [1.5, -5.2, .9], cam: [2.35, 1.3, -4.45], look: () => (S.jgHandL ? S.jgHandL.getWorldPosition(hand).toArray() : [1.5, 1, -5.2]) }];
-  scene.add(jg); jg.visible = true; setScripted(() => true); const bg = scene.background, skyV = sky.visible, U = skyMat.uniforms, sk = [U.horizon.value.clone(), U.zenith.value.clone(), U.dim.value]; sky.visible = true; scene.background = null; if (S.sv) { U.horizon.value.copy(S.sv.skyH); U.zenith.value.copy(S.sv.skyZ); U.dim.value = S.sv.dim; } // die Erinnerung: Nacht, wie sie war let cur = null; setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
+    { j: [1.5, -5.2, .9], cam: [2.35, 1.3, -4.45], look: () => { const hb = jg === S.jSil ? S.jsHandL : S.jgHandL; return hb ? hb.getWorldPosition(hand).toArray() : [1.5, 1, -5.2]; } }];
+  scene.add(jg); jg.visible = true; setScripted(() => true); // überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin let cur = null; setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
   try { for (const sh of shots) { fd.style.transition = 'none'; fd.style.background = '#fff'; fd.style.opacity = 1; Audio.stinger(false);
       jg.position.set(sh.j[0], 0, sh.j[1]); jg.rotation.y = sh.j[2]; jg.updateMatrixWorld(true); scene.fog.color.setHex(S.sv ? S.sv.fogC : fog[0]); scene.fog.density = .03; pillarMat.uniforms.opacity.value = sh.pillar ? .45 : 0;
       cur = { cam: sh.cam, l: sh.look() }; PERF_CULL.t = 0; await wait(80); fd.style.opacity = 0; S.blitzCut = shots.indexOf(sh) + 1; await wait(S.blitzMs || 300); }
     fd.style.opacity = 1; await wait(90);
-  } finally { setCamOverride(null); cur = null; setScripted(null); sky.visible = skyV; scene.background = bg; U.horizon.value.copy(sk[0]); U.zenith.value.copy(sk[1]); U.dim.value = sk[2]; pillarMat.uniforms.opacity.value = pk; scene.fog.color.setHex(fog[0]); scene.fog.density = fog[1]; S.ceil.forEach((c, i) => c.visible = ceil[i]);
-    par.add(jg); jg.position.copy(p0); jg.rotation.y = r0; PERF_CULL.t = 0; fd.style.transition = 'opacity .35s'; fd.style.opacity = 0; await wait(380); fd.style.background = '#000'; } }
+  } finally { setCamOverride(null); cur = null; setScripted(null); pillarMat.uniforms.opacity.value = pk; scene.fog.color.setHex(fog[0]); scene.fog.density = fog[1]; S.ceil.forEach((c, i) => c.visible = ceil[i]);
+    par.add(jg); jg.position.copy(p0); jg.rotation.y = r0; if (jg === S.jSil) jg.visible = false; PERF_CULL.t = 0; fd.style.transition = 'opacity .35s'; fd.style.opacity = 0; await wait(380); fd.style.background = '#000'; } }
 
 // Justin nimmt den Helm ab – Kamera von hinten, im Visier Lukes Gesicht mit braunen Augen; Nahaufnahme der linken Hand
 async function weiss_helmSzene() { const S = weiss_S, H = S.helm; state.talking = true; justin.look = true; jPlay('idle');

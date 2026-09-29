@@ -405,7 +405,7 @@ function lucy3_buildCar() {
   C.hitTop = hb(Hh * .12, 'Heckscheibe ansehen', lucy3_lookTop); C.hitLow = hb(-Hh * .32, 'Heckscheibe unten ansehen', lucy3_lookLow);
   // Auspuff: hinten unten, Fahrerseite
   C.exh = car.localToWorld(V(2.2, .3, -.48)); C.dir = V(1, 0, 0).transformDirection(car.matrixWorld);
-  const pt = lucy3_puffTex(); for (let i = 0; i < 9; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: pt, transparent: true, depthWrite: false, opacity: 0, color: 0xdfe3e6 })); s.visible = false; s.userData.a = i / 9 * 2.6; scene.add(s); lucy3_S.smoke.push(s); }
+  const pt = lucy3_puffTex(); for (let i = 0; i < 9; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: pt, transparent: true, depthWrite: false, opacity: 0, color: 0xc9cfd4, fog: false })); s.visible = false; s.renderOrder = 2; s.frustumCulled = false; s.userData.a = i / 9 * 2.6; scene.add(s); lucy3_S.smoke.push(s); }
   // Scheinwerfer (für Lucys Antwort) – vorhandene Lichter/Materialien, nichts Neues
   car.traverse(o => { if (o.isSpotLight) { o.userData.l3i = o.intensity; lucy3_S.lights.push(o); } if (o.isMesh) for (const m of [].concat(o.material)) if (m && /LightForward/i.test(m.name || '') && !lucy3_S.hlMats.includes(m)) { m.userData.l3e = m.emissiveIntensity; lucy3_S.hlMats.push(m); } });
   C.pos = car.getWorldPosition(V(0, 0, 0)); C.ok = true;

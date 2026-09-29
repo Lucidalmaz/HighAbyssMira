@@ -251,7 +251,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
       spot(XA + 35.7, 1.72, ZA - 1.38, .15, .5, .6, 'Türschild', note('Prüfraum 3', 'Ein Emailleschild, an den Kanten abgeplatzt: <b>PRÜFRAUM 3 · Unterscheidung Original / Rückkehrer</b>\n\nDarunter, jünger, mit Klebeband angeklebt: <i>„KRANZ, P. · Rückläufer · verwahrt seit 11/1992“</i>\n\n<span class="hand">Kranz. So hieß Mama, bevor sie Brandt hieß.</span>', 'pruefraum_schild'));
       // Kratzspuren: an allen Wänden, tausendfach – mit Fingernägeln, Löffelstielen, irgendwas
       const scratchCanvas = seed => pc(1024, 704, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; x.lineJoin = 'round'; rs = 7 + seed * 131;
-        for (let i = 0; i < 150; i++) { const s = R(13, 46), a = R(.16, .5); x.save(); x.translate(R(-60, w), R(10, h)); x.rotate(R(-.13, .13)); x.font = `bold ${s}px Arial`;
+        for (let i = 0; i < 150; i++) { const s = R(13, 46), a = R(.1, .36); x.save(); x.translate(R(-60, w), R(10, h)); x.rotate(R(-.13, .13)); x.font = `bold ${s}px Arial`;
           x.lineWidth = s / 24 + .8; x.strokeStyle = `rgba(18,16,14,${a * .8})`; x.strokeText('ICH WEISS ES JETZT', 1.4, 1.4); x.strokeStyle = `rgba(214,207,192,${a})`; x.strokeText('ICH WEISS ES JETZT', 0, 0); x.restore(); }
         for (let i = 0; i < 90; i++) { const px = R(0, w), py = R(0, h), l = R(20, 120), an = R(-1.8, -1.3); x.strokeStyle = `rgba(210,202,188,${R(.1, .3)})`; x.lineWidth = R(.8, 2); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(an) * l, py + Math.sin(an) * l); x.stroke(); } });
       const scr = [0, 1, 2].map(i => dMat(scratchCanvas(i), .95));

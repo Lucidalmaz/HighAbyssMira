@@ -32,15 +32,15 @@ function kamera_zu() { if (kamera_S.hoch) kamera_heben(false); } // für Szenen,
   #kamSucher .sp.on { opacity: 1; }
   #kamBlitz { position: fixed; inset: 0; pointer-events: none; background: #fffaf0; opacity: 0; z-index: 4; }
   #kamPola { position: fixed; left: 50%; bottom: 6vh; width: 34vh; box-sizing: border-box; pointer-events: none; z-index: 4; opacity: 0; transform: translate(-50%, 110%) rotate(-2.2deg);
-    transition: transform 1.1s cubic-bezier(.2,.8,.25,1), opacity .5s; background: linear-gradient(170deg, #f3efe6, #e4ddcf); padding: 5.5% 5.5% 20% 5.5%; box-shadow: 0 16px 40px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.25); }
+    transition: transform 1.1s cubic-bezier(.2,.8,.25,1), opacity .5s; background: linear-gradient(170deg, #f3efe6, #e4ddcf); padding: 1.8vh 1.8vh 6.8vh 1.8vh; box-shadow: 0 16px 40px rgba(0,0,0,.65), 0 0 0 1px rgba(0,0,0,.25); }
   #kamPola.raus { opacity: 1; transform: translate(-50%, 0) rotate(-2.2deg); }
-  #kamPola .bild { position: relative; width: 100%; height: 22.7vh; background: #1b1d1a; overflow: hidden; }
+  #kamPola .kpBild { position: relative; width: 30.4vh; height: 22.8vh; background: #1b1d1a; overflow: hidden; }
   #kamPola img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; filter: contrast(.6) saturate(.2) brightness(.5) sepia(.3); }
-  #kamPola .chem { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 45%, #3c4239, #262a26 70%); }
+  #kamPola .kpChem { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 45%, #3c4239, #262a26 70%); }
   #kamPola.dev img { opacity: 1; filter: none; transition: opacity 2.6s .4s, filter 4s ease-out; }
-  #kamPola.dev .chem { opacity: 0; transition: opacity 3.6s .2s; }
-  #kamPola .hand { position: absolute; left: 7%; right: 7%; bottom: 3%; font: 22px Caveat, "Comic Sans MS", cursive; color: #2a2a3a; opacity: 0; transition: opacity 1.2s 3.4s; text-align: center; }
-  #kamPola.dev .hand { opacity: .85; }
+  #kamPola.dev .kpChem { opacity: 0; transition: opacity 3.6s .2s; }
+  #kamPola .kpHand { position: absolute; left: 7%; right: 7%; bottom: 3%; font: 22px Caveat, "Comic Sans MS", cursive; color: #2a2a3a; opacity: 0; transition: opacity 1.2s 3.4s; text-align: center; }
+  #kamPola.dev .kpHand { opacity: .85; }
   #kamTip { position: absolute; right: 34px; bottom: 118px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .22em; color: #d9cdb2; text-shadow: 0 0 4px #000, 0 0 12px #000; opacity: 0; transition: opacity .8s; text-align: right; }
   #kamTip.on { opacity: 1; } #kamTip kbd { font: 600 11px Georgia; border: 1px solid rgba(201,163,106,.6); padding: 1px 6px; margin: 0 3px; color: var(--gold, #c9a36a); border-radius: 2px; }`;
   document.head.appendChild(css);
@@ -48,7 +48,7 @@ function kamera_zu() { if (kamera_S.hoch) kamera_heben(false); } // für Szenen,
   const hud = document.getElementById('hud') || document.body;
   kamera_S.el.sucher = mk('kamSucher', document.body, '<div class="vig"></div><div class="rah"><div class="zw"></div></div><div class="sp"></div>');
   kamera_S.el.blitz = mk('kamBlitz', document.body);
-  kamera_S.el.pola = mk('kamPola', document.body, '<div class="bild"><img alt=""><div class="chem"></div></div><div class="hand"></div>');
+  kamera_S.el.pola = mk('kamPola', document.body, '<div class="kpBild"><img alt=""><div class="kpChem"></div></div><div class="kpHand"></div>');
   kamera_S.el.tip = mk('kamTip', hud);
 }
 function kamera_hud() { const S = kamera_S; S.el.sucher.querySelector('.zw').textContent = String(S.film).padStart(2, '0'); }
@@ -75,13 +75,13 @@ async function kamera_ausloesen() {
   S.busy = true; S.film--; kamera_item(); kamera_hud(); S.n++;
   let url = null;
   try { if (Z && Z.vorFoto) Z.vorFoto(); } catch (e) { console.warn('Kamera: vorFoto', e); }
-  try { url = kamera_render(Z && Z.stempel); } catch (e) { console.warn('Kamera: Bild', e); }
+  try { url = kamera_render(Z && Z.stempel, Z); } catch (e) { console.warn('Kamera: Bild', e); }
   try { if (Z && Z.nachFoto) Z.nachFoto(); } catch (e) { console.warn('Kamera: nachFoto', e); }
   kamera_blitz(); S.fotos.push({ url, text: Z ? Z.text || '' : '' });
   // Surren: das Bild wird ausgeworfen
   if (Audio.ctx) { const o = Audio.osc('sawtooth', 110, .18, 1.1), lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); Audio.env(lp, .035, .05, 1, .18); }
   await wait(380); kamera_heben(false); S.busy = true;
-  const P = S.el.pola, img = P.querySelector('img'); P.classList.remove('dev', 'raus'); P.querySelector('.hand').textContent = Z && Z.hand ? Z.hand : '';
+  const P = S.el.pola, img = P.querySelector('img'); P.classList.remove('dev', 'raus'); P.querySelector(".kpHand").textContent = Z && Z.hand ? Z.hand : '';
   if (url) img.src = url; void P.offsetWidth; P.classList.add('raus');
   await wait(900); P.classList.add('dev'); // 4 s Entwicklung in der Hand
   await wait(4200);
@@ -97,14 +97,14 @@ function kamera_blitz() {
   if (typeof leben_crowScare === 'function') { try { leben_crowScare(player.pos.x, player.pos.z, 14); } catch (e) {} }
 }
 // Einmal im Blitz-Moment in eine kleine Textur rendern (Ziel-Objekte sind in vorFoto schon gesetzt) → Polaroid-Abzug (Daten-URL)
-function kamera_render(stamp) {
+function kamera_render(stamp, Z) {
   const S = kamera_S, T = THREE, W = 400, H = 300;
   if (!S.rt) { S.rt = new T.WebGLRenderTarget(W, H); S.pc = new T.PerspectiveCamera(60, W / H, .08, 180); S.buf = new Uint8Array(W * H * 4); S.cv = document.createElement('canvas'); S.cv.width = W; S.cv.height = H; }
-  const pc = S.pc; camera.updateMatrixWorld(true); pc.position.setFromMatrixPosition(camera.matrixWorld); pc.quaternion.setFromRotationMatrix(camera.matrixWorld); pc.fov = Math.min(64, camera.fov * .92); pc.updateProjectionMatrix(); pc.updateMatrixWorld(true);
+  const pc = S.pc; camera.updateMatrixWorld(true); pc.position.setFromMatrixPosition(camera.matrixWorld); pc.quaternion.setFromRotationMatrix(camera.matrixWorld); pc.fov = Z && Z.fov ? Z.fov : Math.min(64, camera.fov * .92); pc.updateProjectionMatrix(); pc.updateMatrixWorld(true);
   const hemi0 = hemi.intensity, fog0 = scene.fog ? scene.fog.density : 0, fl0 = flashlight.intensity, fr = { p: flashRig.position.clone(), q: flashRig.quaternion.clone() };
   try {
-    hemi.intensity = hemi0 * 2.6 + .12; if (scene.fog) scene.fog.density = fog0 * .6; // der Blitz hellt auf, was vor der Linse steht
-    flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fl0, 14) * 2.4;
+    const bk = Z && Z.blitz !== undefined ? Z.blitz : 1; hemi.intensity = hemi0 * (1 + 1.6 * bk) + .12 * bk; if (scene.fog) scene.fog.density = fog0 * .6; // der Blitz hellt auf, was vor der Linse steht
+    flashRig.position.copy(pc.position); flashRig.quaternion.copy(pc.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = Math.max(fl0, 14) * (.6 + 1.8 * bk);
     renderer.setRenderTarget(S.rt); renderer.clear(); renderer.render(scene, pc); renderer.readRenderTargetPixels(S.rt, 0, 0, W, H, S.buf);
   } finally { renderer.setRenderTarget(null); hemi.intensity = hemi0; if (scene.fog) scene.fog.density = fog0; flashlight.intensity = fl0; flashRig.position.copy(fr.p); flashRig.quaternion.copy(fr.q); flashRig.updateMatrixWorld(true); }
   return kamera_print(S.buf, W, H, stamp);

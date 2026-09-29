@@ -549,10 +549,12 @@ WORLD_TICK.push((dt, t, indoor) => {
 // gebunden, Blechschild vom 13.07.1992 (Nacht der Bergung 3). Ab Kapitel 5 ist das rechte Element unten kindgroß aufgebogen, ab Kapitel 6 lässt es sich
 // aufbiegen (E halten – Logik in kapitel6.js). Objekt gruen_S.dustBarrier: { A, B, pivB, hit, col, open, kid, setKid(on), setOpen(k 0…1) } (Kapitel 5 liest es nur).
 async function gruen_dustBarrierBau() {
-  const T = THREE, src = await msModel('barrier_ms'), el = x => { const o = msGround(src.clone(true)); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); return o; };
-  const A = el(); A.position.set(28.05, 0, 98.12); A.rotation.y = .015; scene.add(A);
-  // rechtes Element an einem Drehpunkt am linken Ende: kippen (Kinderlücke) und aufschwenken (Kapitel 6)
-  const pivB = new T.Group(); pivB.position.set(29.4, 0, 97.78); scene.add(pivB); const B = el(); B.position.set(2.7, 0, 0); pivB.add(B);
+  // Scan-Wahl: barrier_ms ist eine Betonleitwand (lässt sich nicht aufbiegen) → Eisengitter-Scan ironfence_ms, 2 m hoch, je 4,1 m breit (wie das Villa-Tor)
+  const T = THREE, src = await msModel('ironfence_ms'), el = () => { const f = msFit(src.clone(true), 2, 'y'); f.updateMatrixWorld(true); const s = new T.Box3().setFromObject(f).getSize(new T.Vector3()); f.scale.x *= 4.1 / Math.max(s.x, .1);
+    const o = msGround(f); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); return o; };
+  const A = el(); A.position.set(27.98, 0, 98.02); A.rotation.y = .012; scene.add(A);
+  // rechtes Element an einem Drehpunkt am linken Ende: unten aufgebogen (Kinderlücke) und aufschwenken (Kapitel 6)
+  const pivB = new T.Group(); pivB.position.set(29.95, 0, 97.88); scene.add(pivB); const B = el(); B.position.set(2.05, 0, 0); pivB.add(B);
   // Blechschild, mit Draht ans linke Element gebunden
   const tx = (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 320; const g = c.getContext('2d');
     g.fillStyle = '#d8d2bf'; g.fillRect(0, 0, 512, 320); for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(${110 + rand(0, 50)},${60 + rand(0, 25)},25,${rand(.05, .3)})`; g.beginPath(); g.arc(rand(0, 512), rand(0, 320), rand(2, 16), 0, 7); g.fill(); }
@@ -560,7 +562,7 @@ async function gruen_dustBarrierBau() {
     g.font = '30px Arial'; g.fillText('Wildschaden', 256, 196); g.font = '24px Arial'; g.fillText('Gemeinde Lost Eyengless', 256, 244); g.fillText('13.07.1992', 256, 278);
     for (const [x, y] of [[26, 26], [486, 26], [26, 294], [486, 294]]) { g.fillStyle = '#4a3a2c'; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
     const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
-  const sign = new T.Mesh(new T.PlaneGeometry(.62, .39), new T.MeshStandardMaterial({ map: tx, roughness: .55, metalness: .45, side: T.DoubleSide })); sign.position.set(27.3, .56, 97.8); sign.rotation.set(.04, PI + .03, -.05); sign.castShadow = true; scene.add(sign);
+  const sign = new T.Mesh(new T.PlaneGeometry(.62, .39), new T.MeshStandardMaterial({ map: tx, roughness: .55, metalness: .45, side: T.DoubleSide })); sign.position.set(27.2, 1.02, 97.93); sign.rotation.set(.04, PI + .03, -.05); sign.castShadow = true; scene.add(sign);
   const col = addCol(25.3, 34.9, 97.45, 98.5, 2.4, -1); // die Gitter sind 0,9 m hoch: nicht darüber steigen (vor Kapitel 6 endet hier die Welt)
   const hit = box(9.4, 1.4, .9, 30.1, .7, 97.95, hidden, { cast: false });
   const D = gruen_S.dustBarrier = { A, B, pivB, sign, hit, col, open: false, kid: false, k: 0,
