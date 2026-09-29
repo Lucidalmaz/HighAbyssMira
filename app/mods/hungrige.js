@@ -10,11 +10,16 @@
 // Wolf, Hirsch), Deer Thing (Sketchfab, CC-BY) als wahre Gestalt, Megascans-Tierschädel, Fleisch/Organe und Blut aus dem Kuh-Sturz.
 const HUNGRIGE = { spuren: { x: 1.5, z: 199.6 }, bau: { x: -13.2, z: 206.8 }, pfahl: { x: -13.9, z: 207.6 }, reh: { x: 14, z: 178.5 }, wolf: { x: 65, z: 199.5 }, dtYaw: PI / 2, dtH: 2.75 };
 const HUNGRIGE_STUFEN = ['reh', 'kraehe', 'fuchs', 'spuren', 'hirsch', 'wolf_funk', 'blick', 'hofer', 'bau'];
-const hungrige_S = { ready: false, stage: 0, done: new Set(), ev: null, cool: 30, flesh: null, none: null, dt: null, cine: null, look: null, nackt: {}, fix: {}, finale: false, tries: 0, told: new Set() };
-MOD_SAVE.push(['hungrige', () => ({ stage: hungrige_S.stage, done: [...hungrige_S.done], finale: hungrige_S.finale }),
-  v => { const S = hungrige_S; S.stage = v.stage || 0; (v.done || []).forEach(k => S.done.add(k)); S.finale = !!v.finale; if (S.done.size && story.side.hungrige) { story.side.hungrige.state = S.finale ? 'done' : (S.done.has('fuchs') ? 'active' : 'hidden'); hungrige_desc(); } }]);
+// Reihenfolge in Kapitel 6 (PK-E): Dustwoods 1–3 · nach dem Hochsitz Hirsch · beim Bus Funk · Silhouette · Fraßstelle (Seite 1, Pflicht) · Hofer zwischen Fraßstelle und Wrack · Bau (Seite 2)
+const HUNGRIGE_FOLGE = ['reh', 'kraehe', 'fuchs', 'hirsch', 'wolf_funk', 'blick', 'hofer'];
+const hungrige_S = { ready: false, stage: 0, done: new Set(), ev: null, cool: 30, flesh: null, none: null, dt: null, cine: null, look: null, nackt: {}, fix: {}, finale: false, tries: 0, told: new Set(), epilog: false, ravA: null, ravB: null };
+MOD_SAVE.push(['hungrige', () => ({ stage: hungrige_S.stage, done: [...hungrige_S.done], finale: hungrige_S.finale, epilog: hungrige_S.epilog }), // epilog: Kapitel 6 ganz zu Ende (Beobachter „d_zugesehen“ liest es)
+  v => { const S = hungrige_S; S.stage = v.stage || 0; (v.done || []).forEach(k => S.done.add(k)); S.finale = !!v.finale; S.epilog = !!v.epilog; if (S.done.size && story.side.hungrige) { story.side.hungrige.state = S.finale ? 'done' : (S.done.has('fuchs') ? 'active' : 'hidden'); hungrige_desc(); } }]);
 const hungrige_has = k => hungrige_S.done.has(k);
-function hungrige_ok() { return typeof tief_ok === 'function' && tief_ok() && !dir.busy && !hungrige_S.ev && !hungrige_S.cine && !(typeof tief_S !== 'undefined' && (tief_S.fig || tief_S.follow)) && !hungrige_S.finale; }
+// Nur in Kapitel 6 (PK-A A6): wald_frei() aus wald.js. Stufen 1–3 nur in den Dustwoods (wald_in), 4–9 nur im tiefen Wald (tief_in).
+function hungrige_ok() { return typeof wald_frei === 'function' && wald_frei() && typeof tief_ok === 'function' && tief_ok() && !dir.busy && !hungrige_S.ev && !hungrige_S.cine && !(typeof tief_S !== 'undefined' && (tief_S.fig || tief_S.follow)) && !hungrige_S.finale; }
+function hungrige_dust(x, z) { return typeof wald_in === 'function' && wald_in(x, z); }
+function hungrige_tief(x, z) { return typeof tief_in === 'function' && tief_in(x, z); }
 function hungrige_inWald(x, z) { return (typeof wald_in === 'function' && wald_in(x, z)) || (typeof tief_in === 'function' && tief_in(x, z)); }
 function hungrige_deep() { return typeof tief_S !== 'undefined' ? tief_S.k : 0; }
 function hungrige_desc() {
@@ -96,7 +101,7 @@ WORLD_MODS.push(['Der Hungrige', async () => {
   const S = hungrige_S, T = THREE;
   story.side.hungrige = story.side.hungrige || { title: 'Der Hungrige', desc: 'Im Wald stimmt etwas mit den Tieren nicht.', state: 'hidden' };
   const paper = new T.MeshStandardMaterial({ color: 0xcfc8b4, roughness: .92 }), page = (x, y, z, ry, i) => { const m = plane(.15, .21, x, y, z, paper, -PI / 2 + .12, ry); m.rotation.z = rand(-.3, .3);
-    const hit = box(.6, .5, .6, x, y + .1, z, hidden, { cast: false }); interact(hit, () => story.lore.some(l => l.key === 'hungrige_seite_' + i) ? 'Hofers Dienstbuch' : 'Eine Seite aus einem Dienstbuch', () => hungrige_seite(i)); return m; };
+    const hit = box(.6, .5, .6, x, y + .1, z, hidden, { cast: false }); interact(hit, () => i === 2 && !hungrige_has('spuren') ? '' : story.lore.some(l => l.key === 'hungrige_seite_' + i) ? 'Hofers Dienstbuch' : 'Eine Seite aus einem Dienstbuch', () => { if (i === 2 && !hungrige_has('spuren')) return; hungrige_seite(i); }); return m; }; // Seite 2 erst nach der Fraßstelle (Pflichtweg)
   const blood = (mat, x, z, s, rz, y = .045) => { if (!mat) return; const m = new T.Mesh(new T.PlaneGeometry(1, 1), mat); m.rotation.set(-PI / 2, 0, rz); m.position.set(x, y, z); m.scale.setScalar(s); m.receiveShadow = true; scene.add(m); };
   for (let i = 0; i < 80 && !(FAB.blood && FAB.gore); i++) await wait(250);
   const Bd = FAB.blood || {}, G = FAB.gore;
@@ -113,7 +118,7 @@ WORLD_MODS.push(['Der Hungrige', async () => {
     const B = HUNGRIGE.bau; blood(Bd.stain2, B.x, B.z, 2.6, 1.3); blood(Bd.stain1, B.x - 1.2, B.z + 1, 1.8, 4.2, .046); for (let i = 0; i < 9; i++) blood(Bd.spatter, B.x + rand(-2.6, 2.6), B.z + rand(-2.2, 2.2), rand(.9, 2), rand(0, 6), .047 + i * .0004);
     if (G) { gore(G.ribs, B.x + 1.3, B.z - .8, rand(0, 6)); gore(G.meat, B.x - 1.4, B.z - 1.1, rand(0, 6)); gore(G.meat, B.x + .4, B.z + 1.5, rand(0, 6)); gore(G.kid, B.x - .3, B.z - 1.7, rand(0, 6)); gore(G.gut, B.x + 1.6, B.z + .7, 0); }
     page(B.x + 1.1, .06, B.z - .2, -.9, 2);
-    if (typeof hintAdd === 'function') { hintAdd({ id: 'hungrige_spuren', x: HUNGRIGE.spuren.x, y: 0, z: HUNGRIGE.spuren.z, kind: 'geheim', near: 26, open: () => !hungrige_has('spuren') }); hintAdd({ id: 'hungrige_bau', x: B.x, y: 0, z: B.z, kind: 'geheim', near: 24, open: () => !hungrige_has('bau') }); }
+    if (typeof hintAdd === 'function') { hintAdd({ id: 'hungrige_spuren', x: HUNGRIGE.spuren.x, y: 0, z: HUNGRIGE.spuren.z, kind: 'geheim', near: 26, open: () => wald_frei() && !hungrige_has('spuren') }); hintAdd({ id: 'hungrige_bau', x: B.x, y: 0, z: B.z, kind: 'geheim', near: 24, open: () => wald_frei() && hungrige_has('spuren') && !hungrige_has('bau') }); }
   } catch (e) { console.warn('Hungrige: Bau', e); }
   // --- Hirsch ins Tierregister von leben.js (für leben_beast)
   try { if (typeof leben_S !== 'undefined' && leben_S.M && !leben_S.M.stag) { const sc = await msModel('animal_deerstag', 'model.glb'); leben_shrink(sc, 1024); leben_S.M.stag = { src: sc, clips: sc.animations || [] }; } } catch (e) { console.warn('Hungrige: Hirsch', e); }
@@ -123,7 +128,7 @@ WORLD_MODS.push(['Der Hungrige', async () => {
 // ---------------------------------------------------------------- Die Begegnungen (jede genau einmal, in dieser Reihenfolge freigeschaltet)
 const HUNGRIGE_EV = {
   // 1) Ein Reh steht zwischen den Bäumen und sieht dich an. Dann geht es rückwärts in die Dunkelheit – ohne den Blick zu lösen.
-  reh: { need: () => hungrige_deep() >= 0 && hungrige_inWald(player.pos.x, player.pos.z),
+  reh: { need: () => hungrige_dust(player.pos.x, player.pos.z), skip: () => hungrige_tief(player.pos.x, player.pos.z),
     start() { const sp = hungrige_spot(13, 19, .5); if (!sp) return false; const V = hungrige_beast('deer', 1); if (!V) return false;
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'IdleLookAround', 0); this.V = V; this.t = 0; this.seen = 0; this.ph = 'stare'; return true; },
     tick(dt) { const V = this.V, d = hungrige_dist(V); this.t += dt; leben_beastUpd(V, dt, 80); hungrige_facePlayer(V, dt * 2);
@@ -132,20 +137,22 @@ const HUNGRIGE_EV = {
       else { leben_beastMove(V, dt, false); this.hT -= dt; if (this.hT < 0 && d < 30) { this.hT = .62; hungrige_step(V, .22); } if (d > 34 || this.t > 60 || (!hungrige_seen(V, .5) && d > 22)) return false; } return true; },
     end() { hungrige_off(this.V); hungrige_done('reh', 'Ein Reh geht nicht rückwärts. … Es hat mich angesehen. Die ganze Zeit, beim Rückwärtsgehen.'); } },
   // 2) Eine Krähe landet vor dir und sagt Lucys Wort. Dann fliegt sie – falsch herum – davon.
-  kraehe: { need: () => hungrige_inWald(player.pos.x, player.pos.z),
-    start() { const sp = hungrige_spot(5, 8, .4, false, .3); if (!sp) return false; const V = hungrige_beast('crow', 1.15); if (!V) return false;
+  // Kapitel 6: sie landet auf den Brotkrumen des Jungen und frisst sie (kapitel6.js: k6_krumeVorn / k6_krumenFressen) – „Die Spur ist weg.“
+  kraehe: { need: () => hungrige_dust(player.pos.x, player.pos.z), skip: () => hungrige_tief(player.pos.x, player.pos.z),
+    start() { const kr = typeof k6_krumeVorn === 'function' ? k6_krumeVorn() : null, sp = kr || hungrige_spot(5, 8, .4, false, .3); if (!sp) return false; this.krume = !!kr; const V = hungrige_beast('crow', 1.15); if (!V) return false;
       V.g.position.set(sp[0], sp[1] + 6, sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'Landing', 0, 1, true); Audio.flap(sp[0], sp[1] + 4, sp[2]); this.V = V; this.t = 0; this.ph = 'land'; this.said = false; return true; },
     tick(dt) { const V = this.V, p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 60); hungrige_facePlayer(V, dt * 3);
       if (this.ph === 'land') { p.y += (V.ty - p.y) * Math.min(1, dt * 3.2); if (this.t > 1.1) { this.ph = 'sit'; leben_play(V, 'IdleLookAround', .3); p.y = V.ty; } }
-      else if (this.ph === 'sit') { if (!this.said && this.t > 2.4 && hungrige_seen(V, .8, .3)) { this.said = true; this.saidT = this.t; hungrige_lucy(p.x, p.y + .3, p.z, '„Großer …“', 2000); this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); }
+      else if (this.ph === 'sit') { if (this.krume && !this.ate) { if (!this.eat0) { this.eat0 = this.t; leben_play(V, 'EatSomething', .2); } if (this.t - this.eat0 > 2.4) { this.ate = true; if (typeof k6_krumenFressen === 'function') k6_krumenFressen(p.x, p.z); leben_play(V, 'IdleLookAround', .3); } }
+        if (!this.said && (!this.krume || this.ate) && this.t > (this.krume ? 4.6 : 2.4) && hungrige_seen(V, .8, .3)) { this.said = true; this.saidT = this.t; hungrige_lucy(p.x, p.y + .3, p.z, '„Großer …“', 2000); this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); }
         if (this.tw) this.tw.k = Math.min(1, this.tw.k + dt * 1.2);
         if ((this.said && this.t > 6.5) || (this.said && this.t > this.saidT + 2 && hungrige_lit(V, 12, .985, .3)) || hungrige_dist(V) < 2.2) { this.ph = 'fly'; leben_play(V, 'TakeOff', .1, 1.2, true); Audio.flap(p.x, p.y + .5, p.z); Audio.caw(p.x, p.y + 1, p.z); this.ft = 0; const f = flatDir(); this.dir = new THREE.Vector3(-f.x, .55, -f.z).normalize(); }
         else if (this.t > 30) return false; }
       else { this.ft += dt; if (this.ft > .5) leben_play(V, 'Fly', .2, -1); p.addScaledVector(this.dir, dt * 7.5); if (this.ft > 4) return false; }
       hungrige_applyTwist(V); return true; },
-    end() { hungrige_off(this.V); hungrige_done('kraehe', '„Großer.“ Das ist Lucys Wort. Aus einem Krähenschnabel. … Irgendwas hier hat ihr zugehört.'); } },
+    end() { hungrige_off(this.V); hungrige_done('kraehe', '„Großer.“ Das ist Lucys Wort. Aus einem Krähenschnabel. … Irgendwas hier hat ihr zugehört.'); if (typeof k6_nachKraehe === 'function') k6_nachKraehe(!!this.ate); } },
   // 3) Ein Fuchs sitzt mit dem Rücken zu dir. Der Kopf sieht dich trotzdem an – um 180 Grad gedreht.
-  fuchs: { need: () => hungrige_inWald(player.pos.x, player.pos.z),
+  fuchs: { need: () => hungrige_dust(player.pos.x, player.pos.z), skip: () => hungrige_tief(player.pos.x, player.pos.z),
     start() { const sp = hungrige_spot(8, 12, .45); if (!sp) return false; const V = hungrige_beast('fox', 1); if (!V) return false;
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.rotation.y += PI; V.g.visible = true; leben_play(V, 'IdleBreathe', 0); this.V = V; this.t = 0; this.lit = 0;
       this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); if (this.tw) this.tw.k = 1; return true; },
@@ -153,7 +160,8 @@ const HUNGRIGE_EV = {
       if (this.lit > 1.2 || hungrige_dist(V) < 3) { const p = V.g.position; Audio.growl(p.x, p.z, true); return false; } if (this.t > 35) return false; hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('fuchs', 'Der Kopf saß falsch. Umgedreht. Als hätte jemand den Fuchs angezogen und hinten den Reißverschluss vergessen.'); } },
   // 5) Ein Hirsch bricht aus dem Dunkel, stürmt auf dich zu, bleibt einen Meter vor dir stehen – und der Kopf dreht sich ohne den Hals.
-  hirsch: { need: () => hungrige_deep() > .15 && hungrige_has('spuren'),
+  // Kapitel 6: nach dem Hochsitz (der nackte Rehbock oder weiter nördlich), vor der Fraßstelle
+  hirsch: { need: () => hungrige_tief(player.pos.x, player.pos.z) && hungrige_deep() > .15 && (hungrige_has('nackt_reh') || player.pos.z > 183), skip: () => hungrige_has('spuren'),
     start() { const sp = hungrige_spot(24, 30, .3, false, 1.3); if (!sp) return false; const V = hungrige_beast('stag', 1.12); if (!V) return false;
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'IdleLookAround', 0); this.V = V; this.t = 0; this.ph = 'watch'; this.hT = 0; this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); return true; },
     tick(dt) { const V = this.V, d = hungrige_dist(V), p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 90);
@@ -166,7 +174,8 @@ const HUNGRIGE_EV = {
       hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('hirsch', 'Er ist vor mir stehen geblieben. Ein Meter. Und dann hat sich der Kopf gedreht – ohne den Hals.'); } },
   // 6) Ein Heulen aus dem Dunkeln, das mitten im Ton zu Funk wird: Hofers Stimme, 1992.
-  wolf_funk: { need: () => hungrige_deep() > .25 && hungrige_has('hirsch'),
+  // Kapitel 6: beim Amtsbus
+  wolf_funk: { need: () => hungrige_tief(player.pos.x, player.pos.z) && (Math.hypot(player.pos.x - HUNGRIGE.wolf.x, player.pos.z - HUNGRIGE.wolf.z) < 40 || (typeof tief_has === 'function' && tief_has('tief_zettel_3'))), skip: () => hungrige_has('spuren'),
     start() { const sp = hungrige_spot(22, 30, .9, true); if (!sp) return false; this.p = sp; this.t = 0; this.st = 0; leben_howl(sp[0], sp[1] + .8, sp[2]); return true; },
     tick(dt) { this.t += dt; const [x, y, z] = this.p;
       if (this.st === 0 && this.t > 2.2) { this.st = 1; Audio.radio(x, z); glitchV = Math.max(glitchV, .35); subtitle('*Rauschen* „… Bergung drei … wir haben es … es steht auf wie ein –“', 3400, 'FUNK · 31,10 MHz'); }
@@ -174,14 +183,15 @@ const HUNGRIGE_EV = {
       if (this.st === 2 && this.t > 9.4) { Audio.radio(x, z, true); Audio.twig(x, z); return false; } return true; },
     end() { hungrige_done('wolf_funk', 'Ein Wolf heult nicht auf 31,10 Megahertz. Das war Funk. Das war eine Stimme, die Heulen übt.'); } },
   // 7) Die wahre Gestalt, weit hinten zwischen den Stämmen. Aufrecht, zu groß. Wer sie anleuchtet, sieht nur Nebel.
-  blick: { need: () => hungrige_deep() > .4 && hungrige_has('wolf_funk') && !!hungrige_S.dt,
+  blick: { need: () => hungrige_tief(player.pos.x, player.pos.z) && hungrige_deep() > .3 && !!hungrige_S.dt, skip: () => hungrige_has('spuren'),
     start() { const sp = hungrige_spot(17, 23, .35, false, 1.9); if (!sp) return false; const D = hungrige_S.dt; D.g.position.set(sp[0], sp[1], sp[2]); D.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); D.g.visible = true; this.t = 0; this.seen = 0; this.sw = rand(0, 6); return true; },
     tick(dt) { const D = hungrige_S.dt, g = D.g; this.t += dt; this.sw += dt; g.rotation.y += Math.sin(this.sw * .7) * dt * .05;
       const p = g.position; if (leben_facing(p.x, p.y + 1.8, p.z) > .9 && hungrige_dist(D) < 40) this.seen += dt; if (this.seen > .6 && !this.sn) { this.sn = true; Audio.whisper(p.x, 1.8, p.z, 1.6); glitchV = Math.max(glitchV, .3); }
       if (hungrige_lit(D, 30, .975, 1.6) && this.seen > 1.5) { Audio.twig(p.x, p.z); Audio.treeCreak(p.x, p.z); scareCount++; return false; } if (hungrige_dist(D) < 7) { Audio.growl(p.x, p.z, true); glitchV = .6; return false; } if (this.t > 45) return false; return true; },
     end() { hungrige_dtHide(); hungrige_done('blick', 'Zu groß für einen Hirsch. Zu aufrecht. Und als das Licht draufkam, war da nur noch Nebel.'); } },
   // 8) Gefreiter Hofer. Uniform von damals, mit dem Rücken zu dir. Der Kopf dreht sich zu dir um – der Körper bleibt stehen.
-  hofer: { need: () => hungrige_deep() > .4 && hungrige_has('blick') && typeof figuren_embody === 'function',
+  // Kapitel 6: zwischen Fraßstelle und Wrack
+  hofer: { need: () => hungrige_has('spuren') && hungrige_tief(player.pos.x, player.pos.z) && player.pos.x < 0 && typeof figuren_embody === 'function', skip: () => hungrige_has('bau'),
     start() { const sp = hungrige_spot(11, 15, .35, false, 1.6); if (!sp) return false; const S = hungrige_S; if (!S.hoferG) { S.hoferG = new THREE.Group(); scene.add(S.hoferG); }
       const g = S.hoferG; g.position.set(sp[0], sp[1], sp[2]); g.rotation.y = Math.atan2(sp[0] - player.pos.x, sp[2] - player.pos.z); g.visible = true; this.t = 0; this.ph = 'wait'; this.P = null;
       figuren_embody(g, 'polizist', { clip: 'idle' }).then(P => { if (!P) { this.fail = true; return; } this.P = P; this.head = hungrige_bone(P.obj, /^(mixamorig)?Head$|Head$/i); }); return true; },
@@ -224,19 +234,21 @@ const HUNGRIGE_NACKT = {
 function hungrige_raven(mirror) { const V = hungrige_beast('crow', 1.45); if (!V) return null; V.m.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; });
   if (mirror) V.g.scale.x = -1; return V; }
 function hungrige_flyTo(V, to, dur, apex = 3) { const from = V.g.position.clone(); V.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + apex, (from.z + to.z) / 2), t: 0, dur }; leben_play(V, 'Fly', .15); }
-function hungrige_flyTick(V, dt) { const F = V.fl; if (!F) return false; F.t += dt; const k = Math.min(1, F.t / F.dur), a = new THREE.Vector3().lerpVectors(F.from, F.ctrl, k), b = new THREE.Vector3().lerpVectors(F.ctrl, F.to, k), p = new THREE.Vector3().lerpVectors(a, b, k);
+const _hfA = new THREE.Vector3(), _hfB = new THREE.Vector3(), _hfP = new THREE.Vector3(); // keine Allokation im Takt
+function hungrige_flyTick(V, dt) { const F = V.fl; if (!F) return false; F.t += dt; const k = Math.min(1, F.t / F.dur), a = _hfA.lerpVectors(F.from, F.ctrl, k), b = _hfB.lerpVectors(F.ctrl, F.to, k), p = _hfP.lerpVectors(a, b, k);
   const dx = p.x - V.g.position.x, dz = p.z - V.g.position.z; if (dx * dx + dz * dz > 1e-6) V.g.rotation.y = Math.atan2(dx, dz); V.g.position.copy(p); if (k >= 1) { V.fl = null; return true; } return false; }
 async function hungrige_finale() {
   const S = hungrige_S, W = new THREE.Vector3(), wait_ = wait; if (S.finale || S.cine || S.finBusy) return; S.finBusy = true; // Spielzeit: steht bei Pause
   try { await hungrige_finaleRun(S, W, wait_); } catch (e) { console.error('Hungrige: Finale', e); }
-  finally { S.finBusy = false; if (S.cine) { try { hungrige_off(S.cine.A); hungrige_off(S.cine.B); hungrige_dtHide(); } catch (e) {} S.cine = null; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (typeof whiskey_S !== 'undefined' && whiskey_S.g) whiskey_S.g.visible = true; hungrige_finaleSkip(); } }
+  finally { S.finBusy = false; if (S.cine) { try { hungrige_off(S.cine.A); hungrige_off(S.cine.B); hungrige_dtHide(); } catch (e) {} S.cine = null; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (typeof whiskey_S !== 'undefined' && whiskey_S.g) whiskey_S.g.visible = true; hungrige_finaleSkip(); }
+    if (typeof k6_feuerzeug === 'function' && S.finale) k6_feuerzeug(false); } // Fehler mitten im Finale: Feuerzeug weg, Lampe an – der Epilog startet trotzdem
 }
 // Finale nicht spielbar (Modell fehlt, Fehler mitten drin): Aufgabe trotzdem abschließen – nie eine offene Nebenaufgabe ohne Weg
 function hungrige_finaleSkip() { const S = hungrige_S; if (S.finale) return; S.finale = true; try { sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); } catch (e) {} }
 async function hungrige_finaleRun(S, W, wait_) {
   const D = await hungrige_loadDT(); if (!D) return hungrige_finaleSkip();
   if (state.talking || ui.overlay) { S.finT = 1.5; return; } // der Takt versucht es gleich noch einmal
-  const P = HUNGRIGE.pfahl, B = HUNGRIGE.bau, top = (S.fix.pfahlTop || 1.6) + .38; const A = hungrige_raven(false), Bv = hungrige_raven(true); if (!A || !Bv) { hungrige_off(A); hungrige_off(Bv); return hungrige_finaleSkip(); }
+  const P = HUNGRIGE.pfahl, B = HUNGRIGE.bau, top = (S.fix.pfahlTop || 1.6) + .38; const A = S.ravA || hungrige_raven(false), Bv = S.ravB || hungrige_raven(true); S.ravB = null; if (!A || !Bv) { hungrige_off(A); hungrige_off(Bv); return hungrige_finaleSkip(); } // Bv wird verwandelt: nie wiederverwenden
   const C = S.cine = { A, B: Bv, t: 0, look: new THREE.Vector3(P.x, top, P.z), lookK: 2, light: null, dt: D, ph: 'in' };
   state.talking = true; dir.busy = true; if (hungrige_S.ev) { try { hungrige_S.ev.end(); } catch (e) {} hungrige_S.ev = null; }
   const real = typeof whiskey_S !== 'undefined' && whiskey_S.g; if (real) real.visible = false;
@@ -245,8 +257,12 @@ async function hungrige_finaleRun(S, W, wait_) {
   const f = flatDir(); A.g.position.set(player.pos.x - f.x * 9, 5.5, player.pos.z - f.z * 9); A.g.visible = true; hungrige_flyTo(A, W.set(P.x, top, P.z), 2.6, 2.5); Audio.flap(player.pos.x, 3, player.pos.z); setTimeout(() => Audio.caw(P.x, top, P.z), 900);
   await wait_(2700); leben_play(A, 'Landing', .1, 1, true); await wait_(700); leben_play(A, 'IdleLookAround', .3);
   await say([['Whiskey. … Du bist mir nachgeflogen.', 2400, 'LUKE']]);
-  // 2) Ein zweiter landet – spiegelverkehrt, ohne zu atmen
-  const sp = hungrige_spot(4.5, 6.5, 1.1, false, 1.2) || [B.x + 2.6, Math.max(0, solidGround(B.x + 2.6, .6, B.z + .8)), B.z + .8], bx = sp[0], bz = sp[2], by = sp[1]; Bv.g.position.set(bx + 6, 4, bz + 5); Bv.g.visible = true; hungrige_flyTo(Bv, W.set(bx, by, bz), 2, 1.5); C.look.set(bx, by + .4, bz);
+  // Kapitel 6: kurz bevor der zweite landet, stirbt die Lampe – Peters Feuerzeug (Taste E, kapitel6.js)
+  if (typeof k6_lampeStirbt === 'function') { try { await k6_lampeStirbt(); } catch (e) { console.warn('Kapitel6: Feuerzeug', e); } }
+  // 2) Ein zweiter landet – spiegelverkehrt, ohne zu atmen: links vom Pfahl (aus Lukes Sicht), im Lichtkreis des Feuerzeugs
+  let sp = null; { const lx = P.x - player.pos.x, lz = P.z - player.pos.z, ll = Math.hypot(lx, lz) || 1, x = P.x + lz / ll * 1.5 - lx / ll * .5, z = P.z - lx / ll * 1.5 - lz / ll * .5, g = solidGround(x, .6, z);
+    if (leben_free(x, z, .3, .5)) sp = [x, g > -1 ? Math.max(0, g) : 0, z]; }
+  sp = sp || hungrige_spot(2.2, 3.6, 1.1, false, 1.2) || [B.x + 2.6, Math.max(0, solidGround(B.x + 2.6, .6, B.z + .8)), B.z + .8]; const bx = sp[0], bz = sp[2], by = sp[1]; Bv.g.position.set(bx + 6, 4, bz + 5); Bv.g.visible = true; hungrige_flyTo(Bv, W.set(bx, by, bz), 2, 1.5); C.look.set(bx, by + .4, bz);
   await wait_(2100); leben_play(Bv, 'IdleLookAround', 0); Bv.mx.update(.3); if (Bv.cur) Bv.cur.timeScale = 0;
   await say([['… Zwei. Da sind zwei.', 2200, 'LUKE']]);
   C.look.set((P.x + bx) / 2, top * .6, (P.z + bz) / 2);
@@ -270,15 +286,16 @@ async function hungrige_finaleRun(S, W, wait_) {
   for (let i = 0; i < 3; i++) { C.dive = i + 1; const from = A.g.position.clone(); hungrige_flyTo(A, W.set(D.g.position.x, by + 1.9, D.g.position.z), .9, .2); leben_play(A, 'FlyingAttack', .05, 1.3, true); Audio.screech(); Audio.gust(1.2);
     await wait_(950); C.recoil = 1; shake = Math.max(shake, .05 + i * .02); glitchV = Math.max(glitchV, .35); Audio.growl(D.g.position.x, D.g.position.z, true); if (i < 2) { hungrige_flyTo(A, W.set(from.x + rand(-2, 2), by + 5, from.z + rand(-2, 2)), 1.1, 2.5); await wait_(1150); } }
   C.ph = 'flash'; C.t = 0; Audio.crack(); Audio.thunder(.1, 1); lightBoost = 1.2; skyMat && skyMat.uniforms && (skyMat.uniforms.flash.value = .8);
-  await say([['Das Licht. … Er bringt das Licht mit.', 2600, 'LUKE']]);
+  await say([['Das Licht. Kalt. Kerzengerade.', 2800, 'LUKE'], ['Wie Mamas Kerze. Wie das Fenster in der Villa.', 3200, 'LUKE']]);
   C.ph = 'flee'; C.t = 0; Audio.growl(D.g.position.x, D.g.position.z, true); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3); setTimeout(() => Audio.twig(D.g.position.x, D.g.position.z), 500); setTimeout(() => Audio.twig(D.g.position.x + 4, D.g.position.z + 2), 1100);
   await wait_(2800); hungrige_dtHide(); hungrige_flyTo(A, W.set(P.x, top, P.z), 1.8, 3); await wait_(1900); leben_play(A, 'Landing', .1, 1, true); await wait_(600); leben_play(A, 'IdleLookAround', .3); C.look.set(P.x, top, P.z);
   await say([['Er hat ihn vertrieben. Nicht ich – er.', 2600, 'LUKE'], ['„Er gehörte meiner Frau. Er findet immer heim. Zu ihr.“ … Das hat der Ritter gesagt.', 3800, 'LUKE'], ['Und der Hungrige weiß, wem du gehörst, Whiskey. Deshalb hat er Angst.', 3400, 'LUKE']]);
-  // 6) Ende: der Rabe fliegt auf, der echte Whiskey ist wieder da
-  leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); hungrige_flyTo(A, W.set(P.x - 8, 9, P.z - 12), 2.2, 4); await wait_(2300); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true;
+  // 6) Ende: Kapitel 6 – der echte Whiskey sitzt auf dem Pfahl und fliegt gleich voraus (Epilog, kapitel6.js); sonst fliegt der Rabe auf
+  if (typeof k6_nachFinale === 'function') { const at = A.g.position.clone(); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true; k6_nachFinale(at); }
+  else { leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); hungrige_flyTo(A, W.set(P.x - 8, 9, P.z - 12), 2.2, 4); await wait_(2300); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true; }
   S.cine = null; S.finale = true; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = 0;
   story.lore.push({ key: 'hungrige_enthuellung', title: 'Der Hungrige · Die Enthüllung', html: 'Zwei Raben am Bau hinter dem Wrack. Der zweite atmete nicht und war spiegelverkehrt – und er sagte „Großer“ mit Lucys Stimme. Dann riss er auf: die Federn fielen, der Hals wurde lang, und aus dem Vogel stieg das, was Bergungstrupp 3 im Juli 1992 aus der Senke geholt hat.\n\nWhiskey hat ihn vertrieben. Mit Licht, das er nicht selbst hat: Es gehört der Frau, der er gehört. Der Hungrige ist nicht tot. Aber er weiß jetzt, wer zu wem gehört.' });
-  sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); questPop('KAPITEL 6', 'Der Hungrige');
+  sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); // kein Popup mehr: Kapitel 6 endet mit dem Epilog (PK-E, kapitel6.js)
   if (typeof gedanke === 'function') gedanke('hungrige_finale', 'Whiskey gehört zu ihr. Zu der Frau mit der Laterne. … Sie kommt noch. Und der Hungrige hat es vor mir gewusst.', 6000, 3);
   if (typeof saveGame === 'function') saveGame(curChapter());
 }
@@ -307,12 +324,12 @@ function hungrige_cineTick(dt) {
 }
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {
-  const S = hungrige_S; if (!S.ready || !state.started || menu.attract) return;
+  const S = hungrige_S; if (!S.ready || !state.started || menu.attract || !wald_frei()) return; // Kapitel 1–5: nichts (PK-A A6)
   if (S.cine) { hungrige_cineTick(dt); return; }
   // Finale (wieder) anstoßen: Bau gelesen, Finale fehlt – auch nach Tod, Laden oder verlorenem Rückruf; nur in der Nähe des Baus
   if (hungrige_has('bau') && !S.finale && !S.finBusy) { S.finT = (S.finT ?? 2) - dt; const B = HUNGRIGE.bau;
     if (S.finT <= 0) { S.finT = 3; if (Math.hypot(player.pos.x - B.x, player.pos.z - B.z) < 28 && !S.ev) hungrige_finale(); } }
-  if (S.ev) { let on = true; try { on = S.ev.tick(dt); } catch (e) { console.warn('Hungrige', S.ev.id, e); on = false; } if (!on) { try { S.ev.end(); } catch (e) { console.warn('Hungrige Ende', e); } S.ev = null; S.cool = rand(70, 110); } return; }
+  if (S.ev) { let on = true; try { on = S.ev.tick(dt); } catch (e) { console.warn('Hungrige', S.ev.id, e); on = false; } if (!on) { try { S.ev.end(); } catch (e) { console.warn('Hungrige Ende', e); } S.ev = null; S.cool = hungrige_dust(player.pos.x, player.pos.z) ? rand(16, 28) : rand(35, 55); } return; } // Kapitel 6: dichter, der Weg ist kurz
   if (!S.corpse && typeof leben_S !== 'undefined' && leben_S.ready && leben_S.M && leben_S.M.deer) { S.corpse = true; try { const V = leben_beast('deer', 1); const Q = HUNGRIGE.spuren; V.g.position.set(Q.x + .4, Math.max(0, solidGround(Q.x + .4, .6, Q.z + .3)), Q.z + .3); V.g.rotation.y = 2.3; V.g.visible = true;
       leben_play(V, 'Death', 0, 1, true); V.mx.update(6); V.m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); S.corpseV = V; } catch (e) { console.warn('Hungrige: Kadaver', e); } }
   const P = player.pos; if (!hungrige_inWald(P.x, P.z) || S.finale) return;
@@ -321,9 +338,19 @@ WORLD_TICK.push((dt, t) => {
     if ((S.nacktT || 0) > t) continue; const ev = Object.assign({ id: 'nackt_' + id }, N); if (ev.start()) { S.ev = ev; return; } S.nacktT = t + 4; }
   // Gestaffelte Begegnungen
   S.cool -= dt; if (S.cool > 0 || !hungrige_ok() || !leben_S.ready) return;
-  if (S.stage < 8 && !S.dt && S.stage >= 5) hungrige_loadDT();
-  const id = HUNGRIGE_STUFEN[S.stage]; if (!id || id === 'spuren' || id === 'bau') { S.cool = 8; return; } const E = HUNGRIGE_EV[id]; if (!E || !E.need()) { S.cool = 6; return; }
-  const ev = Object.assign({ id }, E); if (ev.start()) S.ev = ev; else S.cool = 10;
+  if (!S.dt && !S.dtP && hungrige_tief(P.x, P.z)) hungrige_loadDT();
+  // nächste Begegnung: die erste nicht erlebte in HUNGRIGE_FOLGE, die an diesem Ort noch dran ist (skip: Ort/Zeitpunkt verpasst – übersprungen, nicht erledigt)
+  let id = null; for (const k of HUNGRIGE_FOLGE) { if (S.done.has(k)) continue; const e = HUNGRIGE_EV[k]; if (e.skip && e.skip()) continue; id = k; break; }
+  const E = id && HUNGRIGE_EV[id]; if (!E || !E.need()) { S.cool = 3; return; }
+  const ev = Object.assign({ id }, E); if (ev.start()) S.ev = ev; else S.cool = 6;
 });
+// Kapitel 6 beginnt (kapitel6.js): Wesen, Raben und Material jetzt anlegen und vorwärmen – nie mitten in einer Szene laden oder klonen
+async function hungrige_prep() {
+  const S = hungrige_S; S.cool = Math.min(S.cool, 12); hungrige_flesh();
+  try { if (!S.ravA && typeof leben_S !== 'undefined' && leben_S.ready && leben_S.M && leben_S.M.crow) { S.ravA = hungrige_raven(false); S.ravB = hungrige_raven(true); } } catch (e) { console.warn('Hungrige: Raben', e); }
+  const D = await hungrige_loadDT();
+  try { const L = [D && D.g, S.ravA && S.ravA.g, S.ravB && S.ravB.g].filter(Boolean); L.forEach(g => { g.visible = true; g.position.set(HUNGRIGE.bau.x, -40, HUNGRIGE.bau.z); });
+    if (renderer.compileAsync) await renderer.compileAsync(scene, camera); L.forEach(g => g.visible = false); } catch (e) { console.warn('Hungrige: Vorwärmen', e); }
+}
 window.__hungrige = { S: hungrige_S, EV: HUNGRIGE_EV, N: HUNGRIGE_NACKT, start: id => { const S = hungrige_S; if (S.ev) return false; const E = HUNGRIGE_EV[id] || HUNGRIGE_NACKT[id]; const ev = Object.assign({ id }, E); if (ev.start()) { S.ev = ev; return true; } return false; },
-  finale: () => hungrige_finale(), seite: i => hungrige_seite(i), dt: () => hungrige_loadDT() }; // Testzugriff
+  finale: () => hungrige_finale(), seite: i => hungrige_seite(i), dt: () => hungrige_loadDT(), prep: () => hungrige_prep() }; // Testzugriff

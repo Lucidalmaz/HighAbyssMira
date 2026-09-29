@@ -6,7 +6,7 @@
 // Verhalten: Wind lässt Gras, Büsche und Kronen schwingen (Böen stärker, synchron zum Windgeräusch), Pflanzen weichen dem Spieler aus, Büsche
 // bremsen und rascheln (Grundspiel: weiche Körper). Klang: Windbett in den Kronen, Laubrascheln, Zweige, fallende Äste, Kiefernzapfen,
 // kleine Tiere im Unterholz, Flügelschlag, Tropfen, Käuzchen, Rehe, fernes Heulen (Novembernacht: keine Grillen, keine Frösche).
-const WL = { ready: false, chunks: [], chunkT: 0, uWind: { value: 0 }, uAmp: { value: 1 }, uPl: { value: new THREE.Vector3() }, gust: 0, gustT: 8, sndT: 3, bed: null, bedG: null, inForest: 0, n: {} };
+const WL = { off: false, saum: null, saumT: 0, morgen: false, ready: false, chunks: [], chunkT: 0, uWind: { value: 0 }, uAmp: { value: 1 }, uPl: { value: new THREE.Vector3() }, gust: 0, gustT: 8, sndT: 3, bed: null, bedG: null, inForest: 0, n: {} };
 function wl_in(x, z) { return (typeof wald_in === 'function' && wald_in(x, z)) || (typeof tief_in === 'function' && tief_in(x, z)); }
 // Platz frei? (Wege, Hütten, Rätselorte bleiben frei; r = Abstand zum Weg)
 function wl_free(x, z, r = 1.6) {
@@ -73,14 +73,14 @@ function wl_mat(m, { dark = .75, alpha = null } = {}) {
   if (m.color) m.color.multiplyScalar(dark); m.roughness = Math.max(m.roughness ?? 1, .85); m.metalness = 0; m.envMapIntensity = Math.min(m.envMapIntensity ?? 1, .5); return m;
 }
 // Streuen: Liste [x,z,ry,s,tilt] → Blöcke je 24 m, nach Abstand ein-/ausblenden; noCol = man läuft durch
-function wl_scatter(A, list, { vis = 40, shadow = false, noCol = false, cell = 24, y = 0 } = {}) {
+function wl_scatter(A, list, { vis = 40, shadow = false, noCol = false, cell = 24, y = 0, saum = false } = {}) {
   if (!A || !list.length) return; const byG = new Map();
   for (const L of list) { const gi = L.g ?? 0; if (!byG.has(gi)) byG.set(gi, []); byG.get(gi).push(L); }
   for (const [gi, arr] of byG) { const G = A[gi % A.length]; if (!G) continue; const cells = new Map();
     for (const L of arr) { const k = Math.floor(L.x / cell) + ',' + Math.floor(L.z / cell); let c = cells.get(k); if (!c) cells.set(k, c = { x: 0, z: 0, n: 0, M: [] }); c.x += L.x; c.z += L.z; c.n++;
       c.M.push(new THREE.Matrix4().compose(new THREE.Vector3(L.x, (L.y ?? y), L.z), new THREE.Quaternion().setFromEuler(new THREE.Euler(L.tx || 0, L.ry, L.tz || 0)), new THREE.Vector3(L.s * (L.sx || 1), L.s * (L.sy || 1), L.s * (L.sx || 1)))); }
     for (const c of cells.values()) { const meshes = msInst(G.parts, c.M, { shadow }); for (const m of meshes) { m.frustumCulled = true; if (noCol === true || (noCol !== 'soft' && m.material.alphaTest > 0)) m.userData.noCol = true; }
-      WL.chunks.push({ x: c.x / c.n, z: c.z / c.n, meshes, vis, sh: shadow ? 22 : 0 }); } }
+      WL.chunks.push({ x: c.x / c.n, z: c.z / c.n, meshes, vis, sh: shadow ? 22 : 0, saum: saum && c.z / c.n < 121 }); } }
 }
 function wl_rand(x0, x1, z0, z1, n, r, test) { const out = []; for (let i = 0; i < n * 6 && out.length < n; i++) { const x = rand(x0, x1), z = rand(z0, z1); if (!wl_free(x, z, r) || (test && !test(x, z))) continue; out.push([x, z]); } return out; }
 WORLD_MODS.push(['Waldleben', async () => {
@@ -134,7 +134,7 @@ WORLD_MODS.push(['Waldleben', async () => {
   // Efeu an Kiefern- und Laubstämmen (Karten rund um den Stamm)
   for (const t of [...(L.pine || []).filter(() => Math.random() < .35), ...(L.oldpine || []).filter(() => Math.random() < .5)]) for (let k = 0; k < 3; k++) { const a = k * 2.1 + rand(-.3, .3);
     put('ivy', t.x + Math.cos(a) * .22, t.z + Math.sin(a) * .22, ivy[0] ? rand(1.1, 2) / ivy[0].w : 1, { ry: -a + PI / 2, y: rand(0, .8), sy: rand(1.2, 2) }); }
-  wl_scatter(pine, L.pine || [], { vis: 70, shadow: true }); wl_scatter(trees, L.trees || [], { vis: 62, shadow: true }); wl_scatter(oldpine, L.oldpine || [], { vis: 56, shadow: true });
+  wl_scatter(pine, L.pine || [], { vis: 70, shadow: true, saum: true }); wl_scatter(trees, L.trees || [], { vis: 62, shadow: true, saum: true }); wl_scatter(oldpine, L.oldpine || [], { vis: 56, shadow: true });
   wl_scatter(bushes, L.bushes || [], { cell: 32, vis: 44, noCol: 'soft' }); wl_scatter(stumpR, L.stumpR || [], { vis: 36 }); wl_scatter(stumpM, L.stumpM || [], { vis: 38 }); wl_scatter(rocks, L.rocks || [], { vis: 48, shadow: true });
   wl_scatter(ivylog, L.ivylog || [], { vis: 42, shadow: true }); wl_scatter(fallen, L.fallen || [], { vis: 42, shadow: true }); wl_scatter(branches, L.branches || [], { cell: 40, vis: 26, noCol: true });
   wl_scatter(leaves, L.leaves || [], { cell: 40, vis: 30, noCol: true }); wl_scatter(leafpile, L.leafpile || [], { cell: 40, vis: 28, noCol: true }); wl_scatter(moss, L.moss || [], { cell: 40, vis: 26, noCol: true });
@@ -149,6 +149,13 @@ WORLD_MODS.push(['Waldleben', async () => {
 // ---------------------------------------------------------------- Klang: Wind in den Kronen und Leben im Unterholz
 function wl_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3);
   for (let i = 0, n = 3 + Math.floor(rand(0, 4)); i < n; i++) { const s = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1600, 4200); bp.Q.value = .9; s.connect(bp); Audio.env(bp, rand(.05, .12) * v, .01, rand(.05, .16), i * rand(.05, .13), d); s.stop(Audio.ctx.currentTime + 1.6); } }
+// Erste Vögel vor dem Morgengrauen (Kapitel 6, Epilog): ein Rotkehlchen – kurze, abfallende Pfeiftöne mit Trillerende; zweite Stimme: Amsel, tiefer, flötend
+function wl_bird(x, y, z, amsel) { const A = Audio; if (!A.ctx) return; const d = A.at(x, y, z, 10), c = A.ctx, t0 = c.currentTime + .05;
+  const n = amsel ? 4 + Math.floor(rand(0, 3)) : 5 + Math.floor(rand(0, 5)); let t = t0;
+  for (let i = 0; i < n; i++) { const o = c.createOscillator(), g = c.createGain(), f0 = amsel ? rand(1600, 2400) : rand(3200, 6200), f1 = f0 * (amsel ? rand(.82, 1.15) : rand(.7, 1.25)), dur = amsel ? rand(.12, .26) : rand(.05, .14);
+    o.type = 'sine'; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); if (!amsel && i === n - 1) { o.frequency.setValueAtTime(f1, t + dur * .5); for (let k = 0; k < 6; k++) o.frequency.setValueAtTime(k % 2 ? f1 * 1.18 : f1, t + dur * .5 + k * .025); }
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amsel ? .05 : .035, t + .012); g.gain.exponentialRampToValueAtTime(.0005, t + dur + (i === n - 1 && !amsel ? .15 : 0)); o.connect(g); g.connect(d); o.start(t); o.stop(t + dur + .2);
+    t += dur + (amsel ? rand(.06, .16) : rand(.03, .09)); } }
 // Windbett in den Kronen – über Audio.hushG: bei plötzlicher Stille und an den Fraßstellen bleibt nur ein sehr leiser hoher Wind
 function wl_bed(on, k) {
   if (!Audio.ctx) return; const A = Audio.ctx;
@@ -172,13 +179,20 @@ function wl_event(k) {
     [1.4, 'owl', () => W.owlPair ? W.owlPair(...far(30, 60)) : W.owl(...far(30, 60))], // Waldkauz: im Herbst die Reviernacht
     [.6 * k, 'deer', () => W.deerBark && W.deerBark(...far(40, 70))],
     [.4 * k, 'fox', () => W.fox && W.fox(...far(45, 80))]];
-  if (k > .5 && typeof leben_howl === 'function') L.push([.35, 'howl', () => { const [x, z] = far(70, 95); leben_howl(x, 1, z); }]);
+  if (k > .5 && typeof leben_howl === 'function' && !WL.morgen) L.push([.35, 'howl', () => { const [x, z] = far(70, 95); leben_howl(x, 1, z); }]);
+  if (WL.morgen) { L.push([4, 'bird', () => { const [x, z] = far(12, 35); wl_bird(x, rand(5, 10), z); }]); L.push([2, 'bird2', () => { const [x, z] = far(25, 50); wl_bird(x, rand(6, 12), z, true); }]); } // erste Vögel (Kapitel 6, Morgen)
   if (typeof spannung_can !== 'function') return L[Math.floor(Math.random() * L.length)][2]();
   const ok = L.filter(e => e[0] > 0 && spannung_can(e[1], 'amb')); if (!ok.length) return;
   let r = Math.random() * ok.reduce((s, e) => s + e[0], 0); for (const e of ok) { r -= e[0]; if (r <= 0) { e[2](); spannung_did(e[1], 'amb'); return; } }
 }
 WORLD_TICK.push((dt, t) => {
-  if (!WL.ready || !state.started || menu.attract) return; const P = player.pos, cam = camera.position;
+  if (!WL.ready || !state.started || menu.attract) return;
+  // Kapitel 1–5: gesperrt (wald_frei, wald.js) – kein Wind, kein Klang; nur die Kiefern des Waldsaums als Kulisse am Nordrand, ohne Schatten
+  if (typeof wald_frei === 'function' && !wald_frei()) { if (!WL.off) { WL.off = true; WL.saum = null; for (const c of WL.chunks) for (const m of c.meshes) m.visible = false; WL.inForest = 0; wl_bed(false, 0); }
+    WL.saumT -= dt; if (WL.saumT < 0) { WL.saumT = .5; const on = typeof wald_saumAn === 'function' && wald_saumAn(); if (on !== WL.saum) { WL.saum = on; for (const c of WL.chunks) if (c.saum) for (const m of c.meshes) { m.visible = on; m.castShadow = false; } } }
+    return; }
+  if (WL.off) { WL.off = false; WL.chunkT = 0; }
+  const P = player.pos, cam = camera.position;
   // Blöcke nach Abstand
   WL.chunkT -= dt; if (WL.chunkT < 0) { WL.chunkT = .3; const near = P.z > 90 && P.x > WALD.x0 - 30 && P.x < WALD.x1 + 30 && state.zone !== 'canal' && !state.inBasement;
     for (const c of WL.chunks) { const d = Math.hypot(c.x - cam.x, c.z - cam.z), v = near && d < c.vis; for (const m of c.meshes) { if (m.visible !== v) m.visible = v; if (c.sh) m.castShadow = d < c.sh; } } }

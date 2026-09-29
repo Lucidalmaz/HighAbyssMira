@@ -893,19 +893,70 @@ function leben_skyTick(dt, t, c1) {
   if (town && W.fogBase) fogUniforms.strength.value = W.fogBase * (.82 + .32 * (.5 + .5 * Math.sin(t * .011 + 1.3)) * (.6 + .4 * Math.sin(t * .027)) + .18 * W.k);
 }
 
-// =====================================================================  UHR: 03:00 drei Schläge – 03:13 schlägt die Kapellenglocke, obwohl es keine volle Stunde ist
-function leben_bell313(c3) { // STORY-HOOK: 03:13 · sieben Schläge und ein halber (wie die Kreise auf der Kuh)
-  const L = c3 ? ['Die Glocke auf dem Kirchberg. Wieder. Sieben Schläge …', '… und ein achter, erstickt. Hier ist es immer 03:13.'] : ['Vom Kirchberg: eine Glocke. Um diese Zeit?', 'Sieben Schläge. Und ein achter, erstickt – als hätte jemand die Glocke mit der Hand angehalten.'];
-  for (let i = 0; i < 7; i++) setTimeout(() => { leben_bellStrike(.75, false); if (i === 0) { leben_crowScare(leben_CHAPEL.x, leben_CHAPEL.z, 70); const P = player.pos; if (Math.random() < .5) leben_crowScare(P.x, P.z, 30); } if (i === 1 && !state.talking && !ui.overlay) subtitle(L[0], 4200); }, i * 3300);
-  setTimeout(() => { leben_bellStrike(.4, true); setTimeout(() => { if (!state.talking && !ui.overlay) subtitle(L[1], 5200); leben_hush(9); }, 1500); }, 7 * 3300 + 5200);
+// =====================================================================  UHR: Weltuhr je Kapitel (PK-G G-1) · Kapellenglocke vom Kirchberg
+// clk.min = Minuten seit Mitternacht des Kapiteltags (läuft über 24:00 weiter) · 25 s Spielzeit = eine Minute in Lost Eyengless
+// schlag: nur diese Stunden schlagen (Stunde → Schläge); ohne Angabe gewöhnlich (1–12) · steht: Uhr läuft nicht · aus: ab dem Stromausfall steht die Kapellenuhr
+const LEBEN_UHR = {
+  1: { start: 23 * 60 + 4, schlag: { 0: 12, 1: 13 }, aus: true }, // 01:00 dreizehn statt einem – „zur falschen Stunde“; nie 03:00/03:13
+  2: { start: 1 * 60 + 4, steht: true, schlag: {} },  // unter der Erde; die Amt-Uhren sind skriptgesteuert
+  3: { start: 3 * 60 + 13, steht: true, schlag: {} }, // 03:13 steht; einmal 3 + 13 zu Kapitelbeginn über leben_bell3plus13()
+  4: { start: 7 * 60 + 40 },
+  5: { start: 18 * 60 + 10 },                         // Sprünge an Beats über leben_uhr(hh, mm)
+  6: { start: 2 * 60 + 10 },
+};
+const LEBEN_BELL_GAP = 3.3, LEBEN_BELL_PAUSE = 2; // Sekunden zwischen zwei Schlägen · Zusatzpause zwischen den drei und den dreizehn
+const LEBEN_BELL313_SUB = ['Die Glocke auf dem Kirchberg. Drei Schläge. Pause.', 'Dann dreizehn. Du zählst mit, ohne es zu wollen.'];
+function leben_uhrKap() { return typeof kap === 'function' ? kap() : curChapter(); }
+function leben_uhrSync() { // Kapitelwechsel (auch nach dem Laden): Uhr auf den Kapitelstart
+  const K = leben_S.clk, k = leben_uhrKap(); if (K.kap === k) return K;
+  const U = LEBEN_UHR[k] || LEBEN_UHR[1]; K.kap = k; K.min = U.start; K.h = Math.floor(U.start / 60); K.pend = 0; K.c3 = false; return K;
+}
+function leben_uhrCount(h) { const U = LEBEN_UHR[leben_S.clk.kap], hh = h % 24; if (!U) return 0; return U.schlag ? (U.schlag[hh] || 0) : (hh % 12 || 12); }
+// Schlagfolge ohne Timer-Ketten: der Takt schlägt zur Zeit clk.qAt (performance.now) – keine Allokation pro Bild
+function leben_bellSeq(n, pauseAfter, amp, sub, hush) {
+  const K = leben_S.clk; if (K.qr) { const r = K.qr; K.qr = null; r(); }
+  K.q = n; K.qi = 0; K.qp = pauseAfter; K.qa = amp; K.qs = sub; K.qh = hush; K.qAt = performance.now() + 250;
+}
+function leben_bellRun(now) {
+  const K = leben_S.clk;
+  if (K.hushAt && now >= K.hushAt) { K.hushAt = 0; leben_hush(9); }
+  if (!(K.q > 0) || now < K.qAt) return;
+  const i = K.qi++; K.q--; K.n = (K.n || 0) + 1;
+  leben_bellStrike(K.qa * rand(.94, 1.04), false);
+  if (i === 0) { leben_crowScare(leben_CHAPEL.x, leben_CHAPEL.z, 70); const P = player.pos; if (Math.random() < .5) leben_crowScare(P.x, P.z, 30); }
+  if (K.qs && (i === 1 || i === 4) && !state.talking && !ui.overlay) subtitle(LEBEN_BELL313_SUB[i === 1 ? 0 : 1], i === 1 ? 4600 : 5600);
+  if (K.q > 0) { K.qAt = now + (LEBEN_BELL_GAP + (K.qi === K.qp ? LEBEN_BELL_PAUSE : 0) + rand(-.05, .05)) * 1000; return; }
+  if (K.qr) { const r = K.qr; K.qr = null; r(); }
+  if (K.qh) K.hushAt = now + 2500;
+}
+// T10 · drei Schläge (3,3 s), 2 s Pause, dreizehn Schläge. In Kapitel 3 genau einmal, nur dort mit Untertiteln. Promise: löst beim letzten Schlag auf
+function leben_bell3plus13() {
+  const K = leben_uhrSync(), c3 = K.kap === 3; if (c3 && K.c3) return Promise.resolve(); if (c3) K.c3 = true;
+  let res; const p = new Promise(r => { res = r; });
+  leben_bellSeq(16, 3, .75, c3, true); K.qr = res; console.log('[uhr] 3 + 13 Schläge');
+  setTimeout(() => { if (K.qr === res) { K.qr = null; res(); } }, 62000); // Sicherung, falls der Takt nicht läuft
+  return p;
+}
+function leben_bell313() { return leben_bell3plus13(); } // alter Name, nur noch für den Testzugriff __leben.bell
+// Zeitsprung (Kap. 5/6, z. B. leben_uhr(23, 0)): nie rückwärts. Landet der Sprung auf einer neuen vollen Stunde, schlägt sie sofort; schlag === true erzwingt, false unterdrückt
+function leben_uhr(hh, mm = 0, schlag) {
+  const K = leben_uhrSync(); let t = hh * 60 + mm; while (t < K.min - 720) t += 1440;
+  if (t > K.min) K.min = t;
+  const h = Math.floor(K.min / 60), neu = h > K.h; if (neu) { K.h = h; K.pend = 0; }
+  if (schlag === true || (schlag !== false && neu && K.min % 60 === 0)) { const n = leben_uhrCount(h) || (h % 12 || 12); leben_bellSeq(n, -1, .68, false, false); console.log('[uhr] ' + (h % 24) + ':00 · ' + n + ' Schläge (Sprung)'); }
+  return K.min;
 }
 function leben_clockTick(dt, c1, c3, live) {
-  const S = leben_S, K = S.clk;
-  if (c1 && state.started && !state.ending) { if (K.min < 0) K.min = 2 * 60 + 47; K.min += dt / 25; // 25 Sekunden = eine Minute in Lost Eyengless
-    if (!K.three && K.min >= 180 && live && S.zone === 'town') { K.three = true; for (let i = 0; i < 3; i++) setTimeout(() => leben_bellStrike(.65, false), i * 3300); }
-    if (!K.b313 && K.min >= 193 && live && S.zone === 'town') { K.b313 = true; leben_bell313(false); } }
-  if (c3 && ch3.part === 'town' && ch3.cowSeen && !K.c3) { K.c3t = (K.c3t || 0) + dt; if (K.c3t > 40 && live && ch3.chase !== 'run') { K.c3 = true; leben_bell313(true); } }
+  const S = leben_S, K = leben_uhrSync(), U = LEBEN_UHR[K.kap] || LEBEN_UHR[1];
+  if (!U.steht && state.started && !state.ending && !(U.aus && state.outage) && !(typeof traum_S !== 'undefined' && traum_S.on)) {
+    K.min += dt / 25;
+    const h = Math.floor(K.min / 60); if (h > K.h) { K.h = h; const n = leben_uhrCount(h); if (n) { K.pend = n; K.pendAt = K.min; } } }
+  if (K.pend) { // schlägt, sobald nichts läuft und man draußen im Ort ist – höchstens 30 Spielminuten später, nach dem Stromausfall gar nicht
+    if (K.min - K.pendAt > 30 || (U.aus && state.outage)) K.pend = 0;
+    else if (!(K.q > 0) && live && S.zone === 'town') { const n = K.pend; K.pend = 0; leben_bellSeq(n, -1, n === 13 ? .7 : .65, false, n === 13); console.log('[uhr] ' + (K.h % 24) + ':00 · ' + n + ' Schläge'); } }
+  leben_bellRun(performance.now());
 }
+window.__uhr = { S: leben_S.clk, T: LEBEN_UHR, uhr: (hh, mm, s) => leben_uhr(hh, mm, s), bell3plus13: () => leben_bell3plus13(), kap: leben_uhrKap }; // Testzugriff
 
 // =====================================================================  FERNE GERÄUSCHE & UNERKLÄRLICHES (selten, nie gleichzeitig, nie in Dialogen)
 const leben_EV = {

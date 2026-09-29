@@ -237,6 +237,58 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     for (const z of [ZA - 3.4, ZA - 2, ZA + 2.2, ZA + 3.5]) { edgeWebX(XA + 36.15, z, 1, R(.6, .9)); edgeWebX(XA + 45.85, z, -1, R(.6, .9)); }
     web(XA + 40.5, .55, ZA - 4.55, 0, .55); web(XA + 42.4, .5, ZA - 4.6, 0, .5);
     flat(soot, XA + 41, ZA, 4.5, 3.5, .3, .012); flat(bloodOldS, XA + 41.2, ZA - 3.2, .9, 1.5, 1.5, .014);
+    // Peters Zelle (W2-P5, PK-D K2-4): Türschilder, tausendfach „ICH WEISS ES JETZT“, Strichliste seit 1992, Tafel (erst nach dem Schwarm lesbar), Fluchtplan
+    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; };
+      const dMat = (c, r = .9, m = 0) => new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: r, metalness: m });
+      const grime = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(10, 70)); g.addColorStop(0, `rgba(60,44,28,${R(a * .4, a)})`); g.addColorStop(1, 'rgba(60,44,28,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } };
+      // Emailleschild (alt, abgeplatzt) und darunter ein jüngeres Schild, getippt, mit Klebeband
+      onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
+        x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückkehrer', w / 2, 126);
+        for (let i = 0; i < 16; i++) { const px = R(0, w), py = i < 6 ? (i % 2 ? R(0, 16) : R(h - 16, h)) : R(0, h), r = R(3, 11); x.fillStyle = '#1b1a18'; x.beginPath(); x.ellipse(px, py, r, r * R(.6, 1), R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,70,30,.5)'; x.beginPath(); x.arc(px + R(-2, 2), py + r, r * .8, 0, 7); x.fill(); }
+        grime(x, w, h, 10, .22); }), .4, .15), XA + 35.842, 1.86, ZA - 1.38, .5, .156, -Math.PI / 2);
+      onWall(dMat(pc(512, 128, (x, w, h) => { x.fillStyle = '#e4dcc6'; x.fillRect(24, 14, w - 48, h - 28); grime(x, w, h, 5, .12); x.fillStyle = '#1e1c1a'; x.textAlign = 'center'; x.font = 'bold 30px "Courier New"'; x.fillText('KRANZ, P. · Rückläufer', w / 2, 58); x.font = '24px "Courier New"'; x.fillText('verwahrt seit 11/1992', w / 2, 92);
+        x.fillStyle = 'rgba(200,190,150,.55)'; x.save(); x.translate(40, 24); x.rotate(-.5); x.fillRect(-26, -9, 64, 18); x.restore(); x.save(); x.translate(w - 40, h - 24); x.rotate(-.5); x.fillRect(-38, -9, 64, 18); x.restore(); })), XA + 35.84, 1.6, ZA - 1.38, .44, .11, -Math.PI / 2, .025);
+      spot(XA + 35.7, 1.72, ZA - 1.38, .15, .5, .6, 'Türschild', note('Prüfraum 3', 'Ein Emailleschild, an den Kanten abgeplatzt: <b>PRÜFRAUM 3 · Unterscheidung Original / Rückkehrer</b>\n\nDarunter, jünger, mit Klebeband angeklebt: <i>„KRANZ, P. · Rückläufer · verwahrt seit 11/1992“</i>\n\n<span class="hand">Kranz. So hieß Mama, bevor sie Brandt hieß.</span>', 'pruefraum_schild'));
+      // Kratzspuren: an allen Wänden, tausendfach – mit Fingernägeln, Löffelstielen, irgendwas
+      const scratchCanvas = seed => pc(1024, 704, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; x.lineJoin = 'round'; rs = 7 + seed * 131;
+        for (let i = 0; i < 150; i++) { const s = R(13, 46), a = R(.16, .5); x.save(); x.translate(R(-60, w), R(10, h)); x.rotate(R(-.13, .13)); x.font = `bold ${s}px Arial`;
+          x.lineWidth = s / 24 + .8; x.strokeStyle = `rgba(18,16,14,${a * .8})`; x.strokeText('ICH WEISS ES JETZT', 1.4, 1.4); x.strokeStyle = `rgba(214,207,192,${a})`; x.strokeText('ICH WEISS ES JETZT', 0, 0); x.restore(); }
+        for (let i = 0; i < 90; i++) { const px = R(0, w), py = R(0, h), l = R(20, 120), an = R(-1.8, -1.3); x.strokeStyle = `rgba(210,202,188,${R(.1, .3)})`; x.lineWidth = R(.8, 2); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(an) * l, py + Math.sin(an) * l); x.stroke(); } });
+      const scr = [0, 1, 2].map(i => dMat(scratchCanvas(i), .95));
+      for (const [cx, k] of [[XA + 37.8, 0], [XA + 41, 1], [XA + 44.2, 2]]) { onWall(scr[k], cx, 1.18, ZA + 4.838, 3.2, 2.2, Math.PI); onWall(scr[(k + 1) % 3], cx, 1.18, ZA - 4.838, 3.2, 2.2, 0); }
+      for (const [cz, k] of [[ZA - 2.85, 0], [ZA + 2.85, 2]]) { onWall(scr[k], XA + 45.838, 1.18, cz, 3.9, 2.2, -Math.PI / 2); onWall(scr[(k + 1) % 3], XA + 36.162, 1.18, cz, 3.9, 2.2, Math.PI / 2); }
+      // Strichliste über dem Bett: Tage in Fünfergruppen, Jahr für Jahr, von 1992 bis heute – die letzte Gruppe ist nicht fertig
+      onWall(dMat(pc(1024, 512, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; rs = 991; let px = 8, py = 30; const YR = [1992, 1995, 1998, 2001, 2004, 2007, 2010, 2013, 2016, 2019, 2022, 2026];
+        for (let row = 0; row < 12; row++, py += 40, px = 8) { x.fillStyle = 'rgba(222,214,198,.75)'; x.font = 'bold 17px Arial'; x.fillText(String(YR[row]), px, py + 22); px += 54;
+          for (let g = 0; g < 22 && px < w - 30; g++, px += 42) { const last = row === 11 && g >= 12; if (last && g > 12) break; const n = last ? 3 : 4; x.strokeStyle = `rgba(214,206,190,${R(.45, .8)})`; x.lineWidth = R(1.6, 2.6);
+            for (let k = 0; k < n; k++) { x.beginPath(); x.moveTo(px + k * 7 + R(-1, 1), py + R(0, 4)); x.lineTo(px + k * 7 + R(-2, 2), py + 30 + R(-3, 2)); x.stroke(); }
+            if (!last) { x.beginPath(); x.moveTo(px - 4, py + 24); x.lineTo(px + 27, py + 6); x.stroke(); } } } })), XA + 41.4, 1.62, ZA - 4.83, 2.3, 1.15, 0, .01);
+      // Die Tafel (kanonisch) – bis zum Schwarm unter einem dichten Gespinst, danach lesbar
+      const board = plane(1.3, .85, XA + 39.1, 1.55, ZA + 4.829, new THREE.MeshStandardMaterial({ roughness: .92, map: tex(pc(768, 502, (x, w, h) => { x.fillStyle = '#1c201e'; x.fillRect(0, 0, w, h); rs = 4242;
+        for (let i = 0; i < 26; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(40, 160)); g.addColorStop(0, `rgba(200,200,190,${R(.03, .08)})`); g.addColorStop(1, 'rgba(200,200,190,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
+        x.strokeStyle = '#3a3129'; x.lineWidth = 14; x.strokeRect(7, 7, w - 14, h - 14); x.fillStyle = 'rgba(232,228,214,.9)'; x.font = '40px Caveat, "Segoe Print", cursive';
+        x.fillText('Original B., Luke (Vermessung 12.3.2009):', 44, 118); x.fillText('starke Spinnenangst.', 84, 172); x.fillText('Rückkehrer 08 (9.8.2009):', 44, 290); x.fillText('keine Reaktion. Lacht.', 84, 344);
+        x.strokeStyle = 'rgba(232,228,214,.7)'; x.lineWidth = 3; x.beginPath(); x.moveTo(40, 216); x.lineTo(w - 60, 210); x.stroke(); }), true) }), 0, Math.PI);
+      board.userData.noCol = true;
+      const cover = S.pruefCover = plane(1.42, .97, XA + 39.1, 1.55, ZA + 4.815, new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, map: tex(pc(512, 350, (x, w, h) => { x.clearRect(0, 0, w, h); rs = 5151;
+        for (let i = 0; i < 60; i++) { const g = x.createRadialGradient(R(40, w - 40), R(30, h - 30), 0, R(40, w - 40), R(30, h - 30), R(40, 130)); g.addColorStop(0, 'rgba(150,146,136,.5)'); g.addColorStop(1, 'rgba(150,146,136,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
+        x.strokeStyle = 'rgba(228,224,214,.55)'; for (let i = 0; i < 420; i++) { x.lineWidth = R(.4, 1.3); x.beginPath(); const a = R(0, 6.3), cx = R(0, w), cy = R(0, h), l = R(30, 200); x.moveTo(cx, cy); x.quadraticCurveTo(cx + R(-20, 20), cy + R(-20, 20), cx + Math.cos(a) * l, cy + Math.sin(a) * l); x.stroke(); }
+        for (let k = 0; k < 7; k++) { const cx = R(60, w - 60), cy = R(60, h - 60); for (let r = 6; r < 70; r += R(5, 9)) { x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke(); } } }), true) }), 0, Math.PI);
+      cover.userData.noCol = true; cover.renderOrder = 3;
+      spot(XA + 39.1, 1.55, ZA + 4.55, 1.3, .9, .3, 'Tafel', () => { if (ch2.spiderPhase !== 'gone') { toast('Eine Tafel an der Wand, dicht zugesponnen. Darunter Kreide – nicht zu lesen.', 3800); return; }
+        openNote('Tafel · Prüfraum 3', 'Kreide auf Schiefer, sauber, wie für eine Schulklasse:\n\n<span class="hand">Original B., Luke (Vermessung 12.3.2009): starke Spinnenangst.\nRückkehrer 08 (9.8.2009): keine Reaktion. Lacht.</span>', 'ik_pruef_tafel',
+          () => { if (!S.tafelSaid) { S.tafelSaid = true; say([['„Keine Reaktion. Lacht.“', 2400, 'LUKE'], ['Ich hab nicht gelacht. Ich hab geschrien wie ein Kind.', 3400, 'LUKE']]); } }); });
+      // Fluchtplan an der Osttür (Hilfe 1 für den langen Gang)
+      onWall(dMat(pc(420, 560, (x, w, h) => { x.fillStyle = '#ece6d2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1f6a3a'; x.fillRect(0, 0, w, 74); x.fillStyle = '#f4f1e6'; x.textAlign = 'center'; x.font = 'bold 30px Arial'; x.fillText('FLUCHTPLAN', w / 2, 36); x.font = 'bold 20px Arial'; x.fillText('EBENE −2', w / 2, 62);
+        x.strokeStyle = '#2b2b28'; x.lineWidth = 3; const rooms = [[20, 150, 50, 40], [70, 135, 50, 70], [120, 150, 30, 40], [150, 140, 50, 60], [200, 160, 150, 20], [350, 130, 50, 80]]; rooms.forEach(([a, b, c, d]) => x.strokeRect(a, b, c, d));
+        x.fillStyle = '#c42016'; x.beginPath(); x.arc(175, 170, 8, 0, 7); x.fill(); x.font = 'bold 14px Arial'; x.fillText('SIE SIND HIER', 175, 232); x.lineWidth = 7; x.strokeStyle = '#c42016'; x.beginPath(); x.moveTo(350, 150); x.lineTo(350, 190); x.stroke();
+        x.fillStyle = '#1f6a3a'; for (let i = 0; i < 5; i++) { x.beginPath(); x.moveTo(214 + i * 28, 164); x.lineTo(228 + i * 28, 170); x.lineTo(214 + i * 28, 176); x.fill(); }
+        x.fillStyle = '#1f1f1c'; x.textAlign = 'left'; x.font = 'bold 21px Arial'; x.fillText('Brandschutztür Messraum:', 26, 300); x.font = '21px Arial'; x.fillText('Notentriegelung nur bei', 26, 332); x.fillText('Brandalarm.', 26, 362);
+        x.fillStyle = '#c42016'; x.fillRect(26, 392, 36, 36); x.fillStyle = '#f4f1e6'; x.font = 'bold 26px Arial'; x.fillText('!', 38, 420); x.fillStyle = '#1f1f1c'; x.font = '15px Arial'; x.fillText('Brandalarm öffnet die Tür', 74, 406); x.fillText('an der Notentriegelung (rot).', 74, 424);
+        grime(x, w, h, 14, .25); x.fillStyle = 'rgba(255,255,255,.09)'; x.beginPath(); x.moveTo(0, 0); x.lineTo(w * .5, 0); x.lineTo(0, h * .6); x.fill(); }), .3, .05), XA + 45.838, 1.5, ZA + 1.42, .42, .56, -Math.PI / 2);
+      spot(XA + 45.7, 1.5, ZA + 1.42, .15, .6, .5, 'Fluchtplan', note('Fluchtplan Ebene −2', 'Hinter zerkratztem Plexiglas, vergilbt. Ein roter Punkt: <b>Sie sind hier</b>. Nach Osten ein langer Gang, ganz am Ende ein dicker roter Strich.\n\n<b>Brandschutztür Messraum: Notentriegelung nur bei Brandalarm.</b>\n\n<span class="hand">Nur bei Brandalarm. Na gut. Hoffentlich brennt es nie.</span>', 'pruef_fluchtplan'));
+      rs = rs0; // der reproduzierbare Zufall der übrigen Räume bleibt wie vorher
+    }
     // Kokon: eingesponnener Körper, kopfüber an der Decke (Figurenmodell, Pose eingebacken, aufgequollen, knotig)
     try {
       const gl = S.ghostGL = await MSL.gl.loadAsync('assets/ghost/ghost.glb'); const root = SKC(gl.scene), clip = gl.animations.find(a => /idle/i.test(a.name)) || gl.animations[0];

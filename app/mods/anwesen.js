@@ -138,6 +138,8 @@ WORLD_MODS.push(['Anwesen', async () => {
   { const fl = new VLight(0xffa050, 0, 5, 2); fl.position.set(-129.7, 2.1, vb.min.z + .9); scene.add(fl); S.flick = fl;
     const face = new T.Mesh(new T.PlaneGeometry(.3, .36), new T.MeshBasicMaterial({ map: faceTexes.child, transparent: true, opacity: 0, color: new T.Color(.7, .72, .78), depthWrite: false }));
     face.position.set(-120.28, 2.05, vb.min.z - .03); face.rotation.y = PI; scene.add(face); S.face = face; }
+  // --- Kapitel 4: dünner Rauch aus dem Gully an der Kreuzung (der Gang im Amt brennt noch)
+  try { anwesen_smokeBuild(); } catch (e) { console.warn('Anwesen: Rauch', e); }
   // --- Kapitel 4: Eingangshalle der Villa (eigener Innenraum; die Haustür führt hinein)
   await anwesen_buildHall();
   S.ready = true;
@@ -160,7 +162,7 @@ applySave = (o => d => { o(d); const S = anwesen_S; S.key = story.items.includes
 MOD_SAVE.push(['anwesen', () => ({ open: !!anwesen_S.open, inHall: !!anwesen_S.inHall, hallDone: !!anwesen_S.hallDone, seen: [...anwesen_S.seen], knocked: !!anwesen_S.knocked }),
   v => { const S = anwesen_S; S.open = !!v.open; S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; }]);
 if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { // nach dem Platzieren beim Weiterspielen
-  const S = anwesen_S, H = ANW_HALL; if (d.chapter < 4) return;
+  const S = anwesen_S, H = ANW_HALL; if (d.chapter !== 4) { S.pendingHall = false; return; } // nur Kapitel 4 (ab Kapitel 5 nie zurück in die Halle)
   const inHall = at && Math.abs(at.x - H.x) < H.w && Math.abs(at.z - H.z) < H.d;
   if (S.pendingHall || inHall) { if (!inHall) { player.pos.set(H.x, 0, H.z - H.d / 2 + 1.2); player.yaw = PI; } S.open = true; S.inHall = true; S.hallT = 0; if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; Audio.setArea(true, false); setC3('Die Villa Seiler. Sieh dich um.'); }
   else S.open = false; // Tür offen, aber draußen gespeichert → Tür wieder benutzbar
@@ -176,13 +178,14 @@ function anwesen_door() {
   S.open = true; anwesen_sockets(); anwesen_enterHall();
 }
 // ---- Kapitel 4
-const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus, wie an jedem Morgen. Als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA SEILER</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus, wie an jedem Morgen. Als wäre nichts gewesen.</p><p class="on">Aus dem Gully an der Kreuzung steigt dünner Rauch. Er riecht nach Heizöl.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
   const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); setChapter(4);
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
-  ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
+  ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; ch3.gullyHint = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
   state.zone = null; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
-  lamps.forEach(L => { L.mode = 'on'; L.dead = 0; });
+  lamps.forEach(L => { L.mode = 'off'; L.dead = 0; }); // Morgen: die Laternen sind aus (PK-H)
+  if (typeof leben_uhr === 'function') { try { leben_uhr(7, 40); } catch (e) { console.warn('Anwesen: Weltuhr', e); } } // Weltuhr Kap. 4: Start 07:40 (PK-G G-1)
   { const OW = ausbau_ost_west_OW; if (!OW.gateOpen && OW.gate) { OW.gateOpen = true; if (OW.chain) OW.chain.visible = false; msHide(OW.gate); // wie im Tor-Code: Flügel an einem Scharnier, offen
     const pv = new THREE.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); pv.rotation.y = -1.2; OW.gate.parent.add(pv); } }
   player.pos.set(.8, 0, 1.6); player.yaw = PI / 2 + .6; player.pitch = .05; vel.set(0, 0, 0); camY = player.pos.y + 1.65; flashOn = true;
@@ -305,21 +308,40 @@ async function anwesen_hallEnd() {
   S.hallDone = true; state.talking = true;
   try { await say([['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600], ['Eine Spieluhr. Dieselbe Melodie wie in Lucys Zimmer.', 3400],
     ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah:', 3600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?']]); } finally { state.talking = false; }
-  if (Audio.musicBox) Audio.musicBox(); saveGame(4);
-  state.ending = true; Audio.hum(false); $('endcard').querySelector('h1').textContent = 'KAPITEL 4 · DIE VILLA';
-  $('endcard').querySelector('p').innerHTML = 'Die Villa Seiler hat ihr erstes Geheimnis preisgegeben.<br>Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.';
-  $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; $('endcard').querySelector('.next').textContent = 'HIGH ABYSS MIRA · KAPITEL 4 WIRD FORTGESETZT';
-  const go = $('endcard').querySelector('.go'); go.style.display = ''; go.textContent = 'ZURÜCK ZUM HAUPTMENÜ'; go.onclick = () => location.reload();
-  document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); document.body.classList.add('ov');
+  saveGame(4); // Abbruch vor dem Knopf: Weiterspielen setzt in der Halle fort, das Ende lässt sich erneut auslösen
+  // Kinosequenz K4 „Noch nicht“ (kino.js); ohne sie: Spieluhr und eine ruhige Schwarzblende
+  if (typeof kino_play === 'function') { try { await kino_play('k4'); } catch (e) { console.error('Kino k4', e); } }
+  else { if (Audio.musicBox) Audio.musicBox(); $('fade').style.background = '#000'; await fade(1, 1800); await wait(600); }
+  anwesen_endcard();
 }
-// Endkarte von Kapitel 3: zusätzlicher Knopf „Weiter · Kapitel 4“
+// Endkarte Kapitel 4 (PK-H) mit dem Übergang zu Kapitel 5
+function anwesen_endcard() {
+  const ec = $('endcard'); state.ending = true; state.talking = false; Audio.hum(false);
+  ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · DIE VILLA SEILER';
+  ec.querySelector('p').innerHTML = 'Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.<br>Am Abend brennt auch in eurem Elternhaus Licht.';
+  $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; ec.querySelector('.next').textContent = '';
+  const b4 = ec.querySelector('.go4'); if (b4) b4.style.display = 'none';
+  const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'WEITER · KAPITEL 5 · DER GEDECKTE TISCH';
+  go.onclick = e => { e.stopPropagation(); go.onclick = null; anwesen_toCh5(); };
+  document.exitPointerLock(); ui.overlay = 'endcard'; ec.classList.add('show'); document.body.classList.add('ov');
+  $('fade').style.background = '#000'; $('fade').style.opacity = 0;
+}
+async function anwesen_toCh5() {
+  const S = anwesen_S; S.inHall = false; S.pendingHall = false;
+  if (typeof kapEnde === 'function') { try { kapEnde(4); } catch (e) { console.error('kapEnde(4)', e); saveFlag('ch5'); } } else saveFlag('ch5');
+  if (typeof startChapter5 !== 'function') { location.reload(); return; } // Rückfall ohne Kapitel 5: Hauptmenü (Kapitel 5 ist freigeschaltet)
+  $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false;
+  try { await startChapter5(); } catch (e) { console.error('Kapitel 5', e); location.reload(); }
+}
+// Endkarte von Kapitel 3: zusätzlicher Knopf „Weiter · Kapitel 4“ (Kapitel 4–6 setzen Ende B fort, PK-0.1)
 c3Endcard = (o => (...a) => { o(...a); let b = $('endcard').querySelector('.go4');
   if (!b) { b = document.createElement('div'); b.className = 'go go4'; b.style.marginBottom = '18px'; $('endcard').querySelector('.go').before(b); }
-  b.style.display = ''; b.textContent = ch3.choice === 'A' ? 'WEITER · KAPITEL 4 (setzt Ende B fort)' : 'WEITER · KAPITEL 4 · DIE VILLA';
+  b.style.display = ''; b.textContent = ch3.choice === 'A' || ch3.choice === 'C' ? 'WEITER · KAPITEL 4 (setzt Ende B fort)' : 'WEITER · KAPITEL 4 · DIE VILLA SEILER';
   b.onclick = e => { e.stopPropagation(); b.style.display = 'none'; chapter4Begin(); }; })(c3Endcard);
 WORLD_TICK.push((dt, t) => {
   const S = anwesen_S; if (!S.ready || !state.started) return; const P = player.pos;
   if (S.pressT > 0) { S.pressT -= dt; if (S.wheel) S.wheel.rotation.x += dt * 7; if (S.pressLight) S.pressLight.intensity = 1.2 + Math.random() * .6; if (S.pressT <= 0 && S.pressLight) S.pressLight.intensity = 0; }
+  if (S.smoke) anwesen_smokeTick(S.smoke, dt, t, P);
   const dv = Math.hypot(P.x + 125, P.z - 66); if (dv > 45 || S.inHall) return;
   // flackernde Kerze hinter dem Fenster, die manchmal wandert
   if (S.flick) { S.fT = (S.fT || 0) - dt; if (S.fT < 0) { S.fT = rand(4, 11); S.flickOn = Math.random() < .6; } S.flick.intensity = S.flickOn ? .5 + Math.sin(t * 13) * .12 + Math.random() * .15 : Math.max(0, S.flick.intensity - dt); }
@@ -331,5 +353,64 @@ WORLD_TICK.push((dt, t) => {
 });
 const _anwFwd = new THREE.Vector3();
 const anwesen_hand = s => '<span class="hand">' + s + '</span>';
+// ---- Kapitel 4: Rauch aus dem Gully an der Kreuzung (PK-H). Kein Licht: Billboards als Instanzen (ein Zeichenaufruf), Form aus Rauschen im Shader
+// (Machart wie der Rauch in feuer.js), vom Mond kaum, von der Taschenlampe sichtbar angestrahlt, im Nebel wie alles andere. Alles beim Laden angelegt,
+// im Tick keine Zuweisungen. Dünn, langsam, vom Morgenwind die Straße entlang gezogen.
+const ANW_GULLY = { x: 9, z: -1.3 };
+const ANW_SMOKE_VS = `attribute vec3 iPos; attribute vec4 iD; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW;
+  void main(){ vUv = uv; vAge = iD.y; vSeed = iD.w;
+    vec3 r = vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]), u = vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
+    float c = cos(iD.z), s = sin(iD.z); vec2 p = vec2(c * position.x - s * position.y, s * position.x + c * position.y);
+    vW = iPos + (r * p.x + u * p.y) * iD.x; gl_Position = projectionMatrix * viewMatrix * vec4(vW, 1.); }`;
+const ANW_SMOKE_FS = `uniform float uTime, uA, fogD; uniform vec3 uCol, fogC, flP, flD; uniform vec2 flK; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW;
+  float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h(i), h(i + vec2(1., 0.)), f.x), mix(h(i + vec2(0., 1.)), h(i + vec2(1., 1.)), f.x), f.y); }
+  float fb(vec2 p){ return n(p) * .5 + n(p * 2.03 + 1.7) * .3 + n(p * 4.11 + 3.1) * .2; }
+  void main(){ vec2 q = vUv - .5; float r = length(q) * 2.;
+    float n1 = fb(vUv * 1.9 + vec2(vSeed * 9., uTime * .05 + vAge * .7)), n2 = fb(vUv * 4.2 - vec2(uTime * .06 + vAge * .9, vSeed * 3.));
+    float d = smoothstep(1., .05, r + (n1 - .5) * 1.1) * (.25 + .75 * n2 * n2);
+    float dc = distance(vW, cameraPosition);
+    float a = d * smoothstep(0., .18, vAge) * (1. - smoothstep(.3, 1., vAge)) * uA * smoothstep(.5, 1.8, dc) * smoothstep(0., .3, vW.y); if (a < .003) discard;
+    vec3 L = vW - flP; float dl = max(length(L), .001), beam = flK.x * smoothstep(flK.y, flK.y + (1. - flK.y) * .5, dot(L / dl, flD)) / (1. + dl * dl * .06);
+    vec3 col = uCol * (.7 + .5 * n1) + vec3(1., .96, .88) * beam * .3 * (.6 + .4 * n2);
+    col = mix(col, fogC, 1. - exp(-fogD * fogD * dc * dc));
+    gl_FragColor = vec4(col, min(a, .6)); }`;
+function anwesen_smokeBuild() {
+  const T = THREE, N = 44, pl = new T.PlaneGeometry(1, 1), g = new T.InstancedBufferGeometry(); g.index = pl.index; g.setAttribute('position', pl.attributes.position); g.setAttribute('uv', pl.attributes.uv);
+  const ip = new T.InstancedBufferAttribute(new Float32Array(N * 3), 3), id = new T.InstancedBufferAttribute(new Float32Array(N * 4), 4); ip.setUsage(T.DynamicDrawUsage); id.setUsage(T.DynamicDrawUsage);
+  g.setAttribute('iPos', ip); g.setAttribute('iD', id); g.instanceCount = 0; g.boundingSphere = new T.Sphere(new T.Vector3(ANW_GULLY.x + 1.5, 2, ANW_GULLY.z), 7);
+  const FU = typeof fogUniforms !== 'undefined' ? fogUniforms : null;
+  const u = { uTime: { value: 0 }, uA: { value: .26 }, uCol: { value: new T.Color(.034, .038, .046) }, fogC: { value: scene.fog.color }, fogD: { value: scene.fog.density },
+    flP: FU ? FU.flP : { value: new T.Vector3() }, flD: FU ? FU.flD : { value: new T.Vector3(0, 0, -1) }, flK: FU ? FU.flK : { value: new T.Vector2() } };
+  const mat = new T.ShaderMaterial({ uniforms: u, vertexShader: ANW_SMOKE_VS, fragmentShader: ANW_SMOKE_FS, transparent: true, depthWrite: false, fog: false });
+  const m = new T.Mesh(g, mat); m.renderOrder = 11; m.userData.noCol = true; m.castShadow = false; m.receiveShadow = false; scene.add(m); // sichtbar lassen: Shader wird beim Laden übersetzt
+  const F = () => new Float32Array(N), M = { m, g, ip, id, u, N, n: 0, acc: 0, rate: 3.4, on: false, chk: 0, said: false, x: F(), y: F(), z: F(), vx: F(), vy: F(), vz: F(), age: F(), life: F(), s0: F(), s1: F(), rot: F(), rv: F(), seed: F() };
+  M.arr = [M.x, M.y, M.z, M.vx, M.vy, M.vz, M.age, M.life, M.s0, M.s1, M.rot, M.rv, M.seed]; anwesen_S.smoke = M; return M;
+}
+function anwesen_smokeEmit(M) {
+  if (M.n >= M.N) return; const i = M.n++, a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * .28; // aus den Schlitzen des Deckels (ø 0,6 m)
+  M.x[i] = ANW_GULLY.x + Math.cos(a) * r; M.y[i] = .06; M.z[i] = ANW_GULLY.z + Math.sin(a) * r; M.vx[i] = rand(-.03, .03); M.vy[i] = rand(.28, .42); M.vz[i] = rand(-.03, .03);
+  M.age[i] = 0; M.life[i] = rand(6.5, 9.5); M.s0[i] = rand(.18, .28); M.s1[i] = rand(1.3, 1.9); M.rot[i] = rand(0, 6.283); M.rv[i] = rand(-.25, .25); M.seed[i] = Math.random();
+}
+function anwesen_smokeTick(M, dt, t, P) {
+  M.chk -= dt; if (M.chk <= 0) { M.chk = .5; const S = anwesen_S; M.on = S.ch4 && !S.inHall && !S.hallDone && (typeof kap === 'function' ? kap() : curChapter()) === 4; }
+  // In Kapitel 4 fällt aus dem Gully kein warmes Laternenlicht mehr (Kapitel-3-Effekt in innen_kapitel.js): nur Rauch, kein Licht
+  if (M.on && typeof innen_kapitel_S !== 'undefined' && innen_kapitel_S.gully) { const G = innen_kapitel_S.gully; G.light.intensity = 0; G.glow.visible = false; G.steam.visible = false; }
+  const near = M.on && Math.abs(P.x - ANW_GULLY.x) < 70 && Math.abs(P.z - ANW_GULLY.z) < 70;
+  if (!near && M.n === 0) { if (M.m.visible) { M.m.visible = false; M.g.instanceCount = 0; } return; }
+  M.m.visible = true; M.u.uTime.value = t; M.u.fogD.value = scene.fog.density;
+  if (near) { M.acc += dt * M.rate; while (M.acc >= 1) { M.acc -= 1; anwesen_smokeEmit(M); }
+    if (!M.said && !state.talking && !ui.overlay && Math.hypot(P.x - ANW_GULLY.x, P.z - ANW_GULLY.z) < 6) { M.said = true; // Gedanke beim Nähern (PK-H)
+      if (typeof gedanke === 'function') gedanke('k4_rauch', 'Rauch. Von ganz unten. Der Gang brennt noch.', 0, 3); else subtitle('Rauch. Von ganz unten. Der Gang brennt noch.', 4200, 'LUKE'); } }
+  const ip = M.ip.array, id = M.id.array, A = M.arr, wx = .2 + Math.sin(t * .13) * .06, wz = -.05 + Math.sin(t * .09 + 1) * .05;
+  for (let i = 0; i < M.n; i++) {
+    M.age[i] += dt; if (M.age[i] >= M.life[i]) { const j = --M.n; if (i !== j) for (let k = 0; k < A.length; k++) A[k][i] = A[k][j]; i--; continue; }
+    const k = M.age[i] / M.life[i], hw = Math.min(1, M.y[i] / 1.4); // der Wind greift erst über dem Boden
+    M.vx[i] += (wx * hw + Math.sin(t * .8 + M.seed[i] * 17) * .05 - M.vx[i]) * dt * .7; M.vz[i] += (wz * hw + Math.cos(t * .7 + M.seed[i] * 11) * .05 - M.vz[i]) * dt * .7; M.vy[i] *= 1 - dt * .12;
+    M.x[i] += M.vx[i] * dt; M.y[i] += M.vy[i] * dt; M.z[i] += M.vz[i] * dt; M.rot[i] += M.rv[i] * dt;
+    ip[i * 3] = M.x[i]; ip[i * 3 + 1] = M.y[i]; ip[i * 3 + 2] = M.z[i]; id[i * 4] = M.s0[i] + (M.s1[i] - M.s0[i]) * (1 - (1 - k) * (1 - k)); id[i * 4 + 1] = k; id[i * 4 + 2] = M.rot[i]; id[i * 4 + 3] = M.seed[i];
+  }
+  M.g.instanceCount = M.n; if (M.n) { M.ip.needsUpdate = true; M.id.needsUpdate = true; }
+}
 if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
-window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a) }; // Testzugriff
+window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a), S: anwesen_S, endcard4: () => anwesen_endcard(), smoke: () => anwesen_S.smoke ? { n: anwesen_S.smoke.n, on: anwesen_S.smoke.on, vis: anwesen_S.smoke.m.visible } : null }; // Testzugriff

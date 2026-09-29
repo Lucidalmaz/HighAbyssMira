@@ -11,7 +11,14 @@ const WALD_PATHS = [ // freigeschlagene Wege (Polylinien)
   [[21, 118], [13, 115], [6, 113]], [[18.5, 124], [8, 128], [-4, 133], [-15, 138], [-21, 139.3]],
   [[41, 138], [52, 135], [64, 131.5], [72, 130]], [[57, 146.8], [70, 147], [82, 148], [93, 147]],
   [[50, 142.5], [46, 149], [42, 157]]]; // zur eingedrückten Stelle im Nordzaun → der tiefe Wald (Modul tiefwald)
-const wald_S = { chunks: [], chunkT: 0, ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set() };
+const wald_S = { chunks: [], chunkT: 0, ready: false, beasts: [], deer: [], fox: null, wolves: [], pup: null, shoe: null, t: 0, ambT: 6, inside: false, told: new Set(), k6: false, off: false, statics: [], hid: [], keep: new Set(), saumT: 0 };
+// Kapitel-Sperre (PK-A A1–A6): Wald, tiefer Wald und alles zum Hungrigen gibt es erst in Kapitel 6 (kapitel.js; kapitel6.js setzt wald_S.k6).
+// Vorher: kein Tick, keine Tiere, keine Geräusche, alle Wald-Objekte unsichtbar – nur der Waldsaum hinter dem Absperrgitter bleibt als Kulisse stehen
+// (Blöcke bis 20 m hinter dem Zaun, ohne Schatten, und nur, solange die Kamera am Nordrand steht: sonst wäre hinter dem Spielplatz ein kahles Feld).
+function wald_frei() { return wald_S.k6 || (typeof kapAb === 'function' && kapAb(6)); }
+function wald_saumAn() { const c = camera.position; return c.z > 55 && c.x > WALD.x0 - 60 && c.x < WALD.x1 + 60 && !state.inBasement && state.zone !== 'canal' && c.y > -5 && c.y < 30; }
+// Alles, was ein Wald-Modul beim Laden in die Szene gelegt hat, ein-/ausblenden (Ausnahmen in S.keep). Merkt sich, was es versteckt hat.
+function wald_huelle(S, on) { if (on) { for (const o of S.hid) o.visible = true; S.hid.length = 0; return; } for (const o of S.statics) if (o.visible && !S.keep.has(o)) { o.visible = false; S.hid.push(o); } }
 function wald_in(x, z) { return x > WALD.x0 && x < WALD.x1 && z > WALD.z0 && z < WALD.z1; }
 function wald_pathDist(x, z) { let d = 1e9; for (const P of WALD_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
   d = Math.min(d, Math.hypot(x - ax - vx * k, z - az - vz * k)); } return d; }
@@ -20,6 +27,7 @@ function wald_free(x, z) { // Platz für einen Baum?
   for (const [p, r] of [[WALD.hut, 5.5], [WALD.tree, 3.2], [WALD.den, 4], [WALD.wolf, 5.5]]) if (Math.hypot(x - p.x, z - p.z) < r) return false; return true; }
 WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   const S = wald_S, T = THREE, m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), new T.Quaternion().setFromEuler(new T.Euler(tx, ry, tz)), new T.Vector3(s, s, s));
+  const n0 = scene.children.length; // alles ab hier gehört zum Wald (Kapitel-Sperre: wald_huelle)
   const [t1, t3, fence, elder, rasp, wg1, wg2] = await Promise.all([msBake('deadtree1'), msBake('deadtree3'), msBake('fencepost'), msBake('elderberry'), msBake('raspberry'), msBake('wildgrass1'), msBake('wildgrass2')]);
   for (const p of [...t1, ...t3]) { p.mat = p.mat.clone(); p.mat.side = T.DoubleSide; p.mat.color.setScalar(.5); }
   // Blöcke von 20 m: jeder Block wird nach Kameraabstand ein-/ausgeblendet (vis) und wirft nur nah Schatten (sh) – der Nebel verschluckt ohnehin alles ab ~50 m
@@ -51,7 +59,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
     chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
   try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
-    const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; } catch (e) { console.warn('Wald: Boden', e); }
+    const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; S.keep.add(p); } catch (e) { console.warn('Wald: Boden', e); }
   try { const rock = await msModel('../boulder', 'model.gltf'); for (let i = 0; i < 26; i++) { const x = rand(WALD.x0 + 3, WALD.x1 - 3), z = rand(WALD.z0 + 3, WALD.z1 - 3); if (wald_pathDist(x, z) < 3 || !wald_free(x, z)) continue;
       const o = msGround(msFit(rock.clone(true), rand(.6, 1.6), 'max')); o.position.set(x, -.08, z); o.rotation.y = rand(0, 6.28); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(o); }
     // Der Kreidestein (Zayns Spur) am Weg
@@ -62,7 +70,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
       c.fillStyle = '#e8e0cc'; c.font = 'bold 44px Georgia'; c.textAlign = 'center'; c.fillText('FORSTBEZIRK NORD', w / 2, 70); c.font = '34px Georgia'; c.fillText('Betreten verboten', w / 2, 118); c.fillText('Einsturzgefahr · Totholz', w / 2, 160);
       c.save(); c.translate(w / 2, 222); c.rotate(-.06); c.fillStyle = '#b02a20'; c.font = 'bold 40px "Comic Sans MS", cursive'; c.fillText('FORBIDDEN DUSTWOODS', 0, 0); c.restore(); }), true) }));
     sign.material.map.repeat.set(1, .5); sign.material.map.offset.set(0, .5); sign.position.set(27.2, 1.5, 99.24); sign.rotation.y = PI; scene.add(sign);
-    const hit = box(1.2, .7, .3, 27.2, 1.5, 99.3, hidden, { cast: false });
+    const hit = box(1.2, .7, .3, 27.2, 1.5, 99.3, hidden, { cast: false }); S.keep.add(post); S.keep.add(sign); S.keep.add(hit); // das Schild steht direkt hinter dem Gitter: bleibt auch vor Kapitel 6
     interact(hit, 'Schild lesen', () => { if (!story.lore.some(l => l.key === 'wald_schild')) story.lore.push({ key: 'wald_schild', title: 'Forbidden Dustwoods', html: 'Ein Forstschild, Betreten verboten. Darüber, in roter Kinderschrift: FORBIDDEN DUSTWOODS.\n\nSo habt ihr ihn genannt. Weil hier der Staub nie nass wird, egal wie lange es regnet.' });
       openNote('Forbidden Dustwoods', 'FORSTBEZIRK NORD · Betreten verboten · Einsturzgefahr, Totholz.\n\nDarüber, mit roter Farbe, in Kinderschrift: <b>FORBIDDEN DUSTWOODS</b>.\n\nSo habt ihr ihn genannt, damals. Weil hier der Staub nie nass wird, egal wie lange es regnet. Keiner durfte rein. Alle wollten.'); }); }
   // --- Zayns Hütte: Bretterhütte mit Blechdach (Innenraum; Inhalt im Modul zayn)
@@ -88,8 +96,9 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   // --- Tiere
   try { await wald_beasts(); } catch (e) { console.warn('Wald: Tiere', e); }
   // --- Hinweise für den Kinderblick
-  if (typeof hintAdd === 'function') { hintAdd({ id: 'wald_welpe', x: WALD.wolf.x, y: 0, z: WALD.wolf.z, kind: 'geheim', near: 40, open: () => !story.lore.some(l => l.key === 'wald_welpe') });
-    hintAdd({ id: 'wald_hirsch', x: WALD.clear.x, y: 0, z: WALD.clear.z, kind: 'geheim', near: 40, open: () => !story.lore.some(l => l.key === 'wald_hirsch') }); }
+  if (typeof hintAdd === 'function') { hintAdd({ id: 'wald_welpe', x: WALD.wolf.x, y: 0, z: WALD.wolf.z, kind: 'geheim', near: 40, open: () => wald_frei() && !story.lore.some(l => l.key === 'wald_welpe') });
+    hintAdd({ id: 'wald_hirsch', x: WALD.clear.x, y: 0, z: WALD.clear.z, kind: 'geheim', near: 40, open: () => wald_frei() && !story.lore.some(l => l.key === 'wald_hirsch') }); }
+  S.statics = scene.children.slice(n0);
   story.side.wald_welpe = { title: 'Die Schlinge', desc: 'Irgendwo im Osten der Dustwoods jault etwas. Hoch, dünn, verzweifelt.', state: 'hidden' };
   story.side.wald_hirsch = { title: 'Die Lichtung', desc: 'Auf einer Lichtung grasen Rehe. Sie fliehen vor Licht und schnellen Schritten.', state: 'hidden' };
   S.ready = true;
@@ -137,14 +146,20 @@ function wald_pup() {
   if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich hab zwei Häuser weiter gewohnt und nie gefragt, wo er nachmittags hingeht.', 6000, 3);
 }
 WORLD_TICK.push((dt, t) => {
-  const S = wald_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;
+  const S = wald_S; if (!S.ready || !state.started || menu.attract) return;
+  // Kapitel 1–5: gesperrt – alles aus, nur der Waldsaum als Kulisse (Prüfung zweimal je Sekunde, keine Schatten)
+  if (!wald_frei()) { if (!S.off) { S.off = true; wald_huelle(S, false); for (const V of S.beasts) V.g.visible = false; S.saum = null; }
+    S.saumT -= dt; if (S.saumT < 0) { S.saumT = .5; const on = wald_saumAn(); if (on !== S.saum) { S.saum = on; for (const c of S.chunks) if (c.z < 119 && c.vis >= 56) for (const m of c.meshes) { m.visible = on; m.castShadow = false; } } }
+    return; }
+  if (S.off) { S.off = false; wald_huelle(S, true); S.chunkT = 0; }
+  const P = player.pos, near = P.z > 88 && P.x > WALD.x0 - 20 && P.x < WALD.x1 + 20;
   S.chunkT -= dt; if (S.chunkT < 0) { S.chunkT = .25; const cx = camera.position.x, cz = camera.position.z; for (const c of S.chunks) { const d = Math.hypot(c.x - cx, c.z - cz), v = d < c.vis; for (const m of c.meshes) { m.visible = v; m.castShadow = d < c.sh; } } }
   const inside = wald_in(P.x, P.z); if (inside !== S.inside) { S.inside = inside; if (inside && !S.told.has('in')) { S.told.add('in'); if (typeof gedanke === 'function') gedanke('wald_rein', 'Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.', 800, 2); } }
   if (S.noBeasts && leben_S.ready && !S.beastTry) { S.beastTry = true; S.noBeasts = false; wald_beasts().catch(e => console.warn('Wald: Tiere', e)); }
   for (const V of S.beasts) if (V.st !== 'gone') V.g.visible = near; // weit weg: nicht zeichnen
   if (!near) return;
   // Geräusche: Totholz knackt, ferne Krähen, ein Käuzchen, manchmal Stille
-  if (inside && !state.talking) { S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(5, 13); const a = rand(0, 6.28), d = rand(8, 22), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d, r = Math.random();
+  if (inside && !state.talking && !(typeof spannung_silent === 'function' && spannung_silent())) { S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(5, 13); const a = rand(0, 6.28), d = rand(8, 22), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d, r = Math.random();
     if (r < .35) Audio.treeCreak(x, z); else if (r < .55) Audio.caw(x, rand(4, 8), z); else if (r < .7) Audio.owl(x, z); else if (r < .85) Audio.stepAt(x, z, .18); else Audio.flap(x, 3, z); } }
   const spd = Math.hypot(vel.x, vel.z);
   // Rehe: grasen; Licht, Laufen oder Nähe → aufmerksam, dann Flucht. Wer langsam und im Dunkeln kommt, dem sieht der Hirsch nach.

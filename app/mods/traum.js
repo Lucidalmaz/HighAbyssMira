@@ -9,7 +9,7 @@ const traum_S = { on: false, t: 0, shot: -1, book: null, skip: false, fog0: null
 const TRAUM_SHOTS = [ // Kamera von → nach, Blick, Dauer, Zeilen [Text, Sprecher, Zeitpunkt in s]
   { from: [-44, 1.3, .6], to: [-18, 1.5, .2], look: 'perch', dur: 11, lines: [['Die Straße deiner Kindheit. Lost Eyengless. Kein Mensch. Kein Laut.', '', .8], ['Nur irgendwo ein Kind, das zählt. Leise. Bis siebzehn.', '', 6]] },
   { rel: 'perch', from: [-6, -1.6, 5], to: [-3.4, -1.2, 3.2], look: 'crow', dur: 10, crow: 'land', lines: [['Luke.', 'DER RABE', 2.2], ['Du hast lange geschlafen. Siebzehn Jahre lang.', 'DER RABE', 4.4]] },
-  { rel: 'perch', from: [-1.7, -.3, 1.4], to: [-.95, -.05, .85], look: 'crow', dur: 13, lines: [['Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.', 'DER RABE', .5], ['In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind.', 'DER RABE', 5.6], ['Und du … vor dir selbst.', 'DER RABE', 10.4]] },
+  { rel: 'perch', from: [-1.7, -.3, 1.4], to: [-.95, -.05, .85], look: 'crow', dur: 16.5, lines: [['Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.', 'DER RABE', .5], ['In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Die Eltern vor dem, was sie unterschrieben haben.', 'DER RABE', 5.6], ['Und du … vor dir selbst.', 'DER RABE', 14.8]] },
   { rel: 'book', from: [1.1, 1.25, 1.9], to: [.5, .65, 1.0], look: 'book', dur: 16, crow: 'book', lines: [['Das ist deine Abenteuerfibel. Du hast sie als Kind geschrieben – mit Jonas und Zayn.', 'DER RABE', 1], ['Sie schreibt weiter. Alles, was du findest. Jeden Weg, den du gehen musst.', 'DER RABE', 6.2], ['Sieh hinein, wenn du nicht weiterweißt. Sie gehört wieder dir.', 'DER RABE', 11]] },
   { rel: 'book', from: [.38, .5, .62], to: [.28, .42, .46], look: 'crowHead', dur: 10, lines: [['Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist.', 'DER RABE', .6], ['Und finde heraus, wer du bist.', 'DER RABE', 5.2]] }];
 const TRAUM_BOOK = { x: .1, z: .2 }, TRAUM_PERCH = { x: 0, y: 3, z: 0 }; // zur Laufzeit: die Laterne an der Kreuzung
@@ -29,6 +29,7 @@ WORLD_MODS.push(['Traum', async () => {
   const pages = new T.MeshStandardMaterial({ color: 0xe6dcc4, roughness: 1 });
   const book = new T.Group(); const b = new T.Mesh(new T.BoxGeometry(.22, .03, .3), [pages, pages, cover, pages, pages, pages]); book.add(b); book.position.set(TRAUM_BOOK.x, .017, TRAUM_BOOK.z); book.rotation.y = .5; book.visible = false; book.userData.noCol = true; scene.add(book); traum_S.book = book;
   modItem('fibel', 'Abenteuerfibel', 'Dein Kinderheft, fester roter Einband, auf dem Deckel: MEINE ABENTEUERFIBEL – GEHEIM!! Früher standen eure Abenteuer darin. Jetzt schreibt es weiter: jede Aufgabe, jeder Fund. [Tab]', 'paper');
+  try { k1_ortsschildPrep(); } catch (e) { console.warn('Ortsschild 210', e); } // Kapitel 1 (W2-P3), siehe unten
 }]);
 // Neuer Anfang statt der Texttafel: Traum → Aufwachen auf der Straße
 runIntro = async function traum_intro() {
@@ -81,7 +82,46 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
     ['In der Jackentasche: ein Kinderheft mit rotem Einband. Meine Abenteuerfibel. Die hab ich seit siebzehn Jahren nicht gesehen.', 5600]]);
   state.talking = false; questPop('ABENTEUERFIBEL', 'Taste Tab – Aufgaben, Funde, Inventar, Fotos');
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ … Ich bin durchgefahren und im Auto eingeschlafen. Jetzt ist es schon wieder Nacht.', 0, 3); }, 2500);
-  story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Der Ritter vor seinem Kind. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
+  story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Ein Rabe auf einer Laterne:\n\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In dieser Stadt versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Die Eltern vor dem, was sie unterschrieben haben. Und du … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit dieser Stadt geschehen ist. Und finde heraus, wer du bist.“' });
 }
-WORLD_TICK.push(() => {}); // Eintrag für die Messanzeige (ein Tick je Modul)
+// ---------------------------------------------------------------- Kapitel 1 (W2-P3): Ortsschild „210“ und der UFO-Kegel
+// Ortsschild (Zusatzschild aus strasse.js: „Einwohner 214“, rot 211): nach Kapitel 1 steht daneben frisch in Kreide 210 (in K1 zu sehen, danach bleibt es).
+// Die Textur wird beim Laden vorbereitet und hochgeladen; getauscht wird nur die Karte des vorhandenen Materials (keine Shader-Neukompilierung).
+// UFO-Kegel (Kanon Beat 8): das Licht im Kegel flackert wie eine Kerze – nur die Intensität des vorhandenen Spots, kein neues Licht –
+// und wer im Kegel steht, hört leise Papier rascheln.
+const K1_S = { zus: null, plate: null, mat: null, map0: null, map210: null, act0: null, actP0: null, want: null, fl: 1, flTar: 1, flT: 0, rsT: 0 };
+function k1_ortsschildPrep() {
+  const S = K1_S; scene.traverse(o => { if (!o.isMesh || !o.geometry || !o.geometry.parameters || Math.abs(o.position.x + 72.3) > .2 || Math.abs(o.position.z - 6.3) > .2) return; const p = o.geometry.parameters;
+    if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .3) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
+  const m = S.zus && Array.isArray(S.zus.material) ? S.zus.material[4] : null, src = m && m.map && m.map.image; if (!src || !src.width) return;
+  const c = document.createElement('canvas'), W = c.width = src.width, H = c.height = src.height, x = c.getContext('2d'), k = W / 512; x.drawImage(src, 0, 0);
+  // Kreide: helle, körnige Ziffern mit feuchtem, grauem Rand (auf dem hellen Blech sonst unsichtbar), leicht schief, links neben der roten 211
+  const cc = document.createElement('canvas'); cc.width = W; cc.height = H; const y = cc.getContext('2d');
+  y.translate(300 * k, 196 * k); y.rotate(-.06); y.font = `${Math.round(70 * k)}px Caveat, "Comic Sans MS", cursive`; y.textAlign = 'center'; y.lineJoin = 'round';
+  y.strokeStyle = 'rgba(70,72,74,.55)'; y.lineWidth = 5 * k; y.strokeText('210', 0, 0); y.fillStyle = 'rgba(252,252,248,.97)'; y.fillText('210', 0, 0);
+  y.setTransform(1, 0, 0, 1, 0, 0); y.globalCompositeOperation = 'destination-out';
+  for (let i = 0; i < 1400 * k * k; i++) { y.fillStyle = `rgba(0,0,0,${rand(.25, .8)})`; y.fillRect(rand(230, 380) * k, rand(130, 214) * k, rand(1, 2.4) * k, rand(1, 2.4) * k); }
+  x.drawImage(cc, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = m.map.colorSpace; t.anisotropy = m.map.anisotropy; t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT;
+  try { if (renderer.initTexture) renderer.initTexture(t); } catch (e) {}
+  S.mat = m; S.map0 = m.map; S.map210 = t; S.act0 = S.zus.userData.action; S.actP0 = S.plate ? S.plate.userData.action : null;
+}
+// Schnittstelle (auch für kino.js): ortsschild210(true|false) – Kreide-210 an/aus
+function ortsschild210(on = true) { const S = K1_S; if (!S.mat) return false; S.want = !!on; S.mat.map = on ? S.map210 : S.map0;
+  const act = on ? () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.', 5200) : null;
+  if (S.zus.userData.action) S.zus.userData.action = act || S.act0; if (S.plate && S.plate.userData.action) S.plate.userData.action = act || S.actP0; return true; }
+function k1_rascheln(px, pz) { // leises Papierrascheln: ein paar kurze, bandgefilterte Knister-Stöße aus dem Rauschen (keine Aufnahme vorhanden)
+  const A = Audio; if (!A.ctx || !A.noiseBuf) return; const d = A.at(px + rand(-.7, .7), 1.2, pz + rand(-.7, .7), 1.5); if (A.cut) return;
+  const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2600, 4400); bp.Q.value = .9; n.connect(bp);
+  const k = 3 + Math.floor(Math.random() * 4); let at = 0; for (let i = 0; i < k; i++) { A.env(bp, rand(.03, .07), .004, rand(.025, .08), at, d); at += rand(.04, .12); }
+  n.stop(A.ctx.currentTime + at + .4); }
+WORLD_TICK.push((dt, t, indoor) => { const S = K1_S;
+  if (S.mat) { const want = !!state.ch1Done || (typeof kap === 'function' ? kap() : curChapter()) >= 2; if (want !== S.want) ortsschild210(want); } // nur bei Wechsel – spätere Kapitel dürfen das Schild selbst ändern
+  if (!state.ufoOn || !state.phase2) return; const sp = ufo.userData.spot; if (!(sp.intensity > 0)) return;
+  S.flT -= dt; if (S.flT <= 0) { S.flT = rand(.05, .16); S.flTar = Math.random() < .07 ? rand(.35, .55) : rand(.72, 1); } // Kerze: unruhig, ab und zu ein kurzes Einknicken
+  S.fl += (S.flTar - S.fl) * Math.min(1, dt * 16); const f = S.fl * (.95 + .05 * Math.sin(t * 13.7));
+  sp.intensity *= f; ufo.userData.beam.uniforms.opacity.value *= .55 + .45 * f;
+  const dx = player.pos.x - ufo.position.x, dz = player.pos.z - ufo.position.z;
+  if (!indoor && dx * dx + dz * dz < 14.4) { S.rsT -= dt; if (S.rsT <= 0) { S.rsT = rand(.9, 2.1); k1_rascheln(player.pos.x, player.pos.z); } } else S.rsT = Math.min(S.rsT, .35);
+});
 window.__traum = { S: traum_S, start: () => runIntro(), applySave: d => applySave(d), loadSave: () => loadSave(), saveGame: c => saveGame(c) }; // Testzugriff

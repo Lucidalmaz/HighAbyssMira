@@ -17,7 +17,9 @@ const TIEF_PATHS = [ // die ersten vier bilden den Weg mit dem roten Faden
   [[33, 217], [55, 224], [70, 229], [77, 232]]];
 const tief_S = { ready: false, chunks: [], chunkT: 0, inside: false, k: 0, fogSet: false, wolves: [], boars: [], deer: [], eyes: [], ambT: 5, told: new Set(), lit: 0,
   swingW: 1, swingStop: 0, figs: [], eighth: null, thread: null, threadEnd: null, face: null, faceT: -1, busy: false, climbing: false, behind: null, runner: null, follow: null, pondLight: null,
-  charged: false, lunged: false, rooted: false, leaves: null, mist: null };
+  charged: false, lunged: false, rooted: false, leaves: null, mist: null, off: false, statics: [], hid: [], keep: new Set() };
+// Stille-Zonen (Regie: spannung.js / kapitel6.js): dort keine Tierlaute
+const tief_still = () => typeof spannung_silent === 'function' && spannung_silent();
 const tief_has = k => story.lore.some(l => l.key === k);
 function tief_in(x, z, m = 0) { return x > TIEF.x0 - m && x < TIEF.x1 + m && z > TIEF.z0 - m && z < TIEF.z1 + m; }
 function tief_pathDist(x, z) { let d = 1e9; for (const P of TIEF_PATHS) for (let i = 0; i < P.length - 1; i++) { const [ax, az] = P[i], [bx, bz] = P[i + 1], vx = bx - ax, vz = bz - az, L = vx * vx + vz * vz, k = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L));
@@ -28,9 +30,10 @@ function tief_onJetty(x, z) { const J = TIEF.jetty, vx = J.x1 - J.x0, vz = J.z1 
 function tief_free(x, z, pathR = 2.6) { if (tief_pathDist(x, z) < pathR || tief_pond(x, z, 2.5)) return false;
   for (const [p, r] of [[TIEF.stand, 4.5], [TIEF.bus, 6], [TIEF.dig, 3], [TIEF.ring, TIEF.ring.r + 3], [TIEF.swing, 3.8], [TIEF.wreck, 4.5], [TIEF.camp, 5.5]]) if (Math.hypot(x - p.x, z - p.z) < r) return false; return true; }
 function tief_note(t) { return '<span class="hand">' + t + '</span>'; }
-function tief_ok() { return state.started && !state.talking && !state.ending && !ui.overlay && !menu.attract && !scripted && !(typeof hunt !== 'undefined' && hunt.on); }
+function tief_ok() { return wald_frei() && state.started && !state.talking && !state.ending && !ui.overlay && !menu.attract && !scripted && !(typeof hunt !== 'undefined' && hunt.on); }
 WORLD_MODS.push(['Der tiefe Wald', async () => {
   const S = tief_S, T = THREE, q = new T.Quaternion(), e = new T.Euler(), m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), q.setFromEuler(e.set(tx, ry, tz, 'YXZ')), new T.Vector3(s, s, s));
+  const n0 = scene.children.length; // alles ab hier gehört zum tiefen Wald (Kapitel-Sperre: wald_huelle)
   const [t1, t3, fence, elder, rasp, wg1, wg2, shr] = await Promise.all([msBake('deadtree1'), msBake('deadtree3'), msBake('fencepost'), msBake('elderberry'), msBake('raspberry'), msBake('wildgrass1'), msBake('wildgrass2'), msBake('../deadshrubs').catch(() => [])]);
   const dark = parts => parts.map(p => { const mat = p.mat.clone(); mat.side = T.DoubleSide; mat.color.setScalar(.36); return { ...p, mat }; });
   const T1 = dark(t1), T3 = dark(t3), low = () => { try { return settings.gfx === 0 ? .82 : 1; } catch (e) { return 1; } }; // settings entsteht erst nach den Modulen
@@ -173,13 +176,14 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
   // --- Augen im Dunkeln: vier Paare, verschwinden im Lampenlicht
   { const em = new T.MeshBasicMaterial({ color: 0xffcf7a, fog: false }); for (let i = 0; i < 4; i++) { const g = new T.Group(); for (const s of [-1, 1]) { const b = new T.Mesh(new T.SphereGeometry(.022, 6, 4), em); b.position.x = s * .06; g.add(b); } g.visible = false; g.userData.noCol = true; scene.add(g); S.eyes.push({ g, t: rand(5, 20), on: 0 }); } }
   // --- Hinweise für den Kinderblick
-  if (typeof hintAdd === 'function') { const H = (id, p, open) => hintAdd({ id, x: p.x, y: 0, z: p.z, kind: 'story', near: 34, open });
+  if (typeof hintAdd === 'function') { const H = (id, p, open) => hintAdd({ id, x: p.x, y: 0, z: p.z, kind: 'story', near: 34, open: () => wald_frei() && open() });
     H('tief_1', { x: 39.8, z: 156.3 }, () => !tief_has('tief_zettel_1')); H('tief_2', TIEF.stand, () => !tief_has('tief_zettel_2')); H('tief_3', TIEF.bus, () => !tief_has('tief_zettel_3')); H('tief_4', TIEF.ring, () => !tief_has('tief_zettel_4'));
     H('tief_5', { x: S.postEnd[0], z: S.postEnd[1] }, () => !tief_has('tief_zettel_5')); H('tief_dig', TIEF.dig, () => tief_S.rooted && !tief_has('tief_rotte'));
-    hintAdd({ id: 'tief_lager', x: TIEF.camp.x, y: 0, z: TIEF.camp.z, kind: 'geheim', near: 30, open: () => !tief_has('tief_lager') }); hintAdd({ id: 'tief_wrack', x: TIEF.wreck.x, y: 0, z: TIEF.wreck.z, kind: 'geheim', near: 30, open: () => !tief_has('tief_wrack') }); }
+    hintAdd({ id: 'tief_lager', x: TIEF.camp.x, y: 0, z: TIEF.camp.z, kind: 'geheim', near: 30, open: () => wald_frei() && !tief_has('tief_lager') }); hintAdd({ id: 'tief_wrack', x: TIEF.wreck.x, y: 0, z: TIEF.wreck.z, kind: 'geheim', near: 30, open: () => wald_frei() && !tief_has('tief_wrack') }); }
   story.side.tief_faden = { title: 'Der rote Faden', desc: 'Hinter Zayns Hütte ist der Zaun eingedrückt. Zwischen den Bäumen dahinter: rote Wolle, von Stamm zu Stamm gespannt.', state: 'hidden' };
   story.side.tief_rotte = { title: 'Die Rotte', desc: 'Am alten Bus wühlen Wildschweine im Boden. Irgendetwas haben sie gerochen.', state: 'hidden' };
   modItem('jonas_karte', 'Jonas’ Karte', 'Mit Kuli auf Karopapier: der Wald, die Wege, fünf Kreuze. Am Weiher: „ENDE“.', 'paper');
+  S.statics = scene.children.slice(n0);
   S.ready = true;
 }]);
 // ---------------------------------------------------------------- Tiere (nach dem Laden von leben.js)
@@ -235,6 +239,7 @@ function tief_climb(up) {
     else { p.copy(up ? top : bot); S.climbing = false; state.talking = false; if (up) tief_obenAngekommen(); return false; } });
 }
 function tief_obenAngekommen() {
+  if (typeof k6_oben === 'function' && k6_oben()) return; // Kapitel 6, Epilog: oben schläft der Junge – keine Gestalt, kein Gedanke ans Licht
   const S = tief_S; if (!S.told.has('stand')) { S.told.add('stand'); setTimeout(() => { if (typeof gedanke === 'function') gedanke('tief_stand', 'Da hinten. Ein Licht über dem Wasser. Jonas hatte recht.', 0, 3); }, 1800);
     // Schreckmoment: unten an der Leiter steht jemand und sieht herauf
     setTimeout(() => { if (player.pos.y > 2) tief_figur(TIEF.stand.x + 1.5, TIEF.stand.z - 10, 'pale', .62, true); }, 6500); } // ein Kind, unten zwischen den Bäumen, sieht herauf
@@ -309,6 +314,9 @@ function tief_figurWeg() { stalker.visible = false; stalker.scale.setScalar(1); 
 const _tfw = new THREE.Vector3(), _tft = new THREE.Vector3();
 WORLD_TICK.push((dt, t) => {
   const S = tief_S; if (!S.ready || !state.started || menu.attract) return;
+  // Kapitel 1–5: gesperrt – kein Tick, alles unsichtbar (vom Ort aus liegt der tiefe Wald ohnehin hinter dem Nebel)
+  if (!wald_frei()) { if (!S.off) { S.off = true; wald_huelle(S, false); for (const V of [...S.wolves, ...S.boars, ...S.deer]) V.g.visible = false; for (const E of S.eyes) { E.g.visible = false; E.on = 0; } if (S.fogSet) { ENV_DARK = 0; S.fogSet = false; S.k = 0; } } return; }
+  if (S.off) { S.off = false; wald_huelle(S, true); S.chunkT = 0; }
   const P = player.pos, inside = tief_in(P.x, P.z, 2), near = P.z > 140 && P.x > TIEF.x0 - 25 && P.x < TIEF.x1 + 25;
   // Blöcke nach Kameraabstand
   S.chunkT -= dt; if (S.chunkT < 0) { S.chunkT = .25; const cx = camera.position.x, cz = camera.position.z; for (const c of S.chunks) { const d = Math.hypot(c.x - cx, c.z - cz), v = near && d < c.vis; for (const m of c.meshes) { m.visible = v; m.castShadow = d < c.sh; } } }
@@ -339,11 +347,11 @@ WORLD_TICK.push((dt, t) => {
   const calm = tief_has('wald_welpe') || story.lore.some(l => l.key === 'wald_welpe'), R = TIEF.ring;
   for (const W of S.wolves) { W.g.visible = true; leben_beastUpd(W, dt, 70); const p = W.g.position, d = Math.hypot(p.x - P.x, p.z - P.z); W.cool -= dt;
     if (W.st === 'roam') { if (W.howl > 0) W.howl -= dt; else { W.a += dt * .07 * W.dir; W.tx = R.x + Math.cos(W.a) * W.r; W.tz = R.z + Math.sin(W.a) * W.r; W.sp = 1.3; leben_beastMove(W, dt); leben_play(W, 'Walk', .4); }
-      W.t -= dt; if (W.t < 0) { W.t = rand(12, 26); if (d < 60 && Math.random() < .45) { leben_play(W, 'Howl', .3, 1, true); leben_howl(p.x, p.y + .8, p.z); W.howl = 2.5; } }
+      W.t -= dt; if (W.t < 0) { W.t = rand(12, 26); if (d < 60 && Math.random() < .45 && !tief_still()) { leben_play(W, 'Howl', .3, 1, true); leben_howl(p.x, p.y + .8, p.z); W.howl = 2.5; } }
       if (d < 22 && W.cool <= 0 && ok) { W.st = 'stalk'; if (!S.told.has('wolf')) { S.told.add('wolf'); if (typeof gedanke === 'function') gedanke('tief_wolf', calm ? 'Die Wölfe. Sie kommen nicht näher. … Erkennen sie mich? Wegen des Welpen?' : 'Wölfe. Drei. Nicht rennen. Nicht rennen. Lampe drauf.', 200, 3); } } }
     else if (W.st === 'stalk') { const want = calm ? 12 : 8, ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; W.tx = P.x + ax / al * want - az / al * W.off; W.tz = P.z + az / al * want + ax / al * W.off; W.sp = spd > 3 ? 4.5 : 2.2;
       const arrived = leben_beastMove(W, dt, false); W.g.rotation.y = leben_ang(W.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 4)); leben_play(W, arrived ? (calm ? 'IdleBreathe' : 'IdleAggressive') : 'Walk', .3);
-      W.t -= dt; if (W.t < 0 && !calm) { W.t = rand(2.5, 5); Audio.growl(p.x, p.z, false); }
+      W.t -= dt; if (W.t < 0 && !calm) { W.t = rand(2.5, 5); if (!tief_still()) Audio.growl(p.x, p.z, false); }
       if (lit(W)) W.lit += dt; else W.lit = Math.max(0, W.lit - dt);
       if (W.lit > 1.1) { W.st = 'back'; W.cool = 18; W.lit = 0; const bl = Math.hypot(ax, az) || 1; W.tx = p.x + ax / bl * 14; W.tz = p.z + az / bl * 14; W.sp = 5; leben_play(W, 'Run', .15); Audio.growl(p.x, p.z, false); }
       else if (!calm && !S.lunged && d < 5.2 && ok) { S.lunged = true; W.st = 'lunge'; W.sp = 9.5; leben_play(W, 'RunBite', .1); }
@@ -356,7 +364,7 @@ WORLD_TICK.push((dt, t) => {
   // --- Wildschweine: wühlen am Bus; zu nah → einer stürmt los; Licht → die Rotte flieht; danach ist die Stelle frei
   for (const B of S.boars) { B.g.visible = B.st !== 'gone'; if (B.st === 'gone') { B.t -= dt; if (B.t < 0 && Math.hypot(P.x - TIEF.dig.x, P.z - TIEF.dig.z) > 45) { B.g.position.set(B.home[0], 0, B.home[1]); B.st = 'root'; } continue; }
     leben_beastUpd(B, dt, 60); const p = B.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
-    if (B.st === 'root') { B.t -= dt; if (B.t < 0) { B.t = rand(2, 5); const r = Math.random(); leben_play(B, r < .6 ? 'SniffleforFood' : r < .8 ? 'IdleLookAround' : 'Chew', .4); if (d < 30) Audio.grunt(p.x, p.z, false); }
+    if (B.st === 'root') { B.t -= dt; if (B.t < 0) { B.t = rand(2, 5); const r = Math.random(); leben_play(B, r < .6 ? 'SniffleforFood' : r < .8 ? 'IdleLookAround' : 'Chew', .4); if (d < 30 && !tief_still()) Audio.grunt(p.x, p.z, false); }
       if (d < 26 && ok) sideStart('tief_rotte');
       if (lit(B, 18)) B.lit = (B.lit || 0) + dt; else B.lit = Math.max(0, (B.lit || 0) - dt);
       if (B.lit > 1.3 || (d < 7 && ok)) { const charge = !S.charged && d < 7; S.charged = S.charged || charge; S.rooted = true;
@@ -369,7 +377,7 @@ WORLD_TICK.push((dt, t) => {
   for (const D of S.deer) { if (D.st === 'gone') { D.g.visible = false; D.t -= dt; if (D.t < 0 && Math.hypot(P.x - D.home[0], P.z - D.home[1]) > 45) { D.g.position.set(D.home[0], 0, D.home[1]); D.st = 'graze'; } continue; }
     D.g.visible = true; leben_beastUpd(D, dt, 60); const p = D.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
     if (D.st === 'graze') { D.t -= dt; if (D.t < 0) { D.t = rand(3, 8); leben_play(D, Math.random() < .7 ? 'IdleGraze' : 'IdleLookAround', .4); }
-      if (d < 16 && (lit(D, 22) || spd > 3.2 || d < 6)) { D.st = 'flee'; D.sp = 7; const a = Math.atan2(p.x - P.x, p.z - P.z) + rand(-.4, .4); D.tx = p.x + Math.sin(a) * 35; D.tz = p.z + Math.cos(a) * 35; leben_play(D, 'Run', .15); if (Audio.deerBark) Audio.deerBark(p.x, p.z); } }
+      if (d < 16 && (lit(D, 22) || spd > 3.2 || d < 6)) { D.st = 'flee'; D.sp = 7; const a = Math.atan2(p.x - P.x, p.z - P.z) + rand(-.4, .4); D.tx = p.x + Math.sin(a) * 35; D.tz = p.z + Math.cos(a) * 35; leben_play(D, 'Run', .15); if (Audio.deerBark && !tief_still()) Audio.deerBark(p.x, p.z); } }
     else if (D.st === 'flee') { if (leben_beastMove(D, dt) || d > 45) { D.st = 'gone'; D.t = rand(60, 120); } } }
   if (!inside) return;
   // --- Augen im Dunkeln (je tiefer, desto öfter)

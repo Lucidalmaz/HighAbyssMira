@@ -50,11 +50,13 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Birch Trunk | Arhidrona | Birke am Anger | https://www.fab.com/listings/5599cb13-01bb-4077-95aa-8204a206e0ef |
 | Metal cutlery | Okayest | Besteck | https://www.fab.com/listings/4220f68e-91dd-4614-8b73-b4260f5118d5 |
 | Chinese lantern | lennajd | Papierlaterne | https://www.fab.com/listings/26361467-9883-47d3-ac86-0db2824df6c0 |
+| Retro woolen sweater | matousekfoto | Strickjacke (Zimmer 7) | https://www.fab.com/listings/be87fbdc-f36d-4c2d-b0d4-935a2e034686 |
+| Metal Rose Jewelry Trinket Box Low Poly | Jordan F (JordanFry3D) | Spieluhr (Kapitel 5) | https://www.fab.com/listings/b70659f6-2d7c-4042-b57b-0ecf1ca750c0 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)
 - **Motifect** – Daily Life Motion Pack · **Animpacks** – Look Through Window Animation Pack
-- **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
+- **Guy in a Poncho** – Old Book (Dienstbuch) · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
 - **Epic Games** – Unreal Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
