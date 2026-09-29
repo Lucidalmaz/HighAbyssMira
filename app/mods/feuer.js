@@ -257,9 +257,9 @@ function feuer_bedSpot() {
   const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0), o = new THREE.Vector3(), bb = new THREE.Box3(); scene.updateMatrixWorld(true);
   const near = []; scene.traverse(m => { if (!m.isMesh || m.isInstancedMesh || !m.geometry || !m.visible) return; bb.setFromObject(m); if (bb.isEmpty() || bb.max.x < X + 39.8 || bb.min.x > X + 43 || bb.max.z < Z - 4.9 || bb.min.z > Z - 3.3 || bb.max.y > 1.4 || bb.max.y < .3) return; near.push({ m, top: bb.max.y, b: bb.clone() }); });
   for (const [dx, dz] of [[.72, 0], [.78, .12], [.66, -.1], [.35, -.05], [.1, 0], [-.2, 0]]) {
-    const x = X + 41.4 + dx, z = Z - 4.4 + dz; rc.set(o.set(x, 1.6, z), dn); rc.far = 1.6; const h = rc.intersectObjects(near.map(n => n.m), false).find(h => h.point.y > .3 && h.point.y < 1.05);
+    const x = X + 41.4 + dx, z = Z - 4.4 + dz; rc.set(o.set(x, 1.6, z), dn); rc.far = 1.6; const sides = near.map(n => { const m = n.m.material; if (!m || Array.isArray(m)) return null; const sd = m.side; m.side = THREE.DoubleSide; return sd; }); const h = rc.intersectObjects(near.map(n => n.m), false).find(h => h.point.y > .3 && h.point.y < 1.05); near.forEach((n, i) => { if (sides[i] !== null) n.m.material.side = sides[i]; });
     if (h) return { x, y: h.point.y, z }; }
-  const mat = near.find(n => n.b.containsPoint(o.set(X + 41.6, n.b.min.y + .01, Z - 4.4))); if (mat) return { x: X + 41.6, y: mat.top, z: Z - 4.4 };
+  for (const px of [X + 42.12, X + 41.6]) { let top = -1; for (const n of near) { const b = n.b; if (px > b.min.x && px < b.max.x && Z - 4.4 > b.min.z && Z - 4.4 < b.max.z && n.top < .95 && n.top > top) top = n.top; } if (top > .3) return { x: px, y: top - .012, z: Z - 4.4 }; }
   return { x: X + 42.9, y: 0, z: Z - 3.6 };
 }
 function feuer_items() { if (feuer_S.items) return; try { ITEMS.feuerzeug = { name: 'Feuerzeug „P. K.“', desc: 'Messing, zerkratzt. Rückseite: „Für Peter. Damit du im Dunkeln nicht allein bist. – M.“ Es ist noch Benzin drin.' };
@@ -501,7 +501,7 @@ function feuer_reset(cpId) {
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
   // alles auf Anfang: Fass steht, kein Öl, kein Feuer, kein Ruß, Verfolger fort, Tür offen
-  S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.soot = 0;
+  S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
   if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; S.barrel.userData.noCol = false; }
   if (!interactables.includes(S.bHit)) interact(S.bHit, S.bHit.userData.label, S.bHit.userData.action);
   S.oil.position.y = -40; S.oilU.uSpread.value = 1.1; S.oilU.uBurnR.value = 0; S.oilU.uHeat.value = 0; S.oilU.uChar.value = 0;
@@ -534,6 +534,7 @@ WORLD_TICK.push((dt, t) => {
         S.glint.material.opacity += ((lit ? .55 + .45 * Math.pow(Math.max(0, Math.sin(t * 3.1)), 8) : .08) - S.glint.material.opacity) * Math.min(1, dt * 8); S.glint.scale.setScalar(.1 + .05 * Math.sin(t * 2.3));
         if (lit && d < 4.5 && ch2.spiderPhase === 'gone') gedanke('feuer_glanz', 'Da, auf der Matratze. Da glänzt was.', 0, 2); }
       else S.glint.material.opacity = 0; }
+    if (ch2.chase === 'run' && S.phase === 'idle' && !S.said.fassHint && Math.hypot(P.x - FEU.bx, P.z - FEU.bz) < 4.5) { S.said.fassHint = true; subtitle('Das Ölfass! Umwerfen!', 1800, 'LUKE'); }
     feuer_barrelUpdate(dt, t); feuer_zombieUpdate(dt, t); feuer_bones(t);
     // Wurf des Feuerzeugs
     if (S.throwT && S.throwObj) { const W = S.throwT; W.t += dt; const k = Math.min(1, W.t / W.d); S.throwObj.position.set(W.sx + (W.ex - W.sx) * k, W.sy + (.02 - W.sy) * k + Math.sin(k * PI) * .45, W.sz + (W.ez - W.sz) * k); S.throwObj.rotation.set(k * 9, k * 5, 0);

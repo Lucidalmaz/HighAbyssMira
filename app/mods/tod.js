@@ -37,6 +37,7 @@ const TOD_LINES = {
   #todScreen button:hover, #todScreen button:focus-visible { color: #fff4dc; border-color: var(--gold, #c9a36a); background: linear-gradient(180deg, rgba(201,163,106,.18), rgba(60,10,6,.3)); box-shadow: 0 0 22px rgba(201,163,106,.18); outline: none; }
   #todScreen button.sec { border-color: rgba(201,163,106,.18); color: #9a8c72; }
   #todScreen .keys { margin-top: 16px; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .4em; color: #6d6352; opacity: 0; transition: opacity 1.4s 2.6s; } #todScreen.on .keys { opacity: 1; }
+  body.todDying #prompt, body.todDying #crosshair { display: none !important; }
   #todCp { position: absolute; right: 34px; bottom: 70px; display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(6px); transition: opacity .8s, transform .8s; text-align: right; }
   #todCp.show { opacity: 1; transform: none; }
   #todCp i { width: 18px; height: 18px; border-radius: 50%; border: 1px solid var(--gold, #c9a36a); border-top-color: transparent; animation: todSpin 1.4s linear infinite; box-shadow: 0 0 10px rgba(201,163,106,.3); }
@@ -93,7 +94,7 @@ CH2_BEGIN.push(() => {
       try { tod_ch2Apply(v.ch2); } catch (e) { console.warn('Speicherpunkt Amt', e); }
       const c = v.cp; if (c.id !== 'kapitel2') { player.pos.set(c.x, c.y, c.z); player.yaw = c.yaw; player.pitch = 0; vel.set(0, 0, 0); camY = c.y + 1.65; }
       tod_S.seen.k2 = true; tod_S.seen.gang = c.id === 'gang' || c.id === 'messraum' || c.id === 'flucht'; tod_S.seen.mess = c.id === 'messraum';
-      if (c.id === 'gang' || c.id === 'flucht') setC2Objective('Die östliche Stahltür ist frei. Geh weiter.'); else if (c.id === 'messraum') setC2Objective('Der Messraum. Hier ist es passiert.');
+      tod_S.objFix = c.id === 'messraum' ? 'Der Messraum. Hier ist es passiert.' : (c.id === 'gang' || c.id === 'flucht') ? 'Die östliche Stahltür ist frei. Geh weiter.' : null; if (tod_S.objFix) setC2Objective(tod_S.objFix);
       todCheckpoint(c.id === 'flucht' ? 'gang' : c.id, c.label, { quiet: true, x: c.x, y: c.y, z: c.z, yaw: c.yaw });
     } else { tod_S.seen.k2 = true; todCheckpoint('kapitel2', 'Kapitel 2 · Das achte Kind', { quiet: true }); }
   }, 0);
@@ -132,27 +133,31 @@ const tod_ease = k => k <= 0 ? 0 : k >= 1 ? 1 : k * k * (3 - 2 * k), tod_in = k 
 // Die Arten zu sterben: Kamerakurve + Ablauf (Klänge, Figuren, Untertitel). Rückgabe: Dauer bis Schwarz (ms)
 const TOD_ANIM = {
   zombie(A) {
-    const Zm = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (Zm) Zm.mx.timeScale = 0;
+    const Zm = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (typeof feuer_anim === 'function') feuer_anim(true); else if (Zm) Zm.mx.timeScale = 0; // aufrecht (Stehen), nicht im Laufschritt eingefroren
     const B = A.base; ch2.chase = 'caught'; zombie.g.visible = true;
     const f = { x: -Math.sin(B.yaw), z: -Math.cos(B.yaw) }, zx = B.x + f.x * .62, zz = B.z + f.z * .62;
     zombie.g.position.set(zx, B.fy, zz); zombie.g.rotation.set(0, Math.atan2(B.x - zx, B.z - zz) - PI / 2, 0); zombie.arms.forEach(a => a.rotation.z = -1.9);
     Audio.scareSound('growl'); Audio.groan(zx, zz, true); glitchV = .6; shake = 0;
     A.curve = t => {
-      if (t < .25) { const k = tod_ease(t / .25); return { h: 1.65 - .05 * k, back: .12 * k, pitch: tod_lerp(B.pitch, .08, k), shake: .06 }; }
-      if (t < 1.75) return { h: 1.6, back: .12, pitch: .08 + Math.sin(t * 9) * .01, shake: .012, roll: Math.sin(t * 3) * .02 };
-      if (t < 2.55) { const k = tod_in((t - 1.75) / .8); return { h: 1.6 - 1.32 * k, back: .12 + .5 * k, pitch: .08 + .8 * k, roll: .38 * k, shake: .02 + .05 * k }; }
+      if (t < .25) { const k = tod_ease(t / .25); return { h: 1.65 - .05 * k, back: .12 * k, pitch: tod_lerp(B.pitch, -.06, k), shake: .06 }; }
+      if (t < 1.75) return { h: 1.6, back: .12, pitch: -.06 + Math.sin(t * 9) * .01, shake: .012, roll: Math.sin(t * 3) * .02 };
+      if (t < 2.55) { const k = tod_in((t - 1.75) / .8); return { h: 1.6 - 1.32 * k, back: .12 + .5 * k, pitch: -.06 + .94 * k, roll: .38 * k, shake: .02 + .05 * k }; }
       const bitePulse = [2.9, 3.35, 3.85, 4.3].reduce((s, b) => s + Math.max(0, 1 - Math.abs(t - b) * 7), 0);
       return { h: .28, back: .62, pitch: .88 + Math.sin(t * 2) * .03, roll: .38 + Math.sin(t * 1.3) * .04, shake: .012 + bitePulse * .09 };
     };
     A.onFrame = t => {
       const k = tod_in(Math.min(1, Math.max(0, (t - 1.75) / .8)));
       const px = B.x - f.x * .62 * k, pz = B.z - f.z * .62 * k; // der Körper folgt dir nach unten und beugt sich über dich
-      zombie.g.position.set(tod_lerp(zx, px + f.x * .55, k), B.fy, tod_lerp(zz, pz + f.z * .55, k)); zombie.g.rotation.z = -1.05 * k + (t > 2.6 ? Math.sin(t * 13) * .05 : 0);
+      zombie.g.position.set(tod_lerp(zx, px + f.x * 1.15, k), B.fy, tod_lerp(zz, pz + f.z * 1.15, k)); zombie.g.rotation.z = -.25 * k + (t > 2.6 ? Math.sin(t * 13) * .04 : 0);
+      if (tod_S.faceL) { tod_S.faceL.position.set(B.x - f.x * (.62 * k - .3), B.fy + tod_lerp(1.55, .6, k), B.z - f.z * (.62 * k - .3)); tod_S.faceL.intensity = t < 4.2 ? .9 : Math.max(0, .9 - (t - 4.2) * .8); }
       tod_S.el.blood.style.opacity = Math.min(1, Math.max(0, (t - 2.55) / 1.4)); tod_S.el.red.style.opacity = Math.min(1, Math.max(0, (t - 2.2) / 2));
     };
     // Knochen nach dem Animations-Mixer (im Tick): Arme greifen nach dem Gesicht, der Kopf senkt sich über dich
     A.bones = t => { if (!Zm || !Zm.b) return; const k = tod_in(Math.min(1, Math.max(0, (t - 1.75) / .8))); Zm.zm.getWorldQuaternion(_tdq2); _tax.set(1, 0, 0).applyQuaternion(_tdq2);
-      tod_bend(Zm.b.upperarm_l, _tax, -.45); tod_bend(Zm.b.upperarm_r, _tax, -.35); tod_bend(Zm.b.lowerarm_l, _tax, -.5); tod_bend(Zm.b.lowerarm_r, _tax, -.5); tod_bend(Zm.b.neck_01, _tax, .3 * k + (t > 2.7 ? Math.sin(t * 14) * .12 : 0)); tod_bend(Zm.b.head, _tax, .25 * k); };
+      // aufgerichtet, Gesicht auf Augenhöhe, Hände am Gesicht; beim Niederreißen beugt er sich über dich
+      tod_bend(Zm.b.spine_01, _tax, .5 * k); tod_bend(Zm.b.spine_02, _tax, -.3 + .6 * k); tod_bend(Zm.b.spine_03, _tax, .3 * k);
+      tod_bend(Zm.b.upperarm_l, _tax, .1); tod_bend(Zm.b.upperarm_r, _tax, .1); tod_bend(Zm.b.lowerarm_l, _tax, -.4); tod_bend(Zm.b.lowerarm_r, _tax, -.4);
+      tod_bend(Zm.b.neck_01, _tax, -.1 + .3 * k + (t > 2.7 ? Math.sin(t * 14) * .12 : 0)); tod_bend(Zm.b.head, _tax, .1 + .25 * k); };
     setTimeout(() => subtitle('<i>„Bruder.“</i>', 1500), 650);
     setTimeout(() => { Audio.groan(zx, zz, true); }, 1300);
     setTimeout(() => { TOD_SND.thud(1.2); Audio.play('woodFall1', { gain: .6, rate: .7 }); }, 2550);
@@ -194,7 +199,7 @@ const _tpw = new THREE.Quaternion(), _tbw = new THREE.Quaternion(), _tdq = new T
 function tod_bend(b, axis, ang) { if (!b || !b.parent) return; b.parent.getWorldQuaternion(_tpw); b.getWorldQuaternion(_tbw); _tdq.setFromAxisAngle(axis, ang); b.quaternion.copy(_tpw.invert().multiply(_tdq).multiply(_tbw)); }
 async function todDie(kind = 'zombie', opts = {}) {
   const S = tod_S; if (S.dying) return; S.dying = true; S.deaths++; S.kind = kind;
-  state.talking = true; setScripted(() => true); vel.set(0, 0, 0);
+  state.talking = true; setScripted(() => true); vel.set(0, 0, 0); document.body.classList.add('todDying');
   S.vig0 = filmPass.uniforms.vig.value; S.ca0 = filmPass.uniforms.ca.value; $('subtitle').style.opacity = 0;
   const base = { x: player.pos.x, fy: player.pos.y, z: player.pos.z, yaw: player.yaw, pitch: player.pitch };
   S.anim = { kind, t: 0, base, ...opts }; let dur = 4000;
@@ -216,14 +221,14 @@ async function todRespawn() {
   await wait(700); el.classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
   setCamOverride(null); setScripted(null); S.anim = null;
   filmPass.uniforms.vig.value = S.vig0; filmPass.uniforms.ca.value = S.ca0; renderer.domElement.style.filter = ''; S.el.blood.style.opacity = 0; S.el.red.style.opacity = 0; glitchV = 0; shake = 0;
-  const Zm = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (Zm) Zm.mx.timeScale = 1;
+  const Zm = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (Zm) Zm.mx.timeScale = 1; if (S.faceL) S.faceL.intensity = 0;
   const cp = S.cp || { id: 'start', label: '', x: player.pos.x, y: 0, z: player.pos.z, yaw: player.yaw };
   // Gefahr zurücksetzen: der Zahn-Mann, dann die Module
   if (S.kind === 'zombie' || ch2.chase === 'caught') { zombie.g.visible = false; zombie.g.rotation.set(0, 0, 0); zombie.arms.forEach(a => a.rotation.z = -1.4); if (ch2.chase === 'caught') ch2.chase = 'idle'; gate.userData.holdT = 0; Audio.chaseMusic(false); }
   for (const f of TOD_RESET) { try { f(cp.id, S.kind); } catch (e) { console.warn('Wiederkehr', e); } }
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Wiederkehr', e); } }
   else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
-  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false;
+  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; document.body.classList.remove('todDying');
   todMuffle(22000, 1.2); lockPointer();
   await wait(500); S.dying = false; S.respawning = false; fade(0, 1600);
   if (cp.label) todCpShow(cp.label);
@@ -245,12 +250,13 @@ TOD_RESET.push((id, kind) => {
   counted.forEach(c => { c.f.visible = false; c.f.rotation.x = 0; });
 });
 
-WORLD_MODS.push(['Tod', async () => { window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
+WORLD_MODS.push(['Tod', async () => { tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
 WORLD_TICK.push((dt) => {
   try {
     const S = tod_S, P = player.pos, sn = S.seen;
     if (S.dying) { if (S.anim && S.anim.bones && zombie.g.visible) S.anim.bones(S.anim.t); return; }
     if (!state.started || menu.attract) return;
+    if (S.objFix && !$('introSeq').classList.contains('show')) { S.objT = (S.objT || 0) + dt; if (S.objT > 3) { setC2Objective(S.objFix); S.objFix = null; S.objT = 0; } } // Kapitelstart setzt nach dem Klick die erste Aufgabe – danach die des Speicherpunkts
     // Speicherpunkte an Kapitelanfängen und vor gefährlichen Stellen (je einmal)
     if (!ch2.on && !ch3.on && !sn.k1) { sn.k1 = true; todCheckpoint('kapitel1', 'Kapitel 1 · Das Haus Nummer 7', { quiet: true }); }
     if (ch2.on && !sn.k2 && P.x > X - 5) { sn.k2 = true; todCheckpoint('kapitel2', 'Kapitel 2 · Das achte Kind'); }
