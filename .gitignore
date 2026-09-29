@@ -24,3 +24,4 @@ HAM_FabDownloads/
 game/assets/**/*.ktx2
 game/assets/**/*.ktx.glb
 game/assets/ktx2.json
+game/index.release.html

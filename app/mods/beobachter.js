@@ -208,7 +208,7 @@ WORLD_TICK.push((dt, t) => {
   if (S.peek) beob_peekTick(dt);
   if (beob_quiet()) return;
   // Geräusche (häufiger, wenn Luke stillsteht)
-  S.sndT -= dt * (st.still > 3 ? 1.8 : 1); if (S.sndT < 0) { S.sndT = rand(BEOB.sndGap[0], BEOB.sndGap[1]); beob_sound(); }
+  S.sndT -= dt * (st.still > 3 ? 1.8 : 1); if (S.sndT < 0) { S.sndT = rand(BEOB.sndGap[0], BEOB.sndGap[1]); if (typeof spannung_ask !== 'function' || spannung_ask('beob', 'amb')) beob_sound(); }
   // Zettel hinter Luke
   S.noteT -= dt; if (S.noteT < 0) { const d = beob_nextNote(); S.noteT = d && beob_drop(d) ? rand(BEOB.gap[0], BEOB.gap[1]) : 25; }
   // kurz zu sehen (nur mit Modell, draußen)

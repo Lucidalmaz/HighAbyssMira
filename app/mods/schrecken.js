@@ -54,23 +54,25 @@ WORLD_TICK.push((dt, t) => {
       if (F.lamp) { const L = F.lamp, prev = L.mode; L.mode = 'off'; setTimeout(() => { if (L.mode === 'off') L.mode = prev; }, 700); } schreck_weg(); } }
   // Schritte hinter dir: halten an, wenn du anhältst – dann ein Flüstern
   if (S.follow) { const F = S.follow, spd = Math.hypot(vel.x, vel.z), f = schreck_fwd(); F.t -= dt;
-    if (spd > 1) { F.step -= dt; if (F.step < 0) { F.step = .52; const st = typeof klang_surface === 'function' && klang_surface(false) === 'leaves' ? Audio.pick('stepG1', 'stepG2', 'stepG3') : Audio.pick('stepWet1', 'stepWet2', 'stepWet3');
-        setTimeout(() => Audio.play(st, { gain: .3, x: P.x - f.x * 3.5, y: 0, z: P.z - f.z * 3.5, ref: 3 }), 240); } F.still = 0; } else F.still += dt;
-    if (F.still > 1.3 || F.t < 0) { if (F.still > 1.3) { Audio.play('stepWet2', { gain: .32, x: P.x - f.x * 2.2, y: 0, z: P.z - f.z * 2.2, ref: 3 }); setTimeout(() => Audio.whisper(P.x - f.x, 1.6, P.z - f.z, 1.5), 900); schreck_mark(t); } S.follow = null; } }
+    if (spd > 1) { F.step -= dt; if (F.step < 0) { F.step = .52; const sx = P.x - f.x * 3.5, sz = P.z - f.z * 3.5; setTimeout(() => Audio.stepAt(sx, sz, .3), 240); } F.still = 0; } else F.still += dt; // Schritte auf dem Boden, auf dem sie stehen
+    if (F.still > 1.3 || F.t < 0) { if (F.still > 1.3) { Audio.stepAt(P.x - f.x * 2.2, P.z - f.z * 2.2, .32); setTimeout(() => Audio.whisper(P.x - f.x, 1.6, P.z - f.z, 1.5), 900); schreck_mark(t); } S.follow = null; } }
   S.t -= dt; if (S.t > 0) return; S.t = .5;
   if (!schreck_ok() || S.fig || S.follow || t - S.last < 75 || schreck_deep(P.x, P.z)) return;
   const indoor = indoorRects.some(r => P.x > r.x0 && P.x < r.x1 && P.z > r.zb && P.z < r.zf); if (indoor) return;
-  // feste Momente
-  for (const O of SCHRECK_ORTE) { if (S.done.has(O.id) || !O.when() || Math.hypot(P.x - O.x, P.z - O.z) > O.r) continue; if (O.run(t) !== false) { S.done.add(O.id); schreck_mark(t); return; } }
+  const reg = typeof spannung_can === 'function'; // Regie (Modul spannung): Ruhe nach Höhepunkten, Abstände, Kapitel, Spannung
+  // feste Momente (warten, bis die Regie sie zulässt – der Ort bleibt ja da)
+  for (const O of SCHRECK_ORTE) { if (S.done.has(O.id) || !O.when() || Math.hypot(P.x - O.x, P.z - O.z) > O.r || (reg && !spannung_can(O.id, 'major'))) continue; if (O.run(t) !== false) { S.done.add(O.id); schreck_mark(t); if (reg) spannung_did(O.id, 'major'); return; } }
   // Zufall: nur außerhalb des Grundspiel-Reviers (dort arbeitet dessen Regisseur), selten
   if (schreck_main(P.x, P.z)) return; S.randT -= .5; if (S.randT > 0) return; S.randT = rand(80, 150);
-  const f = schreck_fwd(), inWald = typeof wald_in === 'function' && wald_in(P.x, P.z), r = Math.random();
-  if (r < .35) { S.follow = { t: 10, step: .3, still: 0 }; return; }
-  if (inWald && r < .7) { const side = Math.random() < .5 ? 1 : -1, dd = rand(15, 21), x = P.x + f.x * dd - f.z * side * 8, z = P.z + f.z * dd + f.x * side * 8; if (schreck_figur(x, z, { face: ['pale', 'grey'][Math.floor(Math.random() * 2)], run: true, dx: f.z * side, dz: -f.x * side, sp: 5, ttl: 4 })) schreck_mark(t); return; }
+  const f = schreck_fwd(), inWald = typeof wald_in === 'function' && wald_in(P.x, P.z), r = Math.random(), no = () => { S.randT = rand(15, 30); }; // abgelehnt: bald wieder fragen
+  if (r < .35) { if (reg && !spannung_ask('steps', 'minor', { behind: true })) return no(); S.follow = { t: 10, step: .3, still: 0 }; return; }
+  if (inWald && r < .7) { if (reg && !spannung_can('figure', 'major')) return no(); const side = Math.random() < .5 ? 1 : -1, dd = rand(15, 21), x = P.x + f.x * dd - f.z * side * 8, z = P.z + f.z * dd + f.x * side * 8; if (schreck_figur(x, z, { face: ['pale', 'grey'][Math.floor(Math.random() * 2)], run: true, dx: f.z * side, dz: -f.x * side, sp: 5, ttl: 4 })) { schreck_mark(t); if (reg) spannung_did('figure', 'major'); } return; }
   if (!inWald && r < .8) { // Laternenmann: unter einer Laterne vor dir steht jemand; siehst du hin, geht die Laterne aus – und er ist weg
+    if (reg && !spannung_can('figure', 'major')) return no();
     const L = (typeof lamps !== 'undefined' ? lamps : []).filter(L => L.mode === 'on' && L.wx !== undefined).map(L => { const dx = L.wx - P.x, dz = L.wz - P.z, d = Math.hypot(dx, dz); return { L, d, c: (dx * f.x + dz * f.z) / (d || 1) }; })
       .filter(o => o.d > 18 && o.d < 34 && o.c > .88).sort((a, b) => a.d - b.d)[0];
-    if (L && schreck_figur(L.L.wx + .6, L.L.wz + .4, { face: ['pale', 'wendt', 'grey'][Math.floor(Math.random() * 3)], lamp: L.L, ttl: 14 })) schreck_mark(t); return; }
+    if (L && schreck_figur(L.L.wx + .6, L.L.wz + .4, { face: ['pale', 'wendt', 'grey'][Math.floor(Math.random() * 3)], lamp: L.L, ttl: 14 })) { schreck_mark(t); if (reg) spannung_did('figure', 'major'); } return; }
+  if (reg && !spannung_ask('whisper', 'minor', { behind: true })) return no();
   Audio.whisper(P.x - f.x * 1.5, 1.6, P.z - f.z * 1.5, 1.6); schreck_mark(t);
 });
 MOD_SAVE.push(['schrecken', () => [...schreck_S.done], v => v.forEach(id => schreck_S.done.add(id))]);

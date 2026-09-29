@@ -104,7 +104,7 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
           vec2 pc = floor(vec2(wp.x / 3.3, wp.y / 1.9 + floor(wp.x / 3.3) * .37));
           diffuseColor.rgb = mix(diffuseColor.rgb, texture2D(gTexA, wp * .5).rgb * diffuse * .75, step(.9, gH(pc + 71.)) * .8);
           float pn = gF(wp * .15 + 3.1); gPud = smoothstep(.62, .655, pn); gWet = smoothstep(.5, .62, pn);
-          diffuseColor.rgb *= mix(.8, 1.12, gN(wp * .05)) * mix(1., .5, gWet);
+          diffuseColor.rgb *= mix(.8, 1.12, gN(wp * .05)) * mix(1., .68, gWet);
         } else if (gMode < 2.5) {   // Gehweg: nasse Flecken
           gWet = smoothstep(.45, .72, gF(wp * .22 + 9.));
           diffuseColor.rgb *= mix(1., .6, gWet) * mix(.84, 1.08, gN(wp * .09));
@@ -113,7 +113,7 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
           diffuseColor.rgb *= mix(1., .55, gWet) * mix(.8, 1.05, gN(wp * .6));
         }
       }`)
-    .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(gMode < .5 ? 1. : roughnessFactor * (gMode < 1.5 ? .75 : .9), roughnessFactor * .42, gWet); roughnessFactor = mix(roughnessFactor, .035, gPud);')
+    .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(gMode < .5 ? 1. : roughnessFactor * (gMode < 1.5 ? .75 : .9), roughnessFactor * .42, gWet); roughnessFactor = mix(roughnessFactor, .1, gPud);')
     .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP);
   };
   mat.customProgramCacheKey = () => 'gruenSurf'; mat.needsUpdate = true; return mat;
@@ -245,7 +245,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const leafB = gruen_tex('leaves/b.jpg', true), floorB = gruen_tex('forestfloor/b.jpg', true), patchB = msTex('wet_asphalt/b.jpg', true);
     msSurf(M.grass, 'lawn1', { tint: 0x6c7560, nrm: .55 }); gruen_surf(M.grass, 0, leafB, floorB);
-    msSurf(M.asphalt, 'road_asphalt', { tint: 0xb8b8b8 }); gruen_surf(M.asphalt, 1, patchB, floorB);
+    msSurf(M.asphalt, 'road_asphalt', { tint: 0xf0f0f0 }); // Albedo ~0,05 (nasser Asphalt) statt ~0,025: die Taschenlampe zeichnet einen sichtbaren Lichtfleck gruen_surf(M.asphalt, 1, patchB, floorB);
     msSurf(M.sidewalk, 'pavement', { tint: 0x9c9c96 }); gruen_surf(M.sidewalk, 2, patchB, floorB);
     // Rinde (Schaukelast u. a.): Maserung entlang des Astes
     msSurf(M.bark, 'bark', { tint: 0x77706a, tile: 2 });
@@ -458,7 +458,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const lm = gruen_mask('leaf'), pmk = gruen_mask('pud');
     const leafMat = gruen_decalMat('leaves/', 0xd2b894, lm), mudMat = gruen_decalMat('forestfloor/', 0x4a4038, lm, .4, -3);
-    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .03, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: 1.6 });
+    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .1, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: .6 });
     pudMat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { gT: gruen_S.uT, gRipK: { value: .4 } }); sh.vertexShader = gruen_VERT(sh.vertexShader);
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + gruen_GLSL + 'uniform float gRipK;').replace('#include <map_fragment>', '#include <map_fragment>\n gPud = 1.;').replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP); };
     pudMat.customProgramCacheKey = () => 'gruenPud';

@@ -212,7 +212,7 @@
   body.menu #hud, body.ov #hud { opacity: 0; transition: opacity .25s; }
   #hud { transition: opacity .35s; }
   @media (max-width: 820px) { .two { grid-template-columns: 1fr; } .inv { grid-template-columns: repeat(4, 1fr); } #jTabs button { letter-spacing: .15em; font-size: 10px; } #menu { margin-left: 24px; } }
-  #fearVig { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 4; transition: opacity .4s; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 38%, rgba(8,0,0,.55) 68%, rgba(0,0,0,.96) 100%); }
+  #fearVig { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 4; transition: opacity .4s; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(6,0,0,.42) 75%, rgba(0,0,0,.8) 100%); }
   .cases { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .case { border: 1px solid rgba(201,163,106,.3); padding: 12px 14px; background: rgba(0,0,0,.18); }
   .case.solved { border-color: rgba(201,163,106,.8); box-shadow: 0 0 18px rgba(201,163,106,.15) inset; }
@@ -580,7 +580,7 @@
 <div id="keypad" class="overlay"><div class="box"><div id="kpDisplay"></div><div class="grid"></div></div><div class="hint"><kbd>0–9</kbd> ZIFFERN · <kbd>ENTER</kbd> PRÜFEN · <kbd>ESC</kbd> SCHLIESSEN</div></div>
 <div id="journal" class="overlay"><div class="book"><div id="jTabs"><button data-t="aufgaben">AUFGABEN</button><button data-t="inventar">INVENTAR</button><button data-t="funde">FUNDE</button><button data-t="fotos">FOTOS</button><button data-t="fallwand">FALLWAND</button></div><div id="jBody"></div></div><div class="hint"><kbd>TAB</kbd><kbd>ESC</kbd> SCHLIESSEN</div></div>
 <div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">ABENTEUERFIBEL</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
-  <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AM ANFANG JEDES KAPITELS</div></div></div>
+  <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AN JEDEM SPEICHERPUNKT</div></div></div>
 <div id="endcard" class="overlay">
   <h1>KAPITEL 1 — ENDE</h1>
   <p>Frau Wendt ist fort. Lucys Stimme auf dem Band sagte: <i>„Du auch.“</i><br>Warum erinnerst du dich nicht an den Sommer 2009?</p>
@@ -607,7 +607,7 @@
     </div>
   </div>
   <div id="subPanel" class="panel"></div>
-  <div class="foot"><span>HIGH ABYSS MIRA · VERSION 1.1</span><span>KAPITEL 1–4 · LOST EYENGLESS · © LUCIDWORKZ</span></div>
+  <div class="foot"><span>HIGH ABYSS MIRA · VERSION <span id="mVer"></span></span><span>KAPITEL 1–6 · LOST EYENGLESS · © LUCIDWORKZ</span></div>
 </div>
 <div id="introSeq"><div id="intro"></div><div class="skip">KLICKEN ZUM ÜBERSPRINGEN</div></div>
 <div id="grain"></div>
@@ -635,7 +635,21 @@ import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 
 const PI = Math.PI;
 const rand = (a, b) => a + Math.random() * (b - a);
-const wait = ms => new Promise(r => setTimeout(r, ms));
+// Spielzeit (ms): steht bei Pause still – und beim Lesen (Notiz, Fibel, Rätsel) außerhalb von Zwischensequenzen. wait()/say()/gtAfter() laufen darauf,
+// sobald die Hauptschleife läuft; vorher (Laden) echte Zeit. So laufen Story-Abläufe nie weiter, während das Spiel pausiert ist.
+const GT = { t: 0, live: false, list: [] };
+function gtAfter(ms, fn) { const h = { at: GT.t + (+ms || 0), fn, id: 0 }; if (GT.live) GT.list.push(h); else h.id = setTimeout(() => { const f = h.fn; h.fn = null; if (f) f(); }, ms); return h; }
+function gtCancel(h) { if (h) { h.fn = null; if (h.id) clearTimeout(h.id); } }
+function gtAdvance(ms) {
+  GT.t += ms; const L = GT.list; if (!L.length) return; let due = null, j = 0;
+  for (let i = 0; i < L.length; i++) { const h = L[i]; if (!h.fn) continue; if (h.at <= GT.t) (due || (due = [])).push(h); else L[j++] = h; }
+  L.length = j;
+  if (due) { due.sort((a, b) => a.at - b.at); for (const h of due) { const f = h.fn; h.fn = null; try { f(); } catch (e) { console.warn('Zeitgeber', e); } } }
+}
+const wait = ms => new Promise(r => gtAfter(ms, r));
+const GL = { lost: false }; // Grafikkontext verloren (Treiber-Reset): Spiel steht, Hinweis, Neuladen
+const HAM_VERSION = window.HAM_VERSION || 'dev'; // einzige Quelle: package.json „version“ (build.js schreibt sie in die Seite)
+const DEV = !window.IS_RELEASE; // Veröffentlichung (tools/assemble.js --release): ohne Story-Editor, F3-Messanzeige und Entwickler-Hinweise
 const $ = id => document.getElementById(id);
 
 // Intro-Text läuft, während die Welt generiert wird
@@ -705,15 +719,17 @@ composer.addPass(new ShaderPass({
   uniforms: { tDiffuse: { value: null } },
   vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
   fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv; void main(){ vec4 c = texture2D(tDiffuse, vUv);
-    uvec3 b = floatBitsToUint(c.rgb) & 0x7F800000u; if (any(equal(b, uvec3(0x7F800000u)))) c.rgb = vec3(0.); gl_FragColor = vec4(clamp(c.rgb, 0., 60.), 1.); }`
+    uvec3 b = floatBitsToUint(c.rgb) & 0x7F800000u; if (any(equal(b, uvec3(0x7F800000u)))) c.rgb = vec3(0.); gl_FragColor = vec4(clamp(c.rgb, 0., 8.), 1.); }`
 }));
-const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.55, 0.6, 0.92);
+// Bloom nur für echte Lichtquellen (Glühbirnen, Laternenköpfe, Flammen): hohe Schwelle, kleiner Radius, schwach.
+// Von der Taschenlampe beleuchtete Flächen bleiben darunter – kein allgemeines Glühen.
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.3, 0.35, 1.5);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 const filmPass = new ShaderPass({
-  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, flash: { value: 0 }, vig: { value: 1 }, ca: { value: .012 }, glitch: { value: 0 } },
+  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, flash: { value: 0 }, vig: { value: 1 }, ca: { value: .003 }, glitch: { value: 0 }, toe: { value: .75 } },
   vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float time, flash, vig, ca, glitch; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float time, flash, vig, ca, glitch, toe; varying vec2 vUv;
     float rnd(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
     void main(){
       vec2 uv = vUv;
@@ -722,14 +738,18 @@ const filmPass = new ShaderPass({
       vec2 d = uv - .5; float r2 = dot(d, d);
       vec2 off = d * ca * (1. + glitch * 14.) * r2 * 4. + vec2(glitch * .012, 0.);
       vec3 c = vec3(texture2D(tDiffuse, uv + off).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - off).b);
-      float l = dot(c, vec3(.299, .587, .114));
-      c = mix(c, c * vec3(.88, 1.0, 1.1), (1. - smoothstep(0., .5, l)) * .6);
-      c = mix(c, c * vec3(1.06, 1.0, .9), smoothstep(.4, 1., l) * .4);
-      c = mix(vec3(l), c, .84);
-      c = clamp(c, 0., 1.); c = mix(c, c * c * (3. - 2. * c), .22);
-      c = c * .965 + vec3(.006, .009, .012) * (1. - l);
-      c *= mix(1., smoothstep(.95, .2, length(d) * 1.25), vig);
-      c += (rnd(vUv * vec2(1920., 1080.) + fract(time) * 100.) - .5) * .04;
+      c = clamp(c, 0., 1.);
+      // Fußbereich anheben: Schwarz bleibt schwarz, tiefe Schatten werden lesbar (Helligkeitsregler wirkt zusätzlich über die Belichtung)
+      c += toe * c * pow(1. - c, vec3(8.));
+      float l = dot(c, vec3(.2126, .7152, .0722));
+      c = mix(c, c * vec3(.94, 1.0, 1.06), (1. - smoothstep(0., .45, l)) * .5);
+      c = mix(c, c * vec3(1.03, 1.0, .95), smoothstep(.45, 1., l) * .3);
+      c = mix(vec3(l), c, .9);
+      c = clamp(c, 0., 1.); c = mix(c, c * c * (3. - 2. * c), .08);
+      c += vec3(.003, .004, .006) * (1. - l);
+      float rv = length(d) * 1.4142, vs = .6 - .25 * clamp(vig - 1., 0., 2.); // 0 Mitte … 1 Ecke; Effekte (Hitze, Tod) ziehen den Rand nach innen
+      c *= 1. - clamp(vig * .35, 0., 1.) * smoothstep(vs, vs + .55, rv);
+      c += (rnd(vUv * vec2(1920., 1080.) + fract(time) * 100.) - .5) * .028;
       c = mix(c, c * vec3(1.5, .55, .5), glitch * .6); c += (rnd(uv * 400. + time) - .5) * glitch * .25;
       c = mix(c, vec3(1.), flash);
       gl_FragColor = vec4(c, 1.);
@@ -991,12 +1011,16 @@ scene.background = null;
   const env = new THREE.Scene();
   const g = new THREE.SphereGeometry(50, 32, 16), cols = [], p = g.attributes.position;
   const hz = FOG.clone().multiplyScalar(1.6), zn = new THREE.Color(0x020308), gr = new THREE.Color(0x050505);
-  for (let i = 0; i < p.count; i++) { const y = p.getY(i) / 50; const c = y > 0 ? hz.clone().lerp(zn, Math.pow(y, .5)) : hz.clone().lerp(gr, Math.min(1, -y * 4)); cols.push(c.r, c.g, c.b); }
+  // Nur Himmel, Mond und ein schwacher, warmer Dunstschein knapp über dem Horizont (Streulicht der Laternen im Nebel).
+  // Keine punktförmigen Lampen: eine Umgebungs-Map ist unendlich weit weg und würde sie überall spiegeln. Echte Laternen-Spiegelungen
+  // entstehen als Glanzlicht der echten Laternenlichter auf nassen Flächen.
+  const warm = new THREE.Color(.05, .032, .016);
+  for (let i = 0; i < p.count; i++) { const y = p.getY(i) / 50; const c = y > 0 ? hz.clone().lerp(zn, Math.pow(y, .5)) : hz.clone().lerp(gr, Math.min(1, -y * 4));
+    const wk = Math.exp(-Math.pow(y / .12, 2)); c.r += warm.r * wk; c.g += warm.g * wk; c.b += warm.b * wk; cols.push(c.r, c.g, c.b); }
   g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
   env.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide })));
   const moonS = new THREE.Mesh(new THREE.SphereGeometry(2.5, 16, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color(6, 6.5, 7.5) })); moonS.position.copy(moonDir).multiplyScalar(45); env.add(moonS);
-  for (let i = 0; i < 10; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(1.2, 8, 6), new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 3, 1.4) })); const a = i / 10 * PI * 2; s.position.set(Math.cos(a) * 40, 8, Math.sin(a) * 40); env.add(s); }
-  const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(env, 0.02).texture; scene.environmentIntensity = .5;
+  const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(env, 0.02).texture; scene.environmentIntensity = .45; pm.dispose();
 })();
 
 // =====================================================================  LICHT
@@ -1005,7 +1029,7 @@ const moon = new THREE.DirectionalLight(0x9fb2e6, .6);
 moon.position.copy(moonDir).multiplyScalar(90); moon.castShadow = true;
 moon.shadow.mapSize.set(2048, 2048);
 // Schattenbereich folgt dem Spieler (±MOON_HALF m; der Nebel verschluckt ab ~50 m ohnehin alles) – deckt so auch Kirchberg, Ost und West ab
-const MOON_HALF = 55, MOON_MOVE = 6, MOON_EVERY = 4; // Halbbreite (m) · neu berechnen nach so viel Metern Bewegung · spätestens nach so vielen Sekunden
+const MOON_HALF = 42, MOON_MOVE = 2, MOON_EVERY = 30, MOON_MOVER = 2; // Halbbreite (m) · neu nach so viel Metern Bewegung · Sicherheits-Auffrischung (s) · alle 2 s, solange sich in ≤ 20 m etwas bewegt (sonst ist das eingerastete Schattenbild unverändert gültig)
 Object.assign(moon.shadow.camera, { left: -MOON_HALF, right: MOON_HALF, top: MOON_HALF, bottom: -MOON_HALF, near: 1, far: 250 });
 moon.shadow.bias = -.0006; moon.shadow.normalBias = .03; moon.shadow.radius = 3;
 moon.shadow.camera.updateProjectionMatrix();
@@ -1013,11 +1037,13 @@ moon.shadow.camera.updateProjectionMatrix();
 // Das Zentrum rastet im Lichtraum auf ganze Schattenpixel ein, damit stehende Kanten beim Nachführen nicht flimmern.
 moon.shadow.autoUpdate = false; moon.shadow.needsUpdate = true;
 scene.add(moon); scene.add(moon.target);
-const moonFollow = { x: 1e9, z: 1e9, t: 0 }, moonAx = (() => { const f = moonDir.clone().negate(), r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0)).normalize(); return { f, r, u: new THREE.Vector3().crossVectors(r, f).normalize(), p: new THREE.Vector3() }; })();
+const moonFollow = { x: 1e9, z: 1e9, t: 0, m: 0 }, moonAx = (() => { const f = moonDir.clone().negate(), r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0)).normalize(); return { f, r, u: new THREE.Vector3().crossVectors(r, f).normalize(), p: new THREE.Vector3() }; })();
 function moonShadowFollow(x, z, dt) {
-  moonFollow.t -= dt;
-  if (moonFollow.t > 0 && Math.hypot(x - moonFollow.x, z - moonFollow.z) < MOON_MOVE) return;
-  moonFollow.x = x; moonFollow.z = z; moonFollow.t = MOON_EVERY;
+  moonFollow.t -= dt; moonFollow.m -= dt;
+  const mv = moonFollow.m <= 0 && moon.intensity > 0 && moverNear(x, z, 20);
+  if (!mv && moonFollow.t > 0 && Math.hypot(x - moonFollow.x, z - moonFollow.z) < MOON_MOVE) return;
+  if (lampPool.some(l => l.castShadow && l.shadow.needsUpdate) && dt < 1) return; // nie zwei große Schattenbilder im selben Bild
+  moonFollow.x = x; moonFollow.z = z; moonFollow.t = MOON_EVERY; moonFollow.m = MOON_MOVER;
   const A = moonAx, tex = MOON_HALF * 2 / moon.shadow.mapSize.x; A.p.set(x, 0, z);
   const a = Math.round(A.p.dot(A.r) / tex) * tex, b = Math.round(A.p.dot(A.u) / tex) * tex, c = A.p.dot(A.f);
   moon.target.position.copy(A.r).multiplyScalar(a).addScaledVector(A.u, b).addScaledVector(A.f, c); moon.target.updateMatrixWorld();
@@ -1034,7 +1060,8 @@ const cookie = tex(cnv(256, (x, w, h) => {
   x.globalAlpha = .12; for (let i = 0; i < 40; i++) { x.fillStyle = '#000'; x.beginPath(); x.arc(rand(40, 216), rand(40, 216), rand(2, 9), 0, 7); x.fill(); }
 }), true);
 const flashRig = new THREE.Object3D(); scene.add(flashRig);
-const flashlight = new THREE.SpotLight(0xffe9cc, 14, 32, .5, .75, 1.7);
+// Physikalischer Abfall (1/d², decay 2); Stärke so gewählt, dass es in ~4 m so hell ist wie vorher – nah heller, fern dunkler, wie eine echte Lampe
+const flashlight = new THREE.SpotLight(0xffe9cc, 18, 32, .5, .75, 2);
 flashlight.map = cookie; flashlight.castShadow = true; flashlight.shadow.mapSize.set(1024, 1024); flashlight.shadow.bias = -.0004; flashlight.shadow.camera.near = .2;
 flashRig.add(flashlight); flashlight.position.set(0, 0, 0); flashlight.target.position.set(0, 0, -1); flashRig.add(flashlight.target);
 // Schatten der Taschenlampe nur im Nahbereich (sichtbar ist er ohnehin nur dort): spart je Bild einen Schattenpass über alles im Lichtkegel
@@ -1046,11 +1073,11 @@ let flashOn = true;
 // --- TASCHENLAMPE: drei Stufen im Spielverlauf + Batterie. Nie blockierend: leer = schwaches Restglimmen, nie völlig blind.
 // life = Sekunden Dauerlicht pro Batterie · angle = halber Öffnungswinkel (rad) · Werte hier zentral abstimmen
 const FLASH_TIERS = [
-  { key: 'lampe1', name: 'Lucys alte Taschenlampe', desc: 'Blechgehäuse, Glühbirne, „L.B.“ eingeritzt. Warmes, kurzes Licht. Frisst Batterien.', intensity: 12, distance: 24, angle: .46, color: 0xffdcae, life: 420 },
-  { key: 'lampe2', name: 'Stablampe (LED)', desc: 'Aus dem Wachraum des Amts. Kaltes, weites Licht. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“.', intensity: 16, distance: 33, angle: .5, color: 0xf1f3ff, life: 780 },
-  { key: 'lampe3', name: 'Feuerwehr-Handscheinwerfer', desc: 'Schwer, orange, Tragegriff. Lag in der Tankstelle Kranz, als hätte ihn jemand für dich hingelegt.', intensity: 21, distance: 42, angle: .58, color: 0xf7f8ff, life: 1200 },
+  { key: 'lampe1', name: 'Lucys alte Taschenlampe', desc: 'Blechgehäuse, Glühbirne, „L.B.“ eingeritzt. Warmes, kurzes Licht. Frisst Batterien.', intensity: 18, distance: 24, angle: .46, color: 0xffd4a4, life: 420 },
+  { key: 'lampe2', name: 'Stablampe (LED)', desc: 'Aus dem Wachraum des Amts. Kaltes, weites Licht. Eingraviert: „EIGENTUM BfR – NICHT ENTFERNEN“.', intensity: 24, distance: 33, angle: .5, color: 0xf2f5ff, life: 780 },
+  { key: 'lampe3', name: 'Feuerwehr-Handscheinwerfer', desc: 'Schwer, orange, Tragegriff. Lag in der Tankstelle Kranz, als hätte ihn jemand für dich hingelegt.', intensity: 31, distance: 42, angle: .58, color: 0xfff3e4, life: 1200 },
 ];
-const FLASH = { tier: 0, charge: 1, spare: 1, LOW: .15, GLOW: .1, lowTold: false, hudT: 0 };
+const FLASH = { tier: 0, charge: 1, spare: 1, LOW: .15, GLOW: .1, lowTold: false, hudT: 0, ffT: 0, ffK: 1, lowT: 0, lowK: 1 };
 function flashApply() { const T = FLASH_TIERS[FLASH.tier]; flashlight.color.set(T.color); flashlight.distance = T.distance; flashlight.angle = T.angle; }
 flashApply();
 
@@ -1207,7 +1234,7 @@ function makeDoor(cx, z, width, openAngle, mat, label) {
   box(.06, .06, .12, width - .1, 1.45, 0, M.metal, { parent: pivot });
   const col = addCol(cx - width / 2, cx + width / 2, z - .12, z + .12); const saved = { ...col };
   const D = { pivot, leaf, col, saved, open: false, openAngle, cur: 0, locked: false,
-    set(o) { this.open = o; if (o) { col.minX = col.maxX = -9999; } else Object.assign(col, saved); } };
+    set(o) { this.open = o; if (o) { col.minX = col.maxX = -9999; } else { Object.assign(col, saved); doorPushOut(col); } } };
   doors.push(D); return D;
 }
 
@@ -1356,7 +1383,7 @@ const bLights = [];
   box(.64, .04, .08, chairX, .62, chairZ - .1, M.rubber); box(.08, .04, .5, chairX - .28, .56, chairZ, M.rubber); box(.08, .04, .5, chairX + .28, .56, chairZ, M.rubber);
   const pivot = new THREE.Group(); pivot.position.set(chairX, bh, chairZ); scene.add(pivot);
   box(.01, .8, .01, 0, -.4, 0, M.dark, { parent: pivot, cast: false });
-  const bulb = new THREE.Mesh(new THREE.SphereGeometry(.06, 12, 8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xffc070, emissiveIntensity: 5 })); bulb.position.y = -.85; pivot.add(bulb);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(.06, 12, 8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xffc070, emissiveIntensity: 2.8 })); bulb.position.y = -.85; pivot.add(bulb);
   const bl = new VLight(0xffb060, 3.5, 11, 2); bl.position.y = -.95; pivot.add(bl);
   bLights.push({ pivot, light: bl, bulb });
   box(1.4, .75, .7, B.x + 2, .375, B.z - 3.3, M.wood, { collide: true });
@@ -1383,43 +1410,105 @@ const coneMat = () => new THREE.ShaderMaterial({
   uniforms: { color: { value: new THREE.Color(0xffc080) }, opacity: { value: .09 }, density: { value: scene.fog.density } },
   vertexShader: `varying vec3 vN, vW; varying float vY; void main(){ vY = uv.y; vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * w; }`,
   fragmentShader: `uniform vec3 color; uniform float opacity, density; varying vec3 vN, vW; varying float vY;
-    void main(){ vec3 v = normalize(cameraPosition - vW); float f = abs(dot(normalize(vN), v)); float dist = length(cameraPosition - vW);
-      float a = pow(f, 2.5) * pow(vY, 1.8) * opacity * exp(-dist * density * .8) * smoothstep(.5, 2.5, dist); gl_FragColor = vec4(color * a, 1.); }`
+    void main(){ float dist = max(length(cameraPosition - vW), 1e-4); vec3 v = (cameraPosition - vW) / dist; float nl = length(vN); float f = nl > 1e-5 ? abs(dot(vN / nl, v)) : 0.;
+      float a = pow(clamp(f, 0., 1.), 2.5) * pow(clamp(vY, 0., 1.), 1.8) * opacity * exp(-dist * density * .8) * smoothstep(.5, 2.5, dist) * smoothstep(.1, .6, vW.y); gl_FragColor = vec4(color * max(a, 0.), 1.); }`
 });
 const lamps = [];
 const poolTex = tex(cnv(128, (c, w) => { const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,.55)'); g.addColorStop(.35, 'rgba(255,255,255,.22)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w); }), true);
-// Pool echter Laternenlichter (die zwei nächsten mit Schatten)
+// Pool echter Laternenlichter (die zwei nächsten mit Schatten). Wechsel werden überblendet (~0,4 s): das echte Licht blendet aus,
+// das additive Bodenlicht (Decal) derselben Laterne gleichzeitig ein – nie ein hartes An/Aus.
 const lampPool = [0, 1, 2, 3].map(i => {
   const l = new THREE.SpotLight(0xffb46a, 0, 26, 1.05, .75, 1.9); scene.add(l, l.target);
-  if (i < 2) { l.castShadow = true; l.shadow.mapSize.set(1024, 1024); l.shadow.bias = -.0008; l.shadow.autoUpdate = false; l.shadow.camera.near = .5; }
-  l.userData.lamp = null; return l;
+  if (i < 2) { l.castShadow = true; l.shadow.mapSize.set(1024, 1024); l.shadow.bias = -.0008; l.shadow.autoUpdate = false; l.shadow.camera.near = .5;
+    // Schattenkamera nur 16 m tief (der Lichtkegel trifft den Boden in ≤ ~10 m): weniger Objekte je Schattenbild
+    l.shadow.updateMatrices = function (light) { const cam = this.camera, fov = THREE.MathUtils.RAD2DEG * 2 * light.angle * this.focus; if (fov !== cam.fov || cam.far !== 16 || cam.aspect !== 1) { cam.fov = fov; cam.aspect = 1; cam.far = 16; cam.updateProjectionMatrix(); } _lightShadowUpd.call(this, light); }; }
+  l.userData.lamp = null; l.userData.w = 0; return l;
 });
-function assignLampPool() {
-  const cx = camera.position.x, cz = camera.position.z;
-  const order = [...lamps].sort((a, b) => Math.hypot(a.wx - cx, a.wz - cz) - Math.hypot(b.wx - cx, b.wz - cz));
-  lampPool.forEach((l, i) => {
-    const L = order[i];
-    if (l.userData.lamp !== L) {
-      if (l.userData.lamp) l.userData.lamp.slot = -1;
-      l.userData.lamp = L; L.slot = i;
-      l.position.set(L.wx, 5.05, L.wz); l.target.position.set(L.tx, 0, L.tz); l.target.updateMatrixWorld();
-      if (l.castShadow) l.shadow.needsUpdate = true;
-    }
-    l.intensity = L.base * L.k;
-  });
-  lamps.forEach(L => { L.decal.visible = L.slot < 0; L.decal.material.opacity = .5 * L.k; });
+// Bewegte Schattenwerfer (Figuren/Tiere = SkinnedMesh, sich bewegende Türen): nur ihretwegen werden eingefrorene Schatten neu berechnet
+const LMOV = { list: [], t: 0, pts: [] };
+function lmovTick(dt) {
+  LMOV.t -= dt; if (LMOV.t > 0) return; LMOV.t = .2; const P = LMOV.pts; P.length = 0;
+  for (const o of LMOV.list) { if (!o.visible || !o.parent) continue; const e = o.matrixWorld.elements, u = o.userData, x = e[12], z = e[14];
+    if (u.lmX !== undefined && (Math.abs(x - u.lmX) > .02 || Math.abs(z - u.lmZ) > .02)) P.push(x, z); u.lmX = x; u.lmZ = z; }
+  for (const D of doors) if (Math.abs((D.open ? D.openAngle : 0) - D.cur) > .002) P.push(D.pivot.position.x, D.pivot.position.z);
 }
-// Pool echter Punktlichter für Innenräume, Veranda, Telefonzelle, Keller
-const pointPool = [0, 1, 2].map(() => { const l = new THREE.PointLight(0xffffff, 0, 8, 2); scene.add(l); return l; });
-const _vp = new THREE.Vector3();
-function assignPointPool() {
-  const cam = camera.position;
-  const cand = vlights.filter(v => v.intensity > 0.01 && v.visible !== false).map(v => { v.getWorldPosition(_vp); return { v, p: _vp.clone(), d: _vp.distanceTo(cam) - v.distance }; })
-    .filter(c => c.d < 6).sort((a, b) => a.d - b.d);
-  pointPool.forEach((l, i) => { const c = cand[i];
-    if (!c) { l.intensity = 0; return; }
-    l.position.copy(c.p); l.color.copy(c.v.color); l.intensity = c.v.intensity; l.distance = c.v.distance; l.decay = c.v.decay; });
+function moverNear(x, z, r) { const P = LMOV.pts, r2 = r * r; for (let i = 0; i < P.length; i += 2) { const dx = P[i] - x, dz = P[i + 1] - z; if (dx * dx + dz * dz < r2) return true; } return false; }
+const LP = { order: [], t: 0, tgt: [null, null, null, null], sh: 0, si: 0 }, byD2 = (a, b) => a.d2 - b.d2;
+function lampTargets() {
+  const O = LP.order, T = LP.tgt, n = lampPool.length; T.fill(null);
+  for (const L of O) L.claim = -1;
+  const lim = O[1] ? O[1].d2 * 1.3 + 4 : 1e9; // Spielraum: Schattenlaternen wechseln nicht bei jedem Schritt hin und her
+  for (let i = 0; i < 2; i++) { const L = lampPool[i].userData.lamp; if (L && L.claim < 0 && (L.rank < 2 || L.d2 < lim)) { T[i] = L; L.claim = i; } }
+  for (let i = 0, j = 0; i < 2; i++) if (!T[i]) { while (j < 2 && j < O.length && O[j].claim >= 0) j++; if (j < 2 && j < O.length) { T[i] = O[j]; O[j].claim = i; } }
+  for (let i = 2; i < n; i++) { const L = lampPool[i].userData.lamp; if (L && L.claim < 0 && L.rank <= n) { T[i] = L; L.claim = i; } }
+  for (let i = 2, j = 0; i < n; i++) if (!T[i]) { while (j < O.length && O[j].claim >= 0) j++; if (j < n && j < O.length) { T[i] = O[j]; O[j].claim = i; } }
 }
+function assignLampPool(dt = 1) {
+  const cx = camera.position.x, cz = camera.position.z, O = LP.order, now = dt >= 1;
+  if (O.length !== lamps.length) { O.length = 0; for (const L of lamps) O.push(L); LP.t = 0; }
+  LP.t -= dt; if (LP.t <= 0 || now) { LP.t = .2; for (const L of lamps) L.d2 = (L.wx - cx) * (L.wx - cx) + (L.wz - cz) * (L.wz - cz); O.sort(byD2); for (let i = 0; i < O.length; i++) O[i].rank = i; lampTargets(); }
+  const fk = Math.min(1, dt * 2.5);
+  for (const L of lamps) L.pw = 0;
+  for (let i = 0; i < lampPool.length; i++) { const l = lampPool[i], u = l.userData, T = LP.tgt[i];
+    if (u.lamp !== T) { u.w -= fk; if (u.w <= 0 || now) { u.w = now && T ? 1 : 0; u.lamp = T;
+        if (T) { l.position.set(T.wx, 5.05, T.wz); l.target.position.set(T.tx, 0, T.tz); l.target.updateMatrixWorld(); if (l.castShadow) l.shadow.needsUpdate = true; } } }
+    else if (T) u.w = Math.min(1, u.w + fk);
+    const L = u.lamp; l.intensity = L ? L.base * L.k * u.w : 0; if (L) L.pw += u.w; }
+  for (const L of lamps) { const o = .5 * L.k * Math.max(0, 1 - L.pw); L.decal.material.opacity = o; L.decal.visible = o > .003; }
+  // Laternenschatten sind eingefroren; bewegt sich etwas in ≤ 10 m, abwechselnd je eine der zwei Laternen neu (je ~4 Hz, nur in Sichtweite ≤ 30 m, nie im selben Bild wie der Mond)
+  LP.sh -= dt;
+  if (LP.sh <= 0 && !moon.shadow.needsUpdate) for (let k = 0; k < 2; k++) { LP.si ^= 1; const l = lampPool[LP.si], L = l.userData.lamp;
+    if (L && l.userData.w > 0 && L.k > 0 && L.d2 < 900 && moverNear(L.wx, L.wz, 10)) { l.shadow.needsUpdate = true; LP.sh = .12; break; } }
+}
+// Pool echter Punktlichter für Innenräume, Veranda, Telefonzelle, Keller. Überblendet wie die Laternen (~0,4 s).
+// Kein Durchleuchten von Wänden: Lichter in einem begehbaren Haus zählen nur, wenn man selbst in diesem Haus ist (oder direkt an seiner Tür steht) – und umgekehrt.
+const pointPool = [0, 1, 2].map(() => { const l = new THREE.PointLight(0xffffff, 0, 8, 2); scene.add(l); l.userData.v = null; l.userData.w = 0; return l; });
+const PP = { cand: [], t: 0, tgt: [null, null, null] }, byVD = (a, b) => a.ppD - b.ppD;
+function vlRect(p) { for (const r of indoorRects) if (p.x > r.x0 && p.x < r.x1 && p.z > r.zb && p.z < r.zf) return r; return null; } // jedes Mal neu: auch bewegte Lichter
+function nearRect(r, x, z, m) { return x > r.x0 - m && x < r.x1 + m && z > r.zb - m && z < r.zf + m; }
+// Flacker-Aussetzer unabhängig von der Bildrate: rate = Aussetzer je Sekunde, jeder dauert ~dur Sekunden (Zustand in o.fdT)
+function flickDip(o, rate, dt, dur = .06) { if (o.fdT > 0) { o.fdT -= dt; return true; } if (Math.random() < rate * dt) { o.fdT = dur * (.6 + Math.random() * .8); return true; } return false; }
+function assignPointPool(dt = 1, rect = null) {
+  const cam = camera.position, now = dt >= 1;
+  PP.t -= dt;
+  if (PP.t <= 0 || now) { PP.t = .15; const C = PP.cand; C.length = 0;
+    for (const v of vlights) { if (!(v.intensity > .01) || v.visible === false) continue;
+      if (!v.ppP) v.ppP = new THREE.Vector3(); v.getWorldPosition(v.ppP); v.ppD = v.ppP.distanceTo(cam) - v.distance; if (v.ppD >= 6) continue;
+      const R = state.inBasement ? null : vlRect(v.ppP); if (R !== rect && (rect || !nearRect(R, cam.x, cam.z, 1.5))) continue; C.push(v); }
+    C.sort(byVD); const T = PP.tgt, n = Math.min(C.length, pointPool.length); T.fill(null); for (let j = 0; j < C.length; j++) C[j].ppC = j < n ? -1 : -2;
+    for (let i = 0; i < pointPool.length; i++) { const v = pointPool[i].userData.v; if (v && v.ppC === -1 && C.includes(v)) { T[i] = v; v.ppC = i; } }
+    for (let i = 0, j = 0; i < pointPool.length; i++) if (!T[i]) { while (j < n && C[j].ppC !== -1) j++; if (j < n) { T[i] = C[j]; C[j].ppC = i; } }
+  }
+  const fk = Math.min(1, dt * 2.5);
+  for (let i = 0; i < pointPool.length; i++) { const l = pointPool[i], u = l.userData, T = PP.tgt[i];
+    if (u.v !== T) { u.w -= fk; if (u.w <= 0 || now) { u.w = now && T ? 1 : 0; u.v = T; } } else if (T) u.w = Math.min(1, u.w + fk);
+    const v = u.v; if (!v) { l.intensity = 0; continue; }
+    v.getWorldPosition(l.position); l.color.copy(v.color); l.distance = v.distance; l.decay = v.decay;
+    l.intensity = v.intensity * u.w * (v === KEY.src ? 1 - (1 - KEY.fill) * KEY.w : 1); }
+}
+// Schlüssel-Innenlichter mit echtem Schatten: EINE Schatten-Spot (512², beim Laden angelegt) wandert zur aktiven Lampe im Raum des Spielers
+// (Kellerbirne, Stehlampe und Neonröhre in Nr. 7). Sie strahlt nach unten; Decke/Oberwände bekommen weiter das schattenlose Poollicht als Aufhellung.
+// Schatten nur neu, wenn die Lampe wechselt oder sich bewegt (Pendelbirne: jedes 2. Bild) oder sich etwas im Raum bewegt.
+const keyLight = new THREE.SpotLight(0xffffff, 0, 10, 1.2, .85, 2);
+keyLight.castShadow = true; keyLight.shadow.mapSize.set(512, 512); keyLight.shadow.bias = -.0006; keyLight.shadow.normalBias = .02; keyLight.shadow.camera.near = .08; keyLight.shadow.autoUpdate = false;
+scene.add(keyLight, keyLight.target);
+const KEY = { src: null, w: 0, fill: .5, list: [], f: 0, lp: new THREE.Vector3(), p: new THREE.Vector3() };
+function keyLightTick(dt, rect) {
+  // Wahl nach Nennstärke / Abstand² (Flackern ändert die Wahl nicht); die aktuelle Lampe bleibt, bis eine andere 1,5× stärker wirkt
+  let best = null, bs = 0, cs = 0; const cam = camera.position;
+  for (const K of KEY.list) { const v = K.v; if (!(v.intensity > .02) || !K.on(rect)) continue; v.getWorldPosition(KEY.p); const sc = K.I / Math.max(.5, KEY.p.distanceToSquared(cam));
+    if (sc > bs) { bs = sc; best = v; } if (v === KEY.src) cs = sc; }
+  if (cs > 0 && best !== KEY.src && bs < cs * 1.5) best = KEY.src;
+  const fk = Math.min(1, dt * 2.5);
+  if (KEY.src !== best) { KEY.w -= fk; if (KEY.w <= 0) { KEY.w = 0; KEY.src = best; KEY.lp.set(1e9, 0, 0); } } else if (best) KEY.w = Math.min(1, KEY.w + fk);
+  const v = KEY.src; if (!v) { keyLight.intensity = 0; return; }
+  v.getWorldPosition(keyLight.position); keyLight.color.copy(v.color); keyLight.distance = v.distance; keyLight.intensity = v.intensity * KEY.w;
+  keyLight.target.position.set(keyLight.position.x, keyLight.position.y - 3, keyLight.position.z); keyLight.target.updateMatrixWorld();
+  const moved = keyLight.position.distanceToSquared(KEY.lp) > 1e-6; KEY.f++;
+  if ((moved && (KEY.f & 1) === 0) || KEY.lp.x > 1e8 || (KEY.f % 6 === 0 && moverNear(keyLight.position.x, keyLight.position.z, 8))) { keyLight.shadow.needsUpdate = true; KEY.lp.copy(keyLight.position); }
+}
+{ const in7 = r => !!r && r.x0 === s7.x0 && r.zb === s7.zb;
+  KEY.list.push({ v: bLights[0].light, I: 3.5, on: () => state.inBasement && Math.abs(player.pos.x - B.x) < 8 && Math.abs(player.pos.z - B.z) < 7 }, { v: livingLight, I: 4, on: in7 }, { v: kitchenLight, I: 3, on: in7 }); }
 function lamp(x, z, ax, az, mode = 'on', shadow = false) {
   const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
   const pole = new THREE.Mesh(new THREE.CylinderGeometry(.07, .12, 5.4, 10), M.metal); pole.position.y = 2.7; pole.castShadow = true; g.add(pole);
@@ -1581,7 +1670,7 @@ addCol(-14, -4.2, -47, -31); addCol(4.2, 14, -47, -31); addCol(-5, 5, -47, -46);
 // =====================================================================  AUTOS
 function car(x, z, ry, color, opts = {}) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
-  const paint = new THREE.MeshStandardMaterial({ color, roughness: .35, metalness: .6 });
+  const paint = new THREE.MeshStandardMaterial({ color, roughness: .26, metalness: .45 }); // Lack: klares Glanzlicht unter Taschenlampe/Laterne
   const low = new THREE.Shape([[-2.25, .32], [2.25, .32], [2.3, .78], [1.5, .9], [-1.2, .92], [-2.2, .82]].map(p => new THREE.Vector2(...p)));
   const lg = new THREE.ExtrudeGeometry(low, { depth: 1.7, bevelEnabled: true, bevelSize: .05, bevelThickness: .06, bevelSegments: 2 }); lg.translate(0, 0, -.85);
   const body = new THREE.Mesh(lg, paint); body.castShadow = true; body.receiveShadow = true; g.add(body);
@@ -1598,7 +1687,8 @@ function car(x, z, ry, color, opts = {}) {
   }
   const hlMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xfff0d0, emissiveIntensity: opts.lights ? 5 : 0 });
   for (const s of [-1, 1]) { box(.06, .14, .3, -2.28, .66, s * .6, hlMat, { parent: g, cast: false }); box(.06, .12, .28, 2.33, .7, s * .62, new THREE.MeshStandardMaterial({ color: 0x300000, emissive: 0xff1010, emissiveIntensity: opts.lights ? 1.2 : .05 }), { parent: g, cast: false }); }
-  if (opts.lights) { const sl = new THREE.SpotLight(0xfff0d0, 80, 32, .5, .5, 1.6); sl.position.set(-2.35, .66, 0); sl.target.position.set(-12, 0, 0); g.add(sl, sl.target); }
+  // Scheinwerfer ohne Schatten: Reichweite auf 15 m begrenzt (physikalischer Abfall), damit sie nicht durch Häuser/Hecken dahinter scheinen
+  if (opts.lights) { const sl = new THREE.SpotLight(0xfff0d0, 55, 15, .42, .55, 2); sl.position.set(-2.35, .66, 0); sl.target.position.set(-12, -.6, 0); g.add(sl, sl.target); }
   const cos = Math.abs(Math.cos(ry)) > .5; const hw = cos ? 2.4 : .95, hd = cos ? .95 : 2.4;
   return g;
 }
@@ -1633,11 +1723,12 @@ const booth = (() => {
 const holes = indoorRects.map(r => new THREE.Vector4(r.x0 - .3, r.x1 + .3, r.zb - .3, r.zf + .3));
 while (holes.length < 2) holes.push(new THREE.Vector4());
 const fogUniforms = { time: { value: 0 }, color: { value: FOG.clone().multiplyScalar(2.3) }, camPos: { value: new THREE.Vector3() }, holes: { value: holes },
-  lamps: { value: Array.from({ length: 10 }, () => new THREE.Vector4()) }, strength: { value: .55 } };
+  lamps: { value: Array.from({ length: 10 }, () => new THREE.Vector4()) }, strength: { value: .55 },
+  flP: { value: new THREE.Vector3() }, flD: { value: new THREE.Vector3(0, 0, -1) }, flK: { value: new THREE.Vector2() } }; // Taschenlampe streut im Bodennebel (x = Stärke, y = cos Öffnungswinkel)
 const fogMat = new THREE.ShaderMaterial({
   transparent: true, depthWrite: false, uniforms: fogUniforms,
   vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-  fragmentShader: `uniform float time, strength; uniform vec3 color, camPos; uniform vec4 holes[2]; uniform vec4 lamps[10]; varying vec3 vW;
+  fragmentShader: `uniform float time, strength; uniform vec3 color, camPos, flP, flD; uniform vec2 flK; uniform vec4 holes[2]; uniform vec4 lamps[10]; varying vec3 vW;
     float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h2(i), h2(i + vec2(1, 0)), f.x), mix(h2(i + vec2(0, 1)), h2(i + vec2(1, 1)), f.x), f.y); }
     float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < 5; i++){ v += a * n2(p); p *= 2.1; a *= .5; } return v; }
@@ -1649,6 +1740,7 @@ const fogMat = new THREE.ShaderMaterial({
       float a = smoothstep(.12, .42, n) * strength * smoothstep(.8, 5., dist) * (1. - smoothstep(40., 75., dist));
       vec3 c = color;
       for (int i = 0; i < 10; i++){ vec4 L = lamps[i]; float dd = distance(p, L.xz); c += vec3(1., .6, .28) * L.w * exp(-dd * dd / 14.) * .9; }
+      if (flK.x > 0.) { vec3 fv = vW - flP; float fd = max(length(fv), .01); c += vec3(1., .94, .86) * flK.x * smoothstep(flK.y, mix(flK.y, 1., .6), dot(fv / fd, flD)) / (1. + fd * fd * .35) * .16; } // Nebel im Lichtkegel hell statt dunkler Schleier
       gl_FragColor = vec4(c, a);
     }`
 });
@@ -1757,26 +1849,35 @@ stage('Geschichte laden'); await wait(30);
 // Mischregeln gegen Überladung: gleichzeitige Einmal-Geräusche, ab denen leise weggelassen werden · Mindestabstände (s)
 const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 6, stingerGap: 8 };
 // Musik: Spannungsschwellen (fear 0…1), Haltezeit vor Entspannung, Pausen (s) zwischen Phrasen je Stufe, Grundlautstärke
-const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [6, 12], restAfter: [12, 22],
-  rest: { calm: [12, 28], uneasy: [10, 22], danger: [0, 2] }, gain: .9 }; // kurze Pausen: die Welt atmet, verstummt aber nie
+// Zustände (Audio.musicState()): Stille · Erkundung (calm) · Geheimnis (calm drinnen/unter der Erde) · Spannung (uneasy) · Gefahr (danger) · Verfolgung (chaseMusic)
+// · Nachhall (after: nach einem Schreck schweigt die Musik) · Gespräch (Musik geduckt). Übergänge: Aufwärts sofort/bald mit Einblenden, abwärts erst Stille, dann langsam.
+const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [25, 50], restAfter: [40, 80],
+  rest: { calm: [40, 120], uneasy: [25, 60], danger: [0, 3] }, after: 30, talk: .35, gain: .9 }; // lange Pausen: echte Stille ist Teil der Musik
 const ctx0 = A => A.ctx;
 const Audio = {
   ctx: null,
   build(ctx) {
-    this.out = ctx.createDynamicsCompressor(); this.out.connect(ctx.destination);
-    this.master = ctx.createGain(); this.master.gain.value = .9; this.master.connect(this.out);
-    const len = ctx.sampleRate * 2.6, ir = ctx.createBuffer(2, len, ctx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.5); }
-    const conv = ctx.createConvolver(); conv.buffer = ir; this.rev = ctx.createGain(); this.rev.gain.value = .2; this.master.connect(conv); conv.connect(this.rev); this.rev.connect(this.out);
-    // Langer Hall für Donner (weite Landschaft)
-    const fl = ctx.sampleRate * 5.5, ir2 = ctx.createBuffer(2, fl, ctx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) { const d = ir2.getChannelData(ch); for (let i = 0; i < fl; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / fl, 2.2) * (i < 4000 ? i / 4000 : 1); }
-    const conv2 = ctx.createConvolver(); conv2.buffer = ir2; this.revFar = ctx.createGain(); this.revFar.gain.value = .5; conv2.connect(this.revFar); this.revFar.connect(this.out); this.revFar = conv2;
+    // Ausgang: Lautstärke (master) → sanfter Bus-Kompressor (−10 dB, 3,5:1) → Begrenzer bei −2 dB (Spitzen gemessen ≤ −1 dBFS, Gehörschutz). Leises bleibt leise, Lautes darf laut sein.
+    const L = this.lim = ctx.createDynamicsCompressor(); L.threshold.value = -2; L.knee.value = 0; L.ratio.value = 20; L.attack.value = .001; L.release.value = .12; L.connect(ctx.destination);
+    const C = this.out = ctx.createDynamicsCompressor(); C.threshold.value = -10; C.knee.value = 6; C.ratio.value = 3.5; C.attack.value = .012; C.release.value = .25; C.connect(L);
+    const trim = ctx.createGain(); trim.gain.value = .8; trim.connect(C); // −2 dB Luft vor dem Begrenzer (der alte Kompressor hat alles zusammengedrückt)
+    this.master = ctx.createGain(); this.master.gain.value = .9; this.master.connect(trim);
+    // Welt-Bus: alles, was in der Welt klingt → trocken + Hall des aktuellen Raums. UI, Musik, Stinger und Klangbetten (Regen/Wind) gehen trocken auf master.
+    this.world = ctx.createGain(); this.world.connect(this.master);
+    // Vier Räume (Faltungshall, einmal berechnet), per setRoom überblendet: kleiner Wohnraum · Beton (Keller/Amt, metallische Resonanz) · Halle · draußen (kurz, diffus)
+    this.revs = {}; for (const k of ['small', 'concrete', 'hall', 'out']) { const conv = ctx.createConvolver(); conv.buffer = this.ir(ctx, k); conv.connect(this.master); const s = ctx.createGain(); s.gain.value = 0; this.world.connect(s); this.revs[k] = { s, conv, on: false }; }
+    this.musSend = ctx.createGain(); this.musSend.gain.value = .5; this.musSend.connect(this.revs.hall.conv); // Synth-Musik: eigener Hallanteil (Halle)
+    // Verdeckung: Quelle in einem anderen Raum als der Hörer → Tiefpass 600 Hz, −12 dB; unter der Erde ↔ draußen: gar nicht (sink ist nirgends angeschlossen)
+    const olp = ctx.createBiquadFilter(); olp.type = 'lowpass'; olp.frequency.value = 600; olp.Q.value = .4; this.occ = olp; const og = ctx.createGain(); og.gain.value = .25; olp.connect(og); og.connect(this.world);
+    this.sink = ctx.createGain(); this.sink.gain.value = 0;
+    this.setRoom('out');
     const nl = ctx.sampleRate * 2, nb = ctx.createBuffer(1, nl, ctx.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nl; i++) nd[i] = Math.random() * 2 - 1; this.noiseBuf = nb;
-    // Busse für die Aufnahmen
-    this.crickets = ctx.createGain(); this.crickets.gain.value = 0; this.crickets.connect(this.master);
-    this.wind = ctx.createGain(); this.wind.gain.value = 0; this.wind.connect(this.master);
-    this.rain = ctx.createGain(); this.rain.gain.value = 0; this.rain.connect(this.master);
+    // Busse für die Aufnahmen – über hushG (plötzliche Stille / stille Zonen der Regie)
+    this.bedTrim = ctx.createGain(); this.bedTrim.gain.value = .5; this.bedTrim.connect(this.master); // Betten −6 dB: ohne den alten harten Kompressor stünden Regen/Wind sonst zu weit vorn
+    this.hushG = ctx.createGain(); this.hushG.connect(this.bedTrim);
+    this.crickets = ctx.createGain(); this.crickets.gain.value = 0; this.crickets.connect(this.hushG); // bleibt stumm: Novembernacht
+    this.wind = ctx.createGain(); this.wind.gain.value = 0; this.wind.connect(this.hushG);
+    this.rain = ctx.createGain(); this.rain.gain.value = 0; this.rain.connect(this.hushG);
     this.rainLP = ctx.createBiquadFilter(); this.rainLP.type = 'lowpass'; this.rainLP.frequency.value = 9000; this.rainLP.connect(this.rain);
     // Tiefer, kaum hörbarer Grundton – nur Beklemmung, kein Sägen
     const dg = ctx.createGain(); dg.gain.value = .018; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 90;
@@ -1786,6 +1887,20 @@ const Audio = {
     const tn = this.noise(true), thp = ctx.createBiquadFilter(); thp.type = 'highpass'; thp.frequency.value = 2000;
     this.tv = ctx.createGain(); this.tv.gain.value = 0; tn.connect(thp); thp.connect(this.tv); this.tv.connect(this.master);
   },
+  // Raumantwort: gefiltertes Rauschen mit Abklingen (+ Vorverzögerung), draußen einzelne Rückwürfe von Wänden/Stämmen, Beton mit klingenden Rohren
+  ir(ctx, kind) { const [sec, dec, cut, pre, metal] = { small: [.55, 5, 5200, .004, 0], concrete: [1.5, 3.2, 7000, .008, 1], hall: [2.1, 3, 6000, .018, 0], out: [1, 4.5, 3800, .03, 0] }[kind];
+    const sr = ctx.sampleRate, n = Math.floor(sr * sec), b = ctx.createBuffer(2, n, sr), a = Math.exp(-2 * Math.PI * cut / sr), p0 = Math.floor(sr * pre);
+    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); let lp = 0;
+      for (let i = p0; i < n; i++) { lp = lp * a + (Math.random() * 2 - 1) * (1 - a); d[i] = lp * Math.pow(1 - (i - p0) / (n - p0), dec) * (kind === 'out' ? 1.2 : 2); }
+      if (kind === 'out') for (let r = 0; r < 7; r++) { const i = Math.floor(sr * (.03 + Math.random() * .3)); d[i] += (Math.random() < .5 ? -1 : 1) * (.25 + Math.random() * .35) * (1 - i / n); }
+      if (metal) for (const [f, amp, tau] of [[143, .05, .9], [287, .035, .7], [612, .025, .5], [1245, .015, .35], [2210, .008, .25]]) { const ph = Math.random() * 6.28, w = 2 * Math.PI * f * (1 + ch * .003) / sr; for (let i = p0; i < n; i++) d[i] += Math.sin(w * i + ph) * amp * Math.exp(-(i - p0) / sr / tau); } }
+    return b; },
+  // Hall je Raum überblenden; nicht gebrauchte Räume werden abgekoppelt (kein Rechenaufwand). 'dead' = kein Nachhall („der Wald hat kein Echo“)
+  setRoom(kind) { if (!this.revs || kind === this.room) return; this.room = kind; const t = this.ctx.currentTime, W = { small: .3, concrete: .5, hall: .45, out: .14 };
+    for (const k in this.revs) { const R = this.revs[k], v = k === kind ? W[k] : 0; if (v && !R.on) { R.s.connect(R.conv); R.on = true; } R.s.gain.setTargetAtTime(v, t, .5);
+      if (!v && R.on) setTimeout(() => { if (this.room !== k && R.on) { try { R.s.disconnect(R.conv); } catch (e) {} R.on = false; } }, 4000); } },
+  // Raum eines Punkts: 'u' unter der Erde (Keller Nr. 7, Gang, Amt – alles jenseits x 250), Nummer des Innenraums, sonst 'o' (draußen)
+  space(x, z) { if (x > 250) return 'u'; if (typeof indoorRects !== 'undefined') for (let i = 0; i < indoorRects.length; i++) { const r = indoorRects[i]; if (x > r.x0 && x < r.x1 && z > r.zb && z < r.zf) return i; } return 'o'; },
   // ---- Aufnahmen (CC0) – Kontext schon beim Laden anlegen, damit alles dekodiert ist, bevor gespielt wird
   preload() {
     if (this.ctx) return;
@@ -1804,35 +1919,41 @@ const Audio = {
     const b = this.buf && this.buf[name]; if (!b) return null;
     // Nicht überladen: ab AUDIO_MIX.voices gleichzeitigen Einmal-Geräuschen werden leise (Umgebungs-)Geräusche ausgelassen
     if (!o.loop && (this.voices || 0) >= AUDIO_MIX.voices && (o.gain ?? 1) < AUDIO_MIX.quiet) return null;
+    let pd = null; if (o.x !== undefined && o.pan === undefined) { pd = this.at(o.x, o.y ?? 1, o.z, o.ref || 3); if (this.cut) return null; } // außer Hörweite / hinter Erde: gar nicht erst anlegen
     const ctx = this.ctx, t = ctx.currentTime + (o.delay || 0);
-    const src = ctx.createBufferSource(); src.buffer = b; src.loop = !!o.loop; if (o.loop && o.loopStart) { src.loopStart = o.loopStart; src.loopEnd = o.loopEnd || b.duration; }
+    let lp = o.lp, bb = b; if (o.loop && lp) { const pf = this.buf[name + '@' + lp]; if (pf) bb = pf; else this.prefilter(name, lp); lp = 0; } // Schleife: nie mit Echtzeit-Tiefpass (siehe prefilter)
+    const src = ctx.createBufferSource(); src.buffer = bb; src.loop = !!o.loop; if (o.loop && o.loopStart) { src.loopStart = o.loopStart; src.loopEnd = o.loopEnd || b.duration; }
     src.playbackRate.value = (o.rate || 1) * (o.vary ? rand(1 - o.vary, 1 + o.vary) : 1);
     let node = src;
-    if (o.lp) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; node.connect(f); node = f; }
+    if (lp) { const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; node.connect(f); node = f; }
     if (o.hp) { const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = o.hp; node.connect(f); node = f; }
     const g = ctx.createGain(), v = (o.gain ?? 1) * (o.varyGain ? rand(1 - o.varyGain, 1 + o.varyGain) : 1);
     if (o.fadeIn) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + o.fadeIn); } else g.gain.setValueAtTime(v, t);
     if (o.dur && !o.loop) { const fo = Math.min(.4, o.dur * .3); g.gain.setValueAtTime(v, t + o.dur - fo); g.gain.linearRampToValueAtTime(0, t + o.dur); }
     node.connect(g);
-    if (o.pan !== undefined) { const p = ctx.createStereoPanner(); p.pan.value = o.pan; g.connect(p); p.connect(o.dest || this.master); }
-    else g.connect(o.x !== undefined ? this.at(o.x, o.y ?? 1, o.z, o.ref || 3) : (o.dest || this.master));
+    if (o.pan !== undefined) { const p = ctx.createStereoPanner(); p.pan.value = o.pan; g.connect(p); p.connect(o.dest || this.world); }
+    else g.connect(pd || o.dest || this.world);
     src.start(t, o.offset || 0, o.loop ? undefined : (o.dur ? o.dur + .05 : undefined));
     if (!o.loop) { this.voices = (this.voices || 0) + 1; src.onended = () => { this.voices--; }; }
     return { src, g, stop: (f = .3) => { try { g.gain.setTargetAtTime(0, ctx.currentTime, f / 3); src.stop(ctx.currentTime + f + .1); } catch (e) {} } };
   },
   loop(name, o) { return this.play(name, { ...o, loop: true }); },
+  // Schleifen mit Tiefpass: in Chromium schwingt sich ein Echtzeit-Biquad hinter manchen geloopten Aufnahmen (weird1, machine1) nach ~1 s bis NaN auf und legt den
+  // ganzen Ausgang lahm. Darum werden sie einmal offline gefiltert (buf['name@lp']) und ohne Echtzeitfilter geloopt (play() nimmt die Kopie automatisch).
+  prefilter(name, lp) { const b = this.buf[name], key = name + '@' + lp; if (!b || this.buf[key] || (this.pf || (this.pf = {}))[key]) return; this.pf[key] = true;
+    const oc = new OfflineAudioContext(b.numberOfChannels, b.length, b.sampleRate), s = oc.createBufferSource(), f = oc.createBiquadFilter();
+    s.buffer = b; f.frequency.value = lp; s.connect(f); f.connect(oc.destination); s.start(); oc.startRendering().then(r => { this.buf[key] = r; }).catch(() => {}); },
   pick(...names) { // nie zweimal hintereinander dieselbe Aufnahme aus derselben Auswahl (klingt sonst nach Kopie)
     if (names.length < 2) return names[0]; const key = names.join('|'), last = (this.lastPick || (this.lastPick = {}))[key];
     let n = names[Math.floor(Math.random() * names.length)]; if (n === last) n = names[(names.indexOf(n) + 1 + Math.floor(Math.random() * (names.length - 1))) % names.length];
     return this.lastPick[key] = n; },
   startAmbience() {
     const go = () => {
-      if (this.amb) return; this.amb = true;
+      if (this.amb) return; this.amb = true; for (const [n, f] of [['weird1', 900], ['waterFlow', 1800], ['machine1', 1200], ['machine2', 600], ['carEngine', 900], ['carEngine', 700], ['carEngine', 520], ['air1', 500]]) this.prefilter(n, f);
       this.loop(this.buf.rain1 ? 'rain1' : 'rain2', { dest: this.rainLP, gain: 1 });
-      this.loop('crickets', { dest: this.crickets, gain: 1, lp: 5200 });
       const w1 = this.loop(this.buf.wind1 ? 'wind1' : 'wind2', { dest: this.wind, gain: .8, rate: .92 }); if (w1) this.lfo(.05, .35, w1.g.gain);
       const w2 = this.loop('wind2', { dest: this.wind, gain: .45, rate: .85 }); if (w2) this.lfo(.031, .3, w2.g.gain);
-      const ambient = () => { if (this.area === 'o' && !window.klang_ambient && Math.random() < .85) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
+      const ambient = () => { if (this.area === 'o' && !window.klang_ambient && Math.random() < .85 && (typeof spannung_ask !== 'function' || spannung_ask('fern', 'amb'))) { const a = rand(0, 6.28), d = rand(50, 110), r = Math.random();
           if (r < .3) this.bark(Math.cos(a) * d, Math.sin(a) * d, Math.random() < .3); else if (r < .45) this.trainHorn(); else if (r < .8) this.treeCreak(rand(-40, 40), rand(-30, 30)); else this.bang(Math.cos(a) * 40, Math.sin(a) * 40, .3); }
         setTimeout(ambient, rand(18000, 45000)); };
       setTimeout(ambient, 12000);
@@ -1843,10 +1964,9 @@ const Audio = {
   setArea(indoor, basement) {
     if (!this.ctx) return; this.pendingArea = [indoor, basement]; this.area = basement ? 'b' : indoor ? 'i' : 'o'; if (!this.amb) return;
     const t = this.ctx.currentTime;
-    this.crickets.gain.setTargetAtTime(0, t, .8); // Novembernacht im Regen: keine Grillen
     this.wind.gain.setTargetAtTime(basement ? 0 : indoor ? .1 : .5, t, .8);
     this.rain.gain.setTargetAtTime(basement ? 0 : indoor ? .16 : .5, t, .5); this.rainLP.frequency.setTargetAtTime(indoor ? 700 : 9000, t, .4);
-    this.rev.gain.setTargetAtTime(basement ? .5 : indoor ? .32 : .12, t, .3);
+    this.setRoom(this.roomHint ? this.roomHint() : basement ? 'concrete' : indoor ? 'small' : 'out');
     if (basement && !this.bsm) { this.bsm = this.loop('weird1', { gain: .09, fadeIn: 4, lp: 900 }); this.bsm2 = this.loop('waterFlow', { gain: .035, fadeIn: 6, lp: 1800 }); }
     else if (!basement && this.bsm) { this.bsm.stop(3); this.bsm2 && this.bsm2.stop(3); this.bsm = this.bsm2 = null; }
   },
@@ -1854,9 +1974,14 @@ const Audio = {
     if (surface === 'wood') { this.play(this.pick('stepW1', 'stepW2', 'stepW3', 'stepW4'), { gain: .45, vary: .08, varyGain: .25 }); if (Math.random() < .1) this.play(this.pick('woodSqueak1', 'woodSqueak2'), { gain: .18, vary: .1, delay: .05 }); }
     else if (surface === 'grass') this.play(this.pick('stepG1', 'stepG2', 'stepG3'), { gain: .32, vary: .1, varyGain: .3, lp: 5000 });
     else this.play(this.pick('stepC1', 'stepC2', 'stepC3', 'stepC4', 'stepC5', 'stepC6'), { gain: .38, vary: .08, varyGain: .25 }); },
-  stepAt(x, z, v = .3) { if (!this.ctx) return; this.play(this.pick('stepC1', 'stepC2', 'stepC3', 'stepC4', 'stepC5', 'stepC6'), { gain: v * 1.3, vary: .1, x, y: .1, z, ref: 2 }); },
+  stepAt(x, z, v = .3) { if (!this.ctx) return; if (this.stepSound && this.surfaceAt) return this.stepSound(this.surfaceAt(x, z), v * 3.4, x, z); // Untergrund an der Stelle (Modul klang)
+    this.play(this.pick('stepC1', 'stepC2', 'stepC3', 'stepC4', 'stepC5', 'stepC6'), { gain: v * 1.3, vary: .1, x, y: .1, z, ref: 2 }); },
   creak(v = .22) { if (!this.ctx) return; this.play('doorCreak', { gain: v * 1.8, rate: rand(.8, 1.05), offset: rand(0, .6), dur: rand(1.4, 2.4) }); },
-  treeCreak(x, z) { if (!this.ctx) return; this.play('treeCreak', { gain: .5, vary: .15, x, y: 4, z, ref: 8 }); },
+  // Knarrender Baum: nie zweimal gleich – Ausschnitt, Tempo, Filter und Aufnahme wechseln (gedehntes Holzquietschen = schwerer Ast)
+  treeCreak(x, z) { if (!this.ctx) return; const r = Math.random(), o = { x, y: 4, z, ref: 8 }, b = this.buf.treeCreak;
+    if (r < .45 && b) this.play('treeCreak', { gain: rand(.3, .5), rate: rand(.72, 1.12), offset: rand(0, Math.max(0, b.duration - 2.2)), dur: rand(1.2, 2.2), lp: rand(1800, 4200), fadeIn: .12, ...o });
+    else if (r < .75) this.play(this.pick('woodSqueak1', 'woodSqueak2'), { gain: rand(.12, .22), rate: rand(.32, .5), lp: 1400, ...o });
+    else this.play('doorCreak', { gain: rand(.12, .2), rate: rand(.38, .55), offset: rand(0, .8), dur: rand(1, 1.8), lp: 1100, fadeIn: .2, ...o }); },
   slam() { if (!this.ctx) return; this.play(this.pick('woodSlam1', 'woodSlam2', 'woodSlam3'), { gain: 1, vary: .06 }); const o = this.osc('sine', 70, 0, .6); this.env(o, .4, .003, .4); },
   knock() { if (!this.ctx) return; for (let i = 0; i < 3; i++) this.play(this.pick('woodHit1', 'woodHit2', 'woodHit3'), { gain: .7, vary: .06, delay: i * .29 + rand(0, .04) }); },
   bang(x, z, v = .5) { if (!this.ctx) return; this.play(this.pick('woodSlam1', 'woodSlam2', 'woodClose1', 'metalSlam'), { gain: v * 2, vary: .08, x, y: 3, z, ref: 5 }); },
@@ -1867,7 +1992,7 @@ const Audio = {
   rattle() { if (!this.ctx) return; for (let i = 0; i < 5; i++) this.play('glass1', { gain: .12, rate: rand(1.3, 1.8), delay: i * rand(.05, .12), pan: rand(-.8, .8), hp: 1500 }); },
   // Donner wie draußen: Reißen → Knall → 20 Sekunden Rollen mit Wellen, die von den Häusern zurückkommen
   ramp(g, v, t, hold, dur) { const gg = g.gain; gg.setValueAtTime(v, t + hold); gg.exponentialRampToValueAtTime(.0008, t + dur); },
-  thunder(delay, close = 0) { if (!this.ctx) return; const ctx = this.ctx, t = ctx.currentTime + delay, pan = rand(-.6, .6);
+  thunder(delay, close = 0) { if (!this.ctx || this.area === 'b') return; const ctx = this.ctx, t = ctx.currentTime + delay, pan = rand(-.6, .6);
     if (close > .5) {
       // 1) Das Reißen (hoch, trocken)
       this.play('thunder1', { gain: 1.1, rate: 1.18, hp: 700, delay, pan: pan * .3 });
@@ -1912,7 +2037,13 @@ const Audio = {
     else if (!on && this.tankN) { this.tankN.l.stop(1); this.tankN = null; } },
   powerUp() { if (!this.ctx) return; const t = this.ctx.currentTime; this.play('switch1', { gain: .8 }); const o = this.ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(30, t); o.frequency.exponentialRampToValueAtTime(110, t + 2.5); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(120, t); lp.frequency.exponentialRampToValueAtTime(900, t + 2.5); o.connect(lp); this.env(lp, .4, .8, 2.2); o.start(); o.stop(t + 3.5);
     for (let i = 0; i < 6; i++) this.play('buzz', { gain: .5, delay: .6 + i * .38, pan: rand(-1, 1) }); this.loop('machine2', { gain: .08, fadeIn: 4, lp: 600 }); },
-  gust(dur) { if (!this.ctx) return; this.play('wind3', { gain: 1.1, rate: rand(.85, 1), fadeIn: dur * .35, dur, hp: 200 }); this.play('wind2', { gain: .7, rate: 1.15, fadeIn: dur * .3, dur: dur * .9, offset: rand(0, 3) }); if (Math.random() < .6) this.treeCreak(rand(-8, 8), rand(-8, 8)); },
+  // Bö: wechselnde Aufnahme, Ausschnitt, Tempo und Filter; nie zwei innerhalb von 10 s (sonst Phasing). Über hushG: in Stille/stillen Zonen fast weg.
+  gust(dur) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.gustAt || -99) < 10) return; this.gustAt = t;
+    const a = this.pick('wind3', 'wind2', 'wind3', 'wind1'), b = this.buf[a]; if (!b) return; const indoor = this.area !== 'o', d = { dest: this.hushG };
+    this.play(a, { gain: rand(.75, 1.1) * (indoor ? .35 : 1), rate: rand(.8, 1.06), offset: rand(0, Math.max(0, b.duration - dur - .5)), fadeIn: dur * rand(.3, .45), dur, hp: rand(150, 320), lp: indoor ? 450 : rand(2600, 6000), ...d });
+    const c = a === 'wind2' ? 'wind3' : 'wind2', bc = this.buf[c]; if (bc && Math.random() < .5) this.play(c, { gain: rand(.3, .5) * (indoor ? .3 : 1), rate: rand(1.04, 1.24), offset: rand(0, Math.max(0, bc.duration - dur)), fadeIn: dur * .4, dur: dur * rand(.7, .95), delay: rand(.2, .8), hp: 400, lp: indoor ? 450 : 8000, ...d });
+    if (indoor) { if (Math.random() < .4) this.rattle(); return; } // drinnen: nur das Fenster klirrt leise
+    if (Math.random() < .35 && this.lx !== undefined && (typeof spannung_ask !== 'function' || spannung_ask('treeCreak', 'amb'))) this.treeCreak(this.lx + rand(-12, 12), this.lz + rand(-12, 12)); },
   skitter(on) { if (!this.ctx) return;
     if (on && !this.skit) { const g = this.ctx.createGain(); g.gain.value = 0; g.connect(this.master); g.gain.linearRampToValueAtTime(.7, this.ctx.currentTime + 4); const nodes = [];
       for (let i = 0; i < 3; i++) { const n = this.noise(true), hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3800 + i * 900; const am = this.ctx.createGain(); am.gain.value = .5; this.lfo(19 + i * 7.3, .5, am.gain); const am2 = this.ctx.createGain(); am2.gain.value = .5; this.lfo(2.3 + i * .9, .5, am2.gain); const pan = this.ctx.createStereoPanner(); this.lfo(.4 + i * .3, .9, pan.pan); const v = this.ctx.createGain(); v.gain.value = .022; n.connect(hp); hp.connect(am); am.connect(am2); am2.connect(pan); pan.connect(v); v.connect(g); nodes.push(n); }
@@ -1924,25 +2055,28 @@ const Audio = {
   env(node, peak, a, dcy, t0 = 0, dest) { const g = this.ctx.createGain(), t = this.ctx.currentTime + t0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + dcy); node.connect(g); g.connect(dest || this.master); return g; },
   osc(type, f, t0 = 0, dur = 1) { const o = this.ctx.createOscillator(); o.type = type; o.frequency.value = f; o.start(this.ctx.currentTime + t0); o.stop(this.ctx.currentTime + t0 + dur); return o; },
   // ---- MUSIK (adaptiv): Stufen ruhig / unruhig / Gefahr, Verfolgung übernimmt chaseMusic. Viel Stille – Musik ist die Ausnahme.
-  // Echte Aufnahmen: game/assets/music/music.json = [{ "file": "x.ogg", "level": "calm|uneasy|danger", "gain": 0.8 }] – sonst Synth-Ersatz.
+  // Die Stücke rendert das Modul klang beim Start (OfflineAudioContext) und reiht sie in tracks ein – ohne klang spielt der Synth-Ersatz.
   duck(sec) { if (!this.mus) return; const g = this.mus.duck.gain, t = this.ctx.currentTime; g.cancelScheduledValues(t); g.setTargetAtTime(.25, t, .08); g.setTargetAtTime(1, t + sec, 1.2); },
   musicVol() { if (this.mus) this.mus.bus.gain.setTargetAtTime(MUSIC.gain * (typeof settings !== 'undefined' ? settings.music ?? 1 : 1), this.ctx.currentTime, .3); },
   musicInit() {
     if (this.mus || !this.ctx) return; const ctx = this.ctx;
-    const bus = ctx.createGain(), duck = ctx.createGain(); bus.connect(duck); duck.connect(this.master);
-    this.mus = { bus, duck, level: 'calm', want: 'calm', hold: 0, rest: rand(MUSIC.firstRest[0], MUSIC.firstRest[1]), cur: null, tracks: { calm: [], uneasy: [], danger: [] }, last: null };
+    const bus = ctx.createGain(), duck = ctx.createGain(), talk = ctx.createGain(); bus.connect(duck); duck.connect(talk); talk.connect(this.master); // Musik trocken (eigener Hall in den Stücken)
+    this.mus = { bus, duck, talk, talking: false, level: 'calm', want: 'calm', hold: 0, rest: rand(MUSIC.firstRest[0], MUSIC.firstRest[1]), cur: null, tracks: { calm: [], uneasy: [], danger: [] }, last: null, state: 'stille' };
     this.musicVol();
-    fetch('assets/music/music.json').then(r => r.ok ? r.json() : []).then(list => list.forEach(e => fetch('assets/music/' + e.file).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a))
-      .then(b => (this.mus.tracks[e.level] || this.mus.tracks.calm).push({ b, gain: e.gain ?? .8, name: e.file })).catch(() => console.warn('Musik fehlt:', e.file)))).catch(() => {});
   },
+  musicState() { return this.mus ? this.mus.state : 'aus'; },
   // Pro Bild aus update(): Stufe bestimmen (mit Haltezeit gegen Hin-und-her-Springen), Phrasen starten, Pausen einhalten
   musicUpdate(dt, fearV, chase, indoor, basement, active) {
     const M = this.mus; if (!M) return;
-    const want = !active || chase ? 'off' : fearV > MUSIC.danger ? 'danger' : (fearV > MUSIC.uneasy || basement) ? 'uneasy' : 'calm';
+    const talking = typeof state !== 'undefined' && !!state.talking; // Gespräch: Musik weicht der Stimme
+    if (talking !== M.talking) { M.talking = talking; M.talk.gain.setTargetAtTime(talking ? MUSIC.talk : 1, this.ctx.currentTime, talking ? .25 : 1.5); }
+    const after = !chase && typeof spannung_since === 'function' && spannung_since('peak') < MUSIC.after; // Nachhall eines Schrecks: Stille
+    const want = !active || chase || after ? 'off' : fearV > MUSIC.danger ? 'danger' : (fearV > MUSIC.uneasy || basement) ? 'uneasy' : 'calm';
     if (want !== M.want) { M.want = want; M.hold = want === 'danger' || want === 'off' ? 0 : MUSIC.hold; } // Gefahr/Aus sofort, Entspannung verzögert
-    M.hold -= dt; if (M.hold <= 0 && M.level !== M.want) { const up = MUSIC.order.indexOf(M.want) > MUSIC.order.indexOf(M.level); M.level = M.want;
+    M.hold -= dt; if (M.hold <= 0 && M.level !== M.want) { const up = MUSIC.order.indexOf(M.want) > MUSIC.order.indexOf(M.level), from = M.level; M.level = M.want;
       if (M.cur && (M.level === 'off' || M.cur.level !== M.level)) { M.cur.stop(up ? 1.5 : 6); M.cur = null; }
-      if (!M.cur) M.rest = up ? (M.level === 'danger' ? 0 : Math.min(M.rest, 4)) : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } // steigende Spannung: sofort bzw. bald, fallende: erst Stille
+      if (!M.cur) M.rest = up && from !== 'off' ? (M.level === 'danger' ? 0 : Math.min(M.rest, 4)) : M.level === 'danger' ? 0 : rand(MUSIC.restAfter[0], MUSIC.restAfter[1]); } // steigende Spannung: sofort bzw. bald, fallende und nach Stille: erst Stille
+    M.state = !active ? 'aus' : chase ? 'verfolgung' : after ? 'nachhall' : !M.cur ? 'stille' : M.cur.level === 'danger' ? 'gefahr' : M.cur.level === 'uneasy' ? 'spannung' : indoor || basement ? 'geheimnis' : 'erkundung';
     if (M.level === 'off' || M.cur) return;
     M.rest -= dt; if (M.rest > 0) return;
     const L = M.level, area = typeof klang_area === 'function' ? klang_area() : null, fit = M.tracks[L].filter(x => !x.area || x.area === area), own = fit.filter(x => x.area === area), use = own.length ? own : fit.filter(x => !x.area),
@@ -1961,12 +2095,12 @@ const Audio = {
     setTimeout(() => { if (M.cur === h) { M.cur = null; M.rest = rand(...MUSIC.rest[level]); } }, dur * 1000); nodes.forEach(o => { try { o.stop(t + dur + .2); } catch (e) {} }); return h; },
   // ruhig: ein fernes, tiefes Klavier – 3 bis 5 Töne aus a-Moll, viel Hall
   phraseCalm() { const scale = [110, 130.8, 146.8, 164.8, 196, 220], n = 3 + Math.floor(Math.random() * 3), gap = rand(2.2, 3.4);
-    return this.phrase('calm', n * gap + 7, (g, t, nodes) => { g.gain.setValueAtTime(1, t); g.connect(this.rev);
+    return this.phrase('calm', n * gap + 7, (g, t, nodes) => { g.gain.setValueAtTime(1, t); g.connect(this.musSend);
       for (let i = 0; i < n; i++) { const f = scale[Math.floor(Math.random() * scale.length)], t0 = t + i * gap + rand(0, .4);
         [1, 2, 3.01].forEach((m, j) => { const o = ctx0(this).createOscillator(); o.type = 'sine'; o.frequency.value = f * m; const e = ctx0(this).createGain(); e.gain.setValueAtTime(0, t0); e.gain.linearRampToValueAtTime([.05, .016, .006][j], t0 + .01); e.gain.exponentialRampToValueAtTime(.0001, t0 + 5.5 - j); o.connect(e); e.connect(g); o.start(t0); nodes.push(o); }); } }); },
   // unruhig: dunkle Streicherfläche, die anschwillt und wieder verschwindet (Halbton-Reibung a/b)
   phraseUneasy() { const dur = rand(16, 24);
-    return this.phrase('uneasy', dur, (g, t, nodes) => { const c = ctx0(this), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t); lp.frequency.linearRampToValueAtTime(620, t + dur * .55); lp.frequency.linearRampToValueAtTime(200, t + dur); lp.connect(g); g.connect(this.rev);
+    return this.phrase('uneasy', dur, (g, t, nodes) => { const c = ctx0(this), lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(220, t); lp.frequency.linearRampToValueAtTime(620, t + dur * .55); lp.frequency.linearRampToValueAtTime(200, t + dur); lp.connect(g); g.connect(this.musSend);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.075, t + dur * .5); g.gain.linearRampToValueAtTime(0, t + dur);
       [55, 55.25, 58.27, 82.4, 116.5].forEach((f, i) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; const v = c.createGain(); v.gain.value = [.5, .5, .32, .22, i === 4 ? .08 : .2][i]; o.connect(v); v.connect(lp); o.start(t); nodes.push(o); }); }); },
   // Gefahr: tiefer Puls + hohe, zitternde Glasklänge; läuft, bis die Stufe wechselt
@@ -1974,7 +2108,7 @@ const Audio = {
     return this.phrase('danger', dur, (g, t, nodes) => { const c = ctx0(this); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12, t + 3);
       const sub = c.createOscillator(); sub.frequency.value = 41.2; const sg = c.createGain(); sg.gain.value = 0; sub.connect(sg); sg.connect(g); sub.start(t); nodes.push(sub);
       for (let b = 0; b < dur / .9; b++) { const tb = t + b * .9; sg.gain.setValueAtTime(0, tb); sg.gain.linearRampToValueAtTime(.9, tb + .04); sg.gain.exponentialRampToValueAtTime(.001, tb + .5); }
-      [1864.7, 1975.5].forEach(f => { const o = c.createOscillator(); o.frequency.value = f; const v = c.createGain(); v.gain.value = .012; this.lfo(6.5 + Math.random(), 9, o.frequency); o.connect(v); v.connect(g); v.connect(this.rev); o.start(t); nodes.push(o); }); }); },
+      [1864.7, 1975.5].forEach(f => { const o = c.createOscillator(); o.frequency.value = f; const v = c.createGain(); v.gain.value = .012; this.lfo(6.5 + Math.random(), 9, o.frequency); o.connect(v); v.connect(g); v.connect(this.musSend); o.start(t); nodes.push(o); }); }); },
   stinger(big) { if (!this.ctx) return; const t = this.ctx.currentTime;
     if (!big && t - (this.lastStinger || -99) < AUDIO_MIX.stingerGap) return; this.lastStinger = t; this.duck(big ? 6 : 3.5);
     (big ? [98, 103.8, 146.8, 207.7] : [196, 207.7]).forEach(fq => { const o = this.osc('sawtooth', fq, 0, 4); o.frequency.setValueAtTime(fq, t); o.frequency.exponentialRampToValueAtTime(fq * .5, t + 3); const f = this.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1400; o.connect(f); this.env(f, big ? .13 : .07, .01, big ? 3.5 : 1.6); });
@@ -1984,13 +2118,22 @@ const Audio = {
   ring(v) { if (!this.ctx || v < .005) return; for (let b = 0; b < 2; b++) [440, 480].forEach(f => { const o = this.osc('sine', f, b * .55, .45); const g = this.ctx.createGain(), t = this.ctx.currentTime + b * .55; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.setValueAtTime(v, t + .38); g.gain.linearRampToValueAtTime(0, t + .42); o.connect(g); g.connect(this.master); }); },
   ding(v) { if (!this.ctx || v < .005) return; const o = this.osc('sine', 1318, 0, .8); this.env(o, v, .005, .6); const o2 = this.osc('sine', 1760, .25, .8); this.env(o2, v * .8, .005, .6, .25); },
   musicBox() { if (!this.ctx) return; const notes = [659, 587, 523, 494, 523, 587, 659, 659, 587, 523, 494, 440, 494, 523, 494, 440, 392, 440, 494, 440];
-    let t0 = .1; notes.forEach((f, i) => { const det = 1 - i * .0025; [1, 2.01, 3.02].forEach((m, j) => { const o = this.osc('sine', f * m * det, t0, 1.8); this.env(o, [.07, .025, .01][j], .004, 1.5, t0); }); t0 += .42 + i * .025; }); },
+    let t0 = .1; notes.forEach((f, i) => { const det = 1 - i * .0025; [1, 2.01, 3.02].forEach((m, j) => { const o = this.osc('sine', f * m * det, t0, 1.8); this.env(o, [.07, .025, .01][j], .004, 1.5, t0, this.world); }); t0 += .42 + i * .025; }); },
   // ---- 3D-Klang
   listen(cam, f) { if (!this.ctx) return; const L = this.ctx.listener, p = cam.position;
     if (L.positionX) { L.positionX.value = p.x; L.positionY.value = p.y; L.positionZ.value = p.z; L.forwardX.value = f.x; L.forwardY.value = f.y; L.forwardZ.value = f.z; L.upX.value = 0; L.upY.value = 1; L.upZ.value = 0; }
-    else { L.setPosition(p.x, p.y, p.z); L.setOrientation(f.x, f.y, f.z, 0, 1, 0); } },
+    else { L.setPosition(p.x, p.y, p.z); L.setOrientation(f.x, f.y, f.z, 0, 1, 0); }
+    this.lx = p.x; this.lz = p.z; this.lsp = typeof state !== 'undefined' && state.inBasement ? 'u' : this.space(p.x, p.z); },
+  // Räumliche Quelle. Verdeckung beim Anlegen: anderer Raum → dumpf und leiser (occ), unter der Erde ↔ Welt oben → stumm; jenseits der Hörweite
+  // (≈ 40 × Bezugsabstand) → stumm. y < −10 = Platzhalter für später bewegte Quellen (immer frei). this.cut sagt dem Aufrufer, dass nichts zu hören ist.
   at(x, y, z, ref = 3) { const p = this.ctx.createPanner(); p.panningModel = 'HRTF'; p.distanceModel = 'inverse'; p.refDistance = ref; p.maxDistance = 300; p.rolloffFactor = 1.1;
-    if (p.positionX) { p.positionX.value = x; p.positionY.value = y; p.positionZ.value = z; } else p.setPosition(x, y, z); p.connect(this.master); return p; },
+    if (p.positionX) { p.positionX.value = x; p.positionY.value = y; p.positionZ.value = z; } else p.setPosition(x, y, z);
+    let dest = this.world; this.cut = false;
+    if (y > -10 && this.lsp !== undefined) { const s = this.space(x, z);
+      if (s !== this.lsp) dest = s === 'u' || this.lsp === 'u' ? this.sink : this.occ;
+      if (Math.hypot(x - this.lx, z - this.lz) > ref * 40 + 25) dest = this.sink;
+      this.cut = dest === this.sink; }
+    p.connect(dest); return p; },
   screech() { if (!this.ctx) return; const t = this.ctx.currentTime;
     const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = .6; n.connect(bp); this.env(bp, 1.4, .004, 1.1); n.stop(t + 2);
     [740, 1046, 1480, 2093, 2960].forEach((f, i) => { const o = this.osc('sawtooth', f * (1 + i * .013), 0, 1.8); o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 1.6, t + .5); o.frequency.exponentialRampToValueAtTime(f * .7, t + 1.5);
@@ -2045,7 +2188,7 @@ const Audio = {
       this.chase = { g, lvl, nodes: [o, o2, hb, st] }; }
     else if (!on && this.chase) { const c = this.chase; c.g.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1.2); setTimeout(() => c.nodes.forEach(n => n.stop()), 1400); this.chase = null; } },
   chaseLevel(k) { if (this.chase) this.chase.lvl.gain.setTargetAtTime(k, this.ctx.currentTime, .2); },
-  pianoNote(k) { if (!this.ctx) return; const f = { C: 523.3, D: 587.3, E: 659.3, F: 698.5, G: 784, A: 880, H: 987.8 }[k]; [1, 2, 3, 4.2].forEach((m, i) => { const o = this.osc('sine', f * m * (1 + i * .0008), 0, 2.2); this.env(o, [.14, .05, .025, .01][i], .004, 1.9 - i * .3); }); const n = this.noise(false), hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000; n.connect(hp); this.env(hp, .04, .001, .03); n.stop(this.ctx.currentTime + .2); },
+  pianoNote(k) { if (!this.ctx) return; const f = { C: 523.3, D: 587.3, E: 659.3, F: 698.5, G: 784, A: 880, H: 987.8 }[k]; [1, 2, 3, 4.2].forEach((m, i) => { const o = this.osc('sine', f * m * (1 + i * .0008), 0, 2.2); this.env(o, [.14, .05, .025, .01][i], .004, 1.9 - i * .3, 0, this.world); }); const n = this.noise(false), hp = this.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000; n.connect(hp); this.env(hp, .04, .001, .03); n.stop(this.ctx.currentTime + .2); },
   // UFO-Klang: Tiefbass mit Schwebung, knurrende Obertöne, Luftdruck-Rauschen, Pulsieren, elektrisches Knistern
   hum(on) { if (!this.ctx) return; const ctx = this.ctx, t = ctx.currentTime;
     if (!this.humNode) {
@@ -2075,18 +2218,33 @@ let toastT, subT, popT;
 const plainLen = t => String(t || '').replace(/<[^>]*>/g, '').replace(/&[a-z]+;/gi, ' ').trim().length;
 const readMs = (t, base = 1800, per = 65) => base + plainLen(t) * per;
 function toast(t, ms = 3600) { const el = $('toast'); el.textContent = trX(t); ms = Math.max(ms, readMs(el.textContent, 2500, 60)); el.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => el.style.opacity = 0, ms); }
-function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); if (ms) ms = Math.max(ms, readMs(t)); const el = $('subtitle'); el.classList.toggle('thought', !!who && who === trX('LUKE')); el.innerHTML = (who ? `<span class="who">${who}</span>` : '') + t; el.style.opacity = 1; clearTimeout(subT); if (ms) subT = setTimeout(() => el.style.opacity = 0, ms); }
+function subtitle(t, ms = 4000, who = '') { t = trX(t); who = trX(who); if (ms) ms = Math.max(ms, readMs(t)); const el = $('subtitle'); el.classList.toggle('thought', !!who && who === trX('LUKE')); el.innerHTML = (who ? `<span class="who">${who}</span>` : '') + t; el.style.opacity = 1; gtCancel(subT); subT = ms ? gtAfter(ms, () => el.style.opacity = 0) : null; } // Spielzeit: bleibt bei Pause stehen wie say()
 async function say(lines) { for (const l of lines) { const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await wait(d); } }
 function fade(to, ms = 1500) { const f = $('fade'); f.style.transition = `opacity ${ms}ms`; f.style.opacity = to; return wait(ms); }
 function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), Math.max(4500, readMs(text, 2200, 55))); Audio.chime(); }
 function lockPointer() { const el = renderer.domElement, quiet = r => { if (r && r.catch) r.catch(() => {}); }; // ohne Nutzergeste lehnt der Browser ab – dann sperrt der nächste Klick
   try { const p = el.requestPointerLock({ unadjustedMovement: true }); if (p && p.catch) p.catch(() => { try { quiet(el.requestPointerLock()); } catch (e) {} }); } catch (e) { try { quiet(el.requestPointerLock()); } catch (e2) {} } }
 function openOverlay(id) { ui.overlay = id; $(id).classList.add('show'); document.body.classList.add('ov'); if (id !== 'note' && id !== 'journal') document.exitPointerLock(); }
-function closeOverlay() { if (!ui.overlay) return; $(ui.overlay).classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); if (document.pointerLockElement !== renderer.domElement) lockPointer(); const cb = ui.onClose; ui.onClose = null; if (cb) cb(); const cb2 = ui.onClose2; ui.onClose2 = null; if (cb2) cb2(); }
+function closeOverlay() { if (!ui.overlay) return; $(ui.overlay).classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); if (document.pointerLockElement !== renderer.domElement) lockPointer();
+  const cb = ui.onClose; ui.onClose = null; const cb2 = ui.onClose2; ui.onClose2 = null;
+  try { if (cb) cb(); } catch (e) { console.error('Notiz schließen', e); } try { if (cb2) cb2(); } catch (e) { console.error('Notiz schließen', e); }
+  if (!ui.overlay && ui.noteQ.length) { const n = ui.noteQ.shift(); showNote(...n); } } // wartende Notiz als nächste zeigen
+// Notizen: eine zweite Notiz überschreibt nie die erste (und deren Rückruf) – sie wartet, bis das aktuelle Fenster zu ist.
+// liftTo/Schublade geben ihren Schließen-Rückruf über ui.pendingClose2 mit, damit er an genau dieser Notiz hängt.
+ui.noteQ = [];
+function showNote(title, html, onClose, close2) { ui.onClose = onClose || null; ui.onClose2 = close2 || null; $('note').querySelector('.paper').innerHTML = `<h2>${trX(title)}</h2>${trX(html)}`; openOverlay('note'); }
 function openNote(title, html, loreKey, onClose) {
-  ui.onClose = onClose || null;
-  $('note').querySelector('.paper').innerHTML = `<h2>${trX(title)}</h2>${trX(html)}`; openOverlay('note');
+  const close2 = ui.pendingClose2 || null; ui.pendingClose2 = null;
   if (loreKey && !story.lore.some(l => l.key === loreKey)) story.lore.push({ key: loreKey, title, html });
+  if (ui.overlay) ui.noteQ.push([title, html, onClose, close2]); else showNote(title, html, onClose, close2);
+}
+// Alles schließen (Tod, Laden, Grafikfehler): Rückrufe laufen, damit kein Fortschritt verloren geht; wartende Notizen feuern ihre Rückrufe ohne Anzeige
+function closeAllOverlays() {
+  for (let i = 0; i < 12 && (ui.overlay || ui.noteQ.length); i++) {
+    const q = ui.noteQ.splice(0); for (const n of q) { try { if (n[2]) n[2](); if (n[3]) n[3](); } catch (e) { console.error('Notiz', e); } }
+    if (ui.overlay === 'editor') closeEditor(); else if (ui.overlay === 'todScreen' || ui.overlay === 'endcard') break; else if (ui.overlay) closeOverlay();
+  }
+  $('pause').classList.remove('show');
 }
 
 // =====================================================================  STORY-EDITOR
@@ -2124,6 +2282,7 @@ const edEl = document.createElement('div'); edEl.id = 'editor'; edEl.className =
 let edTab = 'regeln', edQuery = '';
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 function openEditor() {
+  if (!DEV) return; // Veröffentlichung: kein Story-Editor
   if (document.pointerLockElement) document.exitPointerLock();
   $('pause').classList.remove('show'); ui.overlay = 'editor'; edEl.classList.add('show'); document.body.classList.add('ov'); renderEditor();
 }
@@ -2177,10 +2336,12 @@ let kpValue = '';
 const kpGrid = $('keypad').querySelector('.grid');
 ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'].forEach(k => { const b = document.createElement('button'); b.textContent = k; b.onclick = e => { e.stopPropagation(); kpPress(k); }; kpGrid.appendChild(b); });
 const kpRender = () => $('kpDisplay').textContent = kpValue.padEnd(4, '·');
+let kpBusy = 0; // nach „OK“ kurz gesperrt: gehaltene Eingabetaste zählt nicht dreimal als Fehlversuch
 function kpPress(k) {
+  if (performance.now() < kpBusy || ui.overlay !== 'keypad') return;
   const disp = $('kpDisplay'); disp.classList.remove('err');
   if (k === 'C') kpValue = '';
-  else if (k === 'OK') {
+  else if (k === 'OK') { kpBusy = performance.now() + 500;
     if (kpValue === '3110') { Audio.beep(true); closeOverlay(); state.cellarOpen = true; Audio.play('lockOpen', { gain: .8, x: 30, y: 1.2, z: -21.8, ref: 2 }); setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35); }, 350); setTimeout(enterBasement, 1500); return; }
     Audio.beep(false); void disp.offsetWidth; disp.classList.add('err'); kpValue = ''; state.wrongCodes++;
     if (state.wrongCodes === 3) { closeOverlay(); scareCellarDoor(); setTimeout(() => toast('Lies, was im Haus liegt. Der Kalender weiß den Tag.'), 7000); return; }
@@ -2338,9 +2499,21 @@ interact(mailbox7, 'Briefkasten öffnen', () => {
   setTimeout(() => sideStart('seven'), 5000);
   setTimeout(() => sideStart('call'), 20000);
 });
+// Türen schließen nie in den Spieler: vom Spieler geschlossen → ablehnen, automatisch (zuschlagen) → zur näheren Seite hinausschieben
+function doorSwingBlocked(D) {
+  const p = D.pivot.position, dx = player.pos.x - p.x, dz = player.pos.z - p.z, w = D.saved.maxX - D.saved.minX, d = Math.hypot(dx, dz);
+  if (d > w + .38) return false; if (d < .45) return true;
+  const a = Math.atan2(-dz, dx), lo = Math.min(0, D.openAngle) - .3, hi = Math.max(0, D.openAngle) + .3; return a > lo && a < hi;
+}
+function doorPushOut(c) {
+  try { const P = player.pos, r = .3; if (c.minX < -9000 || P.x + r <= c.minX || P.x - r >= c.maxX || P.z + r <= c.minZ || P.z - r >= c.maxZ) return false;
+    if (c.maxX - c.minX < c.maxZ - c.minZ) P.x = P.x < (c.minX + c.maxX) / 2 ? c.minX - r - .02 : c.maxX + r + .02; else P.z = P.z < (c.minZ + c.maxZ) / 2 ? c.minZ - r - .02 : c.maxZ + r + .02;
+    vel.set(0, 0, 0); return true; } catch (e) { return false; } // beim Aufbau (vor Spieler/Bewegung) nichts tun
+}
 function doorAction(D, lockedText) {
   return () => {
     if (D.locked) return toast(lockedText);
+    if (D.open && doorSwingBlocked(D)) return toast('Du stehst in der Tür.', 1600);
     D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18);
     if (D === door7 && D.open) setMain(2);
   };
@@ -2385,7 +2558,7 @@ interact(loose, 'Lose Diele untersuchen', () => {
 const openDrawer = () => {
   story.side.home.steps.letter = true; checkHome();
   tween(drawer, { pos: drawer.position.clone().setX(-44.88) }, .45); Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .4, rate: .9, x: -44.5, y: 1, z: -18.6, ref: 2 });
-  setTimeout(() => { ui.onClose2 = () => { tween(drawer, { pos: drawer.position.clone().setX(-44.55) }, .4); Audio.play('woodClose1', { gain: .35, delay: .3, x: -44.5, y: 1, z: -18.6, ref: 2 }); }; openNote('Ein Brief, nie abgeschickt', '<span class="hand">Meine Kinder,\n\ndie Männer vom „Amt“ kamen jeden Donnerstag. Sie haben euch vermessen, gewogen, euch Fragen gestellt, an die ihr euch hinterher nicht erinnert habt.\n\nIch habe unterschrieben, damit sie euch zurückbringen.\n\nIch wusste nicht, dass sie nicht <u>beide</u> von euch zurückbringen würden.\n\nVerzeiht mir.\n— Mama</span>', 'letter'); }, 420);
+  setTimeout(() => { ui.pendingClose2 = () => { tween(drawer, { pos: drawer.position.clone().setX(-44.55) }, .4); Audio.play('woodClose1', { gain: .35, delay: .3, x: -44.5, y: 1, z: -18.6, ref: 2 }); }; openNote('Ein Brief, nie abgeschickt', '<span class="hand">Meine Kinder,\n\ndie Männer vom „Amt“ kamen jeden Donnerstag. Sie haben euch vermessen, gewogen, euch Fragen gestellt, an die ihr euch hinterher nicht erinnert habt.\n\nIch habe unterschrieben, damit sie euch zurückbringen.\n\nIch wusste nicht, dass sie nicht <u>beide</u> von euch zurückbringen würden.\n\nVerzeiht mir.\n— Mama</span>', 'letter'); }, 420);
 };
 interact(dresser, 'Schublade öffnen', openDrawer); interact(drawer, 'Schublade öffnen', openDrawer);
 interact(wLeaf, () => state.wOpen ? 'Schrank schließen' : 'Schrank öffnen', () => { state.wOpen = !state.wOpen; tween(wPiv, { ry: state.wOpen ? 1.5 : 0 }, .6); Audio.creak(state.wOpen ? .3 : .15); if (!state.wOpen) return; if (!state.scWardrobe) { state.scWardrobe = true; setTimeout(scareWardrobe, 350); setTimeout(() => toast('Nur Mäntel. Mamas Mäntel. Sie riechen noch nach ihr. Und nach Motten.', 4500), 2600); } else toast('Mamas Mäntel. Ganz hinten: ein Kinderschuh. Nicht deiner. Nicht Lucys.'); });
@@ -2437,17 +2610,20 @@ interact(booth.phone, 'Hörer abnehmen', async () => {
 
 // ---- Sequenzen
 const player = { pos: new THREE.Vector3(-66, 0, 2), yaw: -PI / 2, pitch: 0, bob: 0, stepIdx: 0 };
+let stairBusy = false; // Kellertreppe: E-Spam / Tastenfeld-Zeitgeber lösen den Wechsel nur einmal aus
 async function enterBasement() {
-  Audio.creak(); await fade(1, 900);
-  state.inBasement = true; setMain(4);
-  player.pos.set(B.x + 4.2, 0, B.z - 1.6); player.yaw = PI / 2 + .3; player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65;
-  await wait(400); fade(0, 1600);
+  if (stairBusy || state.inBasement) return; stairBusy = true;
+  try { Audio.creak(); await fade(1, 900);
+    state.inBasement = true; setMain(4);
+    player.pos.set(B.x + 4.2, 0, B.z - 1.6); player.yaw = PI / 2 + .3; player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65;
+    await wait(400); } finally { stairBusy = false; } fade(0, 1600);
   toast('Es riecht nach nassem Beton. Und nach etwas Süßlichem.', 4000);
 }
 async function leaveBasement() {
-  await fade(1, 900); state.inBasement = false;
-  player.pos.set(30, 0, -20.6); player.yaw = 0; player.pitch = 0; vel.set(0, 0, 0); camY = Y + 1.65;
-  await wait(500); fade(0, 1200); await wait(1800); if (!state.outage) startOutage(); // zweites Hinaufgehen startet den Ausfall nicht erneut
+  if (stairBusy || !state.inBasement) return; stairBusy = true;
+  try { await fade(1, 900); state.inBasement = false;
+    player.pos.set(30, 0, -20.6); player.yaw = 0; player.pitch = 0; vel.set(0, 0, 0); camY = Y + 1.65;
+    await wait(500); } finally { stairBusy = false; } fade(0, 1200); await wait(1800); if (!state.outage) startOutage(); // zweites Hinaufgehen startet den Ausfall nicht erneut
 }
 async function startOutage() {
   state.outage = true; Audio.stinger(true); setMain(6);
@@ -2482,22 +2658,28 @@ $('sens').value = sens; rangeFill($('sens')); $('sens').oninput = e => { sens = 
 addEventListener('keydown', e => {
   if (e.code === 'Tab') e.preventDefault();
   keys[e.code] = true;
-  if (ui.overlay === 'note' && (e.code === 'KeyE' || e.code === 'Escape')) return closeOverlay();
-  if (ui.overlay === 'journal' && (e.code === 'Tab' || e.code === 'KeyJ' || e.code === 'Escape')) return closeOverlay();
-  if (ui.overlay === 'puzzle') { if (e.code === 'Escape') closeOverlay(); return; }
-  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD')) ch2.shake += 22;
-  if (ui.overlay === 'keypad') {
+  // Gehaltene Tasten (e.repeat) schließen/öffnen nichts: E zum Aufheben darf die Notiz nicht gleich wieder zumachen
+  if (ui.overlay === 'note' && (e.code === 'KeyE' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
+  if (ui.overlay === 'journal' && (e.code === 'Tab' || e.code === 'KeyJ' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
+  if (ui.overlay === 'puzzle') { if (e.code === 'Escape' && !e.repeat) closeOverlay(); return; }
+  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD') && !ui.paused) ch2.shake += 22;
+  if (ui.overlay === 'keypad') { if (e.repeat) return;
     if (/^Digit\d$/.test(e.code)) kpPress(e.code.slice(5)); else if (/^Numpad\d$/.test(e.code)) kpPress(e.code.slice(6));
     else if (e.code === 'Enter' || e.code === 'NumpadEnter') kpPress('OK'); else if (e.code === 'Backspace') kpPress('C'); else if (e.code === 'Escape') closeOverlay();
     return;
   }
-  if (ui.overlay || !state.started) return;
-  if (e.code === 'KeyE' && target) target.userData.action();
-  if (e.code === 'KeyF') { flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }
-  if (e.code === 'KeyR' && state.started && !ui.overlay) flashReload();
-  if (KEY_HOOKS[e.code] && state.started && !ui.overlay && !e.repeat) KEY_HOOKS[e.code](); // Tasten der Welt-Module (z. B. G = Lichtstein)
-  if (e.code === 'Space') { e.preventDefault(); jumpQueued = true; }
-  if (e.code === 'Tab' || e.code === 'KeyJ') { renderJournal(); openOverlay('journal'); }
+  if (ui.overlay || !state.started || ui.paused || GL.lost) return; // Pause/Grafikfehler: keine Spieltasten
+  if (e.code === 'Space') e.preventDefault();
+  // Während Dialogen und Zwischensequenzen (state.talking): kein E, keine Fibel, keine Lampe, kein Springen/Nachladen.
+  // Ausnahme: Interaktionen mit userData.talkOk (derzeit keine – alle Aktionen prüfen state.talking selbst).
+  const talk = state.talking;
+  if (e.code === 'KeyE' && target && !e.repeat && (!talk || target.userData.talkOk)) { try { target.userData.action(); } catch (err) { console.error('Aktion ' + (target.userData.label || ''), err); } }
+  if (talk) return;
+  if (e.code === 'KeyF' && !e.repeat) { flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }
+  if (e.code === 'KeyR' && !e.repeat) flashReload();
+  if (KEY_HOOKS[e.code] && !e.repeat) KEY_HOOKS[e.code](); // Tasten der Welt-Module (z. B. G = Lichtstein)
+  if (e.code === 'Space') jumpQueued = true;
+  if ((e.code === 'Tab' || e.code === 'KeyJ') && !e.repeat) { renderJournal(); openOverlay('journal'); }
 });
 addEventListener('keyup', e => keys[e.code] = false);
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
@@ -2510,26 +2692,40 @@ addEventListener('mousemove', e => {
 });
 document.addEventListener('pointerlockchange', () => {
   const locked = document.pointerLockElement === renderer.domElement;
-  if (!locked && state.started && !ui.overlay && !state.ending) { $('pause').classList.add('show'); ui.paused = true; }
-  if (locked) { $('pause').classList.remove('show'); ui.paused = false; }
+  if (!locked && state.started && !ui.overlay && !state.ending && !window.__testMove) { $('pause').classList.add('show'); ui.paused = true; } // Selbsttests (ohne Maussperre) pausieren nie von selbst
+  if (locked) { $('pause').classList.remove('show'); ui.paused = false; if (ui.pauseBack) ui.pauseBack(); }
 });
 $('pause').onclick = () => lockPointer();
 $('pResume').onclick = e => { e.stopPropagation(); lockPointer(); };
 $('pJournal').onclick = e => { e.stopPropagation(); $('pause').classList.remove('show'); renderJournal(); openOverlay('journal'); };
-$('pMenu').onclick = e => { e.stopPropagation(); location.reload(); };
+// Rückfrage im Pausenmenü (gleiche Knöpfe wie das Menü): zeigt Text + Ja/Abbrechen an Stelle der Knöpfe
+function pauseConfirm(text, yes, onYes) {
+  if (ui.pauseBack) ui.pauseBack();
+  const P = $('pause').querySelector('.panel'), rest = [...P.children].slice(1); // Überschrift „PAUSE“ bleibt, der Rest weicht der Frage
+  const box = document.createElement('div'); box.className = 'pconf'; P.appendChild(box);
+  const back = () => { box.remove(); rest.forEach(c => c.style.display = ''); ui.pauseBack = null; };
+  box.innerHTML = `<div class="t" style="max-width:380px;margin:0 auto 20px;line-height:1.9">${trX(text)}</div><div class="pbtns"><button class="y">${trX(yes)}</button><button class="n">${trX('ABBRECHEN')}</button></div>`;
+  rest.forEach(c => c.style.display = 'none');
+  box.querySelector('.y').onclick = e => { e.stopPropagation(); back(); onYes(); };
+  box.querySelector('.n').onclick = e => { e.stopPropagation(); back(); };
+  box.onclick = e => e.stopPropagation(); ui.pauseBack = back;
+}
+$('pMenu').onclick = e => { e.stopPropagation(); pauseConfirm('ZURÜCK ZUM HAUPTMENÜ?<br>FORTSCHRITT SEIT DEM LETZTEN SPEICHERPUNKT GEHT VERLOREN.', 'ZUM HAUPTMENÜ', () => location.reload()); };
 $('pEdit').onclick = e => { e.stopPropagation(); openEditor(); };
 $('mEdit').onclick = e => { e.stopPropagation(); menuSound(); openEditor(); };
+if (!DEV) { $('pEdit').style.display = 'none'; $('mEdit').style.display = 'none'; } // Veröffentlichung: kein Story-Editor
 $('pQuit').onclick = e => { e.stopPropagation(); window.close(); };
 if (!window.IS_APP) $('pQuit').style.display = 'none';
 renderer.domElement.addEventListener('click', () => { if (state.started && !ui.overlay && !state.ending) lockPointer(); });
 $('note').onclick = () => closeOverlay();
 $('journal').onclick = () => closeOverlay();
-function beginGame() {
-  if (state.started) return; state.started = true; menu.attract = false; Audio.init(); document.body.classList.remove('menu');
+function beginGame(resume) { // resume: Spielstand von „Weiterspielen“ (Kapitel 1) – ohne Aufwachen, Ausrüstung bleibt wie gespeichert
+  if (state.started) return; state.started = true; menu.attract = false; Audio.init(); document.body.classList.remove('menu'); setChapter(1);
   player.pos.set(-66, 0, 2); player.yaw = -PI / 2; player.pitch = 0; camY = 1.65; vel.set(0, 0, 0);
-  Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie');
+  if (!resume) { Object.assign(FLASH, { tier: 0, charge: 1, spare: 1, lowTold: false }); flashApply(); if (!story.items.includes('batterie')) story.items.push('batterie'); }
   $('fade').style.transition = 'none'; $('fade').style.opacity = 1; lockPointer();
   setTimeout(async () => { await fade(0, 2800); }, 250);
+  if (resume) { resumeCh1(resume); return; }
   setTimeout(() => { if (window.__traumWake) window.__traumWake(); else subtitle('Lost Eyengless. Hier bist du aufgewachsen. Warum fühlt es sich so fremd an?', 5000); }, 1800); // Modul traum: Aufwachen nach dem Traum
   setTimeout(() => sideStart('home'), 8500); saveGame(1);
 }
@@ -2927,6 +3123,8 @@ function runEvent(indoor) {
   if (state.hasKey && !dir.carDone) out.push('car', 'car', 'car');
   const pool = indoor ? ['steps', 'whisper', 'thump', 'knock', 'flicker'] : out;
   const ev = pool[Math.floor(Math.random() * pool.length)];
+  if (typeof spannung_ask === 'function') { const fam = { figure: 'figure', crossing: 'figure', runner: 'figure', window: 'window_fig', lampOut: 'lamp' }[ev] || ev, cls = { figure: 'major', crossing: 'major', runner: 'major', car: 'major', window: 'major', bark: 'amb' }[ev] || 'minor';
+    if (!spannung_ask(fam, cls, { behind: ev === 'steps' || ev === 'whisper' || ev === 'knock' })) return; } // Regie (Modul spannung): Ruhe nach Schrecken, Abstände, Kapitel, Spannung
   if (dir.busy && ['figure', 'crossing', 'runner'].includes(ev)) return;
   if (ev === 'figure' || ev === 'crossing') {
     const sp = pickSpawn(.35, .75, 18, 27); if (!sp) return;
@@ -3068,7 +3266,7 @@ function naturalUpdate(dt, t, indoor) {
   flockUpdate(dt, t); sparksUpdate(dt); gustUpdate(dt);
   if (!state.started || state.outage || state.inBasement || ui.overlay || state.talking || state.scaring) return;
   nat.calm -= dt; nat.flockT -= dt; nat.gustT -= dt; nat.strikeT -= dt;
-  if (nat.calm > 0 || indoor) return;
+  if (nat.calm > 0 || indoor || (typeof spannung_hushed === 'function' && (spannung_hushed() || spannung_silent()))) return; // plötzliche Stille / stille Zone: auch Wetter und Vögel warten
   const moving = Math.hypot(vel.x, vel.z) > 1;
   if (nat.strikeT < 0) { if (lightningStrike()) { nat.strikeT = rand(200, 360); nat.calm = rand(25, 40); } else nat.strikeT = 5; }
   else if (nat.flockT < 0 && moving) { if (crowFlock()) { nat.flockT = rand(70, 140); nat.calm = rand(20, 35); } else nat.flockT = 4; }
@@ -3196,8 +3394,8 @@ function liftTo(m, open, keep = true) {
   const wasInteract = interactables.includes(m); uninteract(m);
   Audio.paper();
   tween(m, { pos: _lift.clone(), sc: s0 * .9 }, .32, () => {
-    ui.onClose2 = () => { if (keep) { tween(m, { pos: p0, sc: s0 }, .3, () => { m.rotation.copy(r0); if (wasInteract) interactables.push(m); }); } else { tween(m, { pos: _lift.clone().setY(_lift.y - .5), sc: .01 }, .22, () => { m.visible = false; }); } };
-    open();
+    ui.pendingClose2 = () => { if (keep) { tween(m, { pos: p0, sc: s0 }, .3, () => { m.rotation.copy(r0); if (wasInteract) interactables.push(m); }); } else { tween(m, { pos: _lift.clone().setY(_lift.y - .5), sc: .01 }, .22, () => { m.visible = false; }); } };
+    open(); if (ui.pendingClose2) { ui.onClose2 = ui.pendingClose2; ui.pendingClose2 = null; } // keine Notiz geöffnet → wie bisher am nächsten Fenster
   }, { face: true });
 }
 // Gartentore in den Zaunlücken – gehen auf, wenn man sie berührt
@@ -3235,7 +3433,7 @@ function c2Room(x0, x1, z0, z1, gaps = {}, wallMat = M.block, floorMat = M.concr
 function steelDoor(x, z, axis, label) {
   const w = 1.6, m = box(axis === 'z' ? .12 : w, 2.4, axis === 'z' ? w : .12, x, 1.2, z, M.rust); m.userData.doorOpenY = C2.h + 1.4;
   const col = addCol(x - (axis === 'z' ? .1 : w / 2), x + (axis === 'z' ? .1 : w / 2), z - (axis === 'z' ? w / 2 : .1), z + (axis === 'z' ? w / 2 : .1)); const saved = { ...col };
-  const D = { m, col, saved, open: false, locked: true, label, set(o) { this.open = o; tween(m, { pos: new THREE.Vector3(x, o ? m.userData.doorOpenY : 1.2, z) }, o ? .9 : .35); if (o) col.minX = col.maxX = -9999; else Object.assign(col, saved); } };
+  const D = { m, col, saved, open: false, locked: true, label, set(o) { this.open = o; tween(m, { pos: new THREE.Vector3(x, o ? m.userData.doorOpenY : 1.2, z) }, o ? .9 : .35); if (o) col.minX = col.maxX = -9999; else { Object.assign(col, saved); doorPushOut(col); } } };
   interact(m, () => D.locked ? label + ' (verriegelt)' : D.open ? label : label + ' öffnen', () => { if (D.locked) { Audio.thump(x, 1.2, z); toast(D.lockedText || 'Verriegelt. Ohne Strom rührt sich hier nichts.'); return; } if (!D.open) { D.set(true); Audio.slide(x, z); } });
   c2Doors.push(D); return D;
 }
@@ -3511,7 +3709,7 @@ function setC2Objective(t) { $('objText').textContent = trX(t); }
 function chapter2Begin() {
   if (ch2.on) return; state.ending = false; state.outage = false; state.phase2 = false; state.ufoOn = false; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; ufo.userData.spot.intensity = 0; victim.visible = false; Audio.hum(false);
   if (Audio.drone) Audio.drone.gain.value = .028;
-  ch2.on = true; state.ch2 = true; state.inBasement = true; state.started = true; story.main = 99; saveFlag('ch2'); saveGame(2); flashOn = true;
+  ch2.on = true; state.ch2 = true; state.inBasement = true; state.started = true; story.main = 99; setChapter(2); saveFlag('ch2'); saveGame(2); flashOn = true;
   Audio.setArea(true, true); for (const f of CH2_BEGIN) try { f(); } catch (e) { console.warn('Kapitel-2-Beginn', e); }
 }
 async function startChapter2() { // Weiterspielen / Kapitel wählen
@@ -4103,7 +4301,7 @@ function chapter3Begin() {
   letter2.visible = true; interact(letter2, 'Brief lesen', readLetter2); zbook.visible = true; interact(zbook, 'Zählbuch lesen', readBook); albersNote.visible = true; interact(albersNote, 'Umschlag nehmen', readAlbers);
   interact(booth.phone, 'Hörer abnehmen', c3Phone);
   if (FLASH.tier < 1) { FLASH.tier = 1; FLASH.charge = 1; flashApply(); story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift('lampe2'); }
-  ch3.on = true; saveFlag('ch3'); c3Info(); saveGame(3); flashOn = true;
+  ch3.on = true; setChapter(3); saveFlag('ch3'); c3Info(); saveGame(3); flashOn = true;
 }
 // Erste Minute von Kapitel 3 (Aufgabe, Stimmung, die Kuh fällt vom Himmel) – gemeinsam für beide Wege hinein
 async function chapter3Opening() { setC3('Finde heraus, was mit Lost Eyengless geschehen ist.'); await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3200); cowDrop(); cowHit.position.set(-7.5, .6, .8); }
@@ -4513,24 +4711,68 @@ async function canalScare() {
 
 // =====================================================================  SPIELSYSTEME: Speichern, Fallwand, Angst, Pause
 // Vorbilder: Resident Evil (Kontrollpunkte), Alan Wake 2 (Fallwand / „Was bisher geschah“), Amnesia (Angst im Dunkeln).
-const SAVE_KEY = 'ham_save';
-const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht' };
+// Spielstand v2: Kapitel, Sammlung, Ausrüstung, Module (MOD_SAVE) + letzter sicherer Ort (Position/Blick), Hauptaufgabe, Kapitel-1-Merker, Türen.
+// Ältere Spielstände (ohne v) werden übernommen und beginnen am Kapitelanfang. Beim Laden wird alles geprüft – was nicht passt, fällt auf den Kapitelanfang zurück.
+const SAVE_KEY = 'ham_save', SAVE_V = 2;
+// Kapitel: eine Tabelle für Menü, Weiterspielen und Rückblick. (Kapitel 5: Platzhalter, Name folgt.)
+const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht', 4: 'Die Villa Seiler', 5: 'Kapitel 5', 6: 'Der Hungrige' };
+const chTitle = n => CH_TITLE[n] || 'Kapitel ' + n;
+// Module mit eigenem Kapitel (ab 5): CH_START[n] = async spielstand => { … } (spielstand = null bei Kapitelwahl). Setzen story.chapter über setChapter(n).
+const CH_START = {};
+// Nach dem Platzieren beim Weiterspielen: CH_RESUME.push((spielstand, ort) => …) – ort = geprüfte Position oder null (Kapitelanfang)
+const CH_RESUME = [];
+// Kapitelanfänge (Wiederkehr ohne Speicherpunkt, Rückfall beim Laden): [x, y, z, Blick]
+const CH_SPAWN = { 1: [-66, 0, 2, -PI / 2], 3: [.8, 0, 1.6, -PI / 2 + .3], 4: [.8, 0, 1.6, PI / 2 + .6] };
 const solved = new Set();
 // Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
 const MOD_SAVE = [];
 let ENV_DARK = 0; // 0…1: Module (z. B. der tiefe Wald) dunkeln Himmels- und Mondlicht ab
-function saveGame(chapter) {
-  try { const d = { chapter, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
-    side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, { state: q.state, desc: q.desc }])),
-      mods: Object.fromEntries(MOD_SAVE.map(([k, get]) => { try { return [k, get()]; } catch (e) { return [k, null]; } })) };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) {}
+// Einzige Quelle für das Kapitel: story.chapter (setChapter). Ältere Module leiten es noch aus ihren Merkern ab – das Größere gilt.
+function setChapter(n) { story.chapter = n; }
+function curChapter() { const old = (typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; return Math.max(story.chapter || 1, old); }
+function chSpawn(ch) { const s = CH_SPAWN[ch] || (ch === 2 ? [X + 1.2, 0, Z, -PI / 2] : CH_SPAWN[Math.min(4, ch)] || CH_SPAWN[1]); return { x: s[0], y: s[1], z: s[2], yaw: s[3] }; }
+// Merker aus Kapitel 1 (spätere Kapitel setzen ihre Welt beim Start selbst)
+const SAVE_STATE = ['hasKey', 'readPaper', 'readFridge', 'readCal', 'cellarOpen', 'heardTape', 'watcherGone', 'nearHouse', 'slammed', 'kidsRoom', 'carSeen', 'carOpened', 'callDone', 'ghostDone',
+  'home1', 'scFridge', 'scWardrobe', 'scCar', 'tvSeen', 'hasCollar', 'diary', 'wrongCodes', 'inBasement', 'outage', 'ch1Done'];
+// Letzter sicherer Ort: einmal pro Sekunde, wenn nichts läuft (keine Sequenz, Verfolgung, Kanal, kein Keller/Ausfall in Kapitel 1, Amt über Speicherpunkte)
+const SAFE = { at: null, t: 0 };
+function spotOk(p) {
+  if (!p || !Number.isFinite(p.x) || !Number.isFinite(p.y) || !Number.isFinite(p.z) || Math.abs(p.y) > 60 || Math.abs(p.x) > 6000 || Math.abs(p.z) > 6000) return false;
+  for (const c of colliders) if (c.top > p.y + .36 && c.base < p.y + 1.7 && p.x + .3 > c.minX && p.x - .3 < c.maxX && p.z + .3 > c.minZ && p.z - .3 < c.maxZ) return false;
+  return true;
 }
-function curChapter() { return (typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; }
-function loadSave() { try { return JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return null; } }
+function safeTick(dt) {
+  if ((SAFE.t -= dt) > 0) return; SAFE.t = 1;
+  if (!state.started || menu.attract || state.ending || state.talking || scripted || camOverride || mantle || !grounded || state.zone || ui.overlay || state.blackout) return;
+  if (state.inBasement || (state.outage && !ch3.on) || ch2.chase === 'run' || ch3.chase === 'run' || (ch3.on && ch3.part !== 'town')) return;
+  if (!spotOk(player.pos)) return;
+  const a = SAFE.at || (SAFE.at = {}); a.x = player.pos.x; a.y = player.pos.y; a.z = player.pos.z; a.yaw = player.yaw; a.ch = curChapter();
+}
+function saveGame(chapter) {
+  try { const ch = chapter || curChapter();
+    const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
+      main: story.main, obj: $('objText').textContent, at: SAFE.at && SAFE.at.ch === ch ? { ...SAFE.at } : null,
+      st: Object.fromEntries(SAVE_STATE.filter(k => state[k] !== undefined).map(k => [k, state[k]])), doors: doors.map(D => [D.open ? 1 : 0, D.locked ? 1 : 0]),
+      side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, q.steps ? { state: q.state, desc: q.desc, steps: q.steps } : { state: q.state, desc: q.desc }])),
+      mods: Object.fromEntries(MOD_SAVE.map(([k, get]) => { try { return [k, get()]; } catch (e) { return [k, null]; } })) };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(d)); } catch (e) { console.warn('Speichern', e); }
+}
+// Einlesen + Umstellen älterer Fassungen; unbrauchbare Teile werden ersetzt statt das Spiel anzuhalten
+function migrateSave(d) {
+  if (!d || typeof d !== 'object') return null;
+  if (!d.v) { d.v = 2; d.at = null; d.st = null; d.doors = null; } // v1: nur Kapitel + Sammlung → Kapitelanfang
+  d.chapter = Math.min(6, Math.max(1, Math.round(+d.chapter) || 1));
+  for (const k of ['lore', 'items', 'photos', 'myst', 'solved']) if (!Array.isArray(d[k])) d[k] = [];
+  d.lore = d.lore.filter(l => l && typeof l.key === 'string'); d.items = d.items.filter(k => typeof k === 'string');
+  if (d.at && (typeof d.at !== 'object' || !Number.isFinite(d.at.yaw))) d.at = null;
+  if (d.st && typeof d.st !== 'object') d.st = null; if (d.side && typeof d.side !== 'object') d.side = null; if (d.mods && typeof d.mods !== 'object') d.mods = null;
+  return d;
+}
+function loadSave() { try { return migrateSave(JSON.parse(localStorage.getItem(SAVE_KEY) || 'null')); } catch (e) { return null; } }
 function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
   // Ausrüstung: ältere Spielstände haben keine → Stufe nach Kapitel (Kap. 3 hat die LED-Lampe aus dem Amt)
-  const f = d.flash || {}; FLASH.tier = Math.max(f.tier || 0, d.chapter >= 3 ? 1 : 0); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
+  const f = d.flash || {}; FLASH.tier = Math.min(FLASH_TIERS.length - 1, Math.max(+f.tier || 0, d.chapter >= 3 ? 1 : 0)); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
@@ -4547,12 +4789,55 @@ function showRecap(ch, then) {
   $('intro').innerHTML = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">${L[0]}</p>` + L.slice(1).map(l => `<p class="on">${l}</p>`).join('') + '<p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
   $('introSeq').classList.add('show'); $('introSeq').onclick = () => { $('introSeq').onclick = null; $('introSeq').classList.remove('show'); then(); };
 }
+// Weiterspielen: Kapitel aufbauen wie bei der Kapitelwahl, dann an den gespeicherten Ort (geprüft) – sonst Kapitelanfang
 function continueGame() {
-  const d = loadSave(); if (!d) return;
-  menuSound(); $('subPanel').classList.remove('show'); Audio.init(); applySave(d);
-  const go = () => { menu.attract = false; document.body.classList.remove('menu'); $('start').classList.remove('show');
-    if (d.chapter === 4 && typeof startChapter4 === 'function') { state.started = true; startChapter4(); } else if (d.chapter === 3) { state.started = true; startChapter3(); } else if (d.chapter === 2) { state.started = true; startChapter2(); } else beginGame(); };
-  $('start').classList.remove('show'); showRecap(d.chapter, go);
+  const d = loadSave(); if (!d || ui.contBusy) return; ui.contBusy = true;
+  menuSound(); $('subPanel').classList.remove('show'); Audio.init();
+  try { applySave(d); } catch (e) { console.error('Spielstand laden', e); }
+  const ch = d.chapter === 1 && d.st && d.st.ch1Done ? 2 : d.chapter; // Kapitel 1 zu Ende, nur noch der Weg zur Kellerwand → Kapitel 2
+  const go = async () => { menu.attract = false; document.body.classList.remove('menu'); $('start').classList.remove('show');
+    try { await chapterStart(ch, ch === d.chapter ? d : null); } catch (e) { console.error('Weiterspielen Kapitel ' + ch, e); if (!state.started) beginGame(); } };
+  $('start').classList.remove('show'); showRecap(ch, go);
+}
+// Kapitel starten (Kapitelwahl: d = null; Weiterspielen: d = Spielstand). Kapitel ohne eigenen Start → letztes vorhandenes davor.
+async function chapterStart(ch, d) {
+  let n = ch; while (n > 4 && !CH_START[n]) n--;
+  if (CH_START[n]) { state.started = true; return CH_START[n](d); }
+  if (n <= 1) return beginGame(d || undefined);
+  state.started = true;
+  if (n === 2) { await startChapter2(); if (d) resumeAfterIntro(d, false); return; } // Amt: Ort und Fortschritt über die Speicherpunkte (Modul tod)
+  if (n === 3) { await startChapter3(); if (d) resumeAfterIntro(d, true); return; }
+  if (typeof startChapter4 === 'function') { await startChapter4(); if (d) resumeAfterIntro(d, true); return; }
+  await startChapter3();
+}
+function resumeSpot(d) { const a = d && d.at; return a && a.ch === d.chapter && Number.isFinite(a.yaw) && spotOk(a) ? a : null; }
+function placeAt(a) { player.pos.set(a.x, a.y, a.z); player.yaw = a.yaw; player.pitch = 0; vel.set(0, 0, 0); camY = a.y + 1.65; SAFE.at = { x: a.x, y: a.y, z: a.z, yaw: a.yaw, ch: curChapter() }; }
+function resumeHooks(d, at) { for (const f of CH_RESUME) { try { f(d, at); } catch (e) { console.error('Weiterspielen', e); } } updateSideInfo(); }
+// Kapitel mit Titelkarte: Ort sofort setzen (die Karte verdeckt ihn), beim Klick statt der Kapiteleröffnung die gespeicherte Aufgabe
+function resumeAfterIntro(d, place) {
+  const at = place ? resumeSpot(d) : null; if (at) placeAt(at);
+  const sq = $('introSeq'), oc = sq.onclick, fin = () => { if (at && d.obj) $('objText').textContent = d.obj; resumeHooks(d, at); };
+  if (!sq.classList.contains('show') || !oc) return fin();
+  sq.onclick = ev => { if (at && d.chapter === 3) { sq.classList.remove('show'); sq.onclick = null; lockPointer(); } else oc(ev); fin(); };
+}
+// Kapitel 1 fortsetzen: Merker, Türen, Aufgabe und was sichtbar davon abhängt; im Keller/nach dem Tonband an die Kellertreppe
+function resumeCh1(d) {
+  const s = d.st || {};
+  for (const k of SAVE_STATE) if (k in s && k !== 'inBasement' && k !== 'outage' && k !== 'ch1Done') state[k] = s[k];
+  if (state.hasKey) { door7.locked = false; keyMesh.visible = false; try { mailbox7.userData.lid.rotation.x = 1.45; } catch (e) {} }
+  if (state.watcherGone) { watcher.visible = false; endLamp.mode = 'flicker'; }
+  if (state.hasCollar) { collar.parent.visible = false; uninteract(collar); }
+  if (state.diary) uninteract(loose);
+  if (Array.isArray(d.doors)) d.doors.forEach((v, i) => { const D = doors[i]; if (!D || !Array.isArray(v) || D === fuseDoor) return; if (D.open !== !!v[0]) D.set(!!v[0]); D.cur = D.open ? D.openAngle : 0; D.pivot.rotation.y = D.cur; });
+  story.main = 0; setMain(Math.max(0, Math.min(MAIN.length - 1, d.main | 0)));
+  let at = null;
+  if (s.inBasement || s.heardTape || s.outage) { // Keller – nach dem Tonband beginnt oben der Ausfall neu (nie mitten im Licht fortsetzen)
+    state.inBasement = true; state.cellarOpen = true; if (s.outage) state.heardTape = true; story.main = 0; setMain(state.heardTape ? 5 : 4);
+    at = { x: B.x + 4.2, y: 0, z: B.z - 1.6, yaw: PI / 2 + .3 };
+  } else at = resumeSpot(d);
+  if (state.cellarOpen) cellarDoor.rotation.y = -1.5;
+  if (at) placeAt(at);
+  resumeHooks(d, at);
 }
 
 // ---- Fallwand: Hinweise sammeln, dann Schlussfolgerung ziehen
@@ -4595,7 +4880,7 @@ function fearUpdate(dt, indoor) {
   fear.v += (target - fear.v) * Math.min(1, dt * (target > fear.v ? .35 : .18));
   fearVig.style.opacity = Math.max(0, fear.v - .15) * .95;
   fear.beatT -= dt; if (fear.v > .55 && fear.beatT < 0) { fear.beatT = 1.25 - fear.v * .55; Audio.heart(); }
-  fear.whisperT -= dt; if (fear.v > .72 && fear.whisperT < 0) { fear.whisperT = rand(9, 18); Audio.whisper(P.x + rand(-2, 2), 1.6, P.z + rand(-2, 2), 1.6); }
+  fear.whisperT -= dt; if (fear.v > .72 && fear.whisperT < 0) { fear.whisperT = rand(9, 18); if (typeof spannung_ask !== 'function' || spannung_ask('whisper', 'fear')) Audio.whisper(P.x + rand(-2, 2), 1.6, P.z + rand(-2, 2), 1.6); } // Regie: höchstens alle 35 s
   if (!fear.told && fear.v > .6 && !lit) { fear.told = true; toast('Die Dunkelheit zerrt an dir. Die Taschenlampe (F) hilft.', 4200); }
 }
 
@@ -4818,10 +5103,30 @@ function perfFrame(now, updMs, rndMs) {
   const S = PERF.stats, f = v => v.toFixed(1).padStart(5);
   PERF.el.textContent = `${f(S.fps)} FPS   (letzte ${S.frames} Bilder)\nFrame ms  Ø${f(S.avg)}  95%${f(S.p95)}  99%${f(S.p99)}  max${f(S.max)}\nRuckler >33 ms: ${S.hitches}\nCPU ms    Logik${f(S.upd)}  Rendern${f(S.rnd)}\nDraw Calls ${calls}   Dreiecke ${(tris / 1e6).toFixed(2)} M\nProgramme ${renderer.info.programs.length}   Geo ${renderer.info.memory.geometries}   Tex ${renderer.info.memory.textures}   JS ${mem}\n— Welt-Module (CPU ms/Bild) —\n` + S.tick.map(([n, v]) => `${f(v)}  ${n}`).join('\n') + `\nOrt x ${S.pos[0].toFixed(0)}  z ${S.pos[1].toFixed(0)}`;
 }
-addEventListener('keydown', e => { if (e.code === 'F3') { e.preventDefault(); perfToggle(); } });
+if (DEV) addEventListener('keydown', e => { if (e.code === 'F3') { e.preventDefault(); perfToggle(); } }); // Veröffentlichung: keine Messanzeige
+// Fehler sichtbar machen (nur Entwicklung): kleiner Hinweis unten links, Details in der Konsole / log.txt
+function devNotice(msg) {
+  if (!DEV) return; let el = $('devNotice');
+  if (!el) { el = document.createElement('div'); el.id = 'devNotice'; el.style.cssText = 'position:fixed;left:10px;bottom:10px;z-index:99;max-width:46vw;font:11px/1.45 monospace;color:#ff8a70;background:rgba(20,0,0,.72);padding:6px 9px;border:1px solid rgba(255,120,90,.35);pointer-events:none;white-space:pre-wrap'; document.body.appendChild(el); }
+  el.textContent = (el.textContent ? el.textContent.split('\n').slice(-5).join('\n') + '\n' : '') + msg; el.style.display = 'block'; clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; el.textContent = ''; }, 15000);
+}
+// Pro-Bild-Takte der Module: jeder für sich abgesichert. Erster Fehler wird gemeldet; wirft ein Takt 60× binnen 10 s, wird er abgeschaltet (das Spiel läuft weiter).
+const TICK = { fail: [], off: [], win: 0 };
+function tickName(i) { return (WORLD_TICK.length === WORLD_MODS.length && WORLD_MODS[i] ? WORLD_MODS[i][0] : 'Takt ' + i); }
+function tickFail(i, e) {
+  const n = TICK.fail[i] = (TICK.fail[i] || 0) + 1;
+  if (n === 1) { console.error('Takt ' + tickName(i) + ' – Fehler', e); devNotice('Takt „' + tickName(i) + '“: ' + (e && e.message || e)); }
+  if (n >= 60) { TICK.off[i] = true; console.error('Takt ' + tickName(i) + ' abgeschaltet (wiederholte Fehler)', e); devNotice('Takt „' + tickName(i) + '“ abgeschaltet'); }
+}
+function runTicks(dt, t, indoor) {
+  const now = performance.now(); if (now > TICK.win) { TICK.win = now + 10000; for (let i = 0; i < TICK.fail.length; i++) if (!TICK.off[i]) TICK.fail[i] = 0; }
+  for (let i = 0; i < WORLD_TICK.length; i++) { if (TICK.off[i]) continue; const a = PERF.on ? performance.now() : 0;
+    try { WORLD_TICK[i](dt, t, indoor); } catch (e) { tickFail(i, e); }
+    if (PERF.on) PERF.tick[i] = (PERF.tick[i] || 0) * .95 + (performance.now() - a) * .05; }
+}
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
-for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.warn('Modul ' + n, e); } }
+for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
 // 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
 function perfMergeGroups(g) {
@@ -4939,7 +5244,7 @@ function vcullBuild() {
   VCULL.list = list; VCULL.n = scene.children.length;
 }
 function vcullHide() {
-  if (moon.shadow.needsUpdate || lampPool.some(l => l.castShadow && l.shadow.needsUpdate)) return; // Schattenbild entsteht neu → alles mitnehmen
+  if (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
   if (VCULL.n !== scene.children.length && performance.now() > VCULL.t) { VCULL.t = performance.now() + 5000; vcullBuild(); } // neu geladene Kapitel
   const L = VCULL.list; if (!L.length) return;
   for (let k = 0; k < 8; k++) { const E = L[VCULL.i++ % L.length]; if (E.o.visible) vcullBounds(E); } // Hüllen laufend auffrischen (Türen, verschobene Teile)
@@ -4950,20 +5255,34 @@ function vcullHide() {
   for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
 }
 // 4) Schatten-Diät, laufend in kleinen Portionen (auch für später geladene Kapitel):
-//    - winzige Teile (Kerzen, Dosen, Kleinkram < 30 cm) werfen keinen Schatten mehr – sparte bis zu 6,9 Mio. Dreiecke je Schattendurchgang
+//    - kleine Teile (Kerzen, Dosen, Kleinkram < 30 cm) fehlen im großen Mond-Schattenbild – sparte bis zu 6,9 Mio. Dreiecke je Schattendurchgang.
+//      Damit sie nicht schweben, werfen sie ihren Schatten im Licht von Taschenlampe und Innen-Schlüssellampe (alle ≥ 3 cm) und der Laternen (≥ 12 cm);
+//      dort sieht man ihn aus der Nähe. Umschalten je Schattenbild im Wrapper von renderer.shadowMap.render (kein Shader-Wechsel, keine Ebenen).
 //    - animierte Figuren (SkinnedMesh) mit abgeschalteter Sichtprüfung bekommen eine großzügige Hüllkugel: weit entfernte Figuren (Kapitel-2/3-Räume) kosten nichts mehr
 //    - durchsichtige beidseitige Materialien (Laub, Glas, Schleier) in einem Durchgang zeichnen: sonst schaltet three.js jedes Bild zweimal die Seite um
 //      und sucht dafür jedes Mal das Shader-Programm neu (≈ 50× je Bild gemessen)
 function perfSinglePass(o) { const m = o.material; if (!m) return; for (const x of Array.isArray(m) ? m : [m]) if (x && x.transparent && x.side === THREE.DoubleSide) x.forceSinglePass = true; }
 scene.traverse(o => { if (o.isMesh) perfSinglePass(o); });
-const DIET = { t: 0, i: 0, done: new WeakSet(), s: new THREE.Sphere() };
+const DIET = { t: 0, i: 0, done: new WeakSet(), s: new THREE.Sphere() }, SMALL_T = [], SMALL_M = [];
+{ const sr = renderer.shadowMap.render.bind(renderer.shadowMap), A = [], Lm = [], N = [];
+  const cast = (list, v) => { for (let i = 0; i < list.length; i++) list[i].castShadow = v; };
+  renderer.shadowMap.render = function (lights, sc, cam) {
+    if (!SMALL_T.length && !SMALL_M.length) return sr(lights, sc, cam);
+    A.length = 0; Lm.length = 0; N.length = 0;
+    for (const l of lights) (l === flashlight || l === keyLight ? N : l === lampPool[0] || l === lampPool[1] ? Lm : A).push(l);
+    if (A.length) sr(A, sc, cam);
+    if (Lm.length && (Lm[0].shadow.needsUpdate || (Lm[1] && Lm[1].shadow.needsUpdate))) { cast(SMALL_M, true); sr(Lm, sc, cam); cast(SMALL_M, false); }
+    if (N.length) { cast(SMALL_M, true); cast(SMALL_T, true); sr(N, sc, cam); cast(SMALL_M, false); cast(SMALL_T, false); }
+  };
+}
+window.__LIGHT = { SMALL_T, SMALL_M, LP, KEY, LMOV, moonFollow, keyLight, lampPool, pointPool, PP }; // Testzugriff (Licht-Messungen), nur lesen
 function sceneDietTick(dt) {
   DIET.t -= dt; if (DIET.t > 0) return; DIET.t = .5; const K = scene.children, n = Math.max(1, Math.ceil(K.length / 12));
   for (let j = 0; j < n; j++) { const c = K[DIET.i++ % Math.max(1, K.length)]; if (!c) continue;
-    c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry) return; DIET.done.add(o); perfSinglePass(o); if (o.userData.keepShadow) return;
+    c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry) return; DIET.done.add(o); perfSinglePass(o); if (o.isSkinnedMesh) LMOV.list.push(o); if (o.userData.keepShadow) return;
       if (o.isSkinnedMesh && o.frustumCulled === false && !o.userData.noCull) { try { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const b = o.geometry.boundingSphere.clone(); b.radius = Math.max(b.radius * 2, 1.2); o.boundingSphere = b; o.frustumCulled = true; } catch (e) {} return; } // Hülle aus der Ruhepose, doppelt so groß: Animationen bleiben sicher drin
       if (!o.castShadow || o.isInstancedMesh || o.isSkinnedMesh) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); if (!o.geometry.boundingSphere) return;
-      o.updateWorldMatrix(true, false); DIET.s.copy(o.geometry.boundingSphere).applyMatrix4(o.matrixWorld); if (DIET.s.radius < .3) o.castShadow = false; }); }
+      o.updateWorldMatrix(true, false); DIET.s.copy(o.geometry.boundingSphere).applyMatrix4(o.matrixWorld); if (DIET.s.radius < .3) { o.castShadow = false; if (DIET.s.radius >= .12) SMALL_M.push(o); else if (DIET.s.radius >= .03) SMALL_T.push(o); } }); }
 }
 // =====================================================================  HAUPTMENÜ & INVENTAR
 const ICONS = {
@@ -5037,20 +5356,27 @@ function saveFlag(k) { saveFlags[k] = true; try { localStorage.setItem('ham_flag
 function menuSound() { try { Audio.init(); Audio.play('switch1', { gain: .18, rate: 1.6 }); } catch (e) {} }
 function showSub(html) { $('subPanel').innerHTML = html + '<div class="close"><button id="subClose">ZURÜCK</button></div>'; $('subPanel').classList.add('show'); $('subPanel').querySelectorAll('input[type=range]').forEach(rangeFill); $('subClose').onclick = e => { e.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); }; }
 $('mainMenu').querySelectorAll('button').forEach(b => { b.onmouseenter = () => { try { if (Audio.ctx && Audio.ctx.state === 'running') Audio.play('switch1', { gain: .05, rate: 1.7 }); } catch (e) {} }; });
-$('mNew').onclick = e => { e.stopPropagation(); menuSound(); runIntro(); };
-{ const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${CH_TITLE[sv.chapter].toUpperCase()}`; } }
-$('mCont').onclick = e => { e.stopPropagation(); continueGame(); };
+// Vorhandenen Spielstand nie ohne Rückfrage überschreiben (Neues Spiel, Kapitelwahl)
+function confirmNew(go) {
+  const sv = loadSave(); if (!sv) return go();
+  showSub(`<div class="ptitle">SPIELSTAND ÜBERSCHREIBEN?</div><div style="margin:4px 0 20px;font-size:17px;line-height:1.55;color:#c9c0ad">Dein gespeicherter Spielstand – Kapitel ${sv.chapter} · ${esc(trX(chTitle(sv.chapter)))} – wird dabei überschrieben.</div><div class="chap"><button id="cfYes">Überschreiben und beginnen<small>DER BISHERIGE SPIELSTAND GEHT VERLOREN</small></button></div>`);
+  $('cfYes').onclick = ev => { ev.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); go(); };
+}
+$('mNew').onclick = e => { e.stopPropagation(); menuSound(); confirmNew(() => { if (!settings.calib) return showCalib(runIntro); runIntro(); }); }; // erster Start: erst Helligkeit einstellen
+try { $('mVer').textContent = HAM_VERSION; const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${trX(chTitle(sv.chapter)).toUpperCase()}`; } } catch (e) { console.error('Menü', e); }
+$('mCont').onclick = e => { e.stopPropagation(); if (!settings.calib) return showCalib(continueGame); continueGame(); };
 if (window.IS_APP) { $('mQuit').style.display = ''; $('mQuit').onclick = e => { e.stopPropagation(); window.close(); }; }
 $('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button><button id="c4" ${saveFlags.ch4 ? '' : 'disabled'}>Kapitel 4 · Die Villa<small>${saveFlags.ch4 ? 'DER MORGEN DANACH · VILLA SEILER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 3'}</small></button></div>`);
-  $('c4').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch4 || typeof startChapter4 !== 'function') return; menuSound(); Audio.init(); startChapter4(); };
-  $('c3').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch3) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter3(); };
-  $('c1').onclick = ev => { ev.stopPropagation(); menuSound(); $('subPanel').classList.remove('show'); runIntro(); };
-  $('c2').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch2) return; menuSound(); $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter2(); }; };
+  $('c4').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch4 || typeof startChapter4 !== 'function') return; menuSound(); confirmNew(() => { Audio.init(); startChapter4(); }); };
+  $('c3').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch3) return; menuSound(); confirmNew(() => { $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter3(); }); };
+  $('c1').onclick = ev => { ev.stopPropagation(); menuSound(); confirmNew(() => { $('subPanel').classList.remove('show'); runIntro(); }); };
+  $('c2').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch2) return; menuSound(); confirmNew(() => { $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); startChapter2(); }); }; };
 $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">EINSTELLUNGEN</div>
   <div class="row"><span>Mausempfindlichkeit</span><input type="range" min="0.5" max="4" step="0.1" value="${sens}" id="sSens"></div>
   <div class="row"><span>Lautstärke</span><input type="range" min="0" max="1" step="0.05" value="${settings.vol}" id="sVol"></div>
   <div class="row"><span>Musik</span><input type="range" min="0" max="1" step="0.05" value="${settings.music}" id="sMus"></div>
   <div class="row"><span>Helligkeit</span><input type="range" min="0.6" max="1.6" step="0.05" value="${settings.bright}" id="sBright"></div>
+  <div class="row"><span>Helligkeit kalibrieren</span><span class="close" style="margin:0"><button id="sCal">TESTBILD</button></span></div>
   <div class="row"><span>Sichtfeld</span><input type="range" min="60" max="95" step="1" value="${settings.fov}" id="sFov"></div>
   <div class="row"><span>Untertitelgröße</span><input type="range" min="0.8" max="1.5" step="0.05" value="${settings.sub}" id="sSub"></div>
   <div class="row"><span>Maus invertieren</span><input type="checkbox" id="sInv" ${settings.invert ? 'checked' : ''}></div>
@@ -5062,7 +5388,8 @@ $('mSet').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class
   $('sSens').oninput = ev => { sens = +ev.target.value; $('sens').value = sens; rangeFill($('sens')); try { localStorage.setItem('bh_sens', sens); } catch (er) {} };
   $('sVol').oninput = ev => { settings.vol = +ev.target.value; if (Audio.master) Audio.master.gain.value = .9 * settings.vol; saveSettings(); };
   $('sMus').oninput = ev => { settings.music = +ev.target.value; Audio.musicVol(); saveSettings(); };
-  $('sBright').oninput = ev => { settings.bright = +ev.target.value; saveSettings(); }; };
+  $('sBright').oninput = ev => { settings.bright = +ev.target.value; saveSettings(); };
+  $('sCal').onclick = ev => { ev.stopPropagation(); menuSound(); showCalib(null); }; };
 $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">STEUERUNG</div><div class="keys">
   <span><kbd class="k">W</kbd><kbd class="k">A</kbd><kbd class="k">S</kbd><kbd class="k">D</kbd></span><span>Gehen</span>
   <span><kbd class="k">SHIFT</kbd></span><span>Rennen</span>
@@ -5074,6 +5401,22 @@ $('mCtrl').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div clas
   <span><kbd class="k">TAB</kbd></span><span>Abenteuerfibel: Aufgaben, Inventar, Funde, Fotos</span>
   <span><kbd class="k">ESC</kbd></span><span>Pause / Menü schließen</span></div>`); };
 let settings = { vol: 1, music: .8, bright: 1, fov: 72, invert: false, bob: true, sub: 1 }; try { Object.assign(settings, JSON.parse(localStorage.getItem('ham_settings') || '{}')); } catch (e) {}
+// Helligkeit kalibrieren: zwei Zeichen auf Schwarz, gerechnet wie im Spiel (Belichtung × ACES wie three.js, sRGB, Fußanhebung des Bildfilters).
+// Links eine sehr dunkle, aber im Spiel wichtige Fläche (soll gerade noch erkennbar sein), rechts eine, die Schwarz bleiben darf.
+function calibLevel(lin, bright) { const x = lin * 1.3 * bright / .6; let v = (x * (x + .0245786) - .000090537) / (x * (.983729 * x + .432951) + .238081); v = Math.max(0, Math.min(1, v));
+  v = v <= .0031308 ? v * 12.92 : 1.055 * Math.pow(v, 1 / 2.4) - .055; v += .75 * v * Math.pow(1 - v, 8); return Math.round(Math.min(1, v) * 255); }
+function showCalib(then) {
+  const P = $('subPanel'), eye = id => `<svg id="${id}" viewBox="0 0 100 60" style="width:150px;height:90px"><path d="M4 30 Q50 -6 96 30 Q50 66 4 30Z"/><circle cx="50" cy="30" r="12" fill="#000"/></svg>`;
+  P.innerHTML = `<div class="ptitle">HELLIGKEIT</div>
+    <div style="font:18px/1.4 'Cormorant Garamond',Georgia,serif;color:#d6ccb6;text-align:center;margin:0 0 18px">Stell den Regler so ein, dass das <b>linke</b> Zeichen gerade noch zu erkennen ist – das <b>rechte</b> nicht.</div>
+    <div style="display:flex;justify-content:space-around;align-items:center;background:#000;padding:34px 10px;border:1px solid rgba(201,163,106,.15);margin-bottom:14px">${eye('calA')}${eye('calB')}</div>
+    <div class="row"><span>Helligkeit</span><input type="range" min="0.6" max="1.6" step="0.02" value="${settings.bright}" id="cBright"></div>
+    <div class="close"><button id="calOk">ÜBERNEHMEN</button></div>`;
+  P.classList.add('show'); const r = $('cBright'); rangeFill(r);
+  const paint = () => { const a = calibLevel(.012, settings.bright), b = calibLevel(.0025, settings.bright); $('calA').style.fill = `rgb(${a},${a},${a})`; $('calB').style.fill = `rgb(${b},${b},${b})`; };
+  r.oninput = ev => { settings.bright = +ev.target.value; rangeFill(r); paint(); }; paint();
+  $('calOk').onclick = e => { e.stopPropagation(); menuSound(); settings.calib = 1; saveSettings(); P.classList.remove('show'); if (then) then(); };
+}
 function saveSettings() { try { localStorage.setItem('ham_settings', JSON.stringify(settings)); } catch (e) {} document.documentElement.style.setProperty('--subScale', settings.sub); }
 document.documentElement.style.setProperty('--subScale', settings.sub);
 // Grafikqualität: 2 hoch · 1 mittel · 0 niedrig. Ohne gespeicherte Wahl: Onboard-/Software-Grafik startet auf „mittel“.
@@ -5114,7 +5457,7 @@ function flashPower(dt) {
   flashlight.distance = T.distance;
   if (FLASH.charge < FLASH.LOW) { // schwach: dunkler und unruhig, gelegentlich kurzes Aussetzen
     if (live && !FLASH.lowTold) { FLASH.lowTold = true; FLASH.hudT = 6; toast(FLASH.spare ? `Die Lampe wird schwach. [R] Batterie wechseln (${FLASH.spare} übrig).` : 'Die Lampe wird schwach. Keine Ersatzbatterie – such in Schubladen, Werkbänken, Spinden.', 4200); }
-    const k = .45 + .55 * FLASH.charge / FLASH.LOW; return T.intensity * k * (Math.random() < dt * 1.5 ? .15 : 1);
+    const k = .45 + .55 * FLASH.charge / FLASH.LOW; FLASH.lowT -= dt; if (FLASH.lowT <= 0) { FLASH.lowK = FLASH.lowK < 1 ? 1 : (Math.random() < .12 ? .15 : 1); FLASH.lowT = FLASH.lowK < 1 ? rand(.05, .1) : .08; } return T.intensity * k * FLASH.lowK; // Aussetzer ~1,5/s, je 50–100 ms
   }
   return T.intensity;
 }
@@ -5193,19 +5536,21 @@ function update(dt, t) {
   flashRig.quaternion.slerp(camera.quaternion, 1 - Math.exp(-dt * 16));
   renderer.toneMappingExposure += ((state.blackout ? .02 : 1.3 * settings.bright) - renderer.toneMappingExposure) * Math.min(1, dt * 18);
   let fi = flashOn ? flashPower(dt) : 0;
-  if (state.flashFail > 0) { state.flashFail -= dt; fi *= Math.random() < .5 ? 0 : Math.random(); }
+  if (state.flashFail > 0) { state.flashFail -= dt; FLASH.ffT -= dt; if (FLASH.ffT <= 0) { FLASH.ffT = rand(.03, .07); FLASH.ffK = Math.random() < .5 ? 0 : Math.random(); } fi *= FLASH.ffK; } // Aussetzer: je 30–70 ms gehalten (bildratenunabhängig)
   flashlight.intensity = fi;
   camera.getWorldDirection(fwd);
+  fogUniforms.flP.value.copy(flashRig.position); fogUniforms.flD.value.set(0, 0, -1).applyQuaternion(flashRig.quaternion); fogUniforms.flK.value.set(fi / 18, Math.cos(flashlight.angle));
   if (fi > 0) { bray.set(camera.position, fwd); const h = bray.intersectObjects(occluders, false)[0];
-    if (h) { bounce.position.copy(h.point).addScaledVector(fwd, -.5); bounce.intensity = .9 * fi / 14 * (1 - h.distance / 14); } else bounce.intensity = 0; }
+    if (h) { bounce.position.copy(h.point).addScaledVector(fwd, -.5); bounce.intensity = .9 * fi / 18 * (1 - h.distance / 14); } else bounce.intensity = 0; }
   else bounce.intensity = 0;
 
-  assignLampPool(); assignPointPool();
-  moonShadowFollow(camera.position.x, camera.position.z, dt);
+  lmovTick(dt); moonShadowFollow(camera.position.x, camera.position.z, dt);
+  assignLampPool(dt); assignPointPool(dt, rect); keyLightTick(dt, rect);
   // --- Innen/Außen-Übergang
   indoorK += ((indoor ? 1 : 0) - indoorK) * Math.min(1, dt * 3);
   hemi.intensity = (THREE.MathUtils.lerp(.55, .05, indoorK) * (state.outage ? .7 : 1) + lightBoost * (indoor ? .25 : 2.2)) * (1 - ENV_DARK * .6);
-  scene.environmentIntensity = THREE.MathUtils.lerp(.5, .1, indoorK);
+  // Spiegelungen: draußen Himmel/Mond, drinnen fast keine (dunkle Räume spiegeln keinen Nachthimmel), Keller/Amt gar keine
+  scene.environmentIntensity = state.inBasement ? 0 : THREE.MathUtils.lerp(.45, .03, indoorK);
   moon.intensity = state.inBasement || state.zone === 'canal' ? 0 : (.6 + lightBoost * 4) * (1 - ENV_DARK * .75);
   if (state.zone === 'canal') hemi.intensity = .22 + lightBoost;
   const area = state.inBasement ? 'b' : indoor ? 'i' : 'o';
@@ -5222,19 +5567,22 @@ function update(dt, t) {
   lamps.forEach((L, i) => {
     let k = 1;
     if (L.mode === 'flicker') { L.flick -= dt; if (L.flick < 0) { L.flick = rand(.04, Math.random() < .12 ? 1.4 : .18); L.cur = Math.random() < .3 ? rand(0, .15) : rand(.85, 1); } k = L.cur; }
-    if (L.mode === 'dying') { L.dead = (L.dead ?? 0) + dt; k = L.dead > 1.4 ? 0 : (Math.random() < .5 ? 0 : 1); }
+    if (L.mode === 'dying') { L.dead = (L.dead ?? 0) + dt; L.flick -= dt; if (L.flick < 0) { L.flick = rand(.025, .06); L.cur = Math.random() < .5 ? 0 : 1; } k = L.dead > 1.4 ? 0 : L.cur; }
     if (L.mode === 'off') k = 0;
     if (L.mode === 'pulse') k = ch3.pulse;
     L.k = k; L.bulbMat.emissiveIntensity = 4 * k; L.cm.uniforms.opacity.value = .09 * k;
-    if (i < 10) fogUniforms.lamps.value[i].set(L.wx, 0, L.wz, k);
   });
-  for (const p of porchLights) { const k = p.dead ? 0 : (Math.random() < .01 ? .2 : 1); p.light.intensity = p.base * k; p.bulb.material.emissiveIntensity = 6 * k; }
-  livingLight.intensity = livingLight.userData.dead ? 0 : Math.max(0, 4 * (.92 + Math.sin(t * 13) * .04 + (Math.random() < .02 ? -.6 : 0)) - (livingLight.userData.dim || 0) * (Math.random() < .5 ? 1 : .6));
-  kitchenLight.intensity = kitchenLight.userData.dead ? 0 : (Math.random() < .035 ? .3 : 3);
+  for (let i = 0; i < 10; i++) { const L = LP.order[i]; if (L) fogUniforms.lamps.value[i].set(L.wx, 0, L.wz, L.k); else fogUniforms.lamps.value[i].set(0, 0, 0, 0); } // Nebelschein: die zehn NÄCHSTEN Laternen
+  // Flackern bildratenunabhängig: Wahrscheinlichkeit je Sekunde, jeder Aussetzer wird eine feste Zeit gehalten
+  for (const p of porchLights) { const k = p.dead ? 0 : (flickDip(p, .6, dt) ? .2 : 1); p.light.intensity = p.base * k; p.bulb.material.emissiveIntensity = 6 * k; }
+  { const u = livingLight.userData; u.dimT = (u.dimT || 0) - dt; if (u.dimT <= 0) { u.dimT = rand(.03, .07); u.dimK = Math.random() < .5 ? 1 : .6; }
+    livingLight.intensity = u.dead ? 0 : Math.max(0, 4 * (.92 + Math.sin(t * 13) * .04 + (flickDip(u, 1.2, dt) ? -.6 : 0)) - (u.dim || 0) * u.dimK); }
+  kitchenLight.intensity = kitchenLight.userData.dead ? 0 : (flickDip(kitchenLight.userData, 2.1, dt) ? .3 : 3);
   if (!kitchenLight.userData.dead) tube.material.emissiveIntensity = kitchenLight.intensity > 1 ? 2.5 : .2;
-  booth.light.intensity = booth.light.userData.dead ? 0 : (Math.random() < .02 ? .2 : 2);
-  // --- Fernseher
-  if (!tvLight.userData.dead && ++tvFrame % 3 === 0) {
+  booth.light.intensity = booth.light.userData.dead ? 0 : (flickDip(booth.light.userData, 1.2, dt) ? .2 : 2);
+  // --- Fernseher (Rauschbild 20× je Sekunde, unabhängig von der Bildrate)
+  tvFrame += dt;
+  if (!tvLight.userData.dead && tvFrame >= .05) { tvFrame = Math.min(tvFrame - .05, .05);
     const img = tvCtx.createImageData(96, 72); for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
     tvCtx.putImageData(img, 0, 0);
     const dTV = camera.position.distanceTo(tvScreen.position);
@@ -5243,7 +5591,7 @@ function update(dt, t) {
     tvTex.needsUpdate = true; tvLight.intensity = 1.2 + Math.random() * 1.6;
   } else if (tvLight.userData.dead) tvLight.intensity = 0;
   if (Audio.tv) Audio.tv.gain.value = tvLight.userData.dead ? 0 : Math.max(0, .05 * (1 - camera.position.distanceTo(tvScreen.position) / 7));
-  for (const b of bLights) { b.pivot.rotation.z = Math.sin(t * 1.3) * .22; b.pivot.rotation.x = Math.sin(t * .9) * .1; b.light.intensity = b.dark ? 0 : Math.random() < .015 ? .4 : 3.5; }
+  for (const b of bLights) { b.pivot.rotation.z = Math.sin(t * 1.3) * .22; b.pivot.rotation.x = Math.sin(t * .9) * .1; b.light.intensity = b.dark ? 0 : flickDip(b, .9, dt) ? .4 : 3.5; b.bulb.material.emissiveIntensity = 2.8 * b.light.intensity / 3.5; }
   // --- Türen
   for (const D of doors) { const tgt = D.open ? D.openAngle : 0; D.cur += (tgt - D.cur) * Math.min(1, dt * (D.slamming ? 14 : 5)); D.pivot.rotation.y = D.cur; }
 
@@ -5294,23 +5642,38 @@ function update(dt, t) {
     }
   }
   lifeUpdate(dt, t, indoor, rect); ch2Update(dt, t); ch3Update(dt, t); fabUpdate(dt, t); fearUpdate(dt, indoor); Audio.musicUpdate(dt, fear.v, ch2.chase === 'run' || ch3.chase === 'run', indoor, state.inBasement, state.started && !state.ending && !menu.attract); echoUpdate(dt, t); greyUpdate(dt); canalUpdate(dt, t);
-  if (PERF.on) for (let i = 0; i < WORLD_TICK.length; i++) { const a = performance.now(); WORLD_TICK[i](dt, t, indoor); PERF.tick[i] = (PERF.tick[i] || 0) * .95 + (performance.now() - a) * .05; }
-  else for (const f of WORLD_TICK) f(dt, t, indoor);
+  runTicks(dt, t, indoor); safeTick(dt);
   // --- Shader-Zeit
   filmPass.uniforms.time.value = t; skyMat.uniforms.time.value = t; fogUniforms.time.value = t; fogUniforms.camPos.value.copy(camera.position);
   sky.position.copy(camera.position);
 }
 
+// Lesen friert die Welt ein (Gegner, Gefahren, Zeitgeber) – außer in Zwischensequenzen, dort laufen Notizen einfach mit
+const FREEZE_OV = new Set(['note', 'journal', 'puzzle', 'keypad', 'editor']);
+const readingFreeze = () => !!ui.overlay && FREEZE_OV.has(ui.overlay) && !state.talking && !scripted && !camOverride && !state.ending;
+const LOOP = { err: new Map() };
+function loopErr(where, e) { const k = where + ':' + (e && e.message); const n = (LOOP.err.get(k) || 0) + 1; LOOP.err.set(k, n); if (n === 1 || n % 600 === 0) { console.error('Hauptschleife ' + where + (n > 1 ? ' (' + n + '×)' : ''), e); if (n === 1) devNotice(where + ': ' + (e && e.message || e)); } }
 function loop() {
-  const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime;
+  requestAnimationFrame(loop); // zuerst: ein Fehler in diesem Bild hält das Spiel nie an
+  const raw = clock.getDelta(), dt = Math.min(raw, .05), t = clock.elapsedTime; GT.live = true;
   const p0 = PERF.on ? performance.now() : 0;
-  if (!ui.paused || !state.started) update(dt, t);
-  updateInteract();
+  const frozen = state.started && (ui.paused || GL.lost || readingFreeze());
+  try { if (!frozen) { update(dt, t); gtAdvance(Math.min(raw, .25) * 1000); } else flashHudTick(dt); } catch (e) { loopErr('update', e); }
+  try { updateInteract(); } catch (e) { loopErr('interact', e); }
   const p1 = PERF.on ? performance.now() : 0;
-  rigFarHide(); vcullHide(); composer.render(); rigFarShow();
+  if (!GL.lost) { try { rigFarHide(); vcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
   if (PERF.on) { const p2 = performance.now(); perfFrame(p2, p1 - p0, p2 - p1); }
-  requestAnimationFrame(loop);
 }
+// Grafikkontext verloren (Treiberabsturz, Energiesparen): Spiel anhalten, Hinweis, sauber neu laden – der Spielstand bleibt
+renderer.domElement.addEventListener('webglcontextlost', e => {
+  e.preventDefault(); if (GL.lost) return; GL.lost = true; console.error('Grafik: Kontext verloren');
+  try { if (state.started && !state.ending && !state.talking) saveGame(curChapter()); } catch (er) {}
+  try { closeAllOverlays(); } catch (er) {} if (document.pointerLockElement) document.exitPointerLock();
+  const el = document.createElement('div'); el.id = 'glLost'; el.className = 'overlay show'; el.style.zIndex = 90; el.style.flexDirection = 'column';
+  el.innerHTML = `<div class="panel" style="padding:32px 46px;text-align:center;max-width:520px"><div style="font:12px Georgia,serif;letter-spacing:.38em;color:var(--gold,#c9a36a);margin-bottom:18px">${trX('GRAFIK UNTERBROCHEN')}</div><div style="font-size:17px;line-height:1.6;color:#d9cdb0">${trX('Die Grafikkarte wurde zurückgesetzt. Das Spiel wird neu geladen – dein Spielstand bleibt erhalten.')}</div><div style="margin-top:22px"><button style="background:none;border:1px solid rgba(201,163,106,.35);color:#d9cdb0;letter-spacing:.3em;padding:9px 30px;cursor:pointer;font:13px Georgia,serif">${trX('NEU LADEN')}</button></div></div>`;
+  el.querySelector('button').onclick = () => location.reload(); document.body.appendChild(el);
+}, false);
+renderer.domElement.addEventListener('webglcontextrestored', () => setTimeout(() => location.reload(), 600), false);
 // Identische Bilder nur einmal im Grafikspeicher: viele Module laden dieselbe Datei mehrfach (Holzdielen ~12×) und Modelle bringen gleiche Texturen doppelt mit.
 // Gleiche Datei bzw. pixelgleicher Inhalt → gemeinsame Quelle; Kacheln/Versatz bleiben je Material erhalten. Vorher 11,7 GB Texturen bei 8 GB Grafikspeicher.
 function texDedupe() {
@@ -5365,7 +5728,7 @@ stage('Erstes Bild fertig');
   }
   // Ein Bild mit allem Sichtbaren rendern: übersetzt auch die Schattenprogramme
   stage('Schatten vorbereiten'); await wait(0);
-  assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); moonShadowFollow(camera.position.x, camera.position.z, 1e9);
+  assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); keyLight.shadow.needsUpdate = true; moonShadowFollow(camera.position.x, camera.position.z, 1e9);
   try { composer.render(); } catch (e) {}
   lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); try { composer.render(); } catch (e) {}
   saved.forEach((v, o) => o.visible = v);
@@ -5375,10 +5738,11 @@ ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.disp
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   const pr = typeof qualityPR === 'function' ? qualityPR() : Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
-  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); bloom.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); // setzt auch Bloom auf Breite × Pixelverhältnis (nicht separat überschreiben)
 });
 window.G = { ui, ceilingAt, headCeiling, chapter2Begin, CH2_BEGIN, CH2_END, chapter3Begin, finale, setScripted, get scripted() { return scripted; }, ending, B, HOUSES, houses, WORLD_MODS, WORLD_TICK, PERF, perfToggle, FLASH, FLASH_TIERS, flashReload, addBattery, flashUpgrade, flashlight, applySave, ITEMS, MSL, msModel, msFBX, msFind, MS, SOL, solidNear, solidLive, solidPush, solidGround, colliders, indoorRects, occluders, canal, loadCanal, enterCanal, leaveCanal, canalScare, cowDrop, cowFx, ECHOES, playEcho, hunt, grey, TXT, trX, openEditor, sourceTexts, THREE, settings, FAB, saveGame, loadSave, continueGame, fear, CASES, solved, renderCases, menu, beginGame, addItem, renderJournal, interactables, tween, liftTo, keys, scares: { scareWendtKitchen, scareCellarDoor, scareChair, scareWardrobe, scareBackseat, scareDoppel, scareSheet, scareTackle, scareLifted, scareZombieGrab, scareTankFace }, setFace, SOUNDS: window.SOUNDS, ch2, startChapter2, spiderEvent, spidersGone, startChase, caught, safeOpens, finale, powerOn, C2, ch3, startChapter3, justinArrives, broadcast, lampsOut, startC3Chase, enterWhite, room1Answer, room2Solved, room3Scene, endingA, endingB, justin, C3, mystFound, Audio, PHOTOS, crowFlock, lightningStrike, windGust, nat, state, story, player, camera, scene, renderer, lamps, setMain, sideStart, update, composer, bloom, filmPass, jumpScare, runEvent, lightning, dir, armBehind };
 window.HAM_UI = { openNote, openPuzzle, openOverlay, closeOverlay, subtitle, toast, questPop, showRecap, renderJournal, kpRender, fuseOpenPanel, radioPuzzle, clockPuzzle, showChoice, fotos_open: typeof fotos_open === 'function' ? fotos_open : null, FOTOS: typeof FOTOS !== 'undefined' ? FOTOS : null, akte_lesen: typeof akte_lesen === 'function' ? akte_lesen : null, AKTE: typeof AKTE !== 'undefined' ? AKTE : null }; // Oberflächen-Testzugriff (nur Anzeige)
+if (window.G) Object.assign(window.G, { curChapter, setChapter, chapterStart, resumeSpot, spotOk, SAFE, GT, TICK, CH_TITLE, CH_START, CH_RESUME, closeAllOverlays, doors, door7, door1, doorAction, enterBasement, leaveBasement, kpPress, readingFreeze, pauseConfirm, confirmNew, GL, wait, gtAfter, say, get stairBusy() { return stairBusy; } }); // Testzugriff Spielsysteme (fehlt in der Veröffentlichung)
 </script>
 </body>
 </html>

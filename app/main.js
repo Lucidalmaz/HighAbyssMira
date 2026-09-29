@@ -1,60 +1,115 @@
 // High Abyss Mira – Desktop-App (Electron). Lädt das Spiel aus dem Ordner "game" über ein eigenes app://-Protokoll,
 // damit auch große Modelle und Sounds direkt als Dateien geladen werden können.
-const { app, BrowserWindow, protocol, net } = require('electron');
+// Veröffentlicht (app.isPackaged): kein Menü, keine Entwicklerwerkzeuge/Neuladen-Tasten, keine Test-Schalter, nur eine Instanz.
+// Immer: Warnungen und Fehler der Seite → <Benutzerdaten>/log.txt; Absturz/Hänger der Seite → deutscher Dialog mit „Neu laden“.
+const { app, BrowserWindow, protocol, net, Menu, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { pathToFileURL } = require('url');
+
+const PACKAGED = app.isPackaged;
+// Test-/Entwicklerschalter (--selftest, --steps, --root, --page, --udd, --angle, --out, --shot, --readyTimeout) gelten nur im Entwicklungsbetrieb
+const argv = n => PACKAGED ? undefined : process.argv.find(a => a.startsWith('--' + n + '='))?.slice(n.length + 3);
+const selftest = !PACKAGED && process.argv.includes('--selftest');
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
 // Immer die starke Grafikkarte, keine Drosselung im Hintergrund
 app.commandLine.appendSwitch('force_high_performance_gpu');
 // Grafik-Übersetzer wählbar (Test): --angle=gl|vulkan|d3d11
-const _ang = process.argv.find(x => x.startsWith('--angle='))?.slice(8); if (_ang) app.commandLine.appendSwitch('use-angle', _ang);
+const _ang = argv('angle'); if (_ang) app.commandLine.appendSwitch('use-angle', _ang);
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required'); // Menümusik ohne ersten Klick
 // Testläufe: Fenster außerhalb des Bildschirms, weiterhin gerendert (keine Verdeckungs-Drosselung)
-if (process.argv.includes('--selftest')) app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+if (selftest) app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
-const argv = n => process.argv.find(a => a.startsWith('--' + n + '='))?.slice(n.length + 3);
 // --root=ORDNER: Spiel aus einem anderen Ordner laden (Testkopien); --udd=ORDNER: eigener Profilordner (parallele Testläufe)
 const GAME = argv('root') ? path.resolve(argv('root')) : path.join(__dirname, 'game');
 if (argv('udd')) app.setPath('userData', path.resolve(argv('udd')));
-const selftest = process.argv.includes('--selftest');
+
+// ---- Protokoll: log.txt im Benutzerordner (bei > 1 MB beim Start nach log.old.txt verschoben)
+let LOG = null;
+function log(level, msg) {
+  try {
+    if (!LOG) { LOG = path.join(app.getPath('userData'), 'log.txt'); fs.mkdirSync(path.dirname(LOG), { recursive: true });
+      try { if (fs.statSync(LOG).size > 1e6) fs.renameSync(LOG, path.join(path.dirname(LOG), 'log.old.txt')); } catch (e) {}
+      fs.appendFileSync(LOG, `\n==== ${new Date().toISOString()} · High Abyss Mira ${app.getVersion()} · Electron ${process.versions.electron}${PACKAGED ? '' : ' · Entwicklung'} ====\n`); }
+    fs.appendFileSync(LOG, `[${new Date().toISOString()}] ${level} ${String(msg).slice(0, 4000)}\n`);
+  } catch (e) {}
+}
+process.on('uncaughtException', e => log('HAUPTPROZESS', e && e.stack || e));
+
+// ---- Nur eine Instanz (nicht bei Selbsttests: die laufen parallel mit eigenen Profilen)
+const single = selftest || app.requestSingleInstanceLock();
+if (!single) app.quit();
+else app.on('second-instance', () => { const w = BrowserWindow.getAllWindows()[0]; if (w) { if (w.isMinimized()) w.restore(); w.show(); w.focus(); } });
 
 app.whenReady().then(() => {
+  if (!single) return;
+  if (PACKAGED) Menu.setApplicationMenu(null);
+  const ROOT = path.resolve(GAME);
   protocol.handle('app', req => {
     const rel = decodeURIComponent(new URL(req.url).pathname).replace(/^\/+/, '');
-    const file = path.normalize(path.join(GAME, rel));
-    if (!file.startsWith(GAME)) return new Response('verboten', { status: 403 });
-    if (!fs.existsSync(file)) { console.warn('FEHLT: ' + rel); return new Response('fehlt', { status: 404 }); }
+    const file = path.normalize(path.join(ROOT, rel));
+    // nur Dateien INNERHALB des Spielordners (Trennzeichen nach dem Ordnernamen: „game2\…“ zählt nicht als „game\…“)
+    if (!file.startsWith(ROOT + path.sep)) return new Response('verboten', { status: 403 });
+    if (!fs.existsSync(file)) { console.warn('FEHLT: ' + rel); log('FEHLT', rel); return new Response('fehlt', { status: 404 }); }
     return net.fetch(pathToFileURL(file).toString());
   });
   const win = new BrowserWindow({
-    width: 1600, height: 900, show: false, ...(process.argv.includes('--selftest') ? { x: -4000, y: -4000 } : {}), fullscreen: !selftest && !process.argv.includes('--window'),
+    width: 1600, height: 900, show: false, ...(selftest ? { x: -4000, y: -4000 } : {}), fullscreen: !selftest && !process.argv.includes('--window'),
     autoHideMenuBar: true, backgroundColor: '#000000', title: 'High Abyss Mira',
     icon: path.join(__dirname, 'icon.ico'),
-    webPreferences: { backgroundThrottling: false, spellcheck: false },
+    webPreferences: { backgroundThrottling: false, spellcheck: false, devTools: !PACKAGED },
   });
   win.once('ready-to-show', () => selftest ? win.showInactive() : win.show()); // Tests stehlen nicht den Fokus
   win.webContents.on('before-input-event', (e, i) => {
-    if (i.type === 'keyDown' && i.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); }
+    if (i.type !== 'keyDown') return;
+    if (i.key === 'F11') { win.setFullScreen(!win.isFullScreen()); e.preventDefault(); return; }
+    // Veröffentlicht: kein Neuladen (Strg+R, F5) und keine Entwicklerwerkzeuge (F12, Strg+Umschalt+I/J/C)
+    const k = String(i.key).toLowerCase(), ctrl = i.control || i.meta;
+    if (PACKAGED && (k === 'f5' || k === 'f12' || (ctrl && k === 'r') || (ctrl && i.shift && (k === 'i' || k === 'j' || k === 'c')))) e.preventDefault();
   });
+  // Keine fremden Seiten, keine neuen Fenster
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('app://')) e.preventDefault(); });
+  // Warnungen und Fehler der Seite ins Protokoll (immer)
+  win.webContents.on('console-message', (ev, lvl, m, line, src) => {
+    const level = ev && ev.level !== undefined ? ev.level : lvl, msg = ev && ev.message !== undefined ? ev.message : m;
+    const n = typeof level === 'number' ? level : ({ verbose: 0, info: 1, warning: 2, error: 3 })[level] ?? 1;
+    if (n >= 2) log(n >= 3 ? 'FEHLER' : 'WARNUNG', msg + (src || (ev && ev.sourceId) ? `  (${String((ev && ev.sourceId) || src).split('/').pop()}:${(ev && ev.lineNumber) || line})` : ''));
+  });
+  // Absturz oder Hänger der Seite: nachfragen statt schwarzer Bildschirm (Selbsttest: nur protokollieren)
+  const ask = (msg, buttons) => dialog.showMessageBoxSync(win, { type: 'error', title: 'High Abyss Mira', message: msg, buttons, defaultId: 0, cancelId: buttons.length - 1, noLink: true });
+  win.webContents.on('render-process-gone', (_e, d) => {
+    log('ABSTURZ', `Seite beendet: ${d.reason} (Code ${d.exitCode})`); if (selftest || d.reason === 'clean-exit') return;
+    if (restarting) { restarting = false; return; } // selbst beendet (Hänger → Neu laden)
+    const r = ask(`Das Spiel wurde unerwartet beendet (${d.reason}).\n\nDein Spielstand bis zum letzten Speicherpunkt ist gesichert. Neu laden?`, ['Neu laden', 'Beenden']);
+    if (r === 0) win.webContents.reload(); else app.quit();
+  });
+  let hung = false, restarting = false;
+  win.on('unresponsive', () => {
+    log('HÄNGT', 'Seite reagiert nicht'); if (selftest || hung) return; hung = true;
+    const r = ask('Das Spiel reagiert nicht mehr.\n\nKurz warten – oder neu laden (Spielstand bis zum letzten Speicherpunkt bleibt erhalten)?', ['Warten', 'Neu laden', 'Beenden']);
+    hung = false; if (r === 1) { restarting = true; win.webContents.forcefullyCrashRenderer(); win.webContents.reload(); } else if (r === 2) app.quit();
+  });
+  win.on('responsive', () => { if (hung) log('HÄNGT', 'Seite reagiert wieder'); });
   const t0 = Date.now();
-  const page = process.argv.find(a => a.startsWith('--page='))?.slice(7) || 'index.html';
+  const page = argv('page') || 'index.html';
   win.loadURL('app://game/' + page);
   if (selftest) {
-    const out = process.argv.find(a => a.startsWith('--out='))?.slice(6) || path.join(app.getPath('temp'), 'ham_selftest');
+    const out = argv('out') || path.join(app.getPath('temp'), 'ham_selftest');
     fs.mkdirSync(out, { recursive: true });
     const logs = [];
-    win.webContents.on('console-message', (_e, level, msg) => { if (level >= 2) logs.push(msg); });
+    win.webContents.on('console-message', (ev, lvl, m) => { const level = ev && ev.level !== undefined ? ev.level : lvl, msg = ev && ev.message !== undefined ? ev.message : m;
+      if ((typeof level === 'number' ? level : ({ verbose: 0, info: 1, warning: 2, error: 3 })[level] ?? 1) >= 2) logs.push(msg); });
     let started = false; // mehrere wartende Abfragen dürfen die Schritte nur einmal starten (sonst laufen sie parallel mehrfach)
     const poll = setInterval(async () => {
       let ready = false; try { ready = await win.webContents.executeJavaScript('!!window.__ready'); } catch (e) {}
-      if (ready || Date.now() - t0 > (+(process.argv.find(x => x.startsWith('--readyTimeout='))?.slice(15)) || 120000)) {
+      if (ready || Date.now() - t0 > (+argv('readyTimeout') || 120000)) {
         clearInterval(poll); if (started) return; started = true;
         const info = await win.webContents.executeJavaScript('JSON.stringify({ready: !!window.__ready, stage: window.__stage, log: window.__log, info: window.__info})').catch(e => String(e));
-        const stepsFile = process.argv.find(a => a.startsWith('--steps='))?.slice(8);
+        const stepsFile = argv('steps');
         if (stepsFile) {
           const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); const res = {};
           for (const st of steps) {
@@ -77,8 +132,8 @@ app.whenReady().then(() => {
         }
         await new Promise(r => setTimeout(r, 1500));
         const img = await win.webContents.capturePage();
-        fs.writeFileSync(path.join(out, (process.argv.find(a => a.startsWith('--shot='))?.slice(7) || 'menu') + '.png'), img.toPNG());
-        fs.writeFileSync(path.join(out, (process.argv.find(a => a.startsWith('--shot='))?.slice(7) || 'result') + '.json'), JSON.stringify({ seconds: (Date.now() - t0) / 1000, info, logs }, null, 1));
+        fs.writeFileSync(path.join(out, (argv('shot') || 'menu') + '.png'), img.toPNG());
+        fs.writeFileSync(path.join(out, (argv('shot') || 'result') + '.json'), JSON.stringify({ seconds: (Date.now() - t0) / 1000, info, logs }, null, 1));
         app.quit();
       }
     }, 500);

@@ -5,7 +5,7 @@
 // Laub (Zygomir, matousekfoto), Moos (Zygomir), Klee (Studio-Lab), Gras (Nicholas 3D, Charlie catling), Pilze (EFX).
 // Verhalten: Wind lässt Gras, Büsche und Kronen schwingen (Böen stärker, synchron zum Windgeräusch), Pflanzen weichen dem Spieler aus, Büsche
 // bremsen und rascheln (Grundspiel: weiche Körper). Klang: Windbett in den Kronen, Laubrascheln, Zweige, fallende Äste, Kiefernzapfen,
-// kleine Tiere im Unterholz, Flügelschlag, Tropfen, Käuzchen, fernes Heulen, Frösche am Weiher.
+// kleine Tiere im Unterholz, Flügelschlag, Tropfen, Käuzchen, Rehe, fernes Heulen (Novembernacht: keine Grillen, keine Frösche).
 const WL = { ready: false, chunks: [], chunkT: 0, uWind: { value: 0 }, uAmp: { value: 1 }, uPl: { value: new THREE.Vector3() }, gust: 0, gustT: 8, sndT: 3, bed: null, bedG: null, inForest: 0, n: {} };
 function wl_in(x, z) { return (typeof wald_in === 'function' && wald_in(x, z)) || (typeof tief_in === 'function' && tief_in(x, z)); }
 // Platz frei? (Wege, Hütten, Rätselorte bleiben frei; r = Abstand zum Weg)
@@ -16,7 +16,11 @@ function wl_free(x, z, r = 1.6) {
 }
 // Wind + Ausweichen: Schwingen nach Höhe im Modell (h = Modellhöhe), Weg vom Spieler (push)
 function wl_wind(mat, amp, h, push) {
-  if (mat.userData.wl) return mat; mat.userData.wl = true; const prev = mat.onBeforeCompile;
+  if (mat.userData.wl) return mat;
+  // Schon von einem anderen Modul mit Wind gepatcht (z. B. ausbau_nord: addWind am gemeinsamen Holunder-Material)? Dann nicht doppelt schwingen lassen.
+  const own = Object.prototype.hasOwnProperty.call(mat, 'onBeforeCompile'), prevKey = own && mat.customProgramCacheKey ? String(mat.customProgramCacheKey()) : '';
+  if (own && /wind/i.test(prevKey)) return mat;
+  mat.userData.wl = true; const prev = own ? mat.onBeforeCompile : null;
   const uH = { value: h }, uA = { value: amp }, uP = { value: push ? 1 : 0 };
   mat.onBeforeCompile = (sh, r) => { if (prev) prev(sh, r); sh.uniforms.uWind = WL.uWind; sh.uniforms.uAmp = WL.uAmp; sh.uniforms.uPl = WL.uPl; sh.uniforms.uWH = uH; sh.uniforms.uWA = uA; sh.uniforms.uWP = uP;
     sh.vertexShader = 'uniform float uWind, uAmp, uWH, uWA, uWP; uniform vec3 uPl;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
@@ -35,7 +39,7 @@ function wl_wind(mat, amp, h, push) {
         vec2 off = sway + (dd > .001 ? dp / dd : vec2(0.)) * pk;
         transformed += inverse(mat3(wm)) * vec3(off.x, 0., off.y);
       }`); };
-  mat.customProgramCacheKey = () => 'wl_wind'; mat.needsUpdate = true; return mat;
+  mat.customProgramCacheKey = () => 'wl_wind|' + prevKey; mat.needsUpdate = true; return mat; // eigener Schlüssel je Vor-Patch: kein falsches Teilen von Shader-Programmen
 }
 // Modell → Gruppen (Packs mit mehreren Varianten werden getrennt), jede Gruppe auf Fußpunkt 0 und optional flach gelegt
 async function wl_asset(key, { split = false, flat = false } = {}) {
@@ -145,30 +149,33 @@ WORLD_MODS.push(['Waldleben', async () => {
 // ---------------------------------------------------------------- Klang: Wind in den Kronen und Leben im Unterholz
 function wl_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3);
   for (let i = 0, n = 3 + Math.floor(rand(0, 4)); i < n; i++) { const s = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1600, 4200); bp.Q.value = .9; s.connect(bp); Audio.env(bp, rand(.05, .12) * v, .01, rand(.05, .16), i * rand(.05, .13), d); s.stop(Audio.ctx.currentTime + 1.6); } }
-function wl_croak(x, z) { if (!Audio.ctx) return; const d = Audio.at(x, .2, z, 4), t = Audio.ctx.currentTime;
-  for (let k = 0; k < 3; k++) { const o = Audio.ctx.createOscillator(), g = Audio.ctx.createGain(), f = Audio.ctx.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = rand(95, 130); f.type = 'bandpass'; f.frequency.value = 600; f.Q.value = 3;
-    const t0 = t + k * .22; g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.05, t0 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + .16); o.connect(f); f.connect(g); g.connect(d); o.start(t0); o.stop(t0 + .18); } }
+// Windbett in den Kronen – über Audio.hushG: bei plötzlicher Stille und an den Fraßstellen bleibt nur ein sehr leiser hoher Wind
 function wl_bed(on, k) {
   if (!Audio.ctx) return; const A = Audio.ctx;
-  if (on && !WL.bed) { const g = A.createGain(); g.gain.value = 0; g.connect(Audio.master); const s = Audio.noise(true), lp = A.createBiquadFilter(), bp = A.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; bp.type = 'bandpass'; bp.frequency.value = 420; bp.Q.value = .5;
+  if (on && !WL.bed) { const g = A.createGain(); g.gain.value = 0; g.connect(Audio.hushG || Audio.master); const s = Audio.noise(true), lp = A.createBiquadFilter(), bp = A.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; bp.type = 'bandpass'; bp.frequency.value = 420; bp.Q.value = .5;
     s.connect(bp); bp.connect(lp); lp.connect(g); WL.bed = s; WL.bedG = g; WL.bedF = lp; }
   if (WL.bed) { const t = A.currentTime, want = on ? (.05 + .07 * k) * (.55 + WL.gust * .9) : 0; WL.bedG.gain.setTargetAtTime(want, t, .8); WL.bedF.frequency.setTargetAtTime(700 + WL.gust * 1100, t, .6);
     if (!on && WL.bedG.gain.value < .002) { try { WL.bed.stop(); } catch (e) {} WL.bed = null; } }
 }
+// Ein Ereignis im Wald – spärlich und glaubwürdig für eine Novembernacht (keine Grillen, keine Frösche). Die Regie wählt nur Familien, die gerade dran sein dürfen;
+// je tiefer im Wald (k), desto seltener das Kleinleben und desto eher Fernes (Kauz, Reh, Heulen).
 function wl_event(k) {
-  const P = player.pos, a = rand(0, 6.28), far = (d0, d1) => { const d = rand(d0, d1); return [P.x + Math.cos(a) * d, P.z + Math.sin(a) * d]; }, r = Math.random();
-  if (r < .2) { const [x, z] = far(4, 12); wl_rustle(x, z, 1); if (Math.random() < .4) setTimeout(() => wl_rustle(x + rand(-1, 1), z + rand(-1, 1), .7), rand(250, 700)); }
-  else if (r < .3) { const [x, z] = far(5, 14); wl_rustle(x, z, .8); for (let i = 0; i < 4; i++) setTimeout(() => Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .06, rate: rand(1.9, 2.3), x: x + i * .4, y: 0, z: z + i * .3, ref: 2 }), 120 + i * rand(70, 110)); }
-  else if (r < .4) { const [x, z] = far(8, 22); Audio.play(Audio.pick('woodFall1', 'woodFall2'), { gain: .12, rate: rand(.9, 1.2), x, y: 3, z, ref: 5 }); setTimeout(() => wl_rustle(x, z, .9), 350); }
-  else if (r < .5) { const [x, z] = far(4, 12); Audio.play(Audio.pick('woodHit1', 'woodHit3'), { gain: .05, rate: rand(1.8, 2.4), x, y: 2, z, ref: 2 }); setTimeout(() => Audio.play('woodHit2', { gain: .03, rate: 2.2, x, y: 0, z, ref: 2 }), rand(180, 320)); }
-  else if (r < .6) { const [x, z] = far(6, 14); Audio.flap(x, rand(2, 5), z); wl_rustle(x, z, .6); }
-  else if (r < .68) Audio.treeCreak(...far(8, 25));
-  else if (r < .74) { const [x, z] = far(3, 9); Audio.drip(x, rand(1.5, 3), z); }
-  else if (r < .8) Audio.owlPair ? Audio.owlPair(...far(25, 50)) : Audio.owl(...far(25, 50));
-  else if (r < .84 && k > .5 && typeof leben_howl === 'function') { const [x, z] = far(60, 90); leben_howl(x, 1, z); }
-  else if (r < .9 && typeof TIEF !== 'undefined' && Math.hypot(P.x - TIEF.pond.x, P.z - TIEF.pond.z) < 40) wl_croak(TIEF.pond.x + rand(-6, 6), TIEF.pond.z + rand(-5, 5));
-  else if (r < .95) Audio.play('crickets', { gain: .05, rate: rand(.9, 1.05), dur: rand(1.5, 3), offset: rand(0, 5), x: P.x + rand(-15, 15), y: 0, z: P.z + rand(-15, 15), ref: 8 });
-  else { const [x, z] = far(10, 20); wl_rustle(x, z, 1.3); setTimeout(() => wl_rustle(x + 2, z + 1, 1), 400); setTimeout(() => wl_rustle(x + 4, z + 2, .7), 800); }
+  const P = player.pos, a = rand(0, 6.28), far = (d0, d1) => { const d = rand(d0, d1); return [P.x + Math.cos(a) * d, P.z + Math.sin(a) * d]; }, W = Audio, near = 1.2 - k * .6;
+  const L = [
+    [2.4 * near, 'rustle', () => { const [x, z] = far(5, 14); wl_rustle(x, z, rand(.6, 1)); if (Math.random() < .3) setTimeout(() => wl_rustle(x + rand(-1, 1), z + rand(-1, 1), .6), rand(300, 800)); }], // Wind im Laub, ein Tier
+    [1.2 * near, 'critter', () => { const [x, z] = far(6, 14); wl_rustle(x, z, .7); for (let i = 0; i < 3; i++) setTimeout(() => W.play(W.pick('stepG1', 'stepG2', 'stepG3'), { gain: .05, rate: rand(1.9, 2.3), x: x + i * .4, y: 0, z: z + i * .3, ref: 2 }), 120 + i * rand(80, 130)); }], // Maus/Igel huscht davon
+    [1.4, 'twig', () => { const [x, z] = far(7, 18); W.twig(x, z); }], // Ast knackt – irgendwo steht etwas
+    [.6, 'branch', () => { const [x, z] = far(12, 26); W.play(W.pick('woodFall1', 'woodFall2'), { gain: rand(.08, .13), rate: rand(.85, 1.15), lp: 3000, x, y: 3, z, ref: 5 }); setTimeout(() => wl_rustle(x, z, .8), 350); }], // Totholz fällt
+    [1.3, 'treeCreak', () => W.treeCreak(...far(9, 25))],
+    [.9, 'drip', () => { const [x, z] = far(3, 8); for (let i = 0, n = 2 + Math.floor(rand(0, 3)); i < n; i++) setTimeout(() => W.drip(x + rand(-.5, .5), rand(1.8, 3), z + rand(-.5, .5)), i * rand(400, 1200)); }], // es tropft von den Kronen
+    [.5, 'flap', () => { const [x, z] = far(8, 16); W.flap(x, rand(4, 7), z); }], // ein Vogel, aufgeschreckt
+    [1.4, 'owl', () => W.owlPair ? W.owlPair(...far(30, 60)) : W.owl(...far(30, 60))], // Waldkauz: im Herbst die Reviernacht
+    [.6 * k, 'deer', () => W.deerBark && W.deerBark(...far(40, 70))],
+    [.4 * k, 'fox', () => W.fox && W.fox(...far(45, 80))]];
+  if (k > .5 && typeof leben_howl === 'function') L.push([.35, 'howl', () => { const [x, z] = far(70, 95); leben_howl(x, 1, z); }]);
+  if (typeof spannung_can !== 'function') return L[Math.floor(Math.random() * L.length)][2]();
+  const ok = L.filter(e => e[0] > 0 && spannung_can(e[1], 'amb')); if (!ok.length) return;
+  let r = Math.random() * ok.reduce((s, e) => s + e[0], 0); for (const e of ok) { r -= e[0]; if (r <= 0) { e[2](); spannung_did(e[1], 'amb'); return; } }
 }
 WORLD_TICK.push((dt, t) => {
   if (!WL.ready || !state.started || menu.attract) return; const P = player.pos, cam = camera.position;
@@ -183,6 +190,6 @@ WORLD_TICK.push((dt, t) => {
   const inF = wl_in(P.x, P.z) && state.zone !== 'canal', k = typeof tief_in === 'function' && tief_in(P.x, P.z) ? .6 + (typeof tief_S !== 'undefined' ? tief_S.k * .4 : 0) : .35;
   WL.inForest += ((inF ? 1 : 0) - WL.inForest) * Math.min(1, dt * .8); wl_bed(WL.inForest > .02, k * WL.inForest);
   if (!inF || state.talking || ui.overlay) return;
-  const spd = Math.hypot(vel.x, vel.z); WL.sndT -= dt * (spd < .3 ? 1.6 : 1); if (WL.sndT < 0) { WL.sndT = rand(2.2, 6) * (1.2 - k * .4); wl_event(k); }
+  const spd = Math.hypot(vel.x, vel.z); WL.sndT -= dt * (spd < .3 ? 1.3 : 1); if (WL.sndT < 0) { WL.sndT = rand(6, 13) * (1.1 - k * .2); wl_event(k); } // Budget und Abstände: Regie (spannung)
 });
 window.__wl = { S: WL, event: k => wl_event(k || .6) }; // Testzugriff

@@ -90,11 +90,14 @@ void main() {
     }
   }
   // Glas: Staub am Rand, Himmel spiegelt sich im flachen Winkel
-  float fr = pow(1. - clamp(-dot(V, vN), 0., 1.), 3.);
+  // Von innen (Rückseite, Blick entgegen der Normalen) gibt es kein Scheinzimmer und keinen Himmelsschimmer: verwerfen → man sieht den echten Raum/die Straße
+  float facing = -dot(V, normalize(vN));
+  if (facing <= 0.) discard;
+  float fr = pow(1. - clamp(facing, 0., 1.), 5.);
   vec2 q = abs(vUv2 - .5) * 2.;
   c *= 1. - .35 * smoothstep(.75, 1., max(q.x, q.y));
   #ifdef USE_FOG
-  c = mix(c, fogColor * 1.6, fr * .55);
+  c = mix(c, fogColor * 1.2, fr * .4); // Spiegelung des Nachthimmels nur im flachen Winkel, dunkel wie der Himmel selbst
   #endif
   gl_FragColor = vec4(c, 1.);
   #include <tonemapping_fragment>
@@ -208,7 +211,8 @@ async function fassaden_build() {
   function slabUV(m, tile) { const g2 = m.geometry.clone(), p = g2.attributes.position, uv = g2.attributes.uv, s = Math.sign(m.position.x) || 1;
     for (let i = 0; i < p.count; i++) uv.setXY(i, p.getZ(i) / tile, -s * p.getX(i) / tile); uv.needsUpdate = true; m.geometry = g2; }
   const tarFor = tint => weather(surf('road_asphalt', 1, .6, { tint, nrm: 1.1, env: .7 }), { roof: true, moss: .85, wet: .75 });
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .05, metalness: .85, transparent: true, opacity: .28, depthWrite: false, envMapIntensity: 1.4, name: 'fa_glass' });
+  // Fensterglas als Dielektrikum (kein Metall): klare, schmale Glanzlichter von Taschenlampe/Laternen, Himmelsspiegelung nur im flachen Winkel
+  const glassMat = new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .04, metalness: 0, transparent: true, opacity: .24, depthWrite: false, envMapIntensity: 1, name: 'fa_glass' });
   const roomU = { uFlash: { value: 0 }, uFlashPos: { value: new V3() }, uFlashDir: { value: new V3(0, 0, -1) }, uTime: { value: 0 } };
   S.U = roomU;
   // Silhouetten-Maske aus dem echten (gescannten) Mannequin: zwei Posen nebeneinander

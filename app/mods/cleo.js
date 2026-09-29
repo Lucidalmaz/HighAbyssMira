@@ -82,12 +82,14 @@ applySave = (o => d => { o(d); const S = cleo_S; if (cleo_has('cleo_ende') && S.
   if (cleo_has('cleo_baumhaus') && S.lid) { S.lid.rotation.x = -1.9; if (S.lock) S.lock.visible = false; } })(applySave);
 async function cleo_end() {
   const S = cleo_S; if (S.ending) return; S.ending = true; state.talking = true; Audio.play('stones1', { gain: .25, rate: 1.6, x: CLEO_STONE.x, y: .4, z: CLEO_STONE.z, ref: 2 });
+  try { // state.talking wird immer zurückgesetzt
   await say([['Du schreibst ihren Namen. C – L – E – O. Die Kreide kratzt über den Stein. Er nimmt sie an.', 4800]]); S.name.visible = true; story.items = story.items.filter(k => k !== 'cleo_kreide');
   const F = echoFigs[0]; F.position.set(CLEO_STONE.x + .7, 0, CLEO_STONE.z - .9); F.rotation.y = -.9; F.scale.setScalar(.52); F.visible = true;
   if (typeof figuren_person === 'function') { await figuren_person(F, 'cleo'); figuren_memoryLook(true); }
   for (let k = 0; k <= 20; k++) { echoMat.opacity = k / 20 * .34; await wait(45); }
   await say([['Neben dem Stein steht ein Mädchen. Acht, vielleicht. Rote Zöpfe. Sie liest ihren Namen. Dann sieht sie dich an – und lächelt.', 5800], ['„Wiederholen ist gestohlen“, sagt sie. „Du hast mich zurückgestohlen.“', 4600, 'CLEO']]);
-  for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .34; await wait(60); } F.visible = false; state.talking = false; if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false);
+  for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .34; await wait(60); } F.visible = false;
+  } finally { state.talking = false; } if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false);
   story.lore.push({ key: 'cleo_ende', title: 'Cleo', html: 'Cleo, 8. Sie ist 2009 freiwillig ins Licht gegangen, damit die anderen heimkommen: eine für sieben. Danach hat sie niemand mehr gekannt – außer Lucy.\n\nJetzt steht ihr Name auf dem achten Stein. In Kreide. Wiederholen ist gestohlen: Du hast sie zurückgestohlen.' });
   sideDone('cleo', 'Ihr Name steht auf dem Stein: CLEO.'); questPop('ERINNERUNG', 'Cleo');
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('cleo_nach', 'Lucy hat sie nie vergessen. Siebzehn Jahre lang, jeden Tag ein C. … Jetzt vergesse ich sie auch nicht mehr.', 0, 3); }, 8000);

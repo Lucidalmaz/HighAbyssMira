@@ -2,7 +2,7 @@
 // Echtes, gerigtes Modell (Unreal Animal Variety Pack, animal_crow), dunkler und größer als die Dorfkrähen. Sitzt an Stationen, die zum
 // Fortschritt passen, fliegt voraus, pickt an Hinweisen, gibt eine Aufgabe (Tausch: etwas Glänzendes gegen einen Schlüssel).
 // Den Namen hat ihm Lars Vegas gegeben (er saß abends auf seinem Geländer). Justin erklärt in Kapitel 3, was es mit ihm auf sich hat.
-const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null, mode: 'gone', fl: null, idleT: 2, met: new Set(), named: false, hit: null, trade: false, jHit: null, jAsked: false };
+const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null, mode: 'gone', fl: null, idleT: 2, met: new Set(), seen: new Set(), named: false, hit: null, trade: false, jHit: null, jAsked: false }; // met = angesprochen, seen = gesehen (nur fürs Krächzen)
 // Stationen: when() = aktiv, done() = erledigt (dann fliegt er weiter/fort). at = [x, z] Sitzplatz (Oberfläche wird per Strahl gesucht), talk = Klick
 const WHISKEY_ST = [
   { id: 'start', at: [-44.2, 3.4], when: () => state.started && !ch2.on && !ch3.on && story.main <= 1, done: () => story.main >= 1 || Math.hypot(player.pos.x + 44.2, player.pos.z - 3.4) < 6,
@@ -36,8 +36,9 @@ function whiskey_caw() { const g = whiskey_S.g; Audio.play('crow1', { gain: .7, 
 function whiskey_fly(to, then) {
   const S = whiskey_S, from = S.g.position.clone(), dist = from.distanceTo(to), apex = Math.max(from.y, to.y) + Math.min(8, 2 + dist * .25);
   S.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, apex, (from.z + to.z) / 2), t: 0, dur: Math.max(1.6, dist / 7.5), then };
-  S.mode = 'take'; S.tt = .45; whiskey_play('TakeOff', .08, true, 1.2); whiskey_caw();
+  S.mode = 'take'; S.tt = .45; whiskey_play('TakeOff', .08, true, 1.2); whiskey_caw(); whiskey_noHit(); // im Flug nicht anklickbar
 }
+function whiskey_noHit() { const S = whiskey_S; if (!S.hit) return; uninteract(S.hit); S.hit.position.set(0, -50, 0); }
 function whiskey_tradeTalk() {
   const S = whiskey_S;
   if (!S.named) { S.named = true; subtitle('„Lass den Vogel in Ruhe, Junge. Das ist Whiskey. Sitzt jeden Abend auf meinem Geländer, wenn ich einen trink. Gehört keinem.“', 5600, 'LARS VEGAS (HINTER DER TÜR)'); return; }
@@ -56,7 +57,7 @@ WORLD_MODS.push(['Whiskey', async () => {
     const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g;
     S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) S.A[c.name.replace(/^.*\|/, '')] = S.mx.clipAction(c);
     S.hit = box(.8, .8, .8, 0, -50, 0, hidden, { cast: false });
-    interact(S.hit, () => S.named ? 'Whiskey' : 'Rabe', () => { const st = S.st; if (!st) return; whiskey_caw(); if (typeof st.talk === 'function') return st.talk();
+    interact(S.hit, () => S.named ? 'Whiskey' : 'Rabe', () => { const st = S.st; if (!st || S.mode !== 'perch' || state.talking) return; whiskey_caw(); if (typeof st.talk === 'function') return st.talk();
       S.met.add(st.id); subtitle('<i>' + st.talk + '</i>', Math.max(3600, st.talk.length * 50), 'LUKE'); if (st.id === 'luke' || st.id === 'waldrand') setTimeout(() => whiskey_leave(), 1200); });
     uninteract(S.hit);
     // Justin nach dem Raben fragen (Kapitel 3, ab der dritten Begegnung)
@@ -70,7 +71,7 @@ WORLD_MODS.push(['Whiskey', async () => {
     S.ready = true;
   } catch (e) { console.warn('Whiskey', e); }
 }]);
-function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; const p = S.g.position; whiskey_fly(new THREE.Vector3(p.x + rand(-25, 25), p.y + 18, p.z + rand(-25, 25)), () => { S.g.visible = false; S.mode = 'gone'; }); S.left = S.st; }
+function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; whiskey_noHit(); const p = S.g.position; whiskey_fly(new THREE.Vector3(p.x + rand(-25, 25), p.y + 18, p.z + rand(-25, 25)), () => { S.g.visible = false; S.mode = 'gone'; }); S.left = S.st; }
 WORLD_TICK.push((dt, t) => {
   const S = whiskey_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, g = S.g;
   // aktuelle Station (letzte, deren Bedingung gilt und die nicht erledigt ist)
@@ -95,7 +96,7 @@ WORLD_TICK.push((dt, t) => {
     g.rotation.y += Math.atan2(Math.sin(want - g.rotation.y), Math.cos(want - g.rotation.y)) * Math.min(1, dt * 2.5);
     S.idleT -= dt; if (S.idleT < 0) { S.idleT = rand(2.5, 5); const opts = S.st && S.st.peck ? ['EatSomething', 'EatSomething', 'IdleLookAround'] : ['IdleLookAround', 'IdleScratchWing', 'Hop']; const k = opts[Math.floor(Math.random() * opts.length)]; whiskey_play(S.A[k] ? k : 'IdleLookAround', .3); if (d < 14 && Math.random() < .4) whiskey_caw(); }
     S.hit.position.set(g.position.x, g.position.y + .25, g.position.z);
-    if (S.st && !S.met.has(S.st.id) && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.met.add(S.st.id); whiskey_caw(); } // erste Sichtung
+    if (S.st && !S.seen.has(S.st.id) && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.seen.add(S.st.id); whiskey_caw(); } // erste Sichtung (zählt nicht als Begegnung – die gibt es erst beim Ansprechen)
   }
   S.mx.update(dt);
   // Justin-Frage anbieten

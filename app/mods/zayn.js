@@ -153,19 +153,20 @@ function zayn_drawing() {
   const S = zayn_S; openNote('Kinderzeichnung', 'Buntstift, an die Bretter gepinnt. Drei Kinder: ein blaues, ein rotes, ein kleines grünes am Rand. Darunter die Namen: <b>LUKE · JONAS · ICH</b>.\n\nUnd quer darunter, in Rot, mit viel zu viel Druck:\n<span class="hand">„Versprochen ist versprochen.“</span>', 'zayn_zeichnung', () => {
     if (S.stage < 2 || zayn_has('zayn_versprechen')) return; zayn_stage(4, 'Die Hütte im Wald. Eine Zeichnung: „Versprochen ist versprochen.“ Das alte Radio in der Ecke.');
     story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nDann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.' });
-    state.talking = true; setTimeout(async () => { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
-      ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Dann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.', 6400]]);
-      state.talking = false; if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1000, 3); }, 300); });
+    state.talking = true; setTimeout(async () => { try { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
+      ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Dann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.', 6400]]); } finally { state.talking = false; }
+      if (typeof gedanke === 'function') gedanke('zayn_ich', 'Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.', 1000, 3); }, 300); });
 }
 async function zayn_radio() {
   const S = zayn_S, H = WALD.hut; if (S.radioBusy) return;
   if (zayn_has('zayn_radio')) return toast('Nur noch Rauschen. Und das Summen einer Batterie, die es nicht gibt.', 3000);
   if (!zayn_has('zayn_versprechen')) return toast('Ein altes Kofferradio. Es rauscht leise – obwohl kein Strom da ist und das Batteriefach leer.', 3400);
   S.radioBusy = true; state.talking = true; Audio.radio(H.x + 1.1, H.z - 1.3); if (wald_S.hutLight) wald_S.hutLight.intensity = .6;
+  try { // state.talking wird immer zurückgesetzt
   await say([['*Rauschen* – dann ein Klicken. Eine Aufnahme.', 2600], ['„Ich weiß noch, was ihr gesagt habt.“', 3800, 'ZAYN']]); await wait(1800);
   await say([['„Ihr habt gesagt, ihr holt mich.“', 3800, 'ZAYN']]); Audio.giggle(H.x + 1.1, 1, H.z - 1.3); subtitle('<i>Kinderlachen. Mehrere Kinder. Ganz nah – dann weit weg.</i>', 3000); await wait(3200);
   await say([['„Deshalb hab ich gewartet.“', 4200, 'ZAYN'], ['Die Aufnahme endet.', 2400]]);
-  Audio.radio(H.x + 1.1, H.z - 1.3, true); state.talking = false; S.radioBusy = false;
+  Audio.radio(H.x + 1.1, H.z - 1.3, true); } finally { state.talking = false; S.radioBusy = false; }
   story.lore.push({ key: 'zayn_radio', title: 'Das Radio', html: '„Ich weiß noch, was ihr gesagt habt.“\n„Ihr habt gesagt, ihr holt mich.“\n<i>Kinderlachen.</i>\n„Deshalb hab ich gewartet.“' });
   zayn_stage(5, 'Zayns Stimme im Radio. „Deshalb hab ich gewartet.“ Auf dem Boden der Hütte liegt eine Zeichnung.');
   S.floor.visible = true; interactables.push(S.floorHit); Audio.paper();

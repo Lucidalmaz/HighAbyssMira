@@ -23,7 +23,7 @@ function anwesen_give(i, text) {
   openNote('Schlüsselteil ' + n, text + `\n\n<b>${name}</b>. Eingeschlagen: <b>${n}</b> – und ein Turm über einem Abgrund.`);
   Audio.play('metalHit1', { gain: .25, rate: 1.6 }); questPop('SCHLÜSSELTEIL ' + c + ' / 8', name);
   if (typeof gedanke === 'function' && c === 1) gedanke('anw_erstes', 'Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.', 1500, 3);
-  if (typeof saveGame === 'function') saveGame(anwesen_S.ch4 ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1); return true;
+  if (typeof saveGame === 'function') saveGame(curChapter()); return true;
 }
 // Kleines geschmiedetes Teil (für sichtbare Fundstellen); Unreal-Export „schluesselteil“ ersetzt es
 function anwesen_partMesh(mat) {
@@ -76,11 +76,15 @@ WORLD_MODS.push(['Anwesen', async () => {
     interact(hit, () => anwesen_has(7) ? 'Stuhl 8' : 'Stuhl 8 · unter die Sitzfläche tasten', () => { if (anwesen_has(7)) return toast('Der Stuhl ohne Namen. Die Gurte sind offen.', 2400);
       anwesen_give(7, 'Unter der Sitzfläche von Stuhl 8, dem Stuhl ohne Namen, klebt etwas. Ein schweres Eisenstück, rund, mit einem Loch in der Mitte. Der Kern eines Schlosses.'); }); reg(7, X + 118.6, 0, Z + 4.55); }
   // --- 07 Whiskeys Nest: toter Baum hinter dem Friedhof (ab Kapitel 3; in Kapitel 4 sammelt er dort alles, was du übersehen hast)
+  // Nur der Baum hängt am Laden des Modells; Nest und Interaktion entstehen immer (sonst Sackgasse in Kapitel 4, wenn das Modell fehlt)
   try { const tr = await msModel('deadtree1'); const t = msGround(msFit(tr.clone(true), 5.2, 'y')); t.position.set(-40, 0, 96); t.rotation.y = 1.1; scene.add(t);
     t.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
-    const bark = msSurfMat('bark', { tint: 0x5a4a3a }); const nest = new T.Group(); nest.position.set(-39.62, 1.95, 96.2); scene.add(nest);
-    for (let k = 0; k < 14; k++) { const tw = new T.Mesh(new T.CylinderGeometry(.012, .008, .42, 5), bark); tw.position.set(Math.cos(k * 2.4) * .12, (k % 3) * .025, Math.sin(k * 2.4) * .12); tw.rotation.set(PI / 2 + rand(-.3, .3), k * .45, rand(-.4, .4)); nest.add(tw); }
-    const glint = partMesh(); glint.position.set(0, .06, 0); glint.scale.setScalar(.7); nest.add(glint); nest.userData.noCol = true; S.nest = nest;
+  } catch (e) { console.warn('Anwesen: toter Baum', e); }
+  { let glint = { visible: true };
+    try { const bark = msSurfMat('bark', { tint: 0x5a4a3a }); const nest = new T.Group(); nest.position.set(-39.62, 1.95, 96.2); scene.add(nest);
+      for (let k = 0; k < 14; k++) { const tw = new T.Mesh(new T.CylinderGeometry(.012, .008, .42, 5), bark); tw.position.set(Math.cos(k * 2.4) * .12, (k % 3) * .025, Math.sin(k * 2.4) * .12); tw.rotation.set(PI / 2 + rand(-.3, .3), k * .45, rand(-.4, .4)); nest.add(tw); }
+      glint = partMesh(); glint.position.set(0, .06, 0); glint.scale.setScalar(.7); nest.add(glint); nest.userData.noCol = true; S.nest = nest; S.nestGlint = glint;
+    } catch (e) { console.warn('Anwesen: Nest', e); }
     const hit = box(.6, .5, .6, -39.62, 2.0, 96.2, hidden, { cast: false });
     interact(hit, () => S.ch4 && anwesen_count() < 8 ? 'Whiskeys Nest' : (ch3.on || S.ch4) && !anwesen_has(6) ? 'Nest in der Astgabel' : 'Nest', () => {
       if (S.ch4 && anwesen_count() < 8) { const miss = ANW_TEILE.map((_, i) => i).filter(i => !anwesen_has(i)); for (const i of miss) story.lore.push({ key: 'anw_teil_' + i, title: 'Schlüsselteil ' + ANW_TEILE[i][0], html: 'Aus Whiskeys Nest. Er hat es irgendwo aufgelesen, wo du nicht hingesehen hast.' });
@@ -90,8 +94,7 @@ WORLD_MODS.push(['Anwesen', async () => {
       if (!ch3.on && !S.ch4) return toast('Ein Nest in der Astgabel. Leer. Groß – für einen sehr großen Vogel.', 2800);
       if (anwesen_has(6)) return toast('Kronkorken, Stanniol, eine Kinderspange. Whiskey sammelt, was glänzt.', 3000);
       glint.visible = false; anwesen_give(6, 'Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, eine Kinderspange, ein Ehering – und ein Stück geschmiedetes Eisen. Whiskey sammelt, was glänzt. Oder was man ihm aufträgt.'); });
-    reg(6, -39.62, 0, 96.2);
-  } catch (e) { console.warn('Anwesen: Nest', e); }
+    reg(6, -39.62, 0, 96.2); }
   // --- 06 Lars Vegas (Kapitel 3): gibt das Teil durch den Briefschlitz, sobald du ihm drei Dinge geglaubt hast
   if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { const r = await o(...a);
     if (ch3.on && albers_S.talked.size >= 3 && !anwesen_has(5) && !state.talking) { state.talking = true;
@@ -153,6 +156,15 @@ function anwesen_press() {
     subtitle('Die Presse stampft dreimal. Dann liegt da ein Schlüssel, so lang wie deine Hand. Sieben Zähne – und eine Lücke, wo der achte sein müsste.', 5600); }, 4200);
 }
 applySave = (o => d => { o(d); const S = anwesen_S; S.key = story.items.includes('villaschluessel'); try { anwesen_sockets(); } catch (e) {} })(applySave);
+// Spielstand Kapitel 4: Tür offen, Halle betreten, gesehene Dinge. Weiterspielen in der Halle setzt dort fort; das Ende an der Treppe lässt sich erneut auslösen (nie Sackgasse)
+MOD_SAVE.push(['anwesen', () => ({ open: !!anwesen_S.open, inHall: !!anwesen_S.inHall, hallDone: !!anwesen_S.hallDone, seen: [...anwesen_S.seen], knocked: !!anwesen_S.knocked }),
+  v => { const S = anwesen_S; S.open = !!v.open; S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; }]);
+if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { // nach dem Platzieren beim Weiterspielen
+  const S = anwesen_S, H = ANW_HALL; if (d.chapter < 4) return;
+  const inHall = at && Math.abs(at.x - H.x) < H.w && Math.abs(at.z - H.z) < H.d;
+  if (S.pendingHall || inHall) { if (!inHall) { player.pos.set(H.x, 0, H.z - H.d / 2 + 1.2); player.yaw = PI; } S.open = true; S.inHall = true; S.hallT = 0; if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; Audio.setArea(true, false); setC3('Die Villa Seiler. Sieh dich um.'); }
+  else S.open = false; // Tür offen, aber draußen gespeichert → Tür wieder benutzbar
+  S.pendingHall = false; });
 function anwesen_sockets() { const S = anwesen_S; S.sockets.forEach((s, i) => s.material.emissiveIntensity = anwesen_in(i) ? 2.2 : 0); S.lock.forEach((d, i) => d.material.opacity = S.key ? .9 : 0); }
 function anwesen_door() {
   const S = anwesen_S; Audio.knock();
@@ -166,7 +178,7 @@ function anwesen_door() {
 // ---- Kapitel 4
 const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus, wie an jedem Morgen. Als wäre nichts gewesen.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
-  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4');
+  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); setChapter(4);
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
   ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
   state.zone = null; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
@@ -188,8 +200,9 @@ async function startChapter4() { // Weiterspielen / Kapitel wählen
 async function anwesen_enterHall() {
   const S = anwesen_S, H = ANW_HALL; state.talking = true; Audio.play('ironDoor', { gain: .5, rate: .7 }); Audio.creak(.3);
   for (let k = 0; k < 8; k++) setTimeout(() => Audio.play('metalHit1', { gain: .15, rate: 1.4 + k * .05 }), 300 + k * 180);
-  await fade(1, 1200); player.pos.set(H.x, 0, H.z - H.d / 2 + 1.2); player.yaw = PI; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
-  Audio.setArea(true, false); await wait(300); await fade(0, 1200); state.talking = false; S.inHall = true; S.hallT = 0;
+  try { await fade(1, 1200); player.pos.set(H.x, 0, H.z - H.d / 2 + 1.2); player.yaw = PI; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
+    S.inHall = true; S.hallT = 0; Audio.setArea(true, false); await wait(300); await fade(0, 1200); } finally { state.talking = false; if (+$('fade').style.opacity > 0) fade(0, 600); }
+  if (typeof todCheckpoint === 'function') todCheckpoint('villa_halle', 'Die Villa Seiler'); else saveGame(4);
   setC3('Die Villa Seiler. Sieh dich um.');
   subtitle('<i>Hinter dir fällt die Tür ins Schloss. Acht Riegel. Einer nach dem anderen.</i>', 4200);
   story.lore.push({ key: 'anw_halle', title: 'Die Villa Seiler', html: 'Acht Teile, eine Presse, ein Schlüssel. Hinter der Tür: die Eingangshalle eines Hauses, in dem seit 2019 niemand mehr gewohnt hat. Oben brennt Licht.' });
@@ -290,9 +303,9 @@ async function anwesen_hallEnd() {
   const S = anwesen_S; if (S.hallDone) return;
   if (S.seen.size < 2) return toast('Die Treppe ist auf halber Höhe eingebrochen. Oben brennt Licht. Irgendwo muss es einen anderen Weg geben – sieh dich erst hier unten um.', 4200);
   S.hallDone = true; state.talking = true;
-  await say([['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600], ['Eine Spieluhr. Dieselbe Melodie wie in Lucys Zimmer.', 3400],
-    ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah:', 3600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?']]);
-  if (Audio.musicBox) Audio.musicBox(); state.talking = false; saveGame(4);
+  try { await say([['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600], ['Eine Spieluhr. Dieselbe Melodie wie in Lucys Zimmer.', 3400],
+    ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah:', 3600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?']]); } finally { state.talking = false; }
+  if (Audio.musicBox) Audio.musicBox(); saveGame(4);
   state.ending = true; Audio.hum(false); $('endcard').querySelector('h1').textContent = 'KAPITEL 4 · DIE VILLA';
   $('endcard').querySelector('p').innerHTML = 'Die Villa Seiler hat ihr erstes Geheimnis preisgegeben.<br>Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.';
   $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; $('endcard').querySelector('.next').textContent = 'HIGH ABYSS MIRA · KAPITEL 4 WIRD FORTGESETZT';

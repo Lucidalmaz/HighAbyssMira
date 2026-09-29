@@ -86,9 +86,10 @@ const HUNGRIGE_SEITEN = {
 function hungrige_seite(i) {
   const [t, txt] = HUNGRIGE_SEITEN[i], k = 'hungrige_seite_' + i, html = '<span class="hand">' + txt + '</span>', neu = !story.lore.some(l => l.key === k);
   if (neu) { Audio.paper(); story.lore.push({ key: k, title: 'Der Hungrige · ' + t, html }); }
-  openNote(t, html, null, () => { if (!neu) return;
-    if (i === 1) hungrige_done('spuren', 'Das war kein Wolf. Wölfe fressen. Das hier hat … probiert. Und daneben liegt ein Dienstbuch vom Amt, als hätte es jemand abgelegt. Für mich.');
-    else { hungrige_done('bau', 'Es frisst die Abdrücke. Die Erinnerungen, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); setTimeout(() => hungrige_finale(), 2600); } });
+  // Fortschritt hängt am Stand (hungrige_has), nicht daran, ob die Seite neu war – ging der Rückruf verloren (Tod, Laden), holt ihn das nächste Lesen nach
+  openNote(t, html, null, () => {
+    if (i === 1) { if (!hungrige_has('spuren')) hungrige_done('spuren', 'Das war kein Wolf. Wölfe fressen. Das hier hat … probiert. Und daneben liegt ein Dienstbuch vom Amt, als hätte es jemand abgelegt. Für mich.'); }
+    else { if (!hungrige_has('bau')) hungrige_done('bau', 'Es frisst die Abdrücke. Die Erinnerungen, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); hungrige_S.finT = 2.6; } }); // das Finale startet der Takt
 }
 // ---------------------------------------------------------------- Aufbau: Fraßstelle, Bau, Modelle
 WORLD_MODS.push(['Der Hungrige', async () => {
@@ -116,6 +117,7 @@ WORLD_MODS.push(['Der Hungrige', async () => {
   } catch (e) { console.warn('Hungrige: Bau', e); }
   // --- Hirsch ins Tierregister von leben.js (für leben_beast)
   try { if (typeof leben_S !== 'undefined' && leben_S.M && !leben_S.M.stag) { const sc = await msModel('animal_deerstag', 'model.glb'); leben_shrink(sc, 1024); leben_S.M.stag = { src: sc, clips: sc.animations || [] }; } } catch (e) { console.warn('Hungrige: Hirsch', e); }
+  { const L = new VLight(0xdfe9ff, 0, 10, 1.6); L.position.set(0, -60, 0); scene.add(L); S.ravenL = L; } // Whiskeys Licht im Finale: jetzt anlegen, später nur Intensität
   S.ready = true;
 }]);
 // ---------------------------------------------------------------- Die Begegnungen (jede genau einmal, in dieser Reihenfolge freigeschaltet)
@@ -225,13 +227,20 @@ function hungrige_flyTo(V, to, dur, apex = 3) { const from = V.g.position.clone(
 function hungrige_flyTick(V, dt) { const F = V.fl; if (!F) return false; F.t += dt; const k = Math.min(1, F.t / F.dur), a = new THREE.Vector3().lerpVectors(F.from, F.ctrl, k), b = new THREE.Vector3().lerpVectors(F.ctrl, F.to, k), p = new THREE.Vector3().lerpVectors(a, b, k);
   const dx = p.x - V.g.position.x, dz = p.z - V.g.position.z; if (dx * dx + dz * dz > 1e-6) V.g.rotation.y = Math.atan2(dx, dz); V.g.position.copy(p); if (k >= 1) { V.fl = null; return true; } return false; }
 async function hungrige_finale() {
-  const S = hungrige_S, W = new THREE.Vector3(), wait_ = ms => new Promise(r => setTimeout(r, ms)); if (S.finale || S.cine) return; const D = await hungrige_loadDT(); if (!D) { S.finale = true; return; }
-  if (state.talking || ui.overlay) { setTimeout(() => hungrige_finale(), 1500); return; }
-  const P = HUNGRIGE.pfahl, B = HUNGRIGE.bau, top = (S.fix.pfahlTop || 1.6) + .38; const A = hungrige_raven(false), Bv = hungrige_raven(true); if (!A || !Bv) { S.finale = true; return; }
+  const S = hungrige_S, W = new THREE.Vector3(), wait_ = wait; if (S.finale || S.cine || S.finBusy) return; S.finBusy = true; // Spielzeit: steht bei Pause
+  try { await hungrige_finaleRun(S, W, wait_); } catch (e) { console.error('Hungrige: Finale', e); }
+  finally { S.finBusy = false; if (S.cine) { try { hungrige_off(S.cine.A); hungrige_off(S.cine.B); hungrige_dtHide(); } catch (e) {} S.cine = null; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (typeof whiskey_S !== 'undefined' && whiskey_S.g) whiskey_S.g.visible = true; hungrige_finaleSkip(); } }
+}
+// Finale nicht spielbar (Modell fehlt, Fehler mitten drin): Aufgabe trotzdem abschließen – nie eine offene Nebenaufgabe ohne Weg
+function hungrige_finaleSkip() { const S = hungrige_S; if (S.finale) return; S.finale = true; try { sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); } catch (e) {} }
+async function hungrige_finaleRun(S, W, wait_) {
+  const D = await hungrige_loadDT(); if (!D) return hungrige_finaleSkip();
+  if (state.talking || ui.overlay) { S.finT = 1.5; return; } // der Takt versucht es gleich noch einmal
+  const P = HUNGRIGE.pfahl, B = HUNGRIGE.bau, top = (S.fix.pfahlTop || 1.6) + .38; const A = hungrige_raven(false), Bv = hungrige_raven(true); if (!A || !Bv) { hungrige_off(A); hungrige_off(Bv); return hungrige_finaleSkip(); }
   const C = S.cine = { A, B: Bv, t: 0, look: new THREE.Vector3(P.x, top, P.z), lookK: 2, light: null, dt: D, ph: 'in' };
   state.talking = true; dir.busy = true; if (hungrige_S.ev) { try { hungrige_S.ev.end(); } catch (e) {} hungrige_S.ev = null; }
   const real = typeof whiskey_S !== 'undefined' && whiskey_S.g; if (real) real.visible = false;
-  const L = new THREE.PointLight(0xdfe9ff, 0, 10, 1.6); L.position.y = .25; A.g.add(L); C.light = L;
+  C.light = S.ravenL; // beim Laden angelegt (Intensität 0) – folgt dem Raben im Takt, kein neues Licht zur Laufzeit
   // 1) Whiskey fliegt über dich hinweg und landet auf dem Pfahl
   const f = flatDir(); A.g.position.set(player.pos.x - f.x * 9, 5.5, player.pos.z - f.z * 9); A.g.visible = true; hungrige_flyTo(A, W.set(P.x, top, P.z), 2.6, 2.5); Audio.flap(player.pos.x, 3, player.pos.z); setTimeout(() => Audio.caw(P.x, top, P.z), 900);
   await wait_(2700); leben_play(A, 'Landing', .1, 1, true); await wait_(700); leben_play(A, 'IdleLookAround', .3);
@@ -267,7 +276,7 @@ async function hungrige_finale() {
   await say([['Er hat ihn vertrieben. Nicht ich – er.', 2600, 'LUKE'], ['„Er gehörte meiner Frau. Er findet immer heim. Zu ihr.“ … Das hat der Ritter gesagt.', 3800, 'LUKE'], ['Und der Hungrige weiß, wem du gehörst, Whiskey. Deshalb hat er Angst.', 3400, 'LUKE']]);
   // 6) Ende: der Rabe fliegt auf, der echte Whiskey ist wieder da
   leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); hungrige_flyTo(A, W.set(P.x - 8, 9, P.z - 12), 2.2, 4); await wait_(2300); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true;
-  S.cine = null; S.finale = true; state.talking = false; dir.busy = false; lightBoost = 0; if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = 0;
+  S.cine = null; S.finale = true; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = 0;
   story.lore.push({ key: 'hungrige_enthuellung', title: 'Der Hungrige · Die Enthüllung', html: 'Zwei Raben am Bau hinter dem Wrack. Der zweite atmete nicht und war spiegelverkehrt – und er sagte „Großer“ mit Lucys Stimme. Dann riss er auf: die Federn fielen, der Hals wurde lang, und aus dem Vogel stieg das, was Bergungstrupp 3 im Juli 1992 aus der Senke geholt hat.\n\nWhiskey hat ihn vertrieben. Mit Licht, das er nicht selbst hat: Es gehört der Frau, der er gehört. Der Hungrige ist nicht tot. Aber er weiß jetzt, wer zu wem gehört.' });
   sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); questPop('KAPITEL 6', 'Der Hungrige');
   if (typeof gedanke === 'function') gedanke('hungrige_finale', 'Whiskey gehört zu ihr. Zu der Frau mit der Laterne. … Sie kommt noch. Und der Hungrige hat es vor mir gewusst.', 6000, 3);
@@ -293,13 +302,16 @@ function hungrige_cineTick(dt) {
       if (C.ph === 'flee') { g.position.x -= dx / L * dt * 7; g.position.z -= dz / L * dt * 7; g.position.y -= dt * .35; g.rotation.y += dt * 1.4; } }
     C.look.set(g.position.x, g.position.y + 1.7 * g.scale.x, g.position.z); if (C.ph === 'attack' || C.ph === 'flash') C.look.lerp(A.g.position, .35); }
   // Whiskeys Licht: wächst mit jedem Stoß, blendet beim dritten
-  if (C.light) { const want = C.ph === 'attack' ? 1.5 + (C.dive || 0) * 2.2 : C.ph === 'flash' ? 9 : C.ph === 'flee' ? 4 : 0; C.light.intensity += (want - C.light.intensity) * Math.min(1, dt * 3); }
+  if (C.light) { C.light.position.set(A.g.position.x, A.g.position.y + .25, A.g.position.z); const want = C.ph === 'attack' ? 1.5 + (C.dive || 0) * 2.2 : C.ph === 'flash' ? 9 : C.ph === 'flee' ? 4 : 0; C.light.intensity += (want - C.light.intensity) * Math.min(1, dt * 3); }
   if (C.ph === 'flash') { lightBoost = Math.max(0, 1.2 - C.t * .35); if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = Math.max(0, .8 - C.t * .4); } else if (C.ph === 'flee') lightBoost = Math.max(0, lightBoost - dt * .4);
 }
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {
   const S = hungrige_S; if (!S.ready || !state.started || menu.attract) return;
   if (S.cine) { hungrige_cineTick(dt); return; }
+  // Finale (wieder) anstoßen: Bau gelesen, Finale fehlt – auch nach Tod, Laden oder verlorenem Rückruf; nur in der Nähe des Baus
+  if (hungrige_has('bau') && !S.finale && !S.finBusy) { S.finT = (S.finT ?? 2) - dt; const B = HUNGRIGE.bau;
+    if (S.finT <= 0) { S.finT = 3; if (Math.hypot(player.pos.x - B.x, player.pos.z - B.z) < 28 && !S.ev) hungrige_finale(); } }
   if (S.ev) { let on = true; try { on = S.ev.tick(dt); } catch (e) { console.warn('Hungrige', S.ev.id, e); on = false; } if (!on) { try { S.ev.end(); } catch (e) { console.warn('Hungrige Ende', e); } S.ev = null; S.cool = rand(70, 110); } return; }
   if (!S.corpse && typeof leben_S !== 'undefined' && leben_S.ready && leben_S.M && leben_S.M.deer) { S.corpse = true; try { const V = leben_beast('deer', 1); const Q = HUNGRIGE.spuren; V.g.position.set(Q.x + .4, Math.max(0, solidGround(Q.x + .4, .6, Q.z + .3)), Q.z + .3); V.g.rotation.y = 2.3; V.g.visible = true;
       leben_play(V, 'Death', 0, 1, true); V.mx.update(6); V.m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); S.corpseV = V; } catch (e) { console.warn('Hungrige: Kadaver', e); } }

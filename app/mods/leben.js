@@ -58,15 +58,15 @@ function leben_hiss(x, y, z) { // Katze im Dunkeln: Fauchen
   n.connect(bp); Audio.env(bp, .22, .035, .55, 0, d); n.stop(ctx.currentTime + 1.2);
 }
 function leben_bellStrike(amp, damp) { // Kapellenglocke: Schlagton, Unteroktave, kleine Terz, Quinte, Oktave … (leicht schwebend)
-  if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, C = leben_CHAPEL; let dest = Audio.at(C.x, C.y, C.z, 34);
-  if (isIndoor()) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650; lp.connect(dest); dest = lp; }
+  if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, C = leben_CHAPEL; const dest = Audio.at(C.x, C.y, C.z, 34); if (Audio.cut) return; // drinnen: dumpf durch die Wand (Audio.at)
   const f = 196;
   for (const [m, a, dc] of [[.5, .42, 9], [1, .5, 7], [1.19, .3, 5.5], [1.5, .2, 3.8], [2, .42, 4.5], [2.51, .14, 2.4], [3.01, .09, 1.7], [4.03, .05, 1.1]])
     for (const det of [-.21, .23]) { const len = damp ? .7 : dc; const o = Audio.osc('sine', f * m + det * m, 0, len + .3); Audio.env(o, amp * a * .5, .003, damp ? len * .6 : dc, 0, dest); }
   const n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500; bp.Q.value = 1.3; n.connect(bp); Audio.env(bp, amp * .22, .002, .07, 0, dest); n.stop(ctx.currentTime + .4);
 }
-function leben_hush(sec) { // plötzliche Stille: Grillen und Wind setzen aus
-  if (!Audio.ctx || !Audio.crickets) return; const t = Audio.ctx.currentTime;
+function leben_hush(sec) { // plötzliche Stille: die Regie hält alle Geräusch-Planer an, Regen und Wind sinken auf 0,2
+  if (!Audio.ctx) return; if (typeof spannung_hush === 'function') return spannung_hush(sec);
+  if (!Audio.crickets) return; const t = Audio.ctx.currentTime;
   Audio.crickets.gain.cancelScheduledValues(t); Audio.crickets.gain.setTargetAtTime(0, t, .06);
   Audio.wind.gain.cancelScheduledValues(t); Audio.wind.gain.setTargetAtTime(Audio.area === 'o' ? .1 : .03, t, .25);
   setTimeout(() => { try { Audio.setArea(isIndoor(), state.inBasement); } catch (e) {} }, sec * 1000);
@@ -106,7 +106,7 @@ WORLD_TICK.push((dt, t, indoor) => { if (leben_S.ok) leben_tick(dt, t, indoor); 
 
 // Echte Tiere (Unreal ANIMAL VARIETY PACK, assets/ms/animal_*): laden, Texturen auf 1024² verkleinern (2048² × 3 je Tier wäre zu viel Grafikspeicher)
 function leben_shrink(root, px) { const done = new Set(); root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap']) {
-    const t = m[k]; if (!t || !t.image || t.isCompressedTexture || done.has(t)) continue; // komprimierte (KTX2) sind schon klein genug done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue;
+    const t = m[k]; if (!t || !t.image || t.isCompressedTexture || done.has(t)) continue; done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue; // komprimierte (KTX2) sind schon klein genug
     const c = document.createElement('canvas'), f = px / Math.max(w, h); c.width = Math.round(w * f); c.height = Math.round(h * f); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); t.image = c; t.needsUpdate = true; } }); }
 async function leben_loadModels() {
   const S = leben_S; S.M = {};
@@ -938,6 +938,8 @@ const leben_EV = {
     const h = H[Math.floor(Math.random() * H.length)]; leben_shutter(h.g.position.x + rand(-4, 4), h.g.position.z + (h.o.facing ?? 1) * (h.o.d ?? 9) / 2); return true; },
 };
 const leben_EVW = [['dog', 1, 240], ['car', .9, 300], ['chains', .7, 140], ['giggle', .5, 300], ['silence', .45, 220], ['crowsTurn', .6, 160], ['swingFreeze', .6, 180], ['ratRun', .6, 120], ['shutter', 1, 50]];
+// Familie und Klasse für die Regie (spannung): Unerklärliches ist „minor“, Nachbarschaftsgeräusche sind Umgebung
+const leben_EVR = { dog: ['dogcut', 'minor'], car: ['car', 'minor'], chains: ['chains', 'minor'], giggle: ['giggle', 'minor'], silence: ['silence', 'minor'], crowsTurn: ['crows', 'minor'], swingFreeze: ['swing', 'minor'], ratRun: ['rats', 'amb'], shutter: ['shutter', 'amb'] };
 function leben_farTick(dt, t, c1, live) {
   const S = leben_S, F = S.far;
   if (F.car) leben_carTick(dt);
@@ -945,10 +947,11 @@ function leben_farTick(dt, t, c1, live) {
   for (const k in F.cd) F.cd[k] -= dt;
   F.T = (F.T ?? rand(30, 50)) - dt; if (F.T > 0) return;
   if (nat.calm > 0 || dir.busy) { F.T = 4; return; }
-  let sum = 0; for (const [k, w] of leben_EVW) if (!(F.cd[k] > 0)) sum += w;
-  for (let tries = 0; tries < 3; tries++) { let r = Math.random() * sum, pick = null; for (const e of leben_EVW) { if (F.cd[e[0]] > 0) continue; r -= e[1]; if (r <= 0) { pick = e; break; } }
+  const reg = typeof spannung_can === 'function', allow = k => !(F.cd[k] > 0) && (!reg || spannung_can(leben_EVR[k][0], leben_EVR[k][1])); // Regie fragen
+  let sum = 0; for (const [k, w] of leben_EVW) if (allow(k)) sum += w;
+  for (let tries = 0; tries < 3 && sum > 0; tries++) { let r = Math.random() * sum, pick = null; for (const e of leben_EVW) { if (!allow(e[0])) continue; r -= e[1]; if (r <= 0) { pick = e; break; } }
     if (!pick) break; let ok = false; try { ok = leben_EV[pick[0]](); } catch (e) { console.warn('leben:', pick[0], e); }
-    if (ok) { F.cd[pick[0]] = pick[2]; F.T = rand(32, 58); nat.calm = Math.max(nat.calm, 8); return; } }
+    if (ok) { F.cd[pick[0]] = pick[2]; F.T = rand(32, 58); nat.calm = Math.max(nat.calm, 8); if (reg) spannung_did(...leben_EVR[pick[0]]); return; } }
   F.T = 6;
 }
 function leben_carTick(dt) {

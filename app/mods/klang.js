@@ -1,8 +1,10 @@
 // =====================================================================  KLANG (Modul „klang“): Musik je Ort, Tierstimmen der Jahreszeit, Schritte je Untergrund, Türen, Gegenstände
 // Musik: eigens komponierte Stücke, beim Start einmalig im Hintergrund zu Audiospuren gerendert (OfflineAudioContext – kostet zur Laufzeit nichts).
 // Leitmotiv ist Lucys Spieluhr (E – D – C – H – C). Jedes Stück hat seinen Ort; beim Ortswechsel blendet die Musik langsam über.
-// Regel: nie überladen, nie tot still. Musik ist leise und hat Luft; dazwischen trägt die Umgebung (Regen, Wind, Tiere).
-// Novembernacht, Regen: keine Grillen – dafür Waldkauz, Fuchs, Krähen, ferne Hunde, tropfende Dachrinnen, knackendes Totholz.
+// Regel: nie überladen. Musik ist leise und hat Luft; dazwischen trägt die Umgebung (Regen, Wind, Tiere) – und oft einfach Stille.
+// Novembernacht, Regen: keine Grillen, keine Frösche – dafür Waldkauz, Fuchs, Rehe, ferne Hunde, tropfende Dachrinnen, knackendes Totholz.
+// Jeder Ort hat seine Klangidentität (Haus: Holz, Rohre, Strom, Fenster · Keller: Wasser, Rohre, Metall, Beton-Hall · Wald: Wind, Laub, Äste, Tiere).
+// Alle Umgebungsereignisse fragen vorher die Regie (Modul spannung): Budget je Minute, Abstand je Familie, Stille nach Schrecken.
 const klang_S = { pending: [], tracks: {}, rendering: false, menu: null, menuG: null, dream: null, area: 'ort', areaT: 0, ambT: 10 };
 const KN = n => { const m = /^([A-G])(#|b)?(-?\d)$/.exec(n), i = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 }[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); return 440 * Math.pow(2, (i + (m[3] - 4) * 12) / 12); };
 // ---------------------------------------------------------------- Instrumente (für jeden Kontext, auch offline)
@@ -75,9 +77,19 @@ const KL_PIECES = [
     KL_MOTIV.forEach((n, i) => KI.glass(c, o, 20 + i * 2.2, KN(n), 4, .02)); }],
   ['traum', 64, null, null, .9, (c, o) => { KI.pad(c, o, 0, [KN('A3'), KN('E4'), KN('C5')], 64, .02, 2400); KI.wind(c, o, 0, 64, .02); KI.drone(c, o, 0, [KN('A1')], 64, .04);
     let t = 6; for (let rep = 0; rep < 2; rep++) { KL_MOTIV.forEach((n, i) => { KI.box(c, o, t, KN(n) * (1 - rep * .02), .07); t += .9 + i * .1; }); t += 9; }
-    KI.choir(c, o, 22, [KN('A3'), KN('E4')], 26, .02); KI.bell(c, o, 50, KN('A2'), .1, 10); }]];
+    KI.choir(c, o, 22, [KN('A3'), KN('E4')], 26, .02); KI.bell(c, o, 50, KN('A2'), .1, 10); }],
+  // Lauern (Keller Nr. 7): tiefer Grund, einzelne tropfende Zupftöne, eine ferne Glocke – und drei Töne der Spieluhr, die abbrechen
+  ['lauern', 52, 'uneasy', 'keller', .8, (c, o) => { KI.drone(c, o, 0, [KN('D1') * 2, KN('Eb2')], 52, .05); KI.bow(c, o, 4, KN('D2'), 40, .025, 500);
+    for (let t = 6; t < 46; t += 5 + Math.random() * 5) KI.pluck(c, o, t, KN(['D5', 'Eb5', 'A4'][Math.floor(Math.random() * 3)]), .02, 2.4);
+    KI.bell(c, o, 14, KN('Eb3'), .06, 10); KI.glass(c, o, 26, KN('D6'), 12, .008); KL_MOTIV.slice(0, 3).forEach((n, i) => KI.box(c, o, 38 + i * 1.3, KN(n) * .94, .035)); }],
+  // Gefahr (Schleife, jeder Ort): Herzschlag-Puls aus Pauke und Subbass, zwei reibende Celli (A/B), die sich nach oben schieben, Col-legno-Klopfen, hohes Glas
+  ['gefahr', 48, 'danger', null, .85, (c, o) => { const beat = .8;
+    for (let k = 0; k * beat < 47.5; k++) { const t = k * beat; KI.knock(c, o, t, k % 2 ? .09 : .17); if (k % 2 === 0) { const s = KI.osc(c, 'sine', 52, t, .7), g = KI.env(c, t, .005, .24, .55); s.frequency.setValueAtTime(52, t); s.frequency.exponentialRampToValueAtTime(37, t + .4); s.connect(g); g.connect(o); } }
+    KI.bow(c, o, 0, KN('A1'), 48, .05, 600); KI.bow(c, o, 0, KN('Bb1'), 48, .04, 600); KI.bow(c, o, 8, KN('E2'), 40, .03, 900); KI.bow(c, o, 18, KN('F2'), 30, .025, 1100);
+    for (let t = 3; t < 44; t += 2.4 + Math.random() * 1.6) KI.pluck(c, o, t, KN(['A3', 'Bb3', 'E4'][Math.floor(Math.random() * 3)]), .03, .5);
+    KI.glass(c, o, 20, KN('Bb5'), 14, .01); KI.glass(c, o, 22, KN('A5'), 14, .01); KI.bow(c, o, 30, KN('A4'), 16, .012, 4000); }]];
 async function klang_render(name) {
-  const P = KL_PIECES.find(p => p[0] === name); if (!P || klang_S.tracks[name]) return klang_S.tracks[name]; const sr = 32000, c = new OfflineAudioContext(2, Math.ceil(sr * (P[1] + 5)), sr);
+  const P = KL_PIECES.find(p => p[0] === name); if (!P || klang_S.tracks[name]) return klang_S.tracks[name]; const sr = 32000, c = new OfflineAudioContext(2, Math.ceil(sr * (P[1] + (P[2] === 'danger' ? 0 : 5))), sr); // Gefahr läuft als Schleife: ohne Ausklang
   const o = KI.chain(c, name === 'amt' ? .35 : .5, name === 'kanal' || name === 'weiss' ? 7 : 5.5); P[5](c, o); const b = await c.startRendering(); klang_level(b); klang_S.tracks[name] = b; return b;
 }
 // Lautheit angleichen: jedes Stück auf dieselbe mittlere Lautstärke (RMS 0,042), Spitzen nie über 0,7 – kein Ort zu leise, keiner zu laut
@@ -97,19 +109,44 @@ async function klang_renderAll() {
 function klang_area() {
   const P = player.pos;
   if (state.zone === 'canal') return 'kanal'; if (ch3.on && ch3.part === 'white') return 'weiss';
-  if (state.inBasement || P.x > 250) return 'amt'; if (P.x < -800) return 'villa';
+  if (state.inBasement || P.x > 250) return Math.hypot(P.x - B.x, P.z - B.z) < 60 ? 'keller' : 'amt'; if (P.x < -800) return 'villa';
   if (P.x < -104 && P.x > -146 && P.z > 46 && P.z < 92) return 'villa';
   if (P.z > 97 && P.x > -44 && P.x < 114) return 'wald';
   if (Math.hypot(P.x + 48, P.z - 80) < 24) return 'friedhof';
   return 'ort';
 }
-// Untergrund unter den Füßen (für die Schritte)
+// Hall des Ortes (Audio.setRoom): Wohnräume klein, Keller/Amt Beton, Villa/Kanal Halle, draußen kurz – an den Fraßstellen gar keiner
+function klang_reverb() {
+  const P = player.pos; if (typeof spannung_silent === 'function' && spannung_silent()) return 'dead';
+  if (state.zone === 'canal' || P.x < -800) return 'hall'; if (state.inBasement || P.x > 250) return 'concrete';
+  if (ch3.on && ch3.part === 'white') return 'hall'; return isIndoor() ? 'small' : 'out';
+}
+// ---------------------------------------------------------------- Böden (Schritte des Spielers und aller anderen: Audio.stepAt fragt hier nach)
+// [x0, x1, z0, z1, Belag] – erster Treffer zählt (Teppich vor dem Raum)
+const KL_FLOORS = [[20.9, 24.1, -16.1, -13.9, 'carpet'], // Nr. 7: Teppich vor dem Sofa
+  [20, 26, -17, -12, 'wood'], [26, 32, -17, -12, 'tile'], [20, 26, -22, -17, 'carpet'], [26, 32, -22, -17, 'tile'], // Nr. 7: Wohnzimmer (Dielen), Küche, Schlafzimmer, Hauswirtschaftsraum
+  [-56, -50, -17, -12, 'tile'], [-50, -44, -17, -12, 'wood'], [-56, -50, -22, -17, 'wood'], [-50, -44, -22, -17, 'carpet'], // Nr. 1: Küche, Wohnzimmer, Kinderzimmer (lose Diele), Eltern
+  [106, 118, 25, 31, 'tile'], [97, 128, 4, 31, 'hard'], // Kiosk (Fliesen), Tankstelle (Betonplatten)
+  [43.6, 48.8, 247.6, 252.6, 'wood']]; // Steg am Weiher
+// Amt (Kapitel 2) je Raum ab C2.x: Tunnel nass, Archiv Linoleum, Sicherungsraum/Spinnenraum Beton, langer Gang Linoleum, Messraum Beton mit Gitterrost am Tank
+const KL_AMT = [[0, 18, 'wet'], [18, 30, 'tile'], [30, 46, 'hard'], [46, 106, 'tile'], [106, 122, 'hard']];
+function klang_floor(x, z) {
+  if (x > 250) { if (Math.hypot(x - B.x, z - B.z) < 60) return 'hard'; const d = x - C2.x; if (Math.hypot(x - C2.x - 118, z - C2.z - 6) < 2.4) return 'metal';
+    for (const A of KL_AMT) if (d >= A[0] && d < A[1]) return A[2]; return 'hard'; }
+  for (const F of KL_FLOORS) if (x > F[0] && x < F[1] && z > F[2] && z < F[3]) return F[4];
+  if (x < -800) return 'wood'; // Villa Seiler, Halle
+  if (typeof WALD !== 'undefined' && Math.abs(x - WALD.hut.x) < 1.8 && Math.abs(z - WALD.hut.z) < 2) return 'wood'; // Zayns Hütte
+  if (z > 97 && x > -44 && x < 114) return 'leaves';
+  if (x < -104 && x > -146 && z > 46 && z < 92) return 'gravel';
+  return isWalk(x, z) ? 'wet' : 'grass';
+}
+// Untergrund unter den Füßen des Spielers
 function klang_surface(indoor) {
-  const P = player.pos; if (state.zone === 'canal') return 'water'; if (state.inBasement || P.x > 250) return 'hard';
-  if (indoor) return 'wood'; if (P.y > 1.2) return 'wood'; // Baumhaus, Treppen
-  if (P.z > 97 && P.x > -44 && P.x < 114) return 'leaves';
-  if (P.x < -104 && P.x > -146 && P.z > 46 && P.z < 92) return 'gravel';
-  return isWalk(P.x, P.z) ? 'wet' : null; // null: wie bisher (Gras)
+  const P = player.pos; if (state.zone === 'canal') return 'water';
+  if (P.y > 1.2 && !state.inBasement && typeof WALD !== 'undefined' && (Math.hypot(P.x - WALD.tree.x, P.z - WALD.tree.z) < 3 || (typeof TIEF !== 'undefined' && Math.hypot(P.x - TIEF.stand.x, P.z - TIEF.stand.z) < 3))) return 'wood'; // Baumhaus, Hochsitz
+  const f = state.inBasement && P.x < 250 ? 'hard' : klang_floor(P.x, P.z);
+  if (indoor && !state.inBasement && (f === 'wet' || f === 'grass' || f === 'leaves' || f === 'gravel')) return 'wood'; // andere Innenräume (Treppen …)
+  return f;
 }
 // ---------------------------------------------------------------- Tiere und Umgebung (synthetisch, wo keine Aufnahme da ist)
 Object.assign(Audio, {
@@ -130,26 +167,94 @@ Object.assign(Audio, {
     if (open) { this.play('woodMisc1', { gain: .35, rate: 1.2, ...o }); this.play('doorCreak', { gain: .28, rate: rand(.85, 1.05), offset: rand(0, .4), dur: rand(1.1, 1.7), delay: .08, ...o }); }
     else { this.play('doorCreak', { gain: .18, rate: rand(1.1, 1.3), dur: .5, ...o }); this.play(this.pick('woodClose1', 'woodClose2'), { gain: .5, delay: .38, ...o }); } },
 });
-// Schritte: nasser Asphalt, Laub, Kies, Wasser – zusätzlich zu Holz, Beton und Gras
-{ const base = Audio.step.bind(Audio); Audio.step = function (s) { if (!this.ctx) return;
-    if (s === 'wet') { this.play(this.pick('stepWet1', 'stepWet2', 'stepWet3'), { gain: .34, vary: .07, varyGain: .25 }); if (Math.random() < .12) this.play('waterLoop', { gain: .06, offset: rand(0, 3), dur: .25, rate: 1.3, hp: 600 }); return; }
-    if (s === 'water') { this.play(this.pick('stepWet1', 'stepWet2', 'stepWet3'), { gain: .42, vary: .1, rate: .85 }); this.play('waterLoop', { gain: .14, offset: rand(0, 4), dur: .35, rate: rand(.9, 1.2) }); return; }
-    if (s === 'leaves') { this.play(this.pick('stepG1', 'stepG2', 'stepG3'), { gain: .32, vary: .12, varyGain: .3 }); const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2500, 4200); bp.Q.value = .8; n.connect(bp); this.env(bp, .05, .01, .16); n.stop(this.ctx.currentTime + .3);
-      if (Math.random() < .05) this.twig(player.pos.x + rand(-.4, .4), player.pos.z + rand(-.4, .4)); return; }
-    if (s === 'gravel') { this.play(this.pick('stepC1', 'stepC3', 'stepC5'), { gain: .3, vary: .1, rate: .9 }); this.play('stones1', { gain: .08, offset: rand(0, 1.2), dur: .18, rate: rand(1.3, 1.6), hp: 1200 }); return; }
-    return base(s); }; }
+// Schritte je Belag: Holzdielen, Teppich, Fliesen, Beton, Gitterrost, nasser Asphalt, Wasser, Laub, Kies, Gras.
+// Ohne x/z: der Spieler selbst; mit x/z: jemand anderes an dieser Stelle (Audio.stepAt – Schritte hinter dir klingen auf dem richtigen Boden).
+function klang_step(s, v = 1, x, z) {
+  const A = Audio; if (!A.ctx) return; const at = x !== undefined, P = at ? { x, y: .05, z, ref: 2 } : {}, pk = (...n) => A.pick(...n);
+  if (s === 'wood') { A.play(pk('stepW1', 'stepW2', 'stepW3', 'stepW4'), { gain: .45 * v, vary: .08, varyGain: .25, ...P }); if (Math.random() < .1) A.play(pk('woodSqueak1', 'woodSqueak2'), { gain: .18 * v, vary: .1, delay: .05, ...P }); }
+  else if (s === 'carpet') A.play(pk('stepW1', 'stepW2', 'stepW3', 'stepW4'), { gain: .22 * v, rate: .85, lp: 650, vary: .06, varyGain: .2, ...P }); // gedämpft
+  else if (s === 'tile') A.play(pk('stepC1', 'stepC2', 'stepC4', 'stepC6'), { gain: .3 * v, rate: 1.12, hp: 220, vary: .06, varyGain: .2, ...P }); // hart, hell
+  else if (s === 'metal') { A.play(pk('stepC2', 'stepC5'), { gain: .28 * v, vary: .06, ...P }); A.play(pk('metalHit1', 'metalHit2'), { gain: .05 * v, rate: rand(1.7, 2.2), dur: .3, hp: 900, ...P }); }
+  else if (s === 'wet') { A.play(pk('stepWet1', 'stepWet2', 'stepWet3'), { gain: .34 * v, vary: .07, varyGain: .25, ...P }); if (Math.random() < .12) A.play('waterLoop', { gain: .06 * v, offset: rand(0, 3), dur: .25, rate: 1.3, hp: 600, ...P }); }
+  else if (s === 'water') { A.play(pk('stepWet1', 'stepWet2', 'stepWet3'), { gain: .42 * v, vary: .1, rate: .85, ...P }); A.play('waterLoop', { gain: .14 * v, offset: rand(0, 4), dur: .35, rate: rand(.9, 1.2), ...P }); }
+  else if (s === 'leaves') { A.play(pk('stepG1', 'stepG2', 'stepG3'), { gain: .32 * v, vary: .12, varyGain: .3, ...P }); const d = at ? A.at(x, .05, z, 2) : A.world;
+    if (!at || !A.cut) { const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2500, 4200); bp.Q.value = .8; n.connect(bp); A.env(bp, .05 * v, .01, .16, 0, d); n.stop(A.ctx.currentTime + .3); }
+    if (!at && Math.random() < .05) A.twig(player.pos.x + rand(-.4, .4), player.pos.z + rand(-.4, .4)); }
+  else if (s === 'gravel') { A.play(pk('stepC1', 'stepC3', 'stepC5'), { gain: .3 * v, vary: .1, rate: .9, ...P }); A.play('stones1', { gain: .08 * v, offset: rand(0, 1.2), dur: .18, rate: rand(1.3, 1.6), hp: 1200, ...P }); }
+  else if (s === 'grass') A.play(pk('stepG1', 'stepG2', 'stepG3'), { gain: .32 * v, vary: .1, varyGain: .3, lp: 5000, ...P });
+  else A.play(pk('stepC1', 'stepC2', 'stepC3', 'stepC4', 'stepC5', 'stepC6'), { gain: .38 * v, vary: .08, varyGain: .25, ...P }); // Beton
+}
+Audio.step = function (s) { if (this.ctx) klang_step(s || 'grass', 1); };
+Audio.stepSound = klang_step; Audio.surfaceAt = (x, z) => klang_floor(x, z); Audio.roomHint = () => klang_reverb();
 // ---------------------------------------------------------------- Umgebung je Ort
+// Auswahl nach Gewicht, aber nur unter den Familien, die die Regie gerade zulässt: [Gewicht, Familie, Funktion]
+function klang_roll(list) {
+  const can = typeof spannung_can === 'function', ok = can ? list.filter(e => spannung_can(e[1], 'amb')) : list; if (!ok.length) return false;
+  let r = Math.random() * ok.reduce((s, e) => s + e[0], 0); for (const e of ok) { r -= e[0]; if (r <= 0) { if (e[2]() !== false && can) spannung_did(e[1], 'amb'); return true; } } return false;
+}
 function klang_ambient() {
-  const P = player.pos, A = klang_S.area, a = rand(0, 6.28), far = (d0, d1) => { const d = rand(d0, d1); return [P.x + Math.cos(a) * d, P.z + Math.sin(a) * d]; }, r = Math.random();
-  if (A === 'amt' || A === 'kanal') { if (r < .5) { const [x, z] = far(4, 14); Audio.drip(x, rand(1, 2.5), z); } else if (r < .7) { const [x, z] = far(10, 25); Audio.play('metalHit1', { gain: .08, rate: rand(.5, .7), x, y: 1, z, ref: 6 }); } return; }
-  if (A === 'weiss') return;
-  if (A === 'wald') { if (r < .22) Audio.owlPair(...far(18, 40)); else if (r < .34) Audio.fox(...far(20, 45)); else if (r < .56) { const [x, z] = far(6, 16); Audio.twig(x, z); if (Math.random() < .5) setTimeout(() => Audio.twig(x + .5, z + .3), rand(300, 900)); }
-    else if (r < .7) Audio.caw(...(([x, z]) => [x, rand(5, 9), z])(far(15, 35))); else if (r < .82) Audio.treeCreak(...far(8, 20)); else if (r < .9) Audio.deerBark(...far(25, 50)); else Audio.flap(...(([x, z]) => [x, 4, z])(far(6, 12))); return; }
-  if (A === 'friedhof') { if (r < .35) Audio.caw(...(([x, z]) => [x, 7, z])(far(10, 30))); else if (r < .6) Audio.owlPair(...far(25, 50)); else if (r < .75) Audio.gust(rand(3, 5)); return; }
-  if (A === 'villa') { if (r < .25) Audio.owlPair(...far(20, 45)); else if (r < .4) { Audio.play('woodSqueak1', { gain: .12, rate: .7, x: -125, y: 6, z: 70, ref: 6 }); } else if (r < .55) Audio.caw(-125 + rand(-8, 8), 14, 70 + rand(-8, 8)); return; }
-  // Ort: Dachrinnen, ferne Hunde, Waldkauz, Krähen, Totholz, selten ein Zug in der Ferne
-  if (r < .22) { const [x, z] = far(4, 12); Audio.gutter(x, z); } else if (r < .38) Audio.owlPair(...far(40, 80)); else if (r < .52) Audio.bark(...far(60, 110), Math.random() < .3);
-  else if (r < .64) Audio.caw(...(([x, z]) => [x, 8, z])(far(20, 50))); else if (r < .76) Audio.treeCreak(...far(10, 30)); else if (r < .82) Audio.fox(...far(50, 90)); else if (r < .85) Audio.trainHorn();
+  const P = player.pos, A = klang_S.area, a = rand(0, 6.28), far = (d0, d1) => { const d = rand(d0, d1); return [P.x + Math.cos(a) * d, P.z + Math.sin(a) * d]; }, W = Audio;
+  const R = !state.inBasement && typeof indoorRect === 'function' ? indoorRect() : null; if (R) return klang_inside(R, far);
+  if (A === 'keller') return klang_roll([ // Keller Nr. 7: Wasser, Rohre, Metall, Beton – und manchmal das Haus darüber
+    [4, 'drip', () => { const [x, z] = far(3, 9); for (let i = 0, n = 2 + Math.floor(rand(0, 4)); i < n; i++) setTimeout(() => W.drip(x + rand(-.1, .1), rand(1.6, 2.4), z), i * rand(500, 1100)); }],
+    [2, 'pipe', () => klang_pipe(...far(3, 7), 2.2)], [1.5, 'water', () => { const [x, z] = far(4, 9); W.play('waterFlow', { gain: rand(.03, .06), rate: rand(.8, 1), offset: rand(0, 4), dur: rand(2, 4), fadeIn: .6, lp: 700, x, y: 2.3, z, ref: 2 }); }],
+    [1.2, 'metal', () => { const [x, z] = far(7, 14); W.play('metalHit1', { gain: rand(.05, .08), rate: rand(.45, .6), lp: 1500, x, y: 1, z, ref: 4 }); }],
+    [.6, 'above', () => { for (let i = 0; i < 3 + Math.floor(rand(0, 3)); i++) W.play(W.pick('stepW1', 'stepW2', 'stepW3', 'stepW4'), { gain: .1, rate: .8, lp: 380, delay: i * rand(.55, .7), x: P.x + rand(-4, 4), y: 4, z: P.z + rand(-4, 4), ref: 3 }); }]]);
+  if (A === 'amt') return klang_roll([ // Amt: Neonröhren, Lüftung, Tropfen, ferne Türen, Blech
+    [3, 'drip', () => { const [x, z] = far(4, 12); W.drip(x, rand(1, 2.4), z); }], [1.5, 'metal', () => { const [x, z] = far(10, 22); W.play('metalHit1', { gain: .07, rate: rand(.5, .7), lp: 1800, x, y: 1, z, ref: 6 }); }],
+    [1.2, 'vent', () => W.play(W.pick('air1', 'air2'), { gain: rand(.04, .07), rate: rand(.7, .9), dur: rand(3, 5), fadeIn: 1.2, lp: 700, offset: rand(0, 2) })],
+    [1, 'buzz', () => { const [x, z] = far(3, 8); W.play('buzz', { gain: .12, rate: rand(.9, 1.1), dur: rand(.6, 1.4), x, y: 2.4, z, ref: 2 }); }],
+    [.6, 'door', () => { const [x, z] = far(18, 30); W.play(W.pick('door1', 'door2', 'door3', 'door4', 'door5'), { gain: .12, rate: rand(.8, .95), lp: 900, x, y: 1.2, z, ref: 4 }); }]]);
+  if (A === 'kanal') return klang_roll([[3, 'drip', () => { const [x, z] = far(4, 12); W.drip(x, rand(1, 2.5), z); }], [1.5, 'water', () => { const [x, z] = far(6, 14); W.play('waterLoop', { gain: .08, offset: rand(0, 4), dur: rand(1.5, 3), fadeIn: .5, x, y: 0, z, ref: 3 }); }],
+    [1, 'metal', () => { const [x, z] = far(10, 25); W.play('metalHit1', { gain: .08, rate: rand(.5, .7), x, y: 1, z, ref: 6 }); }]]);
+  if (A === 'weiss') return false;
+  if (A === 'wald' && typeof WL !== 'undefined' && WL.ready) return false; // im Wald spricht das Modul waldleben (sonst doppelt)
+  if (A === 'wald') return klang_roll([[2, 'owl', () => W.owlPair(...far(25, 50))], [1, 'twig', () => W.twig(...far(8, 18))], [1, 'treeCreak', () => W.treeCreak(...far(10, 25))], [.5, 'deer', () => W.deerBark(...far(35, 60))]]);
+  if (A === 'friedhof') return klang_roll([[2, 'owl', () => W.owlPair(...far(25, 50))], [1, 'crow', () => W.caw(...(([x, z]) => [x, 7, z])(far(12, 30)))], [1, 'treeCreak', () => W.treeCreak(...far(8, 20))], [.8, 'gust', () => W.gust(rand(3, 5))]]);
+  if (A === 'villa') return klang_roll([[2, 'owl', () => W.owlPair(...far(25, 50))], [1.5, 'creak', () => W.play('woodSqueak1', { gain: .1, rate: rand(.6, .75), lp: 2200, x: -125 + rand(-5, 5), y: 6, z: 70, ref: 6 })],
+    [.8, 'crow', () => W.caw(-125 + rand(-8, 8), 14, 70 + rand(-8, 8))], [1, 'gutter', () => W.gutter(-125 + rand(-6, 6), 62)]]);
+  // Ort: Dachrinnen, ferne Hunde, Waldkauz, Totholz, selten ein Fuchs oder ein Zug in der Ferne (Krähen schlafen nachts – nur aufgeschreckt)
+  return klang_roll([[3, 'gutter', () => W.gutter(...far(4, 12))], [1.5, 'owl', () => W.owlPair(...far(40, 80))], [1.4, 'bark', () => W.bark(...far(60, 110), Math.random() < .3)],
+    [1.2, 'treeCreak', () => W.treeCreak(...far(10, 30))], [.5, 'crow', () => W.caw(...(([x, z]) => [x, 8, z])(far(25, 50)))], [.5, 'fox', () => W.fox(...far(50, 90))], [.25, 'train', () => W.trainHorn()]]);
+}
+// Rohre in der Wand: zwei bis vier trockene Metallticks (Wärmedehnung), gelegentlich rauscht Wasser nach
+function klang_pipe(x, z, y = 2.4) { const W = Audio; for (let i = 0, n = 2 + Math.floor(rand(0, 3)); i < n; i++) W.play('metalHit1', { gain: rand(.02, .035), rate: rand(2.5, 3.2), hp: 1500, dur: .2, delay: i * rand(.18, .5), x: x + i * .3, y, z, ref: 1.5 });
+  if (Math.random() < .3) W.play('waterFlow', { gain: .03, rate: 1.2, offset: rand(0, 4), dur: rand(1.2, 2), fadeIn: .3, lp: 600, delay: 1.2, x, y, z, ref: 1.5 }); }
+// Im Haus: welches Gebäude? Nr. 7 (bewohnt: Strom, Rohre), Nr. 1 (verlassen: Mäuse, Zugluft), Hütte (Blechdach), Villa (Halle, oben knarrt es)
+function klang_inside(R, far) {
+  const W = Audio, P = player.pos, sp = () => [rand(R.x0 + .4, R.x1 - .4), rand(R.zb + .4, R.zf - .4)], edge = () => Math.random() < .5 ? [rand(R.x0, R.x1), Math.random() < .5 ? R.zb + .15 : R.zf - .15] : [Math.random() < .5 ? R.x0 + .15 : R.x1 - .15, rand(R.zb, R.zf)];
+  const kind = R.x0 < -800 ? 'villa' : Math.abs(R.x0 - 20) < .5 ? 'nr7' : Math.abs(R.x0 + 56) < .5 ? 'nr1' : 'huette';
+  const creak = [2.5, 'creak', () => { const [x, z] = sp(); W.play(W.pick('woodSqueak1', 'woodSqueak2'), { gain: rand(.06, .12), rate: rand(.45, .7), lp: 1600, x, y: Math.random() < .5 ? 3 : .5, z, ref: 2 }); }];
+  const settle = [3, 'settle', () => { const [x, z] = edge(); W.play(W.pick('woodHit1', 'woodHit2'), { gain: rand(.025, .05), rate: rand(2, 2.6), lp: 2500, x, y: rand(1, 3), z, ref: 1.5 }); }];
+  const outside = [2, 'outside', () => { const a = rand(0, 6.28), d = rand(40, 90), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d; Math.random() < .5 ? W.owlPair(x, z) : W.bark(x, z, false); }]; // dumpf durch die Wand
+  const win = [1.2, 'window', () => { const [x, z] = edge(); W.play('glass1', { gain: .04, rate: rand(1.4, 1.8), hp: 1500, x, y: 1.5, z, ref: 1.5 }); if (Math.random() < .5) W.play('glass1', { gain: .03, rate: rand(1.5, 1.9), hp: 1500, delay: rand(.1, .25), x, y: 1.5, z, ref: 1.5 }); }];
+  const mouse = [2, 'critter', () => { const [x, z] = edge(); for (let i = 0, n = 2 + Math.floor(rand(0, 3)); i < n; i++) W.play(W.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: .03, rate: rand(2.4, 3), hp: 1500, dur: .3, delay: i * rand(.2, .5), x, y: .2, z, ref: 1.5 }); }];
+  if (kind === 'nr7') return klang_roll([creak, settle, outside, win, [2, 'pipe', () => klang_pipe(...edge())], [1, 'water', () => { const [x, z] = edge(); W.play('waterFlow', { gain: .035, rate: 1.1, offset: rand(0, 4), dur: rand(2, 3.5), fadeIn: .5, lp: 650, x, y: 2, z, ref: 1.5 }); }]]);
+  if (kind === 'nr1') return klang_roll([[3.5, 'creak', creak[2]], settle, mouse, outside, [2, 'window', win[2]]]);
+  if (kind === 'villa') return klang_roll([[3, 'creak', creak[2]], settle, [1, 'pipe', () => klang_pipe(...edge(), 3)], win, [.7, 'upstairs', () => { for (let i = 0; i < 3; i++) W.play(W.pick('stepW1', 'stepW2', 'stepW3', 'stepW4'), { gain: .12, rate: .8, lp: 500, delay: i * rand(.6, .8), x: R.x0 + rand(2, 12), y: 6.2, z: rand(R.zb + 2, R.zf - 2), ref: 3 }); }]]);
+  return klang_roll([[2, 'settle', () => W.play('metalHit2', { gain: .02, rate: rand(2.6, 3.2), hp: 1800, dur: .2, x: P.x + rand(-1.5, 1.5), y: 2.5, z: P.z + rand(-1.5, 1.5), ref: 1.5 })], [1.5, 'critter', mouse[2]], [3, 'outside', outside[2]], [1, 'creak', creak[2]]]);
+}
+// ---------------------------------------------------------------- Raumklang: Kühlschrank und Neonröhre in Nr. 7 (Strom), Lüftung im Amt – nur im jeweiligen Gebäude, beim Verlassen ausgeblendet
+// Klänge beim ersten Bedarf berechnet (je 1–2 s, als Schleife ohne Naht: ganze Perioden)
+function klang_bufs() { const c = Audio.ctx, sr = c.sampleRate, mk = (sec, f) => { const b = c.createBuffer(1, Math.floor(sr * sec), sr), d = b.getChannelData(0); let lp = 0; for (let i = 0; i < d.length; i++) { const t = i / sr; lp = lp * .97 + (Math.random() * 2 - 1) * .03; d[i] = f(t, lp); } return b; };
+  const P2 = 2 * Math.PI;
+  Audio.buf.klFridge = mk(2, (t, n) => .3 * Math.sin(P2 * 50 * t) + .5 * Math.sin(P2 * 100 * t) + .18 * Math.sin(P2 * 150 * t) + .08 * Math.sin(P2 * 200 * t) + n * 1.6); // Kompressor: 50-Hz-Brummen, Rumpeln
+  Audio.buf.klTube = mk(1, (t, n) => .45 * Math.sin(P2 * 100 * t) + .2 * Math.sin(P2 * 200 * t) + .12 * Math.sin(P2 * 300 * t) + (Math.sin(P2 * 100 * t) > .96 ? (Math.random() * 2 - 1) * .25 : 0)); // Neonröhre: 100 Hz + Knistern
+  for (const B of KL_BEDS) if (B.lp && Audio.prefilter) Audio.prefilter(B.buf, B.lp); // Schleifen nie mit Echtzeit-Tiefpass (siehe Audio.prefilter)
+}
+const KL_BEDS = [
+  { id: 'kuehl', buf: 'klFridge', x: 31.3, y: 1.2, z: -16.4, ref: 1.2, gain: .05, lp: 380, cycle: true, on: () => klang_inH(20) && !state.outage },
+  { id: 'roehre', buf: 'klTube', x: 29, y: 3.1, z: -14.5, ref: 1, gain: .012, lp: 3000, on: () => klang_inH(20) && !state.outage && typeof kitchenLight !== 'undefined' && !kitchenLight.userData.dead && kitchenLight.intensity > .5 },
+  { id: 'luft', buf: 'air1', gain: .035, lp: 500, rate: .7, on: () => klang_S.area === 'amt' }]; // Lüftung (ohne Ort: überall im Amt)
+function klang_inH(x0) { const R = !state.inBasement && typeof indoorRect === 'function' ? indoorRect() : null; return !!R && Math.abs(R.x0 - x0) < .5; }
+function klang_beds() {
+  const S = klang_S, A = Audio, t = A.ctx.currentTime; if (!S.bufs) { S.bufs = true; try { klang_bufs(); } catch (e) { console.warn('Klang: Raumklang', e); } }
+  for (const B of KL_BEDS) { let want = !!B.on() && !(typeof spannung_hushed === 'function' && spannung_hushed());
+    if (B.cycle) { B.ct = (B.ct ?? rand(20, 60)) - 1; if (B.ct < 0) { B.run = !B.run; B.ct = B.run ? rand(60, 150) : rand(30, 90); if (want && B.x !== undefined) { // Kühlschrank springt an (Klick) / schaltet ab (Schütteln)
+          if (B.run) A.play('switch1', { gain: .05, rate: .6, lp: 1500, x: B.x, y: B.y, z: B.z, ref: 1 }); else { A.play('woodHit2', { gain: .04, rate: 1.4, lp: 900, x: B.x, y: B.y, z: B.z, ref: 1 }); A.play('glass1', { gain: .02, rate: 1.6, hp: 1500, delay: .1, x: B.x, y: B.y + .5, z: B.z, ref: 1 }); } } }
+      want = want && B.run; }
+    if (want && !B.h && A.buf[B.buf]) { B.h = A.play(B.buf, { loop: true, gain: 0, lp: B.lp, rate: B.rate || 1, dest: B.x !== undefined ? A.at(B.x, B.y, B.z, B.ref) : A.world }); if (B.h) B.h.g.gain.setTargetAtTime(B.gain, t, .8); }
+    else if (!want && B.h) { B.h.stop(1.2); B.h = null; } }
 }
 // ---------------------------------------------------------------- Menümusik
 function klang_menu(on) {
@@ -174,7 +279,8 @@ WORLD_TICK.push(dt => {
   const menuOn = !state.started && $('start').classList.contains('show') && !S.intro; klang_menu(menuOn);
   if (!state.started) return;
   S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; } S.areaSince = (S.areaSince || 0) + 1;
-    const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = 3; } } // Ort gewechselt: langsam über
-  S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(8, 20); if (!state.talking && !ui.overlay) try { klang_ambient(); } catch (e) {} }
+    const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = rand(8, 16); } // Ort gewechselt: langsam aus, kurz Stille
+    try { Audio.setRoom(klang_reverb()); klang_beds(); } catch (e) { console.warn('Klang: Raum', e); } }
+  S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(7, 16); if (!state.talking && !ui.overlay && !menu.attract) try { klang_ambient(); } catch (e) { console.warn('Klang: Umgebung', e); } } // die Regie entscheidet, ob es wirklich klingt
 });
-window.__klang = { S: klang_S, area: () => klang_area(), surface: i => klang_surface(i), render: n => klang_render(n) }; // Testzugriff
+window.__klang = { S: klang_S, area: () => klang_area(), surface: i => klang_surface(i), floor: (x, z) => klang_floor(x, z), reverb: () => klang_reverb(), render: n => klang_render(n), beds: KL_BEDS }; // Testzugriff

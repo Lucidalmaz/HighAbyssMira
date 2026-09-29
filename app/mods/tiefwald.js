@@ -258,7 +258,7 @@ function tief_achter() {
 async function tief_weiher() {
   const S = tief_S; if (S.pondDone) return; S.pondDone = true;
   const wait_ = ms => new Promise(r => setTimeout(r, ms)); await wait_(900); while (ui.overlay) await wait_(200);
-  state.talking = true; const E = S.threadSegs[S.threadSegs.length - 1];
+  state.talking = true; try { const E = S.threadSegs[S.threadSegs.length - 1]; // try/finally: state.talking wird immer zurückgesetzt
   await say([['Du nimmst das Ende der Wolle in die Hand. Es verschwindet im schwarzen Wasser.', 4200], ['Es ist straff gespannt.', 2400]]);
   Audio.creak(.25); shake = .02; await wait_(900); Audio.play('waterLoop', { gain: .25, offset: 1, dur: 1.2, rate: .7, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 });
   await say([['Ein Ruck. Von unten. Einmal. Zweimal.', 3200]]);
@@ -271,7 +271,7 @@ async function tief_weiher() {
   await wait_(160); F.visible = false; F.scale.setScalar(1); filmPass.uniforms.flash.value = 0; $('fade').style.transition = 'opacity 80ms'; $('fade').style.opacity = 1; await wait_(500); $('fade').style.transition = 'opacity 1.4s'; $('fade').style.opacity = 0;
   if (S.thread) { S.thread.count = S.threadN - 3; S.thread.instanceMatrix.needsUpdate = true; } Audio.heart();
   await say([['Stille. Die Wolle hängt lose über dem Steg. Das Ende ist abgerissen.', 4200], ['Jemand hat gezogen.', 2600]]);
-  state.talking = false;
+  } finally { state.talking = false; }
   story.lore.push({ key: 'tief_weiher', title: 'Der Weiher', html: 'Am Weiher endet Jonas’ Wolle. Er hat das Ende ins Wasser gehängt: „Falls du da unten bist: zieh dran.“\n\nJemand hat gezogen.' });
   sideDone('tief_faden', 'Am Weiher endet die Wolle. Jonas hat sieben Jahre lang gesucht. Und jemand hat gezogen.');
   if (typeof gedanke === 'function') gedanke('tief_weiher', 'Jonas hat nie erfahren, ob jemand zieht. … „Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“ Er hat nicht vergessen. Er hat nur aufgehört.', 3000, 3);
@@ -394,11 +394,13 @@ WORLD_TICK.push((dt, t) => {
     if (spd < .3) F.still += dt; else F.still = 0;
     if (F.still > 1.2 || F.t < 0) { if (F.still > 1.2) { const f = new THREE.Vector3(_tfw.x, 0, _tfw.z).normalize(); Audio.play('stepG2', { gain: .35, x: P.x - f.x * 2.5, y: 0, z: P.z - f.z * 2.5, ref: 3 }); setTimeout(() => { Audio.whisper(P.x - f.x * 1.2, 1.6, P.z - f.z * 1.2, 1.6); scareCount++; }, 900); } S.follow = null; } }
   if (ok && !S.fig && !S.follow) { S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(6, 14) * (1.3 - S.k * .5); const a = rand(0, 6.28), dd = rand(8, 26), x = P.x + Math.cos(a) * dd, z = P.z + Math.sin(a) * dd, r = Math.random();
-    if (r < .22) Audio.twig(x, z); else if (r < .34) Audio.treeCreak(x, z); else if (r < .44) Audio.owlPair ? Audio.owlPair(x, z) : Audio.owl(x, z); else if (r < .52) Audio.caw(x, rand(4, 8), z); else if (r < .58) Audio.grunt(x, z, false);
-    else if (r < .64 && S.k > .3) Audio.whisper(x, 1.5, z, 1.4); else if (r < .68 && S.k > .6) Audio.giggle(x, 1, z);
-    else if (r < .76 && S.k > .25 && (S.lastScare || 0) < t - 70) { S.lastScare = t; S.follow = { t: 9, step: .3, still: 0 }; }
-    else if (r < .84 && S.k > .35 && (S.lastScare || 0) < t - 70) { const f = new THREE.Vector3(_tfw.x, 0, _tfw.z).normalize(), side = Math.random() < .5 ? 1 : -1, dd2 = rand(16, 22), cx = P.x + f.x * dd2 - f.z * side * 9, cz = P.z + f.z * dd2 + f.x * side * 9;
-      if (tief_in(cx, cz) && tief_figur(cx, cz, ['pale', 'grey', 'lena'][Math.floor(Math.random() * 3)], .95)) { S.lastScare = t; S.fig.run = true; S.fig.dx = f.z * side; S.fig.dz = -f.x * side; } } } }
+    const reg = typeof spannung_ask === 'function', ask = (f, c = 'amb', o) => !reg || spannung_ask(f, c, o); // die Regie (Modul spannung) entscheidet über Budget, Abstände, Stille
+    if (r < .22) { if (ask('twig')) Audio.twig(x, z); } else if (r < .34) { if (ask('treeCreak')) Audio.treeCreak(x, z); } else if (r < .44) { if (ask('owl')) Audio.owlPair ? Audio.owlPair(P.x + Math.cos(a) * dd * 2, P.z + Math.sin(a) * dd * 2) : Audio.owl(x, z); }
+    else if (r < .5) { if (ask('crow')) Audio.caw(x, rand(4, 8), z); } else if (r < .58) { if (ask('grunt')) Audio.grunt(x, z, false); }
+    else if (r < .64 && S.k > .3) { if (ask('whisper', 'minor')) Audio.whisper(x, 1.5, z, 1.4); } else if (r < .68 && S.k > .6) { if (ask('giggle', 'minor')) Audio.giggle(x, 1, z); }
+    else if (r < .76 && S.k > .25 && (S.lastScare || 0) < t - 70) { if (ask('steps', 'minor', { behind: true })) { S.lastScare = t; S.follow = { t: 9, step: .3, still: 0 }; } }
+    else if (r < .84 && S.k > .35 && (S.lastScare || 0) < t - 70 && (!reg || spannung_can('figure', 'major'))) { const f = new THREE.Vector3(_tfw.x, 0, _tfw.z).normalize(), side = Math.random() < .5 ? 1 : -1, dd2 = rand(16, 22), cx = P.x + f.x * dd2 - f.z * side * 9, cz = P.z + f.z * dd2 + f.x * side * 9;
+      if (tief_in(cx, cz) && tief_figur(cx, cz, ['pale', 'grey', 'lena'][Math.floor(Math.random() * 3)], .95)) { S.lastScare = t; S.fig.run = true; S.fig.dx = f.z * side; S.fig.dz = -f.x * side; if (reg) spannung_did('figure', 'major'); } } } }
 });
 MOD_SAVE.push(['tiefwald', () => ({ swing: !!tief_S.stein }), v => { tief_S.stein = !!v.swing; if (tief_has('tief_weiher')) { tief_S.pondDone = true; if (tief_S.thread) { tief_S.thread.count = tief_S.threadN - 3; tief_S.thread.instanceMatrix.needsUpdate = true; } } if (tief_has('tief_rotte')) tief_S.rooted = true; }]);
 window.__tief = { S: tief_S, T: TIEF, paths: TIEF_PATHS, zettel: i => tief_zettel(i), climb: u => tief_climb(u), achter: () => tief_achter(), dig: () => tief_dig(), lager: () => tief_lager(), wrack: () => tief_wrack(), schaukel: () => tief_schaukel(), stein: () => tief_stein() }; // Testzugriff

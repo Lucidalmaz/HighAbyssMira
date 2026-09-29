@@ -1,11 +1,16 @@
 // Baut das Spiel aus der Basis + allen Welt-Modulen zusammen.
-//   node tools/assemble.js [ausgabe.html]   (Standard: ../game/index.html)
+//   node tools/assemble.js [ausgabe.html] [--release]   (Standard: ../game/index.html; Veröffentlichung: ../game/index.release.html)
 // Basis: mods/_base_source_index.html (unverändertes Spiel). Danach alle mods/<bereich>_patch.py (def apply(s)) in Modul-Reihenfolge,
 // dann jedes mods/<bereich>.js vor der Zeile // @@WELT-MODULE@@ – Reihenfolge laut BRIEF.md.
 const fs = require('fs'), path = require('path'), cp = require('child_process');
 const APP = path.resolve(__dirname, '..'), MODS = path.join(APP, 'mods');
-const ORDER = ['ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'fotos', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'akte', 'klang', 'traum', 'tod', 'feuer'];
-const OUT = path.resolve(process.argv[2] || path.join(APP, '..', 'game', 'index.html'));
+const ORDER = ['kapitel', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'ausruestung', 'uebergang', 'fotos', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'visionen', 'anwesen', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'akte', 'klang', 'spannung', 'traum', 'kino', 'tod', 'feuer', 'augenzu', 'zimmer7', 'lucy3', 'kamera', 'kapitel5', 'kapitel6', 'raender'];
+// Veröffentlichung: --release (oder HAM_RELEASE=1) → ../game/index.release.html; die Test-index.html bleibt unberührt (parallele Selbsttests).
+// Setzt window.IS_RELEASE (Basis: DEV = false → kein Story-Editor, keine F3-Messanzeige, keine Entwickler-Hinweise) und entfernt alle
+// Testzugriffe: Zuweisungen an window.G, window.HAM_UI und window.__* – außer denen, die das Spiel selbst liest (Ladeanzeige, __traumWake).
+const RELEASE = process.argv.includes('--release') || process.env.HAM_RELEASE === '1';
+const OUT = path.resolve(process.argv.slice(2).find(a => !a.startsWith('--')) || path.join(APP, '..', 'game', RELEASE ? 'index.release.html' : 'index.html'));
+const KEEP_HOOKS = new Set(['__ready', '__stage', '__log', '__t0', '__traumWake']);
 const MARK = '// @@WELT-MODULE@@';
 const PY = process.platform === 'win32' ? 'python' : 'python3';
 
@@ -30,7 +35,7 @@ for (const area of ORDER) {
   if (fs.existsSync(mod)) {
     const src = fs.readFileSync(mod, 'utf8');
     // Syntax vorab prüfen – ein kaputtes Modul würde sonst das ganze Modul-Script (und damit das Spiel) stoppen
-    try { new (Object.getPrototypeOf(async function () {}).constructor)(src); } catch (e) { throw new Error(`Syntaxfehler in ${area}.js: ${e.message}`); }
+    try { new (Object.getPrototypeOf(async function () {}).constructor)(src); } catch (e) { if (RELEASE) throw new Error(`Syntaxfehler in ${area}.js: ${e.message}`); console.warn(`!!! Syntaxfehler in ${area}.js – Modul ÜBERSPRUNGEN (nur Testbau): ${e.message}`); continue; }
     html = html.replace(MARK, () => src.replace(/\s*$/, '') + '\n' + MARK);
     used.push(area + '.js');
   }
@@ -38,9 +43,21 @@ for (const area of ORDER) {
 // Einheitliche Zeilenenden wie in der Basis (Python-Patches liefern \n, die Module teils \r\n)
 const crlf = /\r\n/.test(fs.readFileSync(path.join(MODS, '_base_source_index.html'), 'utf8').slice(0, 4000));
 html = html.replace(/\r\n/g, '\n'); if (crlf) html = html.replace(/\n/g, '\r\n');
+if (RELEASE) {
+  if (!html.includes('<head>')) throw new Error('Veröffentlichung: <head> fehlt');
+  html = html.replace('<head>', '<head>\n<script>window.IS_RELEASE = true;</script>');
+  const MS = '<script type="module">', at = html.indexOf(MS); if (at < 0) throw new Error('Veröffentlichung: Modul-Script fehlt');
+  html = html.slice(0, at + MS.length) + '\nconst __devSink = {}; // Veröffentlichung: Testzugriffe landen hier statt am window' + html.slice(at + MS.length);
+  const gone = new Map();
+  html = html.replace(/\bwindow\.(__[A-Za-z0-9_]+|G|HAM_UI)(\s*=(?!=))/g, (all, name, eq) => { if (KEEP_HOOKS.has(name)) return all; gone.set(name, (gone.get(name) || 0) + 1); return '__devSink.' + name + eq; });
+  // Was jetzt noch gelesen wird, ist undefined – erlaubt nur als reine Prüfung (if (window.G) …, window.__testMove && …), nie mit Zugriff dahinter
+  const bad = []; for (const m of html.matchAll(/\bwindow\.(__[A-Za-z0-9_]+|G|HAM_UI)\b(\s*[.[(])?/g)) if (!KEEP_HOOKS.has(m[1]) && m[2]) bad.push(html.slice(Math.max(0, m.index - 40), m.index + 40).replace(/\s+/g, ' '));
+  if (bad.length) throw new Error('Veröffentlichung: entfernte Testzugriffe werden noch benutzt:\n  ' + bad.join('\n  '));
+  console.log(`Veröffentlichung: ${[...gone.values()].reduce((a, b) => a + b, 0)} Testzugriffe entfernt (${[...gone.keys()].join(', ')})`);
+}
 // Gesamtes Modul-Script (Basis + Module) auf Syntaxfehler prüfen – ein Fehler dort stoppt das ganze Spiel
 { const re = /<script type="module">([\s\S]*?)<\/script>/g; let m, i = 0;
   while ((m = re.exec(html))) { const tmp = path.join(require('os').tmpdir(), `ham_${process.pid}_${i++}.mjs`); fs.writeFileSync(tmp, m[1]);
     try { cp.execFileSync(process.execPath, ['--check', tmp], { stdio: 'pipe' }); } catch (e) { throw new Error('Syntaxfehler im zusammengesetzten Spiel:\n' + String(e.stderr).slice(0, 1500)); } finally { fs.rmSync(tmp, { force: true }); } } }
-fs.writeFileSync(OUT, html);
+{ const tmp = OUT + '.tmp' + process.pid; fs.writeFileSync(tmp, html); fs.renameSync(tmp, OUT); } // atomar: laufende Kopien lesen nie eine halbe Datei
 console.log(`Zusammengebaut (${used.length} Teile): ${used.join(', ')}\n→ ${OUT} (${(html.length / 1024).toFixed(0)} KB)`);
