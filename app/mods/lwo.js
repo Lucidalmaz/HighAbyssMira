@@ -384,6 +384,7 @@ async function lwo_neueFigur(key, def) {
   F.head = lwo_bone(obj, /^(mixamorig)?:?Head(_\d+)?$|^head$/i); F.neck = lwo_bone(obj, /^(mixamorig)?:?Neck(_\d+)?$|^neck$/i);
   F.spine = lwo_bone(obj, /^(mixamorig)?:?Spine2(_\d+)?$|^spine3$/i) || lwo_bone(obj, /Spine1(_\d+)?$/i); F.spineLow = lwo_bone(obj, /^(mixamorig)?:?Spine(_\d+)?$|^spine2$/i);
   F.handR = lwo_bone(obj, /^(mixamorig)?:?RightHand(_\d+)?$|^wristR$/i);
+  F.hips = lwo_bone(obj, /^(mixamorig)?:?Hips(_\d+)?$|^hips$/i); F.sitW = 0; F.seatY = 0; F.vWalk = (T.motion && T.motion.walk && T.motion.walk.speed) || def.stride || 1.2; // P2: Sitzen per Clip, Gehtempo des Mocap-Clips
   // Gesicht (Q-6): Blendshapes (Blinzeln, Lider zur Blickrichtung, Mund), Augäpfel über Shader gedreht
   F.morph = []; F.eyes = null; F.eyeR = { value: new THREE.Matrix3() };
   obj.traverse(o => { if (!o.isMesh || !o.morphTargetDictionary) return; const d = o.morphTargetDictionary; if (d.Eye_Blink_L === undefined && d.V_Open === undefined) return;
@@ -446,6 +447,7 @@ function lwo_sieht(F, { weit = 12, winkel = .45, lampeAus = true } = {}) { if (!
   return true; }
 
 // ---------------------------------------------------------------- Takt je Figur (keine Allokationen)
+const LWO_STAND = ['idle', 'look', 'nervous', 'phone']; // Standbewegungen (ohne Allokation im Takt)
 function lwo_rotW(bone, axis, ang) { if (!bone || !ang) return; bone.parent.getWorldQuaternion(_lq1); _lq2.setFromAxisAngle(axis, ang); _lq3.copy(_lq1).invert().multiply(_lq2).multiply(_lq1); bone.quaternion.premultiply(_lq3); }
 function lwo_figTick(F, dt) {
   const g = F.g, def = F.def, t = LWO.T, cam = camera.position;
@@ -476,6 +478,7 @@ function lwo_figTick(F, dt) {
   // Atmung, Haltung (Wolter vornübergebeugt), Blechmann schwerer Oberkörper
   _lrt.set(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
   const br = Math.sin((t + F.breathT) * 2 * Math.PI / (def.blech ? 4.6 : 4.1)) * (def.blech ? .016 : .012);
+  if (F.sitProc && F.sitQ) for (const [b, q] of F.sitQ) b.quaternion.copy(q); // prozedurales Sitzen: Mischer steht → feste Grundlage, sonst dreht sich der Rumpf Bild für Bild weiter
   lwo_rotW(F.spineLow, _lrt, br * .6 + (def.hunch || 0) * .5); lwo_rotW(F.spine, _lrt, -br + (def.hunch || 0) * .5);
   // Blick: Kopf/Hals drehen weich zum Ziel (Luke = Kamera), N11 schaut am Spieler vorbei auf das Haus dahinter, Wolter steht seitlich
   let tx = 0, ty = 0, tz = 0, has = false;
@@ -775,7 +778,7 @@ WORLD_MODS.push(['LWO', async () => {
   all.forEach((F, i) => { F.g.visible = prev[i][0]; F.g.position.copy(prev[i][1]); F.mx.update(.01); }); if (LWO.kombi) LWO.kombi.g.visible = false;
   LWO.ready = true; lwo_ag02Aufbau();
   if (typeof KAP_BEGIN !== 'undefined') for (let k = 1; k <= 6; k++) KAP_BEGIN[k].push(() => { LWO.kapBeginT = LWO.T; lwo_ag02Aufbau(); });
-  window.__lwo = { S: lwo_S, LWO, trust: lwo_trust, stufe: lwo_stufe, szene: lwo_szene, ag02: lwo_ag02, ag01: lwo_ag01, figur: lwo_figur, zeigen: lwo_zeigen, gehe: lwo_gehe, lampe: lwo_lampe, hand: lwo_hand,
+  window.__lwo = { S: lwo_S, LWO, sitzen: lwo_sitzen, trust: lwo_trust, stufe: lwo_stufe, szene: lwo_szene, ag02: lwo_ag02, ag01: lwo_ag01, figur: lwo_figur, zeigen: lwo_zeigen, gehe: lwo_gehe, lampe: lwo_lampe, hand: lwo_hand,
     kombi: lwo_kombiZeigen, kombiLicht: lwo_kombiLicht, kombiWeg: lwo_kombiWeg, blick: lwo_blick, clip: lwo_clip, v: id => (LWO.vAnker[id] || LWO_VRUN[id] || (() => false))(), ende: lwo_kapitelende, sieht: lwo_sieht, AG: LWO_AG, V: LWO_V }; // Testzugriff
 }]);
 function lwo_tick(dt) {

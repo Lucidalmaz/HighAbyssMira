@@ -58,21 +58,32 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   for (const c of g.children) if (c.visible && c !== obj) { hide.push(c); c.visible = false; }
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
-  const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj), mv: figuren_mvNew(), look: null };
+  const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id) };
   g.userData.person = Q; figuren_S.embodied.add(g);
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
   return Q;
 }
+// P2 Sperrliste: Clips, die nach Übertragung + Glättung (tools/mocap_glatt.mjs) noch Drehsprünge > 30 rad/s zeigen (tools/mocap_check.mjs), spielen einen sicheren Rückfall-Clip
+const FIGUREN_SPERRE = { '*': { gestik: 'talk', klopfen: 'idle', getup_floor: 'idle', walk_vorsicht: 'walk' },
+  vegas: { schleichen: 'walk', turn_180: 'turn_l', sit_down: 'sit', stand_up: 'idle', getup: 'idle', aufheben: 'idle', window: 'idle2', window_lean: 'idle2', run_panik: 'run' } };
+function figuren_sperre(id) { const o = Object.assign({}, FIGUREN_SPERRE['*'], FIGUREN_SPERRE[id]); return o; }
 // Clip wechseln (AP-MOCAP): immer weich überblenden (≥ 0,3 s, nie hart), Fortbewegung fußsynchron (Phase des linken Fußes bleibt), Einmal-Clips (motion.loop = false) halten das letzte Bild.
 // o: { fade, ts, once } – bestehende Aufrufe figuren_play(P, k) / figuren_play(P, k, true) bleiben gültig.
-function figuren_play(P, k, first, o) { const key = P.acts[k] ? k : P.acts.idle ? 'idle' : Object.keys(P.acts)[0], a = P.acts[key]; if (!a || a === P.cur) return;
+// P2: Überblenden aus den AKTUELLEN Gewichten (Summe bleibt 1 → nie Bindepose/T-Pose dazwischen, kein Hochspringen eines halb ausgeblendeten Clips);
+// kehrt ein noch ausblendender Schleifen-Clip zurück, läuft er an seiner Stelle weiter statt von vorn. Gesperrte Clips (Sicherheitsnetz, P.bad) → Rückfall-Clip.
+function figuren_play(P, k, first, o) { let key = P.acts[k] ? k : P.acts.idle ? 'idle' : Object.keys(P.acts)[0]; if (P.bad && P.bad[key] && P.acts[P.bad[key]]) key = P.bad[key]; const a = P.acts[key]; if (!a || a === P.cur) return;
   const M = P.motion || {}, m = M[key], prev = P.cur, mc = prev && M[P.curK], d = a.getClip().duration, once = o && o.once !== undefined ? o.once : !!(m && m.loop === false);
-  a.reset(); a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); a.clampWhenFinished = once; a.enabled = true;
-  if (!first && prev && m && mc && m.rm === 'lin' && mc.rm === 'lin' && m.phaseL !== undefined && mc.phaseL !== undefined) { const ph = (prev.time / prev.getClip().duration - mc.phaseL + 2) % 1; a.time = ((ph + m.phaseL) % 1) * d; } // gleicher Schritt
+  const wA = !first && a.enabled && a.isScheduled() ? a.getEffectiveWeight() : 0, keep = wA > .02 && !once;
+  if (!keep) a.reset(); a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); a.clampWhenFinished = once; a.enabled = true; a.paused = false;
+  if (!keep && !first && prev && m && mc && m.rm === 'lin' && mc.rm === 'lin' && m.phaseL !== undefined && mc.phaseL !== undefined) { const ph = (prev.time / prev.getClip().duration - mc.phaseL + 2) % 1; a.time = ((ph + m.phaseL) % 1) * d; } // gleicher Schritt
   else if (first && !once) a.time = Math.random() * d; // Gruppen nicht im Gleichtakt
   a.timeScale = o && o.ts ? o.ts : m && m.rm === 'lin' ? 1 : .92 + Math.random() * .14; a.setEffectiveWeight(1); a.play();
-  if (prev && !first) a.crossFadeFrom(prev, Math.max(.3, (o && o.fade) || (m && mc && m.rm === 'lin' && mc.rm === 'lin' ? .35 : .5)), false); else if (prev) prev.stop();
+  const fade = Math.max(.3, (o && o.fade) || (m && mc && m.rm === 'lin' && mc.rm === 'lin' ? .35 : .5));
+  if (prev && !first && typeof a._scheduleFading === 'function') { for (const n in P.acts) { const b = P.acts[n]; if (b === a || !b.enabled || !b.isScheduled()) continue; const w = b.getEffectiveWeight(); if (w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); } // auch pausierte (beendete Einmal-Clips mit Endbild)
+    a._scheduleFading(fade, wA, 1); }
+  else if (prev && !first) a.crossFadeFrom(prev, fade, false);
+  else for (const n in P.acts) { const b = P.acts[n]; if (b !== a && b.isScheduled()) b.stop(); }
   P.cur = a; P.curK = key; if (P.mv) { P.mv.once = once; P.mv.clipT = 0; } }
 // Geste/Einmal-Clip abspielen und danach von selbst zur Fortbewegung/Ruhe zurück (then: Clip-Name danach, sonst automatisch)
 function figuren_do(P, k, { then = null, fade = .45, ts = null } = {}) { if (!P || !P.acts[k]) return false; P.mv.shot = k; P.mv.then = then; figuren_play(P, k, false, { once: true, fade, ts }); return true; }
@@ -151,16 +162,19 @@ WORLD_MODS.push(['Figuren', async () => {
 const FIGUREN_MV = { v: new THREE.Vector3(), v2: new THREE.Vector3(), v3: new THREE.Vector3(), v4: new THREE.Vector3(), v5: new THREE.Vector3(), p: new THREE.Vector3(), pv: new THREE.Vector3(), up: new THREE.Vector3(0, 1, 0), // pv: Drehpunkt (figuren_setW benutzt v5)
   q: new THREE.Quaternion(), q2: new THREE.Quaternion(), q3: new THREE.Quaternion(), m: new THREE.Matrix4(), s: new THREE.Vector3(), fr: new THREE.Frustum(), pm: new THREE.Matrix4(), sph: new THREE.Sphere(),
   A: new THREE.Vector3(), B: new THREE.Vector3(), C: new THREE.Vector3(), T: new THREE.Vector3(), B2: new THREE.Vector3(), T2: new THREE.Vector3(), pole: new THREE.Vector3(), qa: new THREE.Quaternion(), qb: new THREE.Quaternion(), qf: new THREE.Quaternion(),
-  n: 0, near: 0, ik: 0, ms: 0 };
+  n: 0, near: 0, ik: 0, ms: 0, flip: 0 };
 // Knochen einer Figur (alle Skelettfamilien der Werkstatt: Character Creator, Auto-Rig Pro, Mixamo, Unreal); auch Knoten ohne Skin (CC-Oberschenkel sind im GLB leere Knoten)
 const FIGUREN_RIGRE = { hips: /^(hips|hip|rootx|pelvis)$/, chest: /^(spine2|spine02|spine_02x|spine_05|spine_03|chest)$/, neck: /^(neck|neckx|necktwist01|neck1|neck_01)$/, head: /^(head|headx)$/,
   lArm: /^(leftarm|l_upperarm|arm_stretchl|upperarm_l)$/, rArm: /^(rightarm|r_upperarm|arm_stretchr|upperarm_r)$/, lFore: /^(leftforearm|l_forearm|forearm_stretchl|lowerarm_l)$/, rFore: /^(rightforearm|r_forearm|forearm_stretchr|lowerarm_r)$/,
   lHand: /^(lefthand|l_hand|handl|hand_l)$/, rHand: /^(righthand|r_hand|handr|hand_r)$/, lSh: /^(leftshoulder|l_clavicle|shoulderl|clavicle_l)$/, rSh: /^(rightshoulder|r_clavicle|shoulderr|clavicle_r)$/,
   lUp: /^(leftupleg|l_thigh|thigh_stretchl|thigh_l)$/, rUp: /^(rightupleg|r_thigh|thigh_stretchr|thigh_r)$/, lLeg: /^(leftleg|l_calf|leg_stretchl|calf_l)$/, rLeg: /^(rightleg|r_calf|leg_stretchr|calf_r)$/,
   lFoot: /^(leftfoot|l_foot|footl|foot_l)$/, rFoot: /^(rightfoot|r_foot|footr|foot_r)$/, lToe: /^(lefttoebase|l_toebase|toes_01l|ball_l)$/, rToe: /^(righttoebase|r_toebase|toes_01r|ball_r)$/, lEye: /^(l_eye|lefteye|eye_l)$/, rEye: /^(r_eye|righteye|eye_r)$/ };
-function figuren_rig(obj) { const r = {}; obj.traverse(o => { if (o.isMesh || o === obj) return; const n = o.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/^CC_Base_/i, '').replace(/_\d+$/, '').toLowerCase();
-    for (const k in FIGUREN_RIGRE) if ((!r[k] || (o.isBone && !r[k].isBone)) && FIGUREN_RIGRE[k].test(n)) r[k] = o; }); // Skin-Gelenk vor gleichnamigem Hilfsknoten („head_70“)
-  const desc = (b, a) => { for (let p = b && b.parent; p; p = p.parent) if (p === a) return true; return false; };
+// anim: Namen der Knoten mit Spuren in den Clips. Wahl je Rolle (P2): animierter Knoten > äußerster gleichnamiger Knoten (CC-Kinder: Hilfsketten „Head > Head > Head“, sonst dreht die Zusatzschicht
+// einen unbewegten Hilfsknochen und summiert sich Bild für Bild auf → Kopf dreht sich) > Skin-Gelenk („head_70“ neben „mixamorigHead_1“)
+function figuren_rig(obj, anim) { const r = {}, desc = (b, a) => { for (let p = b && b.parent; p; p = p.parent) if (p === a) return true; return false; };
+  const better = (o, b) => { const ao = !!(anim && anim.has(o.name)), ab = !!(anim && anim.has(b.name)); if (ao !== ab) return ao; if (desc(b, o)) return true; if (desc(o, b)) return false; return o.isBone && !b.isBone; };
+  obj.traverse(o => { if (o.isMesh || o === obj) return; const n = o.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/^CC_Base_/i, '').replace(/_\d+$/, '').toLowerCase();
+    for (const k in FIGUREN_RIGRE) if (FIGUREN_RIGRE[k].test(n) && (!r[k] || better(o, r[k]))) r[k] = o; });
   // Mitbewegte Knochen bei additiven Drehungen: Knochen, die anatomisch folgen, aber im Szenengraph KEINE Kinder sind (flache Auto-Rig-Pro-Skelette der Tony-Figuren)
   const follow = (root, list) => { const out = [root]; for (const b of list) if (b && b !== root && !out.some(a => desc(b, a))) out.push(b); return out; };
   if (r.chest) r.chestChain = follow(r.chest, [r.neck, r.head, r.lSh, r.rSh, r.lArm, r.rArm, r.lFore, r.rFore, r.lHand, r.rHand]);
@@ -168,8 +182,20 @@ function figuren_rig(obj) { const r = {}; obj.traverse(o => { if (o.isMesh || o 
   if (r.head) r.headChain = follow(r.head, [r.lEye, r.rEye]);
   r.legs = [[r.lUp, r.lLeg, r.lFoot, r.lToe], [r.rUp, r.rLeg, r.rFoot, r.rToe]].filter(L => L[0] && L[1] && L[2]);
   // Augen als Formen (Tony-Körper mit CC-Kopf: Eye_L_Look_L …) statt Knochen
+  r.eyes = [r.lEye, r.rEye].filter(Boolean).map(e => [e]); // Augenknochen (je eine Kette mit einem Glied, im Takt ohne Allokation)
   r.eyeM = []; obj.traverse(o => { const d = o.morphTargetDictionary; if (!o.isMesh || !d) return; for (const [nm, i] of Object.entries(d)) { const m = nm.match(/Eye_([LR])_Look_(L|R|Up|Down)$/); if (m) r.eyeM.push([o, i, m[2]]); } });
+  // P2: Grundlage (Ruhe) aller Knoten, die die Zusatzschicht verändert – vor jedem Mischer-Schritt zurückgesetzt, damit sich nichts aufsummiert (Knoten ohne Spur im Clip: Augen, Hilfsknochen, Fuß-IK-Lagen)
+  const set = new Set([...(r.chestChain || []), ...(r.neckChain || []), ...(r.headChain || []), r.lEye, r.rEye, ...r.legs.flat()].filter(Boolean)); r.base = [...set].map(o => [o, o.quaternion.clone(), o.position.clone()]);
+  // Kopf: Blickrichtung/Oben im Kopfknochen-Raum und Ruhe-Lage Kopf gegen Brustkorb (Sicherheitsnetz); Figur schaut in der Ruhe nach +z
+  obj.updateMatrixWorld(true); const q0 = new THREE.Quaternion(), qo = new THREE.Quaternion(), tv = new THREE.Vector3(), ts = new THREE.Vector3(); obj.matrixWorld.decompose(tv, qo, ts); qo.invert();
+  const wq = b => { const q = new THREE.Quaternion(); b.matrixWorld.decompose(tv, q, ts); return q.premultiply(qo); };
+  if (r.legs.length === 2) { const mi = obj.matrixWorld.clone().invert(); r.ankle = Math.min(...r.legs.map(L => L[2].getWorldPosition(tv).applyMatrix4(mi).y)); } // Knöchelhöhe über dem Boden (Ruhe, Figurraum)
+  if (r.chest) r.cF = new THREE.Vector3(0, 0, 1).applyQuaternion(wq(r.chest).invert()); // Brustkorb-Blickrichtung im Knochenraum (Blick-Grenze relativ zum Oberkörper)
+  if (r.head) { q0.copy(wq(r.head)).invert(); r.hF = new THREE.Vector3(0, 0, 1).applyQuaternion(q0); r.hU = new THREE.Vector3(0, 1, 0).applyQuaternion(q0); if (r.chest) r.hcRest = wq(r.chest).invert().multiply(wq(r.head)); }
   return r; }
+function figuren_rest(r) { for (const [o, q, p] of r.base) { o.quaternion.copy(q); o.position.copy(p); } }
+// Knoten mit Spuren in den Clips (einmal je Vorlage)
+function figuren_animSet(T) { if (!T.anim) { T.anim = new Set(); for (const k in T.clips) for (const t of T.clips[k].tracks) T.anim.add(t.name.slice(0, t.name.lastIndexOf('.'))); } return T.anim; }
 function figuren_mvNew() { return { init: false, yaw: 0, yawV: 0, spd: 0, spdV: 0, moving: false, run: false, turn: null, turnT: 0, turnY0: 0, turnD: 0, idleT: 4 + Math.random() * 8, once: false, clipT: 0, shot: null, then: null,
   br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false }; }
 // Kritisch gedämpfte Feder (implizit, stabil bei großen dt): s[k] Wert, s[kv] Geschwindigkeit
@@ -196,7 +222,7 @@ function figuren_legIK(L, dy) { const M = FIGUREN_MV, [U, K, F] = L; U.matrixWor
 // Welche Clips für Gehen/Laufen/Ruhe (Gangart)
 const FIGUREN_GAIT = { null: ['walk', 'run', 'idle'], vorsicht: ['walk_vorsicht', 'run', 'alert'], muede: ['walk_muede', 'walk', 'erschoepft'], panik: ['walk_vorsicht', 'run_panik', 'nervous'], alt: ['walk', 'walk', 'idle'], zombie: ['z_walk', 'z_run', 'z_idle'] };
 const FIGUREN_IDLES = ['idle', 'idle2', 'idle3'];
-function figuren_locoClip(P, want) { const G = FIGUREN_GAIT[P.gait] || FIGUREN_GAIT.null, k = want === 'walk' ? G[0] : want === 'run' ? G[1] : G[2]; return P.acts[k] ? k : P.acts[want] ? want : 'idle'; }
+function figuren_locoClip(P, want) { const G = FIGUREN_GAIT[P.gait] || FIGUREN_GAIT.null, k0 = want === 'walk' ? G[0] : want === 'run' ? G[1] : G[2], k = P.bad && P.bad[k0] ? P.bad[k0] : k0; return P.acts[k] ? k : P.acts[want] ? want : 'idle'; }
 function figuren_tick(dt) {
   figuren_S.T.value += dt; const M = FIGUREN_MV, t0 = performance.now(); M.n = M.near = M.ik = 0;
   // Gestalten mit gemaltem Gesicht (stalker, sitter): passende Person nachziehen, sobald sie sichtbar wird
@@ -225,23 +251,37 @@ function figuren_tick(dt) {
     if (V.shot && P.cur && P.curK === V.shot && P.cur.time >= P.cur.getClip().duration - .45) { const nx = V.then || (P.fixed ? 'idle' : figuren_locoClip(P, V.moving ? (V.run ? 'run' : 'walk') : 'idle')); V.shot = null; figuren_play(P, nx, false, { fade: .45 }); }
     // sichtbare Drehung: Person innerhalb der Gruppe um (Feder-Blickrichtung − Gruppenrichtung) drehen
     if (!P.sit) P.obj.rotation.y = figuren_wrap(V.yaw - gy);
+    figuren_rest(P.rig); // P2: Zusatzschicht des letzten Bildes zurücknehmen (sonst summieren sich Knoten ohne Clip-Spur auf: drehende Augen/Köpfe)
     P.mx.update(edt);
     if (!near && !(inView && dist < 20)) continue;
     if (P.mv.off) continue; // Zusatzschicht nach einem Fehler für diese Figur aus (nie das Spiel anhalten)
     try { P.obj.updateMatrixWorld(true);
       figuren_breath(P, V, edt);
       if (P.look || V.lw > .01) figuren_look(P, V, edt);
-      if (near && !P.sit && dist < 9 && P.rig.legs.length === 2 && typeof colliders !== 'undefined') figuren_feet(P, V, edt, w, gy); } catch (e) { console.warn('figuren Zusatzschicht', P.id, e); P.mv.off = true; }
+      if (near && !P.sit && dist < 9 && P.rig.legs.length === 2 && typeof colliders !== 'undefined') figuren_feet(P, V, edt, w, gy);
+      if (near && P.sit && V.seatY !== null && P.rig.legs.length === 2) figuren_seatFeet(P, w); } catch (e) { console.warn('figuren Zusatzschicht', P.id, e); P.mv.off = true; }
+    if (near || dist < 20) figuren_guard(P, V);
   }
   M.ms = performance.now() - t0;
 }
+// P2 Sicherheitsnetz (je Bild, ohne Allokation): Kopf gegen Brustkorb > 100° gegenüber der Ruhe oder NaN → erst die Zusatzschicht für dieses Bild weglassen,
+// liegt es am Clip selbst: Clip für diese Figur sperren und sofort auf den Rückfall-Clip (Gehen/Stehen) – nie ein verdrehter Kopf im Bild.
+function figuren_guard(P, V) { const r = P.rig; if (!r.head || !r.chest || !r.hcRest) return; const M = FIGUREN_MV;
+  const bad = () => { r.chest.matrixWorld.decompose(M.p, M.qa, M.s); r.head.matrixWorld.decompose(M.p, M.qb, M.s); if (!Number.isFinite(M.p.x + M.p.y + M.p.z + M.qb.w)) return true; M.qa.invert().multiply(M.qb); return 2 * Math.acos(Math.min(1, Math.abs(M.qa.dot(r.hcRest)))) > 1.75; };
+  if (!bad()) return; M.flip = (M.flip || 0) + 1; figuren_rest(r); P.mx.update(0); P.obj.updateMatrixWorld(true); if (!bad()) return;
+  const k = P.curK, m = P.motion && P.motion[k], fb = m && m.rm === 'lin' ? figuren_locoClip(P, 'walk') : 'idle'; if (!P.acts[fb] || fb === k) return;
+  if (!P.bad) P.bad = {}; P.bad[k] = fb; console.warn('figuren: Clip gesperrt (Kopf-Grenze)', P.id, k, '→', fb); if (V.shot === k) V.shot = null;
+  figuren_play(P, fb, true); P.mx.update(0); P.obj.updateMatrixWorld(true); }
+// Sitzen: Füße nie durch den Boden (Stuhl niedriger als in der Aufnahme) → Beine per IK anheben, Knie beugen sich mehr
+function figuren_seatFeet(P, w) { const L = P.rig.legs, M = FIGUREN_MV; if (P.rig.ankle === undefined) return;
+  const sc = P.obj.matrixWorld.getMaxScaleOnAxis(); for (let i = 0; i < 2; i++) { L[i][2].getWorldPosition(M.v); const lift = w.y + P.rig.ankle * sc - M.v.y; if (lift > .005) figuren_legIK(L[i], Math.min(.35, lift)); } }
 // Fortbewegung: Ruhe ↔ Gehen ↔ Laufen, Abspieltempo aus dem Weg-Tempo, Dreh-Clips im Stand, Ruhe-Varianten
 function figuren_loco(P, V, dt, gy, wsc) { const Mo = P.motion || {};
   const wk = figuren_locoClip(P, 'walk'), rk = figuren_locoClip(P, 'run'), wv = ((Mo[wk] && Mo[wk].speed) || 1.25) * wsc, rv = ((Mo[rk] && Mo[rk].speed) || wv * 2) * wsc;
   if (V.moving ? V.spd < .1 : V.spd > .22) { V.moving = !V.moving; if (!V.moving) V.idleT = 6 + Math.random() * 10; }
   if (V.moving && rk !== wk) V.run = V.run ? V.spd > (wv + rv) * .44 : V.spd > (wv + rv) * .56; else V.run = false;
   if (V.shot) { figuren_spr(V, 'yaw', 'yawV', V.yaw + figuren_wrap(gy - V.yaw), 6, dt); return; }
-  if (V.moving) { V.turn = null; const k = V.run ? rk : wk, cv = V.run ? rv : wv; if (P.curK !== k) figuren_play(P, k); if (P.cur) P.cur.timeScale = Math.min(1.7, Math.max(.55, V.spd / cv));
+  if (V.moving) { V.turn = null; const k = V.run ? rk : wk, cv = V.run ? rv : wv; if (P.curK !== k) figuren_play(P, k); if (P.cur) P.cur.timeScale = Math.min(V.run ? 2 : 1.7, Math.max(.55, V.spd / cv)); // Laufen darf schneller takten (Kinder-Jog 1,1 m/s) – sonst gleiten die Füße
     figuren_spr(V, 'yaw', 'yawV', V.yaw + figuren_wrap(gy - V.yaw), V.run ? 7 : 9, dt); if (V.run) V.exert = Math.min(1, V.exert + dt * .08); return; }
   V.exert = Math.max(0, V.exert - dt * .03);
   // Drehen auf der Stelle
@@ -249,7 +289,7 @@ function figuren_loco(P, V, dt, gy, wsc) { const Mo = P.motion || {};
   if (V.turn) { const m = Mo[V.turn], a = P.acts[V.turn]; const t = a ? a.time : 99, c = m && m.root && m.root.yaw;
     if (c && a && P.curK === V.turn && t < m.dur - .05) { const f = Math.min(c.length - 1.001, t * 10), i = Math.floor(f), yv = c[i] + (c[i + 1] - c[i]) * (f - i); V.yaw = V.turnY0 + yv * V.turnD; V.yawV = 0; return; }
     V.turn = null; V.yaw = V.turnY0 + (m ? m.turn * V.turnD : diff); figuren_play(P, figuren_idleKey(P), false, { fade: .45 }); }
-  if (Math.abs(diff) > 1.05 && !P.gait) { const k = Math.abs(diff) > 2.4 && P.acts.turn_180 ? 'turn_180' : diff > 0 ? 'turn_l' : 'turn_r', m = Mo[k];
+  if (Math.abs(diff) > 1.05 && !P.gait) { const k = Math.abs(diff) > 2.4 && P.acts.turn_180 && !(P.bad && P.bad.turn_180) ? 'turn_180' : diff > 0 ? 'turn_l' : 'turn_r', m = Mo[k];
     const k2 = m && Math.sign(m.turn) !== Math.sign(diff) && k === 'turn_180' ? (diff > 0 ? 'turn_l' : 'turn_r') : k, m2 = Mo[k2];
     if (P.acts[k2] && m2 && m2.turn && Math.sign(m2.turn) === Math.sign(diff)) { const k = k2, m = m2; V.turn = k; V.turnY0 = V.yaw; V.turnD = Math.abs(diff / m.turn) * Math.sign(diff * m.turn); V.turnD = Math.sign(V.turnD) * Math.min(1.35, Math.max(.65, Math.abs(V.turnD))); figuren_play(P, k, false, { fade: .3, once: true }); return; } }
   figuren_spr(V, 'yaw', 'yawV', V.yaw + diff, 5, dt);
@@ -267,19 +307,25 @@ function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) 
   if (T === 'cam' || T === 'auto') { M.T.copy(camera.position); if (T === 'auto') { r.head.getWorldPosition(M.v); if (M.v.distanceTo(M.T) > 5) want = 0; } }
   else if (T && T.isObject3D) T.getWorldPosition(M.T); else if (T && T.isVector3) M.T.copy(T); else want = 0;
   r.head.getWorldPosition(M.v); M.v2.copy(M.T).sub(M.v); const yaw = V.yaw, fx = Math.sin(yaw), fz = Math.cos(yaw), lx = Math.cos(yaw), lz = -Math.sin(yaw);
-  const hf = M.v2.x * fx + M.v2.z * fz, hl = M.v2.x * lx + M.v2.z * lz; let ty = Math.atan2(hl, hf), tp = Math.atan2(M.v2.y, Math.hypot(hf, hl)); if (Math.abs(ty) > 1.9) want = 0;
-  figuren_spr(V, 'lw', 'lwV', want, 4, dt); const W = Math.max(0, Math.min(1, V.lw)); ty *= W; tp *= W;
-  const hy = Math.max(-1.05, Math.min(1.05, ty)), hp = Math.max(-.45, Math.min(.6, tp)); figuren_spr(V, 'hy', 'hyV', hy, 5.5, dt); figuren_spr(V, 'hp', 'hpV', hp, 5.5, dt);
-  const ey = Math.max(-.45, Math.min(.45, ty - V.hy)), ep = Math.max(-.3, Math.min(.3, tp - V.hp)); figuren_spr(V, 'ey', 'eyV', ey, 28, dt); figuren_spr(V, 'ep', 'epV', ep, 28, dt);
+  const hf = M.v2.x * fx + M.v2.z * fz, hl = M.v2.x * lx + M.v2.z * lz, ty = Math.atan2(hl, hf), tp = Math.atan2(M.v2.y, Math.hypot(hf, hl)), behind = Math.abs(ty) > 1.9; if (behind) want = 0;
+  figuren_spr(V, 'lw', 'lwV', want, 4, dt); const W = Math.max(0, Math.min(1, V.lw));
+  // P2: Zielrichtung des Kopfes relativ zum Körper, harte Grenzen (seitlich ±60°, −26°/+34°); Ziel hinter der Figur: Richtung einfrieren und ausblenden (kein Umschlagen von +60° auf −60°)
+  if (!behind) { figuren_spr(V, 'hy', 'hyV', Math.max(-1.05, Math.min(1.05, ty)), 5.5, dt); figuren_spr(V, 'hp', 'hpV', Math.max(-.45, Math.min(.6, tp)), 5.5, dt); }
+  if (W < .002) return;
+  // Blickrichtung, die der Clip dem Kopf gerade gibt → Zusatzdrehung = Ziel − Clip (kürzester Weg), so bleibt die Summe innerhalb der Grenzen, egal wie weit sich der Clip-Kopf schon dreht
+  r.head.matrixWorld.decompose(M.pv, M.qa, M.s); M.v5.copy(r.hF).applyQuaternion(M.qa); const yc = Math.atan2(M.v5.x * lx + M.v5.z * lz, M.v5.x * fx + M.v5.z * fz), pc = Math.asin(Math.max(-1, Math.min(1, M.v5.y)));
+  let fy = V.hy; if (r.cF) { r.chest.matrixWorld.decompose(M.pv, M.qb, M.s); M.v5.copy(r.cF).applyQuaternion(M.qb); const cy = Math.atan2(M.v5.x * lx + M.v5.z * lz, M.v5.x * fx + M.v5.z * fz); fy = cy + Math.max(-1.05, Math.min(1.05, figuren_wrap(V.hy - cy))); } // höchstens 60° gegen den Oberkörper (dreht der Clip den Rumpf, z. B. beim Umdrehen)
+  const dy = Math.max(-1.3, Math.min(1.3, figuren_wrap(fy - yc))) * W, dp = Math.max(-.8, Math.min(.8, V.hp - pc)) * W;
+  const ey = Math.max(-.45, Math.min(.45, (ty - V.hy) * W)), ep = Math.max(-.3, Math.min(.3, (tp - V.hp) * W)); figuren_spr(V, 'ey', 'eyV', behind ? 0 : ey, 28, dt); figuren_spr(V, 'ep', 'epV', behind ? 0 : ep, 28, dt);
   M.v3.set(lx, 0, lz); // Querachse (links)
-  if (r.neckChain) { r.neck.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.hy * .4); M.q2.setFromAxisAngle(M.v3, -V.hp * .35); M.q.multiply(M.q2); figuren_rotChain(r.neckChain, M.pv, M.q); }
-  if (r.headChain) { r.head.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.hy * .6); M.q2.setFromAxisAngle(M.v3, -V.hp * .65); M.q.multiply(M.q2); figuren_rotChain(r.headChain, M.pv, M.q); }
-  if (r.lEye || r.rEye) for (const e of [r.lEye, r.rEye]) { if (!e) continue; e.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.ey); M.q2.setFromAxisAngle(M.v3, -V.ep); M.q.multiply(M.q2); figuren_rotChain([e], M.pv, M.q); }
+  if (r.neckChain) { r.neck.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, dy * .4); M.q2.setFromAxisAngle(M.v3, -dp * .35); M.q.multiply(M.q2); figuren_rotChain(r.neckChain, M.pv, M.q); }
+  if (r.headChain) { r.head.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, dy * .6); M.q2.setFromAxisAngle(M.v3, -dp * .65); M.q.multiply(M.q2); figuren_rotChain(r.headChain, M.pv, M.q); }
+  for (let i = 0; i < r.eyes.length; i++) { const e = r.eyes[i]; e[0].getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.ey); M.q2.setFromAxisAngle(M.v3, -V.ep); M.q.multiply(M.q2); figuren_rotChain(e, M.pv, M.q); }
   if (r.eyeM.length) for (const [o, i, d] of r.eyeM) o.morphTargetInfluences[i] = Math.max(0, Math.min(1, d === 'L' ? V.ey / .45 : d === 'R' ? -V.ey / .45 : d === 'Up' ? V.ep / .3 : -V.ep / .3)); }
 // Fuß-IK: Boden unter jedem Fuß (10 Hz abgetastet, gefedert); Becken sinkt auf den tieferen Fuß, der höhere Fuß wird angehoben
 function figuren_feet(P, V, dt, w, gy) { const r = P.rig, M = FIGUREN_MV, L = r.legs;
-  if ((V.ikT -= dt) <= 0) { V.ikT = .1; for (let i = 0; i < 2; i++) { const F = L[i][2]; F.getWorldPosition(M.v); const g = figuren_ground(M.v.x, w.y, M.v.z); const o = g === null ? 0 : Math.max(-.4, Math.min(.45, g - w.y)); if (i) V.gR = o; else V.gL = o; } }
-  figuren_spr(V, 'oL', 'oLV', V.gL, 14, dt); figuren_spr(V, 'oR', 'oRV', V.gR, 14, dt);
+  if ((V.ikT -= dt) <= 0) { V.ikT = .05; /* P2: 20 Hz (vorher 10 Hz: Fuß tauchte beim Betreten einer Stufe bis 10 cm ein) */ for (let i = 0; i < 2; i++) { const F = L[i][2]; F.getWorldPosition(M.v); const g = figuren_ground(M.v.x, w.y, M.v.z); const o = g === null ? 0 : Math.max(-.4, Math.min(.45, g - w.y)); if (i) V.gR = o; else V.gL = o; } }
+  figuren_spr(V, 'oL', 'oLV', V.gL, V.gL > V.oL ? 24 : 14, dt); figuren_spr(V, 'oR', 'oRV', V.gR, V.gR > V.oR ? 24 : 14, dt); // hinauf schneller als hinab
   const drop = Math.min(V.oL, V.oR); figuren_spr(V, 'drop', 'dropV', drop, 12, dt);
   if (Math.abs(V.oL) < .004 && Math.abs(V.oR) < .004 && Math.abs(V.drop) < .004) { if (P.obj.position.y !== 0 && !P.sit) P.obj.position.y = 0; return; }
   M.ik++; const gs = P.g.getWorldScale(M.s).y || 1; P.obj.position.y = V.drop / gs;

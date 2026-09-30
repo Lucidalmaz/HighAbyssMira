@@ -518,10 +518,10 @@ async function justin_ende(c) { $('fade').style.background = '#fff'; await fade(
 function justin_nachbildKlon(o) { const weg = []; o.traverse(m => { if (m.userData && m.userData.jFlick) weg.push(m); if (m.isMesh && /haar|hair|scalp|bart|beard|Chin|Mustache|Stubble/i.test(m.name)) weg.push(m); if (m.name === 'feder') weg.push(m); }); weg.forEach(m => m.parent && m.parent.remove(m)); return o; }
 
 // P2: Überblenden aus den aktuellen Gewichten (Summe bleibt 1: keine Bindepose dazwischen, kein Hochspringen eines halb ausgeblendeten Clips) – ersetzt jPlay (Basis)
-function justin_ueberblend(a, fade) { const wA = a.enabled && a.isRunning() ? a.getEffectiveWeight() : 0; a.enabled = true; a.setEffectiveWeight(1); a.play();
-  for (const n in justin.acts) { const b = justin.acts[n]; if (b === a || !b.enabled || !b.isRunning()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
+function justin_ueberblend(a, fade) { const wA = a.enabled && a.isScheduled() ? a.getEffectiveWeight() : 0; a.enabled = true; a.setEffectiveWeight(1); a.play();
+  for (const n in justin.acts) { const b = justin.acts[n]; if (b === a || !b.enabled || !b.isScheduled()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
   if (fade > 0) a._scheduleFading(fade, wA, 1); justin.cur = a; }
-jPlay = function (k, fade = .35) { const a = justin.acts[k] || justin.acts.idle; if (!a || justin.cur === a) return; if (!(a.enabled && a.isRunning() && a.getEffectiveWeight() > .02) || a.loop === THREE.LoopOnce) a.reset(); justin_ueberblend(a, fade); };
+jPlay = function (k, fade = .35) { const a = justin.acts[k] || justin.acts.idle; if (!a || justin.cur === a) return; if (!(a.enabled && a.isScheduled() && !a.paused && a.getEffectiveWeight() > .02) || a.loop === THREE.LoopOnce) a.reset(); justin_ueberblend(a, fade); };
 // Mocap-Clip ohne Spur für manche Knochen (Knien: spine_02/04, neck_02, Drehknochen …): feste Spur aus dem Stand ergänzen – sonst mischt three.js dort die Bindepose hinein
 function justin_spurenErgaenzen(clip, ref) { const has = new Set(clip.tracks.map(t => t.name)); for (const t of ref.tracks) { if (has.has(t.name)) continue; const n = t.getValueSize(); clip.tracks.push(new t.constructor(t.name, [0], Array.from(t.values.slice(0, n)))); } }
 

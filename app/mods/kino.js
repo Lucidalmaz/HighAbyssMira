@@ -208,9 +208,9 @@ async function kino_mkFig(key, id) {
 async function kino_extraClips(P) { try { const r = await fetch('assets/chars/' + P.id + '/kino.json'); if (!r.ok) return; const L = await r.json();
   for (const j of L) { if (P.acts[j.name]) continue; const c = THREE.AnimationClip.parse(j); P.acts[c.name] = P.mx.clipAction(c); } } catch (e) {} } // Clips aus der Figur selbst (AP-MOCAP) haben Vorrang
 function kino_play_(P, k, ts = 1, fade = .5, once = false) { if (!P) return; const a = P.acts[k] || P.acts.idle; if (!a) return; if (P.cur === a) { a.timeScale = ts; return; }
-  const wA = a.enabled && a.isRunning() ? a.getEffectiveWeight() : 0; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.setEffectiveWeight(1); a.play(); a.timeScale = ts;
+  const wA = a.enabled && a.isScheduled() ? a.getEffectiveWeight() : 0; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.setEffectiveWeight(1); a.play(); a.timeScale = ts;
   // P2: aus den aktuellen Gewichten überblenden (Summe 1 → keine Bindepose dazwischen, kein Hochspringen eines halb ausgeblendeten Clips)
-  if (P.cur) for (const n in P.acts) { const b = P.acts[n]; if (b === a || !b.enabled || !b.isRunning()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
+  if (P.cur) for (const n in P.acts) { const b = P.acts[n]; if (b === a || !b.enabled || !b.isScheduled()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
   if (P.cur && fade > 0) a._scheduleFading(fade, wA, 1); P.cur = a; }
 function kino_sil(P, on) { if (!P || P.sil === on) return; P.sil = on; for (const [m, mat] of P.mats) m.material = on ? KINO_SIL : mat; }
 // Figur zeigen: Ort, Blickrichtung (rad), Bewegung; o: { sit, ts, t0, sil, look: [x,y,z] | Vector3 | 'cam', fade }

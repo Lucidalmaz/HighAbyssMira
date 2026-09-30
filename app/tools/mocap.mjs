@@ -259,6 +259,7 @@ export function retarget(src, tgt, opt = {}) {
     for (let f = 0; f < N; f++) { const qq = r.q.subarray(f * 4, f * 4 + 4); if (Math.abs(Math.abs(qq[0] * q0.x + qq[1] * q0.y + qq[2] * q0.z + qq[3] * q0.w) - 1) > 1e-7) qd = true;
       const d = Math.hypot(r.p[f * 3] - p0.x, r.p[f * 3 + 1] - p0.y, r.p[f * 3 + 2] - p0.z), L = Math.max(p0.length(), 1e-6); if (d > L * 1e-4 + 1e-6) pd = true; }
     for (let f = 1; f < N; f++) { const a = r.q, i = f * 4, j = i - 4; if (a[i] * a[j] + a[i + 1] * a[j + 1] + a[i + 2] * a[j + 2] + a[i + 3] * a[j + 3] < 0) for (let c = 0; c < 4; c++) a[i + c] = -a[i + c]; }
+    despike(times, r.q); // P2: Verdreh-Umschläge (Unterarm/Hand kippt für 1–3 Bilder um und zurück) und Sprünge im ersten/letzten Bild glätten
     if (qd || tk.has(o)) tracks.push({ node: o, path: 'quaternion', times, values: r.q });
     if (pd && (tk.has(o) || follow.has(o))) tracks.push({ node: o, path: 'position', times, values: r.p }); }
   // nahtlose Schleife: Restfehler Ende→Anfang über die ganze Länge verteilen
@@ -269,6 +270,20 @@ export function retarget(src, tgt, opt = {}) {
   meta.speed = +meta.speed.toFixed(4); meta.turn = +meta.turn.toFixed(4); meta.frames = [i0, i1]; meta.fams = sfam + '→' + tfam; meta.bones = keys.length;
   return { tracks, duration: (N - 1) / fps, meta };
 }
+
+// ---------- P2: Drehspitzen glätten – Schlüssel, die mit ≥ 15 rad/s wegspringen und binnen ≤ 0,2 s ebenso schnell zurückkehren (Umschlag der Unterarm-/Handdrehung bei der
+// Übertragung, Aufnahmefehler: im Bild ein zuckender, verdrehter Unterarm), werden aus den Nachbarn interpoliert; ein Sprung > 40° ins erste/letzte Bild (Einmal-Clips halten es!) → Nachbarwert.
+// Arbeitet auf gleichmäßigen Bildern (retarget) und auf reduzierten Schlüsseln (tools/mocap_glatt.mjs). Rückgabe: Anzahl geänderter Schlüssel.
+export function despike(times, values, { speed = 15, win = .2, maxRun = 4 } = {}) { const N = times.length; if (N < 3) return 0; let fixed = 0;
+  const qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), ang = (i, j) => { const d = Math.abs(values[i * 4] * values[j * 4] + values[i * 4 + 1] * values[j * 4 + 1] + values[i * 4 + 2] * values[j * 4 + 2] + values[i * 4 + 3] * values[j * 4 + 3]); return 2 * Math.acos(Math.min(1, d)); };
+  const fast = (i, j) => ang(i, j) >= Math.max(.35, speed * (times[j] - times[i])) && times[j] - times[i] <= .075; // schneller, großer Sprung zwischen zwei nahen Schlüsseln
+  for (let i = 1; i < N - 1; i++) { if (!fast(i - 1, i)) continue; const a0 = ang(i - 1, i);
+    for (let j = i + 1; j <= Math.min(N - 1, i + maxRun); j++) { if (times[j] - times[i - 1] > win) break;
+      if (fast(j - 1, j) && ang(i - 1, j) < Math.min(.6, a0 * .6)) { qa.fromArray(values, (i - 1) * 4); qb.fromArray(values, j * 4); if (qa.dot(qb) < 0) qb.set(-qb.x, -qb.y, -qb.z, -qb.w);
+        for (let k = i; k < j; k++) { const q = new THREE.Quaternion().slerpQuaternions(qa, qb, (times[k] - times[i - 1]) / (times[j] - times[i - 1])); if (q.dot(new THREE.Quaternion().fromArray(values, k * 4)) < 0) q.set(-q.x, -q.y, -q.z, -q.w); q.toArray(values, k * 4); fixed++; }
+        i = j - 1; break; } } }
+  const edge = (a, b) => { if (Math.abs(times[a] - times[b]) <= .075 && ang(a, b) > .7) { let s = values[b * 4] * values[a * 4] + values[b * 4 + 1] * values[a * 4 + 1] + values[b * 4 + 2] * values[a * 4 + 2] + values[b * 4 + 3] * values[a * 4 + 3] < 0 ? -1 : 1; for (let c = 0; c < 4; c++) values[a * 4 + c] = values[b * 4 + c] * s; fixed++; } };
+  edge(N - 1, N - 2); edge(0, 1); return fixed; }
 
 // ---------- Keyframe-Reduktion: Schlüssel weglassen, die sich aus den Nachbarn interpolieren lassen (Drehung ≤ tolR rad, Position ≤ tolP · Länge)
 export function reduce(times, values, n, tol) { const N = times.length; if (N <= 2) return { times, values };
