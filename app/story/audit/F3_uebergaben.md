@@ -88,3 +88,7 @@
 ## Aus P2 Figuren (fertig, F3_stand_p2_figuren.md)
 - Schlusstest: Figuren in echten Kap.-1–6-Szenen ansehen (Blick an Brustkorb gebunden – nur Node-getestet); LWO-Tempo (Wolter/Gisela/Günther) über Mocap abnehmen; Justins Kopf beim Gehen leicht nach hinten?
 - Politur: stetige Unterarmdrehung in mocap.mjs + Neu-Backen (dann Sperrliste lockern); Fuß sinkt an Stufen kurz ~10 cm; CC-Kinder Brustkorb steif; Fuchs/Wolf-Schwanz zittert, Katze `walk`-Pfote an der Schleifennaht.
+
+## Aus AP-20 (fertig, F3_stand_ap20.md) – für AP-22 Kap. 5
+- Abfragen `neben4_hat('post_c'|'post_ab'|'gasleck_zurueck'|'grete_foto')`, `neben4_postWeg()`; Weg c: Einbruch −15, B-K5-N1, danach `k4_post` abschließen; `k4_kreisel` endet mit Polaroid „HEINI“; Gisela nach der Szene am Napfbrett.
+- Offen: Weg a mit Vegas' Schachtel gegen Pfandflaschen; Vegas-Monolog zum Schuppenschloss; Grete-Foto mit Stellvertreterfiguren; Assets Transportkiste, weißer Kastenwagen, Postsäcke. Schlusstest: Gasleck komplett.
