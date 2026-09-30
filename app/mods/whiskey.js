@@ -79,7 +79,7 @@ const WHISKEY_ST = [
   { id: 'stall', at: [-140.5, -28], when: () => whiskey_k() === 5 && ['stall', 'augenauf'].includes(whiskey_k5()), done: () => false, look: [-138.2, -30.1], near: d => whiskey_w12nah(d),
     mood: () => whiskey_S.flags.has('w12_still') ? 'still' : '' },
   // ---- Kapitel 6 (bis W-13; danach führt kapitel6.js ihn zum Hochsitz)
-  { id: 'gitter', at: [27.98, 98.02], when: () => whiskey_k() === 6 && whiskey_k6() === 'gitter', done: () => false, look: [30, 110] },
+  { id: 'gitter', at: [27.98, 98.02], when: () => whiskey_k() === 6 && whiskey_k6() === 'gitter', done: () => false, look: [30, 110], mood: 'still' }, // AP-23: am Gitter still – „Du sagst gar nichts. Das ist neu.“
   { id: 'baumhausdach', at: [-22, 141], when: () => whiskey_k() === 6 && !whiskey_S.trade && !whiskey_S.light && whiskey_d(-22, 141) < 32, done: () => whiskey_S.trade,
     talk: () => whiskey_kanonBaumhaus(), near: d => { if (d < 10 && !whiskey_S.flags.has('deckel')) whiskey_deckelHin(); } },
   { id: 'lager', at: [81.3, 233.2], when: () => whiskey_k() === 6 && !whiskey_S.light && whiskey_d(80.5, 233) < 22 && !whiskey_S.flags.has('k6_3'), done: () => whiskey_S.flags.has('k6_3'),

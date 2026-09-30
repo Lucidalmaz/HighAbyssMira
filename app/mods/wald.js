@@ -135,7 +135,7 @@ function wald_shoe() {
 function wald_pup() {
   const S = wald_S; if (story.lore.some(l => l.key === 'wald_welpe')) return toast('Die Schlinge liegt offen im Laub. Von den Wölfen keine Spur – aber du weißt, dass sie da sind.', 3600);
   sideStart('wald_welpe');
-  if (!story.items.includes('drahtschneider')) { story.side.wald_welpe.desc = 'Ein Wolfswelpe hängt in einer Drahtschlinge. Mit bloßen Händen bekommst du den Draht nicht auf.'; return toast('Ein Wolfswelpe. Der Draht hat sich um sein Hinterbein gezogen, er zittert. Hinter dir knurrt es, tief und leise. Mit bloßen Händen bekommst du den Draht nicht auf.', 5200); }
+  if (!story.items.includes('drahtschneider') && !story.items.includes('seitenschneider')) { /* Kap. 6: auch der Seitenschneider der Bergung (AG-18, kapitel6.js) */ story.side.wald_welpe.desc = 'Ein Wolfswelpe hängt in einer Drahtschlinge. Mit bloßen Händen bekommst du den Draht nicht auf.'; return toast('Ein Wolfswelpe. Der Draht hat sich um sein Hinterbein gezogen, er zittert. Hinter dir knurrt es, tief und leise. Mit bloßen Händen bekommst du den Draht nicht auf.', 5200); }
   Audio.play('metalHit2', { gain: .3, rate: 1.9 }); if (S.snare) S.snare.visible = false;
   story.lore.push({ key: 'wald_welpe', title: 'Nicht rennen, Lampe an', html: 'Ein Wolfswelpe in einer Drahtschlinge. Du hast sie aufgeschnitten. Die Wölfe haben zugesehen und nichts getan.\n\nIn den Draht war ein Taschenmesser gewickelt. In den Griff geritzt: <b>JONAS W.</b>\nZayns großer Bruder war hier. Irgendwann. Er hat gesucht.' });
   sideDone('wald_welpe', 'Der Welpe ist frei. Im Draht: ein Taschenmesser mit dem Namen JONAS W.');

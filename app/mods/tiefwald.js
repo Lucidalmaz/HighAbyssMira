@@ -225,6 +225,7 @@ function tief_zettel(i) {
 }
 function tief_fahrtenbuch() {
   const t = 'Fahrtenbuch', h = 'Ein Fahrtenbuch in einer Klarsichthülle, aufgequollen. Die ersten Seiten 1958, gleiche Handschrift bis zum Schluss.\n\nLetzte Eintragung:\n<b>28.07.2009 · 23:40 · Verschwunden: 7</b>\n<b>05.08.2009 · 03:13 · Rückgeführt: 6 · Offen: 1</b>\nGez. Dr. T. Seiler\n\nDarunter, mit Bleistift, eine andere Hand: <i>„Drei Uhr dreizehn. Sie kommt noch.“</i>';
+  if (typeof hungrige_S !== 'undefined' && hungrige_S.epilog) return openNote(t, h + '\n\nDarunter, frisch, mit Bleistift, in einer kleinen, geraden Schrift: <span class="hand">„Offen: 1. Und einer, der es nie war.“</span>'); // Kap. 6 nach dieser Nacht (AP-23)
   if (!tief_has('tief_fahrtenbuch')) { story.lore.push({ key: 'tief_fahrtenbuch', title: 'Das Fahrtenbuch des Amtes', html: h }); if (typeof gedanke === 'function') gedanke('tief_fb', 'Seiler hat es selbst unterschrieben. Sieben verschwunden, sechs zurück. „Offen: 1“ – als wäre Zayn eine Zahl, die nicht aufgeht.', 1500, 3); }
   openNote(t, h);
 }
