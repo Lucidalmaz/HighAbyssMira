@@ -16822,6 +16822,7 @@ function lucy3_pressSwitch(S) {
 pressSwitch = lucy3_pressSwitch;
 async function lucy3_wrongSwitch() {
   const S = lucy3_S; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; Audio.stinger(false); shake = .03; glitchV = .6;
+  if (S.lampFails === 3 && typeof beob_S !== 'undefined') beob_S.noteT = Math.min(beob_S.noteT, 12); // Hilfe 4: der Beobachter legt seinen Laternen-Zettel bald ab (beobachter.js prüft lampFails >= 3)
   lamps.forEach(L => { if (L.mode !== 'off' || switchBoxes.some(B => B.L === L)) L.mode = 'flicker'; });
   toast('Alle Laternen flammen gleichzeitig auf. Aus dem Nebel: Kinderlachen.', 3800); Audio.giggle(player.pos.x + 4, 1.2, player.pos.z - 4);
   await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse');
