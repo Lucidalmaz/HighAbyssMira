@@ -146,7 +146,7 @@ Gisela redet durchs Küchenfenster, schnell, schlagfertig, mit einer Zigarette, 
 - „Der Graue mit dem Hut? Der stand schon achtundfünfzig da vorn, als sie meinen Bruder geholt haben. Der hat sich nicht verändert. Das ist nicht gesund. Das ist nicht mal legal.“
 - „Wenn Roxy in die Ecke starrt, steht da einer. Wenn alle siebzehn in die Ecke starren, geh ich ins Bett.“
 - „Der Kleine hinterm Zaun tut nichts. Der guckt nur. Der guckt seit siebzig Jahren. Er hat mir mal ’nen Zettel dagelassen: ‚WARUM HABEN KATZEN KEINE NAMEN DIE SIE KENNEN.‘ Frag ich mich auch.“
-- „Hänschen war acht. Er wollte nur die Laterne tragen. Meine Mutter hat unterschrieben, weil der Doktor gesagt hat, das sei eine Formalität. Ich hab das Wort seitdem nicht mehr benutzt.“
+- „Hänschen war sechs. Er wollte nur die Laterne tragen. Meine Mutter hat unterschrieben, weil der Doktor gesagt hat, das sei eine Formalität. Ich hab das Wort seitdem nicht mehr benutzt.“
 - „Nimm die hier mit. Die sieht, was du nicht siehst. Und sie frisst alles, das ist bei dir bestimmt praktisch.“
 - „Das Fahrrad am Zaun ist seins. Steht seit achtundfünfzig da. Rost hält länger als Menschen, das ist die einzige Lehre aus dem ganzen Dreck.“
 - „Du redest mit Katzen? Gut. Dann bist du nicht ganz verloren. Die Verlorenen reden mit dem Amt.“
@@ -673,7 +673,7 @@ Vegas reicht Luke durch den Spalt einen Beutel mit Batterien („Aus meinem Notv
 | alter Name | neuer Name | Herkunft |
 |---|---|---|
 | „Der Abzählreim“ (`entdecker.js`, `ENTD_REIM`) | **Siebzehn und noch eins** | Lunas Zahlengrenze, letzte Zeile des Reims |
-| Lars Vegas’ Spinnereien (`albers.js`, Kopfkommentar) | **Der Vegas hat recht** | was keiner hören will („Das Schlimmste am Rechthaben …“) |
+| Lars Vegas’ Spinnereien (`albers.js`, Kopfkommentar) | **Das Schlimmste am Rechthaben** | was keiner hören will („Das Schlimmste am Rechthaben …“) |
 | – | **Für den Fall, dass du kommst** | Oma Ernas erster Zettel (Nebenaufgabe aus Kap. 1 übernommen) |
 | – | **DAMALS** (Fibel-Reiter) | Jonas’ Einträge von 2009 |
 | – | **Das bist du** (Du-Seite) | Jonas’ Überschrift |

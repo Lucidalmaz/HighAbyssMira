@@ -92,3 +92,6 @@
 - 86: Kater „Keiner“ = der graue Kater aus Kap. 4 („weil keiner gesagt hat, wie er heißt“); Giselas Zeilen zum Jungen von 1958 stehen in Kap. 4; Gisela weiß nicht, wo er liegt.
 - 83: Busdach-Station: nur Sitzen, keine Laute.
 - 82: B-K6-06 „Du bist der Speck“ auf dem dritten Kindersitz; B-K4-07 in der Kuhle der Matratze, Zelle Ost (prüfen).
+
+## Nachtrag aus dem Namensverzeichnis (für 86)
+- Annis Nebenaufgabe heißt „Papa, ich bin’s“ (Kap. 6, N-07); „Annis Lampion“ nur als Gegenstand. „Lars Albers, gen. Vegas“ streichen.

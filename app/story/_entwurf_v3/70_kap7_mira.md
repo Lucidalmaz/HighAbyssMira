@@ -16,7 +16,7 @@
 
 ### Unterkapitel
 
-#### 1 · „Zähl für mich“
+#### 1 · „Eine Hand am Rand“
 
 Der dritte und letzte Traum (der zweite liegt im Abspann von Kapitel 4, 02 E2). Luke ist Freitagmittag am Ortsschild im Auto eingeschlafen, wie in der ersten Nacht. Die leere Straße im weißen Nebel, die Laterne an der Kreuzung, Whiskey darauf. Diesmal klingt er kaum noch nach Rabe. Er klingt wie eine Frau, die keine Zeit hat.
 WHISKEY (Miras Worte): „Ich bin fast da. Ich brauche nur eine Hand am Rand und einen, der für mich zählt.“
@@ -212,7 +212,7 @@ Nach zehn Sekunden, kleiner: „AUSSENSTELLE 3 MELDET: DER CHOR SINGT LAUTER.“
 | alter Name | neuer Name | Herkunft |
 |---|---|---|
 | Kapitel 7 (Beobachter, Mira) | **∴** | das Zeichen des Beobachters |
-| – | Zähl für mich | Miras Worte im letzten Traum |
+| – | Eine Hand am Rand | Miras Hand bei dreizehn; ihre Worte im letzten Traum |
 | – | Einen Tag zu früh | Jonas’ Satz am Autofenster |
 | – | Länger als eine Sekunde | die Regel des Beobachters, die hier bricht |
 | – | Angelehnt | die Tür-Spur des Beobachters, jetzt das Schiff |

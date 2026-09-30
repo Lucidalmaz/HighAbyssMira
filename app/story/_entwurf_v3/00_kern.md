@@ -1,8 +1,8 @@
-# KERN – verbindliche Wahrheit für alle Schreibenden (Fassung 3, nach dem Autoren-Interview vom 29.09.2026)
+## Die Wahrheit – verbindlicher Kern (Fassung 3, nach dem Autoren-Interview vom 29.09.2026)
 
 Dieses Dokument ist die einzige Quelle der Wahrheit. Wer ein Kapitel, eine Notiz oder einen Dialog schreibt, hält sich daran. Wo die alte Bibel (`app/story/archiv/story_final_v2_2026-09-29.md`) etwas anderes sagt, gilt dieser Kern. Wo der Kern schweigt und die alte Bibel etwas Brauchbares hat (Koordinaten, Technik, Rätselmechanik), darf es übernommen werden, solange es der Wahrheit hier nicht widerspricht.
 
-## 0. Wünsche und Entscheidungen des Autors (stehen über allem)
+### 0. Wünsche und Entscheidungen des Autors (stehen über allem)
 
 **Allgemeine Wünsche:**
 - AAA-Niveau, vergleichbar mit Resident Evil, Silent Hill, P.T., Alan Wake 2 und starken Indie-Spielen. Tief wie Game of Thrones oder World of Warcraft, trotzdem **leicht verständlich** und für jeden verfolgbar.
@@ -48,7 +48,7 @@ Dieses Dokument ist die einzige Quelle der Wahrheit. Wer ein Kapitel, eine Notiz
 
 ---
 
-## 1. Die Geschichte in einer Minute (so muss sie jeder Spieler am Ende von Kapitel 6 nacherzählen können)
+### 1. Die Geschichte in einer Minute (so muss sie jeder Spieler am Ende von Kapitel 6 nacherzählen können)
 
 In der Martinsnacht 1312 ist hinter dem Hof des Ritters Justin ein Schiff vom Himmel gefallen: das Lichtschiff. Seine Besatzung waren kleine, blasse Wesen, die, wie man viel später ahnt, aus der fernen Zukunft der Erde stammen. Justins Tochter Luna, sieben Jahre alt, ist mit ihrer Martinslaterne hingelaufen und hineingegangen, sechs Kinder aus dem Dorf hinterher. Mama Mira hat die sechs wieder herausgeführt und ist noch einmal hinein, um Luna zu holen. Justin hat sie am Rand an der Hand gehalten, als ein Riss in der Zeit sie wegzog, und seine Hand ist aufgegangen. Mira ist verschwunden.
 
@@ -62,7 +62,7 @@ Luke ist der Wechselbalg von 2009, aus Justins Hand gemacht. Er kommt heim, um s
 
 ---
 
-## 2. Begriffe (Glossar) – jeder Begriff hat eine Herkunft
+### 2. Begriffe (Glossar) – jeder Begriff hat eine Herkunft
 
 | Begriff | Was es ist | Woher der Name kommt | Wer sagt es wie |
 |---|---|---|---|
@@ -92,7 +92,7 @@ Luke ist der Wechselbalg von 2009, aus Justins Hand gemacht. Er kommt heim, um s
 
 ---
 
-## 3. Die Nacht von 1312
+### 3. Die Nacht von 1312
 
 **Justin** war Ritter im Dienst des Grafen, Herr eines kleinen Hofes am Birkenwald. 1310 zog er mit dem König nach Italien (Romzug Heinrichs VII.). Vor **Brescia** sah er, was Menschen Kindern antun, wenn eine Stadt nicht aufgibt: Gefangene wurden vor den Mauern hingerichtet, in der Stadt verhungerten Kinder, und er stand in der Reihe und tat nichts. Er kam im Herbst 1312 heim, mit einer Narbe über der Rippe, Albträumen und einem Schwur, den er niemandem erzählte: *Nie wieder ein Kind, dem ich nicht helfe.*
 
@@ -112,7 +112,7 @@ Die sechs Kinder erzählten von der Frau mit der Laterne, die sie herausgeführt
 
 ---
 
-## 4. Das Lichtschiff, Nimmerheim und die Zeit (so erklärt es Justin, in kleinen Happen)
+### 4. Das Lichtschiff, Nimmerheim und die Zeit (so erklärt es Justin, in kleinen Happen)
 
 - Das Lichtschiff ist ein **Schiff, das lebt**, ein Sammler. Seine Leute ziehen durch die Zeit und sammeln Nachbilder. Es ist beim Absturz kaputtgegangen und hängt seitdem **halb in unserer Welt, halb außerhalb der Zeit**.
 - Es hat ein Herz, das denkt. Beim Absturz war das Herz leer, und das Erste, was es berührt hat, war Luna. Seitdem tut das Schiff, was Luna will: spielen, Spielkameraden, Mama und Papa. Statt Bilder sammelt es Kinder.
@@ -125,7 +125,7 @@ Die sechs Kinder erzählten von der Frau mit der Laterne, die sie herausgeführt
 
 ---
 
-## 5. Lunas Spielregeln
+### 5. Lunas Spielregeln
 
 Jede Regel ist ein echtes Kinderspiel und wird erst **gezeigt**, dann **erlebt**, dann **benutzt**, dann **erklärt**. Fibel-Eintrag „Lunas Spielregeln“: von Jonas als Kind angefangen (ohne zu wissen, wem sie gehören), von Luke weitergeschrieben.
 
@@ -146,7 +146,7 @@ Die **Kuh** gehört zu „Blinde Kuh“: Luna holt Tiere, spielt, lässt sie fal
 
 ---
 
-## 6. Die Lucid World Organization (LWO)
+### 6. Die Lucid World Organization (LWO)
 
 ### 6.1 Was sie ist und was sie glaubt
 Gegründet **1947** von Leuten aus mehreren Ländern, die nach dem Krieg in Trümmern Dinge gefunden hatten, die in kein Lehrbuch passten, und die überzeugt waren: **Da oben ist etwas, das Kinder frisst, und wenn die Menschen das erfahren, bricht alles zusammen.** Sie gehört keinem Staat und hat in vielen Ministerien Freunde. Nach außen ist sie nichts: ein Stiftungsname, ein „Institut für Atmosphärenforschung“, Katastrophenhilfe. Leitspruch auf internen Papieren: **SEHEN · BERGEN · SCHWEIGEN.** Zeichen: ein Kreis, darin ein offenes Auge über einer Flamme. Klein unter jedem BfR-Stempel, auf Transportern, Kisten, Dienstmarken, Kugelschreibern, Schlüsselanhängern, Kaugummipapier aus ihren Kantinen.
@@ -203,7 +203,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 7. Der Beobachter (∴)
+### 7. Der Beobachter (∴)
 
 **Wer er ist:** einer von drei Überlebenden der Besatzung des Lichtschiffs, ein Mensch aus der fernen Zukunft, „wir, nur anders“. Etwa so groß wie ein vierjähriges Kind, perlweiß, große dunkle Augen, zwei Fühler, drei Finger, drei Zehen. Er lebt ein wenig **neben der Zeit**: Wer ihn länger als eine Sekunde ansieht, schiebt ihn aus dieser Sekunde heraus, und er fällt woanders wieder hinein. Die LWO nennt ihn „nicht fixierbar“.
 
@@ -224,11 +224,11 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 8. Whiskey (Wîse)
+### 8. Whiskey (Wîse)
 
 **Wer er ist:** Miras Rabe von 1312. Er ist ihr in den Riss nachgeflogen und hat sie in der Zeit wiedergefunden (Raben finden immer heim). Mira hat ihm 2043 etwas vom Licht der Besatzung mitgegeben; seitdem fliegt er frei durch Nimmerheim, rein, raus, in andere Nächte, als ihr Bote. Am linken Fuß ein kleiner eiserner Ring mit dem Zeichen von Justins Hof: **ein Turm über einem Abgrund.** Sein Licht (Kap. 6) ist Miras Licht: eine Flamme, die kerzengerade steht und kalt-weiß brennt.
 
-**Wie er spricht:** Ganze Sätze **nur im Traum** (Prolog, evtl. ein zweiter Traum), das sind Miras Worte in Rabenmund; man merkt es später an ihrer Wortwahl. Wach: Geräusche und Stimmen nachmachen (Vegas’ „Himmelherrgott!“, Mikrowellen-Pling, Lukes Klingelton, Kinderlachen, Fahrradklingel, Lukes Fluchen, Oma Ernas Küchenwecker), alte Wörter von Mira: **„Kum!“** (komm), **„Such!“**, und einmal, am Ende von Kapitel 6, **„Luna.“** Er sagt **nie „Großer“** (wer das tut und aussieht wie Whiskey, ist der Wendigo).
+**Wie er spricht:** Ganze Sätze **nur im Traum** (Prolog, der zweite Traum im Abspann von Kapitel 4, der letzte zu Beginn von Kapitel 7), das sind Miras Worte in Rabenmund; man merkt es später an ihrer Wortwahl. Wach: Geräusche und Stimmen nachmachen (Vegas’ „Himmelherrgott!“, Mikrowellen-Pling, Lukes Klingelton, Kinderlachen, Fahrradklingel, Lukes Fluchen, Oma Ernas Küchenwecker), alte Wörter von Mira: **„Kum!“** (komm), **„Such!“**, und einmal, am Ende von Kapitel 6, **„Luna.“** Er sagt **nie „Großer“** (wer das tut und aussieht wie Whiskey, ist der Wendigo).
 
 **Charakter (Autor-Wunsch: nie lieblos, nie langweilig):** eitel (putzt sich demonstrativ, wenn Luke etwas nicht kapiert); beleidigt, wenn man ihn ignoriert, und klaut dann aus Trotz; Tauschhändler (Glänzendes gegen Nützliches); Rivalität mit Vegas um dessen Frühstücksspeck; äfft Luke im unpassendsten Moment nach; zärtlich zu Kindern und zu Lucy; **bei Gefahr plötzlich still und ernst** (das allein ist ein Grusel-Signal). Unter der Erde geht er nicht.
 
@@ -236,7 +236,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 9. Justin – Figur, Stimme, Bogen
+### 9. Justin – Figur, Stimme, Bogen
 
 - **Aussehen:** Plattenrüstung aus mattgrauem, leicht schimmerndem Material, das nicht wie Stahl aussieht (Schiffshaut), mit Flicken aus mehreren Jahrhunderten (eine Schnalle aus den 1950ern, ein Lederriemen von einem Schulranzen). Helm. Darunter ein Gesicht um die vierzig, braune Augen. Linke Handfläche: halbrunde Brandnarbe (Miras Ring). Am Schwert eine Kerbe (2009 an der Maschine im Amt).
 - **Stimme:** ruhig, knapp, wenige alte Wörter, verständlich. Trockener Humor über die Neuzeit, weil er jede Epoche nur eine Nacht lang gesehen hat („Eure Kutschen sind lauter geworden.“ – „Ein Kasten, in dem Stimmen wohnen. Das hatten wir auch. Wir nannten es Beichtstuhl.“). Isst in Kapitel 3 einen Schokoriegel aus Lukes Jacke und hält ihn danach für das Beste, was diese Zeit hervorgebracht hat. Sagt Lukes Namen erst am Ende (Kapitel 3 letzte Zeile oder nur auf Papier, SB-12).
@@ -246,7 +246,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 10. Figuren
+### 10. Figuren
 
 ### 10.1 Bestehende Figuren – was wahr ist
 - **Luke** (nach Pass 26, in Wahrheit seit 2009 auf der Welt): Wechselbalg aus Justins Hand. Braune Augen (Original blau). Halbrunde Narbe links („Fahrradunfall“, sagte Mama). Tontechniker in der Stadt, Nachtschicht, mischt Hörbücher und Podcasts; hört, was andere überhören (die Spieluhr unter geliehenen Stimmen). **Sarkastisch mit weichem Kern**, redet mit sich selbst und mit Katzen, verliert jeden Kampf gegen Whiskey. Schuld: elfmal nicht rangegangen; schämt sich, das Dorf verlassen zu haben. Nach großen Enthüllungen genau ein Satz oder nichts. Nie von vorn gezeigt.
@@ -275,7 +275,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 11. Wendungen und Aha-Momente
+### 11. Wendungen und Aha-Momente
 
 **Acht Pflicht-Wendungen** (je mindestens drei faire Hinweise, einer sichtbar oder hörbar):
 1. **Du hast sie rausgelassen.** (Kap. 1)
@@ -311,7 +311,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ---
 
-## 12. Kapitelplan
+### 12. Kapitelplan
 
 Zeit: Mittwoch, 4. November 2026, spät abends, bis Freitag, 6. November, Morgen. Prolog und Kapitel 1–3 in einer Nacht.
 
@@ -345,7 +345,7 @@ Alle drei münden in **„Noch eine Runde“**: Justin geht in Rüstung hinein, 
 
 ---
 
-## 13. Schreibregeln (für jeden Text im Spiel)
+### 13. Schreibregeln (für jeden Text im Spiel)
 
 **Verständlich:**
 - Jede Szene beantwortet eine Frage und stellt eine neue. Der Spieler weiß immer, was er als Nächstes will.
@@ -391,7 +391,7 @@ Alle drei münden in **„Noch eine Runde“**: Justin geht in Rüstung hinein, 
 
 ---
 
-## 14. Namen für Kapitel, Unterkapitel und Nebenaufgaben (Pflicht, Autor-Wunsch)
+### 14. Namen für Kapitel, Unterkapitel und Nebenaufgaben (Pflicht, Autor-Wunsch)
 
 **Jedes Kapitel, jedes Unterkapitel (Akt/Abschnitt eines Kapitels) und jede Nebenaufgabe bekommt einen eigenen Namen.** Kein Name darf generisch, austauschbar oder nach KI klingen („Das Licht“, „Die Wahrheit“, „Der Anfang“, „Die Suche“, „Das Geheimnis von …“, „Schatten der Vergangenheit“, „Der rote Faden“, „Die Lichtung“ sind verboten).
 
@@ -409,7 +409,7 @@ Jeder Kapitelabschnitt listet am Ende eine Tabelle **„Namen in diesem Kapitel�
 
 ---
 
-## 15. Verteilungsplan (damit Kapitel und Dossiers zusammenpassen)
+### 15. Verteilungsplan (damit Kapitel und Dossiers zusammenpassen)
 
 Kapitel-Autoren **platzieren** diese Dinge in ihren Beats und Nebenaufgaben (mit Kennung, Ort, Auslöser). Dossier-Autoren **schreiben die Texte**. Beide halten sich an diese Tabellen. Abweichungen nur mit Begründung unter „Offene Abstimmungen“.
 

@@ -354,7 +354,7 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 
 **Name:** Dinas Satz. Sie spricht diesmal.
 
-**Start:** Frau Aydın am Fenster (Nr. 16) oder Dinas Satz aus Kapitel 1 („Die Kreise sind von unten“). In der Remise neben dem Stall sitzt Dina auf einem Strohballen, die Augenbinde über den Augen; da sitzt sie, seit die Nacht aufgegangen ist, und da bleibt sie bis Kapitel 5. Sie ist wach; sie war drin.
+**Start:** Frau Aydın am Fenster (Nr. 8) oder Dinas Satz aus Kapitel 1 („Die Kreise sind von unten“). In der Remise neben dem Stall sitzt Dina auf einem Strohballen, die Augenbinde über den Augen; da sitzt sie, seit die Nacht aufgegangen ist, und da bleibt sie bis Kapitel 5. Sie ist wach; sie war drin.
 
 **Gespräch** (Dina, nie mehr als drei Zeilen am Stück):
 - DINA: „Du atmest wie ein Staubsauger, Luke. Setz dich.“
