@@ -19,6 +19,7 @@
 //   katzen_kater5(modus, opts): 'uebergabe' (Gisela gibt ihn, Luke trägt ihn kurz, dann folgt er) · 'folgen' · 'schwelle' {x,z,ry} (setzt sich, geht
 //     nicht weiter) · 'tisch' {x,y,z} · 'zurueck' {x,z} (bleibt stehen, sieht zurück) · 'starren' {x,y,z} · 'schnurren' {an} · 'nr1' {x,z,ry, ecke:[x,y,z]}
 //     · 'graukind' {x,z,ry} (Buckel, Fauchen ohne Ziel) · 'gitter' {x,z,ry, punkt:[x,y,z]} · 'vegas' {x,y,z,ry} · 'frei'
+//   katzen_kino(name, {x, z, bis, ab, dann, blick}) / katzen_kino(null) – Auftritt in einer Kinosequenz (kino.js, Abspann Kap. 1: BÄRBEL an Hildes Brille)
 //   Blickziel Beobachter: beob_pos() aus beobachter.js (wenn vorhanden) → {x,y,z}; Testbetrieb: katzen_S.simBeob (Vector3).
 const katzen_S = { ok: false, src: null, clips: null, sk: null, cats: [], byName: {}, regie: true, kapSeen: 0, flags: {}, kater: { mode: 'aus', o: {} },
   beob: new THREE.Vector3(), beobOk: false, beobPrev: new THREE.Vector3(), beobApp: 0, trail: [], ptrail: [], carry: null, still: 0, hissCd: 0, angst: [], tick: 0,
@@ -236,6 +237,12 @@ function katzen_leave(k, x, z, r) { let best = null, bs = -1e9; for (let i = 0; 
     if (leben_inHouse(px, pz, .3) && !leben_inHouse(k.x, k.z, 0)) continue; const sc = Math.hypot(px - x, pz - z) - Math.hypot(px - k.x, pz - k.z) * .3 + (katzen_free(px, pz) ? 5 : 0); if (sc > bs) { bs = sc; best = [px, pz]; } }
   if (!best) return; k.stare = null; k.avoid = { x, z, r: r + 2 }; k.avoidT = 25; if (k.st === 'sit' || k.st === 'loaf' || k.st === 'sleep') { k.st = 'rise'; k.t = rand(.25, .5); k.play('stand', .35); k.leaveTo = best; } else katzen_goto(k, best[0], best[1], { lauf: true, dann: 'sit' }); }
 
+// Kinosequenzen (kino.js): katzen_kino('baerbel', { x, z, bis: [x, z], ab: sek, dann: 'sitzen'|'liegen', blick: [x, y, z] }) · katzen_kino(null) = zurück
+function katzen_kino(name, o = {}) { const S = katzen_S;
+  if (!name) { const K = S.kino; S.kino = null; if (K && K.k) { if (K.prev) katzen_place(K.k, K.prev.x, K.prev.z, { y: K.prev.y, ry: K.prev.ry, pose: 'sit' }); else katzen_hide(K.k); K.k.stare = K.prev ? K.prev.stare : null; } return; }
+  const k = katzen_get(name === 'baerbel' ? 'BÄRBEL' : name); if (!k) return; S.kino = { k, prev: k.on ? { x: k.x, z: k.z, y: k.y, ry: k.ry, stare: k.stare } : null };
+  const ry = o.bis ? Math.atan2(o.bis[0] - o.x, o.bis[1] - o.z) : o.ry || 0; katzen_spawn({ name: k.name, x: o.x, z: o.z, ry, pose: 'stand', zahm: true }); k.stare = null;
+  setTimeout(() => { if (S.kino && S.kino.k === k && o.bis) katzen_goto(k, o.bis[0], o.bis[1], { dann: 'sniff', fertig: () => setTimeout(() => { if (S.kino && S.kino.k === k) { k.st = o.dann === 'liegen' ? 'loaf' : 'sit'; k.play(k.st, .6); k.t = 99; if (o.blick) katzen_stare(k, o.blick); } }, 1400) }); }, (o.ab || 0) * 1000); }
 // ---------------------------------------------------------------- Kater Hänschen (Kap. 5/6)
 function katzen_kater5(modus, o = {}) {
   const S = katzen_S, k = katzen_get('HÄNSCHEN'); if (!k) return null; const K = S.kater; K.mode = modus; K.o = o; k.forceHiss = false;
@@ -471,4 +478,4 @@ function katzen_eyes(k, dt, d, lampOn, cam) {
 
 // ---------------------------------------------------------------- Testzugriff (Selbsttests; im Veröffentlichungsbau entfernt)
 function katzen_debug() { return { S: katzen_S, spawn: katzen_spawn, get: katzen_get, place: katzen_place, stare: katzen_stare, goto: katzen_goto, jump: katzen_jumpTo, fauch: katzen_fauch, angst: katzen_angst,
-  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
+  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }

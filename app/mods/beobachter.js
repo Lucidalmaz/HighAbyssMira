@@ -61,6 +61,8 @@ function beob_sperre() { // erzwungene Stille: zählt für die Stille-Regel („
   if (k >= 6 && typeof hungrige_S !== 'undefined' && (hungrige_S.ev || hungrige_S.cine)) return true;
   if (k >= 5 && typeof graukind !== 'undefined' && graukind.visible && Math.hypot(graukind.position.x - P.x, graukind.position.z - P.z) < 35) return true;
   if (typeof lwo_beobSperre === 'function') { try { if (lwo_beobSperre()) return true; } catch (e) {} }
+  if (typeof LWO !== 'undefined' && LWO.F) { try { for (const key in LWO.F) { const F = LWO.F[key], g = F && F.g; if (!g || !g.visible) continue; const d = Math.hypot(g.position.x - P.x, g.position.z - P.z);
+      if (key[0] === 'b' ? d < 25 : key === 'wolter' ? d < 45 : false) return true; } } catch (e) {} } // nie in einem Bild mit Wolter, still bei den Blechmännern (Eisen an den Kapuzen)
   for (const f of BEOB_SPERREN) { try { if (f()) return true; } catch (e) {} }
   return false;
 }

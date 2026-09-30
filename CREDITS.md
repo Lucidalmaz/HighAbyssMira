@@ -54,6 +54,10 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Metal Rose Jewelry Trinket Box Low Poly | Jordan F (JordanFry3D) | Spieluhr (Kapitel 5) | https://www.fab.com/listings/b70659f6-2d7c-4042-b57b-0ecf1ca750c0 |
 | antiradiation suit - ozk | sanyaork | Grundlage der Blechmänner (Bergungstrupp der LWO) | https://www.fab.com/listings/503fca96-5374-4fe5-8f0a-03395f58ecb3 |
 | Cat long haired | Sean4297 | Katzen im Dorf (Gisela Rieke), Kater in Kapitel 5 | https://www.fab.com/listings/b3513111-6dc1-4345-9706-201c8f37b832 |
+| Leather Pouch 3D Model | MissTxxT | Beutel Stufe 1 (Gürteltasche) | https://www.fab.com/listings/772a26db-14d0-4328-897d-3d900b40fe14 |
+| Backpack Scan – Xtrem Old Model | SebastianBA | Beutel Stufe 2 (alter Rucksack) | https://www.fab.com/listings/27632e45-c4f2-4051-8fbe-108fcd52f5fa |
+| Backpack for a wandering wizard | a9908244 | Beutel Stufe 3 (großer Rucksack) | https://www.fab.com/listings/9973d782-cad6-451c-bc4c-b407f209b9c3 |
+| Leather Book | Smoggybeard | Fotoalbum (Einband) | https://www.fab.com/listings/4621cc30-1631-4559-9c06-cb43695ba563 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)

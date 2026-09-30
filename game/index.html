@@ -6755,7 +6755,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   // ---- Transporter ohne Aufschrift vor der Telefonzelle – STORY-HOOK: Amt für Rückführung beobachtet die Straße
   if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else if (vanTex) { mt.map = vanTex; mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
     if (dmg) dmg.parent.remove(dmg); vanSrc.scale.setScalar(4.9 / 377.9); vanSrc.rotation.y = ryFor(1, 0); const g = msGround(vanSrc); msPlace(g, 14.6, 0, 3.25, 0); reg('cars', g);
-    clickOn(g, 4.9, 1.8, 2.05, 'Transporter', lockedTalk(['Keine Aufschrift. Die hinteren Scheiben sind von innen abgeklebt. Drinnen summt etwas – dann nicht mehr.', 'An der Tür ein Aufkleber, halb abgekratzt: „…ückführung · Außenst…“', 'Du legst das Ohr ans Blech. Drinnen atmet jemand, ganz ruhig. Im selben Takt wie du.'], 14.6, 3.25)); }
+    clickOn(g, 4.9, 1.8, 2.05, 'Transporter', lockedTalk(['Keine Aufschrift. Die hinteren Scheiben sind von innen abgeklebt. Drinnen summt etwas – dann nicht mehr.', 'An der Tür ein Aufkleber, halb abgekratzt: „…ückführung · Außenst…“', 'Du legst das Ohr ans Blech. Drinnen atmet jemand, ganz ruhig. Im selben Takt wie du.'], 14.6, 3.25)); if (typeof lwo_magnetschild === 'function') lwo_magnetschild(g); } // F3 AP-06: Magnetschild am Heck
   // ---- Überwucherter Sportwagen an der Sperre (seit 2009) – STORY-HOOK: wer 2009 wegwollte, kam bis hier
   if (rustySrc) { const root = rustySrc.clone(true); const under = (o, n) => { for (let p = o; p; p = p.parent) if (p.name === n) return true; return false; }; const drop = [];
     root.traverse(o => { if (!o.isMesh) return; if (!under(o, 'Group002')) { drop.push(o); return; } const mt = o.material; if (mt.transparent) { mt.transparent = false; mt.alphaTest = .45; mt.depthWrite = true; mt.side = T.DoubleSide; } o.castShadow = true; o.receiveShadow = true; });
@@ -6993,7 +6993,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       x.save(); x.translate(128, 290); x.rotate(-.18); x.fillStyle = '#c01a14'; x.fillRect(-110, -26, 220, 50); x.fillStyle = '#fff'; x.font = 'bold 34px Arial'; x.textAlign = 'center'; x.fillText('FÄLLT AUS', 0, 12); x.restore(); },
       note: ['Plakat: Laternenfest', 'Laternenumzug der Grundschule Lost Eyengless, Mittwoch, 11.11., 18 Uhr ab der Kreuzung.\nQuer darüber ein Aufkleber: <b>FÄLLT AUS</b>.\n\nUnten hat ein Kind mit Wachsmalstift acht Laternen gemalt. Sieben sind bunt. Eine ist weiß.', 'strasse_p_fest'] },
     amt: { draw: x => { x.fillStyle = '#111'; x.font = 'bold 26px Georgia'; x.fillText('EINLADUNG', 50, 40); x.font = '18px Georgia'; x.fillText('Bürgerversammlung', 44, 74); x.font = 'italic 20px Georgia'; x.fillText('„Die Lichter', 60, 110); x.fillText('über dem Wald“', 48, 136); x.font = '16px Georgia'; x.fillText('Do. 19 Uhr · Gemeindesaal', 20, 170);
-      x.fillStyle = '#d8d8d2'; x.fillRect(14, 196, 228, 150); x.fillStyle = '#222'; x.font = 'bold 13px Arial'; x.fillText('AMTLICHER AUSHANG', 56, 218); x.font = '13px Arial'; ['Die Veranstaltung entfällt.', 'Es besteht kein Anlass', 'zur Sorge.', '', 'Amt für Rückführung', 'Außenstelle Lost Eyengless'].forEach((l, i) => x.fillText(l, 26, 244 + i * 17)); },
+      x.fillStyle = '#d8d8d2'; x.fillRect(14, 196, 228, 150); x.fillStyle = '#222'; x.font = 'bold 13px Arial'; x.fillText('AMTLICHER AUSHANG', 56, 218); x.font = '13px Arial'; ['Die Veranstaltung entfällt.', 'Es besteht kein Anlass', 'zur Sorge.', '', 'Amt für Rückführung', 'Außenstelle Lost Eyengless'].forEach((l, i) => x.fillText(l, 26, 244 + i * 17)); if (typeof lwo_auge === 'function') lwo_auge(x, 220, 326, 9, 'rgba(30,30,30,.8)'); }, // F3 AP-06: unten rechts das Auge (5.4 B)
       note: ['Plakat: Bürgerversammlung', 'Bürgerversammlung: <i>„Die Lichter über dem Wald“</i>. Donnerstag, 19 Uhr, Gemeindesaal.\n\nQuer darübergeklebt, auf grauem Amtspapier:\n<b>Die Veranstaltung entfällt. Es besteht kein Anlass zur Sorge.</b>\n— Bundesstelle für Rückführung, Außenstelle Lost Eyengless', 'strasse_p_amt'] }, // STORY-HOOK: Amt
   };
   const posterTex = {}; for (const [k, d] of Object.entries(posterDefs)) posterTex[k] = canvasTex(256, 362, (x, w, h) => { x.fillStyle = k === 'amt' ? '#e2dcc8' : '#e6e2d6'; x.fillRect(0, 0, w, h); grain(x, w, h, 1400, .22); d.draw(x, w, h);
@@ -10401,6 +10401,7 @@ function leben_debug() { return { S: leben_S, EV: leben_EV, bell: () => leben_be
 //   katzen_kater5(modus, opts): 'uebergabe' (Gisela gibt ihn, Luke trägt ihn kurz, dann folgt er) · 'folgen' · 'schwelle' {x,z,ry} (setzt sich, geht
 //     nicht weiter) · 'tisch' {x,y,z} · 'zurueck' {x,z} (bleibt stehen, sieht zurück) · 'starren' {x,y,z} · 'schnurren' {an} · 'nr1' {x,z,ry, ecke:[x,y,z]}
 //     · 'graukind' {x,z,ry} (Buckel, Fauchen ohne Ziel) · 'gitter' {x,z,ry, punkt:[x,y,z]} · 'vegas' {x,y,z,ry} · 'frei'
+//   katzen_kino(name, {x, z, bis, ab, dann, blick}) / katzen_kino(null) – Auftritt in einer Kinosequenz (kino.js, Abspann Kap. 1: BÄRBEL an Hildes Brille)
 //   Blickziel Beobachter: beob_pos() aus beobachter.js (wenn vorhanden) → {x,y,z}; Testbetrieb: katzen_S.simBeob (Vector3).
 const katzen_S = { ok: false, src: null, clips: null, sk: null, cats: [], byName: {}, regie: true, kapSeen: 0, flags: {}, kater: { mode: 'aus', o: {} },
   beob: new THREE.Vector3(), beobOk: false, beobPrev: new THREE.Vector3(), beobApp: 0, trail: [], ptrail: [], carry: null, still: 0, hissCd: 0, angst: [], tick: 0,
@@ -10618,6 +10619,12 @@ function katzen_leave(k, x, z, r) { let best = null, bs = -1e9; for (let i = 0; 
     if (leben_inHouse(px, pz, .3) && !leben_inHouse(k.x, k.z, 0)) continue; const sc = Math.hypot(px - x, pz - z) - Math.hypot(px - k.x, pz - k.z) * .3 + (katzen_free(px, pz) ? 5 : 0); if (sc > bs) { bs = sc; best = [px, pz]; } }
   if (!best) return; k.stare = null; k.avoid = { x, z, r: r + 2 }; k.avoidT = 25; if (k.st === 'sit' || k.st === 'loaf' || k.st === 'sleep') { k.st = 'rise'; k.t = rand(.25, .5); k.play('stand', .35); k.leaveTo = best; } else katzen_goto(k, best[0], best[1], { lauf: true, dann: 'sit' }); }
 
+// Kinosequenzen (kino.js): katzen_kino('baerbel', { x, z, bis: [x, z], ab: sek, dann: 'sitzen'|'liegen', blick: [x, y, z] }) · katzen_kino(null) = zurück
+function katzen_kino(name, o = {}) { const S = katzen_S;
+  if (!name) { const K = S.kino; S.kino = null; if (K && K.k) { if (K.prev) katzen_place(K.k, K.prev.x, K.prev.z, { y: K.prev.y, ry: K.prev.ry, pose: 'sit' }); else katzen_hide(K.k); K.k.stare = K.prev ? K.prev.stare : null; } return; }
+  const k = katzen_get(name === 'baerbel' ? 'BÄRBEL' : name); if (!k) return; S.kino = { k, prev: k.on ? { x: k.x, z: k.z, y: k.y, ry: k.ry, stare: k.stare } : null };
+  const ry = o.bis ? Math.atan2(o.bis[0] - o.x, o.bis[1] - o.z) : o.ry || 0; katzen_spawn({ name: k.name, x: o.x, z: o.z, ry, pose: 'stand', zahm: true }); k.stare = null;
+  setTimeout(() => { if (S.kino && S.kino.k === k && o.bis) katzen_goto(k, o.bis[0], o.bis[1], { dann: 'sniff', fertig: () => setTimeout(() => { if (S.kino && S.kino.k === k) { k.st = o.dann === 'liegen' ? 'loaf' : 'sit'; k.play(k.st, .6); k.t = 99; if (o.blick) katzen_stare(k, o.blick); } }, 1400) }); }, (o.ab || 0) * 1000); }
 // ---------------------------------------------------------------- Kater Hänschen (Kap. 5/6)
 function katzen_kater5(modus, o = {}) {
   const S = katzen_S, k = katzen_get('HÄNSCHEN'); if (!k) return null; const K = S.kater; K.mode = modus; K.o = o; k.forceHiss = false;
@@ -10853,7 +10860,7 @@ function katzen_eyes(k, dt, d, lampOn, cam) {
 
 // ---------------------------------------------------------------- Testzugriff (Selbsttests; im Veröffentlichungsbau entfernt)
 function katzen_debug() { return { S: katzen_S, spawn: katzen_spawn, get: katzen_get, place: katzen_place, stare: katzen_stare, goto: katzen_goto, jump: katzen_jumpTo, fauch: katzen_fauch, angst: katzen_angst,
-  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
+  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
 // =====================================================================  AUSRÜSTUNG (Modul „ausruestung“)
 // Fundorte für Batterien, Werkzeuge und Taschenlampen-Stufen an echten Möbeln/Orten der Welt (nichts Selbstgebautes sichtbar:
 // gefunden wird durch Durchsuchen von Werkbank, Tresen, Regal; der Rest sind Scan-Modelle). Lampenlogik/Akku: Grundspiel (FLASH).
@@ -12264,6 +12271,10 @@ const TAUSCH_ICON = {
 function tausch_svg(i) { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${TAUSCH_ICON[i] || TAUSCH_ICON.staniol}</svg>`; }
 const tausch_sterne = n => n > 0 ? '✶'.repeat(n) : '–';
 // ---------------------------------------------------------------- Tasche (Glänzendes)
+// Beutel (Modul „beutel“, eigener Helfer): Kapazitätsprüfung je Art – 'glanz', 'batterie', 'streich', 'kreide', 'oel', 'waermer', 'geraet'. Ohne Modul: immer Platz.
+function tausch_platz(art, n = 1) { try { return typeof beutel_platz === 'function' ? beutel_platz(art, n) !== false : true; } catch (e) { return true; } }
+const TAUSCH_ART = { batterie: 'batterie', streich: 'streich', kreide: 'kreide', lampenoel: 'oel', waermer: 'waermer', oellampe: 'geraet', sturmlaterne: 'geraet', fernglas: 'geraet' };
+function tausch_voll() { toast('Kein Platz mehr im Beutel.', 2600); return false; }
 function tausch_gib(id, n = 1, still) { const S = tausch_S, W = TAUSCH_WAREN[id]; if (!W) return; S.tasche[id] = (S.tasche[id] || 0) + n; if (!still) questPop('GLÄNZENDES', W.n); }
 function tausch_hat(id) { return (tausch_S.tasche[id] || 0) > 0; }
 function tausch_nimm(id, n = 1) { const S = tausch_S; if (!S.tasche[id]) return false; S.tasche[id] -= n; if (S.tasche[id] <= 0) delete S.tasche[id]; return true; }
@@ -12359,7 +12370,7 @@ function tausch_offen() {
 }
 function tausch_notiz() { const n = Object.keys(tausch_S.gekauft).length; return n ? 'Er prüft alles mit dem Schnabel. Und er bereut nie.' : 'Ich tausche mit einem Vogel. Ich schreib das besser nicht in die Fibel. … Doch.'; }
 async function tausch_kaufe(a) {
-  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return;
+  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return; if (!tausch_platz(TAUSCH_ART[a.id] || 'geraet', 1)) { closeOverlay(); return tausch_voll(); }
   for (const w of wahl) tausch_nimm(w); S.gekauft[a.id] = (S.gekauft[a.id] || 0) + 1; S.log.push(`K${kap()} · ${wahl.map(x => TAUSCH_WAREN[x].n).join(', ')} → ${a.n}`); if (S.log.length > 40) S.log.shift();
   closeOverlay(); await tausch_pruefen(); a.gib(); questPop('VON WHISKEY', a.n); Audio.play('keys2', { gain: .2, rate: 1.5, dur: .3 });
   const tipp = { streich: 'Streichhölzer: [L], wenn du keine Lampe hast.', kreide: 'Kreide: [K] malt einen Pfeil.', oellampe: 'Öllampe: [L] an und aus.', sturmlaterne: 'Sturmlaterne: [L] an und aus. Windfest.', fernglas: 'Fernglas: [V] halten.', waermer: 'Handwärmer: im Inventar knicken.', lampenoel: 'Lampenöl: [L], wenn die Lampe leer ist.' }[a.id];
@@ -12393,14 +12404,14 @@ function tausch_glint(x, y, z, label, act) { const S = tausch_S;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: S.tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); sp.position.set(x, y + .06, z); sp.scale.setScalar(.16); sp.visible = false; scene.add(sp);
   const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); return { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 }; }
 function tausch_y(x, z) { const g = solidGround(x, .8, z); return g > -1 ? Math.max(0, g) : 0; }
-function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
+function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length) || (F.bat && !tausch_platz('batterie', F.bat))) return tausch_voll(); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
   for (const w of F.w) tausch_gib(w, 1, true); if (F.bat) setTimeout(() => addBattery(F.bat), 700);
   toast(F.t, 4200); questPop('GLÄNZENDES', F.w.map(w => TAUSCH_WAREN[w].n).join(', ')); Audio.play('keys1', { gain: .16, rate: 1.9, dur: .25 });
   if (!story.lore.some(l => l.key === 'tausch_start')) { story.lore.push({ key: 'tausch_start', title: 'Glänzendes', html: '<span class="hand">Ich sammle jetzt Kronkorken. Für einen Raben. Lucy würde sich totlachen.\n\nAber er nimmt nur, was glänzt – und er gibt dafür, was ich brauche.</span>' }); setTimeout(() => toast('Glänzendes liegt in deinen Taschen (Fibel, INVENTAR). Whiskey tauscht es – sprich ihn an.', 5200), 4600); } }
 // Etwas, das Whiskey hinlegt (zurückgelegtes Diebesgut, Deckel, nasse Batterie): gespeichert, bis Luke es aufhebt
 function tausch_drop(x, y, z, was, text) { const S = tausch_S; if (y === null || y === undefined) y = tausch_y(x, z); const D = { x, y, z, was, text, k: kap() }; S.drops.push(D); tausch_dropMake(D); }
 function tausch_dropMake(D) { const S = tausch_S; const G = tausch_glint(D.x, D.y, D.z, 'Etwas glänzt', () => tausch_dropNimm(D)); D.G = G; interactables.push(G.hit); G.on = true; G.sp.visible = true; S.dropG.push(D); }
-function tausch_dropNimm(D) { const S = tausch_S, w = D.was; S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
+function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if ((w.ware && !tausch_platz('glanz', 1)) || (w.bat && !tausch_platz('batterie', w.bat))) return tausch_voll(); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
   if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
 // ---------------------------------------------------------------- Lampe, Streichholz, Kreide, Fernglas, Handwärmer
 function tausch_licht() { const S = tausch_S, L = S.L; return { an: !!(L && L.intensity > .05), x: L ? L.position.x : 0, y: L ? L.position.y : 0, z: L ? L.position.z : 0, r: S.match > 0 ? TAUSCH_LAMPE.holz.r : S.lampe ? TAUSCH_LAMPE[S.lampe].r : 0, art: S.match > 0 ? 'streichholz' : S.lampe }; }
@@ -14265,109 +14276,6 @@ async function hungrige_prep() {
 }
 window.__hungrige = { S: hungrige_S, EV: HUNGRIGE_EV, N: HUNGRIGE_NACKT, start: id => { const S = hungrige_S; if (S.ev) return false; const E = HUNGRIGE_EV[id] || HUNGRIGE_NACKT[id]; const ev = Object.assign({ id }, E); if (ev.start()) { S.ev = ev; return true; } return false; },
   finale: () => hungrige_finale(), seite: i => hungrige_seite(i), dt: () => hungrige_loadDT(), prep: () => hungrige_prep() }; // Testzugriff
-// =====================================================================  LWO (Modul „lwo“, Fassung 3 · AP-05 Vertrauen · AP-06 Figuren, Kombi, Sender)
-// Quelle: story_final.md „Die Lucid World Organization – Dossier“ (80) §2 Aussehen, §3 Vertrauen/AG-V/Kapitelende/Drohungen, §4 Dialogbänke AG-01…AG-21, §5.6 Funk;
-//         Umsetzung AP-05/AP-06, Systeme 5.1. Alle Zeilen wortgleich aus der Bibel (LWO_AG, LWO_V, LWO_ENDE, LWO_DROHUNG, LWO_FUNK).
-//
-// SCHNITTSTELLE (für die Kapitel-APs; alle Namen mit Präfix lwo_)
-//   Vertrauen (verborgen, nie als Zahl sichtbar):  story.lwo = lwo_S = { trust 0–100 (Start 50), seen {}, sender 'none'|'kept'|'thrown', auftrag1, auftrag2 }
-//     lwo_trust(delta, key)   einmalig je Schlüssel (key ohne → jedes Mal), geklemmt 0–100; true, wenn verbucht
-//     lwo_ereignis(key)       Wert aus LWO_WERT (Tabelle 5.1) verbuchen – Schlüssel und Aufrufer stehen in der Tabelle
-//     lwo_stufe()             'hoch' (≥ 70) | 'mittel' (30–69) | 'miserabel' (< 30)
-//     lwo_drohung(key)        Drohung ausgesprochen (LWO_DROHUNG) → Folge merken; lwo_drohungOffen(key) fragt ab (Folge innerhalb desselben Kapitels bauen)
-//     lwo_kapitelende(kap)    { stufe, hoch|mittel|miserabel-Text } aus LWO_ENDE (3.4) für Abspann/Endkarte (AP-10/AP-14 … AP-24)
-//     lwo_vAnker(id, fn)      AG-V mit Ort, den erst ein Kapitel-AP baut (V-04, V-05, V-07, V-08, V-09, V-10, V-11): fn() → true, wenn gespielt
-//   Figuren (AP-06): lwo_figur('wolter'|'n11'|'n12'|'b0'…'b6') → Figur { g (Gruppe), zeigen(x,z,ry), weg(), gehe(punkte, tempo), blick(ziel|null), clip(name), lampe(an) … }
-//     Wolter 1,80 (Hut nie ab, graue Lederhandschuhe; lwo_hand('bare'|'glove') links ab AG-14), Nachsorge 11 (1,92, dünn, schaut an Luke vorbei),
-//     Nachsorge 12 (1,62, breit, kahl, schreibt: Telefon-Pose mit Block), Blechmann (7 Instanzen, stumm, Kettenklirren, Filteratem, Brustlampe).
-//     Gesichter (Q-6): Blinzeln über Blendshapes (11 bei t, 12 bei t + 0,7 s – nie gleichzeitig; Wolter eigener Takt), Augen folgen Luke (Augäpfel gedreht,
-//     Lider mit), Kopf/Hals drehen weich nach, Atmung im Oberkörper, Mund bei eigener Zeile. Blechmänner sprechen nie (nur Funk aus dem Gerät).
-//   Dialog: lwo_szene(id, opts) spielt eine Bank aus LWO_AG an einer übergebenen Stelle (opts.at = { x, z, ry }); Wahl mit Tasten 1–3 (Stil wie Kap. 5).
-//     Rückgabe: { wahl: [Indizes], abgebrochen }. Kapitel-eigene Mechanik (Schleichen AG-13, Falle AG-19 …) hängt sich über opts.hook(schritt) ein.
-//   Funk: lwo_funk(text, { x, z, ms }) = Kanal 3 (klang_funk: Bandpass, Rauschsperre) + Untertitel „FUNK“.
-//   Kombi: lwo_kombi() → { g, zeigen(x,z,ry,{stand, innen, motor}), weg(), fahre(punkte, tempo), fernlicht() } · grauer Kombi mit Magnetschild
-//     „Institut für Atmosphärenforschung“ am Heck, Standlicht nur als Leuchtbild/Sprite (kein Licht zur Laufzeit).
-//   Sender (02 C3): lwo_senderEinstecken() (AG-09), lwo_senderAnsehen() (Kap. 3, freiwillig → behalten/wegwerfen), lwo_S.sender, Gegenstand ITEMS.sender.
-//
-// WER RUFT WAS AUF (Tabelle 5.1 → Kapitel-AP; Schlüssel in LWO_WERT). Hier schon angebunden: AG-02 (Kap. 1, spielbar), AG-01 (Kombi an der Sperre bei Lucys Auto),
-//   Durchschläge der Akte Abgrund (akte.js ruft lwo_trust(−2, 'akte_' + n)). AG-03 (Kühn, Mailbox) bewegt den Wert nicht (0) – Wortlaut liegt in LWO_AG.
-//   Kap. 2 → AP-16 (zimmer7.js Einwilligung, innen_kapitel.js Registratur/Gründungsakte/Kühlregal/Kaffeekasse, AG-05…07 über lwo_szene) ·
-//   Kap. 3 → AP-17/18 (AG-08…10, Kombi-Kofferraum, Kassette, Lieferschein, Sender) · Kap. 4 → AP-19/20 (AG-11…14, Nr. 9, DA 10, Auftrag 1, Unzustellbar, Villa) ·
-//   Kap. 5 → AP-21/22 (AG-15…17, Brief, Schuppen) · Kap. 6 → AP-23/24 (AG-18…21, Seitenschneider, Funkgerät) · AG-V (Anrufe) → dieses Modul.
-// Regeln: keine Lichter zur Laufzeit (ein Scheinwerfer für die Blechmann-Lampe beim Laden mit Intensität 0), keine Allokationen im Takt, Figuren teilen Geometrie.
-
-// ---------------------------------------------------------------- Zustand und Spielstand (Schema AP-03)
-const lwo_S = (typeof story !== 'undefined' && story.lwo) || { trust: 50, seen: {}, sender: 'none', auftrag1: null, auftrag2: null };
-for (const [k, v] of Object.entries({ trust: 50, seen: {}, sender: 'none', auftrag1: null, auftrag2: null })) if (lwo_S[k] === undefined) lwo_S[k] = v;
-story.lwo = lwo_S;
-MOD_SAVE.push(['lwo', () => ({ trust: lwo_S.trust, seen: lwo_S.seen, sender: lwo_S.sender, auftrag1: lwo_S.auftrag1, auftrag2: lwo_S.auftrag2 }),
-  v => { if (!v || typeof v !== 'object') return; lwo_S.trust = Math.min(100, Math.max(0, Number.isFinite(+v.trust) ? +v.trust : 50)); lwo_S.seen = v.seen && typeof v.seen === 'object' ? v.seen : {};
-    lwo_S.sender = ['none', 'kept', 'thrown'].includes(v.sender) ? v.sender : 'none'; lwo_S.auftrag1 = v.auftrag1 ?? null; lwo_S.auftrag2 = v.auftrag2 ?? null; story.lwo = lwo_S; lwo_nachLaden(); }]);
-
-// ---------------------------------------------------------------- 5.1 / 80 §3.1: Ereignisse (Schlüssel → [Δ, Kapitel, Ereignis, Aufrufer])
-const LWO_WERT = {
-  ag02_ehrlich: [3, 1, 'AG-02 ehrlich („Brandt. Nummer 1. Ich such meine Schwester.“)', 'lwo.js'], ag02_luege: [-5, 1, 'AG-02 lügen („Nur auf der Durchreise.“)', 'lwo.js'], ag02_gegen: [0, 1, 'AG-02 Gegenfrage', 'lwo.js'],
-  akte_1: [-2, 1, 'Durchschlag 1 aufheben', 'akte.js'], akte_2: [-2, 1, 'Durchschlag 2', 'akte.js'], akte_3: [-2, 1, 'Durchschlag 3', 'akte.js'], akte_4: [-2, 1, 'Durchschlag 4', 'akte.js'],
-  akte_5: [-2, 3, 'Durchschlag 5', 'akte.js'], akte_6: [-2, 3, 'Durchschlag 6', 'akte.js'], akte_8: [-2, 3, 'Durchschlag 8', 'akte.js'], akte_9: [-2, 6, 'Durchschlag 9', 'akte.js'], akte_10: [-2, 4, 'Durchschlag 10', 'akte.js'],
-  zimmer7_einwilligung: [-5, 2, 'Einwilligungen aus Zimmer 7 (Pflicht)', 'AP-16 zimmer7.js'], registratur: [-10, 2, 'Hängeregistratur', 'AP-16 innen_kapitel.js'], gruendungsakte: [-10, 2, 'Gründungsakte 1958', 'AP-16'],
-  kuehlregal: [-5, 2, 'Kühlregal (Dosen ∴-1/∴-2)', 'AP-16'], kaffeekasse: [1, 2, 'Ein Euro in die Kaffeekasse', 'AP-16'],
-  ag09_tee: [5, 3, 'AG-09 Tee annehmen', 'AP-17 lwo_szene'], ag09_wahr: [3, 3, 'AG-09 Wahrheit über Lucy', 'AP-17'], ag09_luege: [-5, 3, 'AG-09 Lüge über Lucy', 'AP-17'], ag09_hand: [-3, 3, 'AG-09 nach der Hand fragen', 'AP-17'], ag09_kanne: [0, 3, 'AG-09 Thermoskanne mitnehmen', 'AP-17'],
-  kombi_kofferraum: [-10, 3, 'Kombi anfassen, Kofferraum (Kap. 3/5)', 'AP-17/AP-21'], kassette_k1: [-3, 3, 'Kassette „Marion · für K-1“', 'AP-18'], lieferschein_ast3: [-5, 3, 'Lieferschein „Außenstelle 3“', 'AP-18'],
-  nr9_betreten: [-10, 4, 'Nr. 9 betreten', 'AP-19'], da10: [-5, 4, 'DA 10 mitnehmen', 'AP-19'], auftrag1_echt: [20, 4, 'Auftrag 1: echtes Zählbuch', 'AP-19'], auftrag1_faelschung: [-15, 4, 'Auftrag 1: Fälschung (beim Funk nach dem Archiv)', 'AP-19'],
-  auftrag1_ablehnen: [-10, 4, 'Auftrag 1: ablehnen', 'AP-19'], unzustellbar_drohen: [-10, 4, '„Unzustellbar“: Günther drohen', 'AP-20 post.js'], siegel_758: [-3, 4, 'Siegel 7/58 brechen', 'AP-19'],
-  subjekt_eisen: [-8, 4, 'Akte „Subjekt EISEN“ mitnehmen', 'AP-19'], bestandsliste: [-5, 4, 'Bestandsliste mitnehmen', 'AP-19'], grete_foto: [-5, 4, 'Grete-Foto (sobald Wolter es vermisst, AG-14)', 'AP-19/20'],
-  kuehl_deckel: [-6, 4, 'Kühlraum: Deckel von ∴-1', 'AP-19'], ag13_entdeckt: [-8, 4, 'AG-13 entdeckt', 'AP-19'], ag14_ruhig: [5, 4, 'AG-14 ruhig bleiben', 'AP-19'], ag14_beleidigen: [-5, 4, 'AG-14 beleidigen', 'AP-19'],
-  ag14_kanne: [5, 4, 'AG-14 Thermoskanne hinstellen', 'AP-19'], ag14_ring: [0, 4, 'AG-14 Ring wegstecken', 'AP-19'],
-  ag15_tee: [2, 5, 'AG-15 Tee', 'AP-21'], ag15_verschwindet: [-2, 5, 'AG-15 „Verschwindet.“', 'AP-21'], ag16_rechnung: [-3, 5, 'AG-16 Steinmetzrechnung', 'AP-21'], ag17_plakat: [-4, 5, 'AG-17 Plakat abreißen', 'AP-21'],
-  brief_einwerfen: [-15, 5, 'Brief einwerfen', 'AP-22 post.js'], brief_zurueck: [5, 5, 'Brief Günther zurückgeben', 'AP-22'], brief_behalten: [0, 5, 'Brief behalten', 'AP-22'], schuppen_aufbrechen: [-15, 5, 'Schuppen aufbrechen (Weg c)', 'AP-22'],
-  ag18_mit: [10, 6, 'AG-18 mitmachen', 'AP-23'], ag18_ab: [-10, 6, 'AG-18 ablehnen', 'AP-23'], ag18_spaeter: [0, 6, 'AG-18 zusagen, später sabotieren', 'AP-23'], seitenschneider: [-3, 6, 'Seitenschneider', 'AP-23'], heini: [0, 6, 'Polaroid „HEINI“', 'AP-23'],
-  ag19_mit: [15, 6, 'AG-19 mitgemacht', 'AP-23'], ag19_sabotage: [-20, 6, 'AG-19 sabotiert (sobald leer zuschnappt)', 'AP-23'], ag19_netz: [-10, 6, 'AG-19 abgelehnt, im Netz', 'AP-23'],
-  ag20_kette: [-3, 6, 'AG-20 Kettenrolle', 'AP-23'], ag20_funk: [0, 6, 'AG-20 Funkgerät mitnehmen', 'AP-23'], funk_zurueck: [4, 6, 'Funkgerät am Gitter zurücklegen', 'AP-23'],
-  // AG-11 (je Verstoß −4): Schlüssel 'ag11_band_' + n · AG-V: 'agv_auflegen_' + id + '_' + kap (−2) / 'agv_hoeflich_' + id + '_' + kap (+2) – dieses Modul
-};
-function lwo_trust(delta, key) { delta = +delta || 0; if (key) { if (Object.prototype.hasOwnProperty.call(lwo_S.seen, key)) return false; lwo_S.seen[key] = delta; }
-  lwo_S.trust = Math.min(100, Math.max(0, lwo_S.trust + delta)); return true; }
-function lwo_ereignis(key) { const e = LWO_WERT[key]; if (!e) { console.warn('LWO: unbekanntes Ereignis', key); return false; } return lwo_trust(e[0], key); }
-function lwo_stufe() { return lwo_S.trust >= 70 ? 'hoch' : lwo_S.trust < 30 ? 'miserabel' : 'mittel'; }
-function lwo_kap() { return typeof kap === 'function' ? kap() : 1; }
-
-// ---------------------------------------------------------------- 80 §3.5: Drohungen, die nie leer bleiben (Folge im selben Kapitel)
-const LWO_DROHUNG = {
-  ag02: ['NACHSORGE 11 (AG-02): „Bleiben Sie in der Nähe des Hauses, ne? Nachts läuft man hier nicht weit.“', 'Geht Luke danach zur Südsperre, steht dort der Kombi (AG-01) schon mit laufendem Motor. Er wusste es.'],
-  ag09: ['Wolter (AG-09, nur wenn Luke schon Durchschläge hat): „Sie sollten die Umschläge liegen lassen. Papier ist schwer zu tragen.“', 'Der nächste Durchschlag, den Luke findet, liegt nicht mehr da; stattdessen ein Butterbrotpapier: „Abgeholt. (12)“. Der Umschlag taucht in Kap. 4 in der Villa wieder auf, geöffnet.'],
-  ag14: ['Wolter (AG-14): „Ihre Schwester ist bei Herrn Vegas. Wir wissen das. Wir sind nur höflich.“', 'Am Abend (Kap. 5) steht der Kombi vor Nr. 3, nicht vor Nr. 1. Vegas ruft an: „Die stehen vor MEINER Tür, Junge.“'],
-  ag12: ['11 (AG-12, Ablehnung): „Dann holen wir es uns selbst. Bei Frau Wendt ist ja niemand mehr, ne?“', 'Nr. 7: Hildes Küche durchwühlt, alle Schubladen offen; das Buch steckt in Lukes Jacke, also liegt auf dem Tisch ein Butterbrotpapier: „Nicht da. Dann eben später. (11)“. Die beiden tauchen im Kapitel häufiger auf (Spielplatzzaun, Kombi vor der Tankstelle), in der Villa durchsuchen sie zwei Räume statt einen.'],
-  faelschung: ['Funk beim Verlassen des Villa-Archivs (Fälschung entdeckt): „Nachsorge an alle. Das Heft ist falsch. Der Rückläufer hat uns Kassler gegeben.“ Wolter in der Halle (AG-14): „Sie halten uns für dumm. Das ist in Ordnung. Wir halten Sie für gefährlich.“', '−15 wird jetzt verbucht; fällt der Wert unter 30, wird V-07 (umgeparktes Auto) garantiert ausgelöst.'],
-  ag18: ['Wolter (AG-18, Ablehnung): „Dann geht der Wald ohne Sie zu. Für alle.“', 'Die Falle am Bus bleibt scharf, niemand sagt Luke, wo der Draht liegt (AG-19: er landet selbst im Netz). Im Abspann ist der Nordzaun mit Ketten verschlossen, daran Wolters Zettel, Schreibmaschine: „Sie hätten helfen können. Das ist bedauerlich. (hw)“'],
-  ag19: ['Wolter (AG-19, Sabotage, über Funk): „Sie haben zwei Männer auf dem Gewissen, Herr Brandt. Ich schreibe das auf.“', 'AG-20 zeigt zwei Tote statt einem; der zweite trägt die Dienstmarke „3-4“: der alte Posten, der 1992 die Zellentür aufgemacht hat (02 C6). Pat und Patachon bleiben für Kapitel 7.'],
-  v02: ['12 (V-02): „Aggressiv.“', 'Das Handy hat bis zum Kapitelende keinen Empfang mehr (Kap. 3/5); in Kap. 1 liegt am nächsten Fundort ein Butterbrotpapier, auf dem nur Lukes Autokennzeichen steht.'],
-};
-function lwo_drohung(key) { if (!LWO_DROHUNG[key]) return null; lwo_S.seen['dr:' + key] = lwo_kap(); return LWO_DROHUNG[key][1]; }
-function lwo_drohungOffen(key) { const k = lwo_S.seen['dr:' + key], d = lwo_S.seen['drf:' + key]; return k !== undefined && !d; }
-function lwo_drohungErfuellt(key) { lwo_S.seen['drf:' + key] = lwo_kap(); }
-function lwo_handyTot() { const k = lwo_S.seen['dr:v02']; return k !== undefined && (k === 3 || k === 5) && k === lwo_kap(); } // V-02 „Aggressiv.“: kein Empfang bis Kapitelende
-
-// ---------------------------------------------------------------- 80 §3.4: das eine Detail am Kapitelende (Wortlaut der Kapitel) – Schalter für Abspann/Endkarte
-const LWO_ENDE = {
-  1: { hoch: 'Im Polaroid-Stapel, den der Kegel herunterweht, liegt ein LWO-Kugelschreiber mit dem Auge („Wir waren hier“).', mittel: null, miserabel: 'Auf der Rückseite der Endkarte, wenn der Spieler die Fibel öffnet, ein Blatt „Dienstplan L. Brandt, Studio, Nachtschicht“, das da nicht hingehört (V-04). Im ersten Durchgang unerreichbar, der Wert startet bei 50.' },
-  2: { hoch: null, mittel: null, miserabel: 'Auf der Endkarte unter „03:13.“ eine vierte Zeile in Schreibmaschine: „Protokolliert.“ (Der Klebezettel V-05 kommt schon bei AG-07.)', zeile: { miserabel: 'Protokolliert.' } },
-  3: { hoch: 'Im Abspann, Kombi an der Bushaltestelle, Fenster einen Spalt: „Gute Nacht, Luke.“ (Vorname, einmal)', mittel: '„Gute Nacht, Herr Brandt.“', miserabel: '„Gute Nacht, K-3.“ Er merkt es und korrigiert sich nicht. Auf der Endkarte, kleiner, wie ein Stempel: „K-3: nicht geborgen. Noch nicht.“',
-    zeile: { hoch: '„Gute Nacht, Luke.“', mittel: '„Gute Nacht, Herr Brandt.“', miserabel: '„Gute Nacht, K-3.“' }, stempel: { miserabel: 'K-3: nicht geborgen. Noch nicht.' } },
-  4: { hoch: 'Whiskey hat Wolters Kugelschreiber aufs Kissen gelegt.', mittel: null, miserabel: 'An Lukes Fenster in Nr. 1 klebt von außen Absperrband „GASLECK“; im Abspann steht Nachsorge 12 am Tor und schreibt Lukes Nummernschild ab, obwohl er es längst hat.' },
-  5: { hoch: 'Funkfetzen vom Spielplatz: „K-3 geht heim. Nicht eingreifen.“', mittel: null, miserabel: 'Der Kombi steht ohne Licht am Spielplatz; als Luke hinsieht, geht innen kurz die Deckenleuchte an: zwei Gesichter, kauend.', zeile: { hoch: '„K-3 geht heim. Nicht eingreifen.“' } },
-  6: { hoch: 'Nachsorge 12 winkt (AG-21) mit einer Stulle in der Hand.', mittel: 'AG-21 wie geplant; er geht rückwärts in den Wald.', miserabel: 'Nachsorge 12 winkt und ruft mit Lukes Stimme: „Freitag frei.“', zeile: { miserabel: '„Freitag frei.“' } },
-};
-function lwo_kapitelende(k = lwo_kap()) { const s = lwo_stufe(), E = LWO_ENDE[k] || {}; return { kap: k, stufe: s, text: E[s] || null, zeile: E.zeile ? E.zeile[s] || null : null, stempel: E.stempel ? E.stempel[s] || null : null }; }
-
-// ---------------------------------------------------------------- 80 §5.6: Funksprüche (Kanal 3; verzerrt, mit Rauschen) – Anker für alle Kapitel
-const LWO_FUNK = {
-  2: ['„Bergung zwei an Nachsorge. K-1 nicht im Käfig.“', '„Das ist K-3. Nicht anfassen. Wolter will ihn heil.“'],
-  3: ['„Ernte in Position.“', '„Sieben Ketten, sieben Mann. Wir warten auf drei dreizehn.“', '„Kein Kind. Ein Erwachsener. K-3?“ – „Weitergehen.“', '„Die Laternen gehen aus. Wer macht die Laternen aus? … Er macht sie in der falschen Reihenfolge aus. Nein. In der richtigen.“'],
-  4: ['„Kreuzung sauber. Polaroids getauscht. Die Katze von der Rieke sitzt wieder da und guckt in die Ecke.“', '„Villa: Nachsorge mit Bergung eins im Haus. Der Vogel ist auch da.“'],
-  5: ['„Nummer eins, Küche, Licht an. Nicht von uns. Wir schreiben mit.“', '„Da geht wer aufs Grab zu. Der Steinmetz hat gute Arbeit gemacht, das muss man sagen.“', '„K-3 geht heim. Nicht eingreifen.“'],
-  6: ['„Köder bewegt sich nach Norden. Sender aktiv.“', '„Bergung an Nachsorge. Köder in Sichtweite.“', '„Netz eins scharf.“', '„Das geht DURCH das Eisen.“', '„Köder gesichert. Warten auf Kontakt.“', '„Das Signal kommt von HINTEN –“', '„Das ist bedauerlich. Abbruch. Köder bleibt.“', '„Trupp zwei, melden. … Trupp zwei.“'],
-  ende6: '„Es hat nie gegen das Licht gewirkt. Das ist bedauerlich.“', // Wolters Stimme, leise, kein Funk mehr, eher zu sich
-};
 // =====================================================================  DER NEUNTE (Modul „beobachter“, Fassung 3 · AP-07)
 // Kanon: story_final.md Kern §7 und Dossier „Der Beobachter (∴)“ (82); 5.2 „Beobachter je Kapitel“. Wer er ist, sagt erst Kapitel 7 – hier steht nur, was er tut.
 // Er spricht nie, unterschreibt immer mit ∴ (der Ein-Punkt ist Kapitel 7 vorbehalten: BEOB_SIG1 wird vor Kap. 7 nie benutzt).
@@ -14431,6 +14339,8 @@ function beob_sperre() { // erzwungene Stille: zählt für die Stille-Regel („
   if (k >= 6 && typeof hungrige_S !== 'undefined' && (hungrige_S.ev || hungrige_S.cine)) return true;
   if (k >= 5 && typeof graukind !== 'undefined' && graukind.visible && Math.hypot(graukind.position.x - P.x, graukind.position.z - P.z) < 35) return true;
   if (typeof lwo_beobSperre === 'function') { try { if (lwo_beobSperre()) return true; } catch (e) {} }
+  if (typeof LWO !== 'undefined' && LWO.F) { try { for (const key in LWO.F) { const F = LWO.F[key], g = F && F.g; if (!g || !g.visible) continue; const d = Math.hypot(g.position.x - P.x, g.position.z - P.z);
+      if (key[0] === 'b' ? d < 25 : key === 'wolter' ? d < 45 : false) return true; } } catch (e) {} } // nie in einem Bild mit Wolter, still bei den Blechmännern (Eisen an den Kapuzen)
   for (const f of BEOB_SPERREN) { try { if (f()) return true; } catch (e) {} }
   return false;
 }
@@ -16829,6 +16739,20 @@ function klang_dream(on) { // Traummusik (Intro)
 // Türen: Grundspiel ruft Audio.doorSound (Öffnen/Schließen verschieden)
 // Gegenstände: Aufheben klingt
 addItem = (orig => key => { const had = story.items.includes(key); orig(key); if (!had) Audio.pickup(key); })(addItem);
+// Funk Kanal 3 (F3 AP-06, LWO): Rauschsperre-Klack, Band 320–2900 Hz, darin eine verzerrte „Stimme“ als Silbenhüllkurve, am Ende Klack.
+// art: 'funk' (Blechmann-Gerät, mit x/z räumlich) · 'handy' (Lukes Handy, enger, im Ohr) · 'band' (Lautsprecher im Amt: Wolter-Band, etwas tiefer, Hall der Ebene)
+function klang_funk(sec = 2.5, o = {}) { const A = Audio, c = A.ctx; if (!c) return; const t = c.currentTime, art = o.art || 'funk';
+  let dest = A.world; if (o.x !== undefined) { dest = A.at(o.x, o.y ?? 1.3, o.z, o.ref || 2.2); if (A.cut) return; }
+  const out = c.createGain(); out.gain.value = art === 'handy' ? .5 : .75; out.connect(dest);
+  const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = art === 'handy' ? 450 : 320; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = art === 'handy' ? 3200 : art === 'band' ? 2400 : 2900;
+  const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = art === 'band' ? 1100 : 1700; pk.gain.value = 7; pk.Q.value = 1.2; hp.connect(lp); lp.connect(pk); pk.connect(out);
+  const hiss = A.noise(true), hg = c.createGain(); hg.gain.setValueAtTime(0, t); hg.gain.linearRampToValueAtTime(art === 'band' ? .035 : .07, t + .05); hg.gain.setValueAtTime(art === 'band' ? .035 : .07, t + sec); hg.gain.linearRampToValueAtTime(0, t + sec + .12); hiss.connect(hg); hg.connect(hp);
+  // „Stimme“: Rauschen durch wandernde Formanten, Silben 5–7 pro Sekunde, kleine Pausen
+  const v = A.noise(true), f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; const vg = c.createGain(); vg.gain.value = 0; v.connect(f1); f1.connect(vg); vg.connect(hp);
+  let k = t + .12; while (k < t + sec - .1) { const d = .09 + Math.random() * .12; f1.frequency.setValueAtTime((art === 'band' ? 500 : 650) + Math.random() * 900, k); vg.gain.setValueAtTime(0, k); vg.gain.linearRampToValueAtTime(Math.random() < .12 ? 0 : .5 + Math.random() * .4, k + d * .3); vg.gain.linearRampToValueAtTime(.05, k + d); k += d + (Math.random() < .15 ? .18 : .02); }
+  // Rauschsperre: Klack am Anfang und am Ende (Blechmann-Gerät, Handy knackt)
+  for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
+  hiss.stop(t + sec + .3); v.stop(t + sec + .3); }
 WORLD_MODS.push(['Klang', async () => { window.klang_ambient = klang_ambient; }]);
 WORLD_TICK.push(dt => {
   const S = klang_S; if (!Audio.ctx) return;
@@ -17818,7 +17742,7 @@ WORLD_MODS.push(['Kino', async () => {
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
   try { const src = await msModel('animal_crow', 'model.glb'), sk = await figuren_skc(), m = sk(src); m.scale.setScalar(1.45);
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
-    const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
+    const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '').replace(/^ANIM_Crow_/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
   } catch (e) { console.warn('Kino: Rabe', e); }
   const ld = kino_ld;
   await ld('laterne', () => kino_lantern('laterne', true));
@@ -18029,11 +17953,11 @@ function kino_persist(dt) { const S = kino_S; S.pT = (S.pT || 0) - dt; if (S.pT 
   if (after1 && S.schild !== '210') kino_schild('210');
   const k = typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; if (k === 3 || k === 5 || k === 6) kino_preload('k' + k); }
 function kino_rabeClip(k, once = false) { const R = kino_S.rabe; if (!R) return; const a = R.A[k]; if (!a || a === R.cur) return; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(.2).play(); if (R.cur) R.cur.fadeOut(.2); R.cur = a; }
-function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Flying'); if (!R.A.Flying) kino_rabeClip('TakeOff'); }
+function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Fly'); }
 function kino_rabeSitz(x, y, z, ry, clip = 'IdleLookAround') { const R = kino_S.rabe; if (!R) return null; R.g.position.set(x, y, z); R.g.rotation.set(0, ry, 0); R.g.visible = true; R.fl = null; kino_rabeClip(clip); return R; }
 // Werte für Endkarten (Zähler, Vertrauen, Antwort) – mit Rückfall, solange die Module der anderen Pakete fehlen
-function kino_trust() { if (typeof lwo_trust === 'function') try { return lwo_trust(); } catch (e) {} return story.lwo && Number.isFinite(story.lwo.trust) ? story.lwo.trust : 50; }
-function kino_stufe() { const t = kino_trust(); return t >= 70 ? 'hoch' : t < 30 ? 'miserabel' : 'mittel'; }
+function kino_trust() { if (typeof lwo_S !== 'undefined' && Number.isFinite(lwo_S.trust)) return lwo_S.trust; return story.lwo && Number.isFinite(story.lwo.trust) ? story.lwo.trust : 50; }
+function kino_stufe() { if (typeof lwo_stufe === 'function') try { return lwo_stufe(); } catch (e) {} const t = kino_trust(); return t >= 70 ? 'hoch' : t < 30 ? 'miserabel' : 'mittel'; }
 function kino_antwort(opts) { return (opts && opts.antwort) || (typeof ch3 !== 'undefined' && (ch3.answer || ch3.choice)) || 'B'; }
 function kino_zaehler(k) { try {
   if (k === 'neben') return Object.values(story.side || {}).filter(q => q.state === 'done').length;
@@ -18150,9 +18074,9 @@ function kino_defK1() {
       dur: 7, fov: 32, fovTo: 29, hand: .25, ease: 'soft', lens: { at: sh => { const h = kino_hildeSpot(); return kino_S.a.set(h.x + .02, .03, h.z - .05); }, r: .12, amt: .95 }, env: { fog: [0x0d1220, .028] },
       setup() { const h = kino_hildeSpot(); kino_show('nass', h.x, .021, h.z); const b = kino_show('brille', h.x + .02, .024, h.z - .05); b.rotation.set(-PI / 2, 0, .7); kino_lamps(L => kino_lampe(L, 'aus'));
         kino_S.vl[0].position.set(h.x - 3, 4.6, h.z + 2.5); kino_S.vl[0].color.setHex(0x9fb2d6); kino_S.vl[0].distance = 9; kino_S.vl[0].intensity = 1.1; // Mondlicht als Streiflicht auf den Gläsern
-        if (typeof katzen_kino === 'function') try { katzen_kino('baerbel', { x: h.x + 1.6, z: h.z - .3, bis: [h.x + .35, h.z - .1], ab: 2, dann: 'sitzen', blick: [h.x - 4, .3, h.z - 2] }); } catch (e) {} },
+        kino_katze(h); },
       sfx: [[() => { const h = kino_hildeSpot(); kino_trippeln(h.x - 3.2, h.z - 1.2, .05); }, 5]],
-      teardown() { kino_hide('nass', 'brille'); if (typeof katzen_kino === 'function') try { katzen_kino(null); } catch (e) {} } },
+      teardown() { kino_hide('nass', 'brille'); kino_katzeZurueck(); } },
     // 14–21 · Nr. 7, dunkel: im Wohnzimmer flackert das Licht einmal auf; auf dem Briefkasten sitzt Whiskey, nass, sieht zur Kellertreppe, dann in die Kamera
     { from: [24, 1.6, -4], to: [26.5, 1.5, -8], look: [25.2, 1.35, -12.8], lookTo: [26.2, 1.3, -13.2], dur: 7, fov: 44, hand: .35, ease: 'soft', lens: { at: [28.35, 1.35, -6.9], r: .3, amt: .25 },
       lines: [['Im Wohnzimmer brennt kurz Licht. Aber niemand bewegt sich.', '', .9, 5200]],
@@ -18189,6 +18113,11 @@ function kino_defK1() {
 }
 // Aufruf aus der Basis (Stromausfall, sobald die Scheibe über dem Dorf ist): startet „Hilde im Strahl“, danach ending() wie bisher
 function kino_hilde() { const S = kino_S; if (!S.ready || S.on || !KINO.k1h || !S.fig.hilde) return false; state.phase2 = true; kino_play('k1h').catch(e => console.error('Kino k1h', e)); return true; }
+// Katze BÄRBEL (katzen.js): schiebt sich von rechts ins Bild, schnuppert an der Brille, setzt sich, starrt in den leeren Nebel links – danach wie vorher
+function kino_katze(h) { if (typeof katzen_get !== 'function') return; try { const k = katzen_get('BÄRBEL'); if (!k) return; kino_S.katze = { k, on: k.on, x: k.x, z: k.z, st: k.st, stare: k.stare ? k.stare.clone() : null };
+  const K = katzen_spawn({ name: 'BÄRBEL', x: h.x + 2.4, z: h.z + .6, ry: -PI / 2 }); if (!K) return; kino_after(1.6, () => katzen_goto(K, h.x + .32, h.z + .12, { dann: 'sit' }));
+  kino_after(4.2, () => katzen_stare(K, [h.x - 5, .4, h.z - 3.5])); } catch (e) { console.warn('Kino: Katze', e); } }
+function kino_katzeZurueck() { const C = kino_S.katze; if (!C) return; kino_S.katze = null; try { if (!C.on) katzen_hide(C.k); else { katzen_place(C.k, C.x, C.z, { pose: C.st === 'go' ? 'sit' : C.st }); katzen_stare(C.k, C.stare); } } catch (e) {} }
 // Hildes Kopf (für Fokus und Blick)
 function kino_hildeKopf(v) { const P = kino_S.fig.hilde; if (P && P.g.visible && P.bones.head) { P.bones.head.getWorldPosition(v); return v; } const h = kino_hildeSpot(); return v.set(h.x, 1.5, h.z); }
 // Hildes Hand hebt sich zu Lukes Wange und erreicht sie nicht

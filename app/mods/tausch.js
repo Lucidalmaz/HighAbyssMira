@@ -146,6 +146,10 @@ const TAUSCH_ICON = {
 function tausch_svg(i) { return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${TAUSCH_ICON[i] || TAUSCH_ICON.staniol}</svg>`; }
 const tausch_sterne = n => n > 0 ? '✶'.repeat(n) : '–';
 // ---------------------------------------------------------------- Tasche (Glänzendes)
+// Beutel (Modul „beutel“, eigener Helfer): Kapazitätsprüfung je Art – 'glanz', 'batterie', 'streich', 'kreide', 'oel', 'waermer', 'geraet'. Ohne Modul: immer Platz.
+function tausch_platz(art, n = 1) { try { return typeof beutel_platz === 'function' ? beutel_platz(art, n) !== false : true; } catch (e) { return true; } }
+const TAUSCH_ART = { batterie: 'batterie', streich: 'streich', kreide: 'kreide', lampenoel: 'oel', waermer: 'waermer', oellampe: 'geraet', sturmlaterne: 'geraet', fernglas: 'geraet' };
+function tausch_voll() { toast('Kein Platz mehr im Beutel.', 2600); return false; }
 function tausch_gib(id, n = 1, still) { const S = tausch_S, W = TAUSCH_WAREN[id]; if (!W) return; S.tasche[id] = (S.tasche[id] || 0) + n; if (!still) questPop('GLÄNZENDES', W.n); }
 function tausch_hat(id) { return (tausch_S.tasche[id] || 0) > 0; }
 function tausch_nimm(id, n = 1) { const S = tausch_S; if (!S.tasche[id]) return false; S.tasche[id] -= n; if (S.tasche[id] <= 0) delete S.tasche[id]; return true; }
@@ -241,7 +245,7 @@ function tausch_offen() {
 }
 function tausch_notiz() { const n = Object.keys(tausch_S.gekauft).length; return n ? 'Er prüft alles mit dem Schnabel. Und er bereut nie.' : 'Ich tausche mit einem Vogel. Ich schreib das besser nicht in die Fibel. … Doch.'; }
 async function tausch_kaufe(a) {
-  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return;
+  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return; if (!tausch_platz(TAUSCH_ART[a.id] || 'geraet', 1)) { closeOverlay(); return tausch_voll(); }
   for (const w of wahl) tausch_nimm(w); S.gekauft[a.id] = (S.gekauft[a.id] || 0) + 1; S.log.push(`K${kap()} · ${wahl.map(x => TAUSCH_WAREN[x].n).join(', ')} → ${a.n}`); if (S.log.length > 40) S.log.shift();
   closeOverlay(); await tausch_pruefen(); a.gib(); questPop('VON WHISKEY', a.n); Audio.play('keys2', { gain: .2, rate: 1.5, dur: .3 });
   const tipp = { streich: 'Streichhölzer: [L], wenn du keine Lampe hast.', kreide: 'Kreide: [K] malt einen Pfeil.', oellampe: 'Öllampe: [L] an und aus.', sturmlaterne: 'Sturmlaterne: [L] an und aus. Windfest.', fernglas: 'Fernglas: [V] halten.', waermer: 'Handwärmer: im Inventar knicken.', lampenoel: 'Lampenöl: [L], wenn die Lampe leer ist.' }[a.id];
@@ -275,14 +279,14 @@ function tausch_glint(x, y, z, label, act) { const S = tausch_S;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: S.tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); sp.position.set(x, y + .06, z); sp.scale.setScalar(.16); sp.visible = false; scene.add(sp);
   const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); return { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 }; }
 function tausch_y(x, z) { const g = solidGround(x, .8, z); return g > -1 ? Math.max(0, g) : 0; }
-function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
+function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length) || (F.bat && !tausch_platz('batterie', F.bat))) return tausch_voll(); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
   for (const w of F.w) tausch_gib(w, 1, true); if (F.bat) setTimeout(() => addBattery(F.bat), 700);
   toast(F.t, 4200); questPop('GLÄNZENDES', F.w.map(w => TAUSCH_WAREN[w].n).join(', ')); Audio.play('keys1', { gain: .16, rate: 1.9, dur: .25 });
   if (!story.lore.some(l => l.key === 'tausch_start')) { story.lore.push({ key: 'tausch_start', title: 'Glänzendes', html: '<span class="hand">Ich sammle jetzt Kronkorken. Für einen Raben. Lucy würde sich totlachen.\n\nAber er nimmt nur, was glänzt – und er gibt dafür, was ich brauche.</span>' }); setTimeout(() => toast('Glänzendes liegt in deinen Taschen (Fibel, INVENTAR). Whiskey tauscht es – sprich ihn an.', 5200), 4600); } }
 // Etwas, das Whiskey hinlegt (zurückgelegtes Diebesgut, Deckel, nasse Batterie): gespeichert, bis Luke es aufhebt
 function tausch_drop(x, y, z, was, text) { const S = tausch_S; if (y === null || y === undefined) y = tausch_y(x, z); const D = { x, y, z, was, text, k: kap() }; S.drops.push(D); tausch_dropMake(D); }
 function tausch_dropMake(D) { const S = tausch_S; const G = tausch_glint(D.x, D.y, D.z, 'Etwas glänzt', () => tausch_dropNimm(D)); D.G = G; interactables.push(G.hit); G.on = true; G.sp.visible = true; S.dropG.push(D); }
-function tausch_dropNimm(D) { const S = tausch_S, w = D.was; S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
+function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if ((w.ware && !tausch_platz('glanz', 1)) || (w.bat && !tausch_platz('batterie', w.bat))) return tausch_voll(); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
   if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
 // ---------------------------------------------------------------- Lampe, Streichholz, Kreide, Fernglas, Handwärmer
 function tausch_licht() { const S = tausch_S, L = S.L; return { an: !!(L && L.intensity > .05), x: L ? L.position.x : 0, y: L ? L.position.y : 0, z: L ? L.position.z : 0, r: S.match > 0 ? TAUSCH_LAMPE.holz.r : S.lampe ? TAUSCH_LAMPE[S.lampe].r : 0, art: S.match > 0 ? 'streichholz' : S.lampe }; }

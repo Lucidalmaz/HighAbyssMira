@@ -271,6 +271,20 @@ function klang_dream(on) { // Traummusik (Intro)
 // Türen: Grundspiel ruft Audio.doorSound (Öffnen/Schließen verschieden)
 // Gegenstände: Aufheben klingt
 addItem = (orig => key => { const had = story.items.includes(key); orig(key); if (!had) Audio.pickup(key); })(addItem);
+// Funk Kanal 3 (F3 AP-06, LWO): Rauschsperre-Klack, Band 320–2900 Hz, darin eine verzerrte „Stimme“ als Silbenhüllkurve, am Ende Klack.
+// art: 'funk' (Blechmann-Gerät, mit x/z räumlich) · 'handy' (Lukes Handy, enger, im Ohr) · 'band' (Lautsprecher im Amt: Wolter-Band, etwas tiefer, Hall der Ebene)
+function klang_funk(sec = 2.5, o = {}) { const A = Audio, c = A.ctx; if (!c) return; const t = c.currentTime, art = o.art || 'funk';
+  let dest = A.world; if (o.x !== undefined) { dest = A.at(o.x, o.y ?? 1.3, o.z, o.ref || 2.2); if (A.cut) return; }
+  const out = c.createGain(); out.gain.value = art === 'handy' ? .5 : .75; out.connect(dest);
+  const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = art === 'handy' ? 450 : 320; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = art === 'handy' ? 3200 : art === 'band' ? 2400 : 2900;
+  const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = art === 'band' ? 1100 : 1700; pk.gain.value = 7; pk.Q.value = 1.2; hp.connect(lp); lp.connect(pk); pk.connect(out);
+  const hiss = A.noise(true), hg = c.createGain(); hg.gain.setValueAtTime(0, t); hg.gain.linearRampToValueAtTime(art === 'band' ? .035 : .07, t + .05); hg.gain.setValueAtTime(art === 'band' ? .035 : .07, t + sec); hg.gain.linearRampToValueAtTime(0, t + sec + .12); hiss.connect(hg); hg.connect(hp);
+  // „Stimme“: Rauschen durch wandernde Formanten, Silben 5–7 pro Sekunde, kleine Pausen
+  const v = A.noise(true), f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; const vg = c.createGain(); vg.gain.value = 0; v.connect(f1); f1.connect(vg); vg.connect(hp);
+  let k = t + .12; while (k < t + sec - .1) { const d = .09 + Math.random() * .12; f1.frequency.setValueAtTime((art === 'band' ? 500 : 650) + Math.random() * 900, k); vg.gain.setValueAtTime(0, k); vg.gain.linearRampToValueAtTime(Math.random() < .12 ? 0 : .5 + Math.random() * .4, k + d * .3); vg.gain.linearRampToValueAtTime(.05, k + d); k += d + (Math.random() < .15 ? .18 : .02); }
+  // Rauschsperre: Klack am Anfang und am Ende (Blechmann-Gerät, Handy knackt)
+  for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
+  hiss.stop(t + sec + .3); v.stop(t + sec + .3); }
 WORLD_MODS.push(['Klang', async () => { window.klang_ambient = klang_ambient; }]);
 WORLD_TICK.push(dt => {
   const S = klang_S; if (!Audio.ctx) return;

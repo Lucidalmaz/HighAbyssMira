@@ -369,7 +369,7 @@ WORLD_MODS.push(['Kino', async () => {
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
   try { const src = await msModel('animal_crow', 'model.glb'), sk = await figuren_skc(), m = sk(src); m.scale.setScalar(1.45);
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
-    const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
+    const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '').replace(/^ANIM_Crow_/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
   } catch (e) { console.warn('Kino: Rabe', e); }
   const ld = kino_ld;
   await ld('laterne', () => kino_lantern('laterne', true));
@@ -580,11 +580,11 @@ function kino_persist(dt) { const S = kino_S; S.pT = (S.pT || 0) - dt; if (S.pT 
   if (after1 && S.schild !== '210') kino_schild('210');
   const k = typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; if (k === 3 || k === 5 || k === 6) kino_preload('k' + k); }
 function kino_rabeClip(k, once = false) { const R = kino_S.rabe; if (!R) return; const a = R.A[k]; if (!a || a === R.cur) return; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(.2).play(); if (R.cur) R.cur.fadeOut(.2); R.cur = a; }
-function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Flying'); if (!R.A.Flying) kino_rabeClip('TakeOff'); }
+function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Fly'); }
 function kino_rabeSitz(x, y, z, ry, clip = 'IdleLookAround') { const R = kino_S.rabe; if (!R) return null; R.g.position.set(x, y, z); R.g.rotation.set(0, ry, 0); R.g.visible = true; R.fl = null; kino_rabeClip(clip); return R; }
 // Werte für Endkarten (Zähler, Vertrauen, Antwort) – mit Rückfall, solange die Module der anderen Pakete fehlen
-function kino_trust() { if (typeof lwo_trust === 'function') try { return lwo_trust(); } catch (e) {} return story.lwo && Number.isFinite(story.lwo.trust) ? story.lwo.trust : 50; }
-function kino_stufe() { const t = kino_trust(); return t >= 70 ? 'hoch' : t < 30 ? 'miserabel' : 'mittel'; }
+function kino_trust() { if (typeof lwo_S !== 'undefined' && Number.isFinite(lwo_S.trust)) return lwo_S.trust; return story.lwo && Number.isFinite(story.lwo.trust) ? story.lwo.trust : 50; }
+function kino_stufe() { if (typeof lwo_stufe === 'function') try { return lwo_stufe(); } catch (e) {} const t = kino_trust(); return t >= 70 ? 'hoch' : t < 30 ? 'miserabel' : 'mittel'; }
 function kino_antwort(opts) { return (opts && opts.antwort) || (typeof ch3 !== 'undefined' && (ch3.answer || ch3.choice)) || 'B'; }
 function kino_zaehler(k) { try {
   if (k === 'neben') return Object.values(story.side || {}).filter(q => q.state === 'done').length;
@@ -701,9 +701,9 @@ function kino_defK1() {
       dur: 7, fov: 32, fovTo: 29, hand: .25, ease: 'soft', lens: { at: sh => { const h = kino_hildeSpot(); return kino_S.a.set(h.x + .02, .03, h.z - .05); }, r: .12, amt: .95 }, env: { fog: [0x0d1220, .028] },
       setup() { const h = kino_hildeSpot(); kino_show('nass', h.x, .021, h.z); const b = kino_show('brille', h.x + .02, .024, h.z - .05); b.rotation.set(-PI / 2, 0, .7); kino_lamps(L => kino_lampe(L, 'aus'));
         kino_S.vl[0].position.set(h.x - 3, 4.6, h.z + 2.5); kino_S.vl[0].color.setHex(0x9fb2d6); kino_S.vl[0].distance = 9; kino_S.vl[0].intensity = 1.1; // Mondlicht als Streiflicht auf den Gläsern
-        if (typeof katzen_kino === 'function') try { katzen_kino('baerbel', { x: h.x + 1.6, z: h.z - .3, bis: [h.x + .35, h.z - .1], ab: 2, dann: 'sitzen', blick: [h.x - 4, .3, h.z - 2] }); } catch (e) {} },
+        kino_katze(h); },
       sfx: [[() => { const h = kino_hildeSpot(); kino_trippeln(h.x - 3.2, h.z - 1.2, .05); }, 5]],
-      teardown() { kino_hide('nass', 'brille'); if (typeof katzen_kino === 'function') try { katzen_kino(null); } catch (e) {} } },
+      teardown() { kino_hide('nass', 'brille'); kino_katzeZurueck(); } },
     // 14–21 · Nr. 7, dunkel: im Wohnzimmer flackert das Licht einmal auf; auf dem Briefkasten sitzt Whiskey, nass, sieht zur Kellertreppe, dann in die Kamera
     { from: [24, 1.6, -4], to: [26.5, 1.5, -8], look: [25.2, 1.35, -12.8], lookTo: [26.2, 1.3, -13.2], dur: 7, fov: 44, hand: .35, ease: 'soft', lens: { at: [28.35, 1.35, -6.9], r: .3, amt: .25 },
       lines: [['Im Wohnzimmer brennt kurz Licht. Aber niemand bewegt sich.', '', .9, 5200]],
@@ -740,6 +740,11 @@ function kino_defK1() {
 }
 // Aufruf aus der Basis (Stromausfall, sobald die Scheibe über dem Dorf ist): startet „Hilde im Strahl“, danach ending() wie bisher
 function kino_hilde() { const S = kino_S; if (!S.ready || S.on || !KINO.k1h || !S.fig.hilde) return false; state.phase2 = true; kino_play('k1h').catch(e => console.error('Kino k1h', e)); return true; }
+// Katze BÄRBEL (katzen.js): schiebt sich von rechts ins Bild, schnuppert an der Brille, setzt sich, starrt in den leeren Nebel links – danach wie vorher
+function kino_katze(h) { if (typeof katzen_get !== 'function') return; try { const k = katzen_get('BÄRBEL'); if (!k) return; kino_S.katze = { k, on: k.on, x: k.x, z: k.z, st: k.st, stare: k.stare ? k.stare.clone() : null };
+  const K = katzen_spawn({ name: 'BÄRBEL', x: h.x + 2.4, z: h.z + .6, ry: -PI / 2 }); if (!K) return; kino_after(1.6, () => katzen_goto(K, h.x + .32, h.z + .12, { dann: 'sit' }));
+  kino_after(4.2, () => katzen_stare(K, [h.x - 5, .4, h.z - 3.5])); } catch (e) { console.warn('Kino: Katze', e); } }
+function kino_katzeZurueck() { const C = kino_S.katze; if (!C) return; kino_S.katze = null; try { if (!C.on) katzen_hide(C.k); else { katzen_place(C.k, C.x, C.z, { pose: C.st === 'go' ? 'sit' : C.st }); katzen_stare(C.k, C.stare); } } catch (e) {} }
 // Hildes Kopf (für Fokus und Blick)
 function kino_hildeKopf(v) { const P = kino_S.fig.hilde; if (P && P.g.visible && P.bones.head) { P.bones.head.getWorldPosition(v); return v; } const h = kino_hildeSpot(); return v.set(h.x, 1.5, h.z); }
 // Hildes Hand hebt sich zu Lukes Wange und erreicht sie nicht
