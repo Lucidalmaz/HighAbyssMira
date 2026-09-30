@@ -80,3 +80,7 @@
 - Halle/Villa-Räume zu dunkel: Basis überschreibt `hemi.intensity` nach den Takten → Haken in der Basis-Lichtzeile (Lichtpass).
 - Kamera-NaN in Höhepunkt A nur abgefangen (`villa_heil`), Ursache offen.
 - Ungetestet: R4-1/R4-3 Fehlversuche, ∴-1 (−6), B-K4-06b, AG-12 Wege „echt“/„Fälschung“, Flicken-Einlösung, Sichtung im Kino k4, Weiterspielen aus Villa-Raum, Handschuh-Fall Höhepunkt B.
+
+## Gesamttest am Schluss – anspielen (aus Bewegung/Kamera)
+- Dreh-Neigung mit echter Maus (Test nur per Skript), Rückwärts-Tempo 0,78, echte Kino-`uebergabe`.
+- Eingangsstufen Nr. 7 ohne Kollision (Boden springt an der Tür 0,43 m; Kamera kaschiert) → Welt-Code.
