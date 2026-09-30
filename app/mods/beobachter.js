@@ -39,7 +39,7 @@ const BEOB_DYN = [
   // Kapitel 3 · Stadt
   { id: 'd_auto', kind: 'gruselig', when: () => ch3.on, text: 'IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.\nICH HABE GEWARTET, BIS DU AUFWACHST.\nDU HAST VON DER STRASSE GETRÄUMT. ICH WEISS ES, WEIL ICH DRIN WAR.' },
   { id: 'd_funk', kind: 'hilfe', when: () => ch3.on && !ch3.radio && /31,10|Funkkasten/.test(beob_obj()), stuck: true, text: 'DER KASTEN AN DER KREUZUNG HÖRT NUR AUF EINE ZAHL.\nHILDE HAT SIE IN IHR ZÄHLBUCH GESCHRIEBEN.\nEINUNDDREISSIG. KOMMA. ZEHN.' },
-  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && (ch3.lampFails || 0) >= 3, stuck: true, text: 'ERST DIE MIT DEM FEUER.\nDANN DER ENKEL.\nDANN DEINE SCHWESTER.\nDANN DIE, DIE GEZÄHLT HAT.' },
+  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && (ch3.lampFails || 0) >= 3, text: 'ERST DIE MIT DEM FEUER.\nDANN DER ENKEL.\nDANN DEINE SCHWESTER.\nDANN DIE, DIE GEZÄHLT HAT.' },
   { id: 'd_uhr', kind: 'hilfe', when: () => ch3.on && /Küchenuhr/.test(beob_obj()), stuck: true, text: 'DREI UHR DREIZEHN.\nDAS WAR DIE ZEIT. DAS WAR DEIN ERSTER ATEMZUG.' },
   { id: 'd_nacht', kind: 'hilfe', when: () => ch3.on && /nicht in diese Nacht/.test(beob_obj()), stuck: true, text: 'EINE KARTE MIT EINER ZAHL, DIE ES IN DIESER NACHT NOCH NICHT GAB.\nZÄHL DIE KERZEN. DANN ZÄHL DIE JAHRE.' },
   { id: 'd_licht', kind: 'gruselig', when: () => ch3.on, text: 'DU HAST DIE LAMPE {off} MAL AUSGEMACHT.\nIM DUNKELN SIEHST DU MEHR.\nICH AUCH.' },
