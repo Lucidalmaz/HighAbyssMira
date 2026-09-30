@@ -3501,7 +3501,7 @@ const archiveDrawer = box(.86, .5, .48, X + 20, .3, Z - 5.6, M.dark);
 // --- Durchgang & Sicherungsraum (630–636, Raum nördlich z 602–608)
 c2Room(X + 30, X + 36, Z - 2, Z + 2, { w: [{ at: Z, w: 1.6 }], e: [{ at: Z, w: 1.6 }], n: [{ at: X + 33, w: 1.2 }] });
 c2Room(X + 30, X + 36, Z + 2, Z + 8, { s: [{ at: X + 33, w: 1.2 }] });
-const fuseDoor = makeDoor(X + 33, Z + 2.1, 1.2, -1.5, M.metal); fuseDoor.locked = true;
+const fuseDoor = makeDoor(X + 33, Z + 2.1, 1.2, -1.5, M.metal); fuseDoor.locked = true; fuseDoor.pivot.children.forEach(c => { c.position.y -= .43; }); // makeDoor rechnet mit Hausboden (Y .43) – der Amtsboden liegt auf 0
 interact(fuseDoor.leaf, () => fuseDoor.open ? 'Tür schließen' : 'Sicherungsraum', () => { if (fuseDoor.locked) { if (ch2.fuseKey) { fuseDoor.locked = false; Audio.beep(true); toast('Der Schlüssel passt.'); } else return toast(ch2.z7Key ? 'Abgeschlossen. Der Schlüssel aus der Schublade passt nicht – auf seinem Schild steht ZIMMER 7.' : 'Abgeschlossen. Ein Schild: SICHERUNGSRAUM – NUR BEFUGTE.'); } fuseDoor.set(!fuseDoor.open); Audio.creak(.2); }); // Schlüssel „sicherung“ nur aus Zimmer 7 (ch2.fuseKey, zimmer7.js)
 c2Tube(X + 33, Z, 1.2, 'x', 0xffd9a0, 1.1, 6).mode = 'flicker';
 const fusePanel = box(1.4, 1.2, .12, X + 33, 1.5, Z + 7.8, M.metal);

@@ -73,7 +73,7 @@ function tod_ch2Apply(p) {
   if (p.r && p.r.length) { ch2.read = new Set(p.r); ch2.boardHint = p.r.length >= 3; }
   ch2.archiveSeen = true;
   if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; }
-  if (p.k || p.a) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); }
+  if (p.k) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); } // nur mit dem Hakenschlüssel aus Zimmer 7 – die gelöste Tafel allein gibt ihn nicht mehr
   if (p.p && !ch2.power) { ch2.power = true; ch2.coverOpen = true; ch2.fuses = ch2.fuses.map(() => true); try { fuseLedUpdate(); } catch (e) {} spiderDoorIn.locked = false; spiderDoorIn.lockedText = ''; c2Lights.forEach(L => { L.k = 1; }); }
   if (p.s && ch2.spiderPhase !== 'gone') { ch2.spiderPhase = 'gone'; spiderDoorOut.locked = false; cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478); }
   if (p.c) { ch2.chase = 'done'; chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; ch2.tankSeen = false; }
