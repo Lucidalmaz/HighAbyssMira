@@ -62,3 +62,15 @@
 - 82: S-12 (Pflichtfoto) in Kap. 1 streichen – keine Kamera in Kap. 1. B-K1-01 = Lucys Auto, B-K1-02 im Hauptweg.
 - 83/85: K1-4 (Küchenfenster) vs. S-01 (Haustür, Teller) für W-04b vereinheitlichen → Haustür/Teller gilt (85), 83 anpassen.
 - 86: Günther kommt kurz nach Mitternacht („Ich fang jetzt früher an.“), nicht „gegen vier“; Kater „Luke“ → Hänschen; Katzenfutterdose = zweiter Tausch (Dosendeckel gegen LWO-Kuli), nicht W-03; Aushang-Wortlaut ohne „(hw)“-Unterschrift (Hauptweg-Fassung). Giselas Katzen in Kap. 1: Anni, Zayn, Grete, Keiner.
+
+## Nachtrag aus dem Justin-Dossier (fertig lektoriert)
+- 85: Oma-Erna-Zettel „Das Hufeisen bleibt hängen …“ (Vorschlag aus 81) bei Bedarf aufnehmen.
+- 80: AG-14 hat keine gesprochene Wolter-Zeile zum Foto 1941; falls ergänzt, ohne Jahreszahl (Vorschlag in 81, 7.1).
+- 83: W-06 in Kap. 3: Whiskey fliegt von der Kuh auf den Handschuh; Stufe „Er klingt fast wie sein alter“ entfällt (Kap. 3: „Er gehörte meiner Frau“).
+- 86: Gisela-Szene Kap. 5: LUKE „Ich soll Ihnen sagen: Er hat nicht gefroren.“ / GISELA „… Der hat immer gefroren. Immer.“ (Riemen „H. R.“).
+
+## Nachtrag aus dem Beobachter-Dossier (fertig lektoriert)
+- 80: Tabelle „1 · Prolog · Ortsschild“: „B-01 liegt daneben“ streichen; B-K1-01 liegt in Lucys Auto. Am Ortsschild nur Kaugummipapier, Kratzer, ∴ in der Scheibe.
+- 83: B-X-01 ist angenommen (82, 5.9); Station `akte` → Reserve-Zettel „Die leere Schublade“ (82, 5.10).
+- 86: Pfarrhaus-Zettel = B-K3-N1, Schuppen-Zettel = B-K4-N6 / B-K5-N1; Diele-Polaroid-Sichtung ist gestrichen (D6).
+- 81 (erledigt vom Justin-Lektor: B-K6-04/05 mit Wortlaut 82).
