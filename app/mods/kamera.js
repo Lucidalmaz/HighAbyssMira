@@ -6,8 +6,10 @@
 //   kamera_film(+n)  → Film nachlegen
 //   kamera_ziel(fn)  → fn(camera) → { vorFoto(), nachFoto(), text, sperre?: 'weggedreht' } für die aktuelle Blickrichtung oder null
 //                      zusätzlich (optional): beimHeben() – beim Heben der Kamera; nachEntwickeln(url) – wenn das Bild fertig ist; stempel – Text am Rand
+//                      beob: true – nur das Kreuzungsbild („Zuletzt neun“, 02 D6): der Beobachter bleibt im Bild (beobachter.js/album.js-Hülle um kamera_render)
+//   kamera_zielDazu(fn) → weitere Zielquelle (z. B. Nebenaufgaben AP-22: Zapfinsel, Remise, Kreuzung); gilt nach kamera_ziel, erste Antwort ≠ null gewinnt
 // Kein Licht zur Laufzeit: der Blitz ist ein weißes Bild-Overlay plus kurz verstärkte vorhandene Lichter (Taschenlampe, Himmel) nur im Foto-Frame.
-const kamera_S = { frei: false, film: 0, hoch: false, hochK: 0, busy: false, ziel: null, fotos: [], n: 0, rt: null, pc: null, buf: null, cv: null, el: {}, sperre: null, tipT: 0, zeigT: 0 };
+const kamera_S = { frei: false, film: 0, hoch: false, hochK: 0, busy: false, ziel: null, zieleDazu: [], fotos: [], n: 0, rt: null, pc: null, buf: null, cv: null, el: {}, sperre: null, tipT: 0, zeigT: 0 };
 function kamera_desc() { const n = kamera_S.film; return `Hildes Sofortbildkamera, eine alte Polaroid. Zählwerk: ${n}. [C] heben · Klick auslösen.` + (n ? '' : ' Kein Film mehr.'); }
 function kamera_item() { try { modItem('polaroid_kamera', 'Hildes Kamera', kamera_desc(), 'polaroid'); } catch (e) {} }
 function kamera_frei(n = 3) {
@@ -16,6 +18,7 @@ function kamera_frei(n = 3) {
 }
 function kamera_film(n = 1) { const S = kamera_S; S.film = Math.max(0, S.film + n); kamera_item(); kamera_hud(); }
 function kamera_ziel(fn) { kamera_S.ziel = typeof fn === 'function' ? fn : null; }
+function kamera_zielDazu(fn) { if (typeof fn === 'function' && !kamera_S.zieleDazu.includes(fn)) kamera_S.zieleDazu.push(fn); }
 function kamera_zu() { if (kamera_S.hoch) kamera_heben(false); } // für Szenen, die die Kamera senken
 // ---------------------------------------------------------------- Aussehen (Sucher, Blitz, Polaroid in der Hand)
 {
@@ -64,7 +67,7 @@ function kamera_heben(on = !kamera_S.hoch) {
     if (Z && Z.sperre) { S.sperre = Z; kamera_sperrText(Z.sperrText || ''); } }
   return true;
 }
-function kamera_zielJetzt() { const S = kamera_S; if (!S.ziel) return null; try { return S.ziel(camera) || null; } catch (e) { console.warn('Kamera: Ziel', e); return null; } }
+function kamera_zielJetzt() { const S = kamera_S; for (const f of S.ziel ? [S.ziel, ...S.zieleDazu] : S.zieleDazu) { try { const Z = f(camera); if (Z) return Z; } catch (e) { console.warn('Kamera: Ziel', e); } } return null; }
 // ---------------------------------------------------------------- Auslösen
 async function kamera_ausloesen() {
   const S = kamera_S; if (!S.hoch || S.busy || !kamera_darf()) return false;
@@ -128,7 +131,7 @@ KEY_HOOKS.KeyC = () => { if (kamera_S.frei) kamera_heben(); };
 addEventListener('mousedown', e => { if (e.button !== 0 || !kamera_S.hoch) return; if (document.pointerLockElement !== renderer.domElement && !window.__testMove) return; if (ui.overlay || ui.paused) return; kamera_ausloesen(); });
 MOD_SAVE.push(['kamera', () => ({ frei: kamera_S.frei, film: kamera_S.film, n: kamera_S.n }), v => { kamera_S.frei = !!v.frei; kamera_S.film = v.film | 0; kamera_S.n = v.n | 0; if (kamera_S.frei) setTimeout(kamera_item, 0); }]);
 WORLD_MODS.push(['Kamera', async () => {
-  window.__kamera = { S: kamera_S, frei: kamera_frei, film: kamera_film, ziel: kamera_ziel, heben: kamera_heben, ausloesen: kamera_ausloesen, zu: kamera_zu }; // Testzugriff
+  window.__kamera = { S: kamera_S, frei: kamera_frei, film: kamera_film, ziel: kamera_ziel, zielDazu: kamera_zielDazu, heben: kamera_heben, ausloesen: kamera_ausloesen, zu: kamera_zu }; // Testzugriff
 }]);
 WORLD_TICK.push(dt => {
   const S = kamera_S; if (!S.frei) return;

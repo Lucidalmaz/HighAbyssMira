@@ -377,7 +377,7 @@ function katzen_brain(k, dt, t, dCam, lampOn, kp) {
   if (k.avoidT > 0) { k.avoidT -= dt; if (k.avoidT <= 0) k.avoid = null; }
   switch (k.st) {
     case 'carry': { const f = flatDir(); // linke Hand, an der Kamera: bleibt unten links im Bild, auch beim Blick nach unten; Körper quer vor Luke
-      katzen_V[4].set(-.27, -.5, -.52).applyQuaternion(camera.quaternion).add(camera.position); k.x = katzen_V[4].x; k.y = katzen_V[4].y - .12; k.z = katzen_V[4].z; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
+      katzen_V[4].set(-.24, -.36, -.62).applyQuaternion(camera.quaternion) /* AP-21: höher im Bild, die Ich-Hände (kapitel5.js) tragen ihn */.add(camera.position); k.x = katzen_V[4].x; k.y = katzen_V[4].y - .12; k.z = katzen_V[4].z; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
       if (k.hissT > 0) { k.hissT -= dt; if (k.teeth) k.teeth.visible = k.hissT > 0; } return; }
     case 'arm': if (k.arm) { const o = k.arm.obj; o.updateWorldMatrix(true, false); katzen_V[0].copy(k.arm.off).applyMatrix4(o.matrixWorld); k.x = katzen_V[0].x; k.y = katzen_V[0].y; k.z = katzen_V[0].z; k.g.position.copy(katzen_V[0]); o.getWorldQuaternion(katzen_Q[0]); katzen_E.setFromQuaternion(katzen_Q[0], 'YXZ'); k.ry = katzen_E.y + PI / 2; k.g.rotation.y = k.ry; } return;
     case 'hiss': k.hissT -= dt; if (k.turnTo != null) { k.ry = katzen_ang(k.ry, k.turnTo, dt * 7); }

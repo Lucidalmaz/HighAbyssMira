@@ -1192,29 +1192,48 @@ function kino_defVorbereitet() {
   const waldZeigen = sh => { const W = typeof wald_S !== 'undefined' ? wald_S : null; sh.wald = []; if (W && W.chunks) for (const c of W.chunks) for (const m of c.meshes) sh.wald.push([m, m.visible]); };
   const waldTick = (sh, cx, cz) => { const W = typeof wald_S !== 'undefined' ? wald_S : null; if (!W || !W.chunks) return; for (const c of W.chunks) { const v = Math.hypot(c.x - cx, c.z - cz) < c.vis + 10; for (const m of c.meshes) m.visible = v; } };
   const waldAus = sh => { for (const [m, v] of sh.wald || []) m.visible = v; };
+  // Fassung 3 (AP-21): „Nicht mal von meinem Namen“ – 40 s nach „Komm heim.“ (Tabelle Kap. 5): Gitter · durchs Gitter nach Süden · Kranfahrt Kirchberg · Waldrand · Rücken von Luke und Lucy · Schwarz
   kino_def('k5', [
+    // 0–6 s: am Gitter, Blick in den Wald. Nichts bewegt sich. Zwei Sekunden völlige Stille, dann Lukes Atem, dann die Katze, die sich hinsetzt
     { from: [30, 1.5, 96.8], to: [30, 1.48, 97.1], look: [30, 1.4, 106], dur: 6, fov: 50, fadeIn: 900, hand: .2,
       setup(sh) { waldZeigen(sh); waldTick(sh, 30, 100); kino_still(true, .3); }, tick(k, t, dt, sh) { if (t > 2 && !sh.b) { sh.b = 1; kino_S.sv && kino_still(false, 2.5); kino_atem(.1, .8); } },
-      sfx: [[() => kino_atem(.1, .8), 4.2]], teardown(sh) { waldAus(sh); } },
+      sfx: [[() => kino_atem(.1, .8), 4.2], [() => { try { Audio.play('stepG1', { gain: .05, rate: 1.9, x: 29.4, y: .1, z: 97.3, ref: 1.5 }); } catch (e) {} }, 5.1]], teardown(sh) { waldAus(sh); } },
+    // 6–14 s: von innen im Wald durch das Gitter nach Süden – Lukes Lichtkegel, dahinter Lucy mit der Sturmlaterne, Hänschen voraus; Whiskey landet auf dem Pfosten und schweigt
     { from: [31, 1.4, 101], to: [31, 1.2, 99.5], look: [30, 1.4, 92], dur: 8, fov: 48,
       setup(sh) { waldZeigen(sh); waldTick(sh, 30, 98); const P = kino_S.sv.pos; sh.lk = [P.x, P.z]; kino_S.flash = { p: kino_V(P.x, 1.5, P.z), at: kino_V(31.5, 1.2, 104), i: 14 };
-        kino_fig('lucy', 30.4, 0, 86.5, 0, 'walk', { ts: .7 }); kino_show('laterne'); kino_show('lampe', P.x + .15, 1.45, P.z + .25); },
+        kino_fig('lucy', 30.4, 0, 86.5, 0, 'walk', { ts: .7 }); kino_show('laterne'); kino_show('lampe', P.x + .15, 1.45, P.z + .25);
+        if (typeof katzen_kino === 'function') { try { katzen_kino('HÄNSCHEN', { x: 30.1, z: 89.5, bis: [29.6, 96.6], ab: .4, blick: [30, .4, 92] }); } catch (e) {} } },
       tick(k, t, dt, sh) { const L = kino_S.fig.lucy, z = 86.5 + 5 * Math.min(1, t / 7); if (L) { L.g.position.z = z; } const l = kino_S.obj.laterne; l.position.set(30.62, .72, z + .25); l.rotation.set(Math.sin(t * 3) * .12, 0, Math.sin(t * 2.4) * .1);
         kino_S.lucyLight.position.set(30.62, .9, z + .25); kino_S.lucyLight.intensity = 2.4 * (.94 + .06 * Math.sin(t * 11)); kino_S.lit[0] = kino_S.litL || (kino_S.litL = { p: kino_V(0, 0, 0), c: 0xffb060, d: 7, i: 0 }); kino_S.litL.p.copy(kino_S.lucyLight.position); kino_S.litL.i = kino_S.lucyLight.intensity;
         kino_S.obj.lampe.material.opacity = .75 + .1 * Math.sin(t * 9); },
+      sfx: [[() => kino_rabeFly(kino_V(22, 9, 90), kino_V(28.05, 2.25, 98.02), 2.4, () => kino_rabeClip('IdleLookAround')), 3.4]],
       lines: [['„Großer.“', 'LUCY', 4.4, 3200]],
-      teardown(sh) { waldAus(sh); kino_figOff('lucy'); kino_hide('laterne', 'lampe'); kino_S.lucyLight.intensity = 0; } },
+      teardown(sh) { waldAus(sh); kino_figOff('lucy'); kino_hide('laterne', 'lampe', 'rabe'); kino_S.lucyLight.intensity = 0; if (typeof katzen_kino === 'function') { try { katzen_kino(null); } catch (e) {} } } },
+    // 14–24 s: Kranfahrt über Spielplatz und Kirchberg – Gedenkfeld, Kerzen aus, das Grab dunkel, die Rechnung auf dem Hügel (falls liegen gelassen); bei 20 s erlischt im Nordwesten das weiße Dachfenster; Wind nur über dem Dorf
     { from: [26, 3, 90], to: [10, 30, 70], look: [-40, 0, 40], lookTo: [-48, 0, 58], dur: 10, fov: 52, env: 'vista', hand: .2,
       setup() { const fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 1; kino_S.obj.flammeSchein.material.opacity = .45; },
       tick(k, t) { const f = t < 6 ? 1 : Math.max(0, 1 - (t - 6) / .5); kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
+      sfx: [[() => { try { Audio.play('wind3', { gain: .22, rate: .8, dur: 5, fadeIn: 1.5 }); } catch (e) {} }, 1]],
       teardown() { kino_hide('flamme', 'flammeSchein'); } },
+    // 24–32 s: Waldrand im Osten, zwischen die Stämme – eine Sekunde lang etwas Hohes, dessen Kopf sich dreht, ohne dass der Hals mitgeht; ein Reh ruft, zu langsam
     { from: [60, 9, 94], to: [60.4, 8.8, 94.6], look: [70, 2, 119], dur: 8, fov: 32, hand: .15,
       setup(sh) { waldZeigen(sh); waldTick(sh, 66, 110); kino_show('hirsch', 70, 0, 119, -2.6); },
       tick(k, t) { const o = kino_S.obj.hirsch; o.visible = t > 2.4 && t < 3.6; const Hd = kino_S.hirschHead; if (Hd && kino_S.hirschQ) { Hd.quaternion.copy(kino_S.hirschQ); if (t > 2.6) Hd.rotateY(Math.min(1, (t - 2.6) / .8) * 1.9); } },
       sfx: [[() => kino_reh(64, 3, 118), 4.6]],
       teardown(sh) { waldAus(sh); kino_hide('hirsch'); if (kino_S.hirschHead && kino_S.hirschQ) kino_S.hirschHead.quaternion.copy(kino_S.hirschQ); } },
-    { black: true, dur: 8, fadeOut: 1400, setup() { kino_still(true, 3); } },
-  ], { name: 'Kein Echo (Übergang, alte Fassung)', skipAfter: 3 });
+    // 32–34,5 s: Rücken von Luke und Lucy, zur Straße – Lucy hakt sich ein
+    { from: [30.3, 1.7, 93.6], to: [30.3, 1.65, 92.8], look: [30.2, 1.3, 84], dur: 2.5, fov: 44, hand: .2,
+      setup(sh) { kino_fig('kopie', 29.95, 0, 91.8, PI, 'walk', { ts: .8 }); kino_fig('lucy', 30.55, 0, 91.7, PI, 'walk', { ts: .8 }); kino_show('laterne'); },
+      tick(k, t) { const z = 91.8 - 1.1 * t; for (const [key, x] of [['kopie', 29.95], ['lucy', 30.55]]) { const F = kino_S.fig[key]; if (F) F.g.position.set(x, 0, z - (key === 'lucy' ? .1 : 0)); }
+        const l = kino_S.obj.laterne; l.position.set(30.8, .72, z - .2); kino_S.lucyLight.position.set(30.8, .9, z - .2); kino_S.lucyLight.intensity = 2.2; },
+      lines: [['„Guck nicht. Ich guck für dich.“', 'LUCY', 1, 2600]] },
+    // 34,5–36 s: Luke sieht sich einmal um – am Gitter, in Kinderhöhe, drei parallele Kratzer, frisch
+    { from: [30, 1.62, 90], to: [30, 1.6, 90.4], look: [29.6, .9, 97.6], dur: 1.5, fov: 38,
+      setup() { if (typeof K5 !== 'undefined' && K5.o.kratzer) K5.o.kratzer.visible = true; },
+      teardown() { kino_figOff('kopie'); kino_figOff('lucy'); kino_hide('laterne'); kino_S.lucyLight.intensity = 0; } },
+    // 36–40 s: Schwarz, Endkarte. Miras Wiegenlied, drei Töne, Spieluhr, richtig herum
+    { black: true, dur: 4, fadeOut: 1400, setup() { kino_still(true, 3); kino_box(['E5', 'D5', 'C5'], .4, .05, 1); } },
+  ], { name: 'Nicht mal von meinem Namen', skipAfter: 3 });
 
   // ---- K6 · „Der Morgen“ – nach dem Epilog auf dem Hochsitz
   kino_def('k6', [
