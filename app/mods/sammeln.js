@@ -403,7 +403,7 @@ function sammeln_rDamals(B) {
 function sammeln_ritterSvg() { return '<svg class="samRitter" viewBox="0 0 120 150"><g fill="none" stroke="#6b6b6b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M44 30 q16 -22 32 0 v22 h-32z" fill="rgba(110,110,110,.55)"/><path d="M40 56 q20 -8 40 0 l6 50 h-52z" fill="rgba(110,110,110,.55)"/><path d="M46 106 l-6 34 M74 106 l6 34"/><path d="M86 60 l20 -40 M100 24 l12 6"/><path d="M50 40 h20"/></g></svg>'; }
 // ---- Reiter: DAS BIST DU
 function sammeln_rDu(B) {
-  const blau = kapAb(2), neu = [];
+  const blau = kapAb(2) || !!state.ch1Done, neu = []; // „AUGEN: BLAU“ erst nach der Endkarte von Kap. 1 (02 G4, AP-14)
   const jonas = `DAS BIST DU: LUKE. VIZE-CHEF. ALTER 9. <span class="samAugen${blau ? ' frei' : ''}">AUGEN: BLAU (WIE DER HIMMEL WENN ER NICHT GRAU IST).${blau ? '' : '<i class="samFleck"></i>'}</span> ANGST VOR: SPINNEN (GEHEIM!!). KANN: PFEIFEN OHNE FINGER.`;
   const zeilen = SAMMELN_DU.map(z => { let t = z[0]; const add = [];
     const strike = (flag, was, dazu) => { if (!sammeln_hat(flag)) return; const n = !sammeln_hat('seen:' + flag); if (n) neu.push(flag); if (was) t = t.replace(was, `<s class="${n ? 'kratz' : ''}">${was}</s>`); add.push(`<em class="${n ? 'kratz' : ''}">${dazu}</em>`); };

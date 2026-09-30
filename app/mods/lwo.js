@@ -797,3 +797,134 @@ function lwo_tick(dt) {
   lwo_vTick(.25);
 }
 WORLD_TICK.push(dt => lwo_tick(dt));
+
+// =====================================================================  AG-07 · Kap. 2 · Vorraum des Messraums · „Wolter will ihn heil“ (AP-16, Kap. 2 UK 7)
+// Mechanik: Lampe aus, hinter die Aktenschränke (amt_S.versteck), nicht bewegen; steht ein Blechmann nah: Atem anhalten (LEERTASTE halten, ein Balken sinkt).
+// Bewegen, Lampe an oder zu frühes Ausatmen: beide Kapuzen drehen sich gleichzeitig – kein Kampf, Neustart (tod.js 'blech'). Wortlaut: LWO_AG['AG-07'] (Kapitelfassung).
+// Aufruf: feuer.js nach 30 s Lüftung (lwo_ag07), Takt über feuer.js (lwo_ag07Tick) – dieses Modul behält seinen einen WORLD_TICK.
+const LWO_AG07 = { busy: false, done: false, phase: '', t: 0, atem: 1, atemAn: false, halten: false, grace: 0, nah: false, fail: false, next: 0, el: null, bar: null, zettel: false };
+{ const css = document.createElement('style'); css.textContent = `#lwoAg07 { position: absolute; left: 50%; bottom: 22%; transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity .5s; pointer-events: none; }
+  #lwoAg07.show { opacity: 1; } #lwoAg07 p { margin: 0 0 8px; font: 600 14px "Cormorant Garamond", Georgia, serif; letter-spacing: .32em; color: #e9dfc8; text-shadow: 0 0 2px #000, 0 0 10px #000; }
+  #lwoAg07 b { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; padding: 0 8px; margin-right: 10px; border: 1px solid rgba(201,163,106,.7); border-radius: 3px; background: rgba(8,7,6,.62); color: #f3e7cc; font: 700 12px Georgia, serif; letter-spacing: .1em; }
+  #lwoAg07 i { display: block; width: 240px; height: 3px; margin: 6px auto 0; background: rgba(201,163,106,.18); box-shadow: 0 0 6px #000; } #lwoAg07 u { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #7a9aa8, #d8e6ea); transform-origin: left; }`;
+  document.head.appendChild(css); const el = document.createElement('div'); el.id = 'lwoAg07'; el.innerHTML = '<p></p><i><u></u></i>'; (document.getElementById('hud') || document.body).appendChild(el); LWO_AG07.el = el; LWO_AG07.bar = el.querySelector('u'); el.querySelector('i').style.display = 'none'; }
+addEventListener('keydown', e => { const G = LWO_AG07; if (!G.busy || e.code !== 'Space') return; e.preventDefault(); e.stopImmediatePropagation(); G.halten = true; if (typeof keys !== 'undefined') keys.Space = false; }, true);
+addEventListener('keyup', e => { const G = LWO_AG07; if (e.code !== 'Space') return; G.halten = false; }, true);
+addEventListener('keydown', e => { const G = LWO_AG07; if (!G.busy || e.code !== 'KeyF' || e.repeat || !state.talking || ui.overlay || ui.paused) return; flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }, true); // AG-07: die Lampe muss auch während des Funkverkehrs ausgehen (sonst sperrt state.talking die Taste F)
+function lwo_ag07Hinweis(txt, bar) { const G = LWO_AG07; if (!G.el) return; G.el.querySelector('p').innerHTML = txt || ''; G.el.querySelector('i').style.display = bar ? 'block' : 'none'; G.el.classList.toggle('show', !!txt); }
+function lwo_ag07Im() { const V = typeof amt_S !== 'undefined' ? amt_S.versteck : null, P = player.pos; return !!V && P.x > V.x0 && P.x < V.x1 && P.z > V.z0 && P.z < V.z1; }
+async function lwo_ag07() { const G = LWO_AG07; if (G.busy || G.done || (typeof amt_S !== 'undefined' && amt_S.ag07) || LWO.T < G.next || !LWO.ready) return;
+  const X0 = C2.x, Z0 = C2.z, P = player.pos; if (!(P.x > X0 + 106.1 && P.x < X0 + 110.2 && Math.abs(P.z - Z0) < 8) || state.talking || ui.overlay || (typeof kino_S !== 'undefined' && kino_S.on) || (typeof tod_S !== 'undefined' && tod_S.dying)) return;
+  const a = LWO.F.b0, b = LWO.F.b1; if (!a || !b) { G.done = true; if (typeof amt_S !== 'undefined') amt_S.ag07 = true; return; }
+  G.busy = true; G.fail = false; G.phase = 'kommen'; G.t = 0; G.atem = 1; G.atemAn = false; G.nah = false; LWO.playing = null;
+  try { if (typeof beob_still === 'function') beob_still(90); } catch (e) {}
+  const kette = (x, z, v) => { try { Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .22 * v, rate: rand(.5, .7), x, y: .4, z, ref: 3 }); Audio.play('scrape3', { gain: .12 * v, rate: .6, dur: 1.2, x, y: .2, z, ref: 3 }); } catch (e) {} };
+  [0, 900, 1700, 2600].forEach((ms, i) => setTimeout(() => kette(X0 + 113, Z0 + 1, .6 + i * .15), ms));
+  subtitle('Von der Seite des Bergungsschachts: das Rasseln von Kettenrollen. Zwei grelle Lampen.', 4200); lwo_ag07Hinweis('Lampe aus. Still. Hinter die Schränke.');
+  if (!G.zettel) { G.zettel = true; try { if (typeof beobachter_zettel === 'function') beobachter_zettel('B-K2-05', { pos: [X0 + 108.7, 0, Z0 + 6.6] }); } catch (e) {} } // RH-1: im Versteck, auf dem Boden hinter den Schränken
+  await wait(5200); if (G.fail || !G.busy) return;
+  lwo_zeigen(a, X0 + 112.8, Z0 + .5, -PI / 2); lwo_zeigen(b, X0 + 113.6, Z0 - .5, -PI / 2); lwo_lampe(a, true); lwo_lampe(b, true); lwo_blick(a, null); lwo_blick(b, null); lwo_clip(a, 'look'); lwo_clip(b, 'idle');
+  G.phase = 'drin'; lwo_ag07Hinweis(''); const gA = lwo_gehe(a, [[X0 + 110.4, Z0 + .3], [X0 + 108.9, Z0 + 1.6], [X0 + 108.35, Z0 + 3.95]], .9); lwo_gehe(b, [[X0 + 110.4, Z0 - .3], [X0 + 108.2, Z0 - .9]], .85);
+  const res = await lwo_szene('AG-07', { figuren: { funk: { x: X0 + 108.6, z: Z0 + 1 } }, abbruch: () => LWO_AG07.fail, hook: async (tu) => {
+    if (tu === 'blechmannNah') { await gA; a.g.userData.zielYaw = 0; LWO.drehen = [a]; G.nah = true; G.atemAn = true; G.grace = .9; lwo_ag07Hinweis('<b>LEERTASTE</b>Atem anhalten', true); return true; }
+    if (tu === 'blechmannBleibt8s') { await wait(8000); return true; }
+    if (tu === 'v05') { lwo_ag07V05(); return true; }
+    if (tu === 'abgang') { G.atemAn = false; G.nah = false; lwo_ag07Hinweis(''); LWO.drehen = null; G.phase = 'gehen'; await lwo_ag07Abgang(a, b); return true; }
+    if (tu && tu.r && /Butterbrotpapier/.test(tu.r)) { if (typeof amt_S !== 'undefined' && amt_S.butterbrot) amt_S.butterbrot.visible = true; return true; }
+    return false; } });
+  if (G.fail) return; G.busy = false; G.done = true; G.phase = ''; lwo_ag07Hinweis(''); if (typeof amt_S !== 'undefined') amt_S.ag07 = true;
+  if (typeof setC2Objective === 'function') setC2Objective('Der Messraum.'); if (typeof saveGame === 'function') saveGame(2); void res; }
+async function lwo_ag07Abgang(a, b) { const X0 = C2.x, Z0 = C2.z; await Promise.all([lwo_gehe(a, [[X0 + 107.3, Z0 + .6], [X0 + 106.5, Z0 + .2]], .95), lwo_gehe(b, [[X0 + 106.6, Z0 - .4]], .95)]);
+  if (typeof chaseDoor !== 'undefined') { chaseDoor.locked = false; chaseDoor.set(true); try { Audio.slide(X0 + 106, Z0); } catch (e) {} }
+  await Promise.all([lwo_gehe(a, [[X0 + 101, Z0 + .3]], .95), lwo_gehe(b, [[X0 + 100.2, Z0 - .3]], .95)]);
+  lwo_lampe(a, false); lwo_lampe(b, false); lwo_weg(a); lwo_weg(b);
+  if (typeof chaseDoor !== 'undefined') { chaseDoor.set(false); chaseDoor.locked = true; chaseDoor.lockedText = 'Dahinter ist es still. Und heiß.'; } }
+function lwo_ag07V05() { const V = LWO_V['V-05']; if (!V || lwo_S.seen['v:V-05:2']) return; lwo_S.seen['v:V-05:2'] = 1; const X0 = C2.x, Z0 = C2.z;
+  const c = document.createElement('canvas'); c.width = 128; c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#efe07a'; x.fillRect(4, 4, 120, 120); x.fillStyle = 'rgba(0,0,0,.08)'; x.fillRect(4, 104, 120, 20); x.fillStyle = '#1f2a55'; x.font = '15px Caveat'; ['K-3: nicht anfassen.', 'Freundlich bleiben.', '(hw)'].forEach((t, i) => x.fillText(t, 12, 36 + i * 26));
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, polygonOffset: true, polygonOffsetFactor: -4, roughness: .9 })); m.position.set(X0 + 108.4, 1.35, Z0 + 4.93); m.rotation.y = PI; m.userData.noCol = true; scene.add(m);
+  const h = box(.2, .2, .1, X0 + 108.4, 1.35, Z0 + 4.88, hidden, { cast: false }); interact(h, 'Gelber Klebezettel', () => { openNote(V.notiz[0], V.notiz[1], 'lwo_v05', () => { for (const z of V.zeilen) lwo_zeile(z[0], z[1]); }); }); }
+function lwo_ag07Fail(warum) { const G = LWO_AG07; if (G.fail || !G.busy) return; G.fail = true; lwo_ag07Hinweis(''); const a = LWO.F.b0, b = LWO.F.b1;
+  for (const F of [a, b]) { if (!F) continue; F.path = null; F.g.userData.zielYaw = Math.atan2(player.pos.x - F.g.position.x, player.pos.z - F.g.position.z); lwo_blick(F, 'luke'); } LWO.drehen = [a, b]; // beide Kapuzen gleichzeitig
+  try { Audio.play('metalHit2', { gain: .5, rate: .5, x: a.g.position.x, y: 1.5, z: a.g.position.z, ref: 3 }); } catch (e) {} console.log('[AG-07] entdeckt: ' + warum);
+  setTimeout(() => { if (typeof todDie === 'function') todDie('blech'); }, 1100); }
+function lwo_ag07Reset() { const G = LWO_AG07; if (!G.busy && !G.fail) return; G.busy = false; G.fail = false; G.phase = ''; G.atemAn = false; G.nah = false; lwo_ag07Hinweis(''); LWO.drehen = null; LWO.playing = null; state.talking = false; if (LWO.wahlFin) LWO.wahlFin(-1);
+  for (const F of [LWO.F.b0, LWO.F.b1]) if (F) { lwo_lampe(F, false); lwo_weg(F); } G.next = LWO.T + 6; if (typeof chaseDoor !== 'undefined') { chaseDoor.set(false); chaseDoor.locked = true; } }
+setTimeout(() => { try { TOD_RESET.push(() => lwo_ag07Reset()); } catch (e) {} }, 0); // (AP-14, Notbehelf) TOD_RESET steht erst in tod.js (später in ORDER): typeof schützt nicht vor der „temporal dead zone“ – sonst lädt das Spiel nicht
+// Takt (aus feuer.js): Versteck, Bewegung, Lampe, Atem
+function lwo_ag07Tick(dt) { const G = LWO_AG07; if (!G.busy || G.fail || (G.phase !== 'drin' && G.phase !== 'gehen')) return; const a = LWO.F.b0, b = LWO.F.b1; if (!a || !b) return; G.t += dt;
+  const drin = lwo_ag07Im(), v = typeof vel !== 'undefined' ? Math.hypot(vel.x, vel.z) : 0, X0 = C2.x;
+  const imRaum = Math.min(a.g.position.x, b.g.position.x) < X0 + 110.3;
+  if (imRaum && flashOn && FLASH.charge > .02) return lwo_ag07Fail('Lampe an');
+  if (imRaum && drin && v > .45) return lwo_ag07Fail('bewegt');
+  if (imRaum && !drin && (lwo_sieht(a, { weit: 11, winkel: .7 }) || lwo_sieht(b, { weit: 11, winkel: .7 }))) return lwo_ag07Fail('gesehen');
+  if (G.atemAn) { if (G.grace > 0) G.grace -= dt; if (G.halten) G.atem = Math.max(0, G.atem - dt / 11); else if (G.grace <= 0) return lwo_ag07Fail('ausgeatmet');
+    if (G.bar) G.bar.style.transform = `scaleX(${G.atem.toFixed(3)})`; if (G.atem <= 0) return lwo_ag07Fail('keine Luft'); }
+  else if (G.atem < 1) { G.atem = Math.min(1, G.atem + dt * .3); } }
+
+// =====================================================================  KAPITEL 3 (AP-17): AG-09 Haltestelle · AG-10 Blechmann am Ostende · AG-08 die Reihe am Rand
+// Orte im gebauten Dorf: die Haltestelle liegt am Kirchweg (≈ 10 | 53); „Kein Draußen“ (kapitel3.js) bringt Luke dort aus dem Nebel heraus.
+const LWO_K3 = { bank: [11.55, 52.75], wolterRy: -Math.PI / 2, kombi: [3.4, 52.2, 0], weg: [[3.4, 70], [3.1, 100], [2.8, 140]], justinZurueck: [10.4, 72],
+  ag10: [52, 1.6], ag10Weg: [[70, 2.2], [100, 3], [130, 4]], reihe: { x0: -92, z0: -58, dx: 2.2, dz: -.4 }, blickVon: [-46, -5.6] };
+function lwo_k3Requisit(key, id, s, x, y, z, ry = 0) { const K = LWO.k3 || (LWO.k3 = {}); if (K[key]) { K[key].position.set(x, y, z); K[key].rotation.y = ry; K[key].visible = true; return Promise.resolve(K[key]); }
+  return msModel(id, 'model.glb').then(o => { const m = msFit(o.clone(true), s, 'max'); const b = new THREE.Box3().setFromObject(m); m.position.set(x, y - b.min.y, z); m.rotation.y = ry; m.userData.noCol = true; m.traverse(c => { if (c.isMesh) c.castShadow = true; }); scene.add(m); K[key] = m; return m; }).catch(() => null); }
+async function lwo_ag09() {
+  const W = LWO.F.wolter; if (!W || LWO.playing) return; const B = LWO_K3.bank;
+  const K = lwo_kombiZeigen(LWO_K3.kombi[0], LWO_K3.kombi[1], LWO_K3.kombi[2], { innen: true, motor: true }); // Motor an, Innenlicht an, Scheinwerfer aus
+  lwo_zeigen(W, B[0], B[1], LWO_K3.wolterRy); lwo_sitzen(W, .46); lwo_blick(W, 'luke'); lwo_clip(W, 'idle');
+  const thermos = await lwo_k3Requisit('thermos', 'w_thermos', .3, B[0] + .1, .46, B[1] - .55, .3), b1 = await lwo_k3Requisit('becher1', 'w_becher', .09, B[0] + .05, .46, B[1] - .78, 0), b2 = await lwo_k3Requisit('becher2', 'w_becher', .09, B[0] + .16, .46, B[1] - .86, 1);
+  // Justin bleibt zwanzig Meter zurück im Nebel und kommt nicht näher
+  if (typeof justin_da === 'function' && justin_da()) { jPlace(LWO_K3.justinZurueck[0], LWO_K3.justinZurueck[1], PI); justin.look = true; }
+  while (Math.hypot(player.pos.x - B[0], player.pos.z - B[1]) > 6.5) { await wait(250); if (!ch3.on) return; } // er sieht Luke kommen, seit der um die Ecke ist
+  const res = await lwo_szene('AG-09', { figuren: { W },
+    hook: async (tu) => {
+      if (tu && tu.r) return true;
+      if (tu === 'tee') { try { Audio.play('glass1', { gain: .12, rate: .6, x: B[0], y: .8, z: B[1], ref: 2 }); } catch (e) {} lwo_clip(W, 'nervous'); setTimeout(() => lwo_clip(W, 'idle'), 1800); if (b1) b1.visible = false; return true; }
+      if (tu === 'sender') { lwo_senderEinstecken(); return true; } // er legt Luke kurz die Hand auf die Jacke, an die Innentasche – der Spieler sieht nichts Besonderes
+      if (tu === 'handschuhGlatt') { lwo_clip(W, 'nervous'); setTimeout(() => lwo_clip(W, 'idle'), 1600); return true; }
+      if (tu === 'whiskeyKombi') { if (typeof whiskey_setzen === 'function' && K) try { whiskey_setzen(K.g.position.x, 1.62, K.g.position.z - .4); } catch (e) {} lwo_blick(W, K ? new THREE.Vector3(K.g.position.x, 1.8, K.g.position.z) : null); await wait(2200);
+        try { Audio.drip(K.g.position.x, 1.3, K.g.position.z + 1.1); } catch (e) {} lwo_blick(W, 'luke'); return true; }
+      if (tu === 'kanneStehen') { W.kanne = true; return true; }
+      if (tu === 'einsteigen') { W.sit = false; lwo_clip(W, 'idle'); await wait(700); await lwo_gehe(W, [[K.g.position.x + 1.3, K.g.position.z + .6]], .9); try { Audio.play('doorOpen', { gain: .3, x: K.g.position.x, y: 1, z: K.g.position.z, ref: 3 }); } catch (e) {} lwo_weg(W); return true; }
+      if (tu === 'wegfahren') { await wait(3400); lwo_kombiLicht({ innen: false }); await lwo_kombiFahre(LWO_K3.weg, 7); lwo_kombiWeg(); return true; }
+      return false; } });
+  if (!W.kanne && thermos) thermos.visible = false; if (b2) b2.visible = false;
+  // danach: Kaugummipapier mit dem Auge auf der Bank, B-K3-03 unter der Bank (dahinter trippelt es), die Bank ist an einer Stelle warm
+  try { const t = lwo_texKaugummi(), pap = lwo_decal(t, .08, .055, B[0] - .2, .47, B[1] + .1, .7, true); LWO.k3.papier = pap;
+    const hit = box(.35, .25, .35, B[0] - .2, .5, B[1] + .1, hidden, { cast: false }); hit.userData.noCol = true;
+    interact(hit, 'Kaugummipapier', () => { uninteract(hit); if (pap) pap.visible = false; if (typeof modItem === 'function') modItem('kaugummipapier', 'Kaugummipapier', 'Lucid Mint. Innen ein Kreis, darin ein offenes Auge über einer Flamme.', 'paper'); if (typeof addItem === 'function') addItem('kaugummipapier');
+      openNote('Kaugummipapier', 'Lucid Mint. Auf der Innenseite ein Kreis, darin ein offenes Auge über einer Flamme. Das Zeichen vom Stempel. Der Mann kaut Behördenkaugummi.', 'k3_kaugummi'); });
+    if (W.kanne && thermos) { const th = box(.3, .4, .3, thermos.position.x, .6, thermos.position.z, hidden, { cast: false }); th.userData.noCol = true;
+      interact(th, 'Thermoskanne', () => { uninteract(th); thermos.visible = false; if (typeof modItem === 'function') modItem('thermoskanne', 'Thermoskanne', 'Wolters Thermoskanne. Noch warm. Riecht nach Pfefferminz und Blech.', 'paper'); if (typeof addItem === 'function') addItem('thermoskanne'); toast('Die Thermoskanne ist noch warm.', 2400); }); }
+    const warm = box(.5, .2, .5, B[0] + .2, .5, B[1] - .2, hidden, { cast: false }); warm.userData.noCol = true; interact(warm, 'Die Bank', () => toast('Die Bank ist an einer Stelle warm. Nicht da, wo er saß.', 3000)); } catch (e) { console.warn('AG-09 danach', e); }
+  if (typeof beobachter_zettel === 'function') setTimeout(() => { try { beobachter_zettel('B-K3-03', { pos: [B[0] + .1, 0, B[1] - .35] }); } catch (e) {} }, 9000);
+  if (typeof whiskey_mimic === 'function') setTimeout(() => { try { whiskey_mimic('standgas'); } catch (e) {} }, 5200); // Whiskey macht den Kombi nach
+  // Justin danach: „Den kenne ich. Er stand schon einmal am Rand, mit einem Netz. Dieselbe Kanne.“
+  if (typeof justin_da === 'function' && justin_da()) { await new Promise(r => jWalk(player.pos.x + 1.4, player.pos.z + 1.6, r)); if (typeof justin_sprich === 'function') await justin_sprich('wolter'); }
+  return res; }
+// AG-10: im Nebel am Ostende, auf dem Weg zum Kasten vor Nr. 7 – von weitem ein Ritter
+async function lwo_ag10() {
+  const F = LWO.F.b0; if (!F || LWO.playing) return; const A = LWO_K3.ag10; lwo_zeigen(F, A[0], A[1], Math.PI / 2); lwo_blick(F, null); lwo_lampe(F, false);
+  const iv = setInterval(() => { if (!F.g.visible) return clearInterval(iv); try { Audio.chains(F.g.position.x, .1, F.g.position.z); } catch (e) {} }, 2600); // die Kette schleift auf dem Asphalt
+  while (Math.hypot(player.pos.x - F.g.position.x, player.pos.z - F.g.position.z) > 20) { await wait(250); if (!ch3.on || ch3.lampsOff) { clearInterval(iv); lwo_weg(F); return; } }
+  F.g.userData.zielYaw = Math.atan2(player.pos.x - F.g.position.x, player.pos.z - F.g.position.z); LWO.drehen = [F];
+  const res = await lwo_szene('AG-10', { figuren: { F },
+    hook: async (tu) => { if (tu && tu.r) { if (/Kettenschleifen/.test(tu.r)) { try { Audio.chains(player.pos.x + 2, 2, player.pos.z); } catch (e) {} await wait(1600);
+          if (typeof justin_da === 'function' && justin_da()) { const P = player.pos; jPlace(P.x - 9, P.z + 3, Math.PI / 2); justin.look = true; } } return true; }
+      if (tu === 'lampeAn') { lwo_blick(F, 'luke'); lwo_lampe(F, true); setTimeout(() => lwo_lampe(F, false), 3000); await wait(1200); return true; } // eine grelle, viereckige Lampe, direkt ins Gesicht, drei Sekunden
+      if (tu === 'abgang') { LWO.drehen = null; lwo_blick(F, null); lwo_gehe(F, LWO_K3.ag10Weg, .95).then(() => { clearInterval(iv); LWO.hideQ.push(F); }); await wait(1500); return true; }
+      return false; } });
+  if (typeof whiskey_mimic === 'function') try { whiskey_mimic('ruestung'); } catch (e) {}
+  return res; }
+// AG-08: nach der dritten Laterne, vom Kasten vor Nr. 1 aus der Blick zur Senke – sieben in einer Reihe, Ketten, Lampen aus
+function lwo_ag08Bereit() { const V = LWO_K3.blickVon; return !lwo_S.seen['ag:AG-08'] && !LWO.playing && Math.hypot(player.pos.x - V[0], player.pos.z - V[1]) < 9; }
+async function lwo_ag08() {
+  if (LWO.playing) return; const R = LWO_K3.reihe, ry = Math.atan2(-130 - R.x0, -60 - R.z0), Fs = [];
+  for (let i = 0; i < 7; i++) { const F = LWO.F['b' + i]; if (!F) continue; lwo_zeigen(F, R.x0 + i * R.dx, R.z0 + i * R.dz, ry); lwo_lampe(F, false); lwo_blick(F, null); Fs.push(F); }
+  if (typeof beob_still === 'function') try { beob_still(55); } catch (e) {} // hier hört man ihn nicht – zum ersten Mal in dieser Nacht ist hinter Luke Stille
+  const res = await lwo_szene('AG-08', { hook: async (tu) => { if (tu && tu.r) { const F = Fs[3]; if (F) { lwo_clip(F, 'look'); setTimeout(() => lwo_clip(F, 'idle'), 2400); } await wait(2600); return true; } return false; } });
+  await wait(800);
+  state.talking = true; try { await say([['Die stehen da wie Leute am Bahnsteig. Nur dass sie den Zug festhalten wollen.', 4400, 'LUKE']]);
+    if (typeof justin_da === 'function' && justin_da() && jDist() < 14) { await say([['„Wenn es aufgeht, fällt etwas ab, wie Schorf. Das sammeln sie. Früher kamen Leute mit Körben. Die hier haben Ketten.“', 5800, JS], ['Wissen die, dass da drin ein Kind ist?', 2400, 'DU'], ['„Sie wissen, dass da drin etwas ist. Für sie ist es ein Wolf.“', 3600, JS]]); } }
+  finally { state.talking = false; }
+  const weg = () => { if (Math.hypot(player.pos.x - R.x0, player.pos.z - R.z0) > 70 || ch3.lampsOff) { for (const F of Fs) LWO.hideQ.push(F); } else setTimeout(weg, 1500); }; weg();
+  return res; }

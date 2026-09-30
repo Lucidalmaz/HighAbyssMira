@@ -715,7 +715,7 @@ function kino_defK1() {
         const [tx, tz] = S.scan[seg]; S.scanP.x += (tx + jit - S.scanP.x) * Math.min(1, dt * (1.5 + 5 * s)); S.scanP.z += (tz - S.scanP.z) * Math.min(1, dt * (1.5 + 5 * s)); ufo.position.set(S.scanP.x, 20 + Math.sin(t) * .3, S.scanP.z); } },
     // 40–44 · zurück an den Spieler: der Kegel streift einen Meter neben Luke den Boden
     { frei: true, dur: 4, keepFlash: true, blick: () => kino_S.a.set(ufo.position.x, .5, ufo.position.z), blickRate: 1.2,
-      lines: [['Sie sucht. Wie beim Verstecken. Und du bist dran.', '', 1.2, 3600]],
+      lines: [], // A-25: keine erzählenden Angst-Untertitel
       setup() { document.body.classList.remove('kinoFrei'); const A = ax(); S.scanP.set(A.lx + A.uz * 5, 0, A.lz - A.ux * 5); kino_brumm(.55, 2);
         kino_after(.4, () => { if (typeof questPop === 'function') { kino_S.qp = kino_S.qp || []; kino_S.qp.push(['FIBEL', 'Versteck dich vor dem Licht. Zurück in den Keller.']); } }); },
       tick(k, t, dt) { ufoTick(dt, 1); beam(.35); ufo.position.x += (S.scanP.x - ufo.position.x) * Math.min(1, dt * 1.4); ufo.position.z += (S.scanP.z - ufo.position.z) * Math.min(1, dt * 1.4); ufo.position.y = 20; } },

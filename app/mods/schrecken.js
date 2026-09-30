@@ -41,10 +41,25 @@ const SCHRECK_ORTE = [
   { id: 'villa_garten', x: -125, z: 52, r: 10, when: () => true, run(t) { // oben geht ein Fenster auf, eine Spieluhr, dann schlägt es zu
       Audio.creak(.4); if (Audio.musicBox) Audio.musicBox(); setTimeout(() => { Audio.play(Audio.pick('woodSlam1', 'woodSlam2'), { gain: .7, x: -125, y: 6, z: 61, ref: 10 }); shake = .04; }, 3800); return true; } },
 ];
+// ---------------------------------------------------------------- Kapitel 1 (AP-14)
+// „katze_starrt“ (Zufallsmoment): eine Katze sitzt vor einer leeren Ecke und starrt hinein; leuchtet Luke hin, drei kleine Schritte weg (nie ein Bild)
+function schreck_katzeStarrt() { const S = schreck_S; if (typeof katzen_S === 'undefined' || (typeof kap === 'function' && kap() !== 1) || state.outage || S.katze) return false;
+  S.katzeT = (S.katzeT ?? rand(50, 90)) - .5; if (S.katzeT > 0) return false; S.katzeT = rand(110, 200); const P = player.pos;
+  const k = katzen_S.cats.find(c => c.on && !c.hold && c.st !== 'carry' && Math.hypot(c.x - P.x, c.z - P.z) > 5 && Math.hypot(c.x - P.x, c.z - P.z) < 20); if (!k) return false;
+  const a = Math.atan2(k.x - P.x, k.z - P.z) + rand(-.9, .9), x = k.x + Math.sin(a) * 1.6, z = k.z + Math.cos(a) * 1.6; katzen_stare(k, [x, .35, z]); S.katze = { k, x, z, t: 0 }; return true; }
+function schreck_katzeTick(dt) { const K = schreck_S.katze; if (!K) return; K.t += dt; const P = player.pos, d = Math.hypot(K.x - P.x, K.z - P.z);
+  if (!K.weg && flashOn && d < 12) { camera.getWorldDirection(_sfw); _sft.set(K.x - camera.position.x, .35 - camera.position.y, K.z - camera.position.z).normalize(); if (_sfw.dot(_sft) > .965) { K.weg = true; K.t = 0;
+      const ax = K.x - P.x, az = K.z - P.z, n = Math.hypot(ax, az) || 1; for (let i = 0; i < 3; i++) setTimeout(() => Audio.stepAt(K.x + ax / n * (.5 + i * .2), K.z + az / n * (.5 + i * .2), .06), 120 + i * 115); } }
+  if ((K.weg && K.t > 2.2) || K.t > 45) { try { katzen_stare(K.k, null); } catch (e) {} schreck_S.katze = null; } }
+// Kap. 1: die einzige Zufallsgestalt ist die mit Helm oder Kapuze unter einer Laterne (A-27) – sieht man hin, geht die Laterne aus, und sie ist weg
+function schreck_helmTick(dt) { const H = schreck_S.helm; if (!H) return; H.t += dt; const P = player.pos, d = Math.hypot(watcher.position.x - P.x, watcher.position.z - P.z);
+  camera.getWorldDirection(_sfw); _sft.set(watcher.position.x - camera.position.x, 1.6 - camera.position.y, watcher.position.z - camera.position.z).normalize(); if (_sfw.dot(_sft) > .975) H.seen += dt;
+  if (H.seen > .5 || H.t > 12 || d < 14 || state.outage) { const L = H.L, prev = L.mode; if (H.seen > .5) { L.mode = 'off'; setTimeout(() => { if (L.mode === 'off') L.mode = prev; }, 900); } watcher.visible = false; schreck_S.helm = null; } }
 // ---------------------------------------------------------------- Tick
 WORLD_MODS.push(['Schrecken', async () => {}]); // Eintrag für die Messanzeige (ein Tick je Modul)
 WORLD_TICK.push((dt, t) => {
   const S = schreck_S; if (!state.started || menu.attract) return; const P = player.pos;
+  schreck_katzeTick(dt); schreck_helmTick(dt);
   // laufende Gestalt
   if (S.fig) { const F = S.fig; F.t += dt; stalker.lookAt(P.x, 0, P.z); const f = schreck_fwd();
     if (F.run) { stalker.position.x += F.dx * F.sp * dt; stalker.position.z += F.dz * F.sp * dt; if (Math.floor(F.t * 5) !== F.st) { F.st = Math.floor(F.t * 5); Audio.stepAt(stalker.position.x, stalker.position.z, .45); } }
@@ -62,6 +77,7 @@ WORLD_TICK.push((dt, t) => {
   const reg = typeof spannung_can === 'function'; // Regie (Modul spannung): Ruhe nach Höhepunkten, Abstände, Kapitel, Spannung
   // feste Momente (warten, bis die Regie sie zulässt – der Ort bleibt ja da)
   for (const O of SCHRECK_ORTE) { if (S.done.has(O.id) || !O.when() || Math.hypot(P.x - O.x, P.z - O.z) > O.r || (reg && !spannung_can(O.id, 'major'))) continue; if (O.run(t) !== false) { S.done.add(O.id); schreck_mark(t); if (reg) spannung_did(O.id, 'major'); return; } }
+  if (schreck_katzeStarrt()) return;
   // Zufall: nur außerhalb des Grundspiel-Reviers (dort arbeitet dessen Regisseur), selten
   if (schreck_main(P.x, P.z)) return; S.randT -= .5; if (S.randT > 0) return; S.randT = rand(80, 150);
   const f = schreck_fwd(), inWald = typeof wald_in === 'function' && wald_in(P.x, P.z), r = Math.random(), no = () => { S.randT = rand(15, 30); }; // abgelehnt: bald wieder fragen
@@ -71,6 +87,7 @@ WORLD_TICK.push((dt, t) => {
     if (reg && !spannung_can('figure', 'major')) return no();
     const L = (typeof lamps !== 'undefined' ? lamps : []).filter(L => L.mode === 'on' && L.wx !== undefined).map(L => { const dx = L.wx - P.x, dz = L.wz - P.z, d = Math.hypot(dx, dz); return { L, d, c: (dx * f.x + dz * f.z) / (d || 1) }; })
       .filter(o => o.d > 18 && o.d < 34 && o.c > .88).sort((a, b) => a.d - b.d)[0];
+    if (L && (typeof kap !== 'function' || kap() === 1) && typeof watcher !== 'undefined' && state.watcherGone) { if (!S.helm) { watcher.position.set(L.L.wx + .5, 0, L.L.wz + .4); watcher.lookAt(P.x, 0, P.z); watcher.visible = true; S.helm = { L: L.L, t: 0, seen: 0 }; schreck_mark(t); if (reg) spannung_did('figure', 'major'); } return; } // Kap. 1 (AP-14): nur die Gestalt mit Helm
     if (L && schreck_figur(L.L.wx + .6, L.L.wz + .4, { face: ['pale', 'wendt', 'grey'][Math.floor(Math.random() * 3)], lamp: L.L, ttl: 14 })) { schreck_mark(t); if (reg) spannung_did('figure', 'major'); } return; }
   if (reg && !spannung_ask('whisper', 'minor', { behind: true })) return no();
   Audio.whisper(P.x - f.x * 1.5, 1.6, P.z - f.z * 1.5, 1.6); schreck_mark(t);

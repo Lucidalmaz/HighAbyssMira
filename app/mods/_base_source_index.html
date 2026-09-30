@@ -2601,8 +2601,8 @@ interact(collar, 'Halsband aufheben', () => {
 // ---- Lucys Auto & Telefon
 interact(lenaPhone, 'Lucys Handy', () => {
   if (!lenaCar.userData.open) return toast('Die Tür ist zu. Nicht abgeschlossen – nur zu.');
-  sideDone('car', 'Lucys Handy gefunden.'); addItem('phone');
-  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10.: 23:41 · 23:42 · 23:44 · 23:46 · 23:47 · 23:49 · 23:51 · 23:52 · 23:54 · 23:55 · 23:57 – elfmal. Keiner angenommen.\n\nLetzte Nachricht an dich, gesendet <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\nDu hast sie nie bekommen.\n„Nach Hause.“ So hat Lucy nie geredet. Sie sagt „heim“.\n\nAusgehende Anrufe: <b>Luke, heute, 02:14</b> — Dauer 0:04.\nDas Handy lag die ganze Zeit hier im Auto.\n\nLetztes Foto, 23.10., 23:58: der Himmel über der Kreuzung. Ein Licht, zu groß für einen Stern.', 'phone', () => { if (!state.scCar) { state.scCar = true; setTimeout(carScare, 700); } }), true);
+  if (typeof kirchberg_start === 'function') kirchberg_start('car'); else sideDone('car', 'Lucys Handy gefunden.'); addItem('phone'); // Fassung 3 (AP-15): „Elf Anrufe“ endet nach NICHT SIE (post.js)
+  liftTo(lenaPhone, () => openNote('Lucys Handy · 3 % Akku', 'Ausgehende Anrufe an <b>Luke</b>, 23.10., die letzten zwanzig Minuten vor Mitternacht: elf Stück, keiner angenommen.\n\nLetztes Foto, kurz vor zwölf: der Himmel über der Kreuzung, ein Licht, zu groß für einen Stern.\nVideo, danach: Lucy rennt, Asphalt, „Hilde! HILDE!“, dann Schwarz.\n\nLetzte Nachricht an dich, <b>31.10., 03:13</b>:\n<span class="hand">„bin wieder da. komm nach hause.“</span>\n\nAusgehender Anruf an Luke, 04.11., nachts, Dauer vier Sekunden.\nDas Handy lag die ganze Zeit hier im Auto.', 'phone', () => { if (!state.scCar) { state.scCar = true; if (typeof post_handy === 'function') post_handy(); else setTimeout(carScare, 700); } }), true);
 });
 const heldHandset = box(.06, .24, .05, .3, -.2, -.42, M.dark, { parent: camera, cast: false }); heldHandset.rotation.set(.4, 0, .7); heldHandset.visible = false;
 function handset(up) { booth.handset.visible = !up; heldHandset.visible = up; Audio.play(up ? 'metalHit2' : 'switch1', { gain: .35, rate: up ? 1.6 : 1, x: 8, y: 1.5, z: 7.6, ref: 2 }); }
@@ -3469,19 +3469,19 @@ box(3, .8, 1.2, X + 24, .4, Z, M.wood, { collide: true });
 c2Tube(X + 24, Z, 2, 'x', 0xd8ecff, 1.5, 9);
 const files = ['Roxy', 'Lucy', 'Mike', 'Dina', 'Heidi', 'Luke', 'Zayn'].map((n, i) => { const f = plane(.22, .3, X + 22.8 + i * .4, .81, Z + (i % 2 ? .2 : -.25), paperMat, -PI / 2, rand(-.4, .4)); f.userData.name = n; return f; });
 const FILE_TEXT = {
-  Roxy: 'AKTE 01 · Roxy R., 8 J.\nAbgang: 28.07.2009, ca. 23:40, Kreuzung.\nRückführung: <b>01.08.2009, 05:10</b> – erste Rückkehr.\nBefund: Gras in den Schuhen, unbekannte Art. Friert nicht. Sagt, da oben war es warm.',
-  Lucy: 'AKTE 02 · Lucy B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>01.08.2009, 23:55</b> – „in der Nacht“.\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen.',
-  Mike: 'AKTE 03 · Mike K., 10 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 06:00</b>.\nBefund: Vollständig.\n<i>Mit Kuli, neu, in Hildes Schrift: 12.07.2026 – wieder weg. Keine Rückführung.</i>',
-  Dina: 'AKTE 04 · Dina A., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>02.08.2009, 21:30</b>.\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Verlegung Klinik Sonnenhang, 2011.',
-  Heidi: 'AKTE 05 · Heidi W., 8 J.\nAbgang: 28.07.2009.\nRückführung: <b>03.08.2009, 04:45</b>.\nBefund: Vollständig. Familie zieht 2010 weg. Sendet jährlich Karten an ihr leeres Elternhaus: „Sind sie wieder da?“',
-  Luke: 'AKTE 06 · Luke B., 9 J.\nAbgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b> – zwei Tage nach den anderen, als Letzter.\nBefund: Vollständig. Schläft viel. Summt im Schlaf eine Melodie.\n<span class="hand">Angeheftet, Vermessungsbogen vom 12.03.2009: „Augen: blau. Ängste: Spinnen, Dunkelheit. Hund: Flocke.“</span>',
-  Zayn: 'AKTE 07 · Zayn W., 7 J.\nAbgang: 28.07.2009.\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung.</span>',
+  Roxy: '<b>AKTE 01 · Reuter, Roxy, 8 J. · Nr. 5.</b>\nAbgang: Sommerfestnacht, Kreuzung.\nRückführung: <b>Samstag, vor dem Morgen</b> – erste Rückkehr. Bergung 1, Kette.\nBefund: Gras in den Schuhen, unbekannte Art. Friert nicht. Sagt, da oben war es warm. Nachsorge monatlich.', // Fassung 3 (AP-16): Akten 01–07 wortgleich Kap. 2 „Fundstücke“
+  Lucy: '<b>AKTE 02 · Brandt, Lucy, 9 J. · Nr. 1.</b>\nRückführung: <b>Samstag, kurz vor Mitternacht.</b>\nBefund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen. Fragt, ob „der andere“ auch kommt.\n<span class="hand">Vermerk H. W.: Sie meint nicht Zayn.</span>',
+  Mike: '<b>AKTE 03 · Kessler, Mike, 10 J. · Nr. 3.</b>\nRückführung: <b>Sonntag, früh.</b>\nBefund: Vollständig. Großvater (Vegas, L.) verweigert Nachsorge; hat Funkgerät.\n<span class="hand">Mit Kuli, neu, Hildes Schrift: „Juli 2026 – wieder weg. Keine Rückführung.“</span>',
+  Dina: '<b>AKTE 04 · Aydın, Dina, 9 J. · Hof.</b>\nRückführung: <b>Sonntag, Abend.</b>\nBefund: Malt seit der Rückkehr ausschließlich Kreise. Trägt Augenbinde, „damit sie mich nicht sieht“. Hat die Transporter gesehen. Mutter angewiesen zu schweigen. Verlegung Klinik Sonnenhang, 2011.',
+  Heidi: '<b>AKTE 05 · Winter, Heidi, 8 J. · Nr. 2.</b>\nRückführung: <b>Montag, vor dem Hellwerden.</b>\nBefund: Vollständig. Familie 2010 umgesiedelt (Kostenstelle Nachsorge). Sendet jährlich Karten an ihr leeres Elternhaus: „Sind sie wieder da?“ Karten werden abgefangen (G. M.).',
+  Luke: '<b>AKTE 06 · Brandt, Luke, 9 J. · Nr. 1.</b>\nRückführung: <b>Mittwoch, in der Nacht</b> – Tage nach den anderen, als Letzter, durch Subjekt EISEN.\nBefund: Vollständig. Schläft viel. Summt im Schlaf eine Melodie.\nAnlage: Vermessungsbogen Original (Blatt wenden).',
+  Zayn: '<b>AKTE 07 · Wendt, Zayn, 7 J. · Nr. 7.</b>\nRückführung: <b>—</b>\n<span class="hand">Mutter (H. Wendt) informiert. Weigert sich, die Akte zu schließen. Zählt seitdem jede Nacht die Kinder auf der Kreuzung. Es sind immer acht.</span>\n<span class="hand">Darunter, Hildes Schrift: „Zuletzt neun.“</span>',
 };
 files.forEach(f => interact(f, () => 'Akte ' + f.userData.name, () => { ch2.read = ch2.read || new Set(); ch2.read.add(f.userData.name); liftTo(f, () => openNote('Akte · ' + f.userData.name, FILE_TEXT[f.userData.name], 'akte' + f.userData.name)); }));
 // Ordnungstafel: 7 Plätze, sortiert nach Rückführung
 const boardTex = new THREE.CanvasTexture(document.createElement('canvas')); boardTex.image.width = 512; boardTex.image.height = 256; boardTex.colorSpace = THREE.SRGBColorSpace;
 function drawBoard() { const c = boardTex.image.getContext('2d'), w = 512; c.fillStyle = '#2b2f2a'; c.fillRect(0, 0, w, 256); c.fillStyle = '#c8c0a8'; c.font = 'bold 22px Arial'; c.textAlign = 'center'; c.fillText('REIHENFOLGE DER RÜCKFÜHRUNG', w / 2, 36); c.font = '14px Arial'; c.fillText('„Wer zuerst kam, steht links. Wer nie kam, steht rechts.“', w / 2, 60);
-  for (let i = 0; i < 7; i++) { c.fillStyle = '#1a1c18'; c.fillRect(24 + i * 66, 90, 58, 110); c.strokeStyle = ch2.archiveSolved ? '#5fbf6a' : '#6a6a5e'; c.lineWidth = 2; c.strokeRect(24 + i * 66, 90, 58, 110); c.fillStyle = '#d8d0b8'; c.font = 'bold 15px Arial'; c.fillText(ch2.slots[i] || '·', 53 + i * 66, 150); c.fillStyle = '#7a7a6a'; c.font = '12px Arial'; c.fillText(String(i + 1), 53 + i * 66, 190); }
+  for (let i = 0; i < 7; i++) { c.fillStyle = '#1a1c18'; c.fillRect(24 + i * 66, 90, 58, 110); c.strokeStyle = ch2.archiveSolved ? '#5fbf6a' : i === ch2.boardGlow ? '#e6c878' : '#6a6a5e'; c.lineWidth = i === ch2.boardGlow && !ch2.archiveSolved ? 4 : 2; c.strokeRect(24 + i * 66, 90, 58, 110); c.fillStyle = '#d8d0b8'; c.font = 'bold 15px Arial'; c.fillText(ch2.slots[i] || '·', 53 + i * 66, 150); c.fillStyle = '#7a7a6a'; c.font = '12px Arial'; c.fillText(String(i + 1), 53 + i * 66, 190); }
   boardTex.needsUpdate = true; }
 ch2.slots = ['', '', '', '', '', '', '']; drawBoard();
 const board = plane(3, 1.5, X + 29.83, 1.5, Z + 2.5, new THREE.MeshStandardMaterial({ map: boardTex, roughness: .8 }), 0, -PI / 2);
@@ -3491,9 +3491,13 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest, 27.07.2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält. Stempel: <b>PARTNER ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); })); // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest 2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält.\n\nStempel: <b>ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); })); // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
-      else { Audio.beep(false); const wrong = ch2.slots.filter((s, i) => s && s !== ORDER[i]).length; toast(wrong === 7 ? 'Nichts passiert.' : `Ein Summen. ${7 - wrong} Namen sitzen. Der Rest nicht.`, 3500); if (++ch2.archiveTries === 4) { toast('Aus dem Lautsprecher: „Die Akten wissen es genauer als du.“', 4500); Audio.intercomClick(); } } };
+      else { Audio.beep(false); const n = ++ch2.archiveTries; // Fassung 3 (AP-16): kein Schaden, keine Zahl – der Nadeldrucker protokolliert; Hilfeleiter nach 2 / 4 / 6 Fehlern
+        if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 SORTIERT FALSCH.'); else toast('Nichts passiert.', 2500);
+        if (n === 2) setTimeout(() => subtitle('Samstag kommt vor Sonntag. Das krieg ich hin.', 3400, 'LUKE'), 1400);
+        if (n === 4) setTimeout(() => { if (typeof amt_band === 'function') amt_band('Die Akten wissen es genauer als du.'); else { toast('Aus dem Lautsprecher: „Die Akten wissen es genauer als du.“', 4500); Audio.intercomClick(); } }, 1600);
+        if (n >= 6) { let wi = -1, wd = 0; ch2.slots.forEach((s, i) => { const d = s ? Math.abs(ORDER.indexOf(s) - i) : 7; if (d > wd) { wd = d; wi = i; } }); ch2.boardGlow = wi; drawBoard(); box.querySelectorAll('.slots button').forEach((b, i) => b.style.boxShadow = i === wi ? '0 0 14px rgba(230,200,120,.9)' : ''); } } };
   });
 });
 ch2.archiveTries = 0;
@@ -3508,16 +3512,28 @@ c2Tube(X + 33, Z, 1.2, 'x', 0xffd9a0, 1.1, 6).mode = 'flicker';
 const fusePanel = box(1.4, 1.2, .12, X + 33, 1.5, Z + 7.8, M.metal);
 const fuseCoverPiv = new THREE.Group(); fuseCoverPiv.position.set(X + 32.3, 1.5, Z + 7.72); scene.add(fuseCoverPiv); const fuseCover = box(1.4, 1.2, .03, .7, 0, 0, M.metal, { parent: fuseCoverPiv });
 const fuseLeds = [0, 1, 2, 3, 4, 5].map(i => box(.08, .08, .02, X + 32.5 + i * .2, 1.85, Z + 7.73, new THREE.MeshStandardMaterial({ color: 0x220000, emissive: 0xff2020, emissiveIntensity: 0 }), { cast: false }));
-// Sicherungs-Rätsel: „Lights out“ – jeder Schalter kippt sich und seine Nachbarn. Alle sechs müssen leuchten.
-ch2.fuses = [false, true, false, false, true, false];
+// Sicherungs-Rätsel „Lights out“ (Fassung 3, AP-16): Hebel 1 und 6 leuchten zu Beginn. Ein dunkler Hebel schaltet seinen Kreis zu; ein leuchtender fällt
+// und reißt die leuchtenden Nachbarn mit (laut: A-06). Lösung 2-3-4-5, Reihenfolge egal. Hilfeleiter nach 6 / 15 / 30 Umschaltungen.
+ch2.fuses = [true, false, false, false, false, true]; ch2.fuseN = 0; ch2.fuseWrong = 0; ch2.fuseHint = -1;
 const fuseLedUpdate = () => fuseLeds.forEach((l, i) => l.material.emissiveIntensity = ch2.fuses[i] ? 3 : 0);
 interact(fuseCover, 'Sicherungskasten', () => { if (ch2.coverOpen) return fuseOpenPanel(); ch2.coverOpen = true; tween(fuseCoverPiv, { ry: 1.7 }, .6); Audio.play('metalOpen', { gain: .6, rate: 1.2, x: X + 33, y: 1.5, z: Z + 7.7, ref: 2 }); setTimeout(fuseOpenPanel, 650); });
-function fuseOpenPanel() {
+function fuseFlip(i) {
+  const F = ch2.fuses; ch2.fuseN++;
+  if (!F[i]) { F[i] = true; Audio.beep(true); Audio.buzz(X + 33, 1.5, Z + 7.8); if (ch2.fuseHint === i) ch2.fuseHint = -1; }
+  else { F[i] = false; for (const k of [i - 1, i + 1]) if (k >= 0 && k < 6 && F[k] && ch2.fuseHint !== k) F[k] = false; ch2.fuseWrong++; // falscher Hebel: laut
+    Audio.play('metalSlam', { gain: .7, rate: 1.3, x: X + 33, y: 1.5, z: Z + 7.8, ref: 3 }); Audio.flick(); shake = Math.max(shake, .02); if (typeof amt_fuseFalsch === 'function') amt_fuseFalsch(ch2.fuseWrong); }
+  const n = ch2.fuseN;
+  if (n === 6) setTimeout(() => subtitle('Wer schon leuchtet, bleibt in Ruhe.', 3000, 'LUKE'), 500);
+  if (n === 15) setTimeout(() => subtitle('Vier Hebel. Nur die in der Mitte.', 3000, 'LUKE'), 500);
+  if (n === 30 && !F.every(Boolean)) { ch2.fuses = [true, false, false, false, false, true]; ch2.fuseHint = 1; ch2.fuses[1] = true; Audio.play('switch2', { gain: .5, x: X + 33, y: 1.5, z: Z + 7.8, ref: 2 }); setTimeout(() => toast('Der Kasten springt zurück. Ein Hebel bleibt oben und leuchtet.', 3600), 400); }
+}
+async function fuseOpenPanel() {
   if (ch2.power) return toast('Alle sechs Kreise leuchten. Es brummt tief im Gebäude.');
-  const render = box => { box.querySelectorAll('.fuse').forEach((b, i) => { b.classList.toggle('on', ch2.fuses[i]); }); fuseLedUpdate(); };
-  openPuzzle(`<h3>SICHERUNGEN · EBENE −2</h3><p>Ein Hebel schaltet seinen Kreis – und zieht die Nachbarn mit. Alle sechs müssen leuchten.</p><div class="fuses">${ch2.fuses.map((f, i) => `<button class="fuse" data-i="${i}"><span></span>${i + 1}</button>`).join('')}</div><p class="small">Auf dem Kasten, mit Kreide: <i>„Fang nie mit dem an, der schon leuchtet.“</i></p>`, box => {
+  if (typeof amt_ag06 === 'function' && !ch2.ag06) { await amt_ag06(); if (ch2.power) return; } // AG-06: der Funk kommt, bevor Luke den ersten Hebel anfasst
+  const render = box => { box.querySelectorAll('.fuse').forEach((b, i) => { b.classList.toggle('on', ch2.fuses[i]); b.style.boxShadow = i === ch2.fuseHint ? '0 0 16px rgba(230,200,120,.85)' : ''; }); fuseLedUpdate(); };
+  openPuzzle(`<h3>SICHERUNGEN · EBENE −2</h3><p>Sechs Hebel, sechs Kreise. Alle sechs müssen leuchten.</p><div class="fuses">${ch2.fuses.map((f, i) => `<button class="fuse" data-i="${i}"><span></span>${i + 1}</button>`).join('')}</div><p class="small">Auf dem Kasten, mit Kreide: <i>„Fang nie mit dem an, der schon leuchtet.“</i></p>`, box => {
     render(box);
-    box.querySelectorAll('.fuse').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; [i - 1, i, i + 1].forEach(k => { if (k >= 0 && k < 6) ch2.fuses[k] = !ch2.fuses[k]; }); Audio.beep(true); Audio.buzz(X + 33, 1.5, Z + 7.8); render(box);
+    box.querySelectorAll('.fuse').forEach(b => b.onclick = e => { e.stopPropagation(); fuseFlip(+b.dataset.i); render(box);
       if (ch2.fuses.every(Boolean)) { closeOverlay(); powerOn(); } });
   });
 }
@@ -3527,8 +3543,9 @@ async function powerOn() {
   setC2Objective('Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.');
   c2Lights.forEach((L, i) => setTimeout(() => { L.mode = L.mode === 'flicker' ? 'flicker' : 'on'; L.k = 1; }, i * 120));
   spiderDoorIn.locked = false; spiderDoorIn.lockedText = '';
+  if (typeof amt_notstrom === 'function') return amt_notstrom(); // Fassung 3 (AP-16): AG-05 beim Notstrom („… Bruder.“, „Ja, Luke.“), Kühlaggregat, Speicherpunkt
   await wait(1800); Audio.intercomClick();
-  await say([['*Knacken* — „Notstrom aktiv. Außenstelle Lost Eyengless.“', 3600, 'LAUTSPRECHER'], ['„Rückführungsprotokoll Nummer acht … wird fortgesetzt.“', 3800, 'LAUTSPRECHER'], ['„Willkommen zurück, Luke.“', 3000, 'LAUTSPRECHER']]);
+  await say([['„Notstrom aktiv. Außenstelle Lost Eyengless.“', 3600, 'LAUTSPRECHER']]);
 }
 
 // --- Spinnenraum (636–646, z 595–605)
@@ -3586,6 +3603,7 @@ async function spidersGone() {
   subtitle('Weg. Als wären sie nie da gewesen. Nur der Kokon ist aufgerissen. Und leer.', 5000);
   cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478);
   spiderDoorOut.locked = false; setC2Objective('Die östliche Stahltür ist frei. Geh weiter.');
+  if (typeof amt_nachSpinnen === 'function') { await wait(1800); return amt_nachSpinnen(); } // Fassung 3 (AP-16): Tafel wird hell, geschnittenes Band, Lukes Sätze, Speicherpunkt
   await wait(2500); Audio.intercomClick(); await say([['„Reaktion auf Reiz: hoch. Abweichung von 2009.“', 3200, 'LAUTSPRECHER']]);
 }
 
@@ -3613,19 +3631,24 @@ const zombie = (() => { const g = new THREE.Group(); const mat = new THREE.MeshS
 function startChase() {
   ch2.chase = 'run'; zombie.x = X + 47; zombie.z = Z; zombie.g.visible = true; zombie.t = 0; Audio.groan(zombie.x, zombie.z, true); Audio.chaseMusic(true);
   c2Lights.forEach(L => { if (Math.abs(L.tube.position.x - (X + 50)) < 3) { L.mode = 'off'; } });
-  setC2Objective('LAUF. Nach Osten. Nicht umdrehen.'); subtitle('Hinter dir kratzt etwas über den Beton. Schnell.', 2800); shake = .04;
+  setC2Objective('Weg hier. Nach Osten.'); subtitle('Hinter dir: Schritte auf dem Beton. Nicht schnell. Und ein Lachen, das nicht aufhört.', 3600); shake = .04; zombie.greifT = 0;
 }
 function chaseUpdate(dt, t) {
   const P = player.pos;
   if (ch2.chase === 'idle' && ch2.spiderPhase === 'gone' && P.x > X + 50 && P.x < X + 60 && Math.abs(P.z - Z) < 2) startChase();
   // Gitter aufschieben
   if (ch2.on && !gate.userData.open) { const near = Math.abs(P.x - gate.position.x) < 1.6 && Math.abs(P.z - Z) < 2 && P.x < gate.position.x;
-    if (near && keys.KeyE) { gate.userData.holdT += dt; if (gate.userData.holdT % .25 < dt) Audio.flick(); if (gate.userData.holdT > .8) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); } } else gate.userData.holdT = Math.max(0, gate.userData.holdT - dt * 2);
-    if (near && !gate.userData.open) $('sideInfo').textContent = gate.userData.holdT > 0 ? '▮'.repeat(Math.ceil(gate.userData.holdT / .8 * 8)).padEnd(8, '▯') : ''; }
+    const need = ch2.chase === 'run' ? 3 : .8; gate.userData.need = need; // Fassung 3 (AP-16): in der Jagd klemmt das Gitter (3 s) – und die Schritte sind schon da
+    if (near && keys.KeyE) { gate.userData.holdT += dt; if (gate.userData.holdT % .25 < dt) { Audio.flick(); if (need > 1) Audio.play('metalHit2', { gain: .18, rate: rand(1.1, 1.4), x: gate.position.x, y: 1, z: Z, ref: 2 }); } if (gate.userData.holdT > need && (ch2.chase !== 'run' || Math.hypot(zombie.x - P.x, zombie.z - P.z) < 2.4)) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); } } else gate.userData.holdT = Math.max(0, gate.userData.holdT - dt * 2);
+    if (near && !gate.userData.open) $('sideInfo').textContent = gate.userData.holdT > 0 ? '▮'.repeat(Math.min(8, Math.ceil(gate.userData.holdT / need * 8))).padEnd(8, '▯') : ''; }
   if (ch2.chase !== 'run') return;
   zombie.t += dt;
   const dx = P.x - zombie.x, dz = P.z - zombie.z, d = Math.hypot(dx, dz) || .001;
-  const sp = zombie.sp * (d > 14 ? 1.25 : 1);
+  // Er ist schnell, wenn er will, und meistens will er nicht; er geht. Am klemmenden Gitter holt er Luke ein; sonst bleibt er hinter ihm stehen (erst nach 4 s greift er zu)
+  const amGitter = !gate.userData.open && Math.abs(P.x - gate.position.x) < 1.8 && gate.userData.holdT > .15;
+  let sp = d > 11 ? 4.2 : d > 5 ? 2.3 : 1.5;
+  if (amGitter) sp = Math.min(5.2, Math.max(sp, (d - .9) / Math.max(.35, (gate.userData.need || 3) - gate.userData.holdT))); else if (d < 1.9) { zombie.greifT = (zombie.greifT || 0) + dt; if (zombie.greifT < 4) sp = 0; } else zombie.greifT = 0;
+  zombie.spNow = sp;
   let nx = zombie.x + dx / d * sp * dt, nz = zombie.z + dz / d * sp * dt;
   // grobe Hindernis-Vermeidung: seitlich ausweichen
   const hit = c => nx + .35 > c.minX && nx - .35 < c.maxX && nz + .35 > c.minZ && nz - .35 < c.maxZ;
@@ -3663,25 +3686,25 @@ const tankLight = new VLight(0x6fe0c0, 2.2, 6, 2); tankLight.position.set(X + 11
 const lenaFig = makeFigure(new THREE.MeshStandardMaterial({ color: 0x3a3a40, roughness: .8 })); lenaFig.position.set(X + 118, .3, Z + 6); lenaFig.scale.setScalar(.92);
 const lenaFace = new THREE.Mesh(new THREE.PlaneGeometry(.26, .31), new THREE.MeshBasicMaterial({ map: faceTexes.lena, transparent: true, color: new THREE.Color(.6, .6, .6) })); lenaFace.position.set(0, 1.8, .15); lenaFig.add(lenaFace);
 // Klavier-Rätsel: Lucys Spieluhr-Lied
-const piano = box(1.6, 1, .6, X + 110, .5, Z + 7.5, M.wood, { collide: true }); box(1.5, .05, .3, X + 110, 1.02, Z + 7.3, M.paint);
-const noteSheet = plane(.5, .6, X + 110, 1.5, Z + 7.83, new THREE.MeshStandardMaterial({ map: tex(cnv(256, (c, w) => { c.fillStyle = '#d9d0b8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = '20px Georgia'; c.fillText('Lucys Lied (Spieluhr)', 20, 40); c.strokeStyle = '#333'; for (let l = 0; l < 5; l++) { c.beginPath(); c.moveTo(20, 90 + l * 14); c.lineTo(236, 90 + l * 14); c.stroke(); }
+const piano = box(1.6, 1, .6, X + 111.8, .5, Z + 7.5, M.wood, { collide: true }); box(1.5, .05, .3, X + 111.8, 1.02, Z + 7.3, M.paint); // Fassung 3 (AP-16): östlich der Trennwand zum Vorraum (X + 110)
+const noteSheet = plane(.5, .6, X + 111.8, 1.5, Z + 7.83, new THREE.MeshStandardMaterial({ map: tex(cnv(256, (c, w) => { c.fillStyle = '#d9d0b8'; c.fillRect(0, 0, w, w); c.fillStyle = '#222'; c.font = '20px Georgia'; c.fillText('Lucys Lied (Spieluhr)', 20, 40); c.strokeStyle = '#333'; for (let l = 0; l < 5; l++) { c.beginPath(); c.moveTo(20, 90 + l * 14); c.lineTo(236, 90 + l * 14); c.stroke(); }
   [[40, 90], [80, 104], [120, 118], [160, 132], [200, 118]].forEach(([x, y], i) => { c.fillStyle = i < 2 ? '#222' : 'rgba(34,34,34,.15)'; c.beginPath(); c.ellipse(x, y, 7, 5, -.3, 0, 7); c.fill(); });
-  c.fillStyle = '#8a1010'; c.font = '18px Caveat'; c.fillText('E  D  ?  ?  ?', 40, 190); c.fillText('„Die Spieluhr weiß den Rest.“', 30, 225); }), true) }), 0, 0);
-interact(noteSheet, 'Notenblatt', () => openNote('Lucys Lied', 'Fünf Töne. Die ersten beiden stehen da: <b>E · D</b>.\nDer Rest ist verwaschen.\n\n<span class="hand">„Die Spieluhr weiß den Rest.“</span>\n\nDu hast sie gehört. Im Kinderzimmer. Sie leierte – aber die Melodie war klar.', 'sheet'));
+  c.fillStyle = '#8a1010'; c.font = '18px Caveat'; c.fillText('E  D  ?  ?  ?', 40, 190); c.fillStyle = '#555'; c.font = '15px Caveat'; c.fillText('das hat die frau im wald gesungen', 30, 225); }), true) }), 0, 0);
+interact(noteSheet, 'Notenblatt', () => openNote('Notenblatt', '„Sieben Kinder, weiß wie Schnee – <b>E D</b> ? ? ?“\n\nDarunter Bleistift, Kinderschrift:\n<span class="hand">„das hat die frau im wald gesungen“</span>', 'sheet')); // Fassung 3 (AP-16): Wortlaut Kap. 2
 const MELODY = ['E', 'D', 'C', 'H', 'C'];
 interact(piano, 'Klavier spielen', () => {
   if (ch2.safeOpen) return toast('Die Tasten sind stumm geworden.');
   openPuzzle(`<h3>KLAVIER</h3><p>Spiel Lucys Lied. Fünf Töne.</p><div class="keysrow">${['C', 'D', 'E', 'F', 'G', 'A', 'H'].map(k => `<button class="pk" data-k="${k}">${k}</button>`).join('')}</div><p class="small" id="pkSeq">·  ·  ·  ·  ·</p>`, box => {
-    ch2.piano = [];
+    ch2.piano = []; if (typeof amt_klavier === 'function') amt_klavier(box); // Fassung 3 (AP-16): Lucy summt im Tank, die Tasten, die sie trifft, beschlagen
     box.querySelectorAll('.pk').forEach(b => b.onclick = e => { e.stopPropagation(); const k = b.dataset.k; Audio.pianoNote(k); ch2.piano.push(k); box.querySelector('#pkSeq').textContent = ch2.piano.concat(Array(5 - ch2.piano.length).fill('·')).join('  ');
-      if (ch2.piano.length === 5) { if (ch2.piano.join() === MELODY.join()) { setTimeout(() => { closeOverlay(); safeOpens(); }, 700); } else { setTimeout(() => { ch2.piano = []; box.querySelector('#pkSeq').textContent = '·  ·  ·  ·  ·'; Audio.beep(false); toast('Falsch. Das Klavier verstimmt sich ein Stück weiter.'); }, 500); } } });
+      if (ch2.piano.length === 5) { if (ch2.piano.join() === MELODY.join()) { setTimeout(() => { closeOverlay(); safeOpens(); }, 700); } else { setTimeout(() => { ch2.piano = []; box.querySelector('#pkSeq').textContent = '·  ·  ·  ·  ·'; if (typeof amt_klavierFalsch === 'function') { amt_klavierFalsch(); if (typeof amt_klavier === 'function') setTimeout(() => amt_klavier(box), 1600); } else { Audio.beep(false); toast('Falsch. Das Klavier verstimmt sich ein Stück weiter.'); } }, 500); } } });
   });
 });
 async function safeOpens() {
-  ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.');
-  subtitle('Ein Fach in der Maschine springt auf. Darin: eine Akte ohne Namen.', 4000);
+  ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.'); if (typeof amt_safe === 'function') amt_safe(); // Fassung 3 (AP-16): B-K2-07 auf dem Klavierdeckel
+  subtitle('Beim letzten Ton springt ein Aktenfach ohne Griff auf. Darin: eine Akte ohne Namen.', 4000);
   const file8 = plane(.22, .3, X + 120.7, 1.81, Z - .2, paperMat, -PI / 2, .2);
-  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name] · R-Fall', 'Rückführung: <b>Mittwoch, in der Nacht</b>, Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.\n\nBefund: <b>Rückläufer.</b> Augen braun (Vermessung Original: blau). Linke Handfläche: halbrunde Narbe, frisch, wie eingebrannt. Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n\nOriginal Brandt, Luke: Verbleib im Objekt. Mutter informiert. Sie hat den Rückläufer angesehen und gesagt: „Das ist meiner.“ Sie unterschreibt. Schwester: weiß es. Vermerk H. W.: „Sie hat ihn am ersten Morgen gewählt.“\n\nVermerk Seiler: Der Rückläufer erfährt es nicht. Wer es weiß, durch den sieht es. Vorgesehen für Versuchsreihe K nach der nächsten Öffnung.\nAm Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
+  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name] · R-Fall', 'Rückführung: <b>Mittwoch, in der Nacht</b>, Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.\n\nBefund: <b>Rückläufer.</b> Augen braun (Vermessung Original: blau). Linke Handfläche: halbrunde Narbe, frisch, wie eingebrannt. Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n\nOriginal Brandt, Luke: Verbleib im Objekt. Mutter informiert. Sie hat den Rückläufer angesehen und gesagt: „Das ist meiner.“ Sie unterschreibt. Schwester: weiß es. Vermerk H. W.: „Sie hat ihn am ersten Morgen gewählt.“\n\nVermerk Seiler: Der Rückläufer erfährt es nicht. Wer es weiß, durch den sieht es. Vorgesehen für Versuchsreihe K nach der nächsten Öffnung.\nAm Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren.“</span>' + (typeof amt_akte08Foto === 'function' ? amt_akte08Foto() : ''), 'akte8', () => { uninteract(file8); file8.visible = false; if (typeof amt_akte08 === 'function') amt_akte08(); else finale(); })); // Fassung 3 (AP-16): Foto, Durchschlag 7, ein Satz, Zettel, dann Lucy
 }
 // Kanon PK-D K2-7: Lucy im Tank (Dialog mit Auswahl, Peter-Frage), dann „Mach die Augen zu!“ – Augen zu versagt (augenzu.js, wirkt:false) – Kinosequenz K2
 async function finale() {
@@ -3697,17 +3720,20 @@ async function finale() {
     addEventListener('keydown', key, true); ui.onClose = () => { if (!done) { done = true; removeEventListener('keydown', key, true); res(-1); } }; });
   await wait(800); Audio.thump(X + 118, 1.5, Z + 6); await wait(700); Audio.thump(X + 118, 1.5, Z + 6);
   setC2Objective('Lucy.'); lenaFig.lookAt(player.pos.x, lenaFig.position.y, player.pos.z); // sie sieht ihn an, die Hand an der Scheibe
-  subtitle('Im Tank: eine Hand an der Scheibe.', 3000); await turn(X + 118, 1.4, Z + 6, 1.6); await wait(1600);
-  await say([['Ich hab nie gewusst, wie der Hund hieß.', 3000, 'LUKE'], ['„Flocke. … Hey, Großer.“', 3400, LU]]);
-  const Q = [['„Seit wann weißt du es?“', [['„Seit dem ersten Morgen. Mir hat die Hälfte gefehlt.“', 3600, LU], ['„Und dann warst du da und hast mich angesehen, als wär ich das Wichtigste auf der Welt.“', 4800, LU]]],
-    ['„Wie kommst du hier rein?“', [['„Hilde. Unter der Erde findet sie niemanden.“', 3600, LU], ['„Im Tank bin ich nicht hier und nicht dort.“', 3600, LU]]],
-    ['„Ich bin nicht rangegangen. Elfmal.“', [['„Ich weiß. Jetzt bist du ja da.“', 3600, LU]]]];
+  subtitle('Lucy öffnet die Augen. Blau. Sie lächelt um den Schlauch herum. Das geht kaum.', 4200); await turn(X + 118, 1.4, Z + 6, 1.6); await wait(1600);
+  // Fassung 3 (AP-16): Wortlaut Kap. 2, UK 8. Wer den Vermessungsbogen kennt („Er würde mit jedem mitgehen“), kann zuerst „Flocke.“ sagen
+  if (typeof amt_S !== 'undefined' && amt_S.bogen) { const c0 = await ask(['„Flocke.“', '„Lucy …“']); if (c0 === 0) { amt_S.bogenFlocke = true; await say([['Flocke.', 1800, 'LUKE'], ['„Wer hat dir das gesagt? … Egal. Hey, Großer.“', 4200, LU]]); } else await say([['„Flocke. … Hey, Großer.“', 3400, LU]]); }
+  else await say([['„Flocke. … Hey, Großer.“', 3400, LU]]);
+  const Q = [['„Seit wann weißt du es?“', [['„Seit dem ersten Morgen. Mir hat die Hälfte gefehlt. Und dann warst du da und hast mich angeguckt, als wär ich das Wichtigste auf der Welt. Da hab ich dich genommen.“', 7600, LU]]],
+    ['„Wie kommst du hier rein?“', [['„Hilde. Unter der Erde findet sie niemanden, und im Tank bin ich nicht hier und nicht dort.“', 5200, LU], ['„Hilde hat gesagt: Solange die Luke zu ist, bist du sicher. Die Luke da oben, Großer. Nicht du.“', 5600, LU]]],
+    ['„Ich bin nicht rangegangen. Elfmal.“', [['„Ich weiß. Ich hab mitgezählt. Jetzt bist du ja da.“', 3800, LU]]]];
   const left = [0, 1, 2]; ch2.lucyAsked = [];
   for (;;) { const opts = left.map(i => Q[i][0]).concat(['„Du riechst den Rauch, oder?“']), c = await ask(opts); if (c < 0) { await wait(300); continue; }
-    if (c === opts.length - 1) { await say([['Du riechst den Rauch, oder?', 2800, 'LUKE'], ['„Onkel Peter.“', 2600, LU]]); await wait(1600); await say([['„Er hat so lange gewartet, Großer.“', 3800, LU]]); break; }
+    if (c === opts.length - 1) { await say([['Du riechst den Rauch, oder?', 2800, 'LUKE'], ['„Onkel Peter.“', 2600, LU]]); await wait(1600); await say([['„Er hat so lange gewartet, dass einer die Tür aufmacht. Du hast sie aufgemacht, Großer. Nur anders.“', 5600, LU]]); break; }
     const i = left.splice(c, 1)[0]; ch2.lucyAsked.push(i); await say([[Q[i][0].slice(1, -1), 2600, 'LUKE'], ...Q[i][1]]); await wait(500); }
-  await say([['„Du bist nicht der, mit dem ich geboren wurde. Du bist der, mit dem ich groß geworden bin. Das ist mehr.“', 5600, LU], ['„Wer es weiß, durch den sieht sie. Deshalb hab ich nie was gesagt.“', 4400, LU],
-    ['„… Du hast die Akte gelesen. Weißt du es jetzt?“', 3800, LU]]);
+  await say([['„Du bist nicht der, mit dem ich geboren bin. Du bist der, mit dem ich groß geworden bin. Den hab ich mir ausgesucht.“', 5800, LU]]); await wait(900);
+  await say([['„Wer es weiß, durch den sieht sie. Deshalb hab ich nie was gesagt.“', 4400, LU]]); await wait(900);
+  await say([['„… Du hast die Akte gelesen. Weißt du es jetzt?“', 3800, LU]]);
   if (typeof KINO !== 'undefined' && KINO.k2b && kino_S.ready) await kino_play('k2b', { nahtlos: true }); else await (async () => { // Fassung 3 (AP-10): Kinosequenz Teil B „Das Gesicht im Glas“; darunter der alte Ablauf als Rückfall
   c2Lights.forEach(L => L.mode = 'dying'); Audio.hum(true); shake = .03;
   await wait(2200); subtitle('Das Brummen. Es kommt durch den Beton. Von oben.', 4000); await wait(3400); await turn(X + 118, 1.35, Z + 6, .9);
@@ -3730,8 +3756,9 @@ async function finale() {
   if (typeof kino_play === 'function') { try { await kino_play('k2'); } catch (e) { console.warn('Kino K2', e); } }
   await fade(1, 600); Audio.tankHum(false); setScripted(null); state.talking = false;
   if (SEAMLESS) { // „Das graue Gesicht am Glas. Dann nichts.“ – kein Schnitt: Luke kommt im dunklen Tankraum wieder zu sich, über ihm steht eine Luke offen
-    saveFlag('ch3'); for (const f of CH2_END) try { f(); } catch (e) { console.warn('Kapitel-2-Ende', e); }
-    await wait(2600); fade(0, 2400); await wait(900);
+    for (const f of CH2_END) try { f(); } catch (e) { console.warn('Kapitel-2-Ende', e); }
+    if (typeof uebergang3_nachAbspann === 'function') return uebergang3_nachAbspann(); // Fassung 3 (AP-16): UK 9 „Das war jetzt neu“ – Lampe am Leiterfuß, Aufstieg, Gully, Whiskey, Glocke, Endkarte
+    saveFlag('ch3'); await wait(2600); fade(0, 2400); await wait(900);
     subtitle('Du liegst auf dem Beton. Der Tank ist leer. Nur deine Hand ist noch an der Scheibe abgedrückt.', 5200); await wait(5600);
     setC2Objective('Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben.'); subtitle('Über dir zieht Luft durch die Decke. Kalt. Sie riecht nach Regen.', 4200); return;
   }
@@ -3775,7 +3802,7 @@ function ch2Update(dt, t) {
   if (ch2.read && ch2.read.size >= 3 && !ch2.boardHint) { ch2.boardHint = true; setC2Objective(C2_MAIN[2]); }
   if (ch2.spiderPhase === 'idle' && ch2.power && P.x > X + 37.2 && P.x < X + 45 && Math.abs(P.z - Z) < 4.5) spiderEvent();
   spiderUpdate(dt, t); chaseUpdate(dt, t);
-  if (!ch2.tankSeen && P.x > X + 107) { ch2.tankSeen = true; setC2Objective('Öffne die Maschine. Das Klavier weiß, wie.'); subtitle('Acht Stühle. Acht Namen. Der letzte Stuhl hat keinen.', 4200); }
+  if (!ch2.tankSeen && P.x > X + 110.5 && ch2.chase === 'done') { ch2.tankSeen = true; setC2Objective('Der Messraum. Das Klavier.'); subtitle('Acht Stühle im Kreis. Gurte, Namensschilder. Das achte leer. In der Mitte ein Tank, mannshoch.', 5200); } // Fassung 3 (AP-16): hinter dem Vorraum (Trennwand X + 110)
   lenaFig.position.y = .3 + Math.sin(t * .8) * .05;
 }
 // =====================================================================  KAPITEL 3 · DAS LICHT
@@ -4011,32 +4038,7 @@ async function jHint() {
 interact(justin.hit, () => ch3.part === 'town' ? 'Mit Justin sprechen' : 'Justin', () => jHint());
 
 // ---- Begegnung
-async function justinArrives() {
-  ch3.met = true; state.talking = true; justin.look = true;
-  Audio.stinger(true); lamps.forEach(L => L.mode = 'flicker'); ch3.pillarK = 1; Audio.hum(true); shake = .03;
-  subtitle('Am Ende der Straße fällt Licht vom Himmel. Weiß. Lautlos.', 3800);
-  const P0 = player.pos, sx = THREE.MathUtils.clamp(P0.x + (P0.x > 20 ? -24 : 24), -62, 62);
-  pillar.position.set(sx, 35, 0); pillarLight.position.set(sx, 3, 0);
-  jPlace(sx, 0, sx > P0.x ? -PI / 2 : PI / 2); justin.g.visible = true; justin.sp = 1.7; await wait(3200);
-  lamps.forEach(L => L.mode = 'pulse');
-  const P = player.pos, dx = P.x - sx, dz = P.z, d = Math.hypot(dx, dz) || 1;
-  const tx = P.x - dx / d * 6, tz = P.z - dz / d * 6;
-  subtitle('Jemand tritt aus dem Licht. Groß. Metall schabt auf Metall.', 3800);
-  await new Promise(r => jWalk(tx, tz, r));
-  ch3.pillarK = .35; Audio.hum(false); justin.sp = 1.35;
-  await say([['„Bleib stehen, Kind. Ich tu dir nichts.“', 3000, J], ['„Ich bin Justin. Ritter vom Hohen Abgrund. Das da hinten war mein Hof, als er noch einer war.“', 5000, J], // Fassung 3: Zeilen aus dem Justin-Dossier 3.1 (vollständiger Umbau: AP-12)
-    ['„Eure Kutschen sind lauter geworden. Und eure Nächte heller. Beides hilft nicht.“', 4600, J],
-    ['„Du hast mich schon gesehen. Am Ende der Straße. Weiter reichte die Nacht noch nicht.“', 4200, J],
-    ['„Du riechst nach Rauch. Nach dem unteren Gang.“', 3600, J]]); // immer: Peter ist in Kapitel 2 verbrannt
-  await wait(1400); await say([['„Er war auch einer von meinen.“', 3200, J], ['Ich weiß.', 1800, 'DU'],
-    ['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“', 5600, J],
-    ['„Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“', 5400, J], ['Wir?', 1600, 'DU']]);
-  justin.look = false; justin.g.rotation.y += 1.1; await say([['„Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“', 4400, J]]); justin.look = true;
-  await say([['„Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“', 5200, J]]);
-  state.talking = false; setC3('Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
-  jWalk(1.5, -5.2, () => { justin.look = true; }); ch3.ringing = true;
-  setTimeout(() => { if (!ch3.callDone) subtitle('Das Telefon an der Kreuzung klingelt.', 3200); }, 9000);
-}
+async function justinArrives() { return justin_ankunft(); } // Fassung 3 (AP-12): Ablauf, Visier und Dialogbank 81 §3.1 in justin.js (justin_ankunft, justin_pflicht)
 
 // ---- Im Weißen: Räume der Erinnerung
 const whiteMat = new THREE.MeshStandardMaterial({ color: 0xeceef2, roughness: .95, emissive: 0x2a2c30 });
@@ -4170,9 +4172,7 @@ function showChoice() { // Fassung 3 (Kern §12): drei Antworten ohne Untertext;
     <button id="chA" style="min-width:340px">„Dich. Dass du bleibst.“</button>
     <button id="chB" style="min-width:340px">„Spielen. Sieben Kinder, wie damals.“</button>
     <button id="chC" style="min-width:340px">„Dass du sie suchst.“</button></div>`, box => {
-    box.querySelector('#chA').onclick = e => { e.stopPropagation(); ch3.choice = 'A'; closeOverlay(); endingA(); };
-    box.querySelector('#chB').onclick = e => { e.stopPropagation(); ch3.choice = 'B'; closeOverlay(); endingB(); };
-    box.querySelector('#chC').onclick = e => { e.stopPropagation(); ch3.choice = 'C'; closeOverlay(); (typeof endingC === 'function' ? endingC : endingB)(); };
+    for (const c of ['A', 'B', 'C']) box.querySelector('#ch' + c).onclick = e => { e.stopPropagation(); ch3.choice = c; closeOverlay(); justin_antwort(c); }; // Fassung 3 (AP-12): 3.14/3.15, Geschenk, „Noch eine Runde“
   });
   ui.onClose = () => { if (!ch3.choice) setTimeout(showChoice, 400); };
 }
@@ -4185,30 +4185,9 @@ function c3Endcard(title, text, next) {
   saveFlag('ch3done'); document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); document.body.classList.add('ov');
   $('fade').style.background = '#000'; $('fade').style.opacity = 0;
 }
-async function endingA() {
-  state.talking = true; justin.look = true; jPlay('idle');
-  await say([['Justin nickt. Er greift an die Schnallen der Brustplatte und zieht. Die Platte gibt nicht nach.', 4600], // Fassung 3: Antwort A, Justin-Dossier 3.14/3.15 (Geschenk, „Noch eine Runde“: AP-17)
-    ['„Sie ist mit mir verwachsen. Wenn ich sie ausziehe, hier drin, werde ich wie die auf den Stühlen. Noch nicht.“', 5200, JS],
-    ['„Dann bleib ich so. Bei ihr. Wenn sie mich nicht sehen kann, soll sie mich wenigstens hören. Die ganze Zeit.“', 5200, JS],
-    ['„Ich bleib hier, Knabe. Wenn du sie mal suchst: Ich bin der, der ruft.“', 4400, JS], ['„Papa? … Papa, du mogelst wieder.“', 3600, 'DAS KIND']]);
-  $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
-  await wait(800); Audio.bell(0, 0); await wait(1500);
-  if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3a');
-  c3Endcard('KAPITEL 3 — ENDE · ICH KOMME', 'Er ist bei ihr geblieben.<br>Sie sieht ihn nicht. Sie hört ihn rufen.<br>Es wird hell.', 'KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN'); // Fassung 3: Endkarte Antwort A (Zusatzzeilen RH/Vertrauen: AP-17/AP-05)
-  if (typeof kapEnde === 'function') kapEnde(3);
-}
-async function endingB() {
-  state.talking = true;
-  await say([['„Dann spiele ich mit ihr.“', 2600, JS], ['„Ich kann Verstecken. Ich hab’s nur nie zu Ende gespielt. Diesmal zähl ich, laut, damit sie’s hört.“', 5200, JS], // Fassung 3: Antwort B, Justin-Dossier 3.14/3.15
-    ['„Pass auf deine Schwester auf. Sie hat dich gewählt, bevor du wusstest, was du bist. Das tun nicht viele.“', 5200, JS]]);
-  justin.look = false; jWalk(X3 + 41.2, Z3, () => { tween(justin.g, { pos: new THREE.Vector3(X3 + 42, -3, Z3) }, 2.6); });
-  await wait(2600); glitchV = .5; // Luna schreit nie (02 H4)
-  await say([['„Papa? … Papa, du mogelst wieder.“', 3600, 'DAS KIND']]);
-  $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
-  if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3b');
-  c3Endcard('KAPITEL 3 — ENDE · ICH KOMME', 'Er spielt mit.<br>Sie zählt, und er zählt hinter ihr her.<br>Es wird hell.', 'KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN'); // Fassung 3: Endkarte Antwort B
-  if (typeof kapEnde === 'function') kapEnde(3);
-}
+// Fassung 3 (AP-12): Antworten A/B/C, Geschenke, „Noch eine Runde“, Abspann und Endkarte laufen über justin_antwort (justin.js)
+async function endingA() { return justin_antwort('A'); }
+async function endingB() { return justin_antwort('B'); }
 
 async function enterWhite() {
   ch3.part = 'white'; ch3.pillarK = 0; $('fade').style.background = '#fff'; await fade(1, 1800);
@@ -4305,7 +4284,7 @@ async function cowDrop() {
 }
 function cowUpdate(dt) {
   goreUpdate(dt);
-  if (cowFx.t >= 0 && cowFx.t < 1) { cowFx.t += dt / .7; const k = Math.min(1, cowFx.t); cowFx.g.position.y = 26 * (1 - k * k) + (FAB.cowLift || 0) * k * k; if (k >= 1) { cowFx.g.rotation.set(PI / 2 - .12, .6, 0, 'YXZ'); cowFx.g.position.y = FAB.cowLift || .5; cowFx.g.userData.noCol = false; solidAdd(cowFx.g); } }
+  if (cowFx.t >= 0 && cowFx.t < 1) { cowFx.t += dt / .7; const k = Math.min(1, cowFx.t); cowFx.g.position.y = 26 * (1 - k * k) + (FAB.cowLift || 0) * k * k; if (k >= 1) { if (FAB.cowPlatt) { cowFx.g.clear(); cowFx.g.add(FAB.cowPlatt.clone()); } /* Fassung 3 (AP-17): verformt erst beim Aufprall */ cowFx.g.rotation.set(PI / 2 - .12, .6, 0, 'YXZ'); cowFx.g.position.y = FAB.cowLift || .5; cowFx.g.userData.noCol = false; solidAdd(cowFx.g); } }
   const d = cowFx.dust; if (d.t < 6) { d.t += dt; for (let i = 0; i < d.v.length; i++) { d.p[i * 3] += d.v[i].x * dt * 2.2; d.p[i * 3 + 1] += d.v[i].y * dt * .8; d.p[i * 3 + 2] += d.v[i].z * dt * 2.2; } d.m.geometry.attributes.position.needsUpdate = true; d.m.material.opacity = Math.max(0, .35 - d.t * .07); }
   if (cowFx.ufoT >= 0) { // das UFO steigt auf und zieht in die Ferne
     cowFx.ufoT += dt; const k = Math.min(1, cowFx.ufoT / 16), e = k * k;
@@ -4324,7 +4303,7 @@ interact(cowHit, 'Kuh untersuchen', () => { if (state.talking) return; state.tal
 const gullyHit = box(1, .6, 1, 9, .3, -1.3, hidden, { cast: false });
 interact(gullyHit, () => ch3.on && ch3.part === 'town' && ch3.met ? 'Gullydeckel anheben' : 'Gullydeckel', () => {
   if (!ch3.on || !ch3.met || ch3.part !== 'town') return toast('Ein schwerer Gullydeckel. Darunter rauscht Wasser.');
-  enterCanal(); });
+  if (typeof neben3_gully === 'function') neben3_gully(); else enterCanal(); }); // Fassung 3 (AP-18): „Außenstelle 3“ – Justin hält den Deckel
 // ---- Kapitel-Start & Takt
 const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · ICH KOMME</p><p class="on">Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an Hände. Viele kleine Hände, die dich tragen, ganz vorsichtig, wie etwas, das man nicht kaputt machen will.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Die Telefonzelle. Das Ortsschild weit hinten. Kein Mensch. Es ist 03:13.</p><p class="on">Irgendwo schlägt eine Glocke.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
 async function startChapter3() { // Weiterspielen / Kapitel wählen: Zustand setzen, an die Kreuzung, Intro
@@ -4483,17 +4462,18 @@ async function loadFabAssets() {
     c.position.sub(cb.getCenter(new THREE.Vector3())); const W = new THREE.Group(); W.add(c); W.updateMatrixWorld(true);
     // Sturz aus großer Höhe: Die Seite, auf die sie fällt (lokal +Z), wird plattgedrückt, der Körper eingedellt und blutig
     const inv = new THREE.Matrix4().copy(W.matrixWorld).invert(), v = new THREE.Vector3(), hz = sz.z / 2, hx = sz.x / 2;
-    c.traverse(m => { if (!m.isMesh) return; m.geometry = m.geometry.clone(); const toW = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld), toL = toW.clone().invert();
+    const Wi = W.clone(true); // Fassung 3 (AP-17): unversehrt bis zum Aufprall (die Verformung unten ändert nur Kopien von Geometrie und Material)
+    c.traverse(m => { if (!m.isMesh) return; m.geometry = m.geometry.clone(); m.material = m.material.clone(); const toW = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld), toL = toW.clone().invert();
       const pos = m.geometry.attributes.position, col = new Float32Array(pos.count * 3);
       for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(toW);
         const side = Math.max(0, v.z / hz), dent = (Math.sin(v.x * 9.1) * Math.sin(v.y * 7.3) + Math.sin(v.x * 3.7 + v.y * 5.9)) * .5;
         v.z = v.z > 0 ? v.z * .66 + dent * .035 : v.z + dent * .02; v.y *= 1 + side * .16; v.x *= 1 + side * .05;
         if (v.x > hx * .55) v.z += Math.sin(v.y * 5) * .06; // Kopf/Hals verdreht
-        const blood = Math.min(1, .28 + side * 1.9 + Math.max(0, dent) * .8 + (v.x > hx * .6 ? .7 : 0) + (Math.sin(v.x * 13 + v.y * 11) > .6 ? .5 : 0));
+        const blood = Math.min(1, side * side * 1.4 + Math.max(0, dent) * .25 * side); // Fassung 3: gescheckt und warm, Blut nur an der Aufschlagseite; die Augen ohne Blut
         col[i * 3] = 1 - blood * .62; col[i * 3 + 1] = 1 - blood * .96; col[i * 3 + 2] = 1 - blood * .95;
         v.applyMatrix4(toL); pos.setXYZ(i, v.x, v.y, v.z); }
       m.geometry.setAttribute('color', new THREE.BufferAttribute(col, 3)); m.geometry.computeVertexNormals(); m.material.vertexColors = true; });
-    FAB.cow = W; FAB.cowLift = sz.z * .66 / 2 + .02; } catch (e) { console.warn('Kuh', e); }
+    FAB.cow = Wi; FAB.cowPlatt = W; FAB.cowLift = sz.z * .66 / 2 + .02; } catch (e) { console.warn('Kuh', e); }
   try { // Fotografierte Blut-Decals (Quixel Megascans) und Fleisch/Organe
     const dec = k => new THREE.MeshStandardMaterial({ map: T('gore/' + k + '_bo.png'), normalMap: T('gore/' + k + '_n.jpg', false), roughness: .16, metalness: .05, transparent: true, alphaTest: .04, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, color: 0xb0a0a0, envMapIntensity: 1.8 });
     FAB.blood = { stain1: dec('stain1'), stain2: dec('stain2'), spatter: dec('spatter') };
@@ -4600,10 +4580,9 @@ const ECHOES = [
     lines: [['Mama sitzt auf der Bettkante. Vor ihr ein Junge mit nassen Haaren.', 3800], ['„Wie heißt unser Hund, Luke?“', 2800, 'MAMA'], ['Der Junge sieht sie an. Lange. Er lächelt – an der falschen Stelle.', 4000], ['„Egal. Ist egal, mein Schatz. Du bist da.“', 3200, 'MAMA']] },
   { id: 'echo_brand', at: [-13, 1, -10.2], title: 'Nachbild · Haus Nr. 5, Dezember 2009', figs: [E_(-13, -10.2, 0, .58)],
     lines: [['Ein Mädchen steht im Garten. In der Hand ein Feuerzeug. Hinter ihr brennt das Haus.', 4200], ['„Ich will zurück. Da oben war es warm.“', 3200, 'ROXY, 8'], ['„Wenn das Haus weg ist, muss es mich wieder holen.“', 3600, 'ROXY, 8']] },
-  { id: 'echo_archiv', at: [C2.x + 24, 1.2, C2.z + 1.2], title: 'Nachbild · Archiv, Ebene −2, 2009', figs: [E_(C2.x + 23, C2.z + 1.4, 1.6, 1), E_(C2.x + 25.2, C2.z + .8, -1.4, 1)],
-    lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Rückläufer‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann sieht es durch ihn. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
-  { id: 'echo_messraum', at: [C2.x + 113, 1.2, C2.z - 1.5], title: 'Nachbild · Messraum, 4. August 2009', figs: [E_(C2.x + 109, C2.z - 4.6, PI, .58), E_(C2.x + 112.2, C2.z - 4.6, PI, .58), E_(C2.x + 115.4, C2.z - 4.6, PI, .58), E_(C2.x + 119.5, C2.z - 2.2, -2.2, 1.14)],
-    lines: [['Kinder auf den Stühlen, festgeschnallt. Sie schlafen mit offenen Augen.', 3800], ['In der Ecke: ein großer Mann in Eisen. Er rührt sich nicht.', 3600], ['„Wer ist der Mann in der Rüstung?“', 2800, 'KIND'], ['„Er kommt mit dem Licht. Er nimmt keins mit. Er bringt sie heim.“', 4200, 'ÄRZTIN'], ['„Warum weint er dann?“', 2600, 'KIND']] },
+  // Fassung 3 (AP-16): kein Nachbild im Archiv (die Erleichterung hält bis Akte 08); am Stuhlkreis das Nachbild 2009 (Wortlaut Kap. 2, UK 8)
+  { id: 'echo_messraum', at: [C2.x + 115.8, 1.2, C2.z + 2.4], title: 'Nachbild · Messraum, Sommer 2009', figs: [E_(C2.x + 113.3, C2.z + 5.0, 2.4, .58), E_(C2.x + 112.2, C2.z + 2.5, 1.57, .6), E_(C2.x + 113.2, C2.z - .1, .8, .58), E_(C2.x + 115.7, C2.z - 1.2, 0, .56), E_(C2.x + 118.4, C2.z + 4.8, -2.3, .6), E_(C2.x + 121.1, C2.z - 3.4, -.9, 1.14), E_(C2.x + 114.6, C2.z - 2.9, .2, 1.02)],
+    lines: [['Sommer 2009. Kinder in Gurten, zwei Stühle leer. Im achten ein Junge, der nicht weint. In der Ecke ein Mann aus Eisen, der es tut.', 6200], ['„Lassen Sie ihn. Der tut keinem was. Der hat den Jungen gebracht.“', 4200, 'SEILER'], ['„Warum weint er dann?“', 2600, 'EIN MÄDCHEN'], ['Der Mann aus Eisen zieht ein Schwert und schneidet die Gurte an Stuhl 8 durch. Niemand hält ihn auf.', 5600]] },
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Nachbild · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
     lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, fällt irgendwohin in die Zeit.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
   { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Nachbild · Nimmerheim, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
@@ -4730,7 +4709,7 @@ async function enterCanal() {
     try { await renderer.compileAsync(scene, camera); } catch (e) {} }
   ch3.part = 'canal'; state.zone = 'canal'; canalAtmo(true); canal.obj = $('objText').textContent; setC3('Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.'); player.pos.copy(canal.spawn); player.yaw = rand(0, 6); player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65;
   await wait(400); fade(0, 1600); state.talking = false; saveGame(3);
-  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Auf einem Brückenpfeiler, in Kinderschrift, mit Kreide: ATLANTSCHISS. Darunter ein Pfeil nach unten. Noch tiefer.', 4600], ['Irgendwo tropft es. Irgendwo lacht ein Kind.', 3200]]);
+  await say([['Unten ist kein Kanal. Unten ist eine Stadt.', 3200], ['Holzhäuser, Laternen, Wäsche über dem Wasser. Nichts davon gehört nach Lost Eyengless.', 4200], ['Irgendwo tropft es.', 2400]]); // Fassung 3 (AP-18): „Aus!“ – unten spielt keiner; Schachtkreide, Kiste, tiefes Wasser in neben3.js
 }
 function canalAtmo(on) {
   sky.visible = !on; scene.background = on ? new THREE.Color(0x020303) : null;
@@ -4745,7 +4724,7 @@ function canalUpdate(dt, t) {
   canal.dt = dt; if (state.zone !== 'canal') return; canal.t += dt;
   for (const L of canal.lights) L.v.intensity = L.base * (.9 + Math.sin(t * 2.3 + L.ph) * .06 + (Math.random() < .004 ? -.8 : 0));
   canal.scareT -= dt;
-  if (canal.scareT < 0 && !state.talking && canal.points.length) { canal.scareT = rand(35, 60); canalScare(); }
+  if (canal.scareT < 0 && !ch3.on && !state.talking && canal.points.length) { canal.scareT = rand(35, 60); canalScare(); } // Fassung 3 (AP-18): Regel „Aus!“ – in Kap. 3 kein Schreck unter der Erde
   if (Math.random() < dt * .25) Audio.drip && Audio.drip(player.pos.x + rand(-5, 5), 2, player.pos.z + rand(-5, 5));
 }
 async function canalScare() {
@@ -5635,7 +5614,8 @@ function update(dt, t) {
     if (L.mode === 'dying') { L.dead = (L.dead ?? 0) + dt; L.flick -= dt; if (L.flick < 0) { L.flick = rand(.025, .06); L.cur = Math.random() < .5 ? 0 : 1; } k = L.dead > 1.4 ? 0 : L.cur; }
     if (L.mode === 'off') k = 0;
     if (L.mode === 'pulse') k = ch3.pulse;
-    L.k = k; L.bulbMat.emissiveIntensity = 4 * k; L.cm.uniforms.opacity.value = .09 * k;
+    if (L.mode === 'k1puste') { L.dead = (L.dead ?? 0) + dt; k = L.dead < .12 ? 1 - L.dead / .12 * .75 : Math.max(0, .25 * Math.exp(-(L.dead - .12) * 2.6)); } // Kap. 1 (kapitel1.js): ausgeblasen, der Draht glüht nach
+    L.k = k; L.bulbMat.emissiveIntensity = 4 * k * (L.mode === 'k1puste' && L.dead > .12 ? 1.8 : 1); L.cm.uniforms.opacity.value = L.mode === 'k1puste' && L.dead > .12 ? 0 : .09 * k;
   });
   for (let i = 0; i < 10; i++) { const L = LP.order[i]; if (L) fogUniforms.lamps.value[i].set(L.wx, 0, L.wz, L.k); else fogUniforms.lamps.value[i].set(0, 0, 0, 0); } // Nebelschein: die zehn NÄCHSTEN Laternen
   // Flackern bildratenunabhängig: Wahrscheinlichkeit je Sekunde, jeder Aussetzer wird eine feste Zeit gehalten
@@ -5652,7 +5632,7 @@ function update(dt, t) {
     tvCtx.putImageData(img, 0, 0);
     const dTV = camera.position.distanceTo(tvScreen.position);
     if (state.tvCircle > 0) { tvCtx.strokeStyle = 'rgba(0,0,0,.85)'; tvCtx.lineWidth = 4; tvCtx.beginPath(); tvCtx.arc(48, 36, 22 + Math.random() * 2, 0, 7); tvCtx.stroke(); }
-    else if (dTV < 3.2 && Math.random() < .06) { state.tvSeen = true; tvCtx.fillStyle = 'rgba(0,0,0,.75)'; tvCtx.font = 'bold 22px Georgia'; tvCtx.textAlign = 'center'; tvCtx.fillText('HALLO LUKE', 48, 44); }
+    else if (dTV < 3.2 && Math.random() < .06 && typeof kapitel1_tv !== 'function') { state.tvSeen = true; tvCtx.fillStyle = 'rgba(0,0,0,.75)'; tvCtx.font = 'bold 22px Georgia'; tvCtx.textAlign = 'center'; tvCtx.fillText('HALLO LUKE', 48, 44); }
     tvTex.needsUpdate = true; tvLight.intensity = 1.2 + Math.random() * 1.6;
   } else if (tvLight.userData.dead) tvLight.intensity = 0;
   if (Audio.tv) Audio.tv.gain.value = tvLight.userData.dead ? 0 : Math.max(0, .05 * (1 - camera.position.distanceTo(tvScreen.position) / 7));

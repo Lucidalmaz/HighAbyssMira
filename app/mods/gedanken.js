@@ -29,7 +29,8 @@ const GEDANKEN_ORTE = [
   ['ort_garten', -140, -90, 8, 45, () => true, 'Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen.'],
   ['ort_hof', -150, -110, -45, -10, () => true, 'Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?'],
   ['ort_villa', -145, -105, 58, 90, () => true, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
-  ['ort_sperre', 138, 158, -20, 20, () => true, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.']];
+  ['ort_sperre', 138, 158, -20, 20, () => true, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.'],
+  ['ort_nr9', 44, 56, -12.4, -9.5, () => typeof kap !== 'function' || kap() === 1, 'Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.']]; // Kap. 1 (AP-14): das rote Glimmen im Astloch von Nr. 9; Wortlaut offen (Autor)
 // Festhängen: Luke denkt laut über den nächsten Schritt nach (sanft, ohne Rätsellösung)
 const GEDANKEN_FADEN = [
   [/Finde Haus Nr\. 7/, 'Nr. 7. Hilde Wendts Haus. Die Straße entlang … ich erkenne es, wenn ich davorstehe.'],
@@ -49,9 +50,7 @@ WORLD_MODS.push(['Gedanken', async () => {
   const S = gedanken_S;
   // Story-Ereignisse: die vorhandenen Funktionen bleiben, Luke reagiert danach (Aufruf per Name → Umhüllung greift überall)
   const after = (orig, fn) => async function (...a) { const r = await orig.apply(this, a); try { fn(...a); } catch (e) {} return r; };
-  startOutage = after(startOutage, () => gedanke('stromausfall', 'Strom weg. Alles. Und dieses Brummen … das ist kein Trafo. Das kommt von oben.', 3500, 3));
-  { const o = startPhase2; startPhase2 = function (...a) { const r = o.apply(this, a); gedanke('wendt_strasse', 'Frau Wendt? Im Nachthemd, mitten auf der Straße. Sie steht da wie ein Kind, das auf jemanden wartet.', 5200, 3); return r; }; }
-  ending = after(ending, () => gedanke('wendt_weg', 'Sie ist weg. Einfach hochgezogen. Und ich hab nichts gemacht. Ich hab nur dagestanden und zugesehen.', 1500, 3));
+  // Kap. 1 (AP-14): Stromausfall, Hilde auf der Straße und ihr Verschwinden sprechen jetzt kapitel1.js/kino.js mit den Zeilen der Bibel
   cowDrop = after(cowDrop, () => gedanke('kuh', 'Eine Kuh. Vom Himmel. Ich sollte schreien. Warum bin ich so ruhig? … Warum fühlt sich das an, als hätte ich das schon mal gesehen?', 2500, 3));
   justinArrives = after(justinArrives, () => gedanke('ritter', 'Ein Ritter. Ein echter. Er riecht nach Schnee. Ich müsste wegrennen – und will ihn fragen, ob er mich kennt.', 1500, 3));
   broadcast = after(broadcast, () => gedanke('funk', 'Eine Stimme vom Amt. Aus einem Kasten, der seit 2012 tot sein müsste. … Und sie weiß, dass ich es weiß.', 1200, 3));
