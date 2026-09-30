@@ -15,7 +15,7 @@
 //   katzen_get(name) · katzen_place(k, x, z, {y, ry, pose}) · katzen_stare(k, [x,y,z]|null) · katzen_goto(k, x, z, {lauf, dann, y}) · katzen_jumpTo(k, x, y, z, dann)
 //   katzen_tragen(k) / katzen_absetzen(k, x, z) (Luke trägt: linke Hand, kein Rennen, kein Springen/Klettern, Lampe bleibt) · katzen_fauch(k, [x,y,z]|null)
 //   katzen_angst(x, z, r, sek) (Regel 5: alle Katzen im Umkreis/Raum gehen weg) · katzen_schnurren(k, an) · katzen_arm(k, obj3d, [dx,dy,dz]) (auf einem Arm)
-//   katzen_klick(k, label, fn) (Interaktion) · katzen_regie(an) (automatische Verteilung je Kapitel an/aus) · katzen_hide(k) · katzen_S.flags (gespeichert)
+//   katzen_klick(k, label, fn) (Interaktion) · katzen_S.nachRegie.push(fn(kap)) (nach der Verteilung je Kapitel, z. B. heimgebrachte Katzen an den Napf) · katzen_regie(an) (automatische Verteilung je Kapitel an/aus) · katzen_hide(k) · katzen_S.flags (gespeichert)
 //   katzen_kater5(modus, opts): 'uebergabe' (Gisela gibt ihn, Luke trägt ihn kurz, dann folgt er) · 'folgen' · 'schwelle' {x,z,ry} (setzt sich, geht
 //     nicht weiter) · 'tisch' {x,y,z} · 'zurueck' {x,z} (bleibt stehen, sieht zurück) · 'starren' {x,y,z} · 'schnurren' {an} · 'nr1' {x,z,ry, ecke:[x,y,z]}
 //     · 'graukind' {x,z,ry} (Buckel, Fauchen ohne Ziel) · 'gitter' {x,z,ry, punkt:[x,y,z]} · 'vegas' {x,y,z,ry} · 'frei'
@@ -24,7 +24,7 @@
 //   Blickziel Beobachter: beob_pos() aus beobachter.js (wenn vorhanden) → {x,y,z}; Testbetrieb: katzen_S.simBeob (Vector3).
 const katzen_S = { ok: false, src: null, clips: null, sk: null, cats: [], byName: {}, regie: true, kapSeen: 0, flags: {}, kater: { mode: 'aus', o: {} },
   beob: new THREE.Vector3(), beobOk: false, beobPrev: new THREE.Vector3(), beobApp: 0, trail: [], ptrail: [], carry: null, still: 0, hissCd: 0, angst: [], tick: 0,
-  simBeob: null, geo: null, U: { t: { value: 0 } }, prof: { n: 0, acc: 0, max: 0 } };
+  simBeob: null, geo: null, nachRegie: [], U: { t: { value: 0 } }, prof: { n: 0, acc: 0, max: 0 } };
 const katzen_V = [0, 1, 2, 3, 4, 5, 6, 7].map(() => new THREE.Vector3()), katzen_Q = [0, 1, 2, 3, 4].map(() => new THREE.Quaternion()), katzen_E = new THREE.Euler();
 const katzen_AX = { x: new THREE.Vector3(1, 0, 0), y: new THREE.Vector3(0, 1, 0), z: new THREE.Vector3(0, 0, 1) };
 const katzen_M4 = new THREE.Matrix4();
@@ -61,7 +61,7 @@ const KATZEN_LISTE = [
   { name: 'LUCY', fell: 'dreifarbig', gr: 'S', band: 0x1f7a6a, iris: [1, .82, .35], jung: 1 }];
 const KATZEN_GR = { S: .86, M: 1, L: 1.12 };
 // Rastlage (Ruhelage des Modells in m): Halsband, Augen, Ohrspitzen – aus den Knochen des Modells (katzen_rest)
-const KATZEN_STATIC = new Set(['sit', 'loaf', 'sleep', 'stand', 'hiss', 'crouch', 'carry', 'leap']), KATZEN_OB = ['neck2', 'head', 'earL', 'earR', 'tail2', 'tail3', 'tail4'];
+const KATZEN_STATIC = new Set(['sit', 'loaf', 'sleep', 'stand', 'hiss', 'crouch', 'carry', 'leap']), KATZEN_OB = ['spine1', 'neck2', 'head', 'jaw', 'earL', 'earR', 'tail1', 'tail2', 'tail3', 'tail4'];
 const KATZEN_WALK = .85; // m/s bei timeScale 1 (gemessen: Fußgeschwindigkeit im Stand des Gehzyklus)
 
 // ---------------------------------------------------------------- Laden
@@ -197,7 +197,7 @@ function katzen_make(d) {
     const tg = new THREE.Mesh(new THREE.PlaneGeometry(.03, .01), tm); const base = nb === k.B.neck2 ? R.neck2 : R.neck; tg.position.copy(R.throat).sub(base).addScaledVector(R.throatN, .0045);
     const zA = R.throatN.clone(), yA = R.colN.clone().addScaledVector(zA, -R.colN.dot(zA)).normalize(), xA = new THREE.Vector3().crossVectors(yA, zA); tg.quaternion.setFromRotationMatrix(katzen_M4.makeBasis(xA, yA, zA)); nb.add(tg); k.tag = tg; }
   k.ob = KATZEN_OB.map(n => k.B[n]).filter(Boolean); k.baseQ = k.ob.map(() => new THREE.Quaternion()); k.fadeT = 0; k.cached = false;
-  k.play = (n, fade = .3, ts = 1) => { const a = k.A[n]; if (!a) return; a.timeScale = ts; if (a === k.cur) return; k.fadeT = fade + .1; a.reset().play(); if (k.cur) { a.crossFadeFrom(k.cur, fade, false); } k.cur = a; k.curK = n; };
+  k.play = (n, fade = .3, ts = 1) => { const a = k.A[n]; if (!a) return; a.timeScale = ts; if (a === k.cur) return; if (fade > 0) fade = Math.max(.25, fade); k.fadeT = fade + .1; a.reset().play(); if (k.cur) { a.crossFadeFrom(k.cur, fade, false); } k.cur = a; k.curK = n; };
   k.play('sit', 0); k.mx.update(rand(0, 1));
   g.visible = true; g.position.set(0, -500, 0); // beim Laden sichtbar (Shader werden vorab übersetzt), weit unten
   katzen_S.cats.push(k); katzen_S.byName[d.name] = k; return k;
@@ -224,7 +224,7 @@ function katzen_hide(k) { k.on = false; k.st = 'aus'; k.g.visible = false; k.g.p
 function katzen_stare(k, p) { if (!k) return; k.stare = p ? (p.isVector3 ? p.clone() : new THREE.Vector3(p[0], p[1], p[2])) : null; }
 function katzen_goto(k, x, z, o = {}) { if (!k) return; k.tx = x; k.tz = z; k.ty = o.y != null ? o.y : null; k.lauf = !!o.lauf; k.frei = !!o.frei; k.then = o.dann || 'sit'; k.onArrive = o.fertig || null; if (k.st !== 'jump') { k.st = 'go'; } }
 function katzen_jumpTo(k, x, y, z, dann = 'sit') { if (!k || !k.on) return; const d = Math.hypot(x - k.x, z - k.z);
-  if (d > 1.2) { const a = Math.atan2(x - k.x, z - k.z); katzen_goto(k, x - Math.sin(a) * .55, z - Math.cos(a) * .55, { dann: 'jump' }); k.jTo = [x, y, z, dann]; return; }
+  if (d > 1.2) { const a = Math.atan2(x - k.x, z - k.z); katzen_goto(k, x - Math.sin(a) * .55, z - Math.cos(a) * .55, { dann: 'jump', frei: true }); k.jTo = [x, y, z, dann]; return; }
   k.jTo = [x, y, z, dann]; katzen_jumpStart(k); }
 function katzen_tragen(k) { if (!k) return; const S = katzen_S; if (S.carry && S.carry !== k) katzen_absetzen(S.carry); S.carry = k; k.st = 'carry'; k.arm = null; k.play('carry', .25); k.jump = null; keys.ShiftLeft = keys.ShiftRight = false;
   if (k.stare) katzen_fauch(k, k.stare, true); } // Beim Anheben: kurzes Fauchen in die Ecke, nicht auf Luke
@@ -290,6 +290,7 @@ function katzen_ground(x, z, yTop = .3) { try { const g = solidGround(x, yTop, z
 function katzen_perchY(x, z, yTop) { try { const y = leben_probe(x, z, yTop, .25, .6); return isFinite(y) ? y : 0; } catch (e) { return 0; } }
 function katzen_free(x, z) { try { return leben_free(x, z, .26, .13) && !leben_inHouse(x, z, .2); } catch (e) { return true; } }
 function katzen_in1(x, z) { return x > -56 && x < -44 && z > -22 && z < -12.1; }
+function katzen_angDiff(a, b) { const d = b - a; return Math.atan2(Math.sin(d), Math.cos(d)); }
 function katzen_ang(a, b, k) { let d = b - a; d = Math.atan2(Math.sin(d), Math.cos(d)); return a + d * Math.min(1, k); }
 function katzen_zone() { try { return leben_zone() === 'town'; } catch (e) { return !state.inBasement; } }
 function katzen_beobPos() { const S = katzen_S; if (S.simBeob) { S.beob.copy(S.simBeob); return true; }
@@ -328,7 +329,7 @@ function katzen_tick(dt, t, indoor) {
   const S = katzen_S, t0 = performance.now(); S.tick++; S.U.t.value = t;
   if (!S.ready) { S.wait = (S.wait || 0) + dt; if (!(SOL.items.length || S.wait > 8)) return; S.ready = true; for (const k of S.cats) if (!k.on) { k.g.visible = false; } }
   const kp = typeof kap === 'function' ? kap() : 1;
-  if (S.regie && state.started && kp !== S.kapSeen) { S.kapSeen = kp; katzen_auto(kp); if (S.kater.mode === 'folgen' && (kp === 5)) katzen_kater5('folgen'); }
+  if (S.regie && state.started && kp !== S.kapSeen) { S.kapSeen = kp; katzen_auto(kp); for (const f of S.nachRegie) { try { f(kp); } catch (e) { console.warn('katzen: nachRegie', e); } } if (S.kater.mode === 'folgen' && (kp === 5)) katzen_kater5('folgen'); }
   const town = katzen_zone() && state.started, P = player.pos;
   // Beobachter
   S.beobOk = town && katzen_beobPos();
@@ -375,8 +376,8 @@ function katzen_brain(k, dt, t, dCam, lampOn, kp) {
   const S = katzen_S, P = player.pos, dp = Math.hypot(k.x - P.x, k.z - P.z); k.t -= dt;
   if (k.avoidT > 0) { k.avoidT -= dt; if (k.avoidT <= 0) k.avoid = null; }
   switch (k.st) {
-    case 'carry': { const f = flatDir(); // linke Hand, unten links im Bild; Körper quer vor Luke
-      k.x = camera.position.x + f.x * .6 + f.z * .27; k.z = camera.position.z + f.z * .6 - f.x * .27; k.y = camera.position.y - .56; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
+    case 'carry': { const f = flatDir(); // linke Hand, an der Kamera: bleibt unten links im Bild, auch beim Blick nach unten; Körper quer vor Luke
+      katzen_V[4].set(-.27, -.5, -.52).applyQuaternion(camera.quaternion).add(camera.position); k.x = katzen_V[4].x; k.y = katzen_V[4].y - .12; k.z = katzen_V[4].z; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
       if (k.hissT > 0) { k.hissT -= dt; if (k.teeth) k.teeth.visible = k.hissT > 0; } return; }
     case 'arm': if (k.arm) { const o = k.arm.obj; o.updateWorldMatrix(true, false); katzen_V[0].copy(k.arm.off).applyMatrix4(o.matrixWorld); k.x = katzen_V[0].x; k.y = katzen_V[0].y; k.z = katzen_V[0].z; k.g.position.copy(katzen_V[0]); o.getWorldQuaternion(katzen_Q[0]); katzen_E.setFromQuaternion(katzen_Q[0], 'YXZ'); k.ry = katzen_E.y + PI / 2; k.g.rotation.y = k.ry; } return;
     case 'hiss': k.hissT -= dt; if (k.turnTo != null) { k.ry = katzen_ang(k.ry, k.turnTo, dt * 7); }
@@ -455,8 +456,11 @@ function katzen_move(k, dt) {
     if (d < .12 || (d < .4 && k.sp < .1)) { k.sp = 0; const n = k.then; if (n === 'jump' && k.jTo) { katzen_jumpStart(k); } else { k.st = n === 'sniff' ? 'sniff' : n === 'sit' ? 'sit' : n === 'loaf' ? 'loaf' : 'stand'; k.t = n === 'sniff' ? rand(1.2, 2.6) : rand(2, 6); k.play(k.st === 'sniff' ? 'stand' : k.st, .45); k.sniff = n === 'sniff' ? 1 : 0; }
       if (k.onArrive) { const f = k.onArrive; k.onArrive = null; try { f(k); } catch (e) {} } }
   } else if (k.turnTo != null && k.st !== 'hiss') k.ry = katzen_ang(k.ry, k.turnTo, dt * 3);
-  // Kopf zu weit gedreht → Körper weich nachdrehen (sitzend in kleinen Schritten)
-  if (k.st === 'sit' || k.st === 'stand') { const L = k.look; if (L.has && Math.abs(L.gy) > 1.25) { k.turnAcc = (k.turnAcc || 0) + dt; if (k.turnAcc > .8) { k.ry += Math.sign(L.gy) * Math.min(dt * 1.6, Math.abs(L.gy) - .6); } } else k.turnAcc = 0; }
+  // Kopf zu weit gedreht → Körper nachdrehen, aber mit Schritten auf der Stelle (kein Drehen ohne Fußarbeit)
+  if (k.st === 'sit' || k.st === 'stand') { const L = k.look; if (L.has && Math.abs(L.gy) > 1.25) { k.turnAcc = (k.turnAcc || 0) + dt; if (k.turnAcc > .8) { k.ry += Math.sign(L.gy) * Math.min(dt * 1.5, Math.abs(L.gy) - .6); } } else k.turnAcc = 0; }
+  const yr = katzen_angDiff(k.ryPrev == null ? k.ry : k.ryPrev, k.ry) / Math.max(dt, .001); k.ryPrev = k.ry; k.yawRate = yr;
+  if (k.st !== 'go' && k.st !== 'jump' && k.st !== 'carry' && k.st !== 'arm' && k.st !== 'hiss' && Math.abs(yr) > .35) { if (k.curK !== 'walk') { k.stepBack = k.curK; k.play('walk', .25, .5); } k.stepT = .35; }
+  else if (k.stepT > 0) { k.stepT -= dt; if (k.stepT <= 0 && k.stepBack && k.curK === 'walk' && k.st !== 'go') { k.play(k.stepBack === 'walk' ? 'stand' : k.stepBack, .35); k.stepBack = null; } }
   k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
 }
 
@@ -474,7 +478,11 @@ function katzen_overlay(k, dt, t, dCam) {
   let wy = 0, wp = 0; if (L.has) { const hx = k.x + Math.sin(k.ry) * .2 * k.size, hz = k.z + Math.cos(k.ry) * .2 * k.size, hy = k.y + (k.st === 'sit' ? .3 : .24) * k.size;
     const dx = L.goal.x - hx, dz = L.goal.z - hz, dy = L.goal.y - hy; let a = Math.atan2(dx, dz) - k.ry; a = Math.atan2(Math.sin(a), Math.cos(a)); wy = Math.max(-1.45, Math.min(1.45, a)); wp = Math.max(-.6, Math.min(.5, Math.atan2(dy, Math.hypot(dx, dz)))); L.gy = a; }
   if (k.sniff > 0) { wp = -.55; } if (k.lick > 0) { k.lick -= dt; wp = -.62 + Math.sin(t * 9) * .08; if (k.teeth) k.teeth.visible = false; }
-  const rate = L.has ? 9 : 3; L.y += (wy - L.y) * Math.min(1, dt * rate); L.p += (wp - L.p) * Math.min(1, dt * rate);
+  // ohne Ziel: kurze Blicke in die Umgebung (Mikrobewegung), Kopf federt kritisch gedämpft mit leichtem Nachschwingen (Q-11)
+  if (!L.has && k.sniff <= 0 && k.lick <= 0 && k.st !== 'sleep' && k.st !== 'go') { k.glT = (k.glT || 0) - dt; if (k.glT < 0) { k.glT = rand(1.8, 5.5); k.glY = Math.random() < .3 ? 0 : rand(-.75, .75); k.glP = rand(-.18, .12); } wy = k.glY || 0; wp = k.glP || 0; }
+  const w = L.has ? 11 : 6, z = .72, ddt = Math.min(dt, .05); L.vy = (L.vy || 0) + (w * w * (wy - L.y) - 2 * z * w * (L.vy || 0)) * ddt; L.y += L.vy * ddt; L.vp = (L.vp || 0) + (w * w * (wp - L.p) - 2 * z * w * (L.vp || 0)) * ddt; L.p += L.vp * ddt;
+  // Gewichtsverlagerung im Stand/Sitz: langsames Wiegen der Wirbelsäule
+  if (k.st === 'sit' || k.st === 'stand' || k.st === 'sniff') { k.sway = (k.sway || rand(0, 6)) + dt * .9; const hq0 = katzen_Q[1].copy(k.B.hips.quaternion); katzen_rotBone(k, k.B.spine1, hq0, katzen_AX.z, Math.sin(k.sway) * .03); }
   const pq = katzen_chainQ(k, KATZEN_NECK, katzen_Q[0]);
   if (Math.abs(L.y) > .001 || Math.abs(L.p) > .001) { katzen_rotBone(k, k.B.neck2, pq, katzen_AX.y, L.y * .42); const pq2 = pq.multiply(k.B.neck2.quaternion);
     const R = katzen_Q[4].setFromAxisAngle(katzen_AX.y, L.y * .58).multiply(katzen_Q[2].setFromAxisAngle(katzen_AX.x, -L.p)), pi = katzen_Q[3].copy(pq2).invert(); k.B.head.quaternion.premultiply(pi.multiply(R).multiply(pq2)); }
@@ -484,8 +492,12 @@ function katzen_overlay(k, dt, t, dCam) {
   if (tw > .01 && k.st !== 'hiss') { const hq = katzen_chainQ(k, KATZEN_HEAD, katzen_Q[1]); if (E.side > 0) katzen_rotBone(k, k.B.earL, hq, katzen_AX.z, -tw); else katzen_rotBone(k, k.B.earR, hq, katzen_AX.z, tw); }
   // Schwanz: wandernde Welle; beim Starren zuckt die Spitze; beim Gehen höher und ruhiger
   const T = k.tail, stare = !!(k.stare || L.has); T.ph += dt * (stare ? 5.5 : k.st === 'go' ? 3 : 1.6); const amp = k.st === 'hiss' || k.st === 'carry' ? 0 : k.st === 'sleep' ? .03 : stare ? .22 : k.st === 'go' ? .14 : .1;
-  if (amp > 0) { const tq = katzen_chainQ(k, KATZEN_TAIL, katzen_Q[1]); katzen_rotBone(k, k.B.tail2, tq.multiply(k.B.tail1.quaternion), katzen_AX.y, Math.sin(T.ph) * amp * .5); tq.multiply(k.B.tail2.quaternion);
-    katzen_rotBone(k, k.B.tail3, tq, katzen_AX.y, Math.sin(T.ph - .8) * amp); tq.multiply(k.B.tail3.quaternion); katzen_rotBone(k, k.B.tail4, tq, katzen_AX.y, Math.sin(T.ph - 1.6) * amp * 1.5); }
+  // Feder-Pendel: Drehung und Tempowechsel des Körpers schwingen im Schwanz nach (Trägheit), darüber die eigene Welle
+  { const ddt = Math.min(dt, .05), acc = ((k.sp || 0) - (T.spPrev || 0)) / Math.max(dt, .001); T.spPrev = k.sp || 0;
+    const ty = -(k.yawRate || 0) * .28, tp = Math.max(-.5, Math.min(.5, -acc * .35)); T.v = (T.v || 0) + (38 * (ty - (T.s || 0)) - 4.2 * (T.v || 0)) * ddt; T.s = (T.s || 0) + T.v * ddt; T.vp = (T.vp || 0) + (30 * (tp - (T.p || 0)) - 3.6 * (T.vp || 0)) * ddt; T.p = (T.p || 0) + T.vp * ddt; }
+  if (amp > 0 || Math.abs(T.s) > .002 || Math.abs(T.p) > .002) { const s = k.st === 'carry' ? 0 : 1, tq = katzen_chainQ(k, KATZEN_TAIL, katzen_Q[1]); katzen_rotBone(k, k.B.tail1, tq, katzen_AX.x, T.p * .5 * s); tq.multiply(k.B.tail1.quaternion);
+    katzen_rotBone(k, k.B.tail2, tq, katzen_AX.y, (Math.sin(T.ph) * amp * .5 + T.s * .5) * s); tq.multiply(k.B.tail2.quaternion);
+    katzen_rotBone(k, k.B.tail3, tq, katzen_AX.y, (Math.sin(T.ph - .8) * amp + T.s * .8) * s); tq.multiply(k.B.tail3.quaternion); katzen_rotBone(k, k.B.tail4, tq, katzen_AX.y, (Math.sin(T.ph - 1.6) * amp * 1.5 + T.s) * s); }
   // Atmung (Bauch), im Schlaf langsamer und tiefer
   k.breath += dt * (k.st === 'sleep' ? 2.6 : k.st === 'go' ? 7 : 4.2); const br = 1 + Math.sin(k.breath) * (k.st === 'sleep' ? .05 : .025); if (k.B.belly) k.B.belly.scale.set(k.bellyS.x * br, k.bellyS.y * br, k.bellyS.z);
   if (k.sniff > 0) k.sniff = Math.max(0, k.sniff - dt * (k.lick > 0 ? 0 : .5));

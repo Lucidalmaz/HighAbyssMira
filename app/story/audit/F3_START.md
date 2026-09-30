@@ -28,3 +28,7 @@ Nutzerauftrag (wörtlich): „Lies dann app/story/story_final.md. Das ist ab jet
 
 ## Qualitätsanspruch des Nutzers (gilt für JEDES Paket, schon beim Bauen)
 Lies `app/story/audit/F3_extras.md`, Abschnitte X-4 und Q-1 bis Q-8. Kurz: Die Welt darf nie leer oder generiert wirken – jeder Raum, den du baust oder anfasst, wird detailreich und „bewohnt“ eingerichtet (echte Scans, Kleinkram, Gebrauchsspuren, Licht mit Quelle), jede Außenfläche lebendig; Story-Wesen und Figuren bewegen sich natürlich und organisch (kein Gleiten, keine starren Posen, Atmung, Blick); Oberflächen wirken wie echte Gegenstände (Papier, Stempel, Handschrift). Die Atmosphäre ist durchgehend gruselig und mysteriös. Haare: Justin braune Locken, Mira dunkelbraune Locken mit scharlachrotem Schimmer. Mache nach dem Bauen einen Screenshot-Rundgang aus Spielerhöhe (mit und ohne Taschenlampe) und bessere nach, bis kein Bild leer wirkt – im Rahmen von ≥ 60 FPS.
+
+## Bewegung: Motion-Capture-Bibliothek (ab 30.09.2026, verbindlich mit Q-11)
+- Rohdaten: `C:\Users\GIGABYTE\HAM_FabDownloads\v15_mocap\x\` (Motifect Locomotion/Injured/Emotes, Mocap.in Acting/Mobility, Animation Shopee Einzelclips, Toei Zukun, Look-Window, Klian Smoking mit Fingern + Getting Up, Zombie, Leichen-Posen) + `v6` (Motifect Daily Life, Shibuya-Idle).
+- Zuständig für Retargeting, `cast.json`-Animationen, `forge.html` und die Bewegungsschicht in `figuren.js`: Agent AP-MOCAP. Katalog und API: `app/story/audit/F3_stand_mocap.md`. Andere Agenten ändern diese Dateien nicht, sondern melden fehlende Clips im Bericht.

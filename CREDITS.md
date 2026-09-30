@@ -65,6 +65,9 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Dirty white blanket | Axonite | Kinderdecke (Zayns Hütte) | https://www.fab.com/listings/240a6cfa-86da-468a-8f4a-e424d856c714 |
 | Realistic Eye Models (High&Low Poly) | Leo3DCG | Augen der Figuren | https://www.fab.com/listings/798994c9-c118-43b3-ac34-12b251c08821 |
 | Eyelashes | kuroru0 | Wimpern der Figuren | https://www.fab.com/listings/64d912d8-42b2-4c7a-8d4b-d3b61252bfdf |
+| Animation - Smoking 01 (Rokoko-Mocap mit Fingern) | Klian | Rauchbewegung (Joint-Szene, Figuren) | https://www.fab.com/listings/dda0061d-676f-45aa-b130-cb0e6ea29c19 |
+| Animation - Getting Up 01 | Klian | Aufstehen vom Boden | https://www.fab.com/listings/69dae222-05e9-4065-9030-45887986cdec |
+| Animation - Getting Up 02 | Klian | Aufstehen vom Boden | https://www.fab.com/listings/c2aa23c5-0bea-4a9c-9586-2a5215f2b466 |
 
 ## Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)
 | Werk | Urheber | Verwendung im Spiel | Sketchfab |
@@ -81,7 +84,8 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)
-- **Motifect** – Daily Life Motion Pack · **Animpacks** – Look Through Window Animation Pack
+- **Motifect** – Daily Life, Locomotion, Emotes & Social, Injured & Exhausted Motion Packs · **Animpacks** – Look Through Window Animation Pack
+- Motion-Capture: **Mocap.in** (Realistic Acting, Character Mobility, Movement & Mobility) · **Animation Shopee** (Serious conversation, Conversation While sit, Sits on stool and Drinks, Lying on the floor, Run like hell, Dying, Disappointed, Doing something strange, hung onto something, kneel down and dead, Walks backward, cheering up someone) · **Toei Zukun Laboratory** (Standing Idle Motion, Free Motion Set) · **nikoff** (Dead Bodies Sitting & Lying Poses) · **Teddy Goldstien** (UEFN Manny Zombie) · **BTM productions** (Zombie Idle x2) · **DZTFIX KATSU** (Dynamic Falling & Rolling)
 - **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin
 - **Guy in a Poncho** – Old Book (Dienstbuch) · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
 - **Epic Games** – Unreal Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein)
