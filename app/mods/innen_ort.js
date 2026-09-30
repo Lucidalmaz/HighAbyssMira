@@ -550,3 +550,6 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   S.ready = true; window.__innen_ort = S; // nur für Selbsttests lesbar
 }]);
 WORLD_TICK.push((dt, t, indoor) => { const S = innen_ort_S; if (!S.ready) return; try { S.tick(dt, t, indoor); } catch (e) { if (!S.err) { S.err = 1; console.warn('innen_ort tick', e); } } });
+// Fülllicht mit Quelle (AP Welt/Licht, visual_identity.md): Nachts fällt kaltes Mond-/Laternenlicht durch die Fenster von Nr. 7 und Nr. 1 – die Räume lesen sich als Räume,
+// ohne Taschenlampe bleibt es dunkel genug für den Horror. Nur Intensität der vorhandenen Hemisphäre (keine Lichter); im Keller (keine Fenster) nichts.
+if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push((dt, indoor, rect) => { if (!rect || state.inBasement) return; const x = player.pos.x, z = player.pos.z, h7 = inRect(s7, x, z); if (!h7 && !inRect(s1, x, z)) return; hemi.intensity += (h7 ? .11 : .08) * (state.outage ? .6 : 1) * (1 - ENV_DARK * .6); }); // Raumrechtecke sind je Zimmer eigene Objekte → Hausgrenzen prüfen

@@ -746,8 +746,8 @@ const filmPass = new ShaderPass({
       // Fußbereich anheben: Schwarz bleibt schwarz, tiefe Schatten werden lesbar (Helligkeitsregler wirkt zusätzlich über die Belichtung)
       c += toe * c * pow(1. - c, vec3(8.));
       float l = dot(c, vec3(.2126, .7152, .0722));
-      c = mix(c, c * vec3(.94, 1.0, 1.06), (1. - smoothstep(0., .45, l)) * .5);
-      c = mix(c, c * vec3(1.03, 1.0, .95), smoothstep(.45, 1., l) * .3);
+      c = mix(c, c * vec3(.9, 1.0, 1.12), (1. - smoothstep(0., .45, l)) * .6); /* Bildsprache (docs/gameplay/visual_identity.md): Schatten kalt-blau, Lichter natriumwarm */
+      c = mix(c, c * vec3(1.07, 1.0, .88), smoothstep(.3, 1., l) * .38);
       c = mix(vec3(l), c, .9);
       c = clamp(c, 0., 1.); c = mix(c, c * c * (3. - 2. * c), .08);
       c += vec3(.003, .004, .006) * (1. - l);
@@ -1030,6 +1030,8 @@ scene.background = null;
 
 // =====================================================================  LICHT
 const hemi = new THREE.HemisphereLight(0x3d4c72, 0x0a0806, .55); scene.add(hemi);
+// Licht-Haken: Module setzen Hemisphäre/Spiegelung/Mond/Belichtung ihres Ortes hier – je Bild NACH der Basis-Lichtzeile, VOR den Takten. fn(dt, indoor, rect, indoorK) → nichts
+const LICHT_HAKEN = [];
 const moon = new THREE.DirectionalLight(0x9fb2e6, .6);
 moon.position.copy(moonDir).multiplyScalar(90); moon.castShadow = true;
 moon.shadow.mapSize.set(2048, 2048);
@@ -1423,7 +1425,7 @@ const poolTex = tex(cnv(128, (c, w) => { const g = c.createRadialGradient(w / 2,
 // Pool echter Laternenlichter (die zwei nächsten mit Schatten). Wechsel werden überblendet (~0,4 s): das echte Licht blendet aus,
 // das additive Bodenlicht (Decal) derselben Laterne gleichzeitig ein – nie ein hartes An/Aus.
 const lampPool = [0, 1, 2, 3].map(i => {
-  const l = new THREE.SpotLight(0xffb46a, 0, 26, 1.05, .75, 1.9); scene.add(l, l.target);
+  const l = new THREE.SpotLight(0xff9f4c, 0, 26, 1.05, .75, 1.9); /* Natriumdampf (visual_identity.md) */ scene.add(l, l.target);
   if (i < 2) { l.castShadow = true; l.shadow.mapSize.set(1024, 1024); l.shadow.bias = -.0008; l.shadow.autoUpdate = false; l.shadow.camera.near = .5;
     // Schattenkamera nur 16 m tief (der Lichtkegel trifft den Boden in ≤ ~10 m): weniger Objekte je Schattenbild
     l.shadow.updateMatrices = function (light) { const cam = this.camera, fov = THREE.MathUtils.RAD2DEG * 2 * light.angle * this.focus; if (fov !== cam.fov || cam.far !== 16 || cam.aspect !== 1) { cam.fov = fov; cam.aspect = 1; cam.far = 16; cam.updateProjectionMatrix(); } _lightShadowUpd.call(this, light); }; }
@@ -1521,9 +1523,9 @@ function lamp(x, z, ax, az, mode = 'on', shadow = false) {
   const hx = ax * 1.7, hz = az * 1.7;
   box(ax ? 1.8 : .06, .06, az ? 1.8 : .06, hx / 2, 5.3, hz / 2, M.metal, { parent: g });
   box(.4, .16, .55, hx, 5.22, hz, M.metal, { parent: g });
-  const bulbMat = new THREE.MeshStandardMaterial({ color: 0, emissive: 0xffc07a, emissiveIntensity: 4 });
+  const bulbMat = new THREE.MeshStandardMaterial({ color: 0, emissive: 0xffb262, emissiveIntensity: 4 });
   const bulb = new THREE.Mesh(new THREE.BoxGeometry(.28, .04, .42), bulbMat); bulb.position.set(hx, 5.12, hz); g.add(bulb);
-  const decal = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), new THREE.MeshBasicMaterial({ map: poolTex, color: 0xffb46a, transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const decal = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), new THREE.MeshBasicMaterial({ map: poolTex, color: 0xff9f4c, transparent: true, opacity: .5, blending: THREE.AdditiveBlending, depthWrite: false }));
   decal.rotation.x = -PI / 2; decal.position.set(x + hx + ax * .6, .2, z + hz + az * .6); scene.add(decal);
   const cm = coneMat();
   const cone = new THREE.Mesh(new THREE.CylinderGeometry(.18, 3.3, 5, 32, 1, true), cm); cone.position.set(hx, 2.6, hz); g.add(cone);
@@ -1732,8 +1734,8 @@ const fogUniforms = { time: { value: 0 }, color: { value: FOG.clone().multiplySc
   flP: { value: new THREE.Vector3() }, flD: { value: new THREE.Vector3(0, 0, -1) }, flK: { value: new THREE.Vector2() } }; // Taschenlampe streut im Bodennebel (x = Stärke, y = cos Öffnungswinkel)
 const fogMat = new THREE.ShaderMaterial({
   transparent: true, depthWrite: false, uniforms: fogUniforms,
-  vertexShader: `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-  fragmentShader: `uniform float time, strength; uniform vec3 color, camPos, flP, flD; uniform vec2 flK; uniform vec4 holes[2]; uniform vec4 lamps[10]; varying vec3 vW;
+  vertexShader: `varying vec3 vW; varying vec2 vU; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; vU = uv; gl_Position = projectionMatrix * viewMatrix * w; }`,
+  fragmentShader: `uniform float time, strength; uniform vec3 color, camPos, flP, flD; uniform vec2 flK; uniform vec4 holes[2]; uniform vec4 lamps[10]; varying vec3 vW; varying vec2 vU;
     float h2(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     float n2(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h2(i), h2(i + vec2(1, 0)), f.x), mix(h2(i + vec2(0, 1)), h2(i + vec2(1, 1)), f.x), f.y); }
     float fbm(vec2 p){ float v = 0., a = .5; for (int i = 0; i < 5; i++){ v += a * n2(p); p *= 2.1; a *= .5; } return v; }
@@ -1743,6 +1745,7 @@ const fogMat = new THREE.ShaderMaterial({
       float n = fbm(p * .07 + vec2(time * .02, time * .01)) * fbm(p * .16 - vec2(time * .03, -time * .01) + 3.);
       float dist = distance(vW, camPos);
       float a = smoothstep(.12, .42, n) * strength * smoothstep(.8, 5., dist) * (1. - smoothstep(40., 75., dist));
+      vec2 eU = min(vU, 1. - vU); a *= smoothstep(0., .12, min(eU.x, eU.y)) * mix(.3, 1., smoothstep(.012, .1, abs(camPos.y - vW.y) / max(dist, .01))); // Bodennebel: weicher Rand der Schicht, streifend gesehen dünner (keine harten Bänder am Horizont)
       vec3 c = color;
       for (int i = 0; i < 10; i++){ vec4 L = lamps[i]; float dd = distance(p, L.xz); c += vec3(1., .6, .28) * L.w * exp(-dd * dd / 14.) * .9; }
       if (flK.x > 0.) { vec3 fv = vW - flP; float fd = max(length(fv), .01); c += vec3(1., .94, .86) * flK.x * smoothstep(flK.y, mix(flK.y, 1., .6), dot(fv / fd, flD)) / (1. + fd * fd * .35) * .16; } // Nebel im Lichtkegel hell statt dunkler Schleier
@@ -3441,7 +3444,7 @@ const ch2 = { on: false, power: false, archiveSolved: false, fuseOpen: false, sp
 const c2Lights = [];
 function c2Tube(x, z, len, axis = 'x', color = 0xd8ecff, intensity = 1.6, dist = 7) {
   const tube = box(axis === 'x' ? len : .1, .05, axis === 'x' ? .1 : len, x, C2.h - .04, z, new THREE.MeshStandardMaterial({ color: 0x111111, emissive: color, emissiveIntensity: 2.2 }), { cast: false });
-  const l = new VLight(color, intensity, dist, 2); l.position.set(x, C2.h - .3, z); scene.add(l);
+  intensity *= 3.2; const l = new VLight(color, intensity, dist, 2); l.position.set(x, C2.h - .3, z); scene.add(l); // ×3,2: die Röhre soll den Raum sichtbar ausleuchten, nicht nur selbst glühen (Werte waren Leuchtdichte ohne Wirkung)
   const L = { tube, l, base: intensity, mode: 'on', flick: 0, k: 1 }; c2Lights.push(L); return L;
 }
 function c2Room(x0, x1, z0, z1, gaps = {}, wallMat = M.block, floorMat = M.concrete) {
@@ -5691,6 +5694,7 @@ function update(dt, t) {
   scene.environmentIntensity = state.inBasement ? 0 : THREE.MathUtils.lerp(.45, .03, indoorK);
   moon.intensity = state.inBasement || state.zone === 'canal' ? 0 : (.6 + lightBoost * 4) * (1 - ENV_DARK * .75);
   if (state.zone === 'canal') hemi.intensity = .22 + lightBoost;
+  for (let i = 0; i < LICHT_HAKEN.length; i++) { try { LICHT_HAKEN[i](dt, indoor, rect, indoorK); } catch (e) { if (!LICHT_HAKEN[i].err) { LICHT_HAKEN[i].err = 1; console.error('Licht-Haken', e); } } }
   const area = state.inBasement ? 'b' : indoor ? 'i' : 'o';
   if (area !== lastArea) { lastArea = area; Audio.setArea(indoor, state.inBasement); }
   rain.m.visible = !indoor && state.zone !== 'canal';

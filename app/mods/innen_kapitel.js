@@ -524,3 +524,8 @@ WORLD_TICK.push((dt, t) => {
       const l = new VLight(0x9fb8d8, 1.4, 7, 2); l.position.set(x, gy + 4.5, z); scene.add(l);
     } catch (e) { console.warn('innen_kapitel Leiter', e); } }
 });
+// Fülllicht Amt (AP Welt/Licht): brennt eine Röhre in der Nähe, hellt ihr Streulicht von Decke und Wänden den Raum leicht auf (Hemisphäre, keine Lichter).
+// Ohne Strom/bei toten Röhren bleibt es schwarz – Licht nur mit Quelle.
+if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push(() => { if (!ch2.on || !state.inBasement) return; const P = camera.position; if (Math.abs(P.x - C2.x) > 260 || Math.abs(P.z - C2.z) > 260) return; let f = 0;
+  for (let i = 0; i < c2Lights.length; i++) { const L = c2Lights[i], dx = L.l.position.x - P.x, dz = L.l.position.z - P.z, d2 = dx * dx + dz * dz; if (d2 < 81 && L.l.intensity > 0) f = Math.max(f, Math.min(1, L.l.intensity / L.base) * (1 - d2 / 81)); }
+  hemi.intensity += .13 * f; });

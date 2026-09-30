@@ -674,6 +674,11 @@ function leben_buzzMake() {
 
 // =====================================================================  MOTTEN: auch an den neuen Laternen, an Verandalampen – und in deinem Lichtkegel
 function leben_mothSetup() {
+  { // Motten als weiche, runde Sprites (vorher weiße Quadrate): heller Körper, weich auslaufender Flügelschein; warm, weil sie im Natriumlicht fliegen
+    const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'), g = x.createRadialGradient(16, 16, 0, 16, 16, 16);
+    g.addColorStop(0, 'rgba(255,250,240,1)'); g.addColorStop(.3, 'rgba(236,222,196,.8)'); g.addColorStop(.7, 'rgba(220,200,170,.22)'); g.addColorStop(1, 'rgba(220,200,170,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32);
+    const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+    for (const mt of [moths.m.material, mothBurst.m.material]) { mt.map = tx; mt.alphaTest = .02; mt.size *= 1.7; mt.needsUpdate = true; } moths.m.material.color.setHex(0xffe6c4); }
   const S = leben_S, base = new Set(moths.data.map(d => d.L)), data = [];
   for (const L of lamps) if (!base.has(L)) for (let i = 0; i < 10; i++) data.push({ L, pl: null, P: null, ph: rand(0, 6.28), r: rand(.25, .9), sp: rand(1.5, 4), h: rand(-.6, .1) });
   for (const pl of porchLights) { const P = new THREE.Vector3(); for (let i = 0; i < 6; i++) data.push({ L: null, pl, P, ph: rand(0, 6.28), r: rand(.12, .42), sp: rand(2, 4.5), h: rand(-.25, .15) }); }
@@ -689,7 +694,8 @@ function leben_mothTick(dt, t, indoor) {
   for (let i = 0; i < M_.data.length; i++) { const d = M_.data[i]; let on, cx, cz, cy;
     if (d.L) { on = d.L.k > .3; cx = d.L.wx; cz = d.L.wz; cy = 4.85; } else { on = !d.pl.dead && d.pl.light.intensity > 1; cx = d.P.x; cz = d.P.z; cy = d.P.y; }
     if (!town || !on || Math.abs(cx - cam.x) > 45 || Math.abs(cz - cam.z) > 45) { M_.pos[i * 3 + 1] = -50; continue; }
-    const a = t * d.sp + d.ph; M_.pos[i * 3] = cx + Math.cos(a) * d.r + Math.sin(t * 7 + d.ph) * .05; M_.pos[i * 3 + 1] = cy + d.h + Math.sin(t * 5 + d.ph) * .15; M_.pos[i * 3 + 2] = cz + Math.sin(a * 1.3) * d.r; }
+    const a = t * d.sp + d.ph + Math.sin(t * 1.7 + d.ph * 3) * 1.2, rr = d.r * (.65 + .35 * Math.sin(t * 2.3 + d.ph * 5)); // unruhiger Flug: Richtungswechsel und Abstand zum Licht schwanken
+    M_.pos[i * 3] = cx + Math.cos(a) * rr + Math.sin(t * 7 + d.ph) * .05; M_.pos[i * 3 + 1] = cy + d.h + Math.sin(t * 5 + d.ph) * .12 + Math.sin(t * 13.1 + d.ph * 2) * .04; M_.pos[i * 3 + 2] = cz + Math.sin(a * 1.3) * rr; }
   M_.m.geometry.attributes.position.needsUpdate = true;
   // Taschenlampe: wer still steht, bekommt Besuch
   const F = S.fm; F.nT -= dt; if (F.nT < 0) { F.nT = .5; F.near = 0; for (const L of lamps) if (L.k > .3 && Math.hypot(L.wx - player.pos.x, L.wz - player.pos.z) < 7) { F.near = 1; break; } }

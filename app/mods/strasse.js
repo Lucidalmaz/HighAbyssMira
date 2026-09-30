@@ -473,6 +473,15 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     if (tr) tr.userData.noCol = true;
     place('SM_ToyRobot', .22, 22.8, .14, 5.72, PI + .4, 'Blechroboter', 'Ein Blechroboter. Die Augen sind rot nachgemalt – die Farbe ist noch nicht trocken.');
     const b1 = toy('SM_ToyCube_01a', .06), b2 = toy('SM_ToyCube_02a', .06); if (b1) msPlace(b1, -46.4, .14, -5.4, .5); if (b2) msPlace(b2, -46.28, .14, -5.3, 1.3); }
+  // =====================================================================  NASSES LAUB IM RINNSTEIN (AP Welt: Oktober, Dauerregen – das Wasser schwemmt die Blätter an die Bordsteinkante
+  // und vor die Kanaldeckel; dort bleiben sie als Haufen liegen). Echter Scan (w_leaves), EINE Instanz-Gruppe, Distanz-Abschaltung über S.far, ohne Kollision.)
+  try { const parts = await msBake('w_leaves', 'model.glb'); if (parts.length) { const bb = new T.Box3(); for (const p of parts) { p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); }
+      const sz = bb.getSize(new T.Vector3()), k0 = 1.5 / Math.max(sz.x, sz.z), spots = [], rr = (a, b) => a + Math.random() * (b - a);
+      for (const L of lamps) if (Math.abs(L.wz) < 9 && Math.abs(L.wx) < 76) spots.push([L.wx + rr(-1.8, 1.8), (L.wz < 0 ? -1 : 1) * 3.52]);
+      for (const [x, z] of [[-2.1, -38.5], [66, 1.3], [-12, -1.6]]) spots.push([x + rr(-.9, .9), z + rr(-.6, .6)]);
+      const mats = spots.map(([x, z]) => { const k = k0 * rr(.75, 1.15); return msM4(x, -bb.min.y * k * .55 + .005, z, rr(0, 6.28), new T.Vector3(k * rr(.9, 1.2), k * .55, k * rr(.7, 1))); });
+      const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); } }
+      (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; } } catch (e) { warn(e); }
 }]);
 WORLD_TICK.push((dt, t, indoor) => {
   const S = strasse_S;

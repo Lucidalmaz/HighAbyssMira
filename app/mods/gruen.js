@@ -63,6 +63,14 @@ vec2 gRip(vec2 p, float t){ vec2 acc = vec2(0.);
     acc += d / r * sin((r - R) * 60.) * w; }
   return acc; }
 float gPud = 0., gWet = 0.;
+// Nasse Straße: Natrium-Laternen spiegeln sich als lange, weiche Streifen (die zehn nächsten Laternen, dieselben wie der Nebelschein; Spiegelpunkt zwischen Kamera und Laternenfuß)
+uniform vec4 gLamps[10];
+vec3 gStreak(vec3 P, float wet, float pud){ vec3 v = normalize(P - cameraPosition); float rEl = asin(clamp(-v.y, 0., 1.)); vec2 rh = normalize(v.xz + 1e-5), acc = vec2(0.);
+  float sa = mix(.03, .011, pud), se = mix(.3, .1, pud);
+  for (int i = 0; i < 10; i++){ vec4 L = gLamps[i]; if (L.w < .02) continue; vec2 lh = L.xz - P.xz; float dh = length(lh); if (dh < .5) continue; lh /= dh;
+    float c = dot(rh, lh); if (c < .5) continue; float daz = rh.x * lh.y - rh.y * lh.x, del = atan(5.1 - P.y, dh) - rEl; // Spiegelung: seitlich eng, in der Höhe weit gezogen (Rauheit) → senkrechter Streifen unter der Laterne
+    acc.x += L.w * exp(-daz * daz / (sa * sa) - del * del / (se * se)) * smoothstep(55., 20., dh); }
+  return vec3(1., .56, .22) * acc.x * mix(.08, .4, wet) * (1. + 1.5 * pud); }
 `;
 const gruen_VERT = s => 'varying vec3 gW;\n' + s.replace('#include <begin_vertex>', `#include <begin_vertex>
   #ifdef USE_INSTANCING
@@ -75,7 +83,7 @@ const gruen_RIP = `if (gPud > .002) { vec2 rp = gRip(gW.xz, gT) * gRipK; vec3 wn
 function gruen_surf(mat, mode, texA, texB) {
   const open = gruen_AREAS.map(([a, b, c, e]) => `gRect(q, vec4(${a.toFixed(1)}, ${b.toFixed(1)}, ${c.toFixed(1)}, ${e.toFixed(1)}))`).reduce((s, r) => s ? `max(${s}, ${r})` : r, '');
   mat.onBeforeCompile = sh => {
-    Object.assign(sh.uniforms, { gT: gruen_S.uT, gMode: { value: mode }, gTexA: { value: texA }, gTexB: { value: texB }, gRipK: { value: .3 } });
+    Object.assign(sh.uniforms, { gT: gruen_S.uT, gMode: { value: mode }, gTexA: { value: texA }, gTexB: { value: texB }, gRipK: { value: .3 }, gLamps: fogUniforms.lamps });
     sh.vertexShader = gruen_VERT(sh.vertexShader);
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
 ${gruen_GLSL}
@@ -114,7 +122,8 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
         }
       }`)
     .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(gMode < .5 ? 1. : roughnessFactor * (gMode < 1.5 ? .75 : .9), roughnessFactor * .42, gWet); roughnessFactor = mix(roughnessFactor, .1, gPud);')
-    .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP);
+    .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP)
+    .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n if (gMode > .5 && gMode < 2.5) totalEmissiveRadiance += gStreak(gW, gWet * (gMode < 1.5 ? 1. : .6) + .35, gPud);');
   };
   mat.customProgramCacheKey = () => 'gruenSurf'; mat.needsUpdate = true; return mat;
 }
@@ -458,9 +467,9 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const lm = gruen_mask('leaf'), pmk = gruen_mask('pud');
     const leafMat = gruen_decalMat('leaves/', 0xd2b894, lm), mudMat = gruen_decalMat('forestfloor/', 0x4a4038, lm, .4, -3);
-    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .1, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: .6 });
-    pudMat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { gT: gruen_S.uT, gRipK: { value: .4 } }); sh.vertexShader = gruen_VERT(sh.vertexShader);
-      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + gruen_GLSL + 'uniform float gRipK;').replace('#include <map_fragment>', '#include <map_fragment>\n gPud = 1.;').replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP); };
+    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .15, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: .6 });
+    pudMat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { gT: gruen_S.uT, gRipK: { value: .24 }, gLamps: fogUniforms.lamps }); sh.vertexShader = gruen_VERT(sh.vertexShader);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + gruen_GLSL + 'uniform float gRipK;').replace('#include <map_fragment>', '#include <map_fragment>\n gPud = 1.;').replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP).replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += gStreak(gW, 1., 1.) * opacity;'); };
     pudMat.customProgramCacheKey = () => 'gruenPud';
     const leaves = [], mud = [], pud = [];
     for (const s of [-1, 1]) { for (let x = -75; x < 75; x += rand(2.5, 6)) if (Math.abs(x) > 5) leaves.push([x, .024, s * rand(3.6, 3.8), rand(-.1, .1), rand(1.2, 2.6), rand(.35, .6)]);   // Rinnstein

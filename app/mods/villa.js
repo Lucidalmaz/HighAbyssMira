@@ -900,9 +900,9 @@ function villa_tagTick() { const T = VILLA.tag, kinoAn = typeof kino_S !== 'unde
   if (rain && rain.m) rain.m.visible = false; }
 
 // Licht Kap. 4 über den Basis-Haken (LICHT_HAKEN, je Bild nach der Basis-Lichtzeile): tagsüber steht die Hemisphäre drinnen für das Fensterlicht –
-// die alten Werte (Halle .6, Räume .3–.45) waren physikalisch Dämmerung, die Räume lasen sich schwarz. Faktor 6 auf die Raumwerte, Halle 2,6 (hohe Fenster); Kühlraum bleibt fast dunkel.
+// die alten Werte (Halle .6, Räume .3–.45) waren physikalisch Dämmerung, die Räume lasen sich schwarz. Faktor 9 auf die Raumwerte, Halle 4,2 (Deckenlicht oben + Stehlampe; dunkle Scan-Tapeten schlucken viel), drinnen Belichtung 1,2; Kühlraum bleibt fast dunkel.
 function villa_tagLicht(dt, indoor, rect, k) { const T = VILLA.tag; if (!T || !T.an) return; const drin = !!VILLA.raum || (typeof anwesen_S !== 'undefined' && anwesen_S.inHall);
-  hemi.intensity = drin ? (VILLA.raum ? VILLA.amb * 6 : 2.6) : .95 * (1 - k) + .32 * k; moon.intensity = drin ? 0 : .3 * (1 - k); scene.environmentIntensity = drin ? .12 : .4 * (1 - k) + .08 * k; renderer.toneMappingExposure = 1.1 * settings.bright; }
+  hemi.intensity = drin ? (VILLA.raum ? VILLA.amb * 9 : 4.2) : .95 * (1 - k) + .32 * k; moon.intensity = drin ? 0 : .3 * (1 - k); scene.environmentIntensity = drin ? .12 : .4 * (1 - k) + .08 * k; renderer.toneMappingExposure = (drin ? 1.2 : 1.1) * settings.bright; }
 if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push(villa_tagLicht);
 
 // =====================================================================  Laden, Takt

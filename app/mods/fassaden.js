@@ -350,7 +350,7 @@ async function fassaden_build() {
       const pipe = new THREE.TubeGeometry(curve, 48, .048, 8, false);
       RB.add(MAT.zinc, pipe);
       for (const yy of [yg - 1.2, 2.2, .9]) RB.box(MAT.zinc, .04, .05, .12, m4(xw - s * .04, yy, zc)); // Rohrschellen
-      S.pipes.push({ g, p: new V3(xw + s * .28, .13, zc) });
+      S.pipes.push({ g, p: new V3(xw + s * .28, .13, zc), gu: new V3(xg, yg - .08, -zc * .55) }); // gu: Stelle, an der die volle Rinne überläuft (Tropfen)
     }
     // Schornstein
     for (const m of kids) if (m.isMesh && isBox(m, .9, 3.2, .9)) {
@@ -642,6 +642,27 @@ function fassaden_tick(dt, t, indoor) {
     const wp = new THREE.Vector3().setFromMatrixPosition(T.base).applyMatrix4(T.im.parent.matrixWorld), d = Math.hypot(wp.x - P.x, wp.z - P.z);
     if (T.t < 0 && T.cool < 0 && d < 7 && d > 2.5) { T.t = 0; T.cool = 70; }
     if (T.t >= 0) { T.t += dt; const e = T.t < .35 ? T.t / .35 : Math.max(0, 1 - (T.t - .9) / 1.4); const mm = T.base.clone().multiply(new THREE.Matrix4().compose(new THREE.Vector3(.18 * e, 0, 0), new THREE.Quaternion(), new THREE.Vector3(1 - .55 * e, 1, 1))); T.im.setMatrixAt(T.i, mm); T.im.instanceMatrix.needsUpdate = true; if (T.t > 2.4) { T.t = -1; T.im.setMatrixAt(T.i, T.base); T.im.instanceMatrix.needsUpdate = true; } } }
+  fassaden_tropfen(dt, P, indoor);
   // Tropfen aus den Fallrohren
   S.dripT -= dt; if (S.dripT < 0) { S.dripT = rand(.7, 2.2); for (const p of S.pipes) { const wp = p.g.localToWorld(p.p.clone()); if (Math.hypot(wp.x - P.x, wp.z - P.z) < 5) { Audio.drip(wp.x, .15, wp.z); break; } } }
+}
+
+// Überlaufende Dachrinnen: Tropfen fallen von der Traufe in den Regen (nur die drei nächsten Häuser im Umkreis von 16 m; alles beim ersten Aufruf angelegt, keine Allokation im Takt)
+function fassaden_tropfen(dt, P, indoor) {
+  const S = fassaden_S; let D = S.drops;
+  if (!D) { const N = 36, pos = new Float32Array(N * 6), g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const m = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xa8b6c8, transparent: true, opacity: .42, depthWrite: false })); m.frustumCulled = false; scene.add(m);
+    D = S.drops = { m, pos, N, y: new Float32Array(N).fill(-1), v: new Float32Array(N), x: new Float32Array(N), z: new Float32Array(N), src: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], ns: 0, sT: 0, spT: new Float32Array(3), tmp: new THREE.Vector3() };
+    for (let i = 0; i < N; i++) pos[i * 6 + 1] = pos[i * 6 + 4] = -50; }
+  D.m.visible = !indoor; if (indoor) return;
+  D.sT -= dt; if (D.sT < 0) { D.sT = 1; D.ns = 0; let best = [1e9, 1e9, 1e9];
+    for (const p of S.pipes) { const gp = p.g.position, d2 = (gp.x - P.x) ** 2 + (gp.z - P.z) ** 2; if (d2 > 900) continue; D.tmp.copy(p.gu); p.g.localToWorld(D.tmp); const dd = (D.tmp.x - P.x) ** 2 + (D.tmp.z - P.z) ** 2; if (dd > 256) continue;
+      for (let k = 0; k < 3; k++) if (dd < best[k]) { for (let j = 2; j > k; j--) { best[j] = best[j - 1]; D.src[j].copy(D.src[j - 1]); } best[k] = dd; D.src[k].copy(D.tmp); break; } }
+    for (let k = 0; k < 3; k++) if (best[k] < 1e9) D.ns = k + 1; }
+  for (let k = 0; k < D.ns; k++) { D.spT[k] -= dt; if (D.spT[k] < 0) { D.spT[k] = rand(.18, .7) * (k + 1); // unregelmäßig wie echtes Tropfen
+      for (let i = 0; i < D.N; i++) if (D.y[i] < 0) { const s = D.src[k]; D.x[i] = s.x + rand(-.05, .05); D.z[i] = s.z + rand(-.05, .05); D.y[i] = s.y; D.v[i] = rand(0, .6); break; } } }
+  const pos = D.pos; for (let i = 0; i < D.N; i++) { if (D.y[i] < 0) continue; D.v[i] += 9.8 * dt; D.y[i] -= D.v[i] * dt;
+    const o = i * 6; if (D.y[i] <= .02) { D.y[i] = -1; pos[o + 1] = pos[o + 4] = -50; continue; }
+    const L = Math.min(.22, .02 + D.v[i] * .03); pos[o] = pos[o + 3] = D.x[i]; pos[o + 2] = pos[o + 5] = D.z[i]; pos[o + 1] = D.y[i]; pos[o + 4] = D.y[i] + L; }
+  D.m.geometry.attributes.position.needsUpdate = true;
 }
