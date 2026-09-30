@@ -16,7 +16,7 @@ const zayn_has = k => story.lore.some(l => l.key === k);
 function zayn_stage(n, desc) { const S = zayn_S; if (n > S.stage) S.stage = n; sideStart('zayn'); if (desc) story.side.zayn.desc = desc; if (state.started) saveGame(curChapter()); }
 WORLD_MODS.push(['Zayn', async () => {
   const S = zayn_S, T = THREE;
-  story.side.zayn = { title: 'Versprochen ist versprochen', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
+  story.side.zayn = { title: 'Hast du dich an mich erinnert?', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
   modItem('zayn_kamera', 'Zayns Kinderkamera', 'Eine kleine Kamera aus buntem Plastik. Sechs Fotos, alle vom alten Spielplatz.', 'paper');
   // --- Rucksack (Mesh jetzt, Platz im Haus erst nach dem Kollisionsaufbau)
   { const g = new T.Group(), fab = new T.MeshStandardMaterial({ color: 0x2c4a7a, roughness: .92 }), strap = new T.MeshStandardMaterial({ color: 0x1a1a1e, roughness: .8 });

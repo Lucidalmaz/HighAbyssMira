@@ -23,7 +23,7 @@ const z7_table = (fs = 15) => `<table style="border-collapse:collapse;font-size:
   Z7_ROWS.map(r => `<tr>${r.map(c => `<td style="padding:2px 10px 2px 0;vertical-align:top">${c}</td>`).join('')}</tr>`).join('') + '</table>';
 const Z7_AUSHANG_HTML = () => `Maschinengeschrieben, die Unterschriften mit Füller.${z7_table(16)}<small>${Z7_P4}</small>`;
 const Z7_GRUENDUNG = '<span class="hand">Aktennotiz Seiler, 1958: Der Mann in Eisen ist real. Er altert nicht. Er sagt, er dürfe nicht gefunden werden. Ich habe nicht gefragt, von wem. – Absender: Villa Seiler, Westweg.</span>';
-const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Echo · Zimmer 7, 1. Juli 2009', floor: 0,
+const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Nachbild · Zimmer 7, 1. Juli 2009', floor: 0,
   figs: [E_(C2.x + 33.0, C2.z - 7.35, 0, 1), E_(C2.x + 32.9, C2.z - 3.2, PI, 1.04)],
   lines: [['1. Juli 2009. Eine Frau zieht eine Kugel aus einem Kasten, liest, hält inne.', 4200], ['„Frau Wendt?“', 2200, 'MANN VOM AMT'], ['„Das Los ist das Los.“', 3000, 'HILDE'], ['Sie legt die Kugel sehr vorsichtig auf den Tisch. Als könnte sie ihm wehtun.', 4400]] };
 if (typeof FIGUREN_ECHO !== 'undefined') FIGUREN_ECHO.echo_zimmer7 = ['hilde', 'amt1'];
@@ -320,7 +320,7 @@ WORLD_TICK.push((dt) => {
   // Schreibtischlampe: nur solange man im Raum oder im Durchgang davor ist (Punktlichter werfen keinen Schatten – kein Durchscheinen ins Archiv)
   if (S.lamp) S.lamp.intensity = S.lampOn && P.x > C2.x + 29.6 && P.x < C2.x + 36.4 && P.z > C2.z - 8.4 && P.z < C2.z + 2.2 ? 4.5 : 0;
   // Erster Schritt in Zimmer 7: der Nadeldrucker im Archiv, 01:47
-  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „05.11.2026 · 01:47 · Ersatz 08 betritt Zimmer 7.“', 5600); }, 900); }
+  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „ZÄHLSCHLUSS 03:13 · RÜCKLÄUFER 08 BETRITT ZIMMER 7.“', 5600); }, 900); }
   // 90 s nach „Das bin nicht ich.“
   if (S.gT > 0) { S.gT -= dt; if (S.gT <= 0) { const t = 'Ein Mädchen. Nicht ich. … Warum fühlt sich das an, als hätte ich Glück gehabt?';
       if (typeof gedanke === 'function') gedanke('z7_glueck', t); else if (!state.talking) subtitle(t, 5200, 'LUKE'); } }

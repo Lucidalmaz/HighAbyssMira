@@ -586,8 +586,8 @@
 <div id="pause" class="overlay"><div class="panel"><div class="t">PAUSE</div><div class="pbtns"><button id="pResume">FORTSETZEN</button><button id="pJournal">ABENTEUERFIBEL</button><button id="pEdit">STORY-EDITOR</button><button id="pMenu">HAUPTMENÜ</button><button id="pQuit">SPIEL BEENDEN</button></div>
   <label onclick="event.stopPropagation()">Mausempfindlichkeit <input id="sens" type="range" min="0.5" max="4" step="0.1" value="2"></label><div class="t" style="margin:18px 0 0;color:#8b7f68;font-size:11px">GESPEICHERT WIRD AN JEDEM SPEICHERPUNKT</div></div></div>
 <div id="endcard" class="overlay">
-  <h1>KAPITEL 1 — ENDE</h1>
-  <p>Frau Wendt ist fort. Lucys Stimme auf dem Band sagte: <i>„Du auch.“</i><br>Warum erinnerst du dich nicht an den Sommer 2009?</p>
+  <h1>KAPITEL 1 · KELLER BLEIBT ZU</h1>
+  <p>Frau Wendt ist fort.<br>Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.<br>Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.</p>
   <div class="stats" id="endStats"></div>
   <p class="next" style="margin-top:26px;letter-spacing:.3em;font-size:13px;font-family:Georgia">KAPITEL 2 · DAS ACHTE KIND</p>
   <div class="go">KLICKEN FÜR KAPITEL 2</div>
@@ -602,7 +602,7 @@
     <div id="loadBar"><i></i></div><div id="goText">LADE …</div>
     <div id="mainMenu" style="display:none">
       <button id="mCont" style="display:none">Weiterspielen<small id="mContSub"></small></button>
-      <button id="mNew">Neues Spiel<small>KAPITEL 1 · DAS HAUS NUMMER 7</small></button>
+      <button id="mNew">Neues Spiel<small>KAPITEL 1 · KELLER BLEIBT ZU</small></button>
       <button id="mChap">Kapitel wählen</button>
       <button id="mSet">Einstellungen</button>
       <button id="mCtrl">Steuerung</button>
@@ -1263,7 +1263,7 @@ box(2.4, .6, .25, 21, Y + .55, -15.8, fabricMat(0x4a3030));
 box(1.2, .42, .7, 23.3, Y + .21, -15.1, M.wood, { collide: true });
 plane(3.2, 2.2, 22.5, Y + .005, -15, new THREE.MeshStandardMaterial({ color: 0x3a1c16, roughness: 1, normalMap: M.fabric.normalMap }));
 const newspaper = plane(.5, .36, 23.3, Y + .43, -15.1, new THREE.MeshStandardMaterial({ roughness: .9, map: tex(cnv(256, (c, w, h) => {
-  c.fillStyle = '#cbc4b0'; c.fillRect(0, 0, w, h); c.fillStyle = '#222'; c.font = 'bold 22px Georgia'; c.fillText('LOST EYENGLESS-KURIER', 12, 34); c.fillRect(10, 42, w - 20, 2);
+  c.fillStyle = '#cbc4b0'; c.fillRect(0, 0, w, h); c.fillStyle = '#222'; c.font = 'bold 22px Georgia'; c.fillText('DER LATERNENBOTE', 12, 34); c.fillRect(10, 42, w - 20, 2);
   c.font = 'bold 18px Georgia'; c.fillText('Dritte Vermisste', 12, 72); c.fillText('in diesem Jahr', 12, 94); c.fillStyle = '#555'; for (let i = 0; i < 10; i++) c.fillRect(12, 110 + i * 12, rand(90, 150), 5); c.fillStyle = '#333'; c.fillRect(170, 60, 70, 80); }), true) }), -PI / 2, .3);
 const tvCanvas = document.createElement('canvas'); tvCanvas.width = 96; tvCanvas.height = 72; const tvCtx = tvCanvas.getContext('2d'); const tvTex = new THREE.CanvasTexture(tvCanvas);
 box(1.4, .6, .5, 21.3, Y + .3, -12.6, M.wood, { collide: true });
@@ -2526,7 +2526,7 @@ function doorAction(D, lockedText) {
 }
 interact(door7.leaf, () => door7.open ? 'Tür schließen' : 'Tür öffnen', doorAction(door7, 'Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.'));
 interact(newspaper, 'Zeitung lesen', () => { state.readPaper = true;
-  liftTo(newspaper, () => openNote('LOST EYENGLESS-KURIER · 29. Oktober', '<b>Dritte Vermisste in diesem Jahr</b>\n\nLucy B. (26) wird seit dem <b>23. Oktober</b> vermisst. Zuletzt wurde sie an der Kreuzung Ahornstraße / Birkenweg gesehen.\n\nAnwohner berichten erneut von „Lichtern über dem Wald“. Die Polizei sieht keinen Zusammenhang.\n\nAm Rand, mit Kuli:\n<span class="hand">„Sie war nie weg. Nicht richtig.“</span>', 'paper')); });
+  liftTo(newspaper, () => openNote('Der Laternenbote · 29. Oktober', '<b>Dritte Vermisste des Jahres – Polizei: kein Fremdverschulden</b>\n\nLost Eyengless. Seit Freitag wird Lucy B. (26) aus der Ahornstraße vermisst. Polizeiobermeister Kühn: „Es gibt keine Hinweise auf Fremdverschulden. Frau B. hat sich möglicherweise selbständig entfernt.“ Bereits im Juni und Juli galten zwei weitere Bewohner der Ahornstraße als vermisst. Hinweise an die Polizei oder an die Messstelle Kirchberg. (hw)\n\n<i>Daneben:</i> „Gemeindesaal: Bürgerversammlung ‚Die Lichter über dem Wald‘ entfällt.“', 'paper')); });
 interact(fridgeNote, 'Zettel lesen', () => { state.readFridge = true; setMain(3);
   openNote('Zettel am Kühlschrank', '<span class="hand">31.10.\n\nKELLER BLEIBT ZU.\nEgal wer ruft. Egal mit welcher Stimme.\n\n– H. Wendt</span>', 'fridge', () => { if (!state.scFridge) { state.scFridge = true; setTimeout(() => armBehind(6, Y, 'wendt'), 200); } }); });
 interact(calendar, 'Kalender ansehen', () => { if (!state.readCal) Audio.stinger(false); state.readCal = true;
@@ -3681,7 +3681,7 @@ async function safeOpens() {
   ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.');
   subtitle('Ein Fach in der Maschine springt auf. Darin: eine Akte ohne Namen.', 4000);
   const file8 = plane(.22, .3, X + 120.7, 1.81, Z - .2, paperMat, -PI / 2, .2);
-  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name]', 'Abgang: 28.07.2009.\nRückführung: <b>05.08.2009, 03:13</b>.\n\nBefund: <u>Ersatz</u>. Ausgeliefert im Austausch für Rückführung Nr. 01–05. Original (Luke B.) verbleibt beim Partner.\n\nVermerk: Ersatz weiß nichts. Ersatz glaubt, Luke zu sein. Mutter unterschreibt. <b>Schwester weiß es.</b>\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren. Wer es weiß, durch den sieht sie.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
+  interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name] · R-Fall', 'Rückführung: <b>Mittwoch, in der Nacht</b>, Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.\n\nBefund: <b>Rückläufer.</b> Augen braun (Vermessung Original: blau). Linke Handfläche: halbrunde Narbe, frisch, wie eingebrannt. Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n\nOriginal Brandt, Luke: Verbleib im Objekt. Mutter informiert. Sie hat den Rückläufer angesehen und gesagt: „Das ist meiner.“ Sie unterschreibt. Schwester: weiß es. Vermerk H. W.: „Sie hat ihn am ersten Morgen gewählt.“\n\nVermerk Seiler: Der Rückläufer erfährt es nicht. Wer es weiß, durch den sieht es. Vorgesehen für Versuchsreihe K nach der nächsten Öffnung.\nAm Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren.“</span>', 'akte8', () => { uninteract(file8); file8.visible = false; finale(); }));
 }
 // Kanon PK-D K2-7: Lucy im Tank (Dialog mit Auswahl, Peter-Frage), dann „Mach die Augen zu!“ – Augen zu versagt (augenzu.js, wirkt:false) – Kinosequenz K2
 async function finale() {
@@ -3735,10 +3735,10 @@ async function finale() {
     setC2Objective('Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben.'); subtitle('Über dir zieht Luft durch die Decke. Kalt. Sie riecht nach Regen.', 4200); return;
   }
   const sd = Object.values(story.side).filter(q => q.state === 'done').length;
-  $('endcard').querySelector('h1').textContent = 'KAPITEL 2 — ENDE';
-  $('endcard').querySelector('p').innerHTML = 'Du weißt es jetzt.<br>Und die Regel gilt.';
+  $('endcard').querySelector('h1').textContent = 'KAPITEL 2 — ENDE · DAS ACHTE KIND';
+  $('endcard').querySelector('p').innerHTML = 'Du weißt es jetzt.<br>Sie auch.<br>03:13.';
   $('endStats').innerHTML = `NEBENAUFGABEN ${sd} / 5 · POLAROIDS ${story.photos.size} / 7<br>GEFANGEN ${ch2.caught}× · FUNDE ${story.lore.length}`;
-  $('endcard').querySelector('.next').textContent = 'KAPITEL 3 · DAS LICHT';
+  $('endcard').querySelector('.next').textContent = 'KAPITEL 3 · ICH KOMME';
   saveFlag('ch3'); const go3 = $('endcard').querySelector('.go'); go3.style.display = ''; go3.textContent = 'KLICKEN FÜR KAPITEL 3'; go3.onclick = () => startChapter3();
   document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); $('fade').style.opacity = 0; state.ending = true;
 }
@@ -3759,7 +3759,7 @@ async function startChapter2() { // Weiterspielen / Kapitel wählen
   chapter2Begin();
   player.pos.set(X + 1.2, 0, Z); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; flashOn = true;
   Audio.setArea(true, true);
-  $('intro').innerHTML = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 2 · DAS ACHTE KIND</p><p class="on">Hinter der Zeichnungswand im Keller von Nr. 7: eine Tür.</p><p class="on">Sie war nie verputzt. Nur übermalt. Von Kinderhand.</p><p class="on"><i>„AMT FÜR RÜCKFÜHRUNG – EBENE −2“</i></p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
+  $('intro').innerHTML = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 2 · DAS ACHTE KIND</p><p class="on">Hinter der Zeichnungswand im Keller von Nr. 7: eine Tür.</p><p class="on">Sie war nie verputzt. Nur übermalt. Von Kinderhand.</p><p class="on"><i>„BUNDESSTELLE FÜR RÜCKFÜHRUNG – EBENE −2“</i></p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
   $('introSeq').classList.add('show'); $('fade').style.opacity = 0; menu.attract = false;
   $('introSeq').onclick = async () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer(); setC2Objective(C2_MAIN[0]); await wait(2500); subtitle('Es riecht nach Rost. Und nach Sommer 2009.', 4000); };
 }
@@ -3782,7 +3782,8 @@ function ch2Update(dt, t) {
 const C3 = { x: -600, z: -2600, h: 3.4 };
 const X3 = C3.x, Z3 = C3.z;
 const ch3 = { on: false, part: 'town', t: 0, pulse: 1, myst: new Set(), met: false, radio: false, seq: [], lampsOff: false, chase: 'idle', caught: 0,
-  callDone: false, ringT: 0, room1: false, room2: false, room3: false, tries1: 0, clock: [12, 0], choice: null, pillarK: 0, said: new Set(), hintI: 0 };
+  callDone: false, ringT: 0, room1: false, room2: false, room3: false, tries1: 0, clock: [12, 0], choice: null, pillarK: 0, said: new Set(), hintI: 0,
+  armorHints: new Set(), answer: null, gift: null, bell: false, side: {} }; // Fassung 3 (AP-03): RH-1…11, Antwort 'A'|'B'|'C', Geschenk, Glocken-Joker, Kap.-3-Nebenaufgaben – gespeichert unter 'ch3'
 function setC3(t) { $('objText').textContent = trX(t); }
 const MYST = {
   chronik: { title: 'Die Chronik von 1312', hint: 'Eine Anschlagtafel an der Kreuzung.' },
@@ -3859,7 +3860,7 @@ const chronTex = tex(cnv(512, (c, w) => { c.fillStyle = '#3a3226'; c.fillRect(0,
   c.fillStyle = '#555'; c.fillText('Laternenfest', 330, 360); c.fillText('fällt aus', 340, 384); }), true);
 const chronik = box(1.6, 1.15, .08, -6.8, 1.55, -6.55, new THREE.MeshStandardMaterial({ map: chronTex, roughness: .85 }), { collide: true });
 for (const s of [-.72, .72]) box(.08, 1.1, .08, -6.8 + s, .55, -6.55, M.wood);
-interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer Handschrift des Klosters.</i>\n\nAnno 1312, am Vorabend von Sankt Martin, stand ein <b>weißes Licht</b> über dem Hohen Abgrund, der Senke hinter dem Birkenwald. Sieben Kinder des Dorfes gingen hinein. Nach vier Tagen standen sie barfuß auf dem Anger – und <u>eines war ein anderes</u>.\n\nDer Ritter <b>Justin vom Hohen Abgrund</b>, dessen einzige Tochter als Erste im Licht verschwunden war, ritt ihm nach und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, kehrt das Weiße alle <b>siebzehn Jahre</b> wieder – und mit ihm ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder so weit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
+interact(chronik, 'Anschlagtafel lesen', () => liftTo(chronik, () => openNote('Aus der Chronik von Lost Eyengless', '<i>Abschrift von 1891, nach einer alten Handschrift.</i>\n\nAnno 1312, in der Martinsnacht, fiel ein <b>Licht</b> in die Senke hinter dem Hof des Ritters <b>Justin</b>, die man seither den Hohen Abgrund heißt. Des Ritters Tochter ging mit ihrer Laterne hinein, und sechs Kinder des Dorfes ihr nach. Die Frau des Ritters führte die sechs wieder heraus, eins nach dem andern. Dann ging sie noch einmal hinein und ward nicht mehr gesehen.\n\nSeither, so sagen die Alten, öffnet sich das Lichtschiff alle <b>siebzehn Jahre</b> für eine Nacht – und mit ihm kommt ein Mann in Eisen, der nicht altert.\n\nDarunter, mit rotem Filzstift:\n<span class="hand" style="color:#8a1010">1975 · 1992 · 2009 · <u>2026</u>\nEs ist wieder so weit.</span>', 'c3chronik', () => { mystFound('chronik'); if (!ch3.met) ch3.t = Math.max(ch3.t, 12); }), false));
 
 // ---- Kreuzung: Funkkasten des Amts
 const radioBox = box(.6, 1.1, .4, 5.4, .55, -6.6, new THREE.MeshStandardMaterial({ color: 0x5c6258, roughness: .6, metalness: .5 }), { collide: true });
@@ -3869,7 +3870,7 @@ interact(radioBox, 'Funkkasten benutzen', () => radioPuzzle());
 const RADIO_F = 31.1;
 function radioPuzzle() {
   if (ch3.radio) return toast('Nur noch Rauschen. Und ganz hinten, sehr leise, jemand, der atmet.', 4200); // Ersatzfassung – lucy3.js (Paket W2-P6) weist radioPuzzle/broadcast neu zu (zwei Kanäle, Staub)
-  openPuzzle(`<h3>FUNKKASTEN · AMT FÜR RÜCKFÜHRUNG</h3><p>Kurzwelle. Innen am Deckel ein Aufkleber: <i>„Notfrequenz: siehe Dienstbuch H. Wendt.“</i></p>
+  openPuzzle(`<h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><p>Kurzwelle. Innen am Deckel ein Aufkleber: <i>„Notfrequenz: siehe Dienstbuch H. Wendt.“</i></p>
     <div style="margin:18px auto;max-width:420px"><input type="range" id="rF" min="3" max="32" step="0.01" value="14.00" style="width:100%"><div id="rOut" style="font:22px Georgia;margin-top:10px;text-align:center">14,00 MHz</div>
     <div id="rNoise" style="font-family:monospace;letter-spacing:2px;color:#a09880;text-align:center;margin-top:6px"></div></div><div class="row"><button id="rOk">HINHÖREN</button></div>`, box => {
     const f = box.querySelector('#rF'), upd = () => { const v = +f.value, d = Math.abs(v - RADIO_F), n = Math.min(12, Math.round(d * 2.2)); box.querySelector('#rOut').textContent = v.toFixed(2).replace('.', ',') + ' MHz'; box.querySelector('#rNoise').textContent = 'RAUSCHEN ' + '▮'.repeat(Math.max(1, n)).padEnd(12, '▯'); };
@@ -3896,7 +3897,7 @@ const switchBoxes = [[5, -12, -20], [3, -25, -40], [1, -46, -60], [7, 29, 20]].m
   interact(m, () => `Schaltkasten vor Nr. ${n}`, () => pressSwitch(S)); return S;
 });
 function pressSwitch(S) {
-  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Weiße leuchtet noch.');
+  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Lichtschiff leuchtet noch.');
   if (!ch3.met) return toast('Ein Kasten der Stadtwerke. Ein Hebel: LEUCHTE AUS. Warum solltest du?');
   if (S.off) return toast('Der Hebel steht schon auf AUS.');
   S.off = true; S.L.mode = 'off'; ch3.seq.push(S.n); Audio.play('switch2', { gain: .6, x: S.m.position.x, y: .8, z: -5.5, ref: 2 }); Audio.flick();
@@ -3956,7 +3957,7 @@ async function c3Safe() {
   justin.look = true; jPlay('draw');
   ch3.pillarK = 1; tween(pillar, { pos: new THREE.Vector3(justin.g.position.x, 35, justin.g.position.z) }, 2.5); pillarLight.position.set(justin.g.position.x, 3, justin.g.position.z);
   Audio.hum(true); shake = .03;
-  await say([['Die Schatten bleiben am Rand des Lichts stehen. Keiner tritt hinein.', 3600], ['„Sie dürfen nicht ins Weiße. Nur wir zwei.“', 3200, JS],
+  await say([['Die Schatten bleiben am Rand des Lichts stehen. Keiner tritt hinein.', 3600], ['„Sie dürfen nicht nach Nimmerheim. Nur wir zwei.“', 3200, JS],
     ['„Das Licht hat keine Lampen mehr, an die es sich halten kann. Es steigt herab.“', 3800, JS], ['„Nimm meine Hand, Kind. Und lass sie nicht los, was immer du drinnen siehst.“', 4200, JS]]);
   state.talking = false; enterWhite();
 }
@@ -3986,7 +3987,7 @@ function readBook() { addItem('buch'); liftTo(zbook, () => openNote('Hilde Wendt
 
 // ---- Nr. 3: Vegas' Brief im Briefkasten
 const albersNote = box(.24, .02, .16, -25.4, 1.18, -8.2, new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 1 })); albersNote.visible = false;
-function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Luke,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach die Tür nicht weiter auf als bis zur Kette. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben, und zu siebt kamen wir zurück – nur war Peter Kranz nicht mehr Peter Kranz. 1992 ist er in den Nebel gegangen, freiwillig. Deine Mutter hat ihn vermisst. Und ich.\n\nIch hab Mike unterschrieben. Deine Mutter war 1975 mit uns weg. Sie wusste, was sie tut, als sie dich genommen hat.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n\nHilde sagt, er ist schuld an allem. Ich sage: <b>Er ist der Einzige, der jedes Mal aufräumt.</b>\n\nVielleicht stimmt beides.\n— L. Vegas</span>', 'c3albers', () => mystFound('albers')), false); }
+function readAlbers() { liftTo(albersNote, () => openNote('Ein Umschlag: „Für den Jungen von Nr. 1“', '<span class="hand">Luke,\n\nich hab gesehen, wie du auf der Kreuzung aufgewacht bist. Ich mach die Tür nicht weiter auf als bis zur Kette. Verzeih einem alten Mann.\n\nIch war 1975 auch weg. Vier Tage. Wir waren sieben. Zurück kamen nicht alle, und Peter Kranz war nicht mehr Peter Kranz. 1992 war er auf einmal weg. Deine Mutter hat ihn vermisst. Und ich.\n\nIch hab Mike unterschrieben. Deine Mutter war 1975 mit uns weg. Sie wusste, was sie tut, als sie dich genommen hat.\n\nDer Ritter war damals auch da. Er hat uns an der Hand heimgeführt, einen nach dem anderen.\n— L. Vegas</span>', 'c3albers', () => mystFound('albers')), false); }
 
 // ---- Justin spricht
 async function jHint() {
@@ -4022,14 +4023,14 @@ async function justinArrives() {
   subtitle('Jemand tritt aus dem Licht. Groß. Metall schabt auf Metall.', 3800);
   await new Promise(r => jWalk(tx, tz, r));
   ch3.pillarK = .35; Audio.hum(false); justin.sp = 1.35;
-  await say([['„Bleib stehen, Kind. Ich tu dir nichts.“', 3000, J], ['„Ich bin Justin. Ritter vom Hohen Abgrund. Ich lebe am Rand des Weißen. Dort vergehen Jahre wie Tage.“', 5000, J],
-    ['„Alle siebzehn Jahre, wenn es sich öffnet, stehe ich am Ende eurer Straße. Und jedes Mal stehst du irgendwo in der Nähe.“', 5200, J],
-    ['Jedes Mal?', 2000, 'DU'], ['„Du hast mich schon gesehen. Am Ende der Straße. Ich durfte nicht näher.“', 4200, J],
+  await say([['„Bleib stehen, Kind. Ich tu dir nichts.“', 3000, J], ['„Ich bin Justin. Ritter vom Hohen Abgrund. Das da hinten war mein Hof, als er noch einer war.“', 5000, J], // Fassung 3: Zeilen aus dem Justin-Dossier 3.1 (vollständiger Umbau: AP-12)
+    ['„Eure Kutschen sind lauter geworden. Und eure Nächte heller. Beides hilft nicht.“', 4600, J],
+    ['„Du hast mich schon gesehen. Am Ende der Straße. Weiter reichte die Nacht noch nicht.“', 4200, J],
     ['„Du riechst nach Rauch. Nach dem unteren Gang.“', 3600, J]]); // immer: Peter ist in Kapitel 2 verbrannt
-  await wait(1400); await say([['„Er war auch einer von meinen.“', 3200, J],
-    ['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und findet sie nicht, was sie sucht, nimmt sie alle.“', 5400, J],
-    ['„Sie hält sich an den Lampen fest. Nimm sie ihr, dann muss sie herunter, und wir können hinein.“', 5000, J], ['Zu wem?', 1800, 'DU']]);
-  justin.look = false; justin.g.rotation.y += 1.1; await say([['Justin sieht weg.', 2200], ['„Zu meiner Tochter.“', 2800, J]]); justin.look = true;
+  await wait(1400); await say([['„Er war auch einer von meinen.“', 3200, J], ['Ich weiß.', 1800, 'DU'],
+    ['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“', 5600, J],
+    ['„Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“', 5400, J], ['Wir?', 1600, 'DU']]);
+  justin.look = false; justin.g.rotation.y += 1.1; await say([['„Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“', 4400, J]]); justin.look = true;
   await say([['„Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“', 5200, J]]);
   state.talking = false; setC3('Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   jWalk(1.5, -5.2, () => { justin.look = true; }); ch3.ringing = true;
@@ -4078,7 +4079,7 @@ interact(r1Panel, 'Die Frage an der Tür', () => {
 });
 async function room1Answer(k) {
   if (k === 'karte') {
-    ch3.room1 = true; Audio.chime(); r1Items.karte.m.visible = false; uninteract(r1Items.karte.m); door1w.set(true); Audio.slide(X3 + 20, Z3); setC3('Geh weiter. Tiefer ins Weiße.');
+    ch3.room1 = true; Audio.chime(); r1Items.karte.m.visible = false; uninteract(r1Items.karte.m); door1w.set(true); Audio.slide(X3 + 20, Z3); setC3('Geh weiter. Tiefer nach Nimmerheim.');
     await say([['Die Karte zerfällt zu weißem Staub.', 2800], ['„Der zehnte Geburtstag. Den hat der Knabe, der hier schlief, nie gehabt.“', 4200, JS], ['„Das ist deine Erinnerung, nicht seine. Du hast sie mitgebracht.“', 3800, JS]]);
   } else {
     ch3.tries1++; Audio.stinger(false); glitchV = .8; shake = .03; Audio.giggle(X3 + 14, 1.2, Z3 + 4);
@@ -4118,17 +4119,17 @@ function clockPuzzle() {
 async function hildeTalks() {
   ch3.hildeSpoke = true; state.talking = true; const W = 'HILDE WENDT';
   await say([['Am Küchentisch sitzt Frau Wendt. Die Frau, die das Licht vor deinen Augen nach oben gerissen hat.', 4400], ['„Luke. Oder wie immer du heißt.“', 2800, W],
-    ['„Ich hab 2009 Nein gesagt. Keinen Ersatz. Ich wollte meinen Zayn oder keinen.“', 4400, W], ['„Deshalb ist Zayn hiergeblieben. Und jetzt bin ich es auch.“', 3600, W],
-    ['„Hat der Ritter dir erzählt, wer den ersten Handel gemacht hat? Nein?“', 4000, W], ['„Frag ihn. Er soll es dir ins Gesicht sagen.“', 3000, W],
+    ['„So lange hab ich auf meinen Zayn gewartet. Jetzt bin ich bei ihm. Nur anders, als ich wollte.“', 4400, W], // Fassung 3: Kap. 3 UK 12 (weiss.js ersetzt diese Fassung)
+    ['„Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“', 3600, W],
     ['„Und die Uhr da … stell sie auf die Zeit, zu der sie dich gebracht haben. Dann lässt es euch durch.“', 4600, W]]);
   state.talking = false; setC3('Stell die Küchenuhr auf die Zeit, zu der man dich gebracht hat.');
 }
 async function room2Solved() {
   ch3.room2 = true; Audio.chime(); state.talking = true; tween(hilde, { pos: hilde.position.clone().setY(-2.4) }, 3);
   await say([['Die Uhr schlägt einmal. Frau Wendt löst sich auf wie Atem an einer Scheibe.', 4000], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000],
-    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 fiel das Weiße in die Senke hinter meinem Hof. Meine Tochter spielte Verstecken. Sie war sieben. Sie versteckte sich im Licht.“', 6200, JS],
-    ['„Ich ging bis an den Rand. Keinen Schritt weiter. Ich hatte Angst. Also schickte ich sieben Kinder des Dorfes hinein, mit Laternen – sieben für meine eine.“', 6800, JS], ['„Aus dem Licht rief sie: ‚Such mich, Papa.‘ Ich habe sie nie gesucht. Seitdem sucht sie mich.“', 5200, JS],
-    ['„Seitdem wirft es mich alle siebzehn Jahre in eure Welt, damit ich zusehe, was ich angefangen habe. Und die Kinder heimführe.“', 5600, JS], ['„Das ist meine Strafe. Und meine Schuld.“', 3000, JS]]);
+    ['„Sie hat recht. Du sollst es von mir hören.“', 3200, JS], ['„Anno 1312 fiel das Lichtschiff in die Senke hinter meinem Hof. Meine Tochter war sieben. Sie dachte, das Spiel fängt an.“', 5600, JS], // Fassung 3: Justin-Dossier 3.11 (Code-Ersatz)
+    ['„Sechs Kinder liefen ihr nach. Meine Frau holte sie heraus, eins nach dem andern. Dann ging sie noch einmal. Für Luna.“', 5600, JS], ['Und du?', 1600, 'DU'],
+    ['„Ich hatte ihre Hand. Am Rand. Dann riss die Luft auf, und sie ließ los. So war es.“', 5000, JS]]);
   state.talking = false; door2w.set(true); Audio.slide(X3 + 32, Z3); setC3('Der Hohe Abgrund. Geh hinein.');
 }
 // Raum 3: der Hohe Abgrund
@@ -4141,39 +4142,36 @@ for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2, cx = X3 + 42 + Math.cos(
   if (i === 4) continue; // der achte Stuhl bleibt leer – er steht dir am nächsten
   const k = makeFigure(new THREE.MeshStandardMaterial({ color: 0x1c1c22, roughness: 1 })); k.scale.setScalar(.58); k.position.set(cx, .22, cz); k.rotation.y = Math.atan2(X3 + 42 - cx, Z3 - cz);
   kids.push({ k, base: k.rotation.y }); }
-const mira = makeFigure(new THREE.MeshStandardMaterial({ color: 0xcfd3da, roughness: .6, emissive: 0x303238 })); mira.scale.setScalar(.6); mira.position.set(X3 + 42, .05, Z3);
-const miraFace = new THREE.Mesh(new THREE.PlaneGeometry(.26, .31), new THREE.MeshBasicMaterial({ map: faceTexes.grey, transparent: true })); miraFace.position.set(0, 1.8, .15); mira.add(miraFace);
+// Das Graukind in Raum 3 (Fassung 3, AP-02: Variable hieß „mira“ – der Name ist für Mira in Kapitel 7 frei)
+const graukind = makeFigure(new THREE.MeshStandardMaterial({ color: 0xcfd3da, roughness: .6, emissive: 0x303238 })); graukind.scale.setScalar(.6); graukind.position.set(X3 + 42, .05, Z3);
+const graukindFace = new THREE.Mesh(new THREE.PlaneGeometry(.26, .31), new THREE.MeshBasicMaterial({ map: faceTexes.grey, transparent: true })); graukindFace.position.set(0, 1.8, .15); graukind.add(graukindFace);
 
 async function room3Scene() {
   ch3.room3 = true; state.talking = true; justin.look = false; Audio.hum(true);
   jWalk(X3 + 37.5, Z3 + 1.4, () => { justin.g.rotation.y = PI / 2; jPlay('kneel'); });
   await say([['Acht Stühle im Kreis. Auf sieben sitzen Kinder. Sie drehen die Köpfe. Alle gleichzeitig.', 4400], ['Der achte Stuhl ist leer. Er steht mit der Lehne zu dir.', 3600],
-    ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Papa. Du hast ihn mitgebracht.“', 3000, 'DAS KIND'],
-    ['„Weißt du, wer er ist, Papa? Ich habe ihn gemacht.“', 3600, 'DAS KIND'], ['„Aus dir. Aus deinem Blut an meinen Händen. Weißt du noch? Bevor du angefangen hast zu zählen.“', 5200, 'DAS KIND'],
-    ['„Darum hat er deine Augen. Braun. Nicht blau wie der andere Junge.“', 4200, 'DAS KIND']]);
+    ['In der Mitte, über dem Licht: ein Mädchen. Grau wie Asche.', 3600], ['„Bruder. Du hast ihn mitgebracht.“', 3000, 'DAS KIND'], // Fassung 3: Zeilen aus dem Justin-Dossier 3.13 (weiss.js ersetzt diese Fassung; Umbau AP-17)
+    ['„Ich hab dich gemacht. Aus seiner Hand. Darum hast du seine Augen.“', 4200, 'DAS KIND'], ['„Ich hab die ganze Nacht durch dich geguckt.“', 3400, 'DAS KIND']]);
   const extra = [];
-  if (ch3.myst.has('stimme')) extra.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'DAS KIND']);
-  if (ch3.myst.has('brief')) extra.push(['Der Mann in Mamas Garten. Das warst du, Justin.', 3200, 'DU'], ['„Ich wollte sehen, was sie aus mir gemacht hat.“', 3400, JS]);
-  if (ch3.myst.has('buch')) extra.push(['„Die alte Frau zählt immer acht. Weil ihr immer acht seid. Sieben Geholte und einer von Papa.“', 4800, 'DAS KIND']);
-  if (ch3.myst.has('albers')) extra.push(['„Papa räumt auf. Immer. Er bringt sie mir weg.“', 3200, 'DAS KIND']);
-  if (ch3.myst.has('chronik')) extra.push(['„Siebenhundertvierzehn Jahre, Papa. Zweiundvierzig Mal hab ich dich gerufen.“', 4400, 'DAS KIND']);
+  if (ch3.myst.has('stimme')) extra.push(['„Du bist rangegangen. Endlich.“', 3000, 'DAS KIND']);
+  if (ch3.myst.has('buch')) extra.push(['„Die Frau hat so schön gezählt. Ich hab ihr zugehört, jede Nacht.“', 4200, 'DAS KIND']);
+  if (ch3.myst.has('albers')) extra.push(['„Der alte Mann mit dem Silberhut. Der guckt immer nach oben. Ich wink ihm.“', 4200, 'DAS KIND']);
   if (extra.length) await say(extra);
-  await say([['„Jedes achte Kind mache ich aus dir, Papa. Damit du irgendwo da draußen bist. Damit jemand nach Hause geht, der zu mir gehört.“', 5600, 'DAS KIND'],
-    ['Justin steht auf. Langsam. Seine Hand liegt auf dem Schwert, aber er zieht es nicht.', 4200],
-    ['„Knabe. Wie immer man dich nennt – hör mich an.“', 4000, JS],
-    ['„Wenn ich hinabsteige, und mit mir das Kind, das aus mir ist, dann ist der Handel erfüllt. Der Abgrund schließt sich. Für immer.“', 5600, JS],
-    ['„Die Geholten kommen heim. Deine Schwester kommt heim. Nur du nicht.“', 4000, JS],
-    ['„Bleibst du, gehe ich allein. Vielleicht genügt es ihr. Vielleicht nicht. Dann kommt sie in siebzehn Jahren wieder.“', 5400, JS],
-    ['„Ich zwinge dich nicht. Das habe ich einmal getan, mit sieben Kindern. Nie wieder.“', 4400, JS]]);
+  await say([['„Das Spiel ist erst aus, wenn alle gefunden sind. Papa ist gefunden. Fast.“', 4600, 'DAS KIND'], ['„Ein Stück von Papa ist noch draußen.“', 3200, 'DAS KIND'],
+    ['„Ich hab es an der Kreuzung gewusst. Deine Augen. Ich hab dich gebraucht, damit sie mich sieht.“', 5000, JS], ['„Ich hatte kein anderes Fenster.“', 3000, JS],
+    ['Du hättest es sagen können.', 2600, 'DU'], ['„Dann hättest du weggesehen.“', 2800, JS],
+    ['„Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“', 5200, JS]]);
   state.talking = false; showChoice();
 }
-function showChoice() {
+function showChoice() { // Fassung 3 (Kern §12): drei Antworten ohne Untertext; Folgen und „Noch eine Runde“ baut AP-17
   if (ch3.choice) return;
-  openPuzzle(`<h3>DER HOHE ABGRUND</h3><p>Justin wartet. Das Kind lächelt. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
-    <button id="chA" style="min-width:340px">MIT JUSTIN HINABSTEIGEN<br><small style="opacity:.7">Der Abgrund schließt sich. Lucy kommt heim. Du nicht.</small></button>
-    <button id="chB" style="min-width:340px">ZURÜCKBLEIBEN<br><small style="opacity:.7">Justin geht allein. Du bleibst bei Lucy. Vielleicht genügt es.</small></button></div>`, box => {
+  openPuzzle(`<h3>WAS WILL SIE?</h3><p>Justin wartet. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
+    <button id="chA" style="min-width:340px">„Dich. Dass du bleibst.“</button>
+    <button id="chB" style="min-width:340px">„Spielen. Sieben Kinder, wie damals.“</button>
+    <button id="chC" style="min-width:340px">„Dass du sie suchst.“</button></div>`, box => {
     box.querySelector('#chA').onclick = e => { e.stopPropagation(); ch3.choice = 'A'; closeOverlay(); endingA(); };
     box.querySelector('#chB').onclick = e => { e.stopPropagation(); ch3.choice = 'B'; closeOverlay(); endingB(); };
+    box.querySelector('#chC').onclick = e => { e.stopPropagation(); ch3.choice = 'C'; closeOverlay(); (typeof endingC === 'function' ? endingC : endingB)(); };
   });
   ui.onClose = () => { if (!ch3.choice) setTimeout(showChoice, 400); };
 }
@@ -4188,23 +4186,26 @@ function c3Endcard(title, text, next) {
 }
 async function endingA() {
   state.talking = true; justin.look = true; jPlay('idle');
-  await say([['Du gehst zu ihm. Er nimmt deine Hand. Sein Handschuh ist kalt und zittert.', 4200], ['„Danke, Sohn.“', 2400, JS], ['Das Wort trifft dich härter als alles, was du heute Nacht gesehen hast.', 4000],
-    ['Das Mädchen streckt die Arme aus. Zum ersten Mal sieht sie aus wie ein Kind.', 3800]]);
+  await say([['Justin nickt. Er greift an die Schnallen der Brustplatte und zieht. Die Platte gibt nicht nach.', 4600], // Fassung 3: Antwort A, Justin-Dossier 3.14/3.15 (Geschenk, „Noch eine Runde“: AP-17)
+    ['„Sie ist mit mir verwachsen. Wenn ich sie ausziehe, hier drin, werde ich wie die auf den Stühlen. Noch nicht.“', 5200, JS],
+    ['„Dann bleib ich so. Bei ihr. Wenn sie mich nicht sehen kann, soll sie mich wenigstens hören. Die ganze Zeit.“', 5200, JS],
+    ['„Ich bleib hier, Knabe. Wenn du sie mal suchst: Ich bin der, der ruft.“', 4400, JS], ['„Papa? … Papa, du mogelst wieder.“', 3600, 'DAS KIND']]);
   $('fade').style.background = '#fff'; Audio.stinger(true); await fade(1, 2600);
   await wait(800); Audio.bell(0, 0); await wait(1500);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3a');
-  c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Manche waren siebzehn Jahre fort, manche nur eine Nacht. Lars Vegas ruft den Namen Mike. Dann den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  c3Endcard('KAPITEL 3 — ENDE · ICH KOMME', 'Er ist bei ihr geblieben.<br>Sie sieht ihn nicht. Sie hört ihn rufen.<br>Es wird hell.', 'KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN'); // Fassung 3: Endkarte Antwort A (Zusatzzeilen RH/Vertrauen: AP-17/AP-05)
   if (typeof kapEnde === 'function') kapEnde(3);
 }
 async function endingB() {
   state.talking = true;
-  await say([['Du bleibst stehen. Justin nickt, als hätte er nichts anderes erwartet.', 3800], ['„Dann pass auf sie auf. Auf deine Schwester. Sie hat dich gewählt, lange bevor du es wusstest.“', 5000, JS]]);
+  await say([['„Dann spiele ich mit ihr.“', 2600, JS], ['„Ich kann Verstecken. Ich hab’s nur nie zu Ende gespielt. Diesmal zähl ich, laut, damit sie’s hört.“', 5200, JS], // Fassung 3: Antwort B, Justin-Dossier 3.14/3.15
+    ['„Pass auf deine Schwester auf. Sie hat dich gewählt, bevor du wusstest, was du bist. Das tun nicht viele.“', 5200, JS]]);
   justin.look = false; jWalk(X3 + 41.2, Z3, () => { tween(justin.g, { pos: new THREE.Vector3(X3 + 42, -3, Z3) }, 2.6); });
-  await wait(2600); Audio.screech(); glitchV = 1; shake = .08;
-  await say([['Das Kind schreit. Nicht wie ein Kind. Wie etwas, das sehr lange gewartet hat.', 4200]]);
+  await wait(2600); glitchV = .5; // Luna schreit nie (02 H4)
+  await say([['„Papa? … Papa, du mogelst wieder.“', 3600, 'DAS KIND']]);
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3b');
-  c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist heimgekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
+  c3Endcard('KAPITEL 3 — ENDE · ICH KOMME', 'Er spielt mit.<br>Sie zählt, und er zählt hinter ihr her.<br>Es wird hell.', 'KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN'); // Fassung 3: Endkarte Antwort B
   if (typeof kapEnde === 'function') kapEnde(3);
 }
 
@@ -4214,9 +4215,9 @@ async function enterWhite() {
   player.pos.set(X3 + 1.6, 0, Z3); player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65;
   jPlace(X3 + 3.2, Z3 + 1.3, -PI / 2); justin.look = true; flashOn = false;
   await wait(600); await fade(0, 2200); $('fade').style.background = '#000';
-  await say([['Kein Oben, kein Unten. Nur Weiß, das nach Sommer riecht.', 3600], ['„Das Innere des Abgrunds. Es baut aus dem, was es genommen hat.“', 4000, JS],
+  await say([['Kein Oben, kein Unten. Nur Weiß, das nach Sommer riecht.', 3600], ['„Drinnen. Die Kinder von damals haben es Nimmerheim genannt. Weil da keiner groß wird und keiner heimdarf.“', 4600, JS], ['„Es baut sich aus dem, was es sich gemerkt hat. Küchen. Wiesen. Dein Haus, wenn es will. Es riecht nach Sommer. Lass dich davon nicht täuschen.“', 5200, JS],
     ['„Es wird uns Erinnerungen zeigen. Eine davon lügt. Immer.“', 3600, JS]]);
-  setC3('Folge dem Weißen.');
+  setC3('Geh Justin nach.');
 }
 function c3WhiteUpdate(dt, t) {
   const P = player.pos;
@@ -4231,7 +4232,7 @@ function c3WhiteUpdate(dt, t) {
   }
   // Die sieben Kinder drehen die Köpfe zu dir
   for (const K of kids) { const a = Math.atan2(P.x - K.k.position.x, P.z - K.k.position.z); let d = a - K.k.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); K.k.rotation.y += d * Math.min(1, dt * (ch3.room3 ? 3 : .2)); }
-  mira.position.y = .05 + Math.sin(t * .9) * .08; mira.lookAt(P.x, mira.position.y, P.z);
+  graukind.position.y = .05 + Math.sin(t * .9) * .08; graukind.lookAt(P.x, graukind.position.y, P.z);
   abyss.material.color.setScalar(3.6 + Math.sin(t * 1.9) * .8);
 }
 
@@ -4324,7 +4325,7 @@ interact(gullyHit, () => ch3.on && ch3.part === 'town' && ch3.met ? 'Gullydeckel
   if (!ch3.on || !ch3.met || ch3.part !== 'town') return toast('Ein schwerer Gullydeckel. Darunter rauscht Wasser.');
   enterCanal(); });
 // ---- Kapitel-Start & Takt
-const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · DAS LICHT</p><p class="on">Du erinnerst dich an das graue Gesicht in deinen Augen. Dann an Hände. Viele kleine Hände, die dich tragen.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Es ist 03:13.</p><p class="on">Irgendwo schlägt eine Glocke. Dreimal. Dann dreizehnmal.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
+const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · ICH KOMME</p><p class="on">Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an Hände. Viele kleine Hände, die dich tragen, ganz vorsichtig, wie etwas, das man nicht kaputt machen will.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Die Telefonzelle. Das Ortsschild weit hinten. Kein Mensch. Es ist 03:13.</p><p class="on">Irgendwo schlägt eine Glocke.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
 async function startChapter3() { // Weiterspielen / Kapitel wählen: Zustand setzen, an die Kreuzung, Intro
   $('endcard').classList.remove('show'); $('subPanel').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
   chapter3Begin();
@@ -4590,22 +4591,22 @@ const ECHO_CAST = { start: null, end: null }; // Modul figuren: Besetzung der Er
 const moteTex = tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(200,225,255,1)'); g.addColorStop(.3, 'rgba(150,190,255,.5)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w); }), true);
 const E_ = (x, z, ry = 0, s = 1) => [x, z, ry, s];
 const ECHOES = [
-  { id: 'echo_kreuzung', at: [2.5, 1.1, -2.5], title: 'Echo · Die Kreuzung, 5. August 2009', figs: [E_(-1.5, -4, 0, .58), E_(-.9, -4, 0, .58), E_(-.3, -4, 0, .6), E_(.3, -4, 0, .56), E_(.9, -4, 0, .6), E_(1.5, -4, 0, .58), E_(2.1, -4, 0, .57), E_(4.5, -1.5, -1.9, 1)],
+  { id: 'echo_kreuzung', at: [2.5, 1.1, -2.5], title: 'Nachbild · Die Kreuzung, 5. August 2009', figs: [E_(-1.5, -4, 0, .58), E_(-.9, -4, 0, .58), E_(-.3, -4, 0, .6), E_(.3, -4, 0, .56), E_(.9, -4, 0, .6), E_(1.5, -4, 0, .58), E_(2.1, -4, 0, .57), E_(4.5, -1.5, -1.9, 1)],
     lines: [['Drei Uhr dreizehn. Sieben Kinder stehen barfuß auf dem Asphalt.', 3600], ['„… fünf, sechs, sieben.“', 2800, 'VEGAS, 2009'], ['„Sieben. Gott sei Dank. Alle sieben.“', 3000, 'VEGAS, 2009'], ['Am Nebelrand steht noch ein Junge. Er zählt nicht mit. Dann ist er weg.', 3600], ['Eine Kinderstimme, ganz nah an deinem Ohr:', 2600], ['„Acht.“', 2200, '???']] },
-  { id: 'echo_kueche', at: [28.8, Y + 1.1, -16.2], title: 'Echo · Küche Nr. 7, Oktober 2009', figs: [E_(27.6, -16.5, 1.4, 1), E_(30.2, -15.4, -1.8, 1.04), E_(30.4, -16.9, -1.5, 1.02)],
+  { id: 'echo_kueche', at: [28.8, Y + 1.1, -16.2], title: 'Nachbild · Küche Nr. 7, Oktober 2009', figs: [E_(27.6, -16.5, 1.4, 1), E_(30.2, -15.4, -1.8, 1.04), E_(30.4, -16.9, -1.5, 1.02)],
     lines: [['Zwei Männer in Mänteln. Frau Wendt am Tisch, die Hände um eine kalte Tasse.', 4000], ['„Wir könnten Ihnen einen Jungen geben, Frau Wendt. Er wäre … fast wie Zayn.“', 4400, 'MANN VOM AMT'], ['„Ich will meinen Zayn.“', 2600, 'HILDE WENDT'], ['„So funktioniert das nicht. Das Licht gibt nie genau zurück, was es nimmt.“', 4400, 'MANN VOM AMT'], ['„Dann will ich gar keinen.“', 2800, 'HILDE WENDT']] },
-  { id: 'echo_kinderzimmer', at: [-52, Y + 1, -20], title: 'Echo · Kinderzimmer Nr. 1, August 2009', figs: [E_(-52.8, -19.4, 1.2, 1), E_(-51.4, -20.2, -1.6, .6)],
+  { id: 'echo_kinderzimmer', at: [-52, Y + 1, -20], title: 'Nachbild · Kinderzimmer Nr. 1, August 2009', figs: [E_(-52.8, -19.4, 1.2, 1), E_(-51.4, -20.2, -1.6, .6)],
     lines: [['Mama sitzt auf der Bettkante. Vor ihr ein Junge mit nassen Haaren.', 3800], ['„Wie heißt unser Hund, Luke?“', 2800, 'MAMA'], ['Der Junge sieht sie an. Lange. Er lächelt – an der falschen Stelle.', 4000], ['„Egal. Ist egal, mein Schatz. Du bist da.“', 3200, 'MAMA']] },
-  { id: 'echo_brand', at: [-13, 1, -10.2], title: 'Echo · Haus Nr. 5, Dezember 2009', figs: [E_(-13, -10.2, 0, .58)],
+  { id: 'echo_brand', at: [-13, 1, -10.2], title: 'Nachbild · Haus Nr. 5, Dezember 2009', figs: [E_(-13, -10.2, 0, .58)],
     lines: [['Ein Mädchen steht im Garten. In der Hand ein Feuerzeug. Hinter ihr brennt das Haus.', 4200], ['„Ich will zurück. Da oben war es warm.“', 3200, 'ROXY, 8'], ['„Wenn das Haus weg ist, muss es mich wieder holen.“', 3600, 'ROXY, 8']] },
-  { id: 'echo_archiv', at: [C2.x + 24, 1.2, C2.z + 1.2], title: 'Echo · Archiv, Ebene −2, 2009', figs: [E_(C2.x + 23, C2.z + 1.4, 1.6, 1), E_(C2.x + 25.2, C2.z + .8, -1.4, 1)],
-    lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Ersatz‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann sieht es durch ihn. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
-  { id: 'echo_messraum', at: [C2.x + 113, 1.2, C2.z - 1.5], title: 'Echo · Messraum, 4. August 2009', figs: [E_(C2.x + 109, C2.z - 4.6, PI, .58), E_(C2.x + 112.2, C2.z - 4.6, PI, .58), E_(C2.x + 115.4, C2.z - 4.6, PI, .58), E_(C2.x + 119.5, C2.z - 2.2, -2.2, 1.14)],
+  { id: 'echo_archiv', at: [C2.x + 24, 1.2, C2.z + 1.2], title: 'Nachbild · Archiv, Ebene −2, 2009', figs: [E_(C2.x + 23, C2.z + 1.4, 1.6, 1), E_(C2.x + 25.2, C2.z + .8, -1.4, 1)],
+    lines: [['„Der Ritter hat wieder einen zurückgebracht.“', 3000, 'SACHBEARBEITER'], ['„Nicht einen. Den Falschen. Augenfarbe stimmt nicht.“', 3600, 'SACHBEARBEITERIN'], ['„Dann schreibt ‚Rückläufer‘ in die Akte. Und lasst die Mutter unterschreiben.“', 4200, 'SACHBEARBEITER'], ['„Und wenn er es eines Tages merkt?“', 2800, 'SACHBEARBEITERIN'], ['„Dann sieht es durch ihn. Das ist die Regel.“', 3400, 'SACHBEARBEITER']] },
+  { id: 'echo_messraum', at: [C2.x + 113, 1.2, C2.z - 1.5], title: 'Nachbild · Messraum, 4. August 2009', figs: [E_(C2.x + 109, C2.z - 4.6, PI, .58), E_(C2.x + 112.2, C2.z - 4.6, PI, .58), E_(C2.x + 115.4, C2.z - 4.6, PI, .58), E_(C2.x + 119.5, C2.z - 2.2, -2.2, 1.14)],
     lines: [['Kinder auf den Stühlen, festgeschnallt. Sie schlafen mit offenen Augen.', 3800], ['In der Ecke: ein großer Mann in Eisen. Er rührt sich nicht.', 3600], ['„Wer ist der Mann in der Rüstung?“', 2800, 'KIND'], ['„Er kommt mit dem Licht. Er nimmt keins mit. Er bringt sie heim.“', 4200, 'ÄRZTIN'], ['„Warum weint er dann?“', 2600, 'KIND']] },
-  { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Echo · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
-    lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, bleibt im Weißen.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
-  { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Echo · Das Weiße, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
-    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['„Sieben für Papa. Damit er mich holen kommt.“', 3400, 'DAS KIND'], ['„Und einen für mich. Aus Papa gemacht. Damit ich nicht allein bin.“', 4200, 'DAS KIND']] },
+  { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Nachbild · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
+    lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, fällt irgendwohin in die Zeit.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
+  { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Nachbild · Nimmerheim, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
+    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['Sie zählt sie ab, flüsternd. Bei sieben hört sie auf und sieht zu dir.', 4200]] }, // Fassung 3: alte Zeilen („Sieben für Papa“, „aus Papa gemacht“) abgeschafft – Wortlaut offen (Autor)
 ];
 const echoAnchors = [];
 function addEcho(E) {
@@ -4627,7 +4628,7 @@ async function playEcho(E) {
   for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .32 * (Math.random() < .3 ? .3 : 1); await wait(45); }
   echoFigs.forEach(F => F.visible = false); state.talking = false; if (ECHO_CAST.end) ECHO_CAST.end(E);
   story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
-  questPop('ERINNERUNG', E.title.replace('Echo · ', '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
+  questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
 }
 function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .35 + Math.sin(t * 2.2 + a.E.at[0]) * .2; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
 
@@ -4715,10 +4716,11 @@ async function loadCanal() {
   // Zwei Echos, die nur hier unten zu finden sind
   const far = (k) => pts.slice().sort((a, b) => b.distanceTo(canal.spawn) - a.distanceTo(canal.spawn))[k] || canal.spawn;
   const e1 = far(0), e2 = pts[Math.floor(pts.length * .5)] || canal.spawn;
-  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Echo · Atlantschiss, ohne Jahr', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)],
-    lines: [['Ein Mann in Eisen kniet am Wasser und wäscht seine Hände. Das Wasser wird nicht rot. Es wird weiß.', 4400], ['„Jede Stadt, die es verschluckt, legt es hier ab. Häuser. Straßen. Kinder.“', 4200, 'DER MANN IN EISEN'], ['„Es sammelt, was ich ihm schulde.“', 3000, 'DER MANN IN EISEN']] });
-  addEcho({ id: 'echo_kanal_laterne', at: [e2.x, e2.y + 1, e2.z], floor: e2.y, title: 'Echo · Laternenfest', figs: [E_(e2.x + .6, e2.z, 1, .58), E_(e2.x - .6, e2.z + .3, 1.5, .58), E_(e2.x, e2.z - .7, 0, .58)],
-    lines: [['Kinder mit Papierlaternen. Sie lachen. Sie sprechen eine Sprache, die du nicht kennst – und verstehst trotzdem jedes Wort.', 4600], ['„Wer hat uns hergebracht?“', 2600, 'KIND'], ['„Das Mädchen im Weißen. Sie sagt, hier wird niemand erwachsen.“', 3800, 'KIND'], ['„Ihr Papa zählt nur. Er sucht nie.“', 3200, 'KIND']] });
+  addEcho({ id: 'echo_kanal_ritter', at: [e1.x, e1.y + 1.1, e1.z], floor: e1.y, title: 'Nachbild am Wasser', figs: [E_(e1.x + .8, e1.z + .4, -2, 1.14)], // Fassung 3: Kap. 3 Nebenaufgabe „Außenstelle 3“ (wortgleich)
+    lines: [['Ein Mann in Eisen kniet am Wasser und hält die linke Hand hinein.', 3600], ['Um die Hand wird das Wasser weiß.', 2800], ['Er zieht sie heraus, sieht sie an, hält sie wieder hinein.', 3600], ['Es geht nicht ab.', 2600]] });
+  addEcho({ id: 'echo_kanal_laterne', at: [e2.x, e2.y + 1, e2.z], floor: e2.y, title: 'Nachbild · Laternenfest', figs: [E_(e2.x + .6, e2.z, 1, .58), E_(e2.x - .6, e2.z + .3, 1.5, .58), E_(e2.x, e2.z - .7, 0, .58)],
+    lines: [['Kinder mit Papierlaternen. Sie sprechen eine fremde Sprache, und du verstehst jedes Wort.', 4400], ['„Wer hat uns hergebracht?“', 2600, 'KIND'], ['„Das Mädchen im Licht. Hier wird keiner groß.“', 3400, 'KIND'], // Fassung 3 (wortgleich, RH-9: AP-18)
+      ['Abseits ein Junge in kurzer Lederhose, eine Martinslaterne in der Hand. Er spricht Deutsch.', 4200], ['„Ich kenn die mit der Stalllaterne. Ihr Papa ruft, aber sie sieht ihn nicht.“', 4200, 'JUNGE']] });
   canal.loaded = true; canal.loading = false;
 }
 async function enterCanal() {
@@ -4763,7 +4765,7 @@ async function canalScare() {
 // Ältere Spielstände (ohne v) werden übernommen und beginnen am Kapitelanfang. Beim Laden wird alles geprüft – was nicht passt, fällt auf den Kapitelanfang zurück.
 const SAVE_KEY = 'ham_save', SAVE_V = 2;
 // Kapitel: eine Tabelle für Menü, Weiterspielen und Rückblick.
-const CH_TITLE = { 1: 'Das Haus Nummer 7', 2: 'Das achte Kind', 3: 'Das Licht', 4: 'Die Villa Seiler', 5: 'Der gedeckte Tisch', 6: 'Der Hungrige' };
+const CH_TITLE = { 0: 'Du hast lange geschlafen', 1: 'Keller bleibt zu', 2: 'Das achte Kind', 3: 'Ich komme', 4: 'Sehen, Bergen, Schweigen', 5: 'Iss auf, Bruder', 6: 'Wendigo', 7: '∴' }; // Fassung 3 (AP-01); 0 = Prolog, 7 gesperrt
 const chTitle = n => CH_TITLE[n] || 'Kapitel ' + n;
 // Module mit eigenem Kapitel (ab 5): CH_START[n] = async spielstand => { … } (spielstand = null bei Kapitelwahl). Setzen story.chapter über setChapter(n).
 const CH_START = {};
@@ -4774,10 +4776,13 @@ const CH_SPAWN = { 1: [-66, 0, 2, -PI / 2], 3: [.8, 0, 1.6, -PI / 2 + .3], 4: [.
 const solved = new Set();
 // Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
 const MOD_SAVE = [];
+// Kapitel 3 kapitelübergreifend (Fassung 3, AP-03): Rüstungs-Hinweise, Antwort der Wahl (bis AP-17 aus ch3.choice), Geschenk, Glocken-Joker, Nebenaufgaben
+MOD_SAVE.push(['ch3', () => ({ armorHints: [...ch3.armorHints], answer: ch3.answer || ch3.choice || null, gift: ch3.gift, bell: ch3.bell, side: ch3.side }),
+  v => { ch3.armorHints = new Set(Array.isArray(v.armorHints) ? v.armorHints : []); ch3.answer = ['A', 'B', 'C'].includes(v.answer) ? v.answer : null; ch3.gift = v.gift || null; ch3.bell = !!v.bell; ch3.side = v.side && typeof v.side === 'object' ? v.side : {}; }]);
 let ENV_DARK = 0; // 0…1: Module (z. B. der tiefe Wald) dunkeln Himmels- und Mondlicht ab
 // Einzige Quelle für das Kapitel: story.chapter (setChapter). Ältere Module leiten es noch aus ihren Merkern ab – das Größere gilt.
 function setChapter(n) { story.chapter = n; }
-function curChapter() { if (typeof KAP !== 'undefined' && KAP.n >= 5) return KAP.n; const old =(typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; return Math.max(story.chapter || 1, old); }
+function curChapter() { if (typeof kap === 'function') return kap(); /* Fassung 3 (AP-01): kapitel.js ist die Quelle; unten nur der Rückfall ohne Modul */ const old =(typeof anwesen_S !== 'undefined' && anwesen_S.ch4) ? 4 : ch3.on ? 3 : ch2.on ? 2 : 1; return Math.max(story.chapter || 1, old); }
 function chSpawn(ch) { const s = CH_SPAWN[ch] || (ch === 2 ? [X + 1.2, 0, Z, -PI / 2] : CH_SPAWN[Math.min(4, ch)] || CH_SPAWN[1]); return { x: s[0], y: s[1], z: s[2], yaw: s[3] }; }
 // Merker aus Kapitel 1 (spätere Kapitel setzen ihre Welt beim Start selbst)
 const SAVE_STATE = ['hasKey', 'readPaper', 'readFridge', 'readCal', 'cellarOpen', 'heardTape', 'watcherGone', 'nearHouse', 'slammed', 'kidsRoom', 'carSeen', 'carOpened', 'callDone', 'ghostDone',
@@ -4828,11 +4833,12 @@ function applySave(d) {
   updateSideInfo();
 }
 const RECAP = {
-  2: ['WAS BISHER GESCHAH', 'Lucy verschwand am 23. Oktober. Ihr Anruf führte dich zu Haus Nummer 7.', 'Im Keller lief ihr Tonband: <i>„Wir waren beide weg. Du auch.“</i>', 'Dann kam das Licht – und nahm Frau Wendt vor deinen Augen mit.'],
-  3: ['WAS BISHER GESCHAH', 'Unter Lost Eyengless lag das Amt für Rückführung. Sieben Kinder, acht Protokolle.', 'Akte 08 hatte keinen Namen. <b>Du bist der Ersatz.</b>', 'Lucy lebt – in einem Tank. Und hinter dem Glas: ein graues Gesicht.'],
-  4: ['WAS BISHER GESCHAH', 'Im Weißen wartete ein Kind. Es hat Luke aus dem Blut seines Vaters gemacht – aus Justins Blut.', 'Luke ist geblieben. Justin ging allein hinab. Lucy ist wieder da.', 'Und die Villa Seiler hat acht Schlüssellöcher.'],
-  5: ['WAS BISHER GESCHAH', 'Justin ging allein ins Weiße. Lucy ist wieder da – aber in ihren Augen ist manchmal nur Weiß.', 'In der Villa Seiler sagte eine Frauenstimme: <i>„Noch nicht, Luke. Aber bald.“</i>', 'Am Abend brennt in eurem Elternhaus Licht. Jemand deckt den Tisch.'],
-  6: ['WAS BISHER GESCHAH', 'Am gedeckten Tisch saß nicht Lucy. Es war sie – die Kleine, mit Lucys geliehenem Gesicht.', 'Im Stall hast du den echten Luke getroffen. Mit geschlossenen Augen.', 'Er ist in die Dustwoods gelaufen. Der Wald hat kein Echo.'],
+  // Fassung 3 (AP-01): Rückblick = Endkarte des Vorgängers (wortgleich aus story_final.md), Kap. 4 aus Kern §1/§12 und Justin-Dossier 3.13–3.14
+  2: ['WAS BISHER GESCHAH', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.'],
+  3: ['WAS BISHER GESCHAH', 'Unter Nr. 7 lag das Amt. Die Kinder wurden ausgelost, und die Eltern haben unterschrieben.', 'Akte 08 hatte keinen Namen. Du weißt es jetzt.', 'Sie auch.'],
+  4: ['WAS BISHER GESCHAH', 'In der offenen Nacht hat Luna gezählt. Justin sucht sie seit siebenhundert Jahren, und sie sieht ihn nicht.', 'Einmal hat sie ihn gesehen. Durch dich.', 'Er ist wieder hineingegangen. Noch eine Runde. Lucy ist zurück, fast ganz.'],
+  5: ['WAS BISHER GESCHAH', 'Sie haben ein Bett für dich gemacht.', 'Oben hat jemand deinen Namen gesagt, und es klang nicht nach einer Drohung.', 'Am Abend brennt Licht in eurem Elternhaus.'],
+  6: ['WAS BISHER GESCHAH', 'Vier Teller. Einer blieb leer.', 'Einer ist in den Wald gelaufen, der kein Echo hat.', 'Lucy hat „heim“ gesagt. Du bist mitgegangen.'],
 };
 function showRecap(ch, then) {
   const L = RECAP[ch]; if (!L) return then();
@@ -4896,18 +4902,18 @@ function resumeCh1(d) {
 
 // ---- Fallwand: Hinweise sammeln, dann Schlussfolgerung ziehen
 const CASES = [
-  { id: 'amt', q: 'Was ist das Amt für Rückführung?', clues: { echo_kueche: 'Echo: Wendts Küche', echo_archiv: 'Echo: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
-    a: 'Eine Behörde, die mit dem Licht verhandelt. Sie liefert keine Kinder – nur Papiere. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, wird „Ersatz“ genannt. Unterschreiben müssen die Mütter.' },
-  { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Echo: Die Kreuzung', echo_brand: 'Echo: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
+  { id: 'amt', q: 'Was ist das Amt?', clues: { echo_kueche: 'Nachbild: Wendts Küche', echo_archiv: 'Nachbild: Das Archiv', protokoll: 'Das Vermessungsprotokoll', c3funk: 'Der Funkspruch', fridge: 'Wendts Zettel' },
+    a: 'Eine Behörde, die das Licht verwaltet. Sie lost die Kinder aus, und die Eltern unterschreiben. Wer zurückkommt, wird vermessen; wer falsch zurückkommt, heißt in den Akten „Rückläufer“.' },
+  { id: 'sommer', q: 'Was geschah im Sommer 2009?', clues: { album: 'Das Gruppenfoto mit acht Kindern', echo_kreuzung: 'Nachbild: Die Kreuzung', echo_brand: 'Nachbild: Haus Nr. 5', diary: 'Lucys Tagebuch', tape: 'Lucys Tonband', albers: 'Was Vegas gesehen hat', protokoll: 'Das Vermessungsprotokoll' },
     a: 'Sieben Kinder wurden geholt. Sechs kamen zurück, einer davon als ein anderer; Zayn kam nie. Auf dem Sommerfest-Foto stehen acht: das achte ist das blasse Mädchen, das Luke mitspielen ließ – dasselbe Mädchen, das auf allen Gruppenfotos seit 1958 steht und nie älter wird.' },
-  { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Echo: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
-    a: 'Du bist der Ersatz, zwei Nächte nach den anderen geliefert, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
+  { id: 'kai', q: 'Wer ist Luke wirklich?', clues: { aktekai: 'Akte 06 · Luke B.', echo_kinderzimmer: 'Nachbild: Das Kinderzimmer', akte8: 'Akte 08 · ohne Namen', letter: 'Mamas unabgeschickter Brief', c3brief: 'Mamas letzter Brief' },
+    a: 'Du bist der Wechselbalg, mit braunen statt blauen Augen. Mama wusste es vom ersten Morgen an – und hat dich trotzdem geliebt.' },
   { id: 'lena', q: 'Was ist mit Lucy passiert?', clues: { phone: 'Lucys Handy', calendar: 'Wendts Kalender', call: 'Der Anruf mit deiner Stimme', c3stimme: 'Die Stimme am Telefon' },
     a: 'Lucy ist nie ganz zurückgekommen – sie liegt im Tank des Amts. Der Anruf, der dich nach Lost Eyengless lockte, kam nicht von ihr. Ihre elf Anrufe am 23. Oktober schon. Etwas spielt mit ihren Stimmen.' },
-  { id: 'licht', q: 'Was ist das Licht?', clues: { c3chronik: 'Die Chronik von 1312', c3funk: 'Der Funkspruch', c3buch: 'Hilde Wendts Zählbuch', echo_mira: 'Echo: Das Mädchen im Weißen' },
-    a: 'Das Amt nennt es „das Weiße“. Alle siebzehn Jahre öffnet es sich über Lost Eyengless – 1975, 1992, 2009, 2026. Angefangen hat es 1312, mit einem Handel.' },
-  { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Vegas, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Echo: Der Messraum', echo_1975: 'Echo: Sommer 1975' },
-    a: 'Justin vom Hohen Abgrund. Er steht am Anfang von allem – und jedes Mal, wenn das Weiße sich öffnet, führt er die Kinder heim. Schuld und Wiedergutmachung in einer Rüstung.' },
+  { id: 'licht', q: 'Was ist das Licht?', clues: { c3chronik: 'Die Chronik von 1312', c3funk: 'Der Funkspruch', c3buch: 'Hilde Wendts Zählbuch', echo_mira: 'Nachbild: Das Mädchen in Nimmerheim' },
+    a: 'Die Alten nennen es das Lichtschiff. Alle siebzehn Jahre geht es für eine Nacht auf, über dem Hohen Abgrund. Angefangen hat es 1312: Es ist in die Senke hinter Justins Hof gestürzt, und seine Tochter ist hineingegangen.' },
+  { id: 'justin', q: 'Wer ist der Ritter?', clues: { c3chronik: 'Die Chronik von 1312', c3brief: 'Der Mann in Mamas Garten', c3albers: 'Vegas, 1975', c3buch: 'Der Mann aus Eisen im Zählbuch', echo_messraum: 'Nachbild: Der Messraum', echo_1975: 'Nachbild: Sommer 1975' },
+    a: 'Justin vom Hohen Abgrund. Seine Tochter ging 1312 ins Lichtschiff, seine Frau ging ihr nach. Seitdem geht er in jeder offenen Nacht hinein und sucht die beiden, in einer Rüstung, die nicht wie Eisen klingt.' },
 ];
 const loreHas = k => story.lore.some(l => l.key.toLowerCase() === k);
 function renderCases(B) {
@@ -5420,7 +5426,9 @@ $('mNew').onclick = e => { e.stopPropagation(); menuSound(); confirmNew(() => { 
 try { $('mVer').textContent = HAM_VERSION; const sv = loadSave(); if (sv) { $('mCont').style.display = ''; $('mContSub').textContent = `KAPITEL ${sv.chapter} · ${trX(chTitle(sv.chapter)).toUpperCase()}`; } } catch (e) { console.error('Menü', e); }
 $('mCont').onclick = e => { e.stopPropagation(); if (!settings.calib) return showCalib(continueGame); continueGame(); };
 if (window.IS_APP) { $('mQuit').style.display = ''; $('mQuit').onclick = e => { e.stopPropagation(); window.close(); }; }
-$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap"><button id="c1">Kapitel 1 · Das Haus Nummer 7<small>LOST EYENGLESS · DIE STRASSE · DER KELLER</small></button><button id="c2" ${saveFlags.ch2 ? '' : 'disabled'}>Kapitel 2 · Das achte Kind<small>${saveFlags.ch2 ? 'AMT FÜR RÜCKFÜHRUNG · EBENE −2' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 1'}</small></button><button id="c3" ${saveFlags.ch3 ? '' : 'disabled'}>Kapitel 3 · Das Licht<small>${saveFlags.ch3 ? 'LOST EYENGLESS · 03:13 · DER RITTER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 2'}</small></button><button id="c4" ${saveFlags.ch4 ? '' : 'disabled'}>Kapitel 4 · Die Villa Seiler<small>${saveFlags.ch4 ? 'DER MORGEN DANACH · VILLA SEILER' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 3'}</small></button><button id="c5" ${saveFlags.ch5 ? '' : 'disabled'}>Kapitel 5 · Der gedeckte Tisch<small>${saveFlags.ch5 ? 'DER ABEND · NR. 1 · DER STALL' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 4'}</small></button><button id="c6" ${saveFlags.ch6 ? '' : 'disabled'}>Kapitel 6 · Der Hungrige<small>${saveFlags.ch6 ? 'DIE DUSTWOODS · DER TIEFE WALD' : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL 5'}</small></button></div>`);
+// Kapitelwahl (Fassung 3, AP-01): Titel aus CH_TITLE, Unterzeile je Kapitel; Kapitel 7 „∴“ ist gesperrt (Fortsetzung folgt)
+const CH_SUB = { 1: 'LOST EYENGLESS · DIE AHORNSTRASSE · DER KELLER', 2: 'DAS AMT · EBENE −2', 3: 'DIE OFFENE NACHT · 03:13', 4: 'DER MORGEN DANACH · VILLA SEILER', 5: 'DER ABEND · NR. 1 · DER STALL', 6: 'DIE DUSTWOODS · DER TIEFE WALD' };
+$('mChap').onclick = e => { e.stopPropagation(); menuSound(); showSub(`<div class="ptitle">KAPITEL</div><div class="chap">${[1, 2, 3, 4, 5, 6].map(n => { const on = n === 1 || saveFlags['ch' + n]; return `<button id="c${n}" ${on ? '' : 'disabled'}>Kapitel ${n} · ${esc(trX(chTitle(n)))}<small>${on ? CH_SUB[n] : 'NOCH VERSCHLOSSEN – BEENDE KAPITEL ' + (n - 1)}</small></button>`; }).join('')}<button id="c7" disabled>Kapitel 7 · ${chTitle(7)}<small>FORTSETZUNG FOLGT</small></button></div>`);
   $('c4').onclick = ev => { ev.stopPropagation(); if (!saveFlags.ch4 || typeof startChapter4 !== 'function') return; menuSound(); confirmNew(() => { Audio.init(); startChapter4(); }); };
   const c56 = (n, f) => { $('c' + n).onclick = ev => { ev.stopPropagation(); if (!saveFlags['ch' + n] || typeof f() !== 'function') return; menuSound(); confirmNew(() => { $('subPanel').classList.remove('show'); Audio.init(); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show'); f()(); }); }; };
   c56(5, () => typeof startChapter5 === 'function' ? startChapter5 : null); c56(6, () => typeof startChapter6 === 'function' ? startChapter6 : null);
@@ -5512,13 +5520,13 @@ function flashPower(dt) {
   if (FLASH.charge <= 0) { flashlight.distance = T.distance * .35; return T.intensity * FLASH.GLOW * (.8 + Math.random() * .2); } // Restglimmen
   flashlight.distance = T.distance;
   if (FLASH.charge < FLASH.LOW) { // schwach: dunkler und unruhig, gelegentlich kurzes Aussetzen
-    if (live && !FLASH.lowTold) { FLASH.lowTold = true; FLASH.hudT = 6; toast(FLASH.spare ? `Die Lampe wird schwach. [R] Batterie wechseln (${FLASH.spare} übrig).` : 'Die Lampe wird schwach. Keine Ersatzbatterie – such in Schubladen, Werkbänken, Spinden.', 4200); }
+    if (live && !FLASH.lowTold) { FLASH.lowTold = true; FLASH.hudT = 6; toast(FLASH.spare ? `Die Lampe wird schwach. [R] Batterie wechseln (${FLASH.spare} übrig).` : 'Die Lampe wird schwach. Keine Batterie mehr – such in Schubladen, Werkbänken, Spinden.', 4200); }
     const k = .45 + .55 * FLASH.charge / FLASH.LOW; FLASH.lowT -= dt; if (FLASH.lowT <= 0) { FLASH.lowK = FLASH.lowK < 1 ? 1 : (Math.random() < .12 ? .15 : 1); FLASH.lowT = FLASH.lowK < 1 ? rand(.05, .1) : .08; } return T.intensity * k * FLASH.lowK; // Aussetzer ~1,5/s, je 50–100 ms
   }
   return T.intensity;
 }
 function flashReload() {
-  if (!FLASH.spare) { toast('Keine Ersatzbatterie.', 1800); FLASH.hudT = 3; return; }
+  if (!FLASH.spare) { toast('Keine Batterie mehr.', 1800); FLASH.hudT = 3; return; }
   if (FLASH.charge > .97) { toast('Die Batterie ist noch voll.', 1600); FLASH.hudT = 3; return; }
   FLASH.spare--; FLASH.charge = 1; FLASH.lowTold = false; FLASH.hudT = 4; state.flashFail = Math.max(state.flashFail, .35);
   Audio.play('switch1', { gain: .35, rate: 1.3 }); Audio.play('keys1', { gain: .18, rate: 1.6, delay: .12, dur: .25 }); flashHud(); if (ui.overlay === 'journal') renderJournal();

@@ -607,7 +607,7 @@ function ausbau_nord_readKid(i) {
 // Gedenkfeld-Echo (PK-A A21, Text PK-G T12): erst ab Kapitel 5 und erst nach den sieben Namen
 function ausbau_nord_echo(neu) {
   const N = ausbau_nord; if (N.echo || !N.pit) return; N.echo = true;
-  const mk = () => { N.echoA = addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Echo · Friedhof am Kirchberg, 1. November 2026', // STORY-HOOK: wer das Grab ausgehoben hat
+  const mk = () => { N.echoA = addEcho({ id: 'echo_nord_grab', at: [N.pit.x - .2, 1.1, N.pit.z - 1.6], title: 'Nachbild · Friedhof am Kirchberg, 1. November 2026', // STORY-HOOK: wer das Grab ausgehoben hat
     figs: [E_(N.pit.x - .95, N.pit.z + .1, 1.4, 1), E_(N.pit.x + .95, N.pit.z - .3, -1.6, 1.02), E_(N.pit.x - .1, N.pit.z - 1.35, 0, .58)],
     lines: [['Nacht. Zwei Männer in Mänteln heben eine Grube aus. Ihre Gesichter sind glatt und grau, wie Kinder Beamte malen.', 4600], ['„Tief genug?“', 2000, 'MANN VOM AMT?'], ['„Für ein Kind reicht es. Er ist ja eins. Ein bisschen.“', 3600, 'MANN VOM AMT?'],
       ['Ein Mädchen im weißen Kleid hält die Laterne. Ihr Gesicht ist grau wie Asche. Unter ihrer Stimme läuft leise eine Spieluhr.', 4800], ['„Er kommt. Ich hab ihn eingeladen.“', 3200, '???']] });

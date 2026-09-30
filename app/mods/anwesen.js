@@ -178,7 +178,7 @@ function anwesen_door() {
   S.open = true; anwesen_sockets(); anwesen_enterHall();
 }
 // ---- Kapitel 4
-const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · DIE VILLA SEILER</p><p class="on">5. November 2026. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus, wie an jedem Morgen. Als wäre nichts gewesen.</p><p class="on">Aus dem Gully an der Kreuzung steigt dünner Rauch. Er riecht nach Heizöl.</p><p class="on">Lucy schläft bei Vegas auf dem Sofa. Er hat die ganze Nacht am Fenster gesessen und gezählt.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN</p><p class="on">Donnerstag, 5. November. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus. Die Zeitung ist schon da.</p><p class="on">Lucy liegt bei Vegas auf dem Sofa und friert.</p><p class="on">Auf der Ahornstraße schrubben Männer die Kreide weg.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
   const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); setChapter(4);
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
@@ -317,11 +317,11 @@ async function anwesen_hallEnd() {
 // Endkarte Kapitel 4 (PK-H) mit dem Übergang zu Kapitel 5
 function anwesen_endcard() {
   const ec = $('endcard'); state.ending = true; state.talking = false; Audio.hum(false);
-  ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · DIE VILLA SEILER'; // Titel bricht als Ganzes um
-  ec.querySelector('p').innerHTML = 'Oben brennt Licht. Jemand wartet dort – und kennt deinen Namen.<br>Am Abend brennt auch in eurem Elternhaus Licht.';
+  ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · SEHEN, BERGEN, SCHWEIGEN'; // Titel bricht als Ganzes um (Fassung 3, wortgleich; Vertrauenszeile: AP-05)
+  ec.querySelector('p').innerHTML = 'Sie haben ein Bett für dich gemacht.<br>Oben hat jemand deinen Namen gesagt, und es klang nicht nach einer Drohung.<br>Am Abend brennt Licht in eurem Elternhaus.';
   $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; ec.querySelector('.next').textContent = '';
   const b4 = ec.querySelector('.go4'); if (b4) b4.style.display = 'none';
-  const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'WEITER · KAPITEL 5 · DER GEDECKTE TISCH';
+  const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'WEITER · KAPITEL 5 · ISS AUF, BRUDER';
   go.onclick = e => { e.stopPropagation(); go.onclick = null; anwesen_toCh5(); };
   document.exitPointerLock(); ui.overlay = 'endcard'; ec.classList.add('show'); document.body.classList.add('ov');
   $('fade').style.background = '#000'; $('fade').style.opacity = 0;
@@ -333,10 +333,10 @@ async function anwesen_toCh5() {
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false;
   try { await startChapter5(); } catch (e) { console.error('Kapitel 5', e); location.reload(); }
 }
-// Endkarte von Kapitel 3: zusätzlicher Knopf „Weiter · Kapitel 4“ (Kapitel 4–6 setzen Ende B fort, PK-0.1)
+// Endkarte von Kapitel 3: zusätzlicher Knopf „WEITER · KAPITEL 4“ (Fassung 3: alle Antworten münden in „Noch eine Runde“)
 c3Endcard = (o => (...a) => { o(...a); let b = $('endcard').querySelector('.go4');
   if (!b) { b = document.createElement('div'); b.className = 'go go4'; b.style.marginBottom = '18px'; $('endcard').querySelector('.go').before(b); }
-  b.style.display = ''; b.textContent = ch3.choice === 'A' || ch3.choice === 'C' ? 'WEITER · KAPITEL 4 (setzt Ende B fort)' : 'WEITER · KAPITEL 4 · DIE VILLA SEILER';
+  b.style.display = ''; b.textContent = 'WEITER · KAPITEL 4';
   b.onclick = e => { e.stopPropagation(); b.style.display = 'none'; chapter4Begin(); }; })(c3Endcard);
 WORLD_TICK.push((dt, t) => {
   const S = anwesen_S; if (!S.ready || !state.started) return; const P = player.pos;

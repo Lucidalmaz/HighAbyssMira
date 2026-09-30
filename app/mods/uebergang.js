@@ -147,7 +147,7 @@ function uebergang3_climb(takeLamp, ladHit) {
     }
     if (phase === 'lid') { hold += dt; if (hold > .7) { phase = 'out'; S.town.cap.visible = false; msHide(S.town.cap); for (const m of S.lid) tween(m, { pos: m.position.clone().add(new THREE.Vector3(.95, 0, .2)) }, .6); Audio.setArea(false, false); if (Audio.drone) Audio.drone.gain.value = .03; } return true; }
     if (phase === 'out') { P.y = Math.min(0, P.y + S.speed * 1.2 * dt); if (P.y >= 0) { side += dt; P.x = T.x + Math.min(1, side / .5) * 1.0; if (side >= .5) {
-          questPop('KAPITEL 3', 'Das Licht'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Lost Eyengless. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
+          questPop('KAPITEL 3', 'Ich komme'); chapter3Opening(); setTimeout(() => subtitle('Die Kreuzung. Lost Eyengless. Aber die Laternen atmen.', 4200), 600); return false; } } return true; }
     return false;
   });
 }

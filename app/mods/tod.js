@@ -12,7 +12,7 @@ const TOD_RESET = []; // (cpId, kind) => … – Module setzen ihre Gefahr zurü
 const TOD_LINES = {
   zombie: ['„Bruder“, sagt er. Mit einem Mund, der dafür nicht gemacht ist.', 'Er hat dich festgehalten, bis du aufgehört hast, dich zu wehren.', 'Seine Hände waren warm. Das war das Schlimmste.'],
   rauch: ['Irgendwo hinter dem Rauch war kalte Luft. Du hast sie nicht mehr gefunden.', 'Der Rauch war schneller als du.', 'Du hast nur kurz die Augen zugemacht.'],
-  gezaehlte: ['Kleine, kalte Hände. So viele. Sie haben dich mitgezählt.', 'Sie haben dich nach unten gezogen. Einer hat gekichert.'],
+  gezaehlte: ['Kleine, kalte Hände. So viele. Sie wollten deine Hand und haben sie nicht wieder losgelassen.', 'Sie haben dich nach unten gezogen. Einer hat gekichert.'], // Fassung 3: die Behaltenen (Kern §2)
   feuer: ['Die Hitze war eine Wand. Du bist trotzdem hineingegangen.'],
 };
 // ---------------------------------------------------------------- Aussehen (Todesbildschirm, Blut, Speicherpunkt-Anzeige)
@@ -290,12 +290,12 @@ WORLD_TICK.push((dt) => {
     if (!state.started || menu.attract) return;
     if (S.objFix && !$('introSeq').classList.contains('show')) { S.objT = (S.objT || 0) + dt; if (S.objT > 3) { setC2Objective(S.objFix); S.objFix = null; S.objT = 0; } } // Kapitelstart setzt nach dem Klick die erste Aufgabe – danach die des Speicherpunkts
     // Speicherpunkte an Kapitelanfängen und vor gefährlichen Stellen (je einmal)
-    if (!ch2.on && !ch3.on && !sn.k1) { sn.k1 = true; todCheckpoint('kapitel1', 'Kapitel 1 · Das Haus Nummer 7', { quiet: true }); }
+    if (!ch2.on && !ch3.on && !sn.k1) { sn.k1 = true; todCheckpoint('kapitel1', 'Kapitel 1 · Keller bleibt zu', { quiet: true }); }
     if (ch2.on && !sn.k2 && P.x > X - 5) { sn.k2 = true; todCheckpoint('kapitel2', 'Kapitel 2 · Das achte Kind'); }
     if (ch2.on && !sn.gang && ch2.spiderPhase === 'gone' && ch2.chase === 'idle' && P.x > X + 46.3 && P.x < X + 50 && Math.abs(P.z - Z) < 2) { sn.gang = true; todCheckpoint('gang', 'Der lange Gang', { x: X + 47.5, y: 0, z: Z, yaw: -PI / 2 }); }
     if (ch2.on && !sn.mess && ch2.chase === 'done' && P.x > X + 107.2 && P.x < X + 122) { sn.mess = true; todCheckpoint('messraum', 'Der Messraum', { x: X + 108.2, y: 0, z: Z, yaw: -PI / 2 }); }
-    if (ch3.on && !sn.k3) { sn.k3 = true; sn.k2 = sn.gang = sn.mess = true; todCheckpoint('kapitel3', 'Kapitel 3 · Das Licht'); }
+    if (ch3.on && !sn.k3) { sn.k3 = true; sn.k2 = sn.gang = sn.mess = true; todCheckpoint('kapitel3', 'Kapitel 3 · Ich komme'); }
     if (ch3.on && ch3.chase === 'run' && !sn.c3) { sn.c3 = true;
-      todCheckpoint('gezaehlte', 'Die Gezählten', { x: 29, y: 0, z: -4.6, yaw: PI / 2, persist: false, respawn: async () => { player.pos.set(29, 0, -4.6); player.yaw = PI / 2; gtAfter(2600, () => { if (ch3.chase === 'caught') startC3Chase(); }); subtitle('Renn. Nicht stehen bleiben. Zum Licht.', 3600); } }); }
+      todCheckpoint('gezaehlte', 'Die Behaltenen', { x: 29, y: 0, z: -4.6, yaw: PI / 2, persist: false, respawn: async () => { player.pos.set(29, 0, -4.6); player.yaw = PI / 2; gtAfter(2600, () => { if (ch3.chase === 'caught') startC3Chase(); }); subtitle('Renn. Nicht stehen bleiben. Zum Licht.', 3600); } }); }
   } catch (e) { if (!tod_S.err) { tod_S.err = true; console.warn('Tod-Tick', e); } }
 });

@@ -1,7 +1,7 @@
-// =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3, in Kapitel 3
+// =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; hier die Gespräche aus Kap. 3)
 // Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
 // Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
-// Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Lars Vegas' Spinnereien“ hakt sie ab).
+// Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Das Schlimmste am Rechthaben“ hakt sie ab).
 // Unreal-Modell „alter_mann“ (unreal/Export_Figuren.bat): dann steht er sichtbar im Türspalt. Ohne Modell: nur Licht, Schatten und Stimme – keine Ersatzpuppe.
 const albers_S = { door: { x: -28, y: 1.45, z: -12.2 }, talked: new Set(), hissed: false, busy: false, fig: null, mx: null, act: {}, light: null, beam: null, t: 0, confirmed: new Set() };
 const ALBERS_CLAIMS = [
@@ -17,15 +17,15 @@ const ALBERS_TALKS = [
     ['„Wenn du über die Kreuzung musst: Lampe aus. Frag nicht. Mach einfach.“', 3800]] },
   { id: 't2', when: () => ch3.met, claim: '1312', lines: [
     ['„Du hast ihn gesehen. Den Blecheimer. Ich riech\'s an dir – Rost und Schnee.“', 4200], ['„Der ist älter als die Kapelle. Dreizehnhundertzwölf. Steht alles in der Chronik, aber die liest ja keiner.“', 5000],
-    ['„Der Pfarrer hat gesagt, ich trink zu viel. Der Pfarrer ist neunzehnhundertzweiundneunzig in den Nebel gegangen.“', 5000]] },
+    ['„Der Pfarrer hat gesagt, ich trink zu viel. Der Pfarrer ist zweiundneunzig in den Nebel gegangen.“', 4600]] },
   { id: 't3', when: () => ch3.met && story.items.includes('buch'), claim: 'siebzehn', lines: [
-    ['„Hildes Buch. Die hat alles gezählt, die alte Krähe. Und keiner hat ihr geglaubt. Mir auch nicht.“', 4800], ['„Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Rechne nach, Junge. Siebzehn. Jedes Mal siebzehn.“', 5200],
+    ['„Hildes Buch. Die hat alles gezählt, die alte Krähe. Und keiner hat ihr geglaubt. Mir auch nicht.“', 4800], ['„Rechne nach, Junge. Alle siebzehn Jahre.“', 3400],
     ['„Und dieses Jahr ist wieder so eins.“', 3000]] },
   { id: 't4', when: () => ch3.met && ch3.radio, claim: 'funk', lines: [
     ['„Einunddreißig-zehn. Hab ich\'s nicht gesagt? Die senden. Die haben nie aufgehört.“', 4400], ['„Das Amt, Junge. Ebene minus zwei. Stühle mit Riemen. Ich hab fünfundsiebzig auf so einem gesessen.“', 5000],
     ['„Du auch. Ich seh\'s dir an.“', 2800]] },
   { id: 't5', when: () => ch3.lampsOff || (ch3.radio && story.items.includes('buch')), claim: 'augen', lines: [
-    ['„Wenn du da reingehst, ins Weiße: Zähl nicht mit. Egal, was sie dir vorsagt.“', 4400], ['„Ich hab euch zweitausendneun auf der Kreuzung gezählt. Sieben, hab ich gesagt. Gott sei Dank.“', 4800],
+    ['„Wenn du da reingehst: Zähl nicht mit. Egal, was sie dir vorsagt.“', 4000], ['„Ich hab euch zweitausendneun auf der Kreuzung gezählt. Sieben, hab ich gesagt. Gott sei Dank.“', 4800],
     ['„Aber du, Junge … bis zu dem Sommer hattest du blaue Augen. Ich kenn dich, seit du laufen kannst.“', 4200]] }];
 function albers_claimCheck() {
   const q = story.side.albers_spinn; if (!q) return;
@@ -48,7 +48,7 @@ async function albers_talk() {
 }
 WORLD_MODS.push(['Vegas', async () => {
   const S = albers_S, D = S.door;
-  story.side.albers_spinn = { title: 'Lars Vegas\' Spinnereien', desc: 'Der alte Vegas erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
+  story.side.albers_spinn = { title: 'Das Schlimmste am Rechthaben', desc: 'Der alte Vegas erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
   S.light = new VLight(0xffb070, 0, 4, 2); S.light.position.set(D.x, 1.9, D.z + .25); scene.add(S.light);   // Lampenlicht aus dem Türspalt
   S.beam = new VLight(0xffc890, 0, 5, 2); S.beam.position.set(D.x + .3, 1.2, D.z + 1.4); scene.add(S.beam);    // Taschenlampe, die dich anleuchtet
   S.hit = box(1.1, 2.1, .3, D.x, 1.5, D.z + .15, hidden, { cast: false }); uninteract(S.hit);

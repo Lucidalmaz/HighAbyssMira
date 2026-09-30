@@ -154,7 +154,7 @@ function lucy3_radioPuzzle() {
   if (S.busy || state.talking) return;
   if (S.tuned) return lucy3_funk();
   const tok = ++S.tok; lucy3_radioOn();
-  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · AMT FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.</span></div>
+  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.</span></div>
     <div class="dial"><canvas id="l3Dial" width="1480" height="244"></canvas></div>
     <div class="tune"><div class="eye"><canvas id="l3Eye" width="192" height="192"></canvas></div>
       <div class="knob"><div class="freq" id="l3F">14,00<small>MHz</small></div><input type="range" id="rF" min="3" max="32" step="0.01" value="14.00">
@@ -314,7 +314,7 @@ async function lucy3_sign(S0) { const E = LUCY3_SIGN[S0.n], g = lucy3_S.signs[S0
   if (useGhost) for (let k = 12; k >= 0; k--) { echoMat.opacity = k / 12 * .32 * (Math.random() < .3 ? .3 : 1); await lucy3_sleep(34); }
   echoMat.opacity = useGhost ? 0 : o0; if (g) g.visible = false; if (typeof figuren_memoryLook === 'function' && !state.talking) figuren_memoryLook(false); lucy3_S.signBusy = false; }
 function lucy3_pressSwitch(S) {
-  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Weiße leuchtet noch.');
+  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Lichtschiff leuchtet noch.');
   if (!ch3.met) return toast('Ein Kasten der Stadtwerke. Ein Hebel: LEUCHTE AUS. Warum solltest du?');
   if (S.off) return toast('Der Hebel steht schon auf AUS.');
   if (lucy3_S.flaring || lucy3_S.signBusy) return;
@@ -435,7 +435,7 @@ WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
   try { lucy3_buildArrows(); } catch (e) { console.warn('Lucy3: Pfeile', e); }
   // Nachhall-Gestalten der Unterschriften beim Laden besetzen (nie während des Spiels laden)
   if (typeof figuren_embody === 'function') for (const [n, E] of Object.entries(LUCY3_SIGN)) { const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; scene.add(g);
-    try { await figuren_embody(g, E.who, { ghost: true, clip: E.clip }); lucy3_S.signs[n] = g; } catch (e) { console.warn('Lucy3: Nachhall ' + E.who, e); } }
+    try { await figuren_embody(g, E.who, { ghost: true, clip: E.clip }); lucy3_S.signs[n] = g; } catch (e) { console.warn('Lucy3: Nachbild ' + E.who, e); } }
   window.__lucy3 = { S: lucy3_S, radio: () => radioPuzzle(), press: n => pressSwitch(switchBoxes.find(b => b.n === n)), opening: () => chapter3Opening(), jHint: () => jHint(), wrong: () => wrongSwitch(),
     car: () => lenaCar, radioBox: () => radioBox, boxes: () => switchBoxes, lookTop: () => lucy3_lookTop(), lookLow: () => lucy3_lookLow(), isK3: lucy3_isK3, sign: n => lucy3_sign(switchBoxes.find(b => b.n === n)) }; // Testzugriff
 }]);

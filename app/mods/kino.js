@@ -198,7 +198,7 @@ WORLD_MODS.push(['Kino', async () => {
   kino_css(); const S = kino_S, T = THREE, t0 = performance.now(), lap = n => { S.loadT.push(n + ' ' + Math.round(performance.now() - t0)); }; S.loadT = [];
   // Figuren (figuren.js hat sie beim Laden schon geholt – hier nur klonen)
   const casts = [['lucy', 'lucy_erw'], ['hilde', 'hilde'], ['zayn', 'zayn'], ['mike', 'mike'], ['roxy', 'roxy'], ['junge', 'gezaehlt_j'], ['maedchen', 'gezaehlt_m'], ['frau', 'aydin'],
-    ['kleine', 'kleine'], ['echt', 'luke_echt'], ['graue', 'graue'], ['kopie', 'luke']];
+    ['graukind', 'graukind'], ['echt', 'luke_echt'], ['graue', 'graue'], ['kopie', 'luke']];
   if (typeof figuren_load === 'function') await Promise.all(casts.map(([k, id]) => kino_mkFig(k, id)));
   lap('figuren');
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
@@ -418,7 +418,7 @@ function kino_defs() {
     { from: [-68.9, 1.7, 4.9], to: [-69.6, 1.8, 5.5], look: [-72.28, 1.55, 6.3], dur: 4.5, fov: 30, env: { exp: 1.9 },
       setup() { kino_schild('orig'); },
       sfx: [[() => { kino_schild('2'); kino_kreide(-72.2, 1.5, 6.3); }, .8], [() => kino_schild('21'), 1.35], [() => kino_schild('210'), 1.9]] },
-    { card: ['KAPITEL 1 — ENDE · DAS HAUS NUMMER 7', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.'], dur: 8.5, fadeOut: 900,
+    { card: ['KAPITEL 1 · KELLER BLEIBT ZU', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.'], dur: 10, fadeOut: 900, // Fassung 3 (wortgleich; Zählerzeile: AP-11)
       setup() { kino_still(true, 1.5); } },
   ], { name: 'Du hast sie rausgelassen', done() { kino_schild('210'); } });
 
@@ -471,7 +471,7 @@ function kino_defs() {
       lines: [['„Mike!“', 'LARS VEGAS', 1.2, 3200], ['„… Zayn?“', 'LARS VEGAS', 5.6, 3800]],
       teardown() { const A = typeof albers_S !== 'undefined' ? albers_S : null; if (A && A.fig) A.fig.visible = false; } },
     { from: [-6.6, 1.05, 6.9], to: [-6.45, 1.02, 6.7], look: [0, .9, 0], dur: 10, fov: 40, env: 'dawn',
-      setup() { bareOn(); kino_fig('lucy', -6.1, 0, 6.2, PI * .75, 'idle', { sit: .2 }); kino_fig('kleine', 9, 0, -15, -.4, 'idle'); const l = kino_show('laterneAus', 9.25, .55, -14.8); l.rotation.set(0, 0, .06); },
+      setup() { bareOn(); kino_fig('lucy', -6.1, 0, 6.2, PI * .75, 'idle', { sit: .2 }); kino_fig('graukind', 9, 0, -15, -.4, 'idle'); const l = kino_show('laterneAus', 9.25, .55, -14.8); l.rotation.set(0, 0, .06); },
       lines: [['„… sechs, sieben … acht.“', 'LUCY', 3.2, 4800]], sfx: [[() => kino_atem(.05, 1.1), 2.2]] },
     { black: true, dur: 4, fadeOut: 1400, setup() { kino_still(true, 2); } },
   ], { name: 'Das Siegel', done() { bareOff(); kino_lamps(L => { if (L._m !== undefined) { L.mode = L._m; delete L._m; } }); } });
@@ -512,15 +512,15 @@ function kino_defs() {
       sfx: [[() => { for (let i = 0; i < 7; i++) { const a = i / 8 * PI * 2; Audio.whisper(X3 + 42 + Math.cos(a) * 5, 1, Z3 + Math.sin(a) * 5, 2.4); } }, 2.4]],
       teardown(sh) { const g = justin.g; g.position.copy(sh.j[0]); g.rotation.y = sh.j[1]; g.visible = sh.j[2]; kino_hide('schwert'); kino_helm(true); } },
     { from: [X3 + 44.2, 1.0, Z3 - 1.6], to: [X3 + 44.3, 1.0, Z3 - 1.2], look: [X3 + 42.2, .85, Z3 + .4], dur: 8, fov: 38,
-      setup(sh) { if (typeof mira !== 'undefined') { sh.mira = mira.visible; mira.visible = false; } kino_fig('kleine', X3 + 42.3, 0, Z3 + .4, PI * .6, 'idle'); },
-      tick(k, t) { const P = kino_S.fig.kleine; if (!P) return; if (t > 3.2) { kino_play_(P, 'walk', 1.9); P.g.rotation.y = PI * .15; P.g.position.x = X3 + 42.3 + (t - 3.2) * .6; P.g.position.z = Z3 + .4 + (t - 3.2) * 1.9; } },
+      setup(sh) { if (typeof graukind !== 'undefined') { sh.gk = graukind.visible; graukind.visible = false; } kino_fig('graukind', X3 + 42.3, 0, Z3 + .4, PI * .6, 'idle'); },
+      tick(k, t) { const P = kino_S.fig.graukind; if (!P) return; if (t > 3.2) { kino_play_(P, 'walk', 1.9); P.g.rotation.y = PI * .15; P.g.position.x = X3 + 42.3 + (t - 3.2) * .6; P.g.position.z = Z3 + .4 + (t - 3.2) * 1.9; } },
       sfx: [[() => Audio.giggle(X3 + 42.3, 1, Z3 + .4), 1], [() => Audio.giggle(X3 + 42.6, 1, Z3 + 2), 3.3]],
       lines: [['„… Siebzehn.“', 'JUSTIN', 4.8, 3000]],
-      teardown(sh) { if (typeof mira !== 'undefined' && sh.mira !== undefined) mira.visible = sh.mira; kino_figOff('kleine'); } },
+      teardown(sh) { if (typeof graukind !== 'undefined' && sh.gk !== undefined) graukind.visible = sh.gk; kino_figOff('graukind'); } },
     { path(e, t, v, w, sh) { const W = kino_S.wiese || { cx: X3 + 42, cz: Z3 + 46 }; v.set(W.cx + .6, 1.6, W.cz - 3 + 7 * e); w.set(W.cx + .1, 1.4, W.cz + 3 + 9 * e); }, dur: 10, fov: 46, env: 'white', fadeIn: 2000,
       setup(sh) { const W = kino_S.wiese || { cx: X3 + 42, cz: Z3 + 46 }; kino_show('wiese'); const g = justin.g; sh.j = [g.position.clone(), g.rotation.y, g.visible]; g.visible = true; g.position.set(W.cx, 0, W.cz + 1); g.rotation.y = 0; if (typeof jPlay === 'function') jPlay('walk', 0); kino_helm(false); },
       tick(k, t, dt) { const W = kino_S.wiese || { cx: X3 + 42, cz: Z3 + 46 }; if (justin.mixer) justin.mixer.update(dt); justin.g.position.z = W.cz + 1 + t * 1.05; justin.g.position.x = W.cx + Math.sin(t * .4) * .6; },
-      lines: [['„Ich komme.“', 'JUSTIN', 1.5, 3000], ['„Danke, Luke.“', 'JUSTIN', 6.2, 3400]],
+      lines: [['„Ich komme.“', 'JUSTIN', 1.5, 3000]], // Fassung 3: „Danke, Luke.“ entfällt (Justin sagt „Luke“ nie laut, 02 B2)
       sfx: [[() => Audio.gust && Audio.gust(3), 1]],
       teardown(sh) { const g = justin.g; g.position.copy(sh.j[0]); g.rotation.y = sh.j[1]; g.visible = sh.j[2]; if (typeof jPlay === 'function') jPlay('idle', 0); kino_helm(true); kino_hide('wiese'); } },
     { from: [X3 + 42, .5, Z3 + 46], to: [X3 + 42, .4, Z3 + 45.6], look: [X3 + 42.4, 22, Z3 + 50], dur: 6, fov: 60, env: 'white',

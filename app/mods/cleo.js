@@ -1,6 +1,6 @@
-// =====================================================================  CLEO (Modul „cleo“): Die Vergessene
+// =====================================================================  CLEO (Modul „cleo“): Eine für sieben (Fassung 3; früher „Die Vergessene“)
 // Cleo, 8, wohnte im Birkenweg. Zu ihrem Geburtstag am 25. Juli 2009 kam niemand außer Lucy. Drei Tage später, als die Sieben geholt wurden,
-// ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ (Spiegel von Justins „Sieben für meine eine“).
+// ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ (Spiegel von Mira 1312: „ich für sechs“).
 // Kinderregel des Lichts: „Geschenkt ist geschenkt, wiederholen ist gestohlen.“ Wer sich verschenkt, gehört dem Kind im Licht ganz – mit Namen und Erinnerung.
 // Darum erinnert sich niemand an Cleo, nicht einmal ihre Eltern. Nur Lucy hat sie jeden Tag in ihr Tagebuch geschrieben: „C.“
 // Spuren: Kap. 1 – Lucys Tagebuch, die Lücke im Gruppenfoto, der weiß gekratzte achte Stein am Gedenkfeld · Kap. 2 – die Akte ohne Nummer („FREIWILLIG“)
@@ -11,7 +11,7 @@ const cleo_has = k => story.lore.some(l => l.key === k);
 function cleo_start(desc) { sideStart('cleo'); if (desc) story.side.cleo.desc = desc; }
 WORLD_MODS.push(['Cleo', async () => {
   const S = cleo_S, T = THREE, X = C2.x, Z = C2.z;
-  story.side.cleo = { title: 'Die Vergessene', desc: 'In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C.', state: 'hidden' };
+  story.side.cleo = { title: 'Eine für sieben', desc: 'In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C.', state: 'hidden' };
   modItem('cleo_kreide', 'Weiße Kreide', 'Ein Stück Kreide, mit Klebeband umwickelt. Auf dem Band, in Kinderschrift: C.', 'paper');
   // --- Der achte Stein am Gedenkfeld, links neben Zayn
   try { const g = await msModel('grave_weathered', 'model.glb'); const o = msGround(msFit(g.clone(true), .62, 'y')); o.position.set(CLEO_STONE.x, -.03, CLEO_STONE.z); o.rotation.y = .06;
@@ -55,7 +55,7 @@ function cleo_akte() {
   story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
   cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
   openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
-  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Justin hat sieben für seine eine geschickt. Und irgendwer hat sich selbst geschickt – für uns.', 1000, 3);
+  if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Irgendwer hat sich selbst geschickt – für uns.', 1000, 3); // Fassung 3: alte Justin-Zeile abgeschafft
 }
 function cleo_climb(up) {
   const S = cleo_S, P = WALD.tree, y = wald_S.treeY || 2.2; if (S.climbing || (up && player.pos.y > 1) || (!up && player.pos.y < 1)) return; S.climbing = true; state.talking = true; let t = 0;

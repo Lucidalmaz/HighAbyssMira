@@ -2,7 +2,8 @@
 // Echtes, gerigtes Modell (Unreal Animal Variety Pack, animal_crow), dunkler und größer als die Dorfkrähen. Sitzt an Stationen, die zum
 // Fortschritt passen, fliegt voraus, pickt an Hinweisen, gibt eine Aufgabe (Tausch: etwas Glänzendes gegen einen Schlüssel).
 // Den Namen hat ihm Lars Vegas gegeben (er saß abends auf seinem Geländer). Justin erklärt in Kapitel 3, was es mit ihm auf sich hat.
-const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null, mode: 'gone', fl: null, idleT: 2, met: new Set(), seen: new Set(), named: false, hit: null, trade: false, jHit: null, jAsked: false }; // met = angesprochen, seen = gesehen (nur fürs Krächzen)
+const whiskey_S = { ready: false, g: null, mx: null, A: {}, cur: null, st: null, mode: 'gone', fl: null, idleT: 2, met: new Set(), seen: new Set(), named: false, hit: null, trade: false, jHit: null, jAsked: false,
+  mood: 'eitel', ignored: 0, said: new Set(), stolen: [], help: 0, ring: false, light: false, vegas_taufe: false, hatSchluessel: false, chip: false }; // met = angesprochen, seen = gesehen (nur fürs Krächzen) · ab mood: Fassung 3 (AP-03, genutzt ab AP-08)
 // Stationen: when() = aktiv, done() = erledigt (dann fliegt er weiter/fort). at = [x, z] Sitzplatz (Oberfläche wird per Strahl gesucht), talk = Klick
 const WHISKEY_ST = [
   { id: 'start', at: [-44.2, 3.4], when: () => state.started && !ch2.on && !ch3.on && story.main <= 1, done: () => story.main >= 1 || Math.hypot(player.pos.x + 44.2, player.pos.z - 3.4) < 6,
@@ -47,7 +48,10 @@ function whiskey_tradeTalk() {
   S.trade = true; FLASH.spare--; if (!FLASH.spare) story.items = story.items.filter(k => k !== 'batterie');
   addItem('baumhausschluessel'); whiskey_caw(); toast('Du hältst ihm eine Batterie hin. Er nimmt sie, prüft sie mit dem Schnabel – und lässt einen kleinen Messingschlüssel in deine Hand fallen.', 5200); // STORY-HOOK: Schlüssel zu Cleos Kiste im Baumhaus
 }
-MOD_SAVE.push(['whiskey', () => ({ met: [...whiskey_S.met], trade: whiskey_S.trade, named: whiskey_S.named }), v => { const S = whiskey_S; (v.met || []).forEach(m => S.met.add(m)); S.trade = !!v.trade || story.items.includes('baumhausschluessel') || story.lore.some(l => l.key === 'cleo_baumhaus'); S.named = !!v.named || S.trade; }]);
+MOD_SAVE.push(['whiskey', () => { const S = whiskey_S; return { met: [...S.met], trade: S.trade, named: S.named, mood: S.mood, ignored: S.ignored, said: [...S.said], stolen: S.stolen.slice(), help: S.help, ring: S.ring, light: S.light, vegas_taufe: S.vegas_taufe, hatSchluessel: S.hatSchluessel, chip: S.chip }; },
+  v => { const S = whiskey_S; (v.met || []).forEach(m => S.met.add(m)); S.trade = !!v.trade || story.items.includes('baumhausschluessel') || story.lore.some(l => l.key === 'cleo_baumhaus'); S.named = !!v.named || S.trade;
+    if (['eitel', 'beleidigt', 'handel', 'still'].includes(v.mood)) S.mood = v.mood; S.ignored = +v.ignored || 0; (v.said || []).forEach(k => S.said.add(k)); S.stolen = Array.isArray(v.stolen) ? v.stolen.slice() : [];
+    S.help = +v.help || 0; S.ring = !!v.ring; S.light = !!v.light; S.vegas_taufe = !!v.vegas_taufe || S.named; S.hatSchluessel = !!v.hatSchluessel; S.chip = !!v.chip; }]); // Fassung 3 (AP-03): ältere Stände ohne die neuen Felder behalten die Standardwerte
 WORLD_MODS.push(['Whiskey', async () => {
   const S = whiskey_S; modItem('baumhausschluessel', 'Kleiner Messingschlüssel', 'Von Whiskey, gegen eine Batterie getauscht. In den Bart ist ein „C“ gefeilt.', 'key');
   try {
@@ -63,10 +67,10 @@ WORLD_MODS.push(['Whiskey', async () => {
     // Justin nach dem Raben fragen (Kapitel 3, ab der dritten Begegnung)
     S.jHit = box(.9, 2.2, .9, 0, -50, 0, hidden, { cast: false });
     interact(S.jHit, 'Justin nach dem Raben fragen', async () => { if (S.jAsked || state.talking) return; S.jAsked = true; uninteract(S.jHit); state.talking = true;
-      await say([['„Der Rabe? Er gehörte meiner Frau. Er war schon alt, als ich sie kennenlernte.“', 4200, 'JUSTIN'], ['„Er fliegt zwischen dem Weißen und euch hin und her. Er hat nie gelernt, auf welcher Seite er zu Hause ist.“', 5200, 'JUSTIN'],
-        ['„Er hatte viele Namen. Bei euch heißt er Whiskey. Sie hat gesagt, er findet immer heim. Zu ihr.“', 5000, 'JUSTIN']]); state.talking = false; // STORY-HOOK: Whiskey = Bote von Justins Frau (Mira, spätere Kapitel – hier namenlos)
-      story.lore.push({ key: 'whiskey_justin', title: 'Whiskey', html: 'Laut Justin gehörte der Rabe seiner Frau. Er fliegt zwischen dem Weißen und Lost Eyengless.\n\n„Sie hat gesagt, er findet immer heim. Zu ihr.“' });
-      setTimeout(() => subtitle('<i>Seine Frau. Er redet von ihr, als wäre sie nicht tot. Als würde sie noch kommen.</i>', 4200, 'LUKE'), 900); });
+      await say([['„Wîse. Du alter Dieb.“', 2600, 'JUSTIN'], ['Der heißt Whiskey.', 2000, 'DU'], ['„Euer Nachbar glaubt, er hat ihn getauft. Der Vogel hat sich den Namen ausgesucht. Er gehörte meiner Frau.“', 5200, 'JUSTIN'], // Fassung 3: Justin-Dossier 3.10 (W-06-Umbau: AP-08)
+        ['„Sie hat gesagt, er findet immer heim. Zu ihr, hat sie gesagt. Von mir war nie die Rede.“', 4800, 'JUSTIN']]); state.talking = false; // STORY-HOOK: Whiskey = Bote von Justins Frau (Mira, spätere Kapitel – hier namenlos)
+      story.lore.push({ key: 'whiskey_justin', title: 'Whiskey', html: 'Justin nennt ihn Wîse. Er gehörte seiner Frau. „Er findet immer heim. Zu ihr.“' });
+      setTimeout(() => subtitle('<i>Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen.</i>', 4200, 'LUKE'), 900); });
     uninteract(S.jHit);
     S.ready = true;
   } catch (e) { console.warn('Whiskey', e); }

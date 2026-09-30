@@ -14,14 +14,13 @@ const GEDANKEN_SCHRECK = ['Das war nicht der Wind. Oder? … Atmen, Luke. Einfac
   'Reiß dich zusammen. Das ist ein Haus. Nur ein Haus.', 'Irgendwas will, dass ich Angst habe. Und es funktioniert.',
   'Wenn ich gerade verrückt werde – merk ich das dann überhaupt?', 'Mein Herz. Hör auf. Hör einfach auf.'];
 const GEDANKEN_ECHO = {
-  echo_kreuzung: 'Sieben Kinder. Vegas hat gezählt. Und ich … war ich dabei? Ich war doch einer von ihnen. Oder?',
-  echo_kueche: '„Fast wie Zayn.“ Sie haben ihr einen Ersatz angeboten. Wie einen Hund aus dem Tierheim.',
+  echo_kreuzung: 'Wie wenn man in eine Lampe geguckt hat und die Augen zumacht. Ein Nachbild. Nur dass das nicht meins war. Oder?', // Fassung 3: Kap. 1 (wortgleich)
+  echo_kueche: '„Fast wie Zayn.“ Sie haben ihr einen anderen Jungen angeboten. Wie einen Hund aus dem Tierheim.',
   echo_kinderzimmer: 'Er wusste nicht, wie unser Hund hieß. … Ich weiß es auch nicht. Warum weiß ich das nicht?',
   echo_brand: 'Sie wollte zurück. Dahin, wo es warm war. Was ist da oben, dass ein Kind sein eigenes Haus anzündet?',
   echo_archiv: '„Augenfarbe stimmt nicht.“ … Meine Augen sind braun. Waren sie immer braun?',
   echo_messraum: 'Kinder, festgeschnallt, mit offenen Augen. Einer hatte meine Jacke an. Meine alte, blaue Jacke.',
-  echo_1975: 'Vegas. Als Kind. An der Hand vom Mann in Eisen. Der alte Mann hat es die ganze Zeit gewusst.',
-  echo_mira: 'Sieben für Papa. Einen für sich, aus Papa gemacht. … Und welcher davon bin ich?' };
+  echo_1975: 'Vegas. Als Kind. An der Hand vom Mann in Eisen. Der alte Mann hat es die ganze Zeit gewusst.' }; // Fassung 3: echo_mira („aus Papa gemacht“) abgeschafft, neuer Wortlaut offen (Autor)
 // Erste Eindrücke an Orten: [id, x0, x1, z0, z1, Bedingung, Text]
 const GEDANKEN_ORTE = [
   ['ort_friedhof', -75, -30, 66, 95, () => true, 'Kindergräber. Ich les die Namen nicht. Noch nicht.'],
@@ -63,9 +62,9 @@ WORLD_MODS.push(['Gedanken', async () => {
   spiderEvent = after(spiderEvent, () => gedanke('spinnen', 'Raus aus meinem Kopf. Das war nicht echt. … Es hat sich echt angefühlt.', 1500, 3));
   caught = after(caught, () => gedanke('gefangen', 'Er hat mich nicht gebissen. Er hat mich festgehalten. Wie jemanden, den man lange vermisst hat.', 1500, 3));
   playEcho = after(playEcho, E => { if (GEDANKEN_ECHO[E.id]) gedanke('echo_' + E.id, GEDANKEN_ECHO[E.id], 900, 3);
-    // Nachhall: warum Luke die Abdrücke sieht (Narbe = Justins Blut) – nach der ersten und dritten Erinnerung
+    // Nachbilder: warum Luke sie sieht (Narbe = aus Justins Hand gemacht, Fassung 3) – nach dem ersten und dritten Nachbild
     const n = echoSeen.size; if (n === 1) gedanke('nachhall_1', 'Die Narbe in der Hand. Sie hat gebrannt, sobald ich den Ort angefasst hab. … Als würde sich die Hand erinnern, nicht ich.', 7000, 3);
-    if (n === 3) gedanke('nachhall_2', 'Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh, was da nachhallt. Warum ich?', 7000, 3); });
+    if (n === 3) gedanke('nachhall_2', 'Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh diese Bilder. Warum ich?', 7000, 3); });
   CH2_BEGIN.push(() => gedanke('tuer', 'Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.', 7500, 3));
   CH2_END.push(() => gedanke('lena_tank', 'Lucy war da drin. „Weißt du es jetzt?“ … Ja. Und ich wünschte, ich wüsste es nicht.', 14000, 3));
 }]);

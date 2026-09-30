@@ -11,7 +11,7 @@ const ENTD_REIM = ['Eins – das Licht geht aus im Haus.', 'Zwei – die Kinder 
   'Dreizehn – drei Uhr dreizehn steht.', 'Vierzehn – wer da unten geht?', 'Fünfzehn – ein Licht, ganz weit, ganz klein.', 'Sechzehn – eine Laterne, nicht allein.',
   'Siebzehn – wer sich jetzt nicht versteckt, ist dran.'];
 const ENTD_STUFEN = [ // [Funde, Titel, Belohnung (Text), Wirkung(beimLaden)]
-  [10, 'Aufmerksam', 'Zwei Ersatzbatterien', load => { if (!load) addBattery(2); }],
+  [10, 'Aufmerksam', 'Zwei Batterien', load => { if (!load) addBattery(2); }],
   [20, 'Spürnase', 'Sparsame Lampe: der Akku hält ein Viertel länger', () => FLASH_TIERS.forEach(T => T.life = Math.round(T.life * 1.25))],
   [30, 'Kinderaugen', 'Kinderblick lädt schneller (50 statt 75 Sekunden)', () => { VISION_RECHARGE = 50; }],
   [45, 'Nachtwanderer', 'Weiterer Lichtkegel: 15 % mehr Reichweite', () => { FLASH_TIERS.forEach(T => T.distance = +(T.distance * 1.15).toFixed(1)); flashApply(); }],

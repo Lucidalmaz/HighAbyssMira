@@ -12,7 +12,7 @@ const K6 = { on: false, beat: '', obj: '', sp: new Set(), told: new Set(), ready
   sil: 0, holdT: 0, openT: -1, lampDead: false, lighter: null, boy: null, chair: null, gi: 0, guideT: 0, epiBusy: false, busSeen: 0, kidT: 0, hint: null, wahl: null, saveT: 0 };
 const K6_ZONEN = [{ x: 1.5, z: 199.6, r: 25, id: 'frass' }, { x: 14, z: 178.5, r: 15, id: 'hochsitz' }, { x: 65, z: 199.5, r: 15, id: 'bus' }, { x: -13.2, z: 206.8, r: 30, id: 'bau' }];
 const K6_WEG = [[-5, 203], [6, 200], [22, 196], [40, 189], [27, 184], [19, 176.5]]; // Whiskeys Rückweg vom Bau zum Hochsitz (tiefwald.js: TIEF_PATHS 5 und 1)
-const K6_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 6 · DER HUNGRIGE</p><p class="on">6. November 2026, 02:10.</p><p class="on">Lucy schläft bei Vegas. Diesmal ganz.</p><p class="on">Du nicht. In der Jacke: Peters Feuerzeug. Mamas Kerze. Die Lampe.</p><p class="on">Hinter dem Spielplatz sitzt ein Junge mit deinem Namen in einem Wald, der kein Echo hat.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const K6_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 6 · WENDIGO</p><p class="on">Freitag, kurz nach zwei.</p><p class="on">Lucy schläft bei Vegas. Diesmal ganz.</p><p class="on">Du nicht. In der Jacke: Peters Feuerzeug, die Lampe, drei Batterien.</p><p class="on">Hinter dem Spielplatz sitzt ein Junge mit deinem Namen in einem Wald, der kein Echo hat.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 const K6_BEATS = ['gitter', 'krumen', 'huette', 'zaun', 'faden', 'wrack', 'bau', 'epilog', 'hochsitz', 'oben', 'ende'];
 const k6_ab = b => K6_BEATS.indexOf(K6.beat) >= K6_BEATS.indexOf(b);
 const _k6V = new THREE.Vector3(), _k6M = new THREE.Matrix4(), _k6Z = new THREE.Matrix4().makeScale(0, 0, 0);
@@ -227,11 +227,11 @@ async function k6_ende() {
   if (typeof kino_play === 'function') { if (K6.boy) K6.boy.g.visible = false; try { await kino_play('k6'); } catch (e) { console.error('Kino k6', e); } } else { $('fade').style.background = '#000'; await fade(1, 1200); await k6_wait(1500); } // die Kinosequenz besetzt den Jungen selbst
   if (typeof kapEnde === 'function') { try { kapEnde(6); } catch (e) { console.error('kapEnde(6)', e); } }
   const ec = $('endcard'); state.ending = true; state.talking = false;
-  ec.querySelector('h1').textContent = 'KAPITEL 6 — ENDE · DER HUNGRIGE';
-  ec.querySelector('p').innerHTML = 'Er ist nicht tot. Er weiß jetzt, wem du gehörst.<br>Oben auf dem Hochsitz schläft ein Junge mit deinem Namen. Du hast ihn nicht angesehen.<br>Am Samstag kommt Jonas.';
+  ec.querySelector('h1').textContent = 'KAPITEL 6 · WENDIGO · ENDE'; // Fassung 3, wortgleich
+  ec.querySelector('p').innerHTML = 'Er ist nicht tot. Er weiß jetzt, wem der Rabe gehört.<br>Auf dem Hochsitz schläft ein Junge in deiner Jacke. Du hast ihn nicht angesehen.<br>Der Rabe ist nach Westen geflogen.<br>Am Samstag kommt Jonas.';
   $('endStats').innerHTML = `FUNDE ${story.lore.length}`; ec.querySelector('.next').textContent = 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT';
   const b4 = ec.querySelector('.go4'); if (b4) b4.style.display = 'none';
-  const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'ZURÜCK ZUM HAUPTMENÜ'; go.onclick = e => { e.stopPropagation(); location.reload(); };
+  const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'ZUM TITEL'; go.onclick = e => { e.stopPropagation(); location.reload(); };
   document.exitPointerLock(); ui.overlay = 'endcard'; ec.classList.add('show'); document.body.classList.add('ov'); $('fade').style.opacity = 0;
 }
 // ---------------------------------------------------------------- Start

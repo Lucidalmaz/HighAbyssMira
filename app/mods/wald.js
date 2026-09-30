@@ -99,8 +99,8 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
   if (typeof hintAdd === 'function') { hintAdd({ id: 'wald_welpe', x: WALD.wolf.x, y: 0, z: WALD.wolf.z, kind: 'geheim', near: 40, open: () => wald_frei() && !story.lore.some(l => l.key === 'wald_welpe') });
     hintAdd({ id: 'wald_hirsch', x: WALD.clear.x, y: 0, z: WALD.clear.z, kind: 'geheim', near: 40, open: () => wald_frei() && !story.lore.some(l => l.key === 'wald_hirsch') }); }
   S.statics = scene.children.slice(n0);
-  story.side.wald_welpe = { title: 'Die Schlinge', desc: 'Irgendwo im Osten der Dustwoods jault etwas. Hoch, dünn, verzweifelt.', state: 'hidden' };
-  story.side.wald_hirsch = { title: 'Die Lichtung', desc: 'Auf einer Lichtung grasen Rehe. Sie fliehen vor Licht und schnellen Schritten.', state: 'hidden' };
+  story.side.wald_welpe = { title: 'Nicht rennen, Lampe an', desc: 'Irgendwo im Osten der Dustwoods jault etwas. Hoch, dünn, verzweifelt.', state: 'hidden' };
+  story.side.wald_hirsch = { title: 'Was wegläuft, ist echt', desc: 'Auf einer Lichtung grasen Rehe. Sie fliehen vor Licht und schnellen Schritten.', state: 'hidden' };
   S.ready = true;
 }]);
 // ---------------------------------------------------------------- Tiere
@@ -137,7 +137,7 @@ function wald_pup() {
   sideStart('wald_welpe');
   if (!story.items.includes('drahtschneider')) { story.side.wald_welpe.desc = 'Ein Wolfswelpe hängt in einer Drahtschlinge. Mit bloßen Händen bekommst du den Draht nicht auf.'; return toast('Ein Wolfswelpe. Der Draht hat sich um sein Hinterbein gezogen, er zittert. Hinter dir knurrt es, tief und leise. Mit bloßen Händen bekommst du den Draht nicht auf.', 5200); }
   Audio.play('metalHit2', { gain: .3, rate: 1.9 }); if (S.snare) S.snare.visible = false;
-  story.lore.push({ key: 'wald_welpe', title: 'Die Schlinge', html: 'Ein Wolfswelpe in einer Drahtschlinge. Du hast sie aufgeschnitten. Die Wölfe haben zugesehen und nichts getan.\n\nIn den Draht war ein Taschenmesser gewickelt. In den Griff geritzt: <b>JONAS W.</b>\nZayns großer Bruder war hier. Irgendwann. Er hat gesucht.' });
+  story.lore.push({ key: 'wald_welpe', title: 'Nicht rennen, Lampe an', html: 'Ein Wolfswelpe in einer Drahtschlinge. Du hast sie aufgeschnitten. Die Wölfe haben zugesehen und nichts getan.\n\nIn den Draht war ein Taschenmesser gewickelt. In den Griff geritzt: <b>JONAS W.</b>\nZayns großer Bruder war hier. Irgendwann. Er hat gesucht.' });
   sideDone('wald_welpe', 'Der Welpe ist frei. Im Draht: ein Taschenmesser mit dem Namen JONAS W.');
   if (S.pup) { S.pup.st = 'free'; S.pup.tx = WALD.wolf.x + 14; S.pup.tz = WALD.wolf.z - 4; S.pup.sp = 3.2; leben_play(S.pup, 'Run', .15); }
   S.wolves.forEach((W, i) => { W.st = 'leave'; W.t = 2 + i * .6; });
@@ -170,7 +170,7 @@ WORLD_TICK.push((dt, t) => {
       else if (D.stag && d < 7.5 && !flashOn && spd < 3 && !story.lore.some(l => l.key === 'wald_hirsch')) { D.st = 'look'; D.t = 4; leben_play(D, 'IdleLookAround', .3); } }
     else if (D.st === 'look') { D.g.rotation.y = leben_ang(D.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 2)); D.t -= dt;
       if (D.t < 0) { D.st = 'lead'; D.tx = WALD.tree.x + 3; D.tz = WALD.tree.z - 4; D.sp = 1.3; leben_play(D, 'WalkGraze', .4); sideStart('wald_hirsch');
-        story.lore.push({ key: 'wald_hirsch', title: 'Die Lichtung', html: 'Du bist leise gekommen, im Dunkeln. Der Hirsch hat dich angesehen – lange, ohne Angst. Dann ist er nach Westen gegangen, langsam, als sollst du folgen.' });
+        story.lore.push({ key: 'wald_hirsch', title: 'Was wegläuft, ist echt', html: 'Du bist leise gekommen, im Dunkeln. Der Hirsch hat dich angesehen – lange, ohne Angst. Dann ist er nach Westen gegangen, langsam, als sollst du folgen.' });
         sideDone('wald_hirsch', 'Der Hirsch ist nach Westen gegangen. Zu einem Baum, der größer ist als alle anderen.'); if (typeof gedanke === 'function') gedanke('wald_hirsch', 'Er hat keine Angst. Er wartet, dass ich mitkomme.', 500, 3); } }
     else if (D.st === 'lead') { if (leben_beastMove(D, dt) || d > 40) { D.st = 'gone'; D.g.visible = false; D.t = 120; } }
     else if (D.st === 'flee') { leben_beastMove(D, dt); if (d > 45 || !leben_free(p.x + Math.sin(D.g.rotation.y) * 1.5, p.z + Math.cos(D.g.rotation.y) * 1.5, .7, .4)) { D.st = 'gone'; D.g.visible = false; D.t = rand(60, 120); } } }

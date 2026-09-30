@@ -36,7 +36,7 @@ function geheimnisse_plate(mat, handMat) {
 }
 WORLD_MODS.push(['Geheimnisse', async () => {
   const S = geheimnisse_S, V = THREE.Vector3;
-  story.side.geh_steine = { title: 'Die sieben Zähler', desc: 'Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.', state: 'hidden' };
+  story.side.geh_steine = { title: 'Warm wie eine Hand', desc: 'Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.', state: 'hidden' };
   story.side.geh_wrack = { title: 'Blech vom Himmel', desc: 'Verbogene Metallteile, dort wo das Licht war.', state: 'hidden' };
   story.side.geh_totem = { title: 'Die Zählgestelle', desc: 'Jemand hat an den Rändern von Lost Eyengless etwas aufgestellt.', state: 'hidden' };
   // --- Lichtsteine

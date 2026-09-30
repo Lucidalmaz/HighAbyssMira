@@ -24,8 +24,8 @@ function hungrige_inWald(x, z) { return (typeof wald_in === 'function' && wald_i
 function hungrige_deep() { return typeof tief_S !== 'undefined' ? tief_S.k : 0; }
 function hungrige_desc() {
   const q = story.side.hungrige; if (!q) return; const n = hungrige_S.done.size;
-  if (hungrige_S.finale) q.desc = 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben. Er ist nicht tot. Aber er weiß jetzt, wer zu wem gehört.';
-  else if (hungrige_has('bau')) q.desc = 'Hofers letzte Seite: Es frisst den Nachhall. Es trägt Hofers Gesicht. Es hasst Licht und fürchtet den Raben.';
+  if (hungrige_S.finale) q.desc = 'Der Wendigo hat sich gezeigt – und Whiskey hat ihn vertrieben. Er ist nicht tot. Aber er weiß jetzt, wem der Rabe gehört.';
+  else if (hungrige_has('bau')) q.desc = 'Hofers letzte Seite: Es frisst die Bilder, die liegen bleiben. Es trägt Hofers Gesicht. Es hasst Licht und hat Angst vor dem Raben.';
   else if (hungrige_has('spuren')) q.desc = 'Ein Dienstbuch vom Amt neben einem angefressenen Reh: 1992 kam etwas aus der Senke, das keiner anfassen wollte. Es läuft noch hier herum. Begegnungen: ' + n + '.';
   else q.desc = 'Im Wald stimmt etwas mit den Tieren nicht. Ein Reh geht rückwärts, eine Krähe kennt Lucys Wort, ein Fuchs trägt den Kopf falsch. Begegnungen: ' + n + '.';
 }
@@ -86,18 +86,18 @@ async function hungrige_loadDT() {
 function hungrige_dtHide() { const D = hungrige_S.dt; if (!D) return; D.g.visible = false; D.o.scale.setScalar(D.s0 || D.o.scale.x); D.g.scale.setScalar(1); D.g.rotation.set(0, 0, 0); }
 // ---------------------------------------------------------------- Hofers Dienstbuch
 const HUNGRIGE_SEITEN = {
-  1: ['Dienstbuch Gefr. Hofer · Seite 1', 'BfR · Außenstelle · Bergungstrupp 3 · Zyklusnacht 12./13. Juli 1992\n\nBefehl: Alles bergen, was aus der Senke kommt. Nicht ansehen, nicht ansprechen, nicht anfassen.\nGeborgen: eine Kuh (ohne Augen). Ein Hund (läuft rückwärts, kommt trotzdem an). Und um 03:13 etwas, das sich hingestellt hat wie ein Hirsch – aber nicht wie einer aufgestanden ist.\nEs hat Seilers Stimme gemacht. Wort für Wort. Seiler stand neben mir.\n\nKeiner wollte es anfassen. Wir haben es laufen lassen. In den Wald.\n\nNachtrag, Tage später: Ich habe Hunger. Seit der Nacht. Egal, was ich esse.\n— Gefr. Hofer'],
-  2: ['Dienstbuch Gefr. Hofer · letzte Seite', 'Ich weiß jetzt, was es isst. Kein Fleisch. Das Fleisch ist nur die Haut, die es sich umhängt – Reh, Krähe, Fuchs, was eben da ist. Es trägt sie falsch. Der Kopf sitzt nie richtig.\n\nEs frisst das, was bleibt, wenn das Licht jemanden holt oder zurückbringt: den <b>Abdruck</b>. Seiler nennt es „Nachhall“. Er sagt, nur einer im Ort kann ihn sehen – der Junge, den sie aus dem Ritter gemacht haben. Deshalb beobachten sie ihn.\nDeshalb ist der Wald leer, obwohl er voll ist: Hier hat es alles aufgefressen.\n\nAus den Abdrücken lernt es die Stimmen. Meine hat es gelernt, bevor ich es gemerkt habe.\nIch bin 1992 nicht aus der Senke zurückgekommen. <b>Es ist mit meinem Gesicht zurückgekommen.</b> Ich schreibe das mit seiner Hand.\n\nWer das liest: Es hasst Licht. Nicht das Weiße – Licht. Eine Lampe reicht, wenn man sie nicht senkt.\nUnd es hat Angst vor dem Raben. Vor dem einen, der zu der Frau mit der Laterne gehört.\n— H.'] };
+  1: ['Dienstbuch Gefr. Hofer · Seite 1', 'Amt · Bergung 3 · Öffnung, Nacht zum 22. Juni 1992 · Gefr. Hofer\n\nBefehl wie immer: alles bergen, was aus der Senke kommt. Nicht ansehen, nicht ansprechen, nicht anfassen. Geborgen: drei Kühe ohne Augen (Roy, Roland, Rex), ein Hund, der rückwärts läuft und trotzdem ankommt. Und um drei etwas, das lag wie ein nasser Sack und sich hingestellt hat wie ein Hirsch, als die Lampen draufkamen.\nEs hat Seilers Stimme gemacht. Wort für Wort, was der drei Minuten vorher gefunkt hat. Seiler stand daneben und wurde weiß.\nKeiner wollte es anfassen. Ich hab’s angefasst. Es war warm wie ein Hund. Der Ami will es behalten.\n\nNachtrag: Anni nicht dabei. Diesmal ist keins rein und keins raus, der Pfarrer hat die Kinder in den Kapellenkeller gebracht und ist selber gegangen. Siebzehn Jahre. Nächstes Mal bin ich achtundsechzig.'], // Fassung 3: Wendigo-Dossier, Seite 1 (wortgleich)
+  2: ['Dienstbuch Gefr. Hofer · letzte Seite', 'Ich weiß jetzt, was es isst. Kein Fleisch. Das Fleisch ist nur die Jacke: Reh, Krähe, Fuchs, was eben rumläuft. Es trägt sie falsch, der Kopf sitzt nie richtig, weil es nur die Vorderseite kennt.\nEs frisst, was bleibt, wenn das Licht jemanden holt oder zurückbringt. Die Bilder. Der Ami sagt Belichtung, Seiler sagt, nur ein Ritter sieht so was, und einer, der aus dem Ritter gemacht ist.\nAus den Bildern lernt es die Stimmen. Meine hat es gelernt, bevor ich es gemerkt habe.\nIch bin im Juni nicht aus der Senke zurückgekommen. <b>Es ist mit meinem Gesicht zurückgekommen.</b> Ich schreibe das mit seiner Hand.\n\nWer das liest: Es hasst Licht. Eine Lampe reicht, wenn man sie nicht senkt. Und es hat Angst vor dem Raben. Vor dem einen, der zu der Frau mit der Laterne gehört.\n— H.'] }; // Fassung 3: Seite 6 (wortgleich); Seiten 2–5: AP-23/24
 function hungrige_seite(i) {
   const [t, txt] = HUNGRIGE_SEITEN[i], k = 'hungrige_seite_' + i, html = '<span class="hand">' + txt + '</span>', neu = !story.lore.some(l => l.key === k);
-  if (neu) { Audio.paper(); story.lore.push({ key: k, title: 'Der Hungrige · ' + t, html }); }
+  if (neu) { Audio.paper(); story.lore.push({ key: k, title: 'Wendigo · ' + t, html }); } // Fassung 3: „Wendigo“ ab Hofers Seite 1
   // Fortschritt hängt am Stand (hungrige_has), nicht daran, ob die Seite neu war – ging der Rückruf verloren (Tod, Laden), holt ihn das nächste Lesen nach
   openNote(t, html, null, () => {
-    if (i === 1) { if (!hungrige_has('spuren')) hungrige_done('spuren', 'Das war kein Wolf. Wölfe fressen. Das hier hat … probiert. Und daneben liegt ein Dienstbuch vom Amt, als hätte es jemand abgelegt. Für mich.'); }
-    else { if (!hungrige_has('bau')) hungrige_done('bau', 'Es frisst die Abdrücke. Die Erinnerungen, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); hungrige_S.finT = 2.6; } }); // das Finale startet der Takt
+    if (i === 1) { if (!hungrige_has('spuren')) hungrige_done('spuren', 'Das war kein Wolf. Wölfe fressen. Das hier hat probiert.'); }
+    else { if (!hungrige_has('bau')) hungrige_done('bau', 'Es frisst die Bilder. Die, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); hungrige_S.finT = 2.6; } }); // das Finale startet der Takt
 }
 // ---------------------------------------------------------------- Aufbau: Fraßstelle, Bau, Modelle
-WORLD_MODS.push(['Der Hungrige', async () => {
+WORLD_MODS.push(['Wendigo (Dorfname: der Hungrige)', async () => {
   const S = hungrige_S, T = THREE;
   story.side.hungrige = story.side.hungrige || { title: 'Der Hungrige', desc: 'Im Wald stimmt etwas mit den Tieren nicht.', state: 'hidden' };
   const paper = new T.MeshStandardMaterial({ color: 0xcfc8b4, roughness: .92 }), page = (x, y, z, ry, i) => { const m = plane(.15, .21, x, y, z, paper, -PI / 2 + .12, ry); m.rotation.z = rand(-.3, .3);
@@ -244,7 +244,7 @@ async function hungrige_finale() {
     if (typeof k6_feuerzeug === 'function' && S.finale) k6_feuerzeug(false); } // Fehler mitten im Finale: Feuerzeug weg, Lampe an – der Epilog startet trotzdem
 }
 // Finale nicht spielbar (Modell fehlt, Fehler mitten drin): Aufgabe trotzdem abschließen – nie eine offene Nebenaufgabe ohne Weg
-function hungrige_finaleSkip() { const S = hungrige_S; if (S.finale) return; S.finale = true; try { sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); } catch (e) {} }
+function hungrige_finaleSkip() { const S = hungrige_S; if (S.finale) return; S.finale = true; try { sideDone('hungrige', 'Der Wendigo hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); } catch (e) {} }
 async function hungrige_finaleRun(S, W, wait_) {
   const D = await hungrige_loadDT(); if (!D) return hungrige_finaleSkip();
   if (state.talking || ui.overlay) { S.finT = 1.5; return; } // der Takt versucht es gleich noch einmal
@@ -286,17 +286,17 @@ async function hungrige_finaleRun(S, W, wait_) {
   for (let i = 0; i < 3; i++) { C.dive = i + 1; const from = A.g.position.clone(); hungrige_flyTo(A, W.set(D.g.position.x, by + 1.9, D.g.position.z), .9, .2); leben_play(A, 'FlyingAttack', .05, 1.3, true); Audio.screech(); Audio.gust(1.2);
     await wait_(950); C.recoil = 1; shake = Math.max(shake, .05 + i * .02); glitchV = Math.max(glitchV, .35); Audio.growl(D.g.position.x, D.g.position.z, true); if (i < 2) { hungrige_flyTo(A, W.set(from.x + rand(-2, 2), by + 5, from.z + rand(-2, 2)), 1.1, 2.5); await wait_(1150); } }
   C.ph = 'flash'; C.t = 0; Audio.crack(); Audio.thunder(.1, 1); lightBoost = 1.2; skyMat && skyMat.uniforms && (skyMat.uniforms.flash.value = .8);
-  await say([['Das Licht. Kalt. Kerzengerade.', 2800, 'LUKE'], ['Wie Mamas Kerze. Wie das Fenster in der Villa.', 3200, 'LUKE']]);
+  await say([['Kalt. Kerzengerade. Wie Mamas Kerze.', 3200, 'LUKE']]); // Fassung 3: Wendigo-Dossier 1.11
   C.ph = 'flee'; C.t = 0; Audio.growl(D.g.position.x, D.g.position.z, true); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3); setTimeout(() => Audio.twig(D.g.position.x, D.g.position.z), 500); setTimeout(() => Audio.twig(D.g.position.x + 4, D.g.position.z + 2), 1100);
   await wait_(2800); hungrige_dtHide(); hungrige_flyTo(A, W.set(P.x, top, P.z), 1.8, 3); await wait_(1900); leben_play(A, 'Landing', .1, 1, true); await wait_(600); leben_play(A, 'IdleLookAround', .3); C.look.set(P.x, top, P.z);
-  await say([['Er hat ihn vertrieben. Nicht ich – er.', 2600, 'LUKE'], ['„Er gehörte meiner Frau. Er findet immer heim. Zu ihr.“ … Das hat der Ritter gesagt.', 3800, 'LUKE'], ['Und der Hungrige weiß, wem du gehörst, Whiskey. Deshalb hat er Angst.', 3400, 'LUKE']]);
+  await say([['Er hat ihn vertrieben. Nicht ich – er.', 2600, 'LUKE'], ['„Er gehörte meiner Frau. Er findet immer heim. Zu ihr.“ … Das hat der Ritter gesagt.', 3800, 'LUKE'], ['Und der Wendigo weiß, wem du gehörst, Whiskey. Deshalb hat er Angst.', 3400, 'LUKE']]);
   // 6) Ende: Kapitel 6 – der echte Whiskey sitzt auf dem Pfahl und fliegt gleich voraus (Epilog, kapitel6.js); sonst fliegt der Rabe auf
   if (typeof k6_nachFinale === 'function') { const at = A.g.position.clone(); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true; k6_nachFinale(at); }
   else { leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); hungrige_flyTo(A, W.set(P.x - 8, 9, P.z - 12), 2.2, 4); await wait_(2300); hungrige_off(A); hungrige_off(Bv); if (real) real.visible = true; }
   S.cine = null; S.finale = true; state.talking = false; dir.busy = false; lightBoost = 0; if (S.ravenL) S.ravenL.intensity = 0; if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = 0;
-  story.lore.push({ key: 'hungrige_enthuellung', title: 'Der Hungrige · Die Enthüllung', html: 'Zwei Raben am Bau hinter dem Wrack. Der zweite atmete nicht und war spiegelverkehrt – und er sagte „Großer“ mit Lucys Stimme. Dann riss er auf: die Federn fielen, der Hals wurde lang, und aus dem Vogel stieg das, was Bergungstrupp 3 im Juli 1992 aus der Senke geholt hat.\n\nWhiskey hat ihn vertrieben. Mit Licht, das er nicht selbst hat: Es gehört der Frau, der er gehört. Der Hungrige ist nicht tot. Aber er weiß jetzt, wer zu wem gehört.' });
-  sideDone('hungrige', 'Der Hungrige hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); // kein Popup mehr: Kapitel 6 endet mit dem Epilog (PK-E, kapitel6.js)
-  if (typeof gedanke === 'function') gedanke('hungrige_finale', 'Whiskey gehört zu ihr. Zu der Frau mit der Laterne. … Sie kommt noch. Und der Hungrige hat es vor mir gewusst.', 6000, 3);
+  story.lore.push({ key: 'hungrige_enthuellung', title: 'Zwei Raben', html: 'Zwei Raben am Bau hinter dem Wrack. Der zweite atmete nicht und war spiegelverkehrt – und er sagte „Großer“ mit Lucys Stimme. Dann riss er auf: die Federn fielen, der Hals wurde lang, und aus dem Vogel stieg das, was Bergungstrupp 3 im Juni 1992 aus der Senke geholt hat.\n\nWhiskey hat ihn vertrieben. Mit Licht, das er nicht selbst hat: Es gehört der Frau, der er gehört. Der Wendigo ist nicht tot. Aber er weiß jetzt, wem der Rabe gehört.' });
+  sideDone('hungrige', 'Der Wendigo hat sich gezeigt – und Whiskey hat ihn vertrieben.'); hungrige_desc(); // kein Popup mehr: Kapitel 6 endet mit dem Epilog (PK-E, kapitel6.js)
+  if (typeof gedanke === 'function') gedanke('hungrige_finale', 'Whiskey gehört zu ihr. Zu der Frau mit der Laterne. … Sie kommt noch. Und der Wendigo hat es vor mir gewusst.', 6000, 3);
   if (typeof saveGame === 'function') saveGame(curChapter());
 }
 function hungrige_cineTick(dt) {

@@ -1,14 +1,15 @@
 // =====================================================================  FIGUREN (Modul „figuren“): jede Person hat ihr eigenes Aussehen
 // Quelle: app/tools/forge.html + cast.json (Figuren-Werkstatt) → game/assets/chars/<id>/model.glb, Liste game/assets/chars/chars.json
-//   Kinder 2009: zayn roxy lucy luke luke_echt heidi dina mike cleo kleine · Erwachsene: mama hilde lucy_erw vegas amt1 amt2 lorenz aydin dina_erw polizist
-//   Schreckgestalten: graue (die Kleine ohne Mund), hilde_tot, gezaehlt_j/_m (die Gezählten) · Justin: vorhandenes Paladin-Modell
-// ERINNERUNGEN (Echos) – warum Luke sie sieht (story_final.md, „Nachhall“): Wo das Weiße jemanden nimmt oder zurückgibt, bleibt ein Abdruck.
-//   Nur wer Justins Blut in sich trägt, sieht ihn – Luke ist aus diesem Blut gemacht; beim Berühren brennt die halbrunde Narbe in seiner Hand.
+//   Kinder 2009: zayn roxy lucy luke luke_echt heidi dina mike cleo graukind (Asset-Ordner „kleine“) · Erwachsene: mama hilde lucy_erw vegas amt1 amt2 aydin dina_erw polizist (Lorenz gestrichen, Fassung 3)
+//   Schreckgestalten: graue (das Graukind ohne Mund), hilde_tot, gezaehlt_j/_m (die Behaltenen) · Justin: vorhandenes Paladin-Modell
+// NACHBILDER (Fassung 3, Kern §2) – warum Luke sie sieht: Wo das Lichtschiff jemanden nimmt oder zurückgibt, brennt sich ein Bild ein.
+//   Sehen kann es nur, wer lange in Nimmerheim war oder aus so jemandem gemacht ist – Luke ist aus Justins Hand gemacht; beim Berühren brennt die halbrunde Narbe.
 //   Darstellung deshalb bewusst schemenhaft: kaltes Leuchten, Filmflackern, Ränder lösen sich auf, das Bild wird blass – Erinnerung, kein Mensch aus Fleisch.
 const figuren_S = { list: null, cache: new Map(), sk: null, ghost: new Map(), T: { value: 0 }, embodied: new Set(), ownFilter: false };
 async function figuren_list() { if (!figuren_S.list) { try { figuren_S.list = await (await fetch('assets/chars/chars.json')).json(); } catch (e) { figuren_S.list = []; } } return figuren_S.list; }
 async function figuren_load(id) {
   if (id === 'alter_mann') id = 'vegas'; // früherer Rollenname
+  if (id === 'graukind') id = 'kleine'; // Fassung 3: Schlüssel „graukind“, der Asset-Ordner heißt noch „kleine“
   if (figuren_S.cache.has(id)) return figuren_S.cache.get(id);
   const p = (async () => { try {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
@@ -84,9 +85,9 @@ const FIGUREN_ECHO = {
   echo_archiv: ['amt2', 'hilde'],
   echo_messraum: ['lucy', 'dina', 'zayn', 'justin'],
   echo_1975: ['justin', 'mike', 'gezaehlt_j', 'gezaehlt_m', 'graue'],   // Lars Vegas mit 9 sieht aus wie sein Enkel Mike; das letzte Kind hat kein Gesicht
-  echo_mira: ['kleine', 'lucy', 'roxy', 'zayn', 'mike', 'dina', 'heidi', 'luke'], // sieben Puppen mit den Gesichtern der Kinder, klein wie Spielzeug
+  echo_mira: ['graukind', 'lucy', 'roxy', 'zayn', 'mike', 'dina', 'heidi', 'luke'], // sieben Puppen mit den Gesichtern der Kinder, klein wie Spielzeug
   echo_kanal_ritter: ['justin'],
-  echo_kanal_laterne: ['gezaehlt_m', 'gezaehlt_j', 'kleine'],
+  echo_kanal_laterne: ['gezaehlt_m', 'gezaehlt_j', 'graukind'],
   echo_nord_grab: ['amt1', 'amt2', 'luke_echt'],
 };
 // Einzelne Gestalt als Erinnerung besetzen (cleo.js, visionen.js, zayn.js)
@@ -100,7 +101,7 @@ ECHO_CAST.end = () => figuren_memoryLook(false);
 // ---------- Schreckgestalten: gemaltes Gesicht → echte Person (die Größe entscheidet Kind oder Erwachsener)
 function figuren_faceWho(kind, small) {
   if (kind === 'wendt') return 'hilde_tot'; if (kind === 'grey') return 'graue'; if (kind === 'child') return 'luke_echt';
-  if (kind === 'lena') return small ? 'kleine' : 'lucy_erw';
+  if (kind === 'lena') return small ? 'graukind' : 'lucy_erw';
   if (kind === 'pale') return small ? (Math.random() < .5 ? 'gezaehlt_j' : 'gezaehlt_m') : (Math.random() < .5 ? 'amt1' : 'amt2');
   return null; }
 FACE_HOOK.fn = (fig, kind) => { fig.userData.faceKind = kind; if (fig.userData.face && fig.userData.person) fig.userData.face.visible = false; };
@@ -108,12 +109,12 @@ FACE_HOOK.fn = (fig, kind) => { fig.userData.faceKind = kind; if (fig.userData.f
 WORLD_MODS.push(['Figuren', async () => {
   const L = await figuren_list(); if (!L.length) return;
   // Schreckgestalten und feste Figuren sofort, der Rest im Hintergrund
-  await Promise.all(['graue', 'hilde_tot', 'gezaehlt_j', 'gezaehlt_m', 'luke_echt', 'lucy_erw', 'hilde', 'kleine', 'amt1', 'amt2', 'vegas', 'roxy', 'lucy', 'mike', 'dina', 'heidi', 'zayn', 'luke'].map(figuren_load));
+  await Promise.all(['graue', 'hilde_tot', 'gezaehlt_j', 'gezaehlt_m', 'luke_echt', 'lucy_erw', 'hilde', 'graukind', 'amt1', 'amt2', 'vegas', 'roxy', 'lucy', 'mike', 'dina', 'heidi', 'zayn', 'luke'].map(figuren_load));
   L.forEach(x => figuren_load(x.id));
   const E = (g, id, o) => figuren_embody(g, id, o).catch(e => console.warn('Figur', id, e));
-  await Promise.all([E(grey, 'graue'), E(victim, 'hilde'), E(lenaFig, 'lucy_erw'), E(mira, 'kleine'), E(kidShadow, 'gezaehlt_m'), E(watcher, 'justin', { clip: 'idle' }),
+  await Promise.all([E(grey, 'graue'), E(victim, 'hilde'), E(lenaFig, 'lucy_erw'), E(graukind, 'graukind'), E(kidShadow, 'gezaehlt_m'), E(watcher, 'justin', { clip: 'idle' }),
     ...counted.map((c, i) => E(c.f, i % 2 ? 'gezaehlt_m' : 'gezaehlt_j'))]);
-  // Sitzende: die sieben Kinder im Weißen, Hilde in Raum 2, die Gestalt auf dem Gurtstuhl im Keller
+  // Sitzende: die sieben Kinder in Nimmerheim, Hilde in Raum 2, die Gestalt auf dem Gurtstuhl im Keller
   const seatK = ['roxy', 'lucy', 'mike', 'dina', 'heidi', 'zayn', 'luke'];
   for (let i = 0; i < kids.length; i++) { kids[i].k.updateMatrixWorld(true); await E(kids[i].k, seatK[i % seatK.length], { sit: .52 }); }
   hilde.updateMatrixWorld(true); await E(hilde, 'hilde', { sit: .48 });

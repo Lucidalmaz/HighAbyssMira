@@ -52,6 +52,8 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Chinese lantern | lennajd | Papierlaterne | https://www.fab.com/listings/26361467-9883-47d3-ac86-0db2824df6c0 |
 | Retro woolen sweater | matousekfoto | Strickjacke (Zimmer 7) | https://www.fab.com/listings/be87fbdc-f36d-4c2d-b0d4-935a2e034686 |
 | Metal Rose Jewelry Trinket Box Low Poly | Jordan F (JordanFry3D) | Spieluhr (Kapitel 5) | https://www.fab.com/listings/b70659f6-2d7c-4042-b57b-0ecf1ca750c0 |
+| antiradiation suit - ozk | sanyaork | Grundlage der Blechmänner (Bergungstrupp der LWO) | https://www.fab.com/listings/503fca96-5374-4fe5-8f0a-03395f58ecb3 |
+| Cat long haired | Sean4297 | Katzen im Dorf (Gisela Rieke), Kater in Kapitel 5 | https://www.fab.com/listings/b3513111-6dc1-4345-9706-201c8f37b832 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)

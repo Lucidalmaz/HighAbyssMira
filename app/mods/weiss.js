@@ -75,7 +75,7 @@ function weiss_prints(mat, w, h, pts, y) { const g = new THREE.PlaneGeometry(w, 
 function weiss_trail(ax, az, bx, bz, st, off) { const dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, r = Math.atan2(-ux, -uz), out = []; for (let d = 0, i = 0; d <= L; d += st, i++) { const s = i % 2 ? 1 : -1; out.push([ax + ux * d - uz * off * s, az + uz * d + ux * off * s, r + (Math.random() - .5) * .12, s > 0]); } return out; }
 
 // ---------------------------------------------------------------- Aufbau beim Laden (alles versteckt)
-WORLD_MODS.push(['Das Weiße · Raum 3 und Ende C', async () => {
+WORLD_MODS.push(['Nimmerheim · Raum 3 und Ende C', async () => {
   const S = weiss_S, CX = X3 + 42, CZ = Z3, V = THREE.Vector3, T = WEISS_TEX, IK = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S : null;
   const flameT = tex(T.flame(), true), glowT = tex(T.glow(), true);
   S.r3L = c3Lights.filter(l => l.position.x > X3 + 32); S.r3L.forEach(l => { l.userData.i0 = l.intensity; l.userData.c0 = l.color.getHex(); });
@@ -129,7 +129,7 @@ WORLD_MODS.push(['Das Weiße · Raum 3 und Ende C', async () => {
       const c2 = sk(justin.model), g2 = new THREE.Group(); g2.add(c2); const sil = new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: .9 }); c2.traverse(m => { if (m.isMesh) { m.material = sil; m.frustumCulled = false; } });
       const mx2 = new THREE.AnimationMixer(c2); if (idle) { mx2.clipAction(idle.getClip()).play(); mx2.update(1.3); } g2.position.set(X3 + 2, 0, Z3 - 1.2); g2.visible = false; scene.add(g2); S.jSil = g2; S.jSilPar = scene;
       g2.traverse(b => { if (b.isBone && b.name === 'hand_l') S.jsHandL = b; });
-      g.updateMatrixWorld(true); c.traverse(b => { if (b.isBone && b.name === 'hand_l') S.jgHandL = b; if (b.isBone && b.name === 'hand_r') S.jgHandR = b; }); } } catch (e) { console.warn('weiss Ritter-Nachhall', e); }
+      g.updateMatrixWorld(true); c.traverse(b => { if (b.isBone && b.name === 'hand_l') S.jgHandL = b; if (b.isBone && b.name === 'hand_r') S.jgHandR = b; }); } } catch (e) { console.warn('weiss Ritter-Nachbild', e); }
   // Spuren (Decals): Stiefel und Hufe vom Hof bis genau an die Kante, sieben Paar Kinderfüße hinein
   { const pm = c => weiss_decalMat(c, { color: 0x9aa89e }); const boots = weiss_trail(CX + 9.4, CZ + 2.6, jx + .35, jz + .1, .72, .13);
     N.add(weiss_prints(pm(T.boot()), .13, .32, boots, .031));
@@ -162,7 +162,7 @@ WORLD_MODS.push(['Das Weiße · Raum 3 und Ende C', async () => {
   try { const k = kids[1] && kids[1].k; if (k) { const g = new THREE.Group(); g.position.set(k.position.x, 0, k.position.z); g.rotation.y = k.rotation.y; A.add(g); g.updateMatrixWorld(true);
       const P = await figuren_embody(g, 'lucy_erw', { sit: .52 }); if (P) weiss_ghostify(P.obj); S.lucy = g; } } catch (e) { console.warn('weiss Lucy', e); }
   // Die Kleine: grau (graue) – für einen Atemzug mit echtem Gesicht (kleine)
-  try { await figuren_embody(mira, 'graue'); const g = new THREE.Group(); g.visible = false; scene.add(g); await figuren_embody(g, 'kleine'); S.miraK = g; } catch (e) { console.warn('weiss Kleine', e); }
+  try { await figuren_embody(graukind, 'graue'); const g = new THREE.Group(); g.visible = false; scene.add(g); await figuren_embody(g, 'graukind'); S.miraK = g; } catch (e) { console.warn('weiss Kleine', e); }
   // Helm: einmal vom Skelett gelöst (Geometrie im Kopfraum), die Spiegelung auf dem Visier
   try { let helm = null, head = null; justin.model.traverse(o => { if (!helm && o.isSkinnedMesh && /helm/i.test(o.name + ' ' + (o.material && o.material.name || ''))) helm = o; if (o.isBone && o.name === 'head') head = o; });
     if (helm && head) { justin.model.updateMatrixWorld(true); helm.skeleton.update(); const pos = helm.geometry.attributes.position, out = new Float32Array(pos.count * 3), inv = new THREE.Matrix4().copy(head.matrixWorld).invert(), v = new V();
@@ -183,7 +183,7 @@ WORLD_MODS.push(['Das Weiße · Raum 3 und Ende C', async () => {
   S.ok = true;
 }]);
 function weiss_chairs() { const IK = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S : null; return IK && IK.inst && IK.inst['chair**'] || []; }
-function weiss_teil2Sichtbar(on) { weiss_chairs().forEach(m => m.visible = on); kids.forEach(K => K.k.visible = on); mira.visible = on;
+function weiss_teil2Sichtbar(on) { weiss_chairs().forEach(m => m.visible = on); kids.forEach(K => K.k.visible = on); graukind.visible = on;
   const IK = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S : null; if (IK && IK.papaich) { IK.papaich.visible = on; if (on) { if (!interactables.includes(IK.papaich)) interactables.push(IK.papaich); } else uninteract(IK.papaich); } }
 
 // ---------------------------------------------------------------- Umgebung: Nacht (Teil 1), Weiß (Teil 2), zurück
@@ -204,13 +204,13 @@ function weiss_schrank() { if (ch3.schrank) return toast('Leer. Nur ein Paar Kin
 
 // ---------------------------------------------------------------- Raum 2: Hilde (K3-7) und die Uhr (T7)
 const WEISS_HILDE = [
-  { k: 'kueche', q: 'Sie haben mich angegriffen. In der Küche.', a: '„Ich wollte dich festhalten, Junge. Weg von der Tür. Du warst schneller.“' },
+  { k: 'kueche', q: 'Sie haben mich angegriffen. In der Küche.', a: '„Ich wollte dich festhalten, Junge. Weg von der Tür. Du warst schneller. Du warst immer schneller als der andere.“' },
   { k: 'los', q: 'Sie haben Zayn gezogen.', a: '„Das Los war das Los. Ich hab siebzehn Jahre gezählt, ob sie ihn wieder hergibt. Sie hat nie.“' },
-  { k: 'wer', q: 'Wer hat angefangen?', a: '„Frag ihn nicht nach dem Handel. Frag ihn, warum er sich versteckt.“' },
+  { k: 'wer', q: 'Wer hat angefangen?', a: '„Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“' }, // Fassung 3: Kap. 3 UK 12
   { k: 'jonas', q: 'Und Jonas?', a: '„Er ruft jeden Sonntag an. Ich geh nie ran. Wenn ich seine Stimme höre, zähl ich falsch.“', nur: () => weiss_has('zayn_rucksack') }];
 hildeTalks = async function () {
   ch3.hildeSpoke = true; state.talking = true; const W = 'HILDE WENDT';
-  await say([['Am Küchentisch sitzt Frau Wendt. Die Frau, die das Licht vor deinen Augen nach oben gerissen hat.', 4400], ['„Luke. Oder wie immer du heißt.“', 2800, W], ['„Deshalb ist Zayn hiergeblieben. Und jetzt bin ich es auch.“', 3600, W]]);
+  await say([['Am Küchentisch sitzt Frau Wendt. Die Frau, die das Licht vor deinen Augen nach oben gerissen hat.', 4400], ['„Luke. Oder wie immer du heißt.“', 2800, W], ['„So lange hab ich auf meinen Zayn gewartet. Jetzt bin ich bei ihm. Nur anders, als ich wollte.“', 4400, W]]);
   state.talking = false; weiss_hildeFragen();
 };
 function weiss_hildeFragen() { const S = weiss_S, open = WEISS_HILDE.filter(f => !S.asked.has(f.k) && (!f.nur || f.nur())); if (!open.length) return weiss_hildeEnde();
@@ -220,7 +220,7 @@ function weiss_hildeFragen() { const S = weiss_S, open = WEISS_HILDE.filter(f =>
   ui.onClose = () => setTimeout(() => weiss_hildeAntwort(pick), 250); }
 async function weiss_hildeAntwort(k) { const S = weiss_S, f = WEISS_HILDE.find(x => x.k === k); if (!f) return weiss_hildeEnde();
   S.asked.add(k); state.talking = true; await say([[f.q, 2600, 'DU'], [f.a, 4200, 'HILDE WENDT']]); state.talking = false;
-  if (k === 'wer' && !weiss_has('c3_hilde_versteck')) story.lore.push({ key: 'c3_hilde_versteck', title: 'Hilde im Weißen', html: '„Frag ihn nicht nach dem Handel. Frag ihn, warum er sich versteckt.“' });
+  if (k === 'wer' && !weiss_has('c3_hilde_versteck')) story.lore.push({ key: 'c3_hilde_versteck', title: 'Hilde in Nimmerheim', html: '„Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“' });
   weiss_hildeFragen(); }
 async function weiss_hildeEnde() { if (weiss_S.hildeEnde) return; weiss_S.hildeEnde = true; state.talking = true;
   await say([['„Die Uhr da. Stell sie auf die Zeit, zu der sie dich gebracht haben. Dann lässt es euch durch.“', 4600, 'HILDE WENDT']]);
@@ -229,7 +229,7 @@ room2Solved = async function () {
   ch3.room2 = true; Audio.chime(); state.talking = true;
   await say([['Die Uhr schlägt einmal. Frau Wendt steht auf und geht zur Tür.', 3800], ['„Zähl für mich weiter.“', 2800, 'HILDE WENDT']]);
   const fd = $('fade'); fd.style.background = '#e8ecf0'; await fade(.55, 700); hilde.visible = false; await fade(0, 1100); fd.style.background = '#000';
-  await say([['Sie löst sich auf wie Atem an einer Scheibe.', 3200], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000], ['„Komm. Der letzte Raum.“', 2600, JS]]);
+  await say([['Sie löst sich auf wie Atem an einer Scheibe.', 3200], ['Justin steht in der Tür. Er sieht dich nicht an.', 3000], ['„Komm. Der letzte Raum. Da wollte ich nie mit jemandem hin.“', 3400, JS]]);
   state.talking = false; weiss_licht(.12); door2w.set(true); Audio.slide(X3 + 32, Z3); setC3('Der Hohe Abgrund. Geh hinein.'); weiss_S.phase = 'tuer';
 };
 
@@ -244,7 +244,8 @@ room3Scene = async function () {
   const S = weiss_S; if (ch3.room3) return; ch3.room3 = true; S.phase = 'nacht'; state.talking = true; justin.look = false; Audio.hum(false);
   jWalk(X3 + 35.4, Z3 + 1.7, () => { justin.g.rotation.y = Math.PI / 2; });
   await wait(2600); // Stille
-  await say([['„Ich suchte sie die ganze Nacht. Ich ging hinein, bis das Licht mich verbrannte.“', 4800, JS], ['„Erst dann holte ich die Kinder.“', 3000, JS]]);
+  await say([['„Das ist die Nacht. Ich seh sie jedes Mal, wenn ich reinkomme. Sie ist immer gleich.“', 4400, JS], // Fassung 3: Justin-Dossier 3.11 (Deduktion nach 02 B9: AP-17)
+    ['„Sie ging hinein, für Luna. Ich hatte ihre Hand. Der Riss kam, und er zog, und das Licht hat mir die Haut verbrannt.“', 5600, JS], ['„Sie hat losgelassen. Ich hielt, bis das Licht mir die Hand nahm.“', 4200, JS]]);
   state.talking = false; setC3('Eine Erinnerung lügt. Sieh genau hin.'); S.phase = 'spuren';
   (S.spots || []).forEach((b, i) => interact(b, WEISS_SPUR[i].label, () => weiss_spur(i + 1)));
 };
@@ -263,10 +264,11 @@ async function weiss_luegtWahl(n) { const S = weiss_S; if (S.phase !== 'frage') 
   setTimeout(() => weiss_luegt(), 500); }
 async function weiss_gestaendnis() { const S = weiss_S; S.phase = 'gestaendnis'; (S.spots || []).forEach(uninteract); state.talking = true; justin.look = false;
   jPlay('kneel'); await wait(1400);
-  await say([['„Ich bin nie hineingegangen. Ich hatte Angst. Also habe ich bezahlt. Mit ihren Kindern.“', 5200, JS], ['„Siebzehn Jahre später rief sie: Ich komme. Und ich habe mich versteckt. Seitdem. Jedes Mal.“', 5400, JS]]);
-  await wait(900); await say([['Du hast dich versteckt. Siebenhundert Jahre lang.', 3600, 'DU']]);
-  if (!weiss_has('c3_1312')) story.lore.push({ key: 'c3_1312', title: 'Die Nacht von 1312', html: '„Ich suchte sie die ganze Nacht. Ich ging hinein, bis das Licht mich verbrannte.“\n\nStiefel. Hufe. Sie kommen vom Hof und enden genau an der Kante. Keine führt hinein.\n\n„Ich bin nie hineingegangen. Ich hatte Angst. Also habe ich bezahlt. Mit ihren Kindern.“\n„Siebzehn Jahre später rief sie: Ich komme. Und ich habe mich versteckt. Seitdem. Jedes Mal.“' });
-  questPop('ERINNERUNG', 'Die Nacht von 1312'); await wait(1600); weiss_teil2(); }
+  await say([['„Ich hab’s nicht gewollt. Es hat gebrannt, und ich hab geschrien, und dann war die Hand auf. Einfach auf. Wie vom Topf.“', 5600, JS], // Fassung 3: Justin-Dossier 3.12
+    ['„Jede Nacht hab ich’s anders erzählt. Irgendwann glaubt man sich.“', 4000, JS], ['„Mira.“', 2400, JS]]);
+  await wait(900); await say([['Sie hat gehalten.', 2600, 'DU'], ['„Ja.“', 1800, JS]]);
+  if (!weiss_has('c3_1312')) story.lore.push({ key: 'c3_1312', title: 'Die Nacht von 1312', html: '„Sie hat losgelassen. Ich hielt, bis das Licht mir die Hand nahm.“\n\nStiefel. Hufe. Sie kommen vom Hof und enden genau an der Kante.\n\n„Ich hab’s nicht gewollt. Es hat gebrannt, und ich hab geschrien, und dann war die Hand auf. Einfach auf. Wie vom Topf.“\n„Jede Nacht hab ich’s anders erzählt. Irgendwann glaubt man sich.“\n\nSie hat gehalten.' });
+  questPop('NACHBILD', 'Die Nacht von 1312'); await wait(1600); weiss_teil2(); }
 
 // ---------------------------------------------------------------- Raum 3, Teil 2: Der Hohe Abgrund (K3-9), acht Schläge
 function weiss_beat(kind, target, ms = 10000) { return new Promise(res => { weiss_S.bw = { kind, target, t: 0, hold: 0, ms: ms / 1000, x: player.pos.x, z: player.pos.z, res }; }); }
@@ -280,7 +282,7 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   await wait(250); await fade(0, 600); fd.style.background = '#000'; state.talking = false;
   // Die Laterne – Luke sieht hinauf
   await weiss_beat('look', S.lampion ? S.lampion.position.clone().setY(22) : new THREE.Vector3(CX, 22, CZ), 9000);
-  state.talking = true; await say([['Das war nie ein UFO. Das ist ihre Laterne.', 3800, 'DU']]); state.talking = false;
+  state.talking = true; await say([['Das war nie ein UFO. Das ist ein Tier, und es ist krank.', 3800, 'DU']]); state.talking = false;
   // 1: Justin tritt mit Luke an der Hand in den Kreis
   await weiss_beat('step', null, 8000); weiss_glocke(); state.talking = true; S.counting = false;
   subtitle('Justin tritt mit dir an der Hand in den Kreis.', 3200); jWalk(CX - 3.8, CZ - .3); await weiss_glide(CX - 3.9, CZ + .8, 2.8);
@@ -288,32 +290,28 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   // 2: Gefunden
   await weiss_beat('look', kids.map(K => K.k.position.clone().setY(.9)), 9000); weiss_glocke(); state.talking = true;
   Audio.giggle(CX, 1.2, CZ); setTimeout(() => { for (let i = 0; i < 3; i++) { const K = kids[i * 2]; if (K) Audio.giggle(K.k.position.x, 1, K.k.position.z); } }, 900);
-  await say([['„Gefunden.“', 2400, 'DAS KIND'], ['Sie lacht, glücklich. Die sieben auf den Stühlen lachen mit, ohne Münder.', 4200]]); state.talking = false;
+  await say([['„Bruder. Du hast ihn mitgebracht.“', 2800, 'DAS KIND'], ['Sie lacht, glücklich. Die sieben auf den Stühlen lachen mit, ohne Münder.', 4200]]); state.talking = false; // „Gefunden!“ erst im Finale (Kern §12)
   // 3: Bruder – Blitze durch Lukes Augen
-  await weiss_beat('look', mira.position.clone().setY(.9), 9000); weiss_glocke(); state.talking = true; S.miraFace = null;
-  await say([['„Und du hast ihn mitgebracht, Bruder. Ich hab dich gemacht. Aus seinem Blut an meinen Händen.“', 5200, 'DAS KIND'], ['„Darum hast du seine Augen. Ich hab die ganze Nacht durch dich geguckt.“', 4600, 'DAS KIND']]);
-  await weiss_blitze(); await say([['„Im Eisen seh ich ihn nicht. Durch dich schon.“', 3800, 'DAS KIND']]); state.talking = false;
+  await weiss_beat('look', graukind.position.clone().setY(.9), 9000); weiss_glocke(); state.talking = true; S.miraFace = null;
+  await say([['„Ich hab dich gemacht. Aus seiner Hand. Darum hast du seine Augen.“', 4600, 'DAS KIND'], ['„Ich hab die ganze Nacht durch dich geguckt.“', 3400, 'DAS KIND']]);
+  await weiss_blitze(); await say([['„Papa mogelt. Er ruft und ruft, und er ist nicht da. Wie die Großen beim Verstecken, wenn sie keine Lust mehr haben.“', 5600, 'DAS KIND']]); state.talking = false; // sie weiß nichts von der Rüstung
   // 4: Der Helm
   await weiss_beat('look', justin.g.position.clone().setY(1.5), 9000); weiss_glocke(); await weiss_helmSzene();
   // 5: Zusatzzeilen (je eine, wenn vorhanden) und Peter (immer)
   await weiss_beat('step', null, 7000); weiss_glocke(); state.talking = true; const ex = [];
   if (ch3.myst.has('chronik')) ex.push(['„Siebenhundertvierzehn Jahre, Papa. Zweiundvierzig Mal hab ich gerufen.“', 4400, 'DAS KIND']);
-  if (ch3.myst.has('albers')) ex.push(['„Papa räumt auf. Immer. Er bringt sie mir weg.“', 3200, 'DAS KIND']);
-  if (ch3.myst.has('buch')) ex.push(['„Die Frau hat so schön gezählt.“', 2800, 'DAS KIND']);
-  if (ch3.myst.has('stimme')) ex.push(['Du warst das. Am Telefon. Mit Lucys Stimme.', 3200, 'DU'], ['„Natürlich. Du solltest herkommen. Du solltest es wissen.“', 3600, 'DAS KIND']);
-  ex.push(['„Onkel Peter ist heimgekommen. Du hast ihn warm gemacht.“', 3800, 'DAS KIND'], ['„Ich habe ihn 1975 heimgeführt. An dieser Hand.“', 3600, JS]);
+  if (ch3.myst.has('albers')) ex.push(['„Der alte Mann mit dem Silberhut. Der guckt immer nach oben. Ich wink ihm.“', 4200, 'DAS KIND']);
+  if (ch3.myst.has('buch')) ex.push(['„Die Frau hat so schön gezählt. Ich hab ihr zugehört, jede Nacht.“', 4000, 'DAS KIND']);
+  if (ch3.myst.has('stimme')) ex.push(['„Du bist rangegangen. Endlich.“', 3000, 'DAS KIND']);
+  ex.push(['„Onkel Peter ist heimgekommen. Du hast ihn warm gemacht.“', 3800, 'DAS KIND'], ['„Ich hab ihn herausgeführt, damals. An dieser Hand.“', 3600, JS]);
   await say(ex); state.talking = false;
   // 6: Ein Stück von Papa ist noch draußen
-  await weiss_beat('look', mira.position.clone().setY(.9), 8000); weiss_glocke(); state.talking = true;
-  await say([['„Das Spiel ist erst aus, wenn alle gefunden sind. Papa ist gefunden. Aber ein Stück von Papa ist noch draußen.“', 5600, 'DAS KIND']]); S.miraFace = 'du';
+  await weiss_beat('look', graukind.position.clone().setY(.9), 8000); weiss_glocke(); state.talking = true;
+  await say([['„Das Spiel ist erst aus, wenn alle gefunden sind. Papa ist gefunden. Fast.“', 4600, 'DAS KIND'], ['„Ein Stück von Papa ist noch draußen.“', 3200, 'DAS KIND']]); S.miraFace = 'du';
   await say([['Sie sieht dich an.', 2400]]); state.talking = false;
   // 7: Justins Angebot
   await weiss_beat('look', justin.g.position.clone().setY(1.5), 8000); weiss_glocke(); state.talking = true; justin.look = true;
-  await say([['„Knabe. Wie immer man dich nennt – hör mich an.“', 4000, JS],
-    ['„Wenn ich hinabsteige, und mit mir das Kind, das aus mir ist, dann ist der Handel erfüllt. Der Abgrund schließt sich. Für immer.“', 5600, JS],
-    ['„Die Geholten kommen heim. Deine Schwester kommt heim. Nur du nicht.“', 4000, JS],
-    ['„Bleibst du, gehe ich allein. Vielleicht genügt es ihr. Vielleicht nicht. Dann kommt sie in siebzehn Jahren wieder.“', 5400, JS],
-    ['„Ich zwinge dich nicht. Das habe ich einmal getan, mit sieben Kindern. Nie wieder.“', 4400, JS]]); state.talking = false;
+  await say([['Du hättest es sagen können.', 2600, 'DU'], ['„Dann hättest du weggesehen.“', 2800, JS]]); state.talking = false; // Fassung 3: Justin-Dossier 3.13, Schlag 7
   // 8: Was will sie?
   await weiss_beat('step', null, 6000); weiss_glocke(); state.talking = true;
   const P = player.pos, dx = CX - P.x, dz = CZ - P.z, d = Math.hypot(dx, dz) || 1; jWalk(P.x + dx / d * 1.1, P.z + dz / d * 1.1, () => { justin.look = true; jPlay('kneel'); }); await wait(2000);
@@ -347,7 +345,7 @@ async function weiss_helmSzene() { const S = weiss_S, H = S.helm; state.talking 
   if (S.jHandL()) { S.jHandL().getWorldPosition(lookB); camB.copy(lookB).addScaledVector(left, .42).addScaledVector(f, -.12).add(_wv.set(0, .1, 0)); }
   mode = 'B'; PERF_CULL.t = 0; await say([['Seine linke Hand: dieselbe halbrunde Narbe.', 3200]]);
   mode = 'A'; PERF_CULL.t = 0;
-  await say([['„Ich wusste es, als ich dich an der Kreuzung sah. Ich habe dich gebraucht, um gefunden zu werden. Allein hätte ich es nie gekonnt.“', 6000, JS]]);
+  await say([['„Ich hab es an der Kreuzung gewusst. Deine Augen. Ich hab dich gebraucht, damit sie mich sieht.“', 5200, JS], ['„Ich hatte kein anderes Fenster.“', 3000, JS]]); // Fassung 3: 3.13, Schlag 6
   setCamOverride(null); setScripted(null); state.talking = false; }
 weiss_S.jHandL = () => { if (weiss_S._hl === undefined) { weiss_S._hl = null; if (justin.model) justin.model.traverse(b => { if (b.isBone && b.name === 'hand_l') weiss_S._hl = b; }); } return weiss_S._hl; };
 
@@ -355,8 +353,8 @@ weiss_S.jHandL = () => { if (weiss_S._hl === undefined) { weiss_S._hl = null; if
 showChoice = function () {
   if (ch3.choice) return; const H = weiss_hinweise(); weiss_S.phase = 'wahl';
   const b = (id, t) => `<button id="${id}" style="min-width:380px">${t}</button>`;
-  openPuzzle(`<h3>WAS WILL SIE?</h3><p>Justin wartet. Das Kind lächelt. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
-    ${b('chA', '„Dich. Dein Blut. Sie will es zurück.“')}${b('chB', '„Den Handel. Sieben Kinder, wie damals.“')}${H.c ? b('chC', '„Dass du sie suchst. Du hast immer nur gezählt.“') : ''}</div>`, box => {
+  openPuzzle(`<h3>WAS WILL SIE?</h3><p>Justin wartet. Sieben Kinder sehen dich an.</p><div class="row" style="flex-direction:column;align-items:center;gap:14px">
+    ${b('chA', '„Dich. Dass du bleibst.“')}${b('chB', '„Spielen. Sieben Kinder, wie damals.“')}${H.c ? b('chC', '„Dass du sie suchst.“') : ''}</div>`, box => {
     const go = (c, fn) => e => { e.stopPropagation(); ch3.choice = c; closeOverlay(); fn(); };
     box.querySelector('#chA').onclick = go('A', () => endingA()); box.querySelector('#chB').onclick = go('B', () => endingB());
     const c = box.querySelector('#chC'); if (c) c.onclick = go('C', () => endingC());
@@ -369,11 +367,12 @@ function weiss_aufraeumen() { const S = weiss_S; S.bw = null; S.helmHeld = false
 async function weiss_vorKino(id) { weiss_aufraeumen(); await weiss_kino(id); }
 async function endingC() {
   state.talking = true; justin.look = true; jPlay('idle');
-  await say([['„Dass du sie suchst. Du hast immer nur gezählt.“', 3600, 'DU'], ['Justin sieht dich an. Zum ersten Mal richtig.', 3600]]);
+  await say([['„Dass du sie suchst.“', 2600, 'DU'], ['Justin sieht dich an. Zum ersten Mal richtig.', 3600], ['„Das tue ich seit siebenhundert Jahren.“', 3400, JS], ['„Vielleicht muss sie mich dabei sehen.“', 3200, JS], // Fassung 3: Antwort C, 3.14/3.15
+    ['„Ich hab immer leise gesucht. Wie einer, der sich schämt. Diesmal such ich laut.“', 4600, JS], ['„Wenn ich sie das nächste Mal finde, will ich, dass sie es merkt. Halt mir die Augen offen, Knabe. Deine.“', 5200, JS]]);
   $('fade').style.background = '#fff'; await fade(1, 1800);
   if (typeof kino_play === 'function') await weiss_vorKino('k3c');
-  else { weiss_aufraeumen(); await say([['Er legt Schwert und Helm auf den leeren achten Stuhl. Er dreht sich um, legt die Hände vor die Augen und zählt laut.', 5000], ['„Eins. Zwei. Drei …“', 3000, JS], ['„… Siebzehn.“', 2600, JS], ['„Ich komme.“', 2400, JS], ['„Danke, Luke.“', 2600, JS]]); }
-  c3Endcard('KAPITEL 3 — ENDE · SUCH MICH', '5. November 2026, Morgengrauen. Auf der Kreuzung stehen sie alle, barfuß. Zayn. Mike. Roxy. Hilde.<br>Lucy hält zwei Hände: die eines Jungen mit hellblauen Augen – und deine.<br>Über dem Wald ist der Himmel zum ersten Mal einfach nur Himmel.<br>Auf dem Ortsschild hat jemand die Zahl durchgestrichen. Daneben, in Kinderschrift: ALLE.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  else { weiss_aufraeumen(); await say([['Justin geht in Rüstung hinein. Sie sieht durch ihn hindurch wie durch Luft.', 4400], ['„Papa? … Papa, du mogelst wieder.“', 3600, 'DAS KIND'], ['„Eins. Zwei. Drei …“', 3000, 'DAS KIND']]); }
+  c3Endcard('KAPITEL 3 — ENDE · ICH KOMME', 'Er sucht jetzt laut.<br>Einmal hat sie ihn gesehen. Durch dich.<br>Es wird hell.', 'KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN'); // Fassung 3: Endkarte Antwort C (Zusatzzeilen RH/Vertrauen: AP-17/AP-05)
   if (typeof kapEnde === 'function') kapEnde(3);
 }
 // Justin im Weißen: während Raum 3 nur das Rätsel „Was lügt?“, sonst wie bisher
@@ -389,10 +388,10 @@ WORLD_TICK.push((dt, t) => {
   // Raum 3, Teil 1: hinter der Tür wird es Nacht
   if (ch3.room2 && (S.phase === 'tuer' || S.phase === 'nacht' || S.phase === 'spuren' || S.phase === 'frage' || S.phase === 'gestaendnis')) { const k = THREE.MathUtils.clamp((P.x - (X3 + 29.5)) / 4, 0, 1); if (Math.abs(k - S.envK) > .002 || !S.env) { S.envK = k; weiss_env('night', k); } }
   if (S.phase === 'abgrund' || S.phase === 'wahl') {
-    if (S.miraFace === 'weg') mira.lookAt(2 * mira.position.x - P.x, mira.position.y, 2 * mira.position.z - P.z); else if (S.miraFace === 'justin') mira.lookAt(justin.g.position.x, mira.position.y, justin.g.position.z);
-    if (S.miraK) { S.kleineT = Math.max(0, S.kleineT - dt); const kl = S.kleineT > 0 && S.kleineT < 1.05; if (S.miraK.visible !== kl) { S.miraK.visible = kl; mira.visible = !kl; } if (kl) { S.miraK.position.copy(mira.position); S.miraK.quaternion.copy(mira.quaternion); } }
+    if (S.miraFace === 'weg') graukind.lookAt(2 * graukind.position.x - P.x, graukind.position.y, 2 * graukind.position.z - P.z); else if (S.miraFace === 'justin') graukind.lookAt(justin.g.position.x, graukind.position.y, justin.g.position.z);
+    if (S.miraK) { S.kleineT = Math.max(0, S.kleineT - dt); const kl = S.kleineT > 0 && S.kleineT < 1.05; if (S.miraK.visible !== kl) { S.miraK.visible = kl; graukind.visible = !kl; } if (kl) { S.miraK.position.copy(graukind.position); S.miraK.quaternion.copy(graukind.quaternion); } }
     if (S.lucy) { S.flk -= dt; if (S.flk <= 0) { S.lucy.visible = !S.lucy.visible; S.flk = S.lucy.visible ? rand(.06, .55) : rand(.25, 1.6); } }
-    if (S.counting) { S.cnt -= dt; if (S.cnt <= 0) { S.cnt = rand(2.2, 3); Audio.whisper(mira.position.x, 1, mira.position.z, 1.6); } }
+    if (S.counting) { S.cnt -= dt; if (S.cnt <= 0) { S.cnt = rand(2.2, 3); Audio.whisper(graukind.position.x, 1, graukind.position.z, 1.6); } }
     if (S.paper) S.paper.emissiveIntensity = 2.6 * (.96 + .04 * Math.sin(t * 1.3));
   }
   // Helm in Justins linker Hand

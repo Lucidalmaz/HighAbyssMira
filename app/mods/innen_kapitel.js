@@ -192,7 +192,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     // Gruppenfoto an der Westwand
     put(kFrameG, 0, ZA + 3.2, { ry: Math.PI / 2, y: 1.2, minX: XA + 18.155 });
     const ph = plane(.4, .58, XA + 18.18, 1.2 + .345, ZA + 3.2, photoMat('group'), 0, Math.PI / 2);
-    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder an der Kreuzung, in einer Reihe. Du zählst: <b>acht</b>.\n\nDas achte Kind steht ganz rechts, ein Mädchen im weißen Kleid. Ihr Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. Partner anwesend. Auswahl bestätigt.“</i>', 'gruppenfoto'));
+    interact(ph, 'Gruppenfoto', note('Gruppenfoto · Sommerfest 2009', 'Kinder an der Kreuzung, in einer Reihe. Du zählst: <b>acht</b>.\n\nDas achte Kind steht ganz rechts, ein Mädchen im weißen Kleid. Ihr Gesicht ist mit weißem Lack übermalt – sorgfältig, wie man ein Etikett überklebt.\n\nAuf der Rückseite, Schreibmaschine: <i>„Belegfoto. B anwesend. Auswahl bestätigt. Sieben Lampions ausgegeben.“</i>', 'gruppenfoto'));
     for (let x = XA + 19; x < XA + 29; x += R(2.5, 3.5)) onWall(damp, x, .22, ZA + 5.84, R(1.8, 2.6), R(.4, .55), Math.PI);
     papers(XA + 21, ZA - 3.8, 7, 1.2); papers(XA + 27, ZA + 3.6, 6, 1.2); papers(XA + 19.5, ZA + .5, 3, .5);
     flat(soot, XA + 20, ZA - 4.7, .9, 1.3, 0, .01); // Staub und Abrieb vor der leergeräumten Schublade

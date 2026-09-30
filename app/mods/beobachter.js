@@ -8,10 +8,12 @@
 // Gut oder böse? Bleibt offen (Auflösung Kapitel 7). Kanon: story_final.md „Der Beobachter“. Hilde zählte zuletzt neun Kinder – der neunte ist er.
 // Modell: assets/ms/beobachter/model.glb (klein, weiß; fehlt es, bleibt er unsichtbar – Geräusche und Zettel funktionieren trotzdem).
 const BEOB = { h: .82, gap: [150, 260], sndGap: [6, 15], peekGap: [55, 120], seenMax: 1 };
-const beob_S = { ready: false, found: new Set(), given: new Set(), bonus: new Set(), done: false, stat: { turns: 0, still: 0, stillMax: 0, flashOff: 0, runs: 0, t: 0, lastYaw: 0, fl: true, run: false }, a: { x: 0, z: 0 },
+const beob_S = { ready: false, found: new Set(), given: new Set(), bonus: new Set(), done: false, k2seen: false, lit: 0, dyn: new Set(), // k2seen/lit/dyn: Fassung 3 (AP-03, genutzt ab AP-07)
+  stat: { turns: 0, still: 0, stillMax: 0, flashOff: 0, runs: 0, t: 0, lastYaw: 0, fl: true, run: false }, a: { x: 0, z: 0 },
   sndT: 8, noteT: 90, peekT: 40, model: null, V: null, peek: null, notes: [], spots: [], chirpT: 0 };
-MOD_SAVE.push(['beobachter', () => ({ found: [...beob_S.found], given: [...beob_S.given], bonus: [...beob_S.bonus], done: beob_S.done }),
-  v => { const S = beob_S; (v.found || []).forEach(k => S.found.add(k)); (v.given || []).forEach(k => S.given.add(k)); (v.bonus || []).forEach(k => S.bonus.add(k)); S.done = !!v.done; for (const n of S.spots) if (S.found.has(n.id)) beob_hideSpot(n); beob_desc(); }]);
+MOD_SAVE.push(['beobachter', () => ({ found: [...beob_S.found], given: [...beob_S.given], bonus: [...beob_S.bonus], done: beob_S.done, k2seen: beob_S.k2seen, lit: beob_S.lit, dyn: [...beob_S.dyn] }),
+  v => { const S = beob_S; (v.found || []).forEach(k => S.found.add(k)); (v.given || []).forEach(k => S.given.add(k)); (v.bonus || []).forEach(k => S.bonus.add(k)); S.done = !!v.done;
+    S.k2seen = !!v.k2seen; S.lit = +v.lit || 0; (v.dyn || []).forEach(k => S.dyn.add(k)); for (const n of S.spots) if (S.found.has(n.id)) beob_hideSpot(n); beob_desc(); }]);
 function beob_ch() { return typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; }
 function beob_active() { if (beob_ch() < 2 || !state.started || menu.attract || state.ending) return false; if (ch3.on && ch3.part === 'white') return false; return true; }
 function beob_quiet() { return state.talking || !!ui.overlay || !!scripted || dir.busy || state.blackout || (typeof hunt !== 'undefined' && hunt.on) || (typeof hungrige_S !== 'undefined' && (hungrige_S.cine || hungrige_S.ev)); }
@@ -97,7 +99,7 @@ function beob_readSpot(n) {
   const S = beob_S; if (n.gone) return; const first = !S.found.size; S.found.add(n.id); beob_hideSpot(n);
   const bonus = n.bonus && S.bonus.has(n.id) ? n.bonus : (n.bonus && !BEOB_DYN.some(d => d.cache === n.id) ? n.bonus : 0);
   beob_read('Ein Zettel · ' + n.name, n.text, 'beob_ort_' + n.id, bonus || 0);
-  if (!story.side.beobachter) story.side.beobachter = { title: 'Der Beobachter', desc: '', state: 'hidden' }; if (story.side.beobachter.state === 'hidden') sideStart('beobachter');
+  if (!story.side.beobachter) story.side.beobachter = { title: 'Der Neunte', desc: '', state: 'hidden' }; if (story.side.beobachter.state === 'hidden') sideStart('beobachter');
   beob_desc(); if (first) beob_firstThought();
   if (!S.done && BEOB_ORTE.every(o => S.found.has(o.id))) { S.done = true; setTimeout(() => { beob_read('Der letzte Zettel', BEOB_FINAL, 'beob_final', 3); addItem('murmel'); sideDone('beobachter', 'Alle Zettel des Beobachters gefunden.'); beob_desc();
     if (typeof gedanke === 'function') gedanke('beob_final', 'Der neunte. Hilde hat neun gezählt, und niemand hat ihr geglaubt. … Er war die ganze Zeit da. Und er will, dass ich es weiß.', 2500, 3); }, 1200); }
@@ -109,7 +111,7 @@ function beob_drop(d) {
   for (let k = 0; k < 14 && !spot; k++) { const a = Math.atan2(-f.x, -f.z) + rand(-.6, .6), r = rand(1.8, 3.4), x = P.x + Math.sin(a) * r, z = P.z + Math.cos(a) * r; if (beob_facing(x, P.y, z) > .1 || !beob_free(x, z)) continue; const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > .35) continue; spot = [x, gy, z]; }
   if (!spot) return false; S.given.add(d.id); const [x, y, z] = spot;
   const N = beob_note(x, y, z, () => { beob_hideSpot(N); S.notes.splice(S.notes.indexOf(N), 1); if (d.cache) S.bonus.add(d.cache); beob_read(d.kind === 'raetsel' ? 'Ein Zettel · Rätsel' : d.kind === 'frage' ? 'Ein Zettel · Frage' : 'Ein Zettel', d.text, 'beob_' + d.id, d.item || 0);
-    if (!S.found.size && !S.given.has('_t')) { S.given.add('_t'); beob_firstThought(); } if (!story.side.beobachter) story.side.beobachter = { title: 'Der Beobachter', desc: '', state: 'hidden' }; if (story.side.beobachter.state === 'hidden') { sideStart('beobachter'); beob_desc(); } });
+    if (!S.found.size && !S.given.has('_t')) { S.given.add('_t'); beob_firstThought(); } if (!story.side.beobachter) story.side.beobachter = { title: 'Der Neunte', desc: '', state: 'hidden' }; if (story.side.beobachter.state === 'hidden') { sideStart('beobachter'); beob_desc(); } });
   S.notes.push(N); Audio.paper(); setTimeout(() => { beob_patter(x, z, 4); beob_rustle(x + rand(-3, 3), z + rand(-3, 3), .5); }, 350);
   if (typeof hintAdd === 'function') hintAdd({ id: 'beob_' + d.id, x, y, z, kind: 'geheim', near: 12, open: () => !N.gone });
   if (typeof gedanke === 'function') gedanke('beob_hinter', 'Papier. Direkt hinter mir. … Da lag eben noch nichts.', 900, 2);
@@ -189,7 +191,7 @@ function beob_peekTick(dt) {
 // ---------------------------------------------------------------- Aufbau und Takt
 WORLD_MODS.push(['Der Beobachter', async () => {
   const S = beob_S;
-  story.side.beobachter = story.side.beobachter || { title: 'Der Beobachter', desc: '', state: 'hidden' }; beob_desc();
+  story.side.beobachter = story.side.beobachter || { title: 'Der Neunte', desc: '', state: 'hidden' }; beob_desc();
   for (const o of BEOB_ORTE) { let x = o.x, z = o.z; for (let k = 0; k < 12 && !beob_freeAt(x, z); k++) { const a = k * 2.1, r = .8 + k * .25; x = o.x + Math.cos(a) * r; z = o.z + Math.sin(a) * r; }
     const sg = solidGround(x, 1.5, z), y = sg > -1 ? Math.max(0, sg) : 0; const n = Object.assign({ x, y, z }, o, { x, z }); const N = beob_note(x, y, z, () => beob_readSpot(n)); n.m = N.m; n.hit = N.hit; n.m.visible = false; uninteract(n.hit); n.live = false; S.spots.push(n);
     if (typeof hintAdd === 'function') hintAdd({ id: 'beob_ort_' + o.id, x, y, z, kind: 'geheim', near: 20, open: () => n.live && !n.gone }); }

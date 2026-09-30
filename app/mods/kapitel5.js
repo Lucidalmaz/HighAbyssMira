@@ -14,7 +14,7 @@ const k5_vor = b => k5_i(k5.beat) < k5_i(b);
 const K5_Y = .43; // Fußboden der Häuser
 const K5_POS = { veranda: [-27.2, 0, -10.55, PI], nr7: [23.6, K5_Y, -14.6, -PI / 2], tuer: [-47, 0, -9.4, 0], kinder: [-53.2, K5_Y, -19.4, PI], kreuz: [1.8, 0, 3.2, -2.4], stall: [-135.6, 0, -30.1, PI / 2], tor: [-52.5, 0, 64.6, PI] };
 // Kinderstimme, Spieluhr darunter usw.: Sprecher wie im Produktionsplan
-const K5_W = { V: 'VEGAS', L: 'LUCY', LU: 'LUKE', H: 'HEIMKEHRERIN', K: 'DAS KIND', E: 'ECHTER LUKE', M: 'MAMA', A: 'ANRUF' };
+const K5_W = { V: 'VEGAS', L: 'LUCY', LU: 'LUKE', H: 'LUCY', K: 'LUNA', E: 'ECHTER LUKE', M: 'MAMA', A: 'ANRUF' };
 const _k5v = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], _k5q = new THREE.Quaternion(), _k5q2 = new THREE.Quaternion();
 
 // ---------------------------------------------------------------- kleine Werkzeuge
@@ -379,7 +379,7 @@ function k5_augen(key, k) { for (const m of K5.eyes[key] || []) m.emissiveIntens
 function k5_westLampen(aus) { for (const L of lamps) if (L.wx < -75 && L.wx > -130 && Math.abs(L.wz) < 8) L.mode = aus ? 'off' : 'on'; }
 
 // ---------------------------------------------------------------- Kapitelstart
-const C5_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 5 · DER GEDECKTE TISCH</p><p class="on">5. November 2026. Derselbe Tag, am Abend.</p><p class="on">Du hast geschlafen. Zum ersten Mal seit August bist du nicht um 03:13 aufgewacht.</p><p class="on">Lucy liegt bei Vegas auf dem Sofa. Sie friert. Sie hat den ganzen Tag nichts gegessen.</p><p class="on">Gegen sechs hat sie gesagt: „Heute Abend koch ich. Wie früher.“</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
+const C5_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 5 · ISS AUF, BRUDER</p><p class="on">Derselbe Tag. Abend.</p><p class="on">Du hast geschlafen. Zum ersten Mal seit August nicht um 03:13 aufgewacht.</p><p class="on">Lucy liegt bei Vegas auf dem Sofa. Sie friert. Sie hat den ganzen Tag nichts gegessen.</p><p class="on">Vorhin hat sie gesagt: „Heute Abend koch ich. Wie früher.“</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function startChapter5() {
   $('subPanel').classList.remove('show'); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show');
   const laden = typeof KAP !== 'undefined' && KAP.laden, pend = laden ? k5.pend : null; k5.pend = null;
@@ -493,7 +493,7 @@ function k5_briefe() {
   const B = [['Brief aus Hamburg · 2019', '<span class="hand">„Mama, ich ruf jeden Sonntag um sieben an. Du gehst nie ran. Ich weiß, dass du da bist. Ich hör dich atmen, bevor du auflegst. — J.“</span>', 'k5_brief1'],
     ['Brief aus Hamburg · 2023', '<span class="hand">„Ich hab jetzt eine Wohnung mit Balkon. Da steht ein Bett für dich. Seinen Namen sag ich nicht mehr. Dann legst du wenigstens nicht sofort auf. — J.“</span>', 'k5_brief2'],
     ['Brief aus Hamburg · Poststempel 02.11.2026', '<span class="hand">„Die Polizei hat angerufen, wegen Lucy Brandt. Ich komm am Samstag. Geh nachts nicht auf die Kreuzung. Bitte. — Jonas“</span>', 'k5_brief3']];
-  const next = i => { if (i >= B.length) { subtitle('„Jonas. Er lebt. Er hat jeden Sonntag angerufen.“', 4200, K5_W.LU); if (typeof gedanke === 'function') gedanke('k5_jonas', 'Hilde hatte zwei Söhne. Gezählt hat sie nur einen.', 60000, 2); return; }
+  const next = i => { if (i >= B.length) { subtitle('„Jonas. Er lebt. Er hat jeden Sonntag angerufen.“', 4200, K5_W.LU); if (typeof gedanke === 'function') gedanke('k5_jonas', 'Hilde hatte zwei Söhne. Mitgezählt hat sie nur einen.', 60000, 2); return; }
     openNote(B[i][0], 'Drei Umschläge, Poststempel Hamburg. Adressiert an Frau Hilde Wendt.\n\n' + B[i][1], B[i][2], () => setTimeout(() => next(i + 1), 250)); };
   next(0);
 }
@@ -609,7 +609,7 @@ async function k5_heimkehrerin() {
     k5_item('mamas_kerze', 'Mamas Kerze', 'Vom gedeckten Tisch. Nie angezündet. Das Wachs ist kalt.', 'paper'); await wait(900);
     k5_lichter1(1, true); flashOn = true; await wait(900);
     await say([['„Das war sie. Die ganze Zeit.“', 3400, K5_W.LU]]);
-    k5_lore('k5_heimkehrerin', 'Die Heimkehrerin', 'Die Stimme am Telefon. Die Gestalt auf dem Gurtstuhl. Das Gesicht am Tank. Die Graue. Die Frau am Tisch. Ein Kind mit Lucys Gesicht.');
+    k5_lore('k5_heimkehrerin', 'Luna mit Lucys Gesicht', 'Die Stimme am Telefon. Die Gestalt auf dem Gurtstuhl. Das Gesicht am Tank. Das Graukind. Die Frau am Tisch. Luna, mit Lucys Gesicht.');
   } finally { state.talking = false; }
   k5_setup('spieluhr', true);
 }
@@ -736,7 +736,7 @@ function k5_grabAufbau(on) { const S = K5, N = typeof ausbau_nord !== 'undefined
     spots.forEach(([x, z], i) => { const g = S.g['gz' + i]; if (!g) return; g.position.set(x, 0, z); g.visible = true; k5_face(g, -52.5, 66.9); k5_clip(g, 'idle', false); g.userData.k5z = z; });
     if (S.hit.grab) S.hit.grab.position.set(pit.x, .4, pit.z); if (S.hit.kleine) S.hit.kleine.position.set(pit.x + .9, .7, pit.z - .5); }
 }
-function k5_kleineLabel() { if (!k5.gr) return ''; if (k5_hat('mamas_kerze') && k5_hat('feuerzeug') && (k5.gr.feuer > 0 || k5.gr.hinw >= 4)) return 'Mamas Kerze anzünden'; return k5_hat('feuerzeug') ? 'Feuerzeug anzünden' : 'Die Kleine'; }
+function k5_kleineLabel() { if (!k5.gr) return ''; if (k5_hat('mamas_kerze') && k5_hat('feuerzeug') && (k5.gr.feuer > 0 || k5.gr.hinw >= 4)) return 'Mamas Kerze anzünden'; return k5_hat('feuerzeug') ? 'Feuerzeug anzünden' : 'Luna'; }
 async function k5_kleineAktion() {
   if (k5.beat !== 'grab' || state.talking || !k5.gr) return;
   if (k5_kleineLabel() === 'Mamas Kerze anzünden') return k5_kerzeAnzuenden();
@@ -791,11 +791,11 @@ async function k5_ende() {
   if (typeof kino_play === 'function') { try { await kino_play('k5'); } catch (e) { console.warn('Kapitel 5: Kino', e); } } else await fade(1, 2000);
   if (typeof kapEnde === 'function') kapEnde(5); else saveFlag('ch6');
   state.ending = true; Audio.hum(false);
-  $('endcard').querySelector('h1').textContent = 'KAPITEL 5 — ENDE · DER GEDECKTE TISCH';
+  $('endcard').querySelector('h1').textContent = 'KAPITEL 5 — ENDE · ISS AUF, BRUDER';
   $('endcard').querySelector('p').innerHTML = 'Vier Teller. Einer blieb leer.<br>Einer ist in den Wald gelaufen, der kein Echo hat.<br>Lucy hat „heim“ gesagt. Du bist mitgegangen.';
   $('endStats').innerHTML = `FOTOS ${typeof kamera_S !== 'undefined' ? kamera_S.n : 0} · FUNDE ${story.lore.length}`;
-  const n6 = typeof startChapter6 === 'function'; $('endcard').querySelector('.next').textContent = n6 ? 'KAPITEL 6 · DER HUNGRIGE' : 'HIGH ABYSS MIRA · KAPITEL 6 FOLGT';
-  const go = $('endcard').querySelector('.go'); go.style.display = ''; go.textContent = n6 ? 'WEITER · KAPITEL 6 · DER HUNGRIGE' : 'ZURÜCK ZUM HAUPTMENÜ';
+  const n6 = typeof startChapter6 === 'function'; $('endcard').querySelector('.next').textContent = n6 ? 'KAPITEL 6 · WENDIGO' : 'HIGH ABYSS MIRA · KAPITEL 6 FOLGT';
+  const go = $('endcard').querySelector('.go'); go.style.display = ''; go.textContent = n6 ? 'WEITER · KAPITEL 6 · WENDIGO' : 'ZURÜCK ZUM HAUPTMENÜ';
   go.onclick = async e => { if (e) e.stopPropagation(); if (!n6) return location.reload(); go.onclick = null; $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; k5.on = false; k5_setup('aus'); await startChapter6(); };
   document.exitPointerLock(); ui.overlay = 'endcard'; $('endcard').classList.add('show'); document.body.classList.add('ov'); $('fade').style.opacity = 0;
   k5.on = false; if (n6) saveGame(6);

@@ -125,7 +125,7 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
   { const sign = new T.Mesh(new T.PlaneGeometry(1.4, .45), new T.MeshStandardMaterial({ roughness: .7, metalness: .5, map: tex(cnv(512, (c, w) => { c.fillStyle = '#6c7a72'; c.fillRect(0, 0, w, w); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(90,50,20,${rand(.1, .4)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(3, 30), 0, 7); c.fill(); }
       c.fillStyle = '#e4e0d4'; c.font = 'bold 50px Arial'; c.textAlign = 'center'; c.fillText('AMT FÜR RÜCKFÜHRUNG', w / 2, 96); c.font = '38px Arial'; c.fillText('FAHRDIENST · LOST EYENGLESS', w / 2, 150); }), true) }));
     sign.material.map.repeat.set(1, .32); sign.material.map.offset.set(0, .68); sign.position.set(TIEF.bus.x - 2.6, .09, TIEF.bus.z - 2.2); sign.rotation.set(-PI / 2 + .1, 0, .6); scene.add(sign);
-    note(TIEF.bus.x - 2.6, .3, TIEF.bus.z - 2.2, 'Blechschild im Laub', () => toast('AMT FÜR RÜCKFÜHRUNG · FAHRDIENST. Das Schild ist abgefallen – oder abgerissen. Der Bus steht hier, als wäre er zwischen die Bäume gefahren, die damals noch nicht da waren.', 5600), 1.4, .4, .6);
+    note(TIEF.bus.x - 2.6, .3, TIEF.bus.z - 2.2, 'Blechschild im Laub', () => toast('BUNDESSTELLE FÜR RÜCKFÜHRUNG · FAHRDIENST. Das Schild ist abgefallen – oder abgerissen. Der Bus steht hier, als wäre er zwischen die Bäume gefahren, die damals noch nicht da waren.', 5600), 1.4, .4, .6);
     note(TIEF.bus.x - 1.4, 1.1, TIEF.bus.z + 1.4, () => tief_has('tief_zettel_3') ? 'Jonas’ Zettel im Bus' : 'In den Bus sehen', () => tief_zettel(3), 1.4, 1.6, 1.4);
     note(TIEF.bus.x + 1.6, 1.1, TIEF.bus.z - 1.2, 'Fahrtenbuch am Armaturenbrett', () => tief_fahrtenbuch(), 1.2, 1.2, 1.2);
     // aufgewühlte Erde (die Rotte gräbt hier)
@@ -180,8 +180,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     H('tief_1', { x: 39.8, z: 156.3 }, () => !tief_has('tief_zettel_1')); H('tief_2', TIEF.stand, () => !tief_has('tief_zettel_2')); H('tief_3', TIEF.bus, () => !tief_has('tief_zettel_3')); H('tief_4', TIEF.ring, () => !tief_has('tief_zettel_4'));
     H('tief_5', { x: S.postEnd[0], z: S.postEnd[1] }, () => !tief_has('tief_zettel_5')); H('tief_dig', TIEF.dig, () => tief_S.rooted && !tief_has('tief_rotte'));
     hintAdd({ id: 'tief_lager', x: TIEF.camp.x, y: 0, z: TIEF.camp.z, kind: 'geheim', near: 30, open: () => wald_frei() && !tief_has('tief_lager') }); hintAdd({ id: 'tief_wrack', x: TIEF.wreck.x, y: 0, z: TIEF.wreck.z, kind: 'geheim', near: 30, open: () => wald_frei() && !tief_has('tief_wrack') }); }
-  story.side.tief_faden = { title: 'Der rote Faden', desc: 'Hinter Zayns Hütte ist der Zaun eingedrückt. Zwischen den Bäumen dahinter: rote Wolle, von Stamm zu Stamm gespannt.', state: 'hidden' };
-  story.side.tief_rotte = { title: 'Die Rotte', desc: 'Am alten Bus wühlen Wildschweine im Boden. Irgendetwas haben sie gerochen.', state: 'hidden' };
+  story.side.tief_faden = { title: 'Vierzig Mal', desc: 'Hinter Zayns Hütte ist der Zaun eingedrückt. Zwischen den Bäumen dahinter: rote Wolle, von Stamm zu Stamm gespannt.', state: 'hidden' };
+  story.side.tief_rotte = { title: 'Vorrat. Nicht anfassen.', desc: 'Am alten Bus wühlen Wildschweine im Boden. Irgendetwas haben sie gerochen.', state: 'hidden' };
   modItem('jonas_karte', 'Jonas’ Karte', 'Mit Kuli auf Karopapier: der Wald, die Wege, fünf Kreuze. Am Weiher: „ENDE“.', 'paper');
   S.statics = scene.children.slice(n0);
   S.ready = true;
@@ -213,7 +213,7 @@ const TIEF_ZETTEL = {
 function tief_zettel(i) {
   const k = 'tief_zettel_' + i, [t, txt] = TIEF_ZETTEL[i];
   if (tief_has(k)) return openNote(t, tief_note(txt));
-  story.lore.push({ key: k, title: 'Der rote Faden · ' + t, html: tief_note(txt) }); Audio.paper(); sideStart('tief_faden');
+  story.lore.push({ key: k, title: 'Vierzig Mal · ' + t, html: tief_note(txt) }); Audio.paper(); sideStart('tief_faden');
   const n = [1, 2, 3, 4, 5].filter(j => tief_has('tief_zettel_' + j)).length;
   if (i < 5) story.side.tief_faden.desc = `Jonas hat seinen Bruder vierzig Mal in diesem Wald gesucht. Die rote Wolle führt tiefer hinein. Zettel: ${n} / 5.`;
   openNote(t, tief_note(txt));
@@ -248,7 +248,7 @@ function tief_obenAngekommen() {
 function tief_dig() {
   const S = tief_S; if (tief_has('tief_rotte')) return;
   if (!S.rooted) { sideStart('tief_rotte'); return toast('Hier haben Wildschweine gewühlt. Solange die Rotte da ist, kommst du nicht an die Stelle – sie verteidigen, was sie gefunden haben. Licht vertreibt sie vielleicht.', 5200); }
-  story.lore.push({ key: 'tief_rotte', title: 'Die Rotte', html: 'Die Wildschweine haben eine Blechdose ausgegraben. Darin, in Zeitungspapier von 2012 gewickelt: zwei Batterien und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>' });
+  story.lore.push({ key: 'tief_rotte', title: 'Vorrat. Nicht anfassen.', html: 'Die Wildschweine haben eine Blechdose ausgegraben. Darin, in Zeitungspapier von 2012 gewickelt: zwei Batterien und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>' });
   addBattery(2); sideDone('tief_rotte', 'Eine Blechdose mit zwei Batterien. Jonas hat hier draußen Vorräte versteckt.'); Audio.play('metalHit1', { gain: .2, rate: 1.7 });
   openNote('Eine Blechdose', 'Rostig, von Hauern zerkratzt. Darin, in Zeitungspapier vom März 2012 gewickelt: zwei Batterien.\n\nUnd ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>\n\nEntschuldige, Jonas.');
 }
