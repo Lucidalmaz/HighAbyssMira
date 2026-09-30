@@ -59,6 +59,12 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Backpack for a wandering wizard | a9908244 | Beutel Stufe 3 (großer Rucksack) | https://www.fab.com/listings/9973d782-cad6-451c-bc4c-b407f209b9c3 |
 | Leather Book | Smoggybeard | Fotoalbum (Einband) | https://www.fab.com/listings/4621cc30-1631-4559-9c06-cb43695ba563 |
 | Detective_Hands – Animated | Tony Flanagan | Lukes Hände (Ich-Perspektive: Beutel, Album, Joint drehen) | https://www.fab.com/listings/dcf1de96-a033-48a9-85d5-2ec57d283f2b |
+| Curly Hairs Brown 04 | MotionstudioArts | Locken (Justin, Mira) | https://www.fab.com/listings/9b5adf05-17b0-45ee-ab34-f0148eff18f2 |
+| Small Brown Curly Hairs 05 | MotionstudioArts | Locken (Justin, Mira) | https://www.fab.com/listings/8782f229-9111-4690-bee5-c6ddb1511277 |
+| Vintage desk lamp | dusan.lamos | Schreibtischlampe (Zimmer 7) | https://www.fab.com/listings/382415ac-049e-463a-8ce6-1798d62b955c |
+| Dirty white blanket | Axonite | Kinderdecke (Zayns Hütte) | https://www.fab.com/listings/240a6cfa-86da-468a-8f4a-e424d856c714 |
+| Realistic Eye Models (High&Low Poly) | Leo3DCG | Augen der Figuren | https://www.fab.com/listings/798994c9-c118-43b3-ac34-12b251c08821 |
+| Eyelashes | kuroru0 | Wimpern der Figuren | https://www.fab.com/listings/64d912d8-42b2-4c7a-8d4b-d3b61252bfdf |
 
 ## Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)
 | Werk | Urheber | Verwendung im Spiel | Sketchfab |
@@ -76,6 +82,7 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)
 - **Motifect** – Daily Life Motion Pack · **Animpacks** – Look Through Window Animation Pack
+- **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin
 - **Guy in a Poncho** – Old Book (Dienstbuch) · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
 - **Epic Games** – Unreal Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite

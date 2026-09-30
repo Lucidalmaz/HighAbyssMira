@@ -19,6 +19,7 @@
 //   katzen_kater5(modus, opts): 'uebergabe' (Gisela gibt ihn, Luke trägt ihn kurz, dann folgt er) · 'folgen' · 'schwelle' {x,z,ry} (setzt sich, geht
 //     nicht weiter) · 'tisch' {x,y,z} · 'zurueck' {x,z} (bleibt stehen, sieht zurück) · 'starren' {x,y,z} · 'schnurren' {an} · 'nr1' {x,z,ry, ecke:[x,y,z]}
 //     · 'graukind' {x,z,ry} (Buckel, Fauchen ohne Ziel) · 'gitter' {x,z,ry, punkt:[x,y,z]} · 'vegas' {x,y,z,ry} · 'frei'
+//   katzen_baerbelPapier(x, z) – AG-02: BÄRBEL leckt das Butterbrotpapier ab und setzt sich wieder vor die Hecke
 //   katzen_kino(name, {x, z, bis, ab, dann, blick}) / katzen_kino(null) – Auftritt in einer Kinosequenz (kino.js, Abspann Kap. 1: BÄRBEL an Hildes Brille)
 //   Blickziel Beobachter: beob_pos() aus beobachter.js (wenn vorhanden) → {x,y,z}; Testbetrieb: katzen_S.simBeob (Vector3).
 const katzen_S = { ok: false, src: null, clips: null, sk: null, cats: [], byName: {}, regie: true, kapSeen: 0, flags: {}, kater: { mode: 'aus', o: {} },
@@ -257,6 +258,13 @@ function katzen_kino(name, o = {}) { const S = katzen_S;
   const k = katzen_get(name === 'baerbel' ? 'BÄRBEL' : name); if (!k) return; S.kino = { k, prev: k.on ? { x: k.x, z: k.z, y: k.y, ry: k.ry, stare: k.stare } : null };
   const ry = o.bis ? Math.atan2(o.bis[0] - o.x, o.bis[1] - o.z) : o.ry || 0; katzen_spawn({ name: k.name, x: o.x, z: o.z, ry, pose: 'stand', zahm: true }); k.stare = null;
   setTimeout(() => { if (S.kino && S.kino.k === k && o.bis) katzen_goto(k, o.bis[0], o.bis[1], { dann: 'sniff', frei: true, fertig: () => setTimeout(() => { if (S.kino && S.kino.k === k) { k.st = o.dann === 'liegen' ? 'loaf' : 'sit'; k.play(k.st, .6); k.t = 99; if (o.blick) katzen_stare(k, o.blick); } }, 1400) }); }, (o.ab || 0) * 1000); }
+// AG-02 (lwo.js): BÄRBEL steht auf, geht zum Butterbrotpapier, leckt es gründlich ab und setzt sich wieder vor die Hecke („Behördenstulle“)
+function katzen_baerbelPapier(x, z) { const k = katzen_get('BÄRBEL'); if (!k) return;
+  if (!k.on) katzen_spawn({ name: 'BÄRBEL', x: x + 1.2, z: z + .4, pose: 'sit' });
+  const back = { x: k.x, z: k.z, ry: k.ry, stare: k.stare ? k.stare.clone() : null }; k.stare = null; k.hold = null;
+  const a = Math.atan2(k.x - x, k.z - z), px = x + Math.sin(a) * .2, pz = z + Math.cos(a) * .2;
+  katzen_goto(k, px, pz, { frei: true, dann: 'sniff', fertig: () => { k.turnTo = Math.atan2(x - k.x, z - k.z); k.sniff = 1; k.lick = 4.5; k.t = 4.8;
+    setTimeout(() => { if (!k.on) return; k.lick = 0; katzen_goto(k, back.x, back.z, { frei: true, dann: 'sit', fertig: () => { k.ry = back.ry; if (back.stare) katzen_stare(k, back.stare); } }); }, 5000); } }); }
 // ---------------------------------------------------------------- Kater Hänschen (Kap. 5/6)
 function katzen_kater5(modus, o = {}) {
   const S = katzen_S, k = katzen_get('HÄNSCHEN'); if (!k) return null; const K = S.kater; K.mode = modus; K.o = o; k.forceHiss = false;
@@ -465,7 +473,7 @@ function katzen_overlay(k, dt, t, dCam) {
     if (L.pendT > 0) L.pendT -= dt; else { L.goal.copy(L.pend); L.has = true; } } else L.has = false;
   let wy = 0, wp = 0; if (L.has) { const hx = k.x + Math.sin(k.ry) * .2 * k.size, hz = k.z + Math.cos(k.ry) * .2 * k.size, hy = k.y + (k.st === 'sit' ? .3 : .24) * k.size;
     const dx = L.goal.x - hx, dz = L.goal.z - hz, dy = L.goal.y - hy; let a = Math.atan2(dx, dz) - k.ry; a = Math.atan2(Math.sin(a), Math.cos(a)); wy = Math.max(-1.45, Math.min(1.45, a)); wp = Math.max(-.6, Math.min(.5, Math.atan2(dy, Math.hypot(dx, dz)))); L.gy = a; }
-  if (k.sniff > 0) { wp = -.55; }
+  if (k.sniff > 0) { wp = -.55; } if (k.lick > 0) { k.lick -= dt; wp = -.62 + Math.sin(t * 9) * .08; if (k.teeth) k.teeth.visible = false; }
   const rate = L.has ? 9 : 3; L.y += (wy - L.y) * Math.min(1, dt * rate); L.p += (wp - L.p) * Math.min(1, dt * rate);
   const pq = katzen_chainQ(k, KATZEN_NECK, katzen_Q[0]);
   if (Math.abs(L.y) > .001 || Math.abs(L.p) > .001) { katzen_rotBone(k, k.B.neck2, pq, katzen_AX.y, L.y * .42); const pq2 = pq.multiply(k.B.neck2.quaternion);
@@ -480,7 +488,8 @@ function katzen_overlay(k, dt, t, dCam) {
     katzen_rotBone(k, k.B.tail3, tq, katzen_AX.y, Math.sin(T.ph - .8) * amp); tq.multiply(k.B.tail3.quaternion); katzen_rotBone(k, k.B.tail4, tq, katzen_AX.y, Math.sin(T.ph - 1.6) * amp * 1.5); }
   // Atmung (Bauch), im Schlaf langsamer und tiefer
   k.breath += dt * (k.st === 'sleep' ? 2.6 : k.st === 'go' ? 7 : 4.2); const br = 1 + Math.sin(k.breath) * (k.st === 'sleep' ? .05 : .025); if (k.B.belly) k.B.belly.scale.set(k.bellyS.x * br, k.bellyS.y * br, k.bellyS.z);
-  if (k.sniff > 0) k.sniff = Math.max(0, k.sniff - dt * .5);
+  if (k.sniff > 0) k.sniff = Math.max(0, k.sniff - dt * (k.lick > 0 ? 0 : .5));
+  if (k.lick > 0 && k.B.jaw) { const jq = katzen_chainQ(k, KATZEN_HEAD, katzen_Q[1]); katzen_rotBone(k, k.B.jaw, jq, katzen_AX.x, Math.max(0, Math.sin(t * 9)) * .22); } // Lecken: Maul auf/zu im Takt
 }
 
 // ---------------------------------------------------------------- Augen (Regel 4): Reflex, wenn die Lampe trifft; im Dunkeln schwach – das Einzige, was man sieht
@@ -498,4 +507,4 @@ function katzen_eyes(k, dt, d, lampOn, cam) {
 
 // ---------------------------------------------------------------- Testzugriff (Selbsttests; im Veröffentlichungsbau entfernt)
 function katzen_debug() { return { S: katzen_S, spawn: katzen_spawn, get: katzen_get, place: katzen_place, stare: katzen_stare, goto: katzen_goto, jump: katzen_jumpTo, fauch: katzen_fauch, angst: katzen_angst,
-  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, py: katzen_perchY, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
+  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, papier: katzen_baerbelPapier, py: katzen_perchY, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
