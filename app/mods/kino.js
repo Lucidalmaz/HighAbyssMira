@@ -163,7 +163,7 @@ function kino_schild(which) { const S = kino_S; if (!S.zus) { const hits = []; s
   if (!S.tex.schild) S.tex.schild = {};
   const mk = (k, draw) => { if (S.tex.schild[k]) return S.tex.schild[k]; const src = S.zusOrig.image, c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d'); x.drawImage(src, 0, 0); draw(x, c.width, c.height);
     const t = new THREE.CanvasTexture(c); t.colorSpace = S.zusOrig.colorSpace; t.anisotropy = 8; t.wrapS = S.zusOrig.wrapS; t.wrapT = S.zusOrig.wrapT; t.repeat.copy(S.zusOrig.repeat); t.offset.copy(S.zusOrig.offset); S.tex.schild[k] = t; return t; };
-  const chalk = (x, n) => { x.save(); x.fillStyle = 'rgba(238,236,228,.93)'; x.font = '62px Caveat, cursive'; x.translate(318, 196); x.rotate(-.05); x.fillText(n, 0, 0); x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-4, 70), rand(-50, 6), rand(1, 3), rand(1, 2)); } x.restore(); };
+  const chalk = (x, n) => { x.save(); x.fillStyle = 'rgba(58,56,52,.88)'; x.font = '62px Caveat, cursive'; x.translate(310, 198); x.rotate(-.05); x.fillText(n, 0, 0); x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-4, 70), rand(-50, 6), rand(1, 3), rand(1, 2)); } x.restore(); };
   const t = which === '210' ? mk('210', x => chalk(x, '210')) : which === '21' ? mk('21', x => chalk(x, '21')) : which === '2' ? mk('2', x => chalk(x, '2'))
     : which === 'alle' ? mk('alle', x => { chalk(x, '210'); x.strokeStyle = 'rgba(120,20,20,.85)'; x.lineWidth = 7; x.beginPath(); x.moveTo(376, 170); x.lineTo(478, 150); x.moveTo(300, 178); x.lineTo(372, 160); x.stroke();
       x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 58px "Comic Sans MS", cursive'; x.save(); x.translate(56, 204); x.rotate(.05); x.fillText('ALLE', 0, 0); x.restore(); }) : S.zusOrig;
@@ -396,9 +396,9 @@ function kino_defs() {
       sfx: [[() => { kino_hide('veranda'); if (porchLights[0]) { porchLights[0].dead = true; Audio.play('switch1', { gain: .5, rate: .7, x: -27.1, y: 2.3, z: -12, ref: 4 }); } }, 5]],
       teardown(sh) { kino_hide('veranda'); if (porchLights[0]) porchLights[0].dead = sh.porch; } },
     { from: [14.7, .42, 3.4], to: [14.4, .36, 2.75], look: [14.05, .05, 1.55], dur: 7, fov: 46,
-      setup() { kino_show('nass', 14, .012, 1.5); const p = kino_show('pola', 14.35, 3.4, 2.1); p.rotation.set(.8, .3, .4); },
-      tick(k, t) { const p = kino_S.obj.pola; if (t < 2) { p.position.y = 3.4; p.visible = false; return; } p.visible = true; const u = Math.min(1, (t - 2) / 3.2), y = 3.4 * (1 - u) * (1 - u * .15) + .004 * u;
-        p.position.set(14.3 - .2 * u + Math.sin(t * 3.1) * .07 * (1 - u), Math.max(.004, y), 1.95 - .2 * u + Math.cos(t * 2.3) * .05 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
+      setup() { kino_show('nass', 14, .02, 1.5); const p = kino_show('pola', 14.35, 3.4, 2.1); p.rotation.set(.8, .3, .4); },
+      tick(k, t) { const p = kino_S.obj.pola; if (t < 2) { p.position.y = 3.4; p.visible = false; return; } p.visible = true; const u = Math.min(1, (t - 2) / 3.2), y = 3.4 * (1 - u) * (1 - u * .15) + .035 * u;
+        p.position.set(14.3 - .2 * u + Math.sin(t * 3.1) * .07 * (1 - u), Math.max(.035, y), 1.95 - .2 * u + Math.cos(t * 2.3) * .05 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
         if (u >= 1 && !kino_S.polaDown) { kino_S.polaDown = true; if (Audio.paper) Audio.paper(); } },
       teardown() { kino_S.polaDown = false; } },
     { from: [24, 1.6, -4], to: [26, 1.55, -7.4], look: [24.4, 1.5, -13], dur: 7, fov: 48, lines: [['Im Wohnzimmer brennt kurz Licht. Aber niemand bewegt sich.', '', .9, 5600]],
@@ -601,8 +601,10 @@ function kino_defs() {
   ], { name: 'Der Morgen', done() { kino_lamps(L => { if (L._m !== undefined) { L.mode = L._m; delete L._m; } }); kino_figOff('echt'); } });
 }
 // Dachfenster der Villa Seiler (Mansion-Scan aus ausbau_ost_west): vorn in der linken Gaube; ohne Hülle die Planwerte aus PK-F
-function kino_villaFenster() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, vb = OW && OW.vbb; if (!vb) return { x: -125, y: 8.05, z: 66.2 };
-  const w = vb.max.x - vb.min.x, h = vb.max.y - vb.min.y; return { x: vb.min.x + w * (kino_S.dachX ?? .36), y: vb.min.y + h * (kino_S.dachY ?? .78), z: vb.min.z + (kino_S.dachZ ?? .9) }; }
+function kino_villaFenster() { const S = kino_S; if (S.vlit === undefined) { S.vlit = null; scene.traverse(o => { if (!S.vlit && o.isMesh && o.geometry && o.geometry.parameters && Math.abs(o.geometry.parameters.width - 1.5) < .01 && Math.abs(o.geometry.parameters.height - 1.78) < .01 && o.material && o.material.emissive && o.material.emissiveIntensity > 1) S.vlit = o; }); }
+  if (S.vlit) { const p = S.vlit.getWorldPosition(kino_S.a); return { x: p.x, y: p.y - .28, z: p.z - .06 }; } // das eine erleuchtete Fenster (ausbau_ost_west), Flamme knapp vor dem Glas, Fenstersims
+  const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, vb = OW && OW.vbb; if (!vb) return { x: -125, y: 8.05, z: 66.2 };
+  return { x: vb.min.x + (vb.max.x - vb.min.x) * .28, y: vb.min.y + 6.1, z: vb.min.z - .06 }; }
 // Justins Helm (eigenes Teil am Skelett): für Ende C abnehmen
 function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
   for (const m of S.helm) m.visible = on; return S.helm.length; }
@@ -613,5 +615,5 @@ function kino_eyes(key, white) { const P = kino_S.fig[key]; if (!P) return; if (
 // ---------------------------------------------------------------- Testzugriff
 window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w),
   cam: (p, l, f = 60) => { setCamOverride(cam => { cam.position.set(...p); cam.lookAt(...l); if (cam.fov !== f) { cam.fov = f; cam.updateProjectionMatrix(); } }); }, free: () => { setCamOverride(null); camera.fov = fov; camera.updateProjectionMatrix(); },
-  info: () => ({ vbb: typeof ausbau_ost_west_OW !== 'undefined' && ausbau_ost_west_OW.vbb ? [ausbau_ost_west_OW.vbb.min.toArray().map(v => +v.toFixed(2)), ausbau_ost_west_OW.vbb.max.toArray().map(v => +v.toFixed(2))] : null, zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
+  info: () => ({ fenster: kino_villaFenster(), vbb: typeof ausbau_ost_west_OW !== 'undefined' && ausbau_ost_west_OW.vbb ? [ausbau_ost_west_OW.vbb.min.toArray().map(v => +v.toFixed(2)), ausbau_ost_west_OW.vbb.max.toArray().map(v => +v.toFixed(2))] : null, zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, pola: !!kino_S.pola2043, helm: kino_helm(true), sword: kino_S.swordAxis, ready: kino_S.ready }),
   mats: key => { const P = kino_S.fig[key]; return P ? P.mats.map(([m]) => m.name + ':' + [].concat(m.material).map(x => x.name).join('/')) : null; } };

@@ -321,17 +321,17 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   state.talking = false; S.phase = 'wahl'; showChoice(); }
 
 // Blitze durch Lukes Augen: drei harte Schnitte à 0,3 s – Ostende der Straße (Kap. 1), die Lichtsäule, Justins Hand an der Kreuzung
-async function weiss_blitze() { const S = weiss_S, jg = S.jSil || S.jGhost; if (!jg) return; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
+async function weiss_blitze(nur) { const S = weiss_S, jg = S.jSil || S.jGhost; if (!jg) return; S.blitzOn = true; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
   const px = pillar.position.x, hand = new THREE.Vector3();
   const shots = [{ j: [67, 4.6, -Math.PI / 2], cam: [61.6, 1.66, 4.1], look: () => [67, 1.35, 4.6] }, { j: [px, .6, px > 0 ? -Math.PI / 2 : Math.PI / 2], cam: [px + (px > 0 ? -6 : 6), 1.6, 1.9], look: () => [px, 2.1, .4], pillar: true },
     { j: [1.5, -5.2, .9], cam: [2.35, 1.3, -4.45], look: () => { const hb = jg === S.jSil ? S.jsHandL : S.jgHandL; return hb ? hb.getWorldPosition(hand).toArray() : [1.5, 1, -5.2]; } }];
   scene.add(jg); jg.visible = true; setScripted(() => true); // überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin let cur = null; setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
-  try { for (const sh of shots) { fd.style.transition = 'none'; fd.style.background = '#fff'; fd.style.opacity = 1; Audio.stinger(false);
+  try { for (const sh of shots) { if (nur && shots.indexOf(sh) + 1 !== nur) continue; fd.style.transition = 'none'; fd.style.background = '#fff'; fd.style.opacity = 1; Audio.stinger(false);
       jg.position.set(sh.j[0], 0, sh.j[1]); jg.rotation.y = sh.j[2]; jg.updateMatrixWorld(true); scene.fog.color.setHex(S.sv ? S.sv.fogC : fog[0]); scene.fog.density = .03; pillarMat.uniforms.opacity.value = sh.pillar ? .45 : 0;
       cur = { cam: sh.cam, l: sh.look() }; PERF_CULL.t = 0; await wait(80); fd.style.opacity = 0; S.blitzCut = shots.indexOf(sh) + 1; await wait(S.blitzMs || 300); }
     fd.style.opacity = 1; await wait(90);
   } finally { setCamOverride(null); cur = null; setScripted(null); pillarMat.uniforms.opacity.value = pk; scene.fog.color.setHex(fog[0]); scene.fog.density = fog[1]; S.ceil.forEach((c, i) => c.visible = ceil[i]);
-    par.add(jg); jg.position.copy(p0); jg.rotation.y = r0; if (jg === S.jSil) jg.visible = false; PERF_CULL.t = 0; fd.style.transition = 'opacity .35s'; fd.style.opacity = 0; await wait(380); fd.style.background = '#000'; } }
+    par.add(jg); jg.position.copy(p0); jg.rotation.y = r0; if (jg === S.jSil) jg.visible = false; PERF_CULL.t = 0; fd.style.transition = 'opacity .35s'; fd.style.opacity = 0; await wait(380); fd.style.background = '#000'; S.blitzOn = false; } }
 
 // Justin nimmt den Helm ab – Kamera von hinten, im Visier Lukes Gesicht mit braunen Augen; Nahaufnahme der linken Hand
 async function weiss_helmSzene() { const S = weiss_S, H = S.helm; state.talking = true; justin.look = true; jPlay('idle');
@@ -413,5 +413,5 @@ WORLD_TICK.push((dt, t) => {
     if (ok) { S.bw = null; B.res(); } }
 });
 const _wc3 = new THREE.Vector3(), _wc4 = new THREE.Vector3();
-window.__weiss = { S: weiss_S, hints: weiss_hinweise, spur: n => weiss_spur(n), wahl: n => weiss_luegtWahl(n), teil2: () => weiss_teil2(), helm: () => weiss_helmSzene(), blitze: () => weiss_blitze(), env: m => weiss_env(m), aufraeumen: weiss_aufraeumen,
+window.__weiss = { S: weiss_S, hints: weiss_hinweise, spur: n => weiss_spur(n), wahl: n => weiss_luegtWahl(n), teil2: () => weiss_teil2(), helm: () => weiss_helmSzene(), blitze: n => weiss_blitze(n), env: m => weiss_env(m), aufraeumen: weiss_aufraeumen,
   room3: () => room3Scene(), hilde: () => hildeTalks(), room2: () => room2Solved(), choice: () => showChoice(), endC: () => endingC() }; // Testzugriff

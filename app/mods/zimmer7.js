@@ -23,7 +23,7 @@ const z7_table = (fs = 15) => `<table style="border-collapse:collapse;font-size:
   Z7_ROWS.map(r => `<tr>${r.map(c => `<td style="padding:2px 10px 2px 0;vertical-align:top">${c}</td>`).join('')}</tr>`).join('') + '</table>';
 const Z7_AUSHANG_HTML = () => `Maschinengeschrieben, die Unterschriften mit Füller.${z7_table(16)}<small>${Z7_P4}</small>`;
 const Z7_GRUENDUNG = '<span class="hand">Aktennotiz Seiler, 1958: Der Mann in Eisen ist real. Er altert nicht. Er sagt, er dürfe nicht gefunden werden. Ich habe nicht gefragt, von wem. – Absender: Villa Seiler, Westweg.</span>';
-const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 32.25, 1.15, C2.z - 6.35], title: 'Echo · Zimmer 7, 1. Juli 2009', floor: 0,
+const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Echo · Zimmer 7, 1. Juli 2009', floor: 0,
   figs: [E_(C2.x + 33.0, C2.z - 7.35, 0, 1), E_(C2.x + 32.9, C2.z - 3.2, PI, 1.04)],
   lines: [['1. Juli 2009. Eine Frau zieht eine Kugel aus einem Kasten, liest, hält inne.', 4200], ['„Frau Wendt?“', 2200, 'MANN VOM AMT'], ['„Das Los ist das Los.“', 3000, 'HILDE'], ['Sie legt die Kugel sehr vorsichtig auf den Tisch. Als könnte sie ihm wehtun.', 4400]] };
 if (typeof FIGUREN_ECHO !== 'undefined') FIGUREN_ECHO.echo_zimmer7 = ['hilde', 'amt1'];
@@ -134,15 +134,14 @@ WORLD_MODS.push(['Zimmer 7', async () => {
   // --- Durchgang: Südwand neu, mit Türöffnung bei X + 33 (die Basiswand wird samt Kollision ausgeblendet)
   const old = msFind((o, bb) => o.material === M.block && o.geometry.type === 'BoxGeometry' && Math.abs(o.position.x - (X + 33)) < .05 && Math.abs(o.position.z - (Z - 2)) < .05 && Math.abs((o.geometry.parameters || {}).width - 6) < .05);
   old.forEach(msHide);
-  wall('x', Z - 2, X + 30, X + 36, H, M.block, [{ at: X + 33, w: 1.2 }], .3);
-  box(1.2, H - 2.2, .3, X + 33, 2.2 + (H - 2.2) / 2, Z - 2, M.block); // Sturz über der Tür
+  wall('x', Z - 2, X + 30, X + 36, H, M.block, [{ at: X + 33, w: 1.2 }], .3, 2.2); // Sturz ab 2,2 m (Standard 2,62 > Raumhöhe → umgestülpter Kasten, Lichtspalt)
   // --- Raum: Südwand, West-/Ost-Stücke (den Rest tragen Archiv- und Prüfraumwand), Boden, Decke
   box(6.3, H, .3, X + 33, H / 2, z0, M.block, { collide: true });
   box(.3, H, 2.0, x0, H / 2, z0 + 1.0, M.block, { collide: true });
   box(.3, H, 3.0, x1, H / 2, z0 + 1.5, M.block, { collide: true });
   const floorMat = surf('floor_worn', 0x8c8070, 2.2); floorMat.roughness = 1;
   plane(x1 - x0, z1 - z0, (x0 + x1) / 2, .01, (z0 + z1) / 2, floorMat);
-  const ceilMat = surf('wall_plaster', 0x77726a, 2.5); box(x1 - x0 + .6, .2, z1 - z0 + .3, (x0 + x1) / 2, H + .1, (z0 + z1) / 2 - .15, ceilMat, { cast: false });
+  const ceilMat = surf('wall_plaster', 0x77726a, 2.5); box(x1 - x0 + .6, .2, z1 - z0, (x0 + x1) / 2, H + .1, (z0 + z1) / 2 - .3, ceilMat, { cast: false }); // endet vor der Gangdecke (keine doppelte Fläche über der Tür)
   // Innenwände: Kalkputz oben, grüngrauer Ölsockel unten (1,3 m), dunkle Trennlinie
   const upper = surf('wall_plaster', 0xc9c0a8, 2), lower = surf('wall_damaged', 0x7c8a78, 2.4, .8), line = new THREE.MeshStandardMaterial({ color: 0x2c332c, roughness: .6 });
   const DADO = 1.3, UH = H - DADO;

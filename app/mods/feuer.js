@@ -47,14 +47,14 @@ const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varyin
     float x = (vUv.x - .5 + (nz - .5) * .55 * yy + w.x * .18 * yy) * 2.;
     float env = max(0., (1. - x * x * (1.15 + yy * 2.2)) * (1. - yy * .8) * smoothstep(0., .18, y));
     float life = smoothstep(0., .1, vAge) * (1. - smoothstep(.55, 1., vAge));
-    float hot = smoothstep(.12, .8, env * (nz * 1.5 + fine * .35 + .05 + uCore * .3 * (1. - yy)) - yy * .28) * life;
-    float dark = smoothstep(.06, .45, env * (1. - nz) * (.4 + .6 * fine)) * smoothstep(.2, .75, yy) * life;
+    float hot = smoothstep(.12, .8, env * (nz * 1.5 + fine * .35 + .05 + uCore * .3 * (1. - yy)) - yy * .28) * life * (.62 + .38 * nz);
+    float dark = smoothstep(.06, .45, env * (1. - nz) * (.4 + .6 * fine)) * smoothstep(.1, .65, yy) * life;
     float a = max(hot, dark * .75); if (a < .02) discard;
     float base = 1. - smoothstep(0., .4, yy), thin = 1. - smoothstep(.2, .7, env);
-    vec3 col = mix(vec3(.30, .03, .005), vec3(.92, .22, .02), smoothstep(0., .35, hot));
-    col = mix(col, vec3(1., .42, .06), smoothstep(.3, .75, hot) * (.5 + .5 * base));
-    col = mix(col, vec3(1., .66, .18), smoothstep(.55, 1., hot) * thin * (.4 + .6 * (1. - base)));
-    col = mix(col, vec3(.06, .035, .02) * (.6 + .4 * fine), dark * (1. - hot * .85));
+    vec3 col = mix(vec3(.28, .025, .004), vec3(.88, .18, .015), smoothstep(0., .35, hot));
+    col = mix(col, vec3(1., .38, .05), smoothstep(.3, .8, hot) * (.55 + .45 * base));
+    col = mix(col, vec3(1., .58, .13), smoothstep(.6, 1., hot) * thin * .6 * (.4 + .6 * (1. - base)));
+    col = mix(col, vec3(.05, .03, .018) * (.6 + .4 * fine), dark * (1. - hot * .8));
     gl_FragColor = vec4(col * uInt * a, a * .85); }`;
 // Rauch: weiche, rollende Schwaden; von unten und zum Feuer hin orange angestrahlt; nah an der Kamera ausgeblendet (keine bildfüllenden Flächen)
 const FEU_FS_SMOKE = `uniform float uTime, uA, uGlow; uniform vec3 uCol, uGlowPos; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
@@ -242,7 +242,7 @@ WORLD_MODS.push(['Feuer', async () => {
   { const dot = feuer_texDot(), T = S.timeU = { value: 0 };
     const mkMat = (fs, u, blend) => { const m = new THREE.ShaderMaterial({ uniforms: u, vertexShader: FEU_VS, fragmentShader: fs, transparent: true, depthWrite: false, blending: blend, fog: false }); if (blend === THREE.CustomBlending) { m.blendSrc = THREE.OneFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor; m.blendSrcAlpha = THREE.ZeroFactor; m.blendDstAlpha = THREE.OneFactor; } return m; };
     const fl = (int, core, asp) => mkMat(FEU_FS_FLAME, { uTime: T, uInt: { value: int }, uCore: { value: core }, uCyl: { value: 1 }, uAsp: { value: asp } }, THREE.CustomBlending);
-    S.pw = feuer_sys(120, fl(1.0, 0, 1.5), 12); S.pf = feuer_sys(300, fl(1.15, .2, 1.9), 13); S.pc = feuer_sys(140, fl(1.2, .5, 1.1), 14);
+    S.pw = feuer_sys(120, fl(.62, 0, 1.5), 12); S.pf = feuer_sys(300, fl(.72, .2, 1.9), 13); S.pc = feuer_sys(140, fl(.8, .5, 1.1), 14);
     S.ps = feuer_sys(320, mkMat(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x0a0908) }, uA: { value: .95 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
     S.pe = feuer_sys(300, mkMat(FEU_FS_DOT, { map: { value: dot }, uCyl: { value: 0 }, uAsp: { value: 3.2 } }, THREE.AdditiveBlending), 15); }
   // Licht: ein echtes Punktlicht mit Schatten (Wände, Möbel, der Körper werfen flackernde Schatten), Schatten nur während des Feuers neu gezeichnet
@@ -611,8 +611,8 @@ WORLD_TICK.push((dt, t) => {
       if (P.x < S.heatCol.maxX + .5 && !S.said.hitze && S.phase === 'escape') { S.said.hitze = true; toast('Die Hitze ist eine Wand. Da kommst du nicht durch.', 2600); }
       // Flammen aus dem Öl: breite Flammenwände, Zungen, heller Kern am Boden; Funken
       const area = Math.min(1, S.burnR / 3);
-      S.accW = (S.accW || 0) + S.H * area * 16 * dt; while (S.accW > 1) { S.accW--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.pw, p.x, -.02, p.z, rand(-.05, .05), rand(.06, .18), rand(-.05, .05), rand(1.4, 2.8), .9, rand(1.5, 2.6) * (.45 + p.v * .8), rand(-.1, .1), rand(-.06, .06)); }
-      S.accF = (S.accF || 0) + S.H * (7 + 20 * area) * dt; while (S.accF > 1) { S.accF--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.pf, p.x + rand(-.05, .05), .01, p.z + rand(-.05, .05), rand(-.08, .08), rand(.7, 1.4), rand(-.08, .08), rand(.8, 1.8), .4, rand(.65, 1.35) * (.4 + p.v * .85), rand(-.18, .18), rand(-.3, .3)); }
+      S.accW = (S.accW || 0) + S.H * area * 16 * dt; while (S.accW > 1) { S.accW--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.pw, p.x, -.02, p.z, rand(-.05, .05), rand(.06, .18), rand(-.05, .05), rand(1.4, 2.8), .8, rand(1.1, 2.0) * (.45 + p.v * .8), rand(-.1, .1), rand(-.06, .06)); }
+      S.accF = (S.accF || 0) + S.H * (7 + 20 * area) * dt; while (S.accF > 1) { S.accF--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.pf, p.x + rand(-.05, .05), .01, p.z + rand(-.05, .05), rand(-.08, .08), rand(.7, 1.4), rand(-.08, .08), rand(.8, 1.8), .35, rand(.5, 1.15) * (.4 + p.v * .85), rand(-.18, .18), rand(-.3, .3)); }
       S.accC = (S.accC || 0) + S.H * (5 + 12 * area) * dt; while (S.accC > 1) { S.accC--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.pc, p.x, .0, p.z, 0, rand(.15, .35), 0, rand(.5, .95), .35, rand(.5, .85) * (.55 + p.v * .55), rand(-.1, .1), 0); }
       S.accS = (S.accS || 0) + S.H * 30 * dt; while (S.accS > 1) { S.accS--; const p = feuer_burnPoint(); if (!p) break; feuer_emit(S.ps, p.x, rand(.6, 1.2), p.z, rand(-.1, .25), rand(.5, .9), rand(-.15, .15), rand(8, 11), rand(1.1, 1.5), rand(2.8, 4.2), rand(0, 6), rand(-.12, .12)); }
       if (S.phase === 'escape') { const s = 1 - S.air / 30; S.accS2 = (S.accS2 || 0) + (4 + 10 * s) * dt; while (S.accS2 > 1) { S.accS2--; feuer_emit(S.ps, P.x + rand(-1.5, 3.5), S.ceil + rand(-.3, .2), Math.max(Z - 1.5, Math.min(Z + 1.5, P.z + rand(-1.5, 1.5))), rand(0, .15), rand(-.05, .03), rand(-.1, .1), rand(7, 10), rand(1.6, 2.2), rand(3, 4), rand(0, 6), rand(-.08, .08)); } }
@@ -627,7 +627,7 @@ WORLD_TICK.push((dt, t) => {
       feuer_charUpdate(t);
       // Schattenlicht: flackert, wandert mit der Flammenmitte; Schatten jedes zweite Bild neu
       const fl = 1 + Math.sin(t * 17) * .16 + Math.sin(t * 23.7) * .12 + Math.sin(t * 5.3) * .1 + (Math.random() - .5) * .18;
-      S.fireP.position.set(Math.max(S.oilMinX + 1, Math.min(S.oilMaxX - .5, S.ignX - Math.min(S.burnR, 2.5) * .5)) + Math.sin(t * 7.1) * .12, .75 + Math.sin(t * 9.3) * .08, Z + Math.sin(t * 6.3) * .1); S.fireP.intensity = S.H * 9 * fl;
+      S.fireP.position.set(Math.max(S.oilMinX + 1, Math.min(S.oilMaxX - .5, S.ignX - Math.min(S.burnR, 2.5) * .5)) + Math.sin(t * 7.1) * .12, .75 + Math.sin(t * 9.3) * .08, Z + Math.sin(t * 6.3) * .1); S.fireP.intensity = S.H * 7.5 * fl;
       if (S.frame % 3 === 0) S.fireP.shadow.needsUpdate = true;
       // Klang: Brüllen schwillt an, Knistern, Knallen, einstürzende Teile, dumpfe Druckstöße
       FEU_SND.level('roar', S.H * (.8 + .2 * fl)); FEU_SND.level('roar2', S.H * .85); FEU_SND.level('hiss', S.H * (1 - S.oilU.uChar.value * .6));
