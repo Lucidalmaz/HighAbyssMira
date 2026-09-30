@@ -88,10 +88,13 @@ WORLD_MODS.push(['Anwesen', async () => {
     } catch (e) { console.warn('Anwesen: Nest', e); }
     const hit = box(.6, .5, .6, -39.62, 2.0, 96.2, hidden, { cast: false });
     interact(hit, () => S.ch4 && anwesen_count() < 8 ? 'Whiskeys Nest' : (ch3.on || S.ch4) && !anwesen_has(6) ? 'Nest in der Astgabel' : 'Nest', () => {
-      if (S.ch4 && anwesen_count() < 8) { const miss = ANW_TEILE.map((_, i) => i).filter(i => !anwesen_has(i)); for (const i of miss) story.lore.push({ key: 'anw_teil_' + i, title: 'Schlüsselteil ' + ANW_TEILE[i][0], html: 'Aus Whiskeys Nest. Er hat es irgendwo aufgelesen, wo du nicht hingesehen hast.' });
+      if (S.ch4 && anwesen_count() < 8) { const miss = ANW_TEILE.map((_, i) => i).filter(i => !anwesen_has(i) && i !== 3); // Teil 04 liegt nie im Nest (02 C5): Luke hebelt das Kellerfenster selbst auf
+        if (!miss.length) return toast('Das vom Kellerfenster ist nicht dabei. Da kommt der Vogel nicht durchs Gitter. Ich schon, mit der Brechstange.', 4600);
+        if (!S.nestPick) { S.nestPick = true; if (typeof whiskey_caw === 'function') whiskey_caw(); return subtitle('Whiskey hackt dir einmal auf den Handrücken, nicht fest. – „Au. Das ist meins. Das ist ja wohl meins.“', 4400); }
+        for (const i of miss) story.lore.push({ key: 'anw_teil_' + i, title: 'Schlüsselteil ' + ANW_TEILE[i][0], html: 'Aus Whiskeys Nest. Er hat es irgendwo aufgelesen, wo du nicht hingesehen hast.' });
         const c = anwesen_count(); modItem('schluesselteile', 'Schlüsselteile', `Geschmiedete Teile eines großen Schlüssels, gestempelt 01–08. Gefunden: ${c} / 8.`, 'key'); addItem('schluesselteile'); story.side.anw_teile.desc = 'Alle acht Teile. Die Presse im Garten der Villa fügt sie zusammen.';
         glint.visible = false; if (typeof whiskey_caw === 'function') whiskey_caw();
-        return openNote('Whiskeys Nest', `Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, ein Ehering, eine Kinderspange – und <b>${miss.length === 1 ? 'ein Schlüsselteil' : miss.length + ' Schlüsselteile'}</b>, gestempelt ${miss.map(i => ANW_TEILE[i][0]).join(', ')}.\n\nEr hat gesammelt, was du übersehen hast.`); }
+        return openNote('Whiskeys Nest', `Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, ein Ehering, eine Kinderspange – und <b>${miss.length === 1 ? 'ein Schlüsselteil' : miss.length + ' Schlüsselteile'}</b>, gestempelt ${miss.map(i => ANW_TEILE[i][0]).join(', ')}.\n\nEr hat gesammelt, was du übersehen hast. Nach dem zweiten Versuch lässt er dich, mit einem beleidigten Krächzen.` + (anwesen_has(3) ? '' : '\n\n<span class="hand">Das vom Kellerfenster ist nicht dabei. Da kommt der Vogel nicht durchs Gitter. Ich schon, mit der Brechstange.</span>')); }
       if (!ch3.on && !S.ch4) return toast('Ein Nest in der Astgabel. Leer. Groß – für einen sehr großen Vogel.', 2800);
       if (anwesen_has(6)) return toast('Kronkorken, Stanniol, eine Kinderspange. Whiskey sammelt, was glänzt.', 3000);
       glint.visible = false; anwesen_give(6, 'Zweige, Draht, Stanniol. Und dazwischen alles, was glänzt: Kronkorken, eine Kinderspange, ein Ehering – und ein Stück geschmiedetes Eisen. Whiskey sammelt, was glänzt. Oder was man ihm aufträgt.'); });
@@ -181,7 +184,7 @@ function anwesen_door() {
 // ---- Kapitel 4
 const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN</p><p class="on">Donnerstag, 5. November. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus. Die Zeitung ist schon da.</p><p class="on">Lucy liegt bei Vegas auf dem Sofa und friert.</p><p class="on">Auf der Ahornstraße schrubben Männer die Kreide weg.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
-  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); setChapter(4);
+  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); if (typeof villa_neu === 'function') villa_neu(); setChapter(4);
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
   ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; ch3.gullyHint = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
   state.zone = null; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
@@ -194,7 +197,8 @@ async function chapter4Begin() {
   $('intro').innerHTML = C4_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
-    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3); };
+    if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3);
+    if (typeof villa_nachIntro === 'function') villa_nachIntro(); };
   saveGame(4); anwesen_sockets(); if (typeof c3Info === 'function') c3Info();
 }
 async function startChapter4() { // Weiterspielen / Kapitel wählen
@@ -236,9 +240,13 @@ async function anwesen_buildHall() {
   // Seilers Brief, das Porträt, die Uhr – dann die Treppe
   interact(letter, 'Brief auf dem Schreibtisch', () => { S.seen.add('brief'); openNote('Ein Brief, März 2019', anwesen_hand('An den, der die acht Teile gefunden hat.\n\nIch habe 1958 das Amt gegründet. Ich habe Listen geschrieben, damit das Licht nur nimmt, wen wir ihm geben. Ich dachte, das sei Barmherzigkeit.\n\nDie Teile habe ich dorthin gebracht, wo sich die Kinder früher versteckt haben. Wer sie findet, hat hingesehen. Das hat keiner von uns.\n\nOben liegt, was ich nie jemandem zeigen konnte.\n— Dr. Theodor Seiler'), 'anw_brief'); });
   const ph = box(.2, 1.3, 1.1, x0 + .15, 1.5, H.z + 1.5, hidden, { cast: false });
-  interact(ph, 'Porträt', () => { S.seen.add('bild'); openNote('Ein Porträt', 'Eine Frau in einem langen, dunklen Kleid. In der Hand eine Laterne, deren Flamme gerade steht. Das Bild ist alt, der Rahmen zerbrochen – aber die Farbe ist frisch, fast noch feucht.\n\nAuf dem Messingschild, fast blank gerieben: <b>„… IRA“</b>.\nAuf der Rückseite, mit Bleistift: <i>gemalt 2043</i>.', 'anw_bild'); });
-  const ch = box(.3, .9, .9, x1 - .25, 1.95, H.z + 1, hidden, { cast: false }); interact(ch, 'Wanduhr', () => toast('Drei Uhr dreizehn. Die Zeiger stehen. Das Pendel schwingt.', 2600));
+  if (portrait && typeof villa_portraetBild === 'function') { try { villa_portraetBild(portrait); } catch (e) { console.warn('Porträt-Bild', e); } } // Fassung 3: Mira mit Rabe, weiße Flamme, „L. B.“
+  interact(ph, () => typeof villa_hat === 'function' && villa_hat('ring') && !villa_hat('noten') ? 'Das Porträt anheben' : 'Porträt', async () => { if (typeof villa_portraet === 'function' && await villa_portraet()) return; const erst = !S.seen.has('bild'); S.seen.add('bild');
+    openNote('Ein Porträt', 'Eine Frau in einem langen dunklen Kleid. Auf ihrer Schulter ein Rabe, am linken Fuß ein dunkler Ring. In der Hand eine Laterne. Die Flamme darin steht kerzengerade und ist weiß wie kaltes Licht.\nUnten rechts in der Farbe: <b>L. B.</b>\nMessingschild, fast blank gerieben: <b>„… IRA“</b>. Rückseite, Bleistift: <i>gemalt 2043</i>.', 'anw_bild', () => {
+      if (!erst) return; subtitle('<i>L. B. Lucy Brandt. Luke Brandt. … Zweitausenddreiundvierzig. Das ist die nächste Nacht.</i>', 5600, 'LUKE'); setTimeout(() => { try { Audio.play('woodHit1', { gain: .35, rate: 1.5, x: x0 - .3, y: 2.4, z: H.z + 2.4 }); } catch (e) {} }, 6200); }); });
+  const ch = box(.3, .9, .9, x1 - .25, 1.95, H.z + 1, hidden, { cast: false }); let uhrN = 0; interact(ch, 'Wanduhr', () => toast(++uhrN > 1 ? 'Drei Uhr dreizehn. Das Pendel schwingt. Die Zeiger sind mit Bleistift auf das Zifferblatt nachgezeichnet. Jemand hat gemalt, was er weiß.' : 'Drei Uhr dreizehn. Die Zeiger stehen. Das Pendel schwingt.', 3600));
   await anwesen_dressHall(H, x0, x1, z0, z1, put, shelfO);
+  if (typeof villa_halleTueren === 'function') { try { villa_halleTueren(H); } catch (e) { console.warn('Villa-Türen', e); } }
   const stairs = box(3, 2, .6, H.x, 1, z1 - 3.1, hidden, { cast: false });
   interact(stairs, 'Treppe nach oben', () => anwesen_hallEnd());
 }
@@ -287,7 +295,7 @@ async function anwesen_dressHall(H, x0, x1, z0, z1, put, shelfO) {
   // Seilers Krankenbett: die letzten Monate hat er hier unten geschlafen, mit Blick auf die Treppe
   { const spec = { blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: 1, color: 0x8a8278 }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg', color: 0xa8a094 }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } };
     const b = await safe(msFBX('hospbed', 'model.fbx', spec)); if (b) { b.scale.set(.009, .009, -.009); const g = add(b, H.x - 2.35, wz0 + 1.12, 0);
-      interact(mesh1(g), 'Krankenbett', () => toast('Ein Krankenbett, mitten im Erdgeschoss, zur Treppe gedreht. Seiler hat die letzten Monate hier unten geschlafen. In das Kopfteil sind acht Striche geritzt.', 5600)); } // STORY-HOOK: Seiler
+      interact(mesh1(g), () => typeof villa_hat === 'function' && villa_hat('nachbild') && !story.items.includes('dienstnadel') ? 'Krankenbett · die Strickjacke' : 'Krankenbett', () => { if (typeof villa_bett === 'function') return villa_bett(); toast('Ein Krankenbett, mitten im Erdgeschoss, zur Treppe gedreht. Seiler hat die letzten Monate hier unten geschlafen. In das Kopfteil sind acht Striche geritzt.', 5600); }); } // STORY-HOOK: Seiler (Strickjacke, Nachbild, Dienstnadel: villa.js)
     add(await chair(), H.x - 3.5, wz0 + 1.6, PI / 2 + .3); candle('Candle_large_big_used_low', H.x - 1.55, 0, wz0 + .4, false);
     add((await msModel('trashcan')).clone(true), H.x - 1.6, wz0 + 2.3, .5); }
   // Spielzeug auf der eingebrochenen Treppe, der Teddy wartet auf der vierten Stufe
@@ -305,10 +313,12 @@ async function anwesen_dressHall(H, x0, x1, z0, z1, put, shelfO) {
 }
 async function anwesen_hallEnd() {
   const S = anwesen_S; if (S.hallDone) return;
-  if (S.seen.size < 2) return toast('Die Treppe ist auf halber Höhe eingebrochen. Oben brennt Licht. Irgendwo muss es einen anderen Weg geben – sieh dich erst hier unten um.', 4200);
+  if (!(S.seen.has('ring') && S.seen.has('noten'))) return toast('Die Treppe, auf halber Höhe eingebrochen. Oben brennt Licht, gelb und ruhig, und manchmal atmet es. Da komm ich nicht hoch. Noch nicht.', 4600); // Fassung 3: erst nach W-11 (Ring) und den Noten
   S.hallDone = true; state.talking = true;
-  try { await say([['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600], ['Eine Spieluhr. Dieselbe Melodie wie in Lucys Zimmer.', 3400],
-    ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah:', 3600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?']]); } finally { state.talking = false; }
+  try { await say([['Du stehst unten, wo die Stufen aufhören, und leuchtest hinauf. Das Licht oben atmet.', 4000], ['Über dir: Schritte. Kleine. Sie laufen einmal quer über den Flur und bleiben genau über der Treppe stehen.', 4600],
+    ['Eine Spieluhr, dieselbe Melodie wie auf den Noten in deiner Hand. Und diesmal hörst du, der Tontechniker, dass sie nicht aus einer Spieluhr kommt: Es summt jemand.', 6000],
+    ['Dann eine Frauenstimme. Ruhig. Sehr weit weg und ganz nah, als stünde jemand im Nebenzimmer eines anderen Jahrhunderts:', 4600], ['„Noch nicht, Luke. Aber bald.“', 3200, '?'],
+    ['Whiskey, auf dem Geländer der Galerie, dreht den Kopf zum Licht und macht sich klein.', 3800], ['<i>Die Stimme kenn ich. Aus dem Traum.</i>', 3000, 'LUKE']]); } finally { state.talking = false; }
   saveGame(4); // Abbruch vor dem Knopf: Weiterspielen setzt in der Halle fort, das Ende lässt sich erneut auslösen
   // Kinosequenz K4 „Noch nicht“ (kino.js); ohne sie: Spieluhr und eine ruhige Schwarzblende
   if (typeof kino_play === 'function') { try { await kino_play('k4'); } catch (e) { console.error('Kino k4', e); } }
@@ -320,6 +330,9 @@ function anwesen_endcard() {
   const ec = $('endcard'); state.ending = true; state.talking = false; Audio.hum(false);
   ec.querySelector('h1').textContent = 'KAPITEL 4 — ENDE · SEHEN, BERGEN, SCHWEIGEN'; // Titel bricht als Ganzes um (Fassung 3, wortgleich; Vertrauenszeile: AP-05)
   ec.querySelector('p').innerHTML = 'Sie haben ein Bett für dich gemacht.<br>Oben hat jemand deinen Namen gesagt, und es klang nicht nach einer Drohung.<br>Am Abend brennt Licht in eurem Elternhaus.';
+  { let z = ''; try { const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(4) : null, st = E ? E.stufe : 'mittel';
+      z = (E && E.zeile) || (st === 'hoch' ? 'Whiskey hat dir Wolters Kugelschreiber aufs Kissen gelegt.' : st === 'miserabel' ? 'An deinem Fenster in Nr. 1 klebt Absperrband: GASLECK.' : ''); } catch (e) {}
+    if (z) ec.querySelector('p').innerHTML += '<br><i>' + z + '</i>'; } // Vertrauenszeile (Endkarte Kap. 4, wörtlich)
   $('endStats').innerHTML = `SCHLÜSSELTEILE ${anwesen_count()} / 8 · FUNDE ${story.lore.length}`; ec.querySelector('.next').textContent = '';
   const b4 = ec.querySelector('.go4'); if (b4) b4.style.display = 'none';
   const go = ec.querySelector('.go'); go.style.display = ''; go.textContent = 'WEITER · KAPITEL 5 · ISS AUF, BRUDER';

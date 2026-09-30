@@ -208,7 +208,10 @@ async function kino_mkFig(key, id) {
 async function kino_extraClips(P) { try { const r = await fetch('assets/chars/' + P.id + '/kino.json'); if (!r.ok) return; const L = await r.json();
   for (const j of L) { if (P.acts[j.name]) continue; const c = THREE.AnimationClip.parse(j); P.acts[c.name] = P.mx.clipAction(c); } } catch (e) {} } // Clips aus der Figur selbst (AP-MOCAP) haben Vorrang
 function kino_play_(P, k, ts = 1, fade = .5, once = false) { if (!P) return; const a = P.acts[k] || P.acts.idle; if (!a) return; if (P.cur === a) { a.timeScale = ts; return; }
-  a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.play(); a.timeScale = ts; if (P.cur && fade > 0) { a.fadeIn(fade); P.cur.fadeOut(fade); } else if (P.cur) P.cur.stop(); P.cur = a; }
+  const wA = a.enabled && a.isRunning() ? a.getEffectiveWeight() : 0; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.setEffectiveWeight(1); a.play(); a.timeScale = ts;
+  // P2: aus den aktuellen Gewichten überblenden (Summe 1 → keine Bindepose dazwischen, kein Hochspringen eines halb ausgeblendeten Clips)
+  if (P.cur) for (const n in P.acts) { const b = P.acts[n]; if (b === a || !b.enabled || !b.isRunning()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
+  if (P.cur && fade > 0) a._scheduleFading(fade, wA, 1); P.cur = a; }
 function kino_sil(P, on) { if (!P || P.sil === on) return; P.sil = on; for (const [m, mat] of P.mats) m.material = on ? KINO_SIL : mat; }
 // Figur zeigen: Ort, Blickrichtung (rad), Bewegung; o: { sit, ts, t0, sil, look: [x,y,z] | Vector3 | 'cam', fade }
 function kino_fig(key, x, y, z, ry, clip = 'idle', o = {}) { const P = kino_S.fig[key]; if (!P) return null; const g = P.g, war = g.visible && !!P.cur;
@@ -235,7 +238,8 @@ function kino_figPost(P, dt) { const B = P.bones, S = kino_S;
   if (P.look && B.head) { let L = P.look; if (L === 'cam') L = camera.position; else if (Array.isArray(L)) L = S.b.set(L[0], L[1], L[2]);
     B.head.getWorldPosition(kino_hp); kino_d.copy(L).sub(kino_hp); P.g.getWorldDirection(kino_fw); kino_fw.y = 0; kino_fw.normalize();
     const dh = Math.hypot(kino_d.x, kino_d.z) || 1e-3, yaw = Math.atan2(kino_fw.x * kino_d.z - kino_fw.z * kino_d.x, kino_fw.x * kino_d.x + kino_fw.z * kino_d.z), pit = Math.atan2(kino_d.y, dh);
-    const k = 1 - Math.exp(-dt * 4.5); P.lk.y += (kino_cl(-yaw, -1.25, 1.25) * P.lookW - P.lk.y) * k; P.lk.p += (kino_cl(pit, -.6, .5) * P.lookW - P.lk.p) * k;
+    const k = 1 - Math.exp(-dt * 4.5); const hinten = Math.abs(yaw) > 1.9; // P2: Ziel hinter der Figur → Kopf zur Mitte statt von +72° auf −72° umzuschlagen
+    P.lk.y += ((hinten ? 0 : kino_cl(-yaw, -1.25, 1.25)) * P.lookW - P.lk.y) * k; P.lk.p += ((hinten ? 0 : kino_cl(pit, -.6, .5)) * P.lookW - P.lk.p) * k;
     kino_rotW(B.neck, KINO_UP, P.lk.y * .4); kino_rotW(B.head, KINO_UP, P.lk.y * .6);
     kino_fw.applyAxisAngle(KINO_UP, P.lk.y); kino_ax.crossVectors(kino_fw, KINO_UP).normalize(); kino_rotW(B.neck, kino_ax, P.lk.p * .35); kino_rotW(B.head, kino_ax, P.lk.p * .65); }
   if (P.pose) try { P.pose(P, S.t, dt); } catch (e) { P.pose = null; console.warn('Kino: Geste', e); } }
