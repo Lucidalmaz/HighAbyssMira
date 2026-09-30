@@ -49,7 +49,7 @@ function augenzu_set(zu, flatter) {
 }
 // Solange die Augen zu sind, bleibt der Raumhall klein (der Klang-Wächter setzt ihn sonst jede Sekunde neu)
 if (Audio.setRoom) Audio.setRoom = (o => function (kind) { return o.call(this, augenzu_S.zu ? 'small' : kind); })(Audio.setRoom);
-TOD_RESET.push(() => augenzu_sperre()); // Wiederkehr nach dem Tod: jede Szene gibt Q neu frei
+setTimeout(() => { try { TOD_RESET.push(() => augenzu_sperre()); } catch (e) {} }, 0); // Wiederkehr nach dem Tod: jede Szene gibt Q neu frei (verzögert: TOD_RESET steht in tod.js, typeof schützt nicht vor der „temporal dead zone“)
 MOD_SAVE.push(['augenzu', () => ({}), () => augenzu_sperre()]); // Laden: nie mit geschlossenen Augen anfangen
 WORLD_MODS.push(['Augen zu', async () => { window.__augenzu = { S: augenzu_S, frei: augenzu_frei, sperre: augenzu_sperre, zu: augenzu_zu, oeffnen: augenzu_oeffnen }; }]);
 // ---------------------------------------------------------------- Pro Bild: Taste lesen, Wächter (keine Zuweisungen)

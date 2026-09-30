@@ -14,6 +14,7 @@ const TOD_LINES = {
   rauch: ['Irgendwo hinter dem Rauch war kalte Luft. Du hast sie nicht mehr gefunden.', 'Der Rauch war schneller als du.', 'Du hast nur kurz die Augen zugemacht.'],
   gezaehlte: ['Kleine, kalte Hände. So viele. Sie wollten deine Hand und haben sie nicht wieder losgelassen.', 'Sie haben dich nach unten gezogen. Einer hat gekichert.'], // Fassung 3: die Behaltenen (Kern §2)
   feuer: ['Die Hitze war eine Wand. Du bist trotzdem hineingegangen.'],
+  blech: ['Sie haben dich nicht angefasst. Sie haben nur gewartet, bis jemand kam, der es durfte.'], // Fassung 3 (AP-16): AG-07, Blechmänner
 };
 // ---------------------------------------------------------------- Aussehen (Todesbildschirm, Blut, Speicherpunkt-Anzeige)
 {
@@ -89,7 +90,7 @@ CH2_BEGIN.push(() => {
       tod_S.seen.k2 = true; tod_S.seen.gang = c.id === 'gang' || c.id === 'messraum' || c.id === 'flucht'; tod_S.seen.mess = c.id === 'messraum';
       tod_S.objFix = c.id === 'messraum' ? 'Der Messraum. Hier ist es passiert.' : (c.id === 'gang' || c.id === 'flucht') ? 'Die östliche Stahltür ist frei. Geh weiter.' : null; if (tod_S.objFix) setC2Objective(tod_S.objFix);
       todCheckpoint(c.id === 'flucht' ? 'gang' : c.id, c.label, { quiet: true, x: c.x, y: c.y, z: c.z, yaw: c.yaw });
-    } else { tod_S.seen.k2 = true; todCheckpoint('kapitel2', 'Kapitel 2 · Das achte Kind', { quiet: true }); }
+    } else { tod_S.seen.k2 = true; todCheckpoint('kapitel2', 'Speicherpunkt Amt', { quiet: true }); }
   }, 0);
 });
 
@@ -217,6 +218,14 @@ const TOD_ANIM = {
   },
 };
 TOD_ANIM.feuer = TOD_ANIM.rauch;
+// AG-07: beide Kapuzen drehen sich gleichzeitig; zwei Lampen im Gesicht, Kettenrasseln – keiner fasst Luke an. Das Licht bleibt, bis es schwarz wird.
+TOD_ANIM.blech = A => { const B = A.base;
+  A.curve = t => { const k = tod_ease(Math.min(1, t / 1.4)); return { h: 1.1 - .12 * k, pitch: tod_lerp(B.pitch, .12, k), back: .05 * k, shake: .003 + (t < .5 ? .02 : 0) }; };
+  A.onFrame = t => { filmPass.uniforms.vig.value = Math.max(filmPass.uniforms.vig.value, tod_lerp(tod_S.vig0, 3.0, Math.min(1, t / 4))); filmPass.uniforms.flash.value = t > 1 && t < 3.6 ? .18 + .08 * Math.sin(t * 9) : 0; };
+  gtAfter(200, () => { try { Audio.play('metalHit2', { gain: .4, rate: .7, x: B.x, y: 1.5, z: B.z, ref: 3 }); } catch (e) {} });
+  [600, 1400, 2300].forEach(ms => gtAfter(ms, () => { try { Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .25, rate: rand(.5, .7), x: B.x + rand(-2, 2), y: .5, z: B.z + rand(-2, 2), ref: 3 }); } catch (e) {} }));
+  [900, 2100, 3400].forEach(ms => gtAfter(ms, () => Audio.heart())); gtAfter(3900, () => { filmPass.uniforms.flash.value = 0; todMuffle(300, 1.4); });
+  return 5200; };
 const _tpw = new THREE.Quaternion(), _tbw = new THREE.Quaternion(), _tdq = new THREE.Quaternion(), _tdq2 = new THREE.Quaternion(), _tax = new THREE.Vector3();
 const _taA = new THREE.Vector3(), _taB = new THREE.Vector3(), _taC = new THREE.Vector3(), _taT = new THREE.Vector3(), _taE = new THREE.Vector3(), _taQ = new THREE.Quaternion();
 // Knochen b so drehen, dass sein Kind c auf target zeigt (Weltraum, Anteil w) – einfache Zwei-Glieder-Ausrichtung ohne Zuweisungen
@@ -269,6 +278,7 @@ async function todRespawn() {
 // Kapitel 2: der Zahn-Mann fängt dich → Tod statt „Du kommst zu dir“
 caught = async function () {
   if (ch2.chase !== 'run' && ch2.chase !== 'fire') return;
+  if (ch2.chase === 'run' && typeof feuer_griff === 'function' && typeof feuer_S !== 'undefined' && !feuer_S.griff && !feuer_S.griffLauf) return feuer_griff(); // Fassung 3 (AP-16): der erste Griff ist „Bruder.“ (Pflicht), erst der zweite Fang tötet
   ch2.caught++; Audio.chaseMusic(false); Audio.chaseLevel(0);
   await todDie('zombie');
 };
@@ -291,7 +301,7 @@ WORLD_TICK.push((dt) => {
     if (S.objFix && !$('introSeq').classList.contains('show')) { S.objT = (S.objT || 0) + dt; if (S.objT > 3) { setC2Objective(S.objFix); S.objFix = null; S.objT = 0; } } // Kapitelstart setzt nach dem Klick die erste Aufgabe – danach die des Speicherpunkts
     // Speicherpunkte an Kapitelanfängen und vor gefährlichen Stellen (je einmal)
     if (!ch2.on && !ch3.on && !sn.k1) { sn.k1 = true; todCheckpoint('kapitel1', 'Kapitel 1 · Keller bleibt zu', { quiet: true }); }
-    if (ch2.on && !sn.k2 && P.x > X - 5) { sn.k2 = true; todCheckpoint('kapitel2', 'Kapitel 2 · Das achte Kind'); }
+    if (ch2.on && !sn.k2 && P.x > X - 5) { sn.k2 = true; todCheckpoint('kapitel2', 'Speicherpunkt Amt'); }
     if (ch2.on && !sn.gang && ch2.spiderPhase === 'gone' && ch2.chase === 'idle' && P.x > X + 46.3 && P.x < X + 50 && Math.abs(P.z - Z) < 2) { sn.gang = true; todCheckpoint('gang', 'Der lange Gang', { x: X + 47.5, y: 0, z: Z, yaw: -PI / 2 }); }
     if (ch2.on && !sn.mess && ch2.chase === 'done' && P.x > X + 107.2 && P.x < X + 122) { sn.mess = true; todCheckpoint('messraum', 'Der Messraum', { x: X + 108.2, y: 0, z: Z, yaw: -PI / 2 }); }
     if (ch3.on && !sn.k3) { sn.k3 = true; sn.k2 = sn.gang = sn.mess = true; todCheckpoint('kapitel3', 'Kapitel 3 · Ich komme'); }

@@ -92,12 +92,12 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
       else if (seed % 3 === 1) { x.strokeStyle = '#101010'; x.beginPath(); x.ellipse(128, 110, 80, 22, 0, 0, 7); x.stroke(); x.strokeStyle = '#e8e8f0'; x.lineWidth = 14; for (let i = 0; i < 5; i++) { x.beginPath(); x.moveTo(90 + i * 18, 130); x.lineTo(70 + i * 28, 320); x.stroke(); } x.lineWidth = 4; x.strokeStyle = '#2040c0'; x.beginPath(); x.arc(128, 300, 10, 0, 7); x.stroke(); x.fillStyle = '#c02020'; x.font = '28px Caveat'; x.fillText('DAS LICHT', 60, 40); }
       else { x.strokeStyle = '#404040'; x.lineWidth = 6; x.beginPath(); x.moveTo(90, 120); x.lineTo(90, 300); x.moveTo(60, 170); x.lineTo(120, 170); x.moveTo(90, 300); x.lineTo(70, 340); x.moveTo(90, 300); x.lineTo(110, 340); x.stroke(); x.beginPath(); x.arc(90, 100, 22, 0, 7); x.stroke(); x.lineWidth = 3; x.strokeStyle = '#2040c0'; x.beginPath(); x.arc(170, 240, 10, 0, 7); x.moveTo(170, 250); x.lineTo(170, 290); x.moveTo(170, 262); x.lineTo(125, 175); x.stroke(); x.fillStyle = '#101010'; x.font = '26px Caveat'; x.fillText('der eiserne Mann', 40, 40); }
       return c; }
-    x.fillStyle = '#222'; x.font = 'bold 13px Courier New'; x.fillText('AMT FÜR RÜCKFÜHRUNG', 18, 30); x.font = '10px Courier New'; x.fillText('Außenstelle Lost Eyengless · Ebene −2', 18, 44); x.fillRect(18, 50, 220, 1.5);
-    x.fillText(['Az. R-2009/0' + (seed % 8 + 1), 'Protokoll · Zyklus 17', 'Formblatt 8 · Rückführung', 'Laufzettel'][seed % 4], 18, 66);
+    x.fillStyle = '#222'; x.font = 'bold 13px Courier New'; x.fillText('BUNDESSTELLE FÜR RÜCKFÜHRUNG', 18, 30); if (typeof amt_auge === 'function') amt_auge(x, 226, 26, 11, 'rgba(34,34,34,.8)'); x.font = '10px Courier New'; x.fillText('Außenstelle Lost Eyengless · Ebene −2', 18, 44); x.fillRect(18, 50, 220, 1.5);
+    x.fillText(['Az. R-2009/0' + (seed % 8 + 1), 'Vermessungsprotokoll · Sommer 2009', 'Formblatt 8 · Rückführung', 'Laufzettel'][seed % 4], 18, 66);
     if (seed % 4 === 0) { x.fillStyle = '#2a2622'; x.fillRect(176, 60, 58, 72); x.fillStyle = '#4a443c'; x.beginPath(); x.arc(205, 88, 13, 0, 7); x.fill(); x.fillRect(190, 104, 30, 28); }
     for (let i = 0; i < 17; i++) { const y = 84 + i * 14; if (r(0, 1) < .15) continue; x.fillStyle = `rgba(30,30,30,${r(.55, .85)})`; x.fillRect(18, y, r(60, seed % 4 === 0 ? 150 : 215), 5); }
     if (seed % 4 === 2) { x.strokeStyle = '#333'; x.lineWidth = 1; for (let i = 0; i < 6; i++) x.strokeRect(18, 110 + i * 26, 220, 22); }
-    const st = ['ERSATZ', 'RÜCKGEFÜHRT', 'VERTRAULICH', 'NICHT ZURÜCKGEFÜHRT', 'ZYKLUS 17'][seed % 5];
+    const st = ['RÜCKLÄUFER', 'RÜCKGEFÜHRT', 'VERTRAULICH', 'NICHT ZURÜCKGEFÜHRT', 'ZYKLUS 2009'][seed % 5];
     x.save(); x.translate(r(110, 150), r(270, 310)); x.rotate(r(-.4, .2)); x.strokeStyle = 'rgba(150,20,20,.75)'; x.lineWidth = 3; x.font = 'bold 17px Arial'; const tw = x.measureText(st).width; x.strokeRect(-tw / 2 - 8, -17, tw + 16, 30); x.fillStyle = 'rgba(150,20,20,.75)'; x.textAlign = 'center'; x.fillText(st, 0, 5); x.restore();
     if (seed % 3 === 1) { x.strokeStyle = 'rgba(80,50,20,.35)'; x.lineWidth = 6; x.beginPath(); x.arc(r(60, 200), r(90, 300), 26, 0, 7); x.stroke(); }
     return c;
@@ -155,7 +155,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     spot(XA + 5.5, 1.25, zN - .2, 1.3, 1.2, .4, 'Kreidestriche', note('Kreidestriche', 'Fünfergruppen, sauber gezogen. Siebzehn Gruppen – und ganz unten, mit anderer Hand: <b>+ 1</b>.\n\nSiebzehn Jahre. Und einer mehr.', 'striche'));
     // Aushang neben dem Schild
     onWall(new THREE.MeshStandardMaterial({ map: tex(paperCanvas('doc', 3), true), roughness: .95 }), XA + 17.84, 1.45, ZA - 1.0, .24, .34, -Math.PI / 2, .04);
-    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, 05.08.2009, <b>03:13</b>.\nBegleitung: <i>„der Eiserne“</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Nr. 6. Deine Nummer. Und niemand hat quittiert, dass ich angekommen bin.</span>', 'laufzettel'));
+    spot(XA + 17.7, 1.45, ZA - 1.0, .2, .4, .35, 'Laufzettel', note('Laufzettel · Ebene −2', 'RÜCKFÜHRUNG NR. 6 – ZUSTELLUNG VERSPÄTET\nÜbergabe: Kreuzung, <b>Mittwoch, in der Nacht</b>.\nBegleitung: <i>Subjekt EISEN</i> (nicht ansprechen, nicht aufhalten, nicht berühren).\n\nEmpfang quittiert: ________\n\n<span class="hand">Nr. 6. Deine Nummer. Und niemand hat quittiert, dass ich angekommen bin.</span>', 'laufzettel'));
     // Müll, umgekippter Stuhl, verlorene Akten
     put(kBag, XA + 12.3, 0, { ry: .4, minZ: zS + .02 }); put(kBag, XA + 12.95, 0, { ry: 2.1, s: .8, minZ: zS + .3 }); put(kBag, XA + 13.6, 0, { ry: 4, s: .9, minZ: zS + .02 });
     put(kChair, XA + 9.6, ZA + 1.2, { ry: 1.9, rz: Math.PI / 2 });
@@ -185,9 +185,9 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     flat(paperMats[2], XA + 22.35, ZA + .1, .21, .297, .9, tTop + .003); flat(paperMats[4], XA + 25.6, ZA - .15, .21, .297, 2.5, tTop + .003);
     put(kChair, XA + 22.6, ZA - 1.05, { ry: .15 }); put(kChair, XA + 25.9, ZA - 1.2, { ry: -.5 }); put(kChair, XA + 20.2, ZA + 1.8, { ry: 1.2, rx: -Math.PI / 2 });
     // Regal an der Westwand mit Überwachungsmonitor, Säcke mit Aktenschnipseln
-    const w1 = put(kWard, 0, ZA - 3.6, { ry: 0, minX: XA + 18.17 }); const wy = surfY(kWard, w1, XA + 18.5, ZA - 3.6, .6);
-    screens.push(put(kCrt, XA + 18.5, ZA - 3.6, { ry: 0, y: wy }));
-    put(kBag, XA + 18.8, ZA - 2.3, { ry: 1 }); put(kBag, XA + 19.1, ZA - 1.55, { ry: 3, s: .85 }); put(kBag, XA + 29.3, 0, { ry: 2, s: .9, minZ: ZA - 5.3 });
+    const w1 = put(kWard, 0, ZA - 2.65, { ry: 0, minX: XA + 18.17 }); const wy = surfY(kWard, w1, XA + 18.5, ZA - 2.65, .6); // AP-16: Platz für die Tür zur Hängeregistratur (z − 4,6)
+    screens.push(put(kCrt, XA + 18.5, ZA - 2.65, { ry: 0, y: wy }));
+    put(kBag, XA + 19.3, ZA - 3.55, { ry: 1 }); put(kBag, XA + 18.8, ZA + 1.4, { ry: 3, s: .85 }); put(kBag, XA + 29.3, 0, { ry: 2, s: .9, minZ: ZA - 5.3 });
     put(kCan, XA + 29.4, ZA + 3.3, { ry: .3 });
     // Gruppenfoto an der Westwand
     put(kFrameG, 0, ZA + 3.2, { ry: Math.PI / 2, y: 1.2, minX: XA + 18.155 });
@@ -206,11 +206,11 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     const chalk2 = new THREE.MeshStandardMaterial({ map: tex(cnv(512, (x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = 'rgba(230,226,212,.85)'; x.font = '46px Caveat'; x.fillText('Fang nie mit dem an,', 20, 200); x.fillText('der schon leuchtet.', 40, 260); x.strokeStyle = 'rgba(230,226,212,.8)'; x.lineWidth = 4; x.beginPath(); x.moveTo(60, 300); x.lineTo(420, 290); x.stroke(); }), true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
     onWall(chalk2, XA + 34.6, 1.55, ZA + 7.85 - .012, .9, .9, Math.PI);
     // Werkbank mit Röhrenradio, Monitor, Stuhl, Wandbord
-    const wb = put(kTable, 0, ZA + 5.0, { ry: Math.PI / 2, s: .9, minX: XA + 30.17 }), tt = surfY(kTable, wb, XA + 30.5, ZA + 4.3);
+    const wb = put(kTable, 0, ZA + 5.0, { ry: Math.PI / 2, s: .9, minX: XA + 30.17 }), tt = surfY(kTable, wb, XA + 30.5, ZA + 4.3); S.sichBankY = tt; // AP-16: Funkgerät (AG-06) und Batterien liegen darauf
     screens.push(put(kCrt, XA + 30.47, ZA + 4.15, { ry: -.08, y: tt }));
     screens.push(put(kCrt, XA + 30.47, ZA + 5.65, { ry: .1, y: tt, s: .95 }));
     put(kChair, XA + 31.5, ZA + 4.7, { ry: -Math.PI / 2 - .35 });
-    put(kCan, XA + 35.5, ZA + 2.6, { ry: 1 });
+    put(kCan, XA + 31.8, ZA + 2.55, { ry: 1 }); // AP-16: an der Ostwand steht jetzt das Kühlregal
     flat(paperMats[1], XA + 30.62, ZA + 6.25, .21, .297, 1.4, tt + .003);
     spot(XA + 30.62, tt + .05, ZA + 6.25, .3, .1, .35, 'Wartungsbuch', note('Wartungsbuch · Notstrom Ebene −2', '<span class="hand">13.07.1992 – Ausfall 03:13. Kreise 2 + 5. Neu verdrahtet.\n28.07.2009 – Ausfall 03:13. Alle Kreise. Lampen „atmen“. Anordnung: niemand berührt den Kasten allein.\n05.08.2009 – Ausfall 03:13. Die Lampen gingen erst wieder an, als der Junge durch die Tür war.\n\n23.10.2026 – </span>\n\nDer letzte Eintrag hat kein Ende. Nur ein langer Strich, der vom Papier rutscht.', 'wartung'));
     spot(XA + 30.47, tt + .18, ZA + 4.9, .4, .4, 2.0, 'Überwachungsmonitore', () => { try { Audio.flick(); Audio.whisper(XA + 30.5, 1, ZA + 4.9, 1.6); } catch (e) {} toast('Zwei Bilder, grau und körnig. Links: der lange Gang. Am Ende steht jemand und sieht in die Kamera. Rechts: acht Stühle. Auf dem achten sitzt ein Junge. Du blinzelst – leer.', 6200); });
@@ -243,12 +243,12 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
       const grime = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(10, 70)); g.addColorStop(0, `rgba(60,44,28,${R(a * .4, a)})`); g.addColorStop(1, 'rgba(60,44,28,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } };
       // Emailleschild (alt, abgeplatzt) und darunter ein jüngeres Schild, getippt, mit Klebeband
       onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
-        x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückkehrer', w / 2, 126);
+        x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückläufer', w / 2, 126);
         for (let i = 0; i < 16; i++) { const px = R(0, w), py = i < 6 ? (i % 2 ? R(0, 16) : R(h - 16, h)) : R(0, h), r = R(3, 11); x.fillStyle = '#1b1a18'; x.beginPath(); x.ellipse(px, py, r, r * R(.6, 1), R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,70,30,.5)'; x.beginPath(); x.arc(px + R(-2, 2), py + r, r * .8, 0, 7); x.fill(); }
         grime(x, w, h, 10, .22); }), .4, .15), XA + 35.842, 1.86, ZA - 1.38, .5, .156, -Math.PI / 2);
       onWall(dMat(pc(512, 128, (x, w, h) => { x.fillStyle = '#e4dcc6'; x.fillRect(24, 14, w - 48, h - 28); grime(x, w, h, 5, .12); x.fillStyle = '#1e1c1a'; x.textAlign = 'center'; x.font = 'bold 30px "Courier New"'; x.fillText('KRANZ, P. · Rückläufer', w / 2, 58); x.font = '24px "Courier New"'; x.fillText('verwahrt seit 11/1992', w / 2, 92);
         x.fillStyle = 'rgba(200,190,150,.55)'; x.save(); x.translate(40, 24); x.rotate(-.5); x.fillRect(-26, -9, 64, 18); x.restore(); x.save(); x.translate(w - 40, h - 24); x.rotate(-.5); x.fillRect(-38, -9, 64, 18); x.restore(); })), XA + 35.84, 1.6, ZA - 1.38, .44, .11, -Math.PI / 2, .025);
-      spot(XA + 35.7, 1.72, ZA - 1.38, .15, .5, .6, 'Türschild', note('Prüfraum 3', 'Ein Emailleschild, an den Kanten abgeplatzt: <b>PRÜFRAUM 3 · Unterscheidung Original / Rückkehrer</b>\n\nDarunter, jünger, mit Klebeband angeklebt: <i>„KRANZ, P. · Rückläufer · verwahrt seit 11/1992“</i>\n\n<span class="hand">Kranz. So hieß Mama, bevor sie Brandt hieß.</span>', 'pruefraum_schild'));
+      spot(XA + 35.7, 1.72, ZA - 1.38, .15, .5, .6, 'Türschild', note('Prüfraum 3', 'Ein Emailleschild, an den Kanten abgeplatzt: <b>PRÜFRAUM 3 · Unterscheidung Original / Rückläufer</b>\n\nDarunter, jünger, mit Klebeband angeklebt: <i>„KRANZ, P. · Rückläufer · verwahrt seit 11/1992“</i>\n\n<span class="hand">Kranz. So hieß Mama, bevor sie Brandt hieß.</span>', 'pruefraum_schild'));
       // Kratzspuren: an allen Wänden, tausendfach – mit Fingernägeln, Löffelstielen, irgendwas
       const scratchCanvas = seed => pc(1024, 704, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; x.lineJoin = 'round'; rs = 7 + seed * 131;
         for (let i = 0; i < 150; i++) { const s = R(13, 46), a = R(.1, .36); x.save(); x.translate(R(-60, w), R(10, h)); x.rotate(R(-.13, .13)); x.font = `bold ${s}px Arial`;
@@ -267,17 +267,16 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
       const board = plane(1.3, .85, XA + 39.1, 1.55, ZA + 4.829, new THREE.MeshStandardMaterial({ roughness: .92, map: tex(pc(768, 502, (x, w, h) => { x.fillStyle = '#1c201e'; x.fillRect(0, 0, w, h); rs = 4242;
         for (let i = 0; i < 26; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(40, 160)); g.addColorStop(0, `rgba(200,200,190,${R(.03, .08)})`); g.addColorStop(1, 'rgba(200,200,190,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
         x.strokeStyle = '#3a3129'; x.lineWidth = 14; x.strokeRect(7, 7, w - 14, h - 14); x.fillStyle = 'rgba(232,228,214,.9)'; x.font = '40px Caveat, "Segoe Print", cursive';
-        x.fillText('Original B., Luke (Vermessung 12.3.2009):', 44, 118); x.fillText('starke Spinnenangst.', 84, 172); x.fillText('Rückkehrer 08 (9.8.2009):', 44, 290); x.fillText('keine Reaktion. Lacht.', 84, 344);
+        x.fillText('Original B., Luke (Vermessung Frühjahr 2009):', 44, 118); x.fillText('starke Spinnenangst.', 84, 172); x.fillText('Rückläufer 08 (Sommer 2009):', 44, 290); x.fillText('keine Reaktion. Lacht.', 84, 344);
         x.strokeStyle = 'rgba(232,228,214,.7)'; x.lineWidth = 3; x.beginPath(); x.moveTo(40, 216); x.lineTo(w - 60, 210); x.stroke(); }), true) }), 0, Math.PI);
-      board.userData.noCol = true;
+      board.userData.noCol = true; S.pruefTafel = board;
       const cover = S.pruefCover = plane(1.42, .97, XA + 39.1, 1.55, ZA + 4.815, new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, map: tex(pc(512, 350, (x, w, h) => { x.clearRect(0, 0, w, h); rs = 5151;
         for (let i = 0; i < 60; i++) { const g = x.createRadialGradient(R(40, w - 40), R(30, h - 30), 0, R(40, w - 40), R(30, h - 30), R(40, 130)); g.addColorStop(0, 'rgba(150,146,136,.5)'); g.addColorStop(1, 'rgba(150,146,136,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
         x.strokeStyle = 'rgba(228,224,214,.55)'; for (let i = 0; i < 420; i++) { x.lineWidth = R(.4, 1.3); x.beginPath(); const a = R(0, 6.3), cx = R(0, w), cy = R(0, h), l = R(30, 200); x.moveTo(cx, cy); x.quadraticCurveTo(cx + R(-20, 20), cy + R(-20, 20), cx + Math.cos(a) * l, cy + Math.sin(a) * l); x.stroke(); }
         for (let k = 0; k < 7; k++) { const cx = R(60, w - 60), cy = R(60, h - 60); for (let r = 6; r < 70; r += R(5, 9)) { x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke(); } } }), true) }), 0, Math.PI);
       cover.userData.noCol = true; cover.renderOrder = 3;
       spot(XA + 39.1, 1.55, ZA + 4.55, 1.3, .9, .3, 'Tafel', () => { if (ch2.spiderPhase !== 'gone') { toast('Eine Tafel an der Wand, dicht zugesponnen. Darunter Kreide – nicht zu lesen.', 3800); return; }
-        openNote('Tafel · Prüfraum 3', 'Kreide auf Schiefer, sauber, wie für eine Schulklasse:\n\n<span class="hand">Original B., Luke (Vermessung 12.3.2009): starke Spinnenangst.\nRückkehrer 08 (9.8.2009): keine Reaktion. Lacht.</span>', 'ik_pruef_tafel',
-          () => { if (!S.tafelSaid) { S.tafelSaid = true; say([['„Keine Reaktion. Lacht.“', 2400, 'LUKE'], ['Ich hab nicht gelacht. Ich hab geschrien wie ein Kind.', 3400, 'LUKE']]); } }); });
+        openNote('Tafel · Prüfraum 3', 'Kreide auf Schiefer, sauber, wie für eine Schulklasse:\n\n<span class="hand">Original B., Luke (Vermessung Frühjahr 2009): starke Spinnenangst.\nRückläufer 08 (Sommer 2009): keine Reaktion. Lacht.</span>', 'ik_pruef_tafel'); }); // Fassung 3 (AP-16): Lukes Sätze kommen nach dem Schwarm (amt_nachSpinnen)
       // Fluchtplan an der Osttür (Hilfe 1 für den langen Gang)
       onWall(dMat(pc(420, 560, (x, w, h) => { x.fillStyle = '#ece6d2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1f6a3a'; x.fillRect(0, 0, w, 74); x.fillStyle = '#f4f1e6'; x.textAlign = 'center'; x.font = 'bold 30px Arial'; x.fillText('FLUCHTPLAN', w / 2, 36); x.font = 'bold 20px Arial'; x.fillText('EBENE −2', w / 2, 62);
         x.strokeStyle = '#2b2b28'; x.lineWidth = 3; const rooms = [[20, 150, 50, 40], [70, 135, 50, 70], [120, 150, 30, 40], [150, 140, 50, 60], [200, 160, 150, 20], [350, 130, 50, 80]]; rooms.forEach(([a, b, c, d]) => x.strokeRect(a, b, c, d));
@@ -348,14 +347,17 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // ---------- Messraum (x 706–722, z ±8)
   {
     find((o, c, s) => (o.material === M.metal || o.material === M.rubber) && c.x > 707 && c.x < 720 && Math.abs(c.z - ZA) > 4 && Math.abs(c.z - ZA) < 5.5 && s.y < .85 && !(s.x > 2)).forEach(hide);
-    for (let i = 0; i < 8; i++) put(kChair, XA + 109 + (i % 4) * 3.2, ZA - 5 + Math.floor(i / 4) * 10, { ry: R(-.06, .06) });
-    // Namensschilder an die Stuhllehnen
-    find((o, c, s) => o.geometry.type === 'PlaneGeometry' && Math.abs(c.y - 1.35) < .02 && c.x > 707 && c.x < 720 && s.x < .35).forEach(o => { o.position.y = .8; o.position.z += .15; o.rotation.x = -.12; });
+    // Fassung 3 (AP-16): acht Stühle im Kreis (Mitte X + 115,8 | Z + 2,4), Stuhl 8 bleibt bei X + 118,6 | Z + 5 (Kinosequenz „Ihre Augen“), alle zur Mitte; Namensschilder auf die Lehnen
+    { const MC = { x: XA + 115.8, z: ZA + 2.4 }, a8 = Math.atan2(5 - 2.4, 118.6 - 115.8), r8 = Math.hypot(118.6 - 115.8, 5 - 2.4); S.stuhlKreis = [];
+      for (let i = 0; i < 8; i++) { const a = a8 + (i === 7 ? 0 : (i + 1) * Math.PI / 4), cx = MC.x + Math.cos(a) * r8, cz = MC.z + Math.sin(a) * r8, ry = Math.atan2(MC.x - cx, MC.z - cz); put(kChair, cx, cz, { ry: ry + R(-.05, .05) }); S.stuhlKreis.push({ x: cx, z: cz, ry }); }
+      const tags = find((o, c, s) => o.geometry.type === 'PlaneGeometry' && Math.abs(c.y - 1.35) < .02 && c.x > 707 && c.x < 720 && s.x < .35).sort((a, b) => (a.position.z - b.position.z) * 100 + (a.position.x - b.position.x));
+      tags.forEach((o, i) => { const k = S.stuhlKreis[i] || S.stuhlKreis[7]; o.position.set(k.x - Math.sin(k.ry) * .235, .82, k.z - Math.cos(k.ry) * .235); o.rotation.set(-.12, k.ry + Math.PI, 0, 'YXZ'); });
+      if (typeof amt_S !== 'undefined' && amt_S.feder) { const k = S.stuhlKreis[7]; amt_S.feder.position.set(k.x - Math.sin(k.ry) * .21, .78, k.z - Math.cos(k.ry) * .21); amt_S.feder.rotation.set(0, k.ry + Math.PI, .5, 'YXZ'); } }
     retex(machine, machineMat, 1.2);
     find((o, c, s) => o.material === M.metal && Math.abs(c.x - (XA + 118)) < .05 && Math.abs(s.x - 2.2) < .05).forEach(o => retex(o, rustMat, 1.1)); // Tanksockel
     // Klavier (kein Modell im Katalog): aufrechtes Klavier aus Holz-Scan-Platten; die alte Kiste bleibt unsichtbar als Klickfläche
-    msHide(piano); msHide(find((o, c) => o.material === M.paint && near(c, XA + 110, 1.02, ZA + 7.3, .05))[0]);
-    { const wood = msSurfMat('floor_wood', { tint: 0x3e2a20 }); wood.roughness = .42; wood.userData.tile = .8; const px = XA + 110, wz = ZA + 7.85;
+    msHide(piano); msHide(find((o, c) => o.material === M.paint && near(c, XA + 111.8, 1.02, ZA + 7.3, .05))[0]);
+    { const wood = msSurfMat('floor_wood', { tint: 0x3e2a20 }); wood.roughness = .42; wood.userData.tile = .8; const px = XA + 111.8, wz = ZA + 7.85;
       const keys = new THREE.MeshStandardMaterial({ roughness: .3, map: tex((() => { const c = document.createElement('canvas'); c.width = 1024; c.height = 64; const x = c.getContext('2d'); x.fillStyle = '#ddd3bc'; x.fillRect(0, 0, 1024, 64); const n = 36, kw = 1024 / n; x.strokeStyle = '#7a705e'; for (let i = 0; i <= n; i++) { x.beginPath(); x.moveTo(i * kw, 0); x.lineTo(i * kw, 64); x.stroke(); } x.fillStyle = '#141210'; for (let i = 0; i < n - 1; i++) { const m = i % 7; if (m === 2 || m === 6) continue; x.fillRect((i + 1) * kw - kw * .3, 0, kw * .6, 40); } for (let i = 0; i < 6; i++) { x.fillStyle = 'rgba(60,40,20,.25)'; x.fillRect(rand(0, 1000), rand(40, 60), rand(10, 40), 4); } return c; })(), true) });
       [[1.5, 1.24, .36, px, .62, wz - .18, wood], [1.56, .035, .4, px, 1.2575, wz - .2, wood], [1.5, .07, .3, px, .695, wz - .51, wood], [1.42, .022, .15, px, .741, wz - .58, keys], [1.42, .16, .03, px, .81, wz - .375, wood],
         [.07, .66, .3, px - .715, .33, wz - .51, wood], [.07, .66, .3, px + .715, .33, wz - .51, wood], [.62, .025, .12, px, .98, wz - .43, wood]].forEach(([w, h, d, x, y, z, m]) => box(w, h, d, x, y, z, m));

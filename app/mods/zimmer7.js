@@ -8,24 +8,24 @@ const z7_S = { ok: false, door: null, lamp: null, lampMats: [], keyOn: null, key
   relief: false, reliefP: null, reliefDone: false, gT: -1, printed: false, took: false, pending: null, uhr: 0 };
 const Z7 = { x0: C2.x + 30, x1: C2.x + 36, z0: C2.z - 8, z1: C2.z - 2 };
 function z7_in(m = .15) { const P = player.pos; return P.x > Z7.x0 + m && P.x < Z7.x1 - m && P.z > Z7.z0 + m && P.z < Z7.z1 - m; }
-function z7_uhr(hh, mm) { try { if (typeof leben_uhr === 'function') leben_uhr(hh, mm, false); } catch (e) {} }
+function z7_uhr(hh, mm) { try { if (typeof amt_uhr === 'function') return amt_uhr(hh, mm); if (typeof leben_uhr === 'function') leben_uhr(hh, mm, false); } catch (e) {} } // Fassung 3 (AP-16): die Bahnhofsuhren springen
 
 // ---------------------------------------------------------------- Texte (wortgleich PK-D K2-3)
-const Z7_URNE = 'Sieben Holzkugeln, schwarz verkohlt, als hätte sie jemand ins Feuer gelegt und wieder herausgeholt. In jede ist ein Name gebrannt: REUTER, R. · WINTER, H. · KESSLER, M. · AYDIN, D. · BRANDT, L. · BRANDT, L. · WENDT, Z. – Zwei Kugeln tragen denselben Namen.';
+const Z7_URNE = 'Ein Holzkasten mit Schlitz, das Vorhängeschloss offen. Sieben Holzkugeln, schwarz verkohlt, als hätte sie jemand ins Feuer gelegt und wieder herausgeholt. In jede ist ein Name gebrannt: REUTER, R. · WINTER, H. · KESSLER, M. · AYDIN, D. · BRANDT, L. · BRANDT, L. · WENDT, Z. – Zwei Kugeln tragen denselben Namen.';
 const Z7_BUCH = [
-  '<span class="hand">1.7.2009. Losziehung. Sieben aus Liste 2009.\nKugel 7: WENDT, Z.\nIch habe nicht neu gezogen. Das Los ist das Los.\nGott, er ist sieben. – H.W.</span>',
-  '<span class="hand">14.7.2009. Einwilligung Brandt. Die Mutter hat zweimal angesetzt.\nSie hat gefragt, ob sie beide zurückbekommt.\nSeiler: Wir bringen zurück, was zurückkommt.\nSie hat unterschrieben. – H.W.</span>',
-  '<span class="hand">21.10.2026. Lucy war heute unten. Sie hat alles gesehen. Auch das hier.\nWenn sie mich holen: Das Brot für den Jungen im Stall liegt in der Laube.\nKeiner darf ihn ansehen. Keiner. – H.W.</span>'];
+  '<span class="hand">1. Juli 2009. Losziehung. Sieben aus Liste 2009. Kugel 7: WENDT, Z.\nIch habe nicht neu gezogen. Das Los ist das Los.\nGott, er ist sieben. – H. W.</span>',
+  '<span class="hand">Mitte Juli 2009. Einwilligung Brandt. Die Mutter hat zweimal angesetzt.\nSie hat gefragt, ob sie beide zurückbekommt.\nSeiler: Wir bringen zurück, was zurückkommt.\nSie hat unterschrieben. Sie hat mich nicht angesehen. – H. W.</span>',
+  '<span class="hand">Oktober 2026. Lucy war heute unten. Sie hat alles gesehen. Auch das hier.\nIch hab sie in den Tank gelegt, da findet sie keiner, auch die nicht.\nWenn sie mich holen: Das Brot für den Jungen im Stall liegt in der Laube.\nKeiner darf ihn ansehen. Keiner. – H. W.</span>'];
 const Z7_ROWS = [['Reuter', 'Roxy', 'Nr. 5', '03.07.'], ['Winter', 'Heidi', 'Nr. 2', '06.07.'], ['Vegas, L. (Großvater)', 'Mike Kessler', 'Nr. 3', '08.07.'], ['Aydın', 'Dina', 'Hof', '10.07.'], ['Brandt, M.', 'Lucy, Luke', 'Nr. 1', '14.07. (zwei Ansätze)'], ['Wendt, H.', 'Zayn', 'Nr. 7', '21.07.']];
-const Z7_P4 = '§ 4 – Für jedes Kind errichtet die Gemeinde am Tag der Übergabe einen Gedenkstein. Die Einwilligung gilt über die Rückführung hinaus.';
+const Z7_P4 = '§ 4 – Für jedes Kind errichtet die Gemeinde am Tag der Übergabe einen Gedenkstein. Die Einwilligung gilt über die Rückführung hinaus. – Bundesstelle für Rückführung, i. A. (hw)';
 const z7_table = (fs = 15) => `<table style="border-collapse:collapse;font-size:${fs}px;line-height:1.35;margin:8px 0 6px">` +
   `<tr>${['Erziehungsberechtigte', 'Kind', 'Haus', 'Datum'].map(h => `<th style="text-align:left;padding:2px 10px 2px 0;border-bottom:1px solid currentColor">${h}</th>`).join('')}</tr>` +
   Z7_ROWS.map(r => `<tr>${r.map(c => `<td style="padding:2px 10px 2px 0;vertical-align:top">${c}</td>`).join('')}</tr>`).join('') + '</table>';
-const Z7_AUSHANG_HTML = () => `Maschinengeschrieben, die Unterschriften mit Füller.${z7_table(16)}<small>${Z7_P4}</small>`;
-const Z7_GRUENDUNG = '<span class="hand">Aktennotiz Seiler, 1958: Der Mann in Eisen ist real. Er altert nicht. Er sagt, er dürfe nicht gefunden werden. Ich habe nicht gefragt, von wem. – Absender: Villa Seiler, Westweg.</span>';
-const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Nachbild · Zimmer 7, 1. Juli 2009', floor: 0,
+const Z7_AUSHANG_HTML = () => `„Einwilligung zur Rückführung, Zyklus 2009. In der Reihenfolge der Unterschrift:“ Maschinengeschrieben, die Unterschriften mit Füller.${z7_table(16)}<small>${Z7_P4}</small>`;
+const Z7_BROT = 'Hildes Brotdose. Leer. Darin ein Zettel, in ihrer Schrift:\n\n<span class="hand">„Freitag: Brot für den Jungen. In die Laube. Nicht hinsehen.“</span>'; // Fassung 3: die Gründungsakte liegt jetzt im Archiv („Ich habe nicht gefragt, wen“)
+const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Nachbild · Zimmer 7, Sommer 2009', floor: 0,
   figs: [E_(C2.x + 33.0, C2.z - 7.35, 0, 1), E_(C2.x + 32.9, C2.z - 3.2, PI, 1.04)],
-  lines: [['1. Juli 2009. Eine Frau zieht eine Kugel aus einem Kasten, liest, hält inne.', 4200], ['„Frau Wendt?“', 2200, 'MANN VOM AMT'], ['„Das Los ist das Los.“', 3000, 'HILDE'], ['Sie legt die Kugel sehr vorsichtig auf den Tisch. Als könnte sie ihm wehtun.', 4400]] };
+  lines: [['Sommer 2009. Eine Frau zieht eine Kugel aus einem Kasten, liest, hält inne.', 4200], ['„Frau Wendt? Wir können neu ziehen.“', 3000, 'MANN VOM AMT'], ['„Das Los ist das Los.“', 3000, 'HILDE'], ['Sie legt die Kugel sehr vorsichtig auf den Tisch. Als könnte sie ihm wehtun.', 4400]] };
 if (typeof FIGUREN_ECHO !== 'undefined') FIGUREN_ECHO.echo_zimmer7 = ['hilde', 'amt1'];
 
 // Gegenstände (ITEMS entsteht erst nach den Modulen → modItem wartet)
@@ -62,7 +62,7 @@ function z7_protokoll() {
 function z7_doorUse() {
   const D = z7_S.door; if (!D) return;
   if (D.locked) {
-    if (!ch2.z7Key) return toast('Abgeschlossen. Ein Emailleschild: ZIMMER 7 · H. WENDT · ZÄHLUNG.', 3600);
+    if (!ch2.z7Key) { if (!z7_S.bandZu && typeof amt_band === 'function') { z7_S.bandZu = true; setTimeout(() => amt_band('Zimmer sieben ist heute geschlossen.'), 700); } return toast('Abgeschlossen. Ein Emailleschild: ZIMMER 7 · H. WENDT · ZÄHLUNG.', 3600); }
     if (!z7_S.reliefDone && z7_S.reliefP) return; // erst die Erleichterung, dann die Tür (die Zeilen laufen noch)
     D.locked = false; Audio.play('lockOpen', { gain: .5, x: C2.x + 33, y: 1, z: C2.z - 2, ref: 2 }); toast('Der Schlüssel passt.', 2200);
   }
@@ -80,7 +80,7 @@ function z7_takeKey() {
 function z7_takeAushang() {
   if (story.items.includes('einwilligungen')) return;
   addItem('einwilligungen'); if (z7_S.aushang) z7_S.aushang.visible = false; if (z7_S.aushangRest) z7_S.aushangRest.visible = true; if (z7_S.aushangSpot) z7_S.aushangSpot.userData.label = 'Klebereste';
-  Audio.paper(); setTimeout(() => say([['Sie hat uns aufgeschrieben. Mama auch.', 3400, 'LUKE']]), 500);
+  Audio.paper(); setTimeout(() => say([['Sie hat uns aufgeschrieben. Mama auch.', 3400, 'LUKE']]), 500); try { if (typeof lwo_ereignis === 'function') lwo_ereignis('zimmer7_einwilligung'); } catch (e) {}
 }
 // story.items entsteht erst nach den Modulen (Aufbau ruft das hier schon auf)
 function z7_syncAushang() { const t = !!story.items && story.items.includes('einwilligungen'); if (z7_S.aushang) z7_S.aushang.visible = !t; if (z7_S.aushangRest) z7_S.aushangRest.visible = t; }
@@ -249,13 +249,15 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     const hs = [['1', 60, 150], ['2', 170, 150], ['3', 390, 150], ['4', 500, 150], ['5', 60, 300], ['6', 170, 300], ['7', 390, 300], ['Hof', 500, 330]];
     c.strokeStyle = '#2a2824'; c.lineWidth = 2.5; for (const [n, x, y] of hs) { c.strokeRect(x, y, 80, 62); c.fillStyle = '#2a2824'; c.font = 'bold 20px "Special Elite", Courier New'; c.fillText(n === 'Hof' ? 'Hof' : 'Nr. ' + n, x + 12, y + 38); }
     const pin = (x, y) => { c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.arc(x + 4, y + 5, 9, 0, 7); c.fill(); const g = c.createRadialGradient(x - 3, y - 3, 1, x, y, 10); g.addColorStop(0, '#ff6a5a'); g.addColorStop(1, '#8a120c'); c.fillStyle = g; c.beginPath(); c.arc(x, y, 10, 0, 7); c.fill(); };
-    pin(92, 162); pin(122, 176); pin(208, 164); pin(430, 162); pin(540, 344); pin(96, 312); pin(428, 312); c.restore();
+    pin(92, 162); pin(122, 176); pin(208, 164); pin(430, 162); pin(540, 344); pin(96, 312); pin(428, 312);
+    c.strokeStyle = '#2a2824'; c.lineWidth = 2.5; c.strokeRect(500, 300, 80, 62); c.fillStyle = '#2a2824'; c.font = 'bold 20px "Special Elite", Courier New'; c.fillText('Nr. 9', 512, 338);
+    { const g = c.createRadialGradient(537, 297, 1, 540, 300, 10); g.addColorStop(0, '#7ab0ff'); g.addColorStop(1, '#0c2a8a'); c.fillStyle = g; c.beginPath(); c.arc(540, 300, 10, 0, 7); c.fill(); c.fillStyle = '#1f2a55'; c.font = '22px Caveat'; c.fillText('Posten. Kamera auf 7.', 470, 400); } c.restore();
     // zwei Zettel daneben
     c.save(); c.translate(760, 90); c.rotate(.05); c.fillStyle = '#dcd4bc'; c.fillRect(0, 0, 200, 250); c.fillStyle = '#2b2a28'; c.font = '14px "Special Elite", Courier New'; c.fillText('DIENSTPLAN ZÄHLUNG', 14, 28); for (let i = 0; i < 9; i++) c.fillRect(14, 48 + i * 20, R(80, 170), 3.5); c.restore();
     c.save(); c.translate(770, 400); c.rotate(-.06); c.fillStyle = '#e8e2cf'; c.fillRect(0, 0, 190, 150); c.fillStyle = '#1f2a55'; c.font = '30px Caveat'; c.fillText('23:00 – 03:13', 16, 50); c.fillText('Kreuzung zählen.', 16, 92); c.fillText('Immer.', 16, 130); c.restore();
     c.fillStyle = '#c21a12'; c.beginPath(); c.arc(860, 100, 9, 0, 7); c.fill(); c.beginPath(); c.arc(865, 408, 9, 0, 7); c.fill(); });
   batch.add(new THREE.PlaneGeometry(1.3, .914), new THREE.MeshStandardMaterial({ map: tex(cork, true), roughness: .95 }), mtx(iX0 + .012, 1.55, z0 + 1.55, PI / 2));
-  hit(iX0 + .08, 1.55, z0 + 1.55, .12, .9, 1.3, 'Pinnwand', () => toast('Ein Stadtplan der Ahornstraße, die Häuser nummeriert. Sieben rote Stecknadeln. In Nr. 1 stecken zwei.', 5200));
+  hit(iX0 + .08, 1.55, z0 + 1.55, .12, .9, 1.3, 'Pinnwand', () => toast('Ein Plan der Ahornstraße. Sieben rote Stecknadeln, Nummer 1 mit zwei. An Nummer 9 eine blaue: „Posten. Kamera auf 7.“', 5200));
   // Aushang „Einwilligungen 2009 – vollständig“ (Nordwand, links der Tür)
   const AX = X + 31.25, AY = 1.5, AZ = iZ1 - .012;
   const aushangC = cv(724, 1024, (c, w, h) => { c.fillStyle = '#e4ddc8'; c.fillRect(0, 0, w, h); rs = 991;
@@ -275,7 +277,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
   S.aushang = new THREE.Mesh(new THREE.PlaneGeometry(.42, .594), new THREE.MeshStandardMaterial({ map: tex(aushangC, true), roughness: .92, polygonOffset: true, polygonOffsetFactor: -2 })); S.aushang.position.set(AX, AY, AZ); S.aushang.rotation.set(0, PI, .012); S.aushang.receiveShadow = true; scene.add(S.aushang);
   S.aushangRest = new THREE.Mesh(new THREE.PlaneGeometry(.46, .63), decalMat(cv(256, 352, (c, w, h) => { c.clearRect(0, 0, w, h); c.fillStyle = 'rgba(255,250,235,.10)'; c.fillRect(10, 10, w - 20, h - 20); c.fillStyle = 'rgba(214,202,160,.8)'; for (const [x, y, r] of [[14, 12, -.5], [w - 14, 12, .5], [14, h - 12, .5], [w - 14, h - 12, -.5]]) { c.save(); c.translate(x, y); c.rotate(r); c.fillRect(-16, -5, 32, 10); c.restore(); } }), .8));
   S.aushangRest.position.set(AX, AY, AZ - .002); S.aushangRest.rotation.y = PI; S.aushangRest.visible = false; scene.add(S.aushangRest);
-  S.aushangSpot = hit(AX, AY, AZ - .05, .46, .64, .1, 'Aushang', () => { if (story.items.includes('einwilligungen')) return toast('Vier Streifen Klebeband, ein hellerer Fleck im Putz. Da hing sie.', 3000); openNote('Einwilligungen 2009 – vollständig', Z7_AUSHANG_HTML(), 'z7_aushang', z7_takeAushang); });
+  S.aushangSpot = hit(AX, AY, AZ - .05, .46, .64, .1, 'Aushang', () => { if (story.items.includes('einwilligungen')) return toast('Vier Streifen Klebeband, ein hellerer Fleck im Putz. Da hing sie.', 3000); openNote('Einwilligungen 2009 – vollständig', Z7_AUSHANG_HTML(), 'z7_aushang', () => { z7_takeAushang(); if (!z7_S.p4) { z7_S.p4 = true; setTimeout(() => say([['Gedenkstein am Tag der Übergabe. Die haben die Gräber bestellt, bevor irgendwer weg war.', 4800, 'LUKE']]), 4600); } }); });
   // Kalender, Juli 2009 (nie weitergeblättert), der Erste eingekreist
   batch.add(new THREE.PlaneGeometry(.3, .45), decalMat(cv(300, 450, (c, w, h) => { c.fillStyle = '#e8e2d0'; c.fillRect(0, 0, w, h); c.fillStyle = '#6a7a5a'; c.fillRect(0, 0, w, 170); c.fillStyle = 'rgba(255,255,255,.25)'; c.fillRect(20, 20, w - 40, 130);
     c.fillStyle = '#1d1c1a'; c.font = 'bold 34px Georgia'; c.fillText('JULI 2009', 60, 214); c.font = '16px Georgia'; const d0 = 2; // 1.7.2009 = Mittwoch
@@ -294,15 +296,34 @@ WORLD_MODS.push(['Zimmer 7', async () => {
   S.keySpot = hit(KX, KY, KZ - .05, .62, .32, .1, () => z7_S.took ? 'Schlüsselbrett' : 'Schlüssel am Haken', () => { if (z7_S.took) return toast('Vier Haken, vier Schildchen. Am zweiten fehlt jetzt der Schlüssel.', 3000); z7_takeKey(); });
 
   // --- Fundstücke (Klickflächen an den echten Dingen)
-  if (urne) { const b = new THREE.Box3().setFromObject(urne); hit((b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2, .36, b.max.y - b.min.y + .06, .36, 'Die Losurne', () => { Audio.play('woodHit1', { gain: .2, rate: 1.4, x: b.min.x, y: 1.3, z: b.min.z, ref: 2 }); openNote('Die Losurne', Z7_URNE, 'z7_urne'); }); }
+  if (urne) { const b = new THREE.Box3().setFromObject(urne); hit((b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2, .36, b.max.y - b.min.y + .06, .36, 'Die Losurne', () => { Audio.play('woodHit1', { gain: .2, rate: 1.4, x: b.min.x, y: 1.3, z: b.min.z, ref: 2 }); openNote('Die Losurne', Z7_URNE, 'z7_urne', () => { if (!z7_S.urneSaid) { z7_S.urneSaid = true; say([['Zwillinge zählen als eins, hat Mama immer gesagt. Beim Kindergeld nicht.', 3800, 'LUKE']]); } }); }); }
   if (buch) { const b = new THREE.Box3().setFromObject(buch); hit((b.min.x + b.max.x) / 2, b.max.y + .03, (b.min.z + b.max.z) / 2, .34, .1, .3, 'Das Dienstbuch', () => {
     if (!story.lore.some(l => l.key === 'z7_dienstbuch')) story.lore.push({ key: 'z7_dienstbuch', title: 'Das Dienstbuch', html: Z7_BUCH.join('\n\n') });
     Audio.paper(); Z7_BUCH.forEach((p, i) => openNote(`Das Dienstbuch · Seite ${i + 1} / 3`, p + (i < 2 ? '\n\n<small>[E] umblättern</small>' : ''))); }); }
-  hit(DX, deskTop - .1, DZ - .4, .5, .14, .06, 'Schreibtischschublade', () => { Audio.play('woodSqueak1', { gain: .3, rate: 1.3, x: DX, y: .6, z: DZ, ref: 2 }); openNote('Gründungsnotiz 1958', Z7_GRUENDUNG, 'z7_gruendung'); });
+  hit(DX, deskTop - .1, DZ - .4, .5, .14, .06, 'Schreibtischschublade', () => { Audio.play('woodSqueak1', { gain: .3, rate: 1.3, x: DX, y: .6, z: DZ, ref: 2 }); openNote('Hildes Brotdose', Z7_BROT, 'z7_brotdose'); });
   if (tasse) { const b = new THREE.Box3().setFromObject(tasse); hit((b.min.x + b.max.x) / 2, b.max.y, (b.min.z + b.max.z) / 2, .14, .14, .14, 'Tasse', () => toast('Tee, eingetrocknet zu einem braunen Ring. Am Rand ein Abdruck von Lippenstift.', 3600)); }
   if (S.jacke) { const b = new THREE.Box3().setFromObject(S.jacke); hit((b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, (b.min.z + b.max.z) / 2, .5, .5, .3, 'Strickjacke', () => toast('Eine Strickjacke, graublau, an den Ellbogen gestopft. Sie riecht noch nach ihr. Nach Kernseife und kaltem Rauch.', 4600)); }
   // Nachhall am Schreibtisch
   try { addEcho(Z7_ECHO); } catch (e) { console.warn('zimmer7 Echo', e); }
+
+  // --- Fassung 3 (AP-16): Monitor mit Post-it, Telefon, der Kaktus auf der „Fensterbank ohne Fenster“, Ordner „2009“ im Aktenschrank (sechs Formblätter 8)
+  try { const crt = msFit((await msModel('crt', 'model.glb')).clone(true), .36, 'x'); const g = norm(crt, { s: .36, axis: 'x' }); onDesk(g, DX + .17, DZ + .24, PI + .15);
+    const pi = cv(128, 128, (c, w) => { c.clearRect(0, 0, w, w); c.fillStyle = '#ecd96c'; c.fillRect(6, 6, w - 12, w - 12); c.fillStyle = 'rgba(0,0,0,.08)'; c.fillRect(6, w - 22, w - 12, 16); c.fillStyle = '#1f2a55'; c.font = '19px Caveat'; ['Do Amt.', 'Fr zählen.', 'So NICHT', 'rangehen (Jonas).'].forEach((t, i) => c.fillText(t, 12, 30 + i * 24)); });
+    const gb = new THREE.Box3().setFromObject(g); const pm = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), decalMat(pi, .9)); pm.position.set(gb.max.x - .03, gb.max.y - .09, gb.min.z - .002); pm.rotation.set(0, PI, .05); pm.userData.noCol = true; scene.add(pm);
+    hit(gb.max.x - .03, gb.max.y - .09, gb.min.z - .05, .12, .12, .1, 'Post-it am Monitor', () => openNote('Post-it am Monitor', '<span class="hand">„Do Amt. Fr zählen. So NICHT rangehen (Jonas).“</span>', 'z7_postit', () => { setTimeout(() => subtitle('„Do Amt. Fr zählen. So nicht rangehen. Jonas.“', 3600, 'LUKE'), 500); }));
+  } catch (e) { console.warn('zimmer7 Monitor', e); }
+  try { const tel = (await msModel('w_telefon', 'model.glb')).clone(true); onDesk(norm(tel, { s: .2, axis: 'max' }), DX - .52, DZ - .18, .5); } catch (e) {}
+  try { // Kaktus (fehlendes Modell: Kaktus im Topf – Rückfall: Tontopf mit feuchter Erde, ein Grasbüschel)
+    const tp = (await msModel('kiffen/topf', 'model.glb')).clone(true); const keep = []; tp.traverse(o => { if (o.isMesh && !/earth|Default/i.test(o.name) && !/earth|Default/i.test(o.material && o.material.name || '')) keep.push(o); }); keep.forEach(o => o.visible = false);
+    const tg = norm(tp, { s: .16 }); const tb = place(tg, iX1 - .2, z0 + .45, { y: 1.1 }); void tb;
+    const cl = (await msModel('w_clover', 'model.glb')).clone(true); const cg = norm(cl, { s: .1, axis: 'max' }); place(cg, iX1 - .2, z0 + .45, { y: 1.1 + .1 });
+    const bord = cv(256, 32, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(0, h - 6, w, 6); });
+    const bm = new THREE.Mesh(new THREE.PlaneGeometry(.55, .18), new THREE.MeshStandardMaterial({ map: tex(bord, true), roughness: .8 })); bm.rotation.x = -PI / 2; bm.position.set(iX1 - .09, 1.1, z0 + .45); bm.rotation.z = PI / 2; bm.userData.noCol = true; scene.add(bm);
+    hit(iX1 - .2, 1.2, z0 + .45, .25, .3, .25, 'Pflanze', () => { toast('Auf einem Wandbrett, wo ein Fenster wäre, wenn es hier eins gäbe: ein Topf. Die Erde ist feucht.', 3800); if (!z7_S.kaktus) { z7_S.kaktus = true; setTimeout(() => say([['Das Einzige hier unten, was noch lebt. Respekt, Kaktus.', 3400, 'LUKE']]), 800); } });
+  } catch (e) { console.warn('zimmer7 Kaktus', e); }
+  hit(iX1 - .3, 1.2, z1 - 1.25, .2, .6, .6, 'Ordner „2009“', () => { const F = [['Reuter', 'Roxy'], ['Winter', 'Heidi'], ['Vegas, L.', 'Mike Kessler'], ['Aydın', 'Dina'], ['Brandt, M.', 'Lucy, Luke'], ['Wendt, H.', 'Zayn']];
+    const fb = (n, k) => `<b>Bundesstelle für Rückführung · Außenstelle Lost Eyengless · Formblatt 8</b>\n<b>Einwilligung zur Rückführung</b> · ${F[n][0]} – ${F[n][1]}\n\n<small>§ 1 Die Unterzeichnenden nehmen zur Kenntnis, dass im Zyklusjahr eine Rückführung von bis zu sieben Personen erforderlich werden kann.\n§ 2 Die Auswahl erfolgt durch Los im Beisein der Gemeinde. Der Losentscheid ist endgültig.\n§ 3 Die Bundesstelle verpflichtet sich, jede rückgeführte Person nach bestem Vermögen abzuholen, zu untersuchen und den Erziehungsberechtigten zu übergeben.</small>\n<b>§ 4 Am Tag der Übergabe setzt die Gemeinde jeder ausgewählten Person einen Gedenkstein. Die Erziehungsberechtigten verzichten auf eine gesonderte Todeserklärung.</b>\n<small>§ 5 Über den Inhalt dieser Einwilligung ist Stillschweigen zu bewahren. Es besteht kein Anlass zur Sorge.\nOrt, Datum · Unterschrift · Unterschrift der Bundesstelle (hw)</small>` + (k || '');
+    Audio.paper(); F.forEach((f, i) => openNote(`Ordner „2009“ · Formblatt 8 · ${i + 1} / 6`, fb(i, i === 4 ? '\n\n<span class="hand">Unten, mit Kuli: zwei Ansätze, der erste durchgestrichen.</span>' : i === 5 ? '\n\n<span class="hand">Auf dem Blatt ein Fleck, der einmal nass war.</span>' : ''), i === 0 ? 'z7_formblatt' : undefined)); });
 
   // --- Spuren: Staub im Lichtkegel nicht; Schmutz am Sockel, ausgetretener Weg Tür → Schreibtisch, Spinnweben in zwei Ecken
   const grime = msSurfMat('grime', { alpha: true, tint: 0x6a6258 }); grime.roughnessMap = null; grime.roughness = .95; grime.opacity = .55;
@@ -320,7 +341,9 @@ WORLD_TICK.push((dt) => {
   // Schreibtischlampe: nur solange man im Raum oder im Durchgang davor ist (Punktlichter werfen keinen Schatten – kein Durchscheinen ins Archiv)
   if (S.lamp) S.lamp.intensity = S.lampOn && P.x > C2.x + 29.6 && P.x < C2.x + 36.4 && P.z > C2.z - 8.4 && P.z < C2.z + 2.2 ? 4.5 : 0;
   // Erster Schritt in Zimmer 7: der Nadeldrucker im Archiv, 01:47
-  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „ZÄHLSCHLUSS 03:13 · RÜCKLÄUFER 08 BETRITT ZIMMER 7.“', 5600); }, 900); }
+  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 BETRITT ZIMMER 7.'); else { z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „ZÄHLSCHLUSS 03:13 · RÜCKLÄUFER 08 BETRITT ZIMMER 7.“', 5600); }, 900); } }
+  if (S.printed && !S.raus && S.gesehen > 2 && !z7_in(-.2) && player.pos.z > C2.z - 1.6) { S.raus = true; if (typeof gedanke === 'function') gedanke('z7_hand', 'Sie hat den Kaktus gegossen und ihren Sohn gezogen. Beides mit derselben Hand.', 400, 3); }
+  if (z7_in(.4)) S.gesehen = (S.gesehen || 0) + dt;
   // 90 s nach „Das bin nicht ich.“
   if (S.gT > 0) { S.gT -= dt; if (S.gT <= 0) { const t = 'Ein Mädchen. Nicht ich. … Warum fühlt sich das an, als hätte ich Glück gehabt?';
       if (typeof gedanke === 'function') gedanke('z7_glueck', t); else if (!state.talking) subtitle(t, 5200, 'LUKE'); } }

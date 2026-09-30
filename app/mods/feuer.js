@@ -16,7 +16,7 @@
 //       Hitzeflimmern (eigener Nachbearbeitungs-Durchgang, ohne Feuer wirkungslos), flackerndes Schattenlicht, danach Ruß an Decke, Wänden und Boden.
 // Leistung: alle Lichter, Durchgänge und Partikelsysteme entstehen beim Laden (Intensität/Anzahl 0) – nie .visible an Lichtern schalten. Keine Zuweisungen pro Bild.
 const feuer_S = { phase: 'idle', lighter: false, done: false, items: false, run: 0, t: 0, H: 0, burnR: 0, spread: 1.1, zs: null, air: 30, hold: 0, said: {}, cues: null, cueBusy: false, snd: {}, lightModes: null, lines: [], soot: 0, frame: 0 };
-const FEU = { bx: X + 104.3, bz: Z - .9, tip: 1, r: .29, h: .86, relX: X + 103.0, relZ: Z + 1.84, oilW: 6.4, oilD: 3.64, fw: 256, fh: 146 };
+const FEU = { bx: X + 76.3, bz: Z - 1.25, tip: 1, r: .29, h: .86, relX: X + 103.0, relZ: Z + 1.84, oilW: 6.4, oilD: 3.64, fw: 256, fh: 146 };
 // ---------------------------------------------------------------- Texturen (prozedural, einmal beim Laden)
 function feuer_canvas(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return c; }
 function feuer_texDot() { return new THREE.CanvasTexture(feuer_canvas(32, 32, (x, w) => { const g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, '#fff'); g.addColorStop(.35, 'rgba(255,255,255,.6)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); })); }
@@ -212,7 +212,7 @@ WORLD_MODS.push(['Feuer', async () => {
     g.position.y = -FEU.h / 2; const piv = new THREE.Group(); piv.add(g); piv.position.set(FEU.bx, FEU.h / 2, FEU.bz); piv.rotation.y = .4; scene.add(piv); S.barrel = piv;
   } catch (e) { console.warn('Feuer: Fass', e); }
   S.bHit = box(.8, 1.1, .8, FEU.bx, .55, FEU.bz, hidden, { cast: false }); S.bHit.userData.noCol = true;
-  interact(S.bHit, () => ch2.chase === 'run' ? 'Fass umstoßen' : 'Ölfass', () => feuer_barrelAct());
+  interact(S.bHit, 'Ölfass', () => feuer_barrelAct());
   // Feuerzeug (Scan) auf der Matratze im Prüfraum
   try { const src = await msModel('w_lighter', 'model.glb'), mk = () => { const m = src.clone(true); m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; if (o.material) { o.material.metalness = Math.max(o.material.metalness || 0, .55); o.material.roughness = Math.min(o.material.roughness ?? 1, .45); } } }); msFit(m, .058); m.rotation.x = -PI / 2; const g = msGround(m); g.userData.noCol = true; return g; };
     const L = S.lighterObj = mk(); const spot = feuer_bedSpot(); L.position.set(spot.x, spot.y + .004, spot.z); L.rotation.y = .7; scene.add(L);
@@ -292,21 +292,20 @@ function feuer_bedSpot() {
   for (const px of [X + 42.12, X + 41.6]) { let top = -1; for (const n of near) { const b = n.b; if (px > b.min.x && px < b.max.x && Z - 4.4 > b.min.z && Z - 4.4 < b.max.z && n.top < .95 && n.top > top) top = n.top; } if (top > .3) return { x: px, y: top - .012, z: Z - 4.4 }; }
   return { x: X + 42.9, y: 0, z: Z - 3.6 };
 }
-function feuer_items() { if (feuer_S.items) return; try { ITEMS.feuerzeug = { name: 'Feuerzeug „P. K.“', desc: 'Messing, zerkratzt. Rückseite: „Für Peter. Damit du im Dunkeln nicht allein bist. – M.“ Es ist noch Benzin drin.' };
+function feuer_items() { if (feuer_S.items) return; try { ITEMS.feuerzeug = { name: 'Peters Feuerzeug', desc: 'Ein Sturmfeuerzeug, Messing, angelaufen. Hinten mit einer Nadel hineingeritzt: „Für Peter. Damit du im Dunkeln nicht allein bist. – M.“' };
   ICONS.feuerzeug = '<svg viewBox="0 0 24 24"><rect x="7" y="10" width="10" height="11" rx="1.5"/><path d="M8 10V7h6v3M11 7c0-2 2-2.5 1.5-5"/></svg>'; feuer_S.items = true; } catch (e) {} }
 function feuer_lighterGone() { const S = feuer_S; S.lighter = true; S.cellFree = true; if (S.lighterObj) S.lighterObj.visible = false; if (S.lHit) uninteract(S.lHit); if (S.glint) S.glint.material.opacity = 0; }
 function feuer_takeLighter() {
   const S = feuer_S; if (S.lighter || state.talking) return; feuer_items(); S.lighter = true; if (S.lHit) uninteract(S.lHit); if (S.glint) S.glint.material.opacity = 0;
   const done = () => { addItem('feuerzeug'); FEU_SND.flick();
-    (async () => { await wait(500); await say([['P. K. … Peter Kranz.', 2400, 'LUKE'], ['Mamas Bruder. Oma hat sein Zimmer nie wieder aufgeschlossen.', 3800, 'LUKE'], ['„M.“ Marion. Sie hat ihm das geschenkt.', 3200, 'LUKE'], ['Was macht sein Feuerzeug hier unten, auf so einem Bett?', 3400, 'LUKE']]); S.cellFree = true; })(); };
-  const html = 'Messing, zerkratzt, schwer für seine Größe. Auf dem Deckel eingraviert: <b>P. K.</b>\n\nAuf der Rückseite, kleiner, mit einer Nadel nachgezogen:\n<span class="hand">„Für Peter. Damit du im Dunkeln nicht allein bist. – M.“</span>\n\nDu klappst es auf. Das Rad kratzt, ein Funke, eine kleine gelbe Flamme. Es ist noch Benzin drin.';
-  if (S.lighterObj) liftTo(S.lighterObj, () => openNote('Ein Feuerzeug', html, 'feuerzeug', done), false); else openNote('Ein Feuerzeug', html, 'feuerzeug', done);
+    (async () => { await wait(500); await say([['M. … Marion. Das ist Mamas Schrift. Sie hat es ihm geschenkt, und er hatte es die ganze Zeit hier unten.', 5600, 'LUKE']]); S.cellFree = true; })(); };
+  const html = 'Ein Sturmfeuerzeug, Messing, angelaufen. Hinten, mit einer Nadel hineingeritzt:\n<span class="hand">„Für Peter. Damit du im Dunkeln nicht allein bist. – M.“</span>\n\nDu klappst es auf. Das Rad kratzt, ein Funke, eine kleine gelbe Flamme. Es ist noch Benzin drin.';
+  if (S.lighterObj) liftTo(S.lighterObj, () => openNote('Peters Feuerzeug', html, 'feuerzeug', done), false); else openNote('Peters Feuerzeug', html, 'feuerzeug', done);
 }
 // ---------------------------------------------------------------- Das Fass
 function feuer_barrelAct() {
   const S = feuer_S; if (S.phase !== 'idle') return;
-  if (ch2.chase !== 'run') { toast('Ein Fass Heizöl, randvoll und schwer. Der Spund ist durchgerostet.', 3800); if (!S.said.fass) { S.said.fass = true; gedanke('feuer_fass', 'Wenn das umkippt, schwimmt der ganze Gang.', 800, 2); } return; }
-  feuer_knock();
+  toast('Ein Fass Heizöl, randvoll und schwer. Der Spund ist durchgerostet.', 3800); if (!S.said.fass) { S.said.fass = true; gedanke('feuer_fass', 'Wenn das umkippt, schwimmt der ganze Gang.', 800, 2); } // Fassung 3 (AP-16): es kippt im Griff, per Skript (feuer_griff)
 }
 function feuer_knock() {
   const S = feuer_S; if (S.phase !== 'idle' || !S.barrel) return; S.phase = 'tip'; S.bt = 0; S.run++; const s = FEU.tip;
@@ -318,6 +317,7 @@ function feuer_barrelUpdate(dt, t) {
   const S = feuer_S, B = S.barrel; if (!B) return; const r = FEU.r, hl = FEU.h / 2, s = FEU.tip;
   if (S.phase === 'tip') { S.bt += dt; const k = Math.min(1, S.bt / .5), a = k * k * PI / 2; // kippt über die Unterkante in die Gangmitte
     B.position.set(FEU.bx, Math.cos(a) * hl + Math.sin(a) * r, S.edgeZ + s * (Math.sin(a) * hl - Math.cos(a) * r)); B.quaternion.setFromAxisAngle(_fax, s * a);
+    if (k >= 1 && S.griffLauf) { S.phase = 'rest'; S.bv = 0; S.bx = FEU.bx; Audio.play('metalSlam', { gain: .8, rate: .75, x: FEU.bx, y: .3, z: S.bz, ref: 4 }); FEU_SND.clank(FEU.bx, S.bz, .7); feuer_spill(); return; } // im Griff: kippt, bleibt liegen, das Öl schießt heraus
     if (k >= 1) { S.phase = 'roll'; S.bv = 5.4; S.bounce = .07; Audio.play('metalSlam', { gain: .9, rate: .75, x: FEU.bx, y: .3, z: S.bz, ref: 4 }); FEU_SND.clank(FEU.bx, S.bz, .7); shake = Math.max(shake, .02);
       FEU_SND.loopNoise('roll', true, { x: FEU.bx, y: .2, z: S.bz, ref: 3, lp: 170, gain: .9 }); } return; }
   if (S.phase !== 'roll' && S.phase !== 'rest') return;
@@ -364,24 +364,24 @@ function feuer_zombieUpdate(dt, t) {
   else if (Q.st === 'down') { Q.down += dt; Q.th = 1.52 + Math.sin(Q.t * 1.7) * .02;
     // rutscht im Öl: versucht sich aufzurichten, gleitet wieder weg
     const cyc = (Q.t % 2.1) / 2.1; Q.sit = cyc < .55 ? Math.sin(cyc / .55 * PI) * .55 : 0; Q.writhe = .6;
+    if (S.griff) { Q.sit = Q.down > 8.5 ? Math.min(.6, (Q.down - 8.5) / 3.5 * .6) : .04 + .02 * Math.sin(Q.t * 1.3); Q.writhe = Q.down > 8.5 ? .3 : .08; Q.slip = true; } // Fassung 3: er liegt im Öl, steht nicht auf, sieht Luke an – erst nach etwa zwölf Sekunden kommt er auf die Knie
     if (cyc > .5 && cyc < .52 && !Q.slip) { Q.slip = true; Audio.play('waterFlow', { gain: .3, rate: .9, lp: 900, dur: .5, x: Q.x - .8, y: .2, z: Q.z, ref: 2 }); Audio.groan(Q.x, Q.z, false); } if (cyc < .1) Q.slip = false;
-    const limit = S.lighter ? 11 : 4.8;
+    const limit = S.griff ? 12 : S.lighter ? 11 : 4.8; // Fassung 3: wer etwa zwölf Sekunden wartet, sieht Peter auf die Knie kommen
     if (!S.said.oel && Q.down > 1.2) { S.said.oel = true; if (S.lighter) subtitle('Er liegt im Öl. Das Feuerzeug in deiner Tasche wiegt plötzlich schwer.', 3600, ''); else say([['Öl. Überall Öl. Wenn ich jetzt Feuer hätte …', 3000, 'LUKE']]); }
     if (Q.down > limit && S.phase !== 'ignite') { Q.st = 'rise'; Q.t = 0; Audio.groan(Q.x, Q.z, true); } }
   else if (Q.st === 'rise') { const k = Math.min(1, Q.t / 1.1); Q.sit = Math.sin(Math.min(1, k * 1.6) * PI / 2) * (1 - k); Q.th = 1.52 * (1 - k * k * (3 - 2 * k)); Q.writhe = .3 * (1 - k);
-    if (k >= 1) { Q.st = null; S.zs = null; S.spent = true; S.fell = false; S.slipIn = 0; zombie.g.rotation.set(0, Q.yaw, 0); feuer_anim(false); ch2.chase = 'run'; Audio.chaseMusic(true); zombie.t = 0; if (!S.said.weiter) { S.said.weiter = true; subtitle('Er steht wieder auf. Das Öl tropft von ihm.', 2800); } return; } }
-  else if (Q.st === 'burn') { // brennt: windet sich, richtet sich auf, greift an dir vorbei zur Tür, bricht zusammen, krümmt sich
-    const b = Q.t; Q.burn = Math.min(1, b / 1.2); Q.char = Math.min(1, b / 9); Q.th = 1.52;
-    if (b < 2.3) { Q.writhe = 1.3; Q.sit = Math.max(0, Math.sin(b * 4.2)) * .35; }
-    else if (b < 3.6) { const k = (b - 2.3) / 1.3; Q.writhe = .7 * (1 - k); Q.sit = .35 + .75 * k * k * (3 - 2 * k); Q.reach = k; }
-    else if (b < 5.0) { Q.writhe = .15; Q.sit = 1.1 + Math.sin(b * 2.2) * .06; Q.reach = 1; }
-    else if (b < 5.7) { const k = (b - 5) / .7; Q.sit = 1.1 * (1 - k * k) - .15 * k; Q.reach = 1 - k; Q.writhe = 0; }
-    else { Q.sit = -.12; Q.reach = 0; Q.curl = Math.min(1, (b - 5.7) / 2.2); Q.writhe = Math.max(0, .25 - (b - 5.7) * .05); if (!Q.thud) { Q.thud = true; TOD_SND.thud(.8); FEU_SND.collapse(Q.x, Q.z); FEU_SND.scream(Q.x, Q.z, 3); } } }
+    if (k >= 1) { zombie.greifT = 99; Q.st = null; S.zs = null; S.spent = true; S.fell = false; S.slipIn = 0; zombie.g.rotation.set(0, Q.yaw, 0); feuer_anim(false); ch2.chase = 'run'; Audio.chaseMusic(true); zombie.t = 0; if (!S.said.weiter) { S.said.weiter = true; subtitle('Er steht wieder auf. Das Öl tropft von ihm.', 2800); } return; } }
+  else if (Q.st === 'nick') { Q.th = 1.52; const k = Q.t / 2; Q.nick = k < .45 ? Math.sin(k / .45 * PI) : 0; Q.weg = k > .5 ? Math.min(1, (k - .5) / .4) : 0; Q.weg = Q.weg * Q.weg * (3 - 2 * Q.weg); // einmal nicken, dann den Kopf wegdrehen
+    if (Q.t >= 2) { Q.st = 'burn'; Q.t = 0; shake = Math.max(shake, .02); } }
+  else if (Q.st === 'burn') { // brennt: liegt, den Kopf abgewandt; krümmt sich langsam zusammen (kein Aufrichten, kein Schrei)
+    const b = Q.t; Q.burn = Math.min(1, b / 1.2); Q.char = Math.min(1, b / 9); Q.th = 1.52; Q.weg = 1; Q.nick = 0; Q.reach = 0; Q.sit = 0;
+    Q.writhe = b < 3 ? .35 * Math.min(1, b) : Math.max(0, .35 - (b - 3) * .08); Q.curl = Math.min(1, Math.max(0, b - 2.5) / 4);
+    if (b > 5.5 && !Q.thud) { Q.thud = true; TOD_SND.thud(.5); FEU_SND.collapse(Q.x, Q.z); } }
   zombie.g.position.set(Q.x, .1 * Math.sin(Math.max(0, Q.th)), Q.z); zombie.g.rotation.set(0, Q.yaw, Q.th);
   zombie.x = Q.x; zombie.z = Q.z;
 }
 // Knochen nach dem Animations-Mixer (dieser Tick läuft nach innen_kapitel): Haltung im Liegen, Aufrichten, Greifen, Krümmen
-const _fzq = new THREE.Quaternion(), _fzl = new THREE.Vector3(), _fzf = new THREE.Vector3(), _fzp = new THREE.Vector3();
+const _fzq = new THREE.Quaternion(), _fzl = new THREE.Vector3(), _fzf = new THREE.Vector3(), _fzp = new THREE.Vector3(), _fzu = new THREE.Vector3();
 function feuer_bones(t) {
   const S = feuer_S, Q = S.zs, Zm = feuer_zs(); if (!Q || !Zm || !Zm.b || !zombie.g.visible) return; const b = Zm.b;
   Zm.zm.getWorldQuaternion(_fzq); _fzl.set(1, 0, 0).applyQuaternion(_fzq); _fzf.set(0, 0, 1).applyQuaternion(_fzq);
@@ -393,6 +393,7 @@ function feuer_bones(t) {
   tod_bend(b.spine_02, _fzf, sw3 * .22); tod_bend(b.neck_01, _fzl, s * .15 - sw * .2 + cu * .3);
   tod_bend(b.upperarm_l, _fzl, -ar - rc * 1.35 - cu * .8 + sw * .5); tod_bend(b.upperarm_r, _fzl, -ar - rc * 1.15 - cu * .7 - sw2 * .5);
   tod_bend(b.upperarm_l, _fzf, sw3 * .4); tod_bend(b.upperarm_r, _fzf, -sw * .4);
+  if (Q.nick || Q.weg) { _fzu.set(0, 1, 0).applyQuaternion(_fzq); tod_bend(b.neck_01, _fzl, (Q.nick || 0) * .42); tod_bend(b.head, _fzl, (Q.nick || 0) * .2); tod_bend(b.neck_01, _fzu, -(Q.weg || 0) * .7); tod_bend(b.head, _fzu, -(Q.weg || 0) * .45); }
   tod_bend(b.lowerarm_l, _fzl, -rc * .15 - cu * 1.5 - Math.abs(sw2) * .4); tod_bend(b.lowerarm_r, _fzl, -rc * .3 - cu * 1.5 - Math.abs(sw) * .4);
   tod_bend(b.thigh_l, _fzl, -cu * .8 - Math.max(0, sw) * .5); tod_bend(b.thigh_r, _fzl, -cu * .7 - Math.max(0, sw3) * .5);
   tod_bend(b.calf_l, _fzl, cu * 1.1 + Math.max(0, sw) * .8); tod_bend(b.calf_r, _fzl, cu * 1.0 + Math.max(0, sw3) * .8);
@@ -432,13 +433,13 @@ async function feuer_ignite() {
   // Zündpunkt: der nächste nasse Punkt vor Luke
   let bi = -1, bd = 1e9; const A = S.pts; for (let i = 0; i < A.length; i += 3) { if (A[i + 2] < S.spread + .06) continue; const d = Math.hypot(A[i] - P.x, A[i + 1] - P.z); if (d < bd) { bd = d; bi = i; } }
   S.ignX = bi >= 0 ? A[bi] : Q.x + .8; S.ignZ = bi >= 0 ? A[bi + 1] : Q.z; S.oilU.uIgn.value.set(S.ignX, S.ignZ);
-  story.items = story.items.filter(k => k !== 'feuerzeug');
+  // Fassung 3 (AP-16): Peters Feuerzeug bleibt bei Luke (Kap. 4 Joint, Kap. 5 Mamas Kerze, Kap. 6 Gravur) – geworfen wird nur die Flamme (ein brennender Fetzen vom Ärmel)
   subtitle('Das Feuerzeug. Der Daumen findet das Rad von allein.', 2600);
   await wait(500); if (run !== S.run) return; FEU_SND.flick();
   // Wurf: vom Auge in einem Bogen zum Zündpunkt, die kleine Flamme fliegt mit
   const T = S.throwObj, sx = camera.position.x + f.x * .3 - f.z * .15, sy = camera.position.y - .25, sz = camera.position.z + f.z * .3 + f.x * .15;
   await wait(450); if (run !== S.run) return;
-  S.throwT = { t: 0, sx, sy, sz, ex: S.ignX, ez: S.ignZ, d: .62 }; if (T) T.position.set(sx, sy, sz);
+  S.throwT = { t: 0, sx, sy, sz, ex: S.ignX, ez: S.ignZ, d: .62 }; if (T) { T.position.set(sx, sy, sz); T.visible = false; }
   await wait(640); if (run !== S.run) return;
   if (T) T.position.set(0, -60, 0); S.throwT = null;
   // Zündung: Sog, „Wuff“, Brüllen in drei Bändern, zischendes Öl
@@ -449,13 +450,13 @@ async function feuer_ignite() {
   // Ruß-Flächen an die Brandstelle
   S.sootC.position.set(S.oilX + .6, C2.h - .012, Z); S.sootN.position.set(S.oilX + .6, 1.15, Z + 1.835); S.sootS.position.set(S.oilX + .6, 1.15, Z - 1.835);
   const at = (ms, fn) => S.lines.push(setTimeout(() => { if (run === S.run && (S.phase === 'burn' || S.phase === 'escape')) fn(); }, ms));
-  at(2100, () => subtitle('Um sein Handgelenk schmilzt ein Plastikband. Darauf, gerade noch lesbar: <b>KRANZ, P.</b>', 4200));
-  at(5000, () => subtitle('Onkel Peter …?', 2200, 'LUKE'));
-  at(7700, () => subtitle('Er wollte nicht zu mir. Er wollte raus.', 3300, 'LUKE'));
+  at(1300, () => subtitle('Die Flamme läuft über das Öl. Er sieht sie kommen.', 2600));
+  at(4200, () => subtitle('Um sein Handgelenk schmilzt ein Plastikband: <b>KRANZ, P.</b>', 3800));
+  at(7400, () => subtitle('Onkel Peter …?', 2400, 'LUKE'));
   at(10200, () => { if (S.cine) S.cine.out = S.cine.t; });
   at(11400, () => feuer_escapeStart());
 }
-function feuer_zombieIgnite() { const S = feuer_S, Q = S.zs; if (!Q || Q.st === 'burn') return; Q.st = 'burn'; Q.t = 0; FEU_SND.scream(Q.x, Q.z, 0); setTimeout(() => { if (S.zs === Q) FEU_SND.scream(Q.x, Q.z, 1); }, 1600); setTimeout(() => { if (S.zs === Q) FEU_SND.scream(Q.x, Q.z, 2); }, 3300); shake = Math.max(shake, .03); }
+function feuer_zombieIgnite() { const S = feuer_S, Q = S.zs; if (!Q || Q.st === 'burn' || Q.st === 'nick') return; Q.st = 'nick'; Q.t = 0; Q.nick = 0; Q.weg = 0; Q.writhe = 0; Q.sit = 0; } // Fassung 3: Peter sieht die Flamme kommen. Er nickt. Einmal.
 
 // ---------------------------------------------------------------- Flucht vor dem Rauch
 function feuer_escapeStart(restart) {
@@ -473,7 +474,7 @@ function feuer_escapeStart(restart) {
   setC2Objective('Raus hier! Der Rauch … Die Brandschutztür hat eine Notentriegelung.'); S.airEl.classList.add('show');
   todCheckpoint('flucht', 'Flucht vor dem Rauch', { x: S.escPos.x, y: 0, z: S.escPos.z, yaw: -PI / 2, persist: false, respawn: async () => { player.pos.set(S.escPos.x, 0, S.escPos.z); player.yaw = -PI / 2; } });
   const at = (ms, fn) => S.lines.push(setTimeout(() => { if (run === S.run && S.phase === 'escape') fn(); }, ms));
-  if (!restart) { say([['„Brandalarm. Ebene minus zwei. Brandschutztüren schließen.“', 3400, 'LAUTSPRECHER'], ['„Bitte nicht rennen.“ … *Kichern*', 2400, 'LAUTSPRECHER']]);
+  if (!restart) { say([['„Brandalarm. Ebene minus zwei. Brandschutztüren schließen.“', 3400, 'LAUTSPRECHER']]);
     at(6300, () => subtitle('Die Tür ist zu. Irgendwo hier muss man sie aufkriegen.', 3200, 'LUKE')); }
   else at(1200, () => subtitle('Die rote Leuchte. Die Notentriegelung.', 2800, 'LUKE'));
   at(15000, () => { TOD_SND.cough(1); subtitle('Nicht einatmen. Nicht …', 2200, 'LUKE'); });
@@ -507,20 +508,20 @@ function feuer_escapeUpdate(dt, t) {
   if (S.air <= 0 && S.phase === 'escape') { S.phase = 'dying'; $('sideInfo').textContent = ''; FEU_SND.loopNoise('breath', false); todDie('rauch'); }
 }
 async function feuer_escaped() {
-  const S = feuer_S; S.phase = 'done'; S.done = true; const run = ++S.run;
+  const S = feuer_S; S.phase = 'done'; S.done = true; const run = ++S.run; if (typeof amt_danke === 'function') try { amt_danke(); } catch (e) {} // B-K2-04 liegt schon auf der Schwelle
   chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; chaseDoor.lockedText = 'Dahinter brennt es noch. Die Tür ist heiß.'; Audio.slam(); ch2.chase = 'done';
   feuer_cue('b', false); FEU_SND.loopNoise('draft', false); FEU_SND.loopNoise('draft2', false); FEU_SND.loopNoise('breath', false); S.airEl.classList.remove('show'); $('sideInfo').textContent = '';
   todMuffle(22000, 2.5);
   tod_S.seen.mess = true; todCheckpoint('messraum', 'Der Messraum', { x: X + 108.2, y: 0, z: Z, yaw: -PI / 2 });
   S.clearT = 0; // Sicht klärt sich im Tick
   setTimeout(() => { if (S.done) { zombie.g.visible = false; S.zs = null; feuer_stopFire(); } }, 2500);
-  try { const A = Audio; if (A.ctx) KI.pad(A.ctx, A.master, A.ctx.currentTime + .6, [KN('D3'), KN('A3'), KN('F4')], 9, .022, 800); } catch (e) {}
+  S.nachT = 0; // Fassung 3: kein Musikeinsatz; dreißig Sekunden nur Lüftung, dann kommen die Blechmänner (lwo_ag07)
+  try { Audio.play('wind2', { gain: .12, rate: .6, dur: 30, fadeIn: 2, x: X + 108, y: 2.3, z: Z, ref: 4 }); } catch (e) {}
   await wait(500); TOD_SND.cough(1.1); await wait(1100); TOD_SND.cough(.8); TOD_SND.gasp(.7); await wait(900);
   if (run !== S.run) return;
   setC2Objective('Der Messraum. Hier ist es passiert.');
-  await say([['Luft. Kalte Luft.', 2400, 'LUKE'], ['Hinter der Tür knistert es. Dann nichts mehr.', 3200], ['Ich hab ihn angezündet. Mamas Bruder. Mit dem Feuerzeug, das sie ihm geschenkt hat.', 4600, 'LUKE'],
-    ['Bei Oma im Flur hängen zwei Fotos von ihm. Auf dem einen hat er blaue Augen. Zwei Jahre später braune.', 4800, 'LUKE'], ['… Meine sind auch braun.', 3000, 'LUKE']]);
-  gedanke('feuer_nachher', 'Vierunddreißig Jahre hier unten. Er hat es die ganze Zeit gewusst. Und keiner ist gekommen.', 25000, 2);
+  await say([['Hinter der Tür knistert es. Dann nichts mehr.', 3400]]); await wait(1200);
+  await say([['Ich hab ihn angezündet. Mamas Bruder. Mit dem Feuerzeug, das sie ihm geschenkt hat.', 4800, 'LUKE']]);
 }
 function feuer_stopFire() { const S = feuer_S; S.H = 0; S.burnR = 0; for (const P of [S.pw, S.pf, S.pc, S.ps, S.pe]) { P.n = 0; P.g.instanceCount = 0; } S.fireP.intensity = S.bodyL.intensity = S.redL.intensity = 0; S.relLamp.material.opacity = 0; if (S.haze) S.haze.uniforms.uAmt.value = 0;
   for (const k of ['roar', 'roar2', 'hiss', 'draft', 'draft2', 'breath']) FEU_SND.loopNoise(k, false); FEU_SND.alarm(false); S.oilU.uHeat.value = 0; S.heatCol.minX = -9999; S.heatCol.maxX = -9998; }
@@ -546,7 +547,7 @@ function feuer_reset(cpId) {
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
   // alles auf Anfang: Fass steht, kein Öl, kein Feuer, kein Ruß, Verfolger fort, Tür offen
-  S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
+  S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
   if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; S.barrel.userData.noCol = false; }
   if (!interactables.includes(S.bHit)) interact(S.bHit, S.bHit.userData.label, S.bHit.userData.action);
   S.oil.position.y = -40; S.oilU.uSpread.value = 1.1; S.oilU.uBurnR.value = 0; S.oilU.uHeat.value = 0; S.oilU.uChar.value = 0;
@@ -560,7 +561,7 @@ function feuer_reset(cpId) {
   if (S.lighter && !story.items.includes('feuerzeug')) story.items.push('feuerzeug');
   setScripted(null); if (camOverride === feuer_cam) setCamOverride(null);
 }
-TOD_RESET.push((id) => feuer_reset(id));
+setTimeout(() => { try { TOD_RESET.push((id) => feuer_reset(id)); } catch (e) {} }, 0); // verzögert wie augenzu (TOD_RESET aus tod.js)
 MOD_SAVE.push(['feuer', () => ({ l: feuer_S.lighter, d: feuer_S.done }), v => { feuer_items(); if (v.l) { feuer_lighterGone(); if (!v.d && !story.items.includes('feuerzeug')) story.items.push('feuerzeug'); } if (v.d) feuer_S.done = true; }]);
 
 // ---------------------------------------------------------------- Pro Bild
@@ -579,7 +580,8 @@ WORLD_TICK.push((dt, t) => {
         S.glint.material.opacity += ((lit ? .55 + .45 * Math.pow(Math.max(0, Math.sin(t * 3.1)), 8) : .08) - S.glint.material.opacity) * Math.min(1, dt * 8); S.glint.scale.setScalar(.1 + .05 * Math.sin(t * 2.3));
         if (lit && d < 4.5 && ch2.spiderPhase === 'gone') gedanke('feuer_glanz', 'Da, auf der Matratze. Da glänzt was.', 0, 2); }
       else S.glint.material.opacity = 0; }
-    if (ch2.chase === 'run' && S.phase === 'idle' && !S.said.fassHint && Math.hypot(P.x - FEU.bx, P.z - FEU.bz) < 4.5) { S.said.fassHint = true; subtitle('Das Ölfass! Umwerfen!', 1800, 'LUKE'); }
+    if (ch2.chase === 'run' && !S.said.klemmt && typeof gate !== 'undefined' && !gate.userData.open && gate.userData.holdT > .9) { S.said.klemmt = true; subtitle('Es klemmt!', 1400, 'LUKE'); }
+    { const Zm = feuer_zs(); if (Zm && Zm.mx && ch2.chase === 'run' && zombie.spNow !== undefined && !S.zs) for (const a of Zm.mx._actions || []) if (/walk/i.test(a.getClip().name)) a.timeScale = zombie.spNow < .05 ? .05 : .55 + zombie.spNow * .42; } // er geht; schnell nur, wenn er will
     feuer_barrelUpdate(dt, t); feuer_zombieUpdate(dt, t); feuer_bones(t);
     // Wurf des Feuerzeugs
     if (S.throwT && S.throwObj) { const W = S.throwT; W.t += dt; const k = Math.min(1, W.t / W.d); S.throwObj.position.set(W.sx + (W.ex - W.sx) * k, W.sy + (.02 - W.sy) * k + Math.sin(k * PI) * .45, W.sz + (W.ez - W.sz) * k); S.throwObj.rotation.set(k * 9, k * 5, 0);
@@ -591,12 +593,13 @@ WORLD_TICK.push((dt, t) => {
       if (!S.said.feuer) { S.said.feuer = true; subtitle('Das Feuerzeug.', 1600, 'LUKE'); } }
     else if (interactables.includes(S.ignHit)) { uninteract(S.ignHit); S.ignHit.position.set(0, -80, 0); }
     // Peters Zelle: Osttür erst mit dem Feuerzeug; die Tafel liegt bis zum Schwarm unter dem Gespinst
-    feuer_cellDoor(dt);
+    feuer_cellDoor(dt); feuer_lampeTick(dt);
+    if (S.done && S.nachT !== undefined) { S.nachT += dt; if (S.nachT > 30 && typeof lwo_ag07 === 'function') lwo_ag07(); } if (typeof lwo_ag07Tick === 'function') lwo_ag07Tick(dt); // dreißig Sekunden Lüftung, dann AG-07
     if (!S.tafelFree && ch2.spiderPhase === 'gone' && typeof innen_kapitel_S !== 'undefined' && innen_kapitel_S.pruefCover) { S.tafelFree = true; innen_kapitel_S.pruefCover.visible = false; }
     // Die Brandschutztür ist zu (kein Weg ohne Feuer): Luke merkt es während der Jagd
     if (ch2.chase === 'run' && !S.said.tuer && P.x > X + 103.8) { S.said.tuer = true; Audio.thump(X + 106, 1.2, Z); subtitle('Zu! Die Tür ist zu! „Nur bei Brandalarm“ …', 2600, 'LUKE'); }
     // Peter ist wieder auf den Beinen und läuft durchs Öl: er rutscht noch einmal weg (einmal – dann kommt er durch)
-    if (ch2.chase === 'run' && S.spent && !S.fell && S.spilled && (S.slips || 0) < 1 && zombie.g.visible && zombie.x > S.oilMinX + .4 && zombie.x < S.oilMaxX - .2 && Math.abs(zombie.z - Z) < 1.6) {
+    if (ch2.chase === 'run' && !S.griff && S.spent && !S.fell && S.spilled && (S.slips || 0) < 1 && zombie.g.visible && zombie.x > S.oilMinX + .4 && zombie.x < S.oilMaxX - .2 && Math.abs(zombie.z - Z) < 1.6) {
       S.slipIn = (S.slipIn || 0) + dt; if (S.slipIn > .9) { S.slipIn = 0; S.slips = (S.slips || 0) + 1; feuer_zombieFall(false); if (S.zs) S.zs.down = 3.5; subtitle('Er rutscht im Öl weg. Noch einmal.', 2200); } }
     // Feuer
     const burning = S.phase === 'burn' || S.phase === 'escape' || S.phase === 'dying' || (S.phase === 'done' && S.H > 0);
@@ -647,3 +650,30 @@ WORLD_TICK.push((dt, t) => {
       scene.fog.density += (S.fog0.d - scene.fog.density) * Math.min(1, dt * 2 + k * k); if (k >= 1) feuer_restoreView(); else { filmPass.uniforms.vig.value += (S.vig0 - filmPass.uniforms.vig.value) * dt * 2; if (k > .5) renderer.domElement.style.filter = ''; } }
   } catch (e) { if (!S.err) { S.err = true; console.warn('Feuer-Tick', e); } }
 });
+
+// =====================================================================  Fassung 3 (AP-16): Der Griff (Kinosequenz Teil A „Bruder.“) – Pflicht, am klemmenden Gitter
+// tod.js leitet den ersten Fang hierher (danach tötet jeder Fang). Luke steht am Gitter und sieht nach Osten; Peter kommt von hinten.
+// Das Fass steht neben dem Gitter (FEU); liegt es weiter weg (Griff anderswo), wird es neben die beiden gestellt, bevor die Kamera hinsieht.
+// Nach der Sequenz: Peter liegt zwei Meter weiter im Öl und sieht Luke an, die Stablampe liegt zwischen ihnen (Licht vom Boden), „Das Öl anzünden“ mit unsichtbarem Timer.
+async function feuer_griff() { const S = feuer_S; if (S.griff || S.griffLauf) return; S.griffLauf = true; ch2.chase = 'griff'; ch2.caught++; Audio.chaseMusic(false); Audio.chaseLevel(0);
+  const P = player.pos; player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
+  const ax = P.x, az = Math.max(Z - 1.25, Math.min(Z + 1.25, P.z)), Lx = ax - 1.3, Lz = Math.max(Z - 1.1, Math.min(Z + 1.1, az));
+  if (Math.hypot(FEU.bx - (ax - .5), FEU.bz - (Z - 1.25)) > 2.2) { FEU.bx = ax - .5; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; } if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); }
+  if (typeof gate !== 'undefined' && !gate.userData.open && Math.abs(gate.position.x - ax) < 3) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); $('sideInfo').textContent = ''; }
+  zombie.x = Lx; zombie.z = Lz; S.griffLauf = true;
+  if (!S.griffGesehen && typeof kino_play === 'function' && typeof KINO !== 'undefined' && KINO.k2a && typeof kino_S !== 'undefined' && kino_S.ready) { S.griffGesehen = true; try { await kino_play('k2a'); } catch (e) { console.warn('Kino k2a', e); } }
+  else { S.griffGesehen = true; shake = Math.max(shake, .05); Audio.play('metalSlam', { gain: .5, rate: .6, x: ax - .5, y: .4, z: Z - 1, ref: 3 }); await fade(1, 250); feuer_knock(); await wait(900); fade(0, 800); }
+  if (S.phase === 'idle') feuer_knock(); await wait(80); if (!S.spilled) { S.fell = true; zombie.x = Lx; zombie.z = Lz; feuer_spill(); }
+  // Peter liegt auf der Seite im Öl und sieht Luke an
+  S.fell = true; S.zs = { st: 'down', t: 0, th: 1.52, yaw: Math.atan2(1, 0) + PI / 2, x: Lx, z: Lz, sit: 0, reach: 0, curl: 0, writhe: 0, char: 0, burn: 0, down: 0, arms: 0 };
+  zombie.g.visible = true; feuer_anim(true); ch2.chase = 'fire'; S.griff = true; S.griffLauf = false; S.said.oel = false;
+  camY = Math.min(camY, .95); // auf den Knien
+  S.lampe = { x: (ax + Lx) / 2 + .15, z: Lz + .35, a: PI + .25 };
+  if (!S.lampeHit) { S.lampeHit = box(.5, .3, .5, 0, .15, 0, hidden, { cast: false }); S.lampeHit.userData.noCol = true; }
+  S.lampeHit.position.set(S.lampe.x, .15, S.lampe.z); interact(S.lampeHit, 'Stablampe aufheben', () => { S.lampe = null; uninteract(S.lampeHit); Audio.play('switch2', { gain: .25, rate: 1.2 }); });
+  try { if (typeof todCheckpoint === 'function') {} } catch (e) {} }
+// Die Lampe liegt auf dem Boden: der Kegel liegt flach über dem Beton und zeigt auf das Öl (die Lampe ist das einzige Licht, das zählt)
+const _flq = new THREE.Quaternion(), _fle = new THREE.Euler(0, 0, 0, 'YXZ');
+function feuer_lampeTick() { const S = feuer_S, L = S.lampe; if (!L || typeof flashRig === 'undefined') return;
+  flashRig.position.set(L.x, .09, L.z); _fle.set(-.06, L.a, 0, 'YXZ'); _flq.setFromEuler(_fle); flashRig.quaternion.copy(_flq); flashRig.updateMatrixWorld();
+  if (typeof fogUniforms !== 'undefined') { fogUniforms.flP.value.copy(flashRig.position); fogUniforms.flD.value.set(0, 0, -1).applyQuaternion(flashRig.quaternion); } }
