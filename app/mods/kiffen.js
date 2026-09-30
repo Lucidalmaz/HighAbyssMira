@@ -328,6 +328,7 @@ const kf_PR = {}; // name → { o }
 function kf_prop(name, o) { o.visible = false; o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } }); kf_R.seat.add(o); kf_PR[name] = { o }; return o; }
 function kf_keyLage(K, oP, oQ) { const V = KF_V;
   if (K.a) { const P = kf_P[K.a], Q = kf_HQ[K.a]; oP.set(K.p[0], K.p[1], K.p[2]).applyQuaternion(Q).add(P.w); oQ.copy(Q).multiply(V.q0.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2]))); }
+  else if (K.d) { oP.set(K.p[0], K.p[1], K.p[2]); oQ.setFromUnitVectors(V.v4.set(1, 0, 0), V.v3.set(K.d[0], K.d[1], K.d[2])); } // Richtung der Längsachse (Joint)
   else { oP.set(K.p[0], K.p[1], K.p[2]); oQ.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2])); } }
 const kf_kp = [new THREE.Vector3(), new THREE.Vector3()], kf_kq = [new THREE.Quaternion(), new THREE.Quaternion()];
 function kf_propSetzen(name, A, B, k) { const pr = kf_PR[name]; if (!pr) return; const o = pr.o;
@@ -338,58 +339,79 @@ function kf_propSetzen(name, A, B, k) { const pr = kf_PR[name]; if (!pr) return;
 // Posen-Bibliothek (Sitzraum: Ursprung Augenpunkt, x rechts, y oben, −z vorn). Spiegeln: x → −x
 const KF_SPIEGEL = p => KP([-p.w[0], p.w[1], p.w[2]], [-p.f[0], p.f[1], p.f[2]], [-p.n[0], p.n[1], p.n[2]], p.c.slice(), p.s, p.t);
 const KF_H = {};
-function kf_posen() { const H = KF_H;
-  H.ruheR = KP([.17, -.64, -.25], [-.12, -.25, -1], [-.1, -1, .15], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
-  H.vornR = KP([.1, -.45, -.29], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
-  H.schaleL = KP([-.075, -.47, -.29], [.42, .1, -.9], [.1, 1, .15], [.42, .5, .56, .62, .7], .08, .35); // Grinder in der linken Handfläche
-  H.griffR = KP([.07, -.33, -.26], [-.52, -.42, -.74], [-.2, -.9, .3], [.55, .6, .64, .68, .72], .25, .75); // Deckel von oben gefasst
-  H.taschR = KP([.3, -.68, -.05], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR); // Hand in der Jackentasche (unten aus dem Bild)
-  H.zangeR = KP([.085, -.4, -.25], [-.5, .1, -.86], [-.35, .8, .35], [.55, .5, .7, .85, .92], .05, .95); // Daumen + Zeigefinger (Knolle, Pappe, Blatt)
-  H.blattL = KP([-.085, -.42, -.28], [.52, .12, -.85], [.3, .9, .25], [.5, .3, .42, .6, .72], .1, .65); H.blattR = KF_SPIEGEL(H.blattL); // Blättchen zwischen Daumen und Fingern
-  H.rollL = KP([-.06, -.4, -.29], [.55, .25, -.8], [.2, .92, .3], [.62, .42, .5, .62, .72], .06, .85); H.rollR = KF_SPIEGEL(H.rollL);
-  H.kippR = KP([.08, -.34, -.27], [-.55, -.1, -.83], [-.9, .3, .2], [.55, .6, .64, .7, .75], .1, .7); // Grinder über dem Blatt gekippt
-  H.mundR = KP([.035, -.2, -.14], [-.55, .62, -.55], [-.75, -.2, .6], [.6, .55, .62, .7, .78], .05, .8); // Joint am Mund (Daumen + Zeigefinger)
-  H.haltR = KP([.1, -.38, -.28], [-.48, .3, -.83], [-.55, .75, .35], [.6, .55, .62, .72, .8], .05, .8); // Joint vor sich
-  H.feuerL = KP([-.07, -.3, -.23], [.3, .55, -.78], [.85, .05, .5], [.62, .7, .74, .78, .8], .05, .6); // Feuerzeug aufrecht, Daumen am Rad
-  H.gravurL = KP([-.05, -.36, -.26], [.35, .2, -.9], [0, .95, .3], [.55, .62, .66, .7, .74], .05, .55); // Feuerzeug liegt in der Hand, Rückseite nach oben
+// Griffpunkte in der Hand (x Daumenseite, y entlang der Finger, z aus der Handfläche) – aus den Knochen der Bindepose gemessen
+const KF_OFF = { palm: [0, .08, .026], pinch: [.048, .125, .042], top: [0, .072, .022] };
+// Pose über einen Griffpunkt: das Handgelenk ergibt sich aus Lage der Hand und Griffpunkt (g = Punkt in der Welt, der im Griff liegen soll)
+function KG(side, g, f, n, c, s, t, off) { const V = KF_V, Y = V.v0.set(f[0], f[1], f[2]).normalize(), Z = V.v1.set(n[0], n[1], n[2]).addScaledVector(Y, -Y.dot(V.v1.set(n[0], n[1], n[2]))).normalize(), X = V.v2.crossVectors(Y, Z);
+  const o = V.v3.set(off[0] * (side === 'R' ? 1 : -1), off[1], off[2]).applyQuaternion(V.q0.setFromRotationMatrix(V.m0.makeBasis(X, Y, Z)));
+  return KP([g[0] - o.x, g[1] - o.y, g[2] - o.z], f, n, c, s, t); }
+const kf_n = (x, y, z) => { const l = Math.hypot(x, y, z); return [x / l, y / l, z / l]; }, kf_add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+const KF_ORT = {}; // wichtige Punkte (Sitzraum)
+function kf_posen() { const H = KF_H, O = KF_ORT, F = KF_OFF;
+  O.G0 = [-.035, -.44, -.42]; O.nL = kf_n(.12, 1, .1); O.T = kf_add(O.G0, O.nL, .047); // Grinder in der linken Hand, Deckeloberseite
+  O.P = [0, -.35, -.4]; O.Prx = -1.0; O.Pm = [0, -.14, -.19]; // Blättchen vor der Brust, beim Lecken am Mund
+  O.M = [0, -.085, -.07]; O.dH = kf_n(-.78, .18, -.6); O.JH = [.1, -.4, -.34]; O.dM = kf_n(.12, -.32, -.94); O.JM = kf_add(O.M, O.dM, .0525); O.tip = kf_add(O.M, O.dM, .105);
+  O.F0 = kf_add(O.tip, [0, -.074, .004]); // Feuerzeug (Unterkante) unter der Spitze
+  H.ruheR = KP([.17, -.66, -.22], [-.12, -.3, -1], [-.1, -1, .3], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
+  H.vornR = KP([.11, -.47, -.3], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
+  H.taschR = KP([.3, -.7, -.02], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR);
+  H.schaleL = KG('L', O.G0, [.4, .08, -.91], O.nL, [.45, .52, .58, .64, .7], .08, .35, F.palm);
+  H.griffR = KG('R', kf_add(O.T, [0, .004, 0]), [-.85, -.3, -.42], [-.2, -1, .15], [.5, .56, .6, .64, .68], .25, .75, F.top); // von rechts über den Deckel (der Unterarm bleibt rechts)
+  H.zangeR = KG('R', kf_add(O.T, [.005, .05, 0]), [-.8, -.15, -.58], [-.35, -.8, .45], [.55, .5, .7, .85, .92], .05, .95, F.pinch);
+  H.dropR = KG('R', kf_add(O.T, [.0, .014, 0]), [-.8, -.25, -.55], [-.35, -.8, .45], [.35, .3, .6, .85, .92], .25, .6, F.pinch);
+  const ex = [Math.cos(O.Prx) * 0, 0, 0]; void ex;
+  H.blattL = KG('L', kf_add(O.P, [-.046, 0, 0]), [.55, -.1, -.83], [.2, .8, .55], [.5, .32, .44, .6, .72], .1, .65, F.pinch); H.blattR = KF_SPIEGEL(H.blattL);
+  H.rollL = KG('L', kf_add(O.P, [-.032, .012, .004]), [.35, .45, -.82], [.8, .2, .55], [.62, .44, .52, .64, .74], .06, .85, F.pinch); H.rollR = KF_SPIEGEL(H.rollL);
+  H.leckL = KG('L', kf_add(O.Pm, [-.032, .012, .004]), [.35, .5, -.79], [.8, .2, .55], [.62, .44, .52, .64, .74], .06, .85, F.pinch); H.leckR = KF_SPIEGEL(H.leckL);
+  H.schaleR = KG('R', [.07, -.4, -.4], [-.4, .08, -.91], [-.12, 1, .1], [.45, .52, .58, .64, .7], .08, .35, F.palm);
+  H.kippR = KG('R', kf_add(O.P, [.0, .085, .015]), [-.5, .15, -.85], [-.25, -.9, .35], [.5, .55, .6, .66, .72], .1, .5, F.palm);
+  H.haltR = KG('R', kf_add(O.JH, O.dH, -.0315), [-.55, .55, -.62], [-.55, .2, .8], [.6, .5, .66, .78, .86], .05, .85, F.pinch);
+  H.mundR = KG('R', kf_add(O.M, O.dM, .021), [-.55, .7, .45], [-.8, -.35, -.5], [.6, .5, .66, .78, .86], .05, .85, F.pinch);
+  H.feuerR = KG('R', kf_add(O.F0, [0, .026, 0]), [-.5, -.05, -.86], [-.88, .1, .45], [.66, .7, .74, .78, .8], .04, .2, F.palm); // Feuerzeug aufrecht in der Rechten, Daumen am Rad
+  H.schirmL = KG('L', kf_add(O.tip, [-.035, -.015, .0]), [.25, .55, -.8], [.92, .1, .35], [.3, .32, .36, .42, .5], .12, .3, F.palm); // linke Hand schirmt die Flamme ab
+  H.feuerL = H.schirmL;
+  H.gravurL = KG('L', [-.015, -.2, -.2], [.45, .4, -.8], [.05, .85, .5], [.5, .56, .6, .64, .68], .05, .5, F.palm);
 }
 // ---------------------------------------------------------------- Die Schritte der Szene
-// art: 'auto' (läuft von selbst) · 'klick' (Klick löst die Bewegung aus, dann dauer s) · 'halten' (Maustaste/Leertaste halten: dauer s) · 'maus' (bedarf px Mausweg)
+// art: 'auto' (läuft von selbst) · 'klick' (Klick löst die Bewegung aus, dann dauer s) · 'halten' (Maustaste/Leertaste halten: dauer s) · 'maus' (bedarf px Mausweg) · 'rauchen'
 // keys: [[t 0…1, { L, R, pr: { name: key | null }, ch: { … }, cam: [yaw, pitch] }], …] – fehlende Einträge übernehmen den Stand davor
-const KF_GR = { bodyP: [0, .08, .024], bodyR: [Math.PI / 2, 0, 0] };
+const KF_GR = { bodyP: KF_OFF.palm, bodyR: [Math.PI / 2, 0, 0] };
 const KF_STEPS = [];
-function kf_schritte() { const H = KF_H, S = KF_STEPS; S.length = 0; const gb = { a: 'L', p: KF_GR.bodyP, r: KF_GR.bodyR }, deckelAuf = h => ({ a: 'L', p: [0, .08, .024 + (kiffen_S.gr ? kiffen_S.gr.cut : .027) + h], r: KF_GR.bodyR });
-  const lidR = { a: 'R', p: [.0, .1, .034], r: [-Math.PI / 2, 0, 0] };
+function kf_schritte() { const H = KF_H, S = KF_STEPS, O = KF_ORT, F = KF_OFF, cut = kiffen_S.gr ? kiffen_S.gr.cut : .027; S.length = 0; const PI2 = Math.PI / 2;
+  const gb = { a: 'L', p: F.palm, r: KF_GR.bodyR }, deckelAuf = h => ({ a: 'L', p: [0, F.palm[1], F.palm[2] + cut + h], r: KF_GR.bodyR });
+  const lidR = { a: 'R', p: [0, F.top[1], F.top[2] + (.047 - cut) + .002], r: [-PI2, 0, 0] };
+  const blatt = (p, rx) => ({ p, r: [rx, 0, 0] }), joint = (c, d) => ({ p: c, d });
   S.push({ id: 'setzen', art: 'auto', dauer: 1.9, keys: [[0, { L: H.ruheL, R: H.ruheR, cam: [0, -.2], ch: { deckelD: 0, einsatz: 0, knolle: 1, blatt: 0, mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0, falt: 0, tipRoll: 0, flamme: 0, glut: 0, kr: 0 },
-      pr: { koerper: null, deckel: null, knolle: null, papes: null, blatt: null, tip: null, feuerzeug: null } }], [1, { cam: [0, -.6] }]] });
-  S.push({ id: 'nehmen', art: 'klick', hint: [['Klick', 'Grinder aus der Tasche']], dauer: 2.2, ton: [[.25, 'kfKlack', .15]], keys: [[0, {}], [.3, { R: H.taschR, L: H.vornL }], [.55, { R: H.vornR, L: H.schaleL, pr: { koerper: { a: 'R', p: [0, .085, .03], r: [Math.PI / 2, 0, 0] }, deckel: { a: 'R', p: [0, .085, .03 + .027], r: [Math.PI / 2, 0, 0] } } }],
-      [1, { R: H.griffR, pr: { koerper: gb, deckel: deckelAuf(0) }, cam: [0, -.66] }]] });
-  S.push({ id: 'auf', art: 'klick', hint: [['Klick', 'Deckel abschrauben']], dauer: 2.2, ton: [[.05, 'kfGewinde', .4], [.62, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3.2 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
-      [1, { R: H.zangeR, pr: { deckel: { p: [.2, -.62, -.12], r: [0, 0, 0] } }, ch: { einsatz: 1 } }]] });
-  S.push({ id: 'knolle', art: 'klick', hint: [['Klick', 'Knolle hineinlegen']], dauer: 2.6, ton: [[.12, 'kfPapier', .2], [.72, 'kfKlack', .12]], keys: [[0, {}], [.3, { R: H.taschR }], [.55, { R: H.zangeR, pr: { knolle: { a: 'R', p: [-.022, .13, .03], r: [0, 0, 0] } } }],
-      [.85, { R: KP([.05, -.35, -.26], [-.45, -.3, -.84], [-.3, -.6, .6], [.6, .5, .62, .8, .88], .05, .9), pr: { knolle: { a: 'L', p: [0, .08, .045], r: [0, 0, 0] } }, ch: { knolle: .8 } }], [1, { R: H.griffR, ch: { knolle: .78 } }]] });
-  S.push({ id: 'zu', art: 'auto', dauer: 1.6, ton: [[.45, 'kfGewinde', .35]], keys: [[0, {}], [.4, { pr: { deckel: deckelAuf(.01) }, ch: { einsatz: 0 } }], [.5, { pr: { knolle: null } }], [1, { pr: { deckel: deckelAuf(0) }, ch: { deckelD: 0 } }]] });
-  S.push({ id: 'grinden', art: 'maus', bedarf: 2600, hint: [['Maus hin und her', 'drehen']], keys: [[0, {}], [1, { cam: [0, -.66] }]], live: 'grind' });
-  S.push({ id: 'oeffnen', art: 'klick', hint: [['Klick', 'aufschrauben']], dauer: 2.0, ton: [[.05, 'kfGewinde', .4], [.6, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
-      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.62, -.1], r: [0, .3, 0] } }, ch: { einsatz: 2 } }]] });
-  S.push({ id: 'blatt', art: 'klick', hint: [['Klick', 'ein Blättchen ziehen']], dauer: 3.0, ton: [[.5, 'kfPapier', .35]], keys: [[0, {}], [.15, { pr: { koerper: { p: [-.14, -.6, -.2], r: [0, 0, 0] } }, L: H.vornL }], [.4, { L: H.taschL, R: H.vornR }],
-      [.62, { L: H.blattL, pr: { papes: { a: 'L', p: [.01, .1, .02], r: [0, 0, Math.PI / 2] } } }], [.85, { R: H.zangeR, pr: { blatt: { a: 'L', p: [.02, .12, .03], r: [0, 0, Math.PI / 2] } }, ch: { blatt: 1 } }],
-      [1, { R: H.blattR, pr: { papes: null, blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, L: H.blattL, cam: [0, -.72] }]] });
-  S.push({ id: 'falten', art: 'klick', hint: [['Klick', 'Pappe falten']], dauer: 2.2, ton: [[.2, 'kfFalt', .35], [.45, 'kfFalt', .3], [.7, 'kfFalt', .3]], keys: [[0, {}], [.2, { R: H.zangeR, pr: { tip: { a: 'R', p: [-.02, .13, .03], r: [0, Math.PI / 2, 0] } }, ch: { falt: 0 } }], [1, { ch: { falt: 1 } }]] });
+      pr: { koerper: null, deckel: null, knolle: null, papes: null, blatt: null, tip: null, feuerzeug: null } }], [1, { cam: [0, -.62] }]] });
+  S.push({ id: 'nehmen', art: 'klick', hint: [['Klick', 'Grinder aus der Tasche']], dauer: 2.3, ton: [[.25, 'kfKlack', .12]], keys: [[0, {}], [.3, { R: H.taschR, L: H.vornL }],
+      [.55, { R: H.schaleR, L: H.schaleL, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR }, deckel: { a: 'R', p: [0, F.palm[1], F.palm[2] + cut], r: KF_GR.bodyR } } }],
+      [1, { R: H.griffR, pr: { koerper: gb, deckel: deckelAuf(0) }, cam: [0, -.8] }]] });
+  S.push({ id: 'auf', art: 'klick', hint: [['Klick', 'Deckel abschrauben']], dauer: 2.2, ton: [[.05, 'kfGewinde', .4], [.62, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3.2 } }], [.62, { pr: { deckel: lidR } }], [.75, { R: KG('R', kf_add(O.T, [.03, .05, .02]), [-.3, -.25, -.92], [-.08, -1, -.12], [.5, .56, .6, .64, .68], .25, .75, F.top) }],
+      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.8, -.08], r: [0, .4, 0] } }, ch: { einsatz: 1 } }]] });
+  S.push({ id: 'knolle', art: 'klick', hint: [['Klick', 'Knolle hineinlegen']], dauer: 2.8, ton: [[.12, 'kfPapier', .2], [.78, 'kfKlack', .1]], keys: [[0, {}], [.3, { R: H.taschR }], [.55, { R: H.zangeR, pr: { knolle: { a: 'R', p: F.pinch, r: [0, 0, 0] } } }],
+      [.8, { R: H.dropR, pr: { knolle: { a: 'L', p: [0, F.palm[1], F.palm[2] + cut - .012], r: [PI2, 0, 0] } }, ch: { knolle: .8 } }], [1, { R: H.vornR, ch: { knolle: .78 } }]] });
+  S.push({ id: 'zu', art: 'auto', dauer: 1.7, ton: [[.5, 'kfGewinde', .35]], keys: [[0, {}], [.3, { R: H.griffR, pr: { deckel: lidR } }], [.45, { pr: { deckel: deckelAuf(.008) }, ch: { einsatz: 0 } }], [.5, { pr: { knolle: null } }], [1, { pr: { deckel: deckelAuf(0) }, ch: { deckelD: 0 } }]] });
+  S.push({ id: 'grinden', art: 'maus', bedarf: 2600, hint: [['Maus hin und her', 'drehen']], keys: [[0, {}], [1, {}]], live: 'grind' });
+  S.push({ id: 'oeffnen', art: 'klick', hint: [['Klick', 'aufschrauben']], dauer: 2.0, ton: [[.05, 'kfGewinde', .4], [.6, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3 } }], [.62, { pr: { deckel: lidR } }],
+      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.8, -.08], r: [0, .4, 0] } }, ch: { einsatz: 2 } }]] });
+  S.push({ id: 'blatt', art: 'klick', hint: [['Klick', 'ein Blättchen ziehen']], dauer: 3.2, ton: [[.55, 'kfPapier', .35]], keys: [[0, {}], [.2, { R: H.schaleR, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR } } }],
+      [.35, { L: H.taschL, pr: { koerper: { p: [.2, -.8, -.16], r: [0, 0, 0] } } }], [.55, { L: H.blattL, R: H.vornR, pr: { papes: { a: 'L', p: [-.01, .1, .03], r: [0, 0, PI2] } } }],
+      [.8, { R: H.zangeR, pr: { blatt: { a: 'L', p: [-.02, .12, .035], r: [0, 0, PI2] } }, ch: { blatt: 1 } }], [1, { R: H.blattR, pr: { papes: null, blatt: blatt(O.P, O.Prx) }, cam: [0, -.72] }]] });
+  S.push({ id: 'falten', art: 'klick', hint: [['Klick', 'Pappe falten']], dauer: 2.2, ton: [[.25, 'kfFalt', .35], [.5, 'kfFalt', .3], [.72, 'kfFalt', .3]], keys: [[0, {}], [.2, { R: H.zangeR, pr: { tip: { a: 'R', p: F.pinch, r: [0, PI2, 0] } }, ch: { falt: 0 } }], [1, { ch: { falt: 1 } }]] });
   S.push({ id: 'tip', art: 'halten', hint: [['Halten', 'Tip rollen']], dauer: 1.4, ton: [[.1, 'kfRoll', .2]], keys: [[0, {}], [1, { ch: { tipRoll: 1 } }]] });
-  S.push({ id: 'einlegen', art: 'auto', dauer: 1.4, keys: [[0, {}], [.6, { ch: { mulde: .55 } }], [1, { R: H.rollR, pr: { tip: { p: [-.0485, -.37, -.3155], r: [-.9, 0, 0], tip: 1 } }, ch: { mulde: .9 } }]] });
-  S.push({ id: 'fuellen', art: 'halten', hint: [['Halten', 'Gras einstreuen']], dauer: 2.8, keys: [[0, {}], [.2, { R: H.kippR, pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2, 0, 0] } } }],
-      [.3, { pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2 + 1.9, 0, 0] } } }], [.9, { ch: { kr: 1 } }], [1, { R: H.rollR, pr: { koerper: { p: [.2, -.61, -.2], r: [0, 1, 0] } } }]], live: 'fuellen' });
+  S.push({ id: 'einlegen', art: 'auto', dauer: 1.5, keys: [[0, {}], [.6, { ch: { mulde: .55 } }], [1, { R: H.blattR, pr: { tip: { p: kf_add(O.P, [-.045, .004, .0]), r: [O.Prx, PI2, 0], tip: 1 } }, ch: { mulde: .9 } }]] });
+  S.push({ id: 'fuellen', art: 'halten', hint: [['Halten', 'Gras einstreuen']], dauer: 2.8, keys: [[0, {}], [.2, { R: H.schaleR, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR } } }], [.32, { R: H.kippR }], [.9, { ch: { kr: 1 } }],
+      [1, { R: H.blattR, pr: { koerper: { p: [.2, -.8, -.16], r: [0, 1, 0] } } }]], live: 'fuellen' });
   S.push({ id: 'rollen', art: 'maus', bedarf: 1800, hint: [['Maus auf und ab', 'andrücken und rollen']], keys: [[0, { L: H.rollL, R: H.rollR }], [1, { ch: { rolle: .82, kegel: 1, mulde: .9 } }]], live: 'rollen' });
-  S.push({ id: 'lecken', art: 'klick', hint: [['Klick', 'anlecken']], dauer: 2.4, ton: [[.45, 'kfLeck', .35]], keys: [[0, {}], [.35, { L: KP([-.05, -.2, -.16], [.55, .3, -.78], [.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), R: KP([.05, -.2, -.16], [-.55, .3, -.78], [-.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), pr: { blatt: { p: [0, -.16, -.15], r: [-.4, 0, 0] } }, cam: [0, -.5] }],
-      [.6, { ch: { nass: 1 } }], [1, { L: H.rollL, R: H.rollR, pr: { blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, cam: [0, -.72] }]] });
-  S.push({ id: 'kleben', art: 'maus', bedarf: 1200, hint: [['Maus zur Seite', 'zukleben']], keys: [[0, {}], [1, { ch: { rolle: 1.12 } }]], live: 'kleben' });
-  S.push({ id: 'spitze', art: 'maus', bedarf: 900, hint: [['Maus kreisen', 'Spitze drehen']], keys: [[0, { R: KP([.085, -.37, -.3], [-.35, .2, -.92], [-.4, .75, .5], [.55, .5, .66, .82, .9], .05, .95) }], [1, { ch: { spitze: 1 } }]], live: 'spitze' });
-  S.push({ id: 'feuer', art: 'klick', hint: [['Klick', 'Peters Feuerzeug']], dauer: 2.6, ton: [[.3, 'kfKlack', .12]], keys: [[0, {}], [.3, { L: H.taschL, R: H.haltR, pr: { blatt: { a: 'R', p: [-.01, .135, .03], r: [0, 0, Math.PI / 2 + .3] } } }],
-      [.7, { L: H.gravurL, pr: { feuerzeug: { a: 'L', p: [0, .085, .03], r: [Math.PI / 2, 0, Math.PI] } } }], [1, { cam: [-.12, -.8] }]], halt: 2.8 });
-  S.push({ id: 'rad', art: 'klick', hint: [['Klick', 'Rad drehen']], dauer: 1.3, keys: [[0, {}], [.4, { L: H.feuerL, R: H.mundR, pr: { feuerzeug: { a: 'L', p: [.0, .07, .03], r: [0, 0, 0] } }, cam: [0, -.42] }], [1, {}]], live: 'rad' });
+  S.push({ id: 'lecken', art: 'klick', hint: [['Klick', 'anlecken']], dauer: 2.4, ton: [[.45, 'kfLeck', .35]], keys: [[0, {}], [.35, { L: H.leckL, R: H.leckR, pr: { blatt: blatt(O.Pm, -.4) }, cam: [0, -.55] }],
+      [.6, { ch: { nass: 1 } }], [1, { L: H.rollL, R: H.rollR, pr: { blatt: blatt(O.P, O.Prx) }, cam: [0, -.72] }]] });
+  S.push({ id: 'kleben', art: 'maus', bedarf: 1200, hint: [['Maus zur Seite', 'zukleben']], keys: [[0, {}], [1, { ch: { rolle: 1.45 } }]], live: 'kleben' });
+  S.push({ id: 'spitze', art: 'maus', bedarf: 900, hint: [['Maus kreisen', 'Spitze drehen']], keys: [[0, { R: KG('R', kf_add(O.P, [.05, 0, 0]), [-.2, .45, -.87], [-.85, .2, .45], [.6, .5, .66, .8, .88], .05, .9, F.pinch) }], [1, { ch: { spitze: 1 } }]], live: 'spitze' });
+  S.push({ id: 'feuer', art: 'klick', hint: [['Klick', 'Peters Feuerzeug']], dauer: 2.8, ton: [[.3, 'kfKlack', .12]], keys: [[0, {}], [.3, { L: H.taschL, R: H.haltR, pr: { blatt: joint(O.JH, O.dH) } }],
+      [.7, { L: H.gravurL, pr: { feuerzeug: { a: 'L', p: [0, .085, .03], r: [0, 0, 0] } } }], [1, { cam: [-.04, -.8] }]], halt: 3 });
+  S.push({ id: 'rad', art: 'klick', hint: [['Klick', 'Rad drehen']], dauer: 1.4, keys: [[0, {}], [.25, { R: H.vornR, pr: { blatt: joint(O.JM, O.dM) } }], [.5, { L: H.schirmL, R: H.feuerR, pr: { feuerzeug: { a: 'R', p: [-.028, .08, .04], r: [0, 0, -Math.PI / 2] } }, cam: [0, -.62] }], [1, {}]], live: 'rad' });
   S.push({ id: 'anzuenden', art: 'halten', hint: [['Halten', 'anziehen']], dauer: 2.2, keys: [[0, {}], [1, { ch: { brand: .05, glut: 1 } }]], live: 'anzuenden' });
-  S.push({ id: 'weg', art: 'auto', dauer: 1.3, ton: [[.05, 'kfDeckelZ', .5]], keys: [[0, {}], [.5, { L: H.taschL, ch: { flamme: 0 } }], [.8, { pr: { feuerzeug: null } }], [1, { L: H.ruheL, R: H.haltR, cam: [0, -.5] }]] });
+  S.push({ id: 'weg', art: 'auto', dauer: 1.4, ton: [[.05, 'kfDeckelZ', .5]], keys: [[0, {}], [.35, { R: H.taschR, L: H.ruheL, ch: { flamme: 0 } }], [.55, { pr: { feuerzeug: null } }], [.8, { R: H.mundR }], [1, { R: H.haltR, pr: { blatt: joint(O.JH, O.dH) }, cam: [0, -.5] }]] });
   S.push({ id: 'rauchen', art: 'rauchen', hint: [['Halten', 'ziehen']], keys: [[0, {}], [1, {}]], live: 'rauchen' });
   S.push({ id: 'aufstehen', art: 'auto', dauer: 2.0, keys: [[0, {}], [.5, { R: H.ruheR, pr: { blatt: { p: [.3, -.8, .02], r: [0, 1.2, 0] } } }], [1, { cam: [0, -.1] }]] });
   // Schlüssel vervollständigen (fehlende Einträge vom Stand davor)
@@ -410,7 +432,7 @@ function kf_eval(st, p) { const K = st.keys; let a = K[0], b = K[K.length - 1], 
 function kf_handDreh(P, cx, cy, cz, ax, ay, az, ang) { const V = KF_V, q = V.q2.setFromAxisAngle(V.v4.set(ax, ay, az).normalize(), ang); P.w.x -= cx; P.w.y -= cy; P.w.z -= cz; P.w.applyQuaternion(q); P.w.x += cx; P.w.y += cy; P.w.z += cz; P.f.applyQuaternion(q); P.n.applyQuaternion(q); }
 const kf_lebend = {
   grind(dt, t) { const Z = kf_Z, mv = kiffen_S.in.dx; Z.lidV = kf_lerp(Z.lidV, mv / Math.max(dt, .001) * .0035, Math.min(1, dt * 12)); Z.lidA = kf_clamp(Z.lidA + mv * .0042, -.95, .95);
-    const g = kf_PR.koerper.o.position; kf_handDreh(kf_P.R, g.x, g.y, g.z, KF_V.v0.set(0, 1, 0).applyQuaternion(kf_HQ.L).x, KF_V.v0.y, KF_V.v0.z, Z.lidA); kf_CH.deckelD = Z.lidA;
+    const g = kf_PR.koerper.o.position; const ax = KF_V.v1.set(0, 0, 1).applyQuaternion(kf_HQ.L); kf_handDreh(kf_P.R, g.x, g.y, g.z, ax.x, ax.y, ax.z, Z.lidA); kf_CH.deckelD = Z.lidA;
     kf_P.L.w.y += Math.sin(t * 23) * .0008 * Math.min(1, Math.abs(Z.lidV)); // die haltende Hand bekommt den Widerstand ab
     const sp = Math.min(1, Math.abs(Z.lidV) * .5); if (Z.grindG) Z.grindG.g.gain.setTargetAtTime(sp * .5, Audio.ctx.currentTime, .05); },
   fuellen(dt, t) { const Z = kf_Z; if (Z.p > .3 && Z.p < .92 && kiffen_S.in.down) { Z.krT = (Z.krT || 0) - dt; if (Z.krT < 0) { Z.krT = .025; kf_kruemelFall(); } if (!Z.streuT || t > Z.streuT) { Z.streuT = t + .5; kf_ton('kfGrind', { gain: .07, rate: .6, dur: .5 }); } } },
@@ -419,12 +441,12 @@ const kf_lebend = {
   kleben(dt, t) { const Z = kf_Z, d = kiffen_S.in.dx; Z.klebX = kf_clamp((Z.klebX || 0) + d * .00004, -.03, .03); kf_P.L.w.x += Z.klebX; kf_P.R.w.x += Z.klebX; kf_PA.nass = 1 - Z.p * .6; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .8; kf_ton('kfRoll', { gain: .16, rate: 1.2 }); } },
   spitze(dt, t) { const Z = kf_Z, d = Math.abs(kiffen_S.in.dx) + Math.abs(kiffen_S.in.dy); Z.spPh = (Z.spPh || 0) + d * .02; kf_handDreh(kf_P.R, .085, -.37, -.3, -.35, .2, -.92, Math.sin(Z.spPh) * .5); if (d > 3 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .5; kf_ton('kfPapier', { gain: .12, rate: 1.4, dur: .3 }); } },
   rad(dt, t) { const Z = kf_Z; if (!Z.radDone && Z.p > .45) { Z.radDone = true; kf_ton('kfDeckelZ', { gain: .5 }); Z.radN = (Z.radN || 0) + 1; kf_ton('kfRad', { gain: .5, delay: .25 }); const f = kf_PR.feuerzeug.o.position;
-      setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; } }, 280); }
+      setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; kf_hint(Z.st && Z.st.hint); } }, 280); }
     if (Z.feuer) kf_CH.flamme = 1; },
   anzuenden(dt, t) { const Z = kf_Z; kf_CH.flamme = 1; if (kiffen_S.in.down) { kf_CH.glut = Math.min(1, .3 + Z.p); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .3, dur: 1.6 }); } } },
   rauchen(dt, t) { kf_rauchenTick(dt, t); } };
 // Krümel: fallen aus dem gekippten Grinder in die Rinne und bleiben dort (Lage auf dem Papier in u/v), rollen mit ein
-function kf_kruemelFall() { const T = kf_T; for (const c of T.kr) { if (c.st) continue; c.st = 1; c.t = 0; const g = kf_PR.koerper.o.position; c.x = g.x + (Math.random() - .5) * .012; c.y = g.y + .01; c.z = g.z + (Math.random() - .5) * .012; c.vx = (Math.random() - .5) * .05; c.vy = -.05; c.vz = (Math.random() - .5) * .05;
+function kf_kruemelFall() { const T = kf_T; for (const c of T.kr) { if (c.st) continue; c.st = 1; c.t = 0; const ko = kf_PR.koerper.o, g = KF_V.v4.set(0, .027, 0).applyQuaternion(ko.quaternion).add(ko.position); c.x = g.x + (Math.random() - .5) * .014; c.y = g.y; c.z = g.z + (Math.random() - .5) * .014; c.vx = (Math.random() - .5) * .05; c.vy = -.05; c.vz = (Math.random() - .5) * .05;
   c.u = .1 + Math.random() * .78; c.v = .3 + Math.random() * .14; c.h = Math.random(); T.krN++; return; } }
 function kf_kruemelTick(dt) { const T = kf_T, P = T.krP.geometry.attributes.position.array, bl = kf_PR.blatt.o, V = KF_V; let any = false;
   for (let i = 0; i < KF_KR; i++) { const c = T.kr[i]; if (!c.st) { P[i * 3 + 1] = -99; continue; } any = true;
@@ -440,8 +462,9 @@ function kf_kruemelAlle() { let n = 0; for (const c of kf_T.kr) if (!c.st && n++
 function kf_jointPunkt(u, o) { const bl = kf_PR.blatt.o; kf_papAchse(u, o); return o.applyQuaternion(bl.quaternion).add(bl.position); }
 // ---------------------------------------------------------------- Rauchen: Zug = halten; loslassen = ausatmen. Husten nach dem ersten Zug, Whiskey äfft nach, Vegas im Türrahmen
 function kf_rauchenTick(dt, t) { const Z = kf_Z, S = kiffen_S, H = KF_H, V = KF_V;
+  if (S.in.test) { Z.testT = (Z.testT || 0) + dt; S.in.down = (Z.testT % 4.4) < 1.4; if (Z.zuege >= 3) S.in.ende = true; } // Selbsttest: Züge simulieren
   const ziehen = S.in.down && Z.ausT <= 0 && !Z.pause; Z.zug = kf_lerp(Z.zug, ziehen ? 1 : 0, Math.min(1, dt * (ziehen ? 3 : 2.2)));
-  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.45, -.25, Z.zug); Z.camYz = kf_lerp(Z.camYz, Z.blickY || 0, Math.min(1, dt * 2));
+  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.5, -.3, Z.zug); Z.camYz = Z.blickY || 0;
   kf_CH.glut = .45 + Z.zug * .55; if (ziehen) { Z.zugT = (Z.zugT || 0) + dt; kf_CH.brand = Math.min(.95, kf_CH.brand + dt * .012); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .26, dur: 1.6 }); } }
   else if ((Z.zugT || 0) > .5) { // ausatmen
     Z.zugT = 0; Z.zuege++; Z.ausT = 2.4; kf_ton('kfAus', { gain: .32 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
@@ -502,6 +525,7 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   // Requisiten nach Schlüsseln (aus dem aktuellen Schritt)
   if (st) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0; for (let i = 0; i < K.length - 1; i++) if (Z.p >= K[i][0] && Z.p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((Z.p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
     if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); }
+  if (st && st.live === 'rauchen') { const O = KF_ORT, bl = kf_PR.blatt.o; kf_keyLage({ p: O.JH, d: O.dH }, kf_kp[0], kf_kq[0]); kf_keyLage({ p: O.JM, d: O.dM }, kf_kp[1], kf_kq[1]); const k = kf_ease(Z.zug); bl.position.lerpVectors(kf_kp[0], kf_kp[1], k); bl.quaternion.slerpQuaternions(kf_kq[0], kf_kq[1], k); bl.visible = true; }
   // Kanäle
   const g = kf_PR.deckel.o, gb = kf_PR.koerper.o; if (g.visible) { g.rotateOnAxis(KF_V.v0.set(0, 1, 0), kf_CH.deckelD); }
   if (kf_PR.einsatz) { const e = kf_PR.einsatz.o; e.visible = gb.visible && kf_CH.einsatz > .5; if (e.visible) { e.position.copy(gb.position); e.quaternion.copy(gb.quaternion); e.translateY((S.gr ? S.gr.cut : .027) - .001); e.rotateX(-Math.PI / 2); } }
@@ -513,19 +537,18 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   kf_kruemelTick(dt);
   // Flamme, Glut, Licht
   const T = kf_T, fz = kf_PR.feuerzeug.o, L = S.vl; const fl = kf_CH.flamme > .5 && fz.visible;
-  T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .036, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
+  T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .061, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
     const fk = .85 + Math.sin(t * 31) * .06 + Math.sin(t * 17.3) * .08 + (Math.random() - .5) * .05; T.flamme.scale.set(.011 * fk, .026 * (fk + .1 * Math.sin(t * 9)), 1); T.flamme.material.opacity = .95; T.flamme.material.rotation = Math.sin(t * 3.1) * .08 + (Z.st && Z.st.id === 'anzuenden' ? -.5 : 0); }
   const gl = kf_CH.glut; T.glut.visible = gl > .02 && bl.visible; if (T.glut.visible) { kf_jointPunkt(1 - kf_PA.brand * .72, T.glut.position); const f = gl * (.8 + Math.sin(t * 13) * .1 + Math.sin(t * 5.3) * .1); T.glut.material.opacity = kf_clamp(f); T.glut.scale.setScalar(.008 + .01 * f); }
   if (L) { const w = KF_V.v3; if (fl) { L.color.setHex(0xffa24a); L.intensity = 1.6 * (.85 + Math.sin(t * 29) * .08 + Math.random() * .07); L.distance = 2.2; kf_welt(T.flamme.position.x, T.flamme.position.y + .02, T.flamme.position.z, w); L.position.copy(w); }
     else if (Z.hell) { L.color.setHex(0xfff0dc); L.intensity = Z.hell; L.distance = 3; kf_welt(.3, .4, .2, w); L.position.copy(w); }
-    else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .25 * gl; L.distance = .7; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
+    else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .1 * gl; L.distance = .6; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
   if (Z.flTon && !fl) { try { Z.flTon.stop(.15); } catch (e) {} Z.flTon = null; }
 }
 // Verandalampe von Nr. 3 (porchLights[0]) während der Szene an – Vegas hat das Licht angemacht; danach wie vorher
 function kf_veranda(an) { const Z = kf_Z, p = typeof porchLights !== 'undefined' && porchLights[0]; if (!p) return; if (an) { if (Z.porchWar === undefined) Z.porchWar = !!p.dead; p.dead = false; } else if (Z.porchWar !== undefined) { p.dead = Z.porchWar; Z.porchWar = undefined; } }
 // Sitzplatz messen (Verandakante) und die Bühne dorthin setzen
-function kf_sitzMessen(x, z) { let y = .35; try { const rc = new THREE.Raycaster(new THREE.Vector3(x, 2.4, z), new THREE.Vector3(0, -1, 0), 0, 3); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && h.object.parent !== kf_R.seat && !(h.object.material && h.object.material.transparent));
-  if (h) y = h.point.y; } catch (e) {} return y; }
+function kf_sitzMessen(x, z) { const y = kf_boden(x, z, 1.3, 1.4); return y === null || y > .9 ? .35 : y; } // Verandadielen (unter dem Dach messen)
 function kf_buehne(opts) { const Z = kf_Z, s = opts.sitz || [KF_SITZ.x, null, KF_SITZ.z, KF_SITZ.yaw]; Z.yaw = s[3]; const y0 = s[1] ?? kf_sitzMessen(s[0] + Math.sin(Z.yaw) * .25, s[2] + Math.cos(Z.yaw) * .25);
   Z.sitz.set(s[0], y0, s[2]); kf_R.seat.position.set(s[0] - Math.sin(Z.yaw) * .05, y0 + KF_SITZ.auge, s[2] - Math.cos(Z.yaw) * .05); kf_R.seat.rotation.set(0, Z.yaw, 0); kf_R.seat.updateMatrixWorld(true);
   kf_R.rig.visible = true; kf_R.seat.visible = true; for (const c of kf_T.kr) { c.st = 0; } kf_T.krN = 0; Object.assign(kf_PA, { mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0 }); Object.assign(kf_TA, { falt: 0, roll: 0 }); }
@@ -595,7 +618,7 @@ async function kf_vegasTips() { if (kf_hat('kf_tips')) return; const say1 = [['�
 const KF_ORTE = {
   grinder: { at: [-27.42, null, 12.22], ry: 0 }, papes: { at: [-27.3, null, 12.02], ry: 1.9 },
   knolle: { at: [-109.9, 0, 24.05], ry: 1.2, hit: [.6, .5, .6] }, tips: { tuer: true } };
-function kf_boden(x, z, von = 2.4, bis = 3.2) { try { const rc = new THREE.Raycaster(new THREE.Vector3(x, von, z), new THREE.Vector3(0, -1, 0), 0, bis); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && !(h.object.material && (h.object.material.transparent || h.object.material.visible === false)) && !kf_istMein(h.object));
+function kf_boden(x, z, von = 2.4, bis = 3.2) { try { const rc = new THREE.Raycaster(new THREE.Vector3(x, von, z), new THREE.Vector3(0, -1, 0), 0, bis); rc.camera = camera; const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && !(h.object.material && (h.object.material.transparent || h.object.material.visible === false)) && !kf_istMein(h.object));
   return h ? h.point.y : null; } catch (e) { return null; } }
 function kf_istMein(o) { for (let p = o; p; p = p.parent) if (p === kf_R.seat || (p.userData && p.userData.kf)) return true; return false; }
 async function kf_modell(key, size, axis = 'y') { const src = await msModel(key, 'model.glb'); const o = src.clone(true); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); if (size) msFit(o, size, axis); const g = msGround(o); g.userData.kf = true; return g; }
@@ -639,7 +662,7 @@ const KF_DEKO_TEXT = {
   bong: 'Eine Bong. In der Remise. Zwischen dem Heu. Brandschutz war hier nie ein Thema.',
   pflanzen: 'Die Growlampe ist aus. Die Pflanzen haben trotzdem durchgehalten. Respekt.',
   ascher: 'Vegas’ Aschenbecher. Voll mit Kippen ohne Filter.', ascher2: 'Vegas’ Aschenbecher. Kippen ohne Filter. Und seit heute ein Stummel mit.' };
-function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5);
+function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5); rc.camera = camera;
   const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && h.face && !h.object.isSprite && !kf_istMein(h.object) && !(h.object.material && h.object.material.visible === false) && (o.glas || !(h.object.material && h.object.material.transparent)));
   if (!h) return null; const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); if (n.dot(rc.ray.direction) > 0) n.negate(); const p = h.point.addScaledVector(n, .004);
   const m = kiffen_poster(art, p.x, p.y, p.z, Math.atan2(n.x, n.z), o); if (m && Math.abs(n.y) > .5) m.lookAt(p.x + n.x, p.y + n.y, p.z + n.z); return m; } catch (e) { console.warn('Kiffen: Aufkleber', art, e); return null; } }
@@ -678,6 +701,7 @@ addEventListener('mousemove', e => { if (!kf_Z.on || ui.paused) return; if (Math
 addEventListener('keydown', e => { if (!kf_Z.on || ui.paused) return; if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { kiffen_S.in.down = true; kiffen_S.in.klick++; } } if (e.code === 'KeyE' && !e.repeat) kiffen_S.in.ende = true; }, true);
 addEventListener('keyup', e => { if (e.code === 'Space') kiffen_S.in.down = false; }, true);
 { const css = document.createElement('style'); css.textContent = `
+  body.kfSzene #prompt, body.kfSzene #crosshair { visibility: hidden !important; }
   #kfHint { position: fixed; left: 0; right: 0; bottom: 4.2vh; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 9px; pointer-events: none; opacity: 0; transition: opacity .6s; }
   #kfHint.on { opacity: 1; }
   #kfHint .t { display: flex; gap: 34px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .24em; color: #d9cdb2; text-shadow: 0 0 4px #000, 0 0 14px #000; text-transform: uppercase; }
@@ -697,10 +721,15 @@ WORLD_MODS.push(['Kiffen', async () => { const S = kiffen_S, R = kf_R;
     const e = new THREE.Mesh(new THREE.CircleGeometry(S.gr.r * .92, 40), new THREE.MeshStandardMaterial({ map: kf_texEinsatz(), roughness: .8, metalness: .2 })); const eg = new THREE.Group(); eg.add(e); kf_prop('einsatz', eg); } catch (e) { console.warn('Kiffen: Grinder', e); }
   try { kf_prop('knolle', await kf_modell('kiffen/knolle', .03)); } catch (e) { console.warn('Kiffen: Knolle', e); }
   try { const p = await kf_modell('kiffen/papes', .105, 'max'); kf_prop('papes', p); } catch (e) { console.warn('Kiffen: Papes', e); }
-  try { const f = await kf_modell('w_lighter', .058); f.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); m.material.metalness = Math.max(m.material.metalness, .75); m.material.roughness = Math.min(m.material.roughness, .42); m.material.envMapIntensity = 1.2; } }); kf_prop('feuerzeug', f); } catch (e) { console.warn('Kiffen: Feuerzeug', e); }
+  try { const f = await kf_modell('w_lighter', .058); f.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); m.material.metalness = Math.max(m.material.metalness, .75); m.material.roughness = Math.min(m.material.roughness, .42); m.material.envMapIntensity = 1.2; } }); const gr = kf_cnv(256, 296, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(40,30,15,.75)'; x.strokeStyle = 'rgba(255,240,200,.55)'; x.lineWidth = 1; x.textAlign = 'center'; x.font = 'italic 25px Georgia';
+      ['Für Peter.', 'Damit du im', 'Dunkeln nicht', 'allein bist.', '– M.'].forEach((l, i) => { const yy = 60 + i * 44; x.fillText(l, w / 2 + (i === 4 ? 40 : 0), yy); x.strokeText(l, w / 2 + (i === 4 ? 40 : 0) - .6, yy - .6); });
+      for (let i = 0; i < 90; i++) { x.strokeStyle = `rgba(30,20,10,${Math.random() * .25})`; x.beginPath(); const a = Math.random() * w, b = Math.random() * h; x.moveTo(a, b); x.lineTo(a + Math.random() * 40 - 20, b + Math.random() * 6 - 3); x.stroke(); } });
+    const bb = new THREE.Box3().setFromObject(f), sz = bb.getSize(new THREE.Vector3()); const gm = new THREE.Mesh(new THREE.PlaneGeometry(sz.x * .78, sz.x * .9), new THREE.MeshStandardMaterial({ map: tex(gr, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .35, metalness: .6 }));
+    gm.position.set((bb.min.x + bb.max.x) / 2, sz.y * .44, bb.max.z + .0004); f.add(gm); kiffen_S.gravur = gm;
+    kf_prop('feuerzeug', f); } catch (e) { console.warn('Kiffen: Feuerzeug', e); }
   { const g = new THREE.Group(); g.add(kf_papBau(msTex('kiffen/papier/b.jpg', true), msTex('kiffen/papier/n.jpg'))); kf_prop('blatt', g); }
   { const g = new THREE.Group(); g.add(kf_tipBau(kf_texPappe())); kf_prop('tip', g); }
-  kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl);
+  kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl); S.fill = new VLight(0xffc68e, 0, 3.2, 2); scene.add(S.fill); // Flamme/Glut · Verandalicht auf den Händen (beide beim Laden mit 0)
   S.pass = kiffen_passBau(); S.flTex = kf_flashBilder(); if (S.pass) { S.pass.uniforms.tFl.value = S.flTex[0]; try { const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), S.pass.material); renderer.compile(q, camera); } catch (e) {} }
   kf_posen(); kf_schritte(); await kf_fundeBau(); await kiffen_deko();
   // Beim Vorübersetzen der Shader sichtbar (tief unter der Welt), im ersten Bild versteckt
@@ -716,8 +745,9 @@ WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
   const rdt = dt / S.zeit; if (!S.klang && Audio.ctx) { S.klang = true; kiffen_klangBau().catch(e => console.warn('Kiffen: Klänge', e)); }
   if (S.zittern > 0 && !kf_Z.on) S.zittern = Math.max(0, S.zittern - rdt / 900);
   kf_weichTick(rdt, t); if (S.pass && S.pass.enabled) S.pass.uniforms.uT.value = t;
-  const Z = kf_Z; if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
-    if (Z.lab) kf_eval(Z.st, Z.p); else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
+  const Z = kf_Z; document.body.classList.toggle('kfSzene', Z.on); if (S.fill) { const fi = Z.on && !Z.hell ? 1.25 * kf_io(Z.blend) : 0; if (fi > 0) kf_welt(.3, .62, .5, S.fill.position); if (Math.abs(S.fill.intensity - fi) > .001) S.fill.intensity = fi; }
+  if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
+    if (Z.lab) { kf_eval(Z.st, Z.p); if (Z.labCh) Object.assign(kf_CH, Z.labCh); } else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
   else if (kf_T.rauch.length && kf_T.rauch.some(r => r.s.visible)) kf_teilchenTick(rdt, t);
   S.chk = (S.chk || 0) - rdt; if (S.chk > 0) return; S.chk = .5; kf_dekoSync(); kf_fundeSync();
   // Aufgabe startet von selbst ~45 s nach Beginn von Kap. 4 (bis AP-19 den Moment selbst setzt: kiffen_S.auto = false + kiffen_start())
@@ -725,11 +755,11 @@ WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
 // ================================================================ Testzugriff
 window.__kiffen = { S: kiffen_S, Z: kf_Z, R: kf_R, P: kf_P, PA: kf_PA, TA: kf_TA, H: KF_H, STEPS: KF_STEPS, start: o => kiffen_start(o), flash: o => kiffen_flash(o), szene: o => kiffen_szene(o || {}), fund: kiffen_fund, deko: () => kiffen_deko(), poster: kiffen_poster,
   // Szene direkt starten, alle Schritte laufen von selbst (Klick/Halten/Maus werden simuliert)
-  auto(on = true) { kiffen_S.in.test = on; return on; }, klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
+  auto(on = true) { kiffen_S.in.test = on; return on; }, finde: id => { kf_gefunden(id); return story.items.filter(k => k.startsWith('kf_')).join(','); }, fundeText: () => kf_aufgabeText(), klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
   // Standbild: Schritt id bei Fortschritt p (ohne Ablauf) – für Screenshots und Posen-Feinschliff
   zeige(id, p = 1, opts = {}) { const Z = kf_Z, i = KF_STEPS.findIndex(s => s.id === id); if (i < 0) return 'Schritt fehlt';
     if (!Z.on) { Z.on = true; Z.lab = true; Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z }; kf_buehne(opts); kf_veranda(true); flashOn = false; Z.blend = 1; Z.blendZ = 1; setCamOverride(kf_camFn); setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); }
-    Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
+    Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.zug = opts.zug || 0; Z.labCh = opts.ch || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
     if (id === 'rollen') kf_PA.rolle = kf_lerp(.3, .82, p); return id + ' ' + p; },
   labEnde() { const Z = kf_Z; kf_veranda(false); if (kiffen_S.vl) kiffen_S.vl.intensity = 0; Z.hell = 0; Z.on = false; Z.lab = false; Z.st = null; setCamOverride(null); setScripted(null); kf_allesAus(); return 'ok'; },
   pose(side, json) { KF_H[side] = KP(json.w, json.f, json.n, json.c, json.s, json.t); kf_schritte(); return 'ok'; },

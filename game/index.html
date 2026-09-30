@@ -10558,7 +10558,7 @@ function katzen_make(d) {
   const del = []; m.traverse(o => { if (!o.isMesh) return; if (o.name === 'haar') { del.push(o); return; }
     o.frustumCulled = true; o.castShadow = o.name === 'fell'; o.receiveShadow = true;
     if (o.name === 'fell') { o.material = katzen_fellMat(o.material, d); k.fell = o; }
-    else if (o.name === 'augen') { o.material = katzen_eyeMat(o.material, d); k.eyeM = o.material; o.castShadow = false; }
+    else if (o.name === 'augen') { o.material = katzen_eyeMat(o.material, d); k.eyeM = o.material; k.eyeMesh = o; o.castShadow = false; }
     else if (o.name === 'zaehne') { k.teeth = o; o.visible = false; o.castShadow = false; }
     if (o.geometry) { o.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); } });
   del.forEach(o => o.parent.remove(o));
@@ -10604,7 +10604,7 @@ function katzen_place(k, x, z, o = {}) {
   k.g.position.set(x, y, z); k.g.rotation.y = k.ry; k.play(k.st === 'stand' ? 'stand' : k.st, 0); k.g.visible = true; }
 function katzen_hide(k) { k.on = false; k.st = 'aus'; k.g.visible = false; k.g.position.y = -500; if (k.klick) { uninteract(k.klick); k.klick.position.y = -50; } katzen_schnurren(k, false); if (katzen_S.carry === k) katzen_S.carry = null; }
 function katzen_stare(k, p) { if (!k) return; k.stare = p ? (p.isVector3 ? p.clone() : new THREE.Vector3(p[0], p[1], p[2])) : null; }
-function katzen_goto(k, x, z, o = {}) { if (!k) return; k.tx = x; k.tz = z; k.ty = o.y != null ? o.y : null; k.lauf = !!o.lauf; k.then = o.dann || 'sit'; k.onArrive = o.fertig || null; if (k.st !== 'jump') { k.st = 'go'; } }
+function katzen_goto(k, x, z, o = {}) { if (!k) return; k.tx = x; k.tz = z; k.ty = o.y != null ? o.y : null; k.lauf = !!o.lauf; k.frei = !!o.frei; k.then = o.dann || 'sit'; k.onArrive = o.fertig || null; if (k.st !== 'jump') { k.st = 'go'; } }
 function katzen_jumpTo(k, x, y, z, dann = 'sit') { if (!k || !k.on) return; const d = Math.hypot(x - k.x, z - k.z);
   if (d > 1.2) { const a = Math.atan2(x - k.x, z - k.z); katzen_goto(k, x - Math.sin(a) * .55, z - Math.cos(a) * .55, { dann: 'jump' }); k.jTo = [x, y, z, dann]; return; }
   k.jTo = [x, y, z, dann]; katzen_jumpStart(k); }
@@ -10639,7 +10639,7 @@ function katzen_kino(name, o = {}) { const S = katzen_S;
   if (!name) { const K = S.kino; S.kino = null; if (K && K.k) { if (K.prev) katzen_place(K.k, K.prev.x, K.prev.z, { y: K.prev.y, ry: K.prev.ry, pose: 'sit' }); else katzen_hide(K.k); K.k.stare = K.prev ? K.prev.stare : null; } return; }
   const k = katzen_get(name === 'baerbel' ? 'BÄRBEL' : name); if (!k) return; S.kino = { k, prev: k.on ? { x: k.x, z: k.z, y: k.y, ry: k.ry, stare: k.stare } : null };
   const ry = o.bis ? Math.atan2(o.bis[0] - o.x, o.bis[1] - o.z) : o.ry || 0; katzen_spawn({ name: k.name, x: o.x, z: o.z, ry, pose: 'stand', zahm: true }); k.stare = null;
-  setTimeout(() => { if (S.kino && S.kino.k === k && o.bis) katzen_goto(k, o.bis[0], o.bis[1], { dann: 'sniff', fertig: () => setTimeout(() => { if (S.kino && S.kino.k === k) { k.st = o.dann === 'liegen' ? 'loaf' : 'sit'; k.play(k.st, .6); k.t = 99; if (o.blick) katzen_stare(k, o.blick); } }, 1400) }); }, (o.ab || 0) * 1000); }
+  setTimeout(() => { if (S.kino && S.kino.k === k && o.bis) katzen_goto(k, o.bis[0], o.bis[1], { dann: 'sniff', frei: true, fertig: () => setTimeout(() => { if (S.kino && S.kino.k === k) { k.st = o.dann === 'liegen' ? 'loaf' : 'sit'; k.play(k.st, .6); k.t = 99; if (o.blick) katzen_stare(k, o.blick); } }, 1400) }); }, (o.ab || 0) * 1000); }
 // ---------------------------------------------------------------- Kater Hänschen (Kap. 5/6)
 function katzen_kater5(modus, o = {}) {
   const S = katzen_S, k = katzen_get('HÄNSCHEN'); if (!k) return null; const K = S.kater; K.mode = modus; K.o = o; k.forceHiss = false;
@@ -10649,7 +10649,7 @@ function katzen_kater5(modus, o = {}) {
     case 'uebergabe': katzen_tragen(k); k.stare = null; setTimeout(() => { if (S.kater.mode === 'uebergabe') { katzen_absetzen(k); k.st = 'sitFoot'; k.t = rand(2, 3.5); S.kater.mode = 'folgen'; } }, (o.sek || 6) * 1000); break;
     case 'folgen': k.stare = null; k.noHiss = false; if (k.st === 'carry') katzen_absetzen(k); k.st = 'stand'; k.t = .5; break;
     case 'schwelle': case 'nr1': case 'gitter': case 'vegas': k.stare = o.ecke || o.punkt ? new THREE.Vector3(...(o.ecke || o.punkt)) : null; if (k.st === 'carry') S.carry = null;
-      katzen_goto(k, o.x, o.z, { y: o.y, dann: 'sit' }); k.hold = { x: o.x, z: o.z, ry: o.ry != null ? o.ry : k.ry }; break;
+      if (Math.hypot(k.x - o.x, k.z - o.z) > 8 || !k.on) katzen_place(k, o.x, o.z, { y: o.y, ry: o.ry, pose: 'sit' }); else katzen_goto(k, o.x, o.z, { y: o.y, dann: 'sit' }); k.hold = { x: o.x, z: o.z, ry: o.ry != null ? o.ry : k.ry }; break;
     case 'tisch': katzen_jumpTo(k, o.x, o.y, o.z, 'sit'); break;
     case 'zurueck': k.back = { x: o.x, z: o.z, t: o.sek || 2.2 }; break;
     case 'starren': k.stare = o.x != null ? new THREE.Vector3(o.x, o.y || .3, o.z) : null; break;
@@ -10663,7 +10663,7 @@ function katzen_kater5(modus, o = {}) {
 // ---------------------------------------------------------------- Hilfen
 function katzen_ground(x, z, yTop = .3) { try { const g = solidGround(x, yTop, z); if (g > -1 && g < yTop + .4) return Math.max(0, g); } catch (e) {} return 0; } // höchste feste Fläche in [yTop − 0,8; yTop + 0,37], sonst Boden 0
 function katzen_perchY(x, z, yTop) { try { const y = leben_probe(x, z, yTop, .25, .6); return isFinite(y) ? y : 0; } catch (e) { return 0; } }
-function katzen_free(x, z) { try { return leben_free(x, z, .18, .16) && !leben_inHouse(x, z, .2); } catch (e) { return true; } }
+function katzen_free(x, z) { try { return leben_free(x, z, .26, .13) && !leben_inHouse(x, z, .2); } catch (e) { return true; } }
 function katzen_in1(x, z) { return x > -56 && x < -44 && z > -22 && z < -12.1; }
 function katzen_ang(a, b, k) { let d = b - a; d = Math.atan2(Math.sin(d), Math.cos(d)); return a + d * Math.min(1, k); }
 function katzen_zone() { try { return leben_zone() === 'town'; } catch (e) { return !state.inBasement; } }
@@ -10726,7 +10726,9 @@ function katzen_tick(dt, t, indoor) {
     if (!k.on) continue;
     if (!town && k.st !== 'carry') { if (k.g.visible) k.g.visible = false; continue; }
     const dx = k.x - cam.x, dz = k.z - cam.z, d = Math.hypot(dx, dz), inFront = (dx * cf.x + dz * cf.z) > -2.5;
-    const vis = d < 48 || k.st === 'carry'; if (k.g.visible !== vis) k.g.visible = vis; k.far = !vis; if (!vis && k.st !== 'go' && !k.hold) continue;
+    const vis = d < 48 || k.st === 'carry'; if (k.g.visible !== vis) k.g.visible = vis; k.far = !vis; if (!vis && k.st !== 'go' && !k.hold && !(S.kater.mode === 'folgen' && k.name === 'HÄNSCHEN')) continue;
+    // Nähe-Stufen: Augen-Mesh (< 8 m), Namensschild (< 4 m), Schattenwurf (< 12 m, Taschenlampe/Laternen) – sonst nur das Fell (ein Draw Call)
+    const near = k.st === 'carry' || k.st === 'arm'; if (k.eyeMesh) k.eyeMesh.visible = near || d < 8; if (k.tag) k.tag.visible = near || d < 4; if (k.fell) k.fell.castShadow = !near && d < 12;
     k.lod = k.st === 'carry' ? 0 : d < 22 ? 0 : d < 36 ? 1 : 2;
     katzen_brain(k, dt, t, d, lampOn, kp);
     katzen_move(k, dt);
@@ -10749,7 +10751,7 @@ function katzen_brain(k, dt, t, dCam, lampOn, kp) {
   if (k.avoidT > 0) { k.avoidT -= dt; if (k.avoidT <= 0) k.avoid = null; }
   switch (k.st) {
     case 'carry': { const f = flatDir(); // linke Hand, unten links im Bild; Körper quer vor Luke
-      k.x = camera.position.x + f.x * .5 + f.z * .26; k.z = camera.position.z + f.z * .5 - f.x * .26; k.y = camera.position.y - .74; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
+      k.x = camera.position.x + f.x * .6 + f.z * .27; k.z = camera.position.z + f.z * .6 - f.x * .27; k.y = camera.position.y - .56; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
       if (k.hissT > 0) { k.hissT -= dt; if (k.teeth) k.teeth.visible = k.hissT > 0; } return; }
     case 'arm': if (k.arm) { const o = k.arm.obj; o.updateWorldMatrix(true, false); katzen_V[0].copy(k.arm.off).applyMatrix4(o.matrixWorld); k.x = katzen_V[0].x; k.y = katzen_V[0].y; k.z = katzen_V[0].z; k.g.position.copy(katzen_V[0]); o.getWorldQuaternion(katzen_Q[0]); katzen_E.setFromQuaternion(katzen_Q[0], 'YXZ'); k.ry = katzen_E.y + PI / 2; k.g.rotation.y = k.ry; } return;
     case 'hiss': k.hissT -= dt; if (k.turnTo != null) { k.ry = katzen_ang(k.ry, k.turnTo, dt * 7); }
@@ -10764,7 +10766,7 @@ function katzen_brain(k, dt, t, dCam, lampOn, kp) {
     if (k.st === 'sitFoot') { if (k.t > 0 && dp < 1.5) return; k.st = 'stand'; }
     if (k.thrT > 0) { k.thrT -= dt; return; } // sitzt in einer Tür
     if (tgt && dp > 3.4) { const inNow = !!leben_inHouse(k.x, k.z, 0), inT = !!leben_inHouse(tgt.x, tgt.z, 0); if (inNow !== inT && Math.random() < .004) { k.thrT = rand(3, 7); k.st = 'sit'; k.play('sit', .4); return; }
-      if (dp > 26 && dCam > 12) { const back = pt[Math.max(0, pt.length - 14)]; if (back) katzen_place(k, back.x, back.z, { pose: 'stand' }); }
+      if (dp > 20 && (dCam > 12 || k.far)) { let back = null; for (let i = pt.length - 1; i >= 0; i--) { const dd = Math.hypot(pt[i].x - P.x, pt[i].z - P.z); if (dd > 5 && dd < 10) { back = pt[i]; break; } if (dd > 10) break; } if (!back) { const f = flatDir(); back = katzen_V[6].set(P.x - f.x * 5, 0, P.z - f.z * 5); } katzen_place(k, back.x, back.z, { pose: 'stand' }); }
       katzen_goto(k, tgt.x, tgt.z, { lauf: dp > 6, dann: 'stand' }); return; }
     if (k.st === 'stand' && k.t < 0) { k.st = 'sit'; k.play('sit', .5); k.t = rand(3, 8); } return;
   }
@@ -10821,7 +10823,7 @@ function katzen_move(k, dt) {
     k.tsp = d < .35 ? Math.max(.08, d) * vmax / .35 : vmax * turnSlow; k.sp += (k.tsp - k.sp) * Math.min(1, dt * 3.2);
     k.ry += Math.sign(diff) * Math.min(Math.abs(diff), dt * (k.lauf ? 4.2 : 2.6));
     const nx = k.x + Math.sin(k.ry) * k.sp * dt, nz = k.z + Math.cos(k.ry) * k.sp * dt;
-    k.freeT -= dt; if (k.freeT < 0) { k.freeT = .25; k.blocked = !katzen_free(k.x + Math.sin(k.ry) * .28, k.z + Math.cos(k.ry) * .28) && !leben_inHouse(k.tx, k.tz, 0); }
+    k.freeT -= dt; if (k.freeT < 0) { k.freeT = .25; k.blocked = !k.frei && !katzen_free(k.x + Math.sin(k.ry) * .28, k.z + Math.cos(k.ry) * .28) && !leben_inHouse(k.tx, k.tz, 0); }
     if (k.blocked && d > .6) { k.bT = (k.bT || 0) + dt; if (k.bT > .8) { k.bT = 0; k.st = 'stand'; k.t = rand(.5, 1.2); k.play('stand', .3); return; } } else { k.x = nx; k.z = nz; k.bT = 0; }
     k.gyT -= dt; if (k.gyT < 0) { k.gyT = .2; const g = k.ty != null && d < .5 ? k.ty : katzen_ground(k.x, k.z, k.y + .05); if (g - k.y > .24 && k.ty == null) { k.x -= Math.sin(k.ry) * .06; k.z -= Math.cos(k.ry) * .06; k.blocked = true; } else k.gy = g; } k.y += (k.gy - k.y) * Math.min(1, dt * 8); k.perch = 0;
     if (k.sp > .03) k.play('walk', .3, Math.max(.35, k.sp / (KATZEN_WALK * k.size))); else if (k.curK === 'walk') k.play('stand', .3);
@@ -11204,7 +11206,7 @@ function album_buehneBau() {
   const B = album_B, T = THREE; B.scene = new T.Scene(); B.cam = new T.PerspectiveCamera(32, innerWidth / innerHeight, .02, 6); B.scene.add(B.cam);
   // Licht (einmal beim Laden): die Taschenlampe in Lukes rechter Hand als Kegel, dazu Nacht-Grundlicht und ein kalter Saum von hinten links
   B.hemi = new T.HemisphereLight(0x9aa6c0, 0x241c14, .28); B.scene.add(B.hemi);
-  B.spot = new T.SpotLight(0xffe2bc, 1.1, 3, .62, .85, 2); B.spot.position.set(.2, .34, .08); B.spot.target.position.set(0, -.08, -.46); B.scene.add(B.spot, B.spot.target);
+  B.spot = new T.SpotLight(0xffe2bc, 1.1, 6, .62, .85, 2); B.spot.position.set(.2, .34, .08); B.spot.target.position.set(0, -.08, -.46); B.scene.add(B.spot, B.spot.target);
   B.rim = new T.DirectionalLight(0x8ea4d0, .35); B.rim.position.set(-.6, .5, -.8); B.scene.add(B.rim);
   B.fill = new T.PointLight(0xffc690, 0, 1.5, 2); B.fill.position.set(-.15, -.05, -.2); B.scene.add(B.fill);
   if (scene.environment) { B.scene.environment = scene.environment; B.scene.environmentIntensity = .25; }
@@ -11237,7 +11239,7 @@ function album_buehneTick(dt) { const B = album_B; if (!B.ready) return;
   if (B.k <= 0 && B.kZiel === 0) { if (B.lens.enabled) { B.lens.enabled = false; B.pass.enabled = false; } if (camOverride === B.camFn) setCamOverride(null); B.owner = null; }
   // Licht folgt der echten Taschenlampe (an/aus, schwache Batterie, Flackern)
   const T = FLASH_TIERS[FLASH.tier], on = flashOn && FLASH.charge > 0 && state.flashFail <= 0; const f = T ? Math.min(1.2, flashlight.intensity / T.intensity) : 1;
-  B.spot.intensity = on ? 1.15 * f : 0; B.spot.color.setHex(T ? T.color : 0xffe2bc); B.hemi.intensity = on ? .22 : .42; B.rim.intensity = on ? .3 : .5;
+  B.spot.intensity = on ? 1.15 * f * (B.spotK || 1) : 0; B.spot.color.setHex(T ? T.color : 0xffe2bc); B.hemi.intensity = on ? .22 : .42; B.rim.intensity = on ? .3 : .5;
   B.fill.intensity = typeof tausch_S !== 'undefined' && tausch_S.L && tausch_S.L.intensity > .1 ? .35 : 0; }
 // Beim Laden: Programme übersetzen und Texturen hochladen (kein Ruckeln beim ersten Öffnen)
 function album_buehneVorbereiten() { const B = album_B; if (!B.ready) return; const vis = []; B.scene.traverse(o => { vis.push([o, o.visible]); o.visible = true; });
@@ -11414,7 +11416,7 @@ function album_seitenGeo(links) { const { L, Z } = ALBUM_PX, g = new THREE.Buffe
 async function album_modellBau() {
   const S = album_S, B = album_B, T = THREE; const root = new T.Group(); root.visible = false; B.scene.add(root);
   const src = await msModel('album', 'model.glb'); const book = src.clone(true); let deckel = null, ruecken = null;
-  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .6; } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
+  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .22; } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
   const achse = new T.Group(); root.add(achse); // Buchmitte: beim Öffnen wandert die Bindung in die Mitte
   const piv = new T.Group(); achse.add(piv); if (deckel) { deckel.parent.remove(deckel); piv.add(deckel); } if (ruecken) { ruecken.parent.remove(ruecken); achse.add(ruecken); }
   const pm = () => new T.MeshStandardMaterial({ roughness: .93, metalness: 0, side: T.DoubleSide, envMapIntensity: .15 });
@@ -11454,9 +11456,9 @@ function album_fotoKarte(e) { const M = album_S.mesh; if (!M.cF) return; const f
     b.fillStyle = '#1f1e1c'; b.fillRect(0, H * .8, W, H * .2); }
   else { b.fillStyle = '#efebe1'; b.fillRect(0, 0, W, H); b.save(); b.rotate(-.5); b.fillStyle = 'rgba(120,130,150,.13)'; b.font = '15px "Special Elite", monospace'; for (let y = -200; y < H + 400; y += 38) for (let x = -400; x < W + 200; x += 170) b.fillText(H0.druck || 'FOTOPAPIER', x + (y % 76 ? 85 : 0), y); b.restore(); }
   // Aufschriften
-  if (H0.kreide) { b.save(); b.translate(W / 2, H * .42); b.rotate(-.06); b.font = 'bold 58px Caveat, cursive'; b.textAlign = 'center'; b.fillStyle = 'rgba(236,232,220,.9)'; const L0 = H0.kreide.split('\n'); L0.forEach((l, i) => b.fillText(l, 0, i * 62)); b.restore();
-    b.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 2600; i++) { b.fillStyle = `rgba(0,0,0,${.2 + Math.random() * .5})`; b.fillRect(Math.random() * W, H * .25 + Math.random() * H * .4, 1 + Math.random() * 2, 1 + Math.random() * 2); } b.globalCompositeOperation = 'source-over';
-    if (stil === 'pola') { b.fillStyle = '#2c2b29'; } }
+  if (H0.kreide) { const k = document.createElement('canvas'); k.width = W; k.height = H; const kx = k.getContext('2d'); kx.translate(W / 2, H * .42); kx.rotate(-.06); kx.font = 'bold 58px Caveat, cursive'; kx.textAlign = 'center'; kx.fillStyle = 'rgba(236,232,220,.92)';
+    H0.kreide.split('\n').forEach((l, i) => kx.fillText(l, 0, i * 62)); kx.setTransform(1, 0, 0, 1, 0, 0); kx.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 5200; i++) { kx.fillStyle = `rgba(0,0,0,${.25 + Math.random() * .6})`; kx.fillRect(Math.random() * W, H * .2 + Math.random() * H * .5, 1 + Math.random() * 2.2, 1 + Math.random() * 1.6); } b.drawImage(k, 0, 0); }
   if (H0.typ) { b.save(); b.translate(W * .12, H * .16); b.rotate(.012); b.fillStyle = 'rgba(245,238,214,.95)'; b.fillRect(-10, -34, W * .78, 30 + H0.typ.length * 30); b.fillStyle = '#2a2622'; b.font = '22px "Special Elite", "Courier New", monospace'; H0.typ.forEach((l, i) => b.fillText(l, 0, i * 30)); b.restore(); }
   if (H0.stempel) { b.save(); b.translate(W * .52, H * .66); b.rotate(-.12); b.strokeStyle = 'rgba(150,30,26,.72)'; b.lineWidth = 4; b.strokeRect(-190, -40, 380, 80); b.fillStyle = 'rgba(150,30,26,.72)'; b.font = 'bold 30px "Special Elite", monospace'; b.textAlign = 'center'; b.fillText(H0.stempel, 0, 10);
     b.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 500; i++) b.fillRect(-200 + Math.random() * 400, -45 + Math.random() * 90, 2, 2); b.restore(); b.globalCompositeOperation = 'source-over'; }
@@ -11465,7 +11467,7 @@ function album_fotoKarte(e) { const M = album_S.mesh; if (!M.cF) return; const f
 
 // ================================================================ Öffnen / Schließen / Blättern
 const ALBUM_POSE = { // in Kamera-Koordinaten der Bühne: aus der Innentasche der Jacke (unten links) → in den Händen → aufgeklappt
-  jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.085, -.5], r: [1.02, 0, 0] }, offen: { p: [0, -.052, -.46], r: [1.1, 0, 0] } };
+  jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.07, -.6], r: [1.05, 0, 0] }, offen: { p: [0, -.028, -.62], r: [1.16, 0, 0] } };
 const album_tmp = { e0: null, e1: null, q0: null, q1: null, v: null, ray: null, m: null, hits: [] };
 function album_pose(a, b, k, o) { const T = album_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .03, a.p[2] + (b.p[2] - a.p[2]) * k); }
@@ -11479,7 +11481,7 @@ function album_auf() {
   S.einkleben = S.neu.filter(id => album_spreadVon(id) === S.spread).map(id => ({ e: S.e.find(x => x.id === id), t: 0, fertig: false })).filter(q => q.e);
   S.neu = S.neu.filter(id => !S.einkleben.some(q => q.e.id === id)); album_seitenNeu(null); album_spreadZeigen();
   ui.overlay = 'albumOv'; $('albumOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
+  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); album_B.spotK = 1.5; album_B.spot.target.position.set(0, -.05, -.62); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
   album_ton('albStoff', { gain: .35, pan: -.4 }); album_hinweis(); if (typeof spannung_did === 'function') { /* Welt läuft weiter */ }
 }
 function album_zu(schnell) { const S = album_S; if (!S.open || S.phase === 'zu') return; if (S.pick) album_pickZurueck(true); S.turn = null; S.mesh.turnF.visible = S.mesh.turnB.visible = false;
@@ -11678,6 +11680,11 @@ beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!r
 renderJournal = (o => () => { o(); try { if (jTab === 'inventar' || jTab === 'aufgaben') return; if (jTab === 'fallwand' || jTab === 'funde') return; const B = $('jBody'), S = album_S; if (!B || !S.hat) return;
   const d = document.createElement('p'); d.style.cssText = 'margin-top:14px;color:var(--dim);font-size:15px'; d.innerHTML = `Im Album: ${S.e.length} ${S.e.length === 1 ? 'Foto' : 'Fotos'} · <kbd style="font:600 11px Georgia;border:1px solid rgba(201,163,106,.6);padding:1px 6px;color:var(--gold)">${album_tastenName(album_tasten.album)}</kbd> öffnen`; B.appendChild(d); } catch (e) {} })(renderJournal);
 
+// Fibel-Reiter „FOTOALBUM“ (sammeln.js): kleine Übersicht, Klick schlägt das Album an der Stelle auf
+function album_reiter(B) { const S = album_S; const serien = ALBUM_SERIE_ORDER.filter(k => S.e.some(e => album_serie(e) === k));
+  B.innerHTML = `<h2>FOTOALBUM · ${S.e.length} ${S.e.length === 1 ? 'FOTO' : 'FOTOS'}</h2>` + (serien.map(k => `<h3 style="font:24px Caveat,cursive;margin:14px 0 6px;color:#3a3226">${ALBUM_SERIEN[k]}</h3><div style="display:flex;flex-wrap:wrap;gap:10px">${S.e.filter(e => album_serie(e) === k).map(e => `<img data-id="${e.id}" src="${e.src2 || e.src}" title="${(e.notiz || '').replace(/"/g, '&quot;')}" style="height:86px;box-shadow:0 3px 8px rgba(0,0,0,.45);transform:rotate(${((album_hash(e.id) - .5) * 5).toFixed(1)}deg);cursor:pointer;background:#eee;padding:${e.art === 'pola' && e.serie === 'sieben' ? 0 : 4}px">`).join('')}</div>`).join('') || '<p><small>Noch leer.</small></p>')
+    + `<p style="margin-top:18px;color:var(--pdim,#5a4a35);font-size:15px"><kbd style="font:600 11px Georgia;border:1px solid rgba(124,36,24,.5);padding:1px 6px">${album_tastenName(album_tasten.album)}</kbd> Album aufschlagen · Klick auf ein Foto schlägt die Seite auf</p>`;
+  B.querySelectorAll('img[data-id]').forEach(im => im.onclick = e => { e.stopPropagation(); S.spread = album_spreadVon(im.dataset.id); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => album_auf(), 60); }); }
 // ================================================================ Laden
 WORLD_MODS.push(['Album', async () => {
   const S = album_S; album_tmp.e0 = new THREE.Euler(); album_tmp.e1 = new THREE.Euler(); album_tmp.q0 = new THREE.Quaternion(); album_tmp.q1 = new THREE.Quaternion(); album_tmp.v = new THREE.Vector3(); album_tmp.ray = new THREE.Raycaster(); album_tmp.m = new THREE.Vector2();
@@ -11687,10 +11694,16 @@ WORLD_MODS.push(['Album', async () => {
   await album_weltBau(); album_layout();
   try { await album_klangBau(); } catch (e) { console.warn('Album: Klänge', e); }
   $('albumIcon').querySelector('.buch').style.backgroundImage = "url('assets/ms/album/cover.jpg')";
+  // Die Welt läuft weiter: Umgebungs- und kleine Schreckgeräusche dürfen auch bei offenem Album/Beutel kommen (große Schrecken nicht – man sieht nichts)
+  if (typeof spannung_can === 'function' && !album_S.spHuelle) { album_S.spHuelle = true; const o = spannung_can; spannung_can = function (fam, cls, x) { const ov = ui.overlay; if (ov === 'albumOv' || ov === 'beutelOv') { if (cls === 'major') return false; ui.overlay = null; try { return o.apply(this, arguments); } finally { ui.overlay = ov; } } return o.apply(this, arguments); }; }
   album_kameraHuelle(); try { modItem('fotoalbum', 'Fotoalbum', 'Leder, ein Riemen mit Druckknopf, Fotoecken auf jeder Seite. [' + album_tastenName(album_tasten.album) + '] öffnen.', 'buch'); } catch (e) {}
   { const iv = setInterval(() => { if (album_tastenHook()) clearInterval(iv); }, 400); }
   album_buehneVorbereiten(); S.ready = true;
+  if (typeof sammeln_reiter === 'function') sammeln_reiter('album', 'FOTOALBUM', album_reiter, () => album_S.hat, '#8f7a64');
   window.__album = { S: album_S, B: album_B, auf: album_auf, zu: album_zu, blaettern: album_blaettern, abheften: album_abheften, nehmen: album_nehmen, quellen: album_quellen, layout: album_layout, spreadVon: album_spreadVon, umdrehen: album_umdrehen, zurueck: () => album_pickZurueck(),
+    wand: k => { if (typeof fotos_S !== 'undefined') fotos_S.seen.add(k); }, SAVE: MOD_SAVE, spread: n => { album_S.spread = n; album_spreadZeigen(); },
+    unten: (x, z) => { const L = []; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld); const r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (Math.hypot(c.x - x, c.z - z) < r + .5) L.push(o); });
+      const R = new THREE.Raycaster(new THREE.Vector3(x, 2.6, z), new THREE.Vector3(0, -1, 0), 0, 3); let h = null; try { h = R.intersectObjects(L, false)[0]; } catch (e) { return 'err'; } return h ? [+h.point.y.toFixed(3), h.face ? +h.face.normal.clone().transformDirection(h.object.matrixWorld).y.toFixed(2) : 0, (h.object.name || h.object.parent && h.object.parent.name || '').slice(0, 14)] : null; },
     probe: (nx = 0, ny = 0) => { const r = new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(nx, ny), camera); r.far = 6; const h = r.intersectObjects(scene.children, true).find(h => h.object.visible && h.object.material && h.object.material.visible !== false); return h ? { p: h.point.toArray().map(v => +v.toFixed(3)), n: h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld).toArray().map(v => +v.toFixed(2)) : null, o: h.object.name } : null; },
     pickErstes: () => { const S = album_S; for (const k of [0, 1]) { const idx = 2 * S.spread + k, p = S.pages[idx]; if (p && p.slots) for (let i = 0; i < 2; i++) if (p.slots[i]) { album_pickNehmen({ idx, i, side: k ? 'R' : 'L', e: p.slots[i] }); return p.slots[i].id; } } return null; } }; // Testzugriff
 }]);
@@ -13266,10 +13279,10 @@ function beutel_aktion(a) { const S = beutel_S, T = typeof tausch_S !== 'undefin
 
 // ================================================================ 3D: Modelle der drei Stufen, Klappe, Untersuchen
 const beutel_tmp = { e0: null, e1: null, q0: null, q1: null, v: null };
-const BEUTEL_POSE = [ // in Kamera-Koordinaten der Bühne: von der Hüfte / vom Rücken nach vorn
-  { weg: { p: [.26, -.36, -.28], r: [.4, -1.1, .5] }, hand: { p: [-.105, -.07, -.45], r: [.62, .42, .02] } },
-  { weg: { p: [.44, .14, -.18], r: [.3, -2.2, .6] }, hand: { p: [-.16, -.15, -.78], r: [.42, .48, .02] } },
-  { weg: { p: [.5, .2, -.22], r: [.25, -2.3, .6] }, hand: { p: [-.22, -.3, -1.12], r: [.34, .5, .02] } }];
+const BEUTEL_POSE = [ // in Kamera-Koordinaten der Bühne: von der Hüfte / vom Rücken nach vorn (Ursprung der Modelle: Boden, Mitte)
+  { weg: { p: [.34, -.62, -.42], r: [.3, -1.2, .6] }, hand: { p: [-.13, -.1, -.56], r: [.5, .5, .02] }, d: .56 },
+  { weg: { p: [.95, .25, -.7], r: [.2, -2.3, .7] }, hand: { p: [-.33, -.3, -1.35], r: [.32, .55, .02] }, d: 1.35 },
+  { weg: { p: [1.5, .5, -1.1], r: [.2, -2.4, .7] }, hand: { p: [-.55, -.5, -2.2], r: [.26, .55, .02] }, d: 2.2 }];
 function beutel_pose(a, b, k, o) { const T = beutel_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .05, a.p[2] + (b.p[2] - a.p[2]) * k); }
 // Leder mit echter Narbung (Ausschnitt aus der Einband-Textur) dreiachsig aufgetragen – die Taschen-Skulptur hat keine UVs
@@ -13285,7 +13298,10 @@ async function beutel_modelle() {
   const S = beutel_S, B = album_B; const lederTex = msTex('beutel1/futter.jpg', true); lederTex.wrapS = lederTex.wrapT = THREE.MirroredRepeatWrapping;
   for (let i = 0; i < 3; i++) { const key = BEUTEL_STUFEN[i].key; try { const src = await msModel(key, 'model.glb'); const g = src.clone(true), root = new THREE.Group(); root.add(g); root.visible = false; B.scene.add(root);
       const flap = []; g.traverse(o => { if (!o.isMesh) return; o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .5; if (i === 0) beutel_leder(o.material, lederTex); }
-        const sw = o.geometry.attributes.skinWeight; if (i === 0 && sw) { const P = o.geometry.attributes.position, N = o.geometry.attributes.normal; flap.push({ o, P0: P.array.slice(), N0: N.array.slice(), w: Float32Array.from({ length: P.count }, (_, k) => sw.getY(k)) }); } });
+        const sw = o.geometry.attributes.skinWeight; if (i === 0 && sw) { // Attribute liegen verschränkt vor → eigene, flache Kopien (werden beim Aufklappen umgerechnet)
+          const G0 = o.geometry, G = new THREE.BufferGeometry(), flat = a => { const f = new Float32Array(a.count * 3); for (let k = 0; k < a.count; k++) { f[k * 3] = a.getX(k); f[k * 3 + 1] = a.getY(k); f[k * 3 + 2] = a.getZ(k); } return f; };
+          const P0 = flat(G0.attributes.position), N0 = flat(G0.attributes.normal); G.setAttribute('position', new THREE.BufferAttribute(P0.slice(), 3)); G.setAttribute('normal', new THREE.BufferAttribute(N0.slice(), 3)); G.setIndex(G0.index); G.computeBoundingSphere(); o.geometry = G;
+          G.attributes.position.setUsage(THREE.DynamicDrawUsage); G.attributes.normal.setUsage(THREE.DynamicDrawUsage); flap.push({ o, P0, N0, w: Float32Array.from({ length: P0.length / 3 }, (_, k) => sw.getY(k)) }); } });
       if (i === 0) { try { S.meta1 = await (await fetch('assets/ms/beutel1/meta.json')).json(); } catch (e) { S.meta1 = { hinge: [0, .159, -.0095] }; } S.flap = flap; }
       S.mod[i] = root; } catch (e) { console.warn('Beutel: Modell ' + key, e); } } }
 // Klappe der Tasche: Winkel a (rad) um die Oberkante, weich über die Gewichte (nur beim Auf-/Zuklappen gerechnet)
@@ -13319,7 +13335,7 @@ function beutel_auf(umpack) {
   if (album_S.open || album_B.owner) return;
   S.open = true; S.phase = 'auf'; S.t = 0; S.sel = null; S.kombi = null; S.insp = null; S.umpack = umpack || 0; S.klappe = false;
   ui.overlay = 'beutelOv'; $('beutelOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true);
+  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true); { const h = BEUTEL_POSE[S.stufe - 1].hand.p; album_B.spot.target.position.set(h[0], h[1] + .1 * S.stufe, h[2]); album_B.spotK = Math.pow(BEUTEL_POSE[S.stufe - 1].d / .5, 2) * .8; }
   const R = S.mod[S.stufe - 1]; R.visible = true; const P = BEUTEL_POSE[S.stufe - 1]; beutel_pose(P.weg, P.weg, 0, R); if (S.stufe === 1) beutel_klappe(0);
   album_ton(S.stufe === 1 ? 'albLeder' : 'albStoff', { gain: .4, pan: .4 }); beutel_render(true);
 }
@@ -13355,9 +13371,15 @@ addEventListener('mousemove', e => { const I = beutel_S.insp; if (!I || !I.drag)
 addEventListener('mouseup', e => { const I = beutel_S.insp; if (!I || !I.drag) return; const moved = Math.abs(e.clientX - I.dx0) > 6; I.drag = null; if (!moved) beutel_inspZurueck(); });
 
 // ================================================================ Größere Beutel finden (Welt)
+// An die nächste Wand / das nächste Wrack lehnen (Strahlen in 16 Richtungen, 3,5 m): Rücken zur Wand, leicht gekippt
+function beutel_anlehnen(F) { const L = [], x = F.at[0], z = F.at[1]; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false || o.material.transparent) return;
+    if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld), r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (r < 40 && Math.hypot(c.x - x, c.z - z) < r + 3.5) L.push(o); });
+  const R = new THREE.Raycaster(); R.far = 3.5; let best = null; const y0 = (typeof solidGround === 'function' ? Math.max(0, solidGround(x, 1.5, z)) : 0) + .45;
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, d = new THREE.Vector3(Math.sin(a), 0, Math.cos(a)); R.set(new THREE.Vector3(x, y0, z), d); let h; try { h = R.intersectObjects(L, false)[0]; } catch (e) { h = null; } if (h && (!best || h.distance < best.h.distance)) best = { h, a, d }; }
+  if (!best) return; const back = F.stufe === 3 ? .26 : .2; F.at = [best.h.point.x - best.d.x * back, best.h.point.z - best.d.z * back]; F.ry = best.a + Math.PI + (F.dreh || 0); F.lean = F.lean || .08; F.wand = best.h.object.name || 'Wand'; }
 async function beutel_weltBau() { const S = beutel_S;
   for (const F of BEUTEL_FUNDE) { try { const src = await msModel(BEUTEL_STUFEN[F.stufe - 1].key, 'model.glb'); const g = src.clone(true); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-      const w = new THREE.Group(); w.add(g); const y = typeof solidGround === 'function' ? Math.max(0, solidGround(F.at[0], 1.5, F.at[1])) : 0; w.position.set(F.at[0], y > -1 ? y : 0, F.at[1]); w.rotation.set(-F.lean, F.ry, 0, 'YXZ'); w.userData.noCol = true; scene.add(w);
+      const w = new THREE.Group(); w.add(g); beutel_anlehnen(F); const y = typeof solidGround === 'function' ? Math.max(0, solidGround(F.at[0], 1.5, F.at[1])) : 0; w.position.set(F.at[0], y > -1 ? y : 0, F.at[1]); w.rotation.set(-F.lean, F.ry, 0, 'YXZ'); w.userData.noCol = true; scene.add(w);
       const hit = box(.6, .7, .6, F.at[0], w.position.y + .35, F.at[1], hidden, { cast: false }); interact(hit, () => BEUTEL_STUFEN[F.stufe - 1].n + ' nehmen', () => beutel_finden(F)); F.w = w; F.hit = hit; S.welt.push(F); } catch (e) { console.warn('Beutel: Fundort', e); } }
   beutel_weltSync(true); }
 function beutel_weltSync(force) { const S = beutel_S, k = album_kap(); if (!force && S.kSync === k && S.stSync === S.stufe) return; S.kSync = k; S.stSync = S.stufe;
@@ -13379,12 +13401,19 @@ function beutel_vorschau() { const S = beutel_S, el = $('beutelVor'); const tg =
 addBattery = (o => function (n = 1) { const S = beutel_S; if (!S.ready || typeof tausch_drop !== 'function') return o.call(this, n); const frei = beutel_frei('batterie');
   if (n <= frei) return o.call(this, n); if (frei > 0) o.call(this, frei); const rest = n - frei; beutel_ablegen({ bat: rest }, rest);
   setTimeout(() => toast(`Kein Platz mehr für ${rest === 1 ? 'die Batterie' : rest + ' Batterien'} – du legst ${rest === 1 ? 'sie' : 'sie'} vor dir ab. ` + (S.stufe < 3 ? 'Ein größerer Beutel wäre gut.' : `[${album_tastenName(album_tasten.beutel)}] öffnen und umräumen.`), 5200), 400); })(addBattery);
+function beutel_reiter(B) { const S = beutel_S, st = BEUTEL_STUFEN[S.stufe - 1], z = beutel_zaehl(), L = beutel_stapel();
+  B.innerHTML = `<h2>${st.n.toUpperCase()} · ${beutel_faecher(z)} / ${st.fach} FÄCHER</h2><p style="font:21px/1.25 Caveat,cursive;color:#2a2a3a">${st.d}</p>
+    <ul>${L.map(s => `<li>${s.name}${s.n > 1 ? ' × ' + s.n : ''}${s.sub ? ' <small>' + s.sub + '</small>' : ''}</li>`).join('') || '<li><small>Leer.</small></li>'}</ul>
+    <p style="color:var(--pdim,#5a4a35);font-size:15px">Story-Gegenstände stecken in der Jacke und zählen nicht. <kbd style="font:600 11px Georgia;border:1px solid rgba(124,36,24,.5);padding:1px 6px">${album_tastenName(album_tasten.beutel)}</kbd> öffnen</p>
+    <button class="btReiterAuf" style="font:600 11px Georgia;letter-spacing:.2em;padding:6px 14px;cursor:pointer">ÖFFNEN</button>`;
+  B.querySelector('.btReiterAuf').onclick = e => { e.stopPropagation(); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => beutel_auf(), 60); }; }
 WORLD_MODS.push(['Beutel', async () => {
   const S = beutel_S; if (!album_B.ready) { console.warn('Beutel: keine Bühne (album.js)'); return; }
   beutel_tmp.e0 = new THREE.Euler(); beutel_tmp.e1 = new THREE.Euler(); beutel_tmp.q0 = new THREE.Quaternion(); beutel_tmp.q1 = new THREE.Quaternion(); beutel_tmp.v = new THREE.Vector3();
   await beutel_modelle(); await beutel_bildchen(); await beutel_weltBau();
   if (typeof tausch_voll === 'function') tausch_voll = function () { beutel_vollHinweis(); return false; };
   album_buehneVorbereiten(); S.ready = true;
+  if (typeof sammeln_reiter === 'function') sammeln_reiter('beutel', () => BEUTEL_STUFEN[beutel_S.stufe - 1].n.toUpperCase(), beutel_reiter, null, '#7d6a52');
   window.__beutel = { S: beutel_S, auf: beutel_auf, zu: beutel_zu, upgrade: beutel_upgrade, platz: beutel_platz, zaehl: beutel_zaehl, faecher: beutel_faecher, finden: beutel_finden, render: beutel_render, aktion: beutel_aktion, waehle: beutel_waehle, untersuchen: beutel_untersuchen, T: typeof tausch_S !== 'undefined' ? tausch_S : null, SAVE: MOD_SAVE, FLASH, licht: v => { flashOn = v; }, addBattery: n => addBattery(n) }; // Testzugriff
 }]);
 WORLD_TICK.push(dt => { const S = beutel_S; if (!S.ready) return; beutel_tick(dt); S.chk = (S.chk || 0) - dt; if (S.chk <= 0) { S.chk = .1; beutel_vorschau(); beutel_weltSync(false); } });
@@ -13722,6 +13751,7 @@ const kf_PR = {}; // name → { o }
 function kf_prop(name, o) { o.visible = false; o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } }); kf_R.seat.add(o); kf_PR[name] = { o }; return o; }
 function kf_keyLage(K, oP, oQ) { const V = KF_V;
   if (K.a) { const P = kf_P[K.a], Q = kf_HQ[K.a]; oP.set(K.p[0], K.p[1], K.p[2]).applyQuaternion(Q).add(P.w); oQ.copy(Q).multiply(V.q0.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2]))); }
+  else if (K.d) { oP.set(K.p[0], K.p[1], K.p[2]); oQ.setFromUnitVectors(V.v4.set(1, 0, 0), V.v3.set(K.d[0], K.d[1], K.d[2])); } // Richtung der Längsachse (Joint)
   else { oP.set(K.p[0], K.p[1], K.p[2]); oQ.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2])); } }
 const kf_kp = [new THREE.Vector3(), new THREE.Vector3()], kf_kq = [new THREE.Quaternion(), new THREE.Quaternion()];
 function kf_propSetzen(name, A, B, k) { const pr = kf_PR[name]; if (!pr) return; const o = pr.o;
@@ -13732,58 +13762,79 @@ function kf_propSetzen(name, A, B, k) { const pr = kf_PR[name]; if (!pr) return;
 // Posen-Bibliothek (Sitzraum: Ursprung Augenpunkt, x rechts, y oben, −z vorn). Spiegeln: x → −x
 const KF_SPIEGEL = p => KP([-p.w[0], p.w[1], p.w[2]], [-p.f[0], p.f[1], p.f[2]], [-p.n[0], p.n[1], p.n[2]], p.c.slice(), p.s, p.t);
 const KF_H = {};
-function kf_posen() { const H = KF_H;
-  H.ruheR = KP([.17, -.64, -.25], [-.12, -.25, -1], [-.1, -1, .15], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
-  H.vornR = KP([.1, -.45, -.29], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
-  H.schaleL = KP([-.075, -.47, -.29], [.42, .1, -.9], [.1, 1, .15], [.42, .5, .56, .62, .7], .08, .35); // Grinder in der linken Handfläche
-  H.griffR = KP([.07, -.33, -.26], [-.52, -.42, -.74], [-.2, -.9, .3], [.55, .6, .64, .68, .72], .25, .75); // Deckel von oben gefasst
-  H.taschR = KP([.3, -.68, -.05], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR); // Hand in der Jackentasche (unten aus dem Bild)
-  H.zangeR = KP([.085, -.4, -.25], [-.5, .1, -.86], [-.35, .8, .35], [.55, .5, .7, .85, .92], .05, .95); // Daumen + Zeigefinger (Knolle, Pappe, Blatt)
-  H.blattL = KP([-.085, -.42, -.28], [.52, .12, -.85], [.3, .9, .25], [.5, .3, .42, .6, .72], .1, .65); H.blattR = KF_SPIEGEL(H.blattL); // Blättchen zwischen Daumen und Fingern
-  H.rollL = KP([-.06, -.4, -.29], [.55, .25, -.8], [.2, .92, .3], [.62, .42, .5, .62, .72], .06, .85); H.rollR = KF_SPIEGEL(H.rollL);
-  H.kippR = KP([.08, -.34, -.27], [-.55, -.1, -.83], [-.9, .3, .2], [.55, .6, .64, .7, .75], .1, .7); // Grinder über dem Blatt gekippt
-  H.mundR = KP([.035, -.2, -.14], [-.55, .62, -.55], [-.75, -.2, .6], [.6, .55, .62, .7, .78], .05, .8); // Joint am Mund (Daumen + Zeigefinger)
-  H.haltR = KP([.1, -.38, -.28], [-.48, .3, -.83], [-.55, .75, .35], [.6, .55, .62, .72, .8], .05, .8); // Joint vor sich
-  H.feuerL = KP([-.07, -.3, -.23], [.3, .55, -.78], [.85, .05, .5], [.62, .7, .74, .78, .8], .05, .6); // Feuerzeug aufrecht, Daumen am Rad
-  H.gravurL = KP([-.05, -.36, -.26], [.35, .2, -.9], [0, .95, .3], [.55, .62, .66, .7, .74], .05, .55); // Feuerzeug liegt in der Hand, Rückseite nach oben
+// Griffpunkte in der Hand (x Daumenseite, y entlang der Finger, z aus der Handfläche) – aus den Knochen der Bindepose gemessen
+const KF_OFF = { palm: [0, .08, .026], pinch: [.048, .125, .042], top: [0, .072, .022] };
+// Pose über einen Griffpunkt: das Handgelenk ergibt sich aus Lage der Hand und Griffpunkt (g = Punkt in der Welt, der im Griff liegen soll)
+function KG(side, g, f, n, c, s, t, off) { const V = KF_V, Y = V.v0.set(f[0], f[1], f[2]).normalize(), Z = V.v1.set(n[0], n[1], n[2]).addScaledVector(Y, -Y.dot(V.v1.set(n[0], n[1], n[2]))).normalize(), X = V.v2.crossVectors(Y, Z);
+  const o = V.v3.set(off[0] * (side === 'R' ? 1 : -1), off[1], off[2]).applyQuaternion(V.q0.setFromRotationMatrix(V.m0.makeBasis(X, Y, Z)));
+  return KP([g[0] - o.x, g[1] - o.y, g[2] - o.z], f, n, c, s, t); }
+const kf_n = (x, y, z) => { const l = Math.hypot(x, y, z); return [x / l, y / l, z / l]; }, kf_add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+const KF_ORT = {}; // wichtige Punkte (Sitzraum)
+function kf_posen() { const H = KF_H, O = KF_ORT, F = KF_OFF;
+  O.G0 = [-.035, -.44, -.42]; O.nL = kf_n(.12, 1, .1); O.T = kf_add(O.G0, O.nL, .047); // Grinder in der linken Hand, Deckeloberseite
+  O.P = [0, -.35, -.4]; O.Prx = -1.0; O.Pm = [0, -.14, -.19]; // Blättchen vor der Brust, beim Lecken am Mund
+  O.M = [0, -.085, -.07]; O.dH = kf_n(-.78, .18, -.6); O.JH = [.1, -.4, -.34]; O.dM = kf_n(.12, -.32, -.94); O.JM = kf_add(O.M, O.dM, .0525); O.tip = kf_add(O.M, O.dM, .105);
+  O.F0 = kf_add(O.tip, [0, -.074, .004]); // Feuerzeug (Unterkante) unter der Spitze
+  H.ruheR = KP([.17, -.66, -.22], [-.12, -.3, -1], [-.1, -1, .3], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
+  H.vornR = KP([.11, -.47, -.3], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
+  H.taschR = KP([.3, -.7, -.02], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR);
+  H.schaleL = KG('L', O.G0, [.4, .08, -.91], O.nL, [.45, .52, .58, .64, .7], .08, .35, F.palm);
+  H.griffR = KG('R', kf_add(O.T, [0, .004, 0]), [-.85, -.3, -.42], [-.2, -1, .15], [.5, .56, .6, .64, .68], .25, .75, F.top); // von rechts über den Deckel (der Unterarm bleibt rechts)
+  H.zangeR = KG('R', kf_add(O.T, [.005, .05, 0]), [-.8, -.15, -.58], [-.35, -.8, .45], [.55, .5, .7, .85, .92], .05, .95, F.pinch);
+  H.dropR = KG('R', kf_add(O.T, [.0, .014, 0]), [-.8, -.25, -.55], [-.35, -.8, .45], [.35, .3, .6, .85, .92], .25, .6, F.pinch);
+  const ex = [Math.cos(O.Prx) * 0, 0, 0]; void ex;
+  H.blattL = KG('L', kf_add(O.P, [-.046, 0, 0]), [.55, -.1, -.83], [.2, .8, .55], [.5, .32, .44, .6, .72], .1, .65, F.pinch); H.blattR = KF_SPIEGEL(H.blattL);
+  H.rollL = KG('L', kf_add(O.P, [-.032, .012, .004]), [.35, .45, -.82], [.8, .2, .55], [.62, .44, .52, .64, .74], .06, .85, F.pinch); H.rollR = KF_SPIEGEL(H.rollL);
+  H.leckL = KG('L', kf_add(O.Pm, [-.032, .012, .004]), [.35, .5, -.79], [.8, .2, .55], [.62, .44, .52, .64, .74], .06, .85, F.pinch); H.leckR = KF_SPIEGEL(H.leckL);
+  H.schaleR = KG('R', [.07, -.4, -.4], [-.4, .08, -.91], [-.12, 1, .1], [.45, .52, .58, .64, .7], .08, .35, F.palm);
+  H.kippR = KG('R', kf_add(O.P, [.0, .085, .015]), [-.5, .15, -.85], [-.25, -.9, .35], [.5, .55, .6, .66, .72], .1, .5, F.palm);
+  H.haltR = KG('R', kf_add(O.JH, O.dH, -.0315), [-.55, .55, -.62], [-.55, .2, .8], [.6, .5, .66, .78, .86], .05, .85, F.pinch);
+  H.mundR = KG('R', kf_add(O.M, O.dM, .021), [-.55, .7, .45], [-.8, -.35, -.5], [.6, .5, .66, .78, .86], .05, .85, F.pinch);
+  H.feuerR = KG('R', kf_add(O.F0, [0, .026, 0]), [-.5, -.05, -.86], [-.88, .1, .45], [.66, .7, .74, .78, .8], .04, .2, F.palm); // Feuerzeug aufrecht in der Rechten, Daumen am Rad
+  H.schirmL = KG('L', kf_add(O.tip, [-.035, -.015, .0]), [.25, .55, -.8], [.92, .1, .35], [.3, .32, .36, .42, .5], .12, .3, F.palm); // linke Hand schirmt die Flamme ab
+  H.feuerL = H.schirmL;
+  H.gravurL = KG('L', [-.015, -.2, -.2], [.45, .4, -.8], [.05, .85, .5], [.5, .56, .6, .64, .68], .05, .5, F.palm);
 }
 // ---------------------------------------------------------------- Die Schritte der Szene
-// art: 'auto' (läuft von selbst) · 'klick' (Klick löst die Bewegung aus, dann dauer s) · 'halten' (Maustaste/Leertaste halten: dauer s) · 'maus' (bedarf px Mausweg)
+// art: 'auto' (läuft von selbst) · 'klick' (Klick löst die Bewegung aus, dann dauer s) · 'halten' (Maustaste/Leertaste halten: dauer s) · 'maus' (bedarf px Mausweg) · 'rauchen'
 // keys: [[t 0…1, { L, R, pr: { name: key | null }, ch: { … }, cam: [yaw, pitch] }], …] – fehlende Einträge übernehmen den Stand davor
-const KF_GR = { bodyP: [0, .08, .024], bodyR: [Math.PI / 2, 0, 0] };
+const KF_GR = { bodyP: KF_OFF.palm, bodyR: [Math.PI / 2, 0, 0] };
 const KF_STEPS = [];
-function kf_schritte() { const H = KF_H, S = KF_STEPS; S.length = 0; const gb = { a: 'L', p: KF_GR.bodyP, r: KF_GR.bodyR }, deckelAuf = h => ({ a: 'L', p: [0, .08, .024 + (kiffen_S.gr ? kiffen_S.gr.cut : .027) + h], r: KF_GR.bodyR });
-  const lidR = { a: 'R', p: [.0, .1, .034], r: [-Math.PI / 2, 0, 0] };
+function kf_schritte() { const H = KF_H, S = KF_STEPS, O = KF_ORT, F = KF_OFF, cut = kiffen_S.gr ? kiffen_S.gr.cut : .027; S.length = 0; const PI2 = Math.PI / 2;
+  const gb = { a: 'L', p: F.palm, r: KF_GR.bodyR }, deckelAuf = h => ({ a: 'L', p: [0, F.palm[1], F.palm[2] + cut + h], r: KF_GR.bodyR });
+  const lidR = { a: 'R', p: [0, F.top[1], F.top[2] + (.047 - cut) + .002], r: [-PI2, 0, 0] };
+  const blatt = (p, rx) => ({ p, r: [rx, 0, 0] }), joint = (c, d) => ({ p: c, d });
   S.push({ id: 'setzen', art: 'auto', dauer: 1.9, keys: [[0, { L: H.ruheL, R: H.ruheR, cam: [0, -.2], ch: { deckelD: 0, einsatz: 0, knolle: 1, blatt: 0, mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0, falt: 0, tipRoll: 0, flamme: 0, glut: 0, kr: 0 },
-      pr: { koerper: null, deckel: null, knolle: null, papes: null, blatt: null, tip: null, feuerzeug: null } }], [1, { cam: [0, -.6] }]] });
-  S.push({ id: 'nehmen', art: 'klick', hint: [['Klick', 'Grinder aus der Tasche']], dauer: 2.2, ton: [[.25, 'kfKlack', .15]], keys: [[0, {}], [.3, { R: H.taschR, L: H.vornL }], [.55, { R: H.vornR, L: H.schaleL, pr: { koerper: { a: 'R', p: [0, .085, .03], r: [Math.PI / 2, 0, 0] }, deckel: { a: 'R', p: [0, .085, .03 + .027], r: [Math.PI / 2, 0, 0] } } }],
-      [1, { R: H.griffR, pr: { koerper: gb, deckel: deckelAuf(0) }, cam: [0, -.66] }]] });
-  S.push({ id: 'auf', art: 'klick', hint: [['Klick', 'Deckel abschrauben']], dauer: 2.2, ton: [[.05, 'kfGewinde', .4], [.62, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3.2 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
-      [1, { R: H.zangeR, pr: { deckel: { p: [.2, -.62, -.12], r: [0, 0, 0] } }, ch: { einsatz: 1 } }]] });
-  S.push({ id: 'knolle', art: 'klick', hint: [['Klick', 'Knolle hineinlegen']], dauer: 2.6, ton: [[.12, 'kfPapier', .2], [.72, 'kfKlack', .12]], keys: [[0, {}], [.3, { R: H.taschR }], [.55, { R: H.zangeR, pr: { knolle: { a: 'R', p: [-.022, .13, .03], r: [0, 0, 0] } } }],
-      [.85, { R: KP([.05, -.35, -.26], [-.45, -.3, -.84], [-.3, -.6, .6], [.6, .5, .62, .8, .88], .05, .9), pr: { knolle: { a: 'L', p: [0, .08, .045], r: [0, 0, 0] } }, ch: { knolle: .8 } }], [1, { R: H.griffR, ch: { knolle: .78 } }]] });
-  S.push({ id: 'zu', art: 'auto', dauer: 1.6, ton: [[.45, 'kfGewinde', .35]], keys: [[0, {}], [.4, { pr: { deckel: deckelAuf(.01) }, ch: { einsatz: 0 } }], [.5, { pr: { knolle: null } }], [1, { pr: { deckel: deckelAuf(0) }, ch: { deckelD: 0 } }]] });
-  S.push({ id: 'grinden', art: 'maus', bedarf: 2600, hint: [['Maus hin und her', 'drehen']], keys: [[0, {}], [1, { cam: [0, -.66] }]], live: 'grind' });
-  S.push({ id: 'oeffnen', art: 'klick', hint: [['Klick', 'aufschrauben']], dauer: 2.0, ton: [[.05, 'kfGewinde', .4], [.6, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
-      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.62, -.1], r: [0, .3, 0] } }, ch: { einsatz: 2 } }]] });
-  S.push({ id: 'blatt', art: 'klick', hint: [['Klick', 'ein Blättchen ziehen']], dauer: 3.0, ton: [[.5, 'kfPapier', .35]], keys: [[0, {}], [.15, { pr: { koerper: { p: [-.14, -.6, -.2], r: [0, 0, 0] } }, L: H.vornL }], [.4, { L: H.taschL, R: H.vornR }],
-      [.62, { L: H.blattL, pr: { papes: { a: 'L', p: [.01, .1, .02], r: [0, 0, Math.PI / 2] } } }], [.85, { R: H.zangeR, pr: { blatt: { a: 'L', p: [.02, .12, .03], r: [0, 0, Math.PI / 2] } }, ch: { blatt: 1 } }],
-      [1, { R: H.blattR, pr: { papes: null, blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, L: H.blattL, cam: [0, -.72] }]] });
-  S.push({ id: 'falten', art: 'klick', hint: [['Klick', 'Pappe falten']], dauer: 2.2, ton: [[.2, 'kfFalt', .35], [.45, 'kfFalt', .3], [.7, 'kfFalt', .3]], keys: [[0, {}], [.2, { R: H.zangeR, pr: { tip: { a: 'R', p: [-.02, .13, .03], r: [0, Math.PI / 2, 0] } }, ch: { falt: 0 } }], [1, { ch: { falt: 1 } }]] });
+      pr: { koerper: null, deckel: null, knolle: null, papes: null, blatt: null, tip: null, feuerzeug: null } }], [1, { cam: [0, -.62] }]] });
+  S.push({ id: 'nehmen', art: 'klick', hint: [['Klick', 'Grinder aus der Tasche']], dauer: 2.3, ton: [[.25, 'kfKlack', .12]], keys: [[0, {}], [.3, { R: H.taschR, L: H.vornL }],
+      [.55, { R: H.schaleR, L: H.schaleL, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR }, deckel: { a: 'R', p: [0, F.palm[1], F.palm[2] + cut], r: KF_GR.bodyR } } }],
+      [1, { R: H.griffR, pr: { koerper: gb, deckel: deckelAuf(0) }, cam: [0, -.8] }]] });
+  S.push({ id: 'auf', art: 'klick', hint: [['Klick', 'Deckel abschrauben']], dauer: 2.2, ton: [[.05, 'kfGewinde', .4], [.62, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3.2 } }], [.62, { pr: { deckel: lidR } }], [.75, { R: KG('R', kf_add(O.T, [.03, .05, .02]), [-.3, -.25, -.92], [-.08, -1, -.12], [.5, .56, .6, .64, .68], .25, .75, F.top) }],
+      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.8, -.08], r: [0, .4, 0] } }, ch: { einsatz: 1 } }]] });
+  S.push({ id: 'knolle', art: 'klick', hint: [['Klick', 'Knolle hineinlegen']], dauer: 2.8, ton: [[.12, 'kfPapier', .2], [.78, 'kfKlack', .1]], keys: [[0, {}], [.3, { R: H.taschR }], [.55, { R: H.zangeR, pr: { knolle: { a: 'R', p: F.pinch, r: [0, 0, 0] } } }],
+      [.8, { R: H.dropR, pr: { knolle: { a: 'L', p: [0, F.palm[1], F.palm[2] + cut - .012], r: [PI2, 0, 0] } }, ch: { knolle: .8 } }], [1, { R: H.vornR, ch: { knolle: .78 } }]] });
+  S.push({ id: 'zu', art: 'auto', dauer: 1.7, ton: [[.5, 'kfGewinde', .35]], keys: [[0, {}], [.3, { R: H.griffR, pr: { deckel: lidR } }], [.45, { pr: { deckel: deckelAuf(.008) }, ch: { einsatz: 0 } }], [.5, { pr: { knolle: null } }], [1, { pr: { deckel: deckelAuf(0) }, ch: { deckelD: 0 } }]] });
+  S.push({ id: 'grinden', art: 'maus', bedarf: 2600, hint: [['Maus hin und her', 'drehen']], keys: [[0, {}], [1, {}]], live: 'grind' });
+  S.push({ id: 'oeffnen', art: 'klick', hint: [['Klick', 'aufschrauben']], dauer: 2.0, ton: [[.05, 'kfGewinde', .4], [.6, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3 } }], [.62, { pr: { deckel: lidR } }],
+      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.8, -.08], r: [0, .4, 0] } }, ch: { einsatz: 2 } }]] });
+  S.push({ id: 'blatt', art: 'klick', hint: [['Klick', 'ein Blättchen ziehen']], dauer: 3.2, ton: [[.55, 'kfPapier', .35]], keys: [[0, {}], [.2, { R: H.schaleR, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR } } }],
+      [.35, { L: H.taschL, pr: { koerper: { p: [.2, -.8, -.16], r: [0, 0, 0] } } }], [.55, { L: H.blattL, R: H.vornR, pr: { papes: { a: 'L', p: [-.01, .1, .03], r: [0, 0, PI2] } } }],
+      [.8, { R: H.zangeR, pr: { blatt: { a: 'L', p: [-.02, .12, .035], r: [0, 0, PI2] } }, ch: { blatt: 1 } }], [1, { R: H.blattR, pr: { papes: null, blatt: blatt(O.P, O.Prx) }, cam: [0, -.72] }]] });
+  S.push({ id: 'falten', art: 'klick', hint: [['Klick', 'Pappe falten']], dauer: 2.2, ton: [[.25, 'kfFalt', .35], [.5, 'kfFalt', .3], [.72, 'kfFalt', .3]], keys: [[0, {}], [.2, { R: H.zangeR, pr: { tip: { a: 'R', p: F.pinch, r: [0, PI2, 0] } }, ch: { falt: 0 } }], [1, { ch: { falt: 1 } }]] });
   S.push({ id: 'tip', art: 'halten', hint: [['Halten', 'Tip rollen']], dauer: 1.4, ton: [[.1, 'kfRoll', .2]], keys: [[0, {}], [1, { ch: { tipRoll: 1 } }]] });
-  S.push({ id: 'einlegen', art: 'auto', dauer: 1.4, keys: [[0, {}], [.6, { ch: { mulde: .55 } }], [1, { R: H.rollR, pr: { tip: { p: [-.0485, -.37, -.3155], r: [-.9, 0, 0], tip: 1 } }, ch: { mulde: .9 } }]] });
-  S.push({ id: 'fuellen', art: 'halten', hint: [['Halten', 'Gras einstreuen']], dauer: 2.8, keys: [[0, {}], [.2, { R: H.kippR, pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2, 0, 0] } } }],
-      [.3, { pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2 + 1.9, 0, 0] } } }], [.9, { ch: { kr: 1 } }], [1, { R: H.rollR, pr: { koerper: { p: [.2, -.61, -.2], r: [0, 1, 0] } } }]], live: 'fuellen' });
+  S.push({ id: 'einlegen', art: 'auto', dauer: 1.5, keys: [[0, {}], [.6, { ch: { mulde: .55 } }], [1, { R: H.blattR, pr: { tip: { p: kf_add(O.P, [-.045, .004, .0]), r: [O.Prx, PI2, 0], tip: 1 } }, ch: { mulde: .9 } }]] });
+  S.push({ id: 'fuellen', art: 'halten', hint: [['Halten', 'Gras einstreuen']], dauer: 2.8, keys: [[0, {}], [.2, { R: H.schaleR, pr: { koerper: { a: 'R', p: F.palm, r: KF_GR.bodyR } } }], [.32, { R: H.kippR }], [.9, { ch: { kr: 1 } }],
+      [1, { R: H.blattR, pr: { koerper: { p: [.2, -.8, -.16], r: [0, 1, 0] } } }]], live: 'fuellen' });
   S.push({ id: 'rollen', art: 'maus', bedarf: 1800, hint: [['Maus auf und ab', 'andrücken und rollen']], keys: [[0, { L: H.rollL, R: H.rollR }], [1, { ch: { rolle: .82, kegel: 1, mulde: .9 } }]], live: 'rollen' });
-  S.push({ id: 'lecken', art: 'klick', hint: [['Klick', 'anlecken']], dauer: 2.4, ton: [[.45, 'kfLeck', .35]], keys: [[0, {}], [.35, { L: KP([-.05, -.2, -.16], [.55, .3, -.78], [.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), R: KP([.05, -.2, -.16], [-.55, .3, -.78], [-.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), pr: { blatt: { p: [0, -.16, -.15], r: [-.4, 0, 0] } }, cam: [0, -.5] }],
-      [.6, { ch: { nass: 1 } }], [1, { L: H.rollL, R: H.rollR, pr: { blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, cam: [0, -.72] }]] });
-  S.push({ id: 'kleben', art: 'maus', bedarf: 1200, hint: [['Maus zur Seite', 'zukleben']], keys: [[0, {}], [1, { ch: { rolle: 1.12 } }]], live: 'kleben' });
-  S.push({ id: 'spitze', art: 'maus', bedarf: 900, hint: [['Maus kreisen', 'Spitze drehen']], keys: [[0, { R: KP([.085, -.37, -.3], [-.35, .2, -.92], [-.4, .75, .5], [.55, .5, .66, .82, .9], .05, .95) }], [1, { ch: { spitze: 1 } }]], live: 'spitze' });
-  S.push({ id: 'feuer', art: 'klick', hint: [['Klick', 'Peters Feuerzeug']], dauer: 2.6, ton: [[.3, 'kfKlack', .12]], keys: [[0, {}], [.3, { L: H.taschL, R: H.haltR, pr: { blatt: { a: 'R', p: [-.01, .135, .03], r: [0, 0, Math.PI / 2 + .3] } } }],
-      [.7, { L: H.gravurL, pr: { feuerzeug: { a: 'L', p: [0, .085, .03], r: [Math.PI / 2, 0, Math.PI] } } }], [1, { cam: [-.12, -.8] }]], halt: 2.8 });
-  S.push({ id: 'rad', art: 'klick', hint: [['Klick', 'Rad drehen']], dauer: 1.3, keys: [[0, {}], [.4, { L: H.feuerL, R: H.mundR, pr: { feuerzeug: { a: 'L', p: [.0, .07, .03], r: [0, 0, 0] } }, cam: [0, -.42] }], [1, {}]], live: 'rad' });
+  S.push({ id: 'lecken', art: 'klick', hint: [['Klick', 'anlecken']], dauer: 2.4, ton: [[.45, 'kfLeck', .35]], keys: [[0, {}], [.35, { L: H.leckL, R: H.leckR, pr: { blatt: blatt(O.Pm, -.4) }, cam: [0, -.55] }],
+      [.6, { ch: { nass: 1 } }], [1, { L: H.rollL, R: H.rollR, pr: { blatt: blatt(O.P, O.Prx) }, cam: [0, -.72] }]] });
+  S.push({ id: 'kleben', art: 'maus', bedarf: 1200, hint: [['Maus zur Seite', 'zukleben']], keys: [[0, {}], [1, { ch: { rolle: 1.45 } }]], live: 'kleben' });
+  S.push({ id: 'spitze', art: 'maus', bedarf: 900, hint: [['Maus kreisen', 'Spitze drehen']], keys: [[0, { R: KG('R', kf_add(O.P, [.05, 0, 0]), [-.2, .45, -.87], [-.85, .2, .45], [.6, .5, .66, .8, .88], .05, .9, F.pinch) }], [1, { ch: { spitze: 1 } }]], live: 'spitze' });
+  S.push({ id: 'feuer', art: 'klick', hint: [['Klick', 'Peters Feuerzeug']], dauer: 2.8, ton: [[.3, 'kfKlack', .12]], keys: [[0, {}], [.3, { L: H.taschL, R: H.haltR, pr: { blatt: joint(O.JH, O.dH) } }],
+      [.7, { L: H.gravurL, pr: { feuerzeug: { a: 'L', p: [0, .085, .03], r: [0, 0, 0] } } }], [1, { cam: [-.04, -.8] }]], halt: 3 });
+  S.push({ id: 'rad', art: 'klick', hint: [['Klick', 'Rad drehen']], dauer: 1.4, keys: [[0, {}], [.25, { R: H.vornR, pr: { blatt: joint(O.JM, O.dM) } }], [.5, { L: H.schirmL, R: H.feuerR, pr: { feuerzeug: { a: 'R', p: [-.028, .08, .04], r: [0, 0, -Math.PI / 2] } }, cam: [0, -.62] }], [1, {}]], live: 'rad' });
   S.push({ id: 'anzuenden', art: 'halten', hint: [['Halten', 'anziehen']], dauer: 2.2, keys: [[0, {}], [1, { ch: { brand: .05, glut: 1 } }]], live: 'anzuenden' });
-  S.push({ id: 'weg', art: 'auto', dauer: 1.3, ton: [[.05, 'kfDeckelZ', .5]], keys: [[0, {}], [.5, { L: H.taschL, ch: { flamme: 0 } }], [.8, { pr: { feuerzeug: null } }], [1, { L: H.ruheL, R: H.haltR, cam: [0, -.5] }]] });
+  S.push({ id: 'weg', art: 'auto', dauer: 1.4, ton: [[.05, 'kfDeckelZ', .5]], keys: [[0, {}], [.35, { R: H.taschR, L: H.ruheL, ch: { flamme: 0 } }], [.55, { pr: { feuerzeug: null } }], [.8, { R: H.mundR }], [1, { R: H.haltR, pr: { blatt: joint(O.JH, O.dH) }, cam: [0, -.5] }]] });
   S.push({ id: 'rauchen', art: 'rauchen', hint: [['Halten', 'ziehen']], keys: [[0, {}], [1, {}]], live: 'rauchen' });
   S.push({ id: 'aufstehen', art: 'auto', dauer: 2.0, keys: [[0, {}], [.5, { R: H.ruheR, pr: { blatt: { p: [.3, -.8, .02], r: [0, 1.2, 0] } } }], [1, { cam: [0, -.1] }]] });
   // Schlüssel vervollständigen (fehlende Einträge vom Stand davor)
@@ -13804,7 +13855,7 @@ function kf_eval(st, p) { const K = st.keys; let a = K[0], b = K[K.length - 1], 
 function kf_handDreh(P, cx, cy, cz, ax, ay, az, ang) { const V = KF_V, q = V.q2.setFromAxisAngle(V.v4.set(ax, ay, az).normalize(), ang); P.w.x -= cx; P.w.y -= cy; P.w.z -= cz; P.w.applyQuaternion(q); P.w.x += cx; P.w.y += cy; P.w.z += cz; P.f.applyQuaternion(q); P.n.applyQuaternion(q); }
 const kf_lebend = {
   grind(dt, t) { const Z = kf_Z, mv = kiffen_S.in.dx; Z.lidV = kf_lerp(Z.lidV, mv / Math.max(dt, .001) * .0035, Math.min(1, dt * 12)); Z.lidA = kf_clamp(Z.lidA + mv * .0042, -.95, .95);
-    const g = kf_PR.koerper.o.position; kf_handDreh(kf_P.R, g.x, g.y, g.z, KF_V.v0.set(0, 1, 0).applyQuaternion(kf_HQ.L).x, KF_V.v0.y, KF_V.v0.z, Z.lidA); kf_CH.deckelD = Z.lidA;
+    const g = kf_PR.koerper.o.position; const ax = KF_V.v1.set(0, 0, 1).applyQuaternion(kf_HQ.L); kf_handDreh(kf_P.R, g.x, g.y, g.z, ax.x, ax.y, ax.z, Z.lidA); kf_CH.deckelD = Z.lidA;
     kf_P.L.w.y += Math.sin(t * 23) * .0008 * Math.min(1, Math.abs(Z.lidV)); // die haltende Hand bekommt den Widerstand ab
     const sp = Math.min(1, Math.abs(Z.lidV) * .5); if (Z.grindG) Z.grindG.g.gain.setTargetAtTime(sp * .5, Audio.ctx.currentTime, .05); },
   fuellen(dt, t) { const Z = kf_Z; if (Z.p > .3 && Z.p < .92 && kiffen_S.in.down) { Z.krT = (Z.krT || 0) - dt; if (Z.krT < 0) { Z.krT = .025; kf_kruemelFall(); } if (!Z.streuT || t > Z.streuT) { Z.streuT = t + .5; kf_ton('kfGrind', { gain: .07, rate: .6, dur: .5 }); } } },
@@ -13813,12 +13864,12 @@ const kf_lebend = {
   kleben(dt, t) { const Z = kf_Z, d = kiffen_S.in.dx; Z.klebX = kf_clamp((Z.klebX || 0) + d * .00004, -.03, .03); kf_P.L.w.x += Z.klebX; kf_P.R.w.x += Z.klebX; kf_PA.nass = 1 - Z.p * .6; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .8; kf_ton('kfRoll', { gain: .16, rate: 1.2 }); } },
   spitze(dt, t) { const Z = kf_Z, d = Math.abs(kiffen_S.in.dx) + Math.abs(kiffen_S.in.dy); Z.spPh = (Z.spPh || 0) + d * .02; kf_handDreh(kf_P.R, .085, -.37, -.3, -.35, .2, -.92, Math.sin(Z.spPh) * .5); if (d > 3 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .5; kf_ton('kfPapier', { gain: .12, rate: 1.4, dur: .3 }); } },
   rad(dt, t) { const Z = kf_Z; if (!Z.radDone && Z.p > .45) { Z.radDone = true; kf_ton('kfDeckelZ', { gain: .5 }); Z.radN = (Z.radN || 0) + 1; kf_ton('kfRad', { gain: .5, delay: .25 }); const f = kf_PR.feuerzeug.o.position;
-      setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; } }, 280); }
+      setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; kf_hint(Z.st && Z.st.hint); } }, 280); }
     if (Z.feuer) kf_CH.flamme = 1; },
   anzuenden(dt, t) { const Z = kf_Z; kf_CH.flamme = 1; if (kiffen_S.in.down) { kf_CH.glut = Math.min(1, .3 + Z.p); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .3, dur: 1.6 }); } } },
   rauchen(dt, t) { kf_rauchenTick(dt, t); } };
 // Krümel: fallen aus dem gekippten Grinder in die Rinne und bleiben dort (Lage auf dem Papier in u/v), rollen mit ein
-function kf_kruemelFall() { const T = kf_T; for (const c of T.kr) { if (c.st) continue; c.st = 1; c.t = 0; const g = kf_PR.koerper.o.position; c.x = g.x + (Math.random() - .5) * .012; c.y = g.y + .01; c.z = g.z + (Math.random() - .5) * .012; c.vx = (Math.random() - .5) * .05; c.vy = -.05; c.vz = (Math.random() - .5) * .05;
+function kf_kruemelFall() { const T = kf_T; for (const c of T.kr) { if (c.st) continue; c.st = 1; c.t = 0; const ko = kf_PR.koerper.o, g = KF_V.v4.set(0, .027, 0).applyQuaternion(ko.quaternion).add(ko.position); c.x = g.x + (Math.random() - .5) * .014; c.y = g.y; c.z = g.z + (Math.random() - .5) * .014; c.vx = (Math.random() - .5) * .05; c.vy = -.05; c.vz = (Math.random() - .5) * .05;
   c.u = .1 + Math.random() * .78; c.v = .3 + Math.random() * .14; c.h = Math.random(); T.krN++; return; } }
 function kf_kruemelTick(dt) { const T = kf_T, P = T.krP.geometry.attributes.position.array, bl = kf_PR.blatt.o, V = KF_V; let any = false;
   for (let i = 0; i < KF_KR; i++) { const c = T.kr[i]; if (!c.st) { P[i * 3 + 1] = -99; continue; } any = true;
@@ -13834,8 +13885,9 @@ function kf_kruemelAlle() { let n = 0; for (const c of kf_T.kr) if (!c.st && n++
 function kf_jointPunkt(u, o) { const bl = kf_PR.blatt.o; kf_papAchse(u, o); return o.applyQuaternion(bl.quaternion).add(bl.position); }
 // ---------------------------------------------------------------- Rauchen: Zug = halten; loslassen = ausatmen. Husten nach dem ersten Zug, Whiskey äfft nach, Vegas im Türrahmen
 function kf_rauchenTick(dt, t) { const Z = kf_Z, S = kiffen_S, H = KF_H, V = KF_V;
+  if (S.in.test) { Z.testT = (Z.testT || 0) + dt; S.in.down = (Z.testT % 4.4) < 1.4; if (Z.zuege >= 3) S.in.ende = true; } // Selbsttest: Züge simulieren
   const ziehen = S.in.down && Z.ausT <= 0 && !Z.pause; Z.zug = kf_lerp(Z.zug, ziehen ? 1 : 0, Math.min(1, dt * (ziehen ? 3 : 2.2)));
-  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.45, -.25, Z.zug); Z.camYz = kf_lerp(Z.camYz, Z.blickY || 0, Math.min(1, dt * 2));
+  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.5, -.3, Z.zug); Z.camYz = Z.blickY || 0;
   kf_CH.glut = .45 + Z.zug * .55; if (ziehen) { Z.zugT = (Z.zugT || 0) + dt; kf_CH.brand = Math.min(.95, kf_CH.brand + dt * .012); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .26, dur: 1.6 }); } }
   else if ((Z.zugT || 0) > .5) { // ausatmen
     Z.zugT = 0; Z.zuege++; Z.ausT = 2.4; kf_ton('kfAus', { gain: .32 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
@@ -13896,6 +13948,7 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   // Requisiten nach Schlüsseln (aus dem aktuellen Schritt)
   if (st) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0; for (let i = 0; i < K.length - 1; i++) if (Z.p >= K[i][0] && Z.p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((Z.p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
     if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); }
+  if (st && st.live === 'rauchen') { const O = KF_ORT, bl = kf_PR.blatt.o; kf_keyLage({ p: O.JH, d: O.dH }, kf_kp[0], kf_kq[0]); kf_keyLage({ p: O.JM, d: O.dM }, kf_kp[1], kf_kq[1]); const k = kf_ease(Z.zug); bl.position.lerpVectors(kf_kp[0], kf_kp[1], k); bl.quaternion.slerpQuaternions(kf_kq[0], kf_kq[1], k); bl.visible = true; }
   // Kanäle
   const g = kf_PR.deckel.o, gb = kf_PR.koerper.o; if (g.visible) { g.rotateOnAxis(KF_V.v0.set(0, 1, 0), kf_CH.deckelD); }
   if (kf_PR.einsatz) { const e = kf_PR.einsatz.o; e.visible = gb.visible && kf_CH.einsatz > .5; if (e.visible) { e.position.copy(gb.position); e.quaternion.copy(gb.quaternion); e.translateY((S.gr ? S.gr.cut : .027) - .001); e.rotateX(-Math.PI / 2); } }
@@ -13907,19 +13960,18 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   kf_kruemelTick(dt);
   // Flamme, Glut, Licht
   const T = kf_T, fz = kf_PR.feuerzeug.o, L = S.vl; const fl = kf_CH.flamme > .5 && fz.visible;
-  T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .036, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
+  T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .061, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
     const fk = .85 + Math.sin(t * 31) * .06 + Math.sin(t * 17.3) * .08 + (Math.random() - .5) * .05; T.flamme.scale.set(.011 * fk, .026 * (fk + .1 * Math.sin(t * 9)), 1); T.flamme.material.opacity = .95; T.flamme.material.rotation = Math.sin(t * 3.1) * .08 + (Z.st && Z.st.id === 'anzuenden' ? -.5 : 0); }
   const gl = kf_CH.glut; T.glut.visible = gl > .02 && bl.visible; if (T.glut.visible) { kf_jointPunkt(1 - kf_PA.brand * .72, T.glut.position); const f = gl * (.8 + Math.sin(t * 13) * .1 + Math.sin(t * 5.3) * .1); T.glut.material.opacity = kf_clamp(f); T.glut.scale.setScalar(.008 + .01 * f); }
   if (L) { const w = KF_V.v3; if (fl) { L.color.setHex(0xffa24a); L.intensity = 1.6 * (.85 + Math.sin(t * 29) * .08 + Math.random() * .07); L.distance = 2.2; kf_welt(T.flamme.position.x, T.flamme.position.y + .02, T.flamme.position.z, w); L.position.copy(w); }
     else if (Z.hell) { L.color.setHex(0xfff0dc); L.intensity = Z.hell; L.distance = 3; kf_welt(.3, .4, .2, w); L.position.copy(w); }
-    else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .25 * gl; L.distance = .7; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
+    else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .1 * gl; L.distance = .6; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
   if (Z.flTon && !fl) { try { Z.flTon.stop(.15); } catch (e) {} Z.flTon = null; }
 }
 // Verandalampe von Nr. 3 (porchLights[0]) während der Szene an – Vegas hat das Licht angemacht; danach wie vorher
 function kf_veranda(an) { const Z = kf_Z, p = typeof porchLights !== 'undefined' && porchLights[0]; if (!p) return; if (an) { if (Z.porchWar === undefined) Z.porchWar = !!p.dead; p.dead = false; } else if (Z.porchWar !== undefined) { p.dead = Z.porchWar; Z.porchWar = undefined; } }
 // Sitzplatz messen (Verandakante) und die Bühne dorthin setzen
-function kf_sitzMessen(x, z) { let y = .35; try { const rc = new THREE.Raycaster(new THREE.Vector3(x, 2.4, z), new THREE.Vector3(0, -1, 0), 0, 3); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && h.object.parent !== kf_R.seat && !(h.object.material && h.object.material.transparent));
-  if (h) y = h.point.y; } catch (e) {} return y; }
+function kf_sitzMessen(x, z) { const y = kf_boden(x, z, 1.3, 1.4); return y === null || y > .9 ? .35 : y; } // Verandadielen (unter dem Dach messen)
 function kf_buehne(opts) { const Z = kf_Z, s = opts.sitz || [KF_SITZ.x, null, KF_SITZ.z, KF_SITZ.yaw]; Z.yaw = s[3]; const y0 = s[1] ?? kf_sitzMessen(s[0] + Math.sin(Z.yaw) * .25, s[2] + Math.cos(Z.yaw) * .25);
   Z.sitz.set(s[0], y0, s[2]); kf_R.seat.position.set(s[0] - Math.sin(Z.yaw) * .05, y0 + KF_SITZ.auge, s[2] - Math.cos(Z.yaw) * .05); kf_R.seat.rotation.set(0, Z.yaw, 0); kf_R.seat.updateMatrixWorld(true);
   kf_R.rig.visible = true; kf_R.seat.visible = true; for (const c of kf_T.kr) { c.st = 0; } kf_T.krN = 0; Object.assign(kf_PA, { mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0 }); Object.assign(kf_TA, { falt: 0, roll: 0 }); }
@@ -13989,7 +14041,7 @@ async function kf_vegasTips() { if (kf_hat('kf_tips')) return; const say1 = [['�
 const KF_ORTE = {
   grinder: { at: [-27.42, null, 12.22], ry: 0 }, papes: { at: [-27.3, null, 12.02], ry: 1.9 },
   knolle: { at: [-109.9, 0, 24.05], ry: 1.2, hit: [.6, .5, .6] }, tips: { tuer: true } };
-function kf_boden(x, z, von = 2.4, bis = 3.2) { try { const rc = new THREE.Raycaster(new THREE.Vector3(x, von, z), new THREE.Vector3(0, -1, 0), 0, bis); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && !(h.object.material && (h.object.material.transparent || h.object.material.visible === false)) && !kf_istMein(h.object));
+function kf_boden(x, z, von = 2.4, bis = 3.2) { try { const rc = new THREE.Raycaster(new THREE.Vector3(x, von, z), new THREE.Vector3(0, -1, 0), 0, bis); rc.camera = camera; const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && !(h.object.material && (h.object.material.transparent || h.object.material.visible === false)) && !kf_istMein(h.object));
   return h ? h.point.y : null; } catch (e) { return null; } }
 function kf_istMein(o) { for (let p = o; p; p = p.parent) if (p === kf_R.seat || (p.userData && p.userData.kf)) return true; return false; }
 async function kf_modell(key, size, axis = 'y') { const src = await msModel(key, 'model.glb'); const o = src.clone(true); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); if (size) msFit(o, size, axis); const g = msGround(o); g.userData.kf = true; return g; }
@@ -14033,7 +14085,7 @@ const KF_DEKO_TEXT = {
   bong: 'Eine Bong. In der Remise. Zwischen dem Heu. Brandschutz war hier nie ein Thema.',
   pflanzen: 'Die Growlampe ist aus. Die Pflanzen haben trotzdem durchgehalten. Respekt.',
   ascher: 'Vegas’ Aschenbecher. Voll mit Kippen ohne Filter.', ascher2: 'Vegas’ Aschenbecher. Kippen ohne Filter. Und seit heute ein Stummel mit.' };
-function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5);
+function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5); rc.camera = camera;
   const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && h.face && !h.object.isSprite && !kf_istMein(h.object) && !(h.object.material && h.object.material.visible === false) && (o.glas || !(h.object.material && h.object.material.transparent)));
   if (!h) return null; const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); if (n.dot(rc.ray.direction) > 0) n.negate(); const p = h.point.addScaledVector(n, .004);
   const m = kiffen_poster(art, p.x, p.y, p.z, Math.atan2(n.x, n.z), o); if (m && Math.abs(n.y) > .5) m.lookAt(p.x + n.x, p.y + n.y, p.z + n.z); return m; } catch (e) { console.warn('Kiffen: Aufkleber', art, e); return null; } }
@@ -14072,6 +14124,7 @@ addEventListener('mousemove', e => { if (!kf_Z.on || ui.paused) return; if (Math
 addEventListener('keydown', e => { if (!kf_Z.on || ui.paused) return; if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { kiffen_S.in.down = true; kiffen_S.in.klick++; } } if (e.code === 'KeyE' && !e.repeat) kiffen_S.in.ende = true; }, true);
 addEventListener('keyup', e => { if (e.code === 'Space') kiffen_S.in.down = false; }, true);
 { const css = document.createElement('style'); css.textContent = `
+  body.kfSzene #prompt, body.kfSzene #crosshair { visibility: hidden !important; }
   #kfHint { position: fixed; left: 0; right: 0; bottom: 4.2vh; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 9px; pointer-events: none; opacity: 0; transition: opacity .6s; }
   #kfHint.on { opacity: 1; }
   #kfHint .t { display: flex; gap: 34px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .24em; color: #d9cdb2; text-shadow: 0 0 4px #000, 0 0 14px #000; text-transform: uppercase; }
@@ -14091,10 +14144,15 @@ WORLD_MODS.push(['Kiffen', async () => { const S = kiffen_S, R = kf_R;
     const e = new THREE.Mesh(new THREE.CircleGeometry(S.gr.r * .92, 40), new THREE.MeshStandardMaterial({ map: kf_texEinsatz(), roughness: .8, metalness: .2 })); const eg = new THREE.Group(); eg.add(e); kf_prop('einsatz', eg); } catch (e) { console.warn('Kiffen: Grinder', e); }
   try { kf_prop('knolle', await kf_modell('kiffen/knolle', .03)); } catch (e) { console.warn('Kiffen: Knolle', e); }
   try { const p = await kf_modell('kiffen/papes', .105, 'max'); kf_prop('papes', p); } catch (e) { console.warn('Kiffen: Papes', e); }
-  try { const f = await kf_modell('w_lighter', .058); f.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); m.material.metalness = Math.max(m.material.metalness, .75); m.material.roughness = Math.min(m.material.roughness, .42); m.material.envMapIntensity = 1.2; } }); kf_prop('feuerzeug', f); } catch (e) { console.warn('Kiffen: Feuerzeug', e); }
+  try { const f = await kf_modell('w_lighter', .058); f.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); m.material.metalness = Math.max(m.material.metalness, .75); m.material.roughness = Math.min(m.material.roughness, .42); m.material.envMapIntensity = 1.2; } }); const gr = kf_cnv(256, 296, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(40,30,15,.75)'; x.strokeStyle = 'rgba(255,240,200,.55)'; x.lineWidth = 1; x.textAlign = 'center'; x.font = 'italic 25px Georgia';
+      ['Für Peter.', 'Damit du im', 'Dunkeln nicht', 'allein bist.', '– M.'].forEach((l, i) => { const yy = 60 + i * 44; x.fillText(l, w / 2 + (i === 4 ? 40 : 0), yy); x.strokeText(l, w / 2 + (i === 4 ? 40 : 0) - .6, yy - .6); });
+      for (let i = 0; i < 90; i++) { x.strokeStyle = `rgba(30,20,10,${Math.random() * .25})`; x.beginPath(); const a = Math.random() * w, b = Math.random() * h; x.moveTo(a, b); x.lineTo(a + Math.random() * 40 - 20, b + Math.random() * 6 - 3); x.stroke(); } });
+    const bb = new THREE.Box3().setFromObject(f), sz = bb.getSize(new THREE.Vector3()); const gm = new THREE.Mesh(new THREE.PlaneGeometry(sz.x * .78, sz.x * .9), new THREE.MeshStandardMaterial({ map: tex(gr, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .35, metalness: .6 }));
+    gm.position.set((bb.min.x + bb.max.x) / 2, sz.y * .44, bb.max.z + .0004); f.add(gm); kiffen_S.gravur = gm;
+    kf_prop('feuerzeug', f); } catch (e) { console.warn('Kiffen: Feuerzeug', e); }
   { const g = new THREE.Group(); g.add(kf_papBau(msTex('kiffen/papier/b.jpg', true), msTex('kiffen/papier/n.jpg'))); kf_prop('blatt', g); }
   { const g = new THREE.Group(); g.add(kf_tipBau(kf_texPappe())); kf_prop('tip', g); }
-  kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl);
+  kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl); S.fill = new VLight(0xffc68e, 0, 3.2, 2); scene.add(S.fill); // Flamme/Glut · Verandalicht auf den Händen (beide beim Laden mit 0)
   S.pass = kiffen_passBau(); S.flTex = kf_flashBilder(); if (S.pass) { S.pass.uniforms.tFl.value = S.flTex[0]; try { const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), S.pass.material); renderer.compile(q, camera); } catch (e) {} }
   kf_posen(); kf_schritte(); await kf_fundeBau(); await kiffen_deko();
   // Beim Vorübersetzen der Shader sichtbar (tief unter der Welt), im ersten Bild versteckt
@@ -14110,8 +14168,9 @@ WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
   const rdt = dt / S.zeit; if (!S.klang && Audio.ctx) { S.klang = true; kiffen_klangBau().catch(e => console.warn('Kiffen: Klänge', e)); }
   if (S.zittern > 0 && !kf_Z.on) S.zittern = Math.max(0, S.zittern - rdt / 900);
   kf_weichTick(rdt, t); if (S.pass && S.pass.enabled) S.pass.uniforms.uT.value = t;
-  const Z = kf_Z; if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
-    if (Z.lab) kf_eval(Z.st, Z.p); else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
+  const Z = kf_Z; document.body.classList.toggle('kfSzene', Z.on); if (S.fill) { const fi = Z.on && !Z.hell ? 1.25 * kf_io(Z.blend) : 0; if (fi > 0) kf_welt(.3, .62, .5, S.fill.position); if (Math.abs(S.fill.intensity - fi) > .001) S.fill.intensity = fi; }
+  if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
+    if (Z.lab) { kf_eval(Z.st, Z.p); if (Z.labCh) Object.assign(kf_CH, Z.labCh); } else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
   else if (kf_T.rauch.length && kf_T.rauch.some(r => r.s.visible)) kf_teilchenTick(rdt, t);
   S.chk = (S.chk || 0) - rdt; if (S.chk > 0) return; S.chk = .5; kf_dekoSync(); kf_fundeSync();
   // Aufgabe startet von selbst ~45 s nach Beginn von Kap. 4 (bis AP-19 den Moment selbst setzt: kiffen_S.auto = false + kiffen_start())
@@ -14119,11 +14178,11 @@ WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
 // ================================================================ Testzugriff
 window.__kiffen = { S: kiffen_S, Z: kf_Z, R: kf_R, P: kf_P, PA: kf_PA, TA: kf_TA, H: KF_H, STEPS: KF_STEPS, start: o => kiffen_start(o), flash: o => kiffen_flash(o), szene: o => kiffen_szene(o || {}), fund: kiffen_fund, deko: () => kiffen_deko(), poster: kiffen_poster,
   // Szene direkt starten, alle Schritte laufen von selbst (Klick/Halten/Maus werden simuliert)
-  auto(on = true) { kiffen_S.in.test = on; return on; }, klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
+  auto(on = true) { kiffen_S.in.test = on; return on; }, finde: id => { kf_gefunden(id); return story.items.filter(k => k.startsWith('kf_')).join(','); }, fundeText: () => kf_aufgabeText(), klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
   // Standbild: Schritt id bei Fortschritt p (ohne Ablauf) – für Screenshots und Posen-Feinschliff
   zeige(id, p = 1, opts = {}) { const Z = kf_Z, i = KF_STEPS.findIndex(s => s.id === id); if (i < 0) return 'Schritt fehlt';
     if (!Z.on) { Z.on = true; Z.lab = true; Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z }; kf_buehne(opts); kf_veranda(true); flashOn = false; Z.blend = 1; Z.blendZ = 1; setCamOverride(kf_camFn); setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); }
-    Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
+    Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.zug = opts.zug || 0; Z.labCh = opts.ch || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
     if (id === 'rollen') kf_PA.rolle = kf_lerp(.3, .82, p); return id + ' ' + p; },
   labEnde() { const Z = kf_Z; kf_veranda(false); if (kiffen_S.vl) kiffen_S.vl.intensity = 0; Z.hell = 0; Z.on = false; Z.lab = false; Z.st = null; setCamOverride(null); setScripted(null); kf_allesAus(); return 'ok'; },
   pose(side, json) { KF_H[side] = KP(json.w, json.f, json.n, json.c, json.s, json.t); kf_schritte(); return 'ok'; },
@@ -15909,7 +15968,7 @@ for (const [k, v] of Object.entries({ trust: 50, seen: {}, sender: 'none', auftr
 story.lwo = lwo_S;
 MOD_SAVE.push(['lwo', () => ({ trust: lwo_S.trust, seen: lwo_S.seen, sender: lwo_S.sender, auftrag1: lwo_S.auftrag1, auftrag2: lwo_S.auftrag2 }),
   v => { if (!v || typeof v !== 'object') return; lwo_S.trust = Math.min(100, Math.max(0, Number.isFinite(+v.trust) ? +v.trust : 50)); lwo_S.seen = v.seen && typeof v.seen === 'object' ? v.seen : {};
-    lwo_S.sender = ['none', 'kept', 'thrown'].includes(v.sender) ? v.sender : 'none'; lwo_S.auftrag1 = v.auftrag1 ?? null; lwo_S.auftrag2 = v.auftrag2 ?? null; story.lwo = lwo_S; lwo_nachLaden(); }]);
+    lwo_S.sender = ['none', 'kept', 'thrown'].includes(v.sender) ? v.sender : 'none'; lwo_S.auftrag1 = v.auftrag1 ?? null; lwo_S.auftrag2 = v.auftrag2 ?? null; story.lwo = lwo_S; if (typeof lwo_nachLaden === 'function') lwo_nachLaden(); }]);
 
 // ---------------------------------------------------------------- 5.1 / 80 §3.1: Ereignisse (Schlüssel → [Δ, Kapitel, Ereignis, Aufrufer])
 const LWO_WERT = {
@@ -16337,7 +16396,7 @@ function lwo_figTick(F, dt) {
     for (const k of ['idle', 'look', 'nervous', 'phone']) { const a = A[k]; if (!a) continue; const tw = (k === F.clipK ? 1 : 0) * (1 - F.walkW); const cw = a.getEffectiveWeight(); a.setEffectiveWeight(cw + (tw - cw) * Math.min(1, dt * 3)); }
     if (F.block) F.block.visible = F.clipK === 'phone' && F.walkW < .5;
     F.mx.update(dt); }
-  const obj = F.obj; obj.updateMatrixWorld(true);
+  // (Weltmatrizen: getWorldQuaternion/updateWorldMatrix aktualisieren nur die Kette, die gebraucht wird – kein zweiter Durchlauf über die ganze Figur)
   // Atmung, Haltung (Wolter vornübergebeugt), Blechmann schwerer Oberkörper
   _lrt.set(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
   const br = Math.sin((t + F.breathT) * 2 * Math.PI / (def.blech ? 4.6 : 4.1)) * (def.blech ? .016 : .012);
@@ -16403,15 +16462,15 @@ function lwo_glowTex() { return lwo_tex(128, 128, (c, w) => { const g = c.create
 async function lwo_kombiLaden() {
   const src = await msFBX('car_amsedan', 'Car.fbx', { Car_base_color: { b: 'Car_color.jpg', color: 0x6d7072, rough: .5, metal: .45 }, Car_detail: { b: 'Car_details.jpg', rough: .8, metal: .1 },
     Glass: { color: 0x0a0d10, rough: .06, metal: .7, transparent: true }, Car_number: { color: 0x3a3a38, rough: .9 }, Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: 0xfff0d6 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: 0x7a0a04 },
-    Car_backLight: { color: 0x220505, rough: .25 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
-  const lf = [], stop = []; src.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; const mats = [].concat(m.material).map(mt => { const c = mt.clone(); if (c.name === 'Glass') c.opacity = .86; if (c.name === 'Car_LightForward') { c.emissiveIntensity = 0; lf.push(c); } if (c.name === 'Car_stopLight') { c.emissiveIntensity = 0; stop.push(c); } return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; });
+    Car_backLight: { color: 0x220505, rough: .25, emissive: 0x6a0804 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
+  const lf = [], stop = []; src.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; const mats = [].concat(m.material).map(mt => { const c = mt.clone(); if (c.name === 'Glass') c.opacity = .86; if (c.name === 'Car_LightForward') { c.emissiveIntensity = 0; lf.push(c); } if (c.name === 'Car_stopLight' || c.name === 'Car_backLight') { c.emissiveIntensity = 0; stop.push(c); } return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; });
   src.scale.setScalar(4.7 / 212.53); const inner = msGround(src), g = new THREE.Group(); g.add(inner); g.visible = false; g.name = 'lwo_kombi'; scene.add(g); g.updateMatrixWorld(true);
   const bb = new THREE.Box3().setFromObject(inner), K = { g, lf, stop, bb, sp: 0, path: null, pi: 0, rueck: false, motor: null, pan: null, stand: false, fern: 0, done: null };
   // Leuchtbilder: Standlicht vorn (zwei kleine + Dunst), Rücklicht, Deckenleuchte innen (nur Sprites, kein Licht)
   const glow = (x, y, z, s, col, op) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: LWO.glareTex, color: col, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); sp.position.set(x, y, z); sp.scale.set(s, s, 1); sp.visible = false; g.add(sp); return sp; };
   const fz = bb.max.z - .12, rz = bb.min.z + .1, hw = (bb.max.x - bb.min.x) / 2 - .28;
   K.vorn = [glow(-hw, .72, fz, .32, 0xfff2da, .9), glow(hw, .72, fz, .32, 0xfff2da, .9), glow(0, .75, fz + .5, 2.4, 0xfff0d8, .12)];
-  K.hinten = [glow(-hw, .8, rz, .22, 0xff2a10, .7), glow(hw, .8, rz, .22, 0xff2a10, .7)];
+  K.hinten = [glow(-hw, .82, rz - .16, .2, 0xff2a10, .75), glow(hw, .82, rz - .16, .2, 0xff2a10, .75)];
   K.fernS = glow(0, .75, fz + .3, 7, 0xfff4e4, 0); K.innen = glow(0, 1.35, (bb.max.z + bb.min.z) / 2 - .1, .9, 0xffe2b0, .35);
   // Magnetschild „Institut für Atmosphärenforschung“ am Heck
   const ms = new THREE.Mesh(new THREE.PlaneGeometry(.62, .2), new THREE.MeshStandardMaterial({ map: lwo_texMagnet(), roughness: .6, metalness: .1, polygonOffset: true, polygonOffsetFactor: -2 })); ms.position.set(0, .98, rz - .02); ms.rotation.y = Math.PI; g.add(ms); K.schild = ms;
@@ -16650,7 +16709,10 @@ function lwo_tick(dt) {
   if (LWO.pairLateT > 0 && (LWO.pairLateT -= dt) <= 0) LWO.pairLate = true;
   if (LWO.drehen) for (const F of LWO.drehen) { const zy = F.g.userData.zielYaw; if (zy === undefined) continue; let d = zy - F.g.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); F.g.rotation.y += d * Math.min(1, dt * 1.8); }
   const cam = camera.position;
-  for (const k in LWO.F) { const F = LWO.F[k]; if (!F.g.visible) continue; const d = Math.hypot(F.g.position.x - cam.x, F.g.position.z - cam.z); if (d > 75 && !F.path) continue; lwo_figTick(F, dt); }
+  for (const k in LWO.F) { const F = LWO.F[k]; if (!F.g.visible) continue; const d = Math.hypot(F.g.position.x - cam.x, F.g.position.z - cam.z); if (d > 75 && !F.path) continue;
+    // Leistung: Schatten nur in Lukes Nähe (Umschalten kostet keine Shader), ferne Figuren mit halber Bildrate bewegen
+    const sch = d < 16; if (F.schatten !== sch) { F.schatten = sch; F.obj.traverse(o => { if (o.isMesh) o.castShadow = sch; }); }
+    if (d > 24 && !F.path) { F.dtAcc = (F.dtAcc || 0) + dt; if ((F.odd = !F.odd)) continue; lwo_figTick(F, F.dtAcc); F.dtAcc = 0; } else lwo_figTick(F, dt); }
   lwo_kombiTick(dt); lwo_v01Tick(dt); lwo_v12Tick(dt); lwo_praesenzTick();
   // Wer gegangen ist, verschwindet erst außer Sicht oder im Nebel
   for (let i = LWO.hideQ.length - 1; i >= 0; i--) { const F = LWO.hideQ[i], p = F.g.position, dx = p.x - cam.x, dz = p.z - cam.z, d = Math.hypot(dx, dz), f = (dx * -Math.sin(player.yaw) + dz * -Math.cos(player.yaw)) / Math.max(d, 1e-3);
@@ -16743,6 +16805,7 @@ const beob_V = new THREE.Vector3(), beob_V2 = new THREE.Vector3();
 function beob_gy(x, z) { const P = player.pos, g = solidGround(x, P.y + 1.2, z); return g > P.y - 3 ? g : P.y; }
 function beob_eisen(x, z, m = 1.1) { for (const b of beob_S.eisen) if (x > b[0] - m && x < b[1] + m && z > b[2] - m && z < b[3] + m) return true; return false; }
 function beob_free(x, z) { if (beob_eisen(x, z)) return false; if (!beob_town()) return true; try { return !leben_inHouse(x, z, 1) && leben_free(x, z, .4, .6); } catch (e) { return true; } }
+function beob_freeNah(x, z) { if (beob_eisen(x, z, .6)) return false; try { return !leben_inHouse(x, z, .3) && leben_free(x, z, .4, .17); } catch (e) { return true; } } // direkt an der Deckung
 function beob_facing(x, y, z) { try { return leben_facing(x, y, z); } catch (e) { return 0; } }
 function beob_setVp(x, y, z) { const S = beob_S; if (!S.vp) S.vp = new THREE.Vector3(); S.vp.set(x, y, z); }
 function beob_pos() { const S = beob_S; if (!S.ready || !S.vpOk || !S.vp) return null; if (S.V && S.V.g.visible) return S.V.g.position; return S.vp; }
@@ -17058,7 +17121,9 @@ function beob_haut(img) { // Textur des Modells: Pastell raus (Lila/Rosa/Türkis
   for (let py = 0; py < W; py++) for (let px = 0; px < W; px++) {
     const i = (py * W + px) * 4; let r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = mx - mn, lum = r * .3 + g * .59 + b * .11;
     let eye = 0; for (const [ex, ey, rx, ry] of eyes) { const q = Math.hypot((px - ex) / rx, (py - ey) / ry); eye = Math.max(eye, 1 - Math.min(1, Math.max(0, (q - .9) / .16))); }
-    if (sat > .08) { const k = Math.min(1, (sat - .08) / .2); const L = lum * .82 + .1; r = r * (1 - k) + L * .9 * k; g = g * (1 - k) + L * .91 * k; b = b * (1 - k) + L * .97 * k; } // Pastell → blasses Blaugrau (Adern bleiben als Schatten)
+    if (sat > .03 && eye < 1) { const k = Math.min(1, (sat - .03) / .08); const L = lum * .82 + .1; r = r * (1 - k) + L * .9 * k; g = g * (1 - k) + L * .91 * k; b = b * (1 - k) + L * .97 * k; } // Pastell → blasses Blaugrau (Adern bleiben als Schatten)
+    if (eye <= 0 && py > 340 * sc && lum > .2 && lum < .66) { const L = .8; r = g = b = L; } // Mund, Nasenpunkte, Brauenstriche weg (kein sichtbarer Mund)
+    else if (eye <= 0) { let q = 9; for (const [ex, ey, rx, ry] of eyes) q = Math.min(q, Math.hypot((px - ex) / rx, (py - ey) / ry)); if (q < 1.4) { const dk = 1 - .22 * (1 - (q - 1) / .4); r *= dk; g *= dk; b *= dk * 1.02; } } // eingesunkene Augenhöhlen
     r = r * .96 + .015; g = g * .955 + .012; b = b * .95 + .02; // Wachston
     if (eye > 0) { const q = 1 - eye, dk = .018 + q * .04; r = r * q + dk * eye; g = g * q + (dk + .003) * eye; b = b * q + (dk + .01) * eye; }
     d[i] = r * 255; d[i + 1] = g * 255; d[i + 2] = b * 255; }
@@ -17084,6 +17149,7 @@ async function beob_loadModel() {
     const uT = { value: 0 }, uLit = { value: 0 };
     const skinMat = new THREE.MeshPhysicalMaterial({ map: skin || map0, color: 0xf2efe8, roughness: .5, metalness: 0, clearcoat: .45, clearcoatRoughness: .32, sheen: .35, sheenRoughness: .6, sheenColor: new THREE.Color(0xdfe6f2), envMapIntensity: .45 });
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = skinMat; } }); g.updateMatrixWorld(true);
+    { const bb = new THREE.Box3(), sz = new THREE.Vector3(); m.traverse(o => { if (!o.isMesh) return; bb.setFromObject(o).getSize(sz); if (Math.min(sz.x, sz.y, sz.z) < BEOB.h * .045 && Math.max(sz.x, sz.y, sz.z) < BEOB.h * .4) o.visible = false; }); } // Mundstrich/Punkt: kein sichtbarer Mund (Dossier §2)
     // Drehpunkte: Kopf am Hals, Körper an den Füßen (das Modell hat kein Skelett; die Gruppen liegen sonst auf dem Modell-Ursprung)
     const head0 = m.getObjectByName('Kopf'), body0 = m.getObjectByName('Koerper'), piv = (o, yk) => { if (!o) return null; const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()), p = new THREE.Group();
       p.position.set(c.x, b.min.y + (b.max.y - b.min.y) * yk, c.z); o.parent.worldToLocal(p.position); o.parent.add(p); p.updateMatrixWorld(true); p.attach(o); return p; };
@@ -17137,15 +17203,16 @@ function beob_coversBau() { const S = beob_S, L = []; for (const c of colliders)
   S.covers = L; S.coversKap = beob_ch(); }
 function beob_peekSpot(minF, maxF, far = [14, 24]) {
   const S = beob_S, P = player.pos, trees = (typeof leben_S !== 'undefined' && leben_S.treePts) || [], cov = S.covers || [];
-  for (let k = 0; k < 60; k++) { let x, z; const pick = Math.random();
-    if (trees.length && pick < .5) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue;
-      const side = Math.random() < .5 ? .34 : -.34, sx = (P.z - tz) / d * side, sz = -(P.x - tx) / d * side; x = tx + sx - (P.x - tx) / d * .1; z = tz + sz - (P.z - tz) / d * .1; }
-    else if (cov.length) { const [cx, cz, hx, hz] = cov[Math.floor(Math.random() * cov.length)], d = Math.hypot(cx - P.x, cz - P.z); if (d < far[0] || d > far[1]) continue;
+  for (let k = 0; k < 220; k++) { let x, z, ox = 0, oz = 0; const pick = Math.random();
+    if (trees.length && pick < .5) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue; const fc = beob_facing(tx, P.y + .6, tz); if (fc < minF - .12 || fc > maxF + .12) continue;
+      const side = Math.random() < .5 ? .34 : -.34, sx = (P.z - tz) / d * side, sz = -(P.x - tx) / d * side; x = tx + sx - (P.x - tx) / d * .1; z = tz + sz - (P.z - tz) / d * .1; ox = sx / .34 * .1; oz = sz / .34 * .1; }
+    else if (cov.length) { const [cx, cz, hx, hz] = cov[Math.floor(Math.random() * cov.length)], d = Math.hypot(cx - P.x, cz - P.z); if (d < far[0] || d > far[1]) continue; const fc = beob_facing(cx, P.y + .6, cz); if (fc < minF - .15 || fc > maxF + .15) continue;
       const ux = (cx - P.x) / d, uz = (cz - P.z) / d, s = Math.random() < .5 ? 1 : -1, px = -uz * s, pz = ux * s, e = Math.abs(ux) * hx + Math.abs(uz) * hz, e2 = Math.abs(px) * hx + Math.abs(pz) * hz;
-      x = cx + ux * (e + .24) + px * Math.max(0, e2 - .1); z = cz + uz * (e + .24) + pz * Math.max(0, e2 - .1); }
+      x = cx + ux * (e + .24) + px * (e2 + .02); z = cz + uz * (e + .24) + pz * (e2 + .02); ox = px * .12; oz = pz * .12; }
     else continue;
-    const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF || !beob_free(x, z)) continue; const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) continue;
-    if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x, gy + BEOB.h * .78, z)) continue; return [x, gy, z]; }
+    const T = S.test.pf || (S.test.pf = { f: 0, free: 0, gy: 0, los: 0, ok: 0 });
+    const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF) { T.f++; continue; } if (!beob_freeNah(x, z)) { T.free++; continue; } const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) { T.gy++; continue; }
+    if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x + ox, gy + BEOB.h * .74, z + oz)) { T.los++; continue; } T.ok++; return [x, gy, z]; }
   return null;
 }
 function beob_hinterDeckung(cx, cz, hx, hz, minF, maxF) { const P = player.pos, d = Math.hypot(cx - P.x, cz - P.z); if (d < 8 || d > 26) return null; const ux = (cx - P.x) / d, uz = (cz - P.z) / d; // erster Platz: halb hinter der Telefonzelle
@@ -17160,7 +17227,7 @@ function beob_peekTick(dt) {
     if (K.st === 'ruecken') { if (f > .35) { if (!S.c.ganz && f < .7) { S.c.ganz = true; K.st = 'ganz'; K.t = 0; } else { beob_vanish(true); S.peek = null; beob_patter(p.x, p.z, 3, .6); return; } } else if (K.t > 25) { beob_hide(); S.peek = null; } return; }
     if (K.st === 'ganz') { if (inView) K.vis += dt; if (K.vis > .065 || K.t > 1.5 || f < .1) { beob_vanish(); S.peek = null; K.st = 'x'; } return; } // der eine Sechzehntel-Moment je Kapitel
     if (inView) { K.vis += dt; K.seen += dt * (f > .9 ? 1 : .75) * (lit ? 1.5 : 1); }
-    if (K.seen > BEOB.seenMax || K.vis > BEOB.seenMax || d < BEOB.nah) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2, 6); }
+    if (K.seen >= BEOB.seenMax - Math.max(dt, .02) || K.vis >= BEOB.seenMax - Math.max(dt, .02) || d < BEOB.nah) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2, 6); }
     else if (K.t > 40 && f < .3) { beob_hide(); S.peek = null; } }
   else if (K.st === 'gone') { if (K.t < K.wait) return; if (K.n >= 2 || beob_quiet() || beob_sperre() || beob_mode() !== 'voll') { S.peek = null; S.peekT = Math.max(S.peekT, rand(50, 90)); return; }
     // woanders wieder da: hinter Luke oder seitlich, außerhalb des Blickfelds, näher als vorher – man erwischt ihn beim Umdrehen am Rand
@@ -19986,7 +20053,7 @@ const KINO_ENV = {
   dawn: { fog: [0x8a8a8c, .02], sky: [0xb9a58e, 0x4a5a78, 1], hemi: [1.05, 0xa8b4cc, 0x3a342c], moon: [.45, 0xffd0aa], exp: 1.08, envI: .45 },
   morgen: { fog: [0x7d8590, .026], sky: [0x9aa0a8, 0x3c4a62, 1], hemi: [.95, 0x9aa8c0, 0x34302c], moon: [.3, 0xc8d4ea], exp: 1.12, envI: .4 },
   haze: { fog: [0x9a9088, .0075], sky: [0xcaa688, 0x4a5c80, 1], hemi: [1.25, 0xb0bcd0, 0x40362c], moon: [.6, 0xffcca4], exp: 1.12, envI: .5, far: 260 },
-  white: { fog: [0xe8eaee, .05], sky: [0xf0f2f5, 0xf4f6f8, 1.4], hemi: [1.5, 0xffffff, 0xd8dade], moon: [0, 0xffffff], exp: 1.05, envI: .2 },
+  white: { vig: .35, fog: [0xe8eaee, .016], sky: [0xf0f2f5, 0xf4f6f8, 1.4], hemi: [1.35, 0xffffff, 0xc8cace], moon: [0, 0xffffff], exp: .98, envI: .25 },
   vista: { fog: [0x0d1220, .011], far: 200 },
   nacht: { fog: [0x0b0f18, .022] },
   keller: { basement: true },
@@ -20033,11 +20100,11 @@ function kino_sil(P, on) { if (!P || P.sil === on) return; P.sil = on; for (cons
 function kino_fig(key, x, y, z, ry, clip = 'idle', o = {}) { const P = kino_S.fig[key]; if (!P) return null; const g = P.g, war = g.visible && !!P.cur;
   g.position.set(x, y, z); g.rotation.set(o.rx || 0, ry, o.rz || 0); g.visible = true; kino_sil(P, !!o.sil);
   if (P.sit && !o.sit) { P.sit = false; P.obj.position.set(0, 0, 0); P.obj.scale.setScalar(1); }
-  if (o.sit !== undefined) { g.updateMatrixWorld(true); if (typeof figuren_seat === 'function') { P.obj.position.set(0, 0, 0); figuren_seat({ g, obj: P.obj, mx: P.mx, doll: false, cur: P.cur, get sit() { return P.sit; }, set sit(v) { P.sit = v; } }, o.sit); P.cur = null; P.sit = true; } }
+  if (o.sit !== undefined) { kino_play_(P, 'idle', 1, 0); P.mx.update(.3 + (o.t0 || 0)); g.updateMatrixWorld(true); if (typeof figuren_seat === 'function') { P.obj.position.set(0, 0, 0); figuren_seat({ g, obj: P.obj, mx: P.mx, doll: false, cur: P.cur, get sit() { return P.sit; }, set sit(v) { P.sit = v; } }, o.sit); P.cur = null; P.sit = true; } }
   else { kino_play_(P, clip, o.ts || 1, war ? (o.fade ?? .5) : 0); if (o.t0) P.mx.update(o.t0); }
   P.look = o.look || null; P.lookW = o.look ? 1 : 0; P.lk.y = P.lk.p = 0; P.pose = o.pose || null;
   if (!kino_S.act.includes(P)) kino_S.act.push(P); return P; }
-function kino_figOff(key) { const P = kino_S.fig[key]; if (!P) return; P.g.visible = false; kino_sil(P, false); P.look = null; P.pose = null; const i = kino_S.act.indexOf(P); if (i >= 0) kino_S.act.splice(i, 1); }
+function kino_figOff(key) { const P = kino_S.fig[key]; if (!P) return; P.g.visible = false; kino_sil(P, false); if (P.grau) kino_grau(P, false); P.look = null; P.pose = null; const i = kino_S.act.indexOf(P); if (i >= 0) kino_S.act.splice(i, 1); }
 // Bone additiv um eine Weltachse drehen (nach dem Mixer): wirkt unabhängig von den Achsen des Skeletts
 function kino_rotW(b, ax, ang) { if (!b || !ang) return; const S = kino_S; b.parent.getWorldQuaternion(S.q); S.q2.setFromAxisAngle(ax, ang); b.getWorldQuaternion(kino_S.qb || (kino_S.qb = new THREE.Quaternion()));
   S.qb.premultiply(S.q2); b.quaternion.copy(S.q.invert()).multiply(S.qb); b.updateMatrixWorld(true); }
@@ -20060,7 +20127,8 @@ function kino_arm(P, side, target, w, bend = .35) { const B = P.bones, up = side
 function kino_gehen(P, x0, z0, x1, z1, t, v, clip = 'walk') { if (!P) return 1; const d = Math.hypot(x1 - x0, z1 - z0) || 1e-3, s = Math.min(d, Math.max(0, t) * v), k = s / d;
   P.g.position.x = x0 + (x1 - x0) * k; P.g.position.z = z0 + (z1 - z0) * k; P.g.rotation.y = Math.atan2(x1 - x0, z1 - z0);
   if (k < 1) kino_play_(P, clip, v / P.walkV, .35); else kino_play_(P, 'idle', 1, .6); return k; }
-function kino_obj(key, o) { o.visible = false; o.userData.noCol = true; o.traverse(m => { m.userData.noCol = true; }); scene.add(o); kino_S.obj[key] = o; return o; }
+const KINO_NORAY = () => {};
+function kino_obj(key, o) { o.visible = false; o.userData.noCol = true; o.traverse(m => { m.userData.noCol = true; m.raycast = KINO_NORAY; }); scene.add(o); kino_S.obj[key] = o; return o; }
 function kino_show(key, x, y, z, ry = 0) { const o = kino_S.obj[key]; if (!o) return null; if (x !== undefined) { o.position.set(x, y, z); o.rotation.y = ry; } o.visible = true; return o; }
 function kino_hide(...keys) { for (const k of keys) { const o = kino_S.obj[k]; if (o) o.visible = false; } }
 // Leuchtende Sprites (keine Lichter): Flamme, Schein – beim Laden angelegt
@@ -20149,7 +20217,7 @@ function kino_tex_kindgesicht() { const cv = document.createElement('canvas'); c
     finally { renderer.setRenderTarget(null); rt.dispose(); scene.fog.density = fd; pl.position.copy(p0); pl.intensity = i0; pl.distance = d0; pl.color.copy(c0); g.visible = false; }
     if (ok) { const im = x.createImageData(256, 256), d = im.data, tm = v => Math.round(255 * Math.min(1, Math.pow(Math.max(0, v / 255 * 1.4 / (1 + v / 255 * 1.4) * 1.6), 1 / 2.2)));
       for (let yy = 0; yy < 256; yy++) for (let xx = 0; xx < 256; xx++) { const s = ((255 - yy) * 256 + xx) * 4, o = (yy * 256 + xx) * 4, r = Math.hypot(xx - 128, (yy - 124) * .86) / 128, a = kino_cl((1 - r) / .28, 0, 1);
-        const l = (px[s] + px[s + 1] + px[s + 2]) / 3; d[o] = tm(l * .96); d[o + 1] = tm(l * .97); d[o + 2] = tm(l * 1.02); d[o + 3] = Math.round(255 * a * a); } x.putImageData(im, 0, 0); } }
+        const l = (px[s] + px[s + 1] + px[s + 2]) / 3, bg = kino_cl((l - 6) / 26, 0, 1); d[o] = tm(l * .96); d[o + 1] = tm(l * .97); d[o + 2] = tm(l * 1.02); d[o + 3] = Math.round(255 * a * a * bg); } x.putImageData(im, 0, 0); } }
   if (!ok) { x.clearRect(0, 0, 256, 256); }
   return cv; }
 
@@ -20248,8 +20316,8 @@ WORLD_MODS.push(['Kino', async () => {
   try { S.lens = kino_lensPass(); if (S.lens) { S.lens.enabled = true; S.lensWarm = 3; } } catch (e) { console.warn('Kino: Linse', e); }
   // Prolog: das Kindergesicht vom Graukind-Modell
   try { const cv = kino_tex_kindgesicht(), m = new T.MeshBasicMaterial({ map: tex(cv, true), transparent: true, depthWrite: false, fog: false, side: T.DoubleSide });
-    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI; const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m;
-    const m2 = m.clone(); m2.color = new T.Color(.62, .68, .72); m2.depthTest = false; const f2 = new T.Mesh(f.geometry, m2); f2.rotation.y = PI; f2.scale.setScalar(2.6); f2.renderOrder = 21; const g2 = new T.Group(); g2.add(f2); kino_obj('tankGesicht', g2); } catch (e) { console.warn('Kino: Kindergesicht', e); }
+    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI / 2; f.scale.setScalar(1.5); const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m;
+    const m2 = m.clone(); m2.color = new T.Color(.46, .5, .54); m2.opacity = .92; m2.depthTest = false; const f2 = new T.Mesh(f.geometry, m2); f2.rotation.y = PI / 2; f2.scale.setScalar(2.6); f2.renderOrder = 21; const g2 = new T.Group(); g2.add(f2); kino_obj('tankGesicht', g2); } catch (e) { console.warn('Kino: Kindergesicht', e); }
   kino_defs(); S.ready = true; lap('fertig');
 }]);
 
@@ -20295,7 +20363,7 @@ function kino_next() {
   else if (sh.white) { fd.style.transition = `opacity ${sh.fadeOut ?? 60}ms`; fd.style.background = '#fff'; fd.style.opacity = 1; }
   else { fd.style.transition = `opacity ${sh.fadeIn ?? 0}ms`; fd.style.opacity = 0; }
   document.body.classList.toggle('kinoFrei', !!sh.frei);
-  kino_envApply(sh.env ? (typeof sh.env === 'string' ? KINO_ENV[sh.env] : sh.env) : null); kino_film(sh.film || null);
+  const EV = sh.env ? (typeof sh.env === 'string' ? KINO_ENV[sh.env] : sh.env) : null; kino_envApply(EV); kino_film(sh.film || (EV && EV.vig !== undefined ? { vig: EV.vig } : null));
   const f0 = sh.fov || S.sv.fovP || fov; if (!sh.frei && camera.fov !== f0) { camera.fov = f0; camera.updateProjectionMatrix(); }
   // Ausgangspunkte (einmal je Einstellung ausgewertet)
   const fr = kino_resolve(sh.from, sh); sh._from = fr ? kino_V(fr[0], fr[1], fr[2]) : null; if (fr && fr[3]) sh._fromDir = fr[3].clone();
@@ -20331,11 +20399,12 @@ function kino_cam(cam, dt) {
     if (sh.frei) { if (sh.blick) { const bl = typeof sh.blick === 'function' ? sh.blick(S.a) : S.a.set(sh.blick[0], sh.blick[1], sh.blick[2]); const P = cam.position, dx = bl.x - P.x, dz = bl.z - P.z;
         let y1 = Math.atan2(-dx, -dz); while (y1 - player.yaw > PI) y1 -= 2 * PI; while (y1 - player.yaw < -PI) y1 += 2 * PI; const p1 = Math.atan2(bl.y - P.y, Math.hypot(dx, dz)), r = 1 - Math.exp(-dt * (sh.blickRate || 2.2));
         player.yaw += (y1 - player.yaw) * r; player.pitch += (p1 - player.pitch) * r; cam.rotation.set(player.pitch, player.yaw, 0, 'YXZ'); }
-      if (sh.fov && cam.fov !== sh.fov) { cam.fov = sh.fov; cam.updateProjectionMatrix(); }
+      { const fv = sh.fovTo ? (sh.fov || fov) + (sh.fovTo - (sh.fov || fov)) * e : sh.fov; if (fv && Math.abs(cam.fov - fv) > .001) { cam.fov = fv; cam.updateProjectionMatrix(); } }
       kino_camShake(cam, dt); if (sh.dy) cam.position.y += sh.dy(k, S.t); S.pose.p.copy(cam.position); S.pose.q.copy(cam.quaternion); S.pose.ok = true; kino_lensSet(sh.lens, k, e); if (sh.tick) sh.tick(k, S.t, dt, sh); return; }
     if (sh.path) sh.path(e, S.t, v, w, sh, k);
     else { if (sh._curve) sh._curve.getPoint(e, v); else v.lerpVectors(sh._from, sh._to, e);
-      if (sh._lcurve) sh._lcurve.getPoint(e, w); else if (sh._lookTo) w.lerpVectors(sh._look, sh._lookTo, e); else if (sh._look) w.copy(sh._look); else if (typeof sh.look === 'function') sh.look(w, e, S.t, sh);
+      if (sh._lcurve) sh._lcurve.getPoint(e, w); else if (sh._lookTo && sh._look) w.lerpVectors(sh._look, sh._lookTo, e); else if (sh._look) w.copy(sh._look);
+      else if (typeof sh.look === 'function') { const r = sh.look(w, e, S.t, sh); if (Array.isArray(r)) w.set(r[0], r[1], r[2]); else if (r && r.isVector3 && r !== w) w.copy(r); if (sh._lookTo) w.lerp(sh._lookTo, e); } // bewegtes Blickziel (Rückgabe Array/Vektor oder w selbst gesetzt)
       else if (sh._fromDir) w.copy(v).addScaledVector(sh._fromDir, 6); }
     if (sh.follow) { if (S.wOk) S.wPrev.lerp(w, 1 - Math.exp(-dt * sh.follow)); else { S.wPrev.copy(w); S.wOk = true; } w.copy(S.wPrev); }
     const h = sh.hand ?? .5, T = S.T; // ruhige Hand: kaum spürbares Atmen der Kamera (zwei langsame, sich überlagernde Schwingungen)
@@ -20404,7 +20473,7 @@ function kino_lampNah(x, z) { let b = null, bd = 1e9; kino_lamps(L => { const d 
 function kino_tick(dt) {
   const S = kino_S; if (S.lensWarm > 0 && --S.lensWarm === 0 && S.lens && !S.on) S.lens.enabled = false;
   if (!S.on || S.ending) return; if (S.hold) dt = 0;
-  for (let i = 0; i < S.act.length; i++) { const P = S.act[i]; if (P.g.visible && !P.sit) { P.mx.update(dt); if (P.look || P.pose) { P.obj.updateMatrixWorld(true); kino_figPost(P, dt); } } }
+  for (let i = 0; i < S.act.length; i++) { const P = S.act[i]; if (P.g.visible && !P.sit) { P.mx.update(dt); if (P.look || P.pose) { P.g.updateMatrixWorld(true); kino_figPost(P, dt); } } }
   const R = S.rabe; if (R && R.g.visible) { R.mx.update(dt); if (R.fl) { const F = R.fl, g = R.g; F.t = Math.min(1, F.t + dt / F.dur); const k = F.t, a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
       g.position.set(a * F.from.x + b * F.ctrl.x + c * F.to.x, a * F.from.y + b * F.ctrl.y + c * F.to.y, a * F.from.z + b * F.ctrl.z + c * F.to.z);
       const dx = F.to.x - F.from.x, dz = F.to.z - F.from.z; g.rotation.y = Math.atan2(dx, dz); if (F.t >= 1) { R.fl = null; kino_rabeClip('Landing', true); kino_after(.7, () => kino_rabeClip('IdleLookAround')); if (F.then) F.then(); } } }
@@ -20481,7 +20550,7 @@ function kino_defK1() {
       tick(k, t, dt) { ufoTick(dt, 1); beam(1); filmPass.uniforms.flash.value = .1 + .03 * Math.sin(t * 9); kino_staubTick(dt, ax().hx, ax().hz, 1.6); hildeLift(14 + t); } ,
       teardown() { filmPass.uniforms.flash.value = 0; } },
     // 20–26 · ganz nah: sie gleitet an Lukes Gesicht vorbei, lächelt traurig, die Hand erreicht seine Wange nicht, eine Träne läuft nach oben. Sechs Sekunden Stille
-    { path(e, t, v, w, sh) { const A = ax(); v.set(A.lx, 1.64, A.lz); const P = hilde(); if (P && P.bones.head) { P.bones.head.getWorldPosition(w); w.y += .02; if (t > 3.6) w.y += (t - 3.6) * .55; } else w.set(A.lx + A.ux, 1.7 + t * .3, A.lz + A.uz); },
+    { path(e, t, v, w, sh) { const A = ax(); v.set(A.lx, 1.64, A.lz); const P = hilde(); if (P && P.bones.head) { P.g.updateMatrixWorld(true); P.bones.head.getWorldPosition(w); w.y += .02; if (t > 3.6) w.y += (t - 3.6) * .55; } else w.set(A.lx + A.ux, 1.7 + t * .3, A.lz + A.uz); },
       dur: 6, fov: 38, fovTo: 34, hand: .25, follow: 5, lens: { at: () => kino_hildeKopf(kino_S.a), r: .18, amt: .6 }, film: { vig: 2.1, ca: .004, toe: .6 },
       lines: [['„Du hast sie rausgelassen“, flüstert sie. Dann lächelt sie. Traurig.', '', 1.4, 4200]],
       setup(sh) { kino_abriss(.05); kino_brumm(0, .05); const A = Audio; if (A.hum) A.hum(false); if (A.ctx && A.world) { const t = A.ctx.currentTime; A.world.gain.cancelScheduledValues(t); A.world.gain.setValueAtTime(0, t); }
@@ -20501,10 +20570,10 @@ function kino_defK1() {
       teardown() { filmPass.uniforms.flash.value = 0; S.k1hSchlag = 0; kino_figOff('hilde'); } },
     // 28–34 · zurück auf Straßenhöhe, Luke ist in die Knie gegangen: der Asphalt glänzt, die Lesebrille, ein Polaroid segelt herab – Zayn. Regen kommt zurück, im Osten eine Fahrradklingel
     { path(e, t, v, w) { const A = ax(); const dn = kino_e(Math.min(1, t / 1.1)); v.set(A.lx + A.ux * .2, 1.64 - .72 * dn + Math.sin(t * 2.1) * .01, A.lz + A.uz * .2); w.set(A.hx, .05 + .5 * (1 - dn), A.hz); },
-      dur: 6, fov: 40, hand: .9, breathe: .8, follow: 2.5, shakes: [[.4, .014, .8]], lens: { at: () => kino_S.a.set(ax().hx, .02, ax().hz), r: .2, amt: .55 }, env: { hemi: [.55, 0x6f82a8, 0x14161c], moon: [.55, 0x9fb2dc], exp: 1.7 },
+      dur: 6, fov: 40, fovTo: 26, hand: .9, breathe: .8, follow: 2.5, shakes: [[.4, .014, .8]], lens: { at: () => kino_S.a.set(ax().hx, .02, ax().hz), r: .2, amt: .55 }, env: { hemi: [.55, 0x6f82a8, 0x14161c], moon: [.55, 0x9fb2dc], exp: 1.7 },
       setup() { const A = ax(); kino_show('nass', A.hx, .021, A.hz); const b = kino_show('brille', A.hx - A.ux * .18 + .06, .024, A.hz - A.uz * .18 - .05); b.rotation.set(-PI / 2, 0, .7);
         kino_regen(.28, 2.5); kino_still(false, 2); S.polaDown = false; const U = ufo.userData; U.beam.uniforms.opacity.value = 0; U.spot.intensity = 0; U.motes.material.opacity = 0; U.tick(0, S.T);
-        S.vl[0].position.set(A.hx + 1.5, 2.2, A.hz + 1.8); S.vl[0].color.setHex(0x9fb2dc); S.vl[0].distance = 6; S.vl[0].intensity = .7; kino_after(4.2, () => kino_klingel(A.hx + 70, A.hz - 3)); },
+        S.vl[0].position.set(A.hx - A.ux * .8, 1.2, A.hz - A.uz * .8); S.vl[0].color.setHex(0xa8badc); S.vl[0].distance = 3; S.vl[0].intensity = 1.1; kino_after(4.2, () => kino_klingel(A.hx + 70, A.hz - 3)); },
       tick(k, t, dt) { const A = ax(), p = kino_S.obj.pola; if (t < 1.4) { p.visible = false; return; } p.visible = true; const u = Math.min(1, (t - 1.4) / 3.6), y = 3.2 * (1 - u) * (1 - u * .15) + .03 * u;
         p.position.set(A.hx - A.ux * .45 + .25 * (1 - u) + Math.sin(t * 3.1) * .08 * (1 - u), Math.max(.03, y), A.hz - A.uz * .45 + Math.cos(t * 2.3) * .06 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
         if (u >= 1 && !S.polaDown) { S.polaDown = true; if (Audio.paper) Audio.paper(); } } },
@@ -20518,9 +20587,9 @@ function kino_defK1() {
     // 40–44 · zurück an den Spieler: der Kegel streift einen Meter neben Luke den Boden
     { frei: true, dur: 4, keepFlash: true, blick: () => kino_S.a.set(ufo.position.x, .5, ufo.position.z), blickRate: 1.2,
       lines: [['Sie sucht. Wie beim Verstecken. Und du bist dran.', '', 1.2, 3600]],
-      setup() { document.body.classList.remove('kinoFrei'); const A = ax(); S.scanP.set(A.lx + A.uz * 3.2, 0, A.lz - A.ux * 3.2); kino_brumm(.55, 2);
+      setup() { document.body.classList.remove('kinoFrei'); const A = ax(); S.scanP.set(A.lx + A.uz * 5, 0, A.lz - A.ux * 5); kino_brumm(.55, 2);
         kino_after(.4, () => { if (typeof questPop === 'function') { kino_S.qp = kino_S.qp || []; kino_S.qp.push(['FIBEL', 'Versteck dich vor dem Licht. Zurück in den Keller.']); } }); },
-      tick(k, t, dt) { ufoTick(dt, 1); beam(.6); ufo.position.x += (S.scanP.x - ufo.position.x) * Math.min(1, dt * 1.4); ufo.position.z += (S.scanP.z - ufo.position.z) * Math.min(1, dt * 1.4); ufo.position.y = 20; } },
+      tick(k, t, dt) { ufoTick(dt, 1); beam(.35); ufo.position.x += (S.scanP.x - ufo.position.x) * Math.min(1, dt * 1.4); ufo.position.z += (S.scanP.z - ufo.position.z) * Math.min(1, dt * 1.4); ufo.position.y = 20; } },
   ], { name: 'Hilde im Strahl', skipAfter: Infinity, nahtlos: true, offen: true, uebergabe: true,
     start() { // Achse Luke → Hilde; steht Luke weiter als 9 m weg, springt die Einstellung ab 6 s näher heran (Schnitt auf Bewegung)
       const P = player.pos, hx = H.x, hz = H.z; let dx = hx - P.x, dz = hz - P.z, d = Math.hypot(dx, dz); if (d < .5) { dx = -1; dz = 0; d = 1; } const ux = dx / d, uz = dz / d;
@@ -20539,10 +20608,10 @@ function kino_defK1() {
       sfx: [[() => Audio.play('switch1', { gain: .35, rate: .7, x: -27.1, y: 2.3, z: -12, ref: 4 }), 5]],
       teardown(sh) { kino_hide('veranda'); if (porchLights[0]) porchLights[0].dead = sh.porch; } },
     // 7–14 · die nasse Stelle, wo Hilde stand; die Lesebrille. Drei kleine schnelle Schritte auf nassem Asphalt
-    { from: sh => { const h = kino_hildeSpot(); return [h.x + 1.5, .42, h.z + 1.25]; }, to: sh => { const h = kino_hildeSpot(); return [h.x + 1.15, .34, h.z + .9]; }, look: sh => { const h = kino_hildeSpot(); return [h.x + .05, .04, h.z - .05]; },
+    { from: sh => { const h = kino_hildeSpot(); return [h.x + .85, .4, h.z + .72]; }, to: sh => { const h = kino_hildeSpot(); return [h.x + .6, .3, h.z + .5]; }, look: sh => { const h = kino_hildeSpot(); return [h.x + .05, .04, h.z - .05]; },
       dur: 7, fov: 30, fovTo: 27, hand: .25, ease: 'soft', lens: { at: sh => { const h = kino_hildeSpot(); return kino_S.a.set(h.x + .02, .03, h.z - .05); }, r: .16, amt: .8 }, env: { fog: [0x121a2a, .02], hemi: [.5, 0x6f82a8, 0x14161c], moon: [.5, 0x9fb2dc], exp: 1.5 },
       setup() { const h = kino_hildeSpot(); kino_show('nass', h.x, .021, h.z); const b = kino_show('brille', h.x + .02, .024, h.z - .05); b.rotation.set(-PI / 2, 0, .7); kino_lamps(L => kino_lampe(L, 'aus'));
-        kino_S.vl[0].position.set(h.x - 2.2, 2.6, h.z - 1.8); kino_S.vl[0].color.setHex(0x8fa4cc); kino_S.vl[0].distance = 6; kino_S.vl[0].intensity = .45; // Mondlicht als Streiflicht auf den Gläsern
+        kino_S.vl[0].position.set(h.x - .5, .9, h.z - .6); kino_S.vl[0].color.setHex(0x9fb0d4); kino_S.vl[0].distance = 2.2; kino_S.vl[0].intensity = .7; // Mondlicht als Streiflicht auf den Gläsern
         kino_katze(h); },
       sfx: [[() => { const h = kino_hildeSpot(); kino_trippeln(h.x - 3.2, h.z - 1.2, .05); }, 5]],
       teardown() { kino_hide('nass', 'brille'); kino_katzeZurueck(); } },
@@ -20590,7 +20659,7 @@ function kino_katze(h) { if (typeof katzen_get !== 'function') return; try { con
   kino_after(4.2, () => katzen_stare(K, [h.x - 5, .4, h.z - 3.5])); } catch (e) { console.warn('Kino: Katze', e); } }
 function kino_katzeZurueck() { const C = kino_S.katze; if (!C) return; kino_S.katze = null; try { if (!C.on) katzen_hide(C.k); else { katzen_place(C.k, C.x, C.z, { pose: C.st === 'go' ? 'sit' : C.st }); katzen_stare(C.k, C.stare); } } catch (e) {} }
 // Hildes Kopf (für Fokus und Blick)
-function kino_hildeKopf(v) { const P = kino_S.fig.hilde; if (P && P.g.visible && P.bones.head) { P.bones.head.getWorldPosition(v); return v; } const h = kino_hildeSpot(); return v.set(h.x, 1.5, h.z); }
+function kino_hildeKopf(v) { const P = kino_S.fig.hilde; if (P && P.g.visible && P.bones.head) { P.g.updateMatrixWorld(true); P.bones.head.getWorldPosition(v); return v; } const h = kino_hildeSpot(); return v.set(h.x, 1.5, h.z); }
 // Hildes Hand hebt sich zu Lukes Wange und erreicht sie nicht
 function kino_hildeHand(P, t) { const w = kino_ramp(t, 1.2, 3.2) * (1 - kino_ramp(t, 4.6, 5.8)); kino_arm(P, 'r', camera.position, w * .85, .6); }
 // Die Träne läuft nach oben: kleiner feuchter Glanz an der Wange, steigt zur Schläfe
@@ -20615,18 +20684,18 @@ function kino_defK2() {
   // ---- Teil B · „Das Gesicht im Glas“ – ab Lucys letzter Frage (Spielerkamera, nur in der Mitte weich zum Tank gezogen)
   kino_def('k2b', [
     { frei: true, dur: 4, keepFlash: true, // 0–4 · vier Neonröhren sterben von der Tür her, je eine Sekunde, jede ein Klack
-      setup(sh) { sh.T = tubes(); sh.i = 0; S.k2bT = sh.T; for (const L of sh.T) L._m = L.mode; },
+      setup(sh) { sh.T = tubes(); sh.i = 0; S.k2bT = sh.T; for (const L of sh.T) L._m = L.mode; if (typeof tankFace !== 'undefined') tankFace.visible = false; },
       tick(k, t, dt, sh) { while (sh.i < Math.min(4, sh.T.length) && t > .35 + sh.i) { const L = sh.T[sh.i++]; L.mode = 'dying'; const p = L.tube.position; Audio.play('switch1', { gain: .4, rate: .55, x: p.x, y: 2.4, z: p.z, ref: 3 }); } } },
     { frei: true, dur: 3, keepFlash: true, // 4–7 · die Kette der Luke bewegt sich, ein Glied, noch eins; Staub rieselt; Brummen durch die Erde, das Wasser bekommt Ringe
       setup() { for (const L of S.k2bT || []) L.mode = 'off'; kino_brumm(.9, 1.6, 42); kino_show('wasser', TK.x, 2.26, TK.z); kino_S.obj.staub.visible = true;
         [.3, 1.4].forEach(d => kino_after(d, () => { Audio.play('metalHit1', { gain: .16, rate: .7, dur: .5, x: TK.x, y: 2.9, z: TK.z, ref: 2 }); Audio.play('scrape2', { gain: .08, rate: 1.3, dur: .4, x: TK.x, y: 2.9, z: TK.z, ref: 2 }); })); },
       tick(k, t, dt) { kino_rieseln(dt, TK.x, TK.z, 2.5); const w = kino_S.obj.wasser; w.scale.setScalar(1 + .015 * Math.sin(t * 9)); w.rotation.z = Math.sin(t * 5) * .03; } },
-    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 1.1, lens: { at: [TK.x, 1.4, TK.z], r: .25, amt: .35 }, // 7–10 · weich zum Tank gezogen; Lucy, Augen offen, Angst. Spieluhr ganz leise unter dem Brummen
+    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 1.1, fov: 72, fovTo: 52, ease: 'soft', lens: { at: [TK.x, 1.4, TK.z], r: .25, amt: .35 }, // 7–10 · weich zum Tank gezogen; Lucy, Augen offen, Angst. Spieluhr ganz leise unter dem Brummen
       setup() { kino_box(['E5', 'D5', 'C5', 'B4', 'C5'], .2, .018, .97); }, tick(k, t, dt) { kino_rieseln(dt, TK.x, TK.z, 2.5); } },
-    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 3, film: { vig: 1.7, ca: .006 }, lens: { at: () => kino_S.obj.tankGesicht.position, r: .16, amt: .6 }, // 10–13 · das graue Gesicht presst sich von innen ans Glas, genau vor seinen Augen. Stille
+    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 3, fov: 52, fovTo: 44, film: { vig: 1.7, ca: .006 }, lens: { at: () => kino_S.obj.tankGesicht.position, r: .16, amt: .6 }, // 10–13 · das graue Gesicht presst sich von innen ans Glas, genau vor seinen Augen. Stille
       setup(sh) { kino_brumm(0, .08); kino_still(true, .1); if (Audio.tankHum) Audio.tankHum(false); const g = kino_show('tankGesicht'); glas(g.position, .55); g.lookAt(camera.position); sh.p0 = g.position.clone();
         kino_after(.55, () => Audio.play('glass1', { gain: .22, rate: .42, lp: 900, x: TK.x, y: 1.4, z: TK.z, ref: 2 })); },
-      tick(k, t, dt, sh) { const g = kino_S.obj.tankGesicht, u = kino_e(Math.min(1, t / .5)); glas(g.position, .55 + .31 * u); g.lookAt(camera.position); g.scale.setScalar(1 + .04 * u); } },
+      tick(k, t, dt, sh) { const g = kino_S.obj.tankGesicht, u = kino_e(Math.min(1, t / .5)); glas(g.position, .55 + .31 * u); g.lookAt(camera.position); g.scale.setScalar(1.35 + .06 * u); } },
     { frei: true, dur: 1, keepFlash: true, lines: [['Mach die Augen zu!', 'LUCY · IM TANK', .05, 2400]], // 13–14 · Lucy reißt den Schlauch aus dem Mund (Blasen)
       setup() { kino_blasen(TK.x, 1.5, TK.z); if (typeof lenaFig !== 'undefined') lenaFig.rotation.z = .08; } },
     { frei: true, dur: 1, keepFlash: true, // 14–15 · Einblendung „Augen zu – Taste halten“ (sie wirkt hier nicht)
@@ -20661,7 +20730,7 @@ function kino_defK2() {
       tick(k, t) { const f = $('fade'); if (t > .3 && !f.dataset.k2) { f.dataset.k2 = 1; f.style.transition = 'background-color .9s'; f.style.background = '#000'; } },
       teardown() { delete $('fade').dataset.k2; kino_still(false, 1.2); } },
     // 6–16 · Kreisfahrt um den Tank 200° → 260°: leer, das Wasser schwingt noch, innen zwei Handabdrücke, ein Haar sinkt
-    { path(e, t, v, w) { const a = (200 + 60 * e) * PI / 180; v.set(TK.x + Math.cos(a) * 2.4, 1.35 + .08 * Math.sin(e * PI), TK.z + Math.sin(a) * 2.4); w.set(TK.x, 1.3 - .1 * e, TK.z); }, dur: 10, fov: 46, fovTo: 40, fadeIn: 900, ease: 'soft', hand: .3,
+    { path(e, t, v, w) { const a = (200 + 60 * e) * PI / 180; v.set(TK.x + Math.cos(a) * 3.4, 1.5 + .1 * Math.sin(e * PI), TK.z + Math.sin(a) * 3.4); w.set(TK.x, 1.2 - .1 * e, TK.z); }, dur: 10, fov: 52, fovTo: 46, fadeIn: 900, ease: 'soft', hand: .3,
       lens: { at: [TK.x, 1.3, TK.z], r: .22, amt: .4 },
       setup() { const a = 232 * PI / 180, h = kino_show('hand', TK.x + Math.cos(a) * .87, 1.02, TK.z + Math.sin(a) * .87); h.lookAt(TK.x + Math.cos(a) * 3, 1.02, TK.z + Math.sin(a) * 3);
         const b = 222 * PI / 180, l = kino_show('handL', TK.x + Math.cos(b) * .87, 1.38, TK.z + Math.sin(b) * .87); l.lookAt(TK.x + Math.cos(b) * 3, 1.38, TK.z + Math.sin(b) * 3);
@@ -20675,10 +20744,11 @@ function kino_defK2() {
     { from: [ST8.x, .72, ST8.z - 1.6], to: [ST8.x, .55, ST8.z - .85], look: [ST8.x, .05, ST8.z - .48], lookTo: [ST8.x + .02, .55, ST8.z - .2], dur: 8, fov: 40, fovTo: 34, ease: 'soft', hand: .25,
       lens: { at: () => kino_S.a.set(ST8.x, kino_S.t < 4.5 ? .05 : .58, ST8.z - (kino_S.t < 4.5 ? .48 : .28)), r: .16, amt: .8 },
       setup() { const d = kino_show('papa', ST8.x, .006, ST8.z - .48); d.rotation.set(-PI / 2, 0, .08); const f = kino_show('feder', ST8.x + .05, .6, ST8.z - .27); f.rotation.set(0, 0, -.5);
-        kino_klavier([['E5', .62], ['D5', .62], ['C5', .62], ['B4', .7], ['C5', 1, 7]], .5, .1); kino_cello([['C2', 5]], 3.6, .05, 600); },
+        kino_klavier([['E5', .62], ['D5', .62], ['C5', .62], ['B4', .7], ['C5', 1, 7]], .5, .1); kino_cello([['C2', 5]], 3.6, .05, 600);
+        S.vl[0].position.set(ST8.x + .4, 1.1, ST8.z - 1.1); S.vl[0].color.setHex(0xffd8a8); S.vl[0].distance = 3.5; S.vl[0].intensity = 3.2; },
       teardown() { kino_hide('papa', 'feder'); } },
     // 24–31 · Schacht über der Luke, Blick nach oben, steigend: ein runder Ausschnitt Nachthimmel, ein weißes Pulsieren, das langsamer wird. Noch keine Glocke
-    { from: [SH3.x, -11, SH3.z], to: [SH3.x, -6.8, SH3.z], look: [SH3.x + .01, 20, SH3.z + .02], dur: 7, fov: 58, hand: .3, ease: 'soft',
+    { from: [SH3.x, -11, SH3.z], to: [SH3.x, -6.8, SH3.z], look: [SH3.x + .01, 20, SH3.z + .02], dur: 7, fov: 58, fovTo: 40, hand: .3, ease: 'soft',
       setup(sh) { const U = typeof uebergang3_S !== 'undefined' ? uebergang3_S : null; sh.cap = U && U.town ? U.town.cap.visible : null; if (U && U.town) U.town.cap.visible = false; sh.lid = U && U.lid ? U.lid.map(m => m.visible) : null; if (U && U.lid) U.lid.forEach(m => m.visible = false);
         kino_show('ring', SH3.x, -.03, SH3.z); kino_show('puls', SH3.x + 2, 46, SH3.z - 3).scale.set(30, 30, 1); kino_brumm(.5, .1, 42); kino_brumm(0, 5); [1.5, 3.5, 5.5].forEach(d => kino_after(d, () => Audio.drip(SH3.x, -12, SH3.z))); },
       tick(k, t) { const p = kino_S.obj.puls, f = 2.6 - 1.4 * k; kino_S.pp = (kino_S.pp || 0) + (1 / 60) * f; p.material.opacity = .3 + .5 * Math.pow(.5 + .5 * Math.sin(t * f), 2) * (1 - .4 * k); },
@@ -20693,16 +20763,16 @@ function kino_defK2() {
       setup() { const A = S.k2a; kino_S.flash = { p: kino_V(A.x + A.fx * .4, 1.2, A.z + A.fz * .4), at: kino_V(A.x + A.fx * 3, 1, A.z + A.fz * 3), i: 14 }; kino_atem(.16, 1.8);
         kino_after(.45, () => Audio.play('metalHit1', { gain: .35, rate: 1.4, x: A.x + A.fx, y: .1, z: A.z + A.fz, ref: 2 })); kino_after(.7, () => Audio.play('scrape3', { gain: .12, rate: 1.8, dur: 1.2, x: A.x + A.fx, y: .1, z: A.z + A.fz, ref: 2 })); },
       tick(k, t) { const A = S.k2a, F = kino_S.flash, u = Math.min(1, t / .5); F.p.set(A.x + A.fx * (.4 + .5 * u), 1.2 - 1.1 * u * u, A.z + A.fz * (.4 + .5 * u)); if (t > .5) { const a = (t - .5) * 2.4; F.at.set(F.p.x + Math.cos(a + A.a0) * 3, .6, F.p.z + Math.sin(a + A.a0) * 3); } } },
-    { path(e, t, v, w) { const A = S.k2a, a = A.a0 + PI * e; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(v.x + Math.cos(a) * 3, 1.55, v.z + Math.sin(a) * 3); }, dur: 3, fov: 64, hand: .9, ease: 'soft',
+    { path(e, t, v, w) { const A = S.k2a, a = A.a0 + PI * e; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(v.x + Math.cos(a) * 3, 1.55, v.z + Math.sin(a) * 3); if (e > .6) { const h = kino_peterKopf(kino_S.b); w.lerp(h, (e - .6) / .4); } }, dur: 3, fov: 64, hand: .9, ease: 'soft',
       film: { vig: 1.8 },
-      setup() { const A = S.k2a, Zb = zg(); if (Zb) { Zb.g.visible = true; Zb.g.position.set(A.x - A.fx * .82, 0, A.z - A.fz * .82); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) - PI / 2, 0); } kino_zLangsam(true);
-        kino_S.lit[0] = { p: kino_V(A.x - A.fx * .3, .15, A.z - A.fz * .3), c: 0xfff0d6, d: 5, i: 2.2 }; kino_after(1.2, () => kino_atem(.12, .7, A.x - A.fx * .8, 1.6, A.z - A.fz * .8)); } },
-    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(A.x - A.fx * 3, 1.58, A.z - A.fz * 3); }, dur: 3, fov: 64, hand: .2, film: { vig: 2.6, ca: .01 }, shakes: [[0, .004, 3]],
+      setup() { const A = S.k2a, Zb = zg(); if (Zb) { Zb.g.visible = true; Zb.g.position.set(A.x - A.fx * 1.0, 0, A.z - A.fz * 1.0); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) - PI / 2, 0); } kino_zLangsam(true);
+        kino_S.lit[0] = { p: kino_V(A.x - A.fx * .6, .35, A.z - A.fz * .6), c: 0xfff0d6, d: 4, i: 5.5 }; kino_after(1.2, () => kino_atem(.12, .7, A.x - A.fx * .8, 1.6, A.z - A.fz * .8)); } },
+    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); kino_peterKopf(w); }, dur: 3, fov: 64, fovTo: 56, hand: .2, film: { vig: 2.6, ca: .01 }, shakes: [[0, .004, 3]], lens: { at: () => kino_peterKopf(kino_S.a), r: .15, amt: .6 },
       setup() { kino_still(true, .1); kino_S.k2aArme = 1; }, tick() {} },
-    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(A.x - A.fx * 3, 1.58, A.z - A.fz * 3); }, dur: 1, fov: 64, hand: .2, film: { vig: 2.6, ca: .01 },
+    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); kino_peterKopf(w); }, dur: 1, fov: 56, hand: .2, film: { vig: 2.6, ca: .01 }, lens: { at: () => kino_peterKopf(kino_S.a), r: .15, amt: .6 },
       lines: [['Bruder.', 'PETER', .1, 1800]] },
     { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .52, 1.3, A.z - A.fz * .52); w.set(A.x - A.fx * 2, 1.2, A.z - A.fz * 2); }, dur: 3, fov: 80, hand: .4, film: { vig: 3.2, ca: .012, filter: 'brightness(.55)' },
-      setup() { const A = S.k2a, b = kino_show('band', A.x - A.fx * .7, 1.28, A.z - A.fz * .7); b.lookAt(A.x, 1.28, A.z); kino_herz(3, 46, .8); kino_brumm(.5, .8, 36); },
+      setup() { const A = S.k2a, b = kino_show('band', A.x - A.fx * .7, 1.28, A.z - A.fz * .7); b.lookAt(A.x, 1.28, A.z); b.scale.setScalar(.6); kino_herz(3, 46, .8); kino_brumm(.5, .8, 36); },
       tick(k, t) { const A = S.k2a, b = kino_S.obj.band, u = t / 3; b.position.set(A.x - A.fx * (.7 - .12 * u), 1.34 - .14 * u, A.z - A.fz * (.7 - .12 * u)); }, teardown() { kino_hide('band'); kino_brumm(0, .3); } },
     { path(e, t, v, w) { const A = S.k2a, j = kino_e(Math.min(1, t / .6)); v.set(A.x - A.fx * (.35 - 1.1 * j), 1.5 - .3 * j, A.z - A.fz * (.35 - 1.1 * j)); w.set(A.x - A.fx * 2.5, .5, A.z - A.fz * 2.5); }, dur: 2, fov: 68, hand: 1.5, shakes: [[0, .05, .9]],
       setup() { kino_still(false, .3); kino_S.k2aArme = 0; kino_zLangsam(false); const A = S.k2a, Zb = zg(); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
@@ -20714,6 +20784,7 @@ function kino_defK2() {
     start() { const P = player.pos, fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); S.k2a = { x: P.x, z: P.z, fx, fz, a0: Math.atan2(fz, fx) }; },
     done() { kino_zLangsam(false); kino_S.k2aArme = 0; } });
 }
+function kino_peterKopf(v) { const Z = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (Z && Z.zm) { if (!Z.kinoB) Z.kinoB = kino_bones(Z.zm); if (Z.kinoB.head) return Z.kinoB.head.getWorldPosition(v); } const A = kino_S.k2a; return v.set(A.x - A.fx * .8, 1.7, A.z - A.fz * .8); }
 // Peter: Gehbewegung fast anhalten, solange er Luke hält (innen_kapitel dreht sein Modell sonst im Laufschritt)
 function kino_zLangsam(on) { const Z = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (!Z || !Z.mx) return; for (const a of Z.mx._actions || []) a.timeScale = on ? .12 : 2.3; }
 // Staub rieselt von der Decke (Tankraum)
@@ -20741,15 +20812,15 @@ function kino_defK3() {
     { from: () => { const A = K(); return [A.cx + A.rx * 4.4 + A.fx * 1.5, .3, A.cz + A.rz * 4.4 + A.fz * 1.5]; }, look: () => { const A = K(); return [A.cx, .55, A.cz]; }, dur: .4, fov: 50, hand: .2, // 7,0–7,4 · Schnitt: Bodenhöhe, seitlich – der Aufschlag
       setup() { const A = K(); kino_after(.15, () => { if (typeof bigThud === 'function') bigThud(A.cx, A.cz); if (typeof goreBurst === 'function') goreBurst(A.cx, A.cz); kino_sub(1); kino_shake(.05, .5); const d = cowFx.dust; d.t = 0; for (let i = 0; i < d.v.length; i++) { d.p[i * 3] = A.cx; d.p[i * 3 + 1] = .2; d.p[i * 3 + 2] = A.cz; } }); },
       tick(k, t) { filmPass.uniforms.flash.value = t > .15 && t < .35 ? 1 - (t - .15) / .2 : 0; }, teardown() { filmPass.uniforms.flash.value = 0; } },
-    { frei: true, dur: 1.6, keepFlash: true, shakes: [[0, .045, .8]], film: { vig: 1.5, ca: .01 }, // 7,4–9 · zurück, Sicht zittert: Staub, Dampf, ein Stück Ohrmarke klappert über den Asphalt
+    { frei: true, dur: 1.6, keepFlash: true, shakes: [[0, .045, .8]], film: { vig: 1.5, ca: .01 }, blick: () => kino_S.a.set(K().cx, .6, K().cz), blickRate: 3.5, // 7,4–9 · zurück, Sicht zittert: Staub, Dampf, ein Stück Ohrmarke klappert über den Asphalt
       setup() { const A = K(); glitchV = .3; kino_atem(.14, 2.2); [0, .21, .38, .5].forEach((d, i) => kino_after(.25 + d, () => Audio.play('metalHit2', { gain: .08 - i * .015, rate: 3.6 + i * .2, hp: 1800, dur: .12, x: A.cx - A.rx * (1 + i * .3), y: 0, z: A.cz - A.rz * (1 + i * .3), ref: 1.5 })));
-        kino_show('dampf', A.cx, .8, A.cz); } , tick(k, t, dt) { kino_dampf(t); glitchV *= .96; } },
+        kino_show('dampf', A.cx, .8, A.cz); } , tick(k, t, dt) { kino_kuhLage(); kino_dampf(t); glitchV *= .96; } },
     { frei: true, dur: 4, keepFlash: true, blick: () => kino_S.a.set(K().cx, .5, K().cz), blickRate: .9, // 9–13 · langsamer Schwenk zur Kuh; die Laternen gehen wieder an, von der Kuh weg, das Pulsieren wird schneller
       setup() { const A = K(), L = lampSeite().sort((a, b) => Math.hypot(a.l.wx - A.cx, a.l.wz - A.cz) - Math.hypot(b.l.wx - A.cx, b.l.wz - A.cz));
         L.forEach((o, i) => kino_after(.3 + i * .32, () => { const f = kino_lampe(o.l, 'puls'); f.rate = 3.4 + i * .25; kino_relais(o.l.wx, 5, o.l.wz, .1); })); kino_brumm(.25, 2.5, 50); kino_still(false, 3); kino_regen(0, .1);
         kino_after(2.2, () => { const P = camera.position, d = camera.getWorldDirection(kino_S.a); kino_kiesel(P.x - d.x * 2, 0, P.z - d.z * 2); }); }, tick(k, t) { kino_dampf(t + 1.6); } },
-    { from: () => kino_flanke(1.25, .5), to: () => kino_flanke(1.05, .45), look: () => kino_flanke(0, 0), dur: 2, fov: 34, hand: .3, lens: { at: () => kino_S.a.set(...kino_flanke(0, 0)), r: .2, amt: .7 }, // 13–15 · Einblendung: die Flanke, sieben Kreise und ein halber achter, Rauch
-      setup() { const f = kino_flanke(0, 0), b = kino_show('brand', f[0], f[1], f[2]); b.lookAt(f[0], f[1] + 1, f[2]); b.rotateZ(K().ry); kino_show('dampf', f[0], f[1] + .1, f[2]); }, tick(k, t) { kino_dampf(t + 5); } },
+    { from: () => kino_flanke(.35, 1.1), to: () => kino_flanke(.25, .95), look: () => kino_flanke(0, 0), dur: 2, fov: 40, hand: .3, lens: { at: () => kino_S.a.set(...kino_flanke(0, 0)), r: .2, amt: .7 }, // 13–15 · Einblendung: die Flanke, sieben Kreise und ein halber achter, Rauch
+      setup() { const f = kino_flanke(0, 0), b = kino_show('brand', f[0], f[1], f[2]); b.lookAt(f[0], f[1] + 1, f[2]); b.rotateZ(K().ry); kino_hide('dampf'); S.vl[0].position.set(f[0] + .6, f[1] + 1.4, f[2] + .4); S.vl[0].color.setHex(0xffe0c0); S.vl[0].distance = 4; S.vl[0].intensity = 1.2; } },
     { frei: true, dur: 9, keepFlash: true, // 15–24 · Luke steht. Ein Rabe landet auf der Kuh. Ein Auto springt an und fährt ohne Licht davon. Hinter der Telefonzelle raschelt es
       setup() { const A = K(); kino_hide('brand'); kino_sag('Blinde Kuh …', 'KINDERSTIMME', 2600); kino_box(['G5', 'E5'], .05, .05, 1); Audio.whisper(A.lx, 9, A.lz, 1.4);
         kino_after(1.3, () => { const P = camera.position, d = camera.getWorldDirection(kino_S.a); Audio.giggle(P.x - d.x * 1.2, 1.3, P.z - d.z * 1.2); });
@@ -20768,7 +20839,8 @@ function kino_kuh() { const S = kino_S; if (!S.ready || S.on || !KINO.k3kuh || t
 function kino_kuhFall() { const A = kino_S.kuh; if (typeof cowFx === 'undefined') return; cowFx.done = true; if (typeof FAB !== 'undefined' && FAB.cow) { cowFx.g.clear(); cowFx.g.add(FAB.cow.clone()); }
   cowFx.g.position.set(A.cx, 26, A.cz); cowFx.g.rotation.set(0, A.ry + .6, 0); cowFx.t = 0; cowFx.ufoT = -1; if (typeof cowHit !== 'undefined') cowHit.position.set(A.cx, .6, A.cz);
   setTimeout(() => { try { const b = new THREE.Box3().setFromObject(cowFx.g); A.top = b.max.y; A.bb = b; } catch (e) {} }, 900); }
-function kino_flanke(d, h) { const A = kino_S.kuh, top = A.top || 1.2; return [A.cx - A.fx * d * .6 + A.rx * d * .8, top - .06 + h, A.cz - A.fz * d * .6 + A.rz * d * .8]; }
+function kino_kuhLage() { const A = kino_S.kuh; if (!A || A.lage || typeof cowFx === 'undefined' || cowFx.t < 1) return; A.lage = 1; cowFx.g.rotation.set(-(PI / 2 - .12), A.ry + .6, 0, 'YXZ'); cowFx.g.updateMatrixWorld(true); try { const b = new THREE.Box3().setFromObject(cowFx.g); A.top = b.max.y; A.bb = b; } catch (e) {} }
+function kino_flanke(d, h) { kino_kuhLage(); const A = kino_S.kuh, top = A.top || 1.2; return [A.cx - A.fx * d * .6 + A.rx * d * .8, top - .06 + h, A.cz - A.fz * d * .6 + A.rz * d * .8]; }
 function kino_fall() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), lp = c.createBiquadFilter(), g = c.createGain(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(200, t); lp.frequency.exponentialRampToValueAtTime(1400, t + 1.1);
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.25, t + 1.1); g.gain.linearRampToValueAtTime(0, t + 1.18); n.connect(lp); lp.connect(g); g.connect(A.master); n.stop(t + 1.3); }
 function kino_muh() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, o = c.createOscillator(), o2 = c.createOscillator(), f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), g = c.createGain();
@@ -20781,9 +20853,12 @@ function kino_dampf(t) { const o = kino_S.obj.dampf; if (!o || !o.visible) retur
 // ---- Nimmerheim (vorläufige Bühne, bis AP-17 den Ort baut): weißer Raum, acht Stühle im Kreis, die Behaltenen
 const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'dina', 'heidi', 'maedchen'];
 function kino_buehne(M) { const S = kino_S; return M || S.bu || { x: X3 + 4, z: Z3 }; }
-function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = i / 8 * PI * 2 + .3, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
-  const st = S.obj['stuhl' + i]; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * Math.max(r, 5), 0, M.z + Math.sin(a) * Math.max(r, 5)); st.rotation.y = ry + PI; }
-  if (stehen) kino_fig(k, x, 0, z, ry, 'idle', { look: 'cam', t0: i * .4 }); else kino_fig(k, x, 0, z, ry, 'idle', { sit: .47, t0: i * .4 }); }); }
+function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S, a0 = S.bl ? Math.atan2(S.bl.fz, S.bl.fx) - PI / 2 : 0; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = a0 + i / 8 * PI * 2, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
+  const st = S.obj['stuhl' + i], rs = stehen ? 5.1 : r + .08; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * rs, 0, M.z + Math.sin(a) * rs); st.rotation.y = ry + PI; }
+  if (stehen) kino_fig(k, x, 0, z, ry, 'idle', { look: 'cam', t0: i * .4 }); else kino_fig(k, x, 0, z, ry, 'idle', { sit: .47, t0: i * .4 }); kino_grau(S.fig[k], true); }); }
+// Behaltene: grau, ohne Wärme (Farbe der Texturen gedämpft) – nach der Sequenz wieder normal (kino_figOff)
+function kino_grau(P, on) { if (!P) return; if (!P.grauM) P.grauM = P.mats.map(([m, mat]) => [].concat(mat).map(x => { const c = x.clone(); if (c.color) c.color.setRGB(.58, .6, .63); if (c.emissive) { c.emissive.setRGB(.05, .052, .056); } return c; }));
+  P.mats.forEach(([m, mat], i) => { const g = P.grauM[i]; m.material = on ? (Array.isArray(mat) ? g : g[0]) : mat; }); P.grau = on; }
 function kino_defK3b() {
   const S = kino_S, M = () => kino_buehne(S.opts && S.opts.mitte);
   const zu = (onZu, fuesse) => { kino_blinzeln(.15, .15, onZu); if (fuesse) { const m = M(); kino_after(.05, () => { for (let i = 0; i < 5; i++) Audio.stepAt && Audio.stepAt(m.x + Math.cos(i) * 2, m.z + Math.sin(i) * 2, .09); }); } };
@@ -20791,7 +20866,7 @@ function kino_defK3b() {
   kino_def('k3blinzeln', [
     { frei: true, dur: 3, env: 'white', keepFlash: false, // 0–3 · Luna, grau, vor ihm; die sieben ruhig auf den Stühlen, fünf Meter weg. Das Schiff atmet. Luna summt Miras Lied
       setup() { const m = M(); kino_kreisSetzen(m, 5, false); kino_fig('graue', m.x + S.bl.fx * 1.3, 0, m.z + S.bl.fz * 1.3, Math.atan2(-S.bl.fx, -S.bl.fz), 'idle', { look: 'cam' });
-        kino_fig('lucyK', m.x + Math.cos(7 / 8 * PI * 2 + .3) * 5, 0, m.z + Math.sin(7 / 8 * PI * 2 + .3) * 5, 0, 'idle', { sit: .47, pose: kino_haendeAugen });
+        { const a = Math.atan2(S.bl.fz, S.bl.fx) - PI / 2 + 7 / 8 * PI * 2, x = m.x + Math.cos(a) * 5, z = m.z + Math.sin(a) * 5; kino_fig('lucyK', x, 0, z, Math.atan2(m.x - x, m.z - z), 'idle', { sit: .47, pose: kino_haendeAugen }); }
         schiffAtem(.45); kino_after(3.5, () => schiffAtem(.45)); kino_summen(['E4', 'D4', 'C4', 'B3'], .4); },
       tick(k, t) { kino_flacker('lucyK', t); } },
     { frei: true, dur: 5, env: 'white', lines: [['Ich hab nicht geblinzelt. Das war nicht ich.', 'LUKE', 1.2, 3400]], // 3–8 · Blinzeln: die Stühle stehen einen Meter näher
@@ -20835,7 +20910,7 @@ function kino_defK3Abspann() {
   const shots = [
     // 0–6 · Nimmerheim: hinter Justin, Schulterhöhe, langsam zurückfahrend; er geht zwischen die Rippen ins Dunkel. Luna und die sieben halten sich die Augen zu
     { path(e, t, v, w) { const M = S.nh; v.set(M.x, 1.75, M.z - 1.2 - 2.4 * e); w.set(M.x, 1.4, M.z + 6); }, dur: 6, fov: 44, env: 'white', fadeIn: 1400, hand: .25, ease: 'soft', film: { vig: 1.4 },
-      setup(sh) { const M = S.nh; kino_kreisSetzen({ x: M.x, z: M.z + 3 }, 5, false); for (const k of KINO_KREIS) { const P = S.fig[k]; if (P) P.pose = kino_haendeAugen; }
+      setup(sh) { const M = S.nh; S.bl = { fx: 0, fz: -1 }; kino_kreisSetzen({ x: M.x, z: M.z + 3 }, 5, false); for (const k of KINO_KREIS) { const P = S.fig[k]; if (P) P.pose = kino_haendeAugen; }
         kino_fig('graue', M.x + .6, 0, M.z + 1.6, PI, 'idle', { pose: kino_haendeAugen });
         if (justin && justin.g) { sh.j = [justin.g.position.clone(), justin.g.rotation.y, justin.g.visible]; justin.g.visible = true; justin.g.position.set(M.x, 0, M.z); justin.g.rotation.y = 0; if (typeof jPlay === 'function') jPlay('walk', 0); kino_helm(true); }
         const a = kino_antwort(S.opts); kino_after(.4, () => kino_sag('Vier. Fünf. Sechs.', 'LUNA', 2600)); kino_after(1.9, () => kino_sag(KINO_RUF[a] || KINO_RUF.B, 'JUSTIN', 2600)); kino_after(4.2, () => kino_sag('… sieben …', 'LUNA', 1800));
@@ -20845,7 +20920,7 @@ function kino_defK3Abspann() {
     { white: true, dur: 2, fadeOut: 500, setup() { kino_still(true, .2); } }, // 6–8 · Weiß, Stille
     // 8–16 · Kreuzung, Bodenhöhe, 40 cm neben Lukes Schuhen, Blick die Ahornstraße hinunter: die Laternen gehen aus, von Osten nach Westen, wie jeden Morgen. Nur die vor Nr. 1 nicht (A-13)
     { from: [KR.x + .35, .4, KR.z + .3], to: [KR.x + .3, .38, KR.z + .25], look: [-40, 1.8, -1.5], dur: 8, fov: 38, env: 'morgen', fadeIn: 1600, hand: .15, lens: { at: [KR.x - 1.5, .1, KR.z + .1], r: .35, amt: .35 },
-      setup(sh) { kino_still(false, 2); kino_regen(0, .5); kino_fig('lucy', KR.x - .45, 0, KR.z - .05, -PI / 2 + .2, 'idle');
+      setup(sh) { kino_still(false, 2); kino_regen(0, .5); kino_fig('lucy', KR.x + .05, 0, KR.z - .62, -PI / 2 + .2, 'idle');
         const L = []; kino_lamps(l => { if (Math.abs(l.wz) < 6 && l.wx > -100 && l.wx < 150) { L.push(l); kino_lampe(l, 'hell'); } }); L.sort((a, b) => b.wx - a.wx); const n1 = kino_lampNah(-47, -6);
         L.forEach((l, i) => { if (l === n1) return; kino_after(.8 + i * .55, () => { kino_lampe(l, 'relais'); kino_relais(l.wx, 5, l.wz, .2); }); });
         const tn = .8 + L.indexOf(n1) * .55 + 1; if (n1) kino_after(tn, () => { kino_lampe(n1, 'pusten'); kino_einatmen(.07, n1.wx, 5, n1.wz); kino_pusten(.06, n1.wx, 5, n1.wz); });
@@ -20865,27 +20940,27 @@ function kino_defK3Abspann() {
     // 30–36 · halbnah: Vegas wickelt Lucy in die Decke und hebt sie hoch, ächzend; sie hält Lukes Hand, bis es nicht mehr geht
     { from: [KR.x + .9, 1.5, KR.z + 1.4], to: [KR.x + .7, 1.55, KR.z + 1.2], look: [KR.x - .9, 1.35, KR.z - .1], dur: 6, fov: 38, env: 'morgen', hand: .4, lens: { at: () => kino_kopf('vegas', kino_S.a), r: .2, amt: .5 },
       lines: [['Wo warst du denn, im Gully?', 'VEGAS', 1.2, 2800], ['Fast.', 'LUCY', 4.3, 1600]],
-      setup() { kino_fig('vegas', KR.x - 1.15, 0, KR.z - .15, PI / 2, kino_S.fig.vegas && kino_S.fig.vegas.acts.hug ? 'hug' : 'idle', { look: () => 0, pose: (Q, t) => { kino_arm(Q, 'r', kino_kopf('lucy', kino_S.b), .7, .6); kino_arm(Q, 'l', kino_kopf('lucy', kino_S.b), .6, .6); } });
+      setup() { { const hug = kino_S.fig.vegas && kino_S.fig.vegas.acts.hug; kino_fig('vegas', KR.x - 1.15, 0, KR.z - .15, PI / 2, hug ? 'hug' : 'idle', { pose: hug ? null : (Q, t) => { kino_arm(Q, 'r', kino_kopf('lucy', kino_S.b), .7, .6); kino_arm(Q, 'l', kino_kopf('lucy', kino_S.b), .6, .6); } }); }
         kino_S.fig.vegas.look = null; kino_fig('lucy', KR.x - .75, 0, KR.z - .1, -PI / 2 + .3, kino_S.fig.lucy && kino_S.fig.lucy.acts.hug ? 'hug' : 'idle', { pose: (Q, t) => kino_arm(Q, 'r', kino_S.b.set(camera.position.x, 1.0, camera.position.z), .5 * (1 - kino_ramp(t, 3.5, 5.5)), .2) });
         kino_after(1.8, () => { kino_atem(.08, .7, KR.x - 1.1, 1.6, KR.z); kino_stoff(.06); }); },
-      tick(k, t) { const L = kino_S.fig.lucy; if (L) { const u = kino_e(kino_ramp(t, 2, 3.6)); L.g.position.y = .32 * u; L.g.position.x = KR.x - .75 - .12 * u; L.g.rotation.z = -.12 * u; } } },
+      tick(k, t) { const L = kino_S.fig.lucy; if (L) { const u = kino_e(kino_ramp(t, 2, 3.6)); L.g.position.y = .14 * u; L.g.position.x = KR.x - .75 - .1 * u; L.g.rotation.z = -.08 * u; } } },
     // 36–40 · über Lukes Schulter (sein Blick) auf Lucy in Vegas’ Armen: Whiskey landet auf ihrer Schulter und gurrt wie eine Taube
     { from: [KR.x + .3, 1.66, KR.z + .5], to: [KR.x + .2, 1.66, KR.z + .45], look: [KR.x - .95, 1.72, KR.z - .1], dur: 4, fov: 36, env: 'morgen', hand: .3, lens: { at: () => kino_kopf('lucy', kino_S.a), r: .16, amt: .6 },
       lines: [['Hallo, du. Du hast ihn ja doch hergebracht.', 'LUCY', 1.8, 2800]],
-      setup() { const L = kino_S.fig.lucy; if (L) { L.g.position.y = .32; L.look = kino_S.rabe ? kino_S.rabe.g.position : null; } const h = kino_kopf('lucy', kino_V(0, 0, 0)); kino_rabeFly(kino_V(KR.x + 8, 7, KR.z - 6), kino_V(h.x + .02, h.y - .22, h.z + .16), 1.2, () => kino_taube(h.x, h.y, h.z)); } },
+      setup() { const L = kino_S.fig.lucy; if (L) { L.g.position.y = .14; L.look = kino_S.rabe ? kino_S.rabe.g.position : null; } const h = kino_kopf('lucy', kino_V(0, 0, 0)); kino_rabeFly(kino_V(KR.x + 8, 7, KR.z - 6), kino_V(h.x + .02, h.y - .22, h.z + .16), 1.2, () => kino_taube(h.x, h.y, h.z)); } },
     // 40–44 · Lukes Blick nach oben: Whiskey hüpft auf die Telefonzelle und sieht ihn an; das Mikrowellen-Pling
     { from: [KR.x, 1.66, KR.z], to: [KR.x + .05, 1.64, KR.z + .05], look: [8, 2.9, 7.2], dur: 4, fov: 40, env: 'morgen', hand: .5, lens: { at: [8, 2.9, 7.2], r: .2, amt: .4 },
       lines: [['… Ich hab dich auch vermisst.', 'LUKE', 2.1, 2600]],
       setup() { kino_rabeFly(kino_V(KR.x - .9, 1.7, KR.z), kino_V(8, 2.66, 7.2), .9, () => { const R = kino_S.rabe; if (R) R.g.rotation.y = Math.atan2(KR.x - 8, KR.z - 7.2); kino_pling(8, 2.7, 7.2); }); } },
     // 44–48 · Schwenk zur Bushaltestelle: der graue Kombi, Motor an, Licht aus; ein Satz je Vertrauen; er fährt ohne Licht davon
-    { from: [KR.x, 1.66, KR.z], look: [7, 2.4, 8], lookTo: [4.2, 1.1, 49], dur: 4, fov: 40, fovTo: 20, env: 'morgen', hand: .35, ease: 'soft',
+    { from: [KR.x, 1.66, KR.z], look: [7, 2.4, 8], lookTo: [4.2, 1.1, 49], dur: 4, fov: 40, fovTo: 20, env: { fog: [0x7d8590, .009], sky: [0x9aa0a8, 0x3c4a62, 1], hemi: [.95, 0x9aa8c0, 0x34302c], moon: [.3, 0xc8d4ea], exp: 1.12, envI: .4 }, hand: .35, ease: 'soft',
       setup() { const k = kino_show('kombi', 4.2, 0, 49.5, PI); const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(3) : null, z = E && E.zeile || { hoch: '„Gute Nacht, Luke.“', miserabel: '„Gute Nacht, K-3.“' }[kino_stufe()] || '„Gute Nacht, Herr Brandt.“';
         Audio.play('carEngine', { gain: .08, rate: .8, dur: 4, x: 4.2, y: 1, z: 49.5, ref: 12, lp: 900 }); kino_after(2.2, () => kino_sag(z.replace(/[„“]/g, ''), 'WOLTER', 2400)); },
       tick(k, t) { const o = kino_S.obj.kombi; if (o && t > 3.2) o.position.z = 49.5 + (t - 3.2) * (t - 3.2) * 6; } },
     // 48–54 · Bodenhöhe hinter Luke, Blick auf seine Fersen: ein Kiesel rollt aus dem Nebel und bleibt an zwei anderen liegen. Klavier setzt ein
     { from: [KR.x - .2, .22, KR.z + 1.2], to: [KR.x - .15, .2, KR.z + 1.05], look: [KR.x, .03, KR.z + .35], dur: 6, fov: 34, env: 'morgen', hand: .15, lens: { at: [KR.x, .03, KR.z + .35], r: .12, amt: .85 },
       lines: [['Hast du gewartet? … Du hast gewartet.', 'LUKE', 3.4, 3600]],
-      setup() { kino_hide('kombi'); const b = [KR.x - .03, KR.z + .36]; kino_show('kiesel0', b[0], .018, b[1]); kino_show('kiesel1', b[0] + .02, .045, b[1] - .01); kino_show('kiesel2', b[0] + 1.6, .02, b[1] + .8);
+      setup() { kino_hide('kombi'); S.vl[0].position.set(KR.x - .3, 1.1, KR.z + 1.1); S.vl[0].color.setHex(0xc8d2e4); S.vl[0].distance = 3; S.vl[0].intensity = 1.2; const b = [KR.x - .03, KR.z + .36]; kino_show('kiesel0', b[0], .018, b[1]); kino_show('kiesel1', b[0] + .02, .045, b[1] - .01); kino_show('kiesel2', b[0] + 1.6, .02, b[1] + .8);
         kino_klavier([['E4', .7], ['D4', .7], ['C4', .7], ['B3', .9], ['C4', 2, 8]], 2.2, .09); },
       tick(k, t) { const o = kino_S.obj.kiesel2; if (!o) return; const u = kino_e(kino_ramp(t, .4, 1.8)); o.position.set(KR.x - .03 + 1.6 * (1 - u), .02 + (u > .96 ? .05 * (u - .96) / .04 : 0), KR.z + .36 + .8 * (1 - u)); o.rotation.x = u * 9;
         if (u >= 1 && !kino_S.kiesDa) { kino_S.kiesDa = 1; kino_kiesel(KR.x, 0, KR.z + .36); kino_trippeln(KR.x + 1.5, KR.z + 2, .04); } }, teardown() { kino_S.kiesDa = 0; } },
@@ -20907,7 +20982,7 @@ function kino_prolog() { const S = kino_S; if (!S.ready || S.on || typeof traum_
 function kino_defProlog() {
   const S = kino_S, W = () => traum_S.crow, P = () => TRAUM_PERCH;
   const kopf = v => { const C = W(); if (!C) return v.set(0, 3, 0); if (!S.kpHead) C.g.traverse(b => { if (!S.kpHead && b.isBone && /head/i.test(b.name)) S.kpHead = b; }); return S.kpHead ? S.kpHead.getWorldPosition(v) : v.copy(C.g.position).add({ x: 0, y: .3, z: 0 }); };
-  const nahe = (d, h, s) => sh => { kopf(S.b); const p = P(); return [S.b.x + d * S.kp.dx, S.b.y + h, S.b.z + d * S.kp.dz]; };
+  const nahe = (d, h, s) => sh => { W().g.updateMatrixWorld(true); kopf(S.b); return [S.b.x + d * S.kp.dx, S.b.y + h + .05, S.b.z + d * S.kp.dz]; };
   const drehe = (ang) => { const C = W(); if (C && S.kpHead) kino_rotW(S.kpHead, KINO_UP, ang); };
   const mix = dt => { const C = W(); if (C && C.mx) C.mx.update(dt); if (C && C.g) C.g.updateMatrixWorld(true); };
   kino_def('kp', [
@@ -20923,7 +20998,7 @@ function kino_defProlog() {
     { from: nahe(.5, .03), to: nahe(.5, .03), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .12, amt: .8 },
       setup() { kino_regen(0, .4); if (typeof klang_S !== 'undefined' && klang_S.dreamG && Audio.ctx) { const g = klang_S.dreamG.gain, t = Audio.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + .4); }
         kino_after(.8, () => { kino_sag('<i>… sechzehn …</i>', '', 1800); const p = P(); Audio.whisper(p.x - 30, 1.2, p.z + 25, 1.1); }); },
-      tick(k, t, dt) { mix(dt); drehe(.25 + 1.5 * kino_e(Math.min(1, t / 1.6))); } }, // weg von Luke, zur Laterne hin
+      tick(k, t, dt) { mix(dt); drehe(.25 + .8 * kino_e(Math.min(1, t / 1.6))); } }, // weg von Luke, zur Laterne hin
     { from: nahe(.5, .03), to: nahe(.5, .03), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 1.2, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .14, amt: .7 }, // 12,0–13,2 · Sprung: das Kindergesicht
       setup() { Audio.thump(P().x, P().y, P().z); kino_sub(.35); kino_show('kindgesicht'); },
       tick(k, t, dt) { mix(dt); const g = kino_S.obj.kindgesicht; kopf(g.position); g.position.y -= .045; g.lookAt(camera.position); g.scale.setScalar(1.05); },
@@ -20931,12 +21006,15 @@ function kino_defProlog() {
     { from: nahe(.5, .03), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9) blur(.8px)', filterT: 2.5 },
       lines: [['<i>Kum, Wîse.</i>', 'DER RABE', 1.3, 2200]],
       setup() { if (typeof whiskey_play === 'function') whiskey_play('IdleScratchWing', .2); kino_after(1.3, () => kino_kum(W().g.position)); }, tick(k, t, dt) { mix(dt); } },
-    { from: nahe(1.1, .15), to: nahe(1.4, -.3), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y + 4, p.z]; }, dur: 4, fov: 36, fovTo: 52, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85) blur(1.4px)', filterT: 3 },
-      setup() { kino_regen(.5, 3.5); kino_after(1.6, () => { for (let i = 0; i < 6; i++) setTimeout(() => Audio.ding && Audio.ding(.05), i * 650); }); },
-      tick(k, t, dt) { mix(dt); if (t > 2.4) { const f = $('fade'); f.style.transition = 'opacity 1.4s'; f.style.background = '#fff'; f.style.opacity = 1; } } },
+    { from: nahe(1.1, .15), to: nahe(1.0, -1.25), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y - .25, p.z]; }, dur: 4, fov: 36, fovTo: 58, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85) blur(1.4px)', filterT: 3 },
+      setup() { kino_regen(.5, 3.5); const p = P(); const l = kino_show('lampe', p.x, p.y - .25, p.z); l.material.opacity = 0; kino_after(1.6, () => { for (let i = 0; i < 6; i++) setTimeout(() => Audio.ding && Audio.ding(.05), i * 650); }); },
+      tick(k, t, dt) { mix(dt); const l = kino_S.obj.lampe, u = kino_ramp(t, .8, 3.6); l.material.opacity = .9 * u; l.scale.setScalar(.9 + 9 * u * u); // die Laterne wird weiß und füllt das Bild
+        if (t > 2.6) { const f = $('fade'); f.style.transition = 'opacity 1.3s'; f.style.background = '#fff'; f.style.opacity = 1; } }, teardown() { kino_hide('lampe'); } },
     { white: true, dur: 1.2, fadeOut: 0 },
   ], { name: 'Kum, Wîse', skipAfter: Infinity, nahtlos: true,
-    start() { const C = W(); S.kpHead = null; const p = C.g.position, c = camera.position; let dx = c.x - p.x, dz = c.z - p.z; const n = Math.hypot(dx, dz) || 1; S.kp = { dx: dx / n, dz: dz / n }; },
+    start() { const C = W(); S.kpHead = null; C.fl = null; const p = P(); C.g.visible = true; C.g.position.set(p.x, p.y, p.z); // er sitzt auf der Laterne (Traum-Shot 3 hatte ihn zur Fibel hüpfen lassen)
+      const b = typeof TRAUM_BOOK !== 'undefined' ? TRAUM_BOOK : { x: p.x + 1.3, z: p.z + 1.1 }; let dx = b.x - p.x, dz = b.z - p.z; const n = Math.hypot(dx, dz) || 1; S.kp = { dx: dx / n, dz: dz / n };
+      C.g.rotation.set(0, Math.atan2(dx, dz), 0); if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', 0); },
     done() { if (kino_S.sv) kino_S.sv.fadeBg = '#fff'; } });
 }
 // „Kum, Wîse“: gehauchte Frauenstimme (Formant-Rauschen, zwei Silben), leise, nicht an Luke gerichtet

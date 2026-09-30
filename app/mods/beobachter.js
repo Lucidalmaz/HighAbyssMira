@@ -73,6 +73,7 @@ const beob_V = new THREE.Vector3(), beob_V2 = new THREE.Vector3();
 function beob_gy(x, z) { const P = player.pos, g = solidGround(x, P.y + 1.2, z); return g > P.y - 3 ? g : P.y; }
 function beob_eisen(x, z, m = 1.1) { for (const b of beob_S.eisen) if (x > b[0] - m && x < b[1] + m && z > b[2] - m && z < b[3] + m) return true; return false; }
 function beob_free(x, z) { if (beob_eisen(x, z)) return false; if (!beob_town()) return true; try { return !leben_inHouse(x, z, 1) && leben_free(x, z, .4, .6); } catch (e) { return true; } }
+function beob_freeNah(x, z) { if (beob_eisen(x, z, .6)) return false; try { return !leben_inHouse(x, z, .3) && leben_free(x, z, .4, .17); } catch (e) { return true; } } // direkt an der Deckung
 function beob_facing(x, y, z) { try { return leben_facing(x, y, z); } catch (e) { return 0; } }
 function beob_setVp(x, y, z) { const S = beob_S; if (!S.vp) S.vp = new THREE.Vector3(); S.vp.set(x, y, z); }
 function beob_pos() { const S = beob_S; if (!S.ready || !S.vpOk || !S.vp) return null; if (S.V && S.V.g.visible) return S.V.g.position; return S.vp; }
@@ -388,7 +389,9 @@ function beob_haut(img) { // Textur des Modells: Pastell raus (Lila/Rosa/Türkis
   for (let py = 0; py < W; py++) for (let px = 0; px < W; px++) {
     const i = (py * W + px) * 4; let r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), sat = mx - mn, lum = r * .3 + g * .59 + b * .11;
     let eye = 0; for (const [ex, ey, rx, ry] of eyes) { const q = Math.hypot((px - ex) / rx, (py - ey) / ry); eye = Math.max(eye, 1 - Math.min(1, Math.max(0, (q - .9) / .16))); }
-    if (sat > .08) { const k = Math.min(1, (sat - .08) / .2); const L = lum * .82 + .1; r = r * (1 - k) + L * .9 * k; g = g * (1 - k) + L * .91 * k; b = b * (1 - k) + L * .97 * k; } // Pastell → blasses Blaugrau (Adern bleiben als Schatten)
+    if (sat > .03 && eye < 1) { const k = Math.min(1, (sat - .03) / .08); const L = lum * .82 + .1; r = r * (1 - k) + L * .9 * k; g = g * (1 - k) + L * .91 * k; b = b * (1 - k) + L * .97 * k; } // Pastell → blasses Blaugrau (Adern bleiben als Schatten)
+    if (eye <= 0 && py > 340 * sc && lum > .2 && lum < .66) { const L = .8; r = g = b = L; } // Mund, Nasenpunkte, Brauenstriche weg (kein sichtbarer Mund)
+    else if (eye <= 0) { let q = 9; for (const [ex, ey, rx, ry] of eyes) q = Math.min(q, Math.hypot((px - ex) / rx, (py - ey) / ry)); if (q < 1.4) { const dk = 1 - .22 * (1 - (q - 1) / .4); r *= dk; g *= dk; b *= dk * 1.02; } } // eingesunkene Augenhöhlen
     r = r * .96 + .015; g = g * .955 + .012; b = b * .95 + .02; // Wachston
     if (eye > 0) { const q = 1 - eye, dk = .018 + q * .04; r = r * q + dk * eye; g = g * q + (dk + .003) * eye; b = b * q + (dk + .01) * eye; }
     d[i] = r * 255; d[i + 1] = g * 255; d[i + 2] = b * 255; }
@@ -414,6 +417,7 @@ async function beob_loadModel() {
     const uT = { value: 0 }, uLit = { value: 0 };
     const skinMat = new THREE.MeshPhysicalMaterial({ map: skin || map0, color: 0xf2efe8, roughness: .5, metalness: 0, clearcoat: .45, clearcoatRoughness: .32, sheen: .35, sheenRoughness: .6, sheenColor: new THREE.Color(0xdfe6f2), envMapIntensity: .45 });
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = skinMat; } }); g.updateMatrixWorld(true);
+    { const bb = new THREE.Box3(), sz = new THREE.Vector3(); m.traverse(o => { if (!o.isMesh) return; bb.setFromObject(o).getSize(sz); if (Math.min(sz.x, sz.y, sz.z) < BEOB.h * .045 && Math.max(sz.x, sz.y, sz.z) < BEOB.h * .4) o.visible = false; }); } // Mundstrich/Punkt: kein sichtbarer Mund (Dossier §2)
     // Drehpunkte: Kopf am Hals, Körper an den Füßen (das Modell hat kein Skelett; die Gruppen liegen sonst auf dem Modell-Ursprung)
     const head0 = m.getObjectByName('Kopf'), body0 = m.getObjectByName('Koerper'), piv = (o, yk) => { if (!o) return null; const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()), p = new THREE.Group();
       p.position.set(c.x, b.min.y + (b.max.y - b.min.y) * yk, c.z); o.parent.worldToLocal(p.position); o.parent.add(p); p.updateMatrixWorld(true); p.attach(o); return p; };
@@ -467,15 +471,16 @@ function beob_coversBau() { const S = beob_S, L = []; for (const c of colliders)
   S.covers = L; S.coversKap = beob_ch(); }
 function beob_peekSpot(minF, maxF, far = [14, 24]) {
   const S = beob_S, P = player.pos, trees = (typeof leben_S !== 'undefined' && leben_S.treePts) || [], cov = S.covers || [];
-  for (let k = 0; k < 60; k++) { let x, z; const pick = Math.random();
-    if (trees.length && pick < .5) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue;
-      const side = Math.random() < .5 ? .34 : -.34, sx = (P.z - tz) / d * side, sz = -(P.x - tx) / d * side; x = tx + sx - (P.x - tx) / d * .1; z = tz + sz - (P.z - tz) / d * .1; }
-    else if (cov.length) { const [cx, cz, hx, hz] = cov[Math.floor(Math.random() * cov.length)], d = Math.hypot(cx - P.x, cz - P.z); if (d < far[0] || d > far[1]) continue;
+  for (let k = 0; k < 220; k++) { let x, z, ox = 0, oz = 0; const pick = Math.random();
+    if (trees.length && pick < .5) { const [tx, tz] = trees[Math.floor(Math.random() * trees.length)], d = Math.hypot(tx - P.x, tz - P.z); if (d < far[0] || d > far[1]) continue; const fc = beob_facing(tx, P.y + .6, tz); if (fc < minF - .12 || fc > maxF + .12) continue;
+      const side = Math.random() < .5 ? .34 : -.34, sx = (P.z - tz) / d * side, sz = -(P.x - tx) / d * side; x = tx + sx - (P.x - tx) / d * .1; z = tz + sz - (P.z - tz) / d * .1; ox = sx / .34 * .1; oz = sz / .34 * .1; }
+    else if (cov.length) { const [cx, cz, hx, hz] = cov[Math.floor(Math.random() * cov.length)], d = Math.hypot(cx - P.x, cz - P.z); if (d < far[0] || d > far[1]) continue; const fc = beob_facing(cx, P.y + .6, cz); if (fc < minF - .15 || fc > maxF + .15) continue;
       const ux = (cx - P.x) / d, uz = (cz - P.z) / d, s = Math.random() < .5 ? 1 : -1, px = -uz * s, pz = ux * s, e = Math.abs(ux) * hx + Math.abs(uz) * hz, e2 = Math.abs(px) * hx + Math.abs(pz) * hz;
-      x = cx + ux * (e + .24) + px * Math.max(0, e2 - .1); z = cz + uz * (e + .24) + pz * Math.max(0, e2 - .1); }
+      x = cx + ux * (e + .24) + px * (e2 + .02); z = cz + uz * (e + .24) + pz * (e2 + .02); ox = px * .12; oz = pz * .12; }
     else continue;
-    const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF || !beob_free(x, z)) continue; const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) continue;
-    if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x, gy + BEOB.h * .78, z)) continue; return [x, gy, z]; }
+    const T = S.test.pf || (S.test.pf = { f: 0, free: 0, gy: 0, los: 0, ok: 0 });
+    const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF) { T.f++; continue; } if (!beob_freeNah(x, z)) { T.free++; continue; } const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) { T.gy++; continue; }
+    if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x + ox, gy + BEOB.h * .74, z + oz)) { T.los++; continue; } T.ok++; return [x, gy, z]; }
   return null;
 }
 function beob_hinterDeckung(cx, cz, hx, hz, minF, maxF) { const P = player.pos, d = Math.hypot(cx - P.x, cz - P.z); if (d < 8 || d > 26) return null; const ux = (cx - P.x) / d, uz = (cz - P.z) / d; // erster Platz: halb hinter der Telefonzelle
@@ -490,7 +495,7 @@ function beob_peekTick(dt) {
     if (K.st === 'ruecken') { if (f > .35) { if (!S.c.ganz && f < .7) { S.c.ganz = true; K.st = 'ganz'; K.t = 0; } else { beob_vanish(true); S.peek = null; beob_patter(p.x, p.z, 3, .6); return; } } else if (K.t > 25) { beob_hide(); S.peek = null; } return; }
     if (K.st === 'ganz') { if (inView) K.vis += dt; if (K.vis > .065 || K.t > 1.5 || f < .1) { beob_vanish(); S.peek = null; K.st = 'x'; } return; } // der eine Sechzehntel-Moment je Kapitel
     if (inView) { K.vis += dt; K.seen += dt * (f > .9 ? 1 : .75) * (lit ? 1.5 : 1); }
-    if (K.seen > BEOB.seenMax || K.vis > BEOB.seenMax || d < BEOB.nah) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2, 6); }
+    if (K.seen >= BEOB.seenMax - Math.max(dt, .02) || K.vis >= BEOB.seenMax - Math.max(dt, .02) || d < BEOB.nah) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2, 6); }
     else if (K.t > 40 && f < .3) { beob_hide(); S.peek = null; } }
   else if (K.st === 'gone') { if (K.t < K.wait) return; if (K.n >= 2 || beob_quiet() || beob_sperre() || beob_mode() !== 'voll') { S.peek = null; S.peekT = Math.max(S.peekT, rand(50, 90)); return; }
     // woanders wieder da: hinter Luke oder seitlich, außerhalb des Blickfelds, näher als vorher – man erwischt ihn beim Umdrehen am Rand

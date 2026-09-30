@@ -171,10 +171,10 @@ function beutel_aktion(a) { const S = beutel_S, T = typeof tausch_S !== 'undefin
 
 // ================================================================ 3D: Modelle der drei Stufen, Klappe, Untersuchen
 const beutel_tmp = { e0: null, e1: null, q0: null, q1: null, v: null };
-const BEUTEL_POSE = [ // in Kamera-Koordinaten der Bühne: von der Hüfte / vom Rücken nach vorn
-  { weg: { p: [.26, -.36, -.28], r: [.4, -1.1, .5] }, hand: { p: [-.105, -.07, -.45], r: [.62, .42, .02] } },
-  { weg: { p: [.44, .14, -.18], r: [.3, -2.2, .6] }, hand: { p: [-.16, -.15, -.78], r: [.42, .48, .02] } },
-  { weg: { p: [.5, .2, -.22], r: [.25, -2.3, .6] }, hand: { p: [-.22, -.3, -1.12], r: [.34, .5, .02] } }];
+const BEUTEL_POSE = [ // in Kamera-Koordinaten der Bühne: von der Hüfte / vom Rücken nach vorn (Ursprung der Modelle: Boden, Mitte)
+  { weg: { p: [.34, -.62, -.42], r: [.3, -1.2, .6] }, hand: { p: [-.13, -.1, -.56], r: [.5, .5, .02] }, d: .56 },
+  { weg: { p: [.95, .25, -.7], r: [.2, -2.3, .7] }, hand: { p: [-.33, -.3, -1.35], r: [.32, .55, .02] }, d: 1.35 },
+  { weg: { p: [1.5, .5, -1.1], r: [.2, -2.4, .7] }, hand: { p: [-.55, -.5, -2.2], r: [.26, .55, .02] }, d: 2.2 }];
 function beutel_pose(a, b, k, o) { const T = beutel_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .05, a.p[2] + (b.p[2] - a.p[2]) * k); }
 // Leder mit echter Narbung (Ausschnitt aus der Einband-Textur) dreiachsig aufgetragen – die Taschen-Skulptur hat keine UVs
@@ -190,7 +190,10 @@ async function beutel_modelle() {
   const S = beutel_S, B = album_B; const lederTex = msTex('beutel1/futter.jpg', true); lederTex.wrapS = lederTex.wrapT = THREE.MirroredRepeatWrapping;
   for (let i = 0; i < 3; i++) { const key = BEUTEL_STUFEN[i].key; try { const src = await msModel(key, 'model.glb'); const g = src.clone(true), root = new THREE.Group(); root.add(g); root.visible = false; B.scene.add(root);
       const flap = []; g.traverse(o => { if (!o.isMesh) return; o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .5; if (i === 0) beutel_leder(o.material, lederTex); }
-        const sw = o.geometry.attributes.skinWeight; if (i === 0 && sw) { const P = o.geometry.attributes.position, N = o.geometry.attributes.normal; flap.push({ o, P0: P.array.slice(), N0: N.array.slice(), w: Float32Array.from({ length: P.count }, (_, k) => sw.getY(k)) }); } });
+        const sw = o.geometry.attributes.skinWeight; if (i === 0 && sw) { // Attribute liegen verschränkt vor → eigene, flache Kopien (werden beim Aufklappen umgerechnet)
+          const G0 = o.geometry, G = new THREE.BufferGeometry(), flat = a => { const f = new Float32Array(a.count * 3); for (let k = 0; k < a.count; k++) { f[k * 3] = a.getX(k); f[k * 3 + 1] = a.getY(k); f[k * 3 + 2] = a.getZ(k); } return f; };
+          const P0 = flat(G0.attributes.position), N0 = flat(G0.attributes.normal); G.setAttribute('position', new THREE.BufferAttribute(P0.slice(), 3)); G.setAttribute('normal', new THREE.BufferAttribute(N0.slice(), 3)); G.setIndex(G0.index); G.computeBoundingSphere(); o.geometry = G;
+          G.attributes.position.setUsage(THREE.DynamicDrawUsage); G.attributes.normal.setUsage(THREE.DynamicDrawUsage); flap.push({ o, P0, N0, w: Float32Array.from({ length: P0.length / 3 }, (_, k) => sw.getY(k)) }); } });
       if (i === 0) { try { S.meta1 = await (await fetch('assets/ms/beutel1/meta.json')).json(); } catch (e) { S.meta1 = { hinge: [0, .159, -.0095] }; } S.flap = flap; }
       S.mod[i] = root; } catch (e) { console.warn('Beutel: Modell ' + key, e); } } }
 // Klappe der Tasche: Winkel a (rad) um die Oberkante, weich über die Gewichte (nur beim Auf-/Zuklappen gerechnet)
@@ -224,7 +227,7 @@ function beutel_auf(umpack) {
   if (album_S.open || album_B.owner) return;
   S.open = true; S.phase = 'auf'; S.t = 0; S.sel = null; S.kombi = null; S.insp = null; S.umpack = umpack || 0; S.klappe = false;
   ui.overlay = 'beutelOv'; $('beutelOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true);
+  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true); { const h = BEUTEL_POSE[S.stufe - 1].hand.p; album_B.spot.target.position.set(h[0], h[1] + .1 * S.stufe, h[2]); album_B.spotK = Math.pow(BEUTEL_POSE[S.stufe - 1].d / .5, 2) * .8; }
   const R = S.mod[S.stufe - 1]; R.visible = true; const P = BEUTEL_POSE[S.stufe - 1]; beutel_pose(P.weg, P.weg, 0, R); if (S.stufe === 1) beutel_klappe(0);
   album_ton(S.stufe === 1 ? 'albLeder' : 'albStoff', { gain: .4, pan: .4 }); beutel_render(true);
 }
@@ -260,9 +263,15 @@ addEventListener('mousemove', e => { const I = beutel_S.insp; if (!I || !I.drag)
 addEventListener('mouseup', e => { const I = beutel_S.insp; if (!I || !I.drag) return; const moved = Math.abs(e.clientX - I.dx0) > 6; I.drag = null; if (!moved) beutel_inspZurueck(); });
 
 // ================================================================ Größere Beutel finden (Welt)
+// An die nächste Wand / das nächste Wrack lehnen (Strahlen in 16 Richtungen, 3,5 m): Rücken zur Wand, leicht gekippt
+function beutel_anlehnen(F) { const L = [], x = F.at[0], z = F.at[1]; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false || o.material.transparent) return;
+    if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld), r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (r < 40 && Math.hypot(c.x - x, c.z - z) < r + 3.5) L.push(o); });
+  const R = new THREE.Raycaster(); R.far = 3.5; let best = null; const y0 = (typeof solidGround === 'function' ? Math.max(0, solidGround(x, 1.5, z)) : 0) + .45;
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, d = new THREE.Vector3(Math.sin(a), 0, Math.cos(a)); R.set(new THREE.Vector3(x, y0, z), d); let h; try { h = R.intersectObjects(L, false)[0]; } catch (e) { h = null; } if (h && (!best || h.distance < best.h.distance)) best = { h, a, d }; }
+  if (!best) return; const back = F.stufe === 3 ? .26 : .2; F.at = [best.h.point.x - best.d.x * back, best.h.point.z - best.d.z * back]; F.ry = best.a + Math.PI + (F.dreh || 0); F.lean = F.lean || .08; F.wand = best.h.object.name || 'Wand'; }
 async function beutel_weltBau() { const S = beutel_S;
   for (const F of BEUTEL_FUNDE) { try { const src = await msModel(BEUTEL_STUFEN[F.stufe - 1].key, 'model.glb'); const g = src.clone(true); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-      const w = new THREE.Group(); w.add(g); const y = typeof solidGround === 'function' ? Math.max(0, solidGround(F.at[0], 1.5, F.at[1])) : 0; w.position.set(F.at[0], y > -1 ? y : 0, F.at[1]); w.rotation.set(-F.lean, F.ry, 0, 'YXZ'); w.userData.noCol = true; scene.add(w);
+      const w = new THREE.Group(); w.add(g); beutel_anlehnen(F); const y = typeof solidGround === 'function' ? Math.max(0, solidGround(F.at[0], 1.5, F.at[1])) : 0; w.position.set(F.at[0], y > -1 ? y : 0, F.at[1]); w.rotation.set(-F.lean, F.ry, 0, 'YXZ'); w.userData.noCol = true; scene.add(w);
       const hit = box(.6, .7, .6, F.at[0], w.position.y + .35, F.at[1], hidden, { cast: false }); interact(hit, () => BEUTEL_STUFEN[F.stufe - 1].n + ' nehmen', () => beutel_finden(F)); F.w = w; F.hit = hit; S.welt.push(F); } catch (e) { console.warn('Beutel: Fundort', e); } }
   beutel_weltSync(true); }
 function beutel_weltSync(force) { const S = beutel_S, k = album_kap(); if (!force && S.kSync === k && S.stSync === S.stufe) return; S.kSync = k; S.stSync = S.stufe;
@@ -284,12 +293,19 @@ function beutel_vorschau() { const S = beutel_S, el = $('beutelVor'); const tg =
 addBattery = (o => function (n = 1) { const S = beutel_S; if (!S.ready || typeof tausch_drop !== 'function') return o.call(this, n); const frei = beutel_frei('batterie');
   if (n <= frei) return o.call(this, n); if (frei > 0) o.call(this, frei); const rest = n - frei; beutel_ablegen({ bat: rest }, rest);
   setTimeout(() => toast(`Kein Platz mehr für ${rest === 1 ? 'die Batterie' : rest + ' Batterien'} – du legst ${rest === 1 ? 'sie' : 'sie'} vor dir ab. ` + (S.stufe < 3 ? 'Ein größerer Beutel wäre gut.' : `[${album_tastenName(album_tasten.beutel)}] öffnen und umräumen.`), 5200), 400); })(addBattery);
+function beutel_reiter(B) { const S = beutel_S, st = BEUTEL_STUFEN[S.stufe - 1], z = beutel_zaehl(), L = beutel_stapel();
+  B.innerHTML = `<h2>${st.n.toUpperCase()} · ${beutel_faecher(z)} / ${st.fach} FÄCHER</h2><p style="font:21px/1.25 Caveat,cursive;color:#2a2a3a">${st.d}</p>
+    <ul>${L.map(s => `<li>${s.name}${s.n > 1 ? ' × ' + s.n : ''}${s.sub ? ' <small>' + s.sub + '</small>' : ''}</li>`).join('') || '<li><small>Leer.</small></li>'}</ul>
+    <p style="color:var(--pdim,#5a4a35);font-size:15px">Story-Gegenstände stecken in der Jacke und zählen nicht. <kbd style="font:600 11px Georgia;border:1px solid rgba(124,36,24,.5);padding:1px 6px">${album_tastenName(album_tasten.beutel)}</kbd> öffnen</p>
+    <button class="btReiterAuf" style="font:600 11px Georgia;letter-spacing:.2em;padding:6px 14px;cursor:pointer">ÖFFNEN</button>`;
+  B.querySelector('.btReiterAuf').onclick = e => { e.stopPropagation(); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => beutel_auf(), 60); }; }
 WORLD_MODS.push(['Beutel', async () => {
   const S = beutel_S; if (!album_B.ready) { console.warn('Beutel: keine Bühne (album.js)'); return; }
   beutel_tmp.e0 = new THREE.Euler(); beutel_tmp.e1 = new THREE.Euler(); beutel_tmp.q0 = new THREE.Quaternion(); beutel_tmp.q1 = new THREE.Quaternion(); beutel_tmp.v = new THREE.Vector3();
   await beutel_modelle(); await beutel_bildchen(); await beutel_weltBau();
   if (typeof tausch_voll === 'function') tausch_voll = function () { beutel_vollHinweis(); return false; };
   album_buehneVorbereiten(); S.ready = true;
+  if (typeof sammeln_reiter === 'function') sammeln_reiter('beutel', () => BEUTEL_STUFEN[beutel_S.stufe - 1].n.toUpperCase(), beutel_reiter, null, '#7d6a52');
   window.__beutel = { S: beutel_S, auf: beutel_auf, zu: beutel_zu, upgrade: beutel_upgrade, platz: beutel_platz, zaehl: beutel_zaehl, faecher: beutel_faecher, finden: beutel_finden, render: beutel_render, aktion: beutel_aktion, waehle: beutel_waehle, untersuchen: beutel_untersuchen, T: typeof tausch_S !== 'undefined' ? tausch_S : null, SAVE: MOD_SAVE, FLASH, licht: v => { flashOn = v; }, addBattery: n => addBattery(n) }; // Testzugriff
 }]);
 WORLD_TICK.push(dt => { const S = beutel_S; if (!S.ready) return; beutel_tick(dt); S.chk = (S.chk || 0) - dt; if (S.chk <= 0) { S.chk = .1; beutel_vorschau(); beutel_weltSync(false); } });

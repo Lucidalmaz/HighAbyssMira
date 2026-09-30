@@ -35,7 +35,7 @@ for (const [k, v] of Object.entries({ trust: 50, seen: {}, sender: 'none', auftr
 story.lwo = lwo_S;
 MOD_SAVE.push(['lwo', () => ({ trust: lwo_S.trust, seen: lwo_S.seen, sender: lwo_S.sender, auftrag1: lwo_S.auftrag1, auftrag2: lwo_S.auftrag2 }),
   v => { if (!v || typeof v !== 'object') return; lwo_S.trust = Math.min(100, Math.max(0, Number.isFinite(+v.trust) ? +v.trust : 50)); lwo_S.seen = v.seen && typeof v.seen === 'object' ? v.seen : {};
-    lwo_S.sender = ['none', 'kept', 'thrown'].includes(v.sender) ? v.sender : 'none'; lwo_S.auftrag1 = v.auftrag1 ?? null; lwo_S.auftrag2 = v.auftrag2 ?? null; story.lwo = lwo_S; lwo_nachLaden(); }]);
+    lwo_S.sender = ['none', 'kept', 'thrown'].includes(v.sender) ? v.sender : 'none'; lwo_S.auftrag1 = v.auftrag1 ?? null; lwo_S.auftrag2 = v.auftrag2 ?? null; story.lwo = lwo_S; if (typeof lwo_nachLaden === 'function') lwo_nachLaden(); }]);
 
 // ---------------------------------------------------------------- 5.1 / 80 §3.1: Ereignisse (Schlüssel → [Δ, Kapitel, Ereignis, Aufrufer])
 const LWO_WERT = {
@@ -463,7 +463,7 @@ function lwo_figTick(F, dt) {
     for (const k of ['idle', 'look', 'nervous', 'phone']) { const a = A[k]; if (!a) continue; const tw = (k === F.clipK ? 1 : 0) * (1 - F.walkW); const cw = a.getEffectiveWeight(); a.setEffectiveWeight(cw + (tw - cw) * Math.min(1, dt * 3)); }
     if (F.block) F.block.visible = F.clipK === 'phone' && F.walkW < .5;
     F.mx.update(dt); }
-  const obj = F.obj; obj.updateMatrixWorld(true);
+  // (Weltmatrizen: getWorldQuaternion/updateWorldMatrix aktualisieren nur die Kette, die gebraucht wird – kein zweiter Durchlauf über die ganze Figur)
   // Atmung, Haltung (Wolter vornübergebeugt), Blechmann schwerer Oberkörper
   _lrt.set(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
   const br = Math.sin((t + F.breathT) * 2 * Math.PI / (def.blech ? 4.6 : 4.1)) * (def.blech ? .016 : .012);
@@ -529,15 +529,15 @@ function lwo_glowTex() { return lwo_tex(128, 128, (c, w) => { const g = c.create
 async function lwo_kombiLaden() {
   const src = await msFBX('car_amsedan', 'Car.fbx', { Car_base_color: { b: 'Car_color.jpg', color: 0x6d7072, rough: .5, metal: .45 }, Car_detail: { b: 'Car_details.jpg', rough: .8, metal: .1 },
     Glass: { color: 0x0a0d10, rough: .06, metal: .7, transparent: true }, Car_number: { color: 0x3a3a38, rough: .9 }, Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: 0xfff0d6 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: 0x7a0a04 },
-    Car_backLight: { color: 0x220505, rough: .25 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
-  const lf = [], stop = []; src.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; const mats = [].concat(m.material).map(mt => { const c = mt.clone(); if (c.name === 'Glass') c.opacity = .86; if (c.name === 'Car_LightForward') { c.emissiveIntensity = 0; lf.push(c); } if (c.name === 'Car_stopLight') { c.emissiveIntensity = 0; stop.push(c); } return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; });
+    Car_backLight: { color: 0x220505, rough: .25, emissive: 0x6a0804 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
+  const lf = [], stop = []; src.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; const mats = [].concat(m.material).map(mt => { const c = mt.clone(); if (c.name === 'Glass') c.opacity = .86; if (c.name === 'Car_LightForward') { c.emissiveIntensity = 0; lf.push(c); } if (c.name === 'Car_stopLight' || c.name === 'Car_backLight') { c.emissiveIntensity = 0; stop.push(c); } return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; });
   src.scale.setScalar(4.7 / 212.53); const inner = msGround(src), g = new THREE.Group(); g.add(inner); g.visible = false; g.name = 'lwo_kombi'; scene.add(g); g.updateMatrixWorld(true);
   const bb = new THREE.Box3().setFromObject(inner), K = { g, lf, stop, bb, sp: 0, path: null, pi: 0, rueck: false, motor: null, pan: null, stand: false, fern: 0, done: null };
   // Leuchtbilder: Standlicht vorn (zwei kleine + Dunst), Rücklicht, Deckenleuchte innen (nur Sprites, kein Licht)
   const glow = (x, y, z, s, col, op) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: LWO.glareTex, color: col, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); sp.position.set(x, y, z); sp.scale.set(s, s, 1); sp.visible = false; g.add(sp); return sp; };
   const fz = bb.max.z - .12, rz = bb.min.z + .1, hw = (bb.max.x - bb.min.x) / 2 - .28;
   K.vorn = [glow(-hw, .72, fz, .32, 0xfff2da, .9), glow(hw, .72, fz, .32, 0xfff2da, .9), glow(0, .75, fz + .5, 2.4, 0xfff0d8, .12)];
-  K.hinten = [glow(-hw, .8, rz, .22, 0xff2a10, .7), glow(hw, .8, rz, .22, 0xff2a10, .7)];
+  K.hinten = [glow(-hw, .82, rz - .16, .2, 0xff2a10, .75), glow(hw, .82, rz - .16, .2, 0xff2a10, .75)];
   K.fernS = glow(0, .75, fz + .3, 7, 0xfff4e4, 0); K.innen = glow(0, 1.35, (bb.max.z + bb.min.z) / 2 - .1, .9, 0xffe2b0, .35);
   // Magnetschild „Institut für Atmosphärenforschung“ am Heck
   const ms = new THREE.Mesh(new THREE.PlaneGeometry(.62, .2), new THREE.MeshStandardMaterial({ map: lwo_texMagnet(), roughness: .6, metalness: .1, polygonOffset: true, polygonOffsetFactor: -2 })); ms.position.set(0, .98, rz - .02); ms.rotation.y = Math.PI; g.add(ms); K.schild = ms;
@@ -776,7 +776,10 @@ function lwo_tick(dt) {
   if (LWO.pairLateT > 0 && (LWO.pairLateT -= dt) <= 0) LWO.pairLate = true;
   if (LWO.drehen) for (const F of LWO.drehen) { const zy = F.g.userData.zielYaw; if (zy === undefined) continue; let d = zy - F.g.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); F.g.rotation.y += d * Math.min(1, dt * 1.8); }
   const cam = camera.position;
-  for (const k in LWO.F) { const F = LWO.F[k]; if (!F.g.visible) continue; const d = Math.hypot(F.g.position.x - cam.x, F.g.position.z - cam.z); if (d > 75 && !F.path) continue; lwo_figTick(F, dt); }
+  for (const k in LWO.F) { const F = LWO.F[k]; if (!F.g.visible) continue; const d = Math.hypot(F.g.position.x - cam.x, F.g.position.z - cam.z); if (d > 75 && !F.path) continue;
+    // Leistung: Schatten nur in Lukes Nähe (Umschalten kostet keine Shader), ferne Figuren mit halber Bildrate bewegen
+    const sch = d < 16; if (F.schatten !== sch) { F.schatten = sch; F.obj.traverse(o => { if (o.isMesh) o.castShadow = sch; }); }
+    if (d > 24 && !F.path) { F.dtAcc = (F.dtAcc || 0) + dt; if ((F.odd = !F.odd)) continue; lwo_figTick(F, F.dtAcc); F.dtAcc = 0; } else lwo_figTick(F, dt); }
   lwo_kombiTick(dt); lwo_v01Tick(dt); lwo_v12Tick(dt); lwo_praesenzTick();
   // Wer gegangen ist, verschwindet erst außer Sicht oder im Nebel
   for (let i = LWO.hideQ.length - 1; i >= 0; i--) { const F = LWO.hideQ[i], p = F.g.position, dx = p.x - cam.x, dz = p.z - cam.z, d = Math.hypot(dx, dz), f = (dx * -Math.sin(player.yaw) + dz * -Math.cos(player.yaw)) / Math.max(d, 1e-3);

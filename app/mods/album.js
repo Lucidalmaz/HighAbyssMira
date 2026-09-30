@@ -29,7 +29,7 @@ function album_buehneBau() {
   const B = album_B, T = THREE; B.scene = new T.Scene(); B.cam = new T.PerspectiveCamera(32, innerWidth / innerHeight, .02, 6); B.scene.add(B.cam);
   // Licht (einmal beim Laden): die Taschenlampe in Lukes rechter Hand als Kegel, dazu Nacht-Grundlicht und ein kalter Saum von hinten links
   B.hemi = new T.HemisphereLight(0x9aa6c0, 0x241c14, .28); B.scene.add(B.hemi);
-  B.spot = new T.SpotLight(0xffe2bc, 1.1, 3, .62, .85, 2); B.spot.position.set(.2, .34, .08); B.spot.target.position.set(0, -.08, -.46); B.scene.add(B.spot, B.spot.target);
+  B.spot = new T.SpotLight(0xffe2bc, 1.1, 6, .62, .85, 2); B.spot.position.set(.2, .34, .08); B.spot.target.position.set(0, -.08, -.46); B.scene.add(B.spot, B.spot.target);
   B.rim = new T.DirectionalLight(0x8ea4d0, .35); B.rim.position.set(-.6, .5, -.8); B.scene.add(B.rim);
   B.fill = new T.PointLight(0xffc690, 0, 1.5, 2); B.fill.position.set(-.15, -.05, -.2); B.scene.add(B.fill);
   if (scene.environment) { B.scene.environment = scene.environment; B.scene.environmentIntensity = .25; }
@@ -62,7 +62,7 @@ function album_buehneTick(dt) { const B = album_B; if (!B.ready) return;
   if (B.k <= 0 && B.kZiel === 0) { if (B.lens.enabled) { B.lens.enabled = false; B.pass.enabled = false; } if (camOverride === B.camFn) setCamOverride(null); B.owner = null; }
   // Licht folgt der echten Taschenlampe (an/aus, schwache Batterie, Flackern)
   const T = FLASH_TIERS[FLASH.tier], on = flashOn && FLASH.charge > 0 && state.flashFail <= 0; const f = T ? Math.min(1.2, flashlight.intensity / T.intensity) : 1;
-  B.spot.intensity = on ? 1.15 * f : 0; B.spot.color.setHex(T ? T.color : 0xffe2bc); B.hemi.intensity = on ? .22 : .42; B.rim.intensity = on ? .3 : .5;
+  B.spot.intensity = on ? 1.15 * f * (B.spotK || 1) : 0; B.spot.color.setHex(T ? T.color : 0xffe2bc); B.hemi.intensity = on ? .22 : .42; B.rim.intensity = on ? .3 : .5;
   B.fill.intensity = typeof tausch_S !== 'undefined' && tausch_S.L && tausch_S.L.intensity > .1 ? .35 : 0; }
 // Beim Laden: Programme übersetzen und Texturen hochladen (kein Ruckeln beim ersten Öffnen)
 function album_buehneVorbereiten() { const B = album_B; if (!B.ready) return; const vis = []; B.scene.traverse(o => { vis.push([o, o.visible]); o.visible = true; });
@@ -239,7 +239,7 @@ function album_seitenGeo(links) { const { L, Z } = ALBUM_PX, g = new THREE.Buffe
 async function album_modellBau() {
   const S = album_S, B = album_B, T = THREE; const root = new T.Group(); root.visible = false; B.scene.add(root);
   const src = await msModel('album', 'model.glb'); const book = src.clone(true); let deckel = null, ruecken = null;
-  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .6; } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
+  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .22; } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
   const achse = new T.Group(); root.add(achse); // Buchmitte: beim Öffnen wandert die Bindung in die Mitte
   const piv = new T.Group(); achse.add(piv); if (deckel) { deckel.parent.remove(deckel); piv.add(deckel); } if (ruecken) { ruecken.parent.remove(ruecken); achse.add(ruecken); }
   const pm = () => new T.MeshStandardMaterial({ roughness: .93, metalness: 0, side: T.DoubleSide, envMapIntensity: .15 });
@@ -279,9 +279,9 @@ function album_fotoKarte(e) { const M = album_S.mesh; if (!M.cF) return; const f
     b.fillStyle = '#1f1e1c'; b.fillRect(0, H * .8, W, H * .2); }
   else { b.fillStyle = '#efebe1'; b.fillRect(0, 0, W, H); b.save(); b.rotate(-.5); b.fillStyle = 'rgba(120,130,150,.13)'; b.font = '15px "Special Elite", monospace'; for (let y = -200; y < H + 400; y += 38) for (let x = -400; x < W + 200; x += 170) b.fillText(H0.druck || 'FOTOPAPIER', x + (y % 76 ? 85 : 0), y); b.restore(); }
   // Aufschriften
-  if (H0.kreide) { b.save(); b.translate(W / 2, H * .42); b.rotate(-.06); b.font = 'bold 58px Caveat, cursive'; b.textAlign = 'center'; b.fillStyle = 'rgba(236,232,220,.9)'; const L0 = H0.kreide.split('\n'); L0.forEach((l, i) => b.fillText(l, 0, i * 62)); b.restore();
-    b.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 2600; i++) { b.fillStyle = `rgba(0,0,0,${.2 + Math.random() * .5})`; b.fillRect(Math.random() * W, H * .25 + Math.random() * H * .4, 1 + Math.random() * 2, 1 + Math.random() * 2); } b.globalCompositeOperation = 'source-over';
-    if (stil === 'pola') { b.fillStyle = '#2c2b29'; } }
+  if (H0.kreide) { const k = document.createElement('canvas'); k.width = W; k.height = H; const kx = k.getContext('2d'); kx.translate(W / 2, H * .42); kx.rotate(-.06); kx.font = 'bold 58px Caveat, cursive'; kx.textAlign = 'center'; kx.fillStyle = 'rgba(236,232,220,.92)';
+    H0.kreide.split('\n').forEach((l, i) => kx.fillText(l, 0, i * 62)); kx.setTransform(1, 0, 0, 1, 0, 0); kx.globalCompositeOperation = 'destination-out';
+    for (let i = 0; i < 5200; i++) { kx.fillStyle = `rgba(0,0,0,${.25 + Math.random() * .6})`; kx.fillRect(Math.random() * W, H * .2 + Math.random() * H * .5, 1 + Math.random() * 2.2, 1 + Math.random() * 1.6); } b.drawImage(k, 0, 0); }
   if (H0.typ) { b.save(); b.translate(W * .12, H * .16); b.rotate(.012); b.fillStyle = 'rgba(245,238,214,.95)'; b.fillRect(-10, -34, W * .78, 30 + H0.typ.length * 30); b.fillStyle = '#2a2622'; b.font = '22px "Special Elite", "Courier New", monospace'; H0.typ.forEach((l, i) => b.fillText(l, 0, i * 30)); b.restore(); }
   if (H0.stempel) { b.save(); b.translate(W * .52, H * .66); b.rotate(-.12); b.strokeStyle = 'rgba(150,30,26,.72)'; b.lineWidth = 4; b.strokeRect(-190, -40, 380, 80); b.fillStyle = 'rgba(150,30,26,.72)'; b.font = 'bold 30px "Special Elite", monospace'; b.textAlign = 'center'; b.fillText(H0.stempel, 0, 10);
     b.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 500; i++) b.fillRect(-200 + Math.random() * 400, -45 + Math.random() * 90, 2, 2); b.restore(); b.globalCompositeOperation = 'source-over'; }
@@ -290,7 +290,7 @@ function album_fotoKarte(e) { const M = album_S.mesh; if (!M.cF) return; const f
 
 // ================================================================ Öffnen / Schließen / Blättern
 const ALBUM_POSE = { // in Kamera-Koordinaten der Bühne: aus der Innentasche der Jacke (unten links) → in den Händen → aufgeklappt
-  jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.085, -.5], r: [1.02, 0, 0] }, offen: { p: [0, -.052, -.46], r: [1.1, 0, 0] } };
+  jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.07, -.6], r: [1.05, 0, 0] }, offen: { p: [0, -.028, -.62], r: [1.16, 0, 0] } };
 const album_tmp = { e0: null, e1: null, q0: null, q1: null, v: null, ray: null, m: null, hits: [] };
 function album_pose(a, b, k, o) { const T = album_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .03, a.p[2] + (b.p[2] - a.p[2]) * k); }
@@ -304,7 +304,7 @@ function album_auf() {
   S.einkleben = S.neu.filter(id => album_spreadVon(id) === S.spread).map(id => ({ e: S.e.find(x => x.id === id), t: 0, fertig: false })).filter(q => q.e);
   S.neu = S.neu.filter(id => !S.einkleben.some(q => q.e.id === id)); album_seitenNeu(null); album_spreadZeigen();
   ui.overlay = 'albumOv'; $('albumOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
+  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); album_B.spotK = 1.5; album_B.spot.target.position.set(0, -.05, -.62); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
   album_ton('albStoff', { gain: .35, pan: -.4 }); album_hinweis(); if (typeof spannung_did === 'function') { /* Welt läuft weiter */ }
 }
 function album_zu(schnell) { const S = album_S; if (!S.open || S.phase === 'zu') return; if (S.pick) album_pickZurueck(true); S.turn = null; S.mesh.turnF.visible = S.mesh.turnB.visible = false;
@@ -503,6 +503,11 @@ beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!r
 renderJournal = (o => () => { o(); try { if (jTab === 'inventar' || jTab === 'aufgaben') return; if (jTab === 'fallwand' || jTab === 'funde') return; const B = $('jBody'), S = album_S; if (!B || !S.hat) return;
   const d = document.createElement('p'); d.style.cssText = 'margin-top:14px;color:var(--dim);font-size:15px'; d.innerHTML = `Im Album: ${S.e.length} ${S.e.length === 1 ? 'Foto' : 'Fotos'} · <kbd style="font:600 11px Georgia;border:1px solid rgba(201,163,106,.6);padding:1px 6px;color:var(--gold)">${album_tastenName(album_tasten.album)}</kbd> öffnen`; B.appendChild(d); } catch (e) {} })(renderJournal);
 
+// Fibel-Reiter „FOTOALBUM“ (sammeln.js): kleine Übersicht, Klick schlägt das Album an der Stelle auf
+function album_reiter(B) { const S = album_S; const serien = ALBUM_SERIE_ORDER.filter(k => S.e.some(e => album_serie(e) === k));
+  B.innerHTML = `<h2>FOTOALBUM · ${S.e.length} ${S.e.length === 1 ? 'FOTO' : 'FOTOS'}</h2>` + (serien.map(k => `<h3 style="font:24px Caveat,cursive;margin:14px 0 6px;color:#3a3226">${ALBUM_SERIEN[k]}</h3><div style="display:flex;flex-wrap:wrap;gap:10px">${S.e.filter(e => album_serie(e) === k).map(e => `<img data-id="${e.id}" src="${e.src2 || e.src}" title="${(e.notiz || '').replace(/"/g, '&quot;')}" style="height:86px;box-shadow:0 3px 8px rgba(0,0,0,.45);transform:rotate(${((album_hash(e.id) - .5) * 5).toFixed(1)}deg);cursor:pointer;background:#eee;padding:${e.art === 'pola' && e.serie === 'sieben' ? 0 : 4}px">`).join('')}</div>`).join('') || '<p><small>Noch leer.</small></p>')
+    + `<p style="margin-top:18px;color:var(--pdim,#5a4a35);font-size:15px"><kbd style="font:600 11px Georgia;border:1px solid rgba(124,36,24,.5);padding:1px 6px">${album_tastenName(album_tasten.album)}</kbd> Album aufschlagen · Klick auf ein Foto schlägt die Seite auf</p>`;
+  B.querySelectorAll('img[data-id]').forEach(im => im.onclick = e => { e.stopPropagation(); S.spread = album_spreadVon(im.dataset.id); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => album_auf(), 60); }); }
 // ================================================================ Laden
 WORLD_MODS.push(['Album', async () => {
   const S = album_S; album_tmp.e0 = new THREE.Euler(); album_tmp.e1 = new THREE.Euler(); album_tmp.q0 = new THREE.Quaternion(); album_tmp.q1 = new THREE.Quaternion(); album_tmp.v = new THREE.Vector3(); album_tmp.ray = new THREE.Raycaster(); album_tmp.m = new THREE.Vector2();
@@ -512,10 +517,16 @@ WORLD_MODS.push(['Album', async () => {
   await album_weltBau(); album_layout();
   try { await album_klangBau(); } catch (e) { console.warn('Album: Klänge', e); }
   $('albumIcon').querySelector('.buch').style.backgroundImage = "url('assets/ms/album/cover.jpg')";
+  // Die Welt läuft weiter: Umgebungs- und kleine Schreckgeräusche dürfen auch bei offenem Album/Beutel kommen (große Schrecken nicht – man sieht nichts)
+  if (typeof spannung_can === 'function' && !album_S.spHuelle) { album_S.spHuelle = true; const o = spannung_can; spannung_can = function (fam, cls, x) { const ov = ui.overlay; if (ov === 'albumOv' || ov === 'beutelOv') { if (cls === 'major') return false; ui.overlay = null; try { return o.apply(this, arguments); } finally { ui.overlay = ov; } } return o.apply(this, arguments); }; }
   album_kameraHuelle(); try { modItem('fotoalbum', 'Fotoalbum', 'Leder, ein Riemen mit Druckknopf, Fotoecken auf jeder Seite. [' + album_tastenName(album_tasten.album) + '] öffnen.', 'buch'); } catch (e) {}
   { const iv = setInterval(() => { if (album_tastenHook()) clearInterval(iv); }, 400); }
   album_buehneVorbereiten(); S.ready = true;
+  if (typeof sammeln_reiter === 'function') sammeln_reiter('album', 'FOTOALBUM', album_reiter, () => album_S.hat, '#8f7a64');
   window.__album = { S: album_S, B: album_B, auf: album_auf, zu: album_zu, blaettern: album_blaettern, abheften: album_abheften, nehmen: album_nehmen, quellen: album_quellen, layout: album_layout, spreadVon: album_spreadVon, umdrehen: album_umdrehen, zurueck: () => album_pickZurueck(),
+    wand: k => { if (typeof fotos_S !== 'undefined') fotos_S.seen.add(k); }, SAVE: MOD_SAVE, spread: n => { album_S.spread = n; album_spreadZeigen(); },
+    unten: (x, z) => { const L = []; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld); const r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (Math.hypot(c.x - x, c.z - z) < r + .5) L.push(o); });
+      const R = new THREE.Raycaster(new THREE.Vector3(x, 2.6, z), new THREE.Vector3(0, -1, 0), 0, 3); let h = null; try { h = R.intersectObjects(L, false)[0]; } catch (e) { return 'err'; } return h ? [+h.point.y.toFixed(3), h.face ? +h.face.normal.clone().transformDirection(h.object.matrixWorld).y.toFixed(2) : 0, (h.object.name || h.object.parent && h.object.parent.name || '').slice(0, 14)] : null; },
     probe: (nx = 0, ny = 0) => { const r = new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(nx, ny), camera); r.far = 6; const h = r.intersectObjects(scene.children, true).find(h => h.object.visible && h.object.material && h.object.material.visible !== false); return h ? { p: h.point.toArray().map(v => +v.toFixed(3)), n: h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld).toArray().map(v => +v.toFixed(2)) : null, o: h.object.name } : null; },
     pickErstes: () => { const S = album_S; for (const k of [0, 1]) { const idx = 2 * S.spread + k, p = S.pages[idx]; if (p && p.slots) for (let i = 0; i < 2; i++) if (p.slots[i]) { album_pickNehmen({ idx, i, side: k ? 'R' : 'L', e: p.slots[i] }); return p.slots[i].id; } } return null; } }; // Testzugriff
 }]);

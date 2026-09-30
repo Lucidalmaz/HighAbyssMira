@@ -89,6 +89,10 @@ if (doIt('haende')) { log('Hände');
         const arr = [...jw].sort((a, b2) => b2[1] - a[1]).slice(0, 4); const sum = arr.reduce((s, a) => s + a[1], 0) || 1; for (let k = 0; k < 4; k++) { out.j.push(arr[k] ? arr[k][0] : 0); out.w.push(arr[k] ? arr[k][1] / sum : 0); }
         out.mat.push(m.name === 'Tops' ? 1 : 0); } } }
   log('  Dreiecke', out.pos.length / 9);
+  // Ärmel schlanker (die Detektiv-Figur trägt einen weiten Mantel): Abstand zur Armachse (Unterarm → Hand, nach hinten verlängert) auf 80 %
+  for (const sd of ['Left', 'Right']) { const fa = pos(bR(PFX[sd] + 'ForeArm').W).multiplyScalar(S), hd = pos(bR(PFX[sd] + 'Hand').W).multiplyScalar(S), ax = hd.clone().sub(fa).normalize(), v = new THREE.Vector3(), c = new THREE.Vector3();
+    for (let i = 0; i < out.mat.length; i++) { if (!out.mat[i]) continue; v.set(out.pos[i * 3], out.pos[i * 3 + 1], out.pos[i * 3 + 2]); if ((sd === 'Left') !== (v.x > 0)) continue;
+      const tt = v.clone().sub(fa).dot(ax); if (tt > hd.clone().sub(fa).dot(ax) - .01) continue; c.copy(fa).addScaledVector(ax, tt); const k = tt > -.02 ? .86 : .8; v.sub(c).multiplyScalar(k).add(c); out.pos[i * 3] = v.x; out.pos[i * 3 + 1] = v.y; out.pos[i * 3 + 2] = v.z; } }
   // Texturausschnitt: UV-Bereich der behaltenen Dreiecke (V gespiegelt: Bild oben = v 1)
   let u0 = 1, u1 = 0, v0 = 1, v1 = 0; for (let i = 0; i < out.uv.length; i += 2) { u0 = Math.min(u0, out.uv[i]); u1 = Math.max(u1, out.uv[i]); v0 = Math.min(v0, out.uv[i + 1]); v1 = Math.max(v1, out.uv[i + 1]); }
   const T = SRC + 'v11/haende/textures/Detective_Hands_', md = await sharp(T + 'diffuse.png').metadata(); const TW = md.width, TH = md.height;
