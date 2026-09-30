@@ -2,7 +2,7 @@
 // Schnittstelle:
 //   kino_play(id, opts?) → Promise, löst nach Ende/Überspringen auf. opts: { aufblenden: ms, nahtlos: true (ohne Schwarzblende beginnen), antwort: 'A'|'B'|'C', ... }
 //   kino_def(id, shots, meta?) · kino_busy() · kino_karte(zeilen, opts?) → Promise (Endkarte Schreibmaschine, Zeile für Zeile je 2 s, auch außerhalb einer Sequenz)
-//   kino_preload(set) · kino_blinzeln(dauer) · Testzugriff window.__kino (play, def, seek, hold, skip, cam, free, info, fps)
+//   kino_preload(set) · kino_blinzeln(dauer) · Testzugriff window.__kino: (play, def, seek, hold, skip, cam, free, info, fps)
 //   meta: { name, skipAfter (Standard 3 s; Infinity = nicht überspringbar), nahtlos, offen (endet ohne Schwarz, Kamera bleibt beim Spieler), uebergabe (Blickrichtung
 //          der letzten Einstellung wird die des Spielers), done(skipped), start(opts) }
 // Einstellung (Daten): { dur, from, to, via, look, lookTo, lookVia, ease, fov, fovTo, roll, rollTo, hand, breathe, follow, frei, blick, blickT, shakes, lens, env, film,
@@ -363,7 +363,7 @@ const KINO_SETS = {
   k3: [['schwert', async () => { const T = THREE, S = kino_S, s = (await msModel('w_schwert', 'model.glb')).clone(true); msFit(s, 1.15, 'max'); const g = new T.Group(); const b = new T.Box3().setFromObject(s), c = b.getCenter(new T.Vector3()); s.position.sub(c); g.add(s);
       s.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); const sz = b.getSize(new T.Vector3()); S.swordAxis = sz.x > sz.y ? (sz.x > sz.z ? 'x' : 'z') : sz.y > sz.z ? 'y' : 'z'; kino_obj('schwert', g); }],
     ['laterneAus', () => kino_lantern('laterneAus', false)],
-    ['figuren3', async () => { if (typeof figuren_load === 'function') await Promise.all([['vegas', 'vegas'], ['lucyK', 'lucy'], ['dina', 'dina'], ['heidi', 'heidi']].filter(([k]) => !kino_S.fig[k]).map(async ([k, id]) => { const P = await kino_mkFig(k, id); if (P && renderer.compileAsync) { P.g.visible = true; P.g.position.set(0, -300, 0); try { await renderer.compileAsync(P.g, camera, scene); } catch (e) {} P.g.visible = false; } })); }],
+    ['figuren3', async () => { if (typeof figuren_load === 'function') await Promise.all([['vegas', 'vegas'], ['lucyK', 'lucy_erw'], ['cleo', 'cleo']] /* Fassung 3 (AP-17): Cleo statt Dina/Heidi auf den Stühlen */.filter(([k]) => !kino_S.fig[k]).map(async ([k, id]) => { const P = await kino_mkFig(k, id); if (P && renderer.compileAsync) { P.g.visible = true; P.g.position.set(0, -300, 0); try { await renderer.compileAsync(P.g, camera, scene); } catch (e) {} P.g.visible = false; } })); }],
     ['stuhl', async () => { const src = await msFBX('chair', 'model.fbx', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }); for (let i = 0; i < 8; i++) { const o = msGround(msFit(src.clone(true), .92, 'y')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); kino_obj('stuhl' + i, o); } }],
     ['kombi', async () => { const src = await msModel('car_dutch', 'model.glb'); const o = msGround(msFit(src.clone(true), 4.5, 'max')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.lerp(new THREE.Color(0x6a6e72), .55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } }); kino_obj('kombi', o); }],
     ['kiesel', async () => { const g = await MSL.gl.loadAsync('assets/boulder/model.gltf'); for (let i = 0; i < 3; i++) { const o = msFit(g.scene.clone(true), .045 - i * .006, 'max'); const w = new THREE.Group(); const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()); o.position.sub(c); w.add(o); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); kino_obj('kiesel' + i, w); } }],
@@ -801,7 +801,7 @@ function kino_staubTick(dt, cx, cz, sp) { const D = kino_S.strahlStaub; if (!D) 
   D.m.geometry.attributes.position.needsUpdate = true; }
 
 // ======================================================== Kapitel 2 · Höhepunkt A „Bruder.“ (16 s), B „Das Gesicht im Glas“ (31 s), Abspann „Ihre Augen“ (31 s)
-const KINO_K2_KARTE = true; // Endkarte Kap. 2 noch am Ende von „Ihre Augen“ – laut Bibel gehört sie an den Gully unter die dreizehn Schläge (AP-16: dann false und kino_karte(KINO_KARTE2()) dort)
+const KINO_K2_KARTE = false; // AP-16: die Endkarte Kap. 2 läuft am Gully unter den dreizehn Schlägen (uebergang.js ruft kino_karte(KINO_KARTE2()))
 function KINO_KARTE2() { const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(2) : null, z = E && E.zeile || (kino_stufe() === 'miserabel' ? 'Protokolliert.' : null);
   return ['KAPITEL 2 — ENDE · DAS ACHTE KIND', 'Du weißt es jetzt.', 'Sie auch.', '03:13.', z ? { t: z, klein: true } : null]; }
 function kino_defK2() {
@@ -980,7 +980,7 @@ function kino_muh() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = 
 function kino_dampf(t) { const o = kino_S.obj.dampf; if (!o || !o.visible) return; o.material.opacity = .22 * Math.max(0, 1 - t / 24); o.scale.set(1.6 + t * .05, 2.2 + t * .08, 1); o.position.y += .0015; }
 
 // ---- Nimmerheim (vorläufige Bühne, bis AP-17 den Ort baut): weißer Raum, acht Stühle im Kreis, die Behaltenen
-const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'dina', 'heidi', 'maedchen'];
+const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'cleo', 'maedchen']; // Fassung 3 (AP-17, Kap. 3 UK 14): Zayn, Mike, Roxy, Hilde, Cleo, Grete (Kreisel) + Lucy; der achte Stuhl bleibt leer
 function kino_buehne(M) { const S = kino_S; return M || S.bu || { x: X3 + 4, z: Z3 }; }
 function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S, a0 = S.bl ? Math.atan2(S.bl.fz, S.bl.fx) - PI / 2 : 0; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = a0 + i / 8 * PI * 2, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
   const st = S.obj['stuhl' + i], rs = stehen ? 5.1 : r + .08; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * rs, 0, M.z + Math.sin(a) * rs); st.rotation.y = ry; } // Sitzfläche zur Mitte, Lehne außen
@@ -1001,14 +1001,14 @@ function kino_defK3b() {
     { frei: true, dur: 5, env: 'white', lines: [['Ich hab nicht geblinzelt. Das war nicht ich.', 'LUKE', 1.2, 3400]], // 3–8 · Blinzeln: die Stühle stehen einen Meter näher
       setup() { zu(() => kino_kreisSetzen(M(), 4, false)); }, tick(k, t) { kino_flacker('lucyK', t); } },
     { frei: true, dur: 5, env: 'white', lines: [['Guck mal. Ich mach die Augen zu, und du auch.', 'LUNA', 1.4, 3600]], // 8–13 · fünf stehen, drei Meter entfernt; das Mädchen mit dem Kreisel sitzt noch
-      setup() { zu(() => { kino_kreisSetzen(M(), 3, true, ['hilde', 'zayn', 'mike', 'roxy', 'dina']); }); kino_after(.1, () => Audio.giggle(M().x, 2, M().z + 6)); kino_streicher('A1', 18, .03, .5, 500);
+      setup() { zu(() => { kino_kreisSetzen(M(), 3, true, ['hilde', 'zayn', 'mike', 'roxy', 'cleo']); }); kino_after(.1, () => Audio.giggle(M().x, 2, M().z + 6)); kino_streicher('A1', 18, .03, .5, 500);
         kino_after(2.2, () => schiffAtem(.7)); kino_after(3.6, () => schiffAtem(.8)); }, tick(k, t) { kino_flacker('lucyK', t); } },
     { frei: true, dur: 6, env: 'white', film: { vig: 1.6 }, lines: [['Wenn sie durch mich guckt, guckt sie auch weg, wenn ich wegguck. Mach die Augen –', 'LUKE', .6, 5000]], // 13–19 · anderthalb Meter, Hilde vorn; die Augen tränen
-      setup() { zu(() => kino_kreisSetzen(M(), 1.5, true, ['hilde', 'zayn', 'mike', 'roxy', 'dina']), true); $('kinoTear').classList.add('on'); kino_streicher('A#1', 6, .03, 0, 520); kino_herz(6, 60); kino_after(3.2, () => kino_herz(5, 96)); },
+      setup() { zu(() => kino_kreisSetzen(M(), 1.5, true, ['hilde', 'zayn', 'mike', 'roxy', 'cleo']), true); $('kinoTear').classList.add('on'); kino_streicher('A#1', 6, .03, 0, 520); kino_herz(6, 60); kino_after(3.2, () => kino_herz(5, 96)); },
       tick(k, t) { kino_flacker('lucyK', t); const P = S.fig.maedchen; if (P) { P.pose = (Q, tt) => kino_arm(Q, 'l', camera.position, .6 * kino_ramp(tt, 0, 2), .2); } } },
     { frei: true, dur: 7, env: 'white', lines: [['Nicht loslassen. Und nicht die andere geben. Sieh mich an.', 'JUSTIN', 2.2, 4600]], // 19–26 · einen halben Meter: Zayn unter Lukes Kinn; fünf Hände heben sich, Handflächen nach oben
-      setup() { zu(() => { kino_kreisSetzen(M(), .9, true, ['hilde', 'mike', 'roxy', 'dina']); const m = M(), c = S.sv.pos; kino_fig('zayn', c.x + S.bl.fx * .5, 0, c.z + S.bl.fz * .5, Math.atan2(-S.bl.fx, -S.bl.fz), 'idle', { look: 'cam' }); });
-        kino_still(true, .05); for (const k of ['hilde', 'zayn', 'mike', 'roxy', 'dina']) { const P = S.fig[k]; if (P) P.pose = (Q, tt) => { kino_arm(Q, 'r', camera.position, .75 * kino_ramp(tt, .8, 3), .1); }; } },
+      setup() { zu(() => { kino_kreisSetzen(M(), .9, true, ['hilde', 'mike', 'roxy', 'cleo']); const m = M(), c = S.sv.pos; kino_fig('zayn', c.x + S.bl.fx * .5, 0, c.z + S.bl.fz * .5, Math.atan2(-S.bl.fx, -S.bl.fz), 'idle', { look: 'cam' }); });
+        kino_still(true, .05); for (const k of ['hilde', 'zayn', 'mike', 'roxy', 'cleo']) { const P = S.fig[k]; if (P) P.pose = (Q, tt) => { kino_arm(Q, 'r', camera.position, .75 * kino_ramp(tt, .8, 3), .1); }; } },
       tick(k, t) { kino_flacker('lucyK', t); } },
     { frei: true, dur: 2, env: 'white', blick: () => kino_justinKopf(kino_S.a), blickRate: .8, // 26–28 · Justin ansehen
       setup() { kino_sag('Ansehen', '', 1800); } },
