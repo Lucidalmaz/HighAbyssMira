@@ -40,7 +40,7 @@
 *Z-01* (Wortlaut aus dem LWO-Dossier), rot eingekreist bei „(hw)“:
 > **DER LATERNENBOTE** · „Wetterballon über dem Hohen Abgrund niedergegangen“
 > Lost Eyengless. In der Nacht zum Dienstag ist über dem Hohen Abgrund ein Wetterballon der Bundesstelle für Rückführung niedergegangen. Die Bergung wurde in den frühen Morgenstunden abgeschlossen. Anwohner, die ein „starkes Leuchten“ beobachtet haben wollen, werden gebeten, sich nicht zu beunruhigen: Die Instrumente des Ballons sind mit Signalfarbe versehen. Die neue Außenstelle der Bundesstelle in der Ahornstraße nimmt am Donnerstag ihren Betrieb auf; Bürgersprechstunde 14–16 Uhr. (hw)
-> *Daneben:* „Kaninchenzuchtverein: Rammler ‚Fritz‘ erneut Kreissieger.“ Auf dem Foto der Bergung, am Rand, ein junger Mann im Mantel, der aussieht, als hätte er nie geschlafen.
+> *Daneben:* „Kaninchenzuchtverein: Rammler ‚Fritz‘ erneut Kreissieger.“ Auf dem Foto der Bergung, am Rand, ein junger Mann im Mantel, der schon aussieht, als hätte er nie geschlafen.
 
 *Z-10 „Aus aller Welt“:* die sechs Kurzmeldungen (Ohio, Nordsee, Lagune, Ural, Irland, Chile) im Wortlaut des LWO-Dossiers (5.2), jede rot umkreist, darunter Vegas: „SIEHST DU? ÜBERALL.“ Die Lagune-Meldung ist zusätzlich mit Textmarker gelb, weil Vegas „Licht unter dem Wasser“ für seine beste Spur hält (Verdrahtung mit Nr. 9).
 
@@ -51,9 +51,9 @@
 
 **Die Erkenntnis (ohne dass jemand sie ausspricht):** Legt Luke das Kaugummipapier neben das Foto, sieht er das Auge auf dem Papier und das Auge klein unter dem BfR-Stempel im Artikel. LUKE-Gedanke: „‚Wolter. Ich schreibe für das Blatt hier.‘ … Der schreibt die Beruhigung gleich selber.“ Fibel-Eintrag „(hw)“: *hw. Wolter. Der Mann an der Bushaltestelle steht auf Fotos, die älter sind als Mama. Und er schreibt, dass alles in Ordnung ist.*
 
-**Spuren:** Beim zweiten Öffnen von Z-01 ist „(hw)“ zusätzlich mit Bleistift unterstrichen, neben dem roten Kreis (S-09). Vor der Tür Zettel **B-K3-04** „Nicht nachdenken“ (Wortlaut Beobachter-Dossier 5.3: „WIE HIESS EUER HUND …“).
+**Spuren:** Beim zweiten Öffnen von Z-01 ist „(hw)“ zusätzlich mit Bleistift unterstrichen, neben dem roten Kreis (S-09). Wer vor der Tür noch nicht war: Dort liegt **B-K3-04** „Nicht nachdenken“ (Hauptweg; Wortlaut: Dossier 82, B-K3-04).
 
-**Belohnung:** Kapellenschlüssel (öffnet Kapellentür und das Gitter der Martinsnische), Luna-Zusatzzeile in Raum 3 („Der alte Mann mit dem Hut auf der Nase …“), Vegas’ Behauptungen werden abgehakt (`albers.js`, Nebenaufgabe „Lars Vegas’ Spinnereien“).
+**Belohnung:** Kapellenschlüssel (öffnet Kapellentür und das Gitter der Martinsnische), Luna-Zusatzzeile in Raum 3 („Der alte Mann mit dem Silberhut. Der guckt immer nach oben. Ich wink ihm.“), Vegas’ Behauptungen werden abgehakt (`albers.js`, Nebenaufgabe „Lars Vegas’ Spinnereien“).
 **Schreck (1):** Während Luke liest, raschelt Vegas’ Hecke. VEGAS (drinnen, leise): „Junge. Wenn das ein Igel ist, ist das ein großer Igel.“
 **Humor:** die Blätter durch den Kettenspalt; „Brille putzen, Lars“; Whiskey zupft ein Stück Alufolie vom Ordnerrücken und fliegt damit auf die Laterne. VEGAS: „Das ist Beweismaterial!“
 **Verbindung:** Aha „(hw) ist Heinrich Wolter“ (Kern §11: Zeitung Kap. 1 → Ordner Kap. 3 → Villa Kap. 4); Z-10 und die Lagune bereiten „Außenstelle 3“ vor.
@@ -61,41 +61,41 @@
 #### 2 · „Zähl bis siebzehn, Augen zu“
 *Kirchberg, Kapelle St. Martin, innen*
 
-**Name:** die letzte Zeile der Urfassung des Laternenlieds im Gesangbuch. Beim Lesen klingt es nach Kinderspiel. Nach der Aufgabe ist klar, dass Lunas Spielregel ein Wiegenlied ist.
+**Name:** eine Zeile im Gesangbuch der Kapelle, mit brauner Tinte unter Miras Wiegenlied nachgetragen: So singen es die Kinder, die wiederkamen. Beim Lesen klingt es nach Versteckspiel. Nach der Aufgabe ist klar, dass Lunas Spielregel aus einem Wiegenlied gewachsen ist.
 
 **Start:** Kapellenschlüssel an der Kapellentür. Drinnen brennen die Kerzen hinter dem Gitter (vorhanden). Das große Chorfenster leuchtet heute von hinten: Das Licht über der Senke scheint hindurch. JUSTIN (an der Tür): „In die Kapelle darf jeder.“ Er setzt sich in die letzte Bank. Die Bank ächzt. Er steht wieder auf.
 
 **Schritte:** Fenster (acht Felder) → Kirchenführer → Sakristei (Z-11, Sühnebrief) → Gesangbuch → Glockenseil.
 
-**Das Kapellenfenster** (zwei Spalten, vier Reihen, gelesen wie ein Bilderbogen; jedes Feld einzeln untersuchbar, Taschenlampe nötig für die Einzelheiten):
+**Das Kapellenfenster** (02 F5; zwei Spalten, vier Reihen, gelesen wie ein Bilderbogen; jedes Feld einzeln untersuchbar, Taschenlampe nötig für die Einzelheiten):
 
 | Feld | Bild | Luke beim Untersuchen |
 |---|---|---|
-| 1 | Eine Holzkapelle, an der Glocke drei Striche. Ein Stern fällt in einen Birkenwald. | „Drei Striche. Die Glocke hat drei geschlagen.“ |
-| 2 | Ein Mädchen, barfuß, im Hemd, mit einer Laterne, die größer ist als sie. Es sieht über die Schulter zurück, den Mund offen. | „Die ruft wem was zu. Über die Schulter. Wie man ‚Fang mich‘ ruft.“ |
-| 3 | Sechs Kinder mit Laternen gehen ihr nach in einen Kreis aus Licht. | „Sechs. Nicht sieben. Die Erste ist schon drin.“ |
-| 4 | Eine Frau mit Laterne, ein schwarzer Vogel auf der Schulter. Sie führt sechs Kinder heraus, eins hinter dem anderen, Hand in Hand. | „Eine Kette. Die hat sie rausgeholt. Alle sechs.“ |
-| 5 | Die Frau geht allein zurück in den Kreis. Ein Ritter hält ihre Hand. | „Sie geht noch mal rein. Für die Erste.“ |
-| 6 | Quer über die Frau läuft ein Sprung im Glas. Haar und Vogel sind zum Sprung hin gemalt. | „Ein Sprung. Genau durch sie durch. Und alles an ihr zeigt auf den Sprung.“ |
-| 7 | Der Ritter allein, die linke Hand offen. In der Handfläche ein kleiner halber Mond aus gelbem Glas. | „Er zeigt was her. Einen Mond.“ |
-| 8 | In der Mitte eine Birke. Rechts, halb dahinter, das Mädchen mit dem Rücken zum Betrachter, es späht ins Dunkle. Links nur Licht. | „Sie versteckt sich. Und links … ist nichts.“ |
+| 1 · Ein Stern fällt | Eine Holzkapelle, an der Glocke drei Striche. Ein Stern fällt in einen Birkenwald. | „Drei Striche. Die Glocke hat drei geschlagen.“ |
+| 2 · Das Kind geht ins Licht | Ein Mädchen, barfuß, im Hemd, mit einer Stalllaterne, die größer ist als sie, geht in einen Kreis aus milchigem Glas. Es sieht über die Schulter zurück, den Mund offen. Hinter ihm sechs Kinder mit kleinen Laternen. | „Die ruft wem was zu. Über die Schulter. Wie beim Verstecken. Und sechs laufen hinterher.“ |
+| 3 · Die Frau führt sie heraus | Eine Frau mit Laterne, ein schwarzer Vogel auf der Schulter. Sie führt sechs Kinder aus dem Kreis, eins hinter dem anderen, Hand in Hand. | „Eine Kette. Die hat sie rausgeholt. Alle sechs. Die Erste nicht.“ |
+| 4 · Die Frau geht allein hinein | Die Frau geht allein zurück in den Kreis. Die Flamme in ihrer Laterne steht kerzengerade, obwohl ihr Haar nach hinten weht. | „Sie geht noch mal rein. Für die Erste. Und die Flamme … steht. Hat der Glaser nicht aufgepasst?“ |
+| 5 · Zwei Hände, ein Riss | Nur zwei Hände, groß. Die obere kommt aus einem gezackten Riss im Himmel, die untere aus einem Handschuh. Sie berühren sich nicht mehr, ein Fingerbreit fehlt. Quer durch das Feld läuft ein echter Sprung im Glas, genau durch den Riss. | „Zwei Hände. Knapp nicht. Wer hält hier wen?“ |
+| 6 · Der Ritter am Rand | Der Ritter kniet allein am Rand einer Grube, die linke Hand offen nach oben. In der Handfläche ein kleiner halber Mond aus gelbem Glas. | LUKE-Gedanke: „Ein halber Mond. In der Hand.“ Er sieht auf seine eigene linke Hand. Er sagt nichts. |
+| 7 · Drei im Schnee | Schnee aus weißem Milchglas. Drei kleine weiße Gestalten mit großen dunklen Augen reichen dem knienden Ritter etwas Flaches, Schimmerndes, so groß wie ein Brustpanzer. | „Kinder im Schnee? … Mit solchen Augen hat hier keiner Kinder.“ |
+| 8 · Der Laternenzug | Das Dorf mit Laternen, eine lange Reihe. Ganz vorn ein kleines Mädchen mit einer Stalllaterne, die größer ist als sie. | „Das Laternenfest. Und vorneweg … die aus Feld zwei.“ |
 
-**RH-6 (Feld 8):** Leuchtet Luke Feld 8 schräg von der Seite an (Hinweis: Das Glas glänzt, wenn man den Kegel bewegt), zeichnet sich im linken Weiß eine Gestalt ab: ein Ritter aus fast demselben Glas wie das Licht, nur einen Hauch grauer. LUKE: „Da steht er. Mitten im Licht. Aus demselben Glas. Man sieht ihn nur, wenn man schräg guckt.“ Zählt als Rüstungs-Hinweis.
+**RH-6 (Feld 7, 02 I2):** Macht Luke vor dem Fenster die Taschenlampe aus (Hinweis: dieselbe Handlung wie bei den Lichtsteinen), leuchten nur noch zwei Stellen von hinten: der Kreis in Feld 2 bis 4, in den die Kinder gehen, und das Schimmernde in den Händen der drei in Feld 7. Dasselbe Glas, dieselbe Farbe. LUKE: „Licht aus, und nur zwei Sachen leuchten. Das Loch, in das die Kinder gehen. Und das, was die drei ihm geben. Das ist dasselbe Zeug.“ Zählt als Rüstungs-Hinweis, sobald der Satz kommt.
 
 **Kirchenführer** (zwei laminierte Karten am Schriftenstand, Heimatverein):
-> *Karte 1.* Das Martinsfenster (15. Jh.), gestiftet von den sechs alten Familien. Feld 1: Der Stern von Tours. Feld 2: Ein Kind ruft den Heiligen. Feld 3: Die Kinder folgen dem Licht des Glaubens. Feld 4: Eine Stifterin führt die Kinder zur Kirche.
+> *Karte 1.* Das Martinsfenster (15. Jh.), gestiftet von den sechs alten Familien. Feld 1: Der Stern von Tours. Feld 2: Die Kinder folgen dem Licht des Glaubens. Feld 3: Eine Stifterin führt die Kinder zur Kirche. Feld 4: Die Stifterin kehrt zum Gebet zurück.
 > Fotografieren mit Blitz verboten.
 
-> *Karte 2.* Feld 5: Der Heilige begleitet die Stifterin. Feld 6: Sturmschaden, 1890, bewusst nicht erneuert. Feld 7: Martin öffnet die Hand zur Gabe. Feld 8: Das Kind versteckt sich hinter der Birke, der Heilige sucht es.
+> *Karte 2.* Feld 5: Die Hand Gottes reicht aus dem Himmel (Sprung: Sturmschaden, 1890, bewusst nicht erneuert). Feld 6: Martin öffnet die Hand zur Gabe. Feld 7: Engel bringen dem Heiligen den Mantel. Feld 8: Der Martinszug.
 > Der Heimatverein dankt für Ihre Spende.
 
-LUKE (zur Karte, trocken): „Blitz verboten. Ich hab eine Taschenlampe. Das ist Dauerlicht. Das ist was ganz anderes.“ JUSTIN (hinten, ohne hinzusehen): „Sie haben ein Fest daraus gemacht.“
+LUKE (zur Karte, trocken): „Blitz verboten. Ich hab eine Taschenlampe. Das ist Dauerlicht. Das ist was ganz anderes.“ Und bei Feld 7: „Engel. Mit Mantel. Klar.“ JUSTIN (hinten, ohne hinzusehen): „Sie haben ein Fest daraus gemacht.“
 
 **In der Sakristei:**
 
-*Z-11* (Aushang, vergilbt, Wortlaut LWO-Dossier):
+*Z-11* (Aushang, vergilbt; Wortlaut: Dossier 80, Z-11, das Datum nach 02 C11):
 > **DER LATERNENBOTE** · „Pfarrer Voss vermisst – Gemeinde betet“
-> Lost Eyengless. Seit der Nacht zum 13. Juli wird Pfarrer Bernhard Voss (St. Martin) vermisst. Der Geistliche hatte am Vortag angekündigt, mit einer Gruppe von Kindern „für einige Tage in die Berge“ zu fahren; der Bus wurde am Waldrand verlassen aufgefunden, die Kinder wohlbehalten. Das Amt für Rückführung geht davon aus, dass sich der Pfarrer „im Nebel verirrt“ hat. Die Gemeinde trifft sich zum Gebet. Die dreizehnte Predigt der Reihe „Vom Licht“ entfällt. (hw)
+> Lost Eyengless. Seit der Nacht zum 22. Juni wird Pfarrer Bernhard Voss (St. Martin) vermisst. Der Geistliche hatte am Vortag angekündigt, mit einer Gruppe von Kindern „für einige Tage in die Berge“ zu fahren; der Bus wurde am Waldrand verlassen aufgefunden, die Kinder wohlbehalten. Das Amt für Rückführung geht davon aus, dass sich der Pfarrer „im Nebel verirrt“ hat. Die Gemeinde trifft sich zum Gebet. Die dreizehnte Predigt der Reihe „Vom Licht“ entfällt. (hw)
 > *Daneben:* „Kirchenchor sucht Tenöre. Auch ungeübte.“
 
 *Der Sühnebrief* (gerahmte Abschrift neben der Tür; gehört zum Sühnekreuz draußen, dessen Sockel Luke aus Kapitel 1 kennt):
@@ -108,15 +108,15 @@ LUKE-Gedanke: „Aus der Hand gegangen. Die Frau. Das Kind. Alles.“ (Nach Raum
 
 *An der Wand* ein heller Fleck mit Haken, wo ein Bild hing. Zettel am Haken, Schreibmaschine: „Gemälde ‚Die Senke‘, an das Amt verliehen. Rückgabe zugesagt.“ Kein Datum der Rückgabe.
 
-**Das Gesangbuch** (auf dem Lesepult aufgeschlagen, Lied „Laterne, geh voran“; oben die heutige Fassung, darunter klein gedruckt):
-> *Laternenlied, alte Weise, zweite Strophe. Die erste ist nicht aufgeschrieben, die Weise nur mündlich.*
-> Und geht dir einmal das Lichtlein aus,
-> dein Vater trägt dich schlafend nach Haus.
-> Und such ich dich und find dich nicht,
-> dann such du mich beim Laternenlicht:
-> zähl bis siebzehn, Augen zu.
+**Das Gesangbuch** (handgeschrieben, auf dem Lesepult aufgeschlagen; die spätere Abschrift aus dem Seelbuch, 02 F4 und G1; Dokument):
+> *Lied 13 · Der Ritterin Schlaflied, wie sie es sang. Aus dem Seelbuch abgeschrieben.*
+> Schlaf, Kind, im Laternenschein, / der Rab helt Wacht, du bist nit allein. / Ich zel die Schleg, ich zel die Zeit, / und wo du hingest, bin ich nit weit.
+> Schlaf, Kind, die Flamm steht gerad, / kein Wind, der sie zu leschen hat. / Und fellst du weit, und fellst du tief, / ich kom dich holen, eh du rief’st.
+> Ich find dich überall. – Ist das wahr? – Ja.
+> *Darunter, braune Tinte, andere Hand:* Die Kinder, so wiederkamen, singen es anders. Am End „Such mich, Kind“, und danach: Zähl bis siebzehn, Augen zu.
+> *Bleistift:* Das Dorf singt „Such mich“. Sie hat „Ich find dich“ gesungen. Wer hat das Lied umgedreht? – B. V.
 
-LUKE (ein Satz): „Sie zählt bis siebzehn, weil ihre Mama es ihr so vorgesungen hat.“ Justin sagt nichts. Er ist aufgestanden und steht mit dem Rücken zum Pult.
+LUKE (ein Satz): „Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.“ Justin sagt nichts. Er ist aufgestanden und steht mit dem Rücken zum Pult. Wer lange genug stehen bleibt, hört ihn die ersten fünf Töne summen, so leise, dass der Untertitel nur „(summt)“ zeigt. Dann hört er auf. *(Die Melodie ist die Spieluhr, E D C H C; Kern §11. Die dritte Strophe steht hier nicht, die kennt nur Mira.)*
 
 **Das Glockenseil (Joker, einmal im Kapitel):** Im Turmraum hängt das Seil mit drei Knoten. Daneben ein Zettel, Giselas Schrift:
 > Nur zu Gottesdiensten läuten!
@@ -125,20 +125,20 @@ LUKE (ein Satz): „Sie zählt bis siebzehn, weil ihre Mama es ihr so vorgesunge
 
 Wer genau das tut (dreimal ziehen, Pause, dreizehnmal; der Spieler kennt den Takt vom Kapitelbeginn), hört die Glocke über dem ganzen Dorf. Das füllt den Joker „Glocke“ (Fibel-Symbol). **Wirkung:** Das nächste Mal, wenn das Graukind oder ein Behaltener Luke packen würde, schlägt die Glocke einmal, und alles erstarrt für siebzehn Sekunden: das Graukind, die Behaltenen, der Nebel, sogar Whiskey in der Luft. Luke kann sich bewegen. JUSTIN (wenn er dabei ist): „Wenn die Glocke so schlägt, bleibt sie stehen und hört hin. Wie ein Kind, das seinen Namen hört.“ Ohne Treffer verfällt der Joker mit der vierten Laterne.
 
-**Fibel-Eintrag „Das Fenster“** (Skizze der acht Felder, Lukes Randnotizen). **Nach Raum 3** ändert sich der Eintrag von selbst, zwei Zeilen kommen in Lukes Schrift dazu: *Feld 6 ist kein Sturmschaden. Feld 7 ist keine Gabe. Das ist die Hand, die aufgegangen ist.* Und unter dem Sühnebrief: *Aus der Hand gegangen. Wörtlich.*
+**Fibel-Eintrag „Das Fenster“** (Skizze der acht Felder, Lukes Randnotizen). **Nach Raum 3** kommen von selbst zwei Zeilen in Lukes Schrift dazu: *Feld 5 ist keine Hand Gottes. Feld 6 ist keine Gabe. Die untere Hand ist offen. Das ist die, die aufgegangen ist.* Und unter dem Sühnebrief: *Aus der Hand gegangen. Wörtlich.*
 
-**Belohnung:** Glocken-Joker, RH-6, Luna-Zusatzzeile „Kapellenfenster“ in Raum 3, Fibel.
-**Enthüllung:** Die wahre Nacht von 1312 hängt seit Jahrhunderten öffentlich in der Kirche, und das Dorf liest sie als Heiligenlegende. Voll verstehen kann man sie erst nach Raum 3.
+**Belohnung:** Glocken-Joker, RH-6, Luna-Zusatzzeile „Kapellenfenster“ in Raum 3 (LUNA: „Auf dem Fenster in der Kirche bin ich ganz vorn. Mit meiner Laterne. Die hab ich immer noch.“), Fibel.
+**Enthüllung:** Die wahre Nacht von 1312 hängt seit Jahrhunderten öffentlich in der Kirche, und das Dorf liest sie als Heiligenlegende. Wer genau hinsieht, sieht in Feld 5 schon, dass die obere Hand noch greift und die untere offen ist; verstehen kann man es erst nach Raum 3.
 **Schreck (2):** Als Luke das Seil zum ersten Mal anfasst, zieht es oben jemand einmal an. Ein einzelner Schlag. Niemand im Turm. Danach eine lange Pause, dann Giselas Zettel (Atempause).
-**Humor:** Blitzverbot, Justin und die Kirchenbank, Giselas „Das ist kein Witz“. Whiskey setzt sich auf die Fensterbank vor Feld 4, genau unter den gläsernen Vogel, plustert sich auf und macht Taubenlaute, wie bei Kindern.
-**Verbindung:** Wendung 6 (vorbereitet, nicht verraten), Miras Wiegenlied (Kern §11; Strophe 1 bleibt für SB-10 in Kapitel 5), SB-02 am Sühnekreuz (Kap. 1), Z-11 für „Die dreizehnte Predigt“.
+**Humor:** Blitzverbot, „Engel. Mit Mantel. Klar.“, Justin und die Kirchenbank, Giselas „Das ist kein Witz“. Whiskey setzt sich auf die Fensterbank vor Feld 3, genau unter den gläsernen Vogel, plustert sich auf und macht Taubenlaute, wie bei Kindern.
+**Verbindung:** Wendung 6 (vorbereitet, nicht verraten), Miras Wiegenlied (Kern §11; SB-10 in Kapitel 5 zeigt Strophe 1 in Miras Hand, 02 G1), Miras Flamme (Feld 4, Kern §8), SB-02 am Sühnekreuz (Kap. 1), Z-11 für „Die dreizehnte Predigt“, Lunas Zeile in Raum 3.
 
 #### 3 · „Die dreizehnte Predigt“ (N-06)
 *Kirchberg, Pfarrhaus (Am Kirchberg 1) → Martinsnische an der Kapelle*
 
-**Name:** das dreizehnte Blatt in Pfarrer Voss’ Predigtmappe, fast leer. Wer die Aufgabe beendet, hat die Predigt gelesen, die Voss nie halten konnte: Sie steht im Seelbuch, und ihr Text ist 1312. (Ausgearbeitet im Dossier „Neue Figuren“; hier für das Kapitel gebaut, Texte übernommen.)
+**Name:** das dreizehnte Blatt in Pfarrer Voss’ Predigtmappe, fast leer. Wer die Aufgabe beendet, hat die Predigt gelesen, die Voss nie halten konnte: Sie steht im Seelbuch, dem Jahrzeitbuch der alten Holzkapelle (02 F4), und ihr Text ist 1312. (Ausgearbeitet im Dossier „Neue Figuren“; hier für das Kapitel gebaut, Texte übernommen.)
 
-**Start:** Pfarrhausschlüssel von Gisela („Siebzehn Näpfe“). Im Studierzimmer brennt Giselas Glühbirne. Schachbrett, Weiß am Zug. Talar am Haken. Foto: Voss mit Rad vor der Kapelle, Gisela im Hintergrund mit Eimer. Die Predigtmappe aus schwarzem Leder, Aufkleber einer Konfirmandenfreizeit.
+**Start:** Pfarrhausschlüssel von Gisela („Siebzehn Näpfe“). Im Studierzimmer brennt Giselas Glühbirne. Schachbrett, Weiß am Zug. Talar am Haken. Foto: Voss mit Rad vor der Kapelle, Gisela im Hintergrund mit Eimer. Wandkalender Juni 1992, der Einundzwanzigste mit Kuli umkringelt, auf dem Rand Voss’ Bleistift: „Der Ritter im Seelbuch schreibt, unter der Erde sieht sie keinen. Unser Keller ist trocken. Ich habe Decken hinuntergetragen und nicht gesagt, wofür.“ Die Predigtmappe aus schwarzem Leder, Aufkleber einer Konfirmandenfreizeit.
 
 **Schritte:**
 1. Zettel unter dem weißen Springer lesen.
@@ -156,18 +156,18 @@ Wer genau das tut (dreimal ziehen, Pause, dreizehnmal; der Spieler kennt den Tak
 
 **Rätsel:** Lösung WO · DER · BETTLER · FRIERT · LIEGT · WAS · DAS · DORF · NICHT · LESEN · WILL · AMEN → der hohle Sockel des Bettlers in der Martinsgruppe. *Faire Herleitung:* gleiche Tinte in Predigten aus vielen Jahren (LUKE: „Zwölf Jahre, ein Kuli. Das ist keine Notiz. Das ist ein Schnitt.“); die Reiter geben die Reihenfolge, zwei Blätter liegen vertauscht in der Mappe (Passion hinter Ostern). Den Bettler ohne Arm kennt der Spieler aus Kapitel 1. *Hilfeleiter:* (1) Gedanke beim dritten Blatt: „Wieder ein Doppelstrich. Der hat das an einem Abend gemacht.“ (2) Fibel: „Zwölf Wörter. In welcher Reihenfolge?“, die Kamera streift die Reiter. (3) Whiskey setzt sich auf den Reiter „Advent“ und geht nicht runter, weil er glänzt. (4) Beobachter-Zettel im Flur: „DER MANN AUS PAPIER HAT AUCH GEZÄHLT. ER HAT BEI ADVENT ANGEFANGEN. ∴“ (5) die Rückseite des dreizehnten Blatts. *Fehlschlag:* keiner; falsche Orte geben je einen Toast, am Mira-Stein auf dem Friedhof: „Der Stein ist neuer als der Name. Jemand hat ihn nachgesetzt.“
 
-*Das Seelbuch* (sechs lose Seiten im Wachstuch, Voss’ Übertragung dabei; Dokument, zehn Zeilen). Gegenüber dem Dossier ist eine Zeile ergänzt (Anno 1329), damit RH-7 den Wortlaut aus dem Hauptweg trägt:
+*Das Seelbuch* (sechs lose Seiten im Wachstuch, Voss’ Übertragung dabei; Dokument; Wortlaut: Dossier 86, ergänzt um die Zeile „Anno 1329“, die den Wortlaut von RH-7 aus dem Hauptweg trägt):
 > *Martini, im Jahr des Herrn 1312.* In dieser Nacht fiel ein Licht in den Birkenwald hinter dem Hof des Ritters. Sechs Kinder gingen mit ihren Laternen hinein: die Kinder des Cranz, des Wendel, des Winter, des Reuter, des Brant und des Hofer. Sie kamen an der Hand der Frau Mira wieder heraus, eins nach dem andern.
 > Das Kind des Ritters, Luna, sieben Jahre, ist behalten.
-> Die Frau Mira ist nicht begraben. Der Ritter hielt sie, bis er schrie. Ihr Rabe ist ihr nachgeflogen. Für Mira soll keine Messe gelesen werden. Sie kommt noch.
+> Die Frau Mira ist nicht begraben. Der Ritter hielt sie, bis er schrie. Ihr Rabe ist ihr nachgeflogen und nicht wiedergekommen. Für Mira soll keine Messe gelesen werden. Sie kommt noch.
 > *Im Winter 1313.* Der Schmied hat dem Ritter einen Harnisch gemacht aus dem, was die drei Kleinen im Schnee brachten, und seither kein Wort mehr gesagt.
-> *Anno 1329, andere Hand.* Es ging wieder auf. Der Ritter ging im Harnisch hinein und rief nach dem Kind, und ward nicht gesehen.
+> *Anno 1329, andere Hand.* Es ging wieder auf. Der Ritter ging hinein und rief nach dem Kind, im Harnisch aus dem, was die drei Kleinen brachten, und ward nicht gesehen.
 > *(Voss, Bleistift:)* Die sechs Namen sind unsere sechs Familien. Das Fest ist die Nacht. Ich habe zweiundzwanzig Mal darüber gepredigt und es nicht gewusst.
 
 LUKE (ein Satz, beim Wort „Brant“): „Na super. Wir sind Gründungsmitglied.“
 
 **Belohnung:** Seelbuch (Fibel-Dokument), **RH-7**, Fibel „Wer eine Laterne trägt“; Luke erkennt Voss in Raum 2 („Voss. Das ist Pfarrer Voss.“), und wer die Predigtmappe bei sich trägt, kann sie neben seinen Stuhl legen (Hauptweg, Unterkapitel 12).
-**Enthüllung:** Das Laternenfest feiert die Nacht von 1312; die sechs Familien stammen von den sechs Kindern ab; Voss hat 1992 sieben Kinder in den Kapellenkeller gebracht und selbst die Laterne getragen.
+**Enthüllung:** Das Laternenfest feiert die Nacht von 1312; die sechs Familien stammen von den sechs Kindern ab; der Name Luna steht ganz vorn im ältesten Buch des Dorfs. Aus Kalender, Springer-Zettel und Z-11 setzt sich zusammen, was Voss in der Nacht zum 22. Juni 1992 getan hat: die Kinder in den Kapellenkeller gebracht, wo sie keiner sieht, und selbst die Laterne getragen (02 C11). Der Luke-Gedanke dazu kommt erst in Raum 2, vor seinem Stuhl.
 **Schreck:** (1) Die Standuhr im Pfarrhaus steht, aber als Luke die Mappe öffnet, schwingt das Pendel einmal an und bleibt wieder stehen. (2) Beim Öffnen des Sockels fällt zuerst eine Kerze heraus, und sie ist noch warm.
 **Humor:** „Wer pumpt einem Toten die Reifen?“ (das Rad im Flur, Reifen prall); Voss’ Kürzel (LUKE: „Das ist keine Handschrift. Das ist Stenografie für Pessimisten.“); „Hier stehe ich, ich kann nicht anders. Doch, ich kann.“; „Gründungsmitglied“.
 **Verbindung:** N-06 (Raum 2), Z-11, Justins Rüstung (RH-7), der Name Luna, Seilers späte Reue (Kap. 4), SB-02 (Kapellenkeller).
