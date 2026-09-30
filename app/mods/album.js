@@ -47,7 +47,7 @@ function album_buehneBau() {
   B.pass = { enabled: false, needsSwap: false, clear: false, renderToScreen: false, setSize() {}, dispose() {},
     render(r, w, read) { const ac = r.autoClear; r.autoClear = false; r.setRenderTarget(read); r.clearDepth(); r.render(B.scene, B.cam); r.autoClear = ac; } };
   const i = composer.passes.indexOf(bloom); composer.insertPass(B.lens, i < 0 ? 2 : i); composer.insertPass(B.pass, (i < 0 ? 2 : i) + 1);
-  B.camFn = (cam, dt) => { const k = album_io(B.k); if (k <= 0) return; cam.rotation.x = player.pitch + (B.pitch - player.pitch) * k; cam.position.y -= B.lean * k;
+  B.camFn = (cam, dt) => { const k = Math.max(0, Math.min(1.12, B.k)); if (k <= 0) return; cam.rotation.x = player.pitch + (B.pitch - player.pitch) * k; cam.position.y -= B.lean * k;
     const t = performance.now() / 1000; cam.rotation.z += Math.sin(t * .8) * .004 * k; cam.rotation.y += Math.sin(t * .53) * .003 * k; };
   addEventListener('resize', () => { B.cam.aspect = innerWidth / innerHeight; B.cam.updateProjectionMatrix(); });
   B.ready = true;
@@ -57,8 +57,10 @@ function album_buehne(owner, on) { const B = album_B; if (!B.ready) return;
   if (on) { B.owner = owner; B.kZiel = 1; B.lens.enabled = true; B.pass.enabled = true; if (camOverride !== B.camFn) setCamOverride(B.camFn); }
   else if (B.owner === owner) B.kZiel = 0; }
 function album_buehneTick(dt) { const B = album_B; if (!B.ready) return;
-  if (B.k !== B.kZiel) { B.k += Math.sign(B.kZiel - B.k) * dt / (B.kZiel ? .75 : .6); if ((B.kZiel === 1 && B.k > 1) || (B.kZiel === 0 && B.k < 0)) B.k = B.kZiel; }
-  const k = album_io(B.k); B.lens.uniforms.uAmt.value = k; B.lens.uniforms.uDim.value = k * .9;
+  // Kamerafahrt als gedämpfte Feder (leichtes Nachschwingen beim Ankommen, weiches Anfahren) statt linear
+  { const w = B.kZiel ? 6.2 : 7.5, z = B.kZiel ? .72 : .95, a = w * w * (B.kZiel - B.k) - 2 * z * w * (B.kv || 0); B.kv = (B.kv || 0) + a * Math.min(dt, .033); B.k += B.kv * Math.min(dt, .033);
+    if (B.kZiel === 0 && B.k < .003 && Math.abs(B.kv) < .02) { B.k = 0; B.kv = 0; } }
+  const k = Math.max(0, Math.min(1, B.k)); B.lens.uniforms.uAmt.value = k; B.lens.uniforms.uDim.value = k * .9;
   if (B.k <= 0 && B.kZiel === 0) { if (B.lens.enabled) { B.lens.enabled = false; B.pass.enabled = false; } if (camOverride === B.camFn) setCamOverride(null); B.owner = null; }
   // Licht folgt der echten Taschenlampe (an/aus, schwache Batterie, Flackern)
   const T = FLASH_TIERS[FLASH.tier], on = flashOn && FLASH.charge > 0 && state.flashFail <= 0; const f = T ? Math.min(1.2, flashlight.intensity / T.intensity) : 1;
@@ -70,13 +72,13 @@ function album_buehneVorbereiten() { const B = album_B; if (!B.ready) return; co
     const tmp = new THREE.Scene(), q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), B.lens.material); tmp.add(q); renderer.compile(tmp, B.cam); }
   catch (e) { console.warn('Album: Vorbereiten', e); } finally { renderer.setRenderTarget(null); for (const [o, v] of vis) o.visible = v; } }
 // Gefahr: nicht öffnen (Jagd, Tod, Film, Gespräch) – mit Lukes Satz
-function album_gefahr() { const own = camOverride && camOverride === album_B.camFn;
+function album_gefahr(offen) { const own = camOverride && camOverride === album_B.camFn;
   if (!state.started || state.ending || ui.paused || (ui.overlay && ui.overlay !== 'albumOv' && ui.overlay !== 'beutelOv')) return 'x';
   if (state.talking || (scripted) || (camOverride && !own) || (typeof mantle !== 'undefined' && mantle)) return 'x';
   if ((typeof tod_S !== 'undefined' && tod_S.dying) || (typeof kino_busy === 'function' && kino_busy()) || state.blackout) return 'x';
   if ((typeof SP !== 'undefined' && SP.chase) || (typeof ch3 !== 'undefined' && ch3.chase === 'run') || state.scaring || (typeof hunt !== 'undefined' && hunt.on)) return 'Nicht jetzt. Nicht, solange es hinter mir her ist.';
   if (typeof kamera_S !== 'undefined' && (kamera_S.hoch || kamera_S.busy)) return 'x';
-  if (typeof fear !== 'undefined' && fear.v > .82) return 'Meine Hände zittern. Erst weg hier.';
+  if (!offen && typeof fear !== 'undefined' && fear.v > .82) return 'Meine Hände zittern. Erst weg hier.'; // nur beim Öffnen – offen darf die Angst steigen
   return ''; }
 function album_nein(msg) { if (msg && msg !== 'x') { toast(msg, 2600); } else Audio.beep && Audio.beep(false); }
 
@@ -224,7 +226,7 @@ function album_seiteMalen(c, idx, side) {
 // Seitentextur (gecacht; bei Änderungen neu gemalt)
 function album_seitenTex(idx, side) { const S = album_S, k = idx + side; let t = S.pageTex.get(k);
   if (!t) { const c = document.createElement('canvas'); c.width = ALBUM_PX.W; c.height = ALBUM_PX.H; t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.dirty = true; t.minFilter = THREE.LinearMipmapLinearFilter; S.pageTex.set(k, t);
-    if (S.pageTex.size > 12) { for (const [kk, tt] of S.pageTex) { if (Math.abs(parseInt(kk) - idx) > 5) { tt.dispose(); S.pageTex.delete(kk); break; } } } }
+    if (S.pageTex.size > 10) for (const [kk, tt] of [...S.pageTex]) { if (S.pageTex.size <= 10) break; if (Math.abs(parseInt(kk) - idx) > 3) { tt.dispose(); S.pageTex.delete(kk); } } }
   if (t.dirty) { t.dirty = false; album_seiteMalen(t.image, idx, side); t.needsUpdate = true; } return t; }
 function album_seitenNeu(e) { for (const [k, t] of album_S.pageTex) { const idx = parseInt(k), p = album_S.pages[idx]; if (!e || (p && p.slots && p.slots.includes(e))) t.dirty = true; } }
 
@@ -236,10 +238,13 @@ function album_seitenGeo(links) { const { L, Z } = ALBUM_PX, g = new THREE.Buffe
   for (let j = 0; j <= M; j++) for (let i = 0; i <= N; i++) { const k = j * (N + 1) + i, s = L * i / N, z = -Z + 2 * Z * j / M; pos[k * 3] = s; pos[k * 3 + 1] = (links ? -1 : 1) * album_profil(s); pos[k * 3 + 2] = z; uv[k * 2] = links ? 1 - i / N : i / N; uv[k * 2 + 1] = 1 - j / M; }
   for (let j = 0; j < M; j++) for (let i = 0; i < N; i++) { const a = j * (N + 1) + i, b = a + 1, c = a + N + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
   g.setIndex(idx); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); g.computeVertexNormals(); return g; }
+// Leder des Einbands: gewachst, nicht lackiert – Rauheit nie unter 0,55, Grundfarbe etwas heller (die Nacht frisst sonst den Purpurton)
+function album_leder(m) { m.color.setScalar(2.3); m.roughness = 1; m.metalness = 0; m.envMapIntensity = .16;
+  m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = max(roughnessFactor, .58);'); }; m.customProgramCacheKey = () => 'albumLeder'; m.needsUpdate = true; }
 async function album_modellBau() {
   const S = album_S, B = album_B, T = THREE; const root = new T.Group(); root.visible = false; B.scene.add(root);
   const src = await msModel('album', 'model.glb'); const book = src.clone(true); let deckel = null, ruecken = null;
-  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .22; } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
+  book.traverse(o => { if (o.isMesh) { o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); album_leder(o.material); } if (o.name.startsWith('deckel')) deckel = o; if (o.name.startsWith('ruecken')) ruecken = o; } });
   const achse = new T.Group(); root.add(achse); // Buchmitte: beim Öffnen wandert die Bindung in die Mitte
   const piv = new T.Group(); achse.add(piv); if (deckel) { deckel.parent.remove(deckel); piv.add(deckel); } if (ruecken) { ruecken.parent.remove(ruecken); achse.add(ruecken); }
   const pm = () => new T.MeshStandardMaterial({ roughness: .93, metalness: 0, side: T.DoubleSide, envMapIntensity: .15 });
@@ -255,15 +260,17 @@ async function album_modellBau() {
   const card = new T.Mesh(new T.BoxGeometry(1, 1, .0006), [edge, edge, edge, edge, front, back]); card.visible = false; card.frustumCulled = false; B.scene.add(card);
   S.mesh = { root, achse, piv, pageR, pageL, turnF, turnB, card, cF, cB, tF, tB, front, back, deckel, ruecken };
   // Vorbereitung: alle Materialien einmal mit Textur (sonst Neuübersetzung beim ersten Blättern)
-  const t0 = album_seitenTex(0, 'L'); for (const m of [pageR.material, pageL.material, mF, mB]) m.map = t0; album_fotoKarte(null);
+  const lc = document.createElement('canvas'); lc.width = lc.height = 4; lc.getContext('2d').fillStyle = '#d6cbb2'; lc.getContext('2d').fillRect(0, 0, 4, 4); S.leer = new T.CanvasTexture(lc); S.leer.colorSpace = T.SRGBColorSpace;
+  for (const m of [pageR.material, pageL.material, mF, mB]) m.map = S.leer; album_fotoKarte(null);
 }
 // Umblätter-Seite formen: th 0 = liegt rechts, π = liegt links; Ecke unten läuft vor, Kante hinkt nach
-function album_turnForm(th) { const { L, Z } = ALBUM_PX, N = ALBUM_N, M = ALBUM_M, g = album_S.mesh.turnF.geometry, P = g.attributes.position.array, sn = Math.sin(th);
-  const wR = 1 - album_ease(th / .5), wL = album_ease((th - (Math.PI - .5)) / .5);
+// bx: zusätzliche Wölbung (Nachschwingen des Papiers), cl: Ecke unten vorn angehoben (Finger greift die Ecke, bevor die Seite sich hebt)
+function album_turnForm(th, bx = 0, cl = 0, dir = 1) { const { L, Z } = ALBUM_PX, N = ALBUM_N, M = ALBUM_M, g = album_S.mesh.turnF.geometry, P = g.attributes.position.array, sn = Math.sin(th);
+  const wR = 1 - album_ease(th / .14), wL = album_ease((th - (Math.PI - .14)) / .14), bend = .95 * sn + bx, lead = .42 * sn + cl;
   for (let j = 0; j <= M; j++) { const v = j / M; let x = 0, y = album_profil(0) + .0009;
     for (let i = 0; i <= N; i++) { const k = (j * (N + 1) + i) * 3, u = i / N, s = L * u;
-      if (i > 0) { const um = (i - .5) / N, ph = th - .95 * sn * Math.pow(um, 1.6) + .42 * sn * um * um * (v - .5); x += Math.cos(ph) * L / N; y += Math.sin(ph) * L / N; }
-      const yr = album_profil(s) + .0009; let px = x, py = y; px = px + (s - px) * wR; py = py + (yr - py) * wR; px = px + (-s - px) * wL; py = py + (yr - py) * wL;
+      if (i > 0) { const um = (i - .5) / N, ph = th - bend * Math.pow(um, 1.6) * dir + lead * um * um * (v - .5) * dir; x += Math.cos(ph) * L / N; y += Math.sin(ph) * L / N; }
+      const yr = album_profil(s) + .0009, wr = Math.max(0, wR - cl * u * u * v * 3), wl = Math.max(0, wL - cl * u * u * v * 3); let px = x, py = y; px = px + (s - px) * wr; py = py + (yr - py) * wr; px = px + (-s - px) * wl; py = py + (yr - py) * wl;
       P[k] = px; P[k + 1] = py; P[k + 2] = -Z + 2 * Z * v; } }
   g.attributes.position.needsUpdate = true; g.computeVertexNormals(); }
 
@@ -288,35 +295,92 @@ function album_fotoKarte(e) { const M = album_S.mesh; if (!M.cF) return; const f
   if (H0.blei) album_blei(b, H0.blei, W * .12, H * .88, { size: 34, max: W * .76, farbe: stil === 'pola' ? 'rgba(200,196,186,.75)' : 'rgba(48,47,54,.8)' });
   M.tF.needsUpdate = M.tB.needsUpdate = true; }
 
+// ================================================================ Lukes Hände (Detective Hands, Tony Flanagan, CC-BY; aufbereitet für kiffen.js): halten das Album an den unteren Ecken,
+// Finger unter dem Einband, Daumen auf dem Seitenrand. Die rechte Hand trägt das Buch von Anfang an, die linke greift erst zu, wenn der Deckel aufliegt.
+const album_H = { rig: null, B: {}, ready: false, links: 0, V: null };
+const ALBUM_ELL = { L: [-.26, -.45, -.28], R: [.26, -.45, -.28] }; // Ellbogen im Kameraraum (stehend, Blick gesenkt)
+async function album_haendeBau() { try {
+  const src = await msModel('haende', 'model.glb'); const { clone } = await import('three/addons/utils/SkeletonUtils.js'); const rig = clone(src); const H = album_H, T = THREE;
+  H.V = { v0: new T.Vector3(), v1: new T.Vector3(), v2: new T.Vector3(), v3: new T.Vector3(), v4: new T.Vector3(), g: new T.Vector3(), n: new T.Vector3(), f: new T.Vector3(), w: new T.Vector3(), q0: new T.Quaternion(), q1: new T.Quaternion(), q2: new T.Quaternion(), q3: new T.Quaternion(), qh: new T.Quaternion(), m0: new T.Matrix4(), e0: new T.Euler() };
+  rig.traverse(o => { if (o.isSkinnedMesh) { o.frustumCulled = false; o.material = o.material.clone(); o.material.roughness = 1; o.material.envMapIntensity = .4; } });
+  for (const sd of ['L', 'R']) { const B = { fore: null, hand: null, f: [], bindF: [], off: new T.Vector3(), s: sd === 'R' ? 1 : -1 };
+    rig.traverse(o => { if (!o.isBone) return; if (o.name === sd + '_ForeArm') B.fore = o; if (o.name === sd + '_Hand') B.hand = o; }); if (!B.fore || !B.hand) return;
+    B.off.copy(B.hand.position);
+    for (const f of ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']) { const ch = [], bd = []; for (let i = 1; i <= 3; i++) { let b = null; rig.traverse(o => { if (o.isBone && o.name === sd + '_Hand' + f + i) b = o; }); ch.push(b); bd.push(b ? b.quaternion.clone() : null); } B.f.push(ch); B.bindF.push(bd); }
+    H.B[sd] = B; }
+  rig.visible = false; album_B.scene.add(rig); H.rig = rig; H.ready = true; } catch (e) { console.warn('Album: Hände', e); } }
+// Pose wie kiffen.js (kf_applyHand): w Handgelenk, f Fingerrichtung, n Handfläche, c Beugung [Daumen … Kleiner], s Spreizung, t Daumen-Opposition
+function album_hand(sd, w, f, n, c, s, t) { const H = album_H, B = H.B[sd], V = H.V; if (!B) return;
+  const Y = V.v0.copy(f).normalize(), Z = V.v1.copy(n).addScaledVector(Y, -Y.dot(n)).normalize(), X = V.v2.crossVectors(Y, Z).normalize(); const Qh = V.qh.setFromRotationMatrix(V.m0.makeBasis(X, Y, Z));
+  const E = ALBUM_ELL[sd], dir = V.v3.set(w.x - E[0], w.y - E[1], w.z - E[2]).normalize(); const Qf = V.q1.setFromUnitVectors(Y, dir).multiply(Qh);
+  const ang = Y.angleTo(dir); if (ang > .95) { V.q2.setFromUnitVectors(Y, dir); V.q3.identity().slerp(V.q2, .95 / ang); Qf.copy(V.q3).multiply(Qh); }
+  B.fore.quaternion.copy(Qf); B.fore.position.copy(w).sub(V.v4.copy(B.off).applyQuaternion(Qf)); B.hand.quaternion.copy(Qf).invert().multiply(Qh);
+  const sg = B.s; for (let fi = 0; fi < 5; fi++) { const ch = B.f[fi], bd = B.bindF[fi], k = c[fi]; if (!ch[0]) continue;
+    if (fi === 0) { ch[0].quaternion.copy(bd[0]).multiply(V.q0.setFromEuler(V.e0.set(k * .35 + t * .3, -sg * t * .55, sg * t * .35))); ch[1].quaternion.copy(bd[1]).multiply(V.q0.setFromEuler(V.e0.set(k * .75, 0, 0))); ch[2].quaternion.copy(bd[2]).multiply(V.q0.setFromEuler(V.e0.set(k, 0, 0))); continue; }
+    const spr = (fi === 1 ? -1.1 : fi === 2 ? 0 : fi === 3 ? .7 : 1.4) * s * .16 * sg; ch[0].quaternion.copy(bd[0]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.35, 0, spr)));
+    ch[1].quaternion.copy(bd[1]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.62, 0, 0))); if (ch[2]) ch[2].quaternion.copy(bd[2]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.1, 0, 0))); } }
+const ALBUM_GRIFF = { c: [.28, .12, .14, .2, .26], s: .12, t: .78 }, ALBUM_RUHE = { c: [.3, .45, .5, .55, .6], s: .2, t: .3 };
+// Griff an der unteren Außenecke (im Achsenraum des Buchs), k 0 = Hand unten aus dem Bild, 1 = hält
+function album_haendeTick(dt, vonBeutel) { const H = album_H, S = album_S; if (!H.ready) return; if (album_B.owner === 'beutel' && !vonBeutel) { if (!(typeof beutel_S !== 'undefined' && beutel_S.open)) H.rig.visible = false; return; } // Beutel ruft nach seiner Bewegung auf (kein Bild Versatz)
+  // Gürteltasche: links trägt die Hand von unten, rechts hält sie die Seite (die großen Rucksäcke stehen weiter weg – ohne Hände)
+  if (album_B.owner === 'beutel' && typeof beutel_S !== 'undefined' && beutel_S.open && beutel_S.stufe === 1 && beutel_S.mod[0]) { const R = beutel_S.mod[0], V = H.V; H.rig.visible = true; R.updateMatrixWorld(true);
+    const k = beutel_S.phase === 'zu' ? 1 - album_ease((beutel_S.t - .3) / .5) : 1;
+    V.g.set(-.012, .004, .004); R.localToWorld(V.g); V.n.set(0, 1, 0).transformDirection(R.matrixWorld); V.f.set(.42, 0, .9).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.07).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
+    album_hand('L', V.w, V.f, V.n, [.3, .38, .4, .45, .5], .16, .35);
+    V.g.set(.064, .07, -.01); R.localToWorld(V.g); V.n.set(-1, 0, 0).transformDirection(R.matrixWorld); V.f.set(0, .55, -.83).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.075).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
+    album_hand('R', V.w, V.f, V.n, [.35, .42, .46, .5, .55], .1, .55); return; }
+  if (vonBeutel) { H.rig.visible = false; return; }
+  const vis = S.open && album_B.owner === 'album'; H.rig.visible = vis; if (!vis) return;
+  const M = S.mesh, V = H.V, zu = S.phase === 'zu', t = S.t;
+  // linke Hand greift zu, sobald der Deckel liegt; beim Zuklappen lässt sie zuerst los
+  const lz = S.phase === 'offen' ? 1 : S.phase === 'auf' ? (S.cov && S.cov.ruhe ? 1 : 0) : 0; H.links += (lz - H.links) * Math.min(1, dt * 5);
+  const rz = S.phase === 'zu' ? 1 - album_ease((t - .55) / .45) : 1;
+  for (const sd of ['R', 'L']) { const sg = sd === 'R' ? 1 : -1, k = sd === 'R' ? rz : H.links;
+    // Griffpunkt: rechte Hand am Rücken (Achsenraum x > 0), linke am Deckel (liegt offen bei x < 0)
+    V.g.set(sg * .158, -.036, .128); M.achse.localToWorld(V.g); V.n.set(0, 1, 0).transformDirection(M.achse.matrixWorld); V.f.set(-sg * .42, 0, -.9).transformDirection(M.achse.matrixWorld);
+    V.w.copy(V.g).addScaledVector(V.f, -.078).addScaledVector(V.n, -.022);
+    // eingeblendet: von unten (Hüfte) herauf; atmet mit dem Buch
+    V.w.y -= (1 - k) * .28; V.w.z += (1 - k) * .1;
+    const P = k > .6 ? ALBUM_GRIFF : ALBUM_RUHE;
+    album_hand(sd, V.w, V.f, V.n, P.c, P.s, P.t); } }
 // ================================================================ Öffnen / Schließen / Blättern
 const ALBUM_POSE = { // in Kamera-Koordinaten der Bühne: aus der Innentasche der Jacke (unten links) → in den Händen → aufgeklappt
   jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.07, -.6], r: [1.05, 0, 0] }, offen: { p: [0, -.028, -.62], r: [1.16, 0, 0] } };
 const album_tmp = { e0: null, e1: null, q0: null, q1: null, v: null, ray: null, m: null, hits: [] };
 function album_pose(a, b, k, o) { const T = album_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .03, a.p[2] + (b.p[2] - a.p[2]) * k); }
-function album_darf() { return !album_S.open && album_S.ready && !(typeof beutel_S !== 'undefined' && beutel_S.open) && album_B.owner === null; }
+// Feder: Lage folgt dem Ziel mit leichtem Überschwingen (Position) und weichem Nachdrehen (Drehung)
+function album_folge(R, Z, v, dt) { const h = Math.min(dt, .033), w = 15, z = .62; for (const k of ['x', 'y', 'z']) { const a = w * w * (Z.position[k] - R.position[k]) - 2 * z * w * v[k]; v[k] += a * h; R.position[k] += v[k] * h; }
+  R.quaternion.slerp(Z.quaternion, 1 - Math.exp(-h * 17)); }
+// Deckel fällt mit Gewicht auf (Drehmoment aus der Schwerkraft, Scharnierreibung), prallt zweimal leicht ab
+function album_deckelFall(dt, ziel) { const C = album_S.cov, h = Math.min(dt, .033); const g = 15 * -Math.cos(C.th); C.w += (g - C.w * .9) * h; C.th += C.w * h; C.ruhe = false;
+  if (ziel > 0 && C.th >= ziel) { C.th = ziel; if (C.w > .35) { if (!C.hit) { C.hit = true; album_ton('albDumpf', { gain: .26, rate: 1.3 }); } C.w = -C.w * .24; } else { C.w = 0; C.ruhe = true; } }
+  if (ziel === 0 && C.th <= 0) { C.th = 0; if (C.w < -.35) { C.hit = true; C.w = -C.w * .22; } else { C.w = 0; C.ruhe = true; } } }
+function album_darf() { return !album_S.open && album_S.ready && !(typeof beutel_S !== 'undefined' && beutel_S.open) && (album_B.owner === null || album_B.kZiel === 0); } // beim Ausblenden darf schon wieder geöffnet werden
 function album_auf() {
   const S = album_S; if (!S.ready || S.open) return; if (!S.hat) return toast(S.e.length ? 'Die Fotos stecken lose in der Jacke. Ein Album wäre gut.' : 'Kein Album. Noch nicht.', 2600);
   const g = album_gefahr(); if (g) return album_nein(g); if (!album_darf()) return;
   if (!Audio.buf || !Audio.buf.albBlatt) album_klangBau().catch(() => {});
-  S.open = true; S.phase = 'auf'; S.t = 0; S.pick = null; S.turn = null;
+  S.open = true; S.phase = 'auf'; S.t = 0; S.pick = null; S.turn = null; S.cov = { th: 0, w: 0, fall: false, hit: false, ruhe: false }; S.rv.set(0, 0, 0);
   if (S.neu.length) S.spread = album_spreadVon(S.neu[0]); S.spread = Math.max(0, Math.min(album_spreads() - 1, S.spread));
   S.einkleben = S.neu.filter(id => album_spreadVon(id) === S.spread).map(id => ({ e: S.e.find(x => x.id === id), t: 0, fertig: false })).filter(q => q.e);
   S.neu = S.neu.filter(id => !S.einkleben.some(q => q.e.id === id)); album_seitenNeu(null); album_spreadZeigen();
   ui.overlay = 'albumOv'; $('albumOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); album_B.spotK = 1.5; album_B.spot.target.position.set(0, -.05, -.62); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
+  album_B.pitch = -.66; album_B.lean = .06; album_buehne('album', true); album_B.spotK = 1.5; album_B.spot.target.position.set(0, -.05, -.62); S.mesh.root.visible = true; album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, S.mesh.root); album_pose(ALBUM_POSE.jacke, ALBUM_POSE.jacke, 0, album_tmp.T); S.mesh.piv.rotation.z = 0; S.mesh.achse.position.x = -.094;
   album_ton('albStoff', { gain: .35, pan: -.4 }); album_hinweis(); if (typeof spannung_did === 'function') { /* Welt läuft weiter */ }
 }
 function album_zu(schnell) { const S = album_S; if (!S.open || S.phase === 'zu') return; if (S.pick) album_pickZurueck(true); S.turn = null; S.mesh.turnF.visible = S.mesh.turnB.visible = false;
-  for (const q of S.einkleben) q.fertig = true; S.einkleben.length = 0; album_seitenNeu(null); album_spreadZeigen(); S.phase = 'zu'; S.t = schnell ? .9 : 0; $('albumOv').classList.remove('hint'); document.body.style.cursor = ''; }
-function album_ende() { const S = album_S; S.open = false; S.phase = ''; S.mesh.root.visible = false; S.mesh.card.visible = false; album_buehne('album', false); document.body.style.cursor = '';
+  for (const q of S.einkleben) q.fertig = true; S.einkleben.length = 0; album_seitenNeu(null); album_spreadZeigen(); S.phase = 'zu'; S.t = schnell ? .9 : 0; S.cov = { th: schnell ? 0 : Math.PI, w: 0, fall: !!schnell, hit: !!schnell, ruhe: false }; $('albumOv').classList.remove('hint'); document.body.style.cursor = ''; }
+// Beim Zuklappen alle Seitentexturen freigeben (Grafik- und Arbeitsspeicher bleiben über Stunden konstant; beim Öffnen werden 2–4 Seiten neu gemalt)
+function album_seitenFrei() { const S = album_S, M = S.mesh; for (const t of S.pageTex.values()) { t.dispose(); t.image.width = t.image.height = 0; } S.pageTex.clear(); for (const m of [M.pageL, M.pageR, M.turnF, M.turnB]) if (m) m.material.map = S.leer; } // Platzhalter statt null: gleiches Shaderprogramm, keine Neuübersetzung
+function album_ende() { const S = album_S; S.open = false; S.phase = ''; album_seitenFrei(); S.mesh.root.visible = false; S.mesh.card.visible = false; album_buehne('album', false); document.body.style.cursor = '';
   if (ui.overlay === 'albumOv') closeOverlay(); else $('albumOv').classList.remove('show', 'hint'); }
 function album_spreadZeigen() { const S = album_S, M = S.mesh, i = S.spread; M.pageL.material.map = album_seitenTex(2 * i, 'L'); M.pageR.material.map = album_seitenTex(2 * i + 1, 'R'); album_beobPruefen(); }
 function album_blaettern(d) { const S = album_S; if (!S.open || S.phase !== 'offen' || S.turn || S.pick || S.einkleben.length) return; const n = S.spread + d; if (n < 0 || n >= album_spreads()) { album_ton('albFoto', { gain: .08, rate: .6 }); return; }
   const M = S.mesh, i = S.spread; S.turn = { d, t: 0, von: i, nach: n };
   if (d > 0) { M.turnF.material.map = album_seitenTex(2 * i + 1, 'R'); M.turnB.material.map = album_seitenTex(2 * n, 'L'); M.pageR.material.map = album_seitenTex(2 * n + 1, 'R'); }
   else { M.turnF.material.map = album_seitenTex(2 * n + 1, 'R'); M.turnB.material.map = album_seitenTex(2 * i, 'L'); M.pageL.material.map = album_seitenTex(2 * n, 'L'); }
-  album_turnForm(d > 0 ? 0 : Math.PI); M.turnF.visible = M.turnB.visible = true; album_ton('albBlatt', { gain: .5, rate: .95 + Math.random() * .12, pan: d > 0 ? .15 : -.15 }); S.beobT.length = 0; }
+  album_turnForm(d > 0 ? 0 : Math.PI, 0, 0, d); M.turnF.visible = M.turnB.visible = true; album_ton('albBlatt', { gain: .5, rate: .95 + Math.random() * .12, pan: d > 0 ? .15 : -.15 }); S.beobT.length = 0; }
 // Nachbar-Seiten schon malen und hochladen (je Bild höchstens eine)
 function album_vorladen() { const S = album_S; for (const i of [S.spread + 1, S.spread - 1]) { if (i < 0 || i >= album_spreads()) continue; for (const [k, sd] of [[2 * i, 'L'], [2 * i + 1, 'R']]) { const t = S.pageTex.get(k + sd); if (!t || t.dirty) { const tt = album_seitenTex(k, sd); renderer.initTexture(tt); return; } } } }
 
@@ -399,28 +463,36 @@ function album_tick(dt) {
   album_buehneTick(dt);
   if (!S.open) return;
   if (ui.overlay !== 'albumOv' && S.phase !== 'zu') { album_ende(); return; } // von außen geschlossen (Tod, Kontextverlust …)
-  if (S.phase !== 'zu') { const g = album_gefahr(); if (g) { album_zu(g === 'x'); } }
-  S.t += dt; const t = S.t, R = M.root;
+  if (S.phase !== 'zu') { const g = album_gefahr(true); if (g) { album_zu(g === 'x'); } }
+  S.t += dt; const t = S.t, R = M.root, Z = album_tmp.T, C = S.cov;
   if (S.phase === 'auf') {
-    // 0–0,6 s: aus der Jacke in die Hände · 0,6–0,8 s Druckknopf · 0,8–1,45 s Einband auf
-    const k1 = album_out(t / .6); album_pose(ALBUM_POSE.jacke, ALBUM_POSE.hand, k1, R);
+    // 0–0,6 s aus der Innentasche in die Hände · 0,6–0,8 s Druckknopf · ab 0,78 s drückt die Hand den Deckel bis über die Senkrechte, dann fällt er mit
+    // eigenem Gewicht auf und federt nach (Leder, Schwerkraft); das Buch folgt seinem Ziel über eine Feder (Nachschwingen)
+    album_pose(ALBUM_POSE.jacke, ALBUM_POSE.hand, album_out(t / .6), Z);
     if (t > .6 && !S.knopf) { S.knopf = true; album_ton('albKnopf', { gain: .55 }); }
-    const k2 = album_io((t - .78) / .7), pop = t > .6 && t < .8 ? Math.sin((t - .6) / .2 * Math.PI) * .06 : 0; M.piv.rotation.z = k2 * Math.PI + pop;
-    if (t > .78 && !S.leder) { S.leder = true; album_ton('albLeder', { gain: .5 }); }
-    if (t > .78) { const k3 = album_io((t - .78) / .75); album_pose(ALBUM_POSE.hand, ALBUM_POSE.offen, k3, R); M.achse.position.x = -.094 * (1 - k3); }
-    if (t > 1.44 && !S.lag) { S.lag = true; album_ton('albDumpf', { gain: .3, rate: 1.3 }); }
-    if (t >= 1.6) { S.phase = 'offen'; S.t = 0; S.knopf = S.leder = S.lag = false; M.piv.rotation.z = Math.PI; M.achse.position.x = 0; $('albumOv').classList.add('hint'); album_hinweis(); album_beobPruefen(); } }
+    if (t > .78) { const k3 = album_io((t - .78) / .8); album_pose(ALBUM_POSE.hand, ALBUM_POSE.offen, k3, Z); M.achse.position.x = -.094 * (1 - k3); if (!S.leder) { S.leder = true; album_ton('albLeder', { gain: .5 }); } }
+    if (t < .78) { C.th = t > .6 ? Math.sin((t - .6) / .18 * Math.PI) * .05 : 0; C.w = 0; C.fall = false; }
+    else if (!C.fall) { C.th = Math.PI * .56 * album_io((t - .78) / .34); if (t >= 1.12) { C.fall = true; C.w = 1.6; } }
+    else album_deckelFall(dt, Math.PI);
+    M.piv.rotation.z = C.th;
+    if (t >= 1.95 && C.ruhe) { S.phase = 'offen'; S.t = 0; S.knopf = S.leder = false; M.piv.rotation.z = Math.PI; M.achse.position.x = 0; $('albumOv').classList.add('hint'); album_hinweis(); album_beobPruefen(); } }
   else if (S.phase === 'zu') {
-    const k1 = album_io(t / .55); M.piv.rotation.z = Math.PI * (1 - k1); M.achse.position.x = -.094 * k1; album_pose(ALBUM_POSE.offen, ALBUM_POSE.hand, k1, R);
-    if (t > .42 && !S.lag) { S.lag = true; album_ton('albDumpf', { gain: .45 }); album_ton('albKnopf', { gain: .4, delay: .18 }); }
-    if (t > .55) { const k2 = album_io((t - .55) / .5); album_pose(ALBUM_POSE.hand, ALBUM_POSE.jacke, k2, R); if (!S.stoff) { S.stoff = true; album_ton('albStoff', { gain: .3, pan: -.4 }); album_buehne('album', false); } }
-    if (t >= 1.08) { S.lag = S.stoff = false; album_ende(); return; } }
+    // Hand hebt den Deckel über die Senkrechte, dann fällt er zu (dumpf), Druckknopf; das Buch wandert zurück in die Jacke
+    if (!C.fall) { C.th = Math.PI - Math.PI * .56 * album_io(t / .32); if (t >= .32) { C.fall = true; C.w = -1.6; } } else album_deckelFall(dt, 0);
+    M.piv.rotation.z = C.th; const k1 = album_io(t / .6); M.achse.position.x = -.094 * k1; album_pose(ALBUM_POSE.offen, ALBUM_POSE.hand, k1, Z);
+    if (C.hit && !S.lag) { S.lag = true; album_ton('albDumpf', { gain: .45 }); album_ton('albKnopf', { gain: .4, delay: .22 }); }
+    if (t > .62) { album_pose(ALBUM_POSE.hand, ALBUM_POSE.jacke, album_io((t - .62) / .5), Z); if (!S.stoff) { S.stoff = true; album_ton('albStoff', { gain: .3, pan: -.4 }); album_buehne('album', false); } }
+    if (t >= 1.2) { S.lag = S.stoff = false; album_ende(); return; } }
   else { // offen: atmen, wiegen
-    const o = ALBUM_POSE.offen; R.position.set(o.p[0] + Math.sin(t * .6) * .0025, o.p[1] + Math.sin(t * 1.05) * .0018, o.p[2]); album_tmp.e0.set(o.r[0] + Math.sin(t * .7) * .006, Math.sin(t * .45) * .008, Math.sin(t * .5) * .004); R.quaternion.setFromEuler(album_tmp.e0);
+    const o = ALBUM_POSE.offen; Z.position.set(o.p[0] + Math.sin(t * .6) * .0025, o.p[1] + Math.sin(t * 1.05) * .0018, o.p[2]); album_tmp.e0.set(o.r[0] + Math.sin(t * .7) * .006, Math.sin(t * .45) * .008, Math.sin(t * .5) * .004); Z.quaternion.setFromEuler(album_tmp.e0);
     if (!S.turn && !S.pick) album_vorladen(); }
+  album_folge(R, Z, S.rv, dt);
   // Blättern
-  const U = S.turn; if (U) { U.t += dt / .78; const th = U.d > 0 ? Math.PI * album_io(U.t) : Math.PI * (1 - album_io(U.t)); album_turnForm(th);
-    if (U.t >= 1) { S.spread = U.nach; S.turn = null; M.turnF.visible = M.turnB.visible = false; album_spreadZeigen(); album_ton('albFoto', { gain: .12, rate: .7 }); } }
+  // Blättern: Ecke anheben (Antizipation) → Seite schwingt mit nachlaufender Kante hinüber → landet, federt zweimal nach (Papier)
+  const U = S.turn; if (U) { U.t += dt; const t2 = U.t, lift = t2 < .3 ? Math.sin(Math.PI * t2 / .3) : 0, p = Math.min(1, Math.max(0, (t2 - .09) / .62)), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    let th = .05 * Math.min(1, t2 / .12) + (Math.PI - .05) * e, bx = 0; const tau = t2 - .71; if (tau > 0) { const d = Math.exp(-7 * tau); th = Math.PI - .09 * d * Math.abs(Math.sin(16 * tau)); bx = .32 * d * Math.cos(16 * tau); if (!U.lag) { U.lag = true; album_ton('albFoto', { gain: .14, rate: .62 }); } }
+    album_turnForm(U.d > 0 ? th : Math.PI - th, bx, .55 * lift, U.d);
+    if (t2 >= 1.02) { S.spread = U.nach; S.turn = null; M.turnF.visible = M.turnB.visible = false; album_spreadZeigen(); } }
   // Einkleben neuer Fotos (nacheinander): aus der Jacke unten links in die Ecken
   const Q = S.einkleben[0]; if (Q && S.phase === 'offen' && !S.turn) { const pidx = S.pages.findIndex(p => p.slots && p.slots.includes(Q.e)), side = pidx % 2 ? 'R' : 'L', slot = pidx >= 0 ? S.pages[pidx].slots.indexOf(Q.e) : -1;
     if (pidx < 0 || Math.floor(pidx / 2) !== S.spread) { S.einkleben.shift(); }
@@ -473,12 +545,17 @@ async function album_weltBau() { const S = album_S; try {
   const src = await msModel('album', 'model.glb'); const g = src.clone(true); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   const w = new THREE.Group(); w.add(g); scene.add(w);
   const P = typeof PHOTOS !== 'undefined' && PHOTOS[3] && PHOTOS[3].mesh ? PHOTOS[3].mesh.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(21.9, Y + .61, -12.55);
-  w.position.set(P.x, P.y - .004 + .034, P.z + .28); w.rotation.y = 1.45; w.userData.noCol = true; S.welt = w;
-  const hit = box(.26, .12, .34, w.position.x, w.position.y, w.position.z, hidden, { cast: false }); interact(hit, 'Fotoalbum', () => album_nehmen()); S.weltHit = hit; album_weltSync(); }
+  g.traverse(o => { if (o.isMesh && o.material) { o.material = o.material.clone(); album_leder(o.material); } });
+  // auf Hildes Stuhl am Fenster im Wohnzimmer von Nr. 7 (Blick auf die Kreuzung), locker hingelegt; Sitzfläche per Strahl gemessen (wie kapitel5.js für die Kamera)
+  const cx = 21.45, cz = -13.03, ry = .5; let y = Y + .45; { const L = []; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || !o.geometry || !o.material || o.material === hidden || o.material.visible === false || o.material.isShaderMaterial || o.material.transparent || o.userData.noCol || w.getObjectById(o.id)) return;
+      if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld), r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (r < 8 && Math.hypot(c.x - cx, c.z - cz) < r + .3) L.push(o); });
+    const h = new THREE.Raycaster(new THREE.Vector3(cx, Y + 1.6, cz), new THREE.Vector3(0, -1, 0), 0, 1.6).intersectObjects(L, false)[0]; if (h) y = h.point.y; }
+  w.rotation.set(0, ry, 0); w.position.set(cx - Math.cos(ry) * .094, y + .0345, cz + Math.sin(ry) * .094); w.userData.noCol = true; S.welt = w;
+  const hit = box(.32, .12, .32, cx, w.position.y, cz, hidden, { cast: false }); interact(hit, 'Fotoalbum', () => album_nehmen()); S.weltHit = hit; album_weltSync(); }
   catch (e) { console.warn('Album: Welt', e); } }
 function album_weltSync() { const S = album_S; if (!S.welt) return; S.welt.visible = !S.hat; if (S.hat) uninteract(S.weltHit); else if (!interactables.includes(S.weltHit)) interactables.push(S.weltHit); }
 function album_nehmen() { const S = album_S; if (S.hat) return; S.hat = true; album_weltSync(); Audio.play && Audio.play('woodHit1', { gain: .15, rate: 1.4 }); album_ton('albLeder', { gain: .3 });
-  const n = S.e.length; openNote('Ein Fotoalbum', 'Leder, schwer, ein Riemen mit Druckknopf. Die Seiten sind leer – aber in jeder stecken schon Fotoecken, schwarz, sorgfältig eingeklebt. Seite um Seite.\n\nAls hätte jemand gewusst, dass es Bilder geben wird.' + (n ? '\n\n<span class="hand">Die Fotos aus der Jacke kommen hier rein. Ordentlich. Hilde hätte es so gewollt.</span>' : ''), 'album_nehmen',
+  const n = S.e.length; openNote('Ein Fotoalbum', 'Auf Hildes Stuhl am Fenster, als hätte sie es eben erst weggelegt. Leder, schwer, ein Riemen mit Druckknopf. Die Seiten sind leer – aber in jeder stecken schon Fotoecken, schwarz, sorgfältig eingeklebt. Seite um Seite.\n\nAls hätte jemand gewusst, dass es Bilder geben wird.' + (n ? '\n\n<span class="hand">Die Fotos aus der Jacke kommen hier rein. Ordentlich. Hilde hätte es so gewollt.</span>' : ''), 'album_nehmen',
     () => { S.neu = S.e.map(e => e.id); toast(`[${album_tastenName(album_tasten.album)}] Fotoalbum`, 3200); if (!story.items.includes('fotoalbum')) story.items.push('fotoalbum'); }); }
 
 // ================================================================ Einstellungen: Tasten belegen (Album, Beutel)
@@ -510,11 +587,11 @@ function album_reiter(B) { const S = album_S; const serien = ALBUM_SERIE_ORDER.f
   B.querySelectorAll('img[data-id]').forEach(im => im.onclick = e => { e.stopPropagation(); S.spread = album_spreadVon(im.dataset.id); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => album_auf(), 60); }); }
 // ================================================================ Laden
 WORLD_MODS.push(['Album', async () => {
-  const S = album_S; album_tmp.e0 = new THREE.Euler(); album_tmp.e1 = new THREE.Euler(); album_tmp.q0 = new THREE.Quaternion(); album_tmp.q1 = new THREE.Quaternion(); album_tmp.v = new THREE.Vector3(); album_tmp.ray = new THREE.Raycaster(); album_tmp.m = new THREE.Vector2();
+  const S = album_S; album_tmp.e0 = new THREE.Euler(); album_tmp.e1 = new THREE.Euler(); album_tmp.q0 = new THREE.Quaternion(); album_tmp.q1 = new THREE.Quaternion(); album_tmp.v = new THREE.Vector3(); album_tmp.ray = new THREE.Raycaster(); album_tmp.m = new THREE.Vector2(); album_tmp.T = new THREE.Object3D(); S.rv = new THREE.Vector3(); S.cov = { th: 0, w: 0 };
   try { await document.fonts.load('40px Caveat'); await document.fonts.load('20px "Special Elite"'); } catch (e) {}
   album_buehneBau(); album_papierBau();
   try { await album_modellBau(); } catch (e) { console.warn('Album: Modell', e); return; }
-  await album_weltBau(); album_layout();
+  await album_weltBau(); album_layout(); await album_haendeBau();
   try { await album_klangBau(); } catch (e) { console.warn('Album: Klänge', e); }
   $('albumIcon').querySelector('.buch').style.backgroundImage = "url('assets/ms/album/cover.jpg')";
   // Die Welt läuft weiter: Umgebungs- und kleine Schreckgeräusche dürfen auch bei offenem Album/Beutel kommen (große Schrecken nicht – man sieht nichts)
@@ -525,14 +602,16 @@ WORLD_MODS.push(['Album', async () => {
   if (typeof sammeln_reiter === 'function') sammeln_reiter('album', 'FOTOALBUM', album_reiter, () => album_S.hat, '#8f7a64');
   window.__album = { S: album_S, B: album_B, auf: album_auf, zu: album_zu, blaettern: album_blaettern, abheften: album_abheften, nehmen: album_nehmen, quellen: album_quellen, layout: album_layout, spreadVon: album_spreadVon, umdrehen: album_umdrehen, zurueck: () => album_pickZurueck(),
     wand: k => { if (typeof fotos_S !== 'undefined') fotos_S.seen.add(k); }, SAVE: MOD_SAVE, spread: n => { album_S.spread = n; album_spreadZeigen(); },
+    unten2: (x, z) => { const L = []; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || !o.geometry || !o.material) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld); const r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (Math.hypot(c.x - x, c.z - z) < r + .3) L.push(o); });
+      const R = new THREE.Raycaster(new THREE.Vector3(x, 2.4, z), new THREE.Vector3(0, -1, 0), 0, 3); let hs = []; try { hs = R.intersectObjects(L, false); } catch (e) { return 'err'; } return hs.slice(0, 5).map(h => [+h.point.y.toFixed(3), h.object.name || (h.object.parent && h.object.parent.name) || h.object.geometry.type, h.object.material.type, h.object.material.visible, +(h.object.geometry.boundingSphere.radius * h.object.matrixWorld.getMaxScaleOnAxis()).toFixed(2)]); },
     unten: (x, z) => { const L = []; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld); const r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (Math.hypot(c.x - x, c.z - z) < r + .5) L.push(o); });
       const R = new THREE.Raycaster(new THREE.Vector3(x, 2.6, z), new THREE.Vector3(0, -1, 0), 0, 3); let h = null; try { h = R.intersectObjects(L, false)[0]; } catch (e) { return 'err'; } return h ? [+h.point.y.toFixed(3), h.face ? +h.face.normal.clone().transformDirection(h.object.matrixWorld).y.toFixed(2) : 0, (h.object.name || h.object.parent && h.object.parent.name || '').slice(0, 14)] : null; },
     probe: (nx = 0, ny = 0) => { const r = new THREE.Raycaster(); r.setFromCamera(new THREE.Vector2(nx, ny), camera); r.far = 6; const h = r.intersectObjects(scene.children, true).find(h => h.object.visible && h.object.material && h.object.material.visible !== false); return h ? { p: h.point.toArray().map(v => +v.toFixed(3)), n: h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld).toArray().map(v => +v.toFixed(2)) : null, o: h.object.name } : null; },
     pickErstes: () => { const S = album_S; for (const k of [0, 1]) { const idx = 2 * S.spread + k, p = S.pages[idx]; if (p && p.slots) for (let i = 0; i < 2; i++) if (p.slots[i]) { album_pickNehmen({ idx, i, side: k ? 'R' : 'L', e: p.slots[i] }); return p.slots[i].id; } } return null; } }; // Testzugriff
 }]);
 WORLD_TICK.push(dt => {
-  const S = album_S; if (!S.ready) return;
+  const S = album_S; if (!S.ready) return; if (window.__x5slow) dt *= window.__x5slow; // Testzugriff: Zeitlupe für Filmstreifen
   S.sync -= dt; if (S.sync <= 0) { S.sync = .5; album_quellen(); if (S.still) S.still = false;
     if (!S.hat && state.started && album_kap() >= 2) { S.hat = true; album_weltSync(); } } // ab Kapitel 2 steckt es in der Jacke (auch bei Kapitelwahl)
-  album_tick(dt);
+  album_tick(dt); album_haendeTick(dt);
 });

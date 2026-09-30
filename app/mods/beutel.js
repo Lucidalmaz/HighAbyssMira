@@ -56,10 +56,10 @@ function beutel_itemInfo(k) { if (k.startsWith('kanon:')) { const W = TAUSCH_WAR
 { const css = document.createElement('style'); css.textContent = `
   #beutelOv { position: fixed; right: 4.5vw; top: 50%; transform: translate(40px, -50%); width: min(44vw, 640px); z-index: 6; opacity: 0; pointer-events: none; transition: opacity .45s, transform .6s cubic-bezier(.2,.8,.3,1); }
   #beutelOv.show.auf { opacity: 1; transform: translate(0, -50%); pointer-events: auto; }
-  .bt-kopf { display: flex; justify-content: space-between; align-items: baseline; margin: 0 4px 12px; color: #e3d6b8; text-shadow: 0 0 6px #000, 0 0 16px #000; }
+  .bt-kopf { display: flex; flex-wrap: wrap; row-gap: 6px; justify-content: space-between; align-items: baseline; margin: 0 4px 12px; color: #e3d6b8; text-shadow: 0 0 6px #000, 0 0 16px #000; }
   .bt-t { font: 20px "Special Elite", monospace; letter-spacing: .08em; }
   .bt-cap { font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .26em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-  .bt-cap i { display: inline-block; width: 9px; height: 12px; border: 1px solid rgba(220,200,160,.55); border-radius: 1px 1px 3px 3px; }
+  .bt-cap i { display: inline-block; width: 7px; height: 10px; margin-left: -4px; border: 1px solid rgba(220,200,160,.55); border-radius: 1px 1px 3px 3px; }
   .bt-cap i.b { background: rgba(214,180,120,.75); } .bt-cap.voll { color: #e0907a; }
   .bt-grid { display: grid; gap: 7px; padding: 14px; border-radius: 6px; background-size: 240px 240px; position: relative;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 0 60px rgba(0,0,0,.75), inset 0 10px 22px rgba(0,0,0,.6), 0 20px 50px rgba(0,0,0,.65); }
@@ -70,12 +70,12 @@ function beutel_itemInfo(k) { if (k.startsWith('kanon:')) { const W = TAUSCH_WAR
   .bt-fach.leer { background: rgba(0,0,0,.12); }
   .bt-fach.has { cursor: pointer; } .bt-fach.has:hover, .bt-fach.sel { box-shadow: inset 0 6px 12px rgba(0,0,0,.6), 0 0 0 2px rgba(214,176,112,.65), 0 0 18px rgba(214,176,112,.25); transform: translateY(-2px); }
   .bt-fach.kombi { box-shadow: inset 0 6px 12px rgba(0,0,0,.6), 0 0 0 2px rgba(140,190,120,.7); }
-  .bt-ding { position: absolute; inset: 9% 9% 14% 9%; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,.7)); animation: btRein .5s cubic-bezier(.2,.9,.3,1.3) both; }
+  .bt-ding { position: absolute; inset: 9% 9% 14% 9%; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 6px rgba(0,0,0,.7)); animation: btRein .78s both; }
   .bt-ding img { max-width: 100%; max-height: 100%; }
   .bt-ding svg { width: 72%; height: 72%; color: #e6dcc6; stroke-width: 1.2; }
   .bt-n { position: absolute; right: 7px; bottom: 3px; font: 26px/1 Caveat, cursive; color: #f0e4c8; text-shadow: 0 0 4px #000, 0 1px 2px #000; }
   .bt-sub { position: absolute; left: 7px; bottom: 5px; font: 11px "Special Elite", monospace; color: #d8c9a6; text-shadow: 0 0 3px #000; }
-  @keyframes btRein { from { opacity: 0; transform: translateY(-16px) scale(.85) rotate(-6deg); } }
+  @keyframes btRein { 0% { opacity: 0; transform: translateY(-64px) rotate(-9deg); animation-timing-function: cubic-bezier(.45,0,.9,.55); } 14% { opacity: 1; } 56% { transform: translateY(0) rotate(2.5deg); animation-timing-function: cubic-bezier(.2,.6,.4,1); } 70% { transform: translateY(-10px) rotate(-1.2deg); animation-timing-function: cubic-bezier(.5,0,.9,.5); } 82% { transform: translateY(0) rotate(.6deg); animation-timing-function: cubic-bezier(.2,.6,.4,1); } 90% { transform: translateY(-2.5px) rotate(-.2deg); } 100% { transform: translateY(0) rotate(0); } }
   .bt-jacke { margin-top: 16px; padding: 12px 14px 14px; background: var(--fibre), radial-gradient(140% 100% at 50% 40%, #e3d8bc 0%, #d6c9a8 60%, #bba983 100%); background-size: 240px 240px, auto; box-shadow: 0 2px 3px rgba(0,0,0,.35), 0 18px 40px rgba(0,0,0,.6); transform: rotate(-.4deg); color: #2a2016; }
   .bt-jacke h3 { margin: 0 0 8px; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .35em; color: #7c2418; }
   .bt-jacke h3 small { letter-spacing: .12em; color: #5a4a35; font-weight: 400; }
@@ -106,7 +106,7 @@ function beutel_render(neu) {
   const html = [`<div class="bt-banner${S.umpack ? ' on' : ''}">${S.umpack ? `Umgepackt – ${BEUTEL_STUFEN[S.umpack - 1].fach} → ${st.fach} Fächer` : ''}</div>`,
     `<div class="bt-kopf"><span class="bt-t">${st.n.toUpperCase()}</span><span class="bt-cap${bel >= st.fach ? ' voll' : ''}">Fächer ${bel} / ${st.fach} ${Array.from({ length: st.fach }, (_, i) => `<i class="${i < bel ? 'b' : ''}"></i>`).join('')}</span></div>`,
     `<div class="bt-grid" style="grid-template-columns:repeat(${st.cols},1fr);background-image:url('assets/ms/${st.key}/futter.jpg')">`];
-  cells.forEach((s, j) => html.push(`<div class="bt-fach has${s.span ? ' span2' : ''}${S.sel && S.sel.f === j ? ' sel' : ''}${S.kombi && S.kombi.f === j ? ' kombi' : ''}" data-f="${j}"><div class="bt-ding" style="animation-delay:${neu ? .35 + j * .05 : 0}s">${beutel_icon(s.k === 'glanz' ? 'glanz_' + s.i : s.k, s.i)}</div>${s.n > 1 || BEUTEL_ARTEN[s.art].st > 1 ? `<span class="bt-n">×${s.n}</span>` : ''}${s.sub ? `<span class="bt-sub">${s.sub}</span>` : ''}</div>`));
+  cells.forEach((s, j) => html.push(`<div class="bt-fach has${s.span ? ' span2' : ''}${S.sel && S.sel.f === j ? ' sel' : ''}${S.kombi && S.kombi.f === j ? ' kombi' : ''}" data-f="${j}"><div class="bt-ding" style="animation-delay:${neu ? .12 + j * .07 : 0}s">${beutel_icon(s.k === 'glanz' ? 'glanz_' + s.i : s.k, s.i)}</div>${s.n > 1 || BEUTEL_ARTEN[s.art].st > 1 ? `<span class="bt-n">×${s.n}</span>` : ''}${s.sub ? `<span class="bt-sub">${s.sub}</span>` : ''}</div>`));
   for (let i = 0; i < leer; i++) html.push('<div class="bt-fach leer"></div>');
   html.push('</div>');
   const J = beutel_jacke(); html.push(`<div class="bt-jacke"><h3>IN DER JACKE <small>· zählt nicht, geht nie verloren</small></h3><div class="bt-tags">${J.map(k => { const inf = beutel_itemInfo(k); return `<div class="bt-tag${S.sel && S.sel.j === k ? ' sel' : ''}" data-j="${k}">${beutel_icon(k.startsWith('kanon:') ? '' : k, inf.i)}${inf.name}</div>`; }).join('') || '<i style="font:16px Caveat">Nichts.</i>'}</div></div>`);
@@ -173,23 +173,29 @@ function beutel_aktion(a) { const S = beutel_S, T = typeof tausch_S !== 'undefin
 const beutel_tmp = { e0: null, e1: null, q0: null, q1: null, v: null };
 const BEUTEL_POSE = [ // in Kamera-Koordinaten der Bühne: von der Hüfte / vom Rücken nach vorn (Ursprung der Modelle: Boden, Mitte)
   { weg: { p: [.34, -.62, -.42], r: [.3, -1.2, .6] }, hand: { p: [-.13, -.1, -.56], r: [.5, .5, .02] }, d: .56 },
-  { weg: { p: [.95, .25, -.7], r: [.2, -2.3, .7] }, hand: { p: [-.33, -.3, -1.35], r: [.32, .55, .02] }, d: 1.35 },
+  { weg: { p: [.95, .25, -.7], r: [.2, -2.3, .7] }, hand: { p: [-.33, -.3, -1.35], r: [.32, 3.55, .02] }, d: 1.35 },
   { weg: { p: [1.5, .5, -1.1], r: [.2, -2.4, .7] }, hand: { p: [-.55, -.5, -2.2], r: [.26, .55, .02] }, d: 2.2 }];
 function beutel_pose(a, b, k, o) { const T = beutel_tmp; T.q0.setFromEuler(T.e0.set(a.r[0], a.r[1], a.r[2])); T.q1.setFromEuler(T.e1.set(b.r[0], b.r[1], b.r[2])); o.quaternion.slerpQuaternions(T.q0, T.q1, k);
   o.position.set(a.p[0] + (b.p[0] - a.p[0]) * k, a.p[1] + (b.p[1] - a.p[1]) * k + Math.sin(k * Math.PI) * .05, a.p[2] + (b.p[2] - a.p[2]) * k); }
 // Leder mit echter Narbung (Ausschnitt aus der Einband-Textur) dreiachsig aufgetragen – die Taschen-Skulptur hat keine UVs
-function beutel_leder(m, tex) { m.onBeforeCompile = sh => { sh.uniforms.uLeder = { value: tex };
-  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vOP; varying vec3 vON;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvOP = position; vON = normal;');
-  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uLeder; varying vec3 vOP; varying vec3 vON;')
-    .replace('#include <map_fragment>', `vec3 bw = pow(abs(normalize(vON)), vec3(4.)); bw /= bw.x + bw.y + bw.z; vec3 p = vOP * 9.;
+// Stoff gibt nach: Zusammensacken (uSq), oben Durchhängen nach vorn (uGive), leichtes Schwingen (uSway) – im Objektraum, Ursprung am Boden.
+// Die Tasche (Skulptur ohne UV) bekommt dazu echte Ledernarbung (Ausschnitt aus der Einband-Textur) dreiachsig aufgetragen.
+const BEUTEL_GIVE = `float hN = clamp(position.y / uH, 0., 1.); transformed.y *= 1. - uSq * .07 * (1. - hN * .35); transformed.xz *= 1. + uSq * .035 * (1. - hN);
+  transformed.z += uGive * .07 * uH * hN * hN * hN; transformed.x += uSway * .025 * uH * hN * hN;`;
+function beutel_give(m, U, tex) { m.onBeforeCompile = sh => { Object.assign(sh.uniforms, U); if (tex) sh.uniforms.uLeder = { value: tex };
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform float uGive, uSq, uSway, uH;' + (tex ? '\nvarying vec3 vOP; varying vec3 vON;' : ''))
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\n' + BEUTEL_GIVE + (tex ? '\nvOP = position; vON = normal;' : ''));
+    if (!tex) return;
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform sampler2D uLeder; varying vec3 vOP; varying vec3 vON;')
+      .replace('#include <map_fragment>', `vec3 bw = pow(abs(normalize(vON)), vec3(4.)); bw /= bw.x + bw.y + bw.z; vec3 p = vOP * 9.;
       vec3 lt = texture2D(uLeder, p.yz).rgb * bw.x + texture2D(uLeder, p.xz).rgb * bw.y + texture2D(uLeder, p.xy).rgb * bw.z; float ll = dot(lt, vec3(.3, .5, .2));
       diffuseColor.rgb *= mix(vec3(.72), lt / max(.08, ll) * .55 + .45, .55) * (.75 + ll * 1.4);`)
-    .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor + (.5 - ll * 2.) * .25, .25, 1.);`); };
-  m.customProgramCacheKey = () => 'beutelLeder'; m.needsUpdate = true; }
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor + (.5 - ll * 2.) * .25, .25, 1.);`); };
+  m.customProgramCacheKey = () => 'beutelGive' + (tex ? 'L' : ''); m.needsUpdate = true; }
 async function beutel_modelle() {
   const S = beutel_S, B = album_B; const lederTex = msTex('beutel1/futter.jpg', true); lederTex.wrapS = lederTex.wrapT = THREE.MirroredRepeatWrapping;
-  for (let i = 0; i < 3; i++) { const key = BEUTEL_STUFEN[i].key; try { const src = await msModel(key, 'model.glb'); const g = src.clone(true), root = new THREE.Group(); root.add(g); root.visible = false; B.scene.add(root);
-      const flap = []; g.traverse(o => { if (!o.isMesh) return; o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .5; if (i === 0) beutel_leder(o.material, lederTex); }
+  for (let i = 0; i < 3; i++) { const key = BEUTEL_STUFEN[i].key; try { const src = await msModel(key, 'model.glb'); const g = src.clone(true), root = new THREE.Group(); root.add(g); root.visible = false; B.scene.add(root); const hb = new THREE.Box3().setFromObject(g); const U = { uGive: { value: 0 }, uSq: { value: 0 }, uSway: { value: 0 }, uH: { value: Math.max(.05, hb.max.y) } }; (S.giveU ||= [])[i] = U;
+      const flap = []; g.traverse(o => { if (!o.isMesh) return; o.frustumCulled = false; if (o.material) { o.material = o.material.clone(); o.material.envMapIntensity = .5; if (i === 1) { o.material.color.setScalar(.5); o.material.roughness = 1; } beutel_give(o.material, U, i === 0 ? lederTex : null); }
         const sw = o.geometry.attributes.skinWeight; if (i === 0 && sw) { // Attribute liegen verschränkt vor → eigene, flache Kopien (werden beim Aufklappen umgerechnet)
           const G0 = o.geometry, G = new THREE.BufferGeometry(), flat = a => { const f = new Float32Array(a.count * 3); for (let k = 0; k < a.count; k++) { f[k * 3] = a.getX(k); f[k * 3 + 1] = a.getY(k); f[k * 3 + 2] = a.getZ(k); } return f; };
           const P0 = flat(G0.attributes.position), N0 = flat(G0.attributes.normal); G.setAttribute('position', new THREE.BufferAttribute(P0.slice(), 3)); G.setAttribute('normal', new THREE.BufferAttribute(N0.slice(), 3)); G.setIndex(G0.index); G.computeBoundingSphere(); o.geometry = G;
@@ -200,7 +206,7 @@ async function beutel_modelle() {
 function beutel_klappe(a) { const S = beutel_S; if (!S.flap || S.flapA === a) return; S.flapA = a; const h = S.meta1.hinge, hy = h[1], hz = h[2];
   for (const F of S.flap) { const P = F.o.geometry.attributes.position, N = F.o.geometry.attributes.normal, p = P.array, n = N.array;
     for (let k = 0, c = F.w.length; k < c; k++) { const w = F.w[k]; if (w <= 0) { if (a === 0 || true) { p[k * 3 + 1] = F.P0[k * 3 + 1]; p[k * 3 + 2] = F.P0[k * 3 + 2]; n[k * 3 + 1] = F.N0[k * 3 + 1]; n[k * 3 + 2] = F.N0[k * 3 + 2]; } continue; }
-      const t = -a * w, cs = Math.cos(t), sn = Math.sin(t), dy = F.P0[k * 3 + 1] - hy, dz = F.P0[k * 3 + 2] - hz;
+      const t = a * w, cs = Math.cos(t), sn = Math.sin(t), dy = F.P0[k * 3 + 1] - hy, dz = F.P0[k * 3 + 2] - hz;
       p[k * 3 + 1] = hy + dy * cs - dz * sn; p[k * 3 + 2] = hz + dy * sn + dz * cs; const ny = F.N0[k * 3 + 1], nz = F.N0[k * 3 + 2]; n[k * 3 + 1] = ny * cs - nz * sn; n[k * 3 + 2] = ny * sn + nz * cs; }
     P.needsUpdate = true; N.needsUpdate = true; } }
 // Bildchen für die Fächer (einmal beim Laden, in der Bühne mit ihrem Licht gerendert → dieselben Programme wie beim Untersuchen)
@@ -209,12 +215,12 @@ async function beutel_bildchen() {
   const hid = []; B.scene.traverse(o => { if (o.parent === B.scene && o.visible && !o.isLight) { hid.push(o); o.visible = false; } });
   const oldC = renderer.getClearColor(new THREE.Color()), oldA = renderer.getClearAlpha();
   S.insM = {};
-  for (const [k, spec] of Object.entries(BEUTEL_MODELLE)) { try { const src = await msModel(spec[0], 'model.glb'); const o = msFit(src.clone(true), .1, 'max'), g = new THREE.Group(); g.add(o); o.updateMatrixWorld(true);
+  for (const [k, spec] of Object.entries(BEUTEL_MODELLE)) { let g = null; try { const src = await msModel(spec[0], 'model.glb'); const o = msFit(src.clone(true), .1, 'max'); g = new THREE.Group(); g.add(o); o.updateMatrixWorld(true);
       const bb = new THREE.Box3().setFromObject(o), c = bb.getCenter(new THREE.Vector3()); o.position.sub(c); g.traverse(m => { if (m.isMesh) { m.castShadow = false; m.frustumCulled = false; } });
       g.position.set(0, -.08, -.46); g.rotation.set(.5, .7, .15); B.scene.add(g); cam.position.set(0, -.08, -.46 + .24); cam.lookAt(g.position);
       const sp = B.spot.intensity; B.spot.intensity = 1.3; renderer.setRenderTarget(rt); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(B.scene, cam); renderer.readRenderTargetPixels(rt, 0, 0, W, W, buf); B.spot.intensity = sp;
       const im = cx.createImageData(W, W), d = im.data; for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) { const s = ((W - 1 - y) * W + x) * 4, t = (y * W + x) * 4; for (let q = 0; q < 3; q++) { let v = buf[s + q] / 255 * 1.6; v = v / (1 + v); d[t + q] = Math.pow(v * 1.25, 1 / 2.2) * 255; } d[t + 3] = buf[s + 3]; }
-      cx.putImageData(im, 0, 0); S.thumb[k] = cv.toDataURL('image/png'); g.visible = false; S.insM[k] = g; } catch (e) { /* ohne Modell: Bleistiftskizze */ } }
+      cx.putImageData(im, 0, 0); S.thumb[k] = cv.toDataURL('image/png'); g.visible = false; S.insM[k] = g; } catch (e) { if (g) { g.visible = false; B.scene.remove(g); } /* ohne Modell: Bleistiftskizze */ } }
   renderer.setRenderTarget(null); renderer.setClearColor(oldC, oldA); rt.dispose(); for (const o of hid) o.visible = true; }
 function beutel_untersuchen(k) { const S = beutel_S, g = S.insM && S.insM[k]; if (!g) { toast('Nichts Besonderes. Es ist, was es ist.', 1800); return; }
   S.insp = { g, t: 0, yaw: .7, drag: null, zurueck: false }; g.visible = true; g.position.set(.02, -.1, -.5); album_ton('albFoto', { gain: .2, rate: .7 }); $('beutelOv').classList.remove('auf');
@@ -224,38 +230,44 @@ function beutel_inspZurueck() { const I = beutel_S.insp; if (!I || I.zurueck) re
 // ================================================================ Öffnen / Schließen
 function beutel_auf(umpack) {
   const S = beutel_S; if (!S.ready || S.open || !S.mod[S.stufe - 1]) return; const g = album_gefahr(); if (g) return album_nein(g);
-  if (album_S.open || album_B.owner) return;
-  S.open = true; S.phase = 'auf'; S.t = 0; S.sel = null; S.kombi = null; S.insp = null; S.umpack = umpack || 0; S.klappe = false;
+  if (album_S.open || (album_B.owner && album_B.kZiel !== 0)) return;
+  S.open = true; S.phase = 'auf'; S.t = 0; S.sel = null; S.kombi = null; S.insp = null; S.umpack = umpack || 0; S.klappe = false; S.lande = false; S.fl = { a: 0, v: 0, ziel: 0 }; S.give = { x: 0, v: 0, ziel: 0, s: 0, sv: 0 }; S.rv.set(0, 0, 0);
   ui.overlay = 'beutelOv'; $('beutelOv').classList.add('show'); document.body.classList.add('ov'); if (document.pointerLockElement) document.exitPointerLock();
-  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true); { const h = BEUTEL_POSE[S.stufe - 1].hand.p; album_B.spot.target.position.set(h[0], h[1] + .1 * S.stufe, h[2]); album_B.spotK = Math.pow(BEUTEL_POSE[S.stufe - 1].d / .5, 2) * .8; }
-  const R = S.mod[S.stufe - 1]; R.visible = true; const P = BEUTEL_POSE[S.stufe - 1]; beutel_pose(P.weg, P.weg, 0, R); if (S.stufe === 1) beutel_klappe(0);
-  album_ton(S.stufe === 1 ? 'albLeder' : 'albStoff', { gain: .4, pan: .4 }); beutel_render(true);
+  album_B.pitch = S.stufe === 1 ? -.72 : -.6; album_B.lean = .07; album_buehne('beutel', true); { const h = BEUTEL_POSE[S.stufe - 1].hand.p; album_B.spot.target.position.set(h[0], h[1] + .1 * S.stufe, h[2]); album_B.spotK = [1.1, 2.6, 5.2][S.stufe - 1]; }
+  const R = S.mod[S.stufe - 1]; R.visible = true; const P = BEUTEL_POSE[S.stufe - 1]; beutel_pose(P.weg, P.weg, 0, R); beutel_pose(P.weg, P.weg, 0, beutel_tmp.T); if (S.stufe === 1) { S.flapA = null; beutel_klappe(0); }
+  album_ton(S.stufe === 1 ? 'albLeder' : 'albStoff', { gain: .4, pan: .4 }); beutel_render(false);
 }
 function beutel_zu(schnell) { const S = beutel_S; if (!S.open || S.phase === 'zu') return; if (S.insp) { S.insp.g.visible = false; S.insp = null; $('beutelLupe').classList.remove('on'); }
   S.phase = 'zu'; S.t = schnell ? .9 : 0; $('beutelOv').classList.remove('auf'); document.body.style.cursor = ''; }
 function beutel_ende() { const S = beutel_S; S.open = false; S.phase = ''; for (const m of S.mod) if (m) m.visible = false; if (S.stufe === 1) beutel_klappe(0); S.umpack = 0; album_buehne('beutel', false); if (ui.overlay === 'beutelOv') closeOverlay(); else $('beutelOv').classList.remove('show', 'auf'); }
-function beutel_klappern() { const z = beutel_zaehl(); let d = .1;
-  if (z.batterie) { for (let i = 0; i < Math.min(3, z.batterie); i++) Audio.play('keys1', { pan: .1, gain: .07, rate: 2.1 + Math.random() * .3, delay: d + i * .09, dur: .15 }); d += .2; }
-  if (z.glanz) { for (let i = 0; i < Math.min(4, z.glanz); i++) Audio.play(Math.random() < .5 ? 'metalHit1' : 'metalHit2', { pan: -.1, gain: .035, rate: 2.6 + Math.random(), delay: d + i * .07, dur: .12 }); d += .2; }
-  if (z.streich) Audio.play('woodHit2', { pan: 0, gain: .05, rate: 2.4, delay: d, dur: .15 });
-  if (z.geraet) Audio.play('glass1', { pan: .1, gain: .04, rate: 1.6, delay: d + .15, dur: .3 }); }
+// Jedes Ding landet hörbar in seinem Fach – im selben Takt wie die Fall-Animation (Aufprall bei 56 %, kleiner Nachhüpfer bei 82 %)
+function beutel_klappern() { const L = beutel_S.cells || [], K = { batterie: ['keys1', 2.2, .07], glanz: ['metalHit1', 2.8, .035], streich: ['woodHit2', 2.5, .05], kreide: ['woodHit3', 2.9, .035], oel: ['glass1', 1.9, .035], waermer: ['woodHit1', 1.6, .02], geraet: ['glass1', 1.3, .05] };
+  L.forEach((c, j) => { const k = K[c.art] || K.glanz, d = .12 + j * .07 + .78 * .56; if (j > 11) return; Audio.play(k[0], { pan: -.1 + Math.random() * .2, gain: k[2], rate: k[1] * (.94 + Math.random() * .12), delay: d, dur: .14 }); Audio.play(k[0], { pan: 0, gain: k[2] * .3, rate: k[1] * 1.1, delay: d + .78 * .26, dur: .1 }); }); }
 function beutel_tick(dt) { const S = beutel_S; if (!S.ready || !S.open) return;
   if (ui.overlay !== 'beutelOv' && S.phase !== 'zu') return beutel_ende();
-  if (S.phase !== 'zu' && album_gefahr()) beutel_zu(album_gefahr() === 'x');
-  S.t += dt; const t = S.t, i = S.stufe - 1, R = S.mod[i], P = BEUTEL_POSE[i];
-  if (S.phase === 'auf') { beutel_pose(P.weg, P.hand, album_out(t / .7), R);
-    if (i === 0) { if (t > .7 && !S.klappe) { S.klappe = true; album_ton('albSchnalle', { gain: .5 }); album_ton('albLeder', { gain: .35, delay: .12 }); } beutel_klappe(-1.95 * album_io((t - .78) / .45) + (t > .7 && t < .8 ? .06 * Math.sin((t - .7) * 31) : 0)); }
-    else if (t > .7 && !S.klappe) { S.klappe = true; if (i === 2) { album_ton('albSchnalle', { gain: .4 }); album_ton('albLeder', { gain: .35, delay: .15 }); } album_ton('albZipp', { gain: .45, delay: i === 2 ? .3 : 0 }); }
-    if (t > .95 && !S.klap2) { S.klap2 = true; beutel_klappern(); $('beutelOv').classList.add('auf'); }
-    if (t > 1.3) { S.phase = 'offen'; S.t = 0; S.klap2 = false; if (S.umpack) setTimeout(() => { S.umpack = 0; const b = $('beutelOv').querySelector('.bt-banner'); if (b) b.classList.remove('on'); }, 3200); } }
-  else if (S.phase === 'zu') { if (i === 0) beutel_klappe(-1.95 * (1 - album_io(t / .4)));
-    if (t > .3 && !S.zuT) { S.zuT = true; album_ton(i === 0 ? 'albSchnalle' : 'albZipp', { gain: .35, rate: i === 0 ? 1 : 1.3 }); album_buehne('beutel', false); }
-    beutel_pose(P.weg, P.hand, 1 - album_io((t - .3) / .6), R); if (t > .95) { S.zuT = false; S.klappe = false; beutel_ende(); } }
-  else { const h = P.hand; R.position.set(h.p[0] + Math.sin(t * .6) * .003, h.p[1] + Math.sin(t * 1.1) * .0025, h.p[2]); beutel_tmp.e0.set(h.r[0] + Math.sin(t * .7) * .008, h.r[1] + Math.sin(t * .4) * .012, h.r[2]); R.quaternion.setFromEuler(beutel_tmp.e0); }
+  if (S.phase !== 'zu') { const g = album_gefahr(true); if (g) beutel_zu(g === 'x'); }
+  S.t += dt; const t = S.t, i = S.stufe - 1, R = S.mod[i], P = BEUTEL_POSE[i], Z = beutel_tmp.T, h = Math.min(dt, .033), G = S.give, F = S.fl;
+  if (S.phase === 'auf') { beutel_pose(P.weg, P.hand, album_out(t / .72), Z);
+    // Ankunft in den Händen: der Beutel sackt kurz zusammen (Stoff/Leder gibt nach) und federt aus
+    if (t > .62 && !S.lande) { S.lande = true; G.sv -= i ? 5.5 : 3.5; album_ton('albStoff', { gain: .18, rate: 1.4 }); }
+    if (t > .72 && !S.klappe) { S.klappe = true; if (i === 0) { album_ton('albSchnalle', { gain: .5 }); album_ton('albLeder', { gain: .35, delay: .12 }); F.ziel = -1.95; F.v = -1.2; }
+      else { if (i === 2) { album_ton('albSchnalle', { gain: .4 }); album_ton('albLeder', { gain: .35, delay: .15 }); } album_ton('albZipp', { gain: .45, delay: i === 2 ? .3 : 0 }); G.ziel = .7; } }
+    if (t > .98 && !S.klap2) { S.klap2 = true; beutel_render(true); beutel_klappern(); $('beutelOv').classList.add('auf'); }
+    if (t > 1.45) { S.phase = 'offen'; S.t = 0; S.klap2 = false; S.lande = false; if (S.umpack) setTimeout(() => { S.umpack = 0; const b = $('beutelOv').querySelector('.bt-banner'); if (b) b.classList.remove('on'); }, 3200); } }
+  else if (S.phase === 'zu') { if (t > .05 && !S.zuT0) { S.zuT0 = true; F.ziel = 0; F.v = 1.4; G.ziel = 0; }
+    if (t > .32 && !S.zuT) { S.zuT = true; album_ton(i === 0 ? 'albSchnalle' : 'albZipp', { gain: .35, rate: i === 0 ? 1 : 1.3 }); album_buehne('beutel', false); }
+    beutel_pose(P.weg, P.hand, 1 - album_io((t - .34) / .62), Z); if (t > 1.02) { S.zuT = S.zuT0 = false; S.klappe = false; beutel_ende(); return; } }
+  else { const hp = P.hand; Z.position.set(hp.p[0] + Math.sin(t * .6) * .003, hp.p[1] + Math.sin(t * 1.1) * .0025, hp.p[2]); beutel_tmp.e0.set(hp.r[0] + Math.sin(t * .7) * .008, hp.r[1] + Math.sin(t * .4) * .012, hp.r[2]); Z.quaternion.setFromEuler(beutel_tmp.e0); }
+  album_folge(R, Z, S.rv, dt);
+  // Klappe: lockere Lederfeder, prallt am Rücken der Tasche ab; Stoff: Durchhängen/Zusammensacken als gedämpfte Federn
+  if (i === 0) { const a = 70 * (F.ziel - F.a) - 2 * .32 * 8.4 * F.v; F.v += a * h; F.a += F.v * h; if (F.a < -2.12) { F.a = -2.12; F.v = -F.v * .3; } if (F.a > .02) { F.a = .02; F.v = -F.v * .25; } beutel_klappe(F.a); }
+  { const a = 120 * (G.ziel - G.x) - 2 * .3 * 11 * G.v; G.v += a * h; G.x += G.v * h; const b = -160 * G.s - 2 * .28 * 12.6 * G.sv; G.sv += b * h; G.s += G.sv * h;
+    const U = S.giveU && S.giveU[i]; if (U) { U.uGive.value = G.x; U.uSq.value = Math.max(-.6, Math.min(.6, G.s)); U.uSway.value = Math.sin(t * 1.3) * .15 + G.v * .02; } }
+  if (typeof album_haendeTick === 'function') album_haendeTick(dt, true);
   const I = S.insp; if (I) { I.t += dt; const g = I.g; if (!I.drag) I.yaw += dt * .35;
     if (!I.zurueck) { const k = album_out(I.t / .45); g.position.set(.02 + (.05 - .02) * k, -.1 + .09 * k, -.5 + .2 * k); } else { const k = album_io(I.t / .35); g.position.set(.05 - .03 * k, -.01 - .09 * k, -.3 - .2 * k); if (k >= 1) { g.visible = false; S.insp = null; $('beutelOv').classList.add('auf'); } }
     beutel_tmp.e1.set(.35 + Math.sin(t * .5) * .05, I.yaw, .1); g.quaternion.setFromEuler(beutel_tmp.e1); } }
-addEventListener('keydown', e => { const S = beutel_S; if (e.repeat) return;
+addEventListener('keydown', e => { const S = beutel_S; if (e.repeat || !S.ready) return;
   if (S.open) { if (ui.overlay !== 'beutelOv') return; e.preventDefault(); e.stopPropagation(); if (e.code === 'Escape' || e.code === album_tasten.beutel) { if (S.insp) beutel_inspZurueck(); else if (S.kombi) { S.kombi = null; beutel_render(false); } else beutel_zu(); } return; }
   if (e.code === album_tasten.beutel && state.started && !ui.overlay && !ui.paused && !state.talking && !(typeof GL !== 'undefined' && GL.lost)) beutel_auf(); }, true);
 addEventListener('mousedown', e => { const I = beutel_S.insp; if (!beutel_S.open || !I || e.button !== 0) return; I.drag = e.clientX; I.dx0 = e.clientX; });
@@ -266,9 +278,13 @@ addEventListener('mouseup', e => { const I = beutel_S.insp; if (!I || !I.drag) r
 // An die nächste Wand / das nächste Wrack lehnen (Strahlen in 16 Richtungen, 3,5 m): Rücken zur Wand, leicht gekippt
 function beutel_anlehnen(F) { const L = [], x = F.at[0], z = F.at[1]; scene.traverse(o => { if (!o.isMesh || !o.visible || o.isInstancedMesh || o.isSkinnedMesh || !o.geometry || !o.material || o.material.visible === false || o.material.transparent) return;
     if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld), r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (r < 40 && Math.hypot(c.x - x, c.z - z) < r + 3.5) L.push(o); });
-  const R = new THREE.Raycaster(); R.far = 3.5; let best = null; const y0 = (typeof solidGround === 'function' ? Math.max(0, solidGround(x, 1.5, z)) : 0) + .45;
-  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, d = new THREE.Vector3(Math.sin(a), 0, Math.cos(a)); R.set(new THREE.Vector3(x, y0, z), d); let h; try { h = R.intersectObjects(L, false)[0]; } catch (e) { h = null; } if (h && (!best || h.distance < best.h.distance)) best = { h, a, d }; }
-  if (!best) return; const back = F.stufe === 3 ? .26 : .2; F.at = [best.h.point.x - best.d.x * back, best.h.point.z - best.d.z * back]; F.ry = best.a + Math.PI + (F.dreh || 0); F.lean = F.lean || .08; F.wand = best.h.object.name || 'Wand'; }
+  const R = new THREE.Raycaster(); R.far = 3.5; const y0 = (typeof solidGround === 'function' ? Math.max(0, solidGround(x, 1.5, z)) : 0) + .45, C = [];
+  for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2, d = new THREE.Vector3(Math.sin(a), 0, Math.cos(a)); R.set(new THREE.Vector3(x, y0, z), d); let h; try { h = R.intersectObjects(L, false)[0]; } catch (e) { h = null; } if (h) C.push({ h, a, d }); }
+  C.sort((p, q) => p.h.distance - q.h.distance);
+  // nicht in die Klickfläche eines anderen Dings stellen (sonst greift man den Heuballen statt des Rucksacks)
+  const boxes = interactables.filter(o => o.geometry).map(o => new THREE.Box3().setFromObject(o).expandByScalar(.15)), back = F.stufe === 3 ? .26 : .2;
+  for (const c of C) { const px = c.h.point.x - c.d.x * back, pz = c.h.point.z - c.d.z * back, p = new THREE.Vector3(px, y0 - .1, pz); if (boxes.some(b => b.containsPoint(p))) continue;
+    F.at = [px, pz]; F.ry = c.a + Math.PI + (F.dreh || 0); F.lean = F.lean || .08; F.wand = c.h.object.name || 'Wand'; return; } }
 async function beutel_weltBau() { const S = beutel_S;
   for (const F of BEUTEL_FUNDE) { try { const src = await msModel(BEUTEL_STUFEN[F.stufe - 1].key, 'model.glb'); const g = src.clone(true); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
       const w = new THREE.Group(); w.add(g); beutel_anlehnen(F); const y = typeof solidGround === 'function' ? Math.max(0, solidGround(F.at[0], 1.5, F.at[1])) : 0; w.position.set(F.at[0], y > -1 ? y : 0, F.at[1]); w.rotation.set(-F.lean, F.ry, 0, 'YXZ'); w.userData.noCol = true; scene.add(w);
@@ -300,16 +316,16 @@ function beutel_reiter(B) { const S = beutel_S, st = BEUTEL_STUFEN[S.stufe - 1],
     <button class="btReiterAuf" style="font:600 11px Georgia;letter-spacing:.2em;padding:6px 14px;cursor:pointer">ÖFFNEN</button>`;
   B.querySelector('.btReiterAuf').onclick = e => { e.stopPropagation(); if (ui.overlay === 'journal') closeOverlay(); setTimeout(() => beutel_auf(), 60); }; }
 WORLD_MODS.push(['Beutel', async () => {
-  const S = beutel_S; if (!album_B.ready) { console.warn('Beutel: keine Bühne (album.js)'); return; }
-  beutel_tmp.e0 = new THREE.Euler(); beutel_tmp.e1 = new THREE.Euler(); beutel_tmp.q0 = new THREE.Quaternion(); beutel_tmp.q1 = new THREE.Quaternion(); beutel_tmp.v = new THREE.Vector3();
+  const S = beutel_S; if (typeof album_B === 'undefined' || !album_B.ready) { console.warn('Beutel: keine Bühne (album.js fehlt) – Beutel ohne Ansicht, Kapazität unbegrenzt'); return; }
+  beutel_tmp.e0 = new THREE.Euler(); beutel_tmp.e1 = new THREE.Euler(); beutel_tmp.T = new THREE.Object3D(); S.rv = new THREE.Vector3(); S.fl = { a: 0, v: 0, ziel: 0 }; S.give = { x: 0, v: 0, ziel: 0, s: 0, sv: 0 }; beutel_tmp.q0 = new THREE.Quaternion(); beutel_tmp.q1 = new THREE.Quaternion(); beutel_tmp.v = new THREE.Vector3();
   await beutel_modelle(); await beutel_bildchen(); await beutel_weltBau();
   if (typeof tausch_voll === 'function') tausch_voll = function () { beutel_vollHinweis(); return false; };
   album_buehneVorbereiten(); S.ready = true;
   if (typeof sammeln_reiter === 'function') sammeln_reiter('beutel', () => BEUTEL_STUFEN[beutel_S.stufe - 1].n.toUpperCase(), beutel_reiter, null, '#7d6a52');
   window.__beutel = { S: beutel_S, auf: beutel_auf, zu: beutel_zu, upgrade: beutel_upgrade, platz: beutel_platz, zaehl: beutel_zaehl, faecher: beutel_faecher, finden: beutel_finden, render: beutel_render, aktion: beutel_aktion, waehle: beutel_waehle, untersuchen: beutel_untersuchen, T: typeof tausch_S !== 'undefined' ? tausch_S : null, SAVE: MOD_SAVE, FLASH, licht: v => { flashOn = v; }, addBattery: n => addBattery(n) }; // Testzugriff
 }]);
-WORLD_TICK.push(dt => { const S = beutel_S; if (!S.ready) return; beutel_tick(dt); S.chk = (S.chk || 0) - dt; if (S.chk <= 0) { S.chk = .1; beutel_vorschau(); beutel_weltSync(false); } });
+WORLD_TICK.push(dt => { const S = beutel_S; if (!S.ready) return; if (window.__x5slow) dt *= window.__x5slow; beutel_tick(dt); S.chk = (S.chk || 0) - dt; if (S.chk <= 0) { S.chk = .1; beutel_vorschau(); beutel_weltSync(false); } });
 MOD_SAVE.push(['beutel', () => ({ stufe: beutel_S.stufe, gef: [...beutel_S.gef] }), v => { const S = beutel_S; if (!v) return; S.stufe = Math.max(1, Math.min(3, v.stufe | 0 || 1)); S.gef = new Set(v.gef || []); if (S.ready) beutel_weltSync(true); }]);
 beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!resume && state.started) { beutel_S.stufe = 1; beutel_S.gef.clear(); if (beutel_S.ready) beutel_weltSync(true); } return r; })(beginGame);
-renderJournal = (o => () => { o(); try { if (jTab !== 'inventar') return; const B = $('jBody'), S = beutel_S, st = BEUTEL_STUFEN[S.stufe - 1]; const d = document.createElement('p'); d.style.cssText = 'margin-top:16px;color:var(--dim);font-size:15px';
+renderJournal = (o => () => { o(); try { if (jTab !== 'inventar' || !beutel_S.ready) return; const B = $('jBody'), S = beutel_S, st = BEUTEL_STUFEN[S.stufe - 1]; const d = document.createElement('p'); d.style.cssText = 'margin-top:16px;color:var(--dim);font-size:15px';
   d.innerHTML = `${st.n}: ${beutel_faecher(beutel_zaehl())} / ${st.fach} Fächer belegt · <kbd style="font:600 11px Georgia;border:1px solid rgba(201,163,106,.6);padding:1px 6px;color:var(--gold)">${album_tastenName(album_tasten.beutel)}</kbd> öffnen`; B.appendChild(d); } catch (e) {} })(renderJournal);
