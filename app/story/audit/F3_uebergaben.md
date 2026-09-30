@@ -84,3 +84,7 @@
 ## Gesamttest am Schluss – anspielen (aus Bewegung/Kamera)
 - Dreh-Neigung mit echter Maus (Test nur per Skript), Rückwärts-Tempo 0,78, echte Kino-`uebergabe`.
 - Eingangsstufen Nr. 7 ohne Kollision (Boden springt an der Tür 0,43 m; Kamera kaschiert) → Welt-Code.
+
+## Aus P2 Figuren (fertig, F3_stand_p2_figuren.md)
+- Schlusstest: Figuren in echten Kap.-1–6-Szenen ansehen (Blick an Brustkorb gebunden – nur Node-getestet); LWO-Tempo (Wolter/Gisela/Günther) über Mocap abnehmen; Justins Kopf beim Gehen leicht nach hinten?
+- Politur: stetige Unterarmdrehung in mocap.mjs + Neu-Backen (dann Sperrliste lockern); Fuß sinkt an Stufen kurz ~10 cm; CC-Kinder Brustkorb steif; Fuchs/Wolf-Schwanz zittert, Katze `walk`-Pfote an der Schleifennaht.
