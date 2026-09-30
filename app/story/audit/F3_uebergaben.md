@@ -99,3 +99,8 @@
 - Nr. 4 / Kapelle innen dunkel → `LICHT_HAKEN` nutzen (nr4.js/kirchberg.js). Schwarze Tafel schwebt neben der Kapelle außen.
 - Villa-Halle ohne Fenster (Tageslicht unbegründet). Performance-Schluss: `gStreak` ggf. 10 → 6 Laternen.
 - Nicht im Bild bestätigt: Laubhaufen, Tropfen, Motten, Nebelkante Ortstafel.
+
+## Aus AP-22 (fertig, F3_stand_ap22.md) – Kap. 5 Nebenaufgaben
+- Schlusstest: Dina in der Remise (Stuhl −123,6 | −35,4, im Testfoto nicht zu sehen), Frau Aydın im Fenster des Bauernhauses (Tiefen-Radierer), liegendes Postrad, Kreuzungsfoto (acht Kinder + der Neunte) mit echten Texturen, Jonas-Kette mit Whiskey/Kronkorken, Einbruch Weg c.
+- Für AP-23: `k4_kreisel` schließt mit `polaroid_heini`; Maas’ Rad liegt nur in Kap. 5 (`neben5_S.st.kasten.brief`). kapitel5.js: die Hülle `/^Laube/` (−107,2 | 25) findet nichts und kann weg (Hildes Laube übernimmt neben5).
+- Fehlende Assets: Posteinwurf-Kasten, Brecheisen, Tupperdose, Nachttisch, Vater Kranz (Stellvertreter `vegas`).

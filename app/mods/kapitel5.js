@@ -987,7 +987,7 @@ async function k5_telefon() {
     await wait(1600); try { Audio.play('giggle', { gain: .22, rate: .78, x: 0, y: 1.5, z: 0, ref: 2, lp: 2600 }); } catch (e) {}
     const L = K5.g.lucyK; if (L) k5_face(L, player.pos.x, player.pos.z); await wait(1400);
     await say([['„Der Junge im Stall. Hilde hat ihm jeden Abend Brot hingestellt. Seit damals.“', 4600, K5_W.L], ['„Sie hat es mir im Oktober gezeigt. Heute hat’s keiner gemacht.“', 4200, K5_W.L],
-      ['„Ich geh zu Vegas. Ich hab ja wieder beide Hälften. Nimm die Katze mit. Die mag dich, glaub ich. Man sieht’s nicht.“', 6000, K5_W.L]]);
+      ['„Ich geh zu Vegas. Ich hab ja wieder beide Hälften. Nimm die Katze mit. Die mag dich, glaub ich. Man sieht’s nicht.“', 6000, K5_W.L]]); if (typeof neben5_uk9 === 'function') { try { await neben5_uk9(); } catch (e) {} } // AP-22: Lucy weiß, dass Jonas kommt („Ich bin trotzdem dran“)
   } finally { state.talking = false; if (typeof handset === 'function' && typeof heldHandset !== 'undefined' && heldHandset.visible) handset(false); }
   k5.beat = 'brot'; k5.f.lucyGeht = true; k5_setup('brot', true); if (K5.g.lucyK) { K5.g.lucyK.visible = true; k5_clip(K5.g.lucyK, 'walk', false); }
 }
