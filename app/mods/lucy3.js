@@ -104,21 +104,44 @@ function lucy3_bells() { // Paket P2 (leben.js): Promise, erfüllt beim 16. Schl
     return Promise.race([Promise.resolve(r), lucy3_sleep(64000)]); }
   return new Promise(res => { const T = [0, 3300, 6600]; for (let i = 0; i < 13; i++) T.push(6600 + 3300 + 2000 + i * 3300);
     T.forEach((ms, i) => setTimeout(() => { if (typeof leben_bellStrike === 'function') leben_bellStrike(.7, false); if (i === 15) setTimeout(res, 300); }, ms)); }); }
+// Fassung 3 (AP-17, Kap. 3 UK 1): Zusammensacken am Gully, Tafel, Aufwachen auf dem Asphalt (unscharf, Vorwärts = aufrappeln), Glocke 3 + 13,
+// beim dreizehnten Schlag die Kinderstimme direkt am LINKEN Ohr, alle Laternen gehen an und atmen; Luke geht drei Schritte → „Blinde Kuh“.
+const lucy3_weg = () => typeof kapitel3_S !== 'undefined' && kapitel3_S.resumed; // Weiterspielen mitten im Kapitel: kein Intro
+async function lucy3_tafel() { // nahtloser Weg aus Kapitel 2: Luke sackt am Gully zusammen, dann die Tafel (Startmenü zeigt sie schon selbst)
+  const fd = $('fade'); fd.style.background = '#000'; camY = Math.min(camY, .6); await fade(1, 900); try { document.exitPointerLock(); } catch (e) {}
+  $('intro').innerHTML = typeof C3_INTRO !== 'undefined' ? C3_INTRO : ''; $('introSeq').classList.add('show'); fd.style.opacity = 0;
+  await new Promise(r => { $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; try { lockPointer(); } catch (e) {} r(); }; }); }
+async function lucy3_aufwachen() { // Kamera liegt auf dem Asphalt, die Sicht ist erst unscharf; Vorwärts = aufrappeln
+  const cv = renderer.domElement, P = player.pos; player.pitch = .32; cv.style.transition = 'none'; cv.style.filter = 'blur(7px) brightness(.8)';
+  let steh = false, k = 0; setScripted(dt => { if (!steh && (keys.KeyW || keys.ArrowUp)) { steh = true; cv.style.transition = 'filter 2.4s ease-out'; cv.style.filter = ''; }
+    if (steh) { k = Math.min(1, k + dt / 1.5); const e = k * k * (3 - 2 * k); P.y = -1.35 * (1 - e); player.pitch += (0 - player.pitch) * Math.min(1, dt * 2); if (k >= 1) { P.y = 0; return false; } }
+    else P.y = -1.35; return true; });
+  const t0 = performance.now(); let hint = false; while (scripted) { await wait(120); if (!hint && performance.now() - t0 > 6000 && !steh) { hint = true; toast('W – aufstehen', 2600); } }
+  setTimeout(() => { if (!cv.style.transition.includes('2.4')) cv.style.filter = ''; }, 2600); }
 async function lucy3_opening() {
-  const S = lucy3_S; if (S.opening) return; S.opening = true;
+  const S = lucy3_S; if (S.opening) return; S.opening = true; const K = typeof kapitel3_S !== 'undefined' ? kapitel3_S : null;
   try {
+    const nahtlos = K && !K.tafel, vorbei = typeof leben_uhrSync === 'function' && leben_uhrSync().c3; // die Glocke hat schon unter der Endkarte von Kapitel 2 geschlagen
     setC3('Finde heraus, was mit Lost Eyengless geschehen ist.');
-    lamps.forEach((L, i) => { L.mode = i % 4 === 1 ? 'flicker' : 'off'; }); // ausgeblasen seit dem Stromausfall – nur wenige glimmen noch
-    await wait(1800); subtitle('Kein Mensch. Kein Wind. Nur das Summen, tief im Bauch.', 4200); await wait(3600);
-    await lucy3_bells();
-    const P = player.pos, sx = Math.cos(player.yaw) * .35, sz = -Math.sin(player.yaw) * .35; // direkt am (rechten) Ohr
-    Audio.whisper(P.x + sx, 1.62, P.z + sz, 1.6); Audio.giggle(P.x + sx, 1.6, P.z + sz);
-    subtitle('„… siebzehn. Ich komme!“', 3000, '???');
-    lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; }); Audio.flick(); shake = .025; glitchV = .35;
-    await wait(3600);
-    await say([['Sie hat mich elfmal angerufen. Diesmal geh ich ran.', 3800, 'DU']]);
-    await wait(900); if (typeof kino_kuh === 'function' && kino_kuh()) {} else { cowDrop(); cowHit.position.set(-7.5, .6, .8); } // Fassung 3 (AP-10): Kinosequenz „Blinde Kuh“
-  } finally { ch3.t = 0; S.opening = false; S.openDone = true; }
+    lamps.forEach(L => { L.mode = 'off'; }); // die Laternen der Ahornstraße sind aus, alle
+    if (nahtlos) { await lucy3_tafel(); if (lucy3_weg()) return; }
+    await lucy3_aufwachen(); if (lucy3_weg()) return;
+    const P0 = player.pos.clone(); if (K) K.leine = P0; // bis die Glocke fertig ist, geht er nicht weit
+    if (!vorbei) { await wait(1200); await lucy3_bells(); } else await wait(1600);
+    if (lucy3_weg()) return;
+    const P = player.pos, lx = -Math.cos(player.yaw) * .32, lz = Math.sin(player.yaw) * .32; // direkt am linken Ohr, so nah, dass man den Atem spürt
+    Audio.whisper(P.x + lx, 1.62, P.z + lz, 1.6); Audio.giggle(P.x + lx * 1.2, 1.6, P.z + lz * 1.2);
+    subtitle('„… siebzehn. Ich komme!“', 3000, 'KINDERSTIMME');
+    lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; }); Audio.flick(); Audio.hum(true); // sämtliche Laternen gehen an, auch die ausgeblasenen – hell, dunkler, wieder hell; ein Summen im Bauch
+    await wait(3400);
+    await say([['Elf Anrufe. Diesmal geh ich ran.', 3200, 'DU']]);
+    if (K) K.leine = null; if (typeof saveGame === 'function') saveGame(3); // Speicherpunkt „Kreuzung, 03:13“
+    if (typeof beob_spur === 'function') try { beob_spur('kiesel', { pos: [8.9, 0, 9.3] }); } catch (e) {} // hinter der Telefonzelle rollt ein Kiesel
+    // UK 2: Luke geht drei Schritte in irgendeine Richtung
+    const st = player.pos.clone(); while (Math.hypot(player.pos.x - st.x, player.pos.z - st.z) < 2.3) { await wait(150); if (lucy3_weg() || cowFx.done) return; }
+    if (typeof kino_play === 'function' && typeof kino_S !== 'undefined' && kino_S.ready && typeof KINO !== 'undefined' && KINO.k3kuh && !cowFx.done) { Audio.hum(false); await kino_play('k3kuh').catch(e => console.error('Kino k3kuh', e)); Audio.hum(true); }
+    else { cowDrop(); cowHit.position.set(-7.5, .6, .8); }
+  } finally { S.opening = false; S.openDone = true; if (K) K.leine = null; }
 }
 chapter3Opening = lucy3_opening;
 
@@ -150,8 +173,10 @@ function lucy3_drawEye(c, sig, t) {
 }
 function lucy3_radioPuzzle() {
   const S = lucy3_S;
-  if (ch3.radio) return toast('Nur noch Rauschen. Und ganz hinten, sehr leise, jemand, der atmet.', 4200);
+  if (typeof kap === 'function' && kap() >= 4) return toast('Der Kasten ist tot. Kein Rauschen. Nichts.', 3000); // Sperre nach Kapitel 3: Funkkasten tot
+  if (ch3.radio) return toast('Nur noch Rauschen. Und ganz hinten jemand, der atmet.', 4200);
   if (S.busy || state.talking) return;
+  if (S.sperreBis && performance.now() < S.sperreBis) return toast('Der Kasten ist zu. Das Rauschen dahinter lacht leise.', 2600); // nach einem Fehlschlag zehn Sekunden zu
   if (S.tuned) return lucy3_funk();
   const tok = ++S.tok; lucy3_radioOn();
   openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.</span></div>
@@ -168,8 +193,13 @@ function lucy3_radioPuzzle() {
     f.oninput = () => { upd(); st.textContent = ''; if (Math.random() < .3) Audio.flick(); }; upd();
     box.querySelector('#l3Dn').onclick = e => { e.stopPropagation(); f.value = (+f.value - .01).toFixed(2); f.oninput(); };
     box.querySelector('#l3Up').onclick = e => { e.stopPropagation(); f.value = (+f.value + .01).toFixed(2); f.oninput(); };
+    let kaltT = 0; const t00 = performance.now() / 1000;
     const draw = () => { if (tok !== S.tok || ui.overlay !== 'puzzle') return; const t = performance.now() / 1000; lucy3_drawDial(dial, +f.value, sig, t); lucy3_drawEye(eye, Math.min(1, sig + (Math.random() - .5) * .04), t);
-      if (Math.abs(+f.value - RADIO_F) < .06 && t > murT) { murT = t + 2.6; lucy3_voice('amt', 1.8, null, .35); } requestAnimationFrame(draw); };
+      if (Math.abs(+f.value - RADIO_F) < .06 && t > murT) { murT = t + 2.6; lucy3_voice('amt', 1.8, null, .35); }
+      // auf 13,10 und 10,31 flüstert kurz eine Kinderstimme „kalt, kalt, eiskalt“
+      if ((Math.abs(+f.value - 13.1) < .05 || Math.abs(+f.value - 10.31) < .05) && t > kaltT) { kaltT = t + 5; Audio.whisper(player.pos.x + .3, 1.6, player.pos.z, 1.4); st.textContent = '„kalt, kalt, eiskalt“'; }
+      S.dialT = (S.dialT || 0) + 1 / 60; if (!S.hintDial && t - t00 > 55) { S.hintDial = true; lucy3_lukeGedanke('Der Tag, an dem sie kam. Den Tag hab ich heute Nacht schon mal irgendwo eingetippt.'); }
+      requestAnimationFrame(draw); };
     requestAnimationFrame(draw);
     box.querySelector('#rOk').onclick = e => { e.stopPropagation(); const d = Math.abs(+f.value - RADIO_F);
       if (d < .06) { closeOverlay(); broadcast(); }
@@ -184,7 +214,7 @@ async function lucy3_broadcast() {
   const S = lucy3_S; if (ch3.radio) return;
   S.tuned = true; state.talking = true; radioLed.material.emissive.set(0xffa020); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz', d = Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null;
   setTimeout(() => lucy3_voice('amt', 3.2, d), 1700);
-  await say([['*Rauschen* – *darunter, ganz leise, eine Spieluhr*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['*Knacken*', 1400]]);
+  await say([['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Alle Kinder bitte an ihre Plätze.“', 4600, 'AMTSSTIMME']]); Audio.play('switch1', { gain: .2, rate: .7 }); await wait(900); // Gong, Rauschen; unter der Amtsstimme läuft die Spieluhr; ein Knacken
   state.talking = false; lucy3_funk();
 }
 broadcast = lucy3_broadcast;
@@ -192,8 +222,11 @@ broadcast = lucy3_broadcast;
 // ---------------------------------------------------------------- K3-4: zwei Kanäle, drei Fragen, in den Staub schreiben, senden
 const LUCY3_Q = [
   ['hund', 'Wie hieß unser Hund?', '„Flocke.“', '„Flocke.“'],
-  ['wo', 'Wo bist du?', '„Im Dunkeln.“', '„Im Dunkeln.“'],
-  ['wort', 'Sag unser Wort.', '„Hasen … Hasen … sag du es zuerst, Großer.“', '„Das haben wir nie gesagt. Schreib\'s, dann weiß ich, dass du\'s bist.“']];
+  ['wo', 'Wo bist du?', '„Im Dunkeln. Hol mich raus.“', '„Im Dunkeln. Im Tank, glaub ich. Es ist nass.“'],
+  ['wort', 'Sag unser Wort.', '„Hasen … Hasen … sag du es zuerst, Großer.“', '„Das haben wir nie gesagt. Schreib’s. Dann weiß ich, dass du’s bist.“']];
+// Lukes Gedanke (Hilfeleiter): im Funkfenster in der Zeile „DU“, sonst als Untertitel
+function lucy3_lukeGedanke(t) { const S = lucy3_S; if (S.box) { const el = S.box.querySelector('#l3Luke'); if (el) el.innerHTML = `<b>LUKE</b><i>${t}</i>`; S.luke = ''; }
+  else if (ui.overlay === 'puzzle') { const st = $('puzzle').querySelector('#l3St'); if (st) st.innerHTML = `<i>${t}</i>`; } subtitle(t, 4600, 'LUKE'); }
 const LUCY3_WORDS = ['FLOCKE', 'GROSSER', 'HEIM', 'HASENBROT'];
 function lucy3_funk() {
   const S = lucy3_S, tok = ++S.tok; lucy3_radioOn();
@@ -203,7 +236,7 @@ function lucy3_funk() {
     <div class="sect">FRAGEN</div><div class="row qs">${LUCY3_Q.map(q => `<button data-q="${q[0]}">${q[1]}</button>`).join('')}</div>
     <div class="sect">IN DEN STAUB SCHREIBEN</div><div class="row words">${LUCY3_WORDS.map(w => `<button data-w="${w}">${w}</button>`).join('')}</div>
     <div class="dust" id="l3Dust"><em>Auf dem Deckel liegt Staub. Man könnte hineinschreiben.</em></div>
-    <div class="row send"><button id="l3SA">AN KANAL A SENDEN</button><button id="l3SB">AN KANAL B SENDEN</button></div></div>`, box => {
+    <div class="row send"><button id="l3SA">AN KANAL A SENDEN</button><button id="l3SB">AN KANAL B SENDEN</button><button id="l3Say" style="opacity:.8">INS MIKROFON SAGEN</button></div></div>`, box => {
     box.classList.add('l3box'); lucy3_S.boxed = true; S.box = box;
     for (const c of ['A', 'B']) { const G = box.querySelector('#l3G' + c); for (const e of S.log) if (e.c === c) lucy3_logEl(G, e); G.scrollTop = 1e6; if (S.dead && c === 'A') box.querySelector('#l3LA').classList.add('dead'); }
     lucy3_lukeShow(S.luke);
@@ -212,6 +245,7 @@ function lucy3_funk() {
     box.querySelectorAll('.words button').forEach(b => b.onclick = e => { e.stopPropagation(); lucy3_write(b.dataset.w, tok); });
     box.querySelector('#l3SA').onclick = e => { e.stopPropagation(); lucy3_send('A', tok); };
     box.querySelector('#l3SB').onclick = e => { e.stopPropagation(); lucy3_send('B', tok); };
+    box.querySelector('#l3Say').onclick = e => { e.stopPropagation(); lucy3_sagen(tok); };
     const cA = box.querySelector('#l3OA'), cB = box.querySelector('#l3OB');
     const draw = () => { if (tok !== S.tok || ui.overlay !== 'puzzle') return; const t = performance.now() / 1000; lucy3_scope(cA, S.scopeA, t, true, S.dead); lucy3_scope(cB, S.scopeB, t, false, false); lucy3_btns(); requestAnimationFrame(draw); };
     requestAnimationFrame(draw);
@@ -222,7 +256,7 @@ function lucy3_funk() {
 function lucy3_btns() { const S = lucy3_S, box = S.box; if (!box) return; const b = S.busy || !S.greeted;
   box.querySelectorAll('.qs button').forEach(x => { x.disabled = b; x.style.opacity = S.asked.has(x.dataset.q) && !b ? .6 : ''; });
   box.querySelectorAll('.words button').forEach(x => { x.disabled = b; x.classList.toggle('sel', x.dataset.w === S.word); });
-  box.querySelector('#l3SA').disabled = box.querySelector('#l3SB').disabled = b || !S.word; }
+  box.querySelector('#l3SA').disabled = box.querySelector('#l3SB').disabled = box.querySelector('#l3Say').disabled = b || !S.word; }
 function lucy3_scope(c, amp, t, tines, dead) {
   if (!c) return; const x = c.getContext('2d'), w = c.width, h = c.height, m = h / 2; x.fillStyle = 'rgba(3,8,5,.55)'; x.fillRect(0, 0, w, h);
   x.strokeStyle = 'rgba(80,160,100,.12)'; x.lineWidth = 1; for (let i = 1; i < 6; i++) { x.beginPath(); x.moveTo(i * w / 6, 0); x.lineTo(i * w / 6, h); x.stroke(); } x.beginPath(); x.moveTo(0, m); x.lineTo(w, m); x.stroke();
@@ -245,11 +279,15 @@ async function lucy3_speak(c, t, tok) { const S = lucy3_S; if (tok !== S.tok) re
 async function lucy3_greet(tok) { const S = lucy3_S; S.busy = true; await lucy3_sleep(900); if (tok !== S.tok) return;
   const t = '„Großer? Großer, bist du das?“'; lucy3_lamp('A', 'on'); lucy3_lamp('B', 'on'); S.scopeA = S.scopeB = 1; lucy3_voice('a', 2.2, null, .8); lucy3_voice('b', 2.2, null, .8);
   if (!S.log.length) { lucy3_log('A', t, 'v'); lucy3_log('B', t, 'v'); } await lucy3_sleep(2600); lucy3_lamp('A', ''); lucy3_lamp('B', ''); S.scopeA = S.scopeB = 0; if (tok !== S.tok) return;
-  await lucy3_sleep(500); lucy3_lukeShow('„Beide sagen Großer.“'); S.greeted = true; ch3.funk = true; S.busy = false; }
+  await lucy3_sleep(500); lucy3_lukeShow('„Beide sagen Großer.“'); S.greeted = true; ch3.funk = true; S.busy = false;
+  // Hilfeleiter: (2) Kanal B wiederholt nach einer Minute leise; (3) nach drei Minuten ohne Fortschritt kratzt Whiskey Striche in den Staub
+  setTimeout(async () => { if (ch3.radio || S.box === null || !S.box || S.busy) return; const t = S.tok; S.busy = true; await lucy3_speak('B', '„Schreib’s, Großer.“', t); if (t === S.tok) S.busy = false; }, 60000);
+  setTimeout(() => { if (!ch3.radio && S.radioFails < 2 && typeof whiskey_schreibgeste === 'function') try { whiskey_schreibgeste(); } catch (e) {} }, 180000); }
 async function lucy3_ask(id, tok) { const S = lucy3_S; if (S.busy || tok !== S.tok) return; const q = LUCY3_Q.find(x => x[0] === id); if (!q) return; S.busy = true;
   lucy3_lukeShow(`„${q[1]}“`); lucy3_log('A', '— ' + q[1], 'q'); lucy3_log('B', '— ' + q[1], 'q'); await lucy3_sleep(1100);
-  if (await lucy3_speak('A', q[2], tok) && await lucy3_speak('B', q[3], tok)) { S.asked.add(id);
-    if (S.asked.size === 3 && !S.allAsked) { S.allAsked = true; await lucy3_sleep(400); lucy3_lukeShow('„Unser Wort. Das haben wir nie ausgesprochen. Nur geschrieben.“'); } }
+  const qa = id === 'wort' && S.gesagt ? '„HASENBROT. Siehst du, Großer? Ich bin’s.“' : q[2]; // nach dem lauten Sagen kann Kanal A es auch
+  if (await lucy3_speak('A', qa, tok) && await lucy3_speak('B', q[3], tok)) { S.asked.add(id);
+    if (S.asked.size === 3 && !S.allAsked) { S.allAsked = true; await lucy3_sleep(400); lucy3_lukeGedanke('Eine von beiden hört durch mich mit. Was weiß Lucy, das ich nie laut gesagt hab?'); } }
   if (tok === S.tok) S.busy = false; }
 function lucy3_dustShow(w, instant) { const S = lucy3_S; if (!S.box) return; const D = S.box.querySelector('#l3Dust'); D.innerHTML = ''; const s = document.createElement('span'); s.textContent = w; if (instant) s.style.animation = 'none', s.style.clipPath = 'none'; D.appendChild(s); }
 async function lucy3_write(w, tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || S.word === w) return; S.busy = true;
@@ -257,9 +295,14 @@ async function lucy3_write(w, tok) { const S = lucy3_S; if (S.busy || tok !== S.
   S.word = w; lucy3_dustShow(w); lucy3_scratch(player.pos.x, player.pos.z, false); await lucy3_sleep(1400); if (tok === S.tok) S.busy = false; }
 async function lucy3_send(c, tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || !S.word) return; S.busy = true; const w = S.word;
   Audio.intercomClick(); lucy3_log(c, `— ${w}`, 'q'); await lucy3_sleep(900); if (tok !== S.tok) return;
-  if (w === 'HASENBROT' && c === 'B') return lucy3_win(tok);
+  if (w === 'HASENBROT' && c === 'B' && (!S.gesagt || S.asked.has('wo'))) return lucy3_win(tok); // nach dem lauten Sagen geht es nur noch über Frage 2 (nur B weiß vom Tank)
   lucy3_fail(tok);
 }
+// Das Wort laut ins Mikrofon sagen: dann ist es verbraucht – Kanal A sagt es ab jetzt auch (der einzige dauerhafte Fehler des Kapitels)
+async function lucy3_sagen(tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || !S.word) return; S.busy = true; const w = S.word;
+  lucy3_lukeShow(`„${w.charAt(0) + w.slice(1).toLowerCase()}.“`); lucy3_log('A', '— ' + w + ' (laut)', 'q'); lucy3_log('B', '— ' + w + ' (laut)', 'q'); await lucy3_sleep(1200);
+  if (w === 'HASENBROT') { S.gesagt = true; S.scopeA = 1; lucy3_lamp('A', 'on'); lucy3_log('A', '„Hasenbrot.“', 'v'); lucy3_voice('a', 1.4); Audio.giggle(player.pos.x + .6, 1.5, player.pos.z); await lucy3_sleep(1800); S.scopeA = 0; lucy3_lamp('A', ''); }
+  if (tok === S.tok) S.busy = false; }
 async function lucy3_win(tok) { const S = lucy3_S; ch3.radio = true; state.talking = true;
   await lucy3_speak('B', '„Da bist du.“', tok);
   // Kanal A kreischt und verstummt
@@ -269,22 +312,25 @@ async function lucy3_win(tok) { const S = lucy3_S; ch3.radio = true; state.talki
   if (ui.overlay === 'puzzle' && tok === S.tok) closeOverlay(); S.busy = false; lucy3_radioOff();
   radioLed.material.emissive.set(0x30ff60);
   // Lucy (B), mit Rauschen, keine Spieluhr – die Stimme kommt aus dem Kasten
-  const L = 'LUCY · KANAL B', lines = [['„Sie hat die Lampen ausgeblasen, wie sie uns geholt hat. Mach\'s genauso. Dann denkt sie, es ist ihr eigenes Spiel.“', 5600, L],
-    ['„Vor unseren Häusern. In ihrer Reihenfolge.“', 3400, L], ['„Hilde hat aufgeschrieben, wann. Und im Amt hängt, wer wann unterschrieben hat.“', 5000, L], ['„Großer … Ich hör dich atmen. Hör nicht auf damit.“', 4400, L]];
+  const L = 'LUCY · KANAL B', lines = [['„Sie hat die Lampen ausgeblasen, wie sie uns geholt hat. Mach’s genauso. Dann denkt sie, es ist ihr eigenes Spiel.“', 5600, L],
+    ['„Vor unseren Häusern. In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann.“', 4600, L]];
   const d = Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null;
   for (const l of lines) { lucy3_voice('b', Math.min(4.5, l[1] / 1000 * .85), d, .9); await say([l]); }
-  state.talking = false; lucy3_blink();
-  setC3('Lösch die Laternen vor den Häusern – in der Reihenfolge, in der sie die Kinder geholt hat.');
+  await say([['Lucy, ich –', 1400, 'DU']]); lucy3_voice('b', 2.8, d, .9); await say([['„Großer. Ich hör dich atmen. Hör nicht auf damit.“', 4200, L]]);
+  state.talking = false; lucy3_blink(); if (typeof sammeln_fibel === 'function') sammeln_fibel('R-K3c');
+  setC3('Lösch die Laternen vor den Häusern, in der Reihenfolge, in der sie die Kinder geholt hat.');
   story.lore = story.lore.filter(x => x.key !== 'c3funk');
-  story.lore.push({ key: 'c3funk', title: 'Zwei Lucys', html: 'Auf 31,10 MHz antworteten zwei Stimmen. Beide sagten „Großer“. Beide kannten Flocke. Beide saßen im Dunkeln.\nKanal A wollte, dass ich unser Wort zuerst sage. Kanal B wollte es geschrieben sehen.\n\nIch habe HASENBROT in den Staub geschrieben und an Kanal B geschickt. „Da bist du.“ – Kanal A hat gekreischt und ist verstummt.\n\n<b>LUCY:</b> „Sie hat die Lampen ausgeblasen, wie sie uns geholt hat. Mach\'s genauso. Dann denkt sie, es ist ihr eigenes Spiel.“\n„Vor unseren Häusern. In ihrer Reihenfolge.“\n„Hilde hat aufgeschrieben, wann. Und im Amt hängt, wer wann unterschrieben hat.“\n„Großer … Ich hör dich atmen. Hör nicht auf damit.“' });
-  questPop('ERINNERUNG', 'Zwei Lucys'); if (typeof saveGame === 'function') saveGame(3);
+  story.lore.push({ key: 'c3funk', title: 'Zwei Lucys', html: 'Zwei Kanäle, beide „Großer“. Beide kennen Flocke. Beide sind im Dunkeln. Nur eine weiß, dass wir HASENBROT nie laut gesagt haben.\n\n<span class="hand">Regel Stille Post: Sie kann jede Stimme. Sie kann kein Wort, das nie gesagt wurde.</span>' });
+  questPop('NACHBILD', 'Zwei Lucys'); if (typeof kapitel3_uk_setzen === 'function') kapitel3_uk_setzen(7); if (typeof saveGame === 'function') saveGame(3); // Speicherpunkt „Kanal B“
 }
 async function lucy3_fail(tok) { const S = lucy3_S; S.radioFails++;
   lucy3_lamp('A', 'red'); S.scopeA = 1; lucy3_log('A', '*lacht*', 'fx'); Audio.giggle(player.pos.x + 1, 1.5, player.pos.z - .5); await lucy3_sleep(1200); if (tok !== S.tok) return;
   lucy3_log('A', '„Sieben, eins, drei, fünf.“', 'v'); Audio.whisper(player.pos.x + .4, 1.6, player.pos.z, 2); lucy3_voice('a', 1.8, null, .5); await lucy3_sleep(2200);
   S.scopeA = 0; lucy3_lamp('A', ''); lucy3_flare(); if (S.box) S.box.querySelector('.l3').classList.add('flare');
-  await lucy3_sleep(900); S.word = null; if (ui.overlay === 'puzzle' && tok === S.tok) closeOverlay(); S.busy = false; lucy3_radioOff();
-  toast('Alle Laternen flammen gleichzeitig auf. Aus dem Nebel: Kinderlachen.', 3800);
+  await lucy3_sleep(900); S.word = null; if (ui.overlay === 'puzzle' && tok === S.tok) closeOverlay(); S.busy = false; lucy3_radioOff(); S.sperreBis = performance.now() + 10000; // der Kasten schließt sich für zehn Sekunden
+  // Hilfeleiter: (3) Whiskey kratzt Striche in den Staub (nach zwei falschen Sendungen), (4) B-K3-H2 hinter Lukes Füßen (nach dem dritten Fehlversuch)
+  if (S.radioFails === 2 && typeof whiskey_schreibgeste === 'function') setTimeout(() => { try { whiskey_schreibgeste(); } catch (e) {} }, 11000);
+  if (S.radioFails === 3 && typeof beobachter_zettel === 'function') setTimeout(() => { try { beobachter_zettel('B-K3-H2', {}); } catch (e) {} }, 6000);
   for (let i = 0; i < 3; i++) setTimeout(() => Audio.giggle(player.pos.x + rand(-9, 9), 1.2, player.pos.z + rand(-9, 9)), 400 + i * 700);
   // Hilfe (5): Justin am Funkkasten, einmal von sich aus
   if (!S.justinTold && ch3.met) setTimeout(() => { if (S.justinTold || ch3.radio || state.talking || ui.overlay || jDist() > 14) return; S.justinTold = true; state.talking = true;
@@ -314,30 +360,36 @@ async function lucy3_sign(S0) { const E = LUCY3_SIGN[S0.n], g = lucy3_S.signs[S0
   if (useGhost) for (let k = 12; k >= 0; k--) { echoMat.opacity = k / 12 * .32 * (Math.random() < .3 ? .3 : 1); await lucy3_sleep(34); }
   echoMat.opacity = useGhost ? 0 : o0; if (g) g.visible = false; if (typeof figuren_memoryLook === 'function' && !state.talking) figuren_memoryLook(false); lucy3_S.signBusy = false; }
 function lucy3_pressSwitch(S) {
-  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Lichtschiff leuchtet noch.');
-  if (!ch3.met) return toast('Ein Kasten der Stadtwerke. Ein Hebel: LEUCHTE AUS. Warum solltest du?');
+  if (typeof kap === 'function' && kap() >= 4) return toast('Absperrband. Der Kasten ist verplombt.', 2600); // Sperre nach Kapitel 3 (AG-11)
+  if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Weiß über der Senke bleibt.');
+  if (!ch3.met) return toast('Blechschild, Stadtwerke: LEUCHTE AUS / EIN · Nur für befugtes Personal · Schlüssel beim Amt.' + (S.n === 7 ? ' Darüber ein Zettel in Hildes Druckschrift: ZULETZT.' : ''), 5200);
   if (S.off) return toast('Der Hebel steht schon auf AUS.');
   if (lucy3_S.flaring || lucy3_S.signBusy) return;
+  if (!ch3.seq.length) lucy3_S.erster = S.n; // Wolters Folge (1, 3, 5, 7) scheitert schon am ersten Kasten
   S.off = true; S.L.mode = 'off'; ch3.seq.push(S.n); Audio.play('switch2', { gain: .6, x: S.m.position.x, y: .8, z: -5.5, ref: 2 }); Audio.flick();
   const ok = ch3.seq.every((n, i) => n === LAMP_ORDER[i]);
   if (!ok) { wrongSwitch(); return; }
   if (ch3.seq.length === 4) { lucy3_sign(S).then(() => lampsOut()); return; }
-  toast(['Die Laterne erlischt. Irgendwo über dir wird das Summen tiefer.', 'Noch eine. Die Straße wird enger.', 'Nur noch eine.'][ch3.seq.length - 1], 3200);
-  lucy3_sign(S);
+  lucy3_enger(ch3.seq.length); lucy3_sign(S).then(() => { if (typeof saveGame === 'function' && !state.talking) saveGame(3); }); // Speicherpunkt nach jeder richtig gelöschten Laterne
 }
+// Nach jeder Laterne wird das Summen tiefer, die Straße enger (Nebel rückt herein), und eine Kinderstimme irgendwo zählt rückwärts
+function lucy3_enger(n) { const S = lucy3_S; if (!S.nebel0) S.nebel0 = scene.fog.density; S.nebelZiel = S.nebel0 * (1 + .28 * n);
+  setTimeout(() => { const P = player.pos, a = rand(0, 6.28); Audio.whisper(P.x + Math.sin(a) * 9, 1.2, P.z + Math.cos(a) * 9, 1.8); if (!S.zaehlt) { S.zaehlt = true; subtitle('„vier … drei …“', 2600, 'KINDERSTIMME'); } }, 4200); }
 pressSwitch = lucy3_pressSwitch;
 async function lucy3_wrongSwitch() {
-  const S = lucy3_S; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; Audio.stinger(false); shake = .03; glitchV = .6;
-  if (S.lampFails === 3 && typeof beob_S !== 'undefined') beob_S.noteT = Math.min(beob_S.noteT, 12); // Hilfe 4: der Beobachter legt seinen Laternen-Zettel bald ab (beobachter.js prüft lampFails >= 3)
-  lamps.forEach(L => { if (L.mode !== 'off' || switchBoxes.some(B => B.L === L)) L.mode = 'flicker'; });
-  toast('Alle Laternen flammen gleichzeitig auf. Aus dem Nebel: Kinderlachen.', 3800); Audio.giggle(player.pos.x + 4, 1.2, player.pos.z - 4);
+  const S = lucy3_S; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; shake = .03; glitchV = .6;
+  lamps.forEach(L => { if (L.mode !== 'off' || switchBoxes.some(B => B.L === L)) L.mode = 'flicker'; }); // alle Laternen flammen gleichzeitig auf, Kinderlachen, die Hebel springen zurück
+  Audio.giggle(player.pos.x + 4, 1.2, player.pos.z - 4); setTimeout(() => Audio.giggle(player.pos.x - 6, 1.2, player.pos.z + 3), 700);
   await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse');
-  await say([['Falsch. So hat sie sie nicht geholt.', 3200, 'DU']]);
+  subtitle('Falsch. So hat sie sie nicht geholt.', 3400); await wait(3400);
+  if (S.erster === 1 && !S.post && typeof kapitel3_S !== 'undefined' && kapitel3_S.ag09) { S.post = true; await say([['Wie die Post. Sehr witzig, Herr Wolter.', 3000, 'LUKE']]); }
   if (!ch3.radio) { jHint(); return; }
-  // Hilfeleiter: Lucy über den Funk (die Stimme kommt aus dem Kasten an der Kreuzung)
-  const k = S.lampFails, L = 'LUCY · FUNK', line = k === 1 || (k > 3 && k % 2 === 0) ? '„Wer hat zuerst unterschrieben, Großer?“' : k === 2 || k > 3 ? '„Hilde hat als Letzte unterschrieben. Sie hat sie als Letzte geholt.“' : null;
-  if (!line || state.talking) return; await wait(900); if (state.talking) return; state.talking = true;
-  lucy3_voice('b', 2.6, Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null, .9); await say([[line, 4200, L]]); state.talking = false;
+  const k = S.lampFails;
+  if (k === 1) { await say([['Juni, Juli, Oktober. Die hat nicht nach Hausnummern geholt. Nach Kalender.', 4400, 'LUKE']]); return; } // (2)
+  // (3) nach dem zweiten Fehler: B-K3-H3 (beobachter.js, automatisch) · (4) nach dem dritten: der Funkkasten knackt, Lucy; „ZULETZT.“ leuchtet im Lampenlicht auf · (5) Justin
+  if (k === 3 && !state.talking) { await wait(900); state.talking = true; Audio.intercomClick(); lucy3_voice('b', 3, Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null, .9);
+    await say([['„Hilde hat als Letzte unterschrieben. Sie hat sie als Letzte geholt.“', 4400, 'LUCY · FUNK']]); state.talking = false; S.zuletztLeuchtet = true; }
+  if (k >= 4 && !S.jLamp && ch3.met && jDist() < 16 && !state.talking) { S.jLamp = true; state.talking = true; await say([['„Fang bei der an, die zuerst gegangen ist. Die mit dem Feuer.“', 4000, JS]]); state.talking = false; }
 }
 wrongSwitch = lucy3_wrongSwitch;
 
@@ -433,6 +485,15 @@ WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
   try { await document.fonts.load('500 190px Caveat'); await document.fonts.load('500 104px Caveat'); } catch (e) {}
   try { lucy3_buildCar(); } catch (e) { console.warn('Lucy3: Auto', e); }
   try { lucy3_buildArrows(); } catch (e) { console.warn('Lucy3: Pfeile', e); }
+  // Kasten vor Nr. 7: Zettel in Hildes Druckschrift „ZULETZT.“ (leuchtet nach dem dritten Fehlschlag im Lampenlicht auf) · ab Kap. 4 Absperrband an allen vier Kästen
+  try { const B7 = switchBoxes.find(b => b.n === 7); if (B7) { const c = document.createElement('canvas'); c.width = 256; c.height = 160; const x = c.getContext('2d'); x.fillStyle = '#e8e0c8'; x.fillRect(6, 8, 244, 146);
+      x.fillStyle = 'rgba(120,100,70,.25)'; for (let i = 0; i < 300; i++) x.fillRect(Math.random() * 256, Math.random() * 160, 2, 1); x.fillStyle = '#2a2622'; x.font = 'bold 52px "Special Elite", Courier New'; x.textAlign = 'center'; x.fillText('ZULETZT.', 128, 100);
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(.2, .125), new THREE.MeshStandardMaterial({ map: tex(c, true), roughness: .95, emissive: 0xfff2d0, emissiveMap: tex(c, true), emissiveIntensity: 0, polygonOffset: true, polygonOffsetFactor: -3 }));
+      m.position.set(B7.m.position.x + .08, .56, -5.388); m.rotation.z = -.06; m.userData.noCol = true; scene.add(m); lucy3_S.zuletzt = m; }
+    const bc = document.createElement('canvas'); bc.width = 512; bc.height = 64; const bx = bc.getContext('2d'); for (let i = 0; i < 16; i++) { bx.fillStyle = i % 2 ? '#f1efe6' : '#c8261e'; bx.beginPath(); bx.moveTo(i * 32, 0); bx.lineTo(i * 32 + 32, 0); bx.lineTo(i * 32 + 16, 64); bx.lineTo(i * 32 - 16, 64); bx.fill(); }
+    bx.fillStyle = '#111'; bx.font = 'bold 26px Arial'; bx.textAlign = 'center'; bx.fillText('GASLECK · BETRETEN VERBOTEN', 256, 42);
+    const bm = new THREE.MeshStandardMaterial({ map: tex(bc, true), roughness: .6, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2 }); lucy3_S.band = [];
+    for (const B of switchBoxes) for (const [dz, ry] of [[.16, 0], [-.16, PI]]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.6, .075), bm); m.position.set(B.m.position.x, .62, -5.55 + dz); m.rotation.set(0, ry, .5); m.visible = false; m.userData.noCol = true; scene.add(m); lucy3_S.band.push(m); } } catch (e) { console.warn('Lucy3: Zettel/Band', e); }
   // Nachhall-Gestalten der Unterschriften beim Laden besetzen (nie während des Spiels laden)
   if (typeof figuren_embody === 'function') for (const [n, E] of Object.entries(LUCY3_SIGN)) { const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; scene.add(g);
     try { await figuren_embody(g, E.who, { ghost: true, clip: E.clip }); lucy3_S.signs[n] = g; } catch (e) { console.warn('Lucy3: Nachbild ' + E.who, e); } }
@@ -442,6 +503,10 @@ WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
 WORLD_TICK.push((dt, t) => {
   const S = lucy3_S, C = S.car;
   if (S.boxed && ui.overlay !== 'puzzle') { S.boxed = false; lucy3_unbox(); lucy3_radioOff(); } // auch wenn das Fenster anders geschlossen wurde
+  { const ab4 = typeof kap === 'function' && kap() >= 4; if (S.band && S.band.length && S.band[0].visible !== ab4) for (const m of S.band) m.visible = ab4; }
+  if (S.zuletzt) { let k = 0; if (S.zuletztLeuchtet && flashOn && ch3.on && !ch3.lampsOff) { const z = S.zuletzt.position, dx = z.x - camera.position.x, dy = z.y - camera.position.y, dz = z.z - camera.position.z, d = Math.hypot(dx, dy, dz) || 1; if (d < 14 && (fwd.x * dx + fwd.y * dy + fwd.z * dz) / d > .9) k = .8; }
+    S.zuletzt.material.emissiveIntensity += (k - S.zuletzt.material.emissiveIntensity) * Math.min(1, dt * 4); }
+  if (S.nebelZiel && ch3.on && ch3.part === 'town' && !ch3.lampsOff && scene.fog) scene.fog.density += (S.nebelZiel - scene.fog.density) * Math.min(1, dt * .3); // die Straße wird enger
   if (!C.ok) return; const k3 = lucy3_isK3();
   if (k3 !== S.k3) { S.k3 = k3; for (const a of S.arrows) a.visible = k3; C.fog.visible = k3; C.hand.visible = k3 && S.handOn; if (!k3) for (const s of S.smoke) s.visible = false;
     if (k3 && !S.carIa) { S.carIa = true; interact(C.hitTop, 'Heckscheibe ansehen', lucy3_lookTop); interact(C.hitLow, 'Heckscheibe unten ansehen', lucy3_lookLow); }

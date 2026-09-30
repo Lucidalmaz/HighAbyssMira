@@ -826,7 +826,7 @@ async function lwo_ag07() { const G = LWO_AG07; if (G.busy || G.done || (typeof 
   lwo_zeigen(a, X0 + 112.8, Z0 + .5, -PI / 2); lwo_zeigen(b, X0 + 113.6, Z0 - .5, -PI / 2); lwo_lampe(a, true); lwo_lampe(b, true); lwo_blick(a, null); lwo_blick(b, null); lwo_clip(a, 'look'); lwo_clip(b, 'idle');
   G.phase = 'drin'; lwo_ag07Hinweis(''); const gA = lwo_gehe(a, [[X0 + 110.4, Z0 + .3], [X0 + 108.9, Z0 + 1.6], [X0 + 108.35, Z0 + 3.95]], .9); lwo_gehe(b, [[X0 + 110.4, Z0 - .3], [X0 + 108.2, Z0 - .9]], .85);
   const res = await lwo_szene('AG-07', { figuren: { funk: { x: X0 + 108.6, z: Z0 + 1 } }, abbruch: () => LWO_AG07.fail, hook: async (tu) => {
-    if (tu === 'blechmannNah') { await gA; a.g.userData.zielYaw = 0; LWO.drehen = [a]; G.nah = true; G.atemAn = true; G.grace = .9; lwo_ag07Hinweis('<b>LEERTASTE</b>Atem anhalten', true); return true; }
+    if (tu === 'blechmannNah') { await gA; a.g.userData.zielYaw = 0; LWO.drehen = [a]; G.nah = true; G.atemAn = true; G.grace = 1.6; lwo_ag07Hinweis('<b>LEERTASTE</b>Atem anhalten', true); return true; }
     if (tu === 'blechmannBleibt8s') { await wait(8000); return true; }
     if (tu === 'v05') { lwo_ag07V05(); return true; }
     if (tu === 'abgang') { G.atemAn = false; G.nah = false; lwo_ag07Hinweis(''); LWO.drehen = null; G.phase = 'gehen'; await lwo_ag07Abgang(a, b); return true; }
@@ -857,7 +857,7 @@ function lwo_ag07Tick(dt) { const G = LWO_AG07; if (!G.busy || G.fail || (G.phas
   if (imRaum && flashOn && FLASH.charge > .02) return lwo_ag07Fail('Lampe an');
   if (imRaum && drin && v > .45) return lwo_ag07Fail('bewegt');
   if (imRaum && !drin && (lwo_sieht(a, { weit: 11, winkel: .7 }) || lwo_sieht(b, { weit: 11, winkel: .7 }))) return lwo_ag07Fail('gesehen');
-  if (G.atemAn) { if (G.grace > 0) G.grace -= dt; if (G.halten) G.atem = Math.max(0, G.atem - dt / 11); else if (G.grace <= 0) return lwo_ag07Fail('ausgeatmet');
+  if (G.atemAn) { if (G.grace > 0) G.grace -= dt; if (G.halten) G.atem = Math.max(0, G.atem - dt / 14); else if (G.grace <= 0) return lwo_ag07Fail('ausgeatmet');
     if (G.bar) G.bar.style.transform = `scaleX(${G.atem.toFixed(3)})`; if (G.atem <= 0) return lwo_ag07Fail('keine Luft'); }
   else if (G.atem < 1) { G.atem = Math.min(1, G.atem + dt * .3); } }
 
