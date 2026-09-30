@@ -52,7 +52,7 @@ WORLD_MODS.push(['Gedanken', async () => {
   const after = (orig, fn) => async function (...a) { const r = await orig.apply(this, a); try { fn(...a); } catch (e) {} return r; };
   // Kap. 1 (AP-14): Stromausfall, Hilde auf der Straße und ihr Verschwinden sprechen jetzt kapitel1.js/kino.js mit den Zeilen der Bibel
   cowDrop = after(cowDrop, () => gedanke('kuh', 'Eine Kuh. Vom Himmel. Ich sollte schreien. Warum bin ich so ruhig? … Warum fühlt sich das an, als hätte ich das schon mal gesehen?', 2500, 3));
-  justinArrives = after(justinArrives, () => gedanke('ritter', 'Ein Ritter. Ein echter. Er riecht nach Schnee. Ich müsste wegrennen – und will ihn fragen, ob er mich kennt.', 1500, 3));
+  // (F3 AP-12: Justins Ankunfts-Gedanke kommt jetzt aus justin.js am Ende der Pflichtsätze)
   broadcast = after(broadcast, () => gedanke('funk', 'Eine Stimme vom Amt. Aus einem Kasten, der seit 2012 tot sein müsste. … Und sie weiß, dass ich es weiß.', 1200, 3));
   lampsOut = after(lampsOut, () => gedanke('laternen', 'Alle Laternen aus. Der alte Vegas hatte recht. Und wenn er damit recht hatte …', 2000, 3));
   enterWhite = after(enterWhite, () => gedanke('weiss', 'Weiß. Kein Oben, kein Unten. Und irgendwo zählt ein Kind.', 2500, 3));
