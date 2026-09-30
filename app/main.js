@@ -18,6 +18,9 @@ app.commandLine.appendSwitch('force_high_performance_gpu');
 // Grafik-Übersetzer wählbar (Test): --angle=gl|vulkan|d3d11
 const _ang = argv('angle'); if (_ang) app.commandLine.appendSwitch('use-angle', _ang);
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
+// Übersetzte Shader-Programme zwischen den Starts behalten: Standard sind 6 MB Programm-Speicher – das Spiel hat ~500 Programme (> 25 MB), ohne mehr Platz wurde bei jedem Start fast alles neu übersetzt
+app.commandLine.appendSwitch('gpu-program-cache-size-kb', String(256 * 1024));
+app.commandLine.appendSwitch('gpu-disk-cache-size-kb', String(512 * 1024));
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required'); // Menümusik ohne ersten Klick
 // Testläufe: Fenster außerhalb des Bildschirms, weiterhin gerendert (keine Verdeckungs-Drosselung)
@@ -97,6 +100,8 @@ app.whenReady().then(() => {
   const t0 = Date.now();
   const page = argv('page') || 'index.html';
   win.loadURL('app://game/' + page);
+  if (selftest && argv('loadprof')) { const d = win.webContents.debugger; try { d.attach('1.3'); d.sendCommand('Profiler.enable').then(() => d.sendCommand('Profiler.setSamplingInterval', { interval: 1000 })).then(() => d.sendCommand('Profiler.start')).catch(() => {}); } catch (e) {} } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
+  if (selftest && argv('heapsample')) { const d = win.webContents.debugger; try { d.attach('1.3'); d.sendCommand('HeapProfiler.enable').then(() => d.sendCommand('HeapProfiler.startSampling', { samplingInterval: +argv('heapsample') })).catch(() => {}); } catch (e) {} } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
   if (selftest) {
     const out = argv('out') || path.join(app.getPath('temp'), 'ham_selftest');
     fs.mkdirSync(out, { recursive: true });
@@ -109,6 +114,8 @@ app.whenReady().then(() => {
       if (ready || Date.now() - t0 > (+argv('readyTimeout') || 120000)) {
         clearInterval(poll); if (started) return; started = true;
         const info = await win.webContents.executeJavaScript('JSON.stringify({ready: !!window.__ready, stage: window.__stage, log: window.__log, info: window.__info})').catch(e => String(e));
+        if (argv('loadprof')) { try { const d = win.webContents.debugger; const { profile } = await d.sendCommand('Profiler.stop'); fs.writeFileSync(path.join(out, 'load.cpuprofile'), JSON.stringify(profile)); d.detach(); } catch (e) { log('PROF', String(e)); } } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
+        if (argv('heapsample')) { try { const d = win.webContents.debugger; const { profile } = await d.sendCommand('HeapProfiler.getSamplingProfile'); fs.writeFileSync(path.join(out, 'heap.heapprofile'), JSON.stringify(profile)); await d.sendCommand('HeapProfiler.stopSampling'); d.detach(); } catch (e) { log('HEAP', String(e)); } } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
         const stepsFile = argv('steps');
         if (stepsFile) {
           const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); const res = {};
@@ -119,6 +126,7 @@ app.whenReady().then(() => {
               const list = JSON.parse(res[st.name].slice(6)); for (const f of list) { fs.mkdirSync(path.dirname(f.path), { recursive: true }); fs.writeFileSync(f.path, Buffer.from(f.b64, 'base64')); }
               res[st.name] = list.map(f => f.path + ' (' + Math.round(f.b64.length * .75 / 1024) + ' KB)' + (f.note ? ' ' + f.note : ''));
             }
+            if (st.trace) { const { contentTracing } = require('electron'); await contentTracing.startRecording({ included_categories: ['gpu', 'gpu.service', 'gpu.command_buffer', 'toplevel', 'v8', 'blink', 'disabled-by-default-gpu.service', 'viz', 'cc', 'benchmark', 'renderer.scheduler'] }); await new Promise(r => setTimeout(r, st.trace)); const tp = await contentTracing.stopRecording(path.join(out, st.name + '.trace.json')); } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
             if (st.profile) { // CPU-Profil (Chrome DevTools-Format) über st.profile ms aufzeichnen
               const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
               await d.sendCommand('Profiler.enable'); await d.sendCommand('Profiler.setSamplingInterval', { interval: 200 }); await d.sendCommand('Profiler.start');

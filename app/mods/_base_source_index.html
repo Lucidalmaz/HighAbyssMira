@@ -5164,6 +5164,11 @@ function runTicks(dt, t, indoor) {
     try { WORLD_TICK[i](dt, t, indoor); } catch (e) { tickFail(i, e); }
     if (PERF.on) PERF.tick[i] = (PERF.tick[i] || 0) * .95 + (performance.now() - a) * .05; }
 }
+// Shader-Übersetzung der Module während des Ladens nur vormerken: die Lichterzahl steht erst nach dem letzten Modul fest (lwo und feuer legen noch Lichter an), und jedes
+// Programm hängt an ihr – alles vorher Übersetzte war für die Katz und verstopfte die Warteschlange der Grafikkarte (gemessen: das Kino-Modul wartete darauf ~25 s).
+// „Grafik vorbereiten“ übersetzt danach alles in einem Durchgang (auch das Vorgemerkte, das nicht in der Szene hängt). Nach dem Laden gilt wieder das Original.
+const COMPILE_LATER = [], _compileAsync0 = renderer.compileAsync.bind(renderer);
+renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); return Promise.resolve(s); };
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
@@ -5181,6 +5186,13 @@ function perfMergeGroups(g) {
 { const seen = new Set(); let n = 0, before = 0; scene.traverse(o => { if (!o.isMesh || !Array.isArray(o.material) || seen.has(o.geometry)) return; seen.add(o.geometry); const c = o.geometry.groups.length; if (perfMergeGroups(o.geometry)) { n++; before += c; } });
   if (n) console.info(`Leistung: ${n} Geometrien zusammengefasst (${before} Abschnitte → je 1 pro Material)`); }
 { try { stage('Kollision'); await buildSolids(); } catch (e) { console.warn('Kollision', e); } }
+// 10) Instanz-Gruppen mit gemeinsamer Form (Gräser, Sträucher in mehreren Feldern) bekommen je eine eigene flache Formhülle über denselben Puffern: three.js merkt sich
+//     die Vertex-Bindung je Form + Programm – bei geteilter Form wurde sie für jede Gruppe in jedem Bild neu aufgebaut (gemessen ~600 vertexAttribPointer je Bild).
+{ const seen = new Set(); let n = 0; scene.traverse(o => { if (!o.isInstancedMesh || !o.geometry) return; const g = o.geometry; if (!seen.has(g)) { seen.add(g); return; }
+    const h = new THREE.BufferGeometry(); h.index = g.index; Object.assign(h.attributes, g.attributes); Object.assign(h.morphAttributes, g.morphAttributes); h.morphTargetsRelative = g.morphTargetsRelative;
+    for (const gr of g.groups) h.addGroup(gr.start, gr.count, gr.materialIndex); h.setDrawRange(g.drawRange.start, g.drawRange.count);
+    if (g.boundingBox) h.boundingBox = g.boundingBox.clone(); if (g.boundingSphere) h.boundingSphere = g.boundingSphere.clone(); if (g.boundsTree) h.boundsTree = g.boundsTree; h.userData = g.userData; h.name = g.name; o.geometry = h; n++; });
+  if (n) console.info(`Leistung: ${n} Instanz-Gruppen mit eigener Formhülle`); }
 // Bewegte Körper (Türen, Tore) stehen im Kollisionsraster noch an ihrer Ladeposition → nach einer Bewegung neu einsortieren
 function solidRefresh(root) { root.updateMatrixWorld(true); for (const it of SOL.items) for (let p = it.o; p; p = p.parent) if (p === root) { solidLive(it); break; } }
 // 2) Instanz-Gruppen (Wälder, Gräser, tote Sträucher mit bis zu 105 000 Dreiecken je Strauch), die über mehr als PERF_CULL.span m verteilt sind: nur Instanzen im Nebel-Sichtbereich zeichnen.
@@ -5294,6 +5306,33 @@ function vcullHide() {
     v.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); if (out(E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M)) { o.visible = false; RIGS.hid.push(o); } }
   for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
 }
+// 8) Winzige Einzelteile nur fürs Zeichnen auslassen (wie 6/7: direkt nach dem Bild ist alles wieder da – Logik, Strahltests, Kollision merken nichts).
+//    Maß: Radius im Bild (echte Auflösung, echte Brennweite, Tiefe entlang der Blickachse) < DCULL.T Pixel – kleiner als ein Pixel, sieht niemand.
+//    Unterhalb der Augenhöhe (Hintergrund ist dort Boden/Nebel, nie Himmel) zählt zusätzlich der Nebel: Radius × Nebel-Durchlass < DCULL.T, aber nur bis DCULL.MAX Pixel.
+//    Nur normal beleuchtete, nicht leuchtende Materialien mit Nebel; keine Figuren, Instanzen, eigenen Shader, Glas/Additiv. Bilder mit neuem Schattenbild zeichnen alles.
+//    Gemessen vorher: auf der Straße 40–60 % aller Zeichenaufrufe für Teile unter einem Pixel oder im Nebel.
+const DCULL = { list: [], n: -1, t: 0, i: 0, T: 1, MAX: 3, sz: new THREE.Vector2(), obr: THREE.Object3D.prototype.onBeforeRender, off: false };
+function dcullMat(m) { return m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial) && m.fog !== false && m.blending === THREE.NormalBlending && !m.transparent && !m.emissiveMap && m.toneMapped !== false && !(m.emissiveIntensity > 0 && m.emissive && m.emissive.r + m.emissive.g + m.emissive.b > 0); }
+function dcullBuild() {
+  const L = [];
+  scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isBatchedMesh || o.frustumCulled === false || o.userData.noCull || o.onBeforeRender !== DCULL.obr || !o.geometry || !o.geometry.attributes.position) return;
+    const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const s = g.boundingSphere; if (!s || !(s.radius > 0) || s.radius > 25) return;
+    L.push({ o, e: o.matrixWorld.elements, x: s.center.x, y: s.center.y, z: s.center.z, r: s.radius, R: s.radius * o.matrixWorld.getMaxScaleOnAxis() }); });
+  DCULL.list = L; DCULL.n = scene.children.length;
+}
+function dcullHide() {
+  if (DCULL.off || moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
+  if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); } // neu geladene Kapitel
+  const L = DCULL.list, N = L.length; if (!N) return;
+  for (let k = Math.min(N, 200); k > 0; k--) { const E = L[DCULL.i++ % N]; E.R = E.r * E.o.matrixWorld.getMaxScaleOnAxis(); } // Größe laufend auffrischen
+  renderer.getDrawingBufferSize(DCULL.sz); const K = DCULL.sz.y * .5 * camera.zoom / Math.tan(THREE.MathUtils.DEG2RAD * camera.fov * .5), T = DCULL.T, MX = DCULL.MAX * T;
+  const fd = scene.fog && scene.fog.isFogExp2 ? scene.fog.density : 0, c = camera.matrixWorld.elements, cx = c[12], cy = c[13], cz = c[14], fx = -c[8], fy = -c[9], fz = -c[10], hid = RIGS.hid;
+  for (let i = 0; i < N; i++) { const E = L[i], e = E.e, x = E.x, y = E.y, z = E.z;
+    const wy = e[1] * x + e[5] * y + e[9] * z + e[13], d = (e[0] * x + e[4] * y + e[8] * z + e[12] - cx) * fx + (wy - cy) * fy + (e[2] * x + e[6] * y + e[10] * z + e[14] - cz) * fz - E.R; // Tiefe der Vorderkante
+    if (d <= .5) continue; let px = E.R * K / d; if (px >= T) { if (fd <= 0 || px >= MX || wy + E.R >= cy) continue; const f = fd * d; px *= Math.exp(-f * f); if (px >= T) continue; }
+    const o = E.o; if (!o.visible) continue; const m = o.material; if (Array.isArray(m)) { let ok = true; for (let j = 0; j < m.length; j++) if (!dcullMat(m[j])) { ok = false; break; } if (!ok) continue; } else if (!dcullMat(m)) continue;
+    o.visible = false; hid.push(o); }
+}
 // 4) Schatten-Diät, laufend in kleinen Portionen (auch für später geladene Kapitel):
 //    - kleine Teile (Kerzen, Dosen, Kleinkram < 30 cm) fehlen im großen Mond-Schattenbild – sparte bis zu 6,9 Mio. Dreiecke je Schattendurchgang.
 //      Damit sie nicht schweben, werfen sie ihren Schatten im Licht von Taschenlampe und Innen-Schlüssellampe (alle ≥ 3 cm) und der Laternen (≥ 12 cm);
@@ -5315,11 +5354,22 @@ const DIET = { t: 0, i: 0, done: new WeakSet(), s: new THREE.Sphere() }, SMALL_T
     if (N.length) { cast(SMALL_M, true); cast(SMALL_T, true); sr(N, sc, cam); cast(SMALL_M, false); cast(SMALL_T, false); }
   };
 }
+window.__PX = { RIGS, VCULL, PERF_CULL, DCULL }; // Testzugriff Leistung (DCULL.off = true schaltet die Kleinteil-Auslese für Vergleichsbilder ab)
 window.__LIGHT = { SMALL_T, SMALL_M, LP, KEY, LMOV, moonFollow, keyLight, lampPool, pointPool, PP }; // Testzugriff (Licht-Messungen), nur lesen
+// 9) Ein Skelett je Figur statt je Teil: GLTF-Lader und SkeletonUtils.clone geben jedem Teil einer Figur (Körper, Augen, Zähne, Haare, Kleidung – bis 30 Teile)
+//    ein eigenes Skelett mit denselben Knochen. three.js rechnete dieselben Knochenmatrizen dann je Bild für jedes Teil neu und lud sie jedes Mal als Textur hoch
+//    (gemessen 212 Knochen-Texturen je Bild an der Kreuzung). Gleiche Knochen in gleicher Reihenfolge + gleiche Ruhelage → gemeinsames Skelett, Bild identisch.
+const SKSH = new WeakMap();
+function skelShare(o) { const sk = o.skeleton; if (!sk || !sk.bones.length || !sk.boneInverses.length) return; const b0 = sk.bones[0]; let L = SKSH.get(b0); if (!L) SKSH.set(b0, L = []);
+  for (const s of L) { if (s === sk) return; if (s.bones.length !== sk.bones.length || s.boneInverses.length !== sk.boneInverses.length) continue; let same = true;
+    for (let i = 0; i < sk.bones.length && same; i++) if (s.bones[i] !== sk.bones[i]) same = false;
+    for (let i = 0; i < sk.boneInverses.length && same; i++) { const a = s.boneInverses[i].elements, b = sk.boneInverses[i].elements; for (let j = 0; j < 16; j++) if (Math.abs(a[j] - b[j]) > 1e-6) { same = false; break; } }
+    if (same) { o.skeleton = s; return; } }
+  L.push(sk); }
 function sceneDietTick(dt) {
   DIET.t -= dt; if (DIET.t > 0) return; DIET.t = .5; const K = scene.children, n = Math.max(1, Math.ceil(K.length / 12));
   for (let j = 0; j < n; j++) { const c = K[DIET.i++ % Math.max(1, K.length)]; if (!c) continue;
-    c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry) return; DIET.done.add(o); perfSinglePass(o); if (o.isSkinnedMesh) LMOV.list.push(o); if (o.userData.keepShadow) return;
+    c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry) return; DIET.done.add(o); perfSinglePass(o); if (o.isSkinnedMesh) { LMOV.list.push(o); skelShare(o); } if (o.userData.keepShadow) return;
       if (o.isSkinnedMesh && o.frustumCulled === false && !o.userData.noCull) { try { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const b = o.geometry.boundingSphere.clone(); b.radius = Math.max(b.radius * 2, 1.2); o.boundingSphere = b; o.frustumCulled = true; } catch (e) {} return; } // Hülle aus der Ruhepose, doppelt so groß: Animationen bleiben sicher drin
       if (!o.castShadow || o.isInstancedMesh || o.isSkinnedMesh) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); if (!o.geometry.boundingSphere) return;
       o.updateWorldMatrix(true, false); DIET.s.copy(o.geometry.boundingSphere).applyMatrix4(o.matrixWorld); if (DIET.s.radius < .3) { o.castShadow = false; if (DIET.s.radius >= .12) SMALL_M.push(o); else if (DIET.s.radius >= .03) SMALL_T.push(o); } }); }
@@ -5706,7 +5756,7 @@ function loop() {
   try { if (!frozen) { update(dt, t); gtAdvance(Math.min(raw, .25) * 1000); } else flashHudTick(dt); } catch (e) { loopErr('update', e); }
   try { updateInteract(); } catch (e) { loopErr('interact', e); }
   const p1 = PERF.on ? performance.now() : 0;
-  if (!GL.lost) { try { rigFarHide(); vcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
+  if (!GL.lost) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
   if (PERF.on) { const p2 = performance.now(); perfFrame(p2, p1 - p0, p2 - p1); }
 }
 // Grafikkontext verloren (Treiberabsturz, Energiesparen): Spiel anhalten, Hinweis, sauber neu laden – der Spielstand bleibt
@@ -5747,7 +5797,14 @@ stage('Grafik vorbereiten'); await wait(60);
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
   const extra = [scarePlane, new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), boltMat)];
-  try { await Promise.race([Promise.all([renderer.compileAsync(scene, camera), ...extra.map(o => renderer.compileAsync(o, camera, scene))]), wait(120000)]); } catch (e) { console.warn('Shader', e); }
+  renderer.compileAsync = _compileAsync0; const inScene = o => { for (let p = o; p; p = p.parent) if (p === scene) return true; return false; };
+  const later = COMPILE_LATER.filter(([s, c, t]) => !((t === null || t === scene) && inScene(s))); COMPILE_LATER.length = 0; // was in der Szene hängt, übersetzt der Gesamtdurchgang
+  const compiling = Promise.all([renderer.compileAsync(scene, camera), ...extra.map(o => renderer.compileAsync(o, camera, scene)), ...later.map(([s, c, t]) => renderer.compileAsync(s, c, t))]);
+  // Texturen hochladen, während die Grafikkarte übersetzt (vorher nacheinander: ~15 s Übersetzen, danach ~14 s Hochladen). „Texturen hochladen“ unten findet sie dann schon vor.
+  try { const texs = new Set(); scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
+      if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
+    for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
+  try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
   clearInterval(prog); renderer.setRenderTarget(null);
   saved.forEach((v, o) => o.visible = v);
 }

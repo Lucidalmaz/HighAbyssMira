@@ -334,8 +334,11 @@ function kino_tex_kindgesicht() { const cv = document.createElement('canvas'); c
     const cam = new THREE.PerspectiveCamera(22, 1, .02, 10); cam.position.set(hp.x, hp.y + .015, hp.z + .62); cam.lookAt(hp.x, hp.y + .01, hp.z); cam.updateMatrixWorld();
     const pl = pointPool[0], p0 = pl.position.clone(), i0 = pl.intensity, d0 = pl.distance, c0 = pl.color.clone(); pl.position.set(hp.x + .25, hp.y + .35, hp.z + .7); pl.intensity = 3.2; pl.distance = 4; pl.color.setHex(0xdfe6f2);
     const rt = new THREE.WebGLRenderTarget(256, 256, { type: THREE.UnsignedByteType }), px = new Uint8Array(256 * 256 * 4), fd = scene.fog.density; scene.fog.density = 0;
+    // Leistung (Laden): nur Figur, Himmel und Lichter zeichnen, keine Schattenbilder – sonst übersetzte dieses eine Bild mitten im Laden die Programme aller Figuren
+    // ohne Sichtprüfung und aller Schattenbilder (gemessen ~20 s). Das Gesicht liegt 400 m unter der Welt: dort sieht die Kamera ohnehin nur die Figur, Bild unverändert.
+    const hid = []; for (const c of scene.children) if (c.visible && c !== g && c !== sky && !c.isLight) { c.visible = false; hid.push(c); } const sau = renderer.shadowMap.autoUpdate; renderer.shadowMap.autoUpdate = false;
     try { renderer.setRenderTarget(rt); renderer.render(scene, cam); renderer.readRenderTargetPixels(rt, 0, 0, 256, 256, px); ok = true; } catch (e) { console.warn('Kino: Kindergesicht', e); }
-    finally { renderer.setRenderTarget(null); rt.dispose(); scene.fog.density = fd; pl.position.copy(p0); pl.intensity = i0; pl.distance = d0; pl.color.copy(c0); g.visible = false; }
+    finally { renderer.shadowMap.autoUpdate = sau; for (const c of hid) c.visible = true; renderer.setRenderTarget(null); rt.dispose(); scene.fog.density = fd; pl.position.copy(p0); pl.intensity = i0; pl.distance = d0; pl.color.copy(c0); g.visible = false; }
     if (ok) { const im = x.createImageData(256, 256), d = im.data, tm = v => Math.round(255 * Math.min(1, Math.pow(Math.max(0, v / 255 * 1.4 / (1 + v / 255 * 1.4) * 1.6), 1 / 2.2)));
       for (let yy = 0; yy < 256; yy++) for (let xx = 0; xx < 256; xx++) { const s = ((255 - yy) * 256 + xx) * 4, o = (yy * 256 + xx) * 4, r = Math.hypot(xx - 128, (yy - 124) * .86) / 128, a = kino_cl((1 - r) / .28, 0, 1);
         const l = (px[s] + px[s + 1] + px[s + 2]) / 3, bg = kino_cl((l - 6) / 26, 0, 1); d[o] = tm(l * .96); d[o + 1] = tm(l * .97); d[o + 2] = tm(l * 1.02); d[o + 3] = Math.round(255 * a * a * bg); } x.putImageData(im, 0, 0); } }
@@ -1161,8 +1164,10 @@ function kino_defVorbereitet() {
   const S = kino_S, H = typeof ANW_HALL !== 'undefined' ? ANW_HALL : { x: -900, z: 900 };
   // ---- K4 · „Noch nicht“ – nach der Stimme in der Villa
   kino_def('k4', [
-    { from: [H.x, 1.2, H.z + 1], to: [H.x, 1.6, H.z + 2.2], look: [H.x, 5.8, H.z + 4.8], dur: 8, fov: 50, fadeIn: 1200,
-      tick(k, t) { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null, b = .75 + .35 * Math.sin(t * 1.3); if (A && A.upLight) A.upLight.intensity = .9 * b;
+    { from: [H.x, 1.2, H.z + 1], to: [H.x, 1.6, H.z + 2.2], look: [H.x, 5.8, H.z + 4.8], dur: 12, fov: 50, fadeIn: 1200,
+      tick(k, t, dt, sh) { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null, b = .75 + .35 * Math.sin(t * 1.3); if (A && A.upLight) A.upLight.intensity = .9 * b;
+        if (t > 8.2 && sh && !sh.sicht && typeof beob_sichtung === 'function') { sh.sicht = 1; const z1 = H.z + (H.d || 12) / 2; try { beob_sichtung([H.x + .35, 1.05, z1 - 2.05], .95, { weg: [[H.x + .35, 1.05, z1 - 2.05], [H.x + .2, 1.9, z1 - 1.1], [H.x, 2.7, z1 - .35]] }); } catch (e) {}
+          for (let i = 0; i < 6; i++) setTimeout(() => { try { Audio.stepAt && Audio.stepAt(H.x + .2, z1 - 1.2 + i * .15, .35); } catch (e) {} }, 120 + i * 140); } // AP-19: die eine Sichtung des Kapitels (02 D7)
         kino_S.lit[0] = kino_S.litU || (kino_S.litU = { p: kino_V(H.x, 5.6, H.z + 4.6), c: 0xfff0d8, d: 9, i: 0 }); kino_S.litU.i = 2.6 * b; }, env: { exp: 1.5 },
       sfx: [[() => Audio.stepAt && Audio.stepAt(H.x - .4, H.z + 4.6, .5), 1.2], [() => Audio.stepAt && Audio.stepAt(H.x, H.z + 4.8, .45), 1.65], [() => Audio.stepAt && Audio.stepAt(H.x + .4, H.z + 4.7, .4), 2.1], [() => Audio.musicBox && Audio.musicBox(), 3]],
       teardown() { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (A && A.upLight) A.upLight.intensity = .9; } },
@@ -1175,8 +1180,8 @@ function kino_defVorbereitet() {
       tick(k, t) { const f = t > 2 && t < 4 ? Math.min(1, (t - 2) / .15, (4 - t) / .25) : 0; kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
       sfx: [[sh => kino_rabeFly(kino_V(-110, 16, 58), sh.gable, 3.2), 4.6], [sh => Audio.caw(sh.gable.x, sh.gable.y, sh.gable.z), 8]],
       teardown(sh) { for (const [r, v] of sh.reg) r.g.visible = v; kino_hide('flamme', 'flammeSchein', 'rabe'); } },
-    { black: true, dur: 6, fadeOut: 1600 },
-  ], { name: 'Noch nicht (Übergang, alte Fassung)', skipAfter: 3 });
+    { black: true, dur: 23, fadeOut: 1600, setup() { if (typeof traum_zweiter === 'function') { try { traum_zweiter(); } catch (e) { console.warn('Kino: zweiter Traum', e); } } } }, // AP-19: der zweite Traum (02 E2), nur hier
+  ], { name: 'Noch nicht', skipAfter: 3 });
 
   // ---- K5 · „Kein Echo“ – nach „Komm heim.“
   const waldZeigen = sh => { const W = typeof wald_S !== 'undefined' ? wald_S : null; sh.wald = []; if (W && W.chunks) for (const c of W.chunks) for (const m of c.meshes) sh.wald.push([m, m.visible]); };
