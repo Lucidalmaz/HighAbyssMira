@@ -953,7 +953,8 @@ const mtx = (x, y, z, ry = 0, rx = 0, rz = 0) => new THREE.Matrix4().compose(new
 // Wand mit Türöffnungen
 function wall(axis, fixed, a, b, H, mat, gaps = [], t = .2, lintel = 2.62) {
   const sorted = [...gaps].sort((p, q) => p.at - q.at); let cur = a;
-  const seg = (s, e, h, yb, col) => { if (e - s < .01) return; const len = e - s, mid = (s + e) / 2;
+  if (H - lintel < .05) lintel = Math.max(2.2, H - .3); // niedrige Räume (Amt, 2,5 m): sonst Sturz mit negativer Höhe → umgestülpte Flächen, Licht scheint durch
+  const seg = (s, e, h, yb, col) => { if (e - s < .01 || h < .01) return; const len = e - s, mid = (s + e) / 2;
     if (axis === 'x') box(len, h, t, mid, yb + h / 2, fixed, mat, { collide: col }); else box(t, h, len, fixed, yb + h / 2, mid, mat, { collide: col }); };
   for (const g of sorted) { seg(cur, g.at - g.w / 2, H, 0, true); seg(g.at - g.w / 2, g.at + g.w / 2, H - lintel, lintel, false); cur = g.at + g.w / 2; }
   seg(cur, b, H, 0, true);

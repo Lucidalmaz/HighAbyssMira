@@ -544,7 +544,8 @@ function kino_defs() {
       teardown() { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (A && A.upLight) A.upLight.intensity = .9; } },
     { from: [H.x - 5.7, 1.6, H.z + 1.5], to: [H.x - 6.1, 1.55, H.z + 1.5], look: [H.x - 6.88, 1.5, H.z + 1.5], dur: 7, fov: 40, env: { exp: 1.5 },
       setup() { kino_still(true, 1.5); kino_S.lit[0] = { p: kino_V(H.x - H.w / 2 + .7, 1.6, H.z + H.d / 2 - 1), c: 0xffa860, d: 8, i: 2.4 }; }, teardown() { kino_still(false, 1); } },
-    { from: [-127, 1.7, 50], to: [-126, 2.4, 53], look: [-125, 8, 66], dur: 9, fov: 44,
+    { from: [-127, 1.7, 50], to: [-126, 2.4, 53], dur: 9, fov: 44,
+      look: sh => { const f = kino_villaFenster(); return [f.x, f.y + .4, f.z]; },
       setup(sh) { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, R = OW && OW.dbg && OW.dbg.R; sh.reg = []; if (R) for (const k of ['villa', 'allot', 'wRoad']) if (R[k]) { sh.reg.push([R[k], R[k].g.visible]); R[k].g.visible = true; }
         const vb = OW && OW.vbb, fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 0; kino_S.obj.flammeSchein.material.opacity = 0; sh.gable = vb ? kino_V(-125, vb.max.y + .05, (vb.min.z + vb.max.z) / 2) : kino_V(-125, 12.5, 70); },
       tick(k, t) { const f = t > 2 && t < 4 ? Math.min(1, (t - 2) / .15, (4 - t) / .25) : 0; kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
@@ -585,9 +586,12 @@ function kino_defs() {
   kino_def('k6', [
     { black: true, dur: 8, lines: [['Du machst die Augen erst auf, als du unten bist.', '', 1.2, 6200]],
       sfx: [[() => kino_stoff(.06), .5], [() => kino_atem(.06, 1.25), 1.6], [() => Audio.flap && Audio.flap(kino_S.sv.pos.x + .5, 2, kino_S.sv.pos.z), 3.4], [() => kino_atem(.05, 1.25), 4.8], [() => kino_stoff(.04), 6.4]] },
-    { from: [15.6, 1.2, 174.6], to: [15.2, 2.1, 175.2], look: [14, 3.3, 177.6], lookTo: [14, 3.7, 177.8], dur: 8, fov: 46, env: 'dawn', fadeIn: 1400,
-      setup() { const HS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }; kino_fig('echt', HS.x + .1, 3.1, HS.z - .92, PI, 'idle', { sit: 3.1 }); const j = kino_show('jacke', HS.x + .1, 3.2, HS.z - .98, PI); j.rotation.set(-.12, PI, 0);
-        const R = kino_S.rabe, rx = HS.x - .95, ry = 4.02, rz = HS.z + .2; if (R) { R.g.position.set(rx, ry, rz); R.g.rotation.y = -1.2; R.g.visible = true; kino_rabeClip('IdleLookAround'); } kino_show('rabeSchein', rx, ry + .25, rz); kino_S.rabeLight.position.set(rx, ry + .25, rz); },
+    { from: [14, 1.4, 174.6], to: [14.3, 2.9, 175.4], look: [14.1, 3.4, 178.5], lookTo: [14.15, 3.9, 178.9], dur: 8, fov: 46, env: 'dawn', fadeIn: 1400,
+      // Hochsitz aus tiefwald.js (TIEF.stand, Plattform 3,1 m); der Junge sitzt wie in kapitel6.js (P11 blendet seinen während K6 aus), Whiskey bleibt der echte Rabe auf dem Geländer
+      setup() { const TS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }; kino_fig('echt', TS.x + .15, 3.1, TS.z + .42, 0, 'idle', { sit: 3.56 }); const j = kino_show('jacke', TS.x + .15, 3.62, TS.z + .32, 0); j.rotation.set(-.15, 0, 0);
+        const W = typeof whiskey_S !== 'undefined' && whiskey_S.g && whiskey_S.g.visible && Math.hypot(whiskey_S.g.position.x - TS.x, whiskey_S.g.position.z - TS.z) < 4 ? whiskey_S.g.position : null;
+        const rx = W ? W.x : TS.x + .95, ry = W ? W.y : 4.02, rz = W ? W.z : TS.z; if (!W) { const R = kino_S.rabe; if (R) { R.g.position.set(rx, ry, rz); R.g.rotation.y = -PI / 2; R.g.visible = true; kino_rabeClip('IdleLookAround'); } }
+        kino_show('rabeSchein', rx, ry + .25, rz); kino_S.rabeLight.position.set(rx, ry + .25, rz); },
       tick(k, t) { const f = Math.max(0, 1 - t / 7), o = kino_S.obj.rabeSchein; kino_S.rabeLight.intensity = 1.6 * f; o.material.opacity = .8 * f; kino_S.lit[0] = kino_S.litR || (kino_S.litR = { p: kino_V(0, 0, 0), c: 0xdfe9ff, d: 7, i: 0 }); kino_S.litR.p.copy(o.position); kino_S.litR.i = 1.6 * f; },
       sfx: [[() => kino_vogel(6, 8, 184), 2], [() => kino_vogel(24, 9, 170, 4), 5.5]] },
     { from: [14, 21, 180], to: [13.4, 21.4, 178.8], look: [-8, 3, 60], dur: 10, fov: 42, env: 'haze', hand: .2,
