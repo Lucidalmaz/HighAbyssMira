@@ -101,7 +101,7 @@ const BEOB_DYN = [
   // Kapitel 2 · Amt, Ebene −2 (Zettel fallen aus Lüftungsgittern, nie hinter Luke im selben Raum)
   { id: 'b_k2_01', sofort: true, k: 2, title: 'Aus', kind: 'gruselig', wo: 'gitter', when: () => ch2.on && beob_in(C2.x + 2, C2.x + 16, C2.z - 2, C2.z + 2), text: 'DAS KIND SPIELT HIER UNTEN NICHT. AUS.\nDIE MÄNNER MIT KETTEN SPIELEN TROTZDEM' },
   { id: 'b_k2_02', k: 2, title: 'Lest es dann nicht', kind: 'frage', wo: 'gitter', when: () => ch2.on && ch2.archiveSolved && beob_in(C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6) && beob_S.t - (beob_S.k2arch || 1e9) > 25, text: 'WARUM SCHREIBT IHR ALLES AUF UND LEST ES DANN NICHT' },
-  { id: 'b_k2_03', sofort: true, k: 2, title: 'Erste Hilfe', kind: 'hilfe', wo: 'vor', item: 3, when: () => ch2.on && beob_in(C2.x + 30.2, C2.x + 35.8, C2.z + 2.2, C2.z + 7.8), text: 'DEIN LICHT WIRD MÜDE. DEINE LAMPE HAT NOCH {pct} %.\nDIE HIER SIND AUS DEM KASTEN AN DER WAND.\nDER KASTEN HEISST ERSTE HILFE ABER DA IST KEINE HILFE DRIN' },
+  { id: 'b_k2_03', sofort: true, k: 2, title: 'Erste Hilfe', kind: 'hilfe', wo: 'vor', item: 3, when: () => ch2.on && FLASH.charge < .25 && !(typeof hunt !== 'undefined' && hunt.on) && beob_in(C2.x + 30.2, C2.x + 35.8, C2.z + 2.2, C2.z + 7.8), text: 'DEIN LICHT WIRD MÜDE. DEINE LAMPE HAT NOCH {pct} %.\nDIE HIER SIND AUS DEM KASTEN AN DER WAND.\nDER KASTEN HEISST ERSTE HILFE ABER DA IST KEINE HILFE DRIN' },
   { id: 'b_k2_04', sofort: true, k: 2, title: 'Danke', kind: 'gruselig', wo: 'vor', leise: true, bonbon: true, when: () => ch2.on && typeof feuer_S !== 'undefined' && feuer_S.done && !scripted && !state.talking, sad: 120,
     text: 'DANKE. ER HAT GEWEINT. ICH HAB ES GEHÖRT.\nMEINE SCHWESTER AUCH.\nSIE WAR IN IHM DRIN. JETZT NICHT MEHR.\nISS DAS. DU ZITTERST.' },
   { id: 'b_k2_05', k: 2, title: 'Kein Eisen', kind: 'gruselig', wo: 'gitter', rh: 'RH-1', when: () => ch2.on && ch2.archiveSolved && beob_S.t - (beob_S.k2arch || 1e9) > 60, text: 'DIE MIT DEN KETTEN HALTEN MINUTEN. ER HÄLT JAHRE.\nSEINS IST KEIN EISEN' },
@@ -230,7 +230,9 @@ function beob_paper() {
 function beob_note(x, y, z, open) { const m = new THREE.Mesh(beob_S.noteGeo || (beob_S.noteGeo = new THREE.PlaneGeometry(.15, .2)), beob_paper()); m.rotation.set(-PI / 2, 0, rand(-PI, PI)); m.position.set(x, y + .012, z); m.receiveShadow = true; scene.add(m);
   const hit = box(.7, .45, .7, x, y + .2, z, hidden, { cast: false }); interact(hit, 'Zettel', open); return { m, hit }; }
 function beob_hideSpot(n) { if (n.m) n.m.visible = false; if (n.hit) uninteract(n.hit); n.gone = true; }
-function beob_read(title, text, key, items, o = {}) { Audio.paper(); openNote(title, beob_html(beob_fill(text), o), key, o.onClose); if (items) setTimeout(() => addBattery(items), 600); }
+function beob_read(title, text, key, items, o = {}) { Audio.paper(); openNote(title, beob_html(beob_fill(text), o), key, o.onClose);
+  if (items && beob_ch() === 6 && typeof tief_S !== 'undefined' && tief_S.inside) { const c = beob_S.c; items = Math.max(0, Math.min(items, 3 - (c.batt6 || 0))); c.batt6 = (c.batt6 || 0) + items; } // Kap. 6: höchstens drei im tiefen Wald (A-30)
+  if (items) setTimeout(() => addBattery(items), 600); }
 function beob_firstThought() { if (typeof gedanke !== 'function') return; gedanke('beob_1', 'Druckbuchstaben. Bleistift. Und dieses Zeichen: drei Punkte. … Wer schreibt so? Und woher weiß er das?', 1800, 3); }
 function beob_readSpot(n) {
   const S = beob_S; if (n.gone) return; const first = !S.found.size && !S.given.size; S.found.add(n.id); beob_hideSpot(n);
@@ -399,10 +401,15 @@ function beob_haut(img) { // Textur des Modells: Pastell raus (Lila/Rosa/Türkis
     x.fillStyle = g; x.beginPath(); x.ellipse(ex, ey, rx * .95, ry * .95, 0, 0, 7); x.fill(); x.restore(); }
   return c;
 }
+async function beob_hautBild() { // Grundfarbe (JPEG) direkt aus der glb: das Material der geladenen Kopie kann eine GPU-/KTX2-Textur ohne zeichenbares Bild sein
+  const buf = await (await fetch('assets/ms/beobachter/model.glb')).arrayBuffer(), dv = new DataView(buf), jl = dv.getUint32(12, true), J = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, jl)));
+  const bin = 20 + jl + 8, mat = J.materials[0], ti = mat.pbrMetallicRoughness.baseColorTexture.index, im = J.images[J.textures[ti].source], bv = J.bufferViews[im.bufferView];
+  return await createImageBitmap(new Blob([new Uint8Array(buf, bin + (bv.byteOffset || 0), bv.byteLength)], { type: im.mimeType || 'image/jpeg' }));
+}
 async function beob_loadModel() {
   const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
     let map0 = null; m.traverse(o => { if (o.isMesh && !map0) map0 = o.material.map; });
-    let skin = null; if (map0 && map0.image) { try { const cv = beob_haut(map0.image); skin = new THREE.CanvasTexture(cv); skin.flipY = map0.flipY; skin.colorSpace = THREE.SRGBColorSpace; skin.wrapS = map0.wrapS; skin.wrapT = map0.wrapT;
+    let skin = null; if (map0) { try { const cv = beob_haut(await beob_hautBild()); skin = new THREE.CanvasTexture(cv); skin.flipY = map0.flipY; skin.colorSpace = THREE.SRGBColorSpace; skin.wrapS = map0.wrapS; skin.wrapT = map0.wrapT;
         skin.offset.copy(map0.offset); skin.repeat.copy(map0.repeat); skin.rotation = map0.rotation; skin.center.copy(map0.center); skin.channel = map0.channel; skin.anisotropy = 4; skin.needsUpdate = true; } catch (e) { console.warn('Beobachter: Haut', e); } }
     const uT = { value: 0 }, uLit = { value: 0 };
     const skinMat = new THREE.MeshPhysicalMaterial({ map: skin || map0, color: 0xf2efe8, roughness: .5, metalness: 0, clearcoat: .45, clearcoatRoughness: .32, sheen: .35, sheenRoughness: .6, sheenColor: new THREE.Color(0xdfe6f2), envMapIntensity: .45 });

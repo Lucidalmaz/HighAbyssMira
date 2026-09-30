@@ -180,7 +180,8 @@ if (doIt('ascher')) await klein('ascher', 'ascher.glb', { size: .105, axis: 'max
 if (doIt('bong')) await klein('bong', 'bong.glb', { size: .36, texSize: 256, mats: { bong: { color: [.86, .93, .9, .32], rough: .05, alpha: 'BLEND' } } });
 if (doIt('tuetchen')) await klein('tuetchen', 'tuetchen.glb', { size: .07, axis: 'max', texSize: 512 });
 if (doIt('pflanze')) await klein('pflanze', 'pflanze_dose.glb', { size: 1.05, texSize: 1024 });
-if (doIt('topf')) await klein('topf', 'pflanze_topf.glb', { size: .72, target: 30000, texSize: 512 });
+if (doIt('topf')) await klein('topf', 'pflanze_topf.glb', { size: .72, target: 30000, texSize: 512, filter: n => n.getMesh().listPrimitives()[0].getMaterial()?.getName() !== 'material',
+  mats: { flower: { metal: 0, rough: .85 }, '07___Defaultdfd': { alpha: 'MASK', cutoff: .45, rough: .9 }, earth: { rough: 1 } } });
 // Papes: Aufdruck (Marke) neutral überfärben – Schachtel-Textur: dunkle Felder bleiben dunkel, Schrift und Logos verschwinden, eigener schlichter Aufdruck
 if (doIt('papes')) { const doc = await io.read(K + 'papes.glb'); const pq = doc.getRoot().listMaterials().find(m => m.getName() === 'Paquet'); const t = pq.getBaseColorTexture();
   const src = await sharp(Buffer.from(t.getImage())).resize(1024, 1024).removeAlpha().raw().toBuffer({ resolveWithObject: true }); const { data, info } = src; const W = info.width, H = info.height;

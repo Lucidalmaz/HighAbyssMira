@@ -199,7 +199,7 @@ function sammeln_sbBild(nr) {
   for (let i = kl.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [kl[i], kl[j]] = [kl[j], kl[i]]; } let s = kl.join(' ') + ' ';
   const ko = { doppelt: f.doppelt, zitter: f.zitter, col: f.klein ? 'rgba(30,20,12,.86)' : 'rgba(26,18,10,.92)' };
   x.save(); x.translate(tx1 + 30, 150); x.rotate(.015); sammeln_kloetze(x, R, s.slice(0, 90), 0, 0, 132, f.klein ? 17 : 21, ko); x.restore();
-  sammeln_kloetze(x, R, s.slice(40, 150), 110, H - 175, W - 250, f.klein ? 19 : 25, ko);
+  sammeln_kloetze(x, R, s.slice(40, 118), 110, H - 175, W - 250, f.klein ? 19 : 25, ko);
   if (f.zitter) { x.save(); x.translate(tx0, 105); x.rotate(-.03); sammeln_kloetze(x, R, 'BRESCIA', 0, 0, 400, 36, { zitter: 1 }); x.restore(); }
   if (f.mira) sammeln_kloetze(x, R, 'IR HANT NIT MIN WISE HAT SI BRACHT', tx0, H - 130, W - 300, 22, {});
   // Besonderheiten je Seite

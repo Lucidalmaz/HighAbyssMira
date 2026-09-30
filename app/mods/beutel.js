@@ -1,6 +1,6 @@
 // =====================================================================  BEUTEL (Modul „beutel“, Zusatzwunsch X-5): Lukes Beutel in drei Stufen – Fächer, Stapel, Untersuchen, Benutzen, Kombinieren
 // Stufe 1 Gürteltasche (Fab „Leather Pouch“, MissTxxT, CC-BY; von Anfang an) · Stufe 2 alter Rucksack (Fab „Backpack Scan“, SebastianBA, CC-BY; Schrottplatz,
-// abseits des Hauptwegs, Kap. 1/3/4/5) · Stufe 3 Wanderrucksack (Fab „Backpack“, CC-BY; Hof im Westen an der Remise, Kap. 4/5). Aufbereitet mit tools/_x5_assets.mjs.
+// abseits des Hauptwegs, Kap. 1/3/4/5) · Stufe 3 Wanderrucksack (Fab „Backpack for a wandering wizard“, a9908244, CC-BY; Hof im Westen an der Remise, Kap. 4/5). Aufbereitet mit tools/_x5_assets.mjs.
 // Kapazität gilt nur für Verbrauchsgüter und Tauschwaren (Batterien, Streichhölzer, Kreide, Lampenöl, Handwärmer, Glänzendes, Tauschgeräte).
 // Story-Gegenstände stecken in der Jacke und zählen nie – keine Sackgassen. Voller Beutel: nichts geht verloren – der Fund bleibt liegen bzw. Luke legt den Rest
 // sichtbar ab (tausch_drop, glänzt, gespeichert), dazu ein Vorschlag (Whiskey tauscht Glänzendes, [I] ablegen). Beim Anvisieren eines Funds: „passt / passt nicht“.

@@ -343,7 +343,7 @@ function album_beobPruefen() { const S = album_S; S.beobT.length = 0; if (!S.ope
 // ================================================================ 2D-Flug: neuer Fund wandert ins Album (Album zu)
 function album_flug(e) { const S = album_S; S.flights.push(e); if (S.flights.length === 1) album_flugStart(); }
 async function album_flugStart() { const S = album_S; const e = S.flights[0]; if (!e) return;
-  await album_bild(e.src); const el = $('albumFlug'), ic = $('albumIcon'); const A = ALBUM_ART[e.art], h = Math.min(innerHeight * .34, 300), w = h * A.w / A.h;
+  await album_bild(e.src); for (let i = 0; i < 400 && (ui.overlay || state.talking || album_S.open); i++) await wait(300); const el = $('albumFlug'), ic = $('albumIcon'); const A = ALBUM_ART[e.art], h = Math.min(innerHeight * .34, 300), w = h * A.w / A.h;
   const c = document.createElement('canvas'); c.width = Math.round(w * 1.2); c.height = Math.round(h * 1.2); const x = c.getContext('2d'); x.translate(c.width / 2, c.height / 2); album_abzugMalen(x, e, 0, 0, 0, c.width / 1.2 / A.w, { schatten: false });
   el.innerHTML = ''; el.appendChild(c); c.style.width = w + 'px'; c.style.height = h + 'px';
   el.style.transition = 'none'; el.style.opacity = '0'; el.style.transform = `translate(-50%, -50%) translate(${innerWidth * .5}px, ${innerHeight * .5}px) rotate(-3deg) scale(.9)`; void el.offsetWidth;

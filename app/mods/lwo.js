@@ -549,7 +549,7 @@ function lwo_magnetschild(g, heck = -1) { g.updateMatrixWorld(true); const bb = 
   if (sx > sz) { m.position.set(heck < 0 ? bb.min.x - .012 : bb.max.x + .012, bb.min.y + 1.02, (bb.min.z + bb.max.z) / 2 + .3); m.rotation.y = heck < 0 ? -Math.PI / 2 : Math.PI / 2; }
   else { m.position.set((bb.min.x + bb.max.x) / 2 + .3, bb.min.y + 1.02, heck < 0 ? bb.min.z - .012 : bb.max.z + .012); m.rotation.y = heck < 0 ? Math.PI : 0; }
   m.rotation.z = .025; m.userData.noCol = true; scene.add(m); return m; }
-function lwo_kombiZeigen(x, z, ry, { stand = false, innen = false, motor = false, hinten = false } = {}) { const K = LWO.kombi; if (!K) return null; K.g.position.set(x, 0, z); K.g.rotation.y = ry; K.g.visible = true; K.path = null; K.sp = 0;
+function lwo_kombiZeigen(x, z, ry, { stand = false, innen = false, motor = false, hinten = false } = {}) { const K = LWO.kombi; if (!K) return null; LWO.ag01Aktiv = false; K.g.position.set(x, 0, z); K.g.rotation.y = ry; K.g.visible = true; K.path = null; K.sp = 0;
   lwo_kombiLicht({ stand, innen, hinten }); lwo_kombiMotor(motor); return K; }
 function lwo_kombiLicht({ stand = false, innen = false, hinten = stand } = {}) { const K = LWO.kombi; if (!K) return; K.stand = stand; for (const s of K.vorn) s.visible = stand; for (const s of K.hinten) s.visible = hinten; K.innen.visible = innen;
   for (const m of K.lf) m.emissiveIntensity = stand ? 1.6 : 0; for (const m of K.stop) m.emissiveIntensity = hinten ? 1.2 : 0; }
@@ -787,8 +787,8 @@ function lwo_tick(dt) {
   const P = player.pos;
   if (lwo_ag02Bereit() && !state.inBasement && Math.hypot(P.x - LWO_AG02.lx, P.z - (LWO_AG02.lz - 1)) < 12.5 && LWO.F.n11 && LWO.F.n11.g.visible) { lwo_ag02(); return; }
   if (lwo_ag01Bereit() && !state.inBasement) { const K = LWO.kombi, kz = LWO_AG01.kombi;
-    if (!K.g.visible && Math.hypot(P.x - 1.9, P.z + 37) < 30 && P.z < -12) { lwo_kombiZeigen(kz[0], kz[1], kz[2], { motor: true }); }
-    else if (K.g.visible && !LWO.playing && Math.hypot(P.x - K.g.position.x, P.z - K.g.position.z) < 20) { lwo_ag01(); return; } }
+    if (!K.g.visible && Math.hypot(P.x - 1.9, P.z + 37) < 30 && P.z < -12) { lwo_kombiZeigen(kz[0], kz[1], kz[2], { motor: true }); LWO.ag01Aktiv = true; }
+    else if (LWO.ag01Aktiv && K.g.visible && !LWO.playing && Math.hypot(P.x - K.g.position.x, P.z - K.g.position.z) < 20) { LWO.ag01Aktiv = false; lwo_ag01(); return; } }
   // V-02: „Luke liest etwas“ – nach dem Schließen einer Notiz draußen an Tankstelle/Friedhofstor/Bushaltestelle (Anker erweiterbar über LWO.v02Orte)
   if (LWO.notizOffen) { LWO.notizOffen = false; const k = lwo_kap(); if (lwo_stufe() === 'miserabel' && [1, 3, 5].includes(k) && !lwo_S.seen['v:V-02:' + k] && lwo_vFrei() && lwo_draussen() && (LWO.v02Orte || [[110, 22, 22], [10, 53, 14]]).some(o => Math.hypot(P.x - o[0], P.z - o[1]) < o[2])) { lwo_S.seen['v:V-02:' + k] = 1; LWO.vLast = LWO.T; lwo_v02(); return; } }
   lwo_vTick(.25);

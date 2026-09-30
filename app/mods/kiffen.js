@@ -29,9 +29,9 @@ const KF_ICONS = {
   kf_tips: '<svg viewBox="0 0 24 24"><path d="M4 8h16v8H4z"/><path d="M8 8v8M11 8v8"/></svg>' };
 // Fundorte. rueck = vorhandener Ort (Rückfall), solange der eigentliche Ort noch nicht gebaut ist (AP-15: Nr. 4 innen, AP-19: Vegas' Küche)
 const KF_FUNDE = {
-  grinder: { ort: 'Nr. 4, dein altes Zimmer', ortRueck: 'Nr. 4, hinter dem Fensterladen', item: 'kf_grinder', modell: 'grinder',
-    text: '2016. Oma hat die Schublade nie aufgemacht. Oder doch, und nichts gesagt.', textRueck: 'Hinterm Fensterladen. Mein Versteck von 2016. Oma hat es nie gefunden. Glaub ich.' },
-  papes: { ort: 'Nr. 4, hinter dem Poster', ortRueck: 'Nr. 4, hinter dem Fensterladen', item: 'kf_papes', modell: 'papes',
+  grinder: { ort: 'Nr. 4, dein altes Zimmer', ortRueck: 'Nr. 4, unter der losen Stufe', item: 'kf_grinder', modell: 'grinder',
+    text: '2016. Oma hat die Schublade nie aufgemacht. Oder doch, und nichts gesagt.', textRueck: 'Die lose Stufe vor Omas Tür. Mein Versteck von 2016. Oma hat es nie gefunden. Glaub ich.' },
+  papes: { ort: 'Nr. 4, hinter dem Poster', ortRueck: 'Nr. 4, unter der losen Stufe', item: 'kf_papes', modell: 'papes',
     text: 'Hinter dem Poster. Wo sonst. Mit sechzehn ist man nicht kreativ.', textRueck: 'Blättchen. Zweiunddreißig minus zwei. Die Bilanz meiner Jugend.' },
   knolle: { ort: 'Roxys Laube (Schrebergärten)', item: 'kf_knolle', modell: 'tuetchen',
     text: 'Ein Tütchen, festgeklemmt unter dem Topf. Auf dem Zettel, Kuli: „Für schlechte Nächte. R.“', luke: 'Danke, Roxy.' },
@@ -48,7 +48,7 @@ function kf_hat(id) { return story.items.includes(id); }
 function kf_ton(n, o = {}) { try { if (Audio.ctx && Audio.buf[n]) return Audio.play(n, { gain: o.gain ?? .6, rate: o.rate ?? (1 + (Math.random() - .5) * .06), delay: o.delay || 0, dest: o.x !== undefined ? undefined : Audio.master, x: o.x, y: o.y, z: o.z, ref: o.ref, lp: o.lp, hp: o.hp, dur: o.dur, offset: o.offset }); } catch (e) {} return null; }
 
 // ================================================================ Gegenstände (Jacke = story.items: Story-Dinge zählen nie gegen den Beutel)
-for (const [k, v] of Object.entries(KF_ITEMS)) { ITEMS[k] = v; if (typeof ICONS !== 'undefined') ICONS[k] = KF_ICONS[k]; }
+function kf_itemsEintragen() { for (const [k, v] of Object.entries(KF_ITEMS)) { ITEMS[k] = v; ICONS[k] = KF_ICONS[k]; } } // ITEMS/ICONS entstehen erst nach der Modul-Marke → im ersten Bild eintragen
 if (typeof BEUTEL_MODELLE !== 'undefined') Object.assign(BEUTEL_MODELLE, { kf_grinder: ['kiffen/grinder'], kf_papes: ['kiffen/papes'], kf_knolle: ['kiffen/knolle'] });
 function kiffen_nimm(key) { if (kf_hat(key)) return; addItem(key); }
 
@@ -163,7 +163,7 @@ function kf_texPappe() { return tex(kf_cnv(256, 64, (x, w, h) => { x.fillStyle =
 
 // ================================================================ Bühne in der Welt: Sitzplatz, Hände-Rig, Requisiten
 // Alles hängt an kf_R.seat (Welt-Gruppe am Sitzplatz, Achsen wie die Kamera: x rechts, y oben, −z vorn); Ursprung = Lukes Augenpunkt im Sitzen.
-const KF_SITZ = { x: -27.2, y: 0, z: -10.95, yaw: Math.PI, auge: 1.18 }; // Verandakante Nr. 3 (Blick auf die Straße); y wird beim Laden gemessen
+const KF_SITZ = { x: -27.2, y: 0, z: -10.95, yaw: Math.PI, auge: .8 }; // Verandakante Nr. 3 (Blick auf die Straße); Sitzhöhe wird gemessen, Auge .8 m darüber
 const kf_R = { seat: null, rig: null, mesh: null, B: { L: null, R: null }, len: .148, props: {}, ready: false };
 const KF_FING = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
 function kf_rigBau(src) {
@@ -202,3 +202,535 @@ function kf_applyHand(side, P) {
     ch[0].quaternion.copy(bd[0]).multiply(V.q0.setFromEuler(V.e0.set(c * 1.35, 0, spr))); ch[1].quaternion.copy(bd[1]).multiply(V.q0.setFromEuler(V.e0.set(c * 1.62, 0, 0)));
     ch[2].quaternion.copy(bd[2]).multiply(V.q0.setFromEuler(V.e0.set(c * 1.1, 0, 0))); }
 }
+
+// ---------------------------------------------------------------- Blättchen: verformbare Papierfläche (Knick → Mulde → Rolle → Kleberand → gedrehte Spitze → Abbrand)
+// Länge entlang lokal x (u 0 = Tip-Ende, 1 = Spitze), Breite v (0 = vordere Kante, 1 = Kleberand). Zustand kf_PA: mulde 0…1, rolle 0…1.15, spitze 0…1, brand 0…1, kegel 0…1
+const KF_PAP = { L: .105, W: .044, NU: 30, NV: 11 };
+const kf_PA = { mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0, wellen: 1 };
+function kf_papK() { const A = kf_PA; return Math.max(A.mulde * .5, A.rolle * 1.02); } // 0 flach · .5 Rinne · ≥ 1 Rohr
+function kf_papPunkt(u, v, o) { // Mittelachse bei y = 0; Querschnitt in (y, z); z zeigt aus der Rinne heraus (oben)
+  const A = kf_PA, W = KF_PAP.W, x = (u - .5) * KF_PAP.L, k = kf_papK(); const kegel = 1 - .22 * A.kegel * (1 - u);
+  const s = (v - .32) * W; let y, z;
+  if (k < .004) { y = s; z = 0; } else { const kap = 2 * Math.PI * k / W / kegel, a = kap * s; const sp = 1 - .07 * Math.max(0, a - Math.PI * 1.6) / Math.PI; // Überlappung: spiralig nach innen
+    y = Math.sin(a) / kap * sp; z = (1 - Math.cos(a)) / kap * sp; }
+  z += Math.sin(u * 9 + v * 4) * .0005 * A.wellen; // Papier ist nie ganz glatt
+  // gedrehte Spitze: die letzten 12 % laufen zur Achse zusammen und verdrehen sich
+  const tw = A.spitze * kf_clamp((u - .88) / .12); if (tw > 0) { const cz = k > .6 ? W / (2 * Math.PI * Math.max(.5, k)) * kegel : 0; const ry = y, rz = z - cz, a = tw * 2.6, sq = 1 - .82 * tw;
+    y = (ry * Math.cos(a) - rz * Math.sin(a)) * sq; z = cz + (ry * Math.sin(a) + rz * Math.cos(a)) * sq; }
+  return o.set(x, y, z); }
+function kf_papAchse(u, o) { const A = kf_PA, W = KF_PAP.W, k = kf_papK(), kegel = 1 - .22 * A.kegel * (1 - u); const x = (u - .5) * KF_PAP.L;
+  if (k < .004) return o.set(x, (.5 - .32) * W * .6, .0015); const kap = 2 * Math.PI * k / W / kegel; if (k >= .55) return o.set(x, 0, 1 / kap); return o.set(x, 0, Math.min(1 / kap, .02) * .45 + .002); }
+function kf_papBau(tex, nrm) {
+  const NU = KF_PAP.NU, NV = KF_PAP.NV, n = (NU + 1) * (NV + 1), g = new THREE.BufferGeometry(); const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = new Float32Array(n * 2), col = new Float32Array(n * 3).fill(1), idx = [];
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) { const k = j * (NU + 1) + i; uv[k * 2] = i / NU; uv[k * 2 + 1] = j / NV; }
+  for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) { const a = j * (NU + 1) + i, b = a + 1, c = a + NU + 1, d = c + 1; idx.push(a, b, c, b, d, c); }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.setIndex(idx);
+  const m = new THREE.MeshStandardMaterial({ map: tex, normalMap: nrm, color: 0xf6f1e6, roughness: .84, metalness: 0, side: THREE.DoubleSide, vertexColors: true, transparent: true, opacity: .96 });
+  m.normalScale.set(.3, .3); const me = new THREE.Mesh(g, m); me.castShadow = true; me.receiveShadow = true; me.frustumCulled = false; return me; }
+function kf_papUpdate(me) { const g = me.geometry, P = g.attributes.position.array, N = g.attributes.normal.array, C = g.attributes.color.array, NU = KF_PAP.NU, NV = KF_PAP.NV, V = KF_V, e = .003, A = kf_PA;
+  const bu = 1 - A.brand * .72; // Abbrand: alles jenseits der Brandkante sammelt sich an ihr
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) { const k = j * (NU + 1) + i, u = i / NU, v = j / NV, ub = Math.min(u, bu);
+    kf_papPunkt(ub, v, V.v0); kf_papPunkt(Math.min(1, ub + e), v, V.v1).sub(V.v0); if (ub + e > 1) V.v1.negate(); kf_papPunkt(ub, Math.min(1, v + e), V.v2).sub(V.v0); if (v + e > 1) V.v2.negate();
+    V.v3.crossVectors(V.v1, V.v2); const l = V.v3.length() || 1;
+    P[k * 3] = V.v0.x; P[k * 3 + 1] = V.v0.y; P[k * 3 + 2] = V.v0.z; N[k * 3] = V.v3.x / l; N[k * 3 + 1] = V.v3.y / l; N[k * 3 + 2] = V.v3.z / l;
+    let r = 1, gg = 1, b = 1; if (A.brand > 0) { const d = (bu - u) / .03; if (d < 1) { const c = kf_clamp(d); r = .12 + .88 * c; gg = .1 + .9 * c; b = .09 + .91 * c; if (u >= bu - .004) { r = .5; gg = .49; b = .47; } } }
+    if (v > .86 && A.nass > 0) { const w = A.nass * .25; r *= 1 - w; gg *= 1 - w; b *= 1 - w * 1.2; } C[k * 3] = r; C[k * 3 + 1] = gg; C[k * 3 + 2] = b; }
+  g.attributes.position.needsUpdate = true; g.attributes.normal.needsUpdate = true; g.attributes.color.needsUpdate = true; }
+// ---------------------------------------------------------------- Tip: Pappstreifen (Zickzack gefaltet, dann gerollt). u entlang des Streifens (wird Querschnitt), v = Höhe (wird Achse)
+const KF_TIP = { L: .05, H: .016, NU: 40 }, kf_TA = { falt: 0, roll: 0 };
+const kf_tipQ = new Float32Array((KF_TIP.NU + 1) * 2);
+function kf_tipBau(tex) { const NU = KF_TIP.NU, n = (NU + 1) * 2, g = new THREE.BufferGeometry(); const pos = new Float32Array(n * 3), uv = new Float32Array(n * 2), nor = new Float32Array(n * 3), idx = [];
+  for (let j = 0; j <= 1; j++) for (let i = 0; i <= NU; i++) { const k = j * (NU + 1) + i; uv[k * 2] = i / NU; uv[k * 2 + 1] = j; }
+  for (let i = 0; i < NU; i++) { const a = i, b = i + 1, c = i + NU + 1, d = c + 1; idx.push(a, b, c, b, d, c); }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); g.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); g.setIndex(idx);
+  const me = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: tex, roughness: .95, side: THREE.DoubleSide })); me.castShadow = true; me.frustumCulled = false; return me; }
+function kf_tipUpdate(me) { const NU = KF_TIP.NU, L = KF_TIP.L, ds = L / NU, A = kf_TA; let x = 0, y = 0, th = 0; kf_tipQ[0] = 0; kf_tipQ[1] = 0; const nz = Math.round(NU * .36);
+  for (let i = 1; i <= NU; i++) { let dth = 0;
+    if (i < nz) { if (i % 4 === 0) dth = ((i / 4) % 2 ? 1 : -1) * 2.7 * A.falt; } // Zickzack: scharfe Knicke alle 4 Stücke
+    else dth = A.roll * ds / .0036; // Rolle um den Zickzack (Radius ~3,6 mm)
+    th += dth; x += Math.cos(th) * ds; y += Math.sin(th) * ds; kf_tipQ[i * 2] = x; kf_tipQ[i * 2 + 1] = y; }
+  const cx = kf_tipQ[(nz >> 1) * 2], cy = kf_tipQ[(nz >> 1) * 2 + 1] + .0022 * A.roll; const g = me.geometry, P = g.attributes.position.array, N = g.attributes.normal.array;
+  for (let j = 0; j <= 1; j++) for (let i = 0; i <= NU; i++) { const k = j * (NU + 1) + i; P[k * 3] = (j - .5) * KF_TIP.H; P[k * 3 + 1] = kf_tipQ[i * 2 + 1] - cy; P[k * 3 + 2] = kf_tipQ[i * 2] - cx;
+    const i0 = Math.max(0, i - 1), i1 = Math.min(NU, i + 1), tx = kf_tipQ[i1 * 2] - kf_tipQ[i0 * 2], ty = kf_tipQ[i1 * 2 + 1] - kf_tipQ[i0 * 2 + 1], l = Math.hypot(tx, ty) || 1; N[k * 3] = 0; N[k * 3 + 1] = tx / l; N[k * 3 + 2] = -ty / l; }
+  g.attributes.position.needsUpdate = true; g.attributes.normal.needsUpdate = true; }
+// ---------------------------------------------------------------- Teilchen: Krümel (Punkte), Rauch (Sprites), Glut, Flamme, Funken
+const KF_KR = 170, KF_RAUCH = 48;
+const kf_T = { kr: [], rauch: [], glut: null, flamme: null, funken: null, fk: [], krN: 0 };
+function kf_teilchenBau() { const T = kf_T;
+  const g = new THREE.BufferGeometry(), p = new Float32Array(KF_KR * 3); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); g.setDrawRange(0, KF_KR);
+  T.krP = new THREE.Points(g, new THREE.PointsMaterial({ map: kf_texKruemel(), size: .0042, sizeAttenuation: true, transparent: true, alphaTest: .3, depthWrite: true, color: 0xc4c6b0 })); T.krP.frustumCulled = false; T.krP.visible = false; kf_R.seat.add(T.krP);
+  for (let i = 0; i < KF_KR; i++) T.kr.push({ st: 0, u: Math.random(), v: Math.random(), h: Math.random(), x: 0, y: -99, z: 0, vx: 0, vy: 0, vz: 0, t: 0 });
+  const rt = kf_texRauch(); for (let i = 0; i < KF_RAUCH; i++) { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: rt, color: 0xdcdcd6, transparent: true, opacity: 0, depthWrite: false })); s.visible = false; s.frustumCulled = false; kf_R.seat.add(s);
+    T.rauch.push({ s, a: 0, l: 1, v: new THREE.Vector3(), sz: .02, gr: .1, op: .3, rot: 0, vr: 0 }); }
+  T.glut = new THREE.Sprite(new THREE.SpriteMaterial({ map: kf_texGlow('rgba(255,240,200,1)', 'rgba(255,100,25,.85)'), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); T.glut.scale.setScalar(.014); T.glut.visible = false; kf_R.seat.add(T.glut);
+  T.flamme = new THREE.Sprite(new THREE.SpriteMaterial({ map: kf_texFlamme(), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); T.flamme.center.set(.5, .05); T.flamme.scale.set(.011, .026, 1); T.flamme.visible = false; kf_R.seat.add(T.flamme);
+  const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(24 * 3), 3)); T.funken = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xffc070, size: .0024, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); T.funken.frustumCulled = false; T.funken.visible = false; kf_R.seat.add(T.funken);
+  for (let i = 0; i < 24; i++) T.fk.push({ x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, a: 9 });
+}
+function kf_rauchStoss(p, n, vx, vy, vz, sz, op, life = 2.6) { const T = kf_T; let k = 0; for (const r of T.rauch) { if (r.s.visible) continue; r.s.visible = true; r.a = 0; r.l = life * (.7 + Math.random() * .7); r.s.position.set(p.x + (Math.random() - .5) * .006, p.y, p.z + (Math.random() - .5) * .006);
+    r.v.set(vx + (Math.random() - .5) * .07, vy + Math.random() * .03, vz + (Math.random() - .5) * .07); r.sz = sz * (.7 + Math.random() * .6); r.gr = sz * (3 + Math.random() * 3.5); r.op = op * (.6 + Math.random() * .5); r.rot = Math.random() * 6.28; r.vr = (Math.random() - .5) * .7; if (++k >= n) break; } }
+function kf_teilchenTick(dt, t) { const T = kf_T;
+  for (const r of T.rauch) { if (!r.s.visible) continue; r.a += dt; const k = r.a / r.l; if (k >= 1) { r.s.visible = false; continue; }
+    r.v.y += dt * .06; r.v.multiplyScalar(1 - dt * 1.1); r.s.position.x += (r.v.x + Math.sin(t * 1.7 + r.rot * 3) * .014 * k) * dt; r.s.position.y += r.v.y * dt; r.s.position.z += (r.v.z + Math.cos(t * 1.3 + r.rot * 2) * .012 * k) * dt;
+    const sz = r.sz + r.gr * Math.sqrt(k); r.s.scale.set(sz, sz, 1); r.s.material.rotation = r.rot + r.vr * r.a; r.s.material.opacity = r.op * Math.min(1, k * 5) * (1 - k) * (1 - k); }
+  if (T.funken.visible) { const P = T.funken.geometry.attributes.position.array; let alive = 0; for (let i = 0; i < 24; i++) { const f = T.fk[i]; f.a += dt; if (f.a > .3) { P[i * 3 + 1] = -99; continue; } alive++; f.vy -= dt * 2.5; f.x += f.vx * dt; f.y += f.vy * dt; f.z += f.vz * dt; P[i * 3] = f.x; P[i * 3 + 1] = f.y; P[i * 3 + 2] = f.z; }
+    T.funken.geometry.attributes.position.needsUpdate = true; T.funken.material.opacity = alive ? .95 : 0; if (!alive) T.funken.visible = false; } }
+function kf_funken(p) { const T = kf_T; T.funken.visible = true; for (const f of T.fk) { f.a = Math.random() * .08; f.x = p.x; f.y = p.y; f.z = p.z; f.vx = (Math.random() - .5) * .5; f.vy = Math.random() * .45 + .1; f.vz = (Math.random() - .5) * .5; } }
+
+// ================================================================ Nachbearbeitung: weiche Welt + Nachbild-Blitze (ein Durchgang vor dem Filmkorn; ohne Einsatz abgeschaltet)
+function kiffen_passBau() {
+  const p = new ShaderPass({ uniforms: { tDiffuse: { value: null }, tFl: { value: null }, uW: { value: 0 }, uT: { value: 0 }, uFl: { value: 0 }, uCut: { value: 0 }, uZoom: { value: 0 }, uTint: { value: new THREE.Vector3(.8, .92, 1.15) }, uPx: { value: new THREE.Vector2(1 / 1600, 1 / 900) } },
+    vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+    fragmentShader: `uniform sampler2D tDiffuse, tFl; uniform float uW, uT, uFl, uCut, uZoom; uniform vec3 uTint; uniform vec2 uPx; varying vec2 vUv;
+      float rnd(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+      void main(){ vec2 uv = vUv, d = uv - .5;
+        uv += (vec2(sin(uv.y * 5. + uT * .7), cos(uv.x * 4. + uT * .55)) * .0014 + d * sin(uT * .45) * .004) * uW; // die Welt atmet ein wenig
+        vec4 c = texture2D(tDiffuse, uv);
+        if (uW > .001) { vec3 b = vec3(0.); float r = (3. + 6. * dot(d, d) * 4.) * uW;
+          for (int i = 0; i < 10; i++) { float a = float(i) * 2.39996, rr = sqrt((float(i) + .5) / 10.) * r; b += texture2D(tDiffuse, uv + vec2(cos(a), sin(a)) * rr * uPx).rgb; } b /= 10.;
+          vec3 s = mix(c.rgb, b, .4 * uW) + max(b - .45, 0.) * .55 * uW; // weich, Lichter blühen auf
+          float l = dot(s, vec3(.2126, .7152, .0722)); s = mix(vec3(l), s, 1. + .3 * uW); // Farben satter
+          s *= mix(vec3(1.), vec3(1.08, 1.0, .88), uW); float hl = smoothstep(.35, 1., l); s = mix(s, s * (1. - .12 * hl) + .06 * hl, uW); // wärmer, Lichter weicher (Schwarz bleibt schwarz)
+          s *= 1. - uW * .22 * smoothstep(.35, .9, length(d * vec2(1.5, 1.))); // weiche Vignette
+          c.rgb = s; }
+        if (uFl > .001) { vec2 fu = .5 + (vUv - .5) * (1. - uZoom * .08); vec2 o = d * .014 * uFl;
+          vec3 im = vec3(texture2D(tFl, fu + o).r, texture2D(tFl, fu).g, texture2D(tFl, fu - o).b); im = pow(im, vec3(1.15)) * uTint;
+          float n = rnd(vUv * vec2(1920., 1080.) + fract(uT) * 91.); float scan = .92 + .08 * sin(vUv.y * 900. + uT * 40.);
+          c.rgb = mix(c.rgb * .1, im * scan + (n - .5) * .16, uFl); }
+        c.rgb *= 1. - uCut; gl_FragColor = c; }` });
+  const i = composer.passes.indexOf(filmPass); if (i < 0) return null; composer.insertPass(p, i); p.enabled = false; return p; }
+// Nachbilder (Leinwand, einmal beim Laden gezeichnet): Hilde im Strahl · Peter im Öl · das graue Gesicht im Tank
+function kf_flashBilder() { const W = 1024, H = 576, R = kf_rnd(1975);
+  const hilde = kf_cnv(W, H, (x) => { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const g = x.createLinearGradient(W / 2, 0, W / 2, H); g.addColorStop(0, 'rgba(255,255,255,.95)'); g.addColorStop(1, 'rgba(210,225,255,.55)');
+      x.fillStyle = g; x.beginPath(); x.moveTo(W * .46, 0); x.lineTo(W * .54, 0); x.lineTo(W * .68, H); x.lineTo(W * .32, H); x.fill();
+      for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(255,255,255,${R() * .9})`; const yy = R() * H, spread = .04 + yy / H * .14; x.fillRect(W * (.5 + (R() - .5) * spread * 2), yy, 2, 2); }
+      x.fillStyle = '#050608'; x.save(); x.translate(W * .5, H * .42); x.rotate(.08); // kleine alte Frau, schwebend, Arme hängen
+      x.beginPath(); x.arc(0, -64, 17, 0, 7); x.fill(); x.beginPath(); x.moveTo(-26, -44); x.quadraticCurveTo(0, -54, 26, -44); x.lineTo(40, 60); x.lineTo(-38, 60); x.closePath(); x.fill();
+      x.lineWidth = 7; x.strokeStyle = '#050608'; x.beginPath(); x.moveTo(-24, -40); x.quadraticCurveTo(-36, 0, -30, 34); x.moveTo(24, -40); x.quadraticCurveTo(36, 4, 31, 36); x.moveTo(-12, 60); x.lineTo(-15, 108); x.moveTo(12, 60); x.lineTo(16, 104); x.stroke(); x.restore();
+      const rg = x.createRadialGradient(W / 2, H * .96, 10, W / 2, H * .96, W * .2); rg.addColorStop(0, 'rgba(255,255,255,.8)'); rg.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = rg; x.fillRect(0, H * .8, W, H * .2); });
+  const peter = kf_cnv(W, H, (x) => { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); for (let i = 0; i < 14; i++) { x.strokeStyle = `rgba(200,210,230,${.05 + R() * .18})`; x.lineWidth = 1 + R() * 2; x.beginPath(); x.ellipse(W / 2, H * .72, 60 + i * 38, 10 + i * 6, 0, 0, 7); x.stroke(); }
+      const fg = x.createRadialGradient(W / 2, H * .5, 10, W / 2, H * .52, 150); fg.addColorStop(0, 'rgba(235,235,240,1)'); fg.addColorStop(1, 'rgba(160,160,170,.0)'); x.fillStyle = fg; x.beginPath(); x.ellipse(W / 2, H * .52, 96, 128, 0, Math.PI, 0); x.lineTo(W / 2 + 96, H * .7); x.lineTo(W / 2 - 96, H * .7); x.fill();
+      x.fillStyle = '#000'; for (const s of [-1, 1]) { x.beginPath(); x.ellipse(W / 2 + s * 36, H * .44, 16, 22, 0, 0, 7); x.fill(); }
+      x.beginPath(); x.ellipse(W / 2, H * .6, 62, 22, 0, 0, 7); x.fill(); x.fillStyle = '#f4f4f4'; for (let i = 0; i < 22; i++) { const a = Math.PI * (i / 21), tx = W / 2 - Math.cos(a) * 58, ty = H * .6 + (i % 2 ? -1 : 1) * 4; x.beginPath(); x.moveTo(tx - 4, ty - (i % 2 ? 0 : 14)); x.lineTo(tx + 4, ty - (i % 2 ? 0 : 14)); x.lineTo(tx, ty + (i % 2 ? 14 : 0)); x.fill(); }
+      for (let i = 0; i < 9; i++) { x.fillStyle = 'rgba(0,0,0,.95)'; const dx = W / 2 + (R() - .5) * 190; x.fillRect(dx, H * .3 + R() * 50, 3 + R() * 5, 60 + R() * 140); }
+      x.fillStyle = '#000'; x.fillRect(0, H * .7, W, H * .3); for (let i = 0; i < 40; i++) { x.strokeStyle = `rgba(220,225,240,${R() * .25})`; x.beginPath(); const yy = H * (.72 + R() * .26); x.moveTo(R() * W, yy); x.lineTo(R() * W, yy + 1); x.stroke(); } });
+  const grau = kf_cnv(W, H, (x) => { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const tg = x.createLinearGradient(0, 0, W, 0); tg.addColorStop(0, 'rgba(120,150,150,.15)'); tg.addColorStop(.5, 'rgba(170,200,195,.45)'); tg.addColorStop(1, 'rgba(120,150,150,.15)');
+      x.fillStyle = tg; x.fillRect(W * .22, H * .05, W * .56, H * .9); x.strokeStyle = 'rgba(210,220,220,.7)'; x.lineWidth = 6; x.strokeRect(W * .22, H * .05, W * .56, H * .9);
+      const fi = typeof faceTexes !== 'undefined' && faceTexes.grey && faceTexes.grey.image; if (fi) { x.save(); x.globalAlpha = .95; x.filter = 'grayscale(1) contrast(1.4) brightness(1.2)'; x.drawImage(fi, W * .36, H * .16, W * .28, H * .6); x.restore(); }
+      else { x.fillStyle = '#9a9c9e'; x.beginPath(); x.ellipse(W / 2, H * .45, 110, 150, 0, 0, 7); x.fill(); x.fillStyle = '#000'; for (const s of [-1, 1]) { x.beginPath(); x.ellipse(W / 2 + s * 42, H * .4, 18, 24, 0, 0, 7); x.fill(); } }
+      for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(230,240,240,${R() * .6})`; x.lineWidth = 1.5; x.beginPath(); x.arc(W * (.25 + R() * .5), H * R(), 2 + R() * 7, 0, 7); x.stroke(); }
+      for (let i = 0; i < 7; i++) { x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = 14; x.beginPath(); const xx = W * (.26 + R() * .48); x.moveTo(xx, H * .05); x.lineTo(xx - 40, H * .95); x.stroke(); } });
+  return [hilde, peter, grau].map(c => { const t = tex(c, false); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; return t; }); }
+
+// ================================================================ Requisiten und Schlüsselbilder
+// Schlüssel einer Requisite: { a: 'L' | 'R' (Lage relativ zum Handknochen: x Daumenseite, y Finger, z aus der Handfläche) | undefined (Sitzraum), p: [x, y, z], r: [rx, ry, rz] } · null = versteckt
+const kf_PR = {}; // name → { o }
+function kf_prop(name, o) { o.visible = false; o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } }); kf_R.seat.add(o); kf_PR[name] = { o }; return o; }
+function kf_keyLage(K, oP, oQ) { const V = KF_V;
+  if (K.a) { const P = kf_P[K.a], Q = kf_HQ[K.a]; oP.set(K.p[0], K.p[1], K.p[2]).applyQuaternion(Q).add(P.w); oQ.copy(Q).multiply(V.q0.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2]))); }
+  else { oP.set(K.p[0], K.p[1], K.p[2]); oQ.setFromEuler(V.e0.set(K.r[0], K.r[1], K.r[2])); } }
+const kf_kp = [new THREE.Vector3(), new THREE.Vector3()], kf_kq = [new THREE.Quaternion(), new THREE.Quaternion()];
+function kf_propSetzen(name, A, B, k) { const pr = kf_PR[name]; if (!pr) return; const o = pr.o;
+  if (!A && !B) { o.visible = false; return; }
+  if (!B) { if (k >= .5) { o.visible = false; return; } kf_keyLage(A, o.position, o.quaternion); o.visible = true; return; } // verschwindet (Tasche) zur Hälfte
+  if (!A) { if (k < .5) { o.visible = false; return; } kf_keyLage(B, o.position, o.quaternion); o.visible = true; return; } // taucht zur Hälfte auf
+  kf_keyLage(A, kf_kp[0], kf_kq[0]); kf_keyLage(B, kf_kp[1], kf_kq[1]); o.position.lerpVectors(kf_kp[0], kf_kp[1], k); o.quaternion.slerpQuaternions(kf_kq[0], kf_kq[1], k); o.visible = true; }
+// Posen-Bibliothek (Sitzraum: Ursprung Augenpunkt, x rechts, y oben, −z vorn). Spiegeln: x → −x
+const KF_SPIEGEL = p => KP([-p.w[0], p.w[1], p.w[2]], [-p.f[0], p.f[1], p.f[2]], [-p.n[0], p.n[1], p.n[2]], p.c.slice(), p.s, p.t);
+const KF_H = {};
+function kf_posen() { const H = KF_H;
+  H.ruheR = KP([.17, -.64, -.25], [-.12, -.25, -1], [-.1, -1, .15], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
+  H.vornR = KP([.1, -.45, -.29], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
+  H.schaleL = KP([-.075, -.47, -.29], [.42, .1, -.9], [.1, 1, .15], [.42, .5, .56, .62, .7], .08, .35); // Grinder in der linken Handfläche
+  H.griffR = KP([.07, -.33, -.26], [-.52, -.42, -.74], [-.2, -.9, .3], [.55, .6, .64, .68, .72], .25, .75); // Deckel von oben gefasst
+  H.taschR = KP([.3, -.68, -.05], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR); // Hand in der Jackentasche (unten aus dem Bild)
+  H.zangeR = KP([.085, -.4, -.25], [-.5, .1, -.86], [-.35, .8, .35], [.55, .5, .7, .85, .92], .05, .95); // Daumen + Zeigefinger (Knolle, Pappe, Blatt)
+  H.blattL = KP([-.085, -.42, -.28], [.52, .12, -.85], [.3, .9, .25], [.5, .3, .42, .6, .72], .1, .65); H.blattR = KF_SPIEGEL(H.blattL); // Blättchen zwischen Daumen und Fingern
+  H.rollL = KP([-.06, -.4, -.29], [.55, .25, -.8], [.2, .92, .3], [.62, .42, .5, .62, .72], .06, .85); H.rollR = KF_SPIEGEL(H.rollL);
+  H.kippR = KP([.08, -.34, -.27], [-.55, -.1, -.83], [-.9, .3, .2], [.55, .6, .64, .7, .75], .1, .7); // Grinder über dem Blatt gekippt
+  H.mundR = KP([.035, -.2, -.14], [-.55, .62, -.55], [-.75, -.2, .6], [.6, .55, .62, .7, .78], .05, .8); // Joint am Mund (Daumen + Zeigefinger)
+  H.haltR = KP([.1, -.38, -.28], [-.48, .3, -.83], [-.55, .75, .35], [.6, .55, .62, .72, .8], .05, .8); // Joint vor sich
+  H.feuerL = KP([-.07, -.3, -.23], [.3, .55, -.78], [.85, .05, .5], [.62, .7, .74, .78, .8], .05, .6); // Feuerzeug aufrecht, Daumen am Rad
+  H.gravurL = KP([-.05, -.36, -.26], [.35, .2, -.9], [0, .95, .3], [.55, .62, .66, .7, .74], .05, .55); // Feuerzeug liegt in der Hand, Rückseite nach oben
+}
+// ---------------------------------------------------------------- Die Schritte der Szene
+// art: 'auto' (läuft von selbst) · 'klick' (Klick löst die Bewegung aus, dann dauer s) · 'halten' (Maustaste/Leertaste halten: dauer s) · 'maus' (bedarf px Mausweg)
+// keys: [[t 0…1, { L, R, pr: { name: key | null }, ch: { … }, cam: [yaw, pitch] }], …] – fehlende Einträge übernehmen den Stand davor
+const KF_GR = { bodyP: [0, .08, .024], bodyR: [Math.PI / 2, 0, 0] };
+const KF_STEPS = [];
+function kf_schritte() { const H = KF_H, S = KF_STEPS; S.length = 0; const gb = { a: 'L', p: KF_GR.bodyP, r: KF_GR.bodyR }, deckelAuf = h => ({ a: 'L', p: [0, .08, .024 + (kiffen_S.gr ? kiffen_S.gr.cut : .027) + h], r: KF_GR.bodyR });
+  const lidR = { a: 'R', p: [.0, .1, .034], r: [-Math.PI / 2, 0, 0] };
+  S.push({ id: 'setzen', art: 'auto', dauer: 1.9, keys: [[0, { L: H.ruheL, R: H.ruheR, cam: [0, -.2], ch: { deckelD: 0, einsatz: 0, knolle: 1, blatt: 0, mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0, falt: 0, tipRoll: 0, flamme: 0, glut: 0, kr: 0 },
+      pr: { koerper: null, deckel: null, knolle: null, papes: null, blatt: null, tip: null, feuerzeug: null } }], [1, { cam: [0, -.6] }]] });
+  S.push({ id: 'nehmen', art: 'klick', hint: [['Klick', 'Grinder aus der Tasche']], dauer: 2.2, ton: [[.25, 'kfKlack', .15]], keys: [[0, {}], [.3, { R: H.taschR, L: H.vornL }], [.55, { R: H.vornR, L: H.schaleL, pr: { koerper: { a: 'R', p: [0, .085, .03], r: [Math.PI / 2, 0, 0] }, deckel: { a: 'R', p: [0, .085, .03 + .027], r: [Math.PI / 2, 0, 0] } } }],
+      [1, { R: H.griffR, pr: { koerper: gb, deckel: deckelAuf(0) }, cam: [0, -.66] }]] });
+  S.push({ id: 'auf', art: 'klick', hint: [['Klick', 'Deckel abschrauben']], dauer: 2.2, ton: [[.05, 'kfGewinde', .4], [.62, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3.2 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
+      [1, { R: H.zangeR, pr: { deckel: { p: [.2, -.62, -.12], r: [0, 0, 0] } }, ch: { einsatz: 1 } }]] });
+  S.push({ id: 'knolle', art: 'klick', hint: [['Klick', 'Knolle hineinlegen']], dauer: 2.6, ton: [[.12, 'kfPapier', .2], [.72, 'kfKlack', .12]], keys: [[0, {}], [.3, { R: H.taschR }], [.55, { R: H.zangeR, pr: { knolle: { a: 'R', p: [-.022, .13, .03], r: [0, 0, 0] } } }],
+      [.85, { R: KP([.05, -.35, -.26], [-.45, -.3, -.84], [-.3, -.6, .6], [.6, .5, .62, .8, .88], .05, .9), pr: { knolle: { a: 'L', p: [0, .08, .045], r: [0, 0, 0] } }, ch: { knolle: .8 } }], [1, { R: H.griffR, ch: { knolle: .78 } }]] });
+  S.push({ id: 'zu', art: 'auto', dauer: 1.6, ton: [[.45, 'kfGewinde', .35]], keys: [[0, {}], [.4, { pr: { deckel: deckelAuf(.01) }, ch: { einsatz: 0 } }], [.5, { pr: { knolle: null } }], [1, { pr: { deckel: deckelAuf(0) }, ch: { deckelD: 0 } }]] });
+  S.push({ id: 'grinden', art: 'maus', bedarf: 2600, hint: [['Maus hin und her', 'drehen']], keys: [[0, {}], [1, { cam: [0, -.66] }]], live: 'grind' });
+  S.push({ id: 'oeffnen', art: 'klick', hint: [['Klick', 'aufschrauben']], dauer: 2.0, ton: [[.05, 'kfGewinde', .4], [.6, 'kfKlack', .3]], keys: [[0, {}], [.55, { ch: { deckelD: -3 } }], [.7, { pr: { deckel: deckelAuf(.012) } }],
+      [1, { R: H.vornR, pr: { deckel: { p: [.21, -.62, -.1], r: [0, .3, 0] } }, ch: { einsatz: 2 } }]] });
+  S.push({ id: 'blatt', art: 'klick', hint: [['Klick', 'ein Blättchen ziehen']], dauer: 3.0, ton: [[.5, 'kfPapier', .35]], keys: [[0, {}], [.15, { pr: { koerper: { p: [-.14, -.6, -.2], r: [0, 0, 0] } }, L: H.vornL }], [.4, { L: H.taschL, R: H.vornR }],
+      [.62, { L: H.blattL, pr: { papes: { a: 'L', p: [.01, .1, .02], r: [0, 0, Math.PI / 2] } } }], [.85, { R: H.zangeR, pr: { blatt: { a: 'L', p: [.02, .12, .03], r: [0, 0, Math.PI / 2] } }, ch: { blatt: 1 } }],
+      [1, { R: H.blattR, pr: { papes: null, blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, L: H.blattL, cam: [0, -.72] }]] });
+  S.push({ id: 'falten', art: 'klick', hint: [['Klick', 'Pappe falten']], dauer: 2.2, ton: [[.2, 'kfFalt', .35], [.45, 'kfFalt', .3], [.7, 'kfFalt', .3]], keys: [[0, {}], [.2, { R: H.zangeR, pr: { tip: { a: 'R', p: [-.02, .13, .03], r: [0, Math.PI / 2, 0] } }, ch: { falt: 0 } }], [1, { ch: { falt: 1 } }]] });
+  S.push({ id: 'tip', art: 'halten', hint: [['Halten', 'Tip rollen']], dauer: 1.4, ton: [[.1, 'kfRoll', .2]], keys: [[0, {}], [1, { ch: { tipRoll: 1 } }]] });
+  S.push({ id: 'einlegen', art: 'auto', dauer: 1.4, keys: [[0, {}], [.6, { ch: { mulde: .55 } }], [1, { R: H.rollR, pr: { tip: { p: [-.0485, -.37, -.3155], r: [-.9, 0, 0], tip: 1 } }, ch: { mulde: .9 } }]] });
+  S.push({ id: 'fuellen', art: 'halten', hint: [['Halten', 'Gras einstreuen']], dauer: 2.8, keys: [[0, {}], [.2, { R: H.kippR, pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2, 0, 0] } } }],
+      [.3, { pr: { koerper: { a: 'R', p: [0, .075, .03], r: [Math.PI / 2 + 1.9, 0, 0] } } }], [.9, { ch: { kr: 1 } }], [1, { R: H.rollR, pr: { koerper: { p: [.2, -.61, -.2], r: [0, 1, 0] } } }]], live: 'fuellen' });
+  S.push({ id: 'rollen', art: 'maus', bedarf: 1800, hint: [['Maus auf und ab', 'andrücken und rollen']], keys: [[0, { L: H.rollL, R: H.rollR }], [1, { ch: { rolle: .82, kegel: 1, mulde: .9 } }]], live: 'rollen' });
+  S.push({ id: 'lecken', art: 'klick', hint: [['Klick', 'anlecken']], dauer: 2.4, ton: [[.45, 'kfLeck', .35]], keys: [[0, {}], [.35, { L: KP([-.05, -.2, -.16], [.55, .3, -.78], [.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), R: KP([.05, -.2, -.16], [-.55, .3, -.78], [-.2, .9, .3], [.6, .42, .5, .62, .72], .06, .85), pr: { blatt: { p: [0, -.16, -.15], r: [-.4, 0, 0] } }, cam: [0, -.5] }],
+      [.6, { ch: { nass: 1 } }], [1, { L: H.rollL, R: H.rollR, pr: { blatt: { p: [0, -.37, -.32], r: [-.9, 0, 0] } }, cam: [0, -.72] }]] });
+  S.push({ id: 'kleben', art: 'maus', bedarf: 1200, hint: [['Maus zur Seite', 'zukleben']], keys: [[0, {}], [1, { ch: { rolle: 1.12 } }]], live: 'kleben' });
+  S.push({ id: 'spitze', art: 'maus', bedarf: 900, hint: [['Maus kreisen', 'Spitze drehen']], keys: [[0, { R: KP([.085, -.37, -.3], [-.35, .2, -.92], [-.4, .75, .5], [.55, .5, .66, .82, .9], .05, .95) }], [1, { ch: { spitze: 1 } }]], live: 'spitze' });
+  S.push({ id: 'feuer', art: 'klick', hint: [['Klick', 'Peters Feuerzeug']], dauer: 2.6, ton: [[.3, 'kfKlack', .12]], keys: [[0, {}], [.3, { L: H.taschL, R: H.haltR, pr: { blatt: { a: 'R', p: [-.01, .135, .03], r: [0, 0, Math.PI / 2 + .3] } } }],
+      [.7, { L: H.gravurL, pr: { feuerzeug: { a: 'L', p: [0, .085, .03], r: [Math.PI / 2, 0, Math.PI] } } }], [1, { cam: [-.12, -.8] }]], halt: 2.8 });
+  S.push({ id: 'rad', art: 'klick', hint: [['Klick', 'Rad drehen']], dauer: 1.3, keys: [[0, {}], [.4, { L: H.feuerL, R: H.mundR, pr: { feuerzeug: { a: 'L', p: [.0, .07, .03], r: [0, 0, 0] } }, cam: [0, -.42] }], [1, {}]], live: 'rad' });
+  S.push({ id: 'anzuenden', art: 'halten', hint: [['Halten', 'anziehen']], dauer: 2.2, keys: [[0, {}], [1, { ch: { brand: .05, glut: 1 } }]], live: 'anzuenden' });
+  S.push({ id: 'weg', art: 'auto', dauer: 1.3, ton: [[.05, 'kfDeckelZ', .5]], keys: [[0, {}], [.5, { L: H.taschL, ch: { flamme: 0 } }], [.8, { pr: { feuerzeug: null } }], [1, { L: H.ruheL, R: H.haltR, cam: [0, -.5] }]] });
+  S.push({ id: 'rauchen', art: 'rauchen', hint: [['Halten', 'ziehen']], keys: [[0, {}], [1, {}]], live: 'rauchen' });
+  S.push({ id: 'aufstehen', art: 'auto', dauer: 2.0, keys: [[0, {}], [.5, { R: H.ruheR, pr: { blatt: { p: [.3, -.8, .02], r: [0, 1.2, 0] } } }], [1, { cam: [0, -.1] }]] });
+  // Schlüssel vervollständigen (fehlende Einträge vom Stand davor)
+  let cur = { L: null, R: null, pr: {}, ch: {}, cam: [0, 0] };
+  for (const st of S) for (const kk of st.keys) { const K = kk[1]; const full = { L: K.L || cur.L, R: K.R || cur.R, pr: Object.assign({}, cur.pr, K.pr || {}), ch: Object.assign({}, cur.ch, K.ch || {}), cam: K.cam || cur.cam }; kk[1] = full; cur = full; }
+}
+// ---------------------------------------------------------------- Laufzeit der Szene
+const kf_Z = { on: false, i: -1, p: 0, pV: 0, st: null, t: 0, akt: false, zug: 0, zuege: 0, rauchT: 0, lidA: 0, lidV: 0, grindG: null, hustet: false, vegas: false, whiskey: false, fertig: false, blend: 0, blendZ: 0,
+  camY: 0, camP: 0, camYz: 0, camPz: 0, look: null, saved: null, sitz: new THREE.Vector3(), yaw: Math.PI, flTon: null, glutTon: null, res: null, halt: 0, tonI: 0, einT: 0, ausT: 0, wart: 0, opts: {} };
+const kf_CH = { deckelD: 0, einsatz: 0, knolle: 1, blatt: 0, mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0, falt: 0, tipRoll: 0, flamme: 0, glut: 0, kr: 0 };
+function kf_eval(st, p) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0;
+  for (let i = 0; i < K.length - 1; i++) if (p >= K[i][0] && p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
+  if (p > K[K.length - 1][0]) { a = b; k = 1; }
+  const A = a[1], B = b[1]; kf_mixPose(kf_P.L, A.L, B.L, k); kf_mixPose(kf_P.R, A.R, B.R, k);
+  for (const c in kf_CH) kf_CH[c] = kf_lerp(A.ch[c] ?? 0, B.ch[c] ?? 0, k);
+  kf_Z.camYz = kf_lerp(A.cam[0], B.cam[0], k); kf_Z.camPz = kf_lerp(A.cam[1], B.cam[1], k); return [A, B, k]; }
+// Hand um eine Achse durch einen Punkt drehen (Grinder-Deckel)
+function kf_handDreh(P, cx, cy, cz, ax, ay, az, ang) { const V = KF_V, q = V.q2.setFromAxisAngle(V.v4.set(ax, ay, az).normalize(), ang); P.w.x -= cx; P.w.y -= cy; P.w.z -= cz; P.w.applyQuaternion(q); P.w.x += cx; P.w.y += cy; P.w.z += cz; P.f.applyQuaternion(q); P.n.applyQuaternion(q); }
+const kf_lebend = {
+  grind(dt, t) { const Z = kf_Z, mv = kiffen_S.in.dx; Z.lidV = kf_lerp(Z.lidV, mv / Math.max(dt, .001) * .0035, Math.min(1, dt * 12)); Z.lidA = kf_clamp(Z.lidA + mv * .0042, -.95, .95);
+    const g = kf_PR.koerper.o.position; kf_handDreh(kf_P.R, g.x, g.y, g.z, KF_V.v0.set(0, 1, 0).applyQuaternion(kf_HQ.L).x, KF_V.v0.y, KF_V.v0.z, Z.lidA); kf_CH.deckelD = Z.lidA;
+    kf_P.L.w.y += Math.sin(t * 23) * .0008 * Math.min(1, Math.abs(Z.lidV)); // die haltende Hand bekommt den Widerstand ab
+    const sp = Math.min(1, Math.abs(Z.lidV) * .5); if (Z.grindG) Z.grindG.g.gain.setTargetAtTime(sp * .5, Audio.ctx.currentTime, .05); },
+  fuellen(dt, t) { const Z = kf_Z; if (Z.p > .3 && Z.p < .92 && kiffen_S.in.down) { Z.krT = (Z.krT || 0) - dt; if (Z.krT < 0) { Z.krT = .025; kf_kruemelFall(); } if (!Z.streuT || t > Z.streuT) { Z.streuT = t + .5; kf_ton('kfGrind', { gain: .07, rate: .6, dur: .5 }); } } },
+  rollen(dt, t) { const Z = kf_Z, d = kiffen_S.in.dy; Z.rollPh = (Z.rollPh || 0) + d * .012; const o = Math.sin(Z.rollPh); kf_PA.rolle = kf_lerp(.3, .82, kf_ease(Z.p)) + o * .07 * (1 - Z.p * .5);
+    kf_P.L.w.y += o * .006; kf_P.R.w.y += o * .006; kf_P.L.c[0] = kf_P.R.c[0] = .62 + o * .12; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .9; kf_ton('kfRoll', { gain: .22 }); } },
+  kleben(dt, t) { const Z = kf_Z, d = kiffen_S.in.dx; Z.klebX = kf_clamp((Z.klebX || 0) + d * .00004, -.03, .03); kf_P.L.w.x += Z.klebX; kf_P.R.w.x += Z.klebX; kf_PA.nass = 1 - Z.p * .6; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .8; kf_ton('kfRoll', { gain: .16, rate: 1.2 }); } },
+  spitze(dt, t) { const Z = kf_Z, d = Math.abs(kiffen_S.in.dx) + Math.abs(kiffen_S.in.dy); Z.spPh = (Z.spPh || 0) + d * .02; kf_handDreh(kf_P.R, .085, -.37, -.3, -.35, .2, -.92, Math.sin(Z.spPh) * .5); if (d > 3 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .5; kf_ton('kfPapier', { gain: .12, rate: 1.4, dur: .3 }); } },
+  rad(dt, t) { const Z = kf_Z; if (!Z.radDone && Z.p > .45) { Z.radDone = true; kf_ton('kfDeckelZ', { gain: .5 }); Z.radN = (Z.radN || 0) + 1; kf_ton('kfRad', { gain: .5, delay: .25 }); const f = kf_PR.feuerzeug.o.position;
+      setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; } }, 280); }
+    if (Z.feuer) kf_CH.flamme = 1; },
+  anzuenden(dt, t) { const Z = kf_Z; kf_CH.flamme = 1; if (kiffen_S.in.down) { kf_CH.glut = Math.min(1, .3 + Z.p); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .3, dur: 1.6 }); } } },
+  rauchen(dt, t) { kf_rauchenTick(dt, t); } };
+// Krümel: fallen aus dem gekippten Grinder in die Rinne und bleiben dort (Lage auf dem Papier in u/v), rollen mit ein
+function kf_kruemelFall() { const T = kf_T; for (const c of T.kr) { if (c.st) continue; c.st = 1; c.t = 0; const g = kf_PR.koerper.o.position; c.x = g.x + (Math.random() - .5) * .012; c.y = g.y + .01; c.z = g.z + (Math.random() - .5) * .012; c.vx = (Math.random() - .5) * .05; c.vy = -.05; c.vz = (Math.random() - .5) * .05;
+  c.u = .1 + Math.random() * .78; c.v = .3 + Math.random() * .14; c.h = Math.random(); T.krN++; return; } }
+function kf_kruemelTick(dt) { const T = kf_T, P = T.krP.geometry.attributes.position.array, bl = kf_PR.blatt.o, V = KF_V; let any = false;
+  for (let i = 0; i < KF_KR; i++) { const c = T.kr[i]; if (!c.st) { P[i * 3 + 1] = -99; continue; } any = true;
+    if (c.st === 1) { c.t += dt; c.vy -= 9.8 * dt; c.x += c.vx * dt; c.y += c.vy * dt; c.z += c.vz * dt;
+      // Ziel: Punkt auf dem Blatt
+      kf_papAchse(c.u, V.v0); V.v0.y += (c.v - .32) * KF_PAP.W * (1 - kf_clamp(kf_papK() * 1.6)) * .8; V.v0.z += c.h * .002; V.v0.applyQuaternion(bl.quaternion).add(bl.position);
+      if (c.y <= V.v0.y || c.t > .6) c.st = 2; else { P[i * 3] = c.x; P[i * 3 + 1] = c.y; P[i * 3 + 2] = c.z; continue; } }
+    kf_papAchse(c.u, V.v0); const k = kf_clamp(kf_papK() * 1.3); V.v0.y += ((c.v - .32) * KF_PAP.W * .8 * (1 - k) + (c.h - .5) * .004 * k); V.v0.z += (c.h - .5) * .003 * k + c.h * .002 * (1 - k);
+    if (kf_PA.brand > 0 && c.u > 1 - kf_PA.brand * .72) V.v0.y = -99; V.v0.applyQuaternion(bl.quaternion).add(bl.position); P[i * 3] = V.v0.x; P[i * 3 + 1] = V.v0.y; P[i * 3 + 2] = V.v0.z; }
+  T.krP.visible = any && bl.visible; T.krP.geometry.attributes.position.needsUpdate = true; }
+function kf_kruemelAlle() { let n = 0; for (const c of kf_T.kr) if (!c.st && n++ < 150) { c.st = 2; c.u = .1 + Math.random() * .78; c.v = .3 + Math.random() * .14; c.h = Math.random(); } }
+// Weltlage eines Punkts auf dem Joint (u entlang, Achse)
+function kf_jointPunkt(u, o) { const bl = kf_PR.blatt.o; kf_papAchse(u, o); return o.applyQuaternion(bl.quaternion).add(bl.position); }
+// ---------------------------------------------------------------- Rauchen: Zug = halten; loslassen = ausatmen. Husten nach dem ersten Zug, Whiskey äfft nach, Vegas im Türrahmen
+function kf_rauchenTick(dt, t) { const Z = kf_Z, S = kiffen_S, H = KF_H, V = KF_V;
+  const ziehen = S.in.down && Z.ausT <= 0 && !Z.pause; Z.zug = kf_lerp(Z.zug, ziehen ? 1 : 0, Math.min(1, dt * (ziehen ? 3 : 2.2)));
+  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.45, -.25, Z.zug); Z.camYz = kf_lerp(Z.camYz, Z.blickY || 0, Math.min(1, dt * 2));
+  kf_CH.glut = .45 + Z.zug * .55; if (ziehen) { Z.zugT = (Z.zugT || 0) + dt; kf_CH.brand = Math.min(.95, kf_CH.brand + dt * .012); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .26, dur: 1.6 }); } }
+  else if ((Z.zugT || 0) > .5) { // ausatmen
+    Z.zugT = 0; Z.zuege++; Z.ausT = 2.4; kf_ton('kfAus', { gain: .32 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
+    if (Z.zuege === 1 && !Z.hustet) { Z.hustet = true; setTimeout(() => { kf_ton('kfHusten', { gain: .55 }); shake = Math.max(shake, .018); kf_husten(); }, 700); }
+    if (Z.zuege === 3 && !Z.vegas && Z.opts.vegas !== false) setTimeout(() => kf_vegas(), 2600);
+  } else if (Z.zugT > 0 && !ziehen) Z.zugT = 0;
+  if (Z.ausT > 0) { Z.ausT -= dt; const k = Z.ausT / 2.4; if (k > .35 && (!Z.ausP || t > Z.ausP)) { Z.ausP = t + .06; kf_rauchStoss(V.v0.set(0, -.07, -.09), 2, (Math.random() - .5) * .05, .02, -.35 * k, .018, .34 * k, 3.2); } }
+  // Glut glimmt, Faden steigt auf
+  kf_jointPunkt(1 - kf_CH.brand * .72, V.v1); if (!Z.fadT || t > Z.fadT) { Z.fadT = t + (ziehen ? .03 : .11); kf_rauchStoss(V.v1, 1, 0, .045, 0, .005, ziehen ? .08 : .2, 3); }
+  if (ziehen && (!Z.glT || t > Z.glT)) { Z.glT = t + .35; kf_ton('kfGlut', { gain: .1, dur: .4, offset: Math.random() }); }
+  if (Z.zuege >= 3 && !Z.endHint) { Z.endHint = true; kf_hint([['Halten', 'noch ein Zug'], ['E', 'aufstehen']]); }
+  if (Z.zuege >= 3 && S.in.ende && Z.ausT <= 0 && !Z.pause) Z.fertig = true; if (Z.zuege >= 6 && Z.ausT <= 0 && !Z.pause) Z.fertig = true; }
+function kf_husten() { const Z = kf_Z; if (Z.opts.whiskey === false || typeof whiskey_S === 'undefined' || !whiskey_S.g || whiskey_S.light || (typeof whiskey_unten === 'function' && whiskey_unten())) { setTimeout(() => subtitle('Okay. Langsam.', 1800, 'LUKE'), 900); return; }
+  const W = whiskey_S, sp = kf_welt(.75, -.35, -.2, KF_V.v2); // Geländerende rechts vorn
+  try { whiskey_setzen(sp.x, sp.y, sp.z, () => { whiskey_blick(Z.sitz.x, Z.sitz.y + 1.1, Z.sitz.z, 5); }); } catch (e) {}
+  setTimeout(() => { const g = W.g && W.g.position; if (!g) return; // Nachahmung: Lukes Husten, einen Tick zu hoch, zu dumpf, zu schnell
+    kf_ton('kfHusten', { gain: .5, rate: 1.12, lp: 2600, x: g.x, y: g.y + .25, z: g.z, ref: 4 }); try { whiskey_play && whiskey_play('EatSomething', .15); W.puff = Math.max(W.puff || 0, .8); } catch (e) {}
+    setTimeout(() => subtitle('Sehr witzig.', 1800, 'LUKE'), 1500); }, 2600); }
+// Vegas im Türrahmen (albers.js): Kette ab, Tür auf, ein Satz. Luke dreht nur den Kopf – nie von vorn zu sehen, er sitzt mit dem Rücken zur Tür
+async function kf_vegas() { const Z = kf_Z; if (Z.vegas || typeof albers_S === 'undefined') return; const A = albers_S; if (A.busy) return; Z.vegas = true; Z.pause = true; A.busy = true;
+  try { Audio.play && Audio.play('doorCreak', { gain: .35, rate: 1.1, x: A.door.x, y: 1.2, z: A.door.z, ref: 3 }); } catch (e) {}
+  A.open = 1; A.wOpen = true; setTimeout(() => { A.wOpen = false; }, 200); // Figur sichtbar, Licht aus dem Türspalt (albers_door)
+  await wait(900); { const dx = A.door.x + .2 - Z.sitz.x, dz = A.door.z + .45 - Z.sitz.z, y = Math.atan2(-dx, -dz); Z.blickY = kf_clamp(Math.atan2(Math.sin(y - Z.yaw), Math.cos(y - Z.yaw)), -2.3, 2.3); } await wait(1300);
+  await say([['„Riecht wie fünfundsiebzig. Nur ohne die Herren.“', 3600, 'LARS VEGAS']]);
+  await wait(400); Z.blickY = 0; await wait(900); A.open = 0; try { Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .45, x: A.door.x, y: 1.2, z: A.door.z, ref: 3 }); } catch (e) {} A.busy = false; Z.pause = false; }
+// Sitzraum → Welt
+function kf_welt(x, y, z, o) { return o.set(x, y, z).applyQuaternion(kf_R.seat.quaternion).add(kf_R.seat.position); }
+// ---------------------------------------------------------------- Kamera: vom Stehen in den Sitz, Blick auf die Hände; atmet, zittert nach den Flashbacks
+function kf_camFn(cam, dt) { const Z = kf_Z, S = kiffen_S, st = Z.saved; if (!st) return; const k = kf_io(Z.blend), t = performance.now() / 1000;
+  const sp = kf_R.seat.position, br = Math.sin(t * 1.35) * .004 + Math.sin(t * .47) * .002;
+  cam.position.set(kf_lerp(st.x, sp.x, k), kf_lerp(st.y, sp.y + br, k), kf_lerp(st.z, sp.z, k));
+  Z.camY = kf_lerp(Z.camY, Z.camYz, Math.min(1, dt * 2.6)); Z.camP = kf_lerp(Z.camP, Z.camPz, Math.min(1, dt * 2.4)); if (Z.camFix) { Z.camY = Z.camFix[0]; Z.camP = Z.camFix[1]; if (Z.camFix[2]) cam.position.add(kf_welt(Z.camFix[2][0], Z.camFix[2][1], Z.camFix[2][2], KF_V.v4).sub(kf_R.seat.position)); }
+  const z = S.zittern * .004, w = S.weich; const yaw = Z.yaw + Z.camY + Math.sin(t * .31) * .006 * (1 + w * 2) + Math.sin(t * 7.3) * z, pitch = Z.camP + Math.sin(t * .23) * .005 * (1 + w) + Math.sin(t * 8.1) * z;
+  const dy = Math.atan2(Math.sin(yaw - st.yaw), Math.cos(yaw - st.yaw)); cam.rotation.set(kf_lerp(st.pitch, pitch, k), st.yaw + dy * k, Math.sin(t * .4) * .006 * w * k); }
+function kf_hint(list) { const el = kiffen_S.hintEl; if (!el) return; if (!list) { el.classList.remove('on'); return; } el.querySelector('.t').innerHTML = list.map(([k, v]) => `<span><kbd>${trX(k)}</kbd> ${trX(v)}</span>`).join(''); el.classList.add('on'); }
+function kf_prog(p) { const el = kiffen_S.hintEl; if (el) el.querySelector('.b i').style.width = (p === null ? 0 : Math.round(kf_clamp(p) * 100)) + '%'; if (el) el.querySelector('.b').style.opacity = p === null ? 0 : 1; }
+// Ein Schritt: Promise bis p = 1
+function kf_schritt(st) { const Z = kf_Z; Z.st = st; Z.p = 0; Z.akt = st.art === 'auto'; Z.tonI = 0; Z.radDone = false; Z.feuer = Z.feuer || false; kiffen_S.in.klick = 0; kiffen_S.in.ende = false;
+  kf_hint(st.hint || null); kf_prog(st.art === 'maus' || st.art === 'halten' ? 0 : null);
+  if (st.id === 'grinden' && Audio.ctx && Audio.buf.kfGrind) { Z.grindG = Audio.play('kfGrind', { gain: 0, loop: true, dest: Audio.master }); }
+  return new Promise(res => { Z.res = res; }); }
+function kf_schrittTick(dt, t) { const Z = kf_Z, st = Z.st, S = kiffen_S; if (!st) return;
+  if (st.art === 'klick') { if (!Z.akt && (S.in.klick > 0 || S.in.test)) { Z.akt = true; S.in.klick = 0; kf_hint(null); } if (Z.akt) Z.p += dt / st.dauer; }
+  else if (st.art === 'auto') Z.p += dt / st.dauer;
+  else if (st.art === 'halten') { if (S.in.down || S.in.test) Z.p += dt / st.dauer; kf_prog(Z.p); }
+  else if (st.art === 'maus') { Z.p += (Math.abs(S.in.dx) + Math.abs(S.in.dy)) / st.bedarf + (S.in.test ? dt / 1.5 : 0); kf_prog(Z.p); }
+  else if (st.art === 'rauchen') { Z.p = .5; if (S.in.test && !Z.testZ) { Z.testZ = 1; } }
+  Z.p = Math.min(1, Z.p); kf_eval(st, Z.p);
+  if (st.ton) while (Z.tonI < st.ton.length && Z.p >= st.ton[Z.tonI][0] && (Z.akt || st.art !== 'klick')) { const [, n, g] = st.ton[Z.tonI++]; kf_ton(n, { gain: g }); }
+  if (st.live && kf_lebend[st.live]) kf_lebend[st.live](dt, t);
+  S.in.dx = 0; S.in.dy = 0;
+  if (st.art === 'rauchen' ? Z.fertig : Z.p >= 1) { if (st.halt && !Z.halt) { Z.halt = st.halt; if (st.id === 'feuer') subtitle('<i>„Für Peter. Damit du im Dunkeln nicht allein bist. – M.“</i>', 4200); return; } if (Z.halt > 0) { Z.halt -= dt; if (Z.halt > 0) return; } Z.halt = 0;
+    if (Z.grindG) { try { Z.grindG.stop(.2); } catch (e) {} Z.grindG = null; } kf_hint(null); kf_prog(null); const r = Z.res; Z.res = null; Z.st = null; r && r(); } }
+// Alles aus dem Zustand auf die Bühne
+function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za = S.zittern;
+  if (st) for (const s of ['L', 'R']) { const P = kf_P[s]; if (za > 0) { P.w.x += (Math.sin(t * 9.1 + (s === 'L' ? 0 : 2)) + Math.sin(t * 13.7)) * .0007 * za; P.w.y += Math.sin(t * 11.3 + (s === 'L' ? 1 : 3)) * .0008 * za; }
+    P.w.y += Math.sin(t * 1.35) * .003; kf_applyHand(s, P); }
+  // Requisiten nach Schlüsseln (aus dem aktuellen Schritt)
+  if (st) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0; for (let i = 0; i < K.length - 1; i++) if (Z.p >= K[i][0] && Z.p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((Z.p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
+    if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); }
+  // Kanäle
+  const g = kf_PR.deckel.o, gb = kf_PR.koerper.o; if (g.visible) { g.rotateOnAxis(KF_V.v0.set(0, 1, 0), kf_CH.deckelD); }
+  if (kf_PR.einsatz) { const e = kf_PR.einsatz.o; e.visible = gb.visible && kf_CH.einsatz > .5; if (e.visible) { e.position.copy(gb.position); e.quaternion.copy(gb.quaternion); e.translateY((S.gr ? S.gr.cut : .027) - .001); e.rotateX(-Math.PI / 2); } }
+  const kn = kf_PR.knolle.o; kn.scale.setScalar(kf_CH.knolle);
+  kf_PA.mulde = kf_CH.mulde; if (!(st && (st.live === 'rollen'))) kf_PA.rolle = kf_CH.rolle; kf_PA.spitze = kf_CH.spitze; kf_PA.kegel = kf_CH.kegel; kf_PA.brand = kf_CH.brand; if (!(st && st.live === 'kleben')) kf_PA.nass = kf_CH.nass;
+  const bl = kf_PR.blatt.o; if (bl.visible) { const sl = kf_CH.blatt; bl.scale.set(kf_lerp(.2, 1, sl), 1, 1); kf_papUpdate(bl.children[0]); }
+  kf_TA.falt = kf_CH.falt; kf_TA.roll = kf_CH.tipRoll; const tp = kf_PR.tip.o; if (tp.visible) { kf_tipUpdate(tp.children[0]); if (st && st.keys[st.keys.length - 1][1].pr.tip && st.keys[st.keys.length - 1][1].pr.tip.tip && Z.p > .95) { kf_jointPunkt(.07, tp.position); tp.quaternion.copy(bl.quaternion); tp.rotateY(Math.PI / 2); } }
+  if (Z.st && (Z.st.id === 'rollen' || Z.st.id === 'lecken' || Z.st.id === 'kleben' || Z.st.id === 'spitze' || Z.st.id === 'feuer' || Z.st.id === 'rad' || Z.st.id === 'anzuenden' || Z.st.id === 'weg' || Z.st.id === 'rauchen' || Z.st.id === 'aufstehen')) { if (tp.visible || kf_CH.tipRoll > .9) { tp.visible = bl.visible; kf_jointPunkt(.035, tp.position); tp.quaternion.copy(bl.quaternion); tp.rotateY(Math.PI / 2); tp.scale.setScalar(kf_lerp(1, .82, kf_clamp(kf_PA.rolle - .5))); } }
+  kf_kruemelTick(dt);
+  // Flamme, Glut, Licht
+  const T = kf_T, fz = kf_PR.feuerzeug.o, L = S.vl; const fl = kf_CH.flamme > .5 && fz.visible;
+  T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .036, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
+    const fk = .85 + Math.sin(t * 31) * .06 + Math.sin(t * 17.3) * .08 + (Math.random() - .5) * .05; T.flamme.scale.set(.011 * fk, .026 * (fk + .1 * Math.sin(t * 9)), 1); T.flamme.material.opacity = .95; T.flamme.material.rotation = Math.sin(t * 3.1) * .08 + (Z.st && Z.st.id === 'anzuenden' ? -.5 : 0); }
+  const gl = kf_CH.glut; T.glut.visible = gl > .02 && bl.visible; if (T.glut.visible) { kf_jointPunkt(1 - kf_PA.brand * .72, T.glut.position); const f = gl * (.8 + Math.sin(t * 13) * .1 + Math.sin(t * 5.3) * .1); T.glut.material.opacity = kf_clamp(f); T.glut.scale.setScalar(.008 + .01 * f); }
+  if (L) { const w = KF_V.v3; if (fl) { L.color.setHex(0xffa24a); L.intensity = 1.6 * (.85 + Math.sin(t * 29) * .08 + Math.random() * .07); L.distance = 2.2; kf_welt(T.flamme.position.x, T.flamme.position.y + .02, T.flamme.position.z, w); L.position.copy(w); }
+    else if (Z.hell) { L.color.setHex(0xfff0dc); L.intensity = Z.hell; L.distance = 3; kf_welt(.3, .4, .2, w); L.position.copy(w); }
+    else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .25 * gl; L.distance = .7; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
+  if (Z.flTon && !fl) { try { Z.flTon.stop(.15); } catch (e) {} Z.flTon = null; }
+}
+// Verandalampe von Nr. 3 (porchLights[0]) während der Szene an – Vegas hat das Licht angemacht; danach wie vorher
+function kf_veranda(an) { const Z = kf_Z, p = typeof porchLights !== 'undefined' && porchLights[0]; if (!p) return; if (an) { if (Z.porchWar === undefined) Z.porchWar = !!p.dead; p.dead = false; } else if (Z.porchWar !== undefined) { p.dead = Z.porchWar; Z.porchWar = undefined; } }
+// Sitzplatz messen (Verandakante) und die Bühne dorthin setzen
+function kf_sitzMessen(x, z) { let y = .35; try { const rc = new THREE.Raycaster(new THREE.Vector3(x, 2.4, z), new THREE.Vector3(0, -1, 0), 0, 3); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && h.object.parent !== kf_R.seat && !(h.object.material && h.object.material.transparent));
+  if (h) y = h.point.y; } catch (e) {} return y; }
+function kf_buehne(opts) { const Z = kf_Z, s = opts.sitz || [KF_SITZ.x, null, KF_SITZ.z, KF_SITZ.yaw]; Z.yaw = s[3]; const y0 = s[1] ?? kf_sitzMessen(s[0] + Math.sin(Z.yaw) * .25, s[2] + Math.cos(Z.yaw) * .25);
+  Z.sitz.set(s[0], y0, s[2]); kf_R.seat.position.set(s[0] - Math.sin(Z.yaw) * .05, y0 + KF_SITZ.auge, s[2] - Math.cos(Z.yaw) * .05); kf_R.seat.rotation.set(0, Z.yaw, 0); kf_R.seat.updateMatrixWorld(true);
+  kf_R.rig.visible = true; kf_R.seat.visible = true; for (const c of kf_T.kr) { c.st = 0; } kf_T.krN = 0; Object.assign(kf_PA, { mulde: 0, rolle: 0, spitze: 0, brand: 0, kegel: 0, nass: 0 }); Object.assign(kf_TA, { falt: 0, roll: 0 }); }
+// ---------------------------------------------------------------- Die Szene
+async function kiffen_szene(opts = {}) {
+  const S = kiffen_S, Z = kf_Z; if (!S.ready || Z.on) return false; if (!kf_R.ready) { console.warn('Kiffen: Hände fehlen'); return false; }
+  Z.on = true; S.szene = true; Z.opts = opts; state.talking = true; Z.fertig = false; Z.zuege = 0; Z.hustet = false; Z.vegas = false; Z.feuer = false; Z.radN = 0; Z.endHint = false; Z.blickY = 0; Z.pause = false; Z.halt = 0; Z.lidA = 0; Z.ausT = 0; Z.zug = 0;
+  Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z };
+  kf_buehne(opts); kf_veranda(true); kf_eval(KF_STEPS[0], 0); Z.camY = 0; Z.camP = player.pitch; Z.blend = 0; Z.blendZ = 1; flashOn = false;
+  setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); setCamOverride(kf_camFn);
+  if (typeof spannung_hush === 'function') try { spannung_hush(20); } catch (e) {}
+  try { for (const st of KF_STEPS) { if (st.id === 'aufstehen') break; await kf_schritt(st); } await kf_schritt(KF_STEPS[KF_STEPS.length - 1]); }
+  catch (e) { console.error('Kiffen: Szene', e); }
+  // aufstehen: Kamera zurück, der Stummel landet in Vegas' Aschenbecher
+  Z.blendZ = 0; await wait(1800); if (S.aschStummel) S.aschStummel.visible = true;
+  for (const n in kf_PR) kf_PR[n].o.visible = false; kf_T.glut.visible = kf_T.flamme.visible = false; kf_T.krP.visible = false; kf_R.rig.visible = false; if (S.vl) S.vl.intensity = 0;
+  const sv = Z.saved; player.pos.set(sv.px, sv.py, sv.pz); kf_veranda(false); setScripted(null); setCamOverride(null); state.talking = false; Z.on = false; S.szene = false; S.done = true; Z.st = null;
+  if (story.side.kf_fuenf) sideDone('kf_fuenf', 'Fünf Minuten auf Vegas’ Veranda. Es waren eher zwölf.'); S.auf = 'fertig';
+  for (const k of ['kf_grinder', 'kf_papes', 'kf_knolle', 'kf_tips']) { const i = story.items.indexOf(k); if (i >= 0 && k !== 'kf_grinder') story.items.splice(i, 1); } // Grinder bleibt in der Jacke
+  if (typeof gedanke === 'function') gedanke('kf_danach', 'Zwölf Minuten, nicht fünf. Reicht trotzdem.', 9000, 3);
+  try { saveGame(kf_kap()); } catch (e) {} return true; }
+// Weiche Welt, Zeitlupe, Ruhe (läuft nach der Szene weiter, insgesamt ~80 s ab dem ersten Zug)
+const KF_WEICH = 80;
+function kf_weichTick(rdt, t) { const S = kiffen_S; if (S.weichZiel <= 0 && S.weich <= .001) { if (S.pass && S.pass.enabled && !S.flashAn) S.pass.enabled = false; S.zeit = 1; return; }
+  S.weichT += rdt; if (S.weichT > KF_WEICH - 14 && !kf_Z.on) S.weichZiel = Math.max(0, 1 - (S.weichT - (KF_WEICH - 14)) / 14);
+  if (S.weichT > KF_WEICH && !kf_Z.on) S.weichZiel = 0;
+  S.weich = kf_lerp(S.weich, S.weichZiel, Math.min(1, rdt * .35)); if (S.pass) { S.pass.enabled = true; S.pass.uniforms.uW.value = S.weich * .9; }
+  S.zeit = 1 - .16 * kf_clamp(S.weich); // leichte Zeitlupe der Welt
+  if (S.weich > .05) { if (typeof fear !== 'undefined') fear.v = Math.min(fear.v, .05); if (typeof SP !== 'undefined') { SP.peak = Math.min(SP.peak, SP.t - 600); SP.lastMinor = Math.max(SP.lastMinor, SP.t - 20); SP.lastMajor = Math.max(SP.lastMajor, SP.t - 20); } S.zittern = 0; }
+  if (Audio.world && Audio.ctx) { const g = 1 - .45 * kf_clamp(S.weich); if (Math.abs(g - S.worldG) > .02) { S.worldG = g; Audio.world.gain.setTargetAtTime(g, Audio.ctx.currentTime, .6); } } }
+
+// ================================================================ Flashbacks (Nachbild-Stil): kurze Schnitte, Ton-Abriss, Herzschlag – danach zittern die Hände
+async function kiffen_flash(opts = {}) { const S = kiffen_S; if (!S.pass || S.flashAn) return; S.flashAn = true; const U = S.pass.uniforms; S.pass.enabled = true; const was = state.talking; state.talking = true;
+  const ctxT = () => Audio.ctx ? Audio.ctx.currentTime : 0; const cut = on => { try { if (Audio.world) Audio.world.gain.setTargetAtTime(on ? 0 : 1, ctxT(), on ? .01 : .5); if (Audio.hushG) Audio.hushG.gain.setTargetAtTime(on ? 0 : 1, ctxT(), on ? .01 : .8); } catch (e) {} };
+  const bild = async (i, ms, tint) => { U.tFl.value = S.flTex[i]; U.uTint.value.set(...tint); kf_ton('kfSchnitt', { gain: .7 }); U.uFl.value = 1; U.uZoom.value = 0; glitchV = .6; shake = Math.max(shake, .03);
+    const t0 = performance.now(); while (performance.now() - t0 < ms) { const k = (performance.now() - t0) / ms; U.uZoom.value = k; U.uFl.value = k < .15 ? 1 : 1 - (k - .15) * .25; U.uT.value = performance.now() / 1000; await wait(16); }
+    U.uFl.value = 0; U.uCut.value = 1; };
+  try { cut(true); kf_ton('kfTinnitus', { gain: .55 }); Audio.heart && Audio.heart(); await wait(120);
+    await bild(0, 780, [.82, .93, 1.18]); await wait(230); U.uCut.value = 0; await wait(260); Audio.heart && Audio.heart();
+    await bild(1, 560, [1.15, .92, .82]); await wait(180); U.uCut.value = 0; await wait(220);
+    await bild(2, 950, [.8, 1, .98]); await wait(420); Audio.heart && Audio.heart();
+    U.uCut.value = 0; cut(false); kf_ton('kfAtemFlash', { gain: .5 }); shake = Math.max(shake, .02); S.zittern = 1; setTimeout(() => Audio.heart && Audio.heart(), 900); setTimeout(() => Audio.heart && Audio.heart(), 1800);
+  } finally { U.uFl.value = 0; U.uCut.value = 0; S.flashAn = false; if (S.weich <= .001) S.pass.enabled = false; state.talking = was; } }
+
+// ================================================================ Aufgabe „Fünf Minuten“
+function kf_aufgabeText() { const S = kiffen_S, L = [];
+  const ort = id => S.echt[id] ? KF_FUNDE[id].ort : (KF_FUNDE[id].ortRueck || KF_FUNDE[id].ort);
+  L.push((kf_hat('kf_grinder') ? '✓ ' : '· ') + 'Grinder – ' + ort('grinder')); L.push((kf_hat('kf_papes') ? '✓ ' : '· ') + 'Blättchen – ' + ort('papes'));
+  L.push((kf_hat('kf_knolle') ? '✓ ' : '· ') + 'Etwas zum Drehen – ' + ort('knolle')); L.push((kf_hat('kf_tips') ? '✓ ' : '· ') + 'Tips – ' + ort('tips'));
+  if (S.auf === 'bereit') L.push('Vegas’ Veranda, Nr. 3. Hinsetzen.'); return L.join('\n'); }
+function kf_aufgabeSync() { const q = story.side.kf_fuenf; if (!q) return; if (q.state !== 'done') q.desc = kf_aufgabeText(); try { updateSideInfo(); } catch (e) {} }
+async function kiffen_start(opts = {}) { const S = kiffen_S; if (S.auf !== 'aus' || !S.ready) return false; S.auf = 'flash';
+  await kiffen_flash(opts); await wait(900); subtitle('Ich brauch fünf Minuten. Nur fünf.', 3200, 'LUKE'); await wait(2600);
+  S.auf = 'suche'; sideStart('kf_fuenf'); kf_aufgabeSync(); kf_fundeSync(); try { saveGame(kf_kap()); } catch (e) {} return true; }
+function kf_alle() { return ['kf_grinder', 'kf_papes', 'kf_knolle', 'kf_tips'].every(kf_hat); }
+function kf_gefunden(id) { const S = kiffen_S, F = KF_FUNDE[id]; if (kf_hat(F.item)) return; kiffen_nimm(F.item); S.funde.add(id);
+  const tx = S.echt[id] ? F.text : (F.textRueck || F.text); if (tx) subtitle(tx, 3600, id === 'knolle' ? '' : 'LUKE'); if (F.luke) setTimeout(() => subtitle(F.luke, 2000, 'LUKE'), 3900);
+  Audio.play && Audio.play('keys2', { gain: .16, rate: 1.5, dur: .3 }); kf_fundeSync(); if (kf_alle() && S.auf === 'suche') { S.auf = 'bereit'; setTimeout(() => { questPop('FÜNF MINUTEN', 'Vegas’ Veranda, Nr. 3'); if (typeof gedanke === 'function') gedanke('kf_bereit', 'Alles da. Vegas’ Veranda. Da sieht mich keiner. Außer Vegas. Und dem Vogel.', 1500, 3); }, 4200); }
+  kf_aufgabeSync(); }
+// Tips bei Vegas: durch den Türspalt (albers.js), solange es seine Küche noch nicht gibt (AP-19 → kiffen_fund('tips', pos))
+async function kf_vegasTips() { if (kf_hat('kf_tips')) return; const say1 = [['„Tips? Nimm den Pappdeckel von den Streichhölzern. Hab ich ’75 auch so gemacht.“', 4200, 'LARS VEGAS']];
+  const f = async () => { await wait(500); Audio.play && Audio.play('paper1', { gain: .2 }); kf_gefunden('tips'); };
+  if (typeof albers_whiskey === 'function') { const ok = await albers_whiskey([...say1, f]); if (ok) return; } await say(say1); await f(); }
+
+// ================================================================ Fundorte (Aufgabe) und Weltdeko
+// Rückfall-Fundorte, die es schon gibt: Nr. 4 von außen (Podest vor der Haustür, „lose Stufe“), Roxys Laube (Schrebergärten, Parzelle mit Licht), Vegas' Tür
+const KF_ORTE = {
+  grinder: { at: [-27.42, null, 12.22], ry: 0 }, papes: { at: [-27.3, null, 12.02], ry: 1.9 },
+  knolle: { at: [-109.9, 0, 24.05], ry: 1.2, hit: [.6, .5, .6] }, tips: { tuer: true } };
+function kf_boden(x, z, von = 2.4, bis = 3.2) { try { const rc = new THREE.Raycaster(new THREE.Vector3(x, von, z), new THREE.Vector3(0, -1, 0), 0, bis); const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && !h.object.isSprite && !h.object.isPoints && !(h.object.material && (h.object.material.transparent || h.object.material.visible === false)) && !kf_istMein(h.object));
+  return h ? h.point.y : null; } catch (e) { return null; } }
+function kf_istMein(o) { for (let p = o; p; p = p.parent) if (p === kf_R.seat || (p.userData && p.userData.kf)) return true; return false; }
+async function kf_modell(key, size, axis = 'y') { const src = await msModel(key, 'model.glb'); const o = src.clone(true); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); if (size) msFit(o, size, axis); const g = msGround(o); g.userData.kf = true; return g; }
+function kf_hit(w, h, d, x, y, z, label, act) { const m = box(w, h, d, x, y, z, hidden, { cast: false }); m.userData.noCol = true; m.userData.kf = true; interact(m, label, act); return m; }
+async function kf_fundeBau() { const S = kiffen_S;
+  // Nr. 4: Lukes Versteck von 2016 unter der losen Stufe vor der Tür (bis AP-15 das Zimmer baut)
+  for (const id of ['grinder', 'papes']) { const O = KF_ORTE[id]; const o = id === 'grinder' ? await kf_modell('kiffen/grinder', .047) : await kf_modell('kiffen/papes', .105, 'max');
+    const y = O.at[1] ?? (kf_boden(O.at[0], O.at[2], 1.2, 1.3) ?? .45); o.position.set(O.at[0], y, O.at[2]); o.rotation.y = O.ry; o.visible = false; scene.add(o); S.fundObj[id] = o; }
+  // Roxys Laube: Topfpflanzen neben der Tür, darunter das Tütchen mit dem Zettel
+  { const O = KF_ORTE.knolle, y = kf_boden(O.at[0], O.at[2]) ?? 0; const o = new THREE.Group(); o.userData.kf = true; const t = await kf_modell('kiffen/tuetchen', .07, 'max'); t.rotation.y = .4; o.add(t);
+    const zt = kf_cnv(256, 192, (x, w, h) => { x.fillStyle = '#efe8d6'; x.fillRect(0, 0, w, h); for (let i = 0; i < 6; i++) { x.strokeStyle = 'rgba(120,150,190,.35)'; x.beginPath(); x.moveTo(0, 30 + i * 28); x.lineTo(w, 30 + i * 28); x.stroke(); }
+      x.fillStyle = 'rgba(30,40,120,.9)'; x.font = '34px Caveat, cursive'; x.fillText('Für schlechte', 22, 70); x.fillText('Nächte. R.', 40, 118); x.strokeStyle = 'rgba(30,40,120,.8)'; x.beginPath(); x.arc(196, 108, 9, 0, 6); x.stroke(); });
+    const zm = new THREE.Mesh(new THREE.PlaneGeometry(.075, .056), new THREE.MeshStandardMaterial({ map: tex(zt, true), roughness: .9, side: THREE.DoubleSide })); zm.rotation.set(-Math.PI / 2, 0, .3); zm.position.set(.045, .003, .03); zm.castShadow = true; o.add(zm);
+    o.position.set(O.at[0], y, O.at[2]); o.rotation.y = O.ry; o.visible = false; scene.add(o); S.fundObj.knolle = o; }
+  S.fundHit.grinder = kf_hit(.6, .35, .5, -27.36, (S.fundObj.grinder.position.y || .45) + .1, 12.12, () => 'Lose Stufe', () => { kf_gefunden('grinder'); kf_gefunden('papes'); });
+  S.fundHit.knolle = kf_hit(.6, .45, .6, KF_ORTE.knolle.at[0], (S.fundObj.knolle.position.y || 0) + .2, KF_ORTE.knolle.at[2], 'Unter dem Blumentopf', () => kf_gefunden('knolle'));
+  S.fundHit.tips = kf_hit(1.1, 2.1, .35, -28, 1.5, -12.05, 'Vegas nach Tips fragen', () => kf_vegasTips());
+  S.sitzHit = kf_hit(1.4, .9, .8, KF_SITZ.x, .7, KF_SITZ.z - .15, 'Hinsetzen · fünf Minuten', () => kiffen_szene({}));
+  for (const k in S.fundHit) uninteract(S.fundHit[k]); uninteract(S.sitzHit); }
+// Kapitel-Ort ersetzt den Rückfall: kiffen_fund('grinder', [x, y, z, ry]) (AP-15 Nr. 4 innen) · kiffen_fund('tips', [x, y, z]) (AP-19 Vegas' Küche)
+function kiffen_fund(id, pos, o = {}) { const S = kiffen_S; if (!KF_FUNDE[id]) return false; S.echt[id] = !!pos; if (!pos) { kf_aufgabeSync(); return true; }
+  if (id === 'tips') { if (!S.tipObj) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.052, .036), new THREE.MeshStandardMaterial({ map: kf_texPappe(), roughness: .95, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.castShadow = true; const g = new THREE.Group(); g.add(m); g.userData.kf = true; scene.add(g); S.tipObj = g; S.fundObj.tips = g; }
+    uninteract(S.fundHit.tips); S.fundHit.tips = kf_hit(.3, .2, .3, pos[0], pos[1] + .05, pos[2], o.label || 'Streichholzschachtel', () => { subtitle('„Tips? Nimm den Pappdeckel von den Streichhölzern. Hab ich ’75 auch so gemacht.“', 4200, 'LARS VEGAS'); kf_gefunden('tips'); }); uninteract(S.fundHit.tips); }
+  const ob = S.fundObj[id]; if (ob) { ob.position.set(pos[0], pos[1], pos[2]); ob.rotation.y = pos[3] || 0; }
+  const h = S.fundHit[id === 'papes' ? 'papes' : id]; if (id === 'papes' && !S.fundHit.papes) { S.fundHit.papes = kf_hit(.3, .25, .3, pos[0], pos[1] + .08, pos[2], o.label || 'Hinter dem Poster', () => kf_gefunden('papes')); uninteract(S.fundHit.papes); }
+  else if (h) { h.position.set(pos[0], pos[1] + .1, pos[2]); if (o.label) h.userData.label = o.label; if (id === 'grinder') h.userData.action = () => kf_gefunden('grinder'); }
+  kf_aufgabeSync(); kf_fundeSync(); return true; }
+function kf_fundeSync() { const S = kiffen_S, suche = S.auf === 'suche' || S.auf === 'bereit';
+  for (const id of ['grinder', 'papes', 'knolle', 'tips']) { const o = S.fundObj[id], h = S.fundHit[id], F = KF_FUNDE[id], offen = suche && !kf_hat(F.item); if (o) o.visible = offen; if (h) { const on = interactables.includes(h); if (offen && !on) interactables.push(h); else if (!offen && on) uninteract(h); } }
+  const sitz = S.auf === 'bereit' && !kf_Z.on, on = interactables.includes(S.sitzHit); if (sitz && !on) interactables.push(S.sitzHit); else if (!sitz && on) uninteract(S.sitzHit); }
+// ---------------------------------------------------------------- Weltdeko: nur an Orten, die es gibt; sichtbar ab Kapitel k (kapAb)
+const KF_DEKO_TEXT = {
+  dub: 'Kellerdub Soundsystem, Jugendzentrum Kreisstadt. Klingt nach Keller. Klingt nach Mike.',
+  tanke: 'Blättchen neunzig Cent. Darunter, in Kuli: „– M.“ Mike hat die Preise selbst geschrieben.',
+  hanfTanke: 'Ein Hanfblatt auf der Wand einer Tankstelle. Mutig, Mike.',
+  theke: 'Blättchen neben den Kaugummis. Und ein Feuerzeug, an einer Schnur festgebunden. Mike kannte seine Kundschaft.',
+  hanfBus: 'Halb abgekratzt. Irgendwer hat hier auf den Bus gewartet und die Zeit genutzt.',
+  reggaeBus: '„One Love, Abgrund.“ Der Bus kommt trotzdem nicht.',
+  feuerBus: 'Ein Feuerzeug auf der Bank. Leer. Wie der Fahrplan.',
+  auto: 'Auf dem Armaturenbrett: Blättchen und ein Feuerzeug. Der Fahrer hatte Prioritäten.',
+  bong: 'Eine Bong. In der Remise. Zwischen dem Heu. Brandschutz war hier nie ein Thema.',
+  pflanzen: 'Die Growlampe ist aus. Die Pflanzen haben trotzdem durchgehalten. Respekt.',
+  ascher: 'Vegas’ Aschenbecher. Voll mit Kippen ohne Filter.', ascher2: 'Vegas’ Aschenbecher. Kippen ohne Filter. Und seit heute ein Stummel mit.' };
+function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5);
+  const h = rc.intersectObjects(scene.children, true).find(h => h.object.visible && h.face && !h.object.isSprite && !kf_istMein(h.object) && !(h.object.material && h.object.material.visible === false) && (o.glas || !(h.object.material && h.object.material.transparent)));
+  if (!h) return null; const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); if (n.dot(rc.ray.direction) > 0) n.negate(); const p = h.point.addScaledVector(n, .004);
+  const m = kiffen_poster(art, p.x, p.y, p.z, Math.atan2(n.x, n.z), o); if (m && Math.abs(n.y) > .5) m.lookAt(p.x + n.x, p.y + n.y, p.z + n.z); return m; } catch (e) { console.warn('Kiffen: Aufkleber', art, e); return null; } }
+async function kiffen_deko() { const S = kiffen_S, D = S.deko; const add = (o, k, text, hit) => { if (!o) return; o.userData.kf = true; o.visible = false; const e = { o, k, text, hit: null }; if (hit) { e.hit = kf_hit(...hit, 'Ansehen', () => subtitle(typeof e.text === 'function' ? e.text() : e.text, 4200, 'LUKE')); uninteract(e.hit); } D.push(e); return e; };
+  try {
+    // Tankstelle Kranz (Mikes Tankstelle): Poster an der Rückwand innen, Preisaushang, Aufkleber außen, Blättchen und Feuerzeug auf der Theke
+    add(kiffen_poster('dub', 109.3, 1.72, 30.735, Math.PI), 1, KF_DEKO_TEXT.dub, [.5, .7, .3, 109.3, 1.72, 30.6]);
+    add(kiffen_poster('tanke', 106.265, 1.62, 27.6, Math.PI / 2), 1, KF_DEKO_TEXT.tanke, [.3, .5, .4, 106.4, 1.62, 27.6]);
+    add(kiffen_poster('hanf', 116.9, 1.46, 24.862, Math.PI, { rz: .2 }), 1, KF_DEKO_TEXT.hanfTanke, [.25, .25, .25, 116.9, 1.46, 24.8]);
+    { const ty = kf_boden(111.1, 25.9, 1.6, 1.2) ?? .95; const g = new THREE.Group(); g.position.set(111.15, ty, 25.9); for (const [dx, dz, r] of [[0, 0, .2], [.035, .01, .5], [.015, -.02, -.3]]) { const p = await kf_modell('kiffen/papes', .105, 'max'); p.position.set(dx, 0, dz); p.rotation.y = r; p.children[0].rotation.x = Math.PI / 2 * 0; g.add(p); }
+      const f = await kf_modell('w_lighter', .06); f.position.set(.13, 0, .03); f.rotation.set(0, .9, 0); g.add(f); scene.add(g); add(g, 1, KF_DEKO_TEXT.theke, [.4, .25, .3, 111.2, ty + .08, 25.9]); }
+    // Bushaltestelle Kirchberg: zwei Aufkleber an der Rückwand, ein Feuerzeug auf der Bank
+    add(kiffen_poster('hanf', 11.9, 1.28, 51.99, 0, { rz: -.35 }), 1, KF_DEKO_TEXT.hanfBus, [.25, .25, .2, 11.9, 1.28, 52.05]);
+    add(kiffen_poster('reggae', 9.35, .98, 51.99, 0, { rz: .12 }), 1, KF_DEKO_TEXT.reggaeBus, [.3, .2, .2, 9.35, .98, 52.05]);
+    { const by = kf_boden(10.55, 52.4, 1.2, 1) ?? .47; const f = await kf_modell('w_lighter', .06); f.rotation.set(Math.PI / 2, 0, .6); f.position.set(10.55, by + .014, 52.4); scene.add(f); add(f, 1, KF_DEKO_TEXT.feuerBus, [.25, .2, .25, 10.55, by + .05, 52.4]); }
+    // beiges Auto vor Nr. 2 (strasse.js): Blättchen + Feuerzeug auf dem Armaturenbrett (Höhe gemessen)
+    for (const dx of [.95, -.95]) { const y = kf_boden(-49.5 + dx, 3.1 + .25, 1.28, .5); if (y !== null && y > .8 && y < 1.2) { const g = new THREE.Group(); g.position.set(-49.5 + dx, y, 3.1 + .25); const p = await kf_modell('kiffen/papes', .105, 'max'); p.rotation.y = 1.2; g.add(p); const f = await kf_modell('w_lighter', .055); f.rotation.set(Math.PI / 2, 0, .3); f.position.set(.02, .012, -.14); g.add(f); scene.add(g); add(g, 1, KF_DEKO_TEXT.auto); break; } }
+    // Remise (Hof): Bong neben dem Heu
+    { const y = kf_boden(-126.9, -34.6) ?? 0; const b = await kf_modell('kiffen/bong', .36); b.position.set(-126.9, y, -34.6); b.rotation.y = .7; b.traverse(m => { if (m.isMesh && m.material.transparent) { m.material.depthWrite = false; m.material.envMapIntensity = 1.4; m.castShadow = false; } }); scene.add(b); add(b, 1, KF_DEKO_TEXT.bong, [.35, .5, .35, -126.9, y + .2, -34.6]); }
+    // Roxys Laube: zwei Topfpflanzen an der Tür (die Knolle darunter gehört zur Aufgabe), Aufkleber an der Laube
+    { const y = kf_boden(-109.95, 23.55) ?? 0; const p1 = await kf_modell('kiffen/pflanze', 1.02); p1.position.set(-109.95, y, 23.55); p1.rotation.y = 2.1; scene.add(p1); add(p1, 1, KF_DEKO_TEXT.pflanzen, [.7, 1.1, .7, -109.95, y + .55, 23.55]);
+      const y2 = kf_boden(-109.85, 26.55) ?? 0; const p2 = await kf_modell('kiffen/topf', .72); p2.position.set(-109.85, y2, 26.55); p2.rotation.y = -.6; scene.add(p2); add(p2, 1, KF_DEKO_TEXT.pflanzen);
+      add(kf_klebRay('reggae', -111.5, 1.35, 25.3, 1, 0, 0, { rz: -.08 }), 1, null); }
+    // Vegas' Veranda: Aschenbecher auf den Dielen neben der Tür (ab Kap. 4; nach der Szene mit Stummel)
+    { const y = kf_boden(-26.55, -11.95, 1.6, 1.6) ?? .45; const a = await kf_modell('kiffen/ascher', .105, 'max'); a.position.set(-26.55, y, -11.95); scene.add(a);
+      const st = await kf_modell('kiffen/joints', .092, 'max'); st.scale.multiplyScalar(.45); st.position.set(-26.53, y + .012, -11.93); st.rotation.set(0, .8, .05); st.visible = false; scene.add(st); S.aschStummel = st;
+      add(a, 4, () => S.done ? KF_DEKO_TEXT.ascher2 : KF_DEKO_TEXT.ascher, [.25, .15, .25, -26.55, y + .05, -11.95]); }
+  } catch (e) { console.warn('Kiffen: Deko', e); } }
+function kf_dekoSync() { const S = kiffen_S, k = kf_kap(); if (S.dekoK === k) return; S.dekoK = k; for (const e of S.deko) { const on = typeof kapAb === 'function' ? kapAb(e.k) : k >= e.k; e.o.visible = on; if (e.hit) { const has = interactables.includes(e.hit); if (on && !has) interactables.push(e.hit); else if (!on && has) uninteract(e.hit); } }
+  if (S.aschStummel) S.aschStummel.visible = S.done; }
+
+// ================================================================ Eingabe (nur während der Szene)
+addEventListener('mousedown', e => { if (!kf_Z.on || e.button !== 0 || ui.paused) return; kiffen_S.in.down = true; kiffen_S.in.klick++; }, true);
+addEventListener('mouseup', e => { if (e.button === 0) kiffen_S.in.down = false; }, true);
+addEventListener('mousemove', e => { if (!kf_Z.on || ui.paused) return; if (Math.abs(e.movementX) > 300 || Math.abs(e.movementY) > 300) return; kiffen_S.in.dx += e.movementX || 0; kiffen_S.in.dy += e.movementY || 0; }, true);
+addEventListener('keydown', e => { if (!kf_Z.on || ui.paused) return; if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { kiffen_S.in.down = true; kiffen_S.in.klick++; } } if (e.code === 'KeyE' && !e.repeat) kiffen_S.in.ende = true; }, true);
+addEventListener('keyup', e => { if (e.code === 'Space') kiffen_S.in.down = false; }, true);
+{ const css = document.createElement('style'); css.textContent = `
+  #kfHint { position: fixed; left: 0; right: 0; bottom: 4.2vh; z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 9px; pointer-events: none; opacity: 0; transition: opacity .6s; }
+  #kfHint.on { opacity: 1; }
+  #kfHint .t { display: flex; gap: 34px; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .24em; color: #d9cdb2; text-shadow: 0 0 4px #000, 0 0 14px #000; text-transform: uppercase; }
+  #kfHint kbd { font: 600 11px Georgia; border: 1px solid rgba(201,163,106,.6); padding: 1px 6px; margin: 0 3px; color: var(--gold, #c9a36a); border-radius: 2px; }
+  #kfHint .b { width: 160px; height: 1px; background: rgba(217,205,178,.18); opacity: 0; transition: opacity .4s; }
+  #kfHint .b i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, rgba(201,163,106,.2), rgba(201,163,106,.9)); box-shadow: 0 0 6px rgba(201,163,106,.6); transition: width .12s linear; }`;
+  document.head.appendChild(css); const d = document.createElement('div'); d.id = 'kfHint'; d.innerHTML = '<div class="t"></div><div class="b"><i></i></div>'; document.body.appendChild(d); kiffen_S.hintEl = d; }
+
+// ================================================================ Laden
+WORLD_MODS.push(['Kiffen', async () => { const S = kiffen_S, R = kf_R;
+  story.side.kf_fuenf = { title: 'Fünf Minuten', desc: 'Grinder, Blättchen, etwas zum Drehen, Tips.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
+  R.seat = new THREE.Group(); R.seat.position.set(0, -60, 0); scene.add(R.seat);
+  try { const src = await msModel('haende', 'model.glb'); const { clone } = await import('three/addons/utils/SkeletonUtils.js'); kf_rigBau(clone(src)); } catch (e) { console.warn('Kiffen: Hände', e); }
+  try { S.gr = await fetch('assets/ms/kiffen/grinder/meta.json').then(r => r.json()); } catch (e) { S.gr = { h: .0466, cut: .0268, r: .029 }; }
+  try { const src = await msModel('kiffen/grinder', 'model.glb'); src.updateMatrixWorld(true); for (const n of ['koerper', 'deckel']) { let m = null; src.traverse(o => { if (o.isMesh && (o.name === n || (o.parent && o.parent.name === n))) m = m || o; });
+      const g = new THREE.Group(), c = m.clone(); c.position.set(0, 0, 0); c.rotation.set(0, 0, 0); c.scale.set(1, 1, 1); c.material = m.material; m.material.envMapIntensity = .9; g.add(c); kf_prop(n, g); }
+    const e = new THREE.Mesh(new THREE.CircleGeometry(S.gr.r * .92, 40), new THREE.MeshStandardMaterial({ map: kf_texEinsatz(), roughness: .8, metalness: .2 })); const eg = new THREE.Group(); eg.add(e); kf_prop('einsatz', eg); } catch (e) { console.warn('Kiffen: Grinder', e); }
+  try { kf_prop('knolle', await kf_modell('kiffen/knolle', .03)); } catch (e) { console.warn('Kiffen: Knolle', e); }
+  try { const p = await kf_modell('kiffen/papes', .105, 'max'); kf_prop('papes', p); } catch (e) { console.warn('Kiffen: Papes', e); }
+  try { const f = await kf_modell('w_lighter', .058); f.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); m.material.metalness = Math.max(m.material.metalness, .75); m.material.roughness = Math.min(m.material.roughness, .42); m.material.envMapIntensity = 1.2; } }); kf_prop('feuerzeug', f); } catch (e) { console.warn('Kiffen: Feuerzeug', e); }
+  { const g = new THREE.Group(); g.add(kf_papBau(msTex('kiffen/papier/b.jpg', true), msTex('kiffen/papier/n.jpg'))); kf_prop('blatt', g); }
+  { const g = new THREE.Group(); g.add(kf_tipBau(kf_texPappe())); kf_prop('tip', g); }
+  kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl);
+  S.pass = kiffen_passBau(); S.flTex = kf_flashBilder(); if (S.pass) { S.pass.uniforms.tFl.value = S.flTex[0]; try { const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), S.pass.material); renderer.compile(q, camera); } catch (e) {} }
+  kf_posen(); kf_schritte(); await kf_fundeBau(); await kiffen_deko();
+  // Beim Vorübersetzen der Shader sichtbar (tief unter der Welt), im ersten Bild versteckt
+  for (const n in kf_PR) kf_PR[n].o.visible = true; if (R.rig) R.rig.visible = true; kf_T.krP.visible = true; kf_T.glut.visible = true; kf_T.flamme.visible = true; for (const r of kf_T.rauch) r.s.visible = true;
+  for (const e of S.deko) e.o.visible = true; for (const k in S.fundObj) S.fundObj[k].visible = true;
+  S.ready = true; }]);
+function kf_allesAus() { for (const n in kf_PR) kf_PR[n].o.visible = false; if (kf_R.rig) kf_R.rig.visible = false; kf_T.krP.visible = false; kf_T.glut.visible = false; kf_T.flamme.visible = false; for (const r of kf_T.rauch) r.s.visible = false; kiffen_S.dekoK = -1; kf_fundeSync(); kf_dekoSync(); }
+MOD_SAVE.push(['kiffen', () => { const S = kiffen_S; return { auf: S.auf === 'flash' ? 'aus' : S.auf, done: S.done, echt: S.echt, zittern: +S.zittern.toFixed(2) }; },
+  v => { const S = kiffen_S; if (!v) return; S.auf = v.auf || 'aus'; S.done = !!v.done; if (v.echt) Object.assign(S.echt, v.echt); S.zittern = v.zittern || 0; S.dekoK = -1; if (S.ready) { kf_fundeSync(); kf_aufgabeSync(); } }]);
+WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
+  if (!S.hid) { S.hid = true; kf_allesAus(); try { kf_itemsEintragen(); } catch (e) { console.warn('Kiffen: Gegenstände', e); } }
+  if (!S.hookClock && typeof clock !== 'undefined' && clock.getDelta) { S.hookClock = true; const gd = clock.getDelta.bind(clock); clock.getDelta = () => gd() * S.zeit; } // Zeitlupe der Welt
+  const rdt = dt / S.zeit; if (!S.klang && Audio.ctx) { S.klang = true; kiffen_klangBau().catch(e => console.warn('Kiffen: Klänge', e)); }
+  if (S.zittern > 0 && !kf_Z.on) S.zittern = Math.max(0, S.zittern - rdt / 900);
+  kf_weichTick(rdt, t); if (S.pass && S.pass.enabled) S.pass.uniforms.uT.value = t;
+  const Z = kf_Z; if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
+    if (Z.lab) kf_eval(Z.st, Z.p); else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
+  else if (kf_T.rauch.length && kf_T.rauch.some(r => r.s.visible)) kf_teilchenTick(rdt, t);
+  S.chk = (S.chk || 0) - rdt; if (S.chk > 0) return; S.chk = .5; kf_dekoSync(); kf_fundeSync();
+  // Aufgabe startet von selbst ~45 s nach Beginn von Kap. 4 (bis AP-19 den Moment selbst setzt: kiffen_S.auto = false + kiffen_start())
+  if (S.auto && S.auf === 'aus' && kf_kap() === 4 && typeof anwesen_S !== 'undefined' && anwesen_S.ch4 && state.started && !state.talking && !ui.overlay && !scripted && !camOverride && !anwesen_S.inHall) { S.k4T += .5; if (S.k4T > 45) kiffen_start(); } });
+// ================================================================ Testzugriff
+window.__kiffen = { S: kiffen_S, Z: kf_Z, R: kf_R, P: kf_P, PA: kf_PA, TA: kf_TA, H: KF_H, STEPS: KF_STEPS, start: o => kiffen_start(o), flash: o => kiffen_flash(o), szene: o => kiffen_szene(o || {}), fund: kiffen_fund, deko: () => kiffen_deko(), poster: kiffen_poster,
+  // Szene direkt starten, alle Schritte laufen von selbst (Klick/Halten/Maus werden simuliert)
+  auto(on = true) { kiffen_S.in.test = on; return on; }, klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
+  // Standbild: Schritt id bei Fortschritt p (ohne Ablauf) – für Screenshots und Posen-Feinschliff
+  zeige(id, p = 1, opts = {}) { const Z = kf_Z, i = KF_STEPS.findIndex(s => s.id === id); if (i < 0) return 'Schritt fehlt';
+    if (!Z.on) { Z.on = true; Z.lab = true; Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z }; kf_buehne(opts); kf_veranda(true); flashOn = false; Z.blend = 1; Z.blendZ = 1; setCamOverride(kf_camFn); setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); }
+    Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
+    if (id === 'rollen') kf_PA.rolle = kf_lerp(.3, .82, p); return id + ' ' + p; },
+  labEnde() { const Z = kf_Z; kf_veranda(false); if (kiffen_S.vl) kiffen_S.vl.intensity = 0; Z.hell = 0; Z.on = false; Z.lab = false; Z.st = null; setCamOverride(null); setScripted(null); kf_allesAus(); return 'ok'; },
+  pose(side, json) { KF_H[side] = KP(json.w, json.f, json.n, json.c, json.s, json.t); kf_schritte(); return 'ok'; },
+  info() { const Z = kf_Z, S = kiffen_S; return { auf: S.auf, st: Z.st && Z.st.id, p: +Z.p.toFixed(2), zuege: Z.zuege, weich: +S.weich.toFixed(2), zeit: +S.zeit.toFixed(2), items: story.items.filter(k => k.startsWith('kf_')), done: S.done, rig: kf_R.ready, deko: S.deko.length }; } };

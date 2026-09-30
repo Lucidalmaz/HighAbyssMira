@@ -1,0 +1,8 @@
+# Stand AP-11 Sammelsysteme + Karte (30.09.2026) – Schnittstellen für spätere APs
+
+- Fundstücke legen/verschieben: `sammeln_platz('SB-04', {x, y, z, wand, ab, label})` (auch Z-xx). Offen, weil Orte fehlen: SB-04 (Stuhl 8 – dort liegt noch das alte Villa-Teil aus anwesen.js), SB-05 (Nr. 4 innen), SB-06 (Villa-Briefkasten), SB-07 (Raum 3), Z-01/Z-10 (Vegas' Ordner), Z-05 (Kantine Amt), Z-07/Z-09 (Kap. 4), Z-11 (Sakristei). SB-01 liegt vorläufig im Heu der Scheune → AP-15 verschiebt es zu Justins Lager.
+- Fibel-Flags: `sammeln_fibel('R-heim')` („Fahr heim“), `'R-ochs'`, `'R-eisen'`, `'R-frei'` (Ochs am Berg), `'D-xx'` an ihren Auslösern, `'sb07_strike'` (Raum 3), `'J-15'` (nach „Vierzig Mal“). `sammeln_auto` trägt fehlende Flags spätestens mit dem nächsten Kapitel nach.
+- Fibel-Reiter registrieren (für album.js/beutel.js u. a.): `sammeln_reiter(key, label, render, visible, farbe)` – auf oberster Ebene eines Moduls nach `sammeln` in ORDER oder im WORLD_MODS-Eintrag.
+- Karte (Taste M, Reiter KARTE): `karte_markierung(x, z, art, text)`, `karte_blatt('villa', {x0, x1, z0, z1})` (AP-19), Blätter Dorf / Ebene −2 (ab Kap. 2) / Wald (ab Kap. 6) / Villa (ab Kap. 4, sobald `villa` existiert). Norden (Wald) oben. Einwohnerzahl 214 → 211 → 210, ab Kap. 5 ein angesetzter Strich.
+- Basis-Hüllen aus karte.js: `openOverlay` löst die Maussperre (Fibel/Karte klickbar), `closeOverlay` sperrt wieder; `sideStart` merkt Orte für Nadeln. Hüllen aus sammeln.js: `openNote`, `renderJournal`, `kino_card` (Endkarte Kap. 1 mit Zählerzeile).
+- Offen: Taste M in der Tastenhilfe ergänzen; Lore-Einträge je Kapitel („Neun Paar Füße“ …) in den Kapitel-APs; `FILE_TEXT` Akten 01–07 in AP-16.

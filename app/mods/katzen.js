@@ -46,7 +46,7 @@ const KATZEN_LISTE = [
   { name: 'GRETE', fell: 'schwarz', gr: 'M', band: 0x8a1c1c, iris: [.62, .95, .42], alt: 1, ohr: 'R' },
   { name: 'KEINER', fell: 'struppig', gr: 'M', duenn: 1, band: 0x3a3a3a, iris: [.8, .9, .45] },
   { name: 'HÄNSCHEN', fell: 'braun_getigert', gr: 'L', schwer: 1, band: 0x5a3a22, iris: [1, .72, .3], alt: 1, ohr: 'L' },
-  { name: 'LUNA', fell: 'weiss_fleck', gr: 'S', band: 0xc8c8c8, iris: [.55, .78, 1], fleck: [.02, .262, .07, .03] },
+  { name: 'LUNA', fell: 'weiss_fleck', gr: 'S', band: 0xc8c8c8, iris: [.55, .78, 1], fleck: 'kopf' },
   { name: 'PETER', fell: 'rot', gr: 'L', dick: 1, band: 0x2d5a2d, iris: [1, .65, .28] },
   { name: 'LISBETH', fell: 'dreifarbig', gr: 'M', band: 0x6a2a5a, iris: [1, .85, .35], alt: 1 },
   { name: 'FRITZ', fell: 'grau_getigert', gr: 'L', band: 0x8a1c1c, iris: [.9, .95, .4], alt: 1 },
@@ -60,6 +60,7 @@ const KATZEN_LISTE = [
   { name: 'LUCY', fell: 'dreifarbig', gr: 'S', band: 0x1f7a6a, iris: [1, .82, .35], jung: 1 }];
 const KATZEN_GR = { S: .86, M: 1, L: 1.12 };
 // Rastlage (Ruhelage des Modells in m): Halsband, Augen, Ohrspitzen – aus den Knochen des Modells (katzen_rest)
+const KATZEN_STATIC = new Set(['sit', 'loaf', 'sleep', 'stand', 'hiss', 'crouch', 'carry', 'leap']), KATZEN_OB = ['neck2', 'head', 'earL', 'earR', 'tail2', 'tail3', 'tail4'];
 const KATZEN_WALK = .85; // m/s bei timeScale 1 (gemessen: Fußgeschwindigkeit im Stand des Gehzyklus)
 
 // ---------------------------------------------------------------- Laden
@@ -80,14 +81,26 @@ MOD_SAVE.push(['katzen', () => ({ flags: katzen_S.flags, kater: katzen_S.kater.m
 
 // Ruhelage-Punkte aus dem Skelett des Modells
 function katzen_rest() {
-  const S = katzen_S; let sk = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'fell') sk = o.skeleton; });
+  const S = katzen_S, v0 = new THREE.Vector3(); let sk = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'fell') sk = o.skeleton; });
   const piv = n => { const i = sk.bones.findIndex(b => b.name === n); return i < 0 ? new THREE.Vector3() : new THREE.Vector3().setFromMatrixPosition(katzen_M4.copy(sk.boneInverses[i]).invert()); };
   const neck = piv('neck'), neck2 = piv('neck2'), head = piv('head'), eL = piv('earL'), eR = piv('earR');
   const n = neck2.clone().sub(neck).normalize(), c = neck.clone().lerp(neck2, .45);
-  S.R = { neck, neck2, head, colC: c, colN: n, eyeC: new THREE.Vector3(-.001, .255, .243), earL: eL, earR: eR };
+  S.R = { neck, neck2, head, colC: c, colN: n, earL: eL, earR: eR };
+  // Gesichtsachsen in Bind-Lage: Kopfdrehung in der Stand-Pose (Modellraum) zurückrechnen – die Bind-Lage des Modells ist nicht die Ruhelage
+  const bones = {}; S.src.traverse(o => { if (o.isBone) bones[o.name] = o; }); const mx = new THREE.AnimationMixer(S.src); mx.clipAction(S.clips.stand).play(); mx.setTime(0);
+  const hq = new THREE.Quaternion(); for (const b of ['hips', 'spine1', 'spine2', 'chest', 'neck', 'neck2', 'head']) hq.multiply(bones[b].quaternion); const hqi = hq.clone().invert(); mx.stopAllAction(); mx.uncacheRoot(S.src);
+  S.R.fwd = new THREE.Vector3(0, -.12, 1).normalize().applyQuaternion(hqi); S.R.up = new THREE.Vector3(0, 1, 0).applyQuaternion(hqi);
+  let eg = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'augen') eg = o.geometry; });
+  const ec = new THREE.Vector3(); if (eg) { const E = eg.attributes.position; for (let i = 0; i < E.count; i++) ec.add(v0.fromBufferAttribute(E, i)); ec.divideScalar(E.count); } else ec.copy(head).addScaledVector(S.R.fwd, .04);
+  S.R.eyeC = ec; S.R.spot = head.clone().addScaledVector(S.R.up, .042).addScaledVector(S.R.fwd, .012);
   // Kehle: tiefster Punkt des Halsbands (für das Namensschild)
-  let geo = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'fell') geo = o.geometry; });
-  const P = geo.attributes.position, v = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0).addScaledVector(n, -n.y).normalize(); let best = null, bs = 1e9;
+  let geo = null, fsk = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'fell') { geo = o.geometry; fsk = o.skeleton; } });
+  // Eingerissenes Ohr: Punkt am Außenrand des Ohrs (Bind-Lage)
+  S.R.notch = {}; for (const side of ['L', 'R']) { const bi = fsk.bones.findIndex(b => b.name === 'ear' + side), piv = side === 'L' ? eL : eR, SI = geo.attributes.skinIndex, SW = geo.attributes.skinWeight, Pp = geo.attributes.position, ear = [];
+    for (let i = 0; i < Pp.count; i++) for (let j = 0; j < 4; j++) if (SI.getComponent(i, j) === bi && SW.getComponent(i, j) > .5) { ear.push(new THREE.Vector3().fromBufferAttribute(Pp, i)); break; }
+    let tip = 0; for (const e of ear) tip = Math.max(tip, e.distanceTo(piv)); let best = null, bs = -1; for (const e of ear) { const dd = e.distanceTo(piv) / (tip || 1); if (dd < .55 || dd > .85) continue; const o = Math.abs(e.x - head.x); if (o > bs) { bs = o; best = e; } }
+    S.R.notch[side] = best ? [best.x, best.y, best.z, .0065] : [0, 0, 0, 0]; }
+  const P = geo.attributes.position, v = v0, up = new THREE.Vector3(0, 1, 0).addScaledVector(n, -n.y).normalize(); let best = null, bs = 1e9;
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).sub(c); const along = v.dot(n); if (Math.abs(along) > .004) continue; const r = v.clone().addScaledVector(n, -along); if (r.length() > .07) continue; const s = r.dot(up); if (s < bs) { bs = s; best = v.clone().add(c); } }
   S.R.throat = best || c.clone().addScaledVector(up, -.03);
   S.R.throatN = S.R.throat.clone().sub(c).addScaledVector(n, -S.R.throat.clone().sub(c).dot(n)).normalize();
@@ -126,9 +139,9 @@ vec3 katzenFarbe(vec3 tex, vec4 m){
 function katzen_fellMat(src, d) {
   const F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_getigert, R = katzen_S.R, V3 = a => new THREE.Vector3(...(a || [0, 0, 0]));
   const m = src.clone(); m.metalnessMap = null; m.metalness = 0; m.roughness = F.rough; m.color.setRGB(1, 1, 1); m.name = 'katzen_fell_' + d.name;
-  const notch = d.ohr ? (d.ohr === 'L' ? [.043, .3, .204, .0075] : [-.047, .296, .204, .0075]) : [0, 0, 0, 0];
+  const notch = d.ohr ? R.notch[d.ohr] : [0, 0, 0, 0];
   const u = m.userData.ku = { kBase: { value: V3(F.base) }, kStripe: { value: V3(F.stripe) }, kWhiteCol: { value: V3(F.whiteCol || [.86, .84, .8]) }, kCalA: { value: V3(F.calA) }, kCalB: { value: V3(F.calB) },
-    kSpotCol: { value: V3(F.spot) }, kSpot: { value: new THREE.Vector4(...(d.fleck && F.spot ? d.fleck : [0, 0, 0, 0])) }, kNotch: { value: new THREE.Vector4(...notch) },
+    kSpotCol: { value: V3(F.spot) }, kSpot: { value: d.fleck && F.spot ? new THREE.Vector4(R.spot.x, R.spot.y, R.spot.z, .03) : new THREE.Vector4() }, kNotch: { value: new THREE.Vector4(...notch) },
     kSA: { value: F.sa || 0 }, kWhite: { value: d.weiss != null ? d.weiss : F.white || 0 }, kAllWhite: { value: F.allWhite || 0 }, kCal: { value: F.cal || 0 }, kOrig: { value: F.orig || 0 },
     kDull: { value: (F.dull || 0) + (d.alt ? .25 : 0) }, kDet: { value: F.det || .7 }, kSeed: { value: Math.random() * 40 }, kColOn: { value: 1 }, kColW: { value: d.tuch ? .012 : .0048 }, kTuch: { value: d.tuch ? 1 : 0 },
     kColCol: { value: new THREE.Color(d.band || 0x5a3a22) }, kColC: { value: R.colC.clone() }, kColN: { value: R.colN.clone() } };
@@ -177,12 +190,13 @@ function katzen_make(d) {
   // Augenreflex (Textur der eyePairs): eine Karte vor den Augen, folgt dem Kopf – zeigt in dieselbe Richtung wie der Kopf
   const R = S.R, head = k.B.head;
   if (head && typeof eyeTex !== 'undefined') { const em = new THREE.MeshBasicMaterial({ map: eyeTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0, color: new THREE.Color(.8, 1, .5).multiplyScalar(1.4), toneMapped: false });
-    const e = new THREE.Mesh(new THREE.PlaneGeometry(.068, .034), em); e.position.copy(R.eyeC).sub(R.head); e.position.z += .012; e.renderOrder = 5; e.frustumCulled = false; head.add(e); k.eye = e; k.eyeMat = em; }
+    const e = new THREE.Mesh(new THREE.PlaneGeometry(.068, .034), em); e.position.copy(R.eyeC).sub(R.head).addScaledVector(R.fwd, .014); const yA = R.up.clone().addScaledVector(R.fwd, -R.up.dot(R.fwd)).normalize(); e.quaternion.setFromRotationMatrix(katzen_M4.makeBasis(new THREE.Vector3().crossVectors(yA, R.fwd), yA, R.fwd)); e.renderOrder = 5; e.frustumCulled = false; head.add(e); k.eye = e; k.eyeMat = em; }
   // Namensschild an der Kehle (am Hals-Knochen)
   const nb = k.B.neck2 || k.B.neck; if (nb) { const tm = new THREE.MeshStandardMaterial({ map: katzen_tagTex(d.name, d.band), roughness: .7, transparent: true, alphaTest: .3, polygonOffset: true, polygonOffsetFactor: -2 });
     const tg = new THREE.Mesh(new THREE.PlaneGeometry(.03, .01), tm); const base = nb === k.B.neck2 ? R.neck2 : R.neck; tg.position.copy(R.throat).sub(base).addScaledVector(R.throatN, .0045);
     const zA = R.throatN.clone(), yA = R.colN.clone().addScaledVector(zA, -R.colN.dot(zA)).normalize(), xA = new THREE.Vector3().crossVectors(yA, zA); tg.quaternion.setFromRotationMatrix(katzen_M4.makeBasis(xA, yA, zA)); nb.add(tg); k.tag = tg; }
-  k.play = (n, fade = .3, ts = 1) => { const a = k.A[n]; if (!a) return; a.timeScale = ts; if (a === k.cur) return; a.reset().play(); if (k.cur) { a.crossFadeFrom(k.cur, fade, false); } k.cur = a; k.curK = n; };
+  k.ob = KATZEN_OB.map(n => k.B[n]).filter(Boolean); k.baseQ = k.ob.map(() => new THREE.Quaternion()); k.fadeT = 0; k.cached = false;
+  k.play = (n, fade = .3, ts = 1) => { const a = k.A[n]; if (!a) return; a.timeScale = ts; if (a === k.cur) return; k.fadeT = fade + .1; a.reset().play(); if (k.cur) { a.crossFadeFrom(k.cur, fade, false); } k.cur = a; k.curK = n; };
   k.play('sit', 0); k.mx.update(rand(0, 1));
   g.visible = true; g.position.set(0, -500, 0); // beim Laden sichtbar (Shader werden vorab übersetzt), weit unten
   katzen_S.cats.push(k); katzen_S.byName[d.name] = k; return k;
@@ -335,7 +349,11 @@ function katzen_tick(dt, t, indoor) {
     katzen_move(k, dt);
     // Animation nur in Sichtweite (weiter weg seltener), dann die Überlagerungen (Kopf, Ohren, Schwanz, Atmung)
     k.acc += dt; const step = k.lod === 0 ? 0 : k.lod === 1 ? .05 : .12;
-    if (vis && inFront && k.acc >= step) { k.mx.update(k.acc); k.acc = 0; if (k.lod < 2) katzen_overlay(k, dt, t, d); }
+    k.fadeT -= dt;
+    if (vis && inFront && k.acc >= step) { // ruhende Pose (sitzen, liegen …) nach dem Überblenden: Mischer sparen, nur die überlagerten Knochen zurücksetzen
+      const ob = k.ob; if (KATZEN_STATIC.has(k.curK) && k.fadeT <= 0 && k.cached) { for (let i = 0; i < ob.length; i++) ob[i].quaternion.copy(k.baseQ[i]); }
+      else { k.mx.update(k.acc); for (let i = 0; i < ob.length; i++) k.baseQ[i].copy(ob[i].quaternion); k.cached = true; }
+      k.acc = 0; if (k.lod < 2) katzen_overlay(k, dt, t, d); }
     katzen_eyes(k, dt, d, lampOn, cam);
     if (k.purr && k.purr.d && k.purr.d.positionX) { const p = k.g.position; try { const tt = Audio.ctx.currentTime; k.purr.d.positionX.setTargetAtTime(p.x, tt, .1); k.purr.d.positionY.setTargetAtTime(p.y + .2, tt, .1); k.purr.d.positionZ.setTargetAtTime(p.z, tt, .1); } catch (e) {} }
   }
@@ -348,7 +366,7 @@ function katzen_brain(k, dt, t, dCam, lampOn, kp) {
   if (k.avoidT > 0) { k.avoidT -= dt; if (k.avoidT <= 0) k.avoid = null; }
   switch (k.st) {
     case 'carry': { const f = flatDir(); // linke Hand, unten links im Bild; Körper quer vor Luke
-      k.x = camera.position.x + f.x * .55 + f.z * .2; k.z = camera.position.z + f.z * .55 - f.x * .2; k.y = camera.position.y - .52; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
+      k.x = camera.position.x + f.x * .5 + f.z * .26; k.z = camera.position.z + f.z * .5 - f.x * .26; k.y = camera.position.y - .74; k.ry = Math.atan2(f.x, f.z) - 1.25; k.g.position.set(k.x, k.y, k.z); k.g.rotation.y = k.ry;
       if (k.hissT > 0) { k.hissT -= dt; if (k.teeth) k.teeth.visible = k.hissT > 0; } return; }
     case 'arm': if (k.arm) { const o = k.arm.obj; o.updateWorldMatrix(true, false); katzen_V[0].copy(k.arm.off).applyMatrix4(o.matrixWorld); k.x = katzen_V[0].x; k.y = katzen_V[0].y; k.z = katzen_V[0].z; k.g.position.copy(katzen_V[0]); o.getWorldQuaternion(katzen_Q[0]); katzen_E.setFromQuaternion(katzen_Q[0], 'YXZ'); k.ry = katzen_E.y + PI / 2; k.g.rotation.y = k.ry; } return;
     case 'hiss': k.hissT -= dt; if (k.turnTo != null) { k.ry = katzen_ang(k.ry, k.turnTo, dt * 7); }
