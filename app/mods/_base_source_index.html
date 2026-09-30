@@ -3093,7 +3093,7 @@ async function scareZombieGrab() {
   await wait(700);
 }
 // 11) Kapitel 2, Finale: hinter Lucys Tank presst sich ein graues Gesicht an das Glas
-const tankFace = new THREE.Mesh(new THREE.PlaneGeometry(.5, .6), new THREE.MeshBasicMaterial({ map: faceTexes.grey, transparent: true, color: new THREE.Color(.8, .9, 1) }));
+const tankFace = new THREE.Mesh(new THREE.PlaneGeometry(.5, .6), new THREE.MeshBasicMaterial({ map: faceTexes.grey, transparent: true, color: new THREE.Color(.8, .9, 1), depthTest: false })); tankFace.renderOrder = 20; // die Tankscheibe schreibt Tiefe – ohne das bliebe das Gesicht dahinter unsichtbar
 tankFace.visible = false; scene.add(tankFace);
 async function scareTankFace() {
   scareCount++; tankFace.position.set(X + 118, 1.35, Z + 6 - .85); tankFace.lookAt(camera.position); tankFace.scale.setScalar(.05); tankFace.visible = true;
