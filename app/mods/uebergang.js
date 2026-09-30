@@ -92,7 +92,7 @@ function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
   for (let k = .3; k < H; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(cx, y0 + k, cz + w / 2 - .1); parts.push(g); }
   const lad = new THREE.Mesh(mergeGeometries(parts), ladderMat); lad.castShadow = lad.receiveShadow = true; lad.userData.noCol = true; scene.add(lad);
   const l = new VLight(0xbfd0ff, .35, 5, 2); l.position.set(cx, y0 + H - .6, cz); scene.add(l); // schwaches Licht oben (gleich in beiden Schächten)
-  const cap = box(w + .3, .1, w + .3, cx, y0 + H + .05, cz, M.ceil, { cast: false }); // Abschluss oben (im Ort: Unterseite des Gullys)
+  const cap = box(w + .3, .1, w + .3, cx, y0 + H - .06, cz, M.ceil, { cast: false }); // Abschluss oben, knapp unter der Oberkante (im Ort: Unterseite des Gullys, unsichtbar unter dem Asphalt)
   return { lad, cap };
 }
 WORLD_MODS.push(['Übergang Kapitel 3', async () => {

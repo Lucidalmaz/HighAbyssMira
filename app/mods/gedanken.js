@@ -41,7 +41,8 @@ const GEDANKEN_FADEN = [
   [/Keller von Nr\. 7/, 'Die Wand mit den Zeichnungen. Mit bloßen Händen geht das nicht. Oben war doch eine Werkbank.'],
   [/Gang hinter der Wand|Folge dem Tunnel/, 'Nur ein Weg. Also geh ihn, Luke.'],
   [/Amt über die Kinder/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
-  [/Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Namen in die richtige Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Lösch die Laternen/, 'In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
   [/Lost Eyengless geschehen/, 'Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.'],
   [/./, 'Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.']];

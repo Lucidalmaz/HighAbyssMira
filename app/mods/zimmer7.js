@@ -103,7 +103,7 @@ CH2_BEGIN.push(() => {
   } catch (e) { console.warn('zimmer7 Wiederherstellung', e); } }, 0);
 });
 function z7_lampSet(on) {
-  const L = z7_S.lamp; if (!L) return; L.intensity = on ? 3.2 : 0;
+  const L = z7_S.lamp; z7_S.lampOn = on; if (!L) return; L.intensity = on ? 4.5 : 0;
   for (const m of z7_S.lampMats) m.emissiveIntensity = on ? 1.1 : 0;
 }
 
@@ -219,7 +219,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     const lb = new THREE.Box3().setFromObject(lg); lg.traverse(o => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o); if ((b.min.y + b.max.y) / 2 < lb.min.y + (lb.max.y - lb.min.y) * .55) return;
       o.material = [].concat(o.material).map(m => { const n = m.clone(); n.emissive = new THREE.Color(0xffb46a); n.emissiveMap = n.map || null; n.emissiveIntensity = 0; S.lampMats.push(n); return n; }); if (o.material.length === 1) o.material = o.material[0]; });
     S.lampTop = lb.max.y; }
-  const lamp = S.lamp = new VLight(0xffc27e, 0, 5.2, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
+  const lamp = S.lamp = new VLight(0xffc27e, 0, 5.6, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
   KEY.list.push({ v: lamp, I: 3.2, on: () => !!ch2.on && z7_in(-.05) });
 
   // Auf dem Schreibtisch: Dienstbuch (aufgeschlagen liegt die Brille nicht – das Buch ist zu), Tasse mit eingetrocknetem Tee, Aktenstapel, Stifte (Papier-Decals)
@@ -317,7 +317,9 @@ WORLD_MODS.push(['Zimmer 7', async () => {
 
 // ---------------------------------------------------------------- pro Bild (keine Allokationen)
 WORLD_TICK.push((dt) => {
-  const S = z7_S; if (!S.ok || !ch2.on) return;
+  const S = z7_S; if (!S.ok || !ch2.on) return; const P = player.pos;
+  // Schreibtischlampe: nur solange man im Raum oder im Durchgang davor ist (Punktlichter werfen keinen Schatten – kein Durchscheinen ins Archiv)
+  if (S.lamp) S.lamp.intensity = S.lampOn && P.x > C2.x + 29.6 && P.x < C2.x + 36.4 && P.z > C2.z - 8.4 && P.z < C2.z + 2.2 ? 4.5 : 0;
   // Erster Schritt in Zimmer 7: der Nadeldrucker im Archiv, 01:47
   if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „05.11.2026 · 01:47 · Ersatz 08 betritt Zimmer 7.“', 5600); }, 900); }
   // 90 s nach „Das bin nicht ich.“

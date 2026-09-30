@@ -2485,7 +2485,7 @@ box(.78, .68, .03, -.39, 0, 0, M.paint, { parent: cupDoor });
 for (let i = 0; i < 8; i++) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.035, .03, .08, 10), new THREE.MeshStandardMaterial({ color: [0xc04040, 0x4060c0, 0x40a050, 0xe0c040, 0xc06090, 0x60b0c0, 0xe08040, 0xd8d8d8][i], roughness: .4 })); cup.position.set(-.32 + (i % 4) * .2, -.25 + Math.floor(i / 4) * .32, -.05); cupboard.add(cup); }
 function photoWayUpdate(dt, t) {
   const P = player.pos;
-  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
+  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; if (i === 1 && curChapter() !== 1) return; const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
     if (Math.hypot(P.x - zx, P.z - zz) < r) { p.wayDone = true; photoWay[i](); } });
   if (kidShadow.visible) { state.kidShadowT += dt; kidShadow.lookAt(P.x, 0, P.z); tmp.copy(kidShadow.position).add(new THREE.Vector3(0, .9, 0)).sub(camera.position); const d = tmp.length(); tmp.normalize();
     if ((flashOn && fwd.dot(tmp) > .96 && d < 12) || d < 2.2 || state.kidShadowT > 25) { kidShadow.visible = false; Audio.flap(kidShadow.position.x, 1, kidShadow.position.z); for (let i = 0; i < 3; i++) setTimeout(() => Audio.stepAt(P.x + rand(-1, 1), P.z + rand(-1, 1), .25), 300 + i * 260); } }
@@ -4193,6 +4193,7 @@ async function endingA() {
   await wait(800); Audio.bell(0, 0); await wait(1500);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3a');
   c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Manche waren siebzehn Jahre fort, manche nur eine Nacht. Lars Vegas ruft den Namen Mike. Dann den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 async function endingB() {
   state.talking = true;
@@ -4203,6 +4204,7 @@ async function endingB() {
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3b');
   c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist heimgekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 
 async function enterWhite() {

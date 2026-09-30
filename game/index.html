@@ -2487,7 +2487,7 @@ box(.78, .68, .03, -.39, 0, 0, M.paint, { parent: cupDoor });
 for (let i = 0; i < 8; i++) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.035, .03, .08, 10), new THREE.MeshStandardMaterial({ color: [0xc04040, 0x4060c0, 0x40a050, 0xe0c040, 0xc06090, 0x60b0c0, 0xe08040, 0xd8d8d8][i], roughness: .4 })); cup.position.set(-.32 + (i % 4) * .2, -.25 + Math.floor(i / 4) * .32, -.05); cupboard.add(cup); }
 function photoWayUpdate(dt, t) {
   const P = player.pos;
-  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
+  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; if (i === 1 && curChapter() !== 1) return; const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
     if (Math.hypot(P.x - zx, P.z - zz) < r) { p.wayDone = true; photoWay[i](); } });
   if (kidShadow.visible) { state.kidShadowT += dt; kidShadow.lookAt(P.x, 0, P.z); tmp.copy(kidShadow.position).add(new THREE.Vector3(0, .9, 0)).sub(camera.position); const d = tmp.length(); tmp.normalize();
     if ((flashOn && fwd.dot(tmp) > .96 && d < 12) || d < 2.2 || state.kidShadowT > 25) { kidShadow.visible = false; Audio.flap(kidShadow.position.x, 1, kidShadow.position.z); for (let i = 0; i < 3; i++) setTimeout(() => Audio.stepAt(P.x + rand(-1, 1), P.z + rand(-1, 1), .25), 300 + i * 260); } }
@@ -4195,6 +4195,7 @@ async function endingA() {
   await wait(800); Audio.bell(0, 0); await wait(1500);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3a');
   c3Endcard('KAPITEL 3 — ENDE · DAS SIEGEL', 'Lost Eyengless, 5. November 2026, Morgengrauen.<br>Sieben Menschen stehen barfuß auf der Kreuzung. Manche waren siebzehn Jahre fort, manche nur eine Nacht. Lars Vegas ruft den Namen Mike. Dann den Namen Zayn.<br>In der Mitte der Kreuzung steckt ein Schwert im Asphalt.<br><br>Lucy sitzt auf dem Bordstein und zählt die Barfüßigen. Immer wieder.<br>Sie kommt jedes Mal auf acht.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 async function endingB() {
   state.talking = true;
@@ -4205,6 +4206,7 @@ async function endingB() {
   $('fade').style.background = '#fff'; await fade(1, 1400); await wait(900);
   if (typeof weiss_vorKino === 'function') await weiss_vorKino('k3b');
   c3Endcard('KAPITEL 3 — ENDE · DIE REGEL', 'Du wachst auf der Kreuzung auf. Es wird hell. Lucy liegt neben dir, sie atmet, sie hält deine Hand.<br>„Du bist heimgekommen“, sagt sie. „Du.“<br><br>Der Ritter ist fort. Die Laternen gehen aus, wie jeden Morgen.<br>In deiner Jackentasche steckt ein Polaroid, das es nicht geben dürfte:<br>ein Ritter, ein graues Mädchen, ein Junge mit braunen Augen.<br>Auf der Rückseite steht: <b>2043</b>.', 'HIGH ABYSS MIRA · IN SIEBZEHN JAHREN');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 
 async function enterWhite() {
@@ -10477,7 +10479,7 @@ function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
   for (let k = .3; k < H; k += .3) { const g = new THREE.BoxGeometry(.44, .035, .035); g.translate(cx, y0 + k, cz + w / 2 - .1); parts.push(g); }
   const lad = new THREE.Mesh(mergeGeometries(parts), ladderMat); lad.castShadow = lad.receiveShadow = true; lad.userData.noCol = true; scene.add(lad);
   const l = new VLight(0xbfd0ff, .35, 5, 2); l.position.set(cx, y0 + H - .6, cz); scene.add(l); // schwaches Licht oben (gleich in beiden Schächten)
-  const cap = box(w + .3, .1, w + .3, cx, y0 + H + .05, cz, M.ceil, { cast: false }); // Abschluss oben (im Ort: Unterseite des Gullys)
+  const cap = box(w + .3, .1, w + .3, cx, y0 + H - .06, cz, M.ceil, { cast: false }); // Abschluss oben, knapp unter der Oberkante (im Ort: Unterseite des Gullys, unsichtbar unter dem Asphalt)
   return { lad, cap };
 }
 WORLD_MODS.push(['Übergang Kapitel 3', async () => {
@@ -10993,7 +10995,8 @@ const GEDANKEN_FADEN = [
   [/Keller von Nr\. 7/, 'Die Wand mit den Zeichnungen. Mit bloßen Händen geht das nicht. Oben war doch eine Werkbank.'],
   [/Gang hinter der Wand|Folge dem Tunnel/, 'Nur ein Weg. Also geh ihn, Luke.'],
   [/Amt über die Kinder/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
-  [/Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Namen in die richtige Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Lösch die Laternen/, 'In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
   [/Lost Eyengless geschehen/, 'Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.'],
   [/./, 'Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.']];
@@ -12929,7 +12932,7 @@ const BEOB_DYN = [
   // Kapitel 3 · Stadt
   { id: 'd_auto', kind: 'gruselig', when: () => ch3.on, text: 'IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.\nICH HABE GEWARTET, BIS DU AUFWACHST.\nDU HAST VON DER STRASSE GETRÄUMT. ICH WEISS ES, WEIL ICH DRIN WAR.' },
   { id: 'd_funk', kind: 'hilfe', when: () => ch3.on && !ch3.radio && /31,10|Funkkasten/.test(beob_obj()), stuck: true, text: 'DER KASTEN AN DER KREUZUNG HÖRT NUR AUF EINE ZAHL.\nHILDE HAT SIE IN IHR ZÄHLBUCH GESCHRIEBEN.\nEINUNDDREISSIG. KOMMA. ZEHN.' },
-  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && /Laternen/.test(beob_obj()), stuck: true, text: 'ERST DIE MIT DEM FEUER.\nDANN DER ENKEL.\nDANN DEINE SCHWESTER.\nDANN DIE, DIE GEZÄHLT HAT.' },
+  { id: 'd_laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && (ch3.lampFails || 0) >= 3, stuck: true, text: 'ERST DIE MIT DEM FEUER.\nDANN DER ENKEL.\nDANN DEINE SCHWESTER.\nDANN DIE, DIE GEZÄHLT HAT.' },
   { id: 'd_uhr', kind: 'hilfe', when: () => ch3.on && /Küchenuhr/.test(beob_obj()), stuck: true, text: 'DREI UHR DREIZEHN.\nDAS WAR DIE ZEIT. DAS WAR DEIN ERSTER ATEMZUG.' },
   { id: 'd_nacht', kind: 'hilfe', when: () => ch3.on && /nicht in diese Nacht/.test(beob_obj()), stuck: true, text: 'EINE KARTE MIT EINER ZAHL, DIE ES IN DIESER NACHT NOCH NICHT GAB.\nZÄHL DIE KERZEN. DANN ZÄHL DIE JAHRE.' },
   { id: 'd_licht', kind: 'gruselig', when: () => ch3.on, text: 'DU HAST DIE LAMPE {off} MAL AUSGEMACHT.\nIM DUNKELN SIEHST DU MEHR.\nICH AUCH.' },
@@ -14481,6 +14484,7 @@ async function endingC() {
   if (typeof kino_play === 'function') await weiss_vorKino('k3c');
   else { weiss_aufraeumen(); await say([['Er legt Schwert und Helm auf den leeren achten Stuhl. Er dreht sich um, legt die Hände vor die Augen und zählt laut.', 5000], ['„Eins. Zwei. Drei …“', 3000, JS], ['„… Siebzehn.“', 2600, JS], ['„Ich komme.“', 2400, JS], ['„Danke, Luke.“', 2600, JS]]); }
   c3Endcard('KAPITEL 3 — ENDE · SUCH MICH', '5. November 2026, Morgengrauen. Auf der Kreuzung stehen sie alle, barfuß. Zayn. Mike. Roxy. Hilde.<br>Lucy hält zwei Hände: die eines Jungen mit hellblauen Augen – und deine.<br>Über dem Wald ist der Himmel zum ersten Mal einfach nur Himmel.<br>Auf dem Ortsschild hat jemand die Zahl durchgestrichen. Daneben, in Kinderschrift: ALLE.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 // Justin im Weißen: während Raum 3 nur das Rätsel „Was lügt?“, sonst wie bisher
 jHint = (o => async function () { const S = weiss_S; if (ch3.part === 'white' && ch3.room3) { if (S.phase === 'frage') weiss_luegt(); return; } return o(); })(jHint);
@@ -16256,7 +16260,7 @@ CH2_BEGIN.push(() => {
   } catch (e) { console.warn('zimmer7 Wiederherstellung', e); } }, 0);
 });
 function z7_lampSet(on) {
-  const L = z7_S.lamp; if (!L) return; L.intensity = on ? 3.2 : 0;
+  const L = z7_S.lamp; z7_S.lampOn = on; if (!L) return; L.intensity = on ? 4.5 : 0;
   for (const m of z7_S.lampMats) m.emissiveIntensity = on ? 1.1 : 0;
 }
 
@@ -16372,7 +16376,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     const lb = new THREE.Box3().setFromObject(lg); lg.traverse(o => { if (!o.isMesh) return; const b = new THREE.Box3().setFromObject(o); if ((b.min.y + b.max.y) / 2 < lb.min.y + (lb.max.y - lb.min.y) * .55) return;
       o.material = [].concat(o.material).map(m => { const n = m.clone(); n.emissive = new THREE.Color(0xffb46a); n.emissiveMap = n.map || null; n.emissiveIntensity = 0; S.lampMats.push(n); return n; }); if (o.material.length === 1) o.material = o.material[0]; });
     S.lampTop = lb.max.y; }
-  const lamp = S.lamp = new VLight(0xffc27e, 0, 5.2, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
+  const lamp = S.lamp = new VLight(0xffc27e, 0, 5.6, 2); lamp.position.set(LX, (S.lampTop || deskTop + .56) - .16, LZ); scene.add(lamp);
   KEY.list.push({ v: lamp, I: 3.2, on: () => !!ch2.on && z7_in(-.05) });
 
   // Auf dem Schreibtisch: Dienstbuch (aufgeschlagen liegt die Brille nicht – das Buch ist zu), Tasse mit eingetrocknetem Tee, Aktenstapel, Stifte (Papier-Decals)
@@ -16470,7 +16474,9 @@ WORLD_MODS.push(['Zimmer 7', async () => {
 
 // ---------------------------------------------------------------- pro Bild (keine Allokationen)
 WORLD_TICK.push((dt) => {
-  const S = z7_S; if (!S.ok || !ch2.on) return;
+  const S = z7_S; if (!S.ok || !ch2.on) return; const P = player.pos;
+  // Schreibtischlampe: nur solange man im Raum oder im Durchgang davor ist (Punktlichter werfen keinen Schatten – kein Durchscheinen ins Archiv)
+  if (S.lamp) S.lamp.intensity = S.lampOn && P.x > C2.x + 29.6 && P.x < C2.x + 36.4 && P.z > C2.z - 8.4 && P.z < C2.z + 2.2 ? 4.5 : 0;
   // Erster Schritt in Zimmer 7: der Nadeldrucker im Archiv, 01:47
   if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „05.11.2026 · 01:47 · Ersatz 08 betritt Zimmer 7.“', 5600); }, 900); }
   // 90 s nach „Das bin nicht ich.“
@@ -18179,6 +18185,7 @@ function k6_gitter(dt) {
   K6.kidT -= dt; if (K6.kidT < 0) { K6.kidT = 1; D.setKid(typeof kapAb === 'function' ? kapAb(5) : K6.on); }
   if (K6.openT >= 0) { K6.openT += dt; D.setOpen(Math.min(1, K6.openT / 1.3)); if (K6.openT >= 1.3) K6.openT = -1; return; }
   if (!K6.on || D.open) return; const P = player.pos, near = Math.abs(P.x - 30.1) < 5 && P.z > 95.3 && P.z < 98.3;
+  K6.dbg = [near, !!keys.KeyE, ui.overlay, !!scripted, +K6.holdT.toFixed(2)];
   if (near && keys.KeyE && !ui.overlay && !scripted) { /* nicht auf state.talking warten: Whiskey sitzt an der Station „waldrand“ direkt daneben */ K6.holdT += dt; if (K6.holdT % .3 < dt) Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: .1, rate: rand(1.4, 1.9), dur: .15, x: 33, y: .6, z: 98 });
     if (K6.holdT > 1.6) { K6.holdT = 0; K6.openT = 0; Audio.play('metalSheet', { gain: .35, rate: .8, x: 32, y: .5, z: 98.3 }); Audio.play('scrape2', { gain: .25, rate: .9, x: 32, y: .2, z: 98.5 }); $('sideInfo').textContent = '';
       if (K6.beat === 'gitter') { k6_obj('Folge den Brotkrumen.'); k6_set('krumen'); } } }

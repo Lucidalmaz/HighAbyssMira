@@ -374,6 +374,7 @@ async function endingC() {
   if (typeof kino_play === 'function') await weiss_vorKino('k3c');
   else { weiss_aufraeumen(); await say([['Er legt Schwert und Helm auf den leeren achten Stuhl. Er dreht sich um, legt die Hände vor die Augen und zählt laut.', 5000], ['„Eins. Zwei. Drei …“', 3000, JS], ['„… Siebzehn.“', 2600, JS], ['„Ich komme.“', 2400, JS], ['„Danke, Luke.“', 2600, JS]]); }
   c3Endcard('KAPITEL 3 — ENDE · SUCH MICH', '5. November 2026, Morgengrauen. Auf der Kreuzung stehen sie alle, barfuß. Zayn. Mike. Roxy. Hilde.<br>Lucy hält zwei Hände: die eines Jungen mit hellblauen Augen – und deine.<br>Über dem Wald ist der Himmel zum ersten Mal einfach nur Himmel.<br>Auf dem Ortsschild hat jemand die Zahl durchgestrichen. Daneben, in Kinderschrift: ALLE.', 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT');
+  if (typeof kapEnde === 'function') kapEnde(3);
 }
 // Justin im Weißen: während Raum 3 nur das Rätsel „Was lügt?“, sonst wie bisher
 jHint = (o => async function () { const S = weiss_S; if (ch3.part === 'white' && ch3.room3) { if (S.phase === 'frage') weiss_luegt(); return; } return o(); })(jHint);
