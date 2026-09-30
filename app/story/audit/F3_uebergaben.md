@@ -92,3 +92,10 @@
 ## Aus AP-20 (fertig, F3_stand_ap20.md) – für AP-22 Kap. 5
 - Abfragen `neben4_hat('post_c'|'post_ab'|'gasleck_zurueck'|'grete_foto')`, `neben4_postWeg()`; Weg c: Einbruch −15, B-K5-N1, danach `k4_post` abschließen; `k4_kreisel` endet mit Polaroid „HEINI“; Gisela nach der Szene am Napfbrett.
 - Offen: Weg a mit Vegas' Schachtel gegen Pfandflaschen; Vegas-Monolog zum Schuppenschloss; Grete-Foto mit Stellvertreterfiguren; Assets Transportkiste, weißer Kastenwagen, Postsäcke. Schlusstest: Gasleck komplett.
+
+## Aus Welt/Licht (fertig, F3_stand_welt.md)
+- Basis: `rect === s7` (Tür knallt) und `rect === s1` (Spieluhr Kinderzimmer) werden nie wahr, weil `shell()` `{...r, g}` zurückgibt (bestätigt). Toter Schreck seit langem; nicht aktiviert, weil Kap. 1/5 nach Fassung 3 ohne ihn gebaut und getestet sind – beim Schlusstest entscheiden (Bibel prüfen), sonst entfernen.
+- Nachbild-Anker (`addEcho`, blaue Leuchtkugel) wirkt quellenlos → kleiner, schwach pulsierend, nur aus der Nähe.
+- Nr. 4 / Kapelle innen dunkel → `LICHT_HAKEN` nutzen (nr4.js/kirchberg.js). Schwarze Tafel schwebt neben der Kapelle außen.
+- Villa-Halle ohne Fenster (Tageslicht unbegründet). Performance-Schluss: `gStreak` ggf. 10 → 6 Laternen.
+- Nicht im Bild bestätigt: Laubhaufen, Tropfen, Motten, Nebelkante Ortstafel.
