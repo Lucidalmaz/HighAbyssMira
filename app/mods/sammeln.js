@@ -9,7 +9,11 @@
 //   sammeln_fibel(flag)       → Fibel-Eintrag setzen: 'D-01'…'D-10' (Du-Seite, 85 §9), 'R-K1', 'R-heim', 'R-K2', 'R-K3a'…'R-K3e', 'R-K5a', 'R-K5b', 'R-K6',
 //                               'R-ochs', 'R-eisen' (Spielregeln), 'J-15' (Jonas, nach „Vierzig Mal“), 'sb07_strike' (SB-07 durchgestrichen, Raum 3)
 //                               Ohne Aufruf zieht der Kapitelfortschritt die Einträge spätestens beim nächsten Kapitel nach (sammeln_auto).
-//   sammeln_reiter(key, label, render, visible) → weiterer Fibel-Reiter (z. B. „KARTE“ aus karte.js)
+//   sammeln_reiter(key, label, render, visible, farbe) → weiterer Fibel-Reiter am rechten Buchrand (z. B. „KARTE“ aus karte.js; album.js, beutel.js …):
+//                               key = eindeutiger jTab-Name · label = Text oder () => Text · render(B) füllt #jBody (B, ist geleert, B.dataset.reiter = key)
+//                               · visible = () => bool (null = immer) · farbe = CSS-Farbe des Papierreiters. Aufruf auf oberster Ebene eines Moduls NACH
+//                               „sammeln“ in ORDER (davor: im WORLD_MODS-Eintrag, typeof prüfen). Öffnen von außen: jTab = key; renderJournal(); openOverlay('journal').
+//                               Optional r.neu = () => bool (roter Punkt „neu“) nach der Registrierung: sammeln_S.reiter.find(r => r.key === key).neu = …
 //   sammeln_k1Zeile()         → Zählerzeile der Kap.-1-Endkarte (wird an die Karte in kino.js angehängt)
 // Spielstand (AP-03): 'sammeln' = { sb: [nr…], z: [nr…], fibel: [flag…] }
 const sammeln_S = { sb: new Set(), z: new Set(), fibel: new Set(), neu: new Set(), orte: {}, img: {}, reiter: [], ready: false, placed: false, k: 0 };
@@ -45,10 +49,10 @@ const SAMMELN_SB = [
 ];
 // ---- Z-01…Z-11 (Wortlaut LWO-Dossier §5.2)
 const SAMMELN_Z = [
-  { nr: 1, datum: '1958', titel: 'Wetterballon über dem Hohen Abgrund niedergegangen', hw: 1, foto: 'bergung', fotoText: 'Die Bergung in den frühen Morgenstunden.',
+  { nr: 1, datum: '1958', titel: 'Wetterballon über dem Hohen Abgrund niedergegangen', hw: 1, foto: 'b', fotoText: 'Die Bergung in den frühen Morgenstunden.',
     text: 'Lost Eyengless. In der Nacht zum Dienstag ist über dem Hohen Abgrund ein Wetterballon der Bundesstelle für Rückführung niedergegangen. Die Bergung wurde in den frühen Morgenstunden abgeschlossen. Anwohner, die ein „starkes Leuchten“ beobachtet haben wollen, werden gebeten, sich nicht zu beunruhigen: Die Instrumente des Ballons sind mit Signalfarbe versehen. Die neue Außenstelle der Bundesstelle in der Ahornstraße nimmt am Donnerstag ihren Betrieb auf; Bürgersprechstunde 14–16 Uhr.',
     daneben: 'Kaninchenzuchtverein: Rammler ‚Fritz‘ erneut Kreissieger.', notiz: 'Auf dem Foto der Bergung, am Rand, ein junger Mann im Mantel, der schon aussieht, als hätte er nie geschlafen.' },
-  { nr: 2, datum: '1975', titel: 'UFO über dem Abgrund? Experte: Sumpfgas', hw: 1, foto: 'kreuzung', fotoText: 'Kinder auf der Kreuzung am Morgen danach.',
+  { nr: 2, datum: '1975', titel: 'UFO über dem Abgrund? Experte: Sumpfgas', hw: 1, foto: 'k', fotoText: 'Kinder auf der Kreuzung am Morgen danach.',
     text: 'Lost Eyengless. Nach dem Sommerfest wollen mehrere Bürger „ein Schiff aus Licht“ über dem Hohen Abgrund gesehen haben. Der Leiter der Bundesstelle für Rückführung, Dr. Th. Seiler, erklärt dazu: „Es handelt sich um Sumpfgas, das sich bei der Witterung selbst entzündet. Ein bekanntes Phänomen im Abgrundtal.“ Sieben Kinder, die in der Nacht im Wald übernachtet hatten, sind wohlauf und wurden ihren Eltern übergeben. Von einer Kuh der Familie Aydın fehlt jede Spur.',
     daneben: 'Schützenfest: Königsschuss um 18 Uhr, Damen frei.', notiz: 'Hinter dem Fotografen, als Schatten in der Scheibe der Telefonzelle: ein Hut.' },
   { nr: 3, datum: '1992', titel: 'Wildschaden: Waldgebiet am Kirchberg gesperrt', hw: 1, laminiert: 1,
@@ -60,7 +64,7 @@ const SAMMELN_Z = [
   { nr: 5, datum: '2011', titel: 'Gasleck in ehemaliger Behörde: zwei Tote', hw: 1, radiert: 'Zähne',
     text: 'Lost Eyengless. Bei einem Gasleck in den Kellerräumen der Bundesstelle für Rückführung sind in der Nacht zum vierten März zwei Mitarbeiter ums Leben gekommen. Die Leitung spricht von einem „tragischen Unglück durch veraltete Leitungen“. Die Räume wurden versiegelt. Angehörige werden betreut. Der Sprechstundenbetrieb geht am Donnerstag weiter.',
     daneben: 'Katzenausstellung im Gemeindesaal: Frau Rieke stellt siebzehn Tiere aus, alle mit Namen.', notiz: 'Jemand hat über „Gasleck“ mit Bleistift „Zähne“ geschrieben und es wieder ausradiert; man kann es noch lesen.' },
-  { nr: 6, datum: '2012', titel: 'Bundesstelle schließt – Dank an die treuen Mitarbeiter', hw: 1, foto: '-', fotoText: 'Frau Hilde Wendt mit Blumenstrauß.',
+  { nr: 6, datum: '2012', titel: 'Bundesstelle schließt – Dank an die treuen Mitarbeiter', hw: 1, foto: 'h', fotoText: 'Frau Hilde Wendt mit Blumenstrauß.',
     text: 'Lost Eyengless. Nach 54 Jahren schließt die Außenstelle der Bundesstelle für Rückführung. Bürgermeister und Leitung dankten den langjährigen Mitarbeitern, darunter Frau Hilde Wendt (26 Jahre Verwaltung), die einen Blumenstrauß erhielt. „Die Aufgabe ist erfüllt“, sagte Dr. Seiler. Die Akten werden „ordnungsgemäß verwahrt“. Ein Institut für Atmosphärenforschung wird künftig die Messstelle am Kirchberg betreiben.',
     notiz: 'Hilde mit Blumen, lächelt nicht. Am Rand ein Mann im Mantel, Mitte vierzig. Derselbe wie 1975. Derselbe wie 1958.' },
   { nr: 7, datum: '2019', titel: 'Früherer Amtsarzt tot in seiner Villa aufgefunden – keine Fremdeinwirkung', hw: 1,
@@ -141,21 +145,23 @@ function sammeln_auto() { // Kapitelfortschritt zieht Einträge nach, die kein K
 // ---------------------------------------------------------------------  Bilder: Stundenbuchseite (Canvas, einmal je Seite)
 const SAMMELN_LATEIN = 'Domine labia mea aperies et os meum annuntiabit laudem tuam. Deus in adiutorium meum intende. Domine ad adiuvandum me festina. Gloria patri et filio et spiritui sancto sicut erat in principio et nunc et semper et in secula seculorum amen. Venite exultemus domino iubilemus deo salutari nostro preoccupemus faciem eius in confessione et in psalmis iubilemus ei. Quoniam deus magnus dominus et rex magnus super omnes deos quoniam non repellet dominus plebem suam quia in manu eius sunt omnes fines terre et altitudines montium ipse conspicit. Ave maria gratia plena dominus tecum benedicta tu in mulieribus. Memento salutis auctor quod nostri quondam corporis ex illibata virgine nascendo formam sumpseris. Maria mater gratie mater misericordie tu nos ab hoste protege et hora mortis suscipe.'.split(' ');
 function sammeln_fleck(x, R, cx, cy, r, a) { // Wasserfleck mit Trockenrand
-  const n = 38, pts = []; for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2, rr = r * (.78 + .3 * R() + .12 * Math.sin(t * 3 + R() * 6)); pts.push([cx + Math.cos(t) * rr, cy + Math.sin(t) * rr * (.8 + .2 * R())]); }
+  const n = 72, pts = [], p1 = R() * 6, p2 = R() * 6, p3 = R() * 6, sy = .72 + R() * .25; for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2, rr = r * (1 + .14 * Math.sin(t * 2 + p1) + .07 * Math.sin(t * 3 + p2) + .035 * Math.sin(t * 7 + p3)); pts.push([cx + Math.cos(t) * rr, cy + Math.sin(t) * rr * sy]); }
   x.save(); x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); x.closePath();
   x.fillStyle = `rgba(150,110,55,${a * .35})`; x.fill(); x.lineWidth = 5; x.strokeStyle = `rgba(110,72,30,${a})`; x.filter = 'blur(1.5px)'; x.stroke(); x.filter = 'none'; x.lineWidth = 1.2; x.strokeStyle = `rgba(90,58,24,${a * .9})`; x.stroke(); x.restore();
 }
 function sammeln_kloetze(x, R, text, x0, y0, maxW, size, o = {}) { // Justins eckige Randschrift: große, ungelenke Klötze, nichts durchgestrichen
   let px = x0, py = y0; x.save(); x.fillStyle = o.col || 'rgba(30,20,12,.9)';
-  for (const ch of text) { if (ch === ' ') { px += size * .55; if (px > x0 + maxW) { px = x0 + R() * 8; py += size * 1.25; } continue; }
-    const s = size * (.86 + R() * .3), rot = (R() - .5) * (o.zitter ? .5 : .16) + (o.zitter ? (py - y0) * .0006 : 0);
-    x.save(); x.translate(px, py + (R() - .5) * size * .18); x.rotate(rot); x.scale(1.15, 1); x.font = `700 ${s}px Georgia, serif`; x.fillText(ch, 0, 0);
-    if (o.doppelt) { x.globalAlpha = .55; x.fillText(ch, 2.2, 1.4); } x.restore(); px += s * .82 + R() * 3; if (px > x0 + maxW) { px = x0 + R() * 8; py += size * 1.25; } }
+  for (const w of text.split(' ')) { if (!w) continue; x.font = `900 ${size}px "Arial Black", Impact, sans-serif`; const ww = x.measureText(w).width * 1.02 + w.length * size * .06;
+    if (px > x0 && px + ww > x0 + maxW) { px = x0 + R() * 6; py += size * 1.32; }
+    for (const ch of w) { const s = size * (.92 + R() * .14), rot = (R() - .5) * (o.zitter ? .32 : .09) + (o.zitter ? Math.sin(py * .05 + px * .03) * .08 : 0);
+      x.save(); x.translate(px, py + (R() - .5) * size * (o.zitter ? .22 : .08)); x.rotate(rot); x.globalAlpha = .78 + R() * .22; x.scale(.92, 1); x.font = `900 ${s}px "Arial Black", Impact, sans-serif`; x.fillText(ch, 0, 0);
+      if (o.doppelt) { x.globalAlpha = .5; x.fillText(ch, 1.6, 1.1); } x.restore(); px += x.measureText(ch).width + size * .07; }
+    px += size * .5; }
   x.restore(); return py;
 }
 function sammeln_sbBild(nr) {
   if (sammeln_S.img[nr]) return sammeln_S.img[nr];
-  const P = SAMMELN_SB[nr - 1], f = P.f, R = sammeln_R(nr * 7919), W = 900, H = 1180, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
+  const P = SAMMELN_SB[nr - 1], f = P.f, R = sammeln_R(nr * 7919), W = 900, H = 1180, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true });
   // Blattform mit leicht ausgefranstem Rand, Schatten darunter
   const edge = []; const M = 28; for (let i = 0; i <= 40; i++) edge.push([M + (W - 2 * M) * i / 40, M + (R() - .5) * 5]); for (let i = 0; i <= 50; i++) edge.push([W - M + (R() - .5) * 5, M + (H - 2 * M) * i / 50]);
   for (let i = 40; i >= 0; i--) edge.push([M + (W - 2 * M) * i / 40, H - M + (R() - .5) * 6]); for (let i = 50; i >= 0; i--) edge.push([M + (R() - .5) * 4 + (f.holz && i > 3 && i < 47 ? 0 : 0), M + (H - 2 * M) * i / 50]);
@@ -178,8 +184,9 @@ function sammeln_sbBild(nr) {
   } else {
     let wi = Math.floor(R() * 40); x.fillStyle = 'rgba(46,26,12,.86)';
     // Initiale: rote Lombarde mit blauem Fleuronné
-    x.save(); x.font = '600 118px "Cormorant Garamond", Georgia, serif'; x.fillStyle = '#9b2a1c'; x.fillText('D', tx0 - 2, ty0 + 2 * lh + 4); x.strokeStyle = 'rgba(40,60,130,.7)'; x.lineWidth = 1.4;
-    for (let k = 0; k < 9; k++) { x.beginPath(); const yy = ty0 - 50 + k * 22; x.moveTo(tx0 - 30, yy); x.bezierCurveTo(tx0 - 60, yy + 8, tx0 - 40, yy + 20, tx0 - 64, yy + 30); x.stroke(); } x.restore();
+    x.save(); x.font = '600 118px "Cormorant Garamond", Georgia, serif'; x.fillStyle = '#9b2a1c'; x.fillText('D', tx0 - 2, ty0 + 2 * lh + 4); x.strokeStyle = 'rgba(40,60,130,.55)'; x.lineWidth = 1;
+    for (let k = 0; k < 7; k++) { x.beginPath(); const yy = ty0 - 30 + k * 16; x.moveTo(tx0 - 12, yy); x.bezierCurveTo(tx0 - 26, yy + 4, tx0 - 20, yy + 10, tx0 - 32, yy + 14); x.stroke(); }
+    x.beginPath(); x.moveTo(tx0 - 14, ty0 - 34); x.lineTo(tx0 - 14, ty0 + 2 * lh + 30); x.stroke(); x.restore();
     for (let r = 0; r < rows; r++) { let px = r < 2 ? tx0 + 92 : tx0; const yy = ty0 + r * lh;
       while (true) { const w = SAMMELN_LATEIN[wi++ % SAMMELN_LATEIN.length]; x.font = `italic 600 ${29 + R() * 2}px "Cormorant Garamond", Georgia, serif`; const ww = x.measureText(w + ' ').width; if (px + ww > tx1) break;
         x.globalAlpha = .55 + R() * .45; if (r % 6 === 5 && px === tx0) { x.fillStyle = 'rgba(150,40,26,.9)'; x.fillText(w, px, yy); x.fillStyle = 'rgba(46,26,12,.86)'; } else x.fillText(w, px, yy); px += ww; } }
@@ -189,12 +196,12 @@ function sammeln_sbBild(nr) {
   for (let i = 0; i < 2 + (nr % 3); i++) sammeln_fleck(x, R, 120 + R() * (W - 240), 150 + R() * (H - 300), 60 + R() * 150, .12 + R() * .12);
   // Justins Klötze am Rand (übertragen heißt: im Bild unleserlich wie ein alter Dialekt)
   const kl = 'ALSO SPRACH ICH IN DER NACHT UND GIENG HINEIN UND RIEF SI HAT NIT KOMEN ICH GE MORGEN WIDER SIEBZEHN WINTER AM RANT ICH SUCH SI IMMER NOCH'.split(' ');
-  let s = ''; for (let i = 0; i < 16; i++) s += kl[Math.floor(R() * kl.length)] + ' ';
+  for (let i = kl.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [kl[i], kl[j]] = [kl[j], kl[i]]; } let s = kl.join(' ') + ' ';
   const ko = { doppelt: f.doppelt, zitter: f.zitter, col: f.klein ? 'rgba(30,20,12,.86)' : 'rgba(26,18,10,.92)' };
-  x.save(); x.translate(tx1 + 40, 120); x.rotate(.02); sammeln_kloetze(x, R, s.slice(0, 110), 0, 0, 150, f.klein ? 22 : 30, ko); x.restore();
-  sammeln_kloetze(x, R, s.slice(40, 150), 80, H - 170, W - 200, f.klein ? 22 : 30, ko);
-  if (f.zitter) { x.save(); x.translate(tx0, 105); x.rotate(-.03); sammeln_kloetze(x, R, 'BRESCIA', 0, 0, 400, 44, { zitter: 1 }); x.restore(); }
-  if (f.mira) sammeln_kloetze(x, R, 'IR HANT NIT MIN WISE HAT SI BRACHT', tx0, H - 130, W - 260, 26, {});
+  x.save(); x.translate(tx1 + 30, 150); x.rotate(.015); sammeln_kloetze(x, R, s.slice(0, 90), 0, 0, 132, f.klein ? 17 : 21, ko); x.restore();
+  sammeln_kloetze(x, R, s.slice(40, 150), 110, H - 175, W - 250, f.klein ? 19 : 25, ko);
+  if (f.zitter) { x.save(); x.translate(tx0, 105); x.rotate(-.03); sammeln_kloetze(x, R, 'BRESCIA', 0, 0, 400, 36, { zitter: 1 }); x.restore(); }
+  if (f.mira) sammeln_kloetze(x, R, 'IR HANT NIT MIN WISE HAT SI BRACHT', tx0, H - 130, W - 300, 22, {});
   // Besonderheiten je Seite
   if (f.brand) { const cx = W - 20, cy = 20; g = x.createRadialGradient(cx, cy, 20, cx, cy, 260); g.addColorStop(0, 'rgba(20,10,4,1)'); g.addColorStop(.35, 'rgba(60,30,10,.9)'); g.addColorStop(.6, 'rgba(120,70,30,.45)'); g.addColorStop(1, 'rgba(120,70,30,0)'); x.fillStyle = g; x.fillRect(W - 300, 0, 300, 300);
     sammeln_fleck(x, R, 420, 120, 70, .35); x.fillStyle = 'rgba(80,45,15,.18)'; x.beginPath(); x.ellipse(420, 118, 60, 38, .2, 0, 7); x.fill(); }
@@ -222,7 +229,7 @@ function sammeln_sbBild(nr) {
   if (f.huelle) { x.save(); g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, 'rgba(255,255,255,.08)'); g.addColorStop(.35, 'rgba(255,255,255,.22)'); g.addColorStop(.42, 'rgba(255,255,255,.04)'); g.addColorStop(1, 'rgba(255,255,255,.1)'); x.fillStyle = g; x.fillRect(8, 8, W - 16, H - 16);
     x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 3; x.strokeRect(10, 10, W - 20, H - 20); x.fillStyle = '#f2efe6'; x.fillRect(W - 330, H - 120, 270, 64); x.strokeStyle = 'rgba(0,0,0,.3)'; x.lineWidth = 1; x.strokeRect(W - 330, H - 120, 270, 64);
     x.fillStyle = '#222'; x.font = '26px "Special Elite", monospace'; x.fillText('ASSERVAT 7/58', W - 314, H - 78); x.restore(); }
-  return (sammeln_S.img[nr] = c.toDataURL('image/jpeg', .86).replace('image/jpeg', 'image/jpeg'));
+  return (sammeln_S.img[nr] = c.toDataURL('image/webp', .88));
 }
 // ---------------------------------------------------------------------  Notizfenster
 function sammeln_sbText(nr) {
@@ -250,7 +257,7 @@ function sammeln_sb(nr, still) {
 function sammeln_zHtml(nr) {
   const Z = SAMMELN_Z[nr - 1], R = sammeln_R(nr * 104729); let clip = ''; for (let i = 0; i <= 10; i++) clip += `${i * 10}% ${(R() * 1.6).toFixed(2)}%,`; for (let i = 0; i <= 10; i++) clip += `${(98.4 + R() * 1.6).toFixed(2)}% ${i * 10}%,`;
   for (let i = 10; i >= 0; i--) clip += `${i * 10}% ${(98.2 + R() * 1.8).toFixed(2)}%,`; for (let i = 10; i >= 0; i--) clip += `${(R() * 1.4).toFixed(2)}% ${i * 10}%${i ? ',' : ''}`;
-  const rot = ((R() - .5) * 2.2).toFixed(2), foto = Z.foto ? (Z.foto === '-' ? '<div class="lbFoto lbLeer"></div>' : `<div class="lbFoto"><img src="assets/fotos/${Z.foto}.jpg" alt="" style="width:100%;margin:0;padding:0;background:none;box-shadow:none!important;transform:none;filter:grayscale(1) contrast(1.5) brightness(1.05) sepia(.25)"></div>`) + `<div class="lbFotoText">${Z.fotoText}</div>` : '';
+  const rot = ((R() - .5) * 2.2).toFixed(2), foto = Z.foto ? `<div class="lbFoto"><img src="${sammeln_zFoto(Z.foto)}" alt="" style="display:block;width:100%;margin:0;padding:0;background:none;box-shadow:none!important;transform:none"></div><div class="lbFotoText">${Z.fotoText}</div>` : '';
   let body = Z.welt ? Z.welt.map(([o, t]) => `<p><b>${o}.</b> ${t}</p>`).join('') : `<p>${Z.text.replace('Gasleck', Z.radiert ? '<span class="lbRad" data-r="' + Z.radiert + '">Gasleck</span>' : 'Gasleck')}${Z.hw ? ' <span class="lbHw">(hw)</span>' : ''}</p>`;
   if (Z.welt) body = body.replace(/<p>/g, '<p class="lbKreis">');
   return `<div class="lbClip${Z.laminiert ? ' lbLam' : ''}" style="clip-path:polygon(${clip});transform:rotate(${rot}deg)"><div class="lbKopf">DER LATERNENBOTE</div><div class="lbUnter">Heimatzeitung für Lost Eyengless und das Abgrundtal · seit 1890</div>` +
@@ -265,6 +272,24 @@ function sammeln_z(nr, still) {
     const o = sammeln_S.orte['Z-' + sammeln_pad(nr)]; if (o) sammeln_weg(o);
     if (typeof saveGame === 'function' && state.started) saveGame(curChapter()); }
   if (!still) openNote('Der Laternenbote', sammeln_zHtml(nr));
+}
+function sammeln_zFoto(art) { // Zeitungsbild: Motiv aus weichen Formen, dann als grobes Druckraster (Punkte) auf Zeitungspapier
+  const k = 'f' + art; if (sammeln_S.img[k]) return sammeln_S.img[k]; const W = 520, H = 300, R = sammeln_R(art.charCodeAt(0) * 31), a = document.createElement('canvas'); a.width = W; a.height = H; const x = a.getContext('2d', { willReadFrequently: true });
+  const blob = (cx, cy, rx, ry, v, bl) => { x.save(); x.filter = `blur(${bl || 3}px)`; x.fillStyle = `rgb(${v},${v},${v})`; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill(); x.restore(); };
+  const kind = (cx, cy, h, v) => { blob(cx, cy - h * .82, h * .11, h * .12, v, 1.5); blob(cx, cy - h * .42, h * .15, h * .32, v, 2); blob(cx - h * .06, cy - h * .06, h * .05, h * .14, v, 1.5); blob(cx + h * .06, cy - h * .06, h * .05, h * .14, v, 1.5); };
+  let g = x.createLinearGradient(0, 0, 0, H);
+  if (art === 'k') { g.addColorStop(0, '#c9c9c9'); g.addColorStop(.55, '#a8a8a8'); g.addColorStop(.56, '#6a6a6a'); g.addColorStop(1, '#8a8a8a'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+    blob(90, 150, 70, 30, 70, 8); blob(260, 158, 260, 10, 95, 4); x.fillStyle = '#3a3a3a'; x.fillRect(430, 60, 64, 190); x.fillStyle = '#9a9a9a'; x.fillRect(440, 72, 44, 120); blob(462, 118, 11, 14, 40, 2); blob(462, 104, 20, 5, 40, 1.5);
+    x.fillStyle = '#2a2a2a'; x.fillRect(372, 40, 5, 200); blob(374, 38, 12, 8, 60, 2); for (let i = 0; i < 7; i++) kind(150 + i * 36 + R() * 8, 250 + R() * 6, 64 + R() * 14, 30 + R() * 25); }
+  else if (art === 'b') { g.addColorStop(0, '#1c1c1c'); g.addColorStop(1, '#3a3a3a'); x.fillStyle = g; x.fillRect(0, 0, W, H); blob(250, 120, 150, 70, 210, 22); blob(250, 130, 70, 40, 250, 12); blob(260, 250, 240, 30, 70, 10);
+    for (let i = 0; i < 5; i++) { const cx = 150 + i * 55; blob(cx, 200, 16, 42, 20, 2); blob(cx, 150, 11, 12, 20, 1.5); } blob(40, 190, 18, 70, 12, 2); blob(40, 112, 13, 15, 12, 1.5); blob(40, 100, 26, 6, 12, 1.5); }
+  else { g.addColorStop(0, '#b8b8b8'); g.addColorStop(1, '#8e8e8e'); x.fillStyle = g; x.fillRect(0, 0, W, H); x.fillStyle = '#7c7c7c'; x.fillRect(0, 210, W, 90);
+    blob(230, 90, 34, 40, 55, 2); blob(230, 200, 78, 100, 45, 3); blob(290, 170, 44, 38, 200, 5); for (let i = 0; i < 9; i++) blob(270 + R() * 50, 150 + R() * 40, 9, 9, 235, 2);
+    blob(470, 100, 22, 26, 40, 2); blob(470, 210, 48, 110, 35, 3); blob(470, 82, 38, 7, 35, 1.5); }
+  const d = x.getImageData(0, 0, W, H).data, b = document.createElement('canvas'); b.width = W; b.height = H; const y = b.getContext('2d', { willReadFrequently: true }); y.fillStyle = '#d6cfba'; y.fillRect(0, 0, W, H); y.fillStyle = '#141414';
+  const st = 5; for (let py = 0; py < H; py += st) for (let px = (py / st) % 2 ? st / 2 : 0; px < W; px += st) { const i = ((py | 0) * W + (px | 0)) * 4, v = d[i] / 255, r = (1 - v) * st * .72 + (R() - .5) * .5; if (r > .25) { y.beginPath(); y.arc(px, py, r, 0, 7); y.fill(); } }
+  y.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 900; i++) { y.fillStyle = `rgba(0,0,0,${R() * .35})`; y.fillRect(R() * W, R() * H, 1 + R() * 3, 1); }
+  return (sammeln_S.img[k] = b.toDataURL('image/webp', .85));
 }
 // openNote: Platzhalter (Seitenbild, Zeitungsausschnitt) beim Anzeigen einsetzen – der Spielstand bleibt klein; Z-08 der Basis (Wohnzimmer Nr. 7) zählt mit
 openNote = (o => (title, html, loreKey, onClose) => {
@@ -313,8 +338,7 @@ function sammeln_sperre() { for (const O of Object.values(sammeln_S.orte)) { con
   O.on = on; if (O.m) O.m.visible = on && !O.o.unsichtbar; const i = interactables.indexOf(O.hit); if (on && i < 0) interactables.push(O.hit); else if (!on && i >= 0) interactables.splice(i, 1); } }
 // Fundorte Kap. 1–3, soweit sie schon gebaut sind (Kern §15.1, Kap. 1 Nebenaufgaben 8, 11, 13, 15, 18, 19); die übrigen legen die Kapitel-APs mit sammeln_platz
 function sammeln_orte() {
-  const barn = typeof OW !== 'undefined' && OW.dbg && OW.dbg.barnRect; // Scheune am Hof: bis AP-15 Justins Lager baut, unter dem Heuboden
-  if (barn) sammeln_platz('SB-01', { x: barn.x0 + .35, y: .3, z: (barn.z0 + barn.z1) / 2 + .4, label: 'Ein Blatt im Heu' });
+  sammeln_sb01();
   sammeln_platz('SB-02', { x: -10.05, y: .12, z: 53.45, ry: 1.1, label: 'Loser Sockelstein · ein Blatt' });           // Sühnekreuz, Sockel
   sammeln_platz('SB-03', { x: 12.35, y: .95, z: 52.2, wand: 1, label: 'In der Ritze hinter den Plakaten' });          // Bushaltestelle Kirchberg, Rückwand
   sammeln_platz('Z-02', { x: 115.1, y: 2.05, z: 24.6, wand: 1, label: 'Gerahmter Zeitungsausschnitt' });              // Tankstelle, über dem Nachtschalter
@@ -322,6 +346,9 @@ function sammeln_orte() {
   sammeln_platz('Z-04', { x: -1.05, y: .9, z: -42, unsichtbar: 1, hb: .35, label: 'Handschuhfach' });                 // Südsperre, überwachsenes Wrack
   if (typeof Z7 !== 'undefined') sammeln_platz('Z-06', { x: Z7.x0 + .4, y: 1.45, z: (Z7.z0 + Z7.z1) / 2, wand: 1, ab: 2, label: 'Zeitungsausschnitt an der Wand' }); // Zimmer 7
 }
+function sammeln_sb01() { // Scheune am Hof: bis AP-15 Justins Lager baut (dann sammeln_platz('SB-01', …) dort), unter dem Heuboden
+  if (sammeln_S.orte['SB-01']) return true; const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, barn = OW && OW.dbg && OW.dbg.barnRect; if (!barn) return false;
+  sammeln_platz('SB-01', { x: barn.x0 + .35, y: .3, z: (barn.z0 + barn.z1) / 2 + .4, label: 'Ein Blatt im Heu' }); return true; }
 // ---------------------------------------------------------------------  J-05: der Schatz am Sühnekreuz (85, Umsetzungsnotizen)
 function sammeln_schatz() {
   const x0 = -12.9, z0 = 53.9, T = THREE; const t = tex(cnv(128, (x, w) => { x.clearRect(0, 0, w, w); const R = sammeln_R(55); for (let i = 0; i < 90; i++) { const r = 3 + R() * 9, a = R() * 6.28, d = R() * 44; x.fillStyle = `rgba(${40 + R() * 30},${28 + R() * 20},${16 + R() * 10},${.35 + R() * .4})`; x.beginPath(); x.arc(64 + Math.cos(a) * d, 64 + Math.sin(a) * d, r, 0, 7); x.fill(); } }), true);
@@ -377,7 +404,7 @@ function sammeln_ritterSvg() { return '<svg class="samRitter" viewBox="0 0 120 1
 // ---- Reiter: DAS BIST DU
 function sammeln_rDu(B) {
   const blau = kapAb(2), neu = [];
-  const jonas = `DAS BIST DU: LUKE. VIZE-CHEF. ALTER 9. <span class="samAugen${blau ? ' frei' : ''}">AUGEN: BLAU (WIE DER HIMMEL WENN ER NICHT GRAU IST).</span> ANGST VOR: SPINNEN (GEHEIM!!). KANN: PFEIFEN OHNE FINGER.`;
+  const jonas = `DAS BIST DU: LUKE. VIZE-CHEF. ALTER 9. <span class="samAugen${blau ? ' frei' : ''}">AUGEN: BLAU (WIE DER HIMMEL WENN ER NICHT GRAU IST).${blau ? '' : '<i class="samFleck"></i>'}</span> ANGST VOR: SPINNEN (GEHEIM!!). KANN: PFEIFEN OHNE FINGER.`;
   const zeilen = SAMMELN_DU.map(z => { let t = z[0]; const add = [];
     const strike = (flag, was, dazu) => { if (!sammeln_hat(flag)) return; const n = !sammeln_hat('seen:' + flag); if (n) neu.push(flag); if (was) t = t.replace(was, `<s class="${n ? 'kratz' : ''}">${was}</s>`); add.push(`<em class="${n ? 'kratz' : ''}">${dazu}</em>`); };
     if (z[1] === 'D-04') { strike('D-04', 'Luke Brandt.', 'K-3?'); if (sammeln_hat('D-08')) { const n = !sammeln_hat('seen:D-08'); if (n) neu.push('D-08'); add[0] = `<s class="${n ? 'kratz' : ''}">K-3?</s>`; add.push(`<em class="${n ? 'kratz' : ''}">Luke. Er hat gesagt, ich darf.</em>`); } }
@@ -441,9 +468,10 @@ function sammeln_k1Zeile() {
 .samJ.klein .wachs { font-size: 18px; } .samJ.ueber .wachs { font-size: 34px; }
 .samJ s { text-decoration-thickness: 3px; }
 .samRitter { display: block; width: 90px; margin: 4px 0 0 30px; transform: rotate(-4deg); opacity: .85; }
-.samAugen { position: relative; } .samAugen:not(.frei) { color: transparent; text-shadow: none; }
-.samAugen:not(.frei)::after { content: ''; position: absolute; left: -14px; right: -18px; top: -16px; bottom: -14px; border-radius: 48% 52% 44% 56%;
-  background: radial-gradient(ellipse at 45% 50%, rgba(120,72,30,.78), rgba(105,62,24,.86) 62%, rgba(80,45,15,.95) 70%, rgba(120,72,30,.35) 76%, transparent 80%); -webkit-mask-image: none; }
+.samAugen { position: relative; display: inline-block; } .samAugen:not(.frei) { color: rgba(47,95,168,.12); text-shadow: none; filter: blur(1.5px); }
+.samFleck { position: absolute; left: -22px; right: -26px; top: -22px; bottom: -20px; pointer-events: none; border-radius: 46% 54% 42% 58% / 55% 45% 58% 42%; transform: rotate(-4deg);
+  background: radial-gradient(ellipse at 50% 50%, rgba(140,88,40,.8) 0 55%, rgba(118,70,28,.9) 64%, rgba(92,52,18,.95) 69%, rgba(140,90,40,.45) 73%, rgba(140,90,40,0) 77%); }
+.samFleck::after { content: ''; position: absolute; left: 62%; top: -14px; width: 40px; height: 34px; border-radius: 50%; border: 3px solid rgba(110,64,24,.55); border-left-color: transparent; transform: rotate(20deg); }
 .samKuli { list-style: none; margin: 14px 0 0; padding: 0; } .samKuli li { font: 25px/1.36 Caveat, cursive !important; color: #1e2b5c !important; padding: 0 !important; margin: 0 0 3px !important; transform: rotate(-.3deg); }
 .samKuli li::before { display: none; } .samKuli em { font-style: normal; color: #1a2f7a; margin-left: 6px; }
 .samKuli s { text-decoration: none; background: linear-gradient(transparent 52%, #1e2b5c 52%, #1e2b5c 60%, transparent 60%) no-repeat; background-size: 100% 100%; }
@@ -469,9 +497,7 @@ em.kuli { font: 32px Caveat, cursive; color: #1e2b5c; font-style: normal; text-s
 #note .lbText p { margin: 0 0 6px; } #note .lbText p.lbKreis b { border: 2px solid rgba(170,25,20,.8); border-radius: 50%; padding: 0 4px; }
 #note .lbHw { font-style: italic; }
 #note .lbRad { position: relative; } #note .lbRad::after { content: attr(data-r); position: absolute; left: -2px; top: -15px; font: 15px Caveat, cursive; color: rgba(70,70,70,.35); transform: rotate(-4deg); }
-#note .lbFoto { position: relative; margin: 0 0 4px; background: #555; min-height: 120px; overflow: hidden; }
-#note .lbFoto::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,0,0,.35) 38%, transparent 42%) 0 0 / 4px 4px; mix-blend-mode: multiply; }
-#note .lbLeer { height: 150px; background: radial-gradient(ellipse at 40% 45%, #9a9a9a, #4a4a4a 60%, #2a2a2a); }
+#note .lbFoto { position: relative; margin: 0 0 4px; overflow: hidden; }
 #note .lbFotoText { font: italic 11.5px Georgia, serif; margin-bottom: 10px; color: #333; }
 #note .lbAnz { margin-top: 12px; border: 1.5px solid #222; padding: 6px 10px; font: 700 12.5px Georgia, serif; text-align: center; }
 #note .lbFuss { margin-top: 10px; font: 10.5px Georgia, serif; text-align: right; color: #444; }
@@ -494,6 +520,6 @@ WORLD_MODS.push(['Sammeln', async () => {
   sammeln_S.ready = true; // Reiterleiste baut renderJournal (jTab der Basis steht erst nach den Modulen)
 }]);
 WORLD_TICK.push(() => { const S = sammeln_S; if (!S.ready) return; const k = kap(); if (k !== S.k) { S.k = k; sammeln_sperre(); sammeln_auto(); }
-  if (S.placed || typeof SOL === 'undefined' || !SOL.items.length) return; S.placed = true; for (const O of Object.values(S.orte)) try { O.setPos(); } catch (e) {} sammeln_sperre(); });
+  if (S.placed || typeof SOL === 'undefined' || !SOL.items.length) return; if (!sammeln_sb01() && (S.sbT = (S.sbT || 0) + 1) < 600) return; S.placed = true; for (const O of Object.values(S.orte)) try { O.setPos(); } catch (e) {} sammeln_sperre(); });
 MOD_SAVE.push(['sammeln', () => ({ sb: [...sammeln_S.sb], z: [...sammeln_S.z], fibel: [...sammeln_S.fibel] }), v => { const S = sammeln_S; S.sb = new Set((v && v.sb) || []); S.z = new Set((v && v.z) || []); S.fibel = new Set((v && v.fibel) || []); S.neu.clear(); sammeln_sperre(); sammeln_schatzSperre(); }]);
 window.__sammeln = { S: sammeln_S, sb: sammeln_sb, z: sammeln_z, fibel: sammeln_fibel, platz: sammeln_platz, k1: () => sammeln_k1Zeile(), bild: sammeln_sbBild }; // Testzugriff

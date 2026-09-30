@@ -64,7 +64,7 @@ function traum_cam(cam, dt) {
   cam.position.set(o[0] + sh.from[0] + (sh.to[0] - sh.from[0]) * e, Math.max(.25, o[1] + sh.from[1] + (sh.to[1] - sh.from[1]) * e), o[2] + sh.from[2] + (sh.to[2] - sh.from[2]) * e);
   if (sh.look === 'crow' && S.crow) _trV.copy(S.crow.g.position).add({ x: 0, y: .25, z: 0 }); else if (sh.look === 'crowHead' && S.crow) _trV.copy(S.crow.g.position).add({ x: 0, y: .32, z: 0 }); else if (sh.look === 'book') _trV.set(TRAUM_BOOK.x, .05, TRAUM_BOOK.z); else if (sh.look === 'perch') _trV.set(TRAUM_PERCH.x, 1.6, TRAUM_PERCH.z); else _trV.set(...(Array.isArray(sh.look) ? sh.look : [0, 1, 0]));
   cam.lookAt(_trV); cam.rotateZ(Math.sin(S.t * .4) * .02); if (typeof PERF_CULL !== 'undefined' && S.t < dt * 1.5) PERF_CULL.t = 0;
-  if (S.skip || S.t >= sh.dur) { if (S.skip || S.shot >= TRAUM_SHOTS.length - 1) return traum_wake(); S.shot++; S.t = 0; traum_lines(); }
+  if (S.skip || S.t >= sh.dur) { if (S.skip || S.shot >= TRAUM_SHOTS.length - 1) return traum_wake(); S.shot++; S.t = 0; if (S.shot === TRAUM_SHOTS.length - 1 && typeof kino_prolog === 'function' && kino_prolog()) return; traum_lines(); } // AP-10: letzter Shot = Kinosequenz „Kum, Wîse“
 }
 async function traum_wake() {
   const S = traum_S; if (S.waking) return; S.waking = true;

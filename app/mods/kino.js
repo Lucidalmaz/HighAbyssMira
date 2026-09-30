@@ -283,9 +283,9 @@ function kino_tex_ring() { return cnv(256, (c, w) => { c.fillStyle = '#23231f'; 
 function kino_tex_brille() { return cnv(1024, (c, w) => { c.clearRect(0, 0, w, w); const cx = w / 2, cy = w * .47;
   c.save(); c.translate(cx, cy); c.rotate(-.18);
   const lens = (x, crack) => { c.save(); c.translate(x, 0); c.beginPath(); c.ellipse(0, 0, 112, 84, 0, 0, 7);
-    const g = c.createRadialGradient(-30, -26, 8, 0, 0, 120); g.addColorStop(0, 'rgba(235,240,245,.55)'); g.addColorStop(.5, 'rgba(120,130,140,.25)'); g.addColorStop(1, 'rgba(40,44,50,.35)'); c.fillStyle = g; c.fill();
+    const g = c.createRadialGradient(-30, -26, 8, 0, 0, 120); g.addColorStop(0, 'rgba(200,210,220,.10)'); g.addColorStop(.6, 'rgba(90,100,110,.12)'); g.addColorStop(1, 'rgba(40,44,50,.3)'); c.fillStyle = g; c.fill();
     c.lineWidth = 13; c.strokeStyle = '#2a1d14'; c.stroke(); c.lineWidth = 3; c.strokeStyle = 'rgba(200,160,110,.55)'; c.beginPath(); c.ellipse(-3, -3, 106, 78, 0, 3.6, 5.6); c.stroke();
-    c.fillStyle = 'rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(-44, -36, 30, 9, -.5, 0, 7); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-44, -36, 24, 6, -.5, 0, 7); c.fill();
     if (crack) { c.strokeStyle = 'rgba(245,250,255,.85)'; c.lineWidth = 2.2; for (let i = 0; i < 9; i++) { let a = i / 9 * 6.28 + rand(-.2, .2), r = 0, px = 18, py = -10; c.beginPath(); c.moveTo(px, py);
         while (r < 110) { r += rand(14, 30); a += rand(-.35, .35); const nx = 18 + Math.cos(a) * r, ny = -10 + Math.sin(a) * r * .75; if (nx * nx / 12544 + ny * ny / 7056 > 1) break; c.lineTo(nx, ny); } c.stroke(); }
       c.beginPath(); c.arc(18, -10, 7, 0, 7); c.fillStyle = 'rgba(255,255,255,.6)'; c.fill(); }
@@ -307,6 +307,18 @@ function kino_tex_zeichnung() { return cnv(512, (c, w) => { c.fillStyle = '#ddd2
   cr('#b07020', 4, [[320, 240], [330, 245], [345, 290], [315, 290], [330, 245]]); cr('#222', 3, [[230, 128], [236, 128]]); cr('#222', 3, [[262, 128], [268, 128]]);
   c.fillStyle = '#1a1a1a'; c.font = '34px "Comic Sans MS", cursive'; c.save(); c.translate(300, 488); c.rotate(-.05); c.fillText('LUKE, 9', 0, 0); c.restore();
   c.fillStyle = 'rgba(150,150,150,.9)'; c.beginPath(); c.arc(256, 14, 6, 0, 7); c.fill(); }); }
+function kino_tex_feder() { return cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.save(); c.translate(128, 250); c.rotate(-.05); // breite schwarze Feder, alt, am Kiel abgerissen
+  c.strokeStyle = '#2a2622'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(6, -120, 0, -240); c.stroke();
+  for (let i = 0; i < 90; i++) { const y = -10 - i * 2.5, L = 34 * Math.sin(Math.min(1, i / 70) * PI * .9) + 6; for (const s of [-1, 1]) { c.strokeStyle = `rgba(${14 + rand(0, 16)},${14 + rand(0, 14)},${18 + rand(0, 18)},${rand(.75, .95)})`; c.lineWidth = 1.6; c.beginPath(); c.moveTo(s * 1, y); c.quadraticCurveTo(s * L * .6, y - 6, s * L * (i % 13 === 0 ? .7 : 1), y - 14 + rand(-3, 3)); c.stroke(); } }
+  c.restore(); }); }
+function kino_tex_band() { return cnv(512, (c, w) => { c.clearRect(0, 0, w, w); c.fillStyle = 'rgba(236,238,232,.92)'; c.fillRect(0, 170, w, 170); c.fillStyle = 'rgba(140,150,160,.25)'; for (let i = 0; i < 12; i++) c.fillRect(0, 175 + i * 14, w, 1);
+  c.fillStyle = '#1d2a4a'; c.font = 'bold 64px "Courier New", monospace'; c.fillText('KRANZ, P.', 40, 268); c.font = '28px "Courier New", monospace'; c.fillText('K-1 · 1992', 44, 310);
+  c.fillStyle = 'rgba(80,60,40,.25)'; for (let i = 0; i < 300; i++) c.fillRect(rand(0, w), rand(170, 340), rand(1, 4), rand(1, 3)); }); }
+function kino_tex_brand() { return cnv(512, (c, w) => { c.clearRect(0, 0, w, w); c.filter = 'blur(1.2px)';
+  for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2, x = 256 + Math.cos(a) * 150, y = 256 + Math.sin(a) * 110, r = 38; const g = c.createRadialGradient(x, y, r * .55, x, y, r * 1.35);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.35, 'rgba(18,10,6,.92)'); g.addColorStop(.6, 'rgba(60,30,16,.6)'); g.addColorStop(1, 'rgba(60,30,16,0)'); c.fillStyle = g;
+    if (i === 7) { c.save(); c.beginPath(); c.rect(x - 60, y - 60, 60, 120); c.clip(); c.fillRect(x - r * 1.5, y - r * 1.5, r * 3, r * 3); c.restore(); } else c.fillRect(x - r * 1.5, y - r * 1.5, r * 3, r * 3); }
+  c.filter = 'none'; }); }
 // Das Kindergesicht (Prolog): aus dem echten Graukind-Modell beim Laden fotografiert, weich ausgeblendet
 function kino_tex_kindgesicht() { const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'), P = kino_S.fig.graue; let ok = false;
   if (P && renderer) { const g = P.g; g.visible = true; g.position.set(0, -400, 0); g.rotation.set(0, 0, 0); kino_play_(P, 'idle', 1, 0); P.mx.update(.4); g.updateMatrixWorld(true);
@@ -343,6 +355,10 @@ const KINO_SETS = {
   k3: [['schwert', async () => { const T = THREE, S = kino_S, s = (await msModel('w_schwert', 'model.glb')).clone(true); msFit(s, 1.15, 'max'); const g = new T.Group(); const b = new T.Box3().setFromObject(s), c = b.getCenter(new T.Vector3()); s.position.sub(c); g.add(s);
       s.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); const sz = b.getSize(new T.Vector3()); S.swordAxis = sz.x > sz.y ? (sz.x > sz.z ? 'x' : 'z') : sz.y > sz.z ? 'y' : 'z'; kino_obj('schwert', g); }],
     ['laterneAus', () => kino_lantern('laterneAus', false)],
+    ['figuren3', async () => { if (typeof figuren_load === 'function') await Promise.all([['vegas', 'vegas'], ['lucyK', 'lucy'], ['dina', 'dina'], ['heidi', 'heidi']].filter(([k]) => !kino_S.fig[k]).map(async ([k, id]) => { const P = await kino_mkFig(k, id); if (P && renderer.compileAsync) { P.g.visible = true; P.g.position.set(0, -300, 0); try { await renderer.compileAsync(P.g, camera, scene); } catch (e) {} P.g.visible = false; } })); }],
+    ['stuhl', async () => { const src = await msModel('chair', 'model.glb'); for (let i = 0; i < 8; i++) { const o = msGround(msFit(src.clone(true), .92, 'y')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); kino_obj('stuhl' + i, o); } }],
+    ['kombi', async () => { const src = await msModel('car_dutch', 'model.glb'); const o = msGround(msFit(src.clone(true), 4.5, 'max')); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.lerp(new THREE.Color(0x6a6e72), .55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } }); kino_obj('kombi', o); }],
+    ['kiesel', async () => { const g = await MSL.gl.loadAsync('assets/boulder/model.gltf'); for (let i = 0; i < 3; i++) { const o = msFit(g.scene.clone(true), .045 - i * .006, 'max'); const w = new THREE.Group(); const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()); o.position.sub(c); w.add(o); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); kino_obj('kiesel' + i, w); } }],
     ['wiese', async () => { const T = THREE, S = kino_S, W = new T.Group(), cx = X3 + 42, cz = Z3 + 46;
       const gm = msSurfMat('lawn1', { tint: 0xb8b8a8, rep: 18 }); const ground = new T.Mesh(new T.PlaneGeometry(70, 70), gm); ground.rotation.x = -PI / 2; ground.position.set(cx, .02, cz); ground.receiveShadow = true; W.add(ground);
       const bs = await msBake('w_birke', 'lod.glb'); let hB = 0; for (const p of bs) { p.geo.computeBoundingBox(); hB = Math.max(hB, p.geo.boundingBox.max.y); }
@@ -355,7 +371,7 @@ const KINO_SETS = {
       let head = null; o.traverse(b => { if (!head && b.isBone && /head/i.test(b.name)) head = b; }); S.hirschHead = head; S.hirschQ = head ? head.quaternion.clone() : null; kino_obj('hirsch', o); }]],
   k6: [['jacke', async () => { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95 } }); const g = msGround(msFit(o, .62, 'y')); kino_obj('jacke', g); }]],
 };
-const KINO_SET_OF = { k3a: 'k3', k3b: 'k3', k3c: 'k3', k5: 'k5', k6: 'k6' };
+const KINO_SET_OF = { k3: 'k3', k3a: 'k3', k3b: 'k3', k3c: 'k3', k3blinzeln: 'k3', k5: 'k5', k6: 'k6' };
 function kino_preload(set) { const S = kino_S; S.sets = S.sets || {}; if (S.sets[set]) return S.sets[set];
   return S.sets[set] = (async () => { for (const [k, fn] of KINO_SETS[set] || []) { await kino_ld(k, fn); const o = S.obj[k]; if (o && renderer.compileAsync) { o.visible = true; try { await renderer.compileAsync(o, camera, scene); } catch (e) {} o.visible = false; } } })(); }
 
@@ -363,7 +379,7 @@ function kino_preload(set) { const S = kino_S; S.sets = S.sets || {}; if (S.sets
 WORLD_MODS.push(['Kino', async () => {
   kino_css(); const S = kino_S, T = THREE, t0 = performance.now(), lap = n => { S.loadT.push(n + ' ' + Math.round(performance.now() - t0)); }; S.loadT = [];
   const casts = [['lucy', 'lucy_erw'], ['hilde', 'hilde'], ['zayn', 'zayn'], ['mike', 'mike'], ['roxy', 'roxy'], ['junge', 'gezaehlt_j'], ['maedchen', 'gezaehlt_m'], ['frau', 'aydin'],
-    ['graukind', 'graukind'], ['echt', 'luke_echt'], ['graue', 'graue'], ['kopie', 'luke'], ['vegas', 'vegas'], ['lucyK', 'lucy'], ['dina', 'dina'], ['heidi', 'heidi']];
+    ['graukind', 'graukind'], ['echt', 'luke_echt'], ['graue', 'graue'], ['kopie', 'luke']]; // Vegas, Lucy (9), Dina, Heidi erst mit dem Kapitel-3-Satz (kino_preload('k3'))
   if (typeof figuren_load === 'function') await Promise.all(casts.map(([k, id]) => kino_mkFig(k, id)));
   lap('figuren');
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
@@ -383,7 +399,7 @@ WORLD_MODS.push(['Kino', async () => {
     const g = new T.Group(), mf = new T.MeshStandardMaterial({ map: tex(front, true), roughness: .55 }), mb = new T.MeshStandardMaterial({ map: tex(kino_polaBack(''), true), roughness: .8 });
     const a = new T.Mesh(new T.PlaneGeometry(.088, .107), mf), b = new T.Mesh(new T.PlaneGeometry(.088, .107), mb); a.rotation.x = -PI / 2; b.rotation.x = PI / 2; b.position.y = -.0005; a.receiveShadow = b.receiveShadow = true; g.add(a, b); kino_obj('pola', g); }
   // K1: nasse Stelle, wo Hilde stand · Lesebrille · Zeichnung von der Wand · Staub im Keller · Träne
-  { const w = kino_decal('nass', kino_tex_wet(), 2.4, 2.4, { rough: .05 }); w.material.roughness = .04; w.material.metalness = .1; w.rotation.x = -PI / 2; }
+  { const w = kino_decal('nass', kino_tex_wet(), 2.4, 2.4, { rough: .05 }); w.material.roughness = .04; w.material.metalness = .1; w.material.opacity = .5; w.rotation.x = -PI / 2; }
   { const b = kino_decal('brille', kino_tex_brille(), .34, .34, { rough: .12, phys: true }); b.rotation.x = -PI / 2; b.material.envMapIntensity = 1.4; }
   { const z = new T.Mesh(new T.PlaneGeometry(.3, .3), new T.MeshStandardMaterial({ map: tex(kino_tex_zeichnung(), true), roughness: .95, side: T.DoubleSide })); z.castShadow = true; z.receiveShadow = true; kino_obj('zeichnung', z); }
   { const N = 220, pos = new Float32Array(N * 3), seed = new Float32Array(N * 3); for (let i = 0; i < N; i++) { seed[i * 3] = rand(-3.6, 3.6); seed[i * 3 + 1] = rand(.1, 2.3); seed[i * 3 + 2] = rand(.2, 6); }
@@ -404,11 +420,17 @@ WORLD_MODS.push(['Kino', async () => {
   kino_sprite('flamme', S.tex.flame, 0xe8f0ff, 1.1, false).scale.set(.32, .9, 1); kino_sprite('flammeSchein', S.tex.glow, 0x9fb8ff, 2.2, false);
   kino_sprite('puls', S.tex.glow, 0xf4f8ff, 30, false); kino_sprite('veranda', S.tex.glow, 0xffb060, 1.6, true); kino_sprite('lampe', S.tex.glow, 0xfff0d8, .9, true); kino_sprite('rabeSchein', S.tex.glow, 0xcfe0ff, 1.4, true);
   kino_sprite('traene', S.tex.glow, 0xe8f2ff, .012, true).scale.set(.008, .013, 1); kino_sprite('ferne', S.tex.glow, 0xf2f6ff, 60, true);
+  // K2: das graue Gesicht am Glas (dasselbe Gesicht wie der Rabe im Prolog – das Graukind), die Feder in der Kerbe, das Band „KRANZ, P.“ · K3: Brandkreise, Dampf
+    kino_decal('feder', kino_tex_feder(), .09, .26, { rough: .5, ds: true });
+  kino_decal('band', kino_tex_band(), .34, .09, { rough: .25, ds: true, phys: true });
+  kino_decal('brand', kino_tex_brand(), .9, .9, { rough: .95 });
+  kino_sprite('dampf', S.tex.glow, 0xdad6d0, 2, true, false).material.opacity = 0;
   // Linse (Schärfentiefe-Anmutung): einmal beim Laden übersetzen, dann aus
   try { S.lens = kino_lensPass(); if (S.lens) { S.lens.enabled = true; S.lensWarm = 3; } } catch (e) { console.warn('Kino: Linse', e); }
   // Prolog: das Kindergesicht vom Graukind-Modell
   try { const cv = kino_tex_kindgesicht(), m = new T.MeshBasicMaterial({ map: tex(cv, true), transparent: true, depthWrite: false, fog: false, side: T.DoubleSide });
-    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI; const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m; } catch (e) { console.warn('Kino: Kindergesicht', e); }
+    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI; const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m;
+    const m2 = m.clone(); m2.color = new T.Color(.62, .68, .72); m2.depthTest = false; const f2 = new T.Mesh(f.geometry, m2); f2.rotation.y = PI; f2.scale.setScalar(2.6); f2.renderOrder = 21; const g2 = new T.Group(); g2.add(f2); kino_obj('tankGesicht', g2); } catch (e) { console.warn('Kino: Kindergesicht', e); }
   kino_defs(); S.ready = true; lap('fertig');
 }]);
 
@@ -595,12 +617,11 @@ function kino_zaehler(k) { try {
 
 // ---------------------------------------------------------------- Die Sequenzen (Fassung 3, Abschnitt 5.5), Koordinaten = Weltkoordinaten
 function kino_defs() {
-  kino_defK1();
-  kino_defAlt();
+  kino_defK1(); kino_defK2(); kino_defK3(); kino_defK3b(); kino_defK3Abspann(); kino_defProlog(); kino_defVorbereitet();
 }
 // ======================================================== Kapitel 1
 // Hildes Platz: auf der Straße unter der letzten brennenden Laterne vor Nr. 7 (Laterne 20 | 4,6; der Transporter parkt bei 14,6 | 3,3)
-const KINO_H1 = { x: 19.2, z: 1.3 };
+const KINO_H1 = { x: 22.8, z: 2.2 };
 function kino_hildeSpot() { return kino_S.hildeSpot || KINO_H1; }
 function kino_defK1() {
   const S = kino_S, H = KINO_H1;
@@ -632,22 +653,23 @@ function kino_defK1() {
     { from: onAxis(3.1, 1.62), to: onAxis(3.0, 1.61), look: sh => [ax().hx, 1.3, ax().hz], lookTo: sh => [ax().hx, 1.55, ax().hz], dur: 4, fov: 40, hand: .7, breathe: .6, lens: { at: sh => kino_S.a.set(ax().hx, 1.5, ax().hz), r: .22, amt: .5 },
       film: { vig: 1.6, ca: .006 },
       setup(sh) { const D = S.strahlStaub; D.m.visible = true; kino_brumm(1.1, 2.5); kino_after(1.2, () => kino_box(['E5', 'D5', 'C5', 'B4', 'C5'], 0, .035, .96)); },
-      tick(k, t, dt) { ufoTick(dt, 1); beam(kino_ramp(t, 0, 1.4)); const U = filmPass.uniforms; U.flash.value = .06 + .22 * kino_ramp(t, .5, 3.5); kino_staubTick(dt, ax().hx, ax().hz, 1 + t * .3); hildeLift(10 + t); } ,
+      tick(k, t, dt) { ufoTick(dt, 1); beam(kino_ramp(t, 0, 1.4)); const U = filmPass.uniforms; U.flash.value = .03 + .09 * kino_ramp(t, .5, 3.5); kino_staubTick(dt, ax().hx, ax().hz, 1 + t * .3); hildeLift(10 + t); } ,
       teardown() { filmPass.uniforms.flash.value = 0; } },
     // 14–20 · Kamera folgt ihr nach oben, sehr langsam; sie dreht sich wie etwas, das im Wasser hängt, und sieht Luke an. Geschrien, gegen das Brummen
     { from: onAxis(3.0, 1.61), to: onAxis(2.6, 1.55), look: sh => [ax().hx, 1.6, ax().hz], lookTo: sh => [ax().hx, 3.5, ax().hz], dur: 6, ease: 'soft', fov: 40, fovTo: 46, hand: .6, follow: 3,
       lens: { at: () => kino_hildeKopf(kino_S.a), r: .2, amt: .45 }, film: { vig: 1.5, ca: .005 },
       lines: [['In den Keller! Unter der Erde sieht sie dich nicht!', 'HILDE', .6, 3000], ['Hinter die Bilder! Lucy!', 'HILDE', 3.4, 2600]],
-      tick(k, t, dt) { ufoTick(dt, 1); beam(1); filmPass.uniforms.flash.value = .2 + .06 * Math.sin(t * 9); kino_staubTick(dt, ax().hx, ax().hz, 1.6); hildeLift(14 + t); } ,
+      tick(k, t, dt) { ufoTick(dt, 1); beam(1); filmPass.uniforms.flash.value = .1 + .03 * Math.sin(t * 9); kino_staubTick(dt, ax().hx, ax().hz, 1.6); hildeLift(14 + t); } ,
       teardown() { filmPass.uniforms.flash.value = 0; } },
     // 20–26 · ganz nah: sie gleitet an Lukes Gesicht vorbei, lächelt traurig, die Hand erreicht seine Wange nicht, eine Träne läuft nach oben. Sechs Sekunden Stille
     { path(e, t, v, w, sh) { const A = ax(); v.set(A.lx, 1.64, A.lz); const P = hilde(); if (P && P.bones.head) { P.bones.head.getWorldPosition(w); w.y += .02; if (t > 3.6) w.y += (t - 3.6) * .55; } else w.set(A.lx + A.ux, 1.7 + t * .3, A.lz + A.uz); },
-      dur: 6, fov: 38, fovTo: 34, hand: .25, follow: 5, lens: { at: () => kino_hildeKopf(kino_S.a), r: .14, amt: .9 }, film: { vig: 2.1, ca: .004, toe: .6 },
+      dur: 6, fov: 38, fovTo: 34, hand: .25, follow: 5, lens: { at: () => kino_hildeKopf(kino_S.a), r: .18, amt: .6 }, film: { vig: 2.1, ca: .004, toe: .6 },
       lines: [['„Du hast sie rausgelassen“, flüstert sie. Dann lächelt sie. Traurig.', '', 1.4, 4200]],
       setup(sh) { kino_abriss(.05); kino_brumm(0, .05); const A = Audio; if (A.hum) A.hum(false); if (A.ctx && A.world) { const t = A.ctx.currentTime; A.world.gain.cancelScheduledValues(t); A.world.gain.setValueAtTime(0, t); }
-        kino_regen(0, .05); if (Audio.ufoNear) Audio.ufoNear(0); kino_hide('strahlStaub'); beam(.55); const P = hilde(); if (P) { P.look = 'cam'; P.pose = kino_hildeHand; }
+        kino_regen(0, .05); if (Audio.ufoNear) Audio.ufoNear(0); kino_hide('strahlStaub'); beam(.1); ufo.userData.spot.intensity = 60; const P = hilde(); if (P) { P.look = 'cam'; P.pose = kino_hildeHand; }
         kino_after(2.8, () => { const A2 = ax(); kino_atem(.14, 1.05, A2.lx + A2.ux * .3, 1.7, A2.lz + A2.uz * .3); }); kino_show('traene'); },
-      tick(k, t, dt) { ufoTick(dt, .5); const P = hilde(), A = ax(); if (!P) return; const y0 = 1.64 - 1.5; // Kopf kommt von unten ins Bild, auf Augenhöhe, und steigt weiter
+      tick(k, t, dt) { ufoTick(dt, .5); beam(.1); ufo.userData.spot.intensity = 60; const P = hilde(), A = ax(); if (!P) return; const y0 = 1.64 - 1.5;
+        kino_S.lit[0] = kino_S.litH || (kino_S.litH = { p: kino_V(0, 0, 0), c: 0xffe2bc, d: 3, i: 0 }); kino_S.litH.p.set(A.lx + A.ux * .2, 2.5, A.lz + A.uz * .2); kino_S.litH.i = 1.6; // Kopf kommt von unten ins Bild, auf Augenhöhe, und steigt weiter
         P.g.position.set(A.lx + A.ux * .52, y0 + (t < 2.2 ? -.55 + t * .22 : -.066 + (t - 2.2) * .22 + Math.max(0, t - 4) * .45), A.lz + A.uz * .52); P.g.rotation.set(-.08, A.face + Math.sin(t * .5) * .08, .04);
         kino_traene(P, t); },
       teardown() { kino_hide('traene'); const P = hilde(); if (P) P.pose = null; } },
@@ -660,9 +682,10 @@ function kino_defK1() {
       teardown() { filmPass.uniforms.flash.value = 0; S.k1hSchlag = 0; kino_figOff('hilde'); } },
     // 28–34 · zurück auf Straßenhöhe, Luke ist in die Knie gegangen: der Asphalt glänzt, die Lesebrille, ein Polaroid segelt herab – Zayn. Regen kommt zurück, im Osten eine Fahrradklingel
     { path(e, t, v, w) { const A = ax(); const dn = kino_e(Math.min(1, t / 1.1)); v.set(A.lx + A.ux * .2, 1.64 - .72 * dn + Math.sin(t * 2.1) * .01, A.lz + A.uz * .2); w.set(A.hx, .05 + .5 * (1 - dn), A.hz); },
-      dur: 6, fov: 40, hand: .9, breathe: .8, follow: 2.5, shakes: [[.4, .014, .8]], lens: { at: () => kino_S.a.set(ax().hx, .02, ax().hz), r: .2, amt: .55 },
+      dur: 6, fov: 40, hand: .9, breathe: .8, follow: 2.5, shakes: [[.4, .014, .8]], lens: { at: () => kino_S.a.set(ax().hx, .02, ax().hz), r: .2, amt: .55 }, env: { hemi: [.55, 0x6f82a8, 0x14161c], moon: [.55, 0x9fb2dc], exp: 1.7 },
       setup() { const A = ax(); kino_show('nass', A.hx, .021, A.hz); const b = kino_show('brille', A.hx - A.ux * .18 + .06, .024, A.hz - A.uz * .18 - .05); b.rotation.set(-PI / 2, 0, .7);
-        kino_regen(.28, 2.5); kino_still(false, 2); S.polaDown = false; kino_after(4.2, () => kino_klingel(A.hx + 70, A.hz - 3)); },
+        kino_regen(.28, 2.5); kino_still(false, 2); S.polaDown = false; const U = ufo.userData; U.beam.uniforms.opacity.value = 0; U.spot.intensity = 0; U.motes.material.opacity = 0; U.tick(0, S.T);
+        S.vl[0].position.set(A.hx + 1.5, 2.2, A.hz + 1.8); S.vl[0].color.setHex(0x9fb2dc); S.vl[0].distance = 6; S.vl[0].intensity = .7; kino_after(4.2, () => kino_klingel(A.hx + 70, A.hz - 3)); },
       tick(k, t, dt) { const A = ax(), p = kino_S.obj.pola; if (t < 1.4) { p.visible = false; return; } p.visible = true; const u = Math.min(1, (t - 1.4) / 3.6), y = 3.2 * (1 - u) * (1 - u * .15) + .03 * u;
         p.position.set(A.hx - A.ux * .45 + .25 * (1 - u) + Math.sin(t * 3.1) * .08 * (1 - u), Math.max(.03, y), A.hz - A.uz * .45 + Math.cos(t * 2.3) * .06 * (1 - u)); p.rotation.set((1 - u) * (.8 + Math.sin(t * 4) * .5), .3 + t * .25 * (1 - u), (1 - u) * Math.sin(t * 3.3) * .6);
         if (u >= 1 && !S.polaDown) { S.polaDown = true; if (Audio.paper) Audio.paper(); } } },
@@ -676,42 +699,44 @@ function kino_defK1() {
     // 40–44 · zurück an den Spieler: der Kegel streift einen Meter neben Luke den Boden
     { frei: true, dur: 4, keepFlash: true, blick: () => kino_S.a.set(ufo.position.x, .5, ufo.position.z), blickRate: 1.2,
       lines: [['Sie sucht. Wie beim Verstecken. Und du bist dran.', '', 1.2, 3600]],
-      setup() { document.body.classList.remove('kinoFrei'); const A = ax(); S.scanP.set(A.lx + A.uz * 1.1, 0, A.lz - A.ux * 1.1); kino_brumm(.55, 2);
+      setup() { document.body.classList.remove('kinoFrei'); const A = ax(); S.scanP.set(A.lx + A.uz * 3.2, 0, A.lz - A.ux * 3.2); kino_brumm(.55, 2);
         kino_after(.4, () => { if (typeof questPop === 'function') { kino_S.qp = kino_S.qp || []; kino_S.qp.push(['FIBEL', 'Versteck dich vor dem Licht. Zurück in den Keller.']); } }); },
-      tick(k, t, dt) { ufoTick(dt, 1); beam(.9); ufo.position.x += (S.scanP.x - ufo.position.x) * Math.min(1, dt * 1.4); ufo.position.z += (S.scanP.z - ufo.position.z) * Math.min(1, dt * 1.4); ufo.position.y = 20; } },
+      tick(k, t, dt) { ufoTick(dt, 1); beam(.6); ufo.position.x += (S.scanP.x - ufo.position.x) * Math.min(1, dt * 1.4); ufo.position.z += (S.scanP.z - ufo.position.z) * Math.min(1, dt * 1.4); ufo.position.y = 20; } },
   ], { name: 'Hilde im Strahl', skipAfter: Infinity, nahtlos: true, offen: true, uebergabe: true,
     start() { // Achse Luke → Hilde; steht Luke weiter als 9 m weg, springt die Einstellung ab 6 s näher heran (Schnitt auf Bewegung)
       const P = player.pos, hx = H.x, hz = H.z; let dx = hx - P.x, dz = hz - P.z, d = Math.hypot(dx, dz); if (d < .5) { dx = -1; dz = 0; d = 1; } const ux = dx / d, uz = dz / d;
       S.k1h = { hx, hz, ux, uz, face: Math.atan2(-ux, -uz), lx: hx - ux * Math.min(d, 3.1), lz: hz - uz * Math.min(d, 3.1), d }; S.hildeSpot = { x: hx, z: hz };
-      if (d > 9) KINO.k1h.shots[1].from = sh => { const A = kino_S.k1h; return [A.hx - A.ux * 7, 1.62, A.hz - A.uz * 7]; }; else KINO.k1h.shots[1].from = 'cam';
+      const sh1 = KINO.k1h.shots[1]; if (d > 9) { sh1.from = sh => { const A = kino_S.k1h; return [A.hx - A.ux * 7, 1.62, A.hz - A.uz * 7]; }; sh1.look = sh => { const A = kino_S.k1h; return [A.hx, 1.3, A.hz]; }; } else { sh1.from = 'cam'; sh1.look = 'cam'; }
       state.ufoOn = false; state.phase2 = true; if (typeof victim !== 'undefined') victim.visible = false; },
     done() { const U = ufo.userData; if (Audio.hum) Audio.hum(true); U.beam.uniforms.opacity.value = .5; U.spot.intensity = 900; state.ufoOn = true; state.finalScare = true; state.lookLine = true; state.p2t = 14.5; } });
 
   // ---- Abspann K1 · „Du hast sie rausgelassen“ (36 s, überspringbar nach 3 s) – danach Endkarte mit vier Zählern
   kino_def('k1', [
     // 0–7 · das Dorf von oben, alle Laternen aus, die Scheibe fort; bei 5 s geht als einzige Vegas’ Verandalampe wieder an, flackert, hält
-    { from: [29, 16, 6], to: [20, 18, 2], look: [-22, 0, -7], lookTo: [-24, 0, -6.5], dur: 7, fov: 42, fadeIn: 1800, hand: .2, ease: 'soft', env: { fog: [0x0d1220, .021] },
+    { from: [29, 16, 6], to: [20, 18, 2], look: [-22, 0, -7], lookTo: [-24, 0, -6.5], dur: 7, fov: 42, fadeIn: 1800, hand: .2, ease: 'soft', env: { fog: [0x141b2c, .018], hemi: [.55, 0x6f82a8, 0x14161c], moon: [.55, 0x9fb2dc], exp: 1.55 },
       setup(sh) { const v = kino_show('veranda', -27.1, 2.3, -11.95); v.material.opacity = 0; sh.porch = porchLights[0] ? porchLights[0].dead : true; if (porchLights[0]) porchLights[0].dead = true;
-        kino_lamps(L => kino_lampe(L, 'aus')); kino_brumm(.6, .01); kino_brumm(0, 1); if (Audio.hum) Audio.hum(false); kino_regen(.55, 1.5); kino_after(2.2, () => Audio.play('dog', { gain: .06, rate: .92, x: -60, y: 1, z: 40, ref: 20, lp: 900 })); },
+        kino_lamps(L => kino_lampe(L, 'aus')); kino_brumm(.6, .01); kino_brumm(0, 1); { const U = ufo.userData; U.beam.uniforms.opacity.value = 0; U.spot.intensity = 0; U.under.intensity = 0; U.motes.material.opacity = 0; U.tick(0, 0); } if (Audio.hum) Audio.hum(false); kino_regen(.55, 1.5); kino_after(2.2, () => Audio.play('dog', { gain: .06, rate: .92, x: -60, y: 1, z: 40, ref: 20, lp: 900 })); },
       tick(k, t) { const on = t > 5 ? (t < 5.5 ? (Math.sin(t * 60) > 0 ? 1 : .15) : 1) : 0; if (porchLights[0]) porchLights[0].dead = on < .5; kino_S.obj.veranda.material.opacity = .9 * on; },
       sfx: [[() => Audio.play('switch1', { gain: .35, rate: .7, x: -27.1, y: 2.3, z: -12, ref: 4 }), 5]],
       teardown(sh) { kino_hide('veranda'); if (porchLights[0]) porchLights[0].dead = sh.porch; } },
     // 7–14 · die nasse Stelle, wo Hilde stand; die Lesebrille. Drei kleine schnelle Schritte auf nassem Asphalt
-    { from: sh => { const h = kino_hildeSpot(); return [h.x + .75, .36, h.z + .95]; }, to: sh => { const h = kino_hildeSpot(); return [h.x + .45, .27, h.z + .5]; }, look: sh => { const h = kino_hildeSpot(); return [h.x + .02, .03, h.z - .05]; },
-      dur: 7, fov: 32, fovTo: 29, hand: .25, ease: 'soft', lens: { at: sh => { const h = kino_hildeSpot(); return kino_S.a.set(h.x + .02, .03, h.z - .05); }, r: .12, amt: .95 }, env: { fog: [0x0d1220, .028] },
+    { from: sh => { const h = kino_hildeSpot(); return [h.x + 1.5, .42, h.z + 1.25]; }, to: sh => { const h = kino_hildeSpot(); return [h.x + 1.15, .34, h.z + .9]; }, look: sh => { const h = kino_hildeSpot(); return [h.x + .05, .04, h.z - .05]; },
+      dur: 7, fov: 30, fovTo: 27, hand: .25, ease: 'soft', lens: { at: sh => { const h = kino_hildeSpot(); return kino_S.a.set(h.x + .02, .03, h.z - .05); }, r: .16, amt: .8 }, env: { fog: [0x121a2a, .02], hemi: [.5, 0x6f82a8, 0x14161c], moon: [.5, 0x9fb2dc], exp: 1.5 },
       setup() { const h = kino_hildeSpot(); kino_show('nass', h.x, .021, h.z); const b = kino_show('brille', h.x + .02, .024, h.z - .05); b.rotation.set(-PI / 2, 0, .7); kino_lamps(L => kino_lampe(L, 'aus'));
-        kino_S.vl[0].position.set(h.x - 3, 4.6, h.z + 2.5); kino_S.vl[0].color.setHex(0x9fb2d6); kino_S.vl[0].distance = 9; kino_S.vl[0].intensity = 1.1; // Mondlicht als Streiflicht auf den Gläsern
+        kino_S.vl[0].position.set(h.x - 2.2, 2.6, h.z - 1.8); kino_S.vl[0].color.setHex(0x8fa4cc); kino_S.vl[0].distance = 6; kino_S.vl[0].intensity = .45; // Mondlicht als Streiflicht auf den Gläsern
         kino_katze(h); },
       sfx: [[() => { const h = kino_hildeSpot(); kino_trippeln(h.x - 3.2, h.z - 1.2, .05); }, 5]],
       teardown() { kino_hide('nass', 'brille'); kino_katzeZurueck(); } },
     // 14–21 · Nr. 7, dunkel: im Wohnzimmer flackert das Licht einmal auf; auf dem Briefkasten sitzt Whiskey, nass, sieht zur Kellertreppe, dann in die Kamera
-    { from: [24, 1.6, -4], to: [26.5, 1.5, -8], look: [25.2, 1.35, -12.8], lookTo: [26.2, 1.3, -13.2], dur: 7, fov: 44, hand: .35, ease: 'soft', lens: { at: [28.35, 1.35, -6.9], r: .3, amt: .25 },
+    { from: [22.6, 1.55, -3.0], to: [25.4, 1.45, -5.2], look: [25.2, 1.45, -12.8], lookTo: [28.3, 1.32, -6.95], dur: 7, fov: 40, fovTo: 32, hand: .35, ease: 'soft', env: { fog: [0x121a2a, .02], hemi: [.6, 0x6f82a8, 0x14161c], moon: [.65, 0x9fb2dc], exp: 1.85 },
+      lens: { at: () => kino_S.t < 4 ? kino_S.a.set(25.2, 1.45, -12.8) : kino_S.a.set(28.35, 1.35, -6.9), r: .2, amt: .45 },
       lines: [['Im Wohnzimmer brennt kurz Licht. Aber niemand bewegt sich.', '', .9, 5200]],
       setup(sh) { kino_lamps(L => kino_lampe(L, 'aus')); const W = typeof whiskey_S !== 'undefined' && whiskey_S.g && whiskey_S.g.visible && Math.hypot(whiskey_S.g.position.x - 28.4, whiskey_S.g.position.z + 6.9) < 1.5 ? whiskey_S.g : null;
-        sh.echt = W; if (!W) kino_rabeSitz(28.4, 1.2, -6.9, PI * .9, 'IdleLookAround'); sh.r0 = W ? W.rotation.y : 0; },
+        sh.echt = W; if (!W) kino_rabeSitz(28.4, 1.2, -6.9, PI * .9, 'IdleLookAround'); sh.r0 = W ? W.rotation.y : 0;
+        S.vl[0].position.set(27.2, 2.6, -4.6); S.vl[0].color.setHex(0xa8bce4); S.vl[0].distance = 7; S.vl[0].intensity = .9; },
       tick(k, t, dt, sh) { const on = t > 2.6 && t < 4.4 ? (t < 2.75 || (t > 3.1 && t < 3.25) ? .2 : 1) : 0; kino_S.lit[0] = kino_S.lit0 || (kino_S.lit0 = { p: kino_V(25.3, Y + 1.45, -16.5), c: 0xffa050, d: 9, i: 0 }); kino_S.lit0.i = 3.6 * on;
         if (typeof shade !== 'undefined') shade.material.emissiveIntensity = .7 * on;
-        const g = sh.echt || (kino_S.rabe && kino_S.rabe.g); if (g) { const want = t < 4 ? PI * .95 : Math.atan2(camera.position.x - g.position.x, camera.position.z - g.position.z); g.rotation.y += (want - g.rotation.y) * Math.min(1, dt * 3); } },
+        const g = sh.echt || (kino_S.rabe && kino_S.rabe.g); if (g) { const want = t < 4.6 ? PI * .95 : Math.atan2(camera.position.x - g.position.x, camera.position.z - g.position.z); g.rotation.y += (want - g.rotation.y) * Math.min(1, dt * 3); } },
       sfx: [[() => Audio.play('switch1', { gain: .25, rate: .9, x: 25, y: 1.5, z: -15, ref: 2 }), 2.6], [() => Audio.play('buzz', { gain: .12, rate: .8, x: 25, y: 1.5, z: -15, ref: 2 }), 4.3],
         [() => { Audio.play('metalHit2', { gain: .09, rate: 3.4, hp: 2000, dur: .3, x: 28.4, y: 1, z: -6.9, ref: 1.5 }); setTimeout(() => Audio.play('metalHit2', { gain: .06, rate: 3.8, hp: 2200, dur: .2, x: 28.2, y: .1, z: -6.7, ref: 1.5 }), 420); }, 5.6]],
       teardown(sh) { if (typeof shade !== 'undefined') shade.material.emissiveIntensity = 0; if (sh.echt) sh.echt.rotation.y = sh.r0; kino_hide('rabe'); } },
@@ -729,7 +754,7 @@ function kino_defK1() {
         [() => { Audio.play('giggle', { gain: .22, rate: .78, offset: .2, dur: 1.8, x: 300, y: -3, z: 294, ref: 2, lp: 1400 }); }, 5.2]],
       teardown(sh) { for (const [o, sc, z0] of sh.art || []) { o.scale.copy(sc); o.position.z = z0; } kino_hide('staub', 'zeichnung'); kino_S.coldLight.intensity = 0; } },
     // 29–33 · Ortsschild: neben der roten 211 frisch in Kreide 210
-    { from: [-68.5, 1.8, 4.5], to: [-69.5, 2.0, 5.4], look: [-72.28, 1.55, 6.3], dur: 4, fov: 30, env: { exp: 1.9, fog: [0x0d1220, .02] }, ease: 'soft', lens: { at: [-72.28, 1.55, 6.3], r: .22, amt: .4 },
+    { from: [-68.5, 1.8, 4.5], to: [-69.5, 2.0, 5.4], look: [-72.28, 1.55, 6.3], dur: 4, fov: 30, env: { exp: 1.9, fog: [0x121a2a, .02], hemi: [.5, 0x6f82a8, 0x14161c], moon: [.5, 0x9fb2dc] }, ease: 'soft', lens: { at: [-72.28, 1.55, 6.3], r: .22, amt: .4 },
       setup() { kino_schild('orig'); kino_regen(.35, 1); },
       sfx: [[() => { kino_schild('2'); kino_kreide(-72.2, 1.5, 6.3); }, .6], [() => kino_schild('21'), 1.15], [() => kino_schild('210'), 1.7], [() => kino_still(true, 1.4), 2.6]] },
     // 33–36 · Schwarz, dann die Endkarte (Schreibmaschine)
@@ -742,7 +767,7 @@ function kino_defK1() {
 function kino_hilde() { const S = kino_S; if (!S.ready || S.on || !KINO.k1h || !S.fig.hilde) return false; state.phase2 = true; kino_play('k1h').catch(e => console.error('Kino k1h', e)); return true; }
 // Katze BÄRBEL (katzen.js): schiebt sich von rechts ins Bild, schnuppert an der Brille, setzt sich, starrt in den leeren Nebel links – danach wie vorher
 function kino_katze(h) { if (typeof katzen_get !== 'function') return; try { const k = katzen_get('BÄRBEL'); if (!k) return; kino_S.katze = { k, on: k.on, x: k.x, z: k.z, st: k.st, stare: k.stare ? k.stare.clone() : null };
-  const K = katzen_spawn({ name: 'BÄRBEL', x: h.x + 2.4, z: h.z + .6, ry: -PI / 2 }); if (!K) return; kino_after(1.6, () => katzen_goto(K, h.x + .32, h.z + .12, { dann: 'sit' }));
+  const K = katzen_spawn({ name: 'BÄRBEL', x: h.x + 2.4, z: h.z + .6, ry: -PI / 2 }); if (!K) return; kino_after(1.6, () => katzen_goto(K, h.x + .5, h.z + .62, { dann: 'sit' }));
   kino_after(4.2, () => katzen_stare(K, [h.x - 5, .4, h.z - 3.5])); } catch (e) { console.warn('Kino: Katze', e); } }
 function kino_katzeZurueck() { const C = kino_S.katze; if (!C) return; kino_S.katze = null; try { if (!C.on) katzen_hide(C.k); else { katzen_place(C.k, C.x, C.z, { pose: C.st === 'go' ? 'sit' : C.st }); katzen_stare(C.k, C.stare); } } catch (e) {} }
 // Hildes Kopf (für Fokus und Blick)
@@ -758,43 +783,426 @@ function kino_staubTick(dt, cx, cz, sp) { const D = kino_S.strahlStaub; if (!D) 
   for (let i = 0; i < D.N; i++) { const j = i * 4; s[j + 2] += dt * s[j + 3] * sp; if (s[j + 2] > 18) s[j + 2] -= 18; s[j] += dt * .6; P[i * 3] = cx + Math.cos(s[j]) * s[j + 1]; P[i * 3 + 1] = s[j + 2]; P[i * 3 + 2] = cz + Math.sin(s[j]) * s[j + 1]; }
   D.m.geometry.attributes.position.needsUpdate = true; }
 
-// ======================================================== Alte Sequenzen (PK-F) – bis zu ihrer Neufassung (Kapitel 2, 3 folgen in diesem Paket; 4–6 vorbereitet)
-function kino_defAlt() {
-  const S = kino_S, X = C2.x, Z = C2.z, H = typeof ANW_HALL !== 'undefined' ? ANW_HALL : { x: -900, z: 900 }, TK = { x: X + 118, y: 1.3, z: Z + 6 };
+// ======================================================== Kapitel 2 · Höhepunkt A „Bruder.“ (16 s), B „Das Gesicht im Glas“ (31 s), Abspann „Ihre Augen“ (31 s)
+const KINO_K2_KARTE = true; // Endkarte Kap. 2 noch am Ende von „Ihre Augen“ – laut Bibel gehört sie an den Gully unter die dreizehn Schläge (AP-16: dann false und kino_karte(KINO_KARTE2()) dort)
+function KINO_KARTE2() { const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(2) : null, z = E && E.zeile || (kino_stufe() === 'miserabel' ? 'Protokolliert.' : null);
+  return ['KAPITEL 2 — ENDE · DAS ACHTE KIND', 'Du weißt es jetzt.', 'Sie auch.', '03:13.', z ? { t: z, klein: true } : null]; }
+function kino_defK2() {
+  const S = kino_S, X = C2.x, Z = C2.z, TK = { x: X + 118, y: 1.3, z: Z + 6 }, ST8 = { x: X + 118.6, z: Z + 5 };
   const SH3 = typeof uebergang3_S !== 'undefined' ? uebergang3_S.TOWN : { x: 9, z: -1.3 };
+  // Stelle am Glas vor Lukes Augen (Linie Kamera → Tankmitte, Tankradius 0,9)
+  const glas = (v, d) => { const c = camera.position; let dx = TK.x - c.x, dz = TK.z - c.z; const n = Math.hypot(dx, dz) || 1; dx /= n; dz /= n; return v.set(TK.x - dx * d, Math.min(1.75, Math.max(1.1, c.y)), TK.z - dz * d); };
+  const tubes = () => (typeof c2Lights !== 'undefined' ? c2Lights.filter(L => L.tube && L.tube.position.x > X + 105 && L.tube.position.x < X + 123 && Math.abs(L.tube.position.z - Z) < 9) : []).sort((a, b) => a.tube.position.x - b.tube.position.x);
+  // ---- Teil B · „Das Gesicht im Glas“ – ab Lucys letzter Frage (Spielerkamera, nur in der Mitte weich zum Tank gezogen)
+  kino_def('k2b', [
+    { frei: true, dur: 4, keepFlash: true, // 0–4 · vier Neonröhren sterben von der Tür her, je eine Sekunde, jede ein Klack
+      setup(sh) { sh.T = tubes(); sh.i = 0; S.k2bT = sh.T; for (const L of sh.T) L._m = L.mode; },
+      tick(k, t, dt, sh) { while (sh.i < Math.min(4, sh.T.length) && t > .35 + sh.i) { const L = sh.T[sh.i++]; L.mode = 'dying'; const p = L.tube.position; Audio.play('switch1', { gain: .4, rate: .55, x: p.x, y: 2.4, z: p.z, ref: 3 }); } } },
+    { frei: true, dur: 3, keepFlash: true, // 4–7 · die Kette der Luke bewegt sich, ein Glied, noch eins; Staub rieselt; Brummen durch die Erde, das Wasser bekommt Ringe
+      setup() { for (const L of S.k2bT || []) L.mode = 'off'; kino_brumm(.9, 1.6, 42); kino_show('wasser', TK.x, 2.26, TK.z); kino_S.obj.staub.visible = true;
+        [.3, 1.4].forEach(d => kino_after(d, () => { Audio.play('metalHit1', { gain: .16, rate: .7, dur: .5, x: TK.x, y: 2.9, z: TK.z, ref: 2 }); Audio.play('scrape2', { gain: .08, rate: 1.3, dur: .4, x: TK.x, y: 2.9, z: TK.z, ref: 2 }); })); },
+      tick(k, t, dt) { kino_rieseln(dt, TK.x, TK.z, 2.5); const w = kino_S.obj.wasser; w.scale.setScalar(1 + .015 * Math.sin(t * 9)); w.rotation.z = Math.sin(t * 5) * .03; } },
+    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 1.1, lens: { at: [TK.x, 1.4, TK.z], r: .25, amt: .35 }, // 7–10 · weich zum Tank gezogen; Lucy, Augen offen, Angst. Spieluhr ganz leise unter dem Brummen
+      setup() { kino_box(['E5', 'D5', 'C5', 'B4', 'C5'], .2, .018, .97); }, tick(k, t, dt) { kino_rieseln(dt, TK.x, TK.z, 2.5); } },
+    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.45, TK.z], blickRate: 3, film: { vig: 1.7, ca: .006 }, lens: { at: () => kino_S.obj.tankGesicht.position, r: .16, amt: .6 }, // 10–13 · das graue Gesicht presst sich von innen ans Glas, genau vor seinen Augen. Stille
+      setup(sh) { kino_brumm(0, .08); kino_still(true, .1); if (Audio.tankHum) Audio.tankHum(false); const g = kino_show('tankGesicht'); glas(g.position, .55); g.lookAt(camera.position); sh.p0 = g.position.clone();
+        kino_after(.55, () => Audio.play('glass1', { gain: .22, rate: .42, lp: 900, x: TK.x, y: 1.4, z: TK.z, ref: 2 })); },
+      tick(k, t, dt, sh) { const g = kino_S.obj.tankGesicht, u = kino_e(Math.min(1, t / .5)); glas(g.position, .55 + .31 * u); g.lookAt(camera.position); g.scale.setScalar(1 + .04 * u); } },
+    { frei: true, dur: 1, keepFlash: true, lines: [['Mach die Augen zu!', 'LUCY · IM TANK', .05, 2400]], // 13–14 · Lucy reißt den Schlauch aus dem Mund (Blasen)
+      setup() { kino_blasen(TK.x, 1.5, TK.z); if (typeof lenaFig !== 'undefined') lenaFig.rotation.z = .08; } },
+    { frei: true, dur: 1, keepFlash: true, // 14–15 · Einblendung „Augen zu – Taste halten“ (sie wirkt hier nicht)
+      setup() { if (typeof augenzu_frei === 'function') augenzu_frei({ wirkt: false, hinweis: 'Q halten – Augen zu' }); } },
+    { black: true, dur: 9, fadeOut: 350, // 15–24 · Schwarz: kleine nackte Füße auf nassem Beton, um Luke herum, jede Runde näher; Atem am linken Ohr; die Spieluhr
+      setup() { kino_hide('tankGesicht', 'wasser', 'staub'); if (typeof tankFace !== 'undefined') tankFace.visible = false; if (typeof tankLight !== 'undefined') tankLight.intensity = 0; if (typeof lenaFig !== 'undefined') lenaFig.visible = false;
+        const P = kino_S.sv.pos, fx = -Math.sin(kino_S.sv.yaw), fz = -Math.cos(kino_S.sv.yaw);
+        for (let i = 0; i < 11; i++) { const a = Math.atan2(fx, fz) + PI * .9 - i * .6, r = 1.25 - i * .07; kino_after(.3 + i * .38, () => Audio.stepAt && Audio.stepAt(P.x + Math.sin(a) * r, P.z + Math.cos(a) * r, .1)); }
+        const ohr = (d, v) => kino_after(d, () => kino_atem(v, 1.25, P.x + fz * .22, 1.62, P.z - fx * .22)); ohr(4.2, .14); ohr(6.2, .17);
+        kino_after(4.3, () => { if (Audio.musicBox) Audio.musicBox(); kino_sag('Das hilft bei dir nicht, Bruder.', 'DAS KIND', 2600); });
+        kino_after(7.1, () => kino_sag('Ich seh ja durch dich.', 'DAS KIND', 2400)); } },
+    { frei: true, dur: 3, keepFlash: true, blick: [TK.x, 1.4, TK.z], blickRate: 1.4, fadeIn: 700, // 24–27 · die Augen gehen von selbst auf: der Tank ist leer, die Luke offen, im Schacht ein weißes Pulsieren
+      setup() { if (typeof augenzu_oeffnen === 'function') { augenzu_oeffnen(); augenzu_sperre(); } kino_show('puls', TK.x, 7, TK.z).scale.set(6, 6, 1); kino_brumm(.5, .1, 42); kino_brumm(0, 2.8);
+        const h = kino_show('hand', TK.x, 1.02, TK.z); glas(h.position, .87); h.position.y = 1.02; h.lookAt(TK.x, 1.02, TK.z); const l = kino_show('handL', TK.x, 1.36, TK.z); glas(l.position, .87); l.position.y = 1.36; l.position.x += .18; l.lookAt(TK.x, 1.36, TK.z); },
+      tick(k, t) { kino_S.obj.puls.material.opacity = .25 + .35 * Math.pow(.5 + .5 * Math.sin(t * 2.2), 2); } },
+    { frei: true, dur: 4, keepFlash: true, dy: (k, t) => -.78 * kino_e(Math.min(1, t / 1.3)), // 27–31 · Luke sinkt auf die Knie; innen am Glas ein Handabdruck in Kinderhöhe, daneben Lucys. Tropfen
+      setup() { kino_still(true, .5); kino_stoff(.05); [1.2, 3.2].forEach(d => kino_after(d, () => Audio.drip(TK.x + .2, 2.2, TK.z))); },
+      tick(k, t) { kino_S.obj.puls.material.opacity = .2 + .25 * Math.pow(.5 + .5 * Math.sin(t * 1.6), 2); }, teardown() { kino_hide('hand', 'handL', 'puls'); } },
+  ], { name: 'Das Gesicht im Glas', skipAfter: Infinity, nahtlos: true, offen: true, uebergabe: true,
+    done() { for (const L of kino_S.k2bT || []) L.mode = 'off'; if (typeof augenzu_sperre === 'function') augenzu_sperre(); if (typeof tankFace !== 'undefined') tankFace.visible = false; if (typeof lenaFig !== 'undefined') lenaFig.visible = false; } });
+
+  // ---- Abspann „Ihre Augen“ (31 s): aus ihren Augen, Kreisfahrt um den Tank, Stuhl 8, Schacht
   const k2Luke = sh => { const P = kino_S.sv ? kino_S.sv.pos : player.pos; let dx = TK.x - P.x, dz = TK.z - P.z, d = Math.hypot(dx, dz); if (d < .5) { dx = 0; dz = 1; d = 1; } sh.lk = [P.x, P.z, dx / d, dz / d]; return sh.lk; };
   kino_def('k2', [
-    { from: sh => { const [x, z, ux, uz] = k2Luke(sh); return [x - ux * 1.1, .95, z - uz * 1.1]; }, look: sh => [TK.x, 1.25, TK.z], dur: 3.2, fov: 62, breathe: 1, hand: 1.2, fadeIn: 400,
+    { from: sh => { const [x, z, ux, uz] = k2Luke(sh); return [x - ux * 1.1, .95, z - uz * 1.1]; }, look: sh => [TK.x, 1.25, TK.z], dur: 3, fov: 62, breathe: 1, hand: 1.2, fadeIn: 400,
       film: { vig: 2.6, ca: .016, toe: .5, filter: 'grayscale(.75) contrast(1.08) brightness(.92)' },
-      setup(sh) { const [x, z, ux, uz] = sh.lk; kino_S.flash = { p: kino_V(x, 1.5, z), at: kino_V(TK.x, 1.2, TK.z), i: 16 };
-        const s = kino_show('schatten', TK.x - ux * .93, 1.35, TK.z - uz * .93); s.lookAt(x - ux * 1.1, 1.35, z - uz * 1.1); kino_atem(.12, .9); if (Audio.musicBox) Audio.musicBox(); },
+      setup(sh) { const [x, z, ux, uz] = sh.lk; kino_S.flash = { p: kino_V(x, 1.35, z), at: kino_V(TK.x, 1.2, TK.z), i: 16 };
+        const s = kino_show('schatten', TK.x - ux * .93, 1.35, TK.z - uz * .93); s.lookAt(x - ux * 1.1, 1.35, z - uz * 1.1); kino_atem(.12, .9); kino_box(['E5', 'D5', 'C5', 'B4', 'C5'], 0, .075, 1); },
       tick(k, t) { const s = kino_S.obj.schatten; s.scale.set(1 - .42 * kino_e(Math.min(1, t / 3)), 1, 1); s.material.opacity = .7; }, teardown() { kino_hide('schatten'); } },
-    { white: true, dur: 3,
-      setup() { if (typeof lenaFig !== 'undefined') lenaFig.visible = false; kino_still(true, .1); Audio.tankHum && Audio.tankHum(false); },
-      tick(k, t) { const f = $('fade'); if (t > .45 && !f.dataset.k2) { f.dataset.k2 = 1; f.style.transition = 'background-color 1.1s'; f.style.background = '#000'; } },
+    { white: true, dur: 3, // 3–6 · Weißblitz, Schwarz, Stille
+      setup() { if (typeof lenaFig !== 'undefined') lenaFig.visible = false; kino_still(true, .1); if (Audio.tankHum) Audio.tankHum(false); },
+      tick(k, t) { const f = $('fade'); if (t > .3 && !f.dataset.k2) { f.dataset.k2 = 1; f.style.transition = 'background-color .9s'; f.style.background = '#000'; } },
       teardown() { delete $('fade').dataset.k2; kino_still(false, 1.2); } },
-    { path(e, t, v, w) { const a = (200 + 60 * e) * PI / 180; v.set(TK.x + Math.cos(a) * 2.4, 1.35, TK.z + Math.sin(a) * 2.4); w.set(TK.x, 1.3, TK.z); }, dur: 10, fov: 50, fadeIn: 900,
-      setup() { const a = 230 * PI / 180, h = kino_show('hand', TK.x + Math.cos(a) * .88, 1.42, TK.z + Math.sin(a) * .88); h.lookAt(TK.x + Math.cos(a) * 3, 1.42, TK.z + Math.sin(a) * 3);
-        kino_show('haar', TK.x + Math.cos(a) * .55, 2.0, TK.z + Math.sin(a) * .55); kino_show('wasser', TK.x, 2.26, TK.z); if (Audio.tankHum) Audio.tankHum(true); },
-      tick(k, t) { const O = kino_S.obj, hr = O.haar; hr.position.y = 2.0 - .9 * Math.min(1, t / 10); hr.rotation.set(Math.sin(t * .8) * .5, t * .3, .6 + Math.sin(t * .6) * .4);
+    // 6–16 · Kreisfahrt um den Tank 200° → 260°: leer, das Wasser schwingt noch, innen zwei Handabdrücke, ein Haar sinkt
+    { path(e, t, v, w) { const a = (200 + 60 * e) * PI / 180; v.set(TK.x + Math.cos(a) * 2.4, 1.35 + .08 * Math.sin(e * PI), TK.z + Math.sin(a) * 2.4); w.set(TK.x, 1.3 - .1 * e, TK.z); }, dur: 10, fov: 46, fovTo: 40, fadeIn: 900, ease: 'soft', hand: .3,
+      lens: { at: [TK.x, 1.3, TK.z], r: .22, amt: .4 },
+      setup() { const a = 232 * PI / 180, h = kino_show('hand', TK.x + Math.cos(a) * .87, 1.02, TK.z + Math.sin(a) * .87); h.lookAt(TK.x + Math.cos(a) * 3, 1.02, TK.z + Math.sin(a) * 3);
+        const b = 222 * PI / 180, l = kino_show('handL', TK.x + Math.cos(b) * .87, 1.38, TK.z + Math.sin(b) * .87); l.lookAt(TK.x + Math.cos(b) * 3, 1.38, TK.z + Math.sin(b) * 3);
+        kino_show('haar', TK.x + Math.cos(a) * .45, 2.0, TK.z + Math.sin(a) * .45); kino_show('wasser', TK.x, 2.26, TK.z); if (Audio.tankHum) Audio.tankHum(true); if (typeof tankLight !== 'undefined') tankLight.intensity = 2.2; },
+      tick(k, t) { const O = kino_S.obj, hr = O.haar; hr.position.y = 2.0 - .95 * Math.min(1, t / 10); hr.rotation.set(Math.sin(t * .8) * .5, t * .3, .6 + Math.sin(t * .6) * .4);
         const w = O.wasser; w.rotation.set(-PI / 2 + Math.sin(t * 2.2) * .05 * Math.exp(-t * .25), 0, Math.cos(t * 1.9) * .04 * Math.exp(-t * .25)); w.position.y = 2.26 + Math.sin(t * 2.2) * .01 * Math.exp(-t * .25);
-        if (typeof tankLight !== 'undefined') tankLight.intensity = 2.2 * (t < 3 ? 1 : t < 5 ? (Math.random() < .3 ? .2 : 1) : .45); },
+        if (typeof tankLight !== 'undefined') tankLight.intensity = 2.2 * (t < 2.2 ? 1 : t < 3.4 ? (Math.sin(t * 40) > .2 ? .2 : 1) : .35); },
       sfx: [[() => Audio.tankHum && Audio.tankHum(false), 2.2], [() => Audio.drip(TK.x + .3, 2.3, TK.z), 3.4], [() => Audio.drip(TK.x - .2, 2.2, TK.z + .3), 5.9], [() => Audio.drip(TK.x, 2.3, TK.z - .2), 8.3]],
-      teardown() { kino_hide('hand', 'haar', 'wasser'); if (typeof tankLight !== 'undefined') tankLight.intensity = .9; } },
-    { from: [X + 118.6, .75, Z + 3.35], to: [X + 118.6, .58, Z + 4.1], look: [X + 118.6, .05, Z + 4.62], lookTo: [X + 118.6, .2, Z + 4.75], dur: 8, fov: 44,
-      setup() { const d = kino_show('papa', X + 118.6, .006, Z + 4.52); d.rotation.set(-PI / 2, 0, .08); kino_cello([['E3', 1.1], ['D3', 1.1], ['C3', 1.1], ['B2', 1.2], ['C3', 2.4]], .6); } },
-    { from: [SH3.x, -11, SH3.z], to: [SH3.x, -6.8, SH3.z], look: [SH3.x + .01, 20, SH3.z + .02], dur: 7, fov: 58, hand: .3,
+      teardown() { kino_hide('hand', 'handL', 'haar', 'wasser'); if (typeof tankLight !== 'undefined') tankLight.intensity = 0; } },
+    // 16–24 · Stuhl 8: „PAPA + ICH“, der halbe Mond; daneben die Feder in der Kerbe. Lucys Motiv auf dem Klavier, eine Phrase, ein Celloton
+    { from: [ST8.x, .72, ST8.z - 1.6], to: [ST8.x, .55, ST8.z - .85], look: [ST8.x, .05, ST8.z - .48], lookTo: [ST8.x + .02, .55, ST8.z - .2], dur: 8, fov: 40, fovTo: 34, ease: 'soft', hand: .25,
+      lens: { at: () => kino_S.a.set(ST8.x, kino_S.t < 4.5 ? .05 : .58, ST8.z - (kino_S.t < 4.5 ? .48 : .28)), r: .16, amt: .8 },
+      setup() { const d = kino_show('papa', ST8.x, .006, ST8.z - .48); d.rotation.set(-PI / 2, 0, .08); const f = kino_show('feder', ST8.x + .05, .6, ST8.z - .27); f.rotation.set(0, 0, -.5);
+        kino_klavier([['E5', .62], ['D5', .62], ['C5', .62], ['B4', .7], ['C5', 1, 7]], .5, .1); kino_cello([['C2', 5]], 3.6, .05, 600); },
+      teardown() { kino_hide('papa', 'feder'); } },
+    // 24–31 · Schacht über der Luke, Blick nach oben, steigend: ein runder Ausschnitt Nachthimmel, ein weißes Pulsieren, das langsamer wird. Noch keine Glocke
+    { from: [SH3.x, -11, SH3.z], to: [SH3.x, -6.8, SH3.z], look: [SH3.x + .01, 20, SH3.z + .02], dur: 7, fov: 58, hand: .3, ease: 'soft',
       setup(sh) { const U = typeof uebergang3_S !== 'undefined' ? uebergang3_S : null; sh.cap = U && U.town ? U.town.cap.visible : null; if (U && U.town) U.town.cap.visible = false; sh.lid = U && U.lid ? U.lid.map(m => m.visible) : null; if (U && U.lid) U.lid.forEach(m => m.visible = false);
-        kino_show('ring', SH3.x, -.03, SH3.z); kino_show('puls', SH3.x + 2, 46, SH3.z - 3); },
-      tick(k, t) { const p = kino_S.obj.puls; p.material.opacity = .35 + .5 * Math.pow(.5 + .5 * Math.sin(t * 2.4), 2); },
+        kino_show('ring', SH3.x, -.03, SH3.z); kino_show('puls', SH3.x + 2, 46, SH3.z - 3).scale.set(30, 30, 1); kino_brumm(.5, .1, 42); kino_brumm(0, 5); [1.5, 3.5, 5.5].forEach(d => kino_after(d, () => Audio.drip(SH3.x, -12, SH3.z))); },
+      tick(k, t) { const p = kino_S.obj.puls, f = 2.6 - 1.4 * k; kino_S.pp = (kino_S.pp || 0) + (1 / 60) * f; p.material.opacity = .3 + .5 * Math.pow(.5 + .5 * Math.sin(t * f), 2) * (1 - .4 * k); },
       teardown(sh) { const U = typeof uebergang3_S !== 'undefined' ? uebergang3_S : null; if (U && U.town && sh.cap !== null) U.town.cap.visible = sh.cap; if (U && U.lid && sh.lid) U.lid.forEach((m, i) => m.visible = sh.lid[i]); kino_hide('ring', 'puls'); } },
-    { card: ['KAPITEL 2 — ENDE · DAS ACHTE KIND', 'Du weißt es jetzt.', 'Sie auch.', '03:13.'], dur: 'auto', fadeOut: 300 },
+    { card: () => KINO_KARTE2(), dur: 'auto', fadeOut: 300, wenn: () => KINO_K2_KARTE },
   ], { name: 'Ihre Augen', skipAfter: 3 });
-  for (const a of ['A', 'B', 'C']) kino_def('k3' + a.toLowerCase(), [{ black: true, dur: 2 }], { name: 'Wie jeden Morgen (' + a + ')' });
-  kino_def('k4', [{ black: true, dur: 3 }], { name: 'Noch nicht' });
-  kino_def('k5', [{ black: true, dur: 3 }], { name: 'Kein Echo', skipAfter: 3 });
-  kino_def('k6', [{ black: true, dur: 3 }], { name: 'Gleich wieder da' });
+
+  // ---- Teil A · „Bruder.“ (16 s) – der Griff im langen Gang (Peter = Basis-Verfolger mit dem Modell aus innen_kapitel)
+  const zg = () => typeof zombie !== 'undefined' ? zombie : null;
+  kino_def('k2a', [
+    { path(e, t, v, w, sh) { const A = S.k2a; const j = kino_e(Math.min(1, t / .35)); v.set(A.x - A.fx * .35 * j, 1.62 - .12 * j, A.z - A.fz * .35 * j); w.set(A.x + A.fx * 3, 1.62 + 1.4 * j - t * .3, A.z + A.fz * 3); }, dur: 2, fov: 70, hand: 1.4, shakes: [[0, .03, .8]],
+      setup() { const A = S.k2a; kino_S.flash = { p: kino_V(A.x + A.fx * .4, 1.2, A.z + A.fz * .4), at: kino_V(A.x + A.fx * 3, 1, A.z + A.fz * 3), i: 14 }; kino_atem(.16, 1.8);
+        kino_after(.45, () => Audio.play('metalHit1', { gain: .35, rate: 1.4, x: A.x + A.fx, y: .1, z: A.z + A.fz, ref: 2 })); kino_after(.7, () => Audio.play('scrape3', { gain: .12, rate: 1.8, dur: 1.2, x: A.x + A.fx, y: .1, z: A.z + A.fz, ref: 2 })); },
+      tick(k, t) { const A = S.k2a, F = kino_S.flash, u = Math.min(1, t / .5); F.p.set(A.x + A.fx * (.4 + .5 * u), 1.2 - 1.1 * u * u, A.z + A.fz * (.4 + .5 * u)); if (t > .5) { const a = (t - .5) * 2.4; F.at.set(F.p.x + Math.cos(a + A.a0) * 3, .6, F.p.z + Math.sin(a + A.a0) * 3); } } },
+    { path(e, t, v, w) { const A = S.k2a, a = A.a0 + PI * e; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(v.x + Math.cos(a) * 3, 1.55, v.z + Math.sin(a) * 3); }, dur: 3, fov: 64, hand: .9, ease: 'soft',
+      film: { vig: 1.8 },
+      setup() { const A = S.k2a, Zb = zg(); if (Zb) { Zb.g.visible = true; Zb.g.position.set(A.x - A.fx * .82, 0, A.z - A.fz * .82); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) - PI / 2, 0); } kino_zLangsam(true);
+        kino_S.lit[0] = { p: kino_V(A.x - A.fx * .3, .15, A.z - A.fz * .3), c: 0xfff0d6, d: 5, i: 2.2 }; kino_after(1.2, () => kino_atem(.12, .7, A.x - A.fx * .8, 1.6, A.z - A.fz * .8)); } },
+    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(A.x - A.fx * 3, 1.58, A.z - A.fz * 3); }, dur: 3, fov: 64, hand: .2, film: { vig: 2.6, ca: .01 }, shakes: [[0, .004, 3]],
+      setup() { kino_still(true, .1); kino_S.k2aArme = 1; }, tick() {} },
+    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .35, 1.5, A.z - A.fz * .35); w.set(A.x - A.fx * 3, 1.58, A.z - A.fz * 3); }, dur: 1, fov: 64, hand: .2, film: { vig: 2.6, ca: .01 },
+      lines: [['Bruder.', 'PETER', .1, 1800]] },
+    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .52, 1.3, A.z - A.fz * .52); w.set(A.x - A.fx * 2, 1.2, A.z - A.fz * 2); }, dur: 3, fov: 80, hand: .4, film: { vig: 3.2, ca: .012, filter: 'brightness(.55)' },
+      setup() { const A = S.k2a, b = kino_show('band', A.x - A.fx * .7, 1.28, A.z - A.fz * .7); b.lookAt(A.x, 1.28, A.z); kino_herz(3, 46, .8); kino_brumm(.5, .8, 36); },
+      tick(k, t) { const A = S.k2a, b = kino_S.obj.band, u = t / 3; b.position.set(A.x - A.fx * (.7 - .12 * u), 1.34 - .14 * u, A.z - A.fz * (.7 - .12 * u)); }, teardown() { kino_hide('band'); kino_brumm(0, .3); } },
+    { path(e, t, v, w) { const A = S.k2a, j = kino_e(Math.min(1, t / .6)); v.set(A.x - A.fx * (.35 - 1.1 * j), 1.5 - .3 * j, A.z - A.fz * (.35 - 1.1 * j)); w.set(A.x - A.fx * 2.5, .5, A.z - A.fz * 2.5); }, dur: 2, fov: 68, hand: 1.5, shakes: [[0, .05, .9]],
+      setup() { kino_still(false, .3); kino_S.k2aArme = 0; kino_zLangsam(false); const A = S.k2a, Zb = zg(); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
+        Audio.play('metalSlam', { gain: .5, rate: .6, x: A.x - A.fx * 1.5, y: .4, z: A.z - A.fz * 1.5, ref: 3 }); Audio.play('waterFlow', { gain: .15, rate: .6, dur: 1.6, x: A.x - A.fx * 1.8, y: .1, z: A.z - A.fz * 1.8, ref: 2 }); } },
+    { path(e, t, v, w) { const A = S.k2a, d = kino_e(Math.min(1, t / .8)); v.set(A.x + A.fx * .75, 1.5 - .7 * d, A.z + A.fz * .75); w.set(A.x - A.fx * 1.3, .25, A.z - A.fz * 1.3); }, dur: 2, fov: 58, hand: .8,
+      setup() { const A = S.k2a, Zb = zg(); if (Zb) { Zb.g.position.set(A.x - A.fx * 1.3, .22, A.z - A.fz * 1.3); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) + PI / 2, PI / 2 * .95); }
+        kino_S.lit[0] = { p: kino_V(A.x + A.fx * .1, .12, A.z + A.fz * .1), c: 0xfff0d6, d: 5, i: 1.8 }; kino_cello([['C2', 2.6]], .2, .06, 400); } },
+  ], { name: 'Bruder.', skipAfter: Infinity, nahtlos: true,
+    start() { const P = player.pos, fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); S.k2a = { x: P.x, z: P.z, fx, fz, a0: Math.atan2(fz, fx) }; },
+    done() { kino_zLangsam(false); kino_S.k2aArme = 0; } });
 }
+// Peter: Gehbewegung fast anhalten, solange er Luke hält (innen_kapitel dreht sein Modell sonst im Laufschritt)
+function kino_zLangsam(on) { const Z = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (!Z || !Z.mx) return; for (const a of Z.mx._actions || []) a.timeScale = on ? .12 : 2.3; }
+// Staub rieselt von der Decke (Tankraum)
+function kino_rieseln(dt, cx, cz, top) { const D = kino_S.dust; if (!D) return; D.m.visible = true; const P = D.pos, s = D.seed;
+  for (let i = 0; i < D.N; i++) { const j = i * 3; s[j + 1] -= dt * (.35 + (i % 5) * .08); if (s[j + 1] < .05) s[j + 1] = top; P[j] = cx + s[j] * .12 + Math.sin(i) * .1; P[j + 1] = s[j + 1]; P[j + 2] = cz + (s[j + 2] - 3) * .05; }
+  D.m.geometry.attributes.position.needsUpdate = true; }
+function kino_blasen(x, y, z) { const A = Audio; if (!A.ctx) return; const c = A.ctx; for (let i = 0; i < 9; i++) { const t = c.currentTime + i * rand(.04, .09), o = c.createOscillator(), g = c.createGain(), d = A.at(x, y, z, 2);
+  o.frequency.setValueAtTime(rand(300, 600), t); o.frequency.exponentialRampToValueAtTime(rand(900, 1500), t + .05); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.06, t + .005); g.gain.exponentialRampToValueAtTime(.0004, t + .07); o.connect(g); g.connect(d); o.start(t); o.stop(t + .09); } }
+
+// ======================================================== Kapitel 3 · Höhepunkt 1 „Blinde Kuh“ (24 s), 2 „Blinzeln“ (38 s), Abspann „Wie jeden Morgen“ (60 s)
+function kino_defK3() {
+  const S = kino_S;
+  // ---- „Blinde Kuh“: Spielerkamera, ein Schnitt auf Bodenhöhe beim Aufschlag, Einblendung der Flanke (A-12: das dreifache „Scheiße“ gehört nicht mehr in die Sequenz)
+  const K = () => S.kuh;
+  const lampSeite = () => { const A = K(); const L = []; kino_lamps(l => { const dx = l.wx - A.lx, dz = l.wz - A.lz, d = Math.hypot(dx, dz); if (d < 60) L.push({ l, d, side: dx * A.rz - dz * A.rx }); }); L.sort((a, b) => a.d - b.d); return L; };
+  kino_def('k3kuh', [
+    { frei: true, dur: 4, keepFlash: true, // 0–4 · Laternen atmen, Summen fünfzig Hertz
+      setup() { for (const o of lampSeite()) kino_lampe(o.l, 'puls').rate = 2.1; kino_brumm(.55, 1.5, 50); } },
+    { frei: true, dur: 2, keepFlash: true, // 4–6 · erst die Laterne links, dann rechts, dann alle; das Summen setzt aus, absolute Stille
+      setup() { const L = lampSeite(), li = L.find(o => o.side > 0), re = L.find(o => o.side <= 0);
+        if (li) kino_after(.02, () => { kino_lampe(li.l, 'relais'); kino_relais(li.l.wx, 5, li.l.wz, .16); }); if (re) kino_after(.5, () => { kino_lampe(re.l, 'relais'); kino_relais(re.l.wx, 5, re.l.wz, .16); });
+        kino_after(1, () => { for (const o of L) kino_lampe(o.l, 'aus'); kino_brumm(0, .03); kino_still(true, .05); kino_regen(0, .05); }); } },
+    { frei: true, dur: 1, keepFlash: true, blick: () => kino_S.a.set(K().cx, 22, K().cz), blickRate: 9, shakes: [[0, .012, .6]], // 6–7 · Ruck nach oben: ein Fleck, der größer wird; ein Muhen aus großer Höhe
+      setup() { kino_fall(); kino_muh(); kino_after(.45, () => kino_kuhFall()); } },
+    { from: () => { const A = K(); return [A.cx + A.rx * 4.4 + A.fx * 1.5, .3, A.cz + A.rz * 4.4 + A.fz * 1.5]; }, look: () => { const A = K(); return [A.cx, .55, A.cz]; }, dur: .4, fov: 50, hand: .2, // 7,0–7,4 · Schnitt: Bodenhöhe, seitlich – der Aufschlag
+      setup() { const A = K(); kino_after(.15, () => { if (typeof bigThud === 'function') bigThud(A.cx, A.cz); if (typeof goreBurst === 'function') goreBurst(A.cx, A.cz); kino_sub(1); kino_shake(.05, .5); const d = cowFx.dust; d.t = 0; for (let i = 0; i < d.v.length; i++) { d.p[i * 3] = A.cx; d.p[i * 3 + 1] = .2; d.p[i * 3 + 2] = A.cz; } }); },
+      tick(k, t) { filmPass.uniforms.flash.value = t > .15 && t < .35 ? 1 - (t - .15) / .2 : 0; }, teardown() { filmPass.uniforms.flash.value = 0; } },
+    { frei: true, dur: 1.6, keepFlash: true, shakes: [[0, .045, .8]], film: { vig: 1.5, ca: .01 }, // 7,4–9 · zurück, Sicht zittert: Staub, Dampf, ein Stück Ohrmarke klappert über den Asphalt
+      setup() { const A = K(); glitchV = .3; kino_atem(.14, 2.2); [0, .21, .38, .5].forEach((d, i) => kino_after(.25 + d, () => Audio.play('metalHit2', { gain: .08 - i * .015, rate: 3.6 + i * .2, hp: 1800, dur: .12, x: A.cx - A.rx * (1 + i * .3), y: 0, z: A.cz - A.rz * (1 + i * .3), ref: 1.5 })));
+        kino_show('dampf', A.cx, .8, A.cz); } , tick(k, t, dt) { kino_dampf(t); glitchV *= .96; } },
+    { frei: true, dur: 4, keepFlash: true, blick: () => kino_S.a.set(K().cx, .5, K().cz), blickRate: .9, // 9–13 · langsamer Schwenk zur Kuh; die Laternen gehen wieder an, von der Kuh weg, das Pulsieren wird schneller
+      setup() { const A = K(), L = lampSeite().sort((a, b) => Math.hypot(a.l.wx - A.cx, a.l.wz - A.cz) - Math.hypot(b.l.wx - A.cx, b.l.wz - A.cz));
+        L.forEach((o, i) => kino_after(.3 + i * .32, () => { const f = kino_lampe(o.l, 'puls'); f.rate = 3.4 + i * .25; kino_relais(o.l.wx, 5, o.l.wz, .1); })); kino_brumm(.25, 2.5, 50); kino_still(false, 3); kino_regen(0, .1);
+        kino_after(2.2, () => { const P = camera.position, d = camera.getWorldDirection(kino_S.a); kino_kiesel(P.x - d.x * 2, 0, P.z - d.z * 2); }); }, tick(k, t) { kino_dampf(t + 1.6); } },
+    { from: () => kino_flanke(1.25, .5), to: () => kino_flanke(1.05, .45), look: () => kino_flanke(0, 0), dur: 2, fov: 34, hand: .3, lens: { at: () => kino_S.a.set(...kino_flanke(0, 0)), r: .2, amt: .7 }, // 13–15 · Einblendung: die Flanke, sieben Kreise und ein halber achter, Rauch
+      setup() { const f = kino_flanke(0, 0), b = kino_show('brand', f[0], f[1], f[2]); b.lookAt(f[0], f[1] + 1, f[2]); b.rotateZ(K().ry); kino_show('dampf', f[0], f[1] + .1, f[2]); }, tick(k, t) { kino_dampf(t + 5); } },
+    { frei: true, dur: 9, keepFlash: true, // 15–24 · Luke steht. Ein Rabe landet auf der Kuh. Ein Auto springt an und fährt ohne Licht davon. Hinter der Telefonzelle raschelt es
+      setup() { const A = K(); kino_hide('brand'); kino_sag('Blinde Kuh …', 'KINDERSTIMME', 2600); kino_box(['G5', 'E5'], .05, .05, 1); Audio.whisper(A.lx, 9, A.lz, 1.4);
+        kino_after(1.3, () => { const P = camera.position, d = camera.getWorldDirection(kino_S.a); Audio.giggle(P.x - d.x * 1.2, 1.3, P.z - d.z * 1.2); });
+        kino_after(2.2, () => { const top = K().top; if (typeof whiskey_setzen === 'function' && typeof whiskey_S !== 'undefined' && whiskey_S.g) { try { whiskey_setzen(A.cx, top, A.cz, () => kino_klapper(A.cx, top, A.cz)); } catch (e) {} } else { kino_rabeFly(kino_V(A.cx + 14, 12, A.cz - 10), kino_V(A.cx, top, A.cz), 2.2, () => kino_klapper(A.cx, top, A.cz)); } });
+        kino_after(4.2, () => { Audio.play('carEngine', { gain: .1, rate: .9, dur: 5, x: A.cx - 70, y: 1, z: A.cz + 35, ref: 18, lp: 1200 }); });
+        kino_after(7.2, () => { kino_trippeln(8.6, 8.2, .045); Audio.paper && setTimeout(() => Audio.paper(), 300); }); },
+      tick(k, t) { kino_dampf(t + 7); } },
+  ], { name: 'Blinde Kuh', skipAfter: Infinity, nahtlos: true, offen: true, uebergabe: true,
+    start() { const P = player.pos, fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = -fz, rz = fx; let cx = P.x + rx * 4 + fx * 1.2, cz = P.z + rz * 4 + fz * 1.2; cz = Math.max(-3.4, Math.min(3.4, cz));
+      S.kuh = { lx: P.x, lz: P.z, fx, fz, rx, rz, cx, cz, ry: Math.atan2(fx, fz), top: 1.2 }; if (typeof ch3 !== 'undefined') ch3.cowSeen = true; },
+    done() { kino_hide('dampf', 'brand'); } });
+}
+// Aufruf aus lucy3.js (statt cowDrop): startet „Blinde Kuh“
+function kino_kuh() { const S = kino_S; if (!S.ready || S.on || !KINO.k3kuh || typeof cowFx === 'undefined' || cowFx.done) return false; kino_play('k3kuh').catch(e => console.error('Kino k3kuh', e)); return true; }
+// Die Kuh fällt (Basis-Modell FAB.cow, Aufprall/Staub/Blut aus der Basis; ohne das UFO-Objekt – Fassung 3)
+function kino_kuhFall() { const A = kino_S.kuh; if (typeof cowFx === 'undefined') return; cowFx.done = true; if (typeof FAB !== 'undefined' && FAB.cow) { cowFx.g.clear(); cowFx.g.add(FAB.cow.clone()); }
+  cowFx.g.position.set(A.cx, 26, A.cz); cowFx.g.rotation.set(0, A.ry + .6, 0); cowFx.t = 0; cowFx.ufoT = -1; if (typeof cowHit !== 'undefined') cowHit.position.set(A.cx, .6, A.cz);
+  setTimeout(() => { try { const b = new THREE.Box3().setFromObject(cowFx.g); A.top = b.max.y; A.bb = b; } catch (e) {} }, 900); }
+function kino_flanke(d, h) { const A = kino_S.kuh, top = A.top || 1.2; return [A.cx - A.fx * d * .6 + A.rx * d * .8, top - .06 + h, A.cz - A.fz * d * .6 + A.rz * d * .8]; }
+function kino_fall() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), lp = c.createBiquadFilter(), g = c.createGain(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(200, t); lp.frequency.exponentialRampToValueAtTime(1400, t + 1.1);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.25, t + 1.1); g.gain.linearRampToValueAtTime(0, t + 1.18); n.connect(lp); lp.connect(g); g.connect(A.master); n.stop(t + 1.3); }
+function kino_muh() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, o = c.createOscillator(), o2 = c.createOscillator(), f1 = c.createBiquadFilter(), f2 = c.createBiquadFilter(), g = c.createGain();
+  o.type = 'sawtooth'; o2.type = 'sawtooth'; o.frequency.setValueAtTime(128, t); o.frequency.linearRampToValueAtTime(112, t + 1.05); o2.frequency.setValueAtTime(129.5, t); o2.frequency.linearRampToValueAtTime(113, t + 1.05);
+  f1.type = 'bandpass'; f1.frequency.setValueAtTime(420, t); f1.frequency.linearRampToValueAtTime(760, t + .6); f1.Q.value = 3; f2.type = 'lowpass'; f2.frequency.value = 1600;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.04, t + .2); g.gain.linearRampToValueAtTime(.2, t + 1.1); g.gain.setValueAtTime(0, t + 1.12);
+  o.connect(f1); o2.connect(f1); f1.connect(f2); f2.connect(g); g.connect(A.master); o.start(t); o2.start(t); o.stop(t + 1.2); o2.stop(t + 1.2); }
+function kino_dampf(t) { const o = kino_S.obj.dampf; if (!o || !o.visible) return; o.material.opacity = .22 * Math.max(0, 1 - t / 24); o.scale.set(1.6 + t * .05, 2.2 + t * .08, 1); o.position.y += .0015; }
+
+// ---- Nimmerheim (vorläufige Bühne, bis AP-17 den Ort baut): weißer Raum, acht Stühle im Kreis, die Behaltenen
+const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'dina', 'heidi', 'maedchen'];
+function kino_buehne(M) { const S = kino_S; return M || S.bu || { x: X3 + 4, z: Z3 }; }
+function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = i / 8 * PI * 2 + .3, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
+  const st = S.obj['stuhl' + i]; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * Math.max(r, 5), 0, M.z + Math.sin(a) * Math.max(r, 5)); st.rotation.y = ry + PI; }
+  if (stehen) kino_fig(k, x, 0, z, ry, 'idle', { look: 'cam', t0: i * .4 }); else kino_fig(k, x, 0, z, ry, 'idle', { sit: .47, t0: i * .4 }); }); }
+function kino_defK3b() {
+  const S = kino_S, M = () => kino_buehne(S.opts && S.opts.mitte);
+  const zu = (onZu, fuesse) => { kino_blinzeln(.15, .15, onZu); if (fuesse) { const m = M(); kino_after(.05, () => { for (let i = 0; i < 5; i++) Audio.stepAt && Audio.stepAt(m.x + Math.cos(i) * 2, m.z + Math.sin(i) * 2, .09); }); } };
+  const schiffAtem = (rate, v = .06) => { const m = M(); kino_atem(v, rate, m.x, 6, m.z + 8); };
+  kino_def('k3blinzeln', [
+    { frei: true, dur: 3, env: 'white', keepFlash: false, // 0–3 · Luna, grau, vor ihm; die sieben ruhig auf den Stühlen, fünf Meter weg. Das Schiff atmet. Luna summt Miras Lied
+      setup() { const m = M(); kino_kreisSetzen(m, 5, false); kino_fig('graue', m.x + S.bl.fx * 1.3, 0, m.z + S.bl.fz * 1.3, Math.atan2(-S.bl.fx, -S.bl.fz), 'idle', { look: 'cam' });
+        kino_fig('lucyK', m.x + Math.cos(7 / 8 * PI * 2 + .3) * 5, 0, m.z + Math.sin(7 / 8 * PI * 2 + .3) * 5, 0, 'idle', { sit: .47, pose: kino_haendeAugen });
+        schiffAtem(.45); kino_after(3.5, () => schiffAtem(.45)); kino_summen(['E4', 'D4', 'C4', 'B3'], .4); },
+      tick(k, t) { kino_flacker('lucyK', t); } },
+    { frei: true, dur: 5, env: 'white', lines: [['Ich hab nicht geblinzelt. Das war nicht ich.', 'LUKE', 1.2, 3400]], // 3–8 · Blinzeln: die Stühle stehen einen Meter näher
+      setup() { zu(() => kino_kreisSetzen(M(), 4, false)); }, tick(k, t) { kino_flacker('lucyK', t); } },
+    { frei: true, dur: 5, env: 'white', lines: [['Guck mal. Ich mach die Augen zu, und du auch.', 'LUNA', 1.4, 3600]], // 8–13 · fünf stehen, drei Meter entfernt; das Mädchen mit dem Kreisel sitzt noch
+      setup() { zu(() => { kino_kreisSetzen(M(), 3, true, ['hilde', 'zayn', 'mike', 'roxy', 'dina']); }); kino_after(.1, () => Audio.giggle(M().x, 2, M().z + 6)); kino_streicher('A1', 18, .03, .5, 500);
+        kino_after(2.2, () => schiffAtem(.7)); kino_after(3.6, () => schiffAtem(.8)); }, tick(k, t) { kino_flacker('lucyK', t); } },
+    { frei: true, dur: 6, env: 'white', film: { vig: 1.6 }, lines: [['Wenn sie durch mich guckt, guckt sie auch weg, wenn ich wegguck. Mach die Augen –', 'LUKE', .6, 5000]], // 13–19 · anderthalb Meter, Hilde vorn; die Augen tränen
+      setup() { zu(() => kino_kreisSetzen(M(), 1.5, true, ['hilde', 'zayn', 'mike', 'roxy', 'dina']), true); $('kinoTear').classList.add('on'); kino_streicher('A#1', 6, .03, 0, 520); kino_herz(6, 60); kino_after(3.2, () => kino_herz(5, 96)); },
+      tick(k, t) { kino_flacker('lucyK', t); const P = S.fig.maedchen; if (P) { P.pose = (Q, tt) => kino_arm(Q, 'l', camera.position, .6 * kino_ramp(tt, 0, 2), .2); } } },
+    { frei: true, dur: 7, env: 'white', lines: [['Nicht loslassen. Und nicht die andere geben. Sieh mich an.', 'JUSTIN', 2.2, 4600]], // 19–26 · einen halben Meter: Zayn unter Lukes Kinn; fünf Hände heben sich, Handflächen nach oben
+      setup() { zu(() => { kino_kreisSetzen(M(), .9, true, ['hilde', 'mike', 'roxy', 'dina']); const m = M(), c = S.sv.pos; kino_fig('zayn', c.x + S.bl.fx * .5, 0, c.z + S.bl.fz * .5, Math.atan2(-S.bl.fx, -S.bl.fz), 'idle', { look: 'cam' }); });
+        kino_still(true, .05); for (const k of ['hilde', 'zayn', 'mike', 'roxy', 'dina']) { const P = S.fig[k]; if (P) P.pose = (Q, tt) => { kino_arm(Q, 'r', camera.position, .75 * kino_ramp(tt, .8, 3), .1); }; } },
+      tick(k, t) { kino_flacker('lucyK', t); } },
+    { frei: true, dur: 2, env: 'white', blick: () => kino_justinKopf(kino_S.a), blickRate: .8, // 26–28 · Justin ansehen
+      setup() { kino_sag('Ansehen', '', 1800); } },
+    { frei: true, dur: 6, env: 'white', lines: [['Das war Schummeln. Aber ich hab’s nicht gemerkt, wer.', 'LUNA', .8, 4200]], // 28–34 · Blinzeln – alle sitzen wieder, fünf Meter, die Hände im Schoß
+      setup() { if (typeof augenzu_frei === 'function') augenzu_frei({ wirkt: true, hinweis: 'Q – Augen zu' }); zu(() => { for (const k of KINO_KREIS) { const P = S.fig[k]; if (P) P.pose = null; } kino_kreisSetzen(M(), 5, false); $('kinoTear').classList.remove('on'); });
+        kino_after(.3, () => { if (typeof augenzu_sperre === 'function') augenzu_sperre(); }); kino_still(false, 1); schiffAtem(.45); kino_after(2, () => kino_herz(3, 70, .6)); }, tick(k, t) { kino_flacker('lucyK', t); } },
+    { frei: true, dur: 4, env: 'white', // 34–38 · Lucy nimmt die Hände vom Gesicht, deutlicher als vorher; Whiskey klappert einmal
+      setup() { const P = S.fig.lucyK; if (P) P.pose = null; kino_after(1.6, () => { const J = justin && justin.g; if (J) kino_klapper(J.position.x, 1.9, J.position.z); }); } },
+  ], { name: 'Blinzeln', skipAfter: Infinity, nahtlos: true, offen: true, uebergabe: true,
+    start(o) { const P = player.pos, fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); S.bl = { fx, fz }; S.bu = o && o.mitte ? { x: o.mitte[0], z: o.mitte[1] } : { x: P.x, z: P.z };
+      if (justin && justin.g) { S.blJ = [justin.g.position.clone(), justin.g.rotation.y, justin.g.visible]; justin.g.visible = true; justin.g.position.set(P.x - fz * .9 - fx * .1, 0, P.z + fx * .9 - fz * .1); justin.g.rotation.y = Math.atan2(fx, fz); if (typeof jPlay === 'function') jPlay('idle', 0); } },
+    done() { $('kinoTear').classList.remove('on'); for (const k in kino_S.fig) kino_S.fig[k].pose = null; const J = kino_S.blJ; if (J && justin && justin.g) { justin.g.position.copy(J[0]); justin.g.rotation.y = J[1]; justin.g.visible = J[2]; } kino_S.blJ = null; } });
+}
+function kino_justinKopf(v) { const J = justin && justin.g; return J ? v.set(J.position.x, 1.8, J.position.z) : v.set(0, 1.8, 0); }
+function kino_haendeAugen(P, t) { const B = P.bones; if (!B.head) return; B.head.getWorldPosition(kino_S.b); P.g.getWorldDirection(kino_d); kino_S.b.addScaledVector(kino_d, .12); kino_arm(P, 'r', kino_S.b, .95, .9); kino_arm(P, 'l', kino_S.b, .95, .9); }
+function kino_flacker(key, t) { const P = kino_S.fig[key]; if (!P || !P.g.parent) return; P.g.visible = Math.sin(t * 23) + Math.sin(t * 7.3) > -1.3 || Math.random() > .5; }
+function kino_summen(notes, t0 = 0) { const b = kino_bus(); if (!b || typeof KI === 'undefined') return; const c = Audio.ctx; let t = c.currentTime + t0; for (const n of notes) { KI.flute(c, b, t, KN(n), .7, .025); t += .78; } }
+
+// ---- Abspann „Wie jeden Morgen“ (60 s, überspringbar nach 3 s) – Justins Ruf je Antwort, Lucys Satz, Wolter-Satz je Vertrauensstufe, A-13
+const KINO_RUF = { A: 'Luna! Ich bin da! Ich bleib da!', B: '… fünf … sechs …', C: 'Luna! Ich such dich! Hörst du? Ich such dich!' };
+function KINO_KARTE3(opts) { const a = kino_antwort(opts), rh = typeof ch3 !== 'undefined' && ch3.armorHints ? ch3.armorHints.size : 0, E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(3) : null;
+  const st = E && E.stempel || (kino_stufe() === 'miserabel' ? 'K-3: nicht geborgen. Noch nicht.' : null);
+  const T = { A: ['Er ist bei ihr geblieben.', 'Sie sieht ihn nicht. Sie hört ihn rufen.'], B: ['Er spielt mit.', 'Sie zählt, und er zählt hinter ihr her.'], C: ['Er sucht jetzt laut.', 'Einmal hat sie ihn gesehen. Durch dich.'] }[a] || [];
+  return ['KAPITEL 3 — ENDE · ICH KOMME', ...T, rh >= 3 ? { t: 'Er weiß jetzt, was er ausziehen muss.', klein: true } : null, 'Es wird hell.', st ? { t: st, stempel: true } : null]; }
+function kino_defK3Abspann() {
+  const S = kino_S, KR = { x: 4.2, z: .6 }; // Luke an der Kreuzung
+  const kette = () => { const d = typeof doorOf !== 'undefined' && doorOf[3]; return d || null; };
+  const shots = [
+    // 0–6 · Nimmerheim: hinter Justin, Schulterhöhe, langsam zurückfahrend; er geht zwischen die Rippen ins Dunkel. Luna und die sieben halten sich die Augen zu
+    { path(e, t, v, w) { const M = S.nh; v.set(M.x, 1.75, M.z - 1.2 - 2.4 * e); w.set(M.x, 1.4, M.z + 6); }, dur: 6, fov: 44, env: 'white', fadeIn: 1400, hand: .25, ease: 'soft', film: { vig: 1.4 },
+      setup(sh) { const M = S.nh; kino_kreisSetzen({ x: M.x, z: M.z + 3 }, 5, false); for (const k of KINO_KREIS) { const P = S.fig[k]; if (P) P.pose = kino_haendeAugen; }
+        kino_fig('graue', M.x + .6, 0, M.z + 1.6, PI, 'idle', { pose: kino_haendeAugen });
+        if (justin && justin.g) { sh.j = [justin.g.position.clone(), justin.g.rotation.y, justin.g.visible]; justin.g.visible = true; justin.g.position.set(M.x, 0, M.z); justin.g.rotation.y = 0; if (typeof jPlay === 'function') jPlay('walk', 0); kino_helm(true); }
+        const a = kino_antwort(S.opts); kino_after(.4, () => kino_sag('Vier. Fünf. Sechs.', 'LUNA', 2600)); kino_after(1.9, () => kino_sag(KINO_RUF[a] || KINO_RUF.B, 'JUSTIN', 2600)); kino_after(4.2, () => kino_sag('… sieben …', 'LUNA', 1800));
+        for (let i = 0; i < 7; i++) kino_after(.3 + i * .72, () => Audio.play(Audio.pick('scrape1', 'scrape2'), { gain: .09 * (1 - i / 8), rate: .7, dur: .25, lp: 1600 })); },
+      tick(k, t, dt, sh) { if (justin && justin.mixer) justin.mixer.update(dt); if (justin && justin.g) { justin.g.position.z = S.nh.z + t * 1.2; } const U = filmPass.uniforms; U.vig.value = 1.4 + 2.2 * kino_ramp(t, 2, 6); renderer.toneMappingExposure = (1.05 - .55 * kino_ramp(t, 2.5, 6)) * settings.bright; },
+      teardown(sh) { if (sh.j && justin && justin.g) { justin.g.position.copy(sh.j[0]); justin.g.rotation.y = sh.j[1]; justin.g.visible = sh.j[2]; if (typeof jPlay === 'function') jPlay('idle', 0); } for (const k of [...KINO_KREIS, 'graue']) kino_figOff(k); for (let i = 0; i < 8; i++) kino_hide('stuhl' + i); } },
+    { white: true, dur: 2, fadeOut: 500, setup() { kino_still(true, .2); } }, // 6–8 · Weiß, Stille
+    // 8–16 · Kreuzung, Bodenhöhe, 40 cm neben Lukes Schuhen, Blick die Ahornstraße hinunter: die Laternen gehen aus, von Osten nach Westen, wie jeden Morgen. Nur die vor Nr. 1 nicht (A-13)
+    { from: [KR.x + .35, .4, KR.z + .3], to: [KR.x + .3, .38, KR.z + .25], look: [-40, 1.8, -1.5], dur: 8, fov: 38, env: 'morgen', fadeIn: 1600, hand: .15, lens: { at: [KR.x - 1.5, .1, KR.z + .1], r: .35, amt: .35 },
+      setup(sh) { kino_still(false, 2); kino_regen(0, .5); kino_fig('lucy', KR.x - .45, 0, KR.z - .05, -PI / 2 + .2, 'idle');
+        const L = []; kino_lamps(l => { if (Math.abs(l.wz) < 6 && l.wx > -100 && l.wx < 150) { L.push(l); kino_lampe(l, 'hell'); } }); L.sort((a, b) => b.wx - a.wx); const n1 = kino_lampNah(-47, -6);
+        L.forEach((l, i) => { if (l === n1) return; kino_after(.8 + i * .55, () => { kino_lampe(l, 'relais'); kino_relais(l.wx, 5, l.wz, .2); }); });
+        const tn = .8 + L.indexOf(n1) * .55 + 1; if (n1) kino_after(tn, () => { kino_lampe(n1, 'pusten'); kino_einatmen(.07, n1.wx, 5, n1.wz); kino_pusten(.06, n1.wx, 5, n1.wz); });
+        kino_after(2.4, () => kino_amsel(-18, 6, 14)); kino_after(6.2, () => kino_amsel(22, 7, -16)); } },
+    // 16–22 · halbnah auf Lucy (Lukes Blick, nie Luke selbst): nass, in Lukes Jacke, sie hält seine Hand. Am Rand ihrer Iris ein dünner weißer Ring
+    { from: [KR.x + .12, 1.68, KR.z + .02], to: [KR.x + .05, 1.66, KR.z + .04], look: [KR.x - .45, 1.55, KR.z - .05], dur: 6, fov: 34, env: 'morgen', hand: .3, lens: { at: () => kino_kopf('lucy', kino_S.a), r: .14, amt: .8 },
+      lines: [['Guck nicht so. Ich bin’s.', 'LUCY', 2, 3400]],
+      setup() { const P = kino_fig('lucy', KR.x - .45, 0, KR.z - .05, PI / 2 - .1, 'idle', { look: 'cam', pose: (Q, t) => kino_arm(Q, 'r', kino_S.b.set(camera.position.x, .95, camera.position.z + .1), .55, .3) }); kino_atem(.05, 1, KR.x - .4, 1.5, KR.z); kino_after(2.8, () => kino_atem(.06, .9)); } },
+    // 22–30 · Totale von der Tür von Nr. 3: die Tür geht auf, ohne Kette; Vegas, barfuß, eine Wolldecke über dem Arm, rennt über die Straße
+    { from: [-27.2, 1.55, -10.3], to: [-26.2, 1.5, -9.2], look: [-24, 1.3, -6], lookTo: [KR.x - 12, 1.1, KR.z - 1], dur: 8, fov: 46, env: 'morgen', hand: .45, ease: 'soft', follow: 1.8,
+      lines: [['Mädchen. Himmelherrgott. Du bist ja pitschnass.', 'VEGAS', 4.2, 3600]],
+      setup(sh) { kino_fig('lucy', KR.x - .45, 0, KR.z - .05, -PI / 2, 'idle'); const d = kette(); sh.d = d ? [d, d.rotation.y] : null; Audio.play('doorOpen', { gain: .35, x: -28, y: 1.5, z: -12, ref: 3 });
+        kino_fig('vegas', -28, 0, -11, .6, 'walk', { ts: 1.6 }); const v = kino_S.porch0 = porchLights[1] ? porchLights[1].dead : null; },
+      tick(k, t, dt, sh) { if (sh.d && t < 1.2) sh.d[0].rotation.y = sh.d[1] - 1.3 * kino_e(t / 1.2); const P = kino_S.fig.vegas; if (!P) return; kino_gehen(P, -28, -11, KR.x - 1.4, KR.z - .3, t - .6, 2.4, 'walk');
+        if (Math.floor(t * 2.6) !== kino_S.vst && t > .6) { kino_S.vst = Math.floor(t * 2.6); Audio.stepAt && Audio.stepAt(P.g.position.x, P.g.position.z, .12); } },
+      teardown(sh) { if (sh.d) sh.d[0].rotation.y = sh.d[1]; } },
+    // 30–36 · halbnah: Vegas wickelt Lucy in die Decke und hebt sie hoch, ächzend; sie hält Lukes Hand, bis es nicht mehr geht
+    { from: [KR.x + .9, 1.5, KR.z + 1.4], to: [KR.x + .7, 1.55, KR.z + 1.2], look: [KR.x - .9, 1.35, KR.z - .1], dur: 6, fov: 38, env: 'morgen', hand: .4, lens: { at: () => kino_kopf('vegas', kino_S.a), r: .2, amt: .5 },
+      lines: [['Wo warst du denn, im Gully?', 'VEGAS', 1.2, 2800], ['Fast.', 'LUCY', 4.3, 1600]],
+      setup() { kino_fig('vegas', KR.x - 1.15, 0, KR.z - .15, PI / 2, kino_S.fig.vegas && kino_S.fig.vegas.acts.hug ? 'hug' : 'idle', { look: () => 0, pose: (Q, t) => { kino_arm(Q, 'r', kino_kopf('lucy', kino_S.b), .7, .6); kino_arm(Q, 'l', kino_kopf('lucy', kino_S.b), .6, .6); } });
+        kino_S.fig.vegas.look = null; kino_fig('lucy', KR.x - .75, 0, KR.z - .1, -PI / 2 + .3, 'idle', { pose: (Q, t) => kino_arm(Q, 'r', kino_S.b.set(camera.position.x, 1.0, camera.position.z), .5 * (1 - kino_ramp(t, 3.5, 5.5)), .2) });
+        kino_after(1.8, () => { kino_atem(.08, .7, KR.x - 1.1, 1.6, KR.z); kino_stoff(.06); }); },
+      tick(k, t) { const L = kino_S.fig.lucy; if (L) { const u = kino_e(kino_ramp(t, 2, 3.6)); L.g.position.y = .32 * u; L.g.position.x = KR.x - .75 - .12 * u; L.g.rotation.z = -.12 * u; } } },
+    // 36–40 · über Lukes Schulter (sein Blick) auf Lucy in Vegas’ Armen: Whiskey landet auf ihrer Schulter und gurrt wie eine Taube
+    { from: [KR.x + .3, 1.66, KR.z + .5], to: [KR.x + .2, 1.66, KR.z + .45], look: [KR.x - .95, 1.72, KR.z - .1], dur: 4, fov: 36, env: 'morgen', hand: .3, lens: { at: () => kino_kopf('lucy', kino_S.a), r: .16, amt: .6 },
+      lines: [['Hallo, du. Du hast ihn ja doch hergebracht.', 'LUCY', 1.8, 2800]],
+      setup() { const L = kino_S.fig.lucy; if (L) { L.g.position.y = .32; L.look = kino_S.rabe ? kino_S.rabe.g.position : null; } const h = kino_kopf('lucy', kino_V(0, 0, 0)); kino_rabeFly(kino_V(KR.x + 8, 7, KR.z - 6), kino_V(h.x + .02, h.y - .22, h.z + .16), 1.2, () => kino_taube(h.x, h.y, h.z)); } },
+    // 40–44 · Lukes Blick nach oben: Whiskey hüpft auf die Telefonzelle und sieht ihn an; das Mikrowellen-Pling
+    { from: [KR.x, 1.66, KR.z], to: [KR.x + .05, 1.64, KR.z + .05], look: [8, 2.9, 7.2], dur: 4, fov: 40, env: 'morgen', hand: .5, lens: { at: [8, 2.9, 7.2], r: .2, amt: .4 },
+      lines: [['… Ich hab dich auch vermisst.', 'LUKE', 2.1, 2600]],
+      setup() { kino_rabeFly(kino_V(KR.x - .9, 1.7, KR.z), kino_V(8, 2.66, 7.2), .9, () => { const R = kino_S.rabe; if (R) R.g.rotation.y = Math.atan2(KR.x - 8, KR.z - 7.2); kino_pling(8, 2.7, 7.2); }); } },
+    // 44–48 · Schwenk zur Bushaltestelle: der graue Kombi, Motor an, Licht aus; ein Satz je Vertrauen; er fährt ohne Licht davon
+    { from: [KR.x, 1.66, KR.z], look: [7, 2.4, 8], lookTo: [4.2, 1.1, 49], dur: 4, fov: 40, fovTo: 20, env: 'morgen', hand: .35, ease: 'soft',
+      setup() { const k = kino_show('kombi', 4.2, 0, 49.5, PI); const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(3) : null, z = E && E.zeile || { hoch: '„Gute Nacht, Luke.“', miserabel: '„Gute Nacht, K-3.“' }[kino_stufe()] || '„Gute Nacht, Herr Brandt.“';
+        Audio.play('carEngine', { gain: .08, rate: .8, dur: 4, x: 4.2, y: 1, z: 49.5, ref: 12, lp: 900 }); kino_after(2.2, () => kino_sag(z.replace(/[„“]/g, ''), 'WOLTER', 2400)); },
+      tick(k, t) { const o = kino_S.obj.kombi; if (o && t > 3.2) o.position.z = 49.5 + (t - 3.2) * (t - 3.2) * 6; } },
+    // 48–54 · Bodenhöhe hinter Luke, Blick auf seine Fersen: ein Kiesel rollt aus dem Nebel und bleibt an zwei anderen liegen. Klavier setzt ein
+    { from: [KR.x - .2, .22, KR.z + 1.2], to: [KR.x - .15, .2, KR.z + 1.05], look: [KR.x, .03, KR.z + .35], dur: 6, fov: 34, env: 'morgen', hand: .15, lens: { at: [KR.x, .03, KR.z + .35], r: .12, amt: .85 },
+      lines: [['Hast du gewartet? … Du hast gewartet.', 'LUKE', 3.4, 3600]],
+      setup() { kino_hide('kombi'); const b = [KR.x - .03, KR.z + .36]; kino_show('kiesel0', b[0], .018, b[1]); kino_show('kiesel1', b[0] + .02, .045, b[1] - .01); kino_show('kiesel2', b[0] + 1.6, .02, b[1] + .8);
+        kino_klavier([['E4', .7], ['D4', .7], ['C4', .7], ['B3', .9], ['C4', 2, 8]], 2.2, .09); },
+      tick(k, t) { const o = kino_S.obj.kiesel2; if (!o) return; const u = kino_e(kino_ramp(t, .4, 1.8)); o.position.set(KR.x - .03 + 1.6 * (1 - u), .02 + (u > .96 ? .05 * (u - .96) / .04 : 0), KR.z + .36 + .8 * (1 - u)); o.rotation.x = u * 9;
+        if (u >= 1 && !kino_S.kiesDa) { kino_S.kiesDa = 1; kino_kiesel(KR.x, 0, KR.z + .36); kino_trippeln(KR.x + 1.5, KR.z + 2, .04); } }, teardown() { kino_S.kiesDa = 0; } },
+    // 54–58 · Totale von oben über der Kreuzung, steigend, Blick nach Norden über den Wald: nur ganz hinten atmet noch ein schwacher weißer Schein
+    { from: [KR.x, 6, KR.z - 8], to: [KR.x, 24, KR.z - 16], look: [KR.x, 4, 80], lookTo: [KR.x, 10, 200], dur: 4, fov: 50, env: 'haze', hand: .2, ease: 'soft',
+      setup() { kino_show('ferne', 20, 18, 260).material.opacity = 0; }, tick(k, t) { kino_S.obj.ferne.material.opacity = .12 + .1 * Math.pow(.5 + .5 * Math.sin(t * 1.3), 2); } },
+    { black: true, dur: 2, fadeOut: 900, setup() { kino_still(true, 1.5); } },
+    { card: o => KINO_KARTE3(o), dur: 'auto', fadeOut: 600 },
+  ];
+  const meta = a => ({ name: 'Wie jeden Morgen', skipAfter: 3, antwort: a, start(o) { if (a && !o.antwort) o.antwort = a; kino_S.nh = { x: X3 + 4, z: Z3 }; return kino_preload('k3'); },
+    done() { for (const k in kino_S.fig) kino_S.fig[k].pose = null; kino_hide('kombi', 'kiesel0', 'kiesel1', 'kiesel2', 'ferne'); } });
+  kino_def('k3', shots, meta(null)); for (const a of ['A', 'B', 'C']) kino_def('k3' + a.toLowerCase(), shots, meta(a)); // Aufrufer weiss.js / Basis: k3a/k3b/k3c = Antwort A/B/C
+}
+function kino_kopf(key, v) { const P = kino_S.fig[key]; if (P && P.g.visible && P.bones.head) return P.bones.head.getWorldPosition(v); return v.set(0, 1.6, 0); }
+
+// ======================================================== Prolog · Höhepunkt „Kum, Wîse“ (22 s, nicht überspringbar) – aus traum.js statt Shot 4
+function kino_prolog() { const S = kino_S; if (!S.ready || S.on || typeof traum_S === 'undefined' || !traum_S.crow) return false; traum_S.kino = true;
+  kino_play('kp', { nahtlos: true }).then(() => { traum_S.skip = true; traum_wake(); }).catch(e => { console.error('Kino kp', e); traum_wake(); }); return true; }
+function kino_defProlog() {
+  const S = kino_S, W = () => traum_S.crow, P = () => TRAUM_PERCH;
+  const kopf = v => { const C = W(); if (!C) return v.set(0, 3, 0); if (!S.kpHead) C.g.traverse(b => { if (!S.kpHead && b.isBone && /head/i.test(b.name)) S.kpHead = b; }); return S.kpHead ? S.kpHead.getWorldPosition(v) : v.copy(C.g.position).add({ x: 0, y: .3, z: 0 }); };
+  const nahe = (d, h, s) => sh => { kopf(S.b); const p = P(); return [S.b.x + d * S.kp.dx, S.b.y + h, S.b.z + d * S.kp.dz]; };
+  const drehe = (ang) => { const C = W(); if (C && S.kpHead) kino_rotW(S.kpHead, KINO_UP, ang); };
+  const mix = dt => { const C = W(); if (C && C.mx) C.mx.update(dt); if (C && C.g) C.g.updateMatrixWorld(true); };
+  kino_def('kp', [
+    { from: nahe(.34, .02), to: nahe(.3, .01), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 5, fov: 30, roll: .05, rollTo: -.03, hand: .3, lens: { at: () => kopf(kino_S.a), r: .1, amt: .9 },
+      lines: [['<i>Finde Lucy. Finde heraus, was mit diesem Dorf geschehen ist.</i>', 'DER RABE', .6, 4200]],
+      setup() { kino_regen(.035, 2); if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', .3); kino_after(.6, () => { const p = W().g.position; Audio.whisper(p.x, p.y, p.z, 2); }); },
+      tick(k, t, dt) { mix(dt); } },
+    { from: nahe(.3, .01), to: nahe(.5, .03), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 4, fov: 30, hand: .15, lens: { at: () => kopf(kino_S.a), r: .12, amt: .8 },
+      lines: [['<i>Und finde heraus, wer du bist.</i>', 'DER RABE', .3, 3400]],
+      setup() { if (typeof klang_S !== 'undefined' && klang_S.dreamG && Audio.ctx) { const g = klang_S.dreamG.gain, t = Audio.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(.12, t + 3); } kino_streicher('E3', 9, .022, .5, 800);
+        kino_after(.3, () => { const p = W().g.position; Audio.whisper(p.x, p.y, p.z, 1.8); }); },
+      tick(k, t, dt) { mix(dt); drehe(.25 * kino_e(Math.min(1, t / 2))); } }, // er senkt den Kopf, als lausche er nach hinten
+    { from: nahe(.5, .03), to: nahe(.5, .03), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .12, amt: .8 },
+      setup() { kino_regen(0, .4); if (typeof klang_S !== 'undefined' && klang_S.dreamG && Audio.ctx) { const g = klang_S.dreamG.gain, t = Audio.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + .4); }
+        kino_after(.8, () => { kino_sag('<i>… sechzehn …</i>', '', 1800); const p = P(); Audio.whisper(p.x - 30, 1.2, p.z + 25, 1.1); }); },
+      tick(k, t, dt) { mix(dt); drehe(.25 + 1.5 * kino_e(Math.min(1, t / 1.6))); } }, // weg von Luke, zur Laterne hin
+    { from: nahe(.5, .03), to: nahe(.5, .03), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 1.2, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .14, amt: .7 }, // 12,0–13,2 · Sprung: das Kindergesicht
+      setup() { Audio.thump(P().x, P().y, P().z); kino_sub(.35); kino_show('kindgesicht'); },
+      tick(k, t, dt) { mix(dt); const g = kino_S.obj.kindgesicht; kopf(g.position); g.position.y -= .045; g.lookAt(camera.position); g.scale.setScalar(1.05); },
+      teardown() { kino_hide('kindgesicht'); } },
+    { from: nahe(.5, .03), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9) blur(.8px)', filterT: 2.5 },
+      lines: [['<i>Kum, Wîse.</i>', 'DER RABE', 1.3, 2200]],
+      setup() { if (typeof whiskey_play === 'function') whiskey_play('IdleScratchWing', .2); kino_after(1.3, () => kino_kum(W().g.position)); }, tick(k, t, dt) { mix(dt); } },
+    { from: nahe(1.1, .15), to: nahe(1.4, -.3), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y + 4, p.z]; }, dur: 4, fov: 36, fovTo: 52, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85) blur(1.4px)', filterT: 3 },
+      setup() { kino_regen(.5, 3.5); kino_after(1.6, () => { for (let i = 0; i < 6; i++) setTimeout(() => Audio.ding && Audio.ding(.05), i * 650); }); },
+      tick(k, t, dt) { mix(dt); if (t > 2.4) { const f = $('fade'); f.style.transition = 'opacity 1.4s'; f.style.background = '#fff'; f.style.opacity = 1; } } },
+    { white: true, dur: 1.2, fadeOut: 0 },
+  ], { name: 'Kum, Wîse', skipAfter: Infinity, nahtlos: true,
+    start() { const C = W(); S.kpHead = null; const p = C.g.position, c = camera.position; let dx = c.x - p.x, dz = c.z - p.z; const n = Math.hypot(dx, dz) || 1; S.kp = { dx: dx / n, dz: dz / n }; },
+    done() { if (kino_S.sv) kino_S.sv.fadeBg = '#fff'; } });
+}
+// „Kum, Wîse“: gehauchte Frauenstimme (Formant-Rauschen, zwei Silben), leise, nicht an Luke gerichtet
+function kino_kum(p) { const A = Audio; if (!A.ctx) return; const c = A.ctx, d = p ? A.at(p.x + .6, p.y, p.z + .4, 1.5) : A.master;
+  const silbe = (t0, dur, f1, f2, v) => { const n = kino_nz(A), a = c.createBiquadFilter(), b = c.createBiquadFilter(), g = c.createGain(), t = c.currentTime + t0; a.type = 'bandpass'; a.frequency.value = f1; a.Q.value = 7; b.type = 'bandpass'; b.frequency.value = f2; b.Q.value = 9;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .06); g.gain.setValueAtTime(v * .8, t + dur * .7); g.gain.linearRampToValueAtTime(0, t + dur); n.connect(a); n.connect(b); a.connect(g); b.connect(g); g.connect(d); n.stop(t + dur + .1); };
+  silbe(0, .08, 1800, 3200, .05); silbe(.07, .32, 380, 900, .09); silbe(.62, .1, 2600, 3600, .03); silbe(.7, .26, 330, 2300, .08); silbe(.98, .22, 450, 1900, .06); }
+
+// ======================================================== Kapitel 4–6 (vorbereitet): Namen und Längen nach 5.5; Einstellungen folgen, wenn AP-19/21/23 die Orte gebaut haben
+function kino_defVorbereitet() {
+  // Kap. 4 „Noch nicht“ (70 s): Treppe mit der Sichtung, Porträt, Dachfenster, Handschuh auf den First, Kombi, Vegas deckt zu, zweiter Traum (traum_zweiter) – Anker K4 alt (H.x/1,2/H.z+1 → H.x/1,6/H.z+2,2)
+  // Kap. 5 „Kein Echo“ (40 s, K5 nach 3 s überspringbar): Gitter, Lucy, Kranfahrt Kirchberg, Dachfenster erlischt, Geweih, drei Kratzer; Wiegenlied drei Töne
+  // Kap. 6 „Gleich wieder da“ (80 s): Hochsitz, Whiskey nach Westen, leerer Pfahl, Fahrtenbuch, AG-21 je Stufe (lwo_kapitelende(6)), B-K6-07, Wolter, Hänschen; Celesta, Lukes Ruf, Annis Satz
+  // Bis dahin laufen die Einstellungen der alten Fassung (PK-F) weiter, damit die Aufrufer (anwesen_hallEnd, kapitel5.js, kapitel6.js) unverändert funktionieren
+  const S = kino_S, H = typeof ANW_HALL !== 'undefined' ? ANW_HALL : { x: -900, z: 900 };
+  // ---- K4 · „Noch nicht“ – nach der Stimme in der Villa
+  kino_def('k4', [
+    { from: [H.x, 1.2, H.z + 1], to: [H.x, 1.6, H.z + 2.2], look: [H.x, 5.8, H.z + 4.8], dur: 8, fov: 50, fadeIn: 1200,
+      tick(k, t) { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null, b = .75 + .35 * Math.sin(t * 1.3); if (A && A.upLight) A.upLight.intensity = .9 * b;
+        kino_S.lit[0] = kino_S.litU || (kino_S.litU = { p: kino_V(H.x, 5.6, H.z + 4.6), c: 0xfff0d8, d: 9, i: 0 }); kino_S.litU.i = 2.6 * b; }, env: { exp: 1.5 },
+      sfx: [[() => Audio.stepAt && Audio.stepAt(H.x - .4, H.z + 4.6, .5), 1.2], [() => Audio.stepAt && Audio.stepAt(H.x, H.z + 4.8, .45), 1.65], [() => Audio.stepAt && Audio.stepAt(H.x + .4, H.z + 4.7, .4), 2.1], [() => Audio.musicBox && Audio.musicBox(), 3]],
+      teardown() { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (A && A.upLight) A.upLight.intensity = .9; } },
+    { from: [H.x - 5.7, 1.6, H.z + 1.5], to: [H.x - 6.1, 1.55, H.z + 1.5], look: [H.x - 6.88, 1.5, H.z + 1.5], dur: 7, fov: 40, env: { exp: 1.5 },
+      setup() { kino_still(true, 1.5); kino_S.lit[0] = { p: kino_V(H.x - H.w / 2 + .7, 1.6, H.z + H.d / 2 - 1), c: 0xffa860, d: 8, i: 2.4 }; }, teardown() { kino_still(false, 1); } },
+    { from: [-127, 1.7, 50], to: [-126, 2.4, 53], dur: 9, fov: 44,
+      look: sh => { const f = kino_villaFenster(); return [f.x, f.y + .4, f.z]; },
+      setup(sh) { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, R = OW && OW.dbg && OW.dbg.R; sh.reg = []; if (R) for (const k of ['villa', 'allot', 'wRoad']) if (R[k]) { sh.reg.push([R[k], R[k].g.visible]); R[k].g.visible = true; }
+        const vb = OW && OW.vbb, fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 0; kino_S.obj.flammeSchein.material.opacity = 0; sh.gable = vb ? kino_V(-125, vb.max.y + .05, (vb.min.z + vb.max.z) / 2) : kino_V(-125, 12.5, 70); },
+      tick(k, t) { const f = t > 2 && t < 4 ? Math.min(1, (t - 2) / .15, (4 - t) / .25) : 0; kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
+      sfx: [[sh => kino_rabeFly(kino_V(-110, 16, 58), sh.gable, 3.2), 4.6], [sh => Audio.caw(sh.gable.x, sh.gable.y, sh.gable.z), 8]],
+      teardown(sh) { for (const [r, v] of sh.reg) r.g.visible = v; kino_hide('flamme', 'flammeSchein', 'rabe'); } },
+    { black: true, dur: 6, fadeOut: 1600 },
+  ], { name: 'Noch nicht (Übergang, alte Fassung)', skipAfter: 3 });
+
+  // ---- K5 · „Kein Echo“ – nach „Komm heim.“
+  const waldZeigen = sh => { const W = typeof wald_S !== 'undefined' ? wald_S : null; sh.wald = []; if (W && W.chunks) for (const c of W.chunks) for (const m of c.meshes) sh.wald.push([m, m.visible]); };
+  const waldTick = (sh, cx, cz) => { const W = typeof wald_S !== 'undefined' ? wald_S : null; if (!W || !W.chunks) return; for (const c of W.chunks) { const v = Math.hypot(c.x - cx, c.z - cz) < c.vis + 10; for (const m of c.meshes) m.visible = v; } };
+  const waldAus = sh => { for (const [m, v] of sh.wald || []) m.visible = v; };
+  kino_def('k5', [
+    { from: [30, 1.5, 96.8], to: [30, 1.48, 97.1], look: [30, 1.4, 106], dur: 6, fov: 50, fadeIn: 900, hand: .2,
+      setup(sh) { waldZeigen(sh); waldTick(sh, 30, 100); kino_still(true, .3); }, tick(k, t, dt, sh) { if (t > 2 && !sh.b) { sh.b = 1; kino_S.sv && kino_still(false, 2.5); kino_atem(.1, .8); } },
+      sfx: [[() => kino_atem(.1, .8), 4.2]], teardown(sh) { waldAus(sh); } },
+    { from: [31, 1.4, 101], to: [31, 1.2, 99.5], look: [30, 1.4, 92], dur: 8, fov: 48,
+      setup(sh) { waldZeigen(sh); waldTick(sh, 30, 98); const P = kino_S.sv.pos; sh.lk = [P.x, P.z]; kino_S.flash = { p: kino_V(P.x, 1.5, P.z), at: kino_V(31.5, 1.2, 104), i: 14 };
+        kino_fig('lucy', 30.4, 0, 86.5, 0, 'walk', { ts: .7 }); kino_show('laterne'); kino_show('lampe', P.x + .15, 1.45, P.z + .25); },
+      tick(k, t, dt, sh) { const L = kino_S.fig.lucy, z = 86.5 + 5 * Math.min(1, t / 7); if (L) { L.g.position.z = z; } const l = kino_S.obj.laterne; l.position.set(30.62, .72, z + .25); l.rotation.set(Math.sin(t * 3) * .12, 0, Math.sin(t * 2.4) * .1);
+        kino_S.lucyLight.position.set(30.62, .9, z + .25); kino_S.lucyLight.intensity = 2.4 * (.94 + .06 * Math.sin(t * 11)); kino_S.lit[0] = kino_S.litL || (kino_S.litL = { p: kino_V(0, 0, 0), c: 0xffb060, d: 7, i: 0 }); kino_S.litL.p.copy(kino_S.lucyLight.position); kino_S.litL.i = kino_S.lucyLight.intensity;
+        kino_S.obj.lampe.material.opacity = .75 + .1 * Math.sin(t * 9); },
+      lines: [['„Großer.“', 'LUCY', 4.4, 3200]],
+      teardown(sh) { waldAus(sh); kino_figOff('lucy'); kino_hide('laterne', 'lampe'); kino_S.lucyLight.intensity = 0; } },
+    { from: [26, 3, 90], to: [10, 30, 70], look: [-40, 0, 40], lookTo: [-48, 0, 58], dur: 10, fov: 52, env: 'vista', hand: .2,
+      setup() { const fp = kino_villaFenster(); kino_show('flamme', fp.x, fp.y, fp.z); kino_show('flammeSchein', fp.x, fp.y, fp.z + .05); kino_S.obj.flamme.material.opacity = 1; kino_S.obj.flammeSchein.material.opacity = .45; },
+      tick(k, t) { const f = t < 6 ? 1 : Math.max(0, 1 - (t - 6) / .5); kino_S.obj.flamme.material.opacity = f; kino_S.obj.flammeSchein.material.opacity = .45 * f; },
+      teardown() { kino_hide('flamme', 'flammeSchein'); } },
+    { from: [60, 9, 94], to: [60.4, 8.8, 94.6], look: [70, 2, 119], dur: 8, fov: 32, hand: .15,
+      setup(sh) { waldZeigen(sh); waldTick(sh, 66, 110); kino_show('hirsch', 70, 0, 119, -2.6); },
+      tick(k, t) { const o = kino_S.obj.hirsch; o.visible = t > 2.4 && t < 3.6; const Hd = kino_S.hirschHead; if (Hd && kino_S.hirschQ) { Hd.quaternion.copy(kino_S.hirschQ); if (t > 2.6) Hd.rotateY(Math.min(1, (t - 2.6) / .8) * 1.9); } },
+      sfx: [[() => kino_reh(64, 3, 118), 4.6]],
+      teardown(sh) { waldAus(sh); kino_hide('hirsch'); if (kino_S.hirschHead && kino_S.hirschQ) kino_S.hirschHead.quaternion.copy(kino_S.hirschQ); } },
+    { black: true, dur: 8, fadeOut: 1400, setup() { kino_still(true, 3); } },
+  ], { name: 'Kein Echo (Übergang, alte Fassung)', skipAfter: 3 });
+
+  // ---- K6 · „Der Morgen“ – nach dem Epilog auf dem Hochsitz
+  kino_def('k6', [
+    { black: true, dur: 8, lines: [['Du machst die Augen erst auf, als du unten bist.', '', 1.2, 6200]],
+      sfx: [[() => kino_stoff(.06), .5], [() => kino_atem(.06, 1.25), 1.6], [() => Audio.flap && Audio.flap(kino_S.sv.pos.x + .5, 2, kino_S.sv.pos.z), 3.4], [() => kino_atem(.05, 1.25), 4.8], [() => kino_stoff(.04), 6.4]] },
+    { from: [14, 1.4, 174.6], to: [14.3, 2.9, 175.4], look: [14.1, 3.4, 178.5], lookTo: [14.15, 3.9, 178.9], dur: 8, fov: 46, env: 'dawn', fadeIn: 1400,
+      // Hochsitz aus tiefwald.js (TIEF.stand, Plattform 3,1 m); der Junge sitzt wie in kapitel6.js (P11 blendet seinen während K6 aus), Whiskey bleibt der echte Rabe auf dem Geländer
+      setup() { const TS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }; kino_fig('echt', TS.x + .15, 3.1, TS.z + .42, 0, 'idle', { sit: 3.56 }); const j = kino_show('jacke', TS.x + .15, 3.62, TS.z + .32, 0); j.rotation.set(-.15, 0, 0);
+        const W = typeof whiskey_S !== 'undefined' && whiskey_S.g && whiskey_S.g.visible && Math.hypot(whiskey_S.g.position.x - TS.x, whiskey_S.g.position.z - TS.z) < 4 ? whiskey_S.g.position : null;
+        const rx = W ? W.x : TS.x + .95, ry = W ? W.y : 4.02, rz = W ? W.z : TS.z; if (!W) { const R = kino_S.rabe; if (R) { R.g.position.set(rx, ry, rz); R.g.rotation.y = -PI / 2; R.g.visible = true; kino_rabeClip('IdleLookAround'); } }
+        kino_show('rabeSchein', rx, ry + .25, rz); kino_S.rabeLight.position.set(rx, ry + .25, rz); },
+      tick(k, t) { const f = Math.max(0, 1 - t / 7), o = kino_S.obj.rabeSchein; kino_S.rabeLight.intensity = 1.6 * f; o.material.opacity = .8 * f; kino_S.lit[0] = kino_S.litR || (kino_S.litR = { p: kino_V(0, 0, 0), c: 0xdfe9ff, d: 7, i: 0 }); kino_S.litR.p.copy(o.position); kino_S.litR.i = 1.6 * f; },
+      sfx: [[() => kino_vogel(6, 8, 184), 2], [() => kino_vogel(24, 9, 170, 4), 5.5]] },
+    { from: [14, 21, 180], to: [13.4, 21.4, 178.8], look: [-8, 3, 60], dur: 10, fov: 42, env: 'haze', hand: .2,
+      setup() { kino_lamps(L => { L._m = L.mode; L.mode = 'on'; }); kino_S.k6i = 0; },
+      tick(k, t) { const n = Math.floor((t - 2) / .9); if (typeof lamps !== 'undefined') while (kino_S.k6i < Math.min(n, lamps.length)) lamps[kino_S.k6i++].mode = 'off'; },
+      sfx: [[() => kino_vogel(8, 9, 186), .8], [() => kino_vogel(22, 10, 172, 4), 3], [() => kino_vogel(-4, 8, 180), 6.4]] },
+    { from: [-12.2, 1.5, 205.2], to: [-12.6, 1.45, 205.8], look: [-13.9, 1.3, 207.6], dur: 8, fov: 38, env: 'dawn',
+      setup(sh) { const H = typeof hungrige_S !== 'undefined' ? hungrige_S : null; sh.sk = H && H.skull ? H.skull.visible : null; if (H && H.skull) H.skull.visible = false; },
+      sfx: [[() => kino_reh(-4, 2, 214), 3.5]] },
+    { black: true, dur: 8, fadeOut: 1400, setup() { kino_still(true, 3); } },
+  ], { name: 'Gleich wieder da (Übergang, alte Fassung)', skipAfter: 3, done() { kino_lamps(L => { if (L._m !== undefined) { L.mode = L._m; delete L._m; } }); kino_figOff('echt'); } });
+}
+
 // Dachfenster der Villa Seiler (Mansion-Scan aus ausbau_ost_west): vorn in der linken Gaube; ohne Hülle die Planwerte aus PK-F
 function kino_villaFenster() { const S = kino_S; if (S.vlit === undefined) { S.vlit = null; scene.traverse(o => { if (!S.vlit && o.isMesh && o.geometry && o.geometry.parameters && Math.abs(o.geometry.parameters.width - 1.5) < .01 && Math.abs(o.geometry.parameters.height - 1.78) < .01 && o.material && o.material.emissive && o.material.emissiveIntensity > 1) S.vlit = o; }); }
   if (S.vlit) { const p = S.vlit.getWorldPosition(kino_S.a); return { x: p.x, y: p.y - .28, z: p.z - .06 }; }
@@ -811,7 +1219,7 @@ function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) r
 window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), karte: (l, o) => kino_karte(l, o),
   hold: on => { kino_S.hold = !!on; }, // Standbild (Zeit steht) – für Kontaktbögen
   outage: () => startOutage(), // Kapitel 1: Stromausfall auslösen (Test)
-  seek: t => { const S = kino_S; if (!S.on) return 'aus'; S.hold = false; let n = 0; while (S.on && S.T < t && n++ < 4000) { const dt = 1 / 30; update(dt, S.T); } S.hold = true; return S.id + ' ' + S.T.toFixed(2) + ' ' + S.i; },
+  seek: async t => { const S = kino_S; for (let m = 0; m < 600 && S.on && S.i < 0; m++) await wait(50); if (!S.on) return 'aus'; S.hold = false; let n = 0; while (S.on && S.T < t && n++ < 4000) { const dt = 1 / 30; update(dt, S.T); } S.hold = true; return S.id + ' ' + S.T.toFixed(2) + ' ' + S.i; },
   fps: () => { const F = kino_S.fps; return F.t > 0 ? Math.round(F.n / F.t) : 0; },
   cam: (p, l, f = 60) => { setCamOverride(cam => { cam.position.set(...p); cam.lookAt(...l); if (cam.fov !== f) { cam.fov = f; cam.updateProjectionMatrix(); } }); }, free: () => { setCamOverride(null); camera.fov = fov; camera.updateProjectionMatrix(); },
   info: () => ({ fenster: kino_villaFenster(), zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, helm: kino_helm(true), lens: !!kino_S.lens, ready: kino_S.ready,

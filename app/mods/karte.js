@@ -18,7 +18,10 @@ const KARTE_BL = [
 ];
 const KARTE_LEER = [{ x: 1.5, z: 199.6, r: 9 }, { x: -13.2, z: 206.8, r: 11 }]; // Fraßstelle und Bau: „Der Wald hat kein Echo“ – hier bleibt das Blatt weiß
 const KARTE_PAD = 120;
+const KARTE_CPU = { willReadFrequently: true }; // Zeichenflächen der Karte im Arbeitsspeicher, nicht im knappen Grafikspeicher
 const karte_bl = id => KARTE_BL.find(b => b.id === id);
+const karte_korn = (dichte, farbe, seed) => { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d', KARTE_CPU), R = karte_rng(seed || 7); x.fillStyle = farbe;
+  for (let i = 0; i < 65536 * dichte; i++) x.fillRect(R() * 256, R() * 256, 1.2 + R() * .8, 1.2 + R() * .8); return c; };
 function karte_blatt(id, g) { const b = karte_bl(id); if (b && g) { Object.assign(b, g); delete karte_S.ink[id]; karte_dims(b); } return b; }
 function karte_dims(b) { const gw = Math.ceil((b.x1 - b.x0) / b.zelle), gh = Math.ceil((b.z1 - b.z0) / b.zelle); const d = karte_S.dims[b.id];
   if (!d || d[0] !== gw || d[1] !== gh) { karte_S.dims[b.id] = [gw, gh]; const alt = karte_S.g[b.id]; karte_S.g[b.id] = new Uint8Array(gw * gh); if (alt && alt.length === gw * gh) karte_S.g[b.id].set(alt); } }
@@ -68,8 +71,8 @@ function karte_baum(x, R, cx, cy, r, o = {}) { // Krone als Wolkenlinie, Schatte
   x.beginPath(); pts.forEach((p, i) => { const q = pts[(i + 1) % n], am = (p[2] + (i + 1 === n ? q[2] + 6.283 : q[2])) / 2, rr = r * (1.12 + R() * .14);
     if (!i) x.moveTo(p[0], p[1]); x.quadraticCurveTo(cx + Math.cos(am) * rr, cy + Math.sin(am) * rr, q[0], q[1]); }); x.closePath();
   x.fillStyle = o.fuell || 'rgba(236,228,206,.5)'; x.fill(); x.lineWidth = o.w || 1.6; x.strokeStyle = `rgba(42,40,46,${o.a ?? .7})`; x.stroke();
-  x.save(); x.clip(); x.lineWidth = 1.1; x.strokeStyle = `rgba(42,40,46,${(o.a ?? .7) * .42})`; x.beginPath(); // Schatten
-  for (let t = -r; t < r; t += 3.4) { const px = cx + t, py = cy + r * .25; x.moveTo(px + r * .5, py + r * .9); x.lineTo(px + r * .95, py - r * .1 + (R() - .5) * 2); } x.stroke(); x.restore();
+  x.lineWidth = 1.1; x.strokeStyle = `rgba(42,40,46,${(o.a ?? .7) * .42})`; x.beginPath(); // Schatten unten rechts: kurze Striche innerhalb der Krone
+  for (let a = .15; a < 1.75; a += .22) { const ca = Math.cos(a), sa = Math.sin(a), r0 = r * (.35 + R() * .15), r1 = r * .86; x.moveTo(cx + ca * r0 - sa * 2, cy + sa * r0 + ca * 2); x.lineTo(cx + ca * r1, cy + sa * r1); } x.stroke();
   if (r > 5) { x.fillStyle = 'rgba(42,40,46,.7)'; x.beginPath(); x.arc(cx + (R() - .5) * 1.5, cy + (R() - .5) * 1.5, Math.max(1.3, r * .08), 0, 7); x.fill(); }
 }
 function karte_hand(x, text, px, py, size, o = {}) { // Lukes Handschrift (Caveat), Bleistift; o.rot, o.col, o.align
@@ -112,30 +115,36 @@ function karte_sammeln(b) { // alles, was im Blatt liegt, als einfache Formen (W
     if (hs && !ir) continue; // Körper des Hauses selbst (Dach, Wände) zeichnet das Haus
     if (q.min.y > (ir ? 1.9 : 1.6) && !it.soft) continue; // Dächer, Lampenköpfe, Überhänge
     const f = karte_fuss(it.o.geometry, it.mw); let art;
-    if (it.soft || /tree|bush|shrub|fern|plant|hedge|ivy|leaf|foliage|conifer|pine|birch|oak|baum|busch/i.test(name)) art = f.l1 > 1.3 ? 'baum' : 'kraut';
+    let gruen = false; for (let p = it.o; p; p = p.parent) if (p.name === 'gruen' || p.name === 'wald') { gruen = true; break; }
+    if (gruen && f.l2 < .5 && f.l1 > 1.1) art = 'zaun';
+    else if (gruen && f.l1 > 2.2 && f.l1 / Math.max(f.l2, .1) > 2.2) art = 'hecke';
+    else if ((it.inst || !name) && h > (it.inst ? 2.2 : 3) && f.l1 > .8 && f.l1 < 9.5 && f.l2 / f.l1 > .45) art = 'baum'; // instanzierte hohe Körper sind Bäume (Straßen-, Garten-, Grenzbäume)
+    else if (it.soft || gruen || /tree|bush|shrub|fern|plant|hedge|ivy|leaf|foliage|conifer|pine|birch|oak|baum|busch/i.test(name)) art = f.l1 > 1.3 ? 'baum' : 'kraut';
     else if (/car|vehicle|truck|van|tractor|bus\b|wagen/i.test(name)) art = 'auto';
     else if (f.l2 < .5 && f.l1 > 1.1) art = h > 1.9 ? 'wand' : 'zaun';
     else if (f.l1 * f.l2 > 22 && h > 2.3) art = 'bau';
-    else if (Math.max(f.l1, f.l2) < .22) continue; else art = 'ding';
+    else if (Math.max(f.l1, f.l2) < .22 || f.l1 > 10) continue; else art = 'ding'; // zusammengeführte Riesenhüllen nicht als Kasten zeichnen
     D.koerper.push({ art, hull: f.hull, cx, cz, r: f.l1 / 2, l1: f.l1, l2: f.l2, h, innen: !!ir, name, soft: it.soft, inst: it.inst }); }
   return D;
 }
 function karte_tinte(b) { // Blatt zeichnen: Bodenflächen (Vereinigung + Kontur), Körper, Häuser, Laternen, Wege
-  const t0 = performance.now(), D = karte_sammeln(b), s = b.s, W = Math.ceil((b.x1 - b.x0) * s), Hh = Math.ceil((b.z1 - b.z0) * s), R = karte_rng(b.id.length * 7777 + 13);
+  const t0 = performance.now(), D = karte_sammeln(b), tS = performance.now(), s = b.s, W = Math.ceil((b.x1 - b.x0) * s), Hh = Math.ceil((b.z1 - b.z0) * s), R = karte_rng(b.id.length * 7777 + 13);
   const X = x => (b.x1 - x) * s, Y = z => (b.z1 - z) * s, pt = p => [X(p[0]), Y(p[1])]; // Blick von oben, Norden (Wald) oben – nicht gespiegelt zur Laufrichtung
-  const c = document.createElement('canvas'); c.width = W; c.height = Hh; const x = c.getContext('2d');
-  const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = Hh; const tx = tmp.getContext('2d');
+  const c = document.createElement('canvas'); c.width = W; c.height = Hh; const x = c.getContext('2d', KARTE_CPU);
+  const tmp = document.createElement('canvas'); tmp.width = W; tmp.height = Hh; const tx = tmp.getContext('2d', KARTE_CPU);
+  { x.strokeStyle = 'rgba(42,40,46,.32)'; x.lineWidth = 1; x.beginPath(); const n = W * Hh / (b.id === 'wald' ? 2600 : 5200);
+    for (let i = 0; i < n; i++) { const px = R() * W, py = R() * Hh, r = 3 + R() * 3; for (let k = -1; k <= 1; k++) { x.moveTo(px + k * r * .5, py); x.lineTo(px + k * r * .9 + (R() - .5) * 1.5, py - r * (.8 + R() * .5)); } } x.stroke(); }
   // 1) Bodenflächen: Maske je Art, Kontur über Verschieben (verbundene Straßen ohne Nähte), Füllung als Punkte/Kies
   const flach = (liste, o) => { if (!liste.length) return; tx.clearRect(0, 0, W, Hh); tx.globalCompositeOperation = 'source-over'; tx.fillStyle = '#000'; for (const h of liste) { karte_poly(tx, h.map(pt)); tx.fill(); }
-    const mask = document.createElement('canvas'); mask.width = W; mask.height = Hh; mask.getContext('2d').drawImage(tmp, 0, 0);
+    const mask = document.createElement('canvas'); mask.width = W; mask.height = Hh; mask.getContext('2d', KARTE_CPU).drawImage(tmp, 0, 0); karte_S.tmpM = mask;
     if (o.fuell) { tx.globalCompositeOperation = 'source-in'; tx.fillStyle = o.fuell; tx.fillRect(0, 0, W, Hh); tx.globalCompositeOperation = 'source-over'; x.drawImage(tmp, 0, 0); }
-    if (o.punkte) { tx.clearRect(0, 0, W, Hh); tx.fillStyle = `rgba(42,40,46,${o.punkte})`; const n = W * Hh / (o.dichte || 260); for (let i = 0; i < n; i++) { const px = R() * W, py = R() * Hh; tx.fillRect(px, py, 1.4 + R(), 1.4 + R()); }
+    if (o.punkte) { tx.clearRect(0, 0, W, Hh); tx.fillStyle = tx.createPattern(karte_korn(1.6 / (o.dichte || 260) * 42, `rgba(42,40,46,${o.punkte})`, o.dichte), 'repeat'); tx.fillRect(0, 0, W, Hh);
       tx.globalCompositeOperation = 'destination-in'; tx.drawImage(mask, 0, 0); tx.globalCompositeOperation = 'source-over'; x.drawImage(tmp, 0, 0); }
     if (o.rand) { tx.clearRect(0, 0, W, Hh); const d = o.rand; for (let k = 0; k < 8; k++) { const a = k / 8 * 6.283; tx.drawImage(mask, Math.cos(a) * d, Math.sin(a) * d); }
       tx.globalCompositeOperation = 'source-in'; tx.fillStyle = `rgba(42,40,46,${o.ra || .8})`; tx.fillRect(0, 0, W, Hh); tx.globalCompositeOperation = 'destination-out'; tx.drawImage(mask, 0, 0);
-      tx.globalCompositeOperation = 'source-over'; x.save(); x.filter = 'blur(.35px)'; x.drawImage(tmp, 0, 0); x.restore(); } };
+      tx.globalCompositeOperation = 'source-over'; x.drawImage(tmp, 0, 0); } mask.width = mask.height = 0; };
   flach(D.flach.flaeche, { punkte: .16, dichte: 520, rand: 1.2, ra: .32 });
-  flach(D.flach.pfad, { punkte: .3, dichte: 170 });
+  flach(D.flach.pfad, { punkte: .2, dichte: 220 });
   flach(D.flach.weg, { fuell: 'rgba(232,225,205,.9)', rand: 1.3, ra: .55 });
   flach(D.flach.strasse, { fuell: 'rgba(214,208,192,.95)', punkte: .12, dichte: 900, rand: 1.9, ra: .85 });
   // Waldwege (Polylinien der Module) als gestrichelte Doppellinie
@@ -144,6 +153,7 @@ function karte_tinte(b) { // Blatt zeichnen: Bodenflächen (Vereinigung + Kontur
   if (b.id === 'wald' && typeof TIEF !== 'undefined' && TIEF.pond) { const p = TIEF.pond, cx = X(p.x), cy = Y(p.z); x.save(); x.beginPath(); x.ellipse(cx, cy, p.rx * s, p.rz * s, .1, 0, 7); x.fillStyle = 'rgba(220,214,198,.9)'; x.fill(); x.clip();
     x.strokeStyle = 'rgba(42,40,46,.35)'; x.lineWidth = 1.2; for (let yy = cy - p.rz * s; yy < cy + p.rz * s; yy += 7) { x.beginPath(); for (let xx = cx - p.rx * s; xx < cx + p.rx * s; xx += 6) x.lineTo(xx, yy + Math.sin(xx * .15 + yy) * 1.6); x.stroke(); } x.restore();
     karte_linie(x, R, Array.from({ length: 28 }, (_, i) => [cx + Math.cos(i / 28 * 6.283) * p.rx * s, cy + Math.sin(i / 28 * 6.283) * p.rz * s]), { zu: 1, w: 2, a: .75, ueber: 0 }); }
+  const tF = performance.now();
   // 2) Körper: Kraut, Bäume, Zäune, Dinge, Autos, Haufen, Bauten (Bauten zuletzt, damit sie verdecken)
   const K = D.koerper, nach = a => K.filter(k => k.art === a);
   x.strokeStyle = 'rgba(42,40,46,.45)'; x.lineWidth = 1.1; x.beginPath(); for (const k of nach('kraut')) { const cx = X(k.cx), cy = Y(k.cz), r = Math.max(2.2, k.r * s * .7); for (let i = -1; i <= 1; i++) { x.moveTo(cx + i * r * .55, cy + r * .4); x.lineTo(cx + i * r * .75 + (R() - .5), cy - r * .5); } } x.stroke();
@@ -155,12 +165,19 @@ function karte_tinte(b) { // Blatt zeichnen: Bodenflächen (Vereinigung + Kontur
     for (let i = 0; i <= n; i++) { const t = i / n, px = a[0] + (bb2[0] - a[0]) * t, py = a[1] + (bb2[1] - a[1]) * t, ux = (bb2[0] - a[0]) / d, uy = (bb2[1] - a[1]) / d; x.moveTo(px - uy * 3, py + ux * 3); x.lineTo(px + uy * 3, py - ux * 3); } x.stroke(); }
   for (const k of nach('wand')) { const P = k.hull.map(pt); karte_poly(x, P); x.fillStyle = 'rgba(46,43,48,.78)'; x.fill(); karte_linie(x, R, P, { zu: 1, w: 1.4, a: .7, zuege: 1, ueber: 1.5 }); }
   for (const k of nach('auto')) { const P = k.hull.map(pt); karte_poly(x, P); x.fillStyle = 'rgba(232,225,205,.8)'; x.fill(); karte_linie(x, R, P, { zu: 1, w: 1.6, a: .72, ueber: 1.5 }); karte_schraff(x, R, P, { d: 3.6, a: .28, ang: .6 }); }
+  for (const k of nach('hecke')) { const P = k.hull.map(pt), Q = []; for (let i = 0; i < P.length; i++) { const a = P[i], c2 = P[(i + 1) % P.length], L = Math.hypot(c2[0] - a[0], c2[1] - a[1]) || 1, n2 = Math.max(1, Math.round(L / 7));
+      for (let j = 0; j < n2; j++) { const t = j / n2, ux = (c2[0] - a[0]) / L, uy = (c2[1] - a[1]) / L, bump = (j % 2 ? 2.2 : -.4) + R() * 1.2; Q.push([a[0] + (c2[0] - a[0]) * t + uy * bump, a[1] + (c2[1] - a[1]) * t - ux * bump]); } }
+    karte_poly(x, Q); x.fillStyle = 'rgba(232,225,205,.7)'; x.fill(); karte_schraff(x, R, Q, { d: 3.2, a: .22, ang: .9 }); karte_linie(x, R, Q, { zu: 1, w: 1.4, a: .62, zuege: 1, ueber: 0 }); }
+  const schatten = P => { const S2 = P.map(p => [p[0] + 7, p[1] + 9]); karte_schraff(x, R, karte_huelle(P.concat(S2)), { d: 3, a: .3, ang: .7, w: 1 }); };
+  for (const k of nach('bau')) schatten(k.hull.map(pt));
+  for (const h of D.haeuser) schatten([[h.x - h.w / 2, h.z - h.d / 2], [h.x + h.w / 2, h.z - h.d / 2], [h.x + h.w / 2, h.z + h.d / 2], [h.x - h.w / 2, h.z + h.d / 2]].map(pt));
   const baeume = nach('baum').sort((p, q) => q.cz - p.cz); for (const k of baeume) karte_baum(x, R, X(k.cx), Y(k.cz), Math.max(3, Math.min(k.r, 7) * s * .9), { a: b.id === 'wald' ? .62 : .72 });
   for (const k of nach('bau')) { const P = k.hull.map(pt); karte_poly(x, P); x.fillStyle = 'rgba(234,227,207,.96)'; x.fill(); karte_schraff(x, R, P, { d: 5.5, a: .3, ang: -.75, kreuz: k.h > 7 });
     karte_linie(x, R, P, { zu: 1, w: 2.6, a: .85, ueber: 4 }); }
+  const tK = performance.now();
   // 3) Häuser aus HOUSES: Grundriss, First, halbes Dach schraffiert, Tür; begehbare (hohle) Häuser als Grundriss mit Innenwänden
   for (const h of D.haeuser) { const hw = h.w / 2, hd = h.d / 2, P = [[h.x - hw, h.z - hd], [h.x + hw, h.z - hd], [h.x + hw, h.z + hd], [h.x - hw, h.z + hd]].map(pt);
-    x.save(); x.shadowColor = 'rgba(40,30,20,.22)'; x.shadowBlur = 5; x.shadowOffsetX = -3; x.shadowOffsetY = 4; karte_poly(x, P); x.fillStyle = h.hollow ? 'rgba(236,229,210,.35)' : 'rgba(236,229,210,.97)'; x.fill(); x.restore();
+    x.save(); karte_poly(x, P); x.fillStyle = h.hollow ? 'rgba(236,229,210,.35)' : 'rgba(236,229,210,.97)'; x.fill(); x.restore();
     if (!h.hollow) { const hx = [[h.x, h.z - hd], [h.x - hw, h.z - hd], [h.x - hw, h.z + hd], [h.x, h.z + hd]].map(pt); karte_schraff(x, R, hx, { d: 4.2, a: .34, ang: Math.PI / 2 + (R() - .5) * .06 });
       karte_linie(x, R, [pt([h.x, h.z - hd - .3]), pt([h.x, h.z + hd + .3])], { w: 1.8, a: .8 });
       if (h.chimney) { const cx = h.x + h.w * .28 * (h.facing > 0 ? 1 : -1), cz = h.z - h.d * .2 * (h.facing > 0 ? 1 : -1); const Q = [[cx - .45, cz - .45], [cx + .45, cz - .45], [cx + .45, cz + .45], [cx - .45, cz + .45]].map(pt); karte_poly(x, Q); x.fillStyle = 'rgba(46,43,48,.6)'; x.fill(); } }
@@ -177,13 +194,12 @@ function karte_tinte(b) { // Blatt zeichnen: Bodenflächen (Vereinigung + Kontur
     x.beginPath(); x.arc(cx, cy, 3.4, 0, 7); x.fillStyle = 'rgba(236,229,210,1)'; x.fill(); x.lineWidth = 1.5; x.strokeStyle = 'rgba(42,40,46,.85)'; x.stroke();
     x.beginPath(); for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283 + .3; x.moveTo(cx + Math.cos(a) * 5.5, cy + Math.sin(a) * 5.5); x.lineTo(cx + Math.cos(a) * 8.5, cy + Math.sin(a) * 8.5); } x.lineWidth = 1; x.stroke(); }
   // Körnung: Graphit ist nie ganz geschlossen
-  tx.clearRect(0, 0, W, Hh); tx.globalCompositeOperation = 'source-over'; tx.fillStyle = '#000'; const n = W * Hh / 60; for (let i = 0; i < n; i++) tx.fillRect(R() * W, R() * Hh, 1.2, 1.2);
-  x.save(); x.globalCompositeOperation = 'destination-out'; x.globalAlpha = .28; x.drawImage(tmp, 0, 0); x.restore();
-  karte_S.ms = Math.round(performance.now() - t0); return c;
+  x.save(); x.globalCompositeOperation = 'destination-out'; x.globalAlpha = .28; x.fillStyle = x.createPattern(karte_korn(.017, '#000', 11), 'repeat'); x.fillRect(0, 0, W, Hh); x.restore();
+  tmp.width = tmp.height = 0; karte_S.ms = Math.round(performance.now() - t0); karte_S.prof = { daten: Math.round(tS - t0), boden: Math.round(tF - tS), koerper: Math.round(tK - tF), n: D.koerper.length }; return c;
 }
 // ---------------------------------------------------------------------  Papier (einmal je Blatt): Karopapier, Knicke, Kaffeefleck, Klebeband, Kopf in Lukes Hand
 function karte_papier(b, W, Hh) {
-  const PW = W + KARTE_PAD * 2, PH = Hh + KARTE_PAD * 2, c = document.createElement('canvas'); c.width = PW; c.height = PH; const x = c.getContext('2d'), R = karte_rng(b.id.charCodeAt(0) * 911 + 3);
+  const PW = W + KARTE_PAD * 2, PH = Hh + KARTE_PAD * 2, c = document.createElement('canvas'); c.width = PW; c.height = PH; const x = c.getContext('2d', KARTE_CPU), R = karte_rng(b.id.charCodeAt(0) * 911 + 3);
   const E = []; const n = 60; for (let i = 0; i <= n; i++) E.push([18 + (PW - 36) * i / n, 16 + R() * 6]); for (let i = 0; i <= n; i++) E.push([PW - 18 - R() * 6, 18 + (PH - 36) * i / n]);
   for (let i = n; i >= 0; i--) E.push([18 + (PW - 36) * i / n, PH - 16 - R() * 7]); for (let i = n; i >= 0; i--) E.push([16 + R() * 5, 18 + (PH - 36) * i / n]);
   x.save(); x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 26; x.shadowOffsetY = 10; karte_poly(x, E); x.fillStyle = b.id === 'wald' ? '#ddd0b0' : '#e6dcc2'; x.fill(); x.restore();
@@ -191,7 +207,7 @@ function karte_papier(b, W, Hh) {
   let g = x.createRadialGradient(PW * .45, PH * .42, 100, PW / 2, PH / 2, PW * .75); g.addColorStop(0, b.id === 'wald' ? '#e6dabd' : '#efe6ce'); g.addColorStop(.7, b.id === 'wald' ? '#d3c29c' : '#e0d3b3'); g.addColorStop(1, '#b9a47b'); x.fillStyle = g; x.fillRect(0, 0, PW, PH);
   // Karo (5 mm), blass blau, wie in einem Schulheft
   const k = 34; x.lineWidth = 1; x.strokeStyle = 'rgba(80,110,160,.17)'; x.beginPath(); for (let px = 24 + R() * k; px < PW; px += k) { x.moveTo(px, 0); x.lineTo(px + 2, PH); } for (let py = 20 + R() * k; py < PH; py += k) { x.moveTo(0, py); x.lineTo(PW, py + 1.5); } x.stroke();
-  for (let i = 0; i < PW * PH / 90; i++) { x.fillStyle = `rgba(${R() < .5 ? '110,85,50' : '255,252,240'},${R() * .07})`; x.fillRect(R() * PW, R() * PH, 1 + R() * 2, 1 + R() * 2); }
+  x.fillStyle = x.createPattern(karte_korn(.012, 'rgba(110,85,50,.07)', 21), 'repeat'); x.fillRect(0, 0, PW, PH); x.fillStyle = x.createPattern(karte_korn(.012, 'rgba(255,252,240,.08)', 22), 'repeat'); x.fillRect(0, 0, PW, PH);
   x.lineWidth = .8; for (let i = 0; i < 700; i++) { const px = R() * PW, py = R() * PH, l = 5 + R() * 18, a = R() * 6.28; x.strokeStyle = `rgba(110,85,50,${.05 + R() * .07})`; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
   // Knicke (einmal längs, einmal quer gefaltet): heller Grat, dunkle Kehle, abgeriebenes Karo
   for (const [ax, ay, bx, by] of [[PW * .5 + (R() - .5) * 20, 0, PW * .5 + (R() - .5) * 20, PH], [0, PH * .5 + (R() - .5) * 16, PW, PH * .5 + (R() - .5) * 16]]) {
@@ -215,11 +231,12 @@ function karte_papier(b, W, Hh) {
 }
 // ---------------------------------------------------------------------  Zusammensetzen (beim Öffnen und nach Änderungen – nie im Tick)
 function karte_maske(b, W, Hh) { // Nebel: Raster weich hochskaliert, körnig ausgefranst
-  const [gw, gh] = karte_S.dims[b.id], G = karte_S.g[b.id], sm = document.createElement('canvas'); sm.width = gw + 2; sm.height = gh + 2; const sx = sm.getContext('2d'), id = sx.createImageData(gw + 2, gh + 2);
+  const [gw, gh] = karte_S.dims[b.id], G = karte_S.g[b.id], sm = document.createElement('canvas'); sm.width = gw + 2; sm.height = gh + 2; const sx = sm.getContext('2d', KARTE_CPU), id = sx.createImageData(gw + 2, gh + 2);
   for (let j = 0; j < gh; j++) for (let i = 0; i < gw; i++) if (G[j * gw + i]) { const px = gw - 1 - i + 1, py = gh - 1 - j + 1, k = (py * (gw + 2) + px) * 4; id.data[k + 3] = 255; } // gespiegelt wie die Tinte
-  sx.putImageData(id, 0, 0); const m = document.createElement('canvas'); m.width = W; m.height = Hh; const mx = m.getContext('2d'); mx.imageSmoothingEnabled = true; mx.imageSmoothingQuality = 'high';
-  const cw = W / gw, ch = Hh / gh; mx.filter = `blur(${Math.max(2, cw * .45)}px)`; mx.drawImage(sm, -cw, -ch, W + 2 * cw, Hh + 2 * ch); mx.filter = 'none';
-  const R = karte_rng(99); mx.globalCompositeOperation = 'destination-out'; mx.fillStyle = 'rgba(0,0,0,.5)'; for (let i = 0; i < W * Hh / 45; i++) mx.fillRect(R() * W, R() * Hh, 2, 2); mx.globalCompositeOperation = 'source-over';
+  sx.putImageData(id, 0, 0); const m = document.createElement('canvas'); m.width = W; m.height = Hh; const mx = m.getContext('2d', KARTE_CPU); mx.imageSmoothingEnabled = true; mx.imageSmoothingQuality = 'high';
+  const cw = W / gw, ch = Hh / gh, md = document.createElement('canvas'); md.width = (gw + 2) * 4; md.height = (gh + 2) * 4; const dx = md.getContext('2d', KARTE_CPU); dx.imageSmoothingEnabled = true; dx.filter = 'blur(3px)'; dx.drawImage(sm, 0, 0, md.width, md.height);
+  mx.drawImage(md, -cw, -ch, W + 2 * cw, Hh + 2 * ch);
+  mx.globalCompositeOperation = 'destination-out'; mx.globalAlpha = .55; mx.fillStyle = mx.createPattern(karte_korn(.06, '#000', 99), 'repeat'); mx.fillRect(0, 0, W, Hh); mx.globalAlpha = 1; mx.globalCompositeOperation = 'source-over';
   return m;
 }
 function karte_welt2px(b, x, z) { return [(b.x1 - x) * b.s + KARTE_PAD, (b.z1 - z) * b.s + KARTE_PAD]; }
@@ -229,17 +246,17 @@ function karte_comp(b) {
   if (karte_S.comp && karte_S.compKey === key) return karte_S.comp;
   if (!karte_S.ink[b.id] || karte_S.inkKap[b.id] !== kap()) { karte_S.ink[b.id] = karte_tinte(b); karte_S.inkKap[b.id] = kap(); }
   const ink = karte_S.ink[b.id], W = ink.width, Hh = ink.height; if (!karte_S.paper[b.id]) karte_S.paper[b.id] = karte_papier(b, W, Hh);
-  const pap = karte_S.paper[b.id], c = karte_S.comp && karte_S.comp.width === pap.width && karte_S.comp.height === pap.height ? karte_S.comp : document.createElement('canvas'); c.width = pap.width; c.height = pap.height; const x = c.getContext('2d');
+  const pap = karte_S.paper[b.id], c = karte_S.comp && karte_S.comp.width === pap.width && karte_S.comp.height === pap.height ? karte_S.comp : document.createElement('canvas'); c.width = pap.width; c.height = pap.height; const x = c.getContext('2d', KARTE_CPU);
   x.drawImage(pap, 0, 0);
-  const t = document.createElement('canvas'); t.width = W; t.height = Hh; const tx = t.getContext('2d'); tx.drawImage(karte_maske(b, W, Hh), 0, 0); tx.globalCompositeOperation = 'source-in'; tx.drawImage(ink, 0, 0);
-  x.save(); x.globalCompositeOperation = 'multiply'; x.drawImage(t, KARTE_PAD, KARTE_PAD); x.restore();
+  const t = document.createElement('canvas'); t.width = W; t.height = Hh; const tx = t.getContext('2d', KARTE_CPU); tx.drawImage(karte_maske(b, W, Hh), 0, 0); tx.globalCompositeOperation = 'source-in'; tx.drawImage(ink, 0, 0);
+  x.save(); x.globalCompositeOperation = 'multiply'; x.drawImage(t, KARTE_PAD, KARTE_PAD); x.restore(); t.width = t.height = 0;
   karte_ueber(b, x); karte_S.comp = c; karte_S.compKey = key; return c;
 }
 // ---------------------------------------------------------------------  Beschriftung und Überlagerungen (nur Bekanntes)
 function karte_orte(b) { // [x, z, Text, Größe, Drehung, Bedingung]
   if (b.id === 'dorf') { const L = [[-2, 1.2, 'Ahornstraße', 34, 0], [-6.5, 31, 'Kirchweg', 28, Math.PI / 2], [4, 7.5, 'Kreuzung', 26, -.08], [-52.5, 94, 'Kapelle', 30, .04], [-40, 72, 'Friedhof', 30, -.05],
       [31, 76.5, 'Spielplatz', 30, .06], [10, 57.8, 'Haltestelle', 24, 0], [-10.7, 50.6, 'Kreuz', 22, .1], [112, 32, 'Tankstelle', 32, -.04], [117, -21, 'Schrott', 28, .05], [150, 7.5, 'Sperre', 28, -.1], [0, -49.5, 'Sperre (Süd)', 26, .04],
-      [-120, 31, 'Schrebergärten', 30, .03], [-127, -30.5, 'Hof', 32, -.05], [-125, 81, 'die alte Villa', 30, .04], [-72, 9.5, 'Ortsschild', 22, -.06], [30, 102.5, 'Nordzaun', 24, .02], [-2, 58.5, 'Am Kirchberg', 26, 0]];
+      [-120, 31, 'Schrebergärten', 30, .03], [-127, -30.5, 'Hof', 32, -.05], [-125, 56, 'die alte Villa', 30, .04], [-72, 9.5, 'Ortsschild', 22, -.06], [30, 102.5, 'Nordzaun', 24, .02], [-2, 58.5, 'Am Kirchberg', 26, 0]];
     const nr = { '26,-17': '7', '-50,-17': '1' }, wer = { 1: 'wir', 3: 'Vegas', 4: 'Oma Erna', 7: 'Hilde', 8: 'Aydın', 2: 'Winter' };
     for (const h of (typeof HOUSES !== 'undefined' ? HOUSES : [])) { const o = h.o; if (!o || o.x === undefined) continue; const n = o.n ?? nr[o.x + ',' + o.z]; if (n === undefined) continue; L.push([o.x, o.z, (wer[n] ? n + ' · ' + wer[n] : 'Nr. ' + n), 22, (o.facing > 0 ? .02 : -.03)]); }
     return L; }
@@ -250,12 +267,12 @@ function karte_orte(b) { // [x, z, Text, Größe, Drehung, Bedingung]
 function karte_ueber(b, x) {
   const R = karte_rng(4242 + kap()), s = b.s, W2 = (px, pz) => karte_welt2px(b, px, pz), k = kap();
   // Kopf: Titel, Einwohnerzahl (ändert sich), Nordpfeil, Maßstab
-  karte_hand(x, b.titel, 160, 92, 64, { align: 'left', rot: -.02, fett: true, halo: false, nach: true });
-  x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(160, 124); x.bezierCurveTo(300, 118, 480, 128, 160 + b.titel.length * 34, 121); x.stroke(); x.restore();
-  if (b.id === 'dorf') { karte_hand(x, 'Einw. 214', 176, 158, 32, { align: 'left', halo: false }); x.save(); x.strokeStyle = 'rgba(150,30,25,.8)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(170, 160); x.lineTo(300, 154); x.stroke(); x.restore();
-    karte_hand(x, '211', 318, 156, 34, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
-    if (k >= 2) { x.save(); x.strokeStyle = 'rgba(44,42,50,.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(314, 160); x.lineTo(368, 152); x.stroke(); x.restore(); karte_hand(x, '210', 380, 158, 36, { align: 'left', halo: false, col: 'rgba(70,70,74,.9)', rot: .04 }); }
-    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(436, 146); x.lineTo(441, 170); x.stroke(); x.restore(); } }
+  karte_hand(x, b.titel, 150, 96, 84, { align: 'left', rot: -.02, fett: true, halo: false, nach: true });
+  x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(150, 136); x.bezierCurveTo(300, 128, 520, 140, 150 + b.titel.length * 40, 132); x.moveTo(170, 144); x.bezierCurveTo(320, 138, 500, 147, 140 + b.titel.length * 38, 141); x.stroke(); x.restore();
+  if (b.id === 'dorf') { karte_hand(x, 'Einw. 214', 176, 180, 38, { align: 'left', halo: false }); x.save(); x.strokeStyle = 'rgba(150,30,25,.8)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(168, 183); x.lineTo(320, 176); x.stroke(); x.restore();
+    karte_hand(x, '211', 338, 178, 42, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
+    if (k >= 2) { x.save(); x.strokeStyle = 'rgba(44,42,50,.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(332, 183); x.lineTo(392, 173); x.stroke(); x.restore(); karte_hand(x, '210', 404, 181, 44, { align: 'left', halo: false, col: 'rgba(70,70,74,.9)', rot: .04 }); }
+    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(468, 164); x.lineTo(474, 194); x.stroke(); x.restore(); } }
   const PW = x.canvas.width, PH = x.canvas.height; x.save(); x.translate(PW - 150, 150); x.rotate(.03); x.strokeStyle = 'rgba(44,42,50,.85)'; x.fillStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.4;
   x.beginPath(); x.moveTo(0, 50); x.lineTo(0, -52); x.stroke(); x.beginPath(); x.moveTo(0, -60); x.lineTo(-13, -30); x.lineTo(0, -38); x.closePath(); x.fill(); x.beginPath(); x.moveTo(0, -60); x.lineTo(13, -30); x.lineTo(0, -38); x.stroke(); x.restore();
   karte_hand(x, 'N', PW - 150, 60, 42, { halo: false }); const sb = 50 * s, sy = PH - 70; x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(PW - 140 - sb, sy); x.lineTo(PW - 140, sy);
@@ -297,24 +314,24 @@ function karte_kreispfeil(x, ax, ay, bx, by, R) { // Lucys Zeichen: Pfeil mit Kr
 function karte_nadel(x, px, py) { x.save(); x.strokeStyle = 'rgba(40,40,40,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(px, py); x.lineTo(px + 10, py - 26); x.stroke(); x.fillStyle = 'rgba(0,0,0,.25)'; x.beginPath(); x.ellipse(px + 4, py + 2, 9, 4, .3, 0, 7); x.fill();
   const g = x.createRadialGradient(px + 8, py - 32, 1, px + 11, py - 29, 11); g.addColorStop(0, '#ff9a88'); g.addColorStop(.55, '#b0180e'); g.addColorStop(1, '#4d0804'); x.fillStyle = g; x.beginPath(); x.arc(px + 11, py - 29, 10, 0, 7); x.fill(); x.restore(); }
 function karte_marke(x, px, py, text, art, R) {
-  if (art === 'kreide') { x.save(); x.strokeStyle = 'rgba(250,250,246,.95)'; x.shadowColor = 'rgba(60,55,50,.55)'; x.shadowBlur = 2; x.lineWidth = 4.5; x.lineCap = 'round'; x.beginPath(); x.moveTo(px - 12, py - 12); x.lineTo(px + 12, py + 12); x.moveTo(px + 12, py - 12); x.lineTo(px - 12, py + 12); x.stroke(); x.restore();
-    if (text) karte_hand(x, text, px + 18, py - 20, 28, { align: 'left', col: 'rgba(250,250,246,.95)', halo: 'rgba(60,55,50,.55)' }); return; }
+  if (art === 'kreide') { x.save(); x.strokeStyle = 'rgba(250,250,246,.97)'; x.shadowColor = 'rgba(40,36,34,.9)'; x.shadowBlur = 2.5; x.shadowOffsetX = 1; x.shadowOffsetY = 1.5; x.lineWidth = 5; x.lineCap = 'round'; x.beginPath(); x.moveTo(px - 12, py - 12); x.lineTo(px + 12, py + 12); x.moveTo(px + 12, py - 12); x.lineTo(px - 12, py + 12); x.stroke(); x.restore();
+    if (text) karte_hand(x, text, px + 18, py - 20, 30, { align: 'left', col: 'rgba(252,252,248,1)', halo: 'rgba(55,50,46,.8)' }); return; }
   x.save(); x.strokeStyle = 'rgba(160,28,22,.9)'; x.lineWidth = 3; x.lineCap = 'round'; x.beginPath(); x.moveTo(px - 10, py - 11); x.lineTo(px + 11, py + 10); x.moveTo(px + 10, py - 10); x.lineTo(px - 11, py + 11); x.stroke(); x.restore();
   if (text) karte_hand(x, text, px + 16, py - 18, 28, { align: 'left', col: 'rgba(150,26,20,.92)', rot: -.04 });
 }
 function karte_kreide(x, b, R) { // weiße Kreide auf Papier: dicke, gebrochene Striche mit grauem Rand; „ICH KOMME“ + siebzehn Striche an der Kreuzung
-  const [ax, ay] = karte_welt2px(b, 46, 4), [bx, by] = karte_welt2px(b, -60, 12), L = Math.hypot(bx - ax, by - ay), rot = Math.atan2(by - ay, bx - ax);
-  const k = document.createElement('canvas'); k.width = x.canvas.width; k.height = x.canvas.height; const kx = k.getContext('2d');
-  kx.save(); kx.translate((ax + bx) / 2, (ay + by) / 2); kx.rotate(rot); kx.font = `700 ${Math.round(L / 6.2)}px Caveat, cursive`; kx.textAlign = 'center'; kx.textBaseline = 'middle'; kx.fillStyle = '#fbfbf7'; kx.fillText('ICH KOMME', 0, 0); kx.restore();
+  const [ax, ay] = karte_welt2px(b, 118, -14), [bx, by] = karte_welt2px(b, -112, 26), L = Math.hypot(bx - ax, by - ay), rot = Math.atan2(by - ay, bx - ax);
+  const k = document.createElement('canvas'); k.width = x.canvas.width; k.height = x.canvas.height; const kx = k.getContext('2d', KARTE_CPU);
+  kx.save(); kx.translate((ax + bx) / 2, (ay + by) / 2); kx.rotate(rot); kx.font = `700 ${Math.round(L / 4.6)}px Caveat, cursive`; kx.scale(1, 1.25); kx.textAlign = 'center'; kx.textBaseline = 'middle'; kx.fillStyle = '#fbfbf7'; kx.fillText('ICH KOMME', 0, 0); kx.restore();
   const [cx, cy] = karte_welt2px(b, 3, 2); kx.strokeStyle = '#fbfbf7'; kx.lineWidth = 5; kx.lineCap = 'round'; kx.beginPath();
   for (let g = 0; g < 4; g++) { const ox = cx - 120 + g * 64; for (let i = 0; i < 4; i++) { kx.moveTo(ox + i * 11, cy + 40); kx.lineTo(ox + i * 11 + (R() - .5) * 3, cy + 78); } kx.moveTo(ox - 6, cy + 72); kx.lineTo(ox + 42, cy + 46); } kx.moveTo(cx + 140, cy + 40); kx.lineTo(cx + 141, cy + 78); kx.stroke();
-  kx.globalCompositeOperation = 'destination-out'; for (let i = 0; i < k.width * k.height / 30; i++) { kx.fillStyle = `rgba(0,0,0,${.3 + R() * .6})`; kx.fillRect(R() * k.width, R() * k.height, 2 + R() * 3, 1 + R() * 2); }
-  x.save(); x.shadowColor = 'rgba(70,64,56,.6)'; x.shadowBlur = 3; x.shadowOffsetX = 1; x.shadowOffsetY = 1.5; x.globalAlpha = .96; x.drawImage(k, 0, 0); x.restore();
+  kx.globalCompositeOperation = 'destination-out'; kx.fillStyle = kx.createPattern(karte_korn(.09, 'rgba(0,0,0,.8)', 31), 'repeat'); kx.fillRect(0, 0, k.width, k.height);
+  x.save(); x.shadowColor = 'rgba(60,54,48,.85)'; x.shadowBlur = 2.5; x.shadowOffsetX = 1.5; x.shadowOffsetY = 2; x.globalAlpha = .97; x.drawImage(k, 0, 0); x.drawImage(k, 0, 0); x.restore(); k.width = k.height = 0;
 }
 // ---------------------------------------------------------------------  Fibel-Reiter „KARTE“: Ansicht, Zoom, Verschieben, Markierungen
 function karte_reiter(B) {
   const P = player.pos, hier = karte_blattAn(P.x, P.z), frei = KARTE_BL.filter(karte_frei); if (!karte_S.blatt || !frei.includes(karte_bl(karte_S.blatt))) karte_S.blatt = (hier && frei.includes(hier) ? hier : frei[0]).id;
-  if (hier && frei.includes(hier) && !karte_S.gewechselt) karte_S.blatt = hier.id; karte_S.gewechselt = false;
+  if (hier && frei.includes(hier) && !karte_S.gewechselt && ui.overlay !== 'journal') karte_S.blatt = hier.id; if (ui.overlay === 'journal') karte_S.gewechselt = false;
   const b = karte_bl(karte_S.blatt);
   B.innerHTML = `<div class="kaKopf">${frei.length > 1 ? frei.map(f => `<button data-b="${f.id}" class="${f.id === b.id ? 'on' : ''}">${{ dorf: 'Dorf', amt: 'Ebene −2', villa: 'Villa', wald: 'Wald' }[f.id]}</button>`).join('') : ''}` +
     `<label class="kaZiel"><input type="checkbox" ${settings.karteZiel !== false ? 'checked' : ''}> Ziel zeigen</label></div><div class="kaRahmen"><canvas class="kaView"></canvas><div class="kaTip"></div></div>` +
@@ -323,6 +340,10 @@ function karte_reiter(B) {
   const cb = B.querySelector('.kaZiel input'); cb.onclick = e => e.stopPropagation(); cb.onchange = () => { settings.karteZiel = cb.checked; saveSettings(); karte_S.compKey = ''; karte_male(); };
   const cv = B.querySelector('.kaView'), rahmen = B.querySelector('.kaRahmen'), cssW = Math.max(300, rahmen.clientWidth || Math.min(1000, innerWidth * .94) - 36 - 48), dpr = Math.min(2, devicePixelRatio || 1);
   if (!rahmen.clientWidth) requestAnimationFrame(() => { if (jTab === 'karte' && ui.overlay === 'journal' && rahmen.isConnected && rahmen.clientWidth && Math.abs(rahmen.clientWidth - cssW) > 8) renderJournal(); });
+  if (!karte_S.ink[b.id] || karte_S.inkKap[b.id] !== kap()) { // erst zeichnen lassen (Fibel steht still), dann einsetzen
+    cv.style.width = cssW + 'px'; cv.style.height = Math.round(cssW * .55) + 'px'; const x = cv.getContext('2d'); cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssW * .55 * dpr);
+    x.fillStyle = '#e6dcc2'; x.fillRect(0, 0, cv.width, cv.height); x.font = `${Math.round(34 * dpr)}px Caveat, cursive`; x.fillStyle = 'rgba(44,42,50,.7)'; x.textAlign = 'center'; x.fillText('Moment … ich zeichne das eben auf.', cv.width / 2, cv.height / 2);
+    setTimeout(() => { if (jTab === 'karte' && B.isConnected) { try { karte_comp(b); } catch (e) { console.error('Karte', e); } if (B.isConnected) karte_reiter(B); } }, 60); return; }
   let comp; try { comp = karte_comp(b); } catch (e) { console.error('Karte', e); return; }
   const cssH = Math.min(Math.round(innerHeight * .64), Math.round(cssW * comp.height / comp.width) + 2); cv.style.width = cssW + 'px'; cv.style.height = cssH + 'px'; cv.width = Math.round(cssW * dpr); cv.height = Math.round(cssH * dpr);
   karte_S.cv = cv; karte_S.b = b; karte_male(); karte_events(cv, B.querySelector('.kaTip'));

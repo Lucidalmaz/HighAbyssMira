@@ -58,6 +58,20 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Backpack Scan – Xtrem Old Model | SebastianBA | Beutel Stufe 2 (alter Rucksack) | https://www.fab.com/listings/27632e45-c4f2-4051-8fbe-108fcd52f5fa |
 | Backpack for a wandering wizard | a9908244 | Beutel Stufe 3 (großer Rucksack) | https://www.fab.com/listings/9973d782-cad6-451c-bc4c-b407f209b9c3 |
 | Leather Book | Smoggybeard | Fotoalbum (Einband) | https://www.fab.com/listings/4621cc30-1631-4559-9c06-cb43695ba563 |
+| Detective_Hands – Animated | Tony Flanagan | Lukes Hände (Ich-Perspektive: Beutel, Album, Joint drehen) | https://www.fab.com/listings/dcf1de96-a033-48a9-85d5-2ec57d283f2b |
+
+## Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)
+| Werk | Urheber | Verwendung im Spiel | Sketchfab |
+|---|---|---|---|
+| Cannabis Sativa plant | zbrojmistrz | Hanfpflanze in der Blechdose | https://sketchfab.com/3d-models/ea31a5768c06457ea2fd67c3eb3458b8 |
+| Flowering cannabis plant in a pot | tafelynx | Hanfpflanze im Tontopf | https://sketchfab.com/3d-models/ede22e7628ad4d9ea9283e0f6e6266b2 |
+| Herb Grinder | shanti.rize | Grinder | https://sketchfab.com/3d-models/5b4d477f40044ef5a95d0e3288518a2d |
+| Cannabis Joints | 3D_Crackhouse | Joints | https://sketchfab.com/3d-models/00b86fecb88f4e5aa9a3f492dfae8448 |
+| Glass Bong | i.deal3d | Bong | https://sketchfab.com/3d-models/d5aa347cc49c41e4b7d5f25c56343a9d |
+| Cannabis Bud | mriexinger | Knolle | https://sketchfab.com/3d-models/2e7d1b77d5044d8cada3973cac9f387e |
+| Small Weed Bag | 3D_Crackhouse | Tütchen | https://sketchfab.com/3d-models/b8eea348207c40d9a277d6bf9226a6e4 |
+| OCB Slim Pack | Obridje | Papes (ohne Markenaufdruck umgefärbt) | https://sketchfab.com/3d-models/9979c7b6fa824caa874c6a0078a31628 |
+| CC0 – Ashtray | plaggy | Aschenbecher | https://sketchfab.com/3d-models/313192b7abae47ffa82e4ba24e947f70 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
 - **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)

@@ -30,18 +30,18 @@ const whiskey_k6 = () => typeof K6 !== 'undefined' && K6.on ? K6.beat : '';
 // talk: Klick (Text = Lukes Gedanke, Funktion = Szene) · look: [x, z] Blickziel · help: Hilfestufen 1–3 (83 §4) · near(): Szene bei Annäherung
 const WHISKEY_ST = [
   // ---- Kapitel 1
-  { id: 'start', at: [-44.2, 3.4], when: () => whiskey_k() === 1 && state.started && !state.hasKey && !whiskey_S.hatSchluessel && story.main <= 1, done: () => story.main >= 1 || whiskey_d(-44.2, 3.4) < 6,
+  { id: 'start', at: [-44.2, 3.4], when: () => whiskey_k() === 1 && state.started && !state.hasKey && !whiskey_S.hatSchluessel && story.main <= 1, done: () => story.main >= 2 || (whiskey_S.met.has('start') && whiskey_d(-44.2, 3.4) > 30),
     talk: () => whiskey_k1Start() },
-  { id: 'auto', at: [-72.3, 6.3], y: 2.47, when: () => whiskey_k() === 1 && state.started && whiskey_S.hatSchluessel, done: () => !whiskey_S.hatSchluessel, mood: 'handel',
+  { id: 'auto', prio: true, at: [-72.3, 6.3], y: 2.47, when: () => whiskey_k() === 1 && state.started && whiskey_S.hatSchluessel, done: () => !whiskey_S.hatSchluessel, mood: 'handel',
     talk: () => whiskey_w03(), near: d => { if (d < 4.6 && !whiskey_S.flags.has('w02a')) whiskey_w02a(); } },
   { id: 'briefkasten', at: [28.4, -6.9], when: () => whiskey_k() === 1 && state.started && !state.hasKey && story.main >= 1, done: () => state.hasKey, peck: true,
     talk: 'Er pickt am Briefkasten von Nr. 7. Immer wieder, genau an der Klappe. … Okay. Ich hab verstanden.',
     help: [null, () => whiskey_pick(3), () => whiskey_k15()] },
-  { id: 'vegas_k1', at: [-27.2, -11.2], when: () => whiskey_k() === 1 && state.hasKey && !whiskey_S.flags.has('w01') && !state.phase2, done: () => whiskey_S.flags.has('w01'),
+  { id: 'vegas_k1', at: [-27.3, -10.6], when: () => whiskey_k() === 1 && state.hasKey && !whiskey_S.flags.has('w01') && !state.phase2, done: () => whiskey_S.flags.has('w01'),
     talk: () => whiskey_w01(), label: 'Den Vogel wegscheuchen', labelFlag: 'w01' },
-  { id: 'speck', at: [-27.2, -11.2], when: () => whiskey_speckAktiv(), done: () => whiskey_S.speck >= 3,
+  { id: 'speck', at: [-27.3, -10.6], when: () => whiskey_speckAktiv(), done: () => whiskey_S.speck >= 3,
     near: d => whiskey_speckNah(d) },
-  { id: 'scheune', pos: () => whiskey_scheune(), when: () => whiskey_k() === 1 && state.started && !whiskey_sb(1) && !(whiskey_S.flags.has('w04') && whiskey_d(-142, -28) > 40), done: () => whiskey_sb(1),
+  { id: 'scheune', pos: () => whiskey_scheune(), when: () => whiskey_k() === 1 && state.started && !whiskey_sb(1) && whiskey_d(-142, -28) < 32 && !(whiskey_S.flags.has('w04') && whiskey_d(-142, -28) > 40), done: () => whiskey_sb(1),
     look: [-143.05, -29.33], quiet: true, near: d => { if (d < 7 && !whiskey_S.flags.has('w04')) whiskey_w04(); } },
   { id: 'gisela', pos: () => WHISKEY_ORTE.gisela, when: () => whiskey_k() === 1 && !!WHISKEY_ORTE.gisela && !whiskey_S.flags.has('kuli'), done: () => whiskey_S.flags.has('kuli'),
     talk: () => whiskey_kanonGisela() },
@@ -58,21 +58,21 @@ const WHISKEY_ST = [
   // ---- Kapitel 3
   { id: 'handschuh', pos: () => whiskey_justinHand(), when: () => whiskey_k() === 3 && ch3.met && ch3.part === 'town' && !whiskey_S.jAsked && justin.g.visible && whiskey_d(justin.g.position.x, justin.g.position.z) < 9, done: () => whiskey_S.jAsked,
     near: d => { if (d < 7 && whiskey_S.mode === 'ride' && !state.talking) whiskey_w06(); } },
-  { id: 'vegas', at: [-27.2, -11.2], when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.met, done: () => whiskey_S.trade,
+  { id: 'vegas', at: [-27.3, -10.6], when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.met, done: () => whiskey_S.trade,
     talk: () => whiskey_kanonVegas() },
   { id: 'gedenkfeld', at: [-48.65, 72.95], when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.met, done: () => whiskey_lore('cleo_gedenk') || whiskey_S.met.has('gedenkfeld'),
     talk: 'Whiskey sitzt auf einem Grabstein ohne Namen. Dem achten. Jemand hat den Namen weggekratzt, bis der Stein weiß war.' },
   { id: 'funk', at: [5.4, -6.6], when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.met && !ch3.radio && whiskey_S.helpLvl >= 1 && whiskey_d(5.4, -6.6) < 30, done: () => ch3.radio,
     help: [null, () => whiskey_mimic('funk'), () => whiskey_funk3110()], helpR: 30 },
-  { id: 'laternen', at: [-20, 4.6], when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.radio && !ch3.lampsOff && whiskey_S.helpLvl >= 1, done: () => ch3.lampsOff,
-    help: [null, () => whiskey_hin(-40, -4.6), () => whiskey_mimic('kinderlachen', { at: [-20, 4.8, 4.6] })], helpR: 60 },
+  { id: 'laternen', at: [-20, 4.6], y: 5.28, when: () => whiskey_k() === 3 && ch3.part === 'town' && ch3.radio && !ch3.lampsOff && whiskey_S.helpLvl >= 1, done: () => ch3.lampsOff,
+    help: [null, () => whiskey_hin(-40, -4.6, 5.28), () => whiskey_mimic('kinderlachen', { at: [-20, 4.8, 4.6] })], helpR: 60 },
   { id: 'senke', pos: () => whiskey_justinSchulter(), when: () => whiskey_k() === 3 && ch3.part === 'white' && justin.g.visible, done: () => false, mood: 'still', ride: true },
   // ---- Kapitel 4 (die Villa-Szenen W-09 … W-11 spielen über Funktionen, die AP-19 aufruft)
-  { id: 'vegas_k4', at: [-27.2, -11.2], when: () => whiskey_k() === 4 && !whiskey_S.flags.has('k4_4'), done: () => whiskey_S.flags.has('k4_4'),
+  { id: 'vegas_k4', at: [-27.3, -10.6], when: () => whiskey_k() === 4 && !whiskey_S.flags.has('k4_4'), done: () => whiskey_S.flags.has('k4_4'),
     talk: () => whiskey_papasMarke() },
   { id: 'villa_tor4', at: [-128.6, 57], when: () => whiskey_k() === 4 && whiskey_S.flags.has('k4_4') && whiskey_d(-125, 57) < 40 && !(typeof anwesen_S !== 'undefined' && anwesen_S.open), done: () => false },
   // ---- Kapitel 5
-  { id: 'k5_veranda', at: [-27.2, -11.2], when: () => whiskey_k() === 5 && ['intro', 'veranda', 'fenster', 'kamera'].includes(whiskey_k5()) && !whiskey_S.flags.has('k5_0x'), done: () => whiskey_S.flags.has('k5_0x'),
+  { id: 'k5_veranda', at: [-27.3, -10.6], when: () => whiskey_k() === 5 && ['intro', 'veranda', 'fenster', 'kamera'].includes(whiskey_k5()) && !whiskey_S.flags.has('k5_0x'), done: () => whiskey_S.flags.has('k5_0x'),
     mood: 'beleidigt', near: d => whiskey_k50(d) },
   { id: 'k5_fenster', at: [-51.2, -11.75], y: 1.12, when: () => whiskey_k() === 5 && whiskey_k5() === 'schleife' && (k5.runde || 1) < 3, done: () => (k5.runde || 1) >= 3, look: [-51.2, -14],
     mood: () => (k5.runde || 1) >= 2 ? 'still' : '' },
@@ -250,7 +250,7 @@ function whiskey_w03() {
       modItem('autoschluessel', 'Autoschlüssel', 'Dein Leihwagen am Ortsschild. Ein bisschen Rabenspucke am Anhänger.', 'key'); addItem('autoschluessel');
       if (typeof strasse_autoZu === 'function') try { strasse_autoZu(); } catch (e) {} // Innenlicht und Türsummen aus (AP-13/14)
       setTimeout(async () => { state.talking = true; await say([['Ein Einkaufswagenchip. Du hast mich um einen Einkaufswagenchip erpresst.', 3600, 'LUKE'], ['<i>Ich hab gerade mit einem Vogel gehandelt. Und ich hab verloren.</i>', 3600, 'LUKE']]); state.talking = false; }, 600);
-      setTimeout(() => { const L = [...lamps].sort((a, b) => Math.hypot(a.wx - S.g.position.x, a.wz - S.g.position.z) - Math.hypot(b.wx - S.g.position.x, b.wz - S.g.position.z))[0]; if (L) whiskey_hin(L.wx, L.wz); }, 1800); } });
+      setTimeout(() => { const L = [...lamps].sort((a, b) => Math.hypot(a.wx - S.g.position.x, a.wz - S.g.position.z) - Math.hypot(b.wx - S.g.position.x, b.wz - S.g.position.z))[0]; if (L) whiskey_hin(L.wx, L.wz, 5.28); }, 1800); } });
 }
 function whiskey_hop(side) { const S = whiskey_S; if (!S.g || S.mode !== 'perch') return; whiskey_play('Hop', .08, true, 1.3); const a = S.g.rotation.y + side * PI / 2; S.hopTo = { x: S.g.position.x + Math.sin(a) * .35, z: S.g.position.z + Math.cos(a) * .35, t: 0 }; }
 // W-03-Hilfe nach zwei Minuten: Gedanke
@@ -286,7 +286,7 @@ async function whiskey_speck1() {
   const S = whiskey_S; state.talking = true; const V = (t, ms) => [t, ms, 'LARS VEGAS (HINTER DER TÜR)'], L = (t, ms) => [t, ms, 'LUKE'];
   const lines = [V('„Nachts kommen die. Da muss einer wach sein.“', 3000), async () => { whiskey_play('EatSomething', .08, true, 1.2); Audio.play('woodHit2', { gain: .15, rate: 1.6, x: -28, y: 1.2, z: -12.3 }); await wait(700);
       Audio.chains(-28, 1.2, -12.3); Audio.play(Audio.pick('woodSlam1', 'woodSlam2'), { gain: .8, x: -28, y: 1.2, z: -12.3, ref: 3 }); await wait(300); },
-    V('„Himmelherrgott!“', 1600), async () => { const L_ = [...lamps].sort((a, b) => Math.hypot(a.wx + 28, a.wz + 12) - Math.hypot(b.wx + 28, b.wz + 12))[0]; if (L_) whiskey_hin(L_.wx, L_.wz); await wait(2400); whiskey_mimic('himmelherrgott', { force: true }); await wait(1800); },
+    V('„Himmelherrgott!“', 1600), async () => { const L_ = [...lamps].sort((a, b) => Math.hypot(a.wx + 28, a.wz + 12) - Math.hypot(b.wx + 28, b.wz + 12))[0]; if (L_) whiskey_hin(L_.wx, L_.wz, 5.28); await wait(2400); whiskey_mimic('himmelherrgott', { force: true }); await wait(1800); },
     V('„Du hast nichts gesehen.“', 2000), L('Ich hab gar nichts gesehen.', 2000), async () => { whiskey_play('EatSomething', .1); await wait(900); },
     V('„Speck ist Speck. Der Vogel kriegt keinen. Das ist keine Verschwörung, das ist Prinzip.“', 4400), L('<i>Er hat die Kompression falsch. Wer bringt einem Vogel Kompression bei?</i>', 3600)];
   try { if (typeof albers_whiskey === 'function') await albers_whiskey(lines); else await say(lines.filter(l => Array.isArray(l))); } catch (e) { console.warn('Whiskey Speck', e); }
@@ -491,7 +491,10 @@ WORLD_TICK.push((dt, t) => {
   if (!S.light && typeof hungrige_S !== 'undefined' && hungrige_S.finale && whiskey_k() >= 6) { S.light = true; S.tired = true; }
   S.tired = S.light && whiskey_k() >= 6 && !S.said.has('luna');
   // Station wählen (4× je Sekunde)
-  S.stT -= dt; if (S.stT <= 0 && !whiskey_unten()) { S.stT = .25; let st = null; if (!(S.light && whiskey_k() >= 6)) for (const s of WHISKEY_ST) { try { if (s.when() && !s.done()) st = s; } catch (e) {} } // unter der Erde: er bleibt, wo er ist
+  S.stT -= dt; if (S.stT <= 0 && !whiskey_unten()) { S.stT = .25; let st = null; if (!(S.light && whiskey_k() >= 6)) { let best = 1e9, cur = 1e9; // Wahl: Pflichtstation (prio) vor allem, sonst die Luke nächste – die aktuelle behält 12 m Vorsprung
+      for (const s of WHISKEY_ST) { let ok = false; try { ok = s.when() && !s.done(); } catch (e) {} if (!ok) continue; if (s.prio) { st = s; best = -1; break; }
+        const pp = s.pos ? s.pos() : s.at, d = pp ? whiskey_d(pp[0], s.pos ? pp[2] : pp[1]) : 1e8; if (s === S.st) cur = d; if (d < best) { best = d; st = s; } }
+      if (S.st && st !== S.st && best !== -1 && cur < 1e9 && cur < best + 12) st = S.st; } // unter der Erde: er bleibt, wo er ist
     if (st !== S.st && S.mode !== 'take' && S.mode !== 'fly' && (!st || S.left !== st)) {
       const was = S.st; S.st = st; uninteract(S.hit); S.ride = null; S.moodPick = st && typeof tausch_moeglich === 'function' && Math.random() < .4 ? 'handel' : 'eitel'; S.lookSt = false;
       if (st) { const pp = st.pos ? st.pos() : null; const to = pp ? new THREE.Vector3(pp[0], pp[1], pp[2]) : new THREE.Vector3(st.at[0], st.hover ?? st.y ?? whiskey_perch(st.at[0], st.at[1]), st.at[1]);

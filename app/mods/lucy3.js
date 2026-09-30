@@ -117,7 +117,7 @@ async function lucy3_opening() {
     lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; }); Audio.flick(); shake = .025; glitchV = .35;
     await wait(3600);
     await say([['Sie hat mich elfmal angerufen. Diesmal geh ich ran.', 3800, 'DU']]);
-    await wait(900); cowDrop(); cowHit.position.set(-7.5, .6, .8);
+    await wait(900); if (typeof kino_kuh === 'function' && kino_kuh()) {} else { cowDrop(); cowHit.position.set(-7.5, .6, .8); } // Fassung 3 (AP-10): Kinosequenz „Blinde Kuh“
   } finally { ch3.t = 0; S.opening = false; S.openDone = true; }
 }
 chapter3Opening = lucy3_opening;

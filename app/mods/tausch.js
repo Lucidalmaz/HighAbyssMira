@@ -52,7 +52,7 @@ const TAUSCH_ANGEBOTE = [
   { id: 'fernglas', n: 'Fernglas', i: 'fernglas', d: 'Militärgrün, 8 × 30, ein Okular klemmt. Am Riemen ein Namensschild, abgerissen.', w: '[V] halten: heranholen. Glänzendes blitzt damit auch von weit auf.', p: { 4: 4, 5: 4, 6: 3 }, einmal: true, gib: () => { tausch_S.fernglas = true; } },
   { id: 'sturmlaterne', n: 'Sturmlaterne', i: 'laterne', d: 'Feuerwehrrot, Drahtbügel, Glas im Schutzkorb. Brennt im Sturm weiter.', w: '[L] an/aus. Heller und weiter als die Öllampe, ~25 min je Füllung, windfest. Pusten ist kein Wind.', p: { 5: 6, 6: 5 }, einmal: true, gib: () => { tausch_S.lampe = 'sturm'; tausch_S.oel = 1; } },
   { id: 'waermer', n: 'Handwärmer', i: 'waermer', d: 'Ein Kissen mit Metallplättchen. Knicken, und es wird warm wie eine Hand.', w: 'Im Inventar knicken: 5 Minuten warme Hände – die Angst kriecht langsamer an dir hoch.', p: { 5: 2, 6: 1 }, gib: () => { tausch_S.warmN++; } }];
-const TAUSCH_LAMPE = { oel: { n: 'Öllampe', r: 8, i: 1.55, c: 0xffae5c, life: 1080, wind: .45 }, sturm: { n: 'Sturmlaterne', r: 11, i: 2.2, c: 0xffbd70, life: 1500, wind: 0 }, holz: { r: 4, i: .85, c: 0xff9e48 } };
+const TAUSCH_LAMPE = { oel: { n: 'Öllampe', r: 8, i: 2.1, c: 0xffae5c, life: 1080, wind: .45 }, sturm: { n: 'Sturmlaterne', r: 11, i: 2.9, c: 0xffbd70, life: 1500, wind: 0 }, holz: { r: 4, i: .85, c: 0xff9e48 } };
 // ---------------------------------------------------------------- Fundorte (at = Boden; main = am Hauptweg). Je Kapitel: Hauptweg wenig, Nebenwege viel (Q-9)
 const TAUSCH_FUNDE = [
   // Kapitel 1 (Nacht, offene Welt)
@@ -149,7 +149,7 @@ const tausch_sterne = n => n > 0 ? '✶'.repeat(n) : '–';
 // Beutel (Modul „beutel“, eigener Helfer): Kapazitätsprüfung je Art – 'glanz', 'batterie', 'streich', 'kreide', 'oel', 'waermer', 'geraet'. Ohne Modul: immer Platz.
 function tausch_platz(art, n = 1) { try { return typeof beutel_platz === 'function' ? beutel_platz(art, n) !== false : true; } catch (e) { return true; } }
 const TAUSCH_ART = { batterie: 'batterie', streich: 'streich', kreide: 'kreide', lampenoel: 'oel', waermer: 'waermer', oellampe: 'geraet', sturmlaterne: 'geraet', fernglas: 'geraet' };
-function tausch_voll() { toast('Kein Platz mehr im Beutel.', 2600); return false; }
+function tausch_voll(art) { if (typeof beutel_vollHinweis === 'function') { try { beutel_vollHinweis(art); return false; } catch (e) {} } toast('Kein Platz mehr im Beutel.', 2600); return false; }
 function tausch_gib(id, n = 1, still) { const S = tausch_S, W = TAUSCH_WAREN[id]; if (!W) return; S.tasche[id] = (S.tasche[id] || 0) + n; if (!still) questPop('GLÄNZENDES', W.n); }
 function tausch_hat(id) { return (tausch_S.tasche[id] || 0) > 0; }
 function tausch_nimm(id, n = 1) { const S = tausch_S; if (!S.tasche[id]) return false; S.tasche[id] -= n; if (S.tasche[id] <= 0) delete S.tasche[id]; return true; }
@@ -211,8 +211,19 @@ function tausch_css() { if (document.getElementById('tauschCss')) return; const 
   .tsch-leer { font: italic 17px "Cormorant Garamond", Georgia, serif; color: #5a4a35; }
   #jBody .tsch { margin-top: 30px; } #jBody .tsch .tsch-tasche { gap: 10px; } #jBody .tsch-log { margin-top: 14px; font: 21px/1.3 Caveat, cursive; color: #1e2b5c; }
   #jBody .tsch-gear { display: flex; flex-wrap: wrap; gap: 12px; } #jBody .tsch-gear .tsch-w { width: 118px; } #jBody .tsch-gear .tsch-w button { margin-top: 4px; background: transparent; border: 1px solid rgba(124,36,24,.6); color: var(--pred); font: 11px "Special Elite", monospace; letter-spacing: .15em; padding: 3px 6px; cursor: pointer; }
-  #tauschGlas { position: fixed; inset: 0; pointer-events: none; z-index: 6; opacity: 0; transition: opacity .18s; background: radial-gradient(circle at 36% 50%, transparent 0 23vh, rgba(0,0,0,.92) 24.5vh), radial-gradient(circle at 64% 50%, transparent 0 23vh, rgba(0,0,0,.92) 24.5vh); background-blend-mode: multiply; }
+  #tauschGlas { position: fixed; inset: 0; pointer-events: none; z-index: 6; opacity: 0; transition: opacity .18s; background: #000;
+    -webkit-mask-image: radial-gradient(circle at 37% 50%, transparent 0 29vh, #000 31vh), radial-gradient(circle at 63% 50%, transparent 0 29vh, #000 31vh); -webkit-mask-composite: source-in;
+    mask-image: radial-gradient(circle at 37% 50%, transparent 0 29vh, #000 31vh), radial-gradient(circle at 63% 50%, transparent 0 29vh, #000 31vh); mask-composite: intersect; }
   #tauschGlas.on { opacity: 1; } #tauschGlas::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.35) 70%); }
+  #puzzle .box.tausch h3 { display: block; background: none; box-shadow: none; border: 0; padding: 0; margin: 0 0 10px; text-indent: 0; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .4em; color: var(--pred); text-shadow: none; }
+  #puzzle .box.tausch h3::before, #puzzle .box.tausch h3::after { display: none; }
+  #puzzle .box.tausch p { margin: 0; font: italic 16px/1.35 "Cormorant Garamond", Georgia, serif; color: #3a2d20; }
+  #puzzle .box.tausch button { min-width: 0; background: transparent; box-shadow: none; text-shadow: none; border-radius: 0; }
+  #puzzle .box.tausch .tsch-a button { color: var(--pred); border: 2px solid rgba(124,36,24,.75); padding: 6px 12px 5px; font: 12px "Special Elite", monospace; letter-spacing: .2em; }
+  #puzzle .box.tausch .tsch-a button:hover:not(:disabled) { background: rgba(124,36,24,.1); color: #5a1208; box-shadow: none; }
+  #puzzle .box.tausch .tsch-fuss button { border: 0; color: #5a4a35; font: 13px "Special Elite", monospace; letter-spacing: .25em; padding: 4px 6px; }
+  #puzzle .box.tausch .tsch-fuss button:hover { color: var(--pred); background: none; box-shadow: none; }
+  #puzzle .box.tausch .tsch-w { width: 96px; } #puzzle .box.tausch .tsch-w b { font-size: 16px; overflow-wrap: anywhere; }
   @media (max-width: 820px) { .tsch-cols { grid-template-columns: 1fr; } }`;
   document.head.appendChild(s); }
 // openPuzzle ist für alle Rätsel da: vor jedem anderen Rätsel die Tausch-Klasse wieder abnehmen
@@ -245,8 +256,9 @@ function tausch_offen() {
 }
 function tausch_notiz() { const n = Object.keys(tausch_S.gekauft).length; return n ? 'Er prüft alles mit dem Schnabel. Und er bereut nie.' : 'Ich tausche mit einem Vogel. Ich schreib das besser nicht in die Fibel. … Doch.'; }
 async function tausch_kaufe(a) {
-  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return; if (!tausch_platz(TAUSCH_ART[a.id] || 'geraet', 1)) { closeOverlay(); return tausch_voll(); }
-  for (const w of wahl) tausch_nimm(w); S.gekauft[a.id] = (S.gekauft[a.id] || 0) + 1; S.log.push(`K${kap()} · ${wahl.map(x => TAUSCH_WAREN[x].n).join(', ')} → ${a.n}`); if (S.log.length > 40) S.log.shift();
+  const S = tausch_S, pr = tausch_preis(a), wahl = tausch_wahl(pr); if (!wahl || !tausch_frei(a)) return;
+  for (const w of wahl) tausch_nimm(w); // erst bezahlen (macht im Beutel Platz), dann prüfen, ob die Ware hineinpasst
+  const art = TAUSCH_ART[a.id] || 'geraet', tauscht = a.id === 'sturmlaterne' && S.lampe; if (!tauscht && !tausch_platz(art, 1)) { /* Sturmlaterne ersetzt die Öllampe: kein neues Fach */ for (const w of wahl) tausch_gib(w, 1, true); closeOverlay(); return tausch_voll(art); } S.gekauft[a.id] = (S.gekauft[a.id] || 0) + 1; S.log.push(`K${kap()} · ${wahl.map(x => TAUSCH_WAREN[x].n).join(', ')} → ${a.n}`); if (S.log.length > 40) S.log.shift();
   closeOverlay(); await tausch_pruefen(); a.gib(); questPop('VON WHISKEY', a.n); Audio.play('keys2', { gain: .2, rate: 1.5, dur: .3 });
   const tipp = { streich: 'Streichhölzer: [L], wenn du keine Lampe hast.', kreide: 'Kreide: [K] malt einen Pfeil.', oellampe: 'Öllampe: [L] an und aus.', sturmlaterne: 'Sturmlaterne: [L] an und aus. Windfest.', fernglas: 'Fernglas: [V] halten.', waermer: 'Handwärmer: im Inventar knicken.', lampenoel: 'Lampenöl: [L], wenn die Lampe leer ist.' }[a.id];
   if (tipp && !S.hint[a.id]) { S.hint[a.id] = 1; setTimeout(() => toast(tipp, 4200), 1400); }
@@ -279,14 +291,14 @@ function tausch_glint(x, y, z, label, act) { const S = tausch_S;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: S.tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); sp.position.set(x, y + .06, z); sp.scale.setScalar(.16); sp.visible = false; scene.add(sp);
   const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); return { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 }; }
 function tausch_y(x, z) { const g = solidGround(x, .8, z); return g > -1 ? Math.max(0, g) : 0; }
-function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length) || (F.bat && !tausch_platz('batterie', F.bat))) return tausch_voll(); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
+function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length)) return tausch_voll('glanz'); if (F.bat && !tausch_platz('batterie', F.bat)) return tausch_voll('batterie'); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
   for (const w of F.w) tausch_gib(w, 1, true); if (F.bat) setTimeout(() => addBattery(F.bat), 700);
   toast(F.t, 4200); questPop('GLÄNZENDES', F.w.map(w => TAUSCH_WAREN[w].n).join(', ')); Audio.play('keys1', { gain: .16, rate: 1.9, dur: .25 });
   if (!story.lore.some(l => l.key === 'tausch_start')) { story.lore.push({ key: 'tausch_start', title: 'Glänzendes', html: '<span class="hand">Ich sammle jetzt Kronkorken. Für einen Raben. Lucy würde sich totlachen.\n\nAber er nimmt nur, was glänzt – und er gibt dafür, was ich brauche.</span>' }); setTimeout(() => toast('Glänzendes liegt in deinen Taschen (Fibel, INVENTAR). Whiskey tauscht es – sprich ihn an.', 5200), 4600); } }
 // Etwas, das Whiskey hinlegt (zurückgelegtes Diebesgut, Deckel, nasse Batterie): gespeichert, bis Luke es aufhebt
 function tausch_drop(x, y, z, was, text) { const S = tausch_S; if (y === null || y === undefined) y = tausch_y(x, z); const D = { x, y, z, was, text, k: kap() }; S.drops.push(D); tausch_dropMake(D); }
 function tausch_dropMake(D) { const S = tausch_S; const G = tausch_glint(D.x, D.y, D.z, 'Etwas glänzt', () => tausch_dropNimm(D)); D.G = G; interactables.push(G.hit); G.on = true; G.sp.visible = true; S.dropG.push(D); }
-function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if ((w.ware && !tausch_platz('glanz', 1)) || (w.bat && !tausch_platz('batterie', w.bat))) return tausch_voll(); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
+function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if (w.ware && !tausch_platz('glanz', 1)) return tausch_voll('glanz'); if (w.bat && !tausch_platz('batterie', w.bat)) return tausch_voll('batterie'); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
   if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
 // ---------------------------------------------------------------- Lampe, Streichholz, Kreide, Fernglas, Handwärmer
 function tausch_licht() { const S = tausch_S, L = S.L; return { an: !!(L && L.intensity > .05), x: L ? L.position.x : 0, y: L ? L.position.y : 0, z: L ? L.position.z : 0, r: S.match > 0 ? TAUSCH_LAMPE.holz.r : S.lampe ? TAUSCH_LAMPE[S.lampe].r : 0, art: S.match > 0 ? 'streichholz' : S.lampe }; }

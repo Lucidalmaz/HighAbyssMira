@@ -3643,7 +3643,7 @@ function chaseUpdate(dt, t) {
     setC2Objective('Der Messraum. Hier ist es passiert.'); subtitle('Die Tür fällt zu. Dahinter: Fäuste auf Stahl. Dann Stille.', 4500); }
 }
 async function caught() {
-  ch2.chase = 'caught'; ch2.caught++; Audio.chaseMusic(false); await scareZombieGrab();
+  ch2.chase = 'caught'; ch2.caught++; Audio.chaseMusic(false); if (ch2.caught === 1 && typeof KINO !== 'undefined' && KINO.k2a && kino_S.ready) await kino_play('k2a'); else await scareZombieGrab(); // Fassung 3 (AP-10): Teil A „Bruder.“ beim ersten Griff
   await fade(1, 500); zombie.g.visible = false; zombie.arms.forEach(a => a.rotation.z = -1.4); player.pos.set(X + 47.5, 0, Z); player.yaw = -PI / 2; player.pitch = 0; camY = 1.65; vel.set(0, 0, 0); gate.userData.holdT = 0;
   await wait(600); fade(0, 1200); subtitle(ch2.caught === 1 ? 'Du kommst zu dir. Am Anfang des Gangs. Es hat dich nicht behalten. Noch nicht.' : 'Wieder am Anfang. Es spielt mit dir.', 4000);
   await wait(2500); ch2.chase = 'idle';
@@ -3708,6 +3708,7 @@ async function finale() {
     const i = left.splice(c, 1)[0]; ch2.lucyAsked.push(i); await say([[Q[i][0].slice(1, -1), 2600, 'LUKE'], ...Q[i][1]]); await wait(500); }
   await say([['„Du bist nicht der, mit dem ich geboren wurde. Du bist der, mit dem ich groß geworden bin. Das ist mehr.“', 5600, LU], ['„Wer es weiß, durch den sieht sie. Deshalb hab ich nie was gesagt.“', 4400, LU],
     ['„… Du hast die Akte gelesen. Weißt du es jetzt?“', 3800, LU]]);
+  if (typeof KINO !== 'undefined' && KINO.k2b && kino_S.ready) await kino_play('k2b', { nahtlos: true }); else await (async () => { // Fassung 3 (AP-10): Kinosequenz Teil B „Das Gesicht im Glas“; darunter der alte Ablauf als Rückfall
   c2Lights.forEach(L => L.mode = 'dying'); Audio.hum(true); shake = .03;
   await wait(2200); subtitle('Das Brummen. Es kommt durch den Beton. Von oben.', 4000); await wait(3400); await turn(X + 118, 1.35, Z + 6, .9);
   Audio.stinger(true); filmPass.uniforms.flash.value = 1; await wait(120); filmPass.uniforms.flash.value = 0;
@@ -3725,7 +3726,7 @@ async function finale() {
   ear(5200, .16); ear(6900, .2); await wait(7600);
   await say([['„Das hilft bei dir nicht, Bruder. Ich seh ja durch dich.“', 4600, 'DAS KIND']]);
   if (eyes) { augenzu_oeffnen(); augenzu_sperre(); } if (!closed) fade(0, 900); // die Augen gehen von selbst auf
-  await wait(1500); Audio.hum(false);
+  await wait(1500); })(); Audio.hum(false);
   if (typeof kino_play === 'function') { try { await kino_play('k2'); } catch (e) { console.warn('Kino K2', e); } }
   await fade(1, 600); Audio.tankHum(false); setScripted(null); state.talking = false;
   if (SEAMLESS) { // „Das graue Gesicht am Glas. Dann nichts.“ – kein Schnitt: Luke kommt im dunklen Tankraum wieder zu sich, über ihm steht eine Luke offen

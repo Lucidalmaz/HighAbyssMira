@@ -202,7 +202,7 @@ function katzen_recolor(k, fell, gr) { if (fell && KATZEN_FELLE[fell]) { const F
   if (gr) { k.size = typeof gr === 'number' ? gr : KATZEN_GR[gr] || 1; k.g.scale.setScalar(k.size); } }
 function katzen_place(k, x, z, o = {}) {
   k.x = x; k.z = z; k.ry = o.ry != null ? o.ry : k.ry; let y = o.y;
-  if (y == null) { y = katzen_ground(x, z, 1.8); if (o.sims) { const top = katzen_perchY(x, z, 2.2); if (top > .25) { y = top; k.perch = top; } } }
+  if (y == null) { y = katzen_ground(x, z, .3); if (o.sims) { const top = katzen_perchY(x, z, 2.2); if (top > .25) { y = top; k.perch = top; } } }
   k.y = k.gy = y; k.perch = y > .3 ? y : 0; k.st = o.pose || 'sit'; k.t = rand(4, 12); k.sp = 0; k.jump = null;
   k.g.position.set(x, y, z); k.g.rotation.y = k.ry; k.play(k.st === 'stand' ? 'stand' : k.st, 0); k.g.visible = true; }
 function katzen_hide(k) { k.on = false; k.st = 'aus'; k.g.visible = false; k.g.position.y = -500; if (k.klick) { uninteract(k.klick); k.klick.position.y = -50; } katzen_schnurren(k, false); if (katzen_S.carry === k) katzen_S.carry = null; }
@@ -264,7 +264,7 @@ function katzen_kater5(modus, o = {}) {
 }
 
 // ---------------------------------------------------------------- Hilfen
-function katzen_ground(x, z, yTop = 1.2) { try { const g = solidGround(x, yTop, z); if (g > -1 && g < yTop + .4) return Math.max(0, g); } catch (e) {} return 0; }
+function katzen_ground(x, z, yTop = .3) { try { const g = solidGround(x, yTop, z); if (g > -1 && g < yTop + .4) return Math.max(0, g); } catch (e) {} return 0; } // höchste feste Fläche in [yTop − 0,8; yTop + 0,37], sonst Boden 0
 function katzen_perchY(x, z, yTop) { try { const y = leben_probe(x, z, yTop, .25, .6); return isFinite(y) ? y : 0; } catch (e) { return 0; } }
 function katzen_free(x, z) { try { return leben_free(x, z, .18, .16) && !leben_inHouse(x, z, .2); } catch (e) { return true; } }
 function katzen_in1(x, z) { return x > -56 && x < -44 && z > -22 && z < -12.1; }
@@ -422,7 +422,7 @@ function katzen_move(k, dt) {
     const nx = k.x + Math.sin(k.ry) * k.sp * dt, nz = k.z + Math.cos(k.ry) * k.sp * dt;
     k.freeT -= dt; if (k.freeT < 0) { k.freeT = .25; k.blocked = !katzen_free(k.x + Math.sin(k.ry) * .28, k.z + Math.cos(k.ry) * .28) && !leben_inHouse(k.tx, k.tz, 0); }
     if (k.blocked && d > .6) { k.bT = (k.bT || 0) + dt; if (k.bT > .8) { k.bT = 0; k.st = 'stand'; k.t = rand(.5, 1.2); k.play('stand', .3); return; } } else { k.x = nx; k.z = nz; k.bT = 0; }
-    k.gyT -= dt; if (k.gyT < 0) { k.gyT = .2; k.gy = k.ty != null && d < .5 ? k.ty : katzen_ground(k.x, k.z, k.y + .45); } k.y += (k.gy - k.y) * Math.min(1, dt * 8); k.perch = 0;
+    k.gyT -= dt; if (k.gyT < 0) { k.gyT = .2; const g = k.ty != null && d < .5 ? k.ty : katzen_ground(k.x, k.z, k.y + .05); if (g - k.y > .24 && k.ty == null) { k.x -= Math.sin(k.ry) * .06; k.z -= Math.cos(k.ry) * .06; k.blocked = true; } else k.gy = g; } k.y += (k.gy - k.y) * Math.min(1, dt * 8); k.perch = 0;
     if (k.sp > .03) k.play('walk', .3, Math.max(.35, k.sp / (KATZEN_WALK * k.size))); else if (k.curK === 'walk') k.play('stand', .3);
     if (d < .12 || (d < .4 && k.sp < .1)) { k.sp = 0; const n = k.then; if (n === 'jump' && k.jTo) { katzen_jumpStart(k); } else { k.st = n === 'sniff' ? 'sniff' : n === 'sit' ? 'sit' : n === 'loaf' ? 'loaf' : 'stand'; k.t = n === 'sniff' ? rand(1.2, 2.6) : rand(2, 6); k.play(k.st === 'sniff' ? 'stand' : k.st, .45); k.sniff = n === 'sniff' ? 1 : 0; }
       if (k.onArrive) { const f = k.onArrive; k.onArrive = null; try { f(k); } catch (e) {} } }
@@ -478,4 +478,4 @@ function katzen_eyes(k, dt, d, lampOn, cam) {
 
 // ---------------------------------------------------------------- Testzugriff (Selbsttests; im Veröffentlichungsbau entfernt)
 function katzen_debug() { return { S: katzen_S, spawn: katzen_spawn, get: katzen_get, place: katzen_place, stare: katzen_stare, goto: katzen_goto, jump: katzen_jumpTo, fauch: katzen_fauch, angst: katzen_angst,
-  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }
+  tragen: katzen_tragen, absetzen: katzen_absetzen, kater5: katzen_kater5, kino: katzen_kino, py: katzen_perchY, auto: katzen_auto, regie: katzen_regie, hide: katzen_hide, beob: v => { katzen_S.simBeob = v ? new THREE.Vector3(v[0], v[1], v[2]) : null; } }; }

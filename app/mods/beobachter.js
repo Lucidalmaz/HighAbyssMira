@@ -668,7 +668,7 @@ WORLD_MODS.push(['Der Beobachter', async () => {
   for (let i = 0; i < 2; i++) { const m = beob_decal(BEOB_TEX.hand, .62, .5, { rough: .12 }); S.hands.push({ m, an: false, t: 0 }); }
   // Kapitel 2: offene Lüftungsklappe am Ende des Durchgangs (Gitter hängt an einer Schraube), drei nasse Abdrücke erscheinen erst mit der Sichtung
   { const X = C2.x, Z = C2.z, kx = X + 35.25, kz = Z + .7; const kl = beob_decal(BEOB_TEX.klappe, .42, .42, { rough: .7 }); kl.position.set(kx, C2.h - .012, kz); kl.rotation.set(PI / 2, 0, 0); kl.visible = true;
-    const gp = new THREE.Group(); gp.position.set(kx - .21, C2.h - .02, kz - .2); scene.add(gp); const gr = new THREE.Mesh(new THREE.PlaneGeometry(.4, .4), new THREE.MeshStandardMaterial({ map: BEOB_TEX.gitter, alphaTest: .4, side: THREE.DoubleSide, roughness: .6, metalness: .5 }));
+    const gp = new THREE.Group(); gp.position.set(kx - .21, C2.h - .02, kz - .2); scene.add(gp); const gr = new THREE.Mesh(new THREE.PlaneGeometry(.4, .4), new THREE.MeshStandardMaterial({ map: BEOB_TEX.gitter, color: 0x5a5b58, alphaTest: .4, side: THREE.DoubleSide, roughness: .7, metalness: .3 }));
     gr.position.set(.2, -.2, 0); gp.add(gr); gp.rotation.set(.25, 0, .5); gp.userData.noCol = true;
     const prints = [[kx - .9, kz - .25], [kx - .55, kz + .05], [kx - .18, kz + .02]].map(([x, z], i) => { const m = beob_decal(BEOB_TEX.fuss, .1, .12, { alpha: true, color: 0x0b0c0e, rough: .06, op: .7 }); m.position.set(x, .012, z); m.rotation.set(-PI / 2, 0, -PI / 2 + (i % 2 ? .15 : -.15)); return m; });
     S.k2 = { st: 'warten', t: 0, x: kx, z: kz, grill: { g: gp, w: 0, t: 0 }, prints }; }

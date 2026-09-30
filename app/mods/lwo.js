@@ -356,7 +356,7 @@ const LWO_V = {
 // =====================================================================  FIGUREN (AP-06)
 // Modelle aus der Figuren-Werkstatt (tools/forge.html + cast.json; Blechmann: F.buildBlech aus ozk_low.fbx) → game/assets/chars/<id>/model.glb
 const LWO_DEF = {
-  wolter: { id: 'wolter', speed: .92, stride: 1.34, hunch: .14, seitlich: .8, blinkEigen: true },     // hager, vornübergebeugt, langsam, klein, leise; steht seitlich, sieht mit einem Auge
+  wolter: { id: 'wolter', speed: .92, stride: 1.34, hunch: .1, seitlich: .8, blinkEigen: true },     // hager, vornübergebeugt, langsam, klein, leise; steht seitlich, sieht mit einem Auge
   n11: { id: 'nachsorge11', sx: .92, speed: 1.28, stride: 1.42, vorbei: true },                        // lang, dünn, lange weiche Schritte; schaut an Luke vorbei
   n12: { id: 'nachsorge12', sx: 1.14, speed: 1.2, stride: 1.08, schreibt: true, kaut: true },          // kurz, breit, kurze schnelle Schritte, leicht wiegend; kaut; schreibt
   b: { id: 'blechmann', speed: .95, stride: 1.3, blech: true },                                         // schwer, gleichmäßig, klirrend, stumm
@@ -381,9 +381,9 @@ async function lwo_neueFigur(key, def) {
   const F = { key, def, g, obj, mx, acts, clipK: 'idle', clipW: 0, walkW: 0, path: null, pi: 0, sp: 0, yawV: 0, done: null, blickZiel: null, blick: 'luke', blickW: 0, hy: 0, hp: 0,
     talkUntil: 0, mund: 0, blink: 0, blinkT: 2 + Math.random() * 3, sit: false, lampe: false, phase: 0, gy: 0, gyT: 0, breathT: Math.random() * 9, atemT: 2 + Math.random() * 3, kopfExtra: 0, nick: 0 };
   // Knochen
-  F.head = lwo_bone(obj, /^(mixamorig)?:?Head$|^head$/i); F.neck = lwo_bone(obj, /^(mixamorig)?:?Neck$|^neck$/i);
-  F.spine = lwo_bone(obj, /^(mixamorig)?:?Spine2$|^spine3$/i) || lwo_bone(obj, /Spine1$/i); F.spineLow = lwo_bone(obj, /^(mixamorig)?:?Spine$|^spine2$/i);
-  F.handR = lwo_bone(obj, /^(mixamorig)?:?RightHand$|^wristR$/i);
+  F.head = lwo_bone(obj, /^(mixamorig)?:?Head(_\d+)?$|^head$/i); F.neck = lwo_bone(obj, /^(mixamorig)?:?Neck(_\d+)?$|^neck$/i);
+  F.spine = lwo_bone(obj, /^(mixamorig)?:?Spine2(_\d+)?$|^spine3$/i) || lwo_bone(obj, /Spine1(_\d+)?$/i); F.spineLow = lwo_bone(obj, /^(mixamorig)?:?Spine(_\d+)?$|^spine2$/i);
+  F.handR = lwo_bone(obj, /^(mixamorig)?:?RightHand(_\d+)?$|^wristR$/i);
   // Gesicht (Q-6): Blendshapes (Blinzeln, Lider zur Blickrichtung, Mund), Augäpfel über Shader gedreht
   F.morph = []; F.eyes = null; F.eyeR = { value: new THREE.Matrix3() };
   obj.traverse(o => { if (!o.isMesh || !o.morphTargetDictionary) return; const d = o.morphTargetDictionary; if (d.Eye_Blink_L === undefined && d.V_Open === undefined) return;
@@ -401,7 +401,7 @@ async function lwo_neueFigur(key, def) {
     for (const s of ['R', 'L']) { eyeMeshes[s].material.roughness = .18; }
     F.eyes = { mesh: eyeMeshes.R, hi, mid: cen.R.clone().add(cen.L).multiplyScalar(.5), yaw: 0, pitch: 0, sy: 0, sp: 0, sacT: .5 }; }
   // Wolters Hände: graue Lederhandschuhe (Stoff-Atlas); links ab AG-14 nackt – grau, glatt, ohne Linien (Behaltenen-Haut)
-  if (def.id === 'wolter') { F.bare = { value: 0 }; const handL = new Set(); const hb = lwo_bone(obj, /LeftHand$/i); if (hb) hb.traverse(b => { if (b.isBone) handL.add(b.name); });
+  if (def.id === 'wolter') { F.bare = { value: 0 }; const handL = new Set(); const hb = lwo_bone(obj, /LeftHand(_\d+)?$/i); if (hb) hb.traverse(b => { if (b.isBone) handL.add(b.name); });
     obj.traverse(o => { if (!o.isSkinnedMesh || !o.material || o.material.name !== 'Body') return; const G = o.geometry, SI = G.attributes.skinIndex, SW = G.attributes.skinWeight, a = new Float32Array(SI.count);
       for (let i = 0; i < SI.count; i++) { let w = 0; for (let c = 0; c < 4; c++) if (handL.has(o.skeleton.bones[SI.getComponent(i, c)].name)) w += SW.getComponent(i, c); a[i] = w; }
       G.setAttribute('aBare', new THREE.BufferAttribute(a, 1)); const m = o.material.clone(); m.onBeforeCompile = sh => { sh.uniforms.uBare = F.bare;
@@ -479,7 +479,7 @@ function lwo_figTick(F, dt) {
   F.hy += (hy - F.hy) * Math.min(1, dt * 2.6); F.hp += (hp - F.hp) * Math.min(1, dt * 2.6);
   const nick = F.nick > 0 ? Math.sin(F.nick * Math.PI) * .22 : 0; if (F.nick > 0) F.nick = Math.max(0, F.nick - dt * 1.4);
   lwo_rotW(F.neck, _lup, F.hy * .4); lwo_rotW(F.head, _lup, F.hy * .6 + F.kopfExtra); _lrt.set(Math.cos(g.rotation.y + F.hy), 0, -Math.sin(g.rotation.y + F.hy));
-  lwo_rotW(F.neck, _lrt, -F.hp * .4); lwo_rotW(F.head, _lrt, -F.hp * .6 + nick + Math.sin(t * .7 + F.breathT) * .015);
+  lwo_rotW(F.neck, _lrt, -F.hp * .4); lwo_rotW(F.head, _lrt, -F.hp * .6 - (def.hunch || 0) * .75 + nick + Math.sin(t * .7 + F.breathT) * .015);
   // Augen: folgen dem Ziel (Sakkaden), Lider mit; Blinzeln; Mund bei eigener Zeile
   if (F.eyes && F.head) { const E = F.eyes; F.head.updateWorldMatrix(true, false); const sk = E.mesh.skeleton;
     _lm1.multiplyMatrices(F.head.matrixWorld, sk.boneInverses[E.hi]).multiply(E.mesh.bindMatrix); _lv2.copy(E.mid).applyMatrix4(_lm1);
@@ -628,7 +628,7 @@ async function lwo_szene(id, opts = {}) {
   return res; }
 
 // =====================================================================  AG-02 · Kap. 1 · „Sind Sie von hier?“ – Laterne vor Nr. 9 (komplett spielbar)
-const LWO_AG02 = { lx: 40, lz: -6.3, n11: [40.95, -7.55], n12: [39.75, -7.2], blickNr7: new THREE.Vector3(22, 1.6, -17), papier: [41.6, -6.85], tor: [47.4, -7.9], osten: [[44, -7.5], [47.1, -7.75], [55, -7.6], [66, -7.3], [80, -6.9]] };
+const LWO_AG02 = { lx: 40, lz: -6.3, n11: [41.15, -5.45], n12: [39.85, -5.05], blickNr7: new THREE.Vector3(22, 1.6, -17), papier: [41.5, -5.95], tor: [47.4, -7.6], osten: [[44, -5.6], [47.1, -6.9], [55, -5.7], [66, -5.5], [80, -5.3]] };
 function lwo_ag02Bereit() { return lwo_kap() === 1 && !lwo_S.seen['ag:AG-02'] && !(typeof ch2 !== 'undefined' && ch2.on) && !state.cellarOpen; }
 function lwo_ag02Aufbau() { const a = LWO.F.n11, b = LWO.F.n12; if (!a || !b) return;
   const y2n7 = (x, z) => Math.atan2(LWO_AG02.blickNr7.x - x, LWO_AG02.blickNr7.z - z);
@@ -671,8 +671,8 @@ async function lwo_ag01() { const K = LWO.kombi; if (!K || LWO.playing) return; 
   if (typeof whiskey_mimic === 'function') try { whiskey_mimic('standgas'); } catch (e) {} } // W: „Er kann das jetzt“ (AP-08)
 
 // =====================================================================  SENDER (02 C3): Wolter steckt ihn bei AG-09 in die Innentasche; Kap. 3 nur fühlbar; Kap. 6 Variante A/B/C
-function lwo_senderItem() { if (typeof ITEMS === 'undefined') return; ITEMS.sender = { name: 'Grauer Kasten', desc: lwo_S.sender === 'thrown' ? 'Weggeworfen. In den Gully an der Kreuzung.' :
-  'Kleiner als eine Streichholzschachtel, ein Gehäuse aus Eisen mit dem Auge. Warm. ' + (lwo_kap() >= 6 ? 'An der Kante blinkt eine winzige rote Lampe.' : 'Er war in der Innentasche. Wo vorher der Schokoriegel war.') }; }
+function lwo_senderItem() { try { ITEMS.sender = { name: 'Grauer Kasten', desc: lwo_S.sender === 'thrown' ? 'Weggeworfen. In den Gully an der Kreuzung.' :
+  'Kleiner als eine Streichholzschachtel, ein Gehäuse aus Eisen mit dem Auge. Warm. ' + (lwo_kap() >= 6 ? 'An der Kante blinkt eine winzige rote Lampe.' : 'Er war in der Innentasche. Wo vorher der Schokoriegel war.') }; return true; } catch (e) { return false; } }
 function lwo_senderEinstecken() { lwo_S.seen.senderIn = lwo_kap(); }
 async function lwo_senderAnsehen() { if (!lwo_S.seen.senderIn || lwo_S.sender !== 'none') return lwo_S.sender; lwo_senderItem();
   openNote('In der Innentasche', 'Ein kleiner grauer Kasten aus Eisen, kleiner als eine Streichholzschachtel. Auf dem Deckel: ein Kreis, ein offenes Auge über einer Flamme. Er ist warm.\n\n<span class="hand">Der Tee. Er hat mir die Hand auf die Jacke gelegt.</span>', 'lwo_sender');
@@ -703,7 +703,8 @@ function lwo_vTick(dt) { if ((LWO.vT -= dt) > 0) return; LWO.vT = 2; if (!lwo_vF
   for (const [id] of cand) { const run = LWO.vAnker[id] || LWO_VRUN[id]; let ok = false; try { ok = run ? run() : false; } catch (e) { console.warn('LWO ' + id, e); }
     if (ok) { lwo_S.seen['v:' + id + ':' + k] = 1; LWO.vLast = LWO.T; return; } } }
 async function lwo_v01() { // Kombi ohne Licht, zwanzig Meter hinter Luke; folgt, hält, wenn Luke hält; nach dreißig Sekunden Fernlicht, dann rückwärts weg
-  const K = LWO.kombi, dir = Math.sign(Math.sin(player.yaw)) || 1; // hinter Luke (Blickrichtung = −sin/−cos) const x0 = player.pos.x + dir * 20; lwo_kombiZeigen(x0, 1.8, dir > 0 ? -Math.PI / 2 : Math.PI / 2, { motor: true }); LWO.v01 = { t: 0, dir, gesagt: false }; }
+  const dir = Math.sign(Math.sin(player.yaw)) || 1, x0 = player.pos.x + dir * 20; // hinter Luke (Blickrichtung = −sin/−cos)
+ lwo_kombiZeigen(x0, 1.8, dir > 0 ? -Math.PI / 2 : Math.PI / 2, { motor: true }); LWO.v01 = { t: 0, dir, gesagt: false }; }
 function lwo_v01Tick(dt) { const V = LWO.v01, K = LWO.kombi; if (!V || !K) return; V.t += dt; const g = K.g.position, want = player.pos.x + V.dir * 20;
   if (!V.gesagt) { const dx = g.x - camera.position.x, dz = g.z - camera.position.z, d = Math.hypot(dx, dz), f = (dx * -Math.sin(player.yaw) + dz * -Math.cos(player.yaw)) / d; if (f > .8 && d < 30) { V.gesagt = true; lwo_zeile('L', LWO_V['V-01'].zeilen[0][1]); } }
   if (V.t < 30) { if (Math.abs(want - g.x) > 1.5) { K.path = [new THREE.Vector3(want, 0, 1.8)]; K.pi = 0; K.vmax = 2.2; K.rueck = false; } }
@@ -761,15 +762,15 @@ WORLD_MODS.push(['LWO', async () => {
   // Shader vorab übersetzen (sonst ruckelt der erste Auftritt): kurz sichtbar unter der Erde
   const all = Object.values(LWO.F); const prev = all.map(F => [F.g.visible, F.g.position.clone()]);
   all.forEach(F => { F.g.visible = true; F.g.position.set(0, -60, 0); }); if (LWO.kombi) { LWO.kombi.g.visible = true; LWO.kombi.g.position.set(0, -60, 0); }
-  try { await renderer.compileAsync(scene, camera); } catch (e) {}
+  for (const o of [LWO.F.wolter, LWO.F.n11, LWO.F.n12, LWO.F.b0, LWO.kombi]) if (o) try { await renderer.compileAsync(o.g, camera, scene); } catch (e) {} // nur die eigenen Figuren (je Art eine), Lichter aus der Szene
   all.forEach((F, i) => { F.g.visible = prev[i][0]; F.g.position.copy(prev[i][1]); F.mx.update(.01); }); if (LWO.kombi) LWO.kombi.g.visible = false;
-  lwo_senderItem(); LWO.ready = true; lwo_ag02Aufbau();
+  LWO.ready = true; lwo_ag02Aufbau();
   if (typeof KAP_BEGIN !== 'undefined') for (let k = 1; k <= 6; k++) KAP_BEGIN[k].push(() => { LWO.kapBeginT = LWO.T; lwo_ag02Aufbau(); });
   window.__lwo = { S: lwo_S, LWO, trust: lwo_trust, stufe: lwo_stufe, szene: lwo_szene, ag02: lwo_ag02, ag01: lwo_ag01, figur: lwo_figur, zeigen: lwo_zeigen, gehe: lwo_gehe, lampe: lwo_lampe, hand: lwo_hand,
     kombi: lwo_kombiZeigen, kombiLicht: lwo_kombiLicht, kombiWeg: lwo_kombiWeg, blick: lwo_blick, clip: lwo_clip, v: id => (LWO.vAnker[id] || LWO_VRUN[id] || (() => false))(), ende: lwo_kapitelende, sieht: lwo_sieht, AG: LWO_AG, V: LWO_V }; // Testzugriff
 }]);
 function lwo_tick(dt) {
-  LWO.T += dt; if (!LWO.ready) return;
+  LWO.T += dt; if (!LWO.ready) return; if (!LWO.itemOk) LWO.itemOk = lwo_senderItem(); // ITEMS entsteht erst nach den Modulen
   // Blinzeln der beiden: 11 bei t, 12 bei t + 0,7 s (nie gleichzeitig)
   LWO.pairNow = false; LWO.pairLate = false; if ((LWO.pairBlink -= dt) < 0) { LWO.pairBlink = 2 + Math.random() * 4; LWO.pairNow = true; LWO.pairLateT = .7; }
   if (LWO.pairLateT > 0 && (LWO.pairLateT -= dt) <= 0) LWO.pairLate = true;
