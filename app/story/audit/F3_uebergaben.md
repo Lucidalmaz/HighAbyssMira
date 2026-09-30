@@ -74,3 +74,9 @@
 - AP-16: Lore-Schlüssel `kerbe_stuhl8` beim Untersuchen der Kerbe setzen.
 - gedanken.js: alter Gedanke an `justinArrives` („Ein Ritter. Ein echter …“) entfernen.
 - forge.html `F.canon`: `spine_01`-Kürzung und Hips-Nicht-Knochen (Fix in `_ap12_look/retarget.js`).
+
+## Aus AP-19 Kapitel 4 (fertig, Stand F3_stand_ap19.md)
+- **FPS prüfen (sauber):** Halle, Arbeitszimmer, Nr. 3 unter Last 3–4 FPS gemeldet.
+- Halle/Villa-Räume zu dunkel: Basis überschreibt `hemi.intensity` nach den Takten → Haken in der Basis-Lichtzeile (Lichtpass).
+- Kamera-NaN in Höhepunkt A nur abgefangen (`villa_heil`), Ursache offen.
+- Ungetestet: R4-1/R4-3 Fehlversuche, ∴-1 (−6), B-K4-06b, AG-12 Wege „echt“/„Fälschung“, Flicken-Einlösung, Sichtung im Kino k4, Weiterspielen aus Villa-Raum, Handschuh-Fall Höhepunkt B.

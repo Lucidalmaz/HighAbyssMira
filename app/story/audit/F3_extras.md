@@ -96,3 +96,10 @@ Nutzer (30.09.2026): „gamepad möchte ich nicht da es ein pc spiel ist“. Nic
 ## Zwischenversion (Nutzer, 30.09.2026, wörtlich: „ja aber mach bitte die ersten 3 kapitel und versuche in allen punkten schneller zu arbeiten nicht weniger ordentlich aber zügiger“)
 - Ziel: spielbare Zwischenversion mit Prolog + Kapitel 1–3 auf dem Desktop, sobald AP-12 bis AP-18 fertig sind. Danach weiter mit Kap. 4–6 und der Qualitätswelle.
 - Arbeitsweise für alle Agenten: zügiger bei gleicher Sorgfalt – gezielte Tests (nur betroffene Stelle, `__kino.seek`/Teleport statt Durchspielen), mehrere Prüfungen in einem Testlauf bündeln, keine doppelten Vollläufe, Filmstreifen nur für Bewegungen.
+
+## Keine Zwischenversionen mehr (Nutzer, 30.09.2026, wörtlich: „du musst keine zwischen versionen mehr abspeichern das spiel ist viel zu unfertig und so unspielbar deswegen konzentriere dich voll und ganz auf die hochwertige fertigstellung“)
+- Keine Desktop-Zwischenstände mehr bauen. Ziel ist die hochwertige Fertigstellung (Kap. 4–6, AP-25–27, Qualitätswelle, Sprachausgabe, Leistung ≥ 60 FPS), dann ein Release-Bau.
+
+## Reihenfolge ab 01.10.2026 (Nutzer, wörtlich: „baue erst alles inhaltliche und die top trippel a+++ game Logik Optik und Grafik und Atmosphäre und mache den spiele test und performance update erst einheitlich ganz zum schluss damit du nicht immer wieder prüfst“)
+- Erst ALLE Inhalte (Kap. 4–6, Fäden, Schreckbudget, Kap.-7-Vorbereitung) und die A+++-Qualität (Logik, Optik, Grafik, Atmosphäre, Ton, Figuren, Bewegung) bauen.
+- Spieltest (Durchlauf Kap. 1–6) und Performance-Update EINMAL gemeinsam ganz am Schluss. Bis dahin je Arbeitspaket nur Syntax/Build und höchstens ein kurzer gezielter Funktions-/Sichtcheck, keine FPS-Messungen, keine Wiederholungsläufe.
