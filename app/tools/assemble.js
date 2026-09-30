@@ -4,8 +4,11 @@
 // dann jedes mods/<bereich>.js vor der Zeile // @@WELT-MODULE@@ – Reihenfolge laut BRIEF.md.
 const fs = require('fs'), path = require('path'), cp = require('child_process');
 const APP = path.resolve(__dirname, '..'), MODS = path.join(APP, 'mods');
+// Fassung 3 (AP-12): justin vor figuren (Nachbild-Klone übernehmen Material/Helm; Flicken werden beim Klonen entfernt)
+// Fassung 3 (AP-16): amt nach zimmer7 (Kapitel 2, Ebene −2: neue Räume, Nadeldrucker, Lautsprecher, Nebenaufgaben – braucht innen_kapitel, lwo, beobachter, feuer)
+// Fassung 3 (AP-18): neben3 (Kap.-3-Nebenaufgaben: Register, RH, Glocken-Joker, Kapelle/Pfarrhaus/Gisela/Peters Zimmer) und remise (Remise am Hof, Dina) nach karte
 // Fassung 3 (AP-03): neu eingetragen (Dateien legen spätere APs an): katzen, kirchberg, post nach leben; villa nach anwesen; lwo vor beobachter; sammeln nach entdecker
-const ORDER = ['kapitel', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'katzen', 'kirchberg', 'post', 'nr4', 'zeichen', 'ausruestung', 'uebergang', 'fotos', 'album', 'geheimnisse', 'figuren', 'albers', 'gedanken', 'whiskey', 'tausch', 'beutel', 'kiffen', 'visionen', 'anwesen', 'villa', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'lwo', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'sammeln', 'karte', 'akte', 'klang', 'spannung', 'traum', 'weiss', 'kino', 'tod', 'feuer', 'augenzu', 'zimmer7', 'lucy3', 'kamera', 'kapitel5', 'kapitel6', 'raender'];
+const ORDER = ['kapitel', 'teststand', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'katzen', 'kirchberg', 'post', 'nr4', 'zeichen', 'ausruestung', 'uebergang', 'fotos', 'album', 'geheimnisse', 'justin', 'figuren', 'albers', 'gedanken', 'whiskey', 'tausch', 'beutel', 'kiffen', 'visionen', 'anwesen', 'villa', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'lwo', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'sammeln', 'karte', 'neben3', 'remise','akte', 'klang', 'spannung', 'traum', 'weiss', 'kino', 'kapitel1', 'tod', 'feuer', 'augenzu', 'zimmer7', 'amt', 'lucy3', 'kapitel3', 'kamera', 'kapitel5', 'kapitel6', 'raender'];
 // Veröffentlichung: --release (oder HAM_RELEASE=1) → ../game/index.release.html; die Test-index.html bleibt unberührt (parallele Selbsttests).
 // Setzt window.IS_RELEASE (Basis: DEV = false → kein Story-Editor, keine F3-Messanzeige, keine Entwickler-Hinweise) und entfernt alle
 // Testzugriffe: Zuweisungen an window.G, window.HAM_UI und window.__* – außer denen, die das Spiel selbst liest (Ladeanzeige, __traumWake).
@@ -44,6 +47,9 @@ for (const area of ORDER) {
 // Einheitliche Zeilenenden wie in der Basis (Python-Patches liefern \n, die Module teils \r\n)
 const crlf = /\r\n/.test(fs.readFileSync(path.join(MODS, '_base_source_index.html'), 'utf8').slice(0, 4000));
 html = html.replace(/\r\n/g, '\n'); if (crlf) html = html.replace(/\n/g, '\r\n');
+// Zwischenversion: HAM_TESTSTAND=<letztes Kapitel> → nach diesem Kapitel zeigt mods/teststand.js „Ende der Testversion“
+if (process.env.HAM_TESTSTAND) html = html.replace('<head>', `<head>
+<script>window.HAM_TESTSTAND = ${+process.env.HAM_TESTSTAND};</script>`);
 if (RELEASE) {
   if (!html.includes('<head>')) throw new Error('Veröffentlichung: <head> fehlt');
   html = html.replace('<head>', '<head>\n<script>window.IS_RELEASE = true;</script>');
