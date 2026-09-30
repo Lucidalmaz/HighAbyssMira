@@ -204,6 +204,14 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   if (burnSrc) { const drop = []; burnSrc.traverse(m => { if (m.isMesh && /25/.test([].concat(m.material)[0].name)) drop.push(m); }); drop.forEach(m => m.parent.remove(m));
     msFit(burnSrc, 4.4, 'z'); burnSrc.rotation.y = ryFor(-1, 0) + .14; const g = msGround(burnSrc); msPlace(g, -8.5, 0, -13.05, 0); reg('cars', g);
     clickOn(g, 4.6, 1.3, 2.2, 'Ausgebranntes Auto', lockedTalk(['Ausgebrannt bis aufs Blech. Auf dem Rücksitz: das Gestell eines Kindersitzes.', 'Die Asche im Fußraum ist weich und warm. Darin: der Abdruck einer kleinen Hand.'], -8.5, -13.05)); }
+  // ---- Lukes Leihwagen am Ortsschild (F3 AP-13, Prolog): Fahrertür sperrangelweit offen, Innenlicht an, Warnsummen – bis Whiskey den Schlüssel hergibt (W-03 → strasse_autoZu)
+  { const sLuke = await safe(msFBX('car_amsedan', 'Car.fbx', SED(0x8f9597, false)));
+    if (sLuke) { const g = new T.Group(); g.position.set(-74.9, 0, 2.8); g.rotation.y = PI - .08; scene.add(g); g.add(fitSedan(sLuke, false)); g.updateMatrixWorld(true); // Front +x (Fahrtrichtung Ort), schräg angehalten
+      let door = null; sLuke.traverse(m => { if (m.isMesh && m.name === 'CDoor_FL') door = m; });
+      if (door) { const inv = g.matrixWorld.clone().invert(), bb = new T.Box3().setFromObject(door).applyMatrix4(inv);
+        const piv = new T.Group(); piv.position.set(bb.min.x + .06, 0, bb.max.z - .05); g.add(piv); piv.updateMatrixWorld(true); piv.attach(door); S.autoTuer = piv; }
+      const lt = new VLight(0xffd4a0, 0, 3.3, 2); lt.position.set(.2, 1.2, 0); g.add(lt); S.autoLicht = lt; // Innenlicht: virtuelles Licht, beim Laden mit Intensität 0
+      addCol(-77.2, -72.6, 1.85, 3.75); S.auto = g; S.autoAuf = 0; S.autoWin = 0; S.autoDing = 0; S.autoDingT = 0; S.autoChk = 0; S.autoZuT = -1; } }
 
   // =====================================================================  BRIEFKÄSTEN (mailbox_cc0: Kasten mit Klappe und Fähnchen auf Holzpfosten)
   const bodies = msFind(m => !!(m.userData && m.userData.lid && m.userData.group)); // alle mailboxAt()-Kästen (Nr. 1, 2, 3, 4, 6, 7, 8, 9)
@@ -306,10 +314,10 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const plate = new T.Mesh(new T.BoxGeometry(1.4, .77, .025), [back, back, back, back, plateMat(false), plateMat(true)]); plate.position.set(-72.3, 2.05, 6.3); plate.rotation.y = PI / 2; plate.castShadow = true; scene.add(plate);
     const zus = new T.Mesh(new T.BoxGeometry(.72, .3, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(512, 214, (x, w, h) => {
       x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h); grain(x, w, h, 2000, .2); x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('Einwohner 214', w / 2, 128);
-      x.strokeStyle = 'rgba(150,10,10,.9)'; x.lineWidth = 9; x.beginPath(); x.moveTo(248, 112); x.lineTo(470, 96); x.stroke(); x.fillStyle = 'rgba(150,10,10,.9)'; x.font = '64px Caveat'; x.fillText('211', 430, 196); }) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);
+      x.strokeStyle = 'rgba(150,10,10,.9)'; x.lineWidth = 9; x.beginPath(); x.moveTo(248, 112); x.lineTo(470, 96); x.stroke(); x.fillStyle = 'rgba(150,10,10,.9)'; x.font = '64px Caveat'; x.fillText('211', 430, 196); x.strokeStyle = 'rgba(55,55,58,.75)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(482, 150); x.lineTo(476, 171); x.lineTo(489, 197); x.stroke(); }) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);
     zus.position.set(-72.28, 1.47, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
     const pole = signGeo('Road_Sign_03', true); if (pole) for (const dz of [-.52, .52]) { const m = new T.Mesh(pole.geo, pole.mat); m.position.set(-72.34, 2.4 - pole.top, 6.3 + dz); m.castShadow = true; scene.add(m); }
-    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben ein frischer Bleistiftstrich. Als hätte jemand schon angesetzt, die Zahl noch einmal zu ändern.', 5200)); }
+    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => toast(state.ch1Done || (typeof kap === 'function' && kap() >= 2) ? 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.' : 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben ein frischer Bleistiftstrich. Als hätte jemand schon angesetzt, die Zahl noch einmal zu ändern.', 5200)); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
   // Gemeinde-Schild (Scan eines Parkschilds, Blech neu beschriftet) am Gehweg nahe der Kirchweg-Gasse – STORY-HOOK: die Gemeinde weiß Bescheid
   if (parkSrc && parkTex) { const o = parkSrc.clone(true); o.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.map = parkTex; m.material.needsUpdate = true; } }); const g = msGround(o); msPlace(g, -12.6, 0, 5.62, PI);
     interact(hitBox(.7, .6, .15, 0, 1.45, 0, g), 'Schild lesen', () => openNote('Schild der Gemeinde', '<b>GEMEINDE LOST EYENGLESS</b>\nNACHTRUHE 3 – 4 UHR\nStraße nicht betreten.\nKinder im Haus behalten.\n— Der Bürgermeister\n\nDas Schild ist neu, die Schrauben glänzen noch. Unter der Farbe schimmert eine ältere Schrift durch.', 'strasse_schild')); }
@@ -471,4 +479,21 @@ WORLD_TICK.push((dt, t, indoor) => {
   if (S.far && (S.tk = (S.tk || 0) + 1) % 8 === 0) { const c = camera.position; for (const f of S.far) { const v = Math.hypot(f.c.x - c.x, f.c.z - c.z) < f.d; if (f.ims[0].visible !== v) f.ims.forEach(m => m.visible = v); } }
   if (S.lenaPiv && S.lenaProxy) S.lenaPiv.rotation.y = -S.lenaProxy.rotation.y;
   if (S.boothGlow) { const on = booth.light.intensity > .25; S.boothGlow.emissiveIntensity = on ? 2.2 : .03; for (const m of S.signGlow) m.emissiveIntensity = on ? 1.1 : .05; }
+  if (S.auto) strasse_autoTick(dt);
 });
+// ---------------------------------------------------------------- Lukes Leihwagen (AP-13): offen + Innenlicht in Kap. 1 bis W-03; Laden stellt den Zustand wieder her
+const STRASSE_TUER = -1.08; // „sperrangelweit“
+function strasse_autoSoll() { if (!state.started || strasse_S.autoGeschlossen) return false; const k = typeof kap === 'function' ? kap() : curChapter();
+  return k === 1 && !(typeof whiskey_S !== 'undefined' && whiskey_S.flags && whiskey_S.flags.has('w03')); }
+function strasse_autoAuf(summen = true) { const S = strasse_S; if (!S.auto || S.autoGeschlossen) return; S.autoAuf = 1; S.autoZuT = -1; if (S.autoTuer) S.autoTuer.rotation.y = STRASSE_TUER; if (summen) { S.autoDing = 90; S.autoDingT = .4; } } // traum.js beim Aufwachen
+function strasse_autoZu() { const S = strasse_S; if (!S.auto || S.autoGeschlossen) return; S.autoGeschlossen = true; S.autoDing = 0; if (S.autoAuf) S.autoZuT = 0; S.autoAuf = 0; } // whiskey.js W-03: Schlüssel zurück
+function strasse_autoDing() { const A = Audio, p = strasse_S.auto.position; if (!A.ctx) return; const d = A.at(p.x + .3, 1, p.z - 1, 2); if (A.cut) return; // Tür-offen-Gong: zwei weiche Töne, aus dem Wagen
+  const o = A.osc('sine', 1318.5, 0, .5), o2 = A.osc('sine', 1046.5, .16, .5); A.env(o, .06, .004, .3, 0, d); A.env(o2, .045, .004, .34, .16, d); }
+function strasse_autoTick(dt) { const S = strasse_S;
+  S.autoChk -= dt; if (S.autoChk <= 0) { S.autoChk = 1; const soll = strasse_autoSoll(); if (soll && !S.autoAuf) strasse_autoAuf(false); else if (!soll && S.autoAuf && state.started) { S.autoAuf = 0; S.autoZuT = S.autoGeschlossen ? 0 : -1; if (!S.autoGeschlossen && S.autoTuer) S.autoTuer.rotation.y = 0; } }
+  // Innenlicht: glimmt beim Öffnen auf, dimmt nach dem Schließen langsam ab (wie echte Innenleuchten)
+  const lw = S.autoAuf ? 1 : 0; S.autoWin += (lw - S.autoWin) * Math.min(1, dt * (lw ? 3 : .9)); if (S.autoWin < .002) S.autoWin = 0; if (S.autoLicht) S.autoLicht.intensity = 1.35 * S.autoWin;
+  if (S.autoDing > 0 && S.autoAuf) { S.autoDing -= dt; S.autoDingT -= dt; if (S.autoDingT <= 0) { S.autoDingT = 1.1; strasse_autoDing(); } }
+  if (S.autoZuT >= 0 && S.autoTuer) { S.autoZuT += dt / .62; const k = Math.min(1, S.autoZuT), e = k * k * (1.6 - .6 * k); // Tür fällt zu: beschleunigt, prallt am Schloss kurz nach
+    S.autoTuer.rotation.y = k < 1 ? STRASSE_TUER * (1 - e) : 0; if (k >= 1 && S.autoZuT < 99) { S.autoZuT = 99; const p = S.auto.position; Audio.play('carDoor', { gain: .7, x: p.x + .3, y: 1, z: p.z - 1, ref: 3 }); S.autoNach = .22; } }
+  if (S.autoNach > 0 && S.autoTuer) { S.autoNach -= dt; const u = Math.max(0, S.autoNach) / .22; S.autoTuer.rotation.y = -.018 * Math.sin((1 - u) * PI * 2) * u; } }
