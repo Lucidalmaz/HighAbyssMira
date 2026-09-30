@@ -40,7 +40,7 @@ const FEU_VS = `attribute vec3 iPos; attribute vec4 iD; uniform float uCyl, uAsp
 // schwarzen Ruß über. Fast deckend gezeichnet (vorvervielfachte Deckkraft), damit sich Schichten nicht zu Weiß aufaddieren.
 const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
   void main(){ float y = vUv.y, t = uTime * 1.5 + vSeed * 17.;
-    float hgt = .72 + .55 * fract(vSeed * 7.31), yy = y / hgt;
+    float hgt = .72 + .38 * fract(vSeed * 7.31), yy = y / hgt;
     vec2 q = vec2(vUv.x * 2.4 + vSeed * 9.1, yy * 2.0 - t * 1.9);
     vec2 w = vec2(fB(q * .6 + vec2(0., t * .4)), fB(q * .6 + vec2(4.7, t * .35))) - .5;
     float nz = fB(q + w * vec2(1.9, 1.3)), fine = fN(q * 3.7 + w * 2.5 - vec2(0., t * 1.1));

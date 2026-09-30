@@ -175,6 +175,7 @@ function beob_peekSpot(minF, maxF, far = [12, 22]) {
 }
 function beob_show(sp) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); V.g.visible = true; V.tiltT = 0; }
 function beob_vanish() { const S = beob_S, V = S.V, p = V.g.position; V.g.visible = false; beob_rustle(p.x, p.z, 1.2); beob_patter(p.x, p.z, 5); if (Math.random() < .4) beob_chirp(p.x, p.z);
+  if (typeof K6 !== 'undefined' && K6.on && /^(bau|epilog|hochsitz|oben)$/.test(K6.beat)) return; // Kapitel-6-Finale und Epilog: kein Gedanke, die Szene gehört dem Jungen und dem Raben
   if (typeof gedanke === 'function') gedanke('beob_sehen', 'Da war was. Klein. Weiß. Große Augen. … Und jetzt ist es weg. Als hätte es gewusst, dass ich hinsehe.', 1200, 3); }
 function beob_peekTick(dt) {
   const S = beob_S, V = S.V, K = S.peek; if (!V || !K) return; K.t += dt;

@@ -13068,6 +13068,7 @@ function beob_peekSpot(minF, maxF, far = [12, 22]) {
 }
 function beob_show(sp) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.y = Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]); V.g.visible = true; V.tiltT = 0; }
 function beob_vanish() { const S = beob_S, V = S.V, p = V.g.position; V.g.visible = false; beob_rustle(p.x, p.z, 1.2); beob_patter(p.x, p.z, 5); if (Math.random() < .4) beob_chirp(p.x, p.z);
+  if (typeof K6 !== 'undefined' && K6.on && /^(bau|epilog|hochsitz|oben)$/.test(K6.beat)) return; // Kapitel-6-Finale und Epilog: kein Gedanke, die Szene gehört dem Jungen und dem Raben
   if (typeof gedanke === 'function') gedanke('beob_sehen', 'Da war was. Klein. Weiß. Große Augen. … Und jetzt ist es weg. Als hätte es gewusst, dass ich hinsehe.', 1200, 3); }
 function beob_peekTick(dt) {
   const S = beob_S, V = S.V, K = S.peek; if (!V || !K) return; K.t += dt;
@@ -15487,7 +15488,7 @@ const FEU_VS = `attribute vec3 iPos; attribute vec4 iD; uniform float uCyl, uAsp
 // schwarzen Ruß über. Fast deckend gezeichnet (vorvervielfachte Deckkraft), damit sich Schichten nicht zu Weiß aufaddieren.
 const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
   void main(){ float y = vUv.y, t = uTime * 1.5 + vSeed * 17.;
-    float hgt = .72 + .55 * fract(vSeed * 7.31), yy = y / hgt;
+    float hgt = .72 + .38 * fract(vSeed * 7.31), yy = y / hgt;
     vec2 q = vec2(vUv.x * 2.4 + vSeed * 9.1, yy * 2.0 - t * 1.9);
     vec2 w = vec2(fB(q * .6 + vec2(0., t * .4)), fB(q * .6 + vec2(4.7, t * .35))) - .5;
     float nz = fB(q + w * vec2(1.9, 1.3)), fine = fN(q * 3.7 + w * 2.5 - vec2(0., t * 1.1));
