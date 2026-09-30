@@ -50,7 +50,7 @@ function z7_snd(kind) {
 // ---------------------------------------------------------------- Schlüsselkette
 // Aufruf aus der Basis (Schließen des Vermessungsprotokolls): Schlüssel ZIMMER 7 + die Erleichterung (einmal)
 function z7_protokoll() {
-  if (!ch2.z7Key) { ch2.z7Key = true; addItem('zimmer7'); setC2Objective('Finde Zimmer 7.'); z7_uhr(1, 31); }
+  if (!ch2.z7Key) { ch2.z7Key = true; addItem('zimmer7'); setC2Objective('Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.'); z7_uhr(1, 31); }
   if (z7_S.relief) return; z7_S.relief = true;
   z7_S.reliefP = (async () => {
     await wait(700); await say([['Das achte Kind. Ein Mädchen.', 3200, 'LUKE']]);
@@ -74,7 +74,7 @@ function z7_takeKey() {
   if (z7_S.keyOn) z7_S.keyOn.visible = false; if (z7_S.keyOff) z7_S.keyOff.visible = true;
   Audio.play('keys1', { gain: .5, x: C2.x + 34.4, y: 1.5, z: C2.z - 2.2, ref: 2 });
   toast('Ein Schlüssel an einem roten Band. Auf dem Anhänger, in Hildes Schrift: SICHERUNG.', 4200);
-  if (!ch2.power) setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.');
+  if (!ch2.power) setC2Objective('Ohne Strom geht die Stahltür im Osten nicht auf. Finde den Sicherungsraum und schalte den Strom ein.');
   try { if (typeof todCheckpoint === 'function') todCheckpoint('zimmer7', 'Zimmer 7'); } catch (e) {}
 }
 function z7_takeAushang() {
@@ -98,7 +98,7 @@ CH2_BEGIN.push(() => {
     const took = v ? !!v.sk || ch2.power : ch2.power;
     if (v && v.open && z7_S.door) z7_S.door.locked = false; if (v && v.pr) z7_S.printed = true;
     if (took) { z7_S.took = true; ch2.fuseKey = true; if (z7_S.keyOn) z7_S.keyOn.visible = false; if (z7_S.keyOff) z7_S.keyOff.visible = true; }
-    else { ch2.fuseKey = false; fuseDoor.locked = true; story.items = story.items.filter(k => k !== 'fuse'); if (!ch2.power) setC2Objective('Finde Zimmer 7.'); } // Speicherpunkte vor Zimmer 7: der Sicherungsraum bleibt zu
+    else { ch2.fuseKey = false; fuseDoor.locked = true; story.items = story.items.filter(k => k !== 'fuse'); if (!ch2.power) setC2Objective('Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.'); } // Speicherpunkte vor Zimmer 7: der Sicherungsraum bleibt zu
     z7_syncAushang();
   } catch (e) { console.warn('zimmer7 Wiederherstellung', e); } }, 0);
 });

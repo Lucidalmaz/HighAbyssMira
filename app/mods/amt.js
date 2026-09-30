@@ -36,6 +36,10 @@ function amt_trust(key) { try { if (typeof lwo_ereignis === 'function') lwo_erei
 modItem('wartenummer', 'Wartenummer 8', 'Aus dem Nummernautomaten im Tunnel. Eine 8, schwarz auf Pappe. Wird nie aufgerufen.', 'paper');
 modItem('leiter_amt', 'Leiter', 'Eine Holzleiter aus dem Sicherungsraum. Schwer, und sie klappert bei jedem Schritt.', 'key');
 modItem('umschlag7', 'Brauner Umschlag', '„BfR · AST LE · DURCHSCHLAG · VERTRAULICH“. Aus dem Fach mit Akte 08. Ungeöffnet. Nicht jetzt.', 'paper');
+// F3 Verständlichkeit: die Aufgaben der Basis auf Ebene −2 sagen, warum (das Ziel ist Lucy) – exakte Ersetzung, alles andere bleibt wie gesetzt
+const AMT_ZIEL = { 'Folge dem Tunnel.': 'Folge dem Gang. Irgendwo hier unten ist Lucy.', 'Finde heraus, was das Amt über die Kinder wusste.': 'Die Akten der sieben Kinder von 2009. Lucys und deine sind dabei. Lies sie.',
+  'Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.': 'Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.', 'Der Messraum. Hier ist es passiert.': 'Da vorn liegt der Messraum. Von dort kommt Lucys Summen.', 'Der Messraum. Das Klavier.': 'Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach, was sie summt.' };
+setC2Objective = (o => t => o(Object.prototype.hasOwnProperty.call(AMT_ZIEL, t) ? AMT_ZIEL[t] : t))(setC2Objective);
 
 // ---------------------------------------------------------------- Werkzeuge
 let amt_rs = 16061; const amt_R = (a, b) => { amt_rs = (amt_rs * 16807) % 2147483647; return a + (b - a) * (amt_rs / 2147483647); };
@@ -759,7 +763,7 @@ function amt_regieTick(dt) { const S = amt_S, P = player.pos, X0 = C2.x, Z0 = C2
       await wait(900); await amt_band('', { schnitte: ['Bitte …', 'nicht …', 'rennen.', 'Bitte …', 'nicht …', 'gucken.'], kichern: true, spieluhr: true }); await wait(900);
       gedanke('amt_geschnitten', 'Das ist geschnitten. Jedes Wort aus einem anderen Raum. Wer klebt so was zusammen?', 0, 3); s.summT = S.t + 9; })(); }
   if (s.summT && !s.summ && S.t > s.summT && !state.talking) { s.summ = 1; amt_summen(X0 + 70, -2, Z0, .05, .9); setTimeout(() => { try { Audio.duck && Audio.duck(3); } catch (e) {} }, 1500);
-    setTimeout(() => say([['Keine Spieluhr darunter. Das ist sie.', 3200, 'LUKE']]), 6800); }
+    setTimeout(() => say([['Keine Spieluhr darunter. Das ist sie. Das ist Lucy.', 3600, 'LUKE']]), 6800); }
   // Bahnhofsuhr im Tunnel: springt zweimal, während Luke hinsieht
   if (S.uhren && !s.uhrSprung && s.tunnel && amt_nah(S.uhren[0].x, S.uhren[0].z, 9)) { camera.getWorldDirection(_amtV); const U = S.uhren[0], dx = U.x - camera.position.x, dy = U.y - camera.position.y, dz = U.z - camera.position.z, d = Math.hypot(dx, dy, dz) || 1;
     if ((_amtV.x * dx + _amtV.y * dy + _amtV.z * dz) / d > .95) { s.uhrSprung = 1; amt_uhr(1, 7); setTimeout(() => amt_uhr(1, 8), 700); } }

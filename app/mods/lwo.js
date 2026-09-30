@@ -428,7 +428,9 @@ function lwo_clip(F, k) { if (F && F.acts[k]) F.clipK = k; } // Standbewegung: i
 function lwo_blick(F, ziel) { if (F) F.blick = ziel; } // 'luke' | Vector3 | null
 function lwo_sprich(F, ms) { if (F) F.talkUntil = LWO.T + ms / 1000; }
 function lwo_hand(art) { const F = LWO.F.wolter; if (F && F.bare) F.bare.value = art === 'bare' ? 1 : 0; } // Wolter: linker Handschuh ab AG-14 weg
-function lwo_sitzen(F, seatY) { if (!F || typeof figuren_seat !== 'function') return; F.g.updateMatrixWorld(true); figuren_seat({ g: F.g, obj: F.obj, mx: F.mx, doll: false, set cur(v) {}, get cur() { return null; } }, seatY); F.sit = true; }
+// P2: Figuren mit Mocap-Clip „sit“ sitzen mit laufendem Mischer (Atmen, Gewicht verlagern; Takt setzt das Becken auf seatY). Ohne „sit“: alte Sitzhaltung, Zusatzschicht auf eine feste Grundlage (F.sitQ), sonst summiert sie sich auf.
+function lwo_sitzen(F, seatY) { if (!F) return; if (F.acts.sit) { F.sit = true; F.sitW = 1; F.seatY = seatY; F.walkW = 0; return; } if (typeof figuren_seat !== 'function') return; F.g.updateMatrixWorld(true); figuren_seat({ g: F.g, obj: F.obj, mx: F.mx, doll: false, set cur(v) {}, get cur() { return null; } }, seatY); F.sit = true; F.sitProc = true;
+  F.sitQ = [F.spineLow, F.spine, F.neck, F.head].filter(Boolean).map(b => [b, b.quaternion.clone()]); }
 // Blechmann-Lampe: Leuchtbild auf der Brust (je Figur) + der eine Scheinwerfer (beim Laden angelegt, Intensität 0), immer bei der zuletzt eingeschalteten Lampe; hörbares Klack
 function lwo_lampe(F, an) { if (!F || !F.def.blech) return; F.lampe = !!an; for (const m of F.suit) m.emissiveIntensity = an ? 3.2 : 0;
   if (typeof Audio !== 'undefined' && Audio.ctx && F.g.visible) Audio.play(an ? 'switch1' : 'switch2', { gain: .5, rate: .8, x: F.g.position.x, y: 1.4, z: F.g.position.z, ref: 2 });
@@ -458,11 +460,18 @@ function lwo_figTick(F, dt) {
   F.sp += Math.sign(want - F.sp) * Math.min(Math.abs(want - F.sp), dt * (want > F.sp ? 1.6 : 2.4));
   if (F.sp > .01) { g.position.x += Math.sin(g.rotation.y) * F.sp * dt; g.position.z += Math.cos(g.rotation.y) * F.sp * dt; if ((F.gyT -= dt) < 0) { F.gyT = .3; F.gy = lwo_bodenY(g.position.x, g.position.z); } g.position.y += (F.gy - g.position.y) * Math.min(1, dt * 8); }
   // Bewegungsgewichte: Gehen ↔ Stehbewegung (Überblendung), Gehtempo aus der Geschwindigkeit
-  if (!F.sit) { const A = F.acts, ww = Math.min(1, F.sp / (def.speed * .45)); F.walkW += (ww - F.walkW) * Math.min(1, dt * 5);
-    if (A.walk) { A.walk.setEffectiveWeight(F.walkW); A.walk.timeScale = Math.max(.35, F.sp / def.stride) * (F.walkW > .02 ? 1 : 0); }
-    for (const k of ['idle', 'look', 'nervous', 'phone']) { const a = A[k]; if (!a) continue; const tw = (k === F.clipK ? 1 : 0) * (1 - F.walkW); const cw = a.getEffectiveWeight(); a.setEffectiveWeight(cw + (tw - cw) * Math.min(1, dt * 3)); }
+  // P2: Gewichte immer mit Summe 1 (sonst mischt three.js die Bindepose hinein → verdrehte Glieder beim Anhalten); Sitzen = Mocap-Clip „sit“ (Mischer läuft weiter, nichts summiert sich auf);
+  // Schrittlänge aus dem Tempo des Mocap-Geh-Clips (F.vWalk, m/s) statt des alten Werts def.stride → kein Gleiten
+  if (!F.sitProc) { const A = F.acts, sitT = F.sit && A.sit ? 1 : 0; F.sitW += (sitT - F.sitW) * Math.min(1, dt * 2.5); if (Math.abs(sitT - F.sitW) < .01) F.sitW = sitT;
+    const ww = F.sit ? 0 : Math.min(1, F.sp / (def.speed * .45)); F.walkW += (ww - F.walkW) * Math.min(1, dt * 5);
+    if (A.walk) { A.walk.setEffectiveWeight(F.walkW * (1 - F.sitW)); A.walk.timeScale = Math.max(.35, Math.min(1.7, F.sp / F.vWalk)) * (F.walkW > .02 ? 1 : 0); }
+    if (A.sit) A.sit.setEffectiveWeight(F.sitW);
+    let sum = 0; for (const k of LWO_STAND) { const a = A[k]; if (!a) continue; const tw = k === F.clipK ? 1 : 0, cw = a.getEffectiveWeight(); const nw = cw + (tw - cw) * Math.min(1, dt * 3); a.setEffectiveWeight(nw); sum += nw; }
+    const rest = (1 - F.walkW) * (1 - F.sitW); if (sum > 1e-4) { for (const k of LWO_STAND) { const a = A[k]; if (a) a.setEffectiveWeight(a.getEffectiveWeight() / sum * rest); } } else if (A.idle) A.idle.setEffectiveWeight(rest);
     if (F.block) F.block.visible = F.clipK === 'phone' && F.walkW < .5;
-    F.mx.update(dt); }
+    F.mx.update(dt);
+    if (F.hips && (F.sitW > 0 || F.obj.position.y !== 0)) { F.hips.updateWorldMatrix(true, false); F.hips.getWorldPosition(_lv1); F.obj.position.y = F.sitW > 0 ? F.sitW * (F.seatY + .08 - (_lv1.y - F.obj.position.y)) : 0; } } // Becken auf die Sitzfläche
+  else if (!F.sit) { F.sitProc = false; F.obj.position.y = 0; for (const k in F.acts) F.acts[k].play(); } // prozedural gesessen (Figur ohne „sit“): Mischer wieder an
   // (Weltmatrizen: getWorldQuaternion/updateWorldMatrix aktualisieren nur die Kette, die gebraucht wird – kein zweiter Durchlauf über die ganze Figur)
   // Atmung, Haltung (Wolter vornübergebeugt), Blechmann schwerer Oberkörper
   _lrt.set(Math.cos(g.rotation.y), 0, -Math.sin(g.rotation.y));
@@ -833,7 +842,7 @@ async function lwo_ag07() { const G = LWO_AG07; if (G.busy || G.done || (typeof 
     if (tu && tu.r && /Butterbrotpapier/.test(tu.r)) { if (typeof amt_S !== 'undefined' && amt_S.butterbrot) amt_S.butterbrot.visible = true; return true; }
     return false; } });
   if (G.fail) return; G.busy = false; G.done = true; G.phase = ''; lwo_ag07Hinweis(''); if (typeof amt_S !== 'undefined') amt_S.ag07 = true;
-  if (typeof setC2Objective === 'function') setC2Objective('Der Messraum.'); if (typeof saveGame === 'function') saveGame(2); void res; }
+  if (typeof setC2Objective === 'function') setC2Objective('Die Männer sind weg. Weiter in den Messraum.'); if (typeof saveGame === 'function') saveGame(2); void res; }
 async function lwo_ag07Abgang(a, b) { const X0 = C2.x, Z0 = C2.z; await Promise.all([lwo_gehe(a, [[X0 + 107.3, Z0 + .6], [X0 + 106.5, Z0 + .2]], .95), lwo_gehe(b, [[X0 + 106.6, Z0 - .4]], .95)]);
   if (typeof chaseDoor !== 'undefined') { chaseDoor.locked = false; chaseDoor.set(true); try { Audio.slide(X0 + 106, Z0); } catch (e) {} }
   await Promise.all([lwo_gehe(a, [[X0 + 101, Z0 + .3]], .95), lwo_gehe(b, [[X0 + 100.2, Z0 - .3]], .95)]);

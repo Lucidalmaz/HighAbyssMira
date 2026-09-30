@@ -209,6 +209,8 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   await say([['<i>Die Fibel steckt drin. Sie ist nass. Sie ist echt.</i>', 3800, 'LUKE']]);
   state.talking = false; questPop('ABENTEUERFIBEL', 'Taste Tab – Aufgaben, Funde, Inventar, Fotos');
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren und im Auto eingepennt. Jetzt ist es schon wieder Nacht.', 0, 3); }, 2500);
+  // F3 Verständlichkeit: wer Lucy ist und warum Luke jetzt kommt (Schuld: elf Anrufe, Kern §10.1) – eigenes Fenster, damit die Whiskey-Szene am Ortsschild sie nicht verdrängt
+  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_elf', 'Meine Zwillingsschwester. Am 23. hat sie mich elfmal angerufen. Elfmal weggedrückt, ich war ja beschäftigt. Diesmal fahr ich nicht ohne sie.', 0, 3); }, 13000);
   if (!story.lore.some(l => l.key === 'traum')) story.lore.push({ key: 'traum', title: 'Der Traum vom Raben', html: 'Die leere Straße, weißer Nebel. Irgendwo zählt ein Kind. Ein Rabe auf der Laterne an der Kreuzung:\n\n„Luke. Du hast lange geschlafen. Siebzehn Jahre lang.“\n„Deine Schwester ist nicht verschwunden. Sie hat sich versteckt. Vor etwas, das sucht.“\n„In diesem Dorf versteckt sich jeder vor irgendwem. Die Kinder vor dem Licht. Die Eltern vor dem, was sie unterschrieben haben. Und du, Kind … vor dir selbst.“\n\nEr hat mir die Abenteuerfibel zurückgegeben: „Finde Lucy. Finde heraus, was mit diesem Dorf geschehen ist. Und finde heraus, wer du bist.“\n\n„Kum, Wîse.“' });
 }
 // ---------------------------------------------------------------- Kapitel 1 (W2-P3): der UFO-Kegel und die Ortstafel

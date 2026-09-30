@@ -122,7 +122,7 @@ async function lucy3_opening() {
   const S = lucy3_S; if (S.opening) return; S.opening = true; const K = typeof kapitel3_S !== 'undefined' ? kapitel3_S : null;
   try {
     const nahtlos = K && !K.tafel, vorbei = typeof leben_uhrSync === 'function' && leben_uhrSync().c3; // die Glocke hat schon unter der Endkarte von Kapitel 2 geschlagen
-    setC3('Finde heraus, was mit Lost Eyengless geschehen ist.');
+    setC3('Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.'); // F3 Verständlichkeit: das Ziel zuerst (Kap. 3 UK 5 „Hol Lucy zurück“)
     lamps.forEach(L => { L.mode = 'off'; }); // die Laternen der Ahornstraße sind aus, alle
     if (nahtlos) { await lucy3_tafel(); if (lucy3_weg()) return; }
     await lucy3_aufwachen(); if (lucy3_weg()) return;
@@ -135,6 +135,7 @@ async function lucy3_opening() {
     lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; }); Audio.flick(); Audio.hum(true); // sämtliche Laternen gehen an, auch die ausgeblasenen – hell, dunkler, wieder hell; ein Summen im Bauch
     await wait(3400);
     await say([['Elf Anrufe. Diesmal geh ich ran.', 3200, 'DU']]);
+    if (typeof gedanke === 'function') gedanke('c3_lucyweg', 'Der Tank war leer. Die Luke stand offen, und oben hat es geatmet. Was immer da oben ist, es hat jetzt Lucy.', 9000, 3); // F3 Verständlichkeit: was passiert ist, warum Luke weitermacht
     if (K) K.leine = null; if (typeof saveGame === 'function') saveGame(3); // Speicherpunkt „Kreuzung, 03:13“
     if (typeof beob_spur === 'function') try { beob_spur('kiesel', { pos: [8.9, 0, 9.3] }); } catch (e) {} // hinter der Telefonzelle rollt ein Kiesel
     // UK 2: Luke geht drei Schritte in irgendeine Richtung

@@ -224,6 +224,7 @@ async function kapitel1_nichtDu() {
   await cutLights(800); K1.griff = null; setCamOverride(null); hideStalker(); kitchenLight.userData.dead = false; kapitel1_fussspuren();
   toast('Der Flur ist leer. Auf den Fliesen kleine nackte Fußabdrücke, Grashalme darin, fremdes, hellgrünes Gras im November. Sie führen zur Kellertür. Und hören dort auf. Von innen.', 6200);
   setTimeout(() => { if (!state.talking) kapitel1_zeile('Die Alte hat Kinderfüße?', 2800, 'LUKE'); }, 7200);
+  if (typeof gedanke === 'function') gedanke('k1_hilde', 'Das war Frau Wendt. Hilde. Sie hat mir in die Hand geguckt wie in einen Ausweis. „Nicht du.“ Wen hat sie denn erwartet?', 16000, 2); // F3 Verständlichkeit: wer war das, welche Frage bleibt
   // Lukes Taschenlampe liegt jetzt auf dem Boden und leuchtet genau auf das Tastenfeld
   K1.lampe = { x: 29.9, y: Y + .06, z: -20.3 }; K1.lampeHit = kapitel1_hit(.45, .2, .45, 29.9, Y + .1, -20.3); interact(K1.lampeHit, 'Taschenlampe aufheben', () => { K1.lampe = null; uninteract(K1.lampeHit); flashOn = true; Audio.play('switch1', { gain: .35 }); });
   flashOn = true; try { saveGame(1); } catch (e) {} if (typeof todCpShow === 'function') todCpShow('Der Sessel ist noch warm');
@@ -382,7 +383,7 @@ function kapitel1_deckung(x, z) { for (const c of K1.cov) if (x > c.x0 && x < c.
 function kapitel1_versteck() {
   const V = K1.v; if (V.on || V.done) return; V.on = true; state.ufoOn = false; state.phase2 = false; state.talking = false; K1.lampeTot = false; if (victim) victim.visible = false;
   for (const L of lamps) { L.mode = 'off'; } if (K1.nr7) K1.nr7.mode = 'off'; if (K1.aus) K1.aus.ufo = null;
-  MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller.'; setMain(7); $('objText').textContent = trX(MAIN[7]);
+  MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.'; setMain(7); $('objText').textContent = trX(MAIN[7]);
   const P = player.pos; V.last = { x: P.x, z: P.z, yaw: player.yaw }; V.sp.x = ufo.position.x; V.sp.z = ufo.position.z; V.sp.vx = V.sp.vz = 0; V.tgt.x = P.x + 1.2; V.tgt.z = P.z + .4; V.tT = 3.2; V.grace = 3; V.exp = 0;
   if (V.n >= 3) V.spd = 3.4 * 1.2; Audio.hum(true);
   if (typeof lwo_kapitelende === 'function') try { const E = lwo_kapitelende(1); if (E.stufe === 'hoch') { K1.stift = kapitel1_hit(.3, .1, .3, 22.5, .06, 2.0); interact(K1.stift, 'Kugelschreiber', () => { uninteract(K1.stift); kapitel1_lore('k1_stift', 'Ein Kugelschreiber', '<span class="hand">Neben der Lesebrille, zwischen den Polaroids: ein Kugelschreiber. Auf dem Clip ein Auge über einer Flamme. Wir waren hier.</span>'); toast('Ein Kugelschreiber. Auf dem Clip: ein Auge über einer Flamme.', 4000); }); } } catch (e) {}
@@ -485,7 +486,10 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   // Zeichnungswand: neue Kinderzeichnungen (alle „LUKE, 9“) – das Material teilen alle Stücke (auch die aus uebergang.js)
   try { const m = B.wallArt.material; if (m.map) m.map.dispose(); m.map = kapitel1_wandTex(); m.needsUpdate = true; } catch (e) {}
   // Texte/Aktionen der Basis im Hauptweg (Fassung 3)
-  MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller.';
+  MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.';
+  // F3 Verständlichkeit: jede Aufgabe sagt, warum (Lucys Anruf, Lucys Band, das, was die Treppe hoch ist)
+  MAIN[0] = 'Lucy hat angerufen: „Haus Nummer 7. Der Keller.“ Finde Haus Nr. 7.'; MAIN[2] = 'Durchsuche Haus Nr. 7. Lucy hat dir ein Band im Keller hinterlassen.';
+  MAIN[5] = 'Irgendwas ist an dir vorbei die Treppe hoch. Hinterher.'; MAIN[8] = 'Hinter die Bilder, hat Hilde geschrien. Folge dem Gang hinter der Wand.'; if (story.main === 0 || story.main === 2 || story.main === 5) $('objText').textContent = trX(MAIN[story.main]);
   { const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (E) { E.title = 'Nachbild · Die Kreuzung'; E.lines = [['Warmer Asphalt. Sommernacht. Kinder, barfuß, in einer Reihe. Eine Männerstimme zählt: „… fünf, sechs, sieben. Sieben. Gott sei Dank.“', 5600], ['Eine Kinderstimme, ganz nah: „Acht.“', 3000], ['Am Nebelrand steht noch ein Junge. Er zählt nicht mit. Dann ist er weg.', 4200], ['Das Bild kommt zurück. Regen.', 2600]]; } }
   uninteract(mailbox7); interact(mailbox7, 'Briefkasten öffnen', kapitel1_briefkasten);
   uninteract(calendar); interact(calendar, 'Kalender ansehen', () => { state.readCal = true; openNote('Kalender · Oktober', '<i>Werbekalender der Sparkasse. Hildes Druckbuchstaben:</i>\n\n<span class="hand">23. – L. weg. Sie hat mir alles gezeigt. Sie hat gesagt, sie geht nur kurz.</span>\n\n<b>31.</b> ist dick eingekreist, immer wieder, bis das Papier durch ist:\n<span class="hand" style="color:#8a1010">SIE IST ZURÜCK. ABER DAS IST NICHT LUCY.</span>\n\n<i>Umblättern, November:</i>\n<span class="hand">3. – Sie übt Lucys Stimme. Durch die Tür. Sie will ihn anrufen. Ich hab das Telefon versteckt. Sie braucht keins.\n4. – ——</span>', 'calendar'); });

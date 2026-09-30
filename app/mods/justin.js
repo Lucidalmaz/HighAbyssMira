@@ -432,8 +432,10 @@ async function justin_ankunft() {
 }
 // Pflichtsätze, sobald Luke weitergehen will (oder nach einer Weile)
 async function justin_pflicht() { const S = justin_S; if (S.phase !== 'uk4') return; S.phase = 'pflicht'; state.talking = true;
+  // F3 Verständlichkeit: „Luna“ fällt in pflicht1 – wer die Happen übersprungen hat, hört vorher, wer sie ist (Wortlaut aus der Bank, nur die Reihenfolge ist gesichert)
+  if (!S.said.has('herz')) await justin_sprich('herz', { frei: false }); if (!S.said.has('name')) await justin_sprich('name', { frei: false });
   await justin_sprich('pflicht1', { frei: false }); await justin_sprich('pflicht2', { frei: false }); await justin_sprich('pflicht3', { frei: false });
-  state.talking = false; setC3('Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
+  state.talking = false; setC3(typeof KAPITEL3_ZIEL_LATERNEN !== 'undefined' ? KAPITEL3_ZIEL_LATERNEN : 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   justin_gedanke(JUSTIN_BANK.ankEnde[0][0], 4600);
   jWalk(1.5, -5.2, () => { justin.look = true; }); ch3.ringing = true; S.phase = 'stadt';
   setTimeout(() => { if (!ch3.callDone) subtitle('Das Telefon an der Kreuzung klingelt.', 3200); }, 9000); }

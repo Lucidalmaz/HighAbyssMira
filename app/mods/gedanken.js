@@ -30,7 +30,10 @@ const GEDANKEN_ORTE = [
   ['ort_hof', -150, -110, -45, -10, () => true, 'Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?'],
   ['ort_villa', -145, -105, 58, 90, () => true, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
   ['ort_sperre', 138, 158, -20, 20, () => true, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.'],
-  ['ort_nr9', 44, 56, -12.4, -9.5, () => typeof kap !== 'function' || kap() === 1, 'Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.']]; // Kap. 1 (AP-14): das rote Glimmen im Astloch von Nr. 9; Wortlaut offen (Autor)
+  ['ort_nr9', 44, 56, -12.4, -9.5, () => typeof kap !== 'function' || kap() === 1, 'Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.'], // Kap. 1 (AP-14): das rote Glimmen im Astloch von Nr. 9; Wortlaut offen (Autor)
+  // F3 Verständlichkeit, Kap. 1: das Dorf und Nr. 7 beim ersten Hinkommen (Kern §10.1: Hilde = Mutter von Jonas, Lukes bestem Freund)
+  ['k1_hotelflur', -50, -36, -8, 8, () => (typeof kap !== 'function' || kap() === 1) && story.main <= 1, 'Lost Eyengless. Hier bist du groß geworden. Warum fühlt sich das an wie ein Hotelflur?'],
+  ['ort_nr7', 17, 36, -11, 3, () => (typeof kap !== 'function' || kap() === 1) && story.main <= 1, 'Nr. 7. Frau Wendt. Jonas’ Mutter – bei denen hab ich als Kind öfter gegessen als zu Hause. Was will Lucy in ihrem Keller?']];
 // Festhängen: Luke denkt laut über den nächsten Schritt nach (sanft, ohne Rätsellösung)
 const GEDANKEN_FADEN = [
   [/Finde Haus Nr\. 7/, 'Nr. 7. Hilde Wendts Haus. Die Straße entlang … ich erkenne es, wenn ich davorstehe.'],
@@ -39,8 +42,10 @@ const GEDANKEN_FADEN = [
   [/Kellertür/, 'Vier Ziffern. Welche Tasten sind abgegriffen? Und was hat Hilde in ihrem Kalender angestrichen?'],
   [/Lucy hinterlassen/, 'Lucy war hier unten. Sie hat etwas für mich liegen lassen. Etwas zum Anhören.'],
   [/Keller von Nr\. 7/, 'Die Wand mit den Zeichnungen. Mit bloßen Händen geht das nicht. Oben war doch eine Werkbank.'],
-  [/Gang hinter der Wand|Folge dem Tunnel/, 'Nur ein Weg. Also geh ihn, Luke.'],
-  [/Amt über die Kinder/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
+  [/unter der Erde sieht sie dich nicht/, 'Im Schatten bleiben. Hecken, Mülltonnen, die Veranda von Vegas. Und dem Vogel nach.'],
+  [/die Treppe hoch\. Hinterher/, 'Die Haustür. Vorhin war die zu.'],
+  [/Gang hinter der Wand|Folge dem Tunnel|Folge dem Gang/, 'Nur ein Weg. Also geh ihn, Luke.'],
+  [/Amt über die Kinder|sieben Kinder von 2009/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
   [/Namen in die richtige Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
   [/Lösch die Laternen/, 'In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
@@ -65,6 +70,7 @@ WORLD_MODS.push(['Gedanken', async () => {
     const n = echoSeen.size; if (n === 1) gedanke('nachhall_1', 'Die Narbe in der Hand. Sie hat gebrannt, sobald ich den Ort angefasst hab. … Als würde sich die Hand erinnern, nicht ich.', 7000, 3);
     if (n === 3) gedanke('nachhall_2', 'Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh diese Bilder. Warum ich?', 7000, 3); });
   CH2_BEGIN.push(() => gedanke('tuer', 'Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.', 7500, 3));
+  CH2_BEGIN.push(() => gedanke('ch2_lucy', 'Hilde hat „Lucy“ geschrien. Nicht wie einen Namen. Wie einen Ort. Wenn Lucy irgendwo ist, dann hier unten.', 19000, 3)); // F3 Verständlichkeit: warum Luke hinuntergeht
   CH2_END.push(() => gedanke('lena_tank', 'Lucy war da drin. „Weißt du es jetzt?“ … Ja. Und ich wünschte, ich wüsste es nicht.', 14000, 3));
 }]);
 WORLD_TICK.push((dt, t) => {
@@ -79,6 +85,8 @@ WORLD_TICK.push((dt, t) => {
   if (FLASH.charge <= 0 && flashOn) gedanke('akku_leer', 'Nein. Nein, nein, nein. Nicht jetzt. Nicht hier im Dunkeln.', 300, 3);
   if (typeof albers_S !== 'undefined') { if (albers_S.talked.has('laternen')) gedanke('albers1', 'Ein alter Mann, der Stimmen in Laternen hört. … Aber sie haben wirklich geatmet.', 1500, 2);
     if (albers_S.talked.has('augen')) gedanke('albers5', 'Blau. Meine Augen waren blau. Er irrt sich. Er muss sich irren.', 1500, 3); }
+  // F3 Verständlichkeit: wer Vegas ist – beim ersten Gespräch durch die Tür oder beim ersten Zuruf beim Verstecken (Kap. 1)
+  if (!S.said.has('vegas_wer') && ((typeof albers_S !== 'undefined' && albers_S.talked.size) || (typeof K1 !== 'undefined' && K1.v && K1.v.vegas) || (typeof whiskey_S !== 'undefined' && whiskey_S.vegas_taufe))) gedanke('vegas_wer', 'Herr Vegas, Nr. 3. Hatte schon damals Alufolie hinterm Fenster und hat uns mit dem Gartenschlauch vom Rasen gejagt. Und er ist wach.', 2500, 2);
   // Festhängen an einer Aufgabe
   const obj = document.getElementById('objText').textContent; if (obj !== S.obj) { S.obj = obj; S.objT = 0; } else if (!state.talking && !ui.overlay) S.objT += dt;
   if (S.objT > GEDANKEN.stuck) { S.objT = -GEDANKEN.stuck; const f = GEDANKEN_FADEN.find(([re]) => re.test(obj)); if (f) { const id = 'faden_' + obj.slice(0, 30); S.said.delete(id); gedanke(id, f[1], 0, 0); } }

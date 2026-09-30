@@ -12,6 +12,7 @@ const kapitel3_S = { uk: 0, kuh: new Set(), kuhHits: [], kuhFluch: false, kuhEnd
   jagd: { on: false, t: 0, pause: 0, seen: 0, stepT: 0, caught: 0, frei: 0, freiAn: false, freiWo: null, freiErst: false, qT: 0, wolter: false }, starr: 0,
   beh: { on: false, t: 0, frei: 0, freiAn: false, vegas: false, zweit: false }, kette: false, handT: 0, kum: false, nb: null, ohr: null, tick: 0 };
 const KAPITEL3_LATERNE4 = [], KAPITEL3_EISEN = [];
+const KAPITEL3_ZIEL_LATERNEN = 'Die Laternen müssen aus, dann muss sie herunter. Wie, steht bei Frau Wendt in Nr. 7 – und der Funkkasten an der Kreuzung spricht noch.'; // F3 Verständlichkeit: Ziel + Grund (Justin)
 const _k3v = new THREE.Vector3(), _k3v2 = new THREE.Vector3(), _k3d = new THREE.Vector3();
 function kapitel3_uk() { return kapitel3_S.uk; }
 function kapitel3_uk_setzen(n) { if (n > kapitel3_S.uk) kapitel3_S.uk = n; }
@@ -82,7 +83,7 @@ async function kapitel3_telefon() {
   state.talking = true; ch3.ringing = false; ch3.callDone = true; S.ringAb = -2; handset(true); await wait(700);
   const L = 'LUCYS STIMME', K = 'KINDERSTIMME', d = Audio.ctx ? Audio.at(player.pos.x, 1.6, player.pos.z, .6) : null;
   try {
-    await say([['„Haus Nummer sieben. Der Keller.“', 3000, L], ['Das ist der Anruf von damals. Wort für Wort.', 3200]]);
+    await say([['„Haus Nummer sieben. Der Keller.“', 3000, L], ['Das ist der Anruf, der mich hergeholt hat. Wort für Wort.', 3200]]);
     if (typeof lucy3_tines === 'function') lucy3_tines(5.5, d, .7); // unter der Stimme fängt leise eine Spieluhr an
     await say([['„Haus … Nummer … sieben …“', 3800, L]]);
     // Spieleraktion: auflegen – der Hörer bleibt am Ohr
@@ -333,7 +334,7 @@ function kapitel3_fortsetzen(d, at) {
     ch3.lampsOff = true; lamps.forEach(L => L.mode = 'off'); booth.light.userData.dead = true; ch3.chase = 'done'; const JX = 4.4, JZ = .2; jPlace(JX, JZ, -Math.PI / 2); justin.g.visible = true; ch3.pillarK = 1; pillar.position.set(JX, 35, JZ); pillarLight.position.set(JX, 3, JZ);
     player.pos.set(JX - 2.4, 0, JZ + .3); player.yaw = -Math.PI / 2; vel.set(0, 0, 0); S.kette = true; setTimeout(() => kapitel3_handAnbieten(), 600); }
   else if (!at) { player.pos.set(3.2, 0, 1.4); player.yaw = -Math.PI / 2 + .3; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; }
-  setC3(!ch3.cowSeen ? 'Finde heraus, was mit Lost Eyengless geschehen ist.' : !ch3.callDone ? 'Das Telefon an der Kreuzung klingelt.' : !ch3.met ? 'Geh los.' : !ch3.radio ? 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.' : !ch3.lampsOff ? 'Lösch die Laternen vor den Häusern, in der Reihenfolge, in der sie die Kinder geholt hat.' : 'Nimm Justins Hand.'); }
+  setC3(!ch3.cowSeen ? 'Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.' : !ch3.callDone ? 'Das Telefon an der Kreuzung klingelt.' : !ch3.met ? 'Hol Lucy zurück. Irgendwo muss es einen Weg zu ihr geben.' : !ch3.radio ? KAPITEL3_ZIEL_LATERNEN : !ch3.lampsOff ? 'Lösch die Laternen vor den Häusern, in der Reihenfolge, in der sie die Kinder geholt hat.' : 'Nimm Justins Hand.'); }
 
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {
