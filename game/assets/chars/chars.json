@@ -1,0 +1,313 @@
+[
+ {
+  "id": "zayn",
+  "name": "Zayn Wendt (7)",
+  "height": 1.22,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45293
+ },
+ {
+  "id": "roxy",
+  "name": "Roxy Reuter (8)",
+  "height": 1.3,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 57383
+ },
+ {
+  "id": "lucy",
+  "name": "Lucy Brandt (9)",
+  "height": 1.36,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45736
+ },
+ {
+  "id": "luke",
+  "name": "Luke (die Kopie, 9)",
+  "height": 1.36,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45324
+ },
+ {
+  "id": "luke_echt",
+  "name": "der echte Luke (9)",
+  "height": 1.36,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45279
+ },
+ {
+  "id": "heidi",
+  "name": "Heidi Winter (8)",
+  "height": 1.3,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45930
+ },
+ {
+  "id": "dina",
+  "name": "Dina Aydın (9)",
+  "height": 1.34,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45736
+ },
+ {
+  "id": "mike",
+  "name": "Mike Kessler (10)",
+  "height": 1.44,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 57387
+ },
+ {
+  "id": "cleo",
+  "name": "Cleo (8)",
+  "height": 1.3,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45736
+ },
+ {
+  "id": "kleine",
+  "name": "die Kleine (7)",
+  "height": 1.18,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45302
+ },
+ {
+  "id": "graue",
+  "name": "die Graue (die Kleine, ohne Mund)",
+  "height": 1.18,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45302
+ },
+ {
+  "id": "gezaehlt_j",
+  "name": "ein Gezählter (Junge)",
+  "height": 1.3,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45120
+ },
+ {
+  "id": "gezaehlt_m",
+  "name": "eine Gezählte (Mädchen)",
+  "height": 1.26,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous"
+  ],
+  "tris": 45315
+ },
+ {
+  "id": "mama",
+  "name": "Marion Brandt (42)",
+  "height": 1.68,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 44995
+ },
+ {
+  "id": "hilde",
+  "name": "Hilde Wendt (60, sieht aus wie 80)",
+  "height": 1.6,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 45001
+ },
+ {
+  "id": "hilde_tot",
+  "name": "Hilde (wächsern, Schreck)",
+  "height": 1.6,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 45001
+ },
+ {
+  "id": "lucy_erw",
+  "name": "Lucy Brandt (26)",
+  "height": 1.68,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 44975
+ },
+ {
+  "id": "vegas",
+  "name": "Lars Vegas (60)",
+  "height": 1.76,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 46234
+ },
+ {
+  "id": "amt1",
+  "name": "Mann vom Amt (1)",
+  "height": 1.84,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 27469
+ },
+ {
+  "id": "amt2",
+  "name": "Mann vom Amt (2)",
+  "height": 1.8,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 19670
+ },
+ {
+  "id": "lorenz",
+  "name": "Daniel Lorenz (42)",
+  "height": 1.8,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 44965
+ },
+ {
+  "id": "aydin",
+  "name": "Frau Aydın",
+  "height": 1.64,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 44967
+ },
+ {
+  "id": "dina_erw",
+  "name": "Dina Aydın (26)",
+  "height": 1.66,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "window",
+   "window_lean",
+   "window_knock"
+  ],
+  "tris": 44969
+ },
+ {
+  "id": "polizist",
+  "name": "Gefreiter Hofer",
+  "height": 1.8,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 33973
+ }
+]

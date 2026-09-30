@@ -1,0 +1,1101 @@
+{
+ "_info": "Besetzung für app/tools/forge.html (F.buildCast). Pfade relativ zu forge.html. Quellen: HAM_FabDownloads (Fab, kostenlos). look = gebackene Farben für CC-Figuren (NoEdge), hsl = Umfärben fertiger Texturen (Tony Flanagan).",
+ "src": {
+  "J": "../../../HAM_FabDownloads/v5/x/kind_junge/fbx Clean.fbx",
+  "M": "../../../HAM_FabDownloads/v5/x/kind_maedchen/fbx file clean.fbx",
+  "G": "../../../HAM_FabDownloads/v6/x/k_girl2__fbx_clean/fbx Clean.fbx",
+  "C": "../../../HAM_FabDownloads/v6/x/k_child__fbx_clean/fbx Clean.fbx",
+  "OPT": "../../../HAM_FabDownloads/v6/x/k_opt__fbx_clean/fbx Clean.fbx",
+  "FN": "../../../HAM_FabDownloads/v6/x/f_noedge__fbx_clean/fbx clean.fbx",
+  "FHQ": "../../../HAM_FabDownloads/v6/x/f_noedgehq__fbx_clean/fbx Clean.fbx",
+  "MN": "../../../HAM_FabDownloads/v6/x/m_noedge__fbx_clean/fbx Clean.fbx",
+  "yellow": "../../../HAM_FabDownloads/v6/f_yellow__girl_in_yellow_animated.glb",
+  "ow7": "../../../HAM_FabDownloads/v6/f_ow7__office_worker_7_animated.glb",
+  "ow6": "../../../HAM_FabDownloads/v6/f_ow6__office_worker_6_animated.glb",
+  "rusw": "../../../HAM_FabDownloads/v6/f_rusw__russian_girl_west_animated.glb",
+  "farmer": "../../../HAM_FabDownloads/v6/m_farmer__dirt_farmer_rigged.glb",
+  "doctor": "../../../HAM_FabDownloads/v6/m_doctor__the_doctortorturer_animated.glb",
+  "spy": "../../../HAM_FabDownloads/v6/m_spy__1940s_spy_animated.glb",
+  "ow3": "../../../HAM_FabDownloads/v6/m_ow3__office_worker_3_animated.glb",
+  "cop": "../../../HAM_FabDownloads/v6/m_cop__undercover_cop_animated.glb",
+  "mallcop": "../../../HAM_FabDownloads/v6/m_mallcop__mall_cop_animated.glb",
+  "win1": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_01_Stand_Idle_Turn_L180_IP.fbx",
+  "win2": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_02_Stand_Idle_Bend_Fwd_Turn_L180_IP.fbx",
+  "win4": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_04_Stand_Idle_Knock_Wave_Turn_L180_IP.fbx",
+  "HB": "../../../HAM_FabDownloads/v6/x/h_beard__fbx_clean/fbx Clean.fbx",
+  "HB2": "../../../HAM_FabDownloads/v6/x/h_beard2__fbx_fome/fbx Fome.fbx",
+  "HBUN": "../../../HAM_FabDownloads/v6/x/h_bunbang__fbx_file/fbx file.fbx"
+ },
+ "anims": {
+  "kid_m": {
+   "idle": [
+    "spy",
+    "Idle"
+   ],
+   "walk": [
+    "spy",
+    "Walking"
+   ],
+   "look": [
+    "spy",
+    "Look Around"
+   ],
+   "nervous": [
+    "spy",
+    "Nervously Look Around"
+   ]
+  },
+  "kid_f": {
+   "idle": [
+    "yellow",
+    "Idle"
+   ],
+   "walk": [
+    "rusw",
+    "walking"
+   ],
+   "look": [
+    "spy",
+    "Look Around"
+   ],
+   "nervous": [
+    "spy",
+    "Nervously Look Around"
+   ]
+  },
+  "man": {
+   "idle": [
+    "cop",
+    "Breathing Idle"
+   ],
+   "walk": [
+    "spy",
+    "Walking"
+   ],
+   "look": [
+    "spy",
+    "Look Around"
+   ],
+   "nervous": [
+    "spy",
+    "Nervously Look Around"
+   ],
+   "phone": [
+    "cop",
+    "Talking On A Cell Phone"
+   ]
+  },
+  "woman": {
+   "idle": [
+    "ow7",
+    "idle"
+   ],
+   "walk": [
+    "yellow",
+    "Walking"
+   ],
+   "look": [
+    "spy",
+    "Look Around"
+   ],
+   "nervous": [
+    "spy",
+    "Nervously Look Around"
+   ],
+   "window": [
+    "win1",
+    0
+   ],
+   "window_lean": [
+    "win2",
+    0
+   ],
+   "window_knock": [
+    "win4",
+    0
+   ]
+  }
+ },
+ "cast": [
+  {
+   "id": "zayn",
+   "name": "Zayn Wendt (7)",
+   "base": "C",
+   "height": 1.22,
+   "anims": "kid_m",
+   "eye": "#5a3a22",
+   "look": {
+    "skin": "#e6c0a4",
+    "lips": "#b8746c",
+    "brow": "#3a2618",
+    "hair": "#3a2618",
+    "hairTip": "#4e3420",
+    "blush": 0.14,
+    "seed": 11,
+    "cloth": [
+     [
+      "T_shirts",
+      "#a8453a",
+      {
+       "wear": 0.55
+      }
+     ],
+     [
+      "Lincoln",
+      "#6b6450"
+     ],
+     [
+      "Basketball",
+      "#c8c8c0"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "roxy",
+   "name": "Roxy Reuter (8)",
+   "base": "G",
+   "height": 1.3,
+   "anims": "kid_f",
+   "eye": "#4a6a3a",
+   "look": {
+    "skin": "#efcbb2",
+    "lips": "#c07a74",
+    "brow": "#2a1a12",
+    "hair": "#2a1a12",
+    "hairTip": "#3e2a1c",
+    "blush": 0.12,
+    "seed": 21,
+    "cloth": [
+     [
+      "T_shirts",
+      "#2e2e34",
+      {
+       "col2": "#b8b098",
+       "stripes": 22
+      }
+     ],
+     [
+      "Lincoln",
+      "#4a5a78"
+     ],
+     [
+      "Basketball",
+      "#8a2a2a"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "lucy",
+   "name": "Lucy Brandt (9)",
+   "base": "M",
+   "height": 1.36,
+   "anims": "kid_f",
+   "eye": "#5a3a22",
+   "look": {
+    "skin": "#ecc6aa",
+    "lips": "#c47c76",
+    "brow": "#4a2e1c",
+    "hair": "#5a3620",
+    "hairTip": "#7a5030",
+    "blush": 0.15,
+    "seed": 31,
+    "cloth": [
+     [
+      "top",
+      "#e8e0c8"
+     ],
+     [
+      "pants",
+      "#7a8ea8"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "luke",
+   "name": "Luke (die Kopie, 9)",
+   "base": "J",
+   "height": 1.36,
+   "anims": "kid_m",
+   "eye": "#5a3a22",
+   "hairFrom": [
+    "OPT",
+    {
+     "scale": 0.93,
+     "dy": -0.02,
+     "keepOwn": true
+    }
+   ],
+   "hide": [
+    "Bracelet",
+    "NeckLace"
+   ],
+   "look": {
+    "skin": "#eac4a8",
+    "lips": "#be7872",
+    "brow": "#4a3020",
+    "hair": "#4a3222",
+    "hairTip": "#5a4030",
+    "blush": 0.12,
+    "seed": 42,
+    "cloth": [
+     [
+      "MainShirt",
+      "#5a6a7a",
+      {
+       "wear": 0.35
+      }
+     ],
+     [
+      "MainShorts",
+      "#3a3a3a"
+     ],
+     [
+      "Shoes",
+      "#b8b8b0"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "luke_echt",
+   "name": "der echte Luke (9)",
+   "base": "J",
+   "height": 1.36,
+   "anims": "kid_m",
+   "eye": "#6a9ad0",
+   "hairFrom": [
+    "OPT",
+    {
+     "scale": 0.93,
+     "dy": -0.02,
+     "keepOwn": true
+    }
+   ],
+   "hide": [
+    "Shoes",
+    "Bracelet",
+    "NeckLace"
+   ],
+   "look": {
+    "skin": "#eac4a8",
+    "lips": "#be7872",
+    "brow": "#5a3a24",
+    "hair": "#6a4a30",
+    "hairTip": "#8a6a44",
+    "blush": 0.12,
+    "seed": 41,
+    "cloth": [
+     [
+      "MainShirt",
+      "#a8bcd8",
+      {
+       "col2": "#e8eef4",
+       "stripes": 26,
+       "wear": 0.2
+      }
+     ],
+     [
+      "MainShorts",
+      "#a8bcd8",
+      {
+       "col2": "#e8eef4",
+       "stripes": 26,
+       "wear": 0.2
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "heidi",
+   "name": "Heidi Winter (8)",
+   "base": "G",
+   "height": 1.3,
+   "anims": "kid_f",
+   "eye": "#6a8ab0",
+   "hairFrom": [
+    "M",
+    {
+     "scale": 1.0
+    }
+   ],
+   "look": {
+    "skin": "#f0d0bc",
+    "lips": "#c8847e",
+    "brow": "#a8844e",
+    "hair": "#c8a870",
+    "hairTip": "#dcc08a",
+    "blush": 0.16,
+    "freckles": 0.8,
+    "seed": 51,
+    "cloth": [
+     [
+      "T_shirts",
+      "#d88a8a"
+     ],
+     [
+      "Lincoln",
+      "#3a4a6a"
+     ],
+     [
+      "Basketball",
+      "#e0e0e0"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "dina",
+   "name": "Dina Aydın (9)",
+   "base": "M",
+   "height": 1.34,
+   "anims": "kid_f",
+   "eye": "#3a2616",
+   "look": {
+    "skin": "#c89a7c",
+    "lips": "#a86a60",
+    "brow": "#16100c",
+    "hair": "#16100c",
+    "hairTip": "#221812",
+    "blush": 0.1,
+    "seed": 61,
+    "cloth": [
+     [
+      "top",
+      "#b83a3a"
+     ],
+     [
+      "pants",
+      "#2a2e36"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "mike",
+   "name": "Mike Kessler (10)",
+   "base": "C",
+   "height": 1.44,
+   "anims": "kid_m",
+   "eye": "#7a8a6a",
+   "hairFrom": [
+    "G",
+    {
+     "scale": 1.0
+    }
+   ],
+   "look": {
+    "skin": "#f0ccb4",
+    "lips": "#c07e78",
+    "brow": "#8a6038",
+    "hair": "#a87848",
+    "hairTip": "#b88a58",
+    "blush": 0.14,
+    "freckles": 0.5,
+    "seed": 71,
+    "cloth": [
+     [
+      "T_shirts",
+      "#2a4a7a"
+     ],
+     [
+      "Lincoln",
+      "#6a6a6a"
+     ],
+     [
+      "Basketball",
+      "#e0e0e0"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "cleo",
+   "name": "Cleo (8)",
+   "base": "M",
+   "height": 1.3,
+   "anims": "kid_f",
+   "eye": "#5a7a4a",
+   "look": {
+    "skin": "#f2d2c0",
+    "lips": "#c8847e",
+    "brow": "#7a3a20",
+    "hair": "#8a3018",
+    "hairTip": "#a8401e",
+    "blush": 0.18,
+    "freckles": 1.0,
+    "seed": 81,
+    "cloth": [
+     [
+      "top",
+      "#6a8ab0"
+     ],
+     [
+      "pants",
+      "#e0dcd0"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "kleine",
+   "name": "die Kleine (7)",
+   "base": "G",
+   "height": 1.18,
+   "anims": "kid_f",
+   "eye": "#7a8898",
+   "hairFrom": [
+    "FN",
+    {
+     "scale": 0.97
+    }
+   ],
+   "hide": [
+    "Basketball"
+   ],
+   "look": {
+    "skin": "#f4e2d8",
+    "lips": "#c89a96",
+    "brow": "#b8ac98",
+    "hair": "#d8d0c0",
+    "hairTip": "#e8e2d4",
+    "blush": 0.05,
+    "seed": 91,
+    "cloth": [
+     [
+      "T_shirts",
+      "#f4f2ec",
+      {
+       "wear": 0.15
+      }
+     ],
+     [
+      "Lincoln",
+      "#f4f2ec",
+      {
+       "wear": 0.15
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "graue",
+   "name": "die Graue (die Kleine, ohne Mund)",
+   "base": "G",
+   "height": 1.18,
+   "anims": "kid_f",
+   "eye": "#050505",
+   "eyeAmt": 1.0,
+   "hairFrom": [
+    "FN",
+    {
+     "scale": 0.97
+    }
+   ],
+   "hide": [
+    "Basketball"
+   ],
+   "look": {
+    "skin": "#8e9398",
+    "lips": "#8e9398",
+    "brow": "#8e9398",
+    "hair": "#6e6a66",
+    "hairTip": "#8a8680",
+    "blush": 0.0,
+    "age": 0.6,
+    "seed": 92,
+    "cloth": [
+     [
+      "T_shirts",
+      "#c8c4bc",
+      {
+       "wear": 0.8
+      }
+     ],
+     [
+      "Lincoln",
+      "#c8c4bc",
+      {
+       "wear": 0.8
+      }
+     ]
+    ]
+   },
+   "eyeAll": true
+  },
+  {
+   "id": "gezaehlt_j",
+   "name": "ein Gezählter (Junge)",
+   "base": "J",
+   "height": 1.3,
+   "anims": "kid_m",
+   "eye": "#101010",
+   "eyeAmt": 0.9,
+   "hide": [
+    "Shoes",
+    "Bracelet",
+    "NeckLace"
+   ],
+   "look": {
+    "skin": "#9a9ea2",
+    "lips": "#8a8e92",
+    "brow": "#6a6a6a",
+    "hair": "#4a4844",
+    "blush": 0,
+    "age": 0.7,
+    "seed": 93,
+    "cloth": [
+     [
+      "MainShirt",
+      "#8a8a86",
+      {
+       "wear": 0.9
+      }
+     ],
+     [
+      "MainShorts",
+      "#6a6a68",
+      {
+       "wear": 0.9
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "gezaehlt_m",
+   "name": "eine Gezählte (Mädchen)",
+   "base": "M",
+   "height": 1.26,
+   "anims": "kid_f",
+   "eye": "#101010",
+   "eyeAmt": 0.9,
+   "hide": [
+    "sandals"
+   ],
+   "look": {
+    "skin": "#9a9ea2",
+    "lips": "#8a8e92",
+    "brow": "#6a6a6a",
+    "hair": "#5a5650",
+    "blush": 0,
+    "age": 0.7,
+    "seed": 94,
+    "cloth": [
+     [
+      "top",
+      "#9a9894",
+      {
+       "wear": 0.9
+      }
+     ],
+     [
+      "pants",
+      "#6a6a68",
+      {
+       "wear": 0.9
+      }
+     ]
+    ]
+   }
+  },
+  {
+   "id": "mama",
+   "name": "Marion Brandt (42)",
+   "base": "ow7",
+   "height": 1.68,
+   "anims": "woman",
+   "head": {
+    "src": "FHQ",
+    "look": {
+     "skin": "#e6c2a8",
+     "lips": "#b8766e",
+     "brow": "#3a2618",
+     "hair": "#4a2e1c",
+     "hairTip": "#6a4a30",
+     "blush": 0.12,
+     "age": 0.3,
+     "wrinkles": 0.25,
+     "seed": 101
+    },
+    "eye": "#5a3a22"
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$"
+   ],
+   "hsl": [
+    [
+     "^material$",
+     {
+      "h": -80,
+      "s": 0.55,
+      "l": 1.1
+     }
+    ],
+    [
+     "shoes",
+     {
+      "s": 0.3,
+      "l": 0.5
+     }
+    ]
+   ]
+  },
+  {
+   "id": "hilde",
+   "name": "Hilde Wendt (60, sieht aus wie 80)",
+   "base": "yellow",
+   "height": 1.6,
+   "anims": "woman",
+   "head": {
+    "src": "FN",
+    "hairFrom": [
+     "FHQ",
+     {}
+    ],
+    "hide": [],
+    "look": {
+     "skin": "#e2bba6",
+     "lips": "#b88a86",
+     "brow": "#d8d4cc",
+     "hair": "#e4e0da",
+     "hairTip": "#f2f0ea",
+     "grey": 0.6,
+     "blush": 0.07,
+     "age": 1,
+     "wrinkles": 1,
+     "seed": 5
+    },
+    "eye": "#8a96a0",
+    "swap": {
+     "boxMode": true,
+     "boxRe": "^Head$"
+    }
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$",
+    "^material$"
+   ],
+   "hsl": [
+    [
+     "^Bottom$|material_8",
+     {
+      "s": 0.12,
+      "l": 1.18
+     }
+    ],
+    [
+     "Footwear",
+     {
+      "s": 0.2,
+      "l": 0.6
+     }
+    ]
+   ]
+  },
+  {
+   "id": "hilde_tot",
+   "name": "Hilde (wächsern, Schreck)",
+   "base": "yellow",
+   "height": 1.6,
+   "anims": "woman",
+   "head": {
+    "src": "FN",
+    "hairFrom": [
+     "FHQ",
+     {}
+    ],
+    "look": {
+     "skin": "#c4c8c0",
+     "lips": "#8a8e88",
+     "brow": "#b8bcb8",
+     "hair": "#dcdad6",
+     "hairTip": "#eeede8",
+     "grey": 0.8,
+     "blush": 0,
+     "age": 1,
+     "wrinkles": 1,
+     "seed": 6
+    },
+    "eye": "#e0e4e0",
+    "eyeAmt": 1,
+    "swap": {
+     "boxMode": true,
+     "boxRe": "^Head$"
+    }
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$",
+    "^material$"
+   ],
+   "hsl": [
+    [
+     "^Bottom$|material_8",
+     {
+      "s": 0.08,
+      "l": 1.05
+     }
+    ],
+    [
+     "Footwear",
+     {
+      "s": 0.2,
+      "l": 0.6
+     }
+    ]
+   ]
+  },
+  {
+   "id": "lucy_erw",
+   "name": "Lucy Brandt (26)",
+   "base": "ow6",
+   "height": 1.68,
+   "anims": "woman",
+   "head": {
+    "src": "FN",
+    "look": {
+     "skin": "#ecc6aa",
+     "lips": "#c07a74",
+     "brow": "#4a2e1c",
+     "hair": "#5a3620",
+     "hairTip": "#7a5030",
+     "blush": 0.14,
+     "seed": 111
+    },
+    "eye": "#5a3a22"
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$"
+   ],
+   "hsl": [],
+   "restClip": "T-pose",
+   "hide": [
+    "CHAIR",
+    "STEEL",
+    "Floor",
+    "Wood",
+    "chair",
+    "Table",
+    "mouse"
+   ]
+  },
+  {
+   "id": "vegas",
+   "name": "Lars Vegas (60)",
+   "base": "farmer",
+   "height": 1.76,
+   "anims": "man",
+   "head": {
+    "src": "HB",
+    "hide": [
+     "Hair_S_",
+     "Scalp"
+    ],
+    "look": {
+     "skin": "#d8ae94",
+     "lips": "#a8746c",
+     "brow": "#8a8480",
+     "hair": "#9a9690",
+     "hairTip": "#c8c4be",
+     "grey": 0.5,
+     "blush": 0.14,
+     "age": 0.7,
+     "wrinkles": 0.8,
+     "stubble": 0.3,
+     "seed": 8
+    },
+    "eye": "#6a7a8a",
+    "swap": {
+     "keep": "^material$"
+    }
+   },
+   "hideAfter": [
+    "Moustache"
+   ]
+  },
+  {
+   "id": "amt1",
+   "name": "Mann vom Amt (1)",
+   "base": "doctor",
+   "height": 1.84,
+   "anims": "man",
+   "head": {
+    "src": "MN",
+    "hide": [
+     "Hair6",
+     "Scalp"
+    ],
+    "look": {
+     "skin": "#dcb49c",
+     "lips": "#a8726a",
+     "brow": "#3a2a20",
+     "hair": "#3a2a20",
+     "blush": 0.08,
+     "age": 0.4,
+     "wrinkles": 0.35,
+     "stubble": 0.45,
+     "seed": 121
+    },
+    "eye": "#4a3a2a",
+    "swap": {
+     "keep": "^material$"
+    }
+   },
+   "hideAfter": [
+    "Eyewear"
+   ]
+  },
+  {
+   "id": "amt2",
+   "name": "Mann vom Amt (2)",
+   "base": "spy",
+   "height": 1.8,
+   "anims": "man",
+   "head": {
+    "src": "OPT",
+    "hide": [
+     "Middle_Wavy",
+     "Scalp"
+    ],
+    "look": {
+     "skin": "#e0baa2",
+     "lips": "#ae7870",
+     "brow": "#2a2018",
+     "hair": "#2a2018",
+     "blush": 0.06,
+     "age": 0.5,
+     "wrinkles": 0.45,
+     "stubble": 0.55,
+     "seed": 131
+    },
+    "eye": "#3a3a3a",
+    "swap": {
+     "keep": "^material$"
+    }
+   },
+   "hideAfter": [
+    "Eyewear"
+   ]
+  },
+  {
+   "id": "lorenz",
+   "name": "Daniel Lorenz (42)",
+   "base": "ow3",
+   "height": 1.8,
+   "anims": "man",
+   "hide": [
+    "STEEL",
+    "Wood"
+   ],
+   "head": {
+    "src": "MN",
+    "look": {
+     "skin": "#e2bca4",
+     "lips": "#ac746c",
+     "brow": "#5a4030",
+     "hair": "#5a4030",
+     "hairTip": "#6a5040",
+     "blush": 0.08,
+     "age": 0.35,
+     "wrinkles": 0.3,
+     "stubble": 0.6,
+     "seed": 141
+    },
+    "eye": "#5a6a7a"
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$"
+   ],
+   "hsl": [
+    [
+     "^body$",
+     {
+      "h": -30,
+      "s": 0.55,
+      "l": 0.9
+     }
+    ]
+   ]
+  },
+  {
+   "id": "aydin",
+   "name": "Frau Aydın",
+   "base": "rusw",
+   "height": 1.64,
+   "anims": "woman",
+   "head": {
+    "src": "FHQ",
+    "look": {
+     "skin": "#c89e80",
+     "lips": "#9a6258",
+     "brow": "#1a1210",
+     "hair": "#1a1210",
+     "hairTip": "#2a1e18",
+     "blush": 0.08,
+     "age": 0.45,
+     "wrinkles": 0.4,
+     "seed": 151
+    },
+    "eye": "#2a1a10"
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$"
+   ],
+   "hsl": [
+    [
+     "^material$|^bottom$|^shoes$",
+     {
+      "s": 0.06,
+      "l": 0.55
+     }
+    ]
+   ]
+  },
+  {
+   "id": "dina_erw",
+   "name": "Dina Aydın (26)",
+   "base": "ow7",
+   "height": 1.66,
+   "anims": "woman",
+   "head": {
+    "src": "FN",
+    "look": {
+     "skin": "#c89a7c",
+     "lips": "#a06a60",
+     "brow": "#16100c",
+     "hair": "#16100c",
+     "hairTip": "#221812",
+     "blush": 0.06,
+     "age": 0.15,
+     "seed": 161
+    },
+    "eye": "#3a2616"
+   },
+   "hideAfter": [
+    "^Head$",
+    "^Hair$",
+    "^head$",
+    "^hair$",
+    "^Teeth$",
+    "^teeth$",
+    "Glasses",
+    "glasses",
+    "Eyewear",
+    "^eyes$",
+    "^Eyes$"
+   ],
+   "hsl": [
+    [
+     "^material$",
+     {
+      "s": 0.15,
+      "l": 0.6
+     }
+    ],
+    [
+     "shoes",
+     {
+      "s": 0.3,
+      "l": 0.5
+     }
+    ]
+   ]
+  },
+  {
+   "id": "polizist",
+   "name": "Gefreiter Hofer",
+   "base": "mallcop",
+   "height": 1.8,
+   "anims": "man",
+   "head": {
+    "src": "MN",
+    "hide": [
+     "Hair6",
+     "Scalp"
+    ],
+    "look": {
+     "skin": "#e4bea6",
+     "lips": "#ae766e",
+     "brow": "#6a5040",
+     "hair": "#6a5040",
+     "blush": 0.1,
+     "age": 0.3,
+     "wrinkles": 0.25,
+     "stubble": 0.4,
+     "seed": 171
+    },
+    "eye": "#5a6a5a",
+    "swap": {
+     "keep": "^material$"
+    }
+   },
+   "hideAfter": [
+    "Eyewear"
+   ]
+  }
+ ]
+}

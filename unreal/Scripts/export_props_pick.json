@@ -1,0 +1,14 @@
+{
+ "batterie": "/Game/HAM_Import/batterie/SM_Battery",
+ "brechstange": "/Game/HAM_Import/brechstange/Crowbar1",
+ "drahtschneider": "/Game/HAM_Import/drahtschneider/bolt_cutter1",
+ "lampe1": "/Game/HAM_Import/lampe1/T_Flashlight1",
+ "lampe2": "/Game/HAM_Import/lampe2/scene/StaticMeshes/scene",
+ "lampe3": "/Game/HAM_Import/lampe3/lampe3",
+ "leiter": "/Game/HAM_Import/leiter/Metal_Ladder_vgyidbkaw_Mid",
+ "lichtstein": "/Game/HAM_Import/lichtstein/pebble",
+ "schluesselteil": "/Game/HAM_Import/schluesselteil/OldKey",
+ "sicherung": "/Game/HAM_Import/sicherung/Fuse",
+ "totem": "/Game/HAM_Import/totem/Simple_Burlap_Pin_Effigy_FBX",
+ "wrack": "/Game/HAM_Import/wrack/Rusty_Metal_Gear_wclida0_Mid"
+}

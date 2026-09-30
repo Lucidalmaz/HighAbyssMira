@@ -1,25 +1,31 @@
 {
- "name": "high-abyss-mira",
- "version": "0.3.0",
- "description": "",
- "main": "main.js",
- "scripts": {
-  "build": "node build.js",
-  "start": "electron .",
-  "selftest": "electron . --selftest",
-  "release": "node build.js && electron-packager . \"High Abyss Mira\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=icon.ico --ignore=\"^/(dist|shots[0-9]*|pv|selftest|exetest|steps.*.json|prep_assets.py|fix_exe.js|tools)$\" && node fix_exe.js"
- },
- "keywords": [],
- "author": "",
- "license": "ISC",
- "type": "commonjs",
- "devDependencies": {
-  "@electron/packager": "^20.3.0",
-  "electron": "^44.4.5"
- },
- "dependencies": {
-  "three": "^0.170.0",
-  "three-mesh-bvh": "^0.8.3"
- },
- "productName": "High Abyss Mira"
+  "name": "high-abyss-mira",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "assemble": "node tools/assemble.js",
+    "build": "node tools/assemble.js && node tools/ktx.mjs && node build.js",
+    "start": "electron .",
+    "selftest": "electron . --selftest",
+    "release": "node tools/assemble.js --release && node tools/ktx.mjs && node tools/release_check.mjs && node build.js --release && electron-packager . \"High Abyss Mira\" --platform=win32 --arch=x64 --out=dist --overwrite --icon=icon.ico --ignore=\"^/(dist|mods|story|vendor|shots[0-9]*|pv|selftest|exetest|steps.*.json|prep_.*\\.py|fix_exe.js|build.js|tools)$\" && node fix_exe.js && node build.js",
+    "ktx": "node tools/ktx.mjs",
+    "release:check": "node tools/release_check.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "electron": "44.4.5",
+    "ktx2-encoder": "^0.6.0",
+    "sharp": "^0.35.5",
+    "three": "0.170.0",
+    "three-mesh-bvh": "0.8.3"
+  },
+  "productName": "High Abyss Mira"
 }

@@ -1,5 +1,8 @@
 # HIGH ABYSS MIRA – Story-Entwurf „Psychologischer Horror“ (Kapitel 1–3)
 
+> **Hinweis (28.09.2026):** Dieses Dokument ist ein älterer Arbeitsstand, zum Teil noch mit alten Namen (Kai, Lena, Birkenhain …). Verbindlich ist **app/story/story_final.md** mit dem Abschnitt „Verbindliche Ergänzungen“.
+
+
 Stand: 28.09.2026 · Grundlage: `kanon.md` + Welt-Karte aus `mods/BRIEF.md`
 Status: **Entwurf zum Ausarbeiten.** Alles, was im Spiel schon existiert (Kellercode, Tonband, Ordnungstafel, Klavier, Laternen, Uhr, Wahl), bleibt spielbar – es bekommt nur einen neuen, tieferen Sinn. Neue Orte (Kirchberg, Ost, West, Kanalstadt) bekommen jeweils eine feste Aufgabe in der Geschichte.
 

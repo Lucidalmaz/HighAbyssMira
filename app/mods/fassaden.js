@@ -90,11 +90,14 @@ void main() {
     }
   }
   // Glas: Staub am Rand, Himmel spiegelt sich im flachen Winkel
-  float fr = pow(1. - clamp(-dot(V, vN), 0., 1.), 3.);
+  // Von innen (Rückseite, Blick entgegen der Normalen) gibt es kein Scheinzimmer und keinen Himmelsschimmer: verwerfen → man sieht den echten Raum/die Straße
+  float facing = -dot(V, normalize(vN));
+  if (facing <= 0.) discard;
+  float fr = pow(1. - clamp(facing, 0., 1.), 5.);
   vec2 q = abs(vUv2 - .5) * 2.;
   c *= 1. - .35 * smoothstep(.75, 1., max(q.x, q.y));
   #ifdef USE_FOG
-  c = mix(c, fogColor * 1.6, fr * .55);
+  c = mix(c, fogColor * 1.2, fr * .4); // Spiegelung des Nachthimmels nur im flachen Winkel, dunkel wie der Himmel selbst
   #endif
   gl_FragColor = vec4(c, 1.);
   #include <tonemapping_fragment>
@@ -208,7 +211,8 @@ async function fassaden_build() {
   function slabUV(m, tile) { const g2 = m.geometry.clone(), p = g2.attributes.position, uv = g2.attributes.uv, s = Math.sign(m.position.x) || 1;
     for (let i = 0; i < p.count; i++) uv.setXY(i, p.getZ(i) / tile, -s * p.getX(i) / tile); uv.needsUpdate = true; m.geometry = g2; }
   const tarFor = tint => weather(surf('road_asphalt', 1, .6, { tint, nrm: 1.1, env: .7 }), { roof: true, moss: .85, wet: .75 });
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .05, metalness: .85, transparent: true, opacity: .28, depthWrite: false, envMapIntensity: 1.4, name: 'fa_glass' });
+  // Fensterglas als Dielektrikum (kein Metall): klare, schmale Glanzlichter von Taschenlampe/Laternen, Himmelsspiegelung nur im flachen Winkel
+  const glassMat = new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .04, metalness: 0, transparent: true, opacity: .24, depthWrite: false, envMapIntensity: 1, name: 'fa_glass' });
   const roomU = { uFlash: { value: 0 }, uFlashPos: { value: new V3() }, uFlashDir: { value: new V3(0, 0, -1) }, uTime: { value: 0 } };
   S.U = roomU;
   // Silhouetten-Maske aus dem echten (gescannten) Mannequin: zwei Posen nebeneinander
@@ -512,6 +516,24 @@ async function fassaden_build() {
   }
   function fixUV(m, tile, vert) { const p = m.geometry.parameters; if (!p) return; const g2 = new THREE.BoxGeometry(p.width, p.height, p.depth); worldUV(g2, p.width, p.height, p.depth, tile); if (vert) { const uv = g2.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getY(i), uv.getX(i)); } m.geometry = g2; }
 
+  // ---------- Bewohnt/verlassen: Kram an jedem Haus (Scan-Modelle, instanziert): Stuhl auf der Veranda, Müllsäcke, Kanister, angelehnte Palette
+  try {
+    const norm = parts => { const b = new THREE.Box3(); parts.forEach(p => { p.geo.computeBoundingBox(); b.union(p.geo.boundingBox); }); const t = new M4().makeTranslation(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); parts.forEach(p => { p.geo = p.geo.clone().applyMatrix4(t); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); }); return parts; };
+    const fbxParts = async (key, spec, size) => { const o = await msFBX(key, 'model.fbx', spec); msFit(o, size, 'y'); o.updateMatrixWorld(true); const ps = []; o.traverse(m => { if (m.isMesh) ps.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material, name: m.name }); }); return norm(ps); };
+    const [chP, bagP, canP, palP] = await Promise.all([fbxParts('chair', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg', color: 0x9a948c } }, .92),
+      msBake('trashbag').then(norm), msBake('jerrycan').then(norm), msBake('pallet_ms').then(norm)]);
+    const L = { ch: [], bag: [], can: [], pal: [] };
+    const at = (hd, lx, ly, lz, lry, list, s = 1, rx = 0, rz = 0) => { const g = hd.g; g.updateMatrixWorld(true); const w = g.localToWorld(new V3(lx, ly, lz)), ry = g.rotation.y + lry; list.push(m4(w.x, w.y, w.z, ry, s, s, s, rx, rz)); };
+    let k = 0;
+    for (const hd of S.houses) { const o = hd.o, w = o.w ?? 11, d = o.d ?? 9, dx = hd.n === 7 ? H7.doorX - o.x : hd.n === 1 ? H1.doorX - o.x : (o.doorX ?? 0), h = Math.abs(Math.round(o.x * 7.3 + o.z * 13.1)); k++;
+      const gx = hd.garage ? hd.garage.x : 99, side = [-1, 1].filter(q => Math.abs(q * (w / 2 - .7) - gx) > 2.2 && Math.abs(q * (w / 2 - .7) - dx) > 1.8);
+      if (o.porch) at(hd, dx + (h % 2 ? 1 : -1) * .95, .35, d / 2 + .75, (h % 2 ? -1 : 1) * .5, L.ch);
+      if (side[0] !== undefined) { const sx = side[0] * (w / 2 - .7); at(hd, sx, 0, d / 2 + .42, rand(0, 6), L.bag, rand(.85, 1.05)); at(hd, sx + side[0] * -.55, 0, d / 2 + .5, rand(0, 6), L.bag, rand(.75, .95));
+        if (h % 3 === 0) at(hd, sx + side[0] * -1.05, 0, d / 2 + .35, rand(0, 6), L.can, .95); }
+      if (side[1] !== undefined && h % 2 === 0) at(hd, side[1] * (w / 2 - .9), .6, d / 2 + .36, 0, L.pal, 1, PI / 2 - .24); }
+    for (const [ps, list] of [[chP, L.ch], [bagP, L.bag], [canP, L.can], [palP, L.pal]]) if (ps && list.length) msInst(ps, list, { shadow: true }).forEach(im => im.userData.dress = 1);
+    S.log.push('Hauskram: ' + L.ch.length + ' Stühle, ' + L.bag.length + ' Säcke, ' + L.can.length + ' Kanister, ' + L.pal.length + ' Paletten');
+  } catch (e) { console.warn('Fassaden: Hauskram', e); }
   // ---------- Hausnummern: Emaille-Schilder (Ziffer aus dem Original übernommen)
   const rustImg = await new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = 'assets/ms/rust_sheet/b.jpg'; });
   const plates = msFind(m => m.geometry.type === 'PlaneGeometry' && Math.abs(m.geometry.parameters.width - .32) < .001 && Math.abs(m.geometry.parameters.height - .32) < .001 && m.material.map && m.material.map.image && m.material.map.image.getContext && Math.abs(m.material.metalness - .3) < .01);

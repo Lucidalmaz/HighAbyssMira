@@ -1,5 +1,8 @@
 # BRIEFING – Welt-Überarbeitung „High Abyss Mira“ (Birkenhain)
 
+> **Hinweis (28.09.2026):** Dieses Dokument ist ein älterer Arbeitsstand, zum Teil noch mit alten Namen (Kai, Lena, Birkenhain …). Verbindlich ist **app/story/story_final.md** mit dem Abschnitt „Verbindliche Ergänzungen“.
+
+
 ## Ziel (Wunsch des Autors, wörtlich zusammengefasst)
 Birkenhain und alle vorhandenen Schauplätze grundlegend verbessern: **realistisch, detailreich, lebendig, nie leer, unfassbar gruselig** – mit Liebe zum Detail, orientiert an den besten Horror-/Mystery-Spielen (Silent Hill 2/f, Resident Evil 7/Village, Alan Wake 2, P.T., Visage, Layers of Fear, Outlast). **Nichts Selbstgebautes/Selbstgezeichnetes sichtbar lassen** – alles durch die realistischen Scans/Modelle aus der Bibliothek ersetzen. **Überall soll es etwas zu entdecken oder zu tun geben**, nichts darf tot oder unnötig wirken. **Hitboxen exakt**: nichts darf durchlaufbar sein, keine unsichtbaren Wände, das Spiel soll sich flüssig, realistisch und nicht steif anfühlen. **Flüssig** (≥ 60 FPS). Die bestehende Welt bleibt (Häuser, Straßen, Story-Orte, Rätsel) – sie wird ersetzt/veredelt und **deutlich vergrößert**.
 

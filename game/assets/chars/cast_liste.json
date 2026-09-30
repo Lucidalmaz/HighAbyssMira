@@ -1,0 +1,15 @@
+[
+ {
+  "id": "polizist",
+  "name": "Gefreiter Hofer",
+  "height": 1.8,
+  "clips": [
+   "idle",
+   "walk",
+   "look",
+   "nervous",
+   "phone"
+  ],
+  "tris": 33973
+ }
+]

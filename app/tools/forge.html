@@ -1,0 +1,448 @@
+<!doctype html>
+<!-- Figuren-Werkstatt: lädt Figuren (GLB/FBX), rendert Vorschaubilder, stellt neue Figuren aus vorhandenen Teilen zusammen,
+     überträgt Bewegungen zwischen Skeletten und exportiert fertige GLBs.
+     Start: electron.exe app --selftest --window --root=C:/Users/GIGABYTE --page=HighAbyssMira-Repo/app/tools/forge.html --steps=<json>
+     Die Schritte rufen window.F.* auf; Dateien kommen als "FILES:"-Antwort zurück und main.js schreibt sie. -->
+<html><head><meta charset="utf-8"><title>Figuren-Werkstatt</title>
+<script type="importmap">{ "imports": {
+  "three": "../node_modules/three/build/three.module.js",
+  "three/addons/": "../node_modules/three/examples/jsm/"
+} }</script>
+<style>body{margin:0;background:#222}</style></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+R.setPixelRatio(1); R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; document.body.appendChild(R.domElement);
+const cache = new Map(), gl = new GLTFLoader(), fbx = new FBXLoader(), ENV = new THREE.PMREMGenerator(R).fromScene(new RoomEnvironment(), .04).texture;
+const F = window.F = { THREE, SkeletonUtils, R };
+
+// Warten, bis alle Texturen wirklich geladen sind (FBX lädt sie nachträglich)
+F.texReady = async (root, ms = 60000) => { const t0 = performance.now(); const texs = []; root.traverse(o => { if (o.material) for (const m of [].concat(o.material)) for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.push(v); } });
+  while (performance.now() - t0 < ms) { if (texs.every(t => t.image && (t.image.complete !== false) && (t.image.width || t.image.data))) return true; await new Promise(r => setTimeout(r, 100)); } return false; };
+F.load = url => { if (!cache.has(url)) cache.set(url, (/\.fbx$/i.test(url) ? fbx.loadAsync(url).then(o => ({ scene: o, animations: o.animations || [] })) : gl.loadAsync(url)).then(async g => { await F.texReady(g.scene); return { scene: g.scene, animations: g.animations || [] }; })); return cache.get(url); };
+// FBX-Materialien (Phong) → physikalische Materialien wie im Spiel; Rauheit je Materialart
+F.pbr = root => { const done = new Map();
+  root.traverse(o => { if (!o.isMesh) return; const conv = m => { if (done.has(m)) return done.get(m); if (m.isMeshStandardMaterial) { done.set(m, m); return m; }
+    const n = (m.name || '').toLowerCase(), s = new THREE.MeshStandardMaterial({ name: m.name, map: m.map || null, normalMap: m.normalMap || null, alphaMap: m.alphaMap && !(m.map && (m.alphaMap === m.map || m.alphaMap.name === m.map.name)) ? m.alphaMap : null, /* gleiche Datei als Alpha → echter Alphakanal der Farbtextur */ color: m.color ? m.color.clone() : new THREE.Color(1, 1, 1) });
+    if (s.map) s.map.colorSpace = THREE.SRGBColorSpace;
+    const hair = /hair|scalp|brow|lash|beard|mustache|moustache|stubble/.test(n) || F.isHairMesh(o), eye = /eye_[lr]$|std_eye_[lr]/.test(n), cornea = /cornea/.test(n), occl = /occlusion|tearline/.test(n);
+    s.roughness = /skin|head|body|arm|leg|face/.test(n) ? .52 : /teeth|tongue/.test(n) ? .35 : eye ? .25 : cornea ? .05 : /shoe|boot|leather|belt/.test(n) ? .6 : .82; s.metalness = /stud|bracelet|metal|buckle|zipper/.test(n) ? .8 : 0;
+    if (/eyelash/.test(n)) s.color.set(0x2a2220); // Wimpern dunkel (Karten haben helle Ränder)
+    if (hair) { s.alphaTest = .38; s.transparent = false; s.side = THREE.DoubleSide; s.depthWrite = true; if (!s.alphaMap && m.map) s.alphaTest = .38; }
+    else if (cornea) { s.transparent = true; s.opacity = .15; s.depthWrite = false; }
+    else if (occl) { s.transparent = true; s.opacity = .35; s.depthWrite = false; s.color.set(0x000000); if (/tearline/.test(n)) s.visible = false; }
+    else if (m.transparent && (m.alphaMap || m.opacity < .99)) { if (m.alphaMap) { s.alphaTest = .5; s.transparent = false; } else { s.transparent = true; s.opacity = m.opacity; } }
+    for (const t of [s.map, s.normalMap, s.alphaMap]) if (t) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.needsUpdate = true; } // UDIM-Kacheln (u 1–5)
+    s.normalScale = new THREE.Vector2(1, 1); done.set(m, s); return s; };
+    o.material = Array.isArray(o.material) ? o.material.map(conv) : conv(o.material); }); return root; };
+// ---------- Aussehen: Farbtexturen im UV-Raum backen (die NoEdge-Figuren haben nur Platzhalter-Farben, aber echte 4K-Normal-Maps)
+// Gesichtsbereiche (Lippen, Brauen, Wangen, Bartschatten …) werden aus der Kopfgeometrie bestimmt: Augen- und Zahnmitte sind die Anker.
+const NOISE = `float h3(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float n3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
+  return mix(mix(mix(h3(i), h3(i + vec3(1,0,0)), f.x), mix(h3(i + vec3(0,1,0)), h3(i + vec3(1,1,0)), f.x), f.y), mix(mix(h3(i + vec3(0,0,1)), h3(i + vec3(1,0,1)), f.x), mix(h3(i + vec3(0,1,1)), h3(i + vec3(1,1,1)), f.x), f.y), f.z); }
+float fbm(vec3 p){ float v = 0., a = .5; for (int i = 0; i < 5; i++){ v += a * n3(p); p = p * 2.03 + 11.7; a *= .5; } return v; }
+float ly0(float d){ return d > 0. ? .13 : .16; }`;
+const matIndex = (mesh, re) => { const ms = [].concat(mesh.material); return ms.findIndex(m => re.test(m.name || '')); };
+// Ruhepose-Weltlage jedes Eckpunkts (über das Skelett, wie gerendert) – Kopf, Augen und Zähne sind getrennte Skin-Meshes mit eigener Bind-Matrix
+const restPos = mesh => { const g = mesh.geometry; if (g.userData.restPos && g.userData.restFor === mesh.uuid) return g.userData.restPos; const P = g.attributes.position, out = new Float32Array(P.count * 3), v = new THREE.Vector3();
+  mesh.updateMatrixWorld(true); if (mesh.skeleton) mesh.skeleton.update();
+  for (let i = 0; i < P.count; i++) { mesh.getVertexPosition(i, v); v.applyMatrix4(mesh.matrixWorld); out[i * 3] = v.x; out[i * 3 + 1] = v.y; out[i * 3 + 2] = v.z; }
+  g.userData.restPos = out; g.userData.restFor = mesh.uuid; return out; };
+const groupCentroid = (mesh, idx) => { const g = mesh.geometry, R3 = restPos(mesh), I = g.index, s = new THREE.Vector3(); let n = 0;
+  const grs = g.groups.length ? g.groups.filter(x => x.materialIndex === idx) : [{ start: 0, count: I ? I.count : g.attributes.position.count }];
+  for (const gr of grs) for (let i = gr.start; i < gr.start + gr.count; i += 3) { const k = I ? I.getX(i) : i; s.x += R3[k * 3]; s.y += R3[k * 3 + 1]; s.z += R3[k * 3 + 2]; n++; }
+  return n ? s.divideScalar(n) : null; };
+function findPart(root, re) { let hit = null; root.traverse(o => { if (!hit && o.isMesh) { const i = matIndex(o, re); if (i >= 0) hit = { mesh: o, idx: i }; } }); return hit; }
+// Ein Material einer Figur neu backen: fragment = GLSL, der vec3 col aus vP (Weltlage) und Uniforms berechnet
+F.bakeUV = (mesh, idx, size, fragment, uniforms = {}, clear = 0x808080) => {
+  const rt = new THREE.WebGLRenderTarget(size, size, { colorSpace: THREE.NoColorSpace });
+  // UDIM: CC-Figuren legen Körper/Arme/Beine/Nägel in eigene UV-Kacheln (u 1–2, 2–3 …) → auf 0–1 verschieben
+  { const g = mesh.geometry, uv = g.attributes.uv, I = g.index, gr = g.groups.length ? g.groups.find(x => x.materialIndex === idx) : { start: 0, count: I ? I.count : uv.count }; let mu = 1e9, mv = 1e9;
+    for (let i = gr.start; i < gr.start + gr.count; i++) { const k = I ? I.getX(i) : i; mu = Math.min(mu, uv.getX(k)); mv = Math.min(mv, uv.getY(k)); } uniforms.uTile = { value: new THREE.Vector2(Math.floor(mu + 1e-3), Math.floor(mv + 1e-3)) }; }
+  const bake = new THREE.ShaderMaterial({ uniforms, side: THREE.DoubleSide, depthTest: false, depthWrite: false,
+    vertexShader: `uniform vec2 uTile; attribute vec3 restP; varying vec3 vP; varying vec2 vUv; void main(){ vUv = uv - uTile; vP = restP; gl_Position = vec4(vUv * 2. - 1., 0., 1.); }`,
+    fragmentShader: NOISE + `\nvarying vec3 vP; varying vec2 vUv;\n` + fragment });
+  const hide = new THREE.MeshBasicMaterial({ visible: false }); const geo = mesh.geometry.clone(); geo.setAttribute('restP', new THREE.BufferAttribute(restPos(mesh), 3));
+  const tmp = new THREE.Mesh(geo, [].concat(mesh.material).map((m, i) => i === idx ? bake : hide)); tmp.frustumCulled = false; tmp.matrixAutoUpdate = false;
+  if (!Array.isArray(mesh.material)) tmp.material = bake;
+  const sc = new THREE.Scene(); sc.add(tmp); const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+  const tm = R.toneMapping; R.toneMapping = THREE.NoToneMapping; R.setRenderTarget(rt); R.setClearColor(clear, 1); R.clear(); R.render(sc, cam); R.setRenderTarget(null); R.toneMapping = tm; R.setClearColor(0x000000, 1);
+  const px = new Uint8Array(size * size * 4); R.readRenderTargetPixels(rt, 0, 0, size, size, px); rt.dispose(); geo.dispose();
+  // Ränder der UV-Inseln 4 px nach außen füllen (sonst Nähte beim Mip-Mapping)
+  const cv = document.createElement('canvas'); cv.width = cv.height = size; const cx = cv.getContext('2d'), id = cx.createImageData(size, size);
+  for (let y = 0; y < size; y++) id.data.set(px.subarray((size - 1 - y) * size * 4, (size - y) * size * 4), y * size * 4);
+  cx.putImageData(id, 0, 0); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.flipY = true; t.anisotropy = 8; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.name = ([].concat(mesh.material)[idx] || {}).name + '_Farbe'; (F.baked = F.baked || []).push([t.name, cv]); return t;
+};
+const hex3 = c => { const k = new THREE.Color(c), o = {}; k.getRGB(o, THREE.SRGBColorSpace); return new THREE.Vector3(o.r, o.g, o.b); }; // sRGB-Werte, im Shader direkt als Bildfarbe geschrieben
+const FACE_FRAG = `uniform vec3 uO, uX, uY, uZ, uMouth; uniform float uD, uSeam, uZl;
+uniform vec3 skin, lips, brow, stubbleC; uniform float blush, stubble, age, freckles, browW, lipW, seed, dbg, wrinkles;
+void main(){
+  vec3 p = vP - uO; float x = dot(p, uX) / uD, y = dot(p, uY) / uD, z = dot(p, uZ) / uD, ym = dot(uMouth - uO, uY) / uD, zm = dot(uMouth - uO, uZ) / uD;
+  vec3 q = vP / uD * 6. + seed;
+  vec3 c = skin * (.93 + .1 * fbm(q * 1.3)) ; c *= 1. - .05 * fbm(q * 7.);
+  float front = smoothstep(zm - .45, zm + .05, z);
+  // Wangenröte, Nasenspitze, Ohrenrot
+  float cheek = exp(-(pow(abs(x) - .62, 2.) + pow(y + .62, 2.)) / .07) * front; c = mix(c, c * vec3(1.06, .86, .84), cheek * blush * 2.2);
+  float nose = exp(-(x * x * 6. + pow(y + .42, 2.) * 10.)) * front; c = mix(c, c * vec3(1.05, .88, .86), nose * blush * 1.5);
+  // Schatten unter den Augen (stärker im Alter)
+  float under = exp(-(pow(abs(x) - .5, 2.) * 9. + pow(y + .17, 2.) * 70.)) * front; c = mix(c, c * vec3(.86, .8, .86), under * (.25 + age * .6));
+  // Lippen: Oberlippe etwas dunkler, Mundwinkel weich
+  float yl = uSeam; float ly = (y - yl) / (ly0(y - yl) * lipW), lx = x / (.40 * lipW); float lipM = smoothstep(1., .6, length(vec2(lx * (1. + .3 * abs(ly)), ly))) * smoothstep(uZl - .35, uZl - .1, z);
+  vec3 lc = mix(lips, lips * .85, step(0., ly)); lc *= .93 + .1 * fbm(q * 9.); c = mix(c, lc, lipM * .8 * (1. - age * .35));
+  // Augenbrauen: Bogen über jedem Auge, aus feinen Härchen
+  float bx = abs(x) - .5, by = y - (.45 - .45 * bx * bx + .05 * bx); float bw = .3 * browW;
+  float thick = mix(.085, .035, smoothstep(-.22, .3, bx)); // innen breiter, außen spitz auslaufend
+  float base = smoothstep(bw, bw - .12, abs(bx - .03)) * smoothstep(thick, thick * .25, abs(by)) * front;
+  float strands = n3(vec3(x * 170. + y * 60., y * 26., seed)) * .55 + n3(vec3(x * 70., y * 110., seed + 2.)) * .45;
+  float browM = base * (.55 + .45 * smoothstep(.3, .6, strands));
+  c = mix(c, brow, browM * .92);
+  // Bartschatten (Männer)
+  float jaw = smoothstep(ym + .16, ym + .02, y) * smoothstep(ym - 1.05, ym - .6, y) * smoothstep(1.05, .75, abs(x)) * smoothstep(-.9, -.2, z);
+  float lipUp = exp(-(x * x * 3. + pow(y - ym - .14, 2.) * 60.)) * front;
+  float dots = smoothstep(.45, .75, n3(vP / uD * 140.)); c = mix(c, stubbleC, clamp((jaw + lipUp) * stubble * (.55 + .45 * dots) * (1. - lipM), 0., 1.));
+  // Falten (Alter): Stirn, Nasolabialfalten, Krähenfüße, Marionettenlinien, Tränensäcke
+  if (wrinkles > 0.) { float wn = .6 + .4 * n3(vP / uD * 18.), wr = 0.;
+    for (int i = 0; i < 3; i++) { float ly2 = .78 + float(i) * .17 + .03 * sin(x * 3. + float(i)); wr += smoothstep(.022, .0, abs(y - ly2)) * smoothstep(.95, .5, abs(x)) * (.7 + .3 * n3(vec3(x * 9., float(i), seed))); }
+    vec2 a2 = vec2(abs(x), y), p0 = vec2(.3, -.52), p1 = vec2(.52, uSeam - .02); vec2 e = p1 - p0; float h = clamp(dot(a2 - p0, e) / dot(e, e), 0., 1.); float dn = length(a2 - p0 - e * h); wr += smoothstep(.035, .0, dn) * 1.3;
+    vec2 q0 = vec2(.5, uSeam - .06), q1 = vec2(.46, uSeam - .5); vec2 e2 = q1 - q0; float h2 = clamp(dot(a2 - q0, e2) / dot(e2, e2), 0., 1.); wr += smoothstep(.025, .0, length(a2 - q0 - e2 * h2)) * .8;
+    for (int i = 0; i < 3; i++) { float ang = -.45 + float(i) * .45; vec2 c0 = vec2(.86, .02), dir = vec2(cos(ang), sin(ang)); vec2 r2 = a2 - c0; float t2 = dot(r2, dir); wr += smoothstep(.018, .0, length(r2 - dir * t2)) * step(0., t2) * step(t2, .24) * .9; }
+    wr += smoothstep(.02, .0, abs(y + .26 + .25 * pow(abs(x) - .5, 2.) * 4.)) * smoothstep(.3, .15, abs(abs(x) - .5)) * .7;
+    c *= 1. - clamp(wr * wn, 0., 1.) * .2 * wrinkles * front; }
+  // Sommersprossen
+  float fr = smoothstep(.78, .84, n3(vP / uD * 70. + 3.)) * exp(-(x * x * .8 + pow(y + .45, 2.)) / .3) * front; c = mix(c, c * vec3(.84, .7, .62), fr * freckles * .6);
+  // Alter: blasser, leicht gelblich, fleckiger
+  c = mix(c, vec3(dot(c, vec3(.3, .59, .11))) * vec3(1.02, .98, .92), age * .28); c *= 1. - age * .06 * fbm(q * 3.);
+  if (dbg > .5) c = vec3(fract(x * 2.), fract(y * 2.), step(0., z) * .5) * .8 + .2 * step(.95, max(fract(x * 4.), fract(y * 4.)));
+  gl_FragColor = vec4(clamp(c, 0., 1.), 1.);
+}`;
+const BODY_FRAG = `uniform vec3 skin; uniform float age, seed, uD, nails;
+void main(){ vec3 q = vP / uD * 6. + seed; vec3 c = skin * (.93 + .1 * fbm(q * 1.3)); c *= 1. - .045 * fbm(q * 7.);
+  c = mix(c, vec3(dot(c, vec3(.3, .59, .11))) * vec3(1.02, .98, .92), age * .28);
+  if (nails > .5) c = mix(skin, vec3(.93, .78, .76), .55) * (.95 + .05 * fbm(q * 20.));
+  gl_FragColor = vec4(clamp(c, 0., 1.), 1.); }`;
+const CLOTH_FRAG = `uniform vec3 col, col2; uniform float uD, seed, weave, wear, stripes, check;
+void main(){ vec3 q = vP / uD * 6. + seed; float n = fbm(q * 2.2), fine = n3(vP / uD * 220.);
+  vec3 c = col; if (stripes > 0.) c = mix(col, col2, step(.5, fract(vP.y / uD * stripes)));
+  if (check > 0.) { vec2 g = fract(vP.xy / uD * check); c = mix(col, col2, .5 * (step(.5, g.x) + step(.5, g.y)) * .8); }
+  c *= .9 + .14 * n; c *= 1. - weave * .08 * fine; c = mix(c, c * vec3(.92, .9, .86) + .03, wear * smoothstep(.55, .8, n));
+  gl_FragColor = vec4(clamp(c, 0., 1.), 1.); }`;
+// Haar: Originaltextur liefert Alpha (Strähnen) und Helligkeit; Farbe mit dunkleren Ansätzen neu gesetzt
+F.recolorHair = (tex, color, tip, grey = 0) => { const im = tex.image, w = im.width, h = im.height, cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0); const d = cx.getImageData(0, 0, w, h), a = d.data;
+  const s1 = {}, s2 = {}; new THREE.Color(color).getRGB(s1, THREE.SRGBColorSpace); new THREE.Color(tip || color).getRGB(s2, THREE.SRGBColorSpace); const c1 = s1, c2 = s2;
+  for (let y = 0; y < h; y++) { const t = y / h, r = c1.r + (c2.r - c1.r) * t, g = c1.g + (c2.g - c1.g) * t, b = c1.b + (c2.b - c1.b) * t;
+    for (let x = 0; x < w; x++) { const i = (y * w + x) * 4, l = a[i + 3] > 40 ? (a[i] + a[i + 1] + a[i + 2]) / 765 : .5, k = .7 + .6 * l, gr = grey * (.6 + .4 * Math.random());
+      a[i] = Math.min(255, (r * k * (1 - gr) + gr * .82 * k) * 255); a[i + 1] = Math.min(255, (g * k * (1 - gr) + gr * .82 * k) * 255); a[i + 2] = Math.min(255, (b * k * (1 - gr) + gr * .84 * k) * 255); } }
+  cx.putImageData(d, 0, 0); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.flipY = tex.flipY; t.anisotropy = 8; t.wrapS = tex.wrapS; t.wrapT = tex.wrapT; t.name = tex.name + '_Farbe'; return t; };
+
+// look = { skin, lips, brow, hair, hairTip, grey, blush, stubble, age, freckles, browW, lipW, cloth: [[regex, farbe, {col2, stripes, check, wear}]], hide: [regex], seed }
+F.paint = (root, look) => { root.updateMatrixWorld(true);
+  const head = findPart(root, /skin_head/i), eyeR = findPart(root, /std_eye_r$/i), eyeL = findPart(root, /std_eye_l$/i), teeth = findPart(root, /upper_teeth/i);
+  let D = 1;
+  if (head && eyeR && eyeL) {
+    const er = groupCentroid(eyeR.mesh, eyeR.idx), el = groupCentroid(eyeL.mesh, eyeL.idx), hc = groupCentroid(head.mesh, head.idx), mo = teeth ? groupCentroid(teeth.mesh, teeth.idx) : null;
+    const O = er.clone().add(el).multiplyScalar(.5); D = er.distanceTo(el); const X = er.clone().sub(el).normalize(), Y = new THREE.Vector3(0, 1, 0).addScaledVector(X, -X.y).normalize();
+    let Z = new THREE.Vector3().crossVectors(X, Y); if (Z.dot(O.clone().sub(hc)) < 0) Z.negate();
+    const M = mo ? mo.clone() : O.clone().addScaledVector(Y, -1.05 * D);
+    // Lippenlinie = Mitte zwischen Unterkante der oberen und Oberkante der unteren Schneidezähne (vorderste Zahnpunkte)
+    let seam = (M.clone().sub(O).dot(Y)) / D + .05, zl = (M.clone().sub(O).dot(Z)) / D + .35;
+    const lowT = findPart(root, /lower_teeth/i);
+    if (teeth && lowT) { const edge = (part, up) => { const g = part.mesh.geometry, R3 = restPos(part.mesh), I = g.index, pts = []; const gr = g.groups.length ? g.groups.filter(x => x.materialIndex === part.idx) : [{ start: 0, count: I ? I.count : g.attributes.position.count }];
+        for (const G of gr) for (let i = G.start; i < G.start + G.count; i++) { const k = I ? I.getX(i) : i, p = new THREE.Vector3(R3[k * 3], R3[k * 3 + 1], R3[k * 3 + 2]).sub(O); pts.push([p.dot(X) / D, p.dot(Y) / D, p.dot(Z) / D]); }
+        const zmax = Math.max(...pts.map(p => p[2])), front = pts.filter(p => p[2] > zmax - .12 && Math.abs(p[0]) < .25); return { y: up ? Math.min(...front.map(p => p[1])) : Math.max(...front.map(p => p[1])), z: zmax }; };
+      const u = edge(teeth, true), l = edge(lowT, false); seam = (u.y + l.y) / 2; zl = Math.max(u.z, l.z) + .25; }
+    const u = { uO: { value: O }, uX: { value: X }, uY: { value: Y }, uZ: { value: Z }, uD: { value: D }, uMouth: { value: M }, skin: { value: hex3(look.skin) }, lips: { value: hex3(look.lips || '#b0706a') }, brow: { value: hex3(look.brow || look.hair || '#3a2a20') },
+      stubbleC: { value: hex3(look.stubbleC || '#5a4a44') }, blush: { value: look.blush ?? .1 }, stubble: { value: look.stubble || 0 }, age: { value: look.age || 0 }, freckles: { value: look.freckles || 0 }, browW: { value: look.browW || 1 }, lipW: { value: look.lipW || 1 }, seed: { value: look.seed || 1 }, dbg: { value: look.dbg ? 1 : 0 }, uSeam: { value: seam }, uZl: { value: zl }, wrinkles: { value: look.wrinkles || 0 } };
+    const m = [].concat(head.mesh.material)[head.idx]; m.map = F.bakeUV(head.mesh, head.idx, 2048, FACE_FRAG, u); m.color.set(0xffffff); m.needsUpdate = true;
+  }
+  root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach((m, i) => { const n = m.name || '';
+    if (/skin_(body|arm|leg)|nails/i.test(n)) { m.map = F.bakeUV(o, i, 1024, BODY_FRAG, { skin: { value: hex3(look.skin) }, age: { value: look.age || 0 }, seed: { value: look.seed || 1 }, uD: { value: D }, nails: { value: /nails/i.test(n) ? 1 : 0 } }); m.color.set(0xffffff); }
+    else if ((/hair|scalp|brow/i.test(n) || F.isHairMesh(o)) && m.map && look.hair) { m.map = F.recolorHair(m.map, look.hair, look.hairTip, look.grey || 0); m.color.set(0xffffff); }
+    else for (const [re, col, o2] of look.cloth || []) if (new RegExp(re, 'i').test(n) || new RegExp(re, 'i').test(o.name)) { const e = o2 || {};
+      m.map = F.bakeUV(o, i, 1024, CLOTH_FRAG, { col: { value: hex3(col) }, col2: { value: hex3(e.col2 || col) }, uD: { value: D }, seed: { value: look.seed || 1 }, weave: { value: e.weave ?? 1 }, wear: { value: e.wear ?? .3 }, stripes: { value: e.stripes || 0 }, check: { value: e.check || 0 } }); m.color.set(0xffffff); m.roughness = e.rough ?? m.roughness; break; }
+    m.needsUpdate = true; }); });
+  for (const re of look.hide || []) root.traverse(o => { if (o.isMesh && (new RegExp(re, 'i').test(o.name) || [].concat(o.material).some(m => new RegExp(re, 'i').test(m.name || '')))) o.visible = false; });
+  return root; };
+F.isHairMesh = o => /hair|scalp|bun|ponytail|braid|bang|fringe|pigtail|beard|mustache|brow|buzz|wavy|curly/i.test(o.name || '') || [].concat(o.material || []).some(m => /transparency|hair/i.test(m.name || '') && !/^std_/i.test(m.name || ''));
+// Verdeckte Flächen entfernen: Haut unter Kleidung und innere Stofflagen (sonst stechen sie bei Bewegung durch)
+// Ein Dreieck fällt weg, wenn alle drei Ecken innerhalb von r hinter einer äußeren Fläche (Kleidung) liegen.
+F.cull = (root, rScale = .3) => { root.updateMatrixWorld(true); const meshes = []; root.traverse(o => { if (o.isMesh && o.visible) meshes.push(o); });
+  const isSkin = o => [].concat(o.material).some(m => /skin_(body|arm|leg)/i.test(m.name || ''));
+  const isCloth = o => !isSkin(o) && !F.isHairMesh(o) && !/eye|teeth|tongue|tear|occlusion|lash|nail/i.test(o.name || '') && ![].concat(o.material).some(m => /std_|hair|scalp|transparency/i.test(m.name || ''));
+  const cloth = meshes.filter(isCloth), eyeR = findPart(root, /std_eye_r$/i), eyeL = findPart(root, /std_eye_l$/i); if (!cloth.length) return 0;
+  const D = eyeR && eyeL ? groupCentroid(eyeR.mesh, eyeR.idx).distanceTo(groupCentroid(eyeL.mesh, eyeL.idx)) : 6, r = D * rScale, cell = r * 2;
+  const key = (x, y, z) => Math.floor(x / cell) + ',' + Math.floor(y / cell) + ',' + Math.floor(z / cell), grid = new Map();
+  for (const o of cloth) { const g = o.geometry, R3 = restPos(o), N = g.attributes.normal, nm = new THREE.Matrix3().getNormalMatrix(o.matrixWorld), v = new THREE.Vector3();
+    for (let i = 0; i < R3.length / 3; i++) { v.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); const p = { x: R3[i * 3], y: R3[i * 3 + 1], z: R3[i * 3 + 2], nx: v.x, ny: v.y, nz: v.z, o }; const k = key(p.x, p.y, p.z); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(p); } }
+  const covered = (x, y, z, self, depth) => { const cx = Math.floor(x / cell), cy = Math.floor(y / cell), cz = Math.floor(z / cell);
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) { const L = grid.get((cx + a) + ',' + (cy + b) + ',' + (cz + c)); if (!L) continue;
+      for (const p of L) { if (p.o === self) continue; const dx = x - p.x, dy = y - p.y, dz = z - p.z, d2 = dx * dx + dy * dy + dz * dz; if (d2 < r * r && dx * p.nx + dy * p.ny + dz * p.nz < -D * depth) return true; } } return false; };
+  let removed = 0;
+  for (const o of meshes.filter(o => isSkin(o) || isCloth(o))) { const g = o.geometry, I = g.index || { count: g.attributes.position.count, getX: i => i }; const R3 = restPos(o), cov = new Uint8Array(R3.length / 3);
+    const skinIdx = new Set([].concat(o.material).map((m, i) => /skin_(body|arm|leg)/i.test(m.name || '') ? i : -1).filter(i => i >= 0));
+    const dep = isSkin(o) ? .012 : .015; for (let i = 0; i < cov.length; i++) cov[i] = covered(R3[i * 3], R3[i * 3 + 1], R3[i * 3 + 2], o, dep) ? 1 : 0;
+    if (isCloth(o)) [].concat(o.material).forEach(m => { m.side = THREE.DoubleSide; });
+    const groups = g.groups.length ? g.groups : [{ start: 0, count: I.count, materialIndex: 0 }], out = [], ng = [];
+    for (const G of groups) { const s0 = out.length, cullIt = isCloth(o) || skinIdx.has(G.materialIndex);
+      for (let i = G.start; i < G.start + G.count; i += 3) { const a = I.getX(i), b = I.getX(i + 1), c = I.getX(i + 2); if (cullIt && cov[a] && cov[b] && cov[c]) { removed++; continue; } out.push(a, b, c); }
+      ng.push({ start: s0, count: out.length - s0, materialIndex: G.materialIndex }); }
+    const g2 = g.clone(); g2.setIndex(out); g2.clearGroups(); if (g.groups.length) ng.forEach(G => g2.addGroup(G.start, G.count, G.materialIndex)); g2.userData = {}; o.geometry = g2; }
+  return removed; };
+F.skinned = root => { const a = []; root.traverse(o => { if (o.isSkinnedMesh) a.push(o); }); return a; };
+
+// ---------- Bewegungen zwischen Skeletten übertragen (Mixamo / Character Creator / Unreal-Mannequin / Motifect)
+// Gemeinsame Namen (Mixamo-Schema). Je Skelettfamilie: Knochenname → gemeinsamer Name.
+const SIDES = [['Left', 'L_', 'l'], ['Right', 'R_', 'r']];
+const CANON = (() => { const m = { cc: { Hip: 'Hips', Waist: 'Spine', Spine01: 'Spine1', Spine02: 'Spine2', NeckTwist01: 'Neck', Head: 'Head' },
+  ue: { pelvis: 'Hips', spine_01: 'Spine', spine_03: 'Spine1', spine_05: 'Spine2', neck_01: 'Neck', head: 'Head', spine_02: '', spine_04: '' },
+  dl: { Hips: 'Hips', Spine1: 'Spine', Spine2: 'Spine1', Chest: 'Spine2', Neck1: 'Neck', Head: 'Head' },
+  arp: { rootx: 'Hips', spine_01x: 'Spine', spine_02x: 'Spine1', spine_03x: 'Spine2', neckx: 'Neck', headx: 'Head' } };
+  for (const [S, c, u] of SIDES) {
+    Object.assign(m.cc, { [c + 'Clavicle']: S + 'Shoulder', [c + 'Upperarm']: S + 'Arm', [c + 'Forearm']: S + 'ForeArm', [c + 'Hand']: S + 'Hand', [c + 'Thigh']: S + 'UpLeg', [c + 'Calf']: S + 'Leg', [c + 'Foot']: S + 'Foot', [c + 'ToeBase']: S + 'ToeBase' });
+    Object.assign(m.ue, { ['clavicle_' + u]: S + 'Shoulder', ['upperarm_' + u]: S + 'Arm', ['lowerarm_' + u]: S + 'ForeArm', ['hand_' + u]: S + 'Hand', ['thigh_' + u]: S + 'UpLeg', ['calf_' + u]: S + 'Leg', ['foot_' + u]: S + 'Foot', ['ball_' + u]: S + 'ToeBase' });
+    Object.assign(m.dl, { [S + 'Shoulder']: S + 'Shoulder', [S + 'Arm']: S + 'Arm', [S + 'ForeArm']: S + 'ForeArm', [S + 'Hand']: S + 'Hand', [S + 'Leg']: S + 'UpLeg', [S + 'Shin']: S + 'Leg', [S + 'Foot']: S + 'Foot', [S + 'ToeBase']: S + 'ToeBase' });
+    Object.assign(m.arp, { ['shoulder' + u]: S + 'Shoulder', ['arm_stretch' + u]: S + 'Arm', ['forearm_stretch' + u]: S + 'ForeArm', ['hand' + u]: S + 'Hand', ['thigh_stretch' + u]: S + 'UpLeg', ['leg_stretch' + u]: S + 'Leg', ['foot' + u]: S + 'Foot', ['toes_01' + u]: S + 'ToeBase' });
+    for (const f of ['thumb', 'index', 'middle', 'ring', 'pinky']) { const F2 = f[0].toUpperCase() + f.slice(1); m.arp[f + '1' + u] = S + 'Hand' + F2 + '1'; m.arp['c_' + f + '2' + u] = S + 'Hand' + F2 + '2'; m.arp['c_' + f + '3' + u] = S + 'Hand' + F2 + '3'; }
+    for (const [f, cf, uf] of [['Thumb', 'Thumb', 'thumb'], ['Index', 'Index', 'index'], ['Middle', 'Mid', 'middle'], ['Ring', 'Ring', 'ring'], ['Pinky', 'Pinky', 'pinky']]) for (let k = 1; k <= 3; k++) {
+      m.cc[c + cf + k] = S + 'Hand' + f + k; m.ue[uf + '_0' + k + '_' + u] = S + 'Hand' + f + k; m.dl[S + 'Hand' + f + k] = S + 'Hand' + f + k; } }
+  return m; })();
+F.canon = name => { const n = String(name).replace(/^mixamorig[:_]?/i, '').replace(/_\d+$/, '');
+  for (const fam of ['cc', 'ue', 'dl', 'arp']) if (CANON[fam][n] !== undefined) return CANON[fam][n] || null;
+  return /^(Hips|Spine[12]?|Neck|Head|(Left|Right)(Shoulder|Arm|ForeArm|Hand|UpLeg|Leg|Foot|ToeBase|Hand(Thumb|Index|Middle|Ring|Pinky)[123]))$/.test(n) ? n : null; };
+// oberster Knochen je gemeinsamem Namen (CC-FBX enthält gleichnamige Hilfsknoten)
+F.boneMap = root => { const map = new Map(); root.traverse(o => { if (!o.isBone) return; const c = F.canon(o.name); if (c && !map.has(c)) map.set(c, o); }); return map; };
+const CHILD = { Hips: 'Spine', Spine: 'Spine1', Spine1: 'Spine2', Spine2: 'Neck', Neck: 'Head' };
+for (const S of ['Left', 'Right']) Object.assign(CHILD, { [S + 'Shoulder']: S + 'Arm', [S + 'Arm']: S + 'ForeArm', [S + 'ForeArm']: S + 'Hand', [S + 'Hand']: S + 'HandMiddle1', [S + 'UpLeg']: S + 'Leg', [S + 'Leg']: S + 'Foot', [S + 'Foot']: S + 'ToeBase',
+  ...Object.fromEntries(['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'].flatMap(f => [[S + 'Hand' + f + '1', S + 'Hand' + f + '2'], [S + 'Hand' + f + '2', S + 'Hand' + f + '3']])) });
+const wq = o => { const p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3(); o.matrixWorld.decompose(p, q, s); return q; }, wp = o => new THREE.Vector3().setFromMatrixPosition(o.matrixWorld);
+
+// src = { scene, clip }, tgt = Wurzel der Zielfigur (Ruhepose). Liefert AnimationClip für die Zielfigur (30 Bilder/s).
+// Je Knochen wird die Drehung gegenüber der Ruhepose (in Weltlage) übertragen; unterschiedliche Ruheposen (T/A) gleicht die Knochenrichtung aus.
+F.retarget = (src, tgt, { fps = 30, name, loop = true, rootMotion = false, srcRest = null } = {}) => {
+  const S = SkeletonUtils.clone(src.scene); S.updateMatrixWorld(true); tgt.updateMatrixWorld(true);
+  const sm = F.boneMap(S), tm = F.boneMap(tgt), pairs = [...tm.keys()].filter(k => sm.has(k));
+  if (srcRest) { const mx = new THREE.AnimationMixer(S); mx.clipAction(srcRest).play(); mx.setTime(0); S.updateMatrixWorld(true); mx.stopAllAction(); } // z. B. „T-Pose“-Clip der Quelle als Ruhe
+  const Qs0 = new Map(), Qt0 = new Map(), A = new Map();
+  for (const k of pairs) { Qs0.set(k, wq(sm.get(k))); Qt0.set(k, wq(tm.get(k)));
+    const ch = CHILD[k], a = new THREE.Quaternion();
+    if (ch && sm.has(ch) && tm.has(ch) && !/^(Hips|Spine|Neck|Head)/.test(k)) { /* Rumpf nicht ausrichten: sonst kippt die ganze Figur */ const ds = wp(sm.get(ch)).sub(wp(sm.get(k))), dt = wp(tm.get(ch)).sub(wp(tm.get(k))); if (ds.lengthSq() > 1e-10 && dt.lengthSq() > 1e-10) a.setFromUnitVectors(dt.normalize(), ds.normalize()); }
+    A.set(k, a); }
+  const hs = sm.get('Hips'), ht = tm.get('Hips'), hs0 = wp(hs), ht0 = wp(ht);
+  const footY = (m, side) => m.has(side + 'Foot') ? wp(m.get(side + 'Foot')).y : 0;
+  const legS = Math.max(1e-6, hs0.y - (footY(sm, 'Left') + footY(sm, 'Right')) / 2), legT = Math.max(1e-6, ht0.y - (footY(tm, 'Left') + footY(tm, 'Right')) / 2), ratio = legT / legS;
+  const tb = []; tgt.traverse(o => { if (o.isBone) tb.push(o); });
+  const restLocal = new Map(tb.map(b => [b, b.quaternion.clone()])), mapped = new Map(pairs.map(k => [tm.get(k), k]));
+  const mixer = new THREE.AnimationMixer(S), act = mixer.clipAction(src.clip); act.play();
+  const N = Math.max(2, Math.round(src.clip.duration * fps) + 1), times = new Float32Array(N), qv = new Map(pairs.map(k => [k, new Float32Array(N * 4)])), pv = new Float32Array(N * 3);
+  const parentW = new Map(), inv = new THREE.Quaternion(), D = new THREE.Quaternion(), tq = new THREE.Quaternion();
+  const outerParent = new Map(tb.map(b => [b, b.parent && !b.parent.isBone ? wq(b.parent) : null]));
+  for (let f = 0; f < N; f++) { const t = Math.min(src.clip.duration, f / fps); times[f] = t; mixer.setTime(t); S.updateMatrixWorld(true); parentW.clear();
+    for (const b of tb) { const pw = parentW.get(b.parent) || outerParent.get(b) || new THREE.Quaternion(); let w; const k = mapped.get(b);
+      if (k) { D.copy(wq(sm.get(k))).multiply(inv.copy(Qs0.get(k)).invert()); w = D.clone().multiply(A.get(k)).multiply(Qt0.get(k)); tq.copy(pw).invert().multiply(w).normalize(); tq.toArray(qv.get(k), f * 4); }
+      else w = pw.clone().multiply(restLocal.get(b));
+      parentW.set(b, w); }
+    const d = wp(hs).sub(hs0).multiplyScalar(ratio); if (!rootMotion) { d.x = 0; d.z = 0; }
+    const p = ht0.clone().add(d); if (ht.parent) ht.parent.worldToLocal(p); p.toArray(pv, f * 3); }
+  mixer.stopAllAction();
+  // Vorzeichen der Quaternionen stetig halten (sonst Sprünge beim Interpolieren)
+  for (const a of qv.values()) for (let f = 1; f < N; f++) { const i = f * 4, j = i - 4; if (a[i] * a[j] + a[i + 1] * a[j + 1] + a[i + 2] * a[j + 2] + a[i + 3] * a[j + 3] < 0) for (let c = 0; c < 4; c++) a[i + c] = -a[i + c]; }
+  const tracks = pairs.map(k => new THREE.QuaternionKeyframeTrack(tm.get(k).name + '.quaternion', times, qv.get(k)));
+  tracks.push(new THREE.VectorKeyframeTrack(ht.name + '.position', times, pv));
+  const clip = new THREE.AnimationClip(name || src.clip.name, times[N - 1], tracks); clip.userData = { loop, from: src.clip.name, pairs: pairs.length }; return clip; };
+// ---------- Frisur einer anderen CC-Figur übernehmen: Haar-Meshes werden am Kopf der Zielfigur ausgerichtet (Kopfknochen + Augenabstand) und an deren Skelett gebunden
+F.swapHair = (tgt, src, { scale = 1, dy = 0, dz = 0, keepOwn = false } = {}) => { tgt.updateMatrixWorld(true); src.updateMatrixWorld(true);
+  const tb = F.boneMap(tgt), sb = F.boneMap(src), body = F.skinned(tgt).find(m => [].concat(m.material).some(x => /skin_head/i.test(x.name || ''))) || F.skinned(tgt)[0];
+  const eyes = r => { const a = findPart(r, /std_eye_r$/i), b = findPart(r, /std_eye_l$/i); return [groupCentroid(a.mesh, a.idx), groupCentroid(b.mesh, b.idx)]; };
+  const [sr, sl] = eyes(src), [tr, tl] = eyes(tgt), sO = sr.clone().add(sl).multiplyScalar(.5), tO = tr.clone().add(tl).multiplyScalar(.5), k = tr.distanceTo(tl) / sr.distanceTo(sl) * scale, E = tr.distanceTo(tl);
+  const hS = wq(sb.get('Head')), hT = wq(tb.get('Head')), rot = hT.clone().multiply(hS.clone().invert());
+  const M = new THREE.Matrix4().makeTranslation(tO.x, tO.y + dy * E, tO.z + dz * E).multiply(new THREE.Matrix4().makeRotationFromQuaternion(rot)).multiply(new THREE.Matrix4().makeScale(k, k, k)).multiply(new THREE.Matrix4().makeTranslation(-sO.x, -sO.y, -sO.z));
+  if (!keepOwn) tgt.traverse(o => { if (o.isMesh && F.isHairMesh(o)) o.visible = false; }); // eigene Frisur weg (keepOwn: kurzes Unterhaar bleibt und füllt Lücken)
+  const inv = new THREE.Matrix4().copy(body.matrixWorld).invert(), nm = new THREE.Matrix3().getNormalMatrix(new THREE.Matrix4().multiplyMatrices(inv, M)), added = [];
+  const byName = new Map(); body.skeleton.bones.forEach((b, i) => { if (!byName.has(b.name)) byName.set(b.name, i); }); const head = body.skeleton.bones.indexOf(tb.get('Head'));
+  src.traverse(o => { if (!o.isSkinnedMesh || !F.isHairMesh(o) || !o.visible) return;
+    const g = o.geometry.clone(), R3 = restPos(o), P = g.attributes.position, N = g.attributes.normal, v = new THREE.Vector3(), onm = new THREE.Matrix3().getNormalMatrix(o.matrixWorld);
+    for (let i = 0; i < P.count; i++) { v.set(R3[i * 3], R3[i * 3 + 1], R3[i * 3 + 2]).applyMatrix4(M).applyMatrix4(inv); P.setXYZ(i, v.x, v.y, v.z); if (N) { v.fromBufferAttribute(N, i).applyMatrix3(onm).applyMatrix3(nm).normalize(); N.setXYZ(i, v.x, v.y, v.z); } }
+    const SI = g.attributes.skinIndex; // Gewichte auf gleichnamige Knochen der Zielfigur umlegen (sonst Kopf)
+    for (let i = 0; i < SI.count; i++) for (let c = 0; c < 4; c++) { const sbone = o.skeleton.bones[SI.getComponent(i, c)]; const j = sbone && byName.has(sbone.name) ? byName.get(sbone.name) : head; SI.setComponent(i, c, Math.max(0, j)); }
+    g.userData = {}; const mats = [].concat(o.material).map(x => x.clone()); const m = new THREE.SkinnedMesh(g, Array.isArray(o.material) ? mats : mats[0]);
+    m.name = o.name; m.frustumCulled = false; m.position.copy(body.position); m.quaternion.copy(body.quaternion); m.scale.copy(body.scale); body.parent.add(m); m.updateMatrixWorld(true); m.bind(body.skeleton, body.bindMatrix); added.push(m); });
+  return added; };
+// Augenfarbe: Iris-Bereich (farbige Pixel) der Augentextur einfärben
+F.eyeTint = (root, color, amount = .85) => { const c = new THREE.Color(color), s = {}; c.getRGB(s, THREE.SRGBColorSpace);
+  root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!/std_eye_[lr]$/i.test(m.name || '') || !m.map) return; const im = m.map.image, cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0);
+    const d = cx.getImageData(0, 0, cv.width, cv.height), a = d.data;
+    const W2 = cv.width, H2 = cv.height; // Iris: Kreis in der Texturmitte (CC-Augen), ohne Pupille und Lederhaut
+    for (let i = 0; i < a.length; i += 4) { const r = a[i] / 255, g = a[i + 1] / 255, b = a[i + 2] / 255, l = (r + g + b) / 3, px = (i / 4) % W2, py = Math.floor(i / 4 / W2);
+      const rr = Math.hypot(px / W2 - .5, py / H2 - .5), radial = Math.min(1, Math.max(0, (.2 - rr) / .03)), notPupil = Math.min(1, Math.max(0, (l - .05) / .06)), notSclera = Math.min(1, Math.max(0, (.8 - l) / .15));
+      const w = radial * notPupil * notSclera * amount; if (w <= 0) continue; const L = .45 + l * 1.3;
+      a[i] = (r * (1 - w) + s.r * L * w) * 255; a[i + 1] = (g * (1 - w) + s.g * L * w) * 255; a[i + 2] = (b * (1 - w) + s.b * L * w) * 255; }
+    cx.putImageData(d, 0, 0); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.flipY = m.map.flipY; t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT; m.map = t; m.needsUpdate = true; }); }); };
+// Fertige Texturen (z. B. Tony-Figuren) umfärben: Farbton drehen, Sättigung/Helligkeit ändern, optional Richtung einer Farbe ziehen
+F.hsl = (root, re, { h = 0, s = 1, l = 1, mix = null, mixAmt = 0, avgL = null } = {}) => { const ms = {}; if (mix) new THREE.Color(mix).getRGB(ms, THREE.SRGBColorSpace); const R2 = new RegExp(re, 'i'); let mL = .5;
+  root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!(R2.test(m.name || '') || R2.test(o.name || '')) || !m.map || !m.map.image) return;
+    const im = m.map.image, cv = document.createElement('canvas'); cv.width = im.width; cv.height = im.height; const cx = cv.getContext('2d'); cx.drawImage(im, 0, 0); const d = cx.getImageData(0, 0, cv.width, cv.height), a = d.data, col = new THREE.Color(), hs = {}, o2 = {};
+    if (mix) { let sum = 0, n = 0; for (let i = 0; i < a.length; i += 64) { col.setRGB(a[i] / 255, a[i + 1] / 255, a[i + 2] / 255, THREE.SRGBColorSpace); col.getHSL(hs, THREE.SRGBColorSpace); sum += hs.l; n++; } mL = sum / Math.max(1, n); }
+    for (let i = 0; i < a.length; i += 4) { col.setRGB(a[i] / 255, a[i + 1] / 255, a[i + 2] / 255, THREE.SRGBColorSpace); col.getHSL(hs, THREE.SRGBColorSpace); col.setHSL((hs.h + h / 360 + 1) % 1, Math.min(1, hs.s * s), Math.min(1, hs.l * l), THREE.SRGBColorSpace);
+      col.getRGB(o2, THREE.SRGBColorSpace); if (mix) { const lum = Math.min(1.25, hs.l * l / Math.max(.05, mL)); o2.r = o2.r * (1 - mixAmt) + ms.r * lum * mixAmt; o2.g = o2.g * (1 - mixAmt) + ms.g * lum * mixAmt; o2.b = o2.b * (1 - mixAmt) + ms.b * lum * mixAmt; } // Zielfarbe mit dem Helligkeitsverlauf der Vorlage
+      a[i] = Math.min(255, o2.r * 255); a[i + 1] = Math.min(255, o2.g * 255); a[i + 2] = Math.min(255, o2.b * 255); }
+    cx.putImageData(d, 0, 0); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.flipY = m.map.flipY; t.wrapS = m.map.wrapS; t.wrapT = m.map.wrapT; m.map = t; m.needsUpdate = true; }); }); };
+// Fertige Figur als GLB (Mesh + Skelett + Bewegungen), Texturen höchstens 2048
+F.export = async (root, clips, path) => { const ex = new GLTFExporter(); root.updateMatrixWorld(true);
+  // aufräumen: Mimik-Blendshapes weg (werden nicht genutzt, machten 150 MB je Kind), Eckpunkte zusammenführen, Texturen ohne Bild entfernen
+  root.traverse(o => { if (!o.isMesh || !o.visible) return; let g = o.geometry.clone(); g.morphAttributes = {}; g.morphTargetsRelative = false; o.morphTargetInfluences = undefined; o.morphTargetDictionary = undefined;
+    for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', 'skinIndex', 'skinWeight', 'color'].includes(k)) g.deleteAttribute(k);
+    try { const m2 = mergeVertices(g, 1e-4); if (m2) g = m2; } catch (e) {} g.userData = {}; o.geometry = g;
+    [].concat(o.material).forEach(m => { for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'specularMap']) { const t = m[k]; if (t && !(t.image && (t.image.width || t.image.data))) m[k] = null; } }); });
+  root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap']) { const t = m[k]; if (t && !t.userData.mimeType) t.userData.mimeType = k === 'map' && (m.alphaTest > 0 || m.transparent) ? 'image/png' : 'image/jpeg'; } }); });
+  const buf = await ex.parseAsync(root, { binary: true, animations: clips, onlyVisible: true, maxTextureSize: 2048 });
+  let s = ''; const u8 = new Uint8Array(buf); for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return { path, b64: btoa(s) }; };
+// Separate Alpha-Texturen (CC-Haare, Wimpern) in den Alphakanal der Farbtextur einrechnen – glTF kennt keine eigene Alpha-Textur
+F.mergeAlpha = root => { root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!m.alphaMap || !m.alphaMap.image) return;
+  const src = m.map && m.map.image, am = m.alphaMap.image, w = src ? src.width : am.width, h = src ? src.height : am.height, cv = document.createElement('canvas'); cv.width = w; cv.height = h; const cx = cv.getContext('2d');
+  if (src) cx.drawImage(src, 0, 0, w, h); else { cx.fillStyle = '#' + m.color.getHexString(); cx.fillRect(0, 0, w, h); }
+  const d = cx.getImageData(0, 0, w, h), ac = document.createElement('canvas'); ac.width = w; ac.height = h; const ax = ac.getContext('2d'); ax.drawImage(am, 0, 0, w, h); const ad = ax.getImageData(0, 0, w, h).data;
+  for (let i = 0; i < d.data.length; i += 4) d.data[i + 3] = Math.round((ad[i] + ad[i + 1] + ad[i + 2]) / 3 * (d.data[i + 3] / 255));
+  cx.putImageData(d, 0, 0); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.flipY = (m.map || m.alphaMap).flipY; t.wrapS = (m.map || m.alphaMap).wrapS; t.wrapT = (m.map || m.alphaMap).wrapT; t.userData.mimeType = 'image/png';
+  m.map = t; m.alphaMap = null; if (!m.transparent && !m.alphaTest) m.alphaTest = .4; if (m.map && !m.alphaTest && m.transparent) {} m.needsUpdate = true; }); }); };
+// Materialien einer Figur von der Vorlage lösen (sonst färbt eine Figur die andere mit um)
+F.ownMaterials = root => { const seen = new Map(); root.traverse(o => { if (!o.isMesh) return; const cl = m => { if (!seen.has(m)) seen.set(m, m.clone()); return seen.get(m); }; o.material = Array.isArray(o.material) ? o.material.map(cl) : cl(o.material); }); return root; };
+F.hideBy = (root, list) => { for (const re of list || []) { const R2 = new RegExp(re, 'i'); root.traverse(o => { if (o.isMesh && (R2.test(o.name || '') || [].concat(o.material).some(m => R2.test(m.name || '')))) o.visible = false; }); } };
+// Ganze Besetzung (tools/cast.json) bauen: Vorschaubilder und/oder GLB je Figur + Liste
+F.buildCast = async (ids, { shots = 'C:/Users/GIGABYTE/_forge/cast/', glbDir = null } = {}) => {
+  const C = await (await fetch('cast.json', { cache: 'no-store' })).json(), files = [], list = [];
+  for (const c of C.cast) { if (ids && ids.length && !ids.includes(c.id)) continue;
+    try {
+      const g = await F.load(C.src[c.base]); const o = F.ownMaterials(F.pbr(SkeletonUtils.clone(g.scene))); o.name = c.id;
+      if (c.restClip) { const rc = g.animations.find(a => a.name === c.restClip); if (rc) for (const tr of rc.tracks) { const pb = THREE.PropertyBinding.parseTrackName(tr.name), node = THREE.PropertyBinding.findNode(o, pb.nodeName); if (node && node[pb.propertyName] && node[pb.propertyName].fromArray) node[pb.propertyName].fromArray(tr.values, 0); } o.updateMatrixWorld(true); } // Vorlage sitzt → T-Pose (1. Bild) als Ruhe
+      F.saveRest(o); F.hideBy(o, c.hide);
+      if (c.hairFrom) { const h = await F.load(C.src[c.hairFrom[0]]); F.swapHair(o, F.ownMaterials(F.pbr(SkeletonUtils.clone(h.scene))), c.hairFrom[1] || {}); }
+      if (c.look) { F.paint(o, c.look); F.cull(o); }
+      if (c.head) { const H = c.head, hg = await F.load(C.src[H.src]); const hr = F.ownMaterials(F.pbr(SkeletonUtils.clone(hg.scene)));
+        if (H.hairFrom) { const h2 = await F.load(C.src[H.hairFrom[0]]); F.swapHair(hr, F.ownMaterials(F.pbr(SkeletonUtils.clone(h2.scene))), H.hairFrom[1] || {}); }
+        F.hideBy(hr, H.hide); F.paint(hr, H.look); if (H.eye) F.eyeTint(hr, H.eye, H.eyeAmt ?? .85);
+        const opt = Object.assign({ boxMode: 'bones' }, H.swap || {}); if (opt.keep) opt.keep = new RegExp(opt.keep, 'i'); if (opt.boxRe) opt.boxRe = new RegExp(opt.boxRe, 'i');
+        F.headSwap(o, hr, opt); F.hideBy(o, c.hideAfter);
+        if (H.bodySkin !== false) F.hsl(o, H.bodySkinRe || '^body$', { mix: H.look.skin, mixAmt: H.bodyMix ?? .6 }); }
+      if (c.eye) F.eyeTint(o, c.eye, c.eyeAmt ?? .85);
+      if (c.eyeAll) o.traverse(m => { if (m.isMesh) [].concat(m.material).forEach(x => { if (/std_eye_[lr]$/i.test(x.name || '')) { x.map = null; x.color.set(0x030303); x.roughness = .15; x.needsUpdate = true; } }); }); // ganz schwarze Augen (die Graue)
+      for (const [re, opt] of c.hsl || []) F.hsl(o, re, opt);
+      const clips = [];
+      for (const [k, [s, sel]] of Object.entries(C.anims[c.anims] || {})) { try { const S = await F.load(C.src[s]); const clip = typeof sel === 'number' ? S.animations[sel] : S.animations.find(a => a.name === sel); if (clip) clips.push(F.retarget({ scene: S.scene, clip }, o, { name: k })); } catch (e) { console.warn('Bewegung ' + c.id + '/' + k, e); } }
+      // Hülle: Füße auf 0, Größe in Metern
+      o.updateMatrixWorld(true); const bb = new THREE.Box3(); o.traverse(m => { if (m.isMesh && m.visible) bb.expandByObject(m); }); const sc = c.height / (bb.max.y - bb.min.y);
+      const W = new THREE.Group(); W.name = c.id; W.add(o); W.scale.setScalar(sc); W.position.y = -bb.min.y * sc; W.updateMatrixWorld(true);
+      if (shots) { const idle = clips.find(x => x.name === 'idle'), walk = clips.find(x => x.name === 'walk');
+        files.push({ path: shots + c.id + '.png', b64: await F.shot(W, { yaw: .45 }) }); files.push({ path: shots + c.id + '_kopf.png', b64: await F.shot(W, { head: true, yaw: .3, w: 600, h: 600 }) });
+        if (walk) { const mx = F.poseAt(o, walk, walk.duration * .3); files.push({ path: shots + c.id + '_gehen.png', b64: await F.shot(W, { yaw: 1.2 }) }); mx.stopAllAction(); F.restPose(o); } }
+      if (glbDir) { F.restPose(o); F.mergeAlpha(W); files.push(await F.export(W, clips, glbDir + c.id + '/model.glb')); }
+      let tris = 0; W.traverse(m => { if (m.isMesh && m.visible) tris += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; });
+      list.push({ id: c.id, name: c.name, height: c.height, clips: clips.map(x => x.name), tris: Math.round(tris) });
+    } catch (e) { files.push({ path: (shots || glbDir) + c.id + '_FEHLER.txt', b64: btoa(unescape(encodeURIComponent(String(e && e.stack || e)))) }); }
+  }
+  files.push({ path: (glbDir || shots) + (glbDir ? 'cast_liste.json' : 'liste.json'), b64: btoa(unescape(encodeURIComponent(JSON.stringify(list, null, 1)))) });
+  return 'FILES:' + JSON.stringify(files); };
+// Knochen in die Ruhepose zurück (nach Vorschau-Posen)
+F.restPose = root => { root.traverse(o => { if (o.isBone && o.userData.rest) { o.position.copy(o.userData.rest[0]); o.quaternion.copy(o.userData.rest[1]); o.scale.copy(o.userData.rest[2]); } }); root.updateMatrixWorld(true); };
+F.saveRest = root => { root.traverse(o => { if (o.isBone && !o.userData.rest) o.userData.rest = [o.position.clone(), o.quaternion.clone(), o.scale.clone()]; }); };
+// ---------- Kopftausch: realistischer CC-Kopf (gebackenes Gesicht, Haare, Bart, Augen, Zähne) auf einen bekleideten Körper (Tony-Figuren)
+// Ausrichtung über Augenmitte, Augenabstand und Blickrichtung; Hals geht weich vom Kopf- in den Halsknochen über; der alte Kopf wird ausgeblendet.
+const eyeFrame = (root, reEye) => { // Augenmitte + Abstand; CC: zwei Materialien, sonst Augen-Mesh links/rechts teilen
+  const r = findPart(root, /std_eye_r$/i), l = findPart(root, /std_eye_l$/i);
+  if (r && l) { const a = groupCentroid(r.mesh, r.idx), b = groupCentroid(l.mesh, l.idx); return { mid: a.clone().add(b).multiplyScalar(.5), dist: a.distanceTo(b) }; }
+  const pts = []; root.traverse(o => { if (!o.isMesh || !o.visible) return; [].concat(o.material).forEach((m, i) => { if (!reEye.test(m.name || '') && !reEye.test(o.name || '')) return; const g = o.geometry, R3 = restPos(o), I = g.index;
+    const grs = Array.isArray(o.material) && g.groups.length ? g.groups.filter(x => x.materialIndex === i) : [{ start: 0, count: I ? I.count : g.attributes.position.count }];
+    for (const G of grs) for (let k = G.start; k < G.start + G.count; k++) { const v = I ? I.getX(k) : k; pts.push(new THREE.Vector3(R3[v * 3], R3[v * 3 + 1], R3[v * 3 + 2])); } }); });
+  if (!pts.length) return null; const c = pts.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(pts.length);
+  const L = pts.filter(p => p.x > c.x), R2 = pts.filter(p => p.x <= c.x), avg = a => a.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(a.length);
+  return { mid: c, dist: avg(L).distanceTo(avg(R2)) }; };
+F.headSwap = (body, head, { boxMode = false, boxRe = /^head$/i, scale = 1, dy = 0, dz = 0, eyeRe = /^eyes?$/i, strip = /head|hair|eye|teeth|tongue|glass|eyewear|lash|brow|moustache|beard|^body$|skin/i, keep = null, neckCut = 1.9, neckLen = .9 } = {}) => {
+  body.updateMatrixWorld(true); head.updateMatrixWorld(true);
+  const bm = F.boneMap(body), sk = F.skinned(body).find(m => m.skeleton.bones.includes(bm.get('Head'))) || F.skinned(body)[0];
+  let T = eyeFrame(body, eyeRe), S = eyeFrame(head, /std_eye/i);
+  // Ersatz, wenn die Vorlage keine Augen-Meshes hat (Augen in die Kopftextur gemalt): Kopfbox (Breite, Scheitel, Nasenspitze)
+  const boxOf = (root, re) => { const b = new THREE.Box3(), v = new THREE.Vector3(); root.traverse(o => { if (!o.isMesh || !o.visible) return; const ms = [].concat(o.material), g = o.geometry, R3 = restPos(o), I = g.index;
+    ms.forEach((m, i) => { if (!re.test(m.name || '')) return; const grs = Array.isArray(o.material) && g.groups.length ? g.groups.filter(x => x.materialIndex === i) : [{ start: 0, count: I ? I.count : g.attributes.position.count }];
+      for (const G of grs) for (let k = G.start; k < G.start + G.count; k++) { const q = I ? I.getX(k) : k; b.expandByPoint(v.set(R3[q * 3], R3[q * 3 + 1], R3[q * 3 + 2])); } }); }); return b.isEmpty() ? null : b; };
+  const boneBox = () => { const hb2 = new Set(); bm.get('Head').traverse(x => { if (x.isBone) hb2.add(x); }); const b = new THREE.Box3(), v = new THREE.Vector3();
+    body.traverse(o => { if (!o.isSkinnedMesh || !o.visible) return; const n = (o.name || '') + ' ' + [].concat(o.material).map(m => m.name || '').join(' '); if (!/body|head|skin/i.test(n) || /hair|eye|glass|hat|cap/i.test(n) || (keep && keep.test(n))) return;
+      const g = o.geometry, SI = g.attributes.skinIndex, SW = g.attributes.skinWeight, R3 = restPos(o); if (!SI) return;
+      for (let i = 0; i < SI.count; i++) { let w = 0; for (let c = 0; c < 4; c++) if (hb2.has(o.skeleton.bones[SI.getComponent(i, c)])) w += SW.getComponent(i, c); if (w > .9) b.expandByPoint(v.set(R3[i * 3], R3[i * 3 + 1], R3[i * 3 + 2])); } });
+    return b.isEmpty() ? null : b; };
+  if (!T || boxMode) { const bt = boxMode === 'bones' ? boneBox() : boxOf(body, boxRe), bs = boxOf(head, /skin_head/i); if (!bt || !bs) throw new Error('Kopf nicht gefunden');
+    const ws = bs.max.x - bs.min.x, wt = bt.max.x - bt.min.x, kk = wt / ws * scale;
+    S = { mid: new THREE.Vector3((bs.min.x + bs.max.x) / 2, bs.max.y, bs.max.z), dist: 1 }; T = { mid: new THREE.Vector3((bt.min.x + bt.max.x) / 2, bt.max.y, bt.max.z), dist: kk };
+    T.dist = kk; S.dist = 1; T.boxH = (bt.max.y - bt.min.y); }
+  if (!T || !S) throw new Error('Augen nicht gefunden');
+  const headC = r => { const b = new THREE.Box3(); r.traverse(o => { if (o.isMesh && o.visible) b.expandByObject(o); }); return b.getCenter(new THREE.Vector3()); };
+  const fwdS = S.mid.clone().sub(headC(head)).setY(0).normalize(), hb = wp(bm.get('Head')), fwdT = T.mid.clone().sub(hb).setY(0).normalize();
+  const yaw = Math.atan2(fwdT.x, fwdT.z) - Math.atan2(fwdS.x, fwdS.z), k = T.boxH ? T.dist : T.dist / S.dist * scale;
+  if (T.boxH) { const E = eyeFrame(head, /std_eye/i); T.dist = E ? E.dist * k : T.boxH * .2; const eyeY = E ? E.mid.y : S.mid.y; T.mid = T.mid.clone(); T.mid.y += (eyeY - S.mid.y) * k; S.mid = S.mid.clone(); S.mid.y = eyeY; }
+  const M = new THREE.Matrix4().makeTranslation(T.mid.x, T.mid.y + dy * T.dist, T.mid.z + dz * T.dist).multiply(new THREE.Matrix4().makeRotationY(yaw)).multiply(new THREE.Matrix4().makeScale(k, k, k)).multiply(new THREE.Matrix4().makeTranslation(-S.mid.x, -S.mid.y, -S.mid.z));
+  const iHead = sk.skeleton.bones.indexOf(bm.get('Head')), iNeck = sk.skeleton.bones.indexOf(bm.get('Neck') || bm.get('Head'));
+  // Welt = Mesh-Matrix · inverse Bind-Matrix · (Knochen · inverse Knochen-Bindung) · Bind-Matrix · p  → p aus der gewünschten Weltlage zurückrechnen (Kopfknochen in Ruhe)
+  sk.skeleton.bones.forEach(b => b.updateMatrixWorld(true));
+  const A = new THREE.Matrix4().copy(sk.matrixWorld).multiply(sk.bindMatrixInverse).multiply(new THREE.Matrix4().multiplyMatrices(sk.skeleton.bones[iHead].matrixWorld, sk.skeleton.boneInverses[iHead])).multiply(sk.bindMatrix);
+  const inv = A.clone().invert(), nmM = new THREE.Matrix3().getNormalMatrix(new THREE.Matrix4().multiplyMatrices(inv, M));
+  const yChin = T.mid.y - 1.25 * T.dist, yNeck = T.mid.y - (1.25 + neckLen) * T.dist; let yMin = Infinity; const added = [];
+  head.traverse(o => { if (!o.isMesh || !o.visible) return; const n = (o.name || '') + ' ' + [].concat(o.material).map(m => m.name || '').join(' ');
+    if (!/skin_head|std_eye|cornea|teeth|tongue|tear|occlusion|lash|hair|scalp|brow|beard|mustache|bushy|stubble|transparency/i.test(n)) return; // nur Kopfteile
+    let g = o.geometry.clone(); const R3 = restPos(o);
+    // vom CC-Körper nur Kopf + Wimpern behalten
+    if (Array.isArray(o.material)) { const keepIdx = new Set([].concat(o.material).map((m, i) => /skin_head|eyelash|eye|teeth|tongue|cornea|tear|occlusion|hair|brow|beard|scalp|transparency/i.test(m.name || '') && !/skin_(body|arm|leg)/i.test(m.name || '') ? i : -1).filter(i => i >= 0));
+      const I = g.index, cnt = I ? I.count : g.attributes.position.count, out = [], ng = [];
+      for (const G of (g.groups.length ? g.groups : [{ start: 0, count: cnt, materialIndex: 0 }])) { if (!keepIdx.has(G.materialIndex)) continue; const s0 = out.length; for (let i = G.start; i < G.start + G.count; i++) out.push(I ? I.getX(i) : i); ng.push([s0, out.length - s0, G.materialIndex]); }
+      g.setIndex(out); g.clearGroups(); ng.forEach(([a, b, c]) => g.addGroup(a, b, c)); }
+    const P = g.attributes.position, N = g.attributes.normal, v = new THREE.Vector3(), onm = new THREE.Matrix3().getNormalMatrix(o.matrixWorld);
+    const SI = new Uint16Array(P.count * 4), SW = new Float32Array(P.count * 4);
+    for (let i = 0; i < P.count; i++) { v.set(R3[i * 3], R3[i * 3 + 1], R3[i * 3 + 2]).applyMatrix4(M); yMin = Math.min(yMin, v.y);
+      const w = THREE.MathUtils.smoothstep(v.y, yNeck, yChin); SI[i * 4] = Math.max(0, iHead); SW[i * 4] = w; SI[i * 4 + 1] = Math.max(0, iNeck); SW[i * 4 + 1] = 1 - w;
+      v.applyMatrix4(inv); P.setXYZ(i, v.x, v.y, v.z); if (N) { v.fromBufferAttribute(N, i).applyMatrix3(onm).applyMatrix3(nmM).normalize(); N.setXYZ(i, v.x, v.y, v.z); } }
+    g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(SI, 4)); g.setAttribute('skinWeight', new THREE.Float32BufferAttribute(SW, 4)); g.deleteAttribute('skinIndex1'); g.userData = {};
+    for (const a of Object.keys(g.morphAttributes)) delete g.morphAttributes[a];
+    const mats = [].concat(o.material).map(x => x.clone()); const m = new THREE.SkinnedMesh(g, Array.isArray(o.material) ? mats : mats[0]); m.name = 'Kopf_' + o.name; m.frustumCulled = false;
+    m.position.copy(sk.position); m.quaternion.copy(sk.quaternion); m.scale.copy(sk.scale); sk.parent.add(m); m.updateMatrixWorld(true); m.bind(sk.skeleton, sk.bindMatrix); added.push(m); });
+  // alten Kopf ausblenden: Dreiecke, die ganz am Kopfknochen (oder dessen Kindern) hängen – unabhängig von Lage und Material; Hut o. Ä. per keep behalten
+  const headBones = new Set(); bm.get('Head').traverse(b => { if (b.isBone) headBones.add(b); }); let removed = 0;
+  body.traverse(o => { if (!o.isSkinnedMesh || added.includes(o) || !o.visible) return; if (keep && (keep.test(o.name || '') || [].concat(o.material).some(m => keep.test(m.name || '')))) return;
+    const g = o.geometry, SI = g.attributes.skinIndex, SW = g.attributes.skinWeight, I = g.index, cnt = I ? I.count : g.attributes.position.count; if (!SI) return;
+    const onHead = new Uint8Array(SI.count); for (let i = 0; i < SI.count; i++) { let w = 0; for (let c = 0; c < 4; c++) if (headBones.has(o.skeleton.bones[SI.getComponent(i, c)])) w += SW.getComponent(i, c); onHead[i] = w > .9 ? 1 : 0; }
+    const out = [], ng = [];
+    for (const G of (g.groups.length ? g.groups : [{ start: 0, count: cnt, materialIndex: 0 }])) { const s0 = out.length;
+      for (let i = G.start; i < G.start + G.count; i += 3) { const a = I ? I.getX(i) : i, b = I ? I.getX(i + 1) : i + 1, c = I ? I.getX(i + 2) : i + 2; if (onHead[a] && onHead[b] && onHead[c]) { removed++; continue; } out.push(a, b, c); }
+      ng.push([s0, out.length - s0, G.materialIndex]); }
+    const g2 = g.clone(); g2.setIndex(out); g2.clearGroups(); if (g.groups.length) ng.forEach(([a, b, c]) => g2.addGroup(a, b, c)); g2.userData = {}; o.geometry = g2; });
+  return { added: added.length, removed }; };
+F.poseAt = (root, clip, t) => { const mx = new THREE.AnimationMixer(root); mx.clipAction(clip).play(); mx.setTime(t); root.updateMatrixWorld(true); return mx; };
+F.bones = root => { const s = new Set(); for (const m of F.skinned(root)) m.skeleton.bones.forEach(b => s.add(b)); if (!s.size) root.traverse(o => { if (o.isBone) s.add(o); }); return [...s]; };
+
+F.info = async url => { const g = await F.load(url), root = g.scene; root.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(root), meshes = [];
+  root.traverse(o => { if (o.isMesh) { const ms = [].concat(o.material); meshes.push({ name: o.name, skinned: !!o.isSkinnedMesh, tris: Math.round((o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3), mats: ms.map(m => m.name + ':' + m.type + (m.map ? ' map' + (m.map.image ? m.map.image.width : '?') : '') + (m.normalMap ? ' nrm' : '') + (m.transparent ? ' transp' : '') + (m.alphaTest ? ' aTest' : '')) }); } });
+  return { url, size: bb.getSize(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)), min: bb.min.toArray().map(v => +v.toFixed(3)), anims: g.animations.map(a => a.name + ' ' + a.duration.toFixed(1) + 's ' + a.tracks.length + 'tr'), bones: F.bones(root).map(b => b.name), meshes }; };
+
+// Vorschaubild: Figur auf Höhe normiert, Blick von vorn-seitlich, neutrales Studiolicht
+F.shot = async (root, { w = 480, h = 720, yaw = 0.5, pitch = 0.05, bg = 0x3a3d42, pose = null, head = false } = {}) => {
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(bg); sc.environment = ENV; sc.environmentIntensity = .35;
+  sc.add(new THREE.HemisphereLight(0xdfe8ff, 0x3a3228, 1.4)); const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(2, 3, 3); sc.add(key); const rim = new THREE.DirectionalLight(0xaac4ff, 1.2); rim.position.set(-3, 2, -2); sc.add(rim);
+  const holder = new THREE.Group(); holder.add(root); sc.add(holder); root.updateMatrixWorld(true);
+  if (pose) pose(root);
+  root.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(root), size = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
+  const cam = new THREE.PerspectiveCamera(head ? 22 : 30, w / h, .01, 1e5); root.traverse(o => { if (o.isMesh) o.frustumCulled = false; }); let tgt = c.clone(), dist = size.y * 1.9 + .2;
+  if (head) { tgt = new THREE.Vector3(c.x, bb.max.y - size.y * .09, c.z); dist = size.y * .55; }
+  cam.position.set(tgt.x + Math.sin(yaw) * dist, tgt.y + Math.sin(pitch) * dist, tgt.z + Math.cos(yaw) * dist); cam.lookAt(tgt);
+  R.setSize(w, h); R.render(sc, cam); const url = R.domElement.toDataURL('image/png'); holder.remove(root); return url.split(',')[1];
+};
+F.thumbs = async (list, outDir) => { const files = [];
+  for (const [name, url, opt] of list) { try { const g = await F.load(url), o = F.pbr(SkeletonUtils.clone(g.scene));
+    files.push({ path: outDir + '/' + name + '.png', b64: await F.shot(o, opt || {}) });
+    files.push({ path: outDir + '/' + name + '_kopf.png', b64: await F.shot(o, { ...(opt || {}), head: true, yaw: .3 }) });
+  } catch (e) { files.push({ path: outDir + '/' + name + '_FEHLER.txt', b64: btoa(unescape(encodeURIComponent(String(e && e.stack || e)))) }); } }
+  return 'FILES:' + JSON.stringify(files); };
+window.__ready = true;
+</script></body></html>

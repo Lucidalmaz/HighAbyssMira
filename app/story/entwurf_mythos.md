@@ -1,4 +1,7 @@
 # HIGH ABYSS MIRA – Story-Entwurf Kapitel 1–3
+
+> **Hinweis (28.09.2026):** Dieses Dokument ist ein älterer Arbeitsstand, zum Teil noch mit alten Namen (Kai, Lena, Birkenhain …). Verbindlich ist **app/story/story_final.md** mit dem Abschnitt „Verbindliche Ergänzungen“.
+
 ## Schwerpunkt MYTHOS / ZYKLUS
 
 Stand: 28.09.2026 · Entwurf zur Ausarbeitung durch den Autor

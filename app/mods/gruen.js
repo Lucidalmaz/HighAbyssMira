@@ -16,6 +16,8 @@ function gruen_n(x, z) { const ix = Math.floor(x), iz = Math.floor(z), fx = x - 
   const a = gruen_h(ix, iz), b = gruen_h(ix + 1, iz), c = gruen_h(ix, iz + 1), d = gruen_h(ix + 1, iz + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
 function gruen_areaOf(x, z, m = 0) { for (let i = 0; i < gruen_AREAS.length; i++) { const [a, b, c, e] = gruen_AREAS[i]; if (x >= a - m && x <= b + m && z >= c - m && z <= e + m) return i; } return -1; }
 function gruen_areaDist(x, z) { let d = 1e9; for (const [a, b, c, e] of gruen_AREAS) d = Math.min(d, Math.hypot(Math.max(a - x, 0, x - b), Math.max(c - z, 0, z - e))); return d; }
+const gruen_dust = (x, z) => z > 99 && x > -44 && x < 114; // Forbidden Dustwoods (Modul wald): eigenes Waldgebiet nördlich des Spielplatzes
+const gruen_dustGap = (x, z, m = 0) => Math.abs(z - 98) < 1 + m && x > 26 - m && x < 34 + m; // Lücke im Nordzaun
 const gruen_inside = (x, z) => x > gruen_OUT.x0 && x < gruen_OUT.x1 && z > gruen_OUT.z0 && z < gruen_OUT.z1;
 function gruen_fenceDist(x, z) { const O = gruen_OUT;
   let d = gruen_inside(x, z) ? Math.min(x - O.x0, O.x1 - x, z - O.z0, O.z1 - z) : Math.hypot(Math.max(O.x0 - x, 0, x - O.x1), Math.max(O.z0 - z, 0, z - O.z1));
@@ -102,7 +104,7 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
           vec2 pc = floor(vec2(wp.x / 3.3, wp.y / 1.9 + floor(wp.x / 3.3) * .37));
           diffuseColor.rgb = mix(diffuseColor.rgb, texture2D(gTexA, wp * .5).rgb * diffuse * .75, step(.9, gH(pc + 71.)) * .8);
           float pn = gF(wp * .15 + 3.1); gPud = smoothstep(.62, .655, pn); gWet = smoothstep(.5, .62, pn);
-          diffuseColor.rgb *= mix(.8, 1.12, gN(wp * .05)) * mix(1., .5, gWet);
+          diffuseColor.rgb *= mix(.8, 1.12, gN(wp * .05)) * mix(1., .68, gWet);
         } else if (gMode < 2.5) {   // Gehweg: nasse Flecken
           gWet = smoothstep(.45, .72, gF(wp * .22 + 9.));
           diffuseColor.rgb *= mix(1., .6, gWet) * mix(.84, 1.08, gN(wp * .09));
@@ -111,7 +113,7 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
           diffuseColor.rgb *= mix(1., .55, gWet) * mix(.8, 1.05, gN(wp * .6));
         }
       }`)
-    .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(gMode < .5 ? 1. : roughnessFactor * (gMode < 1.5 ? .75 : .9), roughnessFactor * .42, gWet); roughnessFactor = mix(roughnessFactor, .035, gPud);')
+    .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(gMode < .5 ? 1. : roughnessFactor * (gMode < 1.5 ? .75 : .9), roughnessFactor * .42, gWet); roughnessFactor = mix(roughnessFactor, .1, gPud);')
     .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP);
   };
   mat.customProgramCacheKey = () => 'gruenSurf'; mat.needsUpdate = true; return mat;
@@ -243,7 +245,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const leafB = gruen_tex('leaves/b.jpg', true), floorB = gruen_tex('forestfloor/b.jpg', true), patchB = msTex('wet_asphalt/b.jpg', true);
     msSurf(M.grass, 'lawn1', { tint: 0x6c7560, nrm: .55 }); gruen_surf(M.grass, 0, leafB, floorB);
-    msSurf(M.asphalt, 'road_asphalt', { tint: 0xb8b8b8 }); gruen_surf(M.asphalt, 1, patchB, floorB);
+    msSurf(M.asphalt, 'road_asphalt', { tint: 0xf0f0f0 }); // Albedo ~0,05 (nasser Asphalt) statt ~0,025: die Taschenlampe zeichnet einen sichtbaren Lichtfleck gruen_surf(M.asphalt, 1, patchB, floorB);
     msSurf(M.sidewalk, 'pavement', { tint: 0x9c9c96 }); gruen_surf(M.sidewalk, 2, patchB, floorB);
     // Rinde (Schaukelast u. a.): Maserung entlang des Astes
     msSurf(M.bark, 'bark', { tint: 0x77706a, tile: 2 });
@@ -355,7 +357,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     if (!parts.length) { const P = await msBake('fencepost'); P.forEach(p => { p.geo.computeBoundingBox(); p.mat.color.setScalar(.7); }); parts = P.filter(p => p.geo.boundingBox.max.x - p.geo.boundingBox.min.x > 2.5); }
     const CH = new Map(), O = gruen_OUT; let cnt = 0;
     const run = (x0, z0, x1, z1) => { const Ln = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.round(Ln / 3.05)), s = Ln / (n * 3.0), a = Math.atan2(-(z1 - z0), x1 - x0);
-      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k, key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
+      for (let i = 0; i < n; i++) { const k = i / n, x = x0 + (x1 - x0) * k, z = z0 + (z1 - z0) * k; if (gruen_dustGap(x, z)) continue; const key = Math.floor(x / 32) + ',' + Math.floor(z / 32); let c = CH.get(key); if (!c) CH.set(key, c = { x: 0, z: 0, n: 0, L: parts.map(() => []) });
         c.L[Math.floor(rand(0, parts.length))].push(gruen_m4(x, 0, z, a, 1, rand(.95, 1.05), 1, rand(-.05, .05), rand(-.05, .05)).multiply(new THREE.Matrix4().makeScale(s, 1, 1))); c.x += x; c.z += z; c.n++; cnt++; } };
     run(O.x0, O.z0, O.x1, O.z0); run(O.x1, O.z0, O.x1, O.z1); run(O.x1, O.z1, O.x0, O.z1); run(O.x0, O.z1, O.x0, O.z0);
     run(79.4, -32.4, 79.4, O.z0); run(-79.4, -32.4, -79.4, O.z0);
@@ -372,7 +374,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
     const add = (x, z, m) => { const k = Math.floor(x / 26) + ',' + Math.floor(z / 26); let c = chunks.get(k); if (!c) chunks.set(k, c = { x: 0, z: 0, n: 0, L: treeParts.map(() => []) }); c.L[Math.min(treeParts.length - 1, Math.random() < .6 ? 0 : 1)].push(m); c.x += x; c.z += z; c.n++; };
     for (let gx = -176; gx <= 176; gx += 4.6) for (let gz = -70; gz <= 115; gz += 4.6) {
       const x = gx + rand(-1.8, 1.8), z = gz + rand(-1.8, 1.8), ins = gruen_inside(x, z), ad = gruen_areaDist(x, z), fd = gruen_fenceDist(x, z);
-      if (ins && ad < 2.5) continue;
+      if (ins && ad < 2.5) continue; if (gruen_dust(x, z)) continue; // Forbidden Dustwoods: eigener Wald (Modul wald)
       if (!ins && fd > 13) continue;
       if (fd < 1.7) continue;
       if (Math.abs(x) < 3.4 && z < -45 && z > -54) continue;                                   // alter Straßenrest hinter der Sperre
@@ -438,11 +440,11 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       }
     }
     // Waldmantel und Unterholz (auch außerhalb des Zauns, damit der Wald auf Augenhöhe dicht ist)
-    for (const [x, z, ad] of forestShrubs) { if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
+    for (const [x, z, ad] of forestShrubs) { if (gruen_dust(x, z) || gruen_dustGap(x, z, 3)) continue; if (gruen_inside(x, z) && gruen_occ(x, z) >= 2) continue; if (gruen_fenceDist(x, z) < .8) continue; shrub(x, z, ad < 8);
       for (let i = 0; i < 2; i++) if (Math.random() < .75) addG2(x + rand(-1.8, 1.8), z + rand(-1.8, 1.8), rand(.9, 1.4)); }
     // Am Weidezaun innen: Himbeergestrüpp und hohes Gras
     const O = gruen_OUT, along = (x0, z0, x1, z1, nx, nz) => { const Ln = Math.hypot(x1 - x0, z1 - z0); for (let t = 0; t < Ln; t += rand(.9, 1.6)) { const k = t / Ln, d = rand(.9, 3.2), x = x0 + (x1 - x0) * k + nx * d, z = z0 + (z1 - z0) * k + nz * d;
-        if (gruen_occ(x, z) >= 2) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
+        if (gruen_occ(x, z) >= 2 || gruen_dustGap(x, z, 3.5)) continue; if (Math.random() < .3) shrub(x, z, Math.random() < .5); addG2(x + rand(-.5, .5), z + rand(-.5, .5), rand(.9, 1.4)); } };
     along(O.x0, O.z0, O.x1, O.z0, 0, 1); along(O.x1, O.z0, O.x1, O.z1, -1, 0); along(O.x0, O.z1, O.x1, O.z1, 0, -1); along(O.x0, O.z0, O.x0, O.z1, 1, 0);
     // Übergänge an den alten Grenzlinien: Feldrain mit Lücken statt Zaun (Kirchweg-Gasse bei x ≈ −7 bleibt frei)
     for (let x = -77; x < 58; x += rand(1.6, 3.2)) { if (x > -14 && x < 0) continue; if (gruen_n(x * .08, 3.3) < .42) continue; const z = rand(30.6, 34.5); if (gruen_occ(x, z) >= 2) continue; shrub(x, z, Math.random() < .6); addG2(x + rand(-1, 1), z + rand(-1, 1), rand(.9, 1.3)); }
@@ -456,7 +458,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const lm = gruen_mask('leaf'), pmk = gruen_mask('pud');
     const leafMat = gruen_decalMat('leaves/', 0xd2b894, lm), mudMat = gruen_decalMat('forestfloor/', 0x4a4038, lm, .4, -3);
-    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .03, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: 1.6 });
+    const pudMat = new THREE.MeshStandardMaterial({ color: 0x07090c, roughness: .1, metalness: 0, alphaMap: pmk, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: .6 });
     pudMat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { gT: gruen_S.uT, gRipK: { value: .4 } }); sh.vertexShader = gruen_VERT(sh.vertexShader);
       sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + gruen_GLSL + 'uniform float gRipK;').replace('#include <map_fragment>', '#include <map_fragment>\n gPud = 1.;').replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\n' + gruen_RIP); };
     pudMat.customProgramCacheKey = () => 'gruenPud';
@@ -496,7 +498,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       const sh = box(1.6, .3, 1.1, sx, .15, sz, hidden, { cast: false, parent: gruen_R });
       interact(sh, 'Ansehen', () => gruen_find('gruen_steine', 'Sieben Steine', 'Sieben Steine im Kreis, auf frisch umgegrabener Erde. Jemand hat sie gewaschen. Die Stelle ist genau so lang wie ein Kind.', 6000));
     }
-    // STORY-HOOK: Grenze – was am Weidezaun hängt (Lena, 7/8, etwas ging hinaus)
+    // STORY-HOOK: Grenze – was am Weidezaun hängt (Lucy, 7/8, etwas ging hinaus)
     const O = gruen_OUT, SPOTS = [[-20, O.z1 - .15, 0, 'Der Draht ist nach außen gebogen. Als wäre etwas hinaus. Oder herein.'],
       [O.x1 - .15, 18, PI / 2, 'Am Stacheldraht hängen lange, helle Haare. Sie sind noch nass.'],
       [O.x0 + .15, -6, PI / 2, 'In den Pfahl sind Kerben geschnitten. Sieben alte. Eine frische.'],
