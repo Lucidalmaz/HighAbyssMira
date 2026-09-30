@@ -116,6 +116,872 @@
    ]
   }
  },
+ "mocap": {
+  "_info": "AP-MOCAP: Motion-Capture-Saetze (tools/mocap_bake.mjs, Kern tools/mocap.mjs, Doku story/audit/F3_stand_mocap.md). Pfade relativ zu tools/. rm = lin (Fortbewegung: auf der Stelle + Tempo) | fix (Drift weg, Schwanken bleibt) | keep (Wurzelweg bleibt) | turn (Drehung/Weg als Kurve); loop (Standard ja); trim [t0,t1]; clip (Name/Index).",
+  "src": {
+   "m_idle": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_neutral.fbx",
+   "m_idle2": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_relaxed_weight_shift.fbx",
+   "m_alert": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_alert.fbx",
+   "m_lookaround": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_looking_around.fbx",
+   "m_walk": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_forward.fbx",
+   "m_walk_c": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_cautious.fbx",
+   "m_walk_t": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_tired.fbx",
+   "m_walk_b": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_backward.fbx",
+   "m_tiptoe": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/tiptoe_walk.fbx",
+   "m_jog": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_jog.fbx",
+   "m_panic": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_panic.fbx",
+   "m_sprint": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_sprint.fbx",
+   "m_stop": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/stop_from_run.fbx",
+   "m_t180": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_180.fbx",
+   "m_tl90": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_left_90.fbx",
+   "m_tr90": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_right_90.fbx",
+   "m_crouch": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crouch_idle.fbx",
+   "m_crouchwalk": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crouch_walk_forward.fbx",
+   "m_stairs_up": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/climb_stairs_up.fbx",
+   "m_stairs_dn": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/climb_stairs_down.fbx",
+   "m_wall": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/back_to_wall.fbx",
+   "m_stumble": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/stumble_recover.fbx",
+   "m_stepover": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/step_over_obstacle.fbx",
+   "m_crawl": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crawl_forward.fbx",
+   "i_exhaust": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/exhausted_heavy_breathing.fbx",
+   "i_knees": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/hands_on_knees_exhausted.fbx",
+   "i_leanwall": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/lean_on_wall_rest.fbx",
+   "i_panic": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/panic_look_around.fbx",
+   "i_ears": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/cover_ears.fbx",
+   "i_sob": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/sob_crying.fbx",
+   "i_fetal": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/curl_up_fetal.fbx",
+   "i_sway": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/barely_stand_swaying.fbx",
+   "i_collapse": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/collapse_to_knees.fbx",
+   "i_cane": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/hobble_with_cane.fbx",
+   "i_limp": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/limp_walk_left_leg.fbx",
+   "i_rise": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/revive_slowly_rise.fbx",
+   "i_gasp": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/revive_gasp_awake.fbx",
+   "i_dizzy": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/stagger_dizzy.fbx",
+   "i_cough": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/cough_fit.fbx",
+   "e_arms": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/arms_crossed_defiant.fbx",
+   "e_shrug": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/shrug_i_dont_know.fbx",
+   "e_think": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/think_chin_stroke.fbx",
+   "e_talk": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/talk_animate_hands.fbx",
+   "e_facepalm": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/facepalm.fbx",
+   "e_scared": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/shrink_away_scared.fbx",
+   "e_slump": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/slump_defeated.fbx",
+   "e_wait": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/hold_up_wait.fbx",
+   "e_explain": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/explain_wide_gesture.fbx",
+   "e_laugh": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/laugh_body.fbx",
+   "a_talk": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_002_talking normal.fbx",
+   "a_angry": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_003_taking_angry_01.fbx",
+   "a_listen": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_004_Listing.fbx",
+   "a_sit": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_02_001_Sit_Idle.fbx",
+   "a_sittalk": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_02_002_talking_normal_01.fbx",
+   "mo_jog": "../../../HAM_FabDownloads/v15_mocap/x/mobility/Character Mobility Animation Mocap Pack (10 Animations)/01_02_006_jogging.fbx",
+   "mo_t180": "../../../HAM_FabDownloads/v15_mocap/x/mobility/Character Mobility Animation Mocap Pack (10 Animations)/01_01_003_180 turn walk.fbx",
+   "mv_tr90": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_001_turn_R_90.fbx",
+   "mv_tl90": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_002_turn_L_90.fbx",
+   "mv_t180": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_003_turn_L_180.fbx",
+   "d_sit": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_idle_upright.fbx",
+   "d_sit2": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_idle_slouched.fbx",
+   "d_sitdown": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_down_chair.fbx",
+   "d_standup": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/stand_up_from_chair.fbx",
+   "d_phone": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/check_phone_standing.fbx",
+   "d_nod": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/nod_yes.fbx",
+   "d_no": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/shake_head_no.fbx",
+   "d_wave": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/wave_hello.fbx",
+   "d_knock": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/knock_on_door.fbx",
+   "d_getupfloor": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/get_up_from_floor.fbx",
+   "d_pickup": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/pick_up_object_floor.fbx",
+   "d_drink": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/drink_from_cup.fbx",
+   "d_hug": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/hug_greeting.fbx",
+   "d_carry": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/carry_box_two_hands.fbx",
+   "d_pickt": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/pick_up_object_table.fbx",
+   "e_coverface": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/cover_face_embarrassed.fbx",
+   "w_look1": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_01_Stand_Idle_Turn_L180_IP.fbx",
+   "w_look2": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_02_Stand_Idle_Bend_Fwd_Turn_L180_IP.fbx",
+   "w_look4": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_04_Stand_Idle_Knock_Wave_Turn_L180_IP.fbx",
+   "u_getup": "../../../HAM_FabDownloads/v15_mocap/x/getup2/source/AnimUE4_GettingUp_UP.FBX",
+   "u_getdown": "../../../HAM_FabDownloads/v15_mocap/x/getup1/source/AnimUE4_GettingUp_DOWN.FBX",
+   "u_smoke": "../../../HAM_FabDownloads/v15_mocap/x/smoke/source/Anim_UE4_Smoking_01.fbx",
+   "s_conv": "../../../HAM_FabDownloads/v15_mocap/conv.fbx",
+   "s_convsit": "../../../HAM_FabDownloads/v15_mocap/convsit.fbx",
+   "s_disap": "../../../HAM_FabDownloads/v15_mocap/disap.fbx",
+   "s_strange": "../../../HAM_FabDownloads/v15_mocap/strange.fbx",
+   "s_lying": "../../../HAM_FabDownloads/v15_mocap/lying.fbx",
+   "s_dying": "../../../HAM_FabDownloads/v15_mocap/dying.fbx",
+   "s_kneeldead": "../../../HAM_FabDownloads/v15_mocap/kneeldead.fbx",
+   "s_runhell": "../../../HAM_FabDownloads/v15_mocap/runhell.fbx",
+   "s_backward": "../../../HAM_FabDownloads/v15_mocap/backward.fbx",
+   "n_gaze": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/24motion_Gaze_Man_t01_60fps.fbx",
+   "n_turnnb": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/24motion_TurnNeighbornood_Man_t02_60fps.fbx",
+   "n_carry": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/Carryheavyluggage_M1_07_t02_60fps.fbx",
+   "h_shibuya": "../../../HAM_FabDownloads/v6/a_idle__24shibuya_stand3_youngman_loop_hik_60fps.fbx",
+   "z_idle": "../../../HAM_FabDownloads/v15_mocap/x/zidle/SK_Mannequin_Zombie_Idle_01.FBX",
+   "z_idle2": "../../../HAM_FabDownloads/v15_mocap/x/zidle/SK_Mannequin_Zombie_Idle_02.FBX",
+   "z_idle3": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Idle.FBX",
+   "z_walk": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Walk.FBX",
+   "z_run": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Run.FBX",
+   "z_attack": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Attack.FBX",
+   "z_crawl": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Crawl.FBX",
+   "z_death": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Death.FBX"
+  },
+  "sets": {
+   "adult": {
+    "idle": [
+     "m_idle",
+     {
+      "rm": "fix"
+     }
+    ],
+    "idle2": [
+     "m_idle2",
+     {
+      "rm": "fix"
+     }
+    ],
+    "idle3": [
+     "a_listen",
+     {
+      "rm": "fix"
+     }
+    ],
+    "look": [
+     "m_lookaround",
+     {
+      "rm": "fix"
+     }
+    ],
+    "nervous": [
+     "i_panic",
+     {
+      "rm": "fix"
+     }
+    ],
+    "alert": [
+     "m_alert",
+     {
+      "rm": "fix"
+     }
+    ],
+    "walk": [
+     "m_walk",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_vorsicht": [
+     "m_walk_c",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_muede": [
+     "m_walk_t",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_zurueck": [
+     "m_walk_b",
+     {
+      "rm": "lin"
+     }
+    ],
+    "schleichen": [
+     "m_tiptoe",
+     {
+      "rm": "lin"
+     }
+    ],
+    "run": [
+     "m_jog",
+     {
+      "rm": "lin"
+     }
+    ],
+    "run_panik": [
+     "m_panic",
+     {
+      "rm": "lin"
+     }
+    ],
+    "turn_l": [
+     "m_tl90",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "turn_r": [
+     "m_tr90",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "turn_180": [
+     "m_t180",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "fear": [
+     "e_scared",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "ohren_zu": [
+     "i_ears",
+     {
+      "rm": "fix"
+     }
+    ],
+    "crouch": [
+     "m_crouch",
+     {
+      "rm": "fix"
+     }
+    ],
+    "talk": [
+     "a_talk",
+     {
+      "rm": "fix"
+     }
+    ],
+    "talk_wut": [
+     "a_angry",
+     {
+      "rm": "fix"
+     }
+    ],
+    "listen": [
+     "a_listen",
+     {
+      "rm": "fix"
+     }
+    ],
+    "gestik": [
+     "e_talk",
+     {
+      "rm": "fix"
+     }
+    ],
+    "erklaeren": [
+     "e_explain",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "sit": [
+     "d_sit",
+     {
+      "rm": "fix"
+     }
+    ],
+    "sit2": [
+     "d_sit2",
+     {
+      "rm": "fix"
+     }
+    ],
+    "sit_talk": [
+     "a_sittalk",
+     {
+      "rm": "fix"
+     }
+    ],
+    "sit_down": [
+     "d_sitdown",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "stand_up": [
+     "d_standup",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "getup": [
+     "u_getup",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "getup_floor": [
+     "d_getupfloor",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "lean_wall": [
+     "i_leanwall",
+     {
+      "rm": "fix"
+     }
+    ],
+    "wand_ruecken": [
+     "m_wall",
+     {
+      "rm": "fix"
+     }
+    ],
+    "phone": [
+     "d_phone",
+     {
+      "rm": "fix"
+     }
+    ],
+    "nick": [
+     "d_nod",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "kopfschuetteln": [
+     "d_no",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "winken": [
+     "d_wave",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "klopfen": [
+     "d_knock",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "aufheben": [
+     "d_pickup",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "trinken": [
+     "d_drink",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "hug": [
+     "d_hug",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "arme_verschraenkt": [
+     "e_arms",
+     {
+      "rm": "fix"
+     }
+    ],
+    "schulterzucken": [
+     "e_shrug",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "nachdenken": [
+     "e_think",
+     {
+      "rm": "fix"
+     }
+    ],
+    "facepalm": [
+     "e_facepalm",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "warten": [
+     "e_wait",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "erschoepft": [
+     "i_exhaust",
+     {
+      "rm": "fix"
+     }
+    ],
+    "haende_knie": [
+     "i_knees",
+     {
+      "rm": "fix"
+     }
+    ],
+    "weinen": [
+     "i_sob",
+     {
+      "rm": "fix"
+     }
+    ],
+    "schwanken": [
+     "i_sway",
+     {
+      "rm": "fix"
+     }
+    ],
+    "zusammenbruch": [
+     "i_collapse",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "window": [
+     "w_look1",
+     {
+      "rm": "fix"
+     }
+    ],
+    "window_lean": [
+     "w_look2",
+     {
+      "rm": "fix"
+     }
+    ],
+    "window_knock": [
+     "w_look4",
+     {
+      "rm": "fix"
+     }
+    ],
+    "stairs_up": [
+     "m_stairs_up",
+     {
+      "rm": "lin"
+     }
+    ],
+    "stairs_down": [
+     "m_stairs_dn",
+     {
+      "rm": "lin"
+     }
+    ],
+    "tragen": [
+     "d_carry",
+     {
+      "rm": "lin"
+     }
+    ],
+    "greifen": [
+     "d_pickt",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "augen_zu": [
+     "e_coverface",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "liegen": [
+     "s_lying",
+     {
+      "rm": "fix",
+      "up": "y"
+     }
+    ],
+    "zusammenrollen": [
+     "i_fetal",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "zusammensacken": [
+     "e_slump",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ]
+   },
+   "kid": {
+    "idle": [
+     "m_idle",
+     {
+      "rm": "fix"
+     }
+    ],
+    "idle2": [
+     "m_idle2",
+     {
+      "rm": "fix"
+     }
+    ],
+    "idle3": [
+     "a_listen",
+     {
+      "rm": "fix"
+     }
+    ],
+    "look": [
+     "m_lookaround",
+     {
+      "rm": "fix"
+     }
+    ],
+    "nervous": [
+     "i_panic",
+     {
+      "rm": "fix"
+     }
+    ],
+    "alert": [
+     "m_alert",
+     {
+      "rm": "fix"
+     }
+    ],
+    "walk": [
+     "m_walk",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_vorsicht": [
+     "m_walk_c",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_muede": [
+     "m_walk_t",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_zurueck": [
+     "m_walk_b",
+     {
+      "rm": "lin"
+     }
+    ],
+    "schleichen": [
+     "m_tiptoe",
+     {
+      "rm": "lin"
+     }
+    ],
+    "run": [
+     "m_jog",
+     {
+      "rm": "lin"
+     }
+    ],
+    "run_panik": [
+     "m_panic",
+     {
+      "rm": "lin"
+     }
+    ],
+    "turn_l": [
+     "m_tl90",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "turn_r": [
+     "m_tr90",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "turn_180": [
+     "m_t180",
+     {
+      "rm": "turn",
+      "loop": false
+     }
+    ],
+    "fear": [
+     "e_scared",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "ohren_zu": [
+     "i_ears",
+     {
+      "rm": "fix"
+     }
+    ],
+    "crouch": [
+     "m_crouch",
+     {
+      "rm": "fix"
+     }
+    ],
+    "talk": [
+     "a_talk",
+     {
+      "rm": "fix"
+     }
+    ],
+    "listen": [
+     "a_listen",
+     {
+      "rm": "fix"
+     }
+    ],
+    "sit": [
+     "d_sit",
+     {
+      "rm": "fix"
+     }
+    ],
+    "weinen": [
+     "i_sob",
+     {
+      "rm": "fix"
+     }
+    ],
+    "winken": [
+     "d_wave",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "getup_floor": [
+     "d_getupfloor",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "schulterzucken": [
+     "e_shrug",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "augen_zu": [
+     "e_coverface",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "liegen": [
+     "s_lying",
+     {
+      "rm": "fix",
+      "up": "y"
+     }
+    ],
+    "zusammenrollen": [
+     "i_fetal",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "greifen": [
+     "d_pickt",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ]
+   },
+   "old": {
+    "walk": [
+     "m_walk_t",
+     {
+      "rm": "lin"
+     }
+    ],
+    "walk_stock": [
+     "i_cane",
+     {
+      "rm": "lin"
+     }
+    ],
+    "husten": [
+     "i_cough",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ]
+   },
+   "zombie": {
+    "z_idle": [
+     "z_idle",
+     {
+      "rm": "fix"
+     }
+    ],
+    "z_idle2": [
+     "z_idle2",
+     {
+      "rm": "fix"
+     }
+    ],
+    "z_walk": [
+     "z_walk",
+     {
+      "rm": "lin"
+     }
+    ],
+    "z_run": [
+     "z_run",
+     {
+      "rm": "lin"
+     }
+    ],
+    "z_attack": [
+     "z_attack",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ],
+    "z_crawl": [
+     "z_crawl",
+     {
+      "rm": "lin"
+     }
+    ],
+    "z_death": [
+     "z_death",
+     {
+      "rm": "keep",
+      "loop": false
+     }
+    ]
+   }
+  },
+  "figs": {
+   "zayn": [
+    "kid"
+   ],
+   "roxy": [
+    "kid"
+   ],
+   "lucy": [
+    "kid"
+   ],
+   "luke": [
+    "kid"
+   ],
+   "luke_echt": [
+    "kid"
+   ],
+   "heidi": [
+    "kid"
+   ],
+   "dina": [
+    "kid"
+   ],
+   "mike": [
+    "kid"
+   ],
+   "cleo": [
+    "kid"
+   ],
+   "kleine": [
+    "kid"
+   ],
+   "graue": [
+    "kid",
+    "zombie"
+   ],
+   "gezaehlt_j": [
+    "kid",
+    "zombie"
+   ],
+   "gezaehlt_m": [
+    "kid",
+    "zombie"
+   ],
+   "mama": [
+    "adult"
+   ],
+   "hilde": [
+    "adult",
+    "old"
+   ],
+   "hilde_tot": [
+    "adult",
+    "old",
+    "zombie"
+   ],
+   "lucy_erw": [
+    "adult"
+   ],
+   "vegas": [
+    "adult",
+    "old"
+   ],
+   "amt1": [
+    "adult"
+   ],
+   "amt2": [
+    "adult"
+   ],
+   "lorenz": [
+    "adult"
+   ],
+   "aydin": [
+    "adult"
+   ],
+   "dina_erw": [
+    "adult"
+   ],
+   "polizist": [
+    "adult",
+    "zombie"
+   ],
+   "wolter": [
+    "adult"
+   ],
+   "nachsorge11": [
+    "adult"
+   ],
+   "nachsorge12": [
+    "adult"
+   ],
+   "gisela": [
+    "adult",
+    "old"
+   ],
+   "guenther": [
+    "adult"
+   ]
+  }
+ },
  "cast": [
   {
    "id": "zayn",
@@ -1168,6 +2034,8 @@
     ["^material_5$", { "s": 0.15, "l": 1.2, "mix": "#605b53", "mixAmt": 0.9 }],
     ["^Shoes$", { "s": 0.2, "l": 0.55 }]
    ]
-  }
+  },
+  {"id": "gisela", "name": "Gisela Rieke (78)", "base": "yellow", "height": 1.55, "anims": "woman", "head": {"src": "FN", "look": {"skin": "#e2c0ac", "lips": "#ad8680", "brow": "#d8d4ce", "hair": "#ecebe6", "hairTip": "#f6f5f1", "grey": 0.8, "blush": 0.2, "age": 1, "wrinkles": 1, "seed": 781}, "eye": "#6a7480", "swap": {"boxMode": true, "boxRe": "^Head$", "morphs": "Eye_Blink_[LR]$|Eye_[LR]_Look_(L|R|Up|Down)$|V_Open$"}}, "hideAfter": ["^Head$", "^Hair$", "^head$", "^hair$", "^Teeth$", "^teeth$", "Glasses", "glasses", "Eyewear", "^eyes$", "^Eyes$", "^material$"], "hsl": [["^Bottom$|material_8", {"s": 0.6, "mix": "#34507c", "mixAmt": 0.78}], ["Footwear", {"s": 0.2, "mix": "#26302a", "mixAmt": 0.9}]]},
+  {"id": "guenther", "name": "Günther Maas (61)", "base": "mallcop", "height": 1.88, "anims": "man", "head": {"src": "HB2", "hide": ["Chin_Curtain", "Stubble_Neck", "Scalp"], "look": {"skin": "#dcb09a", "lips": "#a4766e", "brow": "#8a7a62", "hair": "#8e7e66", "hairTip": "#a89878", "grey": 0.6, "blush": 0.22, "age": 0.75, "wrinkles": 0.7, "stubble": 0.35, "seed": 791}, "eye": "#6a7458", "swap": {}}, "hideAfter": ["^material$"], "hsl": [["^Body$", {"s": 0.7, "mix": "#b89630", "mixAmt": 0.7}], ["^Bottom$", {"s": 0.2, "mix": "#34363c", "mixAmt": 0.8}], ["^material_5$", {"s": 0.7, "mix": "#b89630", "mixAmt": 0.7}]]}
  ]
 }

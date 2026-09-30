@@ -17,6 +17,7 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import * as MOCAP from './mocap.mjs';
 
 const R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 R.setPixelRatio(1); R.toneMapping = THREE.ACESFilmicToneMapping; R.outputColorSpace = THREE.SRGBColorSpace; document.body.appendChild(R.domElement);
@@ -338,11 +339,12 @@ F.buildCast = async (ids, { shots = 'C:/Users/GIGABYTE/_forge/cast/', glbDir = n
       if (c.eye) F.eyeTint(o, c.eye, c.eyeAmt ?? .85);
       if (c.eyeAll) o.traverse(m => { if (m.isMesh) [].concat(m.material).forEach(x => { if (/std_eye_[lr]$/i.test(x.name || '')) { x.map = null; x.color.set(0x030303); x.roughness = .15; x.needsUpdate = true; } }); }); // ganz schwarze Augen (die Graue)
       for (const [re, opt] of c.hsl || []) F.hsl(o, re, opt);
-      const clips = [];
-      for (const [k, [s, sel]] of Object.entries(C.anims[c.anims] || {})) { try { const S = await F.load(C.src[s]); const clip = typeof sel === 'number' ? S.animations[sel] : S.animations.find(a => a.name === sel); if (clip) clips.push(F.retarget({ scene: S.scene, clip }, o, { name: k })); } catch (e) { console.warn('Bewegung ' + c.id + '/' + k, e); } }
+      const clips = [], MOC = C.mocap && C.mocap.figs && C.mocap.figs[c.id] ? await F.mocapClips(C, c.id, o) : null; if (MOC) clips.push(...MOC.clips); // AP-MOCAP: echte Bewegungsdaten statt der alten Spielfigur-Clips
+      if (!MOC) for (const [k, [s, sel]] of Object.entries(C.anims[c.anims] || {})) { try { const S = await F.load(C.src[s]); const clip = typeof sel === 'number' ? S.animations[sel] : S.animations.find(a => a.name === sel); if (clip) clips.push(F.retarget({ scene: S.scene, clip }, o, { name: k })); } catch (e) { console.warn('Bewegung ' + c.id + '/' + k, e); } }
       // Hülle: Füße auf 0, Größe in Metern
       o.updateMatrixWorld(true); const bb = new THREE.Box3(); o.traverse(m => { if (m.isMesh && m.visible) bb.expandByObject(m); }); const sc = c.height / (bb.max.y - bb.min.y);
       const W = new THREE.Group(); W.name = c.id; W.add(o); W.scale.setScalar(sc); W.position.y = -bb.min.y * sc; W.updateMatrixWorld(true);
+      if (MOC) { for (const m of Object.values(MOC.motion)) { m.speed = +(m.speed * sc).toFixed(4); if (m.root) { m.root.x = m.root.x.map(v => +(v * sc).toFixed(4)); m.root.z = m.root.z.map(v => +(v * sc).toFixed(4)); } } W.userData.motion = MOC.motion; } // Tempo in Metern (nach Skalierung)
       if (shots) { const idle = clips.find(x => x.name === 'idle'), walk = clips.find(x => x.name === 'walk');
         files.push({ path: shots + c.id + '.png', b64: await F.shot(W, { yaw: .45 }) }); files.push({ path: shots + c.id + '_kopf.png', b64: await F.shot(W, { head: true, yaw: .3, w: 600, h: 600 }) });
         if (walk) { const mx = F.poseAt(o, walk, walk.duration * .3); files.push({ path: shots + c.id + '_gehen.png', b64: await F.shot(W, { yaw: 1.2 }) }); mx.stopAllAction(); F.restPose(o); } }
@@ -431,6 +433,13 @@ F.headSwap = (body, head, { boxMode = false, boxRe = /^head$/i, scale = 1, dy = 
       ng.push([s0, out.length - s0, G.materialIndex]); }
     const g2 = g.clone(); g2.setIndex(out); g2.clearGroups(); if (g.groups.length) ng.forEach(([a, b, c]) => g2.addGroup(a, b, c)); g2.userData = {}; o.geometry = g2; });
   return { added: added.length, removed }; };
+// ---------- AP-MOCAP: Motion-Capture-Sätze aus cast.json → mocap auf eine Figur übertragen (gemeinsamer Kern tools/mocap.mjs; gleiches Ergebnis wie tools/mocap_bake.mjs)
+F.mocapClips = async (C, id, o) => { const MC = C.mocap, clips = {}, out = [], motion = {}; for (const s of MC.figs[id] || []) Object.assign(clips, MC.sets[s]); o.updateMatrixWorld(true); const tfam = MOCAP.family(o);
+  for (const [name, [sk, opt = {}]] of Object.entries(clips)) { try { const S = await F.load(MC.src[sk] || C.src[sk]); if (!S.prep) S.prep = MOCAP.prepSource(S.scene);
+      const clip = typeof opt.clip === 'number' ? S.animations[opt.clip] : opt.clip ? S.animations.find(a => a.name === opt.clip) : S.animations[0]; if (!clip) continue;
+      const r = MOCAP.retarget({ root: S.scene, clip, fam: S.prep.fam }, { root: o, fam: tfam }, { fps: 30, rm: opt.rm || 'fix', loop: opt.loop !== false, trim: opt.trim, fingers: opt.fingers, up: opt.up }); out.push(MOCAP.toClip(name, r)); motion[name] = r.meta;
+    } catch (e) { console.warn('Mocap ' + id + '/' + name, e); } }
+  return { clips: out, motion }; };
 F.poseAt = (root, clip, t) => { const mx = new THREE.AnimationMixer(root); mx.clipAction(clip).play(); mx.setTime(t); root.updateMatrixWorld(true); return mx; };
 F.bones = root => { const s = new Set(); for (const m of F.skinned(root)) m.skeleton.bones.forEach(b => s.add(b)); if (!s.size) root.traverse(o => { if (o.isBone) s.add(o); }); return [...s]; };
 
@@ -531,5 +540,23 @@ void main(){ vec3 base = texture2D(uMap, vUv).rgb; float lum = dot(base, vec3(.3
   let tris = 0; W.traverse(m => { if (m.isMesh && m.visible) tris += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; });
   files.push({ path: (shots || glbDir) + id + '_info.json', b64: btoa(JSON.stringify({ id, height, clips: clips.map(x => x.name), tris: Math.round(tris), info })) });
   return 'FILES:' + JSON.stringify(files); };
+// ---------- AP-MOCAP: Filmstreifen fertiger Figuren (model.glb mit gebackenen Mocap-Bewegungen) – je Clip zwei Reihen (schräg vorn, Seite), Bodenraster zum Prüfen auf Gleiten/Einsinken
+// F.film(url, { clips: [...], n: 6, out: 'C:/…/', w: 220, h: 330 }) → FILES. Fortbewegung (motion.speed) läuft über das Raster: steht der Fuß, darf er sich gegen die Linien nicht verschieben.
+F.film = async (url, { clips = null, n = 6, out = 'C:/Users/GIGABYTE/_mocap_film/', w = 220, h = 330, tag = '' } = {}) => {
+  const g = await gl.loadAsync(url), root = g.scene, motion = root.userData.motion || {}, files = [];
+  root.traverse(o => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = true; } });
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0x3a3d42); sc.environment = ENV; sc.environmentIntensity = .35;
+  sc.add(new THREE.HemisphereLight(0xdfe8ff, 0x3a3228, 1.4)); const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(2, 3, 3); sc.add(key);
+  const grid = new THREE.GridHelper(40, 160, 0x9aa0a8, 0x5c6168); sc.add(grid); const holder = new THREE.Group(); holder.add(root); sc.add(holder);
+  const bb = new THREE.Box3().setFromObject(root), H = bb.max.y - bb.min.y, cam = new THREE.PerspectiveCamera(30, w / h, .01, 100), mx = new THREE.AnimationMixer(root);
+  const names = clips || g.animations.map(a => a.name); R.setSize(w, h);
+  for (const name of names) { const clip = g.animations.find(a => a.name === name); if (!clip) continue; const m = motion[name] || {};
+    const cv = document.createElement('canvas'); cv.width = w * n; cv.height = h * 2 + 18; const cx = cv.getContext('2d'); cx.fillStyle = '#222'; cx.fillRect(0, 0, cv.width, cv.height);
+    const act = mx.clipAction(clip); act.reset().play();
+    for (let i = 0; i < n; i++) { const t = clip.duration * i / n; mx.setTime(t); holder.position.set(0, 0, (m.speed || 0) * t); const yawR = m.root && m.root.yaw ? m.root.yaw[Math.min(m.root.yaw.length - 1, Math.round(t * 10))] : 0; holder.rotation.y = m.rm === 'turn' ? yawR : 0; root.updateMatrixWorld(true);
+      for (const [row, yaw] of [[0, .55], [1, Math.PI / 2]]) { const c = new THREE.Vector3(0, H * .5, holder.position.z), d = H * 2.3; cam.position.set(c.x + Math.sin(yaw) * d, c.y + H * .12, c.z + Math.cos(yaw) * d); cam.lookAt(c); R.render(sc, cam); cx.drawImage(R.domElement, i * w, 18 + row * h); } }
+    act.stop(); cx.fillStyle = '#ddd'; cx.font = '13px sans-serif'; cx.fillText(`${tag}${name}  ${clip.duration.toFixed(2)}s  ${m.rm || ''}${m.speed ? '  v=' + m.speed.toFixed(2) + ' m/s' : ''}${m.slide !== undefined ? '  Rutschen ' + m.slide.toFixed(3) : ''}${m.turn ? '  Drehung ' + Math.round(m.turn * 57.3) + '°' : ''}`, 6, 13);
+    files.push({ path: out + (tag || '') + name + '.png', b64: cv.toDataURL('image/png').split(',')[1] }); }
+  mx.stopAllAction(); return 'FILES:' + JSON.stringify(files); };
 window.__ready = true;
 </script></body></html>

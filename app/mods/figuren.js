@@ -16,7 +16,7 @@ async function figuren_load(id) {
     const info = (await figuren_list()).find(x => x.id === id); if (!info) return null;
     const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
     g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
-    return { scene: g.scene, clips, height: info.height, yaw: 0 };
+    return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
 }
@@ -46,28 +46,44 @@ function figuren_ghostMat(src) {
 }
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
 // ghost: Erinnerung · doll: mit der Gruppe skalieren (Puppen im Weißen) · clip: feste Bewegung · sit: Sitzhöhe (Weltlage y)
-async function figuren_embody(g, id, { ghost = false, doll = false, clip = null, sit = null } = {}) {
-  const P = g.userData.person; if (P && P.id === id && P.ghost === ghost && P.doll === doll) { if (clip && P.acts[clip] && P.cur !== P.acts[clip]) figuren_play(P, clip); return P; }
+// gait (AP-MOCAP): Gangart der automatischen Fortbewegung – null (normal) · 'vorsicht' · 'muede' · 'panik' · 'alt' · 'zombie' (Clips z_*)
+async function figuren_embody(g, id, { ghost = false, doll = false, clip = null, sit = null, gait = null } = {}) {
+  const P = g.userData.person; if (P && P.id === id && P.ghost === ghost && P.doll === doll) { if (gait !== null) P.gait = gait; if (clip && P.acts[clip] && P.cur !== P.acts[clip]) figuren_play(P, clip); return P; }
   const tok = (g.userData.personTok = (g.userData.personTok || 0) + 1);
   const T = await figuren_load(id); if (!T || tok !== g.userData.personTok) return null;
   const sk = await figuren_skc(), obj = sk(T.scene); obj.name = 'Person_' + id;
+  if (id === 'justin' && typeof justin_nachbildKlon === 'function') justin_nachbildKlon(obj); // AP-12: Nachbilder ohne Flicken, ohne Gesicht/Haar
   if (ghost) obj.traverse(o => { if (o.isMesh) { o.material = Array.isArray(o.material) ? o.material.map(figuren_ghostMat) : figuren_ghostMat(o.material); o.castShadow = false; o.receiveShadow = false; } });
   const hide = P ? P.hide : []; if (P) { g.remove(P.obj); P.mx.stopAllAction(); }
   for (const c of g.children) if (c.visible && c !== obj) { hide.push(c); c.visible = false; }
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
-  const Q = { id, obj, mx, acts, cur: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g };
+  const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj), mv: figuren_mvNew(), look: null };
   g.userData.person = Q; figuren_S.embodied.add(g);
-  figuren_play(Q, clip || 'idle', true); mx.update(Math.random() * 4);
+  figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
   return Q;
 }
-function figuren_play(P, k, first) { const a = P.acts[k] || P.acts.idle || Object.values(P.acts)[0]; if (!a || a === P.cur) return; a.reset().play(); a.timeScale = .88 + Math.random() * .22; if (P.cur && !first) { a.fadeIn(.3); P.cur.fadeOut(.3); } P.cur = a; }
+// Clip wechseln (AP-MOCAP): immer weich überblenden (≥ 0,3 s, nie hart), Fortbewegung fußsynchron (Phase des linken Fußes bleibt), Einmal-Clips (motion.loop = false) halten das letzte Bild.
+// o: { fade, ts, once } – bestehende Aufrufe figuren_play(P, k) / figuren_play(P, k, true) bleiben gültig.
+function figuren_play(P, k, first, o) { const key = P.acts[k] ? k : P.acts.idle ? 'idle' : Object.keys(P.acts)[0], a = P.acts[key]; if (!a || a === P.cur) return;
+  const M = P.motion || {}, m = M[key], prev = P.cur, mc = prev && M[P.curK], d = a.getClip().duration, once = o && o.once !== undefined ? o.once : !!(m && m.loop === false);
+  a.reset(); a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity); a.clampWhenFinished = once; a.enabled = true;
+  if (!first && prev && m && mc && m.rm === 'lin' && mc.rm === 'lin' && m.phaseL !== undefined && mc.phaseL !== undefined) { const ph = (prev.time / prev.getClip().duration - mc.phaseL + 2) % 1; a.time = ((ph + m.phaseL) % 1) * d; } // gleicher Schritt
+  else if (first && !once) a.time = Math.random() * d; // Gruppen nicht im Gleichtakt
+  a.timeScale = o && o.ts ? o.ts : m && m.rm === 'lin' ? 1 : .92 + Math.random() * .14; a.setEffectiveWeight(1); a.play();
+  if (prev && !first) a.crossFadeFrom(prev, Math.max(.3, (o && o.fade) || (m && mc && m.rm === 'lin' && mc.rm === 'lin' ? .35 : .5)), false); else if (prev) prev.stop();
+  P.cur = a; P.curK = key; if (P.mv) { P.mv.once = once; P.mv.clipT = 0; } }
+// Geste/Einmal-Clip abspielen und danach von selbst zur Fortbewegung/Ruhe zurück (then: Clip-Name danach, sonst automatisch)
+function figuren_do(P, k, { then = null, fade = .45, ts = null } = {}) { if (!P || !P.acts[k]) return false; P.mv.shot = k; P.mv.then = then; figuren_play(P, k, false, { once: true, fade, ts }); return true; }
+// Blickziel: Vector3 | Object3D | 'cam' | 'auto' (Spieler, wenn nah und vorn) | null; w = Gewicht 0…1
+function figuren_lookAt(P, target, w = 1) { if (!P) return; P.look = target; P.mv.lookW = target ? w : 0; }
+function figuren_motion(P, k) { return (P && P.motion && P.motion[k]) || null; }
 function figuren_release(g) { const P = g.userData.person; if (!P) return; g.remove(P.obj); P.mx.stopAllAction(); P.hide.forEach(c => c.visible = true); g.userData.person = null; figuren_S.embodied.delete(g); }
 // Sitzen: Oberschenkel nach vorn, Unterschenkel nach unten, Hände in den Schoß (Drehungen um die Querachse der Figur, unabhängig vom Skelett)
 function figuren_bones(obj) { const map = { Hip: 'Hips', L_Thigh: 'LeftUpLeg', R_Thigh: 'RightUpLeg', L_Calf: 'LeftLeg', R_Calf: 'RightLeg', L_Upperarm: 'LeftArm', R_Upperarm: 'RightArm', L_Forearm: 'LeftForeArm', R_Forearm: 'RightForeArm', Spine01: 'Spine1', L_Foot: 'LeftFoot', R_Foot: 'RightFoot' }, m = {};
   obj.traverse(o => { if (!o.isBone && !(o.type === 'Object3D' && o.children.length)) return; const n = o.name.replace(/^mixamorig[:_]?/i, '').replace(/_\d+$/, ''), c = map[n] || n; if (!m[c]) m[c] = o; }); return m; }
-function figuren_seat(P, seatY) { const g = P.g, b = figuren_bones(P.obj); if (!b.LeftUpLeg || !b.Hips) return; P.mx.update(0); const snap = []; P.obj.traverse(o => { if (o.isBone || o.type === 'Object3D') snap.push([o, o.quaternion.clone(), o.position.clone()]); }); P.mx.stopAllAction(); P.cur = null; for (const [o, q, p] of snap) { o.quaternion.copy(q); o.position.copy(p); }
+function figuren_seat(P, seatY) { if (P.acts && P.acts.sit && P.mv) return figuren_seatClip(P, seatY); const g = P.g, b = figuren_bones(P.obj); if (!b.LeftUpLeg || !b.Hips) return; P.mx.update(0); const snap = []; P.obj.traverse(o => { if (o.isBone || o.type === 'Object3D') snap.push([o, o.quaternion.clone(), o.position.clone()]); }); P.mx.stopAllAction(); P.cur = null; for (const [o, q, p] of snap) { o.quaternion.copy(q); o.position.copy(p); }
   const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); P.obj.scale.setScalar(s); g.updateMatrixWorld(true);
   const _pw = new THREE.Quaternion(), _bw = new THREE.Quaternion(), _d = new THREE.Quaternion(), ax = new THREE.Vector3(1, 0, 0).applyQuaternion(g.getWorldQuaternion(new THREE.Quaternion()));
   const bend = (bn, ang) => { if (!bn) return; bn.parent.getWorldQuaternion(_pw); bn.getWorldQuaternion(_bw); _d.setFromAxisAngle(ax, ang); bn.quaternion.copy(_pw.invert().multiply(_d).multiply(_bw)); bn.updateMatrixWorld(true); };
@@ -76,6 +92,11 @@ function figuren_seat(P, seatY) { const g = P.g, b = figuren_bones(P.obj); if (!
   // Becken auf die Sitzfläche: Weltlage der Hüfte messen und die Person innerhalb der Gruppe verschieben
   const hip = new THREE.Vector3(); b.Hips.getWorldPosition(hip); const gs = g.getWorldScale(new THREE.Vector3()).y || 1;
   P.obj.position.y += (seatY + .08 - hip.y) / gs; P.sit = true; }
+// Sitzen mit echter Bewegung (Mocap 'sit'): Clip läuft weiter (Atmen, Gewicht verlagern), Becken auf die Sitzfläche. Stoppt jemand den Mischer, startet der Tick den Clip neu.
+function figuren_seatClip(P, seatY) { const g = P.g; figuren_play(P, 'sit', !P.cur); P.fixed = true; P.sit = true; P.mv.seatY = seatY;
+  const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); P.obj.scale.setScalar(s); P.obj.position.set(0, 0, 0); P.mx.update(0); if (P.cur) { P.cur.setEffectiveWeight(1); P.cur.stopFading(); } P.mx.update(0);
+  g.updateMatrixWorld(true); const h = P.rig.hips; if (!h) return; h.getWorldPosition(FIGUREN_MV.v); const gs = g.getWorldScale(FIGUREN_MV.v2).y || 1;
+  P.obj.position.y = (seatY + .08 - FIGUREN_MV.v.y) / gs; }
 // ---------- Besetzung der Erinnerungen (Reihenfolge = Figuren der Echo-Definition)
 const FIGUREN_ECHO = {
   echo_kreuzung: ['roxy', 'lucy', 'mike', 'dina', 'luke', 'heidi', 'zayn', 'vegas'],
@@ -119,21 +140,169 @@ WORLD_MODS.push(['Figuren', async () => {
   for (let i = 0; i < kids.length; i++) { kids[i].k.updateMatrixWorld(true); await E(kids[i].k, seatK[i % seatK.length], { sit: .52 }); }
   hilde.updateMatrixWorld(true); await E(hilde, 'hilde', { sit: .48 });
 }]);
+// =====================================================================  BEWEGUNGSSCHICHT (AP-MOCAP, Q-10/Q-11): Mocap-Clips + prozedurale Schicht darüber
+// Doku: app/story/audit/F3_stand_mocap.md. Pro Figur (P = g.userData.person):
+//  · Fortbewegung automatisch aus der Bewegung der Gruppe g: Tempo (kritisch gedämpft geglättet) → Ruhe/Gehen/Laufen; Abspieltempo = Weg-Tempo / Clip-Tempo (kein Gleiten, kein Moonwalk);
+//    Wechsel fußsynchron (Phase), Überblenden ≥ 0,3 s. Gangart P.gait ('vorsicht' | 'muede' | 'panik' | 'alt' | 'zombie').
+//  · Blickrichtung: dreht jemand g im Stand um mehr als 60°, spielt ein Dreh-Clip (turn_l/turn_r/turn_180) und dreht die Figur mit dessen Wurzelkurve; sonst Feder.
+//  · Ruhe: Varianten (idle/idle2/idle3) wechseln zufällig; Einmal-Clips (figuren_do) kehren von selbst zurück.
+//  · Additiv: Atmung (Brustkorb, nach Laufen schneller/tiefer), Blick (Augen zuerst, dann Kopf/Hals; Hals ≤ 60°, Federn), Fuß-IK auf Treppen/Kanten (Kisten-Kollision + solidGround).
+//  · Kosten: keine Allokationen im Tick; nah (< 12 m, im Bild) jedes Bild alles, mittel bis 30 m Mischer 30 Hz ohne IK, weit/außer Bild 5–15 Hz.
+const FIGUREN_MV = { v: new THREE.Vector3(), v2: new THREE.Vector3(), v3: new THREE.Vector3(), v4: new THREE.Vector3(), v5: new THREE.Vector3(), p: new THREE.Vector3(), pv: new THREE.Vector3(), up: new THREE.Vector3(0, 1, 0), // pv: Drehpunkt (figuren_setW benutzt v5)
+  q: new THREE.Quaternion(), q2: new THREE.Quaternion(), q3: new THREE.Quaternion(), m: new THREE.Matrix4(), s: new THREE.Vector3(), fr: new THREE.Frustum(), pm: new THREE.Matrix4(), sph: new THREE.Sphere(),
+  A: new THREE.Vector3(), B: new THREE.Vector3(), C: new THREE.Vector3(), T: new THREE.Vector3(), B2: new THREE.Vector3(), T2: new THREE.Vector3(), pole: new THREE.Vector3(), qa: new THREE.Quaternion(), qb: new THREE.Quaternion(), qf: new THREE.Quaternion(),
+  n: 0, near: 0, ik: 0, ms: 0 };
+// Knochen einer Figur (alle Skelettfamilien der Werkstatt: Character Creator, Auto-Rig Pro, Mixamo, Unreal); auch Knoten ohne Skin (CC-Oberschenkel sind im GLB leere Knoten)
+const FIGUREN_RIGRE = { hips: /^(hips|hip|rootx|pelvis)$/, chest: /^(spine2|spine02|spine_02x|spine_05|spine_03|chest)$/, neck: /^(neck|neckx|necktwist01|neck1|neck_01)$/, head: /^(head|headx)$/,
+  lArm: /^(leftarm|l_upperarm|arm_stretchl|upperarm_l)$/, rArm: /^(rightarm|r_upperarm|arm_stretchr|upperarm_r)$/, lFore: /^(leftforearm|l_forearm|forearm_stretchl|lowerarm_l)$/, rFore: /^(rightforearm|r_forearm|forearm_stretchr|lowerarm_r)$/,
+  lHand: /^(lefthand|l_hand|handl|hand_l)$/, rHand: /^(righthand|r_hand|handr|hand_r)$/, lSh: /^(leftshoulder|l_clavicle|shoulderl|clavicle_l)$/, rSh: /^(rightshoulder|r_clavicle|shoulderr|clavicle_r)$/,
+  lUp: /^(leftupleg|l_thigh|thigh_stretchl|thigh_l)$/, rUp: /^(rightupleg|r_thigh|thigh_stretchr|thigh_r)$/, lLeg: /^(leftleg|l_calf|leg_stretchl|calf_l)$/, rLeg: /^(rightleg|r_calf|leg_stretchr|calf_r)$/,
+  lFoot: /^(leftfoot|l_foot|footl|foot_l)$/, rFoot: /^(rightfoot|r_foot|footr|foot_r)$/, lToe: /^(lefttoebase|l_toebase|toes_01l|ball_l)$/, rToe: /^(righttoebase|r_toebase|toes_01r|ball_r)$/, lEye: /^(l_eye|lefteye|eye_l)$/, rEye: /^(r_eye|righteye|eye_r)$/ };
+function figuren_rig(obj) { const r = {}; obj.traverse(o => { if (o.isMesh || o === obj) return; const n = o.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/^CC_Base_/i, '').replace(/_\d+$/, '').toLowerCase();
+    for (const k in FIGUREN_RIGRE) if ((!r[k] || (o.isBone && !r[k].isBone)) && FIGUREN_RIGRE[k].test(n)) r[k] = o; }); // Skin-Gelenk vor gleichnamigem Hilfsknoten („head_70“)
+  const desc = (b, a) => { for (let p = b && b.parent; p; p = p.parent) if (p === a) return true; return false; };
+  // Mitbewegte Knochen bei additiven Drehungen: Knochen, die anatomisch folgen, aber im Szenengraph KEINE Kinder sind (flache Auto-Rig-Pro-Skelette der Tony-Figuren)
+  const follow = (root, list) => { const out = [root]; for (const b of list) if (b && b !== root && !out.some(a => desc(b, a))) out.push(b); return out; };
+  if (r.chest) r.chestChain = follow(r.chest, [r.neck, r.head, r.lSh, r.rSh, r.lArm, r.rArm, r.lFore, r.rFore, r.lHand, r.rHand]);
+  if (r.neck) r.neckChain = follow(r.neck, [r.head, r.lEye, r.rEye]);
+  if (r.head) r.headChain = follow(r.head, [r.lEye, r.rEye]);
+  r.legs = [[r.lUp, r.lLeg, r.lFoot, r.lToe], [r.rUp, r.rLeg, r.rFoot, r.rToe]].filter(L => L[0] && L[1] && L[2]);
+  // Augen als Formen (Tony-Körper mit CC-Kopf: Eye_L_Look_L …) statt Knochen
+  r.eyeM = []; obj.traverse(o => { const d = o.morphTargetDictionary; if (!o.isMesh || !d) return; for (const [nm, i] of Object.entries(d)) { const m = nm.match(/Eye_([LR])_Look_(L|R|Up|Down)$/); if (m) r.eyeM.push([o, i, m[2]]); } });
+  return r; }
+function figuren_mvNew() { return { init: false, yaw: 0, yawV: 0, spd: 0, spdV: 0, moving: false, run: false, turn: null, turnT: 0, turnY0: 0, turnD: 0, idleT: 4 + Math.random() * 8, once: false, clipT: 0, shot: null, then: null,
+  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false }; }
+// Kritisch gedämpfte Feder (implizit, stabil bei großen dt): s[k] Wert, s[kv] Geschwindigkeit
+function figuren_spr(s, k, kv, target, w, dt) { const f = 1 + 2 * dt * w, oo = w * w, hoo = dt * oo, hhoo = dt * hoo, di = 1 / (f + hhoo), x = s[k], v = s[kv]; s[k] = (f * x + dt * v + hhoo * target) * di; s[kv] = (v + hoo * (target - x)) * di; }
+const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+// Knochen auf Weltlage setzen (Position optional) – lokale Werte aus der Weltmatrix der Eltern
+function figuren_setW(o, pos, quat) { const M = FIGUREN_MV; M.m.copy(o.parent.matrixWorld); M.m.decompose(M.v5, M.q3, M.s); M.q3.invert();
+  o.quaternion.copy(M.q3).multiply(quat); if (pos) { M.m.invert(); o.position.copy(pos).applyMatrix4(M.m); } o.updateMatrixWorld(true); }
+// Kette um einen Drehpunkt (Welt) drehen: jeder Knoten in list wird mitgeführt (flache Skelette), Kinder folgen von selbst
+function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; for (const b of list) { b.matrixWorld.decompose(M.p, M.q2, M.s); M.p.sub(pivot).applyQuaternion(q).add(pivot); M.q2.premultiply(q); figuren_setW(b, M.p, M.q2); } }
+// Bodenhöhe unter einem Fuß: Kisten-Kollision (Stufen, Kanten) und begehbare Flächen (solidGround: Treppen, Veranden). null = nichts Höheres/Tieferes gefunden
+function figuren_ground(x, y, z) { let g = -Infinity;
+  for (const c of colliders) if (c.top > g && c.top <= y + .45 && c.top >= y - .5 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top;
+  if (typeof solidGround === 'function') { try { const sg = solidGround(x, y + .05, z); if (sg > g && sg <= y + .45 && sg >= y - .5) g = sg; } catch (e) {} }
+  return g === -Infinity ? null : g; }
+// Zweigelenk-IK für ein Bein: Fußgelenk um dy (Welt, nach oben) versetzen, Knie in seiner Ebene, Fußdrehung bleibt
+function figuren_legIK(L, dy) { const M = FIGUREN_MV, [U, K, F] = L; U.matrixWorld.decompose(M.A, M.qa, M.s); K.matrixWorld.decompose(M.B, M.qb, M.s); F.matrixWorld.decompose(M.C, M.qf, M.s);
+  M.T.copy(M.C).addScaledVector(M.up, dy); const a = M.A.distanceTo(M.B), b = M.B.distanceTo(M.C); M.v.copy(M.T).sub(M.A); let d = M.v.length(); if (d < 1e-5 || a < 1e-5 || b < 1e-5) return;
+  d = Math.min(Math.max(d, Math.abs(a - b) + 1e-4), (a + b) * .9995); M.v.normalize(); M.pole.copy(M.B).sub(M.A); M.pole.addScaledVector(M.v, -M.pole.dot(M.v)); if (M.pole.lengthSq() < 1e-10) return; M.pole.normalize();
+  const cA = (a * a + d * d - b * b) / (2 * a * d), sA = Math.sqrt(Math.max(0, 1 - cA * cA)); M.B2.copy(M.A).addScaledVector(M.v, a * cA).addScaledVector(M.pole, a * sA); M.T2.copy(M.A).addScaledVector(M.v, d);
+  M.v2.copy(M.B).sub(M.A).normalize(); M.v3.copy(M.B2).sub(M.A).normalize(); M.q.setFromUnitVectors(M.v2, M.v3);
+  M.v2.copy(M.C).sub(M.B).applyQuaternion(M.q).normalize(); M.v3.copy(M.T2).sub(M.B2).normalize(); M.q2.setFromUnitVectors(M.v2, M.v3);
+  M.qa.premultiply(M.q); figuren_setW(U, null, M.qa); M.qb.premultiply(M.q).premultiply(M.q2); figuren_setW(K, M.B2, M.qb); figuren_setW(F, M.T2, M.qf); } // Zehen hängen in allen Skeletten am Fuß
+// Welche Clips für Gehen/Laufen/Ruhe (Gangart)
+const FIGUREN_GAIT = { null: ['walk', 'run', 'idle'], vorsicht: ['walk_vorsicht', 'run', 'alert'], muede: ['walk_muede', 'walk', 'erschoepft'], panik: ['walk_vorsicht', 'run_panik', 'nervous'], alt: ['walk', 'walk', 'idle'], zombie: ['z_walk', 'z_run', 'z_idle'] };
+const FIGUREN_IDLES = ['idle', 'idle2', 'idle3'];
+function figuren_locoClip(P, want) { const G = FIGUREN_GAIT[P.gait] || FIGUREN_GAIT.null, k = want === 'walk' ? G[0] : want === 'run' ? G[1] : G[2]; return P.acts[k] ? k : P.acts[want] ? want : 'idle'; }
 function figuren_tick(dt) {
-  figuren_S.T.value += dt;
+  figuren_S.T.value += dt; const M = FIGUREN_MV, t0 = performance.now(); M.n = M.near = M.ik = 0;
   // Gestalten mit gemaltem Gesicht (stalker, sitter): passende Person nachziehen, sobald sie sichtbar wird
   for (const F of FIGS) { if (!F.visible || !F.userData.face) continue; const k = F.userData.faceKind; if (k === undefined) continue; const small = F.scale.x < .8, key = k + '|' + small, P = F.userData.person;
     if (F.userData.faceKey !== key) { F.userData.faceKey = key; const want = figuren_faceWho(k, small); if (want) figuren_embody(F, want, F === sitter ? { sit: F.position.y + .45 } : {}); }
     if (P && F.userData.face.visible) F.userData.face.visible = false; }
-  const cam = camera.position, w = figuren_tick.w || (figuren_tick.w = new THREE.Vector3());
-  for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !g.visible || !g.parent) continue;
+  const cam = camera.position, w = M.v4; M.pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); M.fr.setFromProjectionMatrix(M.pm);
+  for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !g.visible || !g.parent) { if (P) P.mv.vis = false; continue; }
     const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); if (Math.abs(P.obj.scale.x - s) > 1e-4) P.obj.scale.setScalar(s); // echte Körpergröße, egal wie die alte Gestalt skaliert war
-    w.setFromMatrixPosition(g.matrixWorld); if (Math.abs(w.x - cam.x) > 70 || Math.abs(w.z - cam.z) > 70) { P.last.copy(w); continue; }
-    if (P.sit) continue;
-    const mv = w.distanceTo(P.last) / Math.max(dt, 1e-3); P.last.copy(w);
-    if (!P.fixed) { const want = mv > .5 && P.acts.walk ? 'walk' : 'idle'; if (!P.cur || P.cur !== P.acts[want]) figuren_play(P, want); if (P.acts.walk && P.cur === P.acts.walk) P.cur.timeScale = Math.min(2.2, Math.max(.6, mv / 1.3)); }
-    P.mx.update(dt); }
+    w.setFromMatrixPosition(g.matrixWorld); const dx = w.x - cam.x, dz = w.z - cam.z, dist = Math.hypot(dx, dz); if (dist > 70) { P.last.copy(w); P.mv.vis = false; continue; }
+    const V = P.mv, wsc = P.doll ? g.getWorldScale(M.s).x : 1; M.n++;
+    // Blickrichtung der Gruppe (Welt) und Tempo (kritisch gedämpft)
+    g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(0, 0, 1).applyQuaternion(M.q); const gy = Math.atan2(M.v.x, M.v.z);
+    const jump = Math.hypot(w.x - P.last.x, w.z - P.last.z), first = !V.init || !V.vis || jump > 1.5; V.vis = true;
+    const mv = first ? 0 : jump / Math.max(dt, 1e-3); P.last.copy(w);
+    if (first) { V.init = true; V.yaw = gy; V.yawV = 0; V.spd = mv; V.spdV = 0; } else figuren_spr(V, 'spd', 'spdV', Math.min(mv, 8), 9, dt);
+    M.sph.center.copy(w); M.sph.center.y += .9; M.sph.radius = 1.3; const inView = M.fr.intersectsSphere(M.sph), near = inView && dist < 12;
+    // Takt je Entfernung (LOD)
+    V.acc += dt; const step = near ? 0 : inView ? (dist < 30 ? 1 / 30 : 1 / 15) : 1 / 5; if (V.acc < step) continue; const edt = V.acc; V.acc = 0; if (near) M.near++;
+    // Sitzende mit Clip: Clip halten (falls jemand den Mischer gestoppt hat)
+    if (P.sit) { if (P.mv.seatY !== null && P.acts.sit && (!P.cur || !P.cur.isRunning())) { P.cur = null; figuren_play(P, 'sit', true); } if (!P.mv.seatY && P.mv.seatY !== 0) { continue; } }
+    else if (!P.fixed) { try { figuren_loco(P, V, edt, gy, wsc); } catch (e) { console.warn('figuren_loco', e); P.fixed = true; } }
+    else { figuren_spr(V, 'yaw', 'yawV', V.yaw + figuren_wrap(gy - V.yaw), 9, edt); if (first) V.yaw = gy;
+      const m = P.motion && P.motion[P.curK]; if (m && m.rm === 'lin' && m.speed && P.cur && V.spd > .1) P.cur.timeScale = Math.min(1.7, Math.max(.55, V.spd / (m.speed * wsc))); } // feste Geh-Clips: Schrittlänge passt zum Weg
+    // Einmal-Clip zu Ende → zurück (Geste von figuren_do)
+    if (V.shot && P.cur && P.curK === V.shot && P.cur.time >= P.cur.getClip().duration - .45) { const nx = V.then || (P.fixed ? 'idle' : figuren_locoClip(P, V.moving ? (V.run ? 'run' : 'walk') : 'idle')); V.shot = null; figuren_play(P, nx, false, { fade: .45 }); }
+    // sichtbare Drehung: Person innerhalb der Gruppe um (Feder-Blickrichtung − Gruppenrichtung) drehen
+    if (!P.sit) P.obj.rotation.y = figuren_wrap(V.yaw - gy);
+    P.mx.update(edt);
+    if (!near && !(inView && dist < 20)) continue;
+    if (P.mv.off) continue; // Zusatzschicht nach einem Fehler für diese Figur aus (nie das Spiel anhalten)
+    try { P.obj.updateMatrixWorld(true);
+      figuren_breath(P, V, edt);
+      if (P.look || V.lw > .01) figuren_look(P, V, edt);
+      if (near && !P.sit && dist < 9 && P.rig.legs.length === 2 && typeof colliders !== 'undefined') figuren_feet(P, V, edt, w, gy); } catch (e) { console.warn('figuren Zusatzschicht', P.id, e); P.mv.off = true; }
+  }
+  M.ms = performance.now() - t0;
 }
+// Fortbewegung: Ruhe ↔ Gehen ↔ Laufen, Abspieltempo aus dem Weg-Tempo, Dreh-Clips im Stand, Ruhe-Varianten
+function figuren_loco(P, V, dt, gy, wsc) { const Mo = P.motion || {};
+  const wk = figuren_locoClip(P, 'walk'), rk = figuren_locoClip(P, 'run'), wv = ((Mo[wk] && Mo[wk].speed) || 1.25) * wsc, rv = ((Mo[rk] && Mo[rk].speed) || wv * 2) * wsc;
+  if (V.moving ? V.spd < .1 : V.spd > .22) { V.moving = !V.moving; if (!V.moving) V.idleT = 6 + Math.random() * 10; }
+  if (V.moving && rk !== wk) V.run = V.run ? V.spd > (wv + rv) * .44 : V.spd > (wv + rv) * .56; else V.run = false;
+  if (V.shot) { figuren_spr(V, 'yaw', 'yawV', V.yaw + figuren_wrap(gy - V.yaw), 6, dt); return; }
+  if (V.moving) { V.turn = null; const k = V.run ? rk : wk, cv = V.run ? rv : wv; if (P.curK !== k) figuren_play(P, k); if (P.cur) P.cur.timeScale = Math.min(1.7, Math.max(.55, V.spd / cv));
+    figuren_spr(V, 'yaw', 'yawV', V.yaw + figuren_wrap(gy - V.yaw), V.run ? 7 : 9, dt); if (V.run) V.exert = Math.min(1, V.exert + dt * .08); return; }
+  V.exert = Math.max(0, V.exert - dt * .03);
+  // Drehen auf der Stelle
+  const diff = figuren_wrap(gy - V.yaw);
+  if (V.turn) { const m = Mo[V.turn], a = P.acts[V.turn]; const t = a ? a.time : 99, c = m && m.root && m.root.yaw;
+    if (c && a && P.curK === V.turn && t < m.dur - .05) { const f = Math.min(c.length - 1.001, t * 10), i = Math.floor(f), yv = c[i] + (c[i + 1] - c[i]) * (f - i); V.yaw = V.turnY0 + yv * V.turnD; V.yawV = 0; return; }
+    V.turn = null; V.yaw = V.turnY0 + (m ? m.turn * V.turnD : diff); figuren_play(P, figuren_idleKey(P), false, { fade: .45 }); }
+  if (Math.abs(diff) > 1.05 && !P.gait) { const k = Math.abs(diff) > 2.4 && P.acts.turn_180 ? 'turn_180' : diff > 0 ? 'turn_l' : 'turn_r', m = Mo[k];
+    const k2 = m && Math.sign(m.turn) !== Math.sign(diff) && k === 'turn_180' ? (diff > 0 ? 'turn_l' : 'turn_r') : k, m2 = Mo[k2];
+    if (P.acts[k2] && m2 && m2.turn && Math.sign(m2.turn) === Math.sign(diff)) { const k = k2, m = m2; V.turn = k; V.turnY0 = V.yaw; V.turnD = Math.abs(diff / m.turn) * Math.sign(diff * m.turn); V.turnD = Math.sign(V.turnD) * Math.min(1.35, Math.max(.65, Math.abs(V.turnD))); figuren_play(P, k, false, { fade: .3, once: true }); return; } }
+  figuren_spr(V, 'yaw', 'yawV', V.yaw + diff, 5, dt);
+  // Ruhe (Varianten)
+  const ik = figuren_idleKey(P); if (!FIGUREN_IDLES.includes(P.curK) && !(P.gait && P.curK === ik)) figuren_play(P, ik, false, { fade: .5 });
+  if ((V.idleT -= dt) < 0) { V.idleT = 7 + Math.random() * 12; const L = P.gait ? [ik] : FIGUREN_IDLES.filter(k => P.acts[k] && k !== P.curK); if (L.length) figuren_play(P, L[Math.floor(Math.random() * L.length)], false, { fade: .9 }); } }
+function figuren_idleKey(P) { if (P.gait) return figuren_locoClip(P, 'idle'); return FIGUREN_IDLES.includes(P.curK) ? P.curK : 'idle'; }
+// Atmung: Brustkorb hebt sich um die Querachse (Schultern, Arme, Kopf folgen), Hals gleicht aus – nach Laufen schneller und tiefer
+function figuren_breath(P, V, dt) { const r = P.rig; if (!r.chest || !r.chestChain) return; const M = FIGUREN_MV, kid = (P.h || 1.6) < 1.5;
+  V.br += dt * (kid ? 1.9 : 1.55) * (1 + V.exert * 1.4); const a = (Math.sin(V.br) * .5 + .5) * (.012 + V.exert * .02);
+  P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.q.setFromAxisAngle(M.v, -a); r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.q);
+  if (r.neckChain) { M.q.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.q); } }
+// Blick: Ziel in Kopfhöhe; Augen schnell (≤ 25°), Kopf/Hals langsam (Hals + Kopf ≤ 60° seitlich, 35° hoch/runter); hinter der Figur: nicht hinsehen
+function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) return; let T = P.look, want = V.lookW;
+  if (T === 'cam' || T === 'auto') { M.T.copy(camera.position); if (T === 'auto') { r.head.getWorldPosition(M.v); if (M.v.distanceTo(M.T) > 5) want = 0; } }
+  else if (T && T.isObject3D) T.getWorldPosition(M.T); else if (T && T.isVector3) M.T.copy(T); else want = 0;
+  r.head.getWorldPosition(M.v); M.v2.copy(M.T).sub(M.v); const yaw = V.yaw, fx = Math.sin(yaw), fz = Math.cos(yaw), lx = Math.cos(yaw), lz = -Math.sin(yaw);
+  const hf = M.v2.x * fx + M.v2.z * fz, hl = M.v2.x * lx + M.v2.z * lz; let ty = Math.atan2(hl, hf), tp = Math.atan2(M.v2.y, Math.hypot(hf, hl)); if (Math.abs(ty) > 1.9) want = 0;
+  figuren_spr(V, 'lw', 'lwV', want, 4, dt); const W = Math.max(0, Math.min(1, V.lw)); ty *= W; tp *= W;
+  const hy = Math.max(-1.05, Math.min(1.05, ty)), hp = Math.max(-.45, Math.min(.6, tp)); figuren_spr(V, 'hy', 'hyV', hy, 5.5, dt); figuren_spr(V, 'hp', 'hpV', hp, 5.5, dt);
+  const ey = Math.max(-.45, Math.min(.45, ty - V.hy)), ep = Math.max(-.3, Math.min(.3, tp - V.hp)); figuren_spr(V, 'ey', 'eyV', ey, 28, dt); figuren_spr(V, 'ep', 'epV', ep, 28, dt);
+  M.v3.set(lx, 0, lz); // Querachse (links)
+  if (r.neckChain) { r.neck.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.hy * .4); M.q2.setFromAxisAngle(M.v3, -V.hp * .35); M.q.multiply(M.q2); figuren_rotChain(r.neckChain, M.pv, M.q); }
+  if (r.headChain) { r.head.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.hy * .6); M.q2.setFromAxisAngle(M.v3, -V.hp * .65); M.q.multiply(M.q2); figuren_rotChain(r.headChain, M.pv, M.q); }
+  if (r.lEye || r.rEye) for (const e of [r.lEye, r.rEye]) { if (!e) continue; e.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, V.ey); M.q2.setFromAxisAngle(M.v3, -V.ep); M.q.multiply(M.q2); figuren_rotChain([e], M.pv, M.q); }
+  if (r.eyeM.length) for (const [o, i, d] of r.eyeM) o.morphTargetInfluences[i] = Math.max(0, Math.min(1, d === 'L' ? V.ey / .45 : d === 'R' ? -V.ey / .45 : d === 'Up' ? V.ep / .3 : -V.ep / .3)); }
+// Fuß-IK: Boden unter jedem Fuß (10 Hz abgetastet, gefedert); Becken sinkt auf den tieferen Fuß, der höhere Fuß wird angehoben
+function figuren_feet(P, V, dt, w, gy) { const r = P.rig, M = FIGUREN_MV, L = r.legs;
+  if ((V.ikT -= dt) <= 0) { V.ikT = .1; for (let i = 0; i < 2; i++) { const F = L[i][2]; F.getWorldPosition(M.v); const g = figuren_ground(M.v.x, w.y, M.v.z); const o = g === null ? 0 : Math.max(-.4, Math.min(.45, g - w.y)); if (i) V.gR = o; else V.gL = o; } }
+  figuren_spr(V, 'oL', 'oLV', V.gL, 14, dt); figuren_spr(V, 'oR', 'oRV', V.gR, 14, dt);
+  const drop = Math.min(V.oL, V.oR); figuren_spr(V, 'drop', 'dropV', drop, 12, dt);
+  if (Math.abs(V.oL) < .004 && Math.abs(V.oR) < .004 && Math.abs(V.drop) < .004) { if (P.obj.position.y !== 0 && !P.sit) P.obj.position.y = 0; return; }
+  M.ik++; const gs = P.g.getWorldScale(M.s).y || 1; P.obj.position.y = V.drop / gs;
+  // Welt schon mit neuer Höhe rechnen: Füße relativ anheben (Differenz zum Becken-Versatz)
+  P.obj.updateMatrixWorld(true);
+  for (let i = 0; i < 2; i++) { const lift = (i ? V.oR : V.oL) - V.drop; if (lift > .003) figuren_legIK(L[i], lift); } }
+// ---------- Ich-Hände (AP-MOCAP): echte Finger- und Handgelenkbewegung aus Handschuh-Mocap (Rokoko „Smoking 01“) für assets/ms/haende (Detective_Hands)
+// Daten: assets/anim/haende_rauchen.json (tools/mocap_haende.mjs). Posen: halten · zug · heben · senken · klopfen · locker · anfang; Kurve 'rauchen' (61,9 s, 15 Bilder/s).
+// figuren_handPose(hände, pose, gewicht, { seite: 'L'|'R'|'beide', t: Sekunden (nur Kurve), handgelenk: false }) → true, wenn gesetzt. Nach dem Mischer aufrufen (setzt lokale Drehungen, gewichtet).
+const FIGUREN_HAND = { lib: null, p: null, q: new THREE.Quaternion(), q2: new THREE.Quaternion(), q3: new THREE.Quaternion() };
+function figuren_handLib() { if (!FIGUREN_HAND.p) FIGUREN_HAND.p = fetch('assets/anim/haende_rauchen.json').then(r => r.json()).then(j => {
+    for (const c of Object.values(j.kurven || {})) for (const K of ['L', 'R']) if (typeof c[K] === 'string') { const b = atob(c[K]), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); c[K] = new Int16Array(u.buffer); }
+    FIGUREN_HAND.lib = j; return j; }).catch(e => { console.warn('Hände-Posen', e); return null; }); return FIGUREN_HAND.p; }
+function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgelenk = false } = {}) { const L = FIGUREN_HAND.lib; if (!L || !hands) { figuren_handLib(); return false; }
+  let B = hands.userData.handBones; if (!B) { B = hands.userData.handBones = {}; for (const K of ['L', 'R']) B[K] = L.gelenke.map(j => { let hit = null; hands.traverse(o => { if (!hit && o.name.replace(/_\d+$/, '') === K + '_Hand' + (j === 'Hand' ? '' : j)) hit = o; }); return hit; }); }
+  const H = FIGUREN_HAND, J = L.gelenke.length, cur = L.kurven[pose], P = !cur && (typeof pose === 'string' ? L.posen[pose] : pose); if (!cur && !P) return false;
+  for (const K of seite === 'beide' ? ['L', 'R'] : [seite]) { const bones = B[K];
+    for (let j = handgelenk ? 0 : 1; j < J; j++) { const b = bones[j]; if (!b) continue;
+      if (cur) { const A = cur[K], n = cur.bilder, f = Math.max(0, Math.min(n - 1.001, t * L.fps)), i = Math.floor(f), k = f - i, o1 = (i * J + j) * 4, o2 = ((i + 1) * J + j) * 4;
+        H.q.set(A[o1] / 32767, A[o1 + 1] / 32767, A[o1 + 2] / 32767, A[o1 + 3] / 32767); H.q2.set(A[o2] / 32767, A[o2 + 1] / 32767, A[o2 + 2] / 32767, A[o2 + 3] / 32767); H.q.slerp(H.q2, k).normalize(); }
+      else { const v = P[K] && P[K][j]; if (!v) continue; H.q.set(v[0], v[1], v[2], v[3]); }
+      if (w >= .999) b.quaternion.copy(H.q); else b.quaternion.slerp(H.q, Math.max(0, w)); } }
+  return true; }
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
-window.__figuren = { S: figuren_S, embody: figuren_embody, load: figuren_load, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost }); return g; } }; // Testzugang (Selbsttest)
+window.__figuren = { S: figuren_S, MV: FIGUREN_MV, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
