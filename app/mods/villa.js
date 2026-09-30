@@ -433,7 +433,7 @@ async function villa_nr3Szene() { villa_setz('lucy'); villa_uk(2); const V = (t,
 async function villa_lucyNochmal() { if (state.talking) return; const n = (VILLA.lucyN = (VILLA.lucyN || 0) + 1);
   const Z = [['„Ich bleib hier. Vegas passt auf. Sagt er.“', 'LUCY'], ['„Er ist eifersüchtig. Wie du mit neun.“', 'LUCY'], ['„Geh schon. Und komm heim.“', 'LUCY']];
   const z = Z[Math.min(Z.length - 1, n - 1)]; await villa_says([[z[0], 3200, z[1]]]); }
-async function villa_vegasNochmal() { if (state.talking) return; const n = (VILLA.vegasN = (VILLA.vegasN || 0) + 1);
+async function villa_vegasNochmal() { if (state.talking) return; if (typeof neben4_vegas === 'function' && await neben4_vegas()) return; const n = (VILLA.vegasN = (VILLA.vegasN || 0) + 1); /* AP-20: Frage nach dem Vogel, Tonband */
   if (n === 1 && typeof whiskey_zoll === 'function' && !(typeof whiskey_S !== 'undefined' && whiskey_S.flags.has('k4_zoll'))) { if (typeof whiskey_S !== 'undefined') whiskey_S.flags.add('k4_zoll');
     await villa_says([['Vegas reicht dir einen Beutel Batterien. Whiskey ist schneller: Drei fallen dir vor die Füße, die vierte behält der Vogel.', 4600]]); whiskey_zoll(); return; }
   const Z = ['„Der Speck ist im Backofen. Eingesperrt.“', '„Er hat den Backofenknopf abgezogen. Der Vogel. Den Knopf!“', '„Ich ess jetzt in der Speisekammer. Tür zu.“'];
@@ -574,7 +574,7 @@ async function villa_azAsservat() { if (villa_hat('sb08')) return toast('Holzwol
   const i = await lwo_wahl(['Das Siegel brechen', 'Liegen lassen']); if (i !== 0) return; villa_setz('sb08'); villa_trust('siegel_758'); try { Audio.play('woodHit1', { gain: .3, rate: .8 }); } catch (e) {}
   villa_note('ASSERVAT 7/58', 'Das Siegel trägt das Auge. Drinnen, in Holzwolle: ein Stück Eisennetz, ein Strang sauber durchtrennt, als hätte eine sehr scharfe Klinge es geschnitten. Und in einer Klarsichthülle eine Seite.', 'villa_asservat', async () => {
     try { if (typeof sammeln_sb === 'function') sammeln_sb(8); } catch (e) {} await wait(600); await villa_says([['Luke hält das Netz an die Lampe.', 2200], ['„Er hat sie rausgeschnitten. Nur zu spät.“', 3000, 'DU']]); }); }
-function villa_azKarte() { villa_note('Die Weltkarte', 'Neun Nadeln, jede mit Nummer und Kürzel in Seilers Schrift. Bei der Sieben: ' + villa_hand('„wir.“') + '\n\nDrumherum, mit Stecknadeln: Zeitungsausschnitte, „Aus aller Welt“.', 'villa_weltkarte', async () => {
+function villa_azKarte() { if (typeof neben4_karte === 'function') return neben4_karte(); /* AP-20 „Aus aller Welt“ */ villa_note('Die Weltkarte', 'Neun Nadeln, jede mit Nummer und Kürzel in Seilers Schrift. Bei der Sieben: ' + villa_hand('„wir.“') + '\n\nDrumherum, mit Stecknadeln: Zeitungsausschnitte, „Aus aller Welt“.', 'villa_weltkarte', async () => {
   if (villa_hat('karte')) return; villa_setz('karte'); try { if (typeof sammeln_z === 'function') sammeln_z(10); } catch (e) {} await wait(400);
   await villa_says([['„Außenstelle sieben. Es gibt also mindestens sechs andere Dörfer, in denen irgendwer ‚Gasleck‘ in die Zeitung schreibt.“', 5200, 'DU']]); }); }
 function villa_azFotos() { villa_note('Die Fotowand', 'Sechs Fotos, jedes mit Jahr auf dem Passepartout. Auf allen steht am Rand derselbe Mann im grauen Mantel.\n\n<b>Lehrgang, Herbst 1957</b>: jung und dünn, fast ein Student, die Mütze schief.\n<b>Einweihung der Außenstelle, Frühjahr 1958</b>: ein Mann mit Tränensäcken und Hut, der aussieht, als hätte er einen ganzen Winter lang nicht geschlafen.\n<b>1975 · 1992 · 2009 · 2012</b>: genau so. Immer genau so.\n\nAuf dem Foto von 1992 lacht ein Mann mit Pfeife und Sonnenbrille auf dem Kopf neben einem Hirsch im Gehege. Auf dem Passepartout: „Pell und ‚Buck‘“.', 'villa_fotowand', async () => {
@@ -623,6 +623,7 @@ function villa_ogFormblatt() { villa_note('Formblatt 8', villa_masch('<b>Einwill
   await villa_says([['„Wer soll das denn unterschreiben. Meine Mutter ist … da drin.“', 3600, 'DU']]); }); }
 function villa_ogTeedose() { villa_setz('heinrich'); if (!villa_hat('n4')) { villa_setz('n4'); setTimeout(() => villa_beob('b_k4_n4', { pos: [-886.8, .62, 931.2] }), 800); }
   const hat = villa_S.grete; if (!villa_hat('grete_gesehen')) { villa_setz('grete_gesehen'); villa_S.grete = true; }
+  if (typeof neben4_teedose === 'function') { neben4_teedose(hat); villa_ag13Check(); return; } // AP-20 „Der Kreisel, der nicht umfällt“ (Wortlaut, Schreck, Foto ins Album)
   villa_note('Eine Teedose aus Blech', 'Kein Tee darin. Ein Foto, an den Rändern weich gegriffen: ein Junge und ein Mädchen mit Zöpfen auf einer Treppe. Das Mädchen hält einen Blechkreisel. Auf der Rückseite, Bleistift: ' + villa_hand('„Grete und Heinrich.“'), 'villa_grete', async () => {
     if (hat || villa_hat('gretefoto')) return; const i = await lwo_wahl(['Das Foto einstecken', 'Zurücklegen']); if (i !== 0) return; villa_setz('gretefoto');
     try { if (typeof album_abheften === 'function') album_abheften('grete', { bild: villa_cv(300, 360, (c, w, h) => { c.fillStyle = '#d8d0bc'; c.fillRect(0, 0, w, h); c.fillStyle = '#6a6254'; c.fillRect(16, 16, w - 32, h - 70); c.fillStyle = '#2a2622'; c.fillRect(90, 120, 40, 120); c.fillRect(170, 110, 44, 130); c.beginPath(); c.arc(110, 104, 20, 0, 7); c.arc(192, 94, 22, 0, 7); c.fill(); }).toDataURL('image/jpeg', .8), art: 'abzug', serie: 'sonst', notiz: 'Grete und Heinrich', hinten: { stil: 'blei', blei: 'Grete und Heinrich.' } }); } catch (e) { console.warn('Album Grete', e); } }); villa_ag13Check(); }
@@ -894,10 +895,15 @@ function villa_tagTick() { const T = VILLA.tag, kinoAn = typeof kino_S !== 'unde
   if (on && !T.an) { T.an = true; const U = skyMat.uniforms; T.sv = { fogC: scene.fog.color.getHex(), fogD: scene.fog.density, hC: hemi.color.getHex(), hG: hemi.groundColor.getHex(), mC: moon.color.getHex(), sH: U.horizon.value.getHex(), sZ: U.zenith.value.getHex(), sD: U.dim.value, gf: fogUniforms.color.value.clone() };
     hemi.color.setHex(0x9aa4b4); hemi.groundColor.setHex(0x3a3630); moon.color.setHex(0xc8d0dc); U.horizon.value.setHex(0x9ca2a8); U.zenith.value.setHex(0x5a6674); U.dim.value = 1; fogUniforms.color.value.setHex(0x8c9298).multiplyScalar(1.25); }
   else if (!on && T.an && !kinoAn) { T.an = false; const s = T.sv, U = skyMat.uniforms; if (s) { scene.fog.color.setHex(s.fogC); scene.fog.density = s.fogD; hemi.color.setHex(s.hC); hemi.groundColor.setHex(s.hG); moon.color.setHex(s.mC); U.horizon.value.setHex(s.sH); U.zenith.value.setHex(s.sZ); U.dim.value = s.sD; fogUniforms.color.value.copy(s.gf); } }
-  if (!T.an) return; const k = typeof indoorK !== 'undefined' ? indoorK : 0, drin = !!VILLA.raum || (typeof anwesen_S !== 'undefined' && anwesen_S.inHall);
-  const amb = drin ? (VILLA.raum ? VILLA.amb : .6) : .3; scene.fog.color.setHex(0x80868c); scene.fog.density = drin ? .007 : .03;
-  hemi.intensity = drin ? amb : .95 * (1 - k) + .32 * k; moon.intensity = drin ? 0 : .3 * (1 - k); scene.environmentIntensity = drin ? .05 : .4 * (1 - k) + .08 * k; renderer.toneMappingExposure = 1.1 * settings.bright;
+  if (!T.an) return; const drin = !!VILLA.raum || (typeof anwesen_S !== 'undefined' && anwesen_S.inHall);
+  scene.fog.color.setHex(0x80868c); scene.fog.density = drin ? .007 : .03;
   if (rain && rain.m) rain.m.visible = false; }
+
+// Licht Kap. 4 über den Basis-Haken (LICHT_HAKEN, je Bild nach der Basis-Lichtzeile): tagsüber steht die Hemisphäre drinnen für das Fensterlicht –
+// die alten Werte (Halle .6, Räume .3–.45) waren physikalisch Dämmerung, die Räume lasen sich schwarz. Faktor 6 auf die Raumwerte, Halle 2,6 (hohe Fenster); Kühlraum bleibt fast dunkel.
+function villa_tagLicht(dt, indoor, rect, k) { const T = VILLA.tag; if (!T || !T.an) return; const drin = !!VILLA.raum || (typeof anwesen_S !== 'undefined' && anwesen_S.inHall);
+  hemi.intensity = drin ? (VILLA.raum ? VILLA.amb * 6 : 2.6) : .95 * (1 - k) + .32 * k; moon.intensity = drin ? 0 : .3 * (1 - k); scene.environmentIntensity = drin ? .12 : .4 * (1 - k) + .08 * k; renderer.toneMappingExposure = 1.1 * settings.bright; }
+if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push(villa_tagLicht);
 
 // =====================================================================  Laden, Takt
 if (typeof KAP_BEGIN !== 'undefined') KAP_BEGIN[4].push(() => villa_kapStart());

@@ -496,7 +496,7 @@ WORLD_TICK.push((dt, t) => {
   // Gisela am Küchenfenster: lehnt sich heraus, wenn das Fenster offen ist; Blick auf Luke; Fensterlicht weich
   const F = S.F.gisela, auf = !!S.fAuf; S.fk = (S.fk || 0) + ((auf ? 1 : 0) - (S.fk || 0)) * Math.min(1, dt * 2.5);
   if (S.fLicht) S.fLicht.intensity = .25 + S.fk * 1.1; if (S.fluegel) { S.fluegel.visible = S.fk > .02; S.fluegel.rotation.y = S.fk * 1.25; }
-  if (F) { const vis = S.fk > .05 && kap() === 1 && !S.inRaum; if (F.g.visible !== vis) F.g.visible = vis; }
+  if (F) { const vis = (S.fk > .05 && kap() === 1 && !S.inRaum) || (!!S.zaun && !S.inRaum); if (F.g.visible !== vis) F.g.visible = vis; } // S.zaun: Gisela am Zaun (AP-20, „Siebzehn Näpfe“ Kap. 4)
   if (S.kette) S.kette.opacity = .75 + Math.sin(t * 1.3) * .08 + Math.sin(t * 7.1) * .03;
   for (let i = 0; i < (S.flammen ? S.flammen.length : 0); i++) { const f = S.flammen[i]; f.scale.y = .08 * (1 + Math.sin(t * 11 + i * 2.3) * .08 + Math.sin(t * 23 + i) * .05); }
   // Katze tragen: am Napfbrett absetzen; Keiner klettert auf den Kopf (Lampe aus, drei Sekunden)

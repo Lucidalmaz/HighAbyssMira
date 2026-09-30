@@ -47,7 +47,8 @@ function nr4_zettel(id, x, y, z, ry, o = {}) { const t = NR4_ZETTEL[id]; if (!t)
   const map = kirchberg_papier({ w: 384, h: 280, bg: o.bg || '#efe6c4', flecken: 1, tesa: !o.liegt, zeilen: zeilen.slice(0, 7).map((l, i) => [l, 22, 52 + i * px * 1.05, px, 'rgba(22,32,96,.92)', null, (i % 2 ? .012 : -.01), /NICHT|KEIN|LUKAS|ALLES|NIE/.test(l) ? 1 : 0]) });
   const d = kirchberg_decal(map, w, h, x, y, z, ry, { rx: o.liegt ? -PI / 2 : 0, rz: o.rz ?? (kirchberg_r() - .5) * .12, parent: o.parent });
   const hit = kirchberg_hit(Math.max(.22, w + .08), o.liegt ? .12 : Math.max(.2, h + .08), .22, x, y, z, 'Zettel · ' + NR4_ORT[id], () => nr4_lesen(id)); hit.rotation.y = ry; return d; }
-function nr4_lesen(id) { const S = nr4_S, neu = !S.zettel.has(id); S.zettel.add(id); kirchberg_start('nr4_oma', { x: NR4.haus.x, z: NR4.haus.z - 6 });
+function nr4_lesen(id) { if (id === 'E-18' && kapAb(4) && typeof neben4_haushaltsbuch === 'function') return neben4_haushaltsbuch(); // AP-20: ab Kap. 4 das ganze Haushaltsbuch
+  const S = nr4_S, neu = !S.zettel.has(id); S.zettel.add(id); kirchberg_start('nr4_oma', { x: NR4.haus.x, z: NR4.haus.z - 6 });
   openNote('Oma Ernas Zettel · ' + NR4_ORT[id], `<span class="hand">${NR4_ZETTEL[id]}</span><br><br><i style="opacity:.7">Kuli, Tesafilm. ${id.startsWith('E-') ? id : ''}</i>`, 'nr4_' + id, () => nr4_nachZettel(id, neu)); }
 async function nr4_nachZettel(id, neu) { const S = nr4_S;
   if (id === 'E-11' && neu) { await wait(400); subtitle('Wechselbalg. Hat sie immer gesagt. Ich dachte, das heißt Frechdachs.', 3800, 'LUKE');
@@ -167,7 +168,7 @@ async function nr4_bau() {
     for (const [dx, dz, ry] of [[-.7, 0, PI / 2], [.7, 0, -PI / 2], [0, .62, PI]]) { const c = await kirchberg_fbx('chair', chairSpec, .92); if (c) put(c, C.x - 2.6 + dx, 0, C.z - 2.4 + dz, ry + kirchberg_r(-.1, .1), g); }
     nr4_zettel('E-02', C.x - 2.6, ty + .003, C.z - 2.35, 0, { liegt: true });
     { const t = await kirchberg_mod('w_tasse', 'model.glb', .1); if (t) put(t, C.x - 2.2, ty, C.z - 2.2, 1, g); const t2 = await kirchberg_mod('w_teller', 'model.glb', .22, 'max'); if (t2) put(t2, C.x - 2.9, ty, C.z - 2.5, 0, g); }
-    { const hb = await kirchberg_mod('w_buch', 'model.glb', .26, 'max'); if (hb) { hb.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.55, .46, .3); } }); put(hb, x0 + .45, 1.02, C.z - 2.2, PI / 2, g); } nr4_zettel('E-18', x0 + .48, 1.08, C.z - 2.2, PI / 2, { liegt: true, w: .12, h: .09 }); }
+    { const hb = await kirchberg_mod('w_buch', 'model.glb', .26, 'max'); if (hb) { hb.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.22, .34, .24); } }); S.hb = put(hb, x0 + .45, 1.02, C.z - 2.2, PI / 2, g); } S.hbZettel = nr4_zettel('E-18', x0 + .48, 1.08, C.z - 2.2, PI / 2, { liegt: true, w: .12, h: .09 }); } // AP-20: grünes Kassenbuch (Haushaltsbuch), ab Kap. 4 „Kassler, vier achtzig“
     kirchberg_licht(R, 0xffc88a, 1.3, 6, C.x - 2.6, 2.5, C.z - 2.4); { const f = await kirchberg_mod('frame_deco', 'model.gltf', .5); if (f) put(f, C.x - .12, 1.5, C.z - 3.5, -PI / 2, g); }
     schmutz(R, 1.8, 1.2, x0 + 2, .004, C.z - 1.2, 0, -PI / 2, 0x5a4a38, .5);
     await kirchberg_kram(g, [['teppich', C.x - 2.6, 0, C.z - 2.4, 0, .7], ['tasse', x0 + .9, .92, z0 + .45], ['teller', x0 + 1.4, .92, z0 + .45], ['glas', x0 + 2.8, .92, z0 + .5], ['glas', x0 + 3.05, .92, z0 + .42], ['stapel', x0 + .4, 1.5, C.z - 3.1], ['zeitung', C.x - 2.3, ty, C.z - 2.6, .9, .6]]); kirchberg_birne(R, C.x - 2.6, 2.3, C.z - 2.4, .2); schmutz(R, 2.4, .6, x0 + 2, 1.25, z0 + .105, 0); spinnweben(R, [[x0 + .2, 2.6, z0 + .2, PI / 4, .7]]); }
