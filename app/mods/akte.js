@@ -25,7 +25,12 @@ function akte_sperre() { for (const d of AKTE_S.docs) { const on = akte_offen(d.
 const akte_n = () => AKTE.filter(a => akte_has(a[0])).length;
 function akte_tex() { return tex(cnv(256, (c, w) => { c.fillStyle = '#b89a6a'; c.fillRect(0, 0, w, w); for (let i = 0; i < 60; i++) { c.fillStyle = `rgba(60,40,20,${rand(.03, .12)})`; c.fillRect(rand(0, w), rand(0, w), rand(4, 40), rand(2, 10)); }
   c.fillStyle = '#efe8d8'; c.fillRect(30, 18, 196, 60); c.fillStyle = '#2a2a2a'; c.font = 'bold 22px Courier New'; c.textAlign = 'center'; c.fillText('BfR · AST LE', w / 2, 44); c.font = '16px Courier New'; c.fillText('DURCHSCHLAG', w / 2, 66);
-  c.save(); c.translate(w / 2, 160); c.rotate(-.18); c.strokeStyle = 'rgba(170,30,25,.85)'; c.lineWidth = 5; c.strokeRect(-92, -26, 184, 52); c.fillStyle = 'rgba(170,30,25,.85)'; c.font = 'bold 28px Courier New'; c.fillText('VERTRAULICH', 0, 10); c.restore(); }), true); }
+  c.save(); c.translate(w / 2, 160); c.rotate(-.18); c.strokeStyle = 'rgba(170,30,25,.85)'; c.lineWidth = 5; c.strokeRect(-92, -26, 184, 52); c.fillStyle = 'rgba(170,30,25,.85)'; c.font = 'bold 28px Courier New'; c.fillText('VERTRAULICH', 0, 10); c.restore();
+  akte_auge(c, w / 2, 220, 22, 'rgba(30,30,30,.75)'); }), true); } // Fassung 3 (AP-11): das Auge unter dem Kopf
+function akte_auge(c, x, y, r, col) { c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = Math.max(1.5, r * .12); c.beginPath(); c.arc(x, y, r * 1.35, 0, 7); c.stroke(); // Kreis, Auge, Flamme (LWO-Zeichen)
+  c.beginPath(); c.moveTo(x - r, y); c.quadraticCurveTo(x, y - r * .8, x + r, y); c.quadraticCurveTo(x, y + r * .8, x - r, y); c.stroke(); c.beginPath(); c.arc(x, y, r * .3, 0, 7); c.fill();
+  c.beginPath(); c.moveTo(x, y - r * 1.05); c.quadraticCurveTo(x + r * .22, y - r * .7, x, y - r * .5); c.quadraticCurveTo(x - r * .22, y - r * .7, x, y - r * 1.05); c.fill(); c.restore(); }
+const AKTE_KOPF = (() => { try { return cnv(64, (c, w) => { c.clearRect(0, 0, w, w); akte_auge(c, 32, 34, 17, 'rgba(25,25,25,.85)'); }).toDataURL(); } catch (e) { return ''; } })();
 WORLD_MODS.push(['Die Akte Abgrund', async () => {
   const S = AKTE_S, mat = new THREE.MeshStandardMaterial({ map: akte_tex(), roughness: .85 });
   for (const [n, title, at] of AKTE) { const p = at(); if (!p) continue; const m = new THREE.Mesh(new THREE.BoxGeometry(.24, .012, .32), mat); m.position.set(p[0], .02, p[2]); m.rotation.y = rand(-.6, .6); m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; scene.add(m);
@@ -35,8 +40,11 @@ WORLD_MODS.push(['Die Akte Abgrund', async () => {
   akte_sperre(); S.ready = true;
 }]);
 function akte_lesen(n) {
-  const [, title, , txt] = AKTE.find(a => a[0] === n), html = '<span style="font-family:\'Courier New\',monospace;font-size:.93em;line-height:1.55">' + txt.replace(/\n/g, '<br>') + '</span>';
+  const [, title, , txt] = AKTE.find(a => a[0] === n), html = '<span style="display:block;text-align:center;font:700 .82em \'Courier New\',monospace;letter-spacing:.14em;border-bottom:1px solid rgba(40,30,20,.45);padding-bottom:4px;margin-bottom:10px">BfR · AST LE · DURCHSCHLAG · VERTRAULICH' +
+    (AKTE_KOPF ? `<img src="${AKTE_KOPF}" alt="" style="display:block;width:30px;height:30px;margin:4px auto 0;padding:0;background:none;box-shadow:none!important;transform:none;opacity:.8">` : '') + '</span>' + // Fassung 3 (AP-11): Kopf jedes Blatts, klein das Auge
+    '<span style="font-family:\'Courier New\',monospace;font-size:.93em;line-height:1.55">' + txt.replace(/\n/g, '<br>') + '</span>';
   if (!akte_has(n)) { story.lore.push({ key: 'akte_' + n, title: `Akte Abgrund ${n} / 10 · ${title}`, html }); Audio.paper(); sideStart('akte'); const c = akte_n();
+    if (n !== 7 && typeof lwo_trust === 'function') lwo_trust(-2, 'akte_' + n); // 5.1: Durchschlag aufheben (außer 7) −2, je einmal
     story.side.akte.desc = `Die Durchschläge der Ärztin Edda Brand: was das Amt vertuscht hat. Gefunden: ${c} / 10.` + (c < 10 ? ' Sie liegen dort, wo Kinder spielen und Erwachsene nicht hinsehen.' : '');
     questPop(`AKTE ABGRUND ${c} / 10`, title); const d = AKTE_S.docs.find(x => x.n === n); if (d) d.m.visible = false;
     const G = { 1: 'Eine Ärztin vom Amt. Sie wollte, dass das jemand findet. Sie hat nicht mit mir gerechnet, aber gut.', 2: 'Verwalten. Wie Parkplätze.', 3: 'Die UFO-Schlagzeile. Die haben sie selbst geschrieben. Vegas hat recht. Vegas hat immer recht, das ist das Schlimme.', 4: 'Nicht alles, was zurückkommt, ist ein Kind. … Die Kuh. Sie haben die Kuh vermessen.', 5: 'Bis siebzehn. Ich zähle im Schlaf. Lucy hat mich damit aufgezogen, jahrelang.', 6: 'Onkel Peter. Sie haben ihn eingesperrt, weil er es wusste. Unter die Erde. Wo sie nicht hinsieht.', 7: '08. Eine halbrunde Narbe in der linken Hand. … Ich hab auch eine. ‚Fahrradunfall‘, hat Mama gesagt.', 8: 'Sie wussten es. Sie haben die Straße zugemacht und zugesehen. Und Hilde hat ihren eigenen Sohn gezogen.', 9: 'K-3. Brandt, L. Das bin ich. Sie wollten mich umbauen wie Onkel Peter. Nach dem Bild, das … wer hat ein Bild von mir im Kopf?', 10: 'Dem Postboten. Sie hat den Brief Günther Maas gegeben.' }[n]; // Gedanken: LWO-Dossier 5.1

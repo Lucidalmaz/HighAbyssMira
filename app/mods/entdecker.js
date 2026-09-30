@@ -5,11 +5,11 @@
 //    schnellerer Kinderblick, weiterer Lichtkegel, eine Erinnerung an die Nacht 2009, ein Satz auf der letzten Seite der Fibel.
 // Fortschritt steht in der Abenteuerfibel (FUNDE) – mit der nächsten Belohnung, damit man weiß, wofür man sucht.
 const ENTD_S = { ready: false, kerben: [], granted: new Set(), t: 0 };
-const ENTD_REIM = ['Eins – das Licht geht aus im Haus.', 'Zwei – die Kinder gehen raus.', 'Drei – der Rabe sieht es an.', 'Vier – und sagt es keinem Mann.',
-  'Fünf – barfuß über warmen Stein.', 'Sechs – die Hand ist kalt und klein.', 'Sieben – sieben gehen fort.', 'Acht – der achte hat kein Wort.',
-  'Neun – sechs kommen wieder heim.', 'Zehn – und einer bleibt allein.', 'Elf – die Mutter zählt die Nacht.', 'Zwölf – bis jemand für sie wacht.',
-  'Dreizehn – drei Uhr dreizehn steht.', 'Vierzehn – wer da unten geht?', 'Fünfzehn – ein Licht, ganz weit, ganz klein.', 'Sechzehn – eine Laterne, nicht allein.',
-  'Siebzehn – wer sich jetzt nicht versteckt, ist dran.'];
+const ENTD_REIM = ['Eins – ich zähl bis siebzehn, gebt gut acht,', 'Zwei – wer bei mir isst, der bleibt die Nacht.', 'Drei – wer ein Licht trägt, läuft mit mir,', 'Vier – ich blas es aus vor seiner Tür.', // Fassung 3 (AP-11): „Siebzehn und noch eins“ (85 §6)
+  'Fünf – guckst du hin, dann steh ich still,', 'Sechs – guckst du weg, dann komm ich, wie ich will.', 'Sieben – Augen zu, dann seh ich dich nicht,', 'Acht – doch wer’s weiß, dem schau ich durchs Gesicht.',
+  'Neun – was du sagst, das sag ich nach,', 'Zehn – nur nicht, was keiner laut sprach.', 'Elf – wer unter die Erde kriecht, wird nicht entdeckt,', 'Zwölf – Eisen ist frei, doch frei ist nicht versteckt.',
+  'Dreizehn – an der Hand kommst du hinaus,', 'Vierzehn – lässt du los, fällst du aus der Zeit heraus.', 'Fünfzehn – wer einmal mit war, den find ich wieder,', 'Sechzehn – wer sich verschenkt, der kriegt sich nie mehr wieder.',
+  'Siebzehn und noch eins – ich komme! Wen ich finde, der zählt.'];
 const ENTD_STUFEN = [ // [Funde, Titel, Belohnung (Text), Wirkung(beimLaden)]
   [10, 'Aufmerksam', 'Zwei Batterien', load => { if (!load) addBattery(2); }],
   [20, 'Spürnase', 'Sparsame Lampe: der Akku hält ein Viertel länger', () => FLASH_TIERS.forEach(T => T.life = Math.round(T.life * 1.25))],
@@ -46,6 +46,7 @@ function entd_kerbe(id) {
   story.lore.push({ key: k, title: `Kerbe ${n} / ${tot}`, html }); Audio.play('stones1', { gain: .12, rate: 2.2 }); if (Audio.chime) Audio.chime();
   questPop(`KERBE ${n} / ${tot}`, line); openNote(`Kerbe ${n} / ${tot}`, html);
   if (n === 1 && typeof gedanke === 'function') gedanke('kerbe_1', 'Kreidestriche. Wie beim Verstecken, wenn einer zählt. … Da sind bestimmt noch mehr.', 1500, 3);
+  if (n === 8 && kapAb(3) && typeof gedanke === 'function') gedanke('kerbe_8', '‚Durchs Gesicht.‘ … Okay. Weiter.', 1500, 3); // 85 §6: Kerbe 8 nach Kapitel 2
   if (n >= tot) setTimeout(() => entd_reimFertig(), 1200);
   if (typeof saveGame === 'function' && state.started) saveGame(curChapter());
 }

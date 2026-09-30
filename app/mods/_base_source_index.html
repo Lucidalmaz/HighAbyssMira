@@ -5690,7 +5690,7 @@ function update(dt, t) {
     if (!state.phase2) {
       const k = Math.min(1, state.ufoT / 14), e = k * k * (3 - 2 * k);
       ufo.position.set(-90 + 110 * e, 60 - 34 * e + Math.sin(t) * .4, -80 + 81 * e); ufo.rotation.z = Math.sin(t * .7) * .05;
-      if (!indoor && state.ufoT > 3) startPhase2();
+      if (!indoor && state.ufoT > 3) { if (!(typeof kino_hilde === 'function' && kino_hilde())) startPhase2(); } // Fassung 3 (AP-10): Kinosequenz „Hilde im Strahl“
     } else {
       state.p2t += dt;
       ufo.position.lerp(tmp.set(14, 20 + Math.sin(t) * .3, 1.5), Math.min(1, dt * .8));

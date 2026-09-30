@@ -232,6 +232,7 @@ const HUNGRIGE_NACKT = {
 };
 // ---------------------------------------------------------------- Kapitel 6 · Die Enthüllung: zwei Whiskeys, und der echte vertreibt den Hungrigen
 function hungrige_raven(mirror) { const V = hungrige_beast('crow', 1.45); if (!V) return null; V.m.traverse(o => { if (!o.isMesh) return; o.castShadow = true; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; });
+  if (typeof whiskey_ring === 'function') try { whiskey_ring(V.m, false); } catch (e) {} // AP-08: eiserner Ring am linken Lauf – beim gespiegelten Nachbild sitzt er dadurch rechts
   if (mirror) V.g.scale.x = -1; return V; }
 function hungrige_flyTo(V, to, dur, apex = 3) { const from = V.g.position.clone(); V.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + apex, (from.z + to.z) / 2), t: 0, dur }; leben_play(V, 'Fly', .15); }
 const _hfA = new THREE.Vector3(), _hfB = new THREE.Vector3(), _hfP = new THREE.Vector3(); // keine Allokation im Takt

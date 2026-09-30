@@ -58,14 +58,22 @@ WORLD_MODS.push(['Vegas', async () => {
     S.mx = new THREE.AnimationMixer(w.children[0]); for (const [k, c] of [['idle', 'idle'], ['talk', F.clips.talk ? 'talk' : 'look']]) if (F.clips[c]) S.act[k] = S.mx.clipAction(F.clips[c]); /* beim Reden sieht er sich unruhig um */ if (S.act.idle) S.act.idle.play(); }
 }]);
 WORLD_TICK.push((dt, t) => {
-  const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } return; }
+  const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } if (S.wOpen || S.t > .01) albers_door(dt, t); return; } // Whiskey-Szenen (AP-08): Tür in jedem Kapitel
   if (!S.on) { S.on = true; if (!interactables.includes(S.hit)) interactables.push(S.hit); for (const T of ALBERS_TALKS) if (story.lore.some(l => l.key === 'albers_' + T.id)) S.talked.add(T.claim); } // nach Laden: geführte Gespräche wiederherstellen
   const P = player.pos, d = Math.hypot(P.x - S.door.x, P.z - S.door.z);
   if (!S.hissed && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.hissed = true; subtitle('<i>„Psst! Junge! Hierher. Leise, verdammt!“</i> – aus dem Türspalt von Nr. 3.', 4200); Audio.whisper(S.door.x, 1.5, S.door.z, 1.2); }
-  // Spalt auf/zu: Licht und Figur weich ein- und ausblenden, Taschenlampen-Zittern
-  S.t += ((S.open ? 1 : 0) - S.t) * Math.min(1, dt * 4); S.light.intensity = S.t * (.9 + Math.sin(t * 13) * .05); S.beam.intensity = S.t * (1.4 + Math.sin(t * 7.3) * .15 + Math.sin(t * 17) * .06);
-  if (S.fig) { S.fig.visible = S.t > .05; if (S.fig.visible) { const want = state.talking && S.act.talk ? S.act.talk : S.act.idle;
-      if (want && want !== S.cur) { want.reset().fadeIn(.3).play(); if (S.cur) S.cur.fadeOut(.3); S.cur = want; } S.mx.update(dt);
-      const a = Math.atan2(P.x - S.fig.position.x, P.z - S.fig.position.z); S.fig.rotation.y += Math.atan2(Math.sin(a - S.fig.rotation.y), Math.cos(a - S.fig.rotation.y)) * Math.min(1, dt * 3); } }
+  albers_door(dt, t);
   S.chk = (S.chk || 0) - dt; if (S.chk < 0) { S.chk = 1; if (S.talked.size) albers_claimCheck(); }
 });
+// Spalt auf/zu: Licht und Figur weich ein- und ausblenden, Taschenlampen-Zittern (bei Whiskey-Szenen bleibt Vegas hinter der Kette)
+function albers_door(dt, t) { const S = albers_S, P = player.pos;
+  S.t += ((S.open ? 1 : 0) - S.t) * Math.min(1, dt * 4); S.light.intensity = S.t * (.9 + Math.sin(t * 13) * .05); S.beam.intensity = S.t * (S.wOpen ? .5 : 1.4 + Math.sin(t * 7.3) * .15 + Math.sin(t * 17) * .06);
+  if (S.fig) { S.fig.visible = S.t > .05 && !S.wOpen; if (S.fig.visible) { const want = state.talking && S.act.talk ? S.act.talk : S.act.idle;
+      if (want && want !== S.cur) { want.reset().fadeIn(.3).play(); if (S.cur) S.cur.fadeOut(.3); S.cur = want; } S.mx.update(dt);
+      const a = Math.atan2(P.x - S.fig.position.x, P.z - S.fig.position.z); S.fig.rotation.y += Math.atan2(Math.sin(a - S.fig.rotation.y), Math.cos(a - S.fig.rotation.y)) * Math.min(1, dt * 3); } } }
+// Fassung 3 (AP-08): Vegas durch den Türspalt in Whiskeys Szenen (W-01 Taufe, K1-4 Speck, K4-4 Papas Marke …). lines: [Text, ms, Sprecher] oder async-Funktionen
+async function albers_whiskey(lines, o = {}) { const S = albers_S; if (S.busy) return false; S.busy = true; S.wOpen = true;
+  Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  try { for (const l of lines) { if (typeof l === 'function') await l(); else await say([[l[0], l[1], l[2] || 'LARS VEGAS']]); } }
+  finally { S.open = 0; Audio.chains(S.door.x, 1.2, S.door.z); Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); S.busy = false; setTimeout(() => { S.wOpen = false; }, 1400); }
+  return true; }

@@ -1096,6 +1096,78 @@
    "hideAfter": [
     "Eyewear"
    ]
+  },
+  {
+   "id": "wolter",
+   "name": "Heinrich Wolter (LWO, Nachsorger)",
+   "base": "doctor",
+   "height": 1.8,
+   "anims": "man",
+   "hide": ["Case"],
+   "head": {
+    "src": "MN",
+    "hide": ["Hair6", "Scalp"],
+    "look": { "skin": "#c8ae9a", "lips": "#a0827c", "brow": "#77736e", "hair": "#77746f", "scalp": 1, "scalpC": "#7d7a75", "blush": 0.02, "age": 0.5, "wrinkles": 0.5, "stubble": 0.05, "seed": 311 },
+    "eye": "#9aa2a6", "eyeAmt": 0.7,
+    "bodySkin": false,
+    "swap": { "keep": "^material$", "morphs": "Eye_Blink_[LR]$|Eye_[LR]_Look_(L|R|Up|Down)$|V_Open$" }
+   },
+   "hideAfter": ["Eyewear"],
+   "hsl": [
+    ["^Body$", { "s": 0.1, "mix": "#5b5957", "mixAmt": 0.88 }],
+    ["^Bottom$", { "s": 0.1, "mix": "#6a6b6c", "mixAmt": 0.85 }],
+    ["^material$", { "s": 0.1, "mix": "#8a8883", "mixAmt": 0.88 }],
+    ["^material_5$", { "s": 0.1, "l": 1.25, "mix": "#6d6c68", "mixAmt": 0.9 }],
+    ["^Shoes$", { "s": 0.2, "l": 0.55 }]
+   ]
+  },
+  {
+   "id": "nachsorge11",
+   "name": "Nachsorge 11 (der Lange)",
+   "base": "doctor",
+   "height": 1.92,
+   "anims": "man",
+   "hide": ["Case"],
+   "head": {
+    "src": "OPT",
+    "hide": ["Middle_Wavy", "Scalp"],
+    "look": { "skin": "#d0ae98", "lips": "#a47a72", "brow": "#8a847e", "hair": "#8e8a84", "scalp": 0.8, "scalpC": "#8f8b85", "blush": 0.06, "age": 0.62, "wrinkles": 0.55, "stubble": 0.12, "seed": 321 },
+    "eye": "#6a7884",
+    "bodySkin": false,
+    "swap": { "keep": "^material$", "morphs": "Eye_Blink_[LR]$|Eye_[LR]_Look_(L|R|Up|Down)$|V_Open$" }
+   },
+   "hideAfter": ["Eyewear"],
+   "hsl": [
+    ["^Body$", { "s": 0.5, "mix": "#d2b4a0", "mixAmt": 0.55 }],
+    ["^Bottom$", { "s": 0.1, "mix": "#72716c", "mixAmt": 0.85 }],
+    ["^material$", { "s": 0.1, "mix": "#5b5955", "mixAmt": 0.88 }],
+    ["^material_5$", { "s": 0.2, "l": 1.2, "mix": "#79736a", "mixAmt": 0.88 }],
+    ["^Shoes$", { "s": 0.2, "l": 0.6 }]
+   ]
+  },
+  {
+   "id": "nachsorge12",
+   "name": "Nachsorge 12 (der Kurze)",
+   "base": "doctor",
+   "height": 1.62,
+   "anims": "man",
+   "hide": ["Case", "^material$"],
+   "head": {
+    "src": "MN",
+    "hide": ["Hair6", "Scalp"],
+    "look": { "skin": "#d8a28c", "lips": "#a06a62", "brow": "#6e6862", "hair": "#6e6862", "grey": 0.4, "blush": 0.42, "age": 0.8, "wrinkles": 0.6, "stubble": 0.28, "browW": 1.45, "seed": 331 },
+    "eye": "#4a4036",
+    "bodySkin": false,
+    "swap": { "keep": "^material$", "morphs": "Eye_Blink_[LR]$|Eye_[LR]_Look_(L|R|Up|Down)$|V_Open$" }
+   },
+   "hideAfter": ["Eyewear"],
+   "hsl": [
+    ["^Body$", { "s": 0.5, "mix": "#cf9a84", "mixAmt": 0.55 }],
+    ["^Bottom$", { "s": 0.1, "mix": "#6c6964", "mixAmt": 0.85 }],
+    ["^material$", { "s": 0.15, "mix": "#7a6e60", "mixAmt": 0.85 }],
+    ["^material_5$", { "s": 0.15, "l": 1.2, "mix": "#605b53", "mixAmt": 0.9 }],
+    ["^Shoes$", { "s": 0.2, "l": 0.55 }]
+   ]
   }
  ]
 }

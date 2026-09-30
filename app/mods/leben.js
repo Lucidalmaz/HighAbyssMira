@@ -881,6 +881,17 @@ function leben_reactTick(dt) {
   S.T.react -= dt; if (dir.carState === 'drive' && S.T.react < 0) { S.T.react = .3; const p = ghostCar.position; leben_scare(p.x, p.z, 8); leben_crowScare(p.x, p.z, 14); }
   if (state.ufoOn && !pv.ufo) { leben_crowScare(P.x, P.z, 400); leben_scare(P.x, P.z, 60); const a = rand(0, 6.28); Audio.bark(P.x + Math.cos(a) * 80, P.z + Math.sin(a) * 80, true); } pv.ufo = state.ufoOn;
   for (const e of eyePairs) { const v = e.m.visible; if (v && !e.lbv) { const p = e.m.position; if (leben_scare(p.x, p.z, 9) > 0 && Math.random() < .6) leben_hiss(p.x, p.y, p.z); } e.lbv = v; } // Katzenaugen: die Ratten wissen es zuerst
+  leben_beobBlick(dt);
+}
+// Katzenaugen und der Beobachter (F3 AP-07, Dossier 82 §3.3/S-17): Katzen sehen ihn immer. Ist er (auch unsichtbar) näher als 15 m, drehen sich ihre Augen
+// zu ihm, nicht zu Luke (Blick folgt Sprüngen mit ~0,5 s); näher als 4 m fauchen sie in seine Richtung. Läuft nach der Basis (die richtet die Augen auf die Kamera aus).
+const leben_BB = new THREE.Vector3();
+function leben_beobBlick(dt) {
+  const bp = typeof beob_pos === 'function' ? beob_pos() : null; if (!bp) return;
+  for (const e of eyePairs) { if (!e.m.visible) { e.bk = 0; continue; } const p = e.m.position, d = Math.hypot(bp.x - p.x, bp.z - p.z);
+    const want = d < 15 ? 1 : 0; e.bk = (e.bk || 0) + (want - (e.bk || 0)) * Math.min(1, dt * 2); if (e.bk < .02) continue;
+    leben_BB.copy(camera.position).lerp(bp, .72 * e.bk); leben_BB.y = Math.max(leben_BB.y, p.y); e.m.lookAt(leben_BB); e.m.scale.x = 1 - .45 * e.bk; // halb abgewandt: schmaler
+    e.hissT = (e.hissT || 0) - dt; if (d < 4 && e.hissT < 0) { e.hissT = rand(12, 25); leben_hiss(p.x + (bp.x - p.x) * .15, p.y, p.z + (bp.z - p.z) * .15); } }
 }
 
 // =====================================================================  WETTER: Schauer, Bodennebel, der atmet

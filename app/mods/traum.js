@@ -111,4 +111,13 @@ WORLD_TICK.push((dt, t, indoor) => { const S = K1_S;
   const dx = player.pos.x - ufo.position.x, dz = player.pos.z - ufo.position.z;
   if (!indoor && dx * dx + dz * dz < 14.4) { S.rsT -= dt; if (S.rsT <= 0) { S.rsT = rand(.9, 2.1); k1_rascheln(player.pos.x, player.pos.z); } } else S.rsT = Math.min(S.rsT, .35);
 });
+// ---------------------------------------------------------------- Zweiter Traum (Abspann Kap. 4, 02 E2; Wortlaut Dossier 83 §3 = Master). AP-08 stellt ihn bereit, AP-19/kino.js ruft ihn.
+// Wieder DER RABE, wieder Miras Stimme, näher, als säße er auf der Bettkante. Nur Untertitel + Flüstern; Kamera/Bild bleiben beim Aufrufer.
+const TRAUM_ZWEITER = [['Dreizehn Atemzüge hab ich gebraucht bis zum Rand. Du brauchst länger. Das ist gut.', 'DER RABE', 0], ['Der Ring passt dir. Er hat gehalten, bis die Hand nicht mehr konnte. Sag ihm das, wenn du ihn wiedersiehst.', 'DER RABE', 6.2],
+  ['Ich komm. Ich weiß nur noch nicht, in welcher Nacht.', 'DER RABE', 14], ['Such.', 'DER RABE', 19.6]];
+async function traum_zweiter(o = {}) { // o.x/y/z: Flüsterort (Standard: an der Kamera), gibt nach ~22 s zurück
+  const p = o.x !== undefined ? o : camera.position;
+  for (let i = 0; i < TRAUM_ZWEITER.length; i++) { const [t, who, at] = TRAUM_ZWEITER[i], next = i + 1 < TRAUM_ZWEITER.length ? TRAUM_ZWEITER[i + 1][2] : at + 2.6;
+    subtitle(`<i>${t}</i>`, Math.max(2400, (next - at) * 1000 - 200), who); Audio.whisper(p.x + .4, (p.y || 1.4) + .1, p.z + .3, 1.2); await wait((next - at) * 1000); }
+  if (!story.lore.some(l => l.key === 'traum2')) story.lore.push({ key: 'traum2', title: 'Der zweite Traum', html: TRAUM_ZWEITER.map(l => '„' + l[0] + '“').join('\n') }); }
 window.__traum = { S: traum_S, start: () => runIntro(), applySave: d => applySave(d), loadSave: () => loadSave(), saveGame: c => saveGame(c) }; // Testzugriff

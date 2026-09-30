@@ -309,5 +309,33 @@
    "phone"
   ],
   "tris": 33973
+ },
+ {
+  "id": "wolter",
+  "name": "Heinrich Wolter (LWO, Nachsorger)",
+  "height": 1.8,
+  "clips": ["idle", "walk", "look", "nervous", "phone"],
+  "tris": 34000
+ },
+ {
+  "id": "nachsorge11",
+  "name": "Nachsorge 11 (der Lange)",
+  "height": 1.92,
+  "clips": ["idle", "walk", "look", "nervous", "phone"],
+  "tris": 34000
+ },
+ {
+  "id": "nachsorge12",
+  "name": "Nachsorge 12 (der Kurze)",
+  "height": 1.62,
+  "clips": ["idle", "walk", "look", "nervous", "phone"],
+  "tris": 33973
+ },
+ {
+  "id": "blechmann",
+  "name": "Blechmann (Bergung B 2/7)",
+  "height": 1.86,
+  "clips": ["idle", "walk", "look"],
+  "tris": 12159
  }
 ]

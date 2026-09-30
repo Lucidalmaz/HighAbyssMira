@@ -82,7 +82,7 @@ F.bakeUV = (mesh, idx, size, fragment, uniforms = {}, clear = 0x808080) => {
 };
 const hex3 = c => { const k = new THREE.Color(c), o = {}; k.getRGB(o, THREE.SRGBColorSpace); return new THREE.Vector3(o.r, o.g, o.b); }; // sRGB-Werte, im Shader direkt als Bildfarbe geschrieben
 const FACE_FRAG = `uniform vec3 uO, uX, uY, uZ, uMouth; uniform float uD, uSeam, uZl;
-uniform vec3 skin, lips, brow, stubbleC; uniform float blush, stubble, age, freckles, browW, lipW, seed, dbg, wrinkles;
+uniform vec3 skin, lips, brow, stubbleC, hairC; uniform float blush, stubble, age, freckles, browW, lipW, seed, dbg, wrinkles, scalp;
 void main(){
   vec3 p = vP - uO; float x = dot(p, uX) / uD, y = dot(p, uY) / uD, z = dot(p, uZ) / uD, ym = dot(uMouth - uO, uY) / uD, zm = dot(uMouth - uO, uZ) / uD;
   vec3 q = vP / uD * 6. + seed;
@@ -119,6 +119,10 @@ void main(){
   float fr = smoothstep(.78, .84, n3(vP / uD * 70. + 3.)) * exp(-(x * x * .8 + pow(y + .45, 2.)) / .3) * front; c = mix(c, c * vec3(.84, .7, .62), fr * freckles * .6);
   // Alter: blasser, leicht gelblich, fleckiger
   c = mix(c, vec3(dot(c, vec3(.3, .59, .11))) * vec3(1.02, .98, .92), age * .28); c *= 1. - age * .06 * fbm(q * 3.);
+  // Kurzhaar auf die Kopfhaut gemalt (F3 AP-06: Männer mit Hut – echte Haarkarten stachen durch die Hutkrempe): Stirnhaaransatz, Schläfen, Hinterkopf bis zum Nacken
+  if (scalp > 0.) { float hh = y + 2.6 * smoothstep(-.1, -1.4, z) + 1.1 * smoothstep(.75, 1.25, abs(x)); float ear = smoothstep(1.02, 1.18, abs(x)) * smoothstep(.62, .42, y) * smoothstep(-1.05, -.85, y) * smoothstep(-1.45, -1.2, z);
+    float hm = smoothstep(1.25, 1.5, hh) * (1. - ear) * scalp;
+    float st = n3(vec3(x * 70. + z * 30., y * 9., seed)) * .6 + n3(vP / uD * 95.) * .4; c = mix(c, hairC * (.62 + .55 * st), hm * (.72 + .28 * st)); }
   if (dbg > .5) c = vec3(fract(x * 2.), fract(y * 2.), step(0., z) * .5) * .8 + .2 * step(.95, max(fract(x * 4.), fract(y * 4.)));
   gl_FragColor = vec4(clamp(c, 0., 1.), 1.);
 }`;
@@ -158,7 +162,7 @@ F.paint = (root, look) => { root.updateMatrixWorld(true);
         const zmax = Math.max(...pts.map(p => p[2])), front = pts.filter(p => p[2] > zmax - .12 && Math.abs(p[0]) < .25); return { y: up ? Math.min(...front.map(p => p[1])) : Math.max(...front.map(p => p[1])), z: zmax }; };
       const u = edge(teeth, true), l = edge(lowT, false); seam = (u.y + l.y) / 2; zl = Math.max(u.z, l.z) + .25; }
     const u = { uO: { value: O }, uX: { value: X }, uY: { value: Y }, uZ: { value: Z }, uD: { value: D }, uMouth: { value: M }, skin: { value: hex3(look.skin) }, lips: { value: hex3(look.lips || '#b0706a') }, brow: { value: hex3(look.brow || look.hair || '#3a2a20') },
-      stubbleC: { value: hex3(look.stubbleC || '#5a4a44') }, blush: { value: look.blush ?? .1 }, stubble: { value: look.stubble || 0 }, age: { value: look.age || 0 }, freckles: { value: look.freckles || 0 }, browW: { value: look.browW || 1 }, lipW: { value: look.lipW || 1 }, seed: { value: look.seed || 1 }, dbg: { value: look.dbg ? 1 : 0 }, uSeam: { value: seam }, uZl: { value: zl }, wrinkles: { value: look.wrinkles || 0 } };
+      stubbleC: { value: hex3(look.stubbleC || '#5a4a44') }, blush: { value: look.blush ?? .1 }, stubble: { value: look.stubble || 0 }, age: { value: look.age || 0 }, freckles: { value: look.freckles || 0 }, browW: { value: look.browW || 1 }, lipW: { value: look.lipW || 1 }, seed: { value: look.seed || 1 }, dbg: { value: look.dbg ? 1 : 0 }, uSeam: { value: seam }, uZl: { value: zl }, wrinkles: { value: look.wrinkles || 0 }, scalp: { value: look.scalp || 0 }, hairC: { value: hex3(look.scalpC || look.hair || '#555555') } };
     const m = [].concat(head.mesh.material)[head.idx]; m.map = F.bakeUV(head.mesh, head.idx, 2048, FACE_FRAG, u); m.color.set(0xffffff); m.needsUpdate = true;
   }
   root.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach((m, i) => { const n = m.name || '';
@@ -213,7 +217,7 @@ const CANON = (() => { const m = { cc: { Hip: 'Hips', Waist: 'Spine', Spine01: '
       m.cc[c + cf + k] = S + 'Hand' + f + k; m.ue[uf + '_0' + k + '_' + u] = S + 'Hand' + f + k; m.dl[S + 'Hand' + f + k] = S + 'Hand' + f + k; } }
   return m; })();
 F.canon = name => { const n = String(name).replace(/^mixamorig[:_]?/i, '').replace(/_\d+$/, '');
-  for (const fam of ['cc', 'ue', 'dl', 'arp']) if (CANON[fam][n] !== undefined) return CANON[fam][n] || null;
+  for (const fam of F.fams || ['cc', 'ue', 'dl', 'arp']) if (CANON[fam][n] !== undefined) return CANON[fam][n] || null;
   return /^(Hips|Spine[12]?|Neck|Head|(Left|Right)(Shoulder|Arm|ForeArm|Hand|UpLeg|Leg|Foot|ToeBase|Hand(Thumb|Index|Middle|Ring|Pinky)[123]))$/.test(n) ? n : null; };
 // oberster Knochen je gemeinsamem Namen (CC-FBX enthält gleichnamige Hilfsknoten)
 F.boneMap = root => { const map = new Map(); root.traverse(o => { if (!o.isBone) return; const c = F.canon(o.name); if (c && !map.has(c)) map.set(c, o); }); return map; };
@@ -295,7 +299,8 @@ F.hsl = (root, re, { h = 0, s = 1, l = 1, mix = null, mixAmt = 0, avgL = null } 
 // Fertige Figur als GLB (Mesh + Skelett + Bewegungen), Texturen höchstens 2048
 F.export = async (root, clips, path) => { const ex = new GLTFExporter(); root.updateMatrixWorld(true);
   // aufräumen: Mimik-Blendshapes weg (werden nicht genutzt, machten 150 MB je Kind), Eckpunkte zusammenführen, Texturen ohne Bild entfernen
-  root.traverse(o => { if (!o.isMesh || !o.visible) return; let g = o.geometry.clone(); g.morphAttributes = {}; g.morphTargetsRelative = false; o.morphTargetInfluences = undefined; o.morphTargetDictionary = undefined;
+  root.traverse(o => { if (!o.isMesh || !o.visible) return; let g = o.geometry.clone(); const km = o.userData.keepMorph && g.morphAttributes.position; // behaltene Gesichts-Blendshapes (headSwap morphs)
+    if (km) { g.morphAttributes = { position: g.morphAttributes.position }; } else { g.morphAttributes = {}; g.morphTargetsRelative = false; o.morphTargetInfluences = undefined; o.morphTargetDictionary = undefined; }
     for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'uv', 'skinIndex', 'skinWeight', 'color'].includes(k)) g.deleteAttribute(k);
     try { const m2 = mergeVertices(g, 1e-4); if (m2) g = m2; } catch (e) {} g.userData = {}; o.geometry = g;
     [].concat(o.material).forEach(m => { for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'specularMap']) { const t = m[k]; if (t && !(t.image && (t.image.width || t.image.data))) m[k] = null; } }); });
@@ -327,7 +332,7 @@ F.buildCast = async (ids, { shots = 'C:/Users/GIGABYTE/_forge/cast/', glbDir = n
       if (c.head) { const H = c.head, hg = await F.load(C.src[H.src]); const hr = F.ownMaterials(F.pbr(SkeletonUtils.clone(hg.scene)));
         if (H.hairFrom) { const h2 = await F.load(C.src[H.hairFrom[0]]); F.swapHair(hr, F.ownMaterials(F.pbr(SkeletonUtils.clone(h2.scene))), H.hairFrom[1] || {}); }
         F.hideBy(hr, H.hide); F.paint(hr, H.look); if (H.eye) F.eyeTint(hr, H.eye, H.eyeAmt ?? .85);
-        const opt = Object.assign({ boxMode: 'bones' }, H.swap || {}); if (opt.keep) opt.keep = new RegExp(opt.keep, 'i'); if (opt.boxRe) opt.boxRe = new RegExp(opt.boxRe, 'i');
+        const opt = Object.assign({ boxMode: 'bones' }, H.swap || {}); if (opt.keep) opt.keep = new RegExp(opt.keep, 'i'); if (opt.morphs) opt.morphs = new RegExp(opt.morphs, 'i'); if (opt.boxRe) opt.boxRe = new RegExp(opt.boxRe, 'i');
         F.headSwap(o, hr, opt); F.hideBy(o, c.hideAfter);
         if (H.bodySkin !== false) F.hsl(o, H.bodySkinRe || '^body$', { mix: H.look.skin, mixAmt: H.bodyMix ?? .6 }); }
       if (c.eye) F.eyeTint(o, c.eye, c.eyeAmt ?? .85);
@@ -362,7 +367,7 @@ const eyeFrame = (root, reEye) => { // Augenmitte + Abstand; CC: zwei Materialie
   if (!pts.length) return null; const c = pts.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(pts.length);
   const L = pts.filter(p => p.x > c.x), R2 = pts.filter(p => p.x <= c.x), avg = a => a.reduce((s, p) => s.add(p), new THREE.Vector3()).divideScalar(a.length);
   return { mid: c, dist: avg(L).distanceTo(avg(R2)) }; };
-F.headSwap = (body, head, { boxMode = false, boxRe = /^head$/i, scale = 1, dy = 0, dz = 0, eyeRe = /^eyes?$/i, strip = /head|hair|eye|teeth|tongue|glass|eyewear|lash|brow|moustache|beard|^body$|skin/i, keep = null, neckCut = 1.9, neckLen = .9 } = {}) => {
+F.headSwap = (body, head, { boxMode = false, boxRe = /^head$/i, scale = 1, dy = 0, dz = 0, eyeRe = /^eyes?$/i, strip = /head|hair|eye|teeth|tongue|glass|eyewear|lash|brow|moustache|beard|^body$|skin/i, keep = null, neckCut = 1.9, neckLen = .9, morphs = null } = {}) => {
   body.updateMatrixWorld(true); head.updateMatrixWorld(true);
   const bm = F.boneMap(body), sk = F.skinned(body).find(m => m.skeleton.bones.includes(bm.get('Head'))) || F.skinned(body)[0];
   let T = eyeFrame(body, eyeRe), S = eyeFrame(head, /std_eye/i);
@@ -405,8 +410,15 @@ F.headSwap = (body, head, { boxMode = false, boxRe = /^head$/i, scale = 1, dy = 
       const w = THREE.MathUtils.smoothstep(v.y, yNeck, yChin); SI[i * 4] = Math.max(0, iHead); SW[i * 4] = w; SI[i * 4 + 1] = Math.max(0, iNeck); SW[i * 4 + 1] = 1 - w;
       v.applyMatrix4(inv); P.setXYZ(i, v.x, v.y, v.z); if (N) { v.fromBufferAttribute(N, i).applyMatrix3(onm).applyMatrix3(nmM).normalize(); N.setXYZ(i, v.x, v.y, v.z); } }
     g.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(SI, 4)); g.setAttribute('skinWeight', new THREE.Float32BufferAttribute(SW, 4)); g.deleteAttribute('skinIndex1'); g.userData = {};
+    // Gesichts-Blendshapes (F3 AP-06, Q-6): ausgewählte Formen (Blinzeln, Blickrichtung der Lider, Mund) behalten und wie die Eckpunkte umrechnen (als relative Verschiebung)
+    const keepM = morphs && o.morphTargetDictionary && o.geometry.morphAttributes.position ? Object.entries(o.morphTargetDictionary).filter(([n]) => morphs.test(n)) : [], newM = [];
+    if (keepM.length) { const Lw = new THREE.Matrix3().setFromMatrix4(new THREE.Matrix4().multiplyMatrices(inv, M).multiply(o.matrixWorld)), rel = o.geometry.morphTargetsRelative, B0 = o.geometry.attributes.position;
+      for (const [n, k] of keepM) { const src = o.geometry.morphAttributes.position[k], arr = new Float32Array(src.count * 3); let any = 0;
+        for (let i = 0; i < src.count; i++) { v.set(src.getX(i), src.getY(i), src.getZ(i)); if (!rel) v.x -= B0.getX(i), v.y -= B0.getY(i), v.z -= B0.getZ(i); v.applyMatrix3(Lw); arr[i * 3] = v.x; arr[i * 3 + 1] = v.y; arr[i * 3 + 2] = v.z; any += Math.abs(v.x) + Math.abs(v.y) + Math.abs(v.z); }
+        if (any > 0) { const A2 = new THREE.BufferAttribute(arr, 3); A2.name = n.replace(/^.*\./, ''); newM.push(A2); } } }
     for (const a of Object.keys(g.morphAttributes)) delete g.morphAttributes[a];
-    const mats = [].concat(o.material).map(x => x.clone()); const m = new THREE.SkinnedMesh(g, Array.isArray(o.material) ? mats : mats[0]); m.name = 'Kopf_' + o.name; m.frustumCulled = false;
+    if (newM.length) { g.morphAttributes.position = newM; g.morphTargetsRelative = true; }
+    const mats = [].concat(o.material).map(x => x.clone()); const m = new THREE.SkinnedMesh(g, Array.isArray(o.material) ? mats : mats[0]); m.name = 'Kopf_' + o.name; m.frustumCulled = false; if (newM.length) m.userData.keepMorph = true;
     m.position.copy(sk.position); m.quaternion.copy(sk.quaternion); m.scale.copy(sk.scale); sk.parent.add(m); m.updateMatrixWorld(true); m.bind(sk.skeleton, sk.bindMatrix); added.push(m); });
   // alten Kopf ausblenden: Dreiecke, die ganz am Kopfknochen (oder dessen Kindern) hängen – unabhängig von Lage und Material; Hut o. Ä. per keep behalten
   const headBones = new Set(); bm.get('Head').traverse(b => { if (b.isBone) headBones.add(b); }); let removed = 0;
@@ -443,6 +455,81 @@ F.thumbs = async (list, outDir) => { const files = [];
     files.push({ path: outDir + '/' + name + '.png', b64: await F.shot(o, opt || {}) });
     files.push({ path: outDir + '/' + name + '_kopf.png', b64: await F.shot(o, { ...(opt || {}), head: true, yaw: .3 }) });
   } catch (e) { files.push({ path: outDir + '/' + name + '_FEHLER.txt', b64: btoa(unescape(encodeURIComponent(String(e && e.stack || e)))) }); } }
+  return 'FILES:' + JSON.stringify(files); };
+// ---------- Blechmann (F3 AP-06): Strahlenschutzanzug mit Gasmaske (HAM_FabDownloads/v9/ozk, CC-BY sanyaork) → Bergung der LWO
+// Skelett säubern (FBX legt je Mesh eine eigene, ineinander geschachtelte Knochenkette an; Hand/Fuß hängen an IK-Hilfsknochen) → eine Kette, Hand/Fuß an Unterarm/Unterschenkel.
+// Anzug: schmutziges Weiß, Kapuze und Handschuhe aus Eisengeflecht (gebacken: Farbe + Rauheit/Metall), Brustlampe (Leuchtbild, Intensität im Spiel), Rücken „B 2/7“.
+CANON.oz = { Bone: '', spine1: 'Hips', spine2: 'Spine', spine3: 'Spine1', neck: 'Neck', head: 'Head' };
+for (const [S, c] of [['Left', 'L'], ['Right', 'R']]) Object.assign(CANON.oz, { ['arm1' + c]: S + 'Shoulder', ['arm2' + c]: S + 'Arm', ['arm3' + c]: S + 'ForeArm', ['wrist' + c]: S + 'Hand', ['leg1' + c]: S + 'UpLeg', ['leg2' + c]: S + 'Leg', ['leg3' + c]: S + 'Foot', ['leg4' + c]: S + 'ToeBase' });
+F.cleanSkeleton = (root, reparent = {}) => { root.updateMatrixWorld(true); const meshes = F.skinned(root), ref = meshes[0].skeleton, byName = new Map(), inv = new Map(), info = { bones: ref.bones.length, invDiff: 0 };
+  ref.bones.forEach((b, i) => { if (!byName.has(b.name)) { const n = new THREE.Bone(); n.name = b.name; n.userData.W = b.matrixWorld.clone(); byName.set(b.name, n); inv.set(b.name, ref.boneInverses[i].clone()); } });
+  const pName = b => { if (reparent[b.name]) return reparent[b.name]; let p = b.parent; while (p && p.isBone && p.name === b.name) p = p.parent; return p && p.isBone ? p.name : null; };
+  const top = new THREE.Group(); top.name = 'Skelett'; root.add(top); top.updateMatrixWorld(true); const seen = new Set();
+  for (const b of ref.bones) { if (seen.has(b.name)) continue; seen.add(b.name); const pn = pName(b); (pn && byName.has(pn) && pn !== b.name ? byName.get(pn) : top).add(byName.get(b.name)); }
+  const setLocal = n => { const pW = n.parent === top ? top.matrixWorld : n.parent.userData.W; new THREE.Matrix4().copy(pW).invert().multiply(n.userData.W).decompose(n.position, n.quaternion, n.scale); n.children.forEach(c => { if (c.isBone) setLocal(c); }); };
+  top.children.forEach(setLocal); top.updateMatrixWorld(true);
+  const names = [...byName.keys()], skel = new THREE.Skeleton(names.map(n => byName.get(n)), names.map(n => inv.get(n))), idx = new Map(names.map((n, i) => [n, i]));
+  for (const m of meshes) { const SI = m.geometry.attributes.skinIndex, old = m.skeleton;
+    old.bones.forEach((b, j) => { const e = old.boneInverses[j].elements, r = inv.get(b.name).elements; for (let k = 0; k < 16; k++) info.invDiff = Math.max(info.invDiff, Math.abs(e[k] - r[k])); });
+    for (let i = 0; i < SI.count; i++) for (let c = 0; c < 4; c++) SI.setComponent(i, c, idx.get(old.bones[SI.getComponent(i, c)].name) ?? 0);
+    SI.needsUpdate = true; m.bind(skel, m.bindMatrix); }
+  for (const c of [...root.children]) if (c !== top && !c.isMesh) root.remove(c);
+  return info; };
+F.buildBlech = async ({ id = 'blechmann', height = 1.86, shots = 'C:/Users/GIGABYTE/_ap06/blech/', glbDir = null } = {}) => {
+  const C = await (await fetch('cast.json', { cache: 'no-store' })).json(), files = [], dir = '../../../HAM_FabDownloads/v9/ozk/src/';
+  const g = await F.load(dir + 'ozk_low.fbx'), o = F.pbr(g.scene); o.name = id;
+  F.hideBy(o, ['^balon_low$', '^shleiki_low$']);
+  const info = F.cleanSkeleton(o, { wristL: 'arm3L', wristR: 'arm3R', leg3L: 'leg2L', leg3R: 'leg2R' });
+  // Blickrichtung: Hüftachse auf x (Figur schaut nach +z)
+  const bw = n => { let b = null; o.traverse(x => { if (!b && x.isBone && x.name === n) b = x; }); return b; }, P = n => new THREE.Vector3().setFromMatrixPosition(bw(n).matrixWorld);
+  { const a = P('leg1L').sub(P('leg1R')); o.rotation.y = Math.atan2(a.z, a.x); o.updateMatrixWorld(true); }
+  // Texturen (liegen neben dem FBX; das FBX verweist auf fremde Pfade)
+  const TL = new THREE.TextureLoader(), tx = (f, srgb) => new Promise(r => TL.load(dir + 'textures/' + f, t => { if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; r(t); }, undefined, () => r(null)));
+  const mats = new Map(); o.traverse(m => { if (m.isMesh) [].concat(m.material).forEach(x => mats.set(x.name, x)); });
+  for (const [n, m] of mats) { const [b, nm, r, me] = await Promise.all([tx('_' + n + '_BaseColor.jpg', true), tx('_' + n + '_Normal.jpg'), tx('_' + n + '_Roughness.jpg'), tx('_' + n + '_Metallic.jpg')]);
+    if (b) m.map = b; if (nm) m.normalMap = nm; if (r) { m.roughnessMap = r; m.roughness = 1; } if (me) { m.metalnessMap = me; m.metalness = 1; } m.color.set(0xffffff); m.needsUpdate = true; }
+  F.hsl(o, '^mag_holder$|^details$', { s: .25, l: .8 }); F.hsl(o, '^komptuter$', { s: .3, l: .75 }); F.hsl(o, '^gasmask$', { s: .4, l: .62 }); F.hsl(o, '^filtr$', { s: .15, l: .75 });
+  // Anzug backen
+  o.updateMatrixWorld(true); const suit = F.skinned(o).find(m => [].concat(m.material).some(x => x.name === 'kostum')), sm = [].concat(suit.material).find(x => x.name === 'kostum');
+  const head = P('head'), neck = P('neck'), sp = P('spine3'), wl = P('wristL'), wr = P('wristR'), fwd = new THREE.Vector3(0, 0, 1), right = new THREE.Vector3(1, 0, 0);
+  const txt = document.createElement('canvas'); txt.width = 256; txt.height = 128; { const x = txt.getContext('2d'); x.fillStyle = '#000'; x.fillRect(0, 0, 256, 128); x.fillStyle = '#fff'; x.font = 'bold 92px "Arial Narrow", Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('B 2/7', 128, 66);
+    const d = x.getImageData(0, 0, 256, 128); for (let i = 0; i < d.data.length; i += 4) { const px = (i / 4) % 256; if (Math.floor(px / 3) % 9 === 0 || Math.random() < .12) d.data[i] = d.data[i + 1] = d.data[i + 2] = d.data[i] * .3; } x.putImageData(d, 0, 0); } // Schablonen-Stege, abgeplatzte Farbe
+  const tt = new THREE.CanvasTexture(txt); tt.flipY = false;
+  const lampC = sp.clone().add(new THREE.Vector3(-10, 9, 0));
+  const U = mode => ({ uMap: { value: sm.map }, uTxt: { value: tt }, uHead: { value: head }, uNeckY: { value: neck.y }, uWL: { value: wl }, uWR: { value: wr }, uFwd: { value: fwd }, uRight: { value: right }, uSp: { value: sp }, uLamp: { value: lampC }, uMode: { value: mode } });
+  const FR = `uniform sampler2D uMap, uTxt; uniform vec3 uHead, uWL, uWR, uFwd, uRight, uSp, uLamp; uniform float uNeckY, uMode;
+void main(){ vec3 base = texture2D(uMap, vUv).rgb; float lum = dot(base, vec3(.3, .59, .11)); vec3 q = vP * .02;
+  vec3 c = vec3(.84, .835, .8) * (.62 + .5 * lum);
+  float low = smoothstep(70., 4., vP.y); c *= 1. - .22 * smoothstep(.45, .8, fbm(q * 3. + 7.)) - .42 * low * smoothstep(.25, .7, fbm(q * 5. + 1.));
+  c = mix(c, c * vec3(.8, .74, .6), .5 * smoothstep(.55, .85, fbm(q * 1.4 + 3.)));
+  float knee = smoothstep(12., 4., abs(vP.y - 50.)) * smoothstep(.4, .7, fbm(q * 9.)); c *= 1. - .25 * knee;
+  float metal = 0., rough = .88, em = 0.;
+  vec3 hp = vP - uHead; float hood = max(smoothstep(27., 22., length(hp * vec3(1., .8, 1.))), smoothstep(uNeckY - 12., uNeckY - 4., vP.y) * smoothstep(36., 28., length(hp.xz)));
+  float glove = max(smoothstep(14., 10., length(vP - uWL)), smoothstep(14., 10., length(vP - uWR)));
+  float mail = max(hood, glove);
+  if (mail > 0.) { vec2 gg = hood >= glove ? vec2(atan(hp.x, hp.z) * 17., vP.y) / .78 : vec2((vP.x + vP.z) * .9, vP.y) / .7;
+    gg.x += .5 * mod(floor(gg.y), 2.); vec2 f = fract(gg) - .5; float d = length(f * vec2(1., 1.2)); float ring = smoothstep(.17, .27, d) * smoothstep(.52, .4, d);
+    vec3 iron = vec3(.29, .285, .275) * (.7 + .5 * fbm(vP * .35)); iron = mix(iron, vec3(.34, .19, .1), .4 * smoothstep(.5, .8, fbm(vP * .12 + 2.)));
+    c = mix(c, mix(vec3(.035, .03, .028), iron, ring), mail); metal = mix(metal, ring * .85, mail); rough = mix(rough, mix(.95, .36, ring), mail); }
+  vec3 bp = vP - uSp; float bu = dot(bp, -uRight) / 30. + .5, bv = (vP.y - uSp.y - 4.) / 14. + .5;
+  if (dot(bp, uFwd) < -4. && bu > 0. && bu < 1. && bv > 0. && bv < 1.) { float a = texture2D(uTxt, vec2(bu, 1. - bv)).r; c = mix(c, vec3(.07, .065, .06), a * .9); }
+  vec3 lp = vP - uLamp; float lx = abs(dot(lp, uRight)), ly = abs(lp.y);
+  if (dot(vP - uSp, uFwd) > 2. && lx < 6.5 && ly < 5.) { float glass = step(lx, 4.6) * step(ly, 3.3); c = mix(vec3(.12, .12, .13) * (.8 + .4 * fbm(vP)), vec3(.78, .82, .86), glass); metal = mix(.6, 0., glass); rough = mix(.45, .12, glass); em = glass * (.85 + .15 * step(.5, fract(lp.y * .9))); }
+  gl_FragColor = vec4(uMode < .5 ? c : uMode < 1.5 ? vec3(1., rough, metal) : vec3(em), 1.); }`;
+  const idx = [].concat(suit.material).indexOf(sm);
+  const col = F.bakeUV(suit, idx, 2048, FR, U(0)), orm = F.bakeUV(suit, idx, 1024, FR, U(1)), emi = F.bakeUV(suit, idx, 1024, FR, U(2)); orm.colorSpace = THREE.NoColorSpace;
+  sm.map = col; sm.roughnessMap = orm; sm.metalnessMap = orm; sm.roughness = 1; sm.metalness = 1; sm.emissiveMap = emi; sm.emissive = new THREE.Color(0xe8f0ff); sm.emissiveIntensity = 1; sm.needsUpdate = true;
+  // Bewegungen
+  F.saveRest(o); const clips = []; F.fams = ['oz'];
+  try { for (const [k, [s, sel]] of Object.entries({ idle: ['cop', 'Breathing Idle'], walk: ['spy', 'Walking'], look: ['spy', 'Look Around'] })) { const S = await F.load(C.src[s]); const clip = S.animations.find(a => a.name === sel); if (clip) clips.push(F.retarget({ scene: S.scene, clip }, o, { name: k })); } }
+  finally { F.fams = null; }
+  o.updateMatrixWorld(true); const bb = new THREE.Box3(); o.traverse(m => { if (m.isMesh && m.visible) bb.expandByObject(m); }); const sc = height / (bb.max.y - bb.min.y);
+  const W = new THREE.Group(); W.name = id; W.add(o); W.scale.setScalar(sc); W.position.y = -bb.min.y * sc; W.updateMatrixWorld(true);
+  if (shots) { files.push({ path: shots + id + '.png', b64: await F.shot(W, { yaw: .45 }) }); files.push({ path: shots + id + '_hinten.png', b64: await F.shot(W, { yaw: 3.3 }) }); files.push({ path: shots + id + '_kopf.png', b64: await F.shot(W, { head: true, yaw: .3, w: 600, h: 600 }) });
+    const walk = clips.find(x => x.name === 'walk'); if (walk) { for (const [i, t] of [[1, .15], [2, .5]]) { const mx = F.poseAt(o, walk, walk.duration * t); files.push({ path: shots + id + '_gehen' + i + '.png', b64: await F.shot(W, { yaw: 1.3 }) }); mx.stopAllAction(); F.restPose(o); } } }
+  if (glbDir) { F.restPose(o); files.push(await F.export(W, clips, glbDir + id + '/model.glb')); }
+  let tris = 0; W.traverse(m => { if (m.isMesh && m.visible) tris += (m.geometry.index ? m.geometry.index.count : m.geometry.attributes.position.count) / 3; });
+  files.push({ path: (shots || glbDir) + id + '_info.json', b64: btoa(JSON.stringify({ id, height, clips: clips.map(x => x.name), tris: Math.round(tris), info })) });
   return 'FILES:' + JSON.stringify(files); };
 window.__ready = true;
 </script></body></html>
