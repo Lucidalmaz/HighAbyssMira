@@ -1,6 +1,8 @@
 ## Stimmen, Humor und Lieder
 
-Dieser Teil ist das Ohr der Bibel. Wer eine Figur schreibt, liest hier zuerst, wie sie klingt, und klaut dann ruhig aus den Beispielzeilen. Alles hier hält sich an den Kern: Luke sagt nach großen Enthüllungen einen Satz oder nichts, Lucy sagt „Großer“ und „heim“, Justin sagt „Knabe“, Luna nennt das Lichtschiff „meine Laterne“, und niemand sagt vor Kapitel 7, dass Luna den Riss gemacht hat.
+Dieser Teil ist das Ohr der Bibel. Wer eine Figur schreibt, liest hier zuerst, wie sie klingt, und klaut dann ruhig aus den Beispielzeilen. Alles hier hält sich an den Kern und an die Entscheidungen in 02: Luke sagt nach großen Enthüllungen einen Satz oder nichts, Lucy sagt „Großer“ und „heim“, Justin sagt „Knabe“, Luna nennt das Lichtschiff „meine Laterne“, Whiskey spricht wach keine Sätze und sagt nie „Großer“, und niemand sagt vor Kapitel 7, dass Luna den Riss gemacht hat. Humor ist hier lokal und bodenständig (Dorf, Pfand, Katzen, Alufolie, Aliens, etwas Slapstick), nie über die Opfer, nie ein Witz in einer traurigen Szene.
+
+**Kennungen in diesem Dossier:** U-xx Lukes Untersuchungszeilen · KZ-xx Luke mit Katzen · V-xx Vegas-Monologe · E-xx Oma Ernas Zettel · J-xx Jonas in der Fibel · D-xx Lukes Du-Seite · A-xx Atempausen · S-xx Slapstick. Achtung, zwei Reihen tragen denselben Buchstaben wie Reihen anderer Dossiers: Die Vertrauens-Begegnungen der LWO heißen in `80_lwo.md` ebenfalls V-01 bis V-16, die Beobachter-Spuren in `82_beobachter.md` S-01 bis S-18. Kapitel 1 meint mit V-01 bis V-06 die Vegas-Monologe (mit Verweis „85, Abschnitt 3“), die Kapitel 2 bis 6 meinen mit V-xx die LWO-Reihe; die Slapstick-Szenen werden in den Kapiteln immer als „Slapstick S-xx“ oder „85, S-xx“ zitiert, die Spuren als „Spur S-xx“. Wer neu zitiert, schreibt „Vegas V-xx“ bzw. „Slapstick S-xx“.
 
 ### 1 · Stimmführer
 
@@ -36,7 +38,7 @@ Lucy ist die, die vorgeht. Frech, herrisch, warm; sie gibt Anweisungen wie eine 
 Vegas redet durch den Türspalt, mit Kette vor, und jeder Satz klingt, als hätte er ihn zwanzig Jahre vorbereitet und keiner wollte ihn hören. Grummelig, nuschelnd, „Junge“ am Satzende, halbe Flüche („Himmelherrgott“, „verdammt noch mal“), Zahlen als Beweise. Er ist der Verschwörungsspinner, der immer recht hat, und das Traurige darunter (Mike, die Unterschrift, die Nacht 1975) kommt nur durch, wenn er kurz stockt und dann lauter wird. Er duzt jeden unter siebzig. Er nennt das Amt „die Herren“, die LWO „die mit dem Auge“, Wolter „den Grauen mit dem Tee“, Whiskey „meinen Vogel“ (was Whiskey anders sieht). Er hat Alufolie an der Innenseite der Tür und schämt sich dafür kein bisschen.
 - „Nicht so laut, Junge. Die hören mit. Die Laternen. Frag nicht, mach die Lampe aus.“
 - „Ich hab dreißig Jahre Ordner geführt. Dreißig Jahre. Weißt du, was die Leute gesagt haben? ‚Der Vegas.‘ Nur das. ‚Der Vegas.‘“
-- „Der Vogel ist älter als ich. Der saß schon fünfundsiebzig auf der Laterne. Ich hab ihn Whiskey getauft, weil er mir einen geklaut hat. Die Flasche, nicht das Glas.“
+- „Der Vogel ist älter als ich. Der saß schon ’75 auf der Laterne. Whiskey heißt er nach Papas Flasche, da war ich neun. Der hat’s sich ausgesucht, nicht ich.“
 - „Der Graue mit dem Tee. Kommt alle siebzehn Jahre vorbei, wie die Gasrechnung. Nur dass die Gasrechnung älter wird.“
 - „Bruno! Aus! … Das war nicht Bruno. Bruno ist im Wohnzimmer. Geh jetzt bitte, Junge.“
 - „Mein Enkel steht auf der Liste. Ich hab unterschrieben. Da drüben. Mit ’nem Kugelschreiber vom Amt, der hatte das Auge drauf. Ich hab’s nicht gesehen. Ich wollt’s nicht sehen.“
@@ -83,7 +85,7 @@ Marion schreibt, wie eine Frau schreibt, die zwei Kinder allein großzieht, nach
 - „Ich hab zweimal angesetzt. Beim ersten Mal hat der Kugelschreiber nicht geschrieben. Ich hätte das als Zeichen nehmen sollen.“
 - „Onkel Peter hat wieder gelacht, mit allen Zähnen. Ich hab ihn trotzdem lieb. Man kann das. Man kann jemanden trotzdem lieb haben. Merk dir das, Großer.“
 - „Wenn ich mal nicht da bin, ist Oma da. Wenn Oma nicht da ist, ist Lucy da. Und wenn Lucy nicht da ist, hast du Mist gebaut.“
-- „Schlaf, Kind, im Laternenschein … weiter weiß ich nicht. Ich hab’s als Kind gelernt. Ich weiß nicht mehr, von wem.“
+- „Schlaf, Kind, im Laternenschein … die erste Strophe kann ich noch. Den Rest hab ich als Kind gekonnt. Ich weiß nicht mehr, von wem.“
 
 #### Der echte Luke (für immer neun, blaue Augen, gestreifter Schlafanzug)
 Er spricht wie ein Neunjähriger, der lange nicht gesprochen hat: kurz, ernst, mit den Wörtern von 2009 („voll“, „krass“, „ey“) und ohne jede Spieluhr darunter. Er warnt, ohne zu erklären, weil er es selbst nicht ganz versteht. Er hat keine Wut auf den anderen Luke; er hat Angst um Lucy. Er nennt den Spieler „du“ oder „der andere“, nie beim Namen, und er sagt „nach Hause“, weil er es von Mama hat, aber Lucys „heim“ kennt er nicht (das kam erst nach ihm). Er lacht ein einziges Mal, in Kapitel 5, und danach fragt er, ob es schön war.
@@ -131,9 +133,15 @@ Sie spricht aus dem gekippten Küchenfenster, halb Deutsch, halb türkische Eins
 - „Du hast als Kind bei uns die Fensterbank vollgeschmiert. Mit Kreide. Kreise. Dina hat es dir beigebracht. Oder du ihr. Ich weiß nicht mehr.“
 - „Geh jetzt. Und die Alufolie bringst du zurück, die ist von meiner Mutter.“
 
+#### Heidi Winter (Nr. 2; nur Postkarten, jedes Jahr eine)
+Heidi schreibt, seit die LWO ihre Familie 2010 umgesiedelt hat, jedes Jahr eine Karte an Lucy, und jede kommt aus einem Ort, der näher liegt (Regel 9: Wer einmal drin war, den findet sie wieder). Kinderschrift, die mit den Jahren nicht erwachsen wird, kurze Sätze, immer dieselbe Frage am Rand: „Sind sie wieder da?“ Der Wortlaut der vier abgefangenen Karten (Kiel, Hannover, Kassel, Kreisstadt) steht in `86_neue_figuren.md` (Fach AHORN 1). Hier nur die zwei, die nicht im Schuppen liegen:
+- (Kap. 3, Nebenaufgabe „Ja.“, Nr. 2, Briefkasten, heute Nacht eingeworfen; Motiv: die Ahornstraße von oben) Ein einziges Wort: „Ja.“ (Wortlaut 30_kap3_haupt.md, Nebenaufgabe 15.)
+- (Kap. 5, „Ein Dorf näher“, bei Vegas auf dem Fensterbrett) „Lucy. Ich bin jetzt ein Dorf näher. Jedes Jahr eins, mehr trau ich mich nicht. Das Amt hat uns damals umgesetzt wie Schachfiguren. Ruf an. Und sag Luke, er soll nicht alleine gehen. — Heidi“ (Wortlaut 50_kap5.md.)
+- In Kapitel 5 liegen ihre Karten in der ersten Runde der Flurschleife geöffnet auf dem gedeckten Tisch; unter der Frage „Sind sie wieder da?“ hat eine Kinderhand mit Wachsmalstift „ja“ geschrieben (02 F8). Kein Witz an dieser Stelle.
+
 #### Gisela Rieke (78, Am Kirchberg 3, siebzehn Katzen)
 Gisela redet durchs Küchenfenster, schnell, schlagfertig, mit einer Zigarette, die sie sich nie anzündet, und sie hat jede Katze nach einem verschwundenen Kind benannt, sodass jedes Gespräch mit ihr wie ein Appell klingt. Ihr kleiner Bruder Hänschen wurde 1958 behalten („Er war doch nur kurz Laterne laufen“). Sie ist nicht verrückt, sie ist allein, und sie hat beschlossen, das mit Humor zu ertragen und mit Katzen, die in leere Ecken starren. Sie erkennt Wolter auf der Straße und findet, dass ein Mann, der sich seit 1958 nicht verändert hat, kein Kompliment verdient, sondern einen Arzt. Sie duzt Luke, weil sie ihn als Kind erlebt hat. Sie nennt den Beobachter „den Kleinen hinterm Zaun“ und meint das ganz sachlich.
-- „Du bist der Brandt-Junge. Der mit den Augen. Komm nicht näher, Zayn ist grad in der Mauser.“ (Zayn ist eine Katze.)
+- „Du bist der Brandt-Junge. Der mit den Augen. Komm nicht näher, Zayn faucht heute.“ (Zayn ist eine Katze.)
 - „Siebzehn Katzen, siebzehn Näpfe, siebzehn Namen. Wenn ich abends alle rufe, klingt das wie die Vermisstenliste. Die Nachbarn finden das geschmacklos. Die Nachbarn haben keine Katzen.“
 - „Der Graue mit dem Hut? Der stand schon achtundfünfzig da vorn, als sie meinen Bruder geholt haben. Der hat sich nicht verändert. Das ist nicht gesund. Das ist nicht mal legal.“
 - „Wenn Roxy in die Ecke starrt, steht da einer. Wenn alle siebzehn in die Ecke starren, geh ich ins Bett.“
@@ -146,23 +154,23 @@ Gisela redet durchs Küchenfenster, schnell, schlagfertig, mit einer Zigarette, 
 
 #### Günther Maas (61, Postbote, Schuppen hinter der Tankstelle)
 Günther redet zu viel und zu schnell, mit Postrad zwischen sich und dem Gesprächspartner, und schaut dabei ständig die Straße hoch. Er ist seit Jahrzehnten Zuträger des Amts, schämt sich, und hat nie etwas weggeworfen: ein Schuppen voll abgefangener Post. Bestechlich mit Zigaretten, nervös, redselig, mit dem Humor eines Mannes, der Witze macht, damit man ihm keine Fragen stellt. Wenn er zusammenbricht (Kapitel 4/5), wird er kurz und ehrlich und nennt jeden Brief beim Namen. Er sagt „die Herren“ für die LWO und „mein Zettelchen“ für seine Meldungen, als wären sie harmlos.
-- „Morgen! Äh, Nacht! Post kommt um vier, so ist das hier, der Laternenbote, der wartet nicht auf die Sonne. Haha. Sie sind neu? Nein? Doch? Egal.“
+- „Morgen! Äh, Nacht! Post kommt sonst um vier, der Laternenbote wartet nicht auf die Sonne. Ich fang jetzt früher an. Seit Oktober. Fragen Sie nicht. Sie sind neu? Nein? Doch? Egal.“
 - „Der Schuppen? Da ist nur Zeug drin. Fahrradteile. Post, die nicht … also, unzustellbar. Das gibt’s. Empfänger unbekannt. Passiert dauernd. Hier vor allem.“
 - „Zigarette? Danke. Ich rauch nicht. Ich sammel die. Für schlechte Zeiten. Die sind jetzt.“
 - „Ich hab nie einen geöffnet. Nie. Ich hab sie nur … nicht weitergebracht. Das ist ein Unterschied. Sagen Sie, dass das ein Unterschied ist.“
 - „Die Karten von der Heidi. Jedes Jahr eine. Jedes Jahr ein Stück näher. Letzte war aus dem Nachbarort. Ich hab sie nicht eingeworfen. Ich hab Angst vor der nächsten.“
-- „Der Brief von der Doktorin. Zweitausendzwölf. An die Zeitung in Hamburg. Ich hab ihn den Herren gezeigt und dann nicht mehr hergegeben. Ich weiß auch nicht, warum. Vielleicht wollt ich einmal was behalten, das die nicht kriegen.“
+- „Der Brief von der Doktorin. Von damals, als sie das Amt zugemacht haben. An die Zeitung in Hamburg. Ich hab ihn den Herren gezeigt und dann nicht mehr hergegeben. Ich weiß auch nicht, warum. Vielleicht wollt ich einmal was behalten, das die nicht kriegen.“
 - „Kinderbriefe ans Christkind. Da fragen die, ob das Christkind den Zayn gesehen hat. Was soll ich damit? Wohin soll ich die tragen?“
 - „Ich hab ein Zettelchen geschrieben, dass Sie da sind. Gestern. Es tut mir leid. Es tut mir wirklich … Wollen Sie noch eine Zigarette? Ich hab genug für alle.“
 - „Mein Postrad hat eine Klingel, die klingt wie ein Rabe. Oder der Rabe klingt wie meine Klingel. Ich weiß nicht mehr, wer angefangen hat.“
 
 #### Pfarrer Bernhard Voss (bis 1992; nur Predigtnotizen und ein Nachbild)
-Voss schreibt Predigtnotizen wie ein Mann, der in einem Dorf predigt, das ihn seit dreißig Jahren anlügt: mit Bibelstellen als Deckmantel, mit Randbemerkungen in Bleistift, die die eigentliche Predigt sind, mit dem trockenen Zorn eines Theologen, der zu viel Kirchenbuch gelesen hat. Er hat die Wahrheit über 1312 in den alten Kirchenbüchern gefunden und in dreizehn Predigten versteckt, jede mit einem Ort. Seine Notizen sind höflich zu Gott und unhöflich zum Amt. Er wollte 1992 die Kinder aus dem Dorf schaffen und „ging in den Nebel“. Sein einziges Nachbild: ein Mann im Talar, der am Kapellentor Fahrräder für Kinder festhält und in den Nebel ruft, dass sie nicht auf ihn warten sollen.
+Voss schreibt Predigtnotizen wie ein Mann, der in einem Dorf predigt, das ihn seit dreißig Jahren anlügt: mit Bibelstellen als Deckmantel, mit Randbemerkungen in Bleistift, die die eigentliche Predigt sind, mit dem trockenen Zorn eines Theologen, der zu viel Kirchenbuch gelesen hat. Er hat die Wahrheit über 1312 im Seelbuch gefunden, dem Jahrzeitbuch der alten Holzkapelle (02 F4), und den Weg dorthin in zwölf Predigten versteckt; die dreizehnte hat er nie gehalten. Seine Notizen sind höflich zu Gott und unhöflich zum Amt. In der offenen Nacht 1992 hat er die Kinder im Kapellenkeller versteckt, wo sie keiner sieht, und ist selbst hineingegangen (02 C11); der Laternenbote schrieb „vermisst“ (Z-11). In Nimmerheim sitzt er in Raum 2, im Talar, ohne Mund (30_kap3_haupt.md). Sein einziges Nachbild (optional, Kapelle, Kap. 3, ≤ 4 Zeilen): ein Mann im Talar zieht die Kellertür hinter Kinderstimmen zu, dreht sich zum Nebel und sagt: „So. Jetzt ich.“
 - (Predigtnotiz) „Zu Matthäus 18, ‚Wer ein solches Kind aufnimmt‘. Randnotiz: Wer ein solches Kind unterschreibt, nimmt es nicht auf. Er gibt es ab. Das sag ich Sonntag. Das sag ich Sonntag WIRKLICH.“
 - (Predigtnotiz) „Martinsfest. Die Herren wünschen ‚keine Laternen in diesem Jahr, aus Sicherheitsgründen‘. Ich habe gefragt, welche Sicherheit. Der Herr Wolter hat gesagt: ‚Das ist bedauerlich.‘ Ich habe gefragt, was. Er hat gelächelt.“
-- (Predigtnotiz) „Kirchenbuch 1312, hinterer Deckel, unter dem Leder: die Frau mit der Laterne hat sechs herausgeführt. SECHS. Der Ritter hat gehalten. Das Buch sagt nicht, wer losgelassen hat. Das Buch sagt: ‚und da war ein Riß in der Luft‘.“
-- (Predigtnotiz) „Dreizehnte Predigt. Nicht gehalten. Wer sie liest, gehe die zwölf Orte ab und finde die Bücher. Ich habe sie nicht verbrannt. Das wäre der Wunsch der Herren gewesen, und ich erfülle den Herren keine Wünsche mehr.“
-- (Nachbild, Kapellentor) „Fahrt! Wartet nicht auf mich! Ich komm nach! Fahrt, sag ich!“ (Der Nebel nimmt zuerst die Stimme, dann den Talar.)
+- (Predigtnotiz) „Seelbuch, hinterer Deckel, unter dem Leder: die Frau mit der Laterne hat sechs herausgeführt. SECHS. Der Ritter hat gehalten. Das Buch sagt nicht, wer losgelassen hat. Das Buch sagt: ‚und da war ein Riß in der Luft‘.“
+- (Predigtnotiz, dreizehntes Blatt, fast leer) „Nicht gehalten. Wer das liest, lese die zwölf davor noch einmal, Wort für Wort. Ich habe das Buch nicht verbrannt. Das wäre der Wunsch der Herren gewesen, und ich erfülle den Herren keine Wünsche mehr.“ *(Die Lösung des Predigt-Rätsels steht in 31_kap3_neben.md, nie auf diesem Blatt.)*
+- (Nachbild, Kapellenkeller, optional) „Unter der Erde sieht sie keinen. Bleibt unten, bis einer die Tür aufmacht. Nicht ich. Jemand anders.“ (Die Kellertür geht zu; der Nebel nimmt zuerst die Stimme, dann den Talar.)
 
 #### Justin vom Hohen Abgrund (kurz; Stimme und Bogen im Kern §9)
 Ruhig, knapp, wenige alte Wörter, „Knabe“ und „Kind“, nie „Luke“ bis zur letzten Zeile von Kapitel 3 oder nur auf Papier (SB-12). Trockener Humor über die Neuzeit, weil er jede Epoche nur eine Nacht lang gesehen hat. Er erzählt 1312 falsch („Sie hat losgelassen“), bis Luke es in Raum 3 herausfindet. Beispiele für seine Neuzeit-Sätze stehen bei den Slapstick-Momenten (Abschnitt 11). Drei Tonproben:
@@ -177,8 +185,8 @@ Der Lange (11) redet, der Kurze (12) schreibt langsam mit und liest vor, was er 
 - 11: „Das Zählbuch, Herr Brandt. Dann sagen wir Ihnen, wo Ihre Schwester behandelt wird.“ 12 (blättert): „Dienstag. Kassler, vier achtzig. … Das ist nicht das Zählbuch, Kollege.“ 11: „Nein. Das ist nicht das Zählbuch.“
 
 #### Heinrich Wolter (kurz; Kern §6.5)
-Höflich, im Passiv, mit Uhrzeit und Datum, tröstend lügend, leise drohend, „Das ist bedauerlich.“ Nie laut. Nennt Luke „Herr Brandt“ und meint es nicht. Beispiele in Kapitel 3 (AG-09) und 4 (AG-14); zwei Tonproben:
-- „Es ist kurz nach halb vier, Herr Brandt. Um diese Zeit wird in diesem Ort nicht spazieren gegangen. Tee? Er ist noch heiß. Das ist selten geworden, heiße Dinge.“
+Höflich, im Passiv, tröstend lügend, leise drohend, „Das ist bedauerlich.“ Nie laut. Er liebt Uhrzeiten und Daten, aber im gesprochenen Text bekommt er nur 03:13 und den fünften August 2009 (02 A5; „Es ist nach zwei, Herr Brandt“ statt Minuten). Nennt Luke „Herr Brandt“ und meint es nicht. Beispiele in Kapitel 3 (AG-09) und 4 (AG-14); zwei Tonproben:
+- „Herr Brandt. Setzen Sie sich einen Moment. Es ist jetzt drei Uhr dreizehn, und das bleibt es noch eine Weile. Tee?“ (AG-09, Wortlaut 30_kap3_haupt.md; die einzige Uhrzeit, die er nennt, 02 A5)
 - „Sie sind seit dem fünften August zweitausendneun in unserer Obhut. Das ist bedauerlich, aber so ist es. Wir haben Sie nicht aus den Augen gelassen. Das ist unser Beruf.“
 
 ### 2 · Lukes Untersuchungszeilen
@@ -330,8 +338,8 @@ Diese Zeilen sagt Luke beim Untersuchen (Interaktion) oder als Gedanke beim Vorb
 - KZ-06 (Katze faucht an Luke vorbei) „Fauch bitte mich an. An mir vorbei ist schlimmer.“ (G)
 - KZ-07 „Ich trag dich jetzt. Keine Panik. Ich hab auch Panik, wir teilen uns die.“
 - KZ-08 „Siebzehn Katzen. Ich kenn Leute mit weniger Freunden. Mich zum Beispiel.“
-- KZ-09 (Kater Luke, Kap. 5) „Du heißt wie ich. Sie sagt, du bist nie richtig angekommen. Willkommen im Club.“
-- KZ-10 (Kater Luke bleibt vor der Flurtür in Nr. 1 sitzen) „Du gehst da nicht rein? Okay. Du bist der Klügere von uns beiden Lukes.“ (G)
+- KZ-09 (Kater Hänschen, Kap. 5, Gisela drückt ihn Luke in den Arm) „Hänschen. Du bist nach einem benannt, der nur kurz Laterne laufen wollte. Ich wollt nur kurz meine Schwester suchen. Wir zwei lernen’s nicht.“
+- KZ-10 (Hänschen bleibt vor der Flurtür in Nr. 1 sitzen) „Du gehst da nicht rein? Okay. Du bist der Klügere von uns beiden.“ (G)
 - KZ-11 (Maus als Geschenk) „Danke. Ich leg sie … da hin. Nicht, weil ich sie nicht mag.“
 - KZ-12 „Schnurren liegt bei fünfundzwanzig Hertz. Tiefste Stimme im Raum. Und die einzige, die mich beruhigt.“
 - KZ-13 „Nicht auf die Herdplatte. Die ist aus. Es geht ums Prinzip.“
@@ -340,7 +348,7 @@ Diese Zeilen sagt Luke beim Untersuchen (Interaktion) oder als Gedanke beim Vorb
 
 ### 3 · Vegas durch die Tür (13 Monologe)
 
-Form: Tür von Nr. 3, Kette vor, Lampenlicht, Bruno knurrt. Jeder Block höchstens drei Zeilen; der Schrägstrich ist der Moment, in dem der Spieler etwas tut (erneut klopfen, eine Antwort wählen, etwas hochhalten). Jeder Monolog klingt verrückt und enthält einen Hinweis, der später stimmt. Das Abhaken übernimmt die vorhandene Nebenaufgabe um seine Behauptungen (`albers.js`, `ALBERS_CLAIMS`), neuer Name siehe Namen-Tabelle.
+Form: Tür von Nr. 3, Kette vor, Lampenlicht, Bruno knurrt. Jeder Block höchstens drei Zeilen; der Schrägstrich ist der Moment, in dem der Spieler etwas tut (erneut klopfen, eine Antwort wählen, etwas hochhalten). Jeder Monolog klingt verrückt und enthält einen Hinweis, der später stimmt. Das Abhaken übernimmt die vorhandene Nebenaufgabe um seine Behauptungen (`albers.js`, `ALBERS_CLAIMS`; der Modulname ist ein Code-Anker, der Mann heißt wirklich Lars Vegas, 02 C8), im Spiel „Das Schlimmste am Rechthaben“ (Kapitel 1, kapitelübergreifend). Kapitel 1 platziert V-01 bis V-06 in „Schnalle zu“ (V-04 = W-01, die Taufe; Wortlaut der Taufe im Whiskey-Dossier); V-07 bis V-10 gehören zu Kapitel 3, V-11 und V-12 zu Kapitel 4 (Günthers Schuppen geht dort auf, 02 F3), V-13 zu Kapitel 5 als Vorbote des Waldes. Wer sie früher braucht, nimmt sie; die Reihenfolge ist keine Pflicht.
 
 **V-01 · „Die hören mit“** (Kap. 1, erstes Klopfen)
 „Nicht so laut. Die Laternen hören mit. Guck nicht hoch, dann wissen die, dass du’s weißt.“ / „Bei mir vorm Haus sind sie mal ausgegangen, eine nach der anderen, wie Kerzen am Geburtstag. Nur dass keiner gesungen hat. Über die Kreuzung: Lampe aus.“
@@ -354,9 +362,9 @@ Form: Tür von Nr. 3, Kette vor, Lampenlicht, Bruno knurrt. Jeder Block höchste
 „UFO über dem Abgrund, stand in der Zeitung. Mit Fragezeichen, damit’s nicht so peinlich ist. Dann ein Experte: Sumpfgas.“ / „Wir haben keinen Sumpf, Junge. Wir haben einen Weiher, und der ist gesperrt. Guck dir das Foto an der Tankstelle an. Nicht das UFO. Den Mann dahinter.“
 *Hinweis:* Z-02, Wolter hinter dem Fotografen (Aha: überall am Rand).
 
-**V-04 · „Mein Vogel“** (Kap. 1, W-01)
-„Der Vogel ist älter als ich. Der saß schon auf der Laterne, da hatte ich noch Milchzähne. Hat geguckt, als hätt er Dienst.“ / „Whiskey hab ich ihn getauft, weil er mir einen geklaut hat. Die Flasche. Seitdem kommt er, wenn man ruft. Der hat sich den Namen ausgesucht, nicht ich.“ / „Guck dir seinen Fuß an. Ein Eisenring mit einem Turm drauf. Den Turm gibt’s hier genau einmal. Im Heu am alten Hof.“
-*Hinweis:* W-02, Turmzeichen = Justins Hof.
+**V-04 · „Mein Vogel“** (Kap. 1, W-01; Behauptung in der Fibel: „Der Vogel ist älter als ich“)
+„Der Vogel ist älter als ich. Der saß schon auf der Laterne, da hatte ich noch Milchzähne. Hat geguckt, als hätt er Dienst.“ / „Whiskey heißt er nach Papas Flasche, da war ich neun. Seitdem kommt er, wenn man ruft. Der hat sich den Namen ausgesucht, nicht ich.“ / „Guck dir seinen Fuß an. Ein Eisenring mit einem Turm drauf. Den Turm gibt’s hier genau einmal. Im Heu am alten Hof.“
+*Hinweis:* W-02, Turmzeichen = Justins Hof. Die Taufe selbst (Wortlaut) ist W-01 im Whiskey-Dossier; ab hier gilt der Name im Spiel, und Whiskey darf Vegas’ „Himmelherrgott!“ nachmachen (Flag `vegas_taufe`, siehe Umsetzungsnotizen).
 
 **V-05 · „Hufeisen“** (Kap. 1)
 „Hufeisen über jeder Tür. Frag, warum. Tradition, sagen die. Tradition heißt: Man hat vergessen, wovor man Angst hatte.“ / „In der Chronik steht, der Schmied hat nach der Sache damals nie wieder ein Wort gesagt. Was schmiedet man, dass man danach die Klappe hält?“ / „Eisen ist frei. Nimm eins mit. Nicht für mich. Für dich.“
@@ -396,7 +404,7 @@ Form: Tür von Nr. 3, Kette vor, Lampenlicht, Bruno knurrt. Jeder Block höchste
 
 ### 4 · Oma Ernas Zettel in Nr. 4 (Nebenaufgabe „Für den Fall, dass du kommst“)
 
-Kuli, Tesafilm, Ausrufezeichen, manchmal eine Einkaufsliste auf der Rückseite. Nr. 4 riecht nach Mottenkugeln und Kaffee, alles ist abgedeckt, nur die Zettel nicht. Die drei Tonproben aus Abschnitt 1 hängen zusätzlich (Pfandflaschen, Kühlschrank, „im Schlaf gezählt“). Kapitelsperren in Klammern.
+Kuli, Tesafilm, Ausrufezeichen, manchmal eine Einkaufsliste auf der Rückseite. Nr. 4 riecht nach Mottenkugeln und Kaffee, alles ist abgedeckt, nur die Zettel nicht. Die drei Tonproben aus Abschnitt 1 hängen zusätzlich (Pfandflaschen, Kühlschrank, „im Schlaf gezählt“). Kapitelsperren in Klammern. Kapitel 1 platziert E-01 bis E-20 (11_kap1_neben.md, „Für den Fall, dass du kommst“); E-21 liegt erst in Kapitel 3, wenn Peters Zimmer offen steht. Das Hufeisen-Zettelchen, das das Justin-Dossier vorschlägt, ist E-05.
 
 - E-01 (Flur, Garderobe) „Für den Fall, dass du kommst: Das Bett oben ist bezogen. Schon länger. Beeil dich, frischer wird’s nicht. – Oma“
 - E-02 (Küchentisch) „Wenn du das liest, bist du zu spät zum Essen.“
@@ -491,9 +499,9 @@ Luke bei Kerbe 1 bleibt wie im Modul („Kreidestriche. Wie beim Verstecken, wen
 
 ### 7 · Miras Wiegenlied
 
-Melodie: Lucys Spieluhr, E D C H C … (Rätsel Klavier bleibt). Die Worte stimmen wörtlich mit dem Entwurf Kapitel 7 (`70_kap7_mira.md`, „Ihr Wiegenlied“) überein. Die dritte Strophe, die nach Kapitel 7 den Riss erklärt, kennt vor Kapitel 7 niemand und steht in keiner Fassung hier.
+Melodie: Lucys Spieluhr, E D C H C … (Rätsel Klavier bleibt). Die Worte sind die aus Kapitel 7 (`70_kap7_mira.md`, „Ihr Wiegenlied“), Entscheidung 02 G1: **Das Dorf kennt die Strophen 1 und 2** mit der geflüsterten Schlusszeile „Such mich, Kind. Ich find dich doch.“ **Das Gesangbuch der Kapelle** (Urfassung, Abschrift aus dem Seelbuch) hat die Strophen 1 und 2 mit Miras eigener Schlusszeile: „Ich find dich überall. – Ist das wahr? – Ja.“ **Die dritte Strophe kennt nur Mira** (Kapitel 7). SB-10 zeigt Strophe 1 in Miras Wortlaut (81_justin.md). **Marion hat 1975 nur die erste Strophe behalten; das Dorf summt zwei; die dritte kennt außer Mira niemand.** Eine Fassung „Such mich nit“ gibt es nicht.
 
-**Dorffassung „Schlaf, Kind“** (so wird es in Lost Eyengless gesummt; mitgebracht von den Kindern, die aus offenen Nächten zurückkamen, jede Generation neu, „und keiner weiß, von wem“)
+**Dorffassung „Schlaf, Kind“** (so wird es in Lost Eyengless gesummt; mitgebracht von den Kindern, die aus offenen Nächten zurückkamen, jede Generation neu, „und keiner weiß, von wem“; so hat Luna es den Kindern in Nimmerheim beigebracht, wie eine Siebenjährige es will)
 > Schlaf, Kind, im Laternenschein,
 > der Rab hält Wacht, du bist nicht allein.
 > Ich zähl die Schläge, ich zähl die Zeit,
@@ -506,9 +514,9 @@ Melodie: Lucys Spieluhr, E D C H C … (Rätsel Klavier bleibt). Die Worte stimm
 >
 > *(geflüstert, wie am Ende eines Spiels)* Such mich, Kind. Ich find dich doch.
 
-Wo man es hört oder liest: Marions Liederheft in Nr. 1 (Kap. 1, nur Strophe 1, „Hab ich 1975 gelernt, weiß nicht mehr, von wem“); Oma Ernas Zettel E-15; Gisela summt beide Strophen ihren Katzen vor (Kap. 3, N-02), bricht vor der Schlusszeile ab („Den Rest sing ich nicht. Der Hänschen hat ihn gesungen, als er wiederkam. Er war nicht der Hänschen.“); Vegas brummt es falsch durch die Tür (Kap. 4); Luna summt die Melodie unter geliehenen Stimmen (Spieluhr).
+Wo man es hört oder liest: Marions Liederheft in Nr. 1 (Kap. 1, nur Strophe 1, darunter fünf Noten, nur E · D lesbar, „Hab ich 1975 gelernt. Weiß nicht mehr, von wem.“, Lucy darunter: „Die Spieluhr weiß den Rest.“; 11_kap1_neben.md); Oma Ernas Zettel E-15 (sie kennt nur die Melodie); SB-10 im Stall (Kap. 5, Strophe 1 in Miras Hand, mit Häkchen wie Noten; Luke: „Das steht in Mamas Liederheft, und die Häkchen sind Lucys Spieluhr.“); Justin summt die ersten Töne in Nr. 4 und am Lesepult, ohne es zu merken (Kap. 3); Luna summt die Melodie unter geliehenen Stimmen und deckt in Nr. 1 den Tisch dazu (Kap. 5); die Noten hinter dem Porträt in der Villa tragen nur die erste Zeile (Kap. 4). Freie Plätze für Gisela und Vegas, wenn ein Kapitel sie braucht: Gisela summt ihren Katzen beide Strophen vor und bricht vor der Schlusszeile ab („Den Rest sing ich nicht. Der Hänschen hat ihn gesungen, als er wiederkam. Und der Hänschen war’s nicht.“); Vegas brummt es falsch durch die Tür, mit Text von der Pfandflasche.
 
-**Urfassung „Such mich nicht“** (handgeschriebenes Gesangbuch der Kapelle, Lied Nr. 13, „Der Ritterin Schlaflied, wie sie es sang“, abgeschrieben aus dem Seelbuch; Kap. 3, am Ende der Nebenaufgabe „Die dreizehnte Predigt“)
+**Urfassung „Ich find dich überall“** (handgeschriebenes Gesangbuch der Kapelle, aufgeschlagen auf dem Lesepult, „Lied 13 · Der Ritterin Schlaflied, wie sie es sang. Aus dem Seelbuch abgeschrieben.“; Kap. 3, Nebenaufgabe „Zähl bis siebzehn, Augen zu“, Wortlaut 31_kap3_neben.md)
 > Schlaf, Kind, im Laternenschein,
 > der Rab helt Wacht, du bist nit allein.
 > Ich zel die Schleg, ich zel die Zeit,
@@ -519,12 +527,21 @@ Wo man es hört oder liest: Marions Liederheft in Nr. 1 (Kap. 1, nur Strophe 1, 
 > Und fellst du weit, und fellst du tief,
 > ich kom dich holen, eh du rief’st.
 >
-> Such mich nit, Kind. Ich find dich doch.
+> Ich find dich überall. – Ist das wahr? – Ja.
 
-Randnotiz in Bleistift (Voss): „Das Dorf singt ‚Such mich‘. Ein Wort fehlt. Wer hat es weggenommen? – B. V.“
-LUKE (ein Satz): „Ein Wort weniger, und aus einem Wiegenlied wird eine Einladung.“
+Darunter, braune Tinte, andere Hand: „Die Kinder, so wiederkamen, singen es anders. Am End ‚Such mich, Kind‘, und danach: Zähl bis siebzehn, Augen zu.“
+Bleistift (Voss): „Das Dorf singt ‚Such mich‘. Sie hat ‚Ich find dich‘ gesungen. Wer hat das Lied umgedreht? – B. V.“
+LUKE (ein Satz): „Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.“ Justin sagt nichts; wer stehen bleibt, hört ihn die ersten fünf Töne summen, Untertitel nur „(summt)“.
 
-Warum zwei Fassungen: Mira sang ihrer Tochter „Such mich nicht, ich find dich doch“, ein Versprechen. Das Dorf hat das Lied von den Kindern, die in Nimmerheim waren, und die haben es von Luna, die es so singt, wie eine Siebenjährige es will: „Such mich.“ Vor Kapitel 7 liest man das als verlorenes Wort. Nach Kapitel 7, wenn Mira die dritte Strophe singt, versteht man, dass Luna genau das getan hat, was das Lied verboten hat. Niemand im Spiel spricht das vorher aus.
+**Die dritte Strophe** (nur Mira, Kapitel 7, Unterkapitel 7; vor Kapitel 7 steht sie nirgends im Spiel, auch nicht im Gesangbuch; Wortlaut `70_kap7_mira.md`)
+> Schlaf, Kind, und wenn du dich versteckst,
+> wenn du im Dunkeln nach mir streckst:
+> Ich zähl bis dreizehn, dann bin ich da,
+> und bist du fort, so bin ich nah.
+>
+> Ich find dich überall. – Ist das wahr? – Ja.
+
+Warum zwei Fassungen: Die Schlusszeile war ein Wechselspiel. Luna fragte jeden Abend „Ist das wahr?“, und Mira sagte „Ja“. In Nimmerheim hat Luna das Lied so weitergegeben, wie eine Siebenjährige es beim Verstecken will: „Such mich, Kind. Ich find dich doch.“ Und dann gezählt. Vor Kapitel 7 liest man das als ein umgedrehtes Wiegenlied; nach Kapitel 7, wenn Mira die dritte Strophe singt („wenn du im Dunkeln nach mir streckst“), versteht man, dass Luna genau das getan hat. Niemand im Spiel spricht das vorher aus, auch Voss nicht; seine Randnotiz fragt nur.
 
 ### 8 · Das Laternenlied „Rabimmel, rabammel“
 
@@ -552,14 +569,14 @@ Das Dorf singt die bekannte Martinsweise mit eigenen Strophen, seit die Chronik 
 > und wer noch leuchtet, bleibt heut drauß.
 > Rabimmel, rabammel, rabumm.
 
-Wo: Liederzettel am Plakat „Laternenfest fällt aus“ (Kap. 1, Bushaltestelle oder Kirchweg); Kinderstimmen singen es in der offenen Nacht aus der Richtung der Senke (Kap. 3, Stufe 2): die ersten Zeilen richtig, dann „ich geh mit meiner Laterne“ allein, sehr hell, mit Spieluhr darunter. Luke (Kap. 1, beim Zettel): „Das Lied bringt Kindern bei, dass man abends die Lampe ausmacht. Mit Reim. Clever. Und gruselig.“ Die dritte Strophe erzählt die Chronik so, wie das Dorf sie glaubt: Der Ritter „hielt“. Dass seine Hand aufging, sagt das Lied nicht; „mit leerer Hand“ hört man erst nach Raum 3 (Kap. 3) anders.
+Wo: Liederzettel „Laterne, Laterne“ am Plakat „Laternenfest fällt aus“ (Kap. 1, Bushaltestelle, „Wortlaut 85, Laternenlied“ in 11_kap1_neben.md); Kinderstimmen singen es in der offenen Nacht aus der Richtung der Senke (Kap. 3, Stufe 2): die ersten Zeilen richtig, dann „ich geh mit meiner Laterne“ allein, sehr hell, mit Spieluhr darunter. Luke (Kap. 1, beim Zettel): „Das Lied bringt Kindern bei, dass man abends die Lampe ausmacht. Mit Reim. Clever. Und gruselig.“ Die dritte Strophe erzählt die Chronik so, wie das Dorf sie glaubt: Der Ritter „hielt“. Dass seine Hand aufging, sagt das Lied nicht; „mit leerer Hand“ hört man erst nach Raum 3 (Kap. 3) anders.
 
 ### 9 · Lukes Du-Seite in der Fibel („DAS BIST DU“)
 
 Jonas hat für jedes Bandenmitglied eine Seite angelegt. Auf Lukes steht oben, Wachsmal, Frühjahr 2009:
 > DAS BIST DU: LUKE. VIZE-CHEF. ALTER 9. AUGEN: BLAU (WIE DER HIMMEL WENN ER NICHT GRAU IST). ANGST VOR: SPINNEN (GEHEIM!!). KANN: PFEIFEN OHNE FINGER.
 
-LUKE (Prolog, beim ersten Aufschlagen): „Blau. Jonas war farbenblind. Glaub ich.“ Darunter hat Luke als Erwachsener die Seite neu ausgefüllt, halb im Spaß, im Kuli. Im Lauf des Spiels streicht er Zeilen durch und schreibt die Wahrheit daneben (das Durchstreichen passiert automatisch mit einem kurzen Kratzgeräusch, wenn die Fibel das nächste Mal geöffnet wird).
+Die Zeile „AUGEN: BLAU (…)“ ist bis zum Ende von Kapitel 1 von einem Kaffeefleck verdeckt und wird erst nach dem Nachbild an der Kreuzung lesbar (02 G4). LUKE (beim ersten Aufschlagen danach, Anfang Kapitel 2): „Blau. Jonas war farbenblind. Glaub ich.“ Darunter hat Luke als Erwachsener die Seite neu ausgefüllt, halb im Spaß, im Kuli. Im Lauf des Spiels streicht er Zeilen durch und schreibt die Wahrheit daneben (das Durchstreichen passiert automatisch mit einem kurzen Kratzgeräusch, wenn die Fibel das nächste Mal geöffnet wird).
 
 > Name: Luke Brandt.
 > Alter: 26.
@@ -619,10 +636,10 @@ Ersetzen und erweitern `GEDANKEN_SCHRECK` in `gedanken.js`. Regel aus Kern §13:
 
 ### 11 · Slapstick (10 kleine Szenen)
 
-Jede Szene ist kurz (unter 30 Sekunden), unterbricht nie einen Schreck und nie eine traurige Szene. Wo sie in Grusel kippt, steht es dabei.
+Jede Szene ist kurz (unter 30 Sekunden), unterbricht nie einen Schreck und nie eine traurige Szene. Wo sie in Grusel kippt, steht es dabei. Die Kapitel zitieren diese Reihe als „Slapstick S-xx“ (die Spuren S-xx des Beobachters sind eine andere Reihe, 82).
 
 **S-01 · „Speck ist Prinzip“** · Nr. 3, Haustür · Kap. 1 (W-04b), wiederholbar Kap. 4
-Vegas hält einen Teller mit Frühstücksspeck in der Hand, während er durch den Spalt redet. Whiskey landet lautlos auf dem Briefkasten, schiebt den Kopf durch den Spalt und nimmt die oberste Scheibe. Vegas greift nach, die Kette spannt, die Tür knallt ihm vor die Nase. Von drinnen: „Himmelherrgott!“ Vom Laternenpfahl, eine Sekunde später, in exakt derselben Stimme: „Himmelherrgott!“ Vegas macht wieder auf, einen Spalt. „Du hast nichts gesehen.“ LUKE: „Ich hab gar nichts gesehen.“ Whiskey kaut demonstrativ.
+Vegas hält einen Teller mit Frühstücksspeck in der Hand, während er durch den Spalt redet. Whiskey landet lautlos auf dem Briefkasten, schiebt den Kopf durch den Spalt und nimmt die oberste Scheibe. Vegas greift nach, die Kette spannt, die Tür knallt ihm vor die Nase. Von drinnen: „Himmelherrgott!“ Vom Laternenpfahl, eine Sekunde später, in exakt derselben Stimme: „Himmelherrgott!“ Vegas macht wieder auf, einen Spalt. „Du hast nichts gesehen.“ LUKE: „Ich hab gar nichts gesehen.“ Whiskey kaut demonstrativ. Beim dritten Vorbeigehen steht ein Nudelsieb über dem Teller, und Whiskey sitzt auf dem Sieb (11_kap1_neben.md, „Schnalle zu“, Schritt 5). Die Speck-Rivalität gilt für Haustür und Teller (W-04b; die Küchenfenster-Fassung im Whiskey-Dossier wird daran angeglichen). Whiskeys „Himmelherrgott!“ erst nach der Taufe (Flag `vegas_taufe`); Lukes einziger Tontechniker-Satz dazu: „Er hat die Kompression falsch. Wer bringt einem Vogel Kompression bei?“
 
 **S-02 · „Das Inhaltsverzeichnis“** · Nr. 3, Türspalt · Kap. 3 (Z-01)
 Vegas will Luke seinen Ordner geben. Der Ordner passt nicht durch den Spalt. Kette abmachen kommt nicht in Frage. Also reicht er die Blätter einzeln heraus, jedes mit Kommentar („Das hier, Wetterballon, von wegen.“), bis Luke einen Stapel im Arm hat, der im Wind flattert. Das letzte Blatt: „Inhaltsverzeichnis. Das brauchst du zuerst.“ Unter den Blättern steckt Z-01.
@@ -663,7 +680,7 @@ Vegas reicht Luke durch den Spalt einen Beutel mit Batterien („Aus meinem Notv
 | – | **Lunas Spielregeln** | Jonas’ „SPIELREGELN (VON WEM WEISS KEINER)“, von Luke ergänzt |
 | – | **Wer pupst, muss zählen** | Bandenregel 4, Erfolg für alle Fibel-Einträge von Jonas |
 | – | **Schlaf, Kind** | Dorffassung des Wiegenlieds, erste Worte |
-| – | **Such mich nicht** | Urfassung im Gesangbuch, Schlusszeile |
+| „Such mich nicht“ (alte Fassung, entfällt nach 02 G1) | **Ich find dich überall** | Urfassung im Gesangbuch, Miras Schlusszeile |
 | – | **Rabimmel, rabammel** | Kehrreim des Laternenlieds |
 | `GEDANKEN_SCHRECK` | **Atempausen** | Kern §13 |
 | Monologe V-01 bis V-13 | „Die hören mit“, „Der Kuli vom Amt“, „Sumpfgas“, „Mein Vogel“, „Hufeisen“, „Wer Stullen schmiert, ist kein Gespenst“, „Der Graue mit dem Tee“, „Zwei Buchstaben“, „Die Katzenfrau hat recht“, „Gummistiefel“, „Unzustellbar“, „Pfand“, „Der Wald hat kein Echo“ | jeweils ein Satz aus dem Monolog |
@@ -673,7 +690,8 @@ Vegas reicht Luke durch den Spalt einen Beutel mit Batterien („Aus meinem Notv
 
 - **Untersuchungszeilen:** Die vorhandenen `interact(…, () => toast(…))`-Texte in `innen_ort.js` (z. B. „Kanister“, „Bilderrahmen“, „Stuhl am Fenster“) bleiben, wo sie Story tragen. Die U-Zeilen gehen in eine neue Nachschlagetabelle nach Objektart (Vorschlag: `const LUKE_BLICK = { tuer: [...], laterne: [...] }` in `gedanken.js`), die generische Interaktionen („Tür“, „Laterne“, „Batterie“) bedienen; jede Zeile einmal (`gedanken_S.said`), Kapitelsperren über `curChapter()`.
 - **Katzenzeilen:** Auslöser beim Aufheben/Tragen einer Katze (Katzen-Tiermodell, Nebenaufgabe „Siebzehn Näpfe“, siehe `86_neue_figuren.md`); KZ-06, KZ-10 und KZ-15 nur, wenn eine Katze gerade eine Beobachter-Spur fixiert.
-- **Vegas:** `albers.js`, `ALBERS_TALKS` (Anker „Nicht so laut, Junge. Die hören mit.“) um V-01 bis V-13 erweitern, je Block ≤ 3 Zeilen wie im Modul üblich; die Hinweise als neue `ALBERS_CLAIMS` (Abhaken, wenn der Beleg gefunden ist). Das Modul ist bisher Kapitel 3; die Monologe aus Kap. 1, 4, 5 brauchen dieselbe Tür mit kapitelabhängigen `when`-Bedingungen.
+- **Vegas:** `albers.js`, `ALBERS_TALKS` (Anker „Nicht so laut, Junge. Die hören mit.“) um V-01 bis V-13 erweitern, je Block ≤ 3 Zeilen wie im Modul üblich; die Hinweise als neue `ALBERS_CLAIMS` (Abhaken, wenn der Beleg gefunden ist). Das Modul ist bisher Kapitel 3; die Monologe aus Kap. 1, 4, 5 brauchen dieselbe Tür mit kapitelabhängigen `when`-Bedingungen. Der Modulname bleibt als Code-Anker; im Text heißt er überall Lars Vegas (02 C8).
+- **Flag `vegas_taufe`:** wird bei W-01 gesetzt (10_kap1_haupt.md, `whiskey.js`). Erst danach macht Whiskey „Himmelherrgott!“ nach (S-01, S-10, Kap. 4 im Versteck); ohne Flag nimmt er den Warnton der Mikrowelle.
 - **Oma Ernas Zettel:** Nr. 4 hat bisher **kein Innenraum-Modul** (`innen_ort.js` baut Nr. 7, Nr. 1 und den Keller). Vorschlag: Grundriss von Nr. 1 gespiegelt wiederverwenden, abgedeckte Möbel (Laken), Zettel als Decals mit Notiz-UI; außen vorhanden: `fassaden.js` („Ein Vorhang, der zuckt, wenn man vorbeigeht (Nr. 4, vorne)“), `gruen.js` (Einfahrt Nr. 4). Küchenwecker-Ton wie in der Whiskey-Datei (Nr. 8 der Stimmenliste).
 - **Fibel:** `traum.js` (`modItem('fibel', 'Abenteuerfibel', …)`) und der Journal-Aufbau im Basisspiel (`jTab === 'funde'` usw., erweitert wie in `entdecker.js` über `renderJournal`). Neue Reiter „DAMALS“ (Jonas), „DAS BIST DU“ (Du-Seite), „SPIELREGELN“. Durchstreichen als Textstil mit Handschrift-Font (`class="hand"`, wie in `entdecker.js`). J-05 (Schatz) als kleines Geheimnis am Sühnekreuz: Interaktion „Drei Schritte“ nach Lesen des Eintrags, Fund: Flummi und Zahn in einer Blechdose, Luke: „Lucy. Du hast deinen Zahn nie wiedergekriegt. Jetzt schon.“
 - **Abzählreim:** nur das Array `ENTD_REIM` und der Text von `gedanke('kerbe_1', …)` ändern; Zählung, Batterien, Hochsitz-Kerbe bleiben.
@@ -681,14 +699,25 @@ Vegas reicht Luke durch den Spalt einen Beutel mit Batterien („Aus meinem Notv
 - **Atempausen:** `GEDANKEN_SCHRECK` durch A-01 bis A-25 ersetzen; Sperrliste für traurige Szenen als IDs (Hilde-Strahl, Tank, Peters Tod, echter Luke, Mamas Kerze).
 - **Slapstick:** alles mit vorhandenen Modellen (Whiskey, Vegas-Tür, Katzen, Pat/Patachon, Justin); Drehtür und Bewegungsmelder brauchen je eine kleine Animation/Lichtschaltung an bestehenden Lampen (kein neues Licht zur Laufzeit, vorhandene Lampe an/aus).
 
-### Offene Abstimmungen
+### Abstimmungen (erledigt)
 
-1. **Wiegenlied, Kapitel 7:** Dort steht, die zweite und dritte Strophe kenne außer Mira niemand. Mit der Dorffassung (Pflicht laut Auftrag) kennt das Dorf zwei Strophen; nur die dritte ist Miras und Lunas. Vorschlag für `70_kap7_mira.md`: „Marion hat 1975 nur die erste Strophe behalten; das Dorf summt zwei; die dritte kennt außer Mira niemand.“ Optional singt Mira in Kap. 7 vor der dritten Strophe die Schlusszeile „Such mich nicht“, und Luna antwortet „Such mich“.
-2. **SB-10 in `81_justin.md`** hat eine andere erste Strophe („Die Nacht ist lang … bei siebzehn bist du längst im Schlaf“). Sie sollte die Worte aus Kap. 7 und hier übernehmen, damit Spieluhr, Liederheft, SB-10, Gesangbuch und Kap. 7 übereinstimmen.
-3. **Kirchenbuch/Seelbuch/Gesangbuch:** `86_neue_figuren.md` nennt das Buch von 1312 „Seelbuch“. Ich habe die Urfassung in ein späteres handgeschriebenes Gesangbuch der Kapelle gelegt (Abschrift aus dem Seelbuch), weil der Auftrag „Gesangbuch“ sagt und die alte Bibel eins in der Kapelle hat. Der Voss-Autor sollte es als letzte Station der „Dreizehnten Predigt“ einplanen.
-4. **Abzählreim in Kap. 2** (`20_kap2.md`, Tischkante im Modelldorf): Der dortige Vierzeiler bleibt als zweiter, älterer Kinderreim sinnvoll. Alternative: dort die Zeilen 7 und 8 dieses Reims einritzen.
-5. **Haushaltsbuch:** `40_kap4.md` legt es in Nr. 1, `80_lwo.md` in Nr. 4. Ich folge der LWO-Datei (Nr. 4, Zettel E-18).
-6. **Du-Seite:** Die Kapitel-Autoren sollten die Auslöser D-01 bis D-10 als Beats übernehmen (je ein Kratzgeräusch beim nächsten Öffnen der Fibel). Jonas’ „AUGEN: BLAU“ ist ab dem Prolog sichtbar und damit ein früher, fairer Hinweis auf Wendung 4; wer das zu früh findet, kann die Zeile erst ab Kap. 1 Ende (nach dem Nachbild) freischalten.
-7. **Laternenlied:** Die erste Strophe ist das bekannte Volkslied. Falls die Rechtelage oder der Wunsch nach Eigenem dagegen spricht, ersetze ich sie durch eine eigene Strophe im selben Maß.
-8. **Kater „Luke“ und KZ-09:** Gisela sagt „nie richtig heimgekommen“; Luke gibt es mit „angekommen“ wieder, weil er „heim“ nie sagt.
-9. **Monolog V-12** (Mikes Pfandkiste) setzt einen Fund an der Tankstelle in Kap. 1 voraus. Wenn Kap. 1 ihn nicht hat, reicht die Kiste als Deko neben dem Pfandautomaten (U-84).
+- G1 Wiegenlied: Dorffassung Strophen 1–2 mit „Such mich, Kind. Ich find dich doch.“; Gesangbuch (Abschrift aus dem Seelbuch) mit „Ich find dich überall. – Ist das wahr? – Ja.“; dritte Strophe nur Mira (Kap. 7); „Such mich nit“ überall gestrichen, auch in Voss’ Randnotiz und der Namenstabelle; SB-10 in 81 zeigt Strophe 1 in diesem Wortlaut; Satz über Marion/Dorf/Mira aus Kap. 7 übernommen.
+- F4 Seelbuch: das Buch von 1312 heißt Seelbuch, das Gesangbuch der Kapelle ist die spätere Abschrift; Voss’ Notizen angepasst (kein „Kirchenbuch 1312“).
+- C11 Voss: 1992 Kinder im Kapellenkeller versteckt, selbst hineingegangen; Nachbild und Stimmführer angepasst, kein Fahrrad-Abschied mehr.
+- G3 Abzählreim: der Siebzehnzeiler gilt; der Vierzeiler an der Tischkante in Kap. 2 bleibt als älterer zweiter Reim.
+- G4 Du-Seite: „AUGEN: BLAU“ erst nach dem Ende von Kapitel 1 lesbar; D-01 bis D-10 als Auslöser bleiben.
+- H4: „Das ist MEINS!“ kommt in diesem Dossier nicht vor; Kap. 5 nimmt das Kichern aus allen Laternen.
+- C8: Vegas heißt Lars Vegas; `albers.js` ist nur Code-Anker; Steinmetz Kühnle betrifft 80/50.
+- A5: keine Minutenangaben außer 03:13 (Wolter-Tonprobe an AG-09 in Kap. 3 angeglichen); Jahreszahlen im Mund gestrichen (Günther); Dorfkürzel „’75“ bei Vegas erlaubt.
+- E1/W-04b: Speck-Rivalität an Haustür und Teller (S-01), Nudelsieb-Zusatz aus Kap. 1; Flag `vegas_taufe` für „Himmelherrgott!“.
+- Haushaltsbuch liegt in Nr. 4 (E-18), wie 40_kap4.md und 80_lwo.md.
+- Kater in Kap. 5 = Hänschen, braun getigert (02 F2/F7): KZ-09 und KZ-10 umgeschrieben, kein Kater „Luke“ mehr.
+- Heidi: Kap. 3 „Ja.“, Kap. 5 „Ein Dorf näher“ und „ja“ unter den Karten (02 F8) als Stimmführer-Eintrag aufgenommen, Wortlaut aus den Kapiteln.
+- Hufeisen-Zettel aus dem Justin-Dossier: ist E-05, war schon drin.
+- H1 Günther: kommt kurz nach Mitternacht („Ich fang jetzt früher an. Seit Oktober.“), Tonprobe angepasst.
+- Laternenlied: Volkslied-Strophe bleibt (02 G2); Liederzettel heißt in Kap. 1 „Laterne, Laterne“.
+- V-12 Pfandkiste: Kap. 1 hat den Pfandautomaten und Mikes Schichtbuch an der Tankstelle; die Kiste reicht als Deko (U-84), kein eigener Fund nötig.
+
+### Noch offen für den Autor
+
+- Kennungs-Doppelung V-xx (Vegas hier / Vertrauens-Begegnungen in 80) und S-xx (Slapstick hier / Spuren in 82): im Text durch Zusatz („Vegas V-xx“, „Slapstick S-xx“, „Spur S-xx“) eindeutig; wer die Reihen einmal umbenennen will (z. B. VG-xx, SL-xx), muss Kapitel 1, 3, 4 und 5 mitziehen.

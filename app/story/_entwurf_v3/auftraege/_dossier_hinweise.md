@@ -81,3 +81,14 @@
 - 86: Günther seit 1985 Postbote und Zuträger („vierzig Jahre“), Schuppen „Zuträger-Vergütung 1985–2012“; Grete-Foto mit Kreisel, Rückseite „HEINI“.
 - 83: Whiskey bei AG-09 auf dem Kombi (K3-4); K5-2 „Das ist bedauerlich“ mit Wolters Stimme; K6-1 Thermoskannendeckel/„Such!“ wie 80.
 - Lukes Dienstplan: „Mo–Do Nacht, Fr frei“ (Pointe „Freitag frei“, AG-21).
+
+## Nachtrag aus dem Stimmen/Humor-Dossier (fertig lektoriert)
+- 83: W-04b/K1-4 auf Haustür + Teller (85 S-01) umstellen; Nudelsieb als dritte Stufe; Vegas-Taufe „nach Papas Flasche“ (W-01).
+- 86: Gisela darf beide Strophen des Wiegenlieds summen (Dorffassung); KZ-09/10 hängen an Kater Hänschen.
+- Kennungen: 85 V-xx (Vegas) ≠ 80 V-xx (Vertrauen); 85 Slapstick S-xx ≠ 82 Spur S-xx – beim Zitieren Zusatz nennen.
+
+## Nachtrag aus dem Wendigo-Dossier (fertig lektoriert) – für den Schlussabgleich
+- 80: Bestandsliste-Zeile Probe W wie Kap. 6 („entwichen 13.07.1992 · Wirt Hofer · Leiter Pell (seit 1994: s. Probe W)“); Pell-Beschreibung (Tweedjackett, „interessant“, Eisennetz) → Kap. 4/6-Fassung (Windjacke, Band, Grubenlampe, Pfeife/Sonnenbrille/„Buck“).
+- 86: Kater „Keiner“ = der graue Kater aus Kap. 4 („weil keiner gesagt hat, wie er heißt“); Giselas Zeilen zum Jungen von 1958 stehen in Kap. 4; Gisela weiß nicht, wo er liegt.
+- 83: Busdach-Station: nur Sitzen, keine Laute.
+- 82: B-K6-06 „Du bist der Speck“ auf dem dritten Kindersitz; B-K4-07 in der Kuhle der Matratze, Zelle Ost (prüfen).

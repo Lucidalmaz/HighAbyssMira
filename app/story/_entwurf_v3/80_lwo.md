@@ -143,7 +143,7 @@ Bergungstrupp 3, Jahrgang 1949. Auf Fotos und im Dienstbuch: Schnauzbart, breite
 
 #### 2.8 Dr. Raymond Pell
 
-Amerikaner, von Außenstelle 1 geschickt, 1991–1994. Nur Fotos, ein Namensschild („R. PELL · W“), ein Tonband und seine Stimme im Wendigo. Foto: Ende vierzig, Tweedjackett, Pfeife, Sonnenbrille auf dem Kopf, lachend neben einem Hirsch im Gehege, den er „Buck“ nennt. Sprach Deutsch mit breitem Akzent und nannte alles „interessant“. Ging 1994 mit einem Rucksack und einem Eisennetz in den Wald, um „meinen Jungen“ zurückzuholen. Der Wald sagt seitdem manchmal „interesting“.
+Amerikaner, von Außenstelle 1 geschickt, 1991–1994. Nur Fotos, ein Namensschild („R. PELL · W“), ein Tonband und seine Stimme im Wendigo. Foto (Villa, Fotowand „Pell und ‚Buck‘“): groß, dünn, beige Windjacke, Pfeife, Sonnenbrille im Haar, lachend neben dem Hirsch im Gehege, den er „Buck“ nennt. Sprach ein Deutsch aus Büchern, mit Nachdruck falsch betont. Ging 1994 mit Tonband, Grubenlampe und Batterien in den Wald, um „meinen Jungen“ zurückzuholen (Wortlaut und Einzelheiten: Wendigo-Dossier). Der Wald sagt seitdem manchmal „Come ho–“.
 
 #### 2.9 Günther Maas, der Zuträger (61)
 
