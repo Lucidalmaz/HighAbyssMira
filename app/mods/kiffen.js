@@ -7,6 +7,10 @@
 //   assets/ms/kiffen/{grinder (in Deckel/Körper geschnitten), knolle, papes (Aufdruck neutral), joints, ascher, bong, tuetchen, pflanze, papier}; Peters Feuerzeug = w_lighter.
 // Selbst gezeichnet (erlaubt: Decals/Partikel/Papier): Poster und Sticker (Canvas), das Blättchen beim Drehen und der Pappstreifen (verformbare Papierflächen wie im Album),
 //   Krümel, Glut, Rauch, Asche, Flamme (Sprites/Punkte). Licht: EIN VLight für die Feuerzeugflamme, beim Laden mit Intensität 0 – zur Laufzeit wird kein Licht angelegt.
+// Bewegung (Q-11): Hände über Griffpunkte (KG: Handgelenk aus Griffpunkt + Handlage, Unterarm vom Ellbogen), Finger je Gelenk gebeugt, darüber eine Feder-Schicht
+//   (kritisch gedämpft, leichtes Nachschwingen, Finger mit versetzten Frequenzen) und lebendige Fingerbewegung; Rauchen (heben, Zug, senken, halten, abklopfen) nach
+//   echter Bewegungsaufnahme (Mocap „Smoking 01“, Klian, CC-BY; tools/_x6_mocap.mjs → assets/ms/haende/rauchen.json), der Joint klemmt zwischen Zeige- und Mittelfinger.
+//   Zittern nach den Flashbacks klingt mit jedem Zug ab. Krümel/Asche fallen mit Schwerkraft, Rauch verwirbelt, Glut glimmt beim Zug auf, die Flamme beleuchtet die Hände.
 // Nachbearbeitung: ein eigener Durchgang vor dem Filmkorn (weiche Welt + Nachbild-Blitze), ohne Einsatz abgeschaltet. Zeitlupe: Welt-Uhr × kiffen_S.zeit (≥ 0,8).
 // Schnittstelle (per typeof von Kapitel-APs):
 //   kiffen_start(opts)        Flashbacks + „Ich brauch fünf Minuten. Nur fünf.“ + Aufgabe „Fünf Minuten“ (AP-19 am Anfang von Kap. 4; bis dahin startet sie von selbst,
@@ -44,7 +48,7 @@ const KF_V = { v0: new THREE.Vector3(), v1: new THREE.Vector3(), v2: new THREE.V
 const kf_clamp = (x, a = 0, b = 1) => x < a ? a : x > b ? b : x, kf_ease = t => { t = kf_clamp(t); return t * t * (3 - 2 * t); }, kf_io = t => { t = kf_clamp(t); return .5 - .5 * Math.cos(Math.PI * t); };
 const kf_lerp = (a, b, k) => a + (b - a) * k;
 function kf_kap() { try { return typeof kap === 'function' ? kap() : curChapter(); } catch (e) { return 1; } }
-function kf_hat(id) { return story.items.includes(id); }
+function kf_hat(id) { return !!story.items && story.items.includes(id); } // story.items entsteht erst nach der Modul-Marke
 function kf_ton(n, o = {}) { try { if (Audio.ctx && Audio.buf[n]) return Audio.play(n, { gain: o.gain ?? .6, rate: o.rate ?? (1 + (Math.random() - .5) * .06), delay: o.delay || 0, dest: o.x !== undefined ? undefined : Audio.master, x: o.x, y: o.y, z: o.z, ref: o.ref, lp: o.lp, hp: o.hp, dur: o.dur, offset: o.offset }); } catch (e) {} return null; }
 
 // ================================================================ Gegenstände (Jacke = story.items: Story-Dinge zählen nie gegen den Beutel)
@@ -163,7 +167,7 @@ function kf_texPappe() { return tex(kf_cnv(256, 64, (x, w, h) => { x.fillStyle =
 
 // ================================================================ Bühne in der Welt: Sitzplatz, Hände-Rig, Requisiten
 // Alles hängt an kf_R.seat (Welt-Gruppe am Sitzplatz, Achsen wie die Kamera: x rechts, y oben, −z vorn); Ursprung = Lukes Augenpunkt im Sitzen.
-const KF_SITZ = { x: -27.2, y: 0, z: -10.95, yaw: Math.PI, auge: .8 }; // Verandakante Nr. 3 (Blick auf die Straße); Sitzhöhe wird gemessen, Auge .8 m darüber
+const KF_SITZ = { x: -27.5, y: 0, z: -10.95, yaw: Math.PI, auge: .8 }; // Verandakante Nr. 3 (Blick auf die Straße); Sitzhöhe wird gemessen, Auge .8 m darüber
 const kf_R = { seat: null, rig: null, mesh: null, B: { L: null, R: null }, len: .148, props: {}, ready: false };
 const KF_FING = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'];
 function kf_rigBau(src) {
@@ -266,10 +270,12 @@ function kf_teilchenBau() { const T = kf_T;
   T.flamme = new THREE.Sprite(new THREE.SpriteMaterial({ map: kf_texFlamme(), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); T.flamme.center.set(.5, .05); T.flamme.scale.set(.011, .026, 1); T.flamme.visible = false; kf_R.seat.add(T.flamme);
   const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(24 * 3), 3)); T.funken = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xffc070, size: .0024, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); T.funken.frustumCulled = false; T.funken.visible = false; kf_R.seat.add(T.funken);
   for (let i = 0; i < 24; i++) T.fk.push({ x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0, a: 9 });
+  const ag = new THREE.BufferGeometry(); ag.setAttribute('position', new THREE.BufferAttribute(new Float32Array(10 * 3), 3)); T.asche = new THREE.Points(ag, new THREE.PointsMaterial({ color: 0x8a8884, size: .0028, transparent: true, opacity: 0, depthWrite: false })); T.asche.frustumCulled = false; T.asche.visible = false; kf_R.seat.add(T.asche);
+  T.as = Array.from({ length: 10 }, () => ({ x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0 }));
 }
 function kf_rauchStoss(p, n, vx, vy, vz, sz, op, life = 2.6) { const T = kf_T; let k = 0; for (const r of T.rauch) { if (r.s.visible) continue; r.s.visible = true; r.a = 0; r.l = life * (.7 + Math.random() * .7); r.s.position.set(p.x + (Math.random() - .5) * .006, p.y, p.z + (Math.random() - .5) * .006);
     r.v.set(vx + (Math.random() - .5) * .07, vy + Math.random() * .03, vz + (Math.random() - .5) * .07); r.sz = sz * (.7 + Math.random() * .6); r.gr = sz * (3 + Math.random() * 3.5); r.op = op * (.6 + Math.random() * .5); r.rot = Math.random() * 6.28; r.vr = (Math.random() - .5) * .7; if (++k >= n) break; } }
-function kf_teilchenTick(dt, t) { const T = kf_T;
+function kf_teilchenTick(dt, t) { const T = kf_T; kf_ascheTick(dt);
   for (const r of T.rauch) { if (!r.s.visible) continue; r.a += dt; const k = r.a / r.l; if (k >= 1) { r.s.visible = false; continue; }
     r.v.y += dt * .06; r.v.multiplyScalar(1 - dt * 1.1); r.s.position.x += (r.v.x + Math.sin(t * 1.7 + r.rot * 3) * .014 * k) * dt; r.s.position.y += r.v.y * dt; r.s.position.z += (r.v.z + Math.cos(t * 1.3 + r.rot * 2) * .012 * k) * dt;
     const sz = r.sz + r.gr * Math.sqrt(k); r.s.scale.set(sz, sz, 1); r.s.material.rotation = r.rot + r.vr * r.a; r.s.material.opacity = r.op * Math.min(1, k * 5) * (1 - k) * (1 - k); }
@@ -287,7 +293,7 @@ function kiffen_passBau() {
         uv += (vec2(sin(uv.y * 5. + uT * .7), cos(uv.x * 4. + uT * .55)) * .0014 + d * sin(uT * .45) * .004) * uW; // die Welt atmet ein wenig
         vec4 c = texture2D(tDiffuse, uv);
         if (uW > .001) { vec3 b = vec3(0.); float r = (3. + 6. * dot(d, d) * 4.) * uW;
-          for (int i = 0; i < 10; i++) { float a = float(i) * 2.39996, rr = sqrt((float(i) + .5) / 10.) * r; b += texture2D(tDiffuse, uv + vec2(cos(a), sin(a)) * rr * uPx).rgb; } b /= 10.;
+          for (int i = 0; i < 6; i++) { float a = float(i) * 2.39996, rr = sqrt((float(i) + .5) / 6.) * r; b += texture2D(tDiffuse, uv + vec2(cos(a), sin(a)) * rr * uPx).rgb; } b /= 6.;
           vec3 s = mix(c.rgb, b, .4 * uW) + max(b - .45, 0.) * .55 * uW; // weich, Lichter blühen auf
           float l = dot(s, vec3(.2126, .7152, .0722)); s = mix(vec3(l), s, 1. + .3 * uW); // Farben satter
           s *= mix(vec3(1.), vec3(1.08, 1.0, .88), uW); float hl = smoothstep(.35, 1., l); s = mix(s, s * (1. - .12 * hl) + .06 * hl, uW); // wärmer, Lichter weicher (Schwarz bleibt schwarz)
@@ -320,7 +326,10 @@ function kf_flashBilder() { const W = 1024, H = 576, R = kf_rnd(1975);
       else { x.fillStyle = '#9a9c9e'; x.beginPath(); x.ellipse(W / 2, H * .45, 110, 150, 0, 0, 7); x.fill(); x.fillStyle = '#000'; for (const s of [-1, 1]) { x.beginPath(); x.ellipse(W / 2 + s * 42, H * .4, 18, 24, 0, 0, 7); x.fill(); } }
       for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(230,240,240,${R() * .6})`; x.lineWidth = 1.5; x.beginPath(); x.arc(W * (.25 + R() * .5), H * R(), 2 + R() * 7, 0, 7); x.stroke(); }
       for (let i = 0; i < 7; i++) { x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = 14; x.beginPath(); const xx = W * (.26 + R() * .48); x.moveTo(xx, H * .05); x.lineTo(xx - 40, H * .95); x.stroke(); } });
-  return [hilde, peter, grau].map(c => { const t = tex(c, false); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; return t; }); }
+  // Nachbild-Anmutung: weich, doppelt belichtet, Korn – nie scharf wie ein Foto
+  const nb = c => kf_cnv(W, H, x => { x.filter = 'blur(3px)'; x.drawImage(c, 0, 0); x.filter = 'blur(6px)'; x.globalAlpha = .35; x.drawImage(c, 14, 6); x.globalAlpha = 1; x.filter = 'none';
+    const im = x.getImageData(0, 0, W, H), d = im.data; for (let i = 0; i < d.length; i += 4) { const n = (R() - .5) * 38; d[i] += n; d[i + 1] += n; d[i + 2] += n; } x.putImageData(im, 0, 0); });
+  return [hilde, peter, grau].map(nb).map(c => { const t = tex(c, false); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; return t; }); }
 
 // ================================================================ Requisiten und Schlüsselbilder
 // Schlüssel einer Requisite: { a: 'L' | 'R' (Lage relativ zum Handknochen: x Daumenseite, y Finger, z aus der Handfläche) | undefined (Sitzraum), p: [x, y, z], r: [rx, ry, rz] } · null = versteckt
@@ -352,6 +361,9 @@ function kf_posen() { const H = KF_H, O = KF_ORT, F = KF_OFF;
   O.P = [0, -.35, -.4]; O.Prx = -1.0; O.Pm = [0, -.14, -.19]; // Blättchen vor der Brust, beim Lecken am Mund
   O.M = [0, -.085, -.07]; O.dH = kf_n(-.78, .18, -.6); O.JH = [.1, -.4, -.34]; O.dM = kf_n(.12, -.32, -.94); O.JM = kf_add(O.M, O.dM, .0525); O.tip = kf_add(O.M, O.dM, .105);
   O.F0 = kf_add(O.tip, [0, -.074, .004]); // Feuerzeug (Unterkante) unter der Spitze
+  const MO = kiffen_S.mo; if (MO) { const fr = tt => MO.R[Math.round(tt * MO.fps)], h = fr(20.2), z = fr(15.2); // Halten und Zug aus der Aufnahme – der Joint liegt im Spalt Zeige-/Mittelfinger
+    O.JH = kf_add(h.j, h.n, -.024); O.dH = h.n; // (Anzünden: Joint in den Lippen, Spitze nach vorn unten – bleibt wie oben)
+    H.haltMo = KP(h.w, h.f, h.n, h.c, .1, .55); H.mundMo = KP(z.w, z.f, z.n, z.c, .1, .55); }
   H.ruheR = KP([.17, -.66, -.22], [-.12, -.3, -1], [-.1, -1, .3], [.35, .38, .42, .48, .55], .2, .2); H.ruheL = KF_SPIEGEL(H.ruheR);
   H.vornR = KP([.11, -.47, -.3], [-.42, .12, -.9], [-.2, .95, .2], [.35, .35, .42, .5, .58], .15, .3); H.vornL = KF_SPIEGEL(H.vornR);
   H.taschR = KP([.3, -.7, -.02], [-.1, -.6, -.8], [-.9, 0, .2], [.5, .6, .6, .6, .6], .1, .4); H.taschL = KF_SPIEGEL(H.taschR);
@@ -370,6 +382,7 @@ function kf_posen() { const H = KF_H, O = KF_ORT, F = KF_OFF;
   H.feuerR = KG('R', kf_add(O.F0, [0, .026, 0]), [-.5, -.05, -.86], [-.88, .1, .45], [.66, .7, .74, .78, .8], .04, .2, F.palm); // Feuerzeug aufrecht in der Rechten, Daumen am Rad
   H.schirmL = KG('L', kf_add(O.tip, [-.035, -.015, .0]), [.25, .55, -.8], [.92, .1, .35], [.3, .32, .36, .42, .5], .12, .3, F.palm); // linke Hand schirmt die Flamme ab
   H.feuerL = H.schirmL;
+  if (H.haltMo) { H.haltR = H.haltMo; H.mundR = H.mundMo; }
   H.gravurL = KG('L', [-.015, -.2, -.2], [.45, .4, -.8], [.05, .85, .5], [.5, .56, .6, .64, .68], .05, .5, F.palm);
 }
 // ---------------------------------------------------------------- Die Schritte der Szene
@@ -431,7 +444,7 @@ function kf_eval(st, p) { const K = st.keys; let a = K[0], b = K[K.length - 1], 
 // Hand um eine Achse durch einen Punkt drehen (Grinder-Deckel)
 function kf_handDreh(P, cx, cy, cz, ax, ay, az, ang) { const V = KF_V, q = V.q2.setFromAxisAngle(V.v4.set(ax, ay, az).normalize(), ang); P.w.x -= cx; P.w.y -= cy; P.w.z -= cz; P.w.applyQuaternion(q); P.w.x += cx; P.w.y += cy; P.w.z += cz; P.f.applyQuaternion(q); P.n.applyQuaternion(q); }
 const kf_lebend = {
-  grind(dt, t) { const Z = kf_Z, mv = kiffen_S.in.dx; Z.lidV = kf_lerp(Z.lidV, mv / Math.max(dt, .001) * .0035, Math.min(1, dt * 12)); Z.lidA = kf_clamp(Z.lidA + mv * .0042, -.95, .95);
+  grind(dt, t) { const Z = kf_Z, mv = kiffen_S.in.dx; Z.lidV = kf_lerp(Z.lidV, mv / Math.max(dt, .001) * .0035, Math.min(1, dt * 12)); const zahn = .5 + .5 * Math.abs(Math.sin(Z.lidA * 9 + (Z.gw = (Z.gw || 0) + Math.abs(mv) * .004))); Z.lidA = kf_clamp(Z.lidA + mv * .0042 * zahn, -.95, .95); if (zahn < .56 && Math.abs(mv) > 3) shake = Math.max(shake, .0025); // Zähne greifen: Widerstand, kleiner Ruck
     const g = kf_PR.koerper.o.position; const ax = KF_V.v1.set(0, 0, 1).applyQuaternion(kf_HQ.L); kf_handDreh(kf_P.R, g.x, g.y, g.z, ax.x, ax.y, ax.z, Z.lidA); kf_CH.deckelD = Z.lidA;
     kf_P.L.w.y += Math.sin(t * 23) * .0008 * Math.min(1, Math.abs(Z.lidV)); // die haltende Hand bekommt den Widerstand ab
     const sp = Math.min(1, Math.abs(Z.lidV) * .5); if (Z.grindG) Z.grindG.g.gain.setTargetAtTime(sp * .5, Audio.ctx.currentTime, .05); },
@@ -440,7 +453,8 @@ const kf_lebend = {
     kf_P.L.w.y += o * .006; kf_P.R.w.y += o * .006; kf_P.L.c[0] = kf_P.R.c[0] = .62 + o * .12; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .9; kf_ton('kfRoll', { gain: .22 }); } },
   kleben(dt, t) { const Z = kf_Z, d = kiffen_S.in.dx; Z.klebX = kf_clamp((Z.klebX || 0) + d * .00004, -.03, .03); kf_P.L.w.x += Z.klebX; kf_P.R.w.x += Z.klebX; kf_PA.nass = 1 - Z.p * .6; if (Math.abs(d) > 2 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .8; kf_ton('kfRoll', { gain: .16, rate: 1.2 }); } },
   spitze(dt, t) { const Z = kf_Z, d = Math.abs(kiffen_S.in.dx) + Math.abs(kiffen_S.in.dy); Z.spPh = (Z.spPh || 0) + d * .02; kf_handDreh(kf_P.R, .085, -.37, -.3, -.35, .2, -.92, Math.sin(Z.spPh) * .5); if (d > 3 && (!Z.rollT || t > Z.rollT)) { Z.rollT = t + .5; kf_ton('kfPapier', { gain: .12, rate: 1.4, dur: .3 }); } },
-  rad(dt, t) { const Z = kf_Z; if (!Z.radDone && Z.p > .45) { Z.radDone = true; kf_ton('kfDeckelZ', { gain: .5 }); Z.radN = (Z.radN || 0) + 1; kf_ton('kfRad', { gain: .5, delay: .25 }); const f = kf_PR.feuerzeug.o.position;
+  rad(dt, t) { const Z = kf_Z; if (Z.p > .45 && Z.p < .62 && !Z.feuer) { const k = (Z.p - .45) / .17; kf_P.R.c[0] = .15 + .75 * Math.sin(Math.PI * k); kf_P.R.t = .2 + .5 * Math.sin(Math.PI * k); } // Daumen reißt das Rad
+    if (!Z.radDone && Z.p > .45) { Z.radDone = true; kf_ton('kfDeckelZ', { gain: .5 }); Z.radN = (Z.radN || 0) + 1; kf_ton('kfRad', { gain: .5, delay: .25 }); const f = kf_PR.feuerzeug.o.position;
       setTimeout(() => { kf_funken(KF_V.v4.copy(f).setY(f.y + .03)); if (Z.radN >= 2 || kiffen_S.in.test) { kf_ton('kfWusch', { gain: .45 }); kf_CH.flamme = 1; Z.feuer = true; Z.flTon = kf_ton('kfFlamme', { gain: .1 }); if (Z.flTon) Z.flTon.src.loop = true; } else { subtitle('Nur Funken. Der Stein ist alt.', 1800, 'LUKE'); Z.p = 0; Z.radDone = false; Z.akt = false; kf_hint(Z.st && Z.st.hint); } }, 280); }
     if (Z.feuer) kf_CH.flamme = 1; },
   anzuenden(dt, t) { const Z = kf_Z; kf_CH.flamme = 1; if (kiffen_S.in.down) { kf_CH.glut = Math.min(1, .3 + Z.p); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .3, dur: 1.6 }); } } },
@@ -461,22 +475,49 @@ function kf_kruemelAlle() { let n = 0; for (const c of kf_T.kr) if (!c.st && n++
 // Weltlage eines Punkts auf dem Joint (u entlang, Achse)
 function kf_jointPunkt(u, o) { const bl = kf_PR.blatt.o; kf_papAchse(u, o); return o.applyQuaternion(bl.quaternion).add(bl.position); }
 // ---------------------------------------------------------------- Rauchen: Zug = halten; loslassen = ausatmen. Husten nach dem ersten Zug, Whiskey äfft nach, Vegas im Türrahmen
+// Rauchen nach echter Bewegungsaufnahme (Mocap „Smoking 01“, Klian, Rokoko-Anzug mit Handschuhen, CC-BY → assets/ms/haende/rauchen.json, tools/_x6_mocap.mjs):
+// Abschnitte der Aufnahme: heben → Zug (am Mund, hin und her, solange gehalten) → senken → halten (Ruhe) · nach dem 2. und 4. Zug abklopfen
+const KF_MO = { halten: [20.2, 26.4, 'pp'], heben: [12.5, 14.3], zug: [14.3, 16.4, 'pp'], senken: [16.6, 20.2], klopfen: [31.2, 33.9] };
+function kf_moSetzen(tt, P) { const M = kiffen_S.mo; if (!M) return false; const R = M.R, f = Math.max(0, Math.min(R.length - 1.001, tt * M.fps)), i = Math.floor(f), k = f - i, a = R[i], b = R[i + 1];
+  P.w.set(kf_lerp(a.w[0], b.w[0], k), kf_lerp(a.w[1], b.w[1], k), kf_lerp(a.w[2], b.w[2], k)); P.f.set(kf_lerp(a.f[0], b.f[0], k), kf_lerp(a.f[1], b.f[1], k), kf_lerp(a.f[2], b.f[2], k)).normalize();
+  P.n.set(kf_lerp(a.n[0], b.n[0], k), kf_lerp(a.n[1], b.n[1], k), kf_lerp(a.n[2], b.n[2], k)).normalize(); for (let c = 0; c < 5; c++) P.c[c] = kf_lerp(a.c[c], b.c[c], k); P.s = .1; P.t = .55; return true; }
+function kf_moWeiter(dt) { const m = kf_Z.mo, G = KF_MO[m.seg]; m.t += dt * m.dir;
+  if (G[2] === 'pp') { const lo = G[0] + (m.seg === 'zug' ? .4 : 0); if (m.t > G[1]) { m.t = G[1]; m.dir = -1; } else if (m.t < lo) { m.t = lo; m.dir = 1; } return false; }
+  return m.t >= G[1]; }
+function kf_moSeg(seg) { const m = kf_Z.mo; m.seg = seg; m.t = KF_MO[seg][0]; m.dir = 1; m.segT = 0; }
 function kf_rauchenTick(dt, t) { const Z = kf_Z, S = kiffen_S, H = KF_H, V = KF_V;
-  if (S.in.test) { Z.testT = (Z.testT || 0) + dt; S.in.down = (Z.testT % 4.4) < 1.4; if (Z.zuege >= 3) S.in.ende = true; } // Selbsttest: Züge simulieren
-  const ziehen = S.in.down && Z.ausT <= 0 && !Z.pause; Z.zug = kf_lerp(Z.zug, ziehen ? 1 : 0, Math.min(1, dt * (ziehen ? 3 : 2.2)));
-  kf_mixPose(kf_P.R, H.haltR, H.mundR, kf_ease(Z.zug)); kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0); Z.camPz = Z.blickY ? .12 : kf_lerp(-.5, -.3, Z.zug); Z.camYz = Z.blickY || 0;
-  kf_CH.glut = .45 + Z.zug * .55; if (ziehen) { Z.zugT = (Z.zugT || 0) + dt; kf_CH.brand = Math.min(.95, kf_CH.brand + dt * .012); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .26, dur: 1.6 }); } }
-  else if ((Z.zugT || 0) > .5) { // ausatmen
-    Z.zugT = 0; Z.zuege++; Z.ausT = 2.4; kf_ton('kfAus', { gain: .32 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
-    if (Z.zuege === 1 && !Z.hustet) { Z.hustet = true; setTimeout(() => { kf_ton('kfHusten', { gain: .55 }); shake = Math.max(shake, .018); kf_husten(); }, 700); }
-    if (Z.zuege === 3 && !Z.vegas && Z.opts.vegas !== false) setTimeout(() => kf_vegas(), 2600);
-  } else if (Z.zugT > 0 && !ziehen) Z.zugT = 0;
-  if (Z.ausT > 0) { Z.ausT -= dt; const k = Z.ausT / 2.4; if (k > .35 && (!Z.ausP || t > Z.ausP)) { Z.ausP = t + .06; kf_rauchStoss(V.v0.set(0, -.07, -.09), 2, (Math.random() - .5) * .05, .02, -.35 * k, .018, .34 * k, 3.2); } }
-  // Glut glimmt, Faden steigt auf
-  kf_jointPunkt(1 - kf_CH.brand * .72, V.v1); if (!Z.fadT || t > Z.fadT) { Z.fadT = t + (ziehen ? .03 : .11); kf_rauchStoss(V.v1, 1, 0, .045, 0, .005, ziehen ? .08 : .2, 3); }
+  if (S.in.test) { Z.testT = (Z.testT || 0) + dt; S.in.down = (Z.testT % 9) < 4.2; if (Z.zuege >= 3) S.in.ende = true; } // Selbsttest: Züge simulieren
+  if (!Z.mo) Z.mo = { seg: 'halten', t: KF_MO.halten[0], dir: 1, segT: 0 };
+  const m = Z.mo, druck = S.in.down && Z.ausT <= .6 && !Z.pause; m.segT += dt;
+  if (m.seg === 'halten' && druck) kf_moSeg('heben');
+  const ende = kf_moWeiter(dt);
+  if (m.seg === 'heben' && ende) kf_moSeg('zug');
+  else if (m.seg === 'zug' && !druck && m.segT > .5) { if (m.segT > 1) { // ausatmen beim Senken
+      Z.zuege++; Z.ausT = 2.6; S.zittern *= .72; kf_ton('kfAus', { gain: .32, delay: .35 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
+      if (Z.zuege === 1 && !Z.hustet) { Z.hustet = true; setTimeout(() => { kf_ton('kfHusten', { gain: .55 }); shake = Math.max(shake, .018); kf_husten(); }, 900); }
+      if (Z.zuege === 3 && !Z.vegas && Z.opts.vegas !== false) setTimeout(() => kf_vegas(), 3200); }
+    kf_moSeg('senken'); }
+  else if (m.seg === 'senken' && ende) { if ((Z.zuege === 2 || Z.zuege === 4) && Z.klopf !== Z.zuege) { Z.klopf = Z.zuege; kf_moSeg('klopfen'); } else kf_moSeg('halten'); }
+  else if (m.seg === 'klopfen') { if (!Z.klopfT && m.t > 32.9) { Z.klopfT = 1; kf_asche(); } if (ende) { Z.klopfT = 0; kf_moSeg('halten'); } }
+  if (!kf_moSetzen(m.t, kf_P.R)) kf_mixPose(kf_P.R, H.haltR, H.mundR, m.seg === 'zug' ? 1 : 0);
+  kf_mixPose(kf_P.L, H.ruheL, H.ruheL, 0);
+  const ziehen = m.seg === 'zug' && druck; Z.zug = kf_lerp(Z.zug, m.seg === 'zug' || m.seg === 'heben' ? 1 : 0, Math.min(1, dt * 2.5));
+  Z.camPz = Z.blickY ? .12 : kf_lerp(-.52, -.36, Z.zug); Z.camYz = Z.blickY || 0;
+  kf_CH.glut = kf_lerp(kf_CH.glut, ziehen ? 1 : .42, Math.min(1, dt * (ziehen ? 4 : 1.5)));
+  if (ziehen) { kf_CH.brand = Math.min(.95, kf_CH.brand + dt * .012); if (!Z.einT || t > Z.einT) { Z.einT = t + 1.7; kf_ton('kfEin', { gain: .26, dur: 1.6 }); } }
+  if (Z.ausT > 0) { Z.ausT -= dt; const k = Z.ausT / 2.6; if (k > .3 && k < .88 && (!Z.ausP || t > Z.ausP)) { Z.ausP = t + .05; kf_rauchStoss(V.v0.set(0, -.075, -.09), 2, (Math.random() - .5) * .05, .015, -.32 * k, .018, .34 * k, 3.4); } }
+  // Glut glimmt, Rauchfaden steigt auf (dichter beim Zug)
+  kf_jointPunkt(1 - kf_CH.brand * .72, V.v1); if (!Z.fadT || t > Z.fadT) { Z.fadT = t + (ziehen ? .035 : .1); kf_rauchStoss(V.v1, 1, 0, .05, 0, .005, ziehen ? .09 : .2, 3.2); }
   if (ziehen && (!Z.glT || t > Z.glT)) { Z.glT = t + .35; kf_ton('kfGlut', { gain: .1, dur: .4, offset: Math.random() }); }
   if (Z.zuege >= 3 && !Z.endHint) { Z.endHint = true; kf_hint([['Halten', 'noch ein Zug'], ['E', 'aufstehen']]); }
-  if (Z.zuege >= 3 && S.in.ende && Z.ausT <= 0 && !Z.pause) Z.fertig = true; if (Z.zuege >= 6 && Z.ausT <= 0 && !Z.pause) Z.fertig = true; }
+  if (m.seg === 'halten' && !Z.pause && Z.ausT <= 0 && ((Z.zuege >= 3 && S.in.ende) || Z.zuege >= 6)) Z.fertig = true; }
+// Abklopfen: ein paar Aschestücke fallen (Schwerkraft), die Glut wird kurz kleiner
+function kf_asche() { const T = kf_T, p = kf_jointPunkt(1 - kf_CH.brand * .72 + .01, KF_V.v2); if (!T.asche) return; T.asche.visible = true; T.ascheT = 0;
+  for (const a of T.as) { a.x = p.x + (Math.random() - .5) * .004; a.y = p.y; a.z = p.z + (Math.random() - .5) * .004; a.vx = (Math.random() - .5) * .08; a.vy = -.05 - Math.random() * .1; a.vz = (Math.random() - .5) * .08; }
+  kf_CH.brand = Math.max(0, kf_CH.brand - .012); kf_ton('kfKlack', { gain: .04, rate: 1.8 }); }
+function kf_ascheTick(dt) { const T = kf_T; if (!T.asche || !T.asche.visible) return; T.ascheT += dt; const P = T.asche.geometry.attributes.position.array;
+  for (let i = 0; i < T.as.length; i++) { const a = T.as[i]; a.vy -= 9.8 * dt * .6; a.vx *= 1 - dt * 2; a.vz *= 1 - dt * 2; a.x += a.vx * dt; a.y += a.vy * dt; a.z += a.vz * dt; P[i * 3] = a.x; P[i * 3 + 1] = a.y; P[i * 3 + 2] = a.z; }
+  T.asche.geometry.attributes.position.needsUpdate = true; T.asche.material.opacity = Math.max(0, 1 - T.ascheT / 1.4); if (T.ascheT > 1.4) T.asche.visible = false; }
 function kf_husten() { const Z = kf_Z; if (Z.opts.whiskey === false || typeof whiskey_S === 'undefined' || !whiskey_S.g || whiskey_S.light || (typeof whiskey_unten === 'function' && whiskey_unten())) { setTimeout(() => subtitle('Okay. Langsam.', 1800, 'LUKE'), 900); return; }
   const W = whiskey_S, sp = kf_welt(.75, -.35, -.2, KF_V.v2); // Geländerende rechts vorn
   try { whiskey_setzen(sp.x, sp.y, sp.z, () => { whiskey_blick(Z.sitz.x, Z.sitz.y + 1.1, Z.sitz.z, 5); }); } catch (e) {}
@@ -518,14 +559,30 @@ function kf_schrittTick(dt, t) { const Z = kf_Z, st = Z.st, S = kiffen_S; if (!s
   S.in.dx = 0; S.in.dy = 0;
   if (st.art === 'rauchen' ? Z.fertig : Z.p >= 1) { if (st.halt && !Z.halt) { Z.halt = st.halt; if (st.id === 'feuer') subtitle('<i>„Für Peter. Damit du im Dunkeln nicht allein bist. – M.“</i>', 4200); return; } if (Z.halt > 0) { Z.halt -= dt; if (Z.halt > 0) return; } Z.halt = 0;
     if (Z.grindG) { try { Z.grindG.stop(.2); } catch (e) {} Z.grindG = null; } kf_hint(null); kf_prog(null); const r = Z.res; Z.res = null; Z.st = null; r && r(); } }
+// Feder-Schicht über den Schlüsselbildern: Hände beschleunigen, bremsen, schwingen leicht nach (kritisch gedämpft, ζ < 1) – nie lineares Gleiten
+const kf_SP = { L: null, R: null, init: false };
+function kf_federInit() { for (const s of ['L', 'R']) { const P = kf_P[s]; kf_SP[s] = { w: P.w.clone(), wv: new THREE.Vector3(), f: P.f.clone(), fv: new THREE.Vector3(), n: P.n.clone(), nv: new THREE.Vector3(), c: P.c.slice(), cv: [0, 0, 0, 0, 0], t: P.t, tv: 0 }; } kf_SP.init = true; }
+function kf_feder1(x, v, ziel, om, ze, dt) { const a = om * om * (ziel - x) - 2 * ze * om * v; v += a * dt; return [x + v * dt, v]; }
+function kf_federV(x, v, ziel, om, ze, dt) { const V = KF_V.v4.copy(ziel).sub(x).multiplyScalar(om * om).addScaledVector(v, -2 * ze * om); v.addScaledVector(V, dt); x.addScaledVector(v, dt); }
+function kf_feder(dt) { if (!kf_SP.init) kf_federInit(); const h = Math.min(dt, 1 / 30), n = dt > 1 / 60 ? 2 : 1, st = h / n;
+  for (const s of ['L', 'R']) { const P = kf_P[s], F = kf_SP[s];
+    for (let k = 0; k < n; k++) { kf_federV(F.w, F.wv, P.w, 13, .78, st); kf_federV(F.f, F.fv, P.f, 15, .8, st); kf_federV(F.n, F.nv, P.n, 15, .8, st);
+      for (let i = 0; i < 5; i++) { const om = 17 + i * 1.5; const r = kf_feder1(F.c[i], F.cv[i], P.c[i], om, .72, st); F.c[i] = r[0]; F.cv[i] = r[1]; } const r = kf_feder1(F.t, F.tv, P.t, 16, .75, st); F.t = r[0]; F.tv = r[1]; }
+    P.w.copy(F.w); P.f.copy(F.f).normalize(); P.n.copy(F.n).normalize(); for (let i = 0; i < 5; i++) P.c[i] = F.c[i]; P.t = F.t; } }
 // Alles aus dem Zustand auf die Bühne
 function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za = S.zittern;
   if (st) for (const s of ['L', 'R']) { const P = kf_P[s]; if (za > 0) { P.w.x += (Math.sin(t * 9.1 + (s === 'L' ? 0 : 2)) + Math.sin(t * 13.7)) * .0007 * za; P.w.y += Math.sin(t * 11.3 + (s === 'L' ? 1 : 3)) * .0008 * za; }
-    P.w.y += Math.sin(t * 1.35) * .003; kf_applyHand(s, P); }
+    P.w.y += Math.sin(t * 1.35) * .003; }
+  if (st) { for (const s of ['L', 'R']) { const c = kf_P[s].c; for (let i = 0; i < 5; i++) c[i] += Math.sin(t * (1.3 + i * .37) + i * 1.9 + (s === 'L' ? 0 : 2.3)) * .012 * (1 + za * 2); } // lebendige Finger
+    kf_feder(dt); for (const s of ['L', 'R']) kf_applyHand(s, kf_P[s]); }
   // Requisiten nach Schlüsseln (aus dem aktuellen Schritt)
   if (st) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0; for (let i = 0; i < K.length - 1; i++) if (Z.p >= K[i][0] && Z.p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((Z.p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
     if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); }
-  if (st && st.live === 'rauchen') { const O = KF_ORT, bl = kf_PR.blatt.o; kf_keyLage({ p: O.JH, d: O.dH }, kf_kp[0], kf_kq[0]); kf_keyLage({ p: O.JM, d: O.dM }, kf_kp[1], kf_kq[1]); const k = kf_ease(Z.zug); bl.position.lerpVectors(kf_kp[0], kf_kp[1], k); bl.quaternion.slerpQuaternions(kf_kq[0], kf_kq[1], k); bl.visible = true; }
+  if (st && st.live === 'rauchen') { const bl = kf_PR.blatt.o, B = kf_R.B.R; if (kiffen_S.mo && B.f[1][1] && B.f[2][1]) { // zwischen Zeige- und Mittelfinger geklemmt, Filter zur Handflächenseite
+      kf_R.rig.updateMatrixWorld(true); const j = KF_V.v2.setFromMatrixPosition(B.f[1][1].matrixWorld).add(KF_V.v3.setFromMatrixPosition(B.f[2][1].matrixWorld)).multiplyScalar(.5); kf_R.seat.worldToLocal(j);
+      const n = kf_P.R.n; bl.position.copy(j).addScaledVector(n, -.024); bl.quaternion.setFromUnitVectors(KF_V.v3.set(1, 0, 0), n); }
+    else { const O = KF_ORT; kf_keyLage({ p: O.JH, d: O.dH }, kf_kp[0], kf_kq[0]); kf_keyLage({ p: O.JM, d: O.dM }, kf_kp[1], kf_kq[1]); const k = kf_ease(Z.zug); bl.position.lerpVectors(kf_kp[0], kf_kp[1], k); bl.quaternion.slerpQuaternions(kf_kq[0], kf_kq[1], k); }
+    bl.visible = true; }
   // Kanäle
   const g = kf_PR.deckel.o, gb = kf_PR.koerper.o; if (g.visible) { g.rotateOnAxis(KF_V.v0.set(0, 1, 0), kf_CH.deckelD); }
   if (kf_PR.einsatz) { const e = kf_PR.einsatz.o; e.visible = gb.visible && kf_CH.einsatz > .5; if (e.visible) { e.position.copy(gb.position); e.quaternion.copy(gb.quaternion); e.translateY((S.gr ? S.gr.cut : .027) - .001); e.rotateX(-Math.PI / 2); } }
@@ -540,7 +597,7 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   T.flamme.visible = fl; if (fl) { T.flamme.position.copy(fz.position).add(KF_V.v4.set(0, .061, 0).applyQuaternion(fz.quaternion)); if (Z.st && Z.st.id === 'anzuenden') T.flamme.position.lerp(kf_jointPunkt(1, KF_V.v3), .35);
     const fk = .85 + Math.sin(t * 31) * .06 + Math.sin(t * 17.3) * .08 + (Math.random() - .5) * .05; T.flamme.scale.set(.011 * fk, .026 * (fk + .1 * Math.sin(t * 9)), 1); T.flamme.material.opacity = .95; T.flamme.material.rotation = Math.sin(t * 3.1) * .08 + (Z.st && Z.st.id === 'anzuenden' ? -.5 : 0); }
   const gl = kf_CH.glut; T.glut.visible = gl > .02 && bl.visible; if (T.glut.visible) { kf_jointPunkt(1 - kf_PA.brand * .72, T.glut.position); const f = gl * (.8 + Math.sin(t * 13) * .1 + Math.sin(t * 5.3) * .1); T.glut.material.opacity = kf_clamp(f); T.glut.scale.setScalar(.008 + .01 * f); }
-  if (L) { const w = KF_V.v3; if (fl) { L.color.setHex(0xffa24a); L.intensity = 1.6 * (.85 + Math.sin(t * 29) * .08 + Math.random() * .07); L.distance = 2.2; kf_welt(T.flamme.position.x, T.flamme.position.y + .02, T.flamme.position.z, w); L.position.copy(w); }
+  if (L) { const w = KF_V.v3; if (fl) { L.color.setHex(0xffa24a); L.intensity = .55 * (.85 + Math.sin(t * 29) * .08 + Math.sin(t * 13.7) * .05 + Math.random() * .05); L.distance = 1.8; kf_welt(T.flamme.position.x, T.flamme.position.y + .02, T.flamme.position.z, w); L.position.copy(w); }
     else if (Z.hell) { L.color.setHex(0xfff0dc); L.intensity = Z.hell; L.distance = 3; kf_welt(.3, .4, .2, w); L.position.copy(w); }
     else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .1 * gl; L.distance = .6; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
   if (Z.flTon && !fl) { try { Z.flTon.stop(.15); } catch (e) {} Z.flTon = null; }
@@ -555,9 +612,9 @@ function kf_buehne(opts) { const Z = kf_Z, s = opts.sitz || [KF_SITZ.x, null, KF
 // ---------------------------------------------------------------- Die Szene
 async function kiffen_szene(opts = {}) {
   const S = kiffen_S, Z = kf_Z; if (!S.ready || Z.on) return false; if (!kf_R.ready) { console.warn('Kiffen: Hände fehlen'); return false; }
-  Z.on = true; S.szene = true; Z.opts = opts; state.talking = true; Z.fertig = false; Z.zuege = 0; Z.hustet = false; Z.vegas = false; Z.feuer = false; Z.radN = 0; Z.endHint = false; Z.blickY = 0; Z.pause = false; Z.halt = 0; Z.lidA = 0; Z.ausT = 0; Z.zug = 0;
+  Z.on = true; S.szene = true; Z.opts = opts; state.talking = true; Z.fertig = false; Z.zuege = 0; Z.hustet = false; Z.vegas = false; Z.feuer = false; Z.radN = 0; Z.endHint = false; Z.blickY = 0; Z.pause = false; Z.halt = 0; Z.lidA = 0; Z.ausT = 0; Z.zug = 0; Z.mo = null; Z.klopf = 0; Z.klopfT = 0;
   Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z };
-  kf_buehne(opts); kf_veranda(true); kf_eval(KF_STEPS[0], 0); Z.camY = 0; Z.camP = player.pitch; Z.blend = 0; Z.blendZ = 1; flashOn = false;
+  kf_buehne(opts); kf_veranda(true); kf_eval(KF_STEPS[0], 0); kf_SP.init = false; Z.camY = 0; Z.camP = player.pitch; Z.blend = 0; Z.blendZ = 1; flashOn = false;
   setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); setCamOverride(kf_camFn);
   if (typeof spannung_hush === 'function') try { spannung_hush(20); } catch (e) {}
   try { for (const st of KF_STEPS) { if (st.id === 'aufstehen') break; await kf_schritt(st); } await kf_schritt(KF_STEPS[KF_STEPS.length - 1]); }
@@ -577,7 +634,7 @@ function kf_weichTick(rdt, t) { const S = kiffen_S; if (S.weichZiel <= 0 && S.we
   if (S.weichT > KF_WEICH && !kf_Z.on) S.weichZiel = 0;
   S.weich = kf_lerp(S.weich, S.weichZiel, Math.min(1, rdt * .35)); if (S.pass) { S.pass.enabled = true; S.pass.uniforms.uW.value = S.weich * .9; }
   S.zeit = 1 - .16 * kf_clamp(S.weich); // leichte Zeitlupe der Welt
-  if (S.weich > .05) { if (typeof fear !== 'undefined') fear.v = Math.min(fear.v, .05); if (typeof SP !== 'undefined') { SP.peak = Math.min(SP.peak, SP.t - 600); SP.lastMinor = Math.max(SP.lastMinor, SP.t - 20); SP.lastMajor = Math.max(SP.lastMajor, SP.t - 20); } S.zittern = 0; }
+  if (S.weich > .05) { if (typeof fear !== 'undefined') fear.v = Math.min(fear.v, .05); if (typeof SP !== 'undefined') { SP.peak = Math.min(SP.peak, SP.t - 600); SP.lastMinor = Math.max(SP.lastMinor, SP.t - 20); SP.lastMajor = Math.max(SP.lastMajor, SP.t - 20); } S.zittern = Math.max(0, S.zittern - rdt * .05 * S.weich); } // Zittern klingt beim Rauchen ab
   if (Audio.world && Audio.ctx) { const g = 1 - .45 * kf_clamp(S.weich); if (Math.abs(g - S.worldG) > .02) { S.worldG = g; Audio.world.gain.setTargetAtTime(g, Audio.ctx.currentTime, .6); } } }
 
 // ================================================================ Flashbacks (Nachbild-Stil): kurze Schnitte, Ton-Abriss, Herzschlag – danach zittern die Hände
@@ -637,9 +694,12 @@ async function kf_fundeBau() { const S = kiffen_S;
   S.fundHit.knolle = kf_hit(.6, .45, .6, KF_ORTE.knolle.at[0], (S.fundObj.knolle.position.y || 0) + .2, KF_ORTE.knolle.at[2], 'Unter dem Blumentopf', () => kf_gefunden('knolle'));
   S.fundHit.tips = kf_hit(1.1, 2.1, .35, -28, 1.5, -12.05, 'Vegas nach Tips fragen', () => kf_vegasTips());
   S.sitzHit = kf_hit(1.4, .9, .8, KF_SITZ.x, .7, KF_SITZ.z - .15, 'Hinsetzen · fünf Minuten', () => kiffen_szene({}));
-  for (const k in S.fundHit) uninteract(S.fundHit[k]); uninteract(S.sitzHit); }
+  for (const k in S.fundHit) uninteract(S.fundHit[k]); uninteract(S.sitzHit);
+  S.fundBereit = true; for (const [id, v] of Object.entries(S.fundPos || {})) if (v) kiffen_fund(id, v[0], v[1]); }
 // Kapitel-Ort ersetzt den Rückfall: kiffen_fund('grinder', [x, y, z, ry]) (AP-15 Nr. 4 innen) · kiffen_fund('tips', [x, y, z]) (AP-19 Vegas' Küche)
-function kiffen_fund(id, pos, o = {}) { const S = kiffen_S; if (!KF_FUNDE[id]) return false; S.echt[id] = !!pos; if (!pos) { kf_aufgabeSync(); return true; }
+function kiffen_fund(id, pos, o = {}) { const S = kiffen_S; if (!KF_FUNDE[id]) return false; S.echt[id] = !!pos; (S.fundPos || (S.fundPos = {}))[id] = pos ? [pos, o] : null;
+  if (!S.fundBereit) return true; // Module vor „kiffen“ in ORDER (nr4.js): Ort merken, nach dem Aufbau anwenden
+  if (!pos) { kf_aufgabeSync(); return true; }
   if (id === 'tips') { if (!S.tipObj) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.052, .036), new THREE.MeshStandardMaterial({ map: kf_texPappe(), roughness: .95, side: THREE.DoubleSide })); m.rotation.x = -Math.PI / 2; m.castShadow = true; const g = new THREE.Group(); g.add(m); g.userData.kf = true; scene.add(g); S.tipObj = g; S.fundObj.tips = g; }
     uninteract(S.fundHit.tips); S.fundHit.tips = kf_hit(.3, .2, .3, pos[0], pos[1] + .05, pos[2], o.label || 'Streichholzschachtel', () => { subtitle('„Tips? Nimm den Pappdeckel von den Streichhölzern. Hab ich ’75 auch so gemacht.“', 4200, 'LARS VEGAS'); kf_gefunden('tips'); }); uninteract(S.fundHit.tips); }
   const ob = S.fundObj[id]; if (ob) { ob.position.set(pos[0], pos[1], pos[2]); ob.rotation.y = pos[3] || 0; }
@@ -681,7 +741,7 @@ async function kiffen_deko() { const S = kiffen_S, D = S.deko; const add = (o, k
     // beiges Auto vor Nr. 2 (strasse.js): Blättchen + Feuerzeug auf dem Armaturenbrett (Höhe gemessen)
     for (const dx of [.95, -.95]) { const y = kf_boden(-49.5 + dx, 3.1 + .25, 1.28, .5); if (y !== null && y > .8 && y < 1.2) { const g = new THREE.Group(); g.position.set(-49.5 + dx, y, 3.1 + .25); const p = await kf_modell('kiffen/papes', .105, 'max'); p.rotation.y = 1.2; g.add(p); const f = await kf_modell('w_lighter', .055); f.rotation.set(Math.PI / 2, 0, .3); f.position.set(.02, .012, -.14); g.add(f); scene.add(g); add(g, 1, KF_DEKO_TEXT.auto); break; } }
     // Remise (Hof): Bong neben dem Heu
-    { const y = kf_boden(-126.9, -34.6) ?? 0; const b = await kf_modell('kiffen/bong', .36); b.position.set(-126.9, y, -34.6); b.rotation.y = .7; b.traverse(m => { if (m.isMesh && m.material.transparent) { m.material.depthWrite = false; m.material.envMapIntensity = 1.4; m.castShadow = false; } }); scene.add(b); add(b, 1, KF_DEKO_TEXT.bong, [.35, .5, .35, -126.9, y + .2, -34.6]); }
+    { const y = kf_boden(-126.9, -34.6) ?? 0; const b = await kf_modell('kiffen/bong', .36); b.position.set(-126.9, y, -34.6); b.rotation.y = .7; b.traverse(m => { if (m.isMesh && m.material.transparent) { m.material.depthWrite = false; m.material.envMapIntensity = .45; m.material.roughness = .12; m.castShadow = false; } }); scene.add(b); add(b, 1, KF_DEKO_TEXT.bong, [.35, .5, .35, -126.9, y + .2, -34.6]); }
     // Roxys Laube: zwei Topfpflanzen an der Tür (die Knolle darunter gehört zur Aufgabe), Aufkleber an der Laube
     { const y = kf_boden(-109.95, 23.55) ?? 0; const p1 = await kf_modell('kiffen/pflanze', 1.02); p1.position.set(-109.95, y, 23.55); p1.rotation.y = 2.1; scene.add(p1); add(p1, 1, KF_DEKO_TEXT.pflanzen, [.7, 1.1, .7, -109.95, y + .55, 23.55]);
       const y2 = kf_boden(-109.85, 26.55) ?? 0; const p2 = await kf_modell('kiffen/topf', .72); p2.position.set(-109.85, y2, 26.55); p2.rotation.y = -.6; scene.add(p2); add(p2, 1, KF_DEKO_TEXT.pflanzen);
@@ -731,6 +791,7 @@ WORLD_MODS.push(['Kiffen', async () => { const S = kiffen_S, R = kf_R;
   { const g = new THREE.Group(); g.add(kf_tipBau(kf_texPappe())); kf_prop('tip', g); }
   kf_teilchenBau(); S.vl = new VLight(0xffa24a, 0, 2, 2); scene.add(S.vl); S.fill = new VLight(0xffc68e, 0, 3.2, 2); scene.add(S.fill); // Flamme/Glut · Verandalicht auf den Händen (beide beim Laden mit 0)
   S.pass = kiffen_passBau(); S.flTex = kf_flashBilder(); if (S.pass) { S.pass.uniforms.tFl.value = S.flTex[0]; try { const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), S.pass.material); renderer.compile(q, camera); } catch (e) {} }
+  try { S.mo = await fetch('assets/ms/haende/rauchen.json').then(r => r.json()); } catch (e) { console.warn('Kiffen: Mocap', e); S.mo = null; }
   kf_posen(); kf_schritte(); await kf_fundeBau(); await kiffen_deko();
   // Beim Vorübersetzen der Shader sichtbar (tief unter der Welt), im ersten Bild versteckt
   for (const n in kf_PR) kf_PR[n].o.visible = true; if (R.rig) R.rig.visible = true; kf_T.krP.visible = true; kf_T.glut.visible = true; kf_T.flamme.visible = true; for (const r of kf_T.rauch) r.s.visible = true;
@@ -739,13 +800,14 @@ WORLD_MODS.push(['Kiffen', async () => { const S = kiffen_S, R = kf_R;
 function kf_allesAus() { for (const n in kf_PR) kf_PR[n].o.visible = false; if (kf_R.rig) kf_R.rig.visible = false; kf_T.krP.visible = false; kf_T.glut.visible = false; kf_T.flamme.visible = false; for (const r of kf_T.rauch) r.s.visible = false; kiffen_S.dekoK = -1; kf_fundeSync(); kf_dekoSync(); }
 MOD_SAVE.push(['kiffen', () => { const S = kiffen_S; return { auf: S.auf === 'flash' ? 'aus' : S.auf, done: S.done, echt: S.echt, zittern: +S.zittern.toFixed(2) }; },
   v => { const S = kiffen_S; if (!v) return; S.auf = v.auf || 'aus'; S.done = !!v.done; if (v.echt) Object.assign(S.echt, v.echt); S.zittern = v.zittern || 0; S.dekoK = -1; if (S.ready) { kf_fundeSync(); kf_aufgabeSync(); } }]);
-WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
+WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return; { const n = performance.now(); S.fpsN = (S.fpsN || 0) + 1; if (!S.fpsT) S.fpsT = n; if (n - S.fpsT > 1000) { S.fps = Math.round(S.fpsN * 1000 / (n - S.fpsT)); S.fpsN = 0; S.fpsT = n; } } // Messung für den Selbsttest
   if (!S.hid) { S.hid = true; kf_allesAus(); try { kf_itemsEintragen(); } catch (e) { console.warn('Kiffen: Gegenstände', e); } }
   if (!S.hookClock && typeof clock !== 'undefined' && clock.getDelta) { S.hookClock = true; const gd = clock.getDelta.bind(clock); clock.getDelta = () => gd() * S.zeit; } // Zeitlupe der Welt
-  const rdt = dt / S.zeit; if (!S.klang && Audio.ctx) { S.klang = true; kiffen_klangBau().catch(e => console.warn('Kiffen: Klänge', e)); }
+  const jetzt = performance.now(), echt = S.lastT ? Math.min(.25, (jetzt - S.lastT) / 1000) : dt; S.lastT = jetzt; const rdt = S.in.test ? Math.max(dt / S.zeit, echt) : dt / S.zeit; // Selbsttest: Echtzeit auch bei wenigen Bildern je Sekunde
+  if (!S.klang && Audio.ctx) { S.klang = true; kiffen_klangBau().catch(e => console.warn('Kiffen: Klänge', e)); }
   if (S.zittern > 0 && !kf_Z.on) S.zittern = Math.max(0, S.zittern - rdt / 900);
   kf_weichTick(rdt, t); if (S.pass && S.pass.enabled) S.pass.uniforms.uT.value = t;
-  const Z = kf_Z; document.body.classList.toggle('kfSzene', Z.on); if (S.fill) { const fi = Z.on && !Z.hell ? 1.25 * kf_io(Z.blend) : 0; if (fi > 0) kf_welt(.3, .62, .5, S.fill.position); if (Math.abs(S.fill.intensity - fi) > .001) S.fill.intensity = fi; }
+  const Z = kf_Z; document.body.classList.toggle('kfSzene', Z.on); if (S.fill) { const fi = Z.on && !Z.hell ? 2.1 * kf_io(Z.blend) : 0; if (fi > 0) kf_welt(.28, .5, .32, S.fill.position); if (Math.abs(S.fill.intensity - fi) > .001) S.fill.intensity = fi; }
   if (Z.on) { Z.blend = kf_clamp(Z.blend + (Z.blendZ ? 1 : -1) * rdt / 1.7);
     if (Z.lab) { kf_eval(Z.st, Z.p); if (Z.labCh) Object.assign(kf_CH, Z.labCh); } else kf_schrittTick(rdt, t); kf_anwenden(rdt, t); kf_teilchenTick(rdt, t); }
   else if (kf_T.rauch.length && kf_T.rauch.some(r => r.s.visible)) kf_teilchenTick(rdt, t);
@@ -755,12 +817,12 @@ WORLD_TICK.push((dt, t) => { const S = kiffen_S; if (!S.ready) return;
 // ================================================================ Testzugriff
 window.__kiffen = { S: kiffen_S, Z: kf_Z, R: kf_R, P: kf_P, PA: kf_PA, TA: kf_TA, H: KF_H, STEPS: KF_STEPS, start: o => kiffen_start(o), flash: o => kiffen_flash(o), szene: o => kiffen_szene(o || {}), fund: kiffen_fund, deko: () => kiffen_deko(), poster: kiffen_poster,
   // Szene direkt starten, alle Schritte laufen von selbst (Klick/Halten/Maus werden simuliert)
-  auto(on = true) { kiffen_S.in.test = on; return on; }, finde: id => { kf_gefunden(id); return story.items.filter(k => k.startsWith('kf_')).join(','); }, fundeText: () => kf_aufgabeText(), klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
+  auto(on = true) { kiffen_S.in.test = on; return on; }, lampe(on = true) { flashOn = !!on; return flashOn; }, finde: id => { kf_gefunden(id); return story.items.filter(k => k.startsWith('kf_')).join(','); }, fundeText: () => kf_aufgabeText(), klick() { kiffen_S.in.klick++; }, halten(on) { kiffen_S.in.down = !!on; }, maus(dx, dy = 0) { kiffen_S.in.dx += dx; kiffen_S.in.dy += dy; }, ende() { kiffen_S.in.ende = true; },
   // Standbild: Schritt id bei Fortschritt p (ohne Ablauf) – für Screenshots und Posen-Feinschliff
   zeige(id, p = 1, opts = {}) { const Z = kf_Z, i = KF_STEPS.findIndex(s => s.id === id); if (i < 0) return 'Schritt fehlt';
-    if (!Z.on) { Z.on = true; Z.lab = true; Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z }; kf_buehne(opts); kf_veranda(true); flashOn = false; Z.blend = 1; Z.blendZ = 1; setCamOverride(kf_camFn); setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); }
+    if (!Z.on) { Z.on = true; Z.lab = true; Z.saved = { x: camera.position.x, y: camera.position.y, z: camera.position.z, yaw: player.yaw, pitch: player.pitch, px: player.pos.x, py: player.pos.y, pz: player.pos.z }; kf_buehne(opts); kf_veranda(true); kf_SP.init = false; flashOn = false; Z.blend = 1; Z.blendZ = 1; setCamOverride(kf_camFn); setScripted(() => { player.yaw = Z.saved.yaw; player.pitch = Z.saved.pitch; return true; }); }
     Z.hell = opts.hell || 0; Z.camFix = opts.cam || null; Z.zug = opts.zug || 0; Z.labCh = opts.ch || null; Z.st = KF_STEPS[i]; Z.p = p; if (i >= KF_STEPS.findIndex(s => s.id === 'fuellen')) kf_kruemelAlle(); kf_eval(Z.st, p); Z.camY = Z.camYz; Z.camP = Z.camPz;
     if (id === 'rollen') kf_PA.rolle = kf_lerp(.3, .82, p); return id + ' ' + p; },
   labEnde() { const Z = kf_Z; kf_veranda(false); if (kiffen_S.vl) kiffen_S.vl.intensity = 0; Z.hell = 0; Z.on = false; Z.lab = false; Z.st = null; setCamOverride(null); setScripted(null); kf_allesAus(); return 'ok'; },
   pose(side, json) { KF_H[side] = KP(json.w, json.f, json.n, json.c, json.s, json.t); kf_schritte(); return 'ok'; },
-  info() { const Z = kf_Z, S = kiffen_S; return { auf: S.auf, st: Z.st && Z.st.id, p: +Z.p.toFixed(2), zuege: Z.zuege, weich: +S.weich.toFixed(2), zeit: +S.zeit.toFixed(2), items: story.items.filter(k => k.startsWith('kf_')), done: S.done, rig: kf_R.ready, deko: S.deko.length }; } };
+  info() { const Z = kf_Z, S = kiffen_S; return { auf: S.auf, st: Z.st && Z.st.id, p: +Z.p.toFixed(2), zuege: Z.zuege, weich: +S.weich.toFixed(2), zeit: +S.zeit.toFixed(2), items: story.items.filter(k => k.startsWith('kf_')), done: S.done, rig: kf_R.ready, deko: S.deko.length, fps: S.fps }; } };
