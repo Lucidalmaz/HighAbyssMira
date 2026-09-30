@@ -1,6 +1,6 @@
 ## Justin vom Hohen Abgrund – Dossier
 
-Dieses Dossier gehört den Kapitel-Autoren von 1 bis 6 und dem Modell-Team. Es liefert die Figur, ihre Stimme, die Dialogbank für Kapitel 3, alle zwölf Seiten des Stundenbuchs, die Liste der 42 Nächte (nur für uns), und die Spuren, die Justin vor und nach Kapitel 3 hinterlässt. Wahrheit ist der Kern (§3, §4, §9, §12, §15.1). Wo ich selbst entschieden habe, steht es am Ende unter „Offene Abstimmungen“.
+Dieses Dossier gehört den Kapitel-Autoren von 1 bis 6 und dem Modell-Team. Es liefert die Figur, ihre Stimme, die Dialogbank für Kapitel 3, alle zwölf Seiten des Stundenbuchs, die Liste der 42 Nächte (nur für uns), und die Spuren, die Justin vor und nach Kapitel 3 hinterlässt. Wahrheit ist der Kern (§3, §4, §9, §12, §15.1). Was davon in `02_entscheidungen.md` festgelegt wurde, steht am Ende unter „Abstimmungen (erledigt)“. Für den Wortlaut der Stundenbuch-Seiten ist dieses Dossier maßgeblich; wo die fertigen Kapitel 2 bis 7 einen Dialog anders gesetzt haben, folgt das Dossier dem Kapitel.
 
 ---
 
@@ -34,7 +34,7 @@ Sieben Jahre, Zahnlücke oben links, barfuß bis in den November, weil Schuhe �
 
 #### 1.5 Wîse
 
-Miras Rabe, alt schon, als Justin sie kennenlernte. Klaute damals wie heute alles, was glänzt: Miras Fingerhut, Justins Sporn, einmal eine Hostie aus der Kapelle. Justin nennt ihn „du alter Dieb“ und meint es zärtlich. Wie der Vogel siebenhundert Jahre alt werden konnte, weiß er nicht (Kapitel 4 und 6) und fragt nicht. Er weiß nur, dass der Rabe rein- und rausfliegt, wo er selbst nur hineingehen kann, und dass er nach Minze riecht, wenn er von irgendwo kommt.
+Miras Rabe, alt schon, als Justin sie kennenlernte. Klaute damals wie heute alles, was glänzt: Miras Fingerhut, Justins Sporn, einmal eine Hostie aus der Kapelle. Justin nennt ihn „du alter Dieb“ und meint es zärtlich. Seit der Martinsnacht 1312 steckt eine schwarze Feder von ihm in Justins Helmband; der Rabe verliert welche, Justin steckt sie ein und hat nie erklärt, warum (02 B6). Eine davon ist ihm 2009 im Amt beim Schlag auf Stuhl 8 abgegangen und klemmt seitdem in der Kerbe (Kap. 2, W-05). Wie der Vogel siebenhundert Jahre alt werden konnte, weiß er nicht (Kapitel 4 und 6) und fragt nicht. Er weiß nur, dass der Rabe rein- und rausfliegt, wo er selbst nur hineingehen kann, und dass er nach Minze riecht, wenn er von irgendwo kommt.
 
 #### 1.6 Der Martinsabend
 
@@ -76,14 +76,14 @@ Vorhandenes Paladin-Modell (`figuren.js`, Kommentar „Justin: vorhandenes Palad
 
 - **Rüstung:** Plattenrüstung ohne Nieten. Die Platten sind an den Nähten zusammengewachsen, wie Knochen, die verheilt sind. Material mattgrau, wie nasser Schiefer, mit einem schwachen Schimmer, der unter Taschenlampenlicht kurz perlmuttfarben wird (Schiffshaut, Kern Entscheidung 3). Kein Rost. Kratzer heilen nicht, sie sind alle noch da, siebenhundert Jahre davon, feine Linien wie auf einem alten Tisch.
 - **Flicken aus mehreren Jahrhunderten:** ein Lederriemen von einem Schulranzen als Ersatz für einen Armriemen (braun, mit einer Metallschnalle und in Kinderschrift eingeritzt „H. R.“, siehe Abschiedsgeschenk A); eine Gürtelschnalle aus den Fünfzigern, verchromt, längst stumpf; ein Stück Fahrradkette als Kinnriemen des Helms; Bindfaden, Draht, ein Gummiband um die Stundenbuch-Tasche.
-- **Helm:** Topfhelm mit Visier, das er draußen hochschieben kann. Drinnen (Nimmerheim) schließt es sich von selbst, und der Helm lässt sich nicht abnehmen (Kern §12, Antwort A).
-- **Darunter:** ein Gesicht um die vierzig, braune Augen (Lukes Augen), Bartstoppeln, die nie länger werden, eine alte Narbe über der rechten Augenbraue, verbrannte Haut am Hals, die glatt geblieben ist. Der Spieler sieht das Gesicht in Kapitel 3 genau einmal, an der Kreuzung, im Licht der Telefonzelle, für zwei Sekunden.
+- **Helm:** Topfhelm mit Visier, das er draußen hochschieben kann. Im Helmband eine schwarze Rabenfeder von Wîse (02 B6). In Nimmerheim nimmt er den Helm im Hohen Abgrund ab (Kap. 3, Unterkapitel 14). Was nicht abgeht, ist die **Brustplatte**: Sie ist mit ihm verwachsen, unter ihrem Rand ist die Haut grau und ohne Linien (02 B1, Antwort A).
+- **Darunter:** ein Gesicht um die vierzig, braune Augen (Lukes Augen), ein Bart, der zu lange nicht geschnitten ist und trotzdem nie länger wird, eine alte Narbe über der rechten Augenbraue, verbrannte Haut am Hals, die glatt geblieben ist. Der Spieler sieht das Gesicht genau zweimal (02 B1): bei der Ankunft an der Kreuzung, Visier hoch, zwei Sekunden; und im Hohen Abgrund, wenn er vor Luna den Helm abnimmt.
 - **Linke Hand:** immer halb geschlossen. In der Handfläche eine halbrunde Brandnarbe (Miras Ring). Der Handschuh dieser Hand ist an der Innenseite dunkler.
 - **Schwert:** einfach, kein Prunk, eine Kerbe in der Klinge, zwei Finger breit (2009, am Messstuhl 8 im Amt). Er zieht es fast nie. Es ist ein Werkzeug, mit dem er Ketten und Netze durchtrennt.
 - **Stundenbuch:** in einer Ledertasche am Gürtel, handgroß, Holzdeckel, wasserfleckig. Lose Seiten stehen heraus. Beim Gehen fallen manchmal welche.
 - **Gang:** schwer, langsam, das Metall schabt. Er hinkt nicht. Er steht oft ganz still, wie jemand, der gelernt hat, dass Stillstehen sicherer ist als Laufen. Wenn er zuhört, dreht er den ganzen Oberkörper, weil der Helm es verlangt.
 - **Geräusch:** kein Klirren wie bei Stahl. Ein dumpferes, tieferes Schaben, fast wie Stein auf Stein. Das ist wichtig für die Verwechslung mit den Blechmännern (Abschnitt 6): Die klingen nach Kette und Atemfilter, er nach Stein.
-- **Geruch (in Texten):** Rüstungsöl, Schnee, Minze (Miras Stück Stoff unter der Brustplatte, siehe 1754).
+- **Geruch (in Texten):** Rüstungsöl, Schnee, Minze (Miras Stück Stoff unter der Brustplatte, siehe die Nacht von 1771 in Abschnitt 5).
 - **Größe:** in Rüstung etwa einen Kopf größer als Luke.
 
 ---
@@ -92,7 +92,7 @@ Vorhandenes Paladin-Modell (`figuren.js`, Kommentar „Justin: vorhandenes Palad
 
 #### 2.1 Wie er spricht
 
-Ruhig, knapp, ohne Eile. Kurze Sätze, oft ohne Verb am Ende. Auf Fragen, die weh tun, antwortet er mit Gegenfragen oder mit Schweigen. Wenige alte Wörter, nur solche, die jeder versteht: „Knabe“, „anno“, „Herrgott“. Er sagt nie „Luke“; Luke ist „Knabe“, „Kind“, „Junge“. Lucy ist „deine Schwester“. Luna ist meistens „meine Tochter“ oder „sie“; ihren Namen sagt er in Kapitel 3 dreimal, und jedes Mal ist es ein Ereignis. „Mira“ sagt er einmal, in Raum 3. Whiskey ist „Wîse“ oder „der Dieb“. Das Schiff ist „das Schiff“ oder „das Lichtschiff“, das Innere „Nimmerheim“ oder „drinnen“. Die LWO sind „die grauen Mäntel“, die Blechmänner „die in Weiß mit den Eisenhauben“.
+Ruhig, knapp, ohne Eile. Kurze Sätze, oft ohne Verb am Ende. Auf Fragen, die weh tun, antwortet er mit Gegenfragen oder mit Schweigen. Wenige alte Wörter, nur solche, die jeder versteht: „Knabe“, „anno“, „Herrgott“. Er sagt nie „Luke“ (02 B2; den Namen schreibt er einmal, auf SB-12); Luke ist „Knabe“, „Kind“, „Junge“. Lucy ist „deine Schwester“. Luna ist meistens „meine Tochter“ oder „sie“; ihren Namen sagt er in Kapitel 3 dreimal, und jedes Mal ist es ein Ereignis. „Mira“ sagt er einmal, in Raum 3. Whiskey ist „Wîse“ oder „der Dieb“. Das Schiff ist „das Schiff“ oder „das Lichtschiff“, das Innere „Nimmerheim“ oder „drinnen“. Die LWO sind „die grauen Mäntel“, die Blechmänner „die in Weiß mit den Eisenhauben“.
 
 Er flucht nicht; sein schlimmstes Wort ist „Herrgott“. Er entschuldigt sich nie mit Worten, er tut stattdessen etwas. Sein Humor ist trocken und meistens unfreiwillig: Er vergleicht die Neuzeit mit seiner Zeit und trifft dabei genauer, als ihm klar ist. Ironie versteht er nicht und nimmt Lukes Sarkasmus wörtlich, sodass Luke seine eigenen Witze erklären muss. Was er nie tut: Aphorismen, Erklärungen über drei Sätze, Trösten. Er sagt, was ist, geht weiter, und wer will, kommt mit.
 
@@ -155,32 +155,32 @@ Wenn Luke sarkastisch ist:
 
 Alle Zeilen sind an eine Spieleraktion gekoppelt. Kein Block länger als drei Zeilen, bevor der Spieler wieder etwas tut (geht, sieht hin, untersucht, antwortet). Die Kapitel-3-Autorin oder der Autor verteilt sie auf die Beats; die Reihenfolge unten ist die, die der Nacht folgt.
 
-#### 3.1 Ankunft (ersetzt `justinArrives`, Anker „Das Weiße spuckt mich aus“)
+#### 3.1 Ankunft (ersetzt `justinArrives`, Anker „Das Weiße spuckt mich aus“; im Kapitel Unterkapitel 4 „Wîse, du alter Dieb“)
 
-Auslöser: wie im Code (Zeit im Dorf abgelaufen oder Abstand zum Start, keine Kuh in der Luft). Lichtsäule am Straßenende, Justin tritt heraus, Metall schabt, er bleibt sechs Schritte vor Luke stehen.
+Auslöser: wie im Code (Zeit im Dorf abgelaufen oder Abstand zum Start, keine Kuh in der Luft). Lichtsäule am Straßenende, Justin tritt heraus, Metall schabt, er bleibt sechs Schritte vor Luke stehen. Um den linken Arm der Ranzenriemen, im Helmband die Feder.
 
-- JUSTIN: „Bleib stehen, Kind. Ich tu dir nichts.“
-- JUSTIN: „Ich bin Justin. Ritter vom Hohen Abgrund. Ich lebe am Rand von dem da oben. Dort vergehen Jahre wie Nächte.“
-- JUSTIN: „Alle siebzehn Jahre, wenn es aufgeht, steh ich am Ende eurer Straße. Und jedes Mal steht einer von euch in der Nähe.“
-- LUKE: „Jedes Mal?“
-- JUSTIN: „Du hast mich schon gesehen. Am Ende der Straße, gestern. Ich durfte nicht näher.“
-- *(immer, weil Peter verbrannt ist)* JUSTIN: „Du riechst nach Rauch. Nach dem unteren Gang.“ – Pause. – „Er war auch einer von meinen.“
-- *(Spieler: Luke weicht zurück oder sieht zur Lichtsäule; Justin wartet, bis er wieder hinsieht.)*
-- JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie das nicht. Und findet sie nicht, was sie sucht, nimmt sie alle.“
-- JUSTIN: „Sie hält sich an den Lampen fest. Nimm sie ihr, dann muss sie herunter, und wir können hinein.“
-- LUKE: „Zu wem?“ – Justin sieht weg. – JUSTIN: „Zu meiner Tochter.“
+- JUSTIN: „Bleib stehen, Kind. Ich tu dir nichts.“ *(Er schiebt das Visier hoch, zwei Sekunden: braune Augen in einem müden Gesicht, das Luke ansieht, als hätte es ihn schon einmal verloren. Dann klappt es zu. Das erste von zwei Malen, 02 B1.)*
+- LUKE (Gedanke): „Der guckt mich an, als hätte er mich schon mal verloren.“
+- JUSTIN: „Ich bin Justin. Ritter vom Hohen Abgrund. Das da hinten war mein Hof, als er noch einer war.“
+- JUSTIN (die Laternen entlang): „Eure Kutschen sind lauter geworden. Und eure Nächte heller. Beides hilft nicht.“
+- *(Whiskey fliegt von der Kuh auf seinen linken Panzerhandschuh, W-06, siehe 3.10.)*
+- *(Wer in Kapitel 2 die Feder an Stuhl 8 gefunden hat:)* LUKE: „Eine Rabenfeder im Helmband. Wie die unten am Stuhl. Dann warst du das, da unten.“ *(Wer die Kerbe untersucht hat, sieht dieselbe Kerbe in der Klinge:)* JUSTIN: „Sie hatten dich festgeschnallt, da unten. Ich hab dich losgeschnitten. Die Maschine war härter als meine Klinge.“ *(Er meint 2009. Luke versteht es erst in Raum 1.)*
+- *(immer, weil Peter verbrannt ist)* JUSTIN: „Du riechst nach Rauch. Nach dem unteren Gang.“ – Pause. – „Er war auch einer von meinen.“ – LUKE (ein Satz): „Ich weiß.“
+- *(Pflicht, wenn Luke weitergehen will)* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
+- JUSTIN: „Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“ – LUKE: „Wir?“ – JUSTIN: „Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“
 - JUSTIN: „Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“
+- *(nur auf Nachfrage nach der Gestalt vom Ostende, Kapitel 1)* JUSTIN: „Du hast mich schon gesehen. Am Ende der Straße. Weiter reichte die Nacht noch nicht.“
 
-Luke-Gedanke danach: „Ein Ritter. Um drei Uhr nachts. Und ich frage mich ernsthaft, ob er die Ahornstraße kennt.“ (Die Zeile „Du trägst den Namen eines anderen Knaben“ entfällt hier; das kommt in Raum 3.)
+Luke-Gedanke danach: „Ein Ritter. Um drei Uhr nachts. Und ich frage mich ernsthaft, ob er die Ahornstraße kennt.“ (Die alte Zeile „Du trägst den Namen eines anderen Knaben“ entfällt ganz: Justin sagt Lukes Namen nie laut, 02 B2.)
 
-#### 3.2 Das Lichtschiff (Auslöser: Luke sieht länger als drei Sekunden zur Lichtsäule oder zum Himmel über dem Wald)
+#### 3.2 Das Lichtschiff (Happen in Unterkapitel 4, jeder an einen Blick gebunden: zur Senke, auf Whiskey, auf die Laternen, auf die Kuh)
 
-- LUKE: „Was ist das da oben? Sag jetzt nicht UFO.“
-- JUSTIN: „Ein Schiff. Es lebt. Es ist in der Martinsnacht vom Himmel gefallen, hinter meinen Hof. Wir nannten es das Lichtschiff, weil uns nichts Besseres einfiel.“
-- JUSTIN: „Sieh nicht zu lang hin. Es sieht zurück.“
-
-Wenn Luke nach der Kuh fragt (nach dem Höhepunkt „Blinde Kuh“):
-- JUSTIN: „Sie holt Tiere, wenn ihr keine Kinder gebt. Spielt mit ihnen. Lässt sie fallen. Sie ist sieben, Knabe. Sie meint es nicht böse. Das macht es nicht besser.“
+- *Zur Senke hin:* JUSTIN: „Das Licht da hinten ist kein Licht. Es ist ein Schiff. Es lebt, und es ist krank. Es ist vor siebenhundert Jahren in meinen Birkenwald gefallen.“
+- *Whiskey ansehen:* JUSTIN: „Die drin sind, sammeln. Bilder, die liegen bleiben. Stimmen. Das, was du Nachbild nennst. Sie waren schon oft hier, vor dem Absturz. Man hat Steine im Kreis aufgestellt, wo sie landeten.“
+- *Die Laternen ansehen:* JUSTIN: „Das Schiff hatte ein Herz, und das Herz war leer, als es fiel. Das Erste, was es berührt hat, war meine Tochter. Sie war sieben.“ Pause. „Seitdem will das Schiff, was ein Kind will.“
+- *Die Kuh ansehen (nach dem Höhepunkt „Blinde Kuh“):* JUSTIN: „Spielen. Blinde Kuh, Verstecken, Fangen. Es holt sich Tiere, guckt sie an und lässt sie fallen.“ – LUKE: „Sie hat der Kuh die Augen genommen.“ – JUSTIN: „Sie hat gucken wollen, wie es aussieht, wenn eine Kuh guckt. Sie ist sieben. Seit siebenhundert Jahren.“
+- *Wenn Luke länger als drei Sekunden hinaufsieht:* JUSTIN: „Sieh nicht zu lang hin. Es sieht zurück.“
+- *Luke: „Sag jetzt nicht UFO.“* JUSTIN: „Wir nannten es das Lichtschiff, weil uns nichts Besseres einfiel.“
 
 #### 3.3 Nimmerheim (Auslöser: Luke fragt: „Wo ist Lucy?“, an der ersten gelöschten Laterne)
 
@@ -189,7 +189,8 @@ Wenn Luke nach der Kuh fragt (nach dem Höhepunkt „Blinde Kuh“):
 
 #### 3.4 Zeit und Zeitsprünge (Auslöser: Luke: „Siebenhundert Jahre. Du siehst aus wie vierzig.“, nach der zweiten Laterne)
 
-- JUSTIN: „Drinnen gibt es keine Uhr. Ich geh hinein, such eine Nacht, und wenn ich rauskomme, sind draußen siebzehn Jahre um.“
+- *(Näher gehen, Unterkapitel 4)* JUSTIN: „Drinnen gibt es keine Zeit. Sie zählt beim Verstecken. Jedes Zählen ist bei euch ein Jahr. Bis siebzehn konnte sie zählen, sie war stolz darauf. Bei siebzehn ruft sie ‚Ich komme‘, und das Schiff geht auf.“
+- JUSTIN: „Ich geh hinein, such eine Nacht, und wenn ich rauskomme, sind draußen siebzehn Jahre um.“
 - JUSTIN: „Für mich waren es vielleicht drei Winter. Für euch die ganze Geschichte.“
 - LUKE: „Das ist Zeitreise.“ – JUSTIN: „Ich reise nicht. Die Zeit läuft an mir vorbei, und ich steh im Weg.“
 
@@ -203,20 +204,26 @@ Später (Auslöser: Luke findet ein Nachbild oder fragt, ob Lucy alt wird):
 - JUSTIN: „Fahrradunfall?“ – LUKE: „… Hat Mama gesagt.“ – JUSTIN: „Mütter sagen viel.“ *(Er sieht Luke an. Das ist der Moment, in dem er es ahnt. Er sagt nichts.)*
 - JUSTIN: „Manchmal reißt die Zeit da drin auf wie Stoff. Dann fällt man durch. Meine Frau ist so gegangen. Das Schiff war kaputt vom Sturz. Da drin ist was gerissen, und sie stand davor.“
 
-Wichtig: Kein Wort davon, wer den Riss gemacht hat. Justin glaubt aufrichtig, es war das kaputte Schiff.
+Im Kapitel steht die erste Fassung der Nacht schon in Unterkapitel 4, wenn Luke fragt „Was sucht sie?“: JUSTIN: „Ihre Mama. Und mich.“ *(Er sieht auf seine linke Hand.)* „Meine Frau hat in der Nacht sechs Kinder herausgeholt, eins nach dem anderen, an der Hand. Dann ist sie noch mal hinein, für Luna. Ich hab sie festgehalten, am Rand.“ *(Luke fragt nach.)* JUSTIN: „Die Luft ist aufgerissen wie Stoff. Das Schiff war kaputt, es hat die Zeit mit aufgerissen. Es hat gezogen. Sie hat losgelassen.“ Er sagt es glatt, wie einen Satz, den man oft gesagt hat.
 
-#### 3.6 Die Rüstung (Auslöser: Luke klopft gegen Justins Brustplatte oder untersucht ihn, wenn er wartet)
+Wichtig: Kein Wort davon, wer den Riss gemacht hat. Justin glaubt aufrichtig, es war das kaputte Schiff (Kern, Entscheidung 5 und 23; die Wahrheit sagt Mira in Kapitel 7).
+
+#### 3.6 Die Rüstung (Auslöser: Luke klopft gegen Justins Brustplatte oder fragt „Was ist das für ein Metall?“)
 
 - LUKE: „Das klingt nicht wie Eisen.“
-- JUSTIN: „Ist es auch nicht. Die Haut vom Schiff. Drei Kleine haben sie mir gebracht, im Winter danach. Der Schmied hat sie mir angepasst. Er hat danach nie wieder ein Wort gesagt.“
-- JUSTIN: „Nur darin halt ich’s da drinnen aus. Ohne wird man grau. Erst die Hände.“
+- JUSTIN: „Kein Eisen. Drei Kleine, weiß wie Reif, die übrig waren, haben mir Platten von ihrem Schiff gegeben, im Winter danach. Der Schmied hat sie geschmiedet und danach nie wieder gesprochen.“
+- LUKE: „Was für Kleine?“ – JUSTIN: „Zwei haben die grauen Mäntel geholt. Den dritten hab ich nie wieder gesehen.“ Pause. „Manchmal hör ich was hinter mir, wenn ich nicht hinschau.“ *(Hinter Luke raschelt ein Busch.)*
+- JUSTIN: „Nur darin komme ich wieder heraus. Ohne wird man grau. Frag nicht, wie ich das weiß.“
 
 Bei den Blechmännern am Rand (AG-08, Auslöser: Luke sieht die Reihe mit dem Fernglas oder von den Traktorspuren):
 - JUSTIN: „Die in Weiß mit den Eisenhauben. Die haben sich das bei mir abgeschaut. Drinnen halten sie so lang wie ein Atemzug.“
 - JUSTIN: „Euer Eisen ist gut. Fass es an, dann kriegt sie dich nicht. Aber sie sieht dich. Eisen ist frei. Unsichtbar ist es nicht.“
 
 Nach der Verwechslung (AG-10, Luke hat „Justin?“ zu einem Blechmann gerufen, der sich umdrehte):
-- JUSTIN: „Du hast einen von denen gerufen. Mit meinem Namen.“ – LUKE: „Im Nebel seht ihr gleich aus.“ – JUSTIN: „Ich weiß. Das ist das Traurige daran. Die glauben es auch.“
+- LUKE: „Nicht Justin. Nur einer, der sich für ihn hält.“ – JUSTIN (wenn Luke wieder bei ihm ist): „Die haben mich gesehen und sich Eisen umgehängt. Sie glauben, es ist dasselbe. Drinnen halten sie so lange, wie ein Mensch die Luft anhält.“
+
+Nach Wolter an der Bushaltestelle (AG-09; Justin bleibt im Nebel zurück):
+- JUSTIN: „Den kenne ich. Er stand schon einmal am Rand, mit einem Netz. Dieselbe Kanne.“ – LUKE: „Das war wann?“ – JUSTIN: „Als eure Kutschen noch leiser waren.“ *(Er kennt Wolter aus dem Jahr der Netze, ohne die Zahl zu sagen. Dass er ihn auch als Jungen kennt, steht nur auf SB-06.)*
 
 #### 3.7 Die offenen Nächte (Auslöser: die Kapellenglocke schlägt drei, Pause, dreizehn; Luke bleibt stehen)
 
@@ -230,9 +237,11 @@ Nach der Verwechslung (AG-10, Luke hat „Justin?“ zu einem Blechmann gerufen,
 - JUSTIN: „Sie hat sich versteckt, wie wir’s abgemacht hatten. Ich sollte sie finden. Ich such noch.“
 - *(Spieler geht weiter, Justin folgt, nach ein paar Schritten:)* JUSTIN: „Sie ist das Herz von dem Ding geworden. Es tut, was sie will. Und sie will spielen. Und uns.“
 
-Wenn Luke fragt, warum er sie in siebenhundert Jahren nicht gefunden hat (das ist der Rüstungs-Hinweis Nummer eins, siehe Offene Abstimmungen):
+Wenn Luke fragt, warum er sie in siebenhundert Jahren nicht gefunden hat (Rüstungs-Hinweis RH-3, 02 B4):
 - JUSTIN: „Sie hört mich rufen und sieht niemanden. Sie hält es für Mogeln. Wie wenn Erwachsene beim Verstecken schummeln.“
-- JUSTIN: „Also versteckt sie sich besser. Jedes Mal. Sie ist sehr gut geworden. Ich auch. Wir sind beide sehr gut in einem Spiel, das nie aufhört.“
+- *(Spieler geht einen Schritt.)* JUSTIN: „Also versteckt sie sich besser. Jedes Mal. Darin sind wir beide sehr gut geworden.“
+
+Den Namen sagt er nur auf die Frage „Wie heißt sie?“: JUSTIN: „Luna.“ – Luke-Gedanke: „Luna. Am Ostende hat vorhin einer was in den Nebel gerufen. Ich hab ‚Lucy‘ gehört. Weil ich ‚Lucy‘ hören wollte.“
 
 #### 3.9 Mira (Auslöser: Luke: „Und deine Frau?“, vor dem Einstieg in Nimmerheim, am Gully oder am Rand)
 
@@ -242,11 +251,11 @@ Wenn Luke fragt, warum er sie in siebenhundert Jahren nicht gefunden hat (das is
 
 #### 3.10 Whiskey (Wîse), in steigender Deutlichkeit
 
-Stufe 1 (W-06, Whiskey landet auf Justins Handschuh, kurz nach der Ankunft, wenn Luke sich zum ersten Mal von ihm abwendet):
-- JUSTIN: „Wîse. Du alter Dieb.“ – *Whiskey macht das Mikrowellen-Pling.* – JUSTIN: „Er gehörte meiner Frau.“
-
-Stufe 2 (Luke: „Der heißt Whiskey. Vegas hat ihn so getauft.“):
-- JUSTIN: „Euer Nachbar glaubt, er hat ihn getauft. Der Vogel hat sich den Namen ausgesucht. Er klingt fast wie sein alter.“
+Stufe 1 und 2 (W-06, Whiskey fliegt bei der Ankunft von der Kuh auf Justins linken Panzerhandschuh, als wäre er ein Ast, den er kennt, und klappert mit dem Schnabel):
+- JUSTIN: „Wîse. Du alter Dieb.“
+- LUKE: „Der heißt Whiskey.“
+- JUSTIN: „Euer Nachbar glaubt, er hat ihn getauft. Der Vogel hat sich den Namen ausgesucht. Er gehörte meiner Frau.“
+- LUKE (Gedanke): „Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen.“
 
 Stufe 3 (nach W-07, Whiskey hat am Funk geholfen oder etwas Glänzendes geklaut):
 - JUSTIN: „Er hat schon damals alles geklaut, was glänzt. Ihren Fingerhut. Meinen Sporn. Einmal die Hostie.“ – LUKE: „Und was hat er heute?“ – JUSTIN: „Deinen Autoschlüssel, vermute ich.“ – *(Whiskey putzt sich.)*
@@ -255,8 +264,10 @@ Stufe 4 (Luke: „Wie alt ist der eigentlich? Vegas sagt, der saß schon ’75 a
 - JUSTIN: „Älter als du. Älter als ich, wenn man richtig zählt. Raben werden nicht so alt. Er schon.“
 - LUKE: „Wie?“ – JUSTIN: „Er fliegt, wo ich nur gehen kann. Rein und raus. Er hat keine Angst vor drinnen. Ich weiß nicht, wer ihm das beigebracht hat.“
 
-Stufe 5 (W-08, Nimmerheim, Whiskey wird still und setzt sich auf Justins Schulter):
-- JUSTIN: „Wenn er still wird, ist sie nah. Das war bei Gewitter auch so. Er hat es vor dem Blitz gewusst.“
+Stufe 5 (W-08, Nimmerheim, Raum 1: Whiskey sitzt auf Justins Schulterplatte und macht keinen Laut; 02 B5):
+- LUKE: „Er hat, seit wir drin sind, keinen Ton gemacht.“ – JUSTIN: „Er weiß, wo er ist.“
+- LUKE: „Und warum ist er dann mitgekommen?“ – JUSTIN: „Sie kennt ihn. Er ist der Vogel ihrer Mutter. Wenn er ruft, kommt sie.“
+- *(Spieler geht weiter.)* JUSTIN: „Wenn er still wird, ist sie nah. Bei Gewitter war das auch so.“
 
 Stufe 6 (vor der Wahl, wenn Luke Whiskey ansieht statt Justin):
 - JUSTIN: „Er kommt von irgendwo, wo sie ist. Ich weiß nicht, wo. Ich weiß nur, dass er nach Minze riecht, wenn er kommt.“
@@ -264,21 +275,27 @@ Stufe 6 (vor der Wahl, wenn Luke Whiskey ansieht statt Justin):
 
 (Kein Wort über 2043 oder ein Bild. Justin weiß nur, dass der Vogel von „irgendwo“ kommt. Dass Mira lebt, ahnt er und spricht es nicht aus.)
 
-#### 3.11 Raum 2: seine Fassung von 1312 (ersetzt `room2Solved`, Anker „Anno 1312 fiel das Weiße“)
+#### 3.11 Seine Fassung von 1312 (ersetzt `room2Solved`, Anker „Anno 1312 fiel das Weiße“; im Kapitel Unterkapitel 13 „Sie hat losgelassen“)
 
-Auslöser: Küchenuhr auf 03:13, Hilde löst sich auf, Justin steht in der Tür und sieht Luke nicht an.
+Auslöser: Raum 3 baut sich aus Justins Erinnerung, die Martinsnacht eingefroren; der echte Justin bleibt am Rand der Wiese neben einer Birke stehen und sieht nicht hin. SB-07 liegt im Reif; Whiskey lässt sich nicht darauf nieder.
 
+- JUSTIN: „Das ist die Nacht. Ich seh sie jedes Mal, wenn ich reinkomme. Sie ist immer gleich.“
+- JUSTIN: „Sie ging hinein, für Luna. Ich hatte ihre Hand. Der Riss kam, und er zog, und das Licht hat mir die Haut verbrannt.“
+- JUSTIN: „Sie hat losgelassen. Ich hielt, bis das Licht mir die Hand nahm.“
+- *(Spieler hebt SB-07 auf; Aufgabe „Sieh dir die Hände an.“)* JUSTIN: „Sieh nicht auf sie. Sieh, wohin du willst.“
+
+Luke-Gedanke, wenn er die Seite liest: „‚So war es.‘ Wenn Leute das sagen, war es meistens anders.“
+
+Für den Code-Ersatz von `room2Solved` (falls Raum 2 eine gesprochene Fassung braucht, bevor Luke die Wiese sieht; Hilde löst sich auf, Küchenuhr auf 03:13, Justin in der Tür):
 - JUSTIN: „Sie hat recht. Du sollst es von mir hören.“
 - JUSTIN: „Anno 1312 fiel das Lichtschiff in die Senke hinter meinem Hof. Meine Tochter war sieben. Sie dachte, das Spiel fängt an.“
 - JUSTIN: „Sechs Kinder liefen ihr nach. Meine Frau holte sie heraus, eins nach dem andern. Dann ging sie noch einmal. Für Luna.“
-- *(Spieler tritt zu ihm oder sagt: „Und du?“)*
-- JUSTIN: „Ich hatte ihre Hand. Am Rand. Dann riss die Luft auf, und sie ließ los.“
-- JUSTIN: „Ich hielt, bis das Licht mir die Hand nahm. So war es.“
-- *(Er geht voran zu Raum 3, ohne sich umzudrehen.)* Luke-Gedanke: „‚So war es.‘ Wenn Leute das sagen, war es meistens anders.“
+- *(Spieler: „Und du?“)* JUSTIN: „Ich hatte ihre Hand. Am Rand. Dann riss die Luft auf, und sie ließ los. So war es.“
+Die alte Zeile „Ich schickte sieben Kinder des Dorfes hinein“ ist abgeschafft und darf nirgends mehr auftauchen.
 
 #### 3.12 Raum 3, erster Teil: die Lüge und wie er sie zugibt
 
-Die eingefrorene Nacht (Beschreibung und Rätsel gehören dem Kapitel-3-Autor; mein Vorschlag für die fünf Stellen steht unter „Offene Abstimmungen“). Der Spieler findet heraus: Miras Finger sind geschlossen, Justins Hand ist offen. Die Seite SB-07 liegt am Rand der Wiese und sagt das Gegenteil.
+Die eingefrorene Nacht (Beschreibung, Stellen und Hilfeleiter stehen in `30_kap3_haupt.md`, Unterkapitel 13; Lösung nach 02 B9). Der Spieler findet heraus: Miras Finger sind geschlossen, Justins Hand ist offen. Die Seite SB-07 liegt am Rand der Wiese im Reif und sagt das Gegenteil.
 
 Wenn Luke die richtige Stelle wählt:
 - *(Justin steht lange still. Whiskey auf seiner Schulter rührt sich nicht.)*
@@ -289,68 +306,57 @@ Wenn Luke die richtige Stelle wählt:
 - LUKE (ein Satz): „Sie hat gehalten.“
 - JUSTIN: „Ja.“
 
-Bei einem Fehlgriff, der stimmt, aber nicht reicht (Stiefel im Rand, der halbe Mond in seiner Hand): JUSTIN: „Das ist wahr. Ich hab mich gestemmt. Das reicht nicht. Sieh auf die Hände.“ Bei einem Fehlgriff, der einfach nur wahr ist: JUSTIN: „So war es. Das steht nicht in Frage.“ Nach zwei Fehlgriffen sieht Justin selbst auf die beiden Hände hinunter und sagt nichts; das ist die letzte Hilfe.
+Rätsel und Hilfeleiter gehören dem Kapitel (02 B9: Frage „Wer hat losgelassen?“, Lösung JUSTINS; Fersenabdrücke und der vorgerutschte Stiefel sind Belege, auf SB-07 steht die Lösung nicht). Bei der falschen Antwort: JUSTIN (sofort, zu schnell): „Ja. So war es.“ – LUKE (nach einer Pause): „… Nein. Noch mal.“ Nach dem zweiten Fehler fliegt Whiskey zum ersten Mal in Nimmerheim los und landet auf dem offenen Panzerhandschuh des Nachbilds; nach dem dritten zieht die Kamera von allein auf den Handschuh. Danach: Wer SB-07 wieder ansieht, findet „Sie hat losgelassen“ mit Bleistift durchgestrichen. Luke war es, ohne es zu merken (Fibel: „Ich hab’s durchgestrichen. Ich weiß nicht, wann.“).
 
-Danach, im Aufstehen, die Zeile, die die zweite Lüge streift (Rüstungs-Hinweis, falls der Spieler ihn noch braucht):
+Danach, im Aufstehen, die Zeile, die die zweite Lüge streift (kein Rüstungs-Hinweis; die zählen nur nach der Liste RH-1 bis RH-11 in Kapitel 3):
 - JUSTIN: „Ich hab immer gedacht, sie versteckt sich vor mir, weil ich sie nicht gesucht hab. Weil ich stehen geblieben bin.“ – Pause. – „Vielleicht ist es was anderes. Ich hab nie nachgesehen. Man sieht nicht gern nach, wenn man Angst hat, was man findet.“
 
-#### 3.13 Raum 3, zweiter Teil: der Hohe Abgrund und das Geständnis
+#### 3.13 Der Hohe Abgrund und das Geständnis (im Kapitel Unterkapitel 14 „Ich hatte kein anderes Fenster“)
 
-Die Wiese kippt ins Weiß, die acht Stühle, Lucy flackert auf einem, über allem das Lichtschiff von innen (Rippen, Haut, die Flamme so groß wie ein Haus). LUKE (ein Satz): „Das war nie ein UFO.“
+Die Wiese kippt ins Weiß, die acht Stühle, Lucy flackert auf dem siebten, über allem das Lichtschiff von innen (Rippen, Haut, die atmet, die Flamme so groß wie ein Haus). LUKE (ein Satz): „Das war nie ein UFO. Das ist ein Tier, und es ist krank.“
 
-Die Schläge, jeder an einen Blick oder Schritt gekoppelt:
+Die Schläge, jeder an einen Schritt oder Blick gekoppelt:
 
-1. Justin tritt mit Luke an der Hand in den Kreis. Das Graukind hört auf zu zählen. LUNA: „… Papa?“ Sie dreht sich um: graues Gesicht, und für einen Atemzug das Gesicht eines Mädchens mit Zahnlücke.
-2. LUNA: „Gefunden.“ Sie lacht, glücklich. Die sieben auf den Stühlen lachen mit, ohne Münder.
-3. LUNA: „Und du hast ihn mitgebracht, Bruder. Ich hab dich gemacht. Aus seinem Blut an meinen Händen.“ – „Darum hast du seine Augen. Ich hab die ganze Nacht durch dich geguckt.“ – Drei harte Schnitte durch Lukes Augen (Ostende, Lichtsäule, Justins Hand an der Kreuzung). – „In der Haut seh ich ihn nicht. Durch dich schon.“ *(Sie sagt „Haut“, nicht „Eisen“. Das ist der letzte Rüstungs-Hinweis, für die, die zuhören.)*
-4. Das Geständnis. Justin greift an den Helm; das Visier bleibt zu. Kamera von hinten. Nahaufnahme seiner linken Hand, dieselbe halbrunde Narbe wie in Lukes.
-   - JUSTIN: „Ich wusste es an der Kreuzung. Als du mich angesehen hast, hat sie aufgehört zu zählen. Ich hab’s gehört.“
-   - JUSTIN: „Ich hab’s dir nicht gesagt. Ich bin bei dir geblieben, damit du mich ansiehst. Ich hatte kein anderes Fenster.“
-   - *(Spieler: Luke sieht weg. Luna zählt wieder, leise, von vorn.)*
-   - LUKE (ein Satz): „Du hättest fragen können.“
-   - JUSTIN: „Hättest du ja gesagt?“ *(Luke sagt nichts. Das ist die Antwort.)*
-5. Zusatzzeilen (je genau eine, wenn der Spieler das Fundstück hat): Chronik → LUNA: „Siebenhundert Jahre, Papa. Ich hab jedes Mal gerufen.“ · Vegas’ Ordner → LUNA: „Papa räumt auf. Immer. Er bringt sie mir weg.“ · Zählbuch → LUNA: „Die Frau hat so schön gezählt.“ · **Peter (immer):** LUNA: „Onkel Peter ist heimgekommen. Du hast ihn warm gemacht.“ – JUSTIN: „Ich hab ihn heimgeführt, damals. An dieser Hand. Er hatte meine Augen, und ich hab ihn trotzdem seiner Mutter gegeben. Was sonst.“
-6. LUNA (ernst): „Das Spiel ist erst aus, wenn alle gefunden sind. Papa ist gefunden. Aber ein Stück von Papa ist noch draußen.“ Sie sieht Luke an. *(Faden zu Kapitel 5.)*
-7. Justin kniet sich vor Luke. JUSTIN: „Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“
+1. Justin tritt mit Luke an der Hand in den Kreis. Das Graukind hört auf zu zählen. LUNA: „… Papa?“ Sie dreht sich um: graues Gesicht, und für einen Atemzug das Gesicht eines Mädchens mit Zahnlücke, das gerade aufgewacht ist.
+2. LUNA: „Bruder. Du hast ihn mitgebracht.“ Sie lacht, ganz glücklich. Die sieben auf den Stühlen lachen mit, ohne Münder; das Lachen kommt aus dem Schiff.
+3. LUNA: „Ich hab dich gemacht. Aus seiner Hand. Darum hast du seine Augen.“ – „Ich hab die ganze Nacht durch dich geguckt.“ – Drei harte Schnitte durch Lukes Augen (Ostende, Lichtsäule, Justins Handschuh an der Kreuzung). Dann der Höhepunkt, Teil 2: das Blinzeln.
+4. Nach der Sequenz, LUNA (zum ersten Mal traurig): „Papa mogelt. Er ruft und ruft, und er ist nicht da. Wie die Großen beim Verstecken, wenn sie keine Lust mehr haben.“ *(Sie weiß nichts von der Rüstung; wer drei Rüstungs-Hinweise hat, weiß hier mehr als sie.)*
+5. *Justin ansehen.* **Justin nimmt den Helm ab** (das zweite und letzte Mal, dass man sein Gesicht sieht, 02 B1). Er zieht den linken Handschuh aus, die Hand mit der halbrunden Narbe hebt den Helm; im blanken Visier spiegelt sich Lukes Gesicht mit braunen Augen. LUNA: „Papa.“ Sie sieht ihn, durch Luke: Sie sieht Lukes Augen an, nicht Justins.
+6. JUSTIN (zu Luke, nicht zu ihr): „Ich hab es an der Kreuzung gewusst. Deine Augen. Ich hab dich gebraucht, damit sie mich sieht.“ Pause. „Ich hatte kein anderes Fenster.“
+7. LUKE (ein Satz): „Du hättest es sagen können.“ – JUSTIN: „Dann hättest du weggesehen.“
+8. Zusatzzeilen (je genau eine, wenn der Spieler das Fundstück hat): Zählbuch → LUNA: „Die Frau hat so schön gezählt. Ich hab ihr zugehört, jede Nacht.“ · Telefon → LUNA: „Du bist rangegangen. Endlich.“ · Vegas’ Ordner → LUNA: „Der alte Mann mit dem Silberhut. Der guckt immer nach oben. Ich wink ihm.“ · **Peter (immer):** LUNA: „Onkel Peter ist heimgekommen. Du hast ihn warm gemacht.“ – JUSTIN: „Ich hab ihn herausgeführt, damals. An dieser Hand.“ · Kapellenfenster → LUNA: „Auf dem Fenster in der Kirche bin ich ganz vorn. Mit meiner Laterne. Die hab ich immer noch.“ · „Klar!“ (Spielplatz) → LUNA: „Der mit den blauen Augen hat Klar gesagt. Der darf immer mitspielen.“
+9. LUNA (ernst, wie ein Kind, das eine Regel erklärt): „Das Spiel ist erst aus, wenn alle gefunden sind. Papa ist gefunden. Fast.“ Sie sieht Luke an. „Ein Stück von Papa ist noch draußen.“ *(Faden zu Kapitel 5.)*
+10. Justin kniet sich vor Luke, den Helm unter dem Arm. JUSTIN: „Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“
 
-#### 3.14 Die Wahl (Kern §12, drei Antworten, plus Variante)
-
-**Vor der Wahl, wenn der Spieler mindestens drei Rüstungs-Hinweise gesammelt hat**, erscheint statt der Frage zuerst ein Satz, den Luke sagen kann (eigene Auswahlzeile, oben):
-- LUKE: „Sie sieht dich nicht. Wegen der Rüstung.“
-- *(Justin sieht auf seine Hände, dann auf Luna, die durch ihn hindurchsieht, dann wieder auf Luke.)*
-- JUSTIN: „… Dann muss ich sie eines Tages ausziehen.“
-- JUSTIN: „Nicht heute. Heute wär ich grau, bevor ich bei ihr bin. Aber jetzt weiß ich, wonach ich suchen muss. Danke, Knabe.“ *(Dann die Frage „Was will sie?“ wie unten, mit den drei Antworten; die Abschiede ändern sich um je einen Satz, siehe 3.15.)*
+#### 3.14 Die Wahl (Kern §12, drei Antworten; 02 B1)
 
 **A: „Dich. Dass du bleibst.“**
-- Justin greift mit beiden Händen an den Helm. Es knirscht. Die Rüstung gibt nicht nach; an den Nähten wird sie für einen Moment heller, wie eine Haut, die sich anspannt.
-- JUSTIN: „… Nicht ab. Sie geht nicht ab.“
-- JUSTIN: „Verwachsen. Sie ist so lang mit mir, wie ich mit ihr. Da drin wär ich ohne sie grau, bevor ich sie erreiche.“
-- *(Spieler)* JUSTIN: „Noch nicht. Aber ich bleib. So, wie ich bin. Wenn sie mich nicht sehen kann, dann soll sie mich wenigstens hören, die ganze Zeit.“
+- Justin nickt. Er greift an die Schnallen der **Brustplatte** und zieht. Die Platte gibt nicht nach; an den Nähten wird sie für einen Moment heller, wie eine Haut, die sich anspannt. Er zieht noch einmal, mit beiden Händen; Whiskey auf seiner Schulter schlägt mit den Flügeln. Unter dem Rand der Platte ist die Haut grau, glatt, ohne Linien.
+- JUSTIN: „Sie ist mit mir verwachsen. Wenn ich sie ausziehe, hier drin, werde ich wie die auf den Stühlen. Noch nicht.“ *(Er setzt den Helm auf.)*
+- JUSTIN: „Dann bleib ich so. Bei ihr. Wenn sie mich nicht sehen kann, soll sie mich wenigstens hören. Die ganze Zeit.“
 
 **B: „Spielen. Sieben Kinder, wie damals.“**
-- JUSTIN: „Dann spiele ich mit ihr.“
-- *(Pause. Er steht auf.)* JUSTIN: „Ich kann Verstecken. Ich hab’s nur nie zu Ende gespielt. Diesmal zähl ich. Sie soll sich verstecken, und ich zähl bis siebzehn, laut, damit sie’s hört.“
-- *(Spieler)* JUSTIN: „Und beim nächsten Mal bin ich dran mit Verstecken. Dann muss sie mich suchen. Das ist die Regel. Kinder halten sich an Regeln. Erwachsene nicht. Ich versuch’s.“
+- Justin sieht auf die Stühle, auf Zayn, der Bruno festhält. JUSTIN: „Dann spiele ich mit ihr.“
+- *(Pause. Er steht auf.)* JUSTIN: „Ich kann Verstecken. Ich hab’s nur nie zu Ende gespielt. Diesmal zähl ich, laut, damit sie’s hört.“ *(Er setzt den Helm auf.)*
 
 **C: „Dass du sie suchst.“**
-- Justin sieht Luke lange an. Zum ersten Mal richtig.
-- JUSTIN: „Das tue ich seit siebenhundert Jahren.“
-- *(Pause.)* JUSTIN: „Vielleicht muss sie mich dabei sehen.“
-- *(Spieler)* JUSTIN: „Ich hab immer leise gesucht. Wie einer, der sich schämt. Diesmal such ich laut. Wie einer, der was verloren hat und es jedem sagt.“
+- Justin sieht Luke lange an. Zum ersten Mal richtig. JUSTIN: „Das tue ich seit siebenhundert Jahren.“
+- *(Pause. Er sieht zu Luna, die durch Luke hindurch auf ihn sieht.)* JUSTIN: „Vielleicht muss sie mich dabei sehen.“
+- *(Spieler)* JUSTIN: „Ich hab immer leise gesucht. Wie einer, der sich schämt. Diesmal such ich laut.“ *(Er setzt den Helm auf, langsam, als wollte er es nicht.)*
 
-Alle drei münden in „Noch eine Runde“: Justin geht in Rüstung hinein. Luna sieht ihn wieder nicht, zählt weiter, und weil Luke ihr den Papa einen Atemzug lang gezeigt hat, gibt sie Lucy zurück, fast ganz, mit Weiß in den Augen.
+Alle drei münden in „Noch eine Runde“: Justin lässt Lukes Hand los, erst jetzt; Whiskey hüpft auf Lukes Schulter, Justin sieht es und nickt. Er geht in Rüstung hinein. Luna sieht durch ihn hindurch wie durch Luft („Papa? … Papa, du mogelst wieder.“), legt die Hände vor die Augen und zählt, und weil Luke ihr den Papa einen Atemzug lang gezeigt hat, gibt sie Lucy zurück, fast ganz, mit Weiß in den Augen.
 
-#### 3.15 Abschied und Geschenk je Antwort
+#### 3.15 Letzte Worte und Geschenk je Antwort (02 B3)
 
 Justin steht am Rand des Kreises. Die Behaltenen sehen Luke an, nicht ihn. Whiskey bleibt bei Luke.
 
-**A („Dass du bleibst“):** Er löst den Lederriemen von seinem linken Arm, den vom Schulranzen, und drückt ihn Luke in die Hand. JUSTIN: „Von einem Jungen, der ihn nicht mehr gebraucht hat. Er hieß Hans. Seine Schwester wartet noch. Sag ihr, er hat nicht gefroren.“ – Letzte Worte: „Ich bleib hier, Knabe. Wenn du sie mal suchst: Ich bin der, der ruft.“ *(Der Riemen ist ein Fundstück: „H. R.“ eingeritzt. Gisela Rieke erkennt ihn in Kapitel 4 oder 5, siehe Offene Abstimmungen.)*
+**A („Dass du bleibst“):** Letzte Worte: „Ich bleib hier, Knabe. Wenn du sie mal suchst: Ich bin der, der ruft.“ – Er löst den Lederriemen von seinem linken Arm, den vom Schulranzen, und drückt ihn Luke in die Hand. JUSTIN: „Von einem Jungen, der ihn nicht mehr gebraucht hat. Er hieß Hans. Seine Schwester wartet noch.“ Pause. „Sag ihr, er hat nicht gefroren.“ *(Gegenstand „Ranzenriemen“, in das Leder geritzt „H. R.“: Hänschen Rieke, 1958. Einlösung Kapitel 5 bei Gisela Rieke, N-02, wenn sie Luke die Katze gibt; siehe 7.2.)*
 
-**B („Spielen“):** Er zieht aus der Tasche am Gürtel den zweiten Schokoriegel, den er sich vorhin aus Lukes Jacke „geliehen“ hat, halb gegessen, in Silberpapier gefaltet. JUSTIN: „Für die Runde danach. Man spielt nicht mit leerem Bauch. Das hat meine Frau gesagt. Über mich.“ – Letzte Worte: „Wenn du zählen hörst, Knabe, und keiner ist da: Das bin ich. Ich bin nur schlecht darin.“ *(Der halbe Riegel liegt in Kapitel 5 auf Hildes gedecktem Tisch, ein Detail, das nur bei B auftaucht.)*
+**B („Spielen“):** Letzte Worte: „Pass auf deine Schwester auf. Sie hat dich gewählt, bevor du wusstest, was du bist. Das tun nicht viele.“ – Er zieht aus der Tasche am Gürtel den zweiten Schokoriegel, den er sich vorhin aus Lukes Jacke „geliehen“ hat, halb gegessen, ordentlich in Silberpapier gefaltet. JUSTIN: „Für die Runde danach. Man spielt nicht mit leerem Bauch.“ Pause. „Das hat meine Frau gesagt. Über mich.“ *(Gegenstand „Halber Riegel“. Einlösung Kapitel 5: Luke legt ihn in Nr. 7 auf Hildes Küchentisch, „Für die, die gezählt hat.“; siehe 7.2.)*
 
-**C („Dass du sie suchst“):** Er löst die stumpfe Schnalle von seinem Gürtel, die mit dem Turm über dem Abgrund, dem Zeichen seines Hofs, und legt sie Luke in die linke Hand, genau auf die Narbe. JUSTIN: „Damit sie weiß, wer dich geschickt hat, wenn du sie vor mir findest. Und damit du weißt, wo du herkommst. Vom Hof. Nicht aus dem Licht.“ – Letzte Worte: „Ich such jetzt laut.“ Über die Schulter, schon im Gehen: „Sag deiner Schwester, sie war die Einzige, die den Namen auf dem Schild nicht gelesen hat, sondern gefragt.“ *(Die Schnalle passt in Kapitel 5 in die Vertiefung im Fundamentstein in der Scheune, ein Detail, das nur bei C auftaucht.)*
+**C („Dass du sie suchst“):** Letzte Worte: „Wenn ich sie das nächste Mal finde, will ich, dass sie es merkt. Halt mir die Augen offen, Knabe. Deine.“ – Er löst die stumpfe Schnalle von seinem Gürtel, die mit dem Turm über dem Abgrund, dem Zeichen seines Hofs, und legt sie Luke in die linke Hand, genau auf die Narbe. JUSTIN: „Damit du weißt, wo du herkommst. Vom Hof. Nicht aus dem Licht.“ *(Gegenstand „Gürtelschnalle mit dem Turm“, dasselbe Zeichen wie auf Whiskeys Ring und dem Fundamentstein. Einlösung Kapitel 5: Sie passt in die Vertiefung im Fundamentstein im Heu der Scheune; siehe 7.2.)*
 
-**Variante mit ≥ 3 Rüstungs-Hinweisen (zusätzlich zur gewählten Antwort):** Bevor er geht, bricht er einen losen Flicken von der Innenseite des rechten Armschutzes, so groß wie eine Münze, mattgrau, warm. Er gibt ihn Luke. JUSTIN: „Fang schon mal an. Ich zieh sie Stück für Stück aus. Das da ist das erste.“ *(Das Stück ist ein Fundstück und kann in Kapitel 4 in der Villa auf die Analyse „Substanz S, anorganisch erstarrt“ gelegt werden; es passt zu den Proben. Siehe Offene Abstimmungen.)*
+**Rüstungs-Hinweise ≥ 3 (unabhängig von der Antwort, direkt nach den letzten Worten; 02 B4):** LUKE: „Sie sieht dich nicht. Wegen der Rüstung. Das Schiff sieht sie nicht, und sie sieht durch das Schiff.“ Justin steht still. Whiskey auf seiner Schulter wird noch stiller. JUSTIN: „… Dann muss ich sie eines Tages ausziehen.“ Er bricht einen losen Flicken von der Innenseite des rechten Armschutzes, so groß wie eine Münze, mattgrau, warm, und gibt ihn Luke. JUSTIN: „Fang schon mal an. Das da ist das erste Stück.“ *(Gegenstand „Flicken“, zusätzlich zum Geschenk der Antwort. Einlösung Kapitel 4 in der Villa an der Analyse S-7; siehe 7.1.)* Mit weniger als drei Hinweisen fehlt dieser Wechsel; Luke denkt nur: „Sie sieht ihn nicht. Er steht direkt da. Irgendwas an ihm ist für sie nicht da.“
 
 Justin sagt in keiner Fassung „Luke“. Den Namen schreibt er auf SB-12. In der Kinosequenz „Noch eine Runde“ hört man ihn drinnen rufen, „Luna!“, und Luna zählt darüber hinweg, „eins, zwei, drei“, und die Stimme wird kleiner, und Luke steht mit Lucys Hand in der seinen auf der Kreuzung.
 
@@ -384,12 +390,12 @@ Format im Spiel: Notizfenster mit der Seite als Bild (Gebetstext in schöner Han
 > Wenn das die Zukunft ist, ist sie laut.
 > Sie war heute leise. Sie hat nur gezählt. Ich hab mitgezählt und wieder bei siebzehn aufgehört.
 
-**SB-04 · Kapitel 2 · Messraum, unter Stuhl 8, neben der Feder**
-*Die Seite ist sauber gefaltet, als hätte jemand sie absichtlich hingelegt; ein Rabenschnabel hat die Ecke angeknabbert, übertragen.*
+**SB-04 · Kapitel 2 · Messraum, unter der Sitzfläche von Stuhl 8 (mit Klebeband), über ihm die Kerbe mit der Feder**
+*Eine lose Seite mit dem Rest eines Holzdeckels, wasserfleckig, sauber gefaltet, als hätte jemand sie absichtlich hingelegt, übertragen.*
 > Ich habe einen Knaben herausgeführt. Er hielt meine Hand so fest wie sie damals.
 > Draußen hatte er andere Augen. Ich habe es nicht gemerkt. Es war dunkel, und die Männer in Eisen waren schnell.
 > Sie haben ihn mir am Rand abgenommen. Sie sagten, sie bringen ihn heim. Sie haben gelogen wie ich.
-> Ich hab ihre Maschine zerschlagen. Der Stuhl war schon leer.
+> Ich bin ihnen nach, unter die Erde. Er saß in ihrer Maschine, festgeschnallt, und hat nicht geweint. Ich hab ihn losgeschnitten. Ihr Eisen war härter als meine Klinge.
 > Wenn ich ihn wiederfinde, schulde ich ihm was. Ich weiß nur nicht, was.
 
 **SB-05 · Kapitel 3 · Nr. 4, Peters Zimmer**
@@ -416,6 +422,8 @@ Format im Spiel: Notizfenster mit der Seite als Bild (Gebetstext in schöner Han
 > Der Ring ist in mir drin. Ein halber Mond. Mehr hab ich nicht von ihr.
 > So war es. So schreib ich es. So bleibt es.
 
+Nach dem Rätsel in Raum 3 ist „Sie hat losgelassen“ auf der Seite mit Bleistift durchgestrichen; Luke hat es getan, ohne es zu merken (Fibel: „Ich hab’s durchgestrichen. Ich weiß nicht, wann.“). Die Lösung des Rätsels steht nicht auf der Seite (02 B9).
+
 **SB-08 · Kapitel 4 · Villa, Asservatenkiste im Arbeitszimmer („Asservat 7/58“)**
 *In einer Klarsichthülle mit Etikett; neben der Randschrift in grauer Tinte ein einzelnes „W.“, übertragen.*
 > Männer in grauen Mänteln, mit Netzen aus Eisen. Sie haben zwei von den Kleinen gefangen. Die, die mir die Haut gegeben haben.
@@ -424,7 +432,7 @@ Format im Spiel: Notizfenster mit der Seite als Bild (Gebetstext in schöner Han
 > Ein Junge namens Hans blieb drin. Seine Schwester stand mit dem Fahrrad am Zaun, bis es hell war.
 > Das Netz hat mich auch gehalten. Eisen ist Eisen. Ich hab’s durchgeschnitten. Zu spät.
 
-**SB-09 · Kapitel 4 · Villa, in Wolters Akte „Subjekt EISEN“ (die dunkelste Seite)**
+**SB-09 · Kapitel 4 · Villa, eingeheftet in Wolters Akte „Subjekt EISEN“ (die dunkelste Seite; 1958 am Rand gefunden, als Justin das Netz zerschnitt und die Seite verlor, 02 B7)**
 *Die Seite trägt kein Jahr, nur oben „Brescia“; sie ist die einzige, auf der die Schrift schief wird, als hätte die Hand gezittert, übertragen.*
 > Vor der Stadt. Sie hängen sie an die Bäume, damit die drinnen es sehen. Ich steh in der Reihe und halte ein Pferd.
 > Ein Junge hat mich um Wasser gebeten, in seiner Sprache. Ich hatte Wasser.
@@ -432,13 +440,15 @@ Format im Spiel: Notizfenster mit der Seite als Bild (Gebetstext in schöner Han
 > Mira, wenn du das liest: Ich hab’s nie gesagt. Hier schwör ich’s, wo du es findest. Nie wieder ein Kind, dem ich nicht helfe.
 > Und wenn ich ewig brauch.
 
-**SB-10 · Kapitel 5 · Stall am Hof, von Whiskey auf das Brett gelegt (das Wiegenlied)**
-*Die einzige Seite in einer anderen Schrift: klein, sauber, mit Häkchen über den Wörtern, die wie Noten aussehen; unten eine Zeile von Justins Klötzen, übertragen.*
+**SB-10 · Kapitel 5 · Stall am Hof, von Whiskey durch die Dachluke auf das Brett gesegelt (W-12; das Wiegenlied)**
+*Die einzige Seite in einer anderen Schrift: klein, sauber, mit Häkchen über den Wörtern, die wie Noten aussehen und keine sind; die Ecke eingeknickt, wo der Schnabel war; unten eine Zeile von Justins Klötzen, übertragen.*
 > Schlaf, Kind, im Laternenschein,
-> die Nacht ist lang, du bist nicht allein.
-> Ich zähl die Sterne, du zählst die Schaf’,
-> bei siebzehn bist du längst im Schlaf.
+> der Rab hält Wacht, du bist nicht allein.
+> Ich zähl die Schläge, ich zähl die Zeit,
+> und wo du hingehst, bin ich nicht weit.
 > (Ihre Hand. Nicht meine. Wîse hat die Seite gebracht. Ich weiß nicht, woher.)
+
+Das ist Strophe 1 in Miras eigenem Wortlaut (02 G1; Grundlage `70_kap7_mira.md`, „Ihr Wiegenlied“). Das Dorf summt zwei Strophen mit der geflüsterten Schlusszeile „Such mich, Kind. Ich find dich doch.“; das Gesangbuch der Kapelle (Abschrift aus dem Seelbuch) hat Miras Schlusszeile „Ich find dich überall. – Ist das wahr? – Ja.“; die dritte Strophe kennt vor Kapitel 7 niemand. Eine Fassung „Such mich nit“ gibt es nicht.
 
 Luke-Gedanke beim Lesen, wenn er die Häkchen ansummt: die Spieluhr. E, D, C, H, C. Genau ein Satz: „Das ist Lucys Spieluhr.“
 
@@ -450,7 +460,7 @@ Luke-Gedanke beim Lesen, wenn er die Häkchen ansummt: die Spieluhr. E, D, C, H,
 > Der Pfarrer wollte die Kinder wegbringen. Ich hab ihn zuletzt am Nordzaun gesehen, im Nebel, ohne Laterne. Ein kluger Mann.
 > Wîse war die ganze Nacht still. Das ist neu.
 
-**SB-12 · Kapitel 6 · Epilog, Whiskey bringt sie auf den Hochsitz (aus Nimmerheim, nach „Noch eine Runde“)**
+**SB-12 · Kapitel 6 · Epilog, Whiskey bringt sie aus Nimmerheim auf den Hochsitz (W-14); Luke hat die Augen zu, der echte Luke liest sie vor, stockend, mit Kinderstimme**
 *Die letzte Seite des Buchs, mit dem Rest des Holzdeckels dran; die Schrift ist kleiner als sonst, als hätte er sich Mühe gegeben, übertragen.*
 
 > Luke. Ich schreib den Namen, weil ich ihn nicht sagen kann, ohne dass mir was wegbricht.
@@ -459,7 +469,7 @@ Luke-Gedanke beim Lesen, wenn er die Häkchen ansummt: die Spieluhr. E, D, C, H,
 > [vierte Zeile je nach Wahl, siehe unten]
 > Wenn Wîse dir das bringt, hat er den Weg. Dann gibt es einen.
 
-Vierte Zeile, Fassung A („Dass du bleibst“): „Der Helm geht nicht ab. Ich hab’s jede Runde versucht. Sie lässt ihn nicht, oder ich lass ihn nicht, ich kann’s nicht unterscheiden.“
+Vierte Zeile, Fassung A („Dass du bleibst“, 02 B1): „Die Platte auf der Brust geht nicht ab. Ich hab’s jede Runde versucht. Sie lässt sie nicht, oder ich lass sie nicht, ich kann’s nicht unterscheiden.“
 Fassung B („Spielen“): „Ich zähl jetzt mit ihr. Bis siebzehn. Beim nächsten Mal bin ich dran mit Verstecken, hat sie gesagt. Zu niemandem. Aber ich hab’s gehört.“
 Fassung C („Dass du sie suchst“): „Ich such jetzt laut. Sie hört mich. Wenn sie mich beim nächsten Mal sieht, dann weißt du, wer’s war.“
 
@@ -506,10 +516,10 @@ Die erste offene Nacht war 1329, siebzehn Jahre nach dem Sturz; 2026 ist die zwe
 35. 1907 · Das erste Automobil. „Wo ist das Pferd?“ Der Fahrer nimmt ihn mit. Justin kotzt.
 36. 1924 · Ein Mann bietet ihm für die Rüstung eine Billion Mark. Justin fragt, ob das viel ist. Der Mann sagt: „Morgen nicht mehr.“
 37. 1941 · Theodor, Heinrich, Grete. Ein Junge tritt ihn und will seine Schwester. (SB-06)
-38. 1958 · Graue Mäntel, Eisennetze, zwei von den Kleinen. Hans Rieke bleibt drin; sein Ranzenriemen hängt am Zaun, Justin nimmt ihn mit. (SB-08)
+38. 1958 · Graue Mäntel, Eisennetze, zwei von den Kleinen. Hans Rieke bleibt drin; sein Ranzenriemen hängt am Zaun, Justin nimmt ihn mit. Im Netz verliert er die Brescia-Seite; die grauen Mäntel heben sie auf und einen Splitter seiner Rüstung dazu. (SB-08; SB-09 in Wolters Akte, 02 B7)
 39. 1975 · Marion, Butterblume, Peter mit seinen Augen. Hilde und der kleine Lars. (SB-05)
 40. 1992 · Eisen wie er. Das Ding aus dem Abgrund mit seiner Stimme. Der Pfarrer geht in den Nebel. Wîse ist die ganze Nacht still. (SB-11)
-41. 2009 · Der Knabe an seiner Hand, mit anderen Augen. Die Männer in Eisen. Die Kerbe am Stuhl 8. (SB-04)
+41. 2009 · Der Knabe an seiner Hand, mit anderen Augen. Die Männer in Eisen nehmen ihn am Rand; Justin geht ihnen nach unter die Erde und schneidet ihn aus dem Messstuhl. Die Kerbe an Stuhl 8, die Feder in der Kerbe. (SB-04)
 42. 2026 · Luke. (SB-12)
 
 ---
@@ -522,24 +532,20 @@ Grundsatz: In Kapitel 1 und 2 ist Justin eine Gestalt, ein Geräusch und ein paa
 
 #### 6.1 Kapitel 1
 
-- **Ostende der Ahornstraße (Justins erste Erscheinung, Kern §9):** Eine große Gestalt steht unter der letzten Laterne, dort, wo der Nebel anfängt. Sie ruft einen Namen in den Nebel, zweisilbig, lang gezogen. Luke versteht „Lucy?“ (es war „Luna“). Wenn Luke näher als zwanzig Meter kommt, greift die Gestalt nach oben, dreht die Laterne über sich aus wie eine Glühbirne, und ist fort. Man hört ein tiefes Schaben, wie Stein auf Stein, das sich entfernt. Luke-Gedanke: „Okay. Jemand hat gerade eine Straßenlaterne per Hand ausgedreht. Das geht nicht. Ich hab die Dinger mal verkabelt.“ Kein Nachbild, das ist echt.
-- **Ostende, später in der Nacht (die Verwechslung):** Eine zweite Gestalt, gleiche Größe, gleiche Stelle. Diesmal: grelle Lampe an der Brust, Kettenrasseln, das Zischen eines Atemfilters. Sie geht in den Nebel, ohne sich umzudrehen. Ein Blechmann der Bergung, der die Öffnung vorbereitet. Wenn Luke später beide Erscheinungen im Journal vergleicht: „Zweimal ein Ritter am Ende der Straße. Einmal hat er gerufen, einmal geatmet wie ein Taucher. Ich glaub nicht, dass das derselbe war.“ Das ist der Aha-Samen für Kapitel 3 (AG-10).
+- **Ostende der Ahornstraße (Justins erste Erscheinung, Kern §9; Kapitel 1 Unterkapitel 2):** Beim ersten Schritt nach Osten hebt sich der Nebel am Straßenende für drei Sekunden. Dort steht jemand unter der letzten Laterne, groß, breit, matt schimmernd, Helm oder Kapuze, oben steht etwas Dünnes schräg ab, wie eine Feder (Wîses Feder, 02 B6). Die Gestalt hebt eine Hand an den Laternenmast, und die Laterne über ihr geht aus, als hätte man sie ausgedreht. Aus dem Dunkel ein Ruf, zwei Silben, weich, durch Regen (Audio „Lu–a“, die Mitte verschluckt; Untertitel „… Lu–?“, Lukes Deutung „… Lucy?“, 02 H1). Wer hinläuft: Die Laterne ist kalt, der Mast nass, im Matsch ein Abdruck wie von einem Stiefel mit Platten. Niemand da. Kein Nachbild, das ist echt. Er kommt in Kapitel 1 nicht näher, weil die Nacht des Schiffs vor 03:13 nur bis an den Rand des Nebels reicht; die Männer im grauen Kombi sind der zweite Grund, warum er die Laterne ausdreht.
+- **Die Verwechslung** (Kern §11: Blechmänner sehen im Nebel aus wie Ritter) findet erst in Kapitel 3 statt: AG-10, ein Blechmann mit Kettenrolle in derselben Silhouette, Luke ruft „Justin?“. Kapitel 1 pflanzt nur die Form.
 - **Hof, Scheune, Justins Lager:** ein Strohbett, das seit Jahrhunderten nachgestopft wird (unten Stroh, das zu Staub zerfällt, oben frisches), eine Blechdose Rüstungsöl (Leinöl, ranzig), ein Schleifstein mit einer Mulde von siebenhundert Jahren Klinge, ein Haken für eine Stalllaterne, ohne Laterne. Darüber, im Balken, sitzt Whiskey (W-04). Im Heu der Fundamentstein mit dem Turm über dem Abgrund, dasselbe Zeichen wie auf Whiskeys Ring (W-02). Hier liegt SB-01. Luke-Gedanke: „Jemand schläft hier. Jemand, der ein Schwert schärft. In Dinas Scheune. Ich frag Frau Aydın lieber nicht.“
-- **Hufeisen über allen Türen:** eine Fundstück-Notiz von Oma Erna in Nr. 4: „Das Hufeisen bleibt hängen. Frag nicht. Der Schmied hat auch nicht gefragt, und dem ging’s gut.“ (Der stumme Schmied, als Dorfwitz weitergegeben.)
-- **Kapelle, Sühnekreuz:** SB-02 am Sockel. Die Inschrift des Kreuzes (alt, vorhanden: `nord_suehnekreuz`) wird um die Zeile ergänzt, die zu 1312 passt: „… bis dass er die Seine selbst suche und finde.“
-- **Bushaltestelle:** SB-03 hinter dem ältesten Plakat (Kaninchenzüchter 1979). Humor: Der Dorflehrer hat „etwa vierzig“ an den Rand geschrieben.
-- **Kinderzeichnung in Hildes Keller (vorhanden):** Am Bildrand ein grauer Fleck mit Beinen, den kein Kind erklären kann. Hilde hat mit Kuli danebengeschrieben: „Der Ritter. Z. sagt, er steht immer da.“ (Rüstungs-Hinweis, gepflanzt.)
+- **Hufeisen über allen Türen:** Lukes Untersuchungszeilen und Vegas’ Monolog „Hufeisen“ stehen in `85_stimmen_humor.md` (U-04, U-73, V-05). Vorschlag für einen weiteren Oma-Erna-Zettel in Nr. 4, falls 85 ihn aufnimmt: „Das Hufeisen bleibt hängen. Frag nicht. Der Schmied hat auch nicht gefragt, und dem ging’s gut.“ (Der stumme Schmied, als Dorfwitz weitergegeben.)
+- **Kapelle, Sühnekreuz:** SB-02 im losen Sockelstein (Kap. 1, Nebenaufgabe „Laternenfest fällt aus“). Die Inschrift des Kreuzes (alt, vorhanden: `nord_suehnekreuz`), kaum lesbar: „… Ritter vom Hohen Abgrund … bis dass er die Seine selbst suche und finde.“ Am Querbalken sieben Kerben und eine halbe.
+- **Bushaltestelle:** SB-03 hinter dem ältesten Plakat, dem feuchten von 1958 (Kap. 1, Nebenaufgabe „Hinter dem ältesten Plakat“). Humor: Der Dorflehrer hat „etwa vierzig“ an den Rand geschrieben. LUKE: „‚Etwa vierzig.‘ Der Lehrer hat ihn geschätzt. Wie einen Gebrauchtwagen.“
+- **Zeichnungswand in Hildes Keller (Kap. 1):** Auf jeder Zeichnung am Bildrand ein grauer Fleck in Menschenform, ohne Gesicht, als hätte das Kind einen Mann gemalt und wieder weggerubbelt; signiert „LUKE, 9“. Kein Rüstungs-Hinweis (die zählen erst ab Kapitel 2, RH-1, und Dinas Zeichnung in Kapitel 3 ist RH-5), nur der gepflanzte Fleck.
 - **Geräusch:** In Kapitel 1 hört man zweimal in der Ferne das Schaben, einmal am Ostende, einmal vom Hof her. Nie nah.
 
 #### 6.2 Kapitel 2
 
-- **Messraum, Stuhl 8:** eine schwarze Feder im Holz der Lehne, daneben eine Kerbe, zwei Finger breit, durch das Metall des Riemens und in das Holz (W-05). SB-04 darunter. Nachbild (≤ 4 Zeilen), wenn Luke die Kerbe untersucht:
-  > Ein Mann in Eisen steht vor dem Stuhl. Das Schwert geht durch den Riemen und in die Lehne, mit einem Schlag.
-  > Er sagt etwas, das man nicht hört. Auf dem Stuhl sitzt keiner.
-  > Er sieht sich um, als suche er, wer ihm den Jungen weggenommen hat.
-  > Dann schabt Metall, und der Raum ist leer.
-- **Akte 08 (vorhanden):** ein Vermerk am Rand, Wolters Hand: „Subjekt EISEN am Rand gesichtet, Kind übergeben, keine Gegenwehr. Sachschaden Messstuhl 8, siehe Meldung.“ Das ist das erste Mal, dass der Name „Subjekt EISEN“ fällt; der Spieler kann ihn noch nicht zuordnen.
-- **Funk (AG-06/07):** ein Fetzen, den die Blechmänner sagen: „… und wenn EISEN auftaucht, nicht anfassen. Der schneidet.“ Luke hält „Eisen“ für ein Material.
+- **Messraum, Stuhl 8:** Gurte durchtrennt, sauber. In der Lehne eine Kerbe, zwei Finger breit, durch das Metall des Riemens bis ins Holz; **in der Kerbe klemmt eine schwarze Feder**, alt, breit, keine Krähenfeder, als hätte der Schlag sie irgendwo abgerissen (W-05; sie stammt aus Justins Helmband, 2009, 02 B6). Unter der Sitzfläche, mit Klebeband, SB-04. Der Junge saß noch, als Justin schnitt (Kapitel 2 Nachbild, Kapitel 3 „Ich hab dich losgeschnitten“). Nachbild am Stuhlkreis (Wortlaut: `20_kap2.md`, „Nachbild 2009“): Kinder in Gurten, im achten ein Junge, der nicht weint, in der Ecke ein Mann aus Eisen, der es tut; Seiler: „Lassen Sie ihn. Der tut keinem was. Der hat den Jungen gebracht.“; der Mann zieht das Schwert und schneidet die Gurte an Stuhl 8 durch, niemand hält ihn auf. Luke: „Eine Rabenfeder. Hier unten. Der Vogel geht nicht unter die Erde, das hab ich gesehen. Wer hat die hier reingetragen?“
+- **Akte 08 (Wortlaut: `20_kap2.md`):** „Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.“ Akte 06 (der echte Luke): „Rückführung Mittwoch, in der Nacht, als Letzter, durch Subjekt EISEN.“ Das ist das erste Mal, dass der Name „Subjekt EISEN“ fällt; der Spieler kann ihn noch nicht zuordnen. Auf dem Klavierdeckel danach B-K2-07: „ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN. ICH HAB ZUGESEHEN …“
+- **Weitere Pflanzungen in Kapitel 2:** B-K2-05 an der Schranktür („DIE MIT DEN KETTEN HALTEN MINUTEN. ER HÄLT JAHRE. SEINS IST KEIN EISEN ∴“, Rüstungs-Hinweis RH-1); im Modelldorf eine graue, unbemalte Figur am Rand der Senke, in den Sockel geritzt „EISEN“; im Durchschlag der Akte Abgrund: „Subjekt EISEN ist real. Er altert nicht. Er hat uns zugesehen und nichts getan. Er sagt, er suche jemanden.“
 - **Kantine:** Zeitungsartikel Z-05 hängt; daneben ein Foto vom Sommerfest 1975 (vorhanden), am Rand hinter den Lampions ein grauer Fleck. Luke, wenn er es untersucht: „Da steht einer am Rand. Oder das ist ein Fleck. Auf Fotos aus den Siebzigern ist alles ein Fleck.“
 - Justin selbst tritt in Kapitel 2 nicht auf. Die Zeile aus dem Tank („Ich seh ja durch dich“) ist Lunas, und sie meint, dass sie jetzt durch Luke sieht; damit ist das Fenster offen, bevor Justin es in Kapitel 3 benutzt.
 
@@ -549,32 +555,34 @@ Grundsatz: In Kapitel 1 und 2 ist Justin eine Gestalt, ein Geräusch und ein paa
 
 #### 7.1 Kapitel 4 (Villa Seiler, Tag)
 
-- **LWO-Akte „Subjekt EISEN“** (Wolters Arbeitszimmer, Aktenschrank, zwischen „Subjekt DREIPUNKT“ und „Probe W“; ≤ 10 Zeilen):
-  > SUBJEKT EISEN. Männlich, äußerlich ca. 40, Rüstung. Material laut Analyse S-7: keine Eisenlegierung, **Substanz S, anorganisch erstarrt** (vgl. Proben ∴-1/∴-2).
-  > Gesichtet: 1958 (Rand, Netz durchtrennt), 1975 (Ahornstraße, führt R-Fall KRANZ heraus), 1992 (Wald, Probe W reagiert auf Subjekt), 2009 (Amt, Sachschaden Messstuhl 8).
-  > Spricht Deutsch alter Prägung. Führt Kinder aus dem Objekt. Keine Aggression gegen Personal, außer bei Fixierung.
-  > Hypothese Seiler: menschlicher Wirt des Objekts, Funktion „Hütehund“. Hypothese Wolter: Köder wie die R-Fälle, nur älter und stabiler.
-  > Fixierung nicht empfohlen. Kontakt vermeiden. Bei Sichtung: Bergung informieren, nicht ansprechen.
-  > Beilage: Blatt aus Gebetbuch, Fundort Rand der Senke, Öffnung 1992. Übertragung anbei. (hw)
-  Darin liegt SB-09. Luke-Gedanke: „Sie haben ihn siebzig Jahre lang für einen Hund gehalten. Und er hat ihre Kinder rausgetragen.“
-- **Analyse S-7** (loses Blatt daneben, ≤ 5 Zeilen): „Probe von der Rüstung des Subjekts (Splitter, 1958, im Netz). Reagiert wie ∴-Gewebe, aber tot. Wächst nicht. Seiler: ‚Es ist dasselbe, nur schläft es.‘ Vorschlag: Eisenhauben der Bergung nach diesem Vorbild. Abgelehnt, Material nicht beschaffbar.“ (Erklärt, warum die Blechmänner nur Eisen tragen; Rüstung = Schiffshaut, jetzt ausgesprochen.) Mit dem Flicken aus 3.15 kann Luke die Probe auf den Tisch legen; das leere Glas ∴-2 im Kühlraum beschlägt kurz. Detail, keine Mechanik.
+- **LWO-Akte „Subjekt EISEN“** (Wolters Arbeitszimmer, Schublade „1958“; Wortlaut: `80_lwo.md`, 5.9): angelegt 1958 (H. W.); Erscheinung in jeder Öffnung seit mindestens 1941; „Substanz S, anorganisch erstarrt“; Bewertung „Werkzeug des Objekts. Der Hirte, der bestimmt, wer zurückkommt. Nicht ansprechen.“; Wolters graue Randnotiz („Er hat mich 1941 herausgeführt. Grete nicht. … Er hat gesagt: ‚Ich finde nie jemanden.‘ Ich glaube ihm nicht. Ich kann es mir nicht leisten, ihm zu glauben.“). Eingeheftet **SB-09**, mit Wolters Notiz „Gefunden 1958 am Rand. Er hat es verloren. Ein Werkzeug schreibt keine Schwüre. Das ist bedauerlich.“ (02 B7; die frühere Fassung dieses Dossiers mit „Öffnung 1992“ gilt nicht). Luke-Gedanke: *„Der Hirte, der bestimmt, wer zurückkommt.“ Die halten ihn seit Jahrzehnten für den Hütehund von dem Ding. Und er hat ihre Kinder rausgetragen.*
+- **Analyse S-7** (loses Blatt, an die Akte geklammert; Wortlaut hier maßgeblich):
+  > Probe von der Rüstung des Subjekts (Splitter, 1958, im Netz). Reagiert wie ∴-Gewebe, aber tot. Wächst nicht.
+  > Seiler: „Es ist dasselbe, nur schläft es.“
+  > Vorschlag: Eisenhauben der Bergung nach diesem Vorbild. Abgelehnt, Material nicht beschaffbar.
+  (Erklärt, warum die Blechmänner nur Eisen tragen; Rüstung = Schiffshaut, jetzt ausgesprochen.) LUKE (Gedanke): *Das ist kein Eisen. Das ist dasselbe Zeug wie in ihren Gläsern. Nur eingeschlafen.*
+- **Der Flicken (Einlösung, nur mit ≥ 3 Rüstungs-Hinweisen, 02 B3):** An der Analyse bietet sich „Flicken danebenlegen“. Luke legt ihn unter die grüne Lampe, neben das Wort „tot“. Er ist warm, so warm wie in dem Moment, als Justin ihn ihm gegeben hat; die Innenseite beschlägt langsam wie angehauchtes Glas und wird wieder klar, zweimal, dann nichts mehr. LUKE (ein Satz): „Tot, schreibt ihr. Der ist warm.“ Beim zweiten Lesen ist Seilers „nur schläft es“ mit Bleistift unterstrichen (Beobachter-Spur). Fibel „Schiffshaut“: „Seine Rüstung ist aus dem Schiff. Deshalb sieht sie ihn nicht. Er hat gesagt, er muss sie eines Tages ausziehen. Das hier ist das erste Stück.“ Im Kühlraum liegt in einer Nierenschale der Splitter von 1958 („Subjekt EISEN, Rüstung, 1958“); hält Luke den Flicken daneben, sind beide gleich grau, nur der Flicken ist warm, und das leere Glas ∴-2 beschlägt kurz von innen. Der Flicken bleibt im Inventar.
 - **SB-08** in der Asservatenkiste („Asservat 7/58“), mit dem „W.“ in grauer Tinte.
-- **Foto 1941** (Grete Wolter, N-08): am Rand, hinter den Kindern, ein grauer Fleck mit Beinen. Wolter, wenn Luke ihn in der Halle darauf anspricht (AG-14, eine Nebenbemerkung): „Das ist der Hund des Objekts. Er hat mich hinausgetragen, 1941. Ich habe ihm nie gedankt. Das ist bedauerlich. Es hätte auch nichts geändert.“
+- **Foto 1941** (Grete Wolter, N-08; Rückseite ohne Altersangabe, 02 C1): am Rand, hinter den Kindern, ein grauer Fleck mit Beinen. Luke erkennt das Mädchen mit dem Kreisel vom Kinderstuhl in Nimmerheim wieder. Was Wolter dazu denkt, steht in seiner grauen Randnotiz in der Akte (oben); wenn Kapitel 4 in AG-14 eine gesprochene Nebenbemerkung braucht, ohne Jahreszahl (02 A5): „Das ist der Hund des Objekts. Er hat mich hinausgetragen, als ich klein war. Ich habe ihm nie gedankt. Das ist bedauerlich. Es hätte auch nichts geändert.“
 - **Wolters Gespräch (AG-14):** bei miserablem Vertrauen ein Satz über Justin: „Sie waren die ganze Nacht mit EISEN unterwegs. Wir haben zugesehen, weil Sie uns wertvoller sind als er. Das sollte Ihnen zu denken geben.“
 - **Whiskey bringt Miras Ring (W-11):** Der halbe Mond passt genau in Lukes Narbe. Luke-Gedanke, ein Satz: „Der Ring, der sich in seine Hand gebrannt hat. Und in meine, weil ich aus seiner gemacht bin.“
 
 #### 7.2 Kapitel 5 (Hof, Stall, Friedhof)
 
 - **SB-10** im Stall, von Whiskey auf das Brett gelegt (W-12). Luke erkennt die Spieluhr.
-- **Justins Lager in der Scheune** hat sich verändert: Das Strohbett ist glatt gestrichen, der Schleifstein liegt anders (Beobachter-Spur), der Haken für die Laterne ist leer wie immer. Nur bei Wahl C: Die Schnalle passt in die Vertiefung im Fundamentstein. Wenn Luke sie einlegt, fällt Licht aus dem Stein, kalt-weiß und kerzengerade, für zwei Sekunden, und der echte Luke im Stall flüstert: „Der kommt wieder. Der kommt immer wieder.“ Nur bei Wahl B: Auf Hildes gedecktem Tisch liegt der halbe Schokoriegel in Silberpapier, ordentlich neben dem Teller, wie ein Mitbringsel. Nur bei Wahl A: Gisela Rieke erkennt den Ranzenriemen (N-02, wenn sie Luke die Katze gibt): „Das ist Hänschens. Das ‚H. R.‘ hab ich reingeritzt, mit der Nagelschere. Wo hast du …“ Sie fragt nicht weiter. Sie behält den Riemen.
+- **Justins Lager in der Scheune** hat sich verändert: Das Strohbett ist glatt gestrichen, der Schleifstein liegt anders, mit der Mulde zur Tür (Beobachter-Spur), der Haken für die Laterne ist leer wie immer. Im Heu der Fundamentstein mit dem Turm über dem Abgrund.
+- **Einlösung der Abschiedsgeschenke (02 B3, Wortlaut `50_kap5.md`):**
+  - Nur bei Wahl C: Die Gürtelschnalle passt genau in die Vertiefung im Fundamentstein. Legt Luke sie ein, steht zwei Sekunden lang Licht aus dem Stein, kalt-weiß und kerzengerade, und durch die Bretterwand flüstert eine Kinderstimme aus dem Stall: „Der kommt wieder. Der kommt immer wieder.“ LUKE (ein Satz): „Vom Hof. Nicht aus dem Licht.“ Die Schnalle bleibt im Stein.
+  - Nur bei Wahl B: In Nr. 7 steht auf Hildes Küchentisch ihre Tasse, der Kaffee hat eine Haut. Luke kann den halben Riegel in Silberpapier daneben legen. LUKE: „Für die, die gezählt hat.“ Whiskey landet auf der Stuhllehne, sieht den Riegel an, sieht Luke an und lässt ihn liegen; das erste Glänzende im Spiel, das er liegen lässt.
+  - Nur bei Wahl A: Gisela Rieke (N-02) sieht den Riemen an Lukes Handgelenk, als sie ihm die Katze gibt, und die Taschenlampe in ihrer Hand senkt sich. GISELA: „Das ist Hänschens. Das ‚H. R.‘ hab ich reingeritzt. Mit der Nagelschere. Wo hast du …“ Sie fragt nicht weiter. LUKE: „Ich soll Ihnen sagen: Er hat nicht gefroren.“ GISELA (lange nichts): „… Der hat immer gefroren. Immer.“ Sie wickelt den Riemen um ihre eigene Hand und behält ihn. Kein Witz, keine Musik.
 - **Grab:** Nachbild am Grab „LUKE 2009–2026“ (≤ 4 Zeilen, wenn Luke die Kreide am Stein untersucht): „Ein Mann in Eisen kniet am Grab und liest, langsam, mit dem Finger. Er kommt bis zur zweiten Zahl. Dann steht er auf und geht Richtung Senke. Er hat es geglaubt.“ (Justin hat das Grab in dieser Nacht gesehen, bevor er Luke traf, und geglaubt, der Knabe von 2009 sei tot. Darum sieht er Luke an der Kreuzung so lange an.)
 
 #### 7.3 Kapitel 6 (Dustwoods, tiefer Wald)
 
 - **SB-11** am Hochsitz, an einen Nagel gespießt.
-- **Der Wendigo spricht mit Justins Stimme** (Kern §6.4, SB-11): Aus dem Wald ohne Echo kommt einmal „Such mich, Papa“ in Justins Stimme, tief, ohne Schaben dazu. Luke merkt es am Fehlen des Geräuschs. Zettel des Beobachters danach (Kern §15.5, einer der 4–8): „DAS WAR NICHT ER. ER SCHABT. DAS DA SCHABT NICHT ∴“
-- **Beobachter-Zettel zur Rüstung** (Kern §11: Kap. 6 Beobachter-Zettel; Vorschlag, ≤ 5 Zeilen): „WIR HABEN IHM DIE HAUT GEGEBEN DAMIT ER NICHT GRAU WIRD. SIE SIEHT DIE HAUT NICHT. WIR HABEN DAS GEWUSST ODER NICHT GEWUSST. ICH WEISS ES NICHT MEHR. ES IST LANGE HER AUCH FÜR MICH ∴“
-- **SB-12** im Epilog, von Whiskey auf den Hochsitz gebracht (W-14), in der Fassung, die zur Wahl in Kapitel 3 passt. Whiskey sagt danach „Luna.“ (W-15). Das ist das letzte Mal, dass Justin in Kapitel 1 bis 6 vorkommt: als Name auf Papier, geschrieben von einem, der ihn nicht aussprechen kann.
+- **Der Wendigo spricht mit Justins Stimme** (Kern §6.4, SB-11): Aus dem Wald ohne Echo kommt einmal „Such mich, Papa“ in Justins Stimme, tief, ohne Schaben dazu. Luke merkt es am Fehlen des Geräuschs (Justins Schritte brauchen deshalb schon in Kapitel 3 ihr eigenes Sample). Zettel des Beobachters danach: **B-K6-04 „Er schabt“** (Wortlaut `82_beobachter.md`: „DAS WAR NICHT ER. ER SCHABT. WENN ER GEHT SCHABT DIE HAUT AN DER HAUT. DAS DA SCHABT NICHT ∴“).
+- **Beobachter-Zettel zur Rüstung** (Kern §11): **B-K6-05 „Lange her“**, Hochsitz, unter dem Stein neben SB-11 (Wortlaut `82_beobachter.md`: „WIR HABEN IHM DIE HAUT GEGEBEN. DAMIT ER DRIN NICHT GRAU WIRD. DAS HAUS SIEHT SEINE EIGENE HAUT NICHT. UND SIE GUCKT MIT DEM HAUS. OB WIR DAS GEWUSST HABEN. DAS IST LANGE HER. AUCH FÜR MICH ∴“). Die Frage steht ohne Fragezeichen da; Luke liest zweimal und sagt nichts.
+- **SB-12** im Epilog, von Whiskey auf den Hochsitz gebracht (W-14), in der Fassung, die zur Wahl in Kapitel 3 passt; Luke hat die Augen zu, der echte Luke liest vor. Whiskey sagt danach „Luna.“ (W-15). Das ist das letzte Mal, dass Justin in Kapitel 1 bis 6 vorkommt: als Name auf Papier, geschrieben von einem, der ihn nicht aussprechen kann.
 
 ---
 
@@ -598,24 +606,31 @@ Grundsatz: In Kapitel 1 und 2 ist Justin eine Gestalt, ein Geräusch und ein paa
 - **`whiskey.js`** (Anker „Der Rabe? Er gehörte meiner Frau“): die drei Zeilen durch die Stufen 1, 2 und 4 aus 3.10 ersetzen; das Lore-Objekt `whiskey_justin` bekommt den Text: „Laut Justin gehörte der Rabe seiner Frau. Er fliegt rein und raus, wo Justin nur gehen kann. ‚Sie hat gesagt, er findet immer heim. Zu ihr.‘“ Der Auslöser (ab dritter Begegnung, `S.met.size >= 3`) bleibt.
 - **Figurenmodell:** `figuren.js` („Justin: vorhandenes Paladin-Modell“) bleibt; nur Material und Texturen nach 1.11. Nachbilder in Kapitel 2 (`echo_messraum` mit `justin`) und am Grab in Kapitel 5 sind Klone mit `idle`-Clip, kein neues Modell.
 - **Stundenbuch:** Notizfenster wie vorhandene Notizen (`openNote`), plus Fibel-Reiter mit zwölf Feldern. Seiten sind Fundstücke mit Kennung SB-xx; SB-12 hat drei Textvarianten, gewählt nach dem gespeicherten Wert der Kapitel-3-Antwort.
-- **Rüstungs-Hinweise:** ein Zähler (0–7) im Spielstand, gefüllt durch die in „Offene Abstimmungen“ genannten Fundstücke; Schwelle 3 schaltet die Zusatzzeile vor der Wahl und den Flicken frei.
-- **Abschiedsgeschenke:** drei Fundstücke (Riemen, halber Riegel, Schnalle) plus der Flicken; je ein Detail in Kapitel 4–6 fragt sie ab.
+- **Rüstungs-Hinweise:** ein Zähler (0–11) im Spielstand, gefüllt durch RH-1 bis RH-11 aus `30_kap3_haupt.md` (02 B4; RH-1 liegt in Kapitel 2, RH-2 in Kapitel 1); Schwelle 3 schaltet die Zusatzzeile nach den letzten Worten und den Flicken frei.
+- **Abschiedsgeschenke:** drei Fundstücke (Riemen, halber Riegel, Schnalle) plus der Flicken; Einlösung Flicken in Kapitel 4 (Analyse S-7), die drei anderen in Kapitel 5 (Gisela, Hildes Küchentisch, Fundamentstein), Kapitel 6 fragt die Wahl über SB-12 und B-K6-07 ab.
 - **Sperren:** Justin ist ab dem Ende von Kapitel 3 nie wieder als Figur zu sehen, nur als Nachbild, Seite oder Stimme (Wendigo).
-- **Ton:** Justins Schritte brauchen ein eigenes Sample (tiefes Schaben, Stein auf Stein), damit die Verwechslung mit den Blechmännern (Kette, Atemfilter) auflösbar ist.
+- **Ton:** Justins Schritte brauchen ein eigenes Sample (tiefes Schaben, Stein auf Stein), damit die Verwechslung mit den Blechmännern (Kette, Atemfilter) auflösbar ist und in Kapitel 6 das Fehlen des Schabens bei der falschen Stimme auffällt.
+- **Helm:** zwei Animationen am Paladin-Modell: Visier hoch/zu (Kreuzung) und Helm ab/auf (Hoher Abgrund); dazu Brustplatte-Zerren mit heller werdenden Nähten (Antwort A).
 
 ---
 
-### Offene Abstimmungen
+### Abstimmungen (erledigt)
 
-1. **Rätsel in Raum 3, Vorschlag für die fünf Stellen** (Kapitel-3-Autor entscheidet; die Lösung bleibt „seine Hand ging auf“): (1) Miras Hand im Riss: „Ihre Finger sind zu. Sie hält noch.“ (2) Justins Hand am Rand: „Offen. Handfläche nach oben. Wie nach einem heißen Topf.“ (3) der halbe Mond in seiner Hand: „Der Ring hat sich eingebrannt. Er hat gehalten. Eine Weile.“ (4) seine Stiefel: „Die Absätze stecken im Rand. Er hat sich gestemmt.“ (5) Miras Gesicht: „Sie sieht ihn an. Nicht das Licht.“ Frage: „Wer hat losgelassen?“ Lösung: die beiden Hände (1 und 2 zusammen, oder 2 allein). 3 und 4 sind wahr und reichen nicht; 5 ist wahr und tut weh. Hilfeleiter: Justins Sätze aus 3.12, dann sein Blick auf die Hände, dann Whiskey, der auf Justins offene Nachbild-Hand fliegt.
-2. **Die Rüstungs-Hinweise (Zählung bis 3):** Vorschlag für sieben Quellen: (a) Hildes Kinderzeichnung mit dem grauen Fleck (Kap. 1); (b) Justins Antwort in 3.8 („Sie hört mich rufen und sieht niemanden“); (c) Justins Satz über die Blechmänner in 3.6 („Drinnen halten sie einen Atemzug“); (d) Whiskey pickt an Justins Platte wie an einem Stück Schiff, Luke: „Er behandelt dich wie ein Möbelstück“ (W-06); (e) Beobachter-Zettel in Kap. 3: „ER TRÄGT DAS HAUS. DAS HAUS SIEHT SICH SELBST NICHT ∴“; (f) Pfarrer Voss’ Predigtnotiz (N-06): „… und der Vater ging in der Haut des Sterns und ward nicht gesehen“; (g) Behaltene in Raum 1, die durch Justin hindurchsehen und nur Luke ansehen. Dazu Lunas „In der Haut seh ich ihn nicht“ in 3.13 (zählt nicht mehr, kommt zu spät, bestätigt nur). Wer die Kapitel-3-Beats schreibt, platziert (a) bis (g) und meldet, welche er streicht.
-3. **Kapitel 1, Ostende:** Ich habe entschieden, dass Justin vor 03:13 nur bis an den Rand des Nebels kommt („Ich durfte nicht näher“) und dass an derselben Stelle später ein Blechmann steht. Wenn der Kapitel-1-Autor den Blechmann woanders will, muss der Vergleichs-Gedanke in 6.1 angepasst werden.
-4. **Justins Gesicht:** Ich zeige es genau einmal (Kreuzung, Telefonzelle, Visier hoch, zwei Sekunden, braune Augen). In Nimmerheim bleibt der Helm zu (Kern §12, Antwort A). Falls der Kapitel-3-Autor das Gesicht in Raum 3 braucht (alte Bibel: „Justin nimmt den Helm ab“), geht das nur draußen; drinnen widerspricht es dem Kern.
-5. **Abschiedsgeschenke und ihre Rückzahlung in Kapitel 4–6:** Riemen „H. R.“ → Gisela (Kap. 5, N-02); halber Schokoriegel → Hildes Tisch (Kap. 5); Schnalle → Fundamentstein (Kap. 5); Flicken → Analyse S-7 in der Villa (Kap. 4). Die Kapitel-4- und -5-Autoren müssen die vier Details aufnehmen oder mir sagen, wo sie stattdessen hin sollen. Der Kern verlangt „je ein Detail in Kap. 4–6“; Kapitel 6 hat SB-12 als Detail.
-6. **Justins Name für Luke:** Ich habe „nur auf Papier“ gewählt (SB-12). Er sagt ihn in keiner Antwort laut. Wenn der Kapitel-3-Autor die alte Zeile „Danke, Luke“ über die Schulter behalten will, müsste SB-12 den ersten Satz verlieren („Ich schreib den Namen, weil ich ihn nicht sagen kann“). Ich rate zu Papier.
-7. **Peter aus Justins Hand:** Der Kern sagt in SB-05, Peter habe „meine Augen“. Ich habe daraus gemacht, dass sowohl Peter (1975) als auch Luke (2009) aus Justins Hand entstanden sind. Das erklärt „Bruder“ vom Zahn-Mann doppelt. Wer Kapitel 2 schreibt, sollte das wissen.
-8. **Das Grab in Kapitel 5:** Ich lasse Justin das Grab „LUKE 2009–2026“ in dieser Nacht vor der Begegnung sehen (Nachbild in 7.2). Das verlangt, dass das Grab schon in Kapitel 3 am Friedhof zu finden ist (Kern §11 sagt „Kap. 3 → Kap. 5“). Passt, falls der Kapitel-3-Autor den Friedhof begehbar lässt.
-9. **Miras Stück Stoff unter der Brustplatte (1771):** nur Autoren-Wissen, im Spiel höchstens als Geruch („Minze“). Wenn Kapitel 7 es braucht, ist es da.
-10. **Der Wendigo mit Justins Stimme:** SB-11 legt es an; der Kapitel-6-Autor entscheidet, ob er es benutzt. Der Beobachter-Zettel „ER SCHABT“ ist mein Vorschlag, kein Zwang.
-11. **Kapitel 2, Akte 08 und Funk:** Ich habe „Subjekt EISEN“ dort zweimal gepflanzt (Randvermerk, Funkfetzen). Falls die Akte 08 im Code keinen Rand hat, tut es auch ein Post-it.
-12. **Umfang:** Das Dossier liegt über den 35–50 KB des Auftrags, weil die sieben Pflichtteile (Figur, Stimmführer, Dialogbank, zwölf Seiten, 42 Nächte, vorher, nachher) zusammen mehr Platz brauchen. Wer kürzen muss: Abschnitt 5 (die 42 Nächte) und die Beispielzeilen 11–12 sind entbehrlich, alles andere hängt an einer Kennung.
+1. Rätsel in Raum 3: Frage „Wer hat losgelassen?“, Lösung JUSTINS; Miras Finger geschlossen, Justins Hand offen, Fersenabdrücke und Stiefel als Belege; nichts davon auf SB-07 (02 B9; Hilfeleiter und Stellen in `30_kap3_haupt.md`).
+2. Rüstungs-Hinweise: gültig ist RH-1 bis RH-11 aus Kapitel 3, Schwelle 3 (02 B4); meine Vorschlagsliste (a)–(g) ist darin aufgegangen.
+3. Kapitel 1, Ostende: Justin nur bis an den Nebelrand, mit Feder am Helm (02 B6, H1); der Blechmann in derselben Silhouette kommt erst in Kapitel 3 (AG-10).
+4. Justins Gesicht: zweimal, Visier an der Kreuzung und Helm ab im Hohen Abgrund; bei Antwort A ist die Brustplatte verwachsen (02 B1). SB-12 Fassung A entsprechend.
+5. Abschiedsgeschenke: Riemen „H. R.“ → Gisela (Kap. 5), halber Riegel → Hildes Küchentisch Nr. 7 (Kap. 5), Schnalle → Fundamentstein (Kap. 5), Flicken → Analyse S-7 (Kap. 4) (02 B3).
+6. Lukes Name: nur auf SB-12, nie laut (02 B2); „Danke, Sohn“ und „Danke, Luke“ entfallen.
+7. Peter und Luke aus Justins Hand, K-2 ebenfalls (02 B8).
+8. Das Grab „LUKE 2009–2026“ ist in Kapitel 3 begehbar („Heimgehen“) und trägt in Kapitel 5 das Nachbild aus 7.2.
+9. SB-04: Der Junge saß noch, Justin hat ihn losgeschnitten (Kapitel 2 und 3).
+10. SB-09 hat die LWO 1958 im Netz an sich genommen (02 B7); SB-10 ist Strophe 1 in Miras Wortlaut, „Such mich nit“ gibt es nicht (02 G1).
+11. Whiskey: Justins Satz in Nimmerheim „Sie kennt ihn. Er ist der Vogel ihrer Mutter. Wenn er ruft, kommt sie.“ (02 B5); die Feder an Stuhl 8 stammt aus seinem Helmband (02 B6).
+12. Wendigo mit Justins Stimme und der Zettel „Er schabt“: von Kapitel 6 und dem Beobachter-Dossier übernommen (B-K6-04, B-K6-05).
+13. Akte 08 und die Pflanzungen von „Subjekt EISEN“ in Kapitel 2: nach `20_kap2.md` (Akte 06/08, B-K2-05, Modelldorf, Durchschlag).
+
+### Noch offen für den Autor
+
+1. Miras Stück Stoff unter der Brustplatte (Nacht 1771): bisher nur Autorenwissen und der Geruch nach Minze. Ob Kapitel 7 es als Gegenstand braucht (Mira erkennt ihr Kleid), entscheidet der Kapitel-7-Autor; `70_kap7_mira.md` nennt es nicht.
+2. Wolters gesprochene Nebenbemerkung zum Foto von 1941 („Das ist der Hund des Objekts …“) steht in keinem Kapitel; aufnehmen oder streichen.

@@ -5,7 +5,7 @@
 - **Wann:** frei spielbar ab Unterkapitel 5 („Kein Draußen“) bis zum Löschen der vierten Laterne. Einzelne Auslöser liegen früher (Vegas ruft nach der Kuh), zählen aber erst ab Unterkapitel 5. Nach dem ersten Hebel jagt das Graukind im ganzen Dorf (Ochs am Berg, Freimal an allem Eisen); wer die Nebenaufgaben vor den Laternen macht, hat Ruhe, wer sie danach macht, hat Angst.
 - **Die Nacht:** Alle Uhren zeigen 03:13. Wer nie drin war, schläft wie ein Stein, im Stehen, am Tisch, am Fenster. Türen stehen offen, die sonst zu sind. Die Straße hinaus führt wieder hinein; auch der Nordzaun zu den Dustwoods ist heute Nebel, der einen am Spielplatz wieder ausspuckt.
 - **Wer mitkommt:** Justin folgt Luke mit sechs Metern Abstand und bleibt stehen, wenn Luke stehen bleibt. In Häuser geht er nicht („Ich geh in kein Haus, in das man mich nicht bittet.“), unter die Erde auch nicht, in die Kapelle schon. Whiskey fliegt von Dach zu Dach, nie unter die Erde. Der Beobachter folgt beiden, halb hinter Justins Rücken, Ein-Sekunden-Regel, ständige Geräusche.
-- **Was die Nebenaufgaben leisten:** Sie geben dem Hauptweg Futter: den dritten Weg zur Laternenfolge (10), Luna-Zusatzzeilen in Raum 3 (1, 2, 8), Pfarrer Voss mit Namen in Raum 2 (3), Hildes Zeile über Jonas (12) und vor allem die **Rüstungs-Hinweise** (RH-5 bis RH-11), die Justins Abschied verändern.
+- **Was die Nebenaufgaben leisten:** Sie geben dem Hauptweg Futter: den dritten Weg zur Laternenfolge (10), Luna-Zusatzzeilen in Raum 3 (1, 2, 8), Pfarrer Voss mit Namen in Raum 2 (3), Hildes Zeile über Jonas (12, „Hast du dich an mich erinnert?“) und vor allem die **Rüstungs-Hinweise** (RH-5 bis RH-11), die Justins Abschied verändern.
 - **Umfang:** zwanzig Nebenaufgaben mit eigenem Namen, alle aus der Liste im Hauptweg, keine gestrichen, zwei Inhalte zusammengelegt (das Nachbild „Zählen“ an der Kreuzung gehört jetzt zu Nr. 17). Spielzeit mit allen: etwa zwei Stunden.
 - **Ketten:** „Siebzehn Näpfe“ → Pfarrhausschlüssel → „Die dreizehnte Predigt“. „Rot eingekreist“ → Kapellenschlüssel → „Zähl bis siebzehn, Augen zu“ und das Gitter der Martinsnische. Alles andere ist frei.
 
@@ -154,7 +154,7 @@ Wer genau das tut (dreimal ziehen, Pause, dreizehnmal; der Spieler kennt den Tak
   Advent: „… WO man wartet: am Fenster oder am Rand.“ · Weihnachten: „Es ist DER älteste Trick der Welt, dass man Kinder in Ställe legt, wo keiner sucht.“ · Epiphanias: „Der BETTLER folgte niemandem, und er war der Einzige, der ankam.“ · Passion: „Wer nachts wach liegt und FRIERT, weiß mehr über diese Woche als jeder, der schläft.“ · Ostern: „Was drin LIEGT, ist manchmal nicht das, was wir hineingelegt haben.“ (Rand: „Peter Kranz. Grab fest wie ein Deckel.“) · Pfingsten: „Sie verstanden einander, WAS auch immer sie sprachen.“ · Trinitatis: „DAS Dorf besteht aus sechs Familien und einem Fest.“ · Erntedank: „Wir danken für das, was das DORF hergibt. Ich sage seit zwanzig Jahren nicht, was.“ · Reformation: „Ich kann NICHT anders. Doch, ich kann. Ich tu’s nur nicht.“ · Martini: „Martin teilte den Mantel, ohne zu LESEN, wer da fror.“ · Buß- und Bettag: „Wer Buße WILL, muss erst wissen, was er getan hat.“ · Ewigkeitssonntag: „Ich nenne keine Namen. AMEN.“
 - *Das dreizehnte Blatt:* „Wer eine Laterne trägt. – Für die Kinder. Nicht für die Gemeinde. Die Gemeinde weiß es.“ Rückseite, nur gegen die Lampe lesbar: „Wenn du das liest und nicht vom Amt bist: Das Buch liegt dort, wo der Bettler friert. Wenn du vom Amt bist: Er friert seit 1866, ihr habt es nie gemerkt.“
 
-**Rätsel:** Lösung WO · DER · BETTLER · FRIERT · LIEGT · WAS · DAS · DORF · NICHT · LESEN · WILL · AMEN → der hohle Sockel des Bettlers in der Martinsgruppe. *Faire Herleitung:* gleiche Tinte in Predigten aus vielen Jahren (LUKE: „Zwölf Jahre, ein Kuli. Das ist keine Notiz. Das ist ein Schnitt.“); die Reiter geben die Reihenfolge, zwei Blätter liegen vertauscht in der Mappe (Passion hinter Ostern). Den Bettler ohne Arm kennt der Spieler aus Kapitel 1. *Hilfeleiter:* (1) Gedanke beim dritten Blatt: „Wieder ein Doppelstrich. Der hat das an einem Abend gemacht.“ (2) Fibel: „Zwölf Wörter. In welcher Reihenfolge?“, die Kamera streift die Reiter. (3) Whiskey setzt sich auf den Reiter „Advent“ und geht nicht runter, weil er glänzt. (4) Beobachter-Zettel im Flur: „DER MANN AUS PAPIER HAT AUCH GEZÄHLT. ER HAT BEI ADVENT ANGEFANGEN. ∴“ (5) die Rückseite des dreizehnten Blatts. *Fehlschlag:* keiner; falsche Orte geben je einen Toast, am Mira-Stein auf dem Friedhof: „Der Stein ist neuer als der Name. Jemand hat ihn nachgesetzt.“
+**Rätsel:** Lösung WO · DER · BETTLER · FRIERT · LIEGT · WAS · DAS · DORF · NICHT · LESEN · WILL · AMEN → der hohle Sockel des Bettlers in der Martinsgruppe. *Faire Herleitung:* gleiche Tinte in Predigten aus vielen Jahren (LUKE: „Zwölf Jahre, ein Kuli. Das ist keine Notiz. Das ist ein Schnitt.“); die Reiter geben die Reihenfolge, zwei Blätter liegen vertauscht in der Mappe (Passion hinter Ostern). Den Bettler ohne Arm kennt der Spieler aus Kapitel 1. *Hilfeleiter:* (1) Gedanke beim dritten Blatt: „Wieder ein Doppelstrich. Der hat das an einem Abend gemacht.“ (2) Fibel: „Zwölf Wörter. In welcher Reihenfolge?“, die Kamera streift die Reiter. (3) Whiskey setzt sich auf den Reiter „Advent“ und geht nicht runter, weil er glänzt. (4) Beobachter-Zettel **B-K3-N1** im Flur: „DER MANN AUS PAPIER HAT AUCH GEZÄHLT. ER HAT BEI ADVENT ANGEFANGEN. ∴“ (Wortlaut: Dossier 82) (5) die Rückseite des dreizehnten Blatts. *Fehlschlag:* keiner; falsche Orte geben je einen Toast, am Mira-Stein auf dem Friedhof: „Der Stein ist neuer als der Name. Jemand hat ihn nachgesetzt.“
 
 *Das Seelbuch* (sechs lose Seiten im Wachstuch, Voss’ Übertragung dabei; Dokument; Wortlaut: Dossier 86, ergänzt um die Zeile „Anno 1329“, die den Wortlaut von RH-7 aus dem Hauptweg trägt):
 > *Martini, im Jahr des Herrn 1312.* In dieser Nacht fiel ein Licht in den Birkenwald hinter dem Hof des Ritters. Sechs Kinder gingen mit ihren Laternen hinein: die Kinder des Cranz, des Wendel, des Winter, des Reuter, des Brant und des Hofer. Sie kamen an der Hand der Frau Mira wieder heraus, eins nach dem andern.
@@ -205,7 +205,7 @@ LUKE (ein Satz, beim Wort „Brant“): „Na super. Wir sind Gründungsmitglied
 **Belohnung:** SB-05 (Stundenbuch-Reiter), Fibel, die Kassette (Gegenstand).
 **Schreck (1):** Dreht Luke sich zur Tür um, steht der Stuhl hinter ihm wieder zum Fenster gedreht. Draußen im Garten raschelt es, drei Schritte, weg.
 **Humor:** Oma Ernas Zettel; „nur im Helm“; Lucy auf der Kassette, schon mit fünf der Chef.
-**Verbindung:** „Bruder“ vom Zahn-Mann (Kap. 2), Antwort A der Wahl (Ranzenriemen von Marion), Kassette „Marion“ aus der K-1-Akte (Kap. 2/4), Mamas Liederheft (Kap. 1).
+**Verbindung:** „Bruder“ vom Zahn-Mann (Kap. 2), Justins „Ich hab ihn herausgeführt, damals. An dieser Hand.“ in Raum 3 (Hauptweg), Kassette „Marion“ aus der K-1-Akte (Kap. 2/4), Mamas Liederheft (Kap. 1).
 
 #### 5 · „Ich hol sie selbst“
 *Westen, Villa Seiler, Briefkasten am Tor*
@@ -258,10 +258,10 @@ LUKE-Gedanke: „Theodor. Am Tor steht ‚Dr. Th. Seiler‘. Und Heinrich …“
 **Rückwärts spulen:** Das Gesicht aus Bild 7 ist beim Zurückspulen in jedem Bild zu sehen, jedes Mal näher, auch in Bildern, in denen es vorher nicht war. Auf Bild 1 füllt es das ganze Bild, und in seinen schwarzen Augen spiegelt sich Mike an der Kasse. Stopp. Das Band springt heraus.
 
 **Belohnung:** RH-8, Fibel „Das Band“ (*Die Kamera hat Mike gesehen. Sie hat sie gesehen. Ihn nicht.*), Kassette (Gegenstand).
-**LWO / Vertrauen:** Kassette mitnehmen −3 (Behördeneigentum; neuer Eintrag, siehe Abstimmungen). Bei miserablem Vertrauen steht beim Hinausgehen Nachsorge 11 hinter Luke (V-02).
+**LWO / Vertrauen:** Kassette mitnehmen −3 (Behördeneigentum; neuer Eintrag, siehe „Noch offen“). Bei miserablem Vertrauen steht beim Hinausgehen Nachsorge 11 hinter Luke (V-02).
 **Schreck (2):** das Gesicht beim Zurückspulen. **Atempause** mit Justin:
 **Humor (Justin und die Drehtür, Kern §13):** Justin will Luke folgen. Die alte Drehtür (der Stolz von Kranz senior) nimmt ihn mit, einmal ganz herum, und stellt ihn wieder draußen ab. Zweiter Versuch, anderthalb Runden, draußen. JUSTIN: „Die Tür will mich nicht.“ LUKE: „Die will keinen. Die ist so.“ JUSTIN: „Dann warte ich bei den Krügen.“ Er stellt sich zwischen die Zapfsäulen. Whiskey, auf dem Vordach, mit Vegas’ Stimme: „Himmelherrgott!“
-**Verbindung:** RH-8; Mike (Kap. 1 „Zapfsäule 3“, Nimmerheim in Tankstellenjacke); die LWO filmt, was sie „verwaltet“; Kern §7 (auf Kameras ist der Beobachter nie, nur sein Kiesel).
+**Verbindung:** RH-8; Mike (Kap. 1 „Zapfsäule 3“, Nimmerheim in Tankstellenjacke); die LWO filmt, was sie „verwaltet“; 02 D6 (auf Kameras ist der Beobachter nie, nur sein Kiesel).
 
 #### 7 · „Heimgehen“
 *Kirchberg, Friedhof, am Ende der Reihe der kleinen Gräber*
@@ -301,7 +301,7 @@ LUKE-Gedanke: „Theodor. Am Tor steht ‚Dr. Th. Seiler‘. Und Heinrich …“
 > Er nimmt ihre Hand. Sie lässt nicht mehr los.
 
 **Luke danach:** LUKE-Gedanke: „Ich weiß noch, wie das Eis geschmeckt hat. Waldmeister. Aber an das Mädchen erinnere ich mich nicht.“ Pause. LUKE (ein Satz): „Er hat Klar gesagt. Ich hätte weggeguckt.“
-**Belohnung:** Fibel „Klar!“, Luna-Zusatzzeile in Raum 3 (neu, siehe Abstimmungen): LUNA: „Er hat Klar gesagt. Das sagt sonst keiner.“
+**Belohnung:** Fibel „Klar!“, Luna-Zusatzzeile in Raum 3 (Hauptweg, Unterkapitel 14): LUNA: „Der mit den blauen Augen hat Klar gesagt. Der darf immer mitspielen.“
 **Schreck (1):** Das Karussell dreht sich nach dem Nachbild von selbst noch eine halbe Runde weiter und bleibt so stehen, dass der achte Sitz vor Luke hält. Der Sitz knarzt, wie unter Gewicht. Leer.
 **Humor:** Whiskey fährt auf dem Karussell mit, eine Runde, und guckt dabei beleidigt, als hätte er das nicht gewollt. Justin am Zaun: „Ein Rad, das niemanden irgendwohin bringt. Zum Vergnügen?“ LUKE: „Ja.“ JUSTIN: „Eure Zeit ist seltsam.“
 **Verbindung:** Wendung 8 (der echte Luke, Kap. 5), Heidis Satz in Kapitel 5 („Ein Junge hat ‚Klar!‘ gesagt …“), Zayns Kamera (derselbe Spielplatz).
@@ -350,29 +350,29 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 **Verbindung:** Z-10 (Lagune), LWO-Außenstellen (Kern §6.1), Jonas taufte den Ort (Kern §2), Regel 8 (wer loslässt, fällt irgendwohin; der Junge mit der Martinslaterne). Wohin das zweite Licht gehört, bleibt offen bis Kapitel 7.
 
 #### 10 · „Leg sie auf den Ort“
-*Westen, Hof, Scheune, Dina Aydın*
+*Westen, Hof, Remise, Dina Aydın (02 F9)*
 
 **Name:** Dinas Satz. Sie spricht diesmal.
 
-**Start:** Frau Aydın am Fenster (Nr. 16) oder Dinas Satz aus Kapitel 1 („Die Kreise sind von unten“). In der Scheune sitzt Dina im Heu, die Augenbinde über den Augen. Sie ist wach; sie war drin.
+**Start:** Frau Aydın am Fenster (Nr. 16) oder Dinas Satz aus Kapitel 1 („Die Kreise sind von unten“). In der Remise neben dem Stall sitzt Dina auf einem Strohballen, die Augenbinde über den Augen; da sitzt sie, seit die Nacht aufgegangen ist, und da bleibt sie bis Kapitel 5. Sie ist wach; sie war drin.
 
 **Gespräch** (Dina, nie mehr als drei Zeilen am Stück):
 - DINA: „Du atmest wie ein Staubsauger, Luke. Setz dich.“
 - DINA: „Ich mach die Augen nicht auf, bis es hell ist. Ich hab’s einmal gemacht. Da hat sie zurückgeguckt.“
 - DINA (gibt ihm ein Blatt Butterbrotpapier): „Leg sie auf den Ort.“ – LUKE: „Welchen Ort?“ – DINA: „Den, der von unten so aussieht.“
 
-**Rätsel:** Auf dem Butterbrotpapier vier Kreise mit Bleistift, nummeriert 1 bis 4, dazu ein Kirchturm und eine Straße. An der Scheunenwand hängt eine alte Flurkarte der Gemeinde mit der Ahornstraße. Legt man das Papier so auf, wie es gezeichnet ist, passt nichts. **Lösung:** Papier umdrehen (Dina hat auf der Rückseite gezeichnet, „von unten“). Dann liegt der Kirchturm auf der Kapelle, und die Kreise 1 bis 4 liegen auf **Nr. 5, Nr. 3, Nr. 1, Nr. 7**. *Faire Herleitung:* Dinas Satz; der Kirchturm ist auf der Zeichnung auf der falschen Seite der Straße; das Papier ist durchsichtig. *Hilfeleiter:* (1) LUKE: „Die Kapelle ist auf der falschen Seite.“ (2) DINA: „Von unten, hab ich gesagt. Nicht von oben.“ (3) Whiskey pickt an das Papier, es klappt um. (4) Fibel: „Butterbrotpapier. Man kann durchgucken. Von beiden Seiten.“ *Fehlschlag:* keiner; es passt einfach nicht.
+**Rätsel:** Auf dem Butterbrotpapier vier Kreise mit Bleistift, nummeriert 1 bis 4, dazu ein Kirchturm und eine Straße. An der Bretterwand der Remise hängt eine alte Flurkarte der Gemeinde mit der Ahornstraße. Legt man das Papier so auf, wie es gezeichnet ist, passt nichts. **Lösung:** Papier umdrehen (Dina hat auf der Rückseite gezeichnet, „von unten“). Dann liegt der Kirchturm auf der Kapelle, und die Kreise 1 bis 4 liegen auf **Nr. 5, Nr. 3, Nr. 1, Nr. 7**. *Faire Herleitung:* Dinas Satz; der Kirchturm ist auf der Zeichnung auf der falschen Seite der Straße; das Papier ist durchsichtig. *Hilfeleiter:* (1) LUKE: „Die Kapelle ist auf der falschen Seite.“ (2) DINA: „Von unten, hab ich gesagt. Nicht von oben.“ (3) Whiskey pickt an das Papier, es klappt um. (4) Fibel: „Butterbrotpapier. Man kann durchgucken. Von beiden Seiten.“ *Fehlschlag:* keiner; es passt einfach nicht.
 
 **Dinas Zeichnung** (zweites Blatt, Wachsmalstift): das Laternenfest, Kinder mit Lampions. Am Rand ein grauer Fleck mit Beinen, ohne Gesicht, so fest gemalt, dass das Papier glänzt. DINA: „Ich mal ihn immer mit. Ich weiß nicht, wer das ist. Er steht immer da.“ **RH-5** (zählt nur einmal, hier oder in Raum 1).
 
 **Abschied:** DINA: „Sie guckt dich an, Luke. Von innen.“ Sie öffnet die Augen nicht.
 **Belohnung:** dritter Weg zur Laternenfolge (Fibel-Blatt „Vier Kreise“), RH-5.
-**Schreck (1):** Solange Luke die Karte auflegt, hört man oben im Heu kleine Schritte, die Dina nicht hört. Oder die sie hört und nicht erwähnt.
+**Schreck (1):** Solange Luke die Karte auflegt, hört man oben auf dem Heuboden der Remise kleine Schritte, die Dina nicht hört. Oder die sie hört und nicht erwähnt.
 **Humor:** „Staubsauger“; Luke und das Butterbrotpapier (LUKE: „Das ist von Pat und Patachon, oder? Die lassen das überall liegen.“ – DINA: „Die essen jeden Tag Leberwurst.“).
 **Verbindung:** Laternenrätsel (Hauptweg, Unterkapitel 8), Kern §4 (Kinder malen den Ritter als grauen Fleck), Raum 1 (Zeichnung „für Luke von Dina“).
 
 #### 11 · „Der Bus um 03:13“
-*Bushaltestelle → Hof*
+*Bushaltestelle am Westende (dieselbe wie bei AG-09) → Hof*
 
 **Name:** die Zeile auf dem Fahrplan, mit Kuli: „03:13 – nur für Kinder“ (vorhanden). Der Bus hält tatsächlich.
 
@@ -390,10 +390,10 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 **Schreck (2):** die Köpfe, die sich drehen. **Atempause:** Whiskey ist neben dem Bus hergeflogen und sitzt schon auf dem Scheunendach.
 **Verbindung:** Amtsbus im Wald (Kap. 6, „Kindersitze · 7 · im Bus“), Orts-Zettel „Amtsbus“ (Kap. 6: „Einen hab ich mir genommen“), die Fahrkarte aus Kapitel 1.
 
-#### 12 · „Vierzig Mal“
+#### 12 · „Hast du dich an mich erinnert?“
 *Ortskern, Nr. 7, Nordzaun und Wohnzimmer (`zayn.js`, Schritte 1–2)*
 
-**Name:** So oft hat Jonas seinen kleinen Bruder gesucht (Kern §14).
+**Name:** Zayns Frage auf der Rückseite seiner letzten Zeichnung in der Hütte (Kapitel 6, 02 A3). Hier fängt sein Faden an; die Frage steht noch nirgends, Luke stellt sie sich selbst: Er weiß noch, wie Zayns Blechroboter geklappert hat, und nicht, wie Zayn geredet hat. „Vierzig Mal“ bleibt der Name für Jonas’ Wolle im Wald (Kapitel 6).
 
 **Start:** Rote Wolle an einem Zaunpfahl hinter Nr. 7. Sie kommt aus dem Nebel vom Wald her und endet hier, um den Pfahl gewickelt. Am Ende ein Bündel Knoten und ein Kofferanhänger aus Pappe.
 
@@ -406,8 +406,8 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
    > JONAS (erwachsen): „Mama. Ich bin’s. Sonntag, wie immer.
    > Du musst nicht rangehen. Ich ruf trotzdem an.“
 
-**Belohnung:** Zayns Kamera (Gegenstand), Fibel „Vierzig Mal“, Hildes Zeile über Jonas in Raum 2 („Wenn ich seine Stimme höre, zähl ich falsch.“).
-**Fortsetzung:** Schritte 3–5 von `zayn.js` (Spur im Wald, Hütte, Radio, letzte Zeichnung) spielen in Kapitel 6; die Wolle führt dorthin (Orts-Zettel „Weiher“).
+**Belohnung:** Zayns Kamera (Gegenstand), Fibel „Hast du dich an mich erinnert?“, Hildes Zeile über Jonas in Raum 2 („Wenn ich seine Stimme höre, zähl ich falsch.“).
+**Fortsetzung:** Schritte 3–5 von `zayn.js` (Spur im Wald, Hütte, Radio, letzte Zeichnung mit der Frage auf der Rückseite) spielen in Kapitel 6; die Wolle am Zaunpfahl ist nur der Vorbote von Jonas’ „Vierzig Mal“ dort (Orts-Zettel „Weiher“).
 **Schreck (1):** Solange Luke die Knoten zählt, spannt sich die Wolle einmal, als hätte am anderen Ende, im Wald, jemand daran gezogen.
 **Humor:** die Knoten; Whiskey will das Wollende und bekommt es nicht.
 **Verbindung:** Jonas (Kap. 7, Samstag), Hildes Sonntagsanrufe, Zayn mit Bruno auf dem Stuhl in Nimmerheim.
@@ -429,7 +429,7 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 LUKE (lange Pause, ein Satz): „Die andere hab ich noch nie gesehen.“ Die Fibel legt unter Lucys Tagebuch-Eintrag „C.“ das Foto ab.
 
 **In Nimmerheim:** Auf den Stühlen am Abgrund sitzt ein Mädchen von acht mit roten Zöpfen. Luke erkennt sie nicht. Der Spieler schon.
-**Fortsetzung:** Der Schlüssel öffnet Cleos Kiste im Baumhaus in den Dustwoods (`cleo.js`, vorhanden). Der Wald ist heute Nacht Nebel; die Kiste, die Kreide und ihr Name auf dem achten Stein folgen in Kapitel 6 (siehe Abstimmungen).
+**Fortsetzung:** Der Schlüssel öffnet Cleos Kiste im Baumhaus in den Dustwoods (`cleo.js`, vorhanden). Der Wald ist heute Nacht Nebel; die Kiste, die Kreide und ihr Name auf dem achten Stein folgen in Kapitel 6 (dort Nebenaufgabe N6-3 „Eine für sieben“, Cleos Baumhaus).
 **Belohnung:** Schlüssel, Foto, Fibel.
 **Schreck:** keiner. Das Vergessen ist der Schreck, und es tut leise weh.
 **Humor:** der Tausch; das dreibeinige Pony. VEGAS (durch die Tür): „Gibst du dem Vieh Batterien? Der baut sich einen Sender, Junge. Ich sag’s dir.“
@@ -475,7 +475,7 @@ LUKE (lange Pause, ein Satz): „Die andere hab ich noch nie gesehen.“ Die Fib
 **Belohnung:** Fibel „Ja.“ (neben Heidis Karten aus Kapitel 1).
 **Schreck (1):** Legt Luke die Karte zurück, klappert der Briefkastendeckel hinter ihm von innen, einmal.
 **Humor:** Am Gartentor hängt ein Schild der Wohnungsbaugesellschaft: „Objekt frei ab sofort. Ruhige Lage.“ LUKE: „Ruhig. Ja. Tagsüber bestimmt.“
-**Verbindung:** Heidi in Kapitel 5 (Anruf), Regel 9 („Wer einmal drin war, den findet sie wieder“), Nachbilder als Sammlung (Kern §2), Neue-Figuren-Vorschlag „ja“ auf dem gedeckten Tisch (Kap. 5).
+**Verbindung:** Heidi in Kapitel 5 (Anruf), Regel 9 („Wer einmal drin war, den findet sie wieder“), Nachbilder als Sammlung (Kern §2), 02 F8: In Kapitel 5 liegen Heidis Karten offen auf dem gedeckten Tisch, und unter „Sind sie wieder da?“ steht in Kinderhand „ja“; die Karte hier ist dieselbe Antwort, einen Tag früher.
 
 #### 16 · „Schläft wie ein Stein“
 *Ortskern, Nr. 8, Frau Aydın*
@@ -547,7 +547,7 @@ Die Katzen springen ab, eine nach der anderen. Gisela schläft mitten im Satz wi
 **Belohnung:** Pfarrhausschlüssel (Messing, Korkanhänger „PFARRHAUS – NICHT DER KAPELLE“), Fibel „Das ist nicht der Hans“.
 **Schreck (2):** die siebzehn Köpfe. **Atempause:** siebzehn Katzen auf einer schlafenden Frau.
 **Humor:** das Katzending; die Herdplatte; Giselas Hörgerät, das pfeift, wenn sie sich aufregt; Whiskey setzt sich draußen neben Hänschen (braun getigert, sitzt auf dem Fahrrad), und beide starren in dieselbe Ecke.
-**Fortsetzung:** Kapitel 5 (der Kater Luke).
+**Fortsetzung:** Kapitel 5: Gisela gibt Luke den Kater Hänschen mit, und der läuft ihm in Kapitel 6 bis ans Gitter nach (02 F7).
 **Verbindung:** Wolter seit 1958 gleich alt (vor Kapitel 4, aus Giselas Mund), K-2 (Grab „Unbekanntes Kind · 08“), Voss, Kern §7 (Katzen sehen den Beobachter).
 
 #### 19 · „Hinter deinen Füßen“
@@ -567,7 +567,7 @@ Die Katzen springen ab, eine nach der anderen. Gisela schläft mitten im Satz wi
 > ∴
 LUKE-Gedanke: „Das Haus. So nennt er das Schiff. Er trägt das Schiff.“ Zählt als Rüstungs-Hinweis.
 
-**Zusätzliche Zettel in dieser Nacht** (aus dem Beobachter-Dossier, hier platziert): B-K3-02 „Offener Mund“ (Kreuzung, nach der ersten Sichtung), B-K3-04 „Nicht nachdenken“ (Nr. 3, Aufgabe 1), B-K3-07 „Das Glück läuft raus“ (Hof, Stalltür, Aufgabe 20), Hilfe-Zettel in „Die dreizehnte Predigt“, B-X-01 „DER VOGEL SIEHT MICH …“ (wenn Whiskey länger als fünf Sekunden in eine leere Ecke starrt).
+**Zusätzliche Zettel in dieser Nacht** (Kennungen nach 02 A1, Wortlaut Dossier 82; B-K3-02, -04 und -07 liegen auch auf dem Hauptweg): B-K3-02 „Offener Mund“ (Kreuzung, nach der ersten Sichtung), B-K3-04 „Nicht nachdenken“ (Nr. 3, Aufgabe 1), B-K3-07 „Das Glück läuft raus“ (Hof, Stalltür, Aufgabe 20), B-K3-N1 (Pfarrhausflur, „Die dreizehnte Predigt“), B-X-01 „DER VOGEL SIEHT MICH …“ (wenn Whiskey länger als fünf Sekunden in eine leere Ecke starrt).
 **Belohnung:** Batterien (wo vorhanden), RH-11, Fortschritt zum letzten Zettel „Neunzehn Orte“ und zur Murmel (spätestens Kapitel 6).
 **Schreck (1):** jedes Rascheln. **Humor:** in den Zetteln selbst („WARUM SAGT IHR GUTE NACHT ZU JACKEN“).
 **Verbindung:** Hildes Neunter, Kern §7, Kapitel 7.
@@ -602,12 +602,12 @@ Zähler im Spielstand (`ch3.armorHints`, Set der IDs). Jeder Hinweis zählt einm
 
 | ID | Kap. | Ort | Fundstück | was es zeigt | wie gezählt |
 |---|---|---|---|---|---|
-| RH-1 | 2 | Amt, Schranktür | Zettel B-K2-5 „SEINS IST KEIN EISEN ∴“ | Die Rüstung ist etwas anderes als die Eisenkapuzen. | beim Lesen, aus Kapitel 2 übernommen |
+| RH-1 | 2 | Amt, Schranktür | Zettel B-K2-05 „… SEINS IST KEIN EISEN ∴“ | Die Rüstung ist etwas anderes als die Eisenkapuzen. | beim Lesen, aus Kapitel 2 übernommen |
 | RH-2 | 1 | Scheune, Justins Lager | SB-01 („Sie hat gelacht, ganz nah … und ist nicht gekommen.“) | Sie war nah und hat ihn nicht gefunden. | beim Lesen, aus Kapitel 1 übernommen |
 | RH-3 | 3 | Kreuzung, Justin (Hauptweg 4) | Antwort auf „Und in siebenhundert Jahren hast du sie nie gefunden?“ | Sie sieht ihn nicht, obwohl er da ist. | wenn die Frage gewählt wurde |
-| RH-4 | 3 | Lichtsäule (Hauptweg 10) | Zettel B-3-06 „… WIE DURCH IHR HAUS ∴“ | Er ist für sie wie ihr eigenes Haus. | beim Lesen |
-| RH-5 | 3 | Scheune (Nr. 10) oder Raum 1 | Dinas Zeichnung mit dem grauen Fleck | Kinder malen ihn ohne Gesicht, halb da. | beim ersten Untersuchen, nur einmal |
-| RH-6 | 3 | Kapelle, Fensterfeld 8 (Nr. 2) | Ritter aus Lichtglas, nur schräg sichtbar | Er steht mitten im Licht und wird nicht gesehen. | wenn Luke das Feld schräg anleuchtet und der Satz kommt |
+| RH-4 | 3 | Lichtsäule (Hauptweg 10) | Zettel B-K3-08, zweites Blatt: „… SIE GUCKT DURCH IHN DURCH. WIE DURCH IHR HAUS ∴“ | Er ist für sie wie ihr eigenes Haus. | beim Lesen |
+| RH-5 | 3 | Remise am Hof (Nr. 10) oder Raum 1 | Dinas Zeichnung mit dem grauen Fleck | Kinder malen ihn ohne Gesicht, halb da. | beim ersten Untersuchen, nur einmal |
+| RH-6 | 3 | Kapelle, Fensterfeld 7 (Nr. 2; 02 I2) | Drei kleine weiße Gestalten im Schnee geben dem Ritter etwas aus demselben Glas wie das Licht | Die Rüstung ist vom Schiff; wer sie trägt, gehört fürs Licht dazu. | wenn Luke vor dem Fenster die Lampe ausmacht und der Satz kommt |
 | RH-7 | 3 | Martinsnische (Nr. 3) | Seelbuch: „Harnisch aus dem, was die drei Kleinen brachten … und ward nicht gesehen“ | Woraus die Rüstung ist, und was das bewirkt. | beim Lesen des Seelbuchs |
 | RH-8 | 3 | Tankstelle (Nr. 6) | Band, Bild 5: Der Lichtkegel gleitet über ihn weg. | Das Licht sieht ihn nicht. | beim Untersuchen von Bild 5 |
 | RH-9 | 3 | Atlantschiss (Nr. 9) | Nachbild: „Ihr Papa ruft, aber sie sieht ihn nicht.“ | Sogar fremde Kinder wissen es. | wenn das Nachbild zu Ende gelaufen ist |
@@ -627,7 +627,7 @@ Alle Texte stehen vollständig bei den Aufgaben. Übersicht für den Bau (Fibel-
 | Vegas’ Brief, Ordner, Z-01, Z-10, Fotoseite | 1 | Nr. 3 | Notiz, Zeitung (Beweise) |
 | Kapellenfenster (8 Felder), Kirchenführer 1 und 2 | 2 | Kapelle | Fibel-Skizze, Notiz |
 | Z-11, Sühnebrief, Zettel „Gemälde verliehen“ | 2 | Sakristei | Zeitung, Notiz |
-| Gesangbuch, Laternenlied Strophe 2 | 2 | Lesepult | Notiz (Lieder) |
+| Gesangbuch (Miras Wiegenlied, Strophen 1 und 2 mit ihrer Schlusszeile, 02 G1) | 2 | Lesepult | Notiz (Lieder) |
 | Giselas Zettel am Glockenseil | 2 | Turmraum | Notiz |
 | Zettel unter dem Springer, Mappendeckel, 12 Predigten, dreizehntes Blatt, Seelbuch | 3 | Pfarrhaus, Martinsnische | Notiz, Dokument |
 | Omas Türzettel, Rekorderzettel, Kistenzettel, SB-05, Kassette „Peter“ | 4 | Nr. 4 | Notiz, Stundenbuch, Gegenstand |
@@ -636,7 +636,7 @@ Alle Texte stehen vollständig bei den Aufgaben. Übersicht für den Bau (Fibel-
 | Stein „LUKE BRANDT“, Kreide „heimgehen“, Kinderschuh rechts | 7 | Friedhof | Fibel, Gegenstand |
 | Nachbild „Klar!“ | 8 | Spielplatz | Nachbild |
 | Schachtkreide, zwei Nachbilder, Kiste, Lieferschein | 9 | Atlantschiss | Nachbild, Notiz, Gegenstand |
-| Butterbrotpapier (Kreise), Dinas Laternenfest-Zeichnung | 10 | Scheune | Rätsel, Fibel |
+| Butterbrotpapier (Kreise), Dinas Laternenfest-Zeichnung | 10 | Remise am Hof | Rätsel, Fibel |
 | Kinderfahrkarte (entwertet „HOF“), Bonbonpapier | 11 | Bus | Gegenstand, Spur |
 | Kofferanhänger, Rucksack, Kamera, Anrufbeantworter | 12 | Nr. 7 | Notiz, Gegenstand, Ton |
 | Schlüssel mit Pony, Automatenfoto | 13 | Nr. 3 | Gegenstand |
@@ -666,7 +666,7 @@ Nebenaufgaben bringen nur Stufe 1 und 2. Kein Zweier liegt in den zwei Minuten n
 | 8 | Die Erde im Grab hebt sich, Whiskey still | 7 | 2 | „Probeliegen? – Nein.“ |
 | 9 | Karussell hält mit dem knarzenden achten Sitz | 8 | 1 | Justin: „Eure Zeit ist seltsam.“ |
 | 10 | Kanon ohne Quelle unter der Erde | 9 | 1 | Pling, „Das hat gedauert.“ |
-| 11 | Schritte im Heu über Dina | 10 | 1 | Leberwurst |
+| 11 | Schritte auf dem Heuboden der Remise | 10 | 1 | Leberwurst |
 | 12 | Die Köpfe im Bus drehen sich | 11 | 2 | Whiskey auf dem Scheunendach |
 | 13 | Die Wolle spannt sich | 12 | 1 | Jonas auf dem Band |
 | 14 | Eine Zahl direkt hinter Luke | 14 | 1 | Whiskey und die leuchtenden Steine |
@@ -709,7 +709,7 @@ Kein Witz bei der Kassette (4), beim Automatenfoto (13), bei Frau Aydıns Satz (
 
 **Whiskey:** W-03-Tausch um Cleos Schlüssel (13). Charakterszenen: Alufolie (1), Taubenlaute am Fenster (2), Reiter „Advent“ (3), Vegas’ Stimme an der Drehtür (6), still auf dem Friedhofszaun (7, Grusel-Signal), Karussell (8), bleibt am Gully (9, Pling bei der Rückkehr), klappt Dinas Papier um (10), fliegt neben dem Bus (11), Wollende (12), Wecker (16), Hänschen und die Ecke (18), seine Kerbe (20). Nie unter der Erde.
 
-**Beobachter:** folgt in allen Außenbereichen (Ein-Sekunden-Regel, Geräusche). Nicht unter der Erde (9), nicht in Nimmerheim, nie im selben Bild wie Wolter oder Blechmänner. Katzen zeigen ihn (18). Spuren in den Aufgaben: Kiesel auf dem Bettler-Sockel, ∴ an der Pfarrhaustür, Kratzer am Friedhofstor, gedrehter Stuhl (S-13), unterstrichenes „(hw)“ (S-09), Bonbonpapier und warmer Sitz im Bus (S-07, S-11), Kiesel auf dem Tankstellenmonitor, gedrehtes Hufeisen (S-14). Zettel: Orts-Zettel 1–12, B-K3-02, B-K3-04, B-K3-07, Predigt-Hilfe, B-X-01. Die Zettel B-3-04 bis B-3-08 liegen auf dem Hauptweg (Wortlaut `30_kap3_haupt.md`).
+**Beobachter:** folgt in allen Außenbereichen (Ein-Sekunden-Regel, Geräusche). Nicht unter der Erde (9), nicht in Nimmerheim, nie im selben Bild wie Wolter oder Blechmänner. Katzen zeigen ihn (18). Spuren in den Aufgaben: Kiesel auf dem Bettler-Sockel, ∴ an der Pfarrhaustür, Kratzer am Friedhofstor, gedrehter Stuhl (S-13), unterstrichenes „(hw)“ (S-09), Bonbonpapier und warmer Sitz im Bus (S-07, S-11), Kiesel auf dem Tankstellenmonitor, gedrehtes Hufeisen (S-14). Zettel: Orts-Zettel 1–12, B-K3-02, B-K3-04, B-K3-07, B-K3-N1, B-X-01. Die Zettel B-K3-01 bis B-K3-08 und die Hilfe-Zettel B-K3-H1 bis B-K3-H3 liegen auf dem Hauptweg (Kennungen nach 02 A1, Wortlaut Dossier 82; keine Nummer doppelt).
 
 **Neue Figuren**
 - **N-02 Gisela Rieke:** „Siebzehn Näpfe“ (18). Ihre Katzen laufen dem Beobachter nach; sie erkennt Wolter; sie gibt den Pfarrhausschlüssel. Sie ist nur wach, solange Katzen auf ihr sitzen.
@@ -724,7 +724,7 @@ Kein Witz bei der Kassette (4), beim Automatenfoto (13), bei Frau Aydıns Satz (
 | alter Name (alte Bibel / Code) | neuer Name | Herkunft |
 |---|---|---|
 | „Vegas’ Brief (Nr. 3)“ | **„Rot eingekreist“** | Vegas’ roter Filzstift um jedes (hw) |
-| „Die Kapelle (Vegas’ Schlüssel)“, „Sühnevertrag“ | **„Zähl bis siebzehn, Augen zu“**, **Sühnebrief** | letzte Zeile des Laternenlieds, Urfassung |
+| „Die Kapelle (Vegas’ Schlüssel)“, „Sühnevertrag“ | **„Zähl bis siebzehn, Augen zu“**, **Sühnebrief** | Nachtrag unter Miras Wiegenlied im Gesangbuch (so singen es die Kinder, die wiederkamen) |
 | Pfarrhaus, „Ahrens’ Randnotiz“ | **„Die dreizehnte Predigt“** | das fast leere Blatt in Voss’ Mappe |
 | „Nr. 4, Peters Akte“ | **„Dürfen Ritter weinen?“** | Marions Frage (SB-05) |
 | „Seilers Villa (West)“ | **„Ich hol sie selbst“** | Heinrichs Satz (SB-06) |
@@ -734,7 +734,7 @@ Kein Witz bei der Kassette (4), beim Automatenfoto (13), bei Frau Aydıns Satz (
 | „Die Kanalstadt“, „versunkene Kanalstadt“ | **„Außenstelle 3“** (Ort: **Atlantschiss**) | Kistenaufdruck; Jonas’ Kindername |
 | „Dinas Karte (Scheune)“ | **„Leg sie auf den Ort“** | Dinas Satz |
 | „Bus um 03:13“ | **„Der Bus um 03:13“** | Fahrplanzeile „03:13 – nur für Kinder“ |
-| `zayn.js` „Versprochen ist versprochen“ | **„Vierzig Mal“** | Jonas’ vierzig Suchen (Kern §14) |
+| `zayn.js` „Versprochen ist versprochen“, erster Entwurf „Vierzig Mal“ | **„Hast du dich an mich erinnert?“** | Zayns Frage auf der Rückseite seiner letzten Zeichnung (Kap. 6); „Vierzig Mal“ bleibt Jonas’ Wolle (02 A3) |
 | `cleo.js` „Die Vergessene“ | **„Eine für sieben“** | Cleos Satz |
 | `geheimnisse.js` „Die sieben Zähler“, „Das Versteck“ | **„Warm wie eine Hand“** | vorhandener Lichtstein-Text |
 | „Nr. 2, die Karte ‚Ja.‘“ | **„Ja.“** | das einzige Wort auf der Karte |
@@ -752,10 +752,10 @@ Kein Witz bei der Kassette (4), beim Automatenfoto (13), bei Frau Aydıns Satz (
 
 **Vorhandene Module (Anker):**
 - `albers.js`: `ALBERS_TALKS` bleiben als Gesprächsmechanik. Ändern: `t3` nennt drei Jahreszahlen im Gespräch („Fünfundsiebzig. Zweiundneunzig …“) → „Rechne nach, Junge. Alle siebzehn Jahre.“; `t5` („ins Weiße“) → „Wenn du da reingehst …“. Neu: Umschlag im Briefkasten Nr. 3 (Briefkastentabelle in `strasse.js`, Anker `who: 'Nr. 4'` als Vorlage), Ordner als drei Notizseiten, Handlung „Daneben legen“ mit dem Kaugummipapier.
-- `ausbau_nord.js`: Die Kapelle ist ein gesperrter Scan (`blocked.push([-60, -45, 79.3, 94])`); der Innenraum wird ein kleiner eigener Raum hinter der Tür (Bänke, Pult, Turmraum, Sakristei aus vorhandenen Innenraum-Bauteilen). Das Fenster: acht Decals mit Emissive, von hinten „beleuchtet“ über das Material, **keine neue Lichtquelle**; RH-6 prüft den Winkel des Taschenlampenkegels zur Fensternormalen. Sühnekreuz: `nord_suehnekreuz` bleibt. Grab: `KIDS`-Eintrag `{ n: 'Luke', open: true … }` wird in Kapitel 3 zum neuen Stein am Reihenende; das Nachbild `echo_nord_grab` („Zwei Männer in Mänteln heben eine Grube aus“) entfällt (verrät Kap. 5, und außerhalb offener Nächte entstehen keine Nachbilder). Bus: `N.bus`/`busArmed` und `nord_fahrplan`/`nord_fahrkarte` werden benutzt (Entwerter-Handlung neu). Karussell `N.merry`. Martinsnische und Mira-Stein (`id: 'mira'`) wie im Dossier „Neue Figuren“.
-- `ausbau_ost_west.js`: Tankstelle (Anker „Kassenbuch · Tankstelle Kranz“): Monitor mit Live-Bild (vorhandene Szene, eine Renderziel-Textur zum Start der Aufgabe, danach stehend), Rekorder als `openPuzzle` mit sieben Standbildern. Drehtür: animierte Tür mit Justin-Pfad. Villa-Tor (Anker „Kette und Schloss. Das Schloss ist neu“): bleibt in Kapitel 3 zu; der Hook „Das Tor schwingt von selbst auf“ erst in Kapitel 4. Briefkasten am Tor neu; das Fenster geht aus (vorhanden, `OW.villaDark`). Scheune und Heu vorhanden.
+- `ausbau_nord.js`: Die Kapelle ist ein gesperrter Scan (`blocked.push([-60, -45, 79.3, 94])`); der Innenraum wird ein kleiner eigener Raum hinter der Tür (Bänke, Pult, Turmraum, Sakristei aus vorhandenen Innenraum-Bauteilen). Das Fenster: acht Decals mit Emissive, von hinten „beleuchtet“ über das Material, **keine neue Lichtquelle**; RH-6 (Feld 7, 02 I2): Ist die Taschenlampe vor dem Fenster aus, behalten nur der Kreis in Feld 2 bis 4 und das Schimmernde in Feld 7 ihr Emissive; der Satz löst aus, wenn Luke beide angesehen hat. Sühnekreuz: `nord_suehnekreuz` bleibt. Grab: `KIDS`-Eintrag `{ n: 'Luke', open: true … }` wird in Kapitel 3 zum neuen Stein am Reihenende; das Nachbild `echo_nord_grab` („Zwei Männer in Mänteln heben eine Grube aus“) entfällt (verrät Kap. 5, und außerhalb offener Nächte entstehen keine Nachbilder). Bus: `N.bus`/`busArmed` und `nord_fahrplan`/`nord_fahrkarte` werden benutzt (Entwerter-Handlung neu). Karussell `N.merry`. Martinsnische und Mira-Stein (`id: 'mira'`) wie im Dossier „Neue Figuren“.
+- `ausbau_ost_west.js`: Tankstelle (Anker „Kassenbuch · Tankstelle Kranz“): Monitor mit Live-Bild (vorhandene Szene, eine Renderziel-Textur zum Start der Aufgabe, danach stehend), Rekorder als `openPuzzle` mit sieben Standbildern. Drehtür: animierte Tür mit Justin-Pfad. Villa-Tor (Anker „Kette und Schloss. Das Schloss ist neu“): bleibt in Kapitel 3 zu; der Hook „Das Tor schwingt von selbst auf“ erst in Kapitel 4. Briefkasten am Tor neu; das Fenster geht aus (vorhanden, `OW.villaDark`). Scheune und Heu vorhanden; die Remise am Hof (02 F9, für Dina in Kapitel 3 bis 5) ist ein kleiner Anbau zwischen Bauernhaus und Stall aus vorhandenen Scheunenbauteilen, mit Heuboden.
 - `_base_source_index.html`: Gully (Anker „Gullydeckel anheben“, `enterCanal`) bleibt. `echo_kanal_ritter` und `echo_kanal_laterne`: Zeilen durch die Nachbilder oben ersetzen (die alte Zeile „Es sammelt, was ich ihm schulde“ widerspricht dem Kern). Kiste als Objekt am Kanal. `addEcho`-Titel „Echo · …“ im sichtbaren Text → „Nachbild · …“.
-- `zayn.js`: `story.side.zayn.title` → „Vierzig Mal“; Rucksack und Kamerarätsel bleiben (`zayn_placeBag`, `zayn_camera`); neu die Wolle am Zaunpfahl (Linie + Knotenbündel), Zählen-Handlung, Anrufbeantworter in Nr. 7.
+- `zayn.js`: `story.side.zayn.title` → „Hast du dich an mich erinnert?“ (02 A3; „Vierzig Mal“ ist in Kapitel 6 Jonas’ Wolle); Rucksack und Kamerarätsel bleiben (`zayn_placeBag`, `zayn_camera`); neu die Wolle am Zaunpfahl (Linie + Knotenbündel), Zählen-Handlung, Anrufbeantworter in Nr. 7.
 - `whiskey.js` / `cleo.js`: Station `vegas` bleibt für den Tausch (`whiskey_tradeTalk`); Itemtext `baumhausschluessel` um Pony und Foto ergänzen. Station `waldrand` wandert nach Kapitel 6 (Whiskey-Dossier). `cleo.js`: Titel → „Eine für sieben“; der Kommentar und der Gedanke `cleo_akte` („Justin hat sieben für seine eine geschickt“) sind alte Wahrheit und werden ersetzt (Kapitel-2-Text, Abstimmung).
 - `geheimnisse.js`: Lichtsteine bleiben (Anker „Ein kleiner Stein, warm wie eine Hand“). Neu: Summton, wenn ein Stein im Inventar und `justin.g` < 5 m (Audio, keine Leuchte), setzt RH-10. Die Schlussnotiz `geh_versteck` wird durch den Text oben ersetzt.
 - `beobachter.js`: `BEOB_ORTE` Texte aus dem Dossier; Eintrag `hof` mit der vierten Zeile (RH-11). `beob_indoor` schließt `state.zone === 'canal'` schon ein; im Kanal zusätzlich keine Zettel. B-X-01 an `whiskey_S.mood === 'still'` + Blick in leere Ecke koppeln.
@@ -767,26 +767,33 @@ Kein Witz bei der Kassette (4), beim Automatenfoto (13), bei Frau Aydıns Satz (
 
 **Zustände:** `ch3.armorHints` (Set), `ch3.bell` (Joker frei/benutzt), `ch3.side` (erledigte Aufgaben, für Luna-Zusatzzeilen und Voss/Hilde).
 
-**Sperren:** Alle Nebenaufgaben schließen mit der vierten Laterne. Weiter laufen: „Siebzehn Näpfe“ (Kap. 5), „Vierzig Mal“ (Kap. 6), „Eine für sieben“ (Kap. 6), „Hinter deinen Füßen“ (bis Kap. 6). Die Kapelle bleibt nach Kapitel 3 offen (Kapitel 4 bei Tag darf sie benutzen); der Glocken-Joker gilt nur in Kapitel 3.
+**Sperren:** Alle Nebenaufgaben schließen mit der vierten Laterne. Weiter laufen: „Siebzehn Näpfe“ (Kap. 5), „Hast du dich an mich erinnert?“ (Kap. 6), „Eine für sieben“ (Kap. 6), „Hinter deinen Füßen“ (bis Kap. 6). Die Kapelle bleibt nach Kapitel 3 offen (Kapitel 4 bei Tag darf sie benutzen); der Glocken-Joker gilt nur in Kapitel 3.
 
 ---
 
-### Offene Abstimmungen
+### Abstimmungen (erledigt)
 
-1. **Cleo, Teil 2:** Die Kiste liegt im Baumhaus in den Dustwoods (`cleo.js`, `WALD.tree`). Der Wald ist in Kapitel 3 Nebel („Kein Draußen“, Whiskey-Dossier: Station `waldrand` nach Kapitel 6). Deshalb endet „Eine für sieben“ hier mit Schlüssel und Foto; Kiste, Kreide und Name auf dem Stein gehen an Kapitel 6. Vorschlag an Kapitel 4: Lucy sieht das Pony („Das ist Cleos.“ – „Wer ist Cleo?“ – Lucy starrt ihn an: „Du auch nicht? Keiner?“). Bitte außerdem in Unterkapitel 14 dem Mädchen auf dem Stuhl rote Zöpfe geben (wie `cleo.js`).
-2. **Justin auf dem Juli-Band:** Justin kommt nach Kern nur in offenen Nächten heraus. Ich lese es so: Wenn Luna außerhalb der offenen Nacht nach unten greift (Juni, Juli, Oktober, Hilde in Kapitel 1), ist er mit im Licht, am Rand des Kegels, wie in Kapitel 1 am Straßenende. Wer das anders will, macht das Band zur Nacht 2009 (dann ist es nicht mehr „die Nacht, in der Mike ging“).
-3. **Grab und Kapitel 1:** Im Code ist Lukes Grab schon in Kapitel 1 offen (vor dem Gedenkstein „† 28. Juli 2009“), dazu ein Nachbild mit Männern vom Amt. Vorschlag: Kapitel 1 zeigt den Gedenkstein ohne Grube; die Grube mit dem neuen Stein „LUKE BRANDT · 2009 – 2026“ am Reihenende gibt es ab Kapitel 3 (passt zur Rechnung „Reihe 8“, LWO-Dossier). Abstimmung mit dem Kapitel-1-Autor.
-4. **Gesangbuch:** nur die zweite Strophe, ohne Noten, damit SB-10 (Strophe 1, Kapitel 5) und die Noten hinter dem Porträt (Kapitel 4) ihren Moment behalten.
-5. **Seelbuch:** eine Zeile ergänzt („Anno 1329 … und ward nicht gesehen“), weil RH-7 im Hauptweg so zitiert wird; der übrige Wortlaut ist der des Dossiers. Der Ringtext „Ihr Rabe ist ihr nachgeflogen und nicht wiedergekommen“ ist auf „ist ihr nachgeflogen“ gekürzt, weil Whiskey wiederkommt.
-6. **RH-11** steht als vierte Zeile auf dem Orts-Zettel „Hof“ (Beobachter-Dossier 5.7, Nr. 11), weil die neunzehn Orte feste Koordinaten haben und der Hof-Zettel ohnehin von Justin handelt.
-7. **Luna-Zusatzzeile „Klar!“** fehlt in der Liste des Hauptwegs (Unterkapitel 14, Schlag 8). Vorschlag: LUNA: „Er hat Klar gesagt. Das sagt sonst keiner.“
-8. **Kapellenfenster und Lunas Zeile:** Lunas vorhandene Zeile („Auf dem Bild in der Kirche bin ich hinter der Birke … Er ist hinter der Birke. Ich such doch.“) passt zu Feld 8, wie es hier gebaut ist: Das Mädchen steht an der Birke, der Ritter ist aus Lichtglas und kaum zu sehen; der Kirchenführer liest es falsch herum.
-9. **Gisela:** schläft, wacht nur unter siebzehn Katzen (Vorschlag des Hauptwegs übernommen). Ihre Zeilen ohne Jahreszahl („als Hänschen weg war“ statt „58“, Kern §13). Hänschen ist braun getigert (Katzenliste im Dossier), nicht grau (Whiskey-Dossier).
-10. **Kerben:** Der Hauptweg nennt nur die Birke. Eine Birke wird keine siebenhundert Jahre alt; deshalb laufen die Kerben über Fundamentstein (9), Balken (28) und Birke (5). Die Zahlen folgen der Liste der 42 Nächte im Justin-Dossier (Turm 1465 eingestürzt).
-11. **Vertrauen, neue Einträge:** Tankstellen-Kassette mitnehmen −3, Lieferschein Außenstelle 3 mitnehmen −5. Bitte in `80_lwo.md` 3.1 eintragen.
-12. **Zettelkennungen:** Hauptweg B-3-xx, Beobachter-Dossier B-K3-xx. Hier benutze ich die Dossier-Kennungen für die Zettel, die nur in Nebenaufgaben liegen (B-K3-02, -04, -07). Beim Zusammenführen vereinheitlichen.
-13. **`geheimnisse.js`, Wrackteile „Blech vom Himmel“:** Die vorhandenen Texte („von Hand geschmiedet“, „die Rüstung eines Kindes“) passen nicht zum Kern. Nicht Teil dieses Auftrags; Vorschlag an den Besitzer des Moduls: Es sind Stücke von Justins alter Eisenrüstung aus Italien, die er im Winter 1313 abgelegt hat, als er die aus Schiffshaut bekam. Die Zeile „Kindergröße“ fällt weg.
-14. **Dinas „von unten“:** gelesen als Rückseite des durchsichtigen Papiers. Einfach, fair, und es erklärt ihren Satz aus Kapitel 1 ohne neue Regel.
-15. **Heidis „Ja.“:** Die Schrift ist Heidis Kinderschrift, gesammelt. Wer sie geschrieben hat, sagt niemand; es passt zum Vorschlag „ja“ auf dem gedeckten Tisch in Kapitel 5 (Neue-Figuren-Dossier, Abstimmung 10).
-16. **Bushaltestelle:** Der Hauptweg nennt sie einmal „am Westende“; im Code liegt sie am Kirchberg. Ich meine überall dieselbe Haltestelle wie bei AG-09.
-17. **Zayns Fotos:** Wer sie gemacht hat, bleibt offen (Luke fragt es sich). Kapitel 6 kann es beantworten oder offen lassen.
+- Zettelkennungen: überall B-K3-‹Nr›, Hilfe B-K3-H‹n›, Nebenaufgabe B-K3-N1; Wortlaut nach Dossier 82 (02 A1).
+- Zayns Faden heißt „Hast du dich an mich erinnert?“, „Vierzig Mal“ bleibt Jonas’ Wolle in Kapitel 6 (02 A3).
+- Gesangbuch: Strophen 1 und 2 mit Miras Schlusszeile „Ich find dich überall. – Ist das wahr? – Ja.“; „Such mich nit“ entfällt; Strophe 3 kennt nur Mira (02 G1).
+- Kapellenfenster: acht Felder nach 02 F5; RH-6 liegt auf Feld 7 (02 I2); Lunas alte Zeile über die Birke ist durch „Auf dem Fenster in der Kirche bin ich ganz vorn“ ersetzt (Hauptweg).
+- Luna-Zusatzzeile „Klar!“ steht im Hauptweg (Unterkapitel 14) und ist hier übernommen.
+- Seelbuch heißt so, das Gesangbuch ist die Abschrift daraus; Voss sitzt in Raum 2 (02 F4). 1992: Nacht zum 22. Juni, kein Kind behalten, Voss hat die Kinder im Kapellenkeller versteckt (02 C11).
+- Gisela schläft und ist nur unter ihren Katzen wach (02 F1); Hänschen ist braun getigert und der Kater, den sie in Kapitel 5 mitgibt (02 F7). Ihre Zeilen ohne Jahreszahl (02 A5).
+- Dina sitzt in der Remise am Hof, Kapitel 3 bis 5 (02 F9).
+- Heidis „Ja.“ hier, „ja“ unter ihren Karten auf dem gedeckten Tisch in Kapitel 5 (02 F8).
+- Justins Abschiedsgeschenke nach 02 B3 (Ranzenriemen „H. R.“, Schokoriegel, Gürtelschnalle); der Flicken bei drei Rüstungs-Hinweisen (02 B4).
+- Vegas heißt wirklich Lars Vegas; `albers.js` bleibt nur als Modulname (02 C8).
+- Cleo, Teil 2: Kiste, Kreide und Stein in Kapitel 6 (dort N6-3 „Eine für sieben“); Lucy erkennt das Pony in Kapitel 4 nicht mehr, Kapitel 4 hat die Zeile nicht übernommen, sie entfällt.
+- Bushaltestelle: dieselbe wie bei AG-09, am Westende (Hauptweg).
+- Grab und Kapitel 1: Kapitel 1 zeigt Lukes Gedenkstein ohne Grube („Da kannst du nicht sitzen. Das ist mein Grab.“); die Grube mit dem neuen Stein gibt es ab Kapitel 3, Rechnung in Kapitel 5 (AG-16).
+- RH-11 als vierte Zeile des Orts-Zettels „Hof“ (Hauptweg-Tabelle führt ihn so).
+- Kerben: Fundamentstein 9, Balken 28, Birke 5, nach der Liste der zweiundvierzig Nächte im Justin-Dossier (Turm 1465 eingestürzt).
+- Dinas „von unten“ ist die Rückseite des durchsichtigen Papiers; Heidis „Ja.“ ist gesammelte Kinderschrift, wer sie geschrieben hat, sagt niemand.
+
+### Noch offen für den Autor
+
+1. **Justin auf dem Juli-Band (Nr. 6):** Nach Kern §4 kommt er nur in offenen Nächten heraus; hier steht er am Rand des Lichtkegels, wie in Kapitel 1 am Straßenende, wenn Luna außerhalb der offenen Nacht nach unten greift. Wer das nicht will, macht das Band zur Nacht 2009 (dann ist es nicht mehr die Nacht, in der Mike ging).
+2. **Vertrauen, neue Einträge:** Tankstellen-Kassette mitnehmen −3, Lieferschein „Außenstelle 3“ mitnehmen −5. 02 C2 nennt sie nicht; bitte in `80_lwo.md` 3.1 aufnehmen oder streichen.
+3. **`geheimnisse.js`, Wrackteile „Blech vom Himmel“:** Die vorhandenen Texte („von Hand geschmiedet“, „die Rüstung eines Kindes“) passen nicht zum Kern. Vorschlag: Stücke von Justins alter Eisenrüstung aus Italien, im Winter 1313 abgelegt; „Kindergröße“ fällt weg. Nicht Teil dieses Auftrags.
+4. **Zayns Fotos:** Wer sie gemacht hat, bleibt offen (Luke fragt es sich); Kapitel 6 kann es beantworten oder offen lassen.

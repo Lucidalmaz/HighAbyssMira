@@ -12,9 +12,9 @@
 
 **1958.** Der junge Physikerschüler **Theodor Seiler**, vierundzwanzig, meldet sich mit einer Mappe: Er war 1941 als Kind selbst „drin“ und erinnert sich. Mit ihm kommt sein Freund von damals, **Heinrich Wolter**, der eine Schwester verloren hat und seitdem nicht schläft. Die LWO richtet in Lost Eyengless die **Außenstelle 7** ein, als Bonn-Behörde getarnt: **Bundesstelle für Rückführung (BfR)**, angeblich zuständig für Kinder, die nach dem Krieg aus Heimen und Evakuierungen zurückkehren. Der Bonner Vermerk („Das Phänomen Abgrund ist nicht zu beseitigen, sondern zu verwalten“) ist echt; wer ihn unterschrieben hat, ist bis heute geschwärzt. Im selben Jahr fangen Seiler und Wolter mit Eisennetzen zwei kleine weiße Wesen am Rand der Senke (**Objekt DREIPUNKT**). Ab jetzt hat die LWO Sternfleisch.
 
-**1975.** Die erste Öffnung unter Verwaltung. Die Liste funktioniert: sieben Lampions, sieben Kinder, sechs zurück. Seiler diktiert dem *Laternenboten* die UFO-Schlagzeile. Wolter schreibt seinen ersten Artikel unter (hw). Hilde Wendt, Marion Kranz, Lars Vegas sind unter den Sieben. **Anni Hofer** bleibt drin. Ihr Vater bekommt eine Stelle beim Bergungstrupp, weil man ihn so am besten im Blick hat.
+**1975.** Die erste Öffnung unter Verwaltung. Die Liste funktioniert: sieben Lampions, sieben Kinder, sechs zurück. Seiler diktiert dem *Laternenboten* die UFO-Schlagzeile. Wolter schreibt seinen ersten Artikel unter (hw). Hilde Wendt, Marion Kranz, Lars Vegas sind unter den Sieben. Gezogen wurde auch der kleine Günther Maas; seine Mutter hat nicht unterschrieben, und Wolter hat noch einmal gezogen: Peter Kranz (02 C12). **Anni Hofer** bleibt drin. Ihr Vater bekommt eine Stelle beim Bergungstrupp, weil man ihn so am besten im Blick hat.
 
-**1992.** Die Öffnung, bei der alles kippt. Projekt WENDIGO bricht aus, Gefreiter Hofer kommt mit fremdem Gesicht zurück, Pfarrer Voss geht in den Nebel, Peter Kranz liest seine Akte und wird K-1. Der Wald wird gesperrt, zweisprachig, weil der amerikanische Projektleiter Pell die Schilder bestellt hat. Die Kinder lesen *Forbidden Dustwoods* und finden es cool.
+**1992.** Die Öffnung, bei der alles kippt (die offene Nacht ist die Nacht zum 22. Juni). Pfarrer Voss versteckt die sieben ausgelosten Kinder im Kapellenkeller, wo das Licht niemanden sieht, trägt selbst die Laterne und bleibt drin; zum ersten Mal seit 1958 wird kein Kind behalten, dafür ein Erwachsener (02 C11). In derselben Nacht zieht Bergungstrupp 3 Probe W aus der Senke. In der Nacht zum 13. Juli bricht Projekt WENDIGO aus, Gefreiter Hofer kommt mit fremdem Gesicht zurück, Peter Kranz liest seine Akte und wird K-1. Der Wald wird gesperrt, zweisprachig, weil der amerikanische Projektleiter Pell die Schilder bestellt hat. Die Kinder lesen *Forbidden Dustwoods* und finden es cool.
 
 **2009 bis heute.** Die Liste, die Sperre, sieben Kinder, sechs zurück, einer davon nicht der, der gegangen ist: **K-3, vorgesehen**. 2012 wird die BfR „abgewickelt“ (der Bund will die Akten nicht mehr im Haus haben); die LWO bleibt, jetzt als **„Institut für Atmosphärenforschung, Messstelle Kirchberg“**, mit einem grauen Kombi, einem gemieteten Haus (Nr. 9) und einem Regionalleiter, der nicht altert. Seit dem 23. Oktober 2026 (Lucy verschwindet) ist Außenstelle 7 wieder voll besetzt. Sie warten auf die Öffnung. Und auf Luke.
 
@@ -79,13 +79,13 @@ Regel für alle Autoren: Jede Außenstelle bekommt höchstens zwei Sätze, nie e
 
 „K“ wie Kopie. Ziel, in Seilers Worten: „Wenn das Ding aus unserer Hand ein Kind machen kann, dann steckt in dem Kind der Weg zurück zu dem, das es behalten hat.“ Sternfleisch, Kälte, Licht in Stößen, Tonbänder mit Stimmen der Familie. Der Gedanke dahinter ist Wolters: Wenn es gelingt, holt man alle zurück, auch Grete.
 
-- **K-1 · Peter Kranz.** Wechselbalg von 1975, hat 1992 seine eigene Akte gelesen (wer sie ihm gab, bleibt offen; Edda vermutet Hilde, Hilde schweigt). Ab 1994 unten im Käfig. Das Sternfleisch hat ihn umgebaut, aber nicht nach seinem Original, sondern nach dem Bild, das ein kleines Kind von ihm hatte: der Onkel, der immer lacht, mit den vielen Zähnen. Marions Zwillinge waren damals fünf. **Der Zahn-Mann.** 2011 reißt er das Gitter heraus, zwei Pfleger sterben, „Gasleck“. Er sucht seitdem keinen Ausgang mehr, er sucht den, der ihn „Bruder“ nennt.
-- **K-2 · ohne Namen.** Ein Junge von 1958, Wechselbalg des Kindes, das damals behalten wurde (Hänschen Rieke). Seiler hat ihn drei Jahre lang „zurückübersetzt“. Gestorben 1961, Grab „Unbekanntes Kind · 08“ am Rand des Gedenkfelds. Giselas Mutter hat nie erfahren, dass der Junge, den man ihr 1958 zurückgab und der 1961 „am Fieber“ starb, gar nicht ihr Hänschen war.
+- **K-1 · Peter Kranz.** Wechselbalg von 1975, hat 1992 seine eigene Akte gelesen (wer sie ihm gab, bleibt offen; Edda vermutet Hilde, das Spiel deutet auf Pfarrer Voss, der im selben Sommer in den Nebel ging, 02 C11). Ab 1994 unten im Käfig. Das Sternfleisch hat ihn umgebaut, aber nicht nach seinem Original, sondern nach dem Bild, das ein kleines Kind von ihm hatte: der Onkel, der immer lacht, mit den vielen Zähnen. Marions Zwillinge waren damals fünf. **Der Zahn-Mann.** 2011 reißt er das Gitter heraus, zwei Pfleger sterben, „Gasleck“. Er sucht seitdem keinen Ausgang mehr, er sucht den, der ihn „Bruder“ nennt.
+- **K-2 · ohne Namen.** Ein Junge von 1958, Wechselbalg des Kindes, das damals behalten wurde (Hänschen Rieke). Giselas Mutter hat ihn am Rand der Senke nicht genommen („Das ist nicht mein Hänschen“, 02 F2). Seiler hat ihn im Haus behalten und drei Jahre lang „zurückübersetzt“. Gestorben 1961, Grab „Unbekanntes Kind · 08“ am Rand des Gedenkfelds. Gisela weiß von ihm nichts; das Spiel zeigt es ihr über die Akte K-2 (Kap. 4) und die Katze „Hänschen“ am Grab.
 - **K-3 · Brandt, L.** „Aufnahme nach Öffnung 2026.“ Die Zelle in der Villa ist vorbereitet: Bett, Kühlkette, ein Tonband mit Marions Stimme aus einer Ansage von 2009, ein Zettel: „Subjekt gilt als kooperativ. Bitte freundlich.“ Der bittere Witz (Kern): Der echte Luke lebt. Das Experiment wäre umsonst. Die LWO weiß das nicht, weil Hilde siebzehn Jahre lang Brot in den Stall gestellt und nie gemeldet hat.
 
 #### 1.8 Projekt WENDIGO
 
-1992, Bergungstrupp 3, 03:13: An der Kette hängt kein Kind, sondern etwas Formloses, Graues, das sich hinstellt wie ein Hirsch und mit Seilers Stimme spricht. Der Aasfresser des Schiffs, der liegengebliebene Nachbilder frisst. **Dr. Raymond Pell**, aus Ohio herübergeschickt, erkennt die Chance: „Wenn das Ding da oben von Bildern lebt, brauchen wir etwas, das die Bilder frisst.“ Er gibt dem Ding Wirte, damit man es einsperren kann: erst einen Hirsch aus dem Gehege, dann den Gefreiten Hofer, der sich meldet, weil man ihm sagt, es könne ihn zu Anni führen. Pell nennt es nach der Sage vom Wesen, das mit jedem Bissen hungriger wird. In der Nacht zum 13. Juli 1992 bricht es aus, mit Hofers Gesicht. Pell geht 1994 in den Wald, um es zurückzuholen. Der Wald hat seitdem seine Stimme. Gegen das Licht hat der Wendigo nie gewirkt. Er hat nur gefressen, was vom Dorf übrig ist.
+Offene Nacht 1992, die Nacht zum 22. Juni, Bergungstrupp 3, 03:13: An der Kette hängt kein Kind, sondern etwas Formloses, Graues, das sich hinstellt wie ein Hirsch und mit Seilers Stimme spricht. Der Aasfresser des Schiffs, der liegengebliebene Nachbilder frisst. **Dr. Raymond Pell**, aus Ohio herübergeschickt, erkennt die Chance: „Wenn das Ding da oben von Bildern lebt, brauchen wir etwas, das die Bilder frisst.“ Er gibt dem Ding Wirte, damit man es einsperren kann: erst einen Hirsch aus dem Gehege, dann den Gefreiten Hofer, der sich meldet, weil man ihm sagt, es könne ihn zu Anni führen. Pell nennt es nach der Sage vom Wesen, das mit jedem Bissen hungriger wird. In der Nacht zum 13. Juli 1992 bricht es aus, mit Hofers Gesicht. Pell geht 1994 in den Wald, um es zurückzuholen. Der Wald hat seitdem seine Stimme. Gegen das Licht hat der Wendigo nie gewirkt. Er hat nur gefressen, was vom Dorf übrig ist.
 
 #### 1.9 Objekt DREIPUNKT
 
@@ -103,13 +103,13 @@ Drei kleine weiße Wesen, 1958 erstmals gesichtet, seit 1313 im Dorf (das weiß 
 
 **Wer er ist.** Geboren 1934 im Dorf, Sohn des Schmieds. Martinsnacht 1941: Laternen sind wegen der Verdunkelung verboten, aber sieben Kinder schleichen trotzdem hinaus, weil die Alten sagen, in diesem Jahr *muss* man. Heinrich, sieben, hält seine Schwester **Grete**, sechs, an der Hand. Sie tragen eine Laterne zu zweit. Im Licht lässt er sie los, weil ihm etwas Warmes die Hand nimmt (Justin, SB-06). Er kommt heraus, Theodor Seiler an der anderen Hand des Ritters. Grete nicht. Er hat sie schreien gehört, nicht vor Angst, vor Lachen. Das ist das Schlimmste, was er weiß. Seitdem sein Satz: „Es lässt sie lachen. Das ist der Trick.“
 
-1958 kommt er mit Seiler zurück, fängt die Weißen, sieht, wie ∴-2 elf Tage lang zusieht, und nimmt das erste Sternfleisch selbst, weil Seiler es an niemandem sonst ausprobieren will. Es reißt ihn in einem Winter um zwanzig Jahre nach vorn und dann nie wieder. Seit 1959 sieht er aus wie Mitte vierzig. Auf jedem Foto seit 1959 steht er am Rand, gleich alt. Er weiß, was er zahlt: Die Hände werden grau und glatt, wie die der Behaltenen; er friert immer; er träumt nicht mehr. Er nimmt es weiter, weil Grete noch da drin sitzt und er nicht vor ihr sterben will. Das ist seine ganze Menschlichkeit, und sie reicht, um ihn gefährlich zu machen.
+1958 kommt er mit Seiler zurück, fängt die Weißen, sieht, wie ∴-2 elf Tage lang zusieht, und nimmt das erste Sternfleisch selbst, weil Seiler es an niemandem sonst ausprobieren will. Es reißt ihn in einem Winter um zwanzig Jahre nach vorn und dann nie wieder (02 C1). Seit 1958 sieht er aus wie Mitte vierzig. Auf jedem Foto seit 1958 steht er am Rand, gleich alt. Im Spielertext nennt niemand sein Alter. Er weiß, was er zahlt: Die Hände werden grau und glatt, wie die der Behaltenen; er friert immer; er träumt nicht mehr. Er nimmt es weiter, weil Grete noch da drin sitzt und er nicht vor ihr sterben will. Das ist seine ganze Menschlichkeit, und sie reicht, um ihn gefährlich zu machen.
 
 **Überzeugung.** Ehrlich und vollständig: Das Licht ist ein Raubtier, die Weißen sind seine Hunde, Luke ist eine Falle mit einem Gesicht. „Ich habe nichts gegen Sie, Herr Brandt. Man hat nichts gegen eine Falle. Man geht nur nicht hinein.“ Er hält sich für den einzigen Menschen, der nicht wegsieht. Er lügt tröstend, weil Trost ruhig hält. Er droht leise, weil Lautstärke Panik macht.
 
-**Aussehen (Figurenmodell, neu).** Etwa 1,80 m, hager, leicht vornübergebeugt wie jemand, dem immer kalt ist. Grauer Wollmantel bis zum Knie, altmodischer Schnitt, unter dem Mantel ein grauer Anzug mit Weste, weißes Hemd, dunkelgraue Strickkrawatte. Hut aus grauem Filz (Homburg), den er beim Sprechen nie abnimmt. **Dünne graue Lederhandschuhe**, immer, auch beim Teetrinken. Gesicht: Mitte vierzig, weich, freundlich, vergesslich wirkend, leichte Tränensäcke, kurze graue Haare unter dem Hut, glatt rasiert, blassgraue Augen mit sehr kleinen Pupillen. Die Haut wirkt bei Tageslicht wie Wachs. Requisiten: Thermoskanne (Stahl, verbeult, Aufkleber „Institut für Atmosphärenforschung“), zwei Blechbecher, eine flache Blechdose (Lakritzpastillen-Format), aus der er eine graue Pastille in seinen Tee fallen lässt („für den Kreislauf“), ein schwarzes Notizbuch mit Gummiband, ein Kugelschreiber mit Auge. Unter dem Handschuh: **graue, glatte Hand ohne Linien, ohne Nägelmonde**, die Finger einen Hauch zu lang. Gang: langsam, klein, leise, wie auf einem Krankenhausflur. Animation: Hände immer vor dem Bauch, ineinander; wenn er lügt, streicht er den Handschuh glatt; er steht gern seitlich zu Luke und sieht ihn nur mit einem Auge an. Stimme: weich, Bariton, höflich, nie laut, im Passiv, nennt Uhrzeit und Datum („Es ist jetzt fünf nach drei, Herr Brandt. Man sollte nicht mehr draußen sein.“). Lieblingssatz: **„Das ist bedauerlich.“**
+**Aussehen (Figurenmodell, neu).** Etwa 1,80 m, hager, leicht vornübergebeugt wie jemand, dem immer kalt ist. Grauer Wollmantel bis zum Knie, altmodischer Schnitt, unter dem Mantel ein grauer Anzug mit Weste, weißes Hemd, dunkelgraue Strickkrawatte. Hut aus grauem Filz (Homburg), den er beim Sprechen nie abnimmt. **Dünne graue Lederhandschuhe**, immer, auch beim Teetrinken. Gesicht: Mitte vierzig, weich, freundlich, vergesslich wirkend, leichte Tränensäcke, kurze graue Haare unter dem Hut, glatt rasiert, blassgraue Augen mit sehr kleinen Pupillen. Die Haut wirkt bei Tageslicht wie Wachs. Requisiten: Thermoskanne (Stahl, verbeult, Aufkleber „Institut für Atmosphärenforschung“), zwei Blechbecher, eine flache Blechdose (Lakritzpastillen-Format), aus der er eine graue Pastille in seinen Tee fallen lässt („für den Kreislauf“), ein schwarzes Notizbuch mit Gummiband, ein Kugelschreiber mit Auge. Unter dem Handschuh: **graue, glatte Hand ohne Linien, ohne Nägelmonde**, die Finger einen Hauch zu lang. Gang: langsam, klein, leise, wie auf einem Krankenhausflur. Animation: Hände immer vor dem Bauch, ineinander; wenn er lügt, streicht er den Handschuh glatt; er steht gern seitlich zu Luke und sieht ihn nur mit einem Auge an. Stimme: weich, Bariton, höflich, nie laut. **Passiv-Regel:** Er redet im Passiv, mit „man“ und „wir“; „ich“ nur, wenn er lügt, wenn er von Grete spricht oder wenn er zugibt, was es kostet. Der einzige Satz im Spiel, in dem er ohne Amt, ohne „wir“ und ohne Umweg von sich spricht: **„Ich habe sie gesucht.“** (AG-18, nur mit dem Polaroid „HEINI“, 02 F12). Er nennt gern die Zeit, aber nie Minuten (02 A5): „Es ist nach zwei, Herr Brandt. Man sollte nicht mehr draußen sein.“ Nur 03:13 spricht er als Uhrzeit aus, weil sie stehen bleibt. Das einzige Datum, das er je ausspricht, ist der „fünfte August 2009“ (AG-09, AG-14). Lieblingssatz: **„Das ist bedauerlich.“**
 
-**Grete Wolter** (N-08): Foto in der Villa (Kap. 4), ein Mädchen mit Zöpfen und Strickjacke, 1941, an der Hand eines Jungen mit zu großer Mütze. In Nimmerheim sitzt sie grau, ohne Mund, auf einem Kinderstuhl, die Strickjacke noch an. Wenn Luke sie in Kapitel 5 unter den Behaltenen am Grab erkennt (das Foto), sagt er nichts. Nur der Gedanke: „Die Zöpfe. Das ist seine Schwester.“
+**Grete Wolter** (N-08): Foto in der Villa (Kap. 4, in Heinrichs Teedose, ohne Altersangabe), ein Mädchen mit Zöpfen und Strickjacke, einen Blechkreisel in der Hand, neben ihr ein Junge mit zu großer Mütze; auf der Rückseite „HEINI“. In Nimmerheim sitzt sie grau, ohne Mund, auf einem Kinderstuhl, die Strickjacke noch an, der Kreisel dreht sich noch, weil dort keine Zeit vergeht. Wenn Luke sie in Kapitel 5 unter den Behaltenen am Grab erkennt (das Foto), sagt er nichts. Nur der Gedanke: „Die Zöpfe. Das ist seine Schwester.“
 
 #### 2.2 Die Nachsorge: „Pat und Patachon“ (Nachsorge 11 und Nachsorge 12)
 
@@ -147,7 +147,7 @@ Amerikaner, von Außenstelle 1 geschickt, 1991–1994. Nur Fotos, ein Namensschi
 
 #### 2.9 Günther Maas, der Zuträger (61)
 
-Postbote seit 1984, trägt um vier Uhr früh den *Laternenboten* aus. **Aussehen (Figurenmodell, neu):** 1,72 m, dünn, Bauch, gelbe Regenjacke der Post über grauer Dienstjacke, Reflexstreifen, Diensthose, dicke Schuhe, Wollmütze mit Postlogo, darunter graue Locken. Gesicht: knochig, rote Nase, Dreitagebart, Zigarette hinter dem Ohr, ständig feuchte Augen. Requisiten: Postrad (Damenrad, gelb, mit Kiste vorn, Zeitungsstapel unter Gummiband), Umhängetasche, Schlüsselbund mit fünfzig Schlüsseln. Gang: eilig, immer im Begriff wegzugehen. Animation: schiebt das Rad beim Reden, sieht über die Schulter. Stimme: schnell, hoch, redselig, „nich wahr?“, „ich sag mal so“, bricht Sätze ab. Er meldet Besucher, fängt Briefe ab, seit 1990, weil das Amt ihm damals gesagt hat, so würden die Kinder geschützt, und weil man ihm die Miete fürs Haus zahlte. Er hat nie etwas weggeworfen. Sein Schuppen hinter der Tankstelle ist voller Post: Heidis Karten an Lucy, Jonas’ Briefe an Hilde, Kinderbriefe ans Christkind mit Fragen nach Verschwundenen, Edda Brands Brief. Bestechlich mit Zigaretten. Bricht in Kapitel 4/5 zusammen und hilft (N-04). Humor: Er versucht, Luke die Post zuzustellen, während er ihn gleichzeitig verrät („Hier, für Sie, Werbung, und äh, ich muss dann mal telefonieren“).
+Postbote seit 1985 (das Rad hat er vom Vater übernommen, die Absprache mit dem Amt gleich mit), trägt um vier Uhr früh den *Laternenboten* aus. 1975 war er zehn und wurde gezogen; seine Mutter hat nicht unterschrieben, Wolter hat noch einmal gezogen, und das nächste Los war Peter Kranz, sein Banknachbar. Seitdem glaubt Günther, Peter sei an seiner Stelle gegangen, und das stimmt (02 C12). Diese Schuld ist der Hebel, mit dem das Amt ihn 1985 bekommen hat: „Es gibt da eine Möglichkeit, das mit dem Kranz-Jungen wiedergutzumachen.“ **Aussehen (Figurenmodell, neu):** 1,72 m, dünn, Bauch, gelbe Regenjacke der Post über grauer Dienstjacke, Reflexstreifen, Diensthose, dicke Schuhe, Wollmütze mit Postlogo, darunter graue Locken. Gesicht: knochig, rote Nase, Dreitagebart, Zigarette hinter dem Ohr, ständig feuchte Augen. Requisiten: Postrad (Damenrad, gelb, mit Kiste vorn, Zeitungsstapel unter Gummiband), Umhängetasche, Schlüsselbund mit fünfzig Schlüsseln. Gang: eilig, immer im Begriff wegzugehen. Animation: schiebt das Rad beim Reden, sieht über die Schulter. Stimme: schnell, hoch, redselig, „nich wahr?“, „ich sag mal so“, bricht Sätze ab. Er meldet Besucher und fängt Briefe ab, seit vierzig Jahren, weil das Amt ihm gesagt hat, so würden die Kinder geschützt, und weil man ihm die Miete fürs Haus zahlte. Er hat nie etwas weggeworfen („Wirf nichts weg, Günther. Irgendwann fragt einer.“ – Hilde, 1986). Sein Schuppen hinter der Tankstelle ist voller Post: Heidis Karten an Lucy, Jonas’ Briefe an Hilde, Kinderbriefe ans Christkind mit Fragen nach Verschwundenen, Edda Brands Brief. Bestechlich mit Zigaretten. Bricht in Kapitel 4 zusammen und hilft (N-04, „Unzustellbar“); Edda Brands Brief behält er bis Kapitel 5 („Der gelbe Kasten“), Jonas’ Briefe trägt er am Nachmittag aus, und Lucys Brief an Jonas hat er als einzigen je zugestellt, deshalb kommt Jonas am Samstag (02 F3). Humor: Er versucht, Luke die Post zuzustellen, während er ihn gleichzeitig verrät („Hier, für Sie, Werbung, und äh, ich muss dann mal telefonieren“). „Vierzig Jahre Post. Das Einzige, was ich immer zugestellt hab, war Werbung. Werbung hat keiner verboten.“
 
 ---
 
@@ -155,51 +155,76 @@ Postbote seit 1984, trägt um vier Uhr früh den *Laternenboten* aus. **Aussehen
 
 **Verborgener Wert `lwo.trust`, 0–100, Start 50, gespeichert mit dem Spielstand.** Der Spieler sieht ihn nie als Zahl. Er merkt ihn an Ton, Häufigkeit und je einem Detail pro Kapitelende. Die Hauptgeschichte ändert sich nicht.
 
-#### 3.1 Ereignisse, die den Wert ändern
+#### 3.1 Ereignisse, die den Wert ändern (vollständige Tabelle, maßgeblich 02 C2 und die Kapitel)
 
-| Ereignis | Änderung | Woher wissen sie es? |
-|---|---|---|
-| AG-02: höflich antworten („Ja, von hier. Brandt, Nummer 1.“) | +3 | direkt |
-| AG-02: lügen („Bin nur auf der Durchreise.“) | −5 | Der Kurze notiert „Lügt.“ Sie kennen das Auto. |
-| AG-02: ihnen sagen, sie sollen verschwinden | −3 | direkt |
-| AG-03: Kühns Nachricht ganz anhören | 0 | – |
-| Nr. 9 betreten (Beobachtungsposten) | −10 | Kamera oben |
-| Beobachtungsprotokoll aus Nr. 9 mitnehmen | −5 | fehlt im Ordner |
-| jeden Durchschlag der Akte Abgrund aufheben | −2 je | Die Nachsorge zählt die Umschläge nach jeder Nacht („Es fehlen Durchschläge.“). Bis −20 gesamt. |
-| Kaugummipapier/Dienstmarke/Kugelschreiber der LWO einstecken | 0 | Kleinkram, kein Eintrag |
-| Kombi anfassen, Kofferraum öffnen (Kap. 3/5, wenn er steht) | −10 | Alarm, leise: ein Piepen |
-| AG-09: Tee annehmen | +5 | direkt |
-| AG-09: über Lucy die Wahrheit sagen („Ich hab sie noch nicht gefunden.“) | +3 | – |
-| AG-09: über Lucy lügen („Sie ist in der Stadt.“) | −5 | Wolter weiß, dass sie im Dorf ist |
-| AG-09: Wolter nach seiner Hand fragen | −3 | „Das ist unhöflich, Herr Brandt.“ |
-| Kap. 4: unter Absperrband „Gasleck“ durchgehen, wenn ein Agent es sieht | −4 je | Aufräumkommando meldet |
-| AG-12: echtes Zählbuch abgeben | +20 | – |
-| AG-12: Oma Ernas Haushaltsbuch als Fälschung | −15 (wirkt erst, wenn sie es merken: Kap. 4 Villa-Ende) | Der Kurze liest „Kassler, 4,80“ |
-| AG-12: ablehnen | −10 | – |
-| AG-13: entdeckt werden (Verstecken misslingt) | −8 | – |
-| Villa: Wolters Akte „Subjekt EISEN“ mitnehmen | −8 | fehlt |
-| Villa: Bestandsliste mitnehmen | −5 | fehlt |
-| Villa: Glas ∴-1 anfassen/umstoßen | −6 | Kühlraum-Sensor |
-| AG-14: ruhig bleiben, Wolter ausreden lassen | +5 | – |
-| AG-14: Wolter beleidigen, drohen | −5 | – |
-| AG-14: Miras Ring vor ihm verstecken (Whiskey bringt ihn, Luke steckt ihn schnell weg) | 0 | Er sieht es, sagt nichts. „Das ist bedauerlich“ eine Stufe kälter. |
-| Anruf mit Atmen auflegen (AG-V) | −2 | – |
-| Anruf höflich beantworten | +2 | – |
-| N-04: Edda Brands Brief aus Maas’ Schuppen holen | −5 | Maas meldet es, weinend |
-| AG-16: Steinmetzrechnung mitnehmen | −3 | – |
-| AG-17: Vermisstenplakat abreißen | −4 | Es hängt am Morgen wieder. |
-| AG-18: mitmachen | +20 | – |
-| AG-18: sabotieren (Netz zerschneiden / Sender abnehmen) | −25 | – |
-| AG-18: ablehnen | −10 | – |
-| Kap. 6: einem toten Blechmann die Kettenrolle abnehmen | −3 (sie zählen Gerät) | – |
-| Kap. 6: Blechmann-Funkgerät zurücklegen / abgeben | +4 | – |
+Alle Werte einmalig (Einmal-Schlüssel). Wo ein Kapitel einen Wert nennt, gilt er hier wörtlich. Kleinkram, der keinen Eintrag bekommt: Kaugummipapier, Dienstmarke, Kugelschreiber, Schlüsselanhänger.
 
-Die Summe kann rechnerisch unter 0 oder über 100 laufen; der Wert wird geklemmt. Die Kapitel-Autoren dürfen kleine Ereignisse (±2 bis ±5) ergänzen, wenn sie hier eingetragen werden.
+| Kap. | Ereignis | Änderung | Woher wissen sie es? |
+|---|---|---|---|
+| 1 | AG-02: ehrlich antworten („Brandt. Nummer 1. Ich such meine Schwester.“) | +3 | direkt |
+| 1 | AG-02: lügen („Nur auf der Durchreise.“) | −5 | Der Kurze notiert „Lügt.“ Sie kennen das Auto. |
+| 1 | AG-02: Gegenfrage („Und Sie?“) | 0 | – |
+| 1 | AG-03: Kühns Nachricht anhören; Nr. 9 von außen anleuchten, durchs Fenster sehen (02 C10) | 0 | Das Objektiv folgt Luke bis zum Gartentor, mehr nicht. |
+| 1–6 | Durchschläge der Akte Abgrund aufheben (Nr. 1–6, 8, 9, 10) | −2 je | Die Nachsorge zählt die Umschläge nach jeder Nacht („Es fehlen Durchschläge.“) |
+| 2 | Durchschlag 7 („Akte 08“) einstecken und lesen | 0 | Sie wollten, dass er ihn liest. |
+| 2 | Einwilligungen aus Zimmer 7 abnehmen (Pflicht) | −5 | fehlen im Ordner |
+| 2 | Hängeregistratur (Vermessungsprotokolle) | −10 | Archivschrank offen |
+| 2 | Gründungsakte 1958 vom Schrank holen | −10 | Leiter steht noch da |
+| 2 | Kühlregal (Dosen ∴-1/∴-2, Charge 92/3) | −5 | Etiketten fehlen |
+| 2 | Ein Euro in die Kaffeekasse | +1 | Sie merken sich alles. |
+| 3 | AG-09: Tee annehmen | +5 | direkt |
+| 3 | AG-09: über Lucy die Wahrheit sagen („Ich hab sie noch nicht gefunden.“) | +3 | – |
+| 3 | AG-09: über Lucy lügen („Sie ist in der Stadt.“) | −5 | Wolter weiß, dass sie im Dorf ist. |
+| 3 | AG-09: Wolter nach seiner Hand fragen | −3 | „Das ist unhöflich, Herr Brandt.“ |
+| 3 | AG-09: Wolters Thermoskanne von der Bank mitnehmen (nur bei hohem Vertrauen dort) | 0 | Er hat sie stehen lassen. Absichtlich. |
+| 3/5 | Kombi anfassen, Kofferraum öffnen (wenn er steht) | −10 | Alarm, leise: ein Piepen |
+| 3 | Tankstellen-Kassette „Marion · für K-1“ mitnehmen (Nr. 4, Peters Zimmer) | −3 | Behördeneigentum |
+| 3 | Lieferschein „Außenstelle 3“ mitnehmen (Nebenaufgabe Kap. 3) | −5 | LWO-Dokument |
+| 4 | AG-11: unter dem Absperrband „Gasleck“ durchgehen, wo ein Arbeiter hinsieht | −4 je | Aufräumkommando meldet („Wir schreiben das sonst auf.“) |
+| 4 | Nr. 9 betreten (Beobachtungsposten; erst ab Kap. 4 offen, 02 C10) | −10 | Kamera oben |
+| 4 | DA 10 (Dienstnadel) aus Nr. 9 mitnehmen | −5 | fehlt am Schwarzen Brett; wird still verbucht |
+| 4 | AG-12: echtes Zählbuch abgeben | +20 | – |
+| 4 | AG-12: Oma Ernas Haushaltsbuch als Fälschung | −15 (verbucht erst, wenn es auffliegt: Funk beim Verlassen des Villa-Archivs) | Der Kurze liest „Kassler, vier achtzig“; Frau Wendt war Vegetarierin. |
+| 4 | AG-12: ablehnen | −10 | – |
+| 4 | „Unzustellbar“: Günther drohen („Ich erzähl dem Wolter, was in dem Schuppen liegt.“) | −10 | Günther meldet es, weinend. |
+| 4 | Asservatenkiste 7/58: Siegel mit dem Auge brechen | −3 | Siegel |
+| 4 | Wolters Akte „Subjekt EISEN“ mitnehmen (falls das Kapitel es zulässt; Kap. 4 nutzt es nicht) | −8 | fehlt |
+| 4 | Bestandsliste mitnehmen (dito) | −5 | fehlt |
+| 4 | Grete-Foto aus Heinrichs Teedose einstecken | −5 (sobald Wolter es vermisst, AG-14: „Das ist unverzeihlich.“) | Er kennt seine Dose. |
+| 4 | Kühlraum: Deckel von ∴-1 abnehmen (02 D4) | −6 | Kühlraum-Sensor |
+| 4 | AG-13: entdeckt werden (Verstecken misslingt) | −8 | – |
+| 4 | AG-14: ruhig bleiben, Wolter ausreden lassen | +5 | – |
+| 4 | AG-14: Wolter beleidigen, drohen | −5 | – |
+| 4 | AG-14: Wolter seine Thermoskanne hinstellen (aus Kap. 3) | +5 | „Sie haben sie mir aufgehoben.“ |
+| 4 | AG-14: Miras Ring vor ihm wegstecken | 0 | Er sieht es, sagt nichts; die Folge kommt in Kap. 5. |
+| 1–6 | AG-V: Anruf mit Atmen auflegen | −2 | – |
+| 1–6 | AG-V: Anruf höflich beantworten | +2 | – |
+| 5 | AG-15: Tee aus dem Kombi annehmen („Habt ihr Kaffee?“) | +2 | – |
+| 5 | AG-15: „Verschwindet.“ | −2 | – |
+| 5 | AG-16: Steinmetzrechnung vom Erdhügel mitnehmen | −3 | – |
+| 5 | AG-17: Vermisstenplakat abreißen | −4 | Es hängt am Morgen wieder. |
+| 5 | „Der gelbe Kasten“: Edda Brands Brief einwerfen | −15 | Der Kurze im Kombi schreibt: „Postversand. Umschlag alt.“ |
+| 5 | „Der gelbe Kasten“: den Brief Günther zurückgeben | +5 | Günther weint. |
+| 5 | „Der gelbe Kasten“: den Brief behalten | 0 | – |
+| 5 | Günthers Schuppen mit dem Brecheisen aufbrechen (nur Weg c aus Kap. 4) | −15 | Neues Schloss, neue Kratzer. |
+| 6 | AG-18: mitmachen („Gut. Ich geh.“) | +10 | – |
+| 6 | AG-18: ablehnen („Ich bin kein Köder.“) | −10 | – |
+| 6 | AG-18: zusagen und später sabotieren | 0 am Gitter | – |
+| 6 | AG-18: Seitenschneider aus der Werkzeugtasche des Blechmanns einstecken | −3 | Wolter, ohne sich umzudrehen: „Den bekommen wir zurück, Herr Brandt.“ |
+| 6 | AG-18: Polaroid „HEINI“ zeigen (02 F12) | 0 | Der Wert bleibt unberührt; er gibt das Stück Wahrheit trotzdem. |
+| 6 | AG-19: Falle mitgemacht, Netz fällt | +15 | – |
+| 6 | AG-19: sabotiert (Sender am Geschälten Wolf / im Weiher / bei V-11 weggeworfen) | −20, sobald die Falle leer zuschnappt | „Wir wissen jetzt, dass Sie nicht mitspielen. Das wird gespeichert.“ |
+| 6 | AG-19: abgelehnt, selbst im Netz gelandet | −10 | – |
+| 6 | AG-20: dem toten Blechmann die Kettenrolle abnehmen | −3 | Sie zählen Gerät. |
+| 6 | AG-20: Blechmann-Funkgerät mitnehmen | 0 | Kanal drei: Wolter hört mit. |
+| 6 | Kap. 6: das Funkgerät am Gitter zurücklegen / abgeben | +4 | – |
+
+Die Summe kann rechnerisch unter 0 oder über 100 laufen; der Wert wird geklemmt. Wer nur die Hauptgeschichte spielt und die Aufträge annimmt, bleibt im mittleren Band oder rutscht leicht nach oben; wer alles mitnimmt und beide Aufträge sabotiert, ist ab Kapitel 4 miserabel. Kapitel-Autoren dürfen kleine Ereignisse (±2 bis ±5) ergänzen, wenn sie hier eingetragen werden.
 
 #### 3.2 Die drei Stufen
 
 - **Hoch (≥ 70) – „Der kooperative Herr Brandt“.** Agenten sind selten, grüßen von weitem (Hut lupfen, Kombi-Blinker einmal), lassen Luke in Ruhe. Aber in Nebenbemerkungen verraten sie, dass sie alles wissen („Sie waren lange in Nr. 4. Der Milchzahn, ne?“). Detail am Kapitelende: siehe 3.4.
-- **Mittel (30–69) – Standard.** Begegnungen wie in §15.2 geplant, lauernder Ton. Keine Zufallsbegegnungen außer den zwei „Grund-Zufällen“ (Kombi ohne Licht einmal je Kapitel ab 3; ein Anruf in Kap. 5).
+- **Mittel (30–69) – Standard.** Begegnungen wie in §15.2 geplant, lauernder Ton. Keine Zufallsbegegnungen; nur die geplanten AG-Szenen.
 - **Miserabel (< 30) – „Subjekt K-3, unkooperativ“.** Zusätzliche Zufallsbegegnungen (3.3), offene Drohungen, Schreckmomente. Jede Drohung hat eine Folge (3.5).
 
 #### 3.3 Zufallsbegegnungen AG-V (mit vollständigen Zeilen)
@@ -210,15 +235,15 @@ Auslöser: Wert unter 30 (V-01 bis V-12) bzw. über 70 (V-13 bis V-16). Jede hö
 
 - **V-01 · Der Kombi ohne Licht** (Kap. 1, 3, 5; Ahornstraße, Kirchweg, Landstraße Ost). Hinter Luke rollt ein Motor im Standgas. Dreht er sich um, steht der graue Kombi zwanzig Meter hinter ihm, Scheinwerfer aus, Scheibe schwarz. Er fährt nicht näher. Geht Luke weiter, rollt er nach. Bleibt Luke stehen, bleibt er stehen. Nach dreißig Sekunden: Fernlicht, einmal, blendend. Dann rückwärts weg. Kein Wort. Luke: „Ich hab Ihre Nummer, ja? … Hab ich nicht. Es ist keine dran.“
 - **V-02 · Hinter dir** (Kap. 1, 3, 5; Tankstelle, Friedhofstor, Bushaltestelle). Luke liest etwas. Papierrascheln, aber nicht das des Beobachters: Butterbrotpapier. NACHSORGE 11: „Nicht erschrecken, Herr Brandt.“ Er steht direkt hinter ihm. NACHSORGE 12: „Er ist erschrocken.“ (schreibt) NACHSORGE 11: „Wir wollten nur sagen: Die Sache mit den Umschlägen. Das ist Behördeneigentum, ne?“ Luke-Antworten: [a] „Welche Umschläge?“ → 11: „Genau die.“ [b] „Holt sie euch doch.“ → 12 (liest vor): „Aggressiv.“ [c] schweigen → 11: „Gut. Schweigen können Sie. Das ist schon mal was.“ Sie gehen. Wo sie standen, liegt ein Butterbrotpapier mit dem Auge.
-- **V-03 · Der Anruf** (alle Kapitel außer 2; überall, wo Lukes Handy Empfang hat). Lukes Handy: unbekannte Nummer. Nimmt er ab: Atmen, fünfzehn Sekunden, dann WOLTER: „Sie sind noch wach, Herr Brandt. Wir auch.“ Klick. Variante Kap. 5: „Das Licht in der Küche brennt seit vierzig Minuten. Sie kochen doch gar nicht.“ Variante Kap. 6: „Nördlich vom Zaun haben wir keinen Empfang, Herr Brandt. Sie auch nicht. Nur, damit Sie es wissen.“ Legt Luke auf, ohne abzunehmen: Das Handy klingelt gleich noch einmal, und auf dem Display steht diesmal MAMA. Er nimmt nicht ab. (−2 beim Auflegen, siehe 3.1.)
-- **V-04 · Der Dienstplan** (Kap. 1, 4; Lucys Auto, Briefkasten Nr. 1, Windschutzscheibe von Lukes Auto). Ein Zettel, Ausdruck: „Tonstudio Nordkanal · Schichtplan November · Brandt, L.: Mo–Do Nacht, Fr frei.“ Handschriftlich daneben: „Fr frei. Das passt ja.“ Luke: „Woher haben die meinen Dienstplan. Woher haben die überhaupt … ach.“ Whiskey klaut den Zettel, wenn Luke ihn liegen lässt.
+- **V-03 · Der Anruf** (alle Kapitel außer 2; überall, wo Lukes Handy Empfang hat). Lukes Handy: unbekannte Nummer. Nimmt er ab: Atmen, fünfzehn Sekunden, dann WOLTER: „Sie sind noch wach, Herr Brandt. Wir auch.“ Klick. Variante Kap. 3 (Laternenphase): „Sie waren am Dienstag um zwei im Studio. Sie sollten schlafen, Herr Brandt.“ Variante Kap. 5 (als Rückruf auf Heidis Nummer, nach „Ein Dorf näher“): „Das Licht in der Küche brennt schon eine Weile. Sie kochen doch gar nicht.“ Variante Kap. 6 (im tiefen Wald, wo es seit Stunden kein Netz gibt): „Nördlich vom Zaun haben wir keinen Empfang, Herr Brandt. Sie auch nicht. Nur, damit Sie es wissen.“ Keine Uhrzeit mit Minuten, nie (02 A5). Legt Luke auf, ohne abzunehmen: Das Handy klingelt gleich noch einmal, und auf dem Display steht diesmal MAMA. Er nimmt nicht ab. (−2 beim Auflegen, siehe 3.1.)
+- **V-04 · Der Dienstplan** (Kap. 4; Briefkasten Nr. 1, Windschutzscheibe von Lukes Auto; in Kap. 1 nur als Kapitelende-Detail in der Fibel, 3.4). Ein Zettel, Ausdruck: „Tonstudio Nordkanal · Schichtplan November · Brandt, L.: Mo–Do Nacht, Fr frei.“ Handschriftlich daneben: „Fr frei. Das passt ja.“ Luke: „Woher haben die meinen Dienstplan. Woher haben die überhaupt … ach.“ Whiskey klaut den Zettel, wenn Luke ihn liegen lässt.
 - **V-05 · Der Klebezettel** (Kap. 2; Zellentür K-3-Vorbereitung im Amt, Ebene −2, oder an Lukes Versteck nach AG-07). Frischer gelber Klebezettel auf altem Metall: „K-3: nicht anfassen. Freundlich bleiben. (hw)“. Die Tinte ist nicht trocken. Luke: „Freundlich. Die haben ‚freundlich‘ auf einen Zettel geschrieben, damit sie’s nicht vergessen.“
 - **V-06 · Der Blechmann am Gartentor** (Kap. 3; Nr. 1, Nr. 7, Hof). Ein Blechmann steht im Nebel am Tor, Lampe aus, Kette in der Hand. Er sieht Luke an (beschlagenes Glas). Funk aus seinem Gerät, verzerrt: „… Sichtkontakt K-3. Nicht bergen. Wiederhole: nicht bergen. Noch nicht.“ Er dreht sich um und geht. Whiskey war die ganze Zeit still.
 - **V-07 · Umgeparkt** (Kap. 4; Lukes Auto). Lukes Auto steht nicht mehr da, wo es stand. Es steht vor Nr. 9, ordentlich eingeparkt, abgeschlossen. Unter dem Scheibenwischer eine Visitenkarte: „Institut für Atmosphärenforschung · H. Wolter · Wir haben Ihr Fahrzeug aus der Gefahrenzone (Gasleck) entfernt. Bitte um Verständnis.“ Im Auto riecht es nach Tee. Auf dem Rücksitz ein Blechbecher.
 - **V-08 · Die Sprechstunde** (Kap. 4; Kirchweg-Gasse, Aushang). Unter dem alten Aushang „Bürgersprechstunde donnerstags“ klebt ein neuer Zettel, Schreibmaschine: „Herr Brandt, Sie sind für Donnerstag vorgemerkt. Bitte nüchtern erscheinen.“ Es ist Donnerstag. Luke: „Nüchtern. Als hätt ich in dieser Nacht irgendwas geschafft, wovon man nüchtern werden müsste.“
 - **V-09 · Jemand war in der Küche** (Kap. 5; Nr. 1). Auf dem Küchentisch ein runder Ring von einem Thermosbecher, noch warm. Daneben ein Butterbrotpapier, gefaltet, darauf mit Bleistift: „Wir haben nichts angefasst. Nur geschaut. Sie haben keine Milch.“ Luke sieht in den Kühlschrank. Keine Milch. „Hatte ich Milch? Ich hatte Milch.“
 - **V-10 · Blumen** (Kap. 5; Friedhofstor). Nachsorge 11 steht allein am Tor, ohne den Kurzen, mit einem Strauß Chrysanthemen in Folie vom Tankstellen-Automaten. NACHSORGE 11: „Wir haben schon mal Blumen mitgebracht. Damit es später nicht so eilig wird.“ Luke: [a] „Für wen?“ → 11: „Für die Grabstelle Brandt, L. Wir wissen nur noch nicht, welches L.“ [b] „Behalten Sie die.“ → 11: „Die sind vom Automaten, Herr Brandt. Die nimmt keiner zurück.“ Er legt sie vor Luke auf den Weg und geht.
-- **V-11 · Der Köder bewegt sich** (Kap. 6; tiefer Wald). Lukes Handy, das keinen Empfang hat, rauscht plötzlich wie ein Funkgerät. BLECHMANN-FUNK: „Köder bewegt sich nach Norden. Sender aktiv.“ Luke tastet seine Jacke ab. In der Innentasche, wo der Schokoriegel war (Kap. 3): ein kleiner grauer Kasten mit dem Auge. „Seit wann. Seit wann ist das da drin.“ (Wolter hat ihn beim Tee-Ausschenken hineingesteckt, AG-09.) Luke kann ihn wegwerfen (dann findet der Wendigo ihn und trägt ihn; man hört das Piepen später aus dem Hirschding).
+- **V-11 · Der Köder bewegt sich** (Kap. 6, tiefer Wald; kein Vertrauens-Zufall, sondern Pflicht-Beat in Variante A des Senders, 02 C3: Luke hat in Kap. 3 nicht in die Innentasche gesehen). Lukes Handy, das seit dem Zaun kein Netz hat, rauscht plötzlich wie ein Funkgerät. BLECHMANN-FUNK: „Köder bewegt sich nach Norden. Sender aktiv.“ Luke tastet seine Jacke ab. In der Innentasche, wo in Kap. 3 der Schokoriegel war: ein kleiner grauer Kasten aus Eisen mit dem Auge, warm, an der Kante blinkt eine winzige rote Lampe. „Seit wann. Seit wann ist das da drin.“ Gedanke: *Der Tee. Er hat mir die Hand auf die Jacke gelegt.* (AG-09.) Wahl: behalten (ab jetzt kann er sabotieren, AG-19) oder wegwerfen (dann findet der Wendigo ihn und trägt ihn; im Höhepunkt piept es leise aus dem Hirschding). In Variante B (behalten) und C (weggeworfen, Wolter hat ihn aus dem Gully gefischt) entfällt der Beat.
 - **V-12 · Die zweite Lampe** (Kap. 6; Wald). Zwischen den Bäumen leuchtet eine Lampe, kaltweiß, viereckig, genau dann, wenn Luke seine einschaltet. Schaltet er aus, geht sie aus. Zweimal. Beim dritten Mal bleibt sie an, kommt näher, und hinter ihr atmet ein Filter. Ein Blechmann, allein, Kette locker. Er geht an Luke vorbei, ohne ihn zu beachten, und verschwindet in Richtung Amtsbus. Am Baum, wo er stand: drei kleine Kratzer in Kinderhöhe. Beide waren hier.
 
 **Bei hohem Vertrauen:**
@@ -228,16 +253,16 @@ Auslöser: Wert unter 30 (V-01 bis V-12) bzw. über 70 (V-13 bis V-16). Jede hö
 - **V-15 · Schlafen Sie** (Kap. 5; Nr. 1, abends). Anruf, Wolter, kein Atmen vorher: „Herr Brandt. Schlafen Sie ruhig. Wir passen auf das Haus auf.“ Pause. „Auf beide.“ Klick. Luke sieht aus dem Fenster. Der Kombi steht da, Standlicht.
 - **V-16 · Die Batterien** (Kap. 6; Zaunlücke oder Hochsitz). Ein Blechmann steht am Weg, hält Luke wortlos zwei Batterien hin, in Butterbrotpapier. Funk: „… Versorgung K-3 erfolgt.“ Er geht. Luke: „Ich bin ein Köder mit Batterieanspruch.“
 
-#### 3.4 Das eine Detail am Kapitelende (je Stufe)
+#### 3.4 Das eine Detail am Kapitelende (je Stufe; Wortlaut der Kapitel)
 
 | Kap. | hoch | mittel | miserabel |
 |---|---|---|---|
-| 1 | Im Auto liegt ein Blechbecher Tee, noch warm. | – | Lucys Auto: alle vier Reifen platt, Kaugummipapier im Ventil. |
-| 2 | – (kein LWO-Zugriff) | – | Auf dem Weg nach oben ein frischer Klebezettel (V-05) |
-| 3 | Wolter sagt an der Bushaltestelle „Gute Nacht, Luke.“ (Vorname) | „Gute Nacht, Herr Brandt.“ | „Gute Nacht, K-3.“ – Er merkt es und korrigiert sich nicht. |
-| 4 | Whiskey bringt zusätzlich Wolters Kugelschreiber. | – | Lukes Fenster in Nr. 1 ist von außen mit Absperrband „Gasleck“ verklebt. |
-| 5 | Auf dem Vermisstenplakat hat jemand „bitte melden“ dazugeschrieben. | – | Das Vermisstenplakat hat ein neues Foto: Luke, heute, vor der Villa. |
-| 6 | Nachsorge 12 winkt (AG-21) mit einer Stulle in der Hand. | AG-21 wie geplant | Nachsorge 12 winkt und ruft mit Lukes Stimme: „Freitag frei.“ |
+| 1 | Im Polaroid-Stapel, den der Kegel herunterweht, liegt ein LWO-Kugelschreiber mit dem Auge („Wir waren hier“). | – | Auf der Rückseite der Endkarte, wenn der Spieler die Fibel öffnet, ein Blatt „Dienstplan L. Brandt, Studio, Nachtschicht“, das da nicht hingehört (V-04). Im ersten Durchgang unerreichbar, der Wert startet bei 50. |
+| 2 | – (kein LWO-Zugriff) | – | Auf der Endkarte unter „03:13.“ eine vierte Zeile in Schreibmaschine: „Protokolliert.“ (Der Klebezettel V-05 kommt schon bei AG-07.) |
+| 3 | Im Abspann, Kombi an der Bushaltestelle, Fenster einen Spalt: „Gute Nacht, Luke.“ (Vorname, einmal) | „Gute Nacht, Herr Brandt.“ | „Gute Nacht, K-3.“ Er merkt es und korrigiert sich nicht. Auf der Endkarte, kleiner, wie ein Stempel: „K-3: nicht geborgen. Noch nicht.“ |
+| 4 | Whiskey hat Wolters Kugelschreiber aufs Kissen gelegt. | – | An Lukes Fenster in Nr. 1 klebt von außen Absperrband „GASLECK“; im Abspann steht Nachsorge 12 am Tor und schreibt Lukes Nummernschild ab, obwohl er es längst hat. |
+| 5 | Funkfetzen vom Spielplatz: „K-3 geht heim. Nicht eingreifen.“ | – | Der Kombi steht ohne Licht am Spielplatz; als Luke hinsieht, geht innen kurz die Deckenleuchte an: zwei Gesichter, kauend. |
+| 6 | Nachsorge 12 winkt (AG-21) mit einer Stulle in der Hand. | AG-21 wie geplant; er geht rückwärts in den Wald. | Nachsorge 12 winkt und ruft mit Lukes Stimme: „Freitag frei.“ |
 
 #### 3.5 Drohungen, die nie leer bleiben
 
@@ -246,13 +271,13 @@ Regel: Jede ausgesprochene Drohung hat innerhalb desselben Kapitels eine sichtba
 | Drohung (wer, wo) | Folge |
 |---|---|
 | 11 (AG-02): „Bleiben Sie in der Nähe des Hauses, ne? Nachts läuft man hier nicht weit.“ | Geht Luke danach zur Südsperre, steht dort der Kombi (AG-01) schon mit laufendem Motor. Er wusste es. |
-| Wolter (AG-09): „Sie sollten die Umschläge liegen lassen. Papier ist schwer zu tragen.“ | Der nächste Durchschlag, den Luke findet, liegt nicht mehr da; stattdessen ein Butterbrotpapier: „Abgeholt. (12)“. Der Umschlag taucht in Kap. 4 in der Villa wieder auf, geöffnet. |
+| Wolter (AG-09, nur wenn Luke schon Durchschläge hat): „Sie sollten die Umschläge liegen lassen. Papier ist schwer zu tragen.“ | Der nächste Durchschlag, den Luke findet, liegt nicht mehr da; stattdessen ein Butterbrotpapier: „Abgeholt. (12)“. Der Umschlag taucht in Kap. 4 in der Villa wieder auf, geöffnet. |
 | Wolter (AG-14): „Ihre Schwester ist bei Herrn Vegas. Wir wissen das. Wir sind nur höflich.“ | Am Abend (Kap. 5) steht der Kombi vor Nr. 3, nicht vor Nr. 1. Vegas ruft an: „Die stehen vor MEINER Tür, Junge.“ |
-| 11 (AG-12, Ablehnung): „Dann müssen wir uns das Zählbuch selbst holen. Bei Frau Wendt ist ja niemand mehr.“ | Nr. 7: die Küche durchwühlt, Hildes Zählbuch weg, auf dem Tisch ein Butterbrotpapier: „Danke.“ |
-| 11 (Fälschung entdeckt, Kap. 4 Ende): „Kassler, vier achtzig. Sie halten uns für dumm, Herr Brandt. Das ist in Ordnung. Wir halten Sie für gefährlich.“ | Ab jetzt Stufe miserabel, und V-07 (umgeparktes Auto) wird garantiert ausgelöst. |
-| Wolter (AG-18, Ablehnung): „Dann geht der Wald ohne Sie zu. Für alle.“ | Der Nordzaun wird hinter Luke mit Ketten geschlossen; der Rückweg im Kapitel 6 führt über den Weiher. |
-| Wolter (AG-18, Sabotage): „Sie haben zwei Männer auf dem Gewissen, Herr Brandt. Ich schreibe das auf.“ | AG-20 zeigt zwei tote Blechmänner statt einem, und einer trägt die Nummer, die Luke aus AG-16 kennt (11). |
-| 12 (V-02): „Aggressiv.“ | Steht Luke zehn Sekunden später noch da, sind die Reifen von Lucys Auto platt (Kap. 1) / das Handy hat keinen Empfang mehr bis Kapitelende (Kap. 3/5). |
+| 11 (AG-12, Ablehnung): „Dann holen wir es uns selbst. Bei Frau Wendt ist ja niemand mehr, ne?“ | Nr. 7: Hildes Küche durchwühlt, alle Schubladen offen; das Buch steckt in Lukes Jacke, also liegt auf dem Tisch ein Butterbrotpapier: „Nicht da. Dann eben später. (11)“. Die beiden tauchen im Kapitel häufiger auf (Spielplatzzaun, Kombi vor der Tankstelle), in der Villa durchsuchen sie zwei Räume statt einen. |
+| Funk beim Verlassen des Villa-Archivs (Fälschung entdeckt): „Nachsorge an alle. Das Heft ist falsch. Der Rückläufer hat uns Kassler gegeben.“ Wolter in der Halle (AG-14): „Sie halten uns für dumm. Das ist in Ordnung. Wir halten Sie für gefährlich.“ | −15 wird jetzt verbucht; fällt der Wert unter 30, wird V-07 (umgeparktes Auto) garantiert ausgelöst. |
+| Wolter (AG-18, Ablehnung): „Dann geht der Wald ohne Sie zu. Für alle.“ | Die Falle am Bus bleibt scharf, niemand sagt Luke, wo der Draht liegt (AG-19: er landet selbst im Netz). Im Abspann ist der Nordzaun mit Ketten verschlossen, daran Wolters Zettel, Schreibmaschine: „Sie hätten helfen können. Das ist bedauerlich. (hw)“ |
+| Wolter (AG-19, Sabotage, über Funk): „Sie haben zwei Männer auf dem Gewissen, Herr Brandt. Ich schreibe das auf.“ | AG-20 zeigt zwei Tote statt einem; der zweite trägt die Dienstmarke „3-4“: der alte Posten, der 1992 die Zellentür aufgemacht hat (02 C6). Pat und Patachon bleiben für Kapitel 7. |
+| 12 (V-02): „Aggressiv.“ | Das Handy hat bis zum Kapitelende keinen Empfang mehr (Kap. 3/5); in Kap. 1 liegt am nächsten Fundort ein Butterbrotpapier, auf dem nur Lukes Autokennzeichen steht. |
 
 ---
 
@@ -293,7 +318,7 @@ Ein Schaukasten, Glas gesprungen. Text siehe 5.4 (Aushang A). Luke: „Bürgersp
 Die Lautsprecher der Ebene −2 knacken. Ansagen von 2009, freundlich, dann falsch, weil Luna sie abspielt und verstellt (sie kann jede Stimme, die je in der Nähe einer Laterne sprach; unter der Stimme läuft leise Lucys Spieluhr).
 WOLTER (Band, sauber): „Guten Tag. Sie befinden sich in der Außenstelle Lost Eyengless der Bundesstelle für Rückführung. Bitte halten Sie Ihre Einwilligung bereit. Begleitpersonen warten im Wartebereich.“
 WOLTER (Band, leicht zu langsam): „Die Nachuntersuchung dauert wenige Minuten. Ihr Kind wird gewogen, gemessen und angehört. Es besteht kein Anlass zur Sorge.“
-WOLTER (Band, mit Lucys Spieluhr darunter): „Bitte bringen Sie das Kind barfuß. Bitte bringen Sie das Kind. Bitte bringen Sie … Bruder.“
+WOLTER (Band, beim Notstrom, Unterkapitel 4): „Notstrom aktiv. Außenstelle Lost Eyengless.“ Schnitt, Lucys Spieluhr darunter: „Bitte bringen Sie das Kind barfuß. Bitte bringen Sie das Kind. Bitte bringen Sie … Bruder.“
 Luke: „Das ist ein Band. Das ist ein Band, das ist eine Schleife, das …“ Das Band sagt: „Ja, Luke.“ (Das ist nicht Wolter mehr.)
 Spätere Ansagen (verteilt über die Ebene, nach Bedarf): „Zimmer sieben ist heute geschlossen.“ / „Die Kantine bittet um Verständnis.“ / „Wer seine Nummer nicht kennt, wartet bitte, bis er aufgerufen wird. Acht.“
 
@@ -304,43 +329,51 @@ FUNK (Blechmann, verzerrt): „Bergung zwei an Nachsorge. K-1 nicht im Käfig. W
 FUNK (Wolter, ruhig): „Verstanden. Das ist bedauerlich. Bleiben Sie oben. Er kommt zu dem, der ihn ruft. Und der ist jetzt unten.“
 Klick. Luke hört sein eigenes Atmen. „Der, der ihn ruft. Ich hab niemanden gerufen. Ich hab … Onkel Peter?“
 
-#### AG-07 · Kap. 2 · nach der Rauchflucht · hinter den Aktenschränken
+#### AG-07 · Kap. 2 · nach der Rauchflucht · hinter den Aktenschränken (Wortlaut: Kap. 2, Unterkapitel 7 „Wolter will ihn heil“)
 
-Zwei Blechmänner, Lampen an, Ketten schleifen. Luke kauert hinter den Schränken. Mechanik: Atem anhalten (Taste halten), Balken sinkt; lässt er los, hört man ihn, ein Blechmann dreht sich um.
-FUNK (Wolter): „Sichtkontakt?“
-FUNK (Blechmann 1): „Negativ. Rauch. Hier war jemand.“
-FUNK (Wolter): „Das ist K-3. Nicht anfassen. Wolter will ihn heil.“ (Er spricht von sich in der dritten Person, wenn er auf Band ist; er weiß, dass Bänder aufgehoben werden.)
-FUNK (Blechmann 2): „Und wenn er uns anfasst?“
-FUNK (Wolter): „**Dann sind Sie der Erste, der das überlebt. Ich habe nichts gegen ihn. Man hat nichts gegen eine Falle.**“
-Sie gehen. Einer bleibt eine Sekunde stehen, direkt vor dem Schrank, Atemfilter. Dann geht er. Luke atmet aus. Whiskey nicht da (unter der Erde geht er nicht). Es ist das erste Mal, dass Luke „K-3“ hört und weiß, dass er gemeint ist.
+Zwei Blechmänner, Lampen an, Ketten schleifen, der Vorraum halb voll Rauch; im Rauch sehen sie aus wie zwei Ritter. Luke kauert hinter den Schränken. Mechanik: Lampe aus, nicht bewegen, solange die Kegel über die Wand wandern; steht ein Blechmann nah, Atem anhalten (Taste halten, Balken sinkt). Wer sich bewegt oder zu früh ausatmet: Beide Kapuzen drehen sich gleichzeitig. Kein Kampf, Neustart. Todeszeile: „Sie haben dich nicht angefasst. Sie haben nur gewartet, bis jemand kam, der es durfte.“
+FUNK (Blechmann): „Bergung zwei. Brand im Gang. K-1 liegt. Verbrannt. Da ist noch jemand hier drin.“
+FUNK (Nachsorge 11): „Wissen wir. Das ist K-3. Nicht anfassen. Wolter will ihn heil.“
+FUNK (Nachsorge 12, langsam, liest vor): „Ich hab notiert: ‚K-3. Nicht anfassen.‘ Und ‚heil‘. Mit Ausrufezeichen?“
+FUNK (Nachsorge 11): „Ohne. Wir sind ein Amt.“
+Ein Blechmann bleibt zwei Schritte vor Lukes Schrank stehen. Man hört seinen Atem im Filter.
+FUNK (Wolter, live, sehr leise, höflich; **genau zwei Sätze**, 02 H3, A5): „Bergung zwei, die Zeit ist gleich um: Bergen Sie, was von K-1 übrig ist, und gehen Sie.“ Pause. „**Der junge Mann findet den Weg allein, er hat ihn schon einmal gefunden.**“
+Kettenrasseln, sie gehen Richtung Gang. Whiskey ist nicht da (unter der Erde geht er nicht). Es ist das erste Mal, dass Luke „K-3“ hört und weiß, dass er gemeint ist.
+Vertrauen unter 30: Der Blechmann bleibt acht Sekunden länger, Nachsorge 11 fügt an: „Und wenn er wegläuft: Beine müssen nicht heil sein.“ Danach klebt außen an der Schranktür ein frischer gelber Zettel (V-05). Ab 70: „Er ist Gast. Behandeln wie Gast.“
+Atempause: Vor dem Schrank ein Butterbrotpapier, sauber gefaltet. LUKE: „Die essen hier. Im Rauch. Mit Kapuze. Ich will wissen, wie.“
 
 #### AG-08 · Kap. 3 · Rand des Abgrunds · die Reihe
 
 Kein Dialog. Von den Traktorspuren am Hof aus: sieben Blechmänner in einer Reihe am Rand der Senke, Ketten gespannt, Lampen aus, das Licht des Schiffs auf den Eisenkapuzen. Sie warten. Einer hebt die Hand: die Zahl sieben mit den Fingern, für die anderen. Funk, sehr leise, weit weg: „… Ernte in Position.“ Luke: „Ernte. Die nennen es Ernte.“ Der Beobachter raschelt hinter ihm, wagt sich nicht näher an die Reihe heran; das ist das eine Mal, dass Luke merkt, dass etwas hinter ihm Angst vor etwas anderem hat.
 
-#### AG-09 · Kap. 3 · Bushaltestelle · grauer Kombi · Heinrich Wolter (erste Begegnung)
+#### AG-09 · Kap. 3 · Bushaltestelle am Westende · grauer Kombi · Heinrich Wolter (erste Begegnung)
 
-Der Kombi steht an der Haltestelle, Innenlicht an. Ein Mann im grauen Mantel sitzt auf der Bank, Thermoskanne neben sich, zwei Blechbecher. Er sieht Luke kommen, seit er um die Ecke ist.
+Der Kombi steht an der Haltestelle, Motor an, Innenlicht an, Scheinwerfer aus, am Heck ein Magnetschild „Institut für Atmosphärenforschung“. Ein Mann im grauen Mantel sitzt auf der Bank unter dem Fahrplan, Thermoskanne neben sich, zwei Blechbecher. Er sieht aus wie jemand, der auf den Nachtbus wartet, den es hier nie gegeben hat. Er sieht Luke kommen, seit der um die Ecke ist. Justin bleibt zwanzig Meter zurück im Nebel.
 WOLTER: „Herr Brandt. Setzen Sie sich einen Moment. Es ist jetzt drei Uhr dreizehn, und das bleibt es noch eine Weile. Tee?“
-- [a] Tee nehmen → Er schenkt ein, lässt aus der Blechdose eine graue Pastille in seinen eigenen Becher fallen. „Für den Kreislauf. Ich friere leicht.“ (+5) Luke: „Was ist das?“ Wolter: „Lakritz.“ (Es ist kein Lakritz.)
+- [a] Tee nehmen → Er schenkt ein, lässt aus der Blechdose eine graue Pastille in seinen eigenen Becher fallen. „Für den Kreislauf. Man friert leicht in dem Beruf.“ (+5) Luke: „Was ist das?“ Wolter: „Lakritz.“ (Es ist kein Lakritz.)
 - [b] „Ich trink nichts von Fremden.“ → Wolter: „Wir sind keine Fremden. Wir kennen Sie seit dem fünften August 2009. Sie kennen uns nur noch nicht.“ Er trinkt allein.
 - [c] „Wer sind Sie?“ → Wolter: „Wolter. Nachsorge. Heute Nacht bin ich alles, was von der Bundesstelle noch da ist. Und ein wenig vom Institut.“
 Dann, egal wie:
 WOLTER: „Sie suchen Ihre Schwester. Das ist gut. Das ist richtig. Wo ist sie denn, Ihrer Meinung nach?“
 - [a] „Ich hab sie noch nicht gefunden.“ → Wolter: „Nein. Aber Sie sind nah dran. Näher als die Polizei. Das ist keine Kunst.“ (+3)
-- [b] (L) „In der Stadt. Sie ist längst in der Stadt.“ → Wolter: „Herr Brandt. Ihre Schwester war am dreiundzwanzigsten in Nummer 7. Ich habe es gesehen. Lügen Sie mich nicht an, das kostet uns beide Zeit.“ (−5)
-- [c] „Das wissen Sie doch längst.“ → Wolter: „Ja. Aber ich wollte hören, ob Sie es wissen.“
-WOLTER (die falsche Hilfe): „Wenn Sie die Laternen ausmachen wollen, machen Sie es wie die Post. Eins, drei, fünf, sieben. Immer der Reihe nach, sonst wird es ungeduldig.“ (Das ist falsch. Die Lösung ist 5 → 3 → 1 → 7. Wolter will, dass Luke scheitert und die Nacht dort verbringt, wo die Bergung ihn einsammeln kann.)
+- [b] (L) „In der Stadt. Sie ist längst in der Stadt.“ → Wolter: „Herr Brandt. Ihre Schwester war am dreiundzwanzigsten in Nummer 7. Das wurde gesehen. Lügen Sie mich nicht an, das kostet uns beide Zeit.“ (−5)
+- [c] „Das wissen Sie doch längst.“ → Wolter: „Ja. Aber man hört gern, ob Sie es wissen.“
+- Zusatzfrage (Kapitel 3): „Wer ist der Mann in der Rüstung?“ → Wolter: „Der Herr ist bei uns aktenkundig. Seit sehr langer Zeit. Er geht jedes Mal mit den Kindern hinein, Herr Brandt, und kommt jedes Mal allein heraus.“ Pause. „Ich würde ihm nicht die Hand geben.“ (Wahre Beobachtung, falscher Schluss: der Irrtum der LWO in drei Sätzen.)
+WOLTER (die falsche Hilfe): „Wenn Sie die Laternen ausmachen wollen, machen Sie es wie die Post. Eins, drei, fünf, sieben. Immer der Reihe nach, sonst wird es ungeduldig.“ (Lüge. Die Lösung ist 5 → 3 → 1 → 7. Wer ihr folgt, scheitert am ersten Kasten und bekommt Lucys erste Hilfe. Wolter will, dass Luke die Nacht dort verbringt, wo die Bergung ihn einsammeln kann.)
 LUKE: „Und Hilde? Frau Wendt?“
 WOLTER: „Das ist bedauerlich.“ (Pause.) „Sie hat siebzehn Jahre gezählt. Man kann nicht ewig zählen.“
 - Luke fragt nach der Hand („Warum ziehen Sie die Handschuhe nicht aus?“) → Wolter: „Das ist unhöflich, Herr Brandt.“ (−3) Er streicht den Handschuh glatt.
+- Hat Luke schon Durchschläge der Akte Abgrund bei sich: „Sie sollten die Umschläge liegen lassen. Papier ist schwer zu tragen.“ (Drohung mit Folge, 3.5.)
+**Whiskey (K3-4, 02 C4):** Whiskey landet auf dem Dach des Kombis, nicht auf der Haltestelle. Wolter hört auf zu reden und sieht hoch. WOLTER: „Halten Sie den Vogel bitte von meinem Wagen fern. Er mag mich nicht. Das ist seit langem so.“ Whiskey geht auf dem Dach nach vorn und lässt etwas auf die Windschutzscheibe fallen, sehr gezielt. WOLTER: „… Das ist bedauerlich.“ Er wischt mit einem Stofftaschentuch und redet weiter, als wäre nichts gewesen.
 WOLTER (beim Aufstehen; Ehrlichkeit): „**Ich war sieben, als es meine Schwester genommen hat. Ich habe seitdem jede Nacht wach gelegen, damit es kein anderes nimmt. Sie halten uns für die Bösen. Das ist in Ordnung. Dafür sind wir da.**“
-Beim Einschenken oder Verabschieden legt er Luke die Hand auf die Jacke, kurz, an der Innentasche: Das ist der Moment, in dem der Sender hineinkommt (V-11). Der Spieler sieht es nicht; wer den Schokoriegel später Justin gibt (Kap. 3), findet den grauen Kasten daneben und darf ihn wegwerfen, oder nicht.
-Abschied je Stufe: „Gute Nacht, Luke.“ / „Gute Nacht, Herr Brandt.“ / „Gute Nacht, K-3.“ Der Kombi bleibt stehen, bis Luke außer Sicht ist. Whiskey sitzt die ganze Zeit auf dem Haltestellendach und sagt nichts. Als der Kombi weg ist, macht er das Klack der Blechdose nach.
+**Der Sender (02 C3):** Beim Einschenken legt Wolter Luke kurz die Hand auf die Jacke, an die Innentasche, wie ein Onkel, der einem den Kragen richtet. Der Spieler sieht nichts Besonderes. In Kapitel 3 ist der Kasten nur fühlbar (Schokoriegel-Szene mit Justin, Unterkapitel 9), ansehen freiwillig; daraus folgen die drei Varianten in Kapitel 6 (AG-18).
+**Abschied:** Wolter klopft sich den Mantel ab, steigt in den Kombi. Durch das offene Fenster: „Wenn Sie hinauswollen, Herr Brandt: Ich fahre gegen sieben. Falls es sieben wird.“ Der Kombi fährt ohne Licht in den Nebel und kommt am anderen Ende nicht heraus. Auf der Bank bleibt ein Kaugummipapier „Lucid Mint“ mit dem Auge liegen. Whiskey macht das Klack der Blechdose nach. Das „Gute Nacht“ je Vertrauensstufe spart Wolter sich für den Abspann auf (3.4).
+**Vertrauen:** hoch (≥ 70): Wolter sagt zusätzlich „Wir hätten Sie gern heil, Herr Brandt. Das meine ich, wie ich es sage.“ und lässt die Thermoskanne auf der Bank stehen (Gegenstand „Thermoskanne“, innen riecht sie nach Fenchel; Kap. 4, AG-14: zurückgeben +5). Miserabel (< 30): später in der Laternenphase V-01 (Kombi ohne Licht) und V-03 (Anruf: „Sie waren am Dienstag um zwei im Studio.“).
+**Justin danach:** „Den kenne ich. Er stand schon einmal am Rand, mit einem Netz. Dieselbe Kanne.“ – „Das war wann?“ – „Als eure Kutschen noch leiser waren.“ (1958, ohne Jahreszahl. Dass er ihn auch als Jungen von 1941 kennt, steht auf SB-06.)
 
 #### AG-10 · Kap. 3 · Nebel am Ostende · der Blechmann, der ein Ritter ist
 
-Im Nebel eine Gestalt, Metall, Kapuze, eine Kette, die schleift. Luke: „Justin?“ Die Gestalt dreht sich um. Atemfilter, beschlagenes Glas, die viereckige Lampe geht an, direkt in Lukes Augen. Funk: „… kein Kind. Ein Erwachsener. K-3?“ Wolter: „Weitergehen.“ Der Blechmann geht. Luke: „Nicht Justin. Nur einer, der sich für ihn hält.“ Whiskey macht das Kettenschleifen nach. Dann, aus einer ganz anderen Richtung, ein zweites Kettenschleifen. Das ist Justin.
+Im Nebel eine Gestalt, Metall, Kapuze, eine Kette, die schleift. Luke: „Justin?“ Die Gestalt dreht sich um. Atemfilter, beschlagenes Glas, die viereckige Lampe geht an, direkt in Lukes Augen. Funk: „… kein Kind. Ein Erwachsener. K-3?“ Wolter: „Weitergehen.“ Der Blechmann geht. Luke: „Nicht Justin. Nur einer, der sich für ihn hält.“ Whiskey macht das Kettenschleifen nach. Dann, aus einer ganz anderen Richtung, ein zweites Schleifen, tiefer, Stein auf Stein. Das ist Justin. JUSTIN (wenn Luke bei ihm ist): „Die haben mich gesehen und sich Eisen umgehängt. Sie glauben, es ist dasselbe. Drinnen halten sie so lange, wie ein Mensch die Luft anhält.“
 
 #### AG-11 · Kap. 4 · ganze Ahornstraße · Aufräumkommando
 

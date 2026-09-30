@@ -48,3 +48,17 @@
 - 83: K6-2 streichen, K6-3 an Jonas’ Lager, W-14 liest der echte Luke; Whiskey wach nur „Such!“/„Kum!“/„Luna.“ plus Nachahmungen.
 - 82: B-K6-06 drei Rückseiten-Zeilen aus 60_kap6 übernehmen.
 - 81: SB-12 Fassung A „Helm“ → „Brustplatte“ (B1).
+
+## Nachtrag aus Kapitel 3 Nebenaufgaben (fertig lektoriert)
+- 82: Orts-Zettel „Hof“ braucht die vierte Zeile „ER TRÄGT DAS HAUS. DAS HAUS SIEHT SICH SELBST NICHT ∴“ (RH-11). Kennungen in Kap. 3: B-K3-01..08, H1..H3, N1 (Predigt-Hilfezettel); RH-4 = B-K3-08 zweites Blatt, RH-1 = B-K2-05.
+- 80: Z-11 Datum „Nacht zum 13. Juli“ → „Nacht zum 22. Juni“ (C11; der 13. Juli ist die Ausbruchsnacht des Wendigo, der 22. Juni die offene Nacht 1992). Kassette −3, Lieferschein −5 aufnehmen.
+- 85: „Such mich nit“ → Urfassung endet „Ich find dich überall. – Ist das wahr? – Ja.“ (G1); Voss’ Randnotiz anpassen.
+- 86: „Lars Albers, gen. Vegas“ entfällt (C8, er ist Lars Vegas); Kater in Kap. 5 = Hänschen, braun getigert, eingerissenes Ohr; die Katzenliste ordnet das Ohr Grete zu – angleichen (Hänschen bekommt das Ohr).
+- Zayns Nebenaufgabe heißt „Hast du dich an mich erinnert?“ (A3); Jonas’ „Vierzig Mal“ ist Kap. 6.
+
+## Nachtrag aus Kapitel 1 Nebenaufgaben (fertig lektoriert; 21 Aufgaben)
+- 80: 5.8 Blatt 212: Datum der elf Anrufe = 23.10. (Zeitleiste H1); Katalog B-01 „am Ortsschild“ → B-K1-01 in Lucys Auto; Durchschläge 5/6/8 erst ab Kap. 3.
+- 81: SB-03: ältestes Plakat ist „Sommerfest 1958“, nicht „Kaninchenzüchter 1979“.
+- 82: S-12 (Pflichtfoto) in Kap. 1 streichen – keine Kamera in Kap. 1. B-K1-01 = Lucys Auto, B-K1-02 im Hauptweg.
+- 83/85: K1-4 (Küchenfenster) vs. S-01 (Haustür, Teller) für W-04b vereinheitlichen → Haustür/Teller gilt (85), 83 anpassen.
+- 86: Günther kommt kurz nach Mitternacht („Ich fang jetzt früher an.“), nicht „gegen vier“; Kater „Luke“ → Hänschen; Katzenfutterdose = zweiter Tausch (Dosendeckel gegen LWO-Kuli), nicht W-03; Aushang-Wortlaut ohne „(hw)“-Unterschrift (Hauptweg-Fassung). Giselas Katzen in Kap. 1: Anni, Zayn, Grete, Keiner.
