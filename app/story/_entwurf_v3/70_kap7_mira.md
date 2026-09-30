@@ -18,7 +18,7 @@
 
 #### 1 · „Zähl für mich“
 
-Ein zweiter Traum, der einzige neben dem Prolog. Luke ist Freitagmittag am Ortsschild im Auto eingeschlafen, wie in der ersten Nacht. Die leere Straße im weißen Nebel, die Laterne an der Kreuzung, Whiskey darauf. Diesmal klingt er kaum noch nach Rabe. Er klingt wie eine Frau, die keine Zeit hat.
+Der dritte und letzte Traum (der zweite liegt im Abspann von Kapitel 4, 02 E2). Luke ist Freitagmittag am Ortsschild im Auto eingeschlafen, wie in der ersten Nacht. Die leere Straße im weißen Nebel, die Laterne an der Kreuzung, Whiskey darauf. Diesmal klingt er kaum noch nach Rabe. Er klingt wie eine Frau, die keine Zeit hat.
 WHISKEY (Miras Worte): „Ich bin fast da. Ich brauche nur eine Hand am Rand und einen, der für mich zählt.“
 WHISKEY: „Dreizehn. Bis dreizehn hab ich es immer geschafft.“
 Der Traum reißt ab, weil jemand ans Fenster klopft.
@@ -212,7 +212,7 @@ Nach zehn Sekunden, kleiner: „AUSSENSTELLE 3 MELDET: DER CHOR SINGT LAUTER.“
 | alter Name | neuer Name | Herkunft |
 |---|---|---|
 | Kapitel 7 (Beobachter, Mira) | **∴** | das Zeichen des Beobachters |
-| – | Zähl für mich | Miras Worte im zweiten Traum |
+| – | Zähl für mich | Miras Worte im letzten Traum |
 | – | Einen Tag zu früh | Jonas’ Satz am Autofenster |
 | – | Länger als eine Sekunde | die Regel des Beobachters, die hier bricht |
 | – | Angelehnt | die Tür-Spur des Beobachters, jetzt das Schiff |
@@ -284,7 +284,7 @@ Die Schlusszeile ist ein Wechselspiel: Luna fragte jeden Abend „Ist das wahr?�
 
 | Nr. | Kap. | Ort | Was man sieht, hört oder liest | Was es später bedeutet |
 |---|---|---|---|---|
-| 1 | Prolog | Traumstraße, Laterne | Whiskey spricht ganze Sätze, in einer Wortwahl, die keine Rabenwortwahl ist („Zähl bis dreizehn, dann bist du wach.“). | Es sind Miras Worte in Rabenmund. Man merkt es in Kapitel 7 an ihrem ersten Satz. |
+| 1 | Prolog | Traumstraße, Laterne | Whiskey spricht ganze Sätze, in einer Wortwahl, die keine Rabenwortwahl ist („Und du, Kind … vor dir selbst.“, „Kum, Wîse.“). | Es sind Miras Worte in Rabenmund. Man merkt es in Kapitel 7 an ihrem ersten Satz. |
 | 2 | 1 | Kapellenmauer, ältester Stein (`ausbau_nord.js`, id `mira`) | „… IRA · HAUSFRAU DES RITTERS …“, Geburtsjahr mit 13, kein Sterbejahr. Jünger darunter: „Sie ist nicht hier begraben. Sie kommt noch.“ | Das Dorf hat seit 1312 gewusst, dass sie nicht tot ist. „Sie kommt noch“ ist der älteste Satz im Ort, älter als „Keller bleibt zu“. Im Abspann steht das M davor. |
 | 3 | 1 | Whiskeys linker Fuß (W-02) | ein kleiner eiserner Ring mit einem Turm über einem Abgrund | Justins Hofzeichen. Der Vogel gehört zum Hof, seit es den Hof gibt. Vegas: „Der saß schon ’75 auf der Laterne.“ |
 | 4 | 1 | Nr. 1, Marions Liederheft | das Wiegenlied, erste Strophe, „Hab ich 1975 gelernt, weiß nicht mehr, von wem“ | Sie hat es von Luna, die es von Mira hat. Die Spieluhr spielt es. |
