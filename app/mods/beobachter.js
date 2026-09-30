@@ -303,9 +303,8 @@ function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x
   for (let i = 0; i < n0; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 4200); bp.Q.value = .9; n.connect(bp); Audio.env(bp, rand(.05, .11) * v, .01, rand(.05, .14), i * rand(.05, .12), d); n.stop(Audio.ctx.currentTime + 1.5); } }
 function beob_patter(x, z, n = 4, v = 1, y = 0) { const a = rand(0, 6.28), dx = Math.cos(a) * .35, dz = Math.sin(a) * .35;
   for (let i = 0; i < n; i++) setTimeout(() => Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .09 * v, rate: rand(1.7, 2.1), x: x + i * dx, y, z: z + i * dz, ref: 2 }), i * rand(80, 120)); }
-function beob_chirp(x, z, y = .7) { if (!Audio.ctx) return; const d = Audio.at(x, y, z, 3), t = Audio.ctx.currentTime;
-  for (let k = 0; k < 2; k++) { const o = Audio.ctx.createOscillator(), g = Audio.ctx.createGain(); o.type = 'sine'; const t0 = t + k * .16; o.frequency.setValueAtTime(1500 + k * 180, t0); o.frequency.exponentialRampToValueAtTime(2300 + k * 200, t0 + .08); o.frequency.exponentialRampToValueAtTime(1700, t0 + .14);
-    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.022, t0 + .02); g.gain.linearRampToValueAtTime(0, t0 + .14); o.connect(g); g.connect(d); o.start(t0); o.stop(t0 + .16); } }
+function beob_chirp(x, z, y = .7) { if (!Audio.ctx) return; // (früher ein Sinus-Zwitschern) jetzt: leises Quietschen einer Schuhsohle – jemand verlagert das Gewicht
+  Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: rand(.03, .05), rate: rand(2, 2.5), hp: 1200, dur: rand(.15, .25), x, y: Math.min(y, .2), z, ref: 2 }); }
 function beob_atem(x, z, y = .75, n = 0) { // kurzes, schnelles Kinder-Atmen nach dem Rennen: 3–5 Züge, hoch gefiltert, ganz leise (unter dem Wind)
   if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 1.4), N = n || Math.round(rand(3, 5)); let t = 0;
   for (let i = 0; i < N; i++) { for (const [pk, a, dc, f] of [[.045, .16, .14, rand(1500, 2100)], [.06, .05, .24, rand(1100, 1600)]]) { const s = Audio.noise(false), bp = ctx.createBiquadFilter(), hp = ctx.createBiquadFilter();

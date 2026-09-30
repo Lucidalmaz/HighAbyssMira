@@ -68,7 +68,7 @@ function neben3_justinDa(r = 14) { return typeof justin !== 'undefined' && justi
 function neben3_luke(t, ms = 3600) { return say([[t, ms, 'LUKE']]); }
 async function neben3_sag(zeilen) { for (const z of zeilen) { if (typeof z === 'function') await z(); else await say([z]); } }
 // Glockenschlag (Synthese wie ausbau_nord_bellToll, an beliebiger Stelle; Innenräume liegen weit außerhalb der Welt)
-function neben3_glockeTon(x, y, z, gain = 1, ref = 14) { if (!Audio.ctx) return; const d = Audio.at(x, y, z, ref);
+function neben3_glockeTon(x, y, z, gain = 1, ref = 14) { if (!Audio.ctx) return; if (Audio.glocke && Audio.glocke(x, y, z, 138, gain, ref)) return; const d = Audio.at(x, y, z, ref); // Aufnahme (Modul klang), sonst Synthese
   [[.5, .5, 7], [1, .9, 5.5], [1.19, .35, 4], [1.5, .3, 3.2], [2, .45, 2.6], [2.52, .15, 1.8], [3, .12, 1.4]].forEach(([m, a, dur]) => { const o = Audio.osc('sine', 138 * m, 0, dur + .2); Audio.env(o, a * .32 * gain, .004, dur, 0, d); });
   const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12 * gain, .002, .15, 0, d); n.stop(Audio.ctx.currentTime + .5); }
 

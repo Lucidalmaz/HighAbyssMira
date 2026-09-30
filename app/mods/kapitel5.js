@@ -1,6 +1,9 @@
-// =====================================================================  KAPITEL 5 (Modul „kapitel5“, W2-P9): Der gedeckte Tisch
+// =====================================================================  KAPITEL 5 (Modul „kapitel5“, Fassung 3 · AP-21): „Iss auf, Bruder“ (Hauptweg, UK 1–14)
 // Donnerstag, 5. November 2026, 18:10 bis 23:40. Nur vorhandene Umgebungen: Veranda und Fenster von Nr. 3, Nr. 7, Nr. 1 innen, Kreuzung,
-// Westweg, Hof/Stall, Schrebergärten, Kirchberg (Gedenkfeld, offenes Grab), Nordzaun-Lücke. Texte wortgleich aus story_final.md, PK-B (K5-0 … K5-17).
+// Westweg, Hof/Stall, Schrebergärten, Kirchweg, Kirchberg (Gedenkfeld, offenes Grab), Nordzaun-Lücke. Texte wortgleich aus story_final.md (Fassung 3, Kapitel 5).
+// Fassung 3: AG-15 (lwo_szene), Gisela + Hänschen (katzen_kater5, Tragen mit den Detective-Händen), Schleife mit Heidis Karten/A-19, Kinosequenz „Runde drei“
+// (setCamOverride), Kichern aus allen Laternen (02 H4), A-17 (Lucy schwebt), AG-17 am Kirchweg, V-09/V-10, Friedhof mit Grete/Voss/AG-16 und A-18 (Blitz),
+// Einlösungen der Kap.-3-Geschenke (Riemen bei Gisela, Riegel auf Hildes Küchentisch, Schnalle im Fundamentstein), B-K5-01 … 07 + H1 über beobachter_zettel.
 // Aufbau: alles (Figuren, Requisiten, Lichter mit Intensität 0, Decals, Flammen-Sprites) wird BEIM LADEN angelegt und versteckt;
 // im Spiel werden nur Sichtbarkeit (ohne Lichter), Positionen und Intensitäten geändert. Kein Laden, keine Lichter, keine Allokationen im Takt.
 // Zustandsmaschine: k5.beat (K5_BEATS). Speicherpunkte SP5-1 … SP5-7 über todCheckpoint (tod.js); Todesart „tisch“ über TOD_ANIM/TOD_LINES von außen.
@@ -13,8 +16,15 @@ const k5_ab = b => k5_i(k5.beat) >= k5_i(b);
 const k5_vor = b => k5_i(k5.beat) < k5_i(b);
 const K5_Y = .43; // Fußboden der Häuser
 const K5_POS = { veranda: [-27.2, 0, -10.55, PI], nr7: [23.6, K5_Y, -14.6, -PI / 2], tuer: [-47, 0, -9.4, 0], kinder: [-53.2, K5_Y, -19.4, PI], kreuz: [1.8, 0, 3.2, -2.4], stall: [-135.6, 0, -30.1, PI / 2], tor: [-52.5, 0, 64.6, PI] };
-// Kinderstimme, Spieluhr darunter usw.: Sprecher wie im Produktionsplan
-const K5_W = { V: 'VEGAS', L: 'LUCY', LU: 'LUKE', H: 'LUCY', K: 'LUNA', E: 'ECHTER LUKE', M: 'MAMA', A: 'ANRUF' };
+// Sprecher (Fassung 3): die Frau am Tisch heißt bis zum Stimmwechsel „LUCY?“ (Kinotabelle „Runde drei“: wechselt bei „Bruder“ zu LUNA)
+const K5_W = { V: 'VEGAS', L: 'LUCY', LU: 'LUKE', H: 'LUCY?', K: 'LUNA', E: 'ECHTER LUKE', M: 'MAMA', A: 'ANRUF', G: 'GISELA', N11: 'NACHSORGE 11', N12: 'NACHSORGE 12' };
+// Geräusch-Untertitel (A-25): standardmäßig aus, nur im Barrierefrei-Modus (settings.geraeusche, AP-26) als Geräuschangabe
+function k5_geraeusch(t, ms = 3000) { try { if (typeof settings !== 'undefined' && settings.geraeusche) subtitle('[' + t + ']', ms); } catch (e) {} }
+function k5_lwo() { return typeof lwo_stufe === 'function' ? lwo_stufe() : 'mittel'; }
+function k5_antwort() { return typeof ch3 !== 'undefined' ? ch3.answer || ch3.choice || null : null; }
+function k5_zettel(id, o) { if (typeof beobachter_zettel === 'function') { try { return beobachter_zettel(id, o); } catch (e) { console.warn('Kapitel 5: Zettel ' + id, e); } } return false; }
+function k5_kater(modus, o) { if (typeof katzen_kater5 === 'function') { try { return katzen_kater5(modus, o || {}); } catch (e) { console.warn('Kapitel 5: Kater', e); } } return null; }
+function k5_gesehenLore(k) { return story.lore.some(l => l.key === k); }
 const _k5v = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], _k5q = new THREE.Quaternion(), _k5q2 = new THREE.Quaternion();
 
 // ---------------------------------------------------------------- kleine Werkzeuge
@@ -44,7 +54,8 @@ const K5_MEL = [659, 587, 523, 494, 523, 587, 659, 659, 587, 523, 494, 440, 494,
 function k5_box(x, y, z, o = {}) { // eine Runde der Spieluhr; tempo < 1 = langsamer, det = verstimmt, leier = Leiern, v = Lautstärke. Rückgabe: Dauer in s
   const A = Audio; if (!A.ctx) return 12; const d = A.at(x, y, z, o.ref || 1.6), tempo = o.tempo || 1, det = o.det || 0, lei = o.leier || 0, v = o.v ?? .06, n = o.n || K5_MEL.length;
   let t0 = .05; for (let i = 0; i < n; i++) { const f = K5_MEL[i] * (1 - i * .0025) * (1 + (Math.random() - .5) * det) * (1 + Math.sin(i * 1.7) * lei);
-    [1, 2.01, 3.02].forEach((m, j) => { const os = A.osc('sine', f * m, t0, 1.8); A.env(os, [v, v * .36, v * .14][j], .004, 1.5, t0, d); }); t0 += (.42 + i * .025) / tempo * (1 + (Math.random() - .5) * lei * 4); }
+    if (A.buf.kb_spieluhr_E6 && A.buf.kb_spieluhr_A6) { const hi = f * 2 > 1500; A.play(hi ? 'kb_spieluhr_A6' : 'kb_spieluhr_E6', { gain: v * 2, rate: f * 2 / (hi ? 1760 : 1318.5), delay: t0, dest: d }); } // echte Zinke (Modul klang), sonst Sinus
+    else [1, 2.01, 3.02].forEach((m, j) => { const os = A.osc('sine', f * m, t0, 1.8); A.env(os, [v, v * .36, v * .14][j], .004, 1.5, t0, d); }); t0 += (.42 + i * .025) / tempo * (1 + (Math.random() - .5) * lei * 4); }
   return t0 + 1.2; }
 function k5_summen(x, y, z, v = .03) { // Lucys Lied, gesummt (eine Oktave tiefer, weich, mit Vibrato)
   const A = Audio; if (!A.ctx) return 12; const c = A.ctx, d = A.at(x, y, z, 2); let t = c.currentTime + .1;
@@ -151,8 +162,11 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     await Promise.all([
       fig('lucyWin', 'lucy_erw', -25, .45, -12.9, 0, { clip: 'window' }), fig('heim', 'lucy_erw', -53.6, K5_Y, -15.6, PI / 2), fig('heimSitz', 'lucy_erw', 0, K5_Y, 0, 0, { sit: K5_Y + .47 }), fig('lucyK', 'lucy_erw', 0, 0, 0, 0),
       fig('graue', 'graue', 0, -30, 0, 0), fig('luke', 'luke_echt', 0, -30, 0, 0), fig('mama', 'mama', -46.4, K5_Y, -15.9, -PI / 2, { ghost: true, clip: 'idle' }),
-      ...[0, 1, 2, 3, 4].map(i => fig('gz' + i, i % 2 ? 'gezaehlt_m' : 'gezaehlt_j', 0, -30, 0, 0))]);
-    for (let i = 0; i < 5; i++) if (S.g['gz' + i]) noShadow(S.g['gz' + i]); // Leistung am Friedhof: die Gezählten werfen keinen Schatten (Nebel, Kerzenlicht)
+      // Friedhof (UK 13): drei Behaltene, Pfarrer Voss (Erwachsenen-Rig wie weiss.js, grau), Grete (Mädchen, ganz hinten, rückt nie näher)
+      ...['gezaehlt_j', 'gezaehlt_m', 'gezaehlt_j', 'amt1', 'gezaehlt_m'].map((id, i) => fig('gz' + i, id, 0, -30, 0, 0)),
+      fig('gisela', 'gisela', -48.6, 0, -8.4, PI)]);
+    for (let i = 0; i < 5; i++) if (S.g['gz' + i]) noShadow(S.g['gz' + i]); // Leistung am Friedhof: die Behaltenen werfen keinen Schatten (Nebel, Kerzenlicht)
+    { const V = S.g.gz3 && S.g.gz3.userData.person; if (V && typeof weiss_grau === 'function') { try { weiss_grau(V.obj, .35); } catch (e) {} } } // Voss: grau wie in Raum 2
     for (const k of ['lucyWin', 'heim', 'heimSitz', 'lucyK']) if (S.g[k]) S.eyes[k] = eyesOf(S.g[k]);
     if (S.g.lucyWin) { noShadow(S.g.lucyWin); S.g.lucyWin.traverse(o => { if (o.isMesh) o.renderOrder = 21; }); }
   }

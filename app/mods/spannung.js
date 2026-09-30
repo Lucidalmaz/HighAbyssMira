@@ -11,7 +11,7 @@ const SP_GAP = { owl: 75, fox: 200, deer: 120, crow: 60, twig: 14, rustle: 10, c
   gust: 12, creak: 22, settle: 15, pipe: 40, water: 45, window: 30, outside: 45, metal: 30, vent: 40, buzz: 50, door: 90, above: 150, upstairs: 150, fern: 30, grunt: 25,
   whisper: 35, steps: 150, giggle: 900, chains: 300, knock: 120, figure: 110, shutter: 60, dogcut: 240, car: 300, silence: 200, crows: 160, swing: 180, rats: 90, eyes: 20, lamp: 90, thump: 120, flicker: 60, window_fig: 150, beob: 20 };
 // Umgebungsereignisse je Minute nach Ort (bei voller Spannung die Hälfte)
-const SP_AMB = { wald: 4, tief: 3, ort: 4, friedhof: 3, villa: 3, innen: 3, keller: 4, amt: 4, kanal: 4, weiss: 0 };
+const SP_AMB = { wald: 3, tief: 2, ort: 2, friedhof: 2, villa: 2, innen: 2, keller: 3, amt: 3, kanal: 3, weiss: 0 }; // Betten tragen die Kulisse – Einzelereignisse sparsam
 function spannung_chapter() { return ch3.on ? 3 : state.ch2 ? 2 : typeof anwesen_S !== 'undefined' && anwesen_S.ch4 ? 4 : 1; }
 // Spannung 0…1: Angst, Verfolgung, Nachklang des letzten Schrecks
 function spannung_k() { return Math.min(1, Math.max(typeof fear !== 'undefined' ? fear.v : 0, SP.chase ? 1 : 0, Math.exp(-(SP.t - SP.peak) / 40))); }

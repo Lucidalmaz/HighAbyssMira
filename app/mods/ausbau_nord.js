@@ -733,7 +733,7 @@ function ausbau_nord_tick(dt, t, indoor) {
 }
 // Glocke (synthetisch, groß, weit)
 function ausbau_nord_bellToll() {
-  if (!Audio.ctx) return; const d = Audio.at(-52.5, 11, 88, 14);
+  if (!Audio.ctx) return; if (Audio.glocke && Audio.glocke(-52.5, 11, 88, 138, 1, 14)) return; const d = Audio.at(-52.5, 11, 88, 14); // Aufnahme (Modul klang), sonst Synthese
   [[.5, .5, 7], [1, .9, 5.5], [1.19, .35, 4], [1.5, .3, 3.2], [2, .45, 2.6], [2.52, .15, 1.8], [3, .12, 1.4]].forEach(([m, a, dur]) => { const o = Audio.osc('sine', 138 * m, 0, dur + .2); Audio.env(o, a * .32, .004, dur, 0, d); });
   const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .002, .15, 0, d); n.stop(Audio.ctx.currentTime + .5);
 }

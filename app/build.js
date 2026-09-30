@@ -21,6 +21,7 @@ const copy = (a, b) => { const st = fs.statSync(a);
   const tmp = b + '.tmp' + process.pid; fs.copyFileSync(a, tmp); fs.renameSync(tmp, b); };
 for (const f of ['sounds.js', 'sounds_extra.js', 'justin.js']) if (fs.existsSync(path.join(SRC, f))) copy(path.join(SRC, f), path.join(OUT, f));
 if (fs.existsSync(path.join(SRC, 'assets'))) copy(path.join(SRC, 'assets'), path.join(OUT, 'assets'));
+if (fs.existsSync(path.join(SRC, 'audio'))) copy(path.join(SRC, 'audio'), path.join(OUT, 'audio')); // Klang: Musik, Betten, Geräusche (Opus, bei Bedarf geladen – Modul klang)
 // Three.js und Schriften lokal
 copy(path.join(__dirname, 'node_modules/three/build'), path.join(OUT, 'vendor/three/build'));
 copy(path.join(__dirname, 'node_modules/three/examples/jsm'), path.join(OUT, 'vendor/three/examples/jsm'));

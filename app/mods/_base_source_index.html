@@ -1889,8 +1889,8 @@ const Audio = {
     [36, 36.4, 54.1].forEach(f => { const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = f; o.connect(lp); o.start(); });
     this.lfo(.03, 25, lp.frequency); lp.connect(dg); dg.connect(this.master); this.drone = dg;
     // TV
-    const tn = this.noise(true), thp = ctx.createBiquadFilter(); thp.type = 'highpass'; thp.frequency.value = 2000;
-    this.tv = ctx.createGain(); this.tv.gain.value = 0; tn.connect(thp); thp.connect(this.tv); this.tv.connect(this.master);
+    const tn = this.noise(true), thp = ctx.createBiquadFilter(); thp.type = 'bandpass'; thp.frequency.value = 2200; thp.Q.value = .8; // Röhrenfernseher-Rauschen aus kleinem Lautsprecher: schmal, nicht schneidend
+    const tvt = ctx.createGain(); tvt.gain.value = .5; this.tv = ctx.createGain(); this.tv.gain.value = 0; tn.connect(thp); thp.connect(this.tv); this.tv.connect(tvt); tvt.connect(this.master);
   },
   // Raumantwort: gefiltertes Rauschen mit Abklingen (+ Vorverzögerung), draußen einzelne Rückwürfe von Wänden/Stämmen, Beton mit klingenden Rohren
   ir(ctx, kind) { const [sec, dec, cut, pre, metal] = { small: [.55, 5, 5200, .004, 0], concrete: [1.5, 3.2, 7000, .008, 1], hall: [2.1, 3, 6000, .018, 0], out: [1, 4.5, 3800, .03, 0] }[kind];
@@ -2004,7 +2004,7 @@ const Audio = {
       const n = this.noise(false), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500; n.connect(hp); this.env(hp, .9, .001, .18, delay); n.stop(t + .5);
       // 2) Der Knall (tief, wuchtig) + Tiefbass
       this.play('thunder1', { gain: 1.5, rate: .82, lp: 1100, delay: delay + .12, pan: pan * .5 });
-      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, 1, .02, 3.4, delay + .1);
+      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, .45, .02, 3.4, delay + .1); // Tiefbass nur als Stütze der Aufnahme
       // 3) Der echte Donner: 22 Sekunden Rollen mit natürlichem Ausklingen
       this.play('rainThunder', { gain: 1.35, offset: 21.0, dur: 22, delay: delay + .22, pan: pan * .4, hp: 45 });
       // 4) Zusätzliches Grollen, das später anschwillt und langsam vergeht (andere Seite)
@@ -2020,7 +2020,7 @@ const Audio = {
       this.play('rainThunder', { gain: .55 + close * .5, offset: 21.15, dur: 20, delay, pan, lp, fadeIn: .9 });
       const r = this.play('rumble', { gain: .001, rate: rand(.6, .7), lp: 170, delay: delay + .6, pan: pan * .5, offset: rand(0, 8) });
       if (r) { r.g.gain.setValueAtTime(.001, t + .6); r.g.gain.exponentialRampToValueAtTime(.45 + close * .3, t + 3); this.ramp(r.g, .45 + close * .3, t, 5, 14); r.src.stop(t + 14.5); }
-      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, .35 + close * .3, 1.2, 5.5, delay + .4);
+      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, .15 + close * .15, 1.2, 5.5, delay + .4);
       this.play('rainThunder', { gain: .28 + close * .2, offset: 26.2, dur: 8, delay: delay + 5.5, pan: -pan, lp: lp * .8 });
       if (Math.random() < .6) this.play('rainThunder', { gain: .16, offset: 30.5, dur: 7, delay: delay + 11, pan: pan * .3, lp: 260 });
     } },

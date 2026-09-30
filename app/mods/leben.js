@@ -44,21 +44,19 @@ function leben_free(x, z, y, r) {
 function leben_path(x0, z0, x1, z1) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.ceil(L / .4); for (let i = 1; i <= n; i++) { const k = i / n; if (!leben_free(x0 + (x1 - x0) * k, z0 + (z1 - z0) * k, .1, .1)) return false; } return true; }
 
 // ---------------------------------------------------------------- Klänge (vorhandene Audio-Bausteine)
-function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kurze, hohe Pfiffe
-  if (!Audio.ctx || !Audio.started) return; const d = Audio.at(x, y, z, 1.6), t0 = Audio.ctx.currentTime;
-  for (let i = 0; i < n; i++) { const o0 = i * rand(.06, .15), f = rand(3300, 4800);
-    for (const [m, a] of [[1, 1], [2.02, .25]]) { const o = Audio.osc('sine', f * m, o0, .14); o.frequency.setValueAtTime(f * m * 1.06, t0 + o0); o.frequency.exponentialRampToValueAtTime(f * m * rand(.72, .86), t0 + o0 + .08); Audio.env(o, v * a * rand(.6, 1), .004, .07, o0, d); } }
+function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kein Sinus-Pfeifen mehr – Krallen auf Holz/Stein (Aufnahmen), kurz und leise
+  if (!Audio.ctx || !Audio.started) return;
+  for (let i = 0; i < n; i++) Audio.play(Audio.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: v * rand(.5, .8), rate: rand(2.2, 2.8), hp: 1400, dur: .2, delay: i * rand(.08, .2), x, y, z, ref: 1.5 });
 }
-function leben_click(x, y, z) { // Fledermaus: trockene Klicks an der Grenze des Hörbaren
-  if (!Audio.ctx || !Audio.started) return; const d = Audio.at(x, y, z, 2);
-  for (let i = 0; i < 4; i++) { const o = Audio.osc('sine', rand(6500, 9000), i * rand(.03, .07), .05); Audio.env(o, .025, .001, .012, i * .05, d); }
-}
+function leben_click() {} // Fledermaus: im November kaum da, die Klicks lagen an der Hörgrenze – ersatzlos still
 function leben_hiss(x, y, z) { // Katze im Dunkeln: Fauchen
   if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
   n.connect(bp); Audio.env(bp, .22, .035, .55, 0, d); n.stop(ctx.currentTime + 1.2);
 }
-function leben_bellStrike(amp, damp) { // Kapellenglocke: Schlagton, Unteroktave, kleine Terz, Quinte, Oktave … (leicht schwebend)
+function leben_bellStrike(amp, damp) { // Kapellenglocke: aufgenommene Röhrenglocke (VSCO, CC0), auf g gestimmt, mit tiefem Summton darunter; gedämpft = kurz abgefangen
   if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, C = leben_CHAPEL; const dest = Audio.at(C.x, C.y, C.z, 34); if (Audio.cut) return; // drinnen: dumpf durch die Wand (Audio.at)
+  if (Audio.buf.kb_glocke_A4) { Audio.play('kb_glocke_A4', { gain: amp * 1.1, rate: 392 / 440 * rand(.998, 1.002), dur: damp ? .8 : undefined, dest });
+    const o = Audio.osc('sine', 98, 0, damp ? 1 : 8), g = Audio.env(o, amp * .12, .02, damp ? .6 : 7, 0, dest); return; }
   const f = 196;
   for (const [m, a, dc] of [[.5, .42, 9], [1, .5, 7], [1.19, .3, 5.5], [1.5, .2, 3.8], [2, .42, 4.5], [2.51, .14, 2.4], [3.01, .09, 1.7], [4.03, .05, 1.1]])
     for (const det of [-.21, .23]) { const len = damp ? .7 : dc; const o = Audio.osc('sine', f * m + det * m, 0, len + .3); Audio.env(o, amp * a * .5, .003, damp ? len * .6 : dc, 0, dest); }

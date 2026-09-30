@@ -87,6 +87,7 @@ function lucy3_voice(kind, sec, dest, gain = 1) {
   if (kind === 'a' || kind === 'amt') lucy3_tines(sec, dest, gain); // Regel 5: unter jeder geliehenen Stimme läuft ihre Spieluhr
 }
 function lucy3_tines(sec, dest, gain = 1) { const A = Audio; if (!A.ctx) return; const notes = [1319, 1175, 1047, 988, 1047, 1175, 1319, 1568];
+  if (A.buf.kb_spieluhr_E6 && A.buf.kb_spieluhr_A6) { for (let i = 0, n = Math.max(2, Math.floor(sec / .46)); i < n; i++) { const f = notes[i % notes.length] * (1 - i * .002), hi = f > 1500; A.play(hi ? 'kb_spieluhr_A6' : 'kb_spieluhr_E6', { gain: .03 * gain, rate: f / (hi ? 1760 : 1318.5), delay: .05 + i * .46, dest: dest || A.world }); } return; } // echte Zinken (Modul klang)
   for (let i = 0, n = Math.max(2, Math.floor(sec / .46)); i < n; i++) [1, 2.01].forEach((m, j) => { const o = A.osc('sine', notes[i % notes.length] * m * (1 - i * .002), .05 + i * .46, 1.3); A.env(o, (j ? .005 : .014) * gain, .004, 1.1, .05 + i * .46, dest || A.world); }); }
 function lucy3_scratch(x, z, twice) { const A = Audio; if (!A.ctx) return; const ctx = A.ctx, d = A.at(x, 1, z, 3), t0 = ctx.currentTime + .05;
   [0, twice ? 1.25 : -1].forEach(off => { if (off < 0) return; const n = A.noise(false), bp = ctx.createBiquadFilter(), g = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 1.6; g.gain.value = 0;
