@@ -89,7 +89,7 @@ Offene Nacht 1992, die Nacht zum 22. Juni, Bergungstrupp 3, 03:13: An der Kette 
 
 #### 1.9 Objekt DREIPUNKT
 
-Drei kleine weiße Wesen, 1958 erstmals gesichtet, seit 1313 im Dorf (das weiß die LWO nicht). Seiler und Wolter fangen zwei mit Eisennetzen: ∴-1 stirbt sofort, ∴-2 nach elf Tagen, in denen es nur zusah. Aus ihnen: das erste Sternfleisch, Wolters Dosen, das Material für K-2. Zwei Gläser im Kühlraum der Villa: ∴-1 (etwas darin bewegt sich, wenn der Strom kommt), ∴-2 (leer, nasse dreizehige Spuren zum Fenster). Der Dritte ist seit 68 Jahren „nicht fixierbar“. Seilers letzte Notiz über ihn: „Er hat mich 1975 fotografiert. Ich habe das Foto verbrannt. Ich glaube, er hat es noch.“
+Drei kleine weiße Wesen, 1958 erstmals gesichtet, seit 1313 im Dorf (das weiß die LWO nicht). Seiler und Wolter fangen zwei mit Eisennetzen: ∴-1 stirbt sofort, ∴-2 nach elf Tagen, in denen es nur zusah. Aus ihnen: das erste Sternfleisch, Wolters Dosen, das Material für K-2. Zwei Gläser im Kühlraum der Villa: ∴-1 (etwas darin bewegt sich, wenn der Strom kommt), ∴-2 (leer seit 2012; was darin war, liegt heute unter dem großen Stein im Steinkreis; die nassen dreizehigen Spuren zum Fenster sind frisch, weil der Dritte heute Morgen bei seinem Bruder in ∴-1 war, 02 D4). Der Dritte ist seit 68 Jahren „nicht fixierbar“. Seilers letzte Notiz über ihn: „Er hat mich 1975 fotografiert. Ich habe das Foto verbrannt. Ich glaube, er hat es noch.“
 
 #### 1.10 Das Porträt
 
@@ -105,7 +105,7 @@ Drei kleine weiße Wesen, 1958 erstmals gesichtet, seit 1313 im Dorf (das weiß 
 
 1958 kommt er mit Seiler zurück, fängt die Weißen, sieht, wie ∴-2 elf Tage lang zusieht, und nimmt das erste Sternfleisch selbst, weil Seiler es an niemandem sonst ausprobieren will. Es reißt ihn in einem Winter um zwanzig Jahre nach vorn und dann nie wieder (02 C1). Seit 1958 sieht er aus wie Mitte vierzig. Auf jedem Foto seit 1958 steht er am Rand, gleich alt. Im Spielertext nennt niemand sein Alter. Er weiß, was er zahlt: Die Hände werden grau und glatt, wie die der Behaltenen; er friert immer; er träumt nicht mehr. Er nimmt es weiter, weil Grete noch da drin sitzt und er nicht vor ihr sterben will. Das ist seine ganze Menschlichkeit, und sie reicht, um ihn gefährlich zu machen.
 
-**Überzeugung.** Ehrlich und vollständig: Das Licht ist ein Raubtier, die Weißen sind seine Hunde, Luke ist eine Falle mit einem Gesicht. „Ich habe nichts gegen Sie, Herr Brandt. Man hat nichts gegen eine Falle. Man geht nur nicht hinein.“ Er hält sich für den einzigen Menschen, der nicht wegsieht. Er lügt tröstend, weil Trost ruhig hält. Er droht leise, weil Lautstärke Panik macht.
+**Überzeugung.** Ehrlich und vollständig: Das Licht ist ein Raubtier, die Weißen sind seine Hunde, Luke ist eine Falle mit einem Gesicht. „Man hat nichts gegen Sie, Herr Brandt. Man hat nichts gegen eine Falle. Man geht nur nicht hinein.“ Er hält sich für den einzigen Menschen, der nicht wegsieht. Er lügt tröstend, weil Trost ruhig hält. Er droht leise, weil Lautstärke Panik macht.
 
 **Aussehen (Figurenmodell, neu).** Etwa 1,80 m, hager, leicht vornübergebeugt wie jemand, dem immer kalt ist. Grauer Wollmantel bis zum Knie, altmodischer Schnitt, unter dem Mantel ein grauer Anzug mit Weste, weißes Hemd, dunkelgraue Strickkrawatte. Hut aus grauem Filz (Homburg), den er beim Sprechen nie abnimmt. **Dünne graue Lederhandschuhe**, immer, auch beim Teetrinken. Gesicht: Mitte vierzig, weich, freundlich, vergesslich wirkend, leichte Tränensäcke, kurze graue Haare unter dem Hut, glatt rasiert, blassgraue Augen mit sehr kleinen Pupillen. Die Haut wirkt bei Tageslicht wie Wachs. Requisiten: Thermoskanne (Stahl, verbeult, Aufkleber „Institut für Atmosphärenforschung“), zwei Blechbecher, eine flache Blechdose (Lakritzpastillen-Format), aus der er eine graue Pastille in seinen Tee fallen lässt („für den Kreislauf“), ein schwarzes Notizbuch mit Gummiband, ein Kugelschreiber mit Auge. Unter dem Handschuh: **graue, glatte Hand ohne Linien, ohne Nägelmonde**, die Finger einen Hauch zu lang. Gang: langsam, klein, leise, wie auf einem Krankenhausflur. Animation: Hände immer vor dem Bauch, ineinander; wenn er lügt, streicht er den Handschuh glatt; er steht gern seitlich zu Luke und sieht ihn nur mit einem Auge an. Stimme: weich, Bariton, höflich, nie laut. **Passiv-Regel:** Er redet im Passiv, mit „man“ und „wir“; „ich“ nur, wenn er lügt, wenn er von Grete spricht oder wenn er zugibt, was es kostet. Der einzige Satz im Spiel, in dem er ohne Amt, ohne „wir“ und ohne Umweg von sich spricht: **„Ich habe sie gesucht.“** (AG-18, nur mit dem Polaroid „HEINI“, 02 F12). Er nennt gern die Zeit, aber nie Minuten (02 A5): „Es ist nach zwei, Herr Brandt. Man sollte nicht mehr draußen sein.“ Nur 03:13 spricht er als Uhrzeit aus, weil sie stehen bleibt. Das einzige Datum, das er je ausspricht, ist der „fünfte August 2009“ (AG-09, AG-14). Lieblingssatz: **„Das ist bedauerlich.“**
 
@@ -311,11 +311,11 @@ Luke: „Ein Polizist, der mir sagt, ich soll die Straßenbeleuchtung ausmachen.
 
 #### AG-04 · Kap. 1 · Kirchweg-Gasse · Aushang
 
-Ein Schaukasten, Glas gesprungen. Text siehe 5.4 (Aushang A). Luke: „Bürgersprechstunde. Donnerstags. Von einer Behörde, die seit vierzehn Jahren dicht ist. Und irgendwer hat den Kasten geputzt.“ Der Kasten ist innen sauber. Das Datum ist mit Kuli aktualisiert.
+Ein Schaukasten, Glas gesprungen. Text siehe 5.4 (Aushang A). Luke: „Bürgersprechstunde. Donnerstags. Von einer Behörde, die seit vierzehn Jahren dicht ist. Und irgendwer hat den Kasten geputzt.“ Pause. „Ahornstraße sieben. Eingang Keller.“ Der Kasten ist innen sauber. Das Datum ist mit Kuli aktualisiert.
 
 #### AG-05 · Kap. 2 · Lautsprecher im Amt · Wolters Stimme auf Band
 
-Die Lautsprecher der Ebene −2 knacken. Ansagen von 2009, freundlich, dann falsch, weil Luna sie abspielt und verstellt (sie kann jede Stimme, die je in der Nähe einer Laterne sprach; unter der Stimme läuft leise Lucys Spieluhr).
+Die Lautsprecher der Ebene −2 knacken. Ansagen von 2009, freundlich, dann falsch, weil Luna sie abspielt und verstellt: Unter der Erde sieht sie niemanden (Regel 6), aber die Kabel des Amts laufen über die Laternenmasten nach oben, und damit spielt sie Stille Post mit Wolters Bandschleife (sie kann jede Stimme, die je in der Nähe einer Laterne sprach; unter der Stimme läuft leise Lucys Spieluhr). Am Kasten klebt der Speicherzettel (5.12).
 WOLTER (Band, sauber): „Guten Tag. Sie befinden sich in der Außenstelle Lost Eyengless der Bundesstelle für Rückführung. Bitte halten Sie Ihre Einwilligung bereit. Begleitpersonen warten im Wartebereich.“
 WOLTER (Band, leicht zu langsam): „Die Nachuntersuchung dauert wenige Minuten. Ihr Kind wird gewogen, gemessen und angehört. Es besteht kein Anlass zur Sorge.“
 WOLTER (Band, beim Notstrom, Unterkapitel 4): „Notstrom aktiv. Außenstelle Lost Eyengless.“ Schnitt, Lucys Spieluhr darunter: „Bitte bringen Sie das Kind barfuß. Bitte bringen Sie das Kind. Bitte bringen Sie … Bruder.“
@@ -462,7 +462,7 @@ Hat Wolter in AG-14 „Ihre Schwester ist bei Herrn Vegas“ gesagt und ist die 
 
 #### AG-16 · Kap. 5 · Friedhof · offenes Grab · Steinmetzrechnung
 
-Kein Dialog. Das offene Grab neben dem Gedenkfeld, Grabstein „LUKE BRANDT · 2009–2026“. Auf dem Aushub, mit einem Stein beschwert, die Rechnung (Text 5.13). Luke: „Ausgehoben vor der Nacht. Rechnung ans Amt. Die haben mein Grab bestellt, bevor ich überhaupt … Schöner Stein. Ehrlich.“ Nachsorge 11 kann hier bei miserablem Vertrauen dazukommen (V-10).
+Kein Dialog. Das offene Grab neben dem Gedenkfeld, Grabstein „LUKE BRANDT · 2009–2026“. Auf dem Aushub, mit einem Stein beschwert, die Rechnung (Text 5.13). Luke: „Ausgehoben vor der Nacht. Rechnung ans Amt. Die haben mein Grab bestellt, bevor ich überhaupt … Schöner Stein. Ehrlich.“ Mitnehmen −3; einen Durchschlag gibt Maas in „Der gelbe Kasten“ dazu. Nachsorge 11 kann hier bei miserablem Vertrauen dazukommen (V-10).
 
 #### AG-17 · Kap. 5 · Kirchweg · Vermisstenplakat
 
@@ -555,7 +555,7 @@ Dienstanweisung 4: beobachten, nicht aufklären. Denn wer weiß, was er ist, dur
 *Gedanke: „Bis siebzehn. Ich zähle im Schlaf. Lucy hat mich damit aufgezogen, jahrelang.“*
 
 **6 · Peter Kranz**
-Peter Kranz hat 1992 seine eigene Akte gelesen. Jemand aus dem Haus hat sie ihm gegeben. Ich weiß bis heute nicht, wer, und ich habe eine Vermutung, die ich nicht aufschreibe, weil die Frau zwei Söhne hat.
+Peter Kranz hat 1992 seine eigene Akte gelesen. Jemand hat sie ihm gegeben. Ich weiß bis heute nicht, wer. Ich habe zwei Vermutungen und schreibe keine auf: Die eine Frau hat zwei Söhne, und der andere ist im selben Sommer in den Nebel gegangen.
 In derselben Nacht hat das Licht durch ihn hindurchgesehen wie durch ein Fenster. Seiler hat ihn unter die Erde gebracht, weil es dort nicht hinsieht. Das Amt hat ihn nicht getötet. Man tötet keine Beweise. Man macht Versuche mit ihnen.
 Was danach aus ihm wurde, steht unter „K“.
 *Gedanke: „Onkel Peter. Sie haben ihn eingesperrt, weil er es wusste. Unter die Erde. Wo sie nicht hinsieht.“*
@@ -575,7 +575,7 @@ Anweisung: Beobachtung statt Evakuierung. Ich habe sie abgezeichnet. Ich schreib
 **9 · Versuchsreihe K** *(Hochsitz, Kap. 6, Anker TIEF.stand)*
 K wie Kopie. Ziel: aus dem Wechselbalg das verlorene Kind zurückholen. Mittel: Sternfleisch aus zwei Gläsern, Kälte, Licht in Stößen, Tonbänder mit der Stimme seiner Schwester Marion.
 K-1, Peter Kranz. Das Fleisch hat ihn umgebaut, aber nicht nach dem, der er war. Nach dem, was ein kleines Kind von ihm im Kopf hatte: der Onkel, der immer lacht. Zähne, wo keine hingehören. Er fühlt alles. Ergebnis 41: Er hat meine Hand gehalten und „Bruder“ gesagt. Am dritten März 2011 hat er das Gitter aus der Wand gerissen. Zwei Pfleger. Offiziell ein Gasleck.
-K-2 war ein Junge ohne Namen, 1958. Er ist gestorben. K-3 steht schon auf dem Deckel einer leeren Akte: Brandt, L. Wolter sagt, mit ihm holen wir seine Schwester zurück. Wolter sagt das seit achtundsechzig Jahren.
+K-2 war ein Junge ohne Namen, 1958. Er ist gestorben. K-3 steht schon auf dem Deckel einer leeren Akte: Brandt, L. Wolter sagt, mit ihm holen wir seine Schwester zurück. Wolter sagt das, seit es diese Außenstelle gibt.
 *Gedanke: „K-3. Brandt, L. Das bin ich. Sie wollten mich umbauen wie Onkel Peter. Nach dem Bild, das … wer hat ein Bild von mir im Kopf?“*
 
 **10 · Die Auflösung** *(Villa-Halle, Kap. 4)*
@@ -636,7 +636,7 @@ Lost Eyengless. In der Nacht zum Donnerstag fiel im gesamten Ort der Strom aus. 
 Vegas hat jede mit rotem Kreis versehen und dazugeschrieben: „SIEHST DU? ÜBERALL.“
 
 **Z-11 · 1992 · „Pfarrer Voss vermisst – Gemeinde betet“ (hw)** *(Kap. 3, Kapelle, Aushang in der Sakristei)*
-Lost Eyengless. Seit der Nacht zum 13. Juli wird Pfarrer Bernhard Voss (St. Martin) vermisst. Der Geistliche hatte am Vortag angekündigt, mit einer Gruppe von Kindern „für einige Tage in die Berge“ zu fahren; der Bus wurde am Waldrand verlassen aufgefunden, die Kinder wohlbehalten. Das Amt für Rückführung geht davon aus, dass sich der Pfarrer „im Nebel verirrt“ hat. Die Gemeinde trifft sich zum Gebet. Die dreizehnte Predigt der Reihe „Vom Licht“ entfällt. (hw)
+Lost Eyengless. Seit der Nacht zum 22. Juni wird Pfarrer Bernhard Voss (St. Martin) vermisst. Der Geistliche hatte am Vortag angekündigt, mit einer Gruppe von Kindern „für einige Tage in die Berge“ zu fahren; der Bus wurde am Waldrand verlassen aufgefunden, die Kinder wohlbehalten. Das Amt für Rückführung geht davon aus, dass sich der Pfarrer „im Nebel verirrt“ hat. Die Gemeinde trifft sich zum Gebet. Die dreizehnte Predigt der Reihe „Vom Licht“ entfällt. (hw)
 *Daneben:* „Kirchenchor sucht Tenöre. Auch ungeübte.“
 
 #### 5.3 Die Einwilligung (Formblatt 8, mit § 4)
@@ -668,13 +668,14 @@ Lost Eyengless. Seit der Nacht zum 13. Juli wird Pfarrer Bernhard Voss (St. Mart
 - **DA 4 (1992):** „Rückläufer (R-Fälle) sind zu beobachten, nicht aufzuklären. Eine aufgeklärte Person gilt als offen. Offene Personen sind unter die Erde zu verbringen (Aus-Regel, vgl. Kinderspiel). Zuwiderhandlung: Versetzung.“ Handschriftlich (Seiler): „Kranz. Zu spät.“
 - **DA 7 (2009):** „Beobachtung statt Evakuierung. Die Sperren sind bis zum Abschluss der Rückführung zu halten. Fahrzeuge, die die Sperre passieren, sind nicht zu verfolgen.“ Abgezeichnet: „E. Brand“ (die Unterschrift ist kleiner als sonst).
 - **DA 9 (2012, Abwicklung):** „Sämtliche Akten sind nach unten zu verbringen. Sämtliche Schilder abzunehmen. Der Sprechstunden-Aushang Kirchweg bleibt hängen (Kontinuität). Personal Nachsorge bleibt im Ort. Beobachtungsposten Nr. 9 wird eingerichtet.“
-- **DA 11 (Oktober 2026, Schreibmaschine, frisch):** „K-3 ist heil. Wiederhole: heil. Bei Sichtkontakt nicht ansprechen, nicht bergen, freundlich bleiben. Abholung Freitag früh. (hw)“
+- **DA 10 (2012, Abwicklung; Nr. 9, Schwarzes Brett; mitnehmbar, −5; Kap. 4):** „DA 10 · Abwicklung AST 7 · Archivräume. Zutritt zu Archivräumen der Außenstelle ausschließlich mit Dienstnadel. Die Nadel bleibt am Mann. Eine Weitergabe findet nicht statt. Verlust ist unverzüglich der Regionalleitung zu melden.“ Handschriftlich darunter (Seiler): „Meine behalte ich.“
+- **DA 11 (Oktober 2026, Schreibmaschine, frisch; Nr. 9, Schwarzes Brett, Kap. 4):** „K-3 ist heil. Wiederhole: heil. Bei Sichtkontakt nicht ansprechen, nicht bergen, freundlich bleiben. Abholung Freitag früh. (hw)“
 
 #### 5.6 Funksprüche (Sammlung, Kanal 3; verzerrt, mit Rauschen; Anker für alle Kapitel)
 
-Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. Nicht anfassen. Wolter will ihn heil.“ Kap. 3: „Ernte in Position.“ / „Sieben Ketten, sieben Mann. Wir warten auf drei dreizehn.“ / „Kein Kind. Ein Erwachsener. K-3?“ – „Weitergehen.“ / „Die Laternen gehen aus. Wer macht die Laternen aus? … Er macht sie in der falschen Reihenfolge aus. Nein. In der richtigen.“ Kap. 4: „Kreuzung sauber. Polaroids getauscht. Die Katze von der Rieke sitzt wieder da und guckt in die Ecke.“ / „Villa: Nachsorge mit Bergung eins im Haus. Der Vogel ist auch da.“ Kap. 5: „Nummer eins, Küche, Licht an. Neunzehn Uhr vierzig. Wir schreiben mit.“ / „Da geht wer aufs Grab zu. Der Steinmetz hat gute Arbeit gemacht, das muss man sagen.“ Kap. 6: „Köder bewegt sich nach Norden.“ / „Netz eins scharf.“ / „Das geht DURCH das Eisen.“ / „Trupp zwei, melden. … Trupp zwei.“ / (ganz am Ende, Wolters Stimme, leise, kein Funk mehr, eher zu sich:) „Es hat nie gegen das Licht gewirkt. Das ist bedauerlich.“
+Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. Nicht anfassen. Wolter will ihn heil.“ Kap. 3: „Ernte in Position.“ / „Sieben Ketten, sieben Mann. Wir warten auf drei dreizehn.“ / „Kein Kind. Ein Erwachsener. K-3?“ – „Weitergehen.“ / „Die Laternen gehen aus. Wer macht die Laternen aus? … Er macht sie in der falschen Reihenfolge aus. Nein. In der richtigen.“ Kap. 4: „Kreuzung sauber. Polaroids getauscht. Die Katze von der Rieke sitzt wieder da und guckt in die Ecke.“ / „Villa: Nachsorge mit Bergung eins im Haus. Der Vogel ist auch da.“ Kap. 5: „Nummer eins, Küche, Licht an. Nicht von uns. Wir schreiben mit.“ / „Da geht wer aufs Grab zu. Der Steinmetz hat gute Arbeit gemacht, das muss man sagen.“ / (Kapitelende, hoch:) „K-3 geht heim. Nicht eingreifen.“ Kap. 6: „Köder bewegt sich nach Norden. Sender aktiv.“ / „Bergung an Nachsorge. Köder in Sichtweite.“ / „Netz eins scharf.“ / „Das geht DURCH das Eisen.“ / „Köder gesichert. Warten auf Kontakt.“ / „Das Signal kommt von HINTEN –“ / „Das ist bedauerlich. Abbruch. Köder bleibt.“ / „Trupp zwei, melden. … Trupp zwei.“ / (ganz am Ende, Wolters Stimme, leise, kein Funk mehr, eher zu sich:) „Es hat nie gegen das Licht gewirkt. Das ist bedauerlich.“
 
-#### 5.7 Die Bestandsliste Außenstelle 7 (Kap. 4, Villa-Archiv; Fetzen in Kap. 2 und 6)
+#### 5.7 Die Bestandsliste Außenstelle 7 (Kap. 4, Villa-Archiv, zwei Blätter; Fetzen in Kap. 2 und 6)
 
 > **BfR · AST 7 · Bestand (Stand Abwicklung 2012)** · Fußzeile: SEHEN · BERGEN · SCHWEIGEN
 > Substanz S, Dosen · 41 (davon 39 an Nachsorge H. W., persönlich) · verbleibend 2
@@ -688,12 +689,11 @@ Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. 
 > Porträt („… IRA“, 2043) · Halle · Bewertung: Belichtung künftiger Verbleib · Vorsicht
 > Kuh (1975) · Kadaver entsorgt · Flanke fotografiert: 7 Kreise, ein halber
 > Glocke (1975) · zurück an Kapelle · schwingt in offenen Nächten
-> Hund (1992, rückwärts) · ████ · „an die Rieke abgegeben, Name: Zayn“ *(Gisela benennt Katzen; ein Hund wäre eine Abstimmung, s. 8)*
 > Begleitvogel, beringt · gesichtet 1958, 1975, 1992, 2009 · derselbe Ring · nicht fangbar (beißt, klaut)
 > Kindersitze · 7 · im Bus · Bus: verlegt Wald (Motorschaden 2009, nie geborgen)
 > Kühlkette K-3 · vorbereitet · Villa, Zelle Ost · „Bitte freundlich.“
 
-#### 5.8 Beobachtungsprotokoll aus Nr. 9 (Kap. 1 oder 3, Beobachtungsposten; Ordner am Fenster neben dem Objektiv)
+#### 5.8 Beobachtungsprotokoll aus Nr. 9 (Kap. 4; in Kap. 1 ist Nr. 9 nur durchs Fenster zu sehen, 02 C10; Ordner am Fenster neben dem Objektiv)
 
 > **Messstelle Kirchberg · Beobachtung Ahornstraße 7 · Blatt 212**
 > 23.10., 21:10 · L. B. (26) betritt Nr. 7. Licht Keller. 21:40 · Frau Wendt vor dem Haus, zählt. Acht. 22:05 · L. B. verlässt Nr. 7 nicht.
@@ -701,7 +701,13 @@ Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. 
 > 03.11., 04:00 · Maas meldet: Anruf aus der Stadt, Bruder. Elfmal nicht abgenommen. Zwölftes Mal: Verbindung.
 > 04.11., 23:12 · Fahrzeug Ortsschild. Fahrer schläft. Zettel am Fenster (nicht von uns).
 > 04.11., 23:40 · K-3 betritt den Ort. Zu Fuß. Barfuß? Nein. Nass.
-> *Letzte Zeile, andere Hand, Bleistift, Druckbuchstaben:* „IHR ZÄHLT AUCH. ABER FALSCH ∴“
+
+> **Blatt 213**
+> 01.11. · Objekt zählt heute neun. Es sind acht. Hinweis an Regionalleitung: Objekt beginnt zu irren. Oder es steht dort tatsächlich ein Neunter. Letzteres ist auszuschließen. *(Zusatz hw: „Nicht auszuschließen.“)*
+> 03.11. · Objekt zählt. Objekt weint. Protokoll Ende, Schichtwechsel.
+> *Letzte Zeile, andere Hand, Bleistift, Druckbuchstaben:* IHR ZÄHLT AUCH. ABER FALSCH ∴ *(B-K4-N2, 82)*
+
+Hinten im Deckel, Kugelschreiber, Wolters Schrift: „Wenn der Bruder kommt, nicht ansprechen. Nur melden. Er soll erst mal laufen. (hw)“ Dazu der Dienstplan des Postens (Donnerstag: „Amt“, unterstrichen; die anderen Tage „N11/N12“ im Wechsel) und das Schwarze Brett mit DA 10 und DA 11 (5.5). LUKE, ein Satz: „Ihr habt Butterbrotpapier gefaltet.“
 
 #### 5.9 Wolters Akte „Subjekt EISEN“ (Kap. 4, Villa, Arbeitszimmer; darin SB-09)
 
@@ -715,8 +721,8 @@ Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. 
 #### 5.10 K-Akten (Kap. 2 Messraum / Kap. 4 Villa)
 
 - **K-1 · Kranz, Peter · R-Fall 1975 · Aufnahme 1994.** „Ergebnis 41: hält die Hand der Ärztin, sagt ‚Bruder‘. Ergebnis 212: zählt Zähne, bis sie bluten. 03.03.2011: Gitter. Zwei Pfleger. Verbleib: unterer Gang. Reagiert auf Tonband ‚Marion‘ und auf zwei Kinderstimmen (Zwillinge, 2005).“
-- **K-2 · ohne Namen · R-Fall 1958 · Aufnahme 1958 · † 1961.** „Wechselbalg des Rückläufers Rieke, J. (‚Hänschen‘). Zurückübersetzung ohne Ergebnis. Ausfall. Beerdigt Gedenkfeld, Stein ‚Unbekanntes Kind · 08‘. Mutter informiert: nein.“ Handschriftlich (Seiler): „Frau Rieke hat drei Jahre lang ein Kind gebadet, das nicht ihres war. Und dann beerdigt. Ich habe das zugelassen.“
-- **K-3 · Brandt, L. · R-Fall 2009 · Aufnahme nach Öffnung 2026 (vorgesehen).** „Vollständigster bekannter Rückläufer. Blutgruppe abweichend, Narbe links halbrund, Augen braun (Original blau). Beruf: Tontechniker (Nachtschicht, Fr frei). Subjekt gilt als kooperativ. Bitte freundlich. Zelle Ost vorbereitet, Kühlkette, Tonband ‚Marion 2009‘. Bemerkung (hw): Mit K-3 holen wir sie zurück. Alle.“ Darunter, kleiner: „Grete.“
+- **K-2 · Rückläufer 08/58 · ohne Namen · Aufnahme 1958 · † 1961.** „Wechselbalg des Verbleibs Rieke, J. (‚Hänschen‘). Von der Familie Rieke nicht angenommen (‚Das ist nicht mein Hänschen‘). Zurückübersetzung ohne Ergebnis. Ausfall. Beerdigt Gedenkfeld, Stein ‚Unbekanntes Kind · 08‘.“ (02 F2) Handschriftlich (Seiler): „Die Mutter hat ihn nicht genommen. Er hat im Wagen gefragt, wann er heim darf. Ich habe das zugelassen.“ Am Rand, Bleistift: DER ACHTE WAR NICHT ICH ∴ (B-K4-N1, 82). Vollständiger Wortlaut der K-Akten: Dossier 84, 2.5.
+- **K-3 · Brandt, L. · R-Fall 2009 · Aufnahme nach Öffnung 2026 (vorgesehen).** „Vollständigster bekannter Rückläufer. Blutgruppe abweichend, Narbe links halbrund, Augen braun (Original blau). Beruf: Tontechniker (Nachtschicht, Fr frei). Subjekt gilt als kooperativ. Bitte freundlich. Zelle Ost vorbereitet, Kühlkette, Tonband ‚Marion 2009‘. Nachtrag (hw): Der Rabe ist wieder da. Derselbe Ring. Bemerkung (hw): Mit K-3 holen wir sie zurück. Alle.“ Darunter, kleiner: „Grete.“ Beim zweiten Öffnen ist „freundlich“ mit Bleistift unterstrichen.
 
 #### 5.11 Das Beobachtungsblatt DREIPUNKT (Kap. 4, Kühlraum, an den Gläsern)
 
@@ -726,13 +732,16 @@ Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. 
 
 „Bandschleife Ansagen 2009, Sprecher H. W. Nicht löschen. Läuft bei Stromausfall über Batterie. Wer das Band verstellt hört: das ist nicht das Band.“
 
-#### 5.13 Die Steinmetzrechnung (AG-16, Kap. 5, Friedhof)
+#### 5.13 Die Steinmetzrechnung (AG-16, Kap. 5, Friedhof; Durchschlag bei Maas)
 
-> **Steinmetz Albers · Grabmale · Abgrundtal**
+> **Steinmetz Kühnle · Grabmale · Abgrundtal**
 > Rechnung Nr. 26-114 · an: BfR i. A. / Institut für Atmosphärenforschung, Messstelle Kirchberg
 > Grabstelle Brandt, L., Gedenkfeld Reihe 8 · ausgehoben 30.10.2026 · Stein: Granit grau, Inschrift „LUKE BRANDT · 2009–2026“ · Anmerkung Kunde: „Geburtsjahr 2009 ist richtig so.“
 > Zahlbar bis 13.11. · Skonto bei Barzahlung · Vielen Dank für Ihren Auftrag. Wir wünschen ein friedliches Gedenken.
 > *Mit Kuli vom Steinmetz:* „Zweite Stelle daneben freihalten, wie besprochen? Nicht in Rechnung gestellt.“
+> *(nur auf Maas’ Durchschlag, den er in Kap. 5 abgibt, zweiter Kuli:)* „Bar bezahlt. Handschuhe anbehalten. Frag ich nicht. – K.“
+
+Maas dazu (Kap. 5): „Die hab ich für den Kühnle ans Amt gebracht. Eine Behörde, die’s seit Jahren nicht gibt. Bezahlt hat sie trotzdem. Bar.“ (Steinmetz nach 02 C8 Kühnle, nicht Albers.)
 
 #### 5.14 Das Vermisstenplakat (AG-17, Kap. 5, Kirchweg)
 
@@ -751,7 +760,7 @@ Von subtil (S) bis offen (O). Kapitel-Autoren setzen sie an den genannten Ort; w
 | 3 | 1 | Nr. 7, Küche | Hildes Zählbuch, auf dem Deckel ein BfR-Stempel „Formblatt 8“, durchgestrichen | S |
 | 4 | 1 | Nr. 9, Briefkasten | Behördenbrief „Nachuntersuchung, 03:00 Uhr, barfuß“ (strasse.js, Anker `strasse_mb9`) | O |
 | 5 | 1 | Nr. 1, Briefkasten | „Einladung zur Nachuntersuchung – Lucy B.“ vom 20. Oktober 2026 (strasse.js, `strasse_mb1`) | O |
-| 6 | 1 | Nr. 9, Fenster oben | Objektiv hinter der Gardine, das sich bewegt, wenn Luke Nr. 7 verlässt | S |
+| 6 | 1 | Nr. 9, Fenster oben | Objektiv hinter der Gardine, das sich bewegt, wenn Luke Nr. 7 verlässt; in Kap. 1 nur von außen (02 C10), innen ab Kap. 4 (Nr. 32b) | S |
 | 7 | 1 | Laterne vor Nr. 9 | AG-02, Butterbrotpapier mit Auge auf dem Gehweg | O |
 | 8 | 1 | Kreuzung, Plakatsäule/Laternenpfahl | „Bürgerversammlung entfällt“ auf Amtspapier (strasse.js, `AMTLICHER AUSHANG`), das Auge unten rechts | S |
 | 9 | 1 | Kirchweg-Gasse | Schaukasten Bürgersprechstunde (AG-04) | O |
@@ -770,6 +779,7 @@ Von subtil (S) bis offen (O). Kapitel-Autoren setzen sie an den genannten Ort; w
 | 22 | 2 | Amt, Sicherungsraum | Funkgerät AG-06, DA 4 an der Wand | O |
 | 23 | 2 | Amt, Lautsprecher | AG-05 Wolters Band, Speicherzettel 5.12 | O |
 | 24 | 2 | Amt, Messraum | K-1-Akte, Akte 08 (Durchschlag 7), Stuhl 8 mit SB-04, Feder | O |
+| 24b | 2 | Amt, Archiv (oben auf dem letzten Schrank) | Gründungsakte 1958 „Ich habe nicht gefragt, wen“ (Wortlaut Kap. 2; enthält die Frau mit der Laterne, 02 H3); Vermessungsprotokoll 2009 und Sommerfest-Fotos mit Stempel „ERSCHEINUNGSFORM B ANWESEND“ | O |
 | 25 | 2 | Amt, Käfig | Etiketten „∴-1 / ∴-2 · Substanz S · Entnahme“ auf leeren Dosen (Aha „∴ sind drei“) | S |
 | 26 | 2 | Amt, Flur vor der Rauchflucht | AG-07; ein Klebezettel (V-05) bei miserablem Wert | O |
 | 27 | 3 | Hof, Traktorspuren | AG-08, die Reihe der Blechmänner | O |
@@ -778,21 +788,23 @@ Von subtil (S) bis offen (O). Kapitel-Autoren setzen sie an den genannten Ort; w
 | 30 | 3 | Ostende, Nebel | AG-10 Blechmann/Ritter | O |
 | 31 | 3 | Nr. 4, Peters Zimmer | Tonbandkassette „Marion · für K-1“ neben SB-05 | S |
 | 32 | 4 | Ahornstraße | AG-11 Aufräumkommando, Absperrband Gasleck (Aushang E), Z-09 an jeder Tür | O |
+| 32b | 4 | Nr. 9, innen | Beobachtungsposten: Blätter 212/213, Wolters Deckelnotiz, Dienstplan N11/N12, DA 10 und DA 11 am Schwarzen Brett, Kameraloch auf Nr. 7 | O |
 | 33 | 4 | Nr. 3, Gartentor | AG-12 | O |
 | 34 | 4 | Villa, Tor | Briefkasten mit SB-06; Z-07 in ungeöffneter Post; Wolters Visitenkarte | S |
 | 35 | 4 | Villa, Halle | Seilers Brief (anwesen.js, `anw_brief`), Porträt (`anw_bild`), Durchschlag 10, AG-14, die Thermoskanne | O |
 | 36 | 4 | Villa, Arbeitszimmer | Weltkarte mit neun Nadeln, Akte Subjekt EISEN (SB-09), Asservatenkiste 7/58 (SB-08), Grete-Foto (N-08) | O |
 | 37 | 4 | Villa, Archiv OG | Bestandsliste, K-2/K-3-Akten, AG-13; leerer Aktenbock (wenn Zählbuch echt abgegeben) | O |
 | 38 | 4 | Villa, Kühlraum | Gläser ∴-1/∴-2, Beobachtungsblatt DREIPUNKT, Rüstungssplitter, Zelle Ost K-3 mit „Bitte freundlich.“ | O |
-| 39 | 4/5 | Tankstelle, Maas’ Schuppen | Edda Brands Brief mit BfR-Stempel „Ausgang“; ein Karton „Zuträger-Vergütung 1990–2012“ (N-04) | O |
+| 39 | 4/5 | Tankstelle, Maas’ Schuppen | Stempel UNZUSTELLBAR – ZURÜCK auf jedem Brief; Edda Brands Brief mit BfR-Stempel „Ausgang“; Günthers Thermoskanne „BfR – Wir bringen Sie heim“; ein Karton „Zuträger-Vergütung 1985–2012“ (N-04) | O |
 | 40 | 5 | vor Nr. 1 | AG-15 Kombi; V-09 Thermosring in der Küche | O |
 | 41 | 5 | Friedhof | AG-16 Steinmetzrechnung; Grab „Unbekanntes Kind · 08“ mit kleinem Auge auf der Rückseite des Steins | O |
 | 42 | 5 | Kirchweg | AG-17 Vermisstenplakat | O |
 | 43 | 5 | Stall am Hof | an der Tür ein alter BfR-Aufkleber „Objekt untersucht · 2009 · kein Befund“ (sie haben nie hineingesehen) | S |
-| 44 | 6 | Nordzaun | AG-18; Kette mit Auge am Schloss | O |
+| 44 | 6 | Nordzaun | AG-18; Kette mit Auge am Schloss; der Sender aus Eisen mit dem Auge (V-11, 02 C3) | O |
 | 45 | 6 | Hochsitz | Durchschlag 9 (K); SB-11; ein Blechmann-Funkgerät, das noch Kanal 3 hat | O |
 | 46 | 6 | Amtsbus | „AMT FÜR RÜCKFÜHRUNG · FAHRDIENST“ (tiefwald.js), Fahrtenbuch (`tief_fahrtenbuch`) mit Wolters Bleistiftzeile, AG-19 Netze | O |
-| 47 | 6 | Fraßstelle | AG-20 toter Blechmann; Hofers Dienstbuch mit Trupp-3-Stempel | O |
+| 47 | 6 | Fraßstelle | AG-20 toter Blechmann mit Merkblatt W; Hofers Dienstbuch mit Trupp-3-Stempel | O |
+| 47b | 6 | Steinkreis, Pflock | Plombe mit dem Auge (LWO-Beweis, Nebenaufgabe „Nicht rennen, Lampe an“) | S |
 | 48 | 6 | Bau hinter dem Autowrack | Pells Namensschild „R. PELL · W“ am Pfahl, dazwischen ein Eisennetz, zerkaut | S |
 | 49 | 6 | Waldrand, Endkarte | AG-21 | O |
 | 50 | alle | überall | Kaugummipapier „Lucid Mint“ als Spur, dass ein Agent hier stand (auch als Sammelobjekt für den Entdecker-Zähler, kein eigenes System) | S |
@@ -809,7 +821,7 @@ Von subtil (S) bis offen (O). Kapitel-Autoren setzen sie an den genannten Ort; w
 | Amt für Rückführung (Code) | **Bundesstelle für Rückführung (BfR)**, im Dorf „das Amt“; ab 2012 **Institut für Atmosphärenforschung, Messstelle Kirchberg** | Kern §2; Tarnung nach 2012 neu |
 | LWO-Kaugummi | **„Lucid Mint“** | Kantine der LWO (neu) |
 | Auftrag 1 | **„Kassler, vier achtzig“** (AG-12) | Zeile, die Nachsorge 12 vorliest |
-| Auftrag 2 | **„Ein gedeckter Tisch“** (AG-18) | Wolters Satz über Luke |
+| Auftrag 2 | **„Köder bleibt“** (AG-18/19) | Wolters Funkspruch am Bus |
 | Beobachtungsposten Nr. 9 | **„Messstelle Kirchberg“** | Tarnname, Kern §10.2 |
 
 ### Umsetzungsnotizen
@@ -823,17 +835,27 @@ Von subtil (S) bis offen (O). Kapitel-Autoren setzen sie an den genannten Ort; w
 - **Neue Figurenmodelle** (Kern §13): Wolter, Nachsorge 11, Nachsorge 12, Blechmann (einmal, instanziert), Günther Maas. Animationen aus dem vorhandenen Satz (Idle, Gehen, Umsehen, Nervös, Telefon); für Nachsorge 12 „Schreiben“ = Telefon-Pose mit Block als Prop; Blinzeln über Morph, versetzt (11 blinzelt bei t, 12 bei t+0,7 s, nie gleich).
 - **Vertrauen**: `story.lwo = { trust: 50, seen: {} }` in `MOD_SAVE`; Ereignisse aus 3.1 als `lwoTrust(delta, key)` mit Einmal-Schlüssel; Stufe = Funktion; AG-V-Auslöser über `WORLD_TICK` mit Mindestabstand 300 s und Sperre während `state.talking`/Höhepunkt-Flags; Kapitelende-Detail als Schalter in den Endkarten.
 - **Stimmen**: Kühn nur Audio (Mailbox, Handy); Wolter auf Band (AG-05) als eigene Audiodatei mit Pitch-Shift für die verstellten Sätze; Funksprüche als kurze, bandpass-gefilterte Clips (Kanal 3).
-- **Sperren nach Kapitel**: Nr. 9 betretbar ab Kap. 1 (Beobachtungsprotokoll), Villa ab Kap. 4, Amt nur Kap. 2, tiefer Wald Kap. 6; Maas’ Schuppen ab Kap. 4.
+- **Sperren nach Kapitel**: Nr. 9 in Kap. 1 nur von außen (02 C10), betretbar ab Kap. 4 (Beobachtungsprotokoll, DA 10/11); Villa ab Kap. 4; Amt nur Kap. 2; tiefer Wald Kap. 6; Maas’ Schuppen ab Kap. 4 (bei Weg c erst Kap. 5).
+- **Sender** (02 C3): Flag `lwo.sender` aus Kap. 3 (nicht angesehen / behalten / weggeworfen) steuert AG-18 Variante A/B/C, V-11 und den Sabotage-Weg in AG-19; Gegenstand `sender` mit rot blinkender Kante.
+- **AG-19/20** (Kap. 6): Falle als Trigger am Stolperdraht; Blechmann-Modell viermal; zweiter Toter bei Sabotage mit Dienstmarke „3-4“ (Decal), Gesicht sichtbar (02 C6).
 
-### Offene Abstimmungen
+### Abstimmungen (erledigt)
 
-1. **Umfang:** Das Dossier ist mit rund 100 KB länger als die vorgegebenen 50–70 KB, weil die Dialog-Bänke für 21 Begegnungen mit Zweigen und die zwölf Dokumentgruppen als vollständiger Spieltext gefordert waren. Kürzbar ohne Verlust: 1.5 (Außenstellen-Tabelle auf Z-10 reduzieren), 3.5, 6 (auf 30 Zeilen).
-2. **Wolters Alter:** Kern sagt „Mitte vierzig, seit 1958 gleich alt“, aber er war 1958 vierundzwanzig. Vorschlag hier: Das erste Sternfleisch hat ihn in einem Winter um zwanzig Jahre altern lassen und dann nie wieder; auf dem 1958-Foto (Z-01) sieht er schon aus, „als hätte er nie geschlafen“. Bitte bestätigen.
-3. **Tausch Durchschlag 7/9:** Akte 08 im Amt (Kap. 2), Versuchsreihe K auf dem Hochsitz (Kap. 6). Begründet oben; wer die alte Verteilung will, tauscht nur die Texte zurück.
-4. **Der Sender in Lukes Jacke (V-11):** Wolter steckt ihn bei AG-09 ein. Das gibt Kap. 6 einen fairen Grund, warum die LWO Luke im Wald findet. Kap.-3- und Kap.-6-Autoren müssen es aufnehmen (Schokoriegel-Szene mit Justin: der graue Kasten liegt daneben).
-5. **AG-20 bei Sabotage:** Nachsorge 11 stirbt im Blechmann-Anzug. Dann fehlt er in Kap. 7; Kap.-7-Ausblick muss das wissen (oder wir nehmen einen namenlosen zweiten Blechmann).
-6. **Bestandsliste, Zeile „Hund … an die Rieke abgegeben“:** Gisela hält Katzen. Entweder streichen oder Gisela hatte 1992 kurz den rückwärts laufenden Hund („Der lief mir immer rückwärts aus der Tür. Ich hab ihn dem Vegas gegeben. Bruno.“) Das würde Vegas’ Hund Bruno erklären, ist aber eine Entscheidung für den Kap.-1-Autor.
-7. **Steinmetz Albers:** Modul `albers.js` existiert; ob es einen Steinmetz namens Albers meint, habe ich nicht geprüft. Wenn nicht, Namen im Rechnungskopf frei wählen.
-8. **Vertrauens-Zahlen:** ±20/±25 für die Aufträge sind bewusst groß, damit ein Auftrag allein die Stufe wechseln kann. Kleinkram ±2 bis ±5. Wer mehr Ereignisse einträgt, hält die Summe so, dass ein Spieler, der einfach die Geschichte spielt, im mittleren Band bleibt.
-9. **Wolters Wahrheitsstück (AG-18, Weg 1):** „Klar!“ auf Band und Hildes Brot. Beides weiß der Spieler aus Kap. 5; der Wert liegt darin, dass die LWO es hätte wissen können. Wer ein unbekanntes Stück lieber hat: „Der Junge im Stall hat blaue Augen. Wir haben es 2011 fotografiert und die Akte geschlossen.“
-10. **Name der Nebenaufgabe:** „Wo Erwachsene nicht hinsehen“ statt „Die Akte Abgrund“. Der Code-Schlüssel `akte` bleibt.
+- Wolters Alter: 1941 sieben, Jahrgang 1934; das erste Sternfleisch hat ihn in einem Winter um zwanzig Jahre altern lassen, seit 1958 Mitte vierzig; im Spielertext keine Altersangabe (02 C1).
+- Vertrauenswerte: Tabelle 3.1 nach 02 C2 und den Kapiteln angeglichen (Aufträge +20/−15/−10 und +10/+15/−20/−10/−10; „Unzustellbar“, Edda-Brief, Siegel, Thermoskanne, DA 10, Kassette, Lieferschein, Rechnung, Plakat, Schuppen, Seitenschneider, AG-15 ±2).
+- Der Sender: Wolter steckt ihn bei AG-09 in Lukes Jacke; Kap. 3 nur fühlbar, Kap. 6 drei Varianten (02 C3).
+- Whiskey bei AG-09 auf dem Kombi (02 C4); die LWO kommt in Kap. 4 durch das Kellerfenster (02 C5).
+- AG-20 bei Sabotage: der zweite Tote ist der alte Posten 3-4, Nachsorge 11 lebt (02 C6).
+- Tausch Durchschlag 7/9 bestätigt, Nebenaufgabe „Wo Erwachsene nicht hinsehen“ (02 C7).
+- Steinmetz heißt Kühnle; Vegas heißt Lars Vegas (02 C8).
+- Bestandsliste ohne die Hund-Zeile (02 C9); Nr. 9 in Kap. 1 nur durchs Fenster, offen ab Kap. 4 (02 C10).
+- 1992: offene Nacht in der Nacht zum 22. Juni, kein Kind behalten, Voss im Kapellenkeller und selbst hinein; Z-11 mit dem 22. Juni (02 C11). Günther 1975 gezogen, Peter nachgezogen (02 C12). Oma Erna donnerstags am Amt (02 C13).
+- AG-07: Wolter spricht live genau zwei Sätze (02 H3); Stempel „ERSCHEINUNGSFORM B ANWESEND“; Gründungsakte mit der Frau mit der Laterne.
+- Wolters Wahrheitsstück in AG-18 nach Kap. 6 (der Junge im Stall, Marion mit Laterne; „Klar!“ nur mit dem Polaroid „HEINI“, 02 F12; „Ich habe sie gesucht.“ als sein einziger Satz ohne Amt).
+- Zählbuch kommt in Kap. 7 in Butterbrotpapier zurück (02 I1). K-2 ist Hänschens Wechselbalg, von Frau Rieke nicht angenommen (02 F2).
+- Keine Uhrzeiten mit Minuten in gesprochenen Sätzen; „fünfter August 2009“ bleibt Wolters einzige Datumsnennung (02 A5).
+- Umfang: Das Dossier bleibt länger als 50–70 KB, weil Dialog-Bänke und Dokumente vollständig gefordert waren; Kapitel verweisen per Kennung darauf.
+
+### Noch offen für den Autor
+
+- Lukes Dienstplan: Dossier und K-3-Akte sagen „Mo–Do Nacht, Fr frei“, Kapitel 1 (Endkarte-Detail) „Nachtschicht Mo–Fr“. Vorschlag: „Fr frei“ überall (die Pointe „Freitag frei“ in AG-21 braucht es).

@@ -74,3 +74,10 @@
 - 83: B-X-01 ist angenommen (82, 5.9); Station `akte` → Reserve-Zettel „Die leere Schublade“ (82, 5.10).
 - 86: Pfarrhaus-Zettel = B-K3-N1, Schuppen-Zettel = B-K4-N6 / B-K5-N1; Diele-Polaroid-Sichtung ist gestrichen (D6).
 - 81 (erledigt vom Justin-Lektor: B-K6-04/05 mit Wortlaut 82).
+
+## Nachtrag aus dem LWO-Dossier (fertig lektoriert)
+- 82: B-K4-02c „SIE HABEN MICH GEZÄHLT. JETZT HABEN SIE ES SCHRIFTLICH ∴“ und Kap.-6-Sabotage-Zettel „DU HAST DAS NETZ KAPUTT GEMACHT …“ (Wortlaut in 80) aufnehmen, falls fehlend.
+- 84: K-2-Akte (Rieke nicht angenommen; Seilers Randnotiz „Er hat im Wagen gefragt, wann er heim darf“) wie 80 5.10 / Kap. 4; Merkblatt W (Kap. 6) spiegeln.
+- 86: Günther seit 1985 Postbote und Zuträger („vierzig Jahre“), Schuppen „Zuträger-Vergütung 1985–2012“; Grete-Foto mit Kreisel, Rückseite „HEINI“.
+- 83: Whiskey bei AG-09 auf dem Kombi (K3-4); K5-2 „Das ist bedauerlich“ mit Wolters Stimme; K6-1 Thermoskannendeckel/„Such!“ wie 80.
+- Lukes Dienstplan: „Mo–Do Nacht, Fr frei“ (Pointe „Freitag frei“, AG-21).
