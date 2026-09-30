@@ -87,12 +87,12 @@ function ausbau_nord_free() {
 function ausbau_nord_items() {
   if (ITEMS.nord_lantern) return;
   ITEMS.nord_lantern = { name: 'Grablaterne', desc: 'Die Laterne der Madonna. Die Flamme darin neigt sich nicht, egal wie du sie hältst.' };
-  ITEMS.nord_baer = { name: 'Bärli', desc: 'Ein alter Teddy, nass vom Regen. Er saß am Rand der offenen Grube und sah hinein.' };
+  ITEMS.nord_baer = { name: 'Bärli', desc: 'Ein alter Teddy, nass vom Regen. Er saß auf der grünen Plane neben deinem Stein und sah nach unten.' };
   ICONS.nord_lantern = '<svg viewBox="0 0 24 24"><path d="M9 5h6M12 2v3M8 8h8l-1 10H9z"/><path d="M10 21h4"/><path d="M12 11c1.2 1.6 1.2 3 0 4c-1.2-1-1.2-2.4 0-4z"/></svg>';
   ICONS.nord_baer = '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><circle cx="7.8" cy="5.4" r="1.7"/><circle cx="16.2" cy="5.4" r="1.7"/><ellipse cx="12" cy="17.5" rx="5" ry="4.3"/></svg>';
 }
 function ausbau_nord_dropItem(k) { const i = story.items.indexOf(k); if (i >= 0) story.items.splice(i, 1); }
-function ausbau_nord_save() { try { const N = ausbau_nord; localStorage.setItem('ham_nord', JSON.stringify({ names: [...N.names], lights: [...N.lights], bear: N.bear })); } catch (e) {} }
+function ausbau_nord_save() { try { const N = ausbau_nord; localStorage.setItem('ham_nord', JSON.stringify({ names: [...N.names], lights: [...N.lights], bear: N.bear, lq: N.lq ? N.lq.state : 'hidden', ochs: N.ochs ? N.ochs.n : 0, plakat: N.plakat || 0, namesDone: !!N.namesDone })); } catch (e) {} }
 // Papier/Schild als Textur-Ebene (Decal) – Text wird auf Leinwand gemalt
 function ausbau_nord_paper(w, h, draw, px = 512) {
   const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * h / w); draw(c.getContext('2d'), c.width, c.height);
@@ -184,9 +184,8 @@ async function ausbau_nord_build() {
   // ---------------------------------------------------------------- Häuser (Südseite, Haustür zur Straße)
   const KNOCK = {
     11: ['Hinter der Tür läuft ein Radio. Ein Kinderlied, immer dieselbe Zeile.', 'Niemand öffnet. Aber drinnen wird leise die Kette vorgelegt.'],
-    13: ['Die Tür ist zugenagelt. Auf den Brettern, mit Kreide: 2009. Und ein Pfeil zum Friedhof.'],
-    15: ['Eine Frauenstimme, direkt hinter dem Holz: „Nicht jetzt. Es ist noch nicht drei Uhr dreizehn.“', 'Stille. Dann, ganz nah: „Bist du schon auf dem Friedhof gewesen?“'],
-    17: ['Du klopfst. Im Haus klopft es zurück – von unten. Aus dem Keller.', 'Nichts. Nur dein eigenes Klopfen, das im Haus nachhallt. Zu lange.'],
+    13: ['Die Praxis ist seit Jahren zu. Die Tür ist zugenagelt. Das Emailschild daneben ist blank geputzt.'],
+    17: ['Eine Frauenstimme, direkt hinter dem Holz: „Nicht jetzt. Es ist noch nicht drei Uhr dreizehn.“', 'Du klopfst. Im Haus klopft es zurück – von unten. Aus dem Keller.', 'Nichts. Nur dein eigenes Klopfen, das im Haus nachhallt. Zu lange.'],
   };
   for (const h of [
     { n: 11, x: -60, z: 45, facing: 1, w: 11, d: 9, tint: 0x747c86, lit: [1], chimney: true, porch: true, shutters: M.dark },
@@ -194,9 +193,10 @@ async function ausbau_nord_build() {
     { n: 15, x: 26, z: 45, facing: 1, w: 11, d: 9, tint: 0x8a8274, lit: [0, 4], porch: true, porchLight: true },
     { n: 17, x: 46, z: 45, facing: 1, w: 10, d: 9, tint: 0x66706c, floors: 1, H: 3.4, lit: [0], garage: 1 }]) {
     makeHouse(h);
-    numberSign(h.n, h.x + .95, 2.2, h.z + h.d / 2 + .08, 0);
+    numberSign({ 11: 1, 13: 5, 15: 3 }[h.n] || h.n, h.x + .95, 2.2, h.z + h.d / 2 + .08, 0); // Am Kirchberg 1 (Pfarrhaus), 5 (Praxis Seiler), 3 (Gisela) – Fassung 3
     plane(1.4, 5, h.x, .027, h.z + h.d / 2 + 2.5, pave);
     const di = box(1.2, 2.3, .35, h.x, 1.6, h.z + h.d / 2 + .15, hidden, { cast: false }); let k = 0;
+    if (h.n === 11 || h.n === 15) { uninteract(di); continue; } // kirchberg.js: Pfarrhaus / Giselas Küchenfenster
     interact(di, h.n === 13 ? 'Tür' : 'Klopfen', () => { if (h.n !== 13) Audio.knock(); toast(KNOCK[h.n][k++ % KNOCK[h.n].length], 4200); }); // STORY-HOOK: Nachbarn am Kirchberg
   }
 
@@ -266,7 +266,7 @@ async function ausbau_nord_build() {
   const SPECIAL = [
     { id: 'kranz', type: 'g1', x: -66.3, z: 85.4, s: .78, title: 'Grabstein · Peter Kranz', html: '<b>PETER KRANZ</b>\n1965 – 1992\n„Heimgegangen in den Nebel“\n\nDas Grab ist nicht eingesunken wie die anderen. Die Erde darüber ist fest und glatt – als läge niemand darin.\n\nAuf dem Sockel, frisch mit Kreide: <span class="hand">1975 · 1992 · 2009 · 2026</span>' }, // STORY-HOOK: Peter Kranz (Vegas-Brief)
     { id: 'mira', type: 'gw', x: -63.2, z: 91.4, s: .82, title: 'Der älteste Stein', html: 'Der älteste Stein auf dem Friedhof, an der Kapellenmauer. Die Schrift ist fast ganz abgeschliffen.\n\nDu kannst nur noch lesen:\n<b>„… IRA · HAUSFRAU DES RITTERS …“</b>\nEin Geburtsjahr, das mit <b>13</b> beginnt. Das Sterbejahr ist nie eingemeißelt worden.\n\nDarunter, jünger: <i>„Sie ist nicht hier begraben. Sie kommt noch.“</i>' }, // STORY-HOOK: Mira = Justins Frau, Retterin aus der Zukunft (spätere Kapitel)
-    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\ngefunden am 5. August 1958\nauf der Kreuzung\n\nKein Name. Nur eine Nummer, eingemeißelt wie in eine Akte:\n<b>08</b>' }, // STORY-HOOK: das achte Kind, Akte 08
+    { id: 'unbekannt', type: 'tomb', x: -70.6, z: 88.4, s: .82, title: 'Grabstein · ohne Namen', html: '<b>UNBEKANNTES KIND</b>\nzurückgekommen im August 1958\nheimgegangen im November 1961\n\nKein Name, nur eine Nummer, eingemeißelt wie in eine Akte: <b>08</b>.\n\nAuf der Rückseite, klein: ein Auge.' }, // STORY-HOOK: das achte Kind, Akte 08
     { id: 'brandt', type: 'g2', x: -61.5, z: 72.6, s: 1.02, title: 'Grabstein · Familie Brandt', html: '<b>FAMILIE BRANDT</b>\n\nEuer Familiengrab. Mamas Name steht darauf, ihre Jahreszahlen. Du warst nicht auf der Beerdigung. Du weißt nicht mehr, warum.\n\nDarunter ist Platz gelassen. Für zwei weitere Namen.\n\nIn das Moos hat jemand mit dem Finger geschrieben: <span class="hand">LUCY</span>. Den zweiten Platz hat er freigelassen.' }, // STORY-HOOK: Lukes Mutter, Lucy
   ];
   for (const S of SPECIAL) { addGrave(S.type, S.x, S.z, 0, S.s);
@@ -297,7 +297,7 @@ async function ausbau_nord_build() {
     { n: 'Mike', t: '<b>MIKE</b>\n† 28. Juli 2009\n\nDarunter, viel später eingemeißelt und schief: <b>2026</b>.\nAls hätte man ihn ein zweites Mal begraben.' },
     { n: 'Dina', t: '<b>DINA</b>\n† 28. Juli 2009\n\nUm den Namen hat jemand mit Kreide Kreise gemalt. Viele. Einen in den anderen, immer kleiner, bis nur noch ein Punkt übrig ist.' },
     { n: 'Heidi', t: '<b>HEIDI</b>\n† 28. Juli 2009\n\nAn den Stein gelehnt: eine Postkarte ohne Absender, aufgeweicht vom Regen.\n<span class="hand">„Sind sie wieder da?“</span>' },
-    { n: 'Luke', open: true, t: '<b>LUKE</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.' }, // STORY-HOOK: das leere Grab – Luke / der Ersatz
+    { n: 'Luke', open: true, t: '<b>LUKE</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDas Grab davor ist offen. Frisch ausgehoben. Leer.\nDie Grube ist genau so lang wie du.', t1: '<b>LUKE</b>\n† 28. Juli 2009\n\nDein Name.\nDer Stein ist neu, die Kanten scharf, als wäre er gestern gemeißelt worden.\n\nDaneben eine grüne Friedhofsplane, mit Steinen beschwert, ein Spaten. Die Plane liegt straff. Darunter ist es tiefer als der Boden.' }, // STORY-HOOK: das leere Grab – Luke / der Ersatz
   ];
   {
     const tk = [];
@@ -449,7 +449,7 @@ async function ausbau_nord_build() {
       ausbau_nord_hand(x, '03:13 nur für Kinder', 60, h - 60, 40, '#101a50'); x.strokeStyle = '#101a50'; x.lineWidth = 3; for (let k = 0; k < 3; k++) { x.beginPath(); x.moveTo(60, h - 48 + k * 6); x.lineTo(330, h - 50 + k * 6); x.stroke(); } }, 360);
     tt.position.set(8.4, 1.55, 51.98); scene.add(tt);
     const th = box(.6, .8, .3, 8.4, 1.55, 52.1, hidden, { cast: false });
-    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Lost Eyengless Kirchberg → Kreisstadt\n\nMo–Fr 6:12 · 7:12 · 13:40 · 16:55\nSa 8:12\nSo und feiertags kein Verkehr\n\n<i>Gültig ab 1. Juni 2009. Die Linie wurde im August 2009 eingestellt.</i>\n\nUnten, mit Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan'); }); // STORY-HOOK: Linie 7, 03:13
+    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); ausbau_nord_quest('plakat'); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Kirchberg → Kreisstadt\n\nMo–Fr früh und nachmittags je einer\nSa vormittags\nSo kein Verkehr\n\nUnten, Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan', () => ausbau_nord_plakatCheck()); }); // STORY-HOOK: Linie 7, 03:13
     // Fahrkarte auf der Sitzbank
     const tk = ausbau_nord_paper(.075, .05, (x, w, h) => { x.fillStyle = '#eee6c8'; x.fillRect(0, 0, w, h); x.fillStyle = '#b8201c'; x.fillRect(0, 0, w, 26); x.fillStyle = '#222'; x.font = 'bold 20px Arial'; x.fillText('KIND · EINFACH', 14, 60); x.font = '18px Arial'; x.fillText('28.07.2009  03:13', 14, 92); x.fillText('Kirchberg → ——', 14, 122); }, 256);
     tk.rotation.set(-PI / 2, 0, .4); tk.position.set(11.3, .468, 52.35); scene.add(tk); N.ticketMesh = tk;
@@ -515,7 +515,7 @@ async function ausbau_nord_build() {
   // ---- Bärli: sitzt am Rand der offenen Grube
   {
     const t = teddyS.clone(); const g = ausbau_nord_fit(t, .36); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); g.userData.noCol = true;
-    const P0 = N.pit; g.position.set(P0.x + .8, .3, P0.z + .5); g.rotation.y = -PI / 2 - .3; scene.add(g);
+    const P0 = N.pit; g.position.set(P0.x + .05, .04, P0.z + .25); g.rotation.y = PI + .2; /* sitzt auf der Plane und sieht hinunter */ scene.add(g);
     const hit = box(.4, .45, .4, 0, .2, 0, hidden, { cast: false, parent: g });
     N.teddy = { g, hit, t: 0, seen: 0 };
     interact(hit, () => ausbau_nord.bear === 'bench' || ausbau_nord.bear === 'moved' ? 'Bärli' : 'Teddy aufheben', () => ausbau_nord_teddy());
@@ -559,9 +559,10 @@ async function ausbau_nord_build() {
   for (const y of [.25, .7, 1.25]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(150, 60), fogMat); m.rotation.x = -PI / 2; m.position.set(-10, y, 71.5); m.renderOrder = 2; scene.add(m); }
 
   // ---------------------------------------------------------------- Aufgaben (Nebenaufgaben im Tagebuch)
-  story.side.nord_names = { title: 'Sieben Namen', desc: 'Auf dem Friedhof am Kirchberg gibt es ein Gedenkfeld für die Kinder vom Sommer 2009. Finde ihre Gräber. (0/7)', state: 'hidden' };
-  story.side.nord_lights = { title: 'Ein Licht für jeden', desc: 'Die Grablichter der sieben Kinder sind aus. Die Laterne der Madonna brennt noch. (0/7)', state: 'hidden' };
-  story.side.nord_baer = { title: 'Bärli', desc: 'Auf dem Spielplatz sucht jemand einen Teddy. Er soll zurück auf die Bank.', state: 'hidden' };
+  story.side.nord_names = { title: 'Da fehlt eins', desc: 'Der Friedhof. Alle Grablichter aus, nur die Laterne der Madonna brennt. Das Gedenkfeld: sieben Namen. (0/7)', state: 'hidden' }; // AP-15: „Sieben Namen“ + „Ein Licht für jeden“ sind Schritte
+  N.lq = { state: 'hidden', desc: '' }; // Schritt „Sieben Lichter“ von „Da fehlt eins“ (keine eigene Aufgabe mehr)
+  story.side.nord_baer = { title: 'Ochs am Berg', desc: 'Auf der Spielplatzbank: „BÄRLI IST WEG!! … Bitte setzt ihn wieder auf die Bank, sonst findet er nicht heim.“', state: 'hidden' };
+  try { await ausbau_nord_f3(N, psignP); } catch (e) { console.warn('Kirchberg F3 (AP-15)', e); }
   window.ausbau_nord = N;
   N.ok = true; N.tLoad = Math.round(tLoad); N.tBuild = Math.round(performance.now() - T0);
 }
@@ -589,17 +590,19 @@ function ausbau_nord_swing(src, x, z, ry) {
 
 // ---- Aufgaben-Logik
 function ausbau_nord_quest(k) {
+  if (k === 'lights') { const L = ausbau_nord.lq; if (L.state === 'hidden') L.state = 'active'; k = 'names'; }
   const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; ausbau_nord.touched = true; sideStart('nord_' + k);
 }
 function ausbau_nord_readKid(i) {
   const N = ausbau_nord, K = N.kids[i]; const first = !N.names.has(i); N.names.add(i);
   if (first) ausbau_nord_quest('names');
   const q = story.side.nord_names, n = N.names.size;
-  openNote(K.open ? 'Das offene Grab' : 'Grabstein · ' + K.n, K.t, 'nord_kind_' + K.n.toLowerCase(), () => {
+  const zu = K.open && !kapAb(3); openNote(K.open && !zu ? 'Das offene Grab' : 'Grabstein · ' + K.n, zu ? K.t1 : K.t, 'nord_kind_' + K.n.toLowerCase() + (zu ? '_plane' : ''), () => {
     if (!first) return; ausbau_nord_save();
-    if (n < 7) { q.desc = `Die Gräber der Kinder vom Sommer 2009. Gefunden: ${n}/7. Die übrigen stehen in derselben Reihe, bei der Madonna.`; subtitle(`${K.n}. (${n}/7)`, 2200); if (K.open) setTimeout(() => { Audio.whisper(K.x, .4, K.z - 1.1, 1.8); }, 900); return; }
-    sideDone('nord_names', 'Sieben Namen, sieben Steine. Alle mit demselben Todestag. Das Grab mit deinem Namen ist offen – und leer.');
-    story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Zayn, Roxy, Lucy, Mike, Dina, Heidi, Luke.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier – als hätte niemand damit gerechnet, dass sie zurückkommen.\n\nDas Grab mit deinem Namen ist frisch ausgehoben. Leer.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
+    if (K.open && first) setTimeout(() => subtitle('Ich lieg hier. Seit ich neun bin.', 3000, 'LUKE'), 600);
+    if (n < 7) { ausbau_nord_fehltDesc(); subtitle(`${K.n}. (${n}/7)`, 2200); return; }
+    N.namesDone = true; ausbau_nord_save(); ausbau_nord_fehltCheck();
+    story.lore.push({ key: 'nord_gedenkfeld', title: 'Das Gedenkfeld', html: 'Sieben Kindergräber auf dem Friedhof am Kirchberg. Zayn, Roxy, Lucy, Mike, Dina, Heidi, Luke.\nAlle mit demselben Todestag: <b>28. Juli 2009</b>.\n\nSechs der Kinder kamen zurück. Trotzdem stehen ihre Namen hier.' }); // STORY-HOOK: Gedenkfeld / Ersatzkinder
     ausbau_nord_counting(K.x, K.z);
     if (kapAb(5)) ausbau_nord_echo(true); // Echo erst ab Kapitel 5 (PK-A A21) – sonst legt es ausbau_nord_sperre() beim Kapitelwechsel an
   });
@@ -633,20 +636,20 @@ async function ausbau_nord_counting(x, z) {
   Audio.flick();
   const W = ['… eins …', '… zwei …', '… drei …', '… vier …', '… fünf …', '… sechs …', '… sieben …'];
   for (let i = 0; i < 7; i++) { const K = N.kids[i]; Audio.whisper(K.x, .6, K.z, 1); subtitle(`<i>${W[i]}</i>`, 900); await wait(820); }
-  await wait(1500); const f = flatDir(); Audio.whisper(player.pos.x - f.x * .9, 1.6, player.pos.z - f.z * .9, 1.6); subtitle('<i>… acht.</i>', 2200); glitchV = .35;
+  await wait(1500); const f = flatDir(); Audio.whisper(player.pos.x - f.x * .9, 1.6, player.pos.z - f.z * .9, 1.6); subtitle('<i>… ach–</i>', 1200); glitchV = .35;
   await wait(1400); for (const C of candles) if (C.dim) { C.dim = false; ausbau_nord_setFlame(C, true); }
-  state.talking = false; setTimeout(() => toast('Die Stimme kam von dort, wo du gerade stehst.', 4200), 600);
+  state.talking = false; setTimeout(() => { subtitle('Sieben Namen. Acht Steine.', 2600, 'LUKE'); setTimeout(() => subtitle('Da fehlt eins.', 2200, 'LUKE'), 2900); }, 900);
 }
 function ausbau_nord_takeLantern() {
   const N = ausbau_nord, L = N.lantern; if (L.taken) return; ausbau_nord_items(); ausbau_nord_quest('lights');
   L.taken = true; uninteract(L.hit); ausbau_nord_setFlame(L.flame, false);
-  liftTo(L.g, () => openNote('Die Grablaterne', 'Du nimmst die Laterne. Sie ist schwerer als gedacht, und warm.\n\nDie Flamme darin steht still. Sie neigt sich nicht, egal wie du die Laterne hältst.', 'nord_laterne', () => { addItem('nord_lantern'); story.side.nord_lights.desc = 'Bring das Licht der Laterne zu den Grablichtern der sieben Kinder. (' + N.lights.size + '/7)'; }), false);
+  liftTo(L.g, () => openNote('Die Grablaterne', 'Du nimmst die Laterne. Sie ist schwerer als gedacht, und warm.\n\nDie Flamme darin steht still. Sie neigt sich nicht, egal wie du die Laterne hältst.', 'nord_laterne', () => { addItem('nord_lantern'); ausbau_nord_fehltDesc(); }), false);
 }
 function ausbau_nord_lightCandle(C) {
   const N = ausbau_nord; if (C.on) return;
   if (!story.items.includes('nord_lantern')) { ausbau_nord_quest('lights'); return toast(N.lights.size ? 'Du hast nichts mehr, um es anzuzünden.' : 'Das Grablicht ist aus. Der Docht ist nass – als hätte es gerade erst jemand ausgedrückt.', 4200); }
   ausbau_nord_setFlame(C, true); N.lights.add(C.kid); Audio.play('switch1', { gain: .12, rate: 2.2, x: C.g.position.x, y: .2, z: C.g.position.z, ref: 1 }); uninteract(C.hit); ausbau_nord_save();
-  const n = N.lights.size, q = story.side.nord_lights; q.desc = `Bring das Licht der Laterne zu den Grablichtern der sieben Kinder. (${n}/7)`;
+  const n = N.lights.size; ausbau_nord_fehltDesc();
   if (n < 7) { subtitle(`${N.kids[C.kid].n}. Das Licht brennt. (${n}/7)`, 2000); return; }
   ausbau_nord_eighthLight();
 }
@@ -659,7 +662,7 @@ async function ausbau_nord_eighthLight() {
   ausbau_nord_setFlame(N.eighth, true); Audio.play('switch1', { gain: .2, rate: 1.9, x, y: .2, z, ref: 1.5 }); Audio.giggle(x, .5, z);
   await wait(900); for (const C of N.cand) ausbau_nord_setFlame(C, true);
   state.talking = false; subtitle('Sieben Lichter. Und ein achtes, das du nicht angezündet hast.', 4600);
-  sideDone('nord_lights', 'Sieben Lichter brennen auf dem Gedenkfeld. Ein achtes brennt daneben – auf einem Grab, das es nicht gibt.');
+  N.lq.state = 'done'; ausbau_nord_save(); ausbau_nord_fehltCheck();
   story.lore.push({ key: 'nord_achtes_licht', title: 'Das achte Licht', html: 'Als das siebte Grablicht brannte, flammte daneben ein achtes auf. Auf nacktem Boden, neben dem offenen Grab.\n\nNiemand hat es angezündet.' }); // STORY-HOOK: das achte Kind
   ausbau_nord_dropItem('nord_lantern');
   setTimeout(() => { const L = N.lantern; L.g.visible = true; L.g.scale.setScalar(1); L.g.position.copy(L.home); L.g.rotation.set(0, .5, 0); ausbau_nord_setFlame(L.flame, true); L.back = true; }, 12000);
@@ -668,7 +671,7 @@ function ausbau_nord_teddy() {
   const N = ausbau_nord, T = N.teddy;
   if (N.bear === 'bench' || N.bear === 'moved') return toast(N.bear === 'moved' ? 'Er sitzt da, als hätte er dich erwartet.' : 'Bärli sitzt auf der Bank und schaut zur Straße.', 3600);
   ausbau_nord_items(); ausbau_nord_quest('baer'); N.bear = 'carried'; uninteract(T.hit);
-  liftTo(T.g, () => openNote('Ein Teddy', 'Ein alter Teddy, nass vom Regen, die Knopfaugen stumpf. Er saß am Rand der offenen Grube, als würde er hineinsehen.\n\nAm Etikett, mit Kuli: <span class="hand">BÄRLI</span>', 'nord_teddy', () => { addItem('nord_baer'); story.side.nord_baer.desc = 'Bärli gehört auf die Bank am Spielplatz.'; ausbau_nord_save(); }), false);
+  liftTo(T.g, () => openNote('Ein Teddy', 'Ein alter Teddy, nass vom Regen, die Knopfaugen stumpf. Er saß auf der grünen Plane neben dem Stein mit deinem Namen, als würde er hinuntersehen.\n\nAm Etikett, mit Kuli: <span class="hand">BÄRLI</span>', 'nord_teddy', () => { addItem('nord_baer'); story.side.nord_baer.desc = 'Bärli gehört auf die Bank am Spielplatz.'; ausbau_nord_save(); }), false);
 }
 function ausbau_nord_bench() {
   const N = ausbau_nord, T = N.teddy;
@@ -676,13 +679,15 @@ function ausbau_nord_bench() {
     return openNote('Ein Zettel auf der Bank', '<span class="hand">BÄRLI IST WEG!!\nEr ist braun und hat Knopfaugen.\nEr wollte nur zu den anderen.\nBitte setzt ihn wieder auf die Bank,\nsonst findet er nicht heim.</span>\n\nKeine Unterschrift. Eine Kinderschrift. Das Papier ist vergilbt und trocken, obwohl es seit Stunden regnet.', 'nord_zettel'); } // STORY-HOOK: wer sucht Bärli?
   ausbau_nord_dropItem('nord_baer'); N.bear = 'bench'; ausbau_nord_save();
   T.g.visible = true; T.g.scale.setScalar(1); T.g.position.set(21.05, .585, 67.35); T.g.rotation.set(0, 0, 0); T.g.userData.noCol = true; interact(T.hit, 'Bärli', () => ausbau_nord_teddy()); T.t = 0; T.seen = 0;
-  Audio.paper(); sideDone('nord_baer', 'Bärli sitzt wieder auf der Bank. Er schaut zur Straße. Er wartet.');
+  Audio.paper(); if (N.ochs && N.ochs.n >= 10) { N.ochs.aktiv = false; sideDone('nord_baer', 'Bärli sitzt auf der Bank, Gesicht zur Straße. Er bleibt.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('R-ochs'); } catch (e) {} return; }
+  if (N.ochs) { N.ochs.aktiv = true; N.ochs.t = 0; } T.g.rotation.y = PI; kirchberg_desc('nord_baer', 'Bärli sitzt auf der Bank. Dreh dich nicht weg. Oder doch.');
   setTimeout(() => Audio.giggle(40.6, 1, 78.8), 2500);
 }
 
 // ---- pro Bild
 function ausbau_nord_tick(dt, t, indoor) {
   const N = ausbau_nord, P = player.pos, k = kap(); if (k !== N.kap) { N.kap = k; ausbau_nord_sperre(); }
+  ausbau_nord_f3Tick(dt, P);
   if (!N.solid && typeof SOL !== 'undefined' && SOL.items.length) { N.solid = true; try { for (const g of N.glass || []) solidAdd(g, true); } catch (e) {} } // Glas der Haltestelle hält auf
   if (!N.restored && state.started) { N.restored = true; ausbau_nord_restore(); ausbau_nord_sperre(); }
   const near = P.z > 30 && P.x > -90 && P.x < 70, onLane = P.z > 4 && P.z < 58 && Math.abs(P.x + 7) < 6;
@@ -712,15 +717,15 @@ function ausbau_nord_tick(dt, t, indoor) {
   if (!N.bell && P.z > 67.4 && P.z < 70 && Math.abs(P.x + 52.5) < 2 && free) { N.bell = true; setTimeout(() => { ausbau_nord_bellToll(); setTimeout(() => { try { crowFlock(); } catch (e) {} }, 1400); }, 500); }
   // --- Gestalt zwischen den Gräbern
   N.figT -= dt;
-  if (N.figT < 0 && free && !dir.busy && !stalker.visible && P.x > -73 && P.x < -32 && P.z > 67.5 && P.z < 80 && nat.calm <= 0) {
+  if (N.figT < 0 && kapAb(3) && free && !dir.busy && !stalker.visible && P.x > -73 && P.x < -32 && P.z > 67.5 && P.z < 80 && nat.calm <= 0) {
     const f = flatDir(); const c = [[-68.5, 88.6], [-64, 91.8], [-40.4, 88.7], [-36.2, 85.6], [-43, 91.8], [-69.6, 83], [-38.6, 82.6]].filter(([x, z]) => { const dx = x - P.x, dz = z - P.z, d = Math.hypot(dx, dz); return d > 13 && d < 24 && (dx * f.x + dz * f.z) / d > .8; });
     if (c.length) { const [x, z] = c[Math.floor(Math.random() * c.length)]; setFace(stalker, Math.random() < .5 ? 'child' : 'pale'); stalker.position.set(x, 0, z); stalker.lookAt(P.x, 0, P.z); stalker.visible = true; dir.busy = true;
       dir.fig = { t: 0, seen: 0, crossing: false, dx: 0, dz: 0 }; N.figT = rand(120, 200); nat.calm = Math.max(nat.calm, 12); } else N.figT = 3;
   }
   // --- Der letzte Bus (Haltestelle)
-  ausbau_nord_busTick(dt, P, free);
+  if (kapAb(3)) ausbau_nord_busTick(dt, P, free);
   // --- Bärli hat sich bewegt
-  const T = N.teddy; if (T && N.bear === 'bench') { const d = Math.hypot(P.x - 21, P.z - 67.3); tmp.set(21 - camera.position.x, .7 - camera.position.y, 67.3 - camera.position.z).normalize(); const vis = fwd.dot(tmp) > .6 && d < 40;
+  const T = N.teddy; if (T && N.ochs && N.ochs.aktiv && (N.bear === 'bench' || N.bear === 'moved')) ausbau_nord_ochsTick(dt, P, T); else if (T && N.bear === 'bench' && !N.ochs) { const d = Math.hypot(P.x - 21, P.z - 67.3); tmp.set(21 - camera.position.x, .7 - camera.position.y, 67.3 - camera.position.z).normalize(); const vis = fwd.dot(tmp) > .6 && d < 40;
     if (d > 9 && !vis) T.t += dt; else if (vis) T.t = 0;
     if (T.t > 4 && free) { N.bear = 'moved'; T.g.position.set(22.4, 0, 69.6); T.g.lookAt(P.x, 0, P.z); T.g.rotation.x = 0; T.g.rotation.z = 0; T.watch = true; T.seen = 0; ausbau_nord_save(); } }
   if (T && T.watch) { const d = Math.hypot(P.x - T.g.position.x, P.z - T.g.position.z); tmp.set(T.g.position.x - camera.position.x, .3 - camera.position.y, T.g.position.z - camera.position.z).normalize();
@@ -764,10 +769,147 @@ function ausbau_nord_busTick(dt, P, free) {
 // Fortschritt nach „Weiterspielen“ wiederherstellen
 function ausbau_nord_restore() {
   const N = ausbau_nord; if (N.touched) return;
-  if (!['nord_names', 'nord_lights', 'nord_baer'].some(k => story.side[k] && story.side[k].state !== 'hidden')) return;
+  if (!['nord_names', 'nord_baer', 'nord_plakat', 'nord_strich'].some(k => story.side[k] && story.side[k].state !== 'hidden')) return;
   let d = null; try { d = JSON.parse(localStorage.getItem('ham_nord') || 'null'); } catch (e) {} if (!d) return;
   (d.names || []).forEach(i => N.names.add(i));
-  if (story.side.nord_lights.state !== 'hidden') (d.lights || []).forEach(i => { const C = N.cand.find(c => c.kid === i); if (C) { ausbau_nord_setFlame(C, true); N.lights.add(i); uninteract(C.hit); } });
-  if (story.side.nord_lights.state === 'done' && N.eighth) ausbau_nord_setFlame(N.eighth, true);
+  if (d.lq && N.lq) N.lq.state = d.lq; N.namesDone = !!d.namesDone; N.plakat = d.plakat || 0; if (N.plakat) ausbau_nord_plakatAb(true); if (N.ochs && d.ochs) N.ochs.n = d.ochs;
+  if (N.lq.state !== 'hidden') (d.lights || []).forEach(i => { const C = N.cand.find(c => c.kid === i); if (C) { ausbau_nord_setFlame(C, true); N.lights.add(i); uninteract(C.hit); } });
+  if (N.lq.state === 'done' && N.eighth) ausbau_nord_setFlame(N.eighth, true);
   if (story.side.nord_baer.state === 'done' && N.teddy) { const T = N.teddy; N.bear = 'bench'; T.g.position.set(21.05, .585, 67.35); T.g.rotation.set(0, 0, 0); }
 }
+
+// =====================================================================  Fassung 3 (AP-15): Kapitel-1-Nebenaufgaben am Kirchberg
+// „Da fehlt eins“ (Namen + Lichter als Schritte, Plane über der Grube bis Kap. 3) · „Ochs am Berg“ (Bärli rückt beim Wegsehen näher, Eisen ist frei) ·
+// „Hinter dem ältesten Plakat“ (vier Plakatschichten, SB-03 hinter 1958) · „Der Strich ohne Namen“ (Praxis Seiler, Am Kirchberg 5: Messlatte, Kittel, Schaukasten AG-04)
+function ausbau_nord_fehltDesc() { const N = ausbau_nord; const q = story.side.nord_names; if (!q || q.state === 'done') return;
+  q.desc = `Das Gedenkfeld: Namen ${N.names.size}/7 · Grablichter ${N.lights.size}/7${N.namesDone && N.lq.state === 'done' ? '' : ' · die Laterne der Madonna brennt noch'}`; try { updateSideInfo(); } catch (e) {} }
+function ausbau_nord_fehltCheck() { const N = ausbau_nord; ausbau_nord_fehltDesc(); if (!N.namesDone || N.lq.state !== 'done') return;
+  sideDone('nord_names', 'Sieben Namen, acht Steine. Ein achtes Licht auf nacktem Boden. Da fehlt eins.');
+  if (!story.lore.some(l => l.key === 'nord_achtes_licht')) story.lore.push({ key: 'nord_achtes_licht', title: 'Das achte Licht', html: 'Als das siebte Grablicht brannte, flammte daneben ein achtes auf. Auf nacktem Boden.\n\nNiemand hat es angezündet.' }); }
+async function ausbau_nord_f3(N, psignP) {
+  const T = THREE, hand = (x, t, px, py, size, col, rot = 0) => { x.save(); x.translate(px, py); x.rotate(rot); x.font = `${size}px Caveat, cursive`; x.fillStyle = col; x.fillText(t, 0, 0); x.restore(); };
+  try { await document.fonts.load('30px Caveat'); } catch (e) {}
+  // ---- Plane über Lukes Grube (bis Kap. 3): grüne Friedhofsplane, mit Steinen beschwert, Spaten daneben; Bärli sitzt darauf
+  if (N.pit) { const P = N.pit;
+    const tarp = ausbau_nord_paper(1.35, 2.45, (x, w, h) => { x.fillStyle = '#2f4a2c'; x.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(${20 + Math.random() * 40},${50 + Math.random() * 40},${20 + Math.random() * 30},.35)`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+      for (let i = 0; i < 22; i++) { const y0 = Math.random() * h, g = x.createLinearGradient(0, y0 - 18, 0, y0 + 18); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, `rgba(${Math.random() < .5 ? '0,0,0' : '160,190,150'},.16)`); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, y0 - 18, w, 36); } // Falten
+      x.strokeStyle = 'rgba(210,210,190,.5)'; x.lineWidth = 6; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = 'rgba(220,210,170,.8)'; for (const [cx, cy] of [[22, 22], [w - 22, 22], [22, h - 22], [w - 22, h - 22], [w / 2, 22], [w / 2, h - 22]]) { x.beginPath(); x.arc(cx, cy, 7, 0, 7); x.fill(); } // Ösen
+      for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(60,45,25,${Math.random() * .25})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 3 + Math.random() * 16, 0, 7); x.fill(); } }, 256);
+    tarp.material.transparent = false; tarp.material.alphaTest = 0; tarp.material.roughness = .55; tarp.rotation.x = -PI / 2; tarp.position.set(P.x, .03, P.z); tarp.renderOrder = 1; scene.add(tarp); N.tarp = tarp;
+    N.tarpStones = new T.Group(); scene.add(N.tarpStones);
+    try { const r = await MSL.gl.loadAsync('assets/boulder/model.gltf'); const b = new T.Box3().setFromObject(r.scene), sz = Math.max(...b.getSize(new T.Vector3()).toArray());
+      for (const [dx, dz, s] of [[-.6, -1.12, .2], [.6, -1.1, .17], [-.62, 1.1, .19], [.58, 1.13, .22], [.63, 0, .15], [-.64, .05, .16]]) { const k = r.scene.clone(true); k.scale.setScalar(s / sz); const g = msGround(k); g.position.set(P.x + dx, .02, P.z + dz); g.rotation.y = Math.random() * 6; g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); N.tarpStones.add(g); } } catch (e) { console.warn('Plane: Steine', e); }
+    const hit = box(1.2, .3, 2.2, P.x, .15, P.z, hidden, { cast: false }); N.tarpHit = hit;
+    interact(hit, 'Grüne Plane', () => { toast('Die Plane liegt straff. Ordentlich beschwert, Stein an Stein. Darunter ist es tiefer als der Boden.', 4200); setTimeout(() => subtitle('Wer beschwert eine Plane so ordentlich?', 3000, 'LUKE'), 900); ausbau_nord_quest('names'); }); }
+  // ---- Spielhaus (Gartenhaus-Scan) mit Tafel, Kreide EISEN IST FREI am Schaukelgerüst, Kreidelinie OCHS AM BERG
+  { const src = await msModel('shed_garden', 'model.glb').catch(() => null); if (src) { const o = src.clone(true); msFit(o, 2.2); const g = msGround(o); g.position.set(38.9, 0, 75.6); g.rotation.y = -2.3; g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(g); g.updateMatrixWorld(true); N.spielhaus = g;
+      // Tafel an der Wand, die zum Karussell zeigt (Strahl vom Karussell aus)
+      const rc = new T.Raycaster(new T.Vector3(34.6, 1.05, 71.4), new T.Vector3(38.9 - 34.6, 0, 75.6 - 71.4).normalize(), 0, 9); const h = rc.intersectObject(g, true)[0];
+      if (h) { const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); n.y = 0; n.normalize(); if (n.dot(rc.ray.direction) > 0) n.negate();
+        const taf = ausbau_nord_paper(.9, .62, (x, w, h2) => { x.fillStyle = '#1d2420'; x.fillRect(0, 0, w, h2); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(200,210,200,${Math.random() * .05})`; x.fillRect(Math.random() * w, Math.random() * h2, 6 + Math.random() * 30, 2); }
+          x.strokeStyle = '#5a4630'; x.lineWidth = 16; x.strokeRect(8, 8, w - 16, h2 - 16); const c = 'rgba(232,230,220,.82)';
+          hand(x, 'Ochs am Berg, eins, zwei, drei,', 40, 90, 44, c, -.01); hand(x, 'wer sich rührt, ist nicht mehr frei.', 40, 150, 44, c, .01); hand(x, 'Wer sich rührt, der muss zurück,', 40, 210, 44, c, -.015); hand(x, 'wer am Eisen hält, hat Glück.', 40, 270, 44, c, .005);
+          x.fillStyle = 'rgba(240,238,230,.9)'; for (const [dx, dy] of [[0, 0], [-16, 26], [16, 26]]) { x.beginPath(); x.arc(w * .72 + dx, h2 - 70 + dy, 6, 0, 7); x.fill(); } // ∴
+          x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .18})`; x.fillRect(Math.random() * w, Math.random() * h2, 40 + Math.random() * 80, 10 + Math.random() * 30); } }, 512);
+        taf.material.transparent = false; taf.material.alphaTest = 0; taf.position.copy(h.point).addScaledVector(n, .012); taf.position.y = 1.1; taf.rotation.y = Math.atan2(n.x, n.z); scene.add(taf);
+        const th = box(.9, .7, .3, taf.position.x, 1.1, taf.position.z, hidden, { cast: false });
+        interact(th, 'Tafel am Spielhaus', () => openNote('Die Tafel am Spielhaus', '<span class="hand">Ochs am Berg, eins, zwei, drei,<br>wer sich rührt, ist nicht mehr frei.<br>Wer sich rührt, der muss zurück,<br>wer am Eisen hält, hat Glück.</span>\n\nKinderschrift, verwischt. Darunter, frischer: ∴', 'nord_tafel', () => { ausbau_nord_quest('baer'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('R-ochs'); } catch (e) {} })); } } }
+  { const kr = (w, h, draw) => { const m = ausbau_nord_paper(w, h, draw, 512); m.material.depthWrite = false; m.rotation.x = -PI / 2; m.userData.noCol = true; return m; };
+    const eisen = kr(1.9, .38, (x, w, h) => { x.clearRect(0, 0, w, h); hand(x, 'EISEN IST FREI', 18, h * .72, 72, 'rgba(236,232,214,.85)', -.02); x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 140; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .5})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 7, 0, 7); x.fill(); } });
+    eisen.position.set(40.6, .035, 77.4); eisen.rotation.z = PI; scene.add(eisen);
+    const ochs = kr(3.2, .42, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(236,232,214,.75)'; x.lineWidth = 6; x.beginPath(); x.moveTo(6, h - 12); x.lineTo(w - 6, h - 16); x.stroke(); hand(x, 'EINS, ZWEI, DREI – OCHS AM BERG', 14, h * .6, 52, 'rgba(236,232,214,.82)');
+      x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 200; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .55})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 8, 0, 7); x.fill(); } });
+    ochs.position.set(24.6, .034, 69.1); scene.add(ochs);
+    const eh = box(1.8, .2, .5, 40.6, .1, 77.4, hidden, { cast: false }); interact(eh, 'Kreide am Schaukelgerüst', () => toast('EISEN IST FREI. In Kreide, vor den Pfosten des Gerüsts. Die Buchstaben sind groß, als hätte jemand gewollt, dass man sie von weitem liest.', 4800)); }
+  N.ochs = { aktiv: false, n: 0, t: 0, frei: 0, look: 0, sagte: false };
+  // ---- Bushaltestelle: vier Plakatschichten (2009 · 1992 · 1975 · 1958), dahinter SB-03
+  { const plak = (jahr, farbe, zeilen, ecke) => ausbau_nord_paper(.62, .86, (x, w, h) => { x.fillStyle = farbe; x.fillRect(0, 0, w, h); for (let i = 0; i < 1600; i++) { x.fillStyle = `rgba(80,60,30,${Math.random() * .07})`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+      x.fillStyle = '#1a1a1a'; x.textAlign = 'center'; x.font = 'bold 64px Georgia'; x.fillText('SOMMERFEST', w / 2, 96); x.font = 'bold 54px Georgia'; x.fillText(jahr, w / 2, 160); x.font = '28px Georgia'; zeilen.forEach((l, i) => x.fillText(l, w / 2, 230 + i * 38));
+      for (let k = 0; k < 7; k++) { const cx = 70 + k * (w - 140) / 6, cy = h - 170; x.fillStyle = '#2a2420'; x.beginPath(); x.arc(cx, cy, 14, 0, 7); x.fill(); x.fillRect(cx - 12, cy + 12, 24, 50); x.fillStyle = '#e8a030'; x.beginPath(); x.arc(cx + 18, cy - 30, 10, 0, 7); x.fill(); x.strokeStyle = '#2a2420'; x.lineWidth = 2; x.beginPath(); x.moveTo(cx + 10, cy + 20); x.lineTo(cx + 18, cy - 20); x.stroke(); }
+      if (ecke) ecke(x, w, h);
+      const g = x.createRadialGradient(w / 2, h / 2, w * .2, w / 2, h / 2, w * .8); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(70,50,20,.45)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+      x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 26; i++) { x.fillStyle = 'rgba(0,0,0,.9)'; const ex = Math.random() < .5 ? 0 : w - 30 - Math.random() * 40; x.fillRect(ex, Math.random() * h, 20 + Math.random() * 50, 10 + Math.random() * 40); } }, 512);
+    const P58 = plak('1958', '#d8c89a', ['Lampionumzug für die Kleinen'], (x, w, h) => { x.strokeStyle = '#a01818'; x.lineWidth = 5; x.beginPath(); x.arc(70 + 6 * (w - 140) / 6 + 20, h - 90, 16, 0, 7); x.arc(70 + 6 * (w - 140) / 6 - 12, h - 90, 16, 0, 7); x.stroke(); });
+    const P75 = plak('1975', '#e2d4b0', ['Schützenkapelle · Lampions']);
+    const P92 = plak('1992', '#e8dcc0', ['Lampionumzug'], (x, w, h) => { x.fillStyle = '#e8e4d8'; x.fillRect(w - 160, h - 110, 130, 60); x.fillStyle = '#b01818'; x.fillRect(w - 102, h - 104, 6, 26); x.fillRect(w - 110, h - 96, 22, 6); });
+    const P09 = plak('27. Juli 2009', '#f0e8d2', ['Lampions für die Kleinen', '(solange Vorrat reicht)']);
+    const Z = 51.965, X = 11.15, Y = 1.32; const L = [[P58, 0, 0, 0], [P75, .02, -.01, .004], [P92, -.015, .012, .008], [P09, .01, .004, .012]];
+    for (const [m, dx, dy, dz] of L) { m.position.set(X + dx, Y + dy, Z + dz); m.material.transparent = true; scene.add(m); } N.plakate = { P58, P75, P92, P09, X, Y, Z };
+    N.plakatHit = box(.7, .95, .3, X, Y, Z + .1, hidden, { cast: false });
+    interact(N.plakatHit, () => N.plakat ? 'Die Ritze hinter dem Plakat' : (N.plakatGelesen ? 'Das feuchte Plakat von 1958 ablösen' : 'Plakate lesen'), () => ausbau_nord_plakat()); }
+  // ---- Praxis Dr. Seiler, Am Kirchberg 5 (Haus 13): Emailschild, Seitenfenster mit Messlatte und Kittel, Schaukasten (AG-04), Vermisstenplakat
+  { const hx = -38, fz = 45.5 + 4.5; N.praxis = { hx, fz };
+    const schild = ausbau_nord_paper(.42, .3, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#f2f0ea'); g.addColorStop(1, '#d8d4c8'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.strokeStyle = '#1a2a5a'; x.lineWidth = 10; x.strokeRect(12, 12, w - 24, h - 24);
+      x.fillStyle = '#1a2a5a'; x.textAlign = 'center'; x.font = 'bold 44px Georgia'; x.fillText('Dr. med. Th. Seiler', w / 2, 110); x.font = '34px Georgia'; x.fillText('Allgemeinmedizin', w / 2, 168); x.font = 'italic 30px Georgia'; x.fillText('Vorsorge donnerstags', w / 2, 226);
+      for (let i = 0; i < 14; i++) { x.fillStyle = `rgba(60,40,20,${Math.random() * .4})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 2 + Math.random() * 7, 0, 7); x.fill(); } }, 512);
+    schild.material.transparent = false; schild.material.roughness = .3; schild.position.set(hx - 1.05, 1.55, fz + .07); scene.add(schild);
+    interact(box(.5, .4, .2, hx - 1.05, 1.55, fz + .15, hidden, { cast: false }), 'Emailschild', () => { ausbau_nord_quest('strich'); toast('„Dr. med. Th. Seiler · Allgemeinmedizin · Vorsorge donnerstags.“ Das Emaille ist blank geputzt.', 4200); setTimeout(() => subtitle('Vorsorge donnerstags. Für was, hat er nicht dazugeschrieben.', 3400, 'LUKE'), 1500); });
+    // Seitenfenster neben der Tür: Flur mit Messlatte, weißer Kittel am Haken (zwei Zustände für den Schreck)
+    const flur = hakenPos => ausbau_nord_paper(.36, 1.1, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#07080a'); g.addColorStop(1, '#0e0d0c'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+      x.fillStyle = '#3a2e22'; x.fillRect(w * .18, h * .08, w * .14, h * .84); x.fillStyle = '#c8b890'; for (let i = 0; i < 40; i++) { const y = h * .1 + i * (h * .8) / 40; x.fillRect(w * .18, y, w * (i % 5 ? .05 : .09), 2); }
+      x.fillStyle = 'rgba(30,30,90,.9)'; x.font = '15px Caveat, cursive'; ['ROXY', 'HEIDI', 'MIKE', 'DINA', 'LUCY', 'LUKE B.', 'ZAYN'].forEach((n, i) => x.fillText(n, w * .34, h * .55 + i * 14 - (i % 3) * 3)); x.fillRect(w * .18, h * .49, w * .16, 2);
+      x.fillStyle = '#6a6458'; for (let k = 0; k < 3; k++) x.fillRect(w * .6, h * .18 + k * h * .09, w * .1, 5); // Haken
+      const hy = h * .18 + hakenPos * h * .09; x.fillStyle = 'rgba(214,210,196,.82)'; x.beginPath(); x.moveTo(w * .6, hy); x.lineTo(w * .82, hy + h * .08); x.lineTo(w * .86, hy + h * .5); x.lineTo(w * .48, hy + h * .52); x.lineTo(w * .5, hy + h * .08); x.fill();
+      const v = x.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, h * .6); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.8)'); x.fillStyle = v; x.fillRect(0, 0, w, h); }, 256);
+    const f0 = flur(0), f1 = flur(1); for (const f of [f0, f1]) { f.material.transparent = false; f.material.roughness = .12; f.material.metalness = .1; f.position.set(hx + 1.02, 1.55, fz + .075); scene.add(f); } f1.visible = false; N.flur = [f0, f1];
+    const rahmen = await msModel('window').catch(() => null); if (rahmen) { const r = rahmen.clone(true); r.scale.set(.32, .58, .6); const g = msGround(r); g.position.set(hx + 1.02, .98, fz + .06); scene.add(g); g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); }
+    N.flurHit = box(.5, 1.2, .3, hx + 1.02, 1.55, fz + .2, hidden, { cast: false }); interact(N.flurHit, 'Durchs Flurfenster sehen', () => ausbau_nord_messlatte());
+    // Schaukasten in der Gasse (Scan-Schild, Glas gesprungen, innen sauber) – AG-04 · Aushang A
+    const aus = ausbau_nord_paper(.58, .44, (x, w, h) => { x.fillStyle = '#efece2'; x.fillRect(0, 0, w, h); x.fillStyle = '#222'; x.font = 'bold 22px Arial'; x.fillText('Bundesstelle für Rückführung', 24, 44); x.font = '17px Arial';
+      ['Außenstelle Lost Eyengless (in Abwicklung)', '', 'Bürgersprechstunde donnerstags 14–16 Uhr', 'Ahornstraße 7, Eingang Keller', 'Bitte Einwilligung mitbringen.', 'Es besteht kein Anlass zur Sorge.'].forEach((l, i) => x.fillText(l, 24, 84 + i * 30));
+      x.strokeStyle = '#333'; x.lineWidth = 2; x.beginPath(); x.ellipse(w - 50, h - 42, 16, 8, 0, 0, 7); x.stroke(); x.beginPath(); x.arc(w - 50, h - 42, 3, 0, 7); x.fill(); hand(x, 'auch 2026', w - 190, 82, 30, 'rgba(20,30,110,.9)', -.05);
+      x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(w * .1, 0); x.lineTo(w * .35, h * .5); x.lineTo(w * .3, h); x.moveTo(w * .35, h * .5); x.lineTo(w * .7, h * .62); x.stroke(); }, 512);
+    ausbau_nord_board(psignP, -9.4, 49.2, PI / 2, aus);
+    const vp = ausbau_nord_paper(.3, .42, (x, w, h) => { x.fillStyle = '#e8e2cc'; x.fillRect(0, 0, w, h); x.fillStyle = '#b01818'; x.textAlign = 'center'; x.font = 'bold 50px Arial'; x.fillText('VERMISST', w / 2, 64); x.fillStyle = '#6a5a4a'; x.fillRect(w * .25, 90, w * .5, h * .38); x.fillStyle = '#222'; x.font = 'bold 34px Arial'; x.fillText('ZAYN WENDT, 7 J.', w / 2, h * .66);
+      x.font = '22px Arial'; x.fillText('seit 28.7.2009', w / 2, h * .72); x.fillText('Hinweise: 0 56 13 / 4 12 07', w / 2, h * .8); x.strokeStyle = 'rgba(20,30,100,.9)'; x.lineWidth = 3; x.beginPath(); x.moveTo(w * .22, h * .79); x.lineTo(w * .82, h * .8); x.stroke(); hand(x, '0 56 13 / 7 03 13', w * .18, h * .9, 36, 'rgba(20,30,110,.9)', -.03);
+      const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, 'rgba(255,255,230,.35)'); g.addColorStop(1, 'rgba(90,70,40,.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }, 384);
+    vp.position.set(-9.33, 1.3, 50.05); vp.rotation.y = PI / 2; vp.rotation.z = .04; scene.add(vp);
+    const sk = box(.3, 1, .9, -9.4, 1.5, 49.2, hidden, { cast: false }); interact(sk, 'Schaukasten', () => ausbau_nord_schaukasten()); }
+  N.f3 = true;
+}
+// „Ochs am Berg“: Bärli bewegt sich nur, wenn Luke nicht hinsieht; hält Luke sich am Eisen (Schaukelgerüst) fest, rührt er sich nicht
+const ausbau_nord_v = new THREE.Vector3();
+function ausbau_nord_ochsTick(dt, P, T) { const N = ausbau_nord, O = N.ochs; if (O.n >= 10) return;
+  const g = T.g, d = Math.hypot(P.x - g.position.x, P.z - g.position.z); if (d > 26) { O.t = 0; return; }
+  ausbau_nord_v.set(g.position.x - camera.position.x, g.position.y + .2 - camera.position.y, g.position.z - camera.position.z).normalize(); const sieht = fwd.dot(ausbau_nord_v) > .55;
+  const eisen = Math.hypot(P.x - 40.6, P.z - 78.8) < 1.9; // am Gerüst festhalten = in Reichweite der Pfosten
+  if (sieht) { if (O.wartet) { O.wartet = false; if (O.n === 1 && !O.sagte) { O.sagte = true; subtitle('… Ich spiel mit einem Teddy Ochs am Berg.', 3000, 'LUKE'); } } O.t = 0; O.frei = 0; return; }
+  if (eisen) { O.frei += dt; if (O.frei > 6 && !O.freiGesehen) { O.freiGesehen = true; if (typeof sammeln_fibel === 'function') try { sammeln_fibel('R-eisen'); sammeln_fibel('R-frei'); } catch (e) {} questPop('FIBEL', 'Eisen ist frei. Stand da. Stimmt.'); } return; }
+  O.t += dt; if (O.t < 2.2 || d < 1.4) return; O.t = 0;
+  // einen Schritt näher, auf eine Stelle, die Luke gerade nicht sieht
+  const k = O.n === 9 ? 1 : .34, tx = g.position.x + (P.x - g.position.x) * k, tz = g.position.z + (P.z - g.position.z) * k, fx = O.n === 9 ? P.x + Math.sin(player.yaw) * -.55 : tx, fz = O.n === 9 ? P.z + Math.cos(player.yaw) * -.55 : tz;
+  ausbau_nord_v.set(fx - camera.position.x, .2 - camera.position.y, fz - camera.position.z).normalize(); if (O.n < 9 && fwd.dot(ausbau_nord_v) > .35) return;
+  let gy = 0; try { const s = solidGround(fx, 1.2, fz); if (s > -1 && s < 1) gy = Math.max(0, s); } catch (e) {}
+  g.position.set(fx, gy + .01, fz); g.rotation.set(0, Math.atan2(P.x - fx, P.z - fz), 0); O.n++; O.wartet = true; N.bear = 'moved'; Audio.play('stones1', { gain: .04, rate: 3, dur: .15, x: fx, y: .1, z: fz, ref: 1 });
+  if (O.n === 1 && !O.erst) { O.erst = true; setTimeout(() => subtitle('Ich spiel nicht mit einem Teddy Ochs am Berg. Ich bin sechsundzwanzig.', 3400, 'LUKE'), 400); }
+  if (O.n >= 10) { g.rotation.set(PI / 2, player.yaw, 0); g.position.y = gy + .09; N.bear = 'feet'; interact(T.hit, 'Bärli aufheben', () => ausbau_nord_teddy()); } // liegt vor Lukes Füßen, Gesicht nach unten
+  kirchberg_desc('nord_baer', `Bärli bewegt sich nur, wenn du nicht hinsiehst. (${O.n})`); ausbau_nord_save(); }
+async function ausbau_nord_plakat() { const N = ausbau_nord; ausbau_nord_quest('plakat');
+  if (N.plakat) return toast(typeof sammeln_hatSB === 'function' && sammeln_hatSB(3) ? 'Nur die Ritze. Die Seite ist in deiner Tasche.' : 'In der Ritze steckt ein gefaltetes Blatt.', 3000);
+  if (!N.plakatGelesen) { N.plakatGelesen = true; openNote('Plakate an der Rückwand', 'Vier Schichten übereinander, jede feuchter als die darüber:\n\n<b>2009:</b> SOMMERFEST · 27. Juli · Lampions für die Kleinen (solange Vorrat reicht), sieben Kinder vorn.\n<b>1992:</b> SOMMERFEST · Lampionumzug, sieben Kinder, hinten ein VW-Bus mit Kirchenkreuz.\n<b>1975:</b> SOMMERFEST · Schützenkapelle · Lampions, sieben Kinder, eins mit dem Scheitel vom Schulfoto aus Nr. 4.\n<b>1958:</b> SOMMERFEST · Lampionumzug für die Kleinen, sieben Kinder, eins mit rotem Kinderrad.', 'nord_plakate',
+      async () => { await say([['Achtundfünfzig. Fünfundsiebzig. Zweiundneunzig. Zweitausendneun.', 4200, 'LUKE']]); await wait(900); await say([['Siebzehn.', 1600, 'LUKE']]); await wait(700); await say([['Sieben Lampions. Solange Vorrat reicht.', 3000, 'LUKE']]); ausbau_nord_plakatCheck(); }); return; }
+  N.plakat = 1; ausbau_nord_plakatAb(false); ausbau_nord_save(); Audio.paper(); toast('Das Plakat von 1958 löst sich nass und schwer. Dahinter, in einer Ritze im Beton: ein gefaltetes Blatt.', 4200); }
+function ausbau_nord_plakatAb(still) { const N = ausbau_nord, P = N.plakate; if (!P) return; P.P58.visible = P.P75.visible = P.P92.visible = false; P.P09.visible = !!N.plakatZu; P.P09.scale.set(.55, .45, 1); P.P09.position.set(P.X + .16, P.Y + .22, P.Z + .012); P.P09.rotation.z = .35; ausbau_nord_sb03(); }
+function ausbau_nord_sb03() { const N = ausbau_nord; if (typeof sammeln_platz !== 'function' || typeof sammeln_S === 'undefined' || !sammeln_S.orte) return; const P = N.plakate || { X: 11.15, Y: 1.32, Z: 51.965 };
+  sammeln_platz('SB-03', N.plakat ? { x: P.X - .05, y: P.Y - .12, z: P.Z + .03, wand: 1, label: 'In der Ritze hinter dem Plakat' } : { x: P.X, y: -40, z: P.Z, wand: 1, label: 'In der Ritze hinter dem Plakat' }); }
+function ausbau_nord_plakatCheck() { const N = ausbau_nord; const q = story.side.nord_plakat; if (!q || q.state === 'done') return; const sb = typeof sammeln_hatSB === 'function' && sammeln_hatSB(3);
+  kirchberg_desc('nord_plakat', `Fahrplan, vier Plakate, die Ritze hinter 1958. ${sb ? 'Die Seite ist gefunden.' : ''}`);
+  if (N.plakatGelesen && sb && story.lore.some(l => l.key === 'nord_fahrplan')) { sideDone('nord_plakat', 'Achtundfünfzig. Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Siebzehn.'); story.lore.push({ key: 'nord_siebzehn', title: 'Siebzehn', html: 'Vier Sommerfeste, vier Plakate, jedes siebzehn Jahre nach dem letzten. Sieben Lampions, solange Vorrat reicht.' }); } }
+function ausbau_nord_messlatte() { const N = ausbau_nord; ausbau_nord_quest('strich');
+  const an = typeof flashOn !== 'undefined' ? flashOn : true; if (!an) return toast('Hinter dem Glas ist es schwarz. Mit der Lampe vielleicht.', 2600);
+  N.flurN = (N.flurN || 0) + 1;
+  if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEinen Fingerbreit über LUKE B. ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
+    () => { subtitle('Einer ohne Namen. Das achte Kind?', 3000, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
+  if (N.flurN === 2 && N.flur) { N.flur[0].visible = false; N.flur[1].visible = true; Audio.play('woodSqueak2', { gain: .08, rate: 1.6, x: N.praxis.hx + 1, y: 1.5, z: N.praxis.fz, ref: 1 }); return toast('Der Kittel hängt einen Haken weiter.', 3200); }
+  toast('Die Messlatte. Der Strich ohne Namen. Der Kittel hängt, wo er hängt.', 3000); }
+async function ausbau_nord_schaukasten() { const N = ausbau_nord; ausbau_nord_quest('strich'); if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
+  N.ag04 = true; if (typeof lwo_szene === 'function') { await lwo_szene('AG-04', { at: { x: -9.4, z: 49.2 }, radius: 9 }); } else { openNote('Schaukasten', 'Bundesstelle für Rückführung … Bürgersprechstunde donnerstags … Ahornstraße 7, Eingang Keller.', 'nord_ag04'); }
+  if (typeof lwo_ereignis === 'function') try { lwo_ereignis('AG-04'); } catch (e) {} ausbau_nord_strichCheck(); }
+function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN && N.ag04) { const q = story.side.nord_strich; if (q && q.state !== 'done') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, einen Finger über LUKE B. Nur „6.8.09“. Und eine Sprechstunde in einem Keller.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
+function ausbau_nord_f3Tick(dt, P) { const N = ausbau_nord; if (!N.f3) return;
+  if (!N.sb03Fix && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-03']) { N.sb03Fix = true; ausbau_nord_sb03(); }
+  if (N.plakat && N.sb03Fix && !N.plakatZu && typeof sammeln_hatSB === 'function' && sammeln_hatSB(3)) { ausbau_nord_plakatCheck(); // Schreck Stufe 1: das Plakat von 2009 blättert sich hinter Luke wieder zu
+    const d = Math.hypot(P.x - 11.15, P.z - 52.4); ausbau_nord_v.set(11.15 - camera.position.x, 1.3 - camera.position.y, 51.97 - camera.position.z).normalize();
+    if (d > 3 && d < 12 && fwd.dot(ausbau_nord_v) < -.2) { N.zuT = (N.zuT || 0) + dt; if (N.zuT > 2) { N.plakatZu = true; const Pl = N.plakate; Pl.P09.visible = true; Pl.P09.scale.set(1, 1, 1); Pl.P09.rotation.z = 0; Pl.P09.position.set(Pl.X + .01, Pl.Y + .004, Pl.Z + .012); Audio.paper(); Audio.play('woodSqueak1', { gain: .05, rate: 2, x: 11.15, y: 1.3, z: 52, ref: 1 }); } } else N.zuT = 0; }
+  // Plane: bis Kapitel 3 (dann AG-16 / AP-18)
+  const zu = !kapAb(3); if (N.tarp && N.tarp.visible !== zu) { N.tarp.visible = zu; N.tarpStones.visible = zu; if (N.tarpHit) { const i = interactables.indexOf(N.tarpHit); if (zu && i < 0) interactables.push(N.tarpHit); else if (!zu && i >= 0) interactables.splice(i, 1); } } }

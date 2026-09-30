@@ -1,4 +1,4 @@
-// =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; hier die Gespräche aus Kap. 3)
+// =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; Gespräche aus Kap. 3, am Ende Kap. 1 „Schnalle zu“, AP-15)
 // Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
 // Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
 // Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Das Schlimmste am Rechthaben“ hakt sie ab).
@@ -36,6 +36,7 @@ function albers_claimCheck() {
 }
 async function albers_talk() {
   const S = albers_S; if (S.busy || state.talking) return;
+  if (albers_k3OrdnerBereit()) return albers_k3Ordner(); // Fassung 3 (AP-18): „Rot eingekreist“ – der Ordner durch den Kettenspalt
   const next = ALBERS_TALKS.find(T => !S.talked.has(T.claim) && T.when());
   S.busy = true; state.talking = true; Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
   if (next) {
@@ -48,6 +49,8 @@ async function albers_talk() {
 }
 WORLD_MODS.push(['Vegas', async () => {
   const S = albers_S, D = S.door;
+  albers_k1Init(); // Fassung 3 (AP-15): Kapitel 1 an Tür und Halsband
+  try { await albers_k3Init(); } catch (e) { console.warn('Vegas: Kap. 3', e); } // Fassung 3 (AP-18): „Rot eingekreist“
   story.side.albers_spinn = { title: 'Das Schlimmste am Rechthaben', desc: 'Der alte Vegas erzählt Dinge, die keiner glaubt.', state: 'hidden' }; // schon beim Laden da → wird mit dem Spielstand gesichert
   S.light = new VLight(0xffb070, 0, 4, 2); S.light.position.set(D.x, 1.9, D.z + .25); scene.add(S.light);   // Lampenlicht aus dem Türspalt
   S.beam = new VLight(0xffc890, 0, 5, 2); S.beam.position.set(D.x + .3, 1.2, D.z + 1.4); scene.add(S.beam);    // Taschenlampe, die dich anleuchtet
@@ -58,7 +61,8 @@ WORLD_MODS.push(['Vegas', async () => {
     S.mx = new THREE.AnimationMixer(w.children[0]); for (const [k, c] of [['idle', 'idle'], ['talk', F.clips.talk ? 'talk' : 'look']]) if (F.clips[c]) S.act[k] = S.mx.clipAction(F.clips[c]); /* beim Reden sieht er sich unruhig um */ if (S.act.idle) S.act.idle.play(); }
 }]);
 WORLD_TICK.push((dt, t) => {
-  const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } if (S.wOpen || S.t > .01) albers_door(dt, t); return; } // Whiskey-Szenen (AP-08): Tür in jedem Kapitel
+  albers_k3Tick();
+  const S = albers_S; if (!ch3.on || ch3.part !== 'town') { if (S.on) { S.on = false; uninteract(S.hit); } if (S.wOpen || S.open || S.t > .01) albers_door(dt, t); return; } // Whiskey-Szenen (AP-08): Tür in jedem Kapitel
   if (!S.on) { S.on = true; if (!interactables.includes(S.hit)) interactables.push(S.hit); for (const T of ALBERS_TALKS) if (story.lore.some(l => l.key === 'albers_' + T.id)) S.talked.add(T.claim); } // nach Laden: geführte Gespräche wiederherstellen
   const P = player.pos, d = Math.hypot(P.x - S.door.x, P.z - S.door.z);
   if (!S.hissed && d < 9 && !state.talking && +document.getElementById('subtitle').style.opacity < .05) { S.hissed = true; subtitle('<i>„Psst! Junge! Hierher. Leise, verdammt!“</i> – aus dem Türspalt von Nr. 3.', 4200); Audio.whisper(S.door.x, 1.5, S.door.z, 1.2); }
@@ -77,3 +81,117 @@ async function albers_whiskey(lines, o = {}) { const S = albers_S; if (S.busy) r
   try { for (const l of lines) { if (typeof l === 'function') await l(); else await say([[l[0], l[1], l[2] || 'LARS VEGAS']]); } }
   finally { S.open = 0; Audio.chains(S.door.x, 1.2, S.door.z); Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); S.busy = false; setTimeout(() => { S.wOpen = false; }, 1400); }
   return true; }
+
+// =====================================================================  Fassung 3 (AP-15): Kapitel 1 · „Schnalle zu“ – Vegas an Tür und Küchenfenster (Nr. 3), V-01 … V-06, Bruno-Happen
+// Wortlaut 85 §3 (V-01 … V-06) und 11 „Schnalle zu“. Je Spieleraktion (Klopfen) ein Happen. V-04 = W-01 (Taufe, whiskey.js). V-06 erst nach AG-02, V-03 erst nach Z-02.
+// Die Tür bleibt an der Kette; die Klickfläche der Basis (doorOf[3]) wird in Kap. 1 neu belegt, das Halsband (collar) ebenso (neuer Name, Zusatzsatz).
+const ALBERS_V = {
+  'V-01': [['„Nicht so laut. Die Laternen hören mit. Guck nicht hoch, dann wissen die, dass du’s weißt.“', 4400], ['„Bei mir vorm Haus sind sie mal ausgegangen, eine nach der anderen, wie Kerzen am Geburtstag. Nur dass keiner gesungen hat. Über die Kreuzung: Lampe aus.“', 6400]],
+  'V-02': [['„Guck durch den Spalt. Den Kuli geb ich nicht raus. Siehst du das Auge unter dem Clip?“', 4400], ['„Die Bahn druckt einen Zug drauf, die Sparkasse ein S. Die hier drucken, dass sie gucken.“', 4600], ['„Damit hab ich unterschrieben. Ich hab das Auge nicht gesehen. Ich wollt’s nicht sehen.“', 4400]],
+  'V-03': [['„UFO über dem Abgrund, stand in der Zeitung. Mit Fragezeichen, damit’s nicht so peinlich ist. Dann ein Experte: Sumpfgas.“', 5600], ['„Wir haben keinen Sumpf, Junge. Wir haben einen Weiher, und der ist gesperrt. Guck dir das Foto an der Tankstelle an. Nicht das UFO. Den Mann dahinter.“', 6600]],
+  'V-05': [['„Hufeisen über jeder Tür. Frag, warum. Tradition, sagen die. Tradition heißt: Man hat vergessen, wovor man Angst hatte.“', 5600], ['„In der Chronik steht, der Schmied hat nach der Sache damals nie wieder ein Wort gesagt. Was schmiedet man, dass man danach die Klappe hält?“', 6000], ['„Eisen ist frei. Nimm eins mit. Nicht für mich. Für dich.“', 3400]],
+  'V-06': [['„Nummer neun. Da wohnt keiner. Aber abends glüht da ein rotes Licht im Astloch.“', 4200], ['„Ich hab Butterbrotpapier in deren Tonne gefunden. Frisch. Gespenster schmieren keine Stullen, Junge.“', 5000], ['„Die filmen Hildes Haus. Die haben mehr Bilder von Hilde als Hilde von ihrem Kleinen.“', 4600]] };
+// Behauptungen aus Kapitel 1 für „Das Schlimmste am Rechthaben“ (Häkchen, wenn der Beleg gefunden ist)
+ALBERS_CLAIMS.push(
+  { id: 'v01', text: '„Die Laternen hören mit.“', ok: () => !!state.ch1Done || kapAb(2) },
+  { id: 'v02', text: '„Der Kuli vom Amt.“', ok: () => kapAb(2) && (typeof zimmer7_S === 'undefined' || story.lore.some(l => /stempel|zimmer7/i.test(l.key))) },
+  { id: 'v03', text: '„Sumpfgas.“', ok: () => kapAb(4) && story.lore.some(l => /wolter|ag11|ag-11|z09/i.test(l.key)) },
+  { id: 'v04', text: '„Der Vogel ist älter als ich.“', ok: () => kapAb(4) && typeof whiskey_S !== 'undefined' && !!whiskey_S.ring },
+  { id: 'v05', text: '„Hufeisen.“', ok: () => kapAb(3) && !!ch3.lampsOff },
+  { id: 'v06', text: '„Wer Stullen schmiert, ist kein Gespenst.“', ok: () => typeof post_S !== 'undefined' && !!post_S.steps.fenster },
+  { id: 'bruno', text: '„Den hat einer rausgehoben.“', ok: () => kapAb(3) && !!ch3.met && story.lore.some(l => /nimmerheim|weiss|white/i.test(l.key)) });
+const albers_K1 = { schritt: 0, v: new Set(), halsband: false, belohnt: false, saetze: false };
+function albers_k1Save() { if (typeof saveGame === 'function' && state.started && !state.ending) try { saveGame(curChapter()); } catch (e) {} }
+MOD_SAVE.push(['albers_k1', () => ({ schritt: albers_K1.schritt, v: [...albers_K1.v], halsband: albers_K1.halsband, belohnt: albers_K1.belohnt, saetze: albers_K1.saetze }),
+  v => { if (!v) return; albers_K1.schritt = +v.schritt || 0; (v.v || []).forEach(x => albers_K1.v.add(x)); albers_K1.halsband = !!v.halsband; albers_K1.belohnt = !!v.belohnt; albers_K1.saetze = !!v.saetze; }]);
+function albers_vHappen(id) { const K = albers_K1; K.v.add(id); albers_S.talked.add(id.toLowerCase().replace('-', '')); sideStart('albers_spinn'); story.lore.push({ key: 'albers_' + id, title: 'Vegas · ' + id, html: ALBERS_V[id].map(l => l[0]).join('\n') }); }
+async function albers_k1Klopfen() {
+  const S = albers_S, K = albers_K1; if (S.busy || state.talking) return; if (kap() !== 1) return; S.busy = true; state.talking = true; Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  const V = 'LARS VEGAS', sag = l => say(l.map(([t, ms]) => [t, ms, V]));
+  try {
+    if (!K.schritt) { K.schritt = 1; await sag([['„Wer da? … Der Brandt-Junge. Mach die Lampe aus, verdammt, die gucken.“', 4200], ['„Bruno ist weg. Zum Pinkeln raus und nicht wieder rein. Guck bei Reuters, wo das Haus war. Da hat er immer gebuddelt.“', 5600]]);
+      kirchberg_start('bruno', { x: -13, z: -10 }); kirchberg_desc('bruno', 'Bruno ist weg. „Guck bei Reuters, wo das Haus war.“ (Nr. 5, der Aschekreis)'); await wait(500); await sag(ALBERS_V['V-01']); albers_vHappen('V-01'); }
+    else if (state.hasCollar && !K.halsband) { K.halsband = true; story.items = story.items.filter(k => k !== 'collar');
+      await sag([['„Die Schnalle ist zu. Der ist nicht weggelaufen. Den hat einer rausgehoben. Wie ’ne Katze aus ’nem Pulli.“', 5200]]);
+      const a = await kirchberg_wahl(['„Wer hebt einen Hund aus dem Halsband?“', '„Vielleicht ist er dünner geworden.“']);
+      await sag(a === 1 ? [['„Bruno? Dünner? Du hast Bruno nie gesehen.“', 3000]] : [['„Frag lieber, was.“', 2200]]); albers_S.talked.add('bruno');
+      kirchberg_desc('bruno', 'Das Halsband ist zurück. Vegas redet. Klopf wieder, wenn du etwas getan hast.'); }
+    else if (K.halsband) { // je Klopfen ein Happen: V-02, V-05, V-06 (nach AG-02), V-03 (nach Z-02), dann die zwei Sätze und die Belohnung
+      const ag02 = typeof lwo_S !== 'undefined' && lwo_S.seen && Object.keys(lwo_S.seen).some(k => /AG-02/.test(k)), z02 = typeof sammeln_hatZ === 'function' && sammeln_hatZ(2);
+      const next = ['V-02', 'V-05', ...(ag02 ? ['V-06'] : []), ...(z02 ? ['V-03'] : [])].find(v => !K.v.has(v));
+      if (next) { await sag(ALBERS_V[next]); albers_vHappen(next); }
+      if (!next || (K.v.has('V-02') && K.v.has('V-05') && !K.saetze)) { if (!K.saetze) { K.saetze = true; await sag([['„Unter allem, was beruhigt, steht ‚hw‘. Seit ich denken kann. Ich hab’s in Ordnern.“', 4400], ['„So lange schreibt kein Mensch dieselbe Beruhigung. Das ist ’ne Behörde mit Hut.“', 4200]]); await wait(600); await sag([['„Ich hab schon mal Kinder gezählt, Junge. Auf der Kreuzung. Frag nicht, wann.“', 4600]]); } }
+      if (K.saetze && !K.belohnt) { K.belohnt = true; await sag([['„Nimm das Hufeisen nie ab, Junge. Frag nicht, warum. Doch, frag. Aber nicht heute.“', 4600], ['„Pfandgeld. Ehrlich verdient. Von Bruno.“', 2800]]);
+        modItem('ring_hufeisen', 'Schlüsselring mit Hufeisen', 'Eisern. Von Vegas. „Nimm das Hufeisen nie ab.“', 'key'); addItem('ring_hufeisen'); modItem('euro_bruno', 'Eine Euromünze', 'Pfandgeld. Ehrlich verdient. Von Bruno.', 'paper'); addItem('euro_bruno');
+        kirchberg_fertig('bruno', 'Die Schnalle war zu. Den hat einer rausgehoben. Unter allem, was beruhigt, steht „hw“.');
+        S.open = 0; await wait(1400); porchLights[0] && (porchLights[0].dead = true); Audio.play('switch2', { gain: .3, x: S.door.x, y: 2.3, z: S.door.z + .5, ref: 2 }); await wait(700); subtitle('„Siehste.“', 2000, V); } // Schreck Stufe 1: Verandalampe geht aus, ohne Schalter
+      else if (!next && K.belohnt) await sag([['„Ich hab gesagt, was ich weiß. Jetzt geh. Und mach die Lampe aus.“', 3600]]); }
+    else await sag([['„Hast du Bruno gefunden? … Nein. Natürlich nicht. Guck bei Reuters.“', 3600]]);
+  } finally { S.open = 0; Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .5, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); state.talking = false; S.busy = false; albers_k1Save(); albers_claimCheck(); }
+}
+function albers_k1Halsband() { // Halsband im Aschekreis (Basis-Objekt), neuer Aufgabenname, Zusatzsatz, Lukes Frage
+  if (state.hasCollar) return; state.hasCollar = true; Audio.chime(); addItem('collar'); kirchberg_start('bruno', { x: -13, z: -10 });
+  liftTo(collar.parent || collar, () => { kirchberg_desc('bruno', 'Bring Vegas (Nr. 3) das Halsband.');
+    openNote('Ein Hundehalsband', 'Rotes Leder, eine Messingmarke: <b>BRUNO · Vegas · Ahornstr. 3</b>\n\nEs liegt genau am Rand des verbrannten Kreises. Die Schnalle ist noch geschlossen. Das Leder ist nicht gerissen.', 'collar', () => subtitle('Wie kommt ein Hund aus einem geschlossenen Halsband?', 3400, 'LUKE')); }, false); }
+function albers_k1Init() {
+  const d = typeof doorOf !== 'undefined' && doorOf[3]; if (d) { d.userData.label = () => kap() === 1 ? 'An Vegas’ Tür klopfen' : 'Klopfen'; const alt = d.userData.action; d.userData.action = () => kap() === 1 ? albers_k1Klopfen() : alt(); }
+  if (typeof collar !== 'undefined') { const alt = collar.userData.action; collar.userData.label = 'Halsband aufheben'; collar.userData.action = () => kap() === 1 ? albers_k1Halsband() : alt(); }
+  }
+
+// =====================================================================  Fassung 3 (AP-18): Kapitel 3 · „Rot eingekreist“ (Nr. 3, Lars Vegas; Wortlaut 31 Nr. 1)
+// Nach AG-09 steht an Vegas’ Briefkasten die Fahne oben: Umschlag (Brief + Kapellenschlüssel) → Klopfen: Ordner in drei Stapeln durch den Kettenspalt →
+// auf der Verandabank lesen (Verandalampe brennt): Ordnerrücken, Z-01, Z-10, Fotoseite → freiwillig: Kaugummipapier daneben legen → Fibel „(hw)“.
+const albers_K3 = { st: {}, bank: null, bankHit: null, mbHit: null, fahne: null };
+MOD_SAVE.push(['albers_k3', () => albers_K3.st, v => { if (v && typeof v === 'object') Object.assign(albers_K3.st, v); }]);
+function albers_k3Frei() { return typeof neben3_frei === 'function' && neben3_frei() && (typeof lwo_S === 'undefined' || !!lwo_S.seen['ag:AG-09']); }
+function albers_k3OrdnerBereit() { const st = albers_K3.st; return st.umschlag && !st.ordner && albers_k3Frei(); }
+async function albers_k3Init() {
+  const T = THREE, D = albers_S.door, MB = [-26.55, -6.72];
+  // Fahne oben + Umschlag, der oben aus dem Kasten ragt (Abziehbild); eigene Klickfläche vor der Kasten-Klickfläche aus strasse.js
+  albers_K3.fahne = kirchberg_decal(kirchberg_tex(kirchberg_cnv(64, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#b2261c'; x.fillRect(8, 6, w - 16, 46); x.fillStyle = '#6a6a66'; x.fillRect(w / 2 - 4, 40, 8, h - 44); })), .1, .2, MB[0] + .26, 1.32, MB[1], PI / 2, { alpha: true, double: true });
+  albers_K3.umschlag = kirchberg_decal(kirchberg_papier({ w: 256, h: 128, bg: '#d9cfb4', flecken: 1, zeilen: [['FÜR DEN BRANDT-JUNGEN.', 10, 50, 24, 'rgba(20,30,90,.9)'], ['PERSÖNLICH. NICHT DAS AMT.', 10, 92, 22, 'rgba(20,30,90,.9)']] }), .22, .11, MB[0], 1.21, MB[1] + .02, 0, { rx: -.4 });
+  albers_K3.fahne.visible = albers_K3.umschlag.visible = false;
+  albers_K3.mbHit = kirchberg_hit(.55, .5, .55, MB[0], 1.15, MB[1] + .05, 'Umschlag im Briefkasten', () => albers_k3Umschlag()); kirchberg_an(albers_K3.mbHit, false);
+  // Verandabank vor Nr. 3 (Scan „parkbench“), Klickfläche für das Lesen und „Daneben legen“
+  const b = await kirchberg_mod('parkbench', 'model.glb', 1.5, 'x'); const bx = D.x + 1.85, bz = D.z + 1.25; if (b) { const gy = kirchberg_boden(bx, bz, 1.2); kirchberg_setze(b, bx, gy, bz, PI); albers_K3.bank = b; }
+  albers_K3.bankHit = kirchberg_hit(1.4, .8, .8, bx, .8, bz, () => albers_K3.st.gelesen && story.items.includes('kaugummipapier') && !albers_K3.st.daneben ? 'Daneben legen' : 'Auf der Bank lesen', () => albers_k3Bank()); kirchberg_an(albers_K3.bankHit, false);
+  ALBERS_CLAIMS.push({ id: 'hw', text: '„Unter allem, was beruhigt, steht ‚hw‘.“', ok: () => !!albers_K3.st.gelesen }); }
+function albers_k3Tick() { const K = albers_K3, st = K.st, frei = albers_k3Frei(); if (!K.mbHit) return;
+  const mb = frei && !st.umschlag; if (K.fahne.visible !== mb) { K.fahne.visible = mb; K.umschlag.visible = mb; kirchberg_an(K.mbHit, mb); }
+  const bank = frei && st.ordner && (!st.gelesen || (story.items.includes('kaugummipapier') && !st.daneben)); if (K.bankOn !== bank) { K.bankOn = bank; kirchberg_an(K.bankHit, bank); }
+  if (st.gelesen && !albers_S.talked.has('hw')) albers_S.talked.add('hw'); }
+function albers_k3Umschlag() { const st = albers_K3.st; if (st.umschlag) return; st.umschlag = 1; neben3_start('k3_rot', { x: -28, z: -8 }); Audio.paper();
+  openNote('Ein dicker Umschlag', 'Kuli: <b>„FÜR DEN BRANDT-JUNGEN. PERSÖNLICH. NICHT DAS AMT.“</b>\n\nDarin ein Brief und ein großer Eisenschlüssel mit Kordel.', 'k3_vegas_umschlag');
+  openNote('Vegas’ Brief', '<i>Kariertes Papier, Kuli, Fettfleck.</i>\n\n<span class="hand">Junge. Ich sag das nicht durch die Tür, die hören mit.\nDer Schlüssel ist von der Kapelle. Hab ich eingesteckt, als der Pfarrer in den Nebel ist, damit die vom Amt da nicht auch noch rumwühlen.\nGuck dir das Fenster an, bevor die es rausbrechen. Da ist alles drauf.\nIch hab für Mike unterschrieben. Das weißt du jetzt. Frag nicht, wie das war.\nL. V. — PS: Der Vogel kriegt nix von meinem Speck, auch wenn er dich schickt.</span>', 'k3_vegas_brief', () => {
+    modItem('n3_kapschluessel', 'Kapellenschlüssel', 'Ein großer Eisenschlüssel mit Kordel. Kapellentür und das Gitter der Martinsnische.', 'key'); addItem('n3_kapschluessel'); if (typeof kirchberg_oeffne === 'function') kirchberg_oeffne('kapelle');
+    neben3_desc('k3_rot', 'Vegas hat einen Ordner. Klopf an seine Tür.'); neben3_save(); }); }
+async function albers_k3Ordner() { const S = albers_S, st = albers_K3.st; S.busy = true; state.talking = true; const V = 'LARS VEGAS';
+  try { Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1; await wait(700);
+    await say([['„Der passt nicht.“', 2200, V], ['„Dann machen Sie die Kette ab.“', 2600, 'DU'], ['„Nachts? Bist du bekloppt?“', 2600, V]]);
+    for (let i = 0; i < 3; i++) { Audio.play('metalOpen', { gain: .15, rate: 2.2, x: S.door.x, y: 1.1, z: S.door.z, ref: 2 }); await wait(500); Audio.paper(); await say([['„Nicht knicken!“', 1700, V]]); await wait(300); }
+    st.ordner = 1; modItem('n3_ordner', 'Vegas’ Ordner', '„DIE WAHRHEIT · BAND 3 · NICHT ANFASSEN“, mit Alufolie beklebt. In drei Stapeln durch den Kettenspalt.', 'paper'); addItem('n3_ordner');
+    neben3_desc('k3_rot', 'Auf Vegas’ Verandabank lesen. Die Verandalampe brennt.'); if (porchLights[0]) porchLights[0].dead = false; Audio.play('switch2', { gain: .3, x: S.door.x, y: 2.3, z: S.door.z + .5, ref: 2 }); }
+  finally { S.open = 0; Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .5, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); state.talking = false; S.busy = false; } }
+function albers_k3Ordnerseite(title, html, key) { return new Promise(r => openNote(title, html, key, r)); }
+async function albers_k3Bank() { const st = albers_K3.st, D = albers_S.door; if (state.talking) return;
+  if (st.gelesen) return albers_k3Daneben();
+  if (porchLights[0]) porchLights[0].dead = false;
+  const zH = nr => typeof sammeln_zHtml === 'function' ? sammeln_zHtml(nr) : '';
+  if (typeof sammeln_z === 'function') { sammeln_z(1, true); sammeln_z(10, true); }
+  await albers_k3Ordnerseite('Vegas’ Ordner', 'Ordnerrücken: <b>„DIE WAHRHEIT · BAND 3 · NICHT ANFASSEN“</b>, mit Alufolie beklebt.\n\nIn jedem Artikel ist das „(hw)“ rot eingekreist. Seit Jahrzehnten.', 'k3_vegas_ordner');
+  // Humor: Whiskey zupft ein Stück Alufolie vom Ordnerrücken und fliegt damit auf die Laterne
+  if (typeof whiskey_S !== 'undefined' && whiskey_S.g && typeof whiskey_setzen === 'function' && !st.folie) { st.folie = 1; try { Audio.flap(D.x + 1.8, 1.2, D.z + 1.3); whiskey_setzen(D.x + 3.4, 3.1, D.z + 3.2); } catch (e) {} setTimeout(() => albers_whiskey([['„Das ist Beweismaterial!“', 2600]]), 1600); }
+  await albers_k3Ordnerseite('Der Laternenbote · rot eingekreist', `${zH(1)}<div class="hand" style="color:#9a1010;margin-top:8px">(hw) – rot eingekreist.</div>`, null);
+  // Schreck 1: die Hecke raschelt, während Luke liest
+  Audio.play('woodCrack', { gain: .14, rate: 1.7, lp: 1300, x: D.x + 4.2, y: .8, z: D.z + 2.6, ref: 2 }); setTimeout(() => Audio.play('woodCrack', { gain: .1, rate: 1.9, lp: 1100, x: D.x + 4.8, y: .7, z: D.z + 3.1, ref: 2 }), 700);
+  await wait(1500); await say([['„Junge. Wenn das ein Igel ist, ist das ein großer Igel.“', 3600, 'LARS VEGAS (DRINNEN, LEISE)']]);
+  await albers_k3Ordnerseite('„Aus aller Welt“', `${zH(10)}<div class="hand" style="color:#9a1010;margin-top:8px">Jede Meldung rot umkreist. Die Lagune zusätzlich gelb.<br>SIEHST DU? ÜBERALL.</div>`, null);
+  await albers_k3Ordnerseite('Fotoseite', '<i>Drei ausgeschnittene Zeitungsfotos, aufgeklebt: Bergung am Abgrund, Kinder auf der Kreuzung, Hilde mit Blumenstrauß. Am Rand jedes Fotos derselbe Mann im Mantel, jedes Mal rot umkringelt.</i>\n\n<span class="hand" style="color:#9a1010">DERSELBE!!! Auf allen dreien!!! Der wird nicht älter.\nHab’s dem Kühn gezeigt. Kühn sagt: Brille putzen, Lars.\nHab die Brille geputzt. DERSELBE.</span>', 'k3_vegas_fotoseite');
+  st.gelesen = 1; if (typeof neben3_merk === 'function') neben3_merk('ordner');
+  neben3_fertig('k3_rot', 'Vegas hat die ganze Zeit einen Mann eingekreist, dessen Namen er nicht kannte.'); albers_claimCheck();
+  if (story.items.includes('kaugummipapier')) setTimeout(() => neben3_desc('k3_rot', 'Das Kaugummipapier von der Bushaltestelle. Neben das Foto legen?'), 400); }
+function albers_k3Daneben() { const st = albers_K3.st; if (st.daneben || !story.items.includes('kaugummipapier')) return; st.daneben = 1;
+  openNote('Daneben gelegt', 'Das Kaugummipapier neben dem Foto: das Auge auf dem Papier. Und im Artikel, klein unter dem BfR-Stempel, dasselbe Auge.', null, async () => {
+    await say([['‚Wolter. Ich schreibe für das Blatt hier.‘ … Der schreibt die Beruhigung gleich selber.', 5200, 'LUKE']]);
+    if (!story.lore.some(l => l.key === 'k3_hw')) story.lore.push({ key: 'k3_hw', title: '(hw)', html: '<span class="hand">hw. Wolter. Der Mann an der Bushaltestelle steht auf Fotos, die älter sind als Mama. Und er schreibt, dass alles in Ordnung ist.</span>' });
+    questPop('ABENTEUERFIBEL', '(hw)'); neben3_save(); }); }

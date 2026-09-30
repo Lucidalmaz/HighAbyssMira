@@ -341,6 +341,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const vWins = []; for (const lx of [-4.72, 4.72]) for (const ly of [2.1, 6.1]) vWins.push([lx, ly, 'front']); for (const lz of [.47, -3.85]) for (const ly of [2.1, 6.1]) { vWins.push([lz, ly, 'side']); vWins.push([lz, ly, 'lside']); }
   let villaLit = null; const villaGlass = [];
   for (const [a, b, f] of vWins) { const lit = a === 4.72 && b === 6.1 && f === 'front'; const m = vwin(a, b, f, 1.5, 1.78, lit ? litMatV : vGlass); if (m) { if (lit) villaLit = m; else villaGlass.push(m); } }
+  OW.villaGlass = villaGlass; // Fassung 3 (AP-15): winkendes Fenster (anwesen.js)
   const vLitPos = villaLit ? villaLit.position.clone() : new V3(-130, 7, 60);
   const villaLight = vlight(0xffb070, 1.6, 7, vLitPos.x, vLitPos.y, vLitPos.z - 1.2), villaGlow = glow(0xffa060, 4, vLitPos.x, vLitPos.y, vLitPos.z - .3, VG);
   const villaSil = new T.Mesh(new T.PlaneGeometry(.75, .95), new T.MeshBasicMaterial({ map: silTex, color: 0x000000, transparent: true, opacity: 0, depthWrite: false }));
@@ -360,7 +361,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // ================================================================= NEBENAUFGABEN
   // STORY-HOOK: Nebenaufgaben „Die Geldkassette“, „Der rote Kanister“ (Ost) · „Das Heft im Heu“, „Drei Laternen“ (West)
   story.side.ow_kasse = { title: 'Die Geldkassette', desc: 'Im Nachtschalter der Tankstelle Kranz steht eine Kassette mit Zahlenschloss.', state: 'hidden' };
-  story.side.ow_kanister = { title: 'Der rote Kanister', desc: 'Der letzte Kunde der Tankstelle hat einen roten Kanister nie zurückgebracht.', state: 'hidden' };
+  story.side.ow_kanister = { title: 'Kinder tanken nicht', desc: 'Der letzte Kunde der Tankstelle hat einen roten Kanister nie zurückgebracht.', state: 'hidden' }; // Fassung 3: Kap. 5 (AP-22)
   story.side.ow_heft = { title: 'Das Heft im Heu', desc: 'Im Pferdestall hat ein Kind geschlafen. Aus seinem Heft fehlen drei Seiten.', state: 'hidden' };
   story.side.ow_laternen = { title: 'Drei Laternen', desc: 'In der Laube liegt ein Zettel: Drei Laternen sollen brennen, „damit sie heimfinden“.', state: 'hidden' };
   const Q = OW.q = { kasse: false, kanisterHave: false, kanisterDone: false, pages: new Set(), heftSeen: false, heftDone: false, matches: false, lit: 0, laternDone: false, jacket: false, book: false };
@@ -368,8 +369,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
 
   // ================================================================= ENTDECKBARES · OST
   // STORY-HOOK: Kassenbuch der Tankstelle Kranz endet am 31.10.2009 um 03:13
-  const readBook = () => { Q.book = true; Audio.paper();
-    openNote('Kassenbuch · Tankstelle Kranz', noteHand('30.10.2009 — Super 22,40 · Diesel 41,00 · Zigaretten\n31.10. 01:02 — Kaffee, Herr Vegas. „Kann nicht schlafen.“\n31.10. 02:47 — niemand. Die Klingel ging trotzdem.\n<b>31.10. 03:13 — ein Junge, allein, barfuß. 10 Liter in einem roten Kanister.\nBezahlt mit einem Foto. Ich hab nicht gefragt, wofür er Benzin braucht.</b>\n\n') + '<i>Danach nur noch leere Zeilen. Auf der letzten Seite, andere Handschrift:</i>\n' + noteHand('Kassette: was vom Preisschild noch hängt. Von oben nach unten.\n— E. K.'), 'ow_kassenbuch', () => { sideStart('ow_kasse'); sideStart('ow_kanister'); }); };
+  const readBook = () => ausbau_ost_west_schalter(Q); // Fassung 3 (AP-15, „Zapfsäule 3“): Bon, dann Mikes Schichtbuch
+  OW.Q = Q;
   hit(1.1, .7, .5, 115.1, 1.3, 24.8, () => !Q.book ? 'Nachtschalter' : !Q.kasse ? 'Geldkassette öffnen' : 'Kassenbuch', () => {
     if (!Q.book) return readBook();
     if (Q.kasse) return readBook();
@@ -390,20 +391,20 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       setTimeout(() => { story.lore.push({ key: 'ow_kanister', title: 'Der rote Kanister', html: 'Du hast den Kanister zurückgebracht. Aus ihm tropfte Wasser, kein Benzin. Kleine nasse Fußabdrücke führten von der Zapfinsel nach Osten – zur Sperre.' }); sideDone('ow_kanister', 'Zurückgebracht. Die Fußabdrücke führten zur Sperre.'); }, 4500); return; }
     toast('Vier abgeschnittene Bolzen, wo die Säulen standen. Jemand hat Kreidestriche daneben gemacht: acht Stück.', 4200); });
   hit(.7, .6, .6, 133.6, .3, -10.2, 'Roter Kanister', () => { if (Q.kanisterHave) return; Q.kanisterHave = true; redCan.visible = false; item('ow_kanister', 'Roter Kanister', 'Aus dem Schrott der Tankstelle Kranz. Innen schwappt etwas. Auf dem Griff, eingeritzt: LUKE.');
-    subtitle('Der Kanister ist nicht leer. Auf dem Griff, eingeritzt: LUKE.', 4200); if (story.side.ow_kanister.state === 'hidden') sideStart('ow_kanister'); story.side.ow_kanister.desc = 'Bring den roten Kanister zurück zur Zapfinsel der Tankstelle.'; });
+    subtitle('Der Kanister ist nicht leer. Auf dem Griff, eingeritzt: LUKE.', 4200); if (story.side.ow_kanister.state === 'hidden' && kapAb(5)) sideStart('ow_kanister'); story.side.ow_kanister.desc = 'Bring den roten Kanister zurück zur Zapfinsel der Tankstelle.'; });
   hit(2.1, 1.4, 1.3, 120.4, .7, 28.2, 'Müllcontainer', () => { Audio.play('metalOpen', { gain: .35, rate: .9, x: 120, y: 1, z: 28, ref: 2 }); toast('Im Container: Kinderschuhe. Sieben Paar, ordentlich nebeneinander. Und ein einzelner.', 4200); });
   hit(3.5, 1.2, 3, 124.2, .6, 23.5, 'Reifenstapel', () => toast('Auf den Reifen, mit weißer Kreide gezählt: I II III IV V VI VII. Der achte Strich ist frisch.', 4200));
   hit(4.4, 1.6, 2, 122.5, .8, -14.5, 'Ausgebranntes Auto', () => toast('Auf dem Rücksitz: ein geschmolzener Kindersitz. Der Gurt ist noch geschlossen.', 4200));
   hit(4.5, 1.4, 2, 130.5, .7, -12.6, 'Schrottauto', () => { Audio.play('metalOpen', { gain: .3, rate: 1.1, x: 130, y: 1, z: -12, ref: 2 }); toast('Kofferraum: eine Decke, eine Taschenlampe ohne Batterien, ein Schulranzen. Name herausgeschnitten.', 4400); });
-  hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Transporter', () => toast('An der Seite, unter Rost: AMT FÜR RÜCKF… Der Rest ist abgekratzt. Auf dem Boden der Ladefläche: acht Kinderdecken.', 4600)); // STORY-HOOK: Transporter des Amts
-  hit(2.4, 2.6, 3, 99.6, 1.3, -26.5, 'Schrottbüro', () => { Audio.knock(); toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4400); }); // STORY-HOOK: 1992
+  // Transporter: siehe ausbau_ost_west_f3 („Acht Kindersitze“)
+  // Schrottbüro: eigener Schuppen am Wendehammer (ausbau_ost_west_f3); der Geräteschuppen hier ist Günthers Schuppen (post.js)
   hit(1.6, 1.1, 17, 146.3, .55, 0, 'Straßensperre', () => openNote('Aushang an der Betonsperre', 'Laminiert, vergilbt, mit Kabelbinder befestigt:\n\n<b>SPERRGEBIET</b>\nDurchfahrt und Betreten verboten.\nAnordnung des Amtes für Rückführung vom 13.07.1992.\n' + noteHand('Zuwiderhandlungen werden nicht verfolgt.') + '\n\nDarunter hat jemand mit Kuli geschrieben:\n' + noteHand('„Weil keiner zurückkommt, den man verfolgen könnte.“'), 'ow_sperre')); // STORY-HOOK: Amt/1992
   hit(4.5, 1.6, 2.2, 150.6, .8, 2.6, 'Ausgebranntes Auto', () => { Audio.radio(150.6, 2.6); setTimeout(() => say([['*Rauschen*', 1400], ['„…einunddreißig Komma eins null… wer das hört: nicht über die Sperre…“', 3600, 'AUTORADIO'], ['*Klick*', 700]]), 500); }); // STORY-HOOK: 31,10 MHz
   hit(2, 2.6, 1.2, 144.4, 1.3, -6.9, 'Verkehrsschild', () => toast('Einfahrt verboten. Jemand hat mit Filzstift daruntergeschrieben: AUSFAHRT AUCH.', 3600));
 
   // ================================================================= ENTDECKBARES · WEST
   // STORY-HOOK: Vogelscheuche trägt Lukes Kinderjacke
-  hit(1.3, 2.2, 1, -121.2, 1.1, 24.8, 'Vogelscheuche', () => { const k5 = kapAb(5); if (!Q.jacket || (k5 && !Q.pages.has('jacke'))) { Q.jacket = true; openNote('Die Vogelscheuche', 'Sie trägt eine Kinderjacke. Blau, abgewetzt, zu klein für einen Erwachsenen.\n\nIm Kragen, mit Filzstift:\n' + noteHand('LUKE B.') + '\n\nDu hattest so eine Jacke. Du bist sicher, dass du so eine hattest.' + (k5 ? '\nIn der Tasche steckt ein gefaltetes Blatt – aus einem Schulheft gerissen.' : ''), 'ow_jacke', () => { if (k5) owPage('jacke'); }); }
+  hit(1.3, 2.2, 1, -121.2, 1.1, 24.8, 'Vogelscheuche', () => { const k5 = kapAb(5); if (!Q.jacket || !Q.pages.has('jacke')) { Q.jacket = true; openNote('Die Vogelscheuche', 'Sie trägt eine Kinderjacke. Blau, abgewetzt, zu klein für einen Erwachsenen.\n\nIm Kragen, mit Filzstift:\n' + noteHand('LUKE B.') + '\n\nDu hattest so eine Jacke. Du bist sicher, dass du so eine hattest.' + '\nIn der Tasche steckt ein gefaltetes Blatt – aus einem Schulheft gerissen.', 'ow_jacke', () => { if (k5) owPage('jacke'); else ausbau_ost_west_seite1(); }); }
     else toast(['Die Jacke riecht nach Heu. Und nach dir.', 'Der Sackkopf ist dir zugewandt. Oder war er das vorher schon?'][Math.floor(rand(0, 2))], 3600); });
   const owPage = k => { if (Q.pages.has(k)) return; Q.pages.add(k); Audio.paper(); item('ow_seiten', 'Heftseiten', 'Aus einem Schulheft gerissen. Kinderschrift, mit Bleistift.');
     const txt = { jacke: '„…das Mädchen sagt, ich darf nicht nach Hause. Da schläft schon einer in meinem Bett…“', schuppen: '„…wenn sie nicht hinsieht, darf ich runter in den Stall. Die Pferde sind weg, aber es riecht noch nach ihnen…“', tor: '„…in dem großen Haus brennt ein Licht. Da oben wohnt der Doktor, der uns vermessen hat…“' }[k];
@@ -420,27 +421,28 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     else toast('Werkzeug, Säcke, ein Kinderspaten. Alles sauber aufgereiht, als würde gleich jemand wiederkommen.', 3800); });
   hit(4.6, 2.2, .6, -125, 1.1, 56.6, () => Q.pages.has('tor') || !kapAb(5) ? 'Eisentor' : 'Eisentor (Zettel)', () => { if (kapAb(5) && !Q.pages.has('tor')) { owPage('tor'); return; }
     if (OW.gateOpen) return toast('Das Tor steht offen. Der Kies dahinter ist unberührt – bis auf deine Spuren.', 3200);
-    if (story.items.includes('drahtschneider')) { OW.gateOpen = true; Audio.play('metalHit2', { gain: .5, rate: .8, x: -125, y: 1, z: 57, ref: 3 }); Audio.play('ironDoor', { gain: .5, rate: .9, delay: .6, x: -125, y: 1, z: 57, ref: 4 });
+    if (kap() === 1 && typeof anwesen_f3Schloesser === 'function' && !anwesen_F3.schloesser) { Audio.play('ironDoor', { gain: .3, rate: 1.3, x: -125, y: 1, z: 57, ref: 3 }); toast('Eine Kette mit acht Vorhängeschlössern. Eines ist neuer als die anderen. Dahinter: Kiesweg, keine Spur.', 4200); anwesen_f3Schloesser(); return; }
+    if (story.items.includes('drahtschneider') && kapAb(4)) { OW.gateOpen = true; Audio.play('metalHit2', { gain: .5, rate: .8, x: -125, y: 1, z: 57, ref: 3 }); Audio.play('ironDoor', { gain: .5, rate: .9, delay: .6, x: -125, y: 1, z: 57, ref: 4 });
       OW.chain.visible = false; msHide(OW.gate); const pv = new T.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); VG.add(pv);
       tween(pv, { ry: -1.2 }, 2.4); toast('Die Kette gibt nach. Das Tor schwingt von selbst auf – langsam, als hätte jemand dahinter gewartet.', 4800); return; } // STORY-HOOK: Villa-Gelände geöffnet
     Audio.play('ironDoor', { gain: .35, rate: 1.3, x: -125, y: 1, z: 57, ref: 3 }); toast('Kette und Schloss. Das Schloss ist neu, die Kette dünn und rostig. Hinter dem Tor: Kiesweg, keine Spur. Oben brennt ein einziges Fenster.', 4600); }); // STORY-HOOK: Villa zunächst verschlossen
   hit(30, 4.5, .4, -125, 3.9, 57.9, 'Die Villa', () => toast(['Die Villa Seiler. Der alte Amtsarzt ist 2019 darin gestorben, allein. Seitdem brennt oben jede Nacht ein Licht.', 'Aus dem Schornstein steigt kein Rauch. Aber das Fenster ist beschlagen – von innen.'][Math.floor(rand(0, 2))], 4600)); // STORY-HOOK: Villa/„die uns zählt“
-  hit(1.8, 1.4, 1.8, -108, .8, 35.5, 'Brunnen', () => { if (kapAb(3)) { Audio.drip(-108, -.5, 35.5); setTimeout(() => { Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>„Hasen … Hasen …“</i>', 2600); }, 1400); return; }
+  hit(1.8, 1.4, 1.8, -108, .8, 35.5, 'Brunnen', () => { if (!kapAb(3)) return ausbau_ost_west_brunnen(); if (kapAb(3)) { Audio.drip(-108, -.5, 35.5); setTimeout(() => { Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>„Hasen … Hasen …“</i>', 2600); }, 1400); return; }
     Audio.play('stones1', { gain: .4, x: -108, y: .5, z: 35.5, ref: 2 }); toast('Du lässt einen Kiesel fallen. Er schlägt nicht auf.', 2600); setTimeout(() => { Audio.drip(-108, -.5, 35.5); Audio.whisper(-108, 0, 35.5, 1.8); subtitle('<i>… Luke? Bist du das oben?</i>', 2600); }, 2400); }); // STORY-HOOK: Brunnen – Stimmen von unten (versunkene Stadt?)
   hit(2.2, 1, 2.2, -108, .5, 13.2, 'Picknicktisch', () => toast('Acht Teller, acht Gabeln. Auf jedem Teller liegt ein Kiesel. Auf dem achten zwei.', 3800));
   hit(1.9, 1.3, .2, -129, 1.35, 21.4, 'Schwarzes Brett', () => openNote('Schwarzes Brett · Kleingartenverein', '<b>Parzellen 1–7 sind bis 31.10. zu räumen.</b> — Der Vorstand\n\n<b>VERMISST</b>: Zayn Wendt, 7 J., zuletzt gesehen Kreuzung, 28.7.09, 23:41\n\nGartenfest fällt aus. Bitte keine Kinder nach Einbruch der Dunkelheit.\n\n' + noteHand('Wer hat die Laternen ausgeblasen? — H. W.'), 'ow_brett')); // STORY-HOOK: Zayn Wendt, Parzelle 7
-  hit(2.6, 2.4, 2.6, -122.8, 1.2, 36.2, 'Parzelle 7', () => { Audio.knock(); toast('Schuppen von Parzelle 7, Wendt. Durch die Ritzen: eine Kinderschaukel, abmontiert, sorgfältig in Zeitung eingewickelt.', 4600); });
-  hit(3.2, 2.6, 3.2, -107.2, 1.3, 25, () => Q.matches ? 'Laube' : 'Laube (Licht)', () => { if (!Q.matches) { Q.matches = true; Audio.play('doorCreak', { gain: .3, rate: 1.2, x: -107, y: 1, z: 25, ref: 2 });
-      openNote('In der Laube', 'Drinnen brennt eine Petroleumlampe. Niemand da. Auf dem Tisch: eine Schachtel Streichhölzer und ein Zettel, mit Reißzwecke auf das Holz geheftet.\n\n' + noteHand('Wenn es dunkel wird, zündet die Laternen an, damit sie heimfinden.\nDrei. Immer drei.\n— H. W.'), 'ow_laube', () => { item('ow_streich', 'Streichhölzer', 'Aus der Laube. Die Schachtel ist feucht, aber es sind genug.'); sideStart('ow_laternen'); story.side.ow_laternen.desc = 'Zünde die drei Laternen in den Schrebergärten an (0 / 3).'; }); }
-    else toast('Die Lampe in der Laube flackert. Auf dem zweiten Stuhl liegt ein Kissen, eingedrückt, als hätte eben noch jemand gesessen.', 4200); }); // STORY-HOOK: H. W. = Hilde Wendt
+  hit(2.6, 2.4, 2.6, -122.8, 1.2, 36.2, () => Q.matches ? 'Hildes Laube · Parzelle 7' : 'Hildes Laube (Parzelle 7)', () => { if (!Q.matches) { Q.matches = true; Audio.play('doorCreak', { gain: .3, rate: 1.2, x: -122.8, y: 1, z: 36.2, ref: 2 });
+
+      openNote('Hildes Laube · Parzelle 7', 'Eine Petroleumlampe, Streichhölzer, und ein Zettel, mit Reißzwecke auf das Holz geheftet:\n\n' + noteHand('Drei. Immer drei.'), 'ow_laube', () => { item('ow_streich', 'Streichhölzer', 'Aus der Laube. Die Schachtel ist feucht, aber es sind genug.'); kirchberg_start('ow_laternen'); ausbau_ost_west_warmDesc(); }); }
+    else toast('Hildes Laube. Die Petroleumlampe brennt klein. Auf dem zweiten Stuhl ein Kissen, eingedrückt.', 4200); }); // Parzelle 7 = Hilde Wendt
   lanternsQ.forEach((Lq, i) => hit(.6, .7, .6, Lq.x, .35, Lq.z, () => Lq.on ? 'Laterne' : Q.matches ? 'Laterne anzünden' : 'Laterne', () => {
     if (Lq.on) return toast('Die Flamme steht still. Kein Wind hier unten. Nur bei dir.', 3000);
     if (!Q.matches) return toast('Eine alte Sturmlaterne. Der Docht ist neu. Jemand wollte, dass sie brennt.', 3400);
-    Lq.on = true; Q.lit++; Audio.play('switch1', { gain: .15, rate: 2 }); Audio.flick(); story.side.ow_laternen.desc = `Zünde die drei Laternen in den Schrebergärten an (${Q.lit} / 3).`;
+    Lq.on = true; Q.lit++; Audio.play('switch1', { gain: .15, rate: 2 }); Audio.flick(); ausbau_ost_west_warmDesc();
     if (Q.lit < 3) toast(Q.lit === 1 ? 'Die Laterne brennt. Irgendwo im Garten knackt ein Zweig.' : 'Zwei. Hinter dir, auf dem Kies: leise Schritte. Sie bleiben stehen, als du dich umdrehst.', 4200);
     if (Q.lit === 2) for (let k = 0; k < 4; k++) setTimeout(() => { const g = flatDir(); Audio.stepAt(player.pos.x - g.x * 3.5, player.pos.z - g.z * 3.5, .3); }, 700 + k * 480);
     if (Q.lit === 3) { Q.laternDone = true; story.items = story.items.filter(k => k !== 'ow_streich'); OW.villaDark = 18; setTimeout(() => { Audio.slam(); subtitle('Oben in der Villa geht das Licht aus. Dann, auf dem Kiesweg zum Tor: Schritte. Kleine. Viele. Sie gehen nicht zu dir. Sie gehen heim.', 6500); }, 1400);
-      setTimeout(() => sideDone('ow_laternen', 'Drei Laternen brennen. Die Schritte gingen zur Villa.'), 6000); story.lore.push({ key: 'ow_laternen', title: 'Drei Laternen', html: 'Hilde Wendt hat jede Nacht drei Laternen in den Schrebergärten angezündet, „damit sie heimfinden“. Als die dritte brannte, erlosch das Licht in der Villa. Kleine Schritte gingen auf das Tor zu.' }); } }));
+      setTimeout(() => ausbau_ost_west_warmCheck(), 6000); story.lore.push({ key: 'ow_laternen', title: 'Drei Laternen', html: 'Hilde Wendt hat jede Nacht drei Laternen in den Schrebergärten angezündet, „damit sie heimfinden“. Als die dritte brannte, erlosch das Licht in der Villa. Kleine Schritte gingen auf das Tor zu.' }); } }));
   hit(4.4, 2.2, 4.4, -132, 1.1, -20.5, 'Traktor', () => toast('Der Schlüssel steckt. Der Tank ist leer, der Sitz nass. Auf dem Kotflügel, mit Kreide: ein Pfeil nach Osten. Zur Tankstelle.', 4400)); // STORY-HOOK: Verbindung Hof ↔ Tankstelle
   hit(1.9, .9, 1, -121.6, .45, -18.6, 'Fahrrad', () => toast('Ein rotes Damenrad. Am Gepäckträger ein Aufkleber, halb abgerissen: „L. B. – 4b“. Lucys Rad. Es stand nie hier. Es stand bei euch im Keller.', 5200)); // STORY-HOOK: Lucys Fahrrad
   hit(8, 2, 3, -125, 1, -33.4, 'Heuballen', () => toast('In einen Ballen hat jemand eine Mulde gegraben. Kindergroß. Darin: acht Kieselsteine, im Kreis gelegt.', 4200));
@@ -525,9 +527,164 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // Silhouette hinter dem Kiosk-Tresen
   OW.sil = new T.Mesh(new T.PlaneGeometry(.8, 1.05), new T.MeshBasicMaterial({ map: silTex, color: 0x000000, transparent: true, opacity: .92, depthWrite: false })); OW.sil.position.set(111.4, 1.55, 27.2); OW.sil.visible = false; K.add(OW.sil);
 
+  try { await ausbau_ost_west_f3(OW, { Q, hit, put, fit, carAt, only, vanS, shedOldS, jerryS, lanternS, candleS, toysS, hayMat, barnRect, barnDoor, J, A, F, T, canvasTex, decal, glow, vlight, sm }); } catch (e) { console.warn('Ost/West F3 (AP-15)', e); }
   OW.stats = { ms: Math.round(performance.now() - t0) };
   OW.dbg = { R, regions, barnRect, barnDoor, nestP, vbb, villaLit: !!villaLit, farmhouse };
   window.ausbau_ost_west_OW = OW; // Test-/Debug-Zugriff
   OW.on = true;
 }]);
-WORLD_TICK.push((dt, t, indoor) => { const OW = ausbau_ost_west_OW; if (OW.on && OW.tick) OW.tick(dt, t, indoor); });
+WORLD_TICK.push((dt, t, indoor) => { const OW = ausbau_ost_west_OW; if (OW.on && OW.tick) OW.tick(dt, t, indoor); if (OW.on && OW.f3) ausbau_ost_west_f3Tick(dt, t); });
+
+// =====================================================================  Fassung 3 (AP-15): Kapitel-1-Nebenaufgaben Ost/West
+// 15 „Zapfsäule 3“ (Nachtschalter: Bon, Mikes Schichtbuch, Kassette 0313; Z-02; Günthers Schuppen) · 17 „Acht Kindersitze“ (zwei Transporter, Klopfen zählt die Klopfer,
+// Lampion-Kiste, Schrottbüro mit Kalender 1992) · 19 „Die Kreise sind von unten“ (Frau Aydın am Küchenfenster Nr. 8, Dina in der Scheune, Rätsel „Laterne, Laterne“,
+// „Augen zu“ gezeigt, Dinas Zeichnung, Justins Lager mit Fundamentstein, W-04, SB-01) · 20 „Da oben war es warm“ (Roxys Laube, Heft, Fisch, Brunnen, Hildes Laube, Beete, Nachbild).
+function ausbau_ost_west_schalter(Q) { const OW = ausbau_ost_west_OW; kirchberg_start('ow_kasse', { x: 112, z: 20 });
+  if (!Q.bon) { Q.bon = true; Audio.play('machine1', { gain: .25, rate: 2.2, dur: 1.4, x: 115.1, y: 1.1, z: 24.9, ref: 2 }); if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {}
+    setTimeout(() => openNote('Ein Bon', 'Thermopapier, noch warm. Die Kasse hat ihn gedruckt, als du an den Schalter getreten bist.\n\n<span style="font-family:\'Special Elite\',monospace">TANKSTELLE KRANZ · 03:13\n1× Laterne · 0,00 €\nVielen Dank für Ihren Besuch.\nBeehren Sie uns bald wieder.</span>', 'ow_bon', () => ausbau_ost_west_zapfCheck()), 1500); return; }
+  Q.book = true; Audio.paper();
+  openNote('Mikes Schichtbuch', '<span class="hand">10.7. – Nix los. Opa war da mit Pfand, einunddreißig Flaschen, will Batterien dafür. Hab gesagt, wir sind keine Bank.<br>11.7. – Wieder das Licht überm Wald. Opa sagt, nachts abschließen und nicht rausgucken.<br>12.7., nachts, kurz nach drei – Kind an Säule 3. Barfuß. Hat eine Laterne. Ruft meinen Namen.</span><br><span class="hand" style="transform:rotate(-3deg)">Sie hat bis siebzehn gezählt.</span>', 'ow_schichtbuch',
+    () => { subtitle('Mike ist rausgegangen.', 2400, 'LUKE'); ausbau_ost_west_zapfCheck(); }); }
+function ausbau_ost_west_zapfCheck() { const Q = ausbau_ost_west_OW.Q; if (!Q) return; const z02 = typeof sammeln_hatZ === 'function' && sammeln_hatZ(2), sch = typeof post_S !== 'undefined' && post_S.steps.schuppen, pol = story.photos && story.photos.has(2);
+  const n = [Q.bon, Q.book, z02, sch, pol].filter(Boolean).length; kirchberg_desc('ow_kasse', `Bon, Schichtbuch, die Zeitung über der Kasse, das Polaroid an Säule 3, der Schuppen hinter der Tankstelle. (${n}/5)`);
+  if (n >= 5) kirchberg_fertig('ow_kasse', 'Kind an Säule 3. Barfuß. Hat eine Laterne. Mike ist rausgegangen.'); }
+// ---- Brunnen (Kap. 1/2): hineinrufen, Antwort eine Sekunde zu spät
+async function ausbau_ost_west_brunnen() { if (state.talking) return; kirchberg_start('ow_laternen'); const OW = ausbau_ost_west_OW; state.talking = true;
+  try { const a = await kirchberg_wahl(['„Hallo?“', '„Roxy?“', '„Lucy?“']); if (a < 0) return; const x = -108, z = 35.5;
+    if (a === 0) { await wait(1000); Audio.whisper(x, -.4, z, 1.4); subtitle('<i>„Hallo?“</i>', 1800, 'KINDERSTIMME'); }
+    else if (a === 1) { await wait(1400); Audio.drip(x, -.6, z); subtitle('Stille. Unten ein Plätschern.', 2400); }
+    else { await wait(1100); Audio.whisper(x, -.4, z, 1.2); subtitle('<i>„Luke.“</i>', 1800, 'KINDERSTIMME'); try { Audio.musicBox && Audio.musicBox(.18); } catch (e) {} await wait(2600); await say([['Ich hab Lucy gesagt. Es hat Luke gesagt. Und drunter wieder diese Spieluhr.', 4200, 'LUKE']]); OW.brunnen = true; if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {} }
+    if (a !== 2 && !OW.brunnenH) OW.brunnenH = true; story.lore.some(l => l.key === 'ow_brunnen') || (OW.brunnen && story.lore.push({ key: 'ow_brunnen', title: 'Der Brunnen', html: 'Ich hab „Lucy“ hineingerufen. Unten hat es „Luke“ gesagt. Eine Sekunde zu spät. Darunter die Spieluhr.' }));
+  } finally { state.talking = false; ausbau_ost_west_warmCheck(); } }
+function ausbau_ost_west_seite1() { const OW = ausbau_ost_west_OW, Q = OW.Q; if (!Q || Q.pages.has('jacke')) return; Q.pages.add('jacke'); Audio.paper();
+  if (!ITEMS.ow_seiten) { ITEMS.ow_seiten = { name: 'Heftseite', desc: 'Aus einem Schulheft gerissen. Kinderschrift, mit Bleistift.' }; ICONS.ow_seiten = ICONS.paper; } addItem('ow_seiten');
+  openNote('Eine Heftseite', '<span class="hand">An Mama. Das Mädchen sagt, ich darf nicht nach Hause. Wenn sie nicht hinsieht, darf ich runter in den Stall. Die Frau aus Nr. 7 stellt Brot hin. Sie sieht mich nicht.</span>', 'ow_seite1', () => { kirchberg_start('ow_heft'); kirchberg_desc('ow_heft', 'Eine Heftseite aus der Jacke der Vogelscheuche. Im Stall am Hof: ein warmer Schlafplatz.'); }); }
+function ausbau_ost_west_warmDesc() { const OW = ausbau_ost_west_OW, Q = OW.Q || {}; kirchberg_desc('ow_laternen', `Roxys Laube, der Brunnen, Hildes Garten und drei Laternen am Weg (${Q.lit || 0}/3).`); }
+function ausbau_ost_west_warmCheck() { const OW = ausbau_ost_west_OW, Q = OW.Q || {}; ausbau_ost_west_warmDesc(); if (OW.roxyHeft && OW.brunnen && Q.laternDone) kirchberg_fertig('ow_laternen', 'Roxy ist im Juni selbst gegangen, weil sie sich an einen warmen Ort erinnerte. Die Lampen brennen noch.'); }
+
+async function ausbau_ost_west_f3(OW, c) {
+  const T = c.T, Q = c.Q; OW.f3 = { t: 0 };
+  // ================= „Acht Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
+  const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
+  const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
+  c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
+  c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
+    openNote('Der erste Transporter', 'Unter dem Rost an der Seite: BUNDESSTELLE FÜR RÜCKF… Das Auge halb abgekratzt.\n\nAuf der Ladefläche: acht festgeschraubte Kindersitze mit Messingschildern. Eines ist abgekratzt bis zum Glanz, nur der Rand eines C ist geblieben.\n\nEine Kiste, der Deckel weiß überstrichen. Mit schräger Lampe liest man die Schrift darunter: <b>SEHEN · BERGEN · SCHWEIGEN</b>.', 'ow_transporter1', () => ausbau_ost_west_transpCheck()); });
+  c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => ausbau_ost_west_klopf());
+  c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => ausbau_ost_west_kiste());
+  // ================= „Die Kreise sind von unten“: Frau Aydın (Nr. 8, Küchenfenster), Dina (Scheune), Justins Lager
+  OW.f3.nr8 = { x: 46 - 3, y: 1.75, z: 17 - 4.5 - .05 };
+  c.hit(1.4, 1.5, .6, OW.f3.nr8.x, 1.7, OW.f3.nr8.z - .3, () => OW.f3.aydin ? 'Frau Aydın' : 'Küchenfenster (Licht)', () => ausbau_ost_west_aydin());
+  OW.f3.aydinLicht = new VLight(0xffc080, .2, 5, OW.f3.nr8.x, 1.8, OW.f3.nr8.z + .6); scene.add(OW.f3.aydinLicht);
+  const R = c.barnRect, zc = (R.z0 + R.z1) / 2; OW.f3.lager = { x: R.x0 + .7, z: zc + .45 };
+  // Justins Lager unter dem Heuboden: Strohmulde (unten zu Staub, oben frisch), Blechdose Rüstungsöl, Schleifstein mit daumentiefer Mulde, Laternenhaken ohne Laterne, Fundamentstein mit Turm über Abgrund
+  { const L = OW.f3.lager; const mulde = new T.Mesh(new T.CircleGeometry(.9, 22), c.hayMat ? c.hayMat.clone() : c.sm('bark', 0xb8a070)); mulde.rotation.x = -PI / 2; mulde.scale.set(1, 1.4, 1); mulde.position.set(L.x + .35, .05, L.z); mulde.material.color && mulde.material.color.multiplyScalar(.8); scene.add(mulde);
+    const staub = msSurfMat('grime', { alpha: true, tint: 0x6a5a40 }); staub.opacity = .7; const sd = new T.Mesh(new T.PlaneGeometry(1.4, 1.9), staub); sd.rotation.x = -PI / 2; sd.position.set(L.x + .35, .055, L.z); sd.userData.noCol = true; scene.add(sd);
+    const dose = await kirchberg_mod('w_becher', 'model.glb', .13); if (dose) { dose.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.25, .23, .2); m.material.metalness = .8; m.material.roughness = .5; } }); kirchberg_setze(dose, L.x + .2, .06, L.z - .75, .4); }
+    try { const r = await MSL.gl.loadAsync('assets/boulder/model.gltf'); const b = new T.Box3().setFromObject(r.scene), sz = Math.max(...b.getSize(new T.Vector3()).toArray());
+      const stein = r.scene.clone(true); stein.scale.setScalar(.34 / sz); const sg = msGround(stein); sg.position.set(L.x + .95, .02, L.z - .6); sg.rotation.y = 1.1; scene.add(sg); // Schleifstein
+      const fund = r.scene.clone(true); fund.scale.set(1.05 / sz, .5 / sz, .8 / sz); const fg = msGround(fund); fg.position.set(L.x - .05, -.12, L.z + .75); scene.add(fg); fg.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); OW.f3.fund = fg; } catch (e) {}
+    // Turm über dem Abgrund, in den Fundamentstein geritzt (Abziehbild, nur im Streiflicht deutlich) – dasselbe Zeichen rußschwarz im Balken darüber
+    const turm = kirchberg_tex(kirchberg_cnv(256, 256, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(30,24,18,.8)'; x.lineWidth = 7; x.lineCap = 'round'; x.beginPath(); x.moveTo(w * .38, w * .62); x.lineTo(w * .38, w * .22); x.lineTo(w * .45, w * .22); x.lineTo(w * .45, w * .16); x.lineTo(w * .52, w * .16); x.lineTo(w * .52, w * .22); x.lineTo(w * .62, w * .22); x.lineTo(w * .62, w * .62); x.stroke();
+      x.beginPath(); x.moveTo(w * .12, w * .62); x.lineTo(w * .88, w * .62); x.stroke(); x.beginPath(); x.moveTo(w * .3, w * .7); x.quadraticCurveTo(w * .5, w * .95, w * .7, w * .7); x.stroke(); }));
+    kirchberg_decal(turm, .36, .36, L.x - .05, .33, L.z + .38, PI, { alpha: true });
+    kirchberg_decal(turm, .5, .5, R.x0 + .06, 2.6, zc + .4, PI / 2, { alpha: true, rough: .6 });
+    kirchberg_hit(1.8, .9, 2.2, L.x + .3, .45, L.z, 'Ein Lager im Heu', () => ausbau_ost_west_lager()); }
+  // Dina (26, Augenbinde) – versteckt im Heu, bis Luke sie im Dunkeln findet; Frau Aydın am Fenster
+  OW.f3.dinaVerst = [[R.x1 - .8, R.z0 + .9], [R.x1 - .7, R.z1 - 1], [(R.x0 + R.x1) / 2 + .6, R.z1 - .7]]; OW.f3.dinaI = 0;
+  OW.f3.summ = { t: 0, next: 0 };
+  // ================= „Da oben war es warm“: Roxys Laube (Parzelle 5) – alle Lampen an, zur Senke gedreht; Heft, Goldfischglas; Hildes Beete; Nachbild zwischen den Beeten
+  { const lx = -107.2, lz = 25, senke = Math.atan2(-100 - lx, 45 - lz);
+    for (const [dx, dz, s] of [[-1.2, -1.1, .4], [1.3, -1.2, .36], [-1.3, 1.2, .42], [1.25, 1.1, .38], [0, -1.55, .34]]) { const g = c.fit(c.lanternS.clone(true), s); c.put(g, lx + dx, lz + dz, senke + rand(-.2, .2), 0, c.A);
+      g.traverse(m => { if (m.isMesh && /buln|bulb/i.test(m.name + [].concat(m.material)[0].name)) { m.material = m.material.clone(); m.material.emissive = new T.Color(0xffb060); m.material.emissiveIntensity = 2.4; } }); c.glow(0xffa850, .9, lx + dx, s * .7, lz + dz, c.A); }
+    OW.f3.roxyL = c.vlight(0xffb068, 2.2, 8, lx, 1.3, lz); // Petroleum, Solar, Taschenlampen – ein gemeinsamer Schein (beim Laden angelegt, konstant)
+    c.hit(1.2, 1, 1, lx + .5, .8, lz - .4, 'Roxys Heft', () => ausbau_ost_west_roxyHeft());
+    // Goldfischglas (Glas + Wasser, der Fisch als kleines Leuchtbild): „Du heißt jetzt Fisch.“
+    const glas = new T.Mesh(new T.SphereGeometry(.13, 20, 14), new T.MeshStandardMaterial({ color: 0xd8e8e0, roughness: .05, metalness: 0, transparent: true, opacity: .22, depthWrite: false })); glas.position.set(lx - .6, .95, lz - .8); glas.userData.noCol = true; scene.add(glas);
+    const wasser = new T.Mesh(new T.SphereGeometry(.12, 20, 10, 0, PI * 2, PI * .35, PI * .65), new T.MeshStandardMaterial({ color: 0x5a7a70, roughness: .1, transparent: true, opacity: .35, depthWrite: false })); wasser.position.copy(glas.position); wasser.userData.noCol = true; scene.add(wasser);
+    const fisch = new T.Sprite(new T.SpriteMaterial({ map: kirchberg_tex(kirchberg_cnv(64, 32, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#e8781c'; x.beginPath(); x.ellipse(28, 16, 18, 8, 0, 0, 7); x.fill(); x.beginPath(); x.moveTo(44, 16); x.lineTo(60, 6); x.lineTo(60, 26); x.fill(); x.fillStyle = '#111'; x.beginPath(); x.arc(18, 14, 2, 0, 7); x.fill(); })), transparent: true, depthWrite: false })); fisch.scale.set(.05, .025, 1); fisch.position.copy(glas.position); scene.add(fisch); OW.f3.fisch = { s: fisch, c: glas.position.clone(), a: 0, zu: 0 };
+    c.hit(.4, .4, .4, lx - .6, .95, lz - .8, 'Goldfischglas', () => { OW.f3.fischGesehen = true; subtitle('Wer füttert den?', 2000, 'LUKE'); setTimeout(() => subtitle('Du heißt jetzt Fisch. Das ist wenigstens ehrlich.', 3200, 'LUKE'), 2600); kirchberg_start('ow_laternen', { x: lx, z: lz }); });
+    // Hildes Beete an Parzelle 7: Kinderportionen, Namensstöcke ZAYN, ROXY, MIKE; das Beet LUCY frisch gegossen
+    const px = -119.6, pz = 38.2; const beet = c.sm('../forestfloor', 0x5a4632); for (let i = 0; i < 4; i++) { const b = new T.Mesh(new T.PlaneGeometry(.8, 2.2), beet); b.rotation.x = -PI / 2; b.position.set(px + i * 1.05, .024, pz); b.userData.noCol = true; scene.add(b);
+      const n = ['ZAYN', 'ROXY', 'MIKE', 'LUCY'][i]; const st = kirchberg_decal(kirchberg_papier({ w: 128, h: 48, bg: '#c8b890', zeilen: [[n, 10, 36, 30, '#1a1a1a', '"Caveat", cursive', 0]] }), .16, .06, px + i * 1.05, .3, pz + 1.12, 0); }
+    { const n = kirchberg_decal(kirchberg_tex(kirchberg_cnv(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 4, 32, 32, 32); g.addColorStop(0, 'rgba(20,14,8,.55)'); g.addColorStop(1, 'rgba(20,14,8,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); })), .8, 2, px + 3.15, .03, pz, 0, { rx: -PI / 2, alpha: true }); } // nass
+    c.hit(4.2, .6, 2.4, px + 1.6, .3, pz, 'Hildes Beete', () => { toast('Möhren, Kohlrabi, Radieschen – in Kinderportionen. Namensstöcke: ZAYN, ROXY, MIKE. Das Beet LUCY ist frisch gegossen.', 5000); setTimeout(() => subtitle('Gemüse für Kinder, die nicht mehr zum Essen kommen.', 3200, 'LUKE'), 2400); OW.f3.beete = true; kirchberg_start('ow_laternen'); });
+    // Nachbild zwischen den Beeten (ersetzt die Figur aus schrecken.js „garten“): Juni, warm, Grillen – Roxy dreht Lampen zur Senke
+    if (typeof addEcho === 'function' && typeof E_ === 'function') OW.f3.echo = addEcho({ id: 'echo_roxy_juni', at: [-114.2, 1.1, 29.2], title: 'Nachbild · Schrebergärten, Juni 2026', figs: [E_(-113.6, 28.6, -2.2, 1)],
+      lines: [['Juni, warm, Grillen. Eine junge Frau mit schwarzen Haaren dreht Lampen zur Senke, eine nach der anderen.', 5200], ['„Gleich. Ich hab nur noch den Fisch.“', 2800, 'ROXY'], ['Sie lacht und geht los, zur Straße, ohne Schuhe.', 3600], ['Regen. Die Lampen brennen noch.', 3000]] });
+  }
+}
+async function ausbau_ost_west_klopf() { const OW = ausbau_ost_west_OW, K = OW.f3; kirchberg_start('ow_transp', { x: 128, z: -22 }); if (state.talking) return;
+  const vp = [127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6]; Audio.play('metalHit2', { gain: .35, rate: 1.1, x: vp[0], y: 1, z: vp[2], ref: 2 }); K.klopfN = (K.klopfN || 0) + 1; K.klopfT = 1.4; K.klopfAn = true; }
+function ausbau_ost_west_antwort(n) { const OW = ausbau_ost_west_OW, K = OW.f3, vp = [127.4 - Math.sin(.35) * 2.6, 1, -20.2 - Math.cos(.35) * 2.6];
+  if (n >= 3) K.m3 = true; if (n === 2) K.m2 = true;
+  if (n <= 1) { subtitle('Stille.', 1600); if (K.m3 && K.m2 && !K.kichern) { K.kichern = true; setTimeout(() => { Audio.giggle(133.2, 1, -25.2); if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {} setTimeout(() => subtitle('Tontechniker-Regel eins: Wenn du ein Geräusch nicht erklären kannst, hast du das Mikro falsch gestellt. Regel zwei: Es gibt kein Mikro.', 6000, 'LUKE'), 2400); }, 1600); } return; }
+  for (let i = 0; i < n; i++) setTimeout(() => Audio.play('woodHit2', { gain: .28, rate: .85, x: vp[0], y: .8, z: vp[2], ref: 2 }), 300 + i * 340); }
+function ausbau_ost_west_kiste() { const OW = ausbau_ost_west_OW, K = OW.f3; kirchberg_start('ow_transp'); if (!K.hebel) { K.hebel = true; Audio.play('metalHit1', { gain: .3, rate: 1.4 }); return toast('Der Hebel klemmt.', 1800); }
+  K.kiste = true; Audio.play('metalOpen', { gain: .35, rate: 1.1 });
+  openNote('Kiste im Kofferraum', 'Stempel: <b>EINGEZOGEN · SOMMERFEST 2009 · 7 STK.</b>, darunter das Auge.\n\nSieben gefaltete Papierlampions mit Namenszetteln: ROXY, HEIDI, MIKE, DINA, LUCY, LUKE, ZAYN.\nObenauf ein achter, ungefaltet, ohne Zettel. Das Papier ist warm.', 'ow_lampions',
+    () => { subtitle('Die haben die Lampions eingesammelt. Wie Beweisstücke.', 3200, 'LUKE'); ausbau_ost_west_transpCheck(); }); }
+function ausbau_ost_west_transpCheck() { const K = ausbau_ost_west_OW.f3; const n = [K.sitze, K.kiste, K.kal, K.m3 || K.m2].filter(Boolean).length; kirchberg_desc('ow_transp', `Zwei Transporter, das Klopfen, eine Kiste, das Schrottbüro. (${n}/4)`);
+  if (n >= 4) kirchberg_fertig('ow_transp', 'Sieben Kinder kamen 2009 zurück, und jemand hatte acht Sitze eingebaut. SEHEN · BERGEN · SCHWEIGEN.'); }
+// ---- Frau Aydın (Nr. 8): Päckchen in Alufolie für Dina
+async function ausbau_ost_west_aydin() { const OW = ausbau_ost_west_OW, K = OW.f3; if (state.talking || kap() !== 1) return; state.talking = true; K.fensterAuf = true; const A = 'FRAU AYDIN';
+  try { if (!K.aydin) { K.aydin = true; kirchberg_start('ow_kreise', { x: 46, z: 10 });
+      await say([['„Luke! Lucys Luke! Komm her, du bist dünn.“', 3000, A], ['„Sie ist aus der Klinik weg, oğlum. Sie sagt, sie macht die Augen zu, bis es vorbei ist. Sie ist in der Scheune.“', 5600, A], ['„Das hier ist für sie. Sie isst nichts, was nicht in Alufolie ist.“', 3800, A]]);
+      const a = await kirchberg_wahl(['„Was soll ich ihr sagen?“', '„Warum Alufolie?“']);
+      if (a === 0) await say([['„Sag nicht ‚wie geht’s‘. Sag, was du siehst. Sie kann nicht sehen, aber sie will wissen.“', 4800, A]]); else await say([['„Vegas hat auch Alufolie. Der isst sie nicht, der klebt sie an die Tür. Jeder ist irgendwie verrückt hier, ja?“', 5200, A]]);
+      modItem('alupaeckchen', 'Päckchen in Alufolie', 'Für Dina. Warm. „Die Alufolie bringst du zurück, die ist von meiner Mutter.“', 'paper'); addItem('alupaeckchen');
+      await say([['„Die Alufolie bringst du zurück, die ist von meiner Mutter.“', 3200, A]]); kirchberg_desc('ow_kreise', 'Frau Aydın: Dina ist in der Scheune am Hof. Das Päckchen ist für sie.'); }
+    else if (K.zeichnung && !K.folieZurueck) { K.folieZurueck = true; story.items = story.items.filter(k => k !== 'alufolie');
+      await say([['„Du hast als Kind bei uns die Fensterbank vollgeschmiert. Mit Kreide. Kreise. Dina hat es dir beigebracht. Oder du ihr.“', 5800, A]]); ausbau_ost_west_kreiseCheck(); }
+    else await say([['„Geh zu ihr. Sie ist in der Scheune. Und sag, was du siehst.“', 3200, A]]);
+  } finally { state.talking = false; setTimeout(() => { K.fensterAuf = false; }, 1500); } }
+// ---- Dina in der Scheune: Rätsel „Laterne, Laterne“ (Lampe aus, dem Summen folgen), dann Päckchen, Augen zu (gezeigt), Zeichnung
+function ausbau_ost_west_inScheune() { const R = ausbau_ost_west_OW.dbg && ausbau_ost_west_OW.dbg.barnRect, P = player.pos; return R && P.x > R.x0 && P.x < R.x1 && P.z > R.z0 && P.z < R.z1; }
+function ausbau_ost_west_summen(x, z, laut) { const A = Audio; if (!A.ctx) return; const d = A.at(x, .9, z, 3); const noten = [392, 392, 392, 330, 294, 294, 294, 262, 330, 392, 440, 392]; // „Laterne, Laterne, Sonne, Mond und Sterne“ (gesummt)
+  noten.forEach((f, i) => { const o = A.osc('triangle', f * .5, i * .38, .42); A.env(o, .05 * laut, .08, .34, i * .38, d); const o2 = A.osc('sine', f, i * .38, .42); A.env(o2, .025 * laut, .08, .34, i * .38, d); try { A.lfo(5, 3, o.frequency); } catch (e) {} }); }
+async function ausbau_ost_west_dinaFund() { const OW = ausbau_ost_west_OW, K = OW.f3; if (K.dinaGefunden || state.talking) return; K.dinaGefunden = true; state.talking = true; const D = 'DINA';
+  try { subtitle('„Hier. Du Trampel.“', 2200, D); await wait(2300); if (K.dina) { const [x, z] = OW.f3.dinaVerst[OW.f3.dinaI]; K.dina.g.position.set(x, 0, z); K.dina.g.visible = true; }
+    story.items = story.items.filter(k => k !== 'alupaeckchen'); modItem('alufolie', 'Alufolie', 'Von Frau Aydıns Mutter. Zurückbringen.', 'paper'); addItem('alufolie');
+    const fr = [['„Heu. Viel Heu.“', '„Heu. Gut.“'], ['„Ein Balken mit einem Raben.“', '„Der ist oft da.“'], ['„Du. Mit Augenbinde.“', '„Weiß ich.“']];
+    for (let r = 0; r < 3; r++) { const opts = [fr[r][0], ['„Wie geht’s dir?“', '„Nichts. Es ist dunkel.“', '„Ich weiß nicht.“'][r]]; const a = await kirchberg_wahl(r % 2 ? opts.reverse() : opts); const ok = (r % 2 ? 1 : 0) === a;
+      await say([[ok ? fr[r][1] : '„Sag, was du siehst.“', 1800, D]]); if (!ok) r--; }
+    // „Augen zu“ – gezeigt, keine Taste (02 H1): kalte Hand, Schwarzbild, nackte Füße, Atem
+    await say([['„Zu.“', 1200, D]]); await fade(1, 250); Audio.play('rain1', { gain: .15, dur: 6 }); await wait(1400);
+    for (let i = 0; i < 6; i++) { const P = player.pos; setTimeout(() => Audio.stepAt(P.x - 3 + i * .45, P.z + .6, .14), i * 520); } await wait(3400); Audio.whisper(player.pos.x + .3, 1.3, player.pos.z + .3, 1.6); await wait(1800);
+    for (let i = 0; i < 4; i++) setTimeout(() => Audio.stepAt(player.pos.x + 1 + i * .6, player.pos.z + 1.4 + i * .5, .12), i * 480); await wait(2400); await fade(0, 700);
+    await say([['„Augen zu. Dann siehst du nichts. Dann sieht sie nichts. Fair.“', 3800, D], ['Wer war das?', 1600, 'LUKE'], ['„Nicht sie. Der Junge. Kommt, wenn keiner guckt.“', 3200, D], ['„Den Eisernen sieht sie nie. Der schläft da hinten. Manchmal.“', 3600, D]]);
+    openNote('Dinas Zeichnung', 'Wachsmalkreide auf Packpapier: Sieben Kreise, in jedem eine kleine Flamme, jeder mit einem Strich nach oben wie ein Stiel. Vier sind durchgestrichen, jeder anders: dünn, dick, doppelt, zittrig. Keine Straße, keine Häuser.', 'ow_dina_zeichnung',
+      async () => { await say([['„Die Kreise sind von unten.“', 2200, D], ['Sieht aus wie Spiegeleier am Stiel.', 2400, 'LUKE']]); await wait(1000); await say([['„Du auch.“', 1400, D]]); await wait(700);
+        await say([['„Ich hab die Transporter gesehen. Acht Sitze. Ich zähl nicht gern. Ich hab trotzdem gezählt.“', 4600, D]]); K.zeichnung = true; if (!ITEMS.dina_zeichnung) modItem('dina_zeichnung', 'Dinas Zeichnung', 'Sieben Kreise mit Flamme und Stiel. Vier durchgestrichen.', 'paper'); addItem('dina_zeichnung'); ausbau_ost_west_kreiseCheck(); });
+  } finally { state.talking = false; } }
+function ausbau_ost_west_lager() { const OW = ausbau_ost_west_OW, K = OW.f3; kirchberg_start('ow_kreise'); K.lager = true;
+  openNote('Ein Lager im Heu', 'Unter dem Heuboden eine Strohmulde, unten zu Staub zerfallen, oben frisch. Eine Blechdose Rüstungsöl, ranzig. Ein Schleifstein mit einer daumentiefen Mulde. Ein Laternenhaken ohne Laterne.\n\nIm Heu ein Fundamentstein. Darauf, eingeritzt: ein Turm über einem Abgrund.', 'ow_justinlager',
+    () => { subtitle('Jemand, der ein Schwert schärft. In Dinas Scheune. Ich frag Frau Aydın lieber nicht.', 4200, 'LUKE'); ausbau_ost_west_kreiseCheck(); }); }
+function ausbau_ost_west_kreiseCheck() { const K = ausbau_ost_west_OW.f3, sb = typeof sammeln_hatSB === 'function' && sammeln_hatSB(1); kirchberg_desc('ow_kreise', `Dina finden, ihr sagen, was du siehst, das Lager unter dem Heuboden, die Alufolie zurück. ${sb ? '' : '(Da liegt noch ein Blatt.)'}`);
+  if (K.zeichnung && K.lager && K.folieZurueck && sb) kirchberg_fertig('ow_kreise', 'Jemand in Eisen schläft seit langem auf diesem Hof, und der Rabe gehört zu seinem Zeichen. Die Kreise sind von unten.'); }
+async function ausbau_ost_west_roxyHeft() { const OW = ausbau_ost_west_OW; kirchberg_start('ow_laternen', { x: -107, z: 25 }); OW.roxyHeft = true;
+  const s = ['Die Lampen sind für sie. Damit sie weiß, dass ich komme. Ich lass sie an, auch wenn Lars meckert.', 'Seit Mama im Heim ist, ist es im Haus so kalt. Heizung auf fünf und trotzdem kalt. Da oben war es warm. Ich weiß das noch. Sonst weiß ich fast nichts mehr, aber das weiß ich.', 'Wenn ich gehe, mach ich Licht. Richtig Licht. Damit sie mich findet und nicht die anderen.', '<i>(andere Tinte)</i> Fisch füttern!!! Wie heißt der noch.'];
+  openNote('Roxys Heft', s.map(t => `<span class="hand">${t}</span>`).join('<br><br>'), 'ow_roxy_heft', () => { subtitle('Roxy hat ihr eigenes Haus angezündet.', 3000, 'LUKE'); if (!story.lore.some(l => l.key === 'ow_roxy')) story.lore.push({ key: 'ow_roxy', title: 'Roxy', html: 'Roxy ist im Juni selbst gegangen, weil sie sich an einen warmen Ort erinnerte. Die Lampen in ihrer Laube brennen noch, alle zur Senke gedreht.' }); ausbau_ost_west_warmCheck(); }); }
+async function ausbau_ost_west_figuren() { const OW = ausbau_ost_west_OW, K = OW.f3; if (K.figTry || typeof lwo_neueFigur !== 'function' || typeof LWO === 'undefined' || !LWO.ready) return; K.figTry = true;
+  const A = await kirchberg_figur('aydin', { id: 'aydin', speed: .8, stride: 1 }); if (A) { kirchberg_clip(A, A.acts.window_lean ? 'window_lean' : 'idle'); const W = K.nr8; A.g.position.set(W.x, -.08, W.z + .3); A.g.rotation.y = PI; A.g.visible = false; lwo_blick(A, 'luke'); K.aydinF = A; }
+  const D = await kirchberg_figur('dina_erw', { id: 'dina_erw', speed: .6, stride: .9 }); if (D) { D.g.visible = false; K.dina = D; lwo_blick(D, null); // Augenbinde: dunkles Stoffband um den Kopf (Stoff-Scan)
+    if (D.head) { const m = new THREE.MeshStandardMaterial({ map: msTex('wallpaper_fabric/b.jpg', true), color: 0x2a2224, roughness: 1, side: THREE.DoubleSide }); const band = new THREE.Mesh(new THREE.CylinderGeometry(.095, .098, .045, 20, 1, true), m); const s = 1 / (D.head.getWorldScale(new THREE.Vector3()).x || 1); band.scale.setScalar(s); band.position.set(0, .085 * s, .01 * s); band.userData.noCol = true; D.head.add(band); } } }
+function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f3; if (!K) return; K.t += dt;
+  if (!K.figTry && typeof LWO !== 'undefined' && LWO.ready) ausbau_ost_west_figuren();
+  if (!K.sb01 && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-01'] && typeof sammeln_platz === 'function') { K.sb01 = true; const L = K.lager; sammeln_platz('SB-01', { x: L.x + .2, y: .09, z: L.z - .62, label: 'Unter der Öldose · ein Blatt' }); } // AP-11: SB-01 zu Justins Lager
+  // Frau Aydın: am Fenster, solange Luke nah ist (Kap. 1), Fensterlicht weich
+  if (K.aydinF) { const d = Math.hypot(player.pos.x - K.nr8.x, player.pos.z - K.nr8.z), an = kap() === 1 && (K.fensterAuf || d < 7) && !state.inBasement; if (K.aydinF.g.visible !== an) K.aydinF.g.visible = an; }
+  if (K.aydinLicht) K.aydinLicht.intensity += (((K.fensterAuf || K.aydinF && K.aydinF.g.visible) ? 1.1 : .2) - K.aydinLicht.intensity) * Math.min(1, dt * 2);
+  // Klopf-Antwort nach der Pause
+  if (K.klopfT > 0) { K.klopfT -= dt; if (K.klopfT <= 0) { const n = K.klopfN; K.klopfN = 0; ausbau_ost_west_antwort(n); ausbau_ost_west_transpCheck(); } }
+  // Goldfisch schwimmt zur Glaswand, wenn Luke kommt
+  if (K.fisch) { const F = K.fisch, d = Math.hypot(player.pos.x - F.c.x, player.pos.z - F.c.z); F.a += dt * (d < 2.5 ? .4 : 1.1); const r = d < 2.5 ? .02 : .07; F.s.position.set(F.c.x + Math.cos(F.a) * r, F.c.y - .01 + Math.sin(t * 1.3) * .015, F.c.z + Math.sin(F.a) * r); }
+  // Dina: Rätsel „Laterne, Laterne“ – nur Kap. 1, nach Frau Aydın; mit Lampe flieht sie ins Heu, ohne Lampe summt sie (räumlich, lauter beim Näherkommen)
+  if (kap() === 1 && K.aydin && !K.dinaGefunden && ausbau_ost_west_inScheune() && !state.talking) { const S = K.summ; S.t += dt; const [x, z] = K.dinaVerst[K.dinaI], d = Math.hypot(player.pos.x - x, player.pos.z - z);
+    if (!S.start) { S.start = true; S.t = 0; kirchberg_desc('ow_kreise', 'Dina ist in der Scheune. Irgendwo im Heu.'); }
+    if (flashOn) { if (d < 6 && !S.floh) { S.floh = true; Audio.play('stones1', { gain: .05, rate: 3.2, dur: .4, x, y: .3, z, ref: 2 }); K.dinaI = (K.dinaI + 1) % K.dinaVerst.length; } }
+    else { S.floh = false; if ((S.next -= dt) < 0) { S.next = 5.2; ausbau_ost_west_summen(x, z, 1); } if (d < 1.3) ausbau_ost_west_dinaFund(); }
+    const h = S.t > 110 ? 5 : S.t > 90 ? 4 : S.t > 60 ? 2 : S.t > 30 ? 1 : 0; if (h > (S.hilfe || 0)) { S.hilfe = h;
+      if (h === 1) subtitle('Mit Lampe rennt sie weg.', 2600, 'LUKE'); else if (h === 2) subtitle('Ohne Lampe summt sie. Hört man, woher?', 3000, 'LUKE'); else if (h === 4) subtitle('„' + (d < 3 ? 'Wärmer.' : 'Kalt.') + '“', 1600, 'DINA'); else if (h === 5) { subtitle('„Hier. Du Trampel.“', 2000, 'DINA'); ausbau_ost_west_dinaFund(); } } }
+  if (K.dina && K.dina.g.visible && (kap() !== 1 || !ausbau_ost_west_inScheune() && Math.hypot(player.pos.x - K.dina.g.position.x, player.pos.z - K.dina.g.position.z) > 25)) { /* bleibt in der Scheune sitzen */ }
+}

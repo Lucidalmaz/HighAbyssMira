@@ -1,11 +1,13 @@
 // =====================================================================  GEHEIMNISSE (Modul „geheimnisse“): Spielsachen des Kindes im Licht – drei Sammelreihen, die sich gegenseitig verraten
 // · 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – das Kind versteckt sich vor dem Licht.
-//   Jeder flüstert eine Zahl (das Kind zählt). Alle sieben: Neben-Twist „Das Versteck“.
+//   Jeder flüstert eine Zahl (das Kind zählt). Fassung 3 (AP-18, Kap. 3 Nebenaufgabe 14 „Warm wie eine Hand“): nur in Kap. 3 ab UK 5 bis zur vierten Laterne
+//   (neben3_offen); Splitter der Schiffshaut. RH-10: Stein in der Tasche + Justin < 5 m → leiser Summton (Audio, kein Licht) und vier Zeilen. Der vierte Stein
+//   flüstert direkt hinter Luke; Whiskey schnappt sich einmal einen glimmenden Stein und lässt ihn fallen, sobald die Lampe angeht. Ein Stein bleibt im Inventar.
 // · 5 Wrackteile: verbogenes Rostblech (Scan-Oberfläche) mit eingedrückten Kinderhänden. Zusammen: das Wappen vom Hohen Abgrund.
-// · 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel der Grauen).
+// · 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel des Graukinds).
 //   Alle vier: Kreide-Hinweise, wo die Lichtsteine liegen.
 // Fortschritt steckt in story.lore (wird mit dem Spielstand gespeichert). Unreal-Modelle aus unreal/Export_Requisiten.bat ersetzen die Zusammenbauten.
-const geheimnisse_S = { ready: false, stones: [], wrecks: [], totems: [], litHint: false, t: 0 };
+const geheimnisse_S = { ready: false, stones: [], wrecks: [], totems: [], litHint: false, t: 0, humOn: false, humG: null, rhBusy: false, wk: null, wkMesh: null, chk: 0 };
 const geheimnisse_has = k => story.lore.some(l => l.key === k);
 const GEHEIM_STONES = [ // [x, z, Ort-Hinweis]
   [-12.2, -9.4, 'Wo Roxy Feuer gemacht hat.'], [3.4, -39.6, 'Wo Lucy gewartet hat.'], [-61.6, 89.8, 'Wo die Toten zählen.'], [31, 71.5, 'Wo die Schaukel quietscht.'],
@@ -37,6 +39,7 @@ function geheimnisse_plate(mat, handMat) {
 WORLD_MODS.push(['Geheimnisse', async () => {
   const S = geheimnisse_S, V = THREE.Vector3;
   story.side.geh_steine = { title: 'Warm wie eine Hand', desc: 'Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.', state: 'hidden' };
+  modItem('geh_lichtstein', 'Ein Lichtstein', 'Ein kleiner Stein, warm wie eine Hand. Hart, matt, grauweiß. Innen Adern, die im Dunkeln leuchten.', 'paper');
   story.side.geh_wrack = { title: 'Blech vom Himmel', desc: 'Verbogene Metallteile, dort wo das Licht war.', state: 'hidden' };
   story.side.geh_totem = { title: 'Die Zählgestelle', desc: 'Jemand hat an den Rändern von Lost Eyengless etwas aufgestellt.', state: 'hidden' };
   // --- Lichtsteine
@@ -50,6 +53,7 @@ WORLD_MODS.push(['Geheimnisse', async () => {
       const key = 'geh_stein_' + i; S.stones.push({ o, hit, key, i, hint, on: false });
       interact(hit, 'Glimmenden Stein aufheben', () => geheimnisse_takeStone(S.stones[i])); uninteract(hit);
     });
+    { const o = msFit(rock.clone(true), .2, 'max'); o.traverse(m => { if (m.isMesh) { m.material = gm; m.castShadow = false; } }); o.userData.noCol = true; o.visible = false; scene.add(o); S.wkMesh = o; } // Whiskeys Beute (Humor)
   } catch (e) { console.warn('Geheimnisse: Steine', e); }
   // --- Wrackteile
   try {
@@ -86,13 +90,41 @@ WORLD_MODS.push(['Geheimnisse', async () => {
 }]);
 function geheimnisse_takeStone(s) {
   if (!s.on || geheimnisse_has(s.key)) return; story.lore.push({ key: s.key, title: 'Lichtstein · ' + GEHEIM_WORDS[s.i], html: `Ein kleiner Stein, warm wie eine Hand. Im Dunkeln leuchten seine Risse.\n\n${s.hint}` });
-  s.o.visible = false; uninteract(s.hit); sideStart('geh_steine');
-  const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length; story.side.geh_steine.desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
-  Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200);
-  if (n === 7) setTimeout(() => { sideDone('geh_steine', 'Alle sieben Zähler gefunden.'); // STORY-HOOK: Neben-Twist „Das Versteck“ (Ende B: wer gefunden wird, muss zählen)
-    openNote('Das Versteck', 'Sieben Steine, sieben Zahlen. Wer zählt, hat die Augen zu.\n\nUnd wer die Augen zu hat, sucht niemanden.\n\n<span class="hand">Beim Versteckspiel gilt: Wer gefunden wird, muss zählen.</span>', 'geh_versteck');
-    setTimeout(() => subtitle('<i>… gefunden. Jetzt zählst du …</i>', 4200), 800); }, 4600);
+  s.o.visible = false; uninteract(s.hit); if (typeof neben3_start === 'function') neben3_start('geh_steine', { x: s.o.position.x, z: s.o.position.z }); else sideStart('geh_steine'); addItem('geh_lichtstein');
+  const n = geheimnisse_S.stones.filter(x => geheimnisse_has(x.key)).length, desc = `Lichtsteine: ${n} / 7. Sie zeigen sich nur im Dunkeln.`;
+  if (typeof neben3_desc === 'function') neben3_desc('geh_steine', desc); else story.side.geh_steine.desc = desc;
+  if (n === 4) { const P = player.pos, yw = player.yaw; Audio.whisper(P.x + Math.sin(yw) * .55, 1.45, P.z + Math.cos(yw) * .55, 1.6); toast(`Der Stein ist warm. Direkt hinter dir, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4600); } // Schreck (1): nicht vor Luke, hinter ihm
+  else { Audio.whisper(s.o.position.x + 1, 1.4, s.o.position.z, 1.4); toast(`Der Stein ist warm. Ganz nah, eine Kinderstimme: „… ${GEHEIM_WORDS[n - 1]} …“`, 4200); }
+  if (n < 7) setTimeout(() => geheimnisse_whiskeyWill(s), 1600);
+  if (n === 7) setTimeout(() => { if (typeof neben3_fertig === 'function') neben3_fertig('geh_steine', 'Sieben Steine, sieben Zahlen. Einer ist noch in deiner Tasche.'); else sideDone('geh_steine', 'Sieben Steine, sieben Zahlen.');
+    openNote('Warm wie eine Hand', 'Sieben Steine, sieben Zahlen. Sie zählt.\nSie sind warm, und sie summen, wenn er in der Nähe ist.\nDie Männer am Rand sammeln das Zeug in Kisten. Die denken, es ist Beute.\nEs ist Haut.', 'geh_haut'); }, 4600);
 }
+// ---- RH-10: Stein in der Tasche und Justin näher als 5 m → Stein und Rüstung summen im selben Ton (nur Ton, kein Licht)
+function geheimnisse_hum(on) { const S = geheimnisse_S, A = Audio; if (!A.ctx || S.humOn === on) return; S.humOn = on;
+  if (!S.humG) { if (!on) return; const c = A.ctx; S.humG = c.createGain(); S.humG.gain.value = 0; S.humG.connect(A.master);
+    for (const [f, g] of [[98, .5], [98.6, .42], [196.3, .16], [294.2, .05]]) { const o = c.createOscillator(), gg = c.createGain(); o.type = 'sine'; o.frequency.value = f; gg.gain.value = g; o.connect(gg); gg.connect(S.humG); o.start(); } } // zwei fast gleiche Töne: Schwebung
+  const t = A.ctx.currentTime; S.humG.gain.cancelScheduledValues(t); S.humG.gain.setValueAtTime(S.humG.gain.value, t); S.humG.gain.setTargetAtTime(on ? .045 : 0, t, on ? 1.1 : .45); }
+async function geheimnisse_rh10() { const S = geheimnisse_S; if (S.rhBusy) return; S.rhBusy = true; const was = state.talking; state.talking = true;
+  try { await wait(2200); await say([['„Das ist kein Netzbrummen. Das ist ein Ton, den ich noch nie gemischt hab. Und ihr zwei macht ihn zusammen.“', 5600, 'LUKE'], ['„Der fällt von ihr ab, wenn es aufgeht.“', 3600, 'JUSTIN'], ['„Und deine Rüstung?“', 2400, 'LUKE']]);
+    await wait(1800); await say([['„Auch.“', 2400, 'JUSTIN']]); } finally { if (!was) state.talking = false; }
+  if (typeof neben3_rh === 'function') neben3_rh('RH-10'); else if (typeof justin_rh === 'function') justin_rh('RH-10'); }
+function geheimnisse_rhTick() { const S = geheimnisse_S; if (!Audio.ctx) return;
+  const near = kap() === 3 && story.items.includes('geh_lichtstein') && typeof justin !== 'undefined' && justin.g.visible && !state.inBasement && Math.hypot(justin.g.position.x - player.pos.x, justin.g.position.z - player.pos.z) < 5;
+  geheimnisse_hum(near); if (near && !S.rhBusy && !state.talking && !ui.overlay && !(ch3.armorHints && ch3.armorHints.has('RH-10'))) geheimnisse_rh10(); }
+// ---- Humor: Whiskey will den glimmenden Stein; wenn die Lampe angeht, glimmt er nicht mehr – dann ist er uninteressant (einmal)
+function geheimnisse_whiskeyWill(s) { const S = geheimnisse_S, W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
+  if (!W || !W.g || !W.g.visible || W.mode === 'gone' || W.mood === 'still' || W.fl || S.wk || state.talking || geheimnisse_lit() || kap() !== 3 || (typeof neben3_hat === 'function' && neben3_hat('geh_whiskey'))) return;
+  const P = player.pos; if (Math.hypot(W.g.position.x - P.x, W.g.position.z - P.z) > 30) return;
+  const yw = player.yaw, x = P.x - Math.sin(yw) * 1.3, z = P.z - Math.cos(yw) * 1.3; if (typeof neben3_merk === 'function') neben3_merk('geh_whiskey');
+  whiskey_setzen(x, whiskey_perch(x, z), z, () => { if (geheimnisse_lit()) return; S.wk = { t: 0 }; whiskey_play('EatSomething', .08, true, 1.4); Audio.play('woodHit1', { gain: .1, rate: 2.4, x, y: .3, z, ref: 2 });
+    toast('Whiskey pickt dir den glimmenden Stein aus der Hand und hüpft zwei Schritte weg. Er gibt ihn nicht her.', 4400); }); }
+function geheimnisse_whiskeyTick(dt) { const S = geheimnisse_S, W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; if (!S.wk || !W || !W.g || !S.wkMesh) return;
+  if (W.head) { W.head.getWorldPosition(_geheimV); const a = W.g.rotation.y + (W.hy || 0); S.wkMesh.position.set(_geheimV.x + Math.sin(a) * .12, _geheimV.y - .04, _geheimV.z + Math.cos(a) * .12); S.wkMesh.visible = !W.fl && W.g.visible; }
+  if (geheimnisse_lit() && !S.wk.drop) { S.wk.drop = true; S.wkMesh.visible = false; Audio.play('stones1', { gain: .18, rate: 1.8, x: W.g.position.x, y: .2, z: W.g.position.z, ref: 2 }); whiskey_play('IdleScratchWing', .2);
+    toast('Im Licht glimmt der Stein nicht mehr. Whiskey lässt ihn fallen, als hätte er ihn nie gewollt. Du hebst ihn auf.', 4400);
+    setTimeout(() => { subtitle('Du stehst nur auf Sachen, die leuchten. Ich kenn Leute wie dich.', 3800, 'LUKE'); S.wk = null; }, 2200); } }
+const _geheimV = new THREE.Vector3();
+function geheimnisse_lit() { return flashOn && FLASH.charge > 0 && !(state.flashFail > 0); }
 function geheimnisse_wreck(i, text, key) {
   if (geheimnisse_has(key)) return toast(text, 3600);
   story.lore.push({ key, title: 'Blech vom Himmel · ' + (i + 1), html: text }); sideStart('geh_wrack'); Audio.play('metalSheet', { gain: .35, rate: .8 });
@@ -106,12 +138,13 @@ function geheimnisse_totem(i, key) {
   story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16); // Berührung: Vision (Modul visionen)
   if (typeof visionen_totem === 'function') setTimeout(() => visionen_totem(i), 1400);
   const n = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4.`;
-  if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); sideStart('geh_steine');
+  if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); if (typeof neben3_offen !== 'function' || neben3_offen('geh_steine')) sideStart('geh_steine');
     openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 5000);
 }
 WORLD_TICK.push((dt, t) => {
   const S = geheimnisse_S; if (!S.ready) return; S.t -= dt; geheimnisse_glow.value = .55 + .45 * Math.sin(t * 1.3) * Math.sin(t * .37 + 1);
-  const P = player.pos, dark = !flashOn || FLASH.charge <= 0 || state.flashFail > 0, k3 = kapAb(3); // Lichtsteine erst ab Kapitel 3 (PK-A A24: gehören zur 03:13-Nacht)
+  const P = player.pos, dark = !flashOn || FLASH.charge <= 0 || state.flashFail > 0; S.chk -= dt; if (S.chk <= 0) { S.chk = .25; S.k3 = typeof neben3_offen === 'function' ? neben3_offen('geh_steine') : kapAb(3); geheimnisse_rhTick(); } // Lichtsteine nur in der 03:13-Nacht (Kap. 3, UK 5 bis zur vierten Laterne)
+  const k3 = S.k3; geheimnisse_whiskeyTick(dt);
   for (const s of S.stones) { const want = dark && k3 && !geheimnisse_has(s.key); if (want !== s.on) { s.on = want; s.o.visible = want; if (want) { if (!interactables.includes(s.hit)) interactables.push(s.hit); } else uninteract(s.hit); }
     if (want && !S.litHint && Math.hypot(s.o.position.x - P.x, s.o.position.z - P.z) < 12) { S.litHint = true; subtitle('Da. Im Dunkeln. Am Boden glimmt etwas – als hätte es nur gewartet, bis du das Licht ausmachst.', 5000); } }
   // Totems: drehen sich zu dir, sobald du wegsiehst (nur in der Nähe)
@@ -122,3 +155,4 @@ WORLD_TICK.push((dt, t) => {
     T.seen = looking; }
 });
 const _geheimFwd = new THREE.Vector3();
+window.__geheimK3 = { S: geheimnisse_S, take: i => geheimnisse_takeStone(geheimnisse_S.stones[i]), rh10: () => geheimnisse_rh10(), will: () => geheimnisse_whiskeyWill(geheimnisse_S.stones[0]), lit: () => geheimnisse_lit() }; // Testzugriff (AP-18)

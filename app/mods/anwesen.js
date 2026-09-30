@@ -38,6 +38,7 @@ function anwesen_wrap(label, x, z, fn) {
 WORLD_MODS.push(['Anwesen', async () => {
   const S = anwesen_S, OW = ausbau_ost_west_OW, T = THREE, X = C2.x, Z = C2.z;
   story.side.anw_teile = { title: 'Acht Schlösser', desc: 'Die Tür der Villa Seiler hat acht Schlüssellöcher.', state: 'hidden' };
+  try { anwesen_f3Bau(); } catch (e) { console.warn('Anwesen: winkendes Fenster (AP-15)', e); }
   const rust = msSurfMat('rust_sheet', { tint: 0x7a6a5e }); rust.metalness = .55; rust.roughness = .75;
   const iron = new T.MeshStandardMaterial({ color: 0x2a2826, roughness: .5, metalness: .85 });
   const ue = await ausruestung_ue('schluesselteil', .16), partMesh = () => ue ? ue.clone(true) : anwesen_partMesh(rust);
@@ -339,7 +340,7 @@ c3Endcard = (o => (...a) => { o(...a); let b = $('endcard').querySelector('.go4'
   b.style.display = ''; b.textContent = 'WEITER · KAPITEL 4';
   b.onclick = e => { e.stopPropagation(); b.style.display = 'none'; chapter4Begin(); }; })(c3Endcard);
 WORLD_TICK.push((dt, t) => {
-  const S = anwesen_S; if (!S.ready || !state.started) return; const P = player.pos;
+  const S = anwesen_S; if (!S.ready || !state.started) return; const P = player.pos; anwesen_f3Tick(dt, t);
   if (S.pressT > 0) { S.pressT -= dt; if (S.wheel) S.wheel.rotation.x += dt * 7; if (S.pressLight) S.pressLight.intensity = 1.2 + Math.random() * .6; if (S.pressT <= 0 && S.pressLight) S.pressLight.intensity = 0; }
   if (S.smoke) anwesen_smokeTick(S.smoke, dt, t, P);
   const dv = Math.hypot(P.x + 125, P.z - 66); if (dv > 45 || S.inHall) return;
@@ -414,3 +415,44 @@ function anwesen_smokeTick(M, dt, t, P) {
 }
 if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
 window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a), S: anwesen_S, endcard4: () => anwesen_endcard(), smoke: () => anwesen_S.smoke ? { n: anwesen_S.smoke.n, on: anwesen_S.smoke.on, vis: anwesen_S.smoke.m.visible } : null }; // Testzugriff
+
+// =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 21 „Das winkende Fenster“ (Tor der Villa Seiler)
+// Kette mit acht Vorhängeschlössern (eines neuer), Kiesweg ohne Spur, vollgestopfter Briefkasten („EMPFÄNGER VERSTORBEN – ZURÜCK“); im ersten Stock winkt in einem
+// dunklen Fenster eine kleine, blasse Hand, langsam, wie am Bahnsteig. Lampe drauf: sie hört auf; Lampe weg: sie winkt wieder; beim dritten Mal im Fenster daneben.
+const anwesen_F3 = { hand: null, fenster: [], i: 0, winkt: false, mal: 0, t: 0, schloesser: false, kasten: false };
+function anwesen_f3Bau() { const F = anwesen_F3, OW = ausbau_ost_west_OW, T = THREE; window.__anwF3 = F; // Testzugriff
+ if (!OW || !OW.villaGlass) return;
+  // die dunklen Fenster im ersten Stock (Richtung Tor), das nähere zur Treppe als zweites
+  F.fenster = OW.villaGlass.filter(m => m.position.y > 5).sort((a, b) => a.position.distanceTo(new T.Vector3(-125, 6, 57)) - b.position.distanceTo(new T.Vector3(-125, 6, 57))).slice(0, 2);
+  if (!F.fenster.length) return;
+  const tex = (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 192; const g = c.getContext('2d'); g.clearRect(0, 0, 128, 192); g.filter = 'blur(2.5px)'; g.fillStyle = 'rgba(214,218,222,.78)';
+    g.beginPath(); g.ellipse(64, 120, 26, 34, 0, 0, 7); g.fill(); for (let f = 0; f < 4; f++) { g.beginPath(); g.ellipse(40 + f * 16, 62 - Math.abs(f - 1.5) * 6, 7, 26, (f - 1.5) * .12, 0, 7); g.fill(); } g.beginPath(); g.ellipse(94, 108, 7, 20, -.7, 0, 7); g.fill(); g.fillRect(50, 140, 30, 52);
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })();
+  const hand = new T.Mesh(new T.PlaneGeometry(.3, .45), new T.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, opacity: .9, color: 0xe8ecf0, fog: false })); hand.geometry.translate(0, .22, 0); hand.userData.noCol = true;
+  const piv = new T.Group(); piv.add(hand); scene.add(piv); F.hand = piv; F.handM = hand; anwesen_f3Setze(0); piv.visible = false;
+  // acht Vorhängeschlösser an der Kette, eines neuer (Abziehbilder auf der Kette)
+  const lockTx = neu => { const c = document.createElement('canvas'); c.width = 64; c.height = 80; const g = c.getContext('2d'); g.clearRect(0, 0, 64, 80); g.strokeStyle = neu ? '#b8b8b0' : '#6a5a48'; g.lineWidth = 6; g.beginPath(); g.arc(32, 26, 14, PI, 0); g.lineTo(46, 36); g.moveTo(18, 26); g.lineTo(18, 36); g.stroke();
+    const gr = g.createLinearGradient(0, 34, 0, 76); gr.addColorStop(0, neu ? '#d8c888' : '#8a7040'); gr.addColorStop(1, neu ? '#a08840' : '#4a3a20'); g.fillStyle = gr; g.fillRect(10, 34, 44, 40); g.fillStyle = '#1a140c'; g.fillRect(30, 48, 4, 12); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; };
+  const tOld = lockTx(false), tNew = lockTx(true); for (let i = 0; i < 8; i++) { const m = new T.Mesh(new T.PlaneGeometry(.075, .095), new T.MeshStandardMaterial({ map: i === 5 ? tNew : tOld, transparent: true, alphaTest: .1, roughness: i === 5 ? .3 : .7, metalness: .6, side: T.DoubleSide }));
+    m.position.set(-125.22 + i * .065, 1.02 + Math.sin(i * 1.7) * .04, 56.87); m.rotation.set(0, PI, (i - 3.5) * .08); m.userData.noCol = true; scene.add(m); }
+  // Briefkasten an der Mauer, vollgestopft, Klappe klemmt; obenauf „EMPFÄNGER VERSTORBEN – ZURÜCK“ (SB-06 liegt ab Kap. 3 hier, AP-18)
+  const ktx = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 128; const g = c.getContext('2d'); g.fillStyle = '#e8e0c8'; g.fillRect(0, 0, 256, 128); g.strokeStyle = '#a01818'; g.lineWidth = 4; g.strokeRect(14, 24, 228, 56); g.fillStyle = '#a01818'; g.font = 'bold 21px Arial'; g.textAlign = 'center'; g.fillText('EMPFÄNGER VERSTORBEN', 128, 50); g.fillText('– ZURÜCK –', 128, 74); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })();
+  const k = new T.Mesh(new T.PlaneGeometry(.26, .13), new T.MeshStandardMaterial({ map: ktx, roughness: .9 })); k.position.set(-121.9, 1.32, 56.66); k.rotation.set(-.2, PI, .06); k.userData.noCol = true; scene.add(k);
+  const kh = box(.5, .5, .4, -121.9, 1.2, 56.6, hidden, { cast: false }); interact(kh, 'Briefkasten der Villa', () => { F.kasten = true; kirchberg_start('anw_fenster', { x: -125, z: 54 }); toast('Vollgestopft, die Klappe klemmt. Obenauf ein Umschlag mit rotem Stempel: EMPFÄNGER VERSTORBEN – ZURÜCK.', 4600); anwesen_f3Check(); });
+}
+function anwesen_f3Setze(i) { const F = anwesen_F3, W = F.fenster[Math.min(i, F.fenster.length - 1)]; if (!W) return; const n = new THREE.Vector3(0, 0, 1).applyQuaternion(W.quaternion);
+  F.hand.position.copy(W.position).addScaledVector(n, .012); F.hand.position.y -= .28; F.hand.quaternion.copy(W.quaternion); F.hand.position.x += (i ? .12 : -.18); }
+function anwesen_f3Schloesser() { const F = anwesen_F3; F.schloesser = true; kirchberg_start('anw_fenster', { x: -125, z: 54 });
+  say([['Acht. Entweder da drin ist was sehr Wertvolles, oder was, das nicht rauswill.', 4200, 'LUKE']]).then(() => wait(900)).then(() => say([['Oder beides. Hier ist ja immer beides.', 2800, 'LUKE']])).then(() => anwesen_f3Check()); }
+function anwesen_f3Check() { const F = anwesen_F3; kirchberg_desc('anw_fenster', `Acht Schlösser, ein voller Briefkasten, ein Fenster im ersten Stock. (${[F.schloesser, F.kasten, F.mal >= 3].filter(Boolean).length}/3)`);
+  if (F.schloesser && F.mal >= 3) { kirchberg_fertig('anw_fenster', 'Der Rabe hat einen Laut gemacht, den er bei Kindern macht.'); if (!story.lore.some(l => l.key === 'anw_villa_k1')) story.lore.push({ key: 'anw_villa_k1', title: 'Die Villa', html: 'Acht Schlösser an der Kette, eines neuer. Oben winkt eine kleine, blasse Hand, wie am Bahnsteig. Der Rabe hat einen Laut gemacht, den er bei Kindern macht.' });
+    if (typeof karte_markierung === 'function') try { karte_markierung(-125, 66, 'ort', 'Die Villa'); } catch (e) {} } }
+const anwesen_v = new THREE.Vector3();
+function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; const P = player.pos, d = Math.hypot(P.x + 125, P.z - 60), k1 = kap() === 1;
+  if (!k1 || d > 32 || P.z > 57.5) { F.hand.visible = false; return; }
+  if (!F.start && d < 16) { F.start = true; kirchberg_start('anw_fenster', { x: -125, z: 54 }); if (!F.laut) { F.laut = true; setTimeout(() => { if (typeof whiskey_mimic === 'function') whiskey_mimic('gurren', { force: true }); setTimeout(() => subtitle('Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.', 3800, 'LUKE'), 1600); }, 2500); } }
+  F.hand.visible = true; const W = F.hand.position; anwesen_v.set(W.x - camera.position.x, W.y + .15 - camera.position.y, W.z - camera.position.z).normalize(); const licht = flashOn && fwd.dot(anwesen_v) > .985;
+  if (licht) { if (F.winkt && F.t > 1.2) { F.winkt = false; F.mal++; F.t = 0; if (F.mal === 2) { F.wechsel = true; } anwesen_f3Check(); } }
+  else if (!F.winkt) { F.t += dt; if (F.t > .8) { F.winkt = true; F.t = 0; if (F.wechsel) { F.wechsel = false; F.i = 1; anwesen_f3Setze(1); } } }
+  else F.t += dt;
+  const ziel = F.winkt ? Math.sin(t * 1.6) * .38 : 0; F.hand.rotation.z = F.hand.rotation.z * .9 + ziel * .1; F.handM.material.opacity = .82 * (F.winkt ? 1 : .55); }

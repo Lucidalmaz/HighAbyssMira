@@ -245,7 +245,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
   try {
     const leafB = gruen_tex('leaves/b.jpg', true), floorB = gruen_tex('forestfloor/b.jpg', true), patchB = msTex('wet_asphalt/b.jpg', true);
     msSurf(M.grass, 'lawn1', { tint: 0x6c7560, nrm: .55 }); gruen_surf(M.grass, 0, leafB, floorB);
-    msSurf(M.asphalt, 'road_asphalt', { tint: 0xf0f0f0 }); // Albedo ~0,05 (nasser Asphalt) statt ~0,025: die Taschenlampe zeichnet einen sichtbaren Lichtfleck gruen_surf(M.asphalt, 1, patchB, floorB);
+    msSurf(M.asphalt, 'road_asphalt', { tint: 0xf0f0f0 }); gruen_surf(M.asphalt, 1, patchB, floorB); // Albedo ~0,05 (nasser Asphalt) statt ~0,025: die Taschenlampe zeichnet einen sichtbaren Lichtfleck
     msSurf(M.sidewalk, 'pavement', { tint: 0x9c9c96 }); gruen_surf(M.sidewalk, 2, patchB, floorB);
     // Rinde (Schaukelast u. a.): Maserung entlang des Astes
     msSurf(M.bark, 'bark', { tint: 0x77706a, tile: 2 });
@@ -512,6 +512,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
           const f = new V3(); camera.getWorldDirection(f); Audio.whisper(player.pos.x - f.x * 1.1, 1.6, player.pos.z - f.z * 1.1, 1.2); } else toast(Math.random() < .5 ? 'Regenringe. Dein Gesicht zerfällt darin.' : 'Das Wasser ist wärmer, als es sein dürfte.'); }); });
   } catch (e) { console.warn('gruen Entdeckbares', e); }
   try { await gruen_dustBarrierBau(); } catch (e) { console.warn('gruen Absperrgitter', e); } // Nordzaun-Lücke (Paket W2-P11)
+  try { await gruen_wildBau(); } catch (e) { console.warn('gruen Wildschaden 1992 (AP-15)', e); }
 
   gruen_refreshAll();
   try { renderer.compileAsync(gruen_R, camera, scene).catch(() => {}); } catch (e) {}
@@ -525,6 +526,7 @@ WORLD_TICK.push((dt, t, indoor) => {
   let dy = Math.abs(player.yaw - S.cyaw) % (PI * 2); if (dy > PI) dy = PI * 2 - dy;
   if (S.rt < 0 || (cx - S.cx) ** 2 + (cz - S.cz) ** 2 > 2.2 || dy > .45) { S.rt = .8; gruen_refreshAll(false); }
   if (S.queue && S.queue.length) gruen_lodRefresh(S.queue.shift(), ...S.cam);
+  if (state.started && !indoor) gruen_wildTick(dt);
   if (indoor || !state.started) return;
   const P = player.pos, sp = Math.hypot(vel.x, vel.z);
   // Gestrüpp
@@ -558,7 +560,8 @@ async function gruen_dustBarrierBau() {
   // Blechschild, mit Draht ans linke Element gebunden
   const tx = (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 320; const g = c.getContext('2d');
     g.fillStyle = '#d8d2bf'; g.fillRect(0, 0, 512, 320); for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(${110 + rand(0, 50)},${60 + rand(0, 25)},25,${rand(.05, .3)})`; g.beginPath(); g.arc(rand(0, 512), rand(0, 320), rand(2, 16), 0, 7); g.fill(); }
-    g.strokeStyle = '#8a1c14'; g.lineWidth = 10; g.strokeRect(14, 14, 484, 292); g.fillStyle = '#1a1612'; g.textAlign = 'center'; g.font = 'bold 50px Arial'; g.fillText('WALDGEBIET', 256, 88); g.fillText('GESPERRT', 256, 144);
+    g.strokeStyle = '#8a1c14'; g.lineWidth = 10; g.strokeRect(14, 14, 484, 292); g.fillStyle = '#1a1612'; g.textAlign = 'center'; g.font = 'bold 40px Arial'; g.fillText('FORBIDDEN DUSTWOODS', 256, 82); g.font = 'bold 34px Arial'; g.fillText('BETRETEN VERBOTEN', 256, 134); // Fassung 3: zweisprachig, das Auge halb abgekratzt
+    g.strokeStyle = 'rgba(26,22,18,.7)'; g.lineWidth = 3; g.beginPath(); g.ellipse(446, 262, 22, 11, 0, 0, 7); g.stroke(); g.fillStyle = 'rgba(26,22,18,.7)'; g.beginPath(); g.arc(446, 262, 4, 0, 7); g.fill(); g.fillStyle = '#d8d2bf'; for (let i = 0; i < 26; i++) g.fillRect(430 + rand(0, 30), 248 + rand(0, 26), rand(3, 9), 2);
     g.font = '30px Arial'; g.fillText('Wildschaden', 256, 196); g.font = '24px Arial'; g.fillText('Gemeinde Lost Eyengless', 256, 244); g.fillText('13.07.1992', 256, 278);
     for (const [x, y] of [[26, 26], [486, 26], [26, 294], [486, 294]]) { g.fillStyle = '#4a3a2c'; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
     const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
@@ -571,3 +574,43 @@ async function gruen_dustBarrierBau() {
   interact(hit, () => D.open ? '' : (typeof wald_frei === 'function' && wald_frei()) ? 'Das Gitter aufbiegen (E halten)' : 'Absperrgitter',
     () => { if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
 }
+
+// =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 18 „Wildschaden, 1992“ (Nordzaun, Z-03)
+// Gespaltene Hufe, immer nur zwei nebeneinander in einer Linie (etwas auf zwei Beinen) bis zum Gitter und dahinter; Rufen/Klatschen: kein Echo;
+// ein Fuchs zwischen den ersten Stämmen dreht den Kopf weiter, als ein Fuchs kann; Lampe weg, Lampe hin: nichts. Dackel-Anzeige „Bruno“ neben Z-03.
+const gruen_F3 = { fuchs: null, t: 0, st: 'aus', hals: null, a: 0 };
+async function gruen_wildBau() { const T = THREE, F = gruen_F3; window.__gruenF3 = F; // Testzugriff
+
+  // Hufspuren im Matsch (Abziehbilder), Paare in einer Linie – vor und hinter dem Gitter
+  const huf = (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 128; const g = c.getContext('2d'); g.clearRect(0, 0, 128, 128); g.fillStyle = 'rgba(18,14,10,.82)';
+    for (const dx of [-14, 14]) { g.beginPath(); g.ellipse(64 + dx, 70, 11, 30, dx * .01, 0, 7); g.fill(); } g.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 40; i++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .5})`; g.beginPath(); g.arc(Math.random() * 128, Math.random() * 128, 2 + Math.random() * 5, 0, 7); g.fill(); }
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })();
+  const hm = new T.MeshStandardMaterial({ map: huf, transparent: true, depthWrite: false, roughness: .15, metalness: .05, polygonOffset: true, polygonOffsetFactor: -3 });
+  for (let i = 0; i < 16; i++) { const z = 86.5 + i * 1.05, x = 30.6 + Math.sin(i * .5) * .12; for (const s of [-1, 1]) { const m = new T.Mesh(new T.PlaneGeometry(.26, .3), hm); m.rotation.set(-PI / 2, 0, .02 * s); m.position.set(x + s * .16, .028 + (z > 98 ? .004 : 0), z + (s > 0 ? .04 : 0)); m.userData.noCol = true; m.renderOrder = 2; scene.add(m); } }
+  // Anzeige neben dem laminierten Zeitungsausschnitt: „Dackel entlaufen · Bruno“
+  const an = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 340; const g = c.getContext('2d'); g.fillStyle = '#e9e3cf'; g.fillRect(0, 0, 256, 340); g.fillStyle = '#222'; g.font = 'bold 34px Arial'; g.textAlign = 'center'; g.fillText('ENTLAUFEN', 128, 50);
+    g.fillStyle = '#6a5040'; g.fillRect(58, 72, 140, 100); g.fillStyle = '#3a2a1c'; g.beginPath(); g.ellipse(128, 128, 56, 22, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(176, 110, 20, 16, 0, 0, 7); g.fill();
+    g.fillStyle = '#222'; g.font = '24px Arial'; g.fillText('Dackel „Bruno“', 128, 210); g.font = '18px Arial'; g.fillText('hört auf seinen Namen', 128, 238); g.fillText('Belohnung!', 128, 266); g.fillText('Tel. 0 56 13 / 3 30 14', 128, 294);
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; return t; })();
+  const am = new T.Mesh(new T.PlaneGeometry(.2, .27), new T.MeshStandardMaterial({ map: an, roughness: .8, side: T.DoubleSide })); am.position.set(28.4, 1.12, 97.92); am.rotation.set(.02, PI - .04, .05); scene.add(am); am.userData.noCol = true;
+  const ah = box(.3, .4, .4, 28.4, 1.12, 97.7, hidden, { cast: false }); interact(ah, 'Anzeige: Dackel entlaufen', () => { kirchberg_start('gruen_wild', { x: 28, z: 95 }); subtitle('Heißen hier alle Hunde Bruno?', 2600, 'LUKE'); });
+  const sh = box(.8, .6, .4, 27.2, 1.02, 97.6, hidden, { cast: false }); interact(sh, 'Blechschild', () => { kirchberg_start('gruen_wild', { x: 28, z: 95 }); openNote('Blechschild am Gitter', '<b>FORBIDDEN DUSTWOODS · BETRETEN VERBOTEN</b>\nWALDGEBIET GESPERRT · Wildschaden\nGemeinde Lost Eyengless · 13.07.1992\n\n<i>Unten ein Auge, halb abgekratzt.</i>', 'gruen_schild', () => subtitle('Forbidden Dustwoods. Weil jemand zu faul für eine Übersetzung war.', 3600, 'LUKE')); });
+  // Rufen / Klatschen: kein Echo, kein Nachklang – ein schalltoter Raum mit Bäumen
+  const kh = box(3, 1.6, 1.2, 31.2, .8, 96.6, hidden, { cast: false }); interact(kh, 'In den Wald rufen', () => gruen_rufen());
+  // der Fuchs zwischen den ersten Stämmen (Tier-Scan), zeigt sich nur im Lampenlicht
+  try { const src = await msModel('animal_fox', 'model.glb'); const sk = typeof figuren_skc === 'function' ? await figuren_skc() : null; const o = sk ? sk(src) : src.clone(true); msFit(o, .42); const g = msGround(o); g.position.set(31.3, 0, 102.6); g.rotation.y = PI + .4; g.visible = false; g.userData.noCol = true; scene.add(g);
+    o.traverse(b => { if (b.isBone && !F.hals && /neck|head/i.test(b.name)) F.hals = b; if (b.isMesh) { b.castShadow = true; b.frustumCulled = false; } }); F.fuchs = g; if (F.hals) F.hals0 = F.hals.quaternion.clone(); } catch (e) { console.warn('Nordzaun: Fuchs', e); }
+}
+async function gruen_rufen() { if (state.talking) return; state.talking = true; const F = gruen_F3; kirchberg_start('gruen_wild', { x: 28, z: 95 });
+  try { const a = await kirchberg_wahl(['Rufen: „Hallo?“', 'In die Hände klatschen']); Audio.play(a === 1 ? 'woodHit1' : 'woodHit3', { gain: .5, rate: a === 1 ? 2.2 : 1.1 }); if (a === 0) subtitle('„Hallo?“', 1200, 'LUKE');
+    await wait(2600); subtitle('Nichts. Kein Echo, kein Nachklang.', 2600); await wait(2200); await say([['Kein Hall. Nicht mal ein bisschen. Ein Wald hat immer Hall. Das hier ist ein schalltoter Raum mit Bäumen.', 5200, 'LUKE']]);
+    F.gerufen = true; questPop('FIBEL', 'Wie groß ist der Wald?'); if (F.st === 'aus') F.st = 'bereit'; } finally { state.talking = false; gruen_wildCheck(); } }
+function gruen_wildCheck() { const F = gruen_F3, z = typeof sammeln_hatZ === 'function' && sammeln_hatZ(3); kirchberg_desc('gruen_wild', `Hufspuren, das Schild, kein Echo. ${F.fuchs && F.gesehen ? 'Der Fuchs.' : ''}`);
+  if (F.gerufen && F.gesehen && z) { kirchberg_fertig('gruen_wild', 'Wildschaden, 1992. Ohne Erklärung. Der Wald hat keinen Hall.'); if (!story.lore.some(l => l.key === 'gruen_wild')) story.lore.push({ key: 'gruen_wild', title: 'Wildschaden, 1992', html: 'Forbidden Dustwoods. Hufe, immer nur zwei nebeneinander, in einer Linie. Kein Echo. Ein Fuchs, der den Kopf zu weit dreht.' }); } }
+// Takt: Fuchs im Lampenkegel – dreht den Kopf weiter, als ein Fuchs kann, bis das Gesicht fast auf dem Rücken liegt; Lampe weg, Lampe hin: nichts
+const gruen_v = new THREE.Vector3(), gruen_q = new THREE.Quaternion(), gruen_ax = new THREE.Vector3(0, 1, 0);
+function gruen_wildTick(dt) { const F = gruen_F3; if (!F.fuchs || kap() !== 1 || F.st === 'fertig') return; const P = player.pos, g = F.fuchs, d = Math.hypot(P.x - g.position.x, P.z - g.position.z); if (d > 22) return;
+  gruen_v.set(g.position.x - camera.position.x, .3 - camera.position.y, g.position.z - camera.position.z).normalize(); const imLicht = flashOn && fwd.dot(gruen_v) > .96;
+  if (F.st === 'bereit' && imLicht) { F.st = 'da'; g.visible = true; F.a = 0; F.gesehen = true; if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {} }
+  if (F.st === 'da') { F.a = Math.min(2.7, F.a + dt * .55 * (1 - F.a / 3.2)); if (F.hals && F.hals0) { F.hals.quaternion.copy(F.hals0); gruen_q.setFromAxisAngle(gruen_ax, F.a); F.hals.quaternion.multiply(gruen_q); }
+    if (!imLicht) { F.weg = (F.weg || 0) + dt; if (F.weg > .35) { g.visible = false; F.st = 'fertig'; gruen_wildCheck(); } } else F.weg = 0; } }
