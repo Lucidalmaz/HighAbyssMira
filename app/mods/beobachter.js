@@ -444,19 +444,25 @@ async function beob_loadModel() {
   } catch (e) { console.warn('Beobachter: Modell', e); S.model = false; }
 }
 // Lebendig ohne Skelett: Atmung (Körper pumpt), Gewicht verlagert, Kopf legt sich schief und ruckt (hält dann still, zittert fein), Fühler wippen, geblendet dreht er weg
+// Federn statt linearer Übergänge (Q-11): kritisch/leicht untergedämpft – Beschleunigen, Abbremsen, Überschwingen
+function beob_feder(o, key, ziel, k, z, dt) { const v = (o._v || (o._v = {})); let vv = v[key] || 0, c = o.rotation[key]; const h = 1 / 60;
+  for (let n = dt; n > 1e-5; n -= h) { const st = Math.min(h, n), a = k * (ziel - c) - 2 * z * Math.sqrt(k) * vv; vv += a * st; c += vv * st; } v[key] = vv; o.rotation[key] = c; }
+// Lebendig ohne Skelett: Atmung (Körper pumpt, Kopf hebt sich versetzt mit), Gewicht verlagert, Kopf ruckt mit Überschwingen und legt sich schief (Mikrozittern),
+// Körper dreht nach kurzer Antizipation schnell mit Nachschwingen, der Kopf hängt dabei nach (Overlap); geblendet dreht er weg; Fühler wippen (Shader)
 function beob_anim(dt, lit) { const V = beob_S.V; if (!V || !V.g.visible) return; V.t += dt; V.uT.value = V.t;
-  const br = Math.sin(V.t * 2.7); if (V.body) V.body.scale.set(1 + br * .012, 1 + br * .02, 1 + br * .012);
-  V.g.children[0].rotation.z = Math.sin(V.t * .8) * .018 + Math.sin(V.t * 1.9) * .006; // Gewicht verlagert
-  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(.6, 2.2); V.tilt = Math.random() < .4 ? rand(-.5, .5) : rand(-.18, .18); V.hyT = rand(-.35, .35); V.jerk = .09; }
-  if (V.jerk > 0) V.jerk -= dt; const kk = Math.min(1, dt * (V.jerk > 0 ? 38 : 2.2));
-  if (V.head) { const tz = lit ? .15 : V.tilt, ty = lit ? -1.05 : V.hyT, tx = lit ? .32 : -.05 + br * .015;
-    V.head.rotation.z += (tz - V.head.rotation.z) * kk; V.head.rotation.y += (ty - V.head.rotation.y) * (lit ? Math.min(1, dt * 9) : kk); V.head.rotation.x += (tx - V.head.rotation.x) * Math.min(1, dt * 6);
-    V.head.rotation.z += Math.sin(V.t * 23) * .0025; }
-  // Körper dreht ruckartig zu Luke (nie gleitend): erst wenn der Winkel groß wird, dann in 0,1 s
+  const br = Math.sin(V.t * 2.7), br2 = Math.sin(V.t * 2.7 - .6); if (V.body) V.body.scale.set(1 + br * .012, 1 + br * .02, 1 + br * .012);
+  const root = V.g.children[0]; root.rotation.z = Math.sin(V.t * .8) * .018 + Math.sin(V.t * 1.9 + 1.3) * .006; root.rotation.x = Math.sin(V.t * .55) * .01 + (V.antiz || 0);
+  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(.7, 2.4); V.tilt = Math.random() < .4 ? rand(-.5, .5) : rand(-.18, .18); V.hyT = rand(-.35, .35); V.jerk = .12; }
+  if (V.jerk > 0) V.jerk -= dt; const hart = V.jerk > 0;
+  if (V.head) { const tz = lit ? .15 : V.tilt, ty = lit ? -1.05 : V.hyT, tx = lit ? .32 : -.05 + br2 * .018;
+    beob_feder(V.head, 'z', tz, hart ? 520 : 40, hart ? .42 : .9, dt); beob_feder(V.head, 'y', ty, lit ? 260 : hart ? 520 : 40, lit ? .6 : hart ? .45 : .9, dt); beob_feder(V.head, 'x', tx, 60, .85, dt);
+    V.head.rotation.z += Math.sin(V.t * 23) * .0022 + Math.sin(V.t * 37 + 2) * .0012; }
   const dx = player.pos.x - V.g.position.x, dz = player.pos.z - V.g.position.z, want = Math.atan2(dx, dz); let dif = want - V.g.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
-  if (Math.abs(dif) > .55 && V.byT <= 0) V.byT = .1; if (V.byT > 0) { V.byT -= dt; V.g.rotation.y += dif * Math.min(1, dt * 16); }
+  if (Math.abs(dif) > .55 && V.byT <= 0 && !V.dreh) { V.byT = .14; V.antiz = .05; }
+  if (V.byT > 0) { V.byT -= dt; if (V.byT <= 0) { V.dreh = { ziel: V.g.rotation.y + dif, v: 0 }; V.antiz = 0; if (V.head) V.head.rotation.y -= dif * .55; } }
+  if (V.dreh) { const D = V.dreh, h = Math.min(dt, 1 / 30), k = 700, a = k * (D.ziel - V.g.rotation.y) - 2 * .5 * Math.sqrt(k) * D.v; D.v += a * h; V.g.rotation.y += D.v * h; if (Math.abs(D.ziel - V.g.rotation.y) < .003 && Math.abs(D.v) < .02) V.dreh = null; }
 }
-function beob_show(sp, fromHere) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.set(0, Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]), 0); V.g.children[0].rotation.x = 0; V.g.visible = true; V.tiltT = rand(0, .4); V.byT = 0;
+function beob_show(sp, fromHere) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.set(0, Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]), 0); V.g.children[0].rotation.x = 0; V.g.visible = true; V.tiltT = rand(0, .4); V.byT = 0; V.dreh = null; V.antiz = 0; if (V.head) V.head._v = null;
   beob_setVp(sp[0], sp[1], sp[2]); S.test.shown++; if (beob_ch() <= 1) S.test.k1Model++; }
 function beob_hide() { const V = beob_S.V; if (V) V.g.visible = false; }
 function beob_vanish(still) { const S = beob_S, V = S.V, p = V.g.position; V.g.visible = false; S.test.vanish++; if (!still) { beob_rustle(p.x, p.z, 1.2); beob_patter(p.x, p.z, 5); if (Math.random() < .4) beob_chirp(p.x, p.z); }
@@ -480,7 +486,9 @@ function beob_peekSpot(minF, maxF, far = [14, 24]) {
     else continue;
     const T = S.test.pf || (S.test.pf = { f: 0, free: 0, gy: 0, los: 0, ok: 0 });
     const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF) { T.f++; continue; } if (!beob_freeNah(x, z)) { T.free++; continue; } const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) { T.gy++; continue; }
-    if (f > .3 && typeof hungrige_los === 'function' && !hungrige_los(x + ox, gy + BEOB.h * .74, z + oz)) { T.los++; continue; } T.ok++; return [x, gy, z]; }
+    if (f > .3 && typeof hungrige_los === 'function') { if (!hungrige_los(x + ox, gy + BEOB.h * .74, z + oz)) { T.los++; continue; }
+      if (hungrige_los(x - ox * 1.5, gy + BEOB.h * .4, z - oz * 1.5)) { T.frei = (T.frei || 0) + 1; continue; } } // steht nie frei: der Körper muss hinter der Deckung sein, nur Kopfrand/Fühler/Auge schauen vor
+    T.ok++; return [x, gy, z]; }
   return null;
 }
 function beob_hinterDeckung(cx, cz, hx, hz, minF, maxF) { const P = player.pos, d = Math.hypot(cx - P.x, cz - P.z); if (d < 8 || d > 26) return null; const ux = (cx - P.x) / d, uz = (cz - P.z) / d; // erster Platz: halb hinter der Telefonzelle
@@ -509,9 +517,9 @@ function beob_sichtung(pos, dauer = .8, o = {}) {
   S.sicht = { t: 0, T: Math.min(dauer, o.lang ? 20 : 1), weg, ohren: !!o.ohren, still: !!o.still, next: 0 }; return true;
 }
 function beob_sichtTick(dt) { const S = beob_S, V = S.V, Q = S.sicht; if (!V || !Q) return; Q.t += dt; V.t += dt; V.uT.value = V.t;
-  if (Q.weg) { const w = Q.weg, n = w.length - 1, u = Math.min(1, Q.t / Q.T) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i, a = w[i], b = w[i + 1];
-    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.t * 19)) * .045, z); // Trippeln: kleine Sprünge, kein Gleiten
-    V.g.rotation.y = Math.atan2(b[0] - a[0], b[2] - a[2]); V.g.children[0].rotation.x = .32; if (V.head) { V.head.rotation.x = .22; V.head.rotation.y = 0; } beob_setVp(x, y0, z);
+  if (Q.weg) { const w = Q.weg, n = w.length - 1, q = Math.min(1, Q.t / Q.T), qe = q < .15 ? q * q / .3 : q > .85 ? 1 - (1 - q) * (1 - q) / .3 : .075 + (q - .15) * (.85 / .7), u = Math.min(1, qe) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i, a = w[i], b = w[i + 1];
+    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); Q.ph = (Q.ph || 0) + dt * 19 * Math.min(1.3, Math.max(.35, (q < .15 ? q / .15 : q > .85 ? (1 - q) / .15 : 1))); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.ph)) * .045, z); // Trippeln: Schrittfrequenz folgt dem Tempo, kein Gleiten
+    V.g.rotation.y = Math.atan2(b[0] - a[0], b[2] - a[2]); V.g.children[0].rotation.x = .32 * Math.min(1, q / .12) * Math.min(1, (1 - q) / .1 + .3); V.g.children[0].rotation.z = Math.sin(Q.ph) * .06; if (V.head) { beob_feder(V.head, 'x', .2, 200, .6, dt); beob_feder(V.head, 'y', 0, 200, .6, dt); V.head.rotation.z = -Math.sin(Q.ph) * .04; } beob_setVp(x, y0, z);
     Q.next -= dt; if (Q.next < 0) { Q.next = .09; Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .16, rate: rand(1.9, 2.2), x, y: 0, z, ref: 2.5 }); } }
   else { beob_anim(dt, false); if (Q.ohren && V.head) { V.head.rotation.x = .38; V.head.rotation.z = 0; } }
   if (Q.t >= Q.T) { V.g.visible = false; V.g.children[0].rotation.x = 0; S.sicht = null; if (Q.weg) beob_still(45); if (!Q.weg && !Q.still) beob_patter(V.g.position.x, V.g.position.z, 3, .8); } }
@@ -556,11 +564,11 @@ function beob_spurNeu(art, o) { const T = beob_texte(), S = beob_S; let m;
   if (art === 'kratzer') { m = beob_decal(T.kratzer, o.w || .13, o.h || .16, { rough: .8 }); }
   else if (art === 'abdruck') { m = new THREE.Group(); m.visible = false; scene.add(m); const n = o.n || 7; const mat = new THREE.MeshStandardMaterial({ alphaMap: T.fuss, color: 0x0d0e10, transparent: true, opacity: .62, depthWrite: false, roughness: .08, metalness: .05, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
     const a = o.von, b = o.bis, dir = Math.atan2(b[0] - a[0], b[2] - a[2]); for (let i = 0; i < n; i++) { const u = i / Math.max(1, n - 1), x = a[0] + (b[0] - a[0]) * u + Math.cos(dir) * (i % 2 ? .07 : -.07), z = a[2] + (b[2] - a[2]) * u - Math.sin(dir) * (i % 2 ? .07 : -.07);
-      const q = new THREE.Mesh(S.fussGeo || (S.fussGeo = new THREE.PlaneGeometry(.11, .13)), mat); q.rotation.set(-PI / 2, 0, dir + PI); q.position.set(x, (o.y ?? beob_gyAt(x, z)) + .012, z); q.renderOrder = 2; m.add(q); } m.userData.mat = mat; }
+      const q = new THREE.Mesh(S.fussGeo || (S.fussGeo = new THREE.PlaneGeometry(.12, .145)), mat); q.rotation.set(-PI / 2, 0, dir + PI); q.position.set(x, (o.y ?? beob_gyAt(x, z)) + .012, z); q.renderOrder = 2; m.add(q); } m.userData.mat = mat; }
   else if (art === 'beschlag' || art === 'hand') { m = beob_decal(art === 'hand' ? T.hand : T.beschlag, o.w || .5, o.h || .5, { rough: .15, double: false }); if (o.spiegel) m.scale.x = -1; }
-  else if (art === 'bonbon') { m = beob_decal(T.bonbon, .06, .06, { rough: .35 }); }
+  else if (art === 'bonbon') { m = beob_decal(T.bonbon, .075, .075, { rough: .35 }); }
   else if (art === 'kiesel') { m = new THREE.Group(); m.visible = false; scene.add(m); if (S.kiesel) { [.055, .045, .034].reduce((y, s, i) => { const k = S.kiesel.clone(true); k.scale.multiplyScalar(s / S.kieselS); k.position.set(rand(-.006, .006), y + s * .45, rand(-.006, .006)); k.rotation.y = rand(0, 6); m.add(k); return y + s * .82; }, 0); } }
-  if (!m) return null; const p = o.pos || [0, 0, 0]; if (art !== 'abdruck') { m.position.set(p[0], p[1], p[2]); if (o.boden || art === 'bonbon') m.rotation.set(-PI / 2, 0, o.ry || rand(0, 6)); else if (art !== 'kiesel') m.rotation.set(0, o.ry || 0, 0); }
+  if (!m) return null; const p = o.pos ? o.pos.slice() : [0, 0, 0]; if (p[1] == null) p[1] = beob_gyAt(p[0], p[2]); if (art !== 'abdruck') { m.position.set(p[0], p[1], p[2]); if (o.boden || art === 'bonbon') m.rotation.set(-PI / 2, 0, o.ry || rand(0, 6)); else if (art !== 'kiesel') m.rotation.set(0, o.ry || 0, 0); }
   const sp = { art, m, k: o.k || null, sorte: o.sorte || (art === 'abdruck' ? 'frisch' : 'immer'), t: 0, an: false, fertig: false, seen: false, id: o.id || art + '_' + S.spuren.length, wenn: o.wenn || null, x: p[0], y: p[1], z: p[2], nie: !!o.nie };
   if (art === 'abdruck') { sp.x = (o.von[0] + o.bis[0]) / 2; sp.z = (o.von[2] + o.bis[2]) / 2; sp.y = o.von[1] ?? beob_gyAt(sp.x, sp.z); }
   if (art === 'bonbon' && !o.nie) { const hit = box(.35, .2, .35, p[0], p[1] + .08, p[2], hidden, { cast: false }); sp.hit = hit; hit.userData.beob = sp; }
@@ -569,7 +577,12 @@ function beob_spurNeu(art, o) { const T = beob_texte(), S = beob_S; let m;
 function beob_gyAt(x, z) { try { const g = solidGround(x, 3, z); return g > -2 ? Math.max(0, g) : 0; } catch (e) { return 0; } }
 function beob_spurAn(sp, an) { if (sp.an === an) return; sp.an = an; sp.m.visible = an; if (sp.hit) { if (an) { if (sp.art === 'bonbon') interact(sp.hit, 'Bonbonpapier', () => beob_bonbonPapier(sp)); else interact(sp.hit, 'Drei Kiesel', () => beob_kieselUm(sp)); } else uninteract(sp.hit); } }
 function beob_bonbonPapier(sp) { beob_spurAn(sp, false); sp.fertig = true; Audio.paper(); subtitle('Gefaltet. Ordentlich. Wer faltet Bonbonpapier? Grundschullehrer. Und … das hier.', 4200); }
-function beob_kieselUm(sp) { uninteract(sp.hit); sp.hit = null; const ks = sp.m.children; ks.forEach((k, i) => { k.position.set(rand(-.12, .12), .02, rand(-.12, .12)); k.rotation.z = rand(0, 3); }); Audio.play('stones1', { gain: .25, rate: 1.8, x: sp.x, y: sp.y, z: sp.z, ref: 2 }); }
+function beob_kieselUm(sp) { uninteract(sp.hit); sp.hit = null; const ks = sp.m.children; beob_S.fallK = beob_S.fallK || [];
+  ks.forEach((k, i) => { const a = rand(0, 6.28), v = rand(.25, .7); beob_S.fallK.push({ k, vx: Math.cos(a) * v, vz: Math.sin(a) * v, vy: rand(.2, .6) * (i ? 1 : .2), w: rand(4, 12), r0: [.055, .045, .034][i] * .45, t: 0 }); });
+  Audio.play('stones1', { gain: .25, rate: 1.8, x: sp.x, y: sp.y, z: sp.z, ref: 2 }); }
+function beob_kieselTick(dt) { const L = beob_S.fallK; if (!L || !L.length) return; for (let n = L.length - 1; n >= 0; n--) { const F = L[n], k = F.k; F.t += dt; F.vy -= 9.81 * dt; k.position.x += F.vx * dt; k.position.z += F.vz * dt; k.position.y += F.vy * dt;
+    if (k.position.y <= F.r0) { k.position.y = F.r0; if (Math.abs(F.vy) > .4) F.vy = -F.vy * .3; else F.vy = 0; F.vx *= .6; F.vz *= .6; F.w *= .6; } // gedämpfter Aufprall, Reibung
+    k.rotation.x += F.w * F.vz * dt * 3; k.rotation.z -= F.w * F.vx * dt * 3; if (F.t > 2.5 || (F.vy === 0 && Math.hypot(F.vx, F.vz) < .01)) L.splice(n, 1); } }
 // öffentliche Spur (Kapitel-APs): erscheint sofort (bzw. „frisch“ außerhalb des Blicks), gehört zum laufenden Kapitel
 function beob_spur(art, o = {}) { const k = beob_ch(); const sp = beob_spurNeu(art, Object.assign({ k: [k] }, o)); if (!sp) return null; if (art !== 'abdruck' && sp.sorte !== 'frisch') beob_spurAn(sp, true); if (art === 'abdruck') { sp.sorte = 'jetzt'; beob_spurAn(sp, true); sp.t = 0; } return sp; }
 function beob_spurTick(dt) { const S = beob_S, k = beob_ch(), P = player.pos;
@@ -582,8 +595,8 @@ function beob_spurTick(dt) { const S = beob_S, k = beob_ch(), P = player.pos;
 }
 // Kapitel-Spuren (Hauptweg Kap. 1 laut Dossier 82 §5.1, soweit die Orte im Spiel stehen; Rest per beob_spur aus den Kapitel-Modulen)
 function beob_spurenBau() { const S = beob_S;
-  beob_spurNeu('kratzer', { pos: [-72.0, .78, 6.2], ry: PI / 2, w: .07, h: .15, k: [1, 2, 3, 4, 5, 6] });       // Pfosten des Ortsschilds
-  beob_spurNeu('kratzer', { pos: [23.72, .43 + .72, -11.87], ry: 0, k: [1, 2, 3, 4, 5, 6] });                    // Türrahmen Nr. 7, Kinderhöhe
+  { const a = beob_wand(-70.9, .78, 6.2, -1, 0); if (a && Math.abs(a.p[0] + 72.0) < .25) beob_spurNeu('kratzer', { pos: a.p, ry: a.ry, w: .07, h: .15, k: [1, 2, 3, 4, 5, 6] }); } // Pfosten des Ortsschilds (nur, wenn er dort steht)
+  { const a = beob_wand(24.1, .43 + .72, -10.4, 0, -1); beob_spurNeu('kratzer', { pos: a && a.p[2] < -11.4 ? a.p : [24.1, .43 + .72, -11.74], ry: a && a.p[2] < -11.4 ? a.ry : 0, k: [1, 2, 3, 4, 5, 6] }); } // neben der Haustür Nr. 7, Kinderhöhe (Rückfall: Fassadenfläche)
   beob_spurNeu('kratzer', { pos: [C2.x + 15.2, .7, C2.z - 1.83], ry: 0, k: [2] });                                 // Tunnel im Amt
   beob_spurNeu('abdruck', { id: 'k1_nr1', von: [-46.3, undefined, -8.9], bis: [-44.6, undefined, -2.6], n: 8, k: [1] }); // vor Nr. 1, enden mitten auf der Straße
   { let y = 1.2; try { const r = new THREE.Raycaster(new THREE.Vector3(28.4, 3, -6.9), new THREE.Vector3(0, -1, 0), 0, 4); const h = r.intersectObject(mailbox7.userData.group || mailbox7, true)[0]; if (h) y = h.point.y; } catch (e) {}
@@ -594,6 +607,9 @@ function beob_spurenBau() { const S = beob_S;
   // ∴ im Beschlag: Küchenfenster Nr. 7, sobald Luke aus dem Keller kommt
   const W = beob_fenster(29, -12, 4); if (W) beob_spurNeu('beschlag', { pos: W.p, ry: W.ry, w: .42, h: .42, k: [1], wenn: () => beob_S.wasBasement && !state.inBasement });
 }
+function beob_wand(x, y, z, dx, dz) { try { const r = new THREE.Raycaster(new THREE.Vector3(x, y, z), new THREE.Vector3(dx, 0, dz).normalize(), 0, 4); // Oberfläche treffen statt raten (einmal beim Laden)
+    const h = r.intersectObjects(scene.children, true).find(q => q.object.visible && q.object.isMesh && q.object.material && !q.object.material.transparent && q.face); if (!h) return null;
+    const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); return { p: [h.point.x + n.x * .006, h.point.y, h.point.z + n.z * .006], ry: Math.atan2(n.x, n.z) }; } catch (e) { return null; } }
 function beob_fenster(x, z, rMax) { if (typeof fassaden_S === 'undefined' || !fassaden_S.windows) return null; let best = null, bd = rMax;
   for (const W of fassaden_S.windows) { if (W.boarded || W.y > 3) continue; const c = W.g.localToWorld(new THREE.Vector3(W.x, W.y, W.z)), d = Math.hypot(c.x - x, c.z - z); if (d < bd) { bd = d; best = { W, c }; } }
   if (!best) return null; const W = best.W, n = new THREE.Vector3(Math.sin(W.ry), 0, Math.cos(W.ry)).transformDirection(W.g.matrixWorld); const ry = Math.atan2(n.x, n.z);
@@ -704,7 +720,7 @@ WORLD_TICK.push((dt, t) => {
     F.m.rotation.x = -PI / 2 + Math.sin(F.t * 7 + F.s) * .5 * (1 - u); F.m.rotation.y = Math.sin(F.t * 5.5) * .35 * (1 - u); if (u >= 1) { F.m.rotation.set(-PI / 2, 0, F.rz); F.done = true; } }
   if (S.falling.length && S.falling.every(F => F.done)) S.falling.length = 0;
   if (S.k2 && S.k2.grill.w > 0) { const G = S.k2.grill; G.t += dt; G.g.rotation.x = .25 + Math.sin(G.t * 5.2) * .45 * Math.exp(-G.t * .45); if (G.t > 9) G.w = 0; }
-  beob_tuerTick(); beob_handTick(dt); beob_stripTick(dt); beob_spurTick(dt);
+  beob_tuerTick(); beob_handTick(dt); beob_kieselTick(dt); beob_stripTick(dt); beob_spurTick(dt);
   if (S.sicht) { beob_sichtTick(dt); return; }
   const mode = beob_mode(); S.vpOk = mode !== 'aus';
   if (mode === 'aus') { if (S.V && S.V.g.visible) { beob_hide(); S.peek = null; } return; }
@@ -753,7 +769,7 @@ WORLD_TICK.push((dt, t) => {
     S.peekT -= dt * (st.still > 3 ? 1.5 : 1);
     if (!S.peek && S.peekT < 0) { S.peekT = rand(BEOB.peekGap[0], BEOB.peekGap[1]) * (k === 4 ? 1.3 : 1); const far = dark ? [9, 15] : st.still > 3 ? [9, 15] : k === 4 ? [18, 30] : [14, 24];
       const first = k === 3 && !S.c.sight1 && Math.hypot(P.x - 4, P.z - 4) < 20 && ch3.cowSeen;
-      const spx = first ? (beob_hinterDeckung(8, 7.6, .55, .55, .5, .92) || beob_peekSpot(.55, .9, [12, 20])) : beob_peekSpot(.62, .86, far); if (spx) { beob_peekStart(spx); if (k === 3) S.c.sight1 = true; } }
+      const spx = first ? (beob_hinterDeckung(8, 7.6, .55, .55, .5, .92) || beob_peekSpot(.55, .9, [12, 20])) : beob_peekSpot(.62, .86, far); if (spx) { beob_peekStart(spx); if (k === 3) S.c.sight1 = true; } else S.peekT = rand(2, 4); } // kein Versteck in Reichweite: gleich wieder versuchen, sobald Luke weitergeht
   }
   if (S.V && S.V.g.visible && S.peek) { const p = S.V.g.position, f = beob_facing(p.x, p.y + .5, p.z); if (f > .62) { S.test.vis += dt; S.test.maxVis = Math.max(S.test.maxVis, S.test.vis); } else S.test.vis = 0; } else S.test.vis = 0;
 });

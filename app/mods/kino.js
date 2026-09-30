@@ -628,7 +628,7 @@ function kino_antwort(opts) { return (opts && opts.antwort) || (typeof ch3 !== '
 function kino_zaehler(k) { try {
   if (k === 'neben') return Object.values(story.side || {}).filter(q => q.state === 'done').length;
   if (k === 'polas') return story.photos ? story.photos.size : 0;
-  if (k === 'zettel1') return typeof beob_S !== 'undefined' ? [...beob_S.found].filter(id => /K1/.test(id)).length : 0;
+  if (k === 'zettel1') return typeof beob_S !== 'undefined' ? [...beob_S.given].filter(id => /^b_k1_/.test(id)).length : 0;
   if (k === 'seiten1') { const sb = typeof KAP_SAVE !== 'undefined' && KAP_SAVE.sammeln ? KAP_SAVE.sammeln.sb || [] : []; return sb.filter(id => /0?[123]$/.test(String(id))).length; }
 } catch (e) {} return 0; }
 
