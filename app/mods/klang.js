@@ -70,7 +70,9 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'sc_screech', 'sc_scream', 'sc_violin', 'sc_growl', 'sc_whisper', 'sc_static', 'fx_tief_1', 'fx_tief_2', 'fx_atem', 'fx_telefon', 'fx_rauschen', 'fx_glocke',
   ...[1, 2, 3, 4, 5, 6, 7, 8].map(i => 'fx_tropfen_' + i), ...[1, 2, 3].map(i => 'fx_reh_' + i), ...[1, 2, 3, 4].map(i => 'fx_hund_' + i), ...[1, 2, 3, 4, 5, 6, 7].map(i => 'fx_knarren_' + i),
   ...[1, 2, 3, 4].map(i => 'fx_fluester_' + i), ...'CDEFGAH'.split('').map(k => 'pn_' + k),
-  ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo'];
+  ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo',
+  'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
+  'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b'];
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -223,6 +225,17 @@ Object.assign(Audio, {
   glocke(x, y, z, f = 138, gain = 1, ref = 14, damp) { if (!this.ctx || !kl_has('kb_glocke_A4') || !kl_has('kb_glocke_D4')) return false; const d = this.at(x, y, z, ref); if (this.cut) return true;
     const lo = f * 2 < 360, b = lo ? 'kb_glocke_D4' : 'kb_glocke_A4'; this.play(b, { gain: .9 * gain, rate: f * 2 / (lo ? 293.66 : 440), dur: damp ? .8 : undefined, dest: d });
     const o = this.osc('sine', f, 0, damp ? 1 : 8); this.env(o, .1 * gain, .02, damp ? .6 : 7, 0, d); return true; },
+  // Whiskey (Rabe) ahmt Geräte nach: echter Rabenlaut, per Abspielrate zur Zieltonhöhe geschoben und schmal gefiltert – der Ton hat eine Kehle, keinen Oszillator
+  rabeTon(f, t0, dur, peak, dest) { const n = kl_pick('fx_rabe_', 5); if (!n || !this.ctx) return false; const c = this.ctx, t = c.currentTime + t0, b = this.buf[n], r = Math.min(2.2, Math.max(.6, f / 900)), L = Math.max(.08, dur);
+    const src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain(); src.buffer = b; src.playbackRate.value = r; bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 4;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak * 7, t + .012); g.gain.setValueAtTime(peak * 7, t + L * .7); g.gain.linearRampToValueAtTime(0, t + L);
+    src.connect(bp); bp.connect(g); g.connect(dest || this.world); src.start(t, Math.random() * Math.max(0, b.duration - L * r - .05)); src.stop(t + L + .05); return true; },
+  // Vögel (Aufnahmen): Singvogel-Rufe, die erste Amsel; Taubenlaut = Whiskeys Rabenkehle
+  vogel(x, y, z, n = 3) { const k = kl_pick('fx_vogel_', 3); if (!k || !this.ctx) return false; this.play(k, { gain: .45, vary: .05, x, y, z, ref: 6 }); if (n > 3) { const k2 = kl_pick('fx_vogel_', 3); this.play(k2, { gain: .35, vary: .05, delay: rand(.6, 1.1), x, y, z, ref: 6 }); } return true; },
+  amsel(x, y, z) { const k = kl_pick('fx_amsel_', 3); if (!k || !this.ctx) return false; this.play(k, { gain: .6, x, y, z, ref: 8 }); return true; },
+  taube(x, y, z) { if (!this.ctx || !kl_has('fx_rabe_1')) return false; const d = this.at(x, y, z, 2); let t = 0; for (const [f, du] of [[420, .28], [380, .5], [440, .22], [360, .6]]) { this.rabeTon(f, t, du, .09, d); t += du + .04; } return true; },
+  // Ohrklingeln nach Schlag/Knall: schmalbandiges Rauschen um 3,3 kHz, weich ein- und ausgeblendet (statt Sinus bei 4 kHz)
+  ohrklingeln(v = 1) { if (!this.ctx || !kl_has('fx_ohrklingeln')) return null; return this.play('fx_ohrklingeln', { gain: .9 * v, dest: this.master }); },
   phraseCalm() { return null; }, phraseUneasy() { return null; }, phraseDanger() { return null; }, // keine Synth-Phrasen: ohne Aufnahme lieber Stille
 });
 Audio.stepSound = klang_step; Audio.surfaceAt = (x, z) => klang_floor(x, z); Audio.roomHint = () => klang_reverb();

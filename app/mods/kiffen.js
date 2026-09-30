@@ -643,7 +643,7 @@ async function kiffen_flash(opts = {}) { const S = kiffen_S; if (!S.pass || S.fl
   const bild = async (i, ms, tint) => { U.tFl.value = S.flTex[i]; U.uTint.value.set(...tint); kf_ton('kfSchnitt', { gain: .7 }); U.uFl.value = 1; U.uZoom.value = 0; glitchV = .6; shake = Math.max(shake, .03);
     const t0 = performance.now(); while (performance.now() - t0 < ms) { const k = (performance.now() - t0) / ms; U.uZoom.value = k; U.uFl.value = k < .15 ? 1 : 1 - (k - .15) * .25; U.uT.value = performance.now() / 1000; await wait(16); }
     U.uFl.value = 0; U.uCut.value = 1; };
-  try { cut(true); kf_ton('kfTinnitus', { gain: .55 }); Audio.heart && Audio.heart(); await wait(120);
+  try { cut(true); if (!(Audio.ohrklingeln && Audio.ohrklingeln(.8))) kf_ton('kfTinnitus', { gain: .55 }); Audio.heart && Audio.heart(); await wait(120);
     await bild(0, 780, [.82, .93, 1.18]); await wait(230); U.uCut.value = 0; await wait(260); Audio.heart && Audio.heart();
     await bild(1, 560, [1.15, .92, .82]); await wait(180); U.uCut.value = 0; await wait(220);
     await bild(2, 950, [.8, 1, .98]); await wait(420); Audio.heart && Audio.heart();

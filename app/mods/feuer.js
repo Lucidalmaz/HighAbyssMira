@@ -133,6 +133,8 @@ const FEU_SND = {
   // Endlose Rauschquellen (Brüllen in drei Bändern, zischendes Öl, Rollen, Luftzug, Atem)
   // Brandalarm: elektrische Glocke (Klöppel ~21 Hz auf einer Schale), unter der Decke am Ende des Gangs
   alarm(on) { const A = Audio, S = feuer_S.snd; if (!A.ctx) return; const t = A.ctx.currentTime;
+    if (on && !S.alarm && A.buf.amb_alarm) { const s = A.ctx.createBufferSource(), g = A.ctx.createGain(), p = A.at(X + 105.5, 2.3, Z + 1.6, 4), nop = { stop() {} }; s.buffer = A.buf.amb_alarm; s.loop = true; // aufgenommene Glocke (Modul klang)
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .05); s.connect(g); g.connect(p); s.start(); S.alarm = { o: s, o2: nop, lf: nop, g, p }; }
     if (on && !S.alarm) { const o = A.ctx.createOscillator(), o2 = A.ctx.createOscillator(); o.type = 'square'; o.frequency.value = 1180; o2.type = 'triangle'; o2.frequency.value = 2870;
       const bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1500; bp.Q.value = 2.2; const am = A.ctx.createGain(); am.gain.value = .5;
       const lf = A.ctx.createOscillator(); lf.type = 'square'; lf.frequency.value = 21; const lg = A.ctx.createGain(); lg.gain.value = .5; lf.connect(lg); lg.connect(am.gain);
@@ -177,6 +179,7 @@ function feuer_mus() {
 }
 async function feuer_renderCues() {
   const S = feuer_S; if (S.cues || S.cueBusy || typeof KI === 'undefined' || !Audio.ctx) return; S.cueBusy = true;
+  if (typeof klang_load === 'function') { const [a, b] = await Promise.all([klang_load('mu_feuer_a'), klang_load('mu_feuer_b')]); if (a && b) { S.cues = { a, b }; S.cueBusy = false; return; } } // echte Blechbläser, Pauken, Streicher (Modul klang); sonst Synthese
   try { const M = feuer_mus(), sr = 32000;
     const mk = async (len, fn) => { const c = new OfflineAudioContext(2, Math.ceil(sr * len), sr), o = KI.chain(c, .36, 4.2); fn(c, o); const b = await c.startRendering();
       let pk = 1e-4; for (let ch = 0; ch < b.numberOfChannels; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < d.length; i += 3) { const a = Math.abs(d[i]); if (a > pk) pk = a; } }

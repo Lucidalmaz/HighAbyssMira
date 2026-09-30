@@ -105,14 +105,14 @@ Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monst
 ## Ton: Musik, Klangbetten, Geräusche (`game/audio/*.ogg`, gebaut mit `app/tools/klang_bau.py`)
 
 **VSCO 2 Community Edition** – Versilian Studios (Sam Gossner, Simon Dalzell/Ivy Audio u. a.), **CC0 1.0**, github.com/sgossner/VSCO-2-CE.
-Upright Piano, Cello-/Bratschen-/Geigen-Sektion, Solo-Kontrabass, Harfe, Glockenspiel (als Spieluhr), Röhrenglocken, Pauken, große Trommel, gestrichenes Becken, Gong –
+Upright Piano, Posaune und Horn (Feuer-Musik), Cello-/Bratschen-/Geigen-Sektion, Solo-Kontrabass, Harfe, Glockenspiel (als Spieluhr), Röhrenglocken, Pauken, große Trommel, gestrichenes Becken, Gong –
 alle Musikstücke (`mu_*`, `cue_*`, `mb_spieluhr`, `pn_*`), Stinger (`st_*`), die Instrumentenbank (`kb_*`) und Teile der Schreckklänge (`sc_*`).
 
 **Sonniss – GDC Game Audio Bundles 2017, 2018, 2019** (sonniss.com/gameaudiogdc) – lizenzfrei, kommerzielle Nutzung erlaubt, **keine Namensnennung nötig** (hier der Vollständigkeit halber);
 nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitten, gefiltert, zu Schleifen verarbeitet:
 - Regen/Wasser: Pole Position – Thunder & Rain · GainWalkers – Urban Rain · Sound Ex Machina – Rain City · PMSFX – Empty City Rain · Borg Sound – Rain Indoor Ambiences · Invisible – Storm, gale and thunderstorm · Soundrangers – Hydrology Bubbles and Splashes · Kevin Durr – Essential Water Sounds Vol. 2 · Olivier Girardot – Underground Atmospheres
 - Wind/Räume: Hzandbits – Wind In Trees, Hvac Elements · Ivo Vicic – Structure borne sound (Stromleitung im Wind) · 2496SoundEffects – Room Tones and Quiet Places Pack 1 · Soundreorganized – Everything So Far (Küche: Uhr, Gefrierschrank) · Borg Sound – Empty School Roomtones · SoundHolder – Bunkers · Digital Rain Lab – Abstract Interior Tones · Airborne Sound – Light and Dark Drones · Glitchedtones – Drones
-- Tiere/Holz/Dinge: Ivo Vicic – Red Deer and Roe Deer · Pole Position – Barking Dog · Bart Kamski – Dogs · SoundBits – Unsettling Creaks and Squeaks · Russell Gorsky – Squeaks and Creaks Two · The Sound Keeper – Normal Doors · The Soundcatcher – Paperlife, Antique Mills · Eiravaein Sound – Parched · RedSonic – Analogue Rotary Telephone · CFry – Shortwave
+- Tiere/Holz/Dinge: Discover Oregon – Ravens and Robins (Whiskeys Rabenkehle, Singvögel) · Invisible – Storm, gale and thunderstorm (Amseln) · Airborne Sound – Kitchen (Mikrowelle) · 2496SoundEffects – Tech Toys Electronics Pack 1 (Wecker) · Ivo Vicic – Red Deer and Roe Deer · Pole Position – Barking Dog · Bart Kamski – Dogs · SoundBits – Unsettling Creaks and Squeaks · Russell Gorsky – Squeaks and Creaks Two · The Sound Keeper – Normal Doors · The Soundcatcher – Paperlife, Antique Mills · Eiravaein Sound – Parched · RedSonic – Analogue Rotary Telephone · CFry – Shortwave
 - Stimmen/Schreck: Chris Logsdon – Text & Dialogue SFX Pack · Articulated Sounds – Ghosts Return, Special Double Bass Fx · Ambisound – Ethereal Breaths · JC Audio – Breathing In Hell · Airborne Sound – Variety 1 · Olivier Girardot – Monsters · Alexander Kopeikin – The Dry Ice Library, Prepared Piano · Sir Bedlam Productions – Bedlam Stingers
 
 **Weiterhin im Spiel:** die CC0-Aufnahmen von OpenGameArt.org in `game/sounds.js`/`sounds_extra.js` (Quellen: `game/sounds_src/QUELLEN.txt`).

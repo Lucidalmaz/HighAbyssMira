@@ -135,7 +135,8 @@ const WHISKEY_MIMIC = {
 // Klang-Ziel: Tiefpass → Raumposition des Raben (null = außer Hörweite)
 function whiskey_dest(at, lp = 2600) { const A = Audio; if (!A.ctx) return null; const p = at || whiskey_S.g.position, d = A.at(p[0] ?? p.x, (p[1] ?? p.y) + .25, p[2] ?? p.z, 4); if (A.cut) return null;
   const f = A.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; f.Q.value = .5; f.connect(d); return f; }
-function whiskey_ton(f, t0, dur, peak, dest, type = 'sine', att = .006) { const o = Audio.osc(type, f * .92, t0, dur + .1); Audio.env(o, peak, att, dur, t0, dest); return o; }
+function whiskey_ton(f, t0, dur, peak, dest, type = 'sine', att = .006) { if (Audio.rabeTon && Audio.rabeTon(f * .92, t0, dur, peak, dest)) return null; // Rabenkehle (Modul klang), sonst Oszillator
+  const o = Audio.osc(type, f * .92, t0, dur + .1); Audio.env(o, peak, att, dur, t0, dest); return o; }
 function whiskey_klang(key, at) {
   const A = Audio, g = whiskey_S.g, p = at || [g.position.x, g.position.y, g.position.z], o = { rate: .92, lp: 2600, x: p[0], y: p[1] + .2, z: p[2], ref: 4 };
   const D = () => whiskey_dest(p);
@@ -370,7 +371,8 @@ async function whiskey_papasMarke() {
   const lines = [V('„… Das ist Papas Marke. Die hat er immer auf der Veranda getrunken. Ich hab den Vogel nach der Flasche genannt.“', 5600), async () => { await wait(2400); },
     V('„Wo hast du den her, du Mistvieh.“', 2600), async () => { whiskey_play('IdleScratchWing', .2); await wait(1200); }, ['Er tauscht. Er hat den Chip die ganze Zeit behalten, um ihn gegen was Besseres zu tauschen.', 4200, 'LUKE']];
   try { if (typeof albers_whiskey === 'function') await albers_whiskey(lines); else await say(lines.filter(l => Array.isArray(l))); } finally { state.talking = false; }
-  S.chip = false; if (typeof tausch_gib === 'function') tausch_gib('chip', 1, true); if (!whiskey_lore('whiskey_papa')) story.lore.push({ key: 'whiskey_papa', title: 'Papas Marke', html: 'Ein Kronkorken, rostig, eine Marke, die es seit Jahrzehnten nicht mehr gibt. Vegas hat ihn lange gehalten.\n\nDaneben lag, wie zufällig, mein Einkaufswagenchip.' });
+  S.chip = false; if (typeof tausch_gib === 'function') tausch_gib('chip', 1, true); if (!whiskey_lore('whiskey_papa')) story.lore.push({ key: 'whiskey_papa', title: 'Papas Marke', html: 'Ein Kronkorken, rostig, eine Marke, die es seit Jahrzehnten nicht mehr gibt. Vegas hat ihn lange gehalten.\n\nDaneben lag, wie zufällig, mein Einkaufswagenchip.\n\n<span class="hand">Er hebt auf, was man ihm gibt. Auch wenn’s nur ein Chip ist.</span>' });
+  if (typeof neben4_marke === 'function') neben4_marke(); // AP-20: Nebenaufgabe „Papas Marke“ (Fibel, Chip am Schlüsselbund)
 }
 // ---------------------------------------------------------------- Kapitel 5
 function whiskey_k50(d) { const S = whiskey_S; if (S.flags.has('k5_0') || d > 9 || state.talking) return; S.flags.add('k5_0'); S.moodPick = 'beleidigt';
