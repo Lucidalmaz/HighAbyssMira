@@ -68,6 +68,14 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Animation - Smoking 01 (Rokoko-Mocap mit Fingern) | Klian | Rauchbewegung (Joint-Szene, Figuren) | https://www.fab.com/listings/dda0061d-676f-45aa-b130-cb0e6ea29c19 |
 | Animation - Getting Up 01 | Klian | Aufstehen vom Boden | https://www.fab.com/listings/69dae222-05e9-4065-9030-45887986cdec |
 | Animation - Getting Up 02 | Klian | Aufstehen vom Boden | https://www.fab.com/listings/c2aa23c5-0bea-4a9c-9586-2a5215f2b466 |
+| Black Vintage Umbrella | Sandeep89tsk | Regenschirm (Wolter) | https://www.fab.com/listings/303d5b77-27a5-4a3e-b640-315a0d004a11 |
+| rusty chain | mraw | Kettenrolle, Kette an der Luke | https://www.fab.com/listings/3332277f-8ae2-43e8-840b-32710ed1360d |
+| Walkie Talkie - Raw Scan | Waffle1434 | Funkgerät | https://www.fab.com/listings/3f573f91-7923-4f2a-9059-e45635372342 |
+| Emergency Radio | Gerardo Justel | Radio | https://www.fab.com/listings/15d244fc-dbe2-4829-861d-7e64ca89b094 |
+| Large pack of classic buttons | TijerinArt | Knöpfe (Tausch, Sammeln) | https://www.fab.com/listings/6effe77a-9616-48cc-a06a-01d728998b5d |
+| Robin Nest | Unreality3D | Vogelnest | https://www.fab.com/listings/d16e5418-64dd-480d-9afb-5d7a246a1663 |
+| Metal Round Glasses | Rikokenz | Lesebrille (Hilde) | https://www.fab.com/listings/45e917fe-fae5-46a6-a9c0-406045e9f33f |
+| CC0 – UFO | plaggy | Lichtschiff (Rumpf-Vorlage) | https://www.fab.com/listings/e67cbb9e-08dc-43b6-a9a4-83d4ccddbdd7 |
 
 ## Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)
 | Werk | Urheber | Verwendung im Spiel | Sketchfab |
@@ -87,7 +95,7 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 - **Motifect** – Daily Life, Locomotion, Emotes & Social, Injured & Exhausted Motion Packs · **Animpacks** – Look Through Window Animation Pack
 - Motion-Capture: **Mocap.in** (Realistic Acting, Character Mobility, Movement & Mobility) · **Animation Shopee** (Serious conversation, Conversation While sit, Sits on stool and Drinks, Lying on the floor, Run like hell, Dying, Disappointed, Doing something strange, hung onto something, kneel down and dead, Walks backward, cheering up someone) · **Toei Zukun Laboratory** (Standing Idle Motion, Free Motion Set) · **nikoff** (Dead Bodies Sitting & Lying Poses) · **Teddy Goldstien** (UEFN Manny Zombie) · **BTM productions** (Zombie Idle x2) · **DZTFIX KATSU** (Dynamic Falling & Rolling)
 - **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin
-- **Guy in a Poncho** – Old Book (Dienstbuch) · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
+- **Guy in a Poncho** – Old Book (Dienstbuch), Camping Dinnerware (Blechbecher) · **Louey** – Rusty Canister and Thermos · **Toshi Timo** – 8-Panel Beret (Schiebermütze) · **DTry** – Military Radio (Funkgerät mit Hörer) · **styloo** – Dog (Bruno) · **Mohit Akundi** – Realistic Rubywear Eyeglasses · **truth-n-carbon** – Flying Saucer · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
 - **Epic Games** – Unreal Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
