@@ -207,6 +207,9 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   await say([['Huh …? Warum steh ich nachts im Regen auf der Straße?', 4600, 'LUKE']]);
   traum_jacke(); await wait(1100); addItem('fibel');
   await say([['<i>Die Fibel steckt drin. Sie ist nass. Sie ist echt.</i>', 3800, 'LUKE']]);
+  // F3 Verständlichkeit (Nutzer 01.10.2026): woher Luke weiß, dass Lucy seit dem 23. weg ist – Kühns Nachricht auf SEINEM Handy (Stimme wie AG-03, ohne „Institut“)
+  await wait(900); toast('Dein Handy brummt: 1 gespeicherte Sprachnachricht. Die Polizei, letzte Woche. Du kennst sie auswendig.', 4200); await wait(1600); try { Audio.play('static', { gain: .04, dur: .8, hp: 400 }); } catch (e) {}
+  await say([['„Herr Brandt? Kühn hier, Polizei, ne. Wegen Ihrer Schwester. Die ist seit dem 23. nicht mehr gesehen worden.“', 5200, 'KÜHN · MAILBOX'], ['„Wir kümmern uns. Sie müssen da nicht extra herkommen, gell. Wirklich nicht.“', 4200, 'KÜHN · MAILBOX'], ['<i>Nicht extra herkommen. Tja.</i>', 2600, 'LUKE']]);
   state.talking = false; questPop('ABENTEUERFIBEL', 'Taste Tab – Aufgaben, Funde, Inventar, Fotos');
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren und im Auto eingepennt. Jetzt ist es schon wieder Nacht.', 0, 3); }, 2500);
   // F3 Verständlichkeit: wer Lucy ist und warum Luke jetzt kommt (Schuld: elf Anrufe, Kern §10.1) – eigenes Fenster, damit die Whiskey-Szene am Ortsschild sie nicht verdrängt

@@ -44,3 +44,10 @@ Akte 08 und Lucys Tank-Dialog, Justins Vorstellung (Name, Hof, „Ich hab dich l
 ## Beobachtung am Rand (nicht geändert)
 
 Sprecherkennung für Lukes gesprochene Zeilen: Kap. 1/2 „LUKE“, Kap. 3 „DU“ (Justin-Bank, kapitel3, lucy3). Wer es nicht weiß, liest „DU:“ als fremde Figur. Einheitlich „LUKE“ wäre klarer; betrifft viele Module, deshalb nur notiert.
+
+## Autorenfragen – vom Nutzer freigegeben 01.10.2026 (umgesetzt)
+
+1. **Lucy seit dem 23. weg:** Nach dem Aufwachen spielt Lukes eigenes Handy eine gespeicherte Nachricht von Polizeiobermeister Kühn ab („… seit dem 23. nicht mehr gesehen … Sie müssen da nicht extra herkommen“), danach Luke: „Nicht extra herkommen. Tja.“ Kühns Stimme wie AG-03, das „Institut“ bleibt für AG-03 auf Lucys Handy (`traum.js`).
+2. **Justins Pflichtsatz 1:** „… wenn meine Tochter nicht findet, was sie sucht …“ statt „Luna“. Den Namen gibt es nur auf die optionale Frage „Wie heißt sie?“; vorher gesichert bleibt nur der Bank-Happen „herz“ (seine Tochter) (`justin.js`, Bibel Kap. 3 UK 4 und Justin-Dossier).
+3. **Intro-Tafel Kap. 3:** „Dann an nasse Sprossen, eine nach der anderen, und an einen Raben, der dich am Rand des Gullys angeschrien hat. Dann an nichts mehr.“ statt der tragenden Hände – passt zu Lukes eigenem Aufstieg am Ende von Kap. 2 (Basis `C3_INTRO`, Bibel Kap. 3 UK 1).
+4. **Telefon Kap. 3:** „Das ist der Anruf, der mich hergeholt hat. Wort für Wort.“ bleibt so (`kapitel3.js`).

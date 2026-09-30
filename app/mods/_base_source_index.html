@@ -2748,7 +2748,7 @@ let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = 
 // Körpergefühl (Premium-Auftrag „Spielfigur/Kamera“): Federn für Laufen, Augenhöhe, Nachschwingen, Landen und Blick. Konstanten in FEELC, Zustand in FEEL (keine Allokationen im Takt).
 // w… = Federkreisfrequenz (1/s): kritisch gedämpft erreicht 90 % nach ≈ 3,9 / w Sekunden. Längen in m, Winkel in rad.
 const FEELC = { wWalk: 9, wSprint: 4.6, wSlow: 6, wStop: 13, lat: .55, back: .78, stride0: 1.05, strideK: .12, bobV: .02, bobVS: .014, sway: .55, roll: .0045, rollS: .003, rollLag: .9,
-  camW: 16, camWair: 30, camWext: 9, camMax: .4, stepDown: .38, look: .16, leanW: 9, leanZ: .45, leanK: .0026, leanMax: .035, leanPitch: .45, leanRoll: .25, turnRoll: .003, turnMax: .02, dipW: 10, dipZ: .55, dipPitch: .4, fovS: 3.5, hoT: .45 };
+  camW: 16, camWair: 30, camWext: 9, camMax: .4, stepDown: .45, look: .16, lookMax: .5, leanW: 9, leanZ: .45, leanK: .0026, leanMax: .035, leanPitch: .45, leanRoll: .25, turnRoll: .003, turnMax: .02, dipW: 10, dipZ: .55, dipPitch: .4, fovS: 3.5, hoT: .45 };
 const FEEL = { ax: 0, az: 0, vv: 0, sx: 0, sv: 0, camV: 0, camW: 1.65, ext: false, lf: 0, lfV: 0, ls: 0, lsV: 0, dip: 0, dipV: 0, yaw0: 0, yr: 0, air: 0, sk: 0, ex: 0, brT: 0, ho: 0, hoD: .45, hoP: new THREE.Vector3(), hoQ: new THREE.Quaternion() };
 function feelSpring(x, v, w, dt) { const j = v + w * x, e = Math.exp(-w * dt); FEEL.sx = (x + j * dt) * e; FEEL.sv = (v - w * j * dt) * e; } // kritisch gedämpfte Feder, exakt gelöst (bildratenfest): x = Abstand zum Ziel, v = Änderungsrate
 // Sprint-Atem: je Atemzug Ausatmen (tiefer, lauter) + Einatmen (heller, leiser) aus gefiltertem Rauschen, Lautstärke nach Erschöpfung
@@ -4316,7 +4316,7 @@ interact(gullyHit, () => ch3.on && ch3.part === 'town' && ch3.met ? 'Gullydeckel
   if (!ch3.on || !ch3.met || ch3.part !== 'town') return toast('Ein schwerer Gullydeckel. Darunter rauscht Wasser.');
   if (typeof neben3_gully === 'function') neben3_gully(); else enterCanal(); }); // Fassung 3 (AP-18): „Außenstelle 3“ – Justin hält den Deckel
 // ---- Kapitel-Start & Takt
-const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · ICH KOMME</p><p class="on">Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an Hände. Viele kleine Hände, die dich tragen, ganz vorsichtig, wie etwas, das man nicht kaputt machen will.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Die Telefonzelle. Das Ortsschild weit hinten. Kein Mensch. Es ist 03:13.</p><p class="on">Irgendwo schlägt eine Glocke.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
+const C3_INTRO = `<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 3 · ICH KOMME</p><p class="on">Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an nasse Sprossen, eine nach der anderen, und an einen Raben, der dich am Rand des Gullys angeschrien hat. Dann an nichts mehr.</p><p class="on">Du wachst auf dem Asphalt der Kreuzung auf. Die Telefonzelle. Das Ortsschild weit hinten. Kein Mensch. Es ist 03:13.</p><p class="on">Irgendwo schlägt eine Glocke.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>`;
 async function startChapter3() { // Weiterspielen / Kapitel wählen: Zustand setzen, an die Kreuzung, Intro
   $('endcard').classList.remove('show'); $('subPanel').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov');
   chapter3Begin();
@@ -5633,14 +5633,14 @@ function update(dt, t) {
       if (player.pos.y < floorY) player.pos.y = floorY;
       const g = groundAt(floorY);
       if (player.pos.y <= g + .001 && vy <= 0) { if (!grounded) { grounded = true; F.dipV -= Math.min(.9, -vy * .12) * (hm ? 1 : .4); if (vy < -4) Audio.step(stepSurface(indoor)); } player.pos.y = g; vy = 0; } // Landen: Knie federn (Dip statt Wackeln)
-      else if (grounded && vy <= 0 && player.pos.y - g < FC.stepDown) { F.dipV -= (player.pos.y - g) * 1.2 * (hm ? 1 : .4); player.pos.y = g; vy = 0; } // Stufe abwärts: auf dem Boden bleiben, die Augenhöhe folgt über die Feder
+      else if (grounded && vy <= 0 && player.pos.y - g < FC.stepDown) { F.dipV -= (player.pos.y - g) * .7 * (hm ? 1 : .4); player.pos.y = g; vy = 0; } // Stufe abwärts: auf dem Boden bleiben, die Augenhöhe folgt über die Feder
       else if (player.pos.y > g + .05) grounded = false;
     }
   }
   jumpQueued = false;
   // Augenhöhe über kritisch gedämpfte Feder (Treppen/Schrägen ohne Stufen, höchstens 40 cm Nachlauf – nie im Boden, nie schwebend). Von außen gesetzt (Aufwachen, Teleport, Knien): weich zurück.
-  { let gy = player.pos.y; // Treppen: Boden 0,16 s voraus abtasten → die Augenhöhe steigt/sinkt wie auf einer Rampe statt Stufe für Stufe
-    if (grounded && !scripted && !mantle && F.vv > .4) { const ox = player.pos.x, oz = player.pos.z; player.pos.x += vel.x * FC.look; player.pos.z += vel.z * FC.look; const ra = indoorRect(), ga = groundAt(ra ? ra.y : 0); player.pos.x = ox; player.pos.z = oz; if (Math.abs(ga - gy) < FC.stepDown) gy = ga; }
+  { let gy = player.pos.y; // Treppe aufwärts: Boden 0,16 s voraus abtasten → die Augenhöhe steigt wie auf einer Rampe statt Stufe für Stufe (abwärts: Feder + kleiner Dip)
+    if (grounded && !scripted && !mantle && F.vv > .4) { const ox = player.pos.x, oz = player.pos.z; player.pos.x += vel.x * FC.look; player.pos.z += vel.z * FC.look; const ra = indoorRect(), ga = groundAt(ra ? ra.y : 0); player.pos.x = ox; player.pos.z = oz; if (ga > gy && ga - gy < FC.lookMax) gy = ga; }
     const eye = gy + 1.65; if (camY !== F.camW) { F.ext = true; F.camV = 0; }
     feelSpring(camY - eye, F.camV, F.ext ? FC.camWext : (F.air > .25 || vy > .5) ? FC.camWair : FC.camW, dt); camY = eye + F.sx; F.camV = F.sv;
     if (F.ext) { if (Math.abs(camY - eye) < .02) F.ext = false; } else if (Math.abs(camY - eye) > FC.camMax) { camY = eye + (camY > eye ? FC.camMax : -FC.camMax); F.camV = 0; } }

@@ -32,7 +32,7 @@ const JUSTIN_BANK = {
   kerbe: [['„Sie hatten dich festgeschnallt, da unten. Ich hab dich losgeschnitten. Die Maschine war härter als meine Klinge.“', 5600, JS]],
   peter1: [['„Du riechst nach Rauch. Nach dem unteren Gang.“', 3600, JS]],
   peter2: [['„Er war auch einer von meinen.“', 3200, JS], ['Ich weiß.', 1800, 'DU']],
-  pflicht1: [['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“', 6000, JS]],
+  pflicht1: [['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn meine Tochter nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“', 6000, JS]],
   pflicht2: [['„Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“', 5800, JS], ['Wir?', 1600, 'DU'],
     ['„Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“', 4400, JS]],
   pflicht3: [['„Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“', 5200, JS]],
@@ -235,6 +235,7 @@ WORLD_MODS.push(['Justin · Figur, Gesicht, Bewegung (AP-12)', async () => {
   // --- Mocap (Motifect Daily Life, auf Justins Skelett übertragen): Knien und Aufstehen
   try { const r = await fetch('assets/chars/justin/mocap.json'); if (r.ok) { const D = await r.json(); S.mocap = {}; S.mocapInfo = D.info || {};
       for (const [k, c] of Object.entries(D.clips || {})) S.mocap[k] = THREE.AnimationClip.parse(c);
+      if (S.mocap.knien && justin.acts.idle) justin_spurenErgaenzen(S.mocap.knien, justin.acts.idle.getClip());
       if (S.mocap.knien) { const a = justin.mixer.clipAction(S.mocap.knien); a.setLoop(THREE.LoopOnce); a.clampWhenFinished = true; justin.acts.knien = a; } } } catch (e) { console.warn('Justin Mocap', e); }
   // --- Bewegung: Schrittgeschwindigkeit des Geh-Clips messen (Fußkontakt → keine Gleitschritte)
   try { justin_schrittMessen(); } catch (e) { console.warn('Justin Schritt', e); }
@@ -386,7 +387,7 @@ async function justin_brustZerren() { const S = justin_S; S.zerren = 1; S.zerrT 
 async function justin_geben() { const S = justin_S; S.geben = 1; await wait(1500); S.geben = 0; await wait(600); }
 function justin_knien(an) { const S = justin_S, K = justin.acts.knien, I = S.mocapInfo || {};
   if (!K) { S.knieZiel = an ? 1 : 0; return; }
-  if (an) { K.reset(); K.time = I.knienVon || 0; K.timeScale = .85; K.setEffectiveWeight(1).fadeIn(.4).play(); if (justin.cur && justin.cur !== K) justin.cur.fadeOut(.4); justin.cur = K; S.kniet = 'runter'; }
+  if (an) { K.reset(); K.time = I.knienVon || 0; K.timeScale = .85; justin_ueberblend(K, .4); S.kniet = 'runter'; }
   else if (S.kniet) { K.paused = false; K.timeScale = -.8; S.kniet = 'hoch'; } }
 // Geräusche: Schritt (Stein auf Stein), Visier, Helm, Zerren – aus vorhandenen Aufnahmen tief gelegt
 function justin_klang(k, x, y, z) { if (!Audio.ctx) return; const g = justin.g.position; x = x ?? g.x; y = y ?? 1.6; z = z ?? g.z; const P = (n, o) => Audio.play(n, { x, y, z, ref: 3, ...o });
@@ -432,8 +433,8 @@ async function justin_ankunft() {
 }
 // Pflichtsätze, sobald Luke weitergehen will (oder nach einer Weile)
 async function justin_pflicht() { const S = justin_S; if (S.phase !== 'uk4') return; S.phase = 'pflicht'; state.talking = true;
-  // F3 Verständlichkeit: „Luna“ fällt in pflicht1 – wer die Happen übersprungen hat, hört vorher, wer sie ist (Wortlaut aus der Bank, nur die Reihenfolge ist gesichert)
-  if (!S.said.has('herz')) await justin_sprich('herz', { frei: false }); if (!S.said.has('name')) await justin_sprich('name', { frei: false });
+  // F3 Verständlichkeit (Nutzer 01.10.2026): pflicht1 sagt „meine Tochter“; wer die Happen übersprungen hat, hört vorher „herz“ (seine Tochter). Den Namen gibt es nur auf Nachfrage.
+  if (!S.said.has('herz')) await justin_sprich('herz', { frei: false });
   await justin_sprich('pflicht1', { frei: false }); await justin_sprich('pflicht2', { frei: false }); await justin_sprich('pflicht3', { frei: false });
   state.talking = false; setC3(typeof KAPITEL3_ZIEL_LATERNEN !== 'undefined' ? KAPITEL3_ZIEL_LATERNEN : 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   justin_gedanke(JUSTIN_BANK.ankEnde[0][0], 4600);
@@ -516,6 +517,14 @@ async function justin_ende(c) { $('fade').style.background = '#fff'; await fade(
 // ---------------------------------------------------------------- Nachbild-Klon (figuren.js/weiss.js): jünger, ohne Flicken (Kap. 3 UK 13), ohne Gesicht
 function justin_nachbildKlon(o) { const weg = []; o.traverse(m => { if (m.userData && m.userData.jFlick) weg.push(m); if (m.isMesh && /haar|hair|scalp|bart|beard|Chin|Mustache|Stubble/i.test(m.name)) weg.push(m); if (m.name === 'feder') weg.push(m); }); weg.forEach(m => m.parent && m.parent.remove(m)); return o; }
 
+// P2: Überblenden aus den aktuellen Gewichten (Summe bleibt 1: keine Bindepose dazwischen, kein Hochspringen eines halb ausgeblendeten Clips) – ersetzt jPlay (Basis)
+function justin_ueberblend(a, fade) { const wA = a.enabled && a.isRunning() ? a.getEffectiveWeight() : 0; a.enabled = true; a.setEffectiveWeight(1); a.play();
+  for (const n in justin.acts) { const b = justin.acts[n]; if (b === a || !b.enabled || !b.isRunning()) continue; const w = b.getEffectiveWeight(); if (fade > 0 && w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); }
+  if (fade > 0) a._scheduleFading(fade, wA, 1); justin.cur = a; }
+jPlay = function (k, fade = .35) { const a = justin.acts[k] || justin.acts.idle; if (!a || justin.cur === a) return; if (!(a.enabled && a.isRunning() && a.getEffectiveWeight() > .02) || a.loop === THREE.LoopOnce) a.reset(); justin_ueberblend(a, fade); };
+// Mocap-Clip ohne Spur für manche Knochen (Knien: spine_02/04, neck_02, Drehknochen …): feste Spur aus dem Stand ergänzen – sonst mischt three.js dort die Bindepose hinein
+function justin_spurenErgaenzen(clip, ref) { const has = new Set(clip.tracks.map(t => t.name)); for (const t of ref.tracks) { if (has.has(t.name)) continue; const n = t.getValueSize(); clip.tracks.push(new t.constructor(t.name, [0], Array.from(t.values.slice(0, n)))); } }
+
 // ---------------------------------------------------------------- Bewegung: ersetzt jUpdate (Basis) – Gehen mit Fußkontakt, Drehen mit Schritten, Blick, Atmung, IK
 jUpdate = function (dt) { const S = justin_S, g = justin.g; if (!justin.model) return;
   if (typeof kino_S !== 'undefined' && kino_S.on) return; // Kinosequenzen bewegen ihn selbst (kino.js; auch „Noch eine Runde“ im Abspann)
@@ -558,6 +567,7 @@ function justin_schicht(dt, geht) { const S = justin_S, B = S.bones, g = justin.
   // Blickziel: Luke (Kamera) oder gesetztes Ziel; Kopf + Oberkörper (mit Helm dreht der ganze Oberkörper, 81 §1.11)
   const ziel = S.blickZiel || (justin.look || state.talking ? camera.position : null); let yaw = 0, pitch = 0;
   if (ziel && B.head) { B.head.getWorldPosition(_jv); _jv2.copy(ziel).sub(_jv); const dir = Math.atan2(_jv2.x, _jv2.z); yaw = Math.atan2(Math.sin(dir - g.rotation.y), Math.cos(dir - g.rotation.y)); pitch = Math.atan2(_jv2.y, Math.hypot(_jv2.x, _jv2.z));
+    if (Math.abs(yaw) > 1.9) { yaw = 0; pitch = 0; } // P2: Ziel hinter ihm → Kopf zur Mitte (vorher sprang die Grenze von +63° auf −63° = Kopf schlägt um)
     yaw = THREE.MathUtils.clamp(yaw, -1.1, 1.1); pitch = THREE.MathUtils.clamp(pitch, -.45, .35); }
   // kritisch gedämpfte Feder (kein Rucken)
   const k = 9, sp = (x, v, zz) => { const f = (zz - x) * k * k - 2 * k * v; return [x + (v + f * dt) * dt, v + f * dt]; };
