@@ -14437,7 +14437,7 @@ async function weiss_blitze(nur) { const S = weiss_S, jg = S.jSil || S.jGhost; i
   const px = pillar.position.x, hand = new THREE.Vector3();
   const shots = [{ j: [67, 4.6, -Math.PI / 2], cam: [61.6, 1.66, 4.1], look: () => [67, 1.35, 4.6] }, { j: [px, .6, px > 0 ? -Math.PI / 2 : Math.PI / 2], cam: [px + (px > 0 ? -6 : 6), 1.6, 1.9], look: () => [px, 2.1, .4], pillar: true },
     { j: [1.5, -5.2, .9], cam: [2.35, 1.3, -4.45], look: () => { const hb = jg === S.jSil ? S.jsHandL : S.jgHandL; return hb ? hb.getWorldPosition(hand).toArray() : [1.5, 1, -5.2]; } }];
-  scene.add(jg); jg.visible = true; setScripted(() => true); // überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin let cur = null; setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
+  scene.add(jg); jg.visible = true; setScripted(() => true); let cur = null; /* überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin */ setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
   try { for (const sh of shots) { if (nur && shots.indexOf(sh) + 1 !== nur) continue; fd.style.transition = 'none'; fd.style.background = '#fff'; fd.style.opacity = 1; Audio.stinger(false);
       jg.position.set(sh.j[0], 0, sh.j[1]); jg.rotation.y = sh.j[2]; jg.updateMatrixWorld(true); scene.fog.color.setHex(S.sv ? S.sv.fogC : fog[0]); scene.fog.density = .03; pillarMat.uniforms.opacity.value = sh.pillar ? .45 : 0;
       cur = { cam: sh.cam, l: sh.look() }; PERF_CULL.t = 0; await wait(80); fd.style.opacity = 0; S.blitzCut = shots.indexOf(sh) + 1; await wait(S.blitzMs || 300); }
@@ -17257,6 +17257,7 @@ WORLD_MODS.push(['Kapitel 5', async () => {
       fig('lucyWin', 'lucy_erw', -25, .45, -12.9, 0, { clip: 'window' }), fig('heim', 'lucy_erw', -53.6, K5_Y, -15.6, PI / 2), fig('heimSitz', 'lucy_erw', 0, K5_Y, 0, 0, { sit: K5_Y + .47 }), fig('lucyK', 'lucy_erw', 0, 0, 0, 0),
       fig('graue', 'graue', 0, -30, 0, 0), fig('luke', 'luke_echt', 0, -30, 0, 0), fig('mama', 'mama', -46.4, K5_Y, -15.9, -PI / 2, { ghost: true, clip: 'idle' }),
       ...[0, 1, 2, 3, 4].map(i => fig('gz' + i, i % 2 ? 'gezaehlt_m' : 'gezaehlt_j', 0, -30, 0, 0))]);
+    for (let i = 0; i < 5; i++) if (S.g['gz' + i]) noShadow(S.g['gz' + i]); // Leistung am Friedhof: die Gezählten werfen keinen Schatten (Nebel, Kerzenlicht)
     for (const k of ['lucyWin', 'heim', 'heimSitz', 'lucyK']) if (S.g[k]) S.eyes[k] = eyesOf(S.g[k]);
     if (S.g.lucyWin) { noShadow(S.g.lucyWin); S.g.lucyWin.traverse(o => { if (o.isMesh) o.renderOrder = 21; }); }
   }
@@ -17269,7 +17270,7 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     er.position.set(wx, wy, wz - .03); er.renderOrder = 20; er.visible = false; er.userData.noCol = true; er.frustumCulled = false; scene.add(er); S.o.radierer = er;
     if (S.g.lucyWin) S.g.lucyWin.position.set(wx + .05, .45, wz - .3);
     S.o.pfeil = k5_decal(k5_tPfeil(), .42, .42, { op: 0 }); S.o.pfeil.position.set(wx + .22, wy - .24, wz + .012);
-    S.L.win3 = new VLight(0xffc890, 0, 4, 2); S.L.win3.position.set(wx + .3, wy + .4, wz + .6); scene.add(S.L.win3); }
+    S.L.win3 = new VLight(0xffc890, 0, 4, 2); S.L.win3.position.set(wx + .2, wy + .35, wz + .45); scene.add(S.L.win3); }
   // --- Nr. 1: Tisch, Gedecke, Stühle, Lampen, Decals
   const G1 = scene.getObjectByName('io_nr1') || scene;
   const bb = new T.Box3(), within = (o, x0, x1, z0, z1) => { bb.setFromObject(o); const cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2; return cx > x0 && cx < x1 && cz > z0 && cz < z1; };
@@ -17418,11 +17419,12 @@ function k5_merker() {
 // ---------------------------------------------------------------- Zustand je Takt (Neustart am Speicherpunkt, Laden, Tests)
 function k5_setup(beat, spring) {
   const S = K5, b = k5_i(beat); k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
+  if (k5.ownScript) { k5.ownScript = false; setScripted(null); setCamOverride(null); } if (!(typeof kino_busy === 'function' && kino_busy())) state.talking = false;
   const vis = (key, on) => { const o = S.g[key] || S.o[key]; if (o) o.visible = !!on; };
   const hits = (key, on) => { const h = S.hit[key]; if (!h) return; const i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); };
   for (const k in S.hit) hits(k, false);
   // Nr. 3: Lucy am Fenster (K5-2 … K5-4)
-  const amFenster = b >= k5_i('veranda') && b <= k5_i('foto1'); vis('lucyWin', amFenster && b >= k5_i('fenster')); vis('radierer', amFenster && b >= k5_i('fenster')); if (S.L.win3) S.L.win3.intensity = amFenster && b >= k5_i('fenster') ? .9 : 0;
+  const amFenster = b >= k5_i('veranda') && b <= k5_i('foto1'); vis('lucyWin', amFenster && b >= k5_i('fenster')); vis('radierer', amFenster && b >= k5_i('fenster')); if (S.L.win3) S.L.win3.intensity = amFenster && b >= k5_i('fenster') ? 1.7 : 0;
   if (S.o.pfeil) { S.o.pfeil.visible = b >= k5_i('fenster') && b <= k5_i('foto1') && k5.f.pfeil; S.o.pfeil.material.opacity = 1; }
   if (amFenster && b >= k5_i('fenster')) { hits('lucyWin', true); S.hit.lucyWin.position.set(S.win3.x, S.win3.y, S.win3.z + .3); }
   // Nr. 7: Kamera
@@ -17523,8 +17525,8 @@ async function k5_takt(beat, wieder) {
   const tok = k5.tok, ok = () => k5.on && tok === k5.tok, S = K5;
   if (beat === 'veranda') { // K5-1 · 18:10 · Ruhe
     if (!wieder) k5_sp('k5_veranda'); k5_task('Lucy schläft bei Vegas. Warte auf der Veranda.');
-    let t = 0; state.talking = true; setScripted(dt => { t += dt; return t < 4.2; });
-    setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.22 + .43 * (k * k * (3 - 2 * k)); if (t > 4.3) setCamOverride(null); });
+    let t = 0; state.talking = true; k5.ownScript = true; setScripted(dt => { t += dt; return t < 4.2; });
+    setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.22 + .43 * (k * k * (3 - 2 * k)); if (t > 4.3) { setCamOverride(null); k5.ownScript = false; } });
     for (let i = 0; i < 4; i++) setTimeout(() => Audio.drip(-26.2, 2.6, -10.9), 600 + i * rand(700, 1300));
     await wait(4400); if (!ok()) return; state.talking = false;
     await wait(1200); if (!ok()) return; Audio.chains(-28, 1.2, -12.2); Audio.creak(.25); if (typeof albers_S !== 'undefined') albers_S.open = 1; await wait(900);
@@ -17651,13 +17653,13 @@ function k5_setzen() {
   if (!k5.on || k5.sitzt || state.talking || !(k5.beat === 'tisch' || k5.beat === 'schleife')) return;
   const S = K5, cz = S.sitz.z, sx = S.sitz.x; k5.sitzt = true; k5.sitzT = 0; const tok = k5.tok;
   player.pos.set(sx, K5_Y, cz); player.yaw = S.sitz.yaw; player.pitch = -.25; vel.set(0, 0, 0);
-  setScripted(() => k5.sitzt); setCamOverride((cam, dt) => { if (!k5.sitzt) return; cam.position.set(sx, K5_Y + 1.12, cz); });
+  k5.ownScript = true; setScripted(() => k5.sitzt); setCamOverride((cam, dt) => { if (!k5.sitzt) return; cam.position.set(sx, K5_Y + 1.12, cz); });
   if (typeof kamera_zu === 'function') kamera_zu(); for (const k of ['g_papa', 'g_mama', 'g_luke', 'g_kind', 'stuhl']) uninteract(K5.hit[k]);
   subtitle('„Iss, Bruder.“', 2600, K5_W.H);
   setTimeout(() => { if (k5.sitzt && tok === k5.tok) k5_tip('<kbd>E</kbd> essen &nbsp;·&nbsp; <kbd>LEERTASTE</kbd> aufstehen'); }, 3000);
 }
-function k5_aufstehen() { if (!k5.sitzt) return; k5.sitzt = false; for (const k of ['g_papa', 'g_mama', 'g_luke', 'g_kind', 'stuhl']) if (!interactables.includes(K5.hit[k])) interactables.push(K5.hit[k]); k5_tip(''); setScripted(null); setCamOverride(null); player.pitch = 0; camY = player.pos.y + 1.65; player.pos.x -= .25; }
-function k5_essen() { if (!k5.sitzt) return; k5_tip(''); k5.sitzt = false; setScripted(null); setCamOverride(null); if (typeof todDie === 'function') todDie('tisch'); else { subtitle('Du hast aufgegessen. Jetzt bleibst du über Nacht.', 5000); k5_wieder('k5_tuer'); } }
+function k5_aufstehen() { if (!k5.sitzt) return; k5.sitzt = false; k5.ownScript = false; for (const k of ['g_papa', 'g_mama', 'g_luke', 'g_kind', 'stuhl']) if (!interactables.includes(K5.hit[k])) interactables.push(K5.hit[k]); k5_tip(''); setScripted(null); setCamOverride(null); player.pitch = 0; camY = player.pos.y + 1.65; player.pos.x -= .25; }
+function k5_essen() { if (!k5.sitzt) return; k5_tip(''); k5.sitzt = false; k5.ownScript = false; setScripted(null); setCamOverride(null); if (typeof todDie === 'function') todDie('tisch'); else { subtitle('Du hast aufgegessen. Jetzt bleibst du über Nacht.', 5000); k5_wieder('k5_tuer'); } }
 addEventListener('keydown', e => { if (!k5.sitzt || e.repeat || ui.overlay) return; if (e.code === 'KeyE') { e.preventDefault(); e.stopImmediatePropagation(); if (k5.sitzT > 3) k5_essen(); } else if (e.code === 'Space') { e.preventDefault(); e.stopImmediatePropagation(); k5_aufstehen(); } }, true);
 addEventListener('keydown', e => { if (!k5.on || !k5.pust || e.code !== 'KeyF' || e.repeat) return; if (!k5.f.pustF) { k5.f.pustF = true; toast('Die Lampe bleibt aus. Als hätte sie keinen Strom mehr – nie gehabt.', 3200); } Audio.beep(false); }, true);
 // Todesart „tisch“ (tod.js bleibt unverändert: Tabellen von außen erweitert)
@@ -17759,8 +17761,8 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   const top = S.o.palette ? new THREE.Box3().setFromObject(S.o.palette).max.y : .15;
   if (S.stallTeller) { S.stallTeller.visible = true; S.stallTeller.position.set(px + .1, top + .002, pz); }
   if (S.stallBrot) S.stallBrot.position.set(px + .1, top + .02, pz);
-  S.o.augen.visible = true; S.o.augen.scale.setScalar(.75); S.o.augen.rotation.set(-PI / 2, 0, 0); S.o.augen.position.set(px + .12, top + .004, pz + .3);
-  S.o.duich.rotation.set(-PI / 2, 0, 0); S.o.duich.position.set(px - .22, top + .005, pz - .08); S.o.duich.scale.setScalar(.62);
+  S.o.augen.visible = true; S.o.augen.scale.setScalar(.75); S.o.augen.rotation.set(-PI / 2, 0, PI / 2); S.o.augen.position.set(px + .12, top + .004, pz + .3);
+  S.o.duich.rotation.set(-PI / 2, 0, PI / 2); S.o.duich.position.set(px - .22, top + .005, pz - .08); S.o.duich.scale.setScalar(.62);
   S.o.striche.visible = true; S.o.striche.scale.set(.85, .7, 1); S.o.striche.position.set(px + .4, .52, z1 - .1); S.o.striche.rotation.set(0, PI, 0);
   if (S.hit.stallTeller) S.hit.stallTeller.position.set(px + .1, top + .15, pz);
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }

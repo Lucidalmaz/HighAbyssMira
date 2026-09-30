@@ -325,7 +325,7 @@ async function weiss_blitze(nur) { const S = weiss_S, jg = S.jSil || S.jGhost; i
   const px = pillar.position.x, hand = new THREE.Vector3();
   const shots = [{ j: [67, 4.6, -Math.PI / 2], cam: [61.6, 1.66, 4.1], look: () => [67, 1.35, 4.6] }, { j: [px, .6, px > 0 ? -Math.PI / 2 : Math.PI / 2], cam: [px + (px > 0 ? -6 : 6), 1.6, 1.9], look: () => [px, 2.1, .4], pillar: true },
     { j: [1.5, -5.2, .9], cam: [2.35, 1.3, -4.45], look: () => { const hb = jg === S.jSil ? S.jsHandL : S.jgHandL; return hb ? hb.getWorldPosition(hand).toArray() : [1.5, 1, -5.2]; } }];
-  scene.add(jg); jg.visible = true; setScripted(() => true); // überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin let cur = null; setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
+  scene.add(jg); jg.visible = true; setScripted(() => true); let cur = null; /* überbelichtet wie ein Blitz: Weiß bleibt, der Ritter steht als dunkler Umriss darin */ setCamOverride(cam => { if (cur) { cam.position.set(cur.cam[0], cur.cam[1], cur.cam[2]); const l = cur.l; cam.lookAt(l[0], l[1], l[2]); } });
   try { for (const sh of shots) { if (nur && shots.indexOf(sh) + 1 !== nur) continue; fd.style.transition = 'none'; fd.style.background = '#fff'; fd.style.opacity = 1; Audio.stinger(false);
       jg.position.set(sh.j[0], 0, sh.j[1]); jg.rotation.y = sh.j[2]; jg.updateMatrixWorld(true); scene.fog.color.setHex(S.sv ? S.sv.fogC : fog[0]); scene.fog.density = .03; pillarMat.uniforms.opacity.value = sh.pillar ? .45 : 0;
       cur = { cam: sh.cam, l: sh.look() }; PERF_CULL.t = 0; await wait(80); fd.style.opacity = 0; S.blitzCut = shots.indexOf(sh) + 1; await wait(S.blitzMs || 300); }
