@@ -15,7 +15,7 @@
 const kino_S = { on: false, id: null, def: null, i: -1, sh: null, t: 0, T: 0, li: 0, si: 0, skip: false, ending: false, res: null, sv: null, opts: null, ready: false, prevCam: null,
   fig: {}, obj: {}, act: [], env: null, film: null, lit: [], flash: null, pose: { p: new THREE.Vector3(), q: new THREE.Quaternion(), ok: false }, hold: false,
   v: new THREE.Vector3(), w: new THREE.Vector3(), a: new THREE.Vector3(), b: new THREE.Vector3(), c: new THREE.Color(), q: new THREE.Quaternion(), q2: new THREE.Quaternion(),
-  wPrev: new THREE.Vector3(), wOk: false, tex: {}, ev: [], shk: [], lampFx: [], vl: [], lens: null, brumm: null, fps: { n: 0, t: 0, min: 999, lo: 0 } };
+  wPrev: new THREE.Vector3(), wOk: false, cp: new THREE.Vector3(), cw: new THREE.Vector3(), cvp: new THREE.Vector3(), cvw: new THREE.Vector3(), cs: false, fd: new THREE.Vector3(), tex: {}, ev: [], shk: [], lampFx: [], vl: [], lens: null, brumm: null, fps: { n: 0, t: 0, min: 999, lo: 0 } };
 const KINO = {};
 function kino_def(id, shots, meta = {}) { KINO[id] = Object.assign({ skipAfter: 3 }, meta, { id, shots, name: meta.name || id }); return KINO[id]; }
 function kino_busy() { return kino_S.on; }
@@ -49,7 +49,7 @@ function kino_css() {
   #kinoLid::before, #kinoLid::after { content: ''; position: absolute; left: -5%; right: -5%; height: 52%; background: radial-gradient(ellipse 70% 120% at 50% 0%, #000 60%, rgba(0,0,0,.92) 80%, rgba(0,0,0,0) 100%);
     transition: transform .15s cubic-bezier(.55,0,.45,1); } #kinoLid::before { top: 0; transform: translateY(-104%); } #kinoLid::after { bottom: 0; transform: translateY(104%) scaleY(-1); }
   #kinoLid.zu::before { transform: translateY(0); } #kinoLid.zu::after { transform: translateY(0) scaleY(-1); }
-  #kinoTear { position: fixed; inset: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 1.2s; background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); backdrop-filter: blur(0px); }
+  #kinoTear { position: fixed; inset: 0; z-index: 6; pointer-events: none; opacity: 0; transition: opacity 1.2s; background: radial-gradient(ellipse 95% 90% at 50% 50%, rgba(0,0,0,0) 62%, rgba(20,22,26,.22) 100%); backdrop-filter: blur(1.2px); }
   #kinoTear.on { opacity: 1; }`;
   document.head.appendChild(s);
   for (const id of ['kinoCard', 'kinoLid', 'kinoTear']) if (!document.getElementById(id)) { const c = document.createElement('div'); c.id = id; document.body.appendChild(c); }
@@ -193,9 +193,9 @@ function kino_film(F) { const S = kino_S, sv = S.sv, u = filmPass.uniforms; S.fi
 // ---------------------------------------------------------------- Figuren (aus figuren_load geklont, beim Laden vorbereitet): Clips mit weichen Übergängen, Blickziele, Gesten
 const KINO_SIL = new THREE.MeshStandardMaterial({ color: 0x0c0c0e, roughness: 1, metalness: 0 }); // Gegenlicht: dunkler Stoff, keine Gesichter
 // Knochen über Namen finden (CC „CC_Base_R_Upperarm“, Mixamo „mixamorig:RightArm“ …)
-const KINO_BONE = { head: /^head$/, neck: /^(neck|necktwist01|neck1|neck_01)$/, spine: /^(spine2|spine02|spine_02|spine1|spine01)$/, rArm: /^(rightarm|r_upperarm|upperarm_r)$/, rFore: /^(rightforearm|r_forearm|lowerarm_r)$/,
-  lArm: /^(leftarm|l_upperarm|upperarm_l)$/, lFore: /^(leftforearm|l_forearm|lowerarm_l)$/, rHand: /^(righthand|r_hand|hand_r)$/, lHand: /^(lefthand|l_hand|hand_l)$/, hips: /^(hips|hip|pelvis)$/ };
-function kino_bones(o) { const m = {}; o.traverse(b => { if (!b.isBone) return; const n = b.name.replace(/^.*[:|]/, '').replace(/^CC_Base_/i, '').toLowerCase(); for (const k in KINO_BONE) if (!m[k] && KINO_BONE[k].test(n)) m[k] = b; }); return m; }
+const KINO_BONE = { head: /^(head|headx)$/, neck: /^(neck|neckx|necktwist01|neck1|neck_01)$/, spine: /^(spine2|spine02|spine_02|spine_02x|spine1|spine01)$/, rArm: /^(rightarm|r_upperarm|upperarm_r|arm_stretchr|armr)$/, rFore: /^(rightforearm|r_forearm|lowerarm_r|forearm_stretchr|forearmr)$/,
+  lArm: /^(leftarm|l_upperarm|upperarm_l|arm_stretchl|arml)$/, lFore: /^(leftforearm|l_forearm|lowerarm_l|forearm_stretchl|forearml)$/, rHand: /^(righthand|r_hand|hand_r|handr)$/, lHand: /^(lefthand|l_hand|hand_l|handl)$/, hips: /^(hips|hip|pelvis|rootx)$/ };
+function kino_bones(o) { const m = {}; o.traverse(b => { if (!b.isBone) return; const n = b.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/^CC_Base_/i, '').replace(/_\d+$/, '').toLowerCase(); for (const k in KINO_BONE) if (!m[k] && KINO_BONE[k].test(n)) m[k] = b; }); return m; }
 async function kino_mkFig(key, id) {
   try { const F = await figuren_load(id); if (!F) return null; const sk = await figuren_skc(), o = sk(F.scene); o.rotation.y = F.yaw || 0;
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g);
@@ -206,7 +206,7 @@ async function kino_mkFig(key, id) {
 }
 // Zusätzliche Bewegungen aus der Werkstatt (assets/chars/<id>/kino.json: [AnimationClip.toJSON …]) – bestehende Figuren bleiben unberührt
 async function kino_extraClips(P) { try { const r = await fetch('assets/chars/' + P.id + '/kino.json'); if (!r.ok) return; const L = await r.json();
-  for (const j of L) { const c = THREE.AnimationClip.parse(j); P.acts[c.name] = P.mx.clipAction(c); } } catch (e) {} }
+  for (const j of L) { if (P.acts[j.name]) continue; const c = THREE.AnimationClip.parse(j); P.acts[c.name] = P.mx.clipAction(c); } } catch (e) {} } // Clips aus der Figur selbst (AP-MOCAP) haben Vorrang
 function kino_play_(P, k, ts = 1, fade = .5, once = false) { if (!P) return; const a = P.acts[k] || P.acts.idle; if (!a) return; if (P.cur === a) { a.timeScale = ts; return; }
   a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.play(); a.timeScale = ts; if (P.cur && fade > 0) { a.fadeIn(fade); P.cur.fadeOut(fade); } else if (P.cur) P.cur.stop(); P.cur = a; }
 function kino_sil(P, on) { if (!P || P.sil === on) return; P.sil = on; for (const [m, mat] of P.mats) m.material = on ? KINO_SIL : mat; }
@@ -214,15 +214,22 @@ function kino_sil(P, on) { if (!P || P.sil === on) return; P.sil = on; for (cons
 function kino_fig(key, x, y, z, ry, clip = 'idle', o = {}) { const P = kino_S.fig[key]; if (!P) return null; const g = P.g, war = g.visible && !!P.cur;
   g.position.set(x, y, z); g.rotation.set(o.rx || 0, ry, o.rz || 0); g.visible = true; kino_sil(P, !!o.sil);
   if (P.sit && !o.sit) { P.sit = false; P.obj.position.set(0, 0, 0); P.obj.scale.setScalar(1); }
-  if (o.sit !== undefined) { kino_play_(P, 'idle', 1, 0); P.mx.update(.3 + (o.t0 || 0)); g.updateMatrixWorld(true); if (typeof figuren_seat === 'function') { P.obj.position.set(0, 0, 0); figuren_seat({ g, obj: P.obj, mx: P.mx, doll: false, cur: P.cur, get sit() { return P.sit; }, set sit(v) { P.sit = v; } }, o.sit); P.cur = null; P.sit = true; } }
+  if (o.sit !== undefined && P.acts.sitzen && KINO_MOCAP_SITZ) { if (P.sit) { P.sit = false; P.obj.position.set(0, 0, 0); } kino_play_(P, 'sitzen', o.ts || 1, war ? .5 : 0); P.mx.update(o.t0 || .05); if (P.bones.hips) { g.updateMatrixWorld(true); P.bones.hips.getWorldPosition(kino_hp); g.position.y = o.sit + .08 - (kino_hp.y - g.position.y); } P.sitzClip = true; } // Hüfte knapp über der Sitzfläche: nichts schwebt, nichts steckt im Stuhl
+  else if (o.sit !== undefined) { kino_play_(P, 'idle', 1, 0); P.mx.update(.3 + (o.t0 || 0)); g.updateMatrixWorld(true); if (typeof figuren_seat === 'function') { P.obj.position.set(0, 0, 0); figuren_seat({ g, obj: P.obj, mx: P.mx, doll: false, cur: P.cur, get sit() { return P.sit; }, set sit(v) { P.sit = v; } }, o.sit); P.cur = null; P.sit = true; } }
   else { kino_play_(P, clip, o.ts || 1, war ? (o.fade ?? .5) : 0); if (o.t0) P.mx.update(o.t0); }
   P.look = o.look || null; P.lookW = o.look ? 1 : 0; P.lk.y = P.lk.p = 0; P.pose = o.pose || null;
   if (!kino_S.act.includes(P)) kino_S.act.push(P); return P; }
+const KINO_MOCAP_SITZ = false; // Motifect-Sitzen (kino.json „sitzen“) sitzt noch zu hoch/hinter der Lehne – bis AP-MOCAP „sit“ mit Fuß-IK liefert: prozedurale Sitzhaltung auf den Stühlen
 function kino_figOff(key) { const P = kino_S.fig[key]; if (!P) return; P.g.visible = false; kino_sil(P, false); if (P.grau) kino_grau(P, false); P.look = null; P.pose = null; const i = kino_S.act.indexOf(P); if (i >= 0) kino_S.act.splice(i, 1); }
 // Bone additiv um eine Weltachse drehen (nach dem Mixer): wirkt unabhängig von den Achsen des Skeletts
-function kino_rotW(b, ax, ang) { if (!b || !ang) return; const S = kino_S; b.parent.getWorldQuaternion(S.q); S.q2.setFromAxisAngle(ax, ang); b.getWorldQuaternion(kino_S.qb || (kino_S.qb = new THREE.Quaternion()));
-  S.qb.premultiply(S.q2); b.quaternion.copy(S.q.invert()).multiply(S.qb); b.updateMatrixWorld(true); }
+function kino_rotW(b, ax, ang) { if (!b || !ang) return; const S = kino_S, u = b.userData;
+  // Knochen ohne Spur im laufenden Clip würden sich Bild für Bild weiterdrehen: beim ersten Eingriff je Bild auf die letzte Clip-Lage zurücksetzen
+  if (u.kf !== S.frame) { u.kf = S.frame; if (!u.kQ0) { u.kQ0 = b.quaternion.clone(); u.kSet = new THREE.Quaternion(); } else if (u.kSet.equals(b.quaternion)) b.quaternion.copy(u.kQ0); else u.kQ0.copy(b.quaternion); } b.parent.getWorldQuaternion(S.q); S.q2.setFromAxisAngle(ax, ang); b.getWorldQuaternion(kino_S.qb || (kino_S.qb = new THREE.Quaternion()));
+  S.qb.premultiply(S.q2); b.quaternion.copy(S.q.invert()).multiply(S.qb); b.updateMatrixWorld(true); u.kSet.copy(b.quaternion); }
 const KINO_UP = new THREE.Vector3(0, 1, 0), kino_ax = new THREE.Vector3(), kino_fw = new THREE.Vector3(), kino_d = new THREE.Vector3(), kino_hp = new THREE.Vector3();
+// Atmung: Brustkorb hebt sich (Wirbelsäule um die Querachse), Schultern gehen mit – Takt je Figur leicht verschieden
+function kino_atmung(P) { const B = P.bones; if (!B.spine) return; P.at = (P.at || Math.random() * 6) ; const t = kino_S.T * (P.h > 1.5 ? 1.35 : 1.7) + P.at, a = Math.sin(t) * .5 + .5;
+  P.g.getWorldDirection(kino_fw); kino_ax.crossVectors(kino_fw, KINO_UP).normalize(); kino_rotW(B.spine, kino_ax, -a * .018); if (B.neck) kino_rotW(B.neck, kino_ax, a * .012); }
 // Kopf/Hals zum Blickziel drehen (begrenzt, geglättet), danach Gesten (P.pose(P, t) setzt Knochen additiv)
 function kino_figPost(P, dt) { const B = P.bones, S = kino_S;
   if (P.look && B.head) { let L = P.look; if (L === 'cam') L = camera.position; else if (Array.isArray(L)) L = S.b.set(L[0], L[1], L[2]);
@@ -401,7 +408,7 @@ WORLD_MODS.push(['Kino', async () => {
     const a = new T.Mesh(new T.PlaneGeometry(.088, .107), mf), b = new T.Mesh(new T.PlaneGeometry(.088, .107), mb); a.rotation.x = -PI / 2; b.rotation.x = PI / 2; b.position.y = -.0005; a.receiveShadow = b.receiveShadow = true; g.add(a, b); kino_obj('pola', g); }
   // K1: nasse Stelle, wo Hilde stand · Lesebrille · Zeichnung von der Wand · Staub im Keller · Träne
   { const w = kino_decal('nass', kino_tex_wet(), 2.4, 2.4, { rough: .05 }); w.material.roughness = .04; w.material.metalness = .1; w.material.opacity = .5; w.rotation.x = -PI / 2; }
-  { const b = kino_decal('brille', kino_tex_brille(), .34, .34, { rough: .12, phys: true }); b.rotation.x = -PI / 2; b.material.envMapIntensity = 1.4; }
+  { const b = kino_decal('brille', kino_tex_brille(), .34, .34, { rough: .45 }); b.rotation.x = -PI / 2; b.material.envMapIntensity = .8; }
   { const z = new T.Mesh(new T.PlaneGeometry(.3, .3), new T.MeshStandardMaterial({ map: tex(kino_tex_zeichnung(), true), roughness: .95, side: T.DoubleSide })); z.castShadow = true; z.receiveShadow = true; kino_obj('zeichnung', z); }
   { const N = 220, pos = new Float32Array(N * 3), seed = new Float32Array(N * 3); for (let i = 0; i < N; i++) { seed[i * 3] = rand(-3.6, 3.6); seed[i * 3 + 1] = rand(.1, 2.3); seed[i * 3 + 2] = rand(.2, 6); }
     const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); const m = new T.Points(geo, new T.PointsMaterial({ color: 0xbfc4c8, size: .012, transparent: true, opacity: .55, depthWrite: false }));
@@ -430,7 +437,7 @@ WORLD_MODS.push(['Kino', async () => {
   try { S.lens = kino_lensPass(); if (S.lens) { S.lens.enabled = true; S.lensWarm = 3; } } catch (e) { console.warn('Kino: Linse', e); }
   // Prolog: das Kindergesicht vom Graukind-Modell
   try { const cv = kino_tex_kindgesicht(), m = new T.MeshBasicMaterial({ map: tex(cv, true), transparent: true, depthWrite: false, fog: false, side: T.DoubleSide });
-    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI / 2; f.scale.setScalar(1.5); const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m;
+    const f = new T.Mesh(new T.SphereGeometry(.06, 24, 16, -PI * .38, PI * .76, PI * .18, PI * .64), m); f.rotation.y = PI / 2; f.scale.setScalar(1.15); const g = new T.Group(); g.add(f); kino_obj('kindgesicht', g); S.tex.kg = m;
     const m2 = m.clone(); m2.color = new T.Color(.46, .5, .54); m2.opacity = .92; m2.depthTest = false; const f2 = new T.Mesh(f.geometry, m2); f2.rotation.y = PI / 2; f2.scale.setScalar(2.6); f2.renderOrder = 21; const g2 = new T.Group(); g2.add(f2); kino_obj('tankGesicht', g2); } catch (e) { console.warn('Kino: Kindergesicht', e); }
   kino_defs(); S.ready = true; lap('fertig');
 }]);
@@ -486,12 +493,17 @@ function kino_next() {
   else sh._look = Array.isArray(sh.look) ? kino_V(...sh.look) : typeof sh.look === 'function' && sh.look.length === 1 ? kino_V(...sh.look(sh)) : null;
   const lt = kino_resolve(sh.lookTo, sh); sh._lookTo = lt ? kino_V(lt[0], lt[1], lt[2]) : null;
   sh._curve = sh.via && sh._from ? new THREE.CatmullRomCurve3([sh._from, ...sh.via.map(p => kino_V(...(typeof p === 'function' ? p(sh) : p))), sh._to], false, 'centripetal') : null;
+  if (!sh._curve && !sh.path && !sh.gerade && sh._from && sh._to && sh._from.distanceTo(sh._to) > .15) { // Q-11: nie gerade Fahrten – ein leichter Bogen, weg vom Blickziel (Orbit-Gefühl)
+    const d = sh._to.clone().sub(sh._from), L = d.length(), m = sh._from.clone().add(sh._to).multiplyScalar(.5), p = new THREE.Vector3(-d.z, 0, d.x).normalize(), tg = sh._look || sh._lookTo;
+    const sg = tg && p.dot(tg.clone().sub(m)) > 0 ? -1 : 1; m.addScaledVector(p, sg * L * .09); m.y += L * .025; sh._curve = new THREE.CatmullRomCurve3([sh._from, m, sh._to], false, 'centripetal'); }
+  S.cs = false;
   sh._lcurve = sh.lookVia && sh._look ? new THREE.CatmullRomCurve3([sh._look, ...sh.lookVia.map(p => kino_V(...p)), sh._lookTo || sh._look], false, 'centripetal') : null;
   sh._ease = KINO_EASE[sh.ease || 'smooth'] || kino_e;
   for (const s of sh.shakes || []) kino_after(s[0], () => kino_shake(s[1], s[2]));
   try { sh.setup && sh.setup(sh); } catch (e) { console.warn('Kino: Aufbau', e); }
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0; S.pose.ok = false;
 }
+function kino_feder(x, vel, target, dt, om) { const S = kino_S; S.fd.copy(target).sub(x).multiplyScalar(om * om).addScaledVector(vel, -2 * om); vel.addScaledVector(S.fd, Math.min(dt, .05)); x.addScaledVector(vel, Math.min(dt, .05)); }
 function kino_shake(amp, dur) { kino_S.shk.push({ a: amp, d: dur, t: 0 }); }
 // Kamera je Bild (aus update(), vor Taschenlampe und Takt)
 function kino_cam(cam, dt) {
@@ -521,6 +533,9 @@ function kino_cam(cam, dt) {
       else if (typeof sh.look === 'function') { const r = sh.look(w, e, S.t, sh); if (Array.isArray(r)) w.set(r[0], r[1], r[2]); else if (r && r.isVector3 && r !== w) w.copy(r); if (sh._lookTo) w.lerp(sh._lookTo, e); } // bewegtes Blickziel (Rückgabe Array/Vektor oder w selbst gesetzt)
       else if (sh._fromDir) w.copy(v).addScaledVector(sh._fromDir, 6); }
     if (sh.follow) { if (S.wOk) S.wPrev.lerp(w, 1 - Math.exp(-dt * sh.follow)); else { S.wPrev.copy(w); S.wOk = true; } w.copy(S.wPrev); }
+    // Trägheit der Handkamera: Position und Blickpunkt folgen dem Ziel über eine kritisch gedämpfte Feder (beim Schnitt ohne Nachlauf)
+    if (!S.cs || dt <= 0) { S.cp.copy(v); S.cw.copy(w); S.cvp.set(0, 0, 0); S.cvw.set(0, 0, 0); S.cs = true; }
+    else { kino_feder(S.cp, S.cvp, v, dt, sh.traeg ?? 11); kino_feder(S.cw, S.cvw, w, dt, (sh.traeg ?? 11) * .8); v.copy(S.cp); w.copy(S.cw); }
     const h = sh.hand ?? .5, T = S.T; // ruhige Hand: kaum spürbares Atmen der Kamera (zwei langsame, sich überlagernde Schwingungen)
     v.x += (Math.sin(T * .9) * .006 + Math.sin(T * 2.3 + 1.7) * .0025) * h; v.y += (Math.sin(T * 1.3 + 1) * .005 + Math.sin(T * 3.1) * .0015) * h + (sh.breathe ? Math.sin(S.t * 1.7) * .012 * sh.breathe : 0); v.z += Math.sin(T * .7 + 2.1) * .004 * h;
     cam.position.copy(v); cam.up.set(0, 1, 0); cam.lookAt(w);
@@ -542,7 +557,7 @@ async function kino_finish(skipped) {
   for (const P of [...S.act]) kino_figOff(P.key); for (const k in S.obj) S.obj[k].visible = false; if (S.rabe) S.rabe.fl = null;
   kino_card(null); $('kinoPola').classList.remove('on', 'flip'); $('kinoLid').classList.remove('zu'); $('kinoTear').classList.remove('on');
   if (S.lucyLight) S.lucyLight.intensity = 0; if (S.rabeLight) S.rabeLight.intensity = 0; if (S.coldLight) S.coldLight.intensity = 0; for (const l of S.vl) l.intensity = 0;
-  kino_lampFxEnde(); kino_lensSet(null); kino_brummAus();
+  kino_lampFxEnde(); kino_lensSet(null); kino_brummAus(); S.lock = null;
   const uebergabe = D.uebergabe && S.pose.ok; if (uebergabe) { const d = camera.getWorldDirection(S.a); S.sv.yaw = Math.atan2(-d.x, -d.z); S.sv.pitch = Math.asin(kino_cl(d.y, -1, 1)); }
   kino_restore();
   const au = S.opts && S.opts.aufblenden; S.on = false; S.id = null; const r = S.res; S.res = null;
@@ -585,13 +600,13 @@ function kino_lampNah(x, z) { let b = null, bd = 1e9; kino_lamps(L => { const d 
 
 // ---------------------------------------------------------------- Takt: Figuren, Umgebung, geliehene Lichter (keine Zuweisungen neuer Objekte)
 function kino_tick(dt) {
-  const S = kino_S; if (S.lensWarm > 0 && --S.lensWarm === 0 && S.lens && !S.on) S.lens.enabled = false;
+  const S = kino_S; S.frame = (S.frame || 0) + 1; if (S.lensWarm > 0 && --S.lensWarm === 0 && S.lens && !S.on) S.lens.enabled = false;
   if (!S.on || S.ending) return; if (S.hold) dt = 0;
-  for (let i = 0; i < S.act.length; i++) { const P = S.act[i]; if (P.g.visible && !P.sit) { P.mx.update(dt); if (P.look || P.pose) { P.g.updateMatrixWorld(true); kino_figPost(P, dt); } } }
+  for (let i = 0; i < S.act.length; i++) { const P = S.act[i]; if (P.g.visible && !P.sit) { P.mx.update(dt); P.g.updateMatrixWorld(true); kino_atmung(P); kino_figPost(P, dt); } }
   const R = S.rabe; if (R && R.g.visible) { R.mx.update(dt); if (R.fl) { const F = R.fl, g = R.g; F.t = Math.min(1, F.t + dt / F.dur); const k = F.t, a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
       g.position.set(a * F.from.x + b * F.ctrl.x + c * F.to.x, a * F.from.y + b * F.ctrl.y + c * F.to.y, a * F.from.z + b * F.ctrl.z + c * F.to.z);
       const dx = F.to.x - F.from.x, dz = F.to.z - F.from.z; g.rotation.y = Math.atan2(dx, dz); if (F.t >= 1) { R.fl = null; kino_rabeClip('Landing', true); kino_after(.7, () => kino_rabeClip('IdleLookAround')); if (F.then) F.then(); } } }
-  kino_envTick(); kino_lampFxTick(dt);
+  kino_envTick(); kino_lampFxTick(dt); if (S.lock) S.lock();
   if (S.lit.length) { const l = pointPool[2], L = S.lit[0]; l.position.copy(L.p); l.color.setHex(L.c); l.distance = L.d; l.decay = 2; l.intensity = L.i; }
   const F = S.flash; if (F) { flashRig.position.copy(F.p); S.a.copy(F.at).sub(F.p).normalize(); S.b.set(0, 0, -1); flashRig.quaternion.setFromUnitVectors(S.b, S.a); flashRig.updateMatrixWorld(); flashlight.intensity = F.i; bounce.intensity = 0;
     fogUniforms.flP.value.copy(F.p); fogUniforms.flD.value.copy(S.a); fogUniforms.flK.value.set(F.i / 18, Math.cos(flashlight.angle)); }
@@ -672,7 +687,7 @@ function kino_defK1() {
         kino_after(2.8, () => { const A2 = ax(); kino_atem(.14, 1.05, A2.lx + A2.ux * .3, 1.7, A2.lz + A2.uz * .3); }); kino_show('traene'); },
       tick(k, t, dt) { ufoTick(dt, .5); beam(.1); ufo.userData.spot.intensity = 60; const P = hilde(), A = ax(); if (!P) return; const y0 = 1.64 - 1.5;
         kino_S.lit[0] = kino_S.litH || (kino_S.litH = { p: kino_V(0, 0, 0), c: 0xffe2bc, d: 3, i: 0 }); kino_S.litH.p.set(A.lx + A.ux * .2, 2.5, A.lz + A.uz * .2); kino_S.litH.i = 1.6; // Kopf kommt von unten ins Bild, auf Augenhöhe, und steigt weiter
-        P.g.position.set(A.lx + A.ux * .52, y0 + (t < 2.2 ? -.55 + t * .22 : -.066 + (t - 2.2) * .22 + Math.max(0, t - 4) * .45), A.lz + A.uz * .52); P.g.rotation.set(-.08, A.face + Math.sin(t * .5) * .08, .04);
+        P.g.position.set(A.lx + A.ux * .68, y0 + (t < 2.2 ? -.55 + t * .22 : -.066 + (t - 2.2) * .22 + Math.max(0, t - 4) * .45), A.lz + A.uz * .52); P.g.rotation.set(-.08, A.face + Math.sin(t * .5) * .08, .04);
         kino_traene(P, t); },
       teardown() { kino_hide('traene'); const P = hilde(); if (P) P.pose = null; } },
     // 26–28 · der Blick reißt nach oben: nur noch ein heller Fleck im Kegel, dann ist der Kegel leer. Weißblitz, ein Schlag wie eine Stahltür, ein Kind holt Luft
@@ -775,7 +790,7 @@ function kino_katzeZurueck() { const C = kino_S.katze; if (!C) return; kino_S.ka
 // Hildes Kopf (für Fokus und Blick)
 function kino_hildeKopf(v) { const P = kino_S.fig.hilde; if (P && P.g.visible && P.bones.head) { P.g.updateMatrixWorld(true); P.bones.head.getWorldPosition(v); return v; } const h = kino_hildeSpot(); return v.set(h.x, 1.5, h.z); }
 // Hildes Hand hebt sich zu Lukes Wange und erreicht sie nicht
-function kino_hildeHand(P, t) { const w = kino_ramp(t, 1.2, 3.2) * (1 - kino_ramp(t, 4.6, 5.8)); kino_arm(P, 'r', camera.position, w * .85, .6); }
+function kino_hildeHand(P, t) { const w = kino_ramp(t, 1.2, 3.2) * (1 - kino_ramp(t, 4.6, 5.8)); camera.getWorldDirection(kino_d); kino_S.b.copy(camera.position).addScaledVector(kino_d, .25); kino_ax.crossVectors(kino_d, KINO_UP).normalize(); kino_S.b.addScaledVector(kino_ax, .22); kino_S.b.y -= .12; kino_arm(P, 'r', kino_S.b, w * .5, .7); } // Richtung Wange, erreicht sie nicht
 // Die Träne läuft nach oben: kleiner feuchter Glanz an der Wange, steigt zur Schläfe
 function kino_traene(P, t) { const o = kino_S.obj.traene, B = P.bones.head; if (!o || !B) return; B.getWorldPosition(kino_hp); camera.getWorldDirection(kino_d);
   const u = kino_ramp(t, 2.4, 5.2); kino_ax.crossVectors(kino_d, KINO_UP).normalize(); o.position.copy(kino_hp).addScaledVector(kino_ax, .038).addScaledVector(kino_d, -.075); o.position.y += -.035 + u * .07;
@@ -968,7 +983,7 @@ function kino_dampf(t) { const o = kino_S.obj.dampf; if (!o || !o.visible) retur
 const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'dina', 'heidi', 'maedchen'];
 function kino_buehne(M) { const S = kino_S; return M || S.bu || { x: X3 + 4, z: Z3 }; }
 function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S, a0 = S.bl ? Math.atan2(S.bl.fz, S.bl.fx) - PI / 2 : 0; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = a0 + i / 8 * PI * 2, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
-  const st = S.obj['stuhl' + i], rs = stehen ? 5.1 : r + .08; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * rs, 0, M.z + Math.sin(a) * rs); st.rotation.y = ry + PI; }
+  const st = S.obj['stuhl' + i], rs = stehen ? 5.1 : r + .08; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * rs, 0, M.z + Math.sin(a) * rs); st.rotation.y = ry; } // Sitzfläche zur Mitte, Lehne außen
   if (stehen) kino_fig(k, x, 0, z, ry, 'idle', { look: 'cam', t0: i * .4 }); else kino_fig(k, x, 0, z, ry, 'idle', { sit: .47, t0: i * .4 }); kino_grau(S.fig[k], true); }); }
 // Behaltene: grau, ohne Wärme (Farbe der Texturen gedämpft) – nach der Sequenz wieder normal (kino_figOff)
 function kino_grau(P, on) { if (!P) return; if (!P.grauM) P.grauM = P.mats.map(([m, mat]) => [].concat(mat).map(x => { const c = x.clone(); if (c.color) c.color.setRGB(.58, .6, .63); if (c.emissive) { c.emissive.setRGB(.05, .052, .056); } return c; }));
@@ -1023,13 +1038,13 @@ function kino_defK3Abspann() {
   const kette = () => { const d = typeof doorOf !== 'undefined' && doorOf[3]; return d || null; };
   const shots = [
     // 0–6 · Nimmerheim: hinter Justin, Schulterhöhe, langsam zurückfahrend; er geht zwischen die Rippen ins Dunkel. Luna und die sieben halten sich die Augen zu
-    { path(e, t, v, w) { const M = S.nh; v.set(M.x, 1.75, M.z - 1.2 - 2.4 * e); w.set(M.x, 1.4, M.z + 6); }, dur: 6, fov: 44, env: 'white', fadeIn: 1400, hand: .25, ease: 'soft', film: { vig: 1.4 },
+    { path(e, t, v, w) { const M = S.nh; v.set(M.x, 1.75, M.z - 1.2 - 2.4 * e); w.set(M.x, 1.4, M.z + 6); }, dur: 6, fov: 44, env: { fog: [0xe6e8ec, .007], sky: [0xf0f2f5, 0xf4f6f8, 1.4], hemi: [1.25, 0xffffff, 0xc8cace], moon: [0, 0xffffff], exp: .95, envI: .25 }, fadeIn: 1400, hand: .25, ease: 'soft', film: { vig: .5 },
       setup(sh) { const M = S.nh; S.bl = { fx: 0, fz: -1 }; kino_kreisSetzen({ x: M.x, z: M.z + 3 }, 5, false); for (const k of KINO_KREIS) { const P = S.fig[k]; if (P) P.pose = kino_haendeAugen; }
         kino_fig('graue', M.x + .6, 0, M.z + 1.6, PI, 'idle', { pose: kino_haendeAugen });
         if (justin && justin.g) { sh.j = [justin.g.position.clone(), justin.g.rotation.y, justin.g.visible]; justin.g.visible = true; justin.g.position.set(M.x, 0, M.z); justin.g.rotation.y = 0; if (typeof jPlay === 'function') jPlay('walk', 0); kino_helm(true); }
         const a = kino_antwort(S.opts); kino_after(.4, () => kino_sag('Vier. Fünf. Sechs.', 'LUNA', 2600)); kino_after(1.9, () => kino_sag(KINO_RUF[a] || KINO_RUF.B, 'JUSTIN', 2600)); kino_after(4.2, () => kino_sag('… sieben …', 'LUNA', 1800));
         for (let i = 0; i < 7; i++) kino_after(.3 + i * .72, () => Audio.play(Audio.pick('scrape1', 'scrape2'), { gain: .09 * (1 - i / 8), rate: .7, dur: .25, lp: 1600 })); },
-      tick(k, t, dt, sh) { if (justin && justin.mixer) justin.mixer.update(dt); if (justin && justin.g) { justin.g.position.z = S.nh.z + t * 1.2; } const U = filmPass.uniforms; U.vig.value = 1.4 + 2.2 * kino_ramp(t, 2, 6); renderer.toneMappingExposure = (1.05 - .55 * kino_ramp(t, 2.5, 6)) * settings.bright; },
+      tick(k, t, dt, sh) { if (justin && justin.mixer) justin.mixer.update(dt); if (justin && justin.g) { justin.g.position.z = S.nh.z + t * 1.2; } const U = filmPass.uniforms; U.vig.value = .5 + 1.6 * kino_ramp(t, 2.5, 6); renderer.toneMappingExposure = (1.05 - .55 * kino_ramp(t, 2.5, 6)) * settings.bright; },
       teardown(sh) { if (sh.j && justin && justin.g) { justin.g.position.copy(sh.j[0]); justin.g.rotation.y = sh.j[1]; justin.g.visible = sh.j[2]; if (typeof jPlay === 'function') jPlay('idle', 0); } for (const k of [...KINO_KREIS, 'graue']) kino_figOff(k); for (let i = 0; i < 8; i++) kino_hide('stuhl' + i); } },
     { white: true, dur: 2, fadeOut: 500, setup() { kino_still(true, .2); } }, // 6–8 · Weiß, Stille
     // 8–16 · Kreuzung, Bodenhöhe, 40 cm neben Lukes Schuhen, Blick die Ahornstraße hinunter: die Laternen gehen aus, von Osten nach Westen, wie jeden Morgen. Nur die vor Nr. 1 nicht (A-13)
@@ -1098,7 +1113,7 @@ function kino_defProlog() {
   const kopf = v => { const C = W(); if (!C) return v.set(0, 3, 0); if (!S.kpHead) C.g.traverse(b => { if (!S.kpHead && b.isBone && /head/i.test(b.name)) S.kpHead = b; }); return S.kpHead ? S.kpHead.getWorldPosition(v) : v.copy(C.g.position).add({ x: 0, y: .3, z: 0 }); };
   const nahe = (d, h, s) => sh => { W().g.updateMatrixWorld(true); kopf(S.b); return [S.b.x + d * S.kp.dx, S.b.y + h + .05, S.b.z + d * S.kp.dz]; };
   const drehe = (ang) => { const C = W(); if (C && S.kpHead) kino_rotW(S.kpHead, KINO_UP, ang); };
-  const mix = dt => { const C = W(); if (C && C.mx) C.mx.update(dt); if (C && C.g) C.g.updateMatrixWorld(true); };
+  const mix = dt => { const C = W(); if (!C) return; const p = P(); C.fl = null; C.g.visible = true; C.g.position.set(p.x, p.y, p.z); C.g.rotation.set(0, Math.atan2(S.kp.dx, S.kp.dz), 0); if (C.mx) C.mx.update(dt); C.g.updateMatrixWorld(true); }; // er bleibt auf der Laterne
   kino_def('kp', [
     { from: nahe(.34, .02), to: nahe(.3, .01), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 5, fov: 30, roll: .05, rollTo: -.03, hand: .3, lens: { at: () => kopf(kino_S.a), r: .1, amt: .9 },
       lines: [['<i>Finde Lucy. Finde heraus, was mit diesem Dorf geschehen ist.</i>', 'DER RABE', .6, 4200]],
@@ -1126,10 +1141,10 @@ function kino_defProlog() {
         if (t > 2.6) { const f = $('fade'); f.style.transition = 'opacity 1.3s'; f.style.background = '#fff'; f.style.opacity = 1; } }, teardown() { kino_hide('lampe'); } },
     { white: true, dur: 1.2, fadeOut: 0 },
   ], { name: 'Kum, Wîse', skipAfter: Infinity, nahtlos: true,
-    start() { const C = W(); S.kpHead = null; C.fl = null; const p = P(); C.g.visible = true; C.g.position.set(p.x, p.y, p.z); // er sitzt auf der Laterne (Traum-Shot 3 hatte ihn zur Fibel hüpfen lassen)
+    start() { const C = W(); S.kpHead = null; C.fl = null; const p = P(); S.lock = () => { const q = P(); C.fl = null; C.g.position.set(q.x, q.y, q.z); }; C.g.visible = true; C.g.position.set(p.x, p.y, p.z); // er sitzt auf der Laterne (Traum-Shot 3 hatte ihn zur Fibel hüpfen lassen)
       const b = typeof TRAUM_BOOK !== 'undefined' ? TRAUM_BOOK : { x: p.x + 1.3, z: p.z + 1.1 }; let dx = b.x - p.x, dz = b.z - p.z; const n = Math.hypot(dx, dz) || 1; S.kp = { dx: dx / n, dz: dz / n };
       C.g.rotation.set(0, Math.atan2(dx, dz), 0); if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', 0); },
-    done() { if (kino_S.sv) kino_S.sv.fadeBg = '#fff'; } });
+    done() { kino_S.lock = null; if (kino_S.sv) kino_S.sv.fadeBg = '#fff'; } });
 }
 // „Kum, Wîse“: gehauchte Frauenstimme (Formant-Rauschen, zwei Silben), leise, nicht an Luke gerichtet
 function kino_kum(p) { const A = Audio; if (!A.ctx) return; const c = A.ctx, d = p ? A.at(p.x + .6, p.y, p.z + .4, 1.5) : A.master;
@@ -1230,6 +1245,8 @@ function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) r
 window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), karte: (l, o) => kino_karte(l, o),
   hold: on => { kino_S.hold = !!on; }, // Standbild (Zeit steht) – für Kontaktbögen
   outage: () => startOutage(), // Kapitel 1: Stromausfall auslösen (Test)
+  fig: (...a) => kino_fig(...a), figOff: k => kino_figOff(k), // Test: Figur zeigen
+  kopf: k => { const P = kino_S.fig[k]; if (!P) return null; P.g.updateMatrixWorld(true); const o = {}; for (const n of ['hips', 'spine', 'head']) { const B = P.bones[n]; if (B) { const v = new THREE.Vector3(); B.getWorldPosition(v); o[n] = v.toArray().map(x => +x.toFixed(2)); } } return o; },
   seek: async t => { const S = kino_S; for (let m = 0; m < 600 && S.on && S.i < 0; m++) await wait(50); if (!S.on) return 'aus'; S.hold = false; let n = 0; while (S.on && S.T < t && n++ < 4000) { const dt = 1 / 30; update(dt, S.T); } S.hold = true; return S.id + ' ' + S.T.toFixed(2) + ' ' + S.i; },
   fps: () => { const F = kino_S.fps; return F.t > 0 ? Math.round(F.n / F.t) : 0; },
   cam: (p, l, f = 60) => { setCamOverride(cam => { cam.position.set(...p); cam.lookAt(...l); if (cam.fov !== f) { cam.fov = f; cam.updateProjectionMatrix(); } }); }, free: () => { setCamOverride(null); camera.fov = fov; camera.updateProjectionMatrix(); },
