@@ -16,7 +16,9 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | 1940s Spy – Animated | Tony Flanagan | Körper Mann vom Amt (2), Bewegungen | https://www.fab.com/listings/705b573b-2eae-40fd-8373-06f3c6cf9450 |
 | The Doctor/Torturer – Animated | Tony Flanagan | Körper Mann vom Amt (1) | https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c |
 | Dirt Farmer – Rigged | Tony Flanagan | Körper Lars Vegas | https://www.fab.com/listings/5af7af37-2c8a-4447-9444-8c9c83cd4872 |
-| Deer Thing | Shedmon | wahre Gestalt des Hungrigen | https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4 |
+| Deer Thing | Shedmon | wahre Gestalt des Wendigo (Hirschding) – eigenes Skelett und eigene Bewegungen (AP Q-1) | https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4 |
+| Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | Fab (Download 01.10.2026, `HAM_FabDownloads/v17_kreaturen/grimhound.glb`) |
+| Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | Fab (Download 01.10.2026, `HAM_FabDownloads/v17_kreaturen/muskel.glb`) |
 | Cute Alien Pet – Stylized 3D Character | MissTxxT | der Beobachter (weiß umgefärbt) | https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9 |
 | Human Kidney Anatomy | clacydarch | Organ im Kuh-Sturz / Fraßstellen | https://www.fab.com/listings/3dff700e-9bbf-4d9d-babf-5328d263b512 |
 | Rusty and Oil Stained Oil Barrel | Sunbox Games | Ölfass im Langen Gang, Jonas' Blechdose | https://www.fab.com/listings/fe9d49ab-2e76-416d-87ee-6f506a63d1de |
@@ -100,7 +102,7 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Heruntergeladen, derzeit nicht im Spiel
-Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monster.
+Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monster; Insectoid Monster (DM-913), False Bear (Cherryvania), Realistic PBR Monster (Prit Patel) – angesehen für die Wendigo-Formen, nicht genommen.
 
 ## Ton: Musik, Klangbetten, Geräusche (`game/audio/*.ogg`, gebaut mit `app/tools/klang_bau.py`)
 
@@ -113,6 +115,7 @@ nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitte
 - Regen/Wasser: Pole Position – Thunder & Rain · GainWalkers – Urban Rain · Sound Ex Machina – Rain City · PMSFX – Empty City Rain · Borg Sound – Rain Indoor Ambiences · Invisible – Storm, gale and thunderstorm · Soundrangers – Hydrology Bubbles and Splashes · Kevin Durr – Essential Water Sounds Vol. 2 · Olivier Girardot – Underground Atmospheres
 - Wind/Räume: Hzandbits – Wind In Trees, Hvac Elements · Ivo Vicic – Structure borne sound (Stromleitung im Wind) · 2496SoundEffects – Room Tones and Quiet Places Pack 1 · Soundreorganized – Everything So Far (Küche: Uhr, Gefrierschrank) · Borg Sound – Empty School Roomtones · SoundHolder – Bunkers · Digital Rain Lab – Abstract Interior Tones · Airborne Sound – Light and Dark Drones · Glitchedtones – Drones
 - Tiere/Holz/Dinge: Discover Oregon – Ravens and Robins (Whiskeys Rabenkehle, Singvögel) · Invisible – Storm, gale and thunderstorm (Amseln) · Airborne Sound – Kitchen (Mikrowelle) · 2496SoundEffects – Tech Toys Electronics Pack 1 (Wecker) · Ivo Vicic – Red Deer and Roe Deer · Pole Position – Barking Dog · Bart Kamski – Dogs · SoundBits – Unsettling Creaks and Squeaks · Russell Gorsky – Squeaks and Creaks Two · The Sound Keeper – Normal Doors · The Soundcatcher – Paperlife, Antique Mills · Eiravaein Sound – Parched · RedSonic – Analogue Rotary Telephone · CFry – Shortwave
+- Wendigo-Laute (`wd_*`, `app/tools/klang_wendigo.py`): Articulated Sounds – Bones & Blood (Gore Elements), Yeti Monster · Matt Script – You Me & Debris, The Mouth · Jeffrey Mengyan – Vegetable Carnage · Soundrangers – Hydrology Bubbles and Splashes · Ivo Vicic – Red Deer and Roe Deer · Eiravaein Sound – Mouthy, Meridian · Gamemaster Audio – Troll Monster Vocalizations · Glitchedtones – Zombie · Sound Spark LLC – Gore · MatiasMacSD – Mutation · SoundMorph – Monster Within
 - Stimmen/Schreck: Chris Logsdon – Text & Dialogue SFX Pack · Articulated Sounds – Ghosts Return, Special Double Bass Fx · Ambisound – Ethereal Breaths · JC Audio – Breathing In Hell · Airborne Sound – Variety 1 · Olivier Girardot – Monsters · Alexander Kopeikin – The Dry Ice Library, Prepared Piano · Sir Bedlam Productions – Bedlam Stingers
 
 **Weiterhin im Spiel:** die CC0-Aufnahmen von OpenGameArt.org in `game/sounds.js`/`sounds_extra.js` (Quellen: `game/sounds_src/QUELLEN.txt`).

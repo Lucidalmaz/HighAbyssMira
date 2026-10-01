@@ -95,14 +95,14 @@ function whiskey_perch(x, z) {
   return top;
 }
 function whiskey_play(k, fade = .25, once = false, ts = 1) { const S = whiskey_S, a = S.A[k]; if (!a) return; a.timeScale = ts; if (a === S.cur) return; a.reset();
-  if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; }
+  if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else { a.setLoop(THREE.LoopRepeat, Infinity); if (/^Idle|^Eat/.test(k)) { a.time = Math.random() * a.getClip().duration; a.timeScale = ts * rand(.88, 1.12); } } a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; } // Q-1: keine identischen Schleifen
 function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5 }); }
 function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil > .5) || (typeof SP !== 'undefined' && SP.silent > .5); } // Stille-Zonen (Kap. 6): Whiskey stumm
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
   const S = whiskey_S, from = S.g.position.clone(), dist = from.distanceTo(to), apex = Math.max(from.y, to.y) + Math.min(8, 2 + dist * .25);
   S.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, apex, (from.z + to.z) / 2), t: 0, dur: Math.max(1.6, dist / 7.5), then, land: false };
-  S.mode = 'take'; S.tt = .45; S.turn = null; whiskey_play('TakeOff', .08, true, 1.2); if (dist > 3) { whiskey_caw({ gain: .5 }); Audio.flap(from.x, from.y + .2, from.z); } whiskey_noHit();
+  S.mode = 'take'; S.tt = .45; S.turn = null; S.fl.hold = .14; whiskey_play('TakeOff', .08, true, rand(1.1, 1.3)); if (dist > 3) { whiskey_caw({ gain: .5 }); Audio.flap(from.x, from.y + .2, from.z); } whiskey_noHit();
 }
 function whiskey_noHit() { const S = whiskey_S; if (!S.hit) return; uninteract(S.hit); S.hit.position.set(0, -50, 0); }
 function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; whiskey_noHit(); S.ride = null; const p = S.g.position; whiskey_fly(new THREE.Vector3(p.x + rand(-25, 25), p.y + 18, p.z + rand(-25, 25)), () => { S.g.visible = false; S.mode = 'gone'; }); }
@@ -475,7 +475,7 @@ function whiskey_perchTick(dt, t) {
     S.hrT = S.mood === 'handel' ? (Math.random() < .7 ? .48 : .12) * (Math.random() < .5 ? 1 : -1) : (!still && Math.random() < .25 ? rand(-.35, .35) : 0); }
   const kk = Math.min(1, dt * (still ? 3 : 22)); S.hy += (S.hyT - S.hy) * kk; S.hr += (S.hrT - S.hr) * Math.min(1, dt * 10);
   // Gefieder: aufplustern (nach dem Landen, beim Putzen, in Kälte) und leiser Atem
-  S.puff = Math.max(0, S.puff - dt * .45); S.breath += dt * (still ? 1.6 : 2.6);
+  S.puff = Math.max(0, S.puff - dt * .45); S.breath += dt * (still ? 1.6 : 2.6); if (S.setz > 0) { S.setz = Math.max(0, S.setz - dt * 2.8); S.m.position.y = -.035 * Math.sin((1 - S.setz) * PI) * S.setz; } // Q-1: Gewicht beim Aufsetzen
   const b = S.base * (1 + .012 * Math.sin(S.breath)) , pf = 1 + .08 * Math.sin(Math.min(1, S.puff) * PI);
   S.m.scale.set(b * pf, b * (1 + .03 * (pf - 1)), b * pf);
   g.rotation.x += (0 - g.rotation.x) * Math.min(1, dt * 6); g.rotation.z += ((S.tired ? .16 : 0) - g.rotation.z) * Math.min(1, dt * 2);
@@ -506,14 +506,14 @@ WORLD_TICK.push((dt, t) => {
   if (!g.visible) { S.beak.visible = false; return; }
   const far = Math.hypot(P.x - g.position.x, P.z - g.position.z) > 70;
   // Flug
-  if (S.fl) { const F = S.fl; F.t = Math.min(1, F.t + dt / F.dur); const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u; // schnell ab, langsam an
+  if (S.fl) { const F = S.fl; if (F.hold > 0) { F.hold -= dt; S.m.position.y = -.025 * Math.sin(Math.min(1, F.hold / .14) * PI); } else { S.m.position.y = 0; F.t = Math.min(1, F.t + dt / F.dur); } /* Q-1: Ducken vor dem Absprung */ const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u; // schnell ab, langsam an
     const nx = a * F.from.x + b * F.ctrl.x + c * F.to.x, ny = a * F.from.y + b * F.ctrl.y + c * F.to.y, nz = a * F.from.z + b * F.ctrl.z + c * F.to.z;
-    const dx = nx - g.position.x, dz = nz - g.position.z, dy = ny - g.position.y, h = Math.hypot(dx, dz); if (h > 1e-4) g.rotation.y = Math.atan2(dx, dz);
+    const dx = nx - g.position.x, dz = nz - g.position.z, dy = ny - g.position.y, h = Math.hypot(dx, dz); if (h > 1e-4) { const ny_ = Math.atan2(dx, dz), yr = whiskey_wrap(ny_ - g.rotation.y) / Math.max(dt, 1e-3); g.rotation.y = ny_; g.rotation.z += (Math.max(-.6, Math.min(.6, -yr * .35)) - g.rotation.z) * Math.min(1, dt * 5); } // in die Kurve legen
     g.rotation.x += (Math.max(-.5, Math.min(.5, -Math.atan2(dy, h + 1e-3) * .8)) * (F.t > .85 ? -.6 : 1) - g.rotation.x) * Math.min(1, dt * 8); g.position.set(nx, ny, nz); // Nase in Flugrichtung, beim Landen aufgerichtet
     if (S.mode === 'take') { S.tt -= dt; if (S.tt < 0) { S.mode = 'fly'; whiskey_play('Fly', .2); } }
-    else if (F.t > .8 && !F.land) { F.land = true; whiskey_play('Landing', .12, true); }
+    else if (F.t > .8 && !F.land) { F.land = true; whiskey_play('Landing', .12, true, rand(.95, 1.15)); if (!far) { const q = g.position; Audio.flap(q.x, q.y, q.z); setTimeout(() => Audio.flap(q.x, q.y, q.z), 170); } } // bremsende Flügelschläge
     else if (F.t < .8 && !F.land && F.dur > 2.4) { const want = Math.sin(t * .9 + F.dur) > .35 ? 'Glide' : 'Fly'; if (S.cur !== S.A[want]) whiskey_play(want, .4); }
-    if (F.t >= 1) { S.fl = null; S.mode = 'perch'; S.puff = 1; whiskey_play('IdleLookAround', .3); if (F.then) F.then(); } }
+    if (F.t >= 1) { S.fl = null; S.mode = 'perch'; S.puff = 1; S.setz = 1; g.rotation.z = 0; whiskey_play('IdleLookAround', .3); if (F.then) F.then(); } }
   else if (S.mode === 'perch' || S.mode === 'ride') {
     if (S.mode === 'ride' && S.st && S.st.pos) { const p = S.st.pos(); if (p) g.position.set(p[0], p[1], p[2]); }
     whiskey_moodTick(dt); whiskey_perchTick(dt, t);

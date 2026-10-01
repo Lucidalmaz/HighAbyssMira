@@ -414,6 +414,7 @@ async function lwo_neueFigur(key, def) {
   if (def.blech) { F.suit = []; obj.traverse(o => { if (o.isMesh && o.material && o.material.name === 'kostum') { o.material = o.material.clone(); o.material.emissiveIntensity = 0; F.suit.push(o.material); } });
     obj.updateMatrixWorld(true); const sp3 = lwo_bone(obj, /^spine3$/) || F.spine; const wp = sp3 ? sp3.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0, 1.3, 0);
     F.lampLocal = new THREE.Vector3(-.098, wp.y + .088, .17);
+    try { lwo_brustLicht(F, obj, g); } catch (e) { console.warn('LWO: Brustlicht', e); } // Q-1: nur das Leuchtbild auf der Brust glüht, nicht der ganze Anzug
     const sm = new THREE.SpriteMaterial({ map: LWO.glareTex, color: 0xdfe8ff, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }); F.glare = new THREE.Sprite(sm); F.glare.scale.set(.5, .5, 1); F.glare.position.copy(F.lampLocal); F.glare.position.z += .03; g.add(F.glare); }
   // Nachsorge 12: Notizblock an der Schnur (Telefon-Pose mit Block = „Schreiben“)
   if (def.schreibt && F.handR) { try { const b = await msModel('w_buch', 'model.glb'); const blk = msFit(b.clone(true), .15, 'max'); const w = new THREE.Group(); w.add(blk); blk.position.set(0, 0, 0);
@@ -433,6 +434,15 @@ function lwo_hand(art) { const F = LWO.F.wolter; if (F && F.bare) F.bare.value =
 function lwo_sitzen(F, seatY) { if (!F) return; if (F.acts.sit) { F.sit = true; F.sitW = 1; F.seatY = seatY; F.walkW = 0; return; } if (typeof figuren_seat !== 'function') return; F.g.updateMatrixWorld(true); figuren_seat({ g: F.g, obj: F.obj, mx: F.mx, doll: false, set cur(v) {}, get cur() { return null; } }, seatY); F.sit = true; F.sitProc = true;
   F.sitQ = [F.spineLow, F.spine, F.neck, F.head].filter(Boolean).map(b => [b, b.quaternion.clone()]); }
 // Blechmann-Lampe: Leuchtbild auf der Brust (je Figur) + der eine Scheinwerfer (beim Laden angelegt, Intensität 0), immer bei der zuletzt eingeschalteten Lampe; hörbares Klack
+// Q-1: Blechmann-Lampe – das Leuchten auf ein Feld um die Brustlampe begrenzen (vorher glühte der ganze Anzug weiß und wirkte im Wald wie ein Geist).
+// Je Ecke ein Gewicht (Abstand zur Lampe in der aktuellen Pose, einmal beim Aufbau), der Shader multipliziert das Eigenleuchten damit.
+function lwo_brustLicht(F, obj, g) { const L = g.localToWorld(F.lampLocal.clone()), v = new THREE.Vector3(); g.updateMatrixWorld(true);
+  obj.traverse(o => { if (!o.isMesh || !F.suit.includes(o.material)) return; const G = o.geometry, n = G.attributes.position.count, a = new Float32Array(n);
+    for (let i = 0; i < n; i++) { o.getVertexPosition(i, v); v.applyMatrix4(o.matrixWorld); const dx = (v.x - L.x), dy = (v.y - L.y) * 1.25, dz = (v.z - L.z), d = Math.hypot(dx, dy, dz); a[i] = 1 - THREE.MathUtils.smoothstep(d, .06, .12); }
+    G.setAttribute('aLampe', new THREE.BufferAttribute(a, 1)); const m = o.material; m.onBeforeCompile = sh => {
+      sh.vertexShader = 'attribute float aLampe; varying float vLampe;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vLampe = aLampe;');
+      sh.fragmentShader = 'varying float vLampe;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n  totalEmissiveRadiance *= vLampe * 1.6;'); };
+    m.customProgramCacheKey = () => 'lwo_brustlicht'; m.needsUpdate = true; }); }
 function lwo_lampe(F, an) { if (!F || !F.def.blech) return; F.lampe = !!an; for (const m of F.suit) m.emissiveIntensity = an ? 3.2 : 0;
   if (typeof Audio !== 'undefined' && Audio.ctx && F.g.visible) Audio.play(an ? 'switch1' : 'switch2', { gain: .5, rate: .8, x: F.g.position.x, y: 1.4, z: F.g.position.z, ref: 2 });
   const S = LWO.spot; if (!S) return;

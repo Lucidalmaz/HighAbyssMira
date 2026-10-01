@@ -75,20 +75,22 @@ function hungrige_bones(root, re) { const L = []; root.traverse(o => { if (o.isB
 // Verdrehungen und Streckungen nach dem Mixer anwenden (der Mixer setzt die Knochen jedes Bild neu)
 function hungrige_applyTwist(V) { if (!V.tw) return; for (const t of V.tw) { if (t.q) { hungrige_Q.identity().slerp(t.q, t.k); t.b.quaternion.copy(t.q0).multiply(hungrige_Q); } if (t.s) t.b.scale.set(t.s0.x * (1 + (t.s[0] - 1) * t.k), t.s0.y * (1 + (t.s[1] - 1) * t.k), t.s0.z * (1 + (t.s[2] - 1) * t.k)); } }
 function hungrige_twist(V, b, ry, s) { if (!b) return null; const t = { b, q: ry ? new THREE.Quaternion().setFromEuler(hungrige_E.set(0, ry, 0)) : null, s: s || null, k: 0, q0: b.quaternion.clone(), s0: b.scale.clone() }; (V.tw = V.tw || []).push(t); return t; }
-function hungrige_beast(key, s = 1) { const V = leben_beast(key, s); if (!V) return null; if (key === 'crow') V.m.rotation.y = PI / 2; V.g.visible = false; return V; }
+function hungrige_beast(key, s = 1) { if (key === 'wolf' && typeof kr_wolf === 'function') { const W = kr_wolf(); if (W) return W; } const V = leben_beast(key, s); /* Q-1: der Geschälte Wolf hat ein eigenes Modell (kreaturen.js) */ if (!V) return null; if (key === 'crow') V.m.rotation.y = PI / 2; V.g.visible = false; return V; }
 function hungrige_off(V) { if (!V) return; V.g.visible = false; if (V.tw) for (const t of V.tw) { t.b.quaternion.copy(t.q0); t.b.scale.copy(t.s0); } V.tw = null; if (V.cur) V.cur.timeScale = 1; }
 function hungrige_flesh() { // rohes Fleisch: Material aus dem Kuh-Sturz (Megascans-Fleischtextur), auf Tierhaut gelegt
   const S = hungrige_S; if (S.flesh) return S.flesh; let m = null; if (FAB.gore && FAB.gore.meat) FAB.gore.meat.traverse(o => { if (!m && o.isMesh) m = o.material; });
   S.flesh = m ? m.clone() : new THREE.MeshPhysicalMaterial({ color: 0x8a3a3a, roughness: .45, clearcoat: .8, clearcoatRoughness: .25 }); S.flesh.color.setRGB(.42, .17, .16); S.flesh.roughness = .28; if ('clearcoat' in S.flesh) { S.flesh.clearcoat = 1; S.flesh.clearcoatRoughness = .12; } S.flesh.side = THREE.DoubleSide; S.flesh.name = 'Nackt';
   S.none = S.none || new THREE.MeshBasicMaterial({ visible: false }); return S.flesh;
 }
-function hungrige_nackt(V) { // Fell und Federn weg, das Fleisch darunter: „die Nackten“
-  const F = hungrige_flesh(); V.m.traverse(o => { if (!o.isMesh) return; const ms = [].concat(o.material); const out = ms.map(m => /fur|hair|feather/i.test(m.name || '') ? hungrige_S.none : F);
+function hungrige_nackt(V) { // Fell und Federn weg, das Fleisch darunter: „die Nackten“ (Q-1: Muskel, Sehnen, Rippen, Wunde aus kreaturen.js; alt als Rückfall)
+  if (typeof kr_nackt === 'function' && kr_nackt(V)) return V; const F = hungrige_flesh(); V.m.traverse(o => { if (!o.isMesh) return; const ms = [].concat(o.material); const out = ms.map(m => /fur|hair|feather/i.test(m.name || '') ? hungrige_S.none : F);
     o.material = Array.isArray(o.material) ? out : out[0]; o.castShadow = true; }); return V;
 }
 function hungrige_step(V, gain = .3, rate) { const p = V.g.position; Audio.play(rate ? 'stepG2' : Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain, rate: rate || rand(.75, .95), x: p.x, y: .1, z: p.z, ref: 4 }); } // rate fest = mechanisch gleich (Reh)
+// Wendigo-Laute aus Aufnahmen (kreaturen.js: Audio.wendigo – knochen, schritt, atem, knurr, ruf, fleisch, schnueff, huf, stoehn), sonst der alte Laut
+function hungrige_ton(art, x, y, z, gain, alt) { if (Audio.wendigo && Audio.wendigo(art, x, y, z, gain)) return; if (alt) alt(); }
 // nasse Schritte der Geschälten: Laub und ein feuchtes Schmatzen darunter
-function hungrige_nass(V, gain = .25) { const p = V.g.position; hungrige_step(V, gain * .8); Audio.play('scrape3', { gain: gain * .35, rate: rand(.42, .55), lp: 900, x: p.x, y: .05, z: p.z, ref: 3 }); }
+function hungrige_nass(V, gain = .25) { const p = V.g.position; if (Audio.wendigo && Audio.wendigo('schritt', p.x, .05, p.z, gain * 1.5)) return; hungrige_step(V, gain * .8); Audio.play('scrape3', { gain: gain * .35, rate: rand(.42, .55), lp: 900, x: p.x, y: .05, z: p.z, ref: 3 }); }
 // „Wer sie anleuchtet, sieht nur Nebel“: ein Nebelstoß an der Stelle (ein Sprite, beim Laden angelegt)
 function hungrige_nebel(x, y, z, s = 1) { const N = hungrige_S.nebel; if (!N) return; N.position.set(x, y, z); N.scale.setScalar(2.4 * s); N.userData.t = 1; N.userData.s = 2.4 * s; N.visible = true; }
 // Gefressene Stimmen (Bibel 1.5): trocken, ohne Raum, KEINE Spieluhr darunter – Sprecher mit Fragezeichen (LUCYS STIMME?, HOFER?, ANNI?, PELL?, DEINE STIMME?). Sprachausgabe (X-1) über stimmen_spielen, sonst Hauch
@@ -97,6 +99,8 @@ function hungrige_lucy(x, y, z, text, ms = 2200) { hungrige_stimme(x, y, z, text
 // ---------------------------------------------------------------- Die wahre Gestalt (Deer Thing) und der Bau
 async function hungrige_loadDT() {
   const S = hungrige_S; if (S.dt) return S.dt; if (S.dtP) return S.dtP; S.dtP = (async () => {
+  try { const K = typeof kr_hirschding === 'function' ? await kr_hirschding() : null; // Q-1: Hirschding mit Skelett und Clips (kreaturen.js), sonst das alte starre Modell
+    if (K) { const g = new THREE.Group(); g.add(K.o); g.visible = false; g.userData.noCol = true; scene.add(g); S.dt = { g, o: K.o, t: 0, kr: K }; return S.dt; } } catch (e) { console.warn('Hungrige: Hirschding (Skelett)', e); }
   try { const src = await msModel('wendigo', 'hirschding.glb'); const o = msGround(msFit(src.clone(true), HUNGRIGE.dtH, 'y')); o.rotation.y = HUNGRIGE.dtYaw;
     o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; const mats = [].concat(m.material).map(x => { const c = x.clone(); if (/eye/i.test(c.name || '')) { c.emissive = new THREE.Color(0x3a0a06); c.emissiveIntensity = 1.2; } c.roughness = Math.min(c.roughness ?? .6, .5); return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; } });
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); S.dt = { g, o, t: 0 }; return S.dt; } catch (e) { console.warn('Hungrige: Hirschding', e); return null; } })(); return S.dtP;
@@ -176,7 +180,7 @@ const HUNGRIGE_EV = {
   // 2) Eine Krähe landet auf der Brotkrumenspur, frisst sie und sagt Lucys Wort – ohne Spieluhr darunter. Dann fliegt sie davon, rückwärts, den Kopf zu Luke.
   // Kapitel 6: sie landet auf den Brotkrumen des Jungen und frisst sie (kapitel6.js: k6_krumeVorn / k6_krumenFressen) – „Die Spur ist weg.“
   kraehe: { need: () => hungrige_dust(player.pos.x, player.pos.z), skip: () => hungrige_tief(player.pos.x, player.pos.z),
-    start() { const kr = typeof k6_krumeVorn === 'function' ? k6_krumeVorn() : null, sp = kr || hungrige_spot(5, 8, .4, false, .3); if (!sp) return false; this.krume = !!kr; const V = hungrige_beast('crow', 1.15); if (!V) return false;
+    start() { const kr = typeof k6_krumeVorn === 'function' ? k6_krumeVorn() : null, sp = kr || hungrige_spot(5, 8, .4, false, .3); if (!sp) return false; this.krume = !!kr; const V = hungrige_beast('crow', 1.15); if (!V) return false; if (typeof kr_form === 'function') kr_form(V, 'hals_k');
       V.g.position.set(sp[0], sp[1] + 6, sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'Landing', 0, 1, true); Audio.flap(sp[0], sp[1] + 4, sp[2]); this.V = V; this.t = 0; this.ph = 'land'; this.said = false; return true; },
     tick(dt) { const V = this.V, p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 60); if (this.ph !== 'fly') hungrige_facePlayer(V, dt * 3);
       if (this.ph === 'land') { p.y += (V.ty - p.y) * Math.min(1, dt * 3.2); if (this.t > 1.1) { this.ph = 'sit'; leben_play(V, 'IdleLookAround', .3); p.y = V.ty; } }
@@ -191,23 +195,24 @@ const HUNGRIGE_EV = {
     end() { hungrige_off(this.V); hungrige_done('kraehe', '„Großer.“ Das ist Lucys Wort. Aus einem Krähenschnabel. … Und keine Spieluhr drunter. Das ist nicht sie.'); if (typeof k6_nachKraehe === 'function') k6_nachKraehe(!!this.ate, this.V && this.V.g.position); } },
   // 3) Ein Fuchs sitzt mit dem Rücken zu dir. Der Kopf sieht dich trotzdem an – um 180 Grad gedreht. Er atmet nicht; im Licht knurrt er nass und ist weg.
   fuchs: { need: () => hungrige_dust(player.pos.x, player.pos.z), skip: () => hungrige_tief(player.pos.x, player.pos.z),
-    start() { const sp = hungrige_spot(8, 12, .45); if (!sp) return false; const V = hungrige_beast('fox', 1); if (!V) return false;
+    start() { const sp = hungrige_spot(8, 12, .45); if (!sp) return false; const V = hungrige_beast('fox', 1); if (!V) return false; if (typeof kr_form === 'function') kr_form(V, 'fuchs'); // Q-1: „hinten den Reißverschluss vergessen“
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.rotation.y += PI; V.g.visible = true; leben_play(V, 'IdleBreathe', 0); V.mx.update(.5); if (V.cur) V.cur.timeScale = 0; this.V = V; this.t = 0; this.lit = 0; // eingefroren: kein Atem
       this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); if (this.tw) this.tw.k = 1; return true; },
     tick(dt) { const V = this.V; this.t += dt; leben_beastUpd(V, dt, 60); if (hungrige_lit(V, 20, .975, .35)) this.lit += dt;
       if (this.tw) this.tw.k = 1 + (Math.sin(this.t * 17) > .96 ? .04 : 0); // ein Zucken ab und zu, sonst nichts
-      if (this.lit > 1.2 || hungrige_dist(V) < 3) { const p = V.g.position; Audio.growl(p.x, p.z, true); Audio.play('scrape3', { gain: .1, rate: .5, x: p.x, y: .3, z: p.z, ref: 3 }); hungrige_nebel(p.x, p.y + .4, p.z, .7); return false; } if (this.t > 35) return false; hungrige_applyTwist(V); return true; },
+      if (this.lit > 1.2 || hungrige_dist(V) < 3) { const p = V.g.position; hungrige_ton('knurr', p.x, .3, p.z, .55, () => Audio.growl(p.x, p.z, true)); Audio.play('scrape3', { gain: .1, rate: .5, x: p.x, y: .3, z: p.z, ref: 3 }); hungrige_nebel(p.x, p.y + .4, p.z, .7); return false; } if (this.t > 35) return false; hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('fuchs', 'Der Kopf saß falsch. Umgedreht. Als hätte jemand den Fuchs angezogen und hinten den Reißverschluss vergessen.'); } },
   // 5) Nach der Fraßstelle: ein Hirsch bricht aus dem Dunkel, stürmt auf dich zu, bleibt einen Meter vor dir stehen – und der Kopf dreht sich ohne den Hals. Knacken. Licht aus.
   hirsch: { need: () => hungrige_tief(player.pos.x, player.pos.z) && hungrige_has('spuren') && Math.hypot(player.pos.x - HUNGRIGE.spuren.x, player.pos.z - HUNGRIGE.spuren.z) < 34, skip: () => hungrige_has('bau'),
-    start() { const sp = hungrige_spot(22, 30, .35, false, 1.3) || hungrige_spot(16, 22, .9, false, 1.3); if (!sp) return false; const V = hungrige_beast('stag', 1.12); if (!V) return false;
+    start() { const sp = hungrige_spot(22, 30, .35, false, 1.3) || hungrige_spot(16, 22, .9, false, 1.3); if (!sp) return false; const V = hungrige_beast('stag', 1.12); if (!V) return false; if (typeof kr_form === 'function') kr_form(V, 'hals'); // Q-1: am Hals klafft das Fleisch, wo der Kopf sich dreht
       V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; hungrige_facePlayer(V, 1); V.g.visible = true; leben_play(V, 'IdleLookAround', 0); this.V = V; this.t = 0; this.ph = 'watch'; this.hT = 0; this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI); return true; },
     tick(dt) { const V = this.V, d = hungrige_dist(V), p = V.g.position; this.t += dt; leben_beastUpd(V, dt, 90);
-      if (this.ph === 'watch') { hungrige_facePlayer(V, dt * 2); if ((hungrige_seen(V, .92, 1.2) && this.t > 1.5) || this.t > 12) { this.ph = 'run'; V.sp = 9; leben_play(V, 'Run', .15); Audio.deerBark ? Audio.deerBark(p.x, p.z) : Audio.grunt(p.x, p.z, true); leben_crowScare(p.x, p.z, 20); } }
-      else if (this.ph === 'run') { const P = player.pos; V.tx = P.x; V.tz = P.z; leben_beastMove(V, dt); this.hT -= dt; if (this.hT < 0) { this.hT = .17; hungrige_step(V, .55, .6); shake = Math.max(shake, .02); } // schwer, schnell, tief
+      if (this.ph === 'watch') { hungrige_facePlayer(V, dt * 2); if ((hungrige_seen(V, .92, 1.2) && this.t > 1.5) || this.t > 12) { this.ph = 'run'; V.sp = 9; leben_play(V, 'Run', .15); hungrige_ton('ruf', p.x, 1.6, p.z, .7, () => Audio.deerBark ? Audio.deerBark(p.x, p.z) : Audio.grunt(p.x, p.z, true)); leben_crowScare(p.x, p.z, 20); } }
+      else if (this.ph === 'run') { const P = player.pos; V.tx = P.x; V.tz = P.z; leben_beastMove(V, dt); this.hT -= dt; if (this.hT < 0) { this.hT = .17; hungrige_ton('huf', p.x, .1, p.z, .5, () => hungrige_step(V, .55, .6)); shake = Math.max(shake, .02); } // schwer, schnell, tief
         if (d < 1.9) { this.ph = 'stop'; this.t = 0; leben_play(V, 'AntlersAttack', .08, 1, true); Audio.stinger(true); shake = .07; glitchV = .5; scareCount++; } }
-      else if (this.ph === 'stop') { hungrige_facePlayer(V, dt * 6); if (this.t > 1.1) this.tw.k = Math.min(1, this.tw.k + dt * .9); if (this.t > 1.6 && !this.crk) { this.crk = true; Audio.crack(); }
-        if (this.t > 2.8) { this.ph = 'gone'; cutLights(1100); Audio.growl(p.x, p.z, true); } }
+      else if (this.ph === 'stop') { hungrige_facePlayer(V, dt * 6); if (this.t > 1.1) { this.kr = Math.min(1, (this.kr || 0) + dt * .9); const st = Math.floor(this.kr * 5) / 5; if (st > this.tw.k) { this.tw.k = st; hungrige_ton('knochen', p.x, 1.8, p.z, .55, () => Audio.crack()); } } // ohne Hals, in Rasten – jede Raste knackt
+        if (this.t > 1.6 && !this.crk) { this.crk = true; hungrige_ton('knochen', p.x, 1.8, p.z, .7, () => Audio.crack()); }
+        if (this.t > 2.8) { this.ph = 'gone'; cutLights(1100); hungrige_ton('knurr', p.x, 1.4, p.z, .7, () => Audio.growl(p.x, p.z, true)); } }
       else { const f = flatDir(); p.addScaledVector(f, dt * 14); if (this.t > 3.6) return false; }
       hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('hirsch', 'Ein Meter. Der hat mich gemessen.'); } },
@@ -237,14 +242,14 @@ const HUNGRIGE_EV = {
       const an = P => { if (!P) return false; this.P = P; this.head = hungrige_bone(P.obj, /^(mixamorig)?Head$|Head$/i); if (P.mx) P.mx.timeScale = .15; return true; }; // Rückfall Polizist (Bibel 1.11); Atmung fast still
       figuren_embody(g, 'blechmann', { clip: 'idle' }).then(P => an(P) || figuren_embody(g, 'polizist', { clip: 'idle' }).then(Q => { if (!an(Q)) this.fail = true; })).catch(() => { this.fail = true; }); return true; },
     tick(dt) { this.t += dt; if (this.fail) return false; const g = hungrige_S.hoferG, p = g.position, d = Math.hypot(p.x - player.pos.x, p.z - player.pos.z), f = leben_facing(p.x, p.y + 1.5, p.z);
-      if (this.ph === 'wait') { if (f > .9 && d < 30) this.seen = (this.seen || 0) + dt; if (this.seen > 1.4) { this.ph = 'turn'; this.k = 0; Audio.crack(); } else if (this.t > 40) return false; }
+      if (this.ph === 'wait') { if (f > .9 && d < 30) this.seen = (this.seen || 0) + dt; if (this.seen > 1.4) { this.ph = 'turn'; this.k = 0; hungrige_ton('knochen', p.x, 1.7, p.z, .6, () => Audio.crack()); } else if (this.t > 40) return false; }
       else if (this.ph === 'turn') { this.k = Math.min(1, this.k + dt * .55); if (this.k >= 1 && !this.sp) { this.sp = true; this.spT = this.t; }
         if (this.sp) { const T = this.t - this.spT; // drei Stimmen, ein Mund, der sich nicht bewegt
           if (this.v === 0) { this.v = 1; hungrige_stimme(p.x, 1.7, p.z, '„… Bergung drei … ich hab Hunger, Junge …“', 'HOFER?', 3000, 'hofer_8a'); }
           else if (this.v === 1 && T > 3.4) { this.v = 2; hungrige_stimme(p.x, 1.6, p.z, '„Papa, ich bin’s.“', 'ANNI?', 2200, 'anni_8'); }
           else if (this.v === 2 && T > 6) { this.v = 3; hungrige_stimme(p.x, 1.7, p.z, '„Every bite. It gets hungrier with every bite.“', 'PELL?', 3200, 'pell_8'); } }
-        if (this.sp && ((flashOn && f > .975 && d < 20 && this.t > this.spT + 9.4) || d < 3.5 || this.t > this.spT + 13)) { this.ph = 'gone'; glitchV = .7; shake = .05; scareCount++; Audio.growl(p.x, p.z, true); hungrige_nebel(p.x, p.y + 1.4, p.z, 1.3); cutLights(700); return false; } if (this.t > 60) return false; }
-      if (this.head && this.k) { if (!this.base) this.base = this.head.quaternion.clone(); hungrige_Q.setFromEuler(hungrige_E.set(0, PI * this.k, 0)); this.head.quaternion.copy(this.base).multiply(hungrige_Q); } return true; },
+        if (this.sp && ((flashOn && f > .975 && d < 20 && this.t > this.spT + 9.4) || d < 3.5 || this.t > this.spT + 13)) { this.ph = 'gone'; glitchV = .7; shake = .05; scareCount++; hungrige_ton('knurr', p.x, 1.6, p.z, .7, () => Audio.growl(p.x, p.z, true)); hungrige_nebel(p.x, p.y + 1.4, p.z, 1.3); cutLights(700); return false; } if (this.t > 60) return false; }
+      if (this.head && this.k) { if (!this.base) this.base = this.head.quaternion.clone(); const kk = Math.floor(this.k * 6) / 6; if (kk !== this.kk) { this.kk = kk; if (kk > 0) hungrige_ton('knochen', p.x, 1.7, p.z, .45, () => Audio.crack()); } hungrige_Q.setFromEuler(hungrige_E.set(0, PI * kk, 0)); /* Q-1: der Kopf rastet in sechs Stufen, jede knackt */ this.head.quaternion.copy(this.base).multiply(hungrige_Q); } return true; },
     end() { const g = hungrige_S.hoferG; if (g) g.visible = false; hungrige_done('hofer', 'Eine Uniform vom Amt. Vom alten. Der Kopf hat sich zu mir gedreht, und der Körper ist stehen geblieben.');
       setTimeout(() => { if (!state.talking) subtitle('Er hat sie alle gefressen und keinen richtig verdaut.', 3400, 'LUKE'); }, 4200); } },
 };
@@ -270,9 +275,9 @@ const HUNGRIGE_NACKT = {
     start() { const B = HUNGRIGE.wolf; let sp = null; for (let k = 0; k < 20 && !sp; k++) { const x = B.x + rand(-7, 7), z = B.z + rand(-7, 7); if (Math.hypot(x - player.pos.x, z - player.pos.z) < 5 || !leben_free(x, z, .5, .9)) continue; const sg = solidGround(x, .6, z); sp = [x, sg > -1 ? Math.max(0, sg) : 0, z]; }
       if (!sp) return false; const V = hungrige_beast('wolf', 1.2); if (!V) return false; hungrige_nackt(V); V.g.position.set(sp[0], sp[1], sp[2]); V.ty = sp[1]; V.g.rotation.y = rand(0, 6.28); V.g.visible = true; leben_play(V, 'Rest', 0); V.mx.update(2); this.V = V; this.t = 0; this.ph = 'lie'; this.away = 0; this.jumps = 0; return true; },
     tick(dt) { const V = this.V, d = hungrige_dist(V), p = V.g.position, f = leben_facing(p.x, p.y + .5, p.z); this.t += dt; leben_beastUpd(V, dt, 60);
-      if (this.ph === 'lie') { if (d < 6.5 && f > .6) { this.ph = 'rise'; this.t = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); Audio.groan(p.x, p.z, false); glitchV = Math.max(glitchV, .3); } else if (this.t > 90) return false; }
-      else if (this.ph === 'rise') { hungrige_facePlayer(V, dt * 1.5); if (this.t > 1.9) { this.ph = 'stare'; leben_play(V, 'IdleAggressive', .3); Audio.growl(p.x, p.z, false); this.t = 0; } }
-      else if (this.ph === 'stare') { hungrige_facePlayer(V, dt * 4); if (f < .35 && d < 20) this.away += dt; else if (this.away > .5 && f > .8) { this.away = 0; const P = player.pos, k = Math.max(0, 1 - 2.6 / (d || 1)); p.x = P.x + (p.x - P.x) * k * .62; p.z = P.z + (p.z - P.z) * k * .62; hungrige_step(V, .4); Audio.growl(p.x, p.z, true); glitchV = Math.max(glitchV, .4); shake = Math.max(shake, .02); }
+      if (this.ph === 'lie') { if (d < 6.5 && f > .6) { this.ph = 'rise'; this.t = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); hungrige_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); glitchV = Math.max(glitchV, .3); } else if (this.t > 90) return false; }
+      else if (this.ph === 'rise') { hungrige_facePlayer(V, dt * 1.5); if (this.t > 1.9) { this.ph = 'stare'; leben_play(V, 'IdleAggressive', .3); hungrige_ton('knurr', p.x, .5, p.z, .45, () => Audio.growl(p.x, p.z, false)); this.t = 0; } }
+      else if (this.ph === 'stare') { hungrige_facePlayer(V, dt * 4); if (f < .35 && d < 20) this.away += dt; else if (this.away > .5 && f > .8) { this.away = 0; const P = player.pos, k = Math.max(0, 1 - 2.6 / (d || 1)); p.x = P.x + (p.x - P.x) * k * .62; p.z = P.z + (p.z - P.z) * k * .62; hungrige_nass(V, .4); hungrige_ton('knurr', p.x, .5, p.z, .6, () => Audio.growl(p.x, p.z, true)); glitchV = Math.max(glitchV, .4); shake = Math.max(shake, .02); }
         if (d < 2.6) { this.ph = 'bite'; this.t = 0; leben_play(V, 'JumpBite', .05, 1, true); Audio.stinger(true); scareCount++; shake = .08; glitchV = .7; setTimeout(() => cutLights(900), 450); } else if (this.t > 75) return false; }
       else if (this.ph === 'bite') { hungrige_facePlayer(V, dt * 6); if (this.t > 1.35) return false; }
       return true; },
@@ -291,8 +296,11 @@ function hungrige_raven(mirror) { const V = hungrige_beast('crow', 1.45); if (!V
   if (mirror) V.g.scale.x = -1; return V; }
 function hungrige_flyTo(V, to, dur, apex = 3) { const from = V.g.position.clone(); V.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + apex, (from.z + to.z) / 2), t: 0, dur }; leben_play(V, 'Fly', .15); }
 const _hfA = new THREE.Vector3(), _hfB = new THREE.Vector3(), _hfP = new THREE.Vector3(), _hfW = new THREE.Vector3(); // keine Allokation im Takt
-function hungrige_flyTick(V, dt) { const F = V.fl; if (!F) return false; F.t += dt; const k = Math.min(1, F.t / F.dur), a = _hfA.lerpVectors(F.from, F.ctrl, k), b = _hfB.lerpVectors(F.ctrl, F.to, k), p = _hfP.lerpVectors(a, b, k);
-  const dx = p.x - V.g.position.x, dz = p.z - V.g.position.z; if (dx * dx + dz * dz > 1e-6) V.g.rotation.y = Math.atan2(dx, dz); V.g.position.copy(p); if (k >= 1) { V.fl = null; return true; } return false; }
+function hungrige_flyTick(V, dt) { const F = V.fl; if (!F) return false; F.t += dt; const k0 = Math.min(1, F.t / F.dur), k = F.dur > .6 ? .25 * k0 + .75 * (1 - (1 - k0) * (1 - k0)) : k0, a = _hfA.lerpVectors(F.from, F.ctrl, k), b = _hfB.lerpVectors(F.ctrl, F.to, k), p = _hfP.lerpVectors(a, b, k); // Q-1: schnell ab, bremsend an
+  const g = V.g, dx = p.x - g.position.x, dz = p.z - g.position.z, dy = p.y - g.position.y, h = Math.hypot(dx, dz);
+  if (h > 1e-3) { const y = Math.atan2(dx, dz), yr = Math.atan2(Math.sin(y - g.rotation.y), Math.cos(y - g.rotation.y)) / Math.max(dt, 1e-3); g.rotation.y = y; g.rotation.z += (Math.max(-.55, Math.min(.55, -yr * .3 * (g.scale.x < 0 ? -1 : 1))) - g.rotation.z) * Math.min(1, dt * 6); }
+  g.rotation.x += (Math.max(-.45, Math.min(.45, -Math.atan2(dy, h + 1e-3) * .7)) * (k0 > .85 ? -.6 : 1) - g.rotation.x) * Math.min(1, dt * 8); g.position.copy(p); // Nase in Flugrichtung, beim Landen aufgerichtet
+  if (k0 >= 1) { V.fl = null; g.rotation.x = 0; g.rotation.z = 0; return true; } return false; }
 async function hungrige_finale() {
   const S = hungrige_S, W = new THREE.Vector3(), wait_ = wait; if (S.finale || S.cine || S.finBusy) return; S.finBusy = true; // Spielzeit: steht bei Pause
   try { await hungrige_finaleRun(S, W, wait_); } catch (e) { console.error('Hungrige: Finale', e); }
@@ -345,7 +353,7 @@ async function hungrige_finaleRun(S, W, wait_) {
     await wait_(500); C.handA = true; shake = Math.max(shake, .015); subtitle('<i>Krallen. Gewicht. Warm.</i>', 2200); await wait_(1500); C.handA = false; A.fl = { from: A.g.position.clone(), to: home, ctrl: home.clone().add(W.set(0, .7, 0)), t: 0, dur: .5 }; await wait_(600); }
   else if (wahl === 'B') { falsch = true; const home = Bv.g.position.clone(), tH = hungrige_twist(Bv, hungrige_bone(Bv.m, /Head/), PI); if (Bv.cur) Bv.cur.timeScale = 0; // er wiegt nichts und ist kalt
     Bv.fl = { from: home.clone(), to: hungrige_handPos(_hfW).clone(), ctrl: home.clone().add(W.set(0, .6, 0)), t: 0, dur: .4 }; await wait_(450); C.handB = true; subtitle('<i>Kein Gewicht. Kalt.</i>', 1800); await wait_(900);
-    hungrige_lucy(Bv.g.position.x, Bv.g.position.y, Bv.g.position.z, '„Großer …“', 2000); await wait_(1200); C.twistK = tH; Audio.crack(); shake = .04; await wait_(900);
+    hungrige_lucy(Bv.g.position.x, Bv.g.position.y, Bv.g.position.z, '„Großer …“', 2000); await wait_(1200); C.twistK = tH; hungrige_ton('knochen', Bv.g.position.x, Bv.g.position.y, Bv.g.position.z, .7, () => Audio.crack()); shake = .04; await wait_(900);
     C.handB = false; Audio.play('crow2', { gain: .9, rate: .7, x: P.x, y: top, z: P.z, ref: 5 }); hungrige_flyTo(A, W.copy(Bv.g.position), .35, .2); leben_play(A, 'FlyingAttack', .05, 1.3, true); await wait_(380); // Whiskey fegt ihn herunter
     Bv.fl = { from: Bv.g.position.clone(), to: home, ctrl: home.clone().add(W.set(0, .4, 0)), t: 0, dur: .5 }; hungrige_flyTo(A, W.set(P.x, top, P.z), .8, 1); await wait_(900); leben_play(A, 'IdleLookAround', .3); }
   // 4) 0:16–0:19: er öffnet den Schnabel, ohne den Kopf zu bewegen – Lucys Stimme direkt am linken Ohr, KEINE Spieluhr darunter
@@ -357,16 +365,17 @@ async function hungrige_finaleRun(S, W, wait_) {
   // 5) 0:25 Lidschlag – danach ist der Kopf um 180 Grad gedreht; anderthalb Sekunden nichts, auch kein Atem
   const head = hungrige_bone(Bv.m, /Head/), neck = hungrige_bone(Bv.m, /Neck/), spine = hungrige_bone(Bv.m, /Spine/), feathers = hungrige_bones(Bv.m, /Wing(Left|Right)[A-H]|Feather/);
   hungrige_lid(200); hungrige_bass(false); await wait_(100);
-  const tHead = falsch ? C.twistK : hungrige_twist(Bv, head, PI); if (tHead) tHead.k = 1; if (!falsch) Audio.crack(); C.heart = false; C.ph = 'twist'; C.look.set(bx, by + .5, bz);
+  const tHead = falsch ? C.twistK : hungrige_twist(Bv, head, PI); if (tHead) tHead.k = 1; if (!falsch) hungrige_ton('knochen', bx, by, bz, .8, () => Audio.crack()); C.heart = false; C.ph = 'twist'; C.look.set(bx, by + .5, bz);
   await wait_(1500);
   // 0:28–0:33 Die Federn fallen gerade nach unten wie nasses Laub, darunter rohes Fleisch; der Hals wird lang; die Flamme neigt sich zu ihm hin
   const tNeck = hungrige_twist(Bv, neck, 0, [1.4, 3.8, 1.4]), tSpine = hungrige_twist(Bv, spine, 0, [1.7, 2.6, 1.3]); const tF = feathers.map(b => hungrige_twist(Bv, b, 0, [.02, .02, .02]));
   C.ph = 'morph'; C.t = 0; Audio.play('scrape3', { gain: .3, rate: .42, x: bx, y: .4, z: bz, ref: 3 }); scareCount++; glitchV = .6; shake = .05; if (typeof k6_flamme === 'function') k6_flamme(1, bx, by + .5, bz);
-  const flesh = hungrige_flesh(); setTimeout(() => Bv.m.traverse(o => { if (o.isMesh) o.material = flesh; }), 1500); setTimeout(() => Audio.crack(), 1000); setTimeout(() => Audio.crack(), 2200); setTimeout(() => { Audio.screech(); setTimeout(() => Audio.groan(bx, bz, true), 700); }, 2600);
+  const flesh = hungrige_flesh(); setTimeout(() => { if (!(typeof kr_form === 'function' && kr_form(Bv, 'rabe'))) Bv.m.traverse(o => { if (o.isMesh) o.material = flesh; }); }, 1500); // Q-1: rohes Fleisch mit Fasern, Adern, Nässe
+  hungrige_ton('fleisch', bx, by + .3, bz, .7); setTimeout(() => hungrige_ton('knochen', bx, by + .3, bz, .8, () => Audio.crack()), 1000); setTimeout(() => hungrige_ton('knochen', bx, by + .3, bz, .9, () => Audio.crack()), 2200); setTimeout(() => hungrige_ton('fleisch', bx, by + .5, bz, .8), 1700); setTimeout(() => { Audio.screech(); setTimeout(() => Audio.groan(bx, bz, true), 700); }, 2600);
   if (Audio.ctx) { const o = Audio.osc('sine', 33, 0, 5.2); Audio.env(o, .16, 1.6, 3.4, 0, Audio.master); } // Subbass schwillt an
   C.morph = { tHead, tNeck, tSpine, tF }; await wait_(3000);
   // 6) 0:33–0:36 Schnitt von hinten unten (Kniehöhe, links hinter Luke): aus dem Vogel steigt das Hirschding – ruckend wie ein Film mit fehlenden Bildern; drei Stimmen flüstern „Hunger.“
-  D.g.position.set(bx, by - .12, bz); D.g.rotation.set(0, Math.atan2(player.pos.x - bx, player.pos.z - bz), 0); D.s0 = D.o.scale.x; D.g.scale.setScalar(.06); D.g.visible = true; C.ph = 'rise'; C.t = 0; Audio.groan(bx, bz, true); glitchV = .8; shake = .09;
+  D.g.position.set(bx, by - .12, bz); D.g.rotation.set(0, Math.atan2(player.pos.x - bx, player.pos.z - bz), 0); D.s0 = D.o.scale.x; D.g.scale.setScalar(.06); D.g.visible = true; C.ph = 'rise'; C.t = 0; hungrige_ton('knochen', bx, 1, bz, .9); setTimeout(() => hungrige_ton('knochen', bx, 1.8, bz, .8), 600); Audio.groan(bx, bz, true); glitchV = .8; shake = .09;
   if (typeof setCamOverride === 'function') { const lk = new THREE.Vector3(bx, by + 2.1, bz), fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), cx = player.pos.x - fx * 1.25 + fz * .55, cz = player.pos.z - fz * 1.25 - fx * .55;
     S.camAus = true; setCamOverride(cam => { cam.position.set(cx + Math.sin(C.t * 7) * .01, .52, cz); cam.lookAt(lk.x, D.g.position.y + 1.9 * D.g.scale.x, lk.z); }); if (typeof k6_feuerzeugWelt === 'function') k6_feuerzeugWelt(true); }
   setTimeout(() => { hungrige_stimme(bx, 2, bz, '„Hunger.“', 'HOFER? · PELL? · ANNI?', 2600, 'drei_hunger'); Audio.whisper(bx + .4, 2.1, bz, 1.4); Audio.whisper(bx - .4, 1.9, bz, 1.2); }, 900);
@@ -375,7 +384,7 @@ async function hungrige_finaleRun(S, W, wait_) {
   hungrige_lid(200); await wait_(110); if (S.camAus) { setCamOverride(null); S.camAus = false; if (typeof k6_feuerzeugWelt === 'function') k6_feuerzeugWelt(false); } C.look.set(bx, by + 2.4, bz); C.lookK = 5; state.flashFail = Math.max(state.flashFail, .9);
   await say([['Nein. Nein, nein –', 1800, 'LUKE']]); C.lookK = 2;
   // 7) 0:38–0:44 zwei Schritte auf Luke zu, zwei Stöße der Kamera; bei jedem Schritt wird die Flamme kleiner. Hofer, dann Lukes eigene Stimme.
-  C.ph = 'come'; C.t = 0; Audio.thump(bx, .5, bz); shake = .06; if (typeof k6_flamme === 'function') k6_flamme(.72); await wait_(1100); Audio.thump(bx, .5, bz); shake = .07; if (typeof k6_flamme === 'function') k6_flamme(.45); await wait_(600);
+  C.ph = 'come'; C.t = 0; hungrige_ton('huf', bx, .2, bz, .9, () => Audio.thump(bx, .5, bz)); shake = .06; if (typeof k6_flamme === 'function') k6_flamme(.72); await wait_(1100); hungrige_ton('huf', D.g.position.x, .2, D.g.position.z, 1, () => Audio.thump(bx, .5, bz)); shake = .07; if (typeof k6_flamme === 'function') k6_flamme(.45); await wait_(600);
   hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Ich hab Hunger, Junge.“', 'HOFER?', 2400, 'hofer_fin'); await wait_(2500);
   hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Luke?“', 'DEINE STIMME?', 2000, 'luke_ruf'); if (typeof k6_senderBeiIhm === 'function' && k6_senderBeiIhm()) for (let i = 0; i < 6; i++) setTimeout(() => { if (Audio.ctx) { const o = Audio.osc('square', 2350, 0, .05); Audio.env(o, .025, .002, .04, 0, Audio.at(D.g.position.x, 1.6, D.g.position.z, 2)); } }, i * 520); // der weggeworfene Sender piept aus ihm heraus
   await wait_(2100);
@@ -383,7 +392,7 @@ async function hungrige_finaleRun(S, W, wait_) {
   C.ph = 'attack'; C.t = 0; C.dive = 0; leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); Audio.play('wingFlap', { gain: .6, rate: .8, x: P.x, y: top, z: P.z, ref: 4 }); Audio.caw(P.x, top + 1, P.z); if (Audio.gust) Audio.gust(1.3); if (typeof k6_windStoss === 'function') k6_windStoss();
   await wait_(500); hungrige_flyTo(A, W.set(bx + 5, by + 5.5, bz - 4), 1.6, 3); hungrige_celesta(); await wait_(1650);
   for (let i = 0; i < 3; i++) { C.dive = i + 1; const from = A.g.position.clone(); hungrige_flyTo(A, W.set(D.g.position.x, by + 1.9, D.g.position.z), .9, .2); leben_play(A, 'FlyingAttack', .05, 1.3, true); Audio.screech(); if (Audio.gust) Audio.gust(1.2);
-    await wait_(950); C.recoil = 1; hungrige_nebel(D.g.position.x, 1.4, D.g.position.z, .9); shake = Math.max(shake, .05 + i * .02); glitchV = Math.max(glitchV, .35); Audio.growl(D.g.position.x, D.g.position.z, true);
+    await wait_(950); C.recoil = 1; hungrige_nebel(D.g.position.x, 1.4, D.g.position.z, .9); shake = Math.max(shake, .05 + i * .02); glitchV = Math.max(glitchV, .35); hungrige_ton('knurr', D.g.position.x, 2, D.g.position.z, .8, () => Audio.growl(D.g.position.x, D.g.position.z, true));
     if (i === 1) hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Come ho–“', 'PELL?', 1500, 'pell_fin');
     if (i < 2) { hungrige_flyTo(A, W.set(from.x + rand(-2, 2), by + 5, from.z + rand(-2, 2)), 1.1, 2.5); await wait_(1150); } }
   // 0:58 dritter Stoß: eine Sekunde lang ist der Wald Tag – Knochen, Häute in den Bäumen, der Beobachter mit den Händen auf den Ohren; alle Waldgeräusche auf einmal, dann abgeschnitten
@@ -392,7 +401,7 @@ async function hungrige_finaleRun(S, W, wait_) {
   if (typeof k6_waldAufEinmal === 'function') k6_waldAufEinmal();
   await wait_(1000);
   // 0:59–1:04 das Hirschding flieht RÜCKWÄRTS, die Knie knicken falsch herum, es brüllt; eine Linie brechender Äste entfernt sich
-  C.ph = 'flee'; C.t = 0; Audio.growl(D.g.position.x, D.g.position.z, true); Audio.groan(D.g.position.x, D.g.position.z, true); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3);
+  C.ph = 'flee'; C.t = 0; hungrige_ton('ruf', D.g.position.x, 2.2, D.g.position.z, 1, () => Audio.growl(D.g.position.x, D.g.position.z, true)); Audio.groan(D.g.position.x, D.g.position.z, true); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3);
   for (let i = 1; i <= 5; i++) setTimeout(() => { const g = D.g.position; Audio.twig(g.x, g.z); if (i === 3) Audio.treeCreak(g.x, g.z); }, i * 480);
   await wait_(2800); hungrige_dtHide(); hungrige_flyTo(A, W.set(P.x, top, P.z), 1.8, 3); await wait_(1900); leben_play(A, 'Landing', .1, 1, true); await wait_(600); leben_play(A, 'IdleLookAround', .3, .6); C.look.set(P.x, top, P.z);
   // 1:04–1:14 Whiskey landet, das Licht in ihm geht aus wie eine Glühbirne, die langsam kalt wird; er sitzt schief und müde. Stille, dann ein Käuzchen.
@@ -431,8 +440,8 @@ function hungrige_cineTick(dt) {
     if (C.ph === 'rise') { const k = Math.min(1, C.t / 1.4), e = k < .7 ? k / .7 * .55 : .55 + (k - .7) / .3 * .45, fr = Math.floor(C.t * 9) / 9, jit = Math.sin(fr * 53) * .04 * (1 - k) + Math.sin(fr * 17) * .02; // Film mit fehlenden Bildern: 9 Bilder je Sekunde
       g.scale.setScalar(Math.max(.06, e + jit)); g.rotation.z = Math.sin(fr * 19) * .07 * (1 - k); g.rotation.x = Math.sin(fr * 13) * .05 * (1 - k); }
     else { const P = player.pos, dx = P.x - g.position.x, dz = P.z - g.position.z, L = Math.hypot(dx, dz) || 1;
-      if (C.ph === 'flee') { const fr = Math.floor(C.t * 11) / 11, kn = Math.sin(fr * 26); g.position.x -= dx / L * dt * 7; g.position.z -= dz / L * dt * 7; g.rotation.x = -.32 - .1 * Math.abs(kn); g.scale.set(1, .86 + .12 * Math.abs(kn), 1); g.rotation.y = leben_ang(g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 4)); } // rückwärts, das Gesicht zu Luke, einknickend
-      else { g.scale.setScalar(1); g.rotation.z = Math.sin(C.t * 1.7) * .02 + (Math.sin(C.t * 5.3) > .97 ? .05 : 0); g.rotation.x = C.recoilT > 0 ? -.18 * C.recoilT : 0; // kein Atmen: nur ein Zucken ab und zu
+      if (C.ph === 'flee') { const fr = Math.floor(C.t * 11) / 11, kn = Math.sin(fr * 26); g.position.x -= dx / L * dt * 7; g.position.z -= dz / L * dt * 7; if (D.kr) { g.rotation.x = 0; g.scale.setScalar(1); } else { g.rotation.x = -.32 - .1 * Math.abs(kn); g.scale.set(1, .86 + .12 * Math.abs(kn), 1); } /* Q-1: mit Skelett knicken die Gelenke selbst (Clip „flucht“) */ g.rotation.y = leben_ang(g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 4)); } // rückwärts, das Gesicht zu Luke, einknickend
+      else { g.scale.setScalar(1); g.rotation.z = D.kr ? 0 : Math.sin(C.t * 1.7) * .02 + (Math.sin(C.t * 5.3) > .97 ? .05 : 0); g.rotation.x = D.kr ? 0 : C.recoilT > 0 ? -.18 * C.recoilT : 0; // kein Atmen: nur ein Zucken ab und zu
         g.rotation.y = leben_ang(g.rotation.y, Math.atan2(dx, dz) + Math.sin(C.t * 9) * .1, Math.min(1, dt * 3));
         if (C.ph === 'come' && L > 3.2) { g.position.x += dx / L * dt * .75; g.position.z += dz / L * dt * .75; }
         if (C.recoil) { C.recoil = 0; C.recoilT = 1; g.position.x -= dx / L * 1.1; g.position.z -= dz / L * 1.1; } if (C.recoilT > 0) C.recoilT = Math.max(0, C.recoilT - dt * 1.4); } }

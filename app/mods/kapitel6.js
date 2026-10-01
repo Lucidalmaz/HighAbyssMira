@@ -415,11 +415,11 @@ function k6_segDist(x, z, a, b) { const vx = b[0] - a[0], vz = b[1] - a[1], L = 
 function k6_halten(x, z) { const P = player.pos, d = Math.hypot(P.x - x, P.z - z); if (d > .5) { P.x = x + (P.x - x) / d * .5; P.z = z + (P.z - z) / d * .5; vel.set(0, 0, 0); } }
 // Der Geschälte Wolf (R6-3 „Wo vorne war“): liegt wie tot; kommt nur näher, wenn Luke wegsieht oder die Lampe senkt; unter 2,5 m springt er. Mit Licht drauf: „Sender anhängen“.
 function k6_wolfTick(V, dt) { const F = K6.falle, p = V.g.position, d = hungrige_dist(V), f = leben_facing(p.x, p.y + .5, p.z), lit = hungrige_lit(V, 14, .95, .5);
-  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); Audio.groan(p.x, p.z, false); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile.'), 2600); } } }
-  else if (F.wph === 'rise') { F.wt += dt; hungrige_facePlayer(V, dt * 1.5); if (F.wt > 1.9) { F.wph = 'stare'; leben_play(V, 'IdleAggressive', .3); Audio.growl(p.x, p.z, false); } }
+  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); k6_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile.'), 2600); } } }
+  else if (F.wph === 'rise') { F.wt += dt; hungrige_facePlayer(V, dt * 1.5); if (F.wt > 1.9) { F.wph = 'stare'; leben_play(V, 'IdleAggressive', .3); k6_ton('knurr', p.x, .5, p.z, .45, () => Audio.growl(p.x, p.z, false)); } }
   else if (F.wph === 'geh') { F.wt = (F.wt || 0) - dt; if (F.wt < 0) { F.wt = .95; hungrige_nass(V, .3); } if (leben_beastMove(V, dt)) { F.wph = 'steht'; leben_play(V, 'IdleAggressive', .3); } } // geht in die Netze, wie gerufen
   else if (F.wph === 'stare') { hungrige_facePlayer(V, dt * 4); if (F.ph !== 'bereit') return;
-    if ((f < .35 || !flashOn) && d < 20) F.away += dt; else if (F.away > .5 && f > .8) { F.away = 0; const P = player.pos, k = Math.max(0, 1 - 2.2 / (d || 1)); p.x = P.x + (p.x - P.x) * k * .6; p.z = P.z + (p.z - P.z) * k * .6; hungrige_nass(V, .4); Audio.growl(p.x, p.z, true); glitchV = Math.max(glitchV, .4); }
+    if ((f < .35 || !flashOn) && d < 20) F.away += dt; else if (F.away > .5 && f > .8) { F.away = 0; const P = player.pos, k = Math.max(0, 1 - 2.2 / (d || 1)); p.x = P.x + (p.x - P.x) * k * .6; p.z = P.z + (p.z - P.z) * k * .6; hungrige_nass(V, .4); k6_ton('knurr', p.x, .5, p.z, .6, () => Audio.growl(p.x, p.z, true)); glitchV = Math.max(glitchV, .4); }
     const kannHaengen = K6.sender === 'jacke' && K6.weg === 'spaeter' && lit && d < 1.9 && !V.sender; // R6-3: Lampe drauf, nicht senken, auf Armlänge
     if (kannHaengen) { k6_hinweis('E', 'Sender anhängen'); if (keys.KeyE && !K6.hangT) { K6.hangT = 1; V.sender = true; K6.sender = 'wolf'; k6_hinweis(''); Audio.play('metalHit1', { gain: .12, rate: 2.4, x: p.x, y: .5, z: p.z }); k6_luke('Jetzt bist du der Köder.', 2200); } }
     else if (K6.hint.classList.contains('show') && K6.hint.textContent.includes('Sender')) k6_hinweis('');
@@ -441,7 +441,7 @@ async function k6_falleZu() { const F = K6.falle; F.ph = 'zu'; K6.senderBlink = 
       const hin = sab === 'weiher' || sab === 'wendigo' ? [V.g.position.x + 26, V.g.position.z + 16] : N0; F.wph = 'geh'; V.tx = hin[0]; V.tz = hin[1]; V.sp = 1.3; leben_play(V, 'Walk', .35, .8);
       for (let i = 0; i < 60 && F.wph === 'geh'; i++) await k6_wait(100); if (sab === 'weiher' || sab === 'wendigo') setTimeout(() => { if (F.wolf) hungrige_off(F.wolf); }, 3000); }
     for (const n of K6.netze) { n.userData.fall = 0; n.userData.y1 = .28; } Audio.play('metalSheet', { gain: .5, rate: .6, x: N0[0], y: 3, z: N0[1] }); setTimeout(() => Audio.play('metalSlam', { gain: .4, rate: .7, x: N0[0], y: .3, z: N0[1] }), 520);
-    if (V && (sab === 'wolf' || !sab)) setTimeout(() => { F.wph = 'netz'; leben_play(V, 'Death', .1, 1, true); Audio.growl(V.g.position.x, V.g.position.z, true); }, 600);
+    if (V && (sab === 'wolf' || !sab)) setTimeout(() => { F.wph = 'netz'; leben_play(V, 'Death', .1, 1, true); k6_ton('stoehn', V.g.position.x, .4, V.g.position.z, .8, () => Audio.growl(V.g.position.x, V.g.position.z, true)); }, 600);
     await k6_wait(700); for (const B of F.b.slice(0, 3)) { lwo_lampe(B, true); lwo_gehe(B, [[N0[0] + rand(-1.6, 1.6), N0[1] + rand(-1.6, 1.6)]], 2.2); }
     if (sab) { await k6_wait(900); await fu(sab === 'weiher' ? '„Nachsorge, das Signal ist im Wasser.“' : sab === 'wolf' ? '„… im Wolf.“' : '„Nachsorge, das Signal kommt von hinten. Das Signal kommt von HINTEN –“'); }
     else { await k6_wait(600); await fu('„Das geht durch das Eisen. Das geht einfach DURCH …“', { x: N0[0], z: N0[1] }); }
@@ -520,6 +520,7 @@ function k6_routeTick() { const W = typeof whiskey_S !== 'undefined' ? whiskey_S
   if (K6.ri < K6.route.length) { const [x, z] = K6.route[K6.ri++]; const y = typeof whiskey_perch === 'function' ? whiskey_perch(x, z) : 0; whiskey_fly(new THREE.Vector3(x, Math.max(y, 2.2), z), null); K6.guideT = 1.2; } else K6.route = null; }
 // ---------------------------------------------------------------- A-20 · Die Jagd: das Hirschding läuft frei (zwischen Hirsch und Lager, dann vom Lager bis zum Wrack)
 const K6J = { st: 'aus', p: new THREE.Vector3(), vis: new THREE.Vector3(), yaw: 0, t: 0, cool: 0, nz: null, nzT: 99, lit: 0, lurk: 0, frT: 0, ph: 0, stepT: 0, voiceT: 25, fleeT: 0, trippeln: false, kills: 0, mim: 0, gT: 0 };
+function k6_ton(art, x, y, z, gain, alt) { if (typeof hungrige_ton === 'function') hungrige_ton(art, x, y, z, gain, alt); else if (alt) alt(); } // Q-1: Wendigo-Laute aus Aufnahmen
 function k6_laerm(x, z, r) { if (!K6.on) return; K6J.nz = K6J.nz || new THREE.Vector3(); K6J.nz.set(x, 0, z); K6J.nzT = 0; K6J.nzR = r; } // er folgt Lärm
 function k6_jagdAktiv() { if (!K6.on || K6.beat !== 'wrack' || !k6_hh('hirsch') || typeof hungrige_S === 'undefined' || !hungrige_S.dt) return false;
   if (hungrige_S.ev || hungrige_S.cine || state.talking || ui.overlay || (typeof tod_S !== 'undefined' && tod_S.dying)) return false; const P = player.pos;
@@ -537,24 +538,25 @@ function k6_jagd(dt) { const J = K6J, D = typeof hungrige_S !== 'undefined' ? hu
   if (J.st === 'fern') { const nz = J.nz && J.nzT < 12 && Math.hypot(J.nz.x - J.p.x, J.nz.z - J.p.z) < 70; if (nz) { tx = J.nz.x; tz = J.nz.z; sp = 3.2; } else { const r = 24; tx = P.x - f.x * r; tz = P.z - f.z * r; sp = 1.5; } if (d < 23) { J.st = 'lauern'; J.lurk = 0; J.voiceT = rand(8, 14); } }
   else if (J.st === 'lauern') { J.lurk += dt; const r = 11; tx = P.x - f.x * r + f.z * 3; tz = P.z - f.z * r - f.x * 3; sp = face > .6 ? 0 : 1.3; // hinter Luke, außerhalb des Lichts; bleibt stehen, wenn Luke herschaut
     if (J.nz && J.nzT < 3) { tx = P.x; tz = P.z; sp = 3.4; } if (lit) J.lit += dt; else J.lit = Math.max(0, J.lit - dt * .5);
-    if (!lampe && d < 17 && J.lurk > 2) { J.st = 'sturm'; Audio.crack(); } else if (J.lurk > 22 && !lampe) J.st = 'sturm';
+    if (!lampe && d < 17 && J.lurk > 2) { J.st = 'sturm'; k6_ton('ruf', J.p.x, 2, J.p.z, .9, () => Audio.crack()); } else if (J.lurk > 22 && !lampe) J.st = 'sturm';
     J.voiceT -= dt; if (J.voiceT < 0 && d < 24) { J.voiceT = rand(26, 40); k6_jagdStimme(); }
     if (!J.trippeln && K6.jagdSeg === 2 && d < 20 && J.lurk > 6) k6_trippeln(); }
   else if (J.st === 'sturm') { tx = P.x; tz = P.z; sp = d > 2 ? 3.8 : 6; if (lit) J.lit += dt * 2; if (d < 1.35) { if (!lampe) { k6_jagdTod(); return; } J.st = 'flucht'; J.fleeT = 0; shake = .08; glitchV = .5; Audio.growl(J.p.x, J.p.z, true); scareCount++; } }
   else if (J.st === 'flucht') { J.fleeT += dt; tx = J.p.x - dx; tz = J.p.z - dz; sp = 6; if (J.fleeT > 2.3) { J.st = 'weg'; J.cool = rand(20, 30); D.g.visible = false; return; } }
-  if ((J.st === 'lauern' || J.st === 'sturm') && J.lit > .3) { J.st = 'flucht'; J.fleeT = 0; J.lit = 0; Audio.crack(); setTimeout(() => Audio.crack(), 260); Audio.groan(J.p.x, J.p.z, true); if (typeof hungrige_nebel === 'function') hungrige_nebel(J.p.x, 1.4, J.p.z, 1.2); } // Pells Dressur: vor der angehobenen Lampe weicht er rückwärts
+  if ((J.st === 'lauern' || J.st === 'sturm') && J.lit > .3) { J.st = 'flucht'; J.fleeT = 0; J.lit = 0; k6_ton('knochen', J.p.x, 1.8, J.p.z, .8, () => Audio.crack()); setTimeout(() => k6_ton('knochen', J.p.x, 1, J.p.z, .7, () => Audio.crack()), 260); k6_ton('stoehn', J.p.x, 2, J.p.z, .7, () => Audio.groan(J.p.x, J.p.z, true)); if (typeof hungrige_nebel === 'function') hungrige_nebel(J.p.x, 1.4, J.p.z, 1.2); } // Pells Dressur: vor der angehobenen Lampe weicht er rückwärts
   // Bewegung: einfaches Ausweichen um Stämme, im tiefen Wald bleiben
   if (sp > 0) { let ax = tx - J.p.x, az = tz - J.p.z; const al = Math.hypot(ax, az); if (al > .2) { ax /= al; az /= al; let ok = false; for (const turn of [0, .5, -.5, 1, -1, 1.6, -1.6]) { const c = Math.cos(turn), s = Math.sin(turn), vx = ax * c - az * s, vz = ax * s + az * c, nx = J.p.x + vx * .9, nz = J.p.z + vz * .9;
       if (leben_free(nx, nz, .8, .5) && (typeof tief_in !== 'function' || tief_in(nx, nz))) { const st = Math.min(al, sp * dt); J.p.x += vx * st; J.p.z += vz * st; ok = true; break; } } J.ph += dt * sp * 1.15; if (!ok) J.ph += dt; } }
   J.gT -= dt; if (J.gT < 0) { J.gT = .25; const sg = solidGround(J.p.x, J.p.y + .6, J.p.z); J.p.y = sg > -1 ? Math.max(0, sg) : 0; }
   J.yaw = J.st === 'flucht' ? Math.atan2(dx, dz) : leben_ang(J.yaw, Math.atan2(dx, dz), Math.min(1, dt * 2.5)); // flieht rückwärts, das Gesicht zu Luke
   // Schritte: zwei dumpfe Tritte je Schritt, dazu ein Knochenknacken; kein Atem
-  if (sp > 0 && d < 16) { J.stepT -= dt * sp; if (J.stepT < 0) { J.stepT = 1.05; if (Audio.thump) Audio.thump(J.p.x, .3, J.p.z); if (Math.random() < .35) Audio.play('woodCrack', { gain: .05, rate: rand(1.8, 2.4), x: J.p.x, y: 1.5, z: J.p.z, ref: 3 }); } }
+  if (sp > 0 && d < 16) { J.stepT -= dt * sp; if (J.stepT < 0) { J.stepT = 1.05; const x = J.p.x, z = J.p.z; k6_ton('huf', x, .1, z, .55, () => Audio.thump && Audio.thump(x, .3, z)); setTimeout(() => k6_ton('huf', x, .1, z, .3), 170); if (Math.random() < .35) k6_ton('knochen', x, 1.5, z, .18, () => Audio.play('woodCrack', { gain: .05, rate: rand(1.8, 2.4), x, y: 1.5, z, ref: 3 })); } } // zwei Tritte je Schritt (Q-1: Aufnahmen)
   // Bild: ruckend wie ein Film mit fehlenden Bildern (9 Bilder je Sekunde), nur in Lukes Nähe sichtbar – man sieht ihn fast nie
   const zeigen = (J.st === 'lauern' || J.st === 'sturm' || J.st === 'flucht') && d < 26; D.g.visible = zeigen;
-  if (zeigen) { J.frT += dt; if (J.frT > 1 / 9 || J.st === 'flucht') { J.frT = 0; J.vis.copy(J.p); } const g = D.g, m = sp > 0, sw = Math.sin(J.ph * PI);
+  if (zeigen) { J.frT += dt; if (J.frT > 1 / 9 || (J.st === 'flucht' && !D.kr)) { J.frT = 0; J.vis.copy(J.p); } const g = D.g, m = sp > 0, sw = Math.sin(J.ph * PI);
+    if (D.kr) { g.position.copy(J.vis); g.rotation.set(0, J.yaw, 0); g.scale.setScalar(1); } else { // Q-1: mit Skelett bewegt kreaturen.js Beine, Rumpf und Kopf (Clips im selben 9-Bilder-Takt)
     g.position.set(J.vis.x, J.vis.y - (m ? .05 * Math.abs(sw) : 0), J.vis.z); g.rotation.set(J.st === 'flucht' ? -.3 - .1 * Math.abs(sw) : m ? .08 : 0, J.yaw, m ? .06 * sw : (Math.sin(J.t * 5.3) > .98 ? .05 : 0));
-    g.scale.set(1, J.st === 'flucht' ? .86 + .12 * Math.abs(Math.sin(J.fleeT * 26)) : 1, 1); } }
+    g.scale.set(1, J.st === 'flucht' ? .86 + .12 * Math.abs(Math.sin(J.fleeT * 26)) : 1, 1); } } }
 function k6_jagdStimme() { const J = K6J, L = [['„Papa? Papa, ich bin’s.“', 'ANNI?', 'anni_j'], ['„Großer …“', 'LUCYS STIMME?', 'lucy_j'], ['„Nachtschicht, Junge. Ich muss mal raus. Ich hab Hunger.“', 'HOFER?', 'hofer_j']];
   if (K6.rief) L.push(['„Luke?“', 'DEINE STIMME?', 'luke_j']); const v = L[(J.mim++) % L.length]; if (typeof hungrige_stimme === 'function') hungrige_stimme(J.p.x, 1.9, J.p.z, v[0], v[1], 2400, v[2]); }
 // A-22 · das falsche Trippeln: links das vertraute Beobachter-Trippeln – Whiskey schaut nach rechts, dort liegen drei Kiesel übereinander

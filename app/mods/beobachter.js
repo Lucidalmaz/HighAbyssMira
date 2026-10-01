@@ -413,7 +413,7 @@ async function beob_loadModel() {
     let map0 = null; m.traverse(o => { if (o.isMesh && !map0) map0 = o.material.map; });
     let skin = null; if (map0) { try { const cv = beob_haut(await beob_hautBild()); skin = new THREE.CanvasTexture(cv); skin.flipY = map0.flipY; skin.colorSpace = THREE.SRGBColorSpace; skin.wrapS = map0.wrapS; skin.wrapT = map0.wrapT;
         skin.offset.copy(map0.offset); skin.repeat.copy(map0.repeat); skin.rotation = map0.rotation; skin.center.copy(map0.center); skin.channel = map0.channel; skin.anisotropy = 4; skin.needsUpdate = true; } catch (e) { console.warn('Beobachter: Haut', e); } }
-    const uT = { value: 0 }, uLit = { value: 0 };
+    const uT = { value: 0 }, uLit = { value: 0 }, uLauf = { value: 0 }, uLaufK = { value: 0 }; // Q-1: Trippeln – Füße und Arme bewegen sich (Shader), statt dass der Körper gleitet
     const skinMat = new THREE.MeshPhysicalMaterial({ map: skin || map0, color: 0xf2efe8, roughness: .5, metalness: 0, clearcoat: .45, clearcoatRoughness: .32, sheen: .35, sheenRoughness: .6, sheenColor: new THREE.Color(0xdfe6f2), envMapIntensity: .45 });
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = skinMat; } }); g.updateMatrixWorld(true);
     { const bb = new THREE.Box3(), sz = new THREE.Vector3(); m.traverse(o => { if (!o.isMesh) return; bb.setFromObject(o).getSize(sz); if (Math.min(sz.x, sz.y, sz.z) < BEOB.h * .045 && Math.max(sz.x, sz.y, sz.z) < BEOB.h * .4) o.visible = false; }); } // Mundstrich/Punkt: kein sichtbarer Mund (Dossier §2)
@@ -427,7 +427,13 @@ async function beob_loadModel() {
     for (const mesh of all) { const isAnt = hm.includes(mesh) && head0, mat = skinMat.clone(); let toHead = new THREE.Matrix4(), fromHead = new THREE.Matrix4(), base = 0, top = 0;
       if (isAnt) { toHead.copy(head0.matrixWorld).invert().multiply(mesh.matrixWorld); const P = mesh.geometry.attributes.position, v = new THREE.Vector3(); let bulb = -1e9; top = -1e9;
         for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(toHead); top = Math.max(top, v.y); if (Math.abs(v.x) < .012) bulb = Math.max(bulb, v.y); } fromHead.copy(toHead).invert(); base = bulb - .01; }
+      const toM = new THREE.Matrix4().copy(m.matrixWorld).invert().multiply(mesh.matrixWorld), fromM = toM.clone().invert();
       mat.onBeforeCompile = sh => { sh.uniforms.uT = uT; sh.uniforms.uLit = uLit;
+        if (!isAnt) { sh.uniforms.uLauf = uLauf; sh.uniforms.uLaufK = uLaufK; sh.uniforms.uToM = { value: toM }; sh.uniforms.uFromM = { value: fromM };
+          sh.vertexShader = 'uniform float uLauf, uLaufK; uniform mat4 uToM, uFromM;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+          { vec3 mp = (uToM * vec4(position, 1.)).xyz; float fk = 1. - smoothstep(.0, .12, mp.y), s = sin(uLauf + (mp.x > 0. ? 0. : 3.1416));
+            float ak = smoothstep(.15, .19, abs(mp.x)) * smoothstep(.1, .16, mp.y) * (1. - smoothstep(.3, .36, mp.y)) * (1. - (mp.y - .12) / .24);
+            vec3 off = vec3(0., max(0., s) * .026 * fk, s * .05 * fk - sin(uLauf + (mp.x > 0. ? 0. : 3.1416)) * .035 * ak) * uLaufK; transformed += (uFromM * vec4(off, 0.)).xyz; }`); }
         if (isAnt) { sh.uniforms.uToHead = { value: toHead }; sh.uniforms.uFromHead = { value: fromHead }; sh.uniforms.uBase = { value: base }; sh.uniforms.uTop = { value: top };
           sh.vertexShader = 'uniform float uT, uBase, uTop; uniform mat4 uToHead, uFromHead;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
           vec3 hp = (uToHead * vec4(position, 1.)).xyz; float k = smoothstep(uBase, uTop, hp.y); k *= k;
@@ -439,7 +445,7 @@ async function beob_loadModel() {
           { float rim = pow(1. - clamp(abs(dot(normal, normalize(vViewPosition))), 0., 1.), 2.4);
             totalEmissiveRadiance += (vec3(.86, .9, 1.) * rim * .16 + diffuseColor.rgb * .035) * (1. - beobEye); }`); };
       mat.customProgramCacheKey = () => isAnt ? 'beob_fuehler2' : 'beob_haut2'; mesh.material = mat; }
-    S.V = { g, m, head: headP, body: bodyP, uT, uLit, t: rand(0, 9), tilt: 0, tiltT: 0, jerk: 0, hy: 0, hyT: 0, by: 0, byT: 0, pitch: 0, lauf: 0 }; S.model = true;
+    S.V = { g, m, head: headP, body: bodyP, uT, uLit, uLauf, uLaufK, t: rand(0, 9), tilt: 0, tiltT: 0, jerk: 0, hy: 0, hyT: 0, by: 0, byT: 0, pitch: 0, lauf: 0 }; S.model = true;
   } catch (e) { console.warn('Beobachter: Modell', e); S.model = false; }
 }
 // Lebendig ohne Skelett: Atmung (Körper pumpt), Gewicht verlagert, Kopf legt sich schief und ruckt (hält dann still, zittert fein), Fühler wippen, geblendet dreht er weg
@@ -517,11 +523,11 @@ function beob_sichtung(pos, dauer = .8, o = {}) {
 }
 function beob_sichtTick(dt) { const S = beob_S, V = S.V, Q = S.sicht; if (!V || !Q) return; Q.t += dt; V.t += dt; V.uT.value = V.t;
   if (Q.weg) { const w = Q.weg, n = w.length - 1, q = Math.min(1, Q.t / Q.T), qe = q < .15 ? q * q / .3 : q > .85 ? 1 - (1 - q) * (1 - q) / .3 : .075 + (q - .15) * (.85 / .7), u = Math.min(1, qe) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i, a = w[i], b = w[i + 1];
-    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); Q.ph = (Q.ph || 0) + dt * 19 * Math.min(1.3, Math.max(.35, (q < .15 ? q / .15 : q > .85 ? (1 - q) / .15 : 1))); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.ph)) * .045, z); // Trippeln: Schrittfrequenz folgt dem Tempo, kein Gleiten
+    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); Q.ph = (Q.ph || 0) + dt * 19 * Math.min(1.3, Math.max(.35, (q < .15 ? q / .15 : q > .85 ? (1 - q) / .15 : 1))); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.ph)) * .03, z); if (V.uLauf) { V.uLauf.value = Q.ph; V.uLaufK.value = Math.min(1, q / .1, (1 - q) / .1 + .2); } // Trippeln: Schrittfrequenz folgt dem Tempo, Füße und Arme im Takt (Q-1), kein Gleiten
     V.g.rotation.y = Math.atan2(b[0] - a[0], b[2] - a[2]); V.g.children[0].rotation.x = .32 * Math.min(1, q / .12) * Math.min(1, (1 - q) / .1 + .3); V.g.children[0].rotation.z = Math.sin(Q.ph) * .06; if (V.head) { beob_feder(V.head, 'x', .2, 200, .6, dt); beob_feder(V.head, 'y', 0, 200, .6, dt); V.head.rotation.z = -Math.sin(Q.ph) * .04; } beob_setVp(x, y0, z);
     Q.next -= dt; if (Q.next < 0) { Q.next = .09; Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .16, rate: rand(1.9, 2.2), x, y: 0, z, ref: 2.5 }); } }
   else { beob_anim(dt, false); if (Q.ohren && V.head) { V.head.rotation.x = .38; V.head.rotation.z = 0; } }
-  if (Q.t >= Q.T) { V.g.visible = false; V.g.children[0].rotation.x = 0; S.sicht = null; if (Q.weg) beob_still(45); if (!Q.weg && !Q.still) beob_patter(V.g.position.x, V.g.position.z, 3, .8); } }
+  if (Q.t >= Q.T) { V.g.visible = false; V.g.children[0].rotation.x = 0; if (V.uLaufK) V.uLaufK.value = 0; S.sicht = null; if (Q.weg) beob_still(45); if (!Q.weg && !Q.still) beob_patter(V.g.position.x, V.g.position.z, 3, .8); } }
 function beob_k2Tick(dt) { // die eine Fast-Sichtung: Durchgang nach Zimmer 7, Lüftungsklappe, 0,8 s, Lampe flackert, Gang leer, Gitter schwingt, drei nasse Abdrücke
   const S = beob_S, X = C2.x, Z = C2.z, V = S.V, K = S.k2; if (!V || !K) return;
   if (K.st === 'warten') { if (S.k2seen || !ch2.on || scripted || state.talking || !flashOn || ui.overlay) return; const P = player.pos;
