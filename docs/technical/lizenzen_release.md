@@ -174,3 +174,5 @@ In `game/assets`, aber ohne Verweis im Code (Stand der Quellen `app/mods`):
 2. Wurden irgendwann Megascans über Quixel Bridge im UE-Projekt geholt und dann ins Spiel exportiert (z. B. `ue/leiter`, `ue/wrack` – beide auch in der Fab-Bibliothek als „personal“, also ok)? Falls weitere: Fab-Erwerb nachweisen.
 3. Animal Variety Pack: Lizenznachweis (Fab-Bibliothek „Standard License“) reicht dir, oder Verkäufer anschreiben?
 4. Wo sollen die Namensnennungen im Release erscheinen (Datei neben der EXE, Menüpunkt „Mitwirkende“)?
+
+- Nutzer (01.10.2026): Megascans wurden nie über Quixel Bridge geholt, nur über Fab.
