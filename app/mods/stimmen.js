@@ -84,7 +84,7 @@ setInterval(() => { try { st_pause(); } catch (e) {} }, 150);
 // Untertitel-Haken: spielt die Zeile einen Takt später (ein folgender stimmen_spielen-Aufruf derselben Zeile liefert noch den Ort)
 function stimmen_zeile(t, who) { if (!ST.man || !st_an() || !t) return; who = who || ''; if (who === 'LUKE') return;
   const ids = st_finde(t, who); if (!ids) return;
-  const Z = ST.zuletzt; if (Z && performance.now() - Z.t < 500 && ids.every(i => Z.ids.includes(i))) return; // schon über den Hook gestartet
+  const Z = ST.zuletzt; if ((Z && performance.now() - Z.t < 500 && ids.every(i => Z.ids.includes(i))) || ids.every(i => ST.cur.some(h => h.id === i))) return; // schon über den Hook gestartet / läuft noch
   const P = ST.pend = { ids, who, pos: performance.now() - ST.posT < 200 ? ST.pos : null };
   setTimeout(() => { if (ST.pend !== P) return; ST.pend = null; st_spiele(P.ids, P.who, P.pos); }, 0); }
 // Hook der Module: Ort (Array [x,y,z] oder {x,y,z}) und/oder eigener Schlüssel. true = Stimme läuft/kommt.
@@ -95,7 +95,9 @@ function stimmen_spielen(key, pos) { if (!ST.man || !st_an()) return false; cons
   const ids = Array.isArray(k) ? k : [k]; st_spiele(ids, '', q, key); return true; }
 
 // ---------------------------------------------------------------- Einbindung
-subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
+// Basis: subtitle() reiht ein, subShow() zeigt wirklich an → die Stimme hängt an subShow (spricht, wenn die Zeile erscheint)
+if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subShow);
+else subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
 // say(): wartet, bis die Stimme ausgesprochen hat (Lesezeit bleibt Mindestdauer); lädt die Zeilen des Blocks vor
 say = async function (lines) { try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
   for (const l of lines) { const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t))), v = who === 'LUKE' ? 0 : stimmen_dauer(t, who), d = v ? Math.max(d0, v * 1000 + 350) : d0; subtitle(t, d + 250, who); await wait(d); } };

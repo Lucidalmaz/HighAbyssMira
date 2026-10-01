@@ -44,7 +44,7 @@
   - Der echte Luke behält seine Referenz: Alle „rauen Jungen“-Kandidaten lagen bei 130–210 Hz, also zu alt.
 - **Neu besetzt** (Vollmacht des Nutzers, nur entworfene Stimmen):
   - **Mira** (Rabe im Traum, „?“-Frauenstimme in der Villa, Whiskeys „Kum!/Such!/Luna.“), **Dina**, **Zayn**, **Seiler**.
-  - Referenzwahl für **Frau Aydın**, **Heidi** und **Jonas** folgt nach Kap. 1–3.
+  - Referenzwahl für **Frau Aydın**, **Heidi** und **Jonas** folgt nach Kap. 1–3. Zayn: keine passende Kinderstimme gefunden.
 - **Ohne Stimme bleiben** (zu wenige Zeilen oder unklare Identität):
   - die Nimmerheim-Kinder (KIND, JUNGE, EIN MÄDCHEN, ROXY 8, LARS VEGAS 9)
   - ARBEITER (9 Zeilen)
@@ -72,8 +72,50 @@
 - **Einstellungen:** „Sprachausgabe“ an/aus und „Lautstärke Sprache“ (0–150 %), eingefügt wie bei `spannung.js` (`settings.stimmen`, `settings.stimmenVol`).
 - **Testzugang:** `window.__stimmen` mit `zustand`, `spiele`, `kino`, `sub`, `init`. Im Release-Bau wird er entfernt.
 
-## Stand der Erzeugung
-(wird nachgeführt)
+## Stand der Erzeugung (01.10.2026, 14:00)
+- **Zeilen:** 1100 werden vertont (Story-Prüfung A und B eingearbeitet, neu extrahiert).
+  - Davon 687 Hauptweg Kap. 1–3 (`zeilen_a.csv`), 152 Nebenaufgaben Kap. 1–3 (`zeilen_b.csv`), 261 Kap. 4–6.
+  - Reihenfolge in `phase2_erzeugen.cmd`: A, dann B, dann Miras Summen, dann Referenzen aydin/heidi/jonas, dann der Rest.
+- **Vertont im Spiel: 0.** Ohne Stimme sind derzeit also alle Zeilen; die Untertitel laufen unverändert. Zwei Gründe:
+  1. **Smart App Control (Windows) blockiert seit heute Vormittag unsignierte DLLs der Stimmen-Python.**
+     - Zuerst blockierte es `av/sidedata/encparams.pyd`; das ist umgangen, weil PyAV nicht nötig ist (Platzhalter `_stubs_av`).
+     - Seit 13:46 blockiert es auch `DLLs\select.pyd` der Python-Installation selbst (CodeIntegrity-Ereignisse 3077/3118).
+     - Folge: **Jeder neu gestartete Python-Prozess der Pipeline bricht ab.** Der laufende Prozess (Luke, Kap. 1–3, Runde 2/3) arbeitet weiter, die folgenden Schritte scheitern.
+     - Lösung nur durch den Nutzer: Smart App Control ausschalten (in Windows 11 nicht ohne Neuinstallation wieder einschaltbar), oder die Werkzeuge auf ein signiertes Python (python.org 3.13) neu aufsetzen. Letzteres heißt die Pakete neu laden (ca. 3 GB, torch cu128) und ist nicht sicher, weil auch Paket-DLLs blockiert werden können.
+  2. **Die Stimmtreue der Klone ist zu niedrig:**
+     - Luke liegt im Median bei 0,48 (0,13–0,58), Schwelle 0,70. Häufigster Verwerfungsgrund: zu nah an `radio`. WER (meist 0) und MOS (3–4) sind gut.
+     - In Phase 1 lagen einzeln erzeugte Klone bei 0,80–0,86.
+     - Verdacht: die Bündelung (4 Zeilen je Aufruf) verschlechtert die Sprecher-Konditionierung. `--batch` steht wieder auf 1.
+     - Prüfen konnte ich das wegen Punkt 1 nicht mehr. Zu prüfen ist auch die Zentrierung mit jetzt 29 Referenzen.
+  - Die Qualitätsregel bleibt hart: Keine Zeile unter den Schwellen kommt ins Spiel.
+- **Tempo unter Last:** Die Spieltests der anderen Agenten belegen fast den ganzen RAM; die Erzeugung wartet die meiste Zeit. Runde 1 für 131 Luke-Zeilen dauerte 5,6 h. Bei voller Maschine rechne ich mit 1–2 Tagen für alle Zeilen.
+- **Peter (Zahn-Mann):**
+  - Die neue Referenz „tief, heiser, gebrochen“ wurde nicht übernommen. Kandidaten mit 92–108 Hz lagen nahe an Justin/Hofer; die hellen (138–158 Hz) fielen durch den Grundton-Bereich. Die alte Referenz bleibt.
+  - „Bruder.“, „… raus …“, „… Lu… ke …“: Stimmtreue 0,40–0,50, deshalb ohne Stimme. Das Atmen/Lachen in `feuer.js` bleibt.
+- **Referenzen neu:** Mira (nächste Figur Hilde 0,53), Dina (Mama 0,55), Seiler (Pell 0,45).
+  - Zayn: keine Kinderstimme gefunden (alle Kandidaten 110–137 Hz), bleibt stumm.
+  - Aydın, Heidi, Jonas folgen in der Kette.
+- **Miras Summen (T-4):**
+  - `spiel/summen_mira.py`: Klon und Entwürfe „Mmmh…“ werden mit dem WORLD-Vocoder auf E D C H C gesetzt (0,62 s, letzter Ton 1,05 s). Gemessen: 330/291/251/247/260 Hz. Kein Oszillator; Klangfarbe und Atem sind ihre.
+  - Steht in der Kette; im Spiel ersetzt es `hungrige_summen`, sobald die Datei da ist. Sonst bleibt das Synth-Summen.
+
+## Kurz geprüft (zwei Läufe über `_testgate.sh`, `_x1_run.sh`, Schritte `C:/Users/GIGABYTE/_x1_t/mk.js`)
+- Bau fehlerfrei. Das echte Manifest wird geladen (0 Zeilen).
+- Mit einem eingesetzten Testmanifest (vorhandene Aufnahme `audio/sc_whisper.ogg`):
+  - **Figur in der Welt** (Vegas, räumlich): `welt@22,1.5,110`, Hüllkurve 0,76.
+  - **Funk** (Kühn, Mailbox): Weg `funk`, Hüllkurve 0,71.
+  - **Kino-Zeile:** `kino_sag` → Untertitel-Warteschlange → `subShow` → Stimme läuft, Untertitel steht.
+  - **Gedanke** (`LUKE`) mit gleichem Text: keine Stimme.
+- Lazy-Load per fetch: 0 Fehler.
+
+## Weitere Einbauten
+- **Neue Untertitel-Warteschlange der Basis:** Die Stimme hängt jetzt an `subShow`, spricht also, wenn die Zeile wirklich erscheint. Rückfall: `subtitle`.
+- **T-3 (Kap. 6, Anruf):** Während `k6_anrufLucy` laufen alle Stimmen außer Lukes über den Telefonfilter. Das ist eine Hülle in `stimmen.js`, keine Änderung an `kapitel6.js`.
+- **Peter:** Seine Stimme sitzt räumlich an der Figur (`zombie.g`).
+- **Mund:** `figuren_mund(stimme, pegel)` je Bild (Pegel-Weg aus `figuren.js`); Luke ausgenommen.
+- **Manifest:** Einträge können eine eigene Lautstärke tragen (`z[id][4]`, Summen 0,4).
+- **`neben5.js` (Einunddreißig Flaschen):** Lukes Antworten an Vegas standen als `LUKE` (= Gedanke, kursiv, stumm). Sie stehen jetzt auf `DU`; das ist eine Zeile im Helfer `L`.
+- **Extraktion erweitert:** Fragebänke `{ q, a, a2 }` (Hilde, Raum 2), Tupel-Helfer `const V = (t, ms) => [t, ms, 'VEGAS']`, `NACHSORGE 11/12 (FUNK)`.
 
 ## Bitten / Hinweise an andere
 - Ändert die Story-Prüfung Zeilen, danach erneut ausführen: `node spiel\extrahiere.js`, `node spiel\teile.js`, `phase2_erzeugen.cmd`. Nur neue IDs werden erzeugt.
