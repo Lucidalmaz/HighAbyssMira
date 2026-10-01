@@ -130,3 +130,6 @@ Nutzer (30.09.2026): „gamepad möchte ich nicht da es ein pc spiel ist“. Nic
 
 ## Vollmacht (Nutzer, 01.10.2026, wörtlich: „nehme einfach immer die option die du mir empfhelen würdest weil ich gehe jetzt schlafen“)
 - Bei offenen Entscheidungen (auch Story-/Kanon-Vorschlägen aus der Story-Prüfung) nimmt der Hauptagent die jeweils empfohlene Option, dokumentiert sie hier bzw. in der Stand-Datei und berichtet sie dem Nutzer gesammelt.
+
+## Entscheidungen zur Story-Prüfung (01.10.2026, per Vollmacht „empfohlene Option“)
+Grundlage `app/story/audit/story_pruefung.md`. Übernommen: **alle 15 Verbesserungen** (Rang 1–15, inkl. der zwei Kanon-Änderungen Rang 3 „Das siebzehnte Jahr“ V-1 und Rang 5 „Die LWO hat Lucy als Köder benutzt“ W-5), die Vorschläge „knapp dahinter“ V-7 (Fibel-Seite „Fragen“), V-8 (Kapitel-Vorspann „Bisher“), G-3, T-4 sowie **alle 20 Konsistenz-Korrekturen** aus Abschnitt 8 mit der dort genannten Lösung. Nicht angefasst wird, was Abschnitt 10 schützt. Umsetzung in Bibel (`story_final.md`) und Spiel gleichzeitig.
