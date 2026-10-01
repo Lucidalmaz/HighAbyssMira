@@ -567,7 +567,7 @@ async function album_weltBau() { const S = album_S; try {
       if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const c = o.geometry.boundingSphere.center.clone().applyMatrix4(o.matrixWorld), r = o.geometry.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis(); if (r < 8 && Math.hypot(c.x - cx, c.z - cz) < r + .3) L.push(o); });
     const h = new THREE.Raycaster(new THREE.Vector3(cx, Y + 1.6, cz), new THREE.Vector3(0, -1, 0), 0, 1.6).intersectObjects(L, false)[0]; if (h) y = h.point.y; }
   w.rotation.set(0, ry, 0); w.position.set(cx - Math.cos(ry) * .094, y + .0345, cz + Math.sin(ry) * .094); w.userData.noCol = true; S.welt = w;
-  const hit = box(.32, .12, .32, cx, w.position.y, cz, hidden, { cast: false }); interact(hit, 'Fotoalbum', () => album_nehmen()); S.weltHit = hit; album_weltSync(); }
+  const hit = box(.32, .12, .32, cx, w.position.y, cz, hidden, { cast: false }); interact(hit, 'Fotoalbum', () => album_nehmen()); S.weltHit = hit; hit.userData.hl = 'sammlung'; album_weltSync(); }
   catch (e) { console.warn('Album: Welt', e); } }
 function album_weltSync() { const S = album_S; if (!S.welt) return; S.welt.visible = !S.hat; if (S.hat) uninteract(S.weltHit); else if (!interactables.includes(S.weltHit)) interactables.push(S.weltHit); }
 function album_nehmen() { const S = album_S; if (S.hat) return; S.hat = true; album_weltSync(); Audio.play && Audio.play('woodHit1', { gain: .15, rate: 1.4 }); album_ton('albLeder', { gain: .3 });

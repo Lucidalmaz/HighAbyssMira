@@ -41,9 +41,9 @@ Stand 01.10.2026. Testbilder: `C:/Users/GIGABYTE/_r56/vorher/`, `…/nachher/`, 
 | Szene | vorher | nachher |
 |---|---|---|
 | Album (8 Momente) | 5 Momente mit Fingern im Buch (bis 9 Punkte, z. B. offen 2,5 s: L 5, R 4) | nur 2 Momente mit 2–3 Fingerkuppen (Auf-/Zuklappen) |
-| Gürteltasche (9 Momente) | rechts in jedem Moment 4–5 Punkte (Mittel-, Ring-, Kleinfinger in der Tasche), links bis 6 | Finger frei; übrig 1–3 Daumenpunkte an Riemen/Schnalle → Körperkasten erweitert, siehe letzter Lauf |
-| Kater geradeaus / gesenkt | frei / rechte Handfläche im Rücken | siehe letzter Lauf |
-| Joint (21 Momente) | in 14 Momenten 1–5 Punkte (Ring-/Mittelfinger im Grinder) | siehe letzter Lauf |
+| Gürteltasche (9 Momente) | rechts in jedem Moment 4–5 Punkte (Mittel-, Ring-, Kleinfinger in der Tasche), links bis 6 | Finger frei, rechte Hand außen an der Seitenwand; übrig 1–3 Daumenpunkte an Riemen/Schnalle → Riemen/Schnalle danach in den Körperkasten genommen (nicht mehr geprüft) |
+| Kater geradeaus / gesenkt | frei / rechte Handfläche im Rücken | Knochen-Griff verworfen (Hand im Fell); jetzt Rig am Kater = Lage „geradeaus“ in jeder Kopfhaltung (nicht mehr geprüft) |
+| Joint (21 Momente) | in 14 Momenten 1–5 Punkte (Ring-/Mittelfinger im Grinder) | nicht im Spiel geprüft (Testwarteschlange); Löser in Node gegen das echte Hand-Skelett: Faust um Kasten 7 → 0, um Zylinder 3 → 0, um Kapsel 10 → 0 Punkte, 0,5 ms je Hand und Bild |
 
 ## R-6 Innenräume
 
@@ -81,16 +81,41 @@ Kap. 2 (Amt) und Kap. 4 (Villa) liefen in beiden Versuchen in die 10-Minuten-Gre
 - **Klickflächen und Quest-Objekte:** Alle bleiben erhalten. Verschoben sind nur die Lage von E-01, t_zaehl, „Nach oben gehen“ und „Kellertreppe hinauf“.
 
 ## Geprüft
-- Je Modul Syntax, Zusammenbau fehlerfrei.
-- Ein Bildlauf vorher (Hände + Kap.-1-Räume).
-- Ein Händelauf nachher (Album, Beutel, Kater).
-- Ein gezielter Schlusslauf: Joint, Beutel, Kater, Keller 7, Nr. 4 EG/OG/Keller.
+- Syntax je Modul, Zusammenbau fehlerfrei (`node tools/assemble.js`).
+- Ein Bildlauf vorher: Hände sowie Räume aus Kap. 1.
+- Ein Händelauf nachher: Album, Beutel und Kater.
+- Löser-Einzeltest in Node: `_r56/unit/t.mjs`, echtes Skelett aus `haende/model.glb`.
+- Der gezielte Schlusslauf (Joint, Keller 7, Nr. 4) blieb dreimal in der Warteschlange bzw. Ladezeit hängen und wurde auf Anweisung abgebrochen.
+- Das Werkzeug liegt bereit: `bash /c/Users/GIGABYTE/_r56/run.sh nachher geaendert,kiffen,beutel,katze 3`. Es erzeugt Kontaktbögen mit Fingerprüfung in `_r56/nachher3`.
+
+## Im Gesamttest prüfen (genau das)
+1. **Joint-Szene** (Kap. 4, Veranda Nr. 3), Schritte nehmen, auf, knolle, zu, blatt, falten, füllen, rollen, lecken, feuer, rad, rauchen:
+   - Finger liegen am Grinder, an Knolle, Blatt und Feuerzeug an, nie darin.
+   - Die Hand mit dem Grinder umfasst ihn.
+   - Beim Rauchen bleibt der Joint zwischen Zeige- und Mittelfinger.
+   - Kein Zittern der Finger (Öffnen sofort, Schließen gefedert).
+2. **Gürteltasche Stufe 1** öffnen und schließen:
+   - Kein Finger in der Tasche oder Klappe.
+   - Der Daumen links nicht im Riemen oder in der Schnalle.
+3. **Album** öffnen, blättern, schließen: Finger unter dem Einband, Daumen auf der Seite, nichts im Buch.
+4. **Kater tragen** (Hänschen in Kap. 5 oder eine Gisela-Katze):
+   - Geradeaus und mit gesenktem Blick: linke Hand unter dem Bauch, rechte auf dem Rücken, keine Hand im Fell.
+   - Hände blenden beim Absetzen sauber aus.
+5. **Keller Nr. 7:**
+   - Nach dem Tastenfeld steht man am Fuß der Treppe mit Blick zum Stuhl.
+   - Die Treppe hoch- und runterlaufen: Stufen tragen, kein Kopf durch die Decke, Geländer und Schacht halten, nicht unter die Treppe laufen.
+   - Oben „Nach oben gehen“ an der Tür: vor dem Tonband die Meldung „Noch nicht“, danach der Ausfall.
+   - Kap.-1-Schreck: Der Türschlag kommt von oben.
+   - Fortsetzen im Keller landet am Treppenfuß.
+6. **Nr. 4:**
+   - **Diele:** Die Treppe geht ganz bis in den Schacht, Klickfläche „Treppe nach oben“ am Antritt. Garderobe und Zettel E-01 stehen an der Innenwand; E-01 lässt sich lesen und zählt.
+   - **Von oben zurück:** Ankunft am Treppenfuß, nicht in der Treppe.
+   - **Oben:** Tür zum Treppenhaus an der Westwand führt nach unten; Nachttisch und Zettel t_zaehl lassen sich lesen.
+   - **Keller:** Ankunft am Treppenfuß; Treppe mit Wangen und Geländer, Tür oben; „Kellertreppe hinauf“ funktioniert; Pfanddomino unverändert.
+7. **Kap. 2 (Amt) und Kap. 4 (Villa):** Innenräume mit Lampe auf Logik ansehen. Dafür gab es keinen Bildlauf; sie sind unverändert.
 
 ## Offen / Bitten
-- **Hauptagent, Gesamttest:**
-  - Keller Nr. 7 die Treppe hinauf und hinunter laufen (Stufen-Kollision, Kopf im Schacht).
-  - Nr. 4 Treppen ansehen.
-  - Kap. 2 und Kap. 4 mit Lampe durchgehen (dafür gab es keinen Bildlauf).
 - **`bewohnt.js`:** Jacken hängen flach und fast schwarz ohne Haken an der Wand (Schuppen, Posten, Pfarrhaus). Besser über eine Stuhllehne oder an einen Haken (Scan fehlt: Kleiderhaken).
 - **Beutel Stufe 2/3:** Die Rucksäcke werden ohne Hände gezeigt. Wenn Hände gewünscht sind, gibt es die Formen über `griff_kastenVon`.
-- **Kater:** Für echte Formen bräuchte es eine Trage-Pose, in der der Körper waagerecht liegt (Mocap).
+- **Kater:** Für echte Kollisionsformen bräuchte es eine Trage-Pose, in der der Körper waagerecht liegt (Mocap).
+- **Nr. 4 oben:** Der Kleiderschrank zeigt aus der SO-Ecke den Rücken (geringfügig).
