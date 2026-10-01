@@ -17,8 +17,8 @@ const HL_TEXT = [['aus', /sprechen|streicheln|hand nehmen|berühren|^whiskey|^ju
   ['sammel', /aufheben|\bnehmen\b|einstecken|mitnehmen|einsammeln/i]];
 const HL = { ready: false, slots: [], scene: null, rt: null, glow: null, mask: null, uD: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uNF: { value: new THREE.Vector2(.05, 110) }, uUseD: { value: 0 },
   t: 0, chk: 0, aktiv: 0, cand: new Array(64).fill(null), dist: new Float32Array(64), look: new Uint8Array(64), fwd: new THREE.Vector3(), v: new THREE.Vector3(), s: new THREE.Sphere(), b: new THREE.Box3(),
-  cc: new THREE.Color(), near: [], sc: { stack: [], out: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0 };
-const GLZ = { liftT: 0, rc: null, proto: null, laden: null, mat: null, tex: null, halo: null, list: [], v: new THREE.Vector3() };
+  cc: new THREE.Color(), near: [], nearBig: [], sc: { stack: [], out: [], big: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0 };
+const GLZ = { liftT: 0, rc: null, hits: [], proto: null, laden: null, mat: null, tex: null, halo: null, list: [], v: new THREE.Vector3() };
 
 // ---------------------------------------------------------------- Kategorie und sichtbares Objekt
 function hl_text(l) { l = l.replace(/<[^>]*>/g, '').trim(); for (const [k, re] of HL_TEXT) if (re.test(l)) return k;
@@ -44,10 +44,10 @@ function hl_visuals(o) { // sichtbare Meshes zum Klickobjekt (gecacht in userDat
 
 // Nahliste: die Szene wird über mehrere Bilder verteilt durchlaufen (je Bild höchstens 500 Knoten), gesammelt werden kleine sichtbare Modelle bis 14 m um Luke
 function hl_scan() { const S = HL.sc, P = camera.position; let n = 0;
-  if (!S.stack.length) { HL.near = S.out; S.out = []; S.stack.push(scene); }
+  if (!S.stack.length) { HL.near = S.out; HL.nearBig = S.big; S.out = []; S.big = []; S.stack.push(scene); }
   while (S.stack.length && n++ < 500) { const o = S.stack.pop(); if (!o.visible) continue; const c = o.children; for (let i = 0; i < c.length; i++) S.stack.push(c[i]);
-    if (!o.isMesh || o.isSkinnedMesh || !hl_ok(o)) continue; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere.radius > 6) continue;
-    HL.s.copy(g.boundingSphere).applyMatrix4(o.matrixWorld); if (HL.s.radius < 3 && HL.s.center.distanceToSquared(P) < 196) S.out.push(o); } }
+    if (!o.isMesh || o.isSkinnedMesh || !hl_ok(o)) continue; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere.radius > 400) continue;
+    HL.s.copy(g.boundingSphere).applyMatrix4(o.matrixWorld); if (HL.s.radius < 3) { if (HL.s.center.distanceToSquared(P) < 196) S.out.push(o); } else if (HL.s.center.distanceTo(P) - HL.s.radius < 14) S.big.push(o); } } // big: Böden/Gehwege für glanz_boden
 // ---------------------------------------------------------------- Masken-Material (Kategorie-Farbe × Stärke; verdeckt = verworfen)
 function hl_maskMat() { return new THREE.ShaderMaterial({ uniforms: { tDepth: HL.uD, res: HL.uRes, nf: HL.uNF, useD: HL.uUseD, col: { value: new THREE.Color() }, k: { value: 0 } },
   vertexShader: `#include <common>
@@ -145,24 +145,24 @@ function glanz_laden() { if (!GLZ.laden) GLZ.laden = (async () => { try { // Fab
 function glanz_key(it) { if (it.key || !GLZ.proto) return; const k = GLZ.proto.clone(true); k.scale.multiplyScalar(it.size); k.rotation.y = it.ry; it.key = k; it.g.add(k); }
 function glanz_neu(o = {}) { // → { g (Gruppe: Schlüssel + 2 Glitzerpunkte + Schein), key, size, an }
   const g = new THREE.Group(); g.userData.noCol = true; const mk = (t, op) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); s.renderOrder = 2; g.add(s); return s; };
-  const it = { g, key: null, size: o.size || .07, ry: o.ry ?? Math.random() * 6.28, an: o.an || null, boden: !!o.boden, mit: o.mit || null, ph: Math.random() * 6.28, halo: mk(glanz_haloTex(), 0), gl: [mk(glanz_tex(), 0), mk(glanz_tex(), 0)], k: o.k ?? 1 };
+  const it = { g, key: null, size: o.size || .07, ry: o.ry ?? Math.random() * 6.28, an: o.an || null, boden: !!o.boden, versuch: 0, mit: o.mit || null, ph: Math.random() * 6.28, halo: mk(glanz_haloTex(), 0), gl: [mk(glanz_tex(), 0), mk(glanz_tex(), 0)], k: o.k ?? 1 };
   it.gl[0].position.set(it.size * .3, it.size * .08, 0); it.gl[1].position.set(-it.size * .28, it.size * .1, it.size * .06); glanz_mat(); GLZ.list.push(it); glanz_key(it); glanz_laden(); return it; }
 function glanz_boden(it) { // am Boden: auf die sichtbare Oberfläche heben (der Fundort liegt teils auf dem Kollisionsboden unter Gehweg/Laub)
   const g = it.g, rc = GLZ.rc || (GLZ.rc = new THREE.Raycaster()); rc.camera = camera; rc.far = 1.6; rc.set(HL.v.set(g.position.x, g.position.y + 1.2, g.position.z), GLZ.v.set(0, -1, 0));
-  const H = rc.intersectObject(scene, true); let y = null;
+  const H = rc.intersectObjects(HL.near, false, GLZ.hits); rc.intersectObjects(HL.nearBig, false, H); H.sort((a, b) => a.distance - b.distance); let y = null;
   for (const h of H) { const o = h.object; if (o.isSprite || o.isPoints || o.isLine || !hl_ok(o) || !hl_sichtbar(o)) continue; let mine = false; for (let p = o; p; p = p.parent) if (p === g) { mine = true; break; } if (mine) continue; y = h.point.y; break; }
-  if (y === null) return; const dy = y + .004 - g.position.y; if (Math.abs(dy) > .9) return; g.position.y += dy; if (it.mit) for (const o of it.mit) o.position.y += dy; }
+  H.length = 0; if (y === null) return false; const dy = y + .004 - g.position.y; if (Math.abs(dy) > .9) return true; g.position.y += dy; if (it.mit) for (const o of it.mit) o.position.y += dy; return true; }
 function glanz_tick(dt, t) { const cam = camera.position, lit = typeof flashOn !== 'undefined' && flashOn && FLASH.charge > 0; camera.getWorldDirection(HL.fwd);
   for (let i = 0; i < GLZ.list.length; i++) { const it = GLZ.list[i], g = it.g;
     if (it.an) { let on = false; try { on = it.an(); } catch (e) {} g.visible = on; } if (!g.visible) continue;
-    const p = g.position, dx = cam.x - p.x, dy = cam.y - p.y, dz = cam.z - p.z, d = Math.hypot(dx, dy, dz); if (d > 40) { if (it.an) g.visible = false; continue; } if (it.boden && d < 14 && t > GLZ.liftT) { GLZ.liftT = t + .3; it.boden = false; glanz_boden(it); }
+    const p = g.position, dx = cam.x - p.x, dy = cam.y - p.y, dz = cam.z - p.z, d = Math.hypot(dx, dy, dz); if (d > 40) { if (it.an) g.visible = false; continue; } if (it.boden && d < 12 && t > GLZ.liftT && HL.nearBig.length) { GLZ.liftT = t + .3; if (glanz_boden(it) || ++it.versuch > 8) it.boden = false; }
     // Lampenkegel: im Licht der Taschenlampe glänzt es stärker (Glanz nur, wo Metall ist – und Licht darauf fällt)
     const inv = 1 / Math.max(d, 1e-3), cone = lit ? Math.max(0, (-(dx * HL.fwd.x + dy * HL.fwd.y + dz * HL.fwd.z) * inv - .9) / .1) * Math.max(0, 1 - d / 22) : 0, L = it.k * (.5 + .5 * Math.min(1, cone + (d < 3 ? .4 : 0)));
     const az = Math.atan2(dx, dz) - g.rotation.y, el = Math.atan2(dy, Math.hypot(dx, dz)), sz = it.size * (1 + d * .05);
     for (let j = 0; j < 2; j++) { const s = it.gl[j], ph = it.ph + j * 2.3; // blitzt auf, wenn der Blickwinkel über die Fläche streicht (Bewegung, Drehung), dazu ein seltenes Funkeln
       const f = Math.pow(Math.max(0, Math.sin(az * 7 + el * 11 + ph + t * .3)), 16), tw = Math.pow(Math.max(0, Math.sin(t * (1.1 + j * .6) + ph * 3)), 48), a = Math.min(1, (f + tw * .8) * L);
       s.visible = a > .02; if (s.visible) { s.material.opacity = a; s.scale.setScalar(sz * (.5 + 1.3 * a)); } }
-    it.halo.material.opacity = L * (.2 + .06 * Math.sin(t * 2.1 + it.ph)) * Math.min(1, d / 1.5 + .3); it.halo.scale.setScalar(sz * 4.2); } }
+    it.halo.material.opacity = L * (.2 + .06 * Math.sin(t * 2.1 + it.ph)) * Math.min(1, d / 1.5 + .3); it.halo.scale.setScalar(sz * 5); } }
 function glanz_klang(x, y, z) { // leiser, kristalliner Ton: zwei hohe Spieluhr-Zungen (echte Aufnahmen), knapp versetzt
   try { const o = x !== undefined ? { x, y, z, ref: 2 } : {}; if (Audio.buf && Audio.buf.kb_spieluhr_A6) { Audio.play('kb_spieluhr_A6', { ...o, gain: .085, rate: 1.335, hp: 900 }); Audio.play('kb_spieluhr_E6', { ...o, gain: .06, rate: 2, delay: .085, hp: 900 }); }
     Audio.play('keys1', { ...o, gain: .07, rate: 2.1, dur: .2 }); } catch (e) {} }
@@ -190,7 +190,7 @@ WORLD_MODS.push(['Hervorhebung', async () => {
 }]);
 WORLD_TICK.push((dt, t) => {
   if (!HL.ready) return; HL.t = t; const aus = hl_aus(), mode = aus ? 0 : +(settings.hl ?? 2);
-  const t0 = performance.now(); if (mode) hl_scan(); HL.chk -= dt; if (HL.chk <= 0) { HL.chk = .2; if (mode) hl_waehle(); else for (let i = 0; i < HL.slots.length; i++) HL.slots[i].sel = false; } HL.ms = Math.max(HL.ms * .995, performance.now() - t0); // Messwert für Tests (gleitendes Maximum)
+  const t0 = performance.now(); if (state.started) hl_scan(); HL.chk -= dt; if (HL.chk <= 0) { HL.chk = .2; if (mode) hl_waehle(); else for (let i = 0; i < HL.slots.length; i++) HL.slots[i].sel = false; } HL.ms = Math.max(HL.ms * .995, performance.now() - t0); // Messwert für Tests (gleitendes Maximum)
   const F = HL_STUFE[mode] || HL_STUFE[2]; let n = 0, best = 0;
   for (let i = 0; i < HL.slots.length; i++) { const s = HL.slots[i]; if (!s.o) continue; let kT = 0;
     if (mode && s.sel) kT = s.o === target ? F[0] : (s.d < 2.6 || s.look) ? F[1] : F[2] * Math.max(0, 1 - (s.d - 2.6) / 5.4);

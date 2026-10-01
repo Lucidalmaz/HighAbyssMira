@@ -61,7 +61,37 @@ Vorbilder: Resident Evil (Ziel kurz einblenden, Akten, Karte), Alan Wake 2 (was 
   - **Lautstärkeregler:** UI-Klänge laufen trocken auf `master`, Aufheben auf `world` mit Raumhall.
 
 ## Kurz geprüft
-- Syntax und Bau sind sauber. Ergebnis des einen Laufs: siehe Abschnitt „Testlauf“ unten.
+- Syntax und Bau sind sauber (`assemble.js`, `build.js`). Die Klänge sind per Analyse geprüft: Lautheit, Frequenzbänder, Varianten unterscheiden sich.
+- Den Funktionslauf habe ich nach der Regel des Koordinators abgebrochen (Testwarteschlange > 20 min). Er läuft im Schlusstest mit.
+
+## Für den Schlusstest
+Die Schritte liegen fertig in `app/tools/selftest_ziele.json` (eigenes `--udd`, etwa 3 min). Aufruf wie `_game_run.sh` mit `--steps=…\app\tools\selftest_ziele.json`. Zu prüfen:
+1. **start:** Das Spiel läuft. `#objective` zeigt nach etwa 2 s „NEUES ZIEL · Finde Haus Nr. 7.“ mit dem Warum in Handschrift, dazu Klang `ui_ziel`. Das Logbuch enthält das Ziel.
+2. **ziel:** Nach `setMain(1)` steht das Label „NEUES ZIEL“, `#objWarum` zeigt den Satz zum Briefkasten, und der Text schreibt sich (Bild).
+3. **neben:** Nach `sideStart('bruno')` erscheint `#questPop[data-art=neben]`, `#qpWarum` zeigt die Beschreibung zu Bruno, Klang `ui_neben`.
+4. **jagd:**
+   - Jagdmusik an → `stressWhile:true`.
+   - Batterie, Brechstange und `sideStart('car')` → `held ≥ 3`, nichts ist sichtbar.
+   - Die Aufheben-Klänge (Batterie, Metall) kommen sofort, noch während der Jagd.
+   - Etwa 2,5 s nach Jagd-Ende erscheint zuerst „NEUE NEBENAUFGABE · Lucys Auto“, danach „DU HAST EINGESTECKT · Batterie · Brechstange“ mit Taschenklaps.
+   - Die Ziel-Anzeige „ZIEL“ ist wieder da.
+5. **wasjetzt:** Der Reiter „WAS JETZT?“ zeigt:
+   - Ziel und Warum
+   - Richtung und „AUF DER KARTE“, wenn ein Story-Hinweis offen ist
+   - die Nebenaufgaben Bruno und Auto mit ihrem letzten Schritt
+   - unter „Zuletzt notiert“ alle Einträge von oben
+6. **laden:** Über den Weg von `CH_RESUME` (nachLaden) erscheint das Label „WEITER“ mit Warum. Zusätzlich einmal echt „Weiterspielen“ aus dem Menü: Es darf kein „NEUES ZIEL“ kommen, sondern „WEITER“.
+7. **klang:** Der Schritt schreibt `C:\Users\GIGABYTE\_ziele_klaenge.wav`, alle 18 Klänge nacheinander, am Master abgegriffen.
+   - Im Ergebnis muss die Notiz „fehlend: “ leer sein.
+   - Anhören: nichts zu laut gegen die Kulisse, kein Spielautomaten-Charakter, der Glanz klingt fein.
+
+Außerdem von Hand prüfen:
+- Taste Z zeigt das Ziel (bei Hilfe „sanft“ und „deutlich“ mit Richtung).
+- Die Einstellung „Hilfe“ erscheint und wirkt.
+- Wird während einer INVENTAR-Einblendung eine Notiz gelesen, kommt die Einblendung nach dem Schließen.
+
+## Testzugriff
+- `window.__ziele` (`S`, `zeigen`, `stress`, `t.qp/side/done/main/item/fibel/zu/chase/aud`), entfällt im Release-Bau.
 
 ## Offen / Bitten
 - **Glanz-Agent:** `pk_glanz_1/2` steht bereit. `glanz_klang()` könnte `Audio.aufheben('glanz')` unterlegen. Bei GLÄNZENDES spielt `ziele` den Glanz schon leise mit; bitte nicht doppelt hochziehen.

@@ -165,7 +165,7 @@ const LUKE_BLICK = {
   lwo: [
     ['U-76', 'kaugummi', 'Pfefferminz. Und ein Auge über einer Flamme. Wer druckt ein Auge auf Kaugummi?'],
     ['U-77', 'kuli', 'Werbekuli. Wie von der Messe. Nur gibt’s die Messe nicht.'],
-    ['U-78', 'schild', 'LWO', { ab: 4 }],
+    ['U-78', 'schild', 'Lucid World Organization. Klingt wie ein Energydrink. Zählt Kinder.', { ab: 4 }],
     ['U-79', 'absperrband', 'Riecht nicht nach Gas. Riecht nach Nebel und Kreide.'],
     ['U-80', 'aushang', 'Sprechstunde donnerstags. Die Behörde ist aufgelöst. Die Sprechstunde nicht.'],
     ['U-81', 'thermos', 'Tee. Wer trinkt um diese Zeit draußen Tee?']

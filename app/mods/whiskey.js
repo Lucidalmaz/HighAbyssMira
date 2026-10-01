@@ -124,6 +124,13 @@ function whiskey_ring(model, rechts = false) {
 // Glanz im Schnabel (Autoschlüssel, Deckel …): ein kleiner Lichtfunke (Sprite), folgt dem Kopf
 function whiskey_beakTex() { return tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,250,235,1)'); g.addColorStop(.18, 'rgba(255,236,190,.85)'); g.addColorStop(.5, 'rgba(255,220,160,.12)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w);
   c.strokeStyle = 'rgba(255,248,230,.7)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(w / 2, 6); c.lineTo(w / 2, w - 6); c.moveTo(6, w / 2); c.lineTo(w - 6, w / 2); c.stroke(); }), true); }
+// Schnabelspitze im Kopfknochen-Raum (einmal aus dem Modell gemessen): der am weitesten nach vorn liegende Punkt, der fast nur am Kopf hängt – dort hält er den Glanz
+function whiskey_beakTip() { const S = whiskey_S; let sk = null; S.m.traverse(o => { if (o.isSkinnedMesh && !sk) sk = o; }); if (!sk || !S.head) return null;
+  try { const bi = sk.skeleton.bones.indexOf(S.head), si = sk.geometry.attributes.skinIndex, sw = sk.geometry.attributes.skinWeight; if (bi < 0 || !si) return null;
+    S.g.updateMatrixWorld(true); const hp = S.head.getWorldPosition(new THREE.Vector3()), a = S.g.rotation.y + S.hy, f = new THREE.Vector3(Math.sin(a), -.25, Math.cos(a)).normalize(), v = new THREE.Vector3(), best = new THREE.Vector3(); let bd = -1e9;
+    for (let i = 0; i < si.count; i++) { let w = 0; for (let c = 0; c < 4; c++) if (si.getComponent(i, c) === bi) w += sw.getComponent(i, c); if (w < .6) continue;
+      sk.getVertexPosition(i, v); sk.localToWorld(v); const d = (v.x - hp.x) * f.x + (v.y - hp.y) * f.y + (v.z - hp.z) * f.z; if (d > bd) { bd = d; best.copy(v); } }
+    if (bd <= 0) return null; best.addScaledVector(f, -.012); return S.head.worldToLocal(best); } catch (e) { return null; } }
 // ---------------------------------------------------------------- Nachahmungen (83 §3): vorhandene Aufnahme an der Rabenposition, leicht verstimmt (rate .92), Tiefpass
 const WHISKEY_STIMMEN = { vegas: 'WHISKEY (MIT VEGAS’ STIMME)', luke: 'WHISKEY (MIT DEINER STIMME)', wolter: 'WHISKEY (MIT WOLTERS STIMME)', frau: 'WHISKEY (EINE FRAUENSTIMME)', hilde: 'WHISKEY (MIT HILDES STIMME)' };
 const WHISKEY_MIMIC = {
@@ -540,6 +547,6 @@ WORLD_TICK.push((dt, t) => {
   const beakOn = S.hatSchluessel && !S.fl && !far; S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
   if (!far) { S.mx.update(dt * (S.tired ? .7 : 1)); if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy, S.hr);
     if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3));
-      if (S.glz) { S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
+      if (S.glz) { if (S.beakL === undefined && S.mode === 'perch') S.beakL = whiskey_beakTip(); if (S.beakL) { S.glz.g.position.copy(S.beakL); S.head.localToWorld(S.glz.g.position); } else S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
 });
 window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s) }; // Testzugriff

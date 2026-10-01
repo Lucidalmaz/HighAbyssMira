@@ -290,7 +290,7 @@ function tausch_glintTex() { return tex(cnv(64, (c, w) => { const g = c.createRa
 function tausch_glint(x, y, z, label, act) { const S = tausch_S;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: S.tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); sp.position.set(x, y + .06, z); sp.scale.setScalar(.16); sp.visible = false; scene.add(sp);
   const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); const G = { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 };
-  if (typeof glanz_neu === 'function') { G.glz = glanz_neu({ size: .07, an: () => G.on, boden: true, mit: [sp, hit] }); G.glz.g.position.set(x, y + .012, z); G.glz.g.visible = false; scene.add(G.glz.g); hit.userData.hl = 'glanz'; hit.userData.hlObj = () => G.glz.key; } // R-2: echtes Metallstück, Glitzern, Schein (hervorhebung.js)
+  if (typeof glanz_neu === 'function') { G.glz = glanz_neu({ size: .09, an: () => G.on, boden: true, mit: [sp, hit] }); G.glz.g.position.set(x, y + .012, z); G.glz.g.visible = false; scene.add(G.glz.g); hit.userData.hl = 'glanz'; hit.userData.hlObj = () => G.glz.key; } // R-2: echtes Metallstück, Glitzern, Schein (hervorhebung.js)
   return G; }
 function tausch_y(x, z) { const g = solidGround(x, .8, z); return g > -1 ? Math.max(0, g) : 0; }
 function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length)) return tausch_voll('glanz'); if (F.bat && !tausch_platz('batterie', F.bat)) return tausch_voll('batterie'); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;

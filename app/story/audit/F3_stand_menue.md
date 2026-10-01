@@ -67,8 +67,43 @@ Nutzerwunsch R-20: „gruseliger, enorm viel hochwertiger und detailreicher, kre
 Alle IDs und Handler: `beginGame`, Weiterspielen, Neues Spiel, Kapitel wählen (der Klick wird nur ergänzt), Einstellungen, Steuerung, Story-Editor, Beenden und die Helligkeits-Kalibrierung. Die Nachbearbeitungskette ist nicht angefasst.
 
 ## Geprüft
-- Bau und Syntax.
-- Ein Bildstreifen-Lauf: 5 Motive, Hover, Kapitelwahl, Einstellungen, Mitwirkende. Ergebnis siehe Bericht.
+- Bau und Syntax sind sauber (`node tools/assemble.js`, einschließlich der Gesamtprüfung des Modul-Scripts). `CREDITS.md` ist im Bau enthalten.
+- Der Sichtlauf ist **nicht gelaufen**: Die Testschlange war voll, und laut Regel wurde er nach über 20 min Wartezeit abgebrochen. Der Lauf ist vorbereitet: `app/tools/test_menue_steps.json`.
+  - Aufruf: `npx electron . --selftest --steps=tools/test_menue_steps.json --out=<ordner> --readyTimeout=300000`
+  - Die Schritte nutzen den Testzugriff `window.__mz`; er fehlt in der Veröffentlichung.
+
+## Im Schlusstest zu prüfen (Bilder m1–m9 des Laufs oben)
+1. **m1 Nr. 7:**
+   - Die Kreidestriche (Fünfergruppen) liegen sichtbar auf dem Asphalt vor der Kamera. Sie liegen nicht unter dem Boden und sind auch nicht zu hell.
+   - Die Katze steht im Bild. Laut Ergebnis-JSON sind `plate`, `cat`, `fibel` und `spur` alle `true`.
+2. **m2 Laterne:**
+   - Whiskey sitzt auf dem Laternenkopf. Er schwebt nicht und steckt nicht darin; falls doch, `to.y` in `mz_whiskey` anpassen.
+   - Sein Kopf ist zur Kamera gedreht.
+   - Die Fibel liegt flach im Lichtkegel und hat den Aufkleber oben.
+3. **m2b:** Die Laterne ist wieder an, und die nassen Abdrücke führen zur Fibel.
+4. **m3 Ortstafel:**
+   - Der Beschlag ist unscharf, das ∴ ist klar und hat Ablaufspuren.
+   - Die Tafel ist lesbar, die Kamera steht auf der Ostseite.
+5. **m4 Kapelle / m5 Waldrand:**
+   - Beide Bilder sind nicht schwarz und zeigen nichts Halbes.
+   - Im Wald stehen keine eingefrorenen Tiere. Falls zu dunkel, die Kamerapunkte in `MZ_SHOTS` verschieben.
+6. **m6 Hover:**
+   - Die Bleistift-Unterstreichung liegt unter dem Wort.
+   - Alle Menüpunkte sind gut lesbar.
+7. **m7 Kapitel:**
+   - Es gibt 7 Polaroids in 4 Spalten. Kapitel 1 hat ein Foto, das Ergebnis lautet „7 1“.
+   - Die gesperrten Kapitel sind unentwickelt.
+   - Es gibt kein sichtbares Aufblitzen des Zwischenbilds.
+8. **m8 Einstellungen:** Die Notizheft-Seite ist lesbar, und die Regler sind bedienbar.
+9. **m9 Mitwirkende:**
+   - Der Abspann rollt, das Ergebnis sind über 120 Einträge.
+   - Einträge, URLs und Lizenzzeile sind lesbar.
+10. **Von Hand (kurz):**
+    - Tastatur: Pfeile, Tab, Enter und Esc im Menü, in den Polaroids und den Einstellungen.
+    - 60 s ohne Eingabe: Die Kamera fährt auf Nr. 7 zu, die Tür geht einen Spalt auf, eine Mausbewegung schneidet zurück.
+    - Spielstart: Die Kamera übergibt sauber, und es bleiben keine Katze, kein Rabe und keine Fibel auf der Straße zurück.
+    - Menümusik, Regen und Wind laufen ohne Klick.
+    - Leistung im Menü ohne Einbruch, besonders beim Glas-Motiv mit `backdrop-filter`.
 
 ## Offen / fehlt
 - **Echte Aufnahme eines zählenden Kindes:** nicht vorhanden. Deshalb gibt es diesen Effekt nicht; nur echte Aufnahmen sind erlaubt.

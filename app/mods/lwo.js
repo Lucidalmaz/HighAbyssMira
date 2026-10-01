@@ -245,6 +245,7 @@ const LWO_AG = {
     ['W', '„Ich war noch ein Kind, als ich meine Schwester an der Hand hatte. Da drin. Ich habe sie lachen hören. Nicht vor Angst.“'],
     ['W', '„Es lässt sie lachen. Das ist der Trick. Und wenn die Leute das wüssten, Herr Brandt, würden sie ihre Kinder selbst hineintragen. Oder ihre Häuser anzünden. Ich habe beides gesehen.“'],
     ['W', '„Also schreibe ich ‚Gasleck‘. Jemand muss die Liste schreiben. Wollen Sie das machen?“'],
+    ['W', '„Die Bundesstelle war ein Briefkopf, Herr Brandt. Wir heißen Lucid World Organization. Lost Eyengless ist Außenstelle sieben.“'], ['W', '„Es gibt andere Dörfer.“'], // Story-Prüfung V-4: der Name fällt im Hauptweg
     { wahl: [
       { t: '„Sie haben ein Bett für mich gemacht.“', dann: [['W', '„Ein gutes. Ich habe es selbst ausgesucht.“']] },
       { t: '„Grete.“', nur: 'grete', dann: [{ tu: 'beideAugen' }, ['W', '„Lassen Sie den Namen, wo er ist.“'], { wenn: 'gretefoto', dann: [['W', '„Sie haben etwas aus meiner Dose. Das ist nicht bedauerlich. Das ist unverzeihlich.“'], ['W', '„Es wird zurückgelegt werden.“'], { tu: 'trust:grete_foto' }] }] },

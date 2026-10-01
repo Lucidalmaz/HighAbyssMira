@@ -57,8 +57,23 @@ Nutzerwunsch R-11 (mit R-7/R-8, Q-2/Q-8): Außenwelt und Wald deutlich dichter, 
 - **Fehler aus dem Rundgang:**
   - Der Wald brach mit `PI2 is not defined` ab. Ursache war ein `//`-Kommentar mitten in der Zeile; das ist behoben.
   - Wandefeu kam nicht zustande, weil der Kollisionsaufbau im Testbau fehlschlug (`three-mesh-bvh`, siehe unten).
-- **Abschlusscheck** (ein kurzer Lauf, 5 Orte): siehe unten.
+- **Abschlusscheck:** entfallen, weil die Testwarteschlange voll war (Anweisung Hauptagent). Nach der Korrektur sind nur Syntax und Bau geprüft.
 - **Vorher-Rundgang:** nur ohne KTX (`_r11/vorher_ohneKTX`). Der zweite Vorher-Lauf ging beim Sitzungsneustart verloren.
+
+## Im Gesamttest prüfen (bewuchs.js)
+1. **Laden ohne Fehler:** Kein „Bewuchs:“-Fehler im Protokoll. `__bewuchs.S.stats` zeigt die Ortszahlen (siehe oben) und nach dem Kollisionsaufbau `efeuWand > 0` (erwartet etwa 40–100).
+2. **Kapitel 6:** Nach dem Gitter muss `__bewuchs.S.wald === 2` sein. Die Werte `waldBaeume`, `waldFarne`, `waldBuesche`, `waldLiegend`, `waldStuempfe` und `waldFelsen` müssen größer als 0 sein; `waldMs` ist die Aufbauzeit (Ruckler beim Nachladen während AG-18?).
+3. **Sichtprüfung an 10 Orten** (Schritte `C:/Users/GIGABYTE/_r11/steps.json`):
+   - Dorfstraße, Vorgärten, Platz/Kreuzung, Friedhof, Schrebergärten, Waldrand
+   - Wald-Eingang, Dustwoods, Hochsitz, Steinkreis
+   - Zu prüfen: Texturen da? Keine Pflanze schwebt oder steckt in einer Wand? Efeu an Hausecken lässt die Fenster frei? Keine sichtbare Wiederholung?
+4. **Mondlicht-Schächte** über Lichtung, Steinkreis und Weiher: weich und nicht zu hell. Die Stärke steht in `bewuchs_strahlen`, Faktor `.085`.
+5. **Wege und Jagd in Kapitel 6:**
+   - Lukes Weg, die Kinderspur und die Wege mit dem roten Faden sind frei.
+   - Keine neue Baum- oder Stammkollision auf der Fluchtlinie Lager → Wrack.
+   - Die Bus-Falle (r 11) ist frei.
+   - Das Dickicht bremst nur abseits der Wege.
+6. **FPS** im Dorf und im tiefen Wald, mit und ohne die neuen Sätze `bw_*`.
 
 ## Offen / Bitten
 - **Hauptagent:** In den Testläufen fehlen auffällig viele Texturen.

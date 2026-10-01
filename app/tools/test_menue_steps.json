@@ -1,0 +1,12 @@
+[
+ {"name":"m1_nr7","js":"(()=>{const z=window.__mz;z.MZ.si=0;z.mz_shot(z.MZ_SHOTS[0]);z.MZ.t=14;return JSON.stringify({live:z.MZ.live,plate:!!z.MZ.o.plate,cat:!!z.MZ.cat,fibel:!!z.MZ.o.fibel,spur:!!z.MZ.o.spur})})()","wait":2500},
+ {"name":"m2_laterne","js":"(()=>{const z=window.__mz;z.MZ.si=1;z.mz_shot(z.MZ_SHOTS[1]);z.MZ.t=6;return 'ok'})()","wait":7500},
+ {"name":"m2b_spur","js":"(()=>{const z=window.__mz;z.MZ.t=18.7;return JSON.stringify({wk:!!z.MZ.o.wk,L:!!z.MZ.o.L})})()","wait":1600},
+ {"name":"m3_ortstafel","js":"(()=>{const z=window.__mz;z.MZ.si=2;z.mz_shot(z.MZ_SHOTS[2]);z.MZ.t=8;return 'ok'})()","wait":2600},
+ {"name":"m4_kapelle","js":"(()=>{const z=window.__mz;z.MZ.si=3;z.mz_shot(z.MZ_SHOTS[3]);z.MZ.t=10;return 'ok'})()","wait":1800},
+ {"name":"m5_wald","js":"(()=>{const z=window.__mz;z.MZ.si=4;z.mz_shot(z.MZ_SHOTS[4]);z.MZ.t=10;return 'ok'})()","wait":1800},
+ {"name":"m6_hover","js":"(()=>{const z=window.__mz;z.MZ.si=0;z.mz_shot(z.MZ_SHOTS[0]);z.MZ.t=6;const s=document.createElement('style');s.id='tst';s.textContent='#mNew .mzU path{stroke-dashoffset:0!important}#mNew{color:#f6efdd!important;padding-left:40px!important}#mNew::after{opacity:1!important;transform:none!important}';document.head.appendChild(s);return 'ok'})()","wait":1500},
+ {"name":"m7_kapitel","js":"(()=>{document.getElementById('tst').remove();document.getElementById('mChap').click();return document.querySelectorAll('.mzPh').length+' '+[...document.querySelectorAll('.mzPh')].filter(e=>e.style.backgroundImage).length})()","wait":1500},
+ {"name":"m8_einstellungen","js":"(()=>{document.getElementById('subClose').click();document.getElementById('mSet').click();return 'ok'})()","wait":1200},
+ {"name":"m9_credits","js":"(()=>{document.getElementById('subClose').click();document.getElementById('mCred').click();return document.querySelectorAll('#mzCred .e').length+' Einträge'})()","wait":5000}
+]
