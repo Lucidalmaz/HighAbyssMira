@@ -76,12 +76,12 @@ WORLD_MODS.push(['Kapitel 6 · Nebenaufgaben (N6-7, N6-8)', async () => {
     for (const [a, l] of [[.5, .045], [-.4, .038]]) { const k = new T.Mesh(new T.BoxGeometry(.008, .003, l), met); k.position.set(Math.sin(a) * (.017 + l / 2), 0, Math.cos(a) * (.017 + l / 2)); k.rotation.y = a; g.add(k); }
     const tag = new T.Mesh(new T.PlaneGeometry(.034, .026), new T.MeshStandardMaterial({ roughness: .4, metalness: .6, map: tex(cnv(64, (c, w) => { c.fillStyle = '#a3a6a4'; c.fillRect(0, 0, w, w); c.fillStyle = '#1c1c1c'; c.font = 'bold 30px Arial'; c.textAlign = 'center'; c.fillText('3', 20, 44); if (typeof akte_auge === 'function') akte_auge(c, 46, 32, 8, 'rgba(25,25,25,.9)'); }), true) }));
     tag.rotation.x = -PI / 2; tag.position.set(-.034, .002, -.01); g.add(tag); g.position.set(TS.x - .55, .02, TS.z - 2.35); g.rotation.y = .6; g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.noCol = true; G.add(g); N6.keyM = g;
-    N6.keyHit = box(.4, .3, .4, TS.x - .55, .12, TS.z - 2.35, hidden, { cast: false }); interact(N6.keyHit, () => n6_offen() && !story.items.includes('spindschluessel') && !n6_has('n67_spind') ? 'Etwas glänzt im Laub' : '', () => n6_schluessel());
-    if (typeof hintAdd === 'function') hintAdd({ id: 'n6_schluessel', x: TS.x - .55, y: 0, z: TS.z - 2.35, kind: 'geheim', near: 14, open: () => n6_offen() && !story.items.includes('spindschluessel') && !n6_has('n67_spind') }); }
+    N6.keyHit = box(.4, .3, .4, TS.x - .55, .12, TS.z - 2.35, hidden, { cast: false }); interact(N6.keyHit, () => n6_offen() && !(story.items || []).includes('spindschluessel') && !n6_has('n67_spind') ? 'Etwas glänzt im Laub' : '', () => n6_schluessel());
+    if (typeof hintAdd === 'function') hintAdd({ id: 'n6_schluessel', x: TS.x - .55, y: 0, z: TS.z - 2.35, kind: 'geheim', near: 14, open: () => n6_offen() && !(story.items || []).includes('spindschluessel') && !n6_has('n67_spind') }); }
   // --- N6-7 · Hofers Spind im Amtsbus, hinter dem Fahrersitz
   if (typeof TIEF !== 'undefined') { const B = TIEF.bus; N6.spindHit = box(.8, 1, .8, B.x + .5, 1.2, B.z + .2, hidden, { cast: false });
-    interact(N6.spindHit, () => !n6_offen() || n6_falle() ? '' : n6_has('n67_spind') ? 'Hofers Spind (leer)' : story.items.includes('spindschluessel') ? 'Den Blechspind mit der 3 aufschließen' : 'Ein schmaler Blechspind hinter dem Fahrersitz', () => n6_spind());
-    if (typeof hintAdd === 'function') hintAdd({ id: 'n6_spind', x: B.x + .5, y: 0, z: B.z + .2, kind: 'story', near: 40, open: () => n6_offen() && story.items.includes('spindschluessel') && !n6_has('n67_spind') && !n6_falle() });
+    interact(N6.spindHit, () => !n6_offen() || n6_falle() ? '' : n6_has('n67_spind') ? 'Hofers Spind (leer)' : (story.items || []).includes('spindschluessel') ? 'Den Blechspind mit der 3 aufschließen' : 'Ein schmaler Blechspind hinter dem Fahrersitz', () => n6_spind());
+    if (typeof hintAdd === 'function') hintAdd({ id: 'n6_spind', x: B.x + .5, y: 0, z: B.z + .2, kind: 'story', near: 40, open: () => n6_offen() && (story.items || []).includes('spindschluessel') && !n6_has('n67_spind') && !n6_falle() });
     // --- N6-8 · Pells Rekorder im Handschuhfach des Wracks (nach dem Polaroid aus kapitel6.js an derselben Stelle)
     const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
   N6.ready = true; // Stand nach dem Laden setzt der MOD_SAVE-Eintrag (beim Aufbau gibt es story.items noch nicht)
@@ -172,7 +172,7 @@ function n6_blattGelesen() { // hungrige.js: Seite 1b an der Fraßstelle
 async function n6_spind() {
   if (!n6_offen() || n6_falle() || N6.busy) return;
   if (n6_has('n67_spind')) return toast('Der Spind ist leer. Innen, mit Kuli an die Tür geschrieben: ANNI.', 3000);
-  if (!story.items.includes('spindschluessel')) return toast('Ein schmaler Blechspind hinter dem Fahrersitz. Abgeschlossen. Eine 3 auf der Tür, darunter das Auge.', 3600);
+  if (!(story.items || []).includes('spindschluessel')) return toast('Ein schmaler Blechspind hinter dem Fahrersitz. Abgeschlossen. Eine 3 auf der Tür, darunter das Auge.', 3600);
   N6.busy = true; Audio.play('metalOpen', { gain: .3, rate: .9 }); story.items = story.items.filter(k => k !== 'spindschluessel'); addItem('lampion');
   story.lore.push({ key: 'n67_spind', title: 'Annis Lampion', html: 'Hofers Spind im Amtsbus, Nummer 3. Darin: ein Lampion aus Pergamentpapier mit einer Sonne aus Buntpapier, ein Blechkerzenhalter ohne Kerze. Eine Thermoskanne. Eine Musikkassette: „Bonnie Tyler“.\n\nSiebzehn Jahre hat er den Lampion aufbewahrt.' });
   await new Promise(r => openNote('Hofers Spind', 'Der Schlüssel passt. Die Tür klemmt, dann gibt sie nach.\n\nEin Lampion aus Pergamentpapier, eine Sonne aus Buntpapier aufgeklebt, ein Blechkerzenhalter ohne Kerze. Eine Thermoskanne. Eine Musikkassette, das Etikett mit Kuli: <b>Bonnie Tyler</b>.', null, r));
@@ -184,7 +184,7 @@ async function n6_spind() {
   if (typeof saveGame === 'function') saveGame(curChapter());
 }
 function n6_anniFertig() { // Fibel „Drei Sätze“; der letzte Satz kommt erst nach dem Höhepunkt dazu
-  if (!story.items.includes('lampion') && !n6_has('n67_spind')) return; const blick = typeof hungrige_has === 'function' && hungrige_has('blick');
+  if (!(story.items || []).includes('lampion') && !n6_has('n67_spind')) return; const blick = typeof hungrige_has === 'function' && hungrige_has('blick');
   if (!N6.heard.has('anni_5') && !blick) return; if (n6_has('n67_drei')) return;
   story.lore.push({ key: 'n67_drei', title: 'Drei Sätze', html: n6_dreiHtml() }); sideDone('anni', 'Drei Sätze. Er hat von jedem nur das, was der Wirt im Kopf hatte.');
 }

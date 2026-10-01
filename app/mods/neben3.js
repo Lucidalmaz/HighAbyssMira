@@ -226,7 +226,7 @@ async function neben3_kapelleBau() {
     kirchberg_decal(kirchberg_papier({ w: 300, h: 220, bg: '#efe8d4', tesa: true, flecken: 1, zeilen: [['Nur zu Gottesdiensten läuten!', 16, 60, 26], ['Nicht zum Spaß. Und NICHT', 16, 100, 26], ['drei und dreizehn.', 16, 136, 26, null, null, 0, 1], ['Das ist kein Witz. – G. R., Küsterin', 16, 190, 22]] }), .3, .22, x0 + .11, 1.5, sz + .55, PI / 2, { parent: g });
     KP.zettelHit = kirchberg_hit(.3, .4, .5, x0 + .25, 1.5, sz + .55, 'Zettel am Seil', () => neben3_giselaZettel()); kirchberg_an(KP.zettelHit, false);
     KP.seilHit = kirchberg_hit(.5, 1.8, .5, sx, 1.1, sz, () => neben3_st('kapelle').seil1 ? 'Am Seil ziehen' : 'Das Glockenseil', () => neben3_seil());
-    { const lat = await kirchberg_mod('w_papierlaterne', 'model.glb', .35).catch(() => null); if (lat) put(lat, xT - .3, 0, z1 - .4, .6); }
+    { const lat = await (async () => { const o = await msFBX('w_papierlaterne', 'model.fbx', {}); o.updateMatrixWorld(true); let one = null; o.traverse(m => { if (!one && m.isMesh && /Dupli/.test(m.name)) one = m; }); const c = (one || o).clone(true); c.position.set(0, 0, 0); c.rotation.set(0, 0, 0); msFit(c, .35, 'y'); return msGround(c); })().catch(() => null); if (lat) put(lat, xT - .3, 0, z1 - .4, .6); }
     await kirchberg_kram(g, [['stapel', x0 + .35, 0, zT + .35], ['zeitung', x0 + 1.2, 0, zT + .5, 1.2, .8]]); }
   // Kleinkram im Kirchenschiff: Gesangbücher auf den Bänken, Staub, Spinnweben (Q-8)
   await kirchberg_kram(g, [['buch', C.x - 1.4, .5, C.z + 2.2, .3], ['buch', C.x + 2, .5, C.z + .9, 1.1], ['buch', C.x - 2.1, .5, C.z - .45, 2.3], ['buch', C.x + 1.2, .5, C.z + 3.55, .8], ['teppich', C.x, 0, z0 + 1.6, 0, .9]]);
@@ -402,7 +402,7 @@ async function neben3_peterBau() {
     kirchberg_decal(kiste, .3, .19, C.x + 4.35, .012, C.z - 2.95, .25, { rx: -PI / 2, parent: g }); kirchberg_hit(.5, .3, .4, C.x + 4.35, .15, C.z - 2.95, 'Zigarrenkiste unter dem Bett', () => neben3_zigarrenkiste()); }
   kirchberg_decal(kirchberg_papier({ w: 200, h: 140, bg: '#f0e8d0', flecken: 0, zeilen: [['Für Luke, falls er’s', 10, 40, 20], ['mal erfährt: …', 10, 72, 20]] }), .13, .09, C.x + 5.3, .62, C.z - 3.55, 0, { rx: -PI / 2, rz: .2, parent: g });
   kirchberg_hit(.4, .3, .4, C.x + 5.3, .68, C.z - 3.55, 'Zettel auf dem Kopfkissen', () => openNote('Auf dem Kopfkissen', '<span class="hand">Für Luke, falls er’s mal erfährt: Ich hab’s am ersten Morgen gesehen. Du bist mein Enkel. Punkt. Mehr gibt’s dazu nicht zu sagen. Und jetzt iss was.</span>', 'nr4_E21'));
-  { const sp = await kirchberg_mod('toys_old', 'model.gltf', .45).catch(() => null); if (sp) put(sp, C.x + 3.2, 0, C.z - 4.55, .5); }
+  { const sp = await (async () => { const o = (await msFBX('toys_old', 'model.fbx', { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg' } })).clone(true); msFit(o, .45, 'y'); return msGround(o); })().catch(() => null); if (sp) put(sp, C.x + 3.2, 0, C.z - 4.55, .5); }
   PZ.tuerP = new T.Vector3(C.x + 3, 1.4, C.z); return true; }
 async function neben3_peterTuer() { const st = neben3_st('ritter'), PZ = neben3_S.peter; if (!PZ || st.offen || state.talking) return;
   if (!neben3_frei()) return toast('Offen. Ein Kopfkissen, darauf ein Zettel.', 2400);
@@ -492,7 +492,7 @@ async function neben3_giselaWach() {
     else { await luna(); await haens(); await sag([['„Ich hab Marion getroffen, damals, mit dir an der Hand. Ich hab dir ins Gesicht geguckt. Und dann hab ich nach dem Wetter gefragt.“', 7000]]); }
     await sag([['„Hier. Pfarrhaus. Den von der Kapelle hat der Lars. Frag mich nicht, wieso. Doch, frag: Weil er ihn geklaut hat.“', 6400]]);
     modItem('n3_pfarrschluessel', 'Pfarrhausschlüssel', 'Messing, Korkanhänger: „PFARRHAUS – NICHT DER KAPELLE“.', 'key'); addItem('n3_pfarrschluessel'); if (typeof kirchberg_oeffne === 'function') kirchberg_oeffne('pfarrhaus'); st.schluessel = 1;
-    neben3_desc('kb_naepfe', 'Pfarrhausschlüssel. „Das ist nicht der Hans.“ Gisela schläft wieder.');
+    neben3_fertig('kb_naepfe', 'Pfarrhausschlüssel. „Das ist nicht der Hans.“ Gisela schläft wieder.'); // AP-25: Kap.-3-Abschnitt abgeschlossen (blieb sonst bis zum Spielende offen; Kap. 4 setzt mit k4_naepfe fort)
     // die Katzen springen ab, eine nach der anderen; Gisela schläft mitten im Satz wieder ein
     for (let i = 0; i < Math.min(5, K.length); i++) { const k = K[i]; katzen_schnurren(k, false); katzen_place(k, fx - .9 + i * .35, fz + (i % 2 ? .7 : -.6), { ry: rand(0, 6), pose: 'stand' }); Audio.play('woodHit3', { gain: .08, rate: 1.6, x: fx, y: .3, z: fz, ref: 1.5 }); await wait(420); }
     lwo_clip(F, F.acts.sit2 ? 'sit2' : 'sit'); lwo_blick(F, null); neben3_save(); }
