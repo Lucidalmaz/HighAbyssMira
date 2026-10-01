@@ -4869,6 +4869,12 @@ Luke sitzt auf der Treppe von Nr. 3, Blick zur Straße, Kamera auf Sitzhöhe fü
 - *(aus der Küche scheppert die Pfanne; Whiskey ist durchs Küchenfenster rein. Gag-Budget H-1: kein „Himmelherrgott!“ in Kapitel 5)*
 - VEGAS: „Der Vogel. Er hat den Speck gefunden. Den ganzen Speck, für die ganze Woche.“ (Speck-Steigerung H-2: Kap. 1 Nudelsieb, Kap. 4 Backofenknopf, Kap. 5 der Wochenvorrat, Kap. 7 „Zoll“.)
 
+**Die sichere Stube kippt (Story-Prüfung G-3, einmal im Spiel):** Noch bevor Vegas die Tür schließt, rauscht drinnen eins seiner drei Funkgeräte auf dem Fensterbrett, durch den Türspalt gut zu hören. Dann, langsam, als lese er vor:
+- NACHSORGE 12 (FUNK): „Brandt steht vor Nummer drei. Der Vogel hat den Speck. Brandt sieht jetzt zur Tür.“
+- *(Pause.)* NACHSORGE 11 (FUNK, leiser): „Nicht vorlesen, Kollege. Er hört mit.“ *Klick.*
+- VEGAS (nach drei Sekunden): „Ich hab’s dir gesagt. Die hören mit.“
+*(Der vorgelesene Satz muss stimmen: Er beschreibt, wo Luke wirklich steht. Kein Witz danach; die Tür geht zu.)*
+
 Whiskey landet mit einer Speckschwarte auf dem Geländer, sieht Luke an und schluckt sie demonstrativ. **Speicherpunkt SP5-1.** Sobald Luke die Treppe hinuntergeht, rollt hinter Nr. 3 ein Kiesel, dann kleine schnelle Schritte hinter der Regentonne. Whiskey hört auf zu putzen und sieht genau dorthin.
 
 **Vertrauen miserabel, wenn Wolter in AG-14 „Ihre Schwester ist bei Herrn Vegas“ gesagt hat** (Folge aus dem LWO-Dossier, 3.5): Der graue Kombi steht mit Standlicht vor Nr. 3, nicht vor Nr. 1. VEGAS (durch die Kette): „Die stehen vor MEINER Tür, Junge. Vor meiner!“ Erst wenn in Nr. 1 das Licht angeht (Unterkapitel 4), rollt der Kombi hinüber.

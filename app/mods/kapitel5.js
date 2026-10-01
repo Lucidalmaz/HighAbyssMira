@@ -567,6 +567,13 @@ async function k5_takt(beat, wieder) {
     await wait(2200); if (!ok()) return;
     await k5_sag([['„Der Vogel. Er hat den Speck gefunden. Den ganzen Speck, für die ganze Woche.“', 4600, K5_W.V]]);
     if (vorNr3) await k5_sag([['„Und die da stehen vor MEINER Tür, Junge. Vor meiner!“', 3600, K5_W.V]]);
+    // G-3 (Story-Prüfung): die sichere Stube kippt – eins von Vegas’ drei Funkgeräten rauscht durch den Türspalt, die Nachsorge liest vor, was Luke gerade tut. Einmal im Spiel.
+    if (!k5.f.funkG3 && ok()) { k5.f.funkG3 = true; await wait(1100); if (!ok()) return;
+      const fx = -28.7, fz = -12.9, klack = () => { try { Audio.play('switch1', { gain: .22, rate: .8, x: fx, y: 1.2, z: fz, ref: 2 }); } catch (e) {} };
+      if (typeof klang_funk === 'function') { try { klang_funk(.35, { x: fx, y: 1.3, z: fz, ref: 2.4 }); } catch (e) {} } await wait(500); if (!ok()) return;
+      await k5_sag([['„Brandt steht vor Nummer drei. Der Vogel hat den Speck. Brandt sieht jetzt zur Tür.“', 5200, 'NACHSORGE 12 (FUNK)']]); if (!ok()) return; await wait(800);
+      await k5_sag([['„Nicht vorlesen, Kollege. Er hört mit.“', 2800, 'NACHSORGE 11 (FUNK)']]); klack(); await wait(3000); if (!ok()) return;
+      await k5_sag([['„Ich hab’s dir gesagt. Die hören mit.“', 3000, K5_W.V]]); }
     state.talking = false; if (typeof albers_S !== 'undefined') albers_S.open = 0; if (!ok()) return;
     // Whiskey landet mit einer Speckschwarte auf dem Geländer, sieht Luke an und schluckt sie demonstrativ
     if (typeof whiskey_setzen === 'function') { try { whiskey_setzen(-26.3, k5_perch(-26.3, -10.95, 1.02), -10.95, () => { if (typeof whiskey_play === 'function') whiskey_play('EatSomething', .1, true); Audio.play('woodHit2', { gain: .1, rate: 1.8, x: -26.3, y: 1.1, z: -10.95 }); }); } catch (e) {} }

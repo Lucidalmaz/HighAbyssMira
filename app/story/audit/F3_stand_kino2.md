@@ -32,6 +32,15 @@ Grundlage: `F3_stand_kino.md` (Schnittstelle unverändert). Geändert: `app/mods
 - Kap. 3 (Kuh, Blinzeln): Kuh gescheckt statt rotem Klumpen, Sturz sichtbar, Lage plausibel; Behaltene grau mit schwarzen Augen.
 - Prolog/Kap. 1 Hilde: erster Lauf zeigte Ausbrennen im Strahl, abgeschnittenen Kopf (14–20), fehlende Mundschließung (geteilte CC-Puffer) → behoben, Abschlusslauf siehe unten.
 
+## Abschluss-Prüfung (nicht gelaufen: Testschlange verstopft; nur Syntax/Build geprüft) – im Gesamttest ansehen
+Kontaktbögen per `__kino.seek`; fertige Schrittdatei `C:/Users/GIGABYTE/_r4/t_F.json` (Prolog → Porträt-Overlay → Fernseher → k2b → k2a → k2 → k1h mit Kopf-Debug).
+1. **Graues Gesicht, 3 Orte:** (a) Porträt `__kino.S.gkBild` (grau, kein Mund, schwarze Augen, nicht ausgebrannt; Licht in `kino_grauPortrait` ggf. nachstellen); (b) Tank k2b 10,4/11/11,8/12,8/13,6 s (kommt aus dem Wasser, platt am Glas, heller Druckrand, Blasen, Beschlag, kein Durchstoßen des Glases); (c) Fernseher Nr. 7 (`__k1.K1.tv.fr = 1`, Bild bei 0,4/0,7/1,3 s); (d) Prolog 12,3–13 s (Kopf auf dem Rabenhals, nicht weiß).
+2. **k1h:** 11,8/13,6 s (Strahl nicht ausgebrannt, Fersen/Zehen), 16/18,5 s (Kopf im Bild, Arme schweben, Beine pendeln), 21,5/23,5 s (Close-up: im ersten Lauf **fehlte bei 23,5 s Hildes Kopf** – Ursache offen; Debugschritt `dbg23` liefert Kopfknochen/Kamera/Sichtbarkeit; Verdacht Nahebene oder Knochenlage nach `kino_richte`), 26,4 s (Hochreißen, Glieder schlagen nach), 30/33 s (Brille mit Perlenkette vor Lukes Knien, lesbar).
+3. **k2a / k2:** „Bruder.“ 6/8,5/10,5 s hell genug; Stuhl 8 (18/22 s) und Schacht (27 s) lesbar.
+4. **Kuh (k3kuh):** Gischt/Dampf jetzt Rauch statt Lichtkugeln (nach dem Lauf geändert); Flanke bei 14 s nicht überstrahlt; Riss/Lache/Ohrmarke/Augenhöhlen sichtbar; Untersuchungspunkte aus kapitel3.js treffen Kopf/Ohr/Flanke der neuen Kuh.
+5. **k3blinzeln:** stand im Testlauf bei 29,8 s (S.T rührt sich nicht, kein Fehler) – prüfen, ob `S.ending` hängt oder `augenzu_frei` die Kamera übernimmt.
+6. k4 (Halle, Kap. 4), k5, k6 (kapitel6.js) mit Kapitelzustand ansehen.
+
 ## Offen / Bitten
 - Lichtschiff-Unterseite (Rippen-Scheibe) wirkt im Aufblick billig (Kreaturen/Modell).
 - Hilde: Haar im Dutt (Bibel: offen), Nachthemd/Haar reagieren nicht auf den Strahl (keine Stoff-/Haarsimulation am Modell) – Figuren-AP.

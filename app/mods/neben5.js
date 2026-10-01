@@ -254,6 +254,24 @@ async function n5_vegasTuer() { const H = n5_st('heidi'), J = n5_st('jonas'); if
     if (J.fertig && !J.lucy) { J.lucy = 1; await say([['„Großer? Jonas … Der kommt wirklich? Ich hab ihm im Oktober geschrieben und gedacht, das liegt bei Maas im Schuppen.“', 5600, 'LUCY'], ['„Dann räum ich bei Vegas das Sofa frei. Er schnarcht, das weiß ich noch.“', 4200, 'LUCY']]); }
   } finally { if (typeof albers_S !== 'undefined') albers_S.open = 0; state.talking = false; } n5_save(); }
 
+// T-2 (Story-Prüfung) · „Einunddreißig Flaschen“: nach UK 9 an der Tür von Nr. 3, Kette vor. Vegas sagt Luke, dass er für Mike unterschrieben hat. Traurige Szene: kein Witz danach.
+function n5_flaschenOffen() { return n5_nach9() && !n5_st('flaschen').done; }
+async function n5_flaschen() { const F = n5_st('flaschen'); if (state.talking) return; state.talking = true; F.done = 1; if (typeof albers_S !== 'undefined') albers_S.open = 1;
+  try { if (typeof spannung_trauerAn === 'function') spannung_trauerAn('k5_flaschen'); } catch (e) {}
+  const V = (t, ms) => [t, ms, 'VEGAS'], L = (t, ms) => [t, ms, 'LUKE']; let w = -1;
+  try { try { Audio.chains(-28, 1.2, -12.2); } catch (e) {} await wait(700);
+    await say([['Die Kette bleibt vor. Vegas hat eine leere Bierflasche in der Hand und hält sie, als wäre sie noch warm.', 4800],
+      V('„Die hatte Mike in der Hand. Er hat für mich Pfand gesammelt. Zweiunddreißig passen in die Kiste hinten an der Tankstelle.“', 6200),
+      V('„Da stehen einunddreißig. Eine fehlt. Die hier lag morgens auf dem Hof.“', 4200), V('„Ich hab für ihn unterschrieben.“', 2600),
+      V('„Deine Mutter hat zweimal angesetzt. Ich hab’s in einem Zug geschafft. Das verzeih ich mir nicht.“', 5600)]);
+    w = await n5_wahl(['„Er sitzt auf dem dritten Stuhl. In der Tankstellenjacke.“', '„Das konnten Sie nicht wissen.“']);
+    if (w === 0) { await say([L('„Er sitzt auf dem dritten Stuhl. In der Tankstellenjacke.“', 3600)]); await wait(3400); await say([V('„Die hab ich ihm gekauft. Zwei Nummern zu groß. Er sollte reinwachsen.“', 5200)]); }
+    else { await say([L('„Das konnten Sie nicht wissen.“', 2400), V('„Ich hab Ordner, Junge. Ich hab alles gewusst. Ich hab bloß gedacht, die nehmen die anderen.“', 5800)]); }
+    if (typeof albers_S !== 'undefined') albers_S.open = 0; try { Audio.creak(.2, -28, 1.2, -12.2); Audio.chains(-28, 1.2, -12.2); } catch (e) {} await wait(900); // Tür zu, die Kette bleibt
+  } finally { if (typeof albers_S !== 'undefined') albers_S.open = 0; state.talking = false; try { if (typeof spannung_trauerAus === 'function') spannung_trauerAus('k5_flaschen', 90); } catch (e) {} }
+  n5_lore('k5_flaschen', 'Einunddreißig Flaschen', 'Mike hat für Vegas Pfand gesammelt. In die Kiste hinten an der Tankstelle passen zweiunddreißig. Da stehen einunddreißig. Die zweiunddreißigste lag am Morgen nach dem 12. Juli auf dem Hof.\n\nVegas hat für ihn unterschrieben. In einem Zug.' + (w === 0 ? '\n\n<span class="hand">Die Jacke war zwei Nummern zu groß. Er sollte reinwachsen.</span>' : ''));
+  n5_save(); }
+
 // =====================================================================  5 · „Ist sie’s?“ (Frau Aydın am Bauernhaus, Dina in der Remise)
 const N5_FARM = [-112, -13], N5_DINA = [-123.6, -35.4], N5_HEU = [-125.6, .6, -33.3], N5_VORTUER = [-117.5, -19.9];
 async function n5_dinaBau() { const O = neben5_S.o, T = THREE;
@@ -445,7 +463,7 @@ function n5_huellenK5() { const S = neben5_S; if (S.hK5) return; S.hK5 = true; c
   if (typeof mailbox7 !== 'undefined') { n5_huelle(mailbox7, () => n5_k5() && n5_item('hildes_antworten') && !J().eingeworfen, 'Hildes Antworten einwerfen · Fahne hoch', () => n5_einwerfen()); }
   if (typeof booth !== 'undefined' && booth.phone) { const H = () => n5_st('heidi');
     n5_huelle(booth.phone, () => n5_k5() && !['anruf', 'anrufLaeuft'].includes(k5.beat) && n5_item('heidi_karte') && !H().anruf, 'Heidi anrufen', () => n5_heidiAnruf()); }
-  if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { if (n5_k5() && n5_vegasOffen()) return n5_vegasTuer(); return o(...a); })(albers_talk); }
+  if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { if (n5_k5() && n5_flaschenOffen()) return n5_flaschen(); if (n5_k5() && n5_vegasOffen()) return n5_vegasTuer(); return o(...a); })(albers_talk); }
 
 // ---------------------------------------------------------------------  Spielstand · Laden · Takt
 MOD_SAVE.push(['neben5', () => ({ st: neben5_S.st }), v => { if (v && v.st && typeof v.st === 'object') neben5_S.st = v.st; neben5_S.nachLaden = true; }]);

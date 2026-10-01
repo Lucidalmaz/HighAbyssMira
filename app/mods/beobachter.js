@@ -476,15 +476,15 @@ function beob_vanish(still) { const S = beob_S, V = S.V, p = V.g.position; V.g.v
 // zu dünn: unter der Taschenlampe scheint sie warm durch (Finger, Fühler, Lider, Hals). Augen: dunkle Iris mit Fasern, nasse Hornhaut.
 // Bewegung: Clips (stehen, hocken, spaehenL/R, zucken, trippeln, vierbeinig, klettern, ohren, ablegen) + Laufzeit-Schicht: Kopf wie ein Vogel (ruckt, hält still, legt sich schief),
 // Blinzeln, Atem in Brust und Kehle, Zittern, Fühler als Federn (reagieren auf Geräusche/Licht), Erstarren wie ein Beutetier, Spiegeln von Lukes Kopfhaltung.
-function beob_rigMat(T) { const uT = { value: 0 }, uFl = { value: 0 }, uP = { value: T.poren }, uA = { value: T.adern };
+function beob_rigMat(T) { const uT = { value: 0 }, uFl = { value: 0 }, uH = { value: T.haut };
   const haut = new THREE.MeshPhysicalMaterial({ vertexColors: true, color: 0xffffff, roughness: .44, metalness: 0, clearcoat: .55, clearcoatRoughness: .3, sheen: .45, sheenRoughness: .5, sheenColor: new THREE.Color(0xe6ecf6), envMapIntensity: .5 });
-  haut.onBeforeCompile = sh => { Object.assign(sh.uniforms, { uT, uFl, uP, uA });
+  haut.onBeforeCompile = sh => { Object.assign(sh.uniforms, { uT, uFl, uH });
     sh.vertexShader = 'attribute vec4 _haut;\nvarying vec4 vHaut;\nvarying vec3 vBind;\nvarying vec3 vBindN;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvHaut = _haut; vBind = position; vBindN = normal;');
-    sh.fragmentShader = 'uniform float uT, uFl;\nuniform sampler2D uP, uA;\nvarying vec4 vHaut;\nvarying vec3 vBind;\nvarying vec3 vBindN;\n' +
-      'float beobTri(sampler2D t, vec3 p, vec3 w, float s) { return texture2D(t, p.zy * s).r * w.x + texture2D(t, p.xz * s).r * w.y + texture2D(t, p.xy * s).r * w.z; }\n' + sh.fragmentShader
+    sh.fragmentShader = 'uniform float uT, uFl;\nuniform sampler2D uH;\nvarying vec4 vHaut;\nvarying vec3 vBind;\nvarying vec3 vBindN;\n' +
+      'vec2 beobTri(sampler2D t, vec3 p, vec3 w, float s) { return texture2D(t, p.zy * s).rg * w.x + texture2D(t, p.xz * s).rg * w.y + texture2D(t, p.xy * s).rg * w.z; }\n' + sh.fragmentShader
       .replace('#include <color_fragment>', `#include <color_fragment>
         vec3 bw = abs(normalize(vBindN)); bw = pow(bw, vec3(4.)); bw /= dot(bw, vec3(1.));
-        float bPor = beobTri(uP, vBind, bw, 46.), bMot = beobTri(uP, vBind + .37, bw, 5.5), bAd = beobTri(uA, vBind * vec3(1., .55, 1.), bw, 7.5) * vHaut.w;
+        float bPor = beobTri(uH, vBind, bw, 46.).r, bMot = beobTri(uH, vBind + .37, bw, 5.5).r, bAd = beobTri(uH, vBind * vec3(1., .55, 1.), bw, 7.5).g * vHaut.w;
         diffuseColor.rgb *= .94 + .1 * bMot;
         diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(.62, .66, .86), clamp(bAd * 1.3, 0., .55));`)
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
@@ -503,9 +503,9 @@ function beob_rigMat(T) { const uT = { value: 0 }, uFl = { value: 0 }, uP = { va
   const auge = new THREE.MeshPhysicalMaterial({ map: T.auge, color: 0xffffff, roughness: .1, metalness: 0, clearcoat: 1, clearcoatRoughness: .025, ior: 1.38, specularIntensity: 1, envMapIntensity: 1.3 });
   return { haut, auge, uT, uFl }; }
 async function beob_rigLaden() { const S = beob_S;
-  const src = await msModel('beobachter', 'beobachter_rig.glb'); const tx = { poren: msTex('beobachter/poren.jpg'), adern: msTex('beobachter/adern.jpg'), auge: msTex('beobachter/auge.jpg', true) };
+  const src = await msModel('beobachter', 'beobachter_rig.glb'); const tx = { haut: msTex('beobachter/haut.png'), auge: msTex('beobachter/auge.jpg', true) };
   tx.auge.wrapS = tx.auge.wrapT = THREE.ClampToEdgeWrapping; const M = beob_rigMat(tx), g = new THREE.Group(); g.add(src); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
-  let mesh = null; src.traverse(o => { if (o.isMesh) { mesh = o; o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
+  let mesh = null; src.traverse(o => { if (o.isMesh) { mesh = o; o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; } }); // keine Schattenempfang-Texturen: der Hautshader bleibt unter der Grenze der Textureinheiten
   src.traverse(o => { if (o.isMesh) o.material = (o.material && o.material.name === 'Auge') ? M.auge : M.haut; });
   const B = {}; src.traverse(o => { if (o.isBone) B[o.name] = o; }); const mx = new THREE.AnimationMixer(src), act = {}, meta = (src.userData && src.userData.motion) || {};
   for (const c of (src.animations || [])) { const a = mx.clipAction(c); a.speed0 = (meta[c.name] && meta[c.name].speed) || 0; if (meta[c.name] && meta[c.name].loop === false) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } act[c.name] = a; }

@@ -21,7 +21,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | https://www.fab.com/listings/fa911d4e-6994-4bf4-8bcd-c356002b36c2 |
 | Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | https://www.fab.com/listings/38b9c25b-80db-4606-a0f8-bb2bb947143a |
 | Cute Alien Pet – Stylized 3D Character | MissTxxT | der Beobachter: Netz umgeformt (Hals, Rumpf, Glieder, Finger, Zehen), Oberlider aus den eigenen Augen, eigenes Skelett, eigene Clips, Wachshaut als Shader (R-21, `tools/beobachter_bau.mjs` → `ms/beobachter/beobachter_rig.glb`; das alte `model.glb` bleibt Rückfall) | https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9 |
-| Free High-Quality Male (NoEdge, `v18_figuren/mann_hq_tex`) | NoEdge | Beobachter: Poren/Fältchen-Relief (`ms/beobachter/poren.jpg`, Höhe aus `Std_Skin_Arm_MicroN` integriert) | Fab (Download 01.10.2026) – Listing-Adresse nachtragen |
+| Free High-Quality Male (NoEdge, `v18_figuren/mann_hq_tex`) | NoEdge | Beobachter: Poren/Fältchen-Relief (`ms/beobachter/haut.png`, Höhe aus `Std_Skin_Arm_MicroN` integriert) | Fab (Download 01.10.2026) – Listing-Adresse nachtragen |
 | Human Kidney Anatomy | clacydarch | Organ im Kuh-Sturz / Fraßstellen | https://www.fab.com/listings/3dff700e-9bbf-4d9d-babf-5328d263b512 |
 | Rusty and Oil Stained Oil Barrel | Sunbox Games | Ölfass im Langen Gang, Jonas' Blechdose | https://www.fab.com/listings/fe9d49ab-2e76-416d-87ee-6f506a63d1de |
 | Vintage Lighter | LR-Scans | Peters Feuerzeug | https://www.fab.com/listings/de2ec1d3-31f8-45bc-85b1-e1996daa6685 |
@@ -67,7 +67,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Small Brown Curly Hairs 05 | MotionstudioArts | Locken (Justin, Mira) | https://www.fab.com/listings/8782f229-9111-4690-bee5-c6ddb1511277 |
 | Vintage desk lamp | dusan.lamos | Schreibtischlampe (Zimmer 7) | https://www.fab.com/listings/382415ac-049e-463a-8ce6-1798d62b955c |
 | Dirty white blanket | Axonite | Kinderdecke (Zayns Hütte) | https://www.fab.com/listings/240a6cfa-86da-468a-8f4a-e424d856c714 |
-| Realistic Eye Models (High&Low Poly) | Leo3DCG | Augen der Figuren; Beobachter: Iris-Fasern (`ms/beobachter/auge.jpg`, stark abgedunkelt) und Äderchen der Lederhaut als Adernmaske (`ms/beobachter/adern.jpg`) | https://www.fab.com/listings/798994c9-c118-43b3-ac34-12b251c08821 |
+| Realistic Eye Models (High&Low Poly) | Leo3DCG | Augen der Figuren; Beobachter: Iris-Fasern (`ms/beobachter/auge.jpg`, stark abgedunkelt) und Äderchen der Lederhaut als Adernmaske (`ms/beobachter/haut.png` Grün) | https://www.fab.com/listings/798994c9-c118-43b3-ac34-12b251c08821 |
 | Eyelashes | kuroru0 | Wimpern der Figuren | https://www.fab.com/listings/64d912d8-42b2-4c7a-8d4b-d3b61252bfdf |
 | Animation - Smoking 01 (Rokoko-Mocap mit Fingern) | Klian | Rauchbewegung (Joint-Szene, Figuren) | https://www.fab.com/listings/dda0061d-676f-45aa-b130-cb0e6ea29c19 |
 | Animation - Getting Up 01 | Klian | Aufstehen vom Boden | https://www.fab.com/listings/69dae222-05e9-4065-9030-45887986cdec |
