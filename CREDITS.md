@@ -17,8 +17,8 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | The Doctor/Torturer – Animated | Tony Flanagan | Körper Mann vom Amt (1) | https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c |
 | Dirt Farmer – Rigged | Tony Flanagan | Körper Lars Vegas | https://www.fab.com/listings/5af7af37-2c8a-4447-9444-8c9c83cd4872 |
 | Deer Thing | Shedmon | wahre Gestalt des Wendigo (Hirschding) – eigenes Skelett und eigene Bewegungen (AP Q-1) | https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4 |
-| Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | Fab (Download 01.10.2026, `HAM_FabDownloads/v17_kreaturen/grimhound.glb`) |
-| Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | Fab (Download 01.10.2026, `HAM_FabDownloads/v17_kreaturen/muskel.glb`) |
+| Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | https://www.fab.com/listings/fa911d4e-6994-4bf4-8bcd-c356002b36c2 |
+| Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | https://www.fab.com/listings/38b9c25b-80db-4606-a0f8-bb2bb947143a |
 | Cute Alien Pet – Stylized 3D Character | MissTxxT | der Beobachter (weiß umgefärbt) | https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9 |
 | Human Kidney Anatomy | clacydarch | Organ im Kuh-Sturz / Fraßstellen | https://www.fab.com/listings/3dff700e-9bbf-4d9d-babf-5328d263b512 |
 | Rusty and Oil Stained Oil Barrel | Sunbox Games | Ölfass im Langen Gang, Jonas' Blechdose | https://www.fab.com/listings/fe9d49ab-2e76-416d-87ee-6f506a63d1de |
