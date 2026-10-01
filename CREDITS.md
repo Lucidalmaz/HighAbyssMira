@@ -3,20 +3,22 @@
 High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewegungsaufnahmen, bezogen über **Fab** (Epic Games) bzw. **Quixel Megascans**. Inhalte unter **CC-BY 4.0** werden hier mit Urheber genannt (Stand 29.09.2026, geprüft auf den Fab-Seiten).
 
 ## CC-BY 4.0 (Namensnennung)
+Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werke wurden für das Spiel verändert (verkleinert, umgefärbt, zugeschnitten, kombiniert, Bewegungen übertragen).
 | Werk | Urheber | Verwendung im Spiel | Fab |
 |---|---|---|---|
-| Girl In Yellow – Animated | Tony Flanagan | Körper Hilde Wendt | https://www.fab.com/listings/76a51eb9-ee53-4764-a9e4-1f14359fc425 |
+| Girl In Yellow – Animated | Tony Flanagan | Körper Hilde Wendt, Hilde „Nicht du“ (Nachthemd), Mira | https://www.fab.com/listings/76a51eb9-ee53-4764-a9e4-1f14359fc425 |
 | Girl In Orange – Animated | Tony Flanagan | Vorlage Frauenfiguren | https://www.fab.com/listings/d0633943-f7f9-46c1-97da-7e2c6862966f |
-| Office Worker 3 – Animated | Tony Flanagan | Körper Daniel Lorenz | https://www.fab.com/listings/007f9793-e57c-47dd-9ee0-0829a57bf1e4 |
+| Office Worker 3 – Animated | Tony Flanagan | Körper Daniel Lorenz, Luke (26, von hinten) | https://www.fab.com/listings/007f9793-e57c-47dd-9ee0-0829a57bf1e4 |
 | Office Worker 6 – Animated | Tony Flanagan | Körper Lucy (erwachsen) | https://www.fab.com/listings/c16b3db0-90ab-4e8d-b390-50a98403c651 |
-| Office Worker 7 – Animated | Tony Flanagan | Körper Mama, Dina (erwachsen) | https://www.fab.com/listings/15d304a9-e259-4f12-b95e-553e0b7b4609 |
-| Russian Girl (West) – Animated | Tony Flanagan | Körper Frau Aydın | https://www.fab.com/listings/9f85315b-b39d-4169-8b10-1642a6264b93 |
+| Office Worker 7 – Animated | Tony Flanagan | Körper Mama, Dina (erwachsen), Frau Reuter | https://www.fab.com/listings/15d304a9-e259-4f12-b95e-553e0b7b4609 |
+| Russian Girl (West) – Animated | Tony Flanagan | Körper Frau Aydın, Gisela Rieke (Stiefel als Gummistiefel) | https://www.fab.com/listings/9f85315b-b39d-4169-8b10-1642a6264b93 |
 | Undercover Cop – Animated | Tony Flanagan | Bewegungen (Erwachsene) | https://www.fab.com/listings/c464d3ca-9d0c-48c9-9d1d-bf2edf0996fb |
 | Mall Cop – Animated | Tony Flanagan | Körper Gefreiter Hofer | https://www.fab.com/listings/c83c5052-990e-4ceb-a1e9-93dfc15f4ae6 |
 | 1940s Spy – Animated | Tony Flanagan | Körper Mann vom Amt (2), Bewegungen | https://www.fab.com/listings/705b573b-2eae-40fd-8373-06f3c6cf9450 |
-| The Doctor/Torturer – Animated | Tony Flanagan | Körper Mann vom Amt (1) | https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c |
+| The Doctor/Torturer – Animated | Tony Flanagan | Körper Mann vom Amt (1), Pfarrer Voss (Mantel schwarz als Talar) | https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c |
 | Dirt Farmer – Rigged | Tony Flanagan | Körper Lars Vegas | https://www.fab.com/listings/5af7af37-2c8a-4447-9444-8c9c83cd4872 |
 | Deer Thing | Shedmon | wahre Gestalt des Wendigo (Hirschding) – eigenes Skelett und eigene Bewegungen (AP Q-1) | https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4 |
+| Dog (rigged, 5 Animationen) | styloo | Hund Bruno (braun umgefärbt, weißer Ring in den Augen; `ms/hund`, figuren.js) | Fab (Download 30.09.2026, `HAM_FabDownloads/v16_requisiten/hund.zip`) |
 | Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | https://www.fab.com/listings/fa911d4e-6994-4bf4-8bcd-c356002b36c2 |
 | Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | https://www.fab.com/listings/38b9c25b-80db-4606-a0f8-bb2bb947143a |
 | Cute Alien Pet – Stylized 3D Character | MissTxxT | der Beobachter (weiß umgefärbt) | https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9 |
@@ -34,7 +36,7 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Leftover tree leaves | matousekfoto | Laubhaufen | https://www.fab.com/listings/f29c8bd6-ccdc-48cf-b31a-b4485d16ab16 |
 | Pine Tree Fallen Trunk Scan 02 | PersScans | umgestürzte Stämme | https://www.fab.com/listings/4709d691-a4a4-4ed1-a375-6fbcfc89d5da |
 | Collection of Forest Branches | Arkify3d | Äste | https://www.fab.com/listings/eea4b561-1772-4101-8747-f463ed5a3980 |
-| Autumn Leaves [free] | Zygomir | Laub | https://www.fab.com/listings/ffd37eae-82d8-4741-b4a1-5ca6bcc1b600 |
+| Autumn Leaves [free] | Zygomir | Laub; einzelne Blätter daraus fallen und wehen (umwelt.js) | https://www.fab.com/listings/ffd37eae-82d8-4741-b4a1-5ca6bcc1b600 |
 | Moss patch | Zygomir | Moos | https://www.fab.com/listings/4ba0b744-ca34-4412-92cc-2e2a285aab70 |
 | Stick in moss | Zygomir | Moos mit Ast | https://www.fab.com/listings/35b327a2-390c-4ac5-b4a8-76607243caf4 |
 | Clovers - Plants / Foliage | Studio-Lab | Klee | https://www.fab.com/listings/e69e7a66-4010-4836-80d3-af71dd347a3f |
@@ -78,6 +80,53 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | Robin Nest | Unreality3D | Vogelnest | https://www.fab.com/listings/d16e5418-64dd-480d-9afb-5d7a246a1663 |
 | Metal Round Glasses | Rikokenz | Lesebrille (Hilde); Voss’ Lesebrille im Pfarrhaus (`ms/brille`, bewohnt.js) | https://www.fab.com/listings/45e917fe-fae5-46a6-a9c0-406045e9f33f |
 | CC0 – UFO | plaggy | Lichtschiff (Rumpf-Vorlage) | https://www.fab.com/listings/e67cbb9e-08dc-43b6-a9a4-83d4ccddbdd7 |
+| Free Rigged 3D Girl Character Game Animation Ready | NoEdge | Körper Roxy, Heidi, das Graukind, die Kleinen; Teile von Mike | https://www.fab.com/listings/267cc2ba-6baa-4f23-b87b-97c9d97079cb |
+| Street Lamp | Krayton Gaming | Straßenlaternen (`assets/lamp`) | https://www.fab.com/listings/c31f59e9-6239-421d-9f1c-2b462450a682 |
+| Old Swings | crow | Schaukeln (`assets/swings`) | https://www.fab.com/listings/083beb63-c939-4096-86fd-ace051475419 |
+| Bat | matisosanimation | Fledermäuse (`assets/bat`) | https://www.fab.com/listings/1d102cf3-e42b-4cdd-a0a0-6c68d3c0b1ee |
+| Realistic Fly | Aaron Bravo | Fliegen (`assets/fly`) | https://www.fab.com/listings/dabfa596-ce97-493b-bdc9-3985d3453e9d |
+| Black Rat (Free download) | Nestaeric | Ratten (`assets/rat`) | https://www.fab.com/listings/3d8f4ca8-b9cf-4d82-a2b7-69882a0c8815 |
+| Spiders – characters with animations | Mixall | Spinnen (`assets/spider_*`) | https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2 |
+| CC0 – Raw Meat 4 | plaggy | Fleisch (`assets/gore/meat`) | https://www.fab.com/listings/7ae3d759-a963-43e4-855d-ce034d489d77 |
+| Cursed Doll no.02 | mami@horse-water | Puppe (`ms/doll`) | https://www.fab.com/listings/92750694-e6a5-470d-bb34-3ac87b53f4b2 |
+| Old hospital bed (PBR/GR) | tris | Eisenbetten (`ms/hospbed`) | https://www.fab.com/listings/00bb5399-f41f-43b0-92a9-7dca59e92389 |
+| Vintage Sofa | Zillious | Sofas (`ms/sofa`) | https://www.fab.com/listings/9d015485-02d9-420c-a1de-e1dd61377f9d |
+| Wardrobe | Shedmon | Kleiderschränke (`ms/wardrobe`) | https://www.fab.com/listings/a35ccbb8-02b1-4a71-9f5e-4c859eaeb320 |
+| Old Dresser 01 | ClearMeshStudio | Kommoden/Vitrinen (`ms/dresser`) | https://www.fab.com/listings/7910d8e6-99f1-4d43-9f1d-b2e994ccc418 |
+| Worn Victorian Mirror | MOJackal | Spiegel (`ms/mirror`) | https://www.fab.com/listings/0e902d60-2e97-4f68-9ec4-d6d49576b6a2 |
+| Vintage Abandoned Car – Dutch License Plate | Cygnos | Autowrack (`ms/car_dutch`) | https://www.fab.com/listings/c180aa30-f3e6-43fd-9872-0f4d5eed25bd |
+| Abandoned & junk Car | PLEXUS GAME ASSETS | Schrottauto (`ms/car_junk`) | https://www.fab.com/listings/ee5cffe5-c01f-4129-b56b-70871730b5de |
+| Old Abandoned Rusty Cars | OlegVerenko | rostige Autowracks (`ms/car_rusty`) | https://www.fab.com/listings/ed740921-9f30-4444-8c8e-c55db80c7304 |
+| Retro Patterned Curtain | Farkas Interactive | gemusterte Vorhänge (`ms/curtain_retro`) | https://www.fab.com/listings/61f7402e-36ac-401a-bb88-544fdb88b65c |
+| Transparent curtain | Barnus Model's | Gardinen (`ms/curtain_sheer`) | https://www.fab.com/listings/cbc35d7d-7a1a-4c34-a834-8aae398f0211 |
+| Garden Fences (Wood) | Koceila HAID | Gartenzäune (`ms/fence_garden`) | https://www.fab.com/listings/9264aeeb-278a-4687-9a91-891cc72a6622 |
+| CC0 – Mailbox | plaggy | Briefkästen (`ms/mailbox_cc0`) | https://www.fab.com/listings/749e751f-cfa9-4259-85ba-74aeb6248988 |
+| Wood Utility Poles | Eleanie | Strommasten (`ms/poles_wood`) | https://www.fab.com/listings/f9234209-1878-478e-928e-56e043b341d0 |
+| Road Sign Pack (Free) | Awlok.dev | Verkehrsschilder (`ms/roadsigns`) | https://www.fab.com/listings/5ade29f1-c0b2-4565-a740-4eceeba3c829 |
+| Gas Station Signs | commonspence | Tankstellenschilder (`ms/gas_signs`) | https://www.fab.com/listings/15423edd-fd02-479f-bfc6-1d76d65dc011 |
+| Simple Old Shed | Jimbogies | alter Schuppen (`ms/shed_old`) | https://www.fab.com/listings/df46b840-269f-4a5c-99b4-cee389e80ebb |
+| Backyard Utility Shed | Jimbogies | Geräteschuppen (`ms/shed_util`) | https://www.fab.com/listings/7a40ef73-c76a-48b0-8953-73aaaf098165 |
+| Wooden Garden Shed | KenVeel | Gartenhaus (`ms/shed_garden`) | https://www.fab.com/listings/b8424660-c244-43ca-bffe-77a9e4441c94 |
+| Park Bench With Backrest | KenVeel | Parkbänke (`ms/parkbench`) | https://www.fab.com/listings/f4efa2e3-bb9f-40a5-95b6-076d849d1990 |
+| Scarecrow | Glowbox3D | Vogelscheuche (`ms/scarecrow`) | https://www.fab.com/listings/6ff113b2-f6bd-408e-878b-df43eda62ee1 |
+| Red Tractor | Chrix | Traktor (`ms/tractor`) | https://www.fab.com/listings/dc5a5431-6342-47fc-b6c8-921d84817c16 |
+| Rustic Wooden Picnic Table | TDR Store | Picknicktisch (`ms/picnic`) | https://www.fab.com/listings/d1b42faa-08ef-4eb6-8c67-d8a80b6a9667 |
+| Countryside chapel dataset | matousekfoto | Kapelle (`ms/chapel`) | https://www.fab.com/listings/2b49b974-9a05-40ed-964e-4abe07a61d4f |
+| Urban Bus Stop Shelter | AshenCut | Bushaltestelle (`ms/busstop1`) | https://www.fab.com/listings/bc19a34f-d66d-43d0-bfd2-2388b6fb3a79 |
+| Vintage Bicycle 3D Model | patrickgoud807 | Fahrräder (`ms/bicycle`) | https://www.fab.com/listings/d719c927-f804-473a-9039-8c782388bc66 |
+| Grave Stone Collection | Kigha | Grabsteine (`ms/grave_coll`) | https://www.fab.com/listings/e7a027b6-357f-4fd1-bf9b-4dfd0689c185 |
+| CC0 – Tombstone | plaggy | Grabstein (`ms/tomb_cc0`) | https://www.fab.com/listings/f6886363-e53b-492e-8b70-bd84fc01dfc8 |
+| CC0 – Iron Fence | plaggy | Eisenzaun (`ms/ironfence_cc0`) | https://www.fab.com/listings/df234cee-0ec5-457f-9bc9-05a5cd84fb20 |
+| Old Playground Slide | crow | Rutsche (`ms/slide`) | https://www.fab.com/listings/f8b35f17-6bad-4164-b6dc-ac85216e43fa |
+| Old Roundabout / Merry-go-round | crow | Karussell (`ms/roundabout`) | https://www.fab.com/listings/c36776d1-4173-4c61-9c41-509555661c6d |
+| 4 Candles pack: new and used versions | LOLIPOP | Kerzen (`ms/candles`) | https://www.fab.com/listings/fe27ae0c-feb9-4867-8b29-99c4cba87a04 |
+| Tactical Flashlight | crow | Taschenlampe Stufe 1 (`ue/lampe1`) | https://www.fab.com/listings/e458eeda-2893-45b9-a946-a031ea395d96 |
+| Flashlight | Studio Nychta | Taschenlampe Stufe 2 (`ue/lampe2`) | https://www.fab.com/listings/bd9c7183-a4d2-40ce-9c68-8c4756cad05d |
+| Oil Lantern | Houdini | Öllampe (`ue/lampe3`) | https://www.fab.com/listings/e8ef5546-054d-4cda-b742-172c1ea8c0f7 |
+| CC0 – Crowbar | plaggy | Brechstange (`ue/brechstange`) | https://www.fab.com/listings/4419aba1-109f-4aad-b773-94b0687483ae |
+| Old Rusty Key | Alex Krush | Schlüsselteil (`ue/schluesselteil`) | https://www.fab.com/listings/33f9b4a3-a495-4db7-aeb0-69d9f93fa907 |
+| Electronic Fuse | Zillious | Sicherung (`ue/sicherung`) | https://www.fab.com/listings/c5f4cd09-4a65-4d26-8989-238706280827 |
+| Simple Burlap Pin Effigy | Get Dead Entertainment | Strohpuppe (`ue/totem`) | https://www.fab.com/listings/7a313e99-1a7e-4279-84e0-ffdd3773a471 |
 
 ## Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)
 | Werk | Urheber | Verwendung im Spiel | Sketchfab |
@@ -93,12 +142,14 @@ High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewe
 | CC0 – Ashtray | plaggy | Aschenbecher | https://sketchfab.com/3d-models/313192b7abae47ffa82e4ba24e947f70 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
-- **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.)
+- **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.), ihre Gesichtsformen (Blinzeln, Blick, Mimik, Mund – für alle Figuren, Bart-Köpfe per Übertragung), „Female Long Straight Hair“ (hair 7: offenes Haar von Hilde „Nicht du“)
 - **Motifect** – Daily Life, Locomotion, Emotes & Social, Injured & Exhausted Motion Packs · **Animpacks** – Look Through Window Animation Pack
 - Motion-Capture: **Mocap.in** (Realistic Acting, Character Mobility, Movement & Mobility) · **Animation Shopee** (Serious conversation, Conversation While sit, Sits on stool and Drinks, Lying on the floor, Run like hell, Dying, Disappointed, Doing something strange, hung onto something, kneel down and dead, Walks backward, cheering up someone) · **Toei Zukun Laboratory** (Standing Idle Motion, Free Motion Set) · **nikoff** (Dead Bodies Sitting & Lying Poses) · **Teddy Goldstien** (UEFN Manny Zombie) · **BTM productions** (Zombie Idle x2) · **DZTFIX KATSU** (Dynamic Falling & Rolling)
 - **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin
 - **Guy in a Poncho** – Old Book (Dienstbuch), Camping Dinnerware (Blechbecher; Blechgeschirr in Küchen und Kantine, `ms/geschirr`, bewohnt.js) · **Louey** – Rusty Canister and Thermos · **Toshi Timo** – 8-Panel Beret (Schiebermütze) · **DTry** – Military Radio (Funkgerät mit Hörer) · **styloo** – Dog (Bruno) · **Mohit Akundi** – Realistic Rubywear Eyeglasses · **truth-n-carbon** – Flying Saucer · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
-- **Epic Games** – Unreal Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein)
+- **Quixel Megascans** (Bewuchs Ort/Wald, R-11, `bewuchs.js`, Download 01.10.2026 `HAM_FabDownloads/v19_vegetation`) – Lady Fern (`ms/ladyfern`), Beech Fern (`ms/beechfern`), English Ivy (`ms/ivy_ms`), Dry Grass (`ms/drygrass`), Curbside Weeds (`ms/weeds`), Bolete Mushrooms (`ms/bolete`), Broken Tree Stump (`ms/stump_broken`); dazu wiederverwendet: Wild Grass, Raspberry, Elderberry, European Spindle, Dead Tree (`ms/deadtree1`), Boulder
+- **PROTOFACTOR INC** – Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein; auf Fab als Epic-gesponserte „Permanent Collection“)
+- **Polyphoria** – Paladin RPG Set (Justin) · **Leartes Studios** – Asian Canal Environment (Kanal) · **Epic Games** – UE5-Mannequin „Quinn“ und Mannequin-Animationen aus der Unreal-Engine-Vorlage (Schemen/Echos, Justins Bewegungen; Unreal-Engine-EULA, siehe `docs/technical/lizenzen_release.md`)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Heruntergeladen, derzeit nicht im Spiel
@@ -117,8 +168,17 @@ nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitte
 - Tiere/Holz/Dinge: Discover Oregon – Ravens and Robins (Whiskeys Rabenkehle, Singvögel) · Invisible – Storm, gale and thunderstorm (Amseln) · Airborne Sound – Kitchen (Mikrowelle) · 2496SoundEffects – Tech Toys Electronics Pack 1 (Wecker) · Ivo Vicic – Red Deer and Roe Deer · Pole Position – Barking Dog · Bart Kamski – Dogs · SoundBits – Unsettling Creaks and Squeaks · Russell Gorsky – Squeaks and Creaks Two · The Sound Keeper – Normal Doors · The Soundcatcher – Paperlife, Antique Mills · Eiravaein Sound – Parched · RedSonic – Analogue Rotary Telephone · CFry – Shortwave
 - Wendigo-Laute (`wd_*`, `app/tools/klang_wendigo.py`): Articulated Sounds – Bones & Blood (Gore Elements), Yeti Monster · Matt Script – You Me & Debris, The Mouth · Jeffrey Mengyan – Vegetable Carnage · Soundrangers – Hydrology Bubbles and Splashes · Ivo Vicic – Red Deer and Roe Deer · Eiravaein Sound – Mouthy, Meridian · Gamemaster Audio – Troll Monster Vocalizations · Glitchedtones – Zombie · Sound Spark LLC – Gore · MatiasMacSD – Mutation · SoundMorph – Monster Within
 - Stimmen/Schreck: Chris Logsdon – Text & Dialogue SFX Pack · Articulated Sounds – Ghosts Return, Special Double Bass Fx · Ambisound – Ethereal Breaths · JC Audio – Breathing In Hell · Airborne Sound – Variety 1 · Olivier Girardot – Monsters · Alexander Kopeikin – The Dry Ice Library, Prepared Piano · Sir Bedlam Productions – Bedlam Stingers
+- Umwelt (R-7/R-8, `app/tools/klang_bau4.py`): Hzandbits – Urban Winds II (Wind heult/pfeift um Ecken), Wind In Trees (Gras/Kronen im Wind) · toneglowlibraries – Town Winds (Böen mit nassem Laub) · Articulated Sounds – Rustle Tones (Busch beim Durchlaufen), Ghosts Return (Schaukelkette) · Sounds Visual – Footsteps on Leaves (Laub beim Rennen) · Matt Script – Squeaks & Creaks (Schaukel quietscht)
 
 **Weiterhin im Spiel:** die CC0-Aufnahmen von OpenGameArt.org in `game/sounds.js`/`sounds_extra.js` (Quellen: `game/sounds_src/QUELLEN.txt`).
 
+## Sprachausgabe (`game/assets/stimmen/*.opus`, Modul `stimmen.js`, Werkzeuge in `C:\Users\GIGABYTE\HAM_Stimmen\`)
+Alle Stimmen sind **synthetisch und lokal erzeugt** – keine Aufnahme und kein Klon einer echten Person. Jede Figur hat eine einzige, aus einer Textbeschreibung entworfene Referenzstimme.
+- **Qwen3-TTS** (Alibaba Qwen Team): `Qwen3-TTS-12Hz-1.7B-VoiceDesign`, `Qwen3-TTS-12Hz-1.7B-Base`, `Qwen3-TTS-Tokenizer-12Hz`, Paket `qwen-tts` – **Apache-2.0** (github.com/QwenLM/Qwen3-TTS). Die erzeugten Audios unterliegen keinen Lizenzauflagen; die Modelle selbst werden nicht mitgeliefert.
+- Qualitätsprüfung (nur Werkzeug, nicht im Spiel): **UTMOSv2** (sarulab-speech, **MIT**) · faster-whisper / Whisper small (SYSTRAN / OpenAI, **MIT**) · pyworld (**MIT**).
+
 ## Werkzeuge
 three.js (MIT), three-mesh-bvh (MIT), gltfpack/meshoptimizer (MIT), KTX-Software (Apache 2.0), Electron (MIT).
+
+## Schriften (`app/vendor/fonts`)
+Caveat (Impallari Type, SIL Open Font License 1.1) · Cormorant Garamond (Christian Thalmann, SIL Open Font License 1.1) · Special Elite (Astigmatic, Apache License 2.0) – über Google Fonts.
