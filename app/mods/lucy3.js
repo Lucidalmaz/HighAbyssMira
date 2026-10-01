@@ -71,7 +71,7 @@ function lucy3_isK3() { if (!ch3.on || ch3.part !== 'town') return false; if (ty
 
 // ---------------------------------------------------------------- Klang: Funkstimmen ohne Klartext (Silben unter Rauschen), Spieluhr-Zinken, Kratzen
 function lucy3_voice(kind, sec, dest, gain = 1) {
-  const A = Audio; if (!A.ctx) return; const ctx = A.ctx, t = ctx.currentTime + .03;
+  const A = Audio; if (!A.ctx) return; const ctx = A.ctx, t = ctx.currentTime + .03; if (!dest) dest = A.at(5.4, 1, -6.6, 3);
   const f0 = kind === 'amt' ? 108 : kind === 'a' ? 246 : 226;
   const out = ctx.createGain(); out.gain.value = (kind === 'amt' ? .55 : .5) * gain; out.connect(dest || A.world);
   const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 420; const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = kind === 'b' ? 2400 : 3000; hp.connect(lp); lp.connect(out);
@@ -94,8 +94,8 @@ function lucy3_scratch(x, z, twice) { const A = Audio; if (!A.ctx) return; const
     n.connect(bp); bp.connect(g); g.connect(d); const t = t0 + off; for (let k = 0; k < 14; k++) g.gain.setValueAtTime(Math.random() < .75 ? rand(.08, .22) : 0, t + k * .045); g.gain.setValueAtTime(0, t + .66); n.stop(t + .8); }); }
 // Rauschschleife des Funkgeräts (nur solange ein Fenster offen ist) mit Überlagerungspfeifen beim Abstimmen
 function lucy3_radioOn() { const A = Audio; if (!A.ctx || lucy3_S.win) return; const ctx = A.ctx, n = A.noise(true), bp = ctx.createBiquadFilter(), g = ctx.createGain();
-  bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = .6; g.gain.value = 0; g.gain.setTargetAtTime(.055, ctx.currentTime, .15); n.connect(bp); bp.connect(g); g.connect(A.world);
-  const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sine'; o.frequency.value = 900; og.gain.value = 0; o.connect(og); og.connect(A.world); o.start();
+  bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = .6; g.gain.value = 0; g.gain.setTargetAtTime(.055, ctx.currentTime, .15); n.connect(bp); bp.connect(g); const p = A.at(5.4, 1, -6.6, 3); g.connect(p);
+  const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sine'; o.frequency.value = 900; og.gain.value = 0; o.connect(og); og.connect(p); o.start();
   lucy3_S.win = { n, g, o, og }; }
 function lucy3_radioOff() { const W = lucy3_S.win; if (!W) return; lucy3_S.win = null; const t = Audio.ctx.currentTime; W.g.gain.setTargetAtTime(0, t, .1); W.og.gain.setTargetAtTime(0, t, .05); try { W.n.stop(t + .6); W.o.stop(t + .6); } catch (e) {} }
 
@@ -214,9 +214,9 @@ function lucy3_unbox() { const b = $('puzzle').querySelector('.box'); if (b) b.c
 radioPuzzle = lucy3_radioPuzzle;
 async function lucy3_broadcast() {
   const S = lucy3_S; if (ch3.radio) return;
-  S.tuned = true; state.talking = true; radioLed.material.emissive.set(0xffa020); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz', d = Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null;
+  S.tuned = true; state.talking = true; radioLed.material.emissive.set(0xffa020); Audio.intercomClick(radioLed.position.x, radioLed.position.y, radioLed.position.z); const F = 'FUNK · 31,10 MHz', d = Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null;
   setTimeout(() => lucy3_voice('amt', 3.2, d), 1700);
-  await say([['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Alle Kinder bitte an ihre Plätze.“', 4600, 'AMTSSTIMME']]); Audio.play('switch1', { gain: .2, rate: .7 }); await wait(900); // Gong, Rauschen; unter der Amtsstimme läuft die Spieluhr; ein Knacken
+  await say([['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn. Alle Kinder bitte an ihre Plätze.“', 4600, 'AMTSSTIMME']]); Audio.play('switch1', { gain: .2, rate: .7, x: 5.4, y: 1, z: -6.6, ref: 2 }); await wait(900); // Gong, Rauschen; unter der Amtsstimme läuft die Spieluhr; ein Knacken
   state.talking = false; lucy3_funk();
 }
 broadcast = lucy3_broadcast;
@@ -296,7 +296,7 @@ async function lucy3_write(w, tok) { const S = lucy3_S; if (S.busy || tok !== S.
   if (S.word && S.box) { const old = S.box.querySelector('#l3Dust span'); if (old) { old.className = 'gone'; Audio.paper(); await lucy3_sleep(700); } }
   S.word = w; lucy3_dustShow(w); lucy3_scratch(player.pos.x, player.pos.z, false); await lucy3_sleep(1400); if (tok === S.tok) S.busy = false; }
 async function lucy3_send(c, tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || !S.word) return; S.busy = true; const w = S.word;
-  Audio.intercomClick(); lucy3_log(c, `— ${w}`, 'q'); await lucy3_sleep(900); if (tok !== S.tok) return;
+  Audio.intercomClick(radioLed.position.x, radioLed.position.y, radioLed.position.z); lucy3_log(c, `— ${w}`, 'q'); await lucy3_sleep(900); if (tok !== S.tok) return;
   if (w === 'HASENBROT' && c === 'B' && (!S.gesagt || S.asked.has('wo'))) return lucy3_win(tok); // nach dem lauten Sagen geht es nur noch über Frage 2 (nur B weiß vom Tank)
   lucy3_fail(tok);
 }
@@ -389,7 +389,7 @@ async function lucy3_wrongSwitch() {
   const k = S.lampFails;
   if (k === 1) { await say([['Juni, Juli, Oktober. Die hat nicht nach Hausnummern geholt. Nach Kalender.', 4400, 'LUKE']]); return; } // (2)
   // (3) nach dem zweiten Fehler: B-K3-H3 (beobachter.js, automatisch) · (4) nach dem dritten: der Funkkasten knackt, Lucy; „ZULETZT.“ leuchtet im Lampenlicht auf · (5) Justin
-  if (k === 3 && !state.talking) { await wait(900); state.talking = true; Audio.intercomClick(); lucy3_voice('b', 3, Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null, .9);
+  if (k === 3 && !state.talking) { await wait(900); state.talking = true; Audio.intercomClick(radioLed.position.x, radioLed.position.y, radioLed.position.z); lucy3_voice('b', 3, Audio.ctx ? Audio.at(5.4, 1, -6.6, 3) : null, .9);
     await say([['„Hilde hat als Letzte unterschrieben. Sie hat sie als Letzte geholt.“', 4400, 'LUCY · FUNK']]); state.talking = false; S.zuletztLeuchtet = true; }
   if (k >= 4 && !S.jLamp && ch3.met && jDist() < 16 && !state.talking) { S.jLamp = true; state.talking = true; await say([['„Fang bei der an, die zuerst gegangen ist. Die mit dem Feuer.“', 4000, JS]]); state.talking = false; }
 }

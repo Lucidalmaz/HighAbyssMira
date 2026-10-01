@@ -201,7 +201,7 @@ const _wc = new THREE.Color();
 function weiss_licht(k) { for (const l of weiss_S.r3L || []) { l.intensity = l.userData.i0 * k; l.color.setHex(l.userData.c0); if (k < 1) l.color.lerp(_wc.setHex(0x9db2d8), 1 - k); } }
 
 // ---------------------------------------------------------------- Raum 1: der Schrank (K3-6)
-function weiss_schrank() { if (ch3.schrank) return toast('Leer. Nur ein Paar Kinderschuhe, Größe 33.', 3000); ch3.schrank = true; Audio.creak(.2);
+function weiss_schrank() { if (ch3.schrank) return toast('Leer. Nur ein Paar Kinderschuhe, Größe 33.', 3000); ch3.schrank = true; { const K = weiss_S.schrank; Audio.creak(.2, K ? K.x : X3 + 14, 1.2, K ? K.z : Z3 + 4); }
   openNote('Der Schrank', 'Leer. Nur ein Paar Kinderschuhe, Größe 33.', null, () => { if (weiss_S.jSaid) return; weiss_S.jSaid = true;
     say([['Nicht deine. Nicht Lucys.', 2600, 'DU'], ['„Der Knabe, der hier schlief … Lass ihn. Sieh nicht so genau hin.“', 4400, JS]]); }); }
 
@@ -463,7 +463,7 @@ room1Answer = async function (k) {
   if (ch3.tries1 === 2) setTimeout(() => { if (!state.talking) say([['„Alles hier gab es am Abend, bevor er ging. Was gab es erst danach?“', 4400, JS]]); }, 1400);
   if (ch3.tries1 === 3) { const m = r1Items.karte.m.position; setTimeout(() => { const dx = m.x - camera.position.x, dy = m.y - camera.position.y, dz = m.z - camera.position.z; player.yaw = Math.atan2(-dx, -dz); player.pitch = Math.atan2(dy, Math.hypot(dx, dz)); }, 900); }
   if (ch3.tries1 >= 4) setTimeout(() => subtitle('Oma hat mir zum Zehnten fünf Euro geschenkt. Mir.', 3600, 'LUKE'), 1400); };
-weiss_schrank = function () { if (ch3.schrank) return toast('Leer. Kleiderbügel, ein Anorak, ein Paar Kinderschuhe, Größe 33.', 3000); ch3.schrank = true; Audio.creak(.2);
+weiss_schrank = function () { if (ch3.schrank) return toast('Leer. Kleiderbügel, ein Anorak, ein Paar Kinderschuhe, Größe 33.', 3000); ch3.schrank = true; { const K = weiss_S.schrank; Audio.creak(.2, K ? K.x : X3 + 14, 1.2, K ? K.z : Z3 + 4); }
   openNote('Der Schrank', 'Leer. Kleiderbügel, ein Anorak, unten ein Paar Kinderschuhe Größe 33 mit Klettverschluss, sauber nebeneinander.', null, () => { if (weiss_S.jSaid) return; weiss_S.jSaid = true;
     const P = player.pos; weiss_atem(.06, P.x + Math.sin(player.yaw) * .9, 1.2, P.z + Math.cos(player.yaw) * .9); // das Atmen geht weiter, jetzt hinter Luke
     say([['Nicht meine. Nicht Lucys.', 2600, 'DU'], ['„Lass ihn zu. Sieh nicht so genau hin.“', 3400, JS]]); }); };
@@ -472,6 +472,7 @@ WEISS_HILDE.length = 0; WEISS_HILDE.push(
   { k: 'kueche', q: 'Sie haben mich angegriffen. In der Küche.', a: '„Ich wollte dich festhalten, Junge. Weg von der Tür. Du warst schneller. Du warst immer schneller als der andere.“' },
   { k: 'los', q: 'Sie haben Zayn gezogen.', a: '„Das Los war das Los. Ich hab siebzehn Jahre gezählt, ob sie ihn wieder hergibt. Sie hat nie.“' },
   { k: 'wer', q: 'Wer hat angefangen?', a: '„Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“' },
+  { k: 'nichtdu', q: 'Was hieß ‚Nicht du‘?', a: '„Ich hab den anderen erwartet. Den mit den blauen Augen. Der kommt manchmal ans Küchenfenster, wenn das Brot nicht da ist.“', a2: '„Dann standst du da, mit seiner Narbe in der Hand. Da wusst ich, wer dich gerufen hat.“' }, // Story-Prüfung V-5
   { k: 'neun', q: 'Wer ist der Neunte?', a: '„Einer von früher. Klein wie ein Kind, aber keins. Der zählt mit. Der ist nicht von ihr.“', a2: '„Er hat mir mal einen Zettel gebracht. Ich hab ihn nicht gelesen. Man liest so was nicht.“', nur: () => story.items.includes('buch') || weiss_has('c3buch') },
   { k: 'jonas', q: 'Und Jonas?', a: '„Er ruft jeden Sonntag an. Ich geh nie ran. Wenn ich seine Stimme höre, zähl ich falsch.“', nur: () => weiss_has('zayn_rucksack') || (typeof neben3_hat === 'function' && neben3_hat('k3_rucksack')) });
 weiss_hildeAntwort = async function (k) { const S = weiss_S, f = WEISS_HILDE.find(x => x.k === k); if (!f) return weiss_hildeEnde();

@@ -208,7 +208,7 @@ const LWO_AG = {
     ['V', '„Hier übernachtet keiner außer dem Hund, und der zählt nicht, der ist gemeldet.“'], ['N12', '„Hund. Gemeldet.“', { schreibt: true }],
     ['N11', '„Herr Brandt. Sie sind das doch. Wir hatten das Vergnügen, unter der Laterne. Sie haben sich gut gehalten heute Nacht.“'],
     ['N12', '„Hat Angst. Steht hier.“', { vorlesen: true }], ['N11', '„Wir würden Sie gern kurz draußen sprechen. Ohne den Hund.“'],
-    { r: 'Am Gartentor (Slapstick): Das Tor klemmt. 11 hält es 12 auf, 12 bleibt mit dem Mantel am Riegel hängen, 11 zieht, beide stolpern einen halben Schritt, richten sich gleichzeitig die Mäntel, blinzeln nie gleichzeitig. 11 beißt in eine Stulle.' },
+    { r: 'Am Gartentor: 11 hält 12 das Tor auf. Beide richten sich gleichzeitig die Mäntel, blinzeln nie gleichzeitig. 11 beißt in eine Stulle.' }, // Gag-Budget H-1: das Verhaken am Tor nur noch Kap. 1 (Nr. 9) und beim Abgang (S-04)
     ['N11', '„Frau Wendt hat ein Buch geführt. Ein Heft, mit Strichen. Sie wissen, welches. Es liegt bei Ihnen, das wissen wir auch.“'],
     ['N11', '„Wir hätten es gern. Es ist Eigentum der Bundesstelle. Dafür sagen wir Ihnen, in welcher Klinik Ihre Schwester behandelt wird.“'],
     ['N12', '„Schwester. Klinik. Behandelt.“', { vorlesen: true }],
@@ -575,7 +575,7 @@ function lwo_kombiZeigen(x, z, ry, { stand = false, innen = false, motor = false
   lwo_kombiLicht({ stand, innen, hinten }); lwo_kombiMotor(motor); return K; }
 function lwo_kombiLicht({ stand = false, innen = false, hinten = stand } = {}) { const K = LWO.kombi; if (!K) return; K.stand = stand; for (const s of K.vorn) s.visible = stand; for (const s of K.hinten) s.visible = hinten; K.innen.visible = innen;
   for (const m of K.lf) m.emissiveIntensity = stand ? 1.6 : 0; for (const m of K.stop) m.emissiveIntensity = hinten ? 1.2 : 0; }
-function lwo_kombiMotor(an) { const K = LWO.kombi; if (!K || typeof Audio === 'undefined' || !Audio.ctx) return; if (an && !K.motor) { K.pan = Audio.at(K.g.position.x, .6, K.g.position.z, 3); if (Audio.cut) { K.pan = null; return; } K.motor = Audio.loop('carEngine', { gain: .32, rate: .62, lp: 700, dest: K.pan }); }
+function lwo_kombiMotor(an) { const K = LWO.kombi; if (!K || typeof Audio === 'undefined' || !Audio.ctx) return; if (an && !K.motor) { K.pan = Audio.at(K.g.position.x, .6, K.g.position.z, 3, { obj: K.g, h: .6, dauer: 1e9 }); if (Audio.cut) { K.pan = null; return; } K.motor = Audio.loop('carEngine', { gain: .32, rate: .62, lp: 700, dest: K.pan }); }
   else if (!an && K.motor) { K.motor.stop(.8); K.motor = null; K.pan = null; } }
 function lwo_kombiWeg() { const K = LWO.kombi; if (!K) return; K.g.visible = false; lwo_kombiMotor(false); K.path = null; if (K.done) { const d = K.done; K.done = null; d(); } }
 function lwo_kombiFahre(pts, speed = 3, rueck = false) { const K = LWO.kombi; if (!K) return Promise.resolve(); K.path = pts.map(p => new THREE.Vector3(p[0], 0, p[1])); K.pi = 0; K.vmax = speed; K.rueck = rueck; return new Promise(r => { K.done = r; }); }
@@ -586,7 +586,7 @@ function lwo_kombiTick(dt) { const K = LWO.kombi; if (!K || !K.g.visible) return
     else { const want = Math.min(K.vmax, d * 1.2 + .5); K.sp += Math.sign(want - K.sp) * Math.min(Math.abs(want - K.sp), dt * 3); let yw = Math.atan2(dx, dz) + (K.rueck ? Math.PI : 0), dy = yw - g.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); g.rotation.y += dy * Math.min(1, dt * 1.5);
       const s = K.rueck ? -K.sp : K.sp; g.position.x += Math.sin(g.rotation.y) * s * dt; g.position.z += Math.cos(g.rotation.y) * s * dt; } }
   else K.sp = Math.max(0, K.sp - dt * 4);
-  if (K.pan && K.pan.positionX) { K.pan.positionX.value = g.position.x; K.pan.positionZ.value = g.position.z; if (K.motor) K.motor.src.playbackRate.value = .62 + Math.min(.5, K.sp * .07); }
+  if (K.motor) K.motor.src.playbackRate.value = .62 + Math.min(.5, K.sp * .07);
   if (K.fern > 0) { K.fern = Math.max(0, K.fern - dt); K.fernS.visible = true; K.fernS.material.opacity = Math.min(1, K.fern * 2) * .95; for (const m of K.lf) m.emissiveIntensity = 6; } else if (K.fernS.visible) { K.fernS.visible = false; for (const m of K.lf) m.emissiveIntensity = K.stand ? 1.6 : 0; } }
 
 // =====================================================================  DIALOG (Untertitel mit Sprecher, drei Antworten ohne Mauszeiger – Stil wie die Auswahl in Kap. 5)
@@ -608,7 +608,7 @@ async function lwo_zeile(code, text, opt = {}, o = {}) {
   subtitle(text, ms + 250, lwo_label(code)); await wait(ms);
   if (F && opt.schreibt && !opt.vorlesen) setTimeout(() => lwo_clip(F, F.def.schreibt ? 'phone' : 'idle'), 400); }
 function lwo_funkKlang(sec, at, art) { if (typeof klang_funk === 'function') return klang_funk(sec, { x: at ? at.x : undefined, z: at ? at.z : undefined, art });
-  if (typeof Audio !== 'undefined' && Audio.ctx) Audio.play('static', { gain: .08, dur: Math.min(sec, 3), hp: 400 }); }
+  if (typeof Audio !== 'undefined' && Audio.ctx) Audio.play('static', { gain: .08, dur: Math.min(sec, 3), hp: 400, ...(at ? { x: at.x, y: 1.3, z: at.z, ref: 2.2 } : {}) }); }
 function lwo_funk(text, { x, z, ms } = {}) { return lwo_zeile('F', text, { ms }, { funkAt: x !== undefined ? { x, z } : null }); }
 // Antwort wählen: Tasten 1 … n (oder Klick). Abbruch (−1), wenn o.abbruch() wahr wird (z. B. Luke geht weg)
 function lwo_wahl(opts, o = {}) {

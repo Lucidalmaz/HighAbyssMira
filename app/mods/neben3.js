@@ -295,7 +295,7 @@ function neben3_kapTick(dt, t) {
 async function neben3_kapRein() { const S = neben3_S, KP = S.kap, R = KP.R; if (!neben3_k3() || !ch3.on) return; if (neben3_frei()) neben3_start('k3_kapelle');
   if (!neben3_justinDa(26)) return; S.jIn = true; jPlace(KB_RAUM.kapelle.x + .4, R.z1 - .9, PI); justin.look = true;
   const st = neben3_st('kapelle'); if (st.jBank) return; st.jBank = 1; await wait(900); await say([['„In die Kapelle darf jeder.“', 2800, JS]]);
-  jWalk(KB_RAUM.kapelle.x - 1.75, R.z1 - 2.25, async () => { justin.g.rotation.y = PI; await wait(700); Audio.creak(.55); shake = .006; await wait(1500); Audio.creak(.3); jWalk(KB_RAUM.kapelle.x - .6, R.z1 - 2.4, () => { justin.look = true; }); }); }
+  jWalk(KB_RAUM.kapelle.x - 1.75, R.z1 - 2.25, async () => { justin.g.rotation.y = PI; await wait(700); const jp = justin.g.position; Audio.creak(.55, jp.x, .5, jp.z); shake = .006; await wait(1500); Audio.creak(.3, jp.x, .5, jp.z); jWalk(KB_RAUM.kapelle.x - .6, R.z1 - 2.4, () => { justin.look = true; }); }); }
 
 // =====================================================================  3 · „Die dreizehnte Predigt“ (N-06) – Pfarrhaus-Studierzimmer (kirchberg.js) → Martinsnische
 const NEBEN3_PREDIGT = [ // [Reiter, Zeile mit dem doppelt unterstrichenen Wort (Wort in <u>), Randnotiz]
@@ -348,7 +348,7 @@ function neben3_springer() { const st = neben3_st('predigt'); if (neben3_frei())
 function neben3_predigtDesc() { const st = neben3_st('predigt'); if (story.side.k3_predigt && story.side.k3_predigt.state === 'active') neben3_desc('k3_predigt', st.mappe ? (st.hilfe2 ? 'Zwölf Wörter. In welcher Reihenfolge?' : 'Zwölf Predigten, zwölf doppelt unterstrichene Wörter.') : 'Das Studierzimmer. Schach, Weiß am Zug. Die Predigtmappe.'); }
 function neben3_mappe() {
   const S = neben3_S, st = neben3_st('predigt'); if (neben3_frei()) neben3_start('k3_predigt'); st.gelesen = st.gelesen || [];
-  if (!st.mappe) { st.mappe = 1; st.mappeT = 0; if (Audio.ctx) { const d = Audio.at(KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2, 2); if (Audio.buf.kb_glocke_A4) [0, .55].forEach((t0, i) => Audio.play('kb_glocke_A4', { gain: .18, rate: i ? .63 : .75, delay: t0, dur: 2.5, dest: d })); else [0, .55].forEach((t0, i) => { const o = Audio.osc('square', i ? 1480 : 1760, t0, .05); Audio.env(o, .03, .001, .04, t0, d); }); Audio.creak(.12); } } // die Standuhr schwingt einmal an (Schreck 1)
+  if (!st.mappe) { st.mappe = 1; st.mappeT = 0; if (Audio.ctx) { const d = Audio.at(KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2, 2); if (Audio.buf.kb_glocke_A4) [0, .55].forEach((t0, i) => Audio.play('kb_glocke_A4', { gain: .18, rate: i ? .63 : .75, delay: t0, dur: 2.5, dest: d })); else [0, .55].forEach((t0, i) => { const o = Audio.osc('square', i ? 1480 : 1760, t0, .05); Audio.env(o, .03, .001, .04, t0, d); }); Audio.creak(.12, KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2); } } // die Standuhr schwingt einmal an (Schreck 1)
   const reiter = NEBEN3_MAPPE_LAGE.map((n, k) => `<div class="reiter${st.gelesen.includes(n) ? ' on' : ''}" data-n="${n}" style="--r:${((k * 7) % 5 - 2) * .6}deg">${NEBEN3_PREDIGT[n][0]}</div>`).join('') + `<div class="reiter" data-n="13" style="--r:1deg">—</div>`;
   openPuzzle(`<div class="n3"><h3>Predigtmappe · schwarzes Leder</h3><div class="blatt" style="font-size:17px;margin-bottom:14px"><i style="font-family:Georgia,serif;font-size:13px;color:#6a5a40">Im Deckel, Aufkleber einer Konfirmandenfreizeit. Darunter:</i><br>„Zwölf Predigten, zwölf Striche, derselbe Kuli. Wer das merkt, hat schon die Hälfte.“</div><div class="blaetter">${reiter}</div><div class="blatt" id="n3blatt"><i style="font-family:Georgia,serif;font-size:14px;color:#6a5a40">Rückseiten von Gemeindebriefen. Nur die Zeile um das doppelt unterstrichene Wort ist lesbar.</i></div><div class="knoepfe"></div></div>`, box => {
     box.classList.add('n3box'); const B = box.querySelector('#n3blatt'), kn = box.querySelector('.knoepfe');
@@ -368,7 +368,7 @@ function neben3_nischeHuelle() { const nx = KB_KAP.x - 5.2, nz = 80.6, h = neben
   h.userData.action = () => { if (!bereit()) return alt(); if (!neben3_frei()) return toast('Nicht jetzt.', 1500); if (story.items.includes('n3_kapschluessel') || story.items.some(k => k === 'n3_brecheisen' || k === 'brechstange')) return neben3_sockel();
     toast('Der Sockel unter dem Bettler klingt hohl. Das Gitter ist zu, und mit bloßen Händen bekommst du den Stein nicht los.', 4200); }; }
 async function neben3_sockel() { const st = neben3_st('predigt'); if (st.seelbuch || state.talking) return; state.talking = true; const nx = KB_KAP.x - 5.2, nz = 80.6;
-  try { if (story.items.includes('n3_kapschluessel')) { Audio.play('keys1', { gain: .5, x: nx, y: 1, z: nz - .7, ref: 2 }); await wait(700); Audio.creak(.35); } else { Audio.play('metalHit2', { gain: .4, rate: .7, x: nx, y: .4, z: nz - .7, ref: 2 }); await wait(500); Audio.play('stones1', { gain: .5, rate: .8, x: nx, y: .3, z: nz - .7, ref: 2 }); }
+  try { if (story.items.includes('n3_kapschluessel')) { Audio.play('keys1', { gain: .5, x: nx, y: 1, z: nz - .7, ref: 2 }); await wait(700); Audio.creak(.35, nx, 1, nz - .7); } else { Audio.play('metalHit2', { gain: .4, rate: .7, x: nx, y: .4, z: nz - .7, ref: 2 }); await wait(500); Audio.play('stones1', { gain: .5, rate: .8, x: nx, y: .3, z: nz - .7, ref: 2 }); }
     await wait(600);
     // die Kerze fällt zuerst heraus und rollt vor Lukes Füße – sie ist noch warm (Schreck 2)
     const k = neben3_S.kerze; if (k) { k.visible = true; k.position.set(nx + .1, .55, nz - .55); k.rotation.set(0, 0, 0); neben3_S.kerzeFall = { t: 0, vy: 0, vz: -.9, rot: 0 }; }
@@ -575,7 +575,7 @@ function neben3_ast3Check() { const st = neben3_st('ast3'); if (neben3_q('k3_ast
 function neben3_kanalTick(dt) { const S = neben3_S, st = neben3_st('ast3');
   if (state.zone === 'canal') { neben3_kanalBau(); S.imKanal = true; if (S.tiefS) S.tiefS.material.opacity = .42 + Math.sin(S.t * .7) * .06;
     if (typeof echoSeen !== 'undefined' && echoSeen.has('echo_kanal_laterne') && !state.talking && !(ch3.armorHints && ch3.armorHints.has('RH-9')) && neben3_k3()) { neben3_rh('RH-9'); neben3_ast3Check(); } }
-  else if (S.imKanal) { S.imKanal = false; if (neben3_k3() && !st.zurueck) { st.zurueck = 1; setTimeout(() => { if (typeof whiskey_mimic === 'function') try { whiskey_mimic('pling', { force: true }); } catch (e) {} if (neben3_justinDa(25)) setTimeout(() => subtitle('„Das hat gedauert.“', 2600, JS), 1400); }, 1600); } } }
+  else if (S.imKanal) { S.imKanal = false; if (neben3_k3() && !st.zurueck) { st.zurueck = 1; setTimeout(() => { if (typeof whiskey_mimic === 'function') try { whiskey_mimic('gurren', { force: true }); } catch (e) {} /* Gag-Budget H-1: Pling nur noch Nr. 4, Abspann Kap. 3, Kellertreppe */ if (neben3_justinDa(25)) setTimeout(() => subtitle('„Das hat gedauert.“', 2600, JS), 1400); }, 1600); } } }
 
 // ---- 7 · „Heimgehen“ (Friedhof, Grube am Reihenende)
 function neben3_heimBau() { if (typeof ausbau_nord === 'undefined' || !ausbau_nord.pit) return; const P = ausbau_nord.pit, st = () => neben3_st('heim'), frei = () => neben3_auf('k3_heim');

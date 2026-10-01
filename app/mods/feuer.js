@@ -474,7 +474,7 @@ function feuer_escapeStart(restart) {
   setScripted(null); state.talking = false; if (S.cine) S.cine.out = S.cine.out || S.cine.t;
   const P = player.pos; if (!restart || !S.escPos) S.escPos = { x: Math.min(X + 105.4, Math.max(P.x, S.oilMaxX + .8)), z: Math.max(Z - 1.4, Math.min(Z + 1.4, P.z)), yaw: player.yaw };
   chaseDoor.lockedText = 'Die Brandschutztür. Zu. Irgendwo muss es eine Notentriegelung geben.';
-  if (!restart) { Audio.intercomClick(); feuer_doorShut(); Audio.play('metalHit2', { gain: .8, rate: .5, x: X + 106, y: 2.2, z: Z, ref: 4 }); shake = Math.max(shake, .02); }
+  if (!restart) { if (typeof amt_box0 === 'function') Audio.intercomClick(...amt_box0()); else Audio.intercomClick(); feuer_doorShut(); Audio.play('metalHit2', { gain: .8, rate: .5, x: X + 106, y: 2.2, z: Z, ref: 4 }); shake = Math.max(shake, .02); }
   else feuer_doorShut();
   chaseDoor.lockedText = 'Die Brandschutztür. Zu. Irgendwo muss es eine Notentriegelung geben.'; FEU_SND.alarm(true);
   feuer_cue('a', false); feuer_cue('b', true);
@@ -518,7 +518,7 @@ function feuer_escapeUpdate(dt, t) {
 }
 async function feuer_escaped() {
   const S = feuer_S; S.phase = 'done'; S.done = true; const run = ++S.run; if (typeof amt_danke === 'function') try { amt_danke(); } catch (e) {} // B-K2-04 liegt schon auf der Schwelle
-  chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; chaseDoor.lockedText = 'Dahinter brennt es noch. Die Tür ist heiß.'; Audio.slam(); ch2.chase = 'done';
+  chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; chaseDoor.lockedText = 'Dahinter brennt es noch. Die Tür ist heiß.'; Audio.slam(chaseDoor.m.position.x, 1.2, chaseDoor.m.position.z); ch2.chase = 'done';
   feuer_cue('b', false); FEU_SND.loopNoise('draft', false); FEU_SND.loopNoise('draft2', false); FEU_SND.loopNoise('breath', false); S.airEl.classList.remove('show'); $('sideInfo').textContent = '';
   todMuffle(22000, 2.5);
   tod_S.seen.mess = true; todCheckpoint('messraum', 'Der Messraum', { x: X + 108.2, y: 0, z: Z, yaw: -PI / 2 });
@@ -848,7 +848,7 @@ function pz_jagd(dt, t) {
   if (ch2.chase !== 'run') return;
   if (!PZ.ki) pz_kiNeu();
   zombie.t += dt; pz_ki(dt, t);
-  if (P.x > X + 106.6 && !chaseDoor.shut) { chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; Audio.slam(); ch2.chase = 'done'; Audio.chaseMusic(false); zombie.g.visible = false; }
+  if (P.x > X + 106.6 && !chaseDoor.shut) { chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; Audio.slam(chaseDoor.m.position.x, 1.2, chaseDoor.m.position.z); ch2.chase = 'done'; Audio.chaseMusic(false); zombie.g.visible = false; }
 }
 function qte_aktivSicher() { return typeof qte_aktiv === 'function' && qte_aktiv(); }
 function pz_ki(dt, t) {

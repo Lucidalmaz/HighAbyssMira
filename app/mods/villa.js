@@ -411,7 +411,8 @@ async function villa_nr3Szene() { villa_setz('lucy'); villa_uk(2); const V = (t,
   const A = typeof ch3 !== 'undefined' ? ch3.answer : null; const lucyZ = { A: '„Da drin war ein Mann in Eisen. Der hat die ganze Zeit gerufen. Ich glaub, ich hab ihm gesagt, er soll leiser sein.“', B: '„Sie hat gesagt, dein Bruder kommt jetzt mitspielen. Ich hab gesagt: Mein Bruder spielt nicht. Der arbeitet nachts.“', C: '„Sie hat gesagt, du hast ihr was gezeigt. Sie war ganz … aufgeregt. Wie ein Kind vor Weihnachten. Das war das Schlimmste.“' };
   try { if (VILLA.o.vegas) figuren_play(VILLA.o.vegas, 'talk'); } catch (e) {}
   await villa_says([['Keine Kette diesmal. Vegas macht ganz auf. Schürze mit einer Kuh drauf, den Pfannenwender in der Hand wie eine Waffe.', 4600], V('„Sie schläft. Hat zweimal nach dir gefragt und einmal nach Kakao. Ich hab keinen Kakao. Ich hab Speck.“', 5200),
-    V('„Und wenn der Vogel noch einmal durchs Klofenster kommt, gibt’s Rabe.“', 3600)]);
+    V('„Und wenn der Vogel noch einmal durchs Klofenster kommt, gibt’s Rabe.“', 3600),
+    ['Vom Sofa her summt jemand im Halbschlaf. Fünf Töne, die aus der Spieluhr. Beim vierten bricht es ab.', 4400], V('„Das macht sie seit heute früh.“', 2600)]); // Story-Prüfung W-2
   try { if (VILLA.o.vegas) figuren_play(VILLA.o.vegas, 'idle2'); if (VILLA.o.lucy) figuren_lookAt(VILLA.o.lucy, camera, 1); } catch (e) {}
   player.yaw = Math.atan2(player.pos.x - (VILLA_R.nr3.x0 + .62), player.pos.z - 857.6);
   await villa_says([['Auf dem Sofa, unter einer Wolldecke: Lucy. Sie ist wach. In ihren Augen, in beiden, sitzt am Rand der Iris ein dünner weißer Ring, wie Frost am Fensterglas.', 5600],
@@ -419,11 +420,12 @@ async function villa_nr3Szene() { villa_setz('lucy'); villa_uk(2); const V = (t,
     ['Er drückt sie. Sie friert, obwohl der Ofen bullert. Ihre Hände sind kalt, trocken – aber sie haben Linien. Luke sieht nach. Sie merkt es.', 5200],
     L('„Ich weiß, was du guckst. Ich hab’s auch geguckt. Die sind noch da. Die Linien.“', 4000)]);
   if (lucyZ[A]) await villa_says([L(lucyZ[A], 5200)]);
-  await villa_says([['Mehr sagt sie nicht über drinnen. Sie will nicht. Sie hat Hunger.', 3400], ['Vegas kocht. Rührei mit Speck. Das Ei ist grau, der Speck ist schwarz.', 3600], U('„Ist das verbrannt?“', 1800), V('„Das ist Röstaroma.“', 2000), U('„Das ist Kohle.“', 1600), V('„Kohle ist auch ein Aroma.“', 2200)]);
+  await villa_says([['Mehr sagt sie nicht über drinnen. Sie will nicht. Sie hat Hunger.', 3400], ['Vegas kocht. Rührei mit Speck. Das Ei ist grau, der Speck ist schwarz.', 3600], U('„Ist das verbrannt?“', 1800), V('„Das ist Röstaroma.“', 2000), U('„Das ist Kohle.“', 1600), V('„Kohle ist auch ein Aroma.“', 2200),
+    ['Bruno liegt an der Tür und sieht zu, ohne Laut. Seinen Napf hat er nicht angerührt.', 3600], V('„Seit er wieder da ist, frisst er keinen Speck. Und er bellt nicht. Bruno hat immer gebellt.“', 5200)]); // Q-9 B-3 / Story-Prüfung Widerspruch 6
   // K4-1: Whiskey durchs Klofenster, auf den Kühlschrank, Vegas' Stimme
   try { if (typeof whiskey_setzen === 'function') whiskey_setzen(VILLA_R.nr3.x1 - .5, 2.05, 856.6); } catch (e) {}
-  await wait(1800); try { Audio.play('woodHit2', { gain: .3, rate: 1.4 }); } catch (e) {}
-  let taufe = false; try { if (typeof whiskey_mimic === 'function') taufe = whiskey_mimic('himmelherrgott', { force: true }); } catch (e) {}
+  await wait(1800); try { Audio.play('woodHit2', { gain: .3, rate: 1.4, x: VILLA_R.nr3.x1 - .5, y: 2.05, z: 856.6 }); } catch (e) {}
+  let taufe = false; try { if (typeof whiskey_mimic === 'function') taufe = whiskey_mimic('junge', { force: true }); } catch (e) {} // Gag-Budget H-1: „Junge.“ statt eines weiteren „Himmelherrgott!“
   await wait(1400); await villa_says([V('„Sag das nicht mit meiner Stimme!“', 2600), ['Whiskey hat den Speck. Lucy lacht zum ersten Mal, hustet, lacht weiter.', 3800]]);
   if (typeof whiskey_S !== 'undefined') whiskey_S.flags.add('k4_1');
   // Teil 06, falls Kap. 3 es nicht gebracht hat
@@ -447,7 +449,7 @@ async function villa_nr3Wieder() { const n = (VILLA.nr3N = (VILLA.nr3N || 0) + 1
 // =====================================================================  UK 3 · „Wir sind die, die nachts aufbleiben“ – AG-12, Auftrag 1
 async function villa_ag12Klopfen() { if (villa_hat('ag12') || villa_hat('ag12_lauf') || VILLA.busy) return; if (VILLA.raum !== 'nr3') return; villa_setz('ag12_lauf');
   const N11 = lwo_figur('n11'), N12 = lwo_figur('n12'); if (!N11 || !N12) { villa_setz('ag12'); villa_ziel(); return; }
-  villa_sperre(true); Audio.knock(); await wait(900);
+  villa_sperre(true); Audio.knock(-981, 1.3, VILLA_R.nr3.z1 + .3); await wait(900);
   await villa_says([['Klopfen an Vegas’ Tür, von draußen. Vegas macht die Kette vor, dann einen Spalt auf.', 3800]]);
   await villa_geh('draussen', { p: [-27.95, -10.5, PI], vorher: async () => { lwo_zeigen(N11, -27.35, -8.55, PI); lwo_zeigen(N12, -28.55, -8.75, PI - .15); lwo_blick(N11, 'luke'); lwo_blick(N12, null); lwo_clip(N12, 'phone');
     if (typeof LWO !== 'undefined') LWO.drehen = null; N11.g.rotation.y = PI; N12.g.rotation.y = PI; } });
@@ -494,11 +496,12 @@ async function villa_nr9Raus() { await villa_geh('draussen', { p: [57.7, -10.9, 
 function villa_nr9Ringbuch() {
   const t = villa_masch('<b>Messstelle Kirchberg · Beobachtung Ahornstraße 7 · ältere Blätter (Auszug)</b>\n14.03. · Objekt tritt nachts auf die Kreuzung. Zählt. Kehrt zurück. Licht aus. Wie immer.\n02.06. · Objekt spricht mit dem Vogel. Der Vogel antwortet. Wortlaut nicht verständlich. N12 vermutet Dialekt.\n09.10. · Objekt trägt nachts Brot in Richtung Hof. Rückweg ohne Brot. Bewertung: harmlos, Alterserscheinung.')
     + '\n\n' + villa_masch('<b>Blatt 212</b>\n23.10., 21:10 · L. B. (26) betritt Nr. 7. Licht Keller. 21:40 · Frau Wendt vor dem Haus, zählt. Acht. 22:05 · L. B. verlässt Nr. 7 nicht.\n24.10. bis 31.10. · Nr. 7 dunkel. Frau Wendt stellt Brot vor die Kellertür. Der Vogel sitzt auf der Laterne.\n03.11., 04:00 · Maas meldet: Anruf aus der Stadt, Bruder. Elfmal nicht abgenommen. Zwölftes Mal: Verbindung.\n04.11., 23:12 · Fahrzeug Ortsschild. Fahrer schläft. Zettel am Fenster (nicht von uns).\n04.11., 23:40 · K-3 betritt den Ort. Zu Fuß. Barfuß? Nein. Nass.')
+    + '\n' + villa_hand('Nachtrag zum 23.10., Kugelschreiber: „Frau Wendt legt Brandt, Lucy, in den Tank. Nicht eingreifen. Der Bruder kommt dann von allein. (hw)“') // Story-Prüfung W-5 (Kanon-Änderung, freigegeben)
     + '\n\n' + villa_masch('<b>Blatt 213</b>\n01.11. · Objekt zählt heute neun. Es sind acht. Hinweis an Regionalleitung: Objekt beginnt zu irren. Oder es steht dort tatsächlich ein Neunter. Letzteres ist auszuschließen.') + ' ' + villa_hand('(Zusatz hw: „Nicht auszuschließen.“)')
     + '\n' + villa_masch('03.11. · Objekt zählt. Objekt weint. Protokoll Ende, Schichtwechsel.') + '\n' + villa_blei('IHR ZÄHLT AUCH. ABER FALSCH') + VILLA_SIG
     + '\n\n' + villa_hand('Hinten im Deckel, Kugelschreiber: „Wenn der Bruder kommt, nicht ansprechen. Nur melden. Er soll erst mal laufen. (hw)“');
   villa_note('Ein Ringbuch', t, 'villa_ringbuch', async () => { if (villa_hat('ringbuch')) return; villa_setz('ringbuch'); if (typeof beob_S !== 'undefined') beob_S.found.add('b_k4_n2');
-    await villa_says([['<i>Sie haben zugesehen. Monate. Sie haben gesehen, wie Lucy verschwindet, und haben es aufgeschrieben. Sie haben gesehen, wie Hilde weint, und „Schichtwechsel“ druntergeschrieben.</i>', 7200, 'LUKE'], ['„Ihr habt Butterbrotpapier gefaltet.“', 2800, 'DU']]);
+    await villa_says([['<i>Elf Anrufe. Die haben gewartet, dass ich nicht rangeh. Und dann, dass ich komm.</i>', 5200, 'LUKE'], ['<i>Sie haben zugesehen. Monate. Sie haben gesehen, wie Lucy verschwindet, und haben es aufgeschrieben. Sie haben gesehen, wie Hilde weint, und „Schichtwechsel“ druntergeschrieben.</i>', 7200, 'LUKE'], ['„Ihr habt Butterbrotpapier gefaltet.“', 2800, 'DU']]);
     setTimeout(() => { villa_kratzen(-977.6, .9, R9W()); villa_spur('kratzer', { pos: [-977.2, .75, 900.86], ry: PI, n: 3, frisch: true }); }, 2500); }); }
 const R9W = () => 900.9;
 async function villa_nr9Brett() {
@@ -670,7 +673,7 @@ async function villa_ag13() {
   const res = await lwo_szene('AG-13', { figuren: { N11, N12 }, abbruch: () => A.entdeckt, hook: async (tu) => {
     if (tu && tu.r && /Mechanik/.test(tu.r)) { await kommen(); return true; }
     if (tu && tu.r && /Schrank geht auf/.test(tu.r)) { try { Audio.play('doorCreak', { gain: .5, x: -907, y: 1.2, z: 930.9, ref: 3 }); for (let i = 0; i < 4; i++) Audio.play('metalHit1', { gain: .06, rate: 2.8, delay: .4 + i * .12, x: -907, y: 1.6, z: 930.9 }); } catch (e) {} await wait(1600); return true; }
-    if (tu && tu.r && /Sie essen/.test(tu.r)) { lwo_clip(N11, 'idle'); for (let i = 0; i < 8; i++) { if (A.entdeckt) break; try { Audio.paper(); } catch (e) {} await wait(1250); } villa_kratzen(-900, 3.2, 930); await wait(900);
+    if (tu && tu.r && /Sie essen/.test(tu.r)) { lwo_clip(N11, 'idle'); for (let i = 0; i < 8; i++) { if (A.entdeckt) break; try { const q = N12.g.position, d = Audio.at(q.x, 1.1, q.z, 1.5); if (!Audio.cut) for (let k = 0; k < 4; k++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2000, 5000); bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .01, .05, k * .05, d); n.stop(Audio.ctx.currentTime + .5); } } catch (e) {} await wait(1250); } villa_kratzen(-900, 3.2, 930); await wait(900);
       await lwo_zeile('N11', '„Hast du das gehört?“'); await lwo_zeile('N12', '„Ratten.“'); await lwo_zeile('N11', '„Ratten schreiben nicht.“'); await lwo_zeile('N12', '„Zettel. Bleistift. Drei Punkte. Unleserlich.“', { vorlesen: true }); return true; }
     return false; } });
   if (A.entdeckt) return villa_ag13Entdeckt();
@@ -750,8 +753,8 @@ async function villa_hoehepunktA() { const G = VILLA.glas, R = VILLA_R.kr; VILLA
     for (let i = 0; i < 2; i++) { flashOn = false; await wait(110); flashOn = true; await wait(260); }
     await wait(2400); try { Audio.play('switch1', { gain: 1, rate: .5 }); } catch (e) {} await wait(900);
     flashOn = false; clearInterval(klopf); try { if (typeof whiskey_kellertreppe === 'function') whiskey_kellertreppe(null, false);  } catch (e) {} await wait(2000);
-    let brumm = null; try { villa_brumm(.6, 2, 50); brumm = Audio.loop('machine1', { gain: .16, fadeIn: 1.5 }); } catch (e) {} await wait(2000);
-    for (const [i, ms] of [[0, 420], [-1, 260], [0, 160], [1, 380], [2, 300]]) { if (i >= 0) { neon(i, 1.8); try { Audio.play('switch1', { gain: .3, rate: 2.2 }); } catch (e) {} } else neon(0, 0); await wait(ms); } alle(1.7);
+    let brumm = null; try { villa_brumm(.6, 2, 50); brumm = Audio.loop('machine1', { gain: .16, fadeIn: 1.5, x: -905, y: .6, z: 866.4, ref: 3 }); } catch (e) {} await wait(2000);
+    for (const [i, ms] of [[0, 420], [-1, 260], [0, 160], [1, 380], [2, 300]]) { if (i >= 0) { neon(i, 1.8); try { const q = (VILLA.neon[i] || { position: H.ziel }).position; Audio.play('switch1', { gain: .3, rate: 2.2, x: q.x, y: q.y, z: q.z }); } catch (e) {} } else neon(0, 0); await wait(ms); } alle(1.7);
     await wait(700); await villa_says([['„Okay. Okay. Licht.“', 2200, 'DU']]);
     for (let k = 0; k <= 20; k++) { H.w = k / 20 * .85; await wait(90); }
     await wait(2200); villa_blase(); try { Audio.play('waterFlow', { gain: .12, dur: .8, x: -903.6, y: 1.2, z: 868.8 }); } catch (e) {} await wait(1600);
@@ -764,7 +767,7 @@ async function villa_hoehepunktA() { const G = VILLA.glas, R = VILLA_R.kr; VILLA
     await wait(1400); alle(0); try { villa_brumm(0); if (brumm) brumm.stop(.05); } catch (e) {} H.w = .85;
     await wait(2200); for (let k = 0; k < 3; k++) { try { Audio.play('woodHit1', { gain: .7, rate: .9, x: -903.3, y: 1.2, z: 868.8, ref: 2 }); } catch (e) {} await wait(2000); }
     if (G.fig) { G.fig.rotation.set(f0.rx, f0.ry, f0.rz); G.fig.position.set(0, .36, 0); } if (G.fleck) G.fleck.material.opacity = .8; if (G.milch) G.milch.opacity = .5;
-    alle(1.7); try { brumm = Audio.loop('machine1', { gain: .12, fadeIn: .3 }); VILLA.kompressor = brumm; } catch (e) {} await wait(2600);
+    alle(1.7); try { brumm = Audio.loop('machine1', { gain: .12, fadeIn: .3, x: -905, y: .6, z: 866.4, ref: 3 }); VILLA.kompressor = brumm; } catch (e) {} await wait(2600);
     for (let k = 0; k <= 12; k++) { H.w = .85 * (1 - k / 12); H.nah = .2 * (1 - k / 12); if (G.fleck) G.fleck.material.opacity = .8 * (1 - k / 12); await wait(120); }
     await wait(1200); villa_schleuse(true); await wait(700); await villa_says([['„Scheiße. Scheiße.“', 2200, 'DU']]);
   } catch (e) { console.error('Höhepunkt A', e); } finally { clearInterval(klopf); setCamOverride(null); VILLA.hp = null; state.talking = false; villa_sperre(false); flashOn = true; 
@@ -815,7 +818,7 @@ async function villa_ag14() { if (villa_hat('ag14') || villa_hat('ag14_lauf')) r
       return false; } });
   villa_trust('ag14_ruhig'); void res;
   if (typeof lwo_S !== 'undefined' && lwo_S.seen.ag14_kanne !== undefined) villa_S.kanne = true;
-  await lwo_gehe(W, [[H.x - 1, H.z - 3], [H.x, H.z - H.d / 2 + .8]], .85); lwo_weg(W); try { Audio.play('ironDoor', { gain: .3, rate: .8 }); } catch (e) {}
+  await lwo_gehe(W, [[H.x - 1, H.z - 3], [H.x, H.z - H.d / 2 + .8]], .85); lwo_weg(W); try { Audio.play('ironDoor', { gain: .3, rate: .8, x: H.x, y: 1.2, z: H.z - H.d / 2 }); } catch (e) {}
   villa_setz('ag14'); villa_uk(11); villa_sperre(false); villa_tee(H);
   await villa_says([['Er geht. Nicht schnell. Die Thermoskanne bleibt auf dem Buffet stehen. Draußen steigen zwei in den Kombi. Nachsorge 12 winkt dir durchs Fenster zu, mit einer Stulle.', 6200]]);
   if (typeof todCheckpoint === 'function') todCheckpoint('k4_halle2', 'Villa · Halle, später');
@@ -831,8 +834,8 @@ async function villa_hoehepunktB(W) { const H = ANW_HALL; const hand = new THREE
   let w = 0; setCamOverride((cam) => { const p = wo(); if (!isFinite(p.x + p.y + p.z) || p.distanceTo(cam.position) < .2) return; VILLA.dummy.position.copy(cam.position); VILLA.dummy.lookAt(p); VILLA.q.copy(cam.quaternion).slerp(VILLA.dummy.quaternion, w); if (isFinite(VILLA.q.x + VILLA.q.y + VILLA.q.z + VILLA.q.w)) cam.quaternion.copy(VILLA.q); });
   try { await villa_says([['„Kommen Sie.“', 1600, 'WOLTER']]); { const dx = W.g.position.x - player.pos.x, dz = W.g.position.z - player.pos.z, d = Math.hypot(dx, dz) || 1; if (d > 1.2) lwo_gehe(W, [[player.pos.x + dx / d * 1.05, player.pos.z + dz / d * 1.05]], .35); }
     for (let k = 0; k <= 10; k++) { w = k / 10 * .7; await wait(60); }
-    try { Audio.play('wingFlap', { gain: 1 }) || Audio.caw(player.pos.x, 3, player.pos.z); } catch (e) {}
-    if (VILLA.w10) VILLA.w10.schlag(); try { Audio.play('scrape3', { gain: .5, rate: 2.2, dur: .3 }); } catch (e) {}
+    try { const p = wo(); Audio.play('wingFlap', { gain: 1, x: p.x, y: p.y, z: p.z }) || Audio.caw(p.x, p.y, p.z); } catch (e) {}
+    if (VILLA.w10) VILLA.w10.schlag(); try { const p = wo(); Audio.play('scrape3', { gain: .5, rate: 2.2, dur: .3, x: p.x, y: p.y, z: p.z }); } catch (e) {}
     lwo_hand('bare'); await wait(300); 
     let sirr = null; try { const c = Audio.ctx, o = c.createOscillator(), g = c.createGain(); o.frequency.value = 7200; g.gain.value = .015; o.connect(g); g.connect(Audio.master); o.start(); sirr = { o, g }; } catch (e) {}
     for (let k = 0; k <= 10; k++) { w = .7 + k / 10 * .3; await wait(50); } await wait(2600);

@@ -116,7 +116,7 @@ async function kapitel3_raus(wo) {
     const A = KAPITEL3_HALT.aus; player.pos.set(A[0], 0, A[1]); player.yaw = A[2]; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65;
     if (zweit && !S.spuren) kapitel3_spuren(A[0], A[1]); // A-10: frische Abdrücke in Lukes Größe, die in den Nebel hineinführen
     await wait(500); fd.style.transition = 'opacity 1400ms'; fd.style.opacity = 0; await wait(1400); fd.style.background = '#000';
-    if (zweit) Audio.ring(.05, 8, 1.9, 7.6); // die Telefonzelle klingelt einmal
+    // R-1 (Story-Prüfung): die Telefonzelle klingelt beim zweiten Hinausgehen nicht mehr – in Kap. 3 klingelt sie nur für den Anruf
     if (S.draussen === 1) { kapitel3_uk_setzen(5); if (typeof lwo_ag09 === 'function' && !S.ag09) { S.ag09 = true; lwo_ag09().then(() => kapitel3_speichern()).catch(e => console.error('AG-09', e)); } }
   } finally { state.talking = false; S.loopBusy = false; } }
 // Beim zweiten Versuch steht Justin am Ausgang, ohne dass er gegangen wäre
@@ -139,7 +139,7 @@ function kapitel3_zaehlbuch() {
   const S = kapitel3_S; S.buchN++; if (typeof addItem === 'function') addItem('buch');
   const sie = S.buchN >= 2 ? '<u>SIE</u>' : 'SIE'; // S-09: beim zweiten Öffnen ist „SIE“ mit Bleistift unterstrichen (der Beobachter)
   const html = '<i>Ein grünes Kassenbuch mit Stoffrücken. Dreißig Jahre Nächte. Drei Seiten sind aufgeschlagen.</i>\n\n<span class="hand">Es sind immer acht. Vegas zählt sieben. Er sieht den Achten nicht, der sieht ihn.\nSeit dem 31.: neun. Ich höre neun Paar Füße. Eins ist ganz klein. Keins von unseren.\nKeins mit fünf Zehen.</span>\n\n'
-    + '<span class="hand">Laternen aus, dieses Jahr: im Juni vor 5 (Roxy). Im Juli vor 3 (Mike).\nEnde Oktober vor 1 (Lucy). Sie holt sie, wie wir sie hergegeben haben.\nWenn sie mich holt, geht meine aus. Dann sind es vier.</span>\n\n'
+    + '<span class="hand">Laternen aus, dieses Jahr: im Juni vor 5 (Roxy). Im Juli vor 3 (Mike).\nEnde Oktober vor 1 (Lucy). Sie holt sie, wie wir sie hergegeben haben.\nWenn sie mich holt, geht meine aus. Dann sind es vier.\nFrüher kam sie im Sommer, zum Fest. Ohne Lampions wartet sie auf Martini. Auf ihre Nacht.</span>\n\n'
     + `<span class="hand">Wenn ich weg bin: Notfunk auf dem Tag, an dem ${sie} kam. Nicht Lucy. ${sie}.\nKanal nicht das, was zuerst antwortet.\nZayn, ich hab gezählt. Jede Nacht. Ich hab nie falsch gezählt.</span>`;
   const fn = () => openNote('Hildes Zählbuch', html, 'c3buch', () => { if (typeof mystFound === 'function') mystFound('buch');
     if (!S.buch) { S.buch = true; kapitel3_uk_setzen(6); setTimeout(() => { if (!state.talking) subtitle('Der Tag, an dem SIE kam. Der 31. Der Kellercode. Hilde hat alles auf denselben Tag gelegt, damit sie nichts vergisst.', 6000, 'LUKE'); }, 600);
@@ -351,7 +351,7 @@ WORLD_TICK.push((dt, t) => {
   if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
     S.ringT -= dt; if (S.ringT < 0) { S.ringT = 3.2; const dB = Math.hypot(P.x - 8, P.z - 7.6); if (dB > 36) Audio.ring(.09); else Audio.ring(.09, 8, 1.9, 7.6); } }
   // UK 1: erster Blick zur Telefonzelle
-  if (S.uk >= 1 && !S.gedZelle1 && !state.talking && !ui.overlay && P.distanceTo(_k3v2.set(8, 0, 7.6)) < 30 && kapitel3_siehtHin(8, 1.4, 7.6, .95)) { S.gedZelle1 = true; subtitle('Fünfzig Hertz. Das Netzbrummen. Nur dass hier seit Stunden kein Strom ist. Super. Ganz toll.', 5200, 'LUKE'); }
+  if (S.uk >= 1 && !S.gedZelle1 && !state.talking && !ui.overlay && P.distanceTo(_k3v2.set(8, 0, 7.6)) < 30 && kapitel3_siehtHin(8, 1.4, 7.6, .95)) { S.gedZelle1 = true; subtitle('Fünfzig Hertz. Immer noch. Kein Strom im ganzen Dorf, und die Zelle brummt.', 5200, 'LUKE'); }
   // UK 5: Kein Draußen (Ost- und Südsperre); beim zweiten Versuch steht Justin am Ausgang
   if (ch3.met && !S.loopBusy && !state.talking && !ch3.lampsOff) for (const [wo, R] of Object.entries(KAPITEL3_RAUS)) {
     if (S.draussen >= 1 && !S.justinWacht && Math.hypot(P.x - R.j[0], P.z - R.j[1]) < 26) { kapitel3_justinAmAusgang(wo); break; }

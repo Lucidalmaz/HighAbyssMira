@@ -235,8 +235,8 @@ function katzen_arm(k, obj, off = [0, 0, 0]) { if (!k) return; k.arm = obj ? { o
 function katzen_klick(k, label, fn) { if (!k) return; if (!k.klick) { k.klick = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, .5), hidden); k.klick.position.set(0, .2, 0); k.g.add(k.klick); } if (fn) interact(k.klick, label, () => fn(k)); else uninteract(k.klick); }
 function katzen_regie(an) { katzen_S.regie = !!an; }
 function katzen_schnurren(k, an) { // Schnurren: tiefes, pulsierendes Rauschen (Brustkorb), räumlich an der Katze
-  if (!k) return; if (!an) { if (k.purr) { try { const t = Audio.ctx.currentTime; k.purr.g.gain.setTargetAtTime(0, t, .25); const p = k.purr; setTimeout(() => { try { p.n.stop(); p.lfo.stop(); } catch (e) {} }, 1500); } catch (e) {} k.purr = null; } return; }
-  if (k.purr || !Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2), n = Audio.noise(true), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = 1.4;
+  if (!k) return; if (!an) { if (k.purr) { try { const t = Audio.ctx.currentTime; k.purr.g.gain.setTargetAtTime(0, t, .25); const p = k.purr; setTimeout(() => { try { p.n.stop(); p.lfo.stop(); } catch (e) {} Audio.frei(p.d); }, 1500); } catch (e) {} k.purr = null; } return; }
+  if (k.purr || !Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2, { obj: k.g, h: .2, dauer: 1e9 }), n = Audio.noise(true), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = 1.4;
   const am = ctx.createGain(); am.gain.value = 0; const lfo = ctx.createOscillator(); lfo.frequency.value = 24 + rand(-2, 3); const lg = ctx.createGain(); lg.gain.value = .5; lfo.connect(lg); lg.connect(am.gain); lfo.start();
   const g = ctx.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(.55, ctx.currentTime, .4); n.connect(lp); lp.connect(am); am.connect(g); g.connect(d); k.purr = { n, lfo, g, d }; }
 // Fauchen (Regel 3): Körper und Kopf in seine Richtung, Buckel, Ohren flach, Maul auf – nie auf Luke. ziel = null → ohne Richtung (Graukind, Kap. 5)
@@ -366,7 +366,6 @@ function katzen_tick(dt, t, indoor) {
       else { k.mx.update(k.acc); for (let i = 0; i < ob.length; i++) k.baseQ[i].copy(ob[i].quaternion); k.cached = true; }
       k.acc = 0; if (k.lod < 2) katzen_overlay(k, dt, t, d); }
     katzen_eyes(k, dt, d, lampOn, cam);
-    if (k.purr && k.purr.d && k.purr.d.positionX) { const p = k.g.position; try { const tt = Audio.ctx.currentTime; k.purr.d.positionX.setTargetAtTime(p.x, tt, .1); k.purr.d.positionY.setTargetAtTime(p.y + .2, tt, .1); k.purr.d.positionZ.setTargetAtTime(p.z, tt, .1); } catch (e) {} }
   }
   const ms = performance.now() - t0; S.prof.acc += ms; S.prof.n++; if (ms > S.prof.max) S.prof.max = ms;
 }

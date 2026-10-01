@@ -118,4 +118,4 @@ WORLD_TICK.push(() => { // Hüllkurve für Mundbewegung (nur solange gesprochen 
   if (!ST.cur.length) { if (ST.env) { ST.env = 0; if (typeof figuren_mund === 'function') try { figuren_mund(ST.stimme, 0); } catch (e) {} } return; }
   const a = ST.ana, d = ST.tmp; a.getFloatTimeDomainData(d); let s = 0; for (let i = 0; i < d.length; i++) s += d[i] * d[i];
   const r = Math.min(1, Math.sqrt(s / d.length) * 6); ST.env += (r - ST.env) * (r > ST.env ? .6 : .25);
-  if (typeof figuren_mund === 'function') try { figuren_mund(ST.stimme, ST.env); } catch (e) {} });
+  if (typeof figuren_mund === 'function' && ST.stimme !== 'luke') try { figuren_mund(ST.stimme, ST.env); } catch (e) {} }); // figuren.js: Pegel-Weg (Lippen folgen der Stimme)

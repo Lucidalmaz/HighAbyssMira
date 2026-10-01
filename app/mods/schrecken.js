@@ -27,7 +27,7 @@ const SCHRECK_ORTE = [
       Audio.whisper(-48.6, 1, 73, 2.2); subtitle('<i>Ganz leise, ein Kind: „… fünf … sechs … sieben …“</i>', 4200); return true; } },
   { id: 'kapelle', x: -52.5, z: 83.5, r: 9, when: () => true, run(t) { // die Glocke schlägt einmal – dann ein zweites Mal, von innen
       Audio.play('metalHit2', { gain: .55, rate: .22, x: -52.5, y: 9, z: 86.6, ref: 25 }); shake = .02;
-      setTimeout(() => { Audio.play('metalHit2', { gain: .35, rate: .2, x: -52.5, y: 1.5, z: 87.5, ref: 8 }); Audio.knock(); subtitle('<i>Die Kapellenglocke. Einmal. Dann noch einmal – diesmal von drinnen, direkt hinter der Tür.</i>', 4600); }, 2600); return true; } },
+      setTimeout(() => { Audio.play('metalHit2', { gain: .35, rate: .2, x: -52.5, y: 1.5, z: 87.5, ref: 8 }); Audio.knock(-52.5, 1.3, 87.5); subtitle('<i>Die Kapellenglocke. Einmal. Dann noch einmal – diesmal von drinnen, direkt hinter der Tür.</i>', 4600); }, 2600); return true; } },
   { id: 'spielplatz', x: 31.5, z: 72, r: 10, when: () => ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4), run(t) { // alles bewegt sich auf einmal
       try { const M_ = ausbau_nord.merry; M_.w = 2.2; M_.frozen = false; M_.auto = true; } catch (e) {}
       const f = schreck_fwd(); Audio.giggle(player.pos.x - f.x * 2, 1, player.pos.z - f.z * 2); setTimeout(() => Audio.giggle(40.6, 1, 78.8), 900);
@@ -39,7 +39,7 @@ const SCHRECK_ORTE = [
   { id: 'fuchsbau', x: 74, z: 129.5, r: 8, when: () => true, run(t) { // Fuchsschrei direkt neben dir – klingt wie eine Frau
       const f = schreck_fwd(); Audio.fox(player.pos.x - f.z * 3, player.pos.z + f.x * 3); shake = .04; setTimeout(() => { if (typeof gedanke === 'function') gedanke('schreck_fuchs', 'Nur ein Fuchs. … Nur ein Fuchs. Füchse klingen so. Sagt man.', 0, 3); }, 2200); return true; } },
   { id: 'villa_garten', x: -125, z: 52, r: 10, when: () => true, run(t) { // oben geht ein Fenster auf, eine Spieluhr, dann schlägt es zu
-      Audio.creak(.4); if (Audio.musicBox) Audio.musicBox(); setTimeout(() => { Audio.play(Audio.pick('woodSlam1', 'woodSlam2'), { gain: .7, x: -125, y: 6, z: 61, ref: 10 }); shake = .04; }, 3800); return true; } },
+      Audio.creak(.4, -125, 6, 61); if (Audio.musicBox) Audio.musicBox(-125, 6, 61); setTimeout(() => { Audio.play(Audio.pick('woodSlam1', 'woodSlam2'), { gain: .7, x: -125, y: 6, z: 61, ref: 10 }); shake = .04; }, 3800); return true; } },
 ];
 // ---------------------------------------------------------------- Kapitel 1 (AP-14)
 // „katze_starrt“ (Zufallsmoment): eine Katze sitzt vor einer leeren Ecke und starrt hinein; leuchtet Luke hin, drei kleine Schritte weg (nie ein Bild)

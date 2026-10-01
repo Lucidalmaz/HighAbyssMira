@@ -96,7 +96,7 @@ function whiskey_perch(x, z) {
 }
 function whiskey_play(k, fade = .25, once = false, ts = 1) { const S = whiskey_S, a = S.A[k]; if (!a) return; a.timeScale = ts; if (a === S.cur) return; a.reset();
   if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else { a.setLoop(THREE.LoopRepeat, Infinity); if (/^Idle|^Eat/.test(k)) { a.time = Math.random() * a.getClip().duration; a.timeScale = ts * rand(.88, 1.12); } } a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; } // Q-1: keine identischen Schleifen
-function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5 }); }
+function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, obj: g, doppler: true, ref: 5 }); }
 function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil > .5) || (typeof SP !== 'undefined' && SP.silent > .5); } // Stille-Zonen (Kap. 6): Whiskey stumm
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
@@ -133,21 +133,21 @@ const WHISKEY_MIMIC = {
   pling: { s: 1 }, klingelton: { s: 1 }, kinderlachen: { s: 1 }, fahrrad: { s: 1 }, wecker: { s: 1 }, glocke: { s: 1 }, knurren: { s: 1 }, funk: { s: 1 }, wiegenlied: { s: 1 }, fauchen: { s: 1 },
   rehschrecken: { s: 1 }, grunzen: { s: 1 }, netzbrummen: { s: 1 }, ruestung: { s: 1 }, kuli: { s: 1 }, schrei: { s: 1 }, autotuer: { s: 1 }, standgas: { s: 1 }, telefonzelle: { s: 1 }, gurren: { s: 1 } };
 // Klang-Ziel: Tiefpass → Raumposition des Raben (null = außer Hörweite)
-function whiskey_dest(at, lp = 2600) { const A = Audio; if (!A.ctx) return null; const p = at || whiskey_S.g.position, d = A.at(p[0] ?? p.x, (p[1] ?? p.y) + .25, p[2] ?? p.z, 4); if (A.cut) return null;
+function whiskey_dest(at, lp = 2600, dauer = 3) { const A = Audio; if (!A.ctx) return null; const g = whiskey_S.g, d = at ? A.at(at[0], at[1] + .25, at[2], 4) : A.at(g.position.x, g.position.y + .25, g.position.z, 4, { obj: g, h: .25, dauer }); if (A.cut) return null;
   const f = A.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; f.Q.value = .5; f.connect(d); return f; }
 function whiskey_ton(f, t0, dur, peak, dest, type = 'sine', att = .006) { if (Audio.rabeTon && Audio.rabeTon(f * .92, t0, dur, peak, dest)) return null; // Rabenkehle (Modul klang), sonst Oszillator
   const o = Audio.osc(type, f * .92, t0, dur + .1); Audio.env(o, peak, att, dur, t0, dest); return o; }
 function whiskey_klang(key, at) {
-  const A = Audio, g = whiskey_S.g, p = at || [g.position.x, g.position.y, g.position.z], o = { rate: .92, lp: 2600, x: p[0], y: p[1] + .2, z: p[2], ref: 4 };
-  const D = () => whiskey_dest(p);
+  const A = Audio, g = whiskey_S.g, p = at || [g.position.x, g.position.y, g.position.z], o = at ? { rate: .92, lp: 2600, x: p[0], y: p[1] + .2, z: p[2], ref: 4 } : { rate: .92, lp: 2600, obj: g, h: .2, doppler: true, ref: 4 };
+  const D = (s) => whiskey_dest(at, 2600, s);
   switch (key) {
     case 'pling': { const d = D(); if (!d) return; whiskey_ton(1318, 0, .6, .09, d); whiskey_ton(1760, .24, .6, .07, d); break; } // Oma Ernas Mikrowelle
-    case 'klingelton': { const d = D(); if (!d) return; for (let b = 0; b < 3; b++) for (let i = 0; i < 16; i++) { whiskey_ton(i % 2 ? 1180 : 960, b * 1.3 + i * .045, .05, .07, d, 'triangle', .002); } break; } // Wählscheibentelefon
+    case 'klingelton': { const d = D(5); if (!d) return; for (let b = 0; b < 3; b++) for (let i = 0; i < 16; i++) { whiskey_ton(i % 2 ? 1180 : 960, b * 1.3 + i * .045, .05, .07, d, 'triangle', .002); } break; } // Wählscheibentelefon
     case 'telefonzelle': { const d = D(); if (!d) return; for (let b = 0; b < 2; b++) { whiskey_ton(440, b * .6, .4, .08, d); whiskey_ton(480, b * .6, .4, .08, d); } break; }
     case 'autotuer': { const d = D(); if (!d) return; for (let i = 0; i < 6; i++) whiskey_ton(740, i * .42, .18, .07, d, 'sine', .004); break; } // Warnsummen der offenen Autotür
     case 'fahrrad': { const d = D(); if (!d) return; [0, .2, .55].forEach((t0, i) => { whiskey_ton(2093, t0, i === 2 ? .9 : .22, .08, d); whiskey_ton(2093 * 2.76, t0, i === 2 ? .5 : .12, .02, d); }); break; }
     case 'wecker': { const d = D(); if (!d) return; for (let i = 0; i < 34; i++) whiskey_ton(i % 2 ? 2350 : 2250, i * .042, .035, .05, d, 'square', .002); break; }
-    case 'glocke': { const d = D(); if (!d) return; const at3 = [0, 1.6, 3.2], at13 = [...Array(13)].map((_, i) => 6.4 + i * 1.6); for (const t0 of [...at3, ...at13]) { whiskey_ton(311, t0, 1.4, .06, d); whiskey_ton(311 * 2.4, t0, .8, .025, d); } break; }
+    case 'glocke': { const d = D(28); if (!d) return; const at3 = [0, 1.6, 3.2], at13 = [...Array(13)].map((_, i) => 6.4 + i * 1.6); for (const t0 of [...at3, ...at13]) { whiskey_ton(311, t0, 1.4, .06, d); whiskey_ton(311 * 2.4, t0, .8, .025, d); } break; }
     case 'wiegenlied': { const d = D(); if (!d) return; [659, 587, 523, 494, 523].forEach((f, i) => { const osc = whiskey_ton(f * 2, i * .46, .38, .05, d, 'sine', .03); try { A.lfo(5.5, 9, osc.frequency); } catch (e) {} }); break; } // gepfiffen E D C H C, bricht ab
     case 'netzbrummen': { const d = D(); if (!d) return; whiskey_ton(50, 0, 2.2, .06, d, 'sawtooth', .2); whiskey_ton(100, 0, 2.2, .03, d, 'sine', .2); break; }
     case 'funk': { A.play('switch2', { ...o, gain: .35, rate: 1.1 }); const d = D(); if (!d) return; const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 1.2; n.connect(bp); A.env(bp, .12, .01, .5, 0, d); n.stop(A.ctx.currentTime + 1);
@@ -168,7 +168,7 @@ function whiskey_klang(key, at) {
 function whiskey_stimme(M, key, at) {
   const A = Audio, g = at ? { position: { x: at[0], y: at[1], z: at[2] } } : whiskey_S.g, silben = Math.max(1, Math.round(M.t.replace(/[^aeiouäöüAEIOUÄÖÜ]/g, '').length * .8)), r = { vegas: .92, luke: 1.05, wolter: .86, frau: 1.25, hilde: 1.12 }[M.v] || 1;
   if (typeof stimmen_spielen === 'function') { try { if (stimmen_spielen('whiskey_' + key, [g.position.x, g.position.y, g.position.z])) return; } catch (e) {} }
-  for (let i = 0; i < Math.min(silben, 6); i++) A.play('crow1', { rate: r * .92 * rand(.97, 1.04) * 1.4, lp: 1900, hp: 420, gain: .42, dur: .16, delay: i * .19, x: g.position.x, y: g.position.y + .25, z: g.position.z, ref: 4 });
+  for (let i = 0; i < Math.min(silben, 6); i++) A.play('crow1', { rate: r * .92 * rand(.97, 1.04) * 1.4, lp: 1900, hp: 420, gain: .42, dur: .16, delay: i * .19, ...(at ? { x: at[0], y: at[1] + .25, z: at[2] } : { obj: g, h: .25 }), ref: 4 });
 }
 function whiskey_mimic(key, o = {}) {
   const S = whiskey_S, M = WHISKEY_MIMIC[key]; if (!M || !S.g) return false;
@@ -234,7 +234,7 @@ function whiskey_pick(n) { const S = whiskey_S; let i = 0; const peck = () => { 
 // ---------------------------------------------------------------- Szenen Kapitel 1
 function whiskey_k1Start() { const S = whiskey_S; if (S.met.has('start')) return whiskey_ansehen(); S.met.add('start');
   subtitle('<i>Ein Rabe. Groß, schwarz, die Augen fast weiß. Der aus meinem Traum. Er sieht mich an, als hätte er auf mich gewartet.</i>', 4600, 'LUKE');
-  setTimeout(() => { if (!state.talking) { subtitle('Du. Du warst im Traum. Du hast geredet.', 2600, 'LUKE'); setTimeout(() => { whiskey_mimic('pling'); setTimeout(() => subtitle('Okay. Hab ich mir eingebildet.', 2400, 'LUKE'), 1800); }, 2800); } }, 4800); } // K1-1
+  setTimeout(() => { if (!state.talking) { subtitle('Du. Du warst im Traum. Du hast geredet.', 2600, 'LUKE'); setTimeout(() => { whiskey_mimic('gurren'); /* Gag-Budget H-1: das Pling gehört Nr. 4 */ setTimeout(() => subtitle('Okay. Hab ich mir eingebildet.', 2400, 'LUKE'), 1800); }, 2800); } }, 4800); } // K1-1
 // W-02 (Teil 1): Annäherung an das Ortsschild – Fibel-Notiz über den Ring
 function whiskey_w02a() { const S = whiskey_S; S.flags.add('w02a'); if (!whiskey_lore('whiskey_ring')) story.lore.push({ key: 'whiskey_ring', title: 'Der Ring am Fuß', html: '<span class="hand">Beringt. Ein Turm, darunter ein Strich wie ein Abgrund. Wer beringt einen Raben?</span>' });
   questPop('ABENTEUERFIBEL', 'Der Ring am Fuß'); whiskey_blick(player.pos.x, 1.4, player.pos.z, 3); }
@@ -376,7 +376,7 @@ async function whiskey_papasMarke() {
 }
 // ---------------------------------------------------------------- Kapitel 5
 function whiskey_k50(d) { const S = whiskey_S; if (S.flags.has('k5_0') || d > 9 || state.talking) return; S.flags.add('k5_0'); S.moodPick = 'beleidigt';
-  setTimeout(() => { whiskey_mimic('himmelherrgott', { force: true, at: [-25, 1.4, -12.6] }); setTimeout(() => { whiskey_play('EatSomething', .1, true); Audio.play('woodHit2', { gain: .1, rate: 1.8, x: -27.2, y: 1.2, z: -11.2 }); }, 2200);
+  setTimeout(() => { Audio.play('woodHit2', { gain: .22, rate: 1.5, x: -25, y: 1.2, z: -12.6, ref: 3 }); /* Gag-Budget H-1: kein „Himmelherrgott!“ in Kap. 5 */ setTimeout(() => { whiskey_play('EatSomething', .1, true); Audio.play('woodHit2', { gain: .1, rate: 1.8, x: -27.2, y: 1.2, z: -11.2 }); }, 2200);
     setTimeout(() => { Audio.play('stones1', { gain: .16, rate: 1.3, x: -28, y: .2, z: -25, ref: 3 }); whiskey_blick(-28, .3, -25, 6); S.flags.add('k5_0x'); }, 9000); }, 1200); }
 function whiskey_kombi(pos) { const S = whiskey_S; whiskey_setzen(...pos, () => { whiskey_pick(3); setTimeout(() => whiskey_mimic('bedauerlich', { force: true }), 5200); }); } // K5-2 (Dialog: lwo.js)
 function whiskey_w12nah(d) { const S = whiskey_S; if (d < 40 && !S.flags.has('w12_pfiff')) { S.flags.add('w12_pfiff'); whiskey_mimic('wiegenlied', { force: true }); }
@@ -540,6 +540,6 @@ WORLD_TICK.push((dt, t) => {
   const beakOn = S.hatSchluessel && !S.fl && !far; S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
   if (!far) { S.mx.update(dt * (S.tired ? .7 : 1)); if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy, S.hr);
     if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3));
-      if (S.glz) { S.glz.g.position.copy(S.beak.position); S.glz.g.position.y -= .012; S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
+      if (S.glz) { S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
 });
 window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s) }; // Testzugriff

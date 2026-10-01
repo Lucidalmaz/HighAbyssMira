@@ -517,7 +517,7 @@ async function startChapter5() {
   if (typeof kapStart === 'function') kapStart(5); else { if (typeof KAP !== 'undefined') KAP.n = 5; setChapter(5); saveFlag('ch5'); }
   k5_welt(); k5_merker();
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = C5_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(5) : '') + C5_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   if (pend) { // Weiterspielen: am letzten Speicherpunkt dieses Kapitels (resumeAfterIntro setzt danach nur die gespeicherte Aufgabe)
     const sp = pend.sp || 'k5_veranda'; k5_wieder(sp, true);
     $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer(); };
@@ -557,15 +557,15 @@ async function k5_takt(beat, wieder) {
     let t = 0; state.talking = true; k5.ownScript = true; setScripted(dt => { t += dt; return t < 4.2; });
     setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.22 + .43 * (k * k * (3 - 2 * k)); if (t > 4.3) { setCamOverride(null); k5.ownScript = false; } });
     for (let i = 0; i < 4; i++) setTimeout(() => Audio.drip(-26.2, 2.6, -10.9), 600 + i * rand(700, 1300));
+    { const f = flatDir(); k5_zettel('B-K4-09', { pos: [player.pos.x + f.x * .8, null, player.pos.z + f.z * .8] }); } // G-4 (Story-Prüfung B): liegt schon da, als Luke aufsteht – „ICH HAB DICH GEZÄHLT. ZWEI MAL.“
     await wait(4400); if (!ok()) return; state.talking = false;
     await wait(1200); if (!ok()) return; Audio.chains(-28, 1.2, -12.2); Audio.creak(.25, -28, 1.2, -12.2); if (typeof albers_S !== 'undefined') albers_S.open = 1; await wait(900);
     state.talking = true; await k5_sag([['„Sie schläft. Endlich.“', 2800, K5_W.V], ['„Friert seit heute Mittag. Ich hab die Heizung auf fünf, Junge. Fünf! Da schwitzt sonst der Hund.“', 5200, K5_W.V], ['„Und sie hat mich gefragt, wo Flocke ist. Flocke ist seit Jahren tot.“', 4600, K5_W.V]]);
     if (!ok()) return; player.pos.x -= .35; await k5_sag([['„Vielleicht hat sie geträumt.“', 2600, K5_W.LU], ['„Mit offenen Augen gefragt. Mit den weißen.“', 3600, K5_W.V]]); if (!ok()) return;
-    // HIMMELHERRGOTT! – Vegas’ Stimme, aber es ist Whiskey durch das Küchenfenster (ohne Taufe aus Kap. 1: das Warnsummen der Autotür, AP-08)
-    const taufe = typeof whiskey_S !== 'undefined' && whiskey_S.vegas_taufe;
-    if (typeof whiskey_mimic === 'function') { try { whiskey_mimic('himmelherrgott', { force: true, at: [-25, 1.4, -12.6] }); } catch (e) {} }
+    // Gag-Budget H-1/H-2: kein „Himmelherrgott!“ mehr – in der Küche scheppert die Pfanne, Whiskey ist durchs Küchenfenster rein; Steigerung: der ganze Wochenspeck
+    try { Audio.play('woodHit2', { gain: .3, rate: 1.5, x: -25, y: 1.2, z: -12.6, ref: 3 }); setTimeout(() => Audio.play('woodHit1', { gain: .18, rate: 1.9, x: -25.4, y: 1, z: -12.4, ref: 3 }), 260); } catch (e) {}
     await wait(2200); if (!ok()) return;
-    await k5_sag(taufe ? [['„Das war nicht ich. Das war der Vogel. Er hat den Speck gefunden. Den ganzen Speck, für die ganze Woche.“', 5600, K5_W.V]] : [['„Der Vogel. Er hat den Speck gefunden. Den ganzen Speck, für die ganze Woche.“', 4600, K5_W.V]]);
+    await k5_sag([['„Der Vogel. Er hat den Speck gefunden. Den ganzen Speck, für die ganze Woche.“', 4600, K5_W.V]]);
     if (vorNr3) await k5_sag([['„Und die da stehen vor MEINER Tür, Junge. Vor meiner!“', 3600, K5_W.V]]);
     state.talking = false; if (typeof albers_S !== 'undefined') albers_S.open = 0; if (!ok()) return;
     // Whiskey landet mit einer Speckschwarte auf dem Geländer, sieht Luke an und schluckt sie demonstrativ
@@ -734,8 +734,7 @@ async function k5_gisela() {
     // Luke setzt ihn ab – der Kater setzt sich auf Lukes Fuß
     if (k) { k5_kater('folgen'); if (typeof katzen_absetzen === 'function') katzen_absetzen(k); k.st = 'sitFoot'; k.t = 3.2; }
     await wait(900);
-    await say([['„Und noch was. Heute Mittag stand der mit dem Hut oben auf dem Friedhof, mit dem Steinmetz. An dem Grab mit deinem Namen.“', 6200, K5_W.G],
-      ['„Der hat sich nicht verändert, seit er bei uns am Küchentisch saß. Das ist nicht gesund.“', 4400, K5_W.G],
+    await say([['„Und noch was. Der mit dem Hut war heut am Grab. An dem mit deinem Namen. Mit dem Steinmetz. Der zahlt bar. Wer zahlt Gräber bar?“', 7200, K5_W.G], // R-1/W-4: „nicht gesund“ nur noch Kap. 3
       ['„Bring ihn zurück, ja? Siebzehn Katzen und kein einziger Mann, und ich hab heut Nacht keine Lust auf noch einen leeren Napf.“', 6200, K5_W.G]]);
     // Wahl A („Dich. Dass du bleibst.“): der Ranzenriemen „H. R.“ – Einlösung des Abschiedsgeschenks A (kein Witz, keine Musik, nur die Dachrinne)
     if (k5_antwort() === 'A' && k5_hat('ranzenriemen')) {
@@ -916,6 +915,7 @@ async function k5_heimkehrerin() {
     phase = 'halbnah'; t = 0; const mb = (v) => k5_box(tuer.x, 1.4, tuer.z, { v, tempo: .92, det: .03 });
     mb(.08); await say([['„Jetzt weißt du’s.“', 2600, K5_W.H]]); if (tok !== k5.tok) return;
     await say([['„Wir tragen beide ein geliehenes Gesicht,“', 2700, K5_W.H]]); mb(.13); await say([['„… Bruder.“', 1600, K5_W.K]]); if (tok !== k5.tok) return;
+    await say([['„Ich hab mir was von ihr geborgt. Das Kochen. Das Lachen. Das ‚Großer‘.“', 4400, K5_W.K]]); if (tok !== k5.tok) return; // Story-Prüfung W-2: neue Wendung 7
     // 18–21 s: ganz nah, die Augen; für ein einziges Bild ist unter Lucys Gesicht das graue durchgeschaltet
     phase = 'nah'; t = 0; await wait(700);
     const g = S.g.graue; if (g && h) { const hk = kopfPos().clone(); g.position.copy(h.position); g.rotation.y = h.rotation.y; g.visible = true; g.updateMatrixWorld(true); const Pg = g.userData.person, bg = Pg && (Pg.b || (Pg.b = figuren_bones(Pg.obj)));
@@ -1064,6 +1064,7 @@ async function k5_augenAuf(zwang) {
     await say([['„Da ist er ja.“', 2400, K5_W.K]]); S.o.duich.visible = true; S.L.stall.intensity = 0;
     k5_katerTakt('augenauf'); k5_stroh(S.stallP[0] - .6, S.stallP[1] - 1.1);
     await wait(800); await say([['„Ich hab ihn angesehen.“', 2800, K5_W.LU]]);
+    k5_zettel('B-K5-08', { pos: [dx + .55, .03, dz + .6] }); // G-4 (Story-Prüfung B): an der Stalltür, gegenüber von B-K5-04 – „ICH HAB ES AUSGERECHNET. ES GEHT AUF“
   } finally { state.talking = false; }
   if (typeof whiskey_hin === 'function') { try { whiskey_hin(-115, 22, 3); } catch (e) {} } // Whiskey fliegt vom Dach Richtung Schrebergärten
   k5.beat = 'tappen'; k5_setup('tappen', true);
@@ -1139,11 +1140,12 @@ async function k5_kerzeAnzuenden() {
     k5.hand.phase = 'aus'; S.flHand.visible = false; await wait(700); subtitle('Das Wachs ist kalt, obwohl sie gebrannt hat.', 3600); await wait(2400);
     if (S.kerzeHand) S.kerzeHand.visible = false; k5.hand = null; k5.pust = false;
     if (L) { k5_face(L, 30, 98); k5_clip(L, 'walk', false); }
-    await say([['„Im Wald findet sie keinen! Der hat kein Echo!“', 3600, K5_W.E]]);
+    await say([['„Im Wald findet sie keinen! Sie findet uns an dem, was wir liegen lassen. Da drin frisst das einer weg!“', 5200, K5_W.E]]); // Story-Prüfung V-3
+    try { if (typeof sammeln_fibel === 'function') sammeln_fibel('R-K5c'); } catch (e) {}
   } finally { state.talking = false; }
   if (S.g.gz4) k5_armHoch(S.g.gz4, false);
   k5_lore('k5_schlafenszeit', 'Nicht meine Mama. Ihre.', 'Mamas Kerze, mit Peters Feuerzeug angezündet. Sie hat nicht gepustet. Die Flamme stand still, kalt-weiß, und im Nordwesten flammte das Dachfenster der Villa auf. „Mama, ich war gar nicht böse.“');
-  k5_lore('k5_wald', 'Ein Wald ohne Echo', 'Er ist in den Wald gelaufen. „Im Wald findet sie keinen! Der hat kein Echo!“');
+  k5_lore('k5_wald', 'Ein Wald ohne Echo', 'Er ist in den Wald gelaufen. „Im Wald findet sie keinen! Sie findet uns an dem, was wir liegen lassen. Da drin frisst das einer weg!“');
   k5.beat = 'zaun'; if (L) k5.renne = { g: L, pfad: [[S.pit.x - 4, 69.2], [-52.5, 67.6], [-52.5, 61.5], [-30, 60], [0, 60], [22, 62], [29, 70], [30, 86], [30, 97.2], [30.2, 99.6]], i: 0, v: 4.6, weg: true };
   k5_setup('zaun'); k5.beat = 'zaun'; k5_takt('zaun');
 }
@@ -1330,7 +1332,7 @@ WORLD_TICK.push((dt, t) => {
     else { T.st = 1e9; // am Aushangkasten hört das Tappen auf: das Plakat (AG-17); danach Schwarzblende und die elf Schläge
       if (k5.f.plakatGelesen) { if (!T.endeT) T.endeT = 2.5; T.endeT -= dt; if (T.endeT <= 0) k5_tappEnde(); }
       else if (d < 9 && !k5.f.plakatHinw && (T.warte = (T.warte || 0) + dt) > 14) { k5.f.plakatHinw = true; k5_denk('Hier hört es auf. An der Laterne hängt was. Frisch laminiert.', 4200); } }
-    if (T.i === K5_GAG && !k5.f.gag) { k5.f.gag = true; k5_scheisseGag(T.x, T.z); } // Atempause: die Katze jagt Whiskey, er krächzt „Scheiße“
+    if (T.i === K5_GAG && !k5.f.gag) { k5.f.gag = true; k5_scheisseGag(T.x, T.z); } // Atempause: die Katze jagt Whiskey, er faucht zurück
     T.t += dt; if (d > 26 && (T.weit -= dt) < 0) { T.weit = 18; k5_denk('Die Füße. Irgendwo vor mir.', 2600); } }
   // --- K5-16: das Bett
   if (b === 'grab' && k5.gr) k5_grabTick(dt);
@@ -1354,14 +1356,13 @@ async function k5_mama() { const S = K5, g = S.g.mama; if (!g || state.talking) 
     for (let i = 20; i >= 0; i--) { echoMat.opacity = .35 * i / 20; await wait(40); }
   } finally { g.visible = false; if (S.o.laterneM) S.o.laterneM.visible = false; echoMat.opacity = 0; if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false); state.talking = false; }
   await wait(2500); if (k5.on && k5.beat === 'schleife') k5_denk('Die Kamera. Sie hat sich weggedreht, als ich sie gehoben hab. Wovor hat so was Angst?', 5600); }
-// UK 12, Atempause: die Katze jagt Whiskey, er lässt sich erst im letzten Moment vom Zaun fallen, landet auf dem Wegweiser und krächzt Lukes „Scheiße“ nach
+// UK 12, Atempause: die Katze jagt Whiskey, er lässt sich erst im letzten Moment vom Zaun fallen, landet auf dem Wegweiser und faucht sie mit ihrer eigenen Stimme an (H-1)
 async function k5_scheisseGag(x, z) { const k = typeof katzen_get === 'function' ? katzen_get('HÄNSCHEN') : null;
   if (typeof whiskey_setzen === 'function') { try { whiskey_setzen(x + 2.5, k5_perch(x + 2.5, z + 1.5, 1.1), z + 1.5); } catch (e) {} }
   await wait(1800); if (k && typeof katzen_goto === 'function') katzen_goto(k, x + 2.3, z + 1.3, { lauf: true, dann: 'stand' });
   await wait(1200); if (typeof whiskey_setzen === 'function') { try { whiskey_setzen(x + 5, k5_perch(x + 5, z - 1, 2.1), z - 1); } catch (e) {} } Audio.flap && Audio.flap(x + 3, 1.5, z);
-  await wait(1600); if (typeof whiskey_mimic === 'function') { try { whiskey_mimic('scheisse', { force: true }); } catch (e) {} }
-  await wait(2200); if (!state.talking) subtitle('„Das hab ich heute noch gar nicht gesagt.“', 3200, K5_W.LU);
-  await wait(3400); if (typeof whiskey_mimic === 'function') { try { whiskey_mimic('scheisse', { force: true }); } catch (e) {} }
+  await wait(1600); if (typeof whiskey_mimic === 'function') { try { whiskey_mimic('fauchen', { force: true }); } catch (e) {} } // Gag-Budget H-1: statt eines dritten „Scheiße“ faucht er die Katze mit ihrer eigenen Stimme an
+  await wait(2200); if (!state.talking) subtitle('„Unentschieden.“', 2000, K5_W.LU);
   await wait(1500); k5_kater('folgen'); }
 // K5-11: die Graue (vorhandene Figur „grey“) – bewegt sich nur ungesehen, zerfällt im Licht
 function k5_jagd(dt) { const J = k5.jagd, P = player.pos, gy = grey;
@@ -1377,7 +1378,7 @@ async function k5_gefangen() { state.talking = true; shake = .05; glitchV = .6; 
   try { k5_atem(camera.position.x, camera.position.y - .1, camera.position.z, .22); const f = inFront(.5, .55); grey.position.copy(f); grey.lookAt(camera.position.x, .55, camera.position.z); grey.visible = true; await wait(380); grey.visible = false; grey.position.y = 0;
     try { if (typeof kino_abriss === 'function') kino_abriss(.5); } catch (e) {}
     await fade(1, 900); subtitle('Kleine, kalte Finger an deinem Hals. „Iss auf, Bruder.“', 4200); k5_platz(K5_POS.kinder); if (K5.g.lucyK) K5.g.lucyK.position.y = 0; await wait(1600); fade(0, 1400); } finally { state.talking = false; } }
-// K5-16: Hilfeleiter, Ochs am Berg, „Pust.“
+// K5-16: Hilfeleiter, „Pust.“, Friedhof im Blitz (G-2/A-18)
 function k5_grabTick(dt) { const G = k5.gr, S = K5, P = player.pos, pit = S.pit, dK = Math.hypot(P.x - pit.x, P.z - pit.z);
   G.t += dt;
   // Friedhofstor (SP5-7): V-10 bei miserabel; Voss erkannt; unten am Kirchweg springt ein Motor an (der Kombi) – Grete dreht den Kopf dorthin, bis das Geräusch weg ist
@@ -1393,14 +1394,14 @@ function k5_grabTick(dt) { const G = k5.gr, S = K5, P = player.pos, pit = S.pit,
   if (G.hinw < 4 && G.t > 30 && k5_hat('mamas_kerze') && k5_hat('feuerzeug')) { G.hinw = 4; k5_tip('<kbd>E</kbd> Mamas Kerze anzünden', 9000); }
   if (G.hinw < 5 && G.t > 60) { G.hinw = 5; k5_zettel('B-K5-H1', { vor: true }); } // Hilfe-Zettel nur bei Festhängen am Grab
   // Taschenlampe auf sie → „Pust.“ (Lampe aus, bis gelöst) – A-18: danach sieht man die Behaltenen nur noch im Blitz der Kamera
-  const K = S.g.graue; if (!k5.pust && flashOn && K && K.visible && dK < 16 && k5_blick(K.position.x, 1, K.position.z) > .94) { k5.pust = true; flashOn = false; G.hinw = Math.max(G.hinw, 2); state.talking = true;
-    say([['„Pust.“', 1600, K5_W.K]]).then(async () => { if (Audio.flick) Audio.flick(); await say([['„Aus. Einfach ausgepustet. Wie eine Geburtstagskerze.“', 3400, K5_W.LU]]); state.talking = false;
+  // G-2 (Story-Prüfung): spätestens 12 s nach Lunas Sätzen pustet sie von selbst – Kapitel 5 hat damit seine eigene Regel (Blitz) statt einer dritten Ochs-am-Berg-Runde
+  const K = S.g.graue; if (!k5.pust && K && K.visible && ((flashOn && dK < 16 && k5_blick(K.position.x, 1, K.position.z) > .94) || (G.t > 12 && !k5.f.kerze))) { const warAn = flashOn; k5.pust = true; flashOn = false; G.hinw = Math.max(G.hinw, 2); state.talking = true;
+    say([['„Pust.“', 1600, K5_W.K]]).then(async () => { if (Audio.flick) Audio.flick(); await say([[warAn ? '„Aus. Einfach ausgepustet. Wie eine Geburtstagskerze.“' : '„Die Lampe geht nicht mehr an. Ausgepustet. Wie eine Geburtstagskerze.“', 3400, K5_W.LU]]); state.talking = false;
       for (let i = 0; i < 4; i++) { const g = S.g['gz' + i]; if (g) g.visible = false; } if (typeof kamera_S !== 'undefined' && kamera_S.frei && kamera_S.film > 0) setTimeout(() => k5_denk('Die Kamera zeigt, was das Auge nicht sieht.', 3600), 2600); }); }
-  // Ochs am Berg: die Behaltenen rücken näher, wenn Luke nicht hinsieht – greifen nie an (Grete rückt als Einzige nicht näher)
+  // vor „Pust.“ stehen die Behaltenen nur da und sehen Luke nach (G-2: kein drittes Ochs am Berg); danach rücken sie im Dunkeln näher – greifen nie an (Grete rückt als Einzige nicht näher)
   G.blitzT = Math.max(0, (G.blitzT || 0) - dt);
   for (let i = 0; i < 4; i++) { const g = S.g['gz' + i]; if (!g || g.userData.k5drin !== true) continue; const Pp = g.userData.person, dx = P.x - g.position.x, dz = P.z - g.position.z, d = Math.hypot(dx, dz) || .01;
-    if (!k5.pust) { if (!g.visible) continue; const seen = k5_blick(g.position.x, 1, g.position.z) > .5 && d < 30; if (Pp) Pp.mx.timeScale = seen ? 0 : 1;
-      if (!seen && d > 2.6) { const s = 1.1 * dt; g.position.x += dx / d * s; g.position.z += dz / d * s; g.rotation.y = Math.atan2(dx, dz); } else if (!seen) g.rotation.y = Math.atan2(dx, dz); continue; }
+    if (!k5.pust) { if (!g.visible) continue; if (Pp) Pp.mx.timeScale = 1; const a = Math.atan2(dx, dz); g.rotation.y += Math.atan2(Math.sin(a - g.rotation.y), Math.cos(a - g.rotation.y)) * Math.min(1, dt * .6); continue; }
     // dunkel (A-18): unsichtbar, nur nackte Füße; der Blitz hält sie an; wer bis an Luke herankommt, nimmt ihn an der Hand zurück ans Tor (kein Tod)
     if (G.blitzT > 0 || k5.f.kerze) continue; const s = .32 * dt; g.position.x += dx / d * s; g.position.z += dz / d * s; g.rotation.y = Math.atan2(dx, dz);
     g.userData.stepT = (g.userData.stepT || rand(0, .6)) - dt; if (g.userData.stepT < 0) { g.userData.stepT = rand(.55, .8); k5_tapp(g.position.x, g.position.z, .45); }
@@ -1453,25 +1454,14 @@ function k5_hand(sd, w, f, n, c, s, t) { const H = K5_H, B = H.B[sd], V = H.V; i
 function k5_haendeTick(dt, t) { const H = K5_H; if (!H.ready) return; const trag = typeof katzen_S !== 'undefined' && !!katzen_S.carry;
   H.k += ((trag ? 1 : 0) - H.k) * Math.min(1, dt * (trag ? 5 : 7)); const vis = H.k > .02; if (H.rig.visible !== vis) H.rig.visible = vis; if (!vis) return;
   const V = H.V, sink = (1 - H.k) * .35, bob = Math.sin(t * 1.7) * .006 + Math.sin(t * 5.3) * .002;
-  H.rig.position.copy(camera.position); H.rig.quaternion.copy(camera.quaternion); H.rig.updateMatrixWorld(true);
-  // Katze bei (−0,24 | −0,36 | −0,62) im Kameraraum (katzen.js „carry“), Körper quer: linke Hand unter dem Bauch (Handfläche oben), rechte auf Rücken/Flanke
-  const kc = trag ? katzen_S.carry : null, KB = kc && kc.B;
-  if (KB && KB.hips && (KB.neck || KB.chest)) { // R-5: Griffpunkte auf dem Körper des Katers (aus seinen Knochen) statt starr vor der Kamera – der Kater kippt beim Blick nach unten nicht mit
-    const G = H.G || (H.G = { a: new THREE.Vector3(), b: new THREE.Vector3(), d: new THREE.Vector3(), fw: new THREE.Vector3(), g: new THREE.Vector3(), w: new THREE.Vector3(), f: new THREE.Vector3(), n: new THREE.Vector3(), inv: new THREE.Matrix4() });
-    KB.hips.getWorldPosition(G.a); (KB.neck || KB.chest).getWorldPosition(G.b); const r = Math.max(.045, Math.min(.085, G.a.distanceTo(G.b) * .26));
-    G.inv.copy(H.rig.matrixWorld).invert(); if (G.g.copy(G.a).applyMatrix4(G.inv).x > G.w.copy(G.b).applyMatrix4(G.inv).x) { G.g.copy(G.a); G.a.copy(G.b); G.b.copy(G.g); } // a links im Bild, b rechts
-    G.d.subVectors(G.b, G.a).normalize(); G.fw.set(-Math.sin(player.yaw), 0, -Math.cos(player.yaw)).addScaledVector(G.d, -G.fw.dot(G.d)); if (G.fw.lengthSq() < 1e-4) G.fw.set(0, 0, -1); G.fw.normalize();
-    const hand = (sd, u, oben, c, sp, th) => { G.g.lerpVectors(G.a, G.b, u); G.g.y += oben ? r - .006 : -(r - .006); G.n.set(0, oben ? -1 : 1, 0); G.f.copy(G.fw).multiplyScalar(.93).addScaledVector(G.n, .36).normalize();
-      G.w.copy(G.g).addScaledVector(G.f, -.074).addScaledVector(G.n, -.022); G.w.y += -sink + bob * (oben ? .7 : 1);
-      G.w.applyMatrix4(G.inv); G.f.transformDirection(G.inv); G.n.transformDirection(G.inv); k5_hand(sd, G.w, G.f, G.n, c, sp, th); };
-    hand('L', .4, false, [.35, .55, .62, .7, .78], .25, .45); // unter Brust/Bauch, Handfläche oben, Finger umfassen die ferne Seite
-    hand('R', .8, true, [.3, .42, .48, .55, .6], .3, .3); } // auf dem Rücken über der Hüfte, Finger legen sich über die Flanke
-  else { V.w.set(-.3, -.47 - sink + bob, -.55); V.f.set(.35, .15, -.92); V.n.set(0, 1, .1); k5_hand('L', V.w, V.f, V.n, [.35, .55, .62, .7, .78], .25, .45);
-    V.w.set(-.02, -.3 - sink + bob * .7, -.56); V.f.set(-1, -.35, -.2); V.n.set(-.2, -.95, -.1); k5_hand('R', V.w, V.f, V.n, [.25, .32, .36, .42, .48], .3, .3); }
-  k5_griff(dt); }
-// R-5 (griff.js): Kater als Kapsel (Becken → Hals) plus Kugel (Kopf) aus seinen Knochen; die Hände umfassen ihn, Finger schließen bis an den Körper, nie hindurch
-function k5_griff(dt) { const H = K5_H, k = typeof katzen_S !== 'undefined' ? katzen_S.carry : null; if (typeof griff_loesen !== 'function' || !k || !k.B || !k.B.hips) return;
-  const F = H.gf || (H.gf = [griff_kapsel(.07), griff_kapsel(.05)]), B = k.B, hals = B.neck || B.chest || B.spine2;
-  B.hips.getWorldPosition(F[0].a); hals.getWorldPosition(F[0].b); const L = F[0].a.distanceTo(F[0].b); F[0].r = Math.max(.045, Math.min(.085, L * .26));
-  F[0].a.lerp(F[0].b, .06); if (B.head) { B.head.getWorldPosition(F[1].a); F[1].b.copy(F[1].a); F[1].r = F[0].r * .72; F[1].an = true; } else F[1].an = false;
-  H.rig.updateMatrixWorld(true); griff_loesen(H.B.L, F, { seite: 'L', anlegen: true, dt }); griff_loesen(H.B.R, F, { seite: 'R', anlegen: true, dt }); }
+  // R-5: Die Hände hängen am Kater, nicht an der Kamera. katzen.js setzt ihn bei (−0,24 | −0,36 −0,12 | −0,62) im Kameraraum, aber nur mit der Blickrichtung
+  // (ohne Neigung) gedreht – beim Blick nach unten fuhr die rechte Handfläche sonst in seinen Rücken. Rig = Kater-Lage · (Kater-Lage bei waagerechtem Blick)⁻¹:
+  // dieselben, im Spielerblick abgestimmten Griffe (Selbsttest: kein Fingerpunkt im Fell-Mesh), in jeder Kopfhaltung.
+  const kc = trag ? katzen_S.carry : null;
+  if (kc && kc.g) { const M = H.mc || (H.mc = { m: new THREE.Matrix4(), c0: new THREE.Matrix4().makeRotationY(PI - 1.25).setPosition(-.24, -.48, -.62).invert(), q: new THREE.Quaternion(), s: new THREE.Vector3(1, 1, 1) });
+    M.m.compose(kc.g.position, kc.g.quaternion, M.s).multiply(M.c0); M.m.decompose(H.rig.position, H.rig.quaternion, M.s); M.s.set(1, 1, 1); }
+  else { H.rig.position.copy(camera.position); H.rig.quaternion.copy(camera.quaternion); }
+  H.rig.updateMatrixWorld(true);
+  // Körper quer: linke Hand unter dem Bauch (Handfläche oben), rechte auf Rücken/Flanke
+  V.w.set(-.3, -.47 - sink + bob, -.55); V.f.set(.35, .15, -.92); V.n.set(0, 1, .1); k5_hand('L', V.w, V.f, V.n, [.35, .55, .62, .7, .78], .25, .45);
+  V.w.set(-.02, -.3 - sink + bob * .7, -.56); V.f.set(-1, -.35, -.2); V.n.set(-.2, -.95, -.1); k5_hand('R', V.w, V.f, V.n, [.25, .32, .36, .42, .48], .3, .3); }

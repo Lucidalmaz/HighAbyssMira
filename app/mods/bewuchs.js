@@ -233,7 +233,7 @@ function bewuchs_wandBau() {
 
 // =====================================================================  WALD (Kapitel 6): lädt nach, sobald der Wald frei ist
 async function bewuchs_wald() {
-  const S = bewuchs_S; if (S.wald || typeof WALD === 'undefined' || typeof TIEF === 'undefined') return; S.wald = 1; S.keep = bewuchs_keepOut(); // Story-Punkte von Kapitel 6 sind jetzt da const T0 = performance.now(), PI2 = Math.PI * 2, sets = S.sets, put = S.put;
+  const S = bewuchs_S; if (S.wald || typeof WALD === 'undefined' || typeof TIEF === 'undefined') return; S.wald = 1; S.keep = bewuchs_keepOut(); /* Story-Punkte von Kapitel 6 sind jetzt da */ const T0 = performance.now(), PI2 = Math.PI * 2, sets = S.sets, put = S.put;
   const load = (f, ...a) => f(...a).catch(e => { console.warn('Bewuchs Wald: ' + a[0], e); return []; });
   // Bäume: Kiefer (jung bis alt), Laubbäume (Gruppen des Packs), toter Stamm stehend und liegend, Findling – Materialien teilt waldleben (Nacht, Wind)
   const lying = g => g.rotateZ(Math.PI / 2);

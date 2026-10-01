@@ -351,7 +351,7 @@ function album_griffFormen(art) { const H = album_H; H.gf = H.gf || {}; if (H.gf
       R.updateMatrixWorld(true); const T = THREE, v = new T.Vector3(), M = new T.Matrix4(), inv = new T.Matrix4().copy(R.matrixWorld).invert(), bK = new T.Box3(), bF = new T.Box3(), fo = S.flap[0].o, fInv = new T.Matrix4().copy(fo.matrixWorld).invert(), MF = new T.Matrix4();
       R.traverse(o => { if (!o.isMesh || !o.geometry) return; const F = S.flap.find(f => f.o === o); M.multiplyMatrices(inv, o.matrixWorld); MF.multiplyMatrices(fInv, o.matrixWorld); const P = o.geometry.attributes.position, n = F ? F.w.length : P.count;
         for (let i = 0; i < n; i++) { if (F) v.set(F.P0[i * 3], F.P0[i * 3 + 1], F.P0[i * 3 + 2]); else v.fromBufferAttribute(P, i); const w = F ? F.w[i] : 0;
-          if (w > .5) bF.expandByPoint(v.clone().applyMatrix4(MF)); else if (w <= .3) bK.expandByPoint(v.applyMatrix4(M)); } });
+          if (w > .5) bF.expandByPoint(v.clone().applyMatrix4(MF)); else bK.expandByPoint(v.applyMatrix4(M)); } }); // Riemen/Schnalle (Zwischengewichte) zählen zum Körper
       if (bK.isEmpty()) return null; bK.max.z += .008; L = [griff_kasten(R, bK.min, bK.max)]; if (!bF.isEmpty()) L.push(griff_kasten(fo, bF.min, bF.max, new T.Matrix4())); }
     else { const M = album_S.mesh; if (!M) return null; const r = griff_kastenVon(M.achse, M.achse, o => o === M.ruecken || o === M.pageR), l = griff_kastenVon(M.piv, M.piv, o => o === M.deckel || o === M.pageL); L = [r, l].filter(Boolean); } }
   catch (e) { console.warn('Album: Griff-Formen', e); L = null; }

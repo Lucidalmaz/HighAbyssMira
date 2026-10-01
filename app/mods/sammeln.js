@@ -119,6 +119,7 @@ const SAMMELN_DU = [ // [Zeile, Flag, durchgestrichen?, daneben]
   ['Traum, immer derselbe: Du hast dich versteckt. Keiner kommt dich suchen.', 'D-09', 'Keiner kommt dich suchen.', 'Stimmt nicht. Lucy. Elfmal.'],
   ['Angst vor: nichts. Spinnen nicht mehr.', 'D-10', 'Angst vor: nichts.', 'Vor dem Moment, wenn Whiskey still wird.'],
   ['Schwester: Lucy. Hab seit dem Sommer nichts von ihr gehört.', 'D-01', 'Hab seit dem Sommer nichts von ihr gehört.', 'Sie hat mich elfmal angerufen. Ich bin nicht rangegangen.'],
+  ['', 'D-11', null, 'Einer von uns ist übrig. Ich will nicht, dass er es ist. Ich will nicht, dass ich es bin.'], // Story-Prüfung T-1: letzter Eintrag (Hochsitz, Kap. 6); Zeile ohne Text erscheint erst mit ihrem Flag
 ];
 const SAMMELN_REGELN = ['SIE ZÄLT BIS 17. DANN SUCHT SIE. WER GEFUNDEN WIRD MUSS ZÄLEN. (SAGT LUCY)', 'WER EINE LATERNE HAT DEN NIMMT SIE MIT. DARUM HABEN NUR DIE 7 EINEN GEKRIEGT. (UNFAIR. ABER AUCH GUT.)',
   'WENN MAN HINGUCKT BEWEGT ES SICH NICHT. WIE OCHS AM BERG. ICH HAB 1 STUNDE AUFS FENSTER GEGUCKT. ES HAT SICH NICHT BEWEGT. ICH AUCH NICHT.', 'AUGEN ZU DANN SIEHT SIE DICH NICHT. (SAGT DINA. DINA MACHT SIE GAR NICHT MEHR AUF.)',
@@ -127,12 +128,12 @@ const SAMMELN_LUKE_REGELN = [ // [Flag, Text] – Lukes Kuli-Zeilen (85 §5), Ka
   ['R-ochs', 'Bewegt sich nur, wenn man nicht hinguckt.'], ['R-eisen', 'Eisen: dann gar nicht.'], ['R-frei', 'Eisen ist frei. Stand da. Stimmt.'],
   ['R-K1', 'Wer einmal drin war, den findet sie wieder.'], ['R-heim', '(Ich hab’s ausprobiert.)'],
   ['R-K2', 'Augen zu hilft nicht, wenn man weiß, was man ist. Sie guckt durch mich durch.'],
-  ['R-K3a', 'Laterne laufen: die Straßenlaternen sind ihre Augen. Alle aus = sie muss runter.'], ['R-K3b', 'Sie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.'],
+  ['R-K3a', 'Laterne laufen: wach sind nur die Laternen, vor denen sie dieses Jahr einen geholt hat. Vier Augen. Alle vier aus = sie muss runter.'], ['R-K3b', 'Sie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.'],
   ['R-K3c', 'zu 5: Sie kann nur sagen, was schon mal laut gesagt wurde.'], ['R-K3d', 'zu 7: Eisen ist frei. Aber nicht unsichtbar.'], ['R-K3e', 'An der Hand raus. Nicht loslassen. Nie.'],
-  ['R-K5a', 'Wer mitisst, bleibt über Nacht. Ich hab nichts gegessen. Fast nichts.'], ['R-K5b', 'Geschenkt ist geschenkt. Lucy weiß den Namen. Damit ihn noch einer weiß: CLEO.'],
+  ['R-K5a', 'Wer mitisst, bleibt über Nacht. Ich hab nichts gegessen. Fast nichts.'], ['R-K5b', 'Geschenkt ist geschenkt. Lucy weiß den Namen. Damit ihn noch einer weiß: CLEO.'], ['R-K5c', 'Sie findet uns an unseren Nachbildern. Im Wald bleibt keins liegen.'],
   ['R-K6', 'Regel für den Wald: Sie sieht hier nichts. Aber etwas anderes hört.']];
 // Spätester Zeitpunkt je Fibel-Eintrag (falls kein Kapitel-Modul ihn früher setzt): Kapitel, ab dem er steht (7 = nach dem Ende von Kap. 6)
-const SAMMELN_AUTO = { 'D-02': 3, 'D-03': 3, 'D-04': 3, 'D-05': 3, 'D-06': 4, 'D-07': 4, 'D-08': 6, 'D-09': 6, 'D-10': 7, 'R-K1': 2, 'R-K2': 3, 'R-K3a': 4, 'R-K3b': 4, 'R-K3c': 4, 'R-K3d': 4, 'R-K3e': 4, 'R-K5a': 6, 'R-K5b': 6, 'R-K6': 7 };
+const SAMMELN_AUTO = { 'D-02': 3, 'D-03': 3, 'D-04': 3, 'D-05': 3, 'D-06': 4, 'D-07': 4, 'D-08': 6, 'D-09': 6, 'D-10': 7, 'R-K1': 2, 'R-K2': 3, 'R-K3a': 4, 'R-K3b': 4, 'R-K3c': 4, 'R-K3d': 4, 'R-K3e': 4, 'R-K5a': 6, 'R-K5b': 6, 'R-K5c': 6, 'R-K6': 7 };
 const sammeln_hatSB = n => sammeln_S.sb.has(n), sammeln_hatZ = n => sammeln_S.z.has(n), sammeln_hat = f => sammeln_S.fibel.has(f);
 const sammeln_pad = n => String(n).padStart(2, '0');
 const sammeln_R = s => { let a = s | 0 || 1; return () => (a = (a * 16807) % 2147483647) / 2147483647; }; // fester Zufall: jede Seite sieht immer gleich aus
@@ -431,7 +432,7 @@ function sammeln_ritterSvg() { return '<svg class="samRitter" viewBox="0 0 120 1
 function sammeln_rDu(B) {
   const blau = kapAb(2) || !!state.ch1Done, neu = []; // „AUGEN: BLAU“ erst nach der Endkarte von Kap. 1 (02 G4, AP-14)
   const jonas = `DAS BIST DU: LUKE. VIZE-CHEF. ALTER 9. <span class="samAugen${blau ? ' frei' : ''}">AUGEN: BLAU (WIE DER HIMMEL WENN ER NICHT GRAU IST).${blau ? '' : '<i class="samFleck"></i>'}</span> ANGST VOR: SPINNEN (GEHEIM!!). KANN: PFEIFEN OHNE FINGER.`;
-  const zeilen = SAMMELN_DU.map(z => { let t = z[0]; const add = [];
+  const zeilen = SAMMELN_DU.filter(z => z[0] || sammeln_hat(z[1])).map(z => { let t = z[0]; const add = [];
     const strike = (flag, was, dazu) => { if (!sammeln_hat(flag)) return; const n = !sammeln_hat('seen:' + flag); if (n) neu.push(flag); if (was) t = t.replace(was, `<s class="${n ? 'kratz' : ''}">${was}</s>`); add.push(`<em class="${n ? 'kratz' : ''}">${dazu}</em>`); };
     if (z[1] === 'D-04') { strike('D-04', 'Luke Brandt.', 'K-3?'); if (sammeln_hat('D-08')) { const n = !sammeln_hat('seen:D-08'); if (n) neu.push('D-08'); add[0] = `<s class="${n ? 'kratz' : ''}">K-3?</s>`; add.push(`<em class="${n ? 'kratz' : ''}">Luke. Er hat gesagt, ich darf.</em>`); } }
     else if (z[1]) { strike(z[1], z[2], z[3]); if (z[1] === 'D-06' && kapAb(5)) add.push('<em>Ihr Ring passt.</em>'); }
@@ -447,6 +448,26 @@ function sammeln_rRegeln(B) {
   B.innerHTML = `<h2>SPIELREGELN</h2><div class="samHeft"><div class="samJ ueber" style="--c:#b32018;--r:-.8deg"><span class="wachs">${lunas ? '<em class="kuli">LUNAS</em> ' : ''}SPIELREGELN ${lunas ? '<s class="kuliS">(VON WEM WEISS KEINER)</s>' : '(VON WEM WEISS KEINER)'}</span></div>` +
     `<ol class="samRegeln">${SAMMELN_REGELN.map(r => `<li><span class="wachs" style="--c:#b32018">${r}</span></li>`).join('')}</ol>` +
     (luke.length ? `<ul class="samKuli regeln">${luke.map(r => `<li>${r[1]}</li>`).join('')}</ul>` : '') + '</div>';
+}
+// ---- Reiter: FRAGEN (Story-Prüfung V-7, Alan-Wake-Prinzip): offene Fragen in Lukes Schrift, beantwortete durchgestrichen mit der Antwort darunter.
+// [Frage, offen ab Kapitel, beantwortet ab Kapitel (7 = nach dem Ende von Kap. 6, 9 = nicht im gebauten Spiel), Antwort]. Antworten erst im Kapitel NACH der Auflösung (kein Vorgriff); höchstens fünf offene gleichzeitig.
+const SAMMELN_FRAGEN = [
+  ['Wer hat am Ostende „Lu–“ gerufen?', 2, 4, 'Justin. „Luna“.'],
+  ['Warum hat Hilde auf meine Narbe gesehen und „Nicht du“ gesagt?', 2, 4, 'Sie hat den anderen erwartet. Den mit den blauen Augen.'],
+  ['Warum steht auf den Zeichnungen LUKE, 9?', 2, 6, 'Weil er sie gemalt hat. Der andere.'],
+  ['Wer sind die zwei Männer im Nebel?', 2, 3, 'Das Amt. Die schreiben alles mit.'],
+  ['Wer legt mir Zettel mit drei Punkten hinter die Füße?', 2, 9, ''],
+  ['Wer hat mich 2009 da unten herausgetragen?', 3, 4, 'Der Ritter. Justin.'],
+  ['Was heißt „Ein Stück von Papa ist noch draußen“?', 4, 7, 'Ich. Einer fehlt noch.'],
+  ['Warum hat Lucy Weiß in den Augen?', 4, 6, 'Luna hat sich was von ihr geborgt. Das Kochen. Das Lachen. Das „Großer“.'],
+  ['Wer hat das Grab mit meinem Namen bestellt?', 4, 6, 'Die LWO. Damit ich tot bin, wenn sie mich holen.'],
+  ['Wer hat oben in der Villa meinen Namen gesagt?', 5, 9, ''],
+  ['Warum findet sie im Wald keinen?', 6, 7, 'Da drin frisst einer die Nachbilder weg.'],
+];
+function sammeln_rFragen(B) {
+  const k = kap(), done = (typeof KAP !== 'undefined' && KAP.done) || 0, da = n => n <= 6 ? k >= n : n === 7 && done >= 6;
+  const offen = SAMMELN_FRAGEN.filter(f => da(f[1]) && !da(f[2])).slice(0, 5), zu = SAMMELN_FRAGEN.filter(f => da(f[1]) && da(f[2]));
+  B.innerHTML = `<h2>FRAGEN</h2><div class="samHeft"><ul class="samKuli">${zu.map(f => `<li><s>${f[0]}</s> <em>${f[3]}</em></li>`).join('')}${offen.map(f => `<li>${f[0]}</li>`).join('')}</ul></div>`;
 }
 // ---- Kap.-1-Endkarte: „Nebenaufgaben __ / 21 · Polaroids __ / 7 · Zettel mit drei Punkten __ / 2 · Lose Seiten __ / 3“
 function sammeln_k1Zeile() {
@@ -536,6 +557,7 @@ sammeln_reiter('bote', 'LATERNENBOTE', sammeln_rZ, () => sammeln_S.z.size > 0, '
 sammeln_reiter('damals', 'DAMALS', sammeln_rDamals, null, '#c28f5c');
 sammeln_reiter('du', 'DAS BIST DU', sammeln_rDu, null, '#7f93a6');
 sammeln_reiter('regeln', 'SPIELREGELN', sammeln_rRegeln, null, '#a8625a');
+sammeln_reiter('fragen', 'FRAGEN', sammeln_rFragen, () => kap() >= 2, '#8d8668'); // Story-Prüfung V-7
 for (const r of sammeln_S.reiter) r.neu = () => [...sammeln_S.neu].some(k => (r.key === 'sb' && /^SB-/.test(k)) || (r.key === 'bote' && /^Z-/.test(k)) || (r.key === 'du' && /^D-/.test(k)) || (r.key === 'regeln' && /^R-/.test(k)) || (r.key === 'damals' && k === 'J-15'));
 WORLD_MODS.push(['Sammeln', async () => {
   try { await Promise.race([Promise.all(['italic 600 30px "Cormorant Garamond"', '30px Caveat', '20px "Special Elite"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}

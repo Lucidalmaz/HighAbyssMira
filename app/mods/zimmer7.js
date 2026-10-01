@@ -16,13 +16,13 @@ const Z7_BUCH = [
   '<span class="hand">1. Juli 2009. Losziehung. Sieben aus Liste 2009. Kugel 7: WENDT, Z.\nIch habe nicht neu gezogen. Das Los ist das Los.\nGott, er ist sieben. – H. W.</span>',
   '<span class="hand">Mitte Juli 2009. Einwilligung Brandt. Die Mutter hat zweimal angesetzt.\nSie hat gefragt, ob sie beide zurückbekommt.\nSeiler: Wir bringen zurück, was zurückkommt.\nSie hat unterschrieben. Sie hat mich nicht angesehen. – H. W.</span>',
   '<span class="hand">Oktober 2026. Lucy war heute unten. Sie hat alles gesehen. Auch das hier.\nIch hab sie in den Tank gelegt, da findet sie keiner, auch die nicht.\nWenn sie mich holen: Das Brot für den Jungen im Stall liegt in der Laube.\nKeiner darf ihn ansehen. Keiner. – H. W.</span>'];
-const Z7_ROWS = [['Reuter', 'Roxy', 'Nr. 5', '03.07.'], ['Winter', 'Heidi', 'Nr. 2', '06.07.'], ['Vegas, L. (Großvater)', 'Mike Kessler', 'Nr. 3', '08.07.'], ['Aydın', 'Dina', 'Hof', '10.07.'], ['Brandt, M.', 'Lucy, Luke', 'Nr. 1', '14.07. (zwei Ansätze)'], ['Wendt, H.', 'Zayn', 'Nr. 7', '21.07.']];
+const Z7_ROWS = [['Reuter', 'Roxy', 'Nr. 5', '03.07.'], ['Winter', 'Heidi', 'Nr. 2', '06.07.'], ['Vegas, L. (Großonkel)', 'Mike Kessler', 'Nr. 3', '08.07.'], ['Aydın', 'Dina', 'Hof', '10.07.'], ['Brandt, M.', 'Lucy, Luke', 'Nr. 1', '14.07. (zwei Ansätze)'], ['Wendt, H.', 'Zayn', 'Nr. 7', '21.07.']];
 const Z7_P4 = '§ 4 – Für jedes Kind errichtet die Gemeinde am Tag der Übergabe einen Gedenkstein. Die Einwilligung gilt über die Rückführung hinaus. – Bundesstelle für Rückführung, i. A. (hw)';
 const z7_table = (fs = 15) => `<table style="border-collapse:collapse;font-size:${fs}px;line-height:1.35;margin:8px 0 6px">` +
   `<tr>${['Erziehungsberechtigte', 'Kind', 'Haus', 'Datum'].map(h => `<th style="text-align:left;padding:2px 10px 2px 0;border-bottom:1px solid currentColor">${h}</th>`).join('')}</tr>` +
   Z7_ROWS.map(r => `<tr>${r.map(c => `<td style="padding:2px 10px 2px 0;vertical-align:top">${c}</td>`).join('')}</tr>`).join('') + '</table>';
 const Z7_AUSHANG_HTML = () => `„Einwilligung zur Rückführung, Zyklus 2009. In der Reihenfolge der Unterschrift:“ Maschinengeschrieben, die Unterschriften mit Füller.${z7_table(16)}<small>${Z7_P4}</small>`;
-const Z7_BROT = 'Hildes Brotdose. Leer. Darin ein Zettel, in ihrer Schrift:\n\n<span class="hand">„Freitag: Brot für den Jungen. In die Laube. Nicht hinsehen.“</span>'; // Fassung 3: die Gründungsakte liegt jetzt im Archiv („Ich habe nicht gefragt, wen“)
+const Z7_BROT = 'Hildes Brotdose. Leer. Krümel, ein Stück Butterbrotpapier, sauber gefaltet. Für eine, die allein Mittag macht, ist die Dose zu groß.'; /* R-1: „Brot für den Jungen“ nur Kap. 1 Heft, Kap. 2 Dienstbuch, Kap. 5 Lucy */ // Fassung 3: die Gründungsakte liegt jetzt im Archiv („Ich habe nicht gefragt, wen“)
 const Z7_ECHO = { id: 'echo_zimmer7', at: [C2.x + 33.15, 1.02, C2.z - 6.85], title: 'Nachbild · Zimmer 7, Sommer 2009', floor: 0,
   figs: [E_(C2.x + 33.0, C2.z - 7.35, 0, 1), E_(C2.x + 32.9, C2.z - 3.2, PI, 1.04)],
   lines: [['Sommer 2009. Eine Frau zieht eine Kugel aus einem Kasten, liest, hält inne.', 4200], ['„Frau Wendt? Wir können neu ziehen.“', 3000, 'MANN VOM AMT'], ['„Das Los ist das Los.“', 3000, 'HILDE'], ['Sie legt die Kugel sehr vorsichtig auf den Tisch. Als könnte sie ihm wehtun.', 4400]] };
@@ -67,7 +67,7 @@ function z7_doorUse() {
     D.locked = false; Audio.play('lockOpen', { gain: .5, x: C2.x + 33, y: 1, z: C2.z - 2, ref: 2 }); toast('Der Schlüssel passt.', 2200);
   }
   if (D.open && typeof doorSwingBlocked === 'function' && doorSwingBlocked(D)) return toast('Du stehst in der Tür.', 1600);
-  D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18);
+  D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18, D.pivot.position.x, 1.2, D.pivot.position.z);
 }
 function z7_takeKey() {
   if (z7_S.took) return; z7_S.took = true; ch2.fuseKey = true; addItem('fuse');
@@ -267,7 +267,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
     const cols = [44, 300, 470, 560], hd = ['Erziehungsber.', 'Kind', 'Haus', 'Datum']; c.font = 'bold 20px "Special Elite", Courier New'; hd.forEach((t, i) => c.fillText(t, cols[i], 262)); c.fillRect(44, 272, w - 88, 1.5);
     c.font = '19px "Special Elite", Courier New';
     const rows = [['Reuter', 'Roxy', 'Nr. 5', '03.07.'], ['Winter', 'Heidi', 'Nr. 2', '06.07.'], ['Vegas, L.', 'Mike Kessler', 'Nr. 3', '08.07.'], ['Aydın', 'Dina', 'Hof', '10.07.'], ['Brandt, M.', 'Lucy, Luke', 'Nr. 1', '14.07.'], ['Wendt, H.', 'Zayn', 'Nr. 7', '21.07.']];
-    rows.forEach((r, k) => { const y = 318 + k * 88; r.forEach((t, i) => c.fillText(t, cols[i], y)); if (k === 2) { c.font = '14px "Special Elite", Courier New'; c.fillText('(Großvater)', 44, y + 20); c.font = '19px "Special Elite", Courier New'; }
+    rows.forEach((r, k) => { const y = 318 + k * 88; r.forEach((t, i) => c.fillText(t, cols[i], y)); if (k === 2) { c.font = '14px "Special Elite", Courier New'; c.fillText('(Großonkel)', 44, y + 20); c.font = '19px "Special Elite", Courier New'; }
       c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1; c.beginPath(); c.moveTo(44, y + 56); c.lineTo(w - 44, y + 56); c.stroke();
       c.save(); c.strokeStyle = '#1b2656'; c.lineWidth = 2.2; c.lineCap = 'round'; const sx = 300, sy = y + 44; // Unterschrift (Füller)
       const sig = (ox, oy, s) => { c.beginPath(); c.moveTo(sx + ox, sy + oy); for (let q = 0; q < 9; q++) c.quadraticCurveTo(sx + ox + q * 18 * s + 8, sy + oy - R(4, 16), sx + ox + (q + 1) * 18 * s, sy + oy + R(-3, 4)); c.stroke(); };
@@ -341,7 +341,7 @@ WORLD_TICK.push((dt) => {
   // Schreibtischlampe: nur solange man im Raum oder im Durchgang davor ist (Punktlichter werfen keinen Schatten – kein Durchscheinen ins Archiv)
   if (S.lamp) S.lamp.intensity = S.lampOn && P.x > C2.x + 29.6 && P.x < C2.x + 36.4 && P.z > C2.z - 8.4 && P.z < C2.z + 2.2 ? 4.5 : 0;
   // Erster Schritt in Zimmer 7: der Nadeldrucker im Archiv, 01:47
-  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 BETRITT ZIMMER 7.'); else { z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „ZÄHLSCHLUSS 03:13 · RÜCKLÄUFER 08 BETRITT ZIMMER 7.“', 5600); }, 900); } }
+  if (!S.printed && z7_in(.4)) { S.printed = true; z7_uhr(1, 47); if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 BETRITT ZIMMER 7.'); else { z7_snd('drucker'); setTimeout(() => { if (!state.talking) subtitle('Im Archiv rattert ein Nadeldrucker: „ZÄHLSCHLUSS 03:13 · VORGANG 08 BETRITT ZIMMER 7.“', 5600); }, 900); } }
   if (S.printed && !S.raus && S.gesehen > 2 && !z7_in(-.2) && player.pos.z > C2.z - 1.6) { S.raus = true; if (typeof gedanke === 'function') gedanke('z7_hand', 'Sie hat den Kaktus gegossen und ihren Sohn gezogen. Beides mit derselben Hand.', 400, 3); }
   if (z7_in(.4)) S.gesehen = (S.gesehen || 0) + dt;
   // 90 s nach „Das bin nicht ich.“

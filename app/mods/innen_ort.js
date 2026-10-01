@@ -118,7 +118,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     hand(byName.defaultMaterial_1, 13 / 60 * PI * 2); hand(byName.defaultMaterial_2, (3 + 13 / 60) / 12 * PI * 2);
     let pend = null; if (byName.defaultMaterial_3) { pend = new T.Group(); pend.userData.ioDyn = true; pend.position.set(-.7, 54.1, 1.8); o.add(pend); o.updateMatrixWorld(true); pend.updateMatrixWorld(true); pend.attach(byName.defaultMaterial_3); }
     o.scale.setScalar(.01); const g = put(o, p, par); const body = byName.defaultMaterial_4 || firstMesh(o);
-    interact(body, 'Pendeluhr', () => { toast(text, 5200); Audio.play('woodHit3', { gain: .12, rate: .5 }); });
+    interact(body, 'Pendeluhr', () => { toast(text, 5200); const q = body.getWorldPosition(new THREE.Vector3()); Audio.play('woodHit3', { gain: .12, rate: .5, x: q.x, y: q.y, z: q.z, ref: 2 }); });
     const c = { g, pend, ph: rand(0, 6), tk: 0, pos: bbox(g).getCenter(V()) }; clocks.push(c); return c; };
   // Bilderrahmen (leer – die Bilder fehlen)
   const frame = async (par, key, p) => put(await GL(key), p, par);

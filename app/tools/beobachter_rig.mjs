@@ -16,27 +16,30 @@ function kugel(pts) { const A = Array.from({ length: 4 }, () => new Float64Array
   const x = new Float64Array(4); for (let i = 3; i >= 0; i--) { let s = b[i]; for (let j = i + 1; j < 4; j++) s -= A[i][j] * x[j]; x[i] = s / A[i][i]; }
   const c = new THREE.Vector3(x[0], x[1], x[2]); return { c, r: Math.sqrt(x[3] + c.lengthSq()) }; }
 // ---------------------------------------------------------------- Augen: Rahmen je Auge, eigene UV (Planprojektion), Oberlid aus der Augenkappe
-export function augen(E) { const P = E.pos, seiten = {};
-  for (const s of [1, -1]) { const pts = []; for (let i = 0; i < P.length; i += 3) if (Math.sign(P[i]) === s) pts.push([P[i], P[i + 1], P[i + 2]]);
-    const K = kugel(pts), m = new THREE.Vector3(); pts.forEach(p => m.add(new THREE.Vector3(...p))); m.divideScalar(pts.length);
-    const f = m.clone().sub(K.c).normalize(), u = new THREE.Vector3(0, 1, 0).addScaledVector(f, -f.y).normalize(), r = new THREE.Vector3().crossVectors(u, f);
-    let A = 0; for (const p of pts) { const d = new THREE.Vector3(...p).sub(K.c).normalize(); A = Math.max(A, Math.acos(Math.min(1, d.dot(f)))); }
-    seiten[s] = { c: K.c, R: K.r, f, u, r, A }; }
+export function augen(E) { const P = E.pos, seiten = {}; // das Auge ist eine flache Linse: Blickachse = Richtung der kleinsten Ausdehnung
+  for (const s of [1, -1]) { const pts = []; for (let i = 0; i < P.length; i += 3) if (Math.sign(P[i]) === s) pts.push(new THREE.Vector3(P[i], P[i + 1], P[i + 2]));
+    const c = new THREE.Vector3(); pts.forEach(p => c.add(p)); c.divideScalar(pts.length); let f = null, best = 1e9; const d = new THREE.Vector3();
+    for (let a = 0; a < 60; a++) for (let b = 0; b < 30; b++) { const th = b / 30 * 1.2, ph = a / 60 * Math.PI * 2; d.set(Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th));
+      let v = 0; for (const p of pts) { const q = p.x * d.x + p.y * d.y + p.z * d.z - (c.x * d.x + c.y * d.y + c.z * d.z); v += q * q; } if (v < best) { best = v; f = d.clone(); } }
+    const u = new THREE.Vector3(0, 1, 0).addScaledVector(f, -f.y).normalize(), r = new THREE.Vector3().crossVectors(u, f);
+    let rad = 0, h = 0; for (const p of pts) { const q = p.clone().sub(c); h = Math.max(h, q.dot(f)); rad = Math.max(rad, Math.hypot(q.dot(r), q.dot(u))); }
+    const tief = .62 * rad, Cl = c.clone().addScaledVector(f, -tief), Rl = Math.hypot(tief, rad) * 1.05 + .001, A = Math.atan2(rad, tief);
+    seiten[s] = { c, f, u, r, rad, h, Cl, Rl, A }; }
   const uv = new Float32Array(P.length / 3 * 2), v = new THREE.Vector3();
-  for (let i = 0; i < P.length / 3; i++) { const S = seiten[Math.sign(P[i * 3]) || 1]; v.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]).sub(S.c); const k = .5 / (S.R * Math.sin(S.A)); uv[i * 2] = .5 + v.dot(S.r) * k; uv[i * 2 + 1] = .5 + v.dot(S.u) * k; }
+  for (let i = 0; i < P.length / 3; i++) { const S = seiten[Math.sign(P[i * 3]) || 1]; v.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]).sub(S.c); const k = .5 / S.rad; uv[i * 2] = .5 + v.dot(S.r) * k; uv[i * 2 + 1] = .5 + v.dot(S.u) * k; }
   E.uv = uv; return seiten; }
 // Oberlid: die Augenkappe wird auf eine etwas größere Kugel gelegt und nach oben gefaltet (Unterkante = Lidrand), Rand rollt zum Auge ein.
 // In Ruhe deckt es das obere Viertel (schwere Lider: müde, lauernd), beim Blinzeln dreht der Lid-Knochen es über das Auge.
-export const LID = { ruhe: .3, rand: .12 }; // ruhe: Anteil des Auges, den das Lid in Ruhe deckt (von oben)
+export const LID = { ruhe: .38, rand: .12 }; // ruhe: Anteil des Auges, den das Lid in Ruhe deckt (von oben)
 export function lider(E, seiten) { const P = E.pos, I = E.idx, outP = [], outI = [], v = new THREE.Vector3(), d = new THREE.Vector3();
   for (const s of [1, -1]) { const S = seiten[s], map = new Map();
-    const eckeVon = i => { if (map.has(i)) return map.get(i); v.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]).sub(S.c).normalize();
-      const al = Math.atan2(v.dot(S.r), v.dot(S.f)), be = Math.atan2(v.dot(S.u), Math.hypot(v.dot(S.r), v.dot(S.f))); // waagerecht / senkrecht
-      const q = (be + S.A) / (2 * S.A), b0 = S.A * (1 - 2 * LID.ruhe), be2 = b0 + q * 2.3 * S.A, al2 = al * 1.14; // Unterkante bei b0, reicht weit nach oben unter die Haut
-      const roll = 1 - sm(0, LID.rand, q), R2 = S.R * (1.075 - .06 * roll * roll); // Rand rollt zum Augapfel
-      d.copy(S.f).multiplyScalar(Math.cos(be2) * Math.cos(al2)).addScaledVector(S.r, Math.cos(be2) * Math.sin(al2)).addScaledVector(S.u, Math.sin(be2));
-      const j = outP.length / 3; outP.push(S.c.x + d.x * R2, S.c.y + d.y * R2, S.c.z + d.z * R2); map.set(i, j); return j; };
-    for (let t = 0; t < I.length; t += 3) { const a = I[t], b = I[t + 1], c = I[t + 2]; if (Math.sign(P[a * 3]) !== s) continue; outI.push(eckeVon(a), eckeVon(b), eckeVon(c)); } }
+    const vorn = i => (P[i * 3] - S.c.x) * S.f.x + (P[i * 3 + 1] - S.c.y) * S.f.y + (P[i * 3 + 2] - S.c.z) * S.f.z > -S.h * .2;
+    const eckeVon = i => { if (map.has(i)) return map.get(i); v.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]).sub(S.c); const x = v.dot(S.r) / S.rad, y = v.dot(S.u) / S.rad; // Lage auf der Augenscheibe −1…1
+      const al = x * S.A * 1.18, q = (y + 1) / 2, b0 = S.A * (1 - 2 * LID.ruhe), be = b0 + q * 2.4 * S.A; // Unterkante bei b0, reicht weit nach oben unter die Haut
+      const roll = 1 - sm(0, LID.rand, q), R2 = S.Rl * (1 - .05 * roll * roll); // Rand rollt zum Augapfel
+      d.copy(S.f).multiplyScalar(Math.cos(be) * Math.cos(al)).addScaledVector(S.r, Math.cos(be) * Math.sin(al)).addScaledVector(S.u, Math.sin(be));
+      const j = outP.length / 3; outP.push(S.Cl.x + d.x * R2, S.Cl.y + d.y * R2, S.Cl.z + d.z * R2); map.set(i, j); return j; };
+    for (let t = 0; t < I.length; t += 3) { const a = I[t], b = I[t + 1], c = I[t + 2]; if (Math.sign(P[a * 3]) !== s || !vorn(a) || !vorn(b) || !vorn(c)) continue; outI.push(eckeVon(a), eckeVon(b), eckeVon(c)); } }
   return { pos: new Float32Array(outP), uv: new Float32Array(outP.length / 3 * 2), idx: Uint32Array.from(outI) }; }
 // ---------------------------------------------------------------- Messen: Gelenkorte aus der Gestalt
 const box = (P, f) => { const b = new THREE.Box3(); const v = new THREE.Vector3(); for (let i = 0; i < P.length; i += 3) if (!f || f(P[i], P[i + 1], P[i + 2])) b.expandByPoint(v.set(P[i], P[i + 1], P[i + 2])); return b; };
@@ -53,7 +56,7 @@ export function messen(T, seiten) { const A = T.arm.pos, K = T.koerper.pos, H = 
     J['oberschenkel' + S] = new THREE.Vector3(hip.x * .9, schritt + .006, hip.z); J['schienbein' + S] = new THREE.Vector3(knee.x, knee.y, knee.z + .004); J['fuss' + S] = new THREE.Vector3(ank.x, .042, ank.z);
     const toeZ = sole.max.z; J['zehen' + S] = new THREE.Vector3(ank.x, .014, lerp(ank.z, toeZ, .48)); J['zehenspitze' + S] = new THREE.Vector3(ank.x, .006, toeZ);
     // Arm: Schulter = oberes Ende, Handgelenk = Fingeransatz
-    const ab = box(A, x => Math.sign(x) === s), sh = mitte(A, (x, y) => Math.sign(x) === s && y > ab.max.y - .025);
+    const ab = box(A, x => Math.sign(x) === s), sh = mitte(A, (x, y) => Math.sign(x) === s && Math.abs(y - (ab.max.y - .032)) < .004);
     // Finger: unterste 30 mm, drei Häufchen
     const fing = []; for (let i = 0; i < A.length; i += 3) if (Math.sign(A[i]) === s && A[i + 1] < ab.min.y + .034) fing.push([A[i], A[i + 1], A[i + 2]]);
     let c = [-.03, -.01, .01].map(z => [ab.min.x * 0 + (s > 0 ? ab.max.x : ab.min.x) - s * .012, z]);
@@ -61,22 +64,22 @@ export function messen(T, seiten) { const A = T.arm.pos, K = T.koerper.pos, H = 
     c.sort((a, b) => a[1] - b[1]); // hinten → vorn
     // Fingeransatz: Höhe, ab der unter dem Handballen die drei Finger getrennt sind (grob: 30 mm über der tiefsten Spitze)
     const tipY = ab.min.y, baseY = tipY + .03; const wrist = mitte(A, (x, y) => Math.sign(x) === s && Math.abs(y - (baseY + .018)) < .004);
-    J['schulter' + S] = new THREE.Vector3(sh.x - s * .012, sh.y - .012, sh.z); J['oberarm' + S] = new THREE.Vector3(sh.x, sh.y - .018, sh.z);
+    J['schulter' + S] = new THREE.Vector3(s * .03, sh.y + .012, sh.z); J['oberarm' + S] = new THREE.Vector3(sh.x - s * .004, sh.y + .006, sh.z);
     J['hand' + S] = wrist.clone(); J['unterarm' + S] = J['oberarm' + S].clone().lerp(wrist, .5).add(new THREE.Vector3(0, 0, -.006));
     c.forEach((q, k) => { const tip = mitte(A, (x, y, z) => Math.sign(x) === s && y < tipY + .008 && (x - q[0]) ** 2 + (z - q[1]) ** 2 < .008 ** 2) || new THREE.Vector3(q[0], tipY, q[1]);
       J['finger' + (k + 1) + S] = new THREE.Vector3(q[0], baseY, q[1]); J['fingerB' + (k + 1) + S] = new THREE.Vector3(lerp(q[0], tip.x, .5), lerp(baseY, tipY, .5), lerp(q[1], tip.z, .5)); J['fingerS' + (k + 1) + S] = new THREE.Vector3(tip.x, tipY, tip.z); });
-    J['lid' + S] = seiten[s].c.clone(); }
+    J['lid' + S] = seiten[s].Cl.clone(); }
   // Rumpf/Hals/Kopf
-  const hb = box(H, (x, y, z) => Math.hypot(x, z) > .03 || y < .7); // Kopf ohne Fühler
+  const domTop = box(H, x => Math.abs(x) < .008).max.y, hb = box(H, (x, y) => y < domTop + .002); // Kopf ohne Fühler
   const halsB = box(K, (x, y) => y > J.schritt + .2); J.kopfUnten = hb.min.y;
   const halsAt = y => mitte(K, (x, yy) => Math.abs(yy - y) < .004) || new THREE.Vector3(0, y, 0);
-  J.becken = new THREE.Vector3(0, schritt + .03, halsAt(schritt + .03).z); J.bauch = new THREE.Vector3(0, schritt + .09, halsAt(schritt + .09).z - .01); J.brust = new THREE.Vector3(0, schritt + .17, halsAt(schritt + .17).z - .012);
+  J.becken = new THREE.Vector3(0, schritt + .03, halsAt(schritt + .03).z); J.bauch = new THREE.Vector3(0, schritt + .09, halsAt(schritt + .09).z - .01); J.brust = new THREE.Vector3(0, schritt + .135, halsAt(schritt + .135).z - .012);
   const schulterY = (J.oberarmL.y + J.oberarmR.y) / 2; J.hals = new THREE.Vector3(0, schulterY + .012, halsAt(schulterY + .012).z); J.hals2 = new THREE.Vector3(0, lerp(J.hals.y, hb.min.y, .55), halsAt(lerp(J.hals.y, hb.min.y, .55)).z);
   J.kopf = new THREE.Vector3(0, hb.min.y + .02, halsAt(hb.min.y - .005).z); J.kehle = new THREE.Vector3(0, lerp(J.hals.y, hb.min.y, .5), J.hals2.z + .012);
   J.kopfOben = hb.max.y; J.kopfMitte = hb.getCenter(new THREE.Vector3());
   // Fühler: Ecken über dem Schädel, je Seite: Fuß, zwei Glieder, Kopf (Kugel an der Spitze)
-  for (const s of [1, -1]) { const S = s > 0 ? 'L' : 'R'; const fp = []; for (let i = 0; i < H.length; i += 3) if (Math.sign(H[i]) === s && H[i + 1] > hb.max.y - .01 && Math.abs(H[i]) > .006) fp.push(new THREE.Vector3(H[i], H[i + 1], H[i + 2]));
-    let tip = fp[0]; for (const p of fp) if (p.y + Math.abs(p.x) > tip.y + Math.abs(tip.x)) tip = p; const base = mitte(H, (x, y) => Math.sign(x) === s && Math.abs(y - (hb.max.y - .004)) < .004 && Math.abs(x) > .006 && Math.abs(x) < .06);
+  for (const s of [1, -1]) { const S = s > 0 ? 'L' : 'R'; const fp = []; for (let i = 0; i < H.length; i += 3) if (Math.sign(H[i]) === s && H[i + 1] > hb.max.y + .01 && Math.abs(H[i]) > .006) fp.push(new THREE.Vector3(H[i], H[i + 1], H[i + 2]));
+    let tip = fp[0]; for (const p of fp) if (p.y + Math.abs(p.x) > tip.y + Math.abs(tip.x)) tip = p; let lo = fp[0]; for (const q of fp) if (q.y < lo.y) lo = q; const base = mitte(H, (x, y) => Math.sign(x) === s && y > hb.max.y + .004 && y < hb.max.y + .016 && Math.abs(x) < Math.abs(lo.x) + .03) || lo.clone();
     J['fuehler1' + S] = base.clone(); J['fuehler2' + S] = base.clone().lerp(tip, .36); J['fuehler3' + S] = base.clone().lerp(tip, .72); J['fuehlerS' + S] = tip.clone(); }
   return J; }
 // ---------------------------------------------------------------- Skelett (Eltern, Gelenkort-Schlüssel)
@@ -95,18 +98,27 @@ export function strecken(J) { const kid = {}; for (const [n, p] of KNOCHEN) if (
     if (!b && /^hand/.test(n)) { const S = n.slice(-1); b = J['finger2' + S]; } if (!b) b = a.clone().add(new THREE.Vector3(0, .01, 0)); seg[n] = { a: a.clone(), b: b.clone() }; } return seg; }
 // ---------------------------------------------------------------- Gewichte: weicher Abstand zu den Knochenstrecken, Kandidaten je Teil/Region
 function segD(s, p) { const ab = s.b.clone().sub(s.a), L2 = ab.lengthSq() || 1e-9, t = Math.max(0, Math.min(1, p.clone().sub(s.a).dot(ab) / L2)); return p.distanceTo(s.a.clone().addScaledVector(ab, t)); }
-export function gewichte(teil, art, J, seg) { const P = teil.pos, n = P.length / 3, JI = new Uint16Array(n * 4), WW = new Float32Array(n * 4), idx = new Map(KNOCHEN.map(([k], i) => [k, i])), p = new THREE.Vector3();
+export function gewichte(teil, art, J, seg) { const P = teil.pos, n = P.length / 3, D = new Array(n), JI = new Uint16Array(n * 4), WW = new Float32Array(n * 4), idx = new Map(KNOCHEN.map(([k], i) => [k, i])), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) { p.set(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]); const S = p.x >= 0 ? 'L' : 'R'; let C, sig = .012;
     if (art === 'augen') C = ['kopf']; else if (art === 'lider') C = ['lid' + S];
     else if (art === 'kopf') { const fu = p.y > J.kopfOben - .012 && Math.abs(p.x) > .004 && Math.hypot(p.x - J['fuehler1' + S].x, p.z - J['fuehler1' + S].z) < .05; C = fu ? ['kopf', 'fuehler1' + S, 'fuehler2' + S, 'fuehler3' + S] : ['kopf']; sig = .008; }
     else if (art === 'arm') { C = ['brust', 'schulter' + S, 'oberarm' + S, 'unterarm' + S, 'hand' + S, ...[1, 2, 3].flatMap(k => ['finger' + k + S, 'fingerB' + k + S])]; if (p.y < J['hand' + S].y - .006) { C = C.filter(c => /finger|hand/.test(c)); sig = .004; } }
     else { // Körper
       const y = p.y; if (y < J.schritt - .004 && Math.abs(p.x) > .002) { C = ['becken', 'oberschenkel' + S, 'schienbein' + S, 'fuss' + S, 'zehen' + S]; sig = y < .06 ? .008 : .014; }
-      else if (y > J.hals.y - .02) C = ['brust', 'hals', 'hals2', 'kehle', 'kopf', 'schulter' + S]; else C = ['becken', 'bauch', 'brust', 'oberschenkel' + S, 'schulter' + S]; }
+      else if (y > J.hals.y - .02) C = ['brust', 'hals', 'hals2', 'kehle', 'kopf', 'schulter' + S]; else C = ['becken', 'bauch', 'brust', 'schulter' + S]; }
     const d = C.map(c => segD(seg[c], p)); let dm = Math.min(...d); const w = d.map((v, k) => [C[k], Math.exp(-(v - dm) / sig)]);
     if (art === 'koerper' && p.y > J.hals.y - .02) { const k = w.find(e => e[0] === 'kehle'); const vorn = p.z - J.hals2.z; k[1] *= vorn > .004 ? .9 : 0; } // Kehle nur vorn am Hals
-    if (art === 'arm') { const b = w.find(e => e[0] === 'brust'); b[1] *= .35; }
-    const L = w.sort((a, b) => b[1] - a[1]).slice(0, 4), sum = L.reduce((a, b) => a + b[1], 0); L.forEach(([k, a], j) => { JI[i * 4 + j] = idx.get(k); WW[i * 4 + j] = a / sum; }); }
+    if (art === 'arm') { const b = w.find(e => e[0] === 'brust'); if (b) b[1] *= .35; }
+    const sum0 = w.reduce((a, b) => a + b[1], 0); D[i] = new Map(w.map(([k, a]) => [idx.get(k), a / sum0])); }
+  // Glätten über die Nachbarn (verschweißt nach Lage): keine Sprünge an Regionsgrenzen, weiche Gelenke
+  const it = { koerper: 14, arm: 6, kopf: 2, augen: 0, lider: 0 }[art] ?? 4; if (it) { const key = new Map(), wid = new Int32Array(n); let m = 0;
+    for (let i = 0; i < n; i++) { const k = Math.round(P[i * 3] * 2e5) + ',' + Math.round(P[i * 3 + 1] * 2e5) + ',' + Math.round(P[i * 3 + 2] * 2e5); let j = key.get(k); if (j === undefined) { j = m++; key.set(k, j); } wid[i] = j; }
+    const nb = Array.from({ length: m }, () => new Set()), I = teil.idx; for (let t = 0; t < I.length; t += 3) for (let k = 0; k < 3; k++) { const a = wid[I[t + k]], b = wid[I[t + (k + 1) % 3]]; if (a !== b) { nb[a].add(b); nb[b].add(a); } }
+    let W = Array.from({ length: m }, () => null); for (let i = 0; i < n; i++) if (!W[wid[i]]) W[wid[i]] = D[i];
+    const fix = new Uint8Array(m); for (let i = 0; i < n; i++) if (art === 'arm' && P[i * 3 + 1] < .15) fix[wid[i]] = 0; // Finger dürfen glätten (getrennte Flächen)
+    for (let r = 0; r < it; r++) { const W2 = W.map((wm, j) => { const L = [...nb[j]]; if (!L.length) return wm; const acc = new Map(); for (const [b, a] of wm) acc.set(b, a * .5); for (const k of L) for (const [b, a] of W[k]) acc.set(b, (acc.get(b) || 0) + a * .5 / L.length); return acc; }); W = W2; }
+    for (let i = 0; i < n; i++) D[i] = W[wid[i]]; }
+  for (let i = 0; i < n; i++) { const L = [...D[i].entries()].sort((a, b) => b[1] - a[1]).slice(0, 4), sum = L.reduce((a, b) => a + b[1], 0); L.forEach(([k, a], j) => { JI[i * 4 + j] = k; WW[i * 4 + j] = a / sum; }); }
   teil.ji = JI; teil.ww = WW; }
 // ---------------------------------------------------------------- Haut: Höhlen (AO), Dicke (Durchscheinen), Falten an Gelenken, Adernstärke, Grundfarbe je Ecke
 export function haut(teile, J) { const alle = Object.entries(teile).filter(([k, t]) => t && t.pos && k !== 'augen');
@@ -126,11 +138,11 @@ export function haut(teile, J) { const alle = Object.entries(teile).filter(([k, 
       let falte = 0, fk = 0; const S = p.x >= 0 ? 'L' : 'R';
       const gel = art === 'arm' ? [['unterarm' + S, .018, 'oberarm' + S], ['hand' + S, .012, 'unterarm' + S], ...[1, 2, 3].map(k => ['fingerB' + k + S, .006, 'finger' + k + S])]
         : art === 'koerper' ? [['schienbein' + S, .02, 'oberschenkel' + S], ['fuss' + S, .016, 'schienbein' + S], ['hals2', .03, 'hals'], ['bauch', .03, 'becken'], ['zehen' + S, .01, 'fuss' + S]] : art === 'kopf' ? [['kopf', .025, 'hals2']] : [];
-      for (const [jn, rad, par] of gel) { const jp = J[jn], d = p.distanceTo(jp); const s = Math.exp(-(d / rad) ** 2); if (s > falte) { falte = s; const ax = jp.clone().sub(J[par]).normalize(); fk = p.clone().sub(jp).dot(ax); } }
+      for (const [jn, rad, par] of gel) { const jp = J[jn], d = p.distanceTo(jp); const s = Math.exp(-((d / rad) ** 2)); if (s > falte) { falte = s; const ax = jp.clone().sub(J[par]).normalize(); fk = p.clone().sub(jp).dot(ax); } }
       if (art === 'koerper' && p.y > J.hals.y - .01 && p.y < J.kopfUnten + .01) { falte = Math.max(falte, .8); fk = p.y; } // ganzer Hals: Ringe
       if (art === 'lider') { falte = .6; fk = p.y; }
       // Adern: wo die Haut dünn ist und an Schläfen, Kehle, Handgelenk, Bauch
-      const sch = art === 'kopf' ? Math.exp(-((Math.abs(p.x) - .11) / .04) ** 2 - ((p.y - (J.lidL.y + .03)) / .05) ** 2) : 0;
+      const sch = art === 'kopf' ? Math.exp(-(((Math.abs(p.x) - .11) / .04) ** 2) - (((p.y - (J.lidL.y + .03)) / .05) ** 2)) : 0;
       const ad = Math.min(1, duenn * .7 + sch * .8 + (art === 'arm' ? .35 : 0) + (art === 'koerper' && p.y > J.hals.y - .02 ? .5 : 0) + (art === 'koerper' && p.z > J.bauch.z + .02 && Math.abs(p.y - J.bauch.y) < .05 ? .3 : 0));
       H4.set([duenn, falte, fk, ad], i * 4);
       // Grundfarbe: Perlweiß/Kerzenwachs; dünne Stellen rosig (Blut dahinter), Höhlen kühl-grau, Schädelkuppe gelblicher (älteres Wachs)

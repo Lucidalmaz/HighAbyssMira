@@ -165,6 +165,15 @@ Object.assign(Audio, {
       else if (!on && this.eng) { this.eng.l.stop(.5); this.eng = null; }
       else if (this.eng) this.setze(this.eng.p, x, .6, z); },
   }); }
+// Tier-/Kreaturlaute mit optionalem obj (letzter Parameter): fliehende Rehe, auffliegende Krähen, das Hirschding – der Laut läuft mit
+{ const g0 = Audio.groan, d0 = Audio.deerBark, f0 = Audio.flap;
+  Object.assign(Audio, {
+    groan(x, z, loud, obj) { if (!obj || !this.ctx) return g0.call(this, x, z, loud); const b = this.buf.zombie1, O = { gain: loud ? 1.1 : .7, obj, h: 1.4, ref: 3 };
+      if (Math.random() < .5 && b) this.play('zombie1', { ...O, vary: .08, offset: rand(0, Math.max(0, b.duration - 2.5)), dur: 2.2 }); else this.play(this.pick('undead1', 'undead2', 'undead3', 'undead4'), { ...O, vary: .1 }); },
+    deerBark(x, z, obj) { if (!obj || !this.ctx) return d0.call(this, x, z); const n = kl_pick('fx_reh_', 3); if (n) this.play(n, { gain: .4, vary: .05, obj, h: 1, ref: 8, lp: 3500 }); },
+    flap(x, y, z, obj) { if (!obj || !this.ctx) return f0.call(this, x, y, z); const d = this.at(x, y, z, 3, { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2 }); if (this.cut) return;
+      for (let i = 0; i < 6; i++) { const n = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 600; n.connect(lp); this.env(lp, .25, .01, .07, i * .09, d); n.stop(this.ctx.currentTime + 1); } },
+  }); }
 // Fernseher in Nr. 7: das Rauschen kommt aus dem Gerät (die Basis regelt nur noch an/aus)
 function rk_tv() { const A = Audio; if (RK.tvOk || !A.tv || typeof tvScreen === 'undefined' || A.lsp === undefined || A.lsp === 'u') return; RK.tvOk = true;
   try { tvScreen.updateMatrixWorld(true); const q = tvScreen.getWorldPosition(new THREE.Vector3()), p = rk_at(q.x, q.y, q.z, 1.2, { loop: true, dauer: 1e9 }); if (A.cut) { RK.tvOk = false; return; }

@@ -470,7 +470,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       G.tubeT -= dt; if (G.tubeT < 0) { G.tubeT = rand(.05, .4); G.tubeK = Math.random() < .12 ? 0 : 1; }
       let ck = OW.canopyDie > 0 ? (OW.canopyDie -= dt, Math.random() < .15 ? 1 : 0) : 1; if (ch3dark) ck = 0;
       canopyTubes.forEach((m, i) => { m.material.emissiveIntensity = 2.6 * ck * (i === 3 ? G.tubeK : 1); }); canopyLights.forEach(l => l.intensity = 2.2 * ck); canopyPools.forEach(p => p.material.opacity = .22 * ck);
-      const dS = dist2(100, 8); G.buzzT -= dt; if (dS < 14 && G.buzzT < 0) { G.buzzT = rand(2.5, 6); Audio.play('buzz', { gain: .12 * (1 - dS / 14), rate: rand(.9, 1.1), x: 99.6, y: 4.6, z: 8.2, ref: 2 }); }
+      const dS = dist2(100, 8); G.buzzT -= dt; if (dS < 14 && G.buzzT < 0) { G.buzzT = rand(2.5, 6); Audio.play('buzz', { gain: .12, rate: rand(.9, 1.1), x: 99.6, y: 4.6, z: 8.2, ref: 2 }); }
       // Kiosk: bei Annäherung geht drinnen das Licht an – für einen Augenblick steht jemand hinter dem Tresen
       const Kk = G.kiosk; let kl = ch3dark ? 0 : (Math.random() < .02 ? .2 : 1);
       if (Kk.st === 'idle' && !Kk.done && calm() && dist2(112, 22) < 9 && lookAt(111, 1.6, 26.5, .85)) { Kk.st = 'dark'; Kk.t = 0; Kk.done = true; Audio.buzz(111, 3, 28); }

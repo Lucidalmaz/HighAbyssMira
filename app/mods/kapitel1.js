@@ -8,7 +8,7 @@
 // Technik: Basis-Funktionen werden hier umhüllt/ersetzt (startOutage, leaveBasement, enterBasement, ending, scareWendtKitchen, scareCellarDoor, kpPress)
 // oder ihre Klickflächen neu belegt (Briefkasten, Kalender, Tonband, Zeichnungen, Kellertreppe). Keine Lichter zur Laufzeit, keine Allokationen im Takt.
 const K1 = { f: new Set(), T: 0, ready: false, deco: [], cov: [], v: { on: false, done: false, n: 0, exp: 0, sp: { x: 0, z: 0, vx: 0, vz: 0 }, tgt: { x: 0, z: 0 }, tT: 0, last: null, spd: 3.4, limp: 0,
-  lift: null, grace: 0, zelleT: 0, vegas: false, aeff: false, wz: -1 }, aus: null, hum: null, tv: { t: 0, fr: 0 }, lampe: null, kp: { t: 0, blick: false }, band: null, heim: false, a04: { n: 0, t: 120 } };
+  lift: null, grace: 0, vegas: false, aeff: false, wz: -1 }, aus: null, hum: null, tv: { t: 0, fr: 0 }, lampe: null, kp: { t: 0, blick: false }, band: null, heim: false, a04: { n: 0, t: 120 } };
 const kapitel1_v3 = new THREE.Vector3(), kapitel1_v3b = new THREE.Vector3(), kapitel1_q = new THREE.Quaternion(), kapitel1_o = new THREE.Object3D();
 MOD_SAVE.push(['kapitel1', () => ({ f: [...K1.f], n: K1.v.n }), v => { if (v && Array.isArray(v.f)) v.f.forEach(x => K1.f.add(x)); if (v && +v.n) K1.v.n = +v.n; }]);
 function kapitel1_on() { return state.started && !menu.attract && !state.ch1Done && !(typeof ch2 !== 'undefined' && ch2.on) && (typeof kap !== 'function' || kap() === 1); }
@@ -303,13 +303,13 @@ async function kapitel1_band() {
   if (state.talking || state.heardTape) return; if (!K1.f.has('bandZettel')) { K1.f.add('bandZettel'); return openNote('Zettel am Kassettenrekorder', '<span class="hand">„Für Großer. Erst hören, dann heim. – L.“</span>', 'k1_bandzettel'); }
   state.talking = true; Audio.tape(true); state.tapeOn = true; const bx = B.x + 2, bz = B.z - 3.2; Audio.play('switch1', { gain: .5, x: bx, y: .9, z: bz, ref: 1.5 });
   const L = 'LUCY · TONBAND';
-  await say([['*Rauschen. Fingernägel kratzen am Mikrofon.*', 2200], ['„Hey, Großer. Ich weiß jetzt, warum wir uns an den Sommer 2009 nicht erinnern.“', 4400, L], ['„Wir waren weg. Sieben Kinder. Ich. Und du auch.“', 3800, L], ['„Hilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.“', 4400, L], ['*Knacken. Räuspern.*', 1800]]);
+  await say([['*Rauschen. Fingernägel kratzen am Mikrofon.*', 2200], ['„Hey, Großer. Ich weiß jetzt, was im Sommer 2009 passiert ist. Nicht nur, dass. Was.“', 4600, L], ['„Wir waren weg. Sieben Kinder. Ich. Und du auch.“', 3800, L], ['„Hilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.“', 4400, L], ['*Knacken. Räuspern.*', 1800]]);
   // das Band läuft weiter, wenn Luke stehen bleibt
   const t0 = performance.now(); let still = 0; while (performance.now() - t0 < 20000) { await wait(100); still = Math.hypot(vel.x, vel.z) < .35 ? still + .1 : 0; if (still > 1.2) break; }
   await kapitel1_danke();
   await say([['„Sie haben uns zurückgebracht. Aber nicht alles von uns.“', 4200, L], ['„Wenn du das hörst, bin ich schon wieder weg. Fahr heim, Großer. Frag Hilde nichts. Frag niemanden. Fahr heim.“', 6200, L], ['*Klick. Bandende.*', 1500]]);
   Audio.tape(false); state.tapeOn = false; Audio.play('switch2', { gain: .5, x: bx, y: .9, z: bz, ref: 1.5 }); state.heardTape = true; setMain(5); addItem('tape');
-  kapitel1_lore('tape', 'Lucys Tonband', '„Hey, Großer. Ich weiß jetzt, warum wir uns an den Sommer 2009 nicht erinnern.\nWir waren weg. Sieben Kinder. Ich. Und du auch.\nHilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.\n(Knacken, Räuspern)\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst, bin ich schon wieder weg. Fahr heim, Großer. Frag Hilde nichts. Frag niemanden. Fahr heim.“');
+  kapitel1_lore('tape', 'Lucys Tonband', '„Hey, Großer. Ich weiß jetzt, was im Sommer 2009 passiert ist. Nicht nur, dass. Was.\nWir waren weg. Sieben Kinder. Ich. Und du auch.\nHilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.\n(Knacken, Räuspern)\nSie haben uns zurückgebracht. Aber nicht alles von uns.\nWenn du das hörst, bin ich schon wieder weg. Fahr heim, Großer. Frag Hilde nichts. Frag niemanden. Fahr heim.“');
   await wait(5000); state.talking = false; subtitle('<i>Irgendwas ist gerade an mir vorbei die Treppe hoch. Und ich hab ihm die Tür aufgemacht.</i>', 5200, 'LUKE');
 }
 // „… danke, Luke …“ (Stufe 3): die Birne stirbt; im Flackern (vier Zuckungen, jede kürzer) sitzt jemand auf dem Stuhl. Birne an: leer, Gurte offen, nackte Füße die Treppe hoch
@@ -412,10 +412,10 @@ function kapitel1_vTick(dt, t) { const V = K1.v; if (!V.on) return; const P = pl
   if (Math.hypot(P.x - 30.5, P.z + 21.1) < 1.3 && !stairBusy) return kapitel1_kellerEnde();
   // Deckung, Innenraum, Erfassung
   const c = kapitel1_deckung(P.x, P.z), innen = !!indoorRect(), front = innen && P.z > -13.8 && P.x > 20 && P.x < 32;
-  if (c) { V.last = { x: c.rx, z: c.rz, yaw: player.yaw }; if (c.id === 'zelle') { V.zelleT -= dt; if (V.zelleT <= 0) { V.zelleT = 3.2; Audio.ring(.09, 8, 1.9, 7.6); } }
+  if (c) { V.last = { x: c.rx, z: c.rz, yaw: player.yaw }; /* R-1: die Zelle klingelt im Versteck nicht mehr */
     if (c.id === 'veranda' && !V.vegas && typeof albers_whiskey === 'function') { V.vegas = true; albers_whiskey([['„Bleib unten, Junge! Nicht ins Licht gucken! Die sieht nur, was ihre Lampen sehen!“', 4200], ['„Und wenn du den Vogel siehst, sag ihm, der Speck ist für Bruno.“', 3600]]).catch(() => {}); }
     if (!V.aeff && Math.hypot(S.x - P.x, S.z - P.z) < 6 && typeof whiskey_mimic === 'function' && typeof whiskey_S !== 'undefined' && whiskey_S.g && whiskey_S.g.visible && Math.hypot(whiskey_S.g.position.x - P.x, whiskey_S.g.position.z - P.z) < 9) {
-      V.aeff = true; if (whiskey_mimic('himmelherrgott', { force: true })) { V.tgt.x = P.x + rand(-1, 1); V.tgt.z = P.z + rand(-1, 1); V.tT = 2.2; } } }
+      V.aeff = true; if (whiskey_mimic('autotuer', { force: true })) /* Gag-Budget H-1: im Versteck das Warnsummen der Autotür statt „Himmelherrgott!“ */ { V.tgt.x = P.x + rand(-1, 1); V.tgt.z = P.z + rand(-1, 1); V.tT = 2.2; } } }
   const r = 3.7 + (flashOn && flashlight.intensity > 1 ? 1.4 : 0), d = Math.hypot(S.x - P.x, S.z - P.z), sicht = d < r && V.grace <= 0 && (!c || c.id === 'baum' && d < 1.6) && (!innen || front) && !state.inBasement;
   V.exp = sicht ? V.exp + dt : Math.max(0, V.exp - dt * 1.5); if (sicht && V.exp > .3 && !V.warn) { V.warn = true; Audio.heart(); } if (!sicht) V.warn = false;
   if (V.exp > 1) kapitel1_erwischt();
@@ -500,7 +500,7 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   MAIN[5] = 'Irgendwas ist an dir vorbei die Treppe hoch. Hinterher.'; MAIN[8] = 'Hinter die Bilder, hat Hilde geschrien. Folge dem Gang hinter der Wand.'; if (story.main === 0 || story.main === 2 || story.main === 5) $('objText').textContent = trX(MAIN[story.main]);
   { const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (E) { E.title = 'Nachbild · Die Kreuzung'; E.lines = [['Warmer Asphalt. Sommernacht. Kinder, barfuß, in einer Reihe. Eine Männerstimme zählt: „… fünf, sechs, sieben. Sieben. Gott sei Dank.“', 5600], ['Eine Kinderstimme, ganz nah: „Acht.“', 3000], ['Am Nebelrand steht noch ein Junge. Er zählt nicht mit. Dann ist er weg.', 4200], ['Das Bild kommt zurück. Regen.', 2600]]; } }
   uninteract(mailbox7); interact(mailbox7, 'Briefkasten öffnen', kapitel1_briefkasten);
-  uninteract(calendar); interact(calendar, 'Kalender ansehen', () => { state.readCal = true; openNote('Kalender · Oktober', '<i>Werbekalender der Sparkasse. Hildes Druckbuchstaben:</i>\n\n<span class="hand">23. – L. weg. Sie hat mir alles gezeigt. Sie hat gesagt, sie geht nur kurz.</span>\n\n<b>31.</b> ist dick eingekreist, immer wieder, bis das Papier durch ist:\n<span class="hand" style="color:#8a1010">SIE IST ZURÜCK. ABER DAS IST NICHT LUCY.</span>\n\n<i>Umblättern, November:</i>\n<span class="hand">3. – Sie übt Lucys Stimme. Durch die Tür. Sie will ihn anrufen. Ich hab das Telefon versteckt. Sie braucht keins.\n4. – ——</span>', 'calendar'); });
+  uninteract(calendar); interact(calendar, 'Kalender ansehen', () => { state.readCal = true; openNote('Kalender · Oktober', '<i>Werbekalender der Sparkasse. Hildes Druckbuchstaben:</i>\n\n<span class="hand">23. – L. unten. Keiner darf das wissen. Auch der Kalender nicht.</span>\n\n<b>31.</b> ist dick eingekreist, immer wieder, bis das Papier durch ist:\n<span class="hand" style="color:#8a1010">SIE IST ZURÜCK. ABER DAS IST NICHT LUCY.</span>\n\n<i>Umblättern, November:</i>\n<span class="hand">3. – Sie übt Lucys Stimme. Durch die Tür. Sie will ihn anrufen. Ich hab das Telefon versteckt. Sie braucht keins.\n4. – ——</span>', 'calendar'); });
   uninteract(B.tape); interact(B.tape, () => K1.f.has('bandZettel') ? 'Kassette abspielen' : 'Zettel am Rekorder', kapitel1_band);
   uninteract(B.wallArt); interact(B.wallArt, 'Zeichnungen ansehen', kapitel1_wand);
   uninteract(stairs); interact(stairs, 'Nach oben gehen', kapitel1_treppe);

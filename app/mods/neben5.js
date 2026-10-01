@@ -12,7 +12,7 @@
 // Haken in anderen Modulen: nur Umhüllungen (Briefkasten Nr. 7, Telefonzelle, albers_talk, Laube Parzelle 7, Nachtschalter, Zapfinseln, roter Kanister, Schrottauto,
 //   Schuppentür) und kamera_zielDazu. Einziger Eingriff: ein Aufruf in kapitel5.js (k5_telefon, UK 9).
 // Regeln: Lichter nur beim Laden (Kerzen mit Intensität 0), Figuren werden erst in der Nähe einmal angelegt (Lazy), keine Allokationen im Takt.
-const neben5_S = { ready: false, st: {}, o: {}, chk: 0, busy: false, nachLaden: false, hK5: false, hWelt: 0, v: new THREE.Vector3(), ring: null };
+const neben5_S = { ready: false, st: {}, o: {}, chk: 0, busy: false, nachLaden: false, hK5: false, hWelt: 0, v: new THREE.Vector3() };
 const NEBEN5 = {
   k5_jonas: ['Ich bin trotzdem dran', 'Drei Briefe aus Hamburg in Hildes Briefkasten, von Jonas, ihrem Großen. „Ich ruf dich jeden Sonntag an. Du gehst nicht ran.“ Hilde hat alles aufgehoben, was man ihr geschickt hat. Wenn sie ihm je geantwortet hat, liegt das in ihrem Schlafzimmer.'],
   k5_laube: ['Zuletzt neun', 'Hilde hat jede Nacht die Kreuzung gezählt: „Es sind immer acht. Zuletzt neun.“ In den Schrebergärten hat sie eine Laube, Parzelle 7. Wenn sie irgendwo Filme für die Kamera gebunkert hat – und ihre Nächte –, dann da.'],
@@ -93,7 +93,7 @@ function n5_jonasTick() { const J = n5_st('jonas'), O = neben5_S.o;
 async function n5_nachttisch() { const J = n5_st('jonas'), S = neben5_S; if (state.talking || S.busy || J.antworten) return; S.busy = true; state.talking = true;
   try { try { Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .35, rate: 1.2, x: N5_NACHT[0], y: .8, z: N5_NACHT[1], ref: 2 }); } catch (e) {} await wait(900);
     // Schreck (1): im Wohnzimmer klingelt zweimal das Telefon – in einem Haus, in dem keiner mehr rangeht
-    try { Audio.ring(.1); } catch (e) {} await wait(2900); try { Audio.ring(.1); } catch (e) {} await wait(3200);
+    try { Audio.ring(.1, 20.5, 1.3, -15.35); } catch (e) {} await wait(2900); try { Audio.ring(.1, 20.5, 1.3, -15.35); } catch (e) {} await wait(3200);
     await say([['Zweimal. Dann nichts mehr.', 2600]]); } finally { state.talking = false; }
   try { for (let i = 0; i < 3; i++) await n5_note(N5_ANTWORT[i][0], (i === 0 ? 'Ganz hinten in der Schublade, unter einer Brille mit gesprungenem Glas: drei Umschläge. Adressiert an Jonas Wendt, Hamburg. Frankiert. Nie abgeschickt.\n\n' : '')
       + n5_hand('„' + N5_ANTWORT[i][1] + '“'), 'k5_antwort' + (i + 1)); } finally { S.busy = false; }
@@ -224,8 +224,7 @@ async function n5_heidiBau() { const O = neben5_S.o, W = typeof K5 !== 'undefine
 function n5_heidiTick(dt) { const H = n5_st('heidi'), O = neben5_S.o; if (!O.karte) return;
   const da = n5_nach9() && !H.karte; if (O.karte.visible !== da) O.karte.visible = da; const hit = da && n5_offenBeat(); if (O.karteOn !== hit) { O.karteOn = hit; kirchberg_an(O.karteHit, hit); }
   if (hit && !H.ruf && n5_d(-26.5, -11) < 9 && n5_frei()) { H.ruf = 1; n5_vegasRuf(); }
-  // Rückruf: die Zelle klingelt sofort wieder (12 s)
-  const R = neben5_S.ring; if (R) { R.t += dt; R.n -= dt; if (R.n <= 0) { R.n = 3.2; try { Audio.ring(.12 * Math.max(.15, 1 - n5_d(8, 7.6) / 40)); } catch (e) {} } if (R.t > 12) neben5_S.ring = null; } }
+  } // Story-Prüfung R-1: kein Nachklingeln der Zelle nach Heidis Anruf mehr (Telefonzelle nur noch viermal: Kap. 1 Nebenaufgabe, Kap. 3, Kap. 5, Heidi)
 async function n5_vegasRuf() { neben5_S.busy = true; try { if (typeof albers_S !== 'undefined') albers_S.open = 1; Audio.chains && Audio.chains(-28, 1.2, -12.2);
     await n5_says([['„Junge! Auf dem Fensterbrett liegt Post für Lucy. Der Maas hat sie durchgeschoben. Ohne zu klingeln. Feigling.“', 5200, 'VEGAS']]); } finally { if (typeof albers_S !== 'undefined') albers_S.open = 0; neben5_S.busy = false; } }
 async function n5_karte() { const H = n5_st('heidi'); if (state.talking || H.karte) return; H.karte = 1; Audio.paper();
@@ -244,13 +243,7 @@ async function n5_heidiAnruf() { const H = n5_st('heidi'), S = neben5_S; if (sta
     try { Audio.play('switch1', { gain: .3, rate: .8 }); } catch (e) {}
   } finally { if (typeof handset === 'function') handset(false); state.talking = false; S.busy = false; }
   H.anruf = 1; n5_lore('k5_heidi_tel', 'Heidi am Telefon', 'Heidis Familie ist nicht weggezogen: Morgens stand ein Umzugswagen da, und ein Mann mit Hut hat ihrer Mutter erklärt, dass sie freiwillig gehen. Das Amt hat sie umgesetzt „wie Schachfiguren“.\n\nIn der Nacht damals hat ein Junge „Klar!“ gesagt, als das blasse Mädchen mitspielen wollte. „Das warst nicht du. Du warst noch gar nicht da.“');
-  n5_desc('k5_heidi', 'Heidi kommt nicht rüber. Noch nicht. Ihre Karte gehört Lucy – Lucy ist bei Vegas.'); n5_save();
-  // Schreck: die Zelle klingelt sofort wieder
-  await wait(1200); neben5_S.ring = { t: 0, n: 0 }; }
-async function n5_rueckruf() { const S = neben5_S; S.ring = null; if (state.talking) return; state.talking = true;
-  try { if (typeof handset === 'function') handset(true); await wait(1300); try { if (typeof k5_atem === 'function') k5_atem(player.pos.x, 1.6, player.pos.z + .25, .07); } catch (e) {} await wait(2200); Audio.paper(); await wait(1600);
-    if (n5_lwo() === 'miserabel') await say([['„Schönes Gespräch. Wir hören gern zu.“', 3400, 'NACHSORGE 11']]); else await say([['Nur ein Atem. Und Butterbrotpapier, das jemand langsam faltet.', 4200]]);
-  } finally { if (typeof handset === 'function') handset(false); state.talking = false; } }
+  n5_desc('k5_heidi', 'Heidi kommt nicht rüber. Noch nicht. Ihre Karte gehört Lucy – Lucy ist bei Vegas.'); n5_save(); }
 // Vegas’ Tür (albers_talk umhüllt): Heidis Karte zu Lucy · Lucy und Jonas, wenn die Antworten erst nach UK 9 im Kasten lagen
 function n5_vegasOffen() { const H = n5_st('heidi'), J = n5_st('jonas'); return n5_nach9() && ((H.anruf && !H.lucy && n5_item('heidi_karte')) || (J.fertig && !J.lucy)); }
 async function n5_vegasTuer() { const H = n5_st('heidi'), J = n5_st('jonas'); if (state.talking) return; state.talking = true; if (typeof albers_S !== 'undefined') albers_S.open = 1;
@@ -365,8 +358,8 @@ async function n5_maas() { const K = n5_st('kasten'), S = neben5_S, F = n5_maasF
     if (!weg) await G('Ich hab heut alles ausgetragen, was ich nie ausgetragen hab. Bis auf einen.', 4200); else await G('Alles ausgetragen. Heut Nachmittag. Bis auf einen.', 3200);
     subtitle('Er hält einen vergilbten Umschlag hoch. Schreibmaschine, eine Hamburger Redaktion. Edda Brands Brief.', 4600); await wait(4400);
     await G('Dreimal in der Hand gehabt heute. Seit die Frau weg ist, fahr ich jeden Morgen an dem Kasten vorbei. Ich schaff’s nicht bis zum Schlitz.', 6200);
-    // Schreck (1): die Zelle klingelt einmal, Maas zuckt, das Rad fällt um
-    try { Audio.ring(.16); } catch (e) {} await wait(420); K.fall = 1; K.fallT = 0; if (F.acts.look) lwo_clip(F, 'look'); lwo_blick(F, new THREE.Vector3(8, 1.5, 7.6));
+    // Schreck (1): die Briefkastenklappe von Nr. 7 schlägt zu, ohne dass einer dran war – Maas zuckt, das Rad fällt um (R-1: die Telefonzelle klingelt hier nicht mehr)
+    try { Audio.play('metalHit2', { gain: .32, rate: 1.5, x: 28.4, y: 1.1, z: -5.9, ref: 3 }); } catch (e) {} await wait(420); K.fall = 1; K.fallT = 0; if (F.acts.look) lwo_clip(F, 'look'); lwo_blick(F, new THREE.Vector3(28.4, 1.1, -5.9));
     setTimeout(() => { try { Audio.play('metalHit2', { gain: .4, rate: .85, x: N5_RAD[0], y: .3, z: N5_RAD[1], ref: 3 }); Audio.play('metalHit1', { gain: .2, rate: 1.6, delay: .15, x: N5_RAD[0], y: .2, z: N5_RAD[1], ref: 3 }); } catch (e) {} }, 520);
     await wait(2200); lwo_blick(F, 'luke'); lwo_clip(F, F.acts.nervous ? 'nervous' : 'idle');
     await G('Vierzig Jahre Post. Das Einzige, was ich immer zugestellt hab, war Werbung. Werbung hat keiner verboten.', 5000);
@@ -398,7 +391,7 @@ async function n5_schuppenTuer() { const K = n5_st('kasten'), S = neben5_S; if (
   const i = await n5_wahl(['Das Schloss aufbrechen', 'Lassen']); if (i !== 0) return;
   S.busy = true; state.talking = true;
   try { for (let k = 0; k < 3; k++) { try { Audio.play('metalHit2', { gain: .45, rate: .8 + k * .1, x: 101.1, y: 1.1, z: -26.05, ref: 3 }); } catch (e) {} await wait(700); }
-    try { Audio.play('lockOpen', { gain: .6 }); } catch (e) {} await say([['Beim dritten Mal gibt das Schloss nach. Das Auge darauf ist verbogen.', 3400]]);
+    try { Audio.play('lockOpen', { gain: .6, x: 101.1, y: 1.1, z: -26.05, ref: 2 }); } catch (e) {} await say([['Beim dritten Mal gibt das Schloss nach. Das Auge darauf ist verbogen.', 3400]]);
     if (typeof lwo_ereignis === 'function') lwo_ereignis('schuppen_aufbrechen'); if (typeof kirchberg_oeffne === 'function') kirchberg_oeffne('schuppen'); K.schuppen = 1; n5_weg('brecheisen');
   } finally { state.talking = false; S.busy = false; }
   n5_save(); if (typeof kirchberg_rein === 'function') await kirchberg_rein('schuppen'); await n5_schuppenInnen(); }
@@ -451,7 +444,7 @@ function n5_huellenWelt() { const S = neben5_S; if (S.hWelt >= 2) return; S.hWel
 function n5_huellenK5() { const S = neben5_S; if (S.hK5) return; S.hK5 = true; const J = () => n5_st('jonas');
   if (typeof mailbox7 !== 'undefined') { n5_huelle(mailbox7, () => n5_k5() && n5_item('hildes_antworten') && !J().eingeworfen, 'Hildes Antworten einwerfen · Fahne hoch', () => n5_einwerfen()); }
   if (typeof booth !== 'undefined' && booth.phone) { const H = () => n5_st('heidi');
-    n5_huelle(booth.phone, () => n5_k5() && !['anruf', 'anrufLaeuft'].includes(k5.beat) && (!!S.ring || (n5_item('heidi_karte') && !H().anruf)), () => S.ring ? 'Hörer abnehmen' : 'Heidi anrufen', () => S.ring ? n5_rueckruf() : n5_heidiAnruf()); }
+    n5_huelle(booth.phone, () => n5_k5() && !['anruf', 'anrufLaeuft'].includes(k5.beat) && n5_item('heidi_karte') && !H().anruf, 'Heidi anrufen', () => n5_heidiAnruf()); }
   if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { if (n5_k5() && n5_vegasOffen()) return n5_vegasTuer(); return o(...a); })(albers_talk); }
 
 // ---------------------------------------------------------------------  Spielstand · Laden · Takt
@@ -471,7 +464,7 @@ WORLD_MODS.push(['Nebenaufgaben Kap. 5', async () => { const S = neben5_S; neben
     aydin: n5_aydinFenster, fenster: n5_fensterKlick, schuppen: n5_schuppenTuer, kassenbuch: n5_kassenbuch, ziel: neben5_kameraZiel, kinder: n5_kinderBau, junge: n5_jungeBau }; }]); // Testzugriff
 WORLD_TICK.push(dt => { const S = neben5_S; if (!S.ready || !state.started) return;
   n5_radTick(dt); S.chk -= dt; if (S.chk > 0) return; const d = .2 - S.chk; S.chk = .2;
-  if (S.nachLaden) { S.nachLaden = false; S.o.maasDa = false; S.o.dinaDa = false; { const K = n5_st('kasten'); if (K.szene === 1) K.szene = 0; } S.o.aydinFenster = undefined; S.o.lichterAn = undefined; S.o.fahneOben = undefined; S.ring = null; if (S.hWelt < 2) n5_huellenWelt(); }
+  if (S.nachLaden) { S.nachLaden = false; S.o.maasDa = false; S.o.dinaDa = false; { const K = n5_st('kasten'); if (K.szene === 1) K.szene = 0; } S.o.aydinFenster = undefined; S.o.lichterAn = undefined; S.o.fahneOben = undefined; if (S.hWelt < 2) n5_huellenWelt(); }
   if (!S.hK5 && typeof k5 !== 'undefined' && k5.huellen) { try { n5_huellenK5(); if (S.hWelt < 2) n5_huellenWelt(); } catch (e) { console.warn('neben5: Hüllen Kap. 5', e); } }
   try { n5_jonasTick(); n5_fahneTick(); n5_laubeTick(); n5_kanisterTick(); n5_heidiTick(d); n5_dinaTick(); n5_boerekTick(d); n5_kastenTick(); n5_gasTick(); n5_giselaTick(); n5_kreiselTick();
     if (S.o.gTuerAn && !(typeof kirchberg_S !== 'undefined' && kirchberg_S.inRaum === 'schuppen')) { S.o.gTuerAn = false; if (typeof neben4_S !== 'undefined' && neben4_S.o.gTuer) neben4_S.o.gTuer.visible = false; }

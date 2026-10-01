@@ -424,7 +424,7 @@ WORLD_TICK.push((dt, t) => {
   for (const D of S.deer) { if (D.st === 'gone') { D.g.visible = false; D.t -= dt; if (D.t < 0 && Math.hypot(P.x - D.home[0], P.z - D.home[1]) > 45) { D.g.position.set(D.home[0], 0, D.home[1]); D.st = 'graze'; } continue; }
     D.g.visible = true; leben_beastUpd(D, dt, 60); const p = D.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
     if (D.st === 'graze') { D.t -= dt; if (D.t < 0) { D.t = rand(3, 8); leben_play(D, Math.random() < .7 ? 'IdleGraze' : 'IdleLookAround', .4); }
-      if (d < 16 && (lit(D, 22) || spd > 3.2 || d < 6)) { D.st = 'flee'; D.sp = 7; const a = Math.atan2(p.x - P.x, p.z - P.z) + rand(-.4, .4); D.tx = p.x + Math.sin(a) * 35; D.tz = p.z + Math.cos(a) * 35; leben_play(D, 'Run', .15); if (Audio.deerBark && !tief_still()) Audio.deerBark(p.x, p.z); } }
+      if (d < 16 && (lit(D, 22) || spd > 3.2 || d < 6)) { D.st = 'flee'; D.sp = 7; const a = Math.atan2(p.x - P.x, p.z - P.z) + rand(-.4, .4); D.tx = p.x + Math.sin(a) * 35; D.tz = p.z + Math.cos(a) * 35; leben_play(D, 'Run', .15); if (Audio.deerBark && !tief_still()) Audio.deerBark(p.x, p.z, D.g); } }
     else if (D.st === 'flee') { if (leben_beastMove(D, dt) || d > 45) { D.st = 'gone'; D.t = rand(60, 120); } } }
   if (!inside) return;
   // --- Augen im Dunkeln (je tiefer, desto öfter)

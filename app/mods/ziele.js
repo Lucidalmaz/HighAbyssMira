@@ -227,7 +227,8 @@ addEventListener('keydown', e => { if ((e.code !== 'KeyZ' && e.code !== 'KeyY') 
 WORLD_MODS.push(['Ziele', async () => { const S = ziele_S, E = ziele_dom(); if (!E.txt) return;
   new MutationObserver(() => ziele_neu((E.txt.textContent || '').trim())).observe(E.txt, { childList: true, characterData: true, subtree: true });
   S.last = (E.txt.textContent || '').trim();
-  window.__ziele = { S, zeigen: ziele_zeigen, stress: ziele_stress, warum: ziele_warumVon, art: ziele_art, mat: m => (ZIELE_MAT.find(([, re]) => re.test(m)) || [])[0], ton: ziele_artTon, laden: ziele_laden }; }]);
+  window.__ziele = { S, zeigen: ziele_zeigen, stress: ziele_stress, warum: ziele_warumVon, art: ziele_art, mat: m => (ZIELE_MAT.find(([, re]) => re.test(m)) || [])[0], ton: ziele_artTon, laden: ziele_laden,
+    t: { qp: (k, x) => questPop(k, x), side: k => sideStart(k), done: (k, d) => sideDone(k, d), main: i => setMain(i), item: k => addItem(k), fibel: () => { jTab = 'jetzt'; renderJournal(); openOverlay('journal'); }, zu: () => closeOverlay(), chase: on => Audio.chaseMusic(on), aud: Audio } }; }]);
 WORLD_TICK.push(dt => { const S = ziele_S; if (!S.geladen) ziele_laden(); if (!state.started || (typeof menu !== 'undefined' && menu.attract)) { S.lief = false; return; } const now = ziele_jetzt();
   const st = ziele_stress(), bl = ziele_blockiert();
   // Stress zu Ende: kurz durchatmen lassen, dann Ziel zeigen und Wartendes nachreichen

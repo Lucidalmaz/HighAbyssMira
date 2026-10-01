@@ -89,18 +89,19 @@ function n4_sepia(src) { return n4_cv(360, 300, (x, W, H) => { x.fillStyle = '#e
   x.fillStyle = '#e8dcc0'; for (let i = 0; i < W; i += 9) { x.beginPath(); x.arc(i, 0, 5, 0, 7); x.arc(i, H, 5, 0, 7); x.fill(); } for (let j = 0; j < H; j += 9) { x.beginPath(); x.arc(0, j, 5, 0, 7); x.arc(W, j, 5, 0, 7); x.fill(); } }); }
 async function n4_klon(key, file) { const src = await msModel(key, file); const sk = typeof figuren_skc === 'function' ? await figuren_skc() : null; const o = sk ? sk(src) : src.clone(true);
   const clips = src.animations || []; const c = clips.find(a => /idle/i.test(a.name)) || clips[0]; if (c) { const mx = new THREE.AnimationMixer(o); mx.clipAction(c).play(); mx.update(.7); } return o; }
-// Die vier Polaroids aus „Gasleck“ (Hildes Kuli auf dem Rand): 0 Kreuzung 2009 · 1 Oktober, Neun · 2 Lucy mit Teddy · 3 der Vogel
+// Die vier Polaroids aus „Gasleck“ (Hildes Kuli auf dem Rand): 0 Kreuzung 2009 · 1 Oktober, Lucy an der Kreuzung · 2 Lucy mit Teddy · 3 der Vogel
+// Story-Prüfung R-1: keine „acht Füße + neunter“ mehr in Kap. 4 (nur Kap. 1, 3, 5) und kein „Brot für den Jungen“ (nur Kap. 1, 2, 5)
 const N4_POLA = [
-  { titel: '2009, die Kreuzung', hinten: '2009, die Kreuzung, acht Füße.', luke: 'Die Kreuzung, die Nacht mit dem Licht. Sie hat nicht die Kinder fotografiert. Sie hat die Füße gezählt.' },
-  { titel: 'Oktober. Neun.', hinten: 'Oktober. Neun. Der Neunte ist klein und hat nasse Zehen. Drei.', luke: 'Neun Paar. Das neunte ist klein. Drei Zehen. Und es steht nicht ganz auf dem Asphalt.' },
+  { titel: '2009, die Kreuzung', hinten: '2009, die Kreuzung. Der Abend davor.', luke: 'Die Kreuzung, bevor das Licht kam. Sie hat die Stelle fotografiert, als könnte die weglaufen.' },
+  { titel: 'Oktober. Lucy.', hinten: 'Oktober. Lucy an der Kreuzung, drei Uhr. Zählt mit. Ich hab sie heimgeschickt.', luke: 'Lucy. Mitten in der Nacht, an der Kreuzung. Zu weit weg für ein Gesicht. „Zählt mit.“' },
   { titel: 'Lucy, 24.10.', hinten: 'Lucy, 24.10., mit Teddy. Sie weiß es jetzt. Gut so.', luke: 'Hilde konnte nicht fotografieren. Von Lucy ist nur der Ärmel drauf. Und der Teddy. „Sie weiß es jetzt.“ Seit dem 24. Oktober.' },
-  { titel: 'Der Vogel', hinten: 'Der Vogel. Seit 75 derselbe. Ich hab ihm Brot gegeben, er hat’s zu dem Jungen gebracht.', luke: 'Seit fünfundsiebzig derselbe. Und er hat Brot zu einem Jungen gebracht. Zu welchem Jungen?' } ];
+  { titel: 'Der Vogel', hinten: 'Der Vogel. Seit 75 derselbe. Derselbe Ring.', luke: 'Seit fünfundsiebzig derselbe Vogel. Raben werden alt. So alt nicht.' } ];
 async function n4_polaBild(i) { const S = neben4_S; if (S.img['p' + i]) return S.img['p' + i]; let c = null;
   try {
     if (i === 0 || i === 1) { const im = await n4_laden('assets/fotos/kreuzung.jpg'); const roh = n4_cv(360, 360, (x, W, H) => { x.fillStyle = '#0a0a0c'; x.fillRect(0, 0, W, H); if (!im) return;
         if (i === 0) x.drawImage(im, 330, 330, 300, 300, 0, 0, W, H); else x.drawImage(im, 356, 432, 230, 206, 0, 0, W, H);
-        if (i === 1) { x.save(); x.filter = 'blur(1.1px)'; x.globalAlpha = .8; const bx = 312, by = 206; x.fillStyle = 'rgba(0,0,0,.35)'; x.beginPath(); x.ellipse(bx + 12, by + 44, 20, 5, 0, 0, 7); x.fill();
-          x.fillStyle = '#d9d6cf'; for (const dx of [0, 17]) { x.beginPath(); x.ellipse(bx + dx, by + 14, 5.5, 13, .08, 0, 7); x.fill(); for (let t = 0; t < 3; t++) { x.beginPath(); x.arc(bx + dx - 4 + t * 4, by + 1, 2.2, 0, 7); x.fill(); } } x.restore(); } });
+        if (i === 1) { x.save(); x.filter = 'blur(2.2px)'; x.globalAlpha = .85; const bx = 214, by = 150; x.fillStyle = 'rgba(58,72,96,.95)'; x.beginPath(); x.ellipse(bx, by + 30, 9, 26, 0, 0, 7); x.fill(); // Lucy, klein und unscharf, blaue Jacke
+          x.fillStyle = 'rgba(200,190,170,.75)'; x.beginPath(); x.arc(bx, by, 6.5, 0, 7); x.fill(); x.fillStyle = 'rgba(30,28,26,.8)'; x.fillRect(bx - 7, by + 54, 5, 16); x.fillRect(bx + 2, by + 54, 5, 16); x.restore(); } });
       c = n4_pola(roh, i === 1 ? { kalt: true, dunkel: .82 } : {}); }
     else if (i === 2) { const o = new THREE.Group(); const t = await n4_klon('teddy_scan', 'model.glb'); msFit(t, .32, 'max'); const tg = msGround(t); tg.rotation.y = .35; o.add(tg);
       const decke = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), new THREE.MeshStandardMaterial({ color: 0x4a3024, roughness: 1 })); decke.rotation.x = -PI / 2; o.add(decke);
@@ -288,8 +289,7 @@ function n4_postTick(dt) { const S = neben4_S, P = n4_st('post'), R = typeof pos
 async function n4_guenther() { const P = n4_st('post'), R = post_S.ride, S = neben4_S; P.szene = 1; S.busy = true; state.talking = true; const G = (t, ms) => post_zeile(t, ms, 'GÜNTHER'), L = (t, ms) => { subtitle(t, (ms || 2800) + 250, 'LUKE'); return wait(ms || 2800); };
   n4_start('k4_post', null, { x: N4_TOR1[0], z: N4_TOR1[1] });
   try { try { Audio.play('metalHit2', { gain: .3, rate: 1.3, x: R.g.position.x, y: .6, z: R.g.position.z, ref: 3 }); } catch (e) {}
-    await n4_says([['Der Postbote steckt die Zeitungsrolle an deine Haustür. Sein Rad hakt am Gartentor fest. Er zerrt, das Tor schwingt mit.', 5200]]); state.talking = true;
-    subtitle('„Das Tor ist geerdet! Ha!“', 2600, 'VEGAS'); await wait(2600);
+    await n4_says([['Der Postbote steckt die Zeitungsrolle an deine Haustür. Das Rad lehnt schief am Zaun, das Schutzblech klappert noch.', 5200]]); state.talking = true; // Gag-Budget H-1: kein drittes Gartentor
     await G('Das ist die Zeitung. Ich bring nur die Zeitung. Da steht drin, alle wohlauf.', 3800); await L('„Wer hat das geschrieben?“', 2000); await G('Steht drunter. (hw). Steht immer drunter.', 2800);
     await L('„Sie haben mich gestern gemeldet.“', 2400); await G('Ich hab … also, ich hab gesagt, dass Sie da sind. Das ist keine Meldung. Das ist … Auskunft.', 4400);
     await L('„Und in der ersten Nacht haben Sie mir einen Brief an meine Schwester aus der Hand gerissen. J. W., Hamburg.“', 4400); await G('Der ist nicht weg. Bei mir ist nichts weg.', 2800);
@@ -297,7 +297,7 @@ async function n4_guenther() { const P = n4_st('post'), R = post_S.ride, S = neb
     const hatZ = n4_item('lucy_zigaretten'), opts = [], wege = [];
     if (hatZ) { opts.push('Lucys Zigaretten anbieten'); wege.push('a'); } opts.push('„Ich erzähl dem Wolter, was in dem Schuppen liegt.“'); wege.push('b'); opts.push('Ihn fahren lassen.'); wege.push('c');
     let i = await kirchberg_wahl(opts); if (i < 0) i = opts.length - 1; const weg = wege[i]; P.weg = weg; state.talking = true;
-    if (weg === 'a') { story.items = story.items.filter(k => k !== 'lucy_zigaretten'); Audio.play('switch1', { gain: .15, rate: 2.5 }); subtitle('Er nimmt die Packung, raucht sofort. Die Hand zittert beim Anzünden.', 3400); await wait(3200);
+    if (weg === 'a') { story.items = story.items.filter(k => k !== 'lucy_zigaretten'); Audio.play('switch1', { gain: .15, rate: 2.5, x: R.g.position.x, y: 1.5, z: R.g.position.z, ref: 1.5 }); subtitle('Er nimmt die Packung, raucht sofort. Die Hand zittert beim Anzünden.', 3400); await wait(3200);
       await G('Ein paar Rückläufer gibt’s. Nicht viele. Die liegen im Schuppen. Ich hab nie was weggeworfen. Wegwerfen ist … das darf man nicht.', 5200); }
     else if (weg === 'b') { try { if (typeof lwo_ereignis === 'function') lwo_ereignis('unzustellbar_drohen'); } catch (e) {} subtitle('Günther wird weiß. Die Zigarette hinterm Ohr fällt ihm auf den Lenker.', 3400); await wait(3200); await G('Nicht … nicht den Wolter. Bitte.', 2600); }
     if (weg === 'a' || weg === 'b') { await G('Jetzt. Die sind alle in der Ahornstraße und an der Villa. Jetzt guckt keiner. Das ist das erste Mal seit fünfundachtzig, dass keiner guckt.', 5600);
@@ -409,7 +409,7 @@ function n4_weltRaetsel() { const W = n4_st('welt'); W.sitz = W.sitz || {}; W.fe
   openPuzzle(html(), box => bind(box)); }
 function n4_whiskeyScheibe() { try { for (let k = 0; k < 3; k++) Audio.play('woodHit1', { gain: .12, rate: 2.8, delay: k * .22, x: player.pos.x - 1, y: 1.8, z: player.pos.z + 1.5, ref: 2 }); } catch (e) {} }
 async function n4_weltFertig() { const W = n4_st('welt'); if (W.fertig) return; W.fertig = 1; state.talking = true;
-  try { try { Audio.play('drawer1', { gain: .45 }) || Audio.play('woodHit1', { gain: .3, rate: .8 }); } catch (e) {}
+  try { try { Audio.play('drawer1', { gain: .45, x: -920.7, y: 1.2, z: 901.6, ref: 2 }) || Audio.play('woodHit1', { gain: .3, rate: .8, x: -920.7, y: 1.2, z: 901.6, ref: 2 }); } catch (e) {}
     await n4_says([['Als der letzte Ausschnitt an seiner Nadel steckt, springt unten am Kartenrahmen die Klappe auf. Darin: ein Tonband. Aufkleber, Schreibmaschine: „Kanal 3 · alle AST · 1992“.', 6200]]); state.talking = true;
     modItem('tonband_ast', 'Tonband · Kanal 3', '„Kanal 3 · alle AST · 1992“. Funkfetzen aus neun Außenstellen. Eine Stimme sagt auf Deutsch „danke“.', 'paper'); addItem('tonband_ast');
     try { Audio.play('switch1', { gain: .4 }); } catch (e) {} const band = (t, ms) => { try { if (typeof lwo_funkKlang === 'function') lwo_funkKlang(ms / 1000, null, 'band'); } catch (e) {} subtitle(t, ms + 250, 'TONBAND'); return wait(ms); };
@@ -462,7 +462,7 @@ async function n4_gisela() { const N = n4_st('naepfe'), K = kirchberg_S, B = K.b
     const i = typeof KB_NAPF_NAMEN !== 'undefined' ? Math.max(0, KB_NAPF_NAMEN.indexOf('KEINER')) : 3; if (k) katzen_absetzen(k, B.x - B.len / 2 + (i + .5) * B.len / 18, B.z + .45); N.traegt = 0;
     const sag = z => typeof kirchberg_sag === 'function' ? kirchberg_sag(G, z) : say(z);
     await sag([['Gisela steht am Zaun, im Mantel, und sieht die Straße hinunter. Um die Ecke ist eben ein grauer Kombi verschwunden.', 5200, '']]);
-    await sag([['Der Handschuh. Immer noch derselbe Handschuh.', 3200, 'GISELA'], ['Der hat sich nicht verändert. Das ist nicht gesund.', 3400, 'GISELA']]);
+    await sag([['Der Handschuh. Immer noch derselbe. Ich hab den schon gehasst, da war ich zehn.', 4600, 'GISELA']]); // R-1/W-4: „nicht gesund“ nur noch Kap. 3
     if (typeof villa_hat === 'function' && villa_hat('kakten')) { const w = await kirchberg_wahl(['„Warum heißt er Keiner?“', 'Nichts fragen']); state.talking = true;
       if (w === 0) { await sag([['Weil keiner gesagt hat, wie er heißt. Der Junge damals. Der, der nicht der Hans war.', 4800, 'GISELA']]); await wait(900);
         await sag([['Meine Mutter hat die Tür zugemacht. Die zwei Herren haben ihn mitgenommen, der Wolter und der Doktor. „Verlegt“, hieß es.', 5600, 'GISELA'], ['Ich hab mir immer gedacht, da, wo er hin ist, geht’s ihm besser.', 3800, 'GISELA']]);

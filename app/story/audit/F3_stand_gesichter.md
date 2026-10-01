@@ -34,7 +34,7 @@ Neubau-Reihenfolge (gelaufen): `_forge_run.sh _gs_build.json` → `node tools/ch
 ## 3. Bewegungsschicht Gesicht (figuren.js) – API
 - `figuren_mimik(P, 'angst'|'trauer'|'erleichterung'|'misstrauen'|'wut'|'schmerz'|'erschoepft'|'leer'|null, gewicht, dauer)`; ohne Modul-Mimik wählt der Clip (fear/nervous → Angst, weinen → Trauer, erschoepft → erschöpft, talk_wut → Wut, arme_verschraenkt/alert → Misstrauen, husten → Schmerz).
 - `figuren_sprich(P, sek, { amp, pegel })` – Mund (V_Open/V_Wide/V_Tight_O/V_Explosive) im Silbenrhythmus oder nach Pegel. `figuren_mund(wer, sek, o)` über den Sprechernamen. **Untertitel mit Sprecher bewegen den Mund der nächsten passenden Figur automatisch** (Wrapper um `subtitle`, Gedanken LUKE/DU ausgenommen).
-- **Haken Sprachausgabe (X-1):** `stimmen_spielen` soll `figuren_mund(wer, dauer, { pegel: () => analyser-Pegel 0…1 })` aufrufen → Lippen folgen der echten Stimme.
+- **Sprachausgabe (X-1, stimmen.js):** stimmen.js ruft je Bild `figuren_mund(stimme, pegel 0…1)` auf → figuren.js erkennt den Pegel-Aufruf (zweites Argument ≤ 1, kein drittes), sucht die sprechende Figur (Cache 0,6 s) und lässt die Lippen der echten Hüllkurve folgen; Pegel 0 schließt den Mund. Ohne Stimme: Silbenrhythmus aus dem Untertitel.
 - `figuren_gesicht(id)` → Fähigkeiten; `P.autoBlick = false` schaltet den Automatikblick ab. Testzugang `window.__figuren.{mimik, sprich, mund, gesicht, hund}`.
 - Je nahe Figur und Bild: **Blinzeln** zufällig 2–6 s, versetzt, 14 % Doppelblinzeln, schneller bei Angst/Blendung, Blinzeln bei großen Blicksprüngen; **Sakkaden** (klein beim Hinsehen, ruhiges Umherschauen ohne Ziel), Lider folgen dem Blick (Look-Formen); **Mikro-Mimik** alle 2,5–8,5 s; **Mikrobewegung des Kopfes** + Nicken beim Sprechen; **Automatikblick** zum Gesprächspartner (im Gespräch < 4,5 m, beim eigenen Sprechen < 9 m) und kurz ins Licht, wenn die Taschenlampe trifft (dazu Kneifen/Brauen runter). Atmung war schon da.
 - **Starr** (kein Blinzeln, kein Automatikblick, keine Mikro-Regung): graue, gezaehlt_j/_m, hilde_tot – das Starren ist ihr Grusel.
@@ -51,15 +51,34 @@ Nicht eingebaut: Kap.-3-Schluss-Kino („Bruno hinterher“, kino.js) – Kino-A
 - Figurenteile: alle Netze aus `figuren_load` haben `frustumCulled = false`; Kino klont mit `false`; Justins kopf.glb ebenfalls. DCULL (Kleinteile < 1 px) nimmt SkinnedMesh und `frustumCulled = false` aus → betrifft Figuren nicht. VCULL/RIGS blenden nur ganze Figuren außerhalb des Blickfelds (+6 m Rand) bzw. hinter dem Nebel aus. Nahebene 0,05 m. `figuren_guard` nimmt nur die Zusatzschicht weg, nie Teile.
 - **Behoben (Ursache 1):** Haarkarten/Wimpern/Brauen dünnten mit der Entfernung durch Alpha-Test + Mipmaps aus, bis Haare „weg“ waren → Deckkraft je Mip-Stufe angehoben (`figuren_haarMat`).
 - **Behoben (Ursache 2):** Erinnerungs-Material (`figuren_ghostMat`) verwarf Pixel überall nach Rauschen → Arme/Beine wirkten lückenhaft; jetzt zerfällt nur der Umriss.
+- Schemen-Figur `assets/ghost/ghost.glb` ist jetzt ein NoEdge-Körper (siehe 7) – alle Teile SkinnedMesh, `frustumCulled = false` in Basis/fassaden/innen_kapitel.
 - **Verdacht, nicht geändert:** `F.cull` (Werkstatt) entfernt Haut UND innere Stofflagen unter der Kleidung; spreizt sich die Kleidung in einer Bewegung, kann man durch die Lücke sehen. Ändern erst nach Sichtprüfung im Spiel (Abwägung gegen Durchstechen).
 
-## 6. Fähigkeiten je Figur
-(siehe Abschnitt 7 – aus dem Neubau und dem Prüflauf)
+## 6. Fähigkeiten je Figur (nach Neubau, aus den GLBs)
+| Figuren | Formen | Lid-Blinzeln | Augapfel-Knochen | Mimik/Mund | Bemerkung |
+|---|---|---|---|---|---|
+| Kinder: zayn roxy lucy luke luke_echt heidi dina mike cleo kleine | 36 (Gesicht) + Lid-Formen an Augenschatten/Tränenrand | ja | ja (CC) | ja | CC-Kopf, Gesicht als eigenes Netz |
+| graue, gezaehlt_j/_m | 36 | – (absichtlich starr) | ja | ja | Behaltene: kein Blinzeln, kein Automatikblick |
+| Erwachsene mit NoEdge-Kopf: mama hilde lucy_erw amt1 amt2 lorenz aydin dina_erw polizist wolter nachsorge11/12 gisela mira voss luke_erw reuter | 30–36 | ja | ja (neu) | ja | hilde_tot starr |
+| vegas | 36 (übertragen vom NoEdge-Mann, auch Bart) | ja | ja | ja | Kopf jetzt „Realistic Man“ (echtes Hautfoto), grau gealtert |
+| guenther | 36 (übertragen) | ja | ja | ja | Bart-Kopf HB2 |
+| justin | eigener Weg (justin.js: Lider als Form, Augen im Shader) | ja | – | nein | Bewegungen jetzt Fab-Mocap |
+| blechmann, peter | – | – | – | – | Gasmaske bzw. Kreatur (anderes AP) |
 
-## 7. Prüfung
-(folgt)
+## 7. R-3/R-13 Grundmodelle, Lizenz-Bereinigung
+- Neue Fab-Figuren (`HAM_FabDownloads/v18_figuren`) geprüft: **„Realistic Man Base Mesh“** hat echte 2K-Hautfotos → Kopf für **Vegas** (`look.real`: Foto bleibt, darüber nur Alterung/Augenringe/Tönung; Formen per Übertragung). **„Hair 1“** (Pferdeschwanz) → Frau Reuter. „Free High-Quality Female/Male“ sind dieselben Netze wie FHQ/MN (keine Hautfarbe im Paket, nur Rauheit/SSS) → kein Gewinn. **Camilia**: FBX bricht im Lader ab (Netz ohne Skin, „Kopf nicht gefunden“) → nicht verwendet. **Business man** (Rigify, MakeHuman, Texturen fehlen) und **Old man** (Auto-Rig Pro, 2 112 Knochen) nicht verwendet. Für weitere echte Gesichter fehlt weiterhin Material (Frauen, Alte, Kinder).
+- **Epic-Vorlage entfernt:** `game/assets/ghost/ghost.glb` = NoEdge-Mann (Körper, ohne Haar/Augen/Wimpern), grau, Mocap `idle`/`walk` (Motifect) – Aussehen als Schemen bleibt (Basis/fassaden/innen_kapitel ersetzen das Material). Alte `ghost.glb.ktx.glb` (Quinn) gelöscht.
+- **Justin:** `tools/justin_mocap.mjs` holt das GLB aus `game/justin.js`, backt den Satz `justin` (cast.json: idle = Motifect idle_neutral, walk = walk_forward, talk = Mocap.in talking, draw = pick_up_object_table) mit `mocap_bake.mjs` auf das UE5-Skelett und schreibt `justin.js`/`justin.glb` zurück; MM_Idle, MF_Unarmed_Walk_Fwd, MM_Attack_01, MM_Death_Front_01 entfernt. `knien` (mocap.json, Motifect) bleibt. `mocap_bake all` überspringt Figuren ohne model.glb (Justin).
+- Suche nach `MM_`, `MF_`, `Quinn`, `SK_Mannequin` in `game/` (glb/js/json): keine Treffer mehr. Ausnahme: UEFN-Manny-Zombie-Mocap (Teddy Goldstien, Fab) steckt als Clips `z_*` in graue/gezaehlt/hilde_tot/polizist – Lizenz „prüfen“ (Hauptagent).
 
-## 8. Offen / fehlende Assets
+## 8. Prüfung
+- Werkstatt-Vorschauen (forge, ohne Spiel): alle 33 Figuren mit Ruhe/Blinzeln/Angst/Trauer/Blick/Mund, Rückansicht – Blinzeln beide Lider, Augapfel-Knochen drehen, Mimik sichtbar, keine kaputten Netze. Bilder: `C:/Users/GIGABYTE/_forge_gs/build/`.
+- Neubau-Kette gelaufen: forge → chars_pack → mocap_bake (alle, `--no-ktx`) → ktx (Vegas nachkonvertiert, weil ein paralleler KTX-Lauf das noch ungebackene GLB erwischt hatte). KTX-Fassungen geprüft: Formen, Clips, `motion`, Augenknochen vorhanden.
+- Spiel-Nahlauf (ein Lauf, `_gs_run.sh`): ERGEBNIS_PLATZHALTER
+
+## 9. Offen / fehlende Assets
+- **Dreiecke:** gltfpack würde die Gesichtsnetze vereinfachen (Lider zerfallen) → `chars_pack` lässt solche Modelle jetzt unvereinfacht: Kinder 76–107 k statt 45 k Dreiecke. Für die Schluss-Leistungsprüfung: ggf. Körper-LOD/Vereinfachung ohne Gesichtsnetz.
+- Peter (Kreaturen-Agent) steht in cast.json/mocap und wurde von chars_pack/mocap_bake mitbehandelt (unverändert vereinfacht, 20 Clips neu gebacken).
 - Bessere Grundmodelle (R-3): Wunschliste an den Hauptagenten geschickt (Reallusion CC Kevin/Nia, ältere Personen realistisch, Kinder, Talar, Nachthemd, Gummistiefel, Brillenkette, Haarkarten mit Texturen, realistischer Hund).
 - Hildes Perlenkette fehlt (kette.obj = rostige Kette, 61 MB – ungeeignet).
 - Talar ist ein schwarzer Mantel (kein echtes Talar-Asset), Nachthemd ist das umgefärbte Kleid, Gummistiefel sind die umgefärbten Stiefel von „Russian Girl West“.

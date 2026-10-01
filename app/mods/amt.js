@@ -104,7 +104,8 @@ function amt_summen(x, y, z, gain = .05, tempo = 1) { const A = Audio; if (!A.ct
 
 // ---------------------------------------------------------------- Nadeldrucker (Archiv, Rollwagen) – druckt jeden Schritt von „Rückläufer 08“
 const AMT_DRUCK = { x: C2.x + 27.6, y: .95, z: C2.z - 2.35 };
-function amt_druck(text, o = {}) { const S = amt_S; if (!ch2.on) return; S.q.push([text, o]); }
+// Story-Prüfung W-1: bis Akte 08 heißt Luke im Protokoll „VORGANG 08“; danach einmal die Korrektur (amt_akte08), dann nur noch „RÜCKLÄUFER 08“
+function amt_druck(text, o = {}) { const S = amt_S; if (!ch2.on) return; if (!S.akte8) text = String(text).replace(/^RÜCKLÄUFER 08/, 'VORGANG 08'); S.q.push([text, o]); }
 function amt_druckJetzt(text, o) { const S = amt_S, P = o.mess ? S.messDruck : AMT_DRUCK, zeile = 'ZÄHLSCHLUSS 03:13 · ' + text; S.druckZ.push(zeile); if (S.druckZ.length > 40) S.druckZ.shift();
   amt_nadel(P.x, P.y, P.z, 1, o.mess ? 1.1 : 1); amt_papierNeu(); S.druckT = 2.2;
   const nah = amt_nah(P.x, P.z, 7); if (o.still) return;
@@ -687,23 +688,31 @@ function amt_ascher() { const S = amt_S; toast('Kippen. Filter mit Lippenstift, 
 // „Einmachen“: Kühlregal nach dem Notstrom; beim Schließen beschlägt die Scheibe – drei Punkte, von innen geschrieben
 function amt_kuehlregal() { const S = amt_S; amt_side('k2_einmachen');
   if (!ch2.power) return toast('Ein Magnetschloss. Ohne Strom rührt sich nichts. Durch das Glas: leere Fächer mit Etiketten.', 3800);
-  const html = 'Die Glastür schnappt auf, Kälte kommt dir entgegen. Leere Fächer mit Etiketten:\n\n„<b>∴-1</b> – verlegt Villa“ (leer, ein Ring aus altem Reif)\n„<b>∴-2</b> – verlegt Villa“ (leer)\n„<b>∴-3</b>“, durchgestrichen, darunter: „nicht fixierbar“\n„Substanz S · Charge 92/3 · Verwendung: K-1“ (ein Fleck)\n„Substanz S · Ration H. W. · monatlich“ (ein sauberer Kreis im Staub – vor kurzem hat jemand etwas herausgenommen)\n\nUnterstes Etikett: „Privat. Nicht anfassen. N. 12.“ Darin: eine Dose Kassler.';
+  const html = 'Die Glastür schnappt auf, Kälte kommt dir entgegen. Leere Fächer mit Etiketten:\n\n„<b>∴-1</b> – verlegt Villa“ (leer, ein Ring aus altem Reif)\n„<b>∴-2</b> – verlegt Villa“ (leer)\n„<b>∴-3</b>“, durchgestrichen, darunter: „nicht fixierbar“\n„Substanz S · Charge 92/3 · Verwendung: K-1“ (ein Fleck)\n„Substanz S · Ration · monatlich · Empfänger geschwärzt“ (ein sauberer Kreis im Staub – vor kurzem hat jemand etwas herausgenommen)\n\nUnterstes Etikett: „Privat. Nicht anfassen. N. 12.“ Darin: eine Dose Kassler.';
   amt_note('Kühlregal · Substanz S', html, 'kuehlregal', () => { if (S.kuehl) return; S.kuehl = true;
     try { if (typeof beobachter_zettel === 'function') beobachter_zettel('B-K2-06', { pos: [C2.x + 35.3, 1.02, C2.z + 3.55] }); } catch (e) {}
     amt_trust('kuehlregal'); amt_lore('amt_drei', '∴ sind drei', 'Kühlregal Substanz S: ∴-1 und ∴-2 „verlegt Villa“, ∴-3 durchgestrichen, „nicht fixierbar“. Dazu eine monatliche Ration für H. W.');
     setTimeout(() => say([['Drei Punkte. Drei Fächer. Zwei leer, eins durchgestrichen. Ich will nicht wissen, was da drin war. Ich will es wirklich nicht.', 5600, 'LUKE']]), 800);
     setTimeout(() => { Audio.play('metalOpen', { gain: .4, rate: 1.3, x: C2.x + 35.3, y: 1, z: C2.z + 3.55, ref: 2 }); try { Audio.play('machine1', { gain: .3, dur: 2.4, lp: 600, x: C2.x + 35.3, y: 1.1, z: C2.z + 3.55, ref: 2 }); } catch (e) {} S.beschlagT = 0; S.beschlagAn = true;
       setTimeout(() => { Audio.play('metalHit1', { gain: .12, rate: 1.9, x: C2.x + 35.6, y: 2, z: C2.z + 3.2, ref: 2 }); }, 3200); amt_sideDone('k2_einmachen', '∴ sind drei. Zwei davon in Glas, verlegt in die Villa. Das dritte schreibt Zettel.'); }, 7200); }); }
-// „Eins zu siebenundachtzig“: Ochs am Berg – dreht Luke sich weg und wieder hin, steht seine Figur einen Raum näher am Messraum
+// „Eins zu siebenundachtzig“: Ochs am Berg umgedreht (Story-Prüfung G-1) – die Luke-Figur rückt nur, WÄHREND Luke hinsieht, langsam wie ein Uhrzeiger, je Hinsehen einen Raum näher; beim sechsten fällt sie neben dem Tank um
 function amt_modell() { const S = amt_S; amt_side('k2_modell'); if (!S.said.modell) { S.said.modell = 1; say([['Eins zu siebenundachtzig. Irgendwer hier unten hatte ein Hobby.', 3600, 'LUKE']]); }
   amt_note('Das Modelldorf', 'Lost Eyengless in Modellbahngröße: Ahornstraße, Kapelle, Tankstelle, der Hof. Die Senke ist ein schwarzes Loch mit einer Pappkuppel: „OBJEKT“. Nummer 3 hat ein Dach aus Alufolie. An der Modell-Tankstelle ein Pappschild: „Pfand hier abgeben“.\n\nFiguren: Eine Frau hängt an einem Faden über der Kreuzung. Eine winzige weiße Figur am Rand der Senke, ein Zettel: „DREIPUNKT · Standort?“ Eine graue, unbemalte Figur am Rand, in den Sockel geritzt: „EISEN“.\n\nUnd vorn, im Schnitt durch die Ebene −2, ein Junge im gestreiften Hemd, mit einer Lampe.', 'modelldorf', () => { if (!S.said.pfandM) { S.said.pfandM = 1; setTimeout(() => subtitle('Sogar im Modell nimmt Vegas Pfand.', 3000, 'LUKE'), 600); } }); }
-function amt_modellLuke(n) { const S = amt_S; if (!S.lukeFig || !S.lukeWeg) return; const cx = C2.x + 34, cz = C2.z + 11.2, p = S.lukeWeg[Math.min(n, S.lukeWeg.length - 1)];
-  S.lukeFig.position.set(cx - p[0], (S.modellY || .76) + .02, cz - p[1] + .1); S.lukeFig.rotation.set(n >= 6 ? -PI / 2 : 0, 0, 0); if (n >= 6) S.lukeFig.position.y = (S.modellY || .76) + .006; }
-function amt_modellTick() { const S = amt_S; if (!S.lukeFig || S.modellN >= 6 || !amt_in(C2.x + 30.2, C2.x + 37.8, C2.z + 8.2, C2.z + 13.8) || !S.said.modell) return;
+function amt_modellLuke(n) { const S = amt_S; if (!S.lukeFig || !S.lukeWeg) return; const cx = C2.x + 34, cz = C2.z + 11.2, W = S.lukeWeg, i = Math.min(Math.floor(n), W.length - 1), j = Math.min(i + 1, W.length - 1), f = n - Math.floor(n);
+  const px = W[i][0] + (W[j][0] - W[i][0]) * f, pz = W[i][1] + (W[j][1] - W[i][1]) * f;
+  S.lukeFig.position.set(cx - px, (S.modellY || .76) + .02, cz - pz + .1); S.lukeFig.rotation.set(n >= 6 ? -PI / 2 : 0, 0, 0); if (n >= 6) S.lukeFig.position.y = (S.modellY || .76) + .006; }
+function amt_modellTick(dt = .016) { const S = amt_S; if (!S.lukeFig || (S.modellP != null ? S.modellP >= 6 : S.modellN >= 6) || !amt_in(C2.x + 30.2, C2.x + 37.8, C2.z + 8.2, C2.z + 13.8) || !S.said.modell) return;
   camera.getWorldDirection(_amtV); const dx = C2.x + 34 - camera.position.x, dz = C2.z + 11.2 - camera.position.z, d = Math.hypot(dx, dz) || 1, dot = (_amtV.x * dx + _amtV.z * dz) / d;
-  if (dot < -.2) S.modellWeg = true; else if (dot > .8 && S.modellWeg) { S.modellWeg = false; S.modellN = (S.modellN || 0) + 1; amt_modellLuke(S.modellN); Audio.play('woodHit1', { gain: .05, rate: 2.4, x: C2.x + 34, y: .8, z: C2.z + 11.2, ref: 1.5 });
-    if (S.modellN === 3) say([['Ochs am Berg. Ich hasse Ochs am Berg.', 3000, 'LUKE']]);
-    if (S.modellN === 6) { try { Audio.stinger(false); } catch (e) {} shake = Math.max(shake, .02); setTimeout(() => toast('Die Figur liegt vor dem Modell-Messraum. Gesicht nach unten.', 3600), 400); amt_sideDone('k2_modell', 'Die LWO hat eine Figur für alle. Und jemand bewegt meine, wenn ich nicht hinsehe.'); } } }
+  if (S.modellP == null) S.modellP = S.modellN || 0;
+  if (typeof ui !== 'undefined' && ui.overlay) { S.modellBlick = false; return; } // beim Lesen sieht er nicht hin
+  if (dot < .5) { S.modellBlick = false; return; } // weggesehen: sie steht
+  if (dot < .8) return;
+  if (!S.modellBlick) { S.modellBlick = true; if (S.modellP >= (S.modellN || 0) - .001) { S.modellN = Math.min(6, (S.modellN || 0) + 1); S.modellHin = (S.modellHin || 0) + 1;
+      Audio.play('woodHit1', { gain: .025, rate: 3.1, x: C2.x + 34, y: .8, z: C2.z + 11.2, ref: 1.5 });
+      if (S.modellHin === 2) say([['Die bewegt sich, weil ich gucke.', 2600, 'LUKE'], ['… Das ist schlimmer.', 2600, 'LUKE']]); } }
+  if (S.modellP < S.modellN) { S.modellP = Math.min(S.modellN, S.modellP + dt * .28); amt_modellLuke(Math.min(S.modellP, 5.999));
+    if (S.modellP >= 6) { amt_modellLuke(6); Audio.play('woodHit1', { gain: .06, rate: 2.2, x: C2.x + 34, y: .8, z: C2.z + 11.2, ref: 1.5 }); try { Audio.stinger(false); } catch (e) {} shake = Math.max(shake, .02);
+      setTimeout(() => toast('Die Figur kippt neben dem Tank um. Gesicht nach unten.', 3600), 400); amt_sideDone('k2_modell', 'Die LWO hat eine Figur für alle. Und meine bewegt sich nur, wenn ich hinsehe.'); } } }
 function amt_reim() { amt_lore('amt_abzaehlreim', 'Der ältere Abzählreim', '„Eins, zwei, drei, vier, fünf, sechs, sieben, / eins von uns ist drin geblieben, / acht ist keins und neun ist keins, / dreh dich um, dann bist du meins.“');
   amt_note('In die Tischkante geritzt', 'Kinderschrift, mit etwas Spitzem ins Holz:\n\n<span class="hand">„Eins, zwei, drei, vier, fünf, sechs, sieben,\neins von uns ist drin geblieben,\nacht ist keins und neun ist keins,\ndreh dich um, dann bist du meins.“</span>', null); }
 function amt_karteiK() { amt_note('Karteikasten „VERSUCHSREIHE K“', '<span style="font-family:\'Courier New\',monospace;font-size:.92em;line-height:1.5"><b>K-1 · Kranz, Peter · Rückläufer 1975 · aufgenommen 11/1992.</b> Ziel: Rückführung des Originals aus der Kopie (Substanz S, Charge 92/3). Ergebnis: Kopie nimmt die Form an, die ein Kind (Nichte, 9) von ihm im Gedächtnis hatte: „der lachende Onkel“. Gebiss abweichend. Schmerzempfinden: vollständig. Erkenntnis: vollständig. Original: nicht erschienen. Ausbruch 2011, zwei Pfleger. Rückgeführt. Käfig.<br><br><b>K-2 · Hinweis.</b> Junge, ohne Namen, Rückläufer 1958. Substanz S, erste Charge. Verstorben 1961. Grabstelle 08, „Unbekanntes Kind“. Akte in Villa S.<br><br><b>K-3 · vorgesehen.</b> Name: ———. Aufnahme nach Öffnung 2026. Bemerkung (hw): „Wenn es gelingt, bekommen wir sie alle zurück. Auch die von 1941.“</span>', 'versuchsreihe_k',
@@ -715,6 +724,7 @@ function amt_stuhl8() { const S = amt_S; const erst = !S.stuhl8; S.stuhl8 = true
     say([['Eine Rabenfeder. Hier unten. Der Vogel geht nicht unter die Erde, das hab ich gesehen. Wer hat die hier reingetragen?', 5400, 'LUKE']]); }); }
 // UK8 nach Akte 08: der Umschlag, die Uhr, genau ein Satz, der Zettel auf dem Klavierdeckel, dann Lucy
 async function amt_akte08() { const S = amt_S; if (S.akte8) return; S.akte8 = true; amt_uhr(3, 11);
+  setTimeout(() => amt_druck('VORGANG 08 · KORREKTUR: RÜCKLÄUFER 08.', { mess: !!S.messDruck, immer: true }), 2600); // W-1: der Drucker rattert einmal, ohne dass Luke sich bewegt
   if (!story.items.includes('umschlag7')) { addItem('umschlag7'); S.umschlag = true; }
   try { if (typeof AKTE_S !== 'undefined') { const d = AKTE_S.docs.find(q => q.n === 7); if (d) { d.m.visible = false; uninteract(d.hit); d.weg = true; } } } catch (e) {}
   try { if (typeof sammeln_fibel === 'function') { sammeln_fibel('D-03'); sammeln_fibel('D-05'); } } catch (e) {} // in der Fibel werden zwei Gedanken durchgestrichen (Augen, Hund)
@@ -728,7 +738,7 @@ function amt_nachLaden() { const S = amt_S; if (!S.ready) return;
   if (S.tuer.reg) S.tuer.reg.locked = !S.reg; if (S.leiter && S.leiterSich) { S.leiterSich.visible = false; uninteract(S.leiterHit); } if (S.leiterSteht && S.leiterArchiv && !S.gruendung) S.leiterArchiv.visible = true;
   if (S.gruendung && S.gruendDeckel) S.gruendDeckel.visible = false; if (S.gruendung) amt_sprosse(); if (S.vernichter && S.streifen) S.streifen.visible = false;
   if (S.regFotos && S.regFotoMesh) S.regFotoMesh.forEach((m, i) => m.visible = i < S.regFotos); if (S.regDreh && S.regFotoMesh) S.regFotoMesh[0].material = S.regBack;
-  if (S.batt === true) (S.battObj || []).forEach(g => g.visible = false); amt_modellLuke(S.modellN || 0); if (S.stuhl8 && S.feder) S.feder.visible = true; amt_papierNeu(); }
+  if (S.batt === true) (S.battObj || []).forEach(g => g.visible = false); S.modellP = null; amt_modellLuke(S.modellN || 0); if (S.stuhl8 && S.feder) S.feder.visible = true; amt_papierNeu(); }
 
 // UK8: Klavier – sobald Luke die Tasten berührt, summt Lucy im Tank; die Tasten, die sie trifft, beschlagen (E D C H C). Nach 3 Fehlern langsamer, nach 6 bleibt der Beschlag.
 function amt_klavier(box) { const S = amt_S, fehl = S.klavierFehl || 0, lang = fehl >= 3 ? 1.6 : 1, bleibt = fehl >= 6, TK = { x: C2.x + 118, z: C2.z + 6 };
@@ -800,7 +810,7 @@ WORLD_TICK.push((dt, t) => {
     amt_lichtTick(dt);
     if (!ch2.on) return;
     if (S.planTube) S.planTube.mode = ch2.power ? (S.planTube.mode === 'off' ? 'flicker' : S.planTube.mode) : 'off';
-    amt_regieTick(dt); amt_k1Tick(dt); amt_modellTick(); amt_messraumTick(dt);
+    amt_regieTick(dt); amt_k1Tick(dt); amt_modellTick(dt); amt_messraumTick(dt);
     if (typeof feuer_S !== 'undefined' && feuer_S.done && !S.danke && player.pos.x > C2.x + 106.4) amt_danke();
     // Bis AG-07 vorbei ist, bleibt die Messraumtür zu (dahinter rasseln Ketten, grelles Licht): unsichtbare Sperre im Türspalt der Trennwand
     { const sperr = typeof feuer_S !== 'undefined' && feuer_S.done && !S.ag07; if (sperr && !S.vorSperre) S.vorSperre = addCol(C2.x + 109.8, C2.x + 110.2, C2.z - .8, C2.z + .8, 3); if (S.vorSperre) { if (!sperr) { S.vorSperre.minX = S.vorSperre.maxX = -9999; S.vorSperre = null; } else if (!S.said.vorSperre && amt_nah(C2.x + 109.6, C2.z, 1.1)) { S.said.vorSperre = 1; subtitle('Da drin rasselt etwas. Ketten. Und Licht, zu grell für diese Nacht.', 3600); } } }

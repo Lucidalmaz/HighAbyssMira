@@ -262,7 +262,7 @@ async function tausch_kaufe(a) {
   closeOverlay(); await tausch_pruefen(); a.gib(); questPop('VON WHISKEY', a.n); Audio.play('keys2', { gain: .2, rate: 1.5, dur: .3 });
   const tipp = { streich: 'Streichhölzer: [L], wenn du keine Lampe hast.', kreide: 'Kreide: [K] malt einen Pfeil.', oellampe: 'Öllampe: [L] an und aus.', sturmlaterne: 'Sturmlaterne: [L] an und aus. Windfest.', fernglas: 'Fernglas: [V] halten.', waermer: 'Handwärmer: im Inventar knicken.', lampenoel: 'Lampenöl: [L], wenn die Lampe leer ist.' }[a.id];
   if (tipp && !S.hint[a.id]) { S.hint[a.id] = 1; setTimeout(() => toast(tipp, 4200), 1400); }
-  if (Math.random() < .3 && typeof whiskey_mimic === 'function' && kap() !== 3) setTimeout(() => whiskey_mimic('pling'), 2200); // nie bereut
+  if (Math.random() < .3 && typeof whiskey_mimic === 'function' && kap() !== 3) setTimeout(() => whiskey_mimic('gurren'), 2200); // nie bereut (Gag-Budget H-1: kein Zufalls-Pling)
 }
 function tausch_pruefen() { const W = tausch_whiskey(); if (!W || !W.g) return wait(300); whiskey_play('EatSomething', .08, true, 1.3); // er prüft die Ware mit dem Schnabel
   for (let i = 0; i < 3; i++) Audio.play(i === 2 ? 'metalHit1' : 'woodHit1', { gain: .1, rate: 2.4 + i * .1, delay: i * .32, x: W.g.position.x, y: W.g.position.y, z: W.g.position.z, ref: 2 }); return wait(1100); }

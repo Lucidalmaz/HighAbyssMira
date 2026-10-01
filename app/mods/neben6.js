@@ -142,7 +142,7 @@ async function n6_band() { // etwa fünfzig Sekunden: Kassettenrauschen, Mikrofo
   state.talking = true; Audio.play('switch1', { gain: .2, rate: .8 }); Audio.radio(x, z);
   try {
     await wait(900); st('pell_band_1'); await say([['„October. Ich bin am Kreis. Lamp up. Come home, W.“', 4600, 'PELL (BAND)']]);
-    try { Audio.owl && Audio.owl(x + 3, z + 2); Audio.caw(x - 2, 3, z + 1); Audio.gust && Audio.gust(.6); } catch (e) {} subtitle('<i>Waldgeräusche auf dem Band. Dann gehen sie aus, eins nach dem anderen, als drehe jemand Regler zu.</i>', 4200); await wait(4600);
+    try { Audio.owl && Audio.owl(x, z); Audio.caw(x, 1, z); Audio.gust && Audio.gust(.6); } catch (e) {} subtitle('<i>Waldgeräusche auf dem Band. Dann gehen sie aus, eins nach dem anderen, als drehe jemand Regler zu.</i>', 4200); await wait(4600);
     await say([['Das ist keine Blende. Da schneidet einer Löcher in die Aufnahme.', 3600, 'LUKE']]);
     st('pell_band_2'); await say([['„Twenty metres. Ich senke jetzt die Lampe. For science.“', 4200, 'PELL (BAND)']]);
     for (let k = 0; k < 3; k++) { await wait(1300); if (typeof kino_atem === 'function') kino_atem(k < 2 ? .06 : .09, k < 2 ? 1 : .62, x, 1, z); } subtitle('<i>Zwei Atemzüge. Dann ein dritter, der nicht dazugehört.</i>', 3200); await wait(3000);
@@ -179,7 +179,7 @@ async function n6_spind() {
   await say([['Das Poster, das sie nicht mochte. Er hat die Kassette trotzdem aufgehoben.', 3800, 'LUKE']]);
   const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; // Humor, knapp: Whiskey will den glänzenden Kerzenhalter
   if (W && W.g && W.g.visible && W.g.position.distanceTo(player.pos) < 30 && typeof whiskey_setzen === 'function') { const f = flatDir(), P = player.pos; whiskey_setzen(P.x + f.x * 1.2 - f.z * .6, .9, P.z + f.z * 1.2 + f.x * .6, () => {
-    setTimeout(async () => { try { whiskey_mimic('pling', { force: true }); } catch (e) {} await wait(900); await say([['Nein. Das ist ein Beweisstück.', 2400, 'LUKE']]); try { whiskey_mimic('pling', { force: true }); } catch (e) {} }, 700); }); }
+    setTimeout(async () => { try { whiskey_mimic('gurren', { force: true }); } catch (e) {} await wait(900); await say([['Nein. Das ist ein Beweisstück.', 2400, 'LUKE']]); try { if (typeof whiskey_play === 'function') whiskey_play('IdleScratchWing', .2); } catch (e) {} }, 700); /* Gag-Budget H-1: kein Pling */ }); }
   N6.busy = false; n6_anniDesc('Annis Lampion. Hofer hat ihn siebzehn Jahre in seinem Spind aufbewahrt.'); n6_anniFertig();
   if (typeof saveGame === 'function') saveGame(curChapter());
 }

@@ -33,7 +33,7 @@ const JUSTIN_BANK = {
   peter1: [['„Du riechst nach Rauch. Nach dem unteren Gang.“', 3600, JS]],
   peter2: [['„Er war auch einer von meinen.“', 3200, JS], ['Ich weiß.', 1800, 'DU']],
   pflicht1: [['„Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn meine Tochter nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“', 6000, JS]],
-  pflicht2: [['„Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“', 5800, JS], ['Wir?', 1600, 'DU'],
+  pflicht2: [['„Sie hält sich an den Lampen fest. Die meisten Lampen hier schlafen. Wach sind nur die, vor denen sie dieses Jahr einen geholt hat. Vier Augen. Mach sie ihr zu, eins nach dem andern, dann muss sie herunter, und wir können hinein.“', 8800, JS], // Story-Prüfung V-2 ['Wir?', 1600, 'DU'],
     ['„Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“', 4400, JS]],
   pflicht3: [['„Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“', 5200, JS]],
   ostende: [['„Du hast mich schon gesehen. Am Ende der Straße. Weiter reichte die Nacht noch nicht.“', 4400, JS]],
@@ -50,6 +50,9 @@ const JUSTIN_BANK = {
   hinauf: [['„Sieh nicht zu lang hin. Es sieht zurück.“', 2800, JS]],
   ufo: [['Sag jetzt nicht UFO.', 1800, 'DU'], ['„Wir nannten es das Lichtschiff, weil uns nichts Besseres einfiel.“', 3800, JS]],
   naeher: [['„Drinnen gibt es keine Zeit. Sie zählt beim Verstecken. Jedes Zählen ist bei euch ein Jahr. Bis siebzehn konnte sie zählen, sie war stolz darauf. Bei siebzehn ruft sie ‚Ich komme‘, und das Schiff geht auf.“', 8400, JS]],
+  // Story-Prüfung V-1 „Das siebzehnte Jahr“ (Kanon-Änderung, freigegeben): Pflicht direkt nach „naeher“
+  siebzehn: [['„Die letzten Zahlen zählt sie langsam. Wie Kinder, die nicht wollen, dass es anfängt.“', 4600, JS], ['„In dem Jahr ist die Haut dünn. Wer Licht macht und zu ihr hochsieht, den holt sie vorher. Und mich spuckt sie aus, wenn sie mich wieder nicht gefunden hat. Dann wart ich am Rand, bis sie fertig gezählt hat.“', 9400, JS],
+    ['Roxy. Mike. Lucy.', 2600, 'DU'], ['„Und die Frau mit dem Buch.“', 2800, JS]],
   // 3.3 Nimmerheim (erste gelöschte Laterne)
   lucy: [['Wo ist Lucy?', 1800, 'DU'], ['„Drinnen. Die Kinder von damals haben es Nimmerheim genannt. Weil da keiner groß wird und keiner heimdarf.“', 5000, JS],
     ['„Es baut sich aus dem, was es sich gemerkt hat. Küchen. Wiesen. Dein Haus, wenn es will. Es riecht nach Sommer. Lass dich davon nicht täuschen.“', 5800, JS]],
@@ -101,7 +104,7 @@ const JUSTIN_BANK = {
   // 2.2 Beispielzeilen, die als Fragen erreichbar sind
   geist: [['Bist du ein Geist?', 1600, 'DU'], ['„Wenn ich einer wär, wär mir nicht kalt.“', 2800, JS]],
   jahre: [['Was hast du all die Jahre gemacht?', 2200, 'DU'], ['„Gerufen. Und zugesehen. Vor allem zugesehen. Ich bin darin sehr gut geworden. Das ist kein Lob.“', 5000, JS]],
-  drache: [['Super. Ganz toll. Ein Ritter. Fehlt nur noch der Drache.', 3000, 'DU'], ['„Drachen gab es nie. Das hier schon.“', 2600, JS]],
+  drache: [['Ein Ritter. Fehlt nur noch der Drache.', 3000, 'DU'], ['„Drachen gab es nie. Das hier schon.“', 2600, JS]],
   sicher: [['Und du bist sicher, dass das klappt?', 2200, 'DU'], ['„Nein.“', 1200, JS], ['Das war rhetorisch.', 1600, 'DU'], ['„Das Wort kenn ich nicht. Ich bin trotzdem nicht sicher.“', 3200, JS]],
   // 3.12 nach dem Geständnis, im Aufstehen
   aufstehen: [['„Ich hab immer gedacht, sie versteckt sich vor mir, weil ich sie nicht gesucht hab. Weil ich stehen geblieben bin.“', 5200, JS],
@@ -427,7 +430,7 @@ async function justin_ankunft() {
   // Der Schokoriegel: Visier bleibt unten, der Helmrand geht einen Fingerbreit hoch
   await justin_sprich('riegel1', { frei: false }); S.visierZiel = .12; justin_klang('visierAuf'); await wait(1600); S.visierZiel = 0; await wait(2600); await justin_sprich('riegel2', { frei: false });
   if (typeof whiskey_S !== 'undefined') whiskey_S.riegelPapier = true;
-  story.lore.push({ key: 'c3_justin', title: 'Justin', html: '<span class="hand">Laterne laufen: die Straßenlaternen sind ihre Augen. Alle aus = sie muss runter.\nSie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.</span>' });
+  story.lore.push({ key: 'c3_justin', title: 'Justin', html: '<span class="hand">Laterne laufen: wach sind nur die Laternen, vor denen sie dieses Jahr einen geholt hat. Vier Augen. Alle vier aus = sie muss runter.\nSie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.</span>' });
   state.talking = false; S.phase = 'uk4'; S.uk4 = { t: 0, x: player.pos.x, z: player.pos.z };
   setC3('Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los.');
 }
@@ -435,6 +438,7 @@ async function justin_ankunft() {
 async function justin_pflicht() { const S = justin_S; if (S.phase !== 'uk4') return; S.phase = 'pflicht'; state.talking = true;
   // F3 Verständlichkeit (Nutzer 01.10.2026): pflicht1 sagt „meine Tochter“; wer die Happen übersprungen hat, hört vorher „herz“ (seine Tochter). Den Namen gibt es nur auf Nachfrage.
   if (!S.said.has('herz')) await justin_sprich('herz', { frei: false });
+  await justin_sprich('naeher', { frei: false }); await justin_sprich('siebzehn', { frei: false }); // V-1: Pflicht (schon gesagt → übersprungen)
   await justin_sprich('pflicht1', { frei: false }); await justin_sprich('pflicht2', { frei: false }); await justin_sprich('pflicht3', { frei: false });
   state.talking = false; setC3(typeof KAPITEL3_ZIEL_LATERNEN !== 'undefined' ? KAPITEL3_ZIEL_LATERNEN : 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   justin_gedanke(JUSTIN_BANK.ankEnde[0][0], 4600);
@@ -460,7 +464,7 @@ const JUSTIN_FRAGEN = [
   { id: 'wise4', q: 'Wie alt ist der eigentlich? Vegas sagt, der saß schon ’75 auf der Laterne.', wenn: () => typeof whiskey_S !== 'undefined' && whiskey_S.jAsked },
   { id: 'geist', q: 'Bist du ein Geist?', wenn: () => true },
   { id: 'jahre', q: 'Was hast du all die Jahre gemacht?', wenn: () => true },
-  { id: 'drache', q: 'Super. Ganz toll. Ein Ritter. Fehlt nur noch der Drache.', wenn: () => true },
+  { id: 'drache', q: 'Ein Ritter. Fehlt nur noch der Drache.', wenn: () => true },
   { id: 'sicher', q: 'Und du bist sicher, dass das klappt?', wenn: () => ch3.radio },
 ];
 function justin_laternenAus() { return (ch3.seq && ch3.seq.length) || (ch3.lampsOff ? 4 : 0); }
@@ -664,7 +668,7 @@ WORLD_TICK.push((dt, t) => { const S = justin_S; if (!S.ready) return;
   // UK 4: Happen, jeder an einen Blick gebunden; Pflicht, wenn Luke weitergeht (> 11 m) oder nach 70 s
   if (S.phase === 'uk4' && ch3.part === 'town') { S.uk4.t += dt; const P = player.pos, dj = jDist();
     if (!busy) { if (dj > 11 || S.uk4.t > 70) { justin_pflicht(); return; }
-      if (dj < 2.4 && !S.said.has('naeher')) { justin_sprich('naeher'); return; }
+      if (dj < 2.4 && !S.said.has('naeher')) { (async () => { await justin_sprich('naeher'); await justin_sprich('siebzehn'); })(); return; }
       if (player.pitch > .55) { S.oben += dt; if (S.oben > 3 && !S.said.has('hinauf')) { justin_sprich('hinauf'); return; } } else S.oben = 0;
       camera.getWorldDirection(_jv); for (const b of JUSTIN_BLICKE) { if (S.said.has(b.id) || (b.wenn && !b.wenn())) continue; const p = b.p(); if (!p) continue; _jv2.copy(p).sub(camera.position); const dd = _jv2.length(); if (b.d && dd > b.d) continue;
         const see = _jv.dot(_jv2.normalize()) > (b.eng || .965); S.blickHold[b.id] = see ? (S.blickHold[b.id] || 0) + dt : 0; if (S.blickHold[b.id] > .8) { justin_blick(p.clone()); justin_sprich(b.id).then(() => justin_blick(null)); return; } } } }

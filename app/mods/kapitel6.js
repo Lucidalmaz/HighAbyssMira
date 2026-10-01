@@ -277,7 +277,8 @@ function k6_beats(dt) {
     if (K6.sp.has('k6_hochsitz') && !K6.told.has('justin') && k6_near(40.5, 189.5, 6) && k6_frei()) k6_justinStimme();
     if (K6.sp.has('k6_hochsitz') && k6_near(65, 199.5, 26)) k6_falleStart(); }
   else if (B === 'frass') { k6_ag20Tick(); if (!K6.told.has('anniFrass') && k6_near(10, 198.8, 5) && k6_frei()) { K6.told.add('anniFrass'); const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.x * 5, 1.2, P.z - f.z * 5, '„Du hast unterschrieben. Ist schon gut. Ich hab den Lampion gemocht.“', 'ANNI?', 4200, 'anni_3'); } }
-  else if (B === 'wrack') { k6_routeTick(); if (!K6.lager && k6_near(80.5, 233, 9)) { k6_cp('k6_lager', 'Jonas’ Lager', 78.6, 230.4, -.6); K6.lagerT += dt; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
+  else if (B === 'wrack') { k6_routeTick(); if (!K6.lager && !K6.told.has('t3') && k6_near(80.5, 233, 34) && !k6_near(80.5, 233, 12) && k6_frei()) { K6.told.add('t3'); k6_anrufLucy(); }
+    if (!K6.lager && k6_near(80.5, 233, 9)) { k6_cp('k6_lager', 'Jonas’ Lager', 78.6, 230.4, -.6); K6.lagerT += dt; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
       if ((W && W.flags && W.flags.has('k6_3')) || K6.lagerT > 45) k6_lagerFertig(); else if (K6.lagerT > 3 && !K6.told.has('lagerHin')) { K6.told.add('lagerHin'); k6_obj('Jonas’ Lager. Durchatmen. Whiskey sitzt auf der Zeltstange.'); } }
     if (K6.lager && K6.kindF && !K6.told.has('hufe')) { for (const [x, z] of K6_KINDERSPUR) if (k6_near(x, z, 3.5)) { K6.told.add('hufe'); setTimeout(() => k6_luke('Er ist hinter ihm her.', 2600), 600); break; } }
     if (K6.lager && k6_near(-10, 204.5, 16) && !K6.told.has('beobFlucht')) k6_beobFlucht();
@@ -504,7 +505,21 @@ function k6_funkModell() { if (K6.props.funk || typeof TIEF === 'undefined') ret
   msModel('w_funk', 'model.glb').then(src => { const o = msGround(msFit(src.clone(true), .24, 'max')); o.position.set(H.x + .96, 1.18, H.z - .95); o.rotation.set(0, PI + .3, .12); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.userData.noCol = true; K6.grp.add(o); }).catch(e => console.warn('Kapitel6: Funkgerät', e)); }
 function k6_merkblatt() { return new Promise(res => openNote('BfR · Bergung · Merkblatt W', '<span class="hand">Probe W meidet Lampenlicht über 300 Lumen. Lampe nie senken.\nProbe W spricht. Nicht antworten. Es sind nicht Ihre Angehörigen.\nBei Kontakt mit dem Begleitvogel (beringt): Abbruch. Vogel nicht bergen.\nWer hört, dass er beim Namen gerufen wird, meldet sich bei der Nachsorge.</span>', 'k6_merkblatt', res)); }
 // ---------------------------------------------------------------- UK 6/7 · Lager, Wrack, Beobachter, Handschuhfach
-function k6_lagerFertig() { K6.lager = true; K6.jagdSeg = 2; K6.route = null; if (K6.kindF) { K6.kindF.visible = true; K6.hufe.visible = true; } k6_obj('Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.'); if (typeof saveGame === 'function') saveGame(6); }
+// Story-Prüfung T-3: der Anruf, den man nicht annehmen darf (vor Jonas’ Lager; seit dem Zaun kein Netz). Das eine Mal, wo Nichtrangehen richtig ist.
+async function k6_anrufLucy() { const ring = () => { if (Audio.ctx) for (let i = 0; i < 3; i++) Audio.play('buzz', { gain: .3, rate: 1.7, dur: .5, delay: i * .9 }); };
+  try { ring(); subtitle('Dein Handy. Seit dem Zaun kein Netz. Es klingelt trotzdem. Auf dem Display: LUCY.', 4200); await k6_wait(2600); ring();
+    k6_luke('<i>Elfmal bin ich nicht rangegangen. Einmal doch, und es war die andere.</i>', 4200); await k6_wait(3400);
+    subtitle('In der Fibel leuchtet eine Zeile aus Merkblatt W: „Nicht antworten. Es sind nicht Ihre Angehörigen.“', 4200); ring();
+    const i = typeof lwo_wahl === 'function' && typeof LWO !== 'undefined' && LWO.wahlEl ? await Promise.race([lwo_wahl(['Wegdrücken.', 'Rangehen.']), k6_wait(14000).then(() => -1)]) : 0;
+    if (i === -1 && LWO.wahlFin) LWO.wahlFin(-1);
+    if (i === 1) { subtitle('„Großer …“', 2400, 'LUCYS STIMME?'); await k6_wait(2600); subtitle('„Ich hab Hunger, Junge.“', 2800, 'HOFER?'); // keine Spieluhr darunter
+      try { Audio.stinger && Audio.stinger(false); } catch (e) {} const P = player.pos; k6_laerm(P.x, P.z, 40); K6J.cool = Math.min(K6J.cool || 0, 2); return; } // die Stille springt auf Luke zu (Stufe 2)
+    if (i === 0) { subtitle('„Diesmal nicht.“', 2200, 'DU'); await k6_wait(2200); }
+    for (let n = 1; n <= 11; n++) { subtitle('LUCY · Verpasste Anrufe: ' + n, 700); try { Audio.play('buzz', { gain: .08, rate: 1.9, dur: .18 }); } catch (e) {} await k6_wait(420); }
+    await k6_wait(600); subtitle('Dann ist es still.', 2200);
+  } catch (e) { console.warn('k6_anrufLucy', e); } }
+function k6_lagerFertig() { K6.lager = true; K6.jagdSeg = 2; K6.route = null; if (K6.kindF) { K6.kindF.visible = true; K6.hufe.visible = true; } k6_obj('Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.'); if (typeof saveGame === 'function') saveGame(6);
+  if (K6.told.has('ag20')) setTimeout(() => { if (typeof beobachter_zettel === 'function') try { beobachter_zettel('b_k6_08', {}) || beobachter_zettel('b_k6_08', { vor: true }); } catch (e) {} }, 7000); } // G-4 (Story-Prüfung B): nach AG-20, erster ruhiger Ort fern der Blechmänner
 function k6_beobFlucht() { K6.told.add('beobFlucht'); const W = TIEF.wreck; if (typeof beob_sichtung === 'function') try { beob_sichtung([W.x + 1.8, 0, W.z - 1.4], .85, { weg: [[W.x + 1.8, 0, W.z - 1.4], [W.x - 1, 0, W.z + 1.2], [W.x - 4.5, 0, W.z + 3.6]] }); } catch (e) {} // weniger als eine Sekunde, auf drei Zehen: er flieht
   if (typeof beob_still === 'function') beob_still(45); setTimeout(() => k6_denk('beobFlucht', 'Der rennt weg. Der rennt sonst nie weg.'), 1600); }
 function k6_handschuhfach() { if (K6.told.has('handschuhfach')) return; K6.told.add('handschuhfach'); Audio.play('metalOpen', { gain: .2, rate: 1.2 });
@@ -520,7 +535,7 @@ function k6_routeTick() { const W = typeof whiskey_S !== 'undefined' ? whiskey_S
   if (K6.ri < K6.route.length) { const [x, z] = K6.route[K6.ri++]; const y = typeof whiskey_perch === 'function' ? whiskey_perch(x, z) : 0; whiskey_fly(new THREE.Vector3(x, Math.max(y, 2.2), z), null); K6.guideT = 1.2; } else K6.route = null; }
 // ---------------------------------------------------------------- A-20 · Die Jagd: das Hirschding läuft frei (zwischen Hirsch und Lager, dann vom Lager bis zum Wrack)
 const K6J = { st: 'aus', p: new THREE.Vector3(), vis: new THREE.Vector3(), yaw: 0, t: 0, cool: 0, nz: null, nzT: 99, lit: 0, lurk: 0, frT: 0, ph: 0, stepT: 0, voiceT: 25, fleeT: 0, trippeln: false, kills: 0, mim: 0, gT: 0 };
-function k6_ton(art, x, y, z, gain, alt) { if (typeof hungrige_ton === 'function') hungrige_ton(art, x, y, z, gain, alt); else if (alt) alt(); } // Q-1: Wendigo-Laute aus Aufnahmen
+function k6_ton(art, x, y, z, gain, alt, o) { if (typeof hungrige_ton === 'function') hungrige_ton(art, x, y, z, gain, alt, o); else if (alt) alt(); } // Q-1: Wendigo-Laute aus Aufnahmen
 function k6_laerm(x, z, r) { if (!K6.on) return; K6J.nz = K6J.nz || new THREE.Vector3(); K6J.nz.set(x, 0, z); K6J.nzT = 0; K6J.nzR = r; } // er folgt Lärm
 function k6_jagdAktiv() { if (!K6.on || K6.beat !== 'wrack' || !k6_hh('hirsch') || typeof hungrige_S === 'undefined' || !hungrige_S.dt) return false;
   if (hungrige_S.ev || hungrige_S.cine || state.talking || ui.overlay || (typeof tod_S !== 'undefined' && tod_S.dying)) return false; const P = player.pos;
@@ -538,12 +553,12 @@ function k6_jagd(dt) { const J = K6J, D = typeof hungrige_S !== 'undefined' ? hu
   if (J.st === 'fern') { const nz = J.nz && J.nzT < 12 && Math.hypot(J.nz.x - J.p.x, J.nz.z - J.p.z) < 70; if (nz) { tx = J.nz.x; tz = J.nz.z; sp = 3.2; } else { const r = 24; tx = P.x - f.x * r; tz = P.z - f.z * r; sp = 1.5; } if (d < 23) { J.st = 'lauern'; J.lurk = 0; J.voiceT = rand(8, 14); } }
   else if (J.st === 'lauern') { J.lurk += dt; const r = 11; tx = P.x - f.x * r + f.z * 3; tz = P.z - f.z * r - f.x * 3; sp = face > .6 ? 0 : 1.3; // hinter Luke, außerhalb des Lichts; bleibt stehen, wenn Luke herschaut
     if (J.nz && J.nzT < 3) { tx = P.x; tz = P.z; sp = 3.4; } if (lit) J.lit += dt; else J.lit = Math.max(0, J.lit - dt * .5);
-    if (!lampe && d < 17 && J.lurk > 2) { J.st = 'sturm'; k6_ton('ruf', J.p.x, 2, J.p.z, .9, () => Audio.crack()); } else if (J.lurk > 22 && !lampe) J.st = 'sturm';
+    if (!lampe && d < 17 && J.lurk > 2) { J.st = 'sturm'; k6_ton('ruf', J.p.x, 2, J.p.z, .9, () => Audio.crack(), { obj: J.p, h: 2 }); } else if (J.lurk > 22 && !lampe) J.st = 'sturm';
     J.voiceT -= dt; if (J.voiceT < 0 && d < 24) { J.voiceT = rand(26, 40); k6_jagdStimme(); }
     if (!J.trippeln && K6.jagdSeg === 2 && d < 20 && J.lurk > 6) k6_trippeln(); }
-  else if (J.st === 'sturm') { tx = P.x; tz = P.z; sp = d > 2 ? 3.8 : 6; if (lit) J.lit += dt * 2; if (d < 1.35) { if (!lampe) { k6_jagdTod(); return; } J.st = 'flucht'; J.fleeT = 0; shake = .08; glitchV = .5; Audio.growl(J.p.x, J.p.z, true); scareCount++; } }
+  else if (J.st === 'sturm') { tx = P.x; tz = P.z; sp = d > 2 ? 3.8 : 6; if (lit) J.lit += dt * 2; if (d < 1.35) { if (!lampe) { k6_jagdTod(); return; } J.st = 'flucht'; J.fleeT = 0; shake = .08; glitchV = .5; Audio.growl(J.p.x, J.p.z, true, J.p); scareCount++; } }
   else if (J.st === 'flucht') { J.fleeT += dt; tx = J.p.x - dx; tz = J.p.z - dz; sp = 6; if (J.fleeT > 2.3) { J.st = 'weg'; J.cool = rand(20, 30); D.g.visible = false; return; } }
-  if ((J.st === 'lauern' || J.st === 'sturm') && J.lit > .3) { J.st = 'flucht'; J.fleeT = 0; J.lit = 0; k6_ton('knochen', J.p.x, 1.8, J.p.z, .8, () => Audio.crack()); setTimeout(() => k6_ton('knochen', J.p.x, 1, J.p.z, .7, () => Audio.crack()), 260); k6_ton('stoehn', J.p.x, 2, J.p.z, .7, () => Audio.groan(J.p.x, J.p.z, true)); if (typeof hungrige_nebel === 'function') hungrige_nebel(J.p.x, 1.4, J.p.z, 1.2); } // Pells Dressur: vor der angehobenen Lampe weicht er rückwärts
+  if ((J.st === 'lauern' || J.st === 'sturm') && J.lit > .3) { J.st = 'flucht'; J.fleeT = 0; J.lit = 0; k6_ton('knochen', J.p.x, 1.8, J.p.z, .8, () => Audio.crack()); setTimeout(() => k6_ton('knochen', J.p.x, 1, J.p.z, .7, () => Audio.crack()), 260); k6_ton('stoehn', J.p.x, 2, J.p.z, .7, () => Audio.groan(J.p.x, J.p.z, true), { obj: J.p, h: 2 }); if (typeof hungrige_nebel === 'function') hungrige_nebel(J.p.x, 1.4, J.p.z, 1.2); } // Pells Dressur: vor der angehobenen Lampe weicht er rückwärts
   // Bewegung: einfaches Ausweichen um Stämme, im tiefen Wald bleiben
   if (sp > 0) { let ax = tx - J.p.x, az = tz - J.p.z; const al = Math.hypot(ax, az); if (al > .2) { ax /= al; az /= al; let ok = false; for (const turn of [0, .5, -.5, 1, -1, 1.6, -1.6]) { const c = Math.cos(turn), s = Math.sin(turn), vx = ax * c - az * s, vz = ax * s + az * c, nx = J.p.x + vx * .9, nz = J.p.z + vz * .9;
       if (leben_free(nx, nz, .8, .5) && (typeof tief_in !== 'function' || tief_in(nx, nz))) { const st = Math.min(al, sp * dt); J.p.x += vx * st; J.p.z += vz * st; ok = true; break; } } J.ph += dt * sp * 1.15; if (!ok) J.ph += dt; } }
@@ -608,11 +623,12 @@ async function k6_hochsitz() {
     const opt = [['Ich guck nicht hin. Versprochen.', [['Versprochen ist versprochen.', 2600, 'ECHTER LUKE']]],
       ...(kreis ? [['Der achte Stöckchenmann …', [['Den hab ich gemacht. Vor Jahren. Für dich. Damit du auch einen Platz hast.', 4400, 'ECHTER LUKE']]]] : []),
       ['Kommst du mit heim?', [['Wenn ich heimgeh, musst du gehen. Einer von uns ist immer übrig.', 4600, 'ECHTER LUKE'], ['Sie spielt nur mit einem Luke.', 2600, 'ECHTER LUKE']]],
-      ['Hat Mama …', [['Mama schläft. Im Stall. Sie hat mir gesagt, ich soll dich nicht ansehen, sonst wird’s dir schlecht.', 4800, 'ECHTER LUKE'], ['Ich hab dich trotzdem einmal angeguckt. Bei Vegas, durchs Fenster. Du guckst wie ich, wenn ich lüg.', 5200, 'ECHTER LUKE']]]];
+      ['Hat Mama …', [['Mama ist drin. Sie wartet an der Kette, bis ich wiederkomm. Sie hat gesagt, ich soll dich nicht ansehen, sonst wird’s dir schlecht.', 5600, 'ECHTER LUKE'], ['Ich hab dich trotzdem einmal angeguckt. Bei Vegas, durchs Fenster. Du guckst wie ich, wenn ich lüg.', 5200, 'ECHTER LUKE']]]];
     let asked = 0;
     while (opt.length) { await k6_zuWarten(); K6.wahl.innerHTML = opt.map((o, i) => `<div><b>${i + 1}</b><span>„${trX(o[0])}“</span></div>`).join(''); K6.wahl.classList.add('show');
       const i = await k6_tasteZu(opt.length, asked ? 16000 : 0); K6.wahl.classList.remove('show'); if (i < 0) break;
-      const [q, a] = opt.splice(i, 1)[0]; asked++; await k6_sayZu([[q, 2400, 'LUKE'], ...a]); await k6_wait(500); }
+      const [q, a] = opt.splice(i, 1)[0]; asked++; await k6_sayZu([[q, 2400, 'LUKE'], ...a]); await k6_wait(500);
+      if (q === 'Kommst du mit heim?') await k6_zweiLukes(); }
     await k6_sayZu([['Du zitterst ja.', 2200, 'ECHTER LUKE']]);
     const P = player.pos; if (typeof kino_stoff === 'function') kino_stoff(.07); else for (let i = 0; i < 3; i++) setTimeout(() => { if (typeof wl_rustle === 'function') wl_rustle(P.x + .3, P.z + .5, .9); }, i * 420); await k6_wait(1700); // Luke zieht die Jacke aus und legt sie ihm um
     await k6_sayZu([['Die ist warm.', 2200, 'ECHTER LUKE']]); await k6_wait(1800);
@@ -626,10 +642,24 @@ async function k6_hochsitz() {
     // W-15 · „Luna.“ – ganz nah an Lukes Ohr, das einzige Mal wach in ganzen Silben
     await k6_wait(1600); if (typeof whiskey_luna === 'function') whiskey_luna(); await k6_wait(2600);
     await k6_sayZu([['Das sagt er manchmal. Drinnen. Dann geht sie hin und guckt, und er ist schon weg.', 4800, 'ECHTER LUKE']]);
+    // Story-Prüfung W-3: Schlusswendung – einer fehlt noch
+    await k6_wait(1400); await k6_sayZu([['Sie hat Papa fast. Sie hat mich. Lucy hat sie zurückgegeben.', 4400, 'ECHTER LUKE']]); await k6_wait(1100);
+    await k6_sayZu([['Sie sucht nur noch einen. Das Stück von Papa, das draußen rumläuft.', 4600, 'ECHTER LUKE']]); await k6_wait(1300);
+    await k6_sayZu([['Das Spiel ist erst aus, wenn alle gefunden sind.', 3600, 'ECHTER LUKE']]);
     await k6_wait(1200); $('fade').style.background = '#000'; await fade(1, 900);
   } catch (e) { console.error('Kapitel6: Hochsitz', e); }
   if (typeof augenzu_sperre === 'function') augenzu_sperre(); state.talking = false; K6.wahl.classList.remove('show');
   await k6_ende();
+}
+// Story-Prüfung T-1: die Wahl, die etwas kostet (nach „Sie spielt nur mit einem Luke.“, Augen bleiben zu)
+async function k6_zweiLukes() {
+  const W2 = [['Dann geh ich rein. Du kriegst dein Leben zurück.', [['Geht nicht. Das ist nicht mehr meins.', 3200, 'ECHTER LUKE'], ['Du hast es getragen. Jetzt hat es deine Form. Wie ein Schuh.', 4400, 'ECHTER LUKE']]],
+    ['Wir finden was. Zu zweit.', [['Das sagen Große immer, wenn sie nichts finden.', 3600, 'ECHTER LUKE']]],
+    ['(nichts sagen)', [['Siehst du. Du weißt es auch nicht. Gut. Dann lügst du wenigstens nicht.', 5000, 'ECHTER LUKE']]]];
+  await k6_zuWarten(); K6.wahl.innerHTML = W2.map((o, i) => `<div><b>${i + 1}</b><span>${i < 2 ? '„' + trX(o[0]) + '“' : trX(o[0])}</span></div>`).join(''); K6.wahl.classList.add('show');
+  let i = await k6_tasteZu(W2.length, 15000); K6.wahl.classList.remove('show'); if (i < 0) i = 2; K6.zweiLuke = i;
+  await k6_sayZu(i < 2 ? [[W2[i][0], 3000, 'LUKE'], ...W2[i][1]] : W2[i][1]); await k6_wait(600);
+  try { if (typeof sammeln_fibel === 'function') sammeln_fibel('D-11'); } catch (e) {} // Fibel „Das bist du“: „Einer von uns ist übrig …“
 }
 // ---------------------------------------------------------------- Abspann „Gleich wieder da“ (80 s, über kino.js) und Endkarte
 function k6_kinoDef() { if (typeof kino_def !== 'function' || K6.kinoDef) return; K6.kinoDef = true;
@@ -680,7 +710,7 @@ async function k6_ende() {
   if (typeof kapEnde === 'function') { try { kapEnde(6); } catch (e) { console.error('kapEnde(6)', e); } }
   const ec = $('endcard'); state.ending = true; state.talking = false;
   ec.querySelector('h1').textContent = 'KAPITEL 6 · WENDIGO · ENDE'; // Fassung 3, wortgleich
-  ec.querySelector('p').innerHTML = 'Er ist nicht tot. Er weiß jetzt, wem der Rabe gehört.<br>Auf dem Hochsitz schläft ein Junge in deiner Jacke. Du hast ihn nicht angesehen.<br>Der Rabe ist nach Westen geflogen.<br>Am Samstag kommt Jonas.';
+  ec.querySelector('p').innerHTML = 'Er ist nicht tot. Er weiß jetzt, wem der Rabe gehört.<br>Auf dem Hochsitz schläft ein Junge in deiner Jacke. Du hast ihn nicht angesehen.<br>Der Rabe ist nach Westen geflogen.<br>Einer fehlt noch. Du.<br>Am Samstag kommt Jonas.'; // Story-Prüfung W-3
   const E = typeof lwo_kapitelende === 'function' ? lwo_kapitelende(6) : null, zettel = typeof beob_S !== 'undefined' ? beob_S.given.size : 0, fotos = story.photos ? story.photos.size : 0;
   $('endStats').innerHTML = `FOTOS ${fotos} · FUNDE ${story.lore.length} · ZETTEL ${zettel}` + (E && E.zeile ? `<br><span style="opacity:.7;font-style:italic">${E.zeile}</span>` : '');
   ec.querySelector('.next').textContent = 'HIGH ABYSS MIRA · FORTSETZUNG FOLGT';
@@ -714,7 +744,7 @@ async function startChapter6() {
   if (!laden || K6.beat === 'gitter') { player.pos.set(30, 0, 91.5); player.yaw = PI; } player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; flashOn = true; // Blick nach Norden, aufs Gitter
   if (typeof hungrige_prep === 'function') hungrige_prep().catch(e => console.warn('Kapitel6: Vorbereitung', e));
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = K6_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(6) : '') + K6_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     if (K6.beat === 'gitter') { k6_obj('Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?'); k6_cp('k6_gitter', 'SP6-1 · Das Absperrgitter', 30, 91.5, PI); k6_start1(); } };
 }

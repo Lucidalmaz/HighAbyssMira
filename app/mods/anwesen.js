@@ -157,7 +157,7 @@ function anwesen_press() {
   if (!S.ch4) return toast('Alle acht Fassungen sind belegt. Du drehst am Schwungrad – nichts. Der Motor braucht Strom, und in ganz Lost Eyengless ist der Strom weg, seit das Licht kam.', 5200);
   S.key = true; state.talking = true; S.pressT = 4.5; Audio.powerUp(); shake = .02;
   modItem('villaschluessel', 'Schlüssel der Villa Seiler', 'Aus acht Teilen gepresst. Schwer, noch warm. Der Bart hat sieben Zähne und eine Lücke.', 'key');
-  setTimeout(() => { Audio.play('metalHit2', { gain: .5, rate: .6 }); story.items = story.items.filter(k => k !== 'schluesselteile'); addItem('villaschluessel'); state.talking = false;
+  setTimeout(() => { const pq = S.pressLight ? S.pressLight.position : player.pos; Audio.play('metalHit2', { gain: .5, rate: .6, x: pq.x, y: 1.2, z: pq.z, ref: 3 }); story.items = story.items.filter(k => k !== 'schluesselteile'); addItem('villaschluessel'); state.talking = false;
     sideDone('anw_teile', 'Acht Teile, ein Schlüssel. Die Tür der Villa wartet.'); setC3('Die Villa Seiler. Schließ die Tür auf.');
     subtitle('Die Presse stampft dreimal. Dann liegt da ein Schlüssel, so lang wie deine Hand. Sieben Zähne – und eine Lücke, wo der achte sein müsste.', 5600); }, 4200);
 }
@@ -176,7 +176,7 @@ function anwesen_door() {
   const S = anwesen_S; Audio.knock();
   if (S.open) return;
   if (!S.key) { const c = anwesen_count();
-    if (!S.knocked) { S.knocked = true; setTimeout(() => { Audio.knock(); subtitle('<i>Von drinnen klopft es zurück. Dreimal. Dann, ganz leise, eine Spieluhr.</i>', 4200); if (Audio.musicBox) Audio.musicBox(); }, 1400); }
+    if (!S.knocked) { S.knocked = true; setTimeout(() => { const q = S.doorHit.position; Audio.knock(q.x, 1.3, q.z + 1.2); subtitle('<i>Von drinnen klopft es zurück. Dreimal. Dann, ganz leise, eine Spieluhr.</i>', 4200); if (Audio.musicBox) Audio.musicBox(q.x, 1, q.z + 3); }, 1400); }
     sideStart('anw_teile'); return toast(`Kein Griff, kein Klingelschild. Eine Eisenplatte mit acht Schlüssellöchern.${c ? ` Du hast ${c} von 8 Teilen.` : ''} Wer hat eine Tür gebaut, die man nur zu acht öffnen kann?`, 5200); }
   if (!S.ch4) return;
   S.open = true; anwesen_sockets(); anwesen_enterHall();
@@ -194,7 +194,7 @@ async function chapter4Begin() {
     const pv = new THREE.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); pv.rotation.y = -1.2; OW.gate.parent.add(pv); } }
   player.pos.set(.8, 0, 1.6); player.yaw = PI / 2 + .6; player.pitch = .05; vel.set(0, 0, 0); camY = player.pos.y + 1.65; flashOn = true;
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = C4_INTRO; $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(4) : '') + C4_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
     if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3);

@@ -749,12 +749,12 @@ function ausbau_nord_busTick(dt, P, free) {
       B.phase = 'come'; B.t = 0; B.x = 78; nat.calm = Math.max(nat.calm, 30); dir.busy = true;
       if (!B.fl) { const mk = c => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: poolTex, color: c, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); s.scale.setScalar(.9); scene.add(s); return s; };
         B.fl = [mk(0xfff2d8), mk(0xfff2d8)]; B.light = new VLight(0xfff0d0, 0, 22, 1.6); scene.add(B.light); }
-      if (Audio.ctx) { B.pan = Audio.at(B.x, .8, 58.3, 6); B.eng = Audio.play('carEngine', { loop: true, gain: 0, lp: 520, rate: .72, dest: B.pan }); if (B.eng) B.eng.g.gain.linearRampToValueAtTime(.9, Audio.ctx.currentTime + 5); }
+      if (Audio.ctx) { B.pan = Audio.at(B.x, .8, 58.3, 6, { dauer: 45 }); B.eng = Audio.play('carEngine', { loop: true, gain: 0, lp: 520, rate: .72, dest: B.pan }); if (B.eng) B.eng.g.gain.linearRampToValueAtTime(.9, Audio.ctx.currentTime + 5); }
     }
     return;
   }
   B.t += dt; const setPos = (x, c) => { B.x = x; B.fl.forEach((s, i) => { s.visible = true; s.position.set(x, .85, 58.3 + (i ? .75 : -.75)); s.material.color.set(c === 'r' ? 0xff2a18 : 0xfff2d8); s.scale.setScalar(c === 'r' ? .5 : .95); });
-    B.light.position.set(c === 'r' ? x + 1 : x - 3, 1.2, 58.3); if (B.pan && B.pan.positionX) B.pan.positionX.value = x; };
+    B.light.position.set(c === 'r' ? x + 1 : x - 3, 1.2, 58.3); if (B.pan) Audio.setze(B.pan, x, .8, 58.3); };
   if (B.phase === 'come') { const k = Math.min(1, B.t / 11), e = 1 - Math.pow(1 - k, 2.2); setPos(78 + (13 - 78) * e, 'w'); B.light.intensity = 5 * Math.min(1, B.t / 2);
     if (k >= 1) { B.phase = 'stop'; B.t = 0; if (Audio.ctx) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'highpass'; bp.frequency.value = 2500; n.connect(bp); Audio.env(bp, .22, .02, 1.2, 0, Audio.at(13, .6, 58.3, 4)); n.stop(Audio.ctx.currentTime + 2); } } }
   else if (B.phase === 'stop') {
@@ -899,14 +899,14 @@ function ausbau_nord_plakatCheck() { const N = ausbau_nord; const q = story.side
 function ausbau_nord_messlatte() { const N = ausbau_nord; ausbau_nord_quest('strich');
   const an = typeof flashOn !== 'undefined' ? flashOn : true; if (!an) return toast('Hinter dem Glas ist es schwarz. Mit der Lampe vielleicht.', 2600);
   N.flurN = (N.flurN || 0) + 1;
-  if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEinen Fingerbreit über LUKE B. ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
+  if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEtwas abseits ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
     () => { subtitle('Einer ohne Namen. Das achte Kind?', 3000, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
   if (N.flurN === 2 && N.flur) { N.flur[0].visible = false; N.flur[1].visible = true; Audio.play('woodSqueak2', { gain: .08, rate: 1.6, x: N.praxis.hx + 1, y: 1.5, z: N.praxis.fz, ref: 1 }); return toast('Der Kittel hängt einen Haken weiter.', 3200); }
   toast('Die Messlatte. Der Strich ohne Namen. Der Kittel hängt, wo er hängt.', 3000); }
 async function ausbau_nord_schaukasten() { const N = ausbau_nord; ausbau_nord_quest('strich'); if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
   N.ag04 = true; if (typeof lwo_szene === 'function') { await lwo_szene('AG-04', { at: { x: -9.4, z: 49.2 }, radius: 9 }); } else { openNote('Schaukasten', 'Bundesstelle für Rückführung … Bürgersprechstunde donnerstags … Ahornstraße 7, Eingang Keller.', 'nord_ag04'); }
   if (typeof lwo_ereignis === 'function') try { lwo_ereignis('AG-04'); } catch (e) {} ausbau_nord_strichCheck(); }
-function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN && N.ag04) { const q = story.side.nord_strich; if (q && q.state !== 'done') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, einen Finger über LUKE B. Nur „6.8.09“. Und eine Sprechstunde in einem Keller.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
+function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN && N.ag04) { const q = story.side.nord_strich; if (q && q.state !== 'done') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“. Und eine Sprechstunde in einem Keller.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
 function ausbau_nord_f3Tick(dt, P) { const N = ausbau_nord; if (!N.f3) return;
   if (!N.sb03Fix && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-03']) { N.sb03Fix = true; ausbau_nord_sb03(); }
   if (N.plakat && N.sb03Fix && !N.plakatZu && typeof sammeln_hatSB === 'function' && sammeln_hatSB(3)) { ausbau_nord_plakatCheck(); // Schreck Stufe 1: das Plakat von 2009 blättert sich hinter Luke wieder zu

@@ -54,7 +54,7 @@ async function albers_talk() {
   const S = albers_S; if (S.busy || state.talking) return;
   if (albers_k3OrdnerBereit()) return albers_k3Ordner(); // Fassung 3 (AP-18): „Rot eingekreist“ – der Ordner durch den Kettenspalt
   const next = ALBERS_TALKS.find(T => !S.talked.has(T.claim) && T.when());
-  S.busy = true; state.talking = true; Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  S.busy = true; state.talking = true; Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25, S.door.x, 1.2, S.door.z); S.open = 1;
   if (next) {
     await say(next.lines.map(([t, ms, who]) => [t, ms, who || 'LARS VEGAS']));
     S.talked.add(next.claim); if (/^V-0[1-6]$/.test(next.id)) albers_K1.v.add(next.id); story.lore.push({ key: 'albers_' + next.id, title: 'Vegas an der Tür', html: next.lines.map(l => l[0]).join('\n') });
@@ -93,7 +93,7 @@ function albers_door(dt, t) { const S = albers_S, P = player.pos;
       const a = Math.atan2(P.x - S.fig.position.x, P.z - S.fig.position.z); S.fig.rotation.y += Math.atan2(Math.sin(a - S.fig.rotation.y), Math.cos(a - S.fig.rotation.y)) * Math.min(1, dt * 3); } } }
 // Fassung 3 (AP-08): Vegas durch den Türspalt in Whiskeys Szenen (W-01 Taufe, K1-4 Speck, K4-4 Papas Marke …). lines: [Text, ms, Sprecher] oder async-Funktionen
 async function albers_whiskey(lines, o = {}) { const S = albers_S; if (S.busy) return false; S.busy = true; S.wOpen = true;
-  Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25, S.door.x, 1.2, S.door.z); S.open = 1;
   try { for (const l of lines) { if (typeof l === 'function') await l(); else await say([[l[0], l[1], l[2] || 'LARS VEGAS']]); } }
   finally { S.open = 0; Audio.chains(S.door.x, 1.2, S.door.z); Audio.play(Audio.pick('woodClose1', 'woodClose2'), { gain: .6, x: S.door.x, y: 1.2, z: S.door.z, ref: 3 }); S.busy = false; setTimeout(() => { S.wOpen = false; }, 1400); }
   return true; }
@@ -141,7 +141,7 @@ function albers_fadenTick(dt) { const S = albers_S; if ((S.fadenT = (S.fadenT ||
   if (S.talked.size && !(ch3.on && ch3.part === 'town') && story.side.albers_spinn && story.side.albers_spinn.state !== 'hidden') albers_claimCheck(); }
 function albers_vHappen(id) { const K = albers_K1; K.v.add(id); albers_S.talked.add(id.toLowerCase().replace('-', '')); sideStart('albers_spinn'); story.lore.push({ key: 'albers_' + id, title: 'Vegas · ' + id, html: ALBERS_V[id].map(l => l[0]).join('\n') }); }
 async function albers_k1Klopfen() {
-  const S = albers_S, K = albers_K1; if (S.busy || state.talking) return; if (kap() !== 1) return; S.busy = true; state.talking = true; Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1;
+  const S = albers_S, K = albers_K1; if (S.busy || state.talking) return; if (kap() !== 1) return; S.busy = true; state.talking = true; Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25, S.door.x, 1.2, S.door.z); S.open = 1;
   const V = 'LARS VEGAS', sag = l => say(l.map(([t, ms]) => [t, ms, V]));
   try {
     if (!K.schritt) { K.schritt = 1; await sag([['„Wer da? … Der Brandt-Junge. Mach die Lampe aus, verdammt, die gucken.“', 4200], ['„Bruno ist weg. Zum Pinkeln raus und nicht wieder rein. Guck bei Reuters, wo das Haus war. Da hat er immer gebuddelt.“', 5600]]);
@@ -202,7 +202,7 @@ function albers_k3Umschlag() { const st = albers_K3.st; if (st.umschlag) return;
     modItem('n3_kapschluessel', 'Kapellenschlüssel', 'Ein großer Eisenschlüssel mit Kordel. Kapellentür und das Gitter der Martinsnische.', 'key'); addItem('n3_kapschluessel'); if (typeof kirchberg_oeffne === 'function') kirchberg_oeffne('kapelle');
     neben3_desc('k3_rot', 'Vegas hat einen Ordner. Klopf an seine Tür.'); neben3_save(); }); }
 async function albers_k3Ordner() { const S = albers_S, st = albers_K3.st; S.busy = true; state.talking = true; const V = 'LARS VEGAS';
-  try { Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25); S.open = 1; await wait(700);
+  try { Audio.knock(); await wait(900); Audio.chains(S.door.x, 1.2, S.door.z); Audio.creak(.25, S.door.x, 1.2, S.door.z); S.open = 1; await wait(700);
     await say([['„Der passt nicht.“', 2200, V], ['„Dann machen Sie die Kette ab.“', 2600, 'DU'], ['„Nachts? Bist du bekloppt?“', 2600, V]]);
     for (let i = 0; i < 3; i++) { Audio.play('metalOpen', { gain: .15, rate: 2.2, x: S.door.x, y: 1.1, z: S.door.z, ref: 2 }); await wait(500); Audio.paper(); await say([[['„Das hier, Wetterballon, von wegen.“', '„Nicht knicken!“', '„Inhaltsverzeichnis. Das brauchst du zuerst.“'][i], i === 1 ? 1700 : 2600, V]]); await wait(300); } // Slapstick S-02 (85 §11)
     if (typeof spannung_pause === 'function') spannung_pause('S-02');

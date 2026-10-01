@@ -188,7 +188,7 @@ const HUNGRIGE_EV = {
         if (!this.said && (!this.krume || this.ate) && this.t > (this.krume ? 4.6 : 2.4) && hungrige_seen(V, .8, .3)) { this.said = true; this.saidT = this.t; hungrige_lucy(p.x, p.y + .3, p.z, '„Großer …“', 2000); this.tw = hungrige_twist(V, hungrige_bone(V.m, /Head/), PI);
           setTimeout(() => { if (!state.talking) subtitle('Keine Spieluhr. Das ist nicht sie. Das ist nicht mal das Graukind.', 3600, 'LUKE'); }, 2600); }
         if (this.tw) this.tw.k = Math.min(1, this.tw.k + dt * 1.2);
-        if ((this.said && this.t > 6.5) || (this.said && this.t > this.saidT + 2 && hungrige_lit(V, 12, .985, .3)) || hungrige_dist(V) < 2.2) { this.ph = 'fly'; leben_play(V, 'Fly', .1, -1.1); Audio.flap(p.x, p.y + .5, p.z); Audio.play('crow2', { gain: .55, rate: .55, x: p.x, y: p.y + 1, z: p.z, ref: 5, obj: V.g, h: 1 }); this.ft = 0; const f = flatDir(); this.dir = new THREE.Vector3(f.x, .5, f.z).normalize(); } // tiefer, zu langsamer Ruf; Flügelschlag rückwärts
+        if ((this.said && this.t > 6.5) || (this.said && this.t > this.saidT + 2 && hungrige_lit(V, 12, .985, .3)) || hungrige_dist(V) < 2.2) { this.ph = 'fly'; leben_play(V, 'Fly', .1, -1.1); Audio.flap(p.x, p.y + .5, p.z, V.g); Audio.play('crow2', { gain: .55, rate: .55, x: p.x, y: p.y + 1, z: p.z, ref: 5, obj: V.g, h: 1 }); this.ft = 0; const f = flatDir(); this.dir = new THREE.Vector3(f.x, .5, f.z).normalize(); } // tiefer, zu langsamer Ruf; Flügelschlag rückwärts
         else if (this.t > 30) return false; }
       else { this.ft += dt; p.addScaledVector(this.dir, dt * 6.5); hungrige_facePlayer(V, dt * 8); if (this.ft > 4) return false; } // fliegt weg und sieht dabei zurück: falsch herum
       hungrige_applyTwist(V); return true; },
@@ -316,6 +316,13 @@ function hungrige_lid(ms = 200) { if (typeof kino_blinzeln === 'function') { try
 function hungrige_bass(an) { const A = Audio, S = hungrige_S; if (!A.ctx || typeof KI === 'undefined') return; if (an) { const g = A.ctx.createGain(); g.gain.value = 1; g.connect(A.master); S.bass = g; try { KI.bow(A.ctx, g, A.ctx.currentTime, 41.2, 9, .05, 600); } catch (e) {} }
   else if (S.bass) { S.bass.gain.setTargetAtTime(0, A.ctx.currentTime, .015); const g = S.bass; S.bass = null; setTimeout(() => { try { g.disconnect(); } catch (e) {} }, 800); } }
 function hungrige_celesta() { const A = Audio; if (!A.ctx || typeof KI === 'undefined') return; const t = A.ctx.currentTime + .05; [659.3, 587.3, 523.3, 493.9, 523.3].forEach((f, i) => { try { KI.box(A.ctx, A.master, t + i * .62, f, .07); } catch (e) {} }); }
+// Story-Prüfung T-4: unter der Celesta summt eine Frauenstimme die fünf Töne mit, ohne Worte, aus der Richtung des Raben (Mira, nur ihr Klang)
+function hungrige_summen(x, y, z) { const A = Audio; if (!A.ctx || !A.at) return; const c = A.ctx, t0 = c.currentTime + .08, d = A.at(x, y, z, 9);
+  try { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500; const bp = c.createBiquadFilter(); bp.type = 'peaking'; bp.frequency.value = 820; bp.Q.value = 1.4; bp.gain.value = 5; lp.connect(bp); bp.connect(d);
+    [329.6, 293.7, 261.6, 246.9, 261.6].forEach((f, i) => { const t = t0 + i * .62, len = i === 4 ? 1.05 : .6, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), g2 = c.createGain(), vib = c.createOscillator(), vg = c.createGain();
+      o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f * 2.003; vib.frequency.value = 4.8; vg.gain.value = f * .007; vib.connect(vg); vg.connect(o.frequency); vg.connect(o2.frequency);
+      g2.gain.value = .22; o2.connect(g2); o.connect(g); g2.connect(g); g.connect(lp); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.035, t + .14); g.gain.setValueAtTime(.035, t + len - .15); g.gain.linearRampToValueAtTime(0, t + len);
+      for (const q of [o, o2, vib]) { q.start(t); q.stop(t + len + .05); } }); } catch (e) {} }
 // R6-5 „Welcher ist Whiskey?“: sechs Sekunden, E streckt die Hand aus – nach dem Raben, den Luke gerade ansieht
 function hungrige_hand(C, A, B, ms) { return new Promise(res => { let done = false; if (typeof k6_hinweis === 'function') k6_hinweis('E', 'Hand ausstrecken');
   const fin = v => { if (done) return; done = true; removeEventListener('keydown', key, true); if (typeof k6_hinweis === 'function') k6_hinweis(''); res(v); };
@@ -384,13 +391,13 @@ async function hungrige_finaleRun(S, W, wait_) {
   hungrige_lid(200); await wait_(110); if (S.camAus) { setCamOverride(null); S.camAus = false; if (typeof k6_feuerzeugWelt === 'function') k6_feuerzeugWelt(false); } C.look.set(bx, by + 2.4, bz); C.lookK = 5; state.flashFail = Math.max(state.flashFail, .9);
   await say([['Nein. Nein, nein –', 1800, 'LUKE']]); C.lookK = 2;
   // 7) 0:38–0:44 zwei Schritte auf Luke zu, zwei Stöße der Kamera; bei jedem Schritt wird die Flamme kleiner. Hofer, dann Lukes eigene Stimme.
-  C.ph = 'come'; C.t = 0; hungrige_ton('huf', bx, .2, bz, .9, () => Audio.thump(bx, .5, bz)); shake = .06; if (typeof k6_flamme === 'function') k6_flamme(.72); await wait_(1100); hungrige_ton('huf', D.g.position.x, .2, D.g.position.z, 1, () => Audio.thump(bx, .5, bz)); shake = .07; if (typeof k6_flamme === 'function') k6_flamme(.45); await wait_(600);
+  C.ph = 'come'; C.t = 0; hungrige_ton('huf', bx, .2, bz, .9, () => Audio.thump(bx, .5, bz)); shake = .06; if (typeof k6_flamme === 'function') k6_flamme(.72); await wait_(1100); hungrige_ton('huf', D.g.position.x, .2, D.g.position.z, 1, () => Audio.thump(D.g.position.x, .5, D.g.position.z)); shake = .07; if (typeof k6_flamme === 'function') k6_flamme(.45); await wait_(600);
   hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Ich hab Hunger, Junge.“', 'HOFER?', 2400, 'hofer_fin'); await wait_(2500);
   hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Luke?“', 'DEINE STIMME?', 2000, 'luke_ruf'); if (typeof k6_senderBeiIhm === 'function' && k6_senderBeiIhm()) for (let i = 0; i < 6; i++) setTimeout(() => { if (Audio.ctx) { const o = Audio.osc('square', 2350, 0, .05); Audio.env(o, .025, .002, .04, 0, Audio.at(D.g.position.x, 1.6, D.g.position.z, 2)); } }, i * 520); // der weggeworfene Sender piept aus ihm heraus
   await wait_(2100);
   // 8) 0:44–0:58 Whiskey stößt sich ab – ein Windstoß in der Stille; kreist, das Licht in ihm wächst (Celesta, fünf Töne); drei Stöße
   C.ph = 'attack'; C.t = 0; C.dive = 0; leben_play(A, 'TakeOff', .1, 1.2, true); Audio.flap(P.x, top, P.z); Audio.play('wingFlap', { gain: .6, rate: .8, x: P.x, y: top, z: P.z, ref: 4, obj: A.g }); Audio.caw(P.x, top + 1, P.z); if (Audio.gust) Audio.gust(1.3); if (typeof k6_windStoss === 'function') k6_windStoss();
-  await wait_(500); hungrige_flyTo(A, W.set(bx + 5, by + 5.5, bz - 4), 1.6, 3); hungrige_celesta(); await wait_(1650);
+  await wait_(500); hungrige_flyTo(A, W.set(bx + 5, by + 5.5, bz - 4), 1.6, 3); hungrige_celesta(); hungrige_summen(bx + 5, by + 5.5, bz - 4); await wait_(1650);
   for (let i = 0; i < 3; i++) { C.dive = i + 1; const from = A.g.position.clone(); hungrige_flyTo(A, W.set(D.g.position.x, by + 1.9, D.g.position.z), .9, .2); leben_play(A, 'FlyingAttack', .05, 1.3, true); Audio.screech(); if (Audio.gust) Audio.gust(1.2);
     await wait_(950); C.recoil = 1; hungrige_nebel(D.g.position.x, 1.4, D.g.position.z, .9); shake = Math.max(shake, .05 + i * .02); glitchV = Math.max(glitchV, .35); hungrige_ton('knurr', D.g.position.x, 2, D.g.position.z, .8, () => Audio.growl(D.g.position.x, D.g.position.z, true));
     if (i === 1) hungrige_stimme(D.g.position.x, 2.2, D.g.position.z, '„Come ho–“', 'PELL?', 1500, 'pell_fin');
@@ -401,12 +408,12 @@ async function hungrige_finaleRun(S, W, wait_) {
   if (typeof k6_waldAufEinmal === 'function') k6_waldAufEinmal();
   await wait_(1000);
   // 0:59–1:04 das Hirschding flieht RÜCKWÄRTS, die Knie knicken falsch herum, es brüllt; eine Linie brechender Äste entfernt sich
-  C.ph = 'flee'; C.t = 0; hungrige_ton('ruf', D.g.position.x, 2.2, D.g.position.z, 1, () => Audio.growl(D.g.position.x, D.g.position.z, true, D.g), { obj: D.g, h: 2.2 }); Audio.groan(D.g.position.x, D.g.position.z, true); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3);
+  C.ph = 'flee'; C.t = 0; hungrige_ton('ruf', D.g.position.x, 2.2, D.g.position.z, 1, () => Audio.growl(D.g.position.x, D.g.position.z, true, D.g), { obj: D.g, h: 2.2 }); Audio.groan(D.g.position.x, D.g.position.z, true, D.g); Audio.treeCreak(D.g.position.x + 3, D.g.position.z - 3);
   for (let i = 1; i <= 5; i++) setTimeout(() => { const g = D.g.position; Audio.twig(g.x, g.z); if (i === 3) Audio.treeCreak(g.x, g.z); }, i * 480);
   await wait_(2800); hungrige_dtHide(); hungrige_flyTo(A, W.set(P.x, top, P.z), 1.8, 3); await wait_(1900); leben_play(A, 'Landing', .1, 1, true); await wait_(600); leben_play(A, 'IdleLookAround', .3, .6); C.look.set(P.x, top, P.z);
   // 1:04–1:14 Whiskey landet, das Licht in ihm geht aus wie eine Glühbirne, die langsam kalt wird; er sitzt schief und müde. Stille, dann ein Käuzchen.
   C.ph = 'aus'; C.t = 0; A.g.rotation.z = .12; await wait_(2600); if (Audio.owl) Audio.owl(P.x + 30, P.z - 25); await wait_(1400);
-  await say([['Kalt. Kerzengerade. Wie Mamas Kerze.', 3200, 'LUKE']]); if (typeof gedanke === 'function') gedanke('hungrige_villa', 'Wie das Fenster in der Villa.', 0, 3);
+  await say([['Kalt. Kerzengerade. Wie Mamas Kerze.', 3200, 'LUKE']]); if (typeof gedanke === 'function') gedanke('hungrige_villa', 'Wie das Fenster in der Villa. Und die Stimme war die aus der Villa.', 0, 3);
   await wait_(2400);
   // Danach (Unterkapitel 8): Steuerung zurück
   await say([['Er hat ihn vertrieben. Nicht ich. Er.', 2800, 'LUKE']]);

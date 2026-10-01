@@ -55,7 +55,7 @@ WORLD_MODS.push(['Übergang Kapitel 2', async () => {
   const door = innen_kapitel_S.westDoor;
   if (door) { door.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(door), pv = new THREE.Group(); pv.position.set((bb.min.x + bb.max.x) / 2, 0, bb.min.z); scene.add(pv); pv.updateMatrixWorld(true); pv.attach(door);
     pv.rotation.y = 1.45; S.doorPv = pv;
-    CH2_BEGIN.push(() => { tween(pv, { ry: 0 }, .45, () => { solidRefresh(pv); Audio.slam(); shake = Math.max(shake, .03); }); }); }
+    CH2_BEGIN.push(() => { tween(pv, { ry: 0 }, .45, () => { solidRefresh(pv); Audio.slam(pv.position.x, 1.2, pv.position.z); shake = Math.max(shake, .03); }); }); }
   CH2_BEGIN.push(() => { S.open = false; }); // Gang bleibt ab jetzt zu (Kapitel 2 läuft nur im Amt)
   S.ready = true;
 }]);

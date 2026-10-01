@@ -13,7 +13,7 @@
 //   (spannung_can 'beob_gh' minor), nie < 90 s nach einem Höhepunkt, nie in traurigen Szenen, Deckel je Kapitel.
 // Schnittstellen für andere Pakete (alle mit typeof prüfen):
 //   beobachter_zettel(id, o)   festen Zettel legen: id 'B-K3-01' oder 'b_k3_01'; o = { pos: [x, y, z], vor: true (vor Luke), gitter: true (segelt von der Decke),
-//                              variante } → true, wenn gelegt. Jeder Zettel höchstens einmal.
+//                              variante } → true, wenn gelegt. Jeder Zettel höchstens einmal. Gestrichene Kennungen (BEOB_GESTRICHEN, Story-Prüfung B) → still false.
 //   beob_sichtung(pos, dauer, o) gesetzte Sichtung (AP-10: Kap. 4 Abspann Treppe, Kap. 6 Wrack/Blitz): Modell an pos ([x, y, z]) für dauer s (≤ 1 s);
 //                              o.weg = [[x, y, z], …] läuft den Weg ab (Trippeln), o.blick = [x, y, z], o.ohren (Hände auf den Ohren: Kopf gesenkt). Nie in Kap. 1.
 //   beob_pos()                 wo er gerade ist (THREE.Vector3; auch unsichtbar) oder null – Blickziel für Katzen (AP-09), Whiskey (AP-08)
@@ -39,7 +39,9 @@ MOD_SAVE.push(['beobachter', () => ({ found: [...beob_S.found], given: [...beob_
   c: beob_S.c, falle: beob_S.falle, turns: beob_S.stat.turns }),
   v => { const S = beob_S; (v.found || []).forEach(k => S.found.add(k)); (v.given || []).forEach(k => S.given.add(k)); (v.bonus || []).forEach(k => S.bonus.add(k)); S.done = !!v.done;
     S.k2seen = !!v.k2seen; (v.dyn || []).forEach(k => S.dyn.add(k)); if (v.c && typeof v.c === 'object') S.c = Object.assign(beob_cNeu(+v.c.k || 0), v.c); S.lit = S.c.lit = +v.lit || S.c.lit || 0;
-    S.falle = v.falle || null; S.stat.turns = +v.turns || 0; for (const n of S.spots) if (S.found.has(n.id)) beob_hideSpot(n); beob_desc(); }]);
+    S.falle = v.falle || null; S.stat.turns = +v.turns || 0; for (const n of S.spots) if (S.found.has(n.id)) beob_hideSpot(n);
+    if (S.given.has('b_k5_n1')) S.given.add('b_k4_n6'); if (!S.done && BEOB_ORTE.every(o => S.found.has(o.id))) S.done = true; // Story-Prüfung B: Alias, weniger Orts-Zettel (alter Stand kann schon vollständig sein → Schlusszettel folgt im Takt)
+    beob_desc(); }]);
 function beob_ch() { return typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; }
 function beob_mode() {
   if (!state.started || (typeof menu !== 'undefined' && menu.attract) || state.ending) return 'aus';
@@ -101,13 +103,12 @@ const BEOB_DYN = [
   { id: 'b_k1_02', k: 1, title: 'Gute Nacht', kind: 'hilfe', script: true, text: 'DIE FRAU HAT DEN TAG EINGEKREIST\nAN DEM SIE ZURÜCK KAM. NICHT LUCY. DIE ANDERE.\nDU DRÜCKST DIE FALSCHEN. DIE RICHTIGEN SIND SCHON GLATT.\nWARUM SAGT IHR GUTE NACHT WENN SIE NICHT GUT IST' },
   // Kapitel 2 · Amt, Ebene −2 (Zettel fallen aus Lüftungsgittern, nie hinter Luke im selben Raum)
   { id: 'b_k2_01', sofort: true, k: 2, title: 'Aus', kind: 'gruselig', wo: 'gitter', when: () => ch2.on && beob_in(C2.x + 2, C2.x + 16, C2.z - 2, C2.z + 2), text: 'DAS KIND SPIELT HIER UNTEN NICHT. AUS.\nDIE MÄNNER MIT KETTEN SPIELEN TROTZDEM' },
-  { id: 'b_k2_02', k: 2, title: 'Lest es dann nicht', kind: 'frage', wo: 'gitter', when: () => ch2.on && ch2.archiveSolved && beob_in(C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6) && beob_S.t - (beob_S.k2arch || 1e9) > 25, text: 'WARUM SCHREIBT IHR ALLES AUF UND LEST ES DANN NICHT' },
   { id: 'b_k2_03', sofort: true, k: 2, title: 'Erste Hilfe', kind: 'hilfe', wo: 'vor', item: 3, when: () => ch2.on && FLASH.charge < .25 && !(typeof hunt !== 'undefined' && hunt.on) && beob_in(C2.x + 30.2, C2.x + 35.8, C2.z + 2.2, C2.z + 7.8), text: 'DEIN LICHT WIRD MÜDE. DEINE LAMPE HAT NOCH {pct} %.\nDIE HIER SIND AUS DEM KASTEN AN DER WAND.\nDER KASTEN HEISST ERSTE HILFE ABER DA IST KEINE HILFE DRIN' },
   { id: 'b_k2_04', sofort: true, k: 2, title: 'Danke', kind: 'gruselig', wo: 'vor', leise: true, bonbon: true, when: () => ch2.on && typeof feuer_S !== 'undefined' && feuer_S.done && !scripted && !state.talking, sad: 120,
     text: 'DANKE. ER HAT GEWEINT. ICH HAB ES GEHÖRT.\nMEINE SCHWESTER AUCH.\nSIE WAR IN IHM DRIN. JETZT NICHT MEHR.\nISS DAS. DU ZITTERST.' },
   { id: 'b_k2_05', k: 2, title: 'Kein Eisen', kind: 'gruselig', wo: 'gitter', rh: 'RH-1', when: () => ch2.on && ch2.archiveSolved && beob_S.t - (beob_S.k2arch || 1e9) > 60, text: 'DIE MIT DEN KETTEN HALTEN MINUTEN. ER HÄLT JAHRE.\nSEINS IST KEIN EISEN' },
   { id: 'b_k2_06', k: 2, title: 'Einmachen', kind: 'gruselig', script: true, text: 'ZWEI VON UNS IN GLAS. ICH HAB DAS WORT GELERNT. EINMACHEN.\nIHR MACHT ALLES EIN WAS IHR NICHT VERSTEHT' },
-  { id: 'b_k2_07', sofort: true, k: 2, title: 'Ich sehe immer nur zu', kind: 'gruselig', wo: 'gitter', spur: 'bonbon', when: () => ch2.on && ch2.safeOpen, text: 'ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN.\nICH HAB ZUGESEHEN. ICH SEHE IMMER NUR ZU' },
+  { id: 'b_k2_07', sofort: true, k: 2, title: 'Ich sehe immer nur zu', kind: 'gruselig', wo: 'gitter', when: () => ch2.on && ch2.safeOpen, text: 'ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN.\nICH HAB ZUGESEHEN. ICH SEHE IMMER NUR ZU' },
   { id: 'b_k2_h1', k: 2, title: 'Ordnungstafel', kind: 'hilfe', wo: 'gitter', stuck: true, when: () => ch2.on && !ch2.archiveSolved && !ch2.power && beob_in(C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6),
     text: 'WER ZUERST HEIMKAM STEHT LINKS. SO WOLLTE ES DAS AMT.\nDAS MÄDCHEN DAS DAS HAUS ANGEZÜNDET HAT KAM ZUERST.\nDER MIT DEN LOCKEN KAM NIE. DER STEHT GANZ RECHTS.\nDIE ZEITUNGEN WISSEN DIE TAGE. ICH AUCH. ABER FRAG DIE ZEITUNGEN.' },
   { id: 'b_k2_h2', k: 2, title: 'Die Schalter', kind: 'hilfe', wo: 'gitter', stuck: true, when: () => ch2.on && ch2.archiveSolved && !ch2.power && beob_in(C2.x + 30, C2.x + 36, C2.z + 2, C2.z + 8),
@@ -115,7 +116,7 @@ const BEOB_DYN = [
   { id: 'b_k2_um', k: 2, title: 'Umgedreht', kind: 'gruselig', wo: 'gitter', when: () => ch2.on && ch2.power && beob_S.stat.turns >= 5, text: 'DU HAST DICH {turns} MAL UMGEDREHT SEIT DU HIER UNTEN BIST.\nICH WAR JEDES MAL NICHT DA.\nICH BIN ÜBER DIR. DA GUCKT KEINER HIN.',
     luke: 'Über mir.', nach: 'decke' },
   // Kapitel 3 · offene Nacht
-  { id: 'b_k3_01', sofort: true, k: 3, title: 'Ist das ein Gebet', kind: 'humor', spur: 'kiesel', when: () => ch3.on && ch3.part === 'town' && ch3.cowSeen && !scripted && !state.talking && beob_S.stat.still < 60, text: 'DU HAST DREI MAL SCHEISSE GESAGT.\nIST DAS EIN GEBET', luke: 'Ja. Heute schon.' },
+  { id: 'b_k3_01', sofort: true, k: 3, title: 'Ist das ein Gebet', kind: 'humor', when: () => ch3.on && ch3.part === 'town' && ch3.cowSeen && !scripted && !state.talking && beob_S.stat.still < 60, text: 'DU HAST DREI MAL SCHEISSE GESAGT.\nIST DAS EIN GEBET', luke: 'Ja. Heute schon.' },
   { id: 'b_k3_02', sofort: true, k: 3, title: 'Offener Mund', kind: 'gruselig', when: () => ch3.on && beob_S.c.sight1 && beob_S.stat.still > 3 && Math.hypot(player.pos.x - 4, player.pos.z - 4) < 22,
     text: 'IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.\nICH HAB AM PFOSTEN GEWARTET BIS DU AUFWACHST. DIE DREI STRICHE SIND VON MIR.\nDER VOGEL SASS AUF DEINEM DACH UND HAT GANZ LEISE GEREDET. WIE EINE FRAU.\nDAS MACHT ER SONST NIE.',
     luke: 'Der Traum. Der Rabe auf der Laterne. … Und ich schlafe nicht mit offenem Mund.' },
@@ -124,7 +125,6 @@ const BEOB_DYN = [
   { id: 'b_k3_04', sofort: true, k: 3, title: 'Nicht nachdenken', kind: 'frage', when: () => ch3.on && ch3.part === 'town' && Math.hypot(player.pos.x + 28, player.pos.z + 8) < 7, text: 'WIE HIESS EUER HUND. NICHT NACHDENKEN. EINFACH WISSEN.\n… SIEHST DU.\nUND DER VOM ALTEN MANN. DER BELLT NIE WENN ICH DA BIN. WIE HEISST DER',
     luke: 'Flocke. Und der da heißt Bruno. Wieso willst du das wissen?' },
   { id: 'b_k3_05', sofort: true, k: 3, title: 'Unhöflich', kind: 'gruselig', when: () => ch3.on && beob_S.c.lit >= 3, text: 'DU HAST MICH DREI MAL ANGELEUCHTET. ES TUT NICHT WEH. ES IST NUR UNHÖFLICH.\nMACH DAS LICHT AUS WENN DU MICH SEHEN WILLST.' },
-  { id: 'b_k3_05b', sofort: true, k: 3, title: 'Unhöflich', kind: 'gruselig', statt: 'b_k3_05', when: () => ch3.on && beob_S.c.off >= 3 && beob_S.c.lit < 3, text: 'DU HAST DIE LAMPE {off} MAL AUSGEMACHT.\nIM DUNKELN SIEHST DU MEHR. ICH AUCH.' },
   { id: 'b_k3_06', k: 3, title: 'Leise', kind: 'gruselig', papier: true, script: true, text: 'ICH WAR LEISE. DU HAST ES GEMERKT. GUT.\nWENN ICH LEISE BIN IST WAS DA DAS ICH NICHT MAG.\nMERK DIR DAS. DAS WIRD NOCH WICHTIG.' },
   { id: 'b_k3_07', k: 3, title: 'Das Glück läuft raus', kind: 'gruselig', script: true, text: 'ICH HAB DAS EISEN ÜBER DER TÜR GEDREHT. MIT EINEM STOCK. ANFASSEN KANN ICH DAS NICHT.\nJETZT LÄUFT DAS GLÜCK RAUS. SAGT IHR DOCH SO.\nWO DAS EISEN FALSCH HÄNGT IST EINER DRIN DER NICHT MEHR GANZ HIER IST.\nHEUTE NICHT REINGEHEN. HEUTE NICHT.' },
   { id: 'b_k3_08', k: 3, title: 'Sie sagt ich bin komisch', kind: 'gruselig', script: true, text: 'DA DRIN HÖRST DU MICH NICHT. ICH DARF NICHT REIN.\nSIE SAGT ICH BIN KOMISCH' },
@@ -135,11 +135,7 @@ const BEOB_DYN = [
   { id: 'b_k3_h3', sofort: true, k: 3, title: 'Laternen', kind: 'hilfe', when: () => ch3.on && !ch3.lampsOff && Math.max(ch3.lampFails || 0, typeof lucy3_S !== 'undefined' ? lucy3_S.lampFails || 0 : 0) >= 2,
     text: 'SIE HAT DIE LICHTER NICHT DURCHEINANDER AUSGEPUSTET.\nSIE HOLT SIE WIE IHR SIE HERGEGEBEN HABT. WER ZUERST UNTERSCHRIEBEN HAT.\nWER WEGGEZOGEN IST WIRD ÜBERSPRUNGEN. DA BRENNT KEIN LICHT MEHR FÜR SIE.' },
   { id: 'b_k3_n1', k: 3, title: 'Die dreizehnte Predigt', kind: 'hilfe', script: true, text: 'DER MANN AUS PAPIER HAT AUCH GEZÄHLT. ER HAT BEI ADVENT ANGEFANGEN.' },
-  { id: 'b_x_01', sofort: true, k: 3, bis: 6, title: 'Der Vogel', kind: 'gruselig', when: () => typeof whiskey_S !== 'undefined' && whiskey_S.mood === 'still' && (beob_S.wStill || 0) > 5, text: 'DER VOGEL SIEHT MICH. ER SAGT NICHTS. ER HAT NIE ETWAS GESAGT' },
-  // Kapitel 4 · bei Tag
-  { id: 'b_k4_01', sofort: true, k: 4, title: 'Die Bilder weiß', kind: 'gruselig', when: () => beob_ch() === 4 && Math.hypot(player.pos.x - 24, player.pos.z + 8) < 12 && beob_S.stat.turns >= 1, text: 'DIE MÄNNER MACHEN DIE BILDER WEISS.\nWARUM. DIE BILDER WAREN DOCH SCHON DA.\nICH HAB DIE ECHTEN. HINTER DER TONNE VON NEUN.' },
-  { id: 'b_k4_02', k: 4, title: 'Was mit Essen drin', kind: 'lwo', script: true, text: 'DIE MIT DEN STULLEN WOLLEN HILDES BUCH.\nDA STEH ICH DRIN. ALS NEUN. DANN ZÄHLEN SIE MICH AUCH.\nWENN DU IHNEN WAS ANDERES GIBST DANN WAS MIT ESSEN DRIN.\nDAS LESEN SIE LANGSAMER.' },
-  { id: 'b_k4_02b', k: 4, title: 'Immer nur gesucht', kind: 'gruselig', script: true, text: 'JETZT BIN ICH IN IHRER AKTE. NEUN.\nSIE HABEN MICH NIE GEZÄHLT. IMMER NUR GESUCHT' },
+  // Kapitel 4 · bei Tag (wissend und traurig)
   { id: 'b_k4_02c', k: 4, title: 'Trotzdem nicht da', kind: 'gruselig', script: true, text: 'SIE HABEN MICH GEZÄHLT. JETZT HABEN SIE ES SCHRIFTLICH.\nICH BIN TROTZDEM NICHT DA.' },
   { id: 'b_k4_03', k: 4, title: 'Hildes ungelesener Zettel', kind: 'fund', script: true, text: 'DU ZÄHLST RICHTIG. ES SIND NEUN.\nDER NEUNTE BIN ICH. ICH TU KEINEM WAS. ICH STEH NUR MIT DA.\nDU MUSST NICHT JEDE NACHT RAUSGEHEN. ICH ZÄHL FÜR DICH MIT.\nSCHLAF MAL.' },
   { id: 'b_k4_04', k: 4, title: 'Wen von euch beiden', kind: 'frage', script: true, text: 'SIE IST WIEDER DA. FAST. DAS HELLE IN IHREN AUGEN GEHT WEG WENN SIE SCHLÄFT.\nWENN SIE AUFWACHT UND EUCH BEIDE SIEHT\nWEN VON EUCH BEIDEN ERKENNT SIE', luke: 'Uns beide. Es gibt nur einen von … ' },
@@ -153,55 +149,47 @@ const BEOB_DYN = [
   { id: 'b_k4_08', k: 4, title: 'Ich übe', kind: 'gruselig', script: true, text: 'DU HAST SEINE HAND GESEHEN. SIE IST WIE MEINE. OHNE LINIEN.\nER HAT MEINE SCHWESTER GETRUNKEN DAMIT ER NICHT ALT WIRD. DESHALB FRIERT ER.\nICH HASSE IHN NICHT. ICH WEISS NICHT WIE DAS GEHT.\nICH ÜBE.' },
   { id: 'b_k4_n1', k: 4, title: 'Akte K-2', kind: 'fund', script: true, text: 'DER ACHTE WAR NICHT ICH' },
   { id: 'b_k4_n2', k: 4, title: 'Blatt 213', kind: 'fund', script: true, text: 'IHR ZÄHLT AUCH. ABER FALSCH' },
-  { id: 'b_k4_n3', k: 4, title: 'Acht Schlösser', kind: 'gruselig', script: true, text: 'DER DOKTOR HAT DIE TEILE VERSTECKT WO IHR EUCH VERSTECKT HABT.\nICH HAB ZUGESEHEN. ER HAT BEIM VERGRABEN GEWEINT.\nER HAT GESAGT „VERZEIH“. ZU WEM WEISS ICH NICHT. DA WAR NUR ICH.' },
   { id: 'b_k4_n4', k: 4, title: 'Fünf ist das Höchste', kind: 'gruselig', script: true, text: 'DER MANN IM MANTEL HAT DIE HEIZUNG AUF FÜNF. FÜNF IST DAS HÖCHSTE.\nER FRIERT TROTZDEM. ICH HAB IHM EINMAL EINE DECKE HINGELEGT.\nER HAT SIE ANGEZÜNDET.' },
   { id: 'b_k4_n5', k: 4, title: 'Vermischtes', kind: 'hilfe', script: true, text: 'DER MIT DEN KLOPFZEICHEN WOHNT IM BERG. DER IM WASSER SINGT. MEHR SAG ICH NICHT.' },
-  { id: 'b_k4_n6', k: 4, title: 'Ich war da', kind: 'gruselig', script: true, text: 'DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA' },
-  // Kapitel 5 · Vater-Mutter-Kind (Beats von AP-21/22)
+  { id: 'b_k4_n6', k: 4, title: 'Ich war da', kind: 'gruselig', script: true, text: 'DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA' }, // eine Kennung für beide Wege: B-K5-N1 (Weg c) ist ein Alias (BEOB_ALIAS)
+  // G-4 (Story-Prüfung B): kalter Zettel zum Abspann von Kap. 4 – liegt zu Beginn von Kap. 5 auf der Veranda von Nr. 3 vor Lukes Füßen (kapitel5.js, Takt „veranda“), ohne Geräusch
+  { id: 'b_k4_09', k: 4, title: 'Gezählt', kind: 'gruselig', script: true, leise: true, text: 'DU HAST AUF DEM SESSEL GESCHLAFEN.\nICH HAB DICH GEZÄHLT. ZWEI MAL.' },
+  // Kapitel 5 · Vater-Mutter-Kind (Beats von AP-21/22) – kälter: er sieht zu und rechnet
   { id: 'b_k5_01', k: 5, title: 'Zwei mal dieselbe', kind: 'gruselig', script: true, text: 'ZWEI MAL DIESELBE. EINE SCHLÄFT. ICH ZÄHLE TROTZDEM EINS' },
-  { id: 'b_k5_02', k: 5, title: 'Sommer', kind: 'humor', script: true, text: 'IN DEM HAUS IST SOMMER. DRAUSSEN IST NOVEMBER. GEH MIT JACKE REIN UND KOMM MIT JACKE RAUS' },
   { id: 'b_k5_03', k: 5, title: 'Noch nie ein Bild', kind: 'gruselig', script: true, text: 'DU HAST SIE FOTOGRAFIERT. SIE HAT NOCH NIE EIN BILD VON SICH GESEHEN. JETZT WEISS SIE WIE SIE AUSSIEHT' },
   { id: 'b_k5_04', k: 5, title: 'Brote', kind: 'gruselig', script: true, text: 'DER JUNGE IM STROH ZÄHLT AUCH. ER ZÄHLT BROTE. ES SIND MEHR ALS DEINE ANRUFE' },
   { id: 'b_k5_05', k: 5, title: 'Nachher', kind: 'lwo', script: true, text: 'AUF DEM PAPIER BIST DU WEG. DIE MÄNNER MIT HUT SCHREIBEN GERN VORHER AUF. ICH SCHREIBE NACHHER' },
-  { id: 'b_k5_06', k: 5, title: 'Ist das Verstecken', kind: 'frage', script: true, text: 'WARUM LEGT IHR EUCH IN DIE ERDE WENN SIE DA UNTEN KEINEN SIEHT. IST DAS VERSTECKEN' },
   { id: 'b_k5_07', k: 5, title: 'Meine Bilder', kind: 'gruselig', script: true, text: 'ICH GEH DA NICHT REIN. DA DRIN FRISST EINER MEINE BILDER' },
+  { id: 'b_k5_08', k: 5, title: 'Es geht auf', kind: 'gruselig', script: true, text: 'WENN ER HEIMGEHT MUSST DU WEG.\nICH HAB ES AUSGERECHNET. ES GEHT AUF' }, // G-4: Stalltür, nach „Augen auf, Bruder“ (kapitel5.js k5_augenAuf)
   { id: 'b_k5_h1', k: 5, title: 'Schlafenszeit', kind: 'hilfe', script: true, text: 'SIE PUSTET WAS BRENNT. SIE PUSTET NICHT WAS IHRER MAMA GEHÖRT' },
-  { id: 'b_k5_n1', k: 5, title: 'Ich war da', kind: 'gruselig', script: true, text: 'DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA' },
-  // Kapitel 6 · Wald ohne Echo (kürzer, gedrückter)
+  // Kapitel 6 · Wald ohne Echo (kürzer, gedrückter; er hilft nicht immer)
   { id: 'b_k6_01', sofort: true, k: 6, title: 'Hinter dir', kind: 'gruselig', when: () => beob_ch() === 6 && (beob_S.waldT || 0) > 60, text: 'ICH HAB GESAGT ICH GEH DA NICHT REIN.\nICH BIN TROTZDEM DA. HINTER DIR IST ES BESSER ALS ALLEIN.\nWENN ICH LEISE BIN IST ER DA. DANN MACH DEIN LICHT AN. NICHT AUS.' },
   { id: 'b_k6_02', sofort: true, k: 6, title: 'Er frisst was ich sammle', kind: 'gruselig', when: () => beob_ch() >= 6 && typeof hungrige_S !== 'undefined' && hungrige_S.done.size >= 2, text: 'DAS REH IST NICHT RÜCKWÄRTS GEGANGEN.\nDU HAST NUR NICHT GESEHEN WO VORNE WAR.\nGEH NICHT OHNE LICHT TIEF~F~ER. ER FRISST WAS ICH SAMMLE' },
-  { id: 'b_k6_03', k: 6, title: 'Bin ich reich', kind: 'humor', script: true, text: 'DU HAST EINE FLASCHE MITGENOMMEN. IM WALD.\nDER ALTE MANN SAGT DAFÜR KRIEGT MAN GELD.\nICH HAB SIEBZEHN. IM BUS. BIN ICH REICH', luke: 'Ein Euro sechsunddreißig. Mit Glück. … Ja. Für hier schon.' },
   { id: 'b_k6_04', k: 6, title: 'Er schabt', kind: 'gruselig', script: true, text: 'DAS WAR NICHT ER.\nER SCHABT. WENN ER GEHT SCHABT DIE HAUT AN DER HAUT.\nDAS DA SCHABT NICHT.' },
   { id: 'b_k6_05', k: 6, title: 'Lange her', kind: 'gruselig', script: true, text: 'WIR HABEN IHM DIE HAUT GEGEBEN. DAMIT ER DRIN NICHT GRAU WIRD.\nDAS HAUS SIEHT SEINE EIGENE HAUT NICHT. UND SIE GUCKT MIT DEM HAUS.\nOB WIR DAS GEWUSST HABEN.\nDAS IST LANGE HER. AUCH FÜR MICH.' },
   { id: 'b_k6_06', k: 6, title: 'Du bist der Speck', kind: 'lwo', script: true, text: 'SO HABEN SIE MEINE GESCHWISTER GEFANGEN. MIT NETZEN AUS EISEN. UND MIT WARTEN.\nJETZT BIST DU DER SPECK.\nDER VOGEL WÜRDE DICH KLAUEN. ICH KANN DAS NICHT.\nICH SITZ HIER UND GUCK ZU. DAS KANN ICH.',
     variante: () => (story.lwo && story.lwo.ag18 === 'mit') ? '\nDU HAST JA GESAGT. WARUM' : '', rueck: () => beob_S.falle && BEOB_FALLE[beob_S.falle] },
+  { id: 'b_k6_08', k: 6, title: 'Ob das Eisen hält', kind: 'gruselig', script: true, text: 'ICH HÄTTE IHN WARNEN KÖNNEN. DEN MIT DEM BLECHKOPF.\nICH WOLLTE SEHEN OB DAS EISEN HÄLT' }, // G-4: nach AG-20, an Jonas’ Lager (kapitel6.js k6_lagerFertig; bei den Blechmännern schweigt er)
   { id: 'b_k6_07', k: 6, title: 'Frag dich warum', kind: 'gruselig', script: true, text: 'ICH HABE DICH NICHT GERETTET.\nDER VOGEL HAT DAS GEMACHT.\nICH HABE NUR ZUGESEHEN. FRAG DICH WARUM.',
     variante: () => { const a = ch3.answer || ch3.choice; return BEOB_WAHL[a] ? '\n' + BEOB_WAHL[a] : ''; }, luke: 'Warum. Weil du nicht kannst? Oder weil du nicht willst?' },
-  // Rätsel-Zettel (führen zu B-O4, B-O6, B-O15, B-O16)
-  { id: 'r_briefkasten', k: 3, bis: 6, title: 'Rätsel', kind: 'raetsel', cache: 'briefkasten', when: () => beob_town(), text: 'ICH HAB EINEN MUND UND ESSE NUR PAPIER.\nDIE FRAU BEI DER ICH WOHNE HAT MICH NIE GEFÜTTERT. SIE HAT NUR REINGEGUCKT.\nHEUTE HAB ICH WAS FÜR DICH IM BAUCH.' },
-  { id: 'r_stein', k: 3, bis: 6, title: 'Rätsel', kind: 'raetsel', cache: 'friedhof', when: () => beob_town(), text: 'WO SIEBEN NAMEN STEHEN UND DER ACHTE KEINEN HAT\nLIEGT WAS DEIN LICHT LÄNGER MACHT.' },
+  // Rätsel-Zettel (führen zu B-O15, B-O16; die Dorf-Rätsel zu B-O4/B-O6 sind gestrichen, deren Boni gibt es jetzt ohne Rätsel)
   { id: 'r_hochsitz', k: 6, title: 'Rätsel', kind: 'raetsel', cache: 'hochsitz', when: () => player.pos.z > 90, text: 'ICH STEHE AUF VIER BEINEN IM WALD UND HAB KEINEN KOPF.\nWER AUF MICH STEIGT SIEHT WO DER WALD AUFHÖRT.\nUNTER MIR HAB ICH WAS VERGESSEN. MIT ABSICHT.' },
   { id: 'r_bus', k: 6, title: 'Rätsel', kind: 'raetsel', cache: 'bus', when: () => player.pos.z > 150, text: 'ICH TRAG DIE DIE NIE ANGEKOMMEN SIND.\nMEINE RÄDER SIND IN DEN BODEN GEWACHSEN.\nNEBEN MIR SCHLAFEN DIE SCHWEINE. UND DEIN GESCHENK.' },
 ];
 const BEOB_NOT = { id: 'd_not', title: 'Im Dunkeln bist du laut', kind: 'hilfe', item: 2, text: 'DU HAST KEINE MEHR. UND DEINE LAMPE HAT NOCH {pct} %.\nIM DUNKELN BIST DU LAUT.\nHIER. ZWEI.' };
 const BEOB_NOT6 = 'DU HAST KEINE MEHR. UND DEINE LAMPE HAT NOCH {pct} %.\nIM DUNKELN BIST DU LAUT.\nHIER. ZWEI. GEH NICHT OHNE.';
-// Die neunzehn Orts-Zettel B-O1 … B-O19 (Nebenaufgabe „Hinter deinen Füßen“; Koordinaten und Boni wie bisher, Texte Dossier 82 §5.7)
+// Die dreizehn Orts-Zettel (Nebenaufgabe „Hinter deinen Füßen“; Koordinaten und Boni wie bisher, Texte Dossier 82 §5.7). Story-Prüfung B (G-4/V-9): B-O2, B-O3, B-O7, B-O10,
+//   B-O13, B-O14 gestrichen (niedlich oder doppelt, ohne Bonus); die übrigen behalten ihre Kennung. Alte Spielstände mit diesen ids im found-Set sind harmlos.
 const BEOB_ORTE = [
   { id: 'kreuzung', kenn: 'B-O1', name: 'Kreuzung', x: 3.5, z: 3.2, text: 'HIER STEHEN SIE NACHTS BARFUSS. ACHT. DIE FRAU AUS DER SIEBEN HAT SIE JEDE NACHT GEZÄHLT.\nALS DU NEU WARST WARST DU EINER DAVON. DER RITTER HATTE DICH AN DER HAND.\nDU HAST NICHT GEWEINT. ER SCHON.' },
-  { id: 'nr1', kenn: 'B-O2', name: 'Nr. 1', x: -47, z: -8.8, text: 'EUER HAUS. DAS BETT AM FENSTER.\nDU HAST DA GESCHLAFEN ALS WÄRE ES DEINS. ES WAR AUCH DEINS.\nBEI EUCH GEHÖRT EINEM WAS MAN LIEB HAT. BEI UNS IST DAS ANDERS.\nICH FIND EURES BESSER.' },
-  { id: 'nr3', kenn: 'B-O3', name: 'Nr. 3', x: -28, z: -8.8, text: 'DER ALTE MANN HAT MIT ALLEM RECHT GEHABT. AUCH MIT MIR.\nER HAT MICH NUR NIE GESEHEN. ER GUCKT IMMER NACH OBEN.\nDIE FOLIE AM FENSTER HILFT GEGEN NICHTS. ABER SIE GLÄNZT SCHÖN. FINDET DER VOGEL AUCH.' },
-  { id: 'briefkasten', kenn: 'B-O4', name: 'Briefkasten Nr. 7', x: 28.4, z: -5.9, bonus: 2, text: 'GUT GERATEN. ZWEI FÜR DEINE LAMPE.\nNICHT ALLES WAS IN DIESEN KASTEN GEHT KOMMT AN.\nDER MANN MIT DEM FAHRRAD NIMMT MANCHES WIEDER MIT. ICH HAB GESEHEN WOHIN. HINTER DIE TANKSTELLE.' },
+  { id: 'briefkasten', kenn: 'B-O4', name: 'Briefkasten Nr. 7', x: 28.4, z: -5.9, bonus: 2, text: 'DU HAST REINGEGUCKT. WIE SIE. ZWEI FÜR DEINE LAMPE.\nNICHT ALLES WAS IN DIESEN KASTEN GEHT KOMMT AN.\nDER MANN MIT DEM FAHRRAD NIMMT MANCHES WIEDER MIT. ICH HAB GESEHEN WOHIN. HINTER DIE TANKSTELLE.' },
   { id: 'kapelle', kenn: 'B-O5', name: 'Kirchberg', x: -4.5, z: 45.5, text: 'DIE GLOCKE SCHLÄGT DREI UND DANN DREIZEHN.\nFRÜHER STAND HIER EINE KAPELLE AUS HOLZ. DIE HAT IN DER NACHT AUCH DREI GESCHLAGEN.\nICH HAB SIE GEHÖRT UND GEDACHT DA RUFT EIN TIER.\nES WAR EIN TIER DAS RUFT. NUR AUS METALL.' },
   { id: 'friedhof', kenn: 'B-O6', name: 'Gedenkfeld', x: -47.6, z: 71.6, bonus: 1, text: 'DER STEIN MIT DER ACHT. DA LIEGT EINER DEN KEINER HABEN WOLLTE.\nSEINE MUTTER HAT IHN DREI JAHRE GEBADET UND HANS GENANNT. ER HAT SICH DRAN GEWÖHNT.\nICH WAR AUF SEINER BEERDIGUNG. HINTER DER HECKE. SONST WAREN NUR ZWEI MÄNNER DA.' },
-  { id: 'spielplatz', kenn: 'B-O7', name: 'Spielplatz', x: 31, z: 70, text: 'EISEN IST FREI. DIE KREIDE AM BODEN.\nDAS HAB ICH NICHT GESCHRIEBEN. ABER WENN ES GEREGNET HAT HAB ICH ES NACHGEMALT.\nOFT. KEINER HAT DANKE GESAGT. DAS IST OK. IHR WISST JA NICHT VON WEM.' },
   { id: 'tankstelle', kenn: 'B-O8', name: 'Tankstelle', x: 109.5, z: 20, bonus: 1, text: 'HIER GIBT ES DIE BONBONS DIE KALT SCHMECKEN.\nMIKE HAT SIE GEKLAUT. ICH AUCH. ER HAT MIR JEDEN ABEND EINS AUF DIE ZAPFSÄULE GELEGT.\nER HAT NIE GEFRAGT FÜR WEN. JETZT IST ER WEG UND DIE BONBONS SIND NOCH DA.\nDAS IST FALSCH RUM.' },
   { id: 'sperre', kenn: 'B-O9', name: 'Straßensperre', x: 145.5, z: 2.5, text: 'DIE WEISSEN AUTOS SIND NICHT KAPUTT. SIE WARTEN.\nDU BIST HIER EINMAL WEGGEFAHREN. ICH HAB DICH NICHT AUFGEHALTEN. ICH HALTE NIE EINEN AUF.\nWER HIER RAUS WILL MUSS WISSEN WOHIN. WEISST DU ES' },
-  { id: 'schreber', kenn: 'B-O10', name: 'Schrebergärten', x: -114, z: 24, text: 'DIE VOGELSCHEUCHE HAT EINE KINDERJACKE AN.\nDIE GEHÖRT EINEM JUNGEN DER NICHT GRÖSSER WIRD. ER KOMMT NACHTS UND SAGT IHR GUTE NACHT.\nWARUM SAGT IHR GUTE NACHT ZU JACKEN' },
   { id: 'hof', kenn: 'B-O11', name: 'Hof', x: -127, z: -26, rh: 'RH-11', text: 'HIER HAT ER GEWOHNT. DER IN DER GRAUEN HAUT. DAMALS WAR ALLES AUS HOLZ UND ES ROCH NACH BROT.\nIM WINTER DANACH HAT ER JEDE NACHT AM RAND IM SCHNEE GESESSEN.\nWIR AUCH. AUF DER ANDEREN SEITE. WIR HABEN GEWARTET BIS ER UNS ANGUCKT.\nER TRÄGT DAS HAUS. DAS HAUS SIEHT SICH SELBST NICHT.',
     luke: 'Das Haus. So nennt er das Schiff. Er trägt das Schiff.' },
   { id: 'villa', kenn: 'B-O12', name: 'Villa Seiler', x: -111, z: 60.5, bonus: 1, text: 'ACHT SCHLÖSSER AUS EISEN. DER DOKTOR WUSSTE DASS ICH DA NICHT DURCHKOMME.\nER HAT MICH EINMAL FOTOGRAFIERT. NACHTS. DAS BILD HAT LÄNGER ALS EINE SEKUNDE GEBRAUCHT.\nDRAUF WAR NUR EIN BAUM. ER HAT ES VERBRANNT UND EIN ANDERES IN DIE ZEITUNG GEGEBEN.\nICH HAB DEN REST.' },
-  { id: 'lichtung', kenn: 'B-O13', name: 'Lichtung', x: 4, z: 110.5, text: 'DER WALD HAT KEIN ECHO.\nRUF MAL.\n… NEIN. LIEBER NICHT.' },
-  { id: 'huette', kenn: 'B-O14', name: 'Zayns Hütte', x: 55, z: 146.5, text: 'ZAYN HAT HIER GEZEICHNET. MICH AUCH.\nER HAT MICH GRÖSSER GEMALT ALS ICH BIN. MIT EINEM SCHWERT.\nKINDER MACHEN DAS MIT DINGEN VOR DENEN SIE KEINE ANGST HABEN.\nDAS BILD HAB ICH HIERGELASSEN. ES GEHÖRT HIERHER.' },
   { id: 'hochsitz', kenn: 'B-O15', name: 'Hochsitz', x: 16.2, z: 176.2, bonus: 2, text: 'DU HAST ES GEFUNDEN. ZWEI FÜR DEINE LAMPE.\nOBEN SITZT MANCHMAL EINER IM SCHLAFANZUG UND GUCKT ZU EUREN LICHTERN.\nICH SETZ MICH NICHT DAZU. ER WÜRDE MICH ANGUCKEN UND DANN WÄR ICH WEG.\nER GUCKT GERN HIN. WIE DU.' },
   { id: 'bus', kenn: 'B-O16', name: 'Amtsbus', x: 60.8, z: 196.2, bonus: 2, text: 'SIEBEN SITZE FÜR KINDER. EINEN HAB ICH MIR GENOMMEN ALS KEINER HINSAH.\nUNTER MEINEM SITZ STEHT WAS ICH EINGEMACHT HAB. GUCKEN DARFST DU. NICHT AUFMACHEN.\nDIE SCHWEINE HABEN AUF DEIN GESCHENK AUFGEPASST.' },
   { id: 'steinkreis', kenn: 'B-O17', name: 'Steinkreis', x: 15, z: 231.2, text: 'DIE STEINE SIND ÄLTER ALS EUER DORF. WER SIE HINGESTELLT HAT WOLLTE WIEDERKOMMEN.\nDER ACHTE STÖCKCHENMANN HÄNGT TIEFER. DEN HAB ICH NICHT GEMACHT. ICH WEISS ABER FÜR WEN.\nUNTER DEM GROSSEN STEIN SCHLÄFT MEINE SCHWESTER. NICHT GRABEN.',
@@ -209,12 +197,12 @@ const BEOB_ORTE = [
   { id: 'wrack', kenn: 'B-O18', name: 'Autowrack', x: -6.2, z: 201.5, bonus: 1, text: 'HINTER DEM WRACK WOHNT WAS FRISST.\nFRÜHER HAT ES HINTER UNS AUFGERÄUMT. JETZT GEHÖRT ES KEINEM.\nES HAT ANGST VOR DEM VOGEL. VOR MIR NICHT. DENK DRÜBER NACH.' },
   { id: 'weiher', kenn: 'B-O19', name: 'Weiher', x: 43, z: 245.4, text: 'DER WEIHER HAT KEINEN GRUND. ICH HAB ES GEPRÜFT. MIT EINEM SEHR LANGEN STOCK.\nJONAS HAT DAS ENDE DER WOLLE REINGEHÄNGT. JEMAND HAT DRAN GEZOGEN.\nNICHT ICH. ICH ZIEH NIE AN WAS.' },
 ];
-const BEOB_WALD = { lichtung: 1, huette: 1, hochsitz: 1, bus: 1, steinkreis: 1, wrack: 1, weiher: 1 }; // Orte in den Dustwoods (PK-A A29)
-const BEOB_FINAL = 'NEUNZEHN ORTE. DU WARST AN ALLEN. ICH AUCH. JEDES MAL MIT DIR. MEISTENS VORHER.\nSEIT SIE WIEDER DA IST STELL ICH MICH NACHTS AN DIE KREUZUNG. GANZ HINTEN.\nHILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT WER DER NEUNTE IST.\nDU FRAGST AUCH NICHT. NOCH NICHT.';
+const BEOB_WALD = { hochsitz: 1, bus: 1, steinkreis: 1, wrack: 1, weiher: 1 }; // Orte in den Dustwoods (PK-A A29)
+const BEOB_FINAL = 'DREIZEHN ORTE. DU WARST AN ALLEN. ICH AUCH. JEDES MAL MIT DIR. MEISTENS VORHER.\nSEIT SIE WIEDER DA IST STELL ICH MICH NACHTS AN DIE KREUZUNG. GANZ HINTEN.\nHILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT WER DER NEUNTE IST.\nDU FRAGST AUCH NICHT. NOCH NICHT.';
 function beob_obj() { const el = document.getElementById('objText'); return el ? el.textContent : ''; }
 function beob_desc() { const q = story.side.beobachter; if (!q) return; const n = BEOB_ORTE.filter(o => beob_S.found.has(o.id)).length;
   q.title = 'Der Neunte';
-  q.desc = beob_S.done ? 'Neunzehn Orte. Er war an jedem vor dir.' : beob_ch() < 3 && !n ? 'Jemand hat einen Zettel hinterlassen. Bleistift, Druckbuchstaben, drei Punkte. Er zählt.'
+  q.desc = beob_S.done ? 'Dreizehn Orte. Er war an jedem vor dir.' : beob_ch() < 3 && !n ? 'Jemand hat einen Zettel hinterlassen. Bleistift, Druckbuchstaben, drei Punkte. Er zählt.'
     : `Jemand Kleines folgt dir und legt Zettel aus, gezeichnet „∴“. Hilde hat ihn mitgezählt. Zettel an Orten: ${n} / ${BEOB_ORTE.length}.`; }
 function beob_side() { if (!story.side.beobachter) story.side.beobachter = { title: 'Der Neunte', desc: '', state: 'hidden' }; if (story.side.beobachter.state === 'hidden') sideStart('beobachter'); beob_desc(); }
 // ---------------------------------------------------------------- Papier im Spiel (blassblau kariert, oben abgerissen, Bleistift, ∴)
@@ -245,7 +233,7 @@ function beob_readSpot(n) {
   if (!S.done && BEOB_ORTE.every(o => S.found.has(o.id))) { S.done = true; setTimeout(() => beob_drop(BEOB_FINAL_D, { hinter: true }), 1200); } // kommt hinter Luke an, nicht am Ort
   if (typeof saveGame === 'function') saveGame(beob_ch());
 }
-const BEOB_FINAL_D = { id: 'final', title: 'Neunzehn Orte', kind: 'final', item: 3, text: BEOB_FINAL, final: true };
+const BEOB_FINAL_D = { id: 'final', title: 'Dreizehn Orte', kind: 'final', item: 3, text: BEOB_FINAL, final: true };
 // ---------------------------------------------------------------- Zettel legen: hinter Luke (Papier, Trippeln weg) · vor Luke · aus dem Lüftungsgitter (Kap. 2) · an einer Stelle
 function beob_platz(wo) {
   const P = player.pos; camera.getWorldDirection(fwd); const fx = fwd.x, fz = fwd.z, fl = Math.hypot(fx, fz) || 1, a0 = Math.atan2(fx / fl, fz / fl);
@@ -267,7 +255,7 @@ function beob_drop(d, o = {}) {
     let tx = text; if (d.rueck) { try { const r = d.rueck(); if (r) tx += '\n\n<small style="opacity:.75">(RÜCKSEITE)</small>\n' + r; } catch (e) {} }
     beob_read(title, tx, 'beob_' + d.id, d.item || 0, { k: d.k, onClose: () => beob_nachLesen(d) });
     if (d.rh && ch3.armorHints) ch3.armorHints.add(d.rh);
-    if (d.final) { addItem('murmel'); sideDone('beobachter', 'Neunzehn Orte. Er war an jedem vor dir.'); beob_desc(); if (typeof gedanke === 'function') gedanke('beob_final', 'Der Neunte. Hilde hat neun gezählt, und keiner hat ihr geglaubt. … Er war die ganze Zeit da. Und er will, dass ich es weiß.', 2500, 3); }
+    if (d.final) { addItem('murmel'); sideDone('beobachter', 'Dreizehn Orte. Er war an jedem vor dir.'); beob_desc(); if (typeof gedanke === 'function') gedanke('beob_final', 'Der Neunte. Hilde hat neun gezählt, und keiner hat ihr geglaubt. … Er war die ganze Zeit da. Und er will, dass ich es weiß.', 2500, 3); }
     if (!S.given.has('_t')) { S.given.add('_t'); if (!S.found.size) beob_firstThought(); } beob_side();
     if (d.sad) S.sadUntil = S.t + d.sad; if (typeof saveGame === 'function') saveGame(beob_ch()); });
   S.notes.push(N); S.lastNoteT = S.t;
@@ -289,7 +277,12 @@ function beob_nachLesen(d) {
   if (S.t - (S.gh.lese || -999) > 240 && Math.random() < .35 && !beob_traurig() && (typeof spannung_since !== 'function' || spannung_since('peak') > 90) && (typeof spannung_can !== 'function' || spannung_can('beob_gh', 'minor'))) { if (beob_ghVerschieben(true)) { S.gh.lese = S.t; if (typeof spannung_did === 'function') spannung_did('beob_gh', 'minor'); } }
 }
 function beob_findDyn(id) { const k = String(id).toLowerCase().replace(/-/g, '_'); return BEOB_DYN.find(d => d.id === k) || (k === 'final' ? BEOB_FINAL_D : null); }
-function beobachter_zettel(id, o = {}) { const d = beob_findDyn(id); if (!d) { console.warn('Beobachter: Zettel unbekannt', id); return false; } return beob_drop(d, o); }
+// Story-Prüfung B (G-4/V-9, Rang 14): gestrichene Kennungen – beobachter_zettel liefert dafür still false (keine Warnung; die Aufrufer zeigen dann nichts).
+// Nicht zurückbauen: niedliche oder rein hilfreiche Doppelungen. Wortlaut und Gründe: Dossier 82 §5 (Bibel), „gestrichen (Story-Prüfung B)“.
+const BEOB_GESTRICHEN = new Set(['b_k2_02', 'b_k3_05b', 'b_x_01', 'b_k4_01', 'b_k4_02', 'b_k4_02b', 'b_k4_n3', 'b_k5_02', 'b_k5_06', 'b_k6_03', 'r_briefkasten', 'r_stein']);
+const BEOB_ALIAS = { b_k5_n1: 'b_k4_n6' }; // derselbe Zettel, je nach Weg in „Unzustellbar“ in Kap. 4 oder Kap. 5 – eine Kennung, höchstens einmal
+function beobachter_zettel(id, o = {}) { let k = String(id).toLowerCase().replace(/-/g, '_'); if (BEOB_GESTRICHEN.has(k)) return false; k = BEOB_ALIAS[k] || k;
+  const d = beob_findDyn(k); if (!d) { console.warn('Beobachter: Zettel unbekannt', id); return false; } return beob_drop(d, o); }
 function beob_nextNote() {
   const S = beob_S, k = beob_ch(), mode = beob_mode(), stuck = beob_stuck();
   if (k >= 2 && mode !== 'klang' && FLASH.spare <= 0 && FLASH.charge < .25 && !(typeof hunt !== 'undefined' && hunt.on) && !S.given.has('d_not_' + k))
@@ -299,7 +292,7 @@ function beob_nextNote() {
   return (stuck && open.find(d => d.stuck)) || open.find(d => !d.stuck) || null;
 }
 // ---------------------------------------------------------------- Klänge (vorhandene Aufnahmen + synthetisch: Atmen, Papierreißen, Bleistift, Bonbon)
-function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3), n0 = rand(3, 6);
+function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3, { typ: 'leise' }), n0 = rand(3, 6);
   for (let i = 0; i < n0; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 4200); bp.Q.value = .9; n.connect(bp); Audio.env(bp, rand(.05, .11) * v, .01, rand(.05, .14), i * rand(.05, .12), d); n.stop(Audio.ctx.currentTime + 1.5); } }
 function beob_patter(x, z, n = 4, v = 1, y = 0) { const a = rand(0, 6.28), dx = Math.cos(a) * .35, dz = Math.sin(a) * .35;
   for (let i = 0; i < n; i++) setTimeout(() => Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .09 * v, rate: rand(1.7, 2.1), x: x + i * dx, y, z: z + i * dz, ref: 2 }), i * rand(80, 120)); }
@@ -409,6 +402,7 @@ async function beob_hautBild() { // Grundfarbe (JPEG) direkt aus der glb: das Ma
   return await createImageBitmap(new Blob([new Uint8Array(buf, bin + (bv.byteOffset || 0), bv.byteLength)], { type: im.mimeType || 'image/jpeg' }));
 }
 async function beob_loadModel() {
+  try { await beob_rigLaden(); return; } catch (e) { console.warn('Beobachter: Rig, Rückfall auf das alte Modell', e); beob_S.V = null; } // R-21
   const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
     let map0 = null; m.traverse(o => { if (o.isMesh && !map0) map0 = o.material.map; });
     let skin = null; if (map0) { try { const cv = beob_haut(await beob_hautBild()); skin = new THREE.CanvasTexture(cv); skin.flipY = map0.flipY; skin.colorSpace = THREE.SRGBColorSpace; skin.wrapS = map0.wrapS; skin.wrapT = map0.wrapT;
@@ -454,7 +448,7 @@ function beob_feder(o, key, ziel, k, z, dt) { const v = (o._v || (o._v = {})); l
   for (let n = dt; n > 1e-5; n -= h) { const st = Math.min(h, n), a = k * (ziel - c) - 2 * z * Math.sqrt(k) * vv; vv += a * st; c += vv * st; } v[key] = vv; o.rotation[key] = c; }
 // Lebendig ohne Skelett: Atmung (Körper pumpt, Kopf hebt sich versetzt mit), Gewicht verlagert, Kopf ruckt mit Überschwingen und legt sich schief (Mikrozittern),
 // Körper dreht nach kurzer Antizipation schnell mit Nachschwingen, der Kopf hängt dabei nach (Overlap); geblendet dreht er weg; Fühler wippen (Shader)
-function beob_anim(dt, lit) { const V = beob_S.V; if (!V || !V.g.visible) return; V.t += dt; V.uT.value = V.t;
+function beob_anim(dt, lit) { const V = beob_S.V; if (!V || !V.g.visible) return; if (V.rig) return beob_rigAnim(dt, lit); V.t += dt; V.uT.value = V.t;
   const br = Math.sin(V.t * 2.7), br2 = Math.sin(V.t * 2.7 - .6); if (V.body) V.body.scale.set(1 + br * .012, 1 + br * .02, 1 + br * .012);
   const root = V.g.children[0]; root.rotation.z = Math.sin(V.t * .8) * .018 + Math.sin(V.t * 1.9 + 1.3) * .006; root.rotation.x = Math.sin(V.t * .55) * .01 + (V.antiz || 0);
   V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = rand(.7, 2.4); V.tilt = Math.random() < .4 ? rand(-.5, .5) : rand(-.18, .18); V.hyT = rand(-.35, .35); V.jerk = .12; }
@@ -468,13 +462,108 @@ function beob_anim(dt, lit) { const V = beob_S.V; if (!V || !V.g.visible) return
   if (V.dreh) { const D = V.dreh, h = Math.min(dt, 1 / 30), k = 700, a = k * (D.ziel - V.g.rotation.y) - 2 * .5 * Math.sqrt(k) * D.v; D.v += a * h; V.g.rotation.y += D.v * h; if (Math.abs(D.ziel - V.g.rotation.y) < .003 && Math.abs(D.v) < .02) V.dreh = null; }
 }
 function beob_show(sp, fromHere) { const S = beob_S, V = S.V; V.g.position.set(sp[0], sp[1], sp[2]); V.g.rotation.set(0, Math.atan2(player.pos.x - sp[0], player.pos.z - sp[2]), 0); V.g.children[0].rotation.x = 0; V.g.visible = true; V.tiltT = rand(0, .4); V.byT = 0; V.dreh = null; V.antiz = 0; if (V.head) V.head._v = null;
-  beob_setVp(sp[0], sp[1], sp[2]); S.test.shown++; if (beob_ch() <= 1) S.test.k1Model++; }
+  if (V.rig) beob_rigZeigen(sp); beob_setVp(sp[0], sp[1], sp[2]); S.test.shown++; if (beob_ch() <= 1) S.test.k1Model++; }
 function beob_hide() { const V = beob_S.V; if (V) V.g.visible = false; }
 function beob_vanish(still) { const S = beob_S, V = S.V, p = V.g.position; V.g.visible = false; S.test.vanish++; if (!still) { beob_rustle(p.x, p.z, 1.2); beob_patter(p.x, p.z, 5); if (Math.random() < .4) beob_chirp(p.x, p.z); }
   S.c.vanish++; beob_evt('weg');
+  if (!still && V.rig && beob_town() && beob_ch() >= 3 && (S.c.bonbonWeg || 0) < 1 && Math.random() < .12) { S.c.bonbonWeg = (S.c.bonbonWeg || 0) + 1; try { beob_spur('bonbon', { pos: [p.x, beob_gy(p.x, p.z) + .01, p.z], ry: rand(0, 6.28) }); } catch (e) {} } // R-21: er lässt etwas liegen
   if (typeof K6 !== 'undefined' && K6.on && /^(bau|epilog|hochsitz|oben)$/.test(K6.beat)) return; // Kapitel-6-Finale und Epilog: kein Gedanke, die Szene gehört dem Jungen und dem Raben
   if (typeof gedanke === 'function') { gedanke('beob_sehen', 'Da war was. Klein. Weiß. Große Augen. … Und jetzt ist es weg. Als hätte es gewusst, dass ich hinsehe.', 1200, 3);
     if (S.test.vanish >= 5) gedanke('beob_system', 'Okay. Wir haben ein System. Ich guck hin, du bist weg. Ich guck weg, du bist da. Das ist wie mit meinem Vermieter.', 1400, 2); } }
+// ---------------------------------------------------------------- R-21: Der Beobachter mit Skelett (assets/ms/beobachter/beobachter_rig.glb, gebacken mit tools/beobachter_bau.mjs)
+// Gestalt: das alte Modell umgeformt (dünner Hals, schmaler Rumpf mit kleinem Bauch, dünne Glieder, zu lange Arme, drei lange Finger mit geschwollenen Kuppen, drei lange Zehen),
+// Oberlider aus den eigenen Augen (schwer, halb geschlossen; blinzeln), Haut: Wachs mit Poren/Fältchen (Mikro-Relief aus Scan-Haut), Falten an den Gelenken, Adern,
+// zu dünn: unter der Taschenlampe scheint sie warm durch (Finger, Fühler, Lider, Hals). Augen: dunkle Iris mit Fasern, nasse Hornhaut.
+// Bewegung: Clips (stehen, hocken, spaehenL/R, zucken, trippeln, vierbeinig, klettern, ohren, ablegen) + Laufzeit-Schicht: Kopf wie ein Vogel (ruckt, hält still, legt sich schief),
+// Blinzeln, Atem in Brust und Kehle, Zittern, Fühler als Federn (reagieren auf Geräusche/Licht), Erstarren wie ein Beutetier, Spiegeln von Lukes Kopfhaltung.
+function beob_rigMat(T) { const uT = { value: 0 }, uFl = { value: 0 }, uP = { value: T.poren }, uA = { value: T.adern };
+  const haut = new THREE.MeshPhysicalMaterial({ vertexColors: true, color: 0xffffff, roughness: .44, metalness: 0, clearcoat: .55, clearcoatRoughness: .3, sheen: .45, sheenRoughness: .5, sheenColor: new THREE.Color(0xe6ecf6), envMapIntensity: .5 });
+  haut.onBeforeCompile = sh => { Object.assign(sh.uniforms, { uT, uFl, uP, uA });
+    sh.vertexShader = 'attribute vec4 _haut;\nvarying vec4 vHaut;\nvarying vec3 vBind;\nvarying vec3 vBindN;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvHaut = _haut; vBind = position; vBindN = normal;');
+    sh.fragmentShader = 'uniform float uT, uFl;\nuniform sampler2D uP, uA;\nvarying vec4 vHaut;\nvarying vec3 vBind;\nvarying vec3 vBindN;\n' +
+      'float beobTri(sampler2D t, vec3 p, vec3 w, float s) { return texture2D(t, p.zy * s).r * w.x + texture2D(t, p.xz * s).r * w.y + texture2D(t, p.xy * s).r * w.z; }\n' + sh.fragmentShader
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        vec3 bw = abs(normalize(vBindN)); bw = pow(bw, vec3(4.)); bw /= dot(bw, vec3(1.));
+        float bPor = beobTri(uP, vBind, bw, 46.), bMot = beobTri(uP, vBind + .37, bw, 5.5), bAd = beobTri(uA, vBind * vec3(1., .55, 1.), bw, 7.5) * vHaut.w;
+        diffuseColor.rgb *= .94 + .1 * bMot;
+        diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(.62, .66, .86), clamp(bAd * 1.3, 0., .55));`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+        { float fa = vHaut.y * (.55 + .45 * sin(vHaut.z * 1650. + bMot * 6.)) * smoothstep(.15, .9, bMot + .35);
+          float hh = bPor * .9 + fa * 1.2 - bAd * .6;
+          vec2 dH = vec2(dFdx(hh), dFdy(hh)) * .0011; vec3 sX = dFdx(-vViewPosition), sY = dFdy(-vViewPosition), R1 = cross(sY, normal), R2 = cross(normal, sX);
+          float det = dot(sX, R1); normal = normalize(abs(det) * normal - sign(det) * (dH.x * R1 + dH.y * R2)); }`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+        roughnessFactor = clamp(mix(.3, .58, bPor) - vHaut.y * .1, .18, .7);`)
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        { float rim = pow(1. - clamp(abs(dot(normal, normalize(vViewPosition))), 0., 1.), 2.4);
+          totalEmissiveRadiance += vec3(.86, .9, 1.) * rim * .13 + diffuseColor.rgb * .03;
+          float thin = vHaut.x; vec3 blut = mix(vec3(1., .5, .38), vec3(.75, .18, .16), clamp(bAd * 2., 0., 1.));
+          totalEmissiveRadiance += blut * uFl * (thin * .42 + rim * .16) * (.75 + .5 * bMot); }`); };
+  haut.customProgramCacheKey = () => 'beob_rig_haut';
+  const auge = new THREE.MeshPhysicalMaterial({ map: T.auge, color: 0xffffff, roughness: .1, metalness: 0, clearcoat: 1, clearcoatRoughness: .025, ior: 1.38, specularIntensity: 1, envMapIntensity: 1.3 });
+  return { haut, auge, uT, uFl }; }
+async function beob_rigLaden() { const S = beob_S;
+  const src = await msModel('beobachter', 'beobachter_rig.glb'); const tx = { poren: msTex('beobachter/poren.jpg'), adern: msTex('beobachter/adern.jpg'), auge: msTex('beobachter/auge.jpg', true) };
+  tx.auge.wrapS = tx.auge.wrapT = THREE.ClampToEdgeWrapping; const M = beob_rigMat(tx), g = new THREE.Group(); g.add(src); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
+  let mesh = null; src.traverse(o => { if (o.isMesh) { mesh = o; o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
+  src.traverse(o => { if (o.isMesh) o.material = (o.material && o.material.name === 'Auge') ? M.auge : M.haut; });
+  const B = {}; src.traverse(o => { if (o.isBone) B[o.name] = o; }); const mx = new THREE.AnimationMixer(src), act = {}, meta = (src.userData && src.userData.motion) || {};
+  for (const c of (src.animations || [])) { const a = mx.clipAction(c); a.speed0 = (meta[c.name] && meta[c.name].speed) || 0; if (meta[c.name] && meta[c.name].loop === false) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } act[c.name] = a; }
+  if (!act.stehen || !B.kopf) throw new Error('Rig unvollständig');
+  const hd = { rotation: { x: 0, y: 0, z: 0 } }, fu = { L: { x: 0, z: 0, vx: 0, vz: 0 }, R: { x: 0, z: 0, vx: 0, vz: 0 } };
+  S.V = { rig: true, g, m: src, mesh, B, mx, act, cur: null, M, uT: M.uT, uLit: M.uFl, t: rand(0, 9), tilt: 0, tiltT: 0, jerk: 0, hyT: 0, byT: 0, hd, fu, blink: rand(1, 4), blinkT: -1, lid: 0, lidW: 0, starr: 0, starrT: rand(6, 14), horch: 0, horchT: 0, spiegel: false,
+    q: new THREE.Quaternion(), e: new THREE.Euler(), ax: new THREE.Vector3(), hp: new THREE.Vector3(), hp0: null, flash0: flashOn, pp: player.pos.clone(), fing: rand(0, 9), schritt: 0, clipT: 0 };
+  beob_rigClip('stehen', 0); S.model = true; }
+// Clip wechseln: Überblenden (Feder statt Schnitt), Gangarten mit Abspieltempo = Wegtempo
+function beob_rigClip(name, fade = .25, tempo = 1) { const V = beob_S.V; if (!V || !V.rig) return; const a = V.act[name]; if (!a) return;
+  if (V.cur === a) { a.timeScale = tempo; return; } a.reset(); a.timeScale = tempo; a.enabled = true; a.setEffectiveWeight(1); if (V.cur && fade > 0) a.crossFadeFrom(V.cur, fade, true); else { V.mx.stopAllAction(); } a.play();
+  if (name === 'stehen' || name === 'hocken' || /^spaehen/.test(name)) a.time = rand(0, a.getClip().duration); V.cur = a; V.curName = name; }
+// Wo die Deckung liegt (aus beob_peekSpot: sp[3], sp[4] = Richtung von der Deckung nach außen) → zu welcher Seite er sich hinauslehnt
+function beob_rigSeite(sp, yaw) { if (sp.length < 5) return Math.random() < .5 ? 'L' : 'R'; return (sp[3] * Math.cos(yaw) - sp[4] * Math.sin(yaw)) >= 0 ? 'L' : 'R'; }
+function beob_rigZeigen(sp) { const V = beob_S.V; V.hd.rotation.x = V.hd.rotation.y = V.hd.rotation.z = 0; V.hd._v = null; V.lid = 0; V.starr = 0; V.hp0 = null; V.spiegel = Math.random() < .3;
+  const peek = sp.length >= 5; if (peek) { const l = Math.hypot(sp[3], sp[4]) || 1; V.g.position.x -= sp[3] / l * .07; V.g.position.z -= sp[4] / l * .07; } beob_rigClip(peek ? 'spaehen' + beob_rigSeite(sp, V.g.rotation.y) : 'stehen', 0); V.mx.update(0); }
+// Laufzeit-Schicht über dem Clip
+function beob_rigAnim(dt, lit, o = {}) { const S = beob_S, V = S.V; if (!V || !V.g.visible) return; V.t += dt; V.uT.value = V.t; const B = V.B, P = player.pos, p = V.g.position;
+  // Erstarren wie ein Beutetier, wenn Lukes Blick in die Nähe kommt (zu still), sonst lebendig
+  const f = beob_facing(p.x, p.y + .55, p.z); V.starrT -= dt; if (!o.lauf && f > .35 && f < .62 && V.starr <= 0 && V.starrT < 0) { V.starr = rand(1.5, 3.2); V.starrT = rand(8, 16); } if (V.starr > 0) V.starr -= dt;
+  const still = V.starr > 0 ? .06 : 1; V.mx.update(dt * (o.lauf ? 1 : still));
+  // Licht: Wärme scheint durch die dünne Haut (Shader) – stärker, je näher und mittiger die Lampe ihn trifft
+  const d = Math.hypot(P.x - p.x, P.z - p.z), fl = flashOn && !state.blackout && FLASH.charge > 0 ? Math.max(0, (f - .9) / .1) * Math.max(0, 1 - d / 22) : 0; V.uLit.value += (fl - V.uLit.value) * Math.min(1, dt * 8);
+  // Geräusche/Licht: Lampe an/aus, Luke rennt → Fühler stellen sich auf, der Kopf schnappt herum
+  const pv = Math.hypot(P.x - V.pp.x, P.z - V.pp.z) / Math.max(dt, 1e-3); V.pp.copy(P); if (flashOn !== V.flash0 || pv > 4.2) { if (V.horch < .3) { V.jerk = .12; V.tiltT = rand(.6, 1.2); } V.horch = 1; } V.flash0 = flashOn; V.horch = Math.max(0, V.horch - dt * .35);
+  // Kopf: ruckt (Feder hart), hält dann still und zittert fein; legt sich schief, wenn er etwas nicht versteht; geblendet dreht er weg
+  V.tiltT -= dt; if (V.tiltT < 0) { V.tiltT = V.starr > 0 ? rand(1.5, 3) : rand(.6, 2.6); V.tilt = Math.random() < .42 ? rand(-.55, .55) : rand(-.16, .16); V.hyT = rand(-.3, .3); V.hxT = rand(-.12, .1); V.jerk = .12; }
+  if (V.jerk > 0) V.jerk -= dt; const hart = V.jerk > 0, H = V.hd;
+  let tx = lit ? .3 : (V.hxT || 0), ty = lit ? -1.0 : V.hyT * (1 - V.horch), tz = lit ? .12 : V.tilt * (1 - V.horch * .5);
+  if (V.spiegel && !lit) tx = Math.max(-.5, Math.min(.5, -(player.pitch || 0) * .7)); // spiegelt Lukes Kopfhaltung: guckt Luke hoch, guckt er hoch
+  if (o.kx !== undefined) { tx = o.kx; tz = 0; ty = 0; }
+  beob_feder(H, 'z', tz, hart ? 560 : 36, hart ? .42 : .9, dt); beob_feder(H, 'y', ty, lit ? 260 : hart ? 560 : 36, lit ? .6 : hart ? .45 : .9, dt); beob_feder(H, 'x', tx, hart ? 400 : 50, .8, dt);
+  const zit = V.starr > 0 ? .0012 : .0026; V.e.set(H.rotation.x + Math.sin(V.t * 29) * zit, H.rotation.y + Math.sin(V.t * 23 + 1) * zit, H.rotation.z + Math.sin(V.t * 37 + 2) * zit * .8, 'YXZ'); B.kopf.quaternion.multiply(V.q.setFromEuler(V.e));
+  // Körper dreht sich zu Luke: kurze Ausholbewegung, dann schnell mit Nachschwingen, der Kopf hängt nach (nur im Stand)
+  if (!o.lauf) { const want = Math.atan2(P.x - p.x, P.z - p.z); let dif = want - V.g.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
+    if (Math.abs(dif) > .6 && V.byT <= 0 && !V.dreh && !/^spaehen/.test(V.curName || '')) V.byT = .14;
+    if (V.byT > 0) { V.byT -= dt; if (V.byT <= 0) { V.dreh = { ziel: V.g.rotation.y + dif, v: 0 }; H.rotation.y -= dif * .55; } }
+    if (V.dreh) { const D = V.dreh, h = Math.min(dt, 1 / 30), k = 700, a = k * (D.ziel - V.g.rotation.y) - 2 * .5 * Math.sqrt(k) * D.v; D.v += a * h; V.g.rotation.y += D.v * h; if (Math.abs(D.ziel - V.g.rotation.y) < .003 && Math.abs(D.v) < .02) V.dreh = null; } }
+  // Atem: Brust hebt sich, die Kehle pumpt (ohne Mund) – in Ruhe langsam, nach dem Laufen schnell; erstarrt hält er die Luft an
+  const at = V.starr > 0 ? 0 : 1, fr = o.lauf ? 9 : 3.1 + V.horch * 3, br = Math.sin(V.t * fr); B.brust.rotateX(-br * .018 * at); if (B.kehle) { const k = 1 + (Math.max(0, Math.sin(V.t * fr * 2.1)) * .22 + br * .06) * at; B.kehle.scale.set(k, k, k); }
+  // Blinzeln (selten, manchmal doppelt, manchmal sehr langsam); geblendet kneift er die Lider zu; erstarrt blinzelt er nie
+  V.blink -= dt; if (V.blink < 0 && V.starr <= 0) { V.blinkT = 0; V.blinkD = Math.random() < .15 ? .55 : .14; V.blink = Math.random() < .2 ? .28 : rand(2.2, 7.5); }
+  let lz = lit ? .62 : V.horch * -.25; if (V.blinkT >= 0) { V.blinkT += dt; const q = V.blinkT / V.blinkD; lz = Math.max(lz, q < .45 ? q / .45 : 1 - (q - .45) / .55); if (q >= 1) V.blinkT = -1; }
+  V.lid += (lz - V.lid) * Math.min(1, dt * (lz > V.lid ? 40 : 14)); for (const s of ['L', 'R']) { const L = B['lid' + s]; if (L) L.quaternion.setFromAxisAngle(V.ax.set(1, 0, 0), V.lid * 1.25); }
+  // Fühler: Federkette – Trägheit des Kopfes, ruhiges Wippen (Dossier: wippen immer), beim Horchen nach vorn gestellt und steif
+  const hw = B.kopf.getWorldPosition(V.hp); if (!V.hp0) V.hp0 = hw.clone(); const dvx = (hw.x - V.hp0.x) / Math.max(dt, 1e-3), dvy = (hw.y - V.hp0.y) / Math.max(dt, 1e-3); V.hp0.copy(hw);
+  for (const s of ['L', 'R']) { const F = V.fu[s], sg = s === 'L' ? 1 : -1, steif = 1 + V.horch * 3, k = 70 * steif, z = .25 + .3 * V.horch;
+    const zx = -V.horch * .5 + Math.sin(V.t * 2.3 + sg) * .06 + Math.sin(V.t * 5.1) * .02, zz = sg * (V.horch * .25 + Math.sin(V.t * 1.7 + sg * 2) * .05);
+    F.vx += (k * (zx - F.x) - 2 * z * Math.sqrt(k) * F.vx + dvy * 6) * dt; F.vz += (k * (zz - F.z) - 2 * z * Math.sqrt(k) * F.vz - dvx * 4) * dt; F.x += F.vx * dt; F.z += F.vz * dt;
+    for (const [n, w] of [['fuehler1', .45], ['fuehler2', .7], ['fuehler3', 1]]) { const b = B[n + s]; if (b) b.quaternion.multiply(V.q.setFromEuler(V.e.set(F.x * w, 0, F.z * w))); } }
+  // Finger: tasten und zittern (nie ganz still – außer erstarrt)
+  V.fing += dt; for (const s of ['L', 'R']) for (let i = 1; i <= 3; i++) { const b = B['fingerB' + i + s]; if (b) b.rotateZ((Math.sin(V.fing * (3.1 + i) + i * 2 + (s === 'L' ? 0 : 1.7)) * .06 + Math.sin(V.t * 31 + i) * .01) * (s === 'L' ? -1 : 1) * at); } }
+// Gehen auf einem Weg: Gangart nach Tempo (trippeln / auf allen vieren), Abspieltempo = Wegtempo, Schritte hörbar beim Aufsetzen
+function beob_rigLauf(dt, x, y, z, ry) { const V = beob_S.V, p = V.g.position, v = Math.hypot(x - p.x, z - p.z) / Math.max(dt, 1e-3); V.vs = (V.vs ?? v) + (v - (V.vs ?? v)) * Math.min(1, dt * 6);
+  const gang = V.vs > 1.25 ? 'vierbeinig' : V.vs > .12 ? 'trippeln' : 'stehen', a = V.act[gang]; beob_rigClip(gang, .18, a && a.speed0 ? Math.max(.5, Math.min(2.4, V.vs / a.speed0)) : 1);
+  p.set(x, y, z); let dif = ry - V.g.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif)); V.g.rotation.y += dif * Math.min(1, dt * 12);
+  if (a && a.speed0) { const ph = (a.time / a.getClip().duration) % 1, n = Math.floor(ph * 2); if (n !== V.schritt) { V.schritt = n; Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: gang === 'vierbeinig' ? .13 : .15, rate: rand(1.9, 2.3), x, y, z, ref: 2.5 }); } }
+  beob_rigAnim(dt, false, { lauf: true, kx: .12 }); }
 // ---------------------------------------------------------------- Verstecke: Baumstämme und kleine Deckungen (Autos, Tonnen, Grabsteine, Pfosten, Heuballen …), nie Eisen, nie frei
 function beob_coversBau() { const S = beob_S, L = []; for (const c of colliders) { const hx = (c.maxX - c.minX) / 2, hz = (c.maxZ - c.minZ) / 2; if (!(hx > 0) || !(hz > 0)) continue; const mx = Math.max(hx, hz) * 2, mn = Math.min(hx, hz) * 2;
     if (mx < .24 || mx > 5 || mn < .12 || (c.top ?? 99) - (c.base ?? -1) < .6) continue; const cx = (c.minX + c.maxX) / 2, cz = (c.minZ + c.maxZ) / 2; if (Math.abs(cx) > 900 || Math.abs(cz) > 900) continue;
@@ -493,7 +582,7 @@ function beob_peekSpot(minF, maxF, far = [14, 24]) {
     const f = beob_facing(x, P.y + .6, z); if (f < minF || f > maxF) { T.f++; continue; } if (!beob_freeNah(x, z)) { T.free++; continue; } const gy = beob_gy(x, z); if (Math.abs(gy - P.y) > 2.5) { T.gy++; continue; }
     if (f > .3 && typeof hungrige_los === 'function') { if (!hungrige_los(x + ox, gy + BEOB.h * .74, z + oz)) { T.los++; continue; }
       if (hungrige_los(x - ox * 1.5, gy + BEOB.h * .4, z - oz * 1.5)) { T.frei = (T.frei || 0) + 1; continue; } } // steht nie frei: der Körper muss hinter der Deckung sein, nur Kopfrand/Fühler/Auge schauen vor
-    T.ok++; return [x, gy, z]; }
+    T.ok++; return [x, gy, z, ox, oz]; }
   return null;
 }
 function beob_hinterDeckung(cx, cz, hx, hz, minF, maxF) { const P = player.pos, d = Math.hypot(cx - P.x, cz - P.z); if (d < 8 || d > 26) return null; const ux = (cx - P.x) / d, uz = (cz - P.z) / d; // erster Platz: halb hinter der Telefonzelle
@@ -507,7 +596,7 @@ function beob_peekTick(dt) {
     if (lit && !K.litE) { K.litE = true; S.c.lit++; S.lit = S.c.lit; } if (!lit) K.litE = false;
     if (K.st === 'ruecken') { if (f > .35) { if (!S.c.ganz && f < .7) { S.c.ganz = true; K.st = 'ganz'; K.t = 0; } else { beob_vanish(true); S.peek = null; beob_patter(p.x, p.z, 3, .6); return; } } else if (K.t > 25) { beob_hide(); S.peek = null; } return; }
     if (K.st === 'ganz') { if (inView) K.vis += dt; if (K.vis > .065 || K.t > 1.5 || f < .1) { beob_vanish(); S.peek = null; K.st = 'x'; } return; } // der eine Sechzehntel-Moment je Kapitel
-    if (inView) { K.vis += dt; K.seen += dt * (f > .9 ? 1 : .75) * (lit ? 1.5 : 1); }
+    if (inView) { K.vis += dt; K.seen += dt * (f > .9 ? 1 : .75) * (lit ? 1.5 : 1); if (V.rig && !K.zuck && K.seen > .16) { K.zuck = true; beob_rigClip('zucken', .07); } } // R-21: ertappt – er zuckt zurück, dann (Ein-Sekunden-Regel) ist er weg
     if (K.seen >= BEOB.seenMax - Math.max(dt, .02) || K.vis >= BEOB.seenMax - Math.max(dt, .02) || d < BEOB.nah) { beob_vanish(); K.st = 'gone'; K.t = 0; K.wait = rand(2, 6); }
     else if (K.t > 40 && f < .3) { beob_hide(); S.peek = null; } }
   else if (K.st === 'gone') { if (K.t < K.wait) return; if (K.n >= 2 || beob_quiet() || beob_sperre() || beob_mode() !== 'voll') { S.peek = null; S.peekT = Math.max(S.peekT, rand(50, 90)); return; }
@@ -519,13 +608,13 @@ function beob_sichtung(pos, dauer = .8, o = {}) {
   const S = beob_S, V = S.V; if (!V || beob_ch() <= 1) return false; if (S.peek) { beob_hide(); S.peek = null; }
   const weg = o.weg && o.weg.length > 1 ? o.weg : null, p0 = weg ? weg[0] : pos; beob_show([p0[0], p0[1] ?? beob_gy(p0[0], p0[2]), p0[2]]);
   if (o.blick) V.g.rotation.y = Math.atan2(o.blick[0] - p0[0], o.blick[2] - p0[2]); else if (weg) V.g.rotation.y = Math.atan2(weg[1][0] - p0[0], weg[1][2] - p0[2]);
-  S.sicht = { t: 0, T: Math.min(dauer, o.lang ? 20 : 1), weg, ohren: !!o.ohren, still: !!o.still, next: 0 }; return true;
+  S.sicht = { t: 0, T: Math.min(dauer, o.lang ? 20 : 1), weg, ohren: !!o.ohren, still: !!o.still, next: 0 }; if (V.rig) { V.vs = 0; beob_rigClip(o.ohren ? 'ohren' : o.clip || (weg ? 'trippeln' : 'stehen'), 0); } return true;
 }
 function beob_sichtTick(dt) { const S = beob_S, V = S.V, Q = S.sicht; if (!V || !Q) return; Q.t += dt; V.t += dt; V.uT.value = V.t;
   if (Q.weg) { const w = Q.weg, n = w.length - 1, q = Math.min(1, Q.t / Q.T), qe = q < .15 ? q * q / .3 : q > .85 ? 1 - (1 - q) * (1 - q) / .3 : .075 + (q - .15) * (.85 / .7), u = Math.min(1, qe) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i, a = w[i], b = w[i + 1];
-    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); Q.ph = (Q.ph || 0) + dt * 19 * Math.min(1.3, Math.max(.35, (q < .15 ? q / .15 : q > .85 ? (1 - q) / .15 : 1))); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.ph)) * .03, z); if (V.uLauf) { V.uLauf.value = Q.ph; V.uLaufK.value = Math.min(1, q / .1, (1 - q) / .1 + .2); } // Trippeln: Schrittfrequenz folgt dem Tempo, Füße und Arme im Takt (Q-1), kein Gleiten
+    const x = a[0] + (b[0] - a[0]) * f, z = a[2] + (b[2] - a[2]) * f, y0 = (a[1] ?? beob_gy(a[0], a[2])), y1 = (b[1] ?? beob_gy(b[0], b[2])); if (V.rig) { beob_rigLauf(dt, x, y0 + (y1 - y0) * f, z, Math.atan2(b[0] - a[0], b[2] - a[2])); beob_setVp(x, y0, z); } else { Q.ph = (Q.ph || 0) + dt * 19 * Math.min(1.3, Math.max(.35, (q < .15 ? q / .15 : q > .85 ? (1 - q) / .15 : 1))); V.g.position.set(x, y0 + (y1 - y0) * f + Math.abs(Math.sin(Q.ph)) * .03, z); if (V.uLauf) { V.uLauf.value = Q.ph; V.uLaufK.value = Math.min(1, q / .1, (1 - q) / .1 + .2); } // Trippeln: Schrittfrequenz folgt dem Tempo, Füße und Arme im Takt (Q-1), kein Gleiten
     V.g.rotation.y = Math.atan2(b[0] - a[0], b[2] - a[2]); V.g.children[0].rotation.x = .32 * Math.min(1, q / .12) * Math.min(1, (1 - q) / .1 + .3); V.g.children[0].rotation.z = Math.sin(Q.ph) * .06; if (V.head) { beob_feder(V.head, 'x', .2, 200, .6, dt); beob_feder(V.head, 'y', 0, 200, .6, dt); V.head.rotation.z = -Math.sin(Q.ph) * .04; } beob_setVp(x, y0, z);
-    Q.next -= dt; if (Q.next < 0) { Q.next = .09; Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .16, rate: rand(1.9, 2.2), x, y: 0, z, ref: 2.5 }); } }
+    Q.next -= dt; if (Q.next < 0) { Q.next = .09; Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .16, rate: rand(1.9, 2.2), x, y: 0, z, ref: 2.5 }); } } }
   else { beob_anim(dt, false); if (Q.ohren && V.head) { V.head.rotation.x = .38; V.head.rotation.z = 0; } }
   if (Q.t >= Q.T) { V.g.visible = false; V.g.children[0].rotation.x = 0; if (V.uLaufK) V.uLaufK.value = 0; S.sicht = null; if (Q.weg) beob_still(45); if (!Q.weg && !Q.still) beob_patter(V.g.position.x, V.g.position.z, 3, .8); } }
 function beob_k2Tick(dt) { // die eine Fast-Sichtung: Durchgang nach Zimmer 7, Lüftungsklappe, 0,8 s, Lampe flackert, Gang leer, Gitter schwingt, drei nasse Abdrücke
@@ -589,28 +678,30 @@ function beob_kieselTick(dt) { const L = beob_S.fallK; if (!L || !L.length) retu
     if (k.position.y <= F.r0) { k.position.y = F.r0; if (Math.abs(F.vy) > .4) F.vy = -F.vy * .3; else F.vy = 0; F.vx *= .6; F.vz *= .6; F.w *= .6; } // gedämpfter Aufprall, Reibung
     k.rotation.x += F.w * F.vz * dt * 3; k.rotation.z -= F.w * F.vx * dt * 3; if (F.t > 2.5 || (F.vy === 0 && Math.hypot(F.vx, F.vz) < .01)) L.splice(n, 1); } }
 // öffentliche Spur (Kapitel-APs): erscheint sofort (bzw. „frisch“ außerhalb des Blicks), gehört zum laufenden Kapitel
-function beob_spur(art, o = {}) { const k = beob_ch(); const sp = beob_spurNeu(art, Object.assign({ k: [k] }, o)); if (!sp) return null; if (art !== 'abdruck' && sp.sorte !== 'frisch') beob_spurAn(sp, true); if (art === 'abdruck') { sp.sorte = 'jetzt'; beob_spurAn(sp, true); sp.t = 0; } return sp; }
-function beob_spurTick(dt) { const S = beob_S, k = beob_ch(), P = player.pos;
-  for (const sp of S.spuren) { if (sp.fertig) continue; const inK = !sp.k || sp.k.includes(k), ok = inK && (!sp.wenn || (() => { try { return sp.wenn(); } catch (e) { return false; } })());
+function beob_spur(art, o = {}) { const k = beob_ch(); const sp = beob_spurNeu(art, Object.assign({ k: [k] }, o)); if (!sp) return null; if (!o.k) sp.pflicht = true; /* Beat eines Kapitel-Skripts: nie gedeckelt (R-1) */ if (art !== 'abdruck' && sp.sorte !== 'frisch') beob_spurAn(sp, true); if (art === 'abdruck') { sp.sorte = 'jetzt'; beob_spurAn(sp, true); sp.t = 0; } return sp; }
+// R-1 (Story-Prüfung B): höchstens BEOB_SPUR_MAX gesehene Spuren je Kapitel (Zähler S.c.spuren, gespeichert mit S.c). Danach bleiben noch ungesehene Deko-Spuren
+// (Bau-Liste unten und beob_spur mit eigenem k aus anderen Modulen) aus bzw. gehen aus, sobald sie nicht im Blick sind. Ausgenommen: Abdrücke (trocknen in 40 s) und Skript-Beats (sp.pflicht).
+const BEOB_SPUR_MAX = 5;
+function beob_spurTick(dt) { const S = beob_S, k = beob_ch(), P = player.pos, voll = (S.c.spuren || 0) >= BEOB_SPUR_MAX;
+  for (const sp of S.spuren) { if (sp.fertig) continue; const deckel = voll && !sp.seen && !sp.pflicht && sp.art !== 'abdruck' && !(sp.an && beob_facing(sp.x, sp.y + .1, sp.z) > .2),
+      inK = !sp.k || sp.k.includes(k), ok = inK && !deckel && (!sp.wenn || (() => { try { return sp.wenn(); } catch (e) { return false; } })());
     if (sp.sorte === 'immer') { if (sp.an !== ok) beob_spurAn(sp, ok); }
     else if (sp.sorte === 'frisch') { // „gerade eben“: legt sich, während Luke wegsieht, und trocknet in 40 s
       if (!sp.an && ok && !S.dyn.has(sp.id)) { const d = Math.hypot(P.x - sp.x, P.z - sp.z); if (d < 32 && d > 8 && beob_facing(sp.x, sp.y, sp.z) < .2) { S.dyn.add(sp.id); beob_spurAn(sp, true); sp.t = 0; } } }
     if (sp.an && (sp.sorte === 'frisch' || sp.sorte === 'jetzt') && sp.art === 'abdruck') { sp.t += dt; const op = Math.max(0, 1 - sp.t / 40); sp.m.userData.mat.opacity = .62 * op; if (op <= 0) { beob_spurAn(sp, false); sp.fertig = true; } }
-    if (sp.an && !sp.seen) { const d = Math.hypot(P.x - sp.x, P.z - sp.z); if (d < 6 && beob_facing(sp.x, sp.y + .1, sp.z) > .9) { sp.seen = true; S.spurSeen++; if (S.spurSeen === 8 && typeof gedanke === 'function') gedanke('beob_hallo', 'Ja. Hallo. Ich weiß.', 900, 2); } } }
+    if (sp.an && !sp.seen) { const d = Math.hypot(P.x - sp.x, P.z - sp.z); if (d < 6 && beob_facing(sp.x, sp.y + .1, sp.z) > .9) { sp.seen = true; S.spurSeen++; if (sp.art !== 'abdruck') S.c.spuren = (S.c.spuren || 0) + 1; if (S.spurSeen === 8 && typeof gedanke === 'function') gedanke('beob_hallo', 'Ja. Hallo. Ich weiß.', 900, 2); } } }
 }
 // Kapitel-Spuren (Hauptweg Kap. 1 laut Dossier 82 §5.1, soweit die Orte im Spiel stehen; Rest per beob_spur aus den Kapitel-Modulen)
 function beob_spurenBau() { const S = beob_S;
   { const a = beob_wand(-70.9, .78, 6.2, -1, 0); if (a && Math.abs(a.p[0] + 72.0) < .25) beob_spurNeu('kratzer', { pos: a.p, ry: a.ry, w: .07, h: .15, k: [1, 2, 3, 4, 5, 6] }); } // Pfosten des Ortsschilds (nur, wenn er dort steht)
-  { const a = beob_wand(24.1, .43 + .72, -10.4, 0, -1); beob_spurNeu('kratzer', { pos: a && a.p[2] < -11.4 ? a.p : [24.1, .43 + .72, -11.74], ry: a && a.p[2] < -11.4 ? a.ry : 0, k: [1, 2, 3, 4, 5, 6] }); } // neben der Haustür Nr. 7, Kinderhöhe (Rückfall: Fassadenfläche)
+  // R-1 (Story-Prüfung B): Kratzer neben der Haustür Nr. 7, Kiesel am Kirchberg und die Bonbonpapiere vor der Küchentür Nr. 7 und an der Tankstelle gestrichen
+  // (Bonbonpapier nur, wo er etwas gegessen hat, das Luke gehörte; Kiesel nur, wo eine Katze hinstarrt – am Briefkasten Nr. 7 sitzt Kater Peter)
   beob_spurNeu('kratzer', { pos: [C2.x + 15.2, .7, C2.z - 1.83], ry: 0, k: [2] });                                 // Tunnel im Amt
   beob_spurNeu('abdruck', { id: 'k1_nr1', von: [-46.3, undefined, -8.9], bis: [-44.6, undefined, -2.6], n: 8, k: [1] }); // vor Nr. 1, enden mitten auf der Straße
   { let y = 1.2; try { const r = new THREE.Raycaster(new THREE.Vector3(28.4, 3, -6.9), new THREE.Vector3(0, -1, 0), 0, 4); const h = r.intersectObject(mailbox7.userData.group || mailbox7, true)[0]; if (h) y = h.point.y; } catch (e) {}
     beob_spurNeu('kiesel', { pos: [28.4, y, -6.9], k: [1] }); }                                                  // drei Kiesel auf dem Briefkasten von Nr. 7
-  beob_spurNeu('kiesel', { pos: [-3.3, beob_gyAt(-3.3, 41.2), 41.2], k: [1] });                                  // Kirchberg
-  beob_spurNeu('bonbon', { pos: [25.35, .436, -13.3], k: [1] });                                                    // Nr. 7, vor der Küchentür
-  beob_spurNeu('bonbon', { pos: [108.4, beob_gyAt(108.4, 19.1) + .005, 19.1], k: [1, 3] });                       // Tankstelle
-  // ∴ im Beschlag: Küchenfenster Nr. 7, sobald Luke aus dem Keller kommt
-  const W = beob_fenster(29, -12, 4); if (W) beob_spurNeu('beschlag', { pos: W.p, ry: W.ry, w: .42, h: .42, k: [1], wenn: () => beob_S.wasBasement && !state.inBasement });
+  // ∴ im Beschlag: Küchenfenster Nr. 7, sobald Luke aus dem Keller kommt (Hauptweg, nie gedeckelt)
+  const W = beob_fenster(29, -12, 4); if (W) { const b = beob_spurNeu('beschlag', { pos: W.p, ry: W.ry, w: .42, h: .42, k: [1], wenn: () => beob_S.wasBasement && !state.inBasement }); if (b) b.pflicht = true; }
 }
 function beob_wand(x, y, z, dx, dz) { try { const r = new THREE.Raycaster(new THREE.Vector3(x, y, z), new THREE.Vector3(dx, 0, dz).normalize(), 0, 4); // Oberfläche treffen statt raten (einmal beim Laden)
     const h = r.intersectObjects(scene.children, true).find(q => q.object.visible && q.object.isMesh && q.object.material && !q.object.material.transparent && q.face); if (!h) return null;
