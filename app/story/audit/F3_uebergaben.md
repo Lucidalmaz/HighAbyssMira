@@ -109,3 +109,8 @@
 - neben6.js Ladefehler behoben, ungetestet: R6-4 Schleifen-Rätsel, Rekorder im Handschuhfach (Wahl Band/Batterien), „Drei Sätze“.
 - Pausen-Timing R6-4, Schlinge schneiden mit echter Maus, Funkgerät am Hochsitz.
 - Shader-Fehler `katzen_fell_ANNI` (katzen.js) im Log → beheben.
+
+## Aus AP-25 (fertig, F3_stand_ap25.md) – offen
+- Rechthaben: V-03/V-06 in Kap. 1 verpassbar → Faden danach nicht abschließbar (Hinweis oder Nachholmöglichkeit). V-07…V-13 → AP-26.
+- Zayn/Cleo: keine FORTSETZUNG-Meldung in Kap. 6; Text „heute Nacht“ in Kap. 4/5. Cleo: „ERINNERUNG“ überdeckt „ERLEDIGT“.
+- Riegel/Schnalle in Kap. 5 ohne Hinweis verpassbar. Autor: Heidi schreibt an sich oder an Lucy?
