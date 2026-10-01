@@ -104,3 +104,8 @@
 - Schlusstest: Dina in der Remise (Stuhl −123,6 | −35,4, im Testfoto nicht zu sehen), Frau Aydın im Fenster des Bauernhauses (Tiefen-Radierer), liegendes Postrad, Kreuzungsfoto (acht Kinder + der Neunte) mit echten Texturen, Jonas-Kette mit Whiskey/Kronkorken, Einbruch Weg c.
 - Für AP-23: `k4_kreisel` schließt mit `polaroid_heini`; Maas’ Rad liegt nur in Kap. 5 (`neben5_S.st.kasten.brief`). kapitel5.js: die Hülle `/^Laube/` (−107,2 | 25) findet nichts und kann weg (Hildes Laube übernimmt neben5).
 - Fehlende Assets: Posteinwurf-Kasten, Brecheisen, Tupperdose, Nachttisch, Vater Kranz (Stellvertreter `vegas`).
+
+## Aus AP-24 (fertig) – Schlusstest
+- neben6.js Ladefehler behoben, ungetestet: R6-4 Schleifen-Rätsel, Rekorder im Handschuhfach (Wahl Band/Batterien), „Drei Sätze“.
+- Pausen-Timing R6-4, Schlinge schneiden mit echter Maus, Funkgerät am Hochsitz.
+- Shader-Fehler `katzen_fell_ANNI` (katzen.js) im Log → beheben.
