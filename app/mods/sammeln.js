@@ -72,7 +72,8 @@ const SAMMELN_Z = [
     daneben: 'Laternenfest fällt in diesem Jahr aus (Brandschutz).', notiz: 'Es fällt seit 1958 in jedem siebzehnten Jahr aus. Niemand hat je nachgerechnet.' },
   { nr: 8, datum: '29. Oktober 2026', titel: 'Dritte Vermisste des Jahres – Polizei: kein Fremdverschulden', hw: 1,
     text: 'Lost Eyengless. Seit Freitag wird Lucy B. (26) aus der Ahornstraße vermisst. Polizeiobermeister Kühn: „Es gibt keine Hinweise auf Fremdverschulden. Frau B. hat sich möglicherweise selbständig entfernt.“ Bereits im Juni und Juli galten zwei weitere Bewohner der Ahornstraße als vermisst. Hinweise an die Polizei oder an die Messstelle Kirchberg.',
-    daneben: 'Gemeindesaal: Bürgerversammlung ‚Die Lichter über dem Wald‘ entfällt.' },
+    daneben: 'Gemeindesaal: Bürgerversammlung ‚Die Lichter über dem Wald‘ entfällt.',
+    meldung: ['Hanf in Kleingarten – Besitzerin verschwunden', 'In einer Laube der Kleingartenanlage stehen Hanfpflanzen in Töpfen. Die Pächterin (25) gilt seit Juni als vermisst. Die Polizei sieht keinen Zusammenhang.'] }, // AP-25 (X-6 Kiffen): kleine Meldung, Roxys Laube
   { nr: 9, datum: '5. November 2026', titel: 'Stromausfall: Umspannwerk überlastet – alle wohlauf', hw: 1, fuss: 'Redaktionsschluss: Mittwoch, 22 Uhr.',
     text: 'Lost Eyengless. In der Nacht zum Donnerstag fiel im gesamten Ort der Strom aus. Ursache ist nach Auskunft des Instituts für Atmosphärenforschung eine Überlastung des Umspannwerks durch Nebelbildung. Alle Bewohner sind wohlauf. Die Straßenlaternen wurden vorsorglich abgeschaltet. Die Bevölkerung wird gebeten, Kreidespuren auf der Fahrbahn nicht zu beachten; es handelt sich um Vermessungsarbeiten.',
     notiz: 'Der Artikel ist gedruckt, bevor irgendwer nachsehen konnte.' },
@@ -262,7 +263,7 @@ function sammeln_zHtml(nr) {
   if (Z.welt) body = body.replace(/<p>/g, '<p class="lbKreis">');
   return `<div class="lbClip${Z.laminiert ? ' lbLam' : ''}" style="clip-path:polygon(${clip});transform:rotate(${rot}deg)"><div class="lbKopf">DER LATERNENBOTE</div><div class="lbUnter">Heimatzeitung für Lost Eyengless und das Abgrundtal · seit 1890</div>` +
     `<div class="lbDatum">${Z.datum === 'Aus aller Welt' ? 'Vermischtes' : Z.datum}</div><h3>${Z.titel}</h3>${foto}<div class="lbText">${body}</div>` +
-    (Z.daneben ? `<div class="lbAnz">${Z.daneben}</div>` : '') + (Z.fuss ? `<div class="lbFuss">${Z.fuss}</div>` : '') + (Z.kuli ? `<div class="lbKuli">${Z.kuli}</div>` : '') + '</div>' +
+    (Z.daneben ? `<div class="lbAnz">${Z.daneben}</div>` : '') + (Z.meldung ? `<div class="lbText" style="margin-top:12px"><b>${Z.meldung[0]}.</b> ${Z.meldung[1]} <span class="lbHw">(hw)</span></div>` : '') +(Z.fuss ? `<div class="lbFuss">${Z.fuss}</div>` : '') + (Z.kuli ? `<div class="lbKuli">${Z.kuli}</div>` : '') + '</div>' +
     (Z.notiz ? `\n<i class="samDesc">${Z.notiz}</i>` : '');
 }
 function sammeln_z(nr, still) {
@@ -379,6 +380,31 @@ renderJournal = (o => () => {
   else { const B = $('jBody'); B.classList.remove('samSeite'); delete B.dataset.reiter; o(); }
   sammeln_reiterBau();
 })(renderJournal);
+// ---------------------------------------------------------------------  AP-25 · Fäden über mehrere Kapitel (Bibel K9: „ein Eintrag mit Abschnitten“)
+// Manche Fäden haben je Kapitel einen eigenen Schlüssel (eigenes Modul, eigener Spielstand). Die Fibel zeigt sie als EINEN Eintrag: Titel und Text
+// des neuesten Abschnitts, darunter die früheren Abschnitte. Der Start eines späteren Abschnitts meldet „FORTSETZUNG“ statt „NEUE NEBENAUFGABE“.
+// Nur Anzeige: Schlüssel, Zustände und Spielstände der Module bleiben unverändert. Je Faden: [Schlüssel, Kapitel] in Spielreihenfolge.
+const SAMMELN_FADEN = [
+  [['kb_naepfe', '1 · 3'], ['k4_naepfe', '4']],                       // „Siebzehn Näpfe“ (kirchberg/neben3 → neben4)
+  [['k1_karten', '1'], ['k3_ja', '3'], ['k5_heidi', '5']],            // „Sind sie wieder da?“ → „Ja.“ → „Ein Dorf näher“
+  [['k3_rot', '3'], ['k4_welt', '4']],                                // „Rot eingekreist“ → „Aus aller Welt“
+  [['k4_post', '4'], ['k5_kasten', '5']],                             // „Unzustellbar“ → „Der gelbe Kasten“
+];
+function sammeln_fadenVor(k) { const S = story.side; for (const F of SAMMELN_FADEN) { const i = F.findIndex(f => f[0] === k); for (let j = i - 1; j >= 0; j--) { const q = S[F[j][0]]; if (q && q.state !== 'hidden') return q; } } return null; }
+function sammeln_fadenSicht(S) { let V = null; // Anzeige-Kopie von story.side; alle übrigen Einträge bleiben dieselben Objekte in derselben Reihenfolge
+  for (const F of SAMMELN_FADEN) { const L = F.filter(([k]) => S[k] && S[k].state !== 'hidden'); if (L.length < 2) continue; if (!V) V = Object.assign({}, S);
+    const last = S[L[L.length - 1][0]], alt = L.slice(0, -1).reverse().map(([k, kp]) => { const q = S[k]; return `<br><span style="opacity:.7">Kap. ${kp}${q.title !== last.title ? ' · „' + q.title + '“' : ''}: ${q.desc}</span>`; }).join('');
+    V[L[0][0]] = { title: last.title, desc: last.desc + alt, state: last.state }; // Zustand = neuester Abschnitt (ein liegengebliebener früherer hält den Faden nicht offen)
+    for (const [k] of L.slice(1)) delete V[k]; }
+  return V || S; }
+function sammeln_fadenNachtrag(k, kp, text) { // Abschnitt ohne eigene Aufgabe (z. B. Kap. 5 Gisela am Gartentor): an den neuesten sichtbaren Eintrag des Fadens anhängen
+  const F = SAMMELN_FADEN.find(f => f.some(x => x[0] === k)) || [[k]], L = F.map(([x]) => story.side[x]).filter(q => q && q.state !== 'hidden'), q = L[L.length - 1]; if (!q) return;
+  const z = `<br>Kap. ${kp}: ${text}`; if (q.desc.includes(z)) return; q.desc += z; questPop('FORTSETZUNG', q.title); updateSideInfo(); }
+function sammeln_fadenMit(o) { const S = story.side, V = sammeln_fadenSicht(S); if (V === S) return o(); story.side = V; try { return o(); } finally { story.side = S; } }
+renderJournal = (o => () => jTab === 'aufgaben' ? sammeln_fadenMit(o) : o())(renderJournal);
+updateSideInfo = (o => () => sammeln_fadenMit(o))(updateSideInfo);
+sideStart = (o => k => { const q = story.side[k], v = q && q.state === 'hidden' ? sammeln_fadenVor(k) : null; if (!v) return o(k);
+  q.state = 'active'; questPop('FORTSETZUNG', v.title === q.title ? q.title : v.title + ' → ' + q.title); updateSideInfo(); })(sideStart);
 // ---- Reiter: LOSE SEITEN / STUNDENBUCH
 function sammeln_rSB(B) {
   const buch = kapAb(4) || sammeln_hatSB(7), n = sammeln_S.sb.size;

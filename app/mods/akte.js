@@ -50,8 +50,11 @@ function akte_lesen(n) {
     const G = { 1: 'Eine Ärztin vom Amt. Sie wollte, dass das jemand findet. Sie hat nicht mit mir gerechnet, aber gut.', 2: 'Verwalten. Wie Parkplätze.', 3: 'Die UFO-Schlagzeile. Die haben sie selbst geschrieben. Vegas hat recht. Vegas hat immer recht, das ist das Schlimme.', 4: 'Nicht alles, was zurückkommt, ist ein Kind. … Die Kuh. Sie haben die Kuh vermessen.', 5: 'Bis siebzehn. Ich zähle im Schlaf. Lucy hat mich damit aufgezogen, jahrelang.', 6: 'Onkel Peter. Sie haben ihn eingesperrt, weil er es wusste. Unter die Erde. Wo sie nicht hinsieht.', 7: '08. Eine halbrunde Narbe in der linken Hand. … Ich hab auch eine. ‚Fahrradunfall‘, hat Mama gesagt.', 8: 'Sie wussten es. Sie haben die Straße zugemacht und zugesehen. Und Hilde hat ihren eigenen Sohn gezogen.', 9: 'K-3. Brandt, L. Das bin ich. Sie wollten mich umbauen wie Onkel Peter. Nach dem Bild, das … wer hat ein Bild von mir im Kopf?', 10: 'Dem Postboten. Sie hat den Brief Günther Maas gegeben.' }[n]; // Gedanken: LWO-Dossier 5.1
     if (G && typeof gedanke === 'function') gedanke('akte_' + n, G, 1500, 3);
     if (c === 10) setTimeout(() => akte_fertig(), 1400); if (typeof saveGame === 'function' && state.started) saveGame(curChapter()); }
-  openNote(`Durchschlag ${n} / 10 · ${title}`, html);
+  const sieben = n !== 7 && kapAb(3) && story.items.includes('umschlag7') && !akte_has(7); // AP-25: der Umschlag aus dem Amt (Kap. 2 ungeöffnet eingesteckt) – beim nächsten Durchschlag aufmachen
+  openNote(`Durchschlag ${n} / 10 · ${title}`, html, null, sieben ? () => setTimeout(akte_umschlag7, 500) : undefined);
 }
+function akte_umschlag7() { if (akte_has(7) || !story.items.includes('umschlag7')) return; story.items = story.items.filter(k => k !== 'umschlag7');
+  if (typeof gedanke === 'function') gedanke('akte_umschlag7', 'Derselbe Kopf wie auf dem Umschlag aus dem Amt. Den hab ich nie aufgemacht.', 0, 3); setTimeout(() => akte_lesen(7), 1800); }
 function akte_fertig() {
   if (story.lore.some(l => l.key === 'akte_ganz')) return;
   const html = 'Zehn Durchschläge. Zusammen ergeben sie eine Akte, die es offiziell nie gab. Edda Brand ist nie in Hamburg angekommen. Ihr Brief auch nicht.\n\nIm letzten Umschlag, ganz unten, drei Batterien und ein Zettel in ihrer Handschrift: <span class="hand">„Für den Weg nach unten. Nimm Licht mit.“</span>';

@@ -58,7 +58,7 @@ function neben4_kapEnde() { for (const k of Object.keys(NEBEN4)) { const q = sto
     if (k === 'k4_kreisel') continue; if (k === 'k4_post' && neben4_postWeg() === 'c') { q.desc = 'Günther hat mich gehen lassen, und ich ihn. Sein Schuppen ist noch zu. Neues Schloss. Heute Nacht, mit dem Brecheisen.'; continue; }
     q.state = 'zu'; q.desc = q.desc.replace(/\s*\(Der Tag ist vorbei\.\)$/, '') + ' (Der Tag ist vorbei.)'; }
   try { updateSideInfo(); } catch (e) {} }
-function neben4_kap5() { if (neben4_postWeg() === 'c') n4_start('k5_kasten', NEBEN4_K5.k5_kasten[1], { x: 100.5, z: -26.5 }); }
+function neben4_kap5() { const q = story.side.k5_kasten; if (neben4_postWeg() === 'c' && q && q.state === 'hidden') n4_start('k5_kasten', NEBEN4_K5.k5_kasten[1], { x: 100.5, z: -26.5 }); } // AP-25: nur beim ersten Start – Weiterspielen in Kap. 5 setzt den Fortschritt nicht zurück
 
 // ---------------------------------------------------------------------  Bilder: eigene kleine Bühne (außerhalb der Welt) und Abzüge
 function n4_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (fn) fn(c.getContext('2d'), w, h); return c; }

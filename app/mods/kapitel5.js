@@ -748,6 +748,7 @@ async function k5_gisela() {
       k5_weg('ranzenriemen'); k5.f.riemen = true;
       k5_lore('k5_riemen', 'Der Riemen', 'Gisela hat den Ranzenriemen um ihre eigene Hand gewickelt und behalten. „H. R.“ – mit der Nagelschere geritzt. Hänschen Rieke, 1958.'); }
   } finally { if (tok === k5.tok) state.talking = false; }
+  if (typeof sammeln_fadenNachtrag === 'function') sammeln_fadenNachtrag('kb_naepfe', 5, 'Gisela hat mir Hänschen mitgegeben. „Wenn er schnurrt, ist es ein Kind.“' + (k5.f.riemen ? ' Den Riemen „H. R.“ hat sie behalten.' : '')); // AP-25: Faden „Siebzehn Näpfe“, Abschnitt Kap. 5
   // Sie geht den Kirchweg hinauf; Whiskey landet auf dem Zaun, plustert sich und zieht der Katze im Vorbeiflug ein Büschel aus dem Schwanz
   if (G) { k5_clip(G, 'walk', false); k5.renne = { g: G, pfad: [[-44, -6.5], [-20, -5.8], [-8.2, -4.5], [-7.2, 8], [-7.2, 24]], i: 0, v: 1.05, weg: true }; }
   await wait(1800);
