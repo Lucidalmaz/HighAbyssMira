@@ -875,18 +875,18 @@ Alle Namen nach Kern §14. Verteilung: Ortskern 8, Kirchberg 6, Osten 4, Westen 
 11. **„Laternenfest fällt aus“** · Kapelle und Pfarrhaus (**N-05**) · Auslöser: der Aushang an der Kapellentür („Das Laternenfest fällt in diesem Jahr aus (Brandschutz). Die Gemeinde bittet um Verständnis.“, ohne Unterschrift, mit dem Auge unter dem Stempel, **AG-04-Vorbote**). Das Kapellenfenster mit seinen acht Feldern (02 F5: Stern fällt, Kind mit Laterne geht ins Licht, Frau führt sechs heraus … bis zum Laternenzug des Dorfes), das Sühnekreuz mit **SB-02** im Sockel, im Pfarrhaus-Schuppen Pfarrer Voss’ Fahrrad mit Kindersitz und ein vergilbter Gemeindebrief mit seinem Namen, seit 1992 nicht abgenommen.
 12. **„Ochs am Berg“** · Spielplatz · Auslöser: ein Teddy auf der Bank, Gesicht nach unten. Der Teddy rückt bei jedem Umdrehen näher; wer sich nicht mehr umdreht, findet ihn vor den Füßen. Kreide am Klettergerüst: EISEN IST FREI. Am Nordzaun das Absperrgitter mit der Zeitung von 1992 (**Z-03**) und dahinter der Wald ohne Echo (Nebenaufgabe 18).
 13. **„Hinter dem ältesten Plakat“** · Bushaltestelle Kirchberg · Auslöser: der Fahrplan mit Plakaten aus vier Jahren; wer sie liest, sagt „Siebzehn.“ Hinter dem ältesten Plakat **SB-03** (Justin und die Eisenbahn, Humor). Hier beginnt das geheime Ende „Fahr heim“ (blaue Pfeile mit Kreis am Schaft, Lucys Zeichen).
-14. **„Der Strich ohne Namen“** · ehemalige Praxis Seiler am Kirchweg · Auslöser: eine Messlatte im Flur hinter dem Fenster, zwei Striche vom Sommer 2009 mit einem Namen, einer ohne. Der Aushang der „Bundesstelle für Rückführung (in Abwicklung), Bürgersprechstunde donnerstags“ hängt an der Gasse daneben (**AG-04**).
+14. **„Der Strich ohne Namen“** (**ab Kapitel 4**, Story-Prüfung H-6) · ehemalige Praxis Seiler am Kirchweg · Auslöser: eine Messlatte im Flur hinter dem Fenster, zwei Striche vom Sommer 2009 mit einem Namen, einer ohne. Der Aushang der „Bundesstelle für Rückführung (in Abwicklung), Bürgersprechstunde donnerstags“ hängt an der Gasse daneben (**AG-04**).
 
 **Osten**
 15. **„Zapfsäule 3“** · Tankstelle Kranz · Auslöser: das Licht über der Kasse, das als einziges brennt. Mikes Schichtbuch („Kind an Säule 3. Barfuß. Hat eine Laterne. Ruft meinen Namen.“), der Bon „1× Laterne“, die gerahmte Zeitung über der Kasse mit Wolter hinter dem Fotografen (**Z-02**), das Mike-Polaroid; hinter der Tankstelle Günther Maas’ Schuppen, abgeschlossen, mit einem Berg Werbepost davor (**N-03**).
 16. **„Empfänger unbekannt verzogen“** · Kirchweg/Tankstelle, Günther Maas (**N-03**) · Auslöser: Fahrradklingel im Nebel; Whiskey erschreckt den Postboten, die Posttasche kippt. Ein Brief an „Lucy Brandt, Ahornstraße 1“, Poststempel Hamburg, liegt auf der Straße; Maas reißt ihn Luke aus der Hand: „Unzustellbar. Empfänger unbekannt verzogen.“ – „Meine Schwester ist nicht verzogen.“ Er ist nervös, redselig, raucht Lukes letzte Zigaretten und sagt, er fange jetzt „früher an, seit Oktober, fragen Sie nicht“; danach telefoniert er, mit dem Rücken zu Luke.
-17. **„Acht Kindersitze“** · Schrottplatz · Auslöser: das Klopfen aus einem Kofferraum. Zwei alte Transporter des Amts, hinten acht Kindersitze, einer mit einem Namensschild, das abgekratzt ist; auf einem Kistendeckel „SEHEN · BERGEN · SCHWEIGEN“, halb übermalt.
+17. **„Acht Kindersitze“** (**ab Kapitel 3**, Story-Prüfung H-6) · Schrottplatz · Auslöser: das Klopfen aus einem Kofferraum. Zwei alte Transporter des Amts, hinten acht Kindersitze, einer mit einem Namensschild, das abgekratzt ist; auf einem Kistendeckel „SEHEN · BERGEN · SCHWEIGEN“, halb übermalt.
 18. **„Wildschaden, 1992“** · Nordzaun bei der Tankstelle · Auslöser: das Absperrgitter der Gemeinde und ein Wildschaden-Schild von 1992. Spuren wie von einem Hirsch, der auf zwei Beinen ging; ein Fuchs, der Luke ansieht und den Kopf zu weit dreht. Vorbote für Kapitel 6, ohne Erklärung.
 
 **Westen**
 19. **„Die Kreise sind von unten“** · Nr. 8 (Frau Aydın am Fenster) → Hof → Scheune · Auslöser: „Sie ist aus der Klinik weg. Sie sagt, sie macht die Augen zu, bis es vorbei ist.“ Dina im Heu mit Augenbinde, das Rätsel (Lampe aus, dem Summen folgen), Dina legt Luke die Hand über die Augen: gezeigt, nicht als Mechanik. Über dem Heu sitzt Whiskey und rührt sich nicht (**W-04**); unter dem Heu Justins Lager mit **SB-01**, und auf dem Fundamentstein dasselbe Zeichen wie auf Whiskeys Ring: ein Turm über einem Abgrund.
 20. **„Da oben war es warm“** · Schrebergärten, Roxys Laube · Auslöser: eine Laube, in der alle Lampen brennen, ohne Strom. Roxys Heft, der Brunnen, der auf „Lucy“ mit „Luke“ antwortet, Hildes Parzelle mit dem Gemüse für Kinder, die nicht mehr zum Essen kamen.
-21. **„Das winkende Fenster“** · Tor der Villa Seiler · Auslöser: im ersten Stock winkt jemand, das Fenster ist dunkel. Das Tor mit acht Schlössern, der Briefkasten voller ungeöffneter Post, das Winken, das aufhört, sobald man die Lampe hebt; die Gedankenzeile „Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.“
+21. **„Das winkende Fenster“** (**ab Kapitel 3**, Story-Prüfung H-6) · Tor der Villa Seiler · Auslöser: im ersten Stock winkt jemand, das Fenster ist dunkel. Das Tor mit acht Schlössern, der Briefkasten voller ungeöffneter Post, das Winken, das aufhört, sobald man die Lampe hebt; die Gedankenzeile „Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.“
 
 ### Fundstücke und Notizen (Hauptweg, vollständige Texte)
 
@@ -2741,6 +2741,8 @@ Kern §12.1, Kapitel 3: *Die Kuh schlägt aus dem Himmel neben Luke auf, ohne Au
 
 ### Nebenaufgaben
 
+**Aus Kapitel 1 hierher verschoben (Story-Prüfung H-6):** „Acht Kindersitze“ (Schrottplatz; das Klopfen aus dem Transporter beginnt in der offenen Nacht) und „Das winkende Fenster“ (Tor der Villa Seiler; die kleine blasse Hand winkt erst jetzt, als Vorbote von Kapitel 4). Wortlaut, Schritte und Belohnungen wie in Kapitel 1, Nebenaufgaben 17 und 21. Sie zählen ab hier, nicht schon ab Unterkapitel 5.
+
 Liste für den zweiten Autor (Ausarbeitung in `31_kap3_neben.md`). Alle Namen nach Kern §14. Das Dorf ist in dieser Nacht ganz offen; wer nie drin war, schläft wie ein Stein, Türen stehen auf, alle Uhren zeigen 03:13. Die Nebenaufgaben sind frei spielbar zwischen Unterkapitel 5 („Kein Draußen“) und dem Löschen der vierten Laterne; danach nicht mehr (die Behaltenen kommen). **[RH-n]** heißt: liefert einen Rüstungs-Hinweis (Liste darunter).
 
 **Ortskern**
@@ -4541,6 +4543,8 @@ Kern §12.1, Kapitel 4: *Im Kühlraum der Villa bewegt sich im Glas ∴-1 etwas,
 
 ### Nebenaufgaben
 
+**Aus Kapitel 1 hierher verschoben (Story-Prüfung H-6):** „Der Strich ohne Namen“ (Praxis Seiler, Am Kirchberg 5: die Messlatte im Flur, sieben Namen vom 23.7.09 und ein Strich ohne Namen vom 6.8.09). Am Tag, in dem Kapitel, in dem Luke das Haus des Doktors betritt. Wortlaut wie Kapitel 1, Nebenaufgabe 14; der Schaukasten (AG-04) bleibt in Kapitel 1 und gehört nicht mehr dazu. *Hinweis an Teil A (W-1):* Lukes Satz „Einer ohne Namen. Das achte Kind?“ fällt jetzt nach Akte 08; der Spieler weiß da schon, wer das achte Kind ist. Ein Satz der Erkenntnis passt besser (Vorschlag: „Einer ohne Namen. Sechster August. … Das bin ich.“).
+
 #### „Gasleck“
 **Woher der Name:** vom Absperrband des Aufräumkommandos. Nach der Aufgabe weiß man, was hinter dem Wort weggeräumt wird: Hildes Bilder. **Start:** Unterkapitel 1, der Anblick des Mannes, der die Polaroids an den Kerzen vor Nr. 7 gegen leere tauscht. **Schritte:** (1) Wer vor dem Arbeiter bei einer Kerze ist, hebt das Polaroid auf (drei Kerzen, der Arbeiter geht sie der Reihe nach ab; wer unter dem Band durchgeht, wo einer hinsieht: −4). (2) K4-2: Whiskey landet auf der Kiste des Blechmanns und bringt ein viertes. (3) Die Mülltüte hinter der Tonne von Nr. 9 mit dem Rest. (4) Wenn das Kommando am Mittag abzieht: die Bilder zurück an die Kerzen stecken.
 **Fundstücke (Polaroid-Rückseiten, Hildes Kuli):**
@@ -5270,7 +5274,7 @@ Antwort 3 (unfertig): „Komm nicht am Samstag. Komm gar nicht. Ich hab dich lie
 
 **Texte:** Rückseite des letzten Fotos: „Neun. Der Kleine gehört nicht dazu. Er zählt selber, ich hab ihn gesehen. Er zählt mich. — H.“ Zettel in der Dose: „Für den, der die Kamera findet: Die Bilder gehören nicht dem Amt. Die gehören den Kindern.“
 
-**Belohnung:** zwei Filme, Lore **„Neun Paar Füße“** (02 A2; „Der Neunte“ bleibt der Name der Beobachter-Nebenaufgabe). **Enthüllung:** Hildes Neunter ist der Beobachter; er zählt auch. **Schreck:** Beim Verlassen brennt die Petroleumlampe nicht mehr; auf dem zweiten Stuhl liegt ein ausgelecktes, gefaltetes Bonbonpapier. **Humor:** „Hilde hat mehr Fotos von nassen Füßen als ich von meinem ganzen Leben.“
+**Belohnung:** zwei Filme, Lore **„Neun Paar Füße“** (02 A2; „Der Neunte“ bleibt der Name der Beobachter-Nebenaufgabe). **Enthüllung:** Hildes Neunter ist der Beobachter; er zählt auch. **Schreck:** Beim Verlassen brennt die Petroleumlampe nicht mehr. (Kein Bonbonpapier, R-1.) **Humor:** „Hilde hat mehr Fotos von nassen Füßen als ich von meinem ganzen Leben.“
 
 #### „Kinder tanken nicht“ (der Benzin-Junge)
 **Name:** Zeile von Vater Kranz im Kassettenzettel der Tankstelle (`ausbau_ost_west.js`). **Start:** Wer Kassenbuch und Kassette kennt, denkt nach dem Anruf (Unterkapitel 9): „Barfuß, allein, ein roter Kanister. Das Foto in der Kassette. Ich weiß jetzt, wer das war.“ **Schritte:** (1) Zur Tankstelle Kranz (Umweg etwa vier Minuten). (2) Die Zapfinsel bei Nacht fotografieren (ein Bild): Auf dem Polaroid steht, was damals hier stand: ein Junge im gestreiften Schlafanzug, blaue Augen, den roten Kanister mit beiden Händen; hinter dem Kioskfenster der Mann, der das Foto macht. (3) Im Stall wird „Der Kanister?“ freigeschaltet.

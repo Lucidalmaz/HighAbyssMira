@@ -138,7 +138,7 @@ async function lucy3_opening() {
     await say([['Elf Anrufe. Diesmal geh ich ran.', 3200, 'DU']]);
     if (typeof gedanke === 'function') gedanke('c3_lucyweg', 'Der Tank war leer. Die Luke stand offen, und oben hat es geatmet. Was immer da oben ist, es hat jetzt Lucy.', 9000, 3); // F3 Verständlichkeit: was passiert ist, warum Luke weitermacht
     if (K) K.leine = null; if (typeof saveGame === 'function') saveGame(3); // Speicherpunkt „Kreuzung, 03:13“
-    if (typeof beob_spur === 'function') try { beob_spur('kiesel', { pos: [8.9, 0, 9.3] }); } catch (e) {} // hinter der Telefonzelle rollt ein Kiesel
+    // R-1 (Story-Prüfung): kein Kiesel hinter der Telefonzelle mehr – Kiesel nur, wo eine Katze hinstarrt
     // UK 2: Luke geht drei Schritte in irgendeine Richtung
     const st = player.pos.clone(); while (Math.hypot(player.pos.x - st.x, player.pos.z - st.z) < 2.3) { await wait(150); if (lucy3_weg() || cowFx.done) return; }
     if (typeof kino_play === 'function' && typeof kino_S !== 'undefined' && kino_S.ready && typeof KINO !== 'undefined' && KINO.k3kuh && !cowFx.done) { Audio.hum(false); await kino_play('k3kuh').catch(e => console.error('Kino k3kuh', e)); Audio.hum(true); }

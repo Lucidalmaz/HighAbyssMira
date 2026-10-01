@@ -537,7 +537,7 @@ function villa_halleTueren(H) { const x0 = H.x - H.w / 2, x1 = H.x + H.w / 2;
 // Halle: Kratzen in beiden Wänden (S-01) beim ersten Durchqueren
 function villa_halleTick() { const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null; if (!A || !A.inHall || villa_hat('hkratz')) return; const H = ANW_HALL;
   if (player.pos.z > H.z + 1.5) { villa_setz('hkratz'); villa_kratzen(H.x + H.w / 2 - .1, .9, H.z - 2); villa_spur('kratzer', { pos: [H.x + H.w / 2 - .12, .8, H.z - 2], ry: -PI / 2, n: 3, frisch: true });
-    setTimeout(() => { villa_kratzen(H.x - H.w / 2 + .1, .9, H.z - 1); villa_spur('kratzer', { pos: [H.x - H.w / 2 + .12, .8, H.z - 1], ry: PI / 2, n: 3, frisch: true }); }, 1600); } }
+    setTimeout(() => { villa_kratzen(H.x - H.w / 2 + .1, .9, H.z - 1); /* R-1: nur zu hören, keine zweite sichtbare Kratzspur */ }, 1600); } }
 // Krankenbett: Strickjacke, Nachbild (UK 6), Nadel (R4-2)
 async function villa_bett() { if (state.talking) return;
   if (!villa_hat('nachbild')) { villa_setz('nachbild'); toast('Ein Krankenbett, zur Treppe gedreht. Über dem Fußende eine graue Strickjacke, die Ellenbogen mit Leder geflickt. In das Kopfteil sind acht Striche geritzt, der achte tiefer als die anderen.', 5600);

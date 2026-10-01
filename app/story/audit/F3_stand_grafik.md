@@ -62,6 +62,16 @@
   - Panels gleiten leicht unscharf herein.
 - **Hauptmenü:** Regentropfen laufen über die Scheibe (Canvas in halber Auflösung, 30 fps, nur solange das Menü sichtbar ist). Das Kerzenflackern war schon da.
 
+## Nachtrag: Fehler bei den Textur-Einheiten behoben (Smoke-Test)
+- **Fehler:** Die Material-Erweiterung brauchte 2 zusätzliche Sampler. Materialien mit vielen Karten und Schattenkarten kamen dadurch über 16 Textur-Einheiten (`fa_corrugated` u. a.), und es gab Shader-Fehler.
+- **Behoben:** Die Erweiterung läuft jetzt rein prozedural: Value-Noise mit analytischer Ableitung für die Mikronormalen, die Schmutzmaske, die Laufspuren und die Kachelbrechung. Sie braucht **0 zusätzliche Sampler**. Dafür gibt es keine Varianten-Zählung und keine Ausnahmen mehr.
+- **Bildpass:** Er hat eigene Programme mit 2 bzw. 3 Samplern, `filmPass` hat 3. Alle liegen weit unter der Grenze.
+- **Messung** `_smoke2` (`_int1_steps.json`, über `_testgate.sh`):
+  - Keine Konsolenfehler (`errs=0`), keine Shader-Fehler.
+  - Ortstafel 19,7 fps (schlechtestes Bild 91 ms), Straße Ost 16,0 (130 ms), Kreuzung 17,5 (164 ms), Kreuzung Nord 34,7 (283 ms), Nr. 7 innen 42,4 (85 ms), Lampe an 35,4 (44 ms).
+  - Vorher: Kreuzung 5, Straße Ost 7, Ortstafel 15, Nr. 7 36.
+  - Draußen ist es weiter zu langsam. Der Anteil von Grafik/Oberfläche lässt sich bei der Schlussmessung mit `__grafik.an({ det: 0, ao: 0, vol: 0 })` isolieren.
+
 ## Vorher-Lauf (Diagnose, `C:/Users/GIGABYTE/_r14/vorher/`, Seite aus den Modulen vom 01.10. vor den Änderungen)
 - **Straße, Fassaden, Asphalt:** wirken nah glatt.
   - Holzfassaden und Putz haben im Lampenlicht gleichmäßige Rauheit und keinen Schmutz am Sockel.

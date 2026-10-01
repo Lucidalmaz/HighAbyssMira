@@ -59,12 +59,12 @@ function st_stop(fade = .12) { const c = Audio.ctx; if (!c) return; ST.halt = nu
 async function st_spiele(ids, who, pos, key) { const A = Audio, c = A.ctx; if (!c || !ids || !ids.length || !st_an()) return false;
   ST.zuletzt = { ids, t: performance.now() };
   const bufs = await Promise.all(ids.map(st_lade)); if (!bufs.some(Boolean)) return false;
-  const stimme = ST.man.z[ids[0]][2], art = who ? st_art(who, stimme, key) : ST.man.z[ids[0]][3] || st_art(who, stimme, key), wo = art === 'funk' && !pos ? null : (pos || (art === 'welt' ? st_ort(stimme) : null));
+  const stimme = ST.man.z[ids[0]][2], art = ST.telefon && stimme !== 'luke' ? 'funk' : who ? st_art(who, stimme, key) : ST.man.z[ids[0]][3] || st_art(who, stimme, key), wo = art === 'funk' && !pos ? null : (pos || (art === 'welt' ? st_ort(stimme) : null));
   // Sprecherwechsel: läuft die vorige Zeile nur noch kurz, wartet die neue (natürlicher Wechsel); sonst weich abblenden
   let t0 = c.currentTime + .03; const rest = ST.cur.reduce((m, h) => Math.max(m, h.ende - c.currentTime), 0);
   if (rest > 0 && rest < 1.4) t0 += rest + .12; else st_stop();
   if (!ST.ana) { ST.ana = c.createAnalyser(); ST.ana.fftSize = 512; ST.tmp = new Float32Array(ST.ana.fftSize); }
-  const vol = st_vol() * (art === 'funk' ? .8 : art === 'trocken' ? .85 : stimme === 'luke' && !wo ? .85 : 1); // die eigene Stimme etwas zurück
+  const vol = st_vol() * (ST.man.z[ids[0]][4] || 1) * (art === 'funk' ? .8 : art === 'trocken' ? .85 : stimme === 'luke' && !wo ? .85 : 1); // die eigene Stimme etwas zurück
   bufs.forEach((b, i) => { if (!b) return; const src = c.createBufferSource(); src.buffer = b; if (art === 'rabe') src.playbackRate.value = 1.12;
     const g = st_ziel(c, art, wo, vol * (ids.length > 1 ? [1, .8, .7][i] || .6 : 1)); src.connect(g); src.connect(ST.ana); const ts = t0 + i * [0, .05, .11][Math.min(i, 2)];
     src.start(ts); const h = { src, g, ende: ts + b.duration / src.playbackRate.value, id: ids[i], b, t0: ts, rate: src.playbackRate.value }; src.onended = () => { if (ST.halt) return; const k = ST.cur.indexOf(h); if (k >= 0) ST.cur.splice(k, 1); }; ST.cur.push(h); });
@@ -108,6 +108,10 @@ function st_einstellung() { try { const P = document.getElementById('subPanel'),
 WORLD_MODS.push(['Stimmen', async () => {
   try { if (settings.stimmen === undefined) settings.stimmen = true; if (settings.stimmenVol === undefined) settings.stimmenVol = 1; } catch (e) {}
   const mS = document.getElementById('mSet'); if (mS) mS.addEventListener('click', () => setTimeout(st_einstellung, 0));
+  // T-3 (Kap. 6): der Anruf, den man nicht annehmen darf – Stimmen aus dem Handy (Telefonfilter), Lukes eigene bleibt im Raum
+  if (typeof k6_anrufLucy === 'function') k6_anrufLucy = (o => async function () { ST.telefon = true; try { return await o.apply(this, arguments); } finally { ST.telefon = false; } })(k6_anrufLucy);
+  // T-4: Miras gesummte fünf Töne als echte Stimme statt des Synth-Summens (nur wenn die Aufnahme da ist)
+  if (typeof hungrige_summen === 'function') hungrige_summen = (o => function (x, y, z) { try { if (stimmen_spielen('mira_summen', [x, y, z])) return; } catch (e) {} return o.apply(this, arguments); })(hungrige_summen);
   // LWO-Gespräche warten wie say() auf das Ende der Stimme
   if (typeof lwo_ms === 'function') lwo_ms = (o => (text, ms) => { const d = o(text, ms), v = stimmen_dauer(text, ''); return v ? Math.max(d, v * 1000 + 300) : d; })(lwo_ms);
   st_ladeManifest();

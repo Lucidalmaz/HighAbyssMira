@@ -132,9 +132,9 @@ function n5_laubeTick() { const L = n5_st('laube'); if (!n5_k5() || L.fertig) re
   if (!L.start && typeof k5_ab === 'function' && k5_ab('foto1') && n5_frei() && n5_offenBeat()) { const film = typeof kamera_S !== 'undefined' ? kamera_S.film : 3, nah = n5_d(...N5_LAUBE) < 16;
     if (nah || (n5_nach9() && film <= 1)) { L.start = 1; n5_start('k5_laube', null, { x: N5_LAUBE[0], z: N5_LAUBE[1] });
       n5_gedanke('n5_laube', nah ? '„Hildes Laube. Parzelle 7. Hier hat sie gesessen, wenn sie nicht am Fenster saß.“' : '„Ein Bild noch. Hilde hatte nie irgendwas nur einmal. Ihre Laube in den Schrebergärten, Parzelle 7.“', 200); } }
-  // Schreck beim Verlassen: die Petroleumlampe ist aus, auf der Schwelle ein ausgelecktes, gefaltetes Bonbonpapier
+  // Schreck beim Verlassen: die Petroleumlampe ist aus
   if (L.gelesen && !L.lampeAus && n5_d(...N5_LAUBE) > 7 && n5_frei()) { L.lampeAus = 1; subtitle('Hinter dir ist es dunkel geworden. In der Laube brennt keine Lampe mehr.', 4200);
-    try { if (typeof beob_spur === 'function') beob_spur('bonbon', { pos: [N5_LAUBE[0] + 1.7, .02, N5_LAUBE[1] + .3], frisch: true }); } catch (e) {} }
+    } /* R-1 (Story-Prüfung): kein Bonbonpapier mehr an der Laube – Spuren-Budget Kap. 5, Dossier 82 §4 */
   if (L.gelesen && !L.foto && !neben5_S.o.kinder) n5_kinderBau(); }
 async function n5_laube() { const L = n5_st('laube'), S = neben5_S; if (state.talking || S.busy) return;
   if (L.gelesen) return toast('Die Blechdose ist leer. Der Schuhkarton „Nächte“ steht offen auf der Bank. Die Lampe ist aus.', 3400);
