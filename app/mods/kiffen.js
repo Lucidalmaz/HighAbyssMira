@@ -493,7 +493,7 @@ function kf_rauchenTick(dt, t) { const Z = kf_Z, S = kiffen_S, H = KF_H, V = KF_
   const ende = kf_moWeiter(dt);
   if (m.seg === 'heben' && ende) kf_moSeg('zug');
   else if (m.seg === 'zug' && !druck && m.segT > .5) { if (m.segT > 1) { // ausatmen beim Senken
-      Z.zuege++; Z.ausT = 2.6; S.zittern *= .72; kf_ton('kfAus', { gain: .32, delay: .35 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) S.weichT = 0;
+      Z.zuege++; Z.ausT = 2.6; S.zittern *= .72; kf_ton('kfAus', { gain: .32, delay: .35 }); S.weichZiel = Math.min(1, .3 + Z.zuege * .24); if (Z.zuege === 1) { S.weichT = 0; if (typeof villa_brumm === 'function') try { villa_brumm(.2, 6); setTimeout(() => { try { villa_brumm(0, 8); } catch (e) {} }, (KF_WEICH - 8) * 1000); } catch (e) {} } // H-5: die Welt wird weicher, nur das Fünfzig-Hertz-Brummen bleibt gleich laut (Master, ungedämpft)
       if (Z.zuege === 1 && !Z.hustet) { Z.hustet = true; setTimeout(() => { kf_ton('kfHusten', { gain: .55 }); shake = Math.max(shake, .018); kf_husten(); }, 900); }
       if (Z.zuege === 3 && !Z.vegas && Z.opts.vegas !== false) setTimeout(() => kf_vegas(), 3200); }
     kf_moSeg('senken'); }
@@ -644,7 +644,7 @@ async function kiffen_szene(opts = {}) {
   const sv = Z.saved; player.pos.set(sv.px, sv.py, sv.pz); kf_veranda(false); setScripted(null); setCamOverride(null); state.talking = false; Z.on = false; S.szene = false; S.done = true; Z.st = null;
   if (story.side.kf_fuenf) sideDone('kf_fuenf', 'Fünf Minuten auf Vegas’ Veranda. Es waren eher zwölf.'); S.auf = 'fertig';
   for (const k of ['kf_grinder', 'kf_papes', 'kf_knolle', 'kf_tips']) { const i = story.items.indexOf(k); if (i >= 0 && k !== 'kf_grinder') story.items.splice(i, 1); } // Grinder bleibt in der Jacke
-  if (typeof gedanke === 'function') gedanke('kf_danach', 'Zwölf Minuten, nicht fünf. Reicht trotzdem.', 9000, 3);
+  if (typeof gedanke === 'function') gedanke('kf_danach', 'Fünf Minuten. Alles ist leiser. Das Brummen nicht.', 9000, 3); // Story-Prüfung H-5
   try { saveGame(kf_kap()); } catch (e) {} return true; }
 // Weiche Welt, Zeitlupe, Ruhe (läuft nach der Szene weiter, insgesamt ~80 s ab dem ersten Zug)
 const KF_WEICH = 80;
@@ -734,11 +734,6 @@ const KF_DEKO_TEXT = {
   tanke: 'Blättchen neunzig Cent. Darunter, in Kuli: „– M.“ Mike hat die Preise selbst geschrieben.',
   hanfTanke: 'Ein Hanfblatt auf der Wand einer Tankstelle. Mutig, Mike.',
   theke: 'Blättchen neben den Kaugummis. Und ein Feuerzeug, an einer Schnur festgebunden. Mike kannte seine Kundschaft.',
-  hanfBus: 'Halb abgekratzt. Irgendwer hat hier auf den Bus gewartet und die Zeit genutzt.',
-  reggaeBus: '„One Love, Abgrund.“ Der Bus kommt trotzdem nicht.',
-  feuerBus: 'Ein Feuerzeug auf der Bank. Leer. Wie der Fahrplan.',
-  auto: 'Auf dem Armaturenbrett: Blättchen und ein Feuerzeug. Der Fahrer hatte Prioritäten.',
-  bong: 'Eine Bong. In der Remise. Zwischen dem Heu. Brandschutz war hier nie ein Thema.',
   pflanzen: 'Die Growlampe ist aus. Die Pflanzen haben trotzdem durchgehalten. Respekt.',
   ascher: 'Vegas’ Aschenbecher. Voll mit Kippen ohne Filter.', ascher2: 'Vegas’ Aschenbecher. Kippen ohne Filter. Und seit heute ein Stummel mit.' };
 function kf_klebRay(art, ox, oy, oz, dx, dy, dz, o = {}) { try { const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, o.weit || 2.5); rc.camera = camera;
@@ -753,14 +748,7 @@ async function kiffen_deko() { const S = kiffen_S, D = S.deko; const add = (o, k
     add(kiffen_poster('hanf', 116.9, 1.46, 24.862, Math.PI, { rz: .2 }), 1, KF_DEKO_TEXT.hanfTanke, [.25, .25, .25, 116.9, 1.46, 24.8]);
     { const ty = kf_boden(111.1, 25.9, 1.6, 1.2) ?? .95; const g = new THREE.Group(); g.position.set(111.15, ty, 25.9); for (const [dx, dz, r] of [[0, 0, .2], [.035, .01, .5], [.015, -.02, -.3]]) { const p = await kf_modell('kiffen/papes', .105, 'max'); p.position.set(dx, 0, dz); p.rotation.y = r; p.children[0].rotation.x = Math.PI / 2 * 0; g.add(p); }
       const f = await kf_modell('w_lighter', .06); f.position.set(.13, 0, .03); f.rotation.set(0, .9, 0); g.add(f); scene.add(g); add(g, 1, KF_DEKO_TEXT.theke, [.4, .25, .3, 111.2, ty + .08, 25.9]); }
-    // Bushaltestelle Kirchberg: zwei Aufkleber an der Rückwand, ein Feuerzeug auf der Bank
-    add(kiffen_poster('hanf', 11.9, 1.28, 51.99, 0, { rz: -.35 }), 1, KF_DEKO_TEXT.hanfBus, [.25, .25, .2, 11.9, 1.28, 52.05]);
-    add(kiffen_poster('reggae', 9.35, .98, 51.99, 0, { rz: .12 }), 1, KF_DEKO_TEXT.reggaeBus, [.3, .2, .2, 9.35, .98, 52.05]);
-    { const by = kf_boden(10.55, 52.4, 1.2, 1) ?? .47; const f = await kf_modell('w_lighter', .06); f.rotation.set(Math.PI / 2, 0, .6); f.position.set(10.55, by + .014, 52.4); scene.add(f); add(f, 1, KF_DEKO_TEXT.feuerBus, [.25, .2, .25, 10.55, by + .05, 52.4]); }
-    // beiges Auto vor Nr. 2 (strasse.js): Blättchen + Feuerzeug auf dem Armaturenbrett (Höhe gemessen)
-    for (const dx of [.95, -.95]) { const y = kf_boden(-49.5 + dx, 3.1 + .25, 1.28, .5); if (y !== null && y > .8 && y < 1.2) { const g = new THREE.Group(); g.position.set(-49.5 + dx, y, 3.1 + .25); const p = await kf_modell('kiffen/papes', .105, 'max'); p.rotation.y = 1.2; g.add(p); const f = await kf_modell('w_lighter', .055); f.rotation.set(Math.PI / 2, 0, .3); f.position.set(.02, .012, -.14); g.add(f); scene.add(g); add(g, 1, KF_DEKO_TEXT.auto); break; } }
-    // Remise (Hof): Bong neben dem Heu
-    { const y = kf_boden(-126.9, -34.6) ?? 0; const b = await kf_modell('kiffen/bong', .36); b.position.set(-126.9, y, -34.6); b.rotation.y = .7; b.traverse(m => { if (m.isMesh && m.material.transparent) { m.material.depthWrite = false; m.material.envMapIntensity = .45; m.material.roughness = .12; m.castShadow = false; } }); scene.add(b); add(b, 1, KF_DEKO_TEXT.bong, [.35, .5, .35, -126.9, y + .2, -34.6]); }
+    // Story-Prüfung H-5: Kiffer-Deko nur an drei Orten mit Geschichte (Lukes Jugendzimmer in Nr. 4, Roxys Laube, Mikes Tankstelle) – Bushaltestelle, Auto vor Nr. 2 und Remise gestrichen
     // Roxys Laube: zwei Topfpflanzen an der Tür (die Knolle darunter gehört zur Aufgabe), Aufkleber an der Laube
     { const y = kf_boden(-109.95, 23.55) ?? 0; const p1 = await kf_modell('kiffen/pflanze', 1.02); p1.position.set(-109.95, y, 23.55); p1.rotation.y = 2.1; scene.add(p1); add(p1, 1, KF_DEKO_TEXT.pflanzen, [.7, 1.1, .7, -109.95, y + .55, 23.55]);
       const y2 = kf_boden(-109.85, 26.55) ?? 0; const p2 = await kf_modell('kiffen/topf', .72); p2.position.set(-109.85, y2, 26.55); p2.rotation.y = -.6; scene.add(p2); add(p2, 1, KF_DEKO_TEXT.pflanzen);

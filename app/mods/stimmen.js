@@ -51,6 +51,7 @@ function st_ort(stimme) { try {
   let p = null, y = 0;
   if (stimme === 'vegas' && typeof albers_S !== 'undefined' && albers_S.open) { p = albers_S.door; y = p.y; } // Türspalt in Mundhöhe
   else if (stimme === 'justin' && typeof justin_da === 'function' && justin_da()) p = justin.g.position;
+  else if (stimme === 'peter' && typeof PZ !== 'undefined' && PZ.pg && typeof zombie !== 'undefined' && zombie.g && zombie.g.visible) { p = zombie.g.position; y = p.y + 1.3; } // Zahn-Mann (feuer.js), geduckt
   else if (typeof LWO !== 'undefined' && LWO.F) { const F = LWO.F[{ nachsorge11: 'n11', nachsorge12: 'n12', wolter: 'wolter' }[stimme]]; if (F && F.g && F.g.visible) p = F.g.position; }
   if (!p) return null; if (!y) y = (p.y || 0) + 1.6; // Füße → Mund
   return Math.hypot(p.x - camera.position.x, p.z - camera.position.z) < 18 ? [p.x, y, p.z] : null; } catch (e) { return null; } }
