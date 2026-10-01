@@ -119,3 +119,11 @@
 - Kapitelmodule: Atempausen aus Tabelle 5.6 per `spannung_pause(id)` melden; `spannung_dreier` für AG-19, Hirsch, Hofer; Kreaturen: `spannung_laerm()`/`spannung_sicht()`; Innenräume: `gedanken_blick(art, unterart)` an Kühlschrank/Spiegel/Uhr.
 - Nicht gebaut: Slapstick S-05/06/07 (Ort/Modell fehlt), Stille vor Dreiern (5.5), gesperrte Speicherpunkte in Jagden (A-30). Autor: Wortlaut des Murmel-Satzes („Der Neunte“, Kap. 7).
 - `raender.js` steht in ORDER, Datei existiert nicht (Zweck offen) – ebenso `remise`.
+
+## SCHLUSSTEST – PRIORITÄT 1
+- **Eingebettete GLB-Texturen laden im Selbsttest nicht** („Couldn't load texture blob:app://game/…“, 13×, auch mit index.html, z. B. animal_fox) – gemeldet vom Kreaturen-Agenten 01.10. Im Integrationstest 30.09. 20:00 nicht aufgetreten → Verdacht Speicherdruck (createImageBitmap bei wenig RAM/VRAM) oder Änderung am Ladepfad. Im ruhigen Schlusslauf als Erstes prüfen; falls reproduzierbar: Ursache beheben (Ladepfad/Blob-Protokoll/Speicher).
+
+## Aus Kreaturen (fertig, F3_stand_kreaturen.md)
+- Lichtschiff: eigener Haut-/Rippen-Shader auf alter Rumpfform (kein passendes Fab-Modell) – Ausnahme von „nur Fab-Assets“, bei Gelegenheit ersetzen.
+- Hirschding 52k Dreiecke ohne LOD (1 Exemplar, < 26 m sichtbar). Fab-Links für Grimhound/Muscle Tissue in CREDITS ergänzen (fa911d4e-6994-4bf4-8bcd-c356002b36c2, 38b9c25b-80db-4606-a0f8-bb2bb947143a).
+- Schlusstest Kap. 6: Jagd mit Lärm/Licht, drei Fallen-Wege, Tod durch das Hirschding, FPS mit Hirschding, Pegel `wd_*`.
