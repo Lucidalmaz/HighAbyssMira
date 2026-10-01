@@ -486,15 +486,21 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
 // Leitungen im Wind (R-7): Ausschlag je Punkt aus aSw (uv.x der Röhre = Lage entlang der Leitung), gemeinsamer Windzustand der Basis (windV/windU):
 // ruhig wenige Zentimeter, in der Böe bis ~10 cm quer zur Windrichtung, leicht verzögert und nie im Gleichtakt (Phase aus der Weltlage)
 function strasse_sway(g, f) { const U = g.attributes.uv, a = new Float32Array(U.count); for (let i = 0; i < U.count; i++) a[i] = f(U.getX(i)); g.setAttribute('aSw', new THREE.BufferAttribute(a, 1)); return g; }
+// Trägheit (R-23): drei gedämpfte Schwinger (ω 0,9 / 1,35 / 1,9 rad/s, ζ 0,08) – lange Spannweiten schwingen langsam, holen nach einer Böe über und
+// klingen langsam aus; jede Spannweite (20-m-Zelle) hängt an einem davon, dazu feines Zittern im Wind.
+const strasse_LW = { value: new THREE.Vector3() }, strasse_LO = [{ x: 0, v: 0, om: .9 }, { x: 0, v: 0, om: 1.35 }, { x: 0, v: 0, om: 1.9 }];
+function strasse_leitTick(dt, t) { if (typeof WIND === 'undefined') return; dt = Math.min(dt, .05);
+  for (let i = 0; i < 3; i++) { const o = strasse_LO[i], F = WIND.k * WIND.k * .7 + gust * .45 * Math.sin(t * (1.7 + i * .6) + i * 2.1); o.v += (o.om * o.om * (F - o.x) - 2 * .08 * o.om * o.v) * dt; o.x += o.v * dt; }
+  strasse_LW.value.set(strasse_LO[0].x, strasse_LO[1].x, strasse_LO[2].x); }
 function strasse_wireWind(mat) {
-  mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { windT: windU, windV });
-    sh.vertexShader = 'uniform float windT; uniform vec4 windV; attribute float aSw;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
-      { vec3 w = (modelMatrix * vec4(position, 1.)).xyz; float ph = w.x * .13 + w.z * .07, k = windV.z + windV.w;
-        float s = sin(windT * .9 + ph) * .6 + sin(windT * 2.1 + ph * 1.7) * .25 + .5 * windV.w;
-        transformed += vec3(windV.x, 0., windV.y) * aSw * s * (.025 + .07 * k) + vec3(0., aSw * sin(windT * 1.4 + ph * 2.) * .012 * k, 0.); }`); };
-  mat.customProgramCacheKey = () => 'strasseWire'; }
+  mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { windT: windU, windV, uLW: strasse_LW });
+    sh.vertexShader = 'uniform float windT; uniform vec4 windV; uniform vec3 uLW; attribute float aSw;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+      { vec3 w = (modelMatrix * vec4(position, 1.)).xyz; float hc = fract(sin(dot(floor(w.xz * .05), vec2(12.9898, 78.233))) * 43758.5453), k = windV.z + windV.w;
+        float x = hc < .34 ? uLW.x : hc < .67 ? uLW.y : uLW.z, fz = sin(windT * 6.1 + w.x * 1.7 + w.z * 1.3) * .004 * k;
+        transformed += vec3(windV.x, 0., windV.y) * aSw * (x * .085 + fz) + vec3(0., -aSw * abs(x) * .012, 0.); }`); };
+  mat.customProgramCacheKey = () => 'strasseWire2'; }
 WORLD_TICK.push((dt, t, indoor) => {
-  const S = strasse_S;
+  const S = strasse_S; if (!indoor) strasse_leitTick(dt, t);
   if (S.far && (S.tk = (S.tk || 0) + 1) % 8 === 0) { const c = camera.position; for (const f of S.far) { const v = Math.hypot(f.c.x - c.x, f.c.z - c.z) < f.d; if (f.ims[0].visible !== v) f.ims.forEach(m => m.visible = v); } }
   if (S.lenaPiv && S.lenaProxy) S.lenaPiv.rotation.y = -S.lenaProxy.rotation.y;
   if (S.boothGlow) { const on = booth.light.intensity > .25; S.boothGlow.emissiveIntensity = on ? 2.2 : .03; for (const m of S.signGlow) m.emissiveIntensity = on ? 1.1 : .05; }
