@@ -567,7 +567,7 @@ function album_tastenBind(panel) { panel.querySelectorAll('.albTaste').forEach(b
     album_tasten[k] = e.code; try { localStorage.setItem('ham_tasten', JSON.stringify(album_tasten)); } catch (er) {} b.textContent = album_tastenName(e.code); };
   addEventListener('keydown', h, true); }); }
 function album_tastenHook() { const s = $('mSet'), c = $('mCtrl'); if (!s || !c || !s.onclick || !c.onclick) return false; if (s.albHook) return true; s.albHook = true;
-    const o1 = s.onclick; s.onclick = e => { o1 && o1.call(s, e); const P = $('subPanel'), cl = P.querySelector('.close:last-child'); const d = document.createElement('div'); d.innerHTML = album_tastenRows(); cl ? P.insertBefore(d, cl) : P.appendChild(d); album_tastenBind(d); if (P.querySelectorAll) P.querySelectorAll('input[type=range]').forEach(r => { try { rangeFill(r); } catch (er) {} }); };
+    const o1 = s.onclick; s.onclick = e => { o1 && o1.call(s, e); const P = $('subPanel'), cl = P.querySelector(':scope > .close:last-child'); const d = document.createElement('div'); d.innerHTML = album_tastenRows(); cl ? P.insertBefore(d, cl) : P.appendChild(d); album_tastenBind(d); if (P.querySelectorAll) P.querySelectorAll('input[type=range]').forEach(r => { try { rangeFill(r); } catch (er) {} }); };
     const o2 = c.onclick; c.onclick = e => { o2 && o2.call(c, e); const K = $('subPanel').querySelector('.keys'); if (K) K.insertAdjacentHTML('beforeend', `<span><kbd class="k">${album_tastenName(album_tasten.beutel)}</kbd></span><span>Beutel öffnen: Fächer, Untersuchen, Benutzen</span><span><kbd class="k">${album_tastenName(album_tasten.album)}</kbd></span><span>Fotoalbum: blättern, Fotos herausnehmen und umdrehen</span>`); };
     return true; }
 
