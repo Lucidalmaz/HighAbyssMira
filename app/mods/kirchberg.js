@@ -148,7 +148,7 @@ async function kirchberg_figur(key, def) { if (kirchberg_S.F[key]) return kirchb
 // Standbewegung auf einen anderen Clip legen (z. B. „window_lean“ statt „idle“): das LWO-System mischt nur idle/look/nervous/phone
 function kirchberg_clip(F, name) { if (!F || !F.acts[name]) return; if (!F.idle0) F.idle0 = F.acts.idle; const a = F.acts[name]; if (F.acts.idle === a) return; F.acts.idle.setEffectiveWeight(0); F.acts.idle = a; a.setEffectiveWeight(1); }
 
-// ---------------------------------------------------------------------  Kapitel-1-Nebenaufgaben: Register (21, neue Namen; AP-15 Abnahme „keine alte Bezeichnung sichtbar“)
+// ---------------------------------------------------------------------  Kapitel-1-Nebenaufgaben: Register (21 Schlüssel, davon 18 in Kap. 1 – H-6, KB_SPAETER; AP-15 Abnahme „keine alte Bezeichnung sichtbar“)
 // Schlüssel → [Titel, Startbeschreibung]. Vorhandene Schlüssel werden umbenannt, fehlende angelegt (Zustand bleibt, Speicherstand speichert nur state/desc).
 const KB_K1 = {
   home: ['Flocke', 'Der Hundenapf vor Nr. 1. Du kennst den Namen nicht.'],
@@ -173,13 +173,17 @@ const KB_K1 = {
   ow_laternen: ['Da oben war es warm', 'Schrebergärten. In einer Laube brennen alle Lampen.'],
   anw_fenster: ['Das winkende Fenster', 'Das Tor der Villa Seiler. Acht Schlösser.'],
 };
-function kirchberg_register() { for (const [k, [title, desc]] of Object.entries(KB_K1)) { const q = story.side[k]; if (q) { q.title = title; if (q.state === 'hidden') q.desc = desc; q.kap = 1; } else story.side[k] = { title, desc, state: 'hidden', kap: 1 }; }
+// H-6 (Story-Prüfung): drei Nebenaufgaben ohne Kapitel-1-Bezug starten erst später. Schlüssel und Spielstand bleiben; ein alter Stand, in dem sie schon laufen, bleibt gültig.
+// („Hinter dem ältesten Plakat“ und „Sind sie wieder da?“ bleiben in Kap. 1: SB-03 ist eine Kap.-1-Seite, Heidis Karten gehören laut R-1 nach Kap. 1.)
+const KB_SPAETER = { nord_strich: 4, ow_transp: 3, anw_fenster: 3 };
+function kirchberg_ab(k) { const a = KB_SPAETER[k]; if (!a) return true; const q = story.side[k]; if (q && q.state !== 'hidden') return true; return typeof kapAb === 'function' ? kapAb(a) : kap() >= a; }
+function kirchberg_register() { for (const [k, [title, desc]] of Object.entries(KB_K1)) { const q = story.side[k], kp = KB_SPAETER[k] || 1; if (q) { q.title = title; if (q.state === 'hidden') q.desc = desc; q.kap = kp; } else story.side[k] = { title, desc, state: 'hidden', kap: kp }; }
   // Schritte statt eigener Aufgaben (Namen, 11): Lichter gehören zu „Da fehlt eins“, Laternen zu „Da oben war es warm“
   if (story.side.nord_lights) { kirchberg_S.nordLights = story.side.nord_lights; delete story.side.nord_lights; }
   // nicht in Kapitel 1: „Der rote Kanister“ (Kap. 5, „Kinder tanken nicht“), „Acht Schlösser“ (Kap. 4) – bleiben unsichtbar, bis ihr Kapitel sie startet
 }
 function kirchberg_k1(k) { return story.side[k]; }
-function kirchberg_start(k, karte) { const q = story.side[k]; if (!q) return; if (karte && !q.karte) q.karte = karte; if (q.state === 'hidden') sideStart(k); }
+function kirchberg_start(k, karte) { const q = story.side[k]; if (!q || !kirchberg_ab(k)) return; if (karte && !q.karte) q.karte = karte; if (q.state === 'hidden') sideStart(k); }
 function kirchberg_fertig(k, desc) { const q = story.side[k]; if (q && q.state !== 'done') sideDone(k, desc); }
 function kirchberg_desc(k, desc) { const q = story.side[k]; if (q && q.state !== 'done') { q.desc = desc; try { updateSideInfo(); } catch (e) {} } }
 

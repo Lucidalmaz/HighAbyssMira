@@ -378,7 +378,7 @@ renderJournal = (o => () => {
   sammeln_auto(); const R = sammeln_S.reiter.find(r => r.key === jTab);
   if (R) { $('jTabs').querySelectorAll('button').forEach(b => b.classList.remove('on')); const B = $('jBody'); B.classList.add('samSeite'); B.dataset.reiter = R.key;
     try { R.render(B); } catch (e) { console.error('Fibel-Reiter ' + R.key, e); B.innerHTML = '<h2>' + R.key.toUpperCase() + '</h2>'; } }
-  else { const B = $('jBody'); B.classList.remove('samSeite'); delete B.dataset.reiter; o(); }
+  else { const B = $('jBody'); B.classList.remove('samSeite'); delete B.dataset.reiter; o(); if (jTab === 'funde') try { sammeln_fundeBuendeln(B); } catch (e) {} } // R-3
   sammeln_reiterBau();
 })(renderJournal);
 // ---------------------------------------------------------------------  AP-25 · Fäden über mehrere Kapitel (Bibel K9: „ein Eintrag mit Abschnitten“)
@@ -469,12 +469,12 @@ function sammeln_rFragen(B) {
   const offen = SAMMELN_FRAGEN.filter(f => da(f[1]) && !da(f[2])).slice(0, 5), zu = SAMMELN_FRAGEN.filter(f => da(f[1]) && da(f[2]));
   B.innerHTML = `<h2>FRAGEN</h2><div class="samHeft"><ul class="samKuli">${zu.map(f => `<li><s>${f[0]}</s> <em>${f[3]}</em></li>`).join('')}${offen.map(f => `<li>${f[0]}</li>`).join('')}</ul></div>`;
 }
-// ---- Kap.-1-Endkarte: „Nebenaufgaben __ / 21 · Polaroids __ / 7 · Zettel mit drei Punkten __ / 2 · Lose Seiten __ / 3“
+// ---- Kap.-1-Endkarte (H-6: 18 statt 21 Nebenaufgaben): „Nebenaufgaben __ / 18 · Polaroids __ / 7 · Zettel mit drei Punkten __ / 2 · Lose Seiten __ / 3“
 function sammeln_k1Zeile() {
   const neben = Object.values(story.side).filter(q => q && q.state === 'done').length, pola = story.photos ? story.photos.size : 0;
   let zettel = 0; try { if (typeof beob_S !== 'undefined') { const s = beob_S.zettel || beob_S.notes || beob_S.found; if (s) zettel = [...s].filter(k => /K1/.test(String(k))).length; } } catch (e) {}
   const lose = [1, 2, 3].filter(sammeln_hatSB).length;
-  return `Nebenaufgaben ${Math.min(21, neben)} / 21 · Polaroids ${pola} / 7 · Zettel mit drei Punkten ${Math.min(2, zettel)} / 2 · Lose Seiten ${lose} / 3`;
+  return `Nebenaufgaben ${Math.min(18, neben)} / 18 · Polaroids ${pola} / 7 · Zettel mit drei Punkten ${Math.min(2, zettel)} / 2 · Lose Seiten ${lose} / 3`;
 }
 // ---------------------------------------------------------------------  Aussehen (Q-3: echte Gegenstände – Papier, Wachsmalkreide, Kuli, Klebeband)
 (function sammeln_css() {
@@ -558,6 +558,34 @@ sammeln_reiter('damals', 'DAMALS', sammeln_rDamals, null, '#c28f5c');
 sammeln_reiter('du', 'DAS BIST DU', sammeln_rDu, null, '#7f93a6');
 sammeln_reiter('regeln', 'SPIELREGELN', sammeln_rRegeln, null, '#a8625a');
 sammeln_reiter('fragen', 'FRAGEN', sammeln_rFragen, () => kap() >= 2, '#8d8668'); // Story-Prüfung V-7
+// ---- Story-Prüfung R-3 (Sammelsysteme bündeln): gleiche Inhalte, weniger Zähler. Die Papiere liegen weiter in story.lore (Spielstand unverändert),
+//      werden aber unter FUNDE ausgeblendet und hier in Kapiteln gezeigt: PAPIERE DER LWO (Akte Abgrund · Pells Heft · Hofers Dienstbuch) und
+//      WARUM SIEHT SIE IHN NICHT? (Rüstungs-Hinweise RH-1…11 aus ch3.armorHints · Lichtsteine).
+const SAMMELN_PAPIERE = [['Akte Abgrund', /^akte_/, 10, 'Edda Brands Durchschläge, versteckt, wo Kinder spielen.'], ['Pells Heft', /^pell_/, 9, 'Laborjournal, Projekt WENDIGO.'],
+  ['Hofers Dienstbuch', /^hungrige_seite_/, 6, 'Polizeiobermeister Hofer, die Seiten aus dem Wald.']];
+const SAMMELN_RH = { 'RH-1': 'Seins ist kein Eisen.', 'RH-2': 'Sie war ganz nah und hat ihn nicht gefunden.', 'RH-3': 'Sie sieht ihn nicht, obwohl er dasteht.',
+  'RH-4': 'Sie guckt durch ihn durch. Wie durch ihr Haus.', 'RH-5': 'Kinder malen ihn ohne Gesicht. Halb da.', 'RH-6': 'Drei Kleine haben ihm was gegeben. Aus demselben Glas wie das Licht.',
+  'RH-7': 'Ein Harnisch aus dem, was die drei brachten. Und ward nicht gesehen.', 'RH-8': 'Der Lichtkegel gleitet über ihn weg.', 'RH-9': 'Ihr Papa ruft, aber sie sieht ihn nicht.',
+  'RH-10': 'Stein und Rüstung summen im selben Ton.', 'RH-11': 'Er trägt das Haus. Das Haus sieht sich selbst nicht.' };
+const sammeln_isStein = k => /^geh_stein_/.test(k || '');
+function sammeln_gebuendelt(k) { return SAMMELN_PAPIERE.some(g => g[1].test(k || '')) || sammeln_isStein(k); }
+function sammeln_loreKlick(B) { B.querySelectorAll('.lore').forEach(el => el.onclick = e => { e.stopPropagation(); const l = story.lore[+el.dataset.i]; if (!l) return; $('journal').classList.remove('show'); ui.overlay = null; openNote(l.title, l.html); }); }
+function sammeln_rPapiere(B) { let h = '<h2>PAPIERE DER LWO</h2>';
+  for (const [name, re, max, unter] of SAMMELN_PAPIERE) { const ls = story.lore.map((l, i) => [l, i]).filter(([l]) => re.test(l.key || '')); if (!ls.length) continue;
+    const n = ls.filter(([l]) => /_[0-9]+$/.test(l.key)).length;
+    h += `<h3>${name} · ${n} / ${max}</h3><small>${unter}</small><ul>${ls.map(([l, i]) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('')}</ul>`; }
+  B.innerHTML = h; sammeln_loreKlick(B); }
+function sammeln_rhListe() { const H = typeof ch3 !== 'undefined' && ch3.armorHints ? ch3.armorHints : null; return H ? Object.keys(SAMMELN_RH).filter(k => H.has(k)) : []; }
+function sammeln_rWarum(B) { const ids = sammeln_rhListe(), st = story.lore.map((l, i) => [l, i]).filter(([l]) => sammeln_isStein(l.key));
+  let h = `<h2>WARUM SIEHT SIE IHN NICHT?</h2><h3>Die Rüstung · ${ids.length} / 11</h3><ul class="samKuli">${ids.map(k => `<li>${SAMMELN_RH[k]}</li>`).join('') || '<li><small>Noch nichts.</small></li>'}</ul>`;
+  if (ids.length >= 3) h += '<p class="hand">Sie sieht ihn nicht. Wegen der Rüstung.</p>';
+  if (st.length) h += `<h3>Lichtsteine · ${st.length} / 7</h3><small>Sie zeigen sich nur im Dunkeln.</small><ul>${st.map(([l, i]) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('')}</ul>`;
+  B.innerHTML = h; sammeln_loreKlick(B); }
+function sammeln_fundeBuendeln(B) { let weg = 0; B.querySelectorAll('.lore').forEach(el => { const l = story.lore[+el.dataset.i]; if (l && sammeln_gebuendelt(l.key)) { el.remove(); weg++; } });
+  if (!weg) return; const h = B.querySelector('h2'); if (h) h.textContent = 'FUNDE · ' + (story.lore.length - weg);
+  const s = document.createElement('small'); s.textContent = 'Akten, Pells Heft und Hofers Dienstbuch: Reiter „Papiere der LWO“. Lichtsteine: Reiter „Warum sieht sie ihn nicht?“'; B.appendChild(s); }
+sammeln_reiter('papiere', 'PAPIERE DER LWO', sammeln_rPapiere, () => story.lore.some(l => SAMMELN_PAPIERE.some(g => g[1].test(l.key || ''))), '#7a6f5c');
+sammeln_reiter('warum', 'WARUM SIEHT SIE IHN NICHT?', sammeln_rWarum, () => kap() >= 3 && (sammeln_rhListe().length > 0 || story.lore.some(l => sammeln_isStein(l.key))), '#6f7f86');
 for (const r of sammeln_S.reiter) r.neu = () => [...sammeln_S.neu].some(k => (r.key === 'sb' && /^SB-/.test(k)) || (r.key === 'bote' && /^Z-/.test(k)) || (r.key === 'du' && /^D-/.test(k)) || (r.key === 'regeln' && /^R-/.test(k)) || (r.key === 'damals' && k === 'J-15'));
 WORLD_MODS.push(['Sammeln', async () => {
   try { await Promise.race([Promise.all(['italic 600 30px "Cormorant Garamond"', '30px Caveat', '20px "Special Elite"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}

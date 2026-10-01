@@ -945,7 +945,7 @@ function kino_defK1() {
     // 33–36 · Schwarz, dann die Endkarte (Schreibmaschine)
     { black: true, dur: 2.2, fadeOut: 900 },
     { card: () => ['KAPITEL 1 · KELLER BLEIBT ZU', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.',
-      { t: `Nebenaufgaben ${kino_zaehler('neben')} / 21 · Polaroids ${kino_zaehler('polas')} / 7 · Zettel mit drei Punkten ${kino_zaehler('zettel1')} / 2 · Lose Seiten ${kino_zaehler('seiten1')} / 3`, klein: true }], dur: 'auto', fadeOut: 600 },
+      { t: `Nebenaufgaben ${Math.min(18, kino_zaehler('neben'))} / 18 · Polaroids ${kino_zaehler('polas')} / 7 · Zettel mit drei Punkten ${kino_zaehler('zettel1')} / 2 · Lose Seiten ${kino_zaehler('seiten1')} / 3`, klein: true }], dur: 'auto', fadeOut: 600 },
   ], { name: 'Du hast sie rausgelassen', done() { kino_schild('210'); } });
 }
 // Aufruf aus der Basis (Stromausfall, sobald die Scheibe über dem Dorf ist): startet „Hilde im Strahl“, danach ending() wie bisher

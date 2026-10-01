@@ -429,7 +429,7 @@ function anwesen_smokeTick(M, dt, t, P) {
 if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
 window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a), S: anwesen_S, endcard4: () => anwesen_endcard(), smoke: () => anwesen_S.smoke ? { n: anwesen_S.smoke.n, on: anwesen_S.smoke.on, vis: anwesen_S.smoke.m.visible } : null }; // Testzugriff
 
-// =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 21 „Das winkende Fenster“ (Tor der Villa Seiler)
+// =====================================================================  Fassung 3 (AP-15): „Das winkende Fenster“ (Tor der Villa Seiler) – seit der Story-Prüfung (H-6) eine Nebenaufgabe von Kapitel 3
 // Kette mit acht Vorhängeschlössern (eines neuer), Kiesweg ohne Spur, vollgestopfter Briefkasten („EMPFÄNGER VERSTORBEN – ZURÜCK“); im ersten Stock winkt in einem
 // dunklen Fenster eine kleine, blasse Hand, langsam, wie am Bahnsteig. Lampe drauf: sie hört auf; Lampe weg: sie winkt wieder; beim dritten Mal im Fenster daneben.
 const anwesen_F3 = { hand: null, fenster: [], i: 0, winkt: false, mal: 0, t: 0, schloesser: false, kasten: false };
@@ -461,7 +461,7 @@ function anwesen_f3Check() { const F = anwesen_F3; kirchberg_desc('anw_fenster',
   if (F.schloesser && F.mal >= 3) { kirchberg_fertig('anw_fenster', 'Der Rabe hat einen Laut gemacht, den er bei Kindern macht.'); if (!story.lore.some(l => l.key === 'anw_villa_k1')) story.lore.push({ key: 'anw_villa_k1', title: 'Die Villa', html: 'Acht Schlösser an der Kette, eines neuer. Oben winkt eine kleine, blasse Hand, wie am Bahnsteig. Der Rabe hat einen Laut gemacht, den er bei Kindern macht.' });
     if (typeof karte_markierung === 'function') try { karte_markierung(-125, 66, 'ort', 'Die Villa'); } catch (e) {} } }
 const anwesen_v = new THREE.Vector3();
-function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; const P = player.pos, d = Math.hypot(P.x + 125, P.z - 60), k1 = kap() === 1;
+function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; const P = player.pos, d = Math.hypot(P.x + 125, P.z - 60), k1 = kap() === 3 && (typeof ch3 === 'undefined' || !ch3.part || ch3.part === 'town'); // H-6 (Story-Prüfung): die Hand winkt erst in der offenen Nacht von Kap. 3
   if (!k1 || d > 32 || P.z > 57.5) { F.hand.visible = false; return; }
   if (!F.start && d < 16) { F.start = true; kirchberg_start('anw_fenster', { x: -125, z: 54 }); if (!F.laut) { F.laut = true; setTimeout(() => { if (typeof whiskey_mimic === 'function') whiskey_mimic('gurren', { force: true }); setTimeout(() => subtitle('Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.', 3800, 'LUKE'), 1600); }, 2500); } }
   F.hand.visible = true; const W = F.hand.position; anwesen_v.set(W.x - camera.position.x, W.y + .15 - camera.position.y, W.z - camera.position.z).normalize(); const licht = flashOn && fwd.dot(anwesen_v) > .985;

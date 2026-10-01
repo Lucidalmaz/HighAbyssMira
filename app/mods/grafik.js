@@ -5,7 +5,7 @@
 //    (bricht Kachelmuster), Schmutz in Vertiefungen (AO-Karte der Scans), abgestoßene Kanten, zweite gedrehte Abtastung großer Kachelflächen,
 //    draußen Nässe (Oberseiten dunkel und glänzend, Laufspuren an Wänden, Spritzwasser am Sockel). Ausgenommen: Figuren (Skinning),
 //    Durchsichtiges, Laub-Karten (nur Nässe). Die Böden aus gruen.js sind schon nass (eigene Pfützen) → Define HAM_BODEN, nur Detail.
-//    Texturen: echte Scans (wet_asphalt/n = Mikronormalen, rust_sheet/orm.G = Schmutzmaske).
+//    Ohne zusätzliche Texturen (prozedurales Rauschen): sonst lagen Materialien mit vielen Karten + Schattenkarten über 16 Textur-Einheiten (Shader-Fehler).
 // 2) BILD: ein Pass direkt nach dem RenderPass (vor Bloom, vor dem Masken-Pass der Hervorhebung bleibt dieser unangetastet):
 //    halbe Auflösung – Umgebungsverdeckung aus der Szenentiefe (8 Proben, Normale aus der Tiefe) + Lichtstreuung im Taschenlampenkegel
 //    (12 Schritte, Rauschen in Weltkoordinaten) → tiefengewichtet hochskaliert und ins HDR-Bild gemischt. Im filmPass der Basis:
@@ -14,15 +14,20 @@
 //    settings.fx = { det, ao, vol, dirt, ca, grain, sharp }. Ändert man die Grafikqualität, gilt wieder deren Voreinstellung.
 // Testzugriff: window.__grafik = { G: GRAFIK, an(fx) }.
 const GRAFIK_PRESET = { 0: { det: 0, ao: 0, vol: 0, dirt: 0, ca: 1, grain: .8, sharp: 0 }, 1: { det: 1, ao: 1, vol: 1, dirt: 1, ca: 1, grain: 1, sharp: .25 }, 2: { det: 1, ao: 1, vol: 1, dirt: 1, ca: 1, grain: 1, sharp: .35 } };
-const GRAFIK = { u0: new THREE.Vector4(0, 1, 1, 0), u1: new THREE.Vector4(1.7, 1, 0, 0), tex: [null, null], wetK: 0, ready: false, pass: null, rt: null, mA: null, mB: null,
+const GRAFIK = { u0: new THREE.Vector4(0, 1, 1, 0), u1: new THREE.Vector4(23, 1, 0, 0), wetK: 0, ready: false, pass: null, rt: null, mA: null, mB: null,
   sc: null, cam: null, on: false, v: new THREE.Vector3(), w: new THREE.Vector3(), noise: null, dirt: null, init: false };
 
 // ---------------------------------------------------------------- 1) Oberflächen (Shader-Bausteine, vor dem Übersetzen aller Programme)
-GRAFIK.tex[0] = msTex('wet_asphalt/n.jpg'); GRAFIK.tex[1] = msTex('rust_sheet/orm.jpg');
-for (const k of ['standard', 'physical']) Object.assign(THREE.ShaderLib[k].uniforms, { hamG: { value: [GRAFIK.u0, GRAFIK.u1] }, hamT: { value: GRAFIK.tex } }); // Arrays: jede Material-Kopie teilt dieselben Vektoren/Texturen
+// Keine zusätzlichen Textur-Einheiten (Grenze 16 je Programm, Materialien mit vielen Karten + Schattenkarten lagen sonst darüber): alles prozedural.
+for (const k of ['standard', 'physical']) Object.assign(THREE.ShaderLib[k].uniforms, { hamG: { value: [GRAFIK.u0, GRAFIK.u1] } }); // Array: jede Material-Kopie teilt dieselben Vektoren
 THREE.ShaderChunk.lights_physical_pars_fragment = `#define HAM_SURF 1
-uniform vec4 hamG[2]; uniform sampler2D hamT[2];
-float hamGr(vec2 p){ return clamp((texture2D(hamT[1], p).g - .62) * 3.2, 0., 1.); }
+uniform vec4 hamG[2];
+float hamH(vec2 p){ p = fract(p * vec2(.1031, .1030)); p += dot(p, p.yx + 33.33); return fract((p.x + p.y) * p.x); }
+vec3 hamN(vec2 p){ vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
+  float a = hamH(i), b = hamH(i + vec2(1., 0.)), c = hamH(i + vec2(0., 1.)), d = hamH(i + vec2(1., 1.)), e = a - b - c + d;
+  return vec3(a + (b - a) * u.x + (c - a) * u.y + e * u.x * u.y, du * (vec2(b - a, c - a) + e * u.yx)); }
+float hamGr(vec2 p){ float v = hamN(p * 7.).x * .55 + hamN(p * 17.3 + 5.1).x * .3 + hamN(p * 41.7 + 9.7).x * .15; return clamp((v - .5) * 2.4 + .55, 0., 1.); }
+vec2 hamD(vec2 p){ return hamN(p).yz * .22 + hamN(p * 2.71 + 3.7).yz * .1; }
 vec4 hamMap(sampler2D m, vec2 uv){ vec4 a = texture2D(m, uv);
 #if defined(OPAQUE) && !defined(USE_SKINNING)
   if (hamG[0].z > 0.) { vec4 b = texture2D(m, vec2(uv.y, -uv.x) * .613 + vec2(.37, .71));
@@ -45,10 +50,12 @@ if (hamG[0].x + hamG[0].y + hamG[0].z > 0.) {
   vec2 hP = hA.y > max(hA.x, hA.z) ? hW.xz : (hA.x > hA.z ? hW.zy : hW.xy);
   float hG = hamGr(hP * .37), hL = hamGr(hP * .043 + .29);
 #ifndef USE_ALPHATEST
-  if (hamG[0].y > 0.) { float s = hamG[1].x; vec3 bw = hA * hA; bw *= bw; bw /= bw.x + bw.y + bw.z;
-    vec2 tX = texture2D(hamT[0], hW.zy * s).xy * 2. - 1., tY = texture2D(hamT[0], hW.xz * s).xy * 2. - 1., tZ = texture2D(hamT[0], hW.xy * s).xy * 2. - 1.;
-    vec3 pw = bw.x * vec3(0., tX.y, tX.x) + bw.y * vec3(tY.x, 0., tY.y) + bw.z * vec3(tZ.x, tZ.y, 0.);
-    normal = normalize(normal + (viewMatrix * vec4(pw, 0.)).xyz * hamG[0].y * .45 * (1. - smoothstep(2.5, 9., hD))); }
+  float hF = hamG[0].y * (1. - smoothstep(2.5, 9., hD));
+  if (hF > 0.) { float s = hamG[1].x; vec3 bw = hA * hA; bw *= bw; bw /= bw.x + bw.y + bw.z; vec3 pw = vec3(0.);
+    if (bw.x > .02) { vec2 t = hamD(hW.zy * s); pw += bw.x * vec3(0., t.y, t.x); }
+    if (bw.y > .02) { vec2 t = hamD(hW.xz * s); pw += bw.y * vec3(t.x, 0., t.y); }
+    if (bw.z > .02) { vec2 t = hamD(hW.xy * s); pw += bw.z * vec3(t.x, t.y, 0.); }
+    normal = normalize(normal - (viewMatrix * vec4(pw, 0.)).xyz * hF); }
 #endif
   float hV = hamG[0].z;
   roughnessFactor = clamp(roughnessFactor * (1. + (hG - .5) * .45 * hV), .04, 1.);

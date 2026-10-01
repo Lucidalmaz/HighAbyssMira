@@ -4,6 +4,9 @@
 // Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Luke über den nächsten Schritt nach (Hinweis ohne Textwand).
 const GEDANKEN = { gap: 9, stuck: 150, who: 'LUKE' };
 MOD_SAVE.push(['gedanken', () => [...gedanken_S.said], v => v.forEach(id => gedanken_S.said.add(id))]);
+// H-6: Lucy-Gedanken in Kapitel 1 (der Reihe nach, je einer etwa alle zwanzig Minuten Erkundung)
+const GEDANKEN_LUCY = [['k1_lucy1', 'Lucy. Ich sammel hier Katzen, und du bist irgendwo im Dunkeln.'], ['k1_lucy2', 'Elf Anrufe. Und jetzt lauf ich durch dein Dorf und guck in fremde Briefkästen.'],
+  ['k1_lucy3', 'Wenn sie jetzt anruft, geh ich ran. Beim ersten Klingeln.'], ['k1_lucy4', 'Du hättest längst einen Plan. Mit Zettel und blauen Pfeilen. Ich hab eine Taschenlampe.'], ['k1_lucy5', '„Großer, du trödelst.“ Ja. Ich weiß.']];
 const gedanken_S = { said: new Set(), q: [], cd: 6, obj: '', objT: 0, lastScare: 0, area: new Set(), battEmpty: false, umT: 0, lpx: null, lpz: null, lampStill: 0, katzeTrag: null };
 function gedanke(id, text, delay = 0, prio = 1) {
   const S = gedanken_S; if (S.said.has(id)) return; S.said.add(id);
@@ -12,7 +15,7 @@ function gedanke(id, text, delay = 0, prio = 1) {
 // AP-26 · Atempausen A-01 … A-25 (85 §10; ersetzen GEDANKEN_SCHRECK). Wann eine kommt, entscheidet die Regie (spannung.js: Lacher, Stille oder Ruhe mit Riss, A-28);
 // hier steht nur, was Luke sagt. [Kennung, Anlass, Text] – Zeilen mit Anlass nur nach genau diesem Schreck, die anderen frei. Jede einmal. Nie in traurigen Szenen.
 const LUKE_ATEM = [
-  ['A-01', '', 'Mein Herz macht gerade Techno. Hundertachtzig BPM. Das tanzt keiner.'],
+  ['A-01', '', 'Puls auf hundertachtzig. Wenn das ein Podcast wär, würd ich den Atem rausschneiden. Geht nicht. Ist meiner.'], // H-3
   ['A-02', '', 'Ich hab geschrien. Gut, dass keiner mitschneidet. … Hoffentlich schneidet keiner mit.'],
   ['A-03', 'k3kuh', 'Eine Kuh. Vom Himmel. Wenn ich das auf der Arbeit erzähl, krieg ich endlich Urlaub.'],
   ['A-04', '', 'Ich hab mir nicht in die Hose gemacht. Das halt ich fest. Das ist heute mein Erfolg.'],
@@ -20,12 +23,12 @@ const LUKE_ATEM = [
   ['A-06', '', 'Lucy, das war kein Quieken. Das war ein Warnruf.'],
   ['A-07', '', 'Ich sag einfach Wörter. Toastbrot. Kabeltrommel. Kassler.'],
   ['A-08', '', 'Das war ein Gesicht, und ich hab ‚Entschuldigung‘ gesagt. Ich hab mich bei einem Gesicht entschuldigt.'],
-  ['A-09', '', 'Ich brauch einen Kaffee. Und eine Therapie. Und einen Kaffee während der Therapie.'],
+  ['A-09', '', 'Ich brauch einen Kaffee. Oma hätte gesagt: Kind, du brauchst Kassler.'], // H-3
   ['A-10', '', 'Zwei Hände, zwei Füße, eine Taschenlampe. Alles dran. Inventur abgeschlossen.'],
   ['A-11', '', 'Wenn das vorbei ist, zieh ich in eine Stadt mit Straßenbahn. Straßenbahnen haben Fahrpläne. Da kommt nichts aus dem Himmel.'],
   ['A-12', 'beob', 'Wer da hinten raschelt: Ich hab dich gehört. Du bist nicht leise. Du bist nur klein.'],
-  ['A-13', '', 'Ich war noch nie so wach. Ich glaub, ich kann Farben hören.'],
-  ['A-14', '', 'Und das war der Moment, in dem Luke Brandt beschloss, nie wieder Nachtschicht zu machen. Für drei Sekunden.'],
+  ['A-13', '', 'Mein Tinnitus hat gerade gekündigt. Der will hier auch nicht sein.'], // H-3
+  ['A-14', '', 'Notiz an mich: Nachtschicht im Studio ist gar nicht so schlimm. Da fällt nur selten was vom Himmel.'], // H-3
   ['A-15', 'whiskey', 'Du. Hast. Mich. … Ja, putz dich nur. Du hast gewonnen.'],
   ['A-16', 'lampe', 'Die Lampe hat’s überlebt. Wenigstens einer von uns ist robust gebaut.'],
   ['A-17', 'k3blinzeln', 'Blinzeln ist ab jetzt verboten. Trockene Augen als Lebensstil.'],
@@ -318,6 +321,9 @@ WORLD_TICK.push((dt, t) => {
   const S = gedanken_S; if (!state.started || menu.attract) return; const now = performance.now(), P = player.pos;
   // Schreckmomente: die Atempause danach wählt die Regie (spannung.js → gedanken_atem). Generische Untersuchungszeilen (Laterne, Katzen) einmal je Sekunde:
   S.umT -= dt; if (S.umT < 0) { S.umT = 1; gedanken_umsehen(); }
+  // H-6 (Story-Prüfung): in Kapitel 1 etwa alle zwanzig Minuten freier Erkundung ein Gedanke an Lucy – vor dem Tonband, nie in Szenen, Jagden oder traurigen Momenten
+  if (curChapter() === 1 && !state.heardTape && !state.talking && !ui.overlay && !scripted && !(typeof hunt !== 'undefined' && hunt.on) && !(typeof spannung_traurig === 'function' && spannung_traurig())) {
+    S.lucyT = (S.lucyT || 0) + dt; if (S.lucyT > 1200) { S.lucyT = 0; const L = GEDANKEN_LUCY.find(g => !S.said.has(g[0])); if (L) gedanke(L[0], L[1], 400, 2); } }
   // Orte
   for (const [id, x0, x1, z0, z1, ok, text] of GEDANKEN_ORTE) if (!S.said.has(id) && P.x > x0 && P.x < x1 && P.z > z0 && P.z < z1 && !state.inBasement && ok()) gedanke(id, text, 800, 1);
   if (story.items.includes('brechstange')) gedanke('brechstange', 'Kalk an der Spitze. Frisch. Jemand hat hier vor kurzem etwas aufgebrochen. Oder zugemauert.', 4600, 1);

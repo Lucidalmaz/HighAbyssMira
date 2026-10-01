@@ -130,6 +130,7 @@ const JUSTIN_BANK = {
   rhNein: [['Sie sieht ihn nicht. Er steht direkt da. Irgendwas an ihm ist für sie nicht da.', 4400, 'LUKE']],
   runde: [['„Papa? … Papa, du mogelst wieder.“', 3400, 'DAS KIND'], ['„Noch eine Runde.“', 2400, 'DAS KIND'], ['„Eins.“', 1400, 'DAS KIND'], ['„Zwei.“', 1400, 'DAS KIND'], ['„Drei.“', 1600, 'DAS KIND']],
 };
+JUSTIN_BANK.naeher = JUSTIN_BANK.naeher.concat(JUSTIN_BANK.siebzehn); // Story-Prüfung V-1: die Pflichtsätze kommen direkt nach „Bei siebzehn …“
 // Geschenke (02 B3): Gegenstand, Name, Beschreibung (Wortlaut der Beschreibung aus 81 §1.11 / §3.15)
 const JUSTIN_GABEN = { A: ['ranzenriemen', 'Ranzenriemen', 'Ein brauner Lederriemen von einem Schulranzen, mit einer Metallschnalle. In das Leder geritzt, in Kinderschrift: „H. R.“'],
   B: ['riegel_halb', 'Halber Riegel', 'Der zweite Schokoriegel, halb gegessen, ordentlich in Silberpapier gefaltet.'],
@@ -438,7 +439,7 @@ async function justin_ankunft() {
 async function justin_pflicht() { const S = justin_S; if (S.phase !== 'uk4') return; S.phase = 'pflicht'; state.talking = true;
   // F3 Verständlichkeit (Nutzer 01.10.2026): pflicht1 sagt „meine Tochter“; wer die Happen übersprungen hat, hört vorher „herz“ (seine Tochter). Den Namen gibt es nur auf Nachfrage.
   if (!S.said.has('herz')) await justin_sprich('herz', { frei: false });
-  await justin_sprich('naeher', { frei: false }); await justin_sprich('siebzehn', { frei: false }); // V-1: Pflicht (schon gesagt → übersprungen)
+  await justin_sprich('naeher', { frei: false }); // V-1: „naeher“ trägt die Pflichtsätze „Das siebzehnte Jahr“ mit (schon gesagt → übersprungen)
   await justin_sprich('pflicht1', { frei: false }); await justin_sprich('pflicht2', { frei: false }); await justin_sprich('pflicht3', { frei: false });
   state.talking = false; setC3(typeof KAPITEL3_ZIEL_LATERNEN !== 'undefined' ? KAPITEL3_ZIEL_LATERNEN : 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   justin_gedanke(JUSTIN_BANK.ankEnde[0][0], 4600);
@@ -668,7 +669,7 @@ WORLD_TICK.push((dt, t) => { const S = justin_S; if (!S.ready) return;
   // UK 4: Happen, jeder an einen Blick gebunden; Pflicht, wenn Luke weitergeht (> 11 m) oder nach 70 s
   if (S.phase === 'uk4' && ch3.part === 'town') { S.uk4.t += dt; const P = player.pos, dj = jDist();
     if (!busy) { if (dj > 11 || S.uk4.t > 70) { justin_pflicht(); return; }
-      if (dj < 2.4 && !S.said.has('naeher')) { (async () => { await justin_sprich('naeher'); await justin_sprich('siebzehn'); })(); return; }
+      if (dj < 2.4 && !S.said.has('naeher')) { justin_sprich('naeher'); return; }
       if (player.pitch > .55) { S.oben += dt; if (S.oben > 3 && !S.said.has('hinauf')) { justin_sprich('hinauf'); return; } } else S.oben = 0;
       camera.getWorldDirection(_jv); for (const b of JUSTIN_BLICKE) { if (S.said.has(b.id) || (b.wenn && !b.wenn())) continue; const p = b.p(); if (!p) continue; _jv2.copy(p).sub(camera.position); const dd = _jv2.length(); if (b.d && dd > b.d) continue;
         const see = _jv.dot(_jv2.normalize()) > (b.eng || .965); S.blickHold[b.id] = see ? (S.blickHold[b.id] || 0) + dt : 0; if (S.blickHold[b.id] > .8) { justin_blick(p.clone()); justin_sprich(b.id).then(() => justin_blick(null)); return; } } } }

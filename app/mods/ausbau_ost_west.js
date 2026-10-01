@@ -567,11 +567,12 @@ async function ausbau_ost_west_f3(OW, c) {
   // ================= „Acht Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
   const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
   const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
-  c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
-  c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
+  const owSpaeter = () => typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp'); // H-6 (Story-Prüfung): „Acht Kindersitze“ erst ab Kap. 3
+  c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { if (owSpaeter()) return toast('Abgeschlossen. Ein Schrottbüro, Wellblech, ein Kalender hinter Glas.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
+  c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { if (owSpaeter()) return toast('Ein alter Transporter. Die Ladefläche ist mit einer Plane zugebunden.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
     openNote('Der erste Transporter', 'Unter dem Rost an der Seite: BUNDESSTELLE FÜR RÜCKF… Das Auge halb abgekratzt.\n\nAuf der Ladefläche: acht festgeschraubte Kindersitze mit Messingschildern. Eines ist abgekratzt bis zum Glanz, nur der Rand eines C ist geblieben.\n\nEine Kiste, der Deckel weiß überstrichen. Mit schräger Lampe liest man die Schrift darunter: <b>SEHEN · BERGEN · SCHWEIGEN</b>.', 'ow_transporter1', () => ausbau_ost_west_transpCheck()); });
-  c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => ausbau_ost_west_klopf());
-  c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => ausbau_ost_west_kiste());
+  c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => owSpaeter() ? 'Transporter' : OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => owSpaeter() ? toast('Ein zweiter Transporter. Still.', 2200) : ausbau_ost_west_klopf());
+  c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => owSpaeter() ? toast('Der Kofferraum klemmt.', 2000) : ausbau_ost_west_kiste());
   // ================= „Die Kreise sind von unten“: Frau Aydın (Nr. 8, Küchenfenster), Dina (Scheune), Justins Lager
   OW.f3.nr8 = { x: 46 - 3, y: 1.75, z: 17 - 4.5 - .05 };
   c.hit(1.4, 1.5, .6, OW.f3.nr8.x, 1.7, OW.f3.nr8.z - .3, () => OW.f3.aydin ? 'Frau Aydın' : 'Küchenfenster (Licht)', () => ausbau_ost_west_aydin());

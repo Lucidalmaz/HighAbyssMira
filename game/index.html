@@ -6040,7 +6040,7 @@ function ausbau_nord_swing(src, x, z, ry) {
 // ---- Aufgaben-Logik
 function ausbau_nord_quest(k) {
   if (k === 'lights') { const L = ausbau_nord.lq; if (L.state === 'hidden') L.state = 'active'; k = 'names'; }
-  const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; ausbau_nord.touched = true; sideStart('nord_' + k);
+  const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; if (typeof kirchberg_ab === 'function' && !kirchberg_ab('nord_' + k)) return; ausbau_nord.touched = true; sideStart('nord_' + k);
 }
 function ausbau_nord_readKid(i) {
   const N = ausbau_nord, K = N.kids[i]; const first = !N.names.has(i); N.names.add(i);
@@ -6345,17 +6345,18 @@ function ausbau_nord_sb03() { const N = ausbau_nord; if (typeof sammeln_platz !=
 function ausbau_nord_plakatCheck() { const N = ausbau_nord; const q = story.side.nord_plakat; if (!q || q.state === 'done') return; const sb = typeof sammeln_hatSB === 'function' && sammeln_hatSB(3);
   kirchberg_desc('nord_plakat', `Fahrplan, vier Plakate, die Ritze hinter 1958. ${sb ? 'Die Seite ist gefunden.' : ''}`);
   if (N.plakatGelesen && sb && story.lore.some(l => l.key === 'nord_fahrplan')) { sideDone('nord_plakat', 'Achtundfünfzig. Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Siebzehn.'); story.lore.push({ key: 'nord_siebzehn', title: 'Siebzehn', html: 'Vier Sommerfeste, vier Plakate, jedes siebzehn Jahre nach dem letzten. Sieben Lampions, solange Vorrat reicht.' }); } }
-function ausbau_nord_messlatte() { const N = ausbau_nord; ausbau_nord_quest('strich');
+function ausbau_nord_messlatte() { const N = ausbau_nord; if (typeof kirchberg_ab === 'function' && !kirchberg_ab('nord_strich')) return toast('Durchs Flurfenster: ein dunkler Flur. Ein weißer Kittel am Haken. Sonst nichts.', 3000); // H-6: die Messlatte erst ab Kap. 4
+  ausbau_nord_quest('strich');
   const an = typeof flashOn !== 'undefined' ? flashOn : true; if (!an) return toast('Hinter dem Glas ist es schwarz. Mit der Lampe vielleicht.', 2600);
   N.flurN = (N.flurN || 0) + 1;
   if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEtwas abseits ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
     () => { subtitle('Einer ohne Namen. Das achte Kind?', 3000, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
   if (N.flurN === 2 && N.flur) { N.flur[0].visible = false; N.flur[1].visible = true; Audio.play('woodSqueak2', { gain: .08, rate: 1.6, x: N.praxis.hx + 1, y: 1.5, z: N.praxis.fz, ref: 1 }); return toast('Der Kittel hängt einen Haken weiter.', 3200); }
   toast('Die Messlatte. Der Strich ohne Namen. Der Kittel hängt, wo er hängt.', 3000); }
-async function ausbau_nord_schaukasten() { const N = ausbau_nord; ausbau_nord_quest('strich'); if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
+async function ausbau_nord_schaukasten() { const N = ausbau_nord; /* H-6: der Schaukasten (AG-04) bleibt in Kap. 1 und gehört nicht mehr zur Aufgabe „Der Strich ohne Namen“ */ if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
   N.ag04 = true; if (typeof lwo_szene === 'function') { await lwo_szene('AG-04', { at: { x: -9.4, z: 49.2 }, radius: 9 }); } else { openNote('Schaukasten', 'Bundesstelle für Rückführung … Bürgersprechstunde donnerstags … Ahornstraße 7, Eingang Keller.', 'nord_ag04'); }
   if (typeof lwo_ereignis === 'function') try { lwo_ereignis('AG-04'); } catch (e) {} ausbau_nord_strichCheck(); }
-function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN && N.ag04) { const q = story.side.nord_strich; if (q && q.state !== 'done') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“. Und eine Sprechstunde in einem Keller.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
+function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN) { const q = story.side.nord_strich; if (q && q.state !== 'done' && q.state !== 'hidden') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
 function ausbau_nord_f3Tick(dt, P) { const N = ausbau_nord; if (!N.f3) return;
   if (!N.sb03Fix && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-03']) { N.sb03Fix = true; ausbau_nord_sb03(); }
   if (N.plakat && N.sb03Fix && !N.plakatZu && typeof sammeln_hatSB === 'function' && sammeln_hatSB(3)) { ausbau_nord_plakatCheck(); // Schreck Stufe 1: das Plakat von 2009 blättert sich hinter Luke wieder zu
@@ -6932,11 +6933,12 @@ async function ausbau_ost_west_f3(OW, c) {
   // ================= „Acht Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
   const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
   const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
-  c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
-  c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
+  const owSpaeter = () => typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp'); // H-6 (Story-Prüfung): „Acht Kindersitze“ erst ab Kap. 3
+  c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { if (owSpaeter()) return toast('Abgeschlossen. Ein Schrottbüro, Wellblech, ein Kalender hinter Glas.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
+  c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { if (owSpaeter()) return toast('Ein alter Transporter. Die Ladefläche ist mit einer Plane zugebunden.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
     openNote('Der erste Transporter', 'Unter dem Rost an der Seite: BUNDESSTELLE FÜR RÜCKF… Das Auge halb abgekratzt.\n\nAuf der Ladefläche: acht festgeschraubte Kindersitze mit Messingschildern. Eines ist abgekratzt bis zum Glanz, nur der Rand eines C ist geblieben.\n\nEine Kiste, der Deckel weiß überstrichen. Mit schräger Lampe liest man die Schrift darunter: <b>SEHEN · BERGEN · SCHWEIGEN</b>.', 'ow_transporter1', () => ausbau_ost_west_transpCheck()); });
-  c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => ausbau_ost_west_klopf());
-  c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => ausbau_ost_west_kiste());
+  c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => owSpaeter() ? 'Transporter' : OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => owSpaeter() ? toast('Ein zweiter Transporter. Still.', 2200) : ausbau_ost_west_klopf());
+  c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => owSpaeter() ? toast('Der Kofferraum klemmt.', 2000) : ausbau_ost_west_kiste());
   // ================= „Die Kreise sind von unten“: Frau Aydın (Nr. 8, Küchenfenster), Dina (Scheune), Justins Lager
   OW.f3.nr8 = { x: 46 - 3, y: 1.75, z: 17 - 4.5 - .05 };
   c.hit(1.4, 1.5, .6, OW.f3.nr8.x, 1.7, OW.f3.nr8.z - .3, () => OW.f3.aydin ? 'Frau Aydın' : 'Küchenfenster (Licht)', () => ausbau_ost_west_aydin());
@@ -11238,6 +11240,8 @@ function leben_clockTick(dt, c1, c3, live) {
   const S = leben_S, K = leben_uhrSync(), U = LEBEN_UHR[K.kap] || LEBEN_UHR[1];
   if (!U.steht && state.started && !state.ending && !(U.aus && state.outage) && !(typeof traum_S !== 'undefined' && traum_S.on)) {
     K.min += dt / 25;
+    if (K.kap === 1 && !state.heardTape && K.min > 1495) { K.min = 1495; S.k1Steht = (S.k1Steht || 0) + dt; // H-6 (Story-Prüfung): die Uhr bleibt bei fünf vor eins stehen, bis Lucys Band gehört ist
+      if (S.k1Steht > 420 && !state.talking && !ui.overlay && typeof gedanke === 'function') gedanke('k1_fuenfvoreins', 'Fünf vor eins. Seit einer Ewigkeit fünf vor eins.', 0, 2); }
     const h = Math.floor(K.min / 60); if (h > K.h) { K.h = h; const n = leben_uhrCount(h); if (n) { K.pend = n; K.pendAt = K.min; } } }
   if (K.pend) { // schlägt, sobald nichts läuft und man draußen im Ort ist – höchstens 30 Spielminuten später, nach dem Stromausfall gar nicht
     if (K.min - K.pendAt > 30 || (U.aus && state.outage)) K.pend = 0;
@@ -11997,7 +12001,7 @@ async function kirchberg_figur(key, def) { if (kirchberg_S.F[key]) return kirchb
 // Standbewegung auf einen anderen Clip legen (z. B. „window_lean“ statt „idle“): das LWO-System mischt nur idle/look/nervous/phone
 function kirchberg_clip(F, name) { if (!F || !F.acts[name]) return; if (!F.idle0) F.idle0 = F.acts.idle; const a = F.acts[name]; if (F.acts.idle === a) return; F.acts.idle.setEffectiveWeight(0); F.acts.idle = a; a.setEffectiveWeight(1); }
 
-// ---------------------------------------------------------------------  Kapitel-1-Nebenaufgaben: Register (21, neue Namen; AP-15 Abnahme „keine alte Bezeichnung sichtbar“)
+// ---------------------------------------------------------------------  Kapitel-1-Nebenaufgaben: Register (21 Schlüssel, davon 18 in Kap. 1 – H-6, KB_SPAETER; AP-15 Abnahme „keine alte Bezeichnung sichtbar“)
 // Schlüssel → [Titel, Startbeschreibung]. Vorhandene Schlüssel werden umbenannt, fehlende angelegt (Zustand bleibt, Speicherstand speichert nur state/desc).
 const KB_K1 = {
   home: ['Flocke', 'Der Hundenapf vor Nr. 1. Du kennst den Namen nicht.'],
@@ -12022,13 +12026,17 @@ const KB_K1 = {
   ow_laternen: ['Da oben war es warm', 'Schrebergärten. In einer Laube brennen alle Lampen.'],
   anw_fenster: ['Das winkende Fenster', 'Das Tor der Villa Seiler. Acht Schlösser.'],
 };
-function kirchberg_register() { for (const [k, [title, desc]] of Object.entries(KB_K1)) { const q = story.side[k]; if (q) { q.title = title; if (q.state === 'hidden') q.desc = desc; q.kap = 1; } else story.side[k] = { title, desc, state: 'hidden', kap: 1 }; }
+// H-6 (Story-Prüfung): drei Nebenaufgaben ohne Kapitel-1-Bezug starten erst später. Schlüssel und Spielstand bleiben; ein alter Stand, in dem sie schon laufen, bleibt gültig.
+// („Hinter dem ältesten Plakat“ und „Sind sie wieder da?“ bleiben in Kap. 1: SB-03 ist eine Kap.-1-Seite, Heidis Karten gehören laut R-1 nach Kap. 1.)
+const KB_SPAETER = { nord_strich: 4, ow_transp: 3, anw_fenster: 3 };
+function kirchberg_ab(k) { const a = KB_SPAETER[k]; if (!a) return true; const q = story.side[k]; if (q && q.state !== 'hidden') return true; return typeof kapAb === 'function' ? kapAb(a) : kap() >= a; }
+function kirchberg_register() { for (const [k, [title, desc]] of Object.entries(KB_K1)) { const q = story.side[k], kp = KB_SPAETER[k] || 1; if (q) { q.title = title; if (q.state === 'hidden') q.desc = desc; q.kap = kp; } else story.side[k] = { title, desc, state: 'hidden', kap: kp }; }
   // Schritte statt eigener Aufgaben (Namen, 11): Lichter gehören zu „Da fehlt eins“, Laternen zu „Da oben war es warm“
   if (story.side.nord_lights) { kirchberg_S.nordLights = story.side.nord_lights; delete story.side.nord_lights; }
   // nicht in Kapitel 1: „Der rote Kanister“ (Kap. 5, „Kinder tanken nicht“), „Acht Schlösser“ (Kap. 4) – bleiben unsichtbar, bis ihr Kapitel sie startet
 }
 function kirchberg_k1(k) { return story.side[k]; }
-function kirchberg_start(k, karte) { const q = story.side[k]; if (!q) return; if (karte && !q.karte) q.karte = karte; if (q.state === 'hidden') sideStart(k); }
+function kirchberg_start(k, karte) { const q = story.side[k]; if (!q || !kirchberg_ab(k)) return; if (karte && !q.karte) q.karte = karte; if (q.state === 'hidden') sideStart(k); }
 function kirchberg_fertig(k, desc) { const q = story.side[k]; if (q && q.state !== 'done') sideDone(k, desc); }
 function kirchberg_desc(k, desc) { const q = story.side[k]; if (q && q.state !== 'done') { q.desc = desc; try { updateSideInfo(); } catch (e) {} } }
 
@@ -14827,6 +14835,7 @@ const JUSTIN_BANK = {
   rhNein: [['Sie sieht ihn nicht. Er steht direkt da. Irgendwas an ihm ist für sie nicht da.', 4400, 'LUKE']],
   runde: [['„Papa? … Papa, du mogelst wieder.“', 3400, 'DAS KIND'], ['„Noch eine Runde.“', 2400, 'DAS KIND'], ['„Eins.“', 1400, 'DAS KIND'], ['„Zwei.“', 1400, 'DAS KIND'], ['„Drei.“', 1600, 'DAS KIND']],
 };
+JUSTIN_BANK.naeher = JUSTIN_BANK.naeher.concat(JUSTIN_BANK.siebzehn); // Story-Prüfung V-1: die Pflichtsätze kommen direkt nach „Bei siebzehn …“
 // Geschenke (02 B3): Gegenstand, Name, Beschreibung (Wortlaut der Beschreibung aus 81 §1.11 / §3.15)
 const JUSTIN_GABEN = { A: ['ranzenriemen', 'Ranzenriemen', 'Ein brauner Lederriemen von einem Schulranzen, mit einer Metallschnalle. In das Leder geritzt, in Kinderschrift: „H. R.“'],
   B: ['riegel_halb', 'Halber Riegel', 'Der zweite Schokoriegel, halb gegessen, ordentlich in Silberpapier gefaltet.'],
@@ -15135,7 +15144,7 @@ async function justin_ankunft() {
 async function justin_pflicht() { const S = justin_S; if (S.phase !== 'uk4') return; S.phase = 'pflicht'; state.talking = true;
   // F3 Verständlichkeit (Nutzer 01.10.2026): pflicht1 sagt „meine Tochter“; wer die Happen übersprungen hat, hört vorher „herz“ (seine Tochter). Den Namen gibt es nur auf Nachfrage.
   if (!S.said.has('herz')) await justin_sprich('herz', { frei: false });
-  await justin_sprich('naeher', { frei: false }); await justin_sprich('siebzehn', { frei: false }); // V-1: Pflicht (schon gesagt → übersprungen)
+  await justin_sprich('naeher', { frei: false }); // V-1: „naeher“ trägt die Pflichtsätze „Das siebzehnte Jahr“ mit (schon gesagt → übersprungen)
   await justin_sprich('pflicht1', { frei: false }); await justin_sprich('pflicht2', { frei: false }); await justin_sprich('pflicht3', { frei: false });
   state.talking = false; setC3(typeof KAPITEL3_ZIEL_LATERNEN !== 'undefined' ? KAPITEL3_ZIEL_LATERNEN : 'Der eiserne Kasten an der Kreuzung spricht noch. Und Frau Wendt in Nr. 7 hat alles aufgeschrieben.');
   justin_gedanke(JUSTIN_BANK.ankEnde[0][0], 4600);
@@ -15365,7 +15374,7 @@ WORLD_TICK.push((dt, t) => { const S = justin_S; if (!S.ready) return;
   // UK 4: Happen, jeder an einen Blick gebunden; Pflicht, wenn Luke weitergeht (> 11 m) oder nach 70 s
   if (S.phase === 'uk4' && ch3.part === 'town') { S.uk4.t += dt; const P = player.pos, dj = jDist();
     if (!busy) { if (dj > 11 || S.uk4.t > 70) { justin_pflicht(); return; }
-      if (dj < 2.4 && !S.said.has('naeher')) { (async () => { await justin_sprich('naeher'); await justin_sprich('siebzehn'); })(); return; }
+      if (dj < 2.4 && !S.said.has('naeher')) { justin_sprich('naeher'); return; }
       if (player.pitch > .55) { S.oben += dt; if (S.oben > 3 && !S.said.has('hinauf')) { justin_sprich('hinauf'); return; } } else S.oben = 0;
       camera.getWorldDirection(_jv); for (const b of JUSTIN_BLICKE) { if (S.said.has(b.id) || (b.wenn && !b.wenn())) continue; const p = b.p(); if (!p) continue; _jv2.copy(p).sub(camera.position); const dd = _jv2.length(); if (b.d && dd > b.d) continue;
         const see = _jv.dot(_jv2.normalize()) > (b.eng || .965); S.blickHold[b.id] = see ? (S.blickHold[b.id] || 0) + dt : 0; if (S.blickHold[b.id] > .8) { justin_blick(p.clone()); justin_sprich(b.id).then(() => justin_blick(null)); return; } } } }
@@ -16155,6 +16164,9 @@ function albers_k3Daneben() { const st = albers_K3.st; if (st.daneben || !story.
 // Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Luke über den nächsten Schritt nach (Hinweis ohne Textwand).
 const GEDANKEN = { gap: 9, stuck: 150, who: 'LUKE' };
 MOD_SAVE.push(['gedanken', () => [...gedanken_S.said], v => v.forEach(id => gedanken_S.said.add(id))]);
+// H-6: Lucy-Gedanken in Kapitel 1 (der Reihe nach, je einer etwa alle zwanzig Minuten Erkundung)
+const GEDANKEN_LUCY = [['k1_lucy1', 'Lucy. Ich sammel hier Katzen, und du bist irgendwo im Dunkeln.'], ['k1_lucy2', 'Elf Anrufe. Und jetzt lauf ich durch dein Dorf und guck in fremde Briefkästen.'],
+  ['k1_lucy3', 'Wenn sie jetzt anruft, geh ich ran. Beim ersten Klingeln.'], ['k1_lucy4', 'Du hättest längst einen Plan. Mit Zettel und blauen Pfeilen. Ich hab eine Taschenlampe.'], ['k1_lucy5', '„Großer, du trödelst.“ Ja. Ich weiß.']];
 const gedanken_S = { said: new Set(), q: [], cd: 6, obj: '', objT: 0, lastScare: 0, area: new Set(), battEmpty: false, umT: 0, lpx: null, lpz: null, lampStill: 0, katzeTrag: null };
 function gedanke(id, text, delay = 0, prio = 1) {
   const S = gedanken_S; if (S.said.has(id)) return; S.said.add(id);
@@ -16163,7 +16175,7 @@ function gedanke(id, text, delay = 0, prio = 1) {
 // AP-26 · Atempausen A-01 … A-25 (85 §10; ersetzen GEDANKEN_SCHRECK). Wann eine kommt, entscheidet die Regie (spannung.js: Lacher, Stille oder Ruhe mit Riss, A-28);
 // hier steht nur, was Luke sagt. [Kennung, Anlass, Text] – Zeilen mit Anlass nur nach genau diesem Schreck, die anderen frei. Jede einmal. Nie in traurigen Szenen.
 const LUKE_ATEM = [
-  ['A-01', '', 'Mein Herz macht gerade Techno. Hundertachtzig BPM. Das tanzt keiner.'],
+  ['A-01', '', 'Puls auf hundertachtzig. Wenn das ein Podcast wär, würd ich den Atem rausschneiden. Geht nicht. Ist meiner.'], // H-3
   ['A-02', '', 'Ich hab geschrien. Gut, dass keiner mitschneidet. … Hoffentlich schneidet keiner mit.'],
   ['A-03', 'k3kuh', 'Eine Kuh. Vom Himmel. Wenn ich das auf der Arbeit erzähl, krieg ich endlich Urlaub.'],
   ['A-04', '', 'Ich hab mir nicht in die Hose gemacht. Das halt ich fest. Das ist heute mein Erfolg.'],
@@ -16171,12 +16183,12 @@ const LUKE_ATEM = [
   ['A-06', '', 'Lucy, das war kein Quieken. Das war ein Warnruf.'],
   ['A-07', '', 'Ich sag einfach Wörter. Toastbrot. Kabeltrommel. Kassler.'],
   ['A-08', '', 'Das war ein Gesicht, und ich hab ‚Entschuldigung‘ gesagt. Ich hab mich bei einem Gesicht entschuldigt.'],
-  ['A-09', '', 'Ich brauch einen Kaffee. Und eine Therapie. Und einen Kaffee während der Therapie.'],
+  ['A-09', '', 'Ich brauch einen Kaffee. Oma hätte gesagt: Kind, du brauchst Kassler.'], // H-3
   ['A-10', '', 'Zwei Hände, zwei Füße, eine Taschenlampe. Alles dran. Inventur abgeschlossen.'],
   ['A-11', '', 'Wenn das vorbei ist, zieh ich in eine Stadt mit Straßenbahn. Straßenbahnen haben Fahrpläne. Da kommt nichts aus dem Himmel.'],
   ['A-12', 'beob', 'Wer da hinten raschelt: Ich hab dich gehört. Du bist nicht leise. Du bist nur klein.'],
-  ['A-13', '', 'Ich war noch nie so wach. Ich glaub, ich kann Farben hören.'],
-  ['A-14', '', 'Und das war der Moment, in dem Luke Brandt beschloss, nie wieder Nachtschicht zu machen. Für drei Sekunden.'],
+  ['A-13', '', 'Mein Tinnitus hat gerade gekündigt. Der will hier auch nicht sein.'], // H-3
+  ['A-14', '', 'Notiz an mich: Nachtschicht im Studio ist gar nicht so schlimm. Da fällt nur selten was vom Himmel.'], // H-3
   ['A-15', 'whiskey', 'Du. Hast. Mich. … Ja, putz dich nur. Du hast gewonnen.'],
   ['A-16', 'lampe', 'Die Lampe hat’s überlebt. Wenigstens einer von uns ist robust gebaut.'],
   ['A-17', 'k3blinzeln', 'Blinzeln ist ab jetzt verboten. Trockene Augen als Lebensstil.'],
@@ -16469,6 +16481,9 @@ WORLD_TICK.push((dt, t) => {
   const S = gedanken_S; if (!state.started || menu.attract) return; const now = performance.now(), P = player.pos;
   // Schreckmomente: die Atempause danach wählt die Regie (spannung.js → gedanken_atem). Generische Untersuchungszeilen (Laterne, Katzen) einmal je Sekunde:
   S.umT -= dt; if (S.umT < 0) { S.umT = 1; gedanken_umsehen(); }
+  // H-6 (Story-Prüfung): in Kapitel 1 etwa alle zwanzig Minuten freier Erkundung ein Gedanke an Lucy – vor dem Tonband, nie in Szenen, Jagden oder traurigen Momenten
+  if (curChapter() === 1 && !state.heardTape && !state.talking && !ui.overlay && !scripted && !(typeof hunt !== 'undefined' && hunt.on) && !(typeof spannung_traurig === 'function' && spannung_traurig())) {
+    S.lucyT = (S.lucyT || 0) + dt; if (S.lucyT > 1200) { S.lucyT = 0; const L = GEDANKEN_LUCY.find(g => !S.said.has(g[0])); if (L) gedanke(L[0], L[1], 400, 2); } }
   // Orte
   for (const [id, x0, x1, z0, z1, ok, text] of GEDANKEN_ORTE) if (!S.said.has(id) && P.x > x0 && P.x < x1 && P.z > z0 && P.z < z1 && !state.inBasement && ok()) gedanke(id, text, 800, 1);
   if (story.items.includes('brechstange')) gedanke('brechstange', 'Kalk an der Spitze. Frisch. Jemand hat hier vor kurzem etwas aufgebrochen. Oder zugemauert.', 4600, 1);
@@ -19317,7 +19332,7 @@ function anwesen_smokeTick(M, dt, t, P) {
 if (typeof WHISKEY_ST !== 'undefined') WHISKEY_ST.push({ id: 'nest', at: [-39.62, 96.2], hover: 2.35, when: () => anwesen_S.ch4 && anwesen_count() < 8, done: () => anwesen_count() >= 8, talk: 'Whiskey hockt auf dem toten Baum hinter dem Friedhof, direkt über einem Nest voller Glitzerkram. Er sieht mich an, als hätte er für mich gesammelt.' });
 window.__anw = { chapter4Begin, startChapter4, press: () => anwesen_press(), door: () => anwesen_door(), hallEnd: () => anwesen_hallEnd(), count: anwesen_count, endcard3: (...a) => c3Endcard(...a), S: anwesen_S, endcard4: () => anwesen_endcard(), smoke: () => anwesen_S.smoke ? { n: anwesen_S.smoke.n, on: anwesen_S.smoke.on, vis: anwesen_S.smoke.m.visible } : null }; // Testzugriff
 
-// =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 21 „Das winkende Fenster“ (Tor der Villa Seiler)
+// =====================================================================  Fassung 3 (AP-15): „Das winkende Fenster“ (Tor der Villa Seiler) – seit der Story-Prüfung (H-6) eine Nebenaufgabe von Kapitel 3
 // Kette mit acht Vorhängeschlössern (eines neuer), Kiesweg ohne Spur, vollgestopfter Briefkasten („EMPFÄNGER VERSTORBEN – ZURÜCK“); im ersten Stock winkt in einem
 // dunklen Fenster eine kleine, blasse Hand, langsam, wie am Bahnsteig. Lampe drauf: sie hört auf; Lampe weg: sie winkt wieder; beim dritten Mal im Fenster daneben.
 const anwesen_F3 = { hand: null, fenster: [], i: 0, winkt: false, mal: 0, t: 0, schloesser: false, kasten: false };
@@ -19349,7 +19364,7 @@ function anwesen_f3Check() { const F = anwesen_F3; kirchberg_desc('anw_fenster',
   if (F.schloesser && F.mal >= 3) { kirchberg_fertig('anw_fenster', 'Der Rabe hat einen Laut gemacht, den er bei Kindern macht.'); if (!story.lore.some(l => l.key === 'anw_villa_k1')) story.lore.push({ key: 'anw_villa_k1', title: 'Die Villa', html: 'Acht Schlösser an der Kette, eines neuer. Oben winkt eine kleine, blasse Hand, wie am Bahnsteig. Der Rabe hat einen Laut gemacht, den er bei Kindern macht.' });
     if (typeof karte_markierung === 'function') try { karte_markierung(-125, 66, 'ort', 'Die Villa'); } catch (e) {} } }
 const anwesen_v = new THREE.Vector3();
-function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; const P = player.pos, d = Math.hypot(P.x + 125, P.z - 60), k1 = kap() === 1;
+function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; const P = player.pos, d = Math.hypot(P.x + 125, P.z - 60), k1 = kap() === 3 && (typeof ch3 === 'undefined' || !ch3.part || ch3.part === 'town'); // H-6 (Story-Prüfung): die Hand winkt erst in der offenen Nacht von Kap. 3
   if (!k1 || d > 32 || P.z > 57.5) { F.hand.visible = false; return; }
   if (!F.start && d < 16) { F.start = true; kirchberg_start('anw_fenster', { x: -125, z: 54 }); if (!F.laut) { F.laut = true; setTimeout(() => { if (typeof whiskey_mimic === 'function') whiskey_mimic('gurren', { force: true }); setTimeout(() => subtitle('Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.', 3800, 'LUKE'), 1600); }, 2500); } }
   F.hand.visible = true; const W = F.hand.position; anwesen_v.set(W.x - camera.position.x, W.y + .15 - camera.position.y, W.z - camera.position.z).normalize(); const licht = flashOn && fwd.dot(anwesen_v) > .985;
@@ -24485,7 +24500,7 @@ renderJournal = (o => () => {
   sammeln_auto(); const R = sammeln_S.reiter.find(r => r.key === jTab);
   if (R) { $('jTabs').querySelectorAll('button').forEach(b => b.classList.remove('on')); const B = $('jBody'); B.classList.add('samSeite'); B.dataset.reiter = R.key;
     try { R.render(B); } catch (e) { console.error('Fibel-Reiter ' + R.key, e); B.innerHTML = '<h2>' + R.key.toUpperCase() + '</h2>'; } }
-  else { const B = $('jBody'); B.classList.remove('samSeite'); delete B.dataset.reiter; o(); }
+  else { const B = $('jBody'); B.classList.remove('samSeite'); delete B.dataset.reiter; o(); if (jTab === 'funde') try { sammeln_fundeBuendeln(B); } catch (e) {} } // R-3
   sammeln_reiterBau();
 })(renderJournal);
 // ---------------------------------------------------------------------  AP-25 · Fäden über mehrere Kapitel (Bibel K9: „ein Eintrag mit Abschnitten“)
@@ -24576,12 +24591,12 @@ function sammeln_rFragen(B) {
   const offen = SAMMELN_FRAGEN.filter(f => da(f[1]) && !da(f[2])).slice(0, 5), zu = SAMMELN_FRAGEN.filter(f => da(f[1]) && da(f[2]));
   B.innerHTML = `<h2>FRAGEN</h2><div class="samHeft"><ul class="samKuli">${zu.map(f => `<li><s>${f[0]}</s> <em>${f[3]}</em></li>`).join('')}${offen.map(f => `<li>${f[0]}</li>`).join('')}</ul></div>`;
 }
-// ---- Kap.-1-Endkarte: „Nebenaufgaben __ / 21 · Polaroids __ / 7 · Zettel mit drei Punkten __ / 2 · Lose Seiten __ / 3“
+// ---- Kap.-1-Endkarte (H-6: 18 statt 21 Nebenaufgaben): „Nebenaufgaben __ / 18 · Polaroids __ / 7 · Zettel mit drei Punkten __ / 2 · Lose Seiten __ / 3“
 function sammeln_k1Zeile() {
   const neben = Object.values(story.side).filter(q => q && q.state === 'done').length, pola = story.photos ? story.photos.size : 0;
   let zettel = 0; try { if (typeof beob_S !== 'undefined') { const s = beob_S.zettel || beob_S.notes || beob_S.found; if (s) zettel = [...s].filter(k => /K1/.test(String(k))).length; } } catch (e) {}
   const lose = [1, 2, 3].filter(sammeln_hatSB).length;
-  return `Nebenaufgaben ${Math.min(21, neben)} / 21 · Polaroids ${pola} / 7 · Zettel mit drei Punkten ${Math.min(2, zettel)} / 2 · Lose Seiten ${lose} / 3`;
+  return `Nebenaufgaben ${Math.min(18, neben)} / 18 · Polaroids ${pola} / 7 · Zettel mit drei Punkten ${Math.min(2, zettel)} / 2 · Lose Seiten ${lose} / 3`;
 }
 // ---------------------------------------------------------------------  Aussehen (Q-3: echte Gegenstände – Papier, Wachsmalkreide, Kuli, Klebeband)
 (function sammeln_css() {
@@ -24665,6 +24680,34 @@ sammeln_reiter('damals', 'DAMALS', sammeln_rDamals, null, '#c28f5c');
 sammeln_reiter('du', 'DAS BIST DU', sammeln_rDu, null, '#7f93a6');
 sammeln_reiter('regeln', 'SPIELREGELN', sammeln_rRegeln, null, '#a8625a');
 sammeln_reiter('fragen', 'FRAGEN', sammeln_rFragen, () => kap() >= 2, '#8d8668'); // Story-Prüfung V-7
+// ---- Story-Prüfung R-3 (Sammelsysteme bündeln): gleiche Inhalte, weniger Zähler. Die Papiere liegen weiter in story.lore (Spielstand unverändert),
+//      werden aber unter FUNDE ausgeblendet und hier in Kapiteln gezeigt: PAPIERE DER LWO (Akte Abgrund · Pells Heft · Hofers Dienstbuch) und
+//      WARUM SIEHT SIE IHN NICHT? (Rüstungs-Hinweise RH-1…11 aus ch3.armorHints · Lichtsteine).
+const SAMMELN_PAPIERE = [['Akte Abgrund', /^akte_/, 10, 'Edda Brands Durchschläge, versteckt, wo Kinder spielen.'], ['Pells Heft', /^pell_/, 9, 'Laborjournal, Projekt WENDIGO.'],
+  ['Hofers Dienstbuch', /^hungrige_seite_/, 6, 'Polizeiobermeister Hofer, die Seiten aus dem Wald.']];
+const SAMMELN_RH = { 'RH-1': 'Seins ist kein Eisen.', 'RH-2': 'Sie war ganz nah und hat ihn nicht gefunden.', 'RH-3': 'Sie sieht ihn nicht, obwohl er dasteht.',
+  'RH-4': 'Sie guckt durch ihn durch. Wie durch ihr Haus.', 'RH-5': 'Kinder malen ihn ohne Gesicht. Halb da.', 'RH-6': 'Drei Kleine haben ihm was gegeben. Aus demselben Glas wie das Licht.',
+  'RH-7': 'Ein Harnisch aus dem, was die drei brachten. Und ward nicht gesehen.', 'RH-8': 'Der Lichtkegel gleitet über ihn weg.', 'RH-9': 'Ihr Papa ruft, aber sie sieht ihn nicht.',
+  'RH-10': 'Stein und Rüstung summen im selben Ton.', 'RH-11': 'Er trägt das Haus. Das Haus sieht sich selbst nicht.' };
+const sammeln_isStein = k => /^geh_stein_/.test(k || '');
+function sammeln_gebuendelt(k) { return SAMMELN_PAPIERE.some(g => g[1].test(k || '')) || sammeln_isStein(k); }
+function sammeln_loreKlick(B) { B.querySelectorAll('.lore').forEach(el => el.onclick = e => { e.stopPropagation(); const l = story.lore[+el.dataset.i]; if (!l) return; $('journal').classList.remove('show'); ui.overlay = null; openNote(l.title, l.html); }); }
+function sammeln_rPapiere(B) { let h = '<h2>PAPIERE DER LWO</h2>';
+  for (const [name, re, max, unter] of SAMMELN_PAPIERE) { const ls = story.lore.map((l, i) => [l, i]).filter(([l]) => re.test(l.key || '')); if (!ls.length) continue;
+    const n = ls.filter(([l]) => /_[0-9]+$/.test(l.key)).length;
+    h += `<h3>${name} · ${n} / ${max}</h3><small>${unter}</small><ul>${ls.map(([l, i]) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('')}</ul>`; }
+  B.innerHTML = h; sammeln_loreKlick(B); }
+function sammeln_rhListe() { const H = typeof ch3 !== 'undefined' && ch3.armorHints ? ch3.armorHints : null; return H ? Object.keys(SAMMELN_RH).filter(k => H.has(k)) : []; }
+function sammeln_rWarum(B) { const ids = sammeln_rhListe(), st = story.lore.map((l, i) => [l, i]).filter(([l]) => sammeln_isStein(l.key));
+  let h = `<h2>WARUM SIEHT SIE IHN NICHT?</h2><h3>Die Rüstung · ${ids.length} / 11</h3><ul class="samKuli">${ids.map(k => `<li>${SAMMELN_RH[k]}</li>`).join('') || '<li><small>Noch nichts.</small></li>'}</ul>`;
+  if (ids.length >= 3) h += '<p class="hand">Sie sieht ihn nicht. Wegen der Rüstung.</p>';
+  if (st.length) h += `<h3>Lichtsteine · ${st.length} / 7</h3><small>Sie zeigen sich nur im Dunkeln.</small><ul>${st.map(([l, i]) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('')}</ul>`;
+  B.innerHTML = h; sammeln_loreKlick(B); }
+function sammeln_fundeBuendeln(B) { let weg = 0; B.querySelectorAll('.lore').forEach(el => { const l = story.lore[+el.dataset.i]; if (l && sammeln_gebuendelt(l.key)) { el.remove(); weg++; } });
+  if (!weg) return; const h = B.querySelector('h2'); if (h) h.textContent = 'FUNDE · ' + (story.lore.length - weg);
+  const s = document.createElement('small'); s.textContent = 'Akten, Pells Heft und Hofers Dienstbuch: Reiter „Papiere der LWO“. Lichtsteine: Reiter „Warum sieht sie ihn nicht?“'; B.appendChild(s); }
+sammeln_reiter('papiere', 'PAPIERE DER LWO', sammeln_rPapiere, () => story.lore.some(l => SAMMELN_PAPIERE.some(g => g[1].test(l.key || ''))), '#7a6f5c');
+sammeln_reiter('warum', 'WARUM SIEHT SIE IHN NICHT?', sammeln_rWarum, () => kap() >= 3 && (sammeln_rhListe().length > 0 || story.lore.some(l => sammeln_isStein(l.key))), '#6f7f86');
 for (const r of sammeln_S.reiter) r.neu = () => [...sammeln_S.neu].some(k => (r.key === 'sb' && /^SB-/.test(k)) || (r.key === 'bote' && /^Z-/.test(k)) || (r.key === 'du' && /^D-/.test(k)) || (r.key === 'regeln' && /^R-/.test(k)) || (r.key === 'damals' && k === 'J-15'));
 WORLD_MODS.push(['Sammeln', async () => {
   try { await Promise.race([Promise.all(['italic 600 30px "Cormorant Garamond"', '30px Caveat', '20px "Special Elite"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
@@ -29426,7 +29469,7 @@ function kino_defK1() {
     // 33–36 · Schwarz, dann die Endkarte (Schreibmaschine)
     { black: true, dur: 2.2, fadeOut: 900 },
     { card: () => ['KAPITEL 1 · KELLER BLEIBT ZU', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.',
-      { t: `Nebenaufgaben ${kino_zaehler('neben')} / 21 · Polaroids ${kino_zaehler('polas')} / 7 · Zettel mit drei Punkten ${kino_zaehler('zettel1')} / 2 · Lose Seiten ${kino_zaehler('seiten1')} / 3`, klein: true }], dur: 'auto', fadeOut: 600 },
+      { t: `Nebenaufgaben ${Math.min(18, kino_zaehler('neben'))} / 18 · Polaroids ${kino_zaehler('polas')} / 7 · Zettel mit drei Punkten ${kino_zaehler('zettel1')} / 2 · Lose Seiten ${kino_zaehler('seiten1')} / 3`, klein: true }], dur: 'auto', fadeOut: 600 },
   ], { name: 'Du hast sie rausgelassen', done() { kino_schild('210'); } });
 }
 // Aufruf aus der Basis (Stromausfall, sobald die Scheibe über dem Dorf ist): startet „Hilde im Strahl“, danach ending() wie bisher
@@ -38176,7 +38219,7 @@ if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push(() => { if (typeof kirc
 //    (bricht Kachelmuster), Schmutz in Vertiefungen (AO-Karte der Scans), abgestoßene Kanten, zweite gedrehte Abtastung großer Kachelflächen,
 //    draußen Nässe (Oberseiten dunkel und glänzend, Laufspuren an Wänden, Spritzwasser am Sockel). Ausgenommen: Figuren (Skinning),
 //    Durchsichtiges, Laub-Karten (nur Nässe). Die Böden aus gruen.js sind schon nass (eigene Pfützen) → Define HAM_BODEN, nur Detail.
-//    Texturen: echte Scans (wet_asphalt/n = Mikronormalen, rust_sheet/orm.G = Schmutzmaske).
+//    Ohne zusätzliche Texturen (prozedurales Rauschen): sonst lagen Materialien mit vielen Karten + Schattenkarten über 16 Textur-Einheiten (Shader-Fehler).
 // 2) BILD: ein Pass direkt nach dem RenderPass (vor Bloom, vor dem Masken-Pass der Hervorhebung bleibt dieser unangetastet):
 //    halbe Auflösung – Umgebungsverdeckung aus der Szenentiefe (8 Proben, Normale aus der Tiefe) + Lichtstreuung im Taschenlampenkegel
 //    (12 Schritte, Rauschen in Weltkoordinaten) → tiefengewichtet hochskaliert und ins HDR-Bild gemischt. Im filmPass der Basis:
@@ -38185,15 +38228,20 @@ if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push(() => { if (typeof kirc
 //    settings.fx = { det, ao, vol, dirt, ca, grain, sharp }. Ändert man die Grafikqualität, gilt wieder deren Voreinstellung.
 // Testzugriff: window.__grafik = { G: GRAFIK, an(fx) }.
 const GRAFIK_PRESET = { 0: { det: 0, ao: 0, vol: 0, dirt: 0, ca: 1, grain: .8, sharp: 0 }, 1: { det: 1, ao: 1, vol: 1, dirt: 1, ca: 1, grain: 1, sharp: .25 }, 2: { det: 1, ao: 1, vol: 1, dirt: 1, ca: 1, grain: 1, sharp: .35 } };
-const GRAFIK = { u0: new THREE.Vector4(0, 1, 1, 0), u1: new THREE.Vector4(1.7, 1, 0, 0), tex: [null, null], wetK: 0, ready: false, pass: null, rt: null, mA: null, mB: null,
+const GRAFIK = { u0: new THREE.Vector4(0, 1, 1, 0), u1: new THREE.Vector4(23, 1, 0, 0), wetK: 0, ready: false, pass: null, rt: null, mA: null, mB: null,
   sc: null, cam: null, on: false, v: new THREE.Vector3(), w: new THREE.Vector3(), noise: null, dirt: null, init: false };
 
 // ---------------------------------------------------------------- 1) Oberflächen (Shader-Bausteine, vor dem Übersetzen aller Programme)
-GRAFIK.tex[0] = msTex('wet_asphalt/n.jpg'); GRAFIK.tex[1] = msTex('rust_sheet/orm.jpg');
-for (const k of ['standard', 'physical']) Object.assign(THREE.ShaderLib[k].uniforms, { hamG: { value: [GRAFIK.u0, GRAFIK.u1] }, hamT: { value: GRAFIK.tex } }); // Arrays: jede Material-Kopie teilt dieselben Vektoren/Texturen
+// Keine zusätzlichen Textur-Einheiten (Grenze 16 je Programm, Materialien mit vielen Karten + Schattenkarten lagen sonst darüber): alles prozedural.
+for (const k of ['standard', 'physical']) Object.assign(THREE.ShaderLib[k].uniforms, { hamG: { value: [GRAFIK.u0, GRAFIK.u1] } }); // Array: jede Material-Kopie teilt dieselben Vektoren
 THREE.ShaderChunk.lights_physical_pars_fragment = `#define HAM_SURF 1
-uniform vec4 hamG[2]; uniform sampler2D hamT[2];
-float hamGr(vec2 p){ return clamp((texture2D(hamT[1], p).g - .62) * 3.2, 0., 1.); }
+uniform vec4 hamG[2];
+float hamH(vec2 p){ p = fract(p * vec2(.1031, .1030)); p += dot(p, p.yx + 33.33); return fract((p.x + p.y) * p.x); }
+vec3 hamN(vec2 p){ vec2 i = floor(p), f = fract(p), u = f * f * (3. - 2. * f), du = 6. * f * (1. - f);
+  float a = hamH(i), b = hamH(i + vec2(1., 0.)), c = hamH(i + vec2(0., 1.)), d = hamH(i + vec2(1., 1.)), e = a - b - c + d;
+  return vec3(a + (b - a) * u.x + (c - a) * u.y + e * u.x * u.y, du * (vec2(b - a, c - a) + e * u.yx)); }
+float hamGr(vec2 p){ float v = hamN(p * 7.).x * .55 + hamN(p * 17.3 + 5.1).x * .3 + hamN(p * 41.7 + 9.7).x * .15; return clamp((v - .5) * 2.4 + .55, 0., 1.); }
+vec2 hamD(vec2 p){ return hamN(p).yz * .22 + hamN(p * 2.71 + 3.7).yz * .1; }
 vec4 hamMap(sampler2D m, vec2 uv){ vec4 a = texture2D(m, uv);
 #if defined(OPAQUE) && !defined(USE_SKINNING)
   if (hamG[0].z > 0.) { vec4 b = texture2D(m, vec2(uv.y, -uv.x) * .613 + vec2(.37, .71));
@@ -38216,10 +38264,12 @@ if (hamG[0].x + hamG[0].y + hamG[0].z > 0.) {
   vec2 hP = hA.y > max(hA.x, hA.z) ? hW.xz : (hA.x > hA.z ? hW.zy : hW.xy);
   float hG = hamGr(hP * .37), hL = hamGr(hP * .043 + .29);
 #ifndef USE_ALPHATEST
-  if (hamG[0].y > 0.) { float s = hamG[1].x; vec3 bw = hA * hA; bw *= bw; bw /= bw.x + bw.y + bw.z;
-    vec2 tX = texture2D(hamT[0], hW.zy * s).xy * 2. - 1., tY = texture2D(hamT[0], hW.xz * s).xy * 2. - 1., tZ = texture2D(hamT[0], hW.xy * s).xy * 2. - 1.;
-    vec3 pw = bw.x * vec3(0., tX.y, tX.x) + bw.y * vec3(tY.x, 0., tY.y) + bw.z * vec3(tZ.x, tZ.y, 0.);
-    normal = normalize(normal + (viewMatrix * vec4(pw, 0.)).xyz * hamG[0].y * .45 * (1. - smoothstep(2.5, 9., hD))); }
+  float hF = hamG[0].y * (1. - smoothstep(2.5, 9., hD));
+  if (hF > 0.) { float s = hamG[1].x; vec3 bw = hA * hA; bw *= bw; bw /= bw.x + bw.y + bw.z; vec3 pw = vec3(0.);
+    if (bw.x > .02) { vec2 t = hamD(hW.zy * s); pw += bw.x * vec3(0., t.y, t.x); }
+    if (bw.y > .02) { vec2 t = hamD(hW.xz * s); pw += bw.y * vec3(t.x, 0., t.y); }
+    if (bw.z > .02) { vec2 t = hamD(hW.xy * s); pw += bw.z * vec3(t.x, t.y, 0.); }
+    normal = normalize(normal - (viewMatrix * vec4(pw, 0.)).xyz * hF); }
 #endif
   float hV = hamG[0].z;
   roughnessFactor = clamp(roughnessFactor * (1. + (hG - .5) * .45 * hV), .04, 1.);

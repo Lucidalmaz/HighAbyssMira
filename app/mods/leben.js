@@ -965,6 +965,8 @@ function leben_clockTick(dt, c1, c3, live) {
   const S = leben_S, K = leben_uhrSync(), U = LEBEN_UHR[K.kap] || LEBEN_UHR[1];
   if (!U.steht && state.started && !state.ending && !(U.aus && state.outage) && !(typeof traum_S !== 'undefined' && traum_S.on)) {
     K.min += dt / 25;
+    if (K.kap === 1 && !state.heardTape && K.min > 1495) { K.min = 1495; S.k1Steht = (S.k1Steht || 0) + dt; // H-6 (Story-Prüfung): die Uhr bleibt bei fünf vor eins stehen, bis Lucys Band gehört ist
+      if (S.k1Steht > 420 && !state.talking && !ui.overlay && typeof gedanke === 'function') gedanke('k1_fuenfvoreins', 'Fünf vor eins. Seit einer Ewigkeit fünf vor eins.', 0, 2); }
     const h = Math.floor(K.min / 60); if (h > K.h) { K.h = h; const n = leben_uhrCount(h); if (n) { K.pend = n; K.pendAt = K.min; } } }
   if (K.pend) { // schlägt, sobald nichts läuft und man draußen im Ort ist – höchstens 30 Spielminuten später, nach dem Stromausfall gar nicht
     if (K.min - K.pendAt > 30 || (U.aus && state.outage)) K.pend = 0;

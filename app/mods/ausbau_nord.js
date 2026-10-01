@@ -591,7 +591,7 @@ function ausbau_nord_swing(src, x, z, ry) {
 // ---- Aufgaben-Logik
 function ausbau_nord_quest(k) {
   if (k === 'lights') { const L = ausbau_nord.lq; if (L.state === 'hidden') L.state = 'active'; k = 'names'; }
-  const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; ausbau_nord.touched = true; sideStart('nord_' + k);
+  const q = story.side['nord_' + k]; if (!q || q.state !== 'hidden') return; if (typeof kirchberg_ab === 'function' && !kirchberg_ab('nord_' + k)) return; ausbau_nord.touched = true; sideStart('nord_' + k);
 }
 function ausbau_nord_readKid(i) {
   const N = ausbau_nord, K = N.kids[i]; const first = !N.names.has(i); N.names.add(i);
@@ -896,17 +896,18 @@ function ausbau_nord_sb03() { const N = ausbau_nord; if (typeof sammeln_platz !=
 function ausbau_nord_plakatCheck() { const N = ausbau_nord; const q = story.side.nord_plakat; if (!q || q.state === 'done') return; const sb = typeof sammeln_hatSB === 'function' && sammeln_hatSB(3);
   kirchberg_desc('nord_plakat', `Fahrplan, vier Plakate, die Ritze hinter 1958. ${sb ? 'Die Seite ist gefunden.' : ''}`);
   if (N.plakatGelesen && sb && story.lore.some(l => l.key === 'nord_fahrplan')) { sideDone('nord_plakat', 'Achtundfünfzig. Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Siebzehn.'); story.lore.push({ key: 'nord_siebzehn', title: 'Siebzehn', html: 'Vier Sommerfeste, vier Plakate, jedes siebzehn Jahre nach dem letzten. Sieben Lampions, solange Vorrat reicht.' }); } }
-function ausbau_nord_messlatte() { const N = ausbau_nord; ausbau_nord_quest('strich');
+function ausbau_nord_messlatte() { const N = ausbau_nord; if (typeof kirchberg_ab === 'function' && !kirchberg_ab('nord_strich')) return toast('Durchs Flurfenster: ein dunkler Flur. Ein weißer Kittel am Haken. Sonst nichts.', 3000); // H-6: die Messlatte erst ab Kap. 4
+  ausbau_nord_quest('strich');
   const an = typeof flashOn !== 'undefined' ? flashOn : true; if (!an) return toast('Hinter dem Glas ist es schwarz. Mit der Lampe vielleicht.', 2600);
   N.flurN = (N.flurN || 0) + 1;
   if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEtwas abseits ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
     () => { subtitle('Einer ohne Namen. Das achte Kind?', 3000, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
   if (N.flurN === 2 && N.flur) { N.flur[0].visible = false; N.flur[1].visible = true; Audio.play('woodSqueak2', { gain: .08, rate: 1.6, x: N.praxis.hx + 1, y: 1.5, z: N.praxis.fz, ref: 1 }); return toast('Der Kittel hängt einen Haken weiter.', 3200); }
   toast('Die Messlatte. Der Strich ohne Namen. Der Kittel hängt, wo er hängt.', 3000); }
-async function ausbau_nord_schaukasten() { const N = ausbau_nord; ausbau_nord_quest('strich'); if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
+async function ausbau_nord_schaukasten() { const N = ausbau_nord; /* H-6: der Schaukasten (AG-04) bleibt in Kap. 1 und gehört nicht mehr zur Aufgabe „Der Strich ohne Namen“ */ if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
   N.ag04 = true; if (typeof lwo_szene === 'function') { await lwo_szene('AG-04', { at: { x: -9.4, z: 49.2 }, radius: 9 }); } else { openNote('Schaukasten', 'Bundesstelle für Rückführung … Bürgersprechstunde donnerstags … Ahornstraße 7, Eingang Keller.', 'nord_ag04'); }
   if (typeof lwo_ereignis === 'function') try { lwo_ereignis('AG-04'); } catch (e) {} ausbau_nord_strichCheck(); }
-function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN && N.ag04) { const q = story.side.nord_strich; if (q && q.state !== 'done') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“. Und eine Sprechstunde in einem Keller.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
+function ausbau_nord_strichCheck() { const N = ausbau_nord; if (N.flurN) { const q = story.side.nord_strich; if (q && q.state !== 'done' && q.state !== 'hidden') { sideDone('nord_strich', 'Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('D-strich'); } catch (e) {} } } }
 function ausbau_nord_f3Tick(dt, P) { const N = ausbau_nord; if (!N.f3) return;
   if (!N.sb03Fix && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-03']) { N.sb03Fix = true; ausbau_nord_sb03(); }
   if (N.plakat && N.sb03Fix && !N.plakatZu && typeof sammeln_hatSB === 'function' && sammeln_hatSB(3)) { ausbau_nord_plakatCheck(); // Schreck Stufe 1: das Plakat von 2009 blättert sich hinter Luke wieder zu
