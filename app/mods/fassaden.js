@@ -902,6 +902,14 @@ async function fassaden_innenKZ() {
   const f = (await msModel('window')).clone(true); f.scale.set(.92, sy, 1); f.rotation.y = PI / 2; place(f, x + .003, yc);
   const c = await msFBX('curtain_sheer', 'model.fbx', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', a: 'DefaultMaterial_Opacity.png', ds: 1, transparent: true, alphaTest: .02, flipN: true, color: 0xa8a296 } });
   c.scale.set(.0153, .0142 * (H + .25) / 1.55, .012); c.rotation.y = PI / 2; c.traverse(m => { if (m.isMesh) { m.material.depthWrite = false; m.castShadow = false; } }); place(c, x + .115, 0, yc + H / 2 + .13);
+  // Nachtlicht „seit 2009“ unter dem Fenster: kleine Leuchte (derselbe Fab-Scan wie die Schreibtischlampe in Zimmer 7), Schirm leuchtet kaltblau.
+  // Kein neues Licht: der Schein kommt über LICHT_HAKEN (Hemisphäre, nur solange man im Kinderzimmer steht).
+  try { const L = msGround(msFit((await msModel('floorlamp')).clone(true), .34, 'y')); L.position.set(-55.5, .43, zc - .45); L.rotation.y = .4; g.add(L); L.updateMatrixWorld(true);
+    const lb = new T.Box3().setFromObject(L);
+    L.traverse(o => { if (!o.isMesh) return; const b = new T.Box3().setFromObject(o); if ((b.min.y + b.max.y) / 2 < lb.min.y + (lb.max.y - lb.min.y) * .55) return;
+      o.material = [].concat(o.material).map(m => { const n = m.clone(); n.emissive = new T.Color(0x7f9cff); n.emissiveMap = n.map || null; n.emissiveIntensity = 1.1; return n; }); if (o.material.length === 1) o.material = o.material[0]; });
+    if (typeof LICHT_HAKEN !== 'undefined') LICHT_HAKEN.push((dt, indoor) => { const P = player.pos; if (indoor && P.x > -55.9 && P.x < -50.1 && P.z > -21.9 && P.z < -17.1) hemi.intensity += .05; });
+  } catch (e) { console.warn('Fassaden: Nachtlicht Nr. 1', e); }
   g.traverse(o => { if (o.isMesh) { o.receiveShadow = true; o.userData.noCol = true; } });
   g.visible = false;
 }

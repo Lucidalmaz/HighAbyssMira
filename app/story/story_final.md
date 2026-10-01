@@ -186,8 +186,9 @@ Die sechs Kinder erzählten von der Frau mit der Laterne, die sie herausgeführt
 - Das Lichtschiff ist ein **Schiff, das lebt**, ein Sammler. Seine Leute ziehen durch die Zeit und sammeln Nachbilder. Es ist beim Absturz kaputtgegangen und hängt seitdem **halb in unserer Welt, halb außerhalb der Zeit**.
 - Es hat ein Herz, das denkt. Beim Absturz war das Herz leer, und das Erste, was es berührt hat, war Luna. Seitdem tut das Schiff, was Luna will: spielen, Spielkameraden, Mama und Papa. Statt Bilder sammelt es Kinder.
 - In Nimmerheim gibt es keine Uhr. Den Takt gibt Luna: Sie zählt beim Verstecken bis siebzehn, jedes Zählen ist draußen ein Jahr. Bei „siebzehn“ ruft sie **„Ich komme!“**, und das Schiff öffnet sich für eine Nacht.
+- **Das siebzehnte Jahr (Kanon-Ergänzung 01.10.2026, Story-Prüfung V-1, freigegeben):** Die letzten Zahlen zählt sie langsam, wie Kinder, die nicht wollen, dass es anfängt. Das ganze siebzehnte Jahr über ist die Haut dünn: Wer in diesem Jahr Licht macht und zu ihr hochsieht, den holt sie schon vor der Nacht, in der Reihenfolge, in der die Laternen vergeben wurden (2026: Roxy im Juni, Mike im Juli, Lucy im Oktober, Hilde in der Nacht vor 03:13). Justin spuckt das Schiff in diesem Jahr aus, sobald sie ihn wieder nicht gefunden hat; dann wartet er am Rand, bis sie fertig gezählt hat (darum ist er im Zyklusjahr Wochen vor und Tage nach der Nacht draußen: am Ostende, im Amt 2009, auf dem Tankstellenband, in Dinas Scheune). Welche Nacht aufgeht, hängt am Fest: Früher kam sie im Sommer, zum Fest, wenn die Lampions brannten (Nacht zum 22. Juni 1992, 27./28. Juli 2009); ohne Lampions wartet sie auf Martini, auf ihre Nacht von 1312, so nah das Zählen sie lässt (2026: die Nacht zum Donnerstag, 5. November). Hildes Zählbuch, Seite 2, sagt es in einem Satz: „Früher kam sie im Sommer, zum Fest. Ohne Lampions wartet sie auf Martini. Auf ihre Nacht.“
 - **Zeit:** Wer drin ist, altert nicht. Wer herauskommt, kommt in irgendeiner offenen Nacht heraus, meistens in der nächsten. Wer drinnen eine Hand loslässt, kann weit fallen. Und manchmal reißt die Zeit auf wie Stoff, dann fällt man durch einen Riss (Mira). Deshalb kommen manchmal Dinge heraus, die es noch nicht geben dürfte (das Porträt von 2043).
-- **Justin reist nicht durch die Zeit, die Zeit läuft an ihm vorbei.** Er geht in jeder offenen Nacht hinein, sucht, kommt in der nächsten wieder heraus. Für ihn sind in 714 Jahren „vielleicht drei Winter“ vergangen. Er hat 42 offene Nächte gesehen und in jeder etwas in sein Stundenbuch geschrieben.
+- **Justin reist nicht durch die Zeit, die Zeit läuft an ihm vorbei.** Er geht in jeder offenen Nacht hinein, sucht, kommt in der nächsten wieder heraus; im siebzehnten Jahr spuckt ihn das Schiff schon vorher aus, wenn sie ihn wieder nicht gefunden hat, und er wartet am Rand (V-1). Für ihn sind in 714 Jahren „vielleicht drei Winter“ vergangen. Er hat 42 offene Nächte gesehen und in jeder etwas in sein Stundenbuch geschrieben.
 - **Warum er Luna nie gefunden hat:** Nur in der Rüstung aus Schiffshaut übersteht er Nimmerheim, ohne grau zu werden. Aber das Schiff sieht die Rüstung nicht, und Luna sieht durch das Schiff. Sie hört ihn „Luna!“ rufen und sieht niemanden. Sie hält es für Mogeln, wie wenn Erwachsene beim Verstecken schummeln, und versteckt sich besser. Er glaubt, sie versteckt sich vor ihm. Kinder im Dorf malen den Ritter als grauen Fleck am Bildrand.
 - **Luke löst das Dilemma, ohne es zu wollen:** Luna kann durch die Augen ihrer Wechselbälger sehen, sobald die wissen, was sie sind (Regel 10). Lukes Augen sind menschliche Augen, nicht die des Schiffs. Durch Luke sieht Luna in Kapitel 3 ihren Vater zum ersten Mal seit 714 Jahren.
 - **Justins Graubereich:** Er ahnt ab der Kreuzung, dass Luke aus seiner Hand gemacht ist und dass Luna durch ihn sieht. Er sagt es nicht und bleibt in Lukes Nähe, damit Luke ihn ansieht. In Kapitel 3 gibt er es zu: „Ich hatte kein anderes Fenster.“
@@ -199,7 +200,7 @@ Die sechs Kinder erzählten von der Frau mit der Laterne, die sie herausgeführt
 Jede Regel ist ein echtes Kinderspiel und wird erst **gezeigt**, dann **erlebt**, dann **benutzt**, dann **erklärt**. Fibel-Eintrag „Lunas Spielregeln“: von Jonas als Kind angefangen (ohne zu wissen, wem sie gehören), von Luke weitergeschrieben.
 
 1. **Verstecken.** Sie zählt siebzehn Jahre, dann sucht sie. „Das Spiel ist erst aus, wenn alle gefunden sind.“ Wer gefunden wird, muss zählen.
-2. **Laterne laufen.** Wer in einer offenen Nacht eine Laterne trägt, den nimmt sie mit (so kamen 1312 die sechs). Die brennenden Straßenlaternen sind ihre Augen über dem Dorf. Holt sie jemanden, bläst sie die Laterne vor seinem Haus aus. Sind alle Laternen aus, muss sie herunterkommen.
+2. **Laterne laufen.** Wer in einer offenen Nacht eine Laterne trägt, den nimmt sie mit (so kamen 1312 die sechs). Die Straßenlaternen sind ihre Augen über dem Dorf. Holt sie jemanden, bläst sie die Laterne vor seinem Haus aus. In der offenen Nacht brennen alle, aber die meisten schlafen: Wach sind nur die, vor denen sie in diesem Jahr einen geholt hat (2026 vier, vor 5, 3, 1 und 7). Sind ihre wachen Augen alle aus, muss sie herunterkommen (Story-Prüfung V-2).
 3. **Ochs am Berg.** Das Graukind bewegt sich nur, wenn keiner hinsieht.
 4. **Augen zu.** Wer die Augen zu hat, den sieht sie nicht. Ausnahme: ihre Wechselbälger, sobald sie wissen, was sie sind.
 5. **Stille Post.** Sie kann jede Stimme nachmachen, die je in der Nähe einer Laterne gesprochen hat. Sie sagt aber, was *sie* sagen würde („Bruder“, „nach Hause“), und sie kann **kein Wort sagen, das nie laut gesagt wurde** (HASENBROT). Unter jeder geliehenen Stimme läuft leise Lucys Spieluhr.
@@ -210,6 +211,8 @@ Jede Regel ist ein echtes Kinderspiel und wird erst **gezeigt**, dann **erlebt**
 10. **Wer es weiß, durch den sieht sie.** Ihre Wechselbälger sind zu, solange sie sich für Menschen halten.
 11. **Geschenkt ist geschenkt.** Wer sich selbst verschenkt, gehört ihr ganz, mit Namen und Erinnerung (Cleo).
 12. **Wer mitisst, bleibt über Nacht.** (Kapitel 5.)
+
+**Warum der Wald blind macht (V-3):** Sie findet uns an unseren Nachbildern. Im Wald frisst der Wendigo jedes Nachbild weg, darum findet sie dort keinen (der echte Luke in Kap. 5: „Im Wald findet sie keinen! Sie findet uns an dem, was wir liegen lassen. Da drin frisst das einer weg!“).
 
 Die **Kuh** gehört zu „Blinde Kuh“: Luna holt Tiere, spielt, lässt sie fallen. Augen weg, glatte Ränder; in die Flanke gebrannt sieben Kreise und ein halber achter.
 
@@ -260,7 +263,7 @@ Steigerung über die Kapitel: **Zeichen → Kürzel → Name → Gesicht → Auf
 - **Kap. 1:** Zeichen und Schatten: Augen-Zeichen unter dem BfR-Stempel, „(hw)“ unter Artikeln, ein grauer Kombi an der Südsperre, Pat und Patachon einmal unter einer Laterne, Kühns Mailbox, ein Aushang einer Behörde, die es nicht mehr gibt.
 - **Kap. 2:** Das Amt ist erkennbar LWO: Schilder, Stempel, Dienstanweisungen, Wolters Stimme auf Band. Funk der Blechmänner; nach dem Feuer muss Luke sich vor ihnen verstecken („Das ist K-3. Wolter will ihn heil.“).
 - **Kap. 3:** In der offenen Nacht stehen Blechmänner am Rand der Senke und warten auf die Ernte. Wolter im Kombi an der Bushaltestelle: erste Begegnung, freundlich, falsche Hilfe.
-- **Kap. 4:** Der Morgen danach: Aufräumkommando; **Auftrag 1** (Zählbuch); Schleichen vor Agenten in der Villa; große Konfrontation mit Wolter; Whiskey reißt ihm den Handschuh herunter.
+- **Kap. 4:** Der Morgen danach: Aufräumkommando; **Auftrag 1** (Zählbuch); in Nr. 9 Blatt 212 mit Wolters Nachtrag: Die LWO hat Lucy im Tank liegen lassen, damit der Bruder von allein kommt (**Kanon-Änderung W-5, freigegeben 01.10.2026**: Lukes Heimkehr war geplant, er ist zweimal Köder, Kap. 4 und Kap. 6); Schleichen vor Agenten in der Villa; über Seilers Weltkarte das Messingschild „LUCID WORLD ORGANIZATION · AUSSENSTELLEN“; große Konfrontation mit Wolter, in der der Name fällt („Wir heißen Lucid World Organization. Lost Eyengless ist Außenstelle sieben.“, V-4); Whiskey reißt ihm den Handschuh herunter.
 - **Kap. 5:** Beobachtung vor Nr. 1; das Grab mit Lukes Namen hat die LWO bestellt (Luke soll als tot gemeldet und als K-3 mitgenommen werden); ein Vermisstenplakat hängt, bevor Luke vermisst ist.
 - **Kap. 6:** Jagd: **Auftrag 2** (Köder für den Wendigo), Falle am Amtsbus, tote Blechmänner; Haken: Nachsorge 12 mit falschem Kopf.
 
@@ -319,11 +322,11 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 
 ### 10.1 Bestehende Figuren – was wahr ist
 - **Luke** (nach Pass 26, in Wahrheit seit 2009 auf der Welt): Wechselbalg aus Justins Hand. Braune Augen (Original blau). Halbrunde Narbe links („Fahrradunfall“, sagte Mama). Tontechniker in der Stadt, Nachtschicht, mischt Hörbücher und Podcasts; hört, was andere überhören (die Spieluhr unter geliehenen Stimmen). **Sarkastisch mit weichem Kern**, redet mit sich selbst und mit Katzen, verliert jeden Kampf gegen Whiskey. Schuld: elfmal nicht rangegangen; schämt sich, das Dorf verlassen zu haben. Nach großen Enthüllungen genau ein Satz oder nichts. Nie von vorn gezeigt.
-- **Lucy**: echter Zwilling. Wusste am ersten Morgen 2009, dass der Junge nicht ihr Bruder war, und hat ihn gewählt. „Großer“, „heim“, nie „nach Hause“. Zeichen: blauer Pfeil mit Kreis am Schaft. HASENBROT, nie laut gesagt. Frech, herrisch, warm. Hilde hat ihr im Oktober alles gezeigt. Luna hat ein Stück von ihr behalten (Spieluhr unter Lunas Stimmen).
+- **Lucy**: echter Zwilling. Wusste am ersten Morgen 2009, dass der Junge nicht ihr Bruder war, und hat ihn gewählt. „Großer“, „heim“, nie „nach Hause“. Zeichen: blauer Pfeil mit Kreis am Schaft. HASENBROT, nie laut gesagt. Frech, herrisch, warm. Hilde hat ihr im Oktober alles gezeigt. Luna hat ein Stück von ihr behalten (Spieluhr unter Lunas Stimmen) und sich bei der Rückgabe etwas von ihr geborgt: das Kochen, das Lachen, das „Großer“ (W-2: Spieluhr unter „Guck nicht so. Ich bin’s.“ im Abspann Kap. 3, Summen auf Vegas’ Sofa Kap. 4, ausgesprochen im Höhepunkt Kap. 5).
 - **Der echte Luke**: für immer neun, blaue Augen, gestreifter Schlafanzug. Sagte 2009 als Einziger „Klar!“, als ein blasses Mädchen mitspielen wollte, darum behielt Luna ihn. Warnt Luke mit Worten nur zweimal (Telefon Kap. 1, Stall Kap. 5); auf dem Rücksitz malt er den Kreispfeil falsch herum, unter dem Laken steht er nur. Keine Spieluhr unter seiner Stimme. Lebt halb in Nimmerheim, halb im Stall am Hof; Hilde stellte ihm siebzehn Jahre lang Brot hin.
-- **Mama (Marion Brandt, geb. Kranz)**: 1975 unter den Sieben; lernte in Nimmerheim von Luna das Wiegenlied (Miras Lied). Ihr Bruder Peter kam als Wechselbalg zurück, sie liebte ihn trotzdem. Unterschrieb 2009 (zweimal angesetzt), wusste am ersten Morgen Bescheid, liebte den Wechselbalg. Ging 2011 mit einer Laterne in die Senke, um den echten Luke zu holen, und blieb bei ihm.
+- **Mama (Marion Brandt, geb. Kranz)**: 1975 unter den Sieben; lernte in Nimmerheim von Luna das Wiegenlied (Miras Lied). Ihr Bruder Peter kam als Wechselbalg zurück, sie liebte ihn trotzdem. Unterschrieb 2009 (zweimal angesetzt), wusste am ersten Morgen Bescheid, liebte den Wechselbalg. Ging 2011 mit einer Laterne in die Senke, um den echten Luke zu holen, und blieb bei ihm, drinnen: Sie wartet in Nimmerheim an der Kette, bis er wiederkommt, und kommt in Kapitel 7 mit ihm aus dem Schiff (V-6; im Stall ist sie nie).
 - **Hilde Wendt**: 1975 unter den Sieben; seit 1986 im Amt; Mutter von Zayn und Jonas; zog 2009 Zayns Los; zählt jede Nacht die nackten Füße auf der Kreuzung („Es sind immer acht. Zuletzt neun.“, der Neunte ist der Beobachter). Versteckte Lucy im Oktober im Tank und sperrte die falsche Lucy (Luna) im Keller ein. Wird in Kapitel 1 geholt.
-- **Lars Vegas**: Nr. 3, Jahrgang 1966, 1975 unter den Sieben, Mikes Großvater, unterschrieb für Mike. Verschwörungstheoretiker (Alufolie, Funkgeräte, Ordner mit rot eingekreisten „(hw)“) mit ständig recht. Grummelig, flucht, redet durch die Tür. Die komische Figur mit dem traurigsten Geheimnis. Tauft Whiskey.
+- **Lars Vegas**: Nr. 3, Jahrgang 1966, 1975 unter den Sieben, Mikes Großonkel und Vormund (Mikes Mutter ist Vegas’ Nichte; Mike nannte ihn „Opa“), unterschrieb für Mike. Verschwörungstheoretiker (Alufolie, Funkgeräte, Ordner mit rot eingekreisten „(hw)“) mit ständig recht. Grummelig, flucht, redet durch die Tür. Die komische Figur mit dem traurigsten Geheimnis. Tauft Whiskey.
 - **Peter Kranz**: Mamas Bruder, Wechselbalg 1975, erfuhr es 1992; die LWO sperrte ihn unter die Erde (Regel „Aus“) und machte ihn zu K-1. Hält Luke fest, sagt „Bruder“. Luke verbrennt ihn (Pflicht, Kap. 2).
 - **Zayn Wendt**: sieben, 2009 verlost, nie zurück. **Jonas Wendt** (großer Bruder, Lukes bester Freund als Kind) suchte ihn vierzig Mal mit roter Wolle; lebt in Hamburg, ruft jeden Sonntag Hilde an, die nie rangeht; kommt am Samstag (Kap. 7).
 - **Cleo**: acht, ging 2009 freiwillig mit („Eine für sieben“), Spiegel zu Mira (1312 „ich für sechs“). Nur Lucy erinnert sich.
@@ -353,8 +356,10 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 4. **Luke ist der Wechselbalg.** (Kap. 2, Akte 08)
 5. **„Ich seh ja durch dich.“** (Kap. 2 Ende; Kap. 3 Raum 3)
 6. **Justin hat nie aufgehört zu suchen, aber Luna konnte ihn in seiner Rüstung nicht sehen. Und seine Hand ist aufgegangen, nicht Miras.** (Kap. 3, Raum 3)
-7. **Die Frau am gedeckten Tisch, das Graukind, die Stimme am Telefon: Luna mit Lucys Gesicht.** (Kap. 5)
+7. **Die Lucy, die du gerettet hast, war nicht ganz Lucy.** Die Frau am gedeckten Tisch, das Graukind, die Stimme am Telefon sind Luna mit Lucys Gesicht, und Luna hat sich bei der Rückgabe etwas von ihr geborgt: „Das Kochen. Das Lachen. Das ‚Großer‘.“ (Kap. 5; Hinweise: Spieluhr unter Lucys Stimme im Abspann Kap. 3, Lucy summt im Halbschlaf und bricht beim vierten Ton ab, Kap. 4; Story-Prüfung W-2)
 8. **Der echte Luke lebt und hat dich gewarnt.** (Kap. 5)
+
+**Schlusswendung des gebauten Spiels (Kap. 6, Story-Prüfung W-3):** „Ein Stück von Papa ist noch draußen“ ist Luke selbst. Der echte Luke sagt es auf dem Hochsitz („Sie sucht nur noch einen. Das Stück von Papa, das draußen rumläuft.“), die Endkarte schreibt es hin: „Einer fehlt noch. Du.“ Damit hat Kapitel 7 seinen Einsatz.
 
 **Aha-Momente (je gepflanzt und eingelöst):**
 - Die Narbe in Lukes Hand ist der Abdruck von Miras Ring (Kap. 1 „Fahrradunfall“ → Kap. 3 Justins gleiche Narbe → Kap. 4 der Ring passt).
@@ -366,6 +371,7 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 - ∴ sind drei, zwei davon in Gläsern (Kap. 2 Etiketten → Kap. 4 leeres Glas mit dreizehigen Spuren).
 - Das Grab „LUKE 2009–2026“ hat die LWO bestellt (Kap. 3 → Kap. 5 Rechnung des Steinmetzes).
 - K-3 ist Luke (Kap. 2 Funk → Kap. 4 vorbereitete Zelle).
+- Lukes Heimkehr war geplant: Die LWO hat Lucy im Tank als Köder liegen lassen (Kap. 1 elf Anrufe, Wolters „Er soll erst mal laufen“ → Kap. 4 Blatt 212, Wolters Nachtrag; Kanon-Änderung W-5).
 - Whiskey ist 714 Jahre alt und gehört Mira; Justin kennt ihn (§8).
 - Justins Rüstung ist aus dem Schiff; der Beobachter kennt Justin seit 1313 (Kap. 3 andeutungsweise → Kap. 4 LWO-Analyse „Material der Rüstung = Substanz S, anorganisch erstarrt“ → Kap. 6 Beobachter-Zettel).
 - Hildes „Neunter“ ist der Beobachter.
@@ -386,7 +392,7 @@ Zeit: Mittwoch, 4. November 2026, spät abends, bis Freitag, 6. November, Morgen
 
 | Nr. | Titel | Zeit | Ort | Kern-Erlebnis | Einzigartig durch | Neue Mechanik |
 |---|---|---|---|---|---|---|
-| Prolog | **Du hast lange geschlafen** | Nacht zum 4.11. (Traum) | Ortsschild, Traumstraße | Whiskey (Miras Worte) gibt Fibel und Auftrag | Kinosequenz, Traumlogik | – |
+| Prolog | **Du hast lange geschlafen** | Mi 4.11., tagsüber im Auto am Ortsschild (Traum) | Ortsschild, Traumstraße | Whiskey (Miras Worte) gibt Fibel und Auftrag | Kinosequenz, Traumlogik | – |
 | 1 | **Keller bleibt zu** | Mi 4.11., ab 23:00 | offenes Dorf (Ortskern, Kirchberg, Ost, West) | Heimkehr, Suche nach Lucy, das Falsche befreien | offene Welt, Nachbarn, erste Angst, LWO nur als Schatten | Taschenlampe, Polaroids sammeln, Nachbilder |
 | 2 | **Das achte Kind** | Do 5.11., 01:00–03:13 | Amt, Ebene −2 (unter Nr. 7) | Wahrheit über Dorf, LWO und Luke | linear, eng, Jagd, Feuer, Uhr läuft auf 03:13 | Augen zu (versagt), Dialog mit Auswahl |
 | 3 | **Ich komme** | Do 5.11., 03:13 (steht) bis Morgengrauen | Dorf am Rand von Nimmerheim, dann Nimmerheim | Lunas Spiel mit ihren eigenen Regeln schlagen; Justin; Wahl mit kleinen Folgen | Regeln als Werkzeuge; Justin als Verbündeter; drei Räume in Nimmerheim | Funk, Laternen löschen, Freimal |
@@ -674,7 +680,7 @@ Diese Liste löst alle Widersprüche zwischen den Teilen. Wo ein Teil etwas ande
 ## Prolog · „Du hast lange geschlafen“
 
 ### Auf einen Blick
-- **Zeit:** Nacht zum Mittwoch, 4. November. Luke ist nach Lucys Anruf („Luke … Haus Nummer 7. Der Keller.“) die ganze Nacht durchgefahren und am Ortsschild im Auto eingeschlafen. Der Prolog ist sein Traum.
+- **Zeit:** Mittwoch, 4. November, ein Tag im Auto. Luke ist nach Lucys Anruf („Luke … Haus Nummer 7. Der Keller.“) die Nacht zum Mittwoch durchgefahren, am Ortsschild im Auto eingeschlafen und hat den ganzen Tag verschlafen. Der Prolog ist sein Traum; er wacht Mittwochnacht auf (Widerspruch 14).
 - **Ort:** die Ahornstraße im weißen Nebel, leer, ohne Laut. Die Laterne an der Kreuzung. Der nasse Asphalt, auf dem die Fibel liegt.
 - **Dramatischer Zweck:** Auftrag und Werkzeug (die Abenteuerfibel) übergeben, die Stimmung setzen (ein Kind zählt), und ohne ein einziges Wort über Justin, Luna oder den Wechselbalg zu verraten, ein ungutes Gefühl in Luke pflanzen: Der Rabe redet, als kenne er ihn. Und er redet wie eine Frau, die nicht aus dieser Zeit ist.
 - **Gefühlskurve:** Ruhe → Vertrautheit (die Straße, die Fibel) → Fremdheit (der Rabe spricht) → ein Atemzug Grauen (das Kindergesicht) → Aufwachen im Regen, ratlos, mit Fibel in der Jacke.
@@ -693,7 +699,7 @@ Diese Liste löst alle Widersprüche zwischen den Teilen. Wo ein Teil etwas ande
 4. **Die Fibel.** Der Rabe hüpft herunter; auf dem Asphalt liegt ein dickes Kinderheft mit Wachstuch-Einband, Aufkleber vom Kinderarzt drauf, „ABENTEUERFIBEL – LUKE, JONAS, ZAYN – GEHEIM!!“. DER RABE: „Das ist deine Abenteuerfibel. Du hast sie als Kind geschrieben, mit Jonas und Zayn.“ – „Sie schreibt weiter. Alles, was du findest. Jeden Weg, den du gehen musst.“ – „Sieh hinein, wenn du nicht weiterweißt. Sie gehört wieder dir.“
 5. **Der Auftrag** (Kamera dicht am Rabenkopf; hier liegt der Höhepunkt, siehe unten). DER RABE: „Finde Lucy. Finde heraus, was mit diesem Dorf geschehen ist.“ – „Und finde heraus, wer du bist.“ – Pause. – „Kum, Wîse.“ Das Letzte sagt er nicht zu Luke. Es klingt, als hätte jemand *ihn* gerufen.
 6. **Aufwachen.** Schwarz. Regen. Luke steht mitten auf der Straße am Ortsschild, Schuhe an, Jacke offen, Autotür hinter ihm sperrangelweit auf, Innenlicht an. Er hat keine Ahnung, wie er aus dem Auto gekommen ist. LUKE: „Huh …? Warum steh ich nachts im Regen auf der Straße?“ Er tastet die Jacke ab: Die Fibel steckt drin. Sie ist nass. Sie ist echt.
-   Gedanke (2,5 s später): *Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren und im Auto eingepennt. Jetzt ist es schon wieder Nacht.*
+   Gedanke (2,5 s später): *Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren. Und dann hab ich den ganzen Tag im Auto gepennt. Am Ortsschild. Super.*
    Fibel-Eintrag „Der Traum vom Raben“ (Lore) fasst die Sätze ohne den Ritter zusammen.
 
 ### Der Höhepunkt als Kinosequenz (Prolog): „Kum, Wîse“
@@ -706,7 +712,7 @@ Der eine Schreck des Prologs aus Kern §12.1: Der Rabe dreht sich auf der Latern
 | 12–13,2 | statisch, ein einziger Frame-Sprung (kein Schnitt) bei 12,0 | **Der Rabe dreht sich zurück. Für einen Atemzug (1,2 s) sitzt auf dem Rabenhals ein Kindergesicht**, blass, sieben Jahre alt, die Augen ganz schwarz, kein Mund. Es sieht Luke direkt an. Dann ist es wieder ein Rabe, mitten in der Bewegung, als wäre nichts. | Auf dem Frame-Sprung ein einzelner tiefer Schlag (`Audio.thump`, gedämpft), kein Stinger, kein Schrei. Das Kind hat aufgehört zu zählen. |
 | 13,2–17 | Kamera weicht langsam zurück, Bildrand beginnt zu flackern (Traumfilter hoch) | Der Rabe putzt sich das Brustgefieder, sehr menschlich beleidigt, als hätte Luke ihn beim Umziehen ertappt. | DER RABE: „Kum, Wîse.“ (leise, nicht an Luke gerichtet, in der Stimme einer Frau, die einen Vogel ruft) |
 | 17–22 | Kamera kippt nach oben in das Laternenlicht | Die Laterne wird weiß, füllt das Bild. | Regen schwillt an. Ein Autotür-Warnsummen (Innenlicht, Tür offen). Schwarz. |
-Was der Spieler davor tut: nichts, er sieht zu. Was danach passiert: Aufwachen im Regen (oben, Punkt 6). Der Spieler bekommt keine Erklärung für das Gesicht. Er bekommt sie in Kapitel 5, wenn er das Graukind zum ersten Mal richtig sieht und es dasselbe Gesicht ist.
+Was der Spieler davor tut: nichts, er sieht zu. Was danach passiert: Aufwachen im Regen (oben, Punkt 6). Der Spieler bekommt keine Erklärung für das Gesicht. Er bekommt sie in Kapitel 2, im Tank, wenn sich dasselbe graue Kindergesicht von innen ans Glas presst (Widerspruch 13).
 
 ### Umsetzungsnotizen Prolog
 - `traum.js`, `TRAUM_SHOTS[2]`, Anker `'Der Ritter vor seinem Kind.'` → `'Die Eltern vor dem, was sie unterschrieben haben.'` (entspricht T9 der alten Bibel); `'Und du … vor dir selbst.'` → `'Und du, Kind … vor dir selbst.'`. Gleiche Änderung in `traum_awake`, Lore-Notiz, Anker `Der Ritter vor seinem Kind. Und du`.
@@ -801,7 +807,7 @@ Ketten an der Decke, die leise schwingen, obwohl es keinen Zug gibt. An der Wand
 LUKE: „Ich hab nie gemalt. Ich hab nicht mal in der Schule gemalt.“ (Die Fibel notiert es auf der Seite „Wer bin ich?“, Eintrag 1. Es ist der erste von vielen.)
 Über den Zeichnungen, mit rotem Lackstift, Hildes gerade Druckbuchstaben: **SIE NEHMEN NUR DIE, DIE SCHON MAL WEG WAREN.** Wer die Wand mit der Lampe abfährt, findet in einer Ecke einen Buntstiftvermerk, kindlich: „REGEL: WER GEFUNDEN WIRD MUSS ZÄLEN“. Die Fibel legt die Seite „Lunas Spielregeln“ noch nicht an; das tut sie erst, wenn Luke in Nr. 1 Jonas’ alte Seite findet (Nebenaufgabe „Flocke“). Aber sie merkt sich den Satz.
 **Das Tonband:** ein alter Kassettenrekorder auf einer Obstkiste, Kassette drin, Zettel dran: „Für Großer. Erst hören, dann heim. – L.“ Play drücken. Lucys **echte** Stimme, ohne Spieluhr, mit dem Kratzen ihrer Nägel am Mikrofon, weil sie das Ding zu nah hält:
-LUCY (Band): „Hey, Großer. Ich weiß jetzt, warum wir uns an den Sommer 2009 nicht erinnern.“
+LUCY (Band): „Hey, Großer. Ich weiß jetzt, was im Sommer 2009 passiert ist. Nicht nur, dass. Was.“
 LUCY (Band): „Wir waren weg. Sieben Kinder. Ich. Und du auch.“
 LUCY (Band): „Hilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.“
 *Der Spieler:* Das Band knackt, Lucy räuspert sich, es läuft weiter, wenn Luke stehen bleibt.
@@ -827,7 +833,7 @@ Speicherpunkt (automatisch, still).
 
 #### 7 · „Ich seh dich gleich …“
 **Auslöser:** Ende der Kinosequenz (siehe unten). Der Strahl hebt vom Asphalt ab und beginnt, die Straße abzutasten wie eine Taschenlampe beim Suchen. Die Kinderstimme kommt von oben, freundlich, verspielt: „Ich seh dich gleich …“
-**Mechanik:** Luke muss im Schatten zurück zu Nr. 7 und in den Keller. Deckung: Hecken, Lucys altes Fahrrad an der Mauer, Vegas’ Veranda (Vegas durch die Tür: „Bleib unten, Junge! Nicht ins Licht gucken! Die sieht nur, was ihre Lampen sehen!“; er hat recht, das erfährt man in Kapitel 3), Mülltonnen, die Telefonzelle (still; sie klingelt in diesem Kapitel nur einmal, in der Nebenaufgabe „Da unten ist nicht Lucy“, R-1). Erfasst der Kegel Luke länger als eine Sekunde: Er wird einen Meter gehoben und fallen gelassen, Schwarz, Neustart an der letzten Deckung; Untertitel beim dritten Mal: „Sie spielt. Sie will nicht, dass es schnell geht.“
+**Mechanik:** Luke muss im Schatten zurück zu Nr. 7 und in den Keller. Deckung: Hecken, Lucys altes Fahrrad an der Mauer, Vegas’ Veranda (Vegas durch die Tür: „Bleib unten, Junge! Nicht ins Licht gucken! Die sieht nur, was ihre Lampen sehen!“; er hat recht, das erfährt man in Kapitel 3), Mülltonnen, die Telefonzelle (still; sie klingelt in diesem Kapitel nur einmal, in der Nebenaufgabe „Da unten ist nicht Lucy“, R-1). Erfasst der Kegel Luke länger als eine Sekunde: Jedes Mal wird es schlimmer (Q-9 A-03): beim ersten Mal einen Meter gehoben und fallen gelassen; beim zweiten Mal drei Meter, harter Fall, acht Sekunden Humpeln, die Lampe flackert, zum ersten Mal das Kichern; beim dritten Mal hängt Luke fünf Sekunden oben und sieht die Scheibe von unten atmen, dann Schwarz, Neustart an der letzten Deckung, und der Kegel sucht danach schneller. Kein Untertitel erzählt die Angst (A-25: „Sie spielt. Sie will nicht, dass es schnell geht.“ gestrichen; im Barrierefrei-Modus nur „[Kichern, über dir]“).
 Whiskey fliegt vor, von Deckung zu Deckung, und wartet jedes Mal auf dem nächsten Schattenstück. Er ist still. Wer ihm folgt, kommt durch.
 **Im Keller:** Die Stahltür fällt zu, ohne dass Luke sie anfasst. Das Brummen kommt durch den Beton, von oben, und wird leiser. Die Zeichnungswand wölbt sich wie nasses Papier; dahinter kalte Luft. Und ganz weit unten, unter dem Keller, wo kein Unten sein dürfte, lacht ein Kind.
 LUKE (Gedanke): *Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.* Er legt die Hand an die Wand. Sie ist warm.
@@ -846,7 +852,7 @@ Aus Kern §12.1: Hilde wird im Lichtstrahl nach oben gerissen, direkt an Lukes G
 | 26–28 | Blick reißt nach oben | Sie ist nur noch ein heller Fleck im Kegel, dann ist der Kegel leer. Weißer Blitz, drei Bilder lang. | Ein einzelner Schlag, wie eine Stahltür. Dann ein Ton, der klingt, als würde eine Kinderstimme tief Luft holen. |
 | 28–34 | Kamera fällt zurück auf Straßenhöhe, wackelt, als wäre Luke in die Knie gegangen | Wo Hilde stand, glänzt der Asphalt, als hätte es nur dort geregnet. Hildes Lesebrille liegt da, an ihrer Perlenkette, ein Glas gesprungen. Aus dem Nebel oben segelt ein Polaroid herunter und landet mit dem Bild nach oben: Zayn. (Fibel „Die Sieben“ zählt es, falls Luke es im Keller nicht mitgenommen hat.) | Regen kommt zurück, leise. Weit weg, im Osten, eine Fahrradklingel. (Günther Maas, N-03, Vorbote; siehe Nebenaufgaben.) |
 | 34–40 | Kamera hebt sich leicht, Blick nach oben zur Scheibe | Der Kegel hebt vom Asphalt ab, dreht sich, tastet die Hauswand von Nr. 9 ab, die Hecke, Vegas’ Veranda (Vegas’ Hufeisen über der Tür glänzt kurz), kommt zurück Richtung Luke. Der Kegel bewegt sich wie eine Taschenlampe in einer Kinderhand: zu schnell, dann zu langsam, zittrig. | Von oben, freundlich, nah am Ohr, obwohl die Scheibe zwanzig Meter hoch hängt: KIND: „Ich seh dich gleich …“ (kein Kichern hier; das Kichern kommt erst, wenn sie Luke das erste Mal erwischt). |
-| 40–44 | Kamera zurück an den Spieler, Fade der Balken | Der Kegel streift einen Meter neben Luke den Boden. Die Fibel schreibt: „Versteck dich vor dem Licht. Zurück in den Keller.“ | Brummen wieder da, gleichmäßig. Untertitel: „Sie sucht. Wie beim Verstecken. Und du bist dran.“ |
+| 40–44 | Kamera zurück an den Spieler, Fade der Balken | Der Kegel streift einen Meter neben Luke den Boden. Die Fibel schreibt: „Versteck dich vor dem Licht. Zurück in den Keller.“ | Brummen wieder da, gleichmäßig. Kein Untertitel (A-25; Barrierefrei-Modus: „[Brummen]“). |
 **Was danach passiert:** Unterkapitel 7. Der Spieler hat sofort die Steuerung, steht im Halbschatten der Hecke vor Nr. 8, und der Kegel kommt zurück.
 
 ### Nebenaufgaben (Liste für den zweiten Autor; Ausarbeitung in 11_kap1_neben.md)
@@ -900,7 +906,7 @@ Alle Namen nach Kern §14. Verteilung: Ortskern 8, Kirchberg 6, Osten 4, Westen 
 > *Daneben:* „Gemeindesaal: Bürgerversammlung ‚Die Lichter über dem Wald‘ entfällt.“
 
 **Kalender an der Wand, Oktober** (Werbekalender der Sparkasse, Hildes Druckbuchstaben):
-> 23. – L. weg. Sie hat mir alles gezeigt. Sie hat gesagt, sie geht nur kurz.
+> 23. – L. unten. Keiner darf das wissen. Auch der Kalender nicht.
 > 31. – (dick eingekreist, bis das Papier durch ist) SIE IST ZURÜCK. ABER DAS IST NICHT LUCY.
 > Umblättern, November:
 > 3. – Sie übt Lucys Stimme. Durch die Tür. Sie will ihn anrufen. Ich hab das Telefon versteckt. Sie braucht keins.
@@ -934,7 +940,7 @@ Alle Namen nach Kern §14. Verteilung: Ortskern 8, Kirchberg 6, Osten 4, Westen 
 **Zettel am Kassettenrekorder:** „Für Großer. Erst hören, dann heim. – L.“
 
 **Lucys Tonband** (vollständig, in zwei Hälften abgespielt, siehe Unterkapitel 5):
-> Hey, Großer. Ich weiß jetzt, warum wir uns an den Sommer 2009 nicht erinnern.
+> Hey, Großer. Ich weiß jetzt, was im Sommer 2009 passiert ist. Nicht nur, dass. Was.
 > Wir waren weg. Sieben Kinder. Ich. Und du auch.
 > Hilde hat mir alles gezeigt. Sie zählt nachts. Sie sagt, es sind immer acht.
 > (Knacken, Räuspern)
@@ -1209,7 +1215,7 @@ Zieht Luke danach die Spieluhr auf, summt er mit, bevor er merkt, dass er es kan
 
 LUKE (Gedanke; laut sagt er es nicht, auch hier nicht): *Siebzehn Jahre nicht gedacht, und es ist sofort da.* Die Fibel speichert HASENBROT nur als Schriftbild (Kap. 3).
 
-> **Kinderuntersuchungsheft.** Brandt, Luke. U9: o. B. (Stempel, Frühjahr 2009). Darunter ohne Stempel, Mamas Schrift: Aug. 09 – Narbe li. Handfläche, halbrund. Fahrradunfall.
+> **Kinderuntersuchungsheft.** Brandt, Luke. U11: o. B. (Stempel, Frühjahr 2009). Darunter ohne Stempel, Mamas Schrift: Aug. 09 – Narbe li. Handfläche, halbrund. Fahrradunfall.
 
 > **Kinderschuh.** Blau, Klettverschluss, Größe 33. Nur der linke.
 
@@ -1677,6 +1683,7 @@ LUKE (Gedanke): „Das ist geschnitten. Jedes Wort aus einem anderen Raum. Wer k
 
 **Auslöser:** Das Archiv: Stahlschränke, eine Ordnungstafel mit sieben leeren Plätzen, ein Nadeldrucker auf einem Rollwagen, der losrattert, sobald Luke die Schwelle übertritt: **„ZÄHLSCHLUSS 03:13 · VORGANG 08 BETRITT ARCHIV.“** Er druckt in jedem Raum, immer dieselbe Zeit oben rechts. Bis zur Akte 08 heißt Luke im Protokoll nur „VORGANG 08“ (Story-Prüfung W-1; die Korrektur kommt erst nach der Akte). Zweite Dienstanweisung: **„Rückläufer werden nicht geduzt. Rückläufer sind Köder. Köder haben keine Namen, sie haben Nummern.“**
 LUKE: „Rückläufer. Wie bei Pfandflaschen.“
+**Die Akte ohne Nummer** (optional, `cleo.js`; zweiter Schrank, unterste Schublade, sie klemmt; Widerspruch 10): Das Deckblatt ist geschwärzt bis auf einen Stempel, **FREIWILLIG**, darunter „Name auf Wunsch der Mutter entfernt.“ Innen ein einziger Satz, Kinderschrift, Bleistift: „Eine für sieben. Dann dürfen alle heim.“ Darunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“ Gedanke: *Eine für sieben. Irgendwer hat sich selbst geschickt, für uns.* Startet „Eine für sieben“ (Kap. 6, N6-3).
 **Was er tut:** Sieben Schubladen sind beschriftet, eine ist leer. Akten 01 bis 07 lesen (Texte unter „Fundstücke“), jede nennt die Rückkehr als Wochentag und Tageszeit. Dann die **Ordnungstafel**: „Wer zuerst kam, steht links. Wer nie kam, steht rechts.“ Von hier aus: Hängeregistratur (Zahlenschloss, „Dasselbe Kleid“), Kantine („Gott steh Lost Eyengless bei“), oben auf dem letzten Schrank ein Aktendeckel „GRÜNDUNG“ („Ich habe nicht gefragt, wen“, braucht die Leiter), in der Ecke ein Aktenvernichter, der sich verschluckt hat („Nicht füttern“).
 **Die Erleichterung.** Die Tafel klickt, eine Schublade springt auf: das **Vermessungsprotokoll · Sommer 2009**, mit Büroklammer daran die Fotokopie eines Sommerfest-Fotos: acht Kinder, Lampions, Bierzeltgarnitur. Rot umkringelt ein blasses Mädchen im weißen Sommerkleid, das die Hand eines Jungen im gestreiften T-Shirt hält. Stempel: **ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT.** Mit zweiter Klammer ein Schlüssel: **ZIMMER 7**.
 Luke sieht das Foto lange an. Dann, hörbar, atmet er aus. Ein einzelner warmer Celloton.
@@ -1928,7 +1935,7 @@ Der Höhepunkt aus Kern §12.1 hat zwei Hälften, die ein Bild ergeben: Hände a
 
 > **AKTE 02 · Brandt, Lucy, 9 J. · Nr. 1.** Rückführung: **Samstag, kurz vor Mitternacht.** Befund: Vollständig. Erinnert sich an „ein Summen“. Weigert sich, über ihren Bruder zu sprechen. Fragt, ob „der andere“ auch kommt. Vermerk H. W.: Sie meint nicht Zayn.
 
-> **AKTE 03 · Kessler, Mike, 10 J. · Nr. 3.** Rückführung: **Sonntag, früh.** Befund: Vollständig. Großvater (Vegas, L.) verweigert Nachsorge; hat Funkgerät. Mit Kuli, neu, Hildes Schrift: „Juli 2026 – wieder weg. Keine Rückführung.“
+> **AKTE 03 · Kessler, Mike, 10 J. · Nr. 3.** Rückführung: **Sonntag, früh.** Befund: Vollständig. Großonkel und Vormund (Vegas, L.) verweigert Nachsorge; hat Funkgerät. Mit Kuli, neu, Hildes Schrift: „Juli 2026 – wieder weg. Keine Rückführung.“
 
 > **AKTE 04 · Aydın, Dina, 9 J. · Hof.** Rückführung: **Sonntag, Abend.** Befund: Malt seit der Rückkehr ausschließlich Kreise. Trägt Augenbinde, „damit sie mich nicht sieht“. Hat die Transporter gesehen. Mutter angewiesen zu schweigen. Verlegung Klinik Sonnenhang, 2011.
 
@@ -1948,7 +1955,7 @@ Der Höhepunkt aus Kern §12.1 hat zwei Hälften, die ein Bild ergeben: Hände a
 
 **Aushang „Einwilligungen 2009 – vollständig“** (Zimmer 7; Gegenstand):
 > Einwilligung zur Rückführung, Zyklus 2009. In der Reihenfolge der Unterschrift:
-> **1** Reuter – Roxy – Nr. 5 – 3. Juli · **2** Winter – Heidi – Nr. 2 – 6. Juli · **3** Vegas, L. (Großvater) – Mike Kessler – Nr. 3 – 8. Juli · **4** Aydın – Dina – Hof – 10. Juli · **5** Brandt, M. – Lucy und Luke – Nr. 1 – 14. Juli (zwei Ansätze) · **6** Wendt, H. – Zayn – Nr. 7 – 21. Juli
+> **1** Reuter – Roxy – Nr. 5 – 3. Juli · **2** Winter – Heidi – Nr. 2 – 6. Juli · **3** Vegas, L. (Großonkel) – Mike Kessler – Nr. 3 – 8. Juli · **4** Aydın – Dina – Hof – 10. Juli · **5** Brandt, M. – Lucy und Luke – Nr. 1 – 14. Juli (zwei Ansätze) · **6** Wendt, H. – Zayn – Nr. 7 – 21. Juli
 > § 4 – Für jedes Kind errichtet die Gemeinde am Tag der Übergabe einen Gedenkstein. Die Einwilligung gilt über die Rückführung hinaus. – Bundesstelle für Rückführung, i. A. (hw)
 LUKE (bei § 4): „Gedenkstein am Tag der Übergabe. Die haben die Gräber bestellt, bevor irgendwer weg war.“
 
@@ -2188,7 +2195,7 @@ Beim dreizehnten Schlag, direkt am linken Ohr, so nah, dass man den Atem spürt:
 
 KINDERSTIMME: „… siebzehn. Ich komme!“
 
-Sämtliche Laternen der Straße gehen gleichzeitig an, auch die drei, die im Sommer und im Oktober ausgeblasen worden sind. Sie werden hell, dunkler, wieder hell, gleichmäßig wie ein Brustkorb im Schlaf. Ein Summen setzt ein, tief, im Bauch, nicht in den Ohren.
+Sämtliche Laternen der Straße gehen gleichzeitig an, auch die drei, die im Sommer und im Oktober ausgeblasen worden sind. Sie werden hell, dunkler, wieder hell, gleichmäßig wie ein Brustkorb im Schlaf. Ein Summen setzt ein, tief, im Bauch, nicht in den Ohren. (Hell sind alle; wach, sagt Justin gleich, sind nur die vier, vor denen sie in diesem Jahr jemanden geholt hat, V-2.)
 
 LUKE (leise): „Elf Anrufe. Diesmal geh ich ran.“
 
@@ -2283,9 +2290,10 @@ LUKE (Gedanke): „Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen
 - *Die Laternen ansehen:* JUSTIN: „Das Schiff hatte ein Herz, und das Herz war leer, als es fiel. Das Erste, was es berührt hat, war meine Tochter. Sie war sieben.“ Pause. „Seitdem will das Schiff, was ein Kind will.“
 - *Die Kuh ansehen:* JUSTIN: „Spielen. Blinde Kuh, Verstecken, Fangen. Es holt sich Tiere, guckt sie an und lässt sie fallen.“ *(Luke: „Sie hat der Kuh die Augen genommen.“)* JUSTIN: „Sie hat gucken wollen, wie es aussieht, wenn eine Kuh guckt. Sie ist sieben. Seit siebenhundert Jahren.“
 - *Näher gehen:* JUSTIN: „Drinnen gibt es keine Zeit. Sie zählt beim Verstecken. Jedes Zählen ist bei euch ein Jahr. Bis siebzehn konnte sie zählen, sie war stolz darauf. Bei siebzehn ruft sie ‚Ich komme‘, und das Schiff geht auf.“
+- *Pflicht, direkt danach (oder beim Weitergehen, falls „Näher gehen“ übersprungen wurde; Kanon-Ergänzung V-1, „Das siebzehnte Jahr“):* JUSTIN: „Die letzten Zahlen zählt sie langsam. Wie Kinder, die nicht wollen, dass es anfängt.“ JUSTIN: „In dem Jahr ist die Haut dünn. Wer Licht macht und zu ihr hochsieht, den holt sie vorher. Und mich spuckt sie aus, wenn sie mich wieder nicht gefunden hat. Dann wart ich am Rand, bis sie fertig gezählt hat.“ LUKE: „Roxy. Mike. Lucy.“ – JUSTIN: „Und die Frau mit dem Buch.“
 - *Nach dem Namen fragen (Auswahl „Wie heißt sie?“):* JUSTIN: „Luna.“ *(Luke, Gedanke: „Luna. Am Ostende hat vorhin einer was in den Nebel gerufen. Ich hab ‚Lucy‘ gehört. Weil ich ‚Lucy‘ hören wollte.“)*
 - *Pflicht, wenn Luke weitergehen will:* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn meine Tochter nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
-- *Pflicht:* JUSTIN: „Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“ LUKE: „Wir?“ JUSTIN: „Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“
+- *Pflicht:* JUSTIN: „Sie hält sich an den Lampen fest. Die meisten Lampen hier schlafen. Wach sind nur die, vor denen sie dieses Jahr einen geholt hat. Vier Augen. Mach sie ihr zu, eins nach dem andern, dann muss sie herunter, und wir können hinein.“ (V-2) LUKE: „Wir?“ JUSTIN: „Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“
 
 **Über Mira (nur wenn der Spieler fragt: „Was sucht sie?“):** JUSTIN: „Ihre Mama. Und mich.“ Er sieht auf seine linke Hand. „Meine Frau hat in der Nacht sechs Kinder herausgeholt, eins nach dem anderen, an der Hand. Dann ist sie noch mal hinein, für Luna. Ich hab sie festgehalten, am Rand.“ *(Spieler kann nachfragen. Luke tut es.)* JUSTIN: „Die Luft ist aufgerissen wie Stoff. Das Schiff war kaputt, es hat die Zeit mit aufgerissen. Es hat gezogen. Sie hat losgelassen.“ Er sagt es glatt, wie einen Satz, den man oft gesagt hat.
 
@@ -2297,7 +2305,7 @@ LUKE (Gedanke): „Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen
 
 **Der Schokoriegel (Humor, Pflicht):** Justin sieht in Lukes offene Jackentasche. JUSTIN: „Was ist das?“ Luke gibt ihm den Riegel, halb aus Verlegenheit. Das Visier bleibt unten; Justin hebt den Helmrand einen Fingerbreit an, schiebt den Riegel darunter, mit Papier, kaut, spuckt das Papier aus, isst den Rest. Lange Stille. JUSTIN: „Das ist das Beste, was eure Zeit hervorgebracht hat.“ LUKE: „Das ist ein Schokoriegel von der Tankstelle.“ JUSTIN: „Dann hat die Tankstelle etwas richtig gemacht.“ Whiskey klaut das Papier und trägt es weg, in den Nebel, wo der Kiesel herkam. (Wer dem Papier folgt, findet es später gefaltet und ausgeleckt unter der Bushaltestelle: Beobachter-Spur.)
 
-**Fibel-Eintrag** „Justin“ (Fibel-Seite „Lunas Spielregeln“ bekommt zwei neue Zeilen in Lukes Schrift: *Laterne laufen: die Straßenlaternen sind ihre Augen. Alle aus = sie muss runter.* und *Sie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.*)
+**Fibel-Eintrag** „Justin“ (Fibel-Seite „Lunas Spielregeln“ bekommt zwei neue Zeilen in Lukes Schrift: *Laterne laufen: wach sind nur die Laternen, vor denen sie dieses Jahr einen geholt hat. Vier Augen. Alle vier aus = sie muss runter.* und *Sie hat einen Namen. Luna. Er hat sie mir nicht wie eine Tote genannt.*)
 
 **Gefühl:** Erleichterung, dass jemand redet. Und das kleine kalte Gefühl beim Satz „Sie hat losgelassen“, den man erst später einordnen kann.
 
@@ -2343,7 +2351,7 @@ Beim Einschenken legt Wolter Luke kurz die Hand auf die Jacke, an die Innentasch
 
 **Auslöser:** Justins Hinweis („Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“) und die Aufgabe „Finde heraus, wie sie die Laternen ausgeblasen hat“.
 
-**Unterwegs (Humor, an Nr. 3 vorbei):** Vor Vegas’ Tür steht eine Kiste Pfandflaschen, sauber sortiert. Justin bleibt stehen. JUSTIN: „Ihr stellt leere Krüge vor die Tür. Für wen?“ LUKE: „Für den Pfandautomaten.“ JUSTIN: „Ist das ein Heiliger?“ LUKE: „Hier im Dorf? Fast.“ (Wer genau hinsieht, zählt acht Flaschen in einer Reihe und eine neunte ein Stück abseits: Beobachter-Spur S-15.) Hinter Vegas’ Tür bellt Bruno einmal. Kurz darauf liegt hinter Lukes Füßen **B-K3-04** „Nicht nachdenken“ (Wortlaut: Dossier 82, B-K3-04; die Frage nach beiden Hunden). LUKE: „Flocke. Und der da heißt Bruno. Wieso willst du das wissen?“
+**Unterwegs (Humor, an Nr. 3 vorbei):** Vor Vegas’ Tür steht eine Kiste Pfandflaschen, sauber sortiert. Justin bleibt stehen. JUSTIN: „Ihr stellt leere Krüge vor die Tür. Für wen?“ LUKE: „Für den Pfandautomaten.“ JUSTIN: „Ist das ein Heiliger?“ LUKE: „Hier im Dorf? Fast.“ (Wer genau hinsieht, zählt acht Flaschen in einer Reihe und eine neunte ein Stück abseits: Beobachter-Spur S-15.) Hinter Vegas’ Glastür steht Bruno, wieder da, ohne Halsband, und sieht zu, ohne Laut (er kam „falsch“ zurück, Q-9 B-3). Kurz darauf liegt hinter Lukes Füßen **B-K3-04** „Nicht nachdenken“ (Wortlaut: Dossier 82, B-K3-04; die Frage nach beiden Hunden). LUKE: „Flocke. Und der da heißt Bruno. Wieso willst du das wissen?“
 
 **Nr. 7:** Die Tür steht offen, wie Luke sie in Kapitel 1 verlassen hat. Die Küche riecht noch nach dem Kaffee, den Hilde nicht mehr getrunken hat. Auf dem Wohnzimmertisch **Hildes Zählbuch**, ein grünes Kassenbuch mit Stoffrücken, dreißig Jahre Nächte, drei Seiten aufgeschlagen (die anderen sind für Kapitel 4, Auftrag 1, wichtig; das Buch geht ins Inventar).
 
@@ -2354,6 +2362,7 @@ Beim Einschenken legt Wolter Luke kurz die Hand auf die Jacke, an die Innentasch
 > *Seite 2:* Laternen aus, dieses Jahr: im Juni vor 5 (Roxy). Im Juli vor 3 (Mike).
 > Ende Oktober vor 1 (Lucy). Sie holt sie, wie wir sie hergegeben haben.
 > Wenn sie mich holt, geht meine aus. Dann sind es vier.
+> Früher kam sie im Sommer, zum Fest. Ohne Lampions wartet sie auf Martini. Auf ihre Nacht.
 
 > *Seite 3:* Wenn ich weg bin: Notfunk auf dem Tag, an dem SIE kam. Nicht Lucy. SIE.
 > Kanal nicht das, was zuerst antwortet.
@@ -2423,6 +2432,8 @@ Danach nur Rauschen, und ganz hinten, sehr leise, jemand, der atmet. Aufgabe: **
 **Das Graukind jagt, sobald der erste Hebel fällt.** Regel 3, Ochs am Berg: Es bewegt sich nur, wenn Luke nicht hinsieht. Im Taschenlampenlicht steht es still, ein Mädchen im Sommerkleid, grau, große schwarze Augen, kein Mund, und hält den Kopf schief wie ein Kind, das wartet, bis man sich umdreht. Sieht Luke weg, hört er nackte Füße auf Asphalt, schnell, und wenn er wieder hinsieht, ist es näher. **Augen zu hilft nicht mehr:** Drückt Luke die Taste, zeigt der Bildschirm für eine Sekunde Luke selbst von hinten, aus ihren Augen (Regel 4, Ausnahme: ihre Wechselbälger, sobald sie es wissen). Der Spieler lernt das genau einmal und tut es nie wieder.
 
 **Erwischt** („Kleine, kalte Finger an deinem Hals. Sie riechen nach Gras.“ Kinderstimme: „Du bist.“): keine Verletzung, kein Neustart. **Eine schon gelöschte Laterne geht wieder an**, mit dem Geräusch einer Kerze, die jemand anpustet, nur rückwärts. Der Hebel steht wieder auf EIN. Man muss zurück.
+
+**Erwischt („Du bist.“ heißt zählen, Q-9 A-07):** Erwischt das Graukind Luke, wird das Bild schwarz, die Augen sind zu, ohne dass der Spieler Q drückt, und Luke zählt laut bis siebzehn, schnell; eine Kinderstimme zählt mit und lacht bei „siebzehn und noch eins“. Dazu nackte Füße, die weglaufen, und eine Laterne, die rückwärts angepustet wird. Augen auf: Das Graukind steht woanders, näher am nächsten Kasten. Regel 1 wird erlebt, nicht notiert. Keine Verletzung, kein Tod.
 
 **Freimal:** Wer einen eisernen Laternenpfahl, den Eisenzaun von Nr. 7 oder das Geländer von Nr. 3 berührt, ist drei Sekunden sicher; das Graukind bleibt stehen, auch wenn man wegsieht, und wippt ungeduldig auf den Zehen. (Kreide am Spielplatz, seit Kapitel 1: EISEN IST FREI. Regel 7, jetzt benutzt.) Beim ersten Freimal, die Arme um einen Laternenpfahl: LUKE: „Ich hab noch nie einen Laternenpfahl so gern gehabt. Nicht mal nach Schützenfest.“
 
@@ -2540,6 +2551,7 @@ HILDE: „So lange hab ich auf meinen Zayn gewartet. Jetzt bin ich bei ihm. Nur 
 - „Sie haben mich angegriffen. In der Küche.“ – HILDE: „Ich wollte dich festhalten, Junge. Weg von der Tür. Du warst schneller. Du warst immer schneller als der andere.“
 - „Sie haben Zayn gezogen.“ – HILDE: „Das Los war das Los. Ich hab siebzehn Jahre gezählt, ob sie ihn wieder hergibt. Sie hat nie.“ *(Wer Hildes Dienstbuch in Kapitel 2 nicht gelesen hat, hört es beim Aufstehen trotzdem: „Ich hab die Lose gezogen, Junge. Auch seins.“)*
 - „Wer hat angefangen?“ – HILDE: „Frag ihn nicht, was sie will. Frag ihn nach seiner Hand.“ *(Sie sieht zu Justin. Justin sieht auf den Boden.)*
+- „Was hieß ‚Nicht du‘?“ – HILDE: „Ich hab den anderen erwartet. Den mit den blauen Augen. Der kommt manchmal ans Küchenfenster, wenn das Brot nicht da ist.“ *(Pause.)* HILDE: „Dann standst du da, mit seiner Narbe in der Hand. Da wusst ich, wer dich gerufen hat.“ *(Beantwortet die Frage aus Kapitel 1; Story-Prüfung V-5.)*
 - „Wer ist der Neunte?“ *(nur mit dem Zählbuch)* – HILDE: „Einer von früher. Klein wie ein Kind, aber keins. Der zählt mit. Der ist nicht von ihr.“ *(Spieler.)* HILDE: „Er hat mir mal einen Zettel gebracht. Ich hab ihn nicht gelesen. Man liest so was nicht.“
 - „Und Jonas?“ *(nur mit Zayns Rucksack aus der Nebenaufgabe „Hast du dich an mich erinnert?“)* – HILDE: „Er ruft jeden Sonntag an. Ich geh nie ran. Wenn ich seine Stimme höre, zähl ich falsch.“ *(Kein Witz in diesem Satz. Nichts danach.)*
 
@@ -2977,7 +2989,7 @@ Pat und Patachon treten auf dem Hauptweg nicht auf (Kern §6.6 sieht sie für Ka
 | Die LWO hält das Licht für einen Wolf und steht mit Ketten am Rand | Stempel, Kaugummipapier, Funk „K-3“ aus Kapitel 2 |
 | Warum Luna ihn nicht sieht: **nur mit drei Rüstungs-Hinweisen ausgesprochen** | ohne sie bleibt es Lukes offene Frage für Kapitel 4 (LWO-Analyse) und 6 |
 
-Neue Fäden: der Sender (Kapitel 6), Grete mit dem Kreisel (Kapitel 4 und 5), „ein Stück von Papa ist noch draußen“ (der echte Luke, Kapitel 5), das Grab „LUKE 2009 – 2026“ (Kapitel 5), Lucys weiße Ränder in den Augen (Kapitel 4 bis 6), das Geschenk je Antwort.
+Neue Fäden: der Sender (Kapitel 6), Grete mit dem Kreisel (Kapitel 4 und 5), „ein Stück von Papa ist noch draußen“ (Luke selbst, denn nur er ist aus Justins Hand; bis Kapitel 6 offen, aufgelöst auf dem Hochsitz und in der Endkarte von Kapitel 6, W-3; Widerspruch 9), das Grab „LUKE 2009 – 2026“ (Kapitel 5), Lucys weiße Ränder in den Augen (Kapitel 4 bis 6), das Geschenk je Antwort.
 
 **Bewusst offen** (Kern §11): wer den Riss gemacht hat (Justin glaubt fest: das kaputte Schiff); wer „L. B.“ ist; ob die Besatzung wusste, dass die Rüstung Justin verbirgt; was der Beobachter vorhat; wohin das zweite Licht in Atlantschiss gehört.
 
@@ -3008,9 +3020,9 @@ Tageszeit: Morgengrauen, die ersten Minuten nach 03:13. Kein Spieler-Input. Musi
 |---|---|---|---|---|---|
 | 0–6 | Nimmerheim, Hoher Abgrund, hinter Justin, Schulterhöhe, langsam zurückfahrend | Justin geht zwischen die Rippen ins Dunkel. Er wird kleiner. Luna mit den Händen vor den Augen, die sieben auf den Stühlen auch. | weiß, weich, dann von der Mitte her dunkler | Justins Schaben auf Stein, immer leiser. Darüber Luna: „Vier. Fünf. Sechs.“ Aus dem Dunkel, weit weg, ein Ruf, je nach Wahl (siehe unten). | LUNA: „… sieben …“ |
 | 6–8 | Weißblende | – | reines Weiß | Stille, zwei Sekunden. Kein Summen mehr. | – |
-| 8–16 | Kreuzung, Bodenhöhe, 40 cm, neben Lukes Schuhen, Blick die Ahornstraße hinunter | Asphalt, nass. Die Laternen gehen aus, eine nach der anderen, von Osten nach Westen, ganz gewöhnlich, wie jeden Morgen. Am Bildrand Lucys nackter Fuß neben Lukes Schuh. | kaltes Blau, erstes Grau am Himmel | Die erste Amsel. Das Klacken der Laternen-Relais, eins nach dem anderen. | – |
-| 16–22 | halbnah, über Lukes Schulter (Luke nie von vorn), auf Lucy | Lucy, nass, in Lukes Jacke, hält seine Hand, fünf Finger, abgekaute Nägel. Sie sieht ihn an. Am Rand ihrer Iris ein dünner weißer Ring. | Morgengrau | Ihr Atem. Seiner. | LUCY: „Guck nicht so. Ich bin’s.“ |
-| 22–30 | Totale von der Tür von Nr. 3 aus | Die Tür geht auf, **ohne Kette**, zum ersten Mal. Vegas, barfuß, im Unterhemd, eine Wolldecke über dem Arm, rennt über die Straße, soweit Vegas rennt. Bruno hinterher. | Verandalampe von Nr. 3, gelb | Vegas’ Schritte, Brunos Krallen auf Asphalt. | VEGAS: „Mädchen. Himmelherrgott. Du bist ja pitschnass.“ |
+| 8–16 | Kreuzung, Bodenhöhe, 40 cm, neben Lukes Schuhen, Blick die Ahornstraße hinunter | Asphalt, nass. Die Laternen gehen aus, eine nach der anderen, von Osten nach Westen, ganz gewöhnlich, wie jeden Morgen. Nur die vor Nr. 1 klickt nicht: Sie brennt eine Sekunde zu lang, dann wird sie ausgepustet, mit kleinem Nachglühen und einem Luftholen. Niemand kommentiert es (Q-9 A-13). Am Bildrand Lucys nackter Fuß neben Lukes Schuh. | kaltes Blau, erstes Grau am Himmel | Die erste Amsel. Das Klacken der Laternen-Relais, eins nach dem anderen. | – |
+| 16–22 | halbnah, über Lukes Schulter (Luke nie von vorn), auf Lucy | Lucy, nass, in Lukes Jacke, hält seine Hand, fünf Finger, abgekaute Nägel. Sie sieht ihn an. Am Rand ihrer Iris ein dünner weißer Ring. | Morgengrau | Ihr Atem. Seiner. | LUCY: „Guck nicht so. Ich bin’s.“ Darunter läuft einen halben Takt lang leise die Spieluhr. Luke-Gedanke, ohne Hervorhebung: *Nein. Hab ich mir eingebildet. Ich bin seit zwanzig Stunden wach.* (Midpoint-Stachel, W-2) |
+| 22–30 | Totale von der Tür von Nr. 3 aus | Die Tür geht auf, **ohne Kette**, zum ersten Mal. Vegas, barfuß, im Unterhemd, eine Wolldecke über dem Arm, rennt über die Straße, soweit Vegas rennt. Bruno hinterher, ohne Laut. | Verandalampe von Nr. 3, gelb | Vegas’ Schritte, Brunos Krallen auf Asphalt. | VEGAS: „Mädchen. Himmelherrgott. Du bist ja pitschnass.“ |
 | 30–36 | halbnah | Vegas wickelt Lucy in die Decke und hebt sie hoch, ächzend. Lucy hält Lukes Hand, bis es nicht mehr geht, dann lässt sie los, ganz langsam. | – | VEGAS: „Wo warst du denn, im Gully?“ | LUCY: „Fast.“ |
 | 36–40 | halbnah, über Lukes Schulter auf Lucy in Vegas’ Armen | Whiskey landet auf Lucys Schulter, auf der Decke, macht sich klein und gibt die Taubenlaute von sich, die er sonst bei niemandem macht. Lucy dreht den Kopf zu ihm, müde. | – | Taubenlaute. Vegas’ Atem, schwer. | LUCY: „Hallo, du. Du hast ihn ja doch hergebracht.“ |
 | 40–44 | Luke-Perspektive, frei, aber ohne Steuerung, Blick nach oben | Whiskey hüpft von Lucys Schulter auf die Telefonzelle und sieht Luke an. | – | Whiskey, nach der ganzen Stille in Nimmerheim, das Mikrowellen-Pling. | LUKE: „… Ich hab dich auch vermisst.“ |
@@ -3992,10 +4004,12 @@ Whiskey sitzt auf dem umgekippten Mülleimer vor Nr. 9 und macht das Funkrausche
 
 **Auf dem Weg:** Als Luke auf Nr. 3 zugeht, rollt am Ende der Straße der graue Kombi heran und parkt vor Nr. 9. Keiner steigt aus. (B-K4-02 „Was mit Essen drin“ mit Lukes Antwort gestrichen (Story-Prüfung B); der Fälschungsweg in Unterkapitel 3 steht auch ohne Zettel offen.)
 
-**Auslöser:** Klopfen an Nr. 3. Keine Kette diesmal. Vegas macht ganz auf. Er hat eine Schürze um, auf der eine Kuh steht, und einen Pfannenwender in der Hand wie eine Waffe. Bruno kommt dazu, wedelt, riecht an Lukes Hose und niest.
+**Auslöser:** Klopfen an Nr. 3. Keine Kette diesmal. Vegas macht ganz auf. Er hat eine Schürze um, auf der eine Kuh steht, und einen Pfannenwender in der Hand wie eine Waffe. Bruno kommt dazu, wedelt nicht, riecht an Lukes Hose und sieht zu ihm hoch, ohne Laut; am Rand seiner Augen ein dünner weißer Ring (Q-9 B-3).
 
 VEGAS: „Sie schläft. Hat zweimal nach dir gefragt und einmal nach Kakao. Ich hab keinen Kakao. Ich hab Speck.“
 VEGAS: „Und wenn der Vogel noch einmal durchs Klofenster kommt, gibt’s Rabe.“
+
+Vom Sofa her summt jemand im Halbschlaf die fünf Töne aus der Spieluhr und bricht beim vierten ab. VEGAS (leise): „Das macht sie seit heute früh.“ (W-2)
 
 **Drinnen:** Vegas’ Wohnzimmer bei Tageslicht: Alufolie an den Fenstern, Ordner mit rot eingekreisten „(hw)“, drei Funkgeräte, ein Poster von einer Mondlandung mit dem Wort LÜGE quer drüber, ein Bild von Mike als Baby. Auf dem Sofa unter einer Wolldecke: **Lucy.** Sie ist wach. Sie sieht Luke an. Und in ihren Augen, in beiden, sitzt am Rand der Iris ein dünner weißer Ring, wie Frost am Fensterglas.
 
@@ -4018,6 +4032,7 @@ LUKE: „Ist das verbrannt?“
 VEGAS: „Das ist Röstaroma.“
 LUKE: „Das ist Kohle.“
 VEGAS: „Kohle ist auch ein Aroma.“
+Bruno liegt an der Tür und hat seinen Napf nicht angerührt. VEGAS: „Seit er wieder da ist, frisst er keinen Speck. Und er bellt nicht. Bruno hat immer gebellt.“ (Q-9 B-3; Widerspruch 6)
 
 Dann geht das Klofenster. Whiskey (K4-1, Whiskey-Dossier; hier in Vegas’ Küche statt am Nudelsieb) kommt durch die Küche wie ein Einbrecher, landet auf dem Kühlschrank, sieht auf den Speck, sieht auf Vegas, sieht auf den Speck. Vegas hebt den Pfannenwender. Whiskey macht **Vegas’ Stimme** nach: „Junge.“ (Gag-Budget H-1: kein weiteres „Himmelherrgott!“; die Steigerung ist, dass der Vogel jetzt Vegas’ Lieblingswort hat.) Vegas fährt herum. VEGAS: „Sag das nicht mit meiner Stimme!“ Whiskey hat den Speck. Bruno bellt. Lucy lacht zum ersten Mal, hustet, lacht weiter. Der Speck-Streit ist in diesem Kapitel eine kleine Schleife: Jedes Mal, wenn Luke Nr. 3 betritt, hat sich der Stand verschoben (Vegas hat den Speck in den Backofen gesperrt; Whiskey hat den Backofenknopf abgezogen; Vegas isst den Speck jetzt stehend in der Speisekammer bei geschlossener Tür; Whiskey sitzt vor der Speisekammer und wartet). Beim zweiten Besuch reicht Vegas Luke einen Beutel Batterien durch den Türspalt, und Whiskey erhebt Zoll (Slapstick S-10 „Zoll“, Dossier 85): drei Batterien fallen Luke vor die Füße, die vierte behält der Vogel. VEGAS: „Der nimmt Zoll. Seit fünfundsiebzig.“
 
@@ -4103,6 +4118,9 @@ Der Ordner hat drei Blätter, die Luke lesen kann (je ≤ 10 Zeilen, ohne Uhrzei
 > 09.10. · Objekt trägt nachts Brot in Richtung Hof. Rückweg ohne Brot. Bewertung: harmlos, Alterserscheinung.
 
 > **Blatt 212** (Wortlaut: LWO-Dossier 80, 5.8: Lucy betritt Nr. 7 und kommt nicht mehr heraus; Frau Wendt stellt Brot vor die Kellertür; Maas meldet die elf Anrufe; K-3 betritt den Ort, „Nass.“ Ohne die Bleistiftzeile am Ende: Die steht in diesem Kapitel unter Blatt 213, wo sie auf „Es sind acht“ antwortet; bitte im Dossier verschieben.)
+> *Darunter, Kugelschreiber, Wolters Schrift (Nachtrag zum 23.10.; Kanon-Änderung W-5, freigegeben):* „Frau Wendt legt Brandt, Lucy, in den Tank. Nicht eingreifen. Der Bruder kommt dann von allein. (hw)“
+
+LUKE (Gedanke): *Elf Anrufe. Die haben gewartet, dass ich nicht rangeh. Und dann, dass ich komm.*
 
 > **Blatt 213**
 > 01.11. · Objekt zählt heute neun. Es sind acht. Hinweis an Regionalleitung: Objekt beginnt zu irren. Oder es steht dort tatsächlich ein Neunter. Letzteres ist auszuschließen. *(Zusatz hw: „Nicht auszuschließen.“)*
@@ -4209,7 +4227,7 @@ Der Aktenschrank hat fünf Schubladen, jede mit einem Messingschild: 1941 · 195
 
 **Die Asservatenkiste:** Das Siegel trägt das Auge. Luke kann es brechen (Vertrauen −3, siehe Offene Abstimmungen). Drinnen, in Holzwolle: ein Stück Eisennetz, ein Strang sauber durchtrennt, als hätte eine sehr scharfe Klinge es geschnitten, und in einer Klarsichthülle **SB-08** („Männer in grauen Mänteln, mit Netzen aus Eisen …“, neben der Randschrift in grauer Tinte ein einzelnes „W.“). Luke hält das Netz an die Lampe. LUKE: „Er hat sie rausgeschnitten. Nur zu spät.“
 
-**Die Weltkarte:** neun Nadeln, jede mit Nummer und Kürzel in Seilers Schrift, bei der Sieben: „wir.“ Drumherum mit Stecknadeln Zeitungsausschnitte „Aus aller Welt“ (Z-10). Das ist der Start der Nebenaufgabe „Aus aller Welt“. Hauptweg: nur ansehen. LUKE: „Außenstelle sieben. Es gibt also mindestens sechs andere Dörfer, in denen irgendwer ‚Gasleck‘ in die Zeitung schreibt.“
+**Die Weltkarte:** Darüber ein Messingschild: „LUCID WORLD ORGANIZATION · AUSSENSTELLEN“. LUKE (U-78, nur hier): „Lucid World Organization. Klingt wie ein Energydrink. Zählt Kinder.“ Darunter neun Nadeln, jede mit Nummer und Kürzel in Seilers Schrift, bei der Sieben: „wir.“ Drumherum mit Stecknadeln Zeitungsausschnitte „Aus aller Welt“ (Z-10). Das ist der Start der Nebenaufgabe „Aus aller Welt“. Hauptweg: nur ansehen. LUKE: „Außenstelle sieben. Es gibt also mindestens sechs andere Dörfer, in denen irgendwer ‚Gasleck‘ in die Zeitung schreibt.“
 
 **Das Foto mit der Nadel (Hinweis für „Die Nadel bleibt am Mann“):** Auf dem Schreibtisch, unter der Lampe, ein kleines Foto von 2012: Seiler, weißhaarig, in einer grauen Strickjacke mit Lederflicken am Ellenbogen, und an der Strickjacke, links auf der Brust, eine silberne Nadel mit dem Auge. Rückseite: „Letzter Tag. Die Nadel geb ich nicht ab. T. S.“
 
@@ -4264,6 +4282,12 @@ Der Aktenschrank hat fünf Schubladen, jede mit einem Messingschild: 1941 · 195
 NACHSORGE 11: „Seiler hat alles hier hochgeschleppt. Statt nach unten. Der Mann hat am Ende nicht mehr gewusst, wem er die Treue hält.“
 NACHSORGE 12: „Uns.“
 NACHSORGE 11: „Uns, ja. Wir sind ja auch die, die noch da sind.“
+*(H-4, Story-Prüfung: Lesen wird Spiel. Nachsorge 12 zieht die Bestandsliste aus dem Regal und liest vor, langsam, während Luke im Schrank steckt. Wer die Liste vorher selbst gelesen hat, hört jetzt, wie sie klingt.)*
+NACHSORGE 12 (langsam): „Glas zwei. Leer. ‚Fenster war zu.‘“
+NACHSORGE 11: „Lies leise.“
+NACHSORGE 12: „Ich les immer so.“ – „Kiste einundvierzig. Lebend. Nicht füttern.“
+NACHSORGE 11: „Wer schreibt so was auf einen Lieferschein?“
+NACHSORGE 12: „Du. Zweitausendzwölf.“
 
 *(Ein Schrank geht auf, nicht Lukes. Kleiderbügel klappern.)*
 
@@ -4367,6 +4391,7 @@ LUKE wählt:
 WOLTER: „Ich war noch ein Kind, als ich meine Schwester an der Hand hatte. Da drin. Ich habe sie lachen hören. Nicht vor Angst.“
 WOLTER: „Es lässt sie lachen. Das ist der Trick. Und wenn die Leute das wüssten, Herr Brandt, würden sie ihre Kinder selbst hineintragen. Oder ihre Häuser anzünden. Ich habe beides gesehen.“
 WOLTER: „Also schreibe ich ‚Gasleck‘. Jemand muss die Liste schreiben. Wollen Sie das machen?“
+WOLTER: „Die Bundesstelle war ein Briefkopf, Herr Brandt. Wir heißen Lucid World Organization. Lost Eyengless ist Außenstelle sieben.“ Pause. „Es gibt andere Dörfer.“ (Story-Prüfung V-4: Hier fällt der Name im Hauptweg; Lukes Witz dazu steht am Messingschild im Arbeitszimmer, nicht hier.)
 
 LUKE wählt:
 [a] „Sie haben ein Bett für mich gemacht.“ → WOLTER: „Ein gutes. Ich habe es selbst ausgesucht.“
@@ -4670,7 +4695,7 @@ Nie zwei Dreier ohne Atempause. Das Tageslicht ist die Grundspannung: kein Grauk
 |---|---|---|---|
 | AG-11 | Ahornstraße | Kapitelstart | Aufräumkommando, Kreide, Polaroids, Absperrband „Gasleck“; unter dem Band durch, wo einer hinsieht: −4 |
 | AG-12 | Nr. 3 | nach Lucy | Auftrag 1, drei Wege (+20 / −15 verzögert / −10) |
-| AG-13 | Villa OG | K-Akten gelesen | Schleichen, „Wir holen nur das Kind aus ihm raus.“; entdeckt: −8 |
+| AG-13 | Villa OG | K-Akten gelesen | Schleichen, „Wir holen nur das Kind aus ihm raus.“; entdeckt: −8. Danach zieht ein Blechmann nicht mit ab (Q-9 A-14): Er geht Streife zwischen Halle, Galerie, Archiv und Anrichte, bis Luke den Kühlraum erreicht; schwere Schritte, Kettenrolle, Filterzischen, ein langer schmaler Lampenkegel, er öffnet Schränke und bleibt stehen, wenn Luke rennt. Gesehen = derselbe Zweig wie hier (höflich abgeführt, −8). Nie mit dem Beobachter im Bild. |
 | AG-14 | Villa Halle | nach dem Kühlraum | Wolter, Überzeugung, Drohung, „Freitag früh“ |
 | AG-V | überall | Vertrauen | hoch: V-13 Gruß, V-14 Kaugummi; miserabel: V-07 umgeparkt (bei Fälschung garantiert), V-08 „Bitte nüchtern erscheinen“, V-03 Anruf |
 | K4-1 | Nr. 3 | Frühstück | Speck, „Junge.“ in Vegas’ Stimme, „Sag das nicht mit meiner Stimme!“; dazu S-10 „Zoll“ |
@@ -4837,7 +4862,7 @@ Nie zwei Dreier ohne Atempause. Das Tageslicht ist die Grundspannung: kein Grauk
 
 **Spielzeit:** 75 bis 100 Minuten Hauptweg, mit Nebenaufgaben bis zu zweieinhalb Stunden.
 
-**Danach weiß der Spieler:** Telefonstimme, Gurtstuhl, Gesicht am Tank, Graukind und die Frau am Tisch sind Luna mit Lucys geliehenem Gesicht (Wendung 7). Der echte Luke lebt, halb in Nimmerheim, halb im Stall, und hat gewarnt (Wendung 8). Der Tausch 2009 war ein Handtausch. Mama (Marion) ist 2011 mit einer Laterne zu ihm gegangen und geblieben. Hilde hat ihm siebzehn Jahre Brot hingestellt. Das Grab mit Lukes Namen hat die LWO bestellt. Jonas lebt und kommt am Samstag.
+**Danach weiß der Spieler:** Telefonstimme, Gurtstuhl, Gesicht am Tank, Graukind und die Frau am Tisch sind Luna mit Lucys geliehenem Gesicht, und die Lucy, die zurückkam, ist nicht ganz Lucy: Luna hat sich das Kochen, das Lachen und das „Großer“ von ihr geborgt (Wendung 7, W-2). Der echte Luke lebt, halb in Nimmerheim, halb im Stall, und hat gewarnt (Wendung 8). Der Tausch 2009 war ein Handtausch. Mama (Marion) ist 2011 mit einer Laterne zu ihm gegangen und geblieben. Hilde hat ihm siebzehn Jahre Brot hingestellt. Das Grab mit Lukes Namen hat die LWO bestellt. Jonas lebt und kommt am Samstag.
 
 **Neue Fragen:** Wen nennt Luna „Mama“, und warum antwortet das Dachfenster der Villa? Warum war sie „gar nicht böse“? Was lebt in einem Wald ohne Echo? Was wird aus dem Jungen mit Lukes Namen?
 
@@ -5036,7 +5061,7 @@ Aufnehmen → Deckel zu → Gegenstand „Lucys Spieluhr“. Im selben Moment we
 
 **Heimweg:** Vor Nr. 1 flackern die Laternen, als atme jemand dagegen. Hänschen steht mit Buckel auf der Schwelle und faucht in den leeren Vorgarten. Whiskey auf dem Zaun ist **völlig still** (Gefahrsignal), und auch das Trippeln des Beobachters hört auf, ganz (ab Kapitel 5 heißt seine Stille: das Graukind ist nah). Das **Graukind jagt** (`graue`, vorhandene Mechanik: bewegt sich nur ungesehen, zerfällt im Lampenlicht). VEGAS aus dem Fenster: „Sie ist raus! Barfuß! Zur Kreuzung, Junge, sie steht mitten auf der Kreuzung!“
 
-Lucy steht **mitten auf der Kreuzung**, Augen weiß, sieht zur klingelnden Telefonzelle. Etwa fünfzig Meter mit dem Graukind im Rücken. Die Katze rennt voraus und bleibt immer dort stehen, wo Luke sich gleich umdrehen sollte. Erwischt: kleine kalte Finger am Hals, „Iss auf, Bruder.“, Neustart SP5-4, Spieluhr bleibt bei Luke. **Stufe 2.**
+Lucy steht **mitten auf der Kreuzung**, Augen weiß (Q-9 A-17: Wer hinsieht, erkennt, dass ihre Fersen drei Zentimeter über dem Asphalt sind; je näher das Graukind Luke kommt, desto höher, bis zwanzig Zentimeter, ihr Haar hebt sich wie bei Hilde im Strahl; mit der Spieluhr sinkt sie zurück auf die Fersen), sieht zur klingelnden Telefonzelle. Etwa fünfzig Meter mit dem Graukind im Rücken. Die Katze rennt voraus und bleibt immer dort stehen, wo Luke sich gleich umdrehen sollte. Erwischt: kleine kalte Finger am Hals, „Iss auf, Bruder.“, Neustart SP5-4, Spieluhr bleibt bei Luke. **Stufe 2.**
 
 #### 9 · „Beide Hälften“
 
@@ -5169,7 +5194,7 @@ Sie lässt die Hand des Jungen los und läuft zur Villa, wird im Laufen zu Nebel
 
 *(Niemand erklärt, warum sie „gar nicht böse“ war. Der Satz bleibt stehen.)*
 
-- ECHTER LUKE (im Laufen, über die Schulter): „Im Wald findet sie keinen! Der hat kein Echo!“
+- ECHTER LUKE (im Laufen, über die Schulter): „Im Wald findet sie keinen! Sie findet uns an dem, was wir liegen lassen. Da drin frisst das einer weg!“ (V-3; Fibel „Lunas Spielregeln“, Lukes Zusatz: *Sie findet uns an unseren Nachbildern. Im Wald bleibt keins liegen.*)
 
 *Optional, bevor Luke hinterherläuft:* E an der Kreide „heimgehen“ am Grabrand → **Nachbild** (Justin-Dossier 7.2):
 > Ein Mann in Eisen kniet am Grab und liest, langsam, mit dem Finger.
@@ -5207,7 +5232,7 @@ Hinter Luke warmes Licht: Lucy mit Vegas’ Sturmlaterne, die Katze läuft ihr e
 | 6 | Spieler dreht sich, drückt ab | Blitz. | Weiß für zwei Bilder, dann der ganze Raum zwei Stufen dunkler | Verschluss, Motor, das Bild schiebt sich heraus. Der Atem bricht ab. |
 | 6–10 | Fahrt auf Lukes Hand, Polaroid füllt das Bild | Das Milchglas wird klar: der Flur, die Kommode, die offene Kinderzimmertür. Davor, nah am Objektiv, **ein Mädchen in Lucys Sommerkleid. Graues Gesicht. Große schwarze Augen. Kein Mund.** Es hat sich zum Blitz gedreht wie zu einer Sonne. | Nur das Polaroid hell | Keine Musik. Ab 8 s ein gestrichener Kontrabass, ein tiefes E, anschwellend bis 10 s. |
 | 10–12 | Schnitt hinter Lukes Schulter | In der Küchentür steht sie. Lucys Gesicht. Sie hört auf zu lächeln, langsam, wie ein Vorhang, der sich schließt. | Küchenlicht flackert einmal | Der Bass reißt ab. Stille. |
-| 12–18 | Halbnah, langsamer Zoom | Die Stimme rutscht mitten im Satz aus Lucys in die eines kleinen Mädchens. Die Spieluhr darunter wird laut. | – | LUNA: „Jetzt weißt du’s.“ – „Wir tragen beide ein geliehenes Gesicht, Bruder.“ (Sprecherangabe wechselt bei „Bruder“ von LUCY? zu LUNA.) |
+| 12–18 | Halbnah, langsamer Zoom | Die Stimme rutscht mitten im Satz aus Lucys in die eines kleinen Mädchens. Die Spieluhr darunter wird laut. | – | LUNA: „Jetzt weißt du’s.“ – „Wir tragen beide ein geliehenes Gesicht, Bruder.“ (Sprecherangabe wechselt bei „Bruder“ von LUCY? zu LUNA.) – LUNA: „Ich hab mir was von ihr geborgt. Das Kochen. Das Lachen. Das ‚Großer‘.“ (W-2: die neue Wendung 7; danach „Warum darfst du bleiben und ich nicht?“) |
 | 18–21 | ganz nah, die Augen | Sie blinzelt nicht. Für ein einziges Bild ist unter Lucys Gesicht das graue durchgeschaltet. | – | LUNA: „Warum darfst du bleiben und ich nicht?“ |
 | 21–22,5 | – | Schwarz. Alle Lichter in Nr. 1 auf null. | aus | Das Radio springt an, ein halber Takt Wunschkonzert, verzerrt, aus. |
 | 22,5–24 | Schwarz | – | – | Lukes Hand tastet über Teller, Gras, Wachs. Untertitel: „Du hältst sie fest, bis das Licht wiederkommt.“ |
@@ -5672,7 +5697,11 @@ LUKE: „Nicht antworten. Es sind nicht Ihre Angehörigen. … Wer schreibt so w
 
 **Die Fraßstelle.** Ein angefressenes Reh, Blut, Fleisch, das aussieht, als hätte jemand probiert und nicht gemocht. Daneben, abgelegt wie für Luke: **Hofers Dienstbuch, Seite 1** (Text unter „Fundstücke“). Luke ruft einmal von selbst: „Luke?“ Kein Echo. Gedanke: *Das war kein Wolf. Wölfe fressen. Das hier hat probiert.* Ab hier: Wendigo.
 
+**Die Jagd (Q-9 A-20 bis A-22, gebaut in `kapitel6.js`):** Zwischen der Fraßstelle und dem Bau ist der Wendigo frei unterwegs. Seine Gegenwart **ist** die Stille-Zone: Wo er ist, verstummen Wald, Wind und Hall im Radius 20 bis 30 Meter. Man sieht ihn fast nie, man hört, dass nichts mehr zu hören ist. Er folgt Lärm (Rennen, die Pfandflasche, Rufen) und meidet die erhobene Lampe (Merkblatt W: „Lampe nie senken“), in seiner Zone entlädt sie sich schneller; leere Lampe und Kontakt = Tod. Bei Sichtkontakt mit voller Lampe weicht er rückwärts, die Knie knicken falsch. **A-21:** Stirbt Luke durch ihn, fehlt danach ein Nachbild in der Fibel („— gefressen —“), höchstens zwei, nie eins, das für Rätsel oder Wendungen gebraucht wird. **A-22:** Einmal im tiefen Wald das vertraute Beobachter-Trippeln links, Kiesel, Rascheln, und Whiskey schaut nach rechts. Wer dem Trippeln folgt, findet einen Geschälten; wer Whiskeys Blick folgt, einen Beobachter-Zettel.
+
 **Der Hirsch (Stufe `hirsch`):** Nach der Fraßstelle bricht ein Hirsch aus dem Dunkel, stürmt auf Luke zu, bleibt einen Meter vor ihm stehen. Dann dreht sich der Kopf, ohne den Hals. Knacken. Licht aus. (Stufe 3.)
+
+**Der Anruf, den man nicht annehmen darf (Story-Prüfung T-3, für alle Spieler):** Auf dem Weg zu Jonas’ Lager, in der Stille vor dem Lager, klingelt Lukes Handy, seit dem Zaun ohne Netz. Display: **LUCY**. Gedanke: *Elfmal bin ich nicht rangegangen. Einmal doch, und es war die andere.* In der Fibel leuchtet die Zeile aus Merkblatt W: „Nicht antworten. Es sind nicht Ihre Angehörigen.“ Wahl: **Wegdrücken** → LUKE: „Diesmal nicht.“ Das Display zählt die verpassten Anrufe hoch, eins bis elf, dann Stille (Spiegel der elf Anrufe). **Rangehen** → LUCYS STIMME?: „Großer …“, ohne Spieluhr, dann HOFER?: „Ich hab Hunger, Junge.“ Die Stille springt auf Luke zu: Der jagende Wendigo hat ihn gehört (Stufe 2, A-20). Lukes Schuldbogen bekommt sein Gegenstück: das eine Mal, wo Nichtrangehen richtig ist.
 
 **Atempause an Jonas’ Lager (Whiskey-Dossier K6-3, hierher verlegt):** Zelt, Dosen, die kalte Feuerstelle (siehe „Vierzig Mal“). Luke setzt sich auf eine Dose, die Knie zittern noch. Er findet in der Jacke seinen letzten Müsliriegel, Haselnuss, zerbröselt. Whiskey sitzt auf der Zeltstange und sieht zu, sehr aufmerksam, sehr unauffällig. Luke bricht den Riegel durch und hält ihm die Hälfte hin. LUKE: „Sag’s keinem. Vegas denkt, ich hab dich im Griff.“ Whiskey nimmt die Hälfte, frisst sie und sagt, mit Vegas’ Stimme: „Junge.“ Der einzige Lacher zwischen Fraßstelle und Bau.
 
@@ -5684,11 +5713,13 @@ LUKE (danach, ein Satz): „Er hat sie alle gefressen und keinen richtig verdaut
 
 **N-07, der Loop:** Annis Stimme ruft jetzt aus der Richtung, in die Hofer verschwunden ist, genau wie beim ersten Mal, mit dem Atemzug an derselben Stelle: „Papa? Papa, ich bin’s.“ Luke folgt nicht; die Nebenaufgabe zeigt ihm, wohin sie wirklich führt.
 
-**Vertrauen miserabel (AG-V, V-03 in der Kapitel-6-Fassung):** Hier klingelt Lukes Handy. Kein Netz, seit Stunden nicht. Es klingelt trotzdem. Unbekannte Nummer. Wenn Luke rangeht: Atmen. Dann WOLTER, ohne Bandrauschen: „Nördlich vom Zaun haben wir keinen Empfang, Herr Brandt. Sie auch nicht. Nur, damit Sie es wissen.“ Klick. Wenn Luke nicht rangeht, klingelt es wieder, und wieder; die Zahl der verpassten Anrufe zählt hoch. Beim elften geht Luke ran, ohne es zu wollen. (Spiegel der elf Anrufe aus Kapitel 1.)
+**Vertrauen miserabel (AG-V, V-03 in der Kapitel-6-Fassung):** Hier klingelt Lukes Handy. Kein Netz, seit Stunden nicht. Es klingelt trotzdem. Unbekannte Nummer. Wenn Luke rangeht: Atmen. Dann WOLTER, ohne Bandrauschen: „Nördlich vom Zaun haben wir keinen Empfang, Herr Brandt. Sie auch nicht. Nur, damit Sie es wissen.“ Klick. Wenn Luke nicht rangeht, klingelt es noch einmal, auf dem Display steht MAMA, und er nimmt nicht ab. (Den Spiegel der elf Anrufe trägt seit der Story-Prüfung der Anruf mit Lucys Namen, T-3, damit es ihn nur einmal gibt.)
 
 #### 7 · „Sie kommt noch“
 
 **Auslöser:** Das Autowrack (`TIEF.wreck`, −10 / 204,5). **Speicherpunkt SP6-5.**
+
+**Hufe über Kinderfüßen (Q-9 A-23):** Vom Lager zum Wrack führen kleine nackte Abdrücke, und über den Kinderfüßen, frischer, gespaltene Hufabdrücke, die ihnen folgen. LUKE (ein Satz): „Er ist hinter ihm her.“ Er erreicht ihn nie (der Epilog bleibt).
 
 Auf dem Beifahrersitz die Kinderzeichnung (vorhanden): eine große Frau in einem langen, dunklen Kleid, in der Hand eine Laterne, deren Flamme kerzengerade nach oben steht, an ihrem Rock sieben Strichkinder. Darunter, in Erwachsenenschrift, fast weggewischt: „Sie kommt noch.“ Gedanke (vorhanden): *Genau das steht auf dem ältesten Stein am Kirchberg. … Wer?*
 
@@ -5729,7 +5760,12 @@ Auswahl, beliebig oft:
 - „Ich guck nicht hin. Versprochen.“ → „Versprochen ist versprochen.“ (Zayns Satz, aus dem Mund des anderen Jungen. Wer die Hütte kennt, versteht: Die Kinder in Nimmerheim kennen einander.)
 - *(nur mit Steinkreis)* „Der achte Stöckchenmann …“ → „Den hab ich gemacht. Vor Jahren. Für dich. Damit du auch einen Platz hast.“
 - „Kommst du mit heim?“ → „Wenn ich heimgeh, musst du gehen. Einer von uns ist immer übrig.“ Pause. „Sie spielt nur mit einem Luke.“
-- „Hat Mama …“ → „Mama schläft. Im Stall. Sie hat mir gesagt, ich soll dich nicht ansehen, sonst wird’s dir schlecht. Ich hab dich trotzdem einmal angeguckt. Bei Vegas, durchs Fenster. Du guckst wie ich, wenn ich lüg.“
+  Direkt danach, die Augen bleiben zu (Story-Prüfung T-1, die Wahl, die etwas kostet):
+  - „Dann geh ich rein. Du kriegst dein Leben zurück.“ → „Geht nicht. Das ist nicht mehr meins.“ Pause. „Du hast es getragen. Jetzt hat es deine Form. Wie ein Schuh.“
+  - „Wir finden was. Zu zweit.“ → „Das sagen Große immer, wenn sie nichts finden.“
+  - *(nichts sagen)* → „Siehst du. Du weißt es auch nicht. Gut. Dann lügst du wenigstens nicht.“
+  Fibel „Wer bin ich?“ (Reiter „Das bist du“), letzter Eintrag: *Einer von uns ist übrig. Ich will nicht, dass er es ist. Ich will nicht, dass ich es bin.* (Einlösung: Kapitel 7, Unterkapitel 6.)
+- „Hat Mama …“ → „Mama ist drin. Sie wartet an der Kette, bis ich wiederkomm. Sie hat gesagt, ich soll dich nicht ansehen, sonst wird’s dir schlecht. (V-6; Widerspruch 5) Ich hab dich trotzdem einmal angeguckt. Bei Vegas, durchs Fenster. Du guckst wie ich, wenn ich lüg.“
 Von selbst: „Du zitterst ja.“ Luke zieht die Jacke aus und legt sie ihm um (Ton: Stoff). ECHTER LUKE: „Die ist warm.“ Pause. „Meine hängt an der Vogelscheuche. Jetzt hab ich deine. Gerecht.“
 
 **W-14, SB-12.** Federn, ein Landegeräusch, Papier. Whiskey hat etwas gebracht und legt es Luke aufs Knie. ECHTER LUKE: „Der Vogel hat dir was mitgebracht. Aus drinnen. Er darf da rein und raus. Ich nicht.“ Luke tastet: eine Seite mit Holzsplittern am Rand. Er kann sie mit geschlossenen Augen nicht lesen. ECHTER LUKE: „Soll ich vorlesen? Ich kann das. Ich hab’s in der Schule gelernt, bevor …“ Er liest, stockend, Kinderstimme, Justins Worte (Text unter „Fundstücke“, eine Zeile anders je nach Wahl in Kapitel 3).
@@ -5737,6 +5773,8 @@ Von selbst: „Du zitterst ja.“ Luke zieht die Jacke aus und legt sie ihm um (
 Am Ende sagt der Junge: „Da steht dein Name. Luke. Er hat dich beim Namen geschrieben.“ Pause. „Meinen auch. Ist ja derselbe.“
 
 **W-15.** Whiskey, auf dem Geländer, ganz nah an Lukes Ohr, leise, das einzige Mal im ganzen Spiel wach in ganzen Silben: **„Luna.“** Der echte Luke: „Das sagt er manchmal. Drinnen. Dann geht sie hin und guckt, und er ist schon weg.“
+
+**Die Schlusswendung (Story-Prüfung W-3, aus Kapitel 7, Unterkapitel 4 vorgezogen):** ECHTER LUKE: „Sie hat Papa fast. Sie hat mich. Lucy hat sie zurückgegeben.“ Pause. „Sie sucht nur noch einen. Das Stück von Papa, das draußen rumläuft.“ Pause. „Das Spiel ist erst aus, wenn alle gefunden sind.“ Luke sagt nichts. Das Stück von Papa ist er (Lunas Satz aus Kapitel 3, UK 14).
 
 Luke macht die Augen erst auf, als er unten ist. → Abspann-Kinosequenz → Endkarte.
 
@@ -5768,7 +5806,7 @@ Kern §12.1: Der zweite Whiskey dreht den Kopf um 180 Grad, die Federn fallen, d
 | 0:36–0:38 | **Lidschlag**, zurück in Ego, Blick steil nach oben | Der Schädel neigt sich herab, bis er fast im Lichtkreis ist. | – | LUKE: „Nein. Nein, nein –“ |
 | 0:38–0:44 | Ego, zwei Stöße der Kamera | Zwei Schritte auf Luke zu. Bei jedem Schritt wird die Flamme kleiner. | Zwei dumpfe Tritte. Dann HOFERS Stimme, nah: „Ich hab Hunger, Junge.“ Pause. Dann **Lukes eigene Stimme** aus dem Maul, genau so, wie er an der Fraßstelle gerufen hat: „Luke?“ Wer den Sender bei V-11 weggeworfen hat, hört darunter ein leises, regelmäßiges Piepen, aus dem Ding heraus. | Untertitel: HOFER? · dann: DEINE STIMME? |
 | 0:44–0:46 | Ego, Ruck nach rechts oben | Whiskey stößt sich vom Pfahl ab. In seinen Augen ein erstes weißes Glimmen. | Flügelschlag, laut, voll, mit Luft darin. Für einen Moment kommt Wind in die Stille-Zone, ein einziger Stoß durch die Kronen. | – |
-| 0:46–0:50 | Blick folgt dem Raben im Kreis über dem Bau | Das Licht in ihm wird größer: klein, weiß, kerzengerade, wie eine Flamme, die kein Wind kennt. | Musik: eine Celesta spielt ganz leise die ersten fünf Töne von Miras Wiegenlied, E D C H C, und bricht nach dem fünften ab. | – |
+| 0:46–0:50 | Blick folgt dem Raben im Kreis über dem Bau | Das Licht in ihm wird größer: klein, weiß, kerzengerade, wie eine Flamme, die kein Wind kennt. | Musik: eine Celesta spielt ganz leise die ersten fünf Töne von Miras Wiegenlied, E D C H C, und bricht nach dem fünften ab. Darunter summt eine Frauenstimme die fünf Töne mit, ohne Worte, aus der Richtung des Raben (T-4: Mira, nur ihr Klang; keine Sichtung, kein Satz). | – |
 | 0:50–0:52 | Ego, **erster Stoß** | Whiskey stößt herab, das Licht blitzt heller. Das Hirschding weicht einen halben Schritt, die Ränder seines Fleischs rauchen wie Nebel. | Kreischen, Windstoß, Knurren aus drei Stimmen. | – |
 | 0:52–0:54 | Blick nach oben | Whiskey steigt wieder auf. | – | – |
 | 0:54–0:56 | Ego, **zweiter Stoß** | Heller. Das Ding hebt einen Arm vor die Augen, eine menschliche Bewegung. | PELLS Stimme, zerrissen: „Come ho–“ | Untertitel: PELL? |
@@ -5776,7 +5814,7 @@ Kern §12.1: Der zweite Whiskey dreht den Kopf um 180 Grad, die Federn fallen, d
 | 0:58–0:59 | Ego, **dritter Stoß** | Weiß. Für genau eine Sekunde ist der Wald Tag, und man sieht alles: die Knochen, dutzende Häute in den Bäumen wie Wäsche an der Leine, eine alte Amtsuniform an einem Ast, eine beige Windjacke, zwei Eisenkapuzen. Und am Rand, halb hinter einer Buche, eine kleine weiße Gestalt, die sich die Hände auf die Ohren presst. Nach der Sekunde ist sie weg. | Alle Geräusche des Waldes auf einmal, eine Sekunde lang: Käuzchen, Wind, Rehe, ein Hund, weit weg ein Kind, das „Zayn!“ ruft. Dann abgeschnitten. | – |
 | 0:59–1:04 | Ego, das Bild ist noch geblendet und wird langsam wieder dunkel | Das Hirschding flieht **rückwärts**, schnell, die Knie knicken falsch herum, es brüllt. Eine Linie brechender Äste entfernt sich in die Dunkelheit. | Brüllen, Äste, ein knarrender Baum, immer weiter weg. | – |
 | 1:04–1:08 | Ego, Blick sinkt auf den Pfahl | Whiskey landet. Das Licht in ihm geht aus wie eine Glühbirne, die langsam kalt wird. Er sitzt schief. Er ist müde. | Stille. Dann, von weit, ein Käuzchen. Das erste echte Waldgeräusch am Bau. Die Stille-Zone ist fort. | – |
-| 1:08–1:14 | Ego | Das Feuerzeug brennt noch. Lukes Hand zittert. | – | LUKE: „Kalt. Kerzengerade. Wie Mamas Kerze.“ · Gedanke: *Wie das Fenster in der Villa.* |
+| 1:08–1:14 | Ego | Das Feuerzeug brennt noch. Lukes Hand zittert. | – | LUKE: „Kalt. Kerzengerade. Wie Mamas Kerze.“ · Gedanke: *Wie das Fenster in der Villa.* *Und die Stimme war die aus der Villa.* (T-4) |
 
 **Danach:** Die Steuerung kommt zurück, weiter mit Unterkapitel 8 („Er hat ihn vertrieben. Nicht ich. Er.“). Die Batterie liegt noch im Laub zwischen den Rippen und lässt sich jetzt aufheben. Lore-Eintrag „Zwei Raben“ (ersetzt „Der Hungrige · Die Enthüllung“). Das Popup „KAPITEL 6 · Der Hungrige“ entfällt.
 
@@ -5947,7 +5985,7 @@ LUKE: „Bin ich nicht. Geh ich nicht. Tut mir leid, Jonas.“
    - Das Band läuft leer.
    LUKE: „Das hat er geschrieben. In sein Heft. Das hat er nie gesagt.“
 **Belohnung:** eine Batterie netto (wer das Band hört), Kassette „Come home, W.“ (Gegenstand), Lore „Projekt WENDIGO“ (mit sechs Seiten), vollständig mit allen neun (dann Fibel-Zusatz: „‚Erfüllt.‘ Sie haben ihm den Wald ausgewischt wie eine Tafel, und Wolter hat es abgehakt.“).
-**Enthüllung:** Der Wendigo frisst nicht nur, was liegt, er frisst auch, was gerade entsteht, sogar Gedanken, die jemand aufgeschrieben hat. Er war nie eine Waffe gegen das Licht; Wolter hat den leeren Wald als Erfolg verbucht.
+**Enthüllung:** Der Wendigo frisst nicht nur, was liegt, er frisst auch, was gerade entsteht. Er frisst nicht das Papier. Er frisst, was einer beim Schreiben gedacht hat (darum bleibt Geschriebenes stehen, N6-3; Widerspruch 17). Er war nie eine Waffe gegen das Licht; Wolter hat den leeren Wald als Erfolg verbucht.
 **Schreck:** Stufe 2 (das zweite „Come home“).
 **Humor:** Pells „For science.“, „Should have stayed in Ohio.“ beim ersten Lesen im Heft (beim Band nicht mehr); Jonas’ Großbuchstaben.
 **Verbindung:** Wolter (AG-18: „Ein Amerikaner hat es so genannt“), Hofer, Kapitel 4 (Villa, Karton „W“), der Höhepunkt (dort ruft das Ding Pells „Come ho–“).
@@ -6217,7 +6255,7 @@ Er folgt ab dem Gitter, wie immer mit der Ein-Sekunden-Regel und Geräuschen (Ki
 | 22–30 | vom Hochsitz (14 / 5 / 178,5) über den Wald | Morgendunst, der Kirchturm, im Ort gehen die Laternen aus. | Wind, Käuzchen, fernes Hundebellen. |
 | 30–36 | am Bau (−12,5 / 1,6 / 205), Blick auf den Pfahl (−13,9 / 1,6 / 207,6) | Der Pfahl ist leer, der Schädel fort. | Ein Reh ruft, zu langsam. Dann, weit weg, Annis Stimme: „Gleich wieder da.“ Untertitel: ANNI? |
 | 36–44 | Nahaufnahme im Amtsbus, Armaturenbrett | Das Fahrtenbuch, darunter frisch mit Bleistift: „Offen: 1. Und einer, der es nie war.“ Daneben ein Thermosbecher, der noch dampft. | Stille. |
-| 44–54 | Waldrand am Nordzaun, Totale; Luke klein von hinten | Nachsorge 12 steht am Waldrand, Schiebermütze, Mantel, Stulle in der Hand. Er winkt freundlich. Luke hebt fast die Hand. Dann dreht sich der Kopf, langsam, weiter, als ein Kopf sich dreht, und der Körper bleibt stehen, die Hand winkt weiter. **Vertrauen hoch:** Er winkt mit der Stulle. **Mittel:** Danach geht er rückwärts in den Wald, ohne sich umzudrehen. **Miserabel:** Er ruft mit Lukes Stimme: „Freitag frei.“ **Nach Ablehnen:** Am Gitter hängen Ketten, daran Wolters Zettel. | Bei „miserabel“ Lukes Stimme, sonst nur das Rascheln des Butterbrotpapiers. |
+| 44–54 | Waldrand am Nordzaun, Totale; Luke klein von hinten | Nachsorge 12 steht am Waldrand, Schiebermütze, Mantel, Stulle in der Hand; in der anderen sein Block, lesbar: „Abholung K-3. Freitag früh. Waldrand.“ Hinter ihm der Kombi, Tür offen, Motor an, niemand am Steuer (Q-9 A-24). Er winkt freundlich. Luke hebt fast die Hand. Dann dreht sich der Kopf, langsam, weiter, als ein Kopf sich dreht, und der Körper bleibt stehen, die Hand winkt weiter. **Vertrauen hoch:** Er winkt mit der Stulle. **Mittel:** Danach geht er rückwärts in den Wald, ohne sich umzudrehen. **Miserabel:** Er ruft mit Lukes Stimme: „Freitag frei.“ **Nach Ablehnen:** Am Gitter hängen Ketten, daran Wolters Zettel. | Bei „miserabel“ Lukes Stimme, sonst nur das Rascheln des Butterbrotpapiers. |
 | 54–60 | Einstellung am eingedrückten Zaun, Blick nach unten | Hinter Lukes Füßen liegt ein Zettel: B-K6-07. | Papier, Trippeln, das sich entfernt. |
 | 60–68 | im grauen Kombi auf der Landstraße, von der Rückbank | Wolters graue Handschuhe um die Thermoskanne. Der Deckel fehlt. Er trinkt direkt aus der Kanne. | WOLTER, leise, zu niemandem: „Es hat nie gegen das Licht gewirkt. Das ist bedauerlich.“ |
 | 68–76 | Nr. 3, durchs Wohnzimmerfenster | Lucy schläft auf dem Sofa unter der karierten Wolldecke, Vegas im Sessel, ein Funkgerät auf dem Bauch. Auf der Fensterbank Hänschen, der Kater, zurück vom Gitter (02 F7). Er sieht nicht ins Zimmer, er sieht genau in die Kamera. | Vegas schnarcht. Das Funkgerät rauscht einmal. |
@@ -6228,6 +6266,7 @@ Er folgt ab dem Gitter, wie immer mit der Ein-Sekunden-Regel und Geräuschen (Ki
 > Er ist nicht tot. Er weiß jetzt, wem der Rabe gehört.
 > Auf dem Hochsitz schläft ein Junge in deiner Jacke. Du hast ihn nicht angesehen.
 > Der Rabe ist nach Westen geflogen.
+> Einer fehlt noch. Du.
 > Am Samstag kommt Jonas.
 > HIGH ABYSS MIRA · FORTSETZUNG FOLGT
 
@@ -6382,7 +6421,7 @@ Ein Punkt, wo immer drei waren. Luke versteht es sofort, und der Spieler mit ihm
 
 #### 4 · „Angelehnt“
 
-Der Beobachter erklärt, warum heute überhaupt etwas geht: Das Schiff hat Donnerstag aufgemacht und ist seitdem nicht zu. Luna hat Lucy zurückgegeben, aber sie hat Luke nicht fertig gesucht, „ein Stück von Papa ist noch draußen“. Solange sie sucht, steht das Haus angelehnt, wie eine Tür, die er selbst in jedem Kapitel angelehnt hat, damit Luke merkt, dass jemand da war.
+Der Beobachter erklärt, warum heute überhaupt etwas geht: Das Schiff hat Donnerstag aufgemacht und ist seitdem nicht zu. Luna hat Lucy zurückgegeben, aber sie hat Luke nicht fertig gesucht, „ein Stück von Papa ist noch draußen“ (der Spieler weiß es seit dem Hochsitz in Kapitel 6: „Einer fehlt noch. Du.“). Solange sie sucht, steht das Haus angelehnt, wie eine Tür, die er selbst in jedem Kapitel angelehnt hat, damit Luke merkt, dass jemand da war.
 ZETTEL (wieder mit drei Punkten, er ist wieder bei seinen Leuten): „DAS HAUS IST ANGELEHNT. SIE SUCHT DICH. GEH AN DEN RAND UND HALT DIE HAND REIN. DER RABE WEISS DEN REST. ∴“
 Der Abend: Die Ahornstraße bereitet sich vor, ohne dass jemand es so nennt. Vegas holt die Kette vom Gartentor („Eisen ist frei, das weiß jeder Depp“) und wickelt sich Alufolie um den Kopf, „für die Frequenz“. Gisela packt Katzen in Körbe. Jonas findet in Hildes Küche das Zählbuch und liest die letzte Zeile laut: „Zuletzt: neun.“ (Hat Luke das echte Zählbuch in Kapitel 4 abgegeben oder hat die LWO es aus Nr. 7 geholt, steht es am Abend auf Hildes Fußmatte, in Butterbrotpapier eingeschlagen. Nachsorge 11 geht gerade zum Kombi zurück und dreht sich nicht um.) Lucy holt die Spieluhr. Und an der Bushaltestelle steht der graue Kombi, Motor an, und diesmal fährt er nicht weg. Wolter steigt aus, ohne Hut. Er sagt, die Bergung sei „für heute Nacht angesetzt“, und er sagt nicht, für wen.
 
@@ -6407,7 +6446,7 @@ Wolter steht daneben. Er hat alles gehört. Er sagt nichts, zum ersten Mal in se
 #### 6 · „Gefunden!“
 
 Der Plan ist die Regel, die alle kennen: Die Kette. Mira geht hinein, Luke hält sie, dahinter das Dorf, dahinter die Eisenkette der LWO. Der Beobachter steht nicht in der Kette (Eisen). Er steht daneben, ohne sich zu verstecken, und zählt laut jedes Kind mit, das herauskommt; es ist die erste Zählung, die er nicht für sich aufhebt. Justin ist seit Kapitel 3 drinnen und sucht. Mira sieht ihn, weil sie mit menschlichen Augen sieht und das Licht in ihrer Laterne das Schiff dazu bringt, sie für eins der Seinen zu halten. Man hört sie drinnen rufen, weit weg, sehr nah: „Justin. Ich bin es. Gib mir die Hand, und diesmal lass sie nicht wieder auf.“ Was er antwortet, hört man nicht.
-Dann kommen sie. Erst Justin, in Rüstung, Miras Hand in seiner Narbenhand. Dann die Behaltenen, an Justins anderer Hand, eins am andern: **Grete**, sechs, grau, ohne Mund, und Wolter lässt die Kette fallen und muss von einem Blechmann festgehalten werden, damit er nicht hineinläuft; **Zayn** mit einem Stück von Jonas’ roter Wolle ums Handgelenk, dem Ende, das in Kapitel 6 im Weiher verschwunden ist; **Hänschen Rieke**, und die siebzehn Katzen springen aus den Körben (Gisela, achtundsiebzig, sieht ihren kleinen Bruder an und sagt nur: „Du hast ja noch die Mütze auf.“); **Pfarrer Voss** im Talar; **Anni Hofer** (hat Luke ihren Lampion aus dem Amtsbus, hält er ihn in die Kette, und Anni kommt am Lampion heraus statt an einer Hand; sonst führt Voss sie); **Hilde**, die Jonas ansieht und sagt „Samstag? Du rufst doch sonntags an“; dann **Marion**, und an ihrer Hand ein Junge im gestreiften Schlafanzug, neun, blaue Augen: **der echte Luke**. Die beiden Lukes sehen sich an, und keiner weiß, was man da sagt.
+Dann kommen sie. Erst Justin, in Rüstung, Miras Hand in seiner Narbenhand. Dann die Behaltenen, an Justins anderer Hand, eins am andern: **Grete**, sechs, grau, ohne Mund, und Wolter lässt die Kette fallen und muss von einem Blechmann festgehalten werden, damit er nicht hineinläuft; **Zayn** mit einem Stück von Jonas’ roter Wolle ums Handgelenk, dem Ende, das in Kapitel 6 im Weiher verschwunden ist; **Hänschen Rieke**, und die siebzehn Katzen springen aus den Körben (Gisela, achtundsiebzig, sieht ihren kleinen Bruder an und sagt nur: „Du hast ja noch die Mütze auf.“); **Pfarrer Voss** im Talar; **Anni Hofer** (hat Luke ihren Lampion aus dem Amtsbus, hält er ihn in die Kette, und Anni kommt am Lampion heraus statt an einer Hand; sonst führt Voss sie); **Hilde**, die Jonas ansieht und sagt „Samstag? Du rufst doch sonntags an“; dann **Marion**, und an ihrer Hand ein Junge im gestreiften Schlafanzug, neun, blaue Augen: **der echte Luke**. Die beiden Lukes sehen sich an. ECHTER LUKE: „War es schön?“ LUKE: „Noch nicht. Ab jetzt zu zweit.“ (Einlösung der Hochsitz-Wahl aus Kapitel 6, T-1; kein neuer Weltfakt, wer das Leben „bekommt“, bleibt offen.)
 MARION: „Da seid ihr ja. Alle beide.“
 HILDE (zu Marion, leise): „Ich hab dich fotografiert, damals am Rand. Aufgehalten hab ich dich nicht.“
 (Damit löst sich das Polaroid aus dem Wrack im tiefen Wald: „— H.“ ist Hilde, 2011, und das Wrack ist Marions Auto. Luke sagt nichts dazu.)
@@ -6415,9 +6454,9 @@ Lucy nimmt mit der freien Hand die Hand des Jungen. Was es heißt, dass in Nr. 1
 Und zuletzt niemand. Die Kette endet. Da sagt Lucy den Namen, den nur sie noch weiß: **„Cleo.“** (Hat Luke die Kronkorken-Dose aus Cleos Baumhaus, schreibt Lucy mit Cleos Kreide ein C auf den achten, leeren Kronkorken und hält ihn ins Licht.) Und dann ist da noch eine Hand.
 Die Behaltenen bekommen an der Luft zuerst den Mund zurück. Gretes erstes Wort ist „Heini?“. Sie nimmt Wolters graue Hand, die ohne Handschuh, so selbstverständlich, wie eine Sechsjährige die Hand ihres großen Bruders nimmt, und der Regionalleiter der Außenstelle 7 setzt sich in den Matsch.
 Jetzt die Laternen. Luna sitzt oben im Schiff und hat, wie immer, niemanden gesehen: einen Ritter aus Schiffshaut sieht sie nicht. Regel 2: Sind alle Laternen aus, muss sie herunterkommen. Diesmal löscht Luke keine Laterne. Das Dorf tut es, wie beim Laternenfest, nur umgekehrt: Vegas braucht eine Leiter und flucht, Giselas Katze springt von selbst auf die nächste, Wolter geht als Letzter zur Laterne vor Nr. 9, Grete an der Hand, und sieht Luke dabei an, als wolle er fragen, ob das jetzt reicht.
-Dunkel. Das Graukind kommt den Hang herunter, nur wenn keiner hinsieht. Alle wissen, was zu tun ist. Alle schließen die Augen, und der Spieler hält Q. Ton: Kies, Stoff, das Summen, das die Hunde verrückt macht; Bruno winselt bei Vegas. Dann Metall auf Stein, Platte für Platte, langsam, mit Pausen, weil siebenhundert Jahre lang keine Schnalle geöffnet worden ist. Justin legt die Rüstung ab, ohne zu sehen, ob sie schon da ist. Er hat kein anderes Fenster, und diesmal braucht er keins.
+Dunkel. Das Graukind kommt den Hang herunter, nur wenn keiner hinsieht. Alle wissen, was zu tun ist. Alle schließen die Augen, und der Spieler hält Q. Ton: Kies, Stoff, das Summen, das die Hunde verrückt macht; Bruno sieht bei Vegas zum Hang, ohne Laut. Dann Metall auf Stein, Platte für Platte, langsam, mit Pausen, weil siebenhundert Jahre lang keine Schnalle geöffnet worden ist. Justin legt die Rüstung ab, ohne zu sehen, ob sie schon da ist. Er hat kein anderes Fenster, und diesmal braucht er keins.
 MIRA: „Augen auf.“
-Der Spieler lässt Q los. Ein Mann um die vierzig, braune Augen, die alte Narbe über der rechten Braue, in einem Leinenhemd, im Matsch vor einem grauen Mädchen ohne Mund, das ihn zum ersten Mal seit 1312 ansieht.
+Der Spieler lässt Q los. Ein Mann um die vierzig, braune Augen, die alte Narbe über der Rippe, wo das Hemd offen steht (Kern §3; Widerspruch 12), in einem Leinenhemd, im Matsch vor einem grauen Mädchen ohne Mund, das ihn zum ersten Mal seit 1312 ansieht.
 JUSTIN: „Gefunden.“
 Das Mädchen bekommt einen Mund, weil sie einen braucht. Sie lacht, ganz nah, wie auf SB-01.
 LUNA: „Du hast geschummelt, Papa. Siebzehn und noch eins.“
@@ -6678,7 +6717,7 @@ Die Spiegelung ist die Antwort auf die Frage, was das Spiel von Müttern erzähl
 - A2/A3: Nebenaufgaben heißen „Der Neunte“, „Hast du dich an mich erinnert?“ und „Vierzig Mal“.
 - B9 (Raum 3), H3 (Gründungsakte 1958), Kern §0.11 („L. B.“) sind in Spurentabelle und Kapitel 2–4 geregelt.
 
-- Folgeänderungen aus G1 und F5 in anderen Dateien (keine Autorenfrage): SB-10 in 81 auf Strophe 1 in diesem Wortlaut angleichen; in 85 „Such mich nit“ streichen und die Gesangbuch-Schlusszeile „Ich find dich überall. – Ist das wahr? – Ja.“ einsetzen; in Kap. 3 (RH-6) den Rüstungs-Hinweis von Fensterfeld 8 auf Feld 6 („der Ritter allein am Rand“) verlegen, Feld 8 ist der Laternenzug.
+- Folgeänderungen aus G1 und F5 in anderen Dateien (keine Autorenfrage): SB-10 in 81 auf Strophe 1 in diesem Wortlaut angleichen; in 85 „Such mich nit“ streichen und die Gesangbuch-Schlusszeile „Ich find dich überall. – Ist das wahr? – Ja.“ einsetzen; in Kap. 3 (RH-6) den Rüstungs-Hinweis von Fensterfeld 8 auf Feld 7 verlegen („drei kleine weiße Gestalten geben dem Ritter etwas“, 02 I2; Feld 6 ist „der Ritter allein am Rand“, Feld 8 der Laternenzug; Widerspruch 11).
 
 ### Noch offen für den Autor
 
@@ -7102,7 +7141,7 @@ Mechanik: Sichtkegel (Blechmann-Lampe lang und schmal; 11 breit und kurz, weil e
 Was Luke durch die Lamellen hört (sie halten sich für die Guten, das ist das Gruselige):
 NACHSORGE 11: „Seiler hat alles hier hochgeschleppt. Statt nach unten. Der Mann hat am Ende nicht mehr gewusst, wem er die Treue hält.“
 NACHSORGE 12: „Uns.“
-NACHSORGE 11: „Uns, ja. Wir sind ja auch die, die noch da sind.“ (Ein Schrank geht auf, nicht Lukes. Kleiderbügel klappern.) „Der Junge ist hier irgendwo. Er riecht nach Rauch und nach dem Vogel.“
+NACHSORGE 11: „Uns, ja. Wir sind ja auch die, die noch da sind.“ (H-4: NACHSORGE 12 liest die Bestandsliste vor: „Glas zwei. Leer. ‚Fenster war zu.‘“ – 11: „Lies leise.“ – 12: „Ich les immer so.“ – „Kiste einundvierzig. Lebend. Nicht füttern.“ – 11: „Wer schreibt so was auf einen Lieferschein?“ – 12: „Du. Zweitausendzwölf.“) (Ein Schrank geht auf, nicht Lukes. Kleiderbügel klappern.) „Der Junge ist hier irgendwo. Er riecht nach Rauch und nach dem Vogel.“
 NACHSORGE 12: „Wolter will ihn heil.“
 NACHSORGE 11: „Wolter will ihn heil, ja. **Weißt du, was ich glaube? Dass der Junge gar nicht weiß, was er ist. Und dass das das Traurigste an der ganzen Sache ist.** Wir tun ihm nichts. Wir holen nur das Kind aus ihm raus, das drinsteckt.“
 NACHSORGE 12: „Und wenn nichts drinsteckt?“
@@ -7123,6 +7162,7 @@ LUKE: [a] „Und wenn Sie sich irren?“ → Wolter: „Dann habe ich ein Leben 
 WOLTER: „Ich war noch ein Kind, als ich meine Schwester an der Hand hatte. Da drin. Ich habe sie lachen hören. Nicht vor Angst.“
 WOLTER: „Es lässt sie lachen. Das ist der Trick. Und wenn die Leute das wüssten, Herr Brandt, würden sie ihre Kinder selbst hineintragen. Oder ihre Häuser anzünden. Ich habe beides gesehen.“
 WOLTER: „Also schreibe ich ‚Gasleck‘. Jemand muss die Liste schreiben. Wollen Sie das machen?“
+WOLTER: „Die Bundesstelle war ein Briefkopf, Herr Brandt. Wir heißen Lucid World Organization. Lost Eyengless ist Außenstelle sieben.“ Pause. „Es gibt andere Dörfer.“ (Story-Prüfung V-4: Hier fällt der Name im Hauptweg; Lukes Witz dazu steht am Messingschild im Arbeitszimmer, nicht hier.)
 LUKE: [a] „Sie haben ein Bett für mich gemacht.“ → Wolter: „Ein gutes. Ich habe es selbst ausgesucht.“ [b] „Grete.“ (nur, wenn Luke das Foto aus der Teedose gesehen hat) → Wolter sieht ihn zum ersten Mal mit beiden Augen an: „Lassen Sie den Namen, wo er ist.“ Hat Luke das Foto eingesteckt: „Sie haben etwas aus meiner Dose. Das ist nicht bedauerlich. Das ist unverzeihlich.“ Dann sofort wieder im Passiv: „Es wird zurückgelegt werden.“ (−5) [c] die Thermoskanne hinstellen (nur mit der Kanne aus Kap. 3) → Wolter: „Sie haben sie mir aufgehoben.“ Er nimmt sie nicht. „Behalten Sie sie. Sie werden frieren, später.“ (+5)
 **Das Zählbuch** (je nach AG-12): Weg 1: „‚Immer acht. Zuletzt neun.‘ Danke für das Heft. Frau Wendt konnte gut zählen. Zu gut.“ / Weg 2: „‚Kassler, vier achtzig.‘ Ich habe gelacht, Herr Brandt. Ich lache selten.“ – „Sie halten uns für dumm. Das ist in Ordnung. Wir halten Sie für gefährlich.“ / Weg 3 (das Heft steckt in Lukes Jacke, Wolter zitiert aus dem Gedächtnis): „‚Zuletzt neun.‘ Frau Wendt hat am Küchenfenster geschrieben, Herr Brandt. Wir hatten eine Kamera gegenüber.“ – „Sie war gründlich. Schade um sie.“
 Bei miserablem Vertrauen zusätzlich: „Sie waren die ganze Nacht mit EISEN unterwegs. Wir haben zugesehen, weil Sie uns wertvoller sind als er. Das sollte Ihnen zu denken geben.“
@@ -7389,6 +7429,7 @@ Kap. 2: „Bergung zwei an Nachsorge. K-1 nicht im Käfig.“ / „Das ist K-3. 
 > 03.11., 04:00 · Maas meldet: Anruf aus der Stadt, Bruder. Elfmal nicht abgenommen. Zwölftes Mal: Verbindung.
 > 04.11., 23:12 · Fahrzeug Ortsschild. Fahrer schläft. Zettel am Fenster (nicht von uns).
 > 04.11., 23:40 · K-3 betritt den Ort. Zu Fuß. Barfuß? Nein. Nass.
+> *Nachtrag zum 23.10., Kugelschreiber, Wolters Schrift (Kanon-Änderung W-5):* „Frau Wendt legt Brandt, Lucy, in den Tank. Nicht eingreifen. Der Bruder kommt dann von allein. (hw)“ *(Nachgetragen nach dem 4.11.; in Kapitel 1, durchs Fenster von Nr. 9, steht er noch nicht auf dem Blatt.)*
 
 > **Blatt 213**
 > 01.11. · Objekt zählt heute neun. Es sind acht. Hinweis an Regionalleitung: Objekt beginnt zu irren. Oder es steht dort tatsächlich ein Neunter. Letzteres ist auszuschließen. *(Zusatz hw: „Nicht auszuschließen.“)*
@@ -10173,7 +10214,7 @@ Diese Zeilen sagt Luke beim Untersuchen (Interaktion) oder als Gedanke beim Vorb
 **LWO-Zeichen**
 - U-76 Kaugummipapier mit Auge (Kap. 1): „Pfefferminz. Und ein Auge über einer Flamme. Wer druckt ein Auge auf Kaugummi?“
 - U-77 Kuli mit Auge: „Werbekuli. Wie von der Messe. Nur gibt’s die Messe nicht.“
-- U-78 Schild „LWO“ (ab Kap. 4): „Lucid World Organization. Klingt wie ein Energydrink. Zählt Kinder.“
+- U-78 Messingschild „LUCID WORLD ORGANIZATION · AUSSENSTELLEN“ über Seilers Weltkarte (Kap. 4, Arbeitszimmer; V-4): „Lucid World Organization. Klingt wie ein Energydrink. Zählt Kinder.“
 - U-79 Absperrband „Gasleck“: „Riecht nicht nach Gas. Riecht nach Nebel und Kreide.“
 - U-80 Aushang BfR: „Sprechstunde donnerstags. Die Behörde ist aufgelöst. Die Sprechstunde nicht.“
 - U-81 Thermoskanne, noch warm: „Tee. Wer trinkt um diese Zeit draußen Tee?“
@@ -11499,7 +11540,7 @@ Keine neuen Nebenaufgaben; beendet werden „Hast du dich an mich erinnert?“ +
 | **Jonas Wendt** | Hildes Sohn, Lukes Kindheitsfreund; Fibel-Autor; rote Wolle; kommt Samstag | – |
 | **Zayn Wendt** | sieben, 2009 verlost, nie zurück | – |
 | **Lars Vegas** (60) | Nr. 3; 1975 unter den Sieben; Verschwörer mit ständig recht; tauft Whiskey | **heißt wirklich Lars Vegas** (02 C8); Code-Anker `albers_*` bleiben; „Lars Albers“ entfällt |
-| **Bruno** | Vegas’ Hund (verschwunden; Halsband am Aschekreis) | – |
+| **Bruno** | Vegas’ Hund (verschwunden; Halsband am Aschekreis; in der Nacht von Kap. 3 „falsch“ zurück: dünner weißer Ring in den Augen, bellt nie wieder, frisst keinen Speck, Q-9 B-3; der echte sitzt grau bei Zayn in Nimmerheim) | – |
 | **Mike** | Vegas’ Enkel, verschwand im Juli 2009 aus der Tankstelle | – |
 | **Roxy** (Nr. 5) | zündete das Haus an, „Da oben war es warm“ | – |
 | **Dina Aydın** (26) | Hof/Remise, Augenbinde, sah die Blechmänner beim Laden | alt „Der Junge / Das Mädchen mit der Binde“ |
@@ -11635,7 +11676,7 @@ Arbeitsanleitung für das Fenster, das die Fassung 3 ins Spiel baut. Sie bündel
 4. **Rätsellösungen, die bleiben:** 3110 · Roxy – Lucy – Mike – Dina – Heidi – Luke – Zayn · Hebel 2-3-4-5 · E D C H C · 31,10 MHz · Laternen 5 → 3 → 1 → 7 · 03:13. Neu und im Kapitel hergeleitet: HASENBROT am Funk, Deduktion Raum 3 (02 B9), Villa-Rätsel, Polaroid-Schleife, „Wo vorne war“ (Sender). Nichts wird vorgesagt: `d_funk`, `d_laternen`, `d_uhr`, `d_nacht`, `d_klavier` und der Toast „Fünf – drei – eins – sieben“ fliegen raus.
 5. **Aus dem PK-Plan gilt weiter:** Koordinaten (`C2` 600 | −2600, `C3` −600 | −2600, `ANW_HALL` −900 | 900, Keller Nr. 7 300 | 300, `Y` 0,43), Sperren A1–A40, Weltuhr G-1, Textkorrekturen T1–T23 (soweit Kapitel sie nicht ersetzen), Kino-Technik PK-F, Peters Feuertod, „Augen zu“ (Q) ab Finale Kap. 2, Kamera (C) ab Kap. 5, Luke nie von vorn, Miras Flamme kerzengerade und kalt-weiß, „— M.“ doppeldeutig.
 6. **Nicht mehr gültig:** die alten Kapiteltitel, die Enden A/B/C von Kap. 3 (jetzt eine Wahl → „Noch eine Runde“), Justin als Ritter, der sieben Kinder schickte, Daniel Lorenz, der „Kurier“, `leben_bell313`, alle Sätze mit „das Weiße“, „Nachhall“, „die Kleine“, „die Graue“, „die Gezählten“, „Ersatz“ im sichtbaren Text.
-7. **Wer was wann weiß:** „Luna“ fällt vor Kap. 3 nie (Sprecher DAS KIND, „das Graukind“), zuerst aus Justins Mund. „Nimmerheim“ erst durch Justin. „LWO“ als Name erst Kap. 4 (vorher Zeichen, BfR, „das Amt“). „Wendigo“ erst Kap. 6 nach Hofers Seite 1 (vorher „der Hungrige“). Die Riss-Wahrheit (Luna hat den Riss erzeugt) nirgends vor Kap. 7.
+7. **Wer was wann weiß:** „Luna“ fällt vor Kap. 3 nie (Sprecher DAS KIND, „das Graukind“), zuerst aus Justins Mund. „Nimmerheim“ erst durch Justin. „LWO“ als Name erst Kap. 4 (vorher Zeichen, BfR, „das Amt“). „Wendigo“ erst Kap. 6 nach Hofers Seite 1 (vorher „der Hungrige“). Die Riss-Wahrheit (Luna hat den Riss erzeugt) nirgends vor Kap. 7. **Ergänzungen Story-Prüfung (01.10.2026):** Lukes Protokollname im Amt ist bis Akte 08 „VORGANG 08“, erst danach „RÜCKLÄUFER 08“ (W-1); die Kinderstimme am Telefon in Kap. 1 erkennt Luke nicht als seine eigene (W-1). „Das siebzehnte Jahr“ (Entführungen vor der Nacht, Justin am Rand, Martini) erklärt Justin in Kap. 3 UK 4, Hildes Zählbuch Seite 2 bestätigt es (V-1). Dass die zurückgekehrte Lucy nicht ganz Lucy ist, wird in Kap. 3 (Spieluhr unter ihrer Stimme) und Kap. 4 (Summen) nur angedeutet, gesagt erst in Kap. 5 (W-2). Dass die LWO Lucy als Köder benutzt hat, erfährt Luke in Kap. 4 aus Blatt 212 (W-5). Der volle Name „Lucid World Organization“ fällt in Kap. 4 am Messingschild und durch Wolter (V-4). „Nicht du“ beantwortet Hilde in Kap. 3, Raum 2 (V-5). Dass „das Stück von Papa“ Luke ist, sagt der echte Luke am Ende von Kap. 6 (W-3); vorher bleibt es offen. Marion ist drinnen an der Kette, nie im Stall (V-6). Die Fibel-Seite „Fragen“ beantwortet eine Frage immer erst im Kapitel nach ihrer Auflösung (V-7).
 8. **Whiskey wach = kein Satz** (nur Geräusche, Nachahmungen, „Kum!“, „Such!“, einmal „Luna.“); Sätze nur im Prolog-Traum, im zweiten Traum (Abspann Kap. 4) und im letzten Traum zu Beginn von Kap. 7. Nie unter der Erde.
 9. **Beobachter:** Kap. 1 nie sichtbar, Kap. 2 einmal (Fast-Sichtung), ab Kap. 3 durchgehend, nie länger als 1 s im Bild, spricht nie, Signatur immer ∴ (Ein-Punkt erst Kap. 7).
 10. **Neue Figurenmodelle:** Wolter, Nachsorge 11, Nachsorge 12, Blechmann (Pflicht); dazu Gisela, Günther, Katze für die Nebenaufgaben. Alles andere aus vorhandenen Rigs, Materialien, Requisiten.
@@ -11771,7 +11812,7 @@ Je Paket: Ziel · Module · neue Module · Speicherschlüssel · Abnahme. Kapite
 - **Unterkapitel:** 1 „Wildschaden“ · `gruen.js`, `lwo.js` · AG-18 (+10 / −10 / 0), Seitenschneider −3, „HEINI“, Whiskey „Such!“ · 2 „Ein Reh geht nicht rückwärts“ · `hungrige.js` Stufen reh, kraehe, fuchs · 3 „Der Wald hat kein Echo“ · erste Stille-Zone, Anni · 4 „Hinten, wo der Wald aufhört“ · `tiefwald.js` Hochsitz: SB-11, Durchschlag 9, Seite 2, B-K6-05; V-11 (Variante A) · 5 „Sieben Kindersitze“ · AG-19, Rätsel „Wo vorne war“, Busdach still, B-K6-06, SP6-4 · 6 „Ich hab Hunger, Junge“ · AG-20, Fraßstelle, Seite 1, Fibel „Wendigo“ · 7 „Sie kommt noch“ · Wrack (Marions Auto 2011, Polaroid „— H.“), Beobachter-Flucht · 8 „Der linke atmet nicht“ · Bau, Lampe stirbt, Feuerzeug-Gravur, zwei Raben, „Welcher ist Whiskey?“, drei Stöße, Blitz · 9 „Die ist warm“ · Hochsitz, Augen zu, SB-12 vorgelesen, „Luna.“.
 - **Module:** neu `kapitel6.js` (Stille-Zonen: `HUNGRIGE.spuren` r 25, `.bau` r 30, `HUNGRIGE_NACKT.reh/.wolf` r 15, Zone hinter dem Zaun; Klangbett aus, Wind 20 %, Hall 0, Whiskey/Beobachter stumm, 3 s Übergang), `hungrige.js` (`HUNGRIGE_SEITEN` 2 → 6, `hungrige_desc` neu, Finale nach 84 §1.11, `questPop('KAPITEL 6'` raus, Lore „Zwei Raben“, Sprecher `ANNI?`/`PELL?`/`DEINE STIMME?`, Hofer im Bergungsanzug, Rückfall `polizist`), `tiefwald.js` (`TIEF.bus` Falle: Blechmann viermal, Netze an Seilen, Stolperdraht; `TIEF.stand/ring/jetty/wreck/camp`; Spind; Fahrtenbuch-Zeile), `wald.js`, `whiskey.js`, `beobachter.js` (B-K6-01 bis 07, B-O13 bis 19), `lwo.js` (AG-18 bis 21, V-11/12/16; Scheinwerfer beim Laden Intensität 0), `spannung.js`, `innen_kapitel.js` (Gitter), `gruen.js` (Bauzaun), `figuren.js` (`luke_echt` `idle`), `kino.js`.
 - **Speicherschlüssel:** `kapitel6` (Falle-Weg, Sender-Variante, Epilog), `lwo.auftrag2`, `hungrige`.
-- **Ende:** Abspann „Gleich wieder da“ (80 s; AG-21 je Stufe, B-K6-07 mit Wahl-Zeile, Wolter „Es hat nie gegen das Licht gewirkt“, Hänschen bei Vegas), Endkarte „… Am Samstag kommt Jonas. / FORTSETZUNG FOLGT“, Knopf „ZUM TITEL“.
+- **Ende:** Abspann „Gleich wieder da“ (80 s; AG-21 je Stufe, B-K6-07 mit Wahl-Zeile, Wolter „Es hat nie gegen das Licht gewirkt“, Hänschen bei Vegas), Endkarte „… Einer fehlt noch. Du. / Am Samstag kommt Jonas. / FORTSETZUNG FOLGT“, Knopf „ZUM TITEL“.
 - **Abnahme:** Checkliste Kap. 6; Dorf gesperrt; kein 03:13-Ereignis; zweiter Rabe mit Ring rechts, Feder rechts, schwarzen Augen, ohne Atem.
 
 #### AP-24 · Kapitel 6 · Nebenaufgaben und Fibel-Faden
@@ -12042,4 +12083,4 @@ Testlauf nach REGELN.md. **Jedes Kapitel:** (a) ≥ 60 FPS überall, auch mit 17
 
 **Kapitel 5:** 1. Kamera (C) ab SP5-2, Film 3 + Nachschub, Album. 2. Nr. 1 ohne Laken; essen = `tisch`. 3. Schleife drei Runden, Rücksetzen unbemerkt; Runde 3 Atem; Polaroid mit grauem Gesicht; Kater vor der Flurtür. 4. Kichern aus allen Laternen, kein „Das ist MEINS!“. 5. Lucy ganz; Spieluhr zurück; Anruf ohne Spieluhr. 6. Stall: Q nützlich; W-12 mit SB-10; kalte Hand; Junge nicht angesehen. 7. Friedhof: AG-16 (Kühnle, BfR i. A.), AG-17, Grete (Zöpfe), Voss (Talar), Kerze mit Peters Feuerzeug, Heidis Karten mit „ja“. 8. AG-15 „Wir sind gar nicht da.“ 9. Beobachter-Foto nur an der Kreuzung. 10. UK 14 heißt „Nicht mal von meinem Namen“; Abspann 40 s; Postfahne unten; Knopf Kapitel 6. 11. Sechs Nebenaufgaben; „Der gelbe Kasten“ −15 / +5 / 0; Einbruch nur nach Weg c. 12. Einlösungen Riemen/Riegel/Schnalle nach `ch3.answer`. 13. Hänschen geht mit Lucy zu Vegas. 14. 23:00 elf Schläge.
 
-**Kapitel 6:** 1. Nur nach Kap. 5; Start Gitter, Dorf gesperrt; 02:10, kein 03:13. 2. AG-18 Werte; Sender A/B/C steuert V-11 und Sabotage; „HEINI“ optional. 3. Stufen 1–3 in `wald_in`, 4–9 in `tief_in`; Krähe ohne Ring; Fuchs startet „Der Hungrige“. 4. Stille-Zonen: Klangbett aus, Wind 20 %, Hall 0, Whiskey/Beobachter stumm, 3 s. 5. Hochsitz: SB-11, Durchschlag 9, Seite 2, B-K6-05. 6. AG-19 drei Wege; Whiskey still auf dem Busdach; Lampe fällt; Sabotage → zwei Tote, Marke „3-4“. 7. AG-20 ohne Gesicht; Seite 1; Fibel „Wendigo“. 8. Wrack = Marions Auto, „— H.“, Flucht < 1 s, 45 s Stille. 9. Bau: Lampe stirbt, Gravur, zweiter Rabe links mit Ring rechts, 180°, Hirschding, drei Stöße, Blitz mit Beobachter, „Kalt. Kerzengerade. Wie Mamas Kerze.“; kein `questPop('KAPITEL 6'`. 10. Nach W-13 kein Tausch, nur „Bedauerlich.“. 11. Epilog: Augen zu, SB-12 in der Variante der Antwort, „Luna.“. 12. Abspann 80 s: AG-21 je Stufe, B-K6-07, Wolter-Satz, Hänschen. 13. Acht Nebenaufgaben mit neuen Titeln; Pells Heft neun Seiten; Anni einmal je Ort. 14. Endkarte „… Am Samstag kommt Jonas. / FORTSETZUNG FOLGT“, Knopf „ZUM TITEL“; Kapitel 7 gesperrt.
+**Kapitel 6:** 1. Nur nach Kap. 5; Start Gitter, Dorf gesperrt; 02:10, kein 03:13. 2. AG-18 Werte; Sender A/B/C steuert V-11 und Sabotage; „HEINI“ optional. 3. Stufen 1–3 in `wald_in`, 4–9 in `tief_in`; Krähe ohne Ring; Fuchs startet „Der Hungrige“. 4. Stille-Zonen: Klangbett aus, Wind 20 %, Hall 0, Whiskey/Beobachter stumm, 3 s. 5. Hochsitz: SB-11, Durchschlag 9, Seite 2, B-K6-05. 6. AG-19 drei Wege; Whiskey still auf dem Busdach; Lampe fällt; Sabotage → zwei Tote, Marke „3-4“. 7. AG-20 ohne Gesicht; Seite 1; Fibel „Wendigo“. 8. Wrack = Marions Auto, „— H.“, Flucht < 1 s, 45 s Stille. 9. Bau: Lampe stirbt, Gravur, zweiter Rabe links mit Ring rechts, 180°, Hirschding, drei Stöße, Blitz mit Beobachter, „Kalt. Kerzengerade. Wie Mamas Kerze.“; kein `questPop('KAPITEL 6'`. 10. Nach W-13 kein Tausch, nur „Bedauerlich.“. 11. Epilog: Augen zu, SB-12 in der Variante der Antwort, „Luna.“. 12. Abspann 80 s: AG-21 je Stufe, B-K6-07, Wolter-Satz, Hänschen. 13. Acht Nebenaufgaben mit neuen Titeln; Pells Heft neun Seiten; Anni einmal je Ort. 14. Endkarte „… Einer fehlt noch. Du. / Am Samstag kommt Jonas. / FORTSETZUNG FOLGT“, Knopf „ZUM TITEL“; Kapitel 7 gesperrt.

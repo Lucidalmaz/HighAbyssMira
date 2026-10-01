@@ -72,6 +72,6 @@ Stand 01.10.2026. Alles in `app/mods/fassaden.js`. Basis und andere Module sind 
 ## Offen / Bitten
 
 - **Hauptagent:** Kosten der Sonde im Gesamtlauf messen. Sie zeichnet alle ~50 s bzw. 18 m sechs Bilder lang je eine Würfelseite. Falls zu teuer: `fassaden_probeAt` seltener aufrufen oder die Weite (`CubeCamera` far 80) kürzen.
-- **R-6 (Innenräume):** Im Kinderzimmer Nr. 1 gibt es außen das Nachtlicht (blau), innen keine Nachtlicht-Quelle. Bitte ein Nachtlicht (Scan) an die Seitenwand-Steckdose unter dem neuen Fenster (x −55,8, z −18,5) stellen, oder Bescheid geben, dann nehme ich das Nachtlicht außen heraus.
+- **Erledigt (Entscheidung Hauptagent):** Nachtlicht im Kinderzimmer Nr. 1 unter dem neuen Fenster: Fab-Scan `ms/floorlamp` (wie die Schreibtischlampe in Zimmer 7, auf 0,34 m), Schirm kaltblau leuchtend, Schein nur über LICHT_HAKEN (+0,05 Hemisphäre im Kinderzimmer), kein neues Licht. Im Gesamttest: steht auf dem Boden, schneidet nichts.
 - Kein Treppenhaus-Motiv: Im Katalog gibt es keinen Treppen-Scan. Statt Treppenhaus zeigt das Motiv einen Flur.
 - Die Hintertür-Klickfläche von Nr. 9 (`post.js`) liegt jetzt genau auf der neuen Tür. Dort ist nichts zu ändern.
