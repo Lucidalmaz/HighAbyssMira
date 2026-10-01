@@ -636,6 +636,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+// Figuren: Die Hüllkugel einer SkinnedMesh wird einmal in der Pose beim ersten Sichttest berechnet. Bewegt die Animation Glieder weiter weg
+// (Mocap, Sitzen, Strecken, Kopf weit gedreht), fielen Körperteile aus dem Sichttest und verschwanden. Darum großzügig aufweiten (Skelett-Reichweite).
+{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere; THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { cbs.call(this); if (this.boundingSphere) this.boundingSphere.radius = this.boundingSphere.radius * 1.6 + 1.2; }; }
 
 const PI = Math.PI;
 const rand = (a, b) => a + Math.random() * (b - a);
