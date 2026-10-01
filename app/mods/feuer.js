@@ -715,7 +715,7 @@ async function pz_laden() {
     const old = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (old && old.zm) old.zm.visible = false;
     PZ.ue = pz_ueMap(P); if (typeof innen_kapitel_S !== 'undefined') innen_kapitel_S.zombie = { zm: P.obj, mx: P.mx, b: PZ.ue, eigen: true, peter: P };
     await pz_haut(P.obj); feuer_S.zmats = null; pz_mimik(); figuren_play(P, 'idle', true);
-    if (window.__feuer) window.__feuer.peter = PZ;
+    { const fe = window.__feuer; if (fe) fe.peter = PZ; } // Testzugriff (in der Veröffentlichung fehlt __feuer)
   } catch (e) { console.warn('Peter laden', e); }
 }
 // Knochennamen wie beim alten Modell (tod.js, Brand-Partikel, kino.js lesen sie) → echte Knochen der Figur

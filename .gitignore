@@ -25,3 +25,7 @@ game/assets/**/*.ktx2
 game/assets/**/*.ktx.glb
 game/assets/ktx2.json
 game/index.release.html
+
+# R-25: Testseiten anderer Läufe (index_perf, index_x5 …) und Unreal-Protokolle nie einchecken
+game/index_*.html
+unreal/Scripts/*_log.txt

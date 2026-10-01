@@ -45,6 +45,7 @@ function figuren_ghostMat(src) {
       vec3 col = (vec3(.42, .58, .9) * (.03 + .95 * fr) + vec3(.7, .8, .95) * lum * .3) * band * film * .5;
       if (edge < .03) discard;
       gl_FragColor = vec4(col * edge * uGhost, 1.);`); };
+  m.forceSinglePass = true; // additiv ohne Tiefe: ein Durchgang sieht gleich aus. Sonst schaltet three.js bei beidseitigen Teilen (Haare, Kleidung) jedes Bild zweimal die Seite um (needsUpdate → Programmsuche/-übersetzung, Ruckler beim Auftritt der Nachbilder)
   m.customProgramCacheKey = () => 'figuren_ghost2'; figuren_S.ghost.set(src, m); return m;
 }
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
@@ -444,7 +445,9 @@ function figuren_q6Mat(root) { root.traverse(o => { if (!o.isMesh) return; for (
   try { if (/std_skin_head/i.test(n)) figuren_hautMat(m, 1); else if (/std_skin_(body|arm|leg)/i.test(n)) figuren_hautMat(m, 0);
     else if (/std_cornea/i.test(n)) figuren_corneaMat(m, false); else if (/std_tearline/i.test(n)) figuren_corneaMat(m, true);
     else if (/std_eye_[lr]$/i.test(n)) { m.roughness = .34; m.envMapIntensity = .5; }
-    else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m); } catch (e) { console.warn('figuren Material', n, e); } } }); }
+    else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m);
+    // Durchsichtig + beidseitig in einem Durchgang (wie die Basis für alles beim Laden): sonst schaltet three.js in jedem Bild zweimal die Seite um (needsUpdate → Programmsuche, Ruckler beim Auftritt)
+    if (m.transparent && m.side === THREE.DoubleSide) m.forceSinglePass = true; } catch (e) { console.warn('figuren Material', n, e); } } }); }
 function figuren_hautMat(m, face) { m.onBeforeCompile = sh => {
   sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
   #ifdef USE_MAP

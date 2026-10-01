@@ -639,7 +639,7 @@ async function fassaden_build() {
     S.brass = brass; S.spione = {};
     const rc = new THREE.Raycaster(), hitDoor = (hd, y) => { const o = hd.o, d = o.d ?? 9, dx = hd.lookFront.doorX; hd.g.updateMatrixWorld(true);
       const from = hd.g.localToWorld(new V3(dx, y, d / 2 + 1)), dir = hd.g.localToWorld(new V3(dx, y, d / 2 - 1)).sub(from).normalize();
-      rc.set(from, dir); rc.far = 2.2; const h = rc.intersectObject(hd.doorMesh, false)[0]; return h ? hd.g.worldToLocal(h.point.clone()) : null; };
+      rc.set(from, dir); rc.far = 2.2; const dm = hd.doorMesh, side0 = dm.material.side, bt = dm.geometry.boundsTree; dm.material.side = THREE.DoubleSide; dm.geometry.boundsTree = null; /* Schlusstest: mit BVH/einseitig traf der Strahl keine Tür (0 Spione) – hier genau und zweiseitig */ const h = rc.intersectObject(dm, false)[0]; dm.material.side = side0; dm.geometry.boundsTree = bt; return h ? hd.g.worldToLocal(h.point.clone()) : null; };
     for (const hd of S.houses) { if (!hd.doorMesh) continue;
       const lp = hitDoor(hd, .45 + 1.5); if (!lp) { S.log.push('Türspion: keine Türfläche an ' + (hd.n || hd.o.x)); continue; }
       const sp = fassaden_spionBau(hd.g, lp.x, lp.y, lp.z + .001, 0, brass, (hd.lit ? .35 : 0) * (hd.o.lit && hd.o.lit.length ? 1 : 0)); sp.hd = hd; hd.detail.push(sp.g);

@@ -330,7 +330,7 @@ function klang_betten() {
   const S = klang_S, A = Audio; if (!A.ctx || !A.hushG) return; const t = A.ctx.currentTime, ort = klang_bettOrt(), want = {};
   if (ort) for (const [n, v] of KL_ORT_BETT[ort]) { want[n] = v; if (!S.beds[n]) S.beds[n] = { h: null, v: 0, idle: 0 }; }
   if (!S.bedBus) { S.bedBus = A.ctx.createGain(); S.bedBus.connect(A.hushG); }
-  for (const n in S.beds) { const B = S.beds[n], v = (want[n] || 0) * klang_windMul(n);
+  for (const n in S.beds) { const B = S.beds[n], v = (want[n] || 0) * klang_windMul(n) * (typeof regen_bett === 'function' ? regen_bett(n) : 1); // R-24: Regen-Schichten spielt regen.js (je Oberfläche, mit Richtung)
     if (v && !B.h) { const b = A.buf[n]; if (!b) { klang_load(n); continue; } B.h = A.play(n, { loop: true, gain: 0, dest: S.bedBus, offset: rand(0, b.duration * .9) }); B.v = 0; if (!B.h) continue; }
     if (!B.h) continue;
     if (Math.abs(v - B.v) > .001) { B.v = v; B.h.g.gain.setTargetAtTime(v, t, v > 0 ? 1.6 : 1.1); }

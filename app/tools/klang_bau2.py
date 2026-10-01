@@ -26,6 +26,9 @@ def betten():
     bed('amb_kanal', 'kanal', 0, None, chain(HP(35), HSH(7000, -3)), xf=2)
     bed('amb_wassertunnel', 'wassertunnel', 0, None, chain(HP(35), HSH(7000, -3)), xf=2)
     bed('amb_ufo', 'ufo', 0, 55, chain(HP(28), LP(5000, 1)), xf=4)
+def regen():  # R-24 (Modul regen.js): Regenschichten je Oberfläche um den Hörer – python klang_bau2.py regen
+    bed('amb_regen_tropf', 'regen_ecr6', 0, None, chain(HP(320), HSH(9000, -2)), xf=2.5)  # tropfende Stadt: Pfützen, Blech, Fensterbänke (Klimabrummen/Grollen weggefiltert)
+    bed('amb_regen_veranda', 'regen_veranda', 0, 66, chain(HP(60), HSH(8000, -3)))  # Regen auf dem Dach über dir (Wartehäuschen, Vordach, Veranda) – ungefiltert, anders als amb_regen_innen
 def shots(prefix, key, n, thr=-30, maxl=2.0, fl=None, pk=-6, minl=.08, post=.25):
     x = src(key)
     if fl: x = ffilt(x, fl)

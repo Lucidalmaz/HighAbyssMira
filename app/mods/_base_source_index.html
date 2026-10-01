@@ -402,7 +402,7 @@
   @media (max-width: 900px) { #subPanel .chap:has(#c1) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 620px) { #subPanel .chap:has(#c1) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   /* Einstellungen und Steuerung: eine Seite aus dem Notizheft (Kalibrierung bleibt schwarz – sie muss stimmen) */
-  #subPanel:has(#sSens), #subPanel:has(.keys) { color: #1e2537; border: 0; padding: 34px 46px 28px 84px; transform: rotate(-.5deg);
+  #subPanel:has(#sSens), #subPanel:has(.keys) { color: #1e2537; border: 0; padding: 34px 46px 28px 84px; transform: translate(-50%, -50%) rotate(-.5deg);
     background: linear-gradient(90deg, transparent 62px, rgba(186,58,48,.5) 62px 63.5px, transparent 64px), radial-gradient(110% 90% at 28% 16%, #f1ebd8, #e0d7bd 68%, #cfc4a5);
     box-shadow: 0 34px 90px rgba(0,0,0,.88), 0 2px 4px rgba(0,0,0,.6), inset 0 0 70px rgba(110,80,30,.22); }
   #subPanel:has(#sSens)::before, #subPanel:has(.keys)::before { inset: 0 auto 0 0; width: 40px; opacity: 1; background: radial-gradient(circle at 20px 50%, #0b0907 0 6px, rgba(0,0,0,.25) 7px, transparent 8.5px) 0 14px / 40px 42px repeat-y; }
@@ -792,10 +792,14 @@ try { const j = await (await fetch('assets/ktx2.json')).json(); j.images.forEach
 if (KTX.img.size || KTX.mdl.size) {
   KTX.loader = new KTX2Loader().setTranscoderPath('vendor/three/examples/jsm/libs/basis/').setWorkerLimit(Math.max(2, (navigator.hardwareConcurrency || 4) - 2)).detectSupport(renderer);
   // Modelle: komprimierte Fassung (<datei>.ktx.glb) laden, KTX2-Lader mitgeben
+  // R-25: tools/ktx.mjs kennzeichnet ALLE Modell-Texturen als sRGB – Normal-, Rauheits-, Metall- und AO-Karten würden sonst von der Grafikkarte „entgammat“
+  // (zu glänzend, verbogene Normalen). Datenkarten der KTX-Modelle deshalb linear lesen, wie im Original (Farbe/Leuchten bleiben sRGB).
+  const KTX_LIN = ['normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'alphaMap', 'bumpMap', 'displacementMap', 'clearcoatMap', 'clearcoatNormalMap', 'clearcoatRoughnessMap', 'transmissionMap', 'thicknessMap', 'specularIntensityMap', 'sheenRoughnessMap', 'iridescenceMap', 'iridescenceThicknessMap', 'anisotropyMap'];
+  const ktxLinear = g => { try { const seen = new Set(); g.scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) { if (seen.has(m)) continue; seen.add(m); for (const k of KTX_LIN) { const t = m[k]; if (t && t.isCompressedTexture && t.colorSpace !== THREE.NoColorSpace) t.colorSpace = THREE.NoColorSpace; } } }); } catch (e) {} };
   const gl0 = GLTFLoader.prototype.load;
   GLTFLoader.prototype.load = function (url, onLoad, onProgress, onError) {
     if (!this.ktx2Loader) this.setKTX2Loader(KTX.loader);
-    if (KTX.mdl.has(ktxKey((this.path || '') + url))) url += '.ktx.glb';
+    if (KTX.mdl.has(ktxKey((this.path || '') + url))) { url += '.ktx.glb'; const ok = onLoad; onLoad = g => { ktxLinear(g); if (ok) ok(g); }; }
     return gl0.call(this, url, onLoad, onProgress, onError);
   };
   // Bilder: sofort ein Textur-Objekt zurückgeben (wie gewohnt) und es füllen, sobald die komprimierte Fassung da ist.
@@ -4681,6 +4685,7 @@ function fabFigsUpdate(dt) {
   for (const F of FAB.figs) {
     if (!F.g.visible || !F.g.parent || Math.abs(F.g.position.x - P.x) > 60 || Math.abs(F.g.position.z - P.z) > 60) continue;
     const mv = F.g.position.distanceTo(F.last) / Math.max(dt, 1e-3); F.last.copy(F.g.position);
+    if (F.g.userData.person) continue; // R-25: Figur trägt ihr echtes Modell (figuren.js), die Puppe darunter ist versteckt – ihre Animation nicht weiterrechnen
     const want = mv > .6 && F.walk ? F.walk : F.idle; if (want !== F.cur) { want.reset().fadeIn(.25).play(); F.cur.fadeOut(.25); F.cur = want; }
     if (F.walk) F.walk.timeScale = Math.min(2.2, Math.max(.6, mv / 1.4));
     F.mx.update(dt);
@@ -5880,8 +5885,8 @@ function update(dt, t) {
   booth.light.intensity = booth.light.userData.dead ? 0 : (flickDip(booth.light.userData, 1.2, dt) ? .2 : 2);
   // --- Fernseher (Rauschbild 20× je Sekunde, unabhängig von der Bildrate)
   tvFrame += dt;
-  if (!tvLight.userData.dead && tvFrame >= .05) { tvFrame = Math.min(tvFrame - .05, .05);
-    const img = tvCtx.createImageData(96, 72); for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  if (!tvLight.userData.dead && tvFrame >= .05 && (tvFrame = Math.min(tvFrame - .05, .05), camera.position.distanceToSquared(tvScreen.position) < 625)) { // R-25: Rauschbild nur rechnen, wenn das Gerät in Sichtweite ist (25 m)
+    const img = tvCtx.__img || (tvCtx.__img = tvCtx.createImageData(96, 72)); for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
     tvCtx.putImageData(img, 0, 0);
     const dTV = camera.position.distanceTo(tvScreen.position);
     if (state.tvCircle > 0) { tvCtx.strokeStyle = 'rgba(0,0,0,.85)'; tvCtx.lineWidth = 4; tvCtx.beginPath(); tvCtx.arc(48, 36, 22 + Math.random() * 2, 0, 7); tvCtx.stroke(); }

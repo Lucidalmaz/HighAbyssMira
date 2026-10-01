@@ -12,7 +12,7 @@
 //   vom Boden nur Furchen, vom Hochsitz lesbar. Wer sie gezogen hat, bleibt offen.
 // GTA-V-Prinzip: Wandbild „Unser Dorf“ (Klasse 3b, 1976) an der Mauer neben der Haltestelle Kirchberg; sechs versteckte Zeichen weisen auf echte Verstecke
 //   (ZEICHEN_WAND_HINWEISE), ohne Lösung im Text. Ein Versteck ist neu (x7_tor, über TAUSCH_FUNDE), die anderen gibt es schon.
-// Spielstand 'zeichen' = { neu: [ids] }. Testzugriff: window.__zeichen.
+// Spielstand 'zeichen' = { neu: [ids] }. Testzugriff: __zeichen (am window).
 const ZEICHEN_ORTE = { // Bau beim ersten Annähern (Mitte, Radius); k = ab Kapitel; kanal = in der Kanalstadt
   ort: { x: 10, z: -4, r: 105 }, kirchberg: { x: -20, z: 68, r: 72 }, gaerten: { x: -115, z: 25, r: 46 }, hof: { x: -128, z: -24, r: 44 },
   villa: { x: -108, z: 60, r: 36 }, tunnel: { x: 609, z: -2600, r: 34 }, kanal: { kanal: true }, wald: { x: 18, z: 126, r: 70, k: 6 }, tief: { x: 18, z: 180, r: 50, k: 6 } };
