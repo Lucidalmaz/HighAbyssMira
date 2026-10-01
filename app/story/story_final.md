@@ -5061,6 +5061,18 @@ Whiskey auf dem Zellendach äfft das Klingeln nach, nachdem es aufgehört hat. L
 
 Aufgabe: **„Brot. Der Stall am Hof. Guck ihn nicht an.“** Das Brot: der Kanten von Papas Platz in Nr. 1 (jetzt dunkel, Tisch abgeräumt bis auf Milchzahn und Brot). Wer es schon hat, geht direkt. **Vertrauen miserabel (V-09, Wortlaut LWO-Dossier):** Neben dem Brot ein runder Ring von einem Thermosbecher, noch warm, und ein gefaltetes Butterbrotpapier: „Wir haben nichts angefasst. Nur geschaut. Sie haben keine Milch.“ Im Kühlschrank ist keine Milch. LUKE: „Hatte ich Milch? Ich hatte Milch.“
 
+**„Einunddreißig Flaschen“ (Story-Prüfung T-2; optional, ab hier bis zum Kapitelende, Tür von Nr. 3, einmal):** Die Kette bleibt vor. Vegas hat eine leere Bierflasche in der Hand und hält sie, als wäre sie noch warm.
+- VEGAS: „Die hatte Mike in der Hand. Er hat für mich Pfand gesammelt. Zweiunddreißig passen in die Kiste hinten an der Tankstelle.“
+- VEGAS: „Da stehen einunddreißig. Eine fehlt. Die hier lag morgens auf dem Hof.“
+- VEGAS: „Ich hab für ihn unterschrieben.“
+- VEGAS: „Deine Mutter hat zweimal angesetzt. Ich hab’s in einem Zug geschafft. Das verzeih ich mir nicht.“
+
+Auswahl:
+- [a] LUKE: „Er sitzt auf dem dritten Stuhl. In der Tankstellenjacke.“ → VEGAS (lange nichts): „Die hab ich ihm gekauft. Zwei Nummern zu groß. Er sollte reinwachsen.“ Tür zu, die Kette bleibt.
+- [b] LUKE: „Das konnten Sie nicht wissen.“ → VEGAS: „Ich hab Ordner, Junge. Ich hab alles gewusst. Ich hab bloß gedacht, die nehmen die anderen.“ Tür zu.
+
+Lore „Einunddreißig Flaschen“. Traurige Szene (`spannung_trauerAn/Aus`): kein Witz danach, kein Beobachter-Zettel, kein Vogel-Gag; der nächste Speck-Gag kommt frühestens in Kapitel 7. Umsetzung: `neben5.js`, `n5_flaschen()` (vor Heidis Karte an derselben Tür). Damit hat Vegas’ traurigstes Geheimnis (Kern §10.1) endlich eine Szene, in der er es Luke selbst sagt.
+
 #### 10 · „Augen zu“
 
 Weg nach Westen. Hinter Luke gehen die Laternen des Westwegs eine nach der anderen aus (sie folgt, jagt nicht). Die Katze bleibt bei jeder stehen und sieht zurück. Am Hof brennt im Bauernhaus ein Fenster: **Frau Aydın** („Ist sie’s?“ startbar). Auf dem **Stalldach sitzt Whiskey** (W-12), schwarz gegen den Nebel, wie ein Wachposten, der schon lange Dienst hat. Er pfeift die ersten Töne der Spieluhr, E D C H C, und bricht ab. Als Luke zwischen Remise und Stall zögert, ruft er: **„Kum!“** und hüpft über den First zur Stalltür.

@@ -43,7 +43,31 @@ Stand 01.10.2026. Alles in `app/mods/fassaden.js`. Basis und andere Module sind 
 
 ## Prüfung
 
-Syntax geprüft (assemble). Bildlauf `C:/Users/GIGABYTE/_fenster/` (`mk.py` → `steps.json`, `run.sh`, Seite `app/game/index_fenster.html`): 14 Fassaden bei Nacht, 5 bei Tag, 5 Blicke durchs Fenster in begehbare Häuser, Spion Nr. 4 (Ruhe/Auge), Spion Nr. 2, Briefschlitz, Klingelschild, Hintertür Nr. 9, Spion innen Nr. 4. Ergebnis siehe unten.
+- **Geprüft:** Syntax und Bau (`node tools/assemble.js` → `game/index.html`, fassaden.js ohne Fehler eingebaut).
+- **Nicht geprüft:** Der Bildlauf ist nicht gelaufen (Testschlange voll, Abbruch auf Anweisung).
+- Der fertige Lauf liegt bereit unter `C:/Users/GIGABYTE/_fenster/`:
+  - Schritte: `mk.py` → `steps.json`.
+  - Start: `run.sh`, vorher `node tools/assemble.js game/index_fenster.html`.
+  - Positionen und Blickrichtungen stehen in `mk.py`.
+
+**Im Gesamttest bitte prüfen:**
+1. **Laden:** Die Konsole hat keine Shader-Fehler (`fa_room`, `fa_glass`). Im Log `[Fassaden]` steht `Türspione: …`, `Villa: … Fenster mit Zimmer` und `Klingelschild Aydın`. Es gibt keine Zeile „Möbel-Karten FEHLEN“.
+2. **Nacht, von der Straße** (Nr. 3, 9, 2, 4, 6, 8, 7, 1, Gisela, Pfarrhaus, Praxis, Bauernhaus, Villa, Kiosk):
+   - Hinter keinem Fenster ist ein leeres Zimmer, eine schwarze oder eine weiße Fläche. Man sieht Möbel-Silhouetten, Vorhang, Jalousie oder Laden.
+   - Im flachen Winkel spiegeln sich Laternen und Nebel. Bei Taschenlampe glänzen Staub und Tropfen.
+3. **Tag (Kap. 4):** Die Zimmer sind grau-hell lesbar, nicht schwarz.
+4. **Durchs Fenster, nah:**
+   - Nr. 7 Wohnzimmer: Hilde-Silhouette, warmes Licht, Sofa vor dem Fernseher.
+   - Nr. 7 Küche: kaltes Röhrenlicht; geht nach dem Schreck in der Küche mit aus.
+   - Nr. 1 Kinderzimmer, Seitenwand: Gitterbett, blaues Nachtlicht, „Hineinsehen“-Text.
+   - Gisela Küche: Buffet, Tisch.
+5. **Nr. 1 innen, Kinderzimmer:** Das neue Fenster in der Westwand (z ≈ −18,5) sitzt bündig an der Wand und hat eine Gardine. Es schneidet keine Möbel.
+6. **Türspion:**
+   - An Nr. 2/4/6/8/9 klopfen, bis „Am Türspion bewegt sich etwas.“ kommt: Die Linse wird hell, dann dunkel (Auge) und blinzelt kurz.
+   - Der Spion sitzt auf der Türfläche, nicht in der Luft und nicht im Holz. Das gilt auch für Türen mit Glas (Tür-Scan 1, Nr. 9/13).
+   - Nr. 4 innen: Der Spion sitzt in der Haustür neben Zettel E-14.
+7. **Details:** Briefschlitz an Nr. 3 (Höhe ≈ 1,4 m), Klingelschild Bauernhaus (rechts neben der Tür), Hintertür mit Scheibe an Nr. 9 hinten. Das Fenster dort ist weg, die Klickfläche „Hintertür (Scheibe)“ passt.
+8. **Leistung:** Die Sonde hängt nicht spürbar (sechs Bilder alle ~50 s / 18 m).
 
 ## Offen / Bitten
 

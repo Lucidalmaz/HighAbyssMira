@@ -85,7 +85,7 @@ Rund 600 Stellen sind (a); davon waren die meisten schon verortet. Korrigiert:
 
 ## Kurz geprüft
 - Geprüft wurden nur Syntax und Bau: alle Module bestehen die Syntaxprüfung, `node tools/assemble.js` baut fehlerfrei (78 Teile, `raumklang.js` nach `klang.js`).
-- **Hörtest: vorbereitet, aber nicht gelaufen.** `_testgate.sh` war zum Zeitpunkt der Abgabe dicht: rund 20 Tests in der Warteschlange, ~330 MB RAM frei. Der Lauf steht in der Warteschlange.
+- **Hörtest: vorbereitet, aber nicht gelaufen.** `_testgate.sh` war zum Zeitpunkt der Abgabe dicht: rund 20 Tests in der Warteschlange, ~330 MB RAM frei. Der Lauf kam später durch die Warteschlange, die Test-App endete aber ohne jede Ausgabe (kein `result.json`, keine WAV-Datei). Vermutlich ist sie bei dem Speichermangel abgestürzt; geprüft habe ich das nicht. Unter Last nicht wiederholt, bitte im Schluss-Test mitlaufen lassen.
   - Die Steps liegen im Scratchpad dieser Sitzung unter `rk/`: `mk.py` → `steps.json`, `run.sh`, `ana.py`.
   - Fünf Proben, aufgenommen als PCM-Stereo-WAV am Master (vor Kompressor; Betten/Musik stumm), jedes Ereignis mit Abstand, Winkel und `__raumklang.probe` (Verdeckung, Tiefpass, gebeugt ja/nein):
     1. Telefonzelle aus 40 m heran, dann einmal im Kreis (r 4 m) bei festem Blick
