@@ -458,6 +458,27 @@ Alle drei münden in **„Noch eine Runde“**: Justin geht in Rüstung hinein, 
 
 **Umsetzbarkeit:** Alle Orte, Figurenmodelle und Module der alten Bibel existieren schon oder sind in Arbeit. Neues nur, wenn es die Geschichte trägt. Neue Figurenmodelle, die gebraucht werden: **Heinrich Wolter**, **Nachsorge 11 (lang)**, **Nachsorge 12 (kurz)**, **Blechmann**, **Gisela Rieke**, **Günther Maas**, dazu Katzen (Tiermodell) und Pfarrer Voss als Behaltener (vorhandene Behaltenen-Modelle, erwachsen). Alles andere ist vorhanden oder als Decal/Notiz umsetzbar. Technische Regeln der alten Bibel (keine Lichter zur Laufzeit hinzufügen, ≥ 60 FPS, nur echte Assets) gelten weiter.
 
+**Wiederholungs- und Gag-Budget (Story-Prüfung Teil B, 01.10.2026, verbindlich; Begründung `audit/story_pruefung.md` H-1, R-1, G-1, G-2):**
+
+| Motiv | höchstens | wo (sonst nirgends) |
+|---|---|---|
+| Whiskeys „Himmelherrgott!“ (Vegas’ Stimme) | 3 | K1-4 an der Haustür (Taufe des Gags) · W-09 Villa-Schrank (Rettung) · Kap. 7 Schlusspointe |
+| Mikrowellen-Pling | 3 | Nr. 4 (Kap. 1) · Abspann Kap. 3 · Kellertreppe Kap. 4 |
+| Gartentor-Verhaken | 2 | Nr. 9 (Kap. 1) · Abgang S-04 (Kap. 4) |
+| Whiskey äfft „Scheiße“ | 2 | Gully Kap. 2 (K2-2) · Kreuzung/Kuh Kap. 3 (K3-0) |
+| „Super. Ganz toll.“ | 1 | Kap. 1 Stromausfall |
+| „LUKE (ein Satz)“ | ≤ 12 | nur nach Wendungen; sonst Schweigen, Handlung oder schlicht „LUKE:“ |
+| Speck | steigern statt wiederholen | Kap. 1 Nudelsieb · Kap. 4 Backofenknopf · Kap. 5 der ganze Wochenspeck · Kap. 7 „Zoll.“ |
+| „Bewegt sich, wenn du wegsiehst“ | 4 | Bärli (lernen) · Graukind (benutzen) · Blinzeln (umdrehen) · Bus-Köpfe. Modelldorf umgedreht (bewegt sich nur beim Hinsehen, G-1), Friedhof nur im Blitz (G-2), Wolf als Licht-Regel |
+| Warnendes Kind mit Worten | 2 | Telefon Kap. 1 · Anruf/Stall Kap. 5. Laken-Kind stumm; Rücksitz malt Lucys Kreispfeil falsch herum |
+| Telefonzelle klingelt | 4 | Kap. 1 Nebenaufgabe · Kap. 3 Anruf · Kap. 5 Anruf · Heidi. Nicht im Versteck, nicht beim zweiten Hinausgehen in Kap. 3, nicht nach Heidi, nicht bei Maas |
+| „Wolter altert nicht“ | 3 | „Dasselbe Kleid“ (Kap. 2) · Vegas’ Fotos (Kap. 3) · Gisela (Kap. 3) |
+| Giselas „Das ist nicht gesund.“ | 1 | Kap. 3 „Siebzehn Näpfe“ |
+| Brot für den Jungen | 3 | Kap. 1 Heft · Kap. 2 Dienstbuch · Kap. 5 Lucy |
+| Acht Füße + ein neunter | 3 | Kap. 1 · Kap. 3 · Kap. 5 (Luke fotografiert selbst) |
+| Heidi | 3 Beats | Kap. 1 Karten · Kap. 3 „Ja.“ · Kap. 5 Anruf (Kap. 4 Schuppen nur leerer Umschlag) |
+| Beobachter-Zettel und -Spuren | siehe Dossier „Der Beobachter“ §5 | Auswahl mit Steigerungskurve; Spuren je Kapitel höchstens 5 sichtbar |
+
 ---
 
 ### 14. Namen für Kapitel, Unterkapitel und Nebenaufgaben (Pflicht, Autor-Wunsch)
