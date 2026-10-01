@@ -43,8 +43,30 @@ Nutzerwunsch (F3_extras.md, Rückmeldung 01.10.): Schaukel schwingt beim Anstoß
 `_base_source_index.html` (Wind, Böe, Regen, Windspiel, Schaukel-Wächter, Busch-Ton), `gruen.js`, `waldleben.js`, `strasse.js` (Leitungen), `leben.js`/`tiefwald.js`/`ausbau_nord.js` (Schaukel an umwelt), `klang.js`, neu `umwelt.js`, `tools/assemble.js` (ORDER), `tools/klang_bau4.py`, `HAM_Audio/quellen.py` (7 neue Ausschnitte), `CREDITS.md`.
 Neue Klänge in `game/audio/` (bitte committen): `amb_heulen`, `amb_kronen`, `fx_boe_1…4`, `fx_busch_1…6`, `fx_laub_1…4`, `fx_kette_1…2`, `fx_quietsch_1…2`.
 
-## Kurz geprüft (ein Lauf)
-(siehe unten)
+## Geprüft
+- Syntax und Bau sind sauber: Alle geänderten Module bestehen die Vorprüfung, `assemble.js` prüft das ganze Modul-Script per `node --check`.
+- Die Klänge sind gebaut und eingepegelt: Betten auf −24 LUFS, Böen auf −22 LUFS.
+- **Kein Spiellauf:** Die Testschlange war voll (Anweisung: nach über 20 min Warten abbrechen).
+  - Der vorbereitete Lauf liegt fertig bereit: `C:\Users\GIGABYTE\_umw_test\steps.json` (Erzeuger `mk.py`), Start `bash /c/Users/GIGABYTE/_umw_run.sh`.
+  - Vorher die Seite bauen: `node tools/assemble.js ../game/index_umw.html` (das Skript übergibt `--root=…/game --page=index_umw.html`).
+  - Er liefert `_umw_test/out/filmstreifen.jpg`, `wind.webm` (Aufnahme am Master) und `info.json`.
+
+## Für den Schlusstest (bitte gesammelt prüfen)
+1. **Shader:** Keine `THREE.WebGLProgram`-Fehler in der Konsole. Neue und geänderte Programme: `wind2*` (Basis), `gruenWind2`, `wl_wind2|…`, `strasseWire`, `umweltBlatt`, die Teilchen- und Wölkchen-ShaderMaterials.
+2. **Pflanzen:** Gras, Hecken und Gestrüpp im Ort schwingen ruhig, ohne sichtbaren Takt. In einer Böe neigen sie sich sichtbar in Windrichtung, Böenfronten laufen übers Gras. Nichts reißt ab, nichts springt.
+3. **Busch:** Mit W durch einen Busch gehen (gruen-Gestrüpp, z. B. am Feldrain z ≈ 31–34). Er teilt sich vor Luke und federt hinter ihm mit kurzem Nachschwingen zurück. Rascheln kommt aus Aufnahmen (`fx_busch_*`), kein Gras-Schritt.
+4. **Schaukel Nr. 2** (Gerüst, −58,8/10,2):
+   - Die Sitze hängen an der richtigen Stelle (kein Versatz gegenüber dem Gerüst), sie schwingen nach dem Hineinlaufen aus, die Kette klirrt und quietscht.
+   - Die Reifenschaukel daneben schwingt weiter von allein und lässt sich anstoßen.
+   - `__umwelt.swings.length` ist mindestens 4 (Reifen, 2 Sitze Nr. 2, Spielplatz-Sitze; die Waldschaukel nur, wenn tiefwald gebaut ist).
+5. **Spielplatz** (40,6/78,8): Die Schaukel schwingt an, wenn man wegsieht. „Schaukel anhalten“ hält sie. Sie lässt sich anstoßen.
+6. **Böe:** Ein Windstoß ist zugleich hörbar (`fx_boe_*`, von der Luvseite) und sichtbar (Pflanzen, Leitungen, Regen schräger).
+   - Unter Ortsbäumen fallen Blätter, taumeln und landen auf Gehweg- oder Straßenhöhe (nicht im Boden).
+   - In der Böe wird Laub aufgewirbelt. Beim Rennen unter Bäumen wirbelt es an den Füßen.
+7. **Licht:** Draußen glitzern Sprühregen-Tröpfchen im Lampenkegel und unter Laternen. Drinnen (z. B. Nr. 7) schwebt Staub im Kegel. Ohne Lampe ist es fast nichts.
+8. **Atem und Dampf:** Atemwölkchen vor dem Mund draußen mit Lampe (nicht drinnen). Dampf an den Gullys (−30/0,6 · 46/0,9 · −2,1/−38,5 · 66/1,3).
+9. **Ton:** Windheulen erst bei kräftigem Wind, drinnen dumpf. Im Wald (ab Kap. 6) rauscht es in den Kronen. Keine Dauerlautstärke, die nervt. Pegel nach Gehör in `klang_wind`: Heulen ·0,55, Kronen ·(0,12 + 0,5 k).
+10. **Leistung:** In der Schluss-Messung die Ticks „Umwelt“ und „Klang“ ansehen (PERF), siehe „Offen“.
 
 ## Offen / Bitten
 - Schatten der Pflanzen schwingen nicht mit (kein Wind im Tiefenmaterial). Das ist nur bei Hecken nahe Lampen bemerkbar.
