@@ -1,5 +1,7 @@
 # CLAUDE.md – ENTWICKLUNGSREGELN DES HORROR-GAMES
 
+> **NEUE SITZUNG? ZUERST `docs/gameplay/UEBERGABE.md` LESEN** (aktueller Stand, angefangene Arbeiten und ihre Branches, Fehlerliste, nächste Schritte). Antworten an den Nutzer immer auf Deutsch.
+
 ## 1. HAUPTZIEL DES PROJEKTS
 
 Dieses Projekt ist ein hochwertiges psychologisches Horror-/Thriller-Spiel mit starker Story, Horror-Atmosphäre, glaubwürdigen Charakteren, physikalisch nachvollziehbaren Bewegungen und filmischer Inszenierung.
