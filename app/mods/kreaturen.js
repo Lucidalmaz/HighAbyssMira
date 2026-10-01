@@ -16,11 +16,12 @@ float krNoise(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f
 // o: { mus: Muskelanteil 0…1, scale: Faser-Kachel je Meter, veins, wet, wrap, sss: [r,g,b], rib: [Tiefe, Abstand, zMin, zMax, yMin, yMax], ridge: [Höhe, Abstand, zMin, zMax],
 //      wound: [x, y, z, r], seam: [Halbbreite, zMin, zMax, ySchwelle] (Fuchs: die Naht auf dem Rücken), bump }
 function kr_fleischMat(base, o = {}, key = 'kr') { const T = KR.tex, m = base ? base.clone() : new THREE.MeshStandardMaterial({ color: 0x6a2420, roughness: .4 });
-  if (!m.isMeshStandardMaterial) { const n = new THREE.MeshStandardMaterial({ map: m.map || null, color: m.color ? m.color.clone() : new THREE.Color(.5, .2, .2), roughness: .45 }); m.dispose && m.dispose(); return kr_fleischMat(n, o, key); }
+  if (!m.isMeshStandardMaterial || m.isMeshPhysicalMaterial) { /* Physical (Rabe M_Crow) + Fleisch + Grafik-Bausteine sprengten 16 Textureinheiten – Shader ungültig */ const n = new THREE.MeshStandardMaterial({ map: m.map || null, color: m.color ? m.color.clone() : new THREE.Color(.5, .2, .2), roughness: .45 }); m.dispose && m.dispose(); return kr_fleischMat(n, o, key); }
   const U = { krMus: { value: T && T.mus }, krHoe: { value: T && T.hoe }, krSeh: { value: T && T.seh }, krBind: { value: new THREE.Matrix4() }, krS: { value: 1 },
     krP: { value: new THREE.Vector4(o.scale ?? 3.2, T ? (o.mus ?? .9) : 0, o.veins ?? .6, o.wet ?? .8) }, krSss: { value: new THREE.Color(...(o.sss || [.55, .06, .04])) }, krWrap: { value: o.wrap ?? .55 },
     krRib: { value: new THREE.Vector4(...(o.rib || [0, .06, 0, 0]).slice(0, 4)) }, krRibY: { value: new THREE.Vector2(...(o.rib ? o.rib.slice(4, 6) : [0, 0])) },
     krRidge: { value: new THREE.Vector4(...(o.ridge || [0, .07, 0, 0])) }, krW: { value: new THREE.Vector4(...(o.wound || [0, -99, 0, .001])) }, krSeam: { value: new THREE.Vector4(...(o.seam || [0, 0, 0, 2])) }, krBump: { value: o.bump ?? 1 }, krAll: { value: o.nass ?? 0 } };
+  m.metalnessMap = null; m.metalness = 0; m.aoMap = null; /* Schlusstest: drei Fleisch-Texturen + volle PBR-Sätze + Schatten > 16 Textureinheiten („Trying to use 16 texture units“) – Fleisch braucht weder Metall- noch AO-Karte */
   m.userData.krU = U; m.name = (m.name || '') + '·Fleisch';
   m.onBeforeCompile = sh => { Object.assign(sh.uniforms, U);
     sh.vertexShader = sh.vertexShader.replace('#include <common>', `#include <common>

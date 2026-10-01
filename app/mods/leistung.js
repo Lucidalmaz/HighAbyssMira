@@ -5,8 +5,8 @@
 //    Zayn 4 × 0,3–0,55 s). Jetzt: (a) eine Hintergrund-Durchsicht der Szene (wenige hundert Knoten je Bild) findet neue Material-/Varianten-Paare, solange sie
 //    noch versteckt sind, und übersetzt sie parallel (KHR_parallel_shader_compile); (b) taucht trotzdem etwas Unübersetztes im Bild auf, wird nur dieses
 //    Teil ausgelassen, bis sein Programm fertig ist (wenige Bilder), statt das ganze Spiel anzuhalten. Nur für die Spielszene; Nachbearbeitung/Schatten unberührt.
-const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7 ab
-const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, q: [], qm: new Set(), busy: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
+const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7, 9 und 10 ab
+const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
   root: null, R: renderer.properties };
 // Varianten-Merkmal eines gezeichneten Teils (die Merkmale, für die three.js ein eigenes Programm braucht)
 function lst_sig(o, g) { const ma = g.morphAttributes, mc = ma.position || ma.normal || ma.color;
@@ -20,7 +20,7 @@ function lst_hat(m) { const P = LST.R.get(m); return !!P.currentProgram && P.__v
 // Ein Teil prüfen: bekannt → true. Unbekannt mit fertigem Programm (anderswo übersetzt, gleiche Variante beim ersten Mal) → merken. Sonst vormerken.
 function lst_check(o, m) { const g = o.geometry; if (!g) return true; const sig = lst_sig(o, g); if (lst_known(m, sig)) return !m.__lsP;
   if (m.__lsg === undefined && m.__lsV === undefined && lst_hat(m)) { lst_add(m, sig); return !m.__lsP; } // schon anderswo übersetzt (gleiche Variante beim ersten Mal)
-  if (!LST.qm.has(o)) { LST.qm.add(o); LST.q.push(o); } m.__lsP = (m.__lsP || 0) + 1; o.__lsSig = sig; return false; }
+  if (!LST.qm.has(o)) { if (o.isMesh) perfSinglePass(o); LST.qm.add(o); LST.q.push(o); } m.__lsP = (m.__lsP || 0) + 1; o.__lsSig = sig; return false; }
 // Alles, was beim Laden in der Szene war, ist übersetzt (Gesamtdurchgang der Basis) → als bekannt eintragen
 function lst_seed() { scene.traverse(o => { if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite) || !o.material || !o.geometry) return; const sig = lst_sig(o, o.geometry);
   for (const m of [].concat(o.material)) if (m && LST.R.get(m).currentProgram) lst_add(m, sig); }); } // nur, was wirklich ein Programm hat
@@ -51,6 +51,7 @@ function lst_scan() {
     if (o.isSkinnedMesh && o.skeleton && o.skeleton.bones.length) { const r = lst_rigRoot(o); if (r) LST.rigNext.add(r); }
     if (!S.length) { try { lst_rigs(); } catch (e) { console.warn('Leistung: Skelette', e); } }
     if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite) || !o.material || !o.geometry) continue;
+    if (o.isMesh) perfSinglePass(o); // durchsichtig + beidseitig → ein Durchgang (wie die Basis beim Laden; deren Nachzügler-Runde braucht bis 6 s)
     const m = o.material; if (Array.isArray(m)) { for (let i = 0; i < m.length; i++) if (m[i] && !lst_known(m[i], lst_sig(o, o.geometry))) lst_check(o, m[i]); }
     else if (!lst_known(m, lst_sig(o, o.geometry))) lst_check(o, m); }
 }
@@ -97,10 +98,24 @@ function lst_schatten() {
   sm.render = function (lights, sc, cam) {
     const halb = LST.halbSchatten && (++fr & 1); // Prüfoption: Taschenlampen-Schatten nur jedes zweite Bild
     let dark = halb; for (let i = 0; i < lights.length && !dark; i++) { const l = lights[i]; if (!(l.intensity > 0) && l.shadow && l.shadow.autoUpdate) dark = true; }
-    if (!dark) return r0.call(this, lights, sc, cam);
-    L.length = 0; for (let i = 0; i < lights.length; i++) { const l = lights[i]; if ((l.intensity > 0 && !(halb && l === flashlight)) || !l.shadow || !l.shadow.autoUpdate) L.push(l); }
-    return r0.call(this, L, sc, cam); };
+    L.length = 0; for (let i = 0; i < lights.length; i++) { const l = lights[i]; if (!dark || (l.intensity > 0 && !(halb && l === flashlight)) || !l.shadow || !l.shadow.autoUpdate) L.push(l); }
+    if (!LST.sweite || !this.autoUpdate || sc !== scene) return r0.call(this, L, sc, cam);
+    // 9) Kegellichter, deren Schattenbild jetzt entsteht, einzeln: Gruppen und Figuren ganz außerhalb ihres Schattenkegels werden für diesen Durchgang nicht durchlaufen
+    S1.length = 0; R1.length = 0; for (let i = 0; i < L.length; i++) { const l = L[i]; (l.isSpotLight && l.castShadow && (l.shadow.autoUpdate || l.shadow.needsUpdate) ? S1 : R1).push(l); }
+    if (!S1.length) return r0.call(this, L, sc, cam);
+    if (R1.length) r0.call(this, R1, sc, cam);
+    for (let i = 0; i < S1.length; i++) { const l = S1[i]; let n = 0; try { n = lst_schattenAus(l); } catch (e) { LST.sweite = false; console.warn('Leistung: Schattenkegel', e); }
+      try { One[0] = l; r0.call(this, One, sc, cam); } finally { for (let k = 0; k < n; k++) SH[k].visible = true; SH.length = 0; } }
+  };
 }
+const S1 = [], R1 = [], One = [null], SH = [], SHS = new THREE.Sphere();
+function lst_schattenAus(l) { l.shadow.updateMatrices(l); const fr = l.shadow.getFrustum(); let n = 0;
+  for (const E of VCULL.list) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
+    SHS.center.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); SHS.radius = E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + .5;
+    if (!fr.intersectsSphere(SHS)) { o.visible = false; SH.push(o); n++; } }
+  for (const g of RIGS.list) { const r = g.r; if (!r.visible || !r.parent) continue; const e = r.matrixWorld.elements; SHS.center.set(e[12], e[13], e[14]); SHS.radius = g.size * 1.5 + 1.5;
+    if (!fr.intersectsSphere(SHS)) { r.visible = false; SH.push(r); n++; } }
+  return n; }
 
 // 4) HINTER DEM NEBEL NICHTS DURCHLAUFEN. Die Basis blendet nur schwere Einzelmodelle (> 15 000 Dreiecke) jenseits des Nebels aus; alles andere –
 //    Häuser, Zäune, Autos, ganze Innenräume anderer Häuser – wurde weiter durchlaufen, geprüft und gezeichnet, obwohl der Nebel (Dichte 0,034) dort
@@ -178,8 +193,31 @@ function lst_strahl() {
     return i0(near, rec, target); };
 }
 
+// 10) NACHBILDER VORLADEN. Ein Nachbild besetzt beim Start bis zu acht echte Figuren (Kreuzung: sieben Kinder + Vegas) – bisher erst in dem Moment:
+//    Figuren klonen, Erinnerungs-Materialien anlegen, Programme übersetzen, Texturen hochladen (gemessen an der Kreuzung bis 200 ms Standbild, 9–17 FPS
+//    beim Ankommen). Jetzt: Kommt Luke einem noch nicht gesehenen Nachbild auf 45 m nahe, werden dessen Figuren unsichtbar im Hintergrund besetzt
+//    (eine je Bild); die Shader-Wache (1) übersetzt ihre Programme, solange sie versteckt sind, und ihre Texturen werden einzeln (eine je Bild) hochgeladen.
+//    Beim Start findet ECHO_CAST.start alles fertig vor (gleiche Besetzung → figuren_embody kehrt sofort zurück). Am Ablauf ändert sich nichts.
+const ECP = { t: 0, id: null, busy: false, tex: [], seen: new WeakSet(), n: 0, ruhig: 0 };
+function lst_echoVor(dt) {
+  ECP.ruhig = dt > .04 ? 0 : ECP.ruhig + dt; // nur in ruhigen Phasen arbeiten (nicht zusammen mit dem Aufbau eines gerade betretenen Raums)
+  if (ECP.tex.length && ECP.ruhig > .25) { try { renderer.initTexture(ECP.tex.shift()); ECP.n++; } catch (e) {} }
+  if ((ECP.t -= dt) > 0) return; ECP.t = .5;
+  if (ECP.busy || ECP.ruhig < 1 || state.talking || typeof FIGUREN_ECHO === 'undefined' || typeof echoAnchors === 'undefined' || typeof figuren_embody !== 'function') return;
+  const p = player.pos; let best = null, bd = 45 * 45;
+  for (const A of echoAnchors) { const E = A.E; if (echoSeen.has(E.id) || !FIGUREN_ECHO[E.id]) continue; const dx = E.at[0] - p.x, dz = E.at[2] - p.z, d = dx * dx + dz * dz; if (d < bd) { bd = d; best = E; } }
+  if (!best || best.id === ECP.id) return;
+  ECP.id = best.id; ECP.busy = true; lst_echoLaden(best).catch(e => console.warn('Leistung: Nachbild vorladen', e)).finally(() => { ECP.busy = false; });
+}
+async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
+  for (let i = 0; i < E.figs.length && i < echoFigs.length; i++) { const F = echoFigs[i], f = E.figs[i]; if (!cast[i] || state.talking || F.visible) return; // läuft schon ein Nachbild: nichts anfassen
+    const P = await figuren_embody(F, cast[i], { ghost: true, doll: f[3] < .45, clip: f[3] < .45 ? 'idle' : null });
+    if (P && P.obj) P.obj.traverse(o => { if (o.material) for (const m of [].concat(o.material)) for (const k of ['map', 'alphaMap', 'normalMap']) { const t = m && m[k]; if (t && t.isTexture && !ECP.seen.has(t)) { ECP.seen.add(t); ECP.tex.push(t); } } });
+    do await new Promise(r => requestAnimationFrame(r)); while (ECP.ruhig < .5 && !state.talking); }
+}
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -190,9 +228,10 @@ WORLD_MODS.push(['Leistung', async () => {
         out.push({ id: P.id, d: +w.distanceTo(c).toFixed(1), ms, tri: Math.round(tri), mo, bones, names: names.join(' ') }); }
       return out.sort((a, b) => a.d - b.d); } };
 }]);
-WORLD_TICK.push(() => {
+WORLD_TICK.push(dt => {
   if (!ui.ready) return;
   if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } return; }
   if (!LST.on) return;
   lst_scan(); lst_flush();
+  if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }
 });

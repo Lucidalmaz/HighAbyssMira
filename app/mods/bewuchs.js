@@ -10,7 +10,7 @@
 // Technik: je Art EIN Satz Instanzen über gruen_lodSet (nah Scan-Detailstufe → fern Bildkarte → weg, Sichtkegel; gruen.js führt ihn nach), Wind und Ausweichen vor Luke
 //   über den gemeinsamen Windzustand (gruen_wind/windVert, R-7). Efeu an Wänden erst nach dem Kollisionsaufbau (Wände per Strahl gesucht: Höhe, Lage, Ausrichtung).
 //   Kollision: Bäume/Stümpfe/liegende Stämme als schmale Kisten (addCol), Büsche weich (gruen_softAdd). Scans: Megascans (Fab), siehe CREDITS.md.
-// Schnittstelle: bewuchs_S.stats (Zahlen je Satz), window.__bewuchs (Testzugriff).
+// Schnittstelle: bewuchs_S.stats (Zahlen je Satz), __bewuchs am window (Testzugriff).
 const bewuchs_S = { ready: false, sets: {}, stats: {}, wand: [], wandDone: false, wald: 0, waldSets: [], strahlen: [], t: 0, keep: null };
 // Orte, an denen niemand mehr pflegt: [x, z, Radius, Stärke, Grund]
 const BEWUCHS_VERWAHRLOST = [[50, -17, 10, .55, 'Nr. 9, vernagelt'], [-50, -17, 10, .5, 'Nr. 1, leer'], [-45, 76, 24, .45, 'Friedhof'], [-115, 25, 32, .55, 'Schrebergärten'],

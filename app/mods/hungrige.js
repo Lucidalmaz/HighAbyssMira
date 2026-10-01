@@ -452,7 +452,7 @@ function hungrige_cineTick(dt) {
         g.rotation.y = leben_ang(g.rotation.y, Math.atan2(dx, dz) + Math.sin(C.t * 9) * .1, Math.min(1, dt * 3));
         if (C.ph === 'come' && L > 3.2) { g.position.x += dx / L * dt * .75; g.position.z += dz / L * dt * .75; }
         if (C.recoil) { C.recoil = 0; C.recoilT = 1; g.position.x -= dx / L * 1.1; g.position.z -= dz / L * 1.1; } if (C.recoilT > 0) C.recoilT = Math.max(0, C.recoilT - dt * 1.4); } }
-    C.look.set(g.position.x, g.position.y + 1.7 * g.scale.x, g.position.z); if (C.ph === 'attack' || C.ph === 'flash') C.look.lerp(A.g.position, .35); }
+    if (C.look) { C.look.set(g.position.x, g.position.y + 1.7 * g.scale.x, g.position.z); if (C.ph === 'attack' || C.ph === 'flash') C.look.lerp(A.g.position, .35); } } /* Schlusstest: in der Phase „vor“ (Lampe stirbt) ist look noch null – sonst schaltet sich der ganze Takt ab */
   // Whiskeys Licht: wächst mit jedem Stoß, blendet beim dritten, erlischt langsam
   if (C.light) { C.light.position.set(A.g.position.x, A.g.position.y + .25, A.g.position.z); const want = C.ph === 'attack' ? 1.5 + (C.dive || 0) * 2.2 : C.ph === 'flash' ? 9 : C.ph === 'flee' ? 4 : 0; C.light.intensity += (want - C.light.intensity) * Math.min(1, dt * (C.ph === 'aus' ? .45 : 3)); }
   if (C.ph === 'flash') { lightBoost = Math.max(0, 1.2 - C.t * .35); if (skyMat && skyMat.uniforms) skyMat.uniforms.flash.value = Math.max(0, .8 - C.t * .4); } else if (C.ph === 'flee') lightBoost = Math.max(0, lightBoost - dt * .4);

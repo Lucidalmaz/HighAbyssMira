@@ -194,6 +194,6 @@ showNote = (o => function (title, html) { const r = o.apply(this, arguments);
       if (src === 'amt') { const s = document.createElement('div'); s.className = 'ob-stempel'; s.innerHTML = /akte/i.test(title) ? 'VERSCHLUSSSACHE' : 'EINGANG<small>— · — · ——</small>'; p.appendChild(s); } } } catch (e) { console.warn('Oberfläche: Notiz', e); }
   return r; })(showNote);
 // Untertitel: fremde Stimmen in fremder Schrift
-subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments);
+subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments); // an subShow: färbt erst, wenn der Text wirklich erscheint (Lese-Warteschlange der Basis)
   try { const el = document.getElementById('subtitle'), w = String(who || '').toUpperCase(); if (el) el.dataset.ob = /WEISS|LICHTSCHIFF|∴|BEOBACHTER|NIMMER|DAS FREMDE/.test(w) ? 'fremd' : /KIND|LUNA|LUCY/.test(w) ? 'kind' : ''; } catch (e) {}
-  return r; })(subtitle);
+  return r; })(subShow);
