@@ -901,7 +901,7 @@ function ausbau_nord_messlatte() { const N = ausbau_nord; if (typeof kirchberg_a
   const an = typeof flashOn !== 'undefined' ? flashOn : true; if (!an) return toast('Hinter dem Glas ist es schwarz. Mit der Lampe vielleicht.', 2600);
   N.flurN = (N.flurN || 0) + 1;
   if (N.flurN === 1) { openNote('Die Messlatte', 'Durchs Flurfenster: eine Messlatte aus Holz, an die Wand geschraubt. Sieben Namen, alle mit „23.7.09“:\nROXY, HEIDI, MIKE, DINA, LUCY, LUKE B., ZAYN.\n\nEtwas abseits ein Strich ohne Namen. Nur: <b>6.8.09</b>.\n\nDaneben, am Haken, ein weißer Kittel.', 'nord_messlatte',
-    () => { subtitle('Einer ohne Namen. Das achte Kind?', 3000, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
+    () => { subtitle('Einer ohne Namen. Sechster August. … Das bin ich.', 3400, 'LUKE'); ausbau_nord_strichCheck(); }); return; }
   if (N.flurN === 2 && N.flur) { N.flur[0].visible = false; N.flur[1].visible = true; Audio.play('woodSqueak2', { gain: .08, rate: 1.6, x: N.praxis.hx + 1, y: 1.5, z: N.praxis.fz, ref: 1 }); return toast('Der Kittel hängt einen Haken weiter.', 3200); }
   toast('Die Messlatte. Der Strich ohne Namen. Der Kittel hängt, wo er hängt.', 3000); }
 async function ausbau_nord_schaukasten() { const N = ausbau_nord; /* H-6: der Schaukasten (AG-04) bleibt in Kap. 1 und gehört nicht mehr zur Aufgabe „Der Strich ohne Namen“ */ if (N.ag04) return openNote('Schaukasten · Bürgersprechstunde', 'Bundesstelle für Rückführung, Außenstelle Lost Eyengless (in Abwicklung). Bürgersprechstunde donnerstags 14–16 Uhr, Ahornstraße 7, Eingang Keller. Bitte Einwilligung mitbringen. Es besteht kein Anlass zur Sorge.\n\nDarunter klein das Auge. Mit Kuli: <span class="hand">auch 2026</span>', 'nord_ag04');
