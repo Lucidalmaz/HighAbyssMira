@@ -1,4 +1,5 @@
-// =====================================================================  ZAYN (Modul „zayn“): Nebenquest „Versprochen ist versprochen“
+// =====================================================================  ZAYN (Modul „zayn“): Nebenquest N6-4 „Hast du dich an mich erinnert?“ (Fassung 3; der Satz „Versprochen ist versprochen“ bleibt im Spiel)
+// AP-24: in Kapitel 6 beginnt die Spur auch ohne Rucksack (Murmel am ersten Pfad); Brause-Schulden; im Radio „Das ist Band.“ und die Kassette FÜR JONAS UND LUKE (Samen Kap. 7).
 // Zayn Wendt, 7 (2009) – Hildes Jüngster, der kleine Bruder von Jonas, Lukes bestem Freund. Er kam 2009 als Einziger nie zurück.
 // 1) Nr. 7, ab Kapitel 3 verlassen: ein kleiner Rucksack, Anhänger „ZAYN“.  2) Darin eine Kinderkamera: sechs Fotos vom alten Spielplatz,
 // auf jedem fehlt ein Detail, auf jedem steht Zayn einen Schritt näher am Wald → Reihenfolge finden. Letztes Bild: nur der Waldrand, „Er wollte, dass ich ihm folge.“
@@ -18,6 +19,7 @@ WORLD_MODS.push(['Zayn', async () => {
   const S = zayn_S, T = THREE;
   story.side.zayn = { title: 'Hast du dich an mich erinnert?', desc: 'Ein kleiner Rucksack mit einem Namen.', state: 'hidden' };
   modItem('zayn_kamera', 'Zayns Kinderkamera', 'Eine kleine Kamera aus buntem Plastik. Sechs Fotos, alle vom alten Spielplatz.', 'paper');
+  modItem('zayn_kassette', 'Kassette „FÜR JONAS UND LUKE“', 'Kinderschrift auf dem Etikett: FÜR JONAS UND LUKE · NICHT ÜBERSPIELEN. Zayn hat sie im Sommer 2009 aufgenommen.', 'paper');
   // --- Rucksack (Mesh jetzt, Platz im Haus erst nach dem Kollisionsaufbau)
   { const g = new T.Group(), fab = new T.MeshStandardMaterial({ color: 0x2c4a7a, roughness: .92 }), strap = new T.MeshStandardMaterial({ color: 0x1a1a1e, roughness: .8 });
     const body = new T.Mesh(new T.BoxGeometry(.26, .32, .14), fab); body.position.y = .16; g.add(body);
@@ -30,7 +32,7 @@ WORLD_MODS.push(['Zayn', async () => {
   const glass = new T.MeshStandardMaterial({ color: 0xd8e8f0, roughness: .05, metalness: .1, transparent: true, opacity: .85, emissive: 0x304050, emissiveIntensity: .4 });
   const spot = (k, x, y, z, mesh, w = .45) => { if (mesh) { mesh.position.set(x, y, z); scene.add(mesh); } const hit = box(w, .35, w, x, y + .1, z, hidden, { cast: false }); S.spots.push({ k, x, z, mesh, hit });
     interact(hit, () => zayn_has('zayn_spur_' + k) ? '' : ZAYN_SPUR.find(s => s[0] === k)[1], () => zayn_take(k));
-    if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_' + k, x, y: 0, z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_spur_' + k) }); };
+    if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_' + k, x, y: 0, z, kind: 'story', near: 22, open: () => kapAb(6) && !zayn_has('zayn_spur_' + k) }); };
   { const m = new T.Group(), b = new T.Mesh(new T.SphereGeometry(.014, 14, 10), glass), sw = new T.Mesh(new T.TorusGeometry(.009, .003, 6, 14), new T.MeshStandardMaterial({ color: 0xc02020, emissive: 0x400000 })); m.add(b, sw); spot('murmel', 30.6, .015, 107.2, m); }
   { const c = new T.Mesh(new T.CylinderGeometry(.009, .009, .07, 8), new T.MeshStandardMaterial({ color: 0xe8d060, roughness: 1 })); c.rotation.set(PI / 2, 0, .6); spot('kreide', 17.6, .012, 122.9, c);
     const hop = new T.Mesh(new T.PlaneGeometry(1.1, 2.6), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(256, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(230,220,160,.55)'; x.lineWidth = 5;
@@ -57,7 +59,7 @@ WORLD_MODS.push(['Zayn', async () => {
   S.floor.rotation.set(-PI / 2, 0, .4); S.floor.visible = false;
   { const hit = box(.6, .12, .6, H.x - .2, .05, H.z - .3, hidden, { cast: false }); S.floorHit = hit; interact(hit, 'Zeichnung auf dem Boden', () => zayn_last()); uninteract(hit); }
   if (typeof hintAdd === 'function') { hintAdd({ id: 'zayn_rucksack', x: 24.8, y: Y, z: -13.2, kind: 'story', near: 30, open: () => (ch3.on || (typeof anwesen_S !== 'undefined' && anwesen_S.ch4)) && zayn_S.stage < 1 });
-    hintAdd({ id: 'zayn_huette', x: H.x, y: 0, z: H.z, kind: 'story', near: 60, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_ende') }); }
+    hintAdd({ id: 'zayn_huette', x: H.x, y: 0, z: H.z, kind: 'story', near: 60, open: () => kapAb(6) && !zayn_has('zayn_ende') }); }
   zayn_sperre(); S.ready = true;
 }]);
 // ---- 1) Rucksack (bleibt liegen: bis das Rätsel gelöst ist, öffnet er die Kamera erneut)
@@ -140,18 +142,19 @@ function zayn_solved() {
 // ---- 3) Spur
 function zayn_shoeDropped(shoe) { const S = zayn_S; const hit = box(.4, .3, .4, shoe.position.x, .12, shoe.position.z, hidden, { cast: false }); S.spots.push({ k: 'schuh', x: shoe.position.x, z: shoe.position.z, mesh: shoe, hit });
   interact(hit, () => zayn_has('zayn_spur_schuh') ? '' : 'Ein Kinderschuh', () => zayn_take('schuh'));
-  if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_schuh', x: shoe.position.x, y: 0, z: shoe.position.z, kind: 'story', near: 22, open: () => zayn_S.stage >= 2 && kapAb(6) && !zayn_has('zayn_spur_schuh') }); }
+  if (typeof hintAdd === 'function') hintAdd({ id: 'zayn_schuh', x: shoe.position.x, y: 0, z: shoe.position.z, kind: 'story', near: 22, open: () => kapAb(6) && !zayn_has('zayn_spur_schuh') }); }
 function zayn_take(k) {
   const S = zayn_S, key = 'zayn_spur_' + k; if (zayn_has(key)) return; const sp = S.spots.find(s => s.k === k), def = ZAYN_SPUR.find(s => s[0] === k);
   if (sp) { if (sp.mesh) sp.mesh.visible = false; uninteract(sp.hit); } story.lore.push({ key, title: 'Zayns Spur · ' + def[1], html: def[2] }); Audio.paper();
   const n = ZAYN_SPUR.filter(s => zayn_has('zayn_spur_' + s[0])).length; openNote(def[1], def[2]);
-  if (S.stage >= 2) zayn_stage(3, `Kleine Dinge am Weg durch die Forbidden Dustwoods (${n} / 4).` + (n === 4 ? ' Alles Dinge aus deiner eigenen Kindheit. Weiter hinten im Wald steht eine Hütte.' : ''));
+  if (S.stage >= 2 || kapAb(6)) zayn_stage(3, `Eine Murmel. Ein Schuh. Kreide. Brause. Kleine Dinge am Weg durch die Forbidden Dustwoods (${n} / 4).` + (n === 4 ? ' Alles Dinge aus deiner eigenen Kindheit. Weiter hinten im Wald steht eine Hütte.' : '')); // AP-24: Start auch ohne Rucksack
+  if (k === 'brause' && !S.brause) { S.brause = true; setTimeout(() => { if (!state.talking) subtitle('Jonas hat ihm immer die Hälfte abgegeben. Ich nie. Ich schulde ihm Brause. Siebzehn Jahre Zinsen. Ich bin pleite.', 5600, 'LUKE'); }, 900); }
   if (n === 4) setTimeout(() => say([['Eine Murmel. Ein Schuh. Kreide. Brause.', 3200], ['Das sind keine Zufälle. Das sind deine Sachen – deine Sommer, dein Spielplatz, deine Tankstelle.', 5200], ['Zayn hat sie nicht verloren. Er hat Erinnerungen nachgestellt. Für dich.', 4800]]), 900);
 }
 // ---- 4) Die Hütte
 function zayn_drawing() {
   const S = zayn_S; openNote('Kinderzeichnung', 'Buntstift, an die Bretter gepinnt. Drei Kinder: ein blaues, ein rotes, ein kleines grünes am Rand. Darunter die Namen: <b>LUKE · JONAS · ICH</b>.\n\nUnd quer darunter, in Rot, mit viel zu viel Druck:\n<span class="hand">„Versprochen ist versprochen.“</span>', 'zayn_zeichnung', () => {
-    if (S.stage < 2 || zayn_has('zayn_versprechen')) return; zayn_stage(4, 'Die Hütte im Wald. Eine Zeichnung: „Versprochen ist versprochen.“ Das alte Radio in der Ecke.');
+    if ((S.stage < 2 && !kapAb(6)) || zayn_has('zayn_versprechen')) return; zayn_stage(4, 'Die Hütte im Wald. Eine Zeichnung: „Versprochen ist versprochen.“ Das alte Radio in der Ecke.');
     story.lore.push({ key: 'zayn_versprechen', title: 'Das Versprechen', html: 'Ein Nachmittag im Sommer. Jonas und du oben auf dem Klettergerüst, Zayn unten, zu klein. Er hatte Angst vor dem Wald.\n\n„Wenn du Angst hast, holen wir dich.“\n\nDann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.' });
     state.talking = true; setTimeout(async () => { try { await say([['Du erinnerst dich. Ein Sommernachmittag, das Klettergerüst. Zayn unten, zu klein zum Hochkommen. Er hatte Angst vor dem Wald.', 5600],
       ['„Wenn du Angst hast, holen wir dich.“ Jonas hat es gesagt. Du auch. Die Hand auf dem Herzen.', 5200], ['Dann kam der Sommer 2009. Zayn ging ins Licht, und keiner hat ihn geholt. Jonas hat gesucht. Du nicht.', 6400]]); } finally { state.talking = false; }
@@ -167,15 +170,19 @@ async function zayn_radio() {
   await say([['„Ihr habt gesagt, ihr holt mich.“', 3800, 'ZAYN']]); Audio.giggle(H.x + 1.1, 1, H.z - 1.3); subtitle('<i>Kinderlachen. Mehrere Kinder. Ganz nah – dann weit weg.</i>', 3000); await wait(3200);
   await say([['„Deshalb hab ich gewartet.“', 4200, 'ZAYN'], ['Die Aufnahme endet.', 2400]]);
   Audio.radio(H.x + 1.1, H.z - 1.3, true); } finally { state.talking = false; S.radioBusy = false; }
-  story.lore.push({ key: 'zayn_radio', title: 'Das Radio', html: '„Ich weiß noch, was ihr gesagt habt.“\n„Ihr habt gesagt, ihr holt mich.“\n<i>Kinderlachen.</i>\n„Deshalb hab ich gewartet.“' });
+  story.lore.push({ key: 'zayn_radio', title: 'Das Radio', html: '„Ich weiß noch, was ihr gesagt habt.“\n„Ihr habt gesagt, ihr holt mich.“\n<i>Kinderlachen.</i>\n„Deshalb hab ich gewartet.“' + (kapAb(6) ? '\n\nKeine Spieluhr drunter. Kein Raum. Das ist Band. Im Kassettenfach: FÜR JONAS UND LUKE · NICHT ÜBERSPIELEN.' : '') });
+  if (kapAb(6)) zayn_kassette();
   zayn_stage(5, 'Zayns Stimme im Radio. „Deshalb hab ich gewartet.“ Auf dem Boden der Hütte liegt eine Zeichnung.');
   S.floor.visible = true; interactables.push(S.floorHit); Audio.paper();
 }
 // ---- 5) Das Ende: keine Antwort
+// AP-24: Luke hört genau hin – und nimmt die Kassette aus dem Fach (für Jonas, Kapitel 7)
+async function zayn_kassette() { if (story.items.includes('zayn_kassette')) return; await say([['Keine Spieluhr drunter. Und kein Raum. Das ist Band.', 3400, 'LUKE']]); Audio.play('switch1', { gain: .2, rate: 1.4 });
+  addItem('zayn_kassette'); openNote('Im Kassettenfach', 'Eine Kassette. Das Etikett in Kinderschrift, mit Filzstift, zweimal nachgemalt:\n\n<b>FÜR JONAS UND LUKE · NICHT ÜBERSPIELEN</b>\n\nSommer 2009. Die Woche, in der er seinen Lampion bekam.'); }
 function zayn_last() {
   if (zayn_has('zayn_ende')) return openNote('Die letzte Zeichnung', 'Die Rückseite:\n<span class="hand">„Hast du dich an mich erinnert?“</span>');
   openNote('Die letzte Zeichnung', 'Wieder die drei Kinder. Jonas. Du. Und daneben – nichts. Zayn hat sich selbst aus dem Bild herausgemalt. Man sieht noch, wo er stand: Radiergummi, bis das Papier dünn wurde.\n\nAuf der Rückseite:\n<span class="hand">„Vielleicht wird man nicht vergessen, weil die Menschen aufhören, sich an einen zu erinnern.“\n„Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“</span>\n\nUnd darunter nur:\n<span class="hand">„Hast du dich an mich erinnert?“</span>', null, () => {
-    story.lore.push({ key: 'zayn_ende', title: 'Hast du dich an mich erinnert?', html: '„Vielleicht wird man nicht vergessen, weil die Menschen aufhören, sich an einen zu erinnern.“\n„Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“\n\n„Hast du dich an mich erinnert?“' });
+    story.lore.push({ key: 'zayn_ende', title: 'Zayn', html: '„Vielleicht wird man nicht vergessen, weil die Menschen aufhören, sich an einen zu erinnern.“\n„Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“\n\n„Hast du dich an mich erinnert?“' });
     sideDone('zayn', 'Hast du dich an mich erinnert?'); if (wald_S.hutLight) wald_S.hutLight.intensity = 0;
     setTimeout(() => { if (typeof gedanke === 'function') gedanke('zayn_nach', 'Ich suche Lucy, als gäbe es niemanden sonst. Aber Zayn war auch jemandes kleiner Bruder. Hilde hat siebzehn Jahre lang jede Nacht gezählt. Und Jonas hat allein im Wald gesucht.', 0, 3); }, 30000); });
 }

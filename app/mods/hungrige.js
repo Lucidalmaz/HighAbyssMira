@@ -112,12 +112,19 @@ const HUNGRIGE_SEITEN = {
   6: ['Dienstbuch Gefr. Hofer · letzte Seite', 'Ich weiß jetzt, was es isst. Kein Fleisch. Das Fleisch ist nur die Jacke: Reh, Krähe, Fuchs, was eben rumläuft. Es trägt sie falsch, der Kopf sitzt nie richtig, weil es nur die Vorderseite kennt.\nEs frisst, was bleibt, wenn das Licht jemanden holt oder zurückbringt. Die Bilder. Der Ami sagt Belichtung, Seiler sagt, nur ein Ritter sieht so was, und einer, der aus dem Ritter gemacht ist.\nAus den Bildern lernt es die Stimmen. Meine hat es gelernt, bevor ich es gemerkt habe.\nIch bin im Juni nicht aus der Senke zurückgekommen. <b>Es ist mit meinem Gesicht zurückgekommen.</b> Ich schreibe das mit seiner Hand.\n\nWer das liest: Es hasst Licht. Eine Lampe reicht, wenn man sie nicht senkt. Und es hat Angst vor dem Raben. Vor dem einen, der zu der Frau mit der Laterne gehört.\n— H.'] }; // Fassung 3: Seiten 1–6 wortgleich aus dem Wendigo-Dossier 1.10 (1 Fraßstelle · 2 Hochsitz-Leiter · 3 Zaunlücke · 4 Amtsbus · 5 Wrack · 6 Bau)
 const HUNGRIGE_SEITE_LUKE = { 1: ['Er hat die Kühe getauft. Roy, Roland, Rex. … Ich mag den Mann. Das ist schlecht.', 4200], 4: ['Er erklärt seinen eigenen Witz. Das macht keiner, der ihn selbst gemacht hat.', 4200],
   5: ['„Ich meine gegessen.“ … Er korrigiert sich in die richtige Richtung. Für sich. Für den, der er ist.', 5200] }; // Bibel 1.10
+// AP-24 · Seite 1b (N6-7): das eingeklebte Blatt aus Annis Schulheft, Hofers Nachsatz darunter (Wortlaut Bibel Kap. 6, N6-7); Fibel „Hofers Blatt“
+function hungrige_blatt(cb) {
+  const k = 'hungrige_seite_1b', html = '<i>Zwischen Seite 1 und Seite 2 klebt ein Blatt aus einem Schulheft. Kinderschrift, Bleistift:</i>\n\n<span class="hand">Papa ich hab den Lampion gewonen!! Ich darf vorne laufen. Du musst nicht gucken, ich mach die Augen zu, dann seh ich das Licht nicht. Halt mich fest. Anni</span>\n\n<i>Darunter, Hofers Schrift, andere Tinte:</i>\n\n<span class="hand">Sie hat nichts gewonnen. Sie ist gezogen worden. Ich hab unterschrieben. Wenn das Ding meine Erinnerung frisst, soll es an der hier ersticken.</span>';
+  if (!story.lore.some(l => l.key === k)) { Audio.paper(); story.lore.push({ key: k, title: 'Wendigo · Hofers Blatt (eingeklebt)', html }); }
+  openNote('Eingeklebt, zwischen Seite 1 und 2', html, null, () => { if (typeof n6_blattGelesen === 'function') try { n6_blattGelesen(); } catch (e) {} if (cb) cb(); });
+}
 function hungrige_seite(i) {
   const [t, txt] = HUNGRIGE_SEITEN[i], k = 'hungrige_seite_' + i, html = '<span class="hand">' + txt + '</span>', neu = !story.lore.some(l => l.key === k);
   if (neu) { Audio.paper(); story.lore.push({ key: k, title: 'Wendigo · ' + t, html }); } // Fassung 3: „Wendigo“ ab Hofers Seite 1
   // Fortschritt hängt am Stand (hungrige_has), nicht daran, ob die Seite neu war – ging der Rückruf verloren (Tod, Laden), holt ihn das nächste Lesen nach
   openNote(t, html, null, () => {
-    const L = HUNGRIGE_SEITE_LUKE[i]; if (neu && L) setTimeout(() => { if (!state.talking) subtitle(L[0], L[1], 'LUKE'); }, i === 1 ? 5200 : 700);
+    const L = HUNGRIGE_SEITE_LUKE[i], luke = ms => { if (neu && L) setTimeout(() => { if (!state.talking) subtitle(L[0], L[1], 'LUKE'); }, ms); };
+    if (i === 1 && neu) setTimeout(() => hungrige_blatt(() => luke(1200)), 450); else luke(i === 1 ? 5200 : 700); // AP-24: zwischen Seite 1 und 2 klebt Annis Blatt (N6-7, Seite 1b)
     if (i === 1) { if (!hungrige_has('spuren')) hungrige_done('spuren', 'Das war kein Wolf. Wölfe fressen. Das hier hat probiert.'); }
     else if (i === 6) { if (!hungrige_has('bau')) hungrige_done('bau', 'Es frisst die Bilder. Die, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); hungrige_S.finT = 2.6; } // das Finale startet der Takt
     if (typeof k6_seite === 'function') try { k6_seite(i, neu); } catch (e) { console.warn('Kapitel6: Seite', e); } });

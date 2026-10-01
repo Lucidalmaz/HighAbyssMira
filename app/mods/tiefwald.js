@@ -2,11 +2,13 @@
 // Hinter Zayns Hütte ist der alte Nordzaun eingedrückt (x 39,6…44,4). Dahinter wird der Wald immer dichter und dunkler (x −22…92, z 156…266):
 // Nebel und Mondlicht hängen an der Tiefe (ENV_DARK), Totholz, umgestürzte Stämme, Gestrüpp, Laub, Nebelschwaden, fallende Blätter, Augen im Dunkeln.
 // Roter Faden: Jonas hat von 2009 bis 2016 vierzig Mal nach seinem Bruder Zayn gesucht und dabei die rote Wolle seiner Mutter von Baum zu Baum gespannt.
-//   Fünf Zettel: Zaunlücke · Hochsitz · Amtsbus · Steinkreis · Weiher (Nebenaufgabe „Der rote Faden“).
-// Außerdem: Wolfsrudel am Steinkreis (friedlich, wenn der Welpe befreit ist), Wildschweinrotte am Bus (Nebenaufgabe „Die Rotte“),
+//   Fünf Zettel: Zaunlücke · Hochsitz · Amtsbus · Steinkreis · Weiher (Nebenaufgabe N6-5 „Vierzig Mal“; AP-24: Kerben am Leiterholm, Landeplatz-Andeutung mit Messplakette,
+//   Blechschild „Probe T“ am Steg, Wahl festhalten/loslassen, „Für Samstag.“).
+// Außerdem: Wolfsrudel am Steinkreis (friedlich, wenn der Welpe befreit ist), Wildschweinrotte am Bus (N6-6 „Vorrat. Nicht anfassen.“: Graben mit E halten, Z-06, drei Batterien),
 //   Autowrack, Jonas' Lager (Karte + Batterie), eine Schaukel, die nicht stillhält, zwei Rehe. Schreckmomente: siehe tief_* unten.
-const TIEF = { x0: -22, x1: 92, z0: 156, z1: 266, stand: { x: 14, z: 178.5 }, bus: { x: 65, z: 199.5 }, dig: { x: 60.5, z: 204.5 }, ring: { x: 15, z: 225, r: 5.2 },
+const TIEF = { x0: -22, x1: 92, z0: 156, z1: 266, stand: { x: 14, z: 178.5 }, bus: { x: 65, z: 199.5 }, dig: { x: 60.5, z: 204.5 }, ring: { x: 15, z: 225, r: 5.2, acht: null }, // acht: der umgefallene achte Stein (N6-3)
   pond: { x: 51.5, z: 255.5, rx: 8, rz: 6 }, jetty: { x0: 44, z0: 248, x1: 48.4, z1: 252.2 }, swing: { x: 82, z: 177 }, wreck: { x: -10, z: 204.5 }, camp: { x: 80.5, z: 233 } };
+TIEF.ring.acht = (a => ({ x: TIEF.ring.x + Math.cos(a) * TIEF.ring.r, z: TIEF.ring.z + Math.sin(a) * TIEF.ring.r, ry: -a, a }))(7 / 8 * Math.PI * 2 + .2); // AP-24: sieben stehen, der achte liegt
 const TIEF_PATHS = [ // die ersten vier bilden den Weg mit dem roten Faden
   [[42, 152], [42, 158], [37, 165], [28, 172], [19, 176.5]],
   [[19, 176.5], [27, 184], [40, 189], [52, 193], [59, 196.5]],
@@ -86,8 +88,10 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     S.postEnd = [J.x1 + Math.cos(ang) * .5, J.z1 - Math.sin(ang) * .5];
     // fernes Licht über dem Wasser (vom Hochsitz aus zu sehen): führt tiefer hinein
     const gl = new T.Sprite(new T.SpriteMaterial({ map: poolTex, color: 0xbfd2ff, transparent: true, opacity: 0, depthWrite: false, blending: T.AdditiveBlending, fog: false })); gl.scale.set(3.2, 3.2, 1); gl.position.set(P.x, 1.6, P.z); scene.add(gl); S.pondLight = gl;
-    // das Gesicht im Wasser
-    const face = new T.Mesh(new T.PlaneGeometry(.55, .66), new T.MeshBasicMaterial({ map: faceTexes.pale, transparent: true, opacity: 0, depthWrite: false, color: new T.Color(.75, .85, 1) })); face.visible = false; scene.add(face); S.face = face; }
+    // AP-24 (N6-5): Blechschild am Stegpfosten – das erste ehrliche Schild vom Amt (das Gesicht aus dem Wasser entfällt: der Schreck ist jetzt der Zug, Stufe 2)
+    const bs = new T.Mesh(new T.PlaneGeometry(.34, .2), new T.MeshStandardMaterial({ roughness: .45, metalness: .7, map: tex(cnv(256, (c, w) => { c.fillStyle = '#7d8580'; c.fillRect(0, 0, w, w); for (let i = 0; i < 50; i++) { c.fillStyle = `rgba(90,50,20,${rand(.1, .35)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(2, 12), 0, 7); c.fill(); }
+      c.fillStyle = '#161616'; c.textAlign = 'center'; c.font = 'bold 28px Arial'; c.fillText('BfR · AST 7', w / 2, 62); c.font = 'bold 32px Arial'; c.fillText('PROBE T', w / 2, 104); c.font = '24px Arial'; c.fillText('nicht bergen · zieht', w / 2, 144); }), true) }));
+    bs.material.map.repeat.set(1, .62); bs.material.map.offset.set(0, .38); bs.position.set(S.postEnd[0] - Math.sin(ang) * .07, .5, S.postEnd[1] - Math.cos(ang) * .07); bs.rotation.y = ang + PI; scene.add(bs); }
   // --- Der rote Faden: Pflöcke neben dem Weg, Wolle dazwischen (eine Instanzgruppe), am Ende ins Wasser
   { const route = []; for (let i = 0; i < 4; i++) for (const p of TIEF_PATHS[i]) if (!route.length || Math.hypot(p[0] - route[route.length - 1][0], p[1] - route[route.length - 1][1]) > .1) route.push(p);
     route.push([TIEF.jetty.x1, TIEF.jetty.z1]);
@@ -115,6 +119,9 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const roof = box(2.4, .06, 2.4, H.x, y + 1.95, H.z, wood); roof.rotation.x = -.12; for (const [dx, dz] of [[-1.05, -1.05], [1.05, -1.05], [-1.05, 1.05], [1.05, 1.05]]) box(.07, 1.9, .07, H.x + dx, y + .95, H.z + dz, wood);
     const lad = new T.Group(); lad.position.set(H.x, 0, H.z - 1.55); lad.rotation.x = -.28; scene.add(lad);
     for (const s of [-.28, .28]) box(.07, 3.4, .07, s, 1.7, 0, wood, { parent: lad }); for (let k = 0; k < 10; k++) box(.6, .045, .06, 0, .3 + k * .32, 0, wood, { parent: lad });
+    { const kb = new T.Mesh(new T.PlaneGeometry(.066, 1.5), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(512, (c, w) => { c.clearRect(0, 0, w, w); // AP-24: vierzig Kerben im linken Holm, die ersten krumm, die letzten gerade, die letzte tiefer
+        for (let i = 0; i < 40; i++) { const y = 500 - i * 12.2, k = 1 - i / 39, d = i === 39 ? 5 : 2.6; c.strokeStyle = i === 39 ? 'rgba(18,12,8,.95)' : 'rgba(200,176,138,.8)'; c.lineWidth = d; c.beginPath(); c.moveTo(w * .15, y + k * rand(-5, 5)); c.lineTo(w * .85, y + k * rand(-7, 7)); c.stroke(); } }), true) }));
+      kb.position.set(.28, 1.25, -.038); kb.rotation.y = PI; lad.add(kb); }
     msModel('w_barrel', 'model.glb').then(src => { const o = msGround(msFit(src.clone(true), .15, 'y')); o.position.set(H.x + .36, .82, H.z - 1.8); o.rotation.set(-.28, .4, 0); scene.add(o); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.material = m.material.clone(); m.material.color.setRGB(.55, .55, .6); } }); }).catch(() => {}); // Jonas' Blechdose, mit Draht an der Leiter
     note(H.x + .36, .9, H.z - 1.8, () => tief_has('tief_zettel_2') ? 'Jonas’ Blechdose' : 'Blechdose an der Leiter', () => tief_zettel(2), .3, .3, .3);
     note(H.x, 1.1, H.z - 1.8, () => player.pos.y > 1.5 ? '' : 'Hochsitz hinaufsteigen', () => tief_climb(true), 1, 2.2, .5);
@@ -133,7 +140,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(TIEF.dig.x, .3, TIEF.dig.z, () => tief_has('tief_rotte') ? '' : tief_S.rooted ? 'Aufgewühlte Erde durchsuchen' : 'Aufgewühlte Erde', () => tief_dig(), 1.6, .5, 1.6); }
   // --- 4) Der Steinkreis: neun Findlinge, verkohlte Feuerstelle, sieben Stöckchenmänner – und ein achter, der tiefer hängt
   try { const rock = await msModel('../boulder', 'model.gltf'), R = TIEF.ring;
-    for (let i = 0; i < 9; i++) { const a = i / 9 * PI * 2 + .2, o = msGround(msFit(rock.clone(true), rand(1.1, 1.6), 'max')); o.position.set(R.x + Math.cos(a) * R.r, -.1, R.z + Math.sin(a) * R.r); o.rotation.y = rand(0, 6.28); msPlace(o, o.position.x, -.1, o.position.z, o.rotation.y); }
+    for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2 + .2, liegt = i === 7, o = msGround(msFit(rock.clone(true), liegt ? 1.1 : rand(1.2, 1.5), 'max')); o.scale.y *= liegt ? .5 : 1.3; // AP-24 (N6-3): sieben stehen, der achte liegt umgefallen im Moos
+      msPlace(o, R.x + Math.cos(a) * R.r, liegt ? -.16 : -.1, R.z + Math.sin(a) * R.r, liegt ? -a : rand(0, 6.28)); }
     for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28, o = msGround(msFit(rock.clone(true), .32, 'max')); msPlace(o, R.x + Math.cos(a) * .7, -.03, R.z + Math.sin(a) * .7, rand(0, 6)); }
     const ash = new T.Mesh(new T.CircleGeometry(.62, 16), new T.MeshStandardMaterial({ color: 0x0e0c0a, roughness: 1 })); ash.rotation.x = -PI / 2; ash.position.set(R.x, .02, R.z); ash.userData.noCol = true; scene.add(ash);
     const twig = msSurfMat('bark', { tint: 0x6a5a48 }), wool = new T.MeshBasicMaterial({ color: 0x5a4a3a });
@@ -147,7 +155,19 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(R.x - .4, 1.4, R.z - 2.2, () => tief_has('tief_achter') ? 'Der achte Stöckchenmann' : 'Der achte Stöckchenmann – er hängt tiefer', () => tief_achter(), .6, 1, .6);
     note(R.x + R.r * .95, .9, R.z + .3, () => tief_has('tief_zettel_4') ? 'Jonas’ Zettel am Stein' : 'Zettel unter einem Stein', () => tief_zettel(4), .7, .8, .7);
     // drei heruntergebrannte Kerzen auf den Findlingen – jemand war gerade hier (flackern wie die Grablichter)
-    if (typeof ausbau_nord_flame === 'function') for (const i of [1, 4, 7]) { const a = i / 9 * PI * 2 + .2; ausbau_nord_flame(R.x + Math.cos(a) * (R.r - 1.3), .07, R.z + Math.sin(a) * (R.r - 1.3), true, .8); }
+    if (typeof ausbau_nord_flame === 'function') for (const i of [1, 3, 5]) { const a = i / 8 * PI * 2 + .2; ausbau_nord_flame(R.x + Math.cos(a) * (R.r - 1.3), .07, R.z + Math.sin(a) * (R.r - 1.3), true, .8); }
+    // AP-24 (N6-5, Suche 29): Andeutung Landeplatz – im Kreis ist der Boden glatt und glasig, Moos in Rosetten aus je drei Punkten, eine Messplakette am Stein
+    { const gl = new T.Mesh(new T.CircleGeometry(R.r - 1.2, 40), new T.MeshStandardMaterial({ color: 0x25231f, roughness: .1, metalness: .4, transparent: true, opacity: .6, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }));
+      gl.rotation.x = -PI / 2; gl.position.set(R.x, .015, R.z); gl.userData.noCol = true; scene.add(gl);
+      const ros = new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4, map: tex(cnv(64, (c, w) => { c.clearRect(0, 0, w, w); c.fillStyle = 'rgba(70,96,44,.95)'; for (const [x, y] of [[32, 18], [18, 42], [46, 42]]) { c.beginPath(); c.arc(x, y, 9, 0, 7); c.fill(); } }), true) });
+      const rg = new T.PlaneGeometry(.16, .16); rg.rotateX(-PI / 2); const im = new T.InstancedMesh(rg, ros, 36), m = new T.Matrix4(), q = new T.Quaternion(), v = new T.Vector3(), sc = new T.Vector3(1, 1, 1);
+      for (let i = 0; i < 36; i++) { const a = rand(0, 6.28), r = R.r + rand(-.9, .9); q.setFromAxisAngle(new T.Vector3(0, 1, 0), rand(0, 6.28)); sc.setScalar(rand(.7, 1.3)); im.setMatrixAt(i, m.compose(v.set(R.x + Math.cos(a) * r, .02, R.z + Math.sin(a) * r), q, sc)); }
+      im.userData.noCol = true; im.computeBoundingSphere(); scene.add(im);
+      const a2 = 2 / 8 * PI * 2 + .2, px = R.x + Math.cos(a2) * (R.r - .72), pz = R.z + Math.sin(a2) * (R.r - .72);
+      const pl = new T.Mesh(new T.PlaneGeometry(.2, .12), new T.MeshStandardMaterial({ roughness: .35, metalness: .75, map: tex(cnv(256, (c, w) => { c.fillStyle = '#8f9493'; c.fillRect(0, 0, w, w); c.fillStyle = 'rgba(80,40,20,.35)'; for (let i = 0; i < 30; i++) c.fillRect(rand(0, w), rand(0, w), rand(2, 14), rand(2, 8));
+        c.fillStyle = '#1e1e1e'; c.textAlign = 'center'; c.font = 'bold 30px Arial'; c.fillText('AST 7 · MESSPUNKT K', w / 2, 70); c.font = '24px Arial'; c.fillText('Magnetik abweichend', w / 2, 118); c.fillText('nicht graben', w / 2, 152); }), true) }));
+      pl.material.map.repeat.set(1, .7); pl.material.map.offset.set(0, .3); pl.position.set(px, .62, pz); pl.rotation.y = Math.atan2(R.x - px, R.z - pz); scene.add(pl);
+      note(px + (R.x - px) * .06, .62, pz + (R.z - pz) * .06, () => tief_has('tief_plakette') ? 'Die Messplakette' : 'Eine Plakette am Stein', () => tief_plakette(), .45, .4, .45); }
     // Wrack und Lager bekommen Felsen/Feuerstelle aus demselben Scan
     const C = TIEF.camp; for (let i = 0; i < 7; i++) { const a = i / 7 * 6.28, o = msGround(msFit(rock.clone(true), .28, 'max')); msPlace(o, C.x - 1.2 + Math.cos(a) * .55, -.03, C.z + .8 + Math.sin(a) * .55, rand(0, 6)); }
   } catch (e) { console.warn('Tiefwald: Steinkreis', e); }
@@ -162,7 +182,7 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(W.x, 1, W.z, () => tief_S.swingStop > 0 ? '' : 'Die Schaukel anhalten', () => tief_schaukel(), 1.2, 1.2, .8); }
   try { const car = await msModel('car_rusty', 'model.glb'); const o = msGround(msFit(car.clone(true), 4.3, 'max')); msPlace(o, TIEF.wreck.x, -.22, TIEF.wreck.z, 1.9); o.rotation.z = -.06;
     o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
-    note(TIEF.wreck.x, 1, TIEF.wreck.z, () => tief_has('tief_wrack') ? 'Das Autowrack' : 'Das Autowrack durchsuchen', () => tief_wrack(), 3.6, 1.8, 3.6); } catch (e) { console.warn('Tiefwald: Wrack', e); }
+    note(TIEF.wreck.x + .33, 1, TIEF.wreck.z - .44, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
   { const C = TIEF.camp, canvas = new T.MeshStandardMaterial({ color: 0x33402c, roughness: .95, side: T.DoubleSide });
     for (const s of [-1, 1]) { const p = new T.Mesh(new T.PlaneGeometry(2.4, 1.3), canvas); p.position.set(C.x + s * .42, .5, C.z); p.rotation.set(0, PI / 2, s * .95); p.castShadow = true; p.receiveShadow = true; scene.add(p); }
     const tins = new T.MeshStandardMaterial({ color: 0x7a6e60, roughness: .45, metalness: .8 }); for (let i = 0; i < 5; i++) { const c = new T.Mesh(new T.CylinderGeometry(.04, .04, .11, 10), tins); c.position.set(C.x - 1.2 + rand(-1, 1), .05, C.z + 1.8 + rand(-.4, .4)); c.rotation.z = Math.random() < .5 ? PI / 2 : 0; c.castShadow = true; scene.add(c); }
@@ -216,13 +236,21 @@ function tief_zettel(i) {
   story.lore.push({ key: k, title: 'Vierzig Mal · ' + t, html: tief_note(txt) }); Audio.paper(); sideStart('tief_faden');
   const n = [1, 2, 3, 4, 5].filter(j => tief_has('tief_zettel_' + j)).length;
   if (i < 5) story.side.tief_faden.desc = `Jonas hat seinen Bruder vierzig Mal in diesem Wald gesucht. Die rote Wolle führt tiefer hinein. Zettel: ${n} / 5.`;
-  openNote(t, tief_note(txt));
+  openNote(t, tief_note(txt), null, () => tief_zettelNach(i, n));
   if (i === 5) return tief_weiher();
   const G = { 1: ['tief_z1', 'Jonas. Neun Jahre alt, allein, mit einem Wollknäuel gegen einen ganzen Wald.'], 2: ['tief_z2', 'Ein Licht, hinten, wo der Wald aufhört … Vom Hochsitz müsste man es sehen.'],
     3: ['tief_z3', 'Ein Bus vom Amt. Sieben Sitze. Mitten im Wald, wo keine Straße hinführt. Wer ist damit gefahren – und wohin?'], 4: ['tief_z4', 'Für einen, der noch wächst. … Ich war dreizehn. Ich bin gewachsen.'] }[i];
   if (G && typeof gedanke === 'function') gedanke(G[0], G[1], 1200, 3);
   if (typeof saveGame === 'function') saveGame(curChapter());
 }
+// AP-24 (N6-5): Lukes Zeilen nach den Zetteln – „Geh ich nicht“, die vierzig Kerben am Hochsitz, und auf halbem Weg der Satz, der der Aufgabe den Namen gibt
+async function tief_zettelNach(i, n) { const S = tief_S; if (S.told.has('zn' + i)) return; S.told.add('zn' + i); await wait(500);
+  if (i === 1) await say([['Bin ich nicht. Geh ich nicht. Tut mir leid, Jonas.', 3200, 'LUKE']]);
+  if (i === 2) { await say([['<i>In den linken Holm der Leiter sind Kerben geschnitten. Eine pro Suche. Die ersten krumm, die letzten gerade. Du zählst mit dem Finger.</i>', 5200], ['Vierzig. Und die letzte hat er richtig reingehauen.', 3200, 'LUKE']]); }
+  if (n === 3 && i < 5 && !S.told.has('vierzig')) { S.told.add('vierzig'); await wait(1500); await say([['Vierzig Mal war er hier. Und ich seh ihn nicht einmal. Der Wald hat jede Suche aufgegessen.', 4600, 'LUKE']]); } }
+function tief_plakette() { // AP-24 (N6-5, Suche 29): Andeutung Landeplatz – als Witz gemeint
+  const h = 'Eine Plakette aus Blech, mit zwei Nieten in den Stein geschlagen. Die Steine sind älter als alles im Dorf. Im Kreis ist der Boden glatt und glasig, als wäre Sand einmal geschmolzen. Das Moos wächst in kleinen Rosetten aus je drei Punkten.\n\n<b>AST 7 · Messpunkt K · Magnetik abweichend · nicht graben</b>';
+  if (!tief_has('tief_plakette')) { story.lore.push({ key: 'tief_plakette', title: 'Messpunkt K', html: h }); openNote('Eine Plakette am Stein', h, null, () => setTimeout(() => subtitle('Ein Landeplatz. Für Hubschrauber, bevor’s Hubschrauber gab.', 3400, 'LUKE'), 400)); } else openNote('Messpunkt K', h); }
 function tief_fahrtenbuch() {
   const t = 'Fahrtenbuch', h = 'Ein Fahrtenbuch in einer Klarsichthülle, aufgequollen. Die ersten Seiten 1958, gleiche Handschrift bis zum Schluss.\n\nLetzte Eintragung:\n<b>28.07.2009 · 23:40 · Verschwunden: 7</b>\n<b>05.08.2009 · 03:13 · Rückgeführt: 6 · Offen: 1</b>\nGez. Dr. T. Seiler\n\nDarunter, mit Bleistift, eine andere Hand: <i>„Drei Uhr dreizehn. Sie kommt noch.“</i>';
   if (typeof hungrige_S !== 'undefined' && hungrige_S.epilog) return openNote(t, h + '\n\nDarunter, frisch, mit Bleistift, in einer kleinen, geraden Schrift: <span class="hand">„Offen: 1. Und einer, der es nie war.“</span>'); // Kap. 6 nach dieser Nacht (AP-23)
@@ -245,13 +273,26 @@ function tief_obenAngekommen() {
     // Schreckmoment: unten an der Leiter steht jemand und sieht herauf
     setTimeout(() => { if (player.pos.y > 2) tief_figur(TIEF.stand.x + 1.5, TIEF.stand.z - 10, 'pale', .62, true); }, 6500); } // ein Kind, unten zwischen den Bäumen, sieht herauf
 }
-// ---------------------------------------------------------------- Die Rotte: Erde durchsuchen, wenn die Schweine weg sind
+// ---------------------------------------------------------------- N6-6 · „Vorrat. Nicht anfassen.“: Erde durchsuchen (E halten), wenn die Rotte weg ist (Licht oder die Scheinwerfer der Falle)
 function tief_dig() {
   const S = tief_S; if (tief_has('tief_rotte')) return;
   if (!S.rooted) { sideStart('tief_rotte'); return toast('Hier haben Wildschweine gewühlt. Solange die Rotte da ist, kommst du nicht an die Stelle – sie verteidigen, was sie gefunden haben. Licht vertreibt sie vielleicht.', 5200); }
-  story.lore.push({ key: 'tief_rotte', title: 'Vorrat. Nicht anfassen.', html: 'Die Wildschweine haben eine Blechdose ausgegraben. Darin, in Zeitungspapier von 2012 gewickelt: zwei Batterien und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>' });
-  addBattery(2); sideDone('tief_rotte', 'Eine Blechdose mit zwei Batterien. Jonas hat hier draußen Vorräte versteckt.'); Audio.play('metalHit1', { gain: .2, rate: 1.7 });
-  openNote('Eine Blechdose', 'Rostig, von Hauern zerkratzt. Darin, in Zeitungspapier vom März 2012 gewickelt: zwei Batterien.\n\nUnd ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>\n\nEntschuldige, Jonas.');
+  if (S.dig) return; S.dig = { t: 0 }; if (!S.told.has('digTip')) { S.told.add('digTip'); toast('Graben: E halten.', 2200); }
+}
+function tief_digTick(dt, P) { const S = tief_S, D = S.dig; if (!D) return; const I = $('sideInfo');
+  if (!keys.KeyE || Math.hypot(P.x - TIEF.dig.x, P.z - TIEF.dig.z) > 2.6 || state.talking) { S.dig = null; I.textContent = ''; return; }
+  D.t += dt; if (Math.floor(D.t * 2.5) !== Math.floor((D.t - dt) * 2.5)) Audio.play('scrape2', { gain: .14, rate: rand(1.3, 1.7), x: TIEF.dig.x, y: .1, z: TIEF.dig.z });
+  I.textContent = '▮'.repeat(Math.ceil(D.t / 2.4 * 8)).padEnd(8, '▯'); if (D.t >= 2.4) { S.dig = null; I.textContent = ''; tief_digFund(); } }
+function tief_digFund() {
+  if (tief_has('tief_rotte')) return; const S = tief_S;
+  story.lore.push({ key: 'tief_rotte', title: 'Vorrat. Nicht anfassen.', html: 'Eine rostige Dose, von Hauern zerkratzt. Darin, in eine Zeitungsseite vom März 2012 gewickelt: zwei Batterien und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>\n\nDie Zeitungsseite: „Bundesstelle schließt – Dank an die treuen Mitarbeiter“. Hilde mit Blumenstrauß. Jonas hat seine Batterien in seine Mutter gewickelt.\n\nUnter den beiden eine dritte Batterie, neuer, mit drei parallelen Kratzern. Die ist nicht von Jonas.' });
+  addBattery(3); if (typeof sammeln_z === 'function') try { sammeln_z(6, true); } catch (e) {} // Z-06 als Fibel-Seite
+  sideDone('tief_rotte', 'Jonas’ Vorrat: zwei Batterien in Hildes Zeitungsseite. Und eine dritte, mit drei Kratzern. Jemand hat dazugelegt.'); Audio.play('metalHit1', { gain: .2, rate: 1.7 });
+  openNote('Eine Blechdose', 'Rostig, von Hauern zerkratzt. Darin, in eine Zeitungsseite vom März 2012 gewickelt: zwei Batterien. Und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>\n\nDie Zeitungsseite ist aus dem Laternenboten: <b>Bundesstelle schließt – Dank an die treuen Mitarbeiter</b>. Das Foto: Hilde mit einem Blumenstrauß. Sie lächelt nicht.\n\nJonas hat seine Batterien in seine Mutter gewickelt.\n\nUnter den beiden liegt eine dritte. Neuer. Mit drei parallelen Kratzern.\n\nEntschuldige, Jonas.', null, async () => {
+    await wait(1200); const koeder = typeof K6 !== 'undefined' && (K6.v11 || K6.falleAn); // „Köder“ erst, wenn Luke das Wort gehört hat (V-11 oder die Falle)
+    await say([['Das Amt hat Batterien, die Schweine haben Batterien, und du hast auch welche, wer immer du bist. Ich bin der ' + (koeder ? 'bestversorgte Köder' : 'bestversorgte Idiot') + ' im Landkreis.', 5400, 'LUKE']]);
+    const F = S.boars.find(B => B.st === 'gone' && B !== S.boars[0]); if (F) { const P = player.pos, f = flatDir(); F.g.position.set(P.x - f.x * 3.2 + f.z * 1.2, 0, P.z - f.z * 3.2 - f.x * 1.2); F.g.visible = true; F.st = 'flee'; F.sp = 3.4; F.tx = F.g.position.x - f.x * 30; F.tz = F.g.position.z - f.z * 30; leben_play(F, 'Run', .15); Audio.grunt(F.g.position.x, F.g.position.z, false);
+      setTimeout(() => subtitle('<i>Hinter dir trägt ein Frischling die leere Dose davon.</i>', 3000), 600); } }); // Humor: der Frischling mit der Dose
 }
 // ---------------------------------------------------------------- Der achte Stöckchenmann
 function tief_achter() {
@@ -260,26 +301,26 @@ function tief_achter() {
   Audio.play('woodCrack', { gain: .25, rate: 1.4 }); openNote('Der achte Stöckchenmann', 'Kleiner als die anderen. Die Zweige sind frischer, die Wolle ist rot. Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>\n\nL.\nWie Luke.');
   S.behind = { armed: true, t: 0 }; if (typeof gedanke === 'function') gedanke('tief_achter', '08 · L. Seit 2013 hängt er hier. Für einen, der noch wächst. … Warum denk ich sofort an mich?', 1500, 3);
 }
-// ---------------------------------------------------------------- Weiher: das Ende der Wolle
+// ---------------------------------------------------------------- Weiher: das Ende der Wolle (N6-5, Suche 40) – Blechschild, zwei Rucke, Wahl: festhalten (Stufe 2) oder loslassen; dann „Für Samstag.“
 async function tief_weiher() {
   const S = tief_S; if (S.pondDone) return; S.pondDone = true;
   const wait_ = ms => new Promise(r => setTimeout(r, ms)); await wait_(900); while (ui.overlay) await wait_(200);
-  state.talking = true; try { const E = S.threadSegs[S.threadSegs.length - 1]; // try/finally: state.talking wird immer zurückgesetzt
+  let fest = true; state.talking = true; try { // try/finally: state.talking wird immer zurückgesetzt
+  await say([['<i>Am Pfosten des Stegs ein Blechschild: „BfR · AST 7 · Probe T · nicht bergen · zieht“.</i>', 4400], ['Das Amt hat ein Schild für einen Teich. Das ist das erste ehrliche Schild, das ich von denen seh.', 4400, 'LUKE']]);
   await say([['Du nimmst das Ende der Wolle in die Hand. Es verschwindet im schwarzen Wasser.', 4200], ['Es ist straff gespannt.', 2400]]);
   Audio.creak(.25); shake = .02; await wait_(900); Audio.play('waterLoop', { gain: .25, offset: 1, dur: 1.2, rate: .7, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 });
   await say([['Ein Ruck. Von unten. Einmal. Zweimal.', 3200]]);
-  // Das Gesicht steigt aus dem Wasser – direkt auf dich zu
-  const F = S.face, P = camera.position, start = new THREE.Vector3(TIEF.jetty.x1 + .9, -.1, TIEF.jetty.z1 + .9);
-  F.position.copy(start); F.visible = true; F.material.opacity = 0; scareCount++;
-  for (let k = 0; k < 1; k += .03) { F.material.opacity = Math.min(.9, k * 3); F.position.y = -.1 + k * .4; F.lookAt(P); await wait_(16); }
-  Audio.scareSound('scream'); glitchV = .9; shake = .1; filmPass.uniforms.flash.value = .8;
-  for (let k = 0; k < 1; k += .09) { F.position.lerpVectors(start, new THREE.Vector3(P.x, P.y, P.z).addScaledVector(camera.getWorldDirection(new THREE.Vector3()), .45), k * k); F.lookAt(P); F.scale.setScalar(1 + k * .6); await wait_(16); }
-  await wait_(160); F.visible = false; F.scale.setScalar(1); filmPass.uniforms.flash.value = 0; $('fade').style.transition = 'opacity 80ms'; $('fade').style.opacity = 1; await wait_(500); $('fade').style.transition = 'opacity 1.4s'; $('fade').style.opacity = 0;
-  if (S.thread) { S.thread.count = S.threadN - 3; S.thread.instanceMatrix.needsUpdate = true; } Audio.heart();
-  await say([['Stille. Die Wolle hängt lose über dem Steg. Das Ende ist abgerissen.', 4200], ['Jemand hat gezogen.', 2600]]);
+  if (typeof k6_wahl === 'function' && typeof K6 !== 'undefined' && K6.wahl) { state.talking = false; const w = await k6_wahl(['Festhalten.', 'Loslassen.'], 15000); state.talking = true; fest = w !== 1; }
+  if (fest) { // Stufe 2: der Zug reißt Luke auf die Knie, die Wolle reißt
+    scareCount++; Audio.play('waterLoop', { gain: .45, offset: 2, dur: .8, rate: .55, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 }); Audio.creak(.4); shake = .14; glitchV = .5; player.pitch = Math.max(-1, player.pitch - .5);
+    const y0 = camY; camY = .95; setTimeout(() => { camY = y0; }, 1400); Audio.heart();
+    if (S.thread) { S.thread.count = S.threadN - 3; S.thread.instanceMatrix.needsUpdate = true; }
+    await say([['Der Zug reißt dich auf die Knie. Dann gibt die Wolle nach.', 3600], ['Das Ende ist abgerissen.', 2600]]); }
+  else { if (S.thread) { S.thread.count = S.threadN - 3; S.thread.instanceMatrix.needsUpdate = true; } await say([['Du lässt los. Die Wolle gleitet ins Schwarze, lautlos. Keine Welle.', 4200]]); }
+  await wait_(900); await say([['Du knotest den Rest der Rolle an den Pfosten. Fest. Zweimal rum.', 3600], ['Für Samstag.', 2200, 'LUKE']]);
   } finally { state.talking = false; }
-  story.lore.push({ key: 'tief_weiher', title: 'Der Weiher', html: 'Am Weiher endet Jonas’ Wolle. Er hat das Ende ins Wasser gehängt: „Falls du da unten bist: zieh dran.“\n\nJemand hat gezogen.' });
-  sideDone('tief_faden', 'Am Weiher endet die Wolle. Jonas hat sieben Jahre lang gesucht. Und jemand hat gezogen.');
+  story.lore.push({ key: 'tief_weiher', title: 'Vierzig Mal', html: 'Am Weiher endet Jonas’ Wolle. Er hat das Ende ins Wasser gehängt: „Falls du da unten bist: zieh dran.“\n\nEs hat gezogen. Zweimal. ' + (fest ? 'Ich hab festgehalten, bis sie gerissen ist.' : 'Ich hab losgelassen.') + ' Den Rest der Rolle hab ich an den Pfosten geknotet.\n\n<span class="hand">Jonas kommt Samstag. Ich zeig ihm, dass jemand gezogen hat.</span>' });
+  sideDone('tief_faden', 'Am Weiher endet die Wolle. Jonas hat vierzig Mal gesucht. Und jemand hat gezogen.'); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('J-15'); } catch (e) {}
   if (typeof gedanke === 'function') gedanke('tief_weiher', 'Jonas hat nie erfahren, ob jemand zieht. … „Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“ Er hat nicht vergessen. Er hat nur aufgehört.', 3000, 3);
 }
 function tief_stein() {
@@ -362,18 +403,22 @@ WORLD_TICK.push((dt, t) => {
         leben_play(W, 'Bite', .05, 1, true); for (const O of S.wolves) { O.st = 'back'; O.cool = 30; const bx = O.g.position.x - P.x, bz = O.g.position.z - P.z, bl = Math.hypot(bx, bz) || 1; O.tx = O.g.position.x + bx / bl * 16; O.tz = O.g.position.z + bz / bl * 16; O.sp = 5.5; }
         W.tx = p.x + ax / al * 16; W.tz = p.z + az / al * 16; setTimeout(() => leben_play(W, 'Run', .1), 500); if (typeof gedanke === 'function') gedanke('tief_biss', 'Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung.', 2500, 3); } }
     else if (W.st === 'back') { if (leben_beastMove(W, dt)) { W.st = 'roam'; leben_play(W, 'Walk', .3); } } }
-  // --- Wildschweine: wühlen am Bus; zu nah → einer stürmt los; Licht → die Rotte flieht; danach ist die Stelle frei
+  // --- Wildschweine: wühlen am Bus; zu nah → einer stürmt los; Licht → die Rotte flieht; danach ist die Stelle frei (AP-24: auch, wenn in AG-19 die Scheinwerfer der Blechmänner aufflammen)
+  const falleLicht = typeof K6 !== 'undefined' && !!K6.falle && (K6.falle.ph === 'zu' || K6.falle.ph === 'netz' || K6.falle.ph === 'fertig');
   for (const B of S.boars) { B.g.visible = B.st !== 'gone'; if (B.st === 'gone') { B.t -= dt; if (B.t < 0 && Math.hypot(P.x - TIEF.dig.x, P.z - TIEF.dig.z) > 45) { B.g.position.set(B.home[0], 0, B.home[1]); B.st = 'root'; } continue; }
     leben_beastUpd(B, dt, 60); const p = B.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);
     if (B.st === 'root') { B.t -= dt; if (B.t < 0) { B.t = rand(2, 5); const r = Math.random(); leben_play(B, r < .6 ? 'SniffleforFood' : r < .8 ? 'IdleLookAround' : 'Chew', .4); if (d < 30 && !tief_still()) Audio.grunt(p.x, p.z, false); }
       if (d < 26 && ok) sideStart('tief_rotte');
       if (lit(B, 18)) B.lit = (B.lit || 0) + dt; else B.lit = Math.max(0, (B.lit || 0) - dt);
-      if (B.lit > 1.3 || (d < 7 && ok)) { const charge = !S.charged && d < 7; S.charged = S.charged || charge; S.rooted = true;
+      if (B.lit > 1.3 || (d < 7 && ok) || falleLicht) { const charge = !S.charged && d < 7; S.charged = S.charged || charge; S.rooted = true;
         for (const O of S.boars) { if (O.st !== 'root') continue; const ax = O.g.position.x - P.x, az = O.g.position.z - P.z, al = Math.hypot(ax, az) || 1; O.tx = O.g.position.x + ax / al * 36; O.tz = O.g.position.z + az / al * 36; O.sp = 6.5; O.st = 'flee'; leben_play(O, 'Run', .15); }
         if (charge) { B.st = 'charge'; const ax = P.x - p.x, az = P.z - p.z, al = Math.hypot(ax, az) || 1; B.tx = P.x + ax / al * 9 + az / al * 1.1; B.tz = P.z + az / al * 9 - ax / al * 1.1; B.sp = 8.5; leben_play(B, 'Run', .1); Audio.grunt(p.x, p.z, true); B.hit = false; } } }
     else if (B.st === 'charge') { if (!B.hit && d < 1.9) { B.hit = true; scareCount++; Audio.scareSound('growl'); Audio.grunt(p.x, p.z, true); shake = .12; filmPass.uniforms.flash.value = .4; setTimeout(() => filmPass.uniforms.flash.value = 0, 100); Audio.heart(); if (typeof gedanke === 'function') gedanke('tief_keiler', 'Das war knapp. Einen halben Meter. … Die Stelle am Bus ist jetzt frei.', 2000, 3); }
       if (leben_beastMove(B, dt)) { B.st = 'flee'; const ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; B.tx = p.x + ax / al * 30; B.tz = p.z + az / al * 30; } }
     else if (B.st === 'flee') { if (leben_beastMove(B, dt) || d > 50) { B.st = 'gone'; B.t = 150; } } }
+  tief_digTick(dt, P);
+  // AP-24 (N6-5, Stufe 1): an einer Stelle ist die Wolle frisch nachgeknotet – von kleinen Händen
+  if (!S.told.has('knoten') && tief_has('tief_zettel_1') && Math.hypot(P.x - 46, P.z - 212.8) < 3.2 && ok) { S.told.add('knoten'); if (typeof gedanke === 'function') gedanke('tief_knoten', 'Hier ist die Wolle nachgeknotet. Frisch. Ein kleiner Knoten, zweimal rum. So knotet ein Kind.', 200, 3); }
   // --- Rehe am Lager
   for (const D of S.deer) { if (D.st === 'gone') { D.g.visible = false; D.t -= dt; if (D.t < 0 && Math.hypot(P.x - D.home[0], P.z - D.home[1]) > 45) { D.g.position.set(D.home[0], 0, D.home[1]); D.st = 'graze'; } continue; }
     D.g.visible = true; leben_beastUpd(D, dt, 60); const p = D.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);

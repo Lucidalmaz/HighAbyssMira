@@ -136,6 +136,8 @@ WORLD_MODS.push(['Kapitel 6', async () => {
   if (typeof TIEF !== 'undefined') { const W = TIEF.wreck; K6.hfHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(K6.hfHit, () => K6.on && !K6.told.has('handschuhfach') ? 'Das Handschuhfach' : '', () => k6_handschuhfach()); }
   { const B = typeof HUNGRIGE !== 'undefined' ? HUNGRIGE.bau : { x: -13.2, z: 206.8 }; const bt = new T.Mesh(new T.CylinderGeometry(.017, .017, .06, 10), new T.MeshStandardMaterial({ color: 0x2b2b2e, roughness: .35, metalness: .6 })); bt.rotation.z = PI / 2 - .3; bt.position.set(B.x + .9, .03, B.z - .6); bt.visible = false; K6.grp.add(bt); K6.batM = bt;
     K6.batHit = box(.5, .4, .5, B.x + .9, .2, B.z - .6, hidden, { cast: false }); interact(K6.batHit, () => K6.on && K6.batFall && !K6.batDa ? 'Die Batterie zwischen den Rippen' : '', () => { if (!K6.batFall || K6.batDa) return; K6.batDa = true; bt.visible = false; if (typeof addBattery === 'function') addBattery(1); k6_luke('Da bist du ja.', 1800); }); }
+  // --- AP-24 (Autorentscheid 01.10.2026): das Funkgerät der Bergung zurücklegen (+4) – am Hochsitz statt am Gitter (der Weg führt nicht zurück; dort holt die Bergung es ab)
+  if (typeof TIEF !== 'undefined') { const H = TIEF.stand; K6.funkZHit = box(.5, .6, .5, H.x + 1.05, 1.2, H.z - 1, hidden, { cast: false }); interact(K6.funkZHit, () => K6.on && k6_has('bergungsfunk') && !K6.told.has('funkZurueck') ? 'Das Funkgerät an den Pfosten hängen (für die Bergung)' : '', () => k6_funkZurueck()); }
   // --- Bestandsliste-Fetzen auf der Trittstufe des Busses (nach der Falle)
   if (typeof TIEF !== 'undefined') { const B = TIEF.bus; K6.liste = k6_papier(.19, .25, B.x - 3.1, .06, B.z - 1.6, -PI / 2 + .1, .8, 0xe6e1d2); K6.liste.visible = false;
     K6.listeHit = box(.5, .4, .5, B.x - 3.1, .2, B.z - 1.6, hidden, { cast: false }); interact(K6.listeHit, () => K6.on && K6.falleFertig ? 'Ein Klemmbrett-Blatt' : '', () => k6_liste()); }
@@ -495,6 +497,11 @@ async function k6_ag20() { K6.told.add('ag20'); state.flashFail = Math.max(state
   K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; story.items.push('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
   K6.ketteHit = K6.ketteHit || box(.6, .4, .6, K6_AG20.a[0] - .6, .2, K6_AG20.a[1] + .5, hidden, { cast: false }); interact(K6.ketteHit, () => K6.on && !K6.kette ? 'Die Kettenrolle nehmen' : '', () => { if (K6.kette) return; K6.kette = true; if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_kette'); Audio.play('keys3', { gain: .25, rate: .7 }); k6_luke('Eisen. Hilft nicht. Nehm ich trotzdem.', 2400); });
   k6_obj('Die Fraßstelle. Da vorn, wo das Blut endet.'); }
+// AP-24: Funkgerät am Hochsitz zurücklegen (+4 über lwo_ereignis 'funk_zurueck'); der Scan hängt danach am Pfosten (nachgeladen, kein Licht)
+function k6_funkZurueck() { if (!K6.on || !k6_has('bergungsfunk') || K6.told.has('funkZurueck')) return; K6.told.add('funkZurueck'); story.items = story.items.filter(k => k !== 'bergungsfunk');
+  if (typeof lwo_ereignis === 'function') lwo_ereignis('funk_zurueck'); Audio.play('static', { gain: .05, dur: .5, hp: 400 }); k6_funkModell(); k6_luke('Für die Nachsorge. Die holen es sich. Die holen sich alles.', 3200); if (typeof saveGame === 'function') saveGame(6); }
+function k6_funkModell() { if (K6.props.funk || typeof TIEF === 'undefined') return; K6.props.funk = true; const H = TIEF.stand;
+  msModel('w_funk', 'model.glb').then(src => { const o = msGround(msFit(src.clone(true), .24, 'max')); o.position.set(H.x + .96, 1.18, H.z - .95); o.rotation.set(0, PI + .3, .12); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.userData.noCol = true; K6.grp.add(o); }).catch(e => console.warn('Kapitel6: Funkgerät', e)); }
 function k6_merkblatt() { return new Promise(res => openNote('BfR · Bergung · Merkblatt W', '<span class="hand">Probe W meidet Lampenlicht über 300 Lumen. Lampe nie senken.\nProbe W spricht. Nicht antworten. Es sind nicht Ihre Angehörigen.\nBei Kontakt mit dem Begleitvogel (beringt): Abbruch. Vogel nicht bergen.\nWer hört, dass er beim Namen gerufen wird, meldet sich bei der Nachsorge.</span>', 'k6_merkblatt', res)); }
 // ---------------------------------------------------------------- UK 6/7 · Lager, Wrack, Beobachter, Handschuhfach
 function k6_lagerFertig() { K6.lager = true; K6.jagdSeg = 2; K6.route = null; if (K6.kindF) { K6.kindF.visible = true; K6.hufe.visible = true; } k6_obj('Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.'); if (typeof saveGame === 'function') saveGame(6); }
@@ -720,7 +727,7 @@ function k6_resumeWelt() {
   if (K6.beat === 'oben' || K6.beat === 'ende') K6.beat = 'hochsitz'; if (K6.beat === 'epilog') K6.beat = 'hochsitz'; // Whiskey wartet schon oben
   if (K6.beat === 'falle' && !K6.falleFertig) { K6.falleAn = false; K6.beat = 'faden'; } // die Falle beginnt beim nächsten Nähern neu
   if (K6.lager && K6.kindF) { K6.kindF.visible = true; K6.hufe.visible = true; } if (K6.falleFertig) K6.liste.visible = true;
-  if (story.lwo) story.lwo.ag18 = K6.weg;
+  if (story.lwo) story.lwo.ag18 = K6.weg; if (K6.told.has('funkZurueck')) k6_funkModell(); // AP-24
   if (k6_ab('epilog')) { k6_boy(true); if (typeof WL !== 'undefined') WL.morgen = true; if (typeof whiskey_S !== 'undefined' && whiskey_S.g) { const TS = TIEF.stand; whiskey_S.fl = null; whiskey_S.mode = 'perch'; whiskey_S.g.visible = true; whiskey_S.g.position.set(TS.x + .95, 4.02, TS.z); } }
 }
 MOD_SAVE.push(['kapitel6', () => ({ on: K6.on, beat: K6.beat, sp: [...K6.sp], told: [...K6.told], eaten: K6.eaten, gone: K6.krumen.map((c, i) => c.gone ? i : -1).filter(i => i >= 0),
