@@ -114,3 +114,8 @@
 - Rechthaben: V-03/V-06 in Kap. 1 verpassbar → Faden danach nicht abschließbar (Hinweis oder Nachholmöglichkeit). V-07…V-13 → AP-26.
 - Zayn/Cleo: keine FORTSETZUNG-Meldung in Kap. 6; Text „heute Nacht“ in Kap. 4/5. Cleo: „ERINNERUNG“ überdeckt „ERLEDIGT“.
 - Riegel/Schnalle in Kap. 5 ohne Hinweis verpassbar. Autor: Heidi schreibt an sich oder an Lucy?
+
+## Aus AP-26/27 (fertig, F3_stand_ap26.md)
+- Kapitelmodule: Atempausen aus Tabelle 5.6 per `spannung_pause(id)` melden; `spannung_dreier` für AG-19, Hirsch, Hofer; Kreaturen: `spannung_laerm()`/`spannung_sicht()`; Innenräume: `gedanken_blick(art, unterart)` an Kühlschrank/Spiegel/Uhr.
+- Nicht gebaut: Slapstick S-05/06/07 (Ort/Modell fehlt), Stille vor Dreiern (5.5), gesperrte Speicherpunkte in Jagden (A-30). Autor: Wortlaut des Murmel-Satzes („Der Neunte“, Kap. 7).
+- `raender.js` steht in ORDER, Datei existiert nicht (Zweck offen) – ebenso `remise`.
