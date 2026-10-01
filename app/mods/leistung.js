@@ -5,7 +5,7 @@
 //    Zayn 4 × 0,3–0,55 s). Jetzt: (a) eine Hintergrund-Durchsicht der Szene (wenige hundert Knoten je Bild) findet neue Material-/Varianten-Paare, solange sie
 //    noch versteckt sind, und übersetzt sie parallel (KHR_parallel_shader_compile); (b) taucht trotzdem etwas Unübersetztes im Bild auf, wird nur dieses
 //    Teil ausgelassen, bis sein Programm fertig ist (wenige Bilder), statt das ganze Spiel anzuhalten. Nur für die Spielszene; Nachbearbeitung/Schatten unberührt.
-const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7, 9 und 10 ab
+const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7 und 9–13 ab
 const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
   root: null, R: renderer.properties };
 // Varianten-Merkmal eines gezeichneten Teils (die Merkmale, für die three.js ein eigenes Programm braucht)
@@ -51,9 +51,10 @@ function lst_scan() {
     if (o.isSkinnedMesh && o.skeleton && o.skeleton.bones.length) { const r = lst_rigRoot(o); if (r) LST.rigNext.add(r); }
     if (!S.length) { try { lst_rigs(); } catch (e) { console.warn('Leistung: Skelette', e); } }
     if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite) || !o.material || !o.geometry) continue;
-    if (o.isMesh) perfSinglePass(o); // durchsichtig + beidseitig → ein Durchgang (wie die Basis beim Laden; deren Nachzügler-Runde braucht bis 6 s)
-    const m = o.material; if (Array.isArray(m)) { for (let i = 0; i < m.length; i++) if (m[i] && !lst_known(m[i], lst_sig(o, o.geometry))) lst_check(o, m[i]); }
-    else if (!lst_known(m, lst_sig(o, o.geometry))) lst_check(o, m); }
+    if (o.isMesh) { perfSinglePass(o); if (MRG.on && MRG.merge) mrg_note(o); } // durchsichtig + beidseitig → ein Durchgang (wie die Basis beim Laden; deren Nachzügler-Runde braucht bis 6 s)
+    const m = o.material; if (Array.isArray(m)) { for (let i = 0; i < m.length; i++) if (m[i]) { if (TXQ.on) tx_note(m[i]); if (!lst_known(m[i], lst_sig(o, o.geometry))) lst_check(o, m[i]); } }
+    else { if (TXQ.on) tx_note(m); if (!lst_known(m, lst_sig(o, o.geometry))) lst_check(o, m); } }
+  if (!S.length) mrg_cycle();
 }
 
 // 2) UNSICHTBARE TIERE UND FIGUREN SELTENER ANIMIEREN. Die Basis rechnet Animationen ferner Figuren nur ~3× je Sekunde (Abschnitt 6). Was nah, aber
@@ -216,8 +217,100 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
     do await new Promise(r => requestAnimationFrame(r)); while (ECP.ruhig < .5 && !state.talking); }
 }
 
+// 11) FESTE EINZELTEILE JE GRUPPE UND MATERIAL ZU EINEM NETZ ZUSAMMENFASSEN. Von ~700 Zeichenaufrufen je Bild gehen ~370 an feste, undurchsichtige
+//    Einzelteile (Balken, Latten, Fensterrahmen, Kleinkram; gemessen: je Eltern + Material ≈ 150 Gruppen). Jede Gruppe wird zu einem Netz zusammengefasst
+//    (Formen in die Lage der Eltern gerechnet, gleiches Material → gleiches Programm, gleiche Schattenregeln). Die Teile selbst bleiben unsichtbar erhalten
+//    (Strahltests, Kollision, Logik der Module sehen nichts; die Kopie hat keinen Strahltest), die Kopie hängt unter denselben Eltern (Verschieben oder
+//    Ausblenden der Gruppe wirkt mit). Nicht zusammengefasst: Figuren, Instanzen, Durchsichtiges, Interaktives (Hervorhebung, Aufheben – auch, wenn es
+//    erst später interaktiv wird), Teile mit eigener Zeichenlogik, gespiegelter Lage oder > 25 m. Wache in jedem Bild: ändert ein Modul ein Teil
+//    (sichtbar/unsichtbar, Lage, Material, Form, Eltern), fällt seine Gruppe sofort auseinander (Kopie weg, Teile wieder da) und das Teil bleibt künftig
+//    einzeln; der Rest wird mit der nächsten Durchsicht wieder zusammengefasst. Die Kleinteil-Auslese der Basis nimmt die Kopien mit (Nebel-Auslese).
+const MRG = { on: LST_NEU, merge: null, pend: new Set(), q: [], groups: [], src: new Map(), excl: new Set(), small: new Set(), guC: new Map(), gu: new Map(), guN: new Map(), n: 0, draws: 0, rev: 0, dc: 0, chk: 0, cyc: 0, ms: 0 };
+const MRG_OWN = Object.prototype.hasOwnProperty;
+function mrg_noRay() {}
+function mrg_matOk(m) { return !!m && !Array.isArray(m) && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial || m.isMeshBasicMaterial) && !m.transparent && m.visible !== false; }
+// Vorprüfung in der Durchsicht (billig): Kandidat → seine Eltern kommen in die Warteschlange. Nebenbei: wie viele Netze teilen sich eine Form?
+function mrg_note(o) { const g = o.geometry; if (g) MRG.guC.set(g, (MRG.guC.get(g) || 0) + 1);
+  if (o.isSkinnedMesh || o.isInstancedMesh || o.isBatchedMesh || o.__lsNo || !o.visible || MRG.src.has(o) || !mrg_matOk(o.material)) return;
+  const p = o.parent; if (!p || p.isLOD || p.isBone || o.__lsSolo === p.children.length) return; MRG.pend.add(p); }
+function mrg_cycle() { MRG.gu = MRG.guC; MRG.guC = new Map(); MRG.small = new Set(SMALL_T); for (const o of SMALL_M) MRG.small.add(o);
+  if (MRG.pend.size) { for (const p of MRG.pend) MRG.q.push(p); MRG.pend.clear(); } MRG.cyc++; }
+function mrg_ok(o) {
+  if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || o.isBatchedMesh || o.__lsNo || !o.visible || !o.parent || MRG.src.has(o)) return false;
+  if (MRG_OWN.call(o, 'raycast') || MRG_OWN.call(o, 'onBeforeRender') || MRG_OWN.call(o, 'onAfterRender') || o.frustumCulled === false || o.renderOrder !== 0 || o.layers.mask !== 1 || o.customDepthMaterial || o.customDistanceMaterial) return false; // eigene Strahl-/Zeichenlogik (kino, Basis-Strahltest ist am Prototyp)
+  const g = o.geometry; if (!g || !g.attributes.position || g.groups.length || g.drawRange.start !== 0 || g.drawRange.count !== Infinity) return false;
+  const ma = g.morphAttributes; if (ma && (ma.position || ma.normal || ma.color)) return false;
+  const n = g.index ? g.index.count : g.attributes.position.count; if (n < 3 || n > 45000) return false; // ab 15 000 Dreiecken schaltet die Basis selbst über Ebenen (PERF_CULL.fog)
+  if (!mrg_matOk(o.material)) return false;
+  const u = o.userData; if (u.noCull || u.label || u.action || u.hl || u.hlObj || u.hlP || u.lsMerged || MRG.excl.has(o)) return false;
+  for (let p = o.parent, d = 0; p && p !== scene && d < 12; p = p.parent, d++) { const v = p.userData; if (p.isBone || p.isSkinnedMesh || v.hl || v.label || v.hlObj || MRG.excl.has(p)) return false; }
+  if (!g.boundingSphere) g.computeBoundingSphere(); if (!(g.boundingSphere.radius > 0)) return false;
+  if (o.matrixAutoUpdate) o.updateMatrix(); const M = o.matrix; if (M.determinant() < 0 || g.boundingSphere.radius * M.getMaxScaleOnAxis() > 25) return false;
+  return true;
+}
+function mrg_sig(g) { let s = g.index ? 'i' : 'n'; const A = g.attributes; for (const k of Object.keys(A).sort()) { const a = A[k]; if (a.isInterleavedBufferAttribute || !a.array) return null; s += '|' + k + a.itemSize + (a.normalized ? 'n' : '') + a.array.constructor.name; } return s; }
+function mrg_hook(o, E) { let v = false; Object.defineProperty(o, 'visible', { configurable: true, enumerable: true, get() { return v; }, set(x) { v = x; E.want = x; E.dirty = true; } }); }
+function mrg_unhook(o, v) { Object.defineProperty(o, 'visible', { configurable: true, enumerable: true, writable: true, value: v }); }
+function mrg_build(parent) {
+  let inS = false; for (let p = parent; p; p = p.parent) if (p === scene) { inS = true; break; } if (!inS) return 0;
+  const G = new Map(), ch = parent.children, small = MRG.small;
+  for (let i = 0; i < ch.length; i++) { const o = ch[i]; if (!mrg_ok(o)) { if (o.isMesh) o.__lsSolo = ch.length; continue; } const sig = mrg_sig(o.geometry); if (!sig) { o.__lsNo = true; continue; } const cast = o.castShadow || small.has(o); // abgelehnte Teile erst wieder prüfen, wenn Geschwister dazukommen
+    const key = o.material.id + '|' + (cast ? 1 : 0) + (o.receiveShadow ? 1 : 0) + '|' + sig; let L = G.get(key); if (!L) G.set(key, L = [cast]); L.push(o); }
+  let made = 0;
+  for (const L of G.values()) { const cast = L.shift(); let n = 0; for (const o of L) n += o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count;
+    if (L.length < 2 || n > 900000) { for (const o of L) o.__lsSolo = ch.length; continue; }
+    try { const geos = []; for (const o of L) geos.push(o.geometry.clone().applyMatrix4(o.matrix)); const mg = MRG.merge(geos, false); if (!mg) throw new Error('Attribute passen nicht zusammen'); mg.computeBoundingSphere();
+      const o0 = L[0], c = new THREE.Mesh(mg, o0.material); c.castShadow = cast; c.receiveShadow = o0.receiveShadow; c.raycast = mrg_noRay; c.matrixAutoUpdate = false; c.name = 'ls_zusammen'; c.userData.lsMerged = true; c.__lsNo = true;
+      const S = { c, parent, list: [] };
+      for (const o of L) { const g = o.geometry, E = { o, mat: o.material, geo: g, pv: g.attributes.position.version, m: Float32Array.from(o.matrix.elements), want: true, dirty: false }; S.list.push(E); MRG.src.set(o, S); mrg_hook(o, E);
+        const k = (MRG.guN.get(g) || 0) + 1; MRG.guN.set(g, k); if (k >= (MRG.gu.get(g) || 1e9)) g.dispose(); } // Grafikspeicher der Originale frei, sobald alle Nutzer der Form zusammengefasst sind (beim Auflösen lädt three.js sie wieder hoch)
+      parent.add(c); MRG.groups.push(S); MRG.n++; MRG.draws += L.length - 1; made++;
+    } catch (e) { for (const o of L) o.__lsNo = true; console.warn('Leistung: Zusammenfassen', e); } }
+  return made;
+}
+function mrg_revert(S, bad) { const i = MRG.groups.indexOf(S); if (i >= 0) MRG.groups.splice(i, 1); if (S.c.parent) S.c.parent.remove(S.c); S.c.geometry.dispose();
+  for (const E of S.list) { const o = E.o; MRG.src.delete(o); mrg_unhook(o, E.want); if (E === bad || E.dirty) o.__lsNo = true; }
+  MRG.rev++; MRG.draws -= S.list.length - 1; }
+function mrg_watch() { const G = MRG.groups;
+  for (let i = G.length - 1; i >= 0; i--) { const S = G[i], L = S.list; let bad = null;
+    for (let k = 0; k < L.length && !bad; k++) { const E = L[k], o = E.o; if (E.dirty || o.parent !== S.parent || o.material !== E.mat || o.geometry !== E.geo || E.geo.attributes.position.version !== E.pv) { bad = E; break; }
+      const e = o.matrix.elements, m = E.m; for (let j = 0; j < 16; j++) if (e[j] !== m[j]) { bad = E; break; } }
+    if (bad) mrg_revert(S, bad); } }
+function mrg_interakt() { const X = MRG.excl; X.clear(); // interaktive Teile (Hervorhebung, Aufheben) bleiben einzeln – auch, wenn sie es erst später werden
+  for (const x of interactables) { if (!x || !x.traverse) continue; X.add(x); x.traverse(n => { const S = MRG.src.get(n); if (S) mrg_revert(S, S.list.find(E => E.o === n)); }); } }
+function mrg_aus() { while (MRG.groups.length) mrg_revert(MRG.groups[MRG.groups.length - 1], null); MRG.q.length = 0; MRG.pend.clear(); MRG.dc = performance.now(); }
+function mrg_alle() { MRG.pend.clear(); scene.traverse(o => { if (o.isMesh) mrg_note(o); }); mrg_cycle(); let n = 0; while (MRG.q.length) n += mrg_build(MRG.q.shift()); MRG.dc = performance.now(); return n; } // Testzugriff: alles sofort (ein großer Ruckler)
+function mrg_tick(dt) {
+  if (!MRG.on) { if (MRG.groups.length) mrg_aus(); return; }
+  if (!MRG.merge) return;
+  if (++MRG.chk >= 60) { MRG.chk = 0; mrg_interakt(); }
+  if (MRG.groups.length) mrg_watch();
+  if (MRG.q.length && dt < .06) { const t0 = performance.now(); mrg_build(MRG.q.shift()); MRG.ms += performance.now() - t0; MRG.dc = t0; } // eine Gruppe je Bild, nur in ruhigen Bildern
+  if (MRG.dc && !MRG.q.length && performance.now() - MRG.dc > 2000) { MRG.dc = 0; DCULL.n = -1; DCULL.t = 0; } // Kleinteil-Auslese einmal neu aufbauen → Kopien in der Nebel-Auslese
+}
+
+// 12) DURCHSICHTIGE BEIDSEITIGE MATERIALIEN SOFORT EINPASSIG. three.js zeichnet sie sonst in jedem Bild zweimal (Rück-, dann Vorderseite) und setzt dabei
+//    zweimal needsUpdate → jedes Mal eine neue Programmsuche (gemessen 1 400× je Lauf, vor allem bei Figuren beim Auftritt). Die Basis stellt beim Laden
+//    alles auf einen Durchgang, die Durchsicht (1) holt Neues erst nach bis zu 1,6 s nach. Jetzt: was im letzten Bild durchsichtig gezeichnet wurde, wird
+//    vor dem nächsten Bild umgestellt (Liste des Renderers, ~100 Einträge). Gleiches Bild wie bei der Basis.
+function lst_tpass() { const T = renderer.renderLists.get(scene, 0).transparent; for (let i = 0; i < T.length; i++) { const o = T[i].object; if (o && o.isMesh) perfSinglePass(o); } }
+
+// 13) TEXTUREN VORHER HOCHLADEN. Eine Textur geht erst in dem Bild zur Grafikkarte, in dem ihr Teil zum ersten Mal gezeichnet wird (je 1–20 ms, bei
+//    Bewohnt-Deko und Figuren Dutzende auf einmal → Ruckler beim Betreten). Die Durchsicht (1) findet fertige, noch nicht hochgeladene Texturen, solange
+//    ihre Teile versteckt oder fern sind, und lädt je Bild eine davon hoch. Nichts ändert sich am Bild; nur die Ruckler verteilen sich auf viele Bilder.
+const TXQ = { on: LST_NEU, q: [], s: new Set(), n: 0, ms: 0 };
+const TX_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap', 'bumpMap', 'displacementMap', 'lightMap', 'specularMap', 'envMap'];
+function tx_note(m) { if (m.__lsTx === m.version) return; let all = true;
+  for (let i = 0; i < TX_KEYS.length; i++) { const t = m[TX_KEYS[i]]; if (!t || !t.isTexture || t.__lsUp || t.isRenderTargetTexture || t.isVideoTexture) continue;
+    if (!(t.version > 0) || !t.image || t.image.complete === false) { all = false; continue; }
+    if (LST.R.get(t).__webglTexture) { t.__lsUp = true; continue; } if (!TXQ.s.has(t)) { TXQ.s.add(t); TXQ.q.push(t); } }
+  if (all) m.__lsTx = m.version; }
+function tx_tick() { if (!TXQ.on || !TXQ.q.length) return; const t = TXQ.q.shift(); TXQ.s.delete(t); if (t.__lsUp || !t.image) return;
+  const t0 = performance.now(); try { renderer.initTexture(t); } catch (e) {} t.__lsUp = true; TXQ.n++; TXQ.ms += performance.now() - t0; }
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  import('three/addons/utils/BufferGeometryUtils.js').then(M => { MRG.merge = M.mergeGeometries; }, e => { MRG.on = false; console.warn('Leistung: Zusammenfassen nicht verfügbar', e); });
+  window.__leistung = { S: LST, NEB, ECP, MRG, TXQ, mrg_alle, mrg_aus, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -234,4 +327,7 @@ WORLD_TICK.push(dt => {
   if (!LST.on) return;
   lst_scan(); lst_flush();
   if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }
+  try { lst_tpass(); } catch (e) { console.warn('Leistung: Einpassig', e); }
+  try { tx_tick(); } catch (e) { TXQ.on = false; console.warn('Leistung: Texturen', e); }
+  try { mrg_tick(dt); } catch (e) { MRG.on = false; console.warn('Leistung: Zusammenfassen', e); }
 });

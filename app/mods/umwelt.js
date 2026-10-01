@@ -263,60 +263,91 @@ function umwelt_puff(x, y, z, vx, vy, vz, life, s0, s1, al, rise) {
   const Q = umwelt_S.puff; if (!Q) return; const i = Q.next; Q.next = (i + 1) % Q.N; const A = Q.g.attributes;
   A.aO.setXYZW(i, x, y, z, umwelt_S.t); A.aV.setXYZW(i, vx, vy, vz, life); A.aP.setXYZW(i, s0, s1, al, rise); A.aW.setXYZW(i, WIND.fx, WIND.fz, Math.random(), rand(0, 6.28));
   for (const a of [A.aO, A.aV, A.aP, A.aW]) { a.addUpdateRange(i * 4, 4); a.needsUpdate = true; } }
-// ---------------------------------------------------------------- Atem (R-22): selten und begründet – nur beim Ausatmen, nur draußen in der Kälte und nur, wo Licht ihn
-// lesbar macht (Lampenkegel, Laterne, Gegenlicht). Ein Ausatmen = 5–9 weiche Teilchen über 0,35–0,55 s mit Rauschdichte (weiche Ränder, Wirbel, feine Fäden),
-// vor dem Mund knapp unter der Bildmitte; schneller Anstoß, bremst, steigt etwas, zieht mit dem Wind (WIND) und zerfasert in 0,8–1,4 s. Die Teilchen liegen in der
-// Welt (dreht Luke sich, bleibt der Hauch zurück). Rhythmus: ruhig alle 3,5–5 s; nach Rennen/Schreck schneller und kräftiger, beruhigt sich über ~15 s.
-// Abschaltbar: settings.atem === false (oder Kopfbewegung aus).
+// ---------------------------------------------------------------- Atem (R-22/R-26): ein Ausatmen ist ein kleines Rauschvolumen, kein Teilchenring. Je Atemzug sechs Ballen
+// (Strahl aus dem Mund: die ersten schnell und groß, die letzten langsam und klein – so entstehen Kopf und Fahne), die auf der CPU laufen (Bremsen gegen die Luft, Auftrieb,
+// Mitnahme durch Wind und Böe, Turbulenz). Ein Billboard-Quad je Atemzug; der Fragment-Shader marschiert in 14 Schritten durch die Ballen: 3D-Rauschtextur 32³ (erzeugt,
+// nicht geladen), Innenwirbel durch Domänenverzerrung, Zerfasern durch einen mit dem Alter steigenden Schwellwert (Ränder zuerst), Lampenkegel von hinten gedämpft,
+// Laternen mit Vorwärtsstreuung (Henyey-Greenstein: im Gegenlicht leuchtet der Hauch), dichter Kern etwas dunkler. Drei Plätze, damit sich Atemzüge beim Hecheln überlappen.
+// Rhythmus: ruhig alle 3,5–5 s, nach Rennen/Angst kürzer und kräftiger, beruhigt sich über ~15 s; nur draußen, nur wo Licht ihn lesbar macht, und jeder Zug anders
+// (Dichte, Richtung, Dauer, Zerfall). Abschaltbar: settings.atem === false (oder Kopfbewegung aus). Test: __umwelt.api.atem(E, neu).
+function umwelt_rauschen3D() {
+  const N = 32, d = new Uint8Array(N * N * N * 4), q = t => t * t * t * (t * (t * 6 - 15) + 10), lp = (a, b, t) => a + (b - a) * t;
+  const lat = (c, seed) => { const g = new Float32Array(c * c * c); let s = seed; for (let i = 0; i < g.length; i++) { s = (s * 16807) % 2147483647; g[i] = s / 2147483647; } return { g, c }; };
+  const smp = (L, x, y, z) => { const c = L.c, f = x * c / N, h = y * c / N, k = z * c / N, i = Math.floor(f), j = Math.floor(h), l = Math.floor(k), U = q(f - i), V = q(h - j), W = q(k - l), at = (a, b, e) => L.g[((a % c) * c + (b % c)) * c + (e % c)];
+    return lp(lp(lp(at(i, j, l), at(i + 1, j, l), U), lp(at(i, j + 1, l), at(i + 1, j + 1, l), U), V), lp(lp(at(i, j, l + 1), at(i + 1, j, l + 1), U), lp(at(i, j + 1, l + 1), at(i + 1, j + 1, l + 1), U), V), W); };
+  const L = [lat(4, 11), lat(8, 23), lat(16, 37), lat(4, 51), lat(8, 67), lat(16, 83), lat(8, 97), lat(16, 113)], st = v => Math.max(0, Math.min(255, ((v - .5) * 1.7 + .5) * 255));
+  let p = 0; for (let z = 0; z < N; z++) for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    d[p++] = st(smp(L[0], x, y, z) * .5 + smp(L[1], x, y, z) * .3 + smp(L[2], x, y, z) * .2); d[p++] = st(smp(L[3], x, y, z) * .5 + smp(L[4], x, y, z) * .3 + smp(L[5], x, y, z) * .2);
+    d[p++] = smp(L[6], x, y, z) * 255; d[p++] = smp(L[7], x, y, z) * 255; }
+  const t = new THREE.Data3DTexture(d, N, N, N); t.format = THREE.RGBAFormat; t.type = THREE.UnsignedByteType; t.wrapS = t.wrapT = t.wrapR = THREE.RepeatWrapping; t.minFilter = t.magFilter = THREE.LinearFilter; t.unpackAlignment = 1; t.needsUpdate = true; return t; }
+const UMW_ATEM_VS = `varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
+const UMW_ATEM_FS = `uniform sampler3D tN; uniform vec4 uB[6], uD[6], uS, uP; uniform vec3 uO, flP, flD; uniform vec2 flK; uniform vec4 lamps[10]; uniform float uAmb; varying vec3 vW; out vec4 fragColor;
+  float hg(float mu, float g){ float g2 = g * g; return (1. - g2) / pow(1. + g2 - 2. * g * mu, 1.5); }
+  void main(){ vec3 ro = cameraPosition, rd = normalize(vW - ro), oc = ro - uS.xyz; float b = dot(oc, rd), h = b * b - dot(oc, oc) + uS.w * uS.w; if (h < 0.) discard;
+    h = sqrt(h); float t0 = max(-b - h, .05), t1 = -b + h; if (t1 <= t0) discard;
+    float dt = (t1 - t0) / 14., jit = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453), T = 1., ws = 0.; vec3 Pm = vec3(0.);
+    for (int i = 0; i < 14; i++){ float t = t0 + (float(i) + jit) * dt; vec3 p = ro + rd * t;
+      vec3 q = (p - uO) * uP.x; vec4 nz = textureLod(tN, q * .45 + uP.z, 0.); vec3 wq = q + (nz.gba - .5) * uP.w; // Wirbel: verzerrte Koordinaten
+      float f = textureLod(tN, wq, 0.).r * .7 + textureLod(tN, wq * 2.3 + vec3(.37), 0.).g * .3; // Grundform + Feinstruktur
+      float d = 0.; for (int j = 0; j < 6; j++){ vec4 B = uB[j]; vec3 e = p - B.xyz; float g = exp(-dot(e, e) / (B.w * B.w)); d += uD[j].x * g * smoothstep(uD[j].y, uD[j].y + .3, f + (g - .5) * .25); } // Ränder zerfasern zuerst
+      float a = 1. - exp(-d * dt * uP.y); Pm += p * a * T; ws += a * T; T *= 1. - a; if (T < .015) break; }
+    float A = 1. - T; if (A < .004) discard; Pm /= max(ws, 1e-5);
+    vec3 q = Pm - flP; float l = max(length(q), .02); vec3 Ld = q / l; float mu = dot(Ld, -rd), ph = mix(hg(mu, .55), hg(mu, -.3), .4); // Lampe nah hinter dem Auge: Rückstreuung
+    vec3 col = vec3(1., .94, .85) * flK.x * smoothstep(flK.y - .12, mix(flK.y, 1., .35), dot(Ld, flD)) * ph * .5 / (1. + l * l * .25);
+    for (int i = 0; i < 10; i++){ vec4 L = lamps[i]; if (L.w < .02) continue; vec3 e = Pm - vec3(L.x, 4.6, L.z); float d2 = dot(e, e); vec3 ld = e * inversesqrt(d2); float m2 = dot(ld, -rd);
+      col += vec3(1., .63, .3) * L.w * mix(hg(m2, .6), hg(m2, -.3), .4) * .8 / (1. + d2 * .06); } // Laterne: Vorwärtsstreuung, im Gegenlicht leuchtet der Hauch
+    col = (col + vec3(.55, .6, .72) * uAmb * .8) * mix(1., .65, A); // dichter Kern etwas dunkler
+    fragColor = vec4(min(col, vec3(1.)) * A * .95, A); }`;
 function umwelt_atemBau() {
-  const N = 40, g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
-  for (const k of ['aO', 'aV', 'aP', 'aW']) { const a = new THREE.BufferAttribute(new Float32Array(N * 4), 4); a.setUsage(THREE.DynamicDrawUsage); g.setAttribute(k, a); }
-  for (let i = 0; i < N; i++) { g.attributes.aO.setW(i, -1e5); g.attributes.aV.setW(i, 1); }
-  const U = Object.assign(umwelt_lichtU(), { uT: { value: 0 }, uW: { value: new THREE.Vector2() }, uPx: { value: 600 } });
-  const m = new THREE.ShaderMaterial({ uniforms: U, transparent: true, depthWrite: false,
-    vertexShader: `uniform vec3 flP, flD; uniform vec2 flK; uniform vec4 lamps[10]; uniform float uAmb, uT, uPx; uniform vec2 uW; attribute vec4 aO, aV, aP, aW; varying vec3 vCol; varying float vA, vS, vU, vR;
-      void main(){ float age = uT - aO.w, u = age / aV.w; if (u < 0. || u > 1.) { gl_Position = vec4(2., 2., 2., 1.); gl_PointSize = 0.; vA = 0.; return; }
-        float dr = aW.w, sd = aP.w; vec3 w = aO.xyz + aV.xyz * (1. - exp(-age * dr)) / dr + vec3(0., .09 * pow(age, 1.5), 0.) + vec3(uW.x - aW.x, 0., uW.y - aW.y) * .55 * smoothstep(0., .7, age)
-          + vec3(sin(age * 6.3 + sd * 21.), sin(age * 4.7 + sd * 13.) * .6, cos(age * 5.9 + sd * 17.)) * .018 * age;
-        vec4 mv = viewMatrix * vec4(w, 1.); float sz = mix(aP.x, aP.y, 1. - (1. - u) * (1. - u));
-        vec3 q = w - flP; float l = length(q), c = dot(q / max(l, 1e-3), flD); vec3 V = normalize(w - cameraPosition);
-        vec3 col = vec3(1., .94, .85) * flK.x * smoothstep(flK.y - .25, mix(flK.y, 1., .3), c) * .9; // Lampenkegel von hinten: gedämpft
-        for (int i = 0; i < 10; i++){ vec4 L = lamps[i]; if (L.w < .02) continue; vec3 e = vec3(L.x, 4.6, L.z) - w; float d2 = dot(e, e), ph = .5 + 2.6 * pow(max(0., dot(V, e * inversesqrt(d2))), 6.);
-          col += vec3(1., .63, .3) * L.w * ph * 1.4 / (1. + d2 * .06); } // Laterne: Vorwärtsstreuung, im Gegenlicht leuchtet der Hauch auf
-        vCol = col + vec3(.6, .65, .75) * uAmb; vU = u; vS = sd; vR = aW.z;
-        vA = aP.z * smoothstep(0., .14, u) * pow(1. - u, 1.3) * smoothstep(.1, .32, -mv.z);
-        gl_Position = projectionMatrix * mv; gl_PointSize = clamp(uPx * sz / max(.1, -mv.z), 1., 180.); }`,
-    fragmentShader: `varying vec3 vCol; varying float vA, vS, vU, vR;
-      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); } float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h(i), h(i + vec2(1., 0.)), f.x), mix(h(i + vec2(0., 1.)), h(i + vec2(1., 1.)), f.x), f.y); }
-      float fb(vec2 p){ return n(p) * .55 + n(p * 2.03 + 7.1) * .3 + n(p * 4.1 + 3.7) * .15; }
-      void main(){ if (vA < .002) discard; vec2 c = gl_PointCoord - .5; float cr = cos(vR), sr = sin(vR); c = mat2(cr, -sr, sr, cr) * c;
-        vec2 wq = c * 2.6 + vec2(fb(c * 2.2 + vS * 9. + vU * 1.3), fb(c * 2.2 - vS * 7. - vU)) * .9;
-        float d = fb(wq * 1.8 + vS * 5.), st = n(vec2(c.x * 2.5, c.y * 11.) + vS * 13. + vU * 2.);
-        float rad = smoothstep(.5, .08, length(c) * (1. + .35 * (d - .5)));
-        float a = vA * rad * smoothstep(.28 + .3 * vU, .72 + .12 * vU, d * .8 + st * .3);
-        if (a < .002) discard; gl_FragColor = vec4(min(vCol, vec3(1.3)), a); }` });
-  const p = new THREE.Points(g, m); p.frustumCulled = false; p.userData.noCol = true; p.renderOrder = 8; p.name = 'umwelt_atem'; scene.add(p);
-  umwelt_S.atem = { p, U, N, next: 0, g, E: 0, T: 2, ex: 0, exK: 0, emT: 0 }; }
+  const tN = umwelt_rauschen3D(), geo = new THREE.PlaneGeometry(2, 2), slots = [];
+  for (let s = 0; s < 3; s++) {
+    const U = Object.assign(umwelt_lichtU(), { tN: { value: tN }, uB: { value: Array.from({ length: 6 }, () => new THREE.Vector4()) }, uD: { value: Array.from({ length: 6 }, () => new THREE.Vector4()) },
+      uS: { value: new THREE.Vector4() }, uP: { value: new THREE.Vector4(2, 3, 0, .25) }, uO: { value: new THREE.Vector3() } });
+    const m = new THREE.ShaderMaterial({ uniforms: U, vertexShader: UMW_ATEM_VS, fragmentShader: UMW_ATEM_FS, glslVersion: THREE.GLSL3, transparent: true, depthWrite: false, depthTest: false, premultipliedAlpha: true });
+    const mesh = new THREE.Mesh(geo, m); mesh.frustumCulled = false; mesh.visible = false; mesh.userData.noCol = true; mesh.renderOrder = 8; mesh.name = 'umwelt_atem' + s; scene.add(mesh);
+    slots.push({ mesh, U, on: false, t0: -1e5, b: Array.from({ length: 6 }, () => ({ on: false, p: new THREE.Vector3(), v: new THREE.Vector3(), age: 0, u: 2, r: .03, rho: 0 })) }); }
+  umwelt_S.atem = { slots, E: 0, T: 2, force: 0, wfx: WIND.fx, wfz: WIND.fz, wvx: 0, wvz: 0 }; }
 // Wie gut würde man den Hauch sehen? (0 … 1) – Lampe an, Laterne nah, oder Tag
 function umwelt_atemLicht() {
   let v = Math.min(1, fogUniforms.flK.value.x * 1.3); const c = camera.position;
   for (const L of fogUniforms.lamps.value) { if (L.w < .02) continue; const d2 = (L.x - c.x) ** 2 + (L.z - c.z) ** 2; v = Math.max(v, L.w * (1 - Math.min(1, d2 / 110))); }
   return Math.max(v, umwelt_S.amb ? umwelt_S.amb.value * 2 : 0); }
+const umwelt_V3 = new THREE.Vector3(), umwelt_V3b = new THREE.Vector3();
+function umwelt_atemStart(A, E, K) {
+  let B = A.slots.find(s => !s.on); if (!B) { B = A.slots[0]; for (const s of A.slots) if (s.t0 < B.t0) B = s; }
+  B.on = true; B.t0 = umwelt_S.t; B.K = K; B.dur = rand(.32, .5) + .15 * E; B.seed = Math.random() * 7; B.ext = 2. * K; B.frq = rand(3.5, 4.5);
+  const v0 = (1.05 + .7 * E) * rand(.85, 1.15), life = rand(1.7, 2.6) * (1 - .2 * E);
+  for (let j = 0; j < 6; j++) { const b = B.b[j], k = j / 5; b.on = false; b.u = 2; b.te = B.t0 + B.dur * k * rand(.9, 1.1); b.v0 = v0 * (1 - .55 * k) * rand(.9, 1.1); b.life = life * rand(.85, 1.1);
+    b.r1 = rand(.07, .11) * (1 + .3 * E) * (1.25 - .4 * k); b.rho0 = (1.1 - .45 * k) * rand(.8, 1.1); b.s = Math.random() * 6.28; } }
+function umwelt_atemSlot(B, A, dt) {
+  const S = umwelt_S, cam = camera, c = cam.position; let n = 0, mx = 0, my = 0, mz = 0;
+  for (let j = 0; j < 6; j++) { const b = B.b[j], D = B.U.uD.value[j];
+    if (!b.on) { if (b.u < 2 || S.t < b.te) { D.x = 0; continue; }
+      // Ausatmen: Startpunkt am Mund (knapp unter und vor dem Auge), Richtung Blick, leicht abwärts; Luke nimmt die Luft beim Gehen mit
+      umwelt_V3.set(0, -.11, -.08).applyQuaternion(cam.quaternion).add(c); umwelt_V3b.set(rand(-.1, .1), -.4 + rand(-.08, .08), -1).applyQuaternion(cam.quaternion).normalize();
+      b.p.copy(umwelt_V3).addScaledVector(umwelt_V3b, .03); b.v.copy(umwelt_V3b).multiplyScalar(b.v0).addScaledVector(vel, .9); b.on = true; b.age = 0; b.u = 0; b.r = .025; }
+    b.age += dt; b.u = b.age / b.life; if (b.u >= 1) { b.on = false; b.u = 1; D.x = 0; continue; }
+    const k = .7 + 2.8 * Math.exp(-b.age * 1.6), f = 1 - Math.exp(-k * dt), tb = .12 + .5 * gust; // Bremsen gegen die Luft (der Körper schirmt den Wind ab: nur ein Teil nimmt mit), Auftrieb, Turbulenz
+    b.v.x += (A.wvx * .3 + Math.sin(b.age * 5.1 + b.s) * tb - b.v.x) * f; b.v.z += (A.wvz * .3 + Math.cos(b.age * 4.3 + b.s * 3) * tb - b.v.z) * f; b.v.y += (.07 * Math.min(1, b.age * 2) + Math.sin(b.age * 3.7 + b.s * 2) * tb * .5 - b.v.y) * f;
+    b.p.addScaledVector(b.v, dt); b.r = b.r1 - (b.r1 - .025) * Math.exp(-b.age * 2.6) + .03 * b.age;
+    b.rho = b.rho0 * Math.min(1, b.age * 20) * Math.pow(1 - b.u, 1.1) * Math.min(2.5, .07 / b.r);
+    B.U.uB.value[j].set(b.p.x, b.p.y, b.p.z, b.r); D.set(b.rho, .28 + .5 * Math.pow(b.u, 1.3), 0, 0); n++; mx += b.p.x; my += b.p.y; mz += b.p.z; }
+  if (!n) { if (B.b.every(b => b.u >= 1)) B.on = false; B.mesh.visible = false; return; }
+  mx /= n; my /= n; mz /= n; let R = 0; for (const b of B.b) if (b.on) R = Math.max(R, Math.hypot(b.p.x - mx, b.p.y - my, b.p.z - mz) + 1.9 * b.r);
+  B.U.uS.value.set(mx, my, mz, R); B.U.uO.value.set(mx, my, mz).lerp(B.b[0].p, .3); B.U.uP.value.set(B.frq, B.ext, B.seed + (S.t - B.t0) * .05, .22 + .3 * gust);
+  // Quad: senkrecht zum Blick, groß genug für die perspektivische Silhouette der Hüllkugel; steht Luke in der Kugel, deckt es das Bild
+  umwelt_V3.set(0, 0, -1).applyQuaternion(cam.quaternion); const D = (mx - c.x) * umwelt_V3.x + (my - c.y) * umwelt_V3.y + (mz - c.z) * umwelt_V3.z, M = B.mesh;
+  if (D < R + .06) { M.position.copy(c).addScaledVector(umwelt_V3, .06); M.scale.setScalar(.14); } else { M.position.set(mx, my, mz); M.scale.setScalar(R * D / Math.sqrt(D * D - R * R) * 1.05); }
+  M.quaternion.copy(cam.quaternion); M.visible = true; }
 function umwelt_atemTick(dt, aussen, sp) {
-  const A = umwelt_S.atem; if (!A) return; A.U.uT.value = umwelt_S.t; A.U.uW.value.set(WIND.fx, WIND.fz);
+  const A = umwelt_S.atem; if (!A) return; const S = umwelt_S;
+  A.wvx = (WIND.fx - A.wfx) / Math.max(dt, 1e-3); A.wvz = (WIND.fz - A.wfz) / Math.max(dt, 1e-3); A.wfx = WIND.fx; A.wfz = WIND.fz;
   // Anstrengung: Rennen und Angst heben sie, sie klingt langsam ab (~15 s)
   const fe = typeof fear !== 'undefined' ? fear.v || 0 : 0; A.E = Math.max(fe * .8, Math.min(1, A.E + (sp > 3.2 ? dt * .3 : -dt * .065)));
-  A.T -= dt; if (A.T < 0) { A.T = rand(3.5, 5) * (1 - A.E * .6);
-    const an = typeof settings === 'undefined' || (settings.atem !== false && settings.bob !== false), lt = umwelt_atemLicht();
-    if (aussen && an && !state.talking && !ui.overlay && lt > .06) { A.ex = .35 + .2 * A.E; A.exK = Math.min(1, lt) * (.75 + .35 * A.E); A.emT = 0; } }
-  if (A.ex <= 0) return; A.ex -= dt; A.emT -= dt; if (A.emT > 0) return; A.emT = rand(.045, .075);
-  const c = camera.position, f = fwd, fl = Math.hypot(f.x, f.z) || 1, fx = f.x / fl, fz = f.z / fl, i = A.next, g = A.g.attributes; A.next = (i + 1) % A.N;
-  const v0 = (.75 + .55 * A.E) * rand(.8, 1.15), life = rand(.8, 1.4) * (1 + .15 * A.E);
-  g.aO.setXYZW(i, c.x + fx * .1 + rand(-.015, .015), c.y - .16 + rand(-.01, .01), c.z + fz * .1 + rand(-.015, .015), umwelt_S.t);
-  g.aV.setXYZW(i, fx * v0 + vel.x * .85 + rand(-.12, .12), -.22 * v0 + rand(-.05, .06), fz * v0 + vel.z * .85 + rand(-.12, .12), life);
-  g.aP.setXYZW(i, rand(.035, .05), rand(.2, .3) * (1 + .3 * A.E), rand(.09, .14) * A.exK, Math.random());
-  g.aW.setXYZW(i, WIND.fx, WIND.fz, rand(0, 6.28), rand(2.8, 3.6));
-  for (const a of [g.aO, g.aV, g.aP, g.aW]) { a.addUpdateRange(i * 4, 4); a.needsUpdate = true; } }
+  A.T -= dt; if (A.T < 0 || A.force) { A.T = rand(3.5, 5) * (1 - A.E * .6);
+    const an = typeof settings === 'undefined' || (settings.atem !== false && settings.bob !== false), lt = A.force ? 1 : umwelt_atemLicht();
+    if (A.force || (aussen && an && !state.talking && !ui.overlay && lt > .06)) umwelt_atemStart(A, A.E, Math.min(1, lt) * rand(.45, 1) * (.8 + .3 * A.E)); A.force = 0; }
+  for (const B of A.slots) if (B.on) umwelt_atemSlot(B, A, dt); }
 function umwelt_luftTick(dt, P, indoor, aussen, sp) {
   const S = umwelt_S, on = state.started && !menu.attract && !(typeof ch3 !== 'undefined' && ch3.on && ch3.part === 'white') ? 1 : 0;
   if (S.motes) { const U = S.motes.U; U.uT.value = S.t; U.uW.value.set(WIND.fx, WIND.fz); U.uC.value.copy(camera.position); const inn = indoor || state.inBasement ? 1 : 0;
@@ -330,7 +361,7 @@ function umwelt_luftTick(dt, P, indoor, aussen, sp) {
 
 WORLD_MODS.push(['Umwelt', async () => {
   const S = umwelt_S; window.__umwelt = S; // Testzugriff
-  S.api = { stoss: d => windStoss(d), wind: () => ({ k: WIND.k, gust, dx: WIND.dx, dz: WIND.dz, tr: WIND.tr.map(c => +c.a.toFixed(2)) }), vel: () => vel, licht: on => { flashOn = on; }, blatt: (x, y, z, U) => umwelt_blatt(x, y, z, U || 0, .1) };
+  S.api = { stoss: d => windStoss(d), wind: () => ({ k: WIND.k, gust, dx: WIND.dx, dz: WIND.dz, tr: WIND.tr.map(c => +c.a.toFixed(2)) }), vel: () => vel, licht: on => { flashOn = on; }, blatt: (x, y, z, U) => umwelt_blatt(x, y, z, U || 0, .1), atem: (E, neu) => { const A = S.atem; if (!A) return; if (neu) for (const B of A.slots) { B.on = false; B.mesh.visible = false; for (const b of B.b) { b.on = false; b.u = 2; } } if (E !== undefined) A.E = E; A.force = 1; } };
   try { umwelt_motesBau(); } catch (e) { console.warn('umwelt: Schwebeteilchen', e); }
   try { umwelt_puffBau(); } catch (e) { console.warn('umwelt: Dampf', e); }
   try { umwelt_atemBau(); } catch (e) { console.warn('umwelt: Atem', e); }
@@ -343,7 +374,7 @@ WORLD_TICK.push((dt, t, indoor) => {
   const S = umwelt_S; if (!S.ok) return; dt = Math.min(dt, .05); S.t += dt;
   const P = player.pos, sp = Math.hypot(vel.x, vel.z), aussen = state.started && !indoor && !state.inBasement && state.zone !== 'canal' && P.x < 250 && P.x > -800 && !(typeof ch3 !== 'undefined' && ch3.on && ch3.part === 'white') && !menu.attract;
   S.regT -= dt; if (S.regT < 0) { S.regT = 2; try { umwelt_schaukelnSuchen(); } catch (e) {} if (S.amb) S.amb.value = typeof kap === 'function' && kap() === 4 ? .4 : .04;
-    renderer.getDrawingBufferSize(umwelt_V2); const px = umwelt_V2.y * .5 / Math.tan(camera.fov * PI / 360); if (S.motes) S.motes.U.uPx.value = px; if (S.puff) S.puff.U.uPx.value = px; if (S.atem) S.atem.U.uPx.value = px; }
+    renderer.getDrawingBufferSize(umwelt_V2); const px = umwelt_V2.y * .5 / Math.tan(camera.fov * PI / 360); if (S.motes) S.motes.U.uPx.value = px; if (S.puff) S.puff.U.uPx.value = px; }
   umwelt_schaukelnTick(dt, P);
   umwelt_blaetterTick(dt, P, aussen, sp);
   umwelt_luftTick(dt, P, indoor, aussen, sp);
