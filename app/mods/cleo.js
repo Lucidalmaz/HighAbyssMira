@@ -65,9 +65,9 @@ function cleo_stone() {
 function cleo_akte() {
   if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
   Audio.play('metalOpen', { gain: .4, rate: 1.1, x: C2.x + 22, y: .32, z: C2.z - 5.3 });
-  story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
+  story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG. Darunter: Name auf Wunsch der Mutter entfernt.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
   cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
-  openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
+  openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\nName auf Wunsch der Mutter entfernt.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
   if (typeof gedanke === 'function') gedanke('cleo_akte', 'Eine für sieben. Irgendwer hat sich selbst geschickt – für uns.', 1000, 3); // Fassung 3: alte Justin-Zeile abgeschafft
 }
 function cleo_climb(up) {

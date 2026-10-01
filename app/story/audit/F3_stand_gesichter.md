@@ -74,7 +74,19 @@ Nicht eingebaut: Kap.-3-Schluss-Kino („Bruno hinterher“, kino.js) – Kino-A
 ## 8. Prüfung
 - Werkstatt-Vorschauen (forge, ohne Spiel): alle 33 Figuren mit Ruhe/Blinzeln/Angst/Trauer/Blick/Mund, Rückansicht – Blinzeln beide Lider, Augapfel-Knochen drehen, Mimik sichtbar, keine kaputten Netze. Bilder: `C:/Users/GIGABYTE/_forge_gs/build/`.
 - Neubau-Kette gelaufen: forge → chars_pack → mocap_bake (alle, `--no-ktx`) → ktx (Vegas nachkonvertiert, weil ein paralleler KTX-Lauf das noch ungebackene GLB erwischt hatte). KTX-Fassungen geprüft: Formen, Clips, `motion`, Augenknochen vorhanden.
-- Spiel-Nahlauf (ein Lauf, `_gs_run.sh`): ERGEBNIS_PLATZHALTER
+- Spiel-Nahlauf **nicht gelaufen** (Testwarteschlange voll, Anweisung Hauptagent: nach 20 min abbrechen). Gelaufen: Syntax aller geänderten Module/Werkzeuge, `assemble.js`. Fertiger Prüflauf liegt bereit: `bash /c/Users/GIGABYTE/_gs_run.sh` (Schritte `C:/Users/GIGABYTE/_gs_test/steps.json`, Ergebnis `_gs_test/out/filmstreifen.jpg` + `faehigkeiten.json`).
+
+### Im Schlusstest prüfen (Gesichter/Figuren)
+1. Nahaufnahme einer Figur (z. B. `__figuren.show('zayn', …)`, Kamera 0,6 m): Blinzeln alle 2–6 s mit beiden Lidern, Sakkaden, Lider folgen dem Blick; `__figuren.mimik(P,'angst'|'trauer'|'misstrauen')` sichtbar und weich; `__figuren.sprich(P,3)` Mund bewegt sich.
+2. Haut im Spiel: Poren-Relief flimmert nicht (Nähe und 5–10 m), keine Shader-Fehler im Log (`fig_haut`, `fig_cornea`, `fig_haar`); Hornhaut-Lichtpunkt sichtbar, Augen nicht milchig/zu hell.
+3. Gespräch mit Vegas (Kap. 1 Tür / Kap. 4 Stube): Vegas schaut Luke an, Lippen bewegen sich mit der Sprachausgabe (stimmen.js-Pegel), neuer realistischer Kopf passt zum Körper (Halsübergang, Hut).
+4. Taschenlampe auf ein nahes Gesicht: Figur kneift, blickt kurz ins Licht; Behaltene (graue, gezaehlt, hilde_tot) blinzeln NIE und schauen nicht von selbst.
+5. Neue Figuren an ihren Orten: Mira (Raum 3, Nachbild, Locken), Voss (Raum 2 grau / Friedhof Kap. 5), Luke 26 als Umriss (Kap. 3 „Augen zu“), Frau Reuter (lucy3 Nachhall 5), Hilde mit Lesebrille, Hilde „Nicht du“ (Nachthemd, offenes Haar, barfuß), Gisela (Gummistiefel).
+6. Bruno: Kap. 4 Vegas' Stube (steht still, Kopf dreht spät/zu weit, geht ruckhaft 0,7 m – nicht durch Möbel), Kap. 3 Abgrund grau neben Zayns Stuhl (Lage/Höhe).
+7. Schemen (`ghost.glb`, neu): Echo-Umrisse, Fenster-Silhouetten (fassaden), Kokon (innen_kapitel Amt) – Form, Größe, Bewegung idle/walk.
+8. Justin: idle/walk/talk/draw (neue Mocap) – kein Gleiten (Schrittmessung), Knien weiter ok, Helm/Schild/Schwert sitzen.
+9. Leistung: Kinder jetzt 76–107 k Dreiecke (Nimmerheim: 7 Kinder sitzend); Figuren-Tick `__figuren.MV.ms`.
+10. Körperteile: Haare/Wimpern in 10–30 m nicht ausgedünnt; Nachbilder (Erinnerungs-Material) zerfallen nur am Rand.
 
 ## 9. Offen / fehlende Assets
 - **Dreiecke:** gltfpack würde die Gesichtsnetze vereinfachen (Lider zerfallen) → `chars_pack` lässt solche Modelle jetzt unvereinfacht: Kinder 76–107 k statt 45 k Dreiecke. Für die Schluss-Leistungsprüfung: ggf. Körper-LOD/Vereinfachung ohne Gesichtsnetz.

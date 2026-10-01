@@ -1175,7 +1175,7 @@ async function k5_kreideNachbild() { if (state.talking || k5.f.kreideNb) return;
   try { if (typeof figuren_memoryLook === 'function') figuren_memoryLook(true); Audio.whisper(K5.pit.x, 1, K5.pit.z, 1.2);
     await say([['Ein Mann in Eisen kniet am Grab und liest, langsam, mit dem Finger.', 4200], ['Er kommt bis zur zweiten Zahl. Dann steht er auf und geht Richtung Senke.', 4600], ['Er hat es geglaubt.', 2600]]);
     if (typeof figuren_memoryLook === 'function') figuren_memoryLook(false);
-    await say([['„Darum hat er mich an der Kreuzung so lange angesehen.“', 3800, K5_W.LU]]); } finally { state.talking = false; } }
+    /* H-1: kein erklärender Einzeiler mehr ("Darum hat er mich …") – Stille */ } finally { state.talking = false; } }
 // A-18: im Grabkranz ein Filmpack (die Behaltenen sieht man nach „Pust.“ nur im Blitz)
 function k5_kranz() { if (k5.f.kranz) return; k5.f.kranz = true; uninteract(K5.hit.kranz); Audio.paper && Audio.paper(); toast('Zwischen den Tannenzweigen des Kranzes steckt ein Filmpack, noch in Folie. Auf der Folie, in Bleistift: „H.“', 4600); if (typeof kamera_film === 'function') kamera_film(1); }
 // Wahl C („Dass du sie suchst.“): die Gürtelschnalle im Fundamentstein (Scheune, Justins Lager) – Einlösung Geschenk C
@@ -1314,7 +1314,7 @@ WORLD_TICK.push((dt, t) => {
   if ((b === 'brot' || b === 'stall') && P.x < -70) for (const L of lamps) if (L.mode === 'on' && L.wx < -18 && L.wx > -130 && Math.abs(L.wz) < 8 && L.wx > P.x + 11) { L.mode = 'dying'; L.dead = 0; k5.lampAus = L; break; }
   if (b === 'brot' && S.stallP && Math.hypot(P.x - S.stallTuer[0], P.z - S.stallTuer[1]) < 3.5) { k5.beat = 'stall'; k5_setup('stall', true); }
   if ((b === 'brot' || b === 'stall') && P.x < -70 && k5.katzeLampe !== k5.lampAus) { k5.katzeLampe = k5.lampAus; const L = k5.lampAus; if (L) k5_kater('zurueck', { x: L.wx, z: L.wz, sek: 2.2 }); } // die Katze bleibt bei jeder Laterne stehen und sieht zurück
-  if (b === 'stall' && !k5.f.sb10Satz && typeof sammeln_hatSB === 'function' && sammeln_hatSB(10) && !state.talking && !ui.overlay) { k5.f.sb10Satz = true; setTimeout(() => { if (k5.on) subtitle('„Das steht in Mamas Liederheft, und die Häkchen sind Lucys Spieluhr.“', 4800, K5_W.LU); }, 1200); }
+  if (b === 'stall' && !k5.f.sb10Satz && typeof sammeln_hatSB === 'function' && sammeln_hatSB(10) && !state.talking && !ui.overlay) { k5.f.sb10Satz = true; /* H-1: Einzeiler gestrichen, das Summen reicht */ }
   if (b === 'stall' && S.stallP && !k5.f.brettGesehen && k5_dist(S.stallP[0], S.stallP[1]) < 3 && k5_blick(S.stallP[0], .3, S.stallP[1]) > .85) { k5.f.brettGesehen = true; // Hilfeleiter (2): das Brett; wer Hildes Zählbuch behalten hat, bekommt ihre Randnotiz
     if (k5_hat('zaehlbuch')) setTimeout(() => k5_denk('Hildes Zählbuch, am Rand: „Brot hin. Umdrehen. Der ist scheu wie eine Katze.“', 5600), 800); }
   if (b === 'stall' && k5.f.brotStall) { if (!state.talking && !k5_zu()) { k5.stT += dt;

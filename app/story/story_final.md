@@ -287,9 +287,9 @@ Der Wert ändert nie die Hauptgeschichte, aber Ton, Häufigkeit, Nebenbemerkunge
 - **Kap. 7:** zeigt sich zum ersten Mal richtig und spricht.
 - **Whiskey sieht ihn immer**, ohne dass er verschwindet. **Katzen auch.** Wenn Whiskey oder eine Katze in eine leere Ecke starrt, ist dort jemand.
 
-**Spuren (jedes Kapitel):** drei kleine parallele Kratzer in Kinderhöhe; kleine dreizehige nasse Abdrücke, die mitten auf dem Weg aufhören; ∴ in beschlagenen Scheiben, Staub, Kreide; drei Kiesel übereinander; Batterien im Dreieck; Lukes Taschenlampe liegt anders und zeigt auf etwas Wichtiges; Bonbonpapier, ausgeleckt und gefaltet; eine Tür, die offen stand, ist jetzt angelehnt; auf einer schon gelesenen Notiz ist frisch etwas unterstrichen. Spuren, die zeigen, dass er GERADE da war oder VOR Luke da war.
+**Spuren (jedes Kapitel):** drei kleine parallele Kratzer in Kinderhöhe; kleine dreizehige nasse Abdrücke, die mitten auf dem Weg aufhören; ∴ in beschlagenen Scheiben, Staub, Kreide; drei Kiesel übereinander; Batterien im Dreieck; Lukes Taschenlampe liegt anders und zeigt auf etwas Wichtiges; Bonbonpapier, ausgeleckt und gefaltet; eine Tür, die offen stand, ist jetzt angelehnt; auf einer schon gelesenen Notiz ist frisch etwas unterstrichen. Spuren, die zeigen, dass er GERADE da war oder VOR Luke da war. **Budget (Story-Prüfung B, R-1):** je Kapitel höchstens fünf sichtbare Spuren; Bonbonpapier nur noch, wenn er etwas gegessen hat, das Luke gehörte; Kiesel nur, wo eine Katze hinstarrt (Liste je Kapitel: Dossier 82 §4).
 
-**Zettel:** Druckbuchstaben, Bleistift, kleine Grammatikfehler (Deutsch von Kindern und Behördenpapier), unterschrieben **∴**. Er legt sie hinter Lukes Füße (Papier, Trippeln). Arten: Hilfe, wenn Luke festhängt; Batterien; gruseliges Wissen; Fragen über Menschen; LWO-Warnungen; Humor („WARUM SAGT IHR GUTE NACHT WENN SIE NICHT GUT IST ∴“, „DU HAST DREI MAL ‚SCHEISSE‘ GESAGT. IST DAS EIN GEBET ∴“).
+**Zettel:** Druckbuchstaben, Bleistift, kleine Grammatikfehler (Deutsch von Kindern und Behördenpapier), unterschrieben **∴**. Er legt sie hinter Lukes Füße (Papier, Trippeln). Arten: Hilfe, wenn Luke festhängt; Batterien; gruseliges Wissen; Fragen über Menschen; LWO-Warnungen; selten Humor. **Ton steigt (Story-Prüfung B, G-4):** Kap. 1–2 wissend und unheimlich, Kap. 3 neugierig und fremd, Kap. 4 wissend und traurig, Kap. 5–6 kälter: er sieht zu, rechnet und hilft nicht immer; zwiespältig bis Kapitel 7 (Auswahl: Dossier 82 §5). Humor („WARUM SAGT IHR GUTE NACHT WENN SIE NICHT GUT IST ∴“, „DU HAST DREI MAL ‚SCHEISSE‘ GESAGT. IST DAS EIN GEBET ∴“).
 
 ---
 
@@ -545,7 +545,7 @@ Alle beruhigenden Artikel zu Vorfällen sind mit **(hw)** gezeichnet. Kein Artik
 Prolog Traum · Kap. 1: Vegas tauft ihn (W-01), Ring mit Turmzeichen (W-02), klaut Lukes Autoschlüssel und gibt ihn nur gegen Tausch zurück (W-03), sitzt über Justins Lager in der Scheune (W-04), Speck-Rivalität mit Vegas (W-04b) · Kap. 2: kein Auftritt, nur die Feder an Stuhl 8 (W-05) · Kap. 3: landet auf Justins Handschuh (W-06), hilft beim Funk, wenn Luke festhängt (W-07), fliegt in Nimmerheim mit und wird dort ganz still (W-08) · Kap. 4: verrät Luke fast mit dem Klingelton, rettet ihn dann (W-09), reißt Wolter den Handschuh herunter (W-10), bringt Miras Ring (W-11) · Kap. 5: Stalldach, führt zum echten Luke (W-12) · Kap. 6: führt in den Wald, verjagt den Wendigo mit Miras Licht (W-13), bringt SB-12 (W-14), sagt „Luna.“ (W-15). Dazu in jedem Kapitel mindestens zwei kleine Charakterszenen (eitel, beleidigt, äffen, klauen, still werden).
 
 ### 15.5 Der Beobachter (Kennung B-xx)
-Kap. 1: nur Spuren (mindestens 8 Arten) und zwei Zettel (B-01 in Lucys Auto nach den elf Anrufen; B-02 an der Kellertür nach drei falschen Codes: ein Hinweis, nicht die Lösung). Giselas Katzen starren. Kap. 2: eine einzige Fast-Sichtung; 4–8 Zettel, darunter nach Peters Tod „DANKE. ER HAT GEWEINT. ICH HAB ES GEHÖRT. MEINE SCHWESTER AUCH. ∴“. Ab Kap. 3: durchgehende Verfolgung (Ein-Sekunden-Regel, ständige Geräusche), je 4–8 Zettel, Spuren; die 19 Orts-Zettel als Entdecker-Belohnung (neu geschrieben). Kap. 4: das leere Glas ∴-2, nasse dreizehige Spuren zum Fenster. Kap. 6: „ER FRISST WAS ICH SAMMLE ∴“; sein letzter Zettel („Ich habe dich nicht gerettet. Ich habe nur zugesehen. Frag dich, warum.“), noch mit ∴. Einen Zettel mit nur einem Punkt gibt es erst in Kapitel 7.
+Kap. 1: nur Spuren (höchstens fünf sichtbare, R-1) und zwei Zettel (B-01 in Lucys Auto nach den elf Anrufen; B-02 an der Kellertür nach drei falschen Codes: ein Hinweis, nicht die Lösung). Giselas Katzen starren. Kap. 2: eine einzige Fast-Sichtung; 4–8 Zettel, darunter nach Peters Tod „DANKE. ER HAT GEWEINT. ICH HAB ES GEHÖRT. MEINE SCHWESTER AUCH. ∴“. Ab Kap. 3: durchgehende Verfolgung (Ein-Sekunden-Regel, ständige Geräusche), je 4–8 Zettel, Spuren; die 13 Orts-Zettel als Entdecker-Belohnung (neu geschrieben; von 19 auf 13 gekürzt, Story-Prüfung B). Kap. 4: das leere Glas ∴-2, nasse dreizehige Spuren zum Fenster. Kap. 6: „ER FRISST WAS ICH SAMMLE ∴“; sein letzter Zettel („Ich habe dich nicht gerettet. Ich habe nur zugesehen. Frag dich, warum.“), noch mit ∴. Einen Zettel mit nur einem Punkt gibt es erst in Kapitel 7.
 
 ### 15.6 Neue Figuren (Kennung N-xx)
 | ID | Figur | Kap. | Was mindestens vorkommt |
@@ -766,7 +766,7 @@ Wer die Kopfhörer aufhat oder still steht, hört unter der Stimme ganz leise ei
 LUKE (Gedanke): *Da läuft was unter ihrer Stimme. Eine Spieluhr? Lucy hatte so eine. … Sie hat „Großer“ gesagt. Nur Lucy sagt Großer.*
 **Schmunzler, der kippt:** Über dem Tastenfeld klebt ein Etikett aus Hildes Prägegerät: BITTE NICHT HÄMMERN. LUKE: „Wer hämmert denn auf ein Tastenfeld?“ Pause. Er sieht auf die Stahltür. „… Ach so. Von innen.“
 Das ist die Falle, und sie ist fair: Der Kühlschrankzettel sagt „Egal mit welcher Stimme“, der Kalender sagt „Das ist nicht Lucy“, und die Spieluhr ist hörbar. Der Spieler öffnet trotzdem. Er muss; sonst gibt es kein Kapitel 2. Aber er hat es gewusst.
-**Rätsel Kellercode** (siehe „Rätsel“): 3110. Fehlversuche mit steigender Reaktion; nach dem dritten der Zettel B-K1-02 (Text unter „Fundstücke“), der hinter Lukes Füßen liegt, mit Papierrascheln und drei schnellen kleinen Schritten die Treppe zum Obergeschoss hinauf (an der Stahltür kommt er nicht vorbei; Eisen, 02 D1). Luke sieht sich um. Niemand. Auf der vierten Stufe liegt ein Bonbonpapier, ausgeleckt, sauber gefaltet.
+**Rätsel Kellercode** (siehe „Rätsel“): 3110. Fehlversuche mit steigender Reaktion; nach dem dritten der Zettel B-K1-02 (Text unter „Fundstücke“), der hinter Lukes Füßen liegt, mit Papierrascheln und drei schnellen kleinen Schritten die Treppe zum Obergeschoss hinauf (an der Stahltür kommt er nicht vorbei; Eisen, 02 D1). Luke sieht sich um. Niemand.
 **Tür auf:** Klack. Die Stimme hinter der Tür verstummt mitten im Wort. Kein Weinen mehr. Nur Kälte, die die Treppe hochkriecht, und ein Geruch, den Luke im November nicht erwartet.
 LUKE: „Beton. Und … Sommer? Es riecht nach Sommer.“
 **Gefühl:** Der Spieler will öffnen. Er öffnet. Und schon im Türrahmen ist klar, dass da unten niemand mehr weint.
@@ -984,7 +984,7 @@ Nie zwei Dreier hintereinander; zwischen 6 und 11 liegen Flur, Tür und Rätsel,
 - Nr. 9 als Beobachtungsposten (Nebenaufgabe 7): Kamera auf Nr. 7, Butterbrotpapier, Nummern statt Namen.
 - Ein Detail am Kapitelende je Vertrauen: hoch → im Polaroid-Stapel, den der Kegel herunterweht, liegt ein LWO-Kugelschreiber mit dem Auge („Wir waren hier“); mittel → nichts; miserabel → auf der Endkarte-Rückseite, wenn der Spieler die Fibel öffnet, ein Blatt „Dienstplan L. Brandt, Studio, Nachtschicht Mo–Do, Fr frei“, das da nicht hingehört.
 **Whiskey:** W-02 Ring (Ortsschild), W-03 Schlüsseltausch (Ortsschild), Charakterszene „still werden“ (Briefkasten vor dem Stromausfall) und „äffen im falschen Moment“ (Versteck), Führen von Deckung zu Deckung; W-01 Taufe und W-04b Speck in Nebenaufgabe 2; W-04 Scheune in Nebenaufgabe 19. Unter der Erde geht er nicht: Er bleibt oben auf dem Briefkasten, wenn Luke in den Keller geht, beide Male.
-**Beobachter (nie sichtbar):** Spuren im Hauptweg: (1) drei Kratzer am Ortsschild-Pfosten, (2) dreizehige nasse Abdrücke vor Nr. 1, die mitten auf der Straße aufhören, (3) drei Kiesel auf dem Briefkasten von Nr. 7, (4) Batterien im Dreieck im Flur, (5) Lukes Taschenlampe liegt nach dem Küchenschreck anders und zeigt auf das Tastenfeld, (6) Bonbonpapier, ausgeleckt und gefaltet, auf der Treppe zum Obergeschoss, (7) die Haustür, die zugeschlagen war, ist angelehnt, (8) „heim“ auf Lucys Zettel frisch unterstrichen, (9) ∴ in der beschlagenen Scheibe der Küchentür, wenn Luke aus dem Keller kommt. Dazu Trippeln und Papierrascheln bei B-K1-02. Zettel: **B-K1-02** an der Kellertür (Hauptweg), **B-K1-01** in Lucys Auto (Nebenaufgabe 8). Katzen (Giselas): HÄNSCHEN vor Nr. 1 und auf dem Briefkasten, BÄRBEL unter der Laterne vor Nr. 9, beim Stromausfall am Bordstein und im Abspann, PETER vor Nr. 7 (Namen und Fellfarben nach Giselas Katzenliste, 86; ANNI, ZAYN, GRETE und KEINER bleiben für „Siebzehn Näpfe“); alle starren in leere Ecken, keine sieht nach oben, als die Scheibe kommt.
+**Beobachter (nie sichtbar):** Sichtbare Spuren im Hauptweg (höchstens fünf, R-1, Dossier 82 §4): (1) drei Kratzer am Ortsschild-Pfosten, (2) dreizehige nasse Abdrücke vor Nr. 1, die mitten auf der Straße aufhören, (3) drei Kiesel auf dem Briefkasten von Nr. 7 (Kater Peter starrt hin), (4) Batterien im Dreieck im Flur, (5) ∴ in der beschlagenen Scheibe der Küchentür, wenn Luke aus dem Keller kommt. Ohne Zeichen, als Gänsehaut-Momente: Lukes Taschenlampe liegt nach dem Küchenschreck anders und zeigt auf das Tastenfeld, die zugeschlagene Haustür ist angelehnt, „heim“ auf Lucys Zettel ist frisch unterstrichen. Das Bonbonpapier auf der Treppe ist gestrichen (Story-Prüfung B). Dazu Trippeln und Papierrascheln bei B-K1-02. Zettel: **B-K1-02** an der Kellertür (Hauptweg), **B-K1-01** in Lucys Auto (Nebenaufgabe 8). Katzen (Giselas): HÄNSCHEN vor Nr. 1 und auf dem Briefkasten, BÄRBEL unter der Laterne vor Nr. 9, beim Stromausfall am Bordstein und im Abspann, PETER vor Nr. 7 (Namen und Fellfarben nach Giselas Katzenliste, 86; ANNI, ZAYN, GRETE und KEINER bleiben für „Siebzehn Näpfe“); alle starren in leere Ecken, keine sieht nach oben, als die Scheibe kommt.
 **Neue Figuren:** **N-01 Gisela Rieke** (Kirchberg 3, Nebenaufgabe 9; ihre Katzen laufen im Hauptweg vorweg). **N-03 Günther Maas** (Nebenaufgaben 15 und 16; im Hauptweg nur die Fahrradklingel im Osten nach dem Höhepunkt). **N-05 Pfarrer Voss** (Nebenaufgabe 11: Aushang mit seinem Namen, Fahrrad mit Kindersitz).
 **Stundenbuch:** SB-01 (Scheune, Nebenaufgabe 19), SB-02 (Sühnekreuz, Nebenaufgabe 11), SB-03 (Bushaltestelle, Nebenaufgabe 13). Die Fibel legt die Sammelseite „Lose Seiten“ beim ersten Fund an, mit Lukes Bemerkung: „Gebetbuchseiten. Handschrift. Wer schreibt so was und lässt es liegen?“
 
@@ -1085,7 +1085,7 @@ Nie zwei Dreier hintereinander; zwischen 6 und 11 liegen Flur, Tür und Rätsel,
 - Verstecken: die vorhandene Kegel-Logik (`ufo.userData.spot`, `beam`) plus Deckungsvolumen (`hideAt`-Boxen wie in `innen_ort.js`, hier für Hecken, Veranden, Tonnen, Zelle); Treffer = Kamera 1 m hoch, Fallen, `fade`, Rücksetzung.
 - `gedanken.js` · `GEDANKEN_FADEN` bleibt (Kellertür-Zeile ist Hilfestufe 1); `GEDANKEN_ECHO.echo_kreuzung` → neue Zeile „Wie wenn man in eine Lampe geguckt hat und die Augen zumacht. Ein Nachbild. Nur dass das nicht meins war. Oder?“; neue Ortszeile `ort_nr9` für das rote Glimmen.
 - `schrecken.js` · `SCHRECK_ORTE`: `kapelle`, `friedhof`, `garten`, `villa_garten` bleiben für die Nebenaufgaben; neu `katze_starrt` (Zufallsmoment: eine Katze sitzt vor einer leeren Ecke; wenn Luke hinleuchtet, drei kleine Schritte weg).
-- `innen_ort.js` · STORY-HOOKs in Nr. 7: Polaroid Dina im Regal (vorhanden, `PHOTOS[3]`), Kühlschrank-Decal für den Magnet und das Foto, Batterien-Dreieck im Flur (drei `battery`-Pickups mit fester Lage), Bonbonpapier-Decal auf der Treppe, ∴-Decal auf der Küchentürscheibe (nur nach dem Keller sichtbar, `condensation`-Layer).
+- `innen_ort.js` · STORY-HOOKs in Nr. 7: Polaroid Dina im Regal (vorhanden, `PHOTOS[3]`), Kühlschrank-Decal für den Magnet und das Foto, Batterien-Dreieck im Flur (drei `battery`-Pickups mit fester Lage), ∴-Decal auf der Küchentürscheibe (nur nach dem Keller sichtbar, `condensation`-Layer).
 - `fotos.js` bleibt unberührt (Beweiswand gehört Kapitel 3).
 - Katzen: ein Tiermodell, drei Fellfarben, Halsband-Decal mit Namen; Verhalten `starren(ziel)`: sitzt, sieht auf einen leeren Punkt, blinzelt nicht, geht drei Schritte weg, wenn angeleuchtet.
 - Pat und Patachon: zwei neue Figurenmodelle (Kern §13), Dialog-Overlay mit drei Antworten, Mantel-am-Tor-Animation (0,8 s Hängenbleiben, Klick), Vertrauenswert `lwo_trust` (Start 50) in `saveFlag`.
@@ -1313,7 +1313,7 @@ LUKE: „Sie schreibt an sich selbst. An die mit acht.“ Pause. „Und kommt je
 LUKE: „Gegenteil von Tag: Dienst. Das Ehrlichste, was ich heute gelesen hab.“
 > **Blatt 212** (Schreibmaschine, Nachträge): „Messstelle Kirchberg · Beobachtung Ahornstraße 7 · Blatt 212“ (Wortlaut: 80_lwo.md, 5.8; letzte Zeile in Bleistift-Druckbuchstaben mit ∴).
 
-LUKE (ein Satz): „Die schreiben mich mit.“ („K-3“ versteht der Spieler erst in Kap. 2.)
+LUKE: „Die schreiben mich mit.“ („K-3“ versteht der Spieler erst in Kap. 2.)
 > **Günthers Meldezettel** (Karopapier, zittrig): 4.11., spät. Wagen am Ortsschild. Stadtkennzeichen. Fahrer schläft im Sitzen, Mund offen. Brandt L.? Der Junge. Sieht älter aus. – M.
 > Nach Nebenaufgabe 16 liegt ein zweiter darauf: Brandt L. wach. Zu Fuß. Fragt nach der Schwester. Hat keine Zigaretten (meine). Vogel dabei. – M.
 
@@ -1426,7 +1426,7 @@ LUKE: „Einer ohne Namen. Das achte Kind?“ (Die Fibel stellt ihn zu „Wer is
 
 > **Mikes Schichtbuch.** 10.7. – Nix los. Opa war da mit Pfand, einunddreißig Flaschen, will Batterien dafür. Hab gesagt, wir sind keine Bank. 11.7. – Wieder das Licht überm Wald. Opa sagt, nachts abschließen und nicht rausgucken. 12.7., nachts, kurz nach drei – Kind an Säule 3. Barfuß. Hat eine Laterne. Ruft meinen Namen. (Verwackelt:) Sie hat bis siebzehn gezählt.
 
-LUKE (ein Satz): „Mike ist rausgegangen.“
+LUKE: „Mike ist rausgegangen.“
 > **Günthers Schuppen** (N-03): Wellblech, Schild REIFEN – KRANZ, ein Vorhängeschloss mit eingeprägtem Auge. Vor der Tür Werbeprospekte, nach Jahren gebündelt. Durch die Ritzen Postsäcke, ein Kalender, eine Neonröhre.
 
 Die Röhre flackert, sobald Luke davorsteht. Auf dem Reifenstapel ein roter, fetter Kater, der die Tür ansieht (Peter; mit Liste: „Rot, fett, beißt.“ Er beißt nicht. Noch nicht.). Zu in Kapitel 1.
@@ -1488,7 +1488,7 @@ LUKE (nach dem Klatschen): „Kein Hall. Nicht mal ein bisschen. Ein Wald hat im
 **Ablauf:** Roxys Laube (Heft, Goldfischglas mit lebendem Fisch, halbleere Futterdose); der Brunnen; Hildes Laube, Parzelle 7 (vorhanden: Petroleumlampe, Zettel „Drei. Immer drei.“, Streichhölzer) und die drei Laternen am Weg anzünden (vorhandene Aufgabe „Drei Laternen“ als Schritt); Schwarzes Brett (vorhanden, `ow_brett`); Vogelscheuche mit blauer Kinderjacke „LUKE B.“ (vorhanden, `ow_jacke`; in der Tasche Heft-Seite 1, siehe unten); Nachbild zwischen den Beeten.
 > **Roxys Heft** (je Seite ein Fenster): Die Lampen sind für sie. Damit sie weiß, dass ich komme. Ich lass sie an, auch wenn Lars meckert. / Seit Mama im Heim ist, ist es im Haus so kalt. Heizung auf fünf und trotzdem kalt. Da oben war es warm. Ich weiß das noch. Sonst weiß ich fast nichts mehr, aber das weiß ich. / Wenn ich gehe, mach ich Licht. Richtig Licht. Damit sie mich findet und nicht die anderen. / (andere Tinte) Fisch füttern!!! Wie heißt der noch.
 
-LUKE (ein Satz): „Roxy hat ihr eigenes Haus angezündet.“ Am Glas: „Wer füttert den?“ Pause. „Du heißt jetzt Fisch. Das ist wenigstens ehrlich.“ (Ab jetzt schwimmt Fisch zur Glaswand, wenn Luke kommt.)
+LUKE: „Roxy hat ihr eigenes Haus angezündet.“ Am Glas: „Wer füttert den?“ Pause. „Du heißt jetzt Fisch. Das ist wenigstens ehrlich.“ (Ab jetzt schwimmt Fisch zur Glaswand, wenn Luke kommt.)
 **Brunnen** (hineinrufen): „Hallo?“ → eine Sekunde zu spät, Kinderstimme: „Hallo?“ / „Roxy?“ → Stille, unten ein Plätschern. / „Lucy?“ → „Luke.“, darunter leise die Spieluhr. LUKE: „Ich hab Lucy gesagt. Es hat Luke gesagt. Und drunter wieder diese Spieluhr.“ (HASENBROT ist hier erst ab Kap. 3 wählbar.)
 **Hildes Beete:** Möhren, Kohlrabi, Radieschen in Kinderportionen, jede Reihe mit Namensstock: ZAYN, ROXY, MIKE; das Beet LUCY frisch gegossen. LUKE: „Gemüse für Kinder, die nicht mehr zum Essen kommen.“
 > **Nachbild zwischen den Beeten** (ersetzt die Figur aus `schrecken.js`, `garten`): Juni, warm, Grillen. Eine junge Frau mit schwarzen Haaren dreht Lampen zur Senke, eine nach der anderen. / Sie redet mit jemandem, der nicht da ist: „Gleich. Ich hab nur noch den Fisch.“ / Sie lacht und geht los, zur Straße, ohne Schuhe. / Regen. Die Lampen brennen noch.
@@ -1662,7 +1662,7 @@ Luke sieht das Foto lange an. Dann, hörbar, atmet er aus. Ein einzelner warmer 
 LUKE: „Das achte Kind. Ein Mädchen.“ (Pause.) „Das bin nicht ich.“
 Neunzig Sekunden später, egal wo er steht: „Ein Mädchen. Nicht ich. … Warum fühlt sich das an, als hätte ich Glück gehabt?“
 **Gefühl:** Erleichterung, die sich falsch anfühlt. Sie hält bis Akte 08, etwa zwanzig Spielminuten.
-**Beobachter:** **Zettel B-K2-02** liegt auf dem Nadeldrucker, als Luke von der Tafel zurückkommt: „WARUM SCHREIBT IHR ALLES AUF UND LEST ES DANN NICHT ∴“ Hängt Luke an der Tafel fest, fällt nach gut hundert Sekunden zusätzlich der Hilfe-Zettel **B-K2-H1** aus dem Gitter (Wortlaut: 82, „Ordnungstafel“).
+**Beobachter:** Auf dem Nadeldrucker liegt nichts (B-K2-02 „Lest es dann nicht“ gestrichen (Story-Prüfung B)). Hängt Luke an der Tafel fest, fällt nach gut hundert Sekunden zusätzlich der Hilfe-Zettel **B-K2-H1** aus dem Gitter (Wortlaut: 82, „Ordnungstafel“).
 **Humor:** Post-it an der Tafel, Hildes Schrift: „Herr Dr. Seiler, die Tafel klemmt bei Platz 4. Bitte NICHT mit Gewalt. H. W.“ Darunter, Seilers Schrift: „Ich habe Gewalt angewendet. Sie klemmt jetzt bei Platz 5. T. S.“
 
 #### 3 · „Das Los ist das Los“
@@ -1761,7 +1761,7 @@ LUKE (Gedanke): „Ein Ritter. Am Straßenende hat er einen Namen in den Nebel g
 **Klavier.** Notenblatt: „Sieben Kinder, weiß wie Schnee – E D ? ? ?“ Sobald Luke die Tasten berührt, summt Lucy im Tank, und die Tasten, die sie trifft, beschlagen. **E D C H C.** Beim letzten Ton springt ein Aktenfach ohne Griff auf.
 **Akte 08** (Text unter „Fundstücke“). Angeheftet ein Foto: ein Junge mit braunen Augen, verschlafen, auf seiner Schulter ein Handschuh aus mattgrauem Metall, das nicht wie Eisen aussieht. Im selben Fach ein brauner Umschlag, „BfR · AST LE · DURCHSCHLAG · VERTRAULICH“: Durchschlag 7 der Akte Abgrund, nach dem Tausch 7/9 der Durchschlag „Akte 08“ (02 C7; Nebenaufgabe „Wo Erwachsene nicht hinsehen“, Wortlaut: 80, 5.1 Nr. 7; Versuchsreihe K liegt als Durchschlag 9 auf dem Hochsitz, Kap. 6). Luke steckt ihn ungeöffnet ein; lesbar erst nach dem Kapitel, damit nach Akte 08 nichts mehr gesagt wird. In der Fibel werden zwei Gedanken durchgestrichen. Die Uhr über der Tür springt; der große Zeiger steht fast oben (nur Bild, keine Zeile). Hinter Luke rattert der Drucker im Messraum, eine Zeile: **„ZÄHLSCHLUSS 03:13 · VORGANG 08 · KORREKTUR: RÜCKLÄUFER 08.“**
 LUKE, nach zehn Sekunden, genau ein Satz: „Ich hab nie gewusst, wie der Hund hieß.“
-**Beobachter:** Während Luke noch vor dem Fach steht, fällt aus dem Gitter über dem Klavier Papier. **Zettel B-K2-07** liegt auf dem Klavierdeckel, daneben ein ausgelecktes, gefaltetes Bonbonpapier: „ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN. ICH HAB ZUGESEHEN. ICH SEHE IMMER NUR ZU ∴“ Luke liest ihn und sagt nichts.
+**Beobachter:** Während Luke noch vor dem Fach steht, fällt aus dem Gitter über dem Klavier Papier. **Zettel B-K2-07** liegt auf dem Klavierdeckel: „ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN. ICH HAB ZUGESEHEN. ICH SEHE IMMER NUR ZU ∴“ Luke liest ihn und sagt nichts.
 **Lucy (Dialog mit Auswahl).** Lucy öffnet die Augen. Blau. Sie lächelt um den Schlauch herum, das geht kaum.
 LUCY (dumpf durchs Wasser): „Flocke. … Hey, Großer.“
 Drei Fragen, beliebige Reihenfolge, keine Pflicht:
@@ -1946,7 +1946,7 @@ LUKE (bei § 4): „Gedenkstein am Tag der Übergabe. Die haben die Gräber best
 > Am Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.
 > Darunter, rote Tinte, zittrig (hw): **„Er darf es nie erfahren.“**
 
-**Beobachter-Zettel** (endgültige Liste nach 82, Abschnitt 12, Punkt 3; 02 A1): sieben feste, **B-K2-01** Tunnel („DAS KIND SPIELT HIER UNTEN NICHT …“), **B-K2-02** Nadeldrucker, **B-K2-03** Batterien (Kapitel-Fassung mit {pct}-Zeile), **B-K2-04** „Danke“ (Pflicht), **B-K2-05** Schranktür (RH-1), **B-K2-06** Kühlregal „Einmachen“ (optional), **B-K2-07** Klavierdeckel nach Akte 08 („ER HAT DICH HERAUSGETRAGEN …“). Dazu nur bei Festhängen die Hilfe-Zettel **B-K2-H1** „Ordnungstafel“ und **B-K2-H2** „Die Schalter“ und, verhaltensabhängig, der Zusatzzettel „Umgedreht“ (Wortlaut der drei: 82, 5.2). Der Dossier-Zettel „Die achte Akte“ entfällt zugunsten von B-K2-07.
+**Beobachter-Zettel** (endgültige Liste nach 82, Abschnitt 12, Punkt 3; 02 A1): sechs feste (B-K2-02 Nadeldrucker gestrichen (Story-Prüfung B)), **B-K2-01** Tunnel („DAS KIND SPIELT HIER UNTEN NICHT …“), **B-K2-03** Batterien (Kapitel-Fassung mit {pct}-Zeile), **B-K2-04** „Danke“ (Pflicht), **B-K2-05** Schranktür (RH-1), **B-K2-06** Kühlregal „Einmachen“ (optional), **B-K2-07** Klavierdeckel nach Akte 08 („ER HAT DICH HERAUSGETRAGEN …“). Dazu nur bei Festhängen die Hilfe-Zettel **B-K2-H1** „Ordnungstafel“ und **B-K2-H2** „Die Schalter“ und, verhaltensabhängig, der Zusatzzettel „Umgedreht“ (Wortlaut der drei: 82, 5.2). Der Dossier-Zettel „Die achte Akte“ entfällt zugunsten von B-K2-07.
 
 ---
 
@@ -2004,7 +2004,7 @@ Wartenummer 8 (und ihr zweiter Sinn beim Vermessungsbogen) · Post-it-Krieg Hild
 **LWO** (Stufe „Kürzel“, Kern §6.6): Zeichen unter jedem Stempel, auf Kaugummipapier und Schlüsselanhänger. Dienstanweisungen in Tunnel, Archiv und Kantine, jede zeigt, dass die Leute hier sich für Beschützer halten. Das Kürzel „LWO“ fällt noch nicht; die Akten sagen „Außenstelle 7“, „Objekt“, „Substanz S“, „Subjekt EISEN“, „Objekt DREIPUNKT“, „Erscheinungsform B“. **AG-05** Lautsprecher (Tunnel, Notstrom, Prüfraum). **AG-06** Funk im Sicherungsraum. **AG-07** Versteck vor Blechmännern, Nachsorge 11 und 12 über Funk, Wolter live über Funk mit zwei Sätzen.
 **Vertrauen:** Einwilligungen abnehmen (Pflicht) −5; Hängeregistratur −10; Gründungsakte −10; Kühlregal −5; Kaffeekasse +1; Akte 08 lesen ±0 (sie wollten, dass er sie liest). Wirkung im Kapitel: AG-07 (Zeile und Wartezeit). Detail am Ende: bei miserablem Vertrauen steht auf der Endkarte unter „03:13.“ eine vierte Zeile in Schreibmaschine: „Protokolliert.“
 **Whiskey:** kein Auftritt unter der Erde. K2-1 „Kluger Vogel“: er bleibt oben auf dem Geländer von Nr. 7 (Unterkapitel 1). **W-05**: die Feder in der Kerbe an Stuhl 8; sie stammt aus Justins Helmband (02 B6), Luke weiß nur, dass der Vogel nicht unter die Erde geht. K2-2 „Oben wartet einer“: Whiskey am Gullyrand, erste Stimmen-Nachahmung (Unterkapitel 9).
-**Beobachter:** genau eine Fast-Sichtung (Durchgang nach Zimmer 7: offene Lüftungsklappe, weißer Umriss, Abdrücke enden darunter; 02 D5). Sieben feste Zettel B-K2-01 bis -07, darunter der Pflicht-Zettel nach Peters Tod, dazu H1, H2 und „Umgedreht“. Spuren: Kratzer (Tunnel, Leiter), nasse dreizehige Abdrücke, Batterien im Dreieck, gefaltetes Bonbonpapier auf dem Klavierdeckel, ∴ im Beschlag des Kühlregals; in Teil A rollt die Lampe so, dass sie auf das Fass zeigt, und am Schluss liegt sie am Fuß der Leiter, Kegel nach oben (Skript, der Spieler darf es für ihn halten).
+**Beobachter:** genau eine Fast-Sichtung (Durchgang nach Zimmer 7: offene Lüftungsklappe, weißer Umriss, Abdrücke enden darunter; 02 D5). Sechs feste Zettel B-K2-01 bis -07 (ohne -02, gestrichen (Story-Prüfung B)), darunter der Pflicht-Zettel nach Peters Tod, dazu H1, H2 und „Umgedreht“. Spuren (höchstens fünf, R-1): Kratzer im Tunnel, nasse dreizehige Abdrücke unter der Klappe, Batterien im Dreieck, ∴ im Beschlag des Kühlregals; in Teil A rollt die Lampe so, dass sie auf das Fass zeigt, und am Schluss liegt sie am Fuß der Leiter, Kegel nach oben (Skript, der Spieler darf es für ihn halten).
 **Neue Figuren:** keine N-Kennung für Kapitel 2. Vorbereitung ohne Auftritt: Hänschen Rieke (Foto 1958), Anni Hofer (Foto 1975, „Wirt: Hofer“), Pfarrer Voss (Foto 1992), Günther Maas („(G. M.)“ in Akte 05), Grete Wolter („Auch die von 1941“ auf K-3).
 
 ---
@@ -2193,7 +2193,7 @@ Irgendwo im Nebel kichert es, ganz kurz. Dann eine Kinderstimme, die singt, zwei
 
 **Whiskey (Charakterszene):** Er sitzt auf dem Rücken der Kuh und guckt Luke an, als hätte Luke sie fallen lassen. Wenn Luke „Scheiße“ sagt (das tut er in dieser Szene automatisch, dreimal in Folge, beim Anblick der Augen), sagt Whiskey es nach, mit Lukes Tonfall, beim dritten Mal gleichzeitig mit ihm. LUKE: „Das ist mein Wort. Such dir ein eigenes.“ Whiskey putzt sich demonstrativ.
 
-**Beobachter-Zettel B-K3-01** (liegt hinter Lukes Füßen, wenn er sich von der Kuh abwendet; Papierrascheln, Trippeln): „DU HAST DREI MAL SCHEISSE GESAGT. IST DAS EIN GEBET ∴“ (Hinter dem Zettel drei Kiesel übereinander.) LUKE: „Ja. Heute schon.“
+**Beobachter-Zettel B-K3-01** (liegt hinter Lukes Füßen, wenn er sich von der Kuh abwendet; Papierrascheln, Trippeln): „DU HAST DREI MAL SCHEISSE GESAGT. IST DAS EIN GEBET ∴“ LUKE: „Ja. Heute schon.“
 
 **Vegas** (durch die Tür von Nr. 3, Kette vor, ohne Auslöser, wenn Luke in Hörweite ist): „Das ist Aydıns Kuh! Die Gescheckte! Ich hab’s gewusst. Die nehmen erst die Kühe, dann die Leute. Steht alles im Ordner. Seit ’58!“ (Nebenaufgabe „Rot eingekreist“ beginnt hier.)
 
@@ -2770,7 +2770,7 @@ Vollständige Texte auf dem Hauptweg. Was schon in den Beats wörtlich steht (Z�
 - **B-K3-02** „Offener Mund“ (hinter der Telefonzelle, Luke steht nach der ersten Sichtung still): „IM AUTO AM ORTSSCHILD HAST DU MIT OFFENEM MUND GESCHLAFEN.“ (Wortlaut: Dossier 82, B-K3-02)
 - **B-K3-03** „Kutsche“ (Bushaltestelle, unter der Bank): „DER GRAUE MANN RIECHT NACH MEINER SCHWESTER.“ (Wortlaut: Dossier 82, B-K3-03, dritte Zeile bei miserablem Vertrauen)
 - **B-K3-04** „Nicht nachdenken“ (vor Nr. 3, nach Brunos Bellen): „WIE HIESS EUER HUND. NICHT NACHDENKEN. EINFACH WISSEN.“ (Wortlaut: Dossier 82, B-K3-04)
-- **B-K3-05** „Unhöflich“ (verhaltensabhängig: dreimal angeleuchtet, sonst dreimal die Lampe aus): „DU HAST MICH DREI MAL ANGELEUCHTET.“ (Wortlaut: Dossier 82, B-K3-05, Fassung A oder B)
+- **B-K3-05** „Unhöflich“ (verhaltensabhängig: dreimal angeleuchtet): „DU HAST MICH DREI MAL ANGELEUCHTET.“ (Wortlaut: Dossier 82, B-K3-05; Fassung B „Lampe dreimal aus“ gestrichen (Story-Prüfung B))
 - **B-K3-06** „Leise“ (Rückweg von den Traktorspuren): „ICH WAR LEISE. DU HAST ES GEMERKT. GUT.“ (Wortlaut: Dossier 82, B-K3-06)
 - **B-K3-07** „Das Glück läuft raus“ (Hufeisen über der Stalltür): „ICH HAB DAS EISEN ÜBER DER TÜR GEDREHT.“ (Wortlaut: Dossier 82, B-K3-07)
 - **B-K3-08** „Sie sagt ich bin komisch“ (Doppelzettel an der Lichtsäule; das zweite Blatt ist RH-4): „DA DRIN HÖRST DU MICH NICHT.“ (Wortlaut: Dossier 82, B-K3-08)
@@ -3234,7 +3234,7 @@ LUKE-Gedanke: „Aus der Hand gegangen. Die Frau. Das Kind. Alles.“ (Nach Raum
 > *Darunter, braune Tinte, andere Hand:* Die Kinder, so wiederkamen, singen es anders. Am End „Such mich, Kind“, und danach: Zähl bis siebzehn, Augen zu.
 > *Bleistift:* Das Dorf singt „Such mich“. Sie hat „Ich find dich“ gesungen. Wer hat das Lied umgedreht? – B. V.
 
-LUKE (ein Satz): „Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.“ Justin sagt nichts. Er ist aufgestanden und steht mit dem Rücken zum Pult. Wer lange genug stehen bleibt, hört ihn die ersten fünf Töne summen, so leise, dass der Untertitel nur „(summt)“ zeigt. Dann hört er auf. *(Die Melodie ist die Spieluhr, E D C H C; Kern §11. Die dritte Strophe steht hier nicht, die kennt nur Mira.)*
+*(Luke sagt nichts; H-1.)* Justin sagt nichts. Er ist aufgestanden und steht mit dem Rücken zum Pult. Wer lange genug stehen bleibt, hört ihn die ersten fünf Töne summen, so leise, dass der Untertitel nur „(summt)“ zeigt. Dann hört er auf. *(Die Melodie ist die Spieluhr, E D C H C; Kern §11. Die dritte Strophe steht hier nicht, die kennt nur Mira.)*
 
 **Das Glockenseil (Joker, einmal im Kapitel):** Im Turmraum hängt das Seil mit drei Knoten. Daneben ein Zettel, Giselas Schrift:
 > Nur zu Gottesdiensten läuten!
@@ -3461,7 +3461,7 @@ LUKE-Gedanke: „Theodor. Am Tor steht ‚Dr. Th. Seiler‘. Und Heinrich …“
 Daran ein Lieferschein, durchnässt, Kuli: „Zustellung gescheitert: Wasserstand. Zurück an Absender?“ Darunter eine zweite Hand: „Absender siehe Empfänger.“
 LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 
-**Das tiefe Wasser:** Weit unten liegt ein Licht, groß und ruhig, es flackert nicht. LUKE (ein Satz): „Da unten liegt noch eins, und das ist ganz.“ Irgendwo weiter hinten im Kanal singen Stimmen im Kanon, leise, zu viele für eine Kehle.
+**Das tiefe Wasser:** Weit unten liegt ein Licht, groß und ruhig, es flackert nicht. Irgendwo weiter hinten im Kanal singen Stimmen im Kanon, leise, zu viele für eine Kehle.
 **Belohnung:** RH-9, Fibel „Atlantschiss“, Lieferschein (Gegenstand).
 **LWO / Vertrauen:** Lieferschein mitnehmen −5 (LWO-Dokument, Kern §6.6).
 **Schreck (1):** der Kanon, ohne Quelle. Zurück oben: Whiskey gurrt leise (kein Pling, H-1). JUSTIN, der die ganze Zeit den Deckel gehalten hat: „Das hat gedauert.“
@@ -3500,7 +3500,7 @@ LUKE: „Außenstelle drei. Also gibt’s mindestens drei. Super.“
 1. Einsteigen. Der Entwerter piept rot. Luke braucht eine Fahrkarte: die Kinderfahrkarte vom Wartehäuschen (Kapitel 1, „nach: ——“). LUKE: „Kinderfahrkarte. Ich bin sechsundzwanzig. Laut Pass.“ Entwerten: Der Drucker setzt ins leere Zielfeld „HOF“.
 2. Der Bus fährt, langsam, durch Nebel. Luke geht nach hinten zum Ausstieg, vorbei an den Reihen.
 3. Auf den hinteren Sitzen sitzen Kinder in Kleidern aus verschiedenen Jahrzehnten, grau, ohne Mund, mit dem Gesicht nach vorn. Jedes dreht den Kopf, **sobald Luke an ihm vorbei ist**. Dreht Luke sich um, sehen ihn alle an. Dreht er sich wieder nach vorn, hört er hinter sich Stoff rascheln.
-4. Auf dem vorletzten Sitz ein ausgelecktes, zum Dreieck gefaltetes Bonbonpapier (S-07). Der Sitz ist warm (S-11): „Warm. Da hat gerade jemand gesessen. Jemand Kleines.“
+4. Der vorletzte Sitz ist warm (S-11): „Warm. Da hat gerade jemand gesessen. Jemand Kleines.“
 5. Halt am Hof, an den Traktorspuren. Tür auf. Der Bus fährt in den Nebel und kommt am anderen Ende nicht heraus.
 
 **Belohnung:** Abkürzung zum Hof (von dort sieht man AG-08), Fibel „Linie 7“.
@@ -3627,7 +3627,7 @@ LUKE (lange Pause, ein Satz): „Die andere hab ich noch nie gesehen.“ Die Fib
 > „Sechs. Es fehlt eine.“ Sie fängt von vorn an.
 > „Ich zähl, damit keiner fehlt.“
 
-LUKE (ein Satz): „Hilde. Mit neun. Und sie hat Peter nicht mitgezählt.“
+LUKE: „Hilde. Mit neun. Und sie hat Peter nicht mitgezählt.“
 
 **Schritt 2, Nachbild „Zählen“ an der Kreuzung** (2009; Wortlaut im Hauptweg unter „Fundstücke“): Wer das Zählbuch bei sich hat und an der Kreuzung die Lampe ausmacht, sieht die Nacht, in der Luke gebracht wurde, und Hilde auf der Treppe von Nr. 7: „… sieben. Acht.“ Zweimal mit der Lampe darüberfahren: die neunte Gestalt am Rand.
 
@@ -3675,7 +3675,7 @@ Die Katzen springen ab, eine nach der anderen. Gisela schläft mitten im Satz wi
 
 **Start:** ab Kapitelbeginn; die Orts-Zettel liegen an festen Orten (`BEOB_ORTE`) und rascheln beim ersten Annähern, als wären sie eben hingelegt worden.
 
-**Kapitel 3 erreichbar:** die Orts-Zettel 1 bis 12 des Beobachter-Dossiers (Kreuzung, Nr. 1, Nr. 3, Briefkasten Nr. 7, Kirchberg, Gedenkfeld, Spielplatz, Tankstelle, Straßensperre, Schrebergärten, Hof, Villa Seiler), Wortlaut unverändert aus dem Dossier, Abschnitt 5.7. Die Waldorte (13 bis 19) folgen, wenn der Wald erreichbar ist.
+**Kapitel 3 erreichbar:** die acht Dorf-Orts-Zettel des Beobachter-Dossiers (Kreuzung, Briefkasten Nr. 7, Kirchberg, Gedenkfeld, Tankstelle, Straßensperre, Hof, Villa Seiler; Nr. 1, Nr. 3, Spielplatz und Schrebergärten gestrichen (Story-Prüfung B)), Wortlaut aus dem Dossier, Abschnitt 5.7. Die fünf Waldorte (B-O15 bis B-O19) folgen, wenn der Wald erreichbar ist.
 
 **RH-11:** Der Orts-Zettel **Hof** bekommt eine vierte Zeile:
 > HIER HAT ER GEWOHNT. DER IN DER GRAUEN HAUT. DAMALS WAR ALLES AUS HOLZ UND ES ROCH NACH BROT.
@@ -3685,8 +3685,8 @@ Die Katzen springen ab, eine nach der anderen. Gisela schläft mitten im Satz wi
 > ∴
 LUKE-Gedanke: „Das Haus. So nennt er das Schiff. Er trägt das Schiff.“ Zählt als Rüstungs-Hinweis.
 
-**Zusätzliche Zettel in dieser Nacht** (Kennungen nach 02 A1, Wortlaut Dossier 82; B-K3-02, -04 und -07 liegen auch auf dem Hauptweg): B-K3-02 „Offener Mund“ (Kreuzung, nach der ersten Sichtung), B-K3-04 „Nicht nachdenken“ (Nr. 3, Aufgabe 1), B-K3-07 „Das Glück läuft raus“ (Hof, Stalltür, Aufgabe 20), B-K3-N1 (Pfarrhausflur, „Die dreizehnte Predigt“), B-X-01 „DER VOGEL SIEHT MICH …“ (wenn Whiskey länger als fünf Sekunden in eine leere Ecke starrt).
-**Belohnung:** Batterien (wo vorhanden), RH-11, Fortschritt zum letzten Zettel „Neunzehn Orte“ und zur Murmel (spätestens Kapitel 6).
+**Zusätzliche Zettel in dieser Nacht** (Kennungen nach 02 A1, Wortlaut Dossier 82; B-K3-02, -04 und -07 liegen auch auf dem Hauptweg): B-K3-02 „Offener Mund“ (Kreuzung, nach der ersten Sichtung), B-K3-04 „Nicht nachdenken“ (Nr. 3, Aufgabe 1), B-K3-07 „Das Glück läuft raus“ (Hof, Stalltür, Aufgabe 20), B-K3-N1 (Pfarrhausflur, „Die dreizehnte Predigt“). (B-X-01 „Der Vogel“ gestrichen (Story-Prüfung B).)
+**Belohnung:** Batterien (wo vorhanden), RH-11, Fortschritt zum letzten Zettel „Dreizehn Orte“ und zur Murmel (spätestens Kapitel 6).
 **Schreck (1):** jedes Rascheln. **Humor:** in den Zetteln selbst („WARUM SAGT IHR GUTE NACHT ZU JACKEN“).
 **Verbindung:** Hildes Neunter, Kern §7, Kapitel 7.
 
@@ -3755,7 +3755,7 @@ Alle Texte stehen vollständig bei den Aufgaben. Übersicht für den Bau (Fibel-
 | Nachbild „Klar!“ | 8 | Spielplatz | Nachbild |
 | Schachtkreide, zwei Nachbilder, Kiste, Lieferschein | 9 | Atlantschiss | Nachbild, Notiz, Gegenstand |
 | Butterbrotpapier (Kreise), Dinas Laternenfest-Zeichnung | 10 | Remise am Hof | Rätsel, Fibel |
-| Kinderfahrkarte (entwertet „HOF“), Bonbonpapier | 11 | Bus | Gegenstand, Spur |
+| Kinderfahrkarte (entwertet „HOF“) | 11 | Bus | Gegenstand, Spur |
 | Kofferanhänger, Rucksack, Kamera, Anrufbeantworter | 12 | Nr. 7 | Notiz, Gegenstand, Ton |
 | Schlüssel mit Pony, Automatenfoto | 13 | Nr. 3 | Gegenstand |
 | sieben Lichtsteine, Schlusstext | 14 | Dorf | Gegenstand, Fibel |
@@ -3961,13 +3961,7 @@ LUKE (Gedanke): *Alle wohlauf. Redaktionsschluss Mittwochabend. Da ist hier noch
 
 Whiskey sitzt auf dem umgekippten Mülleimer vor Nr. 9 und macht das Funkrauschen nach. Täuschend echt. Einer der Overalls dreht sich um, sucht, findet nichts, geht weiter. Whiskey putzt sich.
 
-**Was der Spieler tut:** Die Straße entlang, Zeitung lesen, Männer beobachten (sie antworten nicht; kommt Luke näher als drei Meter, drehen sie ihm den Rücken zu und sprechen leise in den Kragen: „Anwohner. Männlich.“). Vor Nr. 7 liegt hinter Lukes Fersen ein Zettel, sobald er sich einmal umgedreht hat (Papier, Trippeln):
-
-> **B-K4-01 · „Die Bilder weiß“ (Zettel, Druckbuchstaben, Bleistift; Wortlaut und Nummer: Beobachter-Dossier 82, 5.4)**
-> DIE MÄNNER MACHEN DIE BILDER WEISS.
-> WARUM. DIE BILDER WAREN DOCH SCHON DA.
-> ICH HAB DIE ECHTEN. HINTER DER TONNE VON NEUN.
-> ∴
+**Was der Spieler tut:** Die Straße entlang, Zeitung lesen, Männer beobachten (sie antworten nicht; kommt Luke näher als drei Meter, drehen sie ihm den Rücken zu und sprechen leise in den Kragen: „Anwohner. Männlich.“). (B-K4-01 „Die Bilder weiß“ gestrichen (Story-Prüfung B): die Nebenaufgabe „Gasleck“ führt selbst hinter die Tonne von Nr. 9.)
 
 **Gefühl:** Es ist Tag, und nichts ist vorbei. Vegas’ Sofa ist das einzige Ziel. Speicherpunkt: automatisch beim Verlassen der Kreuzung („Kreuzung · Morgen“).
 
@@ -3975,16 +3969,7 @@ Whiskey sitzt auf dem umgekippten Mülleimer vor Nr. 9 und macht das Funkrausche
 
 #### 2 · „Speck ist Speck“
 
-**Auf dem Weg:** Als Luke auf Nr. 3 zugeht, rollt am Ende der Straße der graue Kombi heran und parkt vor Nr. 9. Keiner steigt aus. Auf Vegas’ Fußmatte liegt ein Zettel, der vor einer Minute noch nicht da war:
-
-> **B-K4-02 · „Was mit Essen drin“** (Wortlaut: Beobachter-Dossier 82, 5.4)
-> DIE MIT DEN STULLEN WOLLEN HILDES BUCH.
-> DA STEH ICH DRIN. ALS NEUN. DANN ZÄHLEN SIE MICH AUCH.
-> WENN DU IHNEN WAS ANDERES GIBST DANN WAS MIT ESSEN DRIN.
-> DAS LESEN SIE LANGSAMER.
-> ∴
-
-LUKE: „Was mit Essen drin. Klar. Ich geb denen ein Kochbuch.“ (Der Zettel öffnet den Fälschungsweg in Unterkapitel 3, ohne ihn zu verlangen.)
+**Auf dem Weg:** Als Luke auf Nr. 3 zugeht, rollt am Ende der Straße der graue Kombi heran und parkt vor Nr. 9. Keiner steigt aus. (B-K4-02 „Was mit Essen drin“ mit Lukes Antwort gestrichen (Story-Prüfung B); der Fälschungsweg in Unterkapitel 3 steht auch ohne Zettel offen.)
 
 **Auslöser:** Klopfen an Nr. 3. Keine Kette diesmal. Vegas macht ganz auf. Er hat eine Schürze um, auf der eine Kuh steht, und einen Pfannenwender in der Hand wie eine Waffe. Bruno kommt dazu, wedelt, riecht an Lukes Hose und niest.
 
@@ -4083,7 +4068,7 @@ Luke sagt nichts. Wer das Heft danach abgibt, gibt diesen Zettel mit.
 
 #### 4 · „Das Amt kommt donnerstags“
 
-**Auslöser:** Der Beobachter-Zettel („HINTER DER TONNE VON NEUN“) oder einfach Neugier: Das Garagentor von Nr. 9 steht einen Spalt offen (fassaden.js, Anker `Nr. 9 steht einen Spalt offen`). Nr. 9 gilt seit 2009 als leer, der Briefkasten ist vollgestopft (strasse.js, Anker `Vergilbte Post · Nr. 9`), das Stromkabel hängt lose am Mast. Hinter der umgekippten Tonne: eine Mülltüte mit den echten Polaroids (siehe Nebenaufgabe „Gasleck“) und drei Kiesel übereinander.
+**Auslöser:** Neugier (der Beobachter-Zettel B-K4-01 ist gestrichen (Story-Prüfung B)): Das Garagentor von Nr. 9 steht einen Spalt offen (fassaden.js, Anker `Nr. 9 steht einen Spalt offen`). Nr. 9 gilt seit 2009 als leer, der Briefkasten ist vollgestopft (strasse.js, Anker `Vergilbte Post · Nr. 9`), das Stromkabel hängt lose am Mast. Hinter der umgekippten Tonne: eine Mülltüte mit den echten Polaroids (siehe Nebenaufgabe „Gasleck“) und drei Kiesel übereinander.
 
 **Vertrauen:** Wer Nr. 9 betritt, verliert −10 (Kamera oben, LWO-Dossier 3.1). Es gibt keinen Weg daran vorbei, und das soll der Spieler später merken, nicht jetzt.
 
@@ -4150,13 +4135,7 @@ Luke nimmt sie mit, ohne zu wissen, wofür. (Vertrauen −5, gestohlenes LWO-Dok
 
 LUKE (Gedanke): *Acht Teile, sieben Zähne. Stuhl 8 hatte keinen Namen. Der achte Zahn ist auch nicht da.*
 
-**Beobachter-Zettel** (hinter Lukes Fersen, während er den Schlüssel betrachtet; Papier, Trippeln über den Kies; gehört zur Nebenaufgabe „Acht Schlösser“):
-
-> **B-K4-N3 · „Er hat geweint“** (neu, bitte ins Beobachter-Dossier 82, 5.9 übernehmen)
-> DER DOKTOR HAT DIE TEILE VERSTECKT WO IHR EUCH VERSTECKT HABT.
-> ICH HAB ZUGESEHEN. ER HAT BEIM VERGRABEN GEWEINT.
-> ER HAT GESAGT „VERZEIH“. ZU WEM WEISS ICH NICHT. DA WAR NUR ICH.
-> ∴
+**Beobachter-Zettel B-K4-N3 „Er hat geweint“:** gestrichen (Story-Prüfung B); doppelt zu B-K4-N6 („ER HAT. ICH WAR DA“) und B-O12 (der Doktor).
 
 **Vertrauen am Tor:** hoch → V-14 („Danke für Ihre Mitarbeit“, Kaugummi „Lucid Mint“ mit „Wir sehen Sie. Gern.“ im Papier). Miserabel → V-07: Lukes Auto steht nicht mehr am Ortsschild, sondern ordentlich eingeparkt vor Nr. 9, mit Wolters Visitenkarte unter dem Scheibenwischer (Text im LWO-Dossier 3.3). Luke erfährt es erst, wenn er zur Kreuzung zurückgeht.
 
@@ -4231,7 +4210,7 @@ Der Aktenschrank hat fünf Schubladen, jede mit einem Messingschild: 1941 · 195
 
 **Was Luke findet:**
 - **Die Bestandsliste Außenstelle 7** (Text im LWO-Dossier 5.7, im Spiel vollständig lesbar; ≤ 10 Zeilen je Blatt, zwei Blätter; die Zeile „Hund … an die Rieke abgegeben“ entfällt, 02 C9). Luke bleibt an drei Zeilen hängen: „Glas ∴-2 · leer seit ████ · ‚Fenster war zu‘“, „Kiste 41 · LEBEND · NICHT FÜTTERN“ und „Kühlkette K-3 · vorbereitet · Villa, Zelle Ost · ‚Bitte freundlich.‘“ LUKE: „Zelle Ost. Hier. In diesem Haus.“
-- **Die K-Akten** (Wortlaut: Wendigo-/Zombie-Dossier 84, 2.5; im Kapitel liegen alle drei im Archiv, nicht in Asservatenkiste und Zelle): K-1 Kranz, P. K-2 · Rückläufer 08/58, „Von der Familie Rieke nicht angenommen („Das ist nicht mein Hänschen“)“ (02 F2); dazu, nur hier, Seilers Randnotiz in Tinte: „Die Mutter hat ihn nicht genommen. Er hat im Wagen gefragt, wann er heim darf. Ich habe das zugelassen.“ Am Rand, Bleistift, Druckbuchstaben: DER ACHTE WAR NICHT ICH ∴ *(B-K4-N1, Beobachter-Dossier 82, 5.9)*. K-3 · Brandt, L. · VORBEREITET, mit Wolters Nachtrag „Der Rabe ist wieder da. Derselbe Ring.“; angeheftet ein Beiblatt in Wolters Schrift (Wortlaut: LWO-Dossier 80, 5.10, K-3: „… Beruf: Tontechniker (Nachtschicht, Fr frei). Subjekt gilt als kooperativ. Bitte freundlich. … Mit K-3 holen wir sie zurück. Alle.“), darunter, kleiner: „Grete.“ LUKE (ein Satz): „Die wissen, dass ich freitags frei hab.“ *(Weg 1 aus Auftrag 1: Das Regal DREIPUNKT ist leer, der Umschlag K-3 fehlt, dafür liegt ein Butterbrotpapier da: „Gerade eben verlegt. Danke. (11)“, und daneben B-K4-02c, Text unter „Fundstücke“. Die Zelle unten liest Luke trotzdem.)*
+- **Die K-Akten** (Wortlaut: Wendigo-/Zombie-Dossier 84, 2.5; im Kapitel liegen alle drei im Archiv, nicht in Asservatenkiste und Zelle): K-1 Kranz, P. K-2 · Rückläufer 08/58, „Von der Familie Rieke nicht angenommen („Das ist nicht mein Hänschen“)“ (02 F2); dazu, nur hier, Seilers Randnotiz in Tinte: „Die Mutter hat ihn nicht genommen. Er hat im Wagen gefragt, wann er heim darf. Ich habe das zugelassen.“ Am Rand, Bleistift, Druckbuchstaben: DER ACHTE WAR NICHT ICH ∴ *(B-K4-N1, Beobachter-Dossier 82, 5.9)*. K-3 · Brandt, L. · VORBEREITET, mit Wolters Nachtrag „Der Rabe ist wieder da. Derselbe Ring.“; angeheftet ein Beiblatt in Wolters Schrift (Wortlaut: LWO-Dossier 80, 5.10, K-3: „… Beruf: Tontechniker (Nachtschicht, Fr frei). Subjekt gilt als kooperativ. Bitte freundlich. … Mit K-3 holen wir sie zurück. Alle.“), darunter, kleiner: „Grete.“ LUKE: „Die wissen, dass ich freitags frei hab.“ *(Weg 1 aus Auftrag 1: Das Regal DREIPUNKT ist leer, der Umschlag K-3 fehlt, dafür liegt ein Butterbrotpapier da: „Gerade eben verlegt. Danke. (11)“, und daneben B-K4-02c, Text unter „Fundstücke“. Die Zelle unten liest Luke trotzdem.)*
 - **Regal LISTEN 1958 BIS 2009:** vier Mappen, in jeder ein Foto vom Sommerfest des Zyklusjahres. Auf jedem steht am Rand dasselbe blasse Mädchen im weißen Sommerkleid, gleich alt, und auf jedem Foto derselbe Stempel wie im Amt (Kapitel 2): **ERSCHEINUNGSFORM B ANWESEND**. Auf der Mappe von 1992 steht mit Bleistift: „Kinder vollzählig. Pfarrer fehlt.“ LUKE: „Erscheinungsform B. Die haben ihr einen Behördennamen gegeben und sie trotzdem jedes Mal eingeladen.“
 - **Karton „W“ im Regal BERGUNG: Pells Heft, drei Seiten** (02 F11; Wortlaut: Wendigo-/Zombie-Dossier 84, „Pells Heft“, **Einträge 1, 2 und 4**; die übrigen sechs liegen in Kapitel 6 im Wald). Karierte Seiten, Kaffeeringe, Kugelschreiber, deutsch mit englischen Einsprengseln; derselbe Umschlag wie bei den Durchschlägen der Akte Abgrund, nur mit dem Stempel „W“ statt „DURCHSCHLAG“. Luke liest in der Reihenfolge, in der er sie findet:
   - nach Eintrag 1 („Trupp 3 nennt es ‚den Sack‘ …“): LUKE: „Seine Oma hatte ein Wort dafür. Meine hätte ‚Kassler‘ gesagt und es trotzdem gefüttert.“
@@ -4312,7 +4291,7 @@ LUKE (Gedanke): *Drei Punkte. Er unterschreibt mit drei Punkten. Zwei davon steh
 
 **Die Schleuse und der Sicherungskasten (Rätsel „Nie mehr als drei“):** An der Rückwand eine zweite Tür, Stahl, mit Magnetschloss und Schild: ZELLENGANG. Ohne Strom bewegt sie sich nicht. Daneben der Sicherungskasten: sechs Fassungen, alle leer. Auf dem Boden davor liegen drei Schraubsicherungen **im Dreieck**, sauber ausgelegt, wie Batterien in Kapitel 1. Jemand war vor Luke hier und hat den Strom abgedreht. Luke setzt ein, dreht den Hauptschalter und hat dabei den Gläsern den Rücken zugedreht. → **Höhepunkt, Teil A** (siehe Kinosequenz).
 
-**Danach, Zelle Ost:** Die Schleuse gleitet auf. Ein kurzer Gang mit drei Zellentüren, zwei offen und leer, die dritte offen und gemacht. Ein Bett, frisch bezogen, ein Kopfkissen mit Knick in der Mitte, wie im Hotel. Eine Kühlbox am Fußende mit Aufkleber „Kühlkette K-3“. Ein Tonbandgerät auf einem Hocker, darauf ein Streifen Kreppband: „Marion 2009“. An der Tür ein Einschubschild aus Plastik wie in Prüfraum 3: **K-3 · BRANDT, L. · Aufnahme nach Öffnung 2026** (Dossier 84, 2.4). Auf dem Deckel der Kühlbox eine Liste in Wolters Schrift: „Stimmen: Schwester (vorh.), Mutter (Bänder 1975, 2009), Großmutter (verstorben, keine Aufn.)“. Auf dem Kopfkissen ein Zettel, Schreibmaschine: „Subjekt gilt als kooperativ. Bitte freundlich.“ Drückt Luke auf „Wiedergabe“, hört er die Stimme seiner Mutter, eine Ansage, die sie 2009 im Amt aufsprechen musste: „Luke, Schatz, du musst keine Angst haben. Die Leute hier sind nett. Mama wartet draußen.“ Dann Rauschen. Luke drückt auf „Stopp“. LUKE (ein Satz): „Sie hat draußen gewartet. Und dann ist sie reingegangen.“
+**Danach, Zelle Ost:** Die Schleuse gleitet auf. Ein kurzer Gang mit drei Zellentüren, zwei offen und leer, die dritte offen und gemacht. Ein Bett, frisch bezogen, ein Kopfkissen mit Knick in der Mitte, wie im Hotel. Eine Kühlbox am Fußende mit Aufkleber „Kühlkette K-3“. Ein Tonbandgerät auf einem Hocker, darauf ein Streifen Kreppband: „Marion 2009“. An der Tür ein Einschubschild aus Plastik wie in Prüfraum 3: **K-3 · BRANDT, L. · Aufnahme nach Öffnung 2026** (Dossier 84, 2.4). Auf dem Deckel der Kühlbox eine Liste in Wolters Schrift: „Stimmen: Schwester (vorh.), Mutter (Bänder 1975, 2009), Großmutter (verstorben, keine Aufn.)“. Auf dem Kopfkissen ein Zettel, Schreibmaschine: „Subjekt gilt als kooperativ. Bitte freundlich.“ Drückt Luke auf „Wiedergabe“, hört er die Stimme seiner Mutter, eine Ansage, die sie 2009 im Amt aufsprechen musste: „Luke, Schatz, du musst keine Angst haben. Die Leute hier sind nett. Mama wartet draußen.“ Dann Rauschen. Luke drückt auf „Stopp“. LUKE: „Sie hat draußen gewartet. Und dann ist sie reingegangen.“
 
 Liest Luke das Schild „Bitte freundlich.“, liegt auf der frisch bezogenen Matratze, genau in Lukes Länge, eine Kuhle, als hätte schon jemand zur Probe darin gelegen, und darin:
 
@@ -4428,7 +4407,7 @@ Luke sagt nichts. Er sieht zur Villa zurück, zum Kellerfenster, und geht wieder
 
 Luke nimmt ihn. Er sieht seine linke Handfläche an, die halbrunde Narbe, den „Fahrradunfall“. Er legt den Ring auf die Narbe. Er passt. Genau.
 
-LUKE (ein Satz): „Das war kein Fahrrad.“
+LUKE: „Das war kein Fahrrad.“
 
 Whiskey sitzt da und putzt sich nicht. Fibel-Eintrag „Miras Ring“: „Ein halber Mond. Whiskey hat ihn gebracht. Er passt in meine Narbe, als wär die Narbe dafür gemacht. Sie ist dafür gemacht.“ Luke-Gedanke, danach, beim Aufstehen: *Der Ring, der sich in seine Hand gebrannt hat. Und in meine, weil ich aus seiner gemacht bin.*
 
@@ -4681,10 +4660,10 @@ Nie zwei Dreier ohne Atempause. Das Tageslicht ist die Grundspannung: kein Grauk
 | W-09 | Villa OG | Schleichen | Klingelton, dann „Himmelherrgott!“ |
 | W-10 | Halle | Wolters Griff | Handschuh; „Du hast dich auch nicht verändert.“; der Handschuh landet im Abspann auf dem Dachfirst (02 E5) |
 | W-11 | Arbeitszimmer | nach Wolter | Miras Ring auf „Werkzeug“; bleibt im Inventar (02 E5) |
-| B-K4-01 bis B-K4-08 | vor Nr. 7 · Fußmatte Nr. 3 · Zählbuch · Fensterbrett Nr. 3 · Schrank OG · Kellertreppe · Zelle Ost · Villentor | siehe Beats | acht Kapitel-Zettel (Wortlaut 82, 5.4); bedingt: B-K4-02b (Weg 1, Fußmatte), B-K4-02c (Weg 1, Regal DREIPUNKT), B-K4-06b (∴-1 geöffnet, Villentor) |
+| B-K4-03 bis B-K4-09 | Zählbuch · Fensterbrett Nr. 3 · Schrank OG · Kellertreppe · Zelle Ost · Villentor · nach dem Abspann auf der Veranda von Nr. 3 | siehe Beats | sieben Kapitel-Zettel (Wortlaut 82, 5.4; B-K4-01 und -02 gestrichen (Story-Prüfung B), B-K4-09 neu); bedingt: B-K4-02c (Weg 1, Regal DREIPUNKT), B-K4-06b (∴-1 geöffnet, Villentor); B-K4-02b gestrichen (Story-Prüfung B) |
 | B-K4-H1, B-K4-H2 | Villentür · Sicherungskasten | Hilfe | „Acht Löcher“ · „Das Kalte ist blau“ |
-| B-K4-N1 bis B-K4-N6 | Akte K-2 · Blatt 213 in Nr. 9 · Presse · Heinrichs Kopfkissen · Weltkarte · Günthers Hocker | Nebenaufgaben / Randschrift | N1, N2 aus 82, 5.9; N3 bis N5 neu; N6 = Wortlaut von B-K5-N1 (Weg a/b heute; bei Weg c erst in Kapitel 5 als B-K5-N1) |
-| Beobachter, Spuren | überall | – | Kratzer in den Wänden (S-01), nasse dreizehige Abdrücke am Kühlraum (S-02, Pflicht), ∴ in der beschlagenen Scheibe (S-03), Kiesel (S-04), Batterien im Dreieck (S-05), gedrehte Lampe (S-06), Schrank einen Spalt offen (S-08), Unterstreichungen (S-09), warme Stufe und warmer Stuhl (S-11), gerückter Stuhl (S-13), nachgezeichnete Uhr (S-16), aufgebogene Zaunlatte am Villazaun (S-18) |
+| B-K4-N1 bis B-K4-N6 | Akte K-2 · Blatt 213 in Nr. 9 · Presse · Heinrichs Kopfkissen · Weltkarte · Günthers Hocker | Nebenaufgaben / Randschrift | N1, N2 aus 82, 5.9; N4, N5 neu, N3 gestrichen (Story-Prüfung B); N6 = Wortlaut von B-K5-N1 (eine Kennung) (Weg a/b heute; bei Weg c erst in Kapitel 5 als B-K5-N1) |
+| Beobachter, Spuren | überall | – | höchstens fünf sichtbare (R-1, Dossier 82 §4): nasse dreizehige Abdrücke am Kühlraum (S-02, Pflicht), drei Kratzer an der 5./6. Fassung (S-01, Hilfeleiter), ∴ in Heinrichs Scheibe (S-03), Kiesel, wo Keiner starrt (S-04), aufgebogene Zaunlatte am Villazaun (S-18). Gänsehaut-Momente ohne Zeichen: gedrehte Lampe (S-06), Schrank einen Spalt offen (S-08), Unterstreichungen (S-09), warme Stufe und warmer Stuhl (S-11), gerückter Stuhl (S-13), nachgezeichnete Uhr (S-16). Batterien auf der Villa-Treppe gestrichen |
 | Beobachter, Sichtung | Abspann | Stimme oben | die eine Sichtung des Kapitels (02 D7): die eingebrochene Treppe hinauf; sonst nur Ein-Sekunden-Blicke nach Kern §7 (Kamera in Nr. 9, Regentonne) |
 | N-02 | Kreuzung, Kirchberg | Funkspruch | Kater Keiner, Gisela über Wolter |
 | N-04 | Nr. 1, Schuppen | Zeitung | „Unzustellbar“, Zusammenbruch |
@@ -4723,6 +4702,12 @@ Nie zwei Dreier ohne Atempause. Das Tageslicht ist die Grundspannung: kein Grauk
 | 44–56 | Nr. 3, Wohnzimmer, Nachmittag, Regen an der Alufolie; Kamera hinter dem Sessel, Luke nur von hinten | Lucy schläft auf dem Sofa. Luke im Sessel, den Ring zwischen den Fingern, die Augen fallen ihm zu. Whiskey auf der Sessellehne. Vegas deckt beide mit derselben Decke zu, murmelt: „Zwei Stunden. Dann weck ich euch. Oder die.“ | Ofen, Regen |
 | 56–66 | Schwarz, dann Traumlicht wie im Prolog; der zweite Traum, nur hier (02 E2; Wortlaut: Whiskey-Dossier 83, Abschnitt 3) | der Rabe auf einer Bettkante, nah, Miras Stimme | DER RABE: „Dreizehn Atemzüge hab ich gebraucht bis zum Rand. Du brauchst länger. Das ist gut.“ – „Der Ring passt dir. Er hat gehalten, bis die Hand nicht mehr konnte. Sag ihm das, wenn du ihn wiedersiehst.“ – „Ich komm. Ich weiß nur noch nicht, in welcher Nacht.“ – „Such.“ |
 | 66–70 | Schwarz | Endkarte | – |
+
+**Nach dem Abspann (Story-Prüfung B, G-4; der Film bleibt, wie er ist):** Während Luke im Sessel bei Vegas schlief, hat jemand einen Zettel auf die Sessellehne gelegt. Luke findet ihn zu Beginn von Kapitel 5, als er auf der Veranda von Nr. 3 aufsteht (im Spiel: vor seinen Füßen, ohne Papiergeräusch; `kapitel5.js`, Takt „veranda“). Luke sagt nichts.
+> **B-K4-09 · „Gezählt“**
+> DU HAST AUF DEM SESSEL GESCHLAFEN.
+> ICH HAB DICH GEZÄHLT. ZWEI MAL.
+> ∴
 
 **Endkarte (wörtlich):**
 > **KAPITEL 4 — ENDE · SEHEN, BERGEN, SCHWEIGEN**
@@ -4966,8 +4951,7 @@ Sie geht den Kirchweg hinauf. **Hänschen** folgt Luke ab jetzt in drei Metern A
 
 #### 5 · „HASENBROT“
 
-Die Haustür von Nr. 1 steht einen Spalt offen. **Speicherpunkt SP5-3.** Hänschen setzt sich auf die Schwelle und geht keinen Schritt weiter. LUKE: „Kluge Katze.“ Pause. „Gisela hat gesagt, wenn du nicht reingehst, geh ich auch nicht. … Ich geh trotzdem. Sag’s ihr nicht.“ **Beobachter-Zettel B-K5-02** halb unter der Tür:
-> IN DEM HAUS IST SOMMER. DRAUSSEN IST NOVEMBER. GEH MIT JACKE REIN UND KOMM MIT JACKE RAUS ∴
+Die Haustür von Nr. 1 steht einen Spalt offen. **Speicherpunkt SP5-3.** Hänschen setzt sich auf die Schwelle und geht keinen Schritt weiter. LUKE: „Kluge Katze.“ Pause. „Gisela hat gesagt, wenn du nicht reingehst, geh ich auch nicht. … Ich geh trotzdem. Sag’s ihr nicht.“ (B-K5-02 „Sommer“ gestrichen (Story-Prüfung B): unter der Tür liegt nichts, nur die Katze bleibt sitzen.)
 
 Über der Kellertür in der Diele hängt das Hufeisen verkehrt herum, die Enden nach unten (Beobachter-Spur S-14: hier ist jemand, der nicht hergehört). LUKE: „Da läuft das Glück raus. Hat Oma immer gesagt. Toll.“
 
@@ -5021,7 +5005,7 @@ Lore „Luna mit Lucys Gesicht“: „Die Stimme am Telefon. Die Gestalt auf dem
 **Kinderzimmer:** Die Tür, die eben offen stand, ist angelehnt (Spur S-08). Lucys Spieluhr (`musicBox`, Regal) spielt offen, fast stehend. Daneben **Beobachter-Zettel B-K5-03** (er hat ihn hingelegt, bevor Luke das Haus betrat; der Zettel spricht von einem Foto, das es da noch nicht gab):
 > DU HAST SIE FOTOGRAFIERT. SIE HAT NOCH NIE EIN BILD VON SICH GESEHEN. JETZT WEISS SIE WIE SIE AUSSIEHT ∴
 
-Aufnehmen → Deckel zu → Gegenstand „Lucys Spieluhr“. Im selben Moment werden draußen alle Laternen der Ahornstraße einen Herzschlag lang heller, und aus jeder kommt gleichzeitig ein **Kichern**: kurz, hoch, wie von einem Kind, das man beim Verstecken gefunden hat und das es lustig findet. Dann nichts. *(Ersetzt das alte „Das ist MEINS!“; Luna schreit nie, 02 H4. Was das Kichern bedeutet, sagt später im Stall der echte Luke.)* LUKE (ein Satz): „Ich nehm ihr was weg, und sie lacht.“ **Speicherpunkt SP5-4.** Aufgabe: „Bring Lucy die Spieluhr.“
+Aufnehmen → Deckel zu → Gegenstand „Lucys Spieluhr“. Im selben Moment werden draußen alle Laternen der Ahornstraße einen Herzschlag lang heller, und aus jeder kommt gleichzeitig ein **Kichern**: kurz, hoch, wie von einem Kind, das man beim Verstecken gefunden hat und das es lustig findet. Dann nichts. *(Ersetzt das alte „Das ist MEINS!“; Luna schreit nie, 02 H4. Was das Kichern bedeutet, sagt später im Stall der echte Luke.)* LUKE: „Ich nehm ihr was weg, und sie lacht.“ **Speicherpunkt SP5-4.** Aufgabe: „Bring Lucy die Spieluhr.“
 
 **Heimweg:** Vor Nr. 1 flackern die Laternen, als atme jemand dagegen. Hänschen steht mit Buckel auf der Schwelle und faucht in den leeren Vorgarten. Whiskey auf dem Zaun ist **völlig still** (Gefahrsignal), und auch das Trippeln des Beobachters hört auf, ganz (ab Kapitel 5 heißt seine Stille: das Graukind ist nah). Das **Graukind jagt** (`graue`, vorhandene Mechanik: bewegt sich nur ungesehen, zerfällt im Lampenlicht). VEGAS aus dem Fenster: „Sie ist raus! Barfuß! Zur Kreuzung, Junge, sie steht mitten auf der Kreuzung!“
 
@@ -5054,7 +5038,7 @@ Aufgabe: **„Brot. Der Stall am Hof. Guck ihn nicht an.“** Das Brot: der Kant
 
 Weg nach Westen. Hinter Luke gehen die Laternen des Westwegs eine nach der anderen aus (sie folgt, jagt nicht). Die Katze bleibt bei jeder stehen und sieht zurück. Am Hof brennt im Bauernhaus ein Fenster: **Frau Aydın** („Ist sie’s?“ startbar). Auf dem **Stalldach sitzt Whiskey** (W-12), schwarz gegen den Nebel, wie ein Wachposten, der schon lange Dienst hat. Er pfeift die ersten Töne der Spieluhr, E D C H C, und bricht ab. Als Luke zwischen Remise und Stall zögert, ruft er: **„Kum!“** und hüpft über den First zur Stalltür.
 
-**Die Scheune nebenan (optional, vor dem Stall):** Justins Lager hat sich verändert. Das Strohbett ist glatt gestrichen, der Schleifstein liegt anders, mit der Mulde zur Tür (Beobachter-Spur), der Haken für die Laterne ist leer wie immer. Im Heu der Fundamentstein mit dem Turm über dem Abgrund. **Nur bei Wahl C am Ende von Kapitel 3 („Dass du sie suchst.“):** Die Gürtelschnalle mit demselben Zeichen passt genau in die Vertiefung im Stein. Legt Luke sie ein (E), steht zwei Sekunden lang Licht aus dem Stein, kalt-weiß und kerzengerade, und durch die Bretterwand flüstert eine Kinderstimme aus dem Stall: „Der kommt wieder. Der kommt immer wieder.“ LUKE (ein Satz): „Vom Hof. Nicht aus dem Licht.“ Die Schnalle bleibt im Stein. *(Einlösung des Abschiedsgeschenks C, 02 B3.)*
+**Die Scheune nebenan (optional, vor dem Stall):** Justins Lager hat sich verändert. Das Strohbett ist glatt gestrichen, der Schleifstein liegt anders, mit der Mulde zur Tür (Beobachter-Spur), der Haken für die Laterne ist leer wie immer. Im Heu der Fundamentstein mit dem Turm über dem Abgrund. **Nur bei Wahl C am Ende von Kapitel 3 („Dass du sie suchst.“):** Die Gürtelschnalle mit demselben Zeichen passt genau in die Vertiefung im Stein. Legt Luke sie ein (E), steht zwei Sekunden lang Licht aus dem Stein, kalt-weiß und kerzengerade, und durch die Bretterwand flüstert eine Kinderstimme aus dem Stall: „Der kommt wieder. Der kommt immer wieder.“ LUKE: „Vom Hof. Nicht aus dem Licht.“ Die Schnalle bleibt im Stein. *(Einlösung des Abschiedsgeschenks C, 02 B3.)*
 
 **Speicherpunkt SP5-6** an der Stalltür (vorhandener Text mit den eingeschnitzten Jahreszahlen). **Beobachter-Zettel B-K5-04** am Pfosten, mit Kiesel beschwert:
 > DER JUNGE IM STROH ZÄHLT AUCH. ER ZÄHLT BROTE. ES SIND MEHR ALS DEINE ANRUFE ∴
@@ -5068,7 +5052,7 @@ In einer leeren Box ein Brett als Tisch, ein Teller, sauber abgeleckt. An der Br
 > und wo du hingehst, bin ich nicht weit.
 > (Ihre Hand. Nicht meine. Wîse hat die Seite gebracht. Ich weiß nicht, woher.)
 
-*(Strophe 1 in Miras Wortlaut nach 02 G1; Justins Randzeile aus dem Justin-Dossier. Das Dossier wird an diese Strophe angeglichen.)* Luke summt die Häkchen an und hört auf. LUKE (ein Satz): „Das steht in Mamas Liederheft, und die Häkchen sind Lucys Spieluhr.“ *(Die erste Strophe kennt Luke aus dem Liederheft in Nr. 1; die zweite und die Dorf-Schlusszeile „Such mich, Kind. Ich find dich doch.“ stehen nicht auf dieser Seite, 02 G1.)*
+*(Strophe 1 in Miras Wortlaut nach 02 G1; Justins Randzeile aus dem Justin-Dossier. Das Dossier wird an diese Strophe angeglichen.)* Luke summt die Häkchen an und hört auf. *(Die erste Strophe kennt Luke aus dem Liederheft in Nr. 1; die zweite und die Dorf-Schlusszeile „Such mich, Kind. Ich find dich doch.“ stehen nicht auf dieser Seite, 02 G1.)*
 
 Luke legt das Brot auf den Teller (E). Aufgabe: „Warten.“ **Rätsel „Nicht hinsehen“** (Lösung: Q halten, bis er zu Ende gesprochen hat). Solange Luke die Augen offen hat, kommt niemand. Die Katze legt sich ins Heu und schließt die Augen als Erste.
 
@@ -5092,6 +5076,11 @@ Zum Schluss von selbst:
 
 Direkt am Ohr, Kinderstimme **ohne Spieluhr**: LUNA: „Augen auf, Bruder.“ Die Augen öffnen sich **von selbst** (Q wirkt nicht mehr, Regel 4, Ausnahme Wechselbalg). Für einen Atemzug steht **der echte Luke** (`luke_echt`, gestreifter Schlafanzug, blaue Augen) in der Stalltür und sieht Luke an. Entsetzt. Dann rennt er. LUNA, ganz nah, fröhlich: „Da ist er ja.“ **Stufe 3.**
 
+**Beobachter-Zettel B-K5-08 · „Es geht auf“** (Story-Prüfung B, G-4): an der Stalltür, gegenüber von B-K5-04, sobald Luke „Ich hab ihn angesehen.“ gesagt hat; Papiergeräusch, sonst nichts. Luke sagt nichts. Er meint den echten Luke: beim ersten Lesen klingt es wie Hilfe, beim zweiten wie eine Rechnung.
+> WENN ER HEIMGEHT MUSST DU WEG.
+> ICH HAB ES AUSGERECHNET. ES GEHT AUF
+> ∴
+
 Auf dem Brett frische Kreide: zwei Strichmännchen an der Hand, blaue und braune Punkte als Augen, darunter **DU + ICH** (Spiegel von „PAPA + ICH“ an Stuhl 8 im Amt). Die Katze starrt mit gesträubtem Fell in die leere Ecke; dort raschelt Stroh.
 
 - LUKE (ein Satz): „Ich hab ihn angesehen.“
@@ -5107,8 +5096,7 @@ Kein Bild von ihm, nur Ton: kleine nackte Füße auf nassem Boden, links, rechts
 
 Abreißen (E) ist möglich (Vertrauen −4); am Morgen hängt es wieder. **Vertrauen miserabel:** mit Kuli ein zweites Datum ergänzt, morgen. **Hoch:** halb wieder abgezogen, als hätte es sich jemand anders überlegt; unten mit Kuli: „bitte melden“.
 
-Schwarzblende, Zeitsprung. Untertitel: „Das Tappen führt dich im Kreis. Durch die Gärten, am Hof vorbei, zweimal um die Villa. Als es aufhört, schlägt die Glocke auf dem Kirchberg elf.“ Elf Schläge. **Speicherpunkt SP5-7** am Friedhofstor, Nebel kniehoch. **Beobachter-Zettel B-K5-06** am Torpfosten:
-> WARUM LEGT IHR EUCH IN DIE ERDE WENN SIE DA UNTEN KEINEN SIEHT. IST DAS VERSTECKEN ∴
+Schwarzblende, Zeitsprung. Untertitel: „Das Tappen führt dich im Kreis. Durch die Gärten, am Hof vorbei, zweimal um die Villa. Als es aufhört, schlägt die Glocke auf dem Kirchberg elf.“ Elf Schläge. **Speicherpunkt SP5-7** am Friedhofstor, Nebel kniehoch. Am Torpfosten liegt nichts (B-K5-06 „Ist das Verstecken“ gestrichen (Story-Prüfung B)).
 
 **Vertrauen miserabel (V-10, Wortlaut LWO-Dossier):** Nachsorge 11 steht allein am Tor, ohne den Kurzen, mit Chrysanthemen in Folie vom Tankstellen-Automaten. „Wir haben schon mal Blumen mitgebracht. Damit es später nicht so eilig wird.“ Auf „Für wen?“: „Für die Grabstelle Brandt, L. Wir wissen nur noch nicht, welches L.“ Er legt die Blumen auf den Weg und geht.
 
@@ -5148,7 +5136,7 @@ Sie lässt die Hand des Jungen los und läuft zur Villa, wird im Laufen zu Nebel
 > Ein Mann in Eisen kniet am Grab und liest, langsam, mit dem Finger.
 > Er kommt bis zur zweiten Zahl. Dann steht er auf und geht Richtung Senke.
 > Er hat es geglaubt.
-LUKE (ein Satz): „Darum hat er mich an der Kreuzung so lange angesehen.“
+*(Luke sagt nichts. H-1: kein erklärender Einzeiler.)*
 
 Er rennt nach Osten, am Spielplatz vorbei, zur **Nordzaun-Lücke** und schlüpft unter dem Gitter durch. Aufgabe: **„Hinterher.“**
 
@@ -5318,8 +5306,8 @@ Kein Witz beim echten Luke, am Grab, beim „gar nicht böse“.
 
 **Beobachter**
 - Verfolgung durchgehend: Kiesel und Schritte hinter der Regentonne, Rascheln zwischen Mülltonnen, Stroh im Stall, Knacken im Friedhofsgebüsch, Atmen hinter der Hecke am Nordzaun. Ein-Sekunden-Regel: hinter Regentonne, Kombi, Villa-Tor, Grabstein, Gitterpfosten.
-- Zettel (02 A1, Dossier 82, 5.5): B-K5-01 Briefkasten Nr. 7 · B-K5-02 halb unter der Tür von Nr. 1 · B-K5-03 Regal Kinderzimmer · B-K5-04 Stalltür · B-K5-05 unter dem Plakat · B-K5-06 Friedhofstor · B-K5-07 Nordzaun · B-K5-H1 bedingt (Grab). Sieben feste, einer bedingt. Dazu B-K5-N1 im Schuppen (nur Weg c aus Kapitel 4, „Der gelbe Kasten“).
-- Spuren: drei Kiesel (Nr. 2), Bonbonpapier (Laube), dreizehige Abdrücke auf Hildes Foto und in der Remise, frisch Unterstrichenes auf Hildes Kamerazettel („lügt nicht“) beim zweiten Lesen.
+- Zettel (02 A1, Dossier 82, 5.5): B-K5-01 Briefkasten Nr. 7 · B-K5-03 Regal Kinderzimmer · B-K5-04 Stalltür · B-K5-05 unter dem Plakat · B-K5-07 Nordzaun · B-K5-08 Stalltür nach „Augen auf, Bruder“ · B-K5-H1 bedingt (Grab). Sechs feste, einer bedingt (B-K5-02 und -06 gestrichen (Story-Prüfung B)). Dazu B-K5-N1 im Schuppen (nur Weg c aus Kapitel 4, „Der gelbe Kasten“; derselbe Zettel wie B-K4-N6, eine Kennung).
+- Spuren (höchstens fünf, R-1, Dossier 82 §4): drei Kiesel zwischen den Tonnen von Nr. 2 (Hänschen starrt), ∴ spiegelverkehrt im Beschlag der Küchenscheibe Nr. 1, Bonbonpapier auf dem Fensterbrett Nr. 1 (das Bonbon war aus Lukes Elternküche), dreizehige Abdrücke auf Hildes Foto und in der Küche Nr. 1. Gänsehaut-Moment ohne Zeichen: frisch Unterstrichenes auf Hildes Kamerazettel („lügt nicht“) beim zweiten Lesen. Bonbonpapier an der Laube und Abdrücke in der Remise gestrichen (Story-Prüfung B).
 - **Katze und Rabe zeigen ihn.**
 
 **Neue Figuren**
@@ -5431,7 +5419,7 @@ Statistik ohne Gesamtzahlen: FOTOS n · FUNDE n · ZETTEL n. Knopf „WEITER · 
 ### Abstimmungen (erledigt)
 
 - Uhrzeiten: keine Minutenangaben außer 03:13 auf der Kapitelkarte; AG-15 ohne „Neunzehn Uhr vierzig“ (02 A5).
-- Beobachter-Zettel heißen B-K5-01 bis -07, Hilfe-Zettel B-K5-H1, Schuppen-Zettel B-K5-N1 (02 A1).
+- Beobachter-Zettel heißen B-K5-01 bis -08 (ohne -02 und -06), Hilfe-Zettel B-K5-H1, Schuppen-Zettel B-K5-N1 (02 A1).
 - Lore aus Hildes Laube heißt „Neun Paar Füße“ (02 A2); Heidis Nebenaufgabe heißt „Ein Dorf näher“, weil „Sind sie wieder da?“ Kapitel 1 gehört.
 - Abschiedsgeschenke: A Riemen „H. R.“ bei Gisela, B halber Riegel auf Hildes Küchentisch in Nr. 7, C Schnalle im Fundamentstein (02 B3).
 - Vertrauen: Edda Brands Brief einwerfen −15, zurückgeben +5 (02 C2); übrige Werte nach LWO-Dossier 3.1.
@@ -5556,7 +5544,7 @@ Wolter geht zum Kombi. Auf dem Weg dreht er sich um: „Was immer da drin mit Ih
 
 LUKE: „Er. Wer ist er? Und was sammelst du?“ (Der Zettel ist die erste Stelle, an der der Beobachter Angst zeigt: Die Schrift ist gedrückter als sonst, ein Buchstabe ist durchgestrichen.)
 
-**Humor:** Luke findet auf dem Pfad eine Pfandflasche (Bier, acht Cent) und steckt sie ein. „Wenn ich das überlebe, ist das mein Anfang.“ Zwei Minuten später liegt hinter ihm **B-K6-03 „Bin ich reich“** (Wortlaut: Beobachter-Dossier; „ICH HAB SIEBZEHN. IM BUS. BIN ICH REICH“). LUKE: „Ein Euro sechsunddreißig. Mit Glück.“ Pause. „Ja. Für hier schon.“ Später, in der Stille-Zone, klirrt die Flasche in der Jackentasche, viel zu laut, und Luke wickelt sie in seine Mütze.
+**Humor:** Luke findet auf dem Pfad eine Pfandflasche (Bier, acht Cent) und steckt sie ein. „Wenn ich das überlebe, ist das mein Anfang.“ (B-K6-03 „Bin ich reich“ mit Lukes Antwort gestrichen (Story-Prüfung B).) Später, in der Stille-Zone, klirrt die Flasche in der Jackentasche, viel zu laut, und Luke wickelt sie in seine Mütze.
 
 #### 3 · „Der Wald hat kein Echo“
 
@@ -6129,27 +6117,28 @@ Kein Witz in der Hütte, bei Anni, bei den toten Blechmännern oder am Bau.
 
 Er folgt ab dem Gitter, wie immer mit der Ein-Sekunden-Regel und Geräuschen (Kiesel, raschelnde Büsche, ein knackender Ast). **Neu in diesem Kapitel:** In jeder Stille-Zone schweigt auch er, und dieses doppelte Schweigen ist die Warnung (Beobachter-Dossier). Nach dem Höhepunkt bleibt er weiter hinten, man hört ihn nur noch alle dreißig Sekunden. Einmal sieht man ihn in Bewegung: Als Luke sich dem Wrack nähert, rennt eine kleine weiße Gestalt vom Wrack weg ins Dunkel, weniger als eine Sekunde im Bild, auf drei Zehen. Er flieht. Im Höhepunkt steht er für genau eine Sekunde im Blitz, die Hände auf den Ohren.
 
-**Spuren:** drei Kiesel übereinander am Weg zum Hochsitz (S-04); Batterien im Dreieck im Bus (S-05); ein gefaltetes Bonbonpapier auf einem der sieben Kindersitze (S-07); der warme Sitz (S-11: „Warm. Da hat gerade jemand gesessen. Jemand Kleines.“); drei Kratzer am Baum nach V-12; die dritte Batterie in Jonas’ Dose; nasse dreifingrige Abdrücke im Baumhaus.
+**Spuren** (höchstens fünf sichtbare, R-1, Dossier 82 §4): drei Kiesel übereinander am Weg zum Hochsitz (S-04, Whiskey sieht hin); Batterien im Dreieck im Bus (S-05); der warme Sitz (S-11: „Warm. Da hat gerade jemand gesessen. Jemand Kleines.“); drei Kratzer am Baum nach V-12; die dritte Batterie in Jonas’ Dose; nasse dreifingrige Abdrücke im Baumhaus.
 
 **Zettel** (Kennungen und Wortlaut nach dem Beobachter-Dossier, Abschnitt 5.6 und 5.7; 02 A1):
 - **B-K6-01** „Hinter dir“ · Waldweg hinter der Zaunlücke, sechzig Sekunden nach dem Betreten (Unterkapitel 2).
 - **B-K6-02** „Er frisst was ich sammle“ · erster Pfad, nach der Krähe (Unterkapitel 2).
-- **B-K6-03** „Bin ich reich“ · Pfad, zwei Minuten nach der Pfandflasche (Unterkapitel 2).
+- B-K6-03 „Bin ich reich“ · gestrichen (Story-Prüfung B).
 - **B-K6-04** „Er schabt“ · nach Justins falscher Stimme, zwischen Hochsitz und Bus (Ende Unterkapitel 4).
 - **B-K6-05** „Lange her“ · Hochsitz, unter dem Stein neben SB-11 (Unterkapitel 4).
 - **B-K6-06** „Du bist der Speck“ · Amtsbus, auf seinem warmen Sitz, vor der Falle (Unterkapitel 5). **Nach der Falle** steht auf der Rückseite eine neue Zeile, je nach Weg (Kapitel-Zusatz, ins Dossier zu übernehmen):
   - Mitmachen: „SIE HABEN DICH HINGESTELLT WIE EINEN TELLER. ICH HABE ES GESEHEN. ICH HABE NICHTS GESAGT ∴“
   - Sabotieren: „DU HAST DAS NETZ KAPUTT GEMACHT. ICH HÄTTE ES NICHT GEKONNT. DANKE ODER NICHT DANKE, ICH WEISS ES NOCH NICHT ∴“
   - Ablehnen: „DU HAST NEIN GESAGT. SIE HABEN DICH TROTZDEM HINGESTELLT. SO SIND SIE ∴“
+- **B-K6-08** „Ob das Eisen hält“ (Story-Prüfung B, G-4) · nach AG-20, an Jonas’ Lager nach der Atempause, hinter Lukes Füßen (bei den Blechmännern schweigt er): „ICH HÄTTE IHN WARNEN KÖNNEN. DEN MIT DEM BLECHKOPF. ICH WOLLTE SEHEN OB DAS EISEN HÄLT ∴“ Luke sagt nichts.
 - **B-K6-07** Schlusszettel „Frag dich warum“ (`d_zugesehen`) · am eingedrückten Zaun, im Abspann auf dem Heimweg. Erste Zeile: „ICH HABE DICH NICHT GERETTET.“ (Wortlaut: Beobachter-Dossier, B-K6-07, mit der vierten Zeile je nach Wahl in Kapitel 3.)
 - **Rätselzettel** `r_hochsitz` · siehe Rätsel R6-1.
-- **Orts-Zettel** (Entdecker-Serie, Wortlaut Beobachter-Dossier 5.7): B-O14 Zayns Hütte, B-O15 Hochsitz, B-O16 Amtsbus („… DIE SCHWEINE HABEN AUF DEIN GESCHENK AUFGEPASST.“), B-O17 Steinkreis, B-O18 Autowrack („HINTER DEM WRACK WOHNT WAS FRISST. …“), B-O19 Weiher.
+- **Orts-Zettel** (Entdecker-Serie, Wortlaut Beobachter-Dossier 5.7; B-O13 Lichtung und B-O14 Zayns Hütte gestrichen (Story-Prüfung B)): B-O15 Hochsitz, B-O16 Amtsbus („… DIE SCHWEINE HABEN AUF DEIN GESCHENK AUFGEPASST.“), B-O17 Steinkreis, B-O18 Autowrack („HINTER DEM WRACK WOHNT WAS FRISST. …“), B-O19 Weiher.
 
 #### Neue Figuren
 
 - **N-07 Anni Hofer:** nur Stimme. Der Loop beginnt mit „Papa? Papa, ich bin’s.“ (02 F10), die festen Stationssätze aus dem Wendigo-Dossier liegen am Hochsitz, auf dem Weg zur Fraßstelle, am Bus und vor der Silhouette (N6-7); dazu Hofers eingeklebtes Blatt, der Lampion im Spind, „Gleich wieder da.“ im Abspann.
 - **N-08 Grete Wolter:** kein Auftritt; das Polaroid „HEINI“ (nur mit dem Foto aus der Teedose, Kapitel 5) öffnet in AG-18 Wolters einzigen Satz ohne Passiv (02 F12).
-- **N-02 Gisela Rieke:** ihr Kater Hänschen läuft Luke bis ans Gitter nach, geht keinen Schritt in den Wald und sitzt im Abspann bei Vegas am Fenster (02 F7). In Giselas Vorgarten liegt am Morgen ein gefaltetes Bonbonpapier im Napf des Katers.
+- **N-02 Gisela Rieke:** ihr Kater Hänschen läuft Luke bis ans Gitter nach, geht keinen Schritt in den Wald und sitzt im Abspann bei Vegas am Fenster (02 F7).
 - **N-06 Pfarrer Voss:** in SB-11 („Ich hab ihn zuletzt am Nordzaun gesehen, im Nebel, ohne Laterne.“) und im Nachtrag von Hofers Seite 1 (1992 hat er die Kinder im Kapellenkeller versteckt und ist selbst hineingegangen, 02 C11).
 - **N-03/N-04 Günther Maas:** kein Auftritt. Sein Schicksal bleibt für Kapitel 7 offen.
 
@@ -6252,7 +6241,7 @@ Darunter klein, ohne Gesamtzahlen: FOTOS n · FUNDE n · ZETTEL n. Knopf: „ZUM
 - **`cleo.js`:** Gedanke mit „Justin hat sieben für seine eine geschickt“ ersetzen (abgeschaffte Wahrheit); Titel „Die Vergessene“ → „Eine für sieben“; Tausch mit dem Thermoskannendeckel als zweite Zahlungsart; Keksdose mit acht Kronkorken; Kap.-6-Ende am Steinkreis-Stein.
 - **`zayn.js`:** Titel „Versprochen ist versprochen“ → „Hast du dich an mich erinnert?“; Kassette als Gegenstand im Radio; Luke-Zeile „Das ist Band.“ nach dem Radio.
 - **`whiskey.js`:** Station am Gitter (vorhanden `[30, 96.2]`, Text neu: K6-1 „Such!“; die Station `waldrand` wandert laut Whiskey-Dossier hierher), Stationen Hochsitz, Busdach (während AG-19 nur Sitzen, keine Laute), Baumhausdach, Jonas’ Lager (Müsliriegel); der Lore-Text mit „zwischen dem Weißen und euch“ ist abgeschafft und wird durch den Justin-Dossier-Text ersetzt. Nach dem Höhepunkt `whiskey_S.trade` und alle Nachahmungen gesperrt (02 E4), einmalige Ausnahme „Bedauerlich.“ an `TIEF.camp`; W-15 „Luna.“ ist Kern-Pflicht und keine Nachahmung.
-- **`beobachter.js`:** B-K6-01 bis B-K6-06 neu (B-K6-06 mit drei Rückseiten-Fassungen nach der Falle), B-K6-07 = `d_zugesehen` mit drei Wahl-Zeilen (im Abspann statt direkt nach dem Finale); `r_hochsitz` und die Orts-Zettel B-O14 bis B-O19 vorhanden, Texte nach dem Beobachter-Dossier. Laufende Sichtung am Wrack (einmal, weniger als eine Sekunde).
+- **`beobachter.js`:** B-K6-01 bis B-K6-06 neu (B-K6-06 mit drei Rückseiten-Fassungen nach der Falle), B-K6-07 = `d_zugesehen` mit drei Wahl-Zeilen (im Abspann statt direkt nach dem Finale); `r_hochsitz` und die Orts-Zettel B-O15 bis B-O19 vorhanden (B-O13, B-O14 gestrichen (Story-Prüfung B)), Texte nach dem Beobachter-Dossier. Laufende Sichtung am Wrack (einmal, weniger als eine Sekunde).
 - **`innen_kapitel.js`** (Anker „Gitter“): Aufbiegen des Gitters übernehmen. **`gruen.js`:** Nordzaun-Lücke bleibt, neues Bauzaun-Element mit Betonfuß davor.
 - **`feuer.js`:** unverändert; Kapitel 6 ruft nur `ITEMS.feuerzeug.desc` auf.
 - **`figuren.js`:** `luke_echt` (Clip `idle`) auf dem Hochsitz; Stufe 8 Hofer bleibt beim Polizist-Rückfall, bis das Blechmann-Modell da ist.
@@ -6277,7 +6266,7 @@ Darunter klein, ohne Gesamtzahlen: FOTOS n · FUNDE n · ZETTEL n. Knopf: „ZUM
 - Anni: „Papa, ich bin’s“ eröffnet den Loop, Stationssätze aus dem Wendigo-Dossier; „Ich hab gewartet“ gestrichen (02 F10).
 - Pells Heft: drei Seiten in der Villa, sechs im Wald (02 F11).
 - Polaroid „HEINI“ als freiwilliges Tauschmittel in AG-18, dazu Wolters „Klar!“-Satz als zusätzliches Stück Wahrheit (02 F12).
-- SB-12, Fassung A: Brustplatte statt Helm (02 B1). Beobachter-Zettel mit Kennungen B-K6-01 bis 07 und B-O14 bis 19 nach dem Beobachter-Dossier (02 A1).
+- SB-12, Fassung A: Brustplatte statt Helm (02 B1). Beobachter-Zettel mit Kennungen B-K6-01 bis 08 (ohne 03) und B-O15 bis 19 nach dem Beobachter-Dossier (02 A1).
 - SB-11 im Wortlaut des Justin-Dossiers; Dienstbuch Seite 2 liegt vor SB-11 (Leiter, dann Kanzel).
 - Helm: Justin tritt in diesem Kapitel nicht auf; sein Gesicht bleibt bei den zwei Stellen aus Kapitel 3 (02 B1). Die Riss-Wahrheit kommt nicht vor (Kern, Entscheidung 23).
 - Nacharbeit in den Dossiers, damit sie zu diesem Kapitel passen (keine neue Entscheidung nötig; maßgeblich ist 02): **80 LWO** AG-18 bis AG-20 noch mit Funkgerät statt Sender, Werten +20/−25 und Nachsorge 11 als zweitem Toten → Sender (C3), +10/+15/−20/−10/−10 (C2), Posten 3-4 (C6); Ablehnen-Ausgang wie hier (Luke gerät selbst ins Netz, Ketten am Zaun erst im Abspann). **84 Wendigo** Seite 1 Nachtrag („Sechs gekommen …“) → C11-Fassung wie oben; §1.12 (Aggregat, Tonband als Köder, „Whiskey nicht im Wald“) → Whiskey sitzt still auf dem Busdach (E4). **83 Whiskey** K6-2 entfällt (E4), K6-3 liegt an Jonas’ Lager, W-14 liest der echte Luke vor. **82 Beobachter** B-K6-06 bekommt die drei Rückseiten-Zeilen von oben. **81 Justin** SB-12 Fassung A auf „Brustplatte“ (B1).
@@ -6437,7 +6426,7 @@ Kapitel 7 startet keine neuen Nebenaufgaben. Es beendet sechs, die seit Kapitel 
 - **„Unzustellbar“**: Im Briefkasten von Nr. 7 liegen Jonas’ eigene Briefe an Hilde, die Günther Maas jahrelang zurückgehalten und am Donnerstag endlich eingeworfen hat (Kap. 5). Jonas gibt sie ihr am Rand; sie liest den ersten mit der Taschenlampe.
 - **„Eine für sieben“** (`cleo.js`): Mit der Kronkorken-Dose bekommt Cleo ihren achten Kronkorken mit C (Unterkapitel 6). Ohne Dose genügt Lucys Stimme.
 - **„Papa, ich bin’s“** (N-07): Mit Annis Lampion kommt Anni am Lampion heraus (Unterkapitel 6). Der Wald ruft danach ihren Namen mit ihrer eigenen Stimme; sie antwortet nicht.
-- **„Der Neunte“** (alt „Der Beobachter“, `story.side.beobachter`): Hat der Spieler alle neunzehn Orts-Zettel, wird die Murmel in Unterkapitel 5 warm, und der Beobachter sagt in Unterkapitel 3 einen Satz mehr: „Du hast alle gefunden. Dann weißt du, wie sich das anfühlt.“
+- **„Der Neunte“** (alt „Der Beobachter“, `story.side.beobachter`): Hat der Spieler alle dreizehn Orts-Zettel, wird die Murmel in Unterkapitel 5 warm, und der Beobachter sagt in Unterkapitel 3 einen Satz mehr: „Du hast alle gefunden. Dann weißt du, wie sich das anfühlt.“
 
 ### Fundstücke und Notizen (Hauptweg)
 
@@ -6521,7 +6510,7 @@ Nach zehn Sekunden, kleiner: „AUSSENSTELLE 3 MELDET: DER CHOR SINGT LAUTER.“
 - Mira: neues Figurenmodell (einziges neue in Kap. 7; Vorschlag: das Modell aus `figuren.js`, Schlüssel `mira`, das bisher als „kleine“ das Graukind stellt, wird NICHT wiederverwendet, weil es ein Kind ist; die Laterne ist Justins Stalllaterne aus Kap. 3; Flamme als Sprite wie das Dachfenster der Villa).
 - Die Kette: Kettenrollen der Blechmänner (Modell aus Kap. 3/6), Handhalte-Animation aus Raum 3 (Kap. 3).
 - Schiff und Nachbilder: Kinosequenz mit vorhandenen Nachbild-Sprites, keine neuen Lichter zur Laufzeit. Jonas: erwachsenes Männermodell, Wolle aus `zayn.js`.
-- Sperren: Kapitel 7 nur nach Kapitel 6; „Der Neunte“ (19 Orts-Zettel) beeinflusst zwei Sätze, keine Struktur. Kronkorken-Dose (`cleo.js`), Annis Lampion und Zayns Kassette sind Flags aus Kap. 6 und ändern je einen Beat.
+- Sperren: Kapitel 7 nur nach Kapitel 6; „Der Neunte“ (13 Orts-Zettel) beeinflusst zwei Sätze, keine Struktur. Kronkorken-Dose (`cleo.js`), Annis Lampion und Zayns Kassette sind Flags aus Kap. 6 und ändern je einen Beat.
 - Alte Anker mit alter Wahrheit, die umgeschrieben werden müssen: `gedanken.js` `echo_mira` („Sieben für Papa. Einen für sich, aus Papa gemacht.“) · `figuren.js` Modellschlüssel `mira` für das Graukind (umbenennen in `graukind`, damit das Wort nicht das Falsche verrät) · `hungrige.js` Finale-Gedanke („der Hungrige hat es vor mir gewusst“ → „der Wendigo“) · `tiefwald.js` Seilers Fahrtenbuch mit der Bleistiftzeile „Sie kommt noch“ (bleibt, Handschrift ist Hildes).
 
 ---
@@ -8096,7 +8085,7 @@ Grundsatz: In Kapitel 1 und 2 ist Justin eine Gestalt, ein Geräusch und ein paa
 - **SB-10** im Stall, von Whiskey auf das Brett gelegt (W-12). Luke erkennt die Spieluhr.
 - **Justins Lager in der Scheune** hat sich verändert: Das Strohbett ist glatt gestrichen, der Schleifstein liegt anders, mit der Mulde zur Tür (Beobachter-Spur), der Haken für die Laterne ist leer wie immer. Im Heu der Fundamentstein mit dem Turm über dem Abgrund.
 - **Einlösung der Abschiedsgeschenke (02 B3, Wortlaut `50_kap5.md`):**
-  - Nur bei Wahl C: Die Gürtelschnalle passt genau in die Vertiefung im Fundamentstein. Legt Luke sie ein, steht zwei Sekunden lang Licht aus dem Stein, kalt-weiß und kerzengerade, und durch die Bretterwand flüstert eine Kinderstimme aus dem Stall: „Der kommt wieder. Der kommt immer wieder.“ LUKE (ein Satz): „Vom Hof. Nicht aus dem Licht.“ Die Schnalle bleibt im Stein.
+  - Nur bei Wahl C: Die Gürtelschnalle passt genau in die Vertiefung im Fundamentstein. Legt Luke sie ein, steht zwei Sekunden lang Licht aus dem Stein, kalt-weiß und kerzengerade, und durch die Bretterwand flüstert eine Kinderstimme aus dem Stall: „Der kommt wieder. Der kommt immer wieder.“ LUKE: „Vom Hof. Nicht aus dem Licht.“ Die Schnalle bleibt im Stein.
   - Nur bei Wahl B: In Nr. 7 steht auf Hildes Küchentisch ihre Tasse, der Kaffee hat eine Haut. Luke kann den halben Riegel in Silberpapier daneben legen. LUKE: „Für die, die gezählt hat.“ Whiskey landet auf der Stuhllehne, sieht den Riegel an, sieht Luke an und lässt ihn liegen; das erste Glänzende im Spiel, das er liegen lässt.
   - Nur bei Wahl A: Gisela Rieke (N-02) sieht den Riemen an Lukes Handgelenk, als sie ihm die Katze gibt, und die Taschenlampe in ihrer Hand senkt sich. GISELA: „Das ist Hänschens. Das ‚H. R.‘ hab ich reingeritzt. Mit der Nagelschere. Wo hast du …“ Sie fragt nicht weiter. LUKE: „Ich soll Ihnen sagen: Er hat nicht gefroren.“ GISELA (lange nichts): „… Der hat immer gefroren. Immer.“ Sie wickelt den Riemen um ihre eigene Hand und behält ihn. Kein Witz, keine Musik.
 - **Grab:** Nachbild am Grab „LUKE 2009–2026“ (≤ 4 Zeilen, wenn Luke die Kreide am Stein untersucht): „Ein Mann in Eisen kniet am Grab und liest, langsam, mit dem Finger. Er kommt bis zur zweiten Zahl. Dann steht er auf und geht Richtung Senke. Er hat es geglaubt.“ (Justin hat das Grab in dieser Nacht gesehen, bevor er Luke traf, und geglaubt, der Knabe von 2009 sei tot. Darum sieht er Luke an der Kreuzung so lange an.)
@@ -8244,7 +8233,7 @@ Neu dazu (alle aus vorhandenen Samples oder synthetisch):
 - **Villa Seiler (Kap. 4):** Zum ersten Mal körperlich in einem Haus. Er war vor Luke da (Glas ∴-2 leer, nasse dreizehige Abdrücke zum Fenster). Standorte: Türrahmen, Treppenabsätze (nur sein Kopf über der obersten Stufe, dann weg), hinter dem Vorhang der Halle (Füße sichtbar). Geräusche: Dielen, die aufhören zu knarren, wenn Luke stehen bleibt; ein Schrank, der sich einen Spalt schließt. Er teilt sich das Haus mit Pat und Patachon und ist vor ihnen genauso versteckt wie vor Luke: Beim Schleichen hört Luke einmal, wie der Lange sagt: „Hast du das gehört?“ – „Ratten.“ – „Ratten schreiben nicht.“ Und dann liest der Kurze vor: „Zettel. Bleistift. Drei Punkte. Unleserlich.“ (Er kann Druckbuchstaben, nur nicht diese.)
 - **Nr. 1 (Kap. 5):** Er geht aus dem Haus, bevor die Schleife beginnt, und kommt nicht mehr rein, solange sie läuft. An der Schwelle starrt der Kater Hänschen in die Ecke der Diele neben dem Garderobenschrank; wer sie fotografiert, bekommt ein gut belichtetes, scharfes Bild von einer leeren Ecke (02 D6), und aus der Küche klackt einmal ein Bonbon gegen Zähne. Danach sitzt er auf dem Küchenfensterbrett draußen, und in der dritten Runde ist an der Scheibe von außen ∴ in den Beschlag geschrieben, spiegelverkehrt, damit Luke es von innen lesen kann. Er hat sich das Buchstabenschreiben spiegelverkehrt beigebracht, um mit Luke durch Fenster zu reden.
 - **Stall und Remise am Hof (Kap. 5):** Heuballen. Er sieht dem echten Luke zu, wie er Luke zusieht. Whiskey sieht beide, der Kater auch. In der Remise (Dina) starrt Hänschen auf einen Heuballen, im Heu raschelt es, und auf dem Polaroid ist hinter dem Ballen nichts (02 D6).
-- **Zayns Hütte, Hochsitz, Amtsbus (Kap. 6):** Er sitzt im Bus auf dem Sitz, den er sich „genommen hat, als niemand hinsah“. Auf diesem Sitz liegt seit siebzehn Jahren jede Nacht ein frisches Bonbonpapier.
+- **Zayns Hütte, Hochsitz, Amtsbus (Kap. 6):** Er sitzt im Bus auf dem Sitz, den er sich „genommen hat, als niemand hinsah“. Der Sitz ist warm (S-11).
 
 ### 4. Spurenkatalog
 
@@ -8255,10 +8244,10 @@ Zwei Sorten, und der Spieler soll den Unterschied mit der Zeit selbst merken: **
 | S-01 | Drei Kratzer | drei kurze parallele Kratzer in Kinderhöhe (etwa 70 cm), an Türrahmen, Laternenmasten, der Fahrertür von Lucys Auto, der Kellertür von Nr. 7 | vor dir | Decal (vorhanden: `strasse.js` „decals“, `innen_ort.js` `decal()`), helles Holz unter dunklem Lack | jedes Kapitel; Kap. 1 am Pfosten des Ortsschilds (Hauptweg), an Lucys Autotür und am Kirchberg; Kap. 2 Tunnel und Leiter; Kap. 4 Villa-Zaun und Sicherungskasten |
 | S-02 | Nasse Abdrücke | kleine dreizehige, nasse Fußabdrücke, die mitten auf dem Weg aufhören, als hätte ihn jemand hochgehoben. Auf Asphalt, Fliesen, Villaparkett | gerade eben | Decal mit Trocknungs-Timer (Deckkraft fällt in 40 s auf null; wer schnell kommt, sieht sie frisch) | ab Kap. 1 (Asphalt vor Nr. 1, im Nebel kaum zu sehen), Kap. 2 unter der Lüftungsklappe (Fast-Sichtung), Kap. 4 Villa Kühlraum bis Fenster (Pflicht), Kap. 5 Küche Nr. 1 |
 | S-03 | ∴ in der Scheibe | drei Punkte in beschlagenes Glas, in Staub auf der Kommode, in Kreide neben Kinderkritzeleien, in den Raureif auf der Motorhaube. In Nr. 1 spiegelverkehrt von außen | beides | Decal, bei Fensterbeschlag mit leichter Tropfspur nach unten | jedes Kapitel; Kap. 1 Telefonzelle (innen!) und Küchentürscheibe von Nr. 7 nach dem Keller, Kap. 2 Glastür des Kühlregals (von innen, obwohl die Fächer leer sind), Kap. 3 Telefonzelle, Kap. 4 Heinrichs Zimmer (von innen), Kap. 5 Nr. 1 |
-| S-04 | Drei Kiesel | drei Kiesel übereinander gestapelt, wie ein winziger Steinmann. Immer auf einem Weg, immer dort, wo Luke gleich abbiegt | vor dir | kleines Objekt (drei Kugeln), Interaktion „Kiesel“: Luke stupst sie um, Gedanke | Kap. 1 Briefkasten von Nr. 7 und Kirchberg, Kap. 3 neben B-K3-01 und am Bettler-Sockel, Kap. 6 Waldweg zum Hochsitz |
-| S-05 | Batterien im Dreieck | drei Batterien, Spitzen nach innen, auf einer Treppenstufe | vor dir | Item-Gruppe; Zettel dazu erst ab dem zweiten Fund | Kap. 1 Flur von Nr. 7, Kap. 2 Sicherungsraum (unter B-K2-03), Kap. 4 Villa-Treppe, Kap. 6 Amtsbus |
+| S-04 | Drei Kiesel | drei Kiesel übereinander gestapelt, wie ein winziger Steinmann. Immer auf einem Weg, immer dort, wo Luke gleich abbiegt | vor dir | kleines Objekt (drei Kugeln), Interaktion „Kiesel“: Luke stupst sie um, Gedanke | nur, wo eine Katze hinstarrt (R-1): Kap. 1 Briefkasten von Nr. 7, Kap. 3 Bushaltestelle und Bettler-Sockel, Kap. 4 bei Keiner, Kap. 5 Tonnen von Nr. 2, Kap. 6 Waldweg zum Hochsitz (Whiskey); Kirchberg Kap. 1 und neben B-K3-01 gestrichen (Story-Prüfung B) |
+| S-05 | Batterien im Dreieck | drei Batterien, Spitzen nach innen, auf einer Treppenstufe | vor dir | Item-Gruppe; Zettel dazu erst ab dem zweiten Fund | Kap. 1 Flur von Nr. 7, Kap. 2 Sicherungsraum (unter B-K2-03), Kap. 6 Amtsbus (Villa-Treppe Kap. 4 gestrichen (Story-Prüfung B)) |
 | S-06 | Die Lampe zeigt | Luke legt die Taschenlampe ab (Rätsel, Klettern). Beim Aufheben liegt sie anders und leuchtet auf etwas Wichtiges: den Schalter, die Kerbe, den Zettel | gerade eben | Script: Lampe-Objekt bei Ablage speichern, beim Zurückkehren gedreht auf Zielobjekt | Kap. 1 nach dem Küchenschreck (zeigt auf das Tastenfeld der Kellertür), Kap. 2 Teil A (rollt und zeigt auf das Fass; am Schluss am Fuß der Leiter, Kegel nach oben), Kap. 4 (zeigt auf das leere Glas), Kap. 5 Stall |
-| S-07 | Bonbonpapier | Bonbonpapier, ausgeleckt, sauber gefaltet zu einem Dreieck. Sorte: Eukalyptus-Menthol von der Tankstelle (Mike hat sie geklaut, er auch) | gerade eben | Decal/kleines Objekt, Interaktion „Bonbonpapier“: „Gefaltet. Ordentlich. Wer faltet Bonbonpapier? Grundschullehrer. Und … das hier.“ | Kap. 1 Treppe zum Obergeschoss in Nr. 7 und Tankstelle, Kap. 2 Klavierdeckel, Kap. 3 Bushaltestelle (Riegelpapier), Kap. 5 Fensterbrett Nr. 1, Kap. 6 Kindersitz im Amtsbus und Giselas Katzennapf am Morgen |
+| S-07 | Bonbonpapier | Bonbonpapier, ausgeleckt, sauber gefaltet zu einem Dreieck. Sorte: Eukalyptus-Menthol von der Tankstelle (Mike hat sie geklaut, er auch) | gerade eben | Decal/kleines Objekt, Interaktion „Bonbonpapier“: „Gefaltet. Ordentlich. Wer faltet Bonbonpapier? Grundschullehrer. Und … das hier.“ | nur Kap. 5 Fensterbrett Nr. 1 (Budget R-1: nur, wo er etwas gegessen hat, das Luke gehörte); alle anderen Fundorte gestrichen (Story-Prüfung B) |
 | S-08 | Die angelehnte Tür | eine Tür, die offen stand, ist jetzt angelehnt. Oder umgekehrt: Luke hat sie zugemacht, jetzt steht sie einen Spalt auf | gerade eben | Türzustand nach Blickabwendung ändern (nur wenn nicht im Blick); Türgeräusch nicht abspielen | Kap. 1 Haustür von Nr. 7 (zugeschlagen, jetzt angelehnt), Kap. 2 Zimmer 7, Kap. 4 Schrank neben Lukes Versteck, Kap. 5 Kinderzimmer (Pflicht, Stufe 2) |
 | S-09 | Frisch unterstrichen | auf einer Notiz, die Luke schon gelesen hat, ist beim zweiten Öffnen ein Wort mit Bleistift unterstrichen. Das Wort ist die Hilfe (Rätsel) oder der Grusel („behalten“, „acht“, „Bruder“) | vor dir/gerade eben | Notiz-HTML beim zweiten Öffnen mit `<u>` ersetzen; Papierrascheln beim Öffnen | Kap. 1 Lucys Zettel („heim“), Kap. 2 Ordnungstafel-Notiz („zuerst“), Kap. 3 Zählbuch („SIE“, Funk-Hilfeleiter) und Vegas-Ordner („(hw)“), Kap. 4 Beiblatt K-3 („freundlich“) |
 | S-10 | Der Bleistift | ein angebissener Bleistift, Marke von Hildes Amtsschreibtisch, liegt an einem Ort, an dem Luke gleich stehen bleiben wird. Hebt Luke ihn auf, liegt der nächste Zettel in einer anderen Handschrift: mit Kugelschreiber, zittrig („DU HAST MEINEN STIFT. GIB IHN ZURÜCK. BITTE.“) | vor dir | Item „Bleistift“, optional, Humor; beim Ablegen an beliebiger Stelle verschwindet er nach Blickabwendung, Trippeln | Kap. 3 Bushaltestelle, sonst überall möglich |
@@ -8271,7 +8260,18 @@ Zwei Sorten, und der Spieler soll den Unterschied mit der Zeit selbst merken: **
 | S-17 | Die Katzenspur | wo Giselas Katzen mit dem Kopf hin zeigen, liegt eine Spur. Die Katze sitzt auf einem Zaun und sieht in eine Ecke, und in der Ecke sind drei Kratzer oder ein Zettel | vor dir | Katzenaugen-Paare (`leben.js` `eyePairs`) an Beobachter-Spots koppeln; Nebenaufgabe „Siebzehn Näpfe“ | Kap. 1 (Katzen starren, keine Erklärung), Kap. 3–5 (Nebenaufgabe) |
 | S-18 | Aufgebogener Zaun | zwei Latten eines Gartenzauns sind unten auseinandergebogen, gerade weit genug für ein kleines Kind. Auf der Latte drei Kratzer | vor dir | Mesh-Variante der Zaunlatten, Decal | Kap. 1 Nr. 9 (Beobachtungsposten der LWO, er guckt ihnen zu, wie sie gucken), Kap. 4 Villa-Zaun |
 
-Regel für Kapitel-Autoren: mindestens acht Spurenarten je Kapitel, davon mindestens drei „gerade eben“. Die Spur soll nie erklärt werden. Luke kommentiert sie beim ersten Mal, danach nur noch alle paar Male, und irgendwann sagt er nur noch: „Ja. Hallo. Ich weiß.“
+**Spuren-Budget (Story-Prüfung B, R-1; ersetzt die frühere Regel „mindestens acht Spurenarten je Kapitel“).** Je Kapitel höchstens **fünf sichtbare** Zeichen-Spuren (S-01 Kratzer, S-02 Abdrücke, S-03 ∴, S-04 Kiesel, S-05 Batterie-Dreieck, S-07 Bonbonpapier), Haupt- und Nebenwege zusammen. **Bonbonpapier** nur noch, wenn er etwas gegessen hat, das Luke gehörte. **Kiesel** (drei übereinander) nur, wo eine Katze hinstarrt; im Wald, wo keine Katze mitgeht, Whiskey. Ein einzelner Kiesel als Beschwerer unter einem Zettel und ein Kiesel, den man nur rollen hört, sind keine Spur. Die übrigen Arten (S-06, S-08 bis S-18) sind Gänsehaut-Momente ohne Zeichen und laufen über das Spannungs-Budget (Q-9), nicht über diese Zahl. Kinosequenzen zählen nicht und bleiben unberührt. Wo andere Stellen der Bibel mehr Spuren nennen, gilt diese Tabelle; die übrigen sind gestrichen. Code: `BEOB_SPUR_MAX = 5` in `beobachter.js` zählt, was Luke aus der Nähe gesehen hat; danach bleiben ungesehene Deko-Spuren aus. Skript-Beats der Kapitel und Abdrücke (trocknen in 40 s) sind ausgenommen.
+
+| Kap. | die (höchstens) fünf sichtbaren Spuren | gestrichen |
+|---|---|---|
+| 1 | Kratzer am Ortsschild-Pfosten · Abdrücke vor Nr. 1 · drei Kiesel auf dem Briefkasten von Nr. 7 (Kater Peter starrt) · Batterien im Dreieck im Flur · ∴ in der Küchentürscheibe nach dem Keller | Bonbonpapier auf der Treppe und an der Tankstelle, Kiesel am Kirchberg, Kratzer an der Haustür Nr. 7 und an Lucys Autotür. Die Katzen-Spuren aus „Siebzehn Näpfe“ und das ∴ in der Telefonzelle nur, solange das Budget nicht voll ist; sonst starrt die Katze in eine leere Ecke |
+| 2 | Kratzer im Tunnel · Abdrücke unter der Lüftungsklappe · ∴ im Beschlag des Kühlregals · Batterien im Dreieck unter B-K2-03 | Bonbonpapier auf dem Klavierdeckel, Kratzer an der Leiter |
+| 3 | ∴ in der Scheibe der Telefonzelle · drei Kiesel unter der Bushaltestelle (Anni starrt) · drei Kiesel auf dem Bettler-Sockel (Grete starrt) · Kratzer am Ortsschild (aus Kap. 1, B-K3-02) · eine weitere Katzen-Spur aus „Siebzehn Näpfe“ | Kiesel neben B-K3-01, Bonbonpapier im Bus um 03:13 und an der Tankstelle |
+| 4 | Abdrücke vom Glas ∴-2 zum Fenster (Pflicht) · drei Kratzer an der 5./6. Fassung (Hilfeleiter) · ∴ in Heinrichs Scheibe (B-K4-N4) · Kiesel, wo Keiner starrt („Gasleck“) · aufgebogene Zaunlatte am Villazaun | Batterien auf der Villa-Treppe, weitere frische Kratzspuren im Obergeschoss |
+| 5 | drei Kiesel zwischen den Tonnen von Nr. 2 (Hänschen starrt) · ∴ spiegelverkehrt im Beschlag der Küchenscheibe Nr. 1 · Bonbonpapier auf dem Fensterbrett Nr. 1 (das Bonbon war aus Lukes Elternküche) · Abdrücke auf Hildes Foto · Abdrücke in der Küche Nr. 1 | Bonbonpapier an der Laube, Abdrücke in der Remise |
+| 6 | drei Kiesel am Weg zum Hochsitz (Whiskey sieht hin) · Batterien im Dreieck im Bus · drei Kratzer am Baum nach V-12 · nasse Abdrücke im Baumhaus | Bonbonpapier auf dem Kindersitz im Bus und in Giselas Napf |
+
+Die Spur soll nie erklärt werden. Luke kommentiert sie beim ersten Mal, danach nur noch alle paar Male, und irgendwann sagt er nur noch: „Ja. Hallo. Ich weiß.“
 
 ### 5. Die Zettel
 
@@ -8279,7 +8279,22 @@ Regel für Kapitel-Autoren: mindestens acht Spurenarten je Kapitel, davon mindes
 
 **Auslöser-Arten** (für die Umsetzung, Anker `BEOB_DYN`, Feld `when`/`stuck`): *Hilfe* nur, wenn Luke am selben Objekt länger als etwa hundert Sekunden hängt (`gedanken_S.objT > 100`); *Batterien*, wenn Lampe unter 25 % und kein Ersatz (`BEOB_NOT`); *Wissen* nach Beobachtungszählern (Umdrehen, Stillstehen, Lampe aus, Rennen); *Fragen* an Ruhepunkten; *LWO-Warnungen* vor Begegnungen aus §15.2; *Humor* nach einer Atempause. Abstand zwischen zwei Zetteln 150–260 Sekunden (`BEOB.gap`), ausgenommen Hilfe.
 
-**Kennungen (02 A1, gilt in allen Kapiteln und Dossiers):** feste Zettel **B-K‹Kapitel›-‹Nr.›** (B-K3-05; bedingte Varianten mit Buchstaben: B-K4-02b), Hilfe-Zettel **B-K‹Kap.›-H‹n›**, Zettel aus Nebenaufgaben **B-K‹Kap.›-N‹n›**, die neunzehn Orts-Zettel **B-O1 bis B-O19** (5.7). Die alten Kennungen B-01/B-02 aus dem Verteilungsplan heißen B-K1-01 und B-K1-02. Dieses Dossier ist Wortlaut-Master; Fundort und Nummer folgen dem Kapitel, in dem der Zettel liegt. Alte Kennung aus `beobachter.js` in Klammern, wenn ein Zettel übernommen wurde. Zettel, die in keinem Kapitel liegen, stehen in 5.10 „Reserve“.
+**Kennungen (02 A1, gilt in allen Kapiteln und Dossiers):** feste Zettel **B-K‹Kapitel›-‹Nr.›** (B-K3-05; bedingte Varianten mit Buchstaben: B-K4-02b), Hilfe-Zettel **B-K‹Kap.›-H‹n›**, Zettel aus Nebenaufgaben **B-K‹Kap.›-N‹n›**, die Orts-Zettel **B-O1 bis B-O19** (5.7; dreizehn davon im Spiel). Die alten Kennungen B-01/B-02 aus dem Verteilungsplan heißen B-K1-01 und B-K1-02. Dieses Dossier ist Wortlaut-Master; Fundort und Nummer folgen dem Kapitel, in dem der Zettel liegt. Alte Kennung aus `beobachter.js` in Klammern, wenn ein Zettel übernommen wurde. Zettel, die in keinem Kapitel liegen, stehen in 5.10 „Reserve“.
+
+**Auswahl und Steigerungskurve (Story-Prüfung B, G-4/V-9, Rang 14).** Der Beobachter war zum Maskottchen geworden: 86 Kennungen, die meisten hilfreich oder niedlich. Jetzt ist es eine bewusste Auswahl von 70, und der Ton steigt. Gestrichene Zettel stehen unten mit Kennung und „gestrichen (Story-Prüfung B)“; sie werden nicht zurückgebaut (im Code `BEOB_GESTRICHEN`, `beobachter_zettel` liefert dafür still `false`). Hilfe-Zettel, die bei Festhängen helfen, bleiben alle. Er spricht nie; der Ein-Punkt bleibt Kapitel 7 vorbehalten; jeder Zettel bleibt in beide Richtungen lesbar (§1).
+
+| Kap. | Ton | im Spiel (vorher → nachher) | gestrichen | neu |
+|---|---|---|---|---|
+| 1 | wissend, unheimlich; nie zu sehen | 2 → 2 | – | – |
+| 2 | wissend, unheimlich; über der Decke | 10 → 9 (6 fest, H1, H2, „Umgedreht“) | B-K2-02 | – |
+| 3 | neugierig, fremd, selten komisch (der eine Lacher: B-K3-01) | 15 → 13 (8 fest, H1–H3, N1) | B-K3-05 Fassung B, B-X-01 | – |
+| 4 | wissend und traurig | 19 → 16 (7 fest, 2 bedingt, H1, H2, N1, N2, N4–N6) | B-K4-01, B-K4-02, B-K4-02b, B-K4-N3 | B-K4-09 |
+| 5 | kälter: er sieht zu und rechnet | 9 → 7 (6 fest, H1; N1 = B-K4-N6) | B-K5-02, B-K5-06 | B-K5-08 |
+| 6 | kälter: er hilft nicht immer | 7 → 7 | B-K6-03 | B-K6-08 |
+| Rätsel | – | 4 → 2 | `r_briefkasten`, `r_stein` | – |
+| Orte | Entdecker-Serie | 19 → 13 | B-O2, B-O3, B-O7, B-O10, B-O13, B-O14 | – |
+
+Die Kurve in einem Satz je Kapitel: In Kap. 1 und 2 weiß er Dinge, die er nicht wissen dürfte (elf Anrufe, Peters Weinen). In Kap. 3 fragt er (Hund, Gebet) und ist einmal komisch. In Kap. 4 erzählt er, was ihm genommen wurde, und zählt Luke im Schlaf (B-K4-09). In Kap. 5 rechnet er (B-K5-08). In Kap. 6 gibt er zu, dass er zugesehen hat, um etwas zu erfahren (B-K6-08), und dass er Luke nicht gerettet hat (B-K6-07).
 
 #### 5.1 Kapitel 1 (nur Spuren und zwei Zettel; er ist nie zu sehen)
 
@@ -8292,7 +8307,7 @@ Regel für Kapitel-Autoren: mindestens acht Spurenarten je Kapitel, davon mindes
 
 Luke-Gedanke (vorhanden, `beob_1`): „Druckbuchstaben. Bleistift. Und dieses Zeichen: drei Punkte. … Wer schreibt so? Und woher weiß er das?“ Dann, nach einer Sekunde: „Elf. Er weiß, dass es elf waren. Das Handy weiß das. Und ich. Und …“ Nebenaufgabe „Der Neunte“ wird still angelegt (Tagebuch: „Jemand hat einen Zettel hinterlassen. Bleistift, Druckbuchstaben, drei Punkte. Er zählt.“). Das LWO-Dossier legt den Zettel unter Lukes eigenen Scheibenwischer am Ortsschild; es gilt Lucys Auto (Kern §15.5, Kapitel 1). Was am Ortsschild liegt, sind das Kaugummipapier der LWO, die drei Kratzer am Pfosten und das ∴ in Lukes beschlagener Scheibe (B-K3-02 bestätigt das).
 
-**B-K1-02 · „Gute Nacht“ · Kellertür von Nr. 7, nach dem dritten falschen Code** (alt: B-02; Fassung aus Kapitel 1, 02 A1). Auslöser: dritte Fehleingabe am Schloss (drei Schläge von innen gegen die Stahltür, rotes Tastenfeld, „… nicht … raten …“). Luke dreht sich um, hinter seinen Füßen liegt ein Zettel; Papierrascheln und drei schnelle kleine Schritte die Treppe zum Obergeschoss hinauf (an der Stahltür kommt er nicht vorbei: Eisen, 02 D1). Auf der vierten Stufe ein Bonbonpapier, ausgeleckt, sauber gefaltet. Der Zettel führt zum Kalender und zu den abgegriffenen Tasten, nie zur Lösung 3110:
+**B-K1-02 · „Gute Nacht“ · Kellertür von Nr. 7, nach dem dritten falschen Code** (alt: B-02; Fassung aus Kapitel 1, 02 A1). Auslöser: dritte Fehleingabe am Schloss (drei Schläge von innen gegen die Stahltür, rotes Tastenfeld, „… nicht … raten …“). Luke dreht sich um, hinter seinen Füßen liegt ein Zettel; Papierrascheln und drei schnelle kleine Schritte die Treppe zum Obergeschoss hinauf (an der Stahltür kommt er nicht vorbei: Eisen, 02 D1). Der Zettel führt zum Kalender und zu den abgegriffenen Tasten, nie zur Lösung 3110:
 > DIE FRAU HAT DEN TAG EINGEKREIST
 > AN DEM SIE ZURÜCK KAM. NICHT LUCY. DIE ANDERE.
 > DU DRÜCKST DIE FALSCHEN. DIE RICHTIGEN SIND SCHON GLATT.
@@ -8301,9 +8316,9 @@ Luke-Gedanke (vorhanden, `beob_1`): „Druckbuchstaben. Bleistift. Und dieses Ze
 
 Die letzte Zeile ist der Pflicht-Lacher des Beobachters in Kapitel 1 (Kern §7), unter einem ernsthaft nützlichen Hinweis. Die Hilfeleiter des Kellercodes steht in 10_kap1_haupt.md (Kalender, Toast „Tag und Monat“, Whiskey am Küchenfenster); der Zettel ist ihre vierte Stufe.
 
-Dazu in Kapitel 1 die Spuren, in dieser Reihenfolge auf dem Hauptweg: drei Kratzer am Ortsschild-Pfosten (S-01), dreizehige nasse Abdrücke vor Nr. 1, die mitten auf der Straße aufhören (S-02), drei Kiesel auf dem Briefkasten von Nr. 7 (S-04), Batterien im Dreieck im Flur (S-05), die Taschenlampe, die nach dem Küchenschreck auf das Tastenfeld zeigt (S-06), das gefaltete Bonbonpapier auf der Treppe (S-07), die zugeschlagene Haustür, die jetzt angelehnt ist (S-08), „heim“ auf Lucys Zettel frisch unterstrichen (S-09), ∴ in der beschlagenen Küchentürscheibe, wenn Luke aus dem Keller kommt (S-03). In den Nebenaufgaben: ∴ innen in der Telefonzelle, Kratzer an Lucys Autotür, Vegas’ acht Flaschen (S-15), Giselas Katzen (S-17: HÄNSCHEN vor Nr. 1, BÄRBEL unter der Laterne vor Nr. 9, PETER vor Nr. 7; ANNI, ZAYN, GRETE und KEINER in „Siebzehn Näpfe“), der aufgebogene Zaun an Nr. 9 (S-18), sein ∴ neben „Anwesend: 11, 12.“ auf Blatt 212 im Beobachtungsprotokoll (er trägt sich selbst ein). Keine Kamera in Kapitel 1, also kein Foto (02 H1). Gisela durch das Küchenfenster: „Die sehen was. Die sehen immer was. Meistens ist es nix. Meistens.“
+Dazu in Kapitel 1 die fünf sichtbaren Spuren (Budget §4), in dieser Reihenfolge auf dem Hauptweg: drei Kratzer am Ortsschild-Pfosten (S-01), dreizehige nasse Abdrücke vor Nr. 1, die mitten auf der Straße aufhören (S-02), drei Kiesel auf dem Briefkasten von Nr. 7, wo Kater Peter hinstarrt (S-04), Batterien im Dreieck im Flur (S-05), ∴ in der beschlagenen Küchentürscheibe, wenn Luke aus dem Keller kommt (S-03). Ohne Zeichen: die Taschenlampe, die nach dem Küchenschreck auf das Tastenfeld zeigt (S-06), die zugeschlagene Haustür, die jetzt angelehnt ist (S-08), „heim“ auf Lucys Zettel frisch unterstrichen (S-09). Das Bonbonpapier auf der Treppe ist gestrichen (Story-Prüfung B). In den Nebenaufgaben: ∴ innen in der Telefonzelle, Kratzer an Lucys Autotür, Vegas’ acht Flaschen (S-15), Giselas Katzen (S-17: HÄNSCHEN vor Nr. 1, BÄRBEL unter der Laterne vor Nr. 9, PETER vor Nr. 7; ANNI, ZAYN, GRETE und KEINER in „Siebzehn Näpfe“), der aufgebogene Zaun an Nr. 9 (S-18), sein ∴ neben „Anwesend: 11, 12.“ auf Blatt 212 im Beobachtungsprotokoll (er trägt sich selbst ein). Keine Kamera in Kapitel 1, also kein Foto (02 H1). Gisela durch das Küchenfenster: „Die sehen was. Die sehen immer was. Meistens ist es nix. Meistens.“
 
-#### 5.2 Kapitel 2 · Amt, Ebene −2 (sieben feste Zettel, zwei Hilfe-Zettel, ein Zusatz; eine Fast-Sichtung)
+#### 5.2 Kapitel 2 · Amt, Ebene −2 (sechs feste Zettel, zwei Hilfe-Zettel, ein Zusatz; eine Fast-Sichtung)
 
 Er ist über der Decke. Die Zettel fallen aus Lüftungsgittern oder liegen auf Schwellen und Treppenabsätzen, nie hinter Luke im selben Raum (er kommt nicht in den Raum, Regel „Aus“ gilt auch für ihn; er hat sich einen Weg über die Kabelschächte gesucht). Liste und Fundorte nach 20_kap2.md (02 A1).
 
@@ -8312,9 +8327,7 @@ Er ist über der Decke. Die Zettel fallen aus Lüftungsgittern oder liegen auf S
 > DIE MÄNNER MIT KETTEN SPIELEN TROTZDEM
 > ∴
 
-**B-K2-02 · „Lest es dann nicht“ · Nadeldrucker** (neu). Ort: auf dem Nadeldrucker, als Luke von der Ordnungstafel zurückkommt.
-> WARUM SCHREIBT IHR ALLES AUF UND LEST ES DANN NICHT
-> ∴
+**B-K2-02 · „Lest es dann nicht“** · gestrichen (Story-Prüfung B): eine niedliche Frage, die Kapitel 2 nicht braucht. Die Kennung bleibt frei.
 
 **B-K2-03 · „Erste Hilfe“ · Sicherungsraum** (alt: `d_erst`, mit Batterien). Ort: unter drei Batterien im Dreieck auf dem Tisch.
 > DEIN LICHT WIRD MÜDE. DEINE LAMPE HAT NOCH {pct} %.
@@ -8343,7 +8356,7 @@ Luke sagt nichts; er hat seinen einen Satz schon gesagt (Kern §13). Wer das Bon
 
 Grundlage für „Eingemacht“ (Abschnitt 8) und für die Fibel „∴ sind drei“.
 
-**B-K2-07 · „Ich sehe immer nur zu“ · Klavierdeckel** (neu). Auslöser: Akte 08 gelesen, Luke steht noch vor dem Fach; aus dem Gitter über dem Klavier fällt Papier, daneben ein ausgelecktes, gefaltetes Bonbonpapier.
+**B-K2-07 · „Ich sehe immer nur zu“ · Klavierdeckel** (neu). Auslöser: Akte 08 gelesen, Luke steht noch vor dem Fach; aus dem Gitter über dem Klavier fällt Papier (kein Bonbonpapier mehr, Budget §4).
 > ER HAT DICH HERAUSGETRAGEN. DU HAST GESCHLAFEN.
 > ICH HAB ZUGESEHEN. ICH SEHE IMMER NUR ZU
 > ∴
@@ -8379,9 +8392,9 @@ Gestrichen aus dem alten Modul für Kapitel 2: `d_kopie` (Frage „wessen Heimwe
 
 #### 5.3 Kapitel 3 · offene Nacht (acht Zettel, drei Hilfe-Zettel)
 
-Ab jetzt ist er körperlich da (3.1–3.3). Die Zettel liegen hinter Luke, außer am Rand der Senke, wo er sie vorher hinlegt. In Nimmerheim gibt es keine Zettel, dort darf er nicht hin. Kennungen und Fundorte nach 30_kap3_haupt.md und 31_kap3_neben.md; dazu in Kapitel 3 der Nebenaufgaben-Zettel B-K3-N1 (Pfarrhaus, 5.9), der freie Zusatz B-X-01 (5.9) und die Orts-Zettel B-O1 bis B-O12 (5.7).
+Ab jetzt ist er körperlich da (3.1–3.3). Die Zettel liegen hinter Luke, außer am Rand der Senke, wo er sie vorher hinlegt. In Nimmerheim gibt es keine Zettel, dort darf er nicht hin. Kennungen und Fundorte nach 30_kap3_haupt.md und 31_kap3_neben.md; dazu in Kapitel 3 der Nebenaufgaben-Zettel B-K3-N1 (Pfarrhaus, 5.9) und die acht Dorf-Orts-Zettel (5.7). Der freie Zusatz B-X-01 ist gestrichen (Story-Prüfung B).
 
-**B-K3-01 · „Ist das ein Gebet“**. Ort: Straße neben der Kuh. Auslöser: Luke wendet sich nach der Kinosequenz von der Kuh ab. Daneben drei Kiesel übereinander.
+**B-K3-01 · „Ist das ein Gebet“**. Ort: Straße neben der Kuh. Auslöser: Luke wendet sich nach der Kinosequenz von der Kuh ab. (Keine Kiesel daneben: dort starrt keine Katze, §4.)
 > DU HAST DREI MAL SCHEISSE GESAGT.
 > IST DAS EIN GEBET
 > ∴
@@ -8412,13 +8425,9 @@ Das Wort „Kutsche“ hat er von Justin, der es seit Jahrhunderten für Autos b
 
 LUKE: „Flocke. Und der da heißt Bruno. Wieso willst du das wissen?“ Die Frage bleibt bis Kapitel 7 offen (dort: „Er hat mich nie verraten. Hunde sind besser als Katzen.“). Kurz danach am Funkkasten sagen beide Lucys „Flocke“: Was man weiß, ohne nachzudenken, ist kein Beweis. Der Zettel hat den Spieler darauf vorbereitet, ohne es zu verraten.
 
-**B-K3-05 · „Unhöflich“** (neu, verhaltensabhängig; enthält alt `d_licht`). Auslöser A: Luke hat ihn dreimal angeleuchtet. Auslöser B, falls A nicht vorher eintritt: Luke hat die Lampe dreimal ausgemacht.
-> A: DU HAST MICH DREI MAL ANGELEUCHTET. ES TUT NICHT WEH. ES IST NUR UNHÖFLICH.
+**B-K3-05 · „Unhöflich“** (neu, verhaltensabhängig; enthält alt `d_licht`). Auslöser: Luke hat ihn dreimal angeleuchtet. (Fassung B „DU HAST DIE LAMPE {off} MAL AUSGEMACHT“ gestrichen (Story-Prüfung B): dieselbe Lehre noch einmal.)
+> DU HAST MICH DREI MAL ANGELEUCHTET. ES TUT NICHT WEH. ES IST NUR UNHÖFLICH.
 > MACH DAS LICHT AUS WENN DU MICH SEHEN WILLST.
-> ∴
-
-> B: DU HAST DIE LAMPE {off} MAL AUSGEMACHT.
-> IM DUNKELN SIEHST DU MEHR. ICH AUCH.
 > ∴
 
 **B-K3-06 · „Leise“** (neu). Ort: Rückweg von den Traktorspuren (AG-08; bei den Blechmännern schweigt er). Auslöser: Luke ist dreißig Meter von der Kette weg, erstes Geräusch nach der Stille.
@@ -8470,29 +8479,15 @@ Das zweite Blatt ist Rüstungs-Hinweis RH-4 (zählt, wenn gelesen; 02 B4). „Di
 
 **Aus dem alten Modul für Kapitel 3 gestrichen oder verschoben:** `d_uhr` und `d_nacht` (beide Rätsel liegen in Nimmerheim, wo er nicht hinkommt; die alte Uhr-Fassung nannte außerdem die Lösung), `d_stehen` → Kap. 4 (B-K4-05), `d_lucy` → Kap. 4 (B-K4-04), `d_kopie` → Kap. 4 (B-K4-07).
 
-#### 5.4 Kapitel 4 · bei Tag (acht Zettel, drei bedingte, zwei Hilfe-Zettel; dazu sechs Nebenaufgaben-Zettel in 5.9)
+#### 5.4 Kapitel 4 · bei Tag (sieben Zettel, zwei bedingte, zwei Hilfe-Zettel; dazu fünf Nebenaufgaben-Zettel in 5.9)
 
 Tag ist schlecht für ihn. Er hält mehr Abstand (18–30 m), steht hinter Transportern, Absperrgittern, Regentonnen, im Nebel, und klingt seltener (alle 10–20 s). In der Villa ist er zum ersten Mal richtig drinnen (3.4). Kennungen und Fundorte nach 40_kap4.md.
 
-**B-K4-01 · „Die Bilder weiß“** (neu). Ort: vor Nr. 7, hinter Lukes Fersen, nachdem er sich einmal umgedreht hat (Papier, Trippeln). Führt zu Nr. 9 und den echten Polaroids (Nebenaufgabe „Gasleck“).
-> DIE MÄNNER MACHEN DIE BILDER WEISS.
-> WARUM. DIE BILDER WAREN DOCH SCHON DA.
-> ICH HAB DIE ECHTEN. HINTER DER TONNE VON NEUN.
-> ∴
+**B-K4-01 · „Die Bilder weiß“** · gestrichen (Story-Prüfung B): rein hilfreich und doppelt, „Gasleck“ führt selbst hinter die Tonne von Nr. 9.
 
-**B-K4-02 · „Was mit Essen drin“** (neu, LWO-Warnung und Humor). Ort: Fußmatte von Nr. 3, bevor Pat und Patachon klopfen (AG-12). Auslöser: Luke nähert sich der Tür, der Kombi ist in Sicht.
-> DIE MIT DEN STULLEN WOLLEN HILDES BUCH.
-> DA STEH ICH DRIN. ALS NEUN. DANN ZÄHLEN SIE MICH AUCH.
-> WENN DU IHNEN WAS ANDERES GIBST DANN WAS MIT ESSEN DRIN.
-> DAS LESEN SIE LANGSAMER.
-> ∴
+**B-K4-02 · „Was mit Essen drin“** · gestrichen (Story-Prüfung B): Humor und Lösungshilfe in einem; der Fälschungsweg steht auch ohne ihn offen.
 
-Der Zettel öffnet den Fälschungsweg (Oma Ernas Haushaltsbuch), ohne ihn zu verlangen.
-
-**B-K4-02b · „Immer nur gesucht“** (bedingt, Weg 1: echtes Zählbuch abgegeben). Ort: Fußmatte von Nr. 3, beim Verlassen. Kein Vorwurf; er klingt fast stolz.
-> JETZT BIN ICH IN IHRER AKTE. NEUN.
-> SIE HABEN MICH NIE GEZÄHLT. IMMER NUR GESUCHT
-> ∴
+**B-K4-02b · „Immer nur gesucht“** · gestrichen (Story-Prüfung B): Dublette zu B-K4-02c.
 
 **B-K4-02c · „Trotzdem nicht da“** (bedingt, Weg 1; aus dem LWO-Dossier übernommen). Ort: Villa, Archiv, auf dem leergeräumten Regal DREIPUNKT (die Nachsorge hat es nach der Übergabe ausgeräumt, der Umschlag K-3 fehlt).
 > SIE HABEN MICH GEZÄHLT. JETZT HABEN SIE ES SCHRIFTLICH.
@@ -8570,27 +8565,28 @@ Luke sagt nichts.
 > ICH ÜBE.
 > ∴
 
-#### 5.5 Kapitel 5 · Vater-Mutter-Kind (sieben Zettel, ein Hilfe-Zettel, ein Nebenaufgaben-Zettel)
+#### 5.5 Kapitel 5 · Vater-Mutter-Kind (sechs Zettel, ein Hilfe-Zettel; der Nebenaufgaben-Zettel ist B-K4-N6)
 
-Der Kapitel-5-Autor hat die Zettel in seine Beats gesetzt (50_kap5.md). Sie passen zur Stimme und bleiben, wie sie sind; hier die Kennungen nach 02 A1 und was dazu gehört. Der Kater Hänschen (braun getigert, eingerissenes Ohr, von Gisela mitgegeben) zeigt ihn das ganze Kapitel über; Whiskey auch.
+Der Kapitel-5-Autor hat die Zettel in seine Beats gesetzt (50_kap5.md). Story-Prüfung B: Er wird kälter; B-K5-02 und B-K5-06 sind gestrichen, B-K5-08 ist neu. Hier die Kennungen nach 02 A1 und was dazu gehört. Der Kater Hänschen (braun getigert, eingerissenes Ohr, von Gisela mitgegeben) zeigt ihn das ganze Kapitel über; Whiskey auch.
 
 | Kennung | Ort · Auslöser | Text | Art |
 |---|---|---|---|
 | B-K5-01 | Briefkasten Nr. 7, hinter Luke, sobald er den Kasten schließt | ZWEI MAL DIESELBE. EINE SCHLÄFT. ICH ZÄHLE TROTZDEM EINS ∴ | gruseliges Wissen (Lucy und Luna mit einem Gesicht) |
-| B-K5-02 | halb unter der Haustür von Nr. 1; der Kater sitzt auf der Schwelle und geht keinen Schritt weiter | IN DEM HAUS IST SOMMER. DRAUSSEN IST NOVEMBER. GEH MIT JACKE REIN UND KOMM MIT JACKE RAUS ∴ | Warnung, Humor |
+| B-K5-02 | gestrichen (Story-Prüfung B) („Sommer“, Humor-Warnung) | – | – |
 | B-K5-03 | Kinderzimmer Nr. 1, Regal, neben der fast stehenden Spieluhr; die Tür, die offen stand, ist angelehnt (S-08) | DU HAST SIE FOTOGRAFIERT. SIE HAT NOCH NIE EIN BILD VON SICH GESEHEN. JETZT WEISS SIE WIE SIE AUSSIEHT ∴ | gruselig |
 | B-K5-04 | Stalltür am Hof, am Pfosten, mit Kiesel beschwert | DER JUNGE IM STROH ZÄHLT AUCH. ER ZÄHLT BROTE. ES SIND MEHR ALS DEINE ANRUFE ∴ | Einlösung von B-K3-07 |
 | B-K5-05 | unter dem Vermisstenplakat am Kirchweg (AG-17), mit Kaugummi darunter | AUF DEM PAPIER BIST DU WEG. DIE MÄNNER MIT HUT SCHREIBEN GERN VORHER AUF. ICH SCHREIBE NACHHER ∴ | LWO-Warnung |
-| B-K5-06 | Friedhofstor, Torpfosten, nach den elf Schlägen | WARUM LEGT IHR EUCH IN DIE ERDE WENN SIE DA UNTEN KEINEN SIEHT. IST DAS VERSTECKEN ∴ | Frage über Menschen |
+| B-K5-06 | gestrichen (Story-Prüfung B) („Ist das Verstecken“, niedliche Frage) | – | – |
 | B-K5-07 | Gitterfuß am Nordzaun | ICH GEH DA NICHT REIN. DA DRIN FRISST EINER MEINE BILDER ∴ | Vorbote Kap. 6; aufgelöst durch B-K6-01 |
+| B-K5-08 | Stalltür, gegenüber von B-K5-04, nach „Augen auf, Bruder“ und Lukes „Ich hab ihn angesehen.“ (neu, Story-Prüfung B, G-4) | WENN ER HEIMGEHT MUSST DU WEG. / ICH HAB ES AUSGERECHNET. ES GEHT AUF ∴ | kalt; er meint den echten Luke. Luke sagt nichts |
 | B-K5-H1 | nur bei Festhängen am Grab (Stufe 5 der Leiter „Schlafenszeit“) | SIE PUSTET WAS BRENNT. SIE PUSTET NICHT WAS IHRER MAMA GEHÖRT ∴ | Hilfe |
-| B-K5-N1 | Günthers Schuppen hinter der Tankstelle, auf dem Hocker; nur wer in Kapitel 4 bei „Unzustellbar“ Weg c genommen hat und den Schuppen jetzt aufbricht („Der gelbe Kasten“, Vertrauen −15). Bei Weg a/b liegt derselbe Zettel schon in Kapitel 4 als **B-K4-N6** (5.9) | DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA ∴ | Nebenaufgabe (Hedwig Riekes Brief, K-2, 1961; passt zu B-O6) |
+| B-K5-N1 (= B-K4-N6, eine Kennung; im Code Alias) | Günthers Schuppen hinter der Tankstelle, auf dem Hocker; nur wer in Kapitel 4 bei „Unzustellbar“ Weg c genommen hat und den Schuppen jetzt aufbricht („Der gelbe Kasten“, Vertrauen −15). Bei Weg a/b liegt derselbe Zettel schon in Kapitel 4 als **B-K4-N6** (5.9) | DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA ∴ | Nebenaufgabe (Hedwig Riekes Brief, K-2, 1961; passt zu B-O6) |
 
 Zwei Anmerkungen. B-K5-03 liegt im Haus, obwohl er während der Flurschleife nicht hineinkommt (3.4): Er hat ihn hingelegt, bevor Luke das Haus zum ersten Mal betrat, eine Spur „vor dir“. Das macht ihn schlimmer, denn der Zettel spricht von einem Foto, das Luke zu dem Zeitpunkt noch nicht gemacht hat. B-K5-01 zählt „trotzdem eins“, weil er beide für dasselbe Bild hält; das ist sein Irrtum über Menschen, und er ist hier zufällig wahr.
 
-Dazu die Spuren, die nur in diesem Kapitel vorkommen: In der dritten Runde der Flurschleife steht an der Küchenscheibe von außen ∴ im Beschlag, spiegelverkehrt geschrieben, damit Luke es von innen richtig liest, die Tropfen laufen noch, auf dem Fensterbrett ein gefaltetes Bonbonpapier (3.4). Danach der Atem direkt hinter Luke; der gehört nicht ihm, sondern dem Graukind, und genau darum ist er in diesem Moment still (3.3). Vor Nr. 7 stehen acht Grablichter in einer Reihe und ein neuntes einen Schritt abseits (S-15). Sichtungen und das eine Foto: Abschnitt 6.
+Dazu die Spuren, die nur in diesem Kapitel vorkommen: In der dritten Runde der Flurschleife steht an der Küchenscheibe von außen ∴ im Beschlag, spiegelverkehrt geschrieben, damit Luke es von innen richtig liest, die Tropfen laufen noch, auf dem Fensterbrett ein gefaltetes Bonbonpapier (3.4; das Bonbon war aus Lukes Elternküche, darum erlaubt, §4). Danach der Atem direkt hinter Luke; der gehört nicht ihm, sondern dem Graukind, und genau darum ist er in diesem Moment still (3.3). Vor Nr. 7 stehen acht Grablichter in einer Reihe und ein neuntes einen Schritt abseits (S-15). Sichtungen und das eine Foto: Abschnitt 6.
 
-#### 5.6 Kapitel 6 · Wald ohne Echo (sieben Zettel, einer bedingt)
+#### 5.6 Kapitel 6 · Wald ohne Echo (sieben Zettel, einer bedingt; B-K6-03 gestrichen, B-K6-08 neu)
 
 Im Wald folgt er weiter hinten. Seine Stille liegt über den Stille-Zonen des Wendigo (3.3). Die Zettel werden kürzer, die Schrift gedrückter; in B-K6-02 ist ein Buchstabe durchgestrichen, in B-K6-07 kein einziger Fehler. Fundorte nach 60_kap6.md; dazu die Orts-Zettel B-O13 bis B-O19 (5.7).
 
@@ -8608,13 +8604,7 @@ Zum ersten Mal sagt er „Licht an“. Wer seine Zettel kennt, erschrickt über 
 > GEH NICHT OHNE LICHT TIEFER. ER FRISST WAS ICH SAMMLE
 > ∴
 
-**B-K6-03 · „Bin ich reich“** (neu, Humor). Ort: Pfad, zwei Minuten nachdem Luke die Pfandflasche eingesteckt hat (Kap. 6, Humor-Beat).
-> DU HAST EINE FLASCHE MITGENOMMEN. IM WALD.
-> DER ALTE MANN SAGT DAFÜR KRIEGT MAN GELD.
-> ICH HAB SIEBZEHN. IM BUS. BIN ICH REICH
-> ∴
-
-LUKE: „Ein Euro sechsunddreißig. Mit Glück.“ Pause. „Ja. Für hier schon.“
+**B-K6-03 · „Bin ich reich“** · gestrichen (Story-Prüfung B) (mit Lukes Antwort): Maskottchen-Humor im kältesten Kapitel. Die Pfandflasche bleibt (Lärm in der Stille-Zone).
 
 **B-K6-04 · „Er schabt“** (bedingt; Vorschlag aus dem Justin-Dossier, übernommen). Nur wenn der Wendigo einmal mit Justins Stimme „Such mich, Papa“ ruft. Ort: hinter Luke, sobald die Stimme verklungen ist.
 > DAS WAR NICHT ER.
@@ -8645,6 +8635,13 @@ Bei „Mitmachen“ fehlt die zweite Zeile nicht, aber er setzt dahinter: „DU 
 - Sabotieren: „DU HAST DAS NETZ KAPUTT GEMACHT. ICH HÄTTE ES NICHT GEKONNT. DANKE ODER NICHT DANKE, ICH WEISS ES NOCH NICHT ∴“
 - Ablehnen: „DU HAST NEIN GESAGT. SIE HABEN DICH TROTZDEM HINGESTELLT. SO SIND SIE ∴“
 
+**B-K6-08 · „Ob das Eisen hält“** (neu, Story-Prüfung B, G-4; kalt). Ort: Jonas’ Lager, sieben Sekunden nach der Atempause, hinter Lukes Füßen (Papier, Trippeln); nur wenn Luke den toten Blechmann (AG-20) gesehen hat. Nicht am Ort von AG-20: Bei den Blechmännern schweigt er (3.3).
+> ICH HÄTTE IHN WARNEN KÖNNEN. DEN MIT DEM BLECHKOPF.
+> ICH WOLLTE SEHEN OB DAS EISEN HÄLT
+> ∴
+
+Luke sagt nichts. Der Zettel nach dem einzigen Lacher zwischen Fraßstelle und Bau ist der kälteste des Spiels vor B-K6-07.
+
 **B-K6-07 · Schlusszettel „Frag dich warum“** (Pflicht, §15.5; alt `d_zugesehen`). Ort: hinter Lukes Füßen am eingedrückten Zaun, gefunden erst im Abspann auf dem Heimweg (Papier, Trippeln, das sich entfernt). Noch mit drei Punkten. Der einzige Zettel ohne Fehler; er hat ihn vorher geschrieben, er wartet dort schon, während Luke noch im Wald ist.
 > ICH HABE DICH NICHT GERETTET.
 > DER VOGEL HAT DAS GEMACHT.
@@ -8657,11 +8654,11 @@ Die vierte Zeile ist das eine Detail, das die Wahl am Ende von Kapitel 3 beim Be
 - „Spielen. Sieben Kinder, wie damals.“ → „ER SPIELT JETZT MIT. ER WEISS NICHT DASS ER UNSICHTBAR SPIELT.“
 - „Dass du sie suchst.“ → „DU HAST IHM GESAGT SIE MUSS IHN SEHEN. DAS WAR RICHTIG. ES WIRD TEUER.“
 
-Luke liest ihn zweimal. Gedanke: „Warum. Weil du nicht kannst? Oder weil du nicht willst?“ Schon nach dem Höhepunkt bleibt er weiter hinten und ist nur noch alle dreißig Sekunden zu hören (Kap. 6, Unterkapitel 8). Spur dazu aus dem Figuren-Dossier: Am Morgen liegt in Giselas Vorgarten ein gefaltetes Bonbonpapier im Napf des Katers Hänschen, der Luke bis ans Gitter nachgelaufen ist.
+Luke liest ihn zweimal. Gedanke: „Warum. Weil du nicht kannst? Oder weil du nicht willst?“ Schon nach dem Höhepunkt bleibt er weiter hinten und ist nur noch alle dreißig Sekunden zu hören (Kap. 6, Unterkapitel 8). (Das Bonbonpapier in Giselas Napf am Morgen danach ist gestrichen (Story-Prüfung B), §4.)
 
-#### 5.7 Die neunzehn Orts-Zettel („Der Neunte“, Entdecker-Belohnung)
+#### 5.7 Die dreizehn Orts-Zettel („Der Neunte“, Entdecker-Belohnung)
 
-Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind neu, wo nichts anderes steht. Kennungen **B-O1 bis B-O19** (02 A1) in der Reihenfolge unten. Freigeschaltet ab Kapitel 3 als Nebenaufgabe „Hinter deinen Füßen“ (31_kap3_neben.md, Aufgabe 19): B-O1 bis B-O12 in der offenen Nacht, B-O13 bis B-O19, sobald der Wald erreichbar ist (Kapitel 6). Beim ersten Annähern ein Rascheln, als hätte er den Zettel gerade erst hingelegt (vorhanden). Jeder Zettel ist ein Stück Dorfgeschichte aus seiner Sicht, und jeder ist ohne die anderen verständlich. B-O11 (Hof) ist Rüstungs-Hinweis RH-11.
+Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind neu, wo nichts anderes steht. Kennungen **B-O1 bis B-O19** (02 A1) in der Reihenfolge unten; **sechs sind gestrichen** (Story-Prüfung B: B-O2, B-O3, B-O7, B-O10, B-O13, B-O14, niedlich oder doppelt, keiner mit Bonus), es bleiben **dreizehn**, die übrigen behalten ihre Kennung. Freigeschaltet ab Kapitel 3 als Nebenaufgabe „Hinter deinen Füßen“ (31_kap3_neben.md, Aufgabe 19): die acht Dorf-Orte (B-O1, 4, 5, 6, 8, 9, 11, 12) in der offenen Nacht, die fünf Waldorte B-O15 bis B-O19, sobald der Wald erreichbar ist (Kapitel 6). Beim ersten Annähern ein Rascheln, als hätte er den Zettel gerade erst hingelegt (vorhanden). Jeder Zettel ist ein Stück Dorfgeschichte aus seiner Sicht, und jeder ist ohne die anderen verständlich. B-O11 (Hof) ist Rüstungs-Hinweis RH-11.
 
 1. **B-O1 · Kreuzung** (`kreuzung`)
 > HIER STEHEN SIE NACHTS BARFUSS. ACHT. DIE FRAU AUS DER SIEBEN HAT SIE JEDE NACHT GEZÄHLT.
@@ -8669,21 +8666,12 @@ Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind 
 > DU HAST NICHT GEWEINT. ER SCHON.
 > ∴
 
-2. **B-O2 · Nr. 1** (`nr1`, alte Fassung erweitert)
-> EUER HAUS. DAS BETT AM FENSTER.
-> DU HAST DA GESCHLAFEN ALS WÄRE ES DEINS. ES WAR AUCH DEINS.
-> BEI EUCH GEHÖRT EINEM WAS MAN LIEB HAT. BEI UNS IST DAS ANDERS.
-> ICH FIND EURES BESSER.
-> ∴
+2. **B-O2 · Nr. 1** (`nr1`) · gestrichen (Story-Prüfung B): niedlich, und ein weiterer Wechselbalg-Hinweis zu viel.
 
-3. **B-O3 · Nr. 3** (`nr3`, alte Fassung erweitert)
-> DER ALTE MANN HAT MIT ALLEM RECHT GEHABT. AUCH MIT MIR.
-> ER HAT MICH NUR NIE GESEHEN. ER GUCKT IMMER NACH OBEN.
-> DIE FOLIE AM FENSTER HILFT GEGEN NICHTS. ABER SIE GLÄNZT SCHÖN. FINDET DER VOGEL AUCH.
-> ∴
+3. **B-O3 · Nr. 3** (`nr3`) · gestrichen (Story-Prüfung B): niedlich.
 
-4. **B-O4 · Briefkasten Nr. 7** (`briefkasten`, Rätsel-Versteck, zwei Batterien)
-> GUT GERATEN. ZWEI FÜR DEINE LAMPE.
+4. **B-O4 · Briefkasten Nr. 7** (`briefkasten`, zwei Batterien; das Rätsel `r_briefkasten` ist gestrichen (Story-Prüfung B), erste Zeile darum neu)
+> DU HAST REINGEGUCKT. WIE SIE. ZWEI FÜR DEINE LAMPE.
 > NICHT ALLES WAS IN DIESEN KASTEN GEHT KOMMT AN.
 > DER MANN MIT DEM FAHRRAD NIMMT MANCHES WIEDER MIT. ICH HAB GESEHEN WOHIN. HINTER DIE TANKSTELLE.
 > ∴
@@ -8697,19 +8685,14 @@ Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind 
 > ∴
 (Er war 1312 da. Niemand sagt es.)
 
-6. **B-O6 · Gedenkfeld** (`friedhof`, eine Batterie; Rätsel-Versteck `r_stein`)
+6. **B-O6 · Gedenkfeld** (`friedhof`, eine Batterie; das Rätsel `r_stein` ist gestrichen (Story-Prüfung B))
 > DER STEIN MIT DER ACHT. DA LIEGT EINER DEN KEINER HABEN WOLLTE.
 > SEINE MUTTER HAT IHN DREI JAHRE GEBADET UND HANS GENANNT. ER HAT SICH DRAN GEWÖHNT.
 > ICH WAR AUF SEINER BEERDIGUNG. HINTER DER HECKE. SONST WAREN NUR ZWEI MÄNNER DA.
 > ∴
 (K-2, Kern §6.4; die zwei Männer sind Seiler und Wolter.)
 
-7. **B-O7 · Spielplatz** (`spielplatz`)
-> EISEN IST FREI. DIE KREIDE AM BODEN.
-> DAS HAB ICH NICHT GESCHRIEBEN. ABER WENN ES GEREGNET HAT HAB ICH ES NACHGEMALT.
-> OFT. KEINER HAT DANKE GESAGT. DAS IST OK. IHR WISST JA NICHT VON WEM.
-> ∴
-(Er malt „Eisen ist frei“ für Kinder nach und kann selbst kein Eisen anfassen.)
+7. **B-O7 · Spielplatz** (`spielplatz`) · gestrichen (Story-Prüfung B): niedlich (Maskottchen).
 
 8. **B-O8 · Tankstelle** (`tankstelle`, eine Batterie)
 > HIER GIBT ES DIE BONBONS DIE KALT SCHMECKEN.
@@ -8725,12 +8708,7 @@ Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind 
 > ∴
 („Ich halte nie einen auf“ ist die Saat für „Ich kann in keiner Kette stehen“, Kap. 7. Hier beginnt auch das geheime Ende „Fahr heim“.)
 
-10. **B-O10 · Schrebergärten** (`schreber`)
-> DIE VOGELSCHEUCHE HAT EINE KINDERJACKE AN.
-> DIE GEHÖRT EINEM JUNGEN DER NICHT GRÖSSER WIRD. ER KOMMT NACHTS UND SAGT IHR GUTE NACHT.
-> WARUM SAGT IHR GUTE NACHT ZU JACKEN
-> ∴
-(Die Jacke des echten Luke, Kap. 6: „Meine hängt an der Vogelscheuche.“)
+10. **B-O10 · Schrebergärten** (`schreber`) · gestrichen (Story-Prüfung B): wiederholt den Gute-Nacht-Witz von B-K1-02; die Kinderjacke an der Vogelscheuche bleibt in der Welt (Kap. 4, Kap. 6).
 
 11. **B-O11 · Hof** (`hof`; Rüstungs-Hinweis RH-11, zählt beim Lesen)
 > HIER HAT ER GEWOHNT. DER IN DER GRAUEN HAUT. DAMALS WAR ALLES AUS HOLZ UND ES ROCH NACH BROT.
@@ -8748,18 +8726,9 @@ Orte, Koordinaten und Boni wie in `beobachter.js` (`BEOB_ORTE`); die Texte sind 
 > ∴
 (Z-02, das „UFO“-Foto über der Kasse der Tankstelle, ist das andere Bild. Der Rest liegt in seinem Glas, Abschnitt 8.)
 
-13. **B-O13 · Lichtung** (`lichtung`, alte Fassung unverändert übernommen)
-> DER WALD HAT KEIN ECHO.
-> RUF MAL.
-> … NEIN. LIEBER NICHT.
-> ∴
+13. **B-O13 · Lichtung** (`lichtung`) · gestrichen (Story-Prüfung B): Witz im Wald ohne Echo.
 
-14. **B-O14 · Zayns Hütte** (`huette`, alte Fassung erweitert)
-> ZAYN HAT HIER GEZEICHNET. MICH AUCH.
-> ER HAT MICH GRÖSSER GEMALT ALS ICH BIN. MIT EINEM SCHWERT.
-> KINDER MACHEN DAS MIT DINGEN VOR DENEN SIE KEINE ANGST HABEN.
-> DAS BILD HAB ICH HIERGELASSEN. ES GEHÖRT HIERHER.
-> ∴
+14. **B-O14 · Zayns Hütte** (`huette`) · gestrichen (Story-Prüfung B): niedlich.
 
 15. **B-O15 · Hochsitz** (`hochsitz`, zwei Batterien; Rätsel-Versteck `r_hochsitz`)
 > DU HAST ES GEFUNDEN. ZWEI FÜR DEINE LAMPE.
@@ -8794,18 +8763,16 @@ Variante nach B-K4-06b: dritte Zeile „UNTER DEM GROSSEN STEIN SCHLAFEN ZWEI. W
 > NICHT ICH. ICH ZIEH NIE AN WAS.
 > ∴
 
-**Die vier Rätsel-Zettel** (`BEOB_DYN`, Art `raetsel`, führen zu B-O4, B-O6, B-O15 und B-O16; neu gefasst, ohne den Ort beim Namen zu nennen):
-- `r_briefkasten`: „ICH HAB EINEN MUND UND ESSE NUR PAPIER. / DIE FRAU BEI DER ICH WOHNE HAT MICH NIE GEFÜTTERT. SIE HAT NUR REINGEGUCKT. / HEUTE HAB ICH WAS FÜR DICH IM BAUCH. ∴“
-- `r_stein`: „WO SIEBEN NAMEN STEHEN UND DER ACHTE KEINEN HAT / LIEGT WAS DEIN LICHT LÄNGER MACHT. ∴“
+**Die zwei Rätsel-Zettel** (`BEOB_DYN`, Art `raetsel`, führen zu B-O15 und B-O16; ohne den Ort beim Namen zu nennen). `r_briefkasten` und `r_stein` sind gestrichen (Story-Prüfung B): im Dorf wird er kein Quizmaster; die Batterien von B-O4 und B-O6 gibt es jetzt ohne Rätsel.
 - `r_hochsitz` (alte Fassung übernommen): „ICH STEHE AUF VIER BEINEN IM WALD UND HAB KEINEN KOPF. / WER AUF MICH STEIGT SIEHT WO DER WALD AUFHÖRT. / UNTER MIR HAB ICH WAS VERGESSEN. MIT ABSICHT. ∴“
 - `r_bus`: „ICH TRAG DIE DIE NIE ANGEKOMMEN SIND. / MEINE RÄDER SIND IN DEN BODEN GEWACHSEN. / NEBEN MIR SCHLAFEN DIE SCHWEINE. UND DEIN GESCHENK. ∴“
 
 **Batterie-Not** (`BEOB_NOT`, einmal je Kapitel, alte Fassung leicht geändert): „DU HAST KEINE MEHR. UND DEINE LAMPE HAT NOCH {pct} %. / IM DUNKELN BIST DU LAUT. / HIER. ZWEI. ∴“ (In Kapitel 6 abweichend: „HIER. ZWEI. GEH NICHT OHNE. ∴“)
 
-#### 5.8 Der letzte Zettel („Neunzehn Orte“) und die Murmel
+#### 5.8 Der letzte Zettel („Dreizehn Orte“) und die Murmel
 
-Auslöser: der neunzehnte Orts-Zettel (vorhanden: `BEOB_FINAL`, `beob_final`). Er kommt 1,2 Sekunden später hinter Luke an, nicht am Ort, mit Papier und Trippeln. Datum aus dem alten Text („23. Oktober“) gestrichen, weil Hildes Zählbuch „seit dem 31.“ sagt.
-> NEUNZEHN ORTE. DU WARST AN ALLEN. ICH AUCH. JEDES MAL MIT DIR. MEISTENS VORHER.
+Auslöser: der dreizehnte Orts-Zettel (vorhanden: `BEOB_FINAL`, `beob_final`). Er kommt 1,2 Sekunden später hinter Luke an, nicht am Ort, mit Papier und Trippeln. Datum aus dem alten Text („23. Oktober“) gestrichen, weil Hildes Zählbuch „seit dem 31.“ sagt.
+> DREIZEHN ORTE. DU WARST AN ALLEN. ICH AUCH. JEDES MAL MIT DIR. MEISTENS VORHER.
 > SEIT SIE WIEDER DA IST STELL ICH MICH NACHTS AN DIE KREUZUNG. GANZ HINTEN.
 > HILDE HAT MICH MITGEZÄHLT. SIE HAT NIE GEFRAGT WER DER NEUNTE IST.
 > DU FRAGST AUCH NICHT. NOCH NICHT.
@@ -8822,16 +8789,16 @@ Sie zählen nicht zu den festen Zetteln des Kapitels und liegen nur, wenn die Ne
 | B-K3-N1 | 3 · „Die dreizehnte Predigt“ | Pfarrhaus, Flur, hinter Lukes Füßen; Stufe 4 der Hilfeleiter | DER MANN AUS PAPIER HAT AUCH GEZÄHLT. ER HAT BEI ADVENT ANGEFANGEN. ∴ | die Reiter der Predigtmappe geben die Reihenfolge; der Zettel nennt nur den Anfang |
 | B-K4-N1 | 4 · Archiv der Villa | Rand der Akte K-2, Bleistift, Druckbuchstaben | DER ACHTE WAR NICHT ICH ∴ | passt zu B-O6; er stand 1958 an der Kreuzung, als der Achte gefunden wurde |
 | B-K4-N2 | 4 · „Wo Erwachsene nicht hinsehen“ (Nr. 9) | letzte Zeile auf Blatt 213 des Beobachtungsprotokolls | IHR ZÄHLT AUCH. ABER FALSCH ∴ | er schreibt in ihre Akten, darum „611 Zettel, 0 Aufnahmen“; in Kapitel 1 hat er sich auf Blatt 212 als ∴ neben „Anwesend: 11, 12.“ eingetragen |
-| B-K4-N3 | 4 · „Acht Schlösser“ | Prägepresse im Vorgarten der Villa, hinter Lukes Fersen, während er den Schlüssel mit sieben Zähnen betrachtet | DER DOKTOR HAT DIE TEILE VERSTECKT WO IHR EUCH VERSTECKT HABT. / ICH HAB ZUGESEHEN. ER HAT BEIM VERGRABEN GEWEINT. / ER HAT GESAGT „VERZEIH“. ZU WEM WEISS ICH NICHT. DA WAR NUR ICH. ∴ | „Er hat geweint“; Seilers späte Reue |
+| B-K4-N3 | 4 · „Acht Schlösser“ | gestrichen (Story-Prüfung B) | – | doppelt zu B-K4-N6 und B-O12 |
 | B-K4-N4 | 4 · „Der Kreisel, der nicht umfällt“ (N-08) | Heinrichs Zimmer in der Villa, auf dem Kopfkissen, gefaltet; in der beschlagenen Scheibe von innen ∴ | DER MANN IM MANTEL HAT DIE HEIZUNG AUF FÜNF. FÜNF IST DAS HÖCHSTE. / ER FRIERT TROTZDEM. ICH HAB IHM EINMAL EINE DECKE HINGELEGT. / ER HAT SIE ANGEZÜNDET. ∴ | „Fünf ist das Höchste“; Wolter friert, weil er die Schwester trinkt (B-K4-08) |
 | B-K4-N5 | 4 · „Vermischtes“ (Seilers Weltkarte) | Arbeitszimmer, Stufe 4 der Hilfeleiter | DER MIT DEN KLOPFZEICHEN WOHNT IM BERG. DER IM WASSER SINGT. MEHR SAG ICH NICHT. ∴ | er kennt die anderen Fundorte der LWO (Ural, Moor) nur vom Hörensagen aus dem Amt |
-| B-K4-N6 | 4 · „Unzustellbar“, Weg a/b | Günthers Schuppen, Hocker, nach Hedwig Riekes zweitem Brief (Röhre aus, Trippeln auf Papier, Licht) | DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA ∴ | derselbe Zettel liegt bei Weg c erst in Kapitel 5 und heißt dort B-K5-N1 (5.5) |
-| B-K5-N1 | 5 · „Der gelbe Kasten“, nur Weg c | Günthers Schuppen, Hocker, nach dem Aufbrechen | wie B-K4-N6 | Querverweis in 5.5 |
-| B-X-01 | 3 bis 6, frei | einmal, wenn Whiskey länger als fünf Sekunden in eine leere Ecke starrt (`whiskey_S.mood === 'still'`) | DER VOGEL SIEHT MICH. ER SAGT NICHTS. ER HAT NIE ETWAS GESAGT ∴ | Vorschlag aus dem Whiskey-Dossier, angenommen; Kapitel 3 führt ihn in der Nebenaufgaben-Liste |
+| B-K4-N6 | 4 · „Unzustellbar“, Weg a/b | Günthers Schuppen, Hocker, nach Hedwig Riekes zweitem Brief (Röhre aus, Trippeln auf Papier, Licht) | DIE FRAU HAT GEFRAGT OB ER WEINT. ER HAT. ICH WAR DA ∴ | derselbe Zettel liegt bei Weg c erst in Kapitel 5 (B-K5-N1); eine Kennung, im Code Alias (`BEOB_ALIAS`), höchstens einmal |
+| B-K5-N1 | 5 · „Der gelbe Kasten“, nur Weg c | Günthers Schuppen, Hocker, nach dem Aufbrechen | wie B-K4-N6 | Alias von B-K4-N6, keine eigene Kennung mehr |
+| B-X-01 | 3 bis 6, frei | gestrichen (Story-Prüfung B) | – | dass Whiskey ihn sieht, zeigt das Verhalten (Kern §7); der Zettel sagte es noch einmal |
 
 #### 5.10 Reserve (nicht platziert)
 
-Zettel, die in keinem Kapitel liegen. Sie bleiben hier, falls ein Kapitel-Autor einen braucht; Kennung erst bei Platzierung.
+Zettel, die in keinem Kapitel liegen. **Story-Prüfung B:** „Die achte Akte“, „Kalt“ und „Der Tag mit dem Kreis“ sind gesperrt und werden nicht platziert (die Auswahl in §5 ist bewusst knapp). Nur „Die leere Schublade“ bleibt als offene Entscheidung zu 02 E3.
 
 - **„Die achte Akte“** (alt `d_akte`, Kapitel 2, entfallen zugunsten von B-K2-07): „DIE ACHTE AKTE IST DÜNNER ALS DIE ANDEREN. / WEIL ES DICH NOCH NICHT SO LANGE GIBT. / DAS IST NICHT SCHLIMM. MICH GIBT ES ZU LANGE. ∴“
 - **„Kalt“** (alt `d_spinnen`, Kapitel 2, nur falls die Spinnenphase je zurückkommt): „SIE SIND AN DIR HOCHGEKROCHEN WEIL DU WARM BIST. / AN MIR NIE. ICH BIN KALT. ∴“
@@ -8918,7 +8885,7 @@ Humor liegt in den Kommentaren, der Grusel darin, dass er von fast jedem wichtig
 - 2043: „Er hat mich im Winter einmal sehr lange angesehen. Da bin ich weit gefallen. Zu ihr. Sie saß im Schnee und wusste nicht, wann.“ Luke begreift: der Ritter.
 - Warum er nur zugesehen hat (Einlösung von B-K6-07): „Mich hält keiner länger als eine Sekunde. Ich kann in keiner Kette stehen, sie ist aus Eisen. Ich habe auf einen gewartet, der die Kinder rausführt, und auf einen, durch den sie ihren Papa sieht. Du warst der Zweite. Sie ist die Erste.“
 - Humor: Ob der Kaffee auf Jonas’ Autodach ein Opfer war. Und die offene Frage aus Kapitel 3: wie der Hund heißt; er meint es ernst. Luke: „Bruno. Der lebt noch, der ist bei Vegas.“ – „Ich habe ihn mitgezählt. Er hat mich nie verraten. Hunde sind besser als Katzen.“ (Gisela steht in der Scheunentür und hat es gehört.)
-- Wer alle neunzehn Orts-Zettel hat: „Du hast alle gefunden. Dann weißt du, wie sich das anfühlt.“
+- Wer alle dreizehn Orts-Zettel hat: „Du hast alle gefunden. Dann weißt du, wie sich das anfühlt.“
 
 **Der Preis.** Er sagt ihn nicht. Er schreibt ihn, nachdem Luke losgelassen hat, und unterschreibt zum ersten Mal mit einem Punkt:
 > DER PREIS. WENN IHR SPIEL AUS IST STEIGT DAS HAUS. ES NIMMT MIT WAS ES GESAMMELT HAT. DIE KINDER. UND SIE.
@@ -8938,7 +8905,7 @@ Die drei Punkte waren immer seine Geschwister. Das hier hat er allein zu verantw
 | alter Name | neuer Name | Herkunft |
 |---|---|---|
 | Nebenaufgabe „Der Beobachter“ (`story.side.beobachter`) | **„Der Neunte“** | Hildes Zählbuch: „Es sind immer acht. Zuletzt neun.“ |
-| „Der letzte Zettel“ (`BEOB_FINAL`) | **„Neunzehn Orte“** | erste Worte des Zettels |
+| „Der letzte Zettel“ (`BEOB_FINAL`) | **„Dreizehn Orte“** | erste Worte des Zettels |
 | `BEOB_NOT` (Batterie-Not) | **„Im Dunkeln bist du laut“** | Zeile des Zettels |
 | – (neu) | **„Eingemacht“** (sein Weckglas im Amtsbus) | sein Wort aus Kap. 2 („Einmachen“), umgedreht |
 | – (neu) | **„Hildes ungelesener Zettel“** (B-K4-03) | Hilde, Kap. 3: „Man liest so was nicht.“ |
@@ -8947,7 +8914,7 @@ Die drei Punkte waren immer seine Geschwister. Das hier hat er allein zu verantw
 | – (neu) | „Ist das ein Gebet“, „Kutsche“, „Leise“, „Das Glück läuft raus“, „Sie sagt ich bin komisch“, „Was mit Essen drin“, „Immer nur gesucht“, „Trotzdem nicht da“, „Das Kalte ist blau“, „Der Deckel ist aus Eisen“, „Schwerer als sie“, „Ich übe“, „Hinter dir“, „Bin ich reich“, „Er schabt“, „Lange her“, „Du bist der Speck“ | jeweils eine Zeile des Zettels |
 | B-01, B-02 (Verteilungsplan) | **B-K1-01 „Elf Mal“**, **B-K1-02 „Gute Nacht“** | Kennungen nach 02 A1; jeweils eine Zeile des Zettels |
 | Kapitel-2-Zettel (`d_erst`, `d_archiv`, `d_schalter`, `d_umdrehen`, neu) | „Aus“, „Lest es dann nicht“, „Erste Hilfe“, „Danke“, „Kein Eisen“, „Einmachen“, „Ich sehe immer nur zu“; Hilfe „Ordnungstafel“, „Die Schalter“; Zusatz „Umgedreht“ | jeweils eine Zeile des Zettels |
-| Orts-Zettel 1–19 (`BEOB_ORTE`) | **B-O1 bis B-O19**, Nebenaufgabe „Hinter deinen Füßen“ (Kap. 3) | 02 A1; der Name aus 31_kap3_neben.md: wo er sie hinlegt |
+| Orts-Zettel (`BEOB_ORTE`, dreizehn) | **B-O1 bis B-O19, sechs davon gestrichen**, Nebenaufgabe „Hinter deinen Füßen“ (Kap. 3) | 02 A1; der Name aus 31_kap3_neben.md: wo er sie hinlegt |
 | Hilfe-Zettel B-3-03 / Kap. 3 „Hasenbrot“ | **B-K3-H2 „Schreib’s“** | Rätselname aus Kapitel 3 (02 A2) |
 
 ### 11. Umsetzungsnotizen
@@ -8961,8 +8928,9 @@ Die drei Punkte waren immer seine Geschwister. Das hier hat er allein zu verantw
 - **Fotos (Kap. 5):** `fotos.js` rendert ihn nur im Kreuzungsbild von „Zuletzt neun“ (Sondertextur mit Ein-Sekunden-Ausblendung im Album); für alle anderen Aufnahmen wird `beob_S.V.g` vor dem Rendern ausgeblendet, auch wenn der Kater gerade hinstarrt.
 - **Unterschrift:** `BEOB_SIG` bleibt ∴. Für Kapitel 7 eine zweite Konstante mit einem Punkt. Kein Zettel vor Kapitel 7 darf sie benutzen.
 - **Orts-Zettel:** `BEOB_ORTE` Texte ersetzen, Koordinaten und Boni bleiben. Variante Steinkreis über ein Flag aus der Villa (∴-1 geöffnet). `BEOB_FINAL` ersetzen, `ITEMS.murmel` bleibt.
-- **Nebenaufgabe:** `story.side.beobachter.title` → „Der Neunte“; `beob_desc()`-Text: „Jemand Kleines folgt dir und legt Zettel aus, gezeichnet ‚∴‘. Hilde hat ihn mitgezählt. Zettel an Orten: n / 19.“ Abschluss: „Neunzehn Orte. Er war an jedem vor dir.“
+- **Nebenaufgabe:** `story.side.beobachter.title` → „Der Neunte“; `beob_desc()`-Text: „Jemand Kleines folgt dir und legt Zettel aus, gezeichnet ‚∴‘. Hilde hat ihn mitgezählt. Zettel an Orten: n / 13.“ Abschluss: „Dreizehn Orte. Er war an jedem vor dir.“
 - **Spuren:** Decals über `strasse.js`/`innen_ort.js` `decal()`, Trocknungs-Timer für S-02 (Deckkraft auf null in 40 s), Türzustand S-08 nur außerhalb des Blicks ändern, Notiz-Unterstreichung S-09 per zweitem HTML-Stand in `openNote`.
+- **Story-Prüfung B (Rang 14; G-4, V-9, R-1):** `BEOB_GESTRICHEN` (B-K2-02, B-K3-05 Fassung B, B-X-01, B-K4-01, -02, -02b, -N3, B-K5-02, -06, B-K6-03, `r_briefkasten`, `r_stein`) → `beobachter_zettel` liefert still `false`, die Aufrufer zeigen nichts; `BEOB_ALIAS` B-K5-N1 → B-K4-N6; neu B-K4-09 (`kapitel5.js`, Veranda), B-K5-08 (`kapitel5.js`, `k5_augenAuf`), B-K6-08 (`kapitel6.js`, `k6_lagerFertig`); `BEOB_ORTE` dreizehn, `BEOB_FINAL` „DREIZEHN ORTE“; Spuren-Deckel `BEOB_SPUR_MAX = 5` je Kapitel (§4).
 - **Katzen:** Blickziel ist `beob_S.V.g.position`, sonst die letzte `beob_sound`-Position `beob_S.a` (vorhanden); Regeln im Figuren-Dossier.
 - **Neue Assets:** Weckglas mit Gummiring und sieben Kleinteilen (Decals/kleine Meshes), Stock unter dem Hufeisen, Umschlag „Vom Kleinen“ im Zählbuch, offene Lüftungsklappe mit hängendem Gitter (Amt), Zettel-Papier mit gedrückter Schrift und Durchstreichung (Kap. 6). Keine neuen Lichter; die Murmel leuchtet über Emissive.
 
@@ -8978,7 +8946,7 @@ Die drei Punkte waren immer seine Geschwister. Das hier hat er allein zu verantw
 - Murmel: gleiches Licht wie Miras Flamme, anderes Stück (02 D3).
 - Kapitel 7: Er nimmt Lunas Platz als Herz des Schiffs ein (02 H6); Wortlaut der Sätze nach 70_kap7_mira.md.
 - Polaroids: einziger Film-Beweis die Kreuzung in „Zuletzt neun“; Diele Nr. 1 und Remise zeigen leere Ecken (02 D6). Keine Kamera vor Kapitel 5 (02 H1).
-- Kapitel 4: die eine Sichtung im Abspann an der eingebrochenen Treppe (02 D7); B-K4-02b, 02c, H2, N3 bis N6 aufgenommen; B-K5-N1 mit Querverweis auf B-K4-N6.
+- Kapitel 4: die eine Sichtung im Abspann an der eingebrochenen Treppe (02 D7); B-K4-02b, 02c, H2, N3 bis N6 aufgenommen; B-K5-N1 mit Querverweis auf B-K4-N6 (später: 02b und N3 gestrichen, N1 = N6, Story-Prüfung B).
 - Kapitel 6: B-K6-06 mit den drei Rückseiten-Zeilen nach der Falle; B-K6-07 im Abspann am Zaun.
 - Orts-Zettel Hof (B-O11) mit der vierten Zeile „ER TRÄGT DAS HAUS. DAS HAUS SIEHT SICH SELBST NICHT ∴“ als RH-11 (02 B4).
 - Lore-Eintrag in Hildes Laube heißt „Neun Paar Füße“, die Nebenaufgabe „Der Neunte“ (02 A2).
@@ -9255,7 +9223,7 @@ Regel für die Balance: Ein Tausch kostet den Spieler nie etwas, das er für den
 > Corvus, adult, beringt (Eisen, links, Prägung: Turm/Abgrund). Gesichtet bei jeder Öffnung seit Einrichtung der Außenstelle: 1958, 1975, 1992, 2009. Derselbe Ring. Dasselbe Tier (Federprobe 1975 = Federprobe 2009).
 > Verhalten: meidet Personal, sucht Nähe zu Rückläufern und zu Subjekt EISEN. Fängt sich nicht. Netz 1958: gestreift, entkommen.
 > Bewertung (hw): Kein Tier. Ein Werkzeug des Objekts. Bei Sichtung melden. Nicht schießen: Subjekt EISEN reagiert.
-Während Luke liest, legt Whiskey etwas auf das Papier, genau auf das Wort „Werkzeug“. Ein silberner Ring, ein halber Mond, klein, für eine Frauenhand. Luke nimmt ihn. Er sieht seine linke Handfläche an, die halbrunde Narbe, der „Fahrradunfall“. Er legt den Ring auf die Narbe. Er passt. Genau. LUKE (ein Satz): „Das war kein Fahrrad.“ Kein Kommentar mehr. Whiskey sitzt da und putzt sich nicht. Fibel-Eintrag „Miras Ring“: „Ein halber Mond. Whiskey hat ihn gebracht. Er passt in meine Narbe, als wär die Narbe dafür gemacht. Sie ist dafür gemacht.“ Was es neu deutet: die Narbe (Kapitel 1), Justins gleiche Narbe (Kapitel 3), Mamas Lüge, das Porträt: Die Frau mit dem Raben ist die Stimme aus dem Traum. Der Ring bleibt bei Luke, im Inventar bis Kapitel 7 (02 E5); der zweite Traum im Abspann spricht ihn an. In Kapitel 7 holt Luke ihn am Rand der Senke aus der Tasche, wenn Mira erzählt.
+Während Luke liest, legt Whiskey etwas auf das Papier, genau auf das Wort „Werkzeug“. Ein silberner Ring, ein halber Mond, klein, für eine Frauenhand. Luke nimmt ihn. Er sieht seine linke Handfläche an, die halbrunde Narbe, der „Fahrradunfall“. Er legt den Ring auf die Narbe. Er passt. Genau. LUKE: „Das war kein Fahrrad.“ Kein Kommentar mehr. Whiskey sitzt da und putzt sich nicht. Fibel-Eintrag „Miras Ring“: „Ein halber Mond. Whiskey hat ihn gebracht. Er passt in meine Narbe, als wär die Narbe dafür gemacht. Sie ist dafür gemacht.“ Was es neu deutet: die Narbe (Kapitel 1), Justins gleiche Narbe (Kapitel 3), Mamas Lüge, das Porträt: Die Frau mit dem Raben ist die Stimme aus dem Traum. Der Ring bleibt bei Luke, im Inventar bis Kapitel 7 (02 E5); der zweite Traum im Abspann spricht ihn an. In Kapitel 7 holt Luke ihn am Rand der Senke aus der Tasche, wenn Mira erzählt.
 
 **W-12 · Kapitel 5 · „Stalldach“ (der echte Luke).** Ort: Hof, Stall, am Abend; Hänschen ist dabei. Auslöser: Hinter Luke gehen die Laternen des Westwegs eine nach der anderen aus. Ablauf: Whiskey sitzt auf dem Stalldach, schwarz gegen den Nebel, wie ein Wachposten, der schon lange Dienst hat. Er pfeift die ersten Töne der Spieluhr, E D C H C, und bricht ab. Als Luke zwischen Remise und Stall zögert, ruft er „Kum!“ und hüpft über den First zur Stalltür. Drinnen, in einer leeren Box, ein Brett als Tisch, ein Teller, sauber abgeleckt, ins Brett geritzt AUGEN ZU. Von der Dachluke lässt Whiskey eine lose Seite auf das Brett segeln, die Ecke eingeknickt, wo der Schnabel war: SB-10, das Wiegenlied. Luke liest, erkennt die Spieluhr. Dann wird der Rabe still, die Stille aus Kapitel 1. Mit geschlossenen Augen (Bild schwarz, Ton nah): Stroh raschelt, kleine nackte Schritte, jemand kaut; Hänschen schnurrt (Gisela: „Wenn er schnurrt, ist es ein Kind.“); Whiskey hüpft vom Balken ins Stroh, ohne Laut, und macht sich klein, wie bei Kindern. Eine Kinderstimme, wie jemand, der das jeden Abend sagt: „Hallo, Vogel.“ Dann eine kleine kalte Hand in Lukes Hand. LUKE (Gedanke, ein Satz): „Er kennt ihn. Er hat ihn siebzehn Jahre lang gekannt.“ Was es neu deutet: Hildes Brot, Vegas’ „Der ist einfach“, Whiskeys erstes Warten auf der Laterne. Der Rabe hat auf den Jungen aufgepasst, solange Luke weg war. Danach fliegt er vom Dach Richtung Schrebergärten: „Hinterher.“
 
@@ -10395,7 +10363,7 @@ Wo man es hört oder liest: Marions Liederheft in Nr. 1 (Kap. 1, nur Strophe 1, 
 
 Darunter, braune Tinte, andere Hand: „Die Kinder, so wiederkamen, singen es anders. Am End ‚Such mich, Kind‘, und danach: Zähl bis siebzehn, Augen zu.“
 Bleistift (Voss): „Das Dorf singt ‚Such mich‘. Sie hat ‚Ich find dich‘ gesungen. Wer hat das Lied umgedreht? – B. V.“
-LUKE (ein Satz): „Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.“ Justin sagt nichts; wer stehen bleibt, hört ihn die ersten fünf Töne summen, Untertitel nur „(summt)“.
+*(Luke sagt nichts; H-1.)* Justin sagt nichts; wer stehen bleibt, hört ihn die ersten fünf Töne summen, Untertitel nur „(summt)“.
 
 **Die dritte Strophe** (nur Mira, Kapitel 7, Unterkapitel 7; vor Kapitel 7 steht sie nirgends im Spiel, auch nicht im Gesangbuch; Wortlaut `70_kap7_mira.md`)
 > Schlaf, Kind, und wenn du dich versteckst,
@@ -11176,7 +11144,7 @@ Der Beobachter ist in Kapitel 1 nie sichtbar, in Kapitel 2 einmal kaum, ab Kapit
 - **Nr. 2 Briefkasten** (`strasse.js`, `'-52.6,8.2'`, „Postkarte ohne Absender“): bleibt; es ist Heidis vierte Karte, die Günther zugestellt hat.
 - **Vegas** (`albers.js`, `ALBERS_TALKS`): eine sechste Gesprächszeile über „die Rieke“ ab Kap. 3; `ALBERS_CLAIMS` unverändert.
 - **Whiskey** (`whiskey.js`): Klingel-Imitation (zweimal kurz, einmal lang) als neues Geräusch in der Nachahm-Liste; kleiner Tausch in Kap. 1: LWO-Kuli gegen den Deckel der Katzenfutterdose (02 I3; W-03 ist der Einkaufswagenchip, 83); Reiter „Advent“ als Landeziel in Kap. 3 (Hilfe Stufe 3); Büschel aus dem Katzenschwanz in Kap. 5.
-- **Beobachter** (`beobachter.js`): Zettel mit Kennungen nach 82: B-K3-N1 (Flur des Pfarrhauses), B-K4-N4 (Heinrichs Kopfkissen), B-K4-N6 (Günthers Hocker, Weg a/b) bzw. B-K5-N1 (derselbe Zettel bei Weg c in Kap. 5); dazu die Spur „Bonbonpapier im Napf“ am Morgen nach Kap. 6 (kein Zettel). Die vier Kap.-1-Spuren am Kirchberg zählen zu den mindestens acht Arten aus §15.5. Kein Film-Beweis in Nr. 1 und in der Remise (02 D6).
+- **Beobachter** (`beobachter.js`): Zettel mit Kennungen nach 82: B-K3-N1 (Flur des Pfarrhauses), B-K4-N4 (Heinrichs Kopfkissen), B-K4-N6 (Günthers Hocker, Weg a/b) bzw. B-K5-N1 (derselbe Zettel bei Weg c in Kap. 5); die Spur „Bonbonpapier im Napf“ am Morgen nach Kap. 6 ist gestrichen (Story-Prüfung B). Die Kap.-1-Spuren am Kirchberg liegen nur, solange das Spuren-Budget (höchstens fünf je Kapitel, Dossier 82 §4) nicht voll ist; sonst starrt die Katze in eine leere Ecke. Kein Film-Beweis in Nr. 1 und in der Remise (02 D6).
 - **Katzen** (`leben.js`): `leben_hiss` und die `eyePairs`-Logik wiederverwenden; Tiermodell neu (Kern §13 nennt es). Zustände siehe oben. Der Kater in Kap. 5 folgt mit derselben Verfolgungslogik wie Whiskey, nur am Boden und ohne Flug.
 - **Hofers Dienstbuch** (`hungrige.js`, `HUNGRIGE`-Seiten; Neufassung mit sechs Seiten in 84): Annis Blatt klebt zwischen Seite 1 und 2 an der Fraßstelle; Schlüsselbund „3“ am Fuß des Hochsitzes (dort liegt auch SB-11); Blechspind „3“ im Amtsbus mit Lampion, Thermoskanne und Kassette; Annis Zeilen nur in Kap. 6 und je Ort einmal (`told`-Set, 84).
 - **Heinrichs Zimmer, Villa** (Kap.-4-Modul, in Arbeit; Emailleschild HEINRICH neben dem Archiv): Teedose als Interakt, Foto als Fibel-Eintrag mit Vorder- und Rückseite (Mechanik wie `fotos.js`, `clue`/`hand`), Kopfkissen-Zettel B-K4-N4, ∴ im Beschlag. Polaroid „HEINI“ in Kap. 5 als Sondertextur beim Fotografieren der Behaltenen am Gedenkfeld (nur mit dem Foto im Inventar).
@@ -11425,14 +11393,14 @@ Stand: Fassung 3, nach dem Lektorat der Kapiteldateien 10, 11, 20, 30, 31, 40, 5
 | 16 | „Schläft wie ein Stein“ | – (neu) | Frau Aydın steht schlafend am Fenster | Justins Satz aus „Kein Draußen“ | Fibel; Zusatzzeile bei Dina |
 | 17 | „Damit keiner fehlt“ | „Nr. 6, Echo Hilde 1975“, „Echo 03:13 – Zählen“ | Kinderflüstern auf der Treppe von Nr. 6 | Hildes Satz mit neun | Fibel „Damit keiner fehlt“ |
 | 18 | „Siebzehn Näpfe“ (Fortsetzung, N-02) | „Am Kirchberg 3, das Gedeck von 1958“ | vier Katzen in einer Reihe auf dem Zaun (UK 5) | das Brett im Vorgarten | Pfarrhausschlüssel, Fibel „Das ist nicht der Hans“ |
-| 19 | „Hinter deinen Füßen“ | `beobachter.js` Orts-Zettel | Papierrascheln, wo Luke länger steht | wo der Beobachter die Zettel hinlegt | Batterien, RH-11, Fortschritt zu „Neunzehn Orte“ und Murmel |
+| 19 | „Hinter deinen Füßen“ | `beobachter.js` Orts-Zettel | Papierrascheln, wo Luke länger steht | wo der Beobachter die Zettel hinlegt | Batterien, RH-11, Fortschritt zu „Dreizehn Orte“ und Murmel |
 | 20 | „Zweiundvierzig Kerben“ | – (neu) | Justins warmes Lager in der Scheune (SB-01) | Zahl der offenen Nächte in der Birkenrinde | Fibel „Zweiundvierzig“ |
 
 #### Kapitel 4
 
 | Name | alter Name | Auftraggeber / Auslöser | Herkunft | Belohnung |
 |---|---|---|---|---|
-| „Gasleck“ | – | Aufräumkommando tauscht Polaroids gegen leere (B-K4-01) | Absperrband des Kommandos | vier Polaroids (Hildes Rückseiten); neue Kerze in Kap. 5 |
+| „Gasleck“ | – | Aufräumkommando tauscht Polaroids gegen leere (B-K4-01 gestrichen (Story-Prüfung B)) | Absperrband des Kommandos | vier Polaroids (Hildes Rückseiten); neue Kerze in Kap. 5 |
 | „Kassler, vier achtzig“ (Auftrag 1, AG-12) | „Auftrag 1“ | Pat und Patachon bei Vegas; Oma Ernas Haushaltsbuch in Nr. 4 | Zeile, die Nachsorge 12 vorliest | Fibel „Oma Ernas Donnerstage“; Fälschung möglich; Vertrauen +20/−15/−10 |
 | „Unzustellbar“ (N-04) | Arbeitstitel bleibt | Günther Maas steckt den *Laternenboten* an Nr. 1, Rad hakt am Tor | Stempel UNZUSTELLBAR – ZURÜCK; am Ende gilt er Günther selbst | Fibel (Heidi, Jonas, Marion, Hedwig Rieke), Thermoskanne „BfR – Wir bringen Sie heim“ |
 | „Der Kreisel, der nicht umfällt“ (N-08) | „Foto in Kap. 4 / wiedererkennen“ | Heinrichs Zimmer, Teedose ohne Tee | Blechkreisel auf dem Foto „Grete und Heinrich, Sommer 1941“ | Foto (Fibel); Polaroid „HEINI“ in Kap. 5; Vertrauen −5 bei Mitnahme |
@@ -11946,11 +11914,11 @@ Alle Treffer aus `code_altwahrheit.txt` plus weitere `grep`-Funde. Zeilen Stand 
 | 1 | nie | selten (20–40 s, ≥ 12 m); Katzen starren, an jeder Ecke eine Spur (≥ 8 Arten) | B-K1-01 (Auto, nach den elf Anrufen), B-K1-02 (Kellertür, dritter Fehlcode) |
 | 2 | eine Fast-Sichtung (Durchgang nach Zimmer 7, 0,8 s, Lüftungsklappe, drei nasse Abdrücke), sonst über der Decke | Kratzen 2 m über Luke, Klopfen 3-Pause-3, Tropfen; drei Punkte im Beschlag des Kühlregals | B-K2-01 bis 07 (05 = RH-1), H1, H2 |
 | 3 | ab Kreuzung durchgehend (erster Platz hinter der Telefonzelle, 16 m); Ein-Sekunden-Regel; einmal ein Sechzehntel ganz; nie bei AG-08/09/10, nie in Nimmerheim; neunte Gestalt im Nachbild | Takt 6–15 s, still 3–8 s, Lampe aus näher; Atmen max. zweimal; Stille-Regel zweimal harmlos | B-K3-01 bis 08 (08 Doppelzettel, RH-4), H1–H3, N1, B-X-01 |
-| 4 | bei Tag ferner; durch die Nr.-9-Kamera eine Sekunde; Regentonne; in der Villa körperlich (Türrahmen, Treppe, Vorhang); **gesetzte Sichtung im Abspann** an der eingebrochenen Treppe (läuft) | Dielen verstummen, Schrank schließt sich; Pat und Patachon hören ihn | B-K4-01 bis 08, 02b/02c, 06b, H1, H2, N1–N6 |
+| 4 | bei Tag ferner; durch die Nr.-9-Kamera eine Sekunde; Regentonne; in der Villa körperlich (Türrahmen, Treppe, Vorhang); **gesetzte Sichtung im Abspann** an der eingebrochenen Treppe (läuft) | Dielen verstummen, Schrank schließt sich; Pat und Patachon hören ihn | B-K4-03 bis 09, 02c, 06b, H1, H2, N1, N2, N4–N6 (01, 02, 02b, N3 gestrichen) |
 | 5 | verlässt Nr. 1 vor der Schleife; ∴ spiegelverkehrt im Beschlag; Kater zeigt ihn; Film-Beweis nur Kreuzungsfoto | Bonbon gegen Zähne; Stille = Graukind nah | B-K5-01 bis 07, H1, N1 |
 | 6 | folgt hinten; Flucht vom Wrack (0,8 s, ganz), danach 45 s nichts; im Blitz eine Sekunde; im Bus auf seinem Kindersitz | Stille über den Stille-Zonen; danach alle 30 s | B-K6-01 bis 07 (06 drei Rückseiten, 07 Abspann), B-O13 bis 19 |
 
-Orts-Zettel B-O1 bis B-O19 (`BEOB_ORTE`: kreuzung, nr1, nr3, briefkasten, kapelle, friedhof, spielplatz, tankstelle, sperre, schreber, hof (RH-11), villa, lichtung, huette, hochsitz, bus, steinkreis (Variante nach ∴-1), wrack, weiher); Texte 82 §5.7, Koordinaten und Boni bleiben; `BEOB_FINAL` + `ITEMS.murmel`. Regeln: kein Eisen (Liste in `beob_free`); Anleuchten × 1,5, dreimal → B-K3-05; < 3,5 m weg; nach Stufe 3 2–3 min still, erstes Geräusch danach Papier; Whiskey und Katzen sehen ihn immer.
+Orts-Zettel (`BEOB_ORTE`, dreizehn nach Story-Prüfung B: kreuzung, briefkasten, kapelle, friedhof, tankstelle, sperre, hof (RH-11), villa, hochsitz, bus, steinkreis (Variante nach ∴-1), wrack, weiher); Texte 82 §5.7, Koordinaten und Boni bleiben; `BEOB_FINAL` + `ITEMS.murmel`. Regeln: kein Eisen (Liste in `beob_free`); Anleuchten × 1,5, dreimal → B-K3-05; < 3,5 m weg; nach Stufe 3 2–3 min still, erstes Geräusch danach Papier; Whiskey und Katzen sehen ihn immer.
 
 #### 5.3 Whiskey-Stationen
 
@@ -11981,7 +11949,7 @@ Weitere Stationen: `gisela` (Dosendeckel gegen Kuli), `villa_tor`, `nordzaun`, `
 - **Stundenbuch SB-01…12 (Kern §15.1, Texte 81 §4):** 01 Scheune (RH-2) · 02 Sühnekreuz · 03 ältestes Plakat · 04 unter Stuhl 8 · 05 Peters Zimmer · 06 Villa-Briefkasten · 07 Raum 3 · 08 Asservat 7/58 · 09 „Subjekt EISEN“ (02 B7) · 10 Stall · 11 Hochsitz · 12 Epilog (drei Varianten). Fibel-Reiter zwölf Felder.
 - **Laternenbote Z-01…11 (80 §5.2):** 01 Kap. 3 Ordner · 02 Kap. 1 Tankstelle · 03 Kap. 1 Nordzaun · 04 Kap. 1 Südsperre · 05 Kap. 2 Kantine · 06 Kap. 2 Zimmer 7 · 07 Kap. 4 Villa-Post · 08 Kap. 1 Nr. 7 · 09 Kap. 4 an jeder Tür · 10 Kap. 3/4 · 11 Kap. 3 Sakristei. Alle „(hw)“, ≤ 10 Zeilen.
 - **Akte Abgrund (80 §5.1):** 1–4 ab Kap. 1, 5/6/8 ab Kap. 3 (8 an der Oststraßensperre 144,2 / 1,2 / 4,1), 7 „Akte 08“ Amt, 9 „Versuchsreihe K“ Hochsitz, 10 Villa. AG-01…21 und AG-V als Dialogbänke in `lwo.js`.
-- **Beobachter-Zettel:** Kap. 1: 2 · 2: 7 + 2 · 3: 8 + 3 + N1 · 4: 8 + 3 bedingt + 2 + N1–N6 · 5: 7 + H1 + N1 · 6: 7 · Orts-Zettel 19 · B-X-01.
+- **Beobachter-Zettel** (nach Story-Prüfung B, Dossier 82 §5): Kap. 1: 2 · 2: 6 + 2 + „Umgedreht“ · 3: 8 + 3 + N1 · 4: 7 + 2 bedingt + 2 + N1, N2, N4–N6 · 5: 6 + H1 (N1 = B-K4-N6) · 6: 7 · Rätsel 2 · Orts-Zettel 13.
 - **Fibel/Lore:** Reiter „DAMALS“ (85 §5), „DAS BIST DU“ (85 §9), „SPIELREGELN“ („Fahr heim“ trägt Regel 9 ein); Lore-Einträge mit den Namen aus den Kapiteln (z. B. „Neun Paar Füße“, „Projekt WENDIGO“, „Zwei Raben“); Polaroids (7 + 4 + Kamera), Lichtsteine (7), RH (11), `ALBERS_CLAIMS` (V-01…13).
 
 #### 5.5 Kinosequenzen
