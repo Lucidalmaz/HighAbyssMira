@@ -204,13 +204,21 @@ function kapitel1_katzenTick(dt) { if (typeof katzen_get !== 'function' || !kapi
   // Stromausfall: BÄRBEL sitzt hinter Luke auf dem Bordstein und sieht nicht nach oben – sie sieht in die Hecke
   if (state.outage && K1.aus && !K1.f.has('baerbel') && K1.aus.t > 4) { const k = katzen_get('BÄRBEL'); if (k) { K1.f.add('baerbel'); try { const f = flatDir(), x = P.x - f.x * 3.2, z = Math.max(-6.4, Math.min(6.4, P.z - f.z * 3.2)); katzen_place(k, x, z > 0 ? 6.3 : -6.3, { pose: 'sit' }); katzen_stare(k, [37, .6, -9]); } catch (e) {} } }
 }
-// Fernseher: zwei Bilder ein graues Gesicht ohne Mund, dann „HALLO LUKE“ in Kinderkreide
+// Fernseher: ein graues Gesicht ohne Mund taucht aus dem Schnee auf, dann „HALLO LUKE“ in Kinderkreide (R-9: gerenderter Kopf mit Röhrenbild, kino_tvGesicht)
 function kapitel1_tv() { return true; }
 function kapitel1_tvTick(dt) { const T = K1.tv; if (tvLight.userData.dead || K1.f.has('tv') || !kapitel1_on()) return; const d = camera.position.distanceTo(tvScreen.position), look = kapitel1_blick(tvScreen.position.x, tvScreen.position.y, tvScreen.position.z);
   if (!T.fr) { if (d < 3.4 && look > .93 && Math.hypot(vel.x, vel.z) < .5) T.t += dt; else T.t = Math.max(0, T.t - dt); if (T.t > 1.4) { T.fr = 1; T.ft = 0; } return; }
-  T.ft += dt; const x = tvCtx; if (T.ft < .1) { x.fillStyle = 'rgba(110,112,116,.94)'; x.beginPath(); x.ellipse(48, 36, 17, 23, 0, 0, 7); x.fill(); x.fillStyle = '#060606'; x.beginPath(); x.ellipse(41, 32, 4.5, 6, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(55, 32, 4.5, 6, 0, 0, 7); x.fill(); tvTex.needsUpdate = true; }
-  else if (T.ft < .3) { x.fillStyle = 'rgba(245,242,230,.9)'; x.font = 'bold 17px "Comic Sans MS", Georgia'; x.textAlign = 'center'; x.fillText('HALLO LUKE', 48 + rand(-1, 1), 43); tvTex.needsUpdate = true; }
-  else { K1.f.add('tv'); state.tvSeen = true; setTimeout(() => kapitel1_zeile('Netzbrummen, fünfzig Hertz. Sauber. Wenigstens der Strom funktioniert hier noch.', 4200, 'LUKE'), 1600); } }
+  // Bühne: eigenes, feineres Bild (256×192) für die Dauer des Gesichts, danach wieder das Rauschbild der Basis
+  if (!T.cv) { T.cv = document.createElement('canvas'); T.cv.width = 256; T.cv.height = 192; T.cx = T.cv.getContext('2d'); T.tx = new THREE.CanvasTexture(T.cv); T.tx.colorSpace = tvTex.colorSpace; T.map0 = tvScreen.material.emissiveMap; tvScreen.material.emissiveMap = T.tx; tvScreen.material.needsUpdate = true;
+    if (typeof kino_tvTon === 'function') kino_tvTon(tvScreen.position); }
+  T.ft += dt; const t = T.ft, x = T.cx, W = 256, H = 192;
+  if (t < 1.05 && typeof kino_tvGesicht === 'function') { const k = t < .35 ? (t / .35) * (t / .35) : t < .9 ? 1 : Math.max(0, 1 - (t - .9) / .15); kino_tvGesicht(x, W, H, t, k); tvLight.intensity = 1.1 + 1.4 * k; }
+  else if (t < 1.85) { const im = x.createImageData(W, H); for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 200; im.data[i] = im.data[i + 1] = v * .92; im.data[i + 2] = v; im.data[i + 3] = 255; } x.putImageData(im, 0, 0);
+    if (t > 1.15) { x.save(); x.translate(128 + rand(-1, 1), 104); x.rotate(-.04); x.font = 'bold 34px Caveat, "Comic Sans MS", cursive'; x.textAlign = 'center'; x.lineJoin = 'round';
+      x.strokeStyle = 'rgba(20,20,22,.85)'; x.lineWidth = 9; x.strokeText('HALLO LUKE', 0, 0); x.fillStyle = 'rgba(244,241,230,.95)'; x.fillText('HALLO LUKE', 0, 0);
+      x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-100, 100), rand(-28, 6), rand(1, 3), 1); } x.restore(); } tvLight.intensity = 1.6; }
+  else { tvScreen.material.emissiveMap = T.map0; tvScreen.material.needsUpdate = true; K1.f.add('tv'); state.tvSeen = true; setTimeout(() => kapitel1_zeile('Netzbrummen, fünfzig Hertz. Sauber. Wenigstens der Strom funktioniert hier noch.', 4200, 'LUKE'), 1600); return; }
+  T.tx.needsUpdate = true; }
 // „Nicht du“: Hilde packt das linke Handgelenk, dreht die Handfläche unter die Küchenlampe, sieht hin, sieht ihm ins Gesicht
 async function kapitel1_nichtDu() {
   scareCount++; setFace(stalker, 'wendt'); const P = player.pos; K1.f.add('nichtdu');
@@ -244,7 +252,7 @@ function kapitel1_kpPress(k) {
   if (k === 'C') kpValue = '';
   else if (k === 'OK') { kpBusy = performance.now() + 500;
     if (kpValue === '3110') { Audio.beep(true); closeOverlay(); state.cellarOpen = true; Audio.play('lockOpen', { gain: .8, x: 30, y: 1.2, z: -21.8, ref: 2 }); K1.stimmeAus = true; subtitle('„Gro–“', 700, 'LUCY?');
-      setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35); }, 350); setTimeout(enterBasement, 1600); return; }
+      setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35, 30, 1.2, -21.8); }, 350); setTimeout(enterBasement, 1600); return; }
     Audio.beep(false); void disp.offsetWidth; disp.classList.add('err'); kpValue = ''; const n = ++state.wrongCodes;
     if (n === 1) { kpSay('Falsch. Unter den Dielen kratzt etwas, von der Kellertreppe her.'); Audio.play('scrape2', { gain: .22, rate: .8, x: 30.2, y: .3, z: -21.2, ref: 2 }); setTimeout(() => { if (ui.overlay === 'keypad') subtitle('„Du kannst das, Großer.“', 2800, 'LUCY?'); }, 1500); K1.kp.blick = true; }
     else if (n === 2) { kpSay('Stille. Die Stimme ist weg.'); K1.stimmeAus = true; setTimeout(() => { subtitle('Es lauscht.', 2200, 'LUKE'); setTimeout(() => toast('Sie hat den Tag eingekreist, an dem es zurückkam. Tag und Monat.', 5200), 2600); }, 900); }
@@ -283,8 +291,8 @@ async function kapitel1_stimme() { await wait(700); if (state.cellarOpen || K1.s
 async function kapitel1_enterBasement() {
   if (K1.v.on) return kapitel1_kellerEnde();
   if (stairBusy || state.inBasement) return; stairBusy = true;
-  try { Audio.creak(); await fade(1, 900); state.inBasement = true; setMain(4);
-    player.pos.set(B.x + 4.2, 0, B.z - 1.6); player.yaw = PI / 2 + .3; player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65; await wait(400); } finally { stairBusy = false; } fade(0, 1600);
+  try { Audio.creak(undefined, 30, 1.2, -21.8); await fade(1, 900); state.inBasement = true; setMain(4);
+    player.pos.set(B.x + 4.28, 0, B.z + 3.45); player.yaw = 1.0; /* R-6: am Fuß der Kellertreppe */ player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65; await wait(400); } finally { stairBusy = false; } fade(0, 1600);
   if (!K1.f.has('sommer')) { K1.f.add('sommer'); setTimeout(() => kapitel1_zeile('Beton. Und … Sommer? Es riecht nach Sommer.', 3600, 'LUKE'), 900); try { saveGame(1); } catch (e) {} setTimeout(() => { if (typeof todCpShow === 'function') todCpShow('LUKE, 9'); }, 1200); }
 }
 function kapitel1_wand() { if (!K1.f.has('wand')) { K1.f.add('wand'); kapitel1_zeile('Ich hab nie gemalt. Ich hab nicht mal in der Schule gemalt.', 3800, 'LUKE');
@@ -322,7 +330,7 @@ async function kapitel1_leaveBasement() {
   try { await fade(1, 900); state.inBasement = false; player.pos.set(30, 0, -20.6); player.yaw = 0; player.pitch = 0; vel.set(0, 0, 0); camY = Y + 1.65; await wait(500); } finally { stairBusy = false; } fade(0, 1200);
   if (K1.f.has('oben')) return; K1.f.add('oben'); setMain(5);
   // die Haustür, die zugeschlagen war, ist angelehnt; auf der Anrichte liegt Lucys Zettel wieder ausgebreitet, „heim“ frisch unterstrichen
-  K1.tuerWinkel = door7.openAngle; door7.openAngle = door7.openAngle * .3; door7.set(true); Audio.creak(.12);
+  K1.tuerWinkel = door7.openAngle; door7.openAngle = door7.openAngle * .3; door7.set(true); Audio.creak(.12, 23, 1.2, door7.pivot.position.z);
   if (K1.zettel) { K1.zettel.visible = true; interact(K1.zettelHit, 'Lucys Zettel', () => openNote('Lucys Zettel', '<span class="hand">Großer, falls ich nicht heimkomme:\nHilde macht nachts nicht auf. Sie weiß nie, wer vor der Tür steht.\nDas Band im Keller ist für dich. Hör es. Dann fahr <u>heim</u>.\nHinter den Bildern ist eine Tür. Mach sie NICHT auf.\nL. (22.10.)</span>\n\n<i>Fibel:</i> <span class="hand">Das war vorhin nicht unterstrichen. Ich hab keinen Bleistift.</span>', 'k1_zettel2')); }
   K1.obenT = 0;
 }
@@ -404,7 +412,7 @@ function kapitel1_vTick(dt, t) { const V = K1.v; if (!V.on) return; const P = pl
   if (Math.hypot(P.x - 30.5, P.z + 21.1) < 1.3 && !stairBusy) return kapitel1_kellerEnde();
   // Deckung, Innenraum, Erfassung
   const c = kapitel1_deckung(P.x, P.z), innen = !!indoorRect(), front = innen && P.z > -13.8 && P.x > 20 && P.x < 32;
-  if (c) { V.last = { x: c.rx, z: c.rz, yaw: player.yaw }; if (c.id === 'zelle') { V.zelleT -= dt; if (V.zelleT <= 0) { V.zelleT = 3.2; Audio.ring(.09); } }
+  if (c) { V.last = { x: c.rx, z: c.rz, yaw: player.yaw }; if (c.id === 'zelle') { V.zelleT -= dt; if (V.zelleT <= 0) { V.zelleT = 3.2; Audio.ring(.09, 8, 1.9, 7.6); } }
     if (c.id === 'veranda' && !V.vegas && typeof albers_whiskey === 'function') { V.vegas = true; albers_whiskey([['„Bleib unten, Junge! Nicht ins Licht gucken! Die sieht nur, was ihre Lampen sehen!“', 4200], ['„Und wenn du den Vogel siehst, sag ihm, der Speck ist für Bruno.“', 3600]]).catch(() => {}); }
     if (!V.aeff && Math.hypot(S.x - P.x, S.z - P.z) < 6 && typeof whiskey_mimic === 'function' && typeof whiskey_S !== 'undefined' && whiskey_S.g && whiskey_S.g.visible && Math.hypot(whiskey_S.g.position.x - P.x, whiskey_S.g.position.z - P.z) < 9) {
       V.aeff = true; if (whiskey_mimic('himmelherrgott', { force: true })) { V.tgt.x = P.x + rand(-1, 1); V.tgt.z = P.z + rand(-1, 1); V.tT = 2.2; } } }
@@ -432,9 +440,9 @@ function kapitel1_liftTick(dt) { const V = K1.v, L = V.lift; L.t += dt;
       V.lift = null; setScripted(null); setCamOverride(null); fade(0, 900); if (L.n === 2) { V.limp = 8; state.flashFail = 3; } if (L.n === 3) V.spd = 3.4 * 1.2; if (typeof whiskey_S !== 'undefined') V.wq = null; } } }
 // Im Keller: die Stahltür fällt zu, das Brummen wird leiser, die Zeichnungswand wölbt sich, ganz weit unten lacht ein Kind
 async function kapitel1_kellerEnde() { const V = K1.v; if (V.done) return; V.done = true; V.on = false; if (V.lift) { V.lift = null; setScripted(null); setCamOverride(null); $('fade').style.opacity = 0; } V.limp = 0; if (typeof whiskey_S !== 'undefined') whiskey_S.forceStill = 0; if (stairBusy) return; stairBusy = true;
-  try { Audio.creak(); await fade(1, 700); state.inBasement = true; player.pos.set(B.x + 4.2, 0, B.z - 1.6); player.yaw = PI / 2 + .3; player.pitch = -.05; vel.set(0, 0, 0); camY = 1.65;
+  try { Audio.creak(undefined, 30, 1.2, -21.8); await fade(1, 700); state.inBasement = true; player.pos.set(B.x + 4.28, 0, B.z + 3.45); player.yaw = 1.0; /* R-6: am Fuß der Kellertreppe */ player.pitch = -.05; vel.set(0, 0, 0); camY = 1.65;
     ufo.position.set(0, -800, 0); const U = ufo.userData; U.beam.uniforms.opacity.value = 0; U.spot.intensity = 0; U.under.intensity = 0; U.motes.material.opacity = 0; await wait(300); } finally { stairBusy = false; }
-  fade(0, 1300); await wait(500); Audio.play('metalSlam', { gain: 1.3, rate: .8, x: B.x + 4.2, y: 2.4, z: B.z + .6, ref: 3 }); Audio.thump(B.x + 4.2, 2.4, B.z + .6); shake = .09;
+  fade(0, 1300); await wait(500); Audio.play('metalSlam', { gain: 1.3, rate: .8, x: B.x + 4.28, y: 3.6, z: B.z - .85, ref: 3 }); Audio.thump(B.x + 4.28, 3.6, B.z - .85); /* R-6: Kellertür oben am Podest */ shake = .09;
   setTimeout(() => Audio.hum(false), 2500); Audio.play('rumble', { gain: .3, rate: .5, lp: 220 }); state.talking = true; K1.wb = { t: 0 };
   await wait(3200); Audio.play('giggle', { gain: .2, rate: .78, offset: .2, dur: 1.8, x: B.x - .5, y: -4, z: B.z - 5, ref: 2, lp: 1300 });
   await wait(2600); await say([['<i>Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.</i>', 5200, 'LUKE']]); state.talking = false;

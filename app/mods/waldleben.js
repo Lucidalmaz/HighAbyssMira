@@ -22,24 +22,10 @@ function wl_wind(mat, amp, h, push) {
   if (own && /wind/i.test(prevKey)) return mat;
   mat.userData.wl = true; const prev = own ? mat.onBeforeCompile : null;
   const uH = { value: h }, uA = { value: amp }, uP = { value: push ? 1 : 0 };
-  mat.onBeforeCompile = (sh, r) => { if (prev) prev(sh, r); sh.uniforms.uWind = WL.uWind; sh.uniforms.uAmp = WL.uAmp; sh.uniforms.uPl = WL.uPl; sh.uniforms.uWH = uH; sh.uniforms.uWA = uA; sh.uniforms.uWP = uP;
-    sh.vertexShader = 'uniform float uWind, uAmp, uWH, uWA, uWP; uniform vec3 uPl;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
-      {
-        float hk = clamp(position.y / uWH, 0., 1.); hk *= hk;
-        #ifdef USE_INSTANCING
-          mat4 wm = modelMatrix * instanceMatrix;
-        #else
-          mat4 wm = modelMatrix;
-        #endif
-        vec4 wp0 = wm * vec4(position, 1.);
-        float ph = wp0.x * .21 + wp0.z * .17;
-        vec2 sway = vec2(sin(uWind * 1.3 + ph) + .45 * sin(uWind * 3.1 + ph * 2.3), cos(uWind * 1.1 + ph * 1.3) * .6) * uWA * uAmp * hk;
-        vec2 dp = wp0.xz - uPl.xz; float dd = length(dp);
-        float pk = uWP * (1. - smoothstep(.25, 1.5, dd)) * .45 * hk;
-        vec2 off = sway + (dd > .001 ? dp / dd : vec2(0.)) * pk;
-        transformed += inverse(mat3(wm)) * vec3(off.x, 0., off.y);
-      }`); };
-  mat.customProgramCacheKey = () => 'wl_wind|' + prevKey; mat.needsUpdate = true; return mat; // eigener Schlüssel je Vor-Patch: kein falsches Teilen von Shader-Programmen
+  // gemeinsamer Windzustand der Basis (windVert): geschichtet, Böenfronten, Blattflattern; Ausweichen vor Luke federt gedämpft zurück (R-7)
+  mat.onBeforeCompile = (sh, r) => { if (prev) prev(sh, r); sh.uniforms.uWH = uH; sh.uniforms.uWA = uA; sh.uniforms.uWP = uP;
+    windVert(sh, 'uWA * pow(clamp(position.y / uWH, 0., 1.), 2.)', '.35', 'uWP * .42'); sh.vertexShader = 'uniform float uWH, uWA, uWP;\n' + sh.vertexShader; };
+  mat.customProgramCacheKey = () => 'wl_wind2|' + prevKey; mat.needsUpdate = true; return mat; // eigener Schlüssel je Vor-Patch: kein falsches Teilen von Shader-Programmen
 }
 // Modell → Gruppen (Packs mit mehreren Varianten werden getrennt), jede Gruppe auf Fußpunkt 0 und optional flach gelegt
 async function wl_asset(key, { split = false, flat = false } = {}) {
@@ -143,11 +129,12 @@ WORLD_MODS.push(['Waldleben', async () => {
   // Stämme: schmale Kollision (Kronen sind durchlässig)
   if (typeof addCol === 'function') for (const [k, r] of [['pine', .22], ['trees', .2], ['oldpine', .3]]) for (const t of L[k] || []) addCol(t.x - r, t.x + r, t.z - r, t.z + r);
   for (const k in L) WL.n[k] = L[k].length;
+  WL.treePts = (L.trees || []).map(t => [t.x, t.z]); // Laubbäume: hier fallen Blätter (umwelt.js)
   for (const c of WL.chunks) for (const m of c.meshes) m.visible = false;
   WL.ready = true;
 }]);
 // ---------------------------------------------------------------- Klang: Wind in den Kronen und Leben im Unterholz
-function wl_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3);
+function wl_rustle(x, z, v = 1) { if (!Audio.ctx) return; if (Audio.busch) return Audio.busch(x, z, v * .7); const d = Audio.at(x, .5, z, 3);
   for (let i = 0, n = 3 + Math.floor(rand(0, 4)); i < n; i++) { const s = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1600, 4200); bp.Q.value = .9; s.connect(bp); Audio.env(bp, rand(.05, .12) * v, .01, rand(.05, .16), i * rand(.05, .13), d); s.stop(Audio.ctx.currentTime + 1.6); } }
 // Erste Vögel vor dem Morgengrauen (Kapitel 6, Epilog): ein Rotkehlchen – kurze, abfallende Pfeiftöne mit Trillerende; zweite Stimme: Amsel, tiefer, flötend
 function wl_bird(x, y, z, amsel) { const A = Audio; if (!A.ctx) return; const d = A.at(x, y, z, 10), c = A.ctx, t0 = c.currentTime + .05;
@@ -197,12 +184,12 @@ WORLD_TICK.push((dt, t) => {
   WL.chunkT -= dt; if (WL.chunkT < 0) { WL.chunkT = .3; const near = P.z > 90 && P.x > WALD.x0 - 30 && P.x < WALD.x1 + 30 && state.zone !== 'canal' && !state.inBasement;
     for (const c of WL.chunks) { const d = Math.hypot(c.x - cam.x, c.z - cam.z), v = near && d < c.vis; for (const m of c.meshes) { if (m.visible !== v) m.visible = v; if (c.sh) m.castShadow = d < c.sh; } } }
   // Wind: Böen alle paar Sekunden, Gras und Kronen folgen
-  WL.gustT -= dt; if (WL.gustT < 0) { WL.gustT = rand(7, 18); WL.gustA = rand(.6, 1.2); WL.gustD = rand(3, 6); WL.gustS = 0; if (wl_in(P.x, P.z) && Audio.ctx) Audio.gust(WL.gustD); }
-  if (WL.gustS !== undefined && WL.gustS < WL.gustD) { WL.gustS += dt; WL.gust = Math.sin(Math.min(1, WL.gustS / WL.gustD) * PI) * WL.gustA; } else WL.gust += (0 - WL.gust) * Math.min(1, dt);
-  WL.uWind.value += dt * (1 + WL.gust * 1.5); WL.uAmp.value = 1 + WL.gust * 1.6; WL.uPl.value.set(P.x, P.y, P.z);
+  // Wind: im Wald öfter Böen – über den gemeinsamen Windzustand der Basis (hörbar und sichtbar zugleich)
+  WL.gustT -= dt; if (WL.gustT < 0) { WL.gustT = rand(7, 18); WL.gustD = rand(3, 6); if (wl_in(P.x, P.z)) { if (Audio.ctx) Audio.gust(WL.gustD); windStoss(WL.gustD); } }
+  WL.gust = gust;
   // Klang im Wald
   const inF = wl_in(P.x, P.z) && state.zone !== 'canal', k = typeof tief_in === 'function' && tief_in(P.x, P.z) ? .6 + (typeof tief_S !== 'undefined' ? tief_S.k * .4 : 0) : .35;
-  WL.inForest += ((inF ? 1 : 0) - WL.inForest) * Math.min(1, dt * .8); wl_bed(WL.inForest > .02, k * WL.inForest);
+  WL.inForest += ((inF ? 1 : 0) - WL.inForest) * Math.min(1, dt * .8); wl_bed(WL.inForest > .02 && typeof klang_wind !== 'function', k * WL.inForest); // Wind in den Kronen: Aufnahme in klang.js (klang_wind), sonst Rauschen
   if (!inF || state.talking || ui.overlay) return;
   const spd = Math.hypot(vel.x, vel.z); WL.sndT -= dt * (spd < .3 ? 1.3 : 1); if (WL.sndT < 0) { WL.sndT = rand(6, 13) * (1.1 - k * .2); wl_event(k); } // Budget und Abstände: Regie (spannung)
 });

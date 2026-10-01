@@ -65,18 +65,48 @@ async function kirchberg_sag(F, zeilen) { for (const [t, ms, who] of zeilen) { c
 function kirchberg_raum(def) {
   const x0 = def.x - def.w / 2, x1 = def.x + def.w / 2, z0 = def.z - def.d / 2, z1 = def.z + def.d / 2, H = def.h || 2.7;
   const wm = kirchberg_mat(def.wand || 'wallpaper_old', def.wandTint ?? 0xc8bca8, def.wandTile || 1.6), fm = kirchberg_mat(def.boden || 'floor_wood', def.bodenTint ?? 0x7a624c, def.bodenTile || 1.4), cm = kirchberg_mat(def.decke || 'wall_plaster', def.deckeTint ?? 0x8a867e, 2);
-  fm.roughness = .75; plane(def.w, def.d, def.x, .002, def.z, fm); box(def.w + .4, .2, def.d + .4, def.x, H + .1, def.z, cm, { cast: false });
+  fm.roughness = .75; const boden = plane(def.w, def.d, def.x, .002, def.z, fm), decke = box(def.w + .4, .2, def.d + .4, def.x, H + .1, def.z, cm, { cast: false });
   const gapS = def.tuerWand === 's' ? [{ at: def.tuer[0], w: 1.1 }] : [], gapN = def.tuerWand === 'n' ? [{ at: def.tuer[0], w: 1.1 }] : [];
   wall('x', z0, x0, x1, H, wm, gapS, .2); wall('x', z1, x0, x1, H, wm, gapN, .2); wall('z', x0, z0, z1, H, wm, [], .2); wall('z', x1, z0, z1, H, wm, [], .2);
   for (const w of def.waende || []) wall(w[0], w[1], w[2], w[3], H, w[5] || wm, w[4] || [], .12);
   // Fußleisten (dunkles Holz, Scan-Oberfläche) – die Wand endet nicht im Nichts
   const leiste = kirchberg_mat('planks_painted', 0x3a2c22, 1); for (const [ax, f, a, b] of [['x', z0 + .11, x0, x1], ['x', z1 - .11, x0, x1], ['z', x0 + .11, z0, z1], ['z', x1 - .11, z0, z1]]) { if (ax === 'x') box(b - a, .09, .02, (a + b) / 2, .045, f, leiste, { cast: false }); else box(.02, .09, b - a, f, .045, (a + b) / 2, leiste, { cast: false }); }
   indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 });
-  const R = { def, x0, x1, z0, z1, H, wm, fm, g: new THREE.Group(), licht: [] }; R.g.name = 'kb_raum_' + def.id; scene.add(R.g);
+  const R = { def, x0, x1, z0, z1, H, wm, fm, cm, boden, decke, g: new THREE.Group(), licht: [] }; R.g.name = 'kb_raum_' + def.id; scene.add(R.g);
   // Tür von innen (Scan-Tür, geschlossen) = Weg nach draußen
   if (def.tuer) { const [tx, tz, tr] = def.tuer; kirchberg_mod('door1', 'model.gltf', 2.08).then(d => { if (d) { d.position.set(tx, 0, tz); d.rotation.y = tr; R.g.add(d); } });
     R.tuerHit = kirchberg_hit(1.2, 2.2, .5, tx, 1.1, tz, def.rausLabel || 'Hinausgehen', () => kirchberg_raus()); }
   kirchberg_S.raeume[def.id] = R; return R; }
+// R-6: Treppe mit Logik (auch für Keller Nr. 7, innen_ort.js). Lauf entlang z vom Fuß zA zum Kopf zB, n Stufen gleicher Steigung bis zum Podest auf y1:
+// Tritt- und Setzstufen, zwei Wangen, Geländer an der offenen Seite (offen: 'x0' | 'x1'), Podest (Tiefe podest, hinter zB). Ist die Decke im Weg (loch: [x0, x1, z0, z1]),
+// wird sie um den Durchbruch neu in Stücken gebaut (decke: das alte Deckenmesh, wird ausgeblendet) und darüber ein Treppenschacht mit Deckel gesetzt.
+// begehbar: jede Stufe ist eine Kollisionsstufe (Stufenhöhe < 0,36 m), Geländer und Schacht halten; sonst nur die ersten zwei Stufen, der Rest sperrt (Klickfläche führt weiter).
+function kirchberg_treppe(o) { const T = THREE, par = o.par || scene, s = Math.sign(o.zB - o.zA), n = o.n, rise = (o.y1 - o.y0) / (n + 1), run = Math.abs(o.zB - o.zA) / n, w = o.x1 - o.x0, xm = (o.x0 + o.x1) / 2, mat = o.mat, wm = o.matWange || mat;
+  const B = (bw, bh, bd, x, y, z, m, rx) => { const b = box(bw, bh, bd, x, y, z, m, { parent: par }); if (rx) b.rotation.x = rx; return b; };
+  for (let i = 1; i <= n; i++) { const y = o.y0 + i * rise, za = o.zA + s * (i - 1) * run, zb = o.zA + s * i * run, zc = (za + zb) / 2;
+    B(w - .1, .045, run + .025, xm, y - .0225, zc - s * .0125, mat); B(w - .1, rise - .045, .025, xm, y - .045 - (rise - .045) / 2, za + s * .0125, mat); // Trittstufe (mit Überstand), Setzstufe
+    if (o.begehbar || i <= 2) addCol(o.x0, o.x1, Math.min(za, zb), Math.max(za, zb), y); }
+  const zK = o.zB, yK = o.y1 - rise, L = Math.hypot(n * run, n * rise), ang = Math.atan2(n * rise, n * run) * -s, zm = (o.zA + zK) / 2, ym = o.y0 + (n * rise) / 2 - .02;
+  for (const x of [o.x0 + .03, o.x1 - .03]) B(.05, .26, L + .1, x, ym, zm, wm, ang); // Wangen
+  if (o.podest) { const zp = o.zB + s * o.podest / 2; B(w, .2, o.podest, xm, o.y1 - .1, zp, mat); addCol(o.x0, o.x1, Math.min(o.zB, o.zB + s * o.podest), Math.max(o.zB, o.zB + s * o.podest), o.y1); }
+  if (!o.begehbar) { const za = o.zA + s * 2 * run, zb = o.zB + s * (o.podest || 0); addCol(o.x0, o.x1, Math.min(za, zb), Math.max(za, zb), 99); }
+  // Geländer: Pfosten unten/oben, Handlauf parallel zur Steigung (0,9 m über den Stufenkanten), Stäbe alle ~0,45 m
+  if (o.offen) { const xg = o.offen === 'x0' ? o.x0 + .03 : o.x1 - .03, gm = o.matGelaender || wm, hl = .9, zf = o.zA + s * .15, yf = o.y0 + rise, zt = o.zB - s * .1, yt = o.y1 - rise * .5;
+    const zEnd = o.handlaufBis ?? zt, yEnd = yf + (yt - yf) * Math.abs(zEnd - zf) / Math.max(.01, Math.abs(zt - zf));
+    B(.07, hl + .05, .07, xg, yf + (hl + .05) / 2 - .02, zf, gm); const Lh = Math.hypot(zEnd - zf, yEnd - yf);
+    B(.05, .06, Lh, xg, (yf + yEnd) / 2 + hl, (zf + zEnd) / 2, gm, Math.atan2(yEnd - yf, Math.abs(zEnd - zf)) * -s);
+    const k = Math.max(2, Math.round(Math.abs(zEnd - zf) / .45)); for (let j = 1; j < k; j++) { const zz = zf + (zEnd - zf) * j / k, yy = yf + (yEnd - yf) * j / k; B(.025, hl, .025, xg, yy + hl / 2, zz, gm); }
+    if (o.begehbar) addCol(xg - .05, xg + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); }
+  // Deckendurchbruch + Schacht
+  if (o.loch && o.decke) { const D = o.decke; D.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(D), dm = D.material, [lx0, lx1, lz0, lz1] = o.loch, yc = (bb.min.y + bb.max.y) / 2, h = bb.max.y - bb.min.y;
+    msHide ? msHide(D) : (D.visible = false); const P = (x0, x1, z0, z1) => { if (x1 - x0 > .01 && z1 - z0 > .01) box(x1 - x0, h, z1 - z0, (x0 + x1) / 2, yc, (z0 + z1) / 2, dm, { cast: false, parent: par }); };
+    P(bb.min.x, lx0, bb.min.z, bb.max.z); P(lx1, bb.max.x, bb.min.z, bb.max.z); P(lx0, lx1, bb.min.z, lz0); P(lx0, lx1, lz1, bb.max.z);
+    const sh = o.schachtH || 2.4, ys = bb.min.y + sh / 2, sm = o.schachtMat || dm, t = .1;
+    box(t, sh, lz1 - lz0 + 2 * t, lx0 - t / 2, ys, (lz0 + lz1) / 2, sm, { parent: par }); box(t, sh, lz1 - lz0 + 2 * t, lx1 + t / 2, ys, (lz0 + lz1) / 2, sm, { parent: par });
+    box(lx1 - lx0, sh, t, (lx0 + lx1) / 2, ys, lz0 - t / 2, sm, { parent: par }); box(lx1 - lx0, sh, t, (lx0 + lx1) / 2, ys, lz1 + t / 2, sm, { parent: par });
+    box(lx1 - lx0 + 2 * t, t, lz1 - lz0 + 2 * t, (lx0 + lx1) / 2, bb.min.y + sh + t / 2, (lz0 + lz1) / 2, sm, { parent: par, cast: false });
+    if (o.begehbar) { const b0 = bb.min.y - .05; addCol(lx0 - t, lx0, lz0, lz1, 99, b0); addCol(lx1, lx1 + t, lz0, lz1, 99, b0); addCol(lx0, lx1, lz0 - t, lz0, 99, b0); addCol(lx0, lx1, lz1, lz1 + t, 99, b0); } }
+  return { rise, run }; }
 // Raumlicht: Glühbirne/Kerze mit sichtbarer Quelle (Modell/Emission); VLight beim Laden, Stärke konstant
 function kirchberg_licht(R, color, i, dist, x, y, z) { if (R) { i *= 1.7; dist *= 1.25; } const L = new VLight(color, i, dist, 2); /* Innenräume: Lampen tragen den Raum (Quelle sichtbar) */ L.position.set(x, y, z); scene.add(L); if (R) R.licht.push(L); return L; }
 async function kirchberg_rein(id, o = {}) { const R = kirchberg_S.raeume[id]; if (!R || state.talking) return; const S = kirchberg_S; state.talking = true;

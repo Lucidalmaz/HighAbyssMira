@@ -53,6 +53,35 @@ Stand 01.10.2026 (AP Welt/Licht, Prioritäten 6–8 des Premium-Auftrags). Grund
 - Blackout (Schreck) ist die einzige harte Abweichung.
 - Tag (Kap. 4) wirkt grau-kühl mit Nebel. Die Wärme kommt dann nur aus Lampen im Innern.
 
+## 9. Schrift: eine Familie je Funktion
+Lesbarkeit geht vor, besonders bei Untertiteln. Alle Schriften liegen lokal in `app/vendor/fonts` und stehen unter SIL OFL 1.1 oder Apache 2.0. Die Lizenzdateien liegen im selben Ordner, die Nachweise in `CREDITS.md`. Jede Schrift hat ä, ö, ü und ß. ∴ hat keine von ihnen, dafür springt die Ersatzschrift ein.
+
+| Funktion | Schrift | Wirkung |
+|---|---|---|
+| Titel, Menü, Überschriften, Fibel-Reiter | IM Fell English SC / IM Fell English | alter, leicht ausgefranster Bleisatz, unheimlich-feierlich |
+| Fließtext (Fibel, Erzähltext, Beschreibungen) | Cormorant Garamond | ruhige Buchschrift |
+| Untertitel, HUD, Hinweise, Tasten | Alegreya Sans / Alegreya Sans SC | sehr gut lesbar, humanistisch, mit Charakter |
+| Lukes Gedanken (Untertitel „LUKE“, Fibel-Randnotizen) | Kalam | flüchtiger Kugelschreiber eines jungen Mannes |
+| Handschrift Erwachsener (Briefe, Zettel) | Caveat | Alltagshandschrift |
+| Lucy/Luna und andere Kinder | Gochi Hand | Kinderschrift; Lucy mit Bleistift auf liniertem Heftpapier, andere Kinder mit Buntstift auf Karopapier |
+| Beobachter, Kreide | Covered By Your Grace | zittrige Kinder-Kreide auf der Schiefertafel, körnig maskiert |
+| Amt, LWO, BfR, Akten | Special Elite (Text), Courier Prime (Kopf, Formulare, Geräte, Tastenfelder) | Schreibmaschine und Formular, mit Stempel |
+| Gedrucktes (Laternenbote, Aushänge, Chronik) | IM Fell English | Zeitungs- und Kirchendruck |
+| Das Fremde (Lichtschiff, das Weiße, ∴-Stimmen) | Julius Sans One + kaltes Leuchten (Klasse `.ob-fremd`) | fremd, gesperrt, kühl; nur für das Fremde |
+
+- **Größen:** Untertitel 23 px × Regler, Gedanken 24 px, HUD-Aufgabe 19 px, Hinweise 11 px in Kapitälchen.
+- **Gewichte:** Fließtext 400, Untertitel 500, Kapitälchen-Etiketten 700.
+- **Neue Texte:** Wer neue Texte anlegt, nutzt die CSS-Variablen `--f-titel`, `--f-buch`, `--f-ui`, `--f-ui-sc`, `--f-luke`, `--f-hand`, `--f-lucy`, `--f-kreide`, `--f-typo`, `--f-akte` und `--f-fremd` und keine eigenen Schriftnamen.
+- **Papier je Quelle:** Das Papier von Notizen richtet sich nach Titel und Inhalt (Modul `oberflaeche`):
+  - Brief: Falze, Kaffeering, Stockflecken
+  - Amt: Bürobogen mit Lochung und Stempel
+  - Druck: Zeitungspapier
+  - Lucy: liniertes Heft
+  - Kind: Karoheft
+  - Beobachter: Schiefertafel
+  - Post-it
+  - Handy: dunkler Bildschirm
+
 ## Technik (wo die Regeln wohnen)
 
 | Regel | Umsetzung |
@@ -65,3 +94,5 @@ Stand 01.10.2026 (AP Welt/Licht, Prioritäten 6–8 des Premium-Auftrags). Grund
 | Tropfen | `fassaden_tropfen` in `fassaden.js` |
 | Motten | `leben_mothSetup` in `leben.js` |
 | Laub im Rinnstein | `strasse.js` |
+| Schriften je Funktion, Papier je Quelle, weiche Übergänge, Regen auf der Menüscheibe | `oberflaeche.js` (CSS-Variablen `--f-*`), Schriften in `app/vendor/fonts/fonts.css` |
+| Oberflächen (Mikrostruktur, Nässe, Schmutz, Kanten), Verdeckung, Lichtstreuung, Korn/Schärfe/Linsenschmutz | `grafik.js` (`THREE.ShaderChunk`), `filmPass` in der Basis |

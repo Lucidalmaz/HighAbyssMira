@@ -197,7 +197,7 @@ async function ausbau_nord_build() {
     plane(1.4, 5, h.x, .027, h.z + h.d / 2 + 2.5, pave);
     const di = box(1.2, 2.3, .35, h.x, 1.6, h.z + h.d / 2 + .15, hidden, { cast: false }); let k = 0;
     if (h.n === 11 || h.n === 15) { uninteract(di); continue; } // kirchberg.js: Pfarrhaus / Giselas Küchenfenster
-    interact(di, h.n === 13 ? 'Tür' : 'Klopfen', () => { if (h.n !== 13) Audio.knock(); toast(KNOCK[h.n][k++ % KNOCK[h.n].length], 4200); }); // STORY-HOOK: Nachbarn am Kirchberg
+    interact(di, h.n === 13 ? 'Tür' : 'Klopfen', () => { if (h.n !== 13) Audio.knock(h.x, 1.3, h.z + h.d / 2 + .15); toast(KNOCK[h.n][k++ % KNOCK[h.n].length], 4200); }); // STORY-HOOK: Nachbarn am Kirchberg
   }
 
   // ---------------------------------------------------------------- Friedhof: Mauern, Zaun, Tor
@@ -703,7 +703,8 @@ function ausbau_nord_tick(dt, t, indoor) {
     tmp.set(S.x - camera.position.x, 1.2 - camera.position.y, S.z - camera.position.z).normalize(); const looking = fwd.dot(tmp) > .75;
     const q = S.seats[1] || S.seats[0];
     if (d < 20 && !looking && !S.hold && ausbau_nord_free()) q.drive = Math.min(1, q.drive + dt * .15); else q.drive = Math.max(0, q.drive - dt * (looking ? .08 : .3));
-    for (const s of S.seats) { const push = s === q ? q.drive * .9 * Math.sign(s.v || 1) : 0; s.v += (-9.8 / 1.9 * Math.sin(s.a) + push * (Math.abs(s.a) < .15 ? 1 : 0)) * dt; s.v *= 1 - dt * .12; s.a += s.v * dt; s.piv.rotation.x = s.a;
+    if (typeof umwelt_pendel === 'function') for (const s of S.seats) { s.ziel = s === q ? q.drive * .7 : 0; s.halt = S.hold > 0; } // Pendel, Anstoßen, Wind, Kette: umwelt.js
+    else for (const s of S.seats) { const push = s === q ? q.drive * .9 * Math.sign(s.v || 1) : 0; s.v += (-9.8 / 1.9 * Math.sin(s.a) + push * (Math.abs(s.a) < .15 ? 1 : 0)) * dt; s.v *= 1 - dt * .12; s.a += s.v * dt; s.piv.rotation.x = s.a;
       if (Math.abs(s.a) > .12 && Math.sign(s.v) !== Math.sign(s.lv || 0)) { if (d < 22) Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .12 * Math.min(1, Math.abs(s.a) * 2), rate: .8, x: S.x, y: 2, z: S.z, ref: 2 }); } s.lv = s.v; } }
   if (!near && !onLane) return;
   // T20: Paragraf vier – Gedanke am Gedenkfeld, sobald Luke die Einwilligungen aus Zimmer 7 bei sich hat
@@ -910,6 +911,6 @@ function ausbau_nord_f3Tick(dt, P) { const N = ausbau_nord; if (!N.f3) return;
   if (!N.sb03Fix && typeof sammeln_S !== 'undefined' && sammeln_S.orte && sammeln_S.orte['SB-03']) { N.sb03Fix = true; ausbau_nord_sb03(); }
   if (N.plakat && N.sb03Fix && !N.plakatZu && typeof sammeln_hatSB === 'function' && sammeln_hatSB(3)) { ausbau_nord_plakatCheck(); // Schreck Stufe 1: das Plakat von 2009 blättert sich hinter Luke wieder zu
     const d = Math.hypot(P.x - 11.15, P.z - 52.4); ausbau_nord_v.set(11.15 - camera.position.x, 1.3 - camera.position.y, 51.97 - camera.position.z).normalize();
-    if (d > 3 && d < 12 && fwd.dot(ausbau_nord_v) < -.2) { N.zuT = (N.zuT || 0) + dt; if (N.zuT > 2) { N.plakatZu = true; const Pl = N.plakate; Pl.P09.visible = true; Pl.P09.scale.set(1, 1, 1); Pl.P09.rotation.z = 0; Pl.P09.position.set(Pl.X + .01, Pl.Y + .004, Pl.Z + .012); Audio.paper(); Audio.play('woodSqueak1', { gain: .05, rate: 2, x: 11.15, y: 1.3, z: 52, ref: 1 }); } } else N.zuT = 0; }
+    if (d > 3 && d < 12 && fwd.dot(ausbau_nord_v) < -.2) { N.zuT = (N.zuT || 0) + dt; if (N.zuT > 2) { N.plakatZu = true; const Pl = N.plakate; Pl.P09.visible = true; Pl.P09.scale.set(1, 1, 1); Pl.P09.rotation.z = 0; Pl.P09.position.set(Pl.X + .01, Pl.Y + .004, Pl.Z + .012); if (Audio.ctx) { const pd = Audio.at(Pl.X, Pl.Y, Pl.Z, 1); if (!Audio.cut) for (let i = 0; i < 4; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2000, 5000); bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .01, .05, i * .05, pd); n.stop(Audio.ctx.currentTime + .5); } } Audio.play('woodSqueak1', { gain: .05, rate: 2, x: 11.15, y: 1.3, z: 52, ref: 1 }); } } else N.zuT = 0; }
   // Plane: bis Kapitel 3 (dann AG-16 / AP-18)
   const zu = !kapAb(3); if (N.tarp && N.tarp.visible !== zu) { N.tarp.visible = zu; N.tarpStones.visible = zu; if (N.tarpHit) { const i = interactables.indexOf(N.tarpHit); if (zu && i < 0) interactables.push(N.tarpHit); else if (!zu && i >= 0) interactables.splice(i, 1); } } }

@@ -274,7 +274,7 @@ function beob_drop(d, o = {}) {
   if (wo === 'gitter') { const top = (state.zone === 'canal' ? 3 : C2.h) - .06; N.m.position.y = top; N.m.rotation.set(-PI / 2 + rand(-.6, .6), rand(-.4, .4), rand(-PI, PI)); N.m.visible = true;
     S.falling.push({ m: N.m, x, y: y + .012, z, t: 0, T: 1.5 + Math.random() * .4, y0: top, s: rand(0, 6), rz: N.m.rotation.z }); Audio.play('metalHit1', { gain: .05, rate: 2.1, x, y: top, z, ref: 2 });
     setTimeout(() => { beob_scrapeAway(x, z); }, 1700); }
-  else if (!d.leise) { Audio.paper(); if (wo === 'hinter') setTimeout(() => { beob_patter(x, z, 4, 1); beob_rustle(x + rand(-3, 3), z + rand(-3, 3), .5); }, 350); }
+  else if (!d.leise) { if (Audio.ctx) { const pd = Audio.at(x, y + .05, z, 2); if (!Audio.cut) for (let i = 0; i < 4; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2000, 5000); bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .01, .05, i * .05, pd); n.stop(Audio.ctx.currentTime + .5); } } if (wo === 'hinter') setTimeout(() => { beob_patter(x, z, 4, 1); beob_rustle(x + rand(-3, 3), z + rand(-3, 3), .5); }, 350); }
   if (d.bonbon) beob_spur('bonbon', { pos: [x + .12, y, z + .1], nie: true });
   if (d.spur === 'kiesel') beob_spur('kiesel', { pos: [x + rand(-.5, .5), y, z + rand(-.5, .5)] });
   if (d.spur === 'bonbon') beob_spur('bonbon', { pos: [x + .14, y, z - .08] });

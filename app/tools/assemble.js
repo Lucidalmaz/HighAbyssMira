@@ -8,8 +8,12 @@ const APP = path.resolve(__dirname, '..'), MODS = path.join(APP, 'mods');
 // Fassung 3 (AP-16): amt nach zimmer7 (Kapitel 2, Ebene −2: neue Räume, Nadeldrucker, Lautsprecher, Nebenaufgaben – braucht innen_kapitel, lwo, beobachter, feuer)
 // Fassung 3 (AP-18): neben3 (Kap.-3-Nebenaufgaben: Register, RH, Glocken-Joker, Kapelle/Pfarrhaus/Gisela/Peters Zimmer) und remise (Remise am Hof, Dina) nach karte
 // Fassung 3 (AP-03): neu eingetragen (Dateien legen spätere APs an): katzen, kirchberg, post nach leben; villa nach anwesen; lwo vor beobachter; sammeln nach entdecker
+// X-1 Sprachausgabe: stimmen nach klang und VOR spannung/kino – sein subtitle-Haken liegt innen (spielt nur, was wirklich angezeigt wird)
+// R-7/R-8 Umwelt: umwelt nach allen Schaukel-/Wald-Modulen (sammelt deren Schaukeln ein, liest WL/gruen), vor bewohnt
+// R-14 Grafik/Oberfläche: grafik (Material-Bausteine, Bildpass direkt nach dem RenderPass – vor hervorhebung, deren Masken-Pass davor einrastet), oberflaeche (Papier, Schriften, Übergänge) – beide vor hervorhebung
 // AP Q-8 „Bewohnt“: bewohnt ganz hinten (dekoriert die Innenräume aller vorherigen Module beim ersten Betreten; umhüllt kirchberg_rein und VILLA_BAU.nr3)
-const ORDER = ['kapitel', 'teststand', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'katzen', 'kirchberg', 'post', 'nr4', 'zeichen', 'ausruestung', 'uebergang', 'fotos', 'album', 'geheimnisse', 'justin', 'figuren', 'albers', 'gedanken', 'whiskey', 'tausch', 'beutel', 'kiffen', 'visionen', 'anwesen', 'villa', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'lwo', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'sammeln', 'karte', 'neben3', 'neben4', 'remise','akte', 'klang', 'spannung', 'traum', 'weiss', 'kino', 'kapitel1', 'tod', 'feuer', 'augenzu', 'zimmer7', 'amt', 'lucy3', 'kapitel3', 'kamera', 'kapitel5', 'neben5', 'kapitel6', 'neben6', 'kreaturen', 'raender', 'bewohnt']; // AP-24: neben6 (Kap.-6-Nebenaufgaben N6-7/N6-8) nach kapitel6 (Stille-Zonen, K6, k6_wahl)
+// R-17 Ziele/Aufgaben: ziele ganz zuletzt (äußerste Hülle um questPop/closeOverlay/todCpShow/karte_markierung/addBattery; Fibel-Reiter nach sammeln/karte)
+const ORDER = ['kapitel', 'teststand', 'ausbau_nord', 'ausbau_ost_west', 'strasse', 'gruen', 'fassaden', 'innen_ort', 'innen_kapitel', 'leben', 'katzen', 'kirchberg', 'post', 'nr4', 'zeichen', 'ausruestung', 'uebergang', 'fotos', 'album', 'geheimnisse', 'justin', 'figuren', 'albers', 'gedanken', 'whiskey', 'tausch', 'griff', 'beutel', 'kiffen', 'visionen', 'anwesen', 'villa', 'wald', 'tiefwald', 'waldleben', 'hungrige', 'lwo', 'beobachter', 'zayn', 'cleo', 'schrecken', 'entdecker', 'sammeln', 'karte', 'neben3', 'neben4', 'remise','akte', 'klang', 'raumklang', 'stimmen', 'spannung', 'traum', 'weiss', 'qte', 'kino', 'kapitel1', 'tod', 'feuer', 'augenzu', 'zimmer7', 'amt', 'lucy3', 'kapitel3', 'kamera', 'kapitel5', 'neben5', 'kapitel6', 'neben6', 'kreaturen', 'raender', 'umwelt', 'bewohnt', 'grafik', 'oberflaeche', 'hervorhebung', 'bewuchs', 'menue', 'ziele']; // AP-24: neben6 (Kap.-6-Nebenaufgaben N6-7/N6-8) nach kapitel6 (Stille-Zonen, K6, k6_wahl)
 // Veröffentlichung: --release (oder HAM_RELEASE=1) → ../game/index.release.html; die Test-index.html bleibt unberührt (parallele Selbsttests).
 // Setzt window.IS_RELEASE (Basis: DEV = false → kein Story-Editor, keine F3-Messanzeige, keine Entwickler-Hinweise) und entfernt alle
 // Testzugriffe: Zuweisungen an window.G, window.HAM_UI und window.__* – außer denen, die das Spiel selbst liest (Ladeanzeige, __traumWake).
@@ -45,6 +49,9 @@ for (const area of ORDER) {
     used.push(area + '.js');
   }
 }
+// R-20 Mitwirkende: CREDITS.md beim Bauen ins Menü (menue.js liest MZ_CREDITS) – immer vollständig und aktuell
+{ const cr = path.join(APP, '..', 'CREDITS.md'), mark = '/*@@CREDITS@@*/null';
+  if (html.includes(mark)) html = html.replace(mark, () => fs.existsSync(cr) ? JSON.stringify(fs.readFileSync(cr, 'utf8')).replace(/</g, String.fromCharCode(92) + 'u003c') : 'null'); }
 // Einheitliche Zeilenenden wie in der Basis (Python-Patches liefern \n, die Module teils \r\n)
 const crlf = /\r\n/.test(fs.readFileSync(path.join(MODS, '_base_source_index.html'), 'utf8').slice(0, 4000));
 html = html.replace(/\r\n/g, '\n'); if (crlf) html = html.replace(/\n/g, '\r\n');

@@ -177,7 +177,7 @@ async function zayn_radio() {
 }
 // ---- 5) Das Ende: keine Antwort
 // AP-24: Luke hört genau hin – und nimmt die Kassette aus dem Fach (für Jonas, Kapitel 7)
-async function zayn_kassette() { if (story.items.includes('zayn_kassette')) return; await say([['Keine Spieluhr drunter. Und kein Raum. Das ist Band.', 3400, 'LUKE']]); Audio.play('switch1', { gain: .2, rate: 1.4 });
+async function zayn_kassette() { if (story.items.includes('zayn_kassette')) return; await say([['Keine Spieluhr drunter. Und kein Raum. Das ist Band.', 3400, 'LUKE']]); Audio.play('switch1', { gain: .2, rate: 1.4, x: WALD.hut.x + 1.1, y: .6, z: WALD.hut.z - 1.3, ref: 1.5 });
   addItem('zayn_kassette'); openNote('Im Kassettenfach', 'Eine Kassette. Das Etikett in Kinderschrift, mit Filzstift, zweimal nachgemalt:\n\n<b>FÜR JONAS UND LUKE · NICHT ÜBERSPIELEN</b>\n\nSommer 2009. Die Woche, in der er seinen Lampion bekam.'); }
 function zayn_last() {
   if (zayn_has('zayn_ende')) return openNote('Die letzte Zeichnung', 'Die Rückseite:\n<span class="hand">„Hast du dich an mich erinnert?“</span>');

@@ -116,7 +116,7 @@ async function kapitel3_raus(wo) {
     const A = KAPITEL3_HALT.aus; player.pos.set(A[0], 0, A[1]); player.yaw = A[2]; player.pitch = 0; vel.set(0, 0, 0); camY = 1.65;
     if (zweit && !S.spuren) kapitel3_spuren(A[0], A[1]); // A-10: frische Abdrücke in Lukes Größe, die in den Nebel hineinführen
     await wait(500); fd.style.transition = 'opacity 1400ms'; fd.style.opacity = 0; await wait(1400); fd.style.background = '#000';
-    if (zweit) Audio.ring(.05); // die Telefonzelle klingelt einmal
+    if (zweit) Audio.ring(.05, 8, 1.9, 7.6); // die Telefonzelle klingelt einmal
     if (S.draussen === 1) { kapitel3_uk_setzen(5); if (typeof lwo_ag09 === 'function' && !S.ag09) { S.ag09 = true; lwo_ag09().then(() => kapitel3_speichern()).catch(e => console.error('AG-09', e)); } }
   } finally { state.talking = false; S.loopBusy = false; } }
 // Beim zweiten Versuch steht Justin am Ausgang, ohne dass er gegangen wäre
@@ -299,7 +299,7 @@ WORLD_MODS.push(['Kapitel 3 · Hauptweg Straße (AP-17)', async () => {
     const src = await msFBX('w_papierlaterne', 'model.fbx', {}); const l = msFit(src.clone(true), .32, 'y'); l.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(x => { const c = x.clone(); c.color = new THREE.Color(0xf0d890); c.emissive = new THREE.Color(0x2a1a08); return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
     let hand = null; g.traverse(b => { if (!hand && b.isBone && /R_Hand$|RightHand|hand_r/i.test(b.name)) hand = b; }); const w = new THREE.Group(); w.add(l); l.position.set(0, -.38, 0); if (hand) { w.scale.setScalar(1 / (hand.getWorldScale(_k3v).x || 1)); hand.add(w); } else { w.position.set(.25, .55, .1); g.add(w); } } catch (e) { console.warn('Kap. 3 Anni', e); }
   // Luke von hinten (für „Augen zu“ aus ihren Augen)
-  try { const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; scene.add(g); await figuren_embody(g, 'amt2'); const sil = new THREE.MeshStandardMaterial({ color: 0x0c0c0f, roughness: .92 }); // kein erwachsener Luke im Bestand: dunkler Umriss von hinten
+  try { const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; scene.add(g); await figuren_embody(g, 'luke_erw'); const sil = new THREE.MeshStandardMaterial({ color: 0x0c0c0f, roughness: .92 }); // Q-6: Luke mit 26 (eigene Figur, Ersatz amt2) als dunkler Umriss von hinten
     g.traverse(m => { if (m.isMesh) { m.material = sil; m.castShadow = false; } }); S.lukeRueck = g; } catch (e) { console.warn('Kap. 3 Luke von hinten', e); }
   // Nachbild 2009: Kinder, der Mann in Rüstung mit dem Jungen, Hilde auf der Treppe von Nr. 7 (Nachbild-Material, beim Laden besetzt)
   try { const NB = S.nb = { figs: [], an: false, t: 0, lampeT: 0 }; const mk = async (id, x, z, ry, o = {}) => { const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
@@ -349,7 +349,7 @@ WORLD_TICK.push((dt, t) => {
     albers_whiskey([['„Das ist Aydıns Kuh! Die Gescheckte! Ich hab’s gewusst. Die nehmen erst die Kühe, dann die Leute. Steht alles im Ordner. Seit ’58!“', 6400, 'VEGAS']]); }
   // UK 3: das Telefon klingelt, bis Luke abnimmt – wer sich entfernt, hört es leiser und dann, egal wo er steht, direkt neben sich
   if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
-    S.ringT -= dt; if (S.ringT < 0) { S.ringT = 3.2; const dB = Math.hypot(P.x - 8, P.z - 7.6); Audio.ring(dB > 36 ? .09 : .09 * Math.max(.15, 1 - dB / 40)); } }
+    S.ringT -= dt; if (S.ringT < 0) { S.ringT = 3.2; const dB = Math.hypot(P.x - 8, P.z - 7.6); if (dB > 36) Audio.ring(.09); else Audio.ring(.09, 8, 1.9, 7.6); } }
   // UK 1: erster Blick zur Telefonzelle
   if (S.uk >= 1 && !S.gedZelle1 && !state.talking && !ui.overlay && P.distanceTo(_k3v2.set(8, 0, 7.6)) < 30 && kapitel3_siehtHin(8, 1.4, 7.6, .95)) { S.gedZelle1 = true; subtitle('Fünfzig Hertz. Das Netzbrummen. Nur dass hier seit Stunden kein Strom ist. Super. Ganz toll.', 5200, 'LUKE'); }
   // UK 5: Kein Draußen (Ost- und Südsperre); beim zweiten Versuch steht Justin am Ausgang

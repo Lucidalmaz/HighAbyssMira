@@ -447,6 +447,9 @@ WORLD_MODS.push(['Whiskey', async () => {
     const beak = new THREE.Sprite(new THREE.SpriteMaterial({ map: whiskey_beakTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .9 })); beak.scale.setScalar(.09); beak.visible = false; scene.add(beak); S.beak = beak;
     S.hit = box(.8, .8, .8, 0, -50, 0, hidden, { cast: false });
     interact(S.hit, () => whiskey_label(), () => whiskey_klick()); uninteract(S.hit);
+    // R-2: Glanz im Schnabel als echtes Metallmodell mit Glitzerpunkten und Schein (hervorhebung.js); Umrandung nur für den Glanz, nie für den Raben
+    if (typeof glanz_neu === 'function') { S.glz = glanz_neu({ size: .075, ry: 0 }); S.glz.g.visible = false; scene.add(S.glz.g); }
+    S.hit.userData.hl = () => S.hatSchluessel && S.glz && S.glz.g.visible ? 'glanz' : 'aus'; S.hit.userData.hlObj = () => S.hatSchluessel && S.glz ? S.glz.key : null;
     S.ready = true;
   } catch (e) { console.warn('Whiskey', e); }
 }]);
@@ -503,7 +506,7 @@ WORLD_TICK.push((dt, t) => {
         if (S.mode === 'gone' || !g.visible || g.position.distanceTo(to) > 150) { g.position.set(to.x + rand(-18, 18), to.y + 14, to.z + rand(-18, 18)); g.visible = true; } // weit weg (Nimmerheim, Villa-Halle): aus der Luft kommen
         whiskey_fly(to, () => { S.mode = st.ride || st.pos ? 'ride' : 'perch'; S.idleT = 1.5; S.puff = 1; if (!interactables.includes(S.hit)) interactables.push(S.hit); whiskey_zurueck(to.x + .3, null, to.z + .2); }); }
       else if (g.visible && was) whiskey_leave(); } }
-  if (!g.visible) { S.beak.visible = false; return; }
+  if (!g.visible) { S.beak.visible = false; if (S.glz) S.glz.g.visible = false; return; }
   const far = Math.hypot(P.x - g.position.x, P.z - g.position.z) > 70;
   // Flug
   if (S.fl) { const F = S.fl; if (F.hold > 0) { F.hold -= dt; S.m.position.y = -.025 * Math.sin(Math.min(1, F.hold / .14) * PI); } else { S.m.position.y = 0; F.t = Math.min(1, F.t + dt / F.dur); } /* Q-1: Ducken vor dem Absprung */ const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u; // schnell ab, langsam an
@@ -534,8 +537,9 @@ WORLD_TICK.push((dt, t) => {
   if (S.light && !S.said.has('nachW13') && whiskey_k6() === 'epilog' && S.mode === 'perch' && Math.hypot(P.x - g.position.x, P.z - g.position.z) < 9 && !state.talking) { S.bedT = (S.bedT || 0) + dt; if (S.bedT > 20) whiskey_bedauerlich(); }
   whiskey_helpTick(dt);
   // Glanz im Schnabel (Autoschlüssel W-03)
-  const beakOn = S.hatSchluessel && !S.fl && !far; S.beak.visible = beakOn;
+  const beakOn = S.hatSchluessel && !S.fl && !far; S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
   if (!far) { S.mx.update(dt * (S.tired ? .7 : 1)); if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy, S.hr);
-    if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3)); } }
+    if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3));
+      if (S.glz) { S.glz.g.position.copy(S.beak.position); S.glz.g.position.y -= .012; S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
 });
 window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s) }; // Testzugriff

@@ -6,7 +6,7 @@
 <title>High Abyss Mira</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
   :root { --ink: #d8d2c4; --dim: #8b7f68; }
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: "Cormorant Garamond", Georgia, serif; color: var(--ink); }
@@ -345,6 +345,116 @@
   #subPanel .chap button:disabled::after { content: ''; position: absolute; right: 20px; top: 50%; width: 16px; height: 20px; margin-top: -10px; opacity: .55;
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath d='M4 9V6a4 4 0 0 1 8 0v3' fill='none' stroke='%23a08a64' stroke-width='1.4'/%3E%3Crect x='1.5' y='9' width='13' height='10' rx='1' fill='none' stroke='%23a08a64' stroke-width='1.4'/%3E%3Ccircle cx='8' cy='14' r='1.4' fill='%23a08a64'/%3E%3C/svg%3E") center / contain no-repeat; }
 
+  /* ---------- R-20 Hauptmenü als Visitenkarte (Modul menue.js): Kreide-Titel, Bleistift-Unterstreichung, Polaroid-Kapitel, Notizbuch-Einstellungen, Glas, Abspann */
+  #start .ember, #start .ember2 { display: none; } /* rotes Glühen ohne Quelle (visual_identity §2) */
+  #start .fog { opacity: .32; } #start .fog2 { opacity: .22; }
+  #start .shade { background: linear-gradient(90deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.74) 28%, rgba(0,0,0,.18) 58%, rgba(0,0,0,.05) 78%, rgba(0,0,0,.35) 100%), linear-gradient(0deg, rgba(0,0,0,.72), transparent 28%), linear-gradient(180deg, rgba(0,0,0,.45), transparent 18%); }
+  #mzCut { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity 1.05s ease-in-out; }
+  #mzCut.on { opacity: 1; }
+  #mzFog { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.4s; background: rgba(170,180,190,.07); -webkit-backdrop-filter: blur(9px) brightness(1.12) saturate(.75); backdrop-filter: blur(9px) brightness(1.12) saturate(.75);
+    -webkit-mask-image: var(--mzMask, none); mask-image: var(--mzMask, none); -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+  #mzGlass { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity 1.4s; }
+  #start.mzGlas #mzFog, #start.mzGlas #mzGlass { opacity: 1; }
+  /* Titel: HIGH ABYSS gesetzt, MIRA in Kreide (Textur per menue.js), bröckelt, Kratzer, selten das Zeichen */
+  #start h1 { font-family: "IM Fell English", "Cormorant Garamond", Georgia, serif; font-weight: 400; text-shadow: none; }
+  #start h1 .l { font-family: "IM Fell English SC", "Cormorant Garamond", Georgia, serif; font-weight: 400; font-size: .4em; letter-spacing: .82em; color: #a8987c; text-shadow: 0 1px 0 #000, 0 0 22px rgba(201,163,106,.16); margin-bottom: .32em; }
+  #start h1 .m { position: relative; font-size: 2.1em; letter-spacing: .1em; line-height: .92; text-shadow: none; filter: drop-shadow(0 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 26px rgba(105,12,8,.42)); }
+  #start h1 .m i { color: transparent; background: var(--mzChalk, linear-gradient(#f0eadb, #cdc4ae)) 0 0 / 190px auto, linear-gradient(176deg, #f3eee2, #d6cdb8 60%, #bdb39c); -webkit-background-clip: text; background-clip: text; padding: 0 .02em; }
+  #start h1 .m i:nth-child(2) { background-position: 61px 13px, 0 0; } #start h1 .m i:nth-child(3) { background-position: 127px 41px, 0 0; } #start h1 .m i:nth-child(4) { background-position: 33px 77px, 0 0; }
+  #start h1.mzWet .m { filter: url(#mzWater) drop-shadow(0 3px 0 rgba(0,0,0,.9)) drop-shadow(0 0 26px rgba(105,12,8,.42)); }
+  #start h1.mzAlien .m { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 18px rgba(200,220,255,.9)) drop-shadow(0 0 60px rgba(160,190,255,.55)); }
+  #start h1 .mzSig { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); font: 400 1.9em "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; color: #f4f8ff; opacity: 0; pointer-events: none; text-shadow: 0 0 18px #cfe0ff, 0 0 60px rgba(150,180,255,.8); }
+  #start h1.mzAlien .mzSig { opacity: .9; }
+  #start h1::after { content: ''; position: absolute; left: -3%; right: -6%; top: 64%; height: 1px; background: linear-gradient(90deg, transparent, rgba(236,230,214,.85) 18%, rgba(236,230,214,.35) 55%, transparent 80%); transform: rotate(-3.5deg) scaleX(0); transform-origin: 0 50%; opacity: 0; pointer-events: none; }
+  #start h1.glitch { animation: mzJit .38s steps(3); } #start h1.glitch::after { animation: mzScratch .38s steps(4); }
+  @keyframes mzJit { 0% { transform: translate(-1px, 0); } 50% { transform: translate(1px, 1px); } 100% { transform: none; } }
+  @keyframes mzScratch { 0% { opacity: .9; transform: rotate(-3.5deg) scaleX(.2); } 50% { opacity: .7; transform: rotate(-3.4deg) scaleX(1); } 100% { opacity: 0; transform: rotate(-3.5deg) scaleX(1); } }
+  #mzDust { position: absolute; left: -4%; top: 0; width: 108%; height: 175%; pointer-events: none; }
+  #start .orn { opacity: .55; }
+  #start .sub { font: 400 12px "IM Fell English SC", "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; color: #8f826b; }
+  /* Menüpunkte: Bleistift statt Glut; Graphit-Schatten hinter dem Wort für Lesbarkeit */
+  #mainMenu button { font-family: "IM Fell English", "Cormorant Garamond", Georgia, serif; font-size: 27px; letter-spacing: .14em; color: #c3b79e; padding: 7px 60px 9px 34px; text-shadow: 0 1px 0 #000, 0 0 14px rgba(0,0,0,.9); }
+  #mainMenu button::before { display: none; }
+  #mainMenu button::after { background: radial-gradient(60% 70% at 26% 50%, rgba(0,0,0,.6), rgba(0,0,0,.25) 55%, transparent 80%); transform: scaleX(.6); }
+  #mainMenu button:hover, #mainMenu button:focus-visible { color: #f6efdd; padding-left: 40px; letter-spacing: .15em; text-shadow: 0 1px 0 #000, 0 0 16px rgba(0,0,0,.95), 0 0 22px rgba(255,214,160,.16); }
+  #mainMenu button:focus-visible { outline: none; }
+  #mainMenu .mzT { position: relative; display: inline-block; }
+  #mainMenu .mzU { position: absolute; left: -4px; right: -10px; bottom: -5px; width: calc(100% + 14px); height: 9px; overflow: visible; pointer-events: none; }
+  #mainMenu .mzU path { fill: none; stroke: rgba(214,208,194,.82); stroke-width: 1.5; stroke-linecap: round; vector-effect: non-scaling-stroke; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .45s cubic-bezier(.3,.6,.3,1); }
+  #mainMenu .mzU path + path { stroke: rgba(190,184,170,.5); stroke-width: 1; transition-delay: .14s; }
+  #mainMenu button:hover .mzU path, #mainMenu button:focus-visible .mzU path { stroke-dashoffset: 0; }
+  #mainMenu button:disabled .mzU { display: none; }
+  #mainMenu button small { font: 400 11px "IM Fell English SC", "Cormorant Garamond", Georgia, serif; letter-spacing: .32em; color: #84785f; }
+  @media (max-height: 860px) { #mainMenu button { font-size: clamp(18px, 3.4vh, 27px); padding: .55vh 0 .75vh 34px; } }
+  /* Kapitel wählen: Polaroids auf dunklem Tisch, verschlossene Kapitel unentwickelt */
+  #subPanel:has(.chap #c1) { width: min(1080px, 95vw); padding: 30px 40px 26px; background: var(--noise), radial-gradient(90% 80% at 50% 0%, rgba(120,80,40,.12), transparent 70%), linear-gradient(180deg, #120e0b, #080605); }
+  #subPanel .chap:has(#c1) { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px 26px; padding: 8px 6px 4px; counter-reset: none; }
+  #subPanel .chap:has(#c1) button { --r: 0deg; min-height: 0; padding: 11px 11px 14px; display: flex; flex-direction: column; text-align: center; font: 500 23px/1.05 Caveat, cursive; letter-spacing: .01em; color: #262019; border: 0;
+    background: var(--noise), linear-gradient(170deg, #f1ecdf, #ddd5c1); box-shadow: 0 14px 26px rgba(0,0,0,.7), 0 2px 3px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.35), inset 0 -18px 30px rgba(120,100,60,.12); transform: rotate(var(--r)); transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s; }
+  #subPanel .chap:has(#c1) button::before, #subPanel .chap:has(#c1) button::after { display: none; }
+  #subPanel .chap:has(#c1) button:not(:disabled):hover, #subPanel .chap:has(#c1) button:focus-visible { transform: rotate(0deg) translateY(-7px) scale(1.035); box-shadow: 0 24px 40px rgba(0,0,0,.8), 0 0 0 1px rgba(201,163,106,.5), 0 0 30px rgba(201,163,106,.12); background: var(--noise), linear-gradient(170deg, #f6f2e7, #e2dac7); outline: none; }
+  #subPanel .chap:has(#c1) .mzPh { display: block; width: 100%; aspect-ratio: 1 / .82; margin-bottom: 10px; background: #0b0a09 center / cover no-repeat; box-shadow: inset 0 0 22px rgba(0,0,0,.85), inset 0 0 0 1px rgba(0,0,0,.6); filter: sepia(.28) saturate(.72) contrast(1.08) brightness(1.06); position: relative; }
+  #subPanel .chap:has(#c1) .mzPh::after { content: ''; position: absolute; inset: 0; background: radial-gradient(120% 90% at 30% 20%, rgba(255,220,170,.1), transparent 55%), radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55)); }
+  #subPanel .chap:has(#c1) button:disabled { cursor: not-allowed; color: #6c6455; background: var(--noise), linear-gradient(170deg, #d9d3c4, #c2baa6); }
+  #subPanel .chap:has(#c1) button:disabled .mzPh { filter: none; background: radial-gradient(70% 60% at 38% 34%, rgba(70,74,64,.55), transparent 70%), radial-gradient(50% 40% at 70% 72%, rgba(52,46,40,.6), transparent 70%), var(--noise), linear-gradient(160deg, #24231f, #151513 60%, #0e0e0d); }
+  #subPanel .chap:has(#c1) button:disabled .mzPh::after { background: linear-gradient(115deg, transparent 40%, rgba(120,130,110,.08) 50%, transparent 60%), radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.5)); }
+  #subPanel .chap:has(#c1) button small { font: 400 10.5px/1.45 "Special Elite", monospace; letter-spacing: .06em; color: #5d5446; margin-top: 7px; }
+  #subPanel .chap:has(#c1) button:disabled small { color: #7a5045; }
+  @media (max-width: 900px) { #subPanel .chap:has(#c1) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { #subPanel .chap:has(#c1) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  /* Einstellungen und Steuerung: eine Seite aus dem Notizheft (Kalibrierung bleibt schwarz – sie muss stimmen) */
+  #subPanel:has(#sSens), #subPanel:has(.keys) { color: #1e2537; border: 0; padding: 34px 46px 28px 84px; transform: rotate(-.5deg);
+    background: linear-gradient(90deg, transparent 62px, rgba(186,58,48,.5) 62px 63.5px, transparent 64px), radial-gradient(110% 90% at 28% 16%, #f1ebd8, #e0d7bd 68%, #cfc4a5);
+    box-shadow: 0 34px 90px rgba(0,0,0,.88), 0 2px 4px rgba(0,0,0,.6), inset 0 0 70px rgba(110,80,30,.22); }
+  #subPanel:has(#sSens)::before, #subPanel:has(.keys)::before { inset: 0 auto 0 0; width: 40px; opacity: 1; background: radial-gradient(circle at 20px 50%, #0b0907 0 6px, rgba(0,0,0,.25) 7px, transparent 8.5px) 0 14px / 40px 42px repeat-y; }
+  #subPanel:has(#sSens)::after, #subPanel:has(.keys)::after { display: none; }
+  #subPanel:has(#sSens) .ptitle, #subPanel:has(.keys) .ptitle { font: 500 34px/1 Caveat, cursive; letter-spacing: .02em; text-indent: 0; color: #22305e; text-shadow: none; margin: 0 0 12px; padding-bottom: 8px; background: none; text-align: left; }
+  #subPanel:has(#sSens) .ptitle::after, #subPanel:has(.keys) .ptitle::after { content: ''; display: block; width: 170px; height: 6px; margin-top: 4px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 6'%3E%3Cpath d='M1 4C30 2 60 5 95 3s52 1 74-1' fill='none' stroke='%2322305e' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat; }
+  #subPanel:has(#sSens) .row { min-height: 40px; padding: 2px 2px 0; border-bottom: 1px solid rgba(70,105,160,.32); }
+  #subPanel:has(#sSens) .row:last-of-type { border-bottom: 1px solid rgba(70,105,160,.32); }
+  #subPanel:has(#sSens) .row span { font: 500 25px/1 Caveat, cursive; color: #1d2742; letter-spacing: .01em; }
+  #subPanel:has(#sSens) input[type=range]::-webkit-slider-runnable-track { background: linear-gradient(90deg, #2b2f3a var(--p, 50%), rgba(40,46,60,.22) var(--p, 50%)); box-shadow: none; height: 2px; }
+  #subPanel:has(#sSens) input[type=range]::-webkit-slider-thumb { background: radial-gradient(circle at 40% 35%, #5a5f6b, #22252c 70%); box-shadow: 0 1px 2px rgba(0,0,0,.5); transform: rotate(45deg); }
+  #subPanel:has(#sSens) input[type=range]:focus-visible { outline: 1px dashed rgba(34,48,94,.6); outline-offset: 3px; }
+  #subPanel:has(#sSens) input[type=checkbox] { border: 1.5px solid #283250; background: transparent; box-shadow: none; border-radius: 2px 3px 2px 4px; }
+  #subPanel:has(#sSens) input[type=checkbox]:checked { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'%3E%3Cpath d='M3 3.5l12 11M15 3l-11.5 12' fill='none' stroke='%2322305e' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / 15px no-repeat; border-color: #283250; box-shadow: none; }
+  #subPanel:has(#sSens) select { color: #1d2742; border-bottom: 1px solid rgba(34,48,94,.55); font: 500 22px Caveat, cursive; background-color: transparent; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2322305e' stroke-width='1.2'/%3E%3C/svg%3E"); }
+  #subPanel:has(#sSens) select option { background: #efe8d5; color: #1d2742; }
+  #subPanel:has(.keys) .keys { color: #1d2742; font: 500 23px/1.15 Caveat, cursive; gap: 9px 24px; }
+  #subPanel:has(.keys) .keys > span { padding-bottom: 6px; border-bottom: 1px solid rgba(70,105,160,.3); }
+  #subPanel:has(.keys) kbd.k { font: 13px "Special Elite", monospace; color: #1d2742; background: transparent; border: 1.5px solid #2b3550; border-radius: 3px 5px 3px 6px; box-shadow: 1px 1px 0 rgba(40,50,80,.35); }
+  #subPanel:has(#sSens) .close button, #subPanel:has(.keys) .close button { background: none; border: 0; color: #22305e; font: 500 26px Caveat, cursive; letter-spacing: .06em; padding: 6px 22px; text-shadow: none; box-shadow: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M8 30C5 14 30 4 62 5s54 8 50 22-40 12-62 10S10 38 8 30z' fill='none' stroke='%2322305e' stroke-width='1.3'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+  #subPanel:has(#sSens) .close button:hover, #subPanel:has(.keys) .close button:hover, #subPanel:has(#sSens) .close button:focus-visible, #subPanel:has(.keys) .close button:focus-visible { color: #8a1d14; outline: none; }
+  #subPanel:has(#sSens) .row .close button { font-size: 21px; padding: 3px 16px; }
+  /* Mitwirkende: Abspann im Menü (Daten aus CREDITS.md, beim Bauen eingesetzt) */
+  #mzCred { position: absolute; inset: 0; z-index: 4; display: none; flex-direction: column; align-items: center; background: radial-gradient(ellipse 70% 80% at 50% 45%, rgba(8,6,5,.86), rgba(0,0,0,.96)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #mzCred.show { display: flex; }
+  #mzCred .roll { position: relative; flex: 1; width: min(1000px, 94vw); overflow-y: auto; padding: 32vh 24px 40vh; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 84%, transparent 100%); mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 84%, transparent 100%); scrollbar-width: thin; outline: none; }
+  #mzCred .head { text-align: center; margin-bottom: 9vh; }
+  #mzCred .head .t1 { font: 400 15px "IM Fell English SC", "Cormorant Garamond", Georgia, serif; letter-spacing: .8em; color: #a8987c; }
+  #mzCred .head .t2 { font: 400 64px/1 "IM Fell English", "Cormorant Garamond", Georgia, serif; letter-spacing: .14em; color: #ece5d2; margin: 10px 0 16px; text-shadow: 0 0 30px rgba(105,12,8,.4); }
+  #mzCred .head .t3 { font: italic 400 18px "Cormorant Garamond", Georgia, serif; letter-spacing: .2em; color: #9a8d74; }
+  #mzCred .head .t3 b { font-style: normal; font-weight: 600; letter-spacing: .4em; color: #c9a36a; }
+  #mzCred h3 { font: 400 22px "IM Fell English SC", "Cormorant Garamond", Georgia, serif; letter-spacing: .32em; color: #c9a36a; text-align: center; margin: 9vh 0 10px; }
+  #mzCred h3::after { content: '∴'; display: block; font: 18px Georgia, serif; letter-spacing: .4em; color: rgba(201,163,106,.45); margin-top: 8px; }
+  #mzCred .note { font: italic 400 17px/1.55 "Cormorant Garamond", Georgia, serif; color: #b3a68c; text-align: center; max-width: 760px; margin: 0 auto 26px; }
+  #mzCred .note b, #mzCred li b { color: #e3d9c2; font-style: normal; font-weight: 600; }
+  #mzCred .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 26px 40px; }
+  #mzCred .e { text-align: left; padding-left: 14px; border-left: 1px solid rgba(201,163,106,.18); }
+  #mzCred .e .w { font: 400 21px/1.2 "IM Fell English", "Cormorant Garamond", Georgia, serif; color: #ede6d3; }
+  #mzCred .e .a { font: italic 400 17px "Cormorant Garamond", Georgia, serif; color: #c2b597; margin: 2px 0 4px; }
+  #mzCred .e .q, #mzCred .e .l { font: 11.5px/1.5 "Special Elite", monospace; color: #8d826d; word-break: break-all; }
+  #mzCred .e .l { color: #a99263; }
+  #mzCred ul { list-style: none; padding: 0; margin: 0 auto; max-width: 820px; }
+  #mzCred li { font: 400 17px/1.55 "Cormorant Garamond", Georgia, serif; color: #cfc4ab; text-align: center; margin: 0 0 14px; }
+  #mzCred .end { text-align: center; margin-top: 16vh; font: 400 46px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; color: rgba(236,229,210,.8); }
+  #mzCred .end small { display: block; font: italic 400 18px "Cormorant Garamond", Georgia, serif; letter-spacing: .2em; color: #8f836c; margin-top: 18px; }
+  #mzCred .bar { flex: none; display: flex; gap: 28px; align-items: center; justify-content: center; padding: 14px 0 26px; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .4em; color: #7d715c; }
+  #mzCred .bar button { position: relative; background: linear-gradient(180deg, rgba(201,163,106,.06), rgba(0,0,0,.2)); border: 1px solid rgba(201,163,106,.35); color: #d9cdb0; font: 600 12px "Cormorant Garamond", Georgia, serif; letter-spacing: .42em; padding: 11px 30px 11px 34px; cursor: pointer; }
+  #mzCred .bar button:hover, #mzCred .bar button:focus-visible { border-color: var(--gold); color: #fff6e2; outline: none; box-shadow: 0 0 22px rgba(201,163,106,.18); }
+  #start:has(#mzCred.show) #menu { opacity: 0; transition: opacity .4s; }
+
   /* ---------- Zwischentitel: Intro, „Was bisher geschah“ */
   #introSeq { background: radial-gradient(ellipse 60% 55% at 50% 50%, #0d0a09, #000 75%); }
   #introSeq::before, #introSeq::after { content: ''; position: absolute; left: 50%; width: 300px; height: 14px; margin-left: -150px; opacity: .5; background: var(--orn) center / contain no-repeat; -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
@@ -607,6 +717,7 @@
       <button id="mSet">Einstellungen</button>
       <button id="mCtrl">Steuerung</button>
       <button id="mEdit">Story-Editor<small>ALLE TEXTE, NAMEN UND DIE HANDLUNG ÄNDERN</small></button>
+      <button id="mCred">Mitwirkende<small>CREDITS · LIZENZEN · DANK</small></button>
       <button id="mQuit" style="display:none">Beenden</button>
     </div>
   </div>
@@ -734,17 +845,21 @@ const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 const filmPass = new ShaderPass({
-  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, flash: { value: 0 }, vig: { value: 1 }, ca: { value: .003 }, glitch: { value: 0 }, toe: { value: .75 } },
+  uniforms: { tDiffuse: { value: null }, time: { value: 0 }, flash: { value: 0 }, vig: { value: 1 }, ca: { value: .003 }, glitch: { value: 0 }, toe: { value: .75 },
+    caK: { value: 1 }, sharp: { value: 0 }, grainK: { value: 1 }, dirtK: { value: 0 }, px: { value: new THREE.Vector2(1 / 1920, 1 / 1080) }, tBloom: { value: null }, tDirt: { value: null } }, // R-14 (Modul grafik): Schärfe, Korn, Linsenschmutz, Farbsaum an/aus
   vertexShader: `varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-  fragmentShader: `uniform sampler2D tDiffuse; uniform float time, flash, vig, ca, glitch, toe; varying vec2 vUv;
+  fragmentShader: `uniform sampler2D tDiffuse, tBloom, tDirt; uniform float time, flash, vig, ca, glitch, toe, caK, sharp, grainK, dirtK; uniform vec2 px; varying vec2 vUv;
     float rnd(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453); }
     void main(){
       vec2 uv = vUv;
       if (glitch > 0.) { float row = floor(uv.y * 38.); float b = step(.55, rnd(vec2(row, floor(time * 30.))));
         uv.x += (rnd(vec2(row, time)) - .5) * .12 * glitch * b; uv.y += (rnd(vec2(time, 1.)) - .5) * .02 * glitch; }
       vec2 d = uv - .5; float r2 = dot(d, d);
-      vec2 off = d * ca * (1. + glitch * 14.) * r2 * 4. + vec2(glitch * .012, 0.);
+      vec2 off = d * ca * max(caK, step(.001, glitch)) * (1. + glitch * 14.) * r2 * 4. + vec2(glitch * .012, 0.);
       vec3 c = vec3(texture2D(tDiffuse, uv + off).r, texture2D(tDiffuse, uv).g, texture2D(tDiffuse, uv - off).b);
+      if (sharp > 0.) { vec3 n4 = texture2D(tDiffuse, uv + vec2(px.x, 0.)).rgb + texture2D(tDiffuse, uv - vec2(px.x, 0.)).rgb + texture2D(tDiffuse, uv + vec2(0., px.y)).rgb + texture2D(tDiffuse, uv - vec2(0., px.y)).rgb;
+        c += clamp((c - n4 * .25) * sharp, -.05, .05); } /* leichtes Nachschärfen, begrenzt: keine Lichthöfe an Kanten */
+      if (dirtK > 0.) { vec3 bl = texture2D(tBloom, vUv).rgb; c += (1. - exp(-bl * 2.)) * texture2D(tDirt, vUv).rgb * dirtK; } /* Linsenschmutz nur, wo helles Licht streut */
       c = clamp(c, 0., 1.);
       // Fußbereich anheben: Schwarz bleibt schwarz, tiefe Schatten werden lesbar (Helligkeitsregler wirkt zusätzlich über die Belichtung)
       c += toe * c * pow(1. - c, vec3(8.));
@@ -756,7 +871,8 @@ const filmPass = new ShaderPass({
       c += vec3(.003, .004, .006) * (1. - l);
       float rv = length(d) * 1.4142, vs = .6 - .25 * clamp(vig - 1., 0., 2.); // 0 Mitte … 1 Ecke; Effekte (Hitze, Tod) ziehen den Rand nach innen
       c *= 1. - clamp(vig * .35, 0., 1.) * smoothstep(vs, vs + .55, rv);
-      c += (rnd(vUv * vec2(1920., 1080.) + fract(time) * 100.) - .5) * .028;
+      { vec2 gp = vUv / px; float g = (rnd(gp + fract(time) * 100.) + rnd(floor(gp * .5) + fract(time * 1.37) * 57.)) * .5 - .5; /* Filmkorn: fein + etwas gröber, in Schatten stärker als in Lichtern */
+        c += g * .034 * grainK * (1. - .65 * smoothstep(.2, .85, l)); }
       c = mix(c, c * vec3(1.5, .55, .5), glitch * .6); c += (rnd(uv * 400. + time) - .5) * glitch * .25;
       c = mix(c, vec3(1.), flash);
       gl_FragColor = vec4(c, 1.);
@@ -1205,7 +1321,7 @@ for (const h of houses) {
   numberSign(h.n, h.x + h.facing * .95, 2.2, fz + h.facing * .02, h.facing > 0 ? 0 : PI);
   const di = box(1.2, 2.3, .35, h.x, 1.6, h.z + h.facing * (h.d / 2 + .15), hidden, { cast: false });
   doorOf[h.n] = di;
-  if (h.n !== 3) interact(di, 'Klopfen', () => { Audio.knock(); toast(pickLine()); });
+  if (h.n !== 3) interact(di, 'Klopfen', () => { Audio.knock(di.position.x, 1.3, di.position.z); toast(pickLine()); });
   // Briefkasten
   mailboxAt(h.x + h.facing * 2.6, h.z + h.facing * (h.d / 2 + 4.3), h.facing);
 }
@@ -2049,7 +2165,7 @@ const Audio = {
   powerUp() { if (!this.ctx) return; const t = this.ctx.currentTime; this.play('switch1', { gain: .8 }); const o = this.ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(30, t); o.frequency.exponentialRampToValueAtTime(110, t + 2.5); const lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(120, t); lp.frequency.exponentialRampToValueAtTime(900, t + 2.5); o.connect(lp); this.env(lp, .4, .8, 2.2); o.start(); o.stop(t + 3.5);
     for (let i = 0; i < 6; i++) this.play('buzz', { gain: .5, delay: .6 + i * .38, pan: rand(-1, 1) }); this.loop('machine2', { gain: .08, fadeIn: 4, lp: 600 }); },
   // Bö: wechselnde Aufnahme, Ausschnitt, Tempo und Filter; nie zwei innerhalb von 10 s (sonst Phasing). Über hushG: in Stille/stillen Zonen fast weg.
-  gust(dur) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.gustAt || -99) < 10) return; this.gustAt = t;
+  gust(dur) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.gustAt || -99) < 10) return; this.gustAt = t; if (typeof windStoss === 'function') windStoss(dur * .9); // hörbar = sichtbar
     const a = this.pick('wind3', 'wind2', 'wind3', 'wind1'), b = this.buf[a]; if (!b) return; const indoor = this.area !== 'o', d = { dest: this.hushG };
     this.play(a, { gain: rand(.75, 1.1) * (indoor ? .35 : 1), rate: rand(.8, 1.06), offset: rand(0, Math.max(0, b.duration - dur - .5)), fadeIn: dur * rand(.3, .45), dur, hp: rand(150, 320), lp: indoor ? 450 : rand(2600, 6000), ...d });
     const c = a === 'wind2' ? 'wind3' : 'wind2', bc = this.buf[c]; if (bc && Math.random() < .5) this.play(c, { gain: rand(.3, .5) * (indoor ? .3 : 1), rate: rand(1.04, 1.24), offset: rand(0, Math.max(0, bc.duration - dur)), fadeIn: dur * .4, dur: dur * rand(.7, .95), delay: rand(.2, .8), hp: 400, lp: indoor ? 450 : 8000, ...d });
@@ -2355,7 +2471,7 @@ function kpPress(k) {
   const disp = $('kpDisplay'); disp.classList.remove('err');
   if (k === 'C') kpValue = '';
   else if (k === 'OK') { kpBusy = performance.now() + 500;
-    if (kpValue === '3110') { Audio.beep(true); closeOverlay(); state.cellarOpen = true; Audio.play('lockOpen', { gain: .8, x: 30, y: 1.2, z: -21.8, ref: 2 }); setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35); }, 350); setTimeout(enterBasement, 1500); return; }
+    if (kpValue === '3110') { Audio.beep(true); closeOverlay(); state.cellarOpen = true; Audio.play('lockOpen', { gain: .8, x: 30, y: 1.2, z: -21.8, ref: 2 }); setTimeout(() => { tween(cellarDoor, { ry: -1.5 }, 1.1); Audio.creak(.35, 30, 1.2, -21.8); }, 350); setTimeout(enterBasement, 1500); return; }
     Audio.beep(false); void disp.offsetWidth; disp.classList.add('err'); kpValue = ''; state.wrongCodes++;
     if (state.wrongCodes === 3) { closeOverlay(); scareCellarDoor(); setTimeout(() => toast('Lies, was im Haus liegt. Der Kalender weiß den Tag.'), 7000); return; }
     setTimeout(() => { if (kpValue === '' && state.wrongCodes === 1) kpSay('Falsch. Unter deinen Füßen kratzt etwas am Holz.'); else if (state.wrongCodes === 2) kpSay('Das Kratzen hört auf. Es lauscht.'); else if (state.wrongCodes > 3) kpSay('Der Kalender weiß den Tag. Erst der Tag, dann der Monat.'); }, 400);
@@ -2462,13 +2578,13 @@ const photoWay = [
   // Lucy: Autoradio geht an, Lucys Stimme, Innenlicht flackert
   () => { Audio.radio(1.9, -37); setTimeout(() => say([['*Radio-Rauschen*', 1800], ['„…nicht nach Hause… Luke… nicht nach Hau–“', 3200, 'AUTORADIO'], ['*Klick*', 800]]), 600); },
   // Mike: Telefon klingelt genau einmal, dann bricht das Licht der Zelle
-  () => { Audio.ring(.12); setTimeout(() => { booth.light.userData.dead = true; Audio.buzz(8, 2.3, 7.6); setTimeout(() => { booth.light.userData.dead = false; }, 6000); }, 2400); },
+  () => { Audio.ring(.12, 8, 1.9, 7.6); setTimeout(() => { booth.light.userData.dead = true; Audio.buzz(8, 2.3, 7.6); setTimeout(() => { booth.light.userData.dead = false; }, 6000); }, 2400); },
   // Dina: der Fernseher zeigt kurz einen Kreis, das Wohnzimmerlicht stirbt
   () => { state.tvCircle = 2.5; livingLight.userData.dim = 4; setTimeout(() => livingLight.userData.dim = 0, 4000); Audio.buzz(25.3, 2, -16.5); },
   // Luke: Spieluhr, und auf der Wand erscheint ein achtes Strichmännchen
-  () => { Audio.musicBox(); setTimeout(() => { eighthFigure.visible = true; Audio.whisper(-53, 1.5, -21.5, 1.6); subtitle('<i>… das bin ich …</i>', 2200); }, 2200); },
+  () => { Audio.musicBox(musicBox.position.x, musicBox.position.y, musicBox.position.z); setTimeout(() => { eighthFigure.visible = true; Audio.whisper(-53, 1.5, -21.5, 1.6); subtitle('<i>… das bin ich …</i>', 2200); }, 2200); },
   // Heidi: der Wasserhahn tropft, dann schwingt der Schrank über der Spüle auf
-  () => { for (let i = 0; i < 5; i++) setTimeout(() => Audio.drip(-53.4, Y + 1, -12.6), i * 700); setTimeout(() => { state.cupboardOpen = true; Audio.creak(.3); }, 3800); },
+  () => { for (let i = 0; i < 5; i++) setTimeout(() => Audio.drip(-53.4, Y + 1, -12.6), i * 700); setTimeout(() => { state.cupboardOpen = true; Audio.creak(.3, cupboard.position.x, cupboard.position.y, cupboard.position.z); }, 3800); },
   // Zayn: die Ketten an der Kellerwand schwingen von allein
   () => { state.chainsT = 6; Audio.chains(B.x - 4.8, 1.5, B.z - 1.5); },
 ];
@@ -2526,7 +2642,7 @@ function doorAction(D, lockedText) {
   return () => {
     if (D.locked) return toast(lockedText);
     if (D.open && doorSwingBlocked(D)) return toast('Du stehst in der Tür.', 1600);
-    D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18);
+    D.set(!D.open); if (Audio.doorSound) Audio.doorSound(D.open, D.pivot.position.x, D.pivot.position.z); else Audio.creak(.18, D.pivot.position.x, 1.2, D.pivot.position.z);
     if (D === door7 && D.open) setMain(2);
   };
 }
@@ -2562,7 +2678,7 @@ interact(door1.leaf, () => door1.open ? 'Tür schließen' : 'Tür öffnen', () =
 });
 interact(familyPhoto, 'Familienfoto', () => openNote('Familienfoto', 'Mama, Lucy, du. Und ein viertes Gesicht, jemand hat es mit einer Nadel zerkratzt. Papa. Er ist 2010 gegangen und hat dich nie wieder angesehen.\n\nDer Junge auf dem Foto hat blaue Augen. Das Blitzlicht, wahrscheinlich.', 'familyphoto'));
 interact(album, 'Fotoalbum', () => liftTo(album, () => openNote('Fotoalbum · Sommerfest 2009', 'Ein Gruppenfoto. Kinder vor der Kreuzung, die Sonne im Rücken.\n\nDu zählst sie. Du zählst noch einmal.\n\n<b>Acht.</b>\n\nDu kennst nur sieben Namen. Das achte Kind ist ein blasses Mädchen im weißen Kleid, ganz am Rand. Es hält deine Hand.\n\nUnd zwischen Lucy und den anderen ist eine Lücke. Lucys Hand hält dort in die leere Luft – als hielte sie jemanden, der nicht mehr auf dem Bild ist.', 'album')));
-interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
+interact(musicBox, 'Spieluhr', () => { tween(mbLidPiv, { rx: -1.4 }, .5, () => { Audio.musicBox(musicBox.position.x, musicBox.position.y, musicBox.position.z); state.mbT = 9; setTimeout(() => tween(mbLidPiv, { rx: 0 }, .6), 9500); }); Audio.play('woodSqueak2', { gain: .25, rate: 1.4, x: -53.3, y: 1.4, z: -21.7, ref: 1.5 }); toast('Die Melodie leiert. Jemand hat sie kürzlich aufgezogen.'); });
 interact(loose, 'Lose Diele untersuchen', () => {
   state.diary = true; uninteract(loose); tween(loose, { pos: loose.position.clone().setY(loose.position.y + .07), rz: .3 }, .45); Audio.play('woodCrack', { gain: .6, x: -53.2, y: .5, z: -18.4, ref: 2 }); story.side.home.steps.diary = true; checkHome();
   openNote('Lucys Tagebuch', '<span class="hand">14. Juli 2009 — Wieder das Licht über dem Wald. Luke sagt, es summt. Ich hör nichts.\n\n25. Juli 2009 — Zu C.s Geburtstag ist keiner gekommen. Nur ich. Sie hat trotzdem acht Kerzen ausgepustet. Eine für jeden von uns, sagt sie.\n\n2. August 2009 — Mama sagt, wir waren vier Tage weg. Für mich war es eine Nacht. In meinen Schuhen war Gras, das es hier nicht gibt.\nC. ist nicht zurück. Mama sagt, es gibt keine C. Ich schreib sie jeden Tag hier rein, damit ich sie behalte. C. C. C.\n\n5. August 2009 — Luke ist komisch. Er weiß nicht mehr, wie unser Hund hieß. Er lacht an den falschen Stellen.\n\n20. Oktober 2026 — Es fängt wieder an. Die Wendt steht nachts im Garten. Ich sag Luke nichts. Er soll nicht herkommen.\nNicht, bevor ich weiß, was er ist.\n\n<i>Letzte Seite, ganz unten, Kinderschrift:</i> HASENBROT – unser Wort. Nie laut sagen.</span>', 'diary');
@@ -2574,12 +2690,12 @@ const openDrawer = () => {
   setTimeout(() => { ui.pendingClose2 = () => { tween(drawer, { pos: drawer.position.clone().setX(-44.55) }, .4); Audio.play('woodClose1', { gain: .35, delay: .3, x: -44.5, y: 1, z: -18.6, ref: 2 }); }; openNote('Ein Brief, nie abgeschickt', '<span class="hand">Meine Kinder,\n\ndie Männer vom „Amt“ kamen jeden Donnerstag. Sie haben euch vermessen, gewogen, euch Fragen gestellt, an die ihr euch hinterher nicht erinnert habt.\n\nIch habe unterschrieben, damit sie euch zurückbringen.\n\nIch wusste nicht, dass sie nicht <u>beide</u> von euch zurückbringen würden.\n\nVerzeiht mir.\n— Mama</span>', 'letter'); }, 420);
 };
 interact(dresser, 'Schublade öffnen', openDrawer); interact(drawer, 'Schublade öffnen', openDrawer);
-interact(wLeaf, () => state.wOpen ? 'Schrank schließen' : 'Schrank öffnen', () => { state.wOpen = !state.wOpen; tween(wPiv, { ry: state.wOpen ? 1.5 : 0 }, .6); Audio.creak(state.wOpen ? .3 : .15); if (!state.wOpen) return; if (!state.scWardrobe) { state.scWardrobe = true; setTimeout(scareWardrobe, 350); setTimeout(() => toast('Nur Mäntel. Mamas Mäntel. Sie riechen noch nach ihr. Und nach Motten.', 4500), 2600); } else toast('Mamas Mäntel. Ganz hinten: ein Kinderschuh. Nicht deiner. Nicht Lucys.'); });
+interact(wLeaf, () => state.wOpen ? 'Schrank schließen' : 'Schrank öffnen', () => { state.wOpen = !state.wOpen; tween(wPiv, { ry: state.wOpen ? 1.5 : 0 }, .6); Audio.creak(state.wOpen ? .3 : .15, wPiv.position.x, 1.2, wPiv.position.z); if (!state.wOpen) return; if (!state.scWardrobe) { state.scWardrobe = true; setTimeout(scareWardrobe, 350); setTimeout(() => toast('Nur Mäntel. Mamas Mäntel. Sie riechen noch nach ihr. Und nach Motten.', 4500), 2600); } else toast('Mamas Mäntel. Ganz hinten: ein Kinderschuh. Nicht deiner. Nicht Lucys.'); });
 function checkHome() { const s = story.side.home.steps; if (s.diary && s.letter) sideDone('home', 'Lucys Tagebuch und Mamas Brief gefunden.'); else if (s.diary || s.letter) story.side.home.desc = s.diary ? 'Lucys Tagebuch gefunden. Hat Mama etwas hinterlassen?' : 'Mamas Brief gefunden. Lucy hatte früher ein Versteck im Kinderzimmer.'; }
 
 // ---- Nr. 3 – Herr Vegas
 interact(doorOf[3], 'Klopfen', async () => {
-  if (state.talking) return; state.talking = true; Audio.knock(); await wait(1200);
+  if (state.talking) return; state.talking = true; Audio.knock(doorOf[3].position.x, 1.3, doorOf[3].position.z); await wait(1200);
   const A = 'HERR VEGAS · HINTER DER TÜR';
   if (story.side.bruno.state === 'hidden') {
     await say([['„Wer ist da? … Luke? Luke Brandt? Mein Gott, bist du groß geworden.“', 4200, A], ['„Ich mach nicht auf. Nicht nachts. Nicht mehr.“', 3400, A],
@@ -2626,9 +2742,9 @@ const player = { pos: new THREE.Vector3(-66, 0, 2), yaw: -PI / 2, pitch: 0, bob:
 let stairBusy = false; // Kellertreppe: E-Spam / Tastenfeld-Zeitgeber lösen den Wechsel nur einmal aus
 async function enterBasement() {
   if (stairBusy || state.inBasement) return; stairBusy = true;
-  try { Audio.creak(); await fade(1, 900);
+  try { Audio.creak(.22, cellarDoor.position.x, 1.2, cellarDoor.position.z); await fade(1, 900);
     state.inBasement = true; setMain(4);
-    player.pos.set(B.x + 4.2, 0, B.z - 1.6); player.yaw = PI / 2 + .3; player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65;
+    player.pos.set(B.x + 4.28, 0, B.z + 3.45); player.yaw = 1.0; /* R-6: am Fuß der Kellertreppe */ player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65;
     await wait(400); } finally { stairBusy = false; } fade(0, 1600);
   toast('Es riecht nach nassem Beton. Und nach etwas Süßlichem.', 4000);
 }
@@ -2835,22 +2951,43 @@ function updateInteract() {
 }
 
 // =====================================================================  LEBENDIGE WELT
-// Wind in Bäumen und Hecken
-const windU = { value: 0 }, windA = { value: 1 };
-function addWind(mat, amt) {
-  mat.onBeforeCompile = sh => {
-    sh.uniforms.windT = windU; sh.uniforms.windA = windA;
-    sh.vertexShader = 'uniform float windT, windA;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+// Wind in Bäumen und Hecken – EIN Windzustand für Bild und Ton (R-7/R-8): Richtung wandert langsam, Grundwind atmet, Böen (gust) drücken alles in
+// Windrichtung. Pflanzen schwingen geschichtet (Stamm/Ast neigt sich, Blätter flattern je Punkt), Böenfronten laufen sichtbar über Gras und Büsche.
+// Luke drückt Pflanzen beiseite: sechs Spurpunkte (windP) federn gedämpft zurück und schwingen kurz über die Ruhelage (organisch, nie starr).
+// WIND.k (ruhig ≈ 0,3 … Böe ≈ 1,3), WIND.dx/dz (Richtung), WIND.fx/fz (Luftweg in m, für Blätter/Partikel) lesen klang.js und umwelt.js.
+const windU = { value: 0 }, windA = { value: 1 }, windV = { value: new THREE.Vector4(.82, .57, .3, 0) }, windP = { value: Array.from({ length: 6 }, () => new THREE.Vector4(0, 0, 0, .95)) };
+const WIND = { t: 0, ang: .61, dx: .82, dz: .57, base: .3, k: .3, fx: 0, fz: 0, gx: 0, gz: 0, tr: Array.from({ length: 6 }, () => ({ x: 0, z: 0, a: 0, v: 0 })), lx: 1e9, lz: 1e9 };
+const WIND_GLSL = `uniform float windT; uniform vec4 windV; uniform vec4 windP[6];
+vec3 hamWind(vec3 R, vec3 V, float hh, float fl){ vec2 D = windV.xy, Q = vec2(-D.y, D.x); float ph = R.x * .31 + R.z * .23 + sin(R.x * .071 - R.z * .053) * 3.;
+  float fr = .5 + .5 * sin(dot(R.xz, D) * .09 - windT * 1.3 + sin(dot(R.xz, Q) * .045) * 2.2), k = windV.z + windV.w * (.3 + .7 * fr);
+  float sw = sin(windT * 1.07 + ph) * .5 + sin(windT * 2.31 + ph * 1.6) * .22 + sin(windT * .53 + ph * .7) * .28, sd = sin(windT * 1.63 + ph * 1.3) * .5 + sin(windT * 3.7 + ph * 2.1) * .15;
+  vec2 o = D * (k * 1.2 + sw * (.4 + k)) + Q * sd * (.3 + .6 * k);
+  float f = sin(windT * 7.3 + dot(V, vec3(3.1, 2.3, 4.7))) * .6 + sin(windT * 11.1 + dot(V, vec3(5.3, 4.1, 2.9))) * .4;
+  return vec3(o.x, 0., o.y) * hh + vec3(D.x * .4, 1., D.y * .4) * f * fl * hh * (.25 + k); }
+vec3 hamPush(vec3 V, float hk){ vec3 o = vec3(0.);
+  for (int i = 0; i < 6; i++){ vec4 P = windP[i]; if (abs(P.z) < .002) continue; vec2 d = V.xz - P.xy; float l = length(d) + 1e-3, f = 1. - smoothstep(P.w * .25, P.w, l);
+    o.xz += d / l * f * P.z; o.y -= abs(P.z) * f * .3; }
+  return o * hk; }
+`;
+// hh: Ausschlag (m je Einheit Wind) als GLSL-Ausdruck · fl: Blattflattern · push: Ausweichen vor Luke in m (0 = keins)
+function windVert(sh, hh, fl, push) {
+  Object.assign(sh.uniforms, { windT: windU, windV, windP });
+  sh.vertexShader = WIND_GLSL + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+    {
       #ifdef USE_INSTANCING
-        vec4 wp0 = modelMatrix * instanceMatrix * vec4(0., 0., 0., 1.);
+        mat4 wm = modelMatrix * instanceMatrix;
       #else
-        vec4 wp0 = modelMatrix * vec4(0., 0., 0., 1.);
+        mat4 wm = modelMatrix;
       #endif
-      float hh = max(position.y, 0.); hh *= hh * windA;
-      transformed.x += (sin(windT * 1.3 + wp0.x * .3 + wp0.z * .2) * .6 + sin(windT * 3.1 + wp0.x) * .2) * hh * ${amt.toFixed(4)};
-      transformed.z += cos(windT * 1.1 + wp0.z * .3) * .35 * hh * ${amt.toFixed(4)};`);
-  };
-  mat.customProgramCacheKey = () => 'wind' + amt;
+      vec3 wR = (wm * vec4(0., 0., 0., 1.)).xyz, wV = (wm * vec4(transformed, 1.)).xyz;
+      vec3 off = hamWind(wR, wV, ${hh}, ${fl});${push ? `
+      off += hamPush(wV, clamp((wV.y - wR.y) / 1.1, 0., 1.)) * (${push});` : ''}
+      transformed += inverse(mat3(wm)) * off;
+    }`);
+}
+function addWind(mat, amt) {
+  const a = amt.toFixed(4); mat.onBeforeCompile = sh => windVert(sh, `max(position.y, 0.) * max(position.y, 0.) * ${a}`, amt >= .01 ? '.25' : '.08', amt >= .01 ? '.3' : 0);
+  mat.customProgramCacheKey = () => 'wind2' + amt;
 }
 addWind(M.bark, .0016); addWind(M.hedge, .02);
 
@@ -3001,7 +3138,7 @@ async function scareWendtKitchen() {
   Audio.scareSound('scream'); shake = .05; glitchV = .35;
   const from = stalker.position.clone(), to = inFront(.42, Y).clone();
   for (let k = 0; k < 1; k += .08) { stalker.position.lerpVectors(from, to, k * k); stalker.lookAt(player.pos.x, Y, player.pos.z); await wait(16); }
-  Audio.play('glass1', { gain: .7, rate: .9 }); kitchenLight.userData.dead = true; tube.material.emissiveIntensity = 0;
+  Audio.play('glass1', { gain: .7, rate: .9, x: tube.position.x, y: tube.position.y, z: tube.position.z, ref: 3 }); kitchenLight.userData.dead = true; tube.material.emissiveIntensity = 0;
   await cutLights(750);
   hideStalker(); kitchenLight.userData.dead = false;
   toast('Der Flur ist leer. Auf den Fliesen: kleine, nackte Fußabdrücke, fremde Grashalme darin. Sie führen zur Kellertür. Und hören dort auf.', 5000);
@@ -3045,7 +3182,7 @@ function mothUpdate(dt) { if (mothBurst.life <= 0) return; mothBurst.life -= dt;
   for (let i = 0; i < vel.length; i++) { vel[i].x += (Math.random() - .5) * 3 * dt; vel[i].z += (Math.random() - .5) * 3 * dt; vel[i].y += (Math.random() - .4) * 2 * dt; pos[i * 3] += vel[i].x * dt; pos[i * 3 + 1] += vel[i].y * dt; pos[i * 3 + 2] += vel[i].z * dt; }
   mothBurst.m.geometry.attributes.position.needsUpdate = true; if (mothBurst.life <= 0) for (let i = 0; i < vel.length; i++) pos[i * 3 + 1] = -100; }
 async function scareWardrobe() {
-  scareCount++; const wx = -49.55, wz = -20.6; Audio.creak(.35);
+  scareCount++; const wx = -49.55, wz = -20.6; Audio.creak(.35, wx, 1.2, wz);
   vecB.copy(camera.position).sub(vecA.set(wx, Y + 1.2, wz)).normalize();
   for (let i = 0; i < mothBurst.vel.length; i++) { mothBurst.pos[i * 3] = wx; mothBurst.pos[i * 3 + 1] = Y + rand(.6, 1.9); mothBurst.pos[i * 3 + 2] = wz + rand(-.6, .6); mothBurst.vel[i].copy(vecB).multiplyScalar(rand(1.5, 4)).add(new THREE.Vector3(rand(-1, 1), rand(-.5, 1), rand(-1, 1))); }
   mothBurst.life = 2.2; for (let i = 0; i < 4; i++) Audio.flap(wx, Y + 1.2, wz);
@@ -3081,7 +3218,7 @@ async function scareDoppel() {
 // 7) Nr. 1, das Laken: kommst du zu nah, fällt es – und das ganze Haus schlägt zu
 async function scareSheet() {
   scareCount++; Audio.play('metalSheet', { gain: .5, rate: .6 }); Audio.scareSound('violin'); shake = .05;
-  door1.slamming = true; door1.set(false); Audio.slam(); state.cupboardOpen = false; cupDoor.rotation.y = 0;
+  door1.slamming = true; door1.set(false); Audio.slam(door1.pivot.position.x, 1.2, door1.pivot.position.z); state.cupboardOpen = false; cupDoor.rotation.y = 0;
   await cutLights(650); door1.slamming = false;
   Audio.whisper(player.pos.x, 1.6, player.pos.z, 1.3); subtitle('<i>… geh nicht in den Keller …</i>', 2200);
 }
@@ -3282,15 +3419,29 @@ function windGust() {
   if (Math.random() < .55) setTimeout(() => { const a = rand(0, 6.28); Audio.bang(player.pos.x + Math.cos(a) * rand(10, 20), player.pos.z + Math.sin(a) * rand(10, 20)); }, rand(1500, 3500));
   return true;
 }
-function gustUpdate(dt) {
+function gustUpdate(dt, indoor) {
   if (gustT > 0) { gustT -= dt; gust = Math.min(1, gust + dt * .8); } else gust = Math.max(0, gust - dt * .5);
-  windA.value = 1 + gust * 2.6;
+  windA.value = 1 + gust * 2.6; windUpdate(Math.min(dt, .05), indoor);
+}
+// Böe von außen (Audio.gust, Wald, Regie): sichtbar, sobald sie zu hören ist
+function windStoss(dur) { gustT = Math.max(gustT, dur); }
+function windUpdate(dt, indoor) {
+  const W = WIND, t = W.t += dt;
+  W.ang = .61 + .55 * Math.sin(t * .011) + .25 * Math.sin(t * .037 + 1.3) + gust * .18 * Math.sin(t * .29); W.dx = Math.cos(W.ang); W.dz = Math.sin(W.ang);
+  W.base = .26 + .1 * Math.sin(t * .071 + 2) + .06 * Math.sin(t * .23) + .04 * Math.sin(t * .61 + 1); W.k = W.base + gust * .95;
+  windV.value.set(W.dx, W.dz, W.base, gust); windU.value += dt * (.8 + W.k * .9);
+  const sp = .5 + W.k * 3.4, gs = Math.max(0, W.k - .55) * 2.4; W.fx += W.dx * sp * dt; W.fz += W.dz * sp * dt; W.gx += W.dx * gs * dt; W.gz += W.dz * gs * dt;
+  // Kontakt: neuer Spurpunkt alle 0,45 m (der ruhigste wird wiederverwendet); jeder federt unterkritisch (ω 8, ζ 0,32) auf 1, solange Luke dort steht, sonst auf 0
+  const P = player.pos, on = state.started && !indoor && P.y < 2.5;
+  if ((P.x - W.lx) ** 2 + (P.z - W.lz) ** 2 > .2) { let b = 0, bv = 1e9; for (let i = 0; i < 6; i++) { const c = W.tr[i], e = Math.abs(c.a) + Math.abs(c.v) * .1; if (e < bv) { bv = e; b = i; } }
+    const c = W.tr[b]; c.x = P.x; c.z = P.z; c.a = 0; c.v = 0; W.lx = P.x; W.lz = P.z; }
+  for (let i = 0; i < 6; i++) { const c = W.tr[i], tg = on && (P.x - c.x) ** 2 + (P.z - c.z) ** 2 < .3 ? 1 : 0; c.v += (64 * (tg - c.a) - 5.1 * c.v) * dt; c.a += c.v * dt; windP.value[i].set(c.x, c.z, c.a, .95); }
 }
 
 // Regie für die natürlichen Momente – selten, nie gleichzeitig, immer mit Ruhephase dazwischen
 const nat = { calm: 20, flockT: rand(35, 70), gustT: rand(45, 90), strikeT: rand(150, 240) };
 function naturalUpdate(dt, t, indoor) {
-  flockUpdate(dt, t); sparksUpdate(dt); gustUpdate(dt);
+  flockUpdate(dt, t); sparksUpdate(dt); gustUpdate(dt, indoor);
   if (!state.started || state.outage || state.inBasement || ui.overlay || state.talking || state.scaring) return;
   nat.calm -= dt; nat.flockT -= dt; nat.gustT -= dt; nat.strikeT -= dt;
   if (nat.calm > 0 || indoor || (typeof spannung_hushed === 'function' && (spannung_hushed() || spannung_silent()))) return; // plötzliche Stille / stille Zone: auch Wetter und Vögel warten
@@ -3305,7 +3456,6 @@ function lifeUpdate(dt, t, indoor, rect) {
   if (state.tapeOn) B.reels.forEach((r, i) => r.rotation.y += dt * (i ? 6 : 4));
   if (state.mbT > 0) { state.mbT -= dt; mbDrum.rotation.x += dt * 2.5; }
   const P = player.pos;
-  windU.value = t;
   Audio.listen(camera, fwd);
   // Motten
   moths.data.forEach((d, i) => { const a = t * d.sp + d.ph, on = d.L.k > .3;
@@ -3325,12 +3475,11 @@ function lifeUpdate(dt, t, indoor, rect) {
     }
   }
   dir.crowT -= dt; if (dir.crowT < 0) { dir.crowT = rand(15, 35); const c = crows.find(c => !c.fly && !c.gone); if (c) Audio.caw(c.g.position.x, c.g.position.y, c.g.position.z); }
-  // Schaukel
-  const sw = Math.sin(t * 1.25) * .32 * (1 + .25 * Math.sin(t * .13)); swing.piv.rotation.x = sw;
-  const ds = Math.hypot(P.x - swing.x, P.z - swing.z);
-  if (Math.sign(Math.cos(t * 1.25)) !== swing.last) { swing.last = Math.sign(Math.cos(t * 1.25)); if (ds < 18) Audio.creak(.07 * (1 - ds / 18)); }
+  // Schaukel: Pendel mit Anstoßen und Wind in umwelt.js (umwelt_pendel); ohne das Modul der alte Gang
+  if (typeof umwelt_pendel !== 'function') { const sw = Math.sin(t * 1.25) * .32 * (1 + .25 * Math.sin(t * .13)); swing.piv.rotation.x = sw;
+    const ds = Math.hypot(P.x - swing.x, P.z - swing.z); if (Math.sign(Math.cos(t * 1.25)) !== swing.last) { swing.last = Math.sign(Math.cos(t * 1.25)); if (ds < 30) Audio.creak(.07, swing.x, 1.4, swing.z); } }
   // Windspiel an Nr. 8
-  dir.chimeT -= dt; if (dir.chimeT < 0) { dir.chimeT = rand(1.5, 5); if (Math.hypot(P.x - 47, P.z - 11.7) < 28) Audio.bell(47, 11.7); }
+  dir.chimeT -= dt; if (dir.chimeT < 0) { dir.chimeT = rand(1.5, 5) / (.4 + WIND.k * 1.6); if (Math.hypot(P.x - 47, P.z - 11.7) < 28) Audio.bell(47, 11.7); }
   dir.owlT -= dt; if (dir.owlT < 0) { dir.owlT = rand(40, 80); Audio.owl(rand(-60, 60), -38); }
   if (state.inBasement && !state.ch2) { dir.dripT -= dt; if (dir.dripT < 0) { dir.dripT = rand(.8, 3); Audio.drip(B.x + rand(-4, 4), 2.3, B.z + rand(-3, 3)); } }
   // Augen
@@ -3524,7 +3673,7 @@ const archiveDrawer = box(.86, .5, .48, X + 20, .3, Z - 5.6, M.dark);
 c2Room(X + 30, X + 36, Z - 2, Z + 2, { w: [{ at: Z, w: 1.6 }], e: [{ at: Z, w: 1.6 }], n: [{ at: X + 33, w: 1.2 }] });
 c2Room(X + 30, X + 36, Z + 2, Z + 8, { s: [{ at: X + 33, w: 1.2 }] });
 const fuseDoor = makeDoor(X + 33, Z + 2.1, 1.2, -1.5, M.metal); fuseDoor.locked = true; fuseDoor.pivot.children.forEach(c => { c.position.y -= .43; }); // makeDoor rechnet mit Hausboden (Y .43) – der Amtsboden liegt auf 0
-interact(fuseDoor.leaf, () => fuseDoor.open ? 'Tür schließen' : 'Sicherungsraum', () => { if (fuseDoor.locked) { if (ch2.fuseKey) { fuseDoor.locked = false; Audio.beep(true); toast('Der Schlüssel passt.'); } else return toast(ch2.z7Key ? 'Abgeschlossen. Der Schlüssel aus der Schublade passt nicht – auf seinem Schild steht ZIMMER 7.' : 'Abgeschlossen. Ein Schild: SICHERUNGSRAUM – NUR BEFUGTE.'); } fuseDoor.set(!fuseDoor.open); Audio.creak(.2); }); // Schlüssel „sicherung“ nur aus Zimmer 7 (ch2.fuseKey, zimmer7.js)
+interact(fuseDoor.leaf, () => fuseDoor.open ? 'Tür schließen' : 'Sicherungsraum', () => { if (fuseDoor.locked) { if (ch2.fuseKey) { fuseDoor.locked = false; Audio.beep(true); toast('Der Schlüssel passt.'); } else return toast(ch2.z7Key ? 'Abgeschlossen. Der Schlüssel aus der Schublade passt nicht – auf seinem Schild steht ZIMMER 7.' : 'Abgeschlossen. Ein Schild: SICHERUNGSRAUM – NUR BEFUGTE.'); } fuseDoor.set(!fuseDoor.open); Audio.creak(.2, fuseDoor.pivot.position.x, 1.2, fuseDoor.pivot.position.z); }); // Schlüssel „sicherung“ nur aus Zimmer 7 (ch2.fuseKey, zimmer7.js)
 c2Tube(X + 33, Z, 1.2, 'x', 0xffd9a0, 1.1, 6).mode = 'flicker';
 const fusePanel = box(1.4, 1.2, .12, X + 33, 1.5, Z + 7.8, M.metal);
 const fuseCoverPiv = new THREE.Group(); fuseCoverPiv.position.set(X + 32.3, 1.5, Z + 7.72); scene.add(fuseCoverPiv); const fuseCover = box(1.4, 1.2, .03, .7, 0, 0, M.metal, { parent: fuseCoverPiv });
@@ -3561,7 +3710,7 @@ async function powerOn() {
   c2Lights.forEach((L, i) => setTimeout(() => { L.mode = L.mode === 'flicker' ? 'flicker' : 'on'; L.k = 1; }, i * 120));
   spiderDoorIn.locked = false; spiderDoorIn.lockedText = '';
   if (typeof amt_notstrom === 'function') return amt_notstrom(); // Fassung 3 (AP-16): AG-05 beim Notstrom („… Bruder.“, „Ja, Luke.“), Kühlaggregat, Speicherpunkt
-  await wait(1800); Audio.intercomClick();
+  await wait(1800); if (typeof amt_box0 === 'function') Audio.intercomClick(...amt_box0()); else Audio.intercomClick();
   await say([['„Notstrom aktiv. Außenstelle Lost Eyengless.“', 3600, 'LAUTSPRECHER']]);
 }
 
@@ -3587,7 +3736,7 @@ function screenSpider() { const d = document.createElement('div'); d.className =
   spiderLayer.appendChild(d); return d; }
 async function spiderEvent() {
   ch2.spiderPhase = 'lock'; spiderDoorIn.set(false); spiderDoorIn.locked = true; spiderDoorIn.lockedText = 'Zu. Von außen. Etwas hat den Riegel vorgeschoben.';
-  Audio.slam(); shake = .05; setC2Objective('Die Tür ist zu.');
+  Audio.slam(spiderDoorIn.m.position.x, 1.2, spiderDoorIn.m.position.z); shake = .05; setC2Objective('Die Tür ist zu.');
   await wait(1500); ch2.lampsCrazy = 1; Audio.buzz(X + 41, 2.3, Z); Audio.strobe(true);
   subtitle('Das Licht. Es … atmet.', 3000);
   await wait(3500);
@@ -3621,7 +3770,7 @@ async function spidersGone() {
   cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478);
   spiderDoorOut.locked = false; setC2Objective('Die östliche Stahltür ist frei. Geh weiter.');
   if (typeof amt_nachSpinnen === 'function') { await wait(1800); return amt_nachSpinnen(); } // Fassung 3 (AP-16): Tafel wird hell, geschnittenes Band, Lukes Sätze, Speicherpunkt
-  await wait(2500); Audio.intercomClick(); await say([['„Reaktion auf Reiz: hoch. Abweichung von 2009.“', 3200, 'LAUTSPRECHER']]);
+  await wait(2500); if (typeof amt_box0 === 'function') Audio.intercomClick(...amt_box0()); else Audio.intercomClick(); await say([['„Reaktion auf Reiz: hoch. Abweichung von 2009.“', 3200, 'LAUTSPRECHER']]);
 }
 
 // --- Der lange Gang (646–706): Flucht
@@ -3678,7 +3827,7 @@ function chaseUpdate(dt, t) {
   zombie.groanT -= dt; if (zombie.groanT < 0) { zombie.groanT = rand(1.8, 3.5); Audio.groan(zombie.x, zombie.z, false); }
   Audio.chaseLevel(Math.max(0, 1 - d / 12));
   if (d < 1.1) caught();
-  if (P.x > X + 106.6 && !chaseDoor.shut) { chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; Audio.slam(); ch2.chase = 'done'; Audio.chaseMusic(false); zombie.g.visible = false;
+  if (P.x > X + 106.6 && !chaseDoor.shut) { chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; Audio.slam(chaseDoor.m.position.x, 1.2, chaseDoor.m.position.z); ch2.chase = 'done'; Audio.chaseMusic(false); zombie.g.visible = false;
     for (let i = 0; i < 4; i++) setTimeout(() => { Audio.thump(X + 106, 1.2, Z); shake = Math.max(shake, .03); }, 600 + i * 900);
     setC2Objective('Der Messraum. Hier ist es passiert.'); subtitle('Die Tür fällt zu. Dahinter: Fäuste auf Stahl. Dann Stille.', 4500); }
 }
@@ -3713,7 +3862,7 @@ interact(piano, 'Klavier spielen', () => {
   if (ch2.safeOpen) return toast('Die Tasten sind stumm geworden.');
   openPuzzle(`<h3>KLAVIER</h3><p>Spiel Lucys Lied. Fünf Töne.</p><div class="keysrow">${['C', 'D', 'E', 'F', 'G', 'A', 'H'].map(k => `<button class="pk" data-k="${k}">${k}</button>`).join('')}</div><p class="small" id="pkSeq">·  ·  ·  ·  ·</p>`, box => {
     ch2.piano = []; if (typeof amt_klavier === 'function') amt_klavier(box); // Fassung 3 (AP-16): Lucy summt im Tank, die Tasten, die sie trifft, beschlagen
-    box.querySelectorAll('.pk').forEach(b => b.onclick = e => { e.stopPropagation(); const k = b.dataset.k; Audio.pianoNote(k); ch2.piano.push(k); box.querySelector('#pkSeq').textContent = ch2.piano.concat(Array(5 - ch2.piano.length).fill('·')).join('  ');
+    box.querySelectorAll('.pk').forEach(b => b.onclick = e => { e.stopPropagation(); const k = b.dataset.k; Audio.pianoNote(k, piano.position.x, 1, piano.position.z); ch2.piano.push(k); box.querySelector('#pkSeq').textContent = ch2.piano.concat(Array(5 - ch2.piano.length).fill('·')).join('  ');
       if (ch2.piano.length === 5) { if (ch2.piano.join() === MELODY.join()) { setTimeout(() => { closeOverlay(); safeOpens(); }, 700); } else { setTimeout(() => { ch2.piano = []; box.querySelector('#pkSeq').textContent = '·  ·  ·  ·  ·'; if (typeof amt_klavierFalsch === 'function') { amt_klavierFalsch(); if (typeof amt_klavier === 'function') setTimeout(() => amt_klavier(box), 1600); } else { Audio.beep(false); toast('Falsch. Das Klavier verstimmt sich ein Stück weiter.'); } }, 500); } } });
   });
 });
@@ -3725,7 +3874,7 @@ async function safeOpens() {
 }
 // Kanon PK-D K2-7: Lucy im Tank (Dialog mit Auswahl, Peter-Frage), dann „Mach die Augen zu!“ – Augen zu versagt (augenzu.js, wirkt:false) – Kinosequenz K2
 async function finale() {
-  if (ch2.lenaMet) return; ch2.lenaMet = true; state.talking = true; setScripted(() => true); Audio.tankHum(true);
+  if (ch2.lenaMet) return; ch2.lenaMet = true; state.talking = true; setScripted(() => true); Audio.tankHum(true, tank.position.x, 1.2, tank.position.z);
   const LU = 'LUCY · IM TANK', turn = async (tx, ty, tz, sec) => { const P = player.pos, y0 = player.yaw, p0 = player.pitch, dx = tx - P.x, dz = tz - P.z;
     let y1 = Math.atan2(-dx, -dz); while (y1 - y0 > PI) y1 -= 2 * PI; while (y1 - y0 < -PI) y1 += 2 * PI; const p1 = Math.atan2(ty - 1.62, Math.hypot(dx, dz));
     for (let t = 0; t < sec; t += .016) { const k = t / sec, e = k * k * (3 - 2 * k); player.yaw = y0 + (y1 - y0) * e; player.pitch = p0 + (p1 - p0) * e; await wait(16); } };
@@ -3926,7 +4075,7 @@ function radioPuzzle() {
   });
 }
 async function broadcast() {
-  if (ch3.radio) return; ch3.radio = true; state.talking = true; radioLed.material.emissive.set(0x30ff60); Audio.intercomClick(); const F = 'FUNK · 31,10 MHz';
+  if (ch3.radio) return; ch3.radio = true; state.talking = true; radioLed.material.emissive.set(0x30ff60); Audio.intercomClick(radioLed.position.x, radioLed.position.y, radioLed.position.z); const F ='FUNK · 31,10 MHz';
   await say([['*Rauschen*', 2200], ['„Hier Außenstelle Lost Eyengless. Zyklus siebzehn.“', 3600, F], ['„Vor unseren Häusern. In ihrer Reihenfolge.“', 3400, 'LUCY'], ['„Hilde hat aufgeschrieben, wann. Und im Amt hängt, wer wann unterschrieben hat.“', 5000, 'LUCY']]);
   state.talking = false; setC3('Lösch die Laternen vor den Häusern – in der Reihenfolge, in der sie die Kinder geholt hat.');
   story.lore.push({ key: 'c3funk', title: 'Zwei Lucys', html: '„Vor unseren Häusern. In ihrer Reihenfolge.“\n„Hilde hat aufgeschrieben, wann. Und im Amt hängt, wer wann unterschrieben hat.“' });
@@ -4361,7 +4510,7 @@ function ch3Update(dt, t) {
     const P = player.pos;
     if (ch3.met && !ch3.gullyHint && Math.hypot(P.x - 9, P.z + 1.3) < 5) { ch3.gullyHint = true; subtitle('Aus den Schlitzen des Gullydeckels fällt warmes Licht. Laternenlicht. Von unten.', 4400); }
     if (!ch3.met && !state.talking && !ui.overlay && document.pointerLockElement === renderer.domElement && (ch3.t > 34 || Math.hypot(P.x, P.z) > 16) && !indoorRect() && cowFx.ufoT < 0) justinArrives();
-    if (ch3.ringing && !ch3.callDone) { const dB = Math.hypot(P.x - 8, P.z - 7.6); ch3.ringT -= dt; if (dB < 40 && ch3.ringT < 0) { ch3.ringT = 3.2; Audio.ring(.09 * Math.max(0, 1 - dB / 45)); } }
+    if (ch3.ringing && !ch3.callDone) { const dB = Math.hypot(P.x - 8, P.z - 7.6); ch3.ringT -= dt; if (dB < 90 && ch3.ringT < 0) { ch3.ringT = 3.2; Audio.ring(.09, 8, 1.9, 7.6); } }
     c3ChaseUpdate(dt);
   } else if (ch3.part === 'white') c3WhiteUpdate(dt, t);
 }
@@ -4890,7 +5039,7 @@ function resumeCh1(d) {
   let at = null;
   if (s.inBasement || s.heardTape || s.outage) { // Keller – nach dem Tonband beginnt oben der Ausfall neu (nie mitten im Licht fortsetzen)
     state.inBasement = true; state.cellarOpen = true; if (s.outage) state.heardTape = true; story.main = 0; setMain(state.heardTape ? 5 : 4);
-    at = { x: B.x + 4.2, y: 0, z: B.z - 1.6, yaw: PI / 2 + .3 };
+    at = { x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 }; /* R-6: Fuß der Kellertreppe */
   } else at = resumeSpot(d);
   if (state.cellarOpen) cellarDoor.rotation.y = -1.5;
   if (at) placeAt(at);
@@ -5544,6 +5693,7 @@ setInterval(() => { if (!$('start').classList.contains('show')) return; const h 
 // Kamera gleitet vor dem Start durch die Straße
 function attractUpdate(dt, t) {
   if (!menu.attract) return;
+  if (menu.cam && menu.cam(dt, t)) return; // R-20: Menü-Bühne (menue.js) führt die Kamera, sobald alles geladen ist
   menu.t += dt; const k = (menu.t * .012) % 1;
   player.pos.set(-70 + k * 46, 0, 1.2 + Math.sin(t * .13) * 1.4); player.yaw = -PI / 2 + Math.sin(t * .07) * .55 + .15; player.pitch = .04 + Math.sin(t * .11) * .05;
   camY = 1.9; player.bob += dt * .6;
@@ -5620,7 +5770,7 @@ function update(dt, t) {
     player.pos.x += vel.x * dt; if (collide('x', vel.x * dt)) { vel.x *= .3; F.ax = 0; }
     player.pos.z += vel.z * dt; if (collide('z', vel.z * dt)) { vel.z *= .3; F.az = 0; }
     solidPush();
-    if (SOL.soft > 0 && Math.hypot(vel.x, vel.z) > .5) { vel.x *= 1 - SOL.soft * dt * 6; vel.z *= 1 - SOL.soft * dt * 6; SOL.rustleT -= dt; if (SOL.rustleT < 0) { SOL.rustleT = rand(.25, .45); Audio.step('grass'); } } // Gestrüpp bremst und raschelt
+    if (SOL.soft > 0 && Math.hypot(vel.x, vel.z) > .5) { vel.x *= 1 - SOL.soft * dt * 6; vel.z *= 1 - SOL.soft * dt * 6; SOL.rustleT -= dt; if (SOL.rustleT < 0) { SOL.rustleT = rand(.25, .45); if (Audio.busch) Audio.busch(player.pos.x, player.pos.z, Math.min(1, SOL.soft * 1.5)); else Audio.step('grass'); } } // Gestrüpp bremst und raschelt
   }
   const spd = Math.hypot(vel.x, vel.z); F.vv = spd; F.air = grounded ? 0 : F.air + dt;
   if (F.air < .2) player.bob += dt * PI * spd / (FC.stride0 + FC.strideK * spd); // Schrittphase: ein Schritt je π, die Schrittlänge wächst mit dem Tempo (Gehen ≈ 1,9, Sprint ≈ 3 Schritte/s)
@@ -5705,7 +5855,7 @@ function update(dt, t) {
     for (let i = 0; i < N; i++) { const s = seeds[i]; s[1] -= dt * 11; if (s[1] < 0) s[1] += 16;
       const x = cx + ((s[0] - cx) % 36 + 54) % 36 - 18, z = cz + ((s[2] - cz) % 36 + 54) % 36 - 18;
       const y = Math.abs(x - cx) < 1.6 && Math.abs(z - cz) < 1.6 ? -50 : s[1];
-      pos[i * 6] = x; pos[i * 6 + 1] = y; pos[i * 6 + 2] = z; pos[i * 6 + 3] = x + .03 + gust * .22; pos[i * 6 + 4] = y + .32; pos[i * 6 + 5] = z; }
+      pos[i * 6] = x; pos[i * 6 + 1] = y; pos[i * 6 + 2] = z; pos[i * 6 + 3] = x + .03 + WIND.dx * (WIND.k - .15) * .26; pos[i * 6 + 4] = y + .32; pos[i * 6 + 5] = z + WIND.dz * (WIND.k - .15) * .26; }
     rain.m.geometry.attributes.position.needsUpdate = true; }
 
   // --- Laternen
@@ -5736,7 +5886,7 @@ function update(dt, t) {
     else if (dTV < 3.2 && Math.random() < .06 && typeof kapitel1_tv !== 'function') { state.tvSeen = true; tvCtx.fillStyle = 'rgba(0,0,0,.75)'; tvCtx.font = 'bold 22px Georgia'; tvCtx.textAlign = 'center'; tvCtx.fillText('HALLO LUKE', 48, 44); }
     tvTex.needsUpdate = true; tvLight.intensity = 1.2 + Math.random() * 1.6;
   } else if (tvLight.userData.dead) tvLight.intensity = 0;
-  if (Audio.tv) Audio.tv.gain.value = tvLight.userData.dead ? 0 : Math.max(0, .05 * (1 - camera.position.distanceTo(tvScreen.position) / 7));
+  if (Audio.tv) Audio.tv.gain.value = tvLight.userData.dead ? 0 : Audio.tvAt ? .05 : Math.max(0, .05 * (1 - camera.position.distanceTo(tvScreen.position) / 7)); // raumklang: das Gerät klingt am Gerät
   for (const b of bLights) { b.pivot.rotation.z = Math.sin(t * 1.3) * .22; b.pivot.rotation.x = Math.sin(t * .9) * .1; b.light.intensity = b.dark ? 0 : flickDip(b, .9, dt) ? .4 : 3.5; b.bulb.material.emissiveIntensity = 2.8 * b.light.intensity / 3.5; }
   // --- Türen
   for (const D of doors) { const tgt = D.open ? D.openAngle : 0; D.cur += (tgt - D.cur) * Math.min(1, dt * (D.slamming ? 14 : 5)); D.pivot.rotation.y = D.cur; }
@@ -5746,14 +5896,14 @@ function update(dt, t) {
   if (!state.watcherGone) { watcher.lookAt(P.x, 0, P.z);
     if (P.distanceTo(watcher.position) < 19) { state.watcherGone = true; endLamp.mode = 'off'; Audio.stinger(false); setTimeout(() => { watcher.visible = false; endLamp.mode = 'flicker'; }, 380); } }
   if (!state.nearHouse && Math.abs(P.x - 26) < 7 && P.z < -2 && P.z > -9) { state.nearHouse = true; setMain(1); subtitle('Nr. 7. Im Wohnzimmer brennt Licht. Aber niemand bewegt sich.', 4500); }
-  if (!state.slammed && door7.open && rect === s7 && P.z < s7.zf - 1.8) { state.slammed = true; setTimeout(() => { door7.slamming = true; door7.set(false); Audio.slam(); toast('Der Wind. Nur der Wind.'); setTimeout(() => door7.slamming = false, 600); }, 900); }
-  if (!state.kidsRoom && rect === s1 && P.x < -50 && P.z < -17) { state.kidsRoom = true; Audio.musicBox(); subtitle('Euer altes Kinderzimmer. Die Spieluhr … spielt.', 4500); }
+  if (!state.slammed && door7.open && rect === s7 && P.z < s7.zf - 1.8) { state.slammed = true; setTimeout(() => { door7.slamming = true; door7.set(false); Audio.slam(door7.pivot.position.x, 1.2, door7.pivot.position.z); toast('Der Wind. Nur der Wind.'); setTimeout(() => door7.slamming = false, 600); }, 900); }
+  if (!state.kidsRoom && rect === s1 && P.x < -50 && P.z < -17) { state.kidsRoom = true; Audio.musicBox(musicBox.position.x, musicBox.position.y, musicBox.position.z); subtitle('Euer altes Kinderzimmer. Die Spieluhr … spielt.', 4500); }
   if (!state.carSeen && Math.hypot(P.x - 1.9, P.z + 37) < 22) { state.carSeen = true; sideStart('car'); subtitle('Scheinwerfer. Das ist … Lucys Auto.', 4000); }
   const dCar = Math.hypot(P.x - 1.9, P.z + 37); dingT -= dt; if (dCar < 16 && dingT < 0 && !state.outage) { dingT = 1.6; Audio.ding(.05 * (1 - dCar / 16)); }
   if (story.side.call.state === 'active' && !state.callDone && !state.outage) {
     const dB = Math.hypot(P.x - 8, P.z - 7.6);
     if (!state.ringing && dB < 26) state.ringing = true;
-    if (state.ringing) { ringT -= dt; if (ringT < 0) { ringT = 3.2; Audio.ring(.09 * Math.max(0, 1 - dB / 45)); } }
+    if (state.ringing) { ringT -= dt; if (ringT < 0) { ringT = 3.2; Audio.ring(.09, 8, 1.9, 7.6); } }
   }
   // Laken-Gestalt
   if (state.ghostArmed && ghost.visible && !state.ghostDone) {

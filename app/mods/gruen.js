@@ -127,21 +127,11 @@ float gRect(vec2 p, vec4 r){ vec2 d = max(max(vec2(r.x - p.x, r.z - p.y), vec2(p
   };
   mat.customProgramCacheKey = () => 'gruenSurf'; mat.needsUpdate = true; return mat;
 }
-// Pflanzen: Wind (Stärke als Uniform, damit Gras, Sträucher und Hecken ein Programm teilen)
+// Pflanzen: Wind (Stärke als Uniform, damit Gras, Sträucher und Hecken ein Programm teilen) – gemeinsamer Windzustand der Basis (windVert:
+// geschichtet, Böenfronten, Blattflattern) und Ausweichen vor Luke mit gedämpftem Zurückfedern
 function gruen_wind(mat, amt) {
-  mat.onBeforeCompile = sh => {
-    sh.uniforms.windT = windU; sh.uniforms.windA = windA; sh.uniforms.gAmt = { value: amt };
-    sh.vertexShader = 'uniform float windT, windA, gAmt;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
-      #ifdef USE_INSTANCING
-        vec4 wp0 = modelMatrix * instanceMatrix * vec4(0., 0., 0., 1.);
-      #else
-        vec4 wp0 = modelMatrix * vec4(0., 0., 0., 1.);
-      #endif
-      float hh = max(position.y, 0.); hh *= hh * windA * gAmt;
-      transformed.x += (sin(windT * 1.3 + wp0.x * .3 + wp0.z * .2) * .6 + sin(windT * 3.1 + wp0.x) * .2) * hh;
-      transformed.z += cos(windT * 1.1 + wp0.z * .3) * .35 * hh;`);
-  };
-  mat.customProgramCacheKey = () => 'gruenWind'; mat.needsUpdate = true; return mat;
+  mat.onBeforeCompile = sh => { sh.uniforms.gAmt = { value: amt }; windVert(sh, 'max(position.y, 0.) * max(position.y, 0.) * gAmt', '.3', '.34'); sh.vertexShader = 'uniform float gAmt;\n' + sh.vertexShader; };
+  mat.customProgramCacheKey = () => 'gruenWind2'; mat.needsUpdate = true; return mat;
 }
 
 // ---- Dynamische Instanzen mit Detailstufen (fein → grob → gescannte Bildkarte → weg) und Sichtkegel
@@ -542,7 +532,7 @@ WORLD_TICK.push((dt, t, indoor) => {
   let soft = 0; const bx = Math.floor(P.x / 4), bz = Math.floor(P.z / 4);
   for (let i = bx - 1; i <= bx + 1; i++) for (let j = bz - 1; j <= bz + 1; j++) { const Lst = S.soft.get((i + 200) * 1000 + j + 200); if (!Lst) continue;
     for (const [x, z, r] of Lst) { const d = Math.hypot(P.x - x, P.z - z); if (d < r + .3) soft = Math.max(soft, 1 - d / (r + .3)); } }
-  if (soft > 0 && sp > .5) { const k = Math.max(0, 1 - soft * dt * 5); vel.x *= k; vel.z *= k; S.rust -= dt; if (S.rust < 0) { S.rust = rand(.22, .4); Audio.step('grass'); } }
+  if (soft > 0 && sp > .5) { const k = Math.max(0, 1 - soft * dt * 5); vel.x *= k; vel.z *= k; S.rust -= dt; if (S.rust < 0) { S.rust = rand(.22, .4); if (Audio.busch) Audio.busch(P.x, P.z, Math.min(1, soft * 1.6)); else Audio.step('grass'); } }
   // Kies
   if (player.stepIdx !== S.step) { S.step = player.stepIdx; if (sp > .6 && S.gravel.some(([a, b, c, d]) => P.x > a && P.x < b && P.z > c && P.z < d)) Audio.play('stones1', { gain: .16, rate: rand(1.5, 1.9), offset: rand(0, .4), dur: .2, vary: .1 }); }
   // Wald: Äste knacken im Dunkeln, selten ein Kichern

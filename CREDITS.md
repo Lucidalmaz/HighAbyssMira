@@ -18,7 +18,6 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | The Doctor/Torturer – Animated | Tony Flanagan | Körper Mann vom Amt (1), Pfarrer Voss (Mantel schwarz als Talar) | https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c |
 | Dirt Farmer – Rigged | Tony Flanagan | Körper Lars Vegas | https://www.fab.com/listings/5af7af37-2c8a-4447-9444-8c9c83cd4872 |
 | Deer Thing | Shedmon | wahre Gestalt des Wendigo (Hirschding) – eigenes Skelett und eigene Bewegungen (AP Q-1) | https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4 |
-| Dog (rigged, 5 Animationen) | styloo | Hund Bruno (braun umgefärbt, weißer Ring in den Augen; `ms/hund`, figuren.js) | Fab (Download 30.09.2026, `HAM_FabDownloads/v16_requisiten/hund.zip`) |
 | Grimhound (rigged dog homunculus) | DM-913 | der Geschälte Wolf (Modell, Skelett; eigene Bewegungen) | https://www.fab.com/listings/fa911d4e-6994-4bf4-8bcd-c356002b36c2 |
 | Muscle Tissue | clacydarch | Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte) | https://www.fab.com/listings/38b9c25b-80db-4606-a0f8-bb2bb947143a |
 | Cute Alien Pet – Stylized 3D Character | MissTxxT | der Beobachter (weiß umgefärbt) | https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9 |
@@ -29,7 +28,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | More Realistic Trees Free! | Nicholas 3D | Laubbäume | https://www.fab.com/listings/d9a40b15-46e7-41f9-ac46-99b487ddea60 |
 | Realistic Trees Pack of 2 Free | Nicholas 3D | Büsche/Unterholz | https://www.fab.com/listings/b988606a-788e-4032-abf4-f50fccada472 |
 | Old Pine Trunk | Drakery | alte Kiefernstrünke | https://www.fab.com/listings/6d9f6fe1-10cb-4374-bbc3-ff1dd40753f9 |
-| Rotting Tree Stump | Ewan Lejkowski | faulende Stümpfe | https://www.fab.com/listings/5255f495-cbfd-4494-813e-4ff656b8b38f |
+| Rotting Tree Stump | Ewan Lejkowski | faulende Stümpfe (Wald; auch gefällte Bäume in Gärten, Hof, Ortsrand – bewuchs.js) | https://www.fab.com/listings/5255f495-cbfd-4494-813e-4ff656b8b38f |
 | Mossy Tree trunk with mushroom on slope | Indy Sarlet | bemooste Stümpfe | https://www.fab.com/listings/0f7b1966-a54a-4499-991f-c80b37a95655 |
 | Moss covered rock pile | Lassi Kaukonen | Moosfelsen | https://www.fab.com/listings/e1d7c88a-308e-4e74-ae56-4fbe505c15b3 |
 | Ivy trunk | matousekfoto | efeubewachsene Stämme | https://www.fab.com/listings/50853ca7-f030-4f8b-b1a2-6306c01ebda2 |
@@ -142,14 +141,14 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | CC0 – Ashtray | plaggy | Aschenbecher | https://sketchfab.com/3d-models/313192b7abae47ffa82e4ba24e947f70 |
 
 ## Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber
-- **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.), ihre Gesichtsformen (Blinzeln, Blick, Mimik, Mund – für alle Figuren, Bart-Köpfe per Übertragung), „Female Long Straight Hair“ (hair 7: offenes Haar von Hilde „Nicht du“)
+- **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.), ihre Gesichtsformen (Blinzeln, Blick, Mimik, Mund – für alle Figuren, Bart-Köpfe per Übertragung), „Female Long Straight Hair“ (hair 7: offenes Haar von Hilde „Nicht du“) · „Realistic Man Base Mesh“ (Hautfoto/Kopf Lars Vegas, https://www.fab.com/listings/e04094c0-6e2c-4b16-ae25-b1034a7e34d3) · „Hair 1“ Pferdeschwanz (Frau Reuter, https://www.fab.com/listings/ccf05853-a1c2-4016-9ba7-b102ffeda112) · männlicher NoEdge-Körper als grauer Schemen für Echos/Fenster-Silhouetten/Kokon (`assets/ghost/ghost.glb`, ersetzt Epics „Quinn“)
 - **Motifect** – Daily Life, Locomotion, Emotes & Social, Injured & Exhausted Motion Packs · **Animpacks** – Look Through Window Animation Pack
 - Motion-Capture: **Mocap.in** (Realistic Acting, Character Mobility, Movement & Mobility) · **Animation Shopee** (Serious conversation, Conversation While sit, Sits on stool and Drinks, Lying on the floor, Run like hell, Dying, Disappointed, Doing something strange, hung onto something, kneel down and dead, Walks backward, cheering up someone) · **Toei Zukun Laboratory** (Standing Idle Motion, Free Motion Set) · **nikoff** (Dead Bodies Sitting & Lying Poses) · **Teddy Goldstien** (UEFN Manny Zombie) · **BTM productions** (Zombie Idle x2) · **DZTFIX KATSU** (Dynamic Falling & Rolling)
 - **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin
 - **Guy in a Poncho** – Old Book (Dienstbuch), Camping Dinnerware (Blechbecher; Blechgeschirr in Küchen und Kantine, `ms/geschirr`, bewohnt.js) · **Louey** – Rusty Canister and Thermos · **Toshi Timo** – 8-Panel Beret (Schiebermütze) · **DTry** – Military Radio (Funkgerät mit Hörer) · **styloo** – Dog (Bruno) · **Mohit Akundi** – Realistic Rubywear Eyeglasses · **truth-n-carbon** – Flying Saucer · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen
-- **Quixel Megascans** (Bewuchs Ort/Wald, R-11, `bewuchs.js`, Download 01.10.2026 `HAM_FabDownloads/v19_vegetation`) – Lady Fern (`ms/ladyfern`), Beech Fern (`ms/beechfern`), English Ivy (`ms/ivy_ms`), Dry Grass (`ms/drygrass`), Curbside Weeds (`ms/weeds`), Bolete Mushrooms (`ms/bolete`), Broken Tree Stump (`ms/stump_broken`); dazu wiederverwendet: Wild Grass, Raspberry, Elderberry, European Spindle, Dead Tree (`ms/deadtree1`), Boulder
+- **Quixel Megascans** (Bewuchs Ort/Wald, R-11, `bewuchs.js`, Download 01.10.2026 `HAM_FabDownloads/v19_vegetation`) – Lady Fern (`ms/ladyfern`), Beech Fern (`ms/beechfern`), English Ivy (`ms/ivy_ms`), Dry Grass (`ms/drygrass`), Curbside Weeds (`ms/weeds`), Bolete Mushrooms (`ms/bolete`); dazu wiederverwendet: Wild Grass, Raspberry, Elderberry, European Spindle, Dead Tree (`ms/deadtree1`), Boulder
 - **PROTOFACTOR INC** – Animal Variety Pack (Krähe, Reh, Hirsch, Fuchs, Wolf, Schwein; auf Fab als Epic-gesponserte „Permanent Collection“)
-- **Polyphoria** – Paladin RPG Set (Justin) · **Leartes Studios** – Asian Canal Environment (Kanal) · **Epic Games** – UE5-Mannequin „Quinn“ und Mannequin-Animationen aus der Unreal-Engine-Vorlage (Schemen/Echos, Justins Bewegungen; Unreal-Engine-EULA, siehe `docs/technical/lizenzen_release.md`)
+- **Polyphoria** – Paladin RPG Set (Justin) · **Leartes Studios** – Asian Canal Environment (Kanal) · (Epics UE5-Mannequin „Quinn“ und die Mannequin-Animationen sind seit 01.10.2026 ersetzt: Schemen = NoEdge-Körper + Motifect-Mocap, Justin = Motifect/Mocap.in über `tools/justin_mocap.mjs`)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Heruntergeladen, derzeit nicht im Spiel
@@ -168,6 +167,7 @@ nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitte
 - Tiere/Holz/Dinge: Discover Oregon – Ravens and Robins (Whiskeys Rabenkehle, Singvögel) · Invisible – Storm, gale and thunderstorm (Amseln) · Airborne Sound – Kitchen (Mikrowelle) · 2496SoundEffects – Tech Toys Electronics Pack 1 (Wecker) · Ivo Vicic – Red Deer and Roe Deer · Pole Position – Barking Dog · Bart Kamski – Dogs · SoundBits – Unsettling Creaks and Squeaks · Russell Gorsky – Squeaks and Creaks Two · The Sound Keeper – Normal Doors · The Soundcatcher – Paperlife, Antique Mills · Eiravaein Sound – Parched · RedSonic – Analogue Rotary Telephone · CFry – Shortwave
 - Wendigo-Laute (`wd_*`, `app/tools/klang_wendigo.py`): Articulated Sounds – Bones & Blood (Gore Elements), Yeti Monster · Matt Script – You Me & Debris, The Mouth · Jeffrey Mengyan – Vegetable Carnage · Soundrangers – Hydrology Bubbles and Splashes · Ivo Vicic – Red Deer and Roe Deer · Eiravaein Sound – Mouthy, Meridian · Gamemaster Audio – Troll Monster Vocalizations · Glitchedtones – Zombie · Sound Spark LLC – Gore · MatiasMacSD – Mutation · SoundMorph – Monster Within
 - Stimmen/Schreck: Chris Logsdon – Text & Dialogue SFX Pack · Articulated Sounds – Ghosts Return, Special Double Bass Fx · Ambisound – Ethereal Breaths · JC Audio – Breathing In Hell · Airborne Sound – Variety 1 · Olivier Girardot – Monsters · Alexander Kopeikin – The Dry Ice Library, Prepared Piano · Sir Bedlam Productions – Bedlam Stingers
+- Peter/Flucht (R-10, `pz_*`, `app/tools/klang_peter.py`): Airborne Sound – Human (Herzschlag; Keuchen hinter vorgehaltener Hand), Variety 1 (Ausatmen) · The Sound Pack Tree – Footstep Loops (nackte Sohle) · Studio 23 – Ultimate Footstep Collection (Schlurfen) · Eiravaein Sound – Mouthy (Zähne/Mund) · Gamemaster Audio – Fun Character Voices (gebrochene Lachstöße, tief und dumpf) · Red Libraries – Bodyfall · Articulated Sounds – Fight Vocalizations · TheWorkRoom Audio Post – Cloths & Sponges Foley · Jeffrey Mengyan – Vegetable Carnage (nasser Tritt)
 - Umwelt (R-7/R-8, `app/tools/klang_bau4.py`): Hzandbits – Urban Winds II (Wind heult/pfeift um Ecken), Wind In Trees (Gras/Kronen im Wind) · toneglowlibraries – Town Winds (Böen mit nassem Laub) · Articulated Sounds – Rustle Tones (Busch beim Durchlaufen), Ghosts Return (Schaukelkette) · Sounds Visual – Footsteps on Leaves (Laub beim Rennen) · Matt Script – Squeaks & Creaks (Schaukel quietscht)
 
 **Weiterhin im Spiel:** die CC0-Aufnahmen von OpenGameArt.org in `game/sounds.js`/`sounds_extra.js` (Quellen: `game/sounds_src/QUELLEN.txt`).
@@ -182,3 +182,18 @@ three.js (MIT), three-mesh-bvh (MIT), gltfpack/meshoptimizer (MIT), KTX-Software
 
 ## Schriften (`app/vendor/fonts`)
 Caveat (Impallari Type, SIL Open Font License 1.1) · Cormorant Garamond (Christian Thalmann, SIL Open Font License 1.1) · Special Elite (Astigmatic, Apache License 2.0) – über Google Fonts.
+
+### Schriften (app/vendor/fonts) – vollständige Liste mit Lizenzdateien
+Alle lokal gebündelt (nur Teilmengen `latin` + `latin-ext`, Quelle Google Fonts); Lizenztexte liegen im selben Ordner.
+- Caveat – Impallari Type – SIL OFL 1.1 – `LICENSE-Caveat-OFL.txt`
+- Cormorant Garamond – Christian Thalmann – SIL OFL 1.1 – `LICENSE-CormorantGaramond-OFL.txt`
+- Special Elite – Astigmatic – Apache 2.0 – `LICENSE-SpecialElite-Apache.txt`
+- IM Fell English – Igino Marini – SIL OFL 1.1 – `LICENSE-IMFellEnglish-OFL.txt`
+- IM Fell English SC – Igino Marini – SIL OFL 1.1 – `LICENSE-IMFellEnglishSC-OFL.txt`
+- Alegreya Sans – Juan Pablo del Peral, Huerta Tipográfica (HT Fonts) – SIL OFL 1.1 – `LICENSE-AlegreyaSans-OFL.txt`
+- Alegreya Sans SC – Juan Pablo del Peral, Huerta Tipográfica (HT Fonts) – SIL OFL 1.1 – `LICENSE-AlegreyaSansSC-OFL.txt`
+- Kalam – Indian Type Foundry – SIL OFL 1.1 – `LICENSE-Kalam-OFL.txt`
+- Gochi Hand – Juan Pablo del Peral (HT Fonts) – SIL OFL 1.1 – `LICENSE-GochiHand-OFL.txt`
+- Covered By Your Grace – Kimberly Geswein – SIL OFL 1.1 – `LICENSE-CoveredByYourGrace-OFL.txt`
+- Courier Prime – Alan Dague-Greene (Quote-Unquote Apps) – SIL OFL 1.1 – `LICENSE-CourierPrime-OFL.txt`
+- Julius Sans One – Luciano Vergara (LatinoType) – SIL OFL 1.1 – `LICENSE-JuliusSansOne-OFL.txt`

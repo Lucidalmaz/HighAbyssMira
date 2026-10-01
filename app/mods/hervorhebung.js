@@ -1,0 +1,203 @@
+// =====================================================================  HERVORHEBUNG (Modul „hervorhebung“, Nutzer-Rückmeldung R-1/R-2 vom 01.10.2026)
+// R-1: leuchtende Kontur um interaktive Objekte, eine Farbe je Kategorie – weiche, leicht pulsierende Aura entlang der Silhouette mit feinem Schimmer (Rauschen/Partikel),
+//   nie harte Neonlinie. Technik: Masken-Pass direkt nach dem RenderPass (Silhouetten der Kandidaten in einen halb aufgelösten Puffer; verdeckte Teile per Tiefenvergleich
+//   mit der Szenentiefe verworfen) + Kantenpass nach dem OutputPass (Aura außen, feiner Rand innen). Kandidaten aus IA.list der Basis (Interaktion): höchstens 6 innerhalb 8 m
+//   + das angesehene. Deutlich in Reichweite/beim Hinsehen, sehr dezent auf mittlere Distanz; aus in Jagd, Kino, Dialog, Menüs. Einstellung settings.hl: 2 stark · 1 dezent · 0 aus.
+//   Legende: beim ersten Sichten Fibel-Eintrag „Ränder“ (Lukes Ton).
+// R-2: Glanz-Gegenstände (Whiskeys Schnabel, Tauschware am Boden): echtes Metallmodell (Fab „OldKey“), polierter Messing mit scharfem Glanzlicht (Umgebungsbild),
+//   weiche runde Glitzerpunkte, die beim Drehen/Bewegen aufblitzen, leiser Schein, kristalliner Fundklang aus den Spieluhr-Aufnahmen (VSCO 2, kein Oszillator).
+// Schnittstelle: mesh.userData.hl = 'interakt' | 'sammel' | 'hinweis' | 'glanz' | 'sammlung' | 'aus' (oder Funktion) · mesh.userData.hlObj = sichtbares Objekt (oder Funktion, null = keins)
+//   – ohne Angabe: Kategorie aus dem Text; sichtbar = das Mesh selbst bzw. die Modelle innerhalb der unsichtbaren Klickfläche (Figuren nie).
+//   glanz_neu({ size, an }) → { g, key, … } (in die Szene hängen; an() = sichtbar) · glanz_klang(x, y, z) · glanz_tex() · Testzugriff window.__hl
+const HL_FARBE = { interakt: 0x7fb2ff, sammel: 0x69f0c0, hinweis: 0xb38bff, glanz: 0xffcf6b, sammlung: 0xff8ccf }; // Mondblau · Jadegrün · Violett · Bernstein · Perlrosa
+const HL_STUFE = { 2: [1, .72, .2], 1: [.62, .4, .07] }; // [angesehen, in Reichweite/im Blick, mittlere Distanz (fällt bis 8 m auf 0)]
+const HL_TEXT = [['aus', /sprechen|streicheln|hand nehmen|berühren|^whiskey|^justin$/i], ['glanz', /glänzt|glänzend|glitzer|kronkorken|münze|pfennig/i],
+  ['sammlung', /foto aufheben|polaroid|stundenbuch|laternenbote|pells heft|heftseite|loses blatt|lose seite|eine zeitung/i],
+  ['hinweis', /lesen|zettel|notiz|\bbriefe?\b|zeitung|tagebuch|akte|kalender|zeichnung|kassette|notenblatt|tafel|plan an|foto|bild|umschlag|grabstein|schild|handy|chronik|heft|rekorder|seite/i],
+  ['sammel', /aufheben|\bnehmen\b|einstecken|mitnehmen|einsammeln/i]];
+const HL = { ready: false, slots: [], scene: null, rt: null, glow: null, mask: null, uD: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uNF: { value: new THREE.Vector2(.05, 110) }, uUseD: { value: 0 },
+  t: 0, chk: 0, aktiv: 0, cand: new Array(64).fill(null), dist: new Float32Array(64), look: new Uint8Array(64), fwd: new THREE.Vector3(), v: new THREE.Vector3(), s: new THREE.Sphere(), b: new THREE.Box3(),
+  cc: new THREE.Color(), near: [], sc: { stack: [], out: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0 };
+const GLZ = { liftT: 0, rc: null, proto: null, laden: null, mat: null, tex: null, halo: null, list: [], v: new THREE.Vector3() };
+
+// ---------------------------------------------------------------- Kategorie und sichtbares Objekt
+function hl_text(l) { l = l.replace(/<[^>]*>/g, '').trim(); for (const [k, re] of HL_TEXT) if (re.test(l)) return k;
+  if (HL.t > HL.itemsT) { HL.itemsT = HL.t + 10; try { HL.items = new Set(Object.values(ITEMS).map(i => String(i.name || '').toLowerCase())); } catch (e) {} }
+  return HL.items && HL.items.has(l.toLowerCase()) ? 'sammel' : 'interakt'; }
+function hl_kat(o) { const u = o.userData; if (u.hlKt > HL.t) return u.hlK; u.hlKt = HL.t + 1 + Math.random(); let k = 'aus';
+  try { const l = typeof u.label === 'function' ? u.label() : u.label; if (l) { const h = typeof u.hl === 'function' ? u.hl() : u.hl; k = h || hl_text(String(l)); } } catch (e) {}
+  return (u.hlK = HL_FARBE[k] ? k : 'aus'); }
+function hl_ok(m) { if (!m.isMesh || m.isInstancedMesh || m.isBatchedMesh || !m.geometry || m.material === hidden) return false; const M = m.material; return Array.isArray(M) ? M.some(x => x.visible !== false) : !!M && M.visible !== false; }
+function hl_sichtbar(o) { for (let p = o; p; p = p.parent) { if (!p.visible) return false; if (p === scene) return true; } return false; }
+function hl_visuals(o) { // sichtbare Meshes zum Klickobjekt (gecacht in userData.hlV)
+  const u = o.userData;
+  if (u.hlObj !== undefined) { let x = null; try { x = typeof u.hlObj === 'function' ? u.hlObj() : u.hlObj; } catch (e) {} if (!x) return null;
+    if (x !== u.hlX) { u.hlX = x; u.hlV = []; x.traverse(m => { if (hl_ok(m)) u.hlV.push(m); }); } return u.hlV.length ? u.hlV : null; }
+  if (u.hlV) return u.hlV; if (u.hlVt > HL.t) return null;
+  const V = [];
+  if (hl_ok(o)) { const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere.radius * o.matrixWorld.getMaxScaleOnAxis() < 3 && !o.isSkinnedMesh) V.push(o); }
+  else { // unsichtbare Klickfläche: die Modelle aus der Nahliste (hl_scan), deren Mitte darin liegt
+    if (HL.resolveN <= 0) return null; HL.resolveN--; const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
+    const B = HL.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld).expandByScalar(.12), lim = B.getSize(HL.v).length() * .75 + .25, N = HL.near;
+    for (let i = 0; i < N.length && V.length < 12; i++) { const m = N[i]; if (m === o || !m.parent) continue; HL.s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (HL.s.radius < lim && B.containsPoint(HL.s.center)) V.push(m); } }
+  if (V.length) return (u.hlV = V); u.hlVt = HL.t + 3; return null; } // noch nichts geladen: in 3 s wieder versuchen
+
+// Nahliste: die Szene wird über mehrere Bilder verteilt durchlaufen (je Bild höchstens 500 Knoten), gesammelt werden kleine sichtbare Modelle bis 14 m um Luke
+function hl_scan() { const S = HL.sc, P = camera.position; let n = 0;
+  if (!S.stack.length) { HL.near = S.out; S.out = []; S.stack.push(scene); }
+  while (S.stack.length && n++ < 500) { const o = S.stack.pop(); if (!o.visible) continue; const c = o.children; for (let i = 0; i < c.length; i++) S.stack.push(c[i]);
+    if (!o.isMesh || o.isSkinnedMesh || !hl_ok(o)) continue; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere.radius > 6) continue;
+    HL.s.copy(g.boundingSphere).applyMatrix4(o.matrixWorld); if (HL.s.radius < 3 && HL.s.center.distanceToSquared(P) < 196) S.out.push(o); } }
+// ---------------------------------------------------------------- Masken-Material (Kategorie-Farbe × Stärke; verdeckt = verworfen)
+function hl_maskMat() { return new THREE.ShaderMaterial({ uniforms: { tDepth: HL.uD, res: HL.uRes, nf: HL.uNF, useD: HL.uUseD, col: { value: new THREE.Color() }, k: { value: 0 } },
+  vertexShader: `#include <common>
+#include <skinning_pars_vertex>
+varying float vVz;
+void main() {
+#include <skinbase_vertex>
+#include <begin_vertex>
+#include <skinning_vertex>
+  vec4 mv = modelViewMatrix * vec4(transformed, 1.); vVz = -mv.z; gl_Position = projectionMatrix * mv; }`,
+  fragmentShader: `uniform sampler2D tDepth; uniform vec2 res, nf; uniform float useD, k; uniform vec3 col; varying float vVz;
+void main() {
+  if (useD > .5) { float d = texture2D(tDepth, gl_FragCoord.xy / res).x; float sz = nf.x * nf.y / (nf.y - (nf.y - nf.x) * d); if (vVz > sz + .06 + vVz * .025) discard; }
+  gl_FragColor = vec4(col * k, 1.); }`, side: THREE.DoubleSide, depthTest: false, depthWrite: false, blending: THREE.NoBlending }); }
+function hl_proxy(src, s) { let p = src.userData.hlP;
+  if (!p) { p = src.isSkinnedMesh ? new THREE.SkinnedMesh(src.geometry, s.mat) : new THREE.Mesh(src.geometry, s.mat);
+    if (src.isSkinnedMesh) { p.bind(src.skeleton, src.bindMatrix); p.bindMode = src.bindMode; p.frustumCulled = false; }
+    p.matrixAutoUpdate = false; p.visible = false; p.userData.src = src; HL.scene.add(p); src.userData.hlP = p; }
+  return p; }
+function hl_frei(s) { for (let i = 0; i < s.px.length; i++) { s.px[i].visible = false; if (s.px[i].userData.slot === s) s.px[i].userData.slot = null; } s.px.length = 0; s.o = null; s.k = 0; s.sel = false; }
+function hl_nimm(o, d, look) {
+  let s = null; for (let i = 0; i < HL.slots.length; i++) if (HL.slots[i].o === o) { s = HL.slots[i]; break; }
+  if (!s) { for (let i = 0; i < HL.slots.length; i++) if (!HL.slots[i].o) { s = HL.slots[i]; break; }
+    if (!s) { let lo = 9; for (let i = 0; i < HL.slots.length; i++) { const q = HL.slots[i]; if (!q.sel && q.k < lo) { lo = q.k; s = q; } } if (!s) return; hl_frei(s); }
+    const V = hl_visuals(o); if (!V) return; s.o = o; s.k = 0; s.ph = Math.random() * 6.28;
+    for (let i = 0; i < V.length; i++) { const p = hl_proxy(V[i], s); const q = p.userData.slot; if (q && q !== s && q.o) continue; p.userData.slot = s; p.material = s.mat; s.px.push(p); } }
+  if (s.o !== o) return; s.cat = hl_kat(o); s.mat.uniforms.col.value.setHex(HL_FARBE[s.cat] || HL_FARBE.interakt); s.sel = true; s.d = d; s.look = look; }
+function hl_waehle() { // 5× je Sekunde: die 6 nächsten Kandidaten innerhalb 8 m + das angesehene
+  const L = IA.list, c = camera.position, f = HL.fwd; camera.getWorldDirection(f); HL.resolveN = 2; let n = 0;
+  for (let i = 0; i < L.length && n < 64; i++) { const o = L[i], u = o.userData; if (!u.action || !o.geometry) continue; const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere();
+    HL.s.copy(g.boundingSphere).applyMatrix4(o.matrixWorld); const dc = HL.s.center.distanceTo(c), d = Math.max(0, dc - HL.s.radius); if (d > 8 && o !== target) continue;
+    if (!hl_sichtbar(o) || hl_kat(o) === 'aus' || !hl_visuals(o)) continue;
+    HL.v.subVectors(HL.s.center, c).multiplyScalar(1 / Math.max(dc, 1e-3)); HL.cand[n] = o; HL.dist[n] = d; HL.look[n] = HL.v.dot(f) > .975 ? 1 : 0; n++; }
+  for (let i = 0; i < HL.slots.length; i++) HL.slots[i].sel = false;
+  for (let r = 0; r < 6; r++) { let bi = -1, bd = 1e9; for (let i = 0; i < n; i++) if (HL.cand[i] && HL.dist[i] < bd) { bd = HL.dist[i]; bi = i; } if (bi < 0) break; hl_nimm(HL.cand[bi], bd, HL.look[bi]); HL.cand[bi] = null; }
+  for (let i = 0; i < n; i++) { if (HL.cand[i] && (HL.cand[i] === target || HL.look[i] && HL.dist[i] < 6)) hl_nimm(HL.cand[i], HL.dist[i], HL.look[i]); HL.cand[i] = null; } }
+function hl_aus() { try { if (!state.started || menu.attract || state.ending || state.talking || ui.overlay || ui.paused || scripted || camOverride || state.blackout) return true;
+  if (typeof kino_S !== 'undefined' && kino_S.on) return true; if (typeof SP !== 'undefined' && SP.chase) return true; } catch (e) {} return false; }
+// Masken-Pass (nach dem RenderPass): liest die eben aufgelöste Szenentiefe, zeichnet nur die Stellvertreter der aktiven Kandidaten
+function hl_maske(r, wb, rb) { if (!HL.aktiv) return;
+  HL.uD.value = rb.depthTexture || null; HL.uUseD.value = rb.depthTexture ? 1 : 0; HL.uNF.value.set(camera.near, camera.far);
+  for (let i = 0; i < HL.slots.length; i++) { const s = HL.slots[i], on = s.k > .004; for (let j = 0; j < s.px.length; j++) { const p = s.px[j], src = p.userData.src; p.visible = on && hl_sichtbar(src); if (p.visible) p.matrixWorld.copy(src.matrixWorld); } }
+  const old = r.getRenderTarget(), ac = r.autoClear, ca = r.getClearAlpha(); r.getClearColor(HL.cc);
+  r.setRenderTarget(HL.rt); r.setClearColor(0x000000, 0); r.clear(true, false, false); r.autoClear = false; r.render(HL.scene, camera); r.autoClear = ac; r.setClearColor(HL.cc, ca); r.setRenderTarget(old); }
+function hl_glowPass() { const p = new ShaderPass({ uniforms: { tDiffuse: { value: null }, tMask: { value: null }, time: { value: 0 }, asp: { value: 1 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+  fragmentShader: `uniform sampler2D tDiffuse, tMask; uniform float time, asp; varying vec2 vUv;
+    float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+    float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1., 0.)), f.x), mix(h21(i + vec2(0., 1.)), h21(i + vec2(1., 1.)), f.x), f.y); }
+    void main(){
+      vec4 c = texture2D(tDiffuse, vUv), m0 = texture2D(tMask, vUv);
+      vec2 r1 = vec2(.0042 / asp, .0042), r2 = vec2(.0095 / asp, .0095), r3 = vec2(.0175 / asp, .0175); vec3 g = vec3(0.); float a = 0.;
+      for (int i = 0; i < 8; i++) { float w = float(i) * .7853982 + .3927, j = .8 + .4 * fract(float(i) * .618); vec2 d = vec2(cos(w), sin(w)), d2 = vec2(cos(w + .39), sin(w + .39));
+        vec4 s1 = texture2D(tMask, vUv + d * r1), s2 = texture2D(tMask, vUv + d2 * r2 * j), s3 = texture2D(tMask, vUv + d * r3 * j);
+        g += s1.rgb * .045 + s2.rgb * .045 + s3.rgb * .035; a += s1.a * .045 + s2.a * .045 + s3.a * .035; }
+      vec2 q = vUv * vec2(asp, 1.);
+      float n = vn(q * 85. + vec2(0., -time * .8)) * .6 + vn(q * 220. + vec2(time * .25, -time * 2.)) * .4;
+      float sp = smoothstep(.8, .97, vn(q * 430. + vec2(-time * .3, -time * 3.)));
+      vec3 aura = g * (1. - m0.a) * (.4 + .8 * n + 1.6 * sp);
+      vec3 rim = m0.rgb * (clamp(1. - a * 1.1, 0., 1.) * .28 + .05) * (.7 + .3 * n); /* innen nur ein Hauch, keine harte Linie */
+      vec3 e = clamp(aura * 1.9 + rim, 0., 1.);
+      c.rgb = 1. - (1. - c.rgb) * (1. - e);
+      gl_FragColor = c; }` }); return p; }
+
+// ---------------------------------------------------------------- Legende (einmal, beim ersten Sichten) und Einstellung
+function hl_legende() { if (HL.legende) return; HL.legende = true;
+  try { if (story.lore.some(l => l.key === 'hervorhebung')) return; const dot = c => `<span style="color:#${c.toString(16).padStart(6, '0')};text-shadow:0 0 6px #${c.toString(16).padStart(6, '0')}">●</span>`;
+    story.lore.push({ key: 'hervorhebung', title: 'Ränder', html: `<span class="hand">Seit dieser Nacht sehe ich Ränder. Um manche Dinge liegt ein Schimmer, wie Atem auf kaltem Glas – erst, wenn ich nah dran bin oder lange genug hinsehe.\n\nIch hab mir die Farben gemerkt:</span>\n` +
+      `${dot(HL_FARBE.interakt)} Mondblau – Türen, Schalter, alles, was man untersuchen kann\n${dot(HL_FARBE.sammel)} Jadegrün – etwas zum Mitnehmen\n${dot(HL_FARBE.hinweis)} Violett – ein Hinweis: Zettel, Briefe, Bilder\n` +
+      `${dot(HL_FARBE.glanz)} Bernstein – Glänzendes. Für Whiskey.\n${dot(HL_FARBE.sammlung)} Rosa – Seiten und Fotos, die zusammengehören: Polaroids, Stundenbuch, Laternenbote, Pells Heft\n\n` +
+      `<span class="hand">Lucy hätte gesagt, der Ort will mir was zeigen. Ich sag: zu wenig Schlaf.</span>\n<small>Einstellungen → Objekt-Hervorhebung: stark · dezent · aus</small>` });
+    subtitle('<i>Da liegt ein Schimmer drum. Als wollte es gefunden werden.</i>', 3600, 'LUKE'); setTimeout(() => { try { toast('Neu in der Fibel: „Ränder“ – was die Farben bedeuten.', 4600); } catch (e) {} }, 3800); } catch (e) {} }
+function hl_einstellung() { try { const P = document.getElementById('subPanel'), z = P && P.querySelector(':scope > div.close'); if (!z || !P.querySelector('#sGfx') || document.getElementById('sHl')) return;
+  z.insertAdjacentHTML('beforebegin', `<div class="row"><span>Objekt-Hervorhebung</span><select id="sHl">${[[2, 'stark'], [1, 'dezent'], [0, 'aus']].map(([v, n]) => `<option value="${v}" ${(settings.hl ?? 2) === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`);
+  const s = document.getElementById('sHl'); s.onclick = ev => ev.stopPropagation(); s.onchange = ev => { settings.hl = +ev.target.value; saveSettings(); }; } catch (e) {} }
+
+// ---------------------------------------------------------------- R-2 Glanz: Metallmodell, Glitzerpunkte, Schein, Klang
+function glanz_tex() { if (GLZ.tex) return GLZ.tex; const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,255,250,1)'); g.addColorStop(.14, 'rgba(255,248,226,.9)'); g.addColorStop(.38, 'rgba(255,228,176,.24)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+  GLZ.tex = new THREE.CanvasTexture(c); GLZ.tex.colorSpace = THREE.SRGBColorSpace; return GLZ.tex; }
+function glanz_haloTex() { if (GLZ.halo) return GLZ.halo; const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'), g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,214,140,.6)'); g.addColorStop(.45, 'rgba(255,190,110,.14)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+  GLZ.halo = new THREE.CanvasTexture(c); GLZ.halo.colorSpace = THREE.SRGBColorSpace; return GLZ.halo; }
+function glanz_mat() { if (GLZ.mat) return GLZ.mat; // polierter Messing: Umgebungsbild (Nachthimmel, Natriumlaternen am Horizont, Mond) gibt das scharfe Glanzlicht auch ohne Lampe
+  const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 128);
+  g.addColorStop(0, '#1b2333'); g.addColorStop(.47, '#4d5668'); g.addColorStop(.53, '#242019'); g.addColorStop(1, '#0b0c0f'); x.fillStyle = g; x.fillRect(0, 0, 256, 128);
+  const blob = (px, py, r, col) => { const q = x.createRadialGradient(px, py, 0, px, py, r); q.addColorStop(0, col); q.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = q; x.fillRect(px - r, py - r, r * 2, r * 2); };
+  [[30, 60], [95, 58], [170, 61], [228, 59]].forEach(([px, py]) => blob(px, py, 9, 'rgba(255,190,110,1)')); blob(140, 22, 7, 'rgba(225,235,255,1)'); blob(60, 30, 14, 'rgba(150,170,210,.5)');
+  const env = new THREE.CanvasTexture(c); env.mapping = THREE.EquirectangularReflectionMapping; env.colorSpace = THREE.SRGBColorSpace;
+  GLZ.mat = new THREE.MeshStandardMaterial({ color: 0xdcb878, metalness: 1, roughness: .2, envMap: env, envMapIntensity: 1.7, emissive: 0x3a2810, emissiveIntensity: .5 }); return GLZ.mat; }
+function glanz_laden() { if (!GLZ.laden) GLZ.laden = (async () => { try { // Fab „OldKey“ (Unreal-Export schluesselteil), auf Einheitsgröße, Mitte im Ursprung
+  const src = await msModel('../ue/schluesselteil', 'model.glb'), o = src.clone(true), w = new THREE.Group(); w.add(o); o.traverse(m => { if (m.isMesh) { m.material = glanz_mat(); m.castShadow = false; m.receiveShadow = false; m.userData.noCol = true; } });
+  w.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(w), s = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3()); o.position.sub(c); w.scale.setScalar(1 / Math.max(s.x, s.y, s.z, 1e-4));
+  GLZ.proto = w; for (const it of GLZ.list) glanz_key(it); return w; } catch (e) { console.warn('Glanz: Modell fehlt', e); return null; } })(); return GLZ.laden; }
+function glanz_key(it) { if (it.key || !GLZ.proto) return; const k = GLZ.proto.clone(true); k.scale.multiplyScalar(it.size); k.rotation.y = it.ry; it.key = k; it.g.add(k); }
+function glanz_neu(o = {}) { // → { g (Gruppe: Schlüssel + 2 Glitzerpunkte + Schein), key, size, an }
+  const g = new THREE.Group(); g.userData.noCol = true; const mk = (t, op) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); s.renderOrder = 2; g.add(s); return s; };
+  const it = { g, key: null, size: o.size || .07, ry: o.ry ?? Math.random() * 6.28, an: o.an || null, boden: !!o.boden, mit: o.mit || null, ph: Math.random() * 6.28, halo: mk(glanz_haloTex(), 0), gl: [mk(glanz_tex(), 0), mk(glanz_tex(), 0)], k: o.k ?? 1 };
+  it.gl[0].position.set(it.size * .3, it.size * .08, 0); it.gl[1].position.set(-it.size * .28, it.size * .1, it.size * .06); glanz_mat(); GLZ.list.push(it); glanz_key(it); glanz_laden(); return it; }
+function glanz_boden(it) { // am Boden: auf die sichtbare Oberfläche heben (der Fundort liegt teils auf dem Kollisionsboden unter Gehweg/Laub)
+  const g = it.g, rc = GLZ.rc || (GLZ.rc = new THREE.Raycaster()); rc.camera = camera; rc.far = 1.6; rc.set(HL.v.set(g.position.x, g.position.y + 1.2, g.position.z), GLZ.v.set(0, -1, 0));
+  const H = rc.intersectObject(scene, true); let y = null;
+  for (const h of H) { const o = h.object; if (o.isSprite || o.isPoints || o.isLine || !hl_ok(o) || !hl_sichtbar(o)) continue; let mine = false; for (let p = o; p; p = p.parent) if (p === g) { mine = true; break; } if (mine) continue; y = h.point.y; break; }
+  if (y === null) return; const dy = y + .004 - g.position.y; if (Math.abs(dy) > .9) return; g.position.y += dy; if (it.mit) for (const o of it.mit) o.position.y += dy; }
+function glanz_tick(dt, t) { const cam = camera.position, lit = typeof flashOn !== 'undefined' && flashOn && FLASH.charge > 0; camera.getWorldDirection(HL.fwd);
+  for (let i = 0; i < GLZ.list.length; i++) { const it = GLZ.list[i], g = it.g;
+    if (it.an) { let on = false; try { on = it.an(); } catch (e) {} g.visible = on; } if (!g.visible) continue;
+    const p = g.position, dx = cam.x - p.x, dy = cam.y - p.y, dz = cam.z - p.z, d = Math.hypot(dx, dy, dz); if (d > 40) { if (it.an) g.visible = false; continue; } if (it.boden && d < 14 && t > GLZ.liftT) { GLZ.liftT = t + .3; it.boden = false; glanz_boden(it); }
+    // Lampenkegel: im Licht der Taschenlampe glänzt es stärker (Glanz nur, wo Metall ist – und Licht darauf fällt)
+    const inv = 1 / Math.max(d, 1e-3), cone = lit ? Math.max(0, (-(dx * HL.fwd.x + dy * HL.fwd.y + dz * HL.fwd.z) * inv - .9) / .1) * Math.max(0, 1 - d / 22) : 0, L = it.k * (.5 + .5 * Math.min(1, cone + (d < 3 ? .4 : 0)));
+    const az = Math.atan2(dx, dz) - g.rotation.y, el = Math.atan2(dy, Math.hypot(dx, dz)), sz = it.size * (1 + d * .05);
+    for (let j = 0; j < 2; j++) { const s = it.gl[j], ph = it.ph + j * 2.3; // blitzt auf, wenn der Blickwinkel über die Fläche streicht (Bewegung, Drehung), dazu ein seltenes Funkeln
+      const f = Math.pow(Math.max(0, Math.sin(az * 7 + el * 11 + ph + t * .3)), 16), tw = Math.pow(Math.max(0, Math.sin(t * (1.1 + j * .6) + ph * 3)), 48), a = Math.min(1, (f + tw * .8) * L);
+      s.visible = a > .02; if (s.visible) { s.material.opacity = a; s.scale.setScalar(sz * (.5 + 1.3 * a)); } }
+    it.halo.material.opacity = L * (.2 + .06 * Math.sin(t * 2.1 + it.ph)) * Math.min(1, d / 1.5 + .3); it.halo.scale.setScalar(sz * 4.2); } }
+function glanz_klang(x, y, z) { // leiser, kristalliner Ton: zwei hohe Spieluhr-Zungen (echte Aufnahmen), knapp versetzt
+  try { const o = x !== undefined ? { x, y, z, ref: 2 } : {}; if (Audio.buf && Audio.buf.kb_spieluhr_A6) { Audio.play('kb_spieluhr_A6', { ...o, gain: .085, rate: 1.335, hp: 900 }); Audio.play('kb_spieluhr_E6', { ...o, gain: .06, rate: 2, delay: .085, hp: 900 }); }
+    Audio.play('keys1', { ...o, gain: .07, rate: 2.1, dur: .2 }); } catch (e) {} }
+
+// ---------------------------------------------------------------- Einbindung
+if (typeof sammeln_platz === 'function') sammeln_platz = (o => function () { const O = o.apply(this, arguments); try { if (O && O.hit) { O.hit.userData.hl = 'sammlung'; O.hit.userData.hlObj = () => O.m && O.m.visible ? O.m : null; } } catch (e) {} return O; })(sammeln_platz);
+WORLD_MODS.push(['Hervorhebung', async () => {
+  try { if (settings.hl === undefined) settings.hl = 2; } catch (e) {}
+  const mS = document.getElementById('mSet'); if (mS) mS.addEventListener('click', () => setTimeout(hl_einstellung, 0));
+  try { if (typeof sammeln_S !== 'undefined') for (const O of Object.values(sammeln_S.orte)) if (O && O.hit) { O.hit.userData.hl = 'sammlung'; O.hit.userData.hlObj = () => O.m && O.m.visible ? O.m : null; } } catch (e) {}
+  if (typeof klang_load === 'function') { klang_load('kb_spieluhr_A6'); klang_load('kb_spieluhr_E6'); }
+  try { // Szenentiefe für den Verdeckungstest: Tiefentextur an beide Puffer des Composers (MSAA löst sie mit auf)
+    for (const r of [composer.renderTarget1, composer.renderTarget2]) if (!r.depthTexture) { r.depthTexture = new THREE.DepthTexture(r.width, r.height, THREE.UnsignedIntType); r.dispose(); }
+  } catch (e) { console.warn('Hervorhebung: keine Szenentiefe', e); }
+  const W = composer.renderTarget1.width, H = composer.renderTarget1.height;
+  HL.rt = new THREE.WebGLRenderTarget(Math.max(1, W >> 1), Math.max(1, H >> 1), { depthBuffer: false, type: THREE.UnsignedByteType }); HL.uRes.value.set(HL.rt.width, HL.rt.height);
+  HL.scene = new THREE.Scene(); HL.scene.matrixWorldAutoUpdate = false;
+  for (let i = 0; i < 10; i++) HL.slots.push({ o: null, k: 0, sel: false, d: 9, look: 0, ph: 0, cat: 'interakt', px: [], mat: hl_maskMat() });
+  HL.mask = { enabled: true, needsSwap: false, clear: false, renderToScreen: false, render: hl_maske, dispose() {},
+    setSize(w, h) { HL.rt.setSize(Math.max(1, w >> 1), Math.max(1, h >> 1)); HL.uRes.value.set(HL.rt.width, HL.rt.height); } };
+  HL.glow = hl_glowPass(); HL.glow.uniforms.tMask.value = HL.rt.texture; HL.glow.enabled = false;
+  composer.insertPass(HL.mask, 1);
+  const P = composer.passes, io = P.findIndex(p => p.constructor && p.constructor.name === 'OutputPass'); composer.insertPass(HL.glow, io >= 0 ? io + 1 : Math.max(1, P.indexOf(filmPass)));
+  HL.ready = true;
+}]);
+WORLD_TICK.push((dt, t) => {
+  if (!HL.ready) return; HL.t = t; const aus = hl_aus(), mode = aus ? 0 : +(settings.hl ?? 2);
+  const t0 = performance.now(); if (mode) hl_scan(); HL.chk -= dt; if (HL.chk <= 0) { HL.chk = .2; if (mode) hl_waehle(); else for (let i = 0; i < HL.slots.length; i++) HL.slots[i].sel = false; } HL.ms = Math.max(HL.ms * .995, performance.now() - t0); // Messwert für Tests (gleitendes Maximum)
+  const F = HL_STUFE[mode] || HL_STUFE[2]; let n = 0, best = 0;
+  for (let i = 0; i < HL.slots.length; i++) { const s = HL.slots[i]; if (!s.o) continue; let kT = 0;
+    if (mode && s.sel) kT = s.o === target ? F[0] : (s.d < 2.6 || s.look) ? F[1] : F[2] * Math.max(0, 1 - (s.d - 2.6) / 5.4);
+    s.k += (kT - s.k) * Math.min(1, dt * (kT > s.k ? 4.5 : 7)); if (s.k < .004 && !kT) { hl_frei(s); continue; }
+    s.mat.uniforms.k.value = s.k * (.82 + .18 * Math.sin(t * 2.2 + s.ph)); n++; if (s.k > best) best = s.k; }
+  HL.aktiv = n; HL.glow.enabled = n > 0; HL.glow.uniforms.time.value = t; HL.glow.uniforms.asp.value = camera.aspect;
+  if (!HL.legende && !aus && best > .45 && !(typeof subtitle === 'undefined')) hl_legende();
+  glanz_tick(dt, t);
+});
+window.__hl = { HL, GLZ, kat: o => hl_kat(o), vis: o => hl_visuals(o), slots: () => HL.slots.filter(s => s.o).map(s => ({ label: (l => typeof l === 'function' ? l() : l)(s.o.userData.label), cat: s.cat, k: +s.k.toFixed(2), d: +(+s.d).toFixed(2), n: s.px.length })) }; // Testzugriff

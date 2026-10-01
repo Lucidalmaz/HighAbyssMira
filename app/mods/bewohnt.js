@@ -385,6 +385,7 @@ const BW_RAEUME = [
       // Wand der Wahrheit zwischen den Fenstern: Zeitungsausschnitte über Lichter am Himmel
       for (const [x, y, art, rz] of [[-981.3, 1.55, 'zeitung2', .06], [-980.75, 1.7, 'zeitung', -.05], [-981.05, 1.15, 'brief', .1], [-980.6, 1.25, 'zeitung2', -.12]]) c.papier(art, art === 'brief' ? .22 : .2, art === 'brief' ? .14 : .27, x, y, R.z0 + .012, { rx: 0, ry: 0, rz });
       c.fleck('grime', .9, .6, -979.3, .012, 860.25, 'floor', .4, 0x3a3028, .5); // Brunos Liegeplatz an der Tür
+      if (typeof figuren_hund === 'function') figuren_hund(c.g, -979.3, 860.25, { y: c.y0, ry: Math.PI, wandern: [[-979.3, 860.25], [-979.3, 859.55]] }); // Q-9 B-3 / Q-6: Bruno ist wieder da – und falsch (figuren.js)
     } },
   // ================= Amt Ebene −2 (Bundesstelle für Rückführung, seit 2012 verlassen – Kalender März 2012): wer wartete, wer arbeitete
   { id: 'amt_tunnel', name: 'Amt · Tunnel/Wartebereich', r: () => ({ x0: C2.x + .2, x1: C2.x + 17.8, z0: C2.z - 1.84, z1: C2.z + 1.84 }), y0: 0, h: C2.h, tueren: () => [[C2.x, C2.z, 1], [C2.x + 18, C2.z, 1]],

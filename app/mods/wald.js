@@ -166,7 +166,7 @@ function wald_cutTick(dt, P) {
   player.yaw = C.yaw; player.pitch = C.pitch; // die Lampe bleibt starr nach vorn gerichtet
   let schlecht = null; for (const W of S.wolves) { if (W.st === 'gone') continue; const q = W.g.position; if (!flashOn || Math.hypot(q.x - P.x, q.z - P.z) > 15 || leben_facing(q.x, q.y + .5, q.z) < .82) { schlecht = W; break; } }
   if (schlecht) { C.bad += dt; if (C.bad > .45) { const q = schlecht.g.position; S.cut = null; I.textContent = ''; S.cutFail = (S.cutFail || 0) + 1; // Abbruch: hinter ihm knurrt es
-      Audio.play('dog', { gain: .5, rate: .5, x: q.x, y: .6, z: q.z, ref: 3, dur: 1 }); shake = Math.max(shake, .05); schlecht.st = 'guard'; schlecht.t = 1.5;
+      Audio.play('dog', { gain: .5, rate: .5, x: q.x, y: .6, z: q.z, ref: 3, dur: 1, obj: schlecht.g, h: .6 }); shake = Math.max(shake, .05); schlecht.st = 'guard'; schlecht.t = 1.5;
       if (S.cutFail === 1) setTimeout(() => subtitle('Ich muss sie vor mir haben. Beide.', 2600, 'LUKE'), 900);
       else setTimeout(() => toast('Im Schlamm auf der anderen Seite der Schlinge: zwei kleine Knie. Da hat jemand gekniet – mit der Schlinge zwischen sich und den Wölfen.', 5600), 900); return; } }
   else C.bad = 0;
@@ -175,7 +175,7 @@ function wald_cutTick(dt, P) {
 }
 function wald_pupFrei() {
   const S = wald_S; if (story.lore.some(l => l.key === 'wald_welpe')) return;
-  Audio.play('metalHit2', { gain: .3, rate: 1.9 }); if (S.snare) S.snare.visible = false;
+  Audio.play('metalHit2', { gain: .3, rate: 1.9, x: WALD.wolf.x, y: .2, z: WALD.wolf.z }); if (S.snare) S.snare.visible = false;
   story.lore.push({ key: 'wald_welpe', title: 'Nicht rennen, Lampe an', html: 'Ein Wolfswelpe in einer Drahtschlinge. Ich hab sie aufgeschnitten, die Lampe starr auf die Wölfe. Sie haben zugesehen und nichts getan.\n\nIm Draht: ein Taschenmesser. In den Griff geritzt: <b>JONAS W.</b>\nAm Pflock eine Plombe aus Blech, das Auge über der Flamme: <b>AST 7 · Köder W · nicht entfernen</b>.\n\nDie haben einen Welpen an einen Draht gebunden, damit was Hungriges kommt.' });
   addItem('jonas_messer'); addItem('plombe');
   sideDone('wald_welpe', 'Der Welpe ist frei. Im Draht: Jonas’ Taschenmesser. Am Pflock: eine Plombe vom Amt – „Köder W“.');
@@ -187,8 +187,8 @@ function wald_pupFrei() {
     setTimeout(() => subtitle('Die haben einen Welpen an einen Draht gebunden, damit was Hungriges kommt. … Und mir haben sie Tee angeboten.', 5200, 'LUKE'), 500);
     if (typeof gedanke === 'function') gedanke('wald_jonas', 'Jonas hat ihn gesucht. Hier draußen, allein. Und ich hab zwei Häuser weiter gewohnt und nie gefragt, wo er nachmittags hingeht.', 7000, 3); }), 3800);
 }
-function wald_warnsprung(x, z) { // Stufe 2: er hat nicht zugebissen – Luke fällt, die Lampe geht aus und wieder an
-  scareCount++; Audio.play('dog', { gain: .6, rate: .45, x, y: .6, z, ref: 3, dur: 1.1 }); Audio.scareSound('growl'); shake = .14; glitchV = .5; filmPass.uniforms.flash.value = .5; setTimeout(() => filmPass.uniforms.flash.value = 0, 120); Audio.heart();
+function wald_warnsprung(x, z, g) { // Stufe 2: er hat nicht zugebissen – Luke fällt, die Lampe geht aus und wieder an
+  scareCount++; Audio.play('dog', { gain: .6, rate: .45, x, y: .6, z, ref: 3, dur: 1.1, obj: g, h: .6 }); Audio.scareSound('growl'); shake = .14; glitchV = .5; filmPass.uniforms.flash.value = .5; setTimeout(() => filmPass.uniforms.flash.value = 0, 120); Audio.heart();
   if (typeof cutLights === 'function') cutLights(900); if (typeof gedanke === 'function') gedanke('wald_warnung', 'Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung. Nicht rennen.', 1800, 3); }
 // ---------------------------------------------------------------- N6-1 · das Reh, das nicht wegläuft (Stufe 1): Licht drauf – es steht; senken – ein Schritt; beim dritten Heben ist es weg
 function wald_fakeAn() { const S = wald_S, F = S.fake; if (!F || S.fakeOn || S.fakeGone) return; S.fakeOn = true; F.g.position.set(WALD.fake.x, 0, WALD.fake.z); F.g.visible = true; F.st = 'stand'; S.fk = { lit: false, lowered: false, raises: 0, step: 0 }; }
@@ -271,7 +271,7 @@ WORLD_TICK.push((dt, t) => {
     else if (W.st === 'rand') { W.litT -= dt; const s = S.wolves.indexOf(W) ? 1.4 : -1.4; W.tx = P.x + _wF.x * 7.5 - _wF.z * s; W.tz = P.z + _wF.z * 7.5 + _wF.x * s; W.sp = 2.6; // an den Rand des Lichts, dort stehen bleiben
       const arr = leben_beastMove(W, dt, false); W.g.rotation.y = leben_ang(W.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 4)); leben_play(W, arr ? 'IdleAggressive' : 'Walk', .3); if (W.litT < 0) { W.st = 'guard'; W.t = 1; } }
     else if (W.st === 'lunge') { const ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; W.tx = P.x + ax / al * 1.2; W.tz = P.z + az / al * 1.2;
-      if (leben_beastMove(W, dt) || d < 1.4) { W.st = 'back'; W.tx = p.x + ax / al * 7; W.tz = p.z + az / al * 7; W.sp = 4; leben_play(W, 'Bite', .05, 1, true); setTimeout(() => leben_play(W, 'Run', .1), 500); wald_warnsprung(p.x, p.z); } }
+      if (leben_beastMove(W, dt) || d < 1.4) { W.st = 'back'; W.tx = p.x + ax / al * 7; W.tz = p.z + az / al * 7; W.sp = 4; leben_play(W, 'Bite', .05, 1, true); setTimeout(() => leben_play(W, 'Run', .1), 500); wald_warnsprung(p.x, p.z, W.g); } }
     else if (W.st === 'back') { if (leben_beastMove(W, dt)) { W.st = 'guard'; W.t = 2; leben_play(W, 'IdleAggressive', .3); } }
     else if (W.st === 'leave') { W.t -= dt; if (W.t < 0) { W.st = 'go'; W.tx = WALD.wolf.x + 18; W.tz = WALD.wolf.z - 6; W.sp = 3; leben_play(W, 'Run', .2); } }
     else if (W.st === 'go') { if (leben_beastMove(W, dt)) { W.st = 'gone'; W.g.visible = false; } } }

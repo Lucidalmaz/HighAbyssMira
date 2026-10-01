@@ -351,6 +351,7 @@ function feuer_spill() {
 // ---------------------------------------------------------------- Der Verfolger stürzt, liegt im Öl, steht wieder auf – oder brennt
 function feuer_zs() { return typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; }
 function feuer_anim(idle) { // Grundhaltung: Stehen (Idle) im Liegen, Gehen in der Jagd
+  if (PZ.P) { PZ.lockClip = null; PZ.lockT = 0; pz_clip(idle ? 'idle' : 'walk', { fade: .4 }); return; } // R-10: Peter als Figur
   const Zm = feuer_zs(); if (!Zm || !innen_kapitel_S.ghostGL) return; const cl = innen_kapitel_S.ghostGL.animations, w = cl.find(a => /walk/i.test(a.name)), i = cl.find(a => /idle/i.test(a.name)); if (!w || !i) return;
   const aw = Zm.mx.clipAction(w), ai = Zm.mx.clipAction(i); if (idle) { aw.stop(); ai.reset().play(); } else { ai.stop(); aw.reset().play(); aw.timeScale = 2.3; } Zm.mx.timeScale = 1;
 }
@@ -362,7 +363,7 @@ function feuer_zombieFall(byRoll) {
 }
 function feuer_zombieUpdate(dt, t) {
   const S = feuer_S, Q = S.zs; if (!Q || !zombie.g.visible) return; Q.t += dt;
-  if (Q.st === 'fall') { const k = Math.min(1, Q.t / .62); Q.th = 1.52 * k * k; Q.arms = Math.sin(k * PI) * 1.2;
+  if (Q.st === 'fall') { const k = Math.min(1, Q.t / (PZ.P ? 3.1 : .62)); Q.th = 1.52 * k * k; Q.arms = Math.sin(k * PI) * 1.2;
     if (k >= 1) { Q.st = 'down'; Q.t = 0; Q.down = 0; Q.arms = 0; TOD_SND.thud(1); Audio.play('woodFall1', { gain: .7, rate: .6, x: Q.x, y: .2, z: Q.z, ref: 3 }); shake = Math.max(shake, .035); if (!S.spilled && S.phase === 'rest') feuer_spill(); } }
   else if (Q.st === 'down') { Q.down += dt; Q.th = 1.52 + Math.sin(Q.t * 1.7) * .02;
     // rutscht im Öl: versucht sich aufzurichten, gleitet wieder weg
@@ -372,20 +373,22 @@ function feuer_zombieUpdate(dt, t) {
     const limit = S.griff ? 12 : S.lighter ? 11 : 4.8; // Fassung 3: wer etwa zwölf Sekunden wartet, sieht Peter auf die Knie kommen
     if (!S.said.oel && Q.down > 1.2) { S.said.oel = true; if (S.lighter) subtitle('Er liegt im Öl. Das Feuerzeug in deiner Tasche wiegt plötzlich schwer.', 3600, ''); else say([['Öl. Überall Öl. Wenn ich jetzt Feuer hätte …', 3000, 'LUKE']]); }
     if (Q.down > limit && S.phase !== 'ignite') { Q.st = 'rise'; Q.t = 0; Audio.groan(Q.x, Q.z, true); } }
-  else if (Q.st === 'rise') { const k = Math.min(1, Q.t / 1.1); Q.sit = Math.sin(Math.min(1, k * 1.6) * PI / 2) * (1 - k); Q.th = 1.52 * (1 - k * k * (3 - 2 * k)); Q.writhe = .3 * (1 - k);
+  else if (Q.st === 'rise') { const k = Math.min(1, Q.t / (PZ.P ? 1.8 : 1.1)); Q.sit = Math.sin(Math.min(1, k * 1.6) * PI / 2) * (1 - k); Q.th = 1.52 * (1 - k * k * (3 - 2 * k)); Q.writhe = .3 * (1 - k);
     if (k >= 1) { zombie.greifT = 99; Q.st = null; S.zs = null; S.spent = true; S.fell = false; S.slipIn = 0; zombie.g.rotation.set(0, Q.yaw, 0); feuer_anim(false); ch2.chase = 'run'; Audio.chaseMusic(true); zombie.t = 0; if (!S.said.weiter) { S.said.weiter = true; subtitle('Er steht wieder auf. Das Öl tropft von ihm.', 2800); } return; } }
   else if (Q.st === 'nick') { Q.th = 1.52; const k = Q.t / 2; Q.nick = k < .45 ? Math.sin(k / .45 * PI) : 0; Q.weg = k > .5 ? Math.min(1, (k - .5) / .4) : 0; Q.weg = Q.weg * Q.weg * (3 - 2 * Q.weg); // einmal nicken, dann den Kopf wegdrehen
     if (Q.t >= 2) { Q.st = 'burn'; Q.t = 0; shake = Math.max(shake, .02); } }
   else if (Q.st === 'burn') { // brennt: liegt, den Kopf abgewandt; krümmt sich langsam zusammen (kein Aufrichten, kein Schrei)
     const b = Q.t; Q.burn = Math.min(1, b / 1.2); Q.char = Math.min(1, b / 9); Q.th = 1.52; Q.weg = 1; Q.nick = 0; Q.reach = 0; Q.sit = 0;
     Q.writhe = b < 3 ? .35 * Math.min(1, b) : Math.max(0, .35 - (b - 3) * .08); Q.curl = Math.min(1, Math.max(0, b - 2.5) / 4);
-    if (b > 5.5 && !Q.thud) { Q.thud = true; TOD_SND.thud(.5); FEU_SND.collapse(Q.x, Q.z); } }
-  zombie.g.position.set(Q.x, .1 * Math.sin(Math.max(0, Q.th)), Q.z); zombie.g.rotation.set(0, Q.yaw, Q.th);
+    if (b > 5.5 && !Q.thud && !PZ.P) { Q.thud = true; TOD_SND.thud(.5); FEU_SND.collapse(Q.x, Q.z); } }
+  if (PZ.P) { zombie.g.position.set(Q.x, 0, Q.z); zombie.g.rotation.set(0, 0, 0); } // liegt mit dem Kopf nach Osten: zu Luke, zur Tür
+  else { zombie.g.position.set(Q.x, .1 * Math.sin(Math.max(0, Q.th)), Q.z); zombie.g.rotation.set(0, Q.yaw, Q.th); }
   zombie.x = Q.x; zombie.z = Q.z;
 }
 // Knochen nach dem Animations-Mixer (dieser Tick läuft nach innen_kapitel): Haltung im Liegen, Aufrichten, Greifen, Krümmen
 const _fzq = new THREE.Quaternion(), _fzl = new THREE.Vector3(), _fzf = new THREE.Vector3(), _fzp = new THREE.Vector3(), _fzu = new THREE.Vector3();
 function feuer_bones(t) {
+  if (PZ.P) return; // R-10: Peter als Figur – Haltung kommt aus echten Clips (pz_zsTick)
   const S = feuer_S, Q = S.zs, Zm = feuer_zs(); if (!Q || !Zm || !Zm.b || !zombie.g.visible) return; const b = Zm.b;
   Zm.zm.getWorldQuaternion(_fzq); _fzl.set(1, 0, 0).applyQuaternion(_fzq); _fzf.set(0, 0, 1).applyQuaternion(_fzq);
   // innen_kapitel beugt jedes Bild nach vorn (Jagdhaltung) – im Liegen zurücknehmen
@@ -415,8 +418,9 @@ const _fcq = new THREE.Quaternion(), _fcq2 = new THREE.Quaternion(), _fce = new 
 function feuer_cam(cam, dt) {
   const S = feuer_S, C = S.cine; if (!C) return; C.t += dt;
   const kin = Math.min(1, C.t / 1.2), kout = C.out ? Math.max(0, 1 - (C.t - C.out) / 1.2) : 1, k = Math.min(kin, kout), e = k * k * (3 - 2 * k);
-  if (C.out && C.t - C.out > 1.2) { S.cine = null; setCamOverride(null); return; }
+  if (C.out && C.t - C.out > 1.2) { S.cine = null; setCamOverride(null); if (PZ.P) { camera.fov = fov; camera.updateProjectionMatrix(); } return; }
   const Q = S.zs, tb = .8 * (1 - (Q && Q.sit || 0) * .35), look = Q ? _fct.set(Q.x - Math.cos(Q.yaw) * tb, .4 + (Q.sit || 0) * .35, Q.z + Math.sin(Q.yaw) * tb) : _fct.set(S.ignX, .3, S.ignZ);
+  if (PZ.P) { look.lerp(pz_kopfPos(_pv4), .5); const tf = fov - 9 * Math.min(1, C.t / 10) * e; if (Math.abs(cam.fov - tf) > .01) { cam.fov = tf; cam.updateProjectionMatrix(); } } // R-10: Blick auf sein Gesicht, die Brennweite zieht langsam zu
   // langsame Fahrt auf ihn zu, tief (Flammen im Vordergrund = Tiefe), Handkamera: atmende, leicht zitternde Bewegung
   const dolly = Math.min(1, C.t / 11) * .75, dx = look.x - C.ox, dz = look.z - C.oz, dl = Math.hypot(dx, dz) || 1, T = C.t;
   const hx = Math.sin(T * 1.13) * .018 + Math.sin(T * 2.71 + 1) * .008, hy = Math.sin(T * 1.57 + 2) * .012 + Math.sin(T * 3.3) * .005;
@@ -429,7 +433,7 @@ function feuer_cam(cam, dt) {
 async function feuer_ignite() {
   const S = feuer_S; if (S.phase === 'ignite' || S.phase === 'burn' || S.phase === 'escape') return; if (!S.spilled) { feuer_spill(); S.spillT = 6; }
   const Q = S.zs || (zombie.g.visible ? (feuer_zombieFall(false), S.zs) : null); if (!Q) return; if (Q.st !== 'down') { Q.st = 'down'; Q.t = 0; Q.th = 1.52; Q.arms = 0; }
-  S.phase = 'ignite'; const run = ++S.run; S.ignHit.position.set(0, -80, 0); uninteract(S.ignHit);
+  const vor = S.phase; S.phase = 'ignite'; const run = ++S.run; S.ignHit.position.set(0, -80, 0); uninteract(S.ignHit);
   state.talking = true; setScripted(() => true); vel.set(0, 0, 0);
   const P = player.pos, f = { x: -Math.sin(player.yaw), z: -Math.cos(player.yaw) };
   S.cine = { t: 0, ox: P.x, oz: P.z, sx: f.z * .45, sz: -f.x * .45 }; setCamOverride(feuer_cam);
@@ -438,7 +442,9 @@ async function feuer_ignite() {
   S.ignX = bi >= 0 ? A[bi] : Q.x + .8; S.ignZ = bi >= 0 ? A[bi + 1] : Q.z; S.oilU.uIgn.value.set(S.ignX, S.ignZ);
   // Fassung 3 (AP-16): Peters Feuerzeug bleibt bei Luke (Kap. 4 Joint, Kap. 5 Mamas Kerze, Kap. 6 Gravur) – geworfen wird nur die Flamme (ein brennender Fetzen vom Ärmel)
   subtitle('Das Feuerzeug. Der Daumen findet das Rad von allein.', 2600);
-  await wait(500); if (run !== S.run) return; FEU_SND.flick();
+  if (PZ.P && typeof qte_start === 'function') { await wait(350); if (run !== S.run) return; const ok = await pz_qteFeuerzeug(); if (run !== S.run) return; // R-10: „Ruhig halten“ – zittert die Hand, reißt die Flamme ab
+    if (!ok) { S.phase = vor; if (S.cine) S.cine.out = S.cine.out || S.cine.t; setScripted(null); state.talking = false; subtitle('Die Flamme reißt ab. Er bewegt sich.', 2400); if (S.zs) S.zs.down = (S.zs.down || 0) + 3.5; return; } }
+  else { await wait(500); if (run !== S.run) return; FEU_SND.flick(); }
   // Wurf: vom Auge in einem Bogen zum Zündpunkt, die kleine Flamme fliegt mit
   const T = S.throwObj, sx = camera.position.x + f.x * .3 - f.z * .15, sy = camera.position.y - .25, sz = camera.position.z + f.z * .3 + f.x * .15;
   await wait(450); if (run !== S.run) return;
@@ -456,8 +462,8 @@ async function feuer_ignite() {
   at(1300, () => subtitle('Die Flamme läuft über das Öl. Er sieht sie kommen.', 2600));
   at(4200, () => subtitle('Um sein Handgelenk schmilzt ein Plastikband: <b>KRANZ, P.</b>', 3800));
   at(7400, () => subtitle('Onkel Peter …?', 2400, 'LUKE'));
-  at(10200, () => { if (S.cine) S.cine.out = S.cine.t; });
-  at(11400, () => feuer_escapeStart());
+  at(PZ.P ? 12400 : 10200, () => { if (S.cine) S.cine.out = S.cine.t; }); // R-10: Peter richtet sich auf, greift zur Tür, bricht zusammen – die Einstellung wartet darauf
+  at(PZ.P ? 13600 : 11400, () => feuer_escapeStart());
 }
 function feuer_zombieIgnite() { const S = feuer_S, Q = S.zs; if (!Q || Q.st === 'burn' || Q.st === 'nick') return; Q.st = 'nick'; Q.t = 0; Q.nick = 0; Q.weg = 0; Q.writhe = 0; Q.sit = 0; } // Fassung 3: Peter sieht die Flamme kommen. Er nickt. Einmal.
 
@@ -545,7 +551,7 @@ function feuer_cellDoor(dt) {
 }
 // ---------------------------------------------------------------- Zurücksetzen (Wiederkehr nach dem Tod)
 function feuer_reset(cpId) {
-  const S = feuer_S; (S.lines || []).forEach(clearTimeout); S.lines = []; S.run++;
+  const S = feuer_S; (S.lines || []).forEach(clearTimeout); S.lines = []; S.run++; pz_reset();
   if (S.done || !ch2.on) return;
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
@@ -575,6 +581,7 @@ WORLD_TICK.push((dt, t) => {
     if (!S.items) feuer_items();
     if (!ch2.on || !S.oil) return;
     const P = player.pos; S.timeU.value = t; S.frame++;
+    try { pz_tick(dt, t); } catch (e) { if (!PZ.err) { PZ.err = true; console.warn('Peter', e); } } // R-10: Figur, Jagd, Kamera, QTE
     // Musik vorbereiten, sobald das Amt Strom hat (rendert im Hintergrund)
     if (!S.cues && !S.cueBusy && ch2.power && Audio.ctx && Audio.ctx.state === 'running') feuer_renderCues();
     // Feuerzeug: glänzt im Lampenlicht; Luke bemerkt es
@@ -584,7 +591,7 @@ WORLD_TICK.push((dt, t) => {
         if (lit && d < 4.5 && ch2.spiderPhase === 'gone') gedanke('feuer_glanz', 'Da, auf der Matratze. Da glänzt was.', 0, 2); }
       else S.glint.material.opacity = 0; }
     if (ch2.chase === 'run' && !S.said.klemmt && typeof gate !== 'undefined' && !gate.userData.open && gate.userData.holdT > .9) { S.said.klemmt = true; subtitle('Es klemmt!', 1400, 'LUKE'); }
-    { const Zm = feuer_zs(); if (Zm && Zm.mx && ch2.chase === 'run' && zombie.spNow !== undefined && !S.zs) for (const a of Zm.mx._actions || []) if (/walk/i.test(a.getClip().name)) a.timeScale = zombie.spNow < .05 ? .05 : .55 + zombie.spNow * .42; } // er geht; schnell nur, wenn er will
+    { const Zm = feuer_zs(); if (Zm && Zm.mx && !PZ.P && ch2.chase === 'run' && zombie.spNow !== undefined && !S.zs) for (const a of Zm.mx._actions || []) if (/walk/i.test(a.getClip().name)) a.timeScale = zombie.spNow < .05 ? .05 : .55 + zombie.spNow * .42; } // er geht; schnell nur, wenn er will
     feuer_barrelUpdate(dt, t); feuer_zombieUpdate(dt, t); feuer_bones(t);
     // Wurf des Feuerzeugs
     if (S.throwT && S.throwObj) { const W = S.throwT; W.t += dt; const k = Math.min(1, W.t / W.d); S.throwObj.position.set(W.sx + (W.ex - W.sx) * k, W.sy + (.02 - W.sy) * k + Math.sin(k * PI) * .45, W.sz + (W.ez - W.sz) * k); S.throwObj.rotation.set(k * 9, k * 5, 0);
@@ -660,15 +667,16 @@ WORLD_TICK.push((dt, t) => {
 // Nach der Sequenz: Peter liegt zwei Meter weiter im Öl und sieht Luke an, die Stablampe liegt zwischen ihnen (Licht vom Boden), „Das Öl anzünden“ mit unsichtbarem Timer.
 async function feuer_griff() { const S = feuer_S; if (S.griff || S.griffLauf) return; S.griffLauf = true; ch2.chase = 'griff'; ch2.caught++; Audio.chaseMusic(false); Audio.chaseLevel(0);
   const P = player.pos; player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
-  const ax = P.x, az = Math.max(Z - 1.25, Math.min(Z + 1.25, P.z)), Lx = ax - 1.3, Lz = Math.max(Z - 1.1, Math.min(Z + 1.1, az));
+  const ax = P.x, az = Math.max(Z - 1.25, Math.min(Z + 1.25, P.z)), Lx = ax - (PZ.P ? 2.0 : 1.3), Lz = Math.max(Z - 1.1, Math.min(Z + 1.1, az));
   if (Math.hypot(FEU.bx - (ax - .5), FEU.bz - (Z - 1.25)) > 2.2) { FEU.bx = ax - .5; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; } if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); }
   if (typeof gate !== 'undefined' && !gate.userData.open && Math.abs(gate.position.x - ax) < 3) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); $('sideInfo').textContent = ''; }
   zombie.x = Lx; zombie.z = Lz; S.griffLauf = true;
-  if (!S.griffGesehen && typeof kino_play === 'function' && typeof KINO !== 'undefined' && KINO.k2a && typeof kino_S !== 'undefined' && kino_S.ready) { S.griffGesehen = true; try { await kino_play('k2a'); } catch (e) { console.warn('Kino k2a', e); } }
+  if (!S.griffGesehen && typeof kino_play === 'function' && typeof KINO !== 'undefined' && KINO.k2a && typeof kino_S !== 'undefined' && kino_S.ready) { S.griffGesehen = true; try { await kino_play('k2a'); } catch (e) { console.warn('Kino k2a', e); } if (feuer_k2aTot()) return pz_griffTod(); }
+  else if (PZ.P && typeof qte_start === 'function') { S.griffGesehen = true; state.talking = true; setScripted(() => true); const r = await pz_griffOhneKino(ax, az); setScripted(null); state.talking = false; if (r === 'tot') return pz_griffTod(); } // R-10: Wiederholung aus Lukes Augen
   else { S.griffGesehen = true; shake = Math.max(shake, .05); Audio.play('metalSlam', { gain: .5, rate: .6, x: ax - .5, y: .4, z: Z - 1, ref: 3 }); await fade(1, 250); feuer_knock(); await wait(900); fade(0, 800); }
   if (S.phase === 'idle') feuer_knock(); await wait(80); if (!S.spilled) { S.fell = true; zombie.x = Lx; zombie.z = Lz; feuer_spill(); }
   // Peter liegt auf der Seite im Öl und sieht Luke an
-  S.fell = true; S.zs = { st: 'down', t: 0, th: 1.52, yaw: Math.atan2(1, 0) + PI / 2, x: Lx, z: Lz, sit: 0, reach: 0, curl: 0, writhe: 0, char: 0, burn: 0, down: 0, arms: 0 };
+  S.fell = true; S.zs = { st: PZ.P ? 'fall' : 'down', t: PZ.P ? 2 : 0, th: 1.52, yaw: Math.atan2(1, 0) + PI / 2, x: Lx, z: Lz, sit: 0, reach: 0, curl: 0, writhe: 0, char: 0, burn: 0, down: 0, arms: 0 };
   zombie.g.visible = true; feuer_anim(true); ch2.chase = 'fire'; S.griff = true; S.griffLauf = false; S.said.oel = false;
   camY = Math.min(camY, .95); // auf den Knien
   S.lampe = { x: (ax + Lx) / 2 + .15, z: Lz + .35, a: PI + .25 };
@@ -680,3 +688,362 @@ const _flq = new THREE.Quaternion(), _fle = new THREE.Euler(0, 0, 0, 'YXZ');
 function feuer_lampeTick() { const S = feuer_S, L = S.lampe; if (!L || typeof flashRig === 'undefined') return;
   flashRig.position.set(L.x, .09, L.z); _fle.set(-.06, L.a, 0, 'YXZ'); _flq.setFromEuler(_fle); flashRig.quaternion.copy(_flq); flashRig.updateMatrixWorld();
   if (typeof fogUniforms !== 'undefined') { fogUniforms.flP.value.copy(flashRig.position); fogUniforms.flD.value.set(0, 0, -1).applyQuaternion(flashRig.quaternion); } }
+
+// =====================================================================  R-10 (01.10.2026): Peter als echte Figur – Haut, Bewegung, Jagd-KI, Flucht-Kamera, Quick-Time-Events
+// Figur  game/assets/chars/peter (Werkstatt: cast.json „peter“ – ow3-Körper, MN-Kopf, 1,97 m, grau; Mocap-Satz „peter“: idle (kaum noch stehen), walk (Hinken), schritt, run (Zombie-Lauf),
+//        stolpern, fall_vor/fall_rueck, knie_tod, hug, packen, suchen, taumeln …). figuren.js bewegt sie (Mischer, Atmung, Blick, Gesicht); hier eine Schicht nach dem Mischer:
+//        Kopf sucht und lauscht schief, eine Hand tastet an der Wand, Ausfall mit vorgestreckten Armen, Nicken/Abwenden, Winden im Feuer, der Griff zur Tür.
+// Haut   eigenes Material über den Werkstatt-Texturen: blutleer grau-grün, Adern, Leichenflecken, eingesunkene Augen, offene Geschwüre (Fleisch aus kreaturen.js), die genähte
+//        Schädelnarbe der Versuchsreihe K, Nässe, Lichtsaum (Wrap); Hemd/Hose verwaschenes Anstaltsgrün mit Flecken und Rissen; milchige Augen; gelbe Zähne; Haar in Strähnen; Öl.
+// Jagd   ersetzt chaseUpdate der Basis, sobald die Figur geladen ist (ohne Figur: alter Verfolger). Zustände lauern → verdacht → suche → jagd → verloren, je mit eigener
+//        Bewegung und eigenem Klang. Gehör (Rennen, Gehen, Gitter, Lampenschalter), Sicht (der Lampenkegel verrät Luke; ohne Licht nur aus der Nähe), Gedächtnis (letzte Stelle),
+//        Absuchen der Gerümpelstapel, Lauern an Stapeln, Abfangen statt Hinterherlaufen, Wissen um das klemmende Gitter, Ausfall mit Ausweich-QTE.
+// Kamera Blick über die Schulter (QTE-Taste „zurueck“, Standard Q), automatischer Schulterblick beim Ausfall von hinten, Impulse bei knappen Fehlgriffen, Sichtfeld folgt.
+const PZ = { an: false, P: null, pg: null, ue: null, U: { pzT: { value: 0 }, pzOel: { value: 0 } }, snd: false, ki: null, plx: 0, plz: 0, flash0: false, lockClip: null, lockT: 0,
+  cam: { zk: 0, side: 1, autoT: 0, autoN: 0, kick: 0, kickV: 0, dip: 0, dipV: 0, fovK: 0, fovSet: false, ausw: null }, herzT: 0, atemT: 2, zahnT: 4, wortT: 8, loco: '', spd: 0, lx: 0, lz: 0, ph: -1,
+  lay: { kopf: 0, kopfV: 0, tilt: 0, wand: 0, greif: 0, lean: 0, nick: 0, weg: 0, winden: 0, tuer: 0, greifP: new THREE.Vector3() }, k2a: null };
+const PZ_NOISE = `float pzH(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+float pzN(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(mix(mix(pzH(i), pzH(i + vec3(1,0,0)), f.x), mix(pzH(i + vec3(0,1,0)), pzH(i + vec3(1,1,0)), f.x), f.y), mix(mix(pzH(i + vec3(0,0,1)), pzH(i + vec3(1,0,1)), f.x), mix(pzH(i + vec3(0,1,1)), pzH(i + vec3(1,1,1)), f.x), f.y), f.z); }`;
+// ---------------------------------------------------------------- Laden (sobald Kapitel 2 läuft; ohne Figur bleibt alles beim alten Verfolger)
+async function pz_laden() {
+  if (PZ.an || typeof figuren_embody !== 'function' || typeof zombie === 'undefined') return; PZ.an = true;
+  try {
+    const pg = new THREE.Group(); pg.name = 'PeterHalter'; pg.rotation.y = PI / 2; zombie.g.add(pg); // Figur schaut nach +z, der Verfolger nach +x
+    const P = await figuren_embody(pg, 'peter', {}); if (!P || P.id !== 'peter') { zombie.g.remove(pg); console.warn('Peter: Figur fehlt – alter Verfolger'); return; }
+    P.fixed = true; P.rig.legs = []; PZ.P = P; PZ.pg = pg; // keine Fuß-IK: Liegen, Knien und Fallen bleiben wie aufgenommen
+    for (const c of zombie.g.children) if (c !== pg) c.visible = false;
+    const old = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (old && old.zm) old.zm.visible = false;
+    PZ.ue = pz_ueMap(P); if (typeof innen_kapitel_S !== 'undefined') innen_kapitel_S.zombie = { zm: P.obj, mx: P.mx, b: PZ.ue, eigen: true, peter: P };
+    await pz_haut(P.obj); feuer_S.zmats = null; pz_mimik(); figuren_play(P, 'idle', true);
+    if (window.__feuer) window.__feuer.peter = PZ;
+  } catch (e) { console.warn('Peter laden', e); }
+}
+// Knochennamen wie beim alten Modell (tod.js, Brand-Partikel, kino.js lesen sie) → echte Knochen der Figur
+function pz_ueMap(P) { const r = P.rig, f = re => { let o = null; P.obj.traverse(b => { if (!o && b.isBone && re.test(b.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/_\d+$/, ''))) o = b; }); return o; };
+  return { pelvis: r.hips, spine_01: f(/^Spine$/i), spine_02: f(/^Spine1$/i), spine_03: r.chest || f(/^Spine2$/i), neck_01: r.neck, head: r.head, clavicle_l: r.lSh, clavicle_r: r.rSh, upperarm_l: r.lArm, upperarm_r: r.rArm,
+    lowerarm_l: r.lFore, lowerarm_r: r.rFore, hand_l: r.lHand, hand_r: r.rHand, thigh_l: r.lUp, thigh_r: r.rUp, calf_l: r.lLeg, calf_r: r.rLeg, foot_l: r.lFoot, foot_r: r.rFoot }; }
+// Mimik: das Lachen, das nicht aufhört (Zähne zeigen, Augen weit, Brauen innen hoch) – als eigener Eintrag in figuren.js
+function pz_mimik() { try { if (typeof FIGUREN_MIMIK_V === 'undefined' || FIGUREN_MIMIK_V.zahn) return; const v = new Float32Array(FIGUREN_FACE_CH.length), set = (n, w) => { for (const k of [n, n + '_L', n + '_R']) if (FIGUREN_FACE_IX[k] !== undefined) v[FIGUREN_FACE_IX[k]] = w; };
+  set('Mouth_Smile', .82); set('Mouth_Stretch', .5); set('V_Wide', .42); set('V_Open', .2); set('Cheek_Raise', .45); set('Nose_Sneer', .22); set('Eye_Wide', .28); set('Brow_Raise_Inner', .4); FIGUREN_MIMIK_V.zahn = v;
+  const w = new Float32Array(FIGUREN_FACE_CH.length); w.set(FIGUREN_MIMIK_V.schmerz || v); w[FIGUREN_FACE_IX.V_Open] = .35; FIGUREN_MIMIK_V.brand = w; } catch (e) {} }
+// ---------------------------------------------------------------- Haut und Kleidung (je Figur eigene Materialien; die Werkstatt-Shader aus figuren.js bleiben davor)
+function pz_bindOrt(root, re) { let p = null; root.traverse(m => { if (p || !m.isSkinnedMesh) return; m.skeleton.bones.forEach((b, i) => { if (!p && re.test(b.name)) p = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().copy(m.skeleton.boneInverses[i]).invert()); }); }); return p; }
+async function pz_haut(root) {
+  const T = typeof kr_tex === 'function' ? await kr_tex().catch(() => null) : null; root.updateMatrixWorld(true);
+  // Bindungsraum → Meter mit Füßen auf 0 (für Rauschen, Narbe, Augenhöhlen)
+  let y0 = 1e9, y1 = -1e9; const v = new THREE.Vector3(); root.traverse(m => { if (!m.isSkinnedMesh) return; const P = m.geometry.attributes.position; for (let i = 0; i < P.count; i += 7) { v.fromBufferAttribute(P, i).applyMatrix4(m.bindMatrix); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y); } });
+  const sc = 1.97 / Math.max(1e-4, y1 - y0), toM = p => p ? new THREE.Vector3(p.x * sc, (p.y - y0) * sc, p.z * sc) : new THREE.Vector3(0, -9, 0);
+  const eL = toM(pz_bindOrt(root, /L_Eye$|LeftEye/i)), eR = toM(pz_bindOrt(root, /R_Eye$|RightEye/i)), hd = toM(pz_bindOrt(root, /Head(_\d+)?$/i)), ht = toM(pz_bindOrt(root, /HeadTop/i));
+  const top = ht.y > 0 ? ht : hd.clone().add(new THREE.Vector3(0, .17, 0)), fwd = eL.clone().add(eR).multiplyScalar(.5).sub(hd).setY(0).normalize();
+  const sA = top.clone().addScaledVector(fwd, .07).add(new THREE.Vector3(.045, -.035, 0)), sB = top.clone().addScaledVector(fwd, -.11).add(new THREE.Vector3(-.02, -.055, 0)); // Schnitt über den Scheitel, leicht schräg
+  const U = { pzT: PZ.U.pzT, pzOel: PZ.U.pzOel, pzBind: { value: new THREE.Matrix4() }, pzS: { value: sc }, pzY0: { value: y0 }, pzEyeL: { value: eL }, pzEyeR: { value: eR }, pzScarA: { value: sA }, pzScarB: { value: sB },
+    pzMus: { value: T ? T.mus : null }, pzHasMus: { value: T ? 1 : 0 }, pzKind: { value: 0 } };
+  root.traverse(m => { if (!m.isMesh) return; const ms = [].concat(m.material).map(src => { const n = src.name || ''; let kind = -1;
+      if (/std_skin_head|^body$/i.test(n)) kind = 0; else if (/^material$|^bottom$/i.test(n)) kind = 1; else if (/shoes/i.test(n)) kind = 2; else if (/std_eye_[lr]$/i.test(n)) kind = 3; else if (/teeth|tongue/i.test(n)) kind = 4; else if (/hair|transparency/i.test(n) && src.alphaTest > 0) kind = 5;
+      if (kind < 0) return src; const c = src.clone(), old = src.onBeforeCompile, ok = src.customProgramCacheKey ? src.customProgramCacheKey.call(src) : '', u = Object.assign({}, U, { pzBind: { value: m.isSkinnedMesh ? m.bindMatrix.clone() : m.matrix.clone() }, pzKind: { value: kind } });
+      c.onBeforeCompile = (sh, r) => { if (old && old !== THREE.Material.prototype.onBeforeCompile) try { old(sh, r); } catch (e) {} pz_shader(sh, u, kind); };
+      c.customProgramCacheKey = () => 'pz' + kind + '|' + ok; if (kind === 2) { c.color.multiplyScalar(.55); c.roughness = .5; } if (kind === 4 && /teeth/i.test(n)) c.color.setRGB(.86, .74, .52); if (kind === 4 && /tongue/i.test(n)) c.color.setRGB(.45, .3, .32);
+      c.userData.pz = kind; c.needsUpdate = true; return c; });
+    m.material = Array.isArray(m.material) ? ms : ms[0]; });
+}
+function pz_shader(sh, u, kind) { Object.assign(sh.uniforms, u);
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform mat4 pzBind; uniform float pzS, pzY0; varying vec3 vPz; varying vec3 vPzN;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\n{ vec3 b = (pzBind * vec4(transformed, 1.)).xyz; vPz = vec3(b.x * pzS, (b.y - pzY0) * pzS, b.z * pzS); vPzN = normalize(mat3(pzBind) * objectNormal); }');
+  const head = `uniform float pzT, pzOel; uniform vec3 pzEyeL, pzEyeR, pzScarA, pzScarB; uniform sampler2D pzMus; uniform float pzHasMus; varying vec3 vPz; varying vec3 vPzN; float pzHt;\n${PZ_NOISE}
+void pzWrap(IncidentLight L, vec3 n, vec3 dc, inout ReflectedLight R){ float nl = dot(n, L.direction); float w = max(0., (nl + .55) / 1.55) - max(0., nl); R.directDiffuse += L.color * dc * vec3(.62, .24, .17) * w * 1.5; }`;
+  let col = '', rough = '';
+  if (kind === 0) { // Haut
+    col = `{ vec3 pp = vPz; float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); float n1 = pzN(pp * 6.), n2 = pzN(pp * 17. + 3.1), n3 = pzN(pp * 43. + 7.7);
+      vec3 sk = mix(vec3(L0) * vec3(.84, .9, .87), diffuseColor.rgb, .2) * mix(.74, 1.08, n1) * mix(.9, 1.05, n3);
+      float ve = smoothstep(.94, .99, 1. - abs(pzN(pp * 11. + vec3(0., pp.y * 4., 0.)) * 2. - 1.)) * (.35 + .65 * n2); sk = mix(sk, vec3(.19, .22, .3), ve * .62);
+      float lv = smoothstep(.6, .82, n1) * smoothstep(.35, .75, n2); sk = mix(sk, vec3(.3, .22, .3) * (.5 + L0), lv * .5);
+      float eo = min(distance(pp, pzEyeL), distance(pp, pzEyeR)); float so = 1. - smoothstep(.014, .048, eo); sk = mix(sk, vec3(.17, .11, .13), so * .6);
+      float uN = pzN(pp * 8.5 + 11.), ul = smoothstep(.8, .87, uN) * smoothstep(.25, .6, n3), ur = max(0., smoothstep(.72, .8, uN) - ul);
+      vec3 fl = vec3(.34, .06, .045) * (.6 + .6 * n3); if (pzHasMus > .5) { vec3 kw = pow(abs(vPzN), vec3(4.)); kw /= kw.x + kw.y + kw.z + 1e-4; fl = (texture2D(pzMus, pp.zy * 7.).rgb * kw.x + texture2D(pzMus, pp.xz * 7.).rgb * kw.y + texture2D(pzMus, pp.xy * 7.).rgb * kw.z) * 1.25; }
+      sk = mix(sk, vec3(.42, .33, .19) * (.7 + .5 * n3), ur * .65); sk = mix(sk, fl, ul);
+      vec3 ab = pzScarB - pzScarA; float h = clamp(dot(pp - pzScarA, ab) / dot(ab, ab), 0., 1.); float sd = distance(pp, pzScarA + ab * h) * (1. + .5 * pzN(pp * 90.));
+      float sc = (1. - smoothstep(.002, .0055, sd)) * step(.001, h) * step(h, .999), stp = smoothstep(.82, .93, fract(h * 24.)) * (1. - smoothstep(.007, .011, sd)) * step(.001, h) * step(h, .999);
+      sk = mix(sk, vec3(.45, .2, .2), (1. - smoothstep(.004, .012, sd)) * .5 * step(.001, h) * step(h, .999)); sk = mix(sk, vec3(.12, .03, .03), sc); sk = mix(sk, vec3(.2, .19, .17), stp);
+      sk = mix(sk, sk * .32, pzOel * smoothstep(.3, .6, n1 + .2));
+      pzHt = ul * .6 - sc * .5 + stp * .4 + ur * .25; diffuseColor.rgb = sk; }`;
+    rough = `roughnessFactor = mix(.36, .6, pzN(vPz * 17. + 3.1)); roughnessFactor = mix(roughnessFactor, .16, smoothstep(.8, .87, pzN(vPz * 8.5 + 11.))); roughnessFactor = mix(roughnessFactor, .2, pzOel);`; }
+  else if (kind === 1) { // Anstaltshemd und -hose
+    col = `{ vec3 pp = vPz; float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); float n1 = pzN(pp * 4.), n2 = pzN(pp * 13. + 2.), n3 = pzN(pp * 31. + 5.);
+      vec3 cl = vec3(.52, .6, .59) * (.38 + .82 * L0);
+      float pr = (1. - smoothstep(.05, .08, abs(fract(pp.x * 30. + pp.y * 30. + pp.z * 30.) - .5))) * (1. - smoothstep(.05, .08, abs(fract(pp.x * 30. - pp.y * 30. - pp.z * 30.) - .5))); cl *= 1. - pr * .2;
+      float tie = (1. - smoothstep(.4, .6, L0)) * step(1.05, pp.y); cl = mix(cl, vec3(.22, .1, .065) * (.7 + .5 * n2), tie * .85);
+      cl *= 1. - (smoothstep(.45, .8, n1) * .35 + (1. - smoothstep(.1, .9, pp.y)) * .3);
+      float bl = smoothstep(.74, .82, pzN(pp * 5. + 4.)) * smoothstep(.3, .7, n3); cl = mix(cl, vec3(.25, .045, .03), bl * .75);
+      float rip = smoothstep(.975, .996, 1. - abs(pzN(vec3(pp.x * 8., pp.y * 2.2, pp.z * 8.) + 9.) * 2. - 1.)) * smoothstep(.55, .7, pzN(pp * 2.6 + 1.)); cl = mix(cl, vec3(.025), rip * .9);
+      cl = mix(cl, cl * .22, pzOel * smoothstep(.25, .6, n1 + (1.2 - pp.y) * .45));
+      pzHt = -rip * .7 + bl * .1; diffuseColor.rgb = cl; }`;
+    rough = `roughnessFactor = mix(.92, .5, smoothstep(.74, .82, pzN(vPz * 5. + 4.))); roughnessFactor = mix(roughnessFactor, .24, pzOel * smoothstep(.25, .6, pzN(vPz * 4.) + (1.2 - vPz.y) * .45));`; }
+  else if (kind === 2) { col = `{ diffuseColor.rgb *= mix(.6, 1., pzN(vPz * 9.)); diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * .3, pzOel); pzHt = 0.; }`; rough = 'roughnessFactor = mix(roughnessFactor, .25, pzOel);'; }
+  else if (kind === 3) { col = `{ float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); diffuseColor.rgb = mix(diffuseColor.rgb * vec3(.8, .78, .74), vec3(.74, .75, .71) * (.55 + .5 * L0), .62); pzHt = 0.; }`; rough = 'roughnessFactor = .5;'; }
+  else if (kind === 4) { col = `{ diffuseColor.rgb *= mix(vec3(.62, .48, .3), vec3(1.), smoothstep(.25, .75, pzN(vPz * 160.))); pzHt = 0.; }`; rough = 'roughnessFactor = .32;'; }
+  else if (kind === 5) { col = `{ if (pzN(vPz * vec3(70., 12., 70.)) < .5 + .28 * pzN(vPz * 6.)) discard; diffuseColor.rgb *= .8; pzHt = 0.; }`; rough = 'roughnessFactor = mix(roughnessFactor, .3, pzOel);'; }
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + head)
+    .replace('#include <roughnessmap_fragment>', col + '\n#include <roughnessmap_fragment>\n' + rough);
+  if (kind <= 1) sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+{ vec3 dpx = dFdx(-vViewPosition), dpy = dFdy(-vViewPosition); float hx = dFdx(pzHt), hy = dFdy(pzHt); vec3 r1 = cross(dpy, normal), r2 = cross(normal, dpx); float det = dot(dpx, r1);
+  normal = normalize(abs(det) * normal - sign(det) * (hx * r1 + hy * r2) * .006); }`);
+  if (kind === 0) sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_begin>', THREE.ShaderChunk.lights_fragment_begin.split('RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );').join('RE_Direct( directLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight ); pzWrap( directLight, geometryNormal, material.diffuseColor, reflectedLight );'));
+}
+// ---------------------------------------------------------------- Klang: nur Aufnahmen (tools/klang_peter.py → game/audio/pz_*.ogg), räumlich an Peter
+const PZ_KLANG = { schritt: 6, schlurf: 3, zahn: 3, atem: 4, lachen: 3, fall: 2, herz: 3, keuch: 3, stoehn: 1, stoff: 2 };
+function pz_klangLaden() { if (PZ.snd || typeof klang_load !== 'function' || !Audio.ctx) return; PZ.snd = true; for (const [k, n] of Object.entries(PZ_KLANG)) for (let i = 1; i <= n; i++) klang_load('pz_' + k + '_' + i).catch(() => {}); }
+function pz_ton(art, gain = 1, rate = 1, flat = false, y = 1.3) { const n = PZ_KLANG[art] || 1, k = 'pz_' + art + '_' + (1 + Math.floor(Math.random() * n)); if (!Audio.buf || !Audio.buf[k]) return false;
+  Audio.play(k, flat ? { gain, rate } : { gain, rate: rate * rand(.95, 1.05), x: zombie.x, y, z: zombie.z, ref: 3 }); return true; }
+// ---------------------------------------------------------------- Knochen-Schicht (nach dem Mischer, nur in Bildern, in denen figuren.js die Figur bewegt hat)
+const _pqa = new THREE.Quaternion(), _pqb = new THREE.Quaternion(), _pqc = new THREE.Quaternion(), _pqi = new THREE.Quaternion(), _pv1 = new THREE.Vector3(), _pv2 = new THREE.Vector3(), _pv3 = new THREE.Vector3(), _pv4 = new THREE.Vector3(), _pax = new THREE.Vector3(), _pfw = new THREE.Vector3(), _pup = new THREE.Vector3(0, 1, 0);
+function pz_bend(b, ax, a) { if (!b || !b.parent || !a) return; b.parent.getWorldQuaternion(_pqa); b.getWorldQuaternion(_pqb); _pqc.setFromAxisAngle(ax, a); b.quaternion.copy(_pqa.invert().multiply(_pqc).multiply(_pqb)); b.updateMatrixWorld(true); }
+function pz_ziel(b, kind, T, w) { if (!b || !kind || !b.parent || w <= .001) return; b.getWorldPosition(_pv1); kind.getWorldPosition(_pv2); _pv2.sub(_pv1).normalize(); _pv3.copy(T).sub(_pv1).normalize();
+  _pqc.setFromUnitVectors(_pv2, _pv3).slerp(_pqi, 1 - Math.min(1, w)); b.parent.getWorldQuaternion(_pqa); b.getWorldQuaternion(_pqb); b.quaternion.copy(_pqa.invert().multiply(_pqc).multiply(_pqb)); b.updateMatrixWorld(true); }
+function pz_arm(s, T, w) { const r = PZ.P.rig, up = s < 0 ? r.lArm : r.rArm, fo = s < 0 ? r.lFore : r.rFore, ha = s < 0 ? r.lHand : r.rHand; if (!up || !fo || !ha) return;
+  _pv4.copy(T); pz_ziel(up, fo, _pv4, w * .9); pz_ziel(fo, ha, _pv4, w); }
+function pz_handPos(v = new THREE.Vector3(), s = 1) { const r = PZ.P && PZ.P.rig, h = r && (s < 0 ? r.lHand : r.rHand); if (h) return h.getWorldPosition(v); return v.set(zombie.x, 1.3, zombie.z); }
+function pz_kopfPos(v = new THREE.Vector3()) { const h = PZ.P && PZ.P.rig.head; if (h) return h.getWorldPosition(v); return v.set(zombie.x, 1.75, zombie.z); }
+function pz_schicht(dt, t) { const P = PZ.P, L = PZ.lay, r = P && P.rig; if (!r || !zombie.g.visible || !P.mv.vis || P.mv.acc !== 0) return;
+  P.obj.getWorldQuaternion(_pqb); _pax.set(1, 0, 0).applyQuaternion(_pqb); _pfw.set(0, 0, 1).applyQuaternion(_pqb); const sp = PZ.ue;
+  // Oberkörper: vorgebeugt, beim Ausfall weiter; Hinken hebt die Schulter im Takt
+  if (L.lean) { pz_bend(sp.spine_02, _pax, L.lean * .6); pz_bend(sp.spine_03, _pax, L.lean * .4); }
+  // Kopf: sucht (Drehung), lauscht (schief), nickt, wendet sich ab
+  if (L.kopf || L.tilt || L.nick || L.weg) { pz_bend(r.neck, _pup, L.kopf * .45 - L.weg * .55); pz_bend(r.head, _pup, L.kopf * .35 - L.weg * .4); pz_bend(r.head, _pfw, L.tilt); pz_bend(r.neck, _pax, L.nick * .35); pz_bend(r.head, _pax, L.nick * .25); }
+  // Hand tastet an der Wand (Seite = Wand näher)
+  if (L.wand > .01) { const s = PZ.wandS || 1; _pv4.set(zombie.x, 1.25 + Math.sin(t * 1.7) * .08, Z + s * 2.05).addScaledVector(_pfw, .35); pz_arm(_pv1.copy(_pv4).sub(r.hips.getWorldPosition(_pv2)).dot(_pax) > 0 ? -1 : 1, _pv4, L.wand); }
+  // Greifen: beide Hände zum Ziel (Lukes Gesicht/Brust, beim Brand: die Tür)
+  if (L.greif > .01) { pz_arm(-1, _pv4.copy(L.greifP).addScaledVector(_pax, .11), L.greif); pz_arm(1, _pv4.copy(L.greifP).addScaledVector(_pax, -.11), L.greif); }
+  if (L.tuer > .01) pz_arm(1, L.greifP, L.tuer);
+  // Winden im Feuer: Arme krallen, Rücken bäumt sich, Beine ziehen
+  if (L.winden > .01) { const w = L.winden, a = Math.sin(t * 7.3) * w, b = Math.sin(t * 5.1 + 1) * w, c = Math.sin(t * 9.7 + 2) * w;
+    pz_bend(sp.spine_02, _pax, -.18 * w + a * .1); pz_bend(sp.spine_02, _pfw, c * .18); pz_bend(r.lArm, _pax, -a * .5); pz_bend(r.rArm, _pax, b * .5); pz_bend(r.lFore, _pax, -Math.abs(b) * .7); pz_bend(r.rFore, _pax, -Math.abs(a) * .7);
+    pz_bend(r.lUp, _pax, -Math.max(0, a) * .45); pz_bend(r.rUp, _pax, -Math.max(0, c) * .45); pz_bend(r.lLeg, _pax, Math.max(0, a) * .7); pz_bend(r.rLeg, _pax, Math.max(0, c) * .7); }
+}
+// ---------------------------------------------------------------- Clips (Fortbewegung nach echtem Tempo; Einmal-Clips mit Sperre)
+function pz_clip(k, o = {}) { const P = PZ.P; if (!P || !P.acts[k]) return null; figuren_play(P, k, false, { fade: o.fade ?? .35, once: o.once, ts: o.ts }); const a = P.acts[k]; if (o.t !== undefined) a.time = o.t; if (o.ts !== undefined) a.timeScale = o.ts; if (o.lock) { PZ.lockClip = k; PZ.lockT = o.lock; } PZ.loco = k; return a; }
+function pz_loco(dt) { const P = PZ.P; if (!P) return; const vx = (zombie.x - PZ.lx) / Math.max(dt, 1e-3), vz = (zombie.z - PZ.lz) / Math.max(dt, 1e-3); PZ.lx = zombie.x; PZ.lz = zombie.z;
+  const v = Math.min(7, Math.hypot(vx, vz)); PZ.spd += (v - PZ.spd) * Math.min(1, dt * 6);
+  if (PZ.lockT > 0) { PZ.lockT -= dt; if (PZ.lockT > 0) return; PZ.lockClip = null; }
+  const s = PZ.spd, cur = PZ.loco, K = PZ.ki; let k = s < .14 ? (K && (K.st === 'verdacht' || K.st === 'verloren') ? 'suchen' : 'idle') : s < (cur === 'walk' ? 1.05 : .85) ? 'walk' : s < (cur === 'run' ? 2.5 : 2.9) ? 'schritt' : 'run';
+  if (k !== cur) pz_clip(k, { fade: k === 'run' || cur === 'run' ? .25 : .4 });
+  const a = P.cur, m = P.motion && P.motion[PZ.loco]; if (a && m && m.rm === 'lin' && m.speed) a.timeScale = Math.max(.55, Math.min(k === 'walk' ? 1.9 : 1.6, s / m.speed));
+  // Schritte genau beim Aufsetzen (Fußphasen aus den Bewegungsdaten)
+  if (a && m && m.phaseL !== undefined && s > .1) { const u = (a.time / a.getClip().duration) % 1, u0 = PZ.ph; PZ.ph = u; if (u0 >= 0) for (const f of [m.phaseL, m.phaseR]) if ((u0 < f && u >= f) || (u0 > u && (f > u0 || f <= u))) {
+      if (!pz_ton('schritt', Math.min(1.1, .32 + s * .22), k === 'run' ? 1.06 : .96, false, .05)) Audio.stepAt(zombie.x, zombie.z, .5); if (k === 'walk' && f === m.phaseR && Math.random() < .55) pz_ton('schlurf', .5, .95, false, .05); } } else PZ.ph = -1; }
+// ---------------------------------------------------------------- Jagd-KI (ersetzt chaseUpdate der Basis, solange Peter als Figur da ist)
+const pz_chaseAlt = chaseUpdate;
+chaseUpdate = function (dt, t) { if (PZ.P && !feuer_S.altJagd) return pz_jagd(dt, t); return pz_chaseAlt(dt, t); };
+function pz_kiNeu() { const P = player.pos; PZ.ki = { st: 'verdacht', t: 0, lkp: { x: P.x, z: P.z }, seen: 0, ungehoert: 0, lunge: 0, lungeCd: 2.5, ausw: 0, ziel: null, stapel: [], lauer: 0, glance: 0, stun: 0, wortT: 7, nahT: 0, stolpCd: 4, yaw: -PI / 2 + PI };
+  zombie.g.rotation.set(0, 0, 0); PZ.lx = zombie.x; PZ.lz = zombie.z; PZ.plx = P.x; PZ.plz = P.z; pz_clip('suchen', { fade: .2 }); pz_ton('atem', .9, .9); }
+function pz_jagd(dt, t) {
+  const P = player.pos;
+  if (ch2.chase === 'idle' && ch2.spiderPhase === 'gone' && P.x > X + 50 && P.x < X + 60 && Math.abs(P.z - Z) < 2) { startChase(); pz_kiNeu(); }
+  // Gitter aufschieben (wie in der Basis): in der Jagd klemmt es 3 s – das hört man weit
+  if (ch2.on && !gate.userData.open) { const near = Math.abs(P.x - gate.position.x) < 1.6 && Math.abs(P.z - Z) < 2 && P.x < gate.position.x;
+    const need = ch2.chase === 'run' ? 3 : .8; gate.userData.need = need;
+    if (near && keys.KeyE && !qte_aktivSicher()) { gate.userData.holdT += dt; if (gate.userData.holdT % .25 < dt) { Audio.flick(); if (need > 1) Audio.play('metalHit2', { gain: .18, rate: rand(1.1, 1.4), x: gate.position.x, y: 1, z: Z, ref: 2 }); }
+      if (gate.userData.holdT > need && (ch2.chase !== 'run' || Math.hypot(zombie.x - P.x, zombie.z - P.z) < 2.4)) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); } }
+    else gate.userData.holdT = Math.max(0, gate.userData.holdT - dt * 2);
+    if (near && !gate.userData.open) $('sideInfo').textContent = gate.userData.holdT > 0 ? '▮'.repeat(Math.min(8, Math.ceil(gate.userData.holdT / need * 8))).padEnd(8, '▯') : ''; }
+  if (ch2.chase !== 'run') return;
+  if (!PZ.ki) pz_kiNeu();
+  zombie.t += dt; pz_ki(dt, t);
+  if (P.x > X + 106.6 && !chaseDoor.shut) { chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; Audio.slam(); ch2.chase = 'done'; Audio.chaseMusic(false); zombie.g.visible = false; }
+}
+function qte_aktivSicher() { return typeof qte_aktiv === 'function' && qte_aktiv(); }
+function pz_ki(dt, t) {
+  const K = PZ.ki, P = player.pos, S = feuer_S; K.t += dt; K.lungeCd -= dt; K.stolpCd -= dt; K.stun = Math.max(0, K.stun - dt);
+  const dx = P.x - zombie.x, dz = P.z - zombie.z, d = Math.hypot(dx, dz) || .001;
+  // ---- Sinne
+  const ps = Math.hypot(P.x - PZ.plx, P.z - PZ.plz) / Math.max(dt, 1e-3); PZ.plx = P.x; PZ.plz = P.z;
+  const amGitter = !gate.userData.open && Math.abs(P.x - gate.position.x) < 1.8 && gate.userData.holdT > .15;
+  let laut = ps > 4.2 ? 13 : ps > 2.4 ? 7 : ps > .7 ? 3.2 : 0; if (amGitter) laut = 26; if (flashOn !== PZ.flash0) { PZ.flash0 = flashOn; laut = Math.max(laut, 3.5); }
+  const fx = Math.cos(zombie.g.rotation.y), fz = -Math.sin(zombie.g.rotation.y), dot = (dx * fx + dz * fz) / d; camera.getWorldDirection(_pv1);
+  const lit = flashOn && !state.blackout, inBeam = lit && d < 20 && (-dx * _pv1.x - dz * _pv1.z) / d > .9;
+  const sieht = (lit && d < 17 && dot > .42) || inBeam || (d < 4.2 && dot > .1) || d < 2;
+  const hoert = laut > 0 && d < laut;
+  if (sieht) { K.seen = 0; K.lkp.x = P.x; K.lkp.z = P.z; } else K.seen += dt;
+  if (hoert) { K.ungehoert = 0; K.lkp.x = P.x + rand(-.4, .4) * d * .08; K.lkp.z = P.z + rand(-.4, .4) * d * .08; } else K.ungehoert += dt;
+  const go = (st) => { if (K.st === st) return; K.st = st; K.t = 0; K.ziel = null; K.stapel.length = 0; K.lauer = 0; pz_stimmung(st); };
+  // ---- Zustände
+  let tx = zombie.x, tz = zombie.z, sp = 0;
+  if (amGitter) go('jagd'); // er weiß, dass das Gitter klemmt
+  switch (K.st) {
+    case 'lauern': { if (sieht) { go('jagd'); break; } if (hoert) { go('verdacht'); break; }
+      if (!K.ziel || Math.hypot(K.ziel.x - zombie.x, K.ziel.z - zombie.z) < .5) K.ziel = { x: Math.max(X + 48, Math.min(gate.position.x - 1, zombie.x + rand(-6, 6))), z: Z + rand(-1.1, 1.1) };
+      tx = K.ziel.x; tz = K.ziel.z; sp = K.t % 9 > 6.5 ? 0 : .55; break; }
+    case 'verdacht': { tx = zombie.x; tz = zombie.z; sp = 0; if (sieht && K.t > .5) { go('jagd'); break; } if (K.t > 1.7) go('suche'); break; }
+    case 'suche': { if (sieht) { go('jagd'); break; } if (hoert && d < 6) { go('jagd'); break; }
+      if (!K.ziel) K.ziel = { x: K.lkp.x, z: K.lkp.z, art: 'lkp' };
+      const zd = Math.hypot(K.ziel.x - zombie.x, K.ziel.z - zombie.z);
+      if (K.lauer > 0) { K.lauer -= dt; sp = 0; if (K.lauer <= 0) K.ziel = null; break; }
+      if (zd < .6) { // angekommen: umsehen, dann den nächsten Stapel absuchen – oder still daneben lauern
+        if (K.ziel.art === 'lkp' || K.ziel.art === 'stapel') { const c = pz_stapel(K); if (c && Math.random() < .7) K.ziel = c; else { K.lauer = rand(2.2, 4.5); if (Math.random() < .35) K.lauer += 3; } } }
+      tx = K.ziel ? K.ziel.x : zombie.x; tz = K.ziel ? K.ziel.z : zombie.z; sp = 1.05; if (K.t > 15) go('verloren'); break; }
+    case 'jagd': { if (!sieht && K.ungehoert > 3.2 && K.seen > 3.2 && !amGitter) { go('suche'); break; }
+      // Abfangen: dorthin, wo Luke gleich ist (nicht wo er war)
+      const lead = Math.min(.9, d / 6), vx = (P.x - (PZ.plx2 ?? P.x)) / Math.max(dt, 1e-3), vz = (P.z - (PZ.plz2 ?? P.z)) / Math.max(dt, 1e-3);
+      tx = sieht ? P.x + vx * lead : K.lkp.x; tz = sieht ? Math.max(Z - 1.5, Math.min(Z + 1.5, P.z + vz * lead)) : K.lkp.z;
+      sp = d > 11 ? 4.0 : d > 5 ? 2.3 : 1.55; // er geht – schnell nur, wenn er will
+      if (amGitter) { sp = d > 6 ? 2.0 : 1.2; sp = Math.min(5.2, Math.max(sp, (d - .9) / Math.max(.35, (gate.userData.need || 3) - gate.userData.holdT))); tx = P.x; tz = P.z; }
+      else if (d < 1.9 && !K.lunge) { K.nahT += dt; if (K.nahT < 2.4) sp = 0; } else K.nahT = 0; // steht hinter Luke, atmet – erst dann greift er
+      // Ausfall: ein plötzlicher Satz, die Arme voraus
+      if (!amGitter && !K.lunge && K.lungeCd <= 0 && d > 1.9 && d < 4.4 && P.x < gate.position.x - 2.5 && sieht && !state.talking) { K.lunge = .95; K.lungeCd = rand(5.5, 8); pz_ausfall(d); }
+      if (K.lunge > 0) { K.lunge -= dt; sp = qte_aktivSicher() ? Math.max(0, Math.min(5, (d - 1.25) * 6)) : 5.2; tx = P.x; tz = P.z; if (K.lunge <= 0) K.lunge = 0; }
+      break; }
+    case 'verloren': { sp = 0; if (sieht || (hoert && d < 8)) { go('jagd'); break; } if (K.t > 4.2) go('lauern'); break; }
+  }
+  PZ.plx2 = P.x; PZ.plz2 = P.z;
+  if (K.stun > 0) sp = Math.min(sp, K.stun > .6 ? 0 : .6);
+  // ---- Bewegung, Blickrichtung (Körper dreht träge), Stolpern an Gerümpel
+  const blocked = pz_geh(tx, tz, sp, dt);
+  if (blocked && sp > 1.4 && K.stolpCd <= 0 && Math.random() < .4) { K.stolpCd = rand(6, 10); K.stun = .9; pz_clip('stolpern', { once: true, lock: 1.1, fade: .2 }); FEU_SND.clank(zombie.x, zombie.z, .5); pz_ton('atem', .8, 1.1); }
+  const look = K.st === 'jagd' || K.st === 'verdacht' ? Math.atan2(K.st === 'jagd' ? dx : K.lkp.x - zombie.x, K.st === 'jagd' ? dz : K.lkp.z - zombie.z) - PI / 2 : sp > .1 ? Math.atan2(tx - zombie.x, tz - zombie.z) - PI / 2 : zombie.g.rotation.y;
+  const dy = Math.atan2(Math.sin(look - zombie.g.rotation.y), Math.cos(look - zombie.g.rotation.y)); zombie.g.rotation.y += dy * Math.min(1, dt * (K.lunge ? 7 : 3.2));
+  zombie.g.position.set(zombie.x, 0, zombie.z); zombie.g.rotation.x = zombie.g.rotation.z = 0;
+  // ---- Fang
+  Audio.chaseLevel(K.st === 'jagd' ? Math.max(.25, 1 - d / 12) : K.st === 'suche' ? .22 : .1);
+  if (d < 1.1 && !qte_aktivSicher()) caught();
+}
+function pz_geh(tx, tz, sp, dt) { const dx = tx - zombie.x, dz = tz - zombie.z, d = Math.hypot(dx, dz) || 1e-3; if (sp <= 0 || d < .05) return false; const st = Math.min(d, sp * dt);
+  let nx = zombie.x + dx / d * st, nz = zombie.z + dz / d * st, blocked = false; const hit = c => nx + .35 > c.minX && nx - .35 < c.maxX && nz + .35 > c.minZ && nz - .35 < c.maxZ;
+  for (const o of obstacles) { const c = o.userData.col; if (hit(c)) { blocked = true; const cz = (c.minZ + c.maxZ) / 2; nz = zombie.z + (zombie.z > cz ? 1 : -1) * st; nx = zombie.x + dx / d * st * .3; if (hit(c)) nx = zombie.x; } }
+  if (!gate.userData.open && nx > gate.position.x - .5) nx = gate.position.x - .5;
+  zombie.x = nx; zombie.z = Math.max(Z - 1.6, Math.min(Z + 1.6, nz)); return blocked; }
+// Nächster Stapel nahe der letzten Stelle: dahinter (an der Wand, auf der abgewandten Seite) sehen
+function pz_stapel(K) { let best = null, bd = 6; for (const o of obstacles) { const c = o.userData.col; if (K.stapel.includes(c)) continue; const cx = (c.minX + c.maxX) / 2, cz = (c.minZ + c.maxZ) / 2, dd = Math.hypot(cx - K.lkp.x, cz - K.lkp.z); if (dd < bd) { bd = dd; best = c; } }
+  if (!best) return null; K.stapel.push(best); const far = zombie.x < (best.minX + best.maxX) / 2 ? best.maxX + .55 : best.minX - .55, wz = (best.minZ + best.maxZ) / 2;
+  return { x: Math.max(X + 47.5, Math.min(gate.position.x - .7, far)), z: Math.max(Z - 1.5, Math.min(Z + 1.5, wz)), art: 'stapel' }; }
+// Zustand wechselt: hörbar und sichtbar (fair lesbar)
+function pz_stimmung(st) { const P = PZ.P; if (!P) return;
+  if (st === 'verdacht') { pz_ton('zahn', .8, 1); figuren_mimik(P, 'zahn', .6); }
+  else if (st === 'suche') { figuren_mimik(P, 'zahn', .5); if (Math.random() < .5) pz_wort(); }
+  else if (st === 'jagd') { figuren_mimik(P, 'zahn', 1); pz_ton('atem', 1.1, .92); if (Math.random() < .5) pz_ton('lachen', .55, .95); if (PZ.ki && PZ.ki.t > 0) Audio.chaseMusic(true); }
+  else if (st === 'verloren') { figuren_mimik(P, 'zahn', .35); pz_ton('atem', .9, .82); pz_wort(true); } }
+// Die gebrochene Stimme: fast Wörter („Luke …“, „raus …“) – Untertitel für Gehörlose; die Sprachausgabe (stimmen.js) übernimmt, sobald die Zeilen gebaut sind
+function pz_wort(raus) { const P = PZ.P; if (!P || PZ.wortT > 0) return; PZ.wortT = rand(9, 15); const tx = raus ? '„… raus …“' : '„… Lu… ke …“';
+  try { subtitle(tx, 1700, 'PETER'); } catch (e) {} pz_ton('lachen', .32, .78); setTimeout(() => pz_ton('atem', .6, .86), 500); }
+// Ausfall mit Ausweich-QTE: die Hand kommt aus dem Dunkel, Luke duckt sich zur freien Seite weg
+function pz_ausfall(d) { const K = PZ.ki, P = player.pos; pz_clip('run', { fade: .15 }); PZ.lay.greif = 0; pz_ton('atem', 1.2, 1.05); if (Math.random() < .6) pz_ton('lachen', .5, 1);
+  const fwdL = { x: -Math.sin(player.yaw), z: -Math.cos(player.yaw) }, rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw), hinten = ((zombie.x - P.x) * fwdL.x + (zombie.z - P.z) * fwdL.z) < -.2;
+  if (hinten && PZ.cam.autoN < 2 && !keys[qte_tasteSicher('zurueck')]) { PZ.cam.autoT = .85; PZ.cam.autoN++; }
+  if (K.ausw >= 2 || typeof qte_start !== 'function') return; // danach nur noch Laufen
+  const s = (zombie.x - P.x) * rx + (zombie.z - P.z) * rz; let dir = s > 0 ? -1 : 1; const zN = P.z + rz * dir * .9; if (Math.abs(zN - Z) > 1.45) dir = -dir; // weg von der Hand, nie in die Wand
+  const key = dir < 0 ? 'links' : 'rechts'; K.ausw++; PZ.cam.fovK = -4;
+  qte_start({ type: 'tippen', keys: key, sperre: [dir < 0 ? 'rechts' : 'links'], duration: Math.max(.8, d / 5.2 + .25), window: [.4, .88], label: 'Ausweichen', at: () => pz_handPos(_pv3, 1),
+    onOk: () => { PZ.cam.fovK = 0; PZ.cam.ausw = { t: 0, dx: rx * dir * .85, dz: rz * dir * .85, x0: P.x, z0: P.z }; PZ.cam.kick = dir * .07; PZ.cam.kickV = dir * 1.6; PZ.cam.dipV = -1.2;
+      K.stun = 1.6; K.lunge = 0; K.lungeCd = 7; pz_clip('stolpern', { once: true, lock: 1.2, fade: .15 }); Audio.play('wind3', { gain: .35, rate: 1.8, dur: .4, x: zombie.x, y: 1.2, z: zombie.z, ref: 2 });
+      FEU_SND.clank(zombie.x + .6, zombie.z, .55); pz_ton('stoehn', .7, 1, true); pz_ton('keuch', .5, 1, true); },
+    onFail: () => { PZ.cam.fovK = 0; K.lunge = 0; PZ.cam.kickV = 2.4; caught(); } }); }
+function qte_tasteSicher(r) { return typeof qte_taste === 'function' ? qte_taste(r) : 'KeyQ'; }
+// ---------------------------------------------------------------- Kamera in der Flucht: Schulterblick, Impulse, Sichtfeld (nach der Ich-Kamera der Basis, vor dem Bild)
+function pz_kamera(dt) { const C = PZ.cam, P = player.pos, aktiv = ch2.on && (ch2.chase === 'run' || C.zk > .002 || Math.abs(C.kick) > .001 || Math.abs(C.dip) > .001 || C.fovSet || C.ausw);
+  if (!aktiv || camOverride || state.talking) { if (C.fovSet && !camOverride) { camera.fov = fov; camera.updateProjectionMatrix(); C.fovSet = false; } C.zk = 0; C.ausw = null; return; }
+  // Ausweichschritt: Luke weicht seitlich aus (weich, mit Ducken)
+  if (C.ausw) { const A = C.ausw; A.t += dt; const k = Math.min(1, A.t / .3), e = k * k * (3 - 2 * k), nx = A.x0 + A.dx * e, nz = A.z0 + A.dz * e;
+    if (Math.abs(nz - Z) < 1.6) { P.x += nx - (A.lx ?? A.x0); P.z += nz - (A.lz ?? A.z0); } A.lx = nx; A.lz = nz; if (k >= 1) C.ausw = null; }
+  const hold = ch2.chase === 'run' && !ui.overlay && !!keys[qte_tasteSicher('zurueck')]; C.autoT = Math.max(0, C.autoT - dt);
+  const want = hold || C.autoT > 0 ? 1 : 0; if (want && C.zk < .02) { const rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw); C.side = ((zombie.x - P.x) * rx + (zombie.z - P.z) * rz) > 0 ? -1 : 1; }
+  C.zk += (want - C.zk) * (1 - Math.exp(-dt * (want ? 8.5 : 6.5))); const e = C.zk * C.zk * (3 - 2 * C.zk);
+  // Federn: seitlicher Ruck (Rollen) und Ducken (Neigen) nach knappen Fehlgriffen
+  C.kickV += (-C.kick * 140 - C.kickV * 9) * dt; C.kick += C.kickV * dt; C.dipV += (-C.dip * 110 - C.dipV * 11) * dt; C.dip += C.dipV * dt;
+  if (e > .001) { camera.rotation.y += C.side * 2.4 * e; camera.rotation.x += -.12 * e; camera.rotation.z += -C.side * .05 * e; const rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw); camera.position.x -= rx * C.side * .07 * e; camera.position.z -= rz * C.side * .07 * e; camera.position.y -= .03 * e; }
+  camera.rotation.z += C.kick; camera.rotation.x += C.dip * .5; camera.position.y += C.dip * .12;
+  const df = 7 * e + C.fovK; if (Math.abs(df) > .02 || C.fovSet) { camera.fov = fov + df; camera.updateProjectionMatrix(); C.fovSet = Math.abs(df) > .02; } }
+// Lukes Herz: echte Schläge, Takt nach Bedrohung; Peters Atem/Zähne nach Zustand
+function pz_klangTick(dt) { const K = PZ.ki; if (!K || ch2.chase !== 'run' || !zombie.g.visible) return; const d = Math.hypot(player.pos.x - zombie.x, player.pos.z - zombie.z);
+  const thr = K.st === 'jagd' ? Math.max(0, 1 - d / 14) : K.st === 'suche' ? .35 * Math.max(0, 1 - d / 20) : .12;
+  PZ.herzT -= dt; if (PZ.herzT <= 0) { PZ.herzT = 1.05 - .62 * thr; pz_ton('herz', .22 + .6 * thr, .95 + .1 * thr, true); }
+  PZ.atemT -= dt; if (PZ.atemT <= 0) { PZ.atemT = K.st === 'jagd' ? rand(1.3, 2) : K.st === 'verdacht' ? 99 : rand(2.8, 4.4); if (K.st !== 'verdacht') pz_ton('atem', K.st === 'jagd' ? 1 : .6, K.st === 'jagd' ? .98 : .9); }
+  PZ.zahnT -= dt; if (PZ.zahnT <= 0) { PZ.zahnT = K.st === 'verdacht' || K.st === 'suche' ? rand(2, 4) : rand(4, 8); pz_ton('zahn', K.st === 'jagd' ? .5 : .75, 1); }
+  PZ.wortT -= dt; if ((K.st === 'suche' || K.st === 'lauern') && PZ.wortT <= 0 && d < 16) pz_wort(K.st === 'lauern');
+  if (K.st === 'jagd' && Math.random() < dt * .08) pz_ton('lachen', .45, rand(.9, 1.05)); }
+// Schicht-Werte der Jagd (Kopf sucht/lauscht, Hand an der Wand, vorgebeugt beim Ausfall)
+function pz_jagdSchicht(dt, t) { const K = PZ.ki, L = PZ.lay; if (!K || ch2.chase !== 'run') return; const ke = 1 - Math.exp(-dt * 4);
+  const kopfZ = K.st === 'lauern' || K.st === 'suche' ? Math.sin(t * .7) * .55 + Math.sin(t * 1.9) * .15 : 0, tiltZ = K.st === 'verdacht' || K.lauer > 0 ? .32 * Math.sin(Math.min(1, K.t * 2) * PI / 2) : K.st === 'verloren' ? .18 : 0;
+  L.kopf += (kopfZ - L.kopf) * ke; L.tilt += (tiltZ - L.tilt) * ke;
+  const wd = Math.abs(zombie.z - Z), wandZ = (K.st === 'lauern' || K.st === 'suche') && wd > .75 && PZ.spd > .15 ? 1 : 0; PZ.wandS = Math.sign(zombie.z - Z) || 1; L.wand += (wandZ * .85 - L.wand) * ke;
+  if (wandZ && Math.random() < dt * .25) Audio.play('scrape3', { gain: .1, rate: rand(1.4, 1.8), dur: .7, x: zombie.x, y: 1.2, z: Z + PZ.wandS * 1.9, ref: 2 }); // Fingernägel über Beton und Blech
+  const gz = K.lunge > 0 || (K.st === 'jagd' && Math.hypot(player.pos.x - zombie.x, player.pos.z - zombie.z) < 2.2) ? 1 : 0; L.greif += (gz * .8 - L.greif) * (1 - Math.exp(-dt * 7)); if (gz) L.greifP.copy(camera.position).y -= .35;
+  L.lean += ((K.lunge > 0 ? .55 : K.st === 'jagd' ? .22 : .12) - L.lean) * ke;
+  if (PZ.P) figuren_lookAt(PZ.P, K.st === 'jagd' ? 'cam' : null, .9); }
+// ---------------------------------------------------------------- QTE-Ketten (Kinosequenz k2a und Ersatz ohne Kino): Losreißen, dann gegen das Fass
+function pz_qte(o) { return new Promise(res => { if (typeof qte_start !== 'function') return res(true); qte_start(Object.assign({}, o, { onOk: h => { try { o.ok && o.ok(h); } catch (e) {} res(true); }, onFail: h => { try { o.nein && o.nein(h); } catch (e) {} res(false); } })); }); }
+const pz_shake = (a, d) => { if (typeof kino_shake === 'function' && typeof kino_S !== 'undefined' && kino_S.on) kino_shake(a, d); else shake = Math.max(shake, a); };
+async function pz_qteLos() { let k0 = 0;
+  for (let r = 0; r < 2; r++) {
+    const ok = await pz_qte({ type: 'haemmern', keys: 'ruetteln', need: r ? 8 : 10, duration: r ? 2.6 : 3.2, decay: r ? .4 : .32, label: r ? 'Luft!' : 'Losreißen', at: () => pz_handPos(_pv3, -1).lerp(pz_handPos(_pv4, 1), .5),
+      onTick: k => { if (k > k0 + .05) { pz_shake(.012 + k * .01, .14); if (Math.random() < .35) pz_ton(Math.random() < .5 ? 'stoff' : 'keuch', .45, rand(.95, 1.1), true); } k0 = k; },
+      ok: () => { pz_ton('stoehn', .9, 1, true); pz_ton('stoff', .8, .85, true); pz_shake(.05, .35); } });
+    if (ok) return 'ok';
+    if (r === 0) { pz_shake(.045, .7); pz_ton('keuch', 1, .85, true); try { subtitle('Er drückt fester. Die Luft geht aus.', 2000); } catch (e) {} await wait(650); k0 = 0; } }
+  return 'tot'; }
+async function pz_qteFass() { const at = () => _pv3.set(FEU.bx, .7, FEU.bz);
+  for (let r = 0; r < 2; r++) {
+    const ok = await pz_qte({ type: 'tippen', keys: 'aktion', duration: r ? 1.15 : 1.5, window: r ? [.55, .82] : [.5, .85], label: 'Gegen das Fass', at,
+      ok: () => { if (feuer_S.phase === 'idle') feuer_knock(); pz_shake(.06, .6); Audio.play('metalSlam', { gain: .7, rate: .62, x: FEU.bx, y: .4, z: FEU.bz, ref: 3 }); } });
+    if (ok) return 'ok';
+    if (r === 0) { pz_shake(.05, .5); pz_ton('stoehn', .7, .9, true); try { subtitle('Ihr taumelt am Fass vorbei. Noch einmal!', 1800); } catch (e) {} await wait(450); } }
+  return 'tot'; }
+// Kinosequenz k2a („Bruder.“, kino.js) ruft je Einstellung feuer_k2a(phase); feuer_k2aHalt hält eine Einstellung, solange ein QTE läuft
+function feuer_k2a(ph) { const P = PZ.P, A = typeof kino_S !== 'undefined' ? kino_S.k2a : null; if (!P) return false;
+  const K = PZ.k2a || (PZ.k2a = { warte: false, tot: false, greifZ: 0, nah: 1, fall: false });
+  if (ph === 'nah') { Object.assign(K, { warte: false, tot: false, greifZ: 0, nah: 1, fall: false, aufschlag: false }); PZ.ki = null; pz_clip('idle', { fade: .2 }); figuren_mimik(P, 'zahn', 1); figuren_lookAt(P, 'cam', 1); pz_ton('atem', 1, .9); pz_ton('zahn', .6, 1); }
+  else if (ph === 'haende') { K.greifZ = .95; K.nah = .8; pz_ton('stoff', .6, 1, true); }
+  else if (ph === 'druecken') { K.nah = .55; K.greifZ = .7; pz_clip('hug', { t: 1.4, ts: .3, fade: .5 }); pz_ton('atem', 1.1, .85); K.warte = true; pz_qteLos().then(r => { K.warte = false; if (r === 'tot') K.tot = true; }); }
+  else if (ph === 'fass') { K.greifZ = .25; K.warte = true; pz_qteFass().then(r => { K.warte = false; if (r === 'tot') K.tot = true; }); }
+  else if (ph === 'fall') { K.greifZ = 0; K.fall = true; if (A) { zombie.g.position.set(A.x - A.fx * 2.0, 0, A.z - A.fz * 2.0); zombie.g.rotation.set(0, Math.atan2(A.fx, A.fz) - PI / 2, 0); zombie.x = zombie.g.position.x; zombie.z = zombie.g.position.z; }
+    figuren_lookAt(P, null); pz_clip('fall_vor', { once: true, fade: .2, t: 1.9, ts: 1.55 }); PZ.U.pzOel.value = Math.max(PZ.U.pzOel.value, .3); pz_ton('atem', 1, 1.1); }
+  return true; }
+function feuer_k2aHalt(sh, t) { if (PZ.k2a && PZ.k2a.warte && sh) sh._dur = Math.max(sh._dur, t + .08); }
+function feuer_k2aTot() { return !!(PZ.k2a && PZ.k2a.tot); }
+function pz_k2aTick(dt) { const K = PZ.k2a, L = PZ.lay, A = kino_S.k2a; if (!K || !A) return;
+  L.greif += (K.greifZ - L.greif) * (1 - Math.exp(-dt * 3.2)); L.greifP.copy(camera.position); L.greifP.y -= .07; L.lean += (.2 - L.lean) * Math.min(1, dt * 3); L.kopf *= .9; L.tilt += (.12 - L.tilt) * Math.min(1, dt * 2);
+  if (!K.fall && zombie.g.visible) { const d0 = Math.hypot(zombie.g.position.x - A.x, zombie.g.position.z - A.z), dn = d0 + (K.nah - d0) * Math.min(1, dt * 1.6); zombie.g.position.set(A.x - A.fx * dn, 0, A.z - A.fz * dn); }
+  if (K.fall) { const fv = PZ.P.acts.fall_vor; if (fv && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .3, rate: .7, dur: .8, x: zombie.x + 1, y: .1, z: zombie.z, ref: 2 }); } } }
+// ---------------------------------------------------------------- Peter im Öl, im Feuer, sein letzter Griff zur Tür (Zustände aus feuer_zombieUpdate, Bewegung aus echten Clips)
+function pz_zsTick(dt, t) { const S = feuer_S, Q = S.zs, P = PZ.P, L = PZ.lay; if (!Q || !P || !zombie.g.visible) return; const fv = P.acts.fall_vor; if (!fv) return; const D = fv.getClip().duration, KN = 2.75;
+  const halt = tm => { if (PZ.loco !== 'fall_vor') pz_clip('fall_vor', { once: true, fade: .5 }); fv.paused = false; fv.timeScale = 0; fv.time = Math.max(0, Math.min(D - .02, tm)); }, ez = k => k * k * (3 - 2 * k);
+  L.greif *= .9; L.wand = 0; L.lean *= .9; L.kopf *= .92; L.tilt *= .95; if (S.spilled) PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * .35);
+  if (Q.st === 'fall') { if (PZ.loco !== 'fall_vor') pz_clip('fall_vor', { once: true, fade: .25, t: 1.9, ts: 1.55 }); if (!Q.aufschlag && fv.time > 4.7) { Q.aufschlag = true; pz_ton('fall', 1, 1, false, .2); } return; }
+  if (Q.st === 'down') { halt(D - .03 - (D - .03 - KN) * Math.min(1, (Q.sit || 0) / .6)); figuren_lookAt(P, 'cam', .75); figuren_mimik(P, 'zahn', .45); L.winden += ((Q.writhe || 0) * .3 - L.winden) * Math.min(1, dt * 3); return; }
+  if (Q.st === 'rise') { if (Q.r0 === undefined) Q.r0 = fv.time; const k = Math.min(1, Q.t / 1.8); halt(Q.r0 + (1.15 - Q.r0) * ez(k)); L.winden *= .9; figuren_lookAt(P, 'cam', 1); figuren_mimik(P, 'zahn', 1); return; }
+  if (Q.st === 'nick') { halt(D - .03); L.nick = (Q.nick || 0) * .8; L.weg = Q.weg || 0; figuren_lookAt(P, null); return; }
+  if (Q.st === 'burn') { const b = Q.t; figuren_mimik(P, 'brand', .9); L.nick *= .9;
+    if (b < 3) { halt(D - .03); L.winden += (Math.min(1, b) * .9 - L.winden) * Math.min(1, dt * 4); L.weg = Math.max(0, 1 - b / 2.5); }
+    else if (b < 4.6) { const k = ez((b - 3) / 1.6); halt(D - .03 - (D - .03 - KN) * k); L.winden *= 1 - Math.min(1, dt * 2); L.weg = 0; if (!Q.auf) { Q.auf = true; pz_ton('atem', 1.2, .8); } }
+    else if (b < 6) { halt(KN); L.winden *= .9; L.tuer += (1 - L.tuer) * Math.min(1, dt * 3); L.greifP.set(X + 106, 1.25, Z); figuren_lookAt(P, L.greifP, 1); } // er greift an Luke vorbei zur Tür – er wollte raus
+    else if (Q.liegt) halt(D - .03);
+    else { if (!Q.sturz) { Q.sturz = true; fv.timeScale = 1.55; fv.time = KN; pz_ton('atem', .9, .7); } L.tuer *= 1 - Math.min(1, dt * 3); if (!Q.thudP && fv.time > 4.7) { Q.thudP = true; TOD_SND.thud(.6); FEU_SND.collapse(Q.x + 1.2, Q.z); pz_ton('fall', 1, .85, false, .2); shake = Math.max(shake, .03); }
+      if (fv.time >= D - .05) { fv.timeScale = 0; fv.time = D - .03; Q.liegt = true; } } } }
+// Feuerzeug ruhig halten („Nicht bewegen“): Funken, dann die Flamme – zittert die Hand oder lässt Luke los, reißt sie ab
+function pz_feuerzeugPos(v) { camera.getWorldDirection(_pv1); _pv2.set(Math.cos(player.yaw), 0, -Math.sin(player.yaw)); return v.copy(camera.position).addScaledVector(_pv1, .42).addScaledVector(_pv2, .1).add(_pv3.set(0, -.2, 0)); }
+function pz_qteFeuerzeug() { const S = feuer_S; let fT = 0;
+  return pz_qte({ type: 'halten', keys: 'aktion', duration: 2.1, still: 1, label: 'Ruhig halten', at: () => pz_feuerzeugPos(_pv4),
+    onTick: k => { fT -= 1 / 60; if (fT <= 0) { fT = k > .65 ? .25 : .5; pz_feuerzeugPos(_pv4); if (k < .65) { FEU_SND.flick(); for (let i = 0; i < 5; i++) feuer_emit(S.pe, _pv4.x, _pv4.y, _pv4.z, rand(-.4, .4), rand(.2, 1), rand(-.4, .4), rand(.15, .4), .012, .008, 0, 0); } }
+      if (k > .65) { pz_feuerzeugPos(_pv4); if (Math.random() < .7) feuer_emit(S.pc, _pv4.x, _pv4.y + .01, _pv4.z, 0, .12, 0, .22, .025, .05, 0, 0); } } }); }
+// Zweiter Griff ohne Kinosequenz (nach dem Tod, Wiederholung): Peter vor Luke, die Hände am Gesicht, dieselben QTEs aus Lukes Augen
+async function pz_griffOhneKino(ax, az) { const P = player.pos, L = PZ.lay; zombie.g.visible = true; zombie.g.position.set(ax - .62, 0, az); zombie.g.rotation.set(0, 0, 0); zombie.x = ax - .62; zombie.z = az;
+  player.yaw = PI / 2; player.pitch = -.05; PZ.k2a = { warte: true, tot: false, greifZ: .9, nah: .62, fall: false }; pz_clip('hug', { t: 1.4, ts: .3, fade: .3 }); figuren_mimik(PZ.P, 'zahn', 1); figuren_lookAt(PZ.P, 'cam', 1);
+  const t0 = performance.now(), hold = setInterval(() => { L.greif += (PZ.k2a.greifZ - L.greif) * .15; L.greifP.copy(camera.position); L.greifP.y -= .07; if (performance.now() - t0 > 20000) clearInterval(hold); }, 16);
+  pz_ton('atem', 1.1, .9); await wait(500); try { subtitle('„Bruder.“', 1600, 'PETER'); } catch (e) {} await wait(700);
+  let r = await pz_qteLos(); if (r === 'ok') { PZ.k2a.greifZ = .25; r = await pz_qteFass(); } clearInterval(hold); PZ.k2a.warte = false; L.greif = 0;
+  if (r === 'tot') { PZ.k2a.tot = true; return 'tot'; }
+  PZ.k2a.fall = true; zombie.g.position.set(ax - 2.0, 0, az); zombie.x = ax - 2.0; pz_clip('fall_vor', { once: true, fade: .2, t: 1.9, ts: 1.55 }); player.yaw = PI / 2; return 'ok'; }
+// ---------------------------------------------------------------- Pro Bild (aus dem Feuer-Takt)
+function pz_tick(dt, t) {
+  if (!PZ.an && ch2.on) pz_laden(); if (!PZ.P) return; PZ.U.pzT.value = t;
+  if (ch2.on && Audio.ctx && Audio.ctx.state === 'running') pz_klangLaden();
+  const S = feuer_S, L = PZ.lay;
+  if (typeof tod_S !== 'undefined' && tod_S.dying) { L.greif = L.wand = L.lean = L.winden = L.tuer = L.kopf = L.tilt = 0; if (zombie.g.visible && PZ.loco !== 'idle' && !S.zs) pz_clip('idle', { fade: .3 }); figuren_lookAt(PZ.P, 'cam', 1); return; }
+  if (typeof kino_S !== 'undefined' && kino_S.on && kino_S.id === 'k2a') pz_k2aTick(dt);
+  else if (S.zs) pz_zsTick(dt, t);
+  else if (ch2.chase === 'run' && PZ.ki) { pz_loco(dt); pz_jagdSchicht(dt, t); pz_klangTick(dt); }
+  else { L.greif *= .9; L.winden *= .9; L.tuer *= .9; }
+  pz_schicht(dt, t); pz_kamera(dt);
+}
+function pz_reset() { PZ.ki = null; PZ.k2a = null; PZ.lockClip = null; PZ.lockT = 0; PZ.U.pzOel.value = 0; Object.assign(PZ.lay, { kopf: 0, tilt: 0, wand: 0, greif: 0, lean: 0, nick: 0, weg: 0, winden: 0, tuer: 0 });
+  Object.assign(PZ.cam, { zk: 0, autoT: 0, autoN: 0, kick: 0, kickV: 0, dip: 0, dipV: 0, fovK: 0, ausw: null }); if (PZ.cam.fovSet) { camera.fov = fov; camera.updateProjectionMatrix(); PZ.cam.fovSet = false; }
+  if (typeof qte_aktiv === 'function' && qte_aktiv()) qte_ende(null); if (PZ.P) { figuren_lookAt(PZ.P, null); figuren_mimik(PZ.P, 'zahn', .6); pz_clip('idle', { fade: .2 }); } }
+// Losreißen oder das Fass zweimal verfehlt: er hält fest, bis Luke keine Luft mehr bekommt (Tod, Speicherpunkt wie bisher)
+function pz_griffTod() { const S = feuer_S; S.griffLauf = false; S.griff = false; ch2.chase = 'run'; if (typeof todDie === 'function') todDie('zombie'); }

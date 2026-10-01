@@ -118,7 +118,7 @@ function kr_klang() { if (KR.snd || typeof klang_load !== 'function' || !Audio.c
 Audio.wendigo = function (art, x, y, z, gain = .6, o = {}) { if (!this.ctx) return false; const n = KR_KLANG[art]; if (!n) return false; const ok = []; for (let i = 1; i <= n; i++) if (this.buf['wd_' + art + '_' + i]) ok.push(i); if (!ok.length) return false;
   let i = ok[Math.floor(Math.random() * ok.length)]; if (ok.length > 1 && i === KR['last_' + art]) i = ok[(ok.indexOf(i) + 1) % ok.length]; KR['last_' + art] = i;
   this.play('wd_' + art + '_' + i, Object.assign({ gain, vary: .06, varyGain: .1, x, y, z, ref: o.ref || 3 }, o)); return true; };
-function kr_ton(art, x, y, z, gain, alt) { if (Audio.wendigo && Audio.wendigo(art, x, y, z, gain)) return; if (alt) alt(); }
+function kr_ton(art, x, y, z, gain, alt, o) { if (Audio.wendigo && Audio.wendigo(art, x, y, z, gain, o)) return; if (alt) alt(); }
 // ---------------------------------------------------------------- Bewegungsschicht
 const KR_LOK = { gehen: 1, lauern: 1, sturm: 1, flucht: 1, Walk: 1, Run: 1 };
 function kr_dtTick(dt) { const D = typeof hungrige_S !== 'undefined' ? hungrige_S.dt : null, K = D && D.kr; if (!K) return; if (!D.g.visible) { K.acc = 0; K.lp.copy(D.g.position); return; }
@@ -135,14 +135,14 @@ function kr_dtTick(dt) { const D = typeof hungrige_S !== 'undefined' ? hungrige_
   K.acc += dt; if (step9 && K.acc < 1 / 9) return; K.mx.update(K.acc); K.acc = 0;
   // Kopf dreht ohne Hals zu Luke – in Rasten (≈ 20°), nicht beim Sturm
   if (K.head && want !== 'sturm' && want !== 'aufstieg') { const cam = camera.position, yaw = Math.atan2(cam.x - p.x, cam.z - p.z) - D.g.rotation.y; let d = Math.atan2(Math.sin(yaw), Math.cos(yaw)); d = THREE.MathUtils.clamp(d, -1.4, 1.4);
-    const r = Math.round(d / .35) * .35; if (Math.abs(r - K.hy) > .01) { K.hy = r; if (D.g.visible && Math.hypot(cam.x - p.x, cam.z - p.z) < 14) kr_ton('knochen', p.x, 2.2, p.z, .25); }
+    const r = Math.round(d / .35) * .35; if (Math.abs(r - K.hy) > .01) { K.hy = r; if (D.g.visible && Math.hypot(cam.x - p.x, cam.z - p.z) < 14) kr_ton('knochen', p.x, 2.2, p.z, .25, null, { obj: D.g, h: 2.2 }); }
     K.head.parent.updateWorldMatrix(true, false); K.head.updateWorldMatrix(false, false); K.head.getWorldQuaternion(KR.Q2); K.Q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, K.hy); KR.Q2.premultiply(K.Q);
     K.head.parent.getWorldQuaternion(KR.Q3).invert(); K.head.quaternion.copy(KR.Q3.multiply(KR.Q2)); } }
 // Geschälte (Wolf, Reh): Abspieltempo = Wegtempo, Atem hörbar, Reh lahmt hinten links
 function kr_tierTick(dt) { for (const V of KR.live) { if (!V.g.visible) { V.lp.copy(V.g.position); continue; } const p = V.g.position, cam = camera.position, dc = Math.hypot(p.x - cam.x, p.z - cam.z);
   const d = Math.hypot(p.x - V.lp.x, p.z - V.lp.z) / Math.max(dt, 1e-3); V.lp.copy(p); V.v += (Math.min(d, 10) - V.v) * Math.min(1, dt * 5);
   if (V.kr === 'wolf' && V.cur) { const nm = V.cur === V.A.Walk ? 'Walk' : V.cur === V.A.Run ? 'Run' : null; if (nm && V.meta[nm]) V.cur.timeScale = THREE.MathUtils.clamp(V.v / V.meta[nm].speed, .2, 2.2);
-    const atmet = V.cur === V.A.IdleAggressive || V.cur === V.A.IdleBreathe || V.cur === V.A.Walk; if (atmet && dc < 11) { V.atemT -= dt; if (V.atemT < 0) { V.atemT = V.cur === V.A.IdleAggressive ? 1.6 : 2.4; kr_ton('atem', p.x, .6, p.z, V.cur === V.A.IdleAggressive ? .32 : .2); } } }
+    const atmet = V.cur === V.A.IdleAggressive || V.cur === V.A.IdleBreathe || V.cur === V.A.Walk; if (atmet && dc < 11) { V.atemT -= dt; if (V.atemT < 0) { V.atemT = V.cur === V.A.IdleAggressive ? 1.6 : 2.4; kr_ton('atem', p.x, .6, p.z, V.cur === V.A.IdleAggressive ? .32 : .2, null, { obj: V.g, h: .6 }); } } }
   if (V.krReh && V.cur && V.mx.time !== V.mT && dc < 30) { V.mT = V.mx.time; const bL = V.krLeg || (V.krLeg = V.m.getObjectByName('DeerDoe_-L-Calf') || null); if (bL && V.v > .1) { KR.Q.setFromAxisAngle(KR.V.set(1, 0, 0), .35 + .2 * Math.sin(V.mx.time * 6)); bL.quaternion.multiply(KR.Q); } } } }
 // ---------------------------------------------------------------- Das Lichtschiff (Bibel §2: „Von unten: Rippen, eine dünne leuchtende Haut, innen ein Licht wie eine riesige Flamme. Von nahem: gewachsene Rippen, Haut, die atmet.“)
 // Der Blech-Untertasse des Grundspiels (Nieten, Panelfugen, Lichtschlitze) werden Haut und Rippen gegeben: dieselbe Silhouette, dieselben Lichter/Strahlen (kino.js, kapitel1.js),

@@ -348,7 +348,7 @@ function lucy3_blink() { const S = lucy3_S; if (!S.lights.length && !S.hlMats.le
 
 // ---------------------------------------------------------------- K3-5: Laternen – herleiten, Fehlschläge mit Hilfeleiter, Nachhall der Unterschriften
 const LUCY3_SIGN = { // Nachhall am Haus (3 s, eine Zeile): wer an welchem Tag unterschrieben hat
-  5: { who: 'aydin', clip: 'look', line: ['„Wenn\'s denn sein muss.“', 3000, 'FRAU REUTER, 2009'] }, // keine eigene Figur für Frau Reuter: Stellvertreterin, als Nachhall ohnehin nur schemenhaft
+  5: { who: 'reuter', clip: 'look', line: ['„Wenn\'s denn sein muss.“', 3000, 'FRAU REUTER, 2009'] }, // Q-6: eigene Figur Frau Reuter (Ersatz aydin, solange nicht gebaut)
   3: { who: 'vegas', clip: 'nervous', line: ['„Für Mike. Gott vergib mir.“', 3000, 'VEGAS, 2009'] },
   1: { who: 'mama', clip: 'nervous', line: null, twice: true }, // Mama setzt zweimal an – keine Zeile, nur der Füller
   7: { who: 'hilde', clip: 'idle', line: ['„Das Los ist das Los.“', 3000, 'HILDE WENDT, 2009'] } };

@@ -1,0 +1,14 @@
+import fs from 'fs'; import * as THREE from 'three'; import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+globalThis.window = globalThis; globalThis.self = globalThis;
+const buf = fs.readFileSync('../game/assets/ms/beobachter/model.glb'); const g = await new Promise((r, j) => new GLTFLoader().parse(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength), '', r, j));
+g.scene.updateMatrixWorld(true); const M = []; g.scene.traverse(m => { if (m.isMesh) M.push(m); });
+const pts = m => { const P = m.geometry.attributes.position, v = new THREE.Vector3(), out = []; for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(m.matrixWorld); out.push([v.x, v.y, v.z]); } return out; };
+const arm = pts(M[0]), body = pts(M[1]), head = pts(M[2]), eye = pts(M[5]);
+const hist = (a, f, lo, hi, n) => { const h = new Array(n).fill(0); for (const p of a) { const v = f(p); if (v >= lo && v < hi) h[Math.floor((v - lo) / (hi - lo) * n)]++; } return h; };
+// Arm rechts (x<0): Querschnitt je Höhe
+for (const [nm, A] of [['armR', arm.filter(p => p[0] < 0)]]) { for (let y = .13; y < .36; y += .01) { const s = A.filter(p => p[1] >= y && p[1] < y + .01); if (!s.length) continue; const mx = [Math.min(...s.map(p => p[0])), Math.max(...s.map(p => p[0]))], mz = [Math.min(...s.map(p => p[2])), Math.max(...s.map(p => p[2]))]; console.log(nm, y.toFixed(2), s.length, 'x', mx.map(v => v.toFixed(3)).join('..'), 'z', mz.map(v => v.toFixed(3)).join('..')); } }
+// Körper: Querschnitt je Höhe (nur |x|<.06 = Mitte), Beine
+for (let y = 0; y < .42; y += .015) { const s = body.filter(p => p[1] >= y && p[1] < y + .015); if (!s.length) continue; const L = s.filter(p => p[0] > 0), mx = [Math.min(...s.map(p => p[0])), Math.max(...s.map(p => p[0]))], mz = [Math.min(...s.map(p => p[2])), Math.max(...s.map(p => p[2]))];
+  console.log('body', y.toFixed(3), s.length, 'x', mx.map(v => v.toFixed(3)).join('..'), 'z', mz.map(v => v.toFixed(3)).join('..'), 'Lx', L.length ? Math.min(...L.map(p => p[0])).toFixed(3) + '..' + Math.max(...L.map(p => p[0])).toFixed(3) : ''); }
+for (let y = .33; y < .83; y += .02) { const s = head.filter(p => p[1] >= y && p[1] < y + .02); if (!s.length) continue; const mx = [Math.min(...s.map(p => p[0])), Math.max(...s.map(p => p[0]))], mz = [Math.min(...s.map(p => p[2])), Math.max(...s.map(p => p[2]))]; console.log('head', y.toFixed(2), s.length, 'x', mx.map(v => v.toFixed(3)).join('..'), 'z', mz.map(v => v.toFixed(3)).join('..')); }
+const eL = eye.filter(p => p[0] > 0); const c = [0, 1, 2].map(k => eL.reduce((a, p) => a + p[k], 0) / eL.length); console.log('eyeL center', c.map(v => v.toFixed(3)), 'x', Math.min(...eL.map(p => p[0])).toFixed(3), Math.max(...eL.map(p => p[0])).toFixed(3), 'y', Math.min(...eL.map(p => p[1])).toFixed(3), Math.max(...eL.map(p => p[1])).toFixed(3), 'z', Math.min(...eL.map(p => p[2])).toFixed(3), Math.max(...eL.map(p => p[2])).toFixed(3));

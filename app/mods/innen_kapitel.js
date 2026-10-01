@@ -515,7 +515,7 @@ WORLD_TICK.push((dt, t) => {
   // Sitzende Figuren (nach dem Animations-Mixer): Beine und Arme in Sitzhaltung
   if (S.sit && Math.abs(P.x - C3.x - 30) < 40 && Math.abs(P.z - C3.z) < 30) for (const s of S.sit) if (s.g.visible) for (const [b, q] of s.keep) b.quaternion.copy(q);
   // Verfolger: Laufanimation, vornübergebeugt, Arme greifen nach vorn
-  const Z = S.zombie; if (Z && zombie.g.visible) { Z.mx.update(dt); const ax = _ikAx.set(1, 0, 0).applyQuaternion(Z.zm.getWorldQuaternion(_ikQ)); S.bend(Z.b.spine_02, ax, .45); S.bend(Z.b.upperarm_l, ax, -1.25); S.bend(Z.b.upperarm_r, ax, -1.1); S.bend(Z.b.neck_01, ax, -.35); }
+  const Z = S.zombie; if (Z && zombie.g.visible && !Z.eigen) { Z.mx.update(dt); const ax = _ikAx.set(1, 0, 0).applyQuaternion(Z.zm.getWorldQuaternion(_ikQ)); S.bend(Z.b.spine_02, ax, .45); S.bend(Z.b.upperarm_l, ax, -1.25); S.bend(Z.b.upperarm_r, ax, -1.1); S.bend(Z.b.neck_01, ax, -.35); }
   // Kanal: sichtbare Leiter am Ausstieg (statt nur einer unsichtbaren Klickfläche), kaltes Licht von oben
   if (!S.ladder && canal.loaded) { S.ladder = true;
     try { const wood = canal.root.children.find(o => o.isInstancedMesh && o.count === 24 && [].concat(o.material)[0].name === 'MI_WoodRaw_02'), rope = canal.root.children.find(o => o.isInstancedMesh && o.count === 24 && [].concat(o.material)[0].name === 'MI_OldRope_01' && o.geometry.boundingBox && o.geometry.boundingBox.max.y > 2);

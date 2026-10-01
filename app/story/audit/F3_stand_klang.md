@@ -25,7 +25,11 @@
 - Nr. 7 innen: −25,6 LUFS, dominiert vom Fernsehrauschen; das ist jetzt bandbegrenzt und leiser.
 - Amt mit Jagd und großem Stinger: −18 LUFS, Spitze −1,2 dBFS, nichts übersteuert. Alle Dateien werden geladen.
 
+## Nachtrag (Rest ersetzt, `app/tools/klang_bau3.py`)
+- `kino.js`: Vögel, Amsel, Taube, Pling, Glöckchen, Taste, Brummen (`amb_ufo`/`amb_brumm`) laufen über Aufnahmen. `feuer.js`: Musik `mu_feuer_a/b` aus Posaune, Horn, Pauken und Streichern (VSCO), der Brandalarm ist eine aufgenommene Glocke (`amb_alarm`).
+- `whiskey_ton` → `Audio.rabeTon` (echter Rabenlaut, auf die Tonhöhe geschoben). `tod.js`/`kiffen.js`: Ohrklingeln `Audio.ohrklingeln` (schmalbandiges Rauschen, eingeblendet).
+- `neben3.js`: Standuhr (Röhrenglocke), Wecker (Aufnahme), Hörgerät (schmalbandiges Pfeifen). Neue API: `Audio.vogel`, `Audio.amsel`, `Audio.taube`, `Audio.rabeTon`, `Audio.ohrklingeln`.
+
 ## Offen
-- Noch synthetisch sind: `kino.js` (Vögel, Taube, Mikrowellen-„Pling“, Brummen), `feuer.js` (eigene Blech-/Sägezahn-Musik, Brandalarm), `kiffen.js` (Tinnitus 4,15 kHz), `tod.js` (Tinnitus 3,95 kHz, Stöhnen),
-  Summ-Stimmen (`amt_summen`, `k5_summen`, `neben3_summen`), `whiskey_ton` sowie die Piepser in `neben3` (Pager, Wecker, Hörgerät). Das Summen wartet auf die Sprachaufnahmen (`stimmen_spielen`).
+- Summ-Stimmen (`amt_summen`, `k5_summen`, `neben3_summen`) warten auf die Sprachaufnahmen (`stimmen_spielen`). In `kiffen.js` sind noch die kleinen Synth-Klicks aus `kiffen_klangBau` übrig.
 - Pegel der Betten und Musik nach Gehör feinjustieren: `KL_ORT_BETT` und die Lautstärken in `KL_MUSIK`.

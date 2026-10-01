@@ -289,17 +289,19 @@ function tausch_glintTex() { return tex(cnv(64, (c, w) => { const g = c.createRa
   c.fillStyle = g; c.fillRect(0, 0, w, w); c.strokeStyle = 'rgba(255,250,235,.8)'; c.lineWidth = 1; c.beginPath(); c.moveTo(w / 2, 3); c.lineTo(w / 2, w - 3); c.moveTo(3, w / 2); c.lineTo(w - 3, w / 2); c.stroke(); }), true); }
 function tausch_glint(x, y, z, label, act) { const S = tausch_S;
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: S.tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 })); sp.position.set(x, y + .06, z); sp.scale.setScalar(.16); sp.visible = false; scene.add(sp);
-  const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); return { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 }; }
+  const hit = box(.55, .35, .55, x, y + .12, z, hidden, { cast: false }); interact(hit, label, act); uninteract(hit); const G = { sp, hit, x, y, z, on: false, ph: Math.random() * 6.28 };
+  if (typeof glanz_neu === 'function') { G.glz = glanz_neu({ size: .07, an: () => G.on, boden: true, mit: [sp, hit] }); G.glz.g.position.set(x, y + .012, z); G.glz.g.visible = false; scene.add(G.glz.g); hit.userData.hl = 'glanz'; hit.userData.hlObj = () => G.glz.key; } // R-2: echtes Metallstück, Glitzern, Schein (hervorhebung.js)
+  return G; }
 function tausch_y(x, z) { const g = solidGround(x, .8, z); return g > -1 ? Math.max(0, g) : 0; }
 function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if (!tausch_platz('glanz', F.w.length)) return tausch_voll('glanz'); if (F.bat && !tausch_platz('batterie', F.bat)) return tausch_voll('batterie'); S.funde.add(F.id); const G = F.G; G.sp.visible = false; uninteract(G.hit); G.on = false;
   for (const w of F.w) tausch_gib(w, 1, true); if (F.bat) setTimeout(() => addBattery(F.bat), 700);
-  toast(F.t, 4200); questPop('GLÄNZENDES', F.w.map(w => TAUSCH_WAREN[w].n).join(', ')); Audio.play('keys1', { gain: .16, rate: 1.9, dur: .25 });
+  toast(F.t, 4200); questPop('GLÄNZENDES', F.w.map(w => TAUSCH_WAREN[w].n).join(', ')); if (typeof glanz_klang === 'function') glanz_klang(); else Audio.play('keys1', { gain: .16, rate: 1.9, dur: .25 });
   if (!story.lore.some(l => l.key === 'tausch_start')) { story.lore.push({ key: 'tausch_start', title: 'Glänzendes', html: '<span class="hand">Ich sammle jetzt Kronkorken. Für einen Raben. Lucy würde sich totlachen.\n\nAber er nimmt nur, was glänzt – und er gibt dafür, was ich brauche.</span>' }); setTimeout(() => toast('Glänzendes liegt in deinen Taschen (Fibel, INVENTAR). Whiskey tauscht es – sprich ihn an.', 5200), 4600); } }
 // Etwas, das Whiskey hinlegt (zurückgelegtes Diebesgut, Deckel, nasse Batterie): gespeichert, bis Luke es aufhebt
 function tausch_drop(x, y, z, was, text) { const S = tausch_S; if (y === null || y === undefined) y = tausch_y(x, z); const D = { x, y, z, was, text, k: kap() }; S.drops.push(D); tausch_dropMake(D); }
 function tausch_dropMake(D) { const S = tausch_S; const G = tausch_glint(D.x, D.y, D.z, 'Etwas glänzt', () => tausch_dropNimm(D)); D.G = G; interactables.push(G.hit); G.on = true; G.sp.visible = true; S.dropG.push(D); }
-function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if (w.ware && !tausch_platz('glanz', 1)) return tausch_voll('glanz'); if (w.bat && !tausch_platz('batterie', w.bat)) return tausch_voll('batterie'); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false;
-  if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
+function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if (w.ware && !tausch_platz('glanz', 1)) return tausch_voll('glanz'); if (w.bat && !tausch_platz('batterie', w.bat)) return tausch_voll('batterie'); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false; D.G.on = false;
+  if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); if (typeof glanz_klang === 'function') glanz_klang(); else Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
 // ---------------------------------------------------------------- Lampe, Streichholz, Kreide, Fernglas, Handwärmer
 function tausch_licht() { const S = tausch_S, L = S.L; return { an: !!(L && L.intensity > .05), x: L ? L.position.x : 0, y: L ? L.position.y : 0, z: L ? L.position.z : 0, r: S.match > 0 ? TAUSCH_LAMPE.holz.r : S.lampe ? TAUSCH_LAMPE[S.lampe].r : 0, art: S.match > 0 ? 'streichholz' : S.lampe }; }
 function tausch_feuer() { return story.items.includes('feuerzeug') || tausch_S.streich > 0; }
@@ -362,16 +364,16 @@ MOD_SAVE.push(['tausch', () => { const S = tausch_S; return { tasche: S.tasche, 
     drops: S.drops.map(d => ({ x: d.x, y: d.y, z: d.z, was: d.was, text: d.text, k: d.k })) }; },
   v => { const S = tausch_S; if (!v || typeof v !== 'object') return; S.tasche = v.tasche && typeof v.tasche === 'object' ? { ...v.tasche } : {}; S.funde = new Set(v.funde || []); S.gekauft = v.gekauft || {}; S.log = Array.isArray(v.log) ? v.log : [];
     S.oel = +v.oel || 0; S.oelN = +v.oelN || 0; S.lampe = v.lampe === 'oel' || v.lampe === 'sturm' ? v.lampe : ''; S.streich = +v.streich || 0; S.kreide = +v.kreide || 0; S.marken = Array.isArray(v.marken) ? v.marken.slice(-24) : []; S.warmN = +v.warmN || 0; S.warmT = +v.warmT || 0; S.fernglas = !!v.fernglas; S.nass = !!v.nass; S.an = false; S.match = 0;
-    for (const D of S.dropG) { uninteract(D.G.hit); D.G.sp.visible = false; } S.dropG = []; S.drops = []; for (const d of v.drops || []) { S.drops.push(d); if (S.ready) tausch_dropMake(d); }
+    for (const D of S.dropG) { uninteract(D.G.hit); D.G.sp.visible = false; D.G.on = false; } S.dropG = []; S.drops = []; for (const d of v.drops || []) { S.drops.push(d); if (S.ready) tausch_dropMake(d); }
     if (S.ready) { tausch_markenZeigen(); tausch_fundeSync(true); } }]);
 // Neues Spiel: in Lukes Taschen der Einkaufswagenchip (alter Schlüsselbund) und ein Kaugummipapier (W-03)
 beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!resume && state.started) { const S = tausch_S; S.tasche = { chip: 1, kaugummipapier: 1 }; S.funde.clear(); S.gekauft = {}; S.log = []; S.oel = 0; S.oelN = 0; S.lampe = ''; S.an = false; S.streich = 0; S.kreide = 0; S.marken = []; S.warmN = 0; S.warmT = 0; S.fernglas = false; S.nass = false;
-  for (const D of S.dropG) { uninteract(D.G.hit); D.G.sp.visible = false; } S.dropG = []; S.drops = []; if (S.ready) { tausch_markenZeigen(); tausch_fundeSync(true); } } return r; })(beginGame);
+  for (const D of S.dropG) { uninteract(D.G.hit); D.G.sp.visible = false; D.G.on = false; } S.dropG = []; S.drops = []; if (S.ready) { tausch_markenZeigen(); tausch_fundeSync(true); } } return r; })(beginGame);
 // Welche Fundorte gehören ins aktuelle Kapitel (Klickfläche an/aus; nur bei Wechsel)
 function tausch_fundeSync(force) { const S = tausch_S, k = kap(); if (!force && S.kSync === k) return; S.kSync = k;
   for (const F of TAUSCH_FUNDE) { const G = F.G; if (!G) continue; const on = k >= F.k[0] && k <= F.k[1] && !S.funde.has(F.id); if (on && !G.on) { if (!interactables.includes(G.hit)) interactables.push(G.hit); } else if (!on && G.on) { uninteract(G.hit); G.sp.visible = false; } G.on = on; } }
 WORLD_MODS.push(['Tausch', async () => {
-  const S = tausch_S; tausch_css(); S.tex = tausch_glintTex();
+  const S = tausch_S; tausch_css(); S.tex = typeof glanz_tex === 'function' ? glanz_tex() : tausch_glintTex(); // R-2: weicher, runder Lichtfunke statt Kreuz
   for (const F of TAUSCH_FUNDE) { const y = tausch_y(F.at[0], F.at[1]); F.G = tausch_glint(F.at[0], y, F.at[1], 'Etwas glänzt', () => tausch_finde(F)); }
   // Kreidezeichen: fester Vorrat an Flächen (Decal-Pool), beim Laden angelegt; neue Zeichen ersetzen das älteste
   const km = new THREE.MeshStandardMaterial({ map: tausch_kreideTex(), transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -4 });

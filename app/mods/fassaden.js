@@ -9,25 +9,28 @@ WORLD_MODS.push(['Fassaden', async () => { await fassaden_build(); }]);
 WORLD_TICK.push((dt, t, indoor) => { if (fassaden_S.ready) fassaden_tick(dt, t, indoor); });
 
 // ---- Innenraum-Illusion („interior mapping“): ein Zimmer hinter jeder Scheibe, ohne Geometrie
+// R-12: nie ein leeres Zimmer. Jedes Zimmer hat ein Motiv (Wohnzimmer, Küche, Schlafzimmer, Kinderzimmer, Flur) aus zwei Möbel-Karten,
+// die beim Laden aus echten Scan-Möbeln gerendert werden (Rückwand + Möbel im Raum, Parallaxe). Licht nur mit Quelle (Hauslicht, Nachtlicht,
+// Fernseher, Stehlampe, Röhre, Kerze), Jalousien als Behang, Fresnel: im flachen Winkel übernimmt die Spiegelung im Glas (fassaden_probe).
 const fassaden_ROOM_VS = `
-attribute vec3 aRight; attribute vec4 aRoom; attribute vec4 aWin; attribute float aFig;
-varying vec3 vW; varying vec3 vR; varying vec3 vN; varying vec2 vUv2; flat varying vec4 vRoom; flat varying vec4 vWin; flat varying float vFig;
+attribute vec3 aRight; attribute vec4 aRoom; attribute vec4 aWin; attribute float aFig; attribute vec2 aDeco;
+varying vec3 vW; varying vec3 vR; varying vec3 vN; varying vec2 vUv2; flat varying vec4 vRoom; flat varying vec4 vWin; flat varying float vFig; flat varying vec2 vDeco;
 #include <common>
 #include <fog_pars_vertex>
 void main() {
   vec4 wp = modelMatrix * vec4(position, 1.0);
   vW = wp.xyz; vR = normalize(mat3(modelMatrix) * aRight); vN = normalize(mat3(modelMatrix) * normal);
-  vUv2 = uv; vRoom = aRoom; vWin = aWin; vFig = aFig;
+  vUv2 = uv; vRoom = aRoom; vWin = aWin; vFig = aFig; vDeco = aDeco;
   vec4 mvPosition = viewMatrix * wp;
   gl_Position = projectionMatrix * mvPosition;
   #include <fog_vertex>
 }`;
 const fassaden_ROOM_FS = `
-uniform sampler2D tW0, tW1, tW2, tFloor, tCeil, tFig;
-uniform float uLit, uFlash, uTime;
+uniform sampler2D tW0, tW1, tW2, tFloor, tCeil, tFig, tAtlas;
+uniform float uLit, uFlash, uTime, uAmb, uAux;
 uniform vec3 uLitCol, uFlashPos, uFlashDir;
 uniform vec4 uFigVis;
-varying vec3 vW; varying vec3 vR; varying vec3 vN; varying vec2 vUv2; flat varying vec4 vRoom; flat varying vec4 vWin; flat varying float vFig;
+varying vec3 vW; varying vec3 vR; varying vec3 vN; varying vec2 vUv2; flat varying vec4 vRoom; flat varying vec4 vWin; flat varying float vFig; flat varying vec2 vDeco;
 #include <common>
 #include <fog_pars_fragment>
 float fh1(float n) { return fract(sin(n * 91.3458) * 43758.5453); }
@@ -37,11 +40,25 @@ vec3 fWall(vec2 p, float sd) {
   return c * mix(vec3(1.), vec3(1.05, .95, .8), fh1(sd + 8.2));
 }
 float fSpot(vec3 hw) { vec3 f = hw - uFlashPos; float fd = length(f); return smoothstep(.82, .95, dot(f / fd, uFlashDir)) * 3.2 / (1.0 + fd * fd * .9); }
+// Möbel-Karte (Atlas 5 × 2): q in Metern, x −1,6…1,6, y 0…2,5; row 0 = Rückwand, 1 = Möbel im Raum
+vec4 fCard(vec2 q, float col, float row) {
+  vec2 u = vec2(q.x / 3.2 + .5, q.y / 2.5);
+  if (u.x < .004 || u.x > .996 || u.y < .004 || u.y > .996) return vec4(0.);
+  return texture2D(tAtlas, vec2((col + u.x) * .2, (row + u.y) * .5));
+}
+vec3 fLight(vec3 hp, vec3 nn, vec3 L, vec3 lc, float lt, float kk, float lo) {
+  vec3 tl = L - hp; float dl = length(tl);
+  float ndl = max(dot(nn, tl / dl), 0.) * (1. - lo) + lo;
+  return lc * lt * 4.0 / (1. + dl * dl * kk) * ndl;
+}
 void main() {
   vec3 V = normalize(vW - cameraPosition);
+  // Von innen (Rückseite) gibt es kein Scheinzimmer: verwerfen → man sieht den echten Raum/die Straße
+  float facing = -dot(V, normalize(vN));
+  if (facing <= 0.) discard;
   vec3 d = vec3(dot(V, vR), V.y, -dot(V, vN));
   d.z = max(d.z, .02);
-  float sd = floor(vRoom.x + .5), kind = floor(vRoom.z + .5);
+  float sd = floor(vRoom.x + .5), kind = floor(vRoom.z + .5), motif = floor(vDeco.x + .5);
   bool hall = kind > .5 && kind < 1.5;
   float hw = hall ? .8 : (kind > 2.5 ? 1.6 : mix(1.3, 2.1, fh1(sd)));
   float rh = kind > 1.5 ? 2.15 : 2.5;
@@ -61,18 +78,35 @@ void main() {
   else { col = texture2D(tCeil, h.xz * .5).rgb * .7; n = vec3(0., -1., 0.); }
   if (kind > 1.5) col = texture2D(tCeil, (wallHit ? vec2(h.x + h.z, h.y) : h.xz) * .4).rgb * vec3(.55, .5, .45); // Keller/Garage: roher Putz
   if (wallHit && h.y < .1 && kind < 1.5) col = vec3(.09, .06, .04); // Fußleiste
-  // Licht im Zimmer
-  float lt = vRoom.y > 1.5 ? .9 : vRoom.y * uLit; vec3 lc;
-  lc = vRoom.y > 1.5 ? vec3(.25, .38, 1.) : uLitCol * mix(vec3(1.), vec3(1.1, .75, .55), fh1(sd + 6.6));
-  vec3 L = kind > 1.5 && kind < 2.5 ? vec3(.15, .28, .75) : vec3(fh1(sd + 5.3) * .8 - .4, vRoom.y > 1.5 ? .3 : rh - .45, max(1.3, dp * mix(.3, .6, fh1(sd + 2.2))));
-  if (kind > 1.5 && kind < 2.5) { lt *= 1.7 + .45 * sin(uTime * 13. + sin(uTime * 7.3) * 2.); lc = vec3(1., .55, .22); }
-  vec3 tl = L - h; float dl = length(tl);
-  float ndl = max(dot(n, tl / dl), 0.) * .75 + .25;
-  vec3 light = lc * lt * 4.0 / (1. + dl * dl * (kind > 1.5 ? 1.4 : .5)) * ndl;
+  // Rückwand-Karte: Schrank, Regal, Fernseher, Bilder …
+  float cOff = (fh1(sd + 12.3) - .5) * .5;
+  if (t == tz && kind < 1.5 && motif > -.5) { vec4 cb = fCard(vec2(h.x - cOff, h.y), motif, 0.); col = mix(col, cb.rgb, cb.a); }
+  // Licht im Zimmer – jede Helligkeit hat eine Quelle
+  float mode = vRoom.y, lt = 0.; vec3 lc = uLitCol * mix(vec3(1.), vec3(1.1, .75, .55), fh1(sd + 6.6));
+  vec3 L = vec3(fh1(sd + 5.3) * .8 - .4, rh - .45, max(1.3, dp * mix(.3, .6, fh1(sd + 2.2))));
+  float kk = .5;
+  if (mode < 1.5) lt = mode * uLit;                                                   // Hauslicht (Glühbirne)
+  else if (mode < 2.5) { lt = .9; lc = vec3(.25, .38, 1.); L.y = .3; }                // Nachtlicht
+  else if (mode < 3.5) { float fl = .55 + .22 * sin(uTime * 2.3 + sd) + .23 * step(.5, fh1(floor(uTime * 1.7 + sd))); // Fernseher: Szenenwechsel, kein Takt
+    lt = uLit * .55 * fl; lc = vec3(.42, .55, 1.); L = vec3(cOff + .5, .95, dp - .5); kk = .9; }
+  else if (mode < 4.5) { lt = uLit * .32; L = vec3(cOff + 1.15, 1.5, dp * .55); kk = .8; }  // Stehlampe, gedimmt
+  else if (mode < 5.5) { lt = uLit * uAux * .8; lc = vec3(.72, .84, 1.); L = vec3(0., rh - .08, dp * .5); kk = .35; } // Röhre an der Decke (Küche Nr. 7)
+  else { lt = uLit * .42 * (.86 + .08 * sin(uTime * 9. + sd) + .06 * sin(uTime * 23. + sd * 2.)); lc = vec3(1., .62, .3); L = vec3(cOff - .6, .45, dp - .4); kk = 1.4; } // Kerze
+  if (kind > 1.5 && kind < 2.5) { lt = vRoom.y * uLit * (1.7 + .45 * sin(uTime * 13. + sin(uTime * 7.3) * 2.)); lc = vec3(1., .55, .22); L = vec3(.15, .28, .75); kk = 1.4; }
+  vec3 amb = vec3(.012, .014, .02) * uAmb;
+  vec3 fill = vec3(.02, .025, .036) * uAmb; // Laternen-/Mondlicht, das durchs Fenster fällt
+  vec3 light = fLight(h, n, L, lc, lt, kk, .25);
   float e = min(min(hw - abs(h.x), h.y), min(rh - h.y, dp - h.z));
   float ao = .35 + .65 * smoothstep(0., .5, e);
   vec3 hwld = vW + V * t;
-  vec3 c = col * (light + vec3(.010, .012, .018) + vec3(1., .93, .82) * uFlash * fSpot(hwld)) * ao;
+  vec3 c = col * (light + amb + fill * exp(-h.z * .6) * (n.y > .5 ? 1.3 : .7) + vec3(1., .93, .82) * uFlash * fSpot(hwld)) * ao;
+  // Möbel im Raum (Sofa, Tisch, Bett …): zweite Karte in halber Tiefe – Parallaxe zur Rückwand
+  if (kind < .5 && motif > -.5 && dp > 2.4) {
+    float zm = clamp(dp * .42, 1.05, 1.7), tm = zm * id.z;
+    if (tm < t) { vec3 hm = p + d * tm; vec4 cm = fCard(vec2(hm.x - cOff * .6 - (fh1(sd + 3.9) - .5) * .5, hm.y), motif, 1.);
+      if (cm.a > .45 && abs(hm.x) < hw && hm.y < rh) {
+        vec3 lm = fLight(hm, vec3(0., 0., -1.), L, lc, lt, kk, .15);
+        c = cm.rgb * (lm + amb + fill * .8 + vec3(1., .93, .82) * uFlash * fSpot(vW + V * tm)) * .9; t = tm; } } }
   // Gestalt im Zimmer (Maske aus dem echten Mannequin gerendert)
   if (vFig > .5) {
     float vis = vFig < 1.5 ? uFigVis.x : (vFig < 2.5 ? uFigVis.y : (vFig < 3.5 ? uFigVis.z : uFigVis.w));
@@ -89,16 +123,19 @@ void main() {
       }
     }
   }
-  // Glas: Staub am Rand, Himmel spiegelt sich im flachen Winkel
-  // Von innen (Rückseite, Blick entgegen der Normalen) gibt es kein Scheinzimmer und keinen Himmelsschimmer: verwerfen → man sieht den echten Raum/die Straße
-  float facing = -dot(V, normalize(vN));
-  if (facing <= 0.) discard;
+  // Jalousie (heruntergelassen bis vDeco.y): Lamellen mit Gegenlicht aus dem Zimmer, Taschenlampe fängt sich darin
+  if (vDeco.y > .01 && vUv2.y > 1. - vDeco.y) {
+    float s = fract((1. - vUv2.y) * vWin.y / .046 + fh1(sd) * .3);
+    float slat = smoothstep(0., .08, s) * (1. - smoothstep(.74, .86, s));
+    vec3 back = lc * lt * .22;
+    vec3 sc = vec3(.6, .56, .48) * (amb * 3. + fill + back + vec3(1., .93, .82) * uFlash * fSpot(vW) * .7) * (.65 + .35 * s);
+    float rail = 1. - smoothstep(.0, .012, abs(vUv2.y - (1. - vDeco.y)) * vWin.y);
+    c = mix(c, sc, max(slat * .93, rail));
+  }
+  // Glas: Staub am Rand; im flachen Winkel geht das Licht in die Spiegelung (Glas-Schicht darüber, Fresnel)
   float fr = pow(1. - clamp(facing, 0., 1.), 5.);
   vec2 q = abs(vUv2 - .5) * 2.;
-  c *= 1. - .35 * smoothstep(.75, 1., max(q.x, q.y));
-  #ifdef USE_FOG
-  c = mix(c, fogColor * 1.2, fr * .4); // Spiegelung des Nachthimmels nur im flachen Winkel, dunkel wie der Himmel selbst
-  #endif
+  c *= (1. - .35 * smoothstep(.75, 1., max(q.x, q.y))) * (1. - fr);
   gl_FragColor = vec4(c, 1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -211,10 +248,12 @@ async function fassaden_build() {
   function slabUV(m, tile) { const g2 = m.geometry.clone(), p = g2.attributes.position, uv = g2.attributes.uv, s = Math.sign(m.position.x) || 1;
     for (let i = 0; i < p.count; i++) uv.setXY(i, p.getZ(i) / tile, -s * p.getX(i) / tile); uv.needsUpdate = true; m.geometry = g2; }
   const tarFor = tint => weather(surf('road_asphalt', 1, .6, { tint, nrm: 1.1, env: .7 }), { roof: true, moss: .85, wet: .75 });
-  // Fensterglas als Dielektrikum (kein Metall): klare, schmale Glanzlichter von Taschenlampe/Laternen, Himmelsspiegelung nur im flachen Winkel
-  const glassMat = new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .04, metalness: 0, transparent: true, opacity: .24, depthWrite: false, envMapIntensity: 1, name: 'fa_glass' });
-  const roomU = { uFlash: { value: 0 }, uFlashPos: { value: new V3() }, uFlashDir: { value: new V3(0, 0, -1) }, uTime: { value: 0 } };
+  const roomU = { uFlash: { value: 0 }, uFlashPos: { value: new V3() }, uFlashDir: { value: new V3(0, 0, -1) }, uTime: { value: 0 }, uAmb: { value: 1 } };
   S.U = roomU;
+  // R-12: Fensterglas spiegelt die echte Umgebung (eine gemeinsame Sonde je Straßenabschnitt, selten aufgefrischt) und trägt feinen Staub und Regen.
+  // Das Glas ist eine reine Spiegel-/Glanzschicht (additiv) über Zimmer/Vorhang: Fresnel – senkrecht sieht man hinein, im flachen Winkel die Straße.
+  const glassMat = fassaden_glass(fassaden_probeInit(), WU.tNoise, roomU.uTime);
+  S.glassMat = glassMat;
   // Silhouetten-Maske aus dem echten (gescannten) Mannequin: zwei Posen nebeneinander
   let tFig = new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1); tFig.needsUpdate = true;
   if (ghost) {
@@ -234,9 +273,11 @@ async function fassaden_build() {
     tFig = rt.texture;
   }
   S.dbg = { tFig };
+  // Möbel-Karten für die Scheinzimmer (aus echten Scan-Möbeln gerendert, einmal beim Laden + einmal nach dem Nachladen der Texturen)
+  const tAtlas = await fassaden_atlas().catch(e => { console.warn('Fassaden: Möbel-Karten', e); S.log.push('Möbel-Karten FEHLEN: ' + e); const t = new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1); t.needsUpdate = true; return t; });
   const roomMat = litCol => {
-    const u = { tW0: { value: tW0 }, tW1: { value: tW1 }, tW2: { value: tW2 }, tFloor: { value: tFloor }, tCeil: { value: tCeil }, tFig: { value: tFig },
-      uLit: { value: 1 }, uLitCol: { value: new THREE.Color(litCol) }, uFigVis: { value: new THREE.Vector4(1, 1, 1, 1) }, ...roomU };
+    const u = { tW0: { value: tW0 }, tW1: { value: tW1 }, tW2: { value: tW2 }, tFloor: { value: tFloor }, tCeil: { value: tCeil }, tFig: { value: tFig }, tAtlas: { value: tAtlas },
+      uLit: { value: 1 }, uAux: { value: 1 }, uLitCol: { value: new THREE.Color(litCol) }, uFigVis: { value: new THREE.Vector4(1, 1, 1, 1) }, ...roomU };
     return new THREE.ShaderMaterial({ uniforms: Object.assign(THREE.UniformsUtils.clone(THREE.UniformsLib.fog), u), vertexShader: fassaden_ROOM_VS, fragmentShader: fassaden_ROOM_FS, fog: true, name: 'fa_room' });
   };
   // Vorhänge: nur das Stoffteil der Scan-Modelle, auf Einheitsgröße gebracht (Aufhängung oben in der Mitte)
@@ -270,13 +311,24 @@ async function fassaden_build() {
   // ---------- Hausweise Gestaltung
   const STY = {
     3: { wall: 'planks', tint: 0x93a08c, door: 0x7f8f78, shut: 0x2c3a2e, roof: 'shingle', roofTint: 0x9aa096, casing: 0xc8c4b8, figs: { 1: 1.78 }, cellar: 'dark' },
-    9: { wall: 'planks', tint: 0xa8a49c, door: 'door1', roof: 'corr', casing: 0x9a958a, dirt: 1, cellar: null },
-    2: { wall: 'brick', tint: 0xa89088, door: 0x8a4a3c, roof: 'shingle', roofTint: 0x948a84, casing: 0xb8b4aa, cellar: 'dark' },
+    9: { wall: 'planks', tint: 0xa8a49c, door: 'door1', roof: 'corr', casing: 0x9a958a, dirt: 1, cellar: null, backDoor: -2.2, skipWin: [3], motif: { 4: 1 } }, // R-12: „Hintertür (Scheibe)“ (post.js) – dort stand vorher ein Fenster
+    2: { wall: 'brick', tint: 0xa89088, door: 0x8a4a3c, roof: 'shingle', roofTint: 0x948a84, casing: 0xb8b4aa, cellar: 'dark', motif: { 0: 0 } },
     4: { wall: 'planks', tint: 0xb8ad96, door: 0x505c68, shut: 0x3a2a24, roof: 'tar', roofTint: 0x8f989a, casing: 0xd0ccc0, twitch: 0 },
-    6: { wall: 'plaster', plasterKey: 'wall_damaged', tint: 0xa39a86, door: 0x6a5846, roof: 'tar', roofTint: 0xa09890, casing: 0xa8a49a },
-    8: { wall: 'brick', tint: 0x8c847c, door: 0x3c4a3a, roof: 'shingle', roofTint: 0x8a8e8a, casing: 0xc0bcb0, figs: { 3: 1.22 }, cellar: 'lit' },
-    7: { wall: 'planks', tint: 0xb09c72, roof: 'shingle', roofTint: 0xa09486, casing: 0xc8c0a8, figs: { 1: 1.74 } },
-    1: { wall: 'planks', tint: 0x8894a4, roof: 'shingle', roofTint: 0x929aa0, casing: 0xc4c4bc, night: [3] },
+    6: { wall: 'plaster', plasterKey: 'wall_damaged', tint: 0xa39a86, door: 0x6a5846, roof: 'tar', roofTint: 0xa09890, casing: 0xa8a49a, motif: { 3: 1 } }, // gedeckter Tisch (Hineinsehen)
+    8: { wall: 'brick', tint: 0x8c847c, door: 0x3c4a3a, roof: 'shingle', roofTint: 0x8a8e8a, casing: 0xc0bcb0, figs: { 3: 1.22 }, cellar: 'lit', motif: { 3: 3 } }, // Kind an der Scheibe
+    15: { motif: { 0: 1 } }, 11: { motif: { 1: 0 } }, // Giselas Küchenfenster, Studierzimmer im Pfarrhaus
+    7: { wall: 'planks', tint: 0xb09c72, roof: 'shingle', roofTint: 0xa09486, casing: 0xc8c0a8 },
+    1: { wall: 'planks', tint: 0x8894a4, roof: 'shingle', roofTint: 0x929aa0, casing: 0xc4c4bc },
+  };
+  // R-12: Fenster der begehbaren Häuser genau dort, wo sie innen sind (innen_ort.js winIn: Lage, Höhe, Größe) – keine Fenster auf Zwischenwänden oder hinter der Kellertür.
+  // f: Seite (v = vorn, h = hinten, l = links/−x), sy: Höhe wie innen (Rahmen-Scan × sy), motif: 0 Wohnz. 1 Küche 2 Schlafz. 3 Kinderz., light: Quelle im echten Raum
+  const SHELL_WIN = {
+    7: [{ x: -4.6, y: 1.85, f: 'v', sy: .72, motif: 0, light: 1, curt: 'both', fig: 1.74 }, // Wohnzimmer: Stehlampe; Hilde am Fenster
+      { x: 1.4, y: 2.08, f: 'v', sy: .64, motif: 1, light: 5, curt: 'sheer' }, { x: 4.3, y: 2.08, f: 'v', sy: .64, motif: 1, light: 5, curt: 'sheer' }, // Küche: Röhre
+      { x: -3, y: 1.85, f: 'h', sy: .72, motif: 2, light: 6, curt: 'sheer' }], // Schlafzimmer: die Kerze neben dem Bett
+    1: [{ x: -1.2, y: 2.08, f: 'v', sy: .64, motif: 1, light: 0, curt: 'sheer' }, { x: 4.6, y: 1.85, f: 'v', sy: .72, motif: 0, light: 0, curt: 'sheer' },
+      { x: 3, y: 1.85, f: 'h', sy: .72, motif: 2, light: 0, curt: 'sheer' },
+      { x: -6, z: -1.5, y: 1.85, f: 'l', sy: .72, motif: 3, light: 2, curt: 'sheer' }], // Kinderzimmer: Nachtlicht „seit 2009“ (Seitenwand; die Rückwand ist innen zugestellt)
   };
   const lookups = []; // Interaktionen: [house, k, label, action]
   const litHouses = [];
@@ -370,22 +422,28 @@ async function fassaden_build() {
     // --- Tür (nicht begehbare Häuser)
     const FB = new Bag(), CB = new Bag();
     const rooms = []; // Innenraum-Flächen (Fenster, Türglas, Keller, Garage)
-    const addRoom = (mm, pw, ph, seed_, light, kind, figH, winW, winH, sill, offX, fig) => rooms.push({ mm, pw, ph, seed: seed_, light, kind, figH, winW, winH, sill, offX, fig });
+    const addRoom = (mm, pw, ph, seed_, light, kind, figH, winW, winH, sill, offX, fig, motif = -1, blind = 0) => rooms.push({ mm, pw, ph, seed: seed_, light, kind, figH, winW, winH, sill, offX, fig, motif, blind });
     if (!o.hollow) {
       for (const m of kids) if (m.isMesh && m.material === M.wood && isBox(m, 1.1, 2.2, .1)) retire(m);
       const hasLit = lit.length > 0;
       if (boarded.length >= 3) sty.door = 'door1';
       if (sty.door === 'door1') {
         const sc = 2.09 / 1.9; const mm = m4(doorX - 1.055 * sc / 2, .45, d / 2 + .135 * sc, 0, sc);
-        const dm = new THREE.Mesh(D1.geo, D1.mat); dm.applyMatrix4(mm); dm.castShadow = true; dm.receiveShadow = true; g.add(dm);
-        addRoom(m4(doorX, .45 + 1.05, d / 2 + .006), 1.16, 2.1, hsh + .5, 0, 1, 0, 1.16, 2.1, 0, 0, 0);
+        const dm = new THREE.Mesh(D1.geo, D1.mat); dm.applyMatrix4(mm); dm.castShadow = true; dm.receiveShadow = true; g.add(dm); hd.doorMesh = dm;
+        addRoom(m4(doorX, .45 + 1.05, d / 2 + .006), 1.16, 2.1, hsh + .5, 0, 1, 0, 1.16, 2.1, 0, 0, 0, 4);
         for (const q of [-1, 1]) FB.box(casingMat, 2.3, .11, .05, m4(doorX + q * .64, .45 + 1.15, d / 2 + .025), true); FB.box(casingMat, 1.4, .12, .05, m4(doorX, 2.66, d / 2 + .025));
         if (boarded.length >= 3) for (const [yy, rz] of [[1.9, .09], [1.35, -.14], [.85, .05]]) FB.box(MAT.boards, 1.5, .18, .03, m4(doorX, .45 + yy, d / 2 + .27, 0, 1, 1, 1, 0, rz));
       } else {
         const dmat = D2.mat.clone(); dmat.color.set(sty.door); dmat.envMapIntensity = .5;
-        const dm = new THREE.Mesh(D2.geo, dmat); dm.applyMatrix4(m4(doorX, .45, d / 2 + .046, 0, .95)); dm.castShadow = true; dm.receiveShadow = true; g.add(dm);
-        addRoom(m4(doorX, .45 + 1.1, d / 2 + .004), 1.2, 2.12, hsh + .5, hasLit ? .55 : 0, 1, 0, 1.2, 2.12, 0, 0, 0);
+        const dm = new THREE.Mesh(D2.geo, dmat); dm.applyMatrix4(m4(doorX, .45, d / 2 + .046, 0, .95)); dm.castShadow = true; dm.receiveShadow = true; g.add(dm); hd.doorMesh = dm;
+        addRoom(m4(doorX, .45 + 1.1, d / 2 + .004), 1.2, 2.12, hsh + .5, hasLit ? .55 : 0, 1, 0, 1.2, 2.12, 0, 0, 0, 4);
       }
+      // R-12: Hintertür mit Scheibe (Nr. 9, post.js „Hintertür (Scheibe)“): Scan-Tür 1 mit Glas, dahinter dunkler Flur, Betonstufe
+      if (sty.backDoor !== undefined) { const bx = sty.backDoor, sc = 2.09 / 1.9;
+        const dm = new THREE.Mesh(D1.geo, D1.mat); dm.applyMatrix4(m4(bx + 1.055 * sc / 2, .45, -(d / 2 + .135 * sc), PI, sc)); dm.castShadow = true; dm.receiveShadow = true; g.add(dm);
+        addRoom(m4(bx, .45 + 1.05, -(d / 2 + .006), PI), 1.16, 2.1, hsh + 1.5, 0, 1, 0, 1.16, 2.1, 0, 0, 0, 4);
+        for (const q of [-1, 1]) FB.box(casingMat, 2.3, .11, .05, m4(bx + q * .64, .45 + 1.15, -(d / 2 + .025)), true); FB.box(casingMat, 1.4, .12, .05, m4(bx, 2.66, -(d / 2 + .025)));
+        FB.box(MAT.concrete, 1.5, .45, .8, m4(bx, .225, -(d / 2 + .4))); FB.box(MAT.concrete, 1.5, .22, .32, m4(bx, .11, -(d / 2 + .96))); }
       // Podest und Stufen (Beton) – oder Stufe vor der Veranda
       if (o.porch) FB.box(MAT.concrete, 1.3, .17, .34, m4(px, .085, d / 2 + 1.6 + .17));
       else { FB.box(MAT.concrete, 1.8, .45, .9, m4(doorX, .225, d / 2 + .45)); FB.box(MAT.concrete, 1.8, .3, .32, m4(doorX, .15, d / 2 + .9 + .16)); FB.box(MAT.concrete, 1.8, .15, .32, m4(doorX, .075, d / 2 + 1.22 + .16)); }
@@ -401,8 +459,10 @@ async function fassaden_build() {
       // dunkler Flur hinter der Tür, falls sie offen steht? – nicht nötig, dahinter liegt das echte Haus
     }
     // --- Fenster
-    const WL = [];
-    { const rows = floors === 2 ? [1.75, 4.35] : [1.85], fx = o.frontWins ?? [-w * .3, w * .3];
+    const WL = [], SW = shell ? SHELL_WIN[shell] : null;
+    if (SW) for (const s of SW) { const ry = s.f === 'v' ? 0 : s.f === 'h' ? PI : s.f === 'l' ? -PI / 2 : PI / 2;
+      WL.push({ k: WL.length, x: s.f === 'l' ? -w / 2 : s.f === 'r' ? w / 2 : s.x, y: s.y, z: s.f === 'v' ? d / 2 : s.f === 'h' ? -d / 2 : (s.z ?? 0), ry, sx: .92, sy: s.sy, sh: s }); }
+    else { const rows = floors === 2 ? [1.75, 4.35] : [1.85], fx = o.frontWins ?? [-w * .3, w * .3];
       const add = (x, y, z, ry) => WL.push({ k: WL.length, x, y, z, ry });
       for (const y of rows) { for (const wx of fx) add(wx, y, d / 2, 0); for (const wx of [-w * .25, w * .25]) add(wx, y, -d / 2, PI); for (const s of [-1, 1]) add(s * w / 2, y, 0, s * PI / 2); }
       if (floors === 2 && !o.frontWins) add(0, 4.35, d / 2, 0); }
@@ -411,51 +471,62 @@ async function fassaden_build() {
     const isWood = sty.wall === 'planks';
     const surMat = isWood ? casingMat : MAT.concrete;
     const shutMat = sty.shut ? surf('planks_painted', 1, 1.2, { tint: sty.shut, nrm: 1.3 }) : null;
-    let closedShut = 0;
+    const fh = v => { const s = Math.sin(v * 91.3458) * 43758.5453; return s - Math.floor(s); };
+    const inhabited = lit.length > 0 && boarded.length === 0 && !o.hollow; // nur bewohnte Häuser zeigen Leben (Fernseher, Stehlampe)
+    let closedShut = 0, extra = 0;
     for (const W of WL) {
-      const k = W.k, isLit = lit.includes(k) && !boarded.includes(k), isB = boarded.includes(k);
-      if (garage && Math.abs(W.ry - Math.sign(garage) * PI / 2) < .01 && W.y < 3) continue; // hinter der Garage
+      const k = W.k, sh = W.sh, isB = !sh && boarded.includes(k), isLit = sh ? sh.light === 1 : lit.includes(k) && !isB;
+      if (!sh && garage && Math.abs(W.ry - Math.sign(garage) * PI / 2) < .01 && W.y < 3) continue; // hinter der Garage
+      if (!sh && (sty.skipWin || []).includes(k)) continue; // an dieser Stelle ist eine Tür
+      const wsx = W.sx ?? WS, wsy = W.sy ?? WS, wh = 2.031 * wsy, wwd = 1.275 * wsx; // Größe wie innen (begehbare Häuser) oder Standard 1,02 × 1,62 m
       const nx = Math.sin(W.ry), nz = Math.cos(W.ry);
-      const Sx = W.x + nx * off, Sz = W.z + nz * off, yb = W.y - WH / 2;
+      const Sx = W.x + nx * off, Sz = W.z + nz * off;
       const B = m4(Sx, W.y, Sz, W.ry);
       const at = (x, y, z, sx = 1, sy = sx, sz = sx, rz = 0) => B.clone().multiply(m4(x, y, z, 0, sx, sy, sz, 0, rz));
       const winRec = { house: hd, k, g, x: Sx, y: W.y, z: Sz, ry: W.ry, lit: isLit, boarded: isB };
       S.windows.push(winRec);
       // Silhouetten-Position des Spiels (Erscheinung am Fenster) hinter das neue Glas legen
-      const lw = litWindows.find(q => q.g === g && Math.abs(q.x - W.x) < .01 && Math.abs(q.y - W.y) < .01 && Math.abs(q.z - W.z) < .01);
-      if (lw) { lw.x = Sx + nx * .012; lw.z = Sz + nz * .012; }
+      if (sh) { if (sh.light === 1) for (const q of litWindows) if (q.g === g) { q.x = Sx + nx * .012; q.y = W.y; q.z = Sz + nz * .012; q.ry = W.ry; } }
+      else { const lw = litWindows.find(q => q.g === g && Math.abs(q.x - W.x) < .01 && Math.abs(q.y - W.y) < .01 && Math.abs(q.z - W.z) < .01);
+        if (lw) { lw.x = Sx + nx * .012; lw.z = Sz + nz * .012; } }
       // Rahmen-Modell, Einfassung, Fensterbank
-      frameM.push(at(0, -WH / 2, .05 + .042, WS));
-      const cw = .12, ow = WWD / 2 - .03;
-      for (const q of [-1, 1]) CB.box(surMat, WH + .04, cw, .05, at(q * (ow + cw / 2), 0, .025), true);
-      CB.box(surMat, WWD + .2, .17, .065, at(0, WH / 2 + .07, .032)); CB.box(surMat, WWD + .26, .035, .1, at(0, WH / 2 + .165, .05));
-      CB.box(isWood ? surMat : MAT.concrete, WWD + .22, .06, .14, at(0, -WH / 2 - .02, .07));
-      // Glas
-      CB.add(glassMat, new THREE.PlaneGeometry(WWD - .16, WH - .1), at(0, 0, .058));
-      // Zimmer dahinter
-      let light = isLit ? 1 : 0; if ((sty.night || []).includes(k)) light = 2;
-      const figH = sty.figs[k] || 0; let fig = 0;
+      frameM.push(at(0, -wh / 2, .05 + .042, wsx, wsy, WS));
+      const cw = .12, ow = wwd / 2 - .03;
+      for (const q of [-1, 1]) CB.box(surMat, wh + .04, cw, .05, at(q * (ow + cw / 2), 0, .025), true);
+      CB.box(surMat, wwd + .2, .17, .065, at(0, wh / 2 + .07, .032)); CB.box(surMat, wwd + .26, .035, .1, at(0, wh / 2 + .165, .05));
+      CB.box(isWood ? surMat : MAT.concrete, wwd + .22, .06, .14, at(0, -wh / 2 - .02, .07));
+      // Glas (spiegelt, Staub, Regen)
+      CB.add(glassMat, new THREE.PlaneGeometry(wwd - .16, wh - .1), at(0, 0, .058));
+      // Zimmer dahinter: Motiv und Lichtquelle
+      let light = isLit ? 1 : 0; if (sh) light = sh.light;
+      const figH = sh ? (sh.fig || 0) : (sty.figs[k] || 0); let fig = 0;
       if (figH) { fig = hd.figSlots.length + 1; hd.figSlots.push({ k, win: winRec }); }
-      addRoom(at(0, 0, .006), WWD - .08, WH - .04, (hsh * 7 + k * 13) % 997, light, 0, figH, WWD - .08, WH - .04, W.y > 3 ? .8 : .55, rnd(-.3, .3), fig);
+      const motif = sh ? sh.motif : (sty.motif && sty.motif[k] !== undefined) ? sty.motif[k] : W.y > 3 ? (fh(hsh + k * 2.7) < .6 ? 2 : 3) : (fh(hsh * .7 + k * 1.3) < .55 ? 0 : 1);
+      const offX = rnd(-.3, .3); let blind = 0;
       // Fensterläden
+      let shutClosed = false;
       if (shutMat) {
-        const closed = !isLit && !isB && W.y > 3 && closedShut < 1 && rnd() < .5;
-        if (closed) { closedShut++; for (const q of [-1, 1]) { const ajar = q > 0 ? .42 : 0; CB.box(shutMat, WH, WWD / 2, .035, at(q * (WWD / 2 + .01), 0, .17).multiply(m4(0, 0, 0, q * ajar)).multiply(m4(-q * WWD / 4, 0, 0)), true); } }
-        else for (const q of [-1, 1]) { const broken = rnd() < .12; CB.box(shutMat, WH - .02, .46, .035, at(q * (ow + cw + .24), broken ? -.12 : 0, .02, 1, 1, 1, broken ? q * .22 : 0), true); }
+        const closed = !isLit && !isB && !sh && W.y > 3 && closedShut < 1 && rnd() < .5;
+        if (closed) { closedShut++; shutClosed = true; for (const q of [-1, 1]) { const ajar = q > 0 ? .42 : 0; CB.box(shutMat, wh, wwd / 2, .035, at(q * (wwd / 2 + .01), 0, .17).multiply(m4(0, 0, 0, q * ajar)).multiply(m4(-q * wwd / 4, 0, 0)), true); } }
+        else for (const q of [-1, 1]) { const broken = rnd() < .12; CB.box(shutMat, wh - .02, .46, .035, at(q * (ow + cw + .24), broken ? -.12 : 0, .02, 1, 1, 1, broken ? q * .22 : 0), true); }
       }
       // Bretter vor verlassenen Fenstern
-      if (isB) for (const [yy, rz] of [[.35, .12], [-.05, -.08], [-.45, .16]]) CB.box(MAT.boards, WWD + .38, .17, .028, at(0, yy, .185, 1, 1, 1, rz + rnd(-.05, .05)));
-      // Vorhänge
+      if (isB) for (const [yy, rz] of [[.35, .12], [-.05, -.08], [-.45, .16]]) CB.box(MAT.boards, wwd + .38, .17, .028, at(0, yy, .185, 1, 1, 1, rz + rnd(-.05, .05)));
+      // Vorhänge / Jalousie – R-12: kein nacktes Fenster vor einem leeren Zimmer
       if (!isB) {
         let kind = 'none'; const r = rnd();
-        if (figH) kind = 'sheer'; else if (isLit) kind = r < .4 ? 'gap' : 'sheer'; else kind = r < .35 ? 'sheer' : r < .6 ? 'closed' : 'none';
-        const top = WH / 2 - .08, hgt = WH - .2;
-        if (kind === 'sheer') { const mm = at(rnd(-.03, .03), top, .03, 1, 1, 1).multiply(m4(0, 0, 0, 0, WWD - .12, hgt, .02)); if (isLit || light === 2) curtSL.push(mm); else { curtS.push(mm); curtSW.push(winRec); } }
-        else if (kind !== 'none') { const pw = kind === 'gap' ? rnd(.26, .36) : (WWD - .1) / 2 + .03;
-          for (const q of [-1, 1]) (isLit ? curtRL : curtR).push(at(q * ((WWD - .12) / 2 - pw / 2), top, .026, 1, 1, 1).multiply(m4(0, 0, 0, 0, pw * (q > 0 ? 1 : -1), hgt, .025))); }
+        if (sh) kind = sh.curt; else if (figH) kind = 'sheer'; else if (isLit) kind = r < .4 ? 'gap' : 'sheer'; else kind = r < .35 ? 'sheer' : r < .6 ? 'closed' : 'none';
+        if (kind === 'none' && !shutClosed && fh(hsh * .37 + k * 1.91) < .5) { kind = 'blind'; blind = .3 + .6 * fh(hsh + k * 3.3); }
+        // bewohnte Häuser: hier und da ein Fernseher (blaues Flackern) oder eine gedimmte Stehlampe – je Haus höchstens eins, nur unten
+        if (!sh && !isLit && inhabited && W.y < 3 && extra < 1 && kind !== 'closed' && fh(hsh * 1.3 + k * 7.1) < .5) { light = fh(hsh + k * 5.9) < .55 ? 3 : 4; extra++; if (light === 3 && motif !== 0) blind = Math.min(blind, .3); }
+        const top = wh / 2 - .08, hgt = wh - .2, litC = light === 1 || light === 2;
+        if (kind === 'sheer' || kind === 'both') { const mm = at(sh ? 0 : rnd(-.03, .03), top, .03, 1, 1, 1).multiply(m4(0, 0, 0, 0, wwd - .12, hgt, .02)); if (litC) curtSL.push(mm); else { curtS.push(mm); curtSW.push(winRec); } }
+        if (kind === 'gap' || kind === 'closed' || kind === 'both') { const pw = kind === 'gap' ? rnd(.26, .36) : kind === 'both' ? .3 : (wwd - .1) / 2 + .03;
+          for (const q of [-1, 1]) (light === 1 ? curtRL : curtR).push(at(q * ((wwd - .12) / 2 - pw / 2), top, .026 - (kind === 'both' ? .006 : 0), 1, 1, 1).multiply(m4(0, 0, 0, 0, pw * (q > 0 ? 1 : -1), hgt, .025))); }
         winRec.curtain = kind;
       }
-      // Lichtschein auf dem Boden vor beleuchteten Erdgeschossfenstern
+      addRoom(at(0, 0, .006), wwd - .08, wh - .04, (hsh * 7 + k * 13) % 997, light, 0, figH, wwd - .08, wh - .04, sh ? W.y - wh / 2 - .43 : W.y > 3 ? .8 : .55, offX, fig, motif, blind);
+      winRec.light = light; winRec.motif = motif;
     }
     // Kellerfenster im Sockel (vorne links)
     if (!o.hollow && sty.cellar) {
@@ -478,13 +549,13 @@ async function fassaden_build() {
     if (curtSL.length) { const cm = litCurtain(SC.mat, n === 1 ? .16 : .12); cm.opacity = .3; if (n === 1) { cm.emissive.setRGB(.4, .55, 1); cm.opacity = .42; } hd.curtainLit.push(cm); hd.sheerLit = inst(SC.geo, cm, curtSL, 1); }
     // Zimmer-Flächen (ein Mesh je Haus)
     if (rooms.length) {
-      const pos = [], nor = [], uvs = [], rgt = [], rm = [], wn = [], fg = [], idx = [];
+      const pos = [], nor = [], uvs = [], rgt = [], rm = [], wn = [], fg = [], dc = [], idx = [];
       const v = new V3(), nn = new V3(), rr = new V3(), nmat = new THREE.Matrix3();
       for (const R of rooms) { nmat.getNormalMatrix(R.mm); nn.set(0, 0, 1).applyMatrix3(nmat).normalize(); rr.set(1, 0, 0).applyMatrix3(nmat).normalize(); const b = pos.length / 3;
-        for (const [ux, uy] of [[0, 0], [1, 0], [1, 1], [0, 1]]) { v.set((ux - .5) * R.pw, (uy - .5) * R.ph, 0).applyMatrix4(R.mm); pos.push(v.x, v.y, v.z); nor.push(nn.x, nn.y, nn.z); uvs.push(ux, uy); rgt.push(rr.x, rr.y, rr.z); rm.push(R.seed, R.light, R.kind, R.figH); wn.push(R.winW, R.winH, R.sill, R.offX); fg.push(R.fig); }
+        for (const [ux, uy] of [[0, 0], [1, 0], [1, 1], [0, 1]]) { v.set((ux - .5) * R.pw, (uy - .5) * R.ph, 0).applyMatrix4(R.mm); pos.push(v.x, v.y, v.z); nor.push(nn.x, nn.y, nn.z); uvs.push(ux, uy); rgt.push(rr.x, rr.y, rr.z); rm.push(R.seed, R.light, R.kind, R.figH); wn.push(R.winW, R.winH, R.sill, R.offX); fg.push(R.fig); dc.push(R.motif, R.blind); }
         idx.push(b, b + 1, b + 2, b, b + 2, b + 3); }
       const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-      geo.setAttribute('aRight', new THREE.Float32BufferAttribute(rgt, 3)); geo.setAttribute('aRoom', new THREE.Float32BufferAttribute(rm, 4)); geo.setAttribute('aWin', new THREE.Float32BufferAttribute(wn, 4)); geo.setAttribute('aFig', new THREE.Float32BufferAttribute(fg, 1)); geo.setIndex(idx);
+      geo.setAttribute('aRight', new THREE.Float32BufferAttribute(rgt, 3)); geo.setAttribute('aRoom', new THREE.Float32BufferAttribute(rm, 4)); geo.setAttribute('aWin', new THREE.Float32BufferAttribute(wn, 4)); geo.setAttribute('aFig', new THREE.Float32BufferAttribute(fg, 1)); geo.setAttribute('aDeco', new THREE.Float32BufferAttribute(dc, 2)); geo.setIndex(idx);
       const rmMat = roomMat([0xffc890, 0xffb070, 0xffd8a8][hsh % 3]); rmMat.uniforms.uLit.value = houseLitK; rmMat.userData.col = rmMat.uniforms.uLitCol.value.clone();
       const mesh = new THREE.Mesh(geo, rmMat); mesh.userData.noCol = true; mesh.receiveShadow = false; g.add(mesh); hd.room = rmMat; hd.detail.push(mesh);
     }
@@ -510,7 +581,7 @@ async function fassaden_build() {
   // Zimmer für einzelne Sonderflächen (z. B. Garagenspalt)
   function addRoomLate(g, mm, pw, ph, sd, light, kind, mat) {
     const geo = new THREE.PlaneGeometry(pw, ph); const c = geo.attributes.position.count, a = (n, v) => geo.setAttribute(n, new THREE.Float32BufferAttribute(Array.from({ length: c }, () => v).flat(), v.length));
-    a('aRight', [1, 0, 0]); a('aRoom', [sd, light, kind, 0]); a('aWin', [pw, ph, 0, 0]); a('aFig', [0]);
+    a('aRight', [1, 0, 0]); a('aRoom', [sd, light, kind, 0]); a('aWin', [pw, ph, 0, 0]); a('aFig', [0]); a('aDeco', [-1, 0]);
     geo.applyMatrix4(mm); const nm = new THREE.Matrix3().getNormalMatrix(mm); const ar = geo.attributes.aRight; for (let i = 0; i < c; i++) { const v = new V3(1, 0, 0).applyMatrix3(nm).normalize(); ar.setXYZ(i, v.x, v.y, v.z); }
     mat.uniforms.uLit.value = 0; const mesh = new THREE.Mesh(geo, mat); mesh.userData.noCol = true; g.add(mesh); return mesh;
   }
@@ -561,6 +632,56 @@ async function fassaden_build() {
   const burnt = msFind((m, b) => m.material && m.material.color && m.material.color.getHex() === 0x0c0a09 && b.max.x < -8 && b.min.x > -18 && b.min.z > -23 && b.max.z < -12);
   if (burnt.length) { const bm = surf('planks_painted', 1, 1.2, { tint: 0x2a2622, nrm: 1.6 }); for (const m of burnt) { swap(m, bm); if (m.geometry.parameters) fixUV(m, 1); } }
 
+  // ---------- R-12: Türspione (Messingring + Linse) an allen Haustüren – die Klopf-Texte sprechen vom Spion; Briefschlitz an Nr. 3 (Vegas), Klingelschild der Aydıns
+  try {
+    const probe = S.probe.rt.texture, brass = new THREE.MeshStandardMaterial({ color: 0xa8843f, metalness: 1, roughness: .36, envMap: probe, envMapIntensity: 1.3, name: 'fa_messing' });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: .9 });
+    S.brass = brass; S.spione = {};
+    const rc = new THREE.Raycaster(), hitDoor = (hd, y) => { const o = hd.o, d = o.d ?? 9, dx = hd.lookFront.doorX; hd.g.updateMatrixWorld(true);
+      const from = hd.g.localToWorld(new V3(dx, y, d / 2 + 1)), dir = hd.g.localToWorld(new V3(dx, y, d / 2 - 1)).sub(from).normalize();
+      rc.set(from, dir); rc.far = 2.2; const h = rc.intersectObject(hd.doorMesh, false)[0]; return h ? hd.g.worldToLocal(h.point.clone()) : null; };
+    for (const hd of S.houses) { if (!hd.doorMesh) continue;
+      const lp = hitDoor(hd, .45 + 1.5); if (!lp) { S.log.push('Türspion: keine Türfläche an ' + (hd.n || hd.o.x)); continue; }
+      const sp = fassaden_spionBau(hd.g, lp.x, lp.y, lp.z + .001, 0, brass, (hd.lit ? .35 : 0) * (hd.o.lit && hd.o.lit.length ? 1 : 0)); sp.hd = hd; hd.detail.push(sp.g);
+      if (hd.n) S.spione[hd.n] = sp; hd.spion = sp;
+      if (hd.n === 3) { const ls = hitDoor(hd, .45 + .95); if (ls) { const B = new Bag(); // Briefschlitz mit Messingklappe (anwesen.js: „Die Klappe vom Briefschlitz geht auf“)
+        B.box(brass, .3, .075, .01, m4(ls.x, ls.y, ls.z + .005)); B.box(dark, .24, .02, .004, m4(ls.x, ls.y - .006, ls.z + .0105)); B.box(brass, .25, .028, .005, m4(ls.x, ls.y + .006, ls.z + .013, 0, 1, 1, 1, -.12)); for (const mesh of B.flush(hd.g, { cast: false })) hd.detail.push(mesh); } }
+    }
+    // Klingelschild am Bauernhaus (ausbau_ost_west.js: „Am Klingelschild: AYDIN. Darunter, mit Kinderschrift: und Dina.“)
+    const farm = S.houses.find(h => h.o.x === -117.5 && h.o.z === -13);
+    if (farm) { const c = document.createElement('canvas'); c.width = 128; c.height = 192; const x = c.getContext('2d');
+      const gr = x.createLinearGradient(0, 0, 128, 192); gr.addColorStop(0, '#8a6a34'); gr.addColorStop(.5, '#b8944e'); gr.addColorStop(1, '#6a5028'); x.fillStyle = gr; x.fillRect(0, 0, 128, 192);
+      for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(30,40,20,${rnd(.03, .12)})`; x.fillRect(rnd(0, 128), rnd(0, 192), rnd(1, 6), rnd(1, 4)); } // Grünspan, Fingerspuren
+      x.fillStyle = '#e8e2d0'; x.fillRect(14, 22, 100, 62); x.strokeStyle = 'rgba(40,30,10,.6)'; x.lineWidth = 2; x.strokeRect(14, 22, 100, 62);
+      x.fillStyle = '#1a1a1a'; x.font = 'bold 26px Georgia'; x.textAlign = 'center'; x.fillText('AYDIN', 64, 52);
+      x.fillStyle = 'rgba(30,50,140,.9)'; x.font = '20px Caveat, cursive'; x.save(); x.translate(66, 76); x.rotate(-.08); x.fillText('und Dina', 0, 0); x.restore();
+      x.fillStyle = 'rgba(0,0,0,.35)'; x.beginPath(); x.arc(64, 138, 26, 0, 7); x.fill();
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+      const d = farm.o.d ?? 9, dx = farm.lookFront.doorX + .86;
+      const pl = new THREE.Mesh(new THREE.BoxGeometry(.085, .128, .008), [dark, dark, dark, dark, new THREE.MeshStandardMaterial({ map: t, metalness: .55, roughness: .42, envMap: probe, envMapIntensity: .9 }), dark]);
+      pl.position.set(dx, .45 + 1.18, d / 2 + .004); pl.castShadow = false; pl.userData.noCol = true; farm.g.add(pl); farm.detail.push(pl);
+      const btn = new THREE.Mesh(new THREE.CylinderGeometry(.011, .012, .012, 18).rotateX(PI / 2), new THREE.MeshStandardMaterial({ color: 0xd8d0b8, roughness: .35 })); btn.position.set(dx, .45 + 1.18 - .035, d / 2 + .012); btn.userData.noCol = true; farm.g.add(btn); farm.detail.push(btn);
+      S.log.push('Klingelschild Aydın'); }
+    // Türspion-Text der Basis (Klopfen an Nr. 2/4/6/8/9): „Am Türspion bewegt sich etwas.“ → die Linse wird hell, dann verdeckt sie ein Auge
+    if (typeof doorOf !== 'undefined') for (const [n, di] of Object.entries(doorOf)) { const f = di && di.userData.action; if (!f || !S.spione[n]) continue;
+      di.userData.action = (...a) => { const b = lastLocked, r = f(...a); try { if (lastLocked !== b && /Türspion/.test(lockedLines[lastLocked])) fassaden_spion(+n); } catch (e) {} return r; }; }
+    S.log.push('Türspione: ' + Object.keys(S.spione).length + ' (+' + (S.houses.filter(h => h.spion && !h.n).length) + ' ohne Nummer)');
+  } catch (e) { console.warn('Fassaden: Türspione', e); }
+  // ---------- R-12: Villa Seiler – statt schwarzer Flächen dunkle, eingerichtete Zimmer hinter spiegelndem Glas (das erleuchtete Fenster bleibt)
+  try { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null;
+    if (OW && OW.villaGlass && OW.villaGlass.length) { const vm = roomMat(0xffb070); vm.uniforms.uLit.value = 0; S.villaRoom = vm;
+      OW.villaGlass.forEach((m, i) => { const g2 = m.geometry, c = g2.attributes.position.count, P = g2.parameters || { width: 1.5, height: 1.78 }, up = m.position.y > 5;
+        const a = (nm, v) => g2.setAttribute(nm, new THREE.Float32BufferAttribute(Array.from({ length: c }, () => v).flat(), v.length));
+        a('aRight', [1, 0, 0]); a('aRoom', [503 + i * 37, 0, 0, 0]); a('aWin', [P.width, P.height, up ? .9 : .7, 0]); a('aFig', [0]); a('aDeco', [up ? (i % 2 ? 2 : 4) : (i % 3 === 0 ? 1 : 0), i % 3 === 1 ? .6 : 0]);
+        m.material = vm; m.userData.noCol = true;
+        const gl = new THREE.Mesh(g2, glassMat); gl.position.z = .004; gl.renderOrder = 3; gl.userData.noCol = true; m.add(gl); });
+      S.log.push('Villa: ' + OW.villaGlass.length + ' Fenster mit Zimmer'); } } catch (e) { console.warn('Fassaden: Villa-Fenster', e); }
+  // ---------- R-12: anderes Glas der Welt spiegelt dieselbe Umgebung (Kiosk Kranz, Wartehäuschen, Telefonzelle)
+  scene.traverse(o => { if (!o.isMesh) return; for (const mt of [].concat(o.material)) { if (!mt || !mt.isMeshStandardMaterial || mt.envMap) continue;
+    const kiosk = mt.transparent && Math.abs(mt.opacity - .64) < .001 && mt.color && mt.color.getHex() === 0x18222a, stop = mt.transparent && Math.abs(mt.opacity - .42) < .001 && mt.color && mt.color.getHex() === 0x9aa6a8;
+    if (kiosk || stop) { mt.envMap = S.probe.rt.texture; mt.envMapIntensity = 1.4; mt.needsUpdate = true; } } });
+  // ---------- R-12: Nr. 1 Kinderzimmer – das Fenster mit dem Nachtlicht gibt es jetzt auch von innen (Seitenwand)
+  try { await fassaden_innenKZ(); } catch (e) { console.warn('Fassaden: Kinderzimmerfenster innen', e); }
   // ---------- Entdeckungen
   const figTexts = {
     3: [['Hinter dem Vorhang steht jemand. Ganz still.', 2600], ['Du hebst die Hand. Die Gestalt hebt ihre – einen Atemzug zu spät.', 3600]],
@@ -601,9 +722,188 @@ async function fassaden_build() {
   for (const hd of [hdOf(4), hdOf(3), hdOf(9)]) { if (S.twitch || !hd || !hd.sheer) continue; const i = hd.sheerWins.findIndex(W => W.y < 3 && Math.abs(W.ry) < .01); if (i < 0) continue; const mm = new M4(); hd.sheer.getMatrixAt(i, mm); S.twitch = { im: hd.sheer, i, base: mm, t: -1, cool: 0, n: hd.n }; }
   scene.traverse(o => { if (o.isMesh && !before.has(o) && !o.userData.noColHit) S.added.push(o); });
   S.toggle = on => { S.off = !on; S.houses.forEach(h => h.detOn = undefined); for (const o of S.added) o.visible = on; for (const [m, a, b] of S.swapped) m.material = on ? b : a; for (const m of S.retired) m.visible = !on; };
+  // Spiegelungs-Sonde einmal ganz füllen (Ortsmitte); im Spiel folgt sie dem Spieler abschnittsweise
+  try { fassaden_probeAt(0, 1.7, 0); for (let i = 0; i < 6; i++) fassaden_probeFace(i); S.probe.face = -1; S.probe.t = 2; } catch (e) { console.warn('Fassaden: Spiegelung', e); }
   S.ready = true;
   S.log.push('Häuser: ' + S.houses.length + ', Fenster: ' + S.windows.length + ', Gestalten: ' + S.figs.length + ', ' + Math.round(performance.now() - T0) + ' ms');
   console.log('[Fassaden] ' + S.log.join(' | ')); window.fassaden_dbg = S.log; window.fassaden_S = S; // Debug-Zugriff für Tests
+}
+// =====================================================================  R-12: Spiegelung, Glas, Möbel-Karten, Türspion
+// Spiegelungs-Sonde: EINE Würfelkamera für alle Scheiben, steht dort, wo der Spieler gerade auf der Straße ist (Straßenabschnitt),
+// wird erst nach 18 m Weg oder 50 s neu aufgenommen – und dann je Bild nur eine der sechs Seiten (128 px, kein Schattenpass, Glas ausgeblendet).
+function fassaden_probeInit() {
+  const T = THREE, S = fassaden_S;
+  const rt = new T.WebGLCubeRenderTarget(128, { type: T.HalfFloatType, generateMipmaps: false, minFilter: T.LinearFilter });
+  const cam = new T.CubeCamera(.3, 80, rt); cam.coordinateSystem = renderer.coordinateSystem; cam.updateCoordinateSystem();
+  S.probe = { rt, cam, face: -1, t: 0, x: 1e9, z: 1e9, mats: [], n: 0 };
+  return rt.texture;
+}
+function fassaden_probeFace(i) {
+  const P = fassaden_S.probe, r = renderer, prev = r.getRenderTarget(), au = r.shadowMap.autoUpdate;
+  for (const m of P.mats) m.visible = false;
+  r.shadowMap.autoUpdate = false;
+  try { r.setRenderTarget(P.rt, i); r.render(scene, P.cam.children[i]); }
+  finally { r.setRenderTarget(prev); r.shadowMap.autoUpdate = au; for (const m of P.mats) m.visible = true; }
+  if (i === 5) { P.rt.texture.needsPMREMUpdate = true; P.n++; }
+}
+function fassaden_probeAt(x, y, z) { const P = fassaden_S.probe; P.cam.position.set(x, y, z); P.cam.updateMatrixWorld(true); P.x = x; P.z = z; P.t = 50; P.face = 0; }
+function fassaden_probeTick(dt, indoor) {
+  const P = fassaden_S.probe; if (!P) return;
+  if (P.face >= 0) { fassaden_probeFace(P.face); P.face = P.face < 5 ? P.face + 1 : -1; return; }
+  if (indoor || state.inBasement) return;
+  P.t -= dt; const c = camera.position;
+  if (P.t < 0 || Math.hypot(c.x - P.x, c.z - P.z) > 18) fassaden_probeAt(c.x, 1.7, c.z);
+}
+// Fensterglas: reine Spiegel-/Glanzschicht (additiv): Fresnel aus der Sonde, Glanzlichter von Laternen und Taschenlampe,
+// feiner Staub (an den Rändern und unten mehr, fängt das Licht), Regenperlen und ablaufende Tropfen (Normale), Nebel schluckt die Schicht mit
+function fassaden_glass(envTex, tNoise, uTime) {
+  const m = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: .05, metalness: 0, envMap: envTex, envMapIntensity: 1.6, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, name: 'fa_glass' });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.tNoise = tNoise; sh.uniforms.uTime = uTime;
+    sh.vertexShader = 'varying vec2 vGU;\nvarying vec3 vGW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vGU = uv; vGW = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = `uniform sampler2D tNoise; uniform float uTime; varying vec2 vGU; varying vec3 vGW; float gDirt; vec3 gRain;
+float gh(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+vec3 gDrops(vec2 q) {
+  vec3 r = vec3(0.);
+  vec2 g = q * 30.; vec2 id = floor(g); vec2 f = fract(g) - .5; float h = gh(id);
+  if (h < .3) { vec2 o = (vec2(gh(id + 3.1), gh(id + 7.7)) - .5) * .45; vec2 dd = f - o; float rr = .1 + .2 * gh(id + 1.3); float k = 1. - dot(dd, dd) / (rr * rr);
+    if (k > 0.) r = vec3(dd / rr, sqrt(k)); }
+  float cx = q.x * 9., ci = floor(cx), hc = gh(vec2(ci, 2.3));
+  if (hc > .5) { float sp = .05 + .12 * gh(vec2(ci, 5.1)), yb = fract(q.y * .5) * 2.;
+    float yd = 2.1 - fract(uTime * sp + hc * 7.31) * 2.4;
+    float xo = (fract(cx) - .5) / 9. + sin(q.y * 7. + hc * 20.) * .006;
+    vec2 dd = vec2(xo, yb - yd) / .0075; float k = 1. - dot(dd, dd);
+    if (k > 0.) r = vec3(dd, sqrt(k));
+    else if (yb > yd && yb < yd + .22 && abs(xo) < .0018) r = vec3(xo / .0018 * .4, 0., .35 * (1. - (yb - yd) / .22)); }
+  return r;
+}
+` + sh.fragmentShader
+      .replace('#include <map_fragment>', `#include <map_fragment>
+  { vec2 q = vec2(vGW.x + vGW.z, vGW.y);
+    float n1 = texture2D(tNoise, vGU * vec2(.55, .9) + q * .23).g;
+    vec2 e2 = abs(vGU - .5) * 2.;
+    float edge = smoothstep(.55, 1., max(e2.x, e2.y)), bot = 1. - smoothstep(0., .32, vGU.y);
+    gDirt = clamp((edge * .65 + bot * .6 + .12) * smoothstep(.2, .75, n1), 0., 1.);
+    gRain = gDrops(q);
+    diffuseColor.rgb = vec3(.30, .28, .24) * gDirt * .3; }`)
+      .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+  roughnessFactor = mix(.035, .45, gDirt) * (1. - .7 * gRain.z);`)
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+  if (gRain.z > .001) { vec3 q0 = dFdx(-vViewPosition), q1 = dFdy(-vViewPosition); vec2 st = vec2(vGW.x + vGW.z, vGW.y), s0 = dFdx(st), s1 = dFdy(st);
+    vec3 N = normal, q1p = cross(q1, N), q0p = cross(N, q0), Tt = q1p * s0.x + q0p * s1.x, Bt = q1p * s0.y + q0p * s1.y;
+    float det = max(dot(Tt, Tt), dot(Bt, Bt)), sc = det == 0. ? 0. : inversesqrt(det);
+    normal = normalize(N + (Tt * gRain.x + Bt * gRain.y) * sc * .55); }`)
+      .replace('#include <fog_fragment>', `#ifdef USE_FOG
+  #ifdef FOG_EXP2
+    float gFog = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
+  #else
+    float gFog = smoothstep(fogNear, fogFar, vFogDepth);
+  #endif
+  gl_FragColor.rgb *= 1.0 - gFog;
+#endif`);
+  };
+  m.customProgramCacheKey = () => 'fassaden_glass2';
+  fassaden_S.probe.mats.push(m);
+  return m;
+}
+// Möbel-Karten (Atlas 5 × 2 Felder à 256 px): je Motiv die Rückwand und die Möbel im Raum, orthografisch aus echten Scan-Möbeln gerendert.
+// Spalten: 0 Wohnzimmer, 1 Küche, 2 Schlafzimmer, 3 Kinderzimmer, 4 Flur. Kein selbstgebautes Möbel – nur die Scans, die auch innen stehen.
+async function fassaden_atlas() {
+  const T = THREE, S = fassaden_S, CW = 256;
+  const rt = new T.WebGLRenderTarget(CW * 5, CW * 2, { colorSpace: T.SRGBColorSpace, generateMipmaps: true, minFilter: T.LinearMipmapLinearFilter, magFilter: T.LinearFilter });
+  rt.texture.anisotropy = 4;
+  const sc = new T.Scene(); sc.add(new T.HemisphereLight(0xfff2e4, 0x3a3028, 1.5)); const dl = new T.DirectionalLight(0xfff0dc, 2.0); dl.position.set(-1.5, 3, 4); sc.add(dl);
+  const cells = Array.from({ length: 10 }, () => { const g = new T.Group(); g.visible = false; sc.add(g); return g; });
+  const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg` });
+  const hutchSpec = tint => ({ 'Wood-1': { ...W_('Wood-1'), color: tint }, 'Wood-2': { ...W_('Wood-2'), color: tint }, 'Wood-3': { ...W_('Wood-3'), color: tint }, Metal: { ...W_('Metal'), m: 'T_Metal_Metallic.jpg' } });
+  const bedSpec = b => ({ blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: 1, color: b }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg', color: 0xb8b0a4 }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } });
+  const chairSpec = { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } };
+  const GL = async (k, f) => (await msModel(k, f)).clone(true), FBX = (k, spec) => msFBX(k, 'model.fbx', spec);
+  const lowerCab = async (tint, h) => { const o = await FBX('dresser', hutchSpec(tint)); // wie innen_ort.js: Buffet ohne Aufsatz
+    o.traverse(m => { if (!m.isMesh) return; m.geometry = m.geometry.clone(); const P = m.geometry.attributes.position;
+      for (let i = 0; i < P.count; i++) if (P.getY(i) > 409.5) { P.setY(i, 405); P.setX(i, Math.min(267, Math.max(-288, P.getX(i)))); P.setZ(i, Math.min(123, Math.max(-114, P.getZ(i)))); }
+      P.needsUpdate = true; m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere(); });
+    msFit(o, h, 'y'); return o; };
+  const safe = p => Promise.resolve(p).catch(e => { console.warn('Fassaden-Karte', e); S.log.push('Karte: Modell fehlt'); return null; });
+  const [shelfW, crt, frD, frD2, frX, clock, clock2, lamp, table, radio, giraffe, shelf] = await Promise.all([GL('wardrobe'), GL('crt', 'model.glb'), GL('frame_deco'), GL('frame_deco'), GL('frame_dmg'), GL('wallclock'), GL('wallclock'), GL('floorlamp'), GL('metaltable'), GL('radio'), GL('giraffe'), GL('shelf')].map(safe));
+  const [sofa, hutch, cab1, cab2, cab3, cab4, ch1, ch2, ch3, bed, crib, mirror, jacke, teddy] = await Promise.all([
+    FBX('sofa', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x8a7e72 } }), FBX('dresser', hutchSpec(0xd8cfb8)),
+    lowerCab(0x8a7a64, .62), lowerCab(0xd8cfb8, .92), lowerCab(0x9a8a74, .78), lowerCab(0x7a6a58, .86),
+    FBX('chair', chairSpec), FBX('chair', chairSpec), FBX('chair', chairSpec), FBX('hospbed', bedSpec(0xa8a098)),
+    FBX('crib', { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xcfc6b6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xc8c0b0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } }),
+    FBX('mirror', { 'Mirror Border': { b: 'Gold_MIrror_Diffuse.png', n: 'Gold_Mirror_Normal.jpg', r: 'Gold_Mirror_Roughness.png', metal: 1, color: 0xc8b890 }, Mirror: { r: 'Mirror_Roughness.png', metal: 1, rough: .08, color: 0x9aa2aa } }),
+    FBX('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }), FBX('teddy_retro', { material0: { b: 'teddy-bear.jpg', color: 0xa89a88 }, material1: { b: 'teddy-bear1.jpg', color: 0xa89a88 } })].map(safe));
+  // put: Größe (size/axis), Unterkante y, Mitte x, Tiefe z, Drehung ry → in Feld (col, row)
+  const put = (o, col, row, x, y, z = 0, ry = 0, size = 0, axis = 'y') => { if (!o) return null; if (size) msFit(o, size, axis); const g = msGround(o); g.rotation.y = ry; g.position.set(x, y, z); cells[row * 5 + col].add(g); return g; };
+  // 0 Wohnzimmer: Regal, Fernseher auf der Anrichte, Bild, Uhr – davor das Sofa (Rücken zum Fenster) und die Stehlampe
+  put(shelfW, 0, 0, -1.05, 0, -.3, 0, 1.95); put(cab1, 0, 0, .45, 0, -.3); put(crt, 0, 0, .45, .62, -.25, 0, .42); put(frX, 0, 0, .45, 1.32, -.5, 0, .5, 'max'); put(clock, 0, 0, 1.3, 1.5, -.5, 0, .5, 'y');
+  if (mirror) mirror.rotation.x = -PI / 2;
+  put(sofa, 0, 1, -.2, 0, 0, PI, 2.0, 'x'); put(lamp, 0, 1, 1.3, 0, 0, 0, 1.62);
+  // 1 Küche: Buffet, Unterschrank mit Radio, Uhr – davor Tisch und zwei Stühle
+  put(hutch, 1, 0, -.95, 0, -.3, 0, 2.2); put(cab2, 1, 0, .55, 0, -.3); put(radio, 1, 0, .4, .92, -.25, 0, .24); put(clock2, 1, 0, .75, 1.55, -.5, 0, .42);
+  put(table, 1, 1, 0, 0, 0, 0, .76); put(ch1, 1, 1, -.85, 0, 0, PI / 2, .92); put(ch2, 1, 1, .9, 0, .1, -PI / 2 + .25, .92);
+  // 2 Schlafzimmer: Bett mit dem Kopfende an der Wand, Kommode, Bild darüber – davor ein Stuhl
+  if (bed) { msFit(bed, 2.05, 'max'); bed.scale.z *= -1; } put(bed, 2, 0, -.35, 0, -.2); put(cab3, 2, 0, 1.15, 0, -.3); put(frD, 2, 0, -.35, 1.3, -.5, 0, .5, 'max');
+  put(ch3, 2, 1, 1.1, 0, 0, -.6, .92);
+  // 3 Kinderzimmer: Gitterbett mit Teddy, Wandbrett, Giraffe, Bild
+  put(crib, 3, 0, -.65, 0, -.3, 0, .95); put(teddy, 3, 0, -.65, .5, -.2, .3, .26); put(shelf, 3, 0, .9, 1.05, -.4, 0, .9, 'x'); put(giraffe, 3, 0, 1.05, 0, -.3, -.4, .55); put(frD2, 3, 0, .4, 1.55, -.5, 0, .38, 'max');
+  // 4 Flur: Spiegel über der Kommode, Jacke am Haken
+  put(cab4, 4, 0, .5, 0, -.3); put(mirror, 4, 0, .5, .98, -.5, 0, .84, 'max'); put(jacke, 4, 0, -.75, .8, -.4, 0, .82);
+  const cam = new T.OrthographicCamera(-1.6, 1.6, 2.5, 0, .1, 30); cam.position.set(0, 0, 10); cam.lookAt(0, 0, 0); cam.updateMatrixWorld(true);
+  const draw = () => { const r = renderer, prev = r.getRenderTarget(), au = r.autoClear, cc = new T.Color(); r.getClearColor(cc); const ca = r.getClearAlpha();
+    try { r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.autoClear = false;
+      for (let i = 0; i < 10; i++) { if (!cells[i].children.length) continue; cells.forEach((g, j) => g.visible = j === i);
+        rt.viewport.set((i % 5) * CW, Math.floor(i / 5) * CW, CW, CW); r.setRenderTarget(rt); r.render(sc, cam); } }
+    finally { rt.viewport.set(0, 0, CW * 5, CW * 2); r.setRenderTarget(prev); r.autoClear = au; r.setClearColor(cc, ca); } };
+  try { await Promise.race([Promise.allSettled(KTX.pending.slice()), wait(4000)]); } catch (e) {}
+  draw(); S.atlasDraw = draw; S.atlasRT = rt; S.atlasT = [8, 25]; // Nachzeichnen, sobald alle Texturen da sind
+  return rt.texture;
+}
+// Türspion: Messingrosette, Ring, gewölbte Linse; base = Schein aus dem Flur (nur bewohnte Häuser)
+function fassaden_spionBau(par, x, y, z, ry, brass, base) {
+  const S = fassaden_S, T = THREE;
+  if (!S.spG) S.spG = { ring: new T.TorusGeometry(.0155, .0048, 8, 24), lens: new T.SphereGeometry(.0105, 16, 8, 0, PI * 2, 0, PI / 2).rotateX(PI / 2).scale(1, 1, .5), plate: new T.CylinderGeometry(.026, .026, .003, 24).rotateX(PI / 2) };
+  const m = new T.MeshStandardMaterial({ color: 0x0a0c0e, roughness: .04, metalness: 0, emissive: 0xffb070, emissiveIntensity: base, envMap: S.probe.rt.texture, envMapIntensity: 1.6, name: 'fa_spion' });
+  const g = new T.Group(); g.position.set(x, y, z); g.rotation.y = ry; par.add(g);
+  const pl = new T.Mesh(S.spG.plate, brass); pl.position.z = .0015; g.add(pl);
+  const ring = new T.Mesh(S.spG.ring, brass); ring.position.z = .004; g.add(ring);
+  const lens = new T.Mesh(S.spG.lens, m); lens.position.z = .003; g.add(lens);
+  g.traverse(o => { o.userData.noCol = true; o.castShadow = false; });
+  return { g, m, base, t: -1 };
+}
+// „Am Türspion bewegt sich etwas“: Licht dahinter geht an, ein Schatten zieht vorbei, ein Auge verdeckt die Linse, kurzes Blinzeln, dann weg
+function fassaden_spion(n) { const sp = fassaden_S.spione && fassaden_S.spione[n]; if (sp) sp.t = 0; }
+function fassaden_spionKurve(T, base) {
+  if (T < .35) return base + (1.4 - base) * T / .35;
+  if (T < .6) return 1.4 * (1 - (T - .35) / .25);
+  if (T < 1.7) return T > 1.15 && T < 1.24 ? .55 : .02;
+  if (T < 2.1) return 1.4 * (T - 1.7) / .4;
+  if (T < 3.4) return 1.4 + (base - 1.4) * (T - 2.1) / 1.3;
+  return -1;
+}
+// Nr. 4 innen (Oma Erna): Zettel E-14 „Spion der Haustür“ – der Spion sitzt in der Haustür (Raumtür von kirchberg_raum, Scan-Tür 1)
+function fassaden_spionNr4() {
+  const S = fassaden_S; if (S.spionNr4 || (S.nr4Try || 0) > 30 || typeof nr4_S === 'undefined' || !nr4_S.R || typeof NR4 === 'undefined') return;
+  S.nr4Try = (S.nr4Try || 0) + 1;
+  const R = nr4_S.R, tx = NR4.x - 3; R.g.updateMatrixWorld(true);
+  const rc = new THREE.Raycaster(new THREE.Vector3(tx, 1.56, R.z1 - 1.2), new THREE.Vector3(0, 0, 1), 0, 1.6);
+  const hit = rc.intersectObject(R.g, true).find(h => h.object.isMesh && h.object.visible && !(h.object.material && h.object.material.transparent));
+  if (!hit) return;
+  S.spionNr4 = fassaden_spionBau(scene, tx, 1.56, hit.point.z - .001, PI, S.brass, .12); S.spionNr4.m.emissive.set(0x9fb2e6); // draußen: Mond/Laterne, kalt
+  S.log.push('Türspion Nr. 4 innen gesetzt (' + hit.point.z.toFixed(2) + ')');
+}
+// Nr. 1, Kinderzimmer: Fenster in der Seitenwand (x −55,8) – wie innen_ort.js winIn: Scan-Rahmen, dahinter Nacht (blitzt bei Gewitter), Gardine
+async function fassaden_innenKZ() {
+  const T = THREE, S = fassaden_S, x = -55.8, zc = -18.5, yc = 1.85, sy = .72, H = 2.031 * sy;
+  const g = new T.Group(); g.name = 'fa_innenKZ'; scene.add(g); S.innenKZ = g;
+  const night = new T.MeshStandardMaterial({ color: 0x030507, roughness: .32, metalness: 0, emissive: 0x0a1018, emissiveIntensity: .8 }); S.nightIn = night;
+  const gl = new T.Mesh(new T.PlaneGeometry(1.04, H - .12), night); gl.position.set(x + .004, yc, zc); gl.rotation.y = PI / 2; g.add(gl);
+  const place = (o, minX, cy, top) => { g.add(o); o.updateMatrixWorld(true); const b = new T.Box3().setFromObject(o); o.position.x += minX - b.min.x; o.position.z += zc - (b.min.z + b.max.z) / 2; o.position.y += top !== undefined ? top - b.max.y : cy - (b.min.y + b.max.y) / 2; };
+  const f = (await msModel('window')).clone(true); f.scale.set(.92, sy, 1); f.rotation.y = PI / 2; place(f, x + .003, yc);
+  const c = await msFBX('curtain_sheer', 'model.fbx', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', a: 'DefaultMaterial_Opacity.png', ds: 1, transparent: true, alphaTest: .02, flipN: true, color: 0xa8a296 } });
+  c.scale.set(.0153, .0142 * (H + .25) / 1.55, .012); c.rotation.y = PI / 2; c.traverse(m => { if (m.isMesh) { m.material.depthWrite = false; m.castShadow = false; } }); place(c, x + .115, 0, yc + H / 2 + .13);
+  g.traverse(o => { if (o.isMesh) { o.receiveShadow = true; o.userData.noCol = true; } });
+  g.visible = false;
 }
 // weicher Lichtfleck (Licht, keine Zeichnung)
 function fassaden_glowTex() {
@@ -616,16 +916,23 @@ function fassaden_tick(dt, t, indoor) {
   const S = fassaden_S, U = S.U;
   flashRig.getWorldPosition(U.uFlashPos.value); U.uFlashDir.value.set(0, 0, -1).applyQuaternion(flashRig.quaternion).normalize();
   U.uFlash.value = Math.max(0, flashlight.intensity / 14); U.uTime.value = t;
+  U.uAmb.value = Math.min(4, Math.max(.6, hemi.intensity / .55)); // dunkle Zimmer bleiben als Zimmer lesbar – Streulicht folgt dem Ort (Nacht/Tag)
+  fassaden_probeTick(dt, indoor);
+  S.aT = (S.aT || 0) + dt; if (S.atlasT && S.atlasT.length && S.aT > S.atlasT[0]) { S.atlasT.shift(); try { S.atlasDraw(); } catch (e) { S.atlasT.length = 0; } }
   for (const h of S.houses) {
     const k = h.lit ? Math.max(0, h.lit.emissiveIntensity / 1.3) : 0;
     const ec = h.lit ? h.lit.emissive : null;
-    if (h.room) { h.room.uniforms.uLit.value = k; if (ec) h.room.uniforms.uLitCol.value.copy(h.room.userData.col).multiply(ec); }
+    if (h.room) { h.room.uniforms.uLit.value = k; if (ec) h.room.uniforms.uLitCol.value.copy(h.room.userData.col).multiply(ec); if (h.n === 7) h.room.uniforms.uAux.value = Math.max(0, tube.material.emissiveIntensity / 2.5); }
+    const sp = h.spion; if (sp) { if (sp.t >= 0) { sp.t += dt; const I = fassaden_spionKurve(sp.t, sp.base * k); if (I < 0) sp.t = -1; else sp.m.emissiveIntensity = I; } else sp.m.emissiveIntensity = sp.base * k; }
     for (const m of h.curtainLit) { m.emissiveIntensity = m.userData.k * k; if (ec && h.n !== 1) m.emissive.copy(m.userData.col).multiply(ec); }
     if (h.spillMat) h.spillMat.opacity = .22 * k;
   }
   S.cullT = (S.cullT || 0) - dt;
   if (S.cullT < 0 && !S.off) { S.cullT = .3; const c = camera.position;
     for (const h of S.houses) { const on = Math.hypot(h.g.position.x - c.x, h.g.position.z - c.z) < 52; if (on !== h.detOn) { h.detOn = on; for (const m of h.detail) m.visible = on; } } }
+  // Nr. 1 Kinderzimmer: Fenster von innen nur, wenn man im Haus ist; Blitze hellen die Nacht dahinter auf
+  if (S.innenKZ) { const P = player.pos; S.innenKZ.visible = Math.abs(P.x + 50) < 7 && Math.abs(P.z + 17) < 6; if (S.innenKZ.visible) S.nightIn.emissiveIntensity = .8 + (skyMat.uniforms.flash ? skyMat.uniforms.flash.value : 0) * 9; }
+  S.nr4T = (S.nr4T ?? 3) - dt; if (S.nr4T < 0) { S.nr4T = 2; if (!S.spionNr4) fassaden_spionNr4(); }
   if (indoor) return;
   // Gestalten: verschwinden, wenn man sie zu lange anleuchtet – und stehen irgendwann wieder da
   const P = player.pos, cam = camera.position, fwd = U.uFlashDir.value;

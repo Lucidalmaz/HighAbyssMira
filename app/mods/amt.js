@@ -119,7 +119,7 @@ const AMT_BOXEN = [[C2.x + 9, 2.3, C2.z + 1.84, PI], [C2.x + 24, 2.3, C2.z + 5.8
 function amt_box0() { const P = player.pos; let b = AMT_BOXEN[0], d = 1e9; for (const q of AMT_BOXEN) { const e = (q[0] - P.x) ** 2 + (q[2] - P.z) ** 2; if (e < d) { d = e; b = q; } } return b; }
 // text: „…“ ohne Anführungszeichen; o.schnitte: Teile mit Schnitt dazwischen (Raumklang wechselt hörbar), o.spieluhr: Lucys Spieluhr leise darunter, o.kichern
 async function amt_band(text, o = {}) { const S = amt_S; while (S.band) await wait(200); S.band = true;
-  try { const [bx, by, bz] = o.at || amt_box0(); Audio.intercomClick && Audio.intercomClick(); await wait(420);
+  try { const [bx, by, bz] = o.at || amt_box0(); Audio.intercomClick && Audio.intercomClick(bx, by, bz); await wait(420);
     const teile = o.schnitte || [text];
     for (let i = 0; i < teile.length; i++) { const t = teile[i]; if (i > 0) { amt_klick(bx, by, bz); await wait(120 + Math.random() * 160); }
       const ms = Math.max(900, 900 + t.length * 55); if (o.spieluhr && typeof lucy3_tines === 'function') try { lucy3_tines(ms / 1000 + .3, Audio.at(bx, by, bz, 3), .5); } catch (e) {}
@@ -135,7 +135,7 @@ function amt_tuer(K, x, z, achse, w, label, o = {}) {
   const col = achse === 'z' ? addCol(x - .08, x + .08, z - w / 2, z + w / 2) : addCol(x - w / 2, x + w / 2, z - .08, z + .08); const saved = { ...col };
   const base = piv.rotation.y, D = { piv, col, open: false, locked: !!o.locked, label, dir: o.dir || 1 };
   D.set = on => { D.open = on; tween(piv, { ry: base + (on ? 1.45 * D.dir : 0) }, on ? .9 : .45); if (on) col.minX = col.maxX = -9999; else { Object.assign(col, saved); doorPushOut(col); }
-    try { if (Audio.doorSound) Audio.doorSound(on, x, z); else Audio.creak(.2); } catch (e) {} };
+    try { if (Audio.doorSound) Audio.doorSound(on, x, z); else Audio.creak(.2, x, 1.2, z); } catch (e) {} };
   const hitW = achse === 'z' ? [.2, 2.1, w] : [w, 2.1, .2]; const hit = amt_hit(x, 1.05, z, ...hitW, () => D.locked ? label : D.open ? 'Tür schließen' : 'Tür öffnen', () => {
     if (D.locked) { if (o.zu) return o.zu(D); return toast('Abgeschlossen.', 2000); } if (D.open && amt_nah(x, z, .55)) return toast('Du stehst in der Tür.', 1600); D.set(!D.open); });
   D.hit = hit; return D; }
@@ -589,7 +589,7 @@ async function amt_notstrom() { const S = amt_S; amt_uhr(2, 10);
 async function amt_nachSpinnen() { const S = amt_S; amt_druck('RÜCKLÄUFER 08 PRÜFRAUM 3: REIZ.', { still: true });
   await wait(2000); const T = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.pruefTafel : null; if (T && T.material) { T.material.emissive = new THREE.Color(0xfff4dc); T.material.emissiveMap = T.material.map; T.material.emissiveIntensity = .55; T.material.needsUpdate = true; S.tafelGlow = 1; }
   state.talking = true;
-  try { Audio.intercomClick && Audio.intercomClick(); await wait(500);
+  try { Audio.intercomClick && Audio.intercomClick(...amt_box0()); await wait(500);
     await say([['Original B., Luke (Vermessung Frühjahr 2009): starke Spinnenangst.', 4200, 'TAFEL'], ['Rückläufer 08 (Sommer 2009): keine Reaktion. Lacht.', 3800, 'TAFEL']]);
     await amt_band('', { schnitte: ['Reaktion …', 'auf Reiz …', 'hoch.', 'Abweichung …', 'von …', 'zweitausendneun.'] });
     await wait(600); await say([['Sie schneidet. Aus seinen Worten. Wie ein Kind, das Erpresserbriefe aus der Zeitung klebt.', 4600, 'LUKE']]); await wait(1400);
@@ -737,7 +737,7 @@ function amt_klavier(box) { const S = amt_S, fehl = S.klavierFehl || 0, lang = f
   const nebel = () => { if (!box.isConnected) return; const b = btn(seq[i]); if (b) { b.style.background = 'linear-gradient(#f4f6f4, #c9d2d2)'; b.style.boxShadow = 'inset 0 0 18px rgba(255,255,255,.95), 0 0 10px rgba(200,220,220,.4)'; if (!bleibt) setTimeout(() => { b.style.background = ''; b.style.boxShadow = ''; }, 900 * lang); }
     i++; if (i < seq.length) setTimeout(nebel, 700 * lang); };
   setTimeout(nebel, 600); }
-function amt_klavierFalsch() { const S = amt_S; S.klavierFehl = (S.klavierFehl || 0) + 1; try { Audio.pianoNote('F'); setTimeout(() => Audio.pianoNote('H'), 60); } catch (e) {}
+function amt_klavierFalsch() { const S = amt_S; S.klavierFehl = (S.klavierFehl || 0) + 1; try { Audio.pianoNote('F', C2.x + 111.8, 1, C2.z + 7.5); setTimeout(() => Audio.pianoNote('H', C2.x + 111.8, 1, C2.z + 7.5), 60); } catch (e) {}
   if (typeof lenaFig !== 'undefined') { S.lucyWeg = 3.5; } }
 // B-K2-04: nach der Rauchflucht auf der Schwelle, ein Eukalyptusbonbon obendrauf – wer es isst, hat fünf Sekunden eine ruhigere Kamera
 function amt_safe() { try { if (typeof beobachter_zettel === 'function') beobachter_zettel('B-K2-07', { pos: [C2.x + 111.85, 1.29, C2.z + 7.62], gitter: true }); } catch (e) {} } // aus dem Gitter über dem Klavier, auf den Deckel
@@ -781,7 +781,7 @@ function amt_regieTick(dt) { const S = amt_S, P = player.pos, X0 = C2.x, Z0 = C2
   if (s.archSolvedT && !s.bk202 && S.t - s.archSolvedT > 6 && !amt_nah(AMT_DRUCK.x, AMT_DRUCK.z, 3.5)) { s.bk202 = 1; try { if (typeof beobachter_zettel === 'function') beobachter_zettel('B-K2-02', { pos: [AMT_DRUCK.x + .02, AMT_DRUCK.y + .2, AMT_DRUCK.z] }); } catch (e) {} }
   if (s.archSolvedT && !s.bk205 && S.t - s.archSolvedT > 20) { s.bk205 = 1; try { if (typeof beobachter_zettel === 'function') beobachter_zettel('B-K2-05', { pos: [X0 + 108.7, 0, Z0 + 6.6] }); } catch (e) {} }
   // Registratur: die Fotos liegen nebeneinander – wer weggeht und wiederkommt, findet das von 1958 mit dem Gesicht nach unten
-  if (S.regDrehen && !S.regDreh) { const drin = amt_in(X0 + 6.2, X0 + 17.8, Z0 - 7.8, Z0 - 2.2); if (!drin) S.regDraussen = true; else if (S.regDraussen) { S.regDreh = true; if (S.regFotoMesh) S.regFotoMesh[0].material = S.regBack; try { Audio.paper(); } catch (e) {} } } }
+  if (S.regDrehen && !S.regDreh) { const drin = amt_in(X0 + 6.2, X0 + 17.8, Z0 - 7.8, Z0 - 2.2); if (!drin) S.regDraussen = true; else if (S.regDraussen) { S.regDreh = true; if (S.regFotoMesh) S.regFotoMesh[0].material = S.regBack; try { const q = S.regFotoMesh && S.regFotoMesh[0].position; if (q && Audio.ctx) { const pd = Audio.at(q.x, q.y, q.z, 1); if (!Audio.cut) for (let i = 0; i < 4; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2000, 5000); bp.Q.value = 3; n.connect(bp); Audio.env(bp, .12, .01, .05, i * .05, pd); n.stop(Audio.ctx.currentTime + .5); } } else Audio.paper(); } catch (e) {} } } }
 // Notbeleuchtung (nach dem Finale) und die Mond-/Laternenleuchte im Schacht werden hier gestellt (Intensität; die Lichter gibt es seit dem Laden)
 function amt_lichtTick(dt) { const S = amt_S;
   // Kinosequenz „Ihre Augen“ (Wunsch AP-10): nach dem Sterben der Röhren brennen die Batterie-Notleuchten; im Schacht fällt Mondlicht durch den Gully

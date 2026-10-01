@@ -218,9 +218,9 @@ function tief_beasts() {
 }
 // ---------------------------------------------------------------- Klänge, die es noch nicht gab
 Object.assign(Audio, {
-  grunt(x, z, loud) { if (!this.ctx) return; const d = this.at(x, .5, z, loud ? 6 : 4); for (let k = 0; k < (loud ? 2 : 3); k++) { const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(260, 420); bp.Q.value = 1.6; n.connect(bp); this.env(bp, loud ? .5 : .22, .01, .16, k * .21, d); n.stop(this.ctx.currentTime + 1.2); }
+  grunt(x, z, loud, g) { if (!this.ctx) return; const d = this.at(x, .5, z, loud ? 6 : 4, g ? { obj: g, h: .5 } : undefined); if (this.cut) return; for (let k = 0; k < (loud ? 2 : 3); k++) { const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(260, 420); bp.Q.value = 1.6; n.connect(bp); this.env(bp, loud ? .5 : .22, .01, .16, k * .21, d); n.stop(this.ctx.currentTime + 1.2); }
     if (loud) { const o = this.osc('sawtooth', 820, .1, .7), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1300; bp.Q.value = 1.4; o.frequency.setValueAtTime(700, this.ctx.currentTime + .1); o.frequency.linearRampToValueAtTime(1500, this.ctx.currentTime + .35); o.frequency.linearRampToValueAtTime(900, this.ctx.currentTime + .75); o.connect(bp); this.env(bp, .22, .02, .6, .1, d); } },
-  growl(x, z, loud) { if (!this.ctx) return; this.play('dog', { gain: loud ? .55 : .26, rate: loud ? .42 : .5, x, y: .6, z, ref: 3, dur: loud ? 1.1 : .7, lp: 900 }); },
+  growl(x, z, loud, g) { if (!this.ctx) return; this.play('dog', { gain: loud ? .55 : .26, rate: loud ? .42 : .5, x, y: .6, z, ref: 3, dur: loud ? 1.1 : .7, lp: 900, obj: g, h: .6 }); },
 });
 // ---------------------------------------------------------------- Die Zettel
 const TIEF_ZETTEL = {
@@ -291,14 +291,14 @@ function tief_digFund() {
   openNote('Eine Blechdose', 'Rostig, von Hauern zerkratzt. Darin, in eine Zeitungsseite vom März 2012 gewickelt: zwei Batterien. Und ein Zettel: <span class="hand">„Vorrat. Nicht anfassen. — J.“</span>\n\nDie Zeitungsseite ist aus dem Laternenboten: <b>Bundesstelle schließt – Dank an die treuen Mitarbeiter</b>. Das Foto: Hilde mit einem Blumenstrauß. Sie lächelt nicht.\n\nJonas hat seine Batterien in seine Mutter gewickelt.\n\nUnter den beiden liegt eine dritte. Neuer. Mit drei parallelen Kratzern.\n\nEntschuldige, Jonas.', null, async () => {
     await wait(1200); const koeder = typeof K6 !== 'undefined' && (K6.v11 || K6.falleAn); // „Köder“ erst, wenn Luke das Wort gehört hat (V-11 oder die Falle)
     await say([['Das Amt hat Batterien, die Schweine haben Batterien, und du hast auch welche, wer immer du bist. Ich bin der ' + (koeder ? 'bestversorgte Köder' : 'bestversorgte Idiot') + ' im Landkreis.', 5400, 'LUKE']]);
-    const F = S.boars.find(B => B.st === 'gone' && B !== S.boars[0]); if (F) { const P = player.pos, f = flatDir(); F.g.position.set(P.x - f.x * 3.2 + f.z * 1.2, 0, P.z - f.z * 3.2 - f.x * 1.2); F.g.visible = true; F.st = 'flee'; F.sp = 3.4; F.tx = F.g.position.x - f.x * 30; F.tz = F.g.position.z - f.z * 30; leben_play(F, 'Run', .15); Audio.grunt(F.g.position.x, F.g.position.z, false);
+    const F = S.boars.find(B => B.st === 'gone' && B !== S.boars[0]); if (F) { const P = player.pos, f = flatDir(); F.g.position.set(P.x - f.x * 3.2 + f.z * 1.2, 0, P.z - f.z * 3.2 - f.x * 1.2); F.g.visible = true; F.st = 'flee'; F.sp = 3.4; F.tx = F.g.position.x - f.x * 30; F.tz = F.g.position.z - f.z * 30; leben_play(F, 'Run', .15); Audio.grunt(F.g.position.x, F.g.position.z, false, F.g);
       setTimeout(() => subtitle('<i>Hinter dir trägt ein Frischling die leere Dose davon.</i>', 3000), 600); } }); // Humor: der Frischling mit der Dose
 }
 // ---------------------------------------------------------------- Der achte Stöckchenmann
 function tief_achter() {
   const S = tief_S; if (tief_has('tief_achter')) return openNote('Der achte Stöckchenmann', 'Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>');
   story.lore.push({ key: 'tief_achter', title: 'Der achte Stöckchenmann', html: 'Sieben Stöckchenmänner hängen im Steinkreis. Der achte hängt tiefer – für einen, der noch wächst. Am Hals ein Pappschild: <b>08 · L.</b>\n\nL. Wie Luke? Oder wie Lucy?' });
-  Audio.play('woodCrack', { gain: .25, rate: 1.4 }); openNote('Der achte Stöckchenmann', 'Kleiner als die anderen. Die Zweige sind frischer, die Wolle ist rot. Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>\n\nL.\nWie Luke.');
+  Audio.play('woodCrack', { gain: .25, rate: 1.4, x: S.eighth.g.position.x, y: S.eighth.g.position.y, z: S.eighth.g.position.z, ref: 2 }); openNote('Der achte Stöckchenmann', 'Kleiner als die anderen. Die Zweige sind frischer, die Wolle ist rot. Am Hals ein Pappschild, mit Wolle festgebunden:\n\n<b>08 · L.</b>\n\nL.\nWie Luke.');
   S.behind = { armed: true, t: 0 }; if (typeof gedanke === 'function') gedanke('tief_achter', '08 · L. Seit 2013 hängt er hier. Für einen, der noch wächst. … Warum denk ich sofort an mich?', 1500, 3);
 }
 // ---------------------------------------------------------------- Weiher: das Ende der Wolle (N6-5, Suche 40) – Blechschild, zwei Rucke, Wahl: festhalten (Stufe 2) oder loslassen; dann „Für Samstag.“
@@ -308,11 +308,11 @@ async function tief_weiher() {
   let fest = true; state.talking = true; try { // try/finally: state.talking wird immer zurückgesetzt
   await say([['<i>Am Pfosten des Stegs ein Blechschild: „BfR · AST 7 · Probe T · nicht bergen · zieht“.</i>', 4400], ['Das Amt hat ein Schild für einen Teich. Das ist das erste ehrliche Schild, das ich von denen seh.', 4400, 'LUKE']]);
   await say([['Du nimmst das Ende der Wolle in die Hand. Es verschwindet im schwarzen Wasser.', 4200], ['Es ist straff gespannt.', 2400]]);
-  Audio.creak(.25); shake = .02; await wait_(900); Audio.play('waterLoop', { gain: .25, offset: 1, dur: 1.2, rate: .7, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 });
+  Audio.creak(.25, S.postEnd[0], .5, S.postEnd[1]); shake = .02; await wait_(900); Audio.play('waterLoop', { gain: .25, offset: 1, dur: 1.2, rate: .7, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 });
   await say([['Ein Ruck. Von unten. Einmal. Zweimal.', 3200]]);
   if (typeof k6_wahl === 'function' && typeof K6 !== 'undefined' && K6.wahl) { state.talking = false; const w = await k6_wahl(['Festhalten.', 'Loslassen.'], 15000); state.talking = true; fest = w !== 1; }
   if (fest) { // Stufe 2: der Zug reißt Luke auf die Knie, die Wolle reißt
-    scareCount++; Audio.play('waterLoop', { gain: .45, offset: 2, dur: .8, rate: .55, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 }); Audio.creak(.4); shake = .14; glitchV = .5; player.pitch = Math.max(-1, player.pitch - .5);
+    scareCount++; Audio.play('waterLoop', { gain: .45, offset: 2, dur: .8, rate: .55, x: TIEF.pond.x, y: 0, z: TIEF.pond.z, ref: 4 }); Audio.creak(.4, S.postEnd[0], .5, S.postEnd[1]); shake = .14; glitchV = .5; player.pitch = Math.max(-1, player.pitch - .5);
     const y0 = camY; camY = .95; setTimeout(() => { camY = y0; }, 1400); Audio.heart();
     if (S.thread) { S.thread.count = S.threadN - 3; S.thread.instanceMatrix.needsUpdate = true; }
     await say([['Der Zug reißt dich auf die Knie. Dann gibt die Wolle nach.', 3600], ['Das Ende ist abgerissen.', 2600]]); }
@@ -330,7 +330,7 @@ function tief_stein() {
 }
 // ---------------------------------------------------------------- Schaukel, Wrack, Lager
 function tief_schaukel() {
-  const S = tief_S; if (S.swingStop > 0) return; S.swingStop = 3.2; S.swingW = 0; Audio.creak(.2);
+  const S = tief_S; if (S.swingStop > 0) return; S.swingStop = 3.2; S.swingW = 0; Audio.creak(.2, TIEF.swing.x, 3.6, TIEF.swing.z);
   setTimeout(() => { const W = TIEF.swing; Audio.whisper(W.x, 1.2, W.z, 1.2); subtitle('<i>Ganz nah an deinem Ohr, ein Kind: „Noch mal!“</i>', 2600); Audio.giggle(W.x + .5, 1, W.z); S.swingW = 1.8; shake = .03; }, 3000);
   if (!tief_has('tief_schaukel')) story.lore.push({ key: 'tief_schaukel', title: 'Die Schaukel im Wald', html: 'Eine Schaukel zwischen zwei toten Bäumen, tief im Wald. Sie schwingt ohne Wind. Wer sie anhält, hört: „Noch mal!“' });
 }
@@ -372,8 +372,9 @@ WORLD_TICK.push((dt, t) => {
       setTimeout(() => { for (let i = 0; i < 5; i++) setTimeout(() => Audio.flap(P.x + rand(-4, 4), rand(4, 8), P.z + rand(-4, 4)), i * 90); Audio.caw(P.x, 7, P.z + 3); Audio.caw(P.x - 2, 6, P.z - 2); shake = .03; scareCount++; }, 5200); } }
   // Schaukel, Stöckchenmänner, fernes Licht, Blätter, Nebel
   if (near) {
-    if (S.swingPiv) { if (S.swingStop > 0) S.swingStop -= dt; S.swingPiv.rotation.x = Math.sin(t * 1.3) * .42 * S.swingW; if (S.swingW > 1) S.swingW = Math.max(1, S.swingW - dt * .05);
-      const ds = Math.hypot(P.x - TIEF.swing.x, P.z - TIEF.swing.z); if (Math.sign(Math.cos(t * 1.3)) !== S.swLast) { S.swLast = Math.sign(Math.cos(t * 1.3)); if (ds < 20 && S.swingW > .2) Audio.creak(.06 * (1 - ds / 20)); } }
+    if (S.swingPiv && typeof umwelt_pendel === 'function') { if (S.swingStop > 0) S.swingStop -= dt; if (S.swingW > 1) S.swingW = Math.max(1, S.swingW - dt * .05); } // Pendel, Anstoßen, Knarren: umwelt.js (Ziel .42 · swingW)
+    else if (S.swingPiv) { if (S.swingStop > 0) S.swingStop -= dt; S.swingPiv.rotation.x = Math.sin(t * 1.3) * .42 * S.swingW; if (S.swingW > 1) S.swingW = Math.max(1, S.swingW - dt * .05);
+      const ds = Math.hypot(P.x - TIEF.swing.x, P.z - TIEF.swing.z); if (Math.sign(Math.cos(t * 1.3)) !== S.swLast) { S.swLast = Math.sign(Math.cos(t * 1.3)); if (ds < 20 && S.swingW > .2) Audio.creak(.06, TIEF.swing.x, 3.6, TIEF.swing.z); } }
     for (const f of S.figs) { f.g.rotation.y += Math.sin(t * .4 + f.ph) * .004; f.g.position.y = f.y0 + Math.sin(t * .7 + f.ph) * .03; }
     if (S.pondLight) { const dp = Math.hypot(P.x - TIEF.pond.x, P.z - TIEF.pond.z), want = !tief_has('tief_weiher') && (P.y > 2.5 || (dp < 40 && dp > 12)) ? .5 + Math.sin(t * 1.7) * .12 : 0; S.pondLight.material.opacity += (want - S.pondLight.material.opacity) * Math.min(1, dt * 2); }
     const lvOn = inside || wald_in(P.x, P.z); S.leaves.visible = lvOn; S.mist.visible = lvOn;
@@ -393,13 +394,13 @@ WORLD_TICK.push((dt, t) => {
       if (d < 22 && W.cool <= 0 && ok) { W.st = 'stalk'; if (!S.told.has('wolf')) { S.told.add('wolf'); if (typeof gedanke === 'function') gedanke('tief_wolf', calm ? 'Die Wölfe. Sie kommen nicht näher. … Erkennen sie mich? Wegen des Welpen?' : 'Wölfe. Drei. Nicht rennen. Nicht rennen. Lampe drauf.', 200, 3); } } }
     else if (W.st === 'stalk') { const want = calm ? 12 : 8, ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; W.tx = P.x + ax / al * want - az / al * W.off; W.tz = P.z + az / al * want + ax / al * W.off; W.sp = spd > 3 ? 4.5 : 2.2;
       const arrived = leben_beastMove(W, dt, false); W.g.rotation.y = leben_ang(W.g.rotation.y, Math.atan2(P.x - p.x, P.z - p.z), Math.min(1, dt * 4)); leben_play(W, arrived ? (calm ? 'IdleBreathe' : 'IdleAggressive') : 'Walk', .3);
-      W.t -= dt; if (W.t < 0 && !calm) { W.t = rand(2.5, 5); if (!tief_still()) Audio.growl(p.x, p.z, false); }
+      W.t -= dt; if (W.t < 0 && !calm) { W.t = rand(2.5, 5); if (!tief_still()) Audio.growl(p.x, p.z, false, W.g); }
       if (lit(W)) W.lit += dt; else W.lit = Math.max(0, W.lit - dt);
-      if (W.lit > 1.1) { W.st = 'back'; W.cool = 18; W.lit = 0; const bl = Math.hypot(ax, az) || 1; W.tx = p.x + ax / bl * 14; W.tz = p.z + az / bl * 14; W.sp = 5; leben_play(W, 'Run', .15); Audio.growl(p.x, p.z, false); }
+      if (W.lit > 1.1) { W.st = 'back'; W.cool = 18; W.lit = 0; const bl = Math.hypot(ax, az) || 1; W.tx = p.x + ax / bl * 14; W.tz = p.z + az / bl * 14; W.sp = 5; leben_play(W, 'Run', .15); Audio.growl(p.x, p.z, false, W.g); }
       else if (!calm && !S.lunged && d < 5.2 && ok) { S.lunged = true; W.st = 'lunge'; W.sp = 9.5; leben_play(W, 'RunBite', .1); }
       else if (d > 34 || !ok) W.st = 'roam'; }
     else if (W.st === 'lunge') { const ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; W.tx = P.x + ax / al * 1.3; W.tz = P.z + az / al * 1.3;
-      if (leben_beastMove(W, dt) || d < 1.5) { scareCount++; Audio.growl(p.x, p.z, true); Audio.scareSound('growl'); shake = .14; glitchV = .5; filmPass.uniforms.flash.value = .5; setTimeout(() => filmPass.uniforms.flash.value = 0, 120); Audio.heart();
+      if (leben_beastMove(W, dt) || d < 1.5) { scareCount++; Audio.growl(p.x, p.z, true, W.g); Audio.scareSound('growl'); shake = .14; glitchV = .5; filmPass.uniforms.flash.value = .5; setTimeout(() => filmPass.uniforms.flash.value = 0, 120); Audio.heart();
         leben_play(W, 'Bite', .05, 1, true); for (const O of S.wolves) { O.st = 'back'; O.cool = 30; const bx = O.g.position.x - P.x, bz = O.g.position.z - P.z, bl = Math.hypot(bx, bz) || 1; O.tx = O.g.position.x + bx / bl * 16; O.tz = O.g.position.z + bz / bl * 16; O.sp = 5.5; }
         W.tx = p.x + ax / al * 16; W.tz = p.z + az / al * 16; setTimeout(() => leben_play(W, 'Run', .1), 500); if (typeof gedanke === 'function') gedanke('tief_biss', 'Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung.', 2500, 3); } }
     else if (W.st === 'back') { if (leben_beastMove(W, dt)) { W.st = 'roam'; leben_play(W, 'Walk', .3); } } }
@@ -412,8 +413,8 @@ WORLD_TICK.push((dt, t) => {
       if (lit(B, 18)) B.lit = (B.lit || 0) + dt; else B.lit = Math.max(0, (B.lit || 0) - dt);
       if (B.lit > 1.3 || (d < 7 && ok) || falleLicht) { const charge = !S.charged && d < 7; S.charged = S.charged || charge; S.rooted = true;
         for (const O of S.boars) { if (O.st !== 'root') continue; const ax = O.g.position.x - P.x, az = O.g.position.z - P.z, al = Math.hypot(ax, az) || 1; O.tx = O.g.position.x + ax / al * 36; O.tz = O.g.position.z + az / al * 36; O.sp = 6.5; O.st = 'flee'; leben_play(O, 'Run', .15); }
-        if (charge) { B.st = 'charge'; const ax = P.x - p.x, az = P.z - p.z, al = Math.hypot(ax, az) || 1; B.tx = P.x + ax / al * 9 + az / al * 1.1; B.tz = P.z + az / al * 9 - ax / al * 1.1; B.sp = 8.5; leben_play(B, 'Run', .1); Audio.grunt(p.x, p.z, true); B.hit = false; } } }
-    else if (B.st === 'charge') { if (!B.hit && d < 1.9) { B.hit = true; scareCount++; Audio.scareSound('growl'); Audio.grunt(p.x, p.z, true); shake = .12; filmPass.uniforms.flash.value = .4; setTimeout(() => filmPass.uniforms.flash.value = 0, 100); Audio.heart(); if (typeof gedanke === 'function') gedanke('tief_keiler', 'Das war knapp. Einen halben Meter. … Die Stelle am Bus ist jetzt frei.', 2000, 3); }
+        if (charge) { B.st = 'charge'; const ax = P.x - p.x, az = P.z - p.z, al = Math.hypot(ax, az) || 1; B.tx = P.x + ax / al * 9 + az / al * 1.1; B.tz = P.z + az / al * 9 - ax / al * 1.1; B.sp = 8.5; leben_play(B, 'Run', .1); Audio.grunt(p.x, p.z, true, B.g); B.hit = false; } } }
+    else if (B.st === 'charge') { if (!B.hit && d < 1.9) { B.hit = true; scareCount++; Audio.scareSound('growl'); Audio.grunt(p.x, p.z, true, B.g); shake = .12; filmPass.uniforms.flash.value = .4; setTimeout(() => filmPass.uniforms.flash.value = 0, 100); Audio.heart(); if (typeof gedanke === 'function') gedanke('tief_keiler', 'Das war knapp. Einen halben Meter. … Die Stelle am Bus ist jetzt frei.', 2000, 3); }
       if (leben_beastMove(B, dt)) { B.st = 'flee'; const ax = p.x - P.x, az = p.z - P.z, al = Math.hypot(ax, az) || 1; B.tx = p.x + ax / al * 30; B.tz = p.z + az / al * 30; } }
     else if (B.st === 'flee') { if (leben_beastMove(B, dt) || d > 50) { B.st = 'gone'; B.t = 150; } } }
   tief_digTick(dt, P);

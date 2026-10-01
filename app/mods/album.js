@@ -328,7 +328,7 @@ function album_haendeTick(dt, vonBeutel) { const H = album_H, S = album_S; if (!
     V.g.set(-.012, .004, .004); R.localToWorld(V.g); V.n.set(0, 1, 0).transformDirection(R.matrixWorld); V.f.set(.42, 0, .9).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.07).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
     album_hand('L', V.w, V.f, V.n, [.3, .38, .4, .45, .5], .16, .35);
     V.g.set(.064, .07, -.01); R.localToWorld(V.g); V.n.set(-1, 0, 0).transformDirection(R.matrixWorld); V.f.set(0, .55, -.83).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.075).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
-    album_hand('R', V.w, V.f, V.n, [.35, .42, .46, .5, .55], .1, .55); return; }
+    album_hand('R', V.w, V.f, V.n, [.35, .42, .46, .5, .55], .1, .55); album_griffAnw('beutel', dt); return; }
   if (vonBeutel) { H.rig.visible = false; return; }
   const vis = S.open && album_B.owner === 'album'; H.rig.visible = vis; if (!vis) return;
   const M = S.mesh, V = H.V, zu = S.phase === 'zu', t = S.t;
@@ -342,7 +342,23 @@ function album_haendeTick(dt, vonBeutel) { const H = album_H, S = album_S; if (!
     // eingeblendet: von unten (Hüfte) herauf; atmet mit dem Buch
     V.w.y -= (1 - k) * .28; V.w.z += (1 - k) * .1;
     const P = k > .6 ? ALBUM_GRIFF : ALBUM_RUHE;
-    album_hand(sd, V.w, V.f, V.n, P.c, P.s, P.t); } }
+    album_hand(sd, V.w, V.f, V.n, P.c, P.s, P.t); }
+  album_griffAnw('album', dt); }
+// R-5 (griff.js): Kollisionsformen einmal aus der Geometrie. Gürteltasche: Körper (alle Punkte außer der Klappe, Raum der Tasche) und Klappe (Raum des Klappenmeshes,
+// dreht wie beutel_klappe um die Scharnierkante). Album: rechter Block (Rücken + rechte Seiten, Achsenraum), linker Block (Deckel + linke Seiten, Drehpunkt – klappt mit auf).
+function album_griffFormen(art) { const H = album_H; H.gf = H.gf || {}; if (H.gf[art] !== undefined) return H.gf[art]; let L = null;
+  try { if (art === 'beutel') { const S = typeof beutel_S !== 'undefined' ? beutel_S : null, R = S && S.mod[0]; if (!R || !S.flap || !S.flap.length || !S.meta1) return null;
+      R.updateMatrixWorld(true); const T = THREE, v = new T.Vector3(), M = new T.Matrix4(), inv = new T.Matrix4().copy(R.matrixWorld).invert(), bK = new T.Box3(), bF = new T.Box3(), fo = S.flap[0].o, fInv = new T.Matrix4().copy(fo.matrixWorld).invert(), MF = new T.Matrix4();
+      R.traverse(o => { if (!o.isMesh || !o.geometry) return; const F = S.flap.find(f => f.o === o); M.multiplyMatrices(inv, o.matrixWorld); MF.multiplyMatrices(fInv, o.matrixWorld); const P = o.geometry.attributes.position, n = F ? F.w.length : P.count;
+        for (let i = 0; i < n; i++) { if (F) v.set(F.P0[i * 3], F.P0[i * 3 + 1], F.P0[i * 3 + 2]); else v.fromBufferAttribute(P, i); const w = F ? F.w[i] : 0;
+          if (w > .5) bF.expandByPoint(v.clone().applyMatrix4(MF)); else if (w <= .3) bK.expandByPoint(v.applyMatrix4(M)); } });
+      if (bK.isEmpty()) return null; bK.max.z += .008; L = [griff_kasten(R, bK.min, bK.max)]; if (!bF.isEmpty()) L.push(griff_kasten(fo, bF.min, bF.max, new T.Matrix4())); }
+    else { const M = album_S.mesh; if (!M) return null; const r = griff_kastenVon(M.achse, M.achse, o => o === M.ruecken || o === M.pageR), l = griff_kastenVon(M.piv, M.piv, o => o === M.deckel || o === M.pageL); L = [r, l].filter(Boolean); } }
+  catch (e) { console.warn('Album: Griff-Formen', e); L = null; }
+  H.gf[art] = L && L.length ? L : null; return H.gf[art]; }
+function album_griffAnw(art, dt) { if (typeof griff_loesen !== 'function') return; const L = album_griffFormen(art), H = album_H; if (!L) return;
+  if (art === 'beutel' && L[1]) { const h = beutel_S.meta1.hinge, a = beutel_S.flapA || 0, c = Math.cos(a), s = Math.sin(a); L[1].m.makeRotationX(a).setPosition(0, h[1] - (h[1] * c - h[2] * s), h[2] - (h[1] * s + h[2] * c)); }
+  griff_formen(L); griff_loesen(H.B.L, L, { seite: 'L', anlegen: true, dt }); griff_loesen(H.B.R, L, { seite: 'R', anlegen: true, dt }); }
 // ================================================================ Öffnen / Schließen / Blättern
 const ALBUM_POSE = { // in Kamera-Koordinaten der Bühne: aus der Innentasche der Jacke (unten links) → in den Händen → aufgeklappt
   jacke: { p: [-.2, -.33, -.36], r: [.35, .75, 1.25] }, hand: { p: [.0, -.07, -.6], r: [1.05, 0, 0] }, offen: { p: [0, -.028, -.62], r: [1.16, 0, 0] } };

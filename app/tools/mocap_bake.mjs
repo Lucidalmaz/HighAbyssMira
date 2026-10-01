@@ -79,6 +79,6 @@ async function bakeFig(id) { const sets = MC.figs[id]; if (!sets) { console.log(
   if (e) { e.clips = doc.getRoot().listAnimations().map(a => a.getName()); fs.writeFileSync(lf, JSON.stringify(L, null, 1)); }
   return { done, T }; }
 
-const MAIN = /mocap_bake\.mjs$/.test(process.argv[1] || ''), ids = MAIN ? args.filter(a => !a.startsWith('--')) : []; const list = ids[0] === 'all' ? Object.keys(MC.figs) : ids;
+const MAIN = /mocap_bake\.mjs$/.test(process.argv[1] || ''), ids = MAIN ? args.filter(a => !a.startsWith('--')) : []; const list = ids[0] === 'all' ? Object.keys(MC.figs).filter(k => fs.existsSync(path.join(CHARS, k, 'model.glb'))) : ids; // justin: eigener Weg (tools/justin_mocap.mjs)
 for (const id of list) { const t0 = Date.now(); try { await bakeFig(id); } catch (e) { console.log(id + ': FEHLER ' + (e.stack || e)); } console.log(`  (${((Date.now() - t0) / 1000).toFixed(0)} s)`); }
 export { bakeFig, loadSrc, buildTarget };

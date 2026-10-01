@@ -13,13 +13,15 @@ async function figuren_load(id) {
   if (figuren_S.cache.has(id)) return figuren_S.cache.get(id);
   const p = (async () => { try {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
-    const info = (await figuren_list()).find(x => x.id === id); if (!info) return null;
+    const info = (await figuren_list()).find(x => x.id === id); if (!info) return FIGUREN_ERSATZ[id] ? figuren_load(FIGUREN_ERSATZ[id]) : null; // Q-6: neue Figur noch nicht gebaut → Stellvertreter
     const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
-    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
+    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_q6Mat(g.scene); // Q-6: Haut, Augen, Haare
     return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
 }
+// Q-6: Stellvertreter, solange die neuen Figuren (forge.html/cast.json) nicht gebaut sind
+const FIGUREN_ERSATZ = { mira: 'dina_erw', voss: 'amt1', luke_erw: 'amt2', reuter: 'aydin' };
 async function figuren_skc() { if (!figuren_S.sk) figuren_S.sk = (await import('three/addons/utils/SkeletonUtils.js')).clone; return figuren_S.sk; }
 // Kompatibel zu älteren Modulen (albers.js): Klon auf Zielhöhe, Füße auf 0
 async function figuren_clone(F, height) {
@@ -38,6 +40,7 @@ function figuren_ghostMat(src) {
       float lum = dot(diffuseColor.rgb, vec3(.3, .59, .11));
       float n = gn3(vWP * 6. + vec3(0., uT * .45, uT * .2)) * .65 + gn3(vWP * 19. - vec3(0., uT * 1.3, 0.)) * .35;
       float edge = smoothstep(.66, .38, n * .8 + fr * .5) * (.55 + .45 * smoothstep(.2, .7, gn3(vWP * 2.3 + uT * .15)));
+      edge = max(edge, .3 * smoothstep(.5, .2, fr)); // R-3: nur der Umriss zerfällt – Arme, Beine, Kopf lösen sich nie ganz auf (sah aus wie verschwundene Körperteile)
       float band = .82 + .18 * sin(vWP.y * 42. - uT * 4.5), film = .88 + .12 * sin(uT * 21. + sin(uT * 6.3) * 3.);
       vec3 col = (vec3(.42, .58, .9) * (.03 + .95 * fr) + vec3(.7, .8, .95) * lum * .3) * band * film * .5;
       if (edge < .03) discard;
@@ -58,7 +61,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   for (const c of g.children) if (c.visible && c !== obj) { hide.push(c); c.visible = false; }
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
-  const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id) };
+  const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
   g.userData.person = Q; figuren_S.embodied.add(g);
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
@@ -197,7 +200,7 @@ function figuren_rest(r) { for (const [o, q, p] of r.base) { o.quaternion.copy(q
 // Knoten mit Spuren in den Clips (einmal je Vorlage)
 function figuren_animSet(T) { if (!T.anim) { T.anim = new Set(); for (const k in T.clips) for (const t of T.clips[k].tracks) T.anim.add(t.name.slice(0, t.name.lastIndexOf('.'))); } return T.anim; }
 function figuren_mvNew() { return { init: false, yaw: 0, yawV: 0, spd: 0, spdV: 0, moving: false, run: false, turn: null, turnT: 0, turnY0: 0, turnD: 0, idleT: 4 + Math.random() * 8, once: false, clipT: 0, shot: null, then: null,
-  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false }; }
+  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false, autoLook: null, spricht: 0 }; }
 // Kritisch gedämpfte Feder (implizit, stabil bei großen dt): s[k] Wert, s[kv] Geschwindigkeit
 function figuren_spr(s, k, kv, target, w, dt) { const f = 1 + 2 * dt * w, oo = w * w, hoo = dt * oo, hhoo = dt * hoo, di = 1 / (f + hhoo), x = s[k], v = s[kv]; s[k] = (f * x + dt * v + hhoo * target) * di; s[kv] = (v + hoo * (target - x)) * di; }
 const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
@@ -225,6 +228,8 @@ const FIGUREN_IDLES = ['idle', 'idle2', 'idle3'];
 function figuren_locoClip(P, want) { const G = FIGUREN_GAIT[P.gait] || FIGUREN_GAIT.null, k0 = want === 'walk' ? G[0] : want === 'run' ? G[1] : G[2], k = P.bad && P.bad[k0] ? P.bad[k0] : k0; return P.acts[k] ? k : P.acts[want] ? want : 'idle'; }
 function figuren_tick(dt) {
   figuren_S.T.value += dt; const M = FIGUREN_MV, t0 = performance.now(); M.n = M.near = M.ik = 0;
+  FIGUREN_EYEU.catch.value = typeof flashOn !== 'undefined' && flashOn ? .9 : .28; // Lichtpunkt in den Augen: Lampe des Spielers an/aus
+  try { figuren_kinoFaces(dt); figuren_hundTick(dt); } catch (e) { console.warn('figuren Gesichter/Hund', e); }
   // Gestalten mit gemaltem Gesicht (stalker, sitter): passende Person nachziehen, sobald sie sichtbar wird
   for (const F of FIGS) { if (!F.visible || !F.userData.face) continue; const k = F.userData.faceKind; if (k === undefined) continue; const small = F.scale.x < .8, key = k + '|' + small, P = F.userData.person;
     if (F.userData.faceKey !== key) { F.userData.faceKey = key; const want = figuren_faceWho(k, small); if (want) figuren_embody(F, want, F === sitter ? { sit: F.position.y + .45 } : {}); }
@@ -257,9 +262,11 @@ function figuren_tick(dt) {
     if (P.mv.off) continue; // Zusatzschicht nach einem Fehler für diese Figur aus (nie das Spiel anhalten)
     try { P.obj.updateMatrixWorld(true);
       figuren_breath(P, V, edt);
-      if (P.look || V.lw > .01) figuren_look(P, V, edt);
+      const lit = P.face && near ? figuren_lit(w) : false; if (P.face) figuren_autoBlick(P, V, dist, lit, edt); // Q-6: Blick zum Gesprächspartner / ins Licht
+      if (P.look || V.autoLook || V.lw > .01) figuren_look(P, V, edt);
       if (near && !P.sit && dist < 9 && P.rig.legs.length === 2 && typeof colliders !== 'undefined') figuren_feet(P, V, edt, w, gy);
-      if (near && P.sit && V.seatY !== null && P.rig.legs.length === 2) figuren_seatFeet(P, w); } catch (e) { console.warn('figuren Zusatzschicht', P.id, e); P.mv.off = true; }
+      if (near && P.sit && V.seatY !== null && P.rig.legs.length === 2) figuren_seatFeet(P, w);
+      if (P.face && !P.ghost) figuren_face(P, V, edt, dist, lit); } catch (e) { console.warn('figuren Zusatzschicht', P.id, e); P.mv.off = true; }
     if (near || dist < 20) figuren_guard(P, V);
   }
   M.ms = performance.now() - t0;
@@ -303,7 +310,7 @@ function figuren_breath(P, V, dt) { const r = P.rig; if (!r.chest || !r.chestCha
   P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.q.setFromAxisAngle(M.v, -a); r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.q);
   if (r.neckChain) { M.q.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.q); } }
 // Blick: Ziel in Kopfhöhe; Augen schnell (≤ 25°), Kopf/Hals langsam (Hals + Kopf ≤ 60° seitlich, 35° hoch/runter); hinter der Figur: nicht hinsehen
-function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) return; let T = P.look, want = V.lookW;
+function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) return; let T = P.look || V.autoLook, want = P.look ? V.lookW : V.autoLook ? .85 : 0;
   if (T === 'cam' || T === 'auto') { M.T.copy(camera.position); if (T === 'auto') { r.head.getWorldPosition(M.v); if (M.v.distanceTo(M.T) > 5) want = 0; } }
   else if (T && T.isObject3D) T.getWorldPosition(M.T); else if (T && T.isVector3) M.T.copy(T); else want = 0;
   r.head.getWorldPosition(M.v); M.v2.copy(M.T).sub(M.v); const yaw = V.yaw, fx = Math.sin(yaw), fz = Math.cos(yaw), lx = Math.cos(yaw), lz = -Math.sin(yaw);
@@ -332,6 +339,177 @@ function figuren_feet(P, V, dt, w, gy) { const r = P.rig, M = FIGUREN_MV, L = r.
   // Welt schon mit neuer Höhe rechnen: Füße relativ anheben (Differenz zum Becken-Versatz)
   P.obj.updateMatrixWorld(true);
   for (let i = 0; i < 2; i++) { const lift = (i ? V.oR : V.oL) - V.drop; if (lift > .003) figuren_legIK(L[i], lift); } }
+// =====================================================================  GESICHTER (Q-6, 01.10.2026): Haut, Augen, Blinzeln, Blick, Mikrobewegungen, Mimik, Mund
+// Doku: app/story/audit/F3_stand_gesichter.md. Alle Menschen tragen CC-Köpfe; seit dem Neubau (forge.html Q-6) haben alle 36 Gesichtsformen (Lider, Blickrichtung der Lider,
+// Brauen, Mimik, Mund), Erwachsene zusätzlich Augapfel-Knochen R_Eye/L_Eye (Kinder hatten sie schon). Fehlt etwas (Justin, Blechmann), schaltet sich der Teil je Figur ab.
+// API: figuren_mimik(P, 'angst'|'trauer'|'erleichterung'|'misstrauen'|'wut'|'schmerz'|'erschoepft'|'leer'|null, gewicht = 1, dauer = 0 (0 = bis auf Widerruf))
+//      figuren_sprich(P, sekunden, { amp = 1, pegel }) – Mund bewegt sich (pegel: Funktion → 0…1, z. B. Lautstärke der Sprachausgabe; sonst Silbenrhythmus)
+//      figuren_mund(wer, sekunden, o) – dasselbe über den Sprechernamen der Untertitel ('VEGAS', 'HILDE' …); Untertitel mit Sprecher lösen es selbst aus.
+//      Haken für die Sprachausgabe (X-1): stimmen_spielen ruft figuren_mund(wer, dauer, { pegel }) mit dem echten Pegel auf → Lippen folgen der Stimme.
+//      figuren_gesicht(id) → Fähigkeiten der geladenen Figur ({ formen, blinzeln, augenknochen, mimik, mund })
+//      P.autoBlick = false schaltet den automatischen Blick (Gesprächspartner/Lichtquelle) je Figur ab.
+const FIGUREN_FACE_CH = ['Eye_Blink_L', 'Eye_Blink_R', 'Eye_Squint_L', 'Eye_Squint_R', 'Eye_Wide_L', 'Eye_Wide_R', 'Brow_Raise_Inner_L', 'Brow_Raise_Inner_R', 'Brow_Raise_Outer_L', 'Brow_Raise_Outer_R', 'Brow_Drop_L', 'Brow_Drop_R',
+  'Mouth_Smile_L', 'Mouth_Smile_R', 'Mouth_Frown_L', 'Mouth_Frown_R', 'Mouth_Stretch_L', 'Mouth_Stretch_R', 'Mouth_Press_L', 'Mouth_Press_R', 'Nose_Sneer_L', 'Nose_Sneer_R', 'Cheek_Raise_L', 'Cheek_Raise_R', 'V_Open', 'V_Tight_O', 'V_Wide', 'V_Explosive'];
+const FIGUREN_FACE_IX = Object.fromEntries(FIGUREN_FACE_CH.map((n, i) => [n, i]));
+// Mimik (Werte ohne _L/_R gelten für beide Seiten) – bewusst klein: psychologischer Horror lebt von kleinen Ausdrücken
+const FIGUREN_MIMIK = {
+  angst: { Eye_Wide: .55, Brow_Raise_Inner: .7, Brow_Raise_Outer: .3, Mouth_Stretch: .3, V_Open: .1 },
+  trauer: { Brow_Raise_Inner: .6, Mouth_Frown: .5, Eye_Squint: .18, Cheek_Raise: .08 },
+  erleichterung: { Mouth_Smile: .26, Brow_Raise_Inner: .16, Cheek_Raise: .16, Eye_Squint: .12 },
+  misstrauen: { Eye_Squint: .42, Brow_Drop: .38, Mouth_Press: .32, Nose_Sneer_L: .12, Brow_Raise_Outer_R: .18 },
+  wut: { Brow_Drop: .65, Nose_Sneer: .32, Mouth_Press: .42, Eye_Squint: .28 },
+  schmerz: { Eye_Squint: .55, Brow_Drop: .35, Brow_Raise_Inner: .3, Mouth_Stretch: .38, Nose_Sneer: .22 },
+  erschoepft: { Eye_Squint: .22, Brow_Raise_Inner: .18, V_Open: .16, Mouth_Frown: .14, Eye_Blink: .18 },
+  leer: {} };
+const FIGUREN_MIMIK_V = {}; for (const [k, o] of Object.entries(FIGUREN_MIMIK)) { const v = new Float32Array(FIGUREN_FACE_CH.length); for (const [n, w] of Object.entries(o)) { if (FIGUREN_FACE_IX[n] !== undefined) v[FIGUREN_FACE_IX[n]] = w; else for (const s of ['_L', '_R']) if (FIGUREN_FACE_IX[n + s] !== undefined) v[FIGUREN_FACE_IX[n + s]] = w; } FIGUREN_MIMIK_V[k] = v; }
+// Clip → Mimik, solange kein Modul selbst eine setzt
+const FIGUREN_CLIP_MIMIK = { fear: 'angst', nervous: 'angst', run_panik: 'angst', ohren_zu: 'angst', alert: 'misstrauen', arme_verschraenkt: 'misstrauen', weinen: 'trauer', zusammensacken: 'trauer', zusammenrollen: 'trauer', zusammenbruch: 'trauer',
+  augen_zu: 'trauer', facepalm: 'trauer', erschoepft: 'erschoepft', haende_knie: 'erschoepft', schwanken: 'erschoepft', walk_muede: 'erschoepft', talk_wut: 'wut', husten: 'schmerz' };
+// Sie blinzeln nie und schauen nicht von selbst: die Behaltenen und Hilde „Nicht du“ – das Starren ist ihr Grusel
+const FIGUREN_STARR = new Set(['graue', 'gezaehlt_j', 'gezaehlt_m', 'hilde_tot']);
+const FIGUREN_EYEU = { catch: { value: .3 } };
+function figuren_faceRig(obj, id) { const F = { ch: FIGUREN_FACE_CH.map(() => []), w: new Float32Array(FIGUREN_FACE_CH.length), ex: new Float32Array(FIGUREN_FACE_CH.length), n: 0, eyeM: [],
+    starr: FIGUREN_STARR.has(id), blinkIn: .6 + Math.random() * 3.5, blinkT: -1, dbl: false, mim: null, mimW: 0, mimT: 0, talkT: 0, talkA: 1, pegel: null, mo: 0, ph: Math.random() * 100,
+    microT: 2 + Math.random() * 5, microK: -1, microW: 0, microD: 1, sacT: 0, sy: 0, sp: 0, syV: 0, spV: 0, ty: 0, tp: 0, asym: (Math.random() - .5) * .22, glare: 0, autoT: 0 };
+  obj.traverse(o => { const d = o.morphTargetDictionary; if (!o.isMesh || !d || !o.morphTargetInfluences) return;
+    for (const [nm, i] of Object.entries(d)) { const n = nm.replace(/^.*\./, ''), k = FIGUREN_FACE_IX[n]; if (k !== undefined) { F.ch[k].push(o.morphTargetInfluences, i); F.n++; }
+      const m = n.match(/^Eye_([LR])_Look_(L|R|Up|Down)$/); if (m) F.eyeM.push(o.morphTargetInfluences, i, m[2] === 'L' ? 0 : m[2] === 'R' ? 1 : m[2] === 'Up' ? 2 : 3); } });
+  F.blink = F.ch[0].length > 0 && !F.starr; return F.n || F.eyeM.length ? F : null; }
+function figuren_gesicht(id) { for (const g of figuren_S.embodied) { const P = g.userData.person; if (P && P.id === id) { const F = P.face, r = P.rig; return { formen: F ? F.n : 0, blinzeln: !!(F && F.blink), augenknochen: r.eyes.length, lidBlick: F ? F.eyeM.length / 3 : 0,
+  mimik: !!(F && F.ch[6].length && F.ch[14].length), mund: !!(F && F.ch[24].length), starr: !!(F && F.starr) }; } } return null; }
+function figuren_mimik(P, name, w = 1, dauer = 0) { const F = P && P.face; if (!F) return false; F.mim = name && FIGUREN_MIMIK_V[name] ? name : null; F.mimW = Math.max(0, Math.min(1.5, w)); F.mimT = dauer > 0 ? dauer : Infinity; return true; }
+function figuren_sprich(P, sek, { amp = 1, pegel = null } = {}) { const F = P && P.face; if (!F || !F.ch[24].length) return false; F.talkT = Math.max(F.talkT, sek); F.talkA = amp; F.pegel = pegel; P.mv.spricht = sek; return true; }
+// Sprechername (Untertitel) → Figuren-IDs; sonst: erstes Wort klein = ID
+const FIGUREN_SPRECHER = { VEGAS: ['vegas'], 'LARS VEGAS': ['vegas'], HILDE: ['hilde'], GISELA: ['gisela'], LUCY: ['lucy', 'lucy_erw'], DINA: ['dina', 'dina_erw'], MAMA: ['mama'], MARION: ['mama'], 'FRAU AYDIN': ['aydin'],
+  WOLTER: ['wolter'], 'GÜNTHER': ['guenther'], GUENTHER: ['guenther'], MAAS: ['guenther'], HOFER: ['polizist'], 'NACHSORGE 11': ['nachsorge11'], 'NACHSORGE 12': ['nachsorge12'], 'FRAU REUTER': ['reuter'], VOSS: ['voss'], ZAYN: ['zayn'], ROXY: ['roxy'], HEIDI: ['heidi'], MIKE: ['mike'], CLEO: ['cleo'], MIRA: ['mira'] };
+// Pegel-Weg (stimmen.js ruft je Bild figuren_mund(stimme, pegel 0…1) auf): Lippen folgen der echten Stimme, 0 beendet
+const FIGUREN_PEGEL = { wer: '', P: null, t: 0, v: 0 };
+function figuren_mund(wer, sek, o) { if (o === undefined && typeof sek === 'number' && sek <= 1.01 && typeof stimmen_spielen === 'function') { const Q = FIGUREN_PEGEL; Q.v = sek;
+    if (Q.wer !== wer || performance.now() - Q.t > 600) { Q.wer = wer; Q.t = performance.now(); Q.P = figuren_mund(wer, .3, { pegel: () => FIGUREN_PEGEL.v }); }
+    const P = Q.P; if (P && P.face) { if (sek <= 0) { P.face.talkT = 0; P.face.pegel = null; } else { P.face.talkT = Math.max(P.face.talkT, .3); P.face.pegel = () => FIGUREN_PEGEL.v; P.mv.spricht = .5; } } return P; }
+  o = o || {}; if (!wer) return null; const W = String(wer).replace(/<[^>]*>/g, '').trim().toUpperCase(), base = W.split(/[,(]/)[0].trim(); const ids = FIGUREN_SPRECHER[base] || FIGUREN_SPRECHER[W] || [base.toLowerCase().split(/\s+/)[0]];
+  let best = null, bd = 14; const cam = camera.position, v = FIGUREN_MV.v; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.face || P.ghost || !ids.includes(P.id) || !g.visible) continue; v.setFromMatrixPosition(g.matrixWorld); const d = v.distanceTo(cam); if (d < bd) { bd = d; best = P; } }
+  if (best) figuren_sprich(best, sek, o); else if (typeof kino_S !== 'undefined' && kino_S.fig) for (const k in kino_S.fig) { const K = kino_S.fig[k]; if (K && K.g && K.g.visible && ids.includes(K.id)) { K.sprichT = sek; return K; } }
+  return best; }
+// Untertitel mit Sprecher → Mund der nächsten passenden Figur (Gedanken „LUKE“/„DU“ haben keinen sichtbaren Mund)
+subtitle = (o => function (t, ms, who) { try { if (who && !/^(LUKE|DU)$/i.test(String(who).trim())) { const T = String(t || '').replace(/<[^>]*>/g, ''); figuren_mund(who, Math.min((ms || 3000) / 1000 * .82, .25 + T.length * .062)); } } catch (e) {} return o(t, ms, who); })(subtitle);
+// Werte (0…1) je Kanal setzen – mehrere Netze je Kanal
+function figuren_faceWrite(F) { const W = F.w, C = F.ch; for (let k = 0; k < C.length; k++) { const a = C[k], w = W[k]; for (let j = 0; j < a.length; j += 2) a[j][a[j + 1]] = w; } }
+function figuren_rauschen(x) { const i = Math.floor(x), f = x - i, h = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }; return h(i) + (h(i + 1) - h(i)) * f * f * (3 - 2 * f); }
+// Je Bild (nahe Figuren): Blinzeln, Mikro-Mimik, Clip-/Modul-Mimik, Blendung, Mund, Sakkaden (Augen), Mikrobewegung des Kopfes
+function figuren_face(P, V, dt, dist, lit) { const F = P.face, r = P.rig, M = FIGUREN_MV, W = F.w; if (!F) return; const t = figuren_S.T.value + F.ph;
+  // Mimik-Ziel: Modul > Clip > Gangart > neutral
+  if (F.mim && (F.mimT -= dt) <= 0) F.mim = null; const mk = F.mim || FIGUREN_CLIP_MIMIK[P.curK] || (P.gait === 'panik' ? 'angst' : P.gait === 'muede' ? 'erschoepft' : null), mv = mk ? FIGUREN_MIMIK_V[mk] : null, mw = F.mim ? F.mimW : .8;
+  const kE = 1 - Math.exp(-dt * (mv ? 4.5 : 2.2)); for (let k = 0; k < W.length; k++) { let tg = mv ? mv[k] * mw : 0; if (k & 1) tg *= 1 - F.asym; else tg *= 1 + F.asym; F.ex[k] += (tg - F.ex[k]) * kE; }
+  // Mikro-Mimik: alle paar Sekunden eine kleine Regung (Brauen, Lippen, Lider) – Leben im Gesicht
+  if (!F.starr && (F.microT -= dt) <= 0) { F.microT = 2.5 + Math.random() * 6; F.microK = [6, 6, 2, 18, 12, 8][Math.floor(Math.random() * 6)]; F.microW = .06 + Math.random() * .1; F.microD = .5 + Math.random() * .9; F.microS = 0; }
+  let micro = 0; if (F.microK >= 0) { F.microS = (F.microS || 0) + dt; const u = F.microS / F.microD; micro = u >= 1 ? 0 : Math.sin(u * Math.PI) * F.microW; if (u >= 1) F.microK = -1; }
+  // Blinzeln: zufällig alle 2–6 s (Angst/Blendung häufiger), gelegentlich doppelt; schließen 75 ms, halten 30 ms, öffnen 160 ms
+  let bl = 0; if (F.blink) { if (F.blinkT < 0) { F.blinkIn -= dt * (mk === 'angst' ? 1.7 : 1) * (F.glare > .3 ? 1.6 : 1); if (F.blinkIn <= 0) { F.blinkT = 0; F.dbl = Math.random() < .14; } }
+    else { F.blinkT += dt; const b = F.blinkT; bl = b < .075 ? Math.sin(b / .075 * Math.PI / 2) : b < .105 ? 1 : b < .265 ? 1 - (x => x * x * (3 - 2 * x))((b - .105) / .16) : 0;
+      if (b >= .265) { F.blinkT = -1; F.blinkIn = F.dbl ? .12 : 2 + Math.random() * 4; F.dbl = false; } } }
+  // Blendung: Taschenlampe trifft das Gesicht → kneifen, Brauen runter, Blick kurz ins Licht
+  F.glare += ((lit ? Math.max(0, 1 - dist / 7) : 0) - F.glare) * (1 - Math.exp(-dt * 3));
+  // Mund: Sprachausgabe-Pegel oder Silbenrhythmus (~5 Silben/s, Wortpausen)
+  let op = 0, wi = 0, ti = 0, ex = 0; if (F.talkT > 0) { F.talkT -= dt; const fade = Math.min(1, F.talkT * 4);
+    if (F.pegel) { let p = 0; try { p = +F.pegel() || 0; } catch (e) { F.pegel = null; } F.mo += (Math.min(1, p) - F.mo) * (1 - Math.exp(-dt * 18)); op = F.mo * .62; wi = op * .3; ti = (1 - F.mo) * .12 * fade; }
+    else { const s = t * 5.2, syl = Math.pow(Math.max(0, Math.sin(s * Math.PI * 2)), .7), gap = Math.min(1, Math.max(0, (figuren_rauschen(t * 1.6) - .22) / .2)); op = syl * gap * (.32 + .3 * figuren_rauschen(s)); wi = op * figuren_rauschen(t * 3.1 + 4) * .5; ti = (1 - syl) * gap * .22 * figuren_rauschen(t * 2.3 + 9); ex = syl < .08 && gap > .5 ? .25 : 0; }
+    op *= F.talkA * fade; wi *= F.talkA * fade; ti *= F.talkA * fade; ex *= F.talkA * fade; } else F.mo = 0;
+  for (let k = 0; k < W.length; k++) W[k] = F.ex[k];
+  if (F.microK >= 0) { W[F.microK] += micro; W[F.microK + 1] += micro * (.7 + F.asym); }
+  W[0] = Math.min(1, W[0] + bl * .98 + F.glare * .1); W[1] = Math.min(1, W[1] + bl * .98 + F.glare * .1); W[2] += F.glare * .45; W[3] += F.glare * .4; W[10] += F.glare * .2; W[11] += F.glare * .18;
+  W[24] += op; W[26] += wi; W[25] += ti; W[27] += ex; for (let k = 0; k < W.length; k++) W[k] = Math.max(0, Math.min(1, W[k]));
+  figuren_faceWrite(F);
+  // Sakkaden: kleine, schnelle Augensprünge (beim Hinsehen klein, sonst ein ruhiges Umherschauen)
+  const looking = !!(P.look || V.autoLook || V.lw > .05); if ((F.sacT -= dt) <= 0) { const big = !looking && !F.starr; F.sacT = big ? .9 + Math.random() * 2.4 : .35 + Math.random() * 1.4;
+    const ty = (Math.random() - .5) * (big ? .5 : .08), tp = (Math.random() - .5) * (big ? .18 : .05); if (big && Math.abs(ty - F.ty) > .3 && F.blink && F.blinkT < 0 && Math.random() < .45) F.blinkIn = .02; F.ty = F.starr ? 0 : ty; F.tp = F.starr ? 0 : tp; }
+  figuren_spr(F, 'sy', 'syV', F.ty, 38, dt); figuren_spr(F, 'sp', 'spV', F.tp, 38, dt);
+  const eyY = (looking ? V.ey : 0) + F.sy, eyP = (looking ? V.ep : 0) + F.sp - (W[0] + W[1]) * .04;
+  M.v3.set(Math.cos(V.yaw), 0, -Math.sin(V.yaw)); // Querachse (links)
+  if (r.eyes.length && (Math.abs(F.sy) > 1e-4 || Math.abs(F.sp) > 1e-4)) for (let i = 0; i < r.eyes.length; i++) { const e = r.eyes[i]; e[0].getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, F.sy); M.q2.setFromAxisAngle(M.v3, -F.sp); M.q.multiply(M.q2); figuren_rotChain(e, M.pv, M.q); }
+  const E = F.eyeM; for (let j = 0; j < E.length; j += 3) { const d = E[j + 2]; E[j][E[j + 1]] = Math.max(0, Math.min(1, d === 0 ? eyY / .45 : d === 1 ? -eyY / .45 : d === 2 ? eyP / .3 : -eyP / .3)); }
+  // Mikrobewegung des Kopfes (langsames Pendeln, beim Sprechen leichtes Nicken) – nie bei den Starren
+  if (r.headChain && !F.starr) { const ny = .014 * Math.sin(t * .37) + .009 * Math.sin(t * 1.13 + 2), np = .011 * Math.sin(t * .29 + 1) + op * .045, nr = .009 * Math.sin(t * .23 + 4);
+    r.head.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, ny); M.q2.setFromAxisAngle(M.v3, -np); M.q.multiply(M.q2); M.v.set(-M.v3.z, 0, M.v3.x); M.q2.setFromAxisAngle(M.v, nr); M.q.multiply(M.q2); figuren_rotChain(r.headChain, M.pv, M.q); } }
+// Automatischer Blick: Gesprächspartner (beim Sprechen / im Gespräch nah), sonst kurz ins Licht, wenn die Taschenlampe trifft
+function figuren_autoBlick(P, V, dist, lit, dt) { const F = P.face; if (!F || F.starr || P.ghost || P.doll || P.autoBlick === false || P.look) { V.autoLook = null; return; }
+  const talk = typeof state !== 'undefined' && state.talking && dist < 4.5, own = P.mv.spricht > 0 && dist < 9; if (P.mv.spricht > 0) P.mv.spricht -= dt;
+  if (talk || own) { V.autoLook = 'cam'; F.autoT = 0; return; }
+  if (lit && dist < 9) { F.autoT += dt; V.autoLook = F.autoT < 1.6 ? 'cam' : null; return; } // ins Licht schauen, dann wieder weg (nicht starren)
+  F.autoT = Math.max(0, F.autoT - dt * .5); V.autoLook = null; }
+// Taschenlampe trifft die Figur (Kegel ~ 28°, bis 12 m)
+function figuren_lit(w) { if (typeof flashOn === 'undefined' || !flashOn || (typeof state !== 'undefined' && state.blackout)) return false; const M = FIGUREN_MV; camera.getWorldDirection(M.v2); M.v.copy(w); M.v.y += 1.45; M.v.sub(camera.position); const d = M.v.length(); if (d > 12 || d < .2) return false; return M.v.dot(M.v2) / d > .88; }
+// ---------- Materialien (einmal je Vorlage): Haut mit Poren-Relief und warmer Streuung, nasse Hornhaut mit Lichtpunkt, Tränenrand, Haare ohne Ausdünnen in der Ferne
+function figuren_q6Mat(root) { root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m || m.userData.q6) continue; m.userData.q6 = 1; const n = m.name || '';
+  try { if (/std_skin_head/i.test(n)) figuren_hautMat(m, 1); else if (/std_skin_(body|arm|leg)/i.test(n)) figuren_hautMat(m, 0);
+    else if (/std_cornea/i.test(n)) figuren_corneaMat(m, false); else if (/std_tearline/i.test(n)) figuren_corneaMat(m, true);
+    else if (/std_eye_[lr]$/i.test(n)) { m.roughness = .34; m.envMapIntensity = .5; }
+    else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m); } catch (e) { console.warn('figuren Material', n, e); } } }); }
+function figuren_hautMat(m, face) { m.onBeforeCompile = sh => {
+  sh.fragmentShader = sh.fragmentShader.replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+  #ifdef USE_MAP
+  { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));
+    if (fade > .01) { vec2 ip = floor(pu), fp = fract(pu); float h = 0.;
+      for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 c = ip + vec2(i, j); vec2 rr = fract(sin(vec2(dot(c, vec2(127.1, 311.7)), dot(c, vec2(269.5, 183.3)))) * 43758.5453); h = max(h, 1. - smoothstep(.0, .3, length(vec2(i, j) + rr - fp))); }
+      h = -h * (.55 + .45 * fract(sin(dot(ip, vec2(12.9898, 78.233))) * 43758.5453)) * .00011 * fade;
+      vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition), r1 = cross(sy, normal), r2 = cross(normal, sx); float det = dot(sx, r1) * faceDirection;
+      vec3 gr = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2); normal = normalize(abs(det) * normal - gr); } }
+  #endif`).replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+  reflectedLight.directDiffuse *= vec3(1.05, .965, .945); reflectedLight.indirectDiffuse *= vec3(1.035, .975, .96);`); };
+  m.customProgramCacheKey = () => 'fig_haut' + face; m.needsUpdate = true; }
+function figuren_corneaMat(m, tear) { m.transparent = true; m.depthWrite = false; m.blending = THREE.AdditiveBlending; m.color.setRGB(0, 0, 0); m.map = null; m.alphaMap = null; m.opacity = 1; m.roughness = tear ? .1 : .035; m.metalness = 0; m.envMapIntensity = tear ? .5 : 1.1; m.visible = true;
+  m.onBeforeCompile = sh => { sh.uniforms.uCatch = FIGUREN_EYEU.catch; sh.fragmentShader = 'uniform float uCatch;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', `{ vec3 vv = normalize(vViewPosition), rr = reflect(-vv, normal);
+      float c1 = pow(max(dot(rr, normalize(vec3(.28, .32, 1.))), 0.), 1400.) * 5. * uCatch, fr = .02 + .98 * pow(1. - clamp(dot(normal, vv), 0., 1.), 5.);
+      outgoingLight = (reflectedLight.directSpecular + reflectedLight.indirectSpecular * (.5 + fr)) * ${tear ? '.55' : '1.'} + vec3(c1 * ${tear ? '.25' : '1.'}); }
+    #include <opaque_fragment>`); };
+  m.customProgramCacheKey = () => 'fig_cornea' + (tear ? 't' : ''); m.needsUpdate = true; }
+// Haarkarten, Wimpern, Brauen: Deckkraft mit der Mip-Stufe anheben – sonst dünnen sie in der Ferne aus, bis Haare „verschwinden“ (R-3)
+function figuren_haarMat(m) { m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <alphatest_fragment>', `#ifdef USE_MAP
+  { vec2 ts = vec2(textureSize(map, 0)); vec2 dx = dFdx(vMapUv * ts), dy = dFdy(vMapUv * ts); float lod = max(0., .5 * log2(max(dot(dx, dx), dot(dy, dy)))); diffuseColor.a *= 1. + lod * .3; }
+  #endif
+  #include <alphatest_fragment>`); }; m.customProgramCacheKey = () => 'fig_haar'; m.needsUpdate = true; }
+// Kino-Figuren (kino.js klont figuren_load-Vorlagen ohne Bewegungsschicht): Blinzeln + Sakkaden + Mund auch dort
+function figuren_kinoFaces(dt) { if (typeof kino_S === 'undefined' || !kino_S.fig) return; for (const k in kino_S.fig) { const K = kino_S.fig[k]; if (!K || !K.g || !K.g.visible || !K.obj) continue;
+  if (K.q6 === undefined) { K.q6 = figuren_faceRig(K.obj, K.id) || null; if (K.q6) K.q6.starr = FIGUREN_STARR.has(K.id); }
+  const F = K.q6; if (!F) continue; const W = F.w; W.fill(0); let bl = 0;
+  if (F.blink) { if (F.blinkT < 0) { if ((F.blinkIn -= dt) <= 0) F.blinkT = 0; } else { F.blinkT += dt; const b = F.blinkT; bl = b < .075 ? Math.sin(b / .075 * Math.PI / 2) : b < .105 ? 1 : b < .265 ? 1 - (b - .105) / .16 : 0; if (b >= .265) { F.blinkT = -1; F.blinkIn = 2 + Math.random() * 4; } } }
+  W[0] = W[1] = bl * .98; if (K.sprichT > 0) { K.sprichT -= dt; const t = figuren_S.T.value + F.ph, s = t * 5.2; W[24] = Math.pow(Math.max(0, Math.sin(s * Math.PI * 2)), .7) * .4 * Math.min(1, K.sprichT * 4); }
+  figuren_faceWrite(F); } }
+// ---------- Hund Bruno (Q-9 B-3 „kam falsch zurück“): styloo „Dog“ (Fab), game/assets/ms/hund/model.glb – braun umgefärbt, dünner weißer Ring in den Augen
+// figuren_hund(eltern, x, z, { y = 0, ry = 0, s = .92, grau = false, an = null, ab = [0, .6], wandern = null }) → Promise<{ g, … } | null>
+//   an: Figur-Gruppe, neben der er bleibt (Lage, Drehung, Sichtbarkeit folgen ihr; ab = Versatz [quer, vor] im Raum der Figur) – z. B. zu Zayns Füßen in Nimmerheim.
+//   wandern: [[x, z], [x, z]] – geht ab und zu zwischen den Punkten hin und her (z. B. Tür ↔ Napf).
+//   „Falsch“: bellt nie und gibt keinen Laut, atmet nicht (Ruhe-Clip steht still, zuckt selten), dreht Kopf und Hals eine Sekunde zu spät, zu gleichmäßig und zu weit nach Luke (bis 115°);
+//   beim Gehen bleiben die Beine mitten im Schritt stehen, während der Körper weitergleitet.
+const FIGUREN_HUNDE = [];
+async function figuren_hund(parent, x, z, o = {}) { try {
+  const src = await msModel('hund', 'model.glb'), sk = await figuren_skc(), m = sk(src), g = new THREE.Group(); g.name = 'Bruno'; g.userData.noCol = true;
+  m.rotation.y = Math.PI; m.scale.setScalar(o.s || .92); g.add(m); g.position.set(x, o.y || 0, z); g.rotation.y = o.ry || 0; (o.an ? scene : parent || scene).add(g);
+  m.traverse(c => { if (!c.isMesh) return; c.castShadow = true; c.receiveShadow = true; c.frustumCulled = false; if (o.grau) c.material = [].concat(c.material).map(q => { const k = q.clone(); k.color.setRGB(.5, .52, .55); return k; })[0]; });
+  const mx = new THREE.AnimationMixer(m), acts = {}; for (const a of src.animations || []) acts[a.name] = mx.clipAction(a);
+  g.updateMatrixWorld(true); let head = null, hz = -Infinity; m.traverse(b => { if (!b.isBone || !/^DEF-spine/.test(b.name)) return; const p = g.worldToLocal(b.getWorldPosition(new THREE.Vector3())); if (p.z > hz) { hz = p.z; head = b; } });
+  const H = { g, m, mx, acts, cur: null, head, neck: head && head.parent && head.parent.isBone ? head.parent : null, an: o.an || null, ab: o.ab || [0, .6], wandern: o.wandern || null, wi: 0, walk: null,
+    hy: 0, hyT: 0, lagT: 0, twT: 4 + Math.random() * 6, tw: 0, fr: 0, frT: .6, wT: 8 + Math.random() * 10 };
+  const play = k => { const a = acts[k]; if (!a || H.cur === a) return; if (H.cur) H.cur.fadeOut(.3); a.reset().fadeIn(.3).play(); H.cur = a; }; H.play = play;
+  play('iddle'); mx.update(.37); if (H.cur) H.cur.timeScale = 0; FIGUREN_HUNDE.push(H); return H; } catch (e) { console.warn('Hund Bruno', e); return null; } }
+function figuren_hundTick(dt) { const M = FIGUREN_MV, cam = camera.position;
+  for (const H of FIGUREN_HUNDE) { const g = H.g;
+    if (H.an) { const A = H.an; let vis = A.visible; for (let p = A.parent; p && vis; p = p.parent) vis = p.visible; g.visible = vis && !!A.parent; if (!g.visible) continue;
+      A.matrixWorld.decompose(M.p, M.q, M.s); const yaw = Math.atan2(2 * (M.q.w * M.q.y + M.q.x * M.q.z), 1 - 2 * (M.q.y * M.q.y + M.q.x * M.q.x)); g.position.set(M.p.x + Math.cos(yaw) * H.ab[0] + Math.sin(yaw) * H.ab[1], M.p.y, M.p.z - Math.sin(yaw) * H.ab[0] + Math.cos(yaw) * H.ab[1]); g.rotation.y = yaw; }
+    let vis = g.visible; for (let p = g.parent; p && vis; p = p.parent) vis = p.visible; if (!vis) continue; const dx = cam.x - g.position.x, dz = cam.z - g.position.z, dist = Math.hypot(dx, dz); if (dist > 30) continue;
+    // Gehen zwischen zwei Punkten mit „falschem“ Gang: Beine frieren mitten im Schritt ein, der Körper gleitet weiter
+    if (H.wandern && !H.walk && (H.wT -= dt) <= 0) { H.wi = 1 - H.wi; H.walk = H.wandern[H.wi]; H.play('walk'); H.fr = 0; H.frT = .5 + Math.random() * .6; }
+    if (H.walk) { const tx = H.walk[0] - g.position.x, tz = H.walk[1] - g.position.z, d = Math.hypot(tx, tz);
+      if (d < .08) { H.walk = null; H.wT = 9 + Math.random() * 14; H.play('iddle'); } else { H.frT -= dt; if (H.frT <= 0) { H.fr = 1 - H.fr; H.frT = H.fr ? .18 + Math.random() * .3 : .45 + Math.random() * .7; }
+        if (H.cur) H.cur.timeScale = H.fr ? 0 : 1; const sp = (H.fr ? .38 : .62) * Math.min(1, d * 2), want = Math.atan2(tx, tz); let dy = want - g.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); g.rotation.y += Math.sign(dy) * Math.min(Math.abs(dy), dt * 1.4);
+        g.position.x += Math.sin(g.rotation.y) * sp * dt; g.position.z += Math.cos(g.rotation.y) * sp * dt; } }
+    else if (H.cur) { H.tw = Math.max(0, H.tw - dt); if ((H.twT -= dt) <= 0) { H.twT = 5 + Math.random() * 9; H.tw = .2 + Math.random() * .12; } H.cur.timeScale = H.tw > 0 ? 2.4 : 0; } // steht still, atmet nicht – nur ein kurzes Zucken
+    H.mx.update(dt);
+    // Kopf nach Luke: Ziel nur jede Sekunde neu (zu spät), gleichmäßige Drehung ohne Nachfedern, weiter als ein Hund kann
+    if ((H.lagT -= dt) <= 0) { H.lagT = 1.1; let a = Math.atan2(dx, dz) - g.rotation.y; a = Math.atan2(Math.sin(a), Math.cos(a)); H.hyT = dist < 14 ? Math.max(-2, Math.min(2, a)) : 0; }
+    const st = dt * .75; H.hy += Math.max(-st, Math.min(st, H.hyT - H.hy));
+    if (H.head && Math.abs(H.hy) > 1e-3) { g.updateMatrixWorld(true); if (H.neck) { H.neck.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, H.hy * .45); figuren_rotChain([H.neck], M.pv, M.q); }
+      H.head.getWorldPosition(M.pv); M.q.setFromAxisAngle(M.up, H.hy * .55); figuren_rotChain([H.head], M.pv, M.q); } } }
 // ---------- Ich-Hände (AP-MOCAP): echte Finger- und Handgelenkbewegung aus Handschuh-Mocap (Rokoko „Smoking 01“) für assets/ms/haende (Detective_Hands)
 // Daten: assets/anim/haende_rauchen.json (tools/mocap_haende.mjs). Posen: halten · zug · heben · senken · klopfen · locker · anfang; Kurve 'rauchen' (61,9 s, 15 Bilder/s).
 // figuren_handPose(hände, pose, gewicht, { seite: 'L'|'R'|'beide', t: Sekunden (nur Kurve), handgelenk: false }) → true, wenn gesetzt. Nach dem Mischer aufrufen (setzt lokale Drehungen, gewichtet).
@@ -351,4 +529,4 @@ function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgele
   return true; }
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
-window.__figuren = { S: figuren_S, MV: FIGUREN_MV, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
+window.__figuren = { S: figuren_S, MV: FIGUREN_MV, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)

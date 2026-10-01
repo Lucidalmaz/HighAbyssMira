@@ -26,7 +26,10 @@ Die Kette ist in vier Teilläufe zerlegt; a2/b1/b2 setzen den Stand davor per Me
 - Behoben in den Läufen: Kamera-NaN während Höhepunkt A (Hauptschleife stand, AudioParam non-finite) → eigene Brumm-Oszillatoren statt `kino_brumm/kino_still` außerhalb des Kinos, Kamera-Dummy als Kamera, NaN-Schutz (`villa_heil`); hängendes `state.talking` → Zähler (`villa_rede`), AG-14-Auslöser robust; Taschenlampe nach dem Versteck wieder an; Entdeckungsbalken weicher; Thermoskanne ohne Strahltest; Innenräume heller.
 - Fremd (nicht behoben): `Hauptschleife render ReferenceError: Cannot access 'FRZ' before initialization` beim Laden (Basis, Leistungs-Agent: `frzTick()` in der Renderschleife vor `const FRZ`).
 
+- Letzter b2-Lauf (nach allen Fixes): AG-14 löst selbst aus, Thermoskanne steht, Endkarte korrekt, keine Fehler im Log.
+
 ## Offen / Politur
+**Halle und Villa-Räume sind zu dunkel:** `villa_tagTick` setzt `hemi.intensity`, aber die Basis überschreibt die Hemisphäre offenbar nach den Takten (Nebel/Himmel greifen, die Hemisphäre drinnen nicht). Lösung braucht einen Haken in der Basis-Lichtzeile oder eigene Vorab-Lichter je Raum.
 Blechmänner bei Tag schwarz statt weiß, ohne „ohne Kapuze“-Variante · Abspann noch ohne Kombi-Einstellung und Vegas' Decke (nicht 70 s), Traumlicht fehlt · Absperrband −4, durchwühlte Küche (Weg 3), Chip-Tausch im Nest, V-07/V-14 nicht gebaut · Glasfigur starr · Wolter-Konfrontation ohne Schnitte · Nr. 3 und Posten wirken noch leer.
 Fehlende Assets (Rückfälle): Wandkacheln (Gehwegplatten), Metall-Aktenschrank (Anrichte-Scan), Asservatenkiste (Holz-Scan-Kiste), Kühlbox, grüne Schreibtischlampe, Tonbandgerät (Radio), Heizkörper, Sicherungskasten, Rollregale, Neonröhren, Stativ, Hund Bruno.
 

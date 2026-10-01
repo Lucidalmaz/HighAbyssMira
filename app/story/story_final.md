@@ -2156,7 +2156,7 @@ Wartenummer 8 (und ihr zweiter Sinn beim Vermessungsbogen) · Post-it-Krieg Hild
 **Auslöser:** Ende von Kapitel 2. Luke ist die Leiter aus dem Schacht hinaufgestiegen (`uebergang.js`; Whiskey am Schachtrand, K2-2, gehört noch zu Kapitel 2), am Rand des Gullys an der Kreuzung zusammengesackt, und die Glocke hat angefangen zu schlagen. Schwarz. Intro-Tafel.
 
 > KAPITEL 3 · ICH KOMME
-> Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an Hände. Viele kleine Hände, die dich tragen, ganz vorsichtig, wie etwas, das man nicht kaputt machen will.
+> Du erinnerst dich an ein graues Gesicht in deinen eigenen Augen. Dann an nasse Sprossen, eine nach der anderen, und an einen Raben, der dich am Rand des Gullys angeschrien hat. Dann an nichts mehr.
 > Du wachst auf dem Asphalt der Kreuzung auf. Die Telefonzelle. Das Ortsschild weit hinten. Kein Mensch. Es ist 03:13.
 > Irgendwo schlägt eine Glocke.
 
@@ -2264,7 +2264,7 @@ LUKE (Gedanke): „Seiner Frau. Er sagt das, als wäre sie gerade kurz einkaufen
 - *Die Kuh ansehen:* JUSTIN: „Spielen. Blinde Kuh, Verstecken, Fangen. Es holt sich Tiere, guckt sie an und lässt sie fallen.“ *(Luke: „Sie hat der Kuh die Augen genommen.“)* JUSTIN: „Sie hat gucken wollen, wie es aussieht, wenn eine Kuh guckt. Sie ist sieben. Seit siebenhundert Jahren.“
 - *Näher gehen:* JUSTIN: „Drinnen gibt es keine Zeit. Sie zählt beim Verstecken. Jedes Zählen ist bei euch ein Jahr. Bis siebzehn konnte sie zählen, sie war stolz darauf. Bei siebzehn ruft sie ‚Ich komme‘, und das Schiff geht auf.“
 - *Nach dem Namen fragen (Auswahl „Wie heißt sie?“):* JUSTIN: „Luna.“ *(Luke, Gedanke: „Luna. Am Ostende hat vorhin einer was in den Nebel gerufen. Ich hab ‚Lucy‘ gehört. Weil ich ‚Lucy‘ hören wollte.“)*
-- *Pflicht, wenn Luke weitergehen will:* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
+- *Pflicht, wenn Luke weitergehen will:* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn meine Tochter nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
 - *Pflicht:* JUSTIN: „Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“ LUKE: „Wir?“ JUSTIN: „Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“
 
 **Über Mira (nur wenn der Spieler fragt: „Was sucht sie?“):** JUSTIN: „Ihre Mama. Und mich.“ Er sieht auf seine linke Hand. „Meine Frau hat in der Nacht sechs Kinder herausgeholt, eins nach dem anderen, an der Hand. Dann ist sie noch mal hinein, für Luna. Ich hab sie festgehalten, am Rand.“ *(Spieler kann nachfragen. Luke tut es.)* JUSTIN: „Die Luft ist aufgerissen wie Stoff. Das Schiff war kaputt, es hat die Zeit mit aufgerissen. Es hat gezogen. Sie hat losgelassen.“ Er sagt es glatt, wie einen Satz, den man oft gesagt hat.
@@ -7689,7 +7689,7 @@ Auslöser: wie im Code (Zeit im Dorf abgelaufen oder Abstand zum Start, keine Ku
 - *(Whiskey fliegt von der Kuh auf seinen linken Panzerhandschuh, W-06, siehe 3.10.)*
 - *(Wer in Kapitel 2 die Feder an Stuhl 8 gefunden hat:)* LUKE: „Eine Rabenfeder im Helmband. Wie die unten am Stuhl. Dann warst du das, da unten.“ *(Wer die Kerbe untersucht hat, sieht dieselbe Kerbe in der Klinge:)* JUSTIN: „Sie hatten dich festgeschnallt, da unten. Ich hab dich losgeschnitten. Die Maschine war härter als meine Klinge.“ *(Er meint 2009. Luke versteht es erst in Raum 1.)*
 - *(immer, weil Peter verbrannt ist)* JUSTIN: „Du riechst nach Rauch. Nach dem unteren Gang.“ – Pause. – „Er war auch einer von meinen.“ – LUKE (ein Satz): „Ich weiß.“
-- *(Pflicht, wenn Luke weitergehen will)* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn Luna nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
+- *(Pflicht, wenn Luke weitergehen will)* JUSTIN: „Deine Schwester ist halb bei ihr. Bis zum Morgen hält sie nicht. Und wenn meine Tochter nicht findet, was sie sucht, nimmt sie alle mit, die wach sind.“
 - JUSTIN: „Sie hält sich an den Lampen fest. Das sind ihre Augen über dem Dorf. Nimm sie ihr, alle vier, dann muss sie herunter, und wir können hinein.“ – LUKE: „Wir?“ – JUSTIN: „Ich such seit siebenhundert Jahren. Ich weiß, wie es da drin geht. Du nicht.“
 - JUSTIN: „Die alte Frau im Haus mit der Sieben hat alles aufgeschrieben. Und der eiserne Kasten an der Kreuzung spricht noch.“
 - *(nur auf Nachfrage nach der Gestalt vom Ostende, Kapitel 1)* JUSTIN: „Du hast mich schon gesehen. Am Ende der Straße. Weiter reichte die Nacht noch nicht.“

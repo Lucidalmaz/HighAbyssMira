@@ -64,7 +64,7 @@ function cleo_stone() {
 }
 function cleo_akte() {
   if (cleo_has('cleo_akte')) return toast('Die Schublade ist leer bis auf einen Abdruck im Staub. Dort lag eine Akte, siebzehn Jahre lang.', 3400);
-  Audio.play('metalOpen', { gain: .4, rate: 1.1 });
+  Audio.play('metalOpen', { gain: .4, rate: 1.1, x: C2.x + 22, y: .32, z: C2.z - 5.3 });
   story.lore.push({ key: 'cleo_akte', title: 'Die Akte ohne Nummer', html: 'Keine Nummer, kein Name. Das Deckblatt ist geschwärzt, bis auf einen Stempel: FREIWILLIG.\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“' });
   cleo_start('Im Amt lag eine Akte ohne Nummer: FREIWILLIG. „Eine für sieben. Dann dürfen alle heim.“');
   openNote('Die Akte ohne Nummer', 'Die unterste Schublade klemmt. Darin eine einzelne Akte. Keine Nummer, kein Name – das Deckblatt ist geschwärzt, bis auf einen Stempel:\n\n<b>FREIWILLIG</b>\n\nInnen ein einziger Satz, Kinderschrift, Bleistift:\n<span class="hand">„Eine für sieben. Dann dürfen alle heim.“</span>\n\nDarunter, Schreibmaschine: „Vorgang geschlossen. Nicht erinnern.“');
@@ -86,7 +86,7 @@ function cleo_chest(lock) {
   const S = cleo_S;
   if (cleo_has('cleo_baumhaus')) { if (kapAb(6) && !story.items.includes('cleo_dose')) addItem('cleo_dose'); return openNote('Cleos Brief', cleo_letter()); }
   if (!story.items.includes('baumhausschluessel')) { cleo_start(); return toast('Eine Holzkiste mit einem kleinen Vorhängeschloss aus Messing. In den Deckel geritzt: C. Der Schlüssel fehlt.', 4000); }
-  lock.visible = false; tween(S.lid, { rx: -1.9 }, .8); Audio.creak(.3); story.items = story.items.filter(k => k !== 'baumhausschluessel'); addItem('cleo_kreide'); if (kapAb(6)) addItem('cleo_dose'); // AP-24: die Keksdose (Samen Kap. 7)
+  lock.visible = false; tween(S.lid, { rx: -1.9 }, .8); Audio.creak(.3, S.lid.position.x, S.lid.position.y, S.lid.position.z);story.items = story.items.filter(k => k !== 'baumhausschluessel'); addItem('cleo_kreide'); if (kapAb(6)) addItem('cleo_dose'); // AP-24: die Keksdose (Samen Kap. 7)
   story.lore.push({ key: 'cleo_baumhaus', title: 'Cleos Kiste', html: 'Eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen: CLEO. Neben ihr, kleiner geschrieben: LUCY.\n\nEin Brief an Lucy. Ein Stück weiße Kreide. Und eine Keksdose mit acht Kronkorken: R, H, M, D, L, L, Z – und einer ohne Buchstaben.\n\n' + cleo_letter() });
   cleo_start('Cleos Baumhaus. Ein Brief an Lucy – „Eine für sieben.“ Acht Kronkorken, einer ohne Buchstaben. Ihr Name steht auf keinem Stein. Jonas’ Karte kennt einen Kreis aus Steinen, tief im Wald.');
   openNote('Cleos Kiste', 'Obenauf eine Zeichnung: acht Kinder an einer Kreuzung, Hand in Hand. In der Mitte ein Mädchen mit roten Zöpfen, darüber in großen Buchstaben: <b>CLEO</b>. Daneben, kleiner: LUCY.\n\nDarunter ein Brief. Ein Stück weiße Kreide, mit Klebeband umwickelt. Und eine Keksdose. Darin acht Kronkorken. Sieben tragen Filzstift-Buchstaben: <b>R · H · M · D · L · L · Z</b>. Der achte ist leer.\n\n' + cleo_letter(), null, () => {

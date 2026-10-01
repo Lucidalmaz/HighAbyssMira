@@ -94,7 +94,7 @@ WORLD_MODS.push(['Leben', async () => {
     flock.forEach((c, i) => { c.g.position.set(tx + rand(-1.5, 1.5), rand(5.8, 7.4) * ts, tz + rand(-1.5, 1.5));
       c.vel.set(P.x + rand(-3, 3), rand(3.3, 4.8), P.z + rand(-3, 3)).sub(c.g.position).normalize().multiplyScalar(rand(9, 12.5)); c.on = true; c.g.visible = true; c.delay = i * rand(.03, .09); });
     Audio.flap(tx, 6, tz); Audio.flap(tx + 1, 5, tz - 1);
-    for (let i = 0; i < 4; i++) setTimeout(() => Audio.caw(tx + rand(-3, 3), 6, tz + rand(-3, 3)), 80 + i * rand(120, 260));
+    for (let i = 0; i < 4; i++) setTimeout(() => Audio.at(Math.random() < .7 ? 'crow1' : 'crow2', flock[i % flock.length].g, { gain: .6, vary: .12, ref: 4 }), 80 + i * rand(120, 260));
     setTimeout(() => { shake = Math.max(shake, .02); }, 650);
     leben_crowScare(tx, tz, 24); return true; };
   window.__leben = leben_debug();
@@ -206,7 +206,7 @@ function leben_crowOff(W, fx, fz) {
   c.fly = true; c.vel.set(dx / d * rand(4.5, 6) + rand(-1, 1), rand(3.2, 4.4), dz / d * rand(4.5, 6) + rand(-1, 1)); g.rotation.z = 0;
   if (!W.base) { W.st = 'fly'; if (W.perch) { if (W.perch.grp) W.perch.grp.n = Math.max(0, W.perch.grp.n - 1); W.perch.used = null; W.perch = null; } } else W.pf = true;
   if (W.V) { W.V.mode = 'take'; W.V.tt = .55; leben_play(W.V, 'TakeOff', .08, 1.3, true); }
-  W.take = 0; if (Math.random() < .55) Audio.caw(p.x, p.y, p.z); Audio.flap(p.x, p.y, p.z);
+  W.take = 0; if (Math.random() < .55) Audio.at(Math.random() < .7 ? 'crow1' : 'crow2', g, { gain: .6, vary: .12, ref: 4 }); Audio.flap(p.x, p.y, p.z);
   leben_crowChain(W);
 }
 function leben_crowLandAt(W, px, py, pz, here) {
@@ -288,7 +288,7 @@ function leben_crowTick(dt, t, indoor, c1, c3, live) {
         g.position.set(x0 + Math.cos(C.a) * C.r, C.h + Math.sin(C.a * 2.1) * .9, z0 + Math.sin(C.a) * C.r);
         g.rotation.y = Math.atan2(-Math.cos(C.a) * s, -Math.sin(C.a) * s);
         if (W.V) { C.fl -= dt; if (C.fl < -rand(3, 7)) C.fl = rand(.8, 1.6); const want = C.fl > 0 ? 'Fly' : 'Glide'; if (W.V.cur !== W.V.A[want]) { W.V.mode = 'glide'; leben_play(W.V, want, .4); } leben_crowAnimTick(W, dt, true, false); }
-        if (Math.random() < dt * .02) Audio.caw(g.position.x, g.position.y, g.position.z);
+        if (Math.random() < dt * .02) Audio.at(Math.random() < .7 ? 'crow1' : 'crow2', g, { gain: .6, vary: .12, ref: 4 });
         // weit genug weg? Dann hinunter zur Kuh
         if (Math.hypot(P.x - x0, P.z - z0) > 17 && live && Math.random() < dt * .25) { const pt = S.cowPts.find(p => !p.used); if (pt) { pt.used = W; W.perch = pt; leben_crowLandAt(W, pt.x, pt.y, pt.z, true); } }
         break; }
@@ -660,12 +660,12 @@ function leben_flyTick(dt, t, live) {
   im.count = n; if (n) im.instanceMatrix.needsUpdate = true;
   // Summen: eine Stimme am nächsten Schwarm
   if (Audio.ctx && Audio.started) { if (!S.buzz) leben_buzzMake(); const B = S.buzz; if (B) { B.t -= dt; if (B.t < 0) { B.t = .12; const tt = Audio.ctx.currentTime;
-    if (near) { const p = B.p; if (p.positionX) { p.positionX.value = near.x; p.positionY.value = near.y; p.positionZ.value = near.z; } else p.setPosition(near.x, near.y, near.z); }
+    if (near) Audio.setze(B.p, near.x, near.y, near.z);
     B.g.gain.setTargetAtTime(near ? .08 * (.25 + .75 * nf) * (Math.random() < .2 ? .4 : 1) : 0, tt, .08); } } }
 }
 function leben_buzzMake() {
   const ctx = Audio.ctx, S = leben_S; try {
-    const p = Audio.at(0, -50, 0, 1.1), g = ctx.createGain(); g.gain.value = 0; g.connect(p);
+    const p = Audio.at(0, -50, 0, 1.1, { dauer: 1e9 }), g = ctx.createGain(); g.gain.value = 0; g.connect(p);
     const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 650; bp.Q.value = .6; bp.connect(g);
     const am = ctx.createGain(); am.gain.value = .6; Audio.lfo(11.5, .35, am.gain); am.connect(bp);
     for (const f of [187, 223, 251]) { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; Audio.lfo(rand(4, 7), f * .035, o.frequency); const og = ctx.createGain(); og.gain.value = .22; o.connect(og); og.connect(am); o.start(); }
@@ -780,10 +780,10 @@ function leben_tvVoice(dt, live) { // gedämpfte Stimmen aus dem Fernseher, nur 
   const S = leben_S; if (!Audio.ctx || !Audio.started) return; const P = player.pos; let near = null, nd = 9;
   if (S.zone === 'town' && !ch3.on && !state.ch2 && !state.outage) for (const r of S.rooms) if (r.tv && r.st === 'on' && r.pause <= 0) { const w = r.wins[0], d = Math.hypot(w.pos.x - P.x, w.pos.z - P.z); if (d < nd) { nd = d; near = w; } }
   if (!near && !S.tvVoice) return;
-  if (!S.tvVoice) { const ctx = Audio.ctx, p = Audio.at(0, -50, 0, 1.5), g = ctx.createGain(); g.gain.value = 0; g.connect(p); const n = Audio.noise(true), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 520; bp.Q.value = 2.2;
+  if (!S.tvVoice) { const ctx = Audio.ctx, p = Audio.at(0, -50, 0, 1.5, { dauer: 1e9 }), g = ctx.createGain(); g.gain.value = 0; g.connect(p); const n = Audio.noise(true), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 520; bp.Q.value = 2.2;
     const am = ctx.createGain(); am.gain.value = 0; n.connect(bp); bp.connect(am); am.connect(g); S.tvVoice = { p, g, am, bp, t: 0 }; }
   const V = S.tvVoice; V.t -= dt; if (V.t > 0) return; V.t = rand(.09, .2); const tt = Audio.ctx.currentTime;
-  if (near) { if (V.p.positionX) { V.p.positionX.value = near.pos.x; V.p.positionY.value = near.pos.y; V.p.positionZ.value = near.pos.z; } V.bp.frequency.setTargetAtTime(rand(380, 780), tt, .03); V.am.gain.setTargetAtTime(Math.random() < .25 ? 0 : rand(.4, 1), tt, .03); }
+  if (near) { Audio.setze(V.p, near.pos.x, near.pos.y, near.pos.z); V.bp.frequency.setTargetAtTime(rand(380, 780), tt, .03); V.am.gain.setTargetAtTime(Math.random() < .25 ? 0 : rand(.4, 1), tt, .03); }
   V.g.gain.setTargetAtTime(near ? .09 : 0, tt, .25);
 }
 
@@ -871,8 +871,8 @@ function leben_windTick(dt, t, c3, live) {
     if (!G_.lbOn) { G_.lbOn = true; G_.lbBase = pv.rotation.y; G_.lbV = 0; }
     const amp = (.022 + g0 * .17) * (.6 + .4 * Math.sin(t * .37 + i)), v = Math.sin(t * (1.25 + i * .13) + i * 1.7); pv.rotation.y = G_.lbBase + v * amp;
     if (Math.sign(v) !== G_.lbV) { G_.lbV = Math.sign(v); if (amp > .08 && Math.hypot(G_.gapX - P.x, G_.z - P.z) < 20) Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: .06 + amp * .3, rate: rand(.8, 1.1), x: G_.gapX, y: 1, z: G_.z, ref: 2 }); } }
-  // Reifenschaukel: in der Böe weiter ausholen – oder mitten im Schwung stehen bleiben
-  if (typeof swing !== 'undefined' && swing.piv) { const H = S.swingHold;
+  // Reifenschaukel: in der Böe weiter ausholen – oder mitten im Schwung stehen bleiben (mit umwelt.js: Pendel dort, das liest leben_S.swingHold)
+  if (typeof umwelt_pendel !== 'function' && typeof swing !== 'undefined' && swing.piv) { const H = S.swingHold;
     if (H) { H.t += dt; const k = H.t < H.dur ? 1 : Math.max(0, 1 - (H.t - H.dur) / .7); swing.piv.rotation.x = H.a * k + swing.piv.rotation.x * (1 - k); if (k <= 0) S.swingHold = null; }
     else swing.piv.rotation.x *= 1 + g0 * .9; }
 }
@@ -1025,7 +1025,7 @@ function leben_carTick(dt) {
   if (C.st === 'come') { const d = C.x - C.stop; C.v = Math.max(1.2, Math.min(13, d * .45)); C.x -= C.v * dt; try { C.l.src.playbackRate.value = .66 + C.v / 13 * .36; } catch (e) {} if (d < .3) { C.st = 'idle'; C.t = 0; } }
   else if (C.st === 'idle') { if (C.t > C.idle) { C.l.stop(.9); C.st = 'off'; C.t = 0; } }
   else if (C.st === 'off') { if (!C.door && C.t > 1.3) { C.door = true; Audio.play('carDoor', { gain: .9, x: C.x, y: 1, z: C.z, ref: 14 }); } if (C.t > 12) { F.hl.visible = false; F.car = null; return; } }
-  const p = C.p; if (p.positionX) { p.positionX.value = C.x; p.positionZ.value = C.z; }
+  Audio.setze(C.p, C.x, .6, C.z);
   const a = F.hl.geometry.attributes.position; a.setXYZ(0, C.x - 2.2, .72, C.z - .62); a.setXYZ(1, C.x - 2.2, .72, C.z + .62); a.needsUpdate = true;
   F.hl.material.opacity = (C.st === 'off' && C.t > 8 ? 0 : 1) * Math.min(1, (300 - C.x) / 70) * .75;
 }

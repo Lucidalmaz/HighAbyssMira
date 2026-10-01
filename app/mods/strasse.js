@@ -279,14 +279,14 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     S.poleIM = reg('poles', msInst(parts, poleM4, { shadow: true })); S.poleGeo = parts[0].geo;
     // Leitungen (durchhängend) + Hausanschlüsse; wireSpots (Krähen & Co.) neu
     const wires = [], wmat = new T.MeshStandardMaterial({ color: 0x101010, roughness: .45, metalness: .4 }); wireSpots.length = 0;
-    const wire = (a, c, sag, spot = true, r = .011) => { const mid = a.clone().lerp(c, .5); mid.y -= sag * 2; if (spot) wireSpots.push([a.clone(), mid.clone(), c.clone()]); wires.push(new T.TubeGeometry(new T.QuadraticBezierCurve3(a, mid, c), 28, r, 5, false)); };
+    const wire = (a, c, sag, spot = true, r = .011) => { const mid = a.clone().lerp(c, .5); mid.y -= sag * 2; if (spot) wireSpots.push([a.clone(), mid.clone(), c.clone()]); wires.push(strasse_sway(new T.TubeGeometry(new T.QuadraticBezierCurve3(a, mid, c), 28, r, 5, false), u => Math.sin(Math.PI * u) * Math.min(1, a.distanceTo(c) / 20))); };
     const nW = Math.min(3, ins.length);
     if (nW) for (let i = 0; i < att.length - 1; i++) for (let k = 0; k < nW; k++) { const A = att[i], C = att[i + 1]; const ka = Math.round(k * (A.length - 1) / Math.max(1, nW - 1)), kc = Math.round(k * (C.length - 1) / Math.max(1, nW - 1)); wire(A[ka], C[kc], rand(.42, .6)); }
     const poleAt = x => { const i = poleSpots.findIndex(p => Math.abs(p[0] - x) < .5); return i >= 0 && att[i].length ? att[i][Math.floor(att[i].length / 2)].clone().add(V3(0, -1.1, 0)) : null; };
     for (const [px, hx, hy, hz] of [[-57, -52.3, 5.55, 12.42], [-38, -30.5, 5.55, 12.42], [19, 19.5, 3.05, 12.42], [38, 43.8, 5.55, 12.42], [-38, -30.8, 5.55, -12.42], [19, 27.8, 2.95, -11.76], [-57, -51.5, 2.95, -11.76]]) { const a = poleAt(px); if (a) wire(a, V3(hx, hy, hz), .55, false, .008); }
     // Nr. 9 ist seit 2009 abgeklemmt: das Anschlusskabel hängt lose am Mast herab
-    const a9 = poleAt(57); if (a9) wires.push(new T.TubeGeometry(new T.CatmullRomCurve3([a9, V3(57.25, 5.4, 7.1), V3(57.45, 2.4, 6.75), V3(57.3, .55, 6.6)]), 24, .008, 5, false));
-    if (wires.length) { const wm = new T.Mesh(mergeGeometries(wires), wmat); scene.add(wm); reg('poles', wm); }
+    const a9 = poleAt(57); if (a9) wires.push(strasse_sway(new T.TubeGeometry(new T.CatmullRomCurve3([a9, V3(57.25, 5.4, 7.1), V3(57.45, 2.4, 6.75), V3(57.3, .55, 6.6)]), 24, .008, 5, false), u => u ** 1.4 * 2.2));
+    if (wires.length) { strasse_wireWind(wmat); const wm = new T.Mesh(mergeGeometries(wires), wmat); wm.frustumCulled = false; scene.add(wm); reg('poles', wm); }
     try { for (const c of crows) { if (c.fly || c.gone || !wireSpots.length) continue; const [a, mid, cc] = wireSpots[Math.floor(rand(0, wireSpots.length))], tt = rand(.25, .75);
       c.g.position.copy(a.clone().multiplyScalar((1 - tt) ** 2).addScaledVector(mid, 2 * tt * (1 - tt)).addScaledVector(cc, tt * tt)).add(V3(0, .1, 0)); } } catch (e) { warn(e); }
   }
@@ -483,6 +483,16 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); } }
       (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; } } catch (e) { warn(e); }
 }]);
+// Leitungen im Wind (R-7): Ausschlag je Punkt aus aSw (uv.x der Röhre = Lage entlang der Leitung), gemeinsamer Windzustand der Basis (windV/windU):
+// ruhig wenige Zentimeter, in der Böe bis ~10 cm quer zur Windrichtung, leicht verzögert und nie im Gleichtakt (Phase aus der Weltlage)
+function strasse_sway(g, f) { const U = g.attributes.uv, a = new Float32Array(U.count); for (let i = 0; i < U.count; i++) a[i] = f(U.getX(i)); g.setAttribute('aSw', new THREE.BufferAttribute(a, 1)); return g; }
+function strasse_wireWind(mat) {
+  mat.onBeforeCompile = sh => { Object.assign(sh.uniforms, { windT: windU, windV });
+    sh.vertexShader = 'uniform float windT; uniform vec4 windV; attribute float aSw;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+      { vec3 w = (modelMatrix * vec4(position, 1.)).xyz; float ph = w.x * .13 + w.z * .07, k = windV.z + windV.w;
+        float s = sin(windT * .9 + ph) * .6 + sin(windT * 2.1 + ph * 1.7) * .25 + .5 * windV.w;
+        transformed += vec3(windV.x, 0., windV.y) * aSw * s * (.025 + .07 * k) + vec3(0., aSw * sin(windT * 1.4 + ph * 2.) * .012 * k, 0.); }`); };
+  mat.customProgramCacheKey = () => 'strasseWire'; }
 WORLD_TICK.push((dt, t, indoor) => {
   const S = strasse_S;
   if (S.far && (S.tk = (S.tk || 0) + 1) % 8 === 0) { const c = camera.position; for (const f of S.far) { const v = Math.hypot(f.c.x - c.x, f.c.z - c.z) < f.d; if (f.ims[0].visible !== v) f.ims.forEach(m => m.visible = v); } }

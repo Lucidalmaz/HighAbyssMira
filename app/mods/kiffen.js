@@ -577,7 +577,7 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
     kf_feder(dt); for (const s of ['L', 'R']) kf_applyHand(s, kf_P[s]); }
   // Requisiten nach Schlüsseln (aus dem aktuellen Schritt)
   if (st) { const K = st.keys; let a = K[0], b = K[K.length - 1], k = 0; for (let i = 0; i < K.length - 1; i++) if (Z.p >= K[i][0] && Z.p <= K[i + 1][0]) { a = K[i]; b = K[i + 1]; k = kf_io((Z.p - a[0]) / Math.max(1e-6, b[0] - a[0])); break; }
-    if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); }
+    if (Z.p > K[K.length - 1][0]) { a = b; k = 1; } for (const n in kf_PR) if (n !== 'glutSprite') kf_propSetzen(n, a[1].pr[n], b[1].pr[n], k); Z.ka = a; Z.kb = b; Z.kk = k; }
   if (st && st.live === 'rauchen') { const bl = kf_PR.blatt.o, B = kf_R.B.R; if (kiffen_S.mo && B.f[1][1] && B.f[2][1]) { // zwischen Zeige- und Mittelfinger geklemmt, Filter zur Handflächenseite
       kf_R.rig.updateMatrixWorld(true); const j = KF_V.v2.setFromMatrixPosition(B.f[1][1].matrixWorld).add(KF_V.v3.setFromMatrixPosition(B.f[2][1].matrixWorld)).multiplyScalar(.5); kf_R.seat.worldToLocal(j);
       const n = kf_P.R.n; bl.position.copy(j).addScaledVector(n, -.024); bl.quaternion.setFromUnitVectors(KF_V.v3.set(1, 0, 0), n); }
@@ -591,6 +591,7 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
   const bl = kf_PR.blatt.o; if (bl.visible) { const sl = kf_CH.blatt; bl.scale.set(kf_lerp(.2, 1, sl), 1, 1); kf_papUpdate(bl.children[0]); }
   kf_TA.falt = kf_CH.falt; kf_TA.roll = kf_CH.tipRoll; const tp = kf_PR.tip.o; if (tp.visible) { kf_tipUpdate(tp.children[0]); if (st && st.keys[st.keys.length - 1][1].pr.tip && st.keys[st.keys.length - 1][1].pr.tip.tip && Z.p > .95) { kf_jointPunkt(.07, tp.position); tp.quaternion.copy(bl.quaternion); tp.rotateY(Math.PI / 2); } }
   if (Z.st && (Z.st.id === 'rollen' || Z.st.id === 'lecken' || Z.st.id === 'kleben' || Z.st.id === 'spitze' || Z.st.id === 'feuer' || Z.st.id === 'rad' || Z.st.id === 'anzuenden' || Z.st.id === 'weg' || Z.st.id === 'rauchen' || Z.st.id === 'aufstehen')) { if (tp.visible || kf_CH.tipRoll > .9) { tp.visible = bl.visible; kf_jointPunkt(.035, tp.position); tp.quaternion.copy(bl.quaternion); tp.rotateY(Math.PI / 2); tp.scale.setScalar(kf_lerp(1, .82, kf_clamp(kf_PA.rolle - .5))); } }
+  kf_griff(dt); // R-5: Finger und Handflächen nie durch Grinder, Knolle, Blatt, Joint, Feuerzeug
   kf_kruemelTick(dt);
   // Flamme, Glut, Licht
   const T = kf_T, fz = kf_PR.feuerzeug.o, L = S.vl; const fl = kf_CH.flamme > .5 && fz.visible;
@@ -602,6 +603,24 @@ function kf_anwenden(dt, t) { const Z = kf_Z, S = kiffen_S, st = Z.st; const za 
     else if (T.glut.visible) { L.color.setHex(0xff6a20); L.intensity = .1 * gl; L.distance = .6; kf_welt(T.glut.position.x, T.glut.position.y, T.glut.position.z, w); L.position.copy(w); } else L.intensity = 0; }
   if (Z.flTon && !fl) { try { Z.flTon.stop(.15); } catch (e) {} Z.flTon = null; }
 }
+// R-5 (griff.js): Requisiten als einfache Kollisionsformen – Grinder-Teile Zylinder, Knolle/Papes/Feuerzeug Kasten (aus der Geometrie), Blatt und Tip Kasten aus der
+// aktuellen (verformten) Geometrie, gerollter Joint Kapsel. Die Hand, an der eine Requisite laut Schlüssel hängt, schiebt nicht gegen sie (ihre Finger legen sich an);
+// den Joint beim Rauchen klemmen die Finger selbst (rechte Hand frei).
+const KF_GF = { L: null };
+function kf_griffFormen() { const L = [];
+  for (const n of ['koerper', 'deckel', 'knolle', 'papes', 'feuerzeug']) { const pr = kf_PR[n]; if (!pr) continue; const kb = griff_kastenVon(pr.o, pr.o); if (!kb) continue;
+    const F = n === 'koerper' || n === 'deckel' ? griff_zyl(pr.o, kb.c, Math.max(kb.hh.x, kb.hh.z), kb.hh.y) : kb; F.name = n; L.push(F); }
+  for (const n of ['blatt', 'tip']) { const pr = kf_PR[n], m = pr && pr.o.children[0]; if (!m) continue; const F = griff_kasten(m, new THREE.Vector3(), new THREE.Vector3()); F.name = n; F.dyn = m; L.push(F); }
+  const J = griff_kapsel(.0045); J.name = 'joint'; L.push(J); return L; }
+function kf_griff(dt) { const R = kf_R, Z = kf_Z; if (typeof griff_loesen !== 'function' || !R.ready || !Z.st || !R.rig || !R.rig.visible) return;
+  const L = KF_GF.L || (KF_GF.L = kf_griffFormen()), key = (Z.kk || 0) < .5 ? Z.ka && Z.ka[1].pr : Z.kb && Z.kb[1].pr, gerollt = kf_PA.rolle >= .85;
+  for (const F of L) { const n = F.name === 'joint' ? 'blatt' : F.name, pr = kf_PR[n]; F.frei = null; const ke = key && key[n]; F.halt = ke && ke.a || null;
+    if (!pr || !pr.o.visible) { F.an = false; continue; }
+    if (n === 'blatt') { if (Z.st.live === 'rauchen') F.frei = 'R'; F.an = F.name === 'joint' ? gerollt : !gerollt;
+      if (F.an && F.name === 'joint') { kf_jointPunkt(0, F.a); kf_jointPunkt(1, F.b); R.seat.localToWorld(F.a); R.seat.localToWorld(F.b); } }
+    else F.an = true;
+    if (F.an && F.dyn) { const g = F.dyn.geometry; g.computeBoundingBox(); griff_kastenSetzen(F, g.boundingBox.min, g.boundingBox.max); } }
+  griff_formen(L); griff_loesen(R.B.L, L, { seite: 'L', anlegen: true, dt }); griff_loesen(R.B.R, L, { seite: 'R', anlegen: true, dt }); }
 // Verandalampe von Nr. 3 (porchLights[0]) während der Szene an – Vegas hat das Licht angemacht; danach wie vorher
 function kf_veranda(an) { const Z = kf_Z, p = typeof porchLights !== 'undefined' && porchLights[0]; if (!p) return; if (an) { if (Z.porchWar === undefined) Z.porchWar = !!p.dead; p.dead = false; } else if (Z.porchWar !== undefined) { p.dead = Z.porchWar; Z.porchWar = undefined; } }
 // Sitzplatz messen (Verandakante) und die Bühne dorthin setzen

@@ -412,6 +412,7 @@ async function weiss_f3Bau(N, A, CX, CZ) {
   // Abgrund: die Behaltenen auf den Stühlen (Kap. 3 UK 14): Zayn, Mike, Roxy, Hilde, Cleo, das Mädchen mit dem Kreisel; Lucy (erwachsen, flackernd) statt des Kindes auf ihrem Stuhl
   const BES = ['zayn', null, 'mike', 'roxy', 'hilde', 'cleo', 'gezaehlt_m'];
   for (let i = 0; i < kids.length && i < BES.length; i++) { if (!BES[i]) continue; try { const P = await figuren_embody(kids[i].k, BES[i], { sit: BES[i] === 'hilde' ? .48 : .52 }); if (P) weiss_grau(P.obj); } catch (e) { console.warn('weiss Behaltene', BES[i], e); } }
+  if (kids[0] && typeof figuren_hund === 'function') figuren_hund(null, 0, 0, { an: kids[0].k, ab: [.22, .58], grau: true }); // Q-6: Bruno, grau wie Zayn, zu seinen Füßen (Bibel UK 14 / Blinzeln 8,0 s)
   // Raum 1: Gegenstände nach Kap. 3 UK 11
   const R = r1Items; R.spieluhr.name = 'Die Spieluhr'; R.spieluhr.text = 'Lucys. Sie stand immer bei ihm, weil sie Angst hatte, dass sie nachts angeht.';
   R.licht.name = 'Das blaue Nachtlicht'; R.licht.text = 'Sein Fisch. Der ging beim Umzug kaputt. Nein. Der ging kaputt, als ich elf war.';
@@ -420,12 +421,12 @@ async function weiss_f3Bau(N, A, CX, CZ) {
   R.karte.name = 'Eine Geburtstagskarte'; R.karte.text = 'Vorne ein Clown mit Luftballons, die Zahl 10 in Glitzer. Innen: „Zum 10. Geburtstag, Luke! Deine Oma Erna.“ Darunter, in Omas steiler Schrift: „Nicht alles auf einmal für Süßes. Ich seh das.“ Fünf Euro mit Büroklammer.';
   for (const [k, it] of Object.entries(R)) { uninteract(it.m); interact(it.m, () => it.name, () => weiss_r1Sehen(k, it)); }
   // Raum 2: Pfarrer Voss als erwachsener Behaltener auf einem Stuhl an der Wand (grau, Laterne ohne Kerze); Vorlage: Erwachsenen-Rig, dunkel getönt
-  try { const g = new THREE.Group(); g.position.set(X3 + 21.3, 0, Z3 - 4.9); g.rotation.y = .5; scene.add(g); const P = await figuren_embody(g, 'amt1', { sit: .46 });
+  try { const g = new THREE.Group(); g.position.set(X3 + 21.3, 0, Z3 - 4.9); g.rotation.y = .5; scene.add(g); const P = await figuren_embody(g, 'voss', { sit: .46 }); // Q-6: Voss im Talar (Ersatz amt1)
     if (P) weiss_grau(P.obj, .35);
     WEISS_F3.voss = g; const h = box(.8, 1.4, .8, g.position.x, .7, g.position.z, hidden, { cast: false }); h.userData.noCol = true; interact(h, 'Der Mann auf dem Stuhl', () => weiss_voss()); } catch (e) { console.warn('weiss Voss', e); }
   // Raum 3: Mira (Nachbild) vor dem Ritter, der Riss vor ihrem Gesicht; Luna ganz vorn am Rand
   try { const jb = .3, mx = CX + Math.cos(jb) * 2.25, mz = CZ + Math.sin(jb) * 2.25, g = new THREE.Group(); g.position.set(mx, 0, mz); g.rotation.y = Math.atan2(CX - mx, CZ - mz); N.add(g);
-    const P = await figuren_embody(g, 'dina_erw', { clip: 'walk' }); if (P) { if (P.cur) P.cur.timeScale = 0; P.mx.update(.4); weiss_ghostify(P.obj); } WEISS_F3.mira = g;
+    const P = await figuren_embody(g, 'mira', { clip: 'walk' }); if (P) { if (P.cur) P.cur.timeScale = 0; P.mx.update(.4); weiss_ghostify(P.obj); } WEISS_F3.mira = g; // Q-6: Miras eigene Figur (Locken mit Scharlachschimmer; Ersatz dina_erw, solange nicht gebaut)
     const sp = new THREE.Mesh(new THREE.PlaneGeometry(.34, 2.3), weiss_decalMat(WEISS_TEX.spalt(), { rough: 1 })); sp.position.set(CX + Math.cos(jb) * 1.55, 1.2, CZ + Math.sin(jb) * 1.55); sp.rotation.y = g.rotation.y; N.add(sp); WEISS_F3.riss = sp; } catch (e) { console.warn('weiss Mira', e); }
   try { const a = Math.PI, lx = CX + Math.cos(a) * 2.45, lz = CZ + Math.sin(a) * 2.45, g = new THREE.Group(); g.position.set(lx, 0, lz); g.rotation.y = Math.atan2(CX - lx, CZ - lz); N.add(g);
     const P = await figuren_embody(g, 'graukind', { clip: 'walk' }); if (P) { if (P.cur) P.cur.timeScale = 0; P.mx.update(.2); weiss_ghostify(P.obj); } WEISS_F3.luna = g; } catch (e) { console.warn('weiss Luna', e); }

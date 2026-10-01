@@ -362,7 +362,20 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // =====================================================================  KELLER (B)
   const beamMat = await surf('floor_wood', { rx: 4, ry: .15, tint: 0x8a7a68 }), stepMat = await surf('floor_wood', { rx: .6, ry: .3, tint: 0x8a7a68 });
   for (const x of [296, 298.6, 301.2, 303.8]) find(x, 2.38, 300, [.2, .25, 8]).forEach(m => m.material = beamMat);
-  for (let i = 0; i < 8; i++) find(B.x + 4.2, .11 * (i + 1), B.z + 3.7 - i * .3 - .8, [1.2, .22 * (i + 1), .3]).forEach(m => m.material = stepMat);
+  // R-6: Kellertreppe mit Logik – statt acht massiver Klötze, die mitten im Raum 0,7 m unter der Decke enden: offene Holztreppe an der Ostwand (11 Stufen à 22,5 cm,
+  // Fuß im Süden, Kopf im Norden wie bisher), Podest oben, Deckendurchbruch mit Schacht, Geländer zur Raumseite, oben die Kellertür (Klickfläche „Nach oben gehen“). Begehbar.
+  for (let i = 0; i < 8; i++) hideAt(B.x + 4.2, .11 * (i + 1), B.z + 3.7 - i * .3 - .8, [1.2, .22 * (i + 1), .3]);
+  { const ci = colliders.findIndex(c => c.minX === B.x + 3.6 && c.maxX === B.x + 5 && c.minZ === B.z - .2 && c.maxZ === B.z + 3.2); if (ci >= 0) colliders.splice(ci, 1); }
+  if (typeof kirchberg_treppe === 'function') { let deckeK = null;
+    scene.traverse(o => { const P = o.isMesh && o.geometry && o.geometry.parameters; if (!deckeK && P && P.width === 10.4 && P.depth === 8.4 && Math.abs(o.position.x - B.x) < .01 && Math.abs(o.position.z - B.z) < .01) deckeK = o; });
+    find(303.8, 2.38, 300, [.2, .25, 8]).forEach(hide); // der östliche Balken läge im Durchbruch → endet jetzt an den Wechseln
+    kirchberg_treppe({ par: GB, x0: B.x + 3.68, x1: B.x + 4.88, zA: B.z + 2.97, zB: B.z, y0: 0, y1: 2.7, n: 11, podest: .9, offen: 'x0', mat: stepMat, matWange: beamMat, begehbar: true,
+      decke: deckeK, loch: [B.x + 3.55, B.x + 4.95, B.z - .9, B.z + 3.0], schachtH: 2.6, schachtMat: M.block });
+    box(.2, .25, 3.0, B.x + 3.8, 2.38, B.z - 2.5, beamMat, { parent: GB }); box(.2, .25, .9, B.x + 3.8, 2.38, B.z + 3.5, beamMat, { parent: GB });
+    box(2.4, .25, .2, B.x + 3.75, 2.38, B.z - 1.0, beamMat, { parent: GB }); box(2.4, .25, .2, B.x + 3.75, 2.38, B.z + 3.1, beamMat, { parent: GB });
+    { const d = await GL('door1'); d.scale.set(1 / 1.055, 2.05 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); }); put(d, { x: B.x + 4.28, minZ: B.z - .89, y: 2.7 }, GB); }
+    if (typeof stairs !== 'undefined') { stairs.position.set(B.x + 4.28, 3.75, B.z - .75); stairs.scale.set(.9, 1, .3); stairs.updateMatrixWorld(true); } }
+  else for (let i = 0; i < 8; i++) find(B.x + 4.2, .11 * (i + 1), B.z + 3.7 - i * .3 - .8, [1.2, .22 * (i + 1), .3]).forEach(m => { m.visible = true; m.material = stepMat; });
   // Stuhl mit Riemen (Riemen bleiben, sitzen jetzt am echten Stuhl)
   hideAt(299, .5, 300, [.6, .06, .6]); hideAt(299, .9, 299.7, [.6, .8, .06]); for (const sx of [298.73, 299.27]) for (const sz of [299.73, 300.27]) hideAt(sx, .25, sz, [.05, .5, .05]);
   const gBC = await chair(GB, { x: 299, z: 300, y: 0 });

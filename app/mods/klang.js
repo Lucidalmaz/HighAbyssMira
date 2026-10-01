@@ -72,7 +72,8 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   ...[1, 2, 3, 4].map(i => 'fx_fluester_' + i), ...'CDEFGAH'.split('').map(k => 'pn_' + k),
   ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo',
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
-  'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b'];
+  'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
+  ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2, 3, 4].map(i => 'fx_kette_' + i), ...[1, 2, 3, 4].map(i => 'fx_quietsch_' + i)]; // R-7/R-8 Umwelt
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -329,7 +330,7 @@ function klang_betten() {
   const S = klang_S, A = Audio; if (!A.ctx || !A.hushG) return; const t = A.ctx.currentTime, ort = klang_bettOrt(), want = {};
   if (ort) for (const [n, v] of KL_ORT_BETT[ort]) { want[n] = v; if (!S.beds[n]) S.beds[n] = { h: null, v: 0, idle: 0 }; }
   if (!S.bedBus) { S.bedBus = A.ctx.createGain(); S.bedBus.connect(A.hushG); }
-  for (const n in S.beds) { const B = S.beds[n], v = want[n] || 0;
+  for (const n in S.beds) { const B = S.beds[n], v = (want[n] || 0) * klang_windMul(n);
     if (v && !B.h) { const b = A.buf[n]; if (!b) { klang_load(n); continue; } B.h = A.play(n, { loop: true, gain: 0, dest: S.bedBus, offset: rand(0, b.duration * .9) }); B.v = 0; if (!B.h) continue; }
     if (!B.h) continue;
     if (Math.abs(v - B.v) > .001) { B.v = v; B.h.g.gain.setTargetAtTime(v, t, v > 0 ? 1.6 : 1.1); }
@@ -341,6 +342,44 @@ function klang_betten() {
   const el = typeof $ === 'function' ? $('subtitle') : null, sub = !!el && +el.style.opacity > .5, talk = !!state.talking || sub;
   if (talk !== S.bedTalk) { S.bedTalk = talk; S.bedBus.gain.setTargetAtTime(talk ? .63 : 1, t, talk ? .25 : 1.5); }
   const M = A.mus; if (M && !state.talking && sub !== S.subDuck) { S.subDuck = sub; M.talk.gain.setTargetAtTime(sub ? MUSIC.talk : 1, t, sub ? .3 : 1.5); } }
+// ---------------------------------------------------------------- Wind (R-8): EIN Windzustand mit dem Bild (Basis: WIND.k, gust). Das Bett „ferner Wind“ atmet mit,
+// die Stromleitung singt in der Böe, Wind heult und pfeift um Hausecken (drinnen gedämpft durch Wand und Fenster), Gras und Kronen rauschen je nach Bewuchs.
+// Böen: Einzelstöße aus einer Aufnahme (nasse Straße, Laub, Bäume) von der Luvseite; jede hörbare Böe ist auch sichtbar (windStoss in der Basis).
+function klang_windMul(n) { if (typeof WIND === 'undefined') return 1; if (n === 'amb_wind') return .65 + .45 * WIND.k; if (n === 'amb_leitung') return .6 + 1.6 * gust; return 1; }
+const KL_WIND = { amb_heulen: { h: null, v: 0, idle: 0 }, amb_kronen: { h: null, v: 0, idle: 0 } };
+function klang_windOrt() { // [Heulen, Gras/Kronen, Tiefpass Hz] je Ort
+  const a = klang_S.area, ort = klang_bettOrt();
+  if (!ort || ort === 'amt' || ort === 'kanal' || ort === 'weiss') return [0, 0, 12000];
+  if (ort === 'keller') return [.1, 0, 280]; if (ort === 'nr7' || ort === 'innen') return [.38, .04, 520];
+  if (a === 'wald') return [.22, 1, 12000]; if (a === 'friedhof') return [.5, .55, 12000]; if (a === 'villa') return [.55, .5, 12000];
+  const P = player.pos, fd = typeof gruen_fenceDist === 'function' ? gruen_fenceDist(P.x, P.z) : 30; // am Waldrand rauscht es in den Kronen
+  return [.6, .2 + .6 * Math.max(0, 1 - fd / 22), 12000]; }
+function klang_wind(dt) {
+  const S = klang_S, A = Audio; if (!A.ctx || !A.hushG || !S.bedBus || typeof WIND === 'undefined') return;
+  S.windT = (S.windT || 0) - dt; if (S.windT > 0) return; S.windT = .2; const t = A.ctx.currentTime;
+  if (!S.windLP) { S.windLP = A.ctx.createBiquadFilter(); S.windLP.type = 'lowpass'; S.windLP.frequency.value = 12000; S.windLP.connect(S.bedBus); }
+  const [hl, kr, lp] = klang_windOrt(), k = WIND.k, howl = Math.pow(Math.max(0, (k - .42) / .85), 1.3); // Heulen erst bei kräftigem Wind
+  S.windLP.frequency.setTargetAtTime(lp, t, .5);
+  for (const n in KL_WIND) { const B = KL_WIND[n], v = n === 'amb_heulen' ? hl * howl * .55 : kr * (.12 + .5 * k);
+    if (v > .005 && !B.h) { const b = A.buf[n]; if (!b) { klang_load(n); continue; } B.h = A.play(n, { loop: true, gain: 0, dest: S.windLP, offset: rand(0, b.duration * .9) }); B.v = 0; if (!B.h) continue; }
+    if (!B.h) continue; if (Math.abs(v - B.v) > .002) { const up = v > B.v; B.v = v; B.h.g.gain.setTargetAtTime(v, t, up ? .7 : 1.1); }
+    B.idle = v > .005 ? 0 : B.idle + 1; if (B.idle > 100) { B.h.stop(.5); B.h = null; B.v = 0; } }
+}
+// Umwelt-Geräusche (R-7): Busch beim Durchlaufen, Laub beim Rennen, Schaukelkette und -quietschen – Aufnahmen, sonst Ersatz aus dem Grundspiel
+Object.assign(Audio, {
+  busch(x, z, v = 1) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.buschAt || 0) < .16) return; this.buschAt = t; const n = kl_pick('fx_busch_', 6);
+    if (!n) return this.play(this.pick('stepG1', 'stepG2', 'stepG3'), { gain: .3 * v, rate: rand(1.1, 1.3), x, y: .6, z, ref: 2 });
+    this.play(n, { gain: .2 + .35 * v, vary: .08, varyGain: .2, x, y: .7, z, ref: 2 }); },
+  laub(x, z, v = 1) { const n = kl_pick('fx_laub_', 4); if (n && this.ctx) this.play(n, { gain: .22 * v, vary: .1, varyGain: .25, x, y: .1, z, ref: 2 }); },
+  kette(x, y, z, v = 1) { if (!this.ctx) return; const n = kl_pick('fx_kette_', 4); if (n) this.play(n, { gain: Math.min(.5, .1 + .4 * v), vary: .06, x, y, z, ref: 2.5 }); else this.play(this.pick('keys1', 'keys2'), { gain: .2 * v, rate: rand(.55, .7), x, y, z, ref: 2 }); },
+  quietsch(x, y, z, v = 1) { if (!this.ctx) return; const n = kl_pick('fx_quietsch_', 4); if (n) this.play(n, { gain: Math.min(.4, .04 + .36 * v), vary: .05, x, y, z, ref: 2.5 }); else this.play(this.pick('woodSqueak1', 'woodSqueak2'), { gain: .12 * v, rate: .8, x, y, z, ref: 2 }); },
+});
+// Böe: Einzelstoß aus der Aufnahme, von der Luvseite (Stereo nach Windrichtung), über hushG (Stille-Zonen); nie zwei innerhalb von 10 s; ohne Aufnahme der alte Weg
+{ const alt = Audio.gust; Audio.gust = function (dur) { if (!this.ctx) return; const n = kl_pick('fx_boe_', 4); if (!n || typeof WIND === 'undefined') return alt.call(this, dur);
+    const t = this.ctx.currentTime; if (t - (this.gustAt || -99) < 10) return; this.gustAt = t; windStoss(Math.max(dur, 3.5) * .9);
+    const indoor = this.area !== 'o', P = player.pos, pan = Math.max(-.8, Math.min(.8, (-WIND.dx * -fwd.z + -WIND.dz * fwd.x) * .7));
+    this.play(n, { gain: rand(.65, .95) * (indoor ? .28 : 1), rate: rand(.9, 1.06), lp: indoor ? 500 : undefined, pan, dest: this.hushG });
+    if (!indoor && Math.random() < .35 && (typeof spannung_ask !== 'function' || spannung_ask('treeCreak', 'amb'))) this.treeCreak(P.x + rand(-12, 12), P.z + rand(-12, 12)); }; }
 // ---------------------------------------------------------------- Menümusik
 function klang_menu(on) {
   const S = klang_S, A = Audio; if (!A.ctx || A.ctx.state !== 'running') return;
@@ -380,6 +419,7 @@ WORLD_TICK.push(dt => {
   S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; } S.areaSince = (S.areaSince || 0) + 1;
     const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = rand(8, 16); } // Ort gewechselt: langsam aus, kurz Stille
     try { Audio.setRoom(klang_reverb()); klang_beds(); klang_betten(); } catch (e) { console.warn('Klang: Raum', e); } }
+  try { klang_wind(dt); } catch (e) { if (!S.windErr) { S.windErr = 1; console.warn('Klang: Wind', e); } }
   S.ambT -= dt; if (S.ambT < 0) { S.ambT = rand(7, 16); if (!state.talking && !ui.overlay && !menu.attract) try { klang_ambient(); } catch (e) { console.warn('Klang: Umgebung', e); } } // die Regie entscheidet, ob es wirklich klingt
 });
 window.__klang = { betten: KL_ORT_BETT, bettOrt: () => klang_bettOrt(), load: n => klang_load(n), S: klang_S, area: () => klang_area(), surface: i => klang_surface(i), floor: (x, z) => klang_floor(x, z), reverb: () => klang_reverb(), render: n => klang_render(n), beds: KL_BEDS }; // Testzugriff
