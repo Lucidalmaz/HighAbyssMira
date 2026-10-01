@@ -115,3 +115,4 @@ Nutzer (30.09.2026): „gamepad möchte ich nicht da es ein pc spiel ist“. Nic
 - R-7 Umgebungsphysik: Schaukel schwingt beim Anstoßen, Büsche/Pflanzen bewegen sich im Wind und beim Durchlaufen, organisch.
 - R-8 Atmosphäre: Windpfeifen/-heulen, Partikel in der Luft, fallende und verwehte Blätter.
 - Maßstab: Until Dawn (2024) und das neueste Resident Evil.
+- R-9 (Nutzer, wörtlich: „und bei dem grau gesicht sieht das auch absolut nicht realistisch oder gruselig aus das muss auch verständlicher organischer und deutlich hochwertiger umgesetzt werden bisher sieht das wie ein fehler aus“): Das graue Gesicht (Fernseher Nr. 7 „HALLO LUKE“, Gesicht im Tank, Nachbilder) muss realistisch, organisch, gruselig und als Absicht lesbar sein – nicht wie ein Darstellungsfehler.
