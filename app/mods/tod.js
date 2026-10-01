@@ -79,7 +79,7 @@ function tod_ch2Apply(p) {
   if (p.s && ch2.spiderPhase !== 'gone') { ch2.spiderPhase = 'gone'; spiderDoorOut.locked = false; cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478); }
   if (p.c) { ch2.chase = 'done'; chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; ch2.tankSeen = false; }
 }
-MOD_SAVE.push(['tod', () => ({ cp: tod_S.persistCp || null, ch2: ch2.on ? tod_ch2Snap() : null, deaths: tod_S.deaths }), v => { tod_S.deaths = v.deaths || 0; tod_S.pending = v.cp ? v : null; }]);
+MOD_SAVE.push(['tod', () => ({ cp: tod_S.persistCp || null, ch2: ch2.on ? tod_ch2Snap() : null, deaths: tod_S.deaths }), v => { tod_S.deaths = v.deaths || 0; tod_S.pending = v.cp ? v : null; if (tod_S.pending) { const d0 = loadSave(); tod_S.pending.obj = d0 && d0.chapter === 2 ? d0.obj : null; } }]); /* obj: Ziel aus dem Spielstand, bevor chapter2Begin() neu speichert */
 // Weiterspielen in Kapitel 2: nach dem Kapitelstart den Fortschritt im Amt wiederherstellen und an den Speicherpunkt gehen
 CH2_BEGIN.push(() => {
   const v = tod_S.pending; tod_S.pending = null;
@@ -88,7 +88,7 @@ CH2_BEGIN.push(() => {
       try { tod_ch2Apply(v.ch2); } catch (e) { console.warn('Speicherpunkt Amt', e); }
       const c = v.cp; if (c.id !== 'kapitel2') { player.pos.set(c.x, c.y, c.z); player.yaw = c.yaw; player.pitch = 0; vel.set(0, 0, 0); camY = c.y + 1.65; }
       tod_S.seen.k2 = true; tod_S.seen.gang = c.id === 'gang' || c.id === 'messraum' || c.id === 'flucht'; tod_S.seen.mess = c.id === 'messraum';
-      tod_S.objFix = c.id === 'messraum' ? 'Der Messraum. Hier ist es passiert.' : (c.id === 'gang' || c.id === 'flucht') ? 'Die östliche Stahltür ist frei. Geh weiter.' : null; if (tod_S.objFix) setC2Objective(tod_S.objFix);
+      tod_S.objFix = c.id === 'messraum' ? 'Der Messraum. Hier ist es passiert.' : (c.id === 'gang' || c.id === 'flucht') ? 'Die östliche Stahltür ist frei. Geh weiter.' : (v.obj || null); /* Schlusstest: sonst setzt die Kapitelkarte das Ziel auf den Kapitelanfang zurück */ if (tod_S.objFix) setC2Objective(tod_S.objFix);
       todCheckpoint(c.id === 'flucht' ? 'gang' : c.id, c.label, { quiet: true, x: c.x, y: c.y, z: c.z, yaw: c.yaw });
     } else { tod_S.seen.k2 = true; todCheckpoint('kapitel2', 'Speicherpunkt Amt', { quiet: true }); }
   }, 0);

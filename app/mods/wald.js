@@ -68,7 +68,7 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
     run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, 39.6, WALD.z1); run(44.4, WALD.z1, WALD.x1, WALD.z1); // Lücke 39,6…44,4: eingedrückt, dahinter der tiefe Wald run(WALD.x1, WALD.z1, WALD.x1, 98.2);
     chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
-  try { const ff = msSurfMat('forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
+  try { const ff = msSurfMat('../forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
     const ext = plane(260, 60, 35, -.004, 188, M.grass); ext.receiveShadow = true; S.keep.add(p); } catch (e) { console.warn('Wald: Boden', e); }
   try { const rock = await msModel('../boulder', 'model.gltf'); for (let i = 0; i < 26; i++) { const x = rand(WALD.x0 + 3, WALD.x1 - 3), z = rand(WALD.z0 + 3, WALD.z1 - 3); if (wald_pathDist(x, z) < 3 || !wald_free(x, z)) continue;
       const o = msGround(msFit(rock.clone(true), rand(.6, 1.6), 'max')); o.position.set(x, -.08, z); o.rotation.y = rand(0, 6.28); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(o); }

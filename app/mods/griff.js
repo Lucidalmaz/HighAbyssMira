@@ -67,7 +67,7 @@ function griff_fSetzen(B, fi, k) { const G = GRIFF, ch = B.f[fi], bd = B.bindF[f
   ch[0].updateMatrixWorld(true); }
 function griff_fPen(B, fi, L, seite, k) { griff_fSetzen(B, fi, k); return griff_pen(L, griff_fPunkte(B, fi), seite, false); }
 // Hauptaufruf je Hand: o = { seite: 'L'|'R', anlegen: true|[5], dt }
-function griff_loesen(B, L, o) { if (!B || !L || !B.fore || !B.hand || window.__griffAus) return 0; // __griffAus: nur Selbsttest (Vorher-Bilder) let aktiv = false; for (const F of L) if (F.an && F.frei !== o.seite) { aktiv = true; break; } if (!aktiv) return 0;
+function griff_loesen(B, L, o) { if (!B || !L || !B.fore || !B.hand || window.__griffAus) return 0; /* __griffAus: nur Selbsttest (Vorher-Bilder) */ let aktiv = false; for (const F of L) if (F.an && F.frei !== o.seite) { aktiv = true; break; } if (!aktiv) return 0;
   const G = GRIFF, seite = o.seite; if (!B.gTip) griff_hand(B);
   if (B.fore.parent) B.fore.parent.updateWorldMatrix(true, false); B.fore.updateMatrixWorld(true);
   // 1. Handfläche/Unterarm heraus (höchstens drei Schübe, je entlang der tiefsten Normalen)

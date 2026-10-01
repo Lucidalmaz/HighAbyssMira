@@ -73,7 +73,7 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo',
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
-  ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2, 3, 4].map(i => 'fx_kette_' + i), ...[1, 2, 3, 4].map(i => 'fx_quietsch_' + i)]; // R-7/R-8 Umwelt
+  ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i)]; // R-7/R-8 Umwelt
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }

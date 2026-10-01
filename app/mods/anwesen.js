@@ -194,7 +194,7 @@ async function chapter4Begin() {
     const pv = new THREE.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); pv.rotation.y = -1.2; OW.gate.parent.add(pv); } }
   player.pos.set(.8, 0, 1.6); player.yaw = PI / 2 + .6; player.pitch = .05; vel.set(0, 0, 0); camY = player.pos.y + 1.65; flashOn = true;
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(4) : '') + C4_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(4) : '') + C4_INTRO; /* Story-Prüfung V-8 */ $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     const c = anwesen_count(); setC3(c === 8 ? 'Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.' : `Die Villa Seiler. Dir fehlen noch ${8 - c} Schlüsselteile – frag den Raben.`);
     if (typeof gedanke === 'function') gedanke('ch4_start', 'Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.', 1500, 3);

@@ -136,7 +136,7 @@ Object.assign(Audio, {
     src.start(t, o.offset || 0, o.loop ? undefined : (o.dur ? o.dur + .05 : undefined));
     const end = o.loop ? Infinity : t + (o.dur || Math.max(.05, (bb.duration - (o.offset || 0)) / src.playbackRate.value)) + .1;
     if (!o.loop) { this.voices = (this.voices || 0) + 1; src.onended = () => { this.voices--; }; RK.vox.push({ g, src, pr, end }); }
-    if (r) { r.src = src; r.rate0 = src.playbackRate.value; if (o.loop || r.obj || end - now > 1.5) rk_live(r, end); else if (r.on) r.end = Math.max(r.end, end); }
+    if (r && r.lp) { /* stumm angelegte Quellen (Audio.cut) haben keine Filterkette – nicht nachführen */ r.src = src; r.rate0 = src.playbackRate.value; if (o.loop || r.obj || end - now > 1.5) rk_live(r, end); else if (r.on) r.end = Math.max(r.end, end); }
     return { src, g, stop: (f = .3) => { try { g.gain.setTargetAtTime(0, ctx.currentTime, f / 3); src.stop(ctx.currentTime + f + .1); } catch (e) {} if (r) r.end = Math.min(r.end, ctx.currentTime + f + .2); } };
   },
   // ---- Welt-Quellen der Basis, die bisher ohne Ort klangen: optional mit Position (ohne = wie bisher, z. B. Luke selbst)

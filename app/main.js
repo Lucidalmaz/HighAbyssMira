@@ -135,6 +135,7 @@ app.whenReady().then(() => {
             }
             await new Promise(r => setTimeout(r, st.wait || 1200));
             if (st.shot !== false) fs.writeFileSync(path.join(out, st.name + '.png'), (await win.webContents.capturePage()).toPNG());
+            fs.writeFileSync(path.join(out, 'steps.json'), JSON.stringify(res, null, 1)); // Zwischenstand: bricht ein Lauf ab (Zeitlimit), bleiben die Ergebnisse bis hier
           }
           fs.writeFileSync(path.join(out, 'steps.json'), JSON.stringify(res, null, 1));
         }

@@ -517,7 +517,7 @@ async function startChapter5() {
   if (typeof kapStart === 'function') kapStart(5); else { if (typeof KAP !== 'undefined') KAP.n = 5; setChapter(5); saveFlag('ch5'); }
   k5_welt(); k5_merker();
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(5) : '') + C5_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(5) : '') + C5_INTRO; /* Story-Prüfung V-8 */ $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   if (pend) { // Weiterspielen: am letzten Speicherpunkt dieses Kapitels (resumeAfterIntro setzt danach nur die gespeicherte Aufgabe)
     const sp = pend.sp || 'k5_veranda'; k5_wieder(sp, true);
     $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer(); };

@@ -75,8 +75,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     // die eingedrückte Stelle im alten Nordzaun: ein Feld liegt flach im Laub
     const lie = m4(42, .08, 157.2, .15, 1, -PI / 2 + .12, 0); chunk(fence, [lie], false, 50); }
   // --- Boden: Waldboden, Laubflecken, Schlamm am Weiher
-  try { const ff = msSurfMat('forestfloor', { tint: 0x3e3830 }); ff.userData.tile = 4; const p = plane(TIEF.x1 - TIEF.x0 + 30, TIEF.z1 - TIEF.z0 + 26, (TIEF.x0 + TIEF.x1) / 2, .013, (TIEF.z0 + TIEF.z1) / 2 + 6, ff); p.receiveShadow = true; } catch (e) { console.warn('Tiefwald: Boden', e); }
-  try { const lv = msSurfMat('leaves', { tint: 0x6a5846 }); lv.userData.tile = 2.5; lv.transparent = false;
+  try { const ff = msSurfMat('../forestfloor', { tint: 0x3e3830 }); ff.userData.tile = 4; const p = plane(TIEF.x1 - TIEF.x0 + 30, TIEF.z1 - TIEF.z0 + 26, (TIEF.x0 + TIEF.x1) / 2, .013, (TIEF.z0 + TIEF.z1) / 2 + 6, ff); p.receiveShadow = true; } catch (e) { console.warn('Tiefwald: Boden', e); }
+  try { const lv = msSurfMat('../leaves', { tint: 0x6a5846 }); lv.userData.tile = 2.5; lv.transparent = false;
     for (let i = 0; i < 70; i++) { const x = rand(TIEF.x0 + 2, TIEF.x1 - 2), z = rand(TIEF.z0 + 2, TIEF.z1 - 2); if (tief_pond(x, z, 1)) continue; const s = rand(3, 8), m = plane(s, s * rand(.6, 1), x, .016 + i * .00002, z, lv, -PI / 2, rand(0, 6.28)); m.receiveShadow = true; } } catch (e) { console.warn('Tiefwald: Laub', e); }
   // --- Weiher: schwarzes, stilles Wasser; Steg
   { const P = TIEF.pond, g = new T.CircleGeometry(1, 48); g.rotateX(-PI / 2); g.scale(P.rx, 1, P.rz);

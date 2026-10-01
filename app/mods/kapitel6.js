@@ -744,7 +744,7 @@ async function startChapter6() {
   if (!laden || K6.beat === 'gitter') { player.pos.set(30, 0, 91.5); player.yaw = PI; } player.pitch = 0; vel.set(0, 0, 0); camY = 1.65; flashOn = true; // Blick nach Norden, aufs Gitter
   if (typeof hungrige_prep === 'function') hungrige_prep().catch(e => console.warn('Kapitel6: Vorbereitung', e));
   $('fade').style.background = '#000'; $('fade').style.opacity = 1; await wait(300);
-  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(6) : '') + K6_INTRO; // Story-Prüfung V-8 $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
+  $('intro').innerHTML = (typeof bisherHtml === 'function' ? bisherHtml(6) : '') + K6_INTRO; /* Story-Prüfung V-8 */ $('introSeq').classList.add('show'); $('fade').style.opacity = 0;
   $('introSeq').onclick = () => { $('introSeq').classList.remove('show'); $('introSeq').onclick = null; lockPointer();
     if (K6.beat === 'gitter') { k6_obj('Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?'); k6_cp('k6_gitter', 'SP6-1 · Das Absperrgitter', 30, 91.5, PI); k6_start1(); } };
 }

@@ -66,7 +66,7 @@ async function kapitel3_polaroid() {
   let bild = null; const f = kapitel3_flanke();
   try { if (typeof kamera_render === 'function') { const yaw0 = player.yaw, pit0 = player.pitch; if (f) { const dx = f[0] - camera.position.x, dy = f[1] - camera.position.y, dz = f[2] - camera.position.z; player.yaw = Math.atan2(-dx, -dz); player.pitch = Math.atan2(dy, Math.hypot(dx, dz)); camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ'); camera.updateMatrixWorld(true); }
       Audio.play('switch1', { gain: .35, rate: 1.8 }); const c = kamera_render(null, { fov: 34, blitz: .8 }); player.yaw = yaw0; player.pitch = pit0;
-      const o = document.createElement('canvas'); o.width = c.width; o.height = c.height; const x = o.getContext('2d'); x.drawImage(c, 0, 0);
+      const im = typeof c === 'string' ? await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = c; }) : c; /* kamera_render liefert eine Bild-URL, kein Canvas */ const o = document.createElement('canvas'); o.width = im.width; o.height = im.height; const x = o.getContext('2d'); x.drawImage(im, 0, 0);
       x.globalCompositeOperation = 'lighter'; const cx = o.width * .56, cy = o.height * .5, g = x.createRadialGradient(cx, cy, 6, cx, cy, 46); g.addColorStop(0, 'rgba(255,236,190,.55)'); g.addColorStop(1, 'rgba(255,200,120,0)');
       x.fillStyle = g; x.beginPath(); x.arc(cx, cy, 46, -Math.PI / 2, Math.PI / 2); x.fill(); x.strokeStyle = 'rgba(255,240,205,.8)'; x.lineWidth = 3; x.beginPath(); x.arc(cx, cy, 20, -Math.PI / 2, Math.PI / 2); x.stroke(); bild = o; } } catch (e) { console.warn('Kap. 3 Polaroid', e); }
   const hinten = 'Aydıns Gescheckte. Vom Himmel. Augen weg.\nSieben Kreise und ein halber. Wer zählt so?\nEiner, der bei acht noch nicht weiß, wie es weitergeht.';
@@ -325,6 +325,10 @@ function kapitel3_fortsetzen(d, at) {
   lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; });
   if (v.cow || S.uk >= 2) { ch3.cowSeen = true; if (!cowFx.done && typeof FAB !== 'undefined' && FAB.cow) { cowFx.done = true; cowFx.g.clear(); cowFx.g.add((FAB.cowPlatt || FAB.cow).clone()); cowFx.g.position.set(-7.5, FAB.cowLift || .5, .8); cowFx.g.rotation.set(PI / 2 - .12, .6, 0, 'YXZ'); cowFx.t = 1; }
     if (S.kuh.size < 3) setTimeout(() => kapitel3_kuhStellen(), 400); S.kuhFluch = S.kuh.size >= 3; }
+  else { const kuh = () => { /* Schlusstest: Spielstand vom Kapitelanfang (vor der Kuh) – das Intro bricht nach dem Aufstehen ab, die Kuh muss trotzdem fallen, sonst klingelt nie das Telefon */
+    if (ch3.cowSeen || cowFx.done || !ch3.on) return; if (scripted || state.talking || ui.overlay || (typeof kino_S !== 'undefined' && kino_S.on)) return setTimeout(kuh, 1000);
+    if (typeof kino_play === 'function' && typeof kino_S !== 'undefined' && kino_S.ready && typeof KINO !== 'undefined' && KINO.k3kuh) { Audio.hum(false); kino_play('k3kuh').catch(e => console.error('Kino k3kuh', e)).then(() => Audio.hum(true)); }
+    else { cowDrop(); cowHit.position.set(-7.5, .6, .8); } }; setTimeout(kuh, 3000); }
   if (v.call) { ch3.callDone = true; ch3.ringing = false; S.callT = -999; S.ringAb = -2; }
   if (v.met && typeof justin_da === 'function') { ch3.met = true; justin.g.visible = true; jPlace(1.5, -5.2, 0); justin.look = true; ch3.pillarK = .35; if (typeof justin_S !== 'undefined' && (!justin_S.phase || justin_S.phase === 'uk4' || justin_S.phase === 'pflicht')) justin_S.phase = 'stadt'; if (typeof whiskey_S !== 'undefined') whiskey_S.jAsked = true; }
   if (v.radio) { ch3.radio = true; if (typeof lucy3_S !== 'undefined') lucy3_S.tuned = true; try { radioLed.material.emissive.set(0x30ff60); } catch (e) {} }

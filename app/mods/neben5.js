@@ -258,7 +258,7 @@ async function n5_vegasTuer() { const H = n5_st('heidi'), J = n5_st('jonas'); if
 function n5_flaschenOffen() { return n5_nach9() && !n5_st('flaschen').done; }
 async function n5_flaschen() { const F = n5_st('flaschen'); if (state.talking) return; state.talking = true; F.done = 1; if (typeof albers_S !== 'undefined') albers_S.open = 1;
   try { if (typeof spannung_trauerAn === 'function') spannung_trauerAn('k5_flaschen'); } catch (e) {}
-  const V = (t, ms) => [t, ms, 'VEGAS'], L = (t, ms) => [t, ms, 'LUKE']; let w = -1;
+  const V = (t, ms) => [t, ms, 'VEGAS'], L = (t, ms) => [t, ms, 'DU']; let w = -1; // X-1: Lukes Antworten an Vegas sind gesprochen (DU), keine Gedanken
   try { try { Audio.chains(-28, 1.2, -12.2); } catch (e) {} await wait(700);
     await say([['Die Kette bleibt vor. Vegas hat eine leere Bierflasche in der Hand und hält sie, als wäre sie noch warm.', 4800],
       V('„Die hatte Mike in der Hand. Er hat für mich Pfand gesammelt. Zweiunddreißig passen in die Kiste hinten an der Tankstelle.“', 6200),

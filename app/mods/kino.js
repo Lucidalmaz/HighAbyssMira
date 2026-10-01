@@ -1279,7 +1279,7 @@ function kino_muh() { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = 
 
 // ---- Nimmerheim (vorläufige Bühne, bis AP-17 den Ort baut): weißer Raum, acht Stühle im Kreis, die Behaltenen
 const KINO_KREIS = ['hilde', 'zayn', 'mike', 'roxy', 'cleo', 'maedchen']; // Fassung 3 (AP-17, Kap. 3 UK 14): Zayn, Mike, Roxy, Hilde, Cleo, Grete (Kreisel) + Lucy; der achte Stuhl bleibt leer
-function kino_buehne(M) { const S = kino_S; return M || S.bu || { x: X3 + 4, z: Z3 }; }
+function kino_buehne(M) { const S = kino_S; if (Array.isArray(M)) M = { x: M[0], z: M[1] }; /* weiss.js übergibt mitte: [x, z] – sonst NaN-Positionen im Kreis und in den Klängen */ return M || S.bu || { x: X3 + 4, z: Z3 }; }
 function kino_kreisSetzen(M, r, stehen, nur) { const S = kino_S, a0 = S.bl ? Math.atan2(S.bl.fz, S.bl.fx) - PI / 2 : 0; KINO_KREIS.forEach((k, i) => { if (nur && !nur.includes(k)) return; const a = a0 + i / 8 * PI * 2, x = M.x + Math.cos(a) * r, z = M.z + Math.sin(a) * r, ry = Math.atan2(M.x - x, M.z - z);
   const st = S.obj['stuhl' + i], rs = stehen ? 5.1 : r + .08; if (st) { st.visible = !stehen || r > 4.4; st.position.set(M.x + Math.cos(a) * rs, 0, M.z + Math.sin(a) * rs); st.rotation.y = ry; } // Sitzfläche zur Mitte, Lehne außen
   if (stehen) kino_fig(k, x, 0, z, ry, 'idle', { look: 'cam', t0: i * .4 }); else kino_fig(k, x, 0, z, ry, 'idle', { sit: .47, t0: i * .4 }); kino_grau(S.fig[k], true); }); }
