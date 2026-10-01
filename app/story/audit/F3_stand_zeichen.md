@@ -61,8 +61,56 @@ Jede Zeile hat Ort, Kapitel (`k`), Sichtbarkeit (`s`) und Bedeutung (`was`). Es 
   - offenes Gartentor „7“ → `k5_parzelle`
   - der Strahl der zweiten Sonne endet auf der Kreuzung → `k3_kreuzung`
 
-## Kurz geprüft
-LAUFPLATZHALTER
+## Kurz geprüft (Sichtläufe über `app/game/index_zeichen.html`, Testbau inzwischen gelöscht)
+- **Lauf 1:** Die Testseite unter `game/` hat kein BVH, deshalb gibt es dort keine Kollision und keine Platzierung. Trotzdem sichtbar:
+  - „ICH KOMME“ + 17 Striche auf der Kreuzung, gut lesbar.
+  - Das Wandbild steht und ist lesbar.
+- **Lauf 2:** Diese Teile funktionieren:
+
+  | Prüfpunkt | Befund |
+  |---|---|
+  | Streiflicht-Gedanke am Kirchweg-∴ | kommt |
+  | Graffiti Nr. 9 | sichtbar (danach von der Fensterkante weg nach z −14,2 versetzt) |
+  | Blitz | Das Polaroid zeigt die Kreise an Nr. 1, an der Wand selbst sind keine. Der Foto-Gedanke kommt. |
+  | Nazca | Der Gedanke „Von hier oben … ein Vogel“ kommt. Im Mondlicht sind helle Furchen sichtbar. |
+
+  Gescheitert ist das Platzieren an fernen Kulissen; die blenden andere Module aus. Die Lösung ist das Setzen erst auf 38 m.
+- **Lauf 3:**
+  - Friedhofsmauer (Turm, Birke), Kapelle, Tankstellen-Rückwand und ein Stöckchenmann sind jetzt platziert.
+  - Die damalige Teil-Puffer-Fassung hat nichts gezeichnet. Ich habe sie durch den Neubau der kleinen Bereichsgeometrie ersetzt; das ist derselbe Weg wie in Lauf 2, der gezeichnet hat.
+- **Lauf 4** war der Nachweis dieser Fassung und ist ausgefallen: Die Warteschlange war voll, und der Testbau wurde zwischendurch gelöscht.
+- **Danach:** nur Syntax und Bau geprüft (`node tools/assemble.js` ohne Fehler).
+
+## Für den Schlusstest (bitte gemeinsam prüfen)
+Testzugriff:
+- `__zeichen.info()`: je Bereich die gesetzten Zeichen (`ok`, mit Position) und die offenen (`offen`, mit Versuchen)
+- `__zeichen.blitz(true)`: Blitz-Sicht erzwingen
+- `__zeichen.zeig(id)`: Kreide erscheinen lassen
+
+1. **Zeichnen nach dem Neubau der Geometrie (wichtigster Punkt):**
+   - Vor Nr. 9 (40 / −14,2, Blick +x, Lampe an) muss „SCHIMMEL“ mit Herz und ∴ rechts neben dem Fenster zu sehen sein.
+   - Hinter der Tankstelle (110 / 35, Blick −z) muss „HIER LANDEN VERBOTEN“ sichtbar sein.
+2. **Platzierung:** `__zeichen.info()` nach einem Gang durch Ort, Kirchberg, Gärten, Hof und Villa. Erwartet sind alle Zeichen in `ok`.
+   - Zuletzt offen: `bank_jahre` (jetzt Versatz-Strahlen auf die Bank bei −46,7 / 77,75), `wald_stoeck` (Suchradius 6 m) und `hochsitz_jahre` (jetzt von der Leiterseite).
+   - Gärten, Hof, Villa, Tunnel und Kanalstadt waren nie im Bild; dort wird automatisch die nächste Fläche gesucht.
+3. **Streiflicht:**
+   - Friedhofsmauer neben dem Tor (−56,2 / 0,62 / 66,8): Lampe flach darüber, dann erscheint der Turm über dem Abgrund. Frontal ist er kaum, ohne Lampe gar nicht zu sehen.
+   - Ebenso am Kirchweg-∴ (−9,2 / 0,78 / 15,6).
+4. **Blitz (Kap. 5):** Ein Foto an Nr. 1 (−49,6 / −7,6, Blick −z) zeigt die Kreise nur im Polaroid.
+5. **Kreide im Rücken (Kap. 3):**
+   - Kreuzung leer ansehen, wegdrehen, nach 3 s ist „ICH KOMME“ da.
+   - Beim Hinsehen kommt „Das war eben noch nicht da.“
+   - Kap. 4 blasser, Kap. 5 noch blasser, im Blitz wieder ganz.
+6. **Wandbild:**
+   - Lesbar, die Abplatzer zeigen die Grundierung.
+   - „Wandbild ansehen“ öffnet die Notiz mit Bild.
+   - Die Mauer hat Kollision.
+   - Das neue Versteck `x7_tor` glänzt am linken Friedhofspfeiler (−55,3 / 66,2).
+7. **Nazca (Kap. 6, Hochsitz 14 / 3,1 / 178,5):**
+   - Rabe nach WSW (Gierwinkel ≈ 1,22), Hirsch nach S (≈ 0,05), Neigung ≈ −0,3; im Mondlicht lesbar.
+   - Die Taschenlampe trifft von dort oft nur die Brüstung.
+   - Falls zu schwach: `W` bzw. die Helligkeit in `zeichen_nazcaTex` anheben.
+8. **Leistung:** pro Bereich ein Draw Call. Der Atlas kostet beim Laden etwa 0,1–0,2 s, das Wandbild beim ersten Annähern etwa 50–80 ms.
 
 ## Offen / Bitten
 - **Testseiten:** Testbauten unter `game/` (z. B. `index_ap24.html`, `index_kr.html`) laden `three-mesh-bvh` nicht, denn die Import-Map dort zeigt aufs CDN ohne bvh.
