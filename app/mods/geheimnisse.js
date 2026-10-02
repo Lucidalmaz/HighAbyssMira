@@ -82,8 +82,8 @@ WORLD_MODS.push(['Geheimnisse', async () => {
         for (let k = 0; k < 3; k++) { const cc = msGround(msFit(cs.clone(true), .16, 'y')); cc.position.set(Math.cos(k * 2.1) * .35, 0, Math.sin(k * 2.1) * .35); g.add(cc); } }
       g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true;
       const l = new VLight(0xffa860, .6, 3.5, 2); l.position.set(x, .4, z); scene.add(l);
-      const hit = box(.8, 1.9, .8, x, .95, z, hidden, { cast: false }), key = 'geh_totem_' + i; S.totems.push({ g, key, i, seen: true, turned: 0 });
-      interact(hit, () => geheimnisse_has(key) ? 'Zählgestell' : 'Zählgestell ansehen', () => geheimnisse_totem(i, key));
+      const hit = box(.8, 1.9, .8, x, .95, z, hidden, { cast: false }), key = 'geh_totem_' + i; S.totems.push({ g, key, i, seen: true, turned: 0, l, flare: 0, nah: false });
+      interact(hit, () => geheimnisse_has(key) ? 'Zählgestell berühren' : 'Zählgestell berühren', () => geheimnisse_totem(i, key));
     });
   } catch (e) { console.warn('Geheimnisse: Totems', e); }
   S.ready = true;
@@ -132,14 +132,29 @@ function geheimnisse_wreck(i, text, key) {
   if (n === 5) setTimeout(() => { sideDone('geh_wrack', 'Alle fünf Teile gefunden.'); // STORY-HOOK: Fallwand-Frage „Was ist das Ding am Himmel?“ – bewusst offen
     openNote('Das Wappen', 'Fünf Teile, von Hand geschmiedet. Auf jedem derselbe Stempel: ein Turm über einem Abgrund. Das Wappen vom Hohen Abgrund.\n\nZusammengelegt ergeben sie einen Bügel. Einen Haken, wie er oben an einer Kinderlaterne sitzt – nur so groß wie ein Scheunentor.\n\n<span class="hand">Was da über dem Dorf hängt, hält jemand an einem Stab. Wer schmiedet so etwas für ein Kind – und geht dann nie hinterher?</span>', 'geh_wappen'); }, 5400);
 }
+// Nutzer 02.10.: „Voodoo-Statue verstehe ich nicht – deutlicher, funktionaler, spannender, mehr Spaß, keine verwirrenden Zusatzinfos.“
+// Klar: Berühren → Kerzen lodern auf, Kinder zählen leise mit (n / 4) → Vision eines Ortes, der jetzt wichtig ist → Lichtsäule dorthin. Alle vier: Geheimnis (Kreide → Lichtsteine).
+const GEH_ZAHL = ['Eins.', 'Zwei.', 'Drei.', 'Vier. Alle da.'];
+const GEH_KARTE = `<div style="font:13px/1 'Special Elite',Georgia,serif;letter-spacing:.32em;opacity:.55;margin-bottom:12px">ZÄHLGESTELLE</div>
+  <div style="font-size:19px;line-height:1.45;margin-bottom:14px;font-style:italic;opacity:.92">Kinder haben sie gebaut. Sie zählen, wer noch da ist.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.88;margin:8px 0"><b style="font-weight:600">Berühren:</b> eine Vision von einem Ort, der jetzt wichtig ist.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.88;margin:8px 0"><b style="font-weight:600">Danach:</b> eine Lichtsäule zeigt dir den Weg dorthin.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.88;margin:8px 0"><b style="font-weight:600">Vier</b> stehen an den Rändern des Dorfs. Findest du alle, verraten sie ein Geheimnis.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.7;margin:8px 0">Sie drehen sich, wenn du wegsiehst. Sie tun dir nichts.</div>
+  <div style="margin-top:14px;font-size:14px;opacity:.5;letter-spacing:.06em">E · weiter</div>`;
 function geheimnisse_totem(i, key) {
-  const lines = ['Äste, mit roter Schnur gebunden. Sieben Knoten. Ein achter ist abgeschnitten – frisch.', 'Oben ein Teddy, festgebunden, das Gesicht zum Wald. Eben hat er noch zu dir gesehen.', 'In die Rinde geritzt: Striche. Sieben Gruppen. Die letzte ist nicht fertig.', 'Die Kerzen brennen. Niemand ist hier. Das Wachs ist noch weich.'];
-  if (geheimnisse_has(key)) { if (!(typeof visionen_totem === 'function' && visionen_totem(i))) toast(lines[i], 3600); return; }
-  story.lore.push({ key, title: 'Zählgestell · ' + (i + 1), html: lines[i] }); sideStart('geh_totem'); toast(lines[i], 4800); Audio.creak(.16); // Berührung: Vision (Modul visionen)
-  if (typeof visionen_totem === 'function') setTimeout(() => visionen_totem(i), 1400);
-  const n = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4.`;
+  const T = geheimnisse_S.totems[i]; if (T) T.flare = 1.6; // Kerzen lodern auf
+  try { Audio.play('woodSqueak1', { gain: .2, rate: .55, x: T.g.position.x, y: 1.4, z: T.g.position.z, ref: 3 }); } catch (e) {}
+  if (geheimnisse_has(key)) { if (!(typeof visionen_totem === 'function' && visionen_totem(i))) toast('Das Gestell ist still.', 2400); return; }
+  const n0 = geheimnisse_S.totems.filter(x => geheimnisse_has(x.key)).length;
+  story.lore.push({ key, title: 'Zählgestell · ' + (n0 + 1) + ' / 4', html: 'Ein Gestell aus Ästen, roter Schnur und einem Teddy. Berührt: eine Vision, danach eine Lichtsäule zu dem Ort.' }); sideStart('geh_totem');
+  const n = n0 + 1; story.side.geh_totem.desc = `Zählgestelle: ${n} / 4. Jedes zeigt dir in einer Vision, wohin du musst.`;
+  try { Audio.whisper(T.g.position.x, 1.3, T.g.position.z, 1.6); } catch (e) {} setTimeout(() => subtitle(`<i>${GEH_ZAHL[Math.min(3, n - 1)]}</i>`, 2200, 'KINDERSTIMME'), 500);
+  setTimeout(() => { try { questPop('ZÄHLGESTELL', n + ' / 4'); } catch (e) { toast('Zählgestell ' + n + ' / 4', 3000); } }, 900);
+  if (n0 === 0 && typeof hl_karte === 'function') setTimeout(() => { try { hl_karte(GEH_KARTE); } catch (e) {} }, 300);
+  if (typeof visionen_totem === 'function') setTimeout(() => visionen_totem(i), n0 === 0 ? 2600 : 1600);
   if (n === 4) setTimeout(() => { sideDone('geh_totem', 'Alle vier gefunden. Auf der Rückseite: Kreide.'); if (typeof neben3_offen !== 'function' || neben3_offen('geh_steine')) sideStart('geh_steine');
-    openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 5000);
+    openNote('Kreide auf den Gestellen', 'Auf die Rückseiten hat jemand mit Kreide geschrieben. Kinderschrift, in einer Reihe:\n\n' + GEHEIM_STONES.map(s => '· ' + s[2]).join('\n') + '\n\n<span class="hand">Mach das Licht aus. Dann siehst du uns.</span>', 'geh_kreide'); }, 9000);
 }
 WORLD_TICK.push((dt, t) => {
   const S = geheimnisse_S; if (!S.ready) return; S.t -= dt; geheimnisse_glow.value = .55 + .45 * Math.sin(t * 1.3) * Math.sin(t * .37 + 1);
@@ -149,7 +164,9 @@ WORLD_TICK.push((dt, t) => {
     if (want && !S.litHint && Math.hypot(s.o.position.x - P.x, s.o.position.z - P.z) < 12) { S.litHint = true; subtitle('Da. Im Dunkeln. Am Boden glimmt etwas – als hätte es nur gewartet, bis du das Licht ausmachst.', 5000); } }
   // Totems: drehen sich zu dir, sobald du wegsiehst (nur in der Nähe)
   camera.getWorldDirection(_geheimFwd);
-  for (const T of S.totems) { const dx = T.g.position.x - P.x, dz = T.g.position.z - P.z, d = Math.hypot(dx, dz); if (d > 28) continue;
+  for (const T of S.totems) { if (T.l) { T.flare = Math.max(0, T.flare - dt * .7); T.l.intensity = .6 * (1 + T.flare * 2.2) * (.85 + .15 * Math.sin(t * 9 + T.i)); }
+    const dx = T.g.position.x - P.x, dz = T.g.position.z - P.z, d = Math.hypot(dx, dz); if (d > 28) continue;
+    if (!T.nah && d < 14 && !geheimnisse_has(T.key) && !state.talking && !story.lore.some(l => /^geh_totem_/.test(l.key))) { T.nah = true; if (!S.ersterBlick) { S.ersterBlick = true; subtitle('<i>Ein Gestell aus Ästen, oben ein Teddy. Kinder haben sowas gebaut, wenn sie gezählt haben, wer noch da ist.</i>', 5200, 'LUKE'); try { if (typeof blick_hin === 'function') blick_hin(T.g.position.x, 1.3, T.g.position.z, { art: 'totem', sek: 2 }); } catch (e) {} } }
     const looking = (_geheimFwd.x * dx + _geheimFwd.z * dz) / d > .45;
     if (!looking && T.seen) { const want = Math.atan2(-dx, -dz); if (Math.abs(want - T.g.rotation.y) > .3) { T.g.rotation.y = want; if (d < 15) Audio.play('woodSqueak1', { gain: .12, rate: .6, x: T.g.position.x, y: 1.2, z: T.g.position.z, ref: 3 }); } }
     T.seen = looking; }

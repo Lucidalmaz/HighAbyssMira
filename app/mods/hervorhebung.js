@@ -9,23 +9,36 @@
 // Schnittstelle: mesh.userData.hl = 'interakt' | 'sammel' | 'hinweis' | 'glanz' | 'sammlung' | 'aus' (oder Funktion) · mesh.userData.hlObj = sichtbares Objekt (oder Funktion, null = keins)
 //   – ohne Angabe: Kategorie aus dem Text; sichtbar = das Mesh selbst bzw. die Modelle innerhalb der unsichtbaren Klickfläche (Figuren nie).
 //   glanz_neu({ size, an }) → { g, key, … } (in die Szene hängen; an() = sichtbar) · glanz_klang(x, y, z) · glanz_tex() · Testzugriff window.__hl
-const HL_FARBE = { interakt: 0x7fb2ff, sammel: 0x69f0c0, hinweis: 0xb38bff, glanz: 0xffcf6b, sammlung: 0xff8ccf }; // Mondblau · Jadegrün · Violett · Bernstein · Perlrosa
+// Nutzer 02.10.: Logik der Ränder – Lesbares Blau (nach dem ersten Lesen gedämpft), nur einmal Lesbares Weiß (danach kein Rand), Wichtiges Gold, Seltenes Purpurrosa.
+const HL_FARBE = { interakt: 0x9fb3c4, lesbar: 0x5ea8ff, einmal: 0xf6f2ea, sammel: 0x69f0c0, wichtig: 0xffc23d, selten: 0xff6fd8, glanz: 0xff8f45 }; // Eisgrau · Mondblau · Weiß · Jadegrün · Gold · Purpurrosa · Kupfer
+const HL_GELESEN = .32; // Blau nach dem ersten Lesen: sichtbar schwächer („hatte ich schon“), nie ganz weg
+const HL_WICHTIG = /schlüssel|sicherung|brechstange|drahtschneider|feuerzeug|kerze|ring\b|lampe|laterne|leiter|batterie|funkgerät|fibel|kamera|seil|messer|stablampe/i;
 const HL_STUFE = { 2: [1, .72, .2], 1: [.62, .4, .07] }; // [angesehen, in Reichweite/im Blick, mittlere Distanz (fällt bis 8 m auf 0)]
 const HL_TEXT = [['aus', /sprechen|streicheln|hand nehmen|berühren|^whiskey|^justin$/i], ['glanz', /glänzt|glänzend|glitzer|kronkorken|münze|pfennig/i],
-  ['sammlung', /foto aufheben|polaroid|stundenbuch|laternenbote|pells heft|heftseite|loses blatt|lose seite|eine zeitung/i],
-  ['hinweis', /lesen|zettel|notiz|\bbriefe?\b|zeitung|tagebuch|akte|kalender|zeichnung|kassette|notenblatt|tafel|plan an|foto|bild|umschlag|grabstein|schild|handy|chronik|heft|rekorder|seite/i],
+  ['selten', /foto aufheben|polaroid|stundenbuch|laternenbote|pells heft|heftseite|loses blatt|lose seite|eine zeitung/i],
+  ['einmal', /zettel|notiz|\bbriefe?\b|zeitung|tagebuch|akte|kassette|notenblatt|umschlag|handy|heft|rekorder|seite|protokoll|nachricht|liste\b|quittung|postkarte/i],
+  ['lesbar', /lesen|kalender|zeichnung|tafel|plan an|foto|bild|grabstein|schild|chronik|inschrift|aushang|karte an|gedenk/i],
   ['sammel', /aufheben|\bnehmen\b|einstecken|mitnehmen|einsammeln/i]];
 const HL = { ready: false, slots: [], scene: null, rt: null, glow: null, mask: null, uD: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uNF: { value: new THREE.Vector2(.05, 110) }, uUseD: { value: 0 },
   t: 0, chk: 0, aktiv: 0, cand: new Array(64).fill(null), dist: new Float32Array(64), look: new Uint8Array(64), fwd: new THREE.Vector3(), v: new THREE.Vector3(), s: new THREE.Sphere(), b: new THREE.Box3(),
-  cc: new THREE.Color(), near: [], nearBig: [], sc: { stack: [], out: [], big: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0 };
+  cc: new THREE.Color(), near: [], nearBig: [], sc: { stack: [], out: [], big: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0, benutzt: new Set(), karte: null };
+MOD_SAVE.push(['hervorhebung', () => [...HL.benutzt].slice(-600), v => { if (Array.isArray(v)) v.forEach(k => HL.benutzt.add(k)); }]);
 const GLZ = { liftT: 0, rc: null, hits: [], proto: null, laden: null, mat: null, tex: null, halo: null, list: [], v: new THREE.Vector3() };
 
 // ---------------------------------------------------------------- Kategorie und sichtbares Objekt
 function hl_text(l) { l = l.replace(/<[^>]*>/g, '').trim(); for (const [k, re] of HL_TEXT) if (re.test(l)) return k;
   if (HL.t > HL.itemsT) { HL.itemsT = HL.t + 10; try { HL.items = new Set(Object.values(ITEMS).map(i => String(i.name || '').toLowerCase())); } catch (e) {} }
   return HL.items && HL.items.has(l.toLowerCase()) ? 'sammel' : 'interakt'; }
+function hl_wichtig(l) { if (HL_WICHTIG.test(l)) return true; try { const L = l.toLowerCase(); for (const [k, it] of Object.entries(ITEMS)) { const n = String(it.name || '').toLowerCase();
+  if (n.length > 3 && L.includes(n) && ((typeof WHISKEY_NIE !== 'undefined' && WHISKEY_NIE.has(k)) || ICONS[k] === ICONS.key)) return true; } } catch (e) {} return false; }
+// Schon benutzt? (über Speichern/Laden: Schlüssel aus Text + Ort)
+function hl_key(o) { const u = o.userData; if (u.hlKey) return u.hlKey; const g = o.geometry; if (g && !g.boundingSphere) g.computeBoundingSphere(); const c = g ? HL.s.copy(g.boundingSphere).applyMatrix4(o.matrixWorld).center : o.position;
+  let l = ''; try { l = String(typeof u.label === 'function' ? u.label() : u.label).replace(/<[^>]*>/g, ''); } catch (e) {} return (u.hlKey = l.slice(0, 40) + '@' + Math.round(c.x * 2) + ',' + Math.round(c.z * 2)); }
+const hl_benutzt = o => !!o.userData.hlBenutzt || HL.benutzt.has(hl_key(o));
 function hl_kat(o) { const u = o.userData; if (u.hlKt > HL.t) return u.hlK; u.hlKt = HL.t + 1 + Math.random(); let k = 'aus';
-  try { const l = typeof u.label === 'function' ? u.label() : u.label; if (l) { const h = typeof u.hl === 'function' ? u.hl() : u.hl; k = h || hl_text(String(l)); } } catch (e) {}
+  try { const l = typeof u.label === 'function' ? u.label() : u.label; if (l) { const L = String(l).replace(/<[^>]*>/g, ''); let h = typeof u.hl === 'function' ? u.hl() : u.hl;
+      if (h === 'sammlung') h = 'selten'; if (h === 'hinweis') { h = hl_text(L); if (h !== 'einmal' && h !== 'lesbar') h = 'lesbar'; } k = h || hl_text(L);
+      if (k === 'sammel' && hl_wichtig(L)) k = 'wichtig'; if (k === 'einmal' && hl_benutzt(o)) k = 'aus'; } } catch (e) {}
   return (u.hlK = HL_FARBE[k] ? k : 'aus'); }
 function hl_ok(m) { if (!m.isMesh || m.isInstancedMesh || m.isBatchedMesh || !m.geometry || m.material === hidden) return false; const M = m.material; return Array.isArray(M) ? M.some(x => x.visible !== false) : !!M && M.visible !== false; }
 function hl_sichtbar(o) { for (let p = o; p; p = p.parent) { if (!p.visible) return false; if (p === scene) return true; } return false; }
@@ -113,13 +126,42 @@ function hl_glowPass() { const p = new ShaderPass({ uniforms: { tDiffuse: { valu
       gl_FragColor = c; }` }); return p; }
 
 // ---------------------------------------------------------------- Legende (einmal, beim ersten Sichten) und Einstellung
+const HL_LEG = [['einmal', 'Weiß', 'Nur einmal zu lesen – danach steht es in der Fibel, der Rand erlischt'], ['lesbar', 'Blau', 'Lesbar – nach dem ersten Lesen nur noch ein schwacher Schimmer'],
+  ['wichtig', 'Gold', 'Wichtig – das brauchst du, um weiterzukommen'], ['selten', 'Purpurrosa', 'Selten – Fotos und Seiten, die zusammengehören'],
+  ['sammel', 'Jadegrün', 'Zum Mitnehmen'], ['glanz', 'Kupfer', 'Glänzendes – für Whiskey'], ['interakt', 'Eisgrau', 'Türen, Schalter, alles zum Untersuchen']];
+function hl_dot(c, px = 12) { const h = '#' + c.toString(16).padStart(6, '0'); return `<span style="display:inline-block;width:${px}px;height:${px}px;border-radius:50%;background:${h};box-shadow:0 0 6px ${h},0 0 14px ${h}88;vertical-align:middle;margin-right:10px"></span>`; }
+function hl_fibelHtml() { return `<span class="hand">Seit dieser Nacht sehe ich Ränder. Um manche Dinge liegt ein Schimmer, wie Atem auf kaltem Glas – erst, wenn ich nah dran bin oder lange genug hinsehe.\n\nIch hab mir die Farben gemerkt:</span>\n` +
+  HL_LEG.map(([k, n, t]) => `${hl_dot(HL_FARBE[k])}<b>${n}</b> – ${t}`).join('\n') + `\n\n<span class="hand">Lucy hätte gesagt, der Ort will mir was zeigen. Ich sag: zu wenig Schlaf.</span>\n<small>Einstellungen → Objekt-Hervorhebung: stark · dezent · aus</small>`; }
+// Erklärkarte beim ersten Sichten: ruhig, links, blockiert nichts (man kann weitergehen), schließt nach 14 s oder mit E/Klick
+function hl_karte(K) { if (HL.karte || document.getElementById('hlKarte')) return; const d = document.createElement('div'); d.id = 'hlKarte'; HL.karte = d;
+  d.style.cssText = 'position:fixed;left:3.2vw;top:50%;transform:translate(-14px,-50%);z-index:9000;max-width:470px;padding:24px 28px 20px;background:linear-gradient(160deg,rgba(14,16,20,.93),rgba(8,9,12,.9));border:1px solid rgba(220,210,190,.16);box-shadow:0 18px 60px rgba(0,0,0,.65),inset 0 0 40px rgba(255,255,255,.02);color:#ddd6c8;font-family:Georgia,serif;opacity:0;transition:opacity .9s ease,transform .9s ease;pointer-events:auto;border-radius:3px';
+  d.innerHTML = K ? K : `<div style="font:13px/1 'Special Elite',Georgia,serif;letter-spacing:.32em;opacity:.55;margin-bottom:12px">RÄNDER</div>
+    <div style="font-size:19px;line-height:1.45;margin-bottom:16px;font-style:italic;opacity:.9">Um manche Dinge liegt ein Schimmer. Die Farbe sagt, was es ist.</div>` +
+    HL_LEG.map(([k, n, t]) => `<div style="display:flex;align-items:center;font-size:17px;line-height:1.35;margin:9px 0">${hl_dot(HL_FARBE[k], 15)}<span><b style="font-weight:600;letter-spacing:.03em">${n}</b><span style="opacity:.78"> – ${t}</span></span></div>`).join('') +
+    `<div style="margin-top:16px;font-size:14px;opacity:.5;letter-spacing:.06em">E · weiter &nbsp;·&nbsp; jederzeit in der Fibel unter „Ränder“</div>`;
+  document.body.appendChild(d); requestAnimationFrame(() => { d.style.opacity = 1; d.style.transform = 'translate(0,-50%)'; });
+  const zu = () => { if (!HL.karte) return; HL.karte = null; d.style.opacity = 0; d.style.transform = 'translate(-14px,-50%)'; setTimeout(() => d.remove(), 950); removeEventListener('keydown', taste, true); };
+  const taste = e => { if (e.code === 'KeyE' || e.code === 'Escape') { e.stopPropagation(); zu(); } }; addEventListener('keydown', taste, true); d.onclick = zu; setTimeout(zu, 14000); }
+// Nachbilder (die blauen Lichter, „Berühren“): beim ersten Sichten erklären, was sie sind und – ohne die spätere Enthüllung vorwegzunehmen – dass nur Luke sie sieht
+const HL_NB = `<div style="font:13px/1 'Special Elite',Georgia,serif;letter-spacing:.32em;opacity:.55;margin-bottom:12px">NACHBILDER</div>
+  <div style="display:flex;align-items:center;margin-bottom:14px"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#e6f0ff 0%,#8fb6ff 45%,rgba(143,182,255,0) 75%);box-shadow:0 0 14px #8fb6ff,0 0 30px #8fb6ff66;margin-right:14px"></span>
+  <span style="font-size:19px;line-height:1.45;font-style:italic;opacity:.92">Ein blaues Licht, das in der Luft hängt.</span></div>
+  <div style="font-size:17px;line-height:1.5;opacity:.86;margin:8px 0"><b style="font-weight:600">Was es ist:</b> Etwas, das hier passiert ist, hat sich in den Ort gebrannt – wie ein Nachbild im Auge, wenn man zu lange in eine Lampe gesehen hat.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.86;margin:8px 0"><b style="font-weight:600">Was es tut:</b> Berühren (E). Für ein paar Sekunden siehst und hörst du, was damals war. Danach erlischt das Licht; das Gesehene steht in der Fibel.</div>
+  <div style="font-size:17px;line-height:1.5;opacity:.86;margin:8px 0"><b style="font-weight:600">Warum du es siehst:</b> <span class="hand" style="font-size:19px">Lucy hat sie nie gesehen. Niemand hier. Nur ich. Ich weiß noch nicht, was das über mich sagt.</span></div>
+  <div style="margin-top:16px;font-size:14px;opacity:.5;letter-spacing:.06em">E · weiter &nbsp;·&nbsp; in der Fibel unter „Nachbilder“</div>`;
+function hl_nachbild() { if (HL.nbGezeigt) return; try { if (story.lore.some(l => l.key === 'nachbilder')) { HL.nbGezeigt = true; return; } if (typeof echoAnchors === 'undefined' || HL.karte || state.talking || ui.overlay) return;
+    const c = camera.position; camera.getWorldDirection(HL.fwd);
+    for (const a of echoAnchors) { if (!a.s.visible) continue; const p = a.s.position, dx = p.x - c.x, dy = p.y - c.y, dz = p.z - c.z, d = Math.hypot(dx, dy, dz); if (d > 11 || d < .5) continue;
+      if ((dx * HL.fwd.x + dy * HL.fwd.y + dz * HL.fwd.z) / d < .9) continue; HL.nbGezeigt = true;
+      story.lore.push({ key: 'nachbilder', title: 'Nachbilder', html: `<span class="hand">Blaue Lichter, die in der Luft hängen. Wenn ich eins berühre, sehe ich, was dort passiert ist – Menschen wie aus Licht, Stimmen von damals. Danach ist es weg, als hätte ich es aufgebraucht.\n\nWie ein Nachbild, wenn man zu lange in eine Lampe gesehen hat.\n\nLucy hat sie nie gesehen. Niemand hier. Nur ich. Ich weiß noch nicht, was das über mich sagt.</span>` });
+      subtitle('<i>Da hängt ein Licht in der Luft. Blau. Wie ein Nachbild, wenn man zu lange in eine Lampe gesehen hat.</i>', 4600, 'LUKE'); setTimeout(() => { try { hl_karte(HL_NB); } catch (e) {} }, 2200); return; } } catch (e) {} }
 function hl_legende() { if (HL.legende) return; HL.legende = true;
-  try { if (story.lore.some(l => l.key === 'hervorhebung')) return; const dot = c => `<span style="color:#${c.toString(16).padStart(6, '0')};text-shadow:0 0 6px #${c.toString(16).padStart(6, '0')}">●</span>`;
-    story.lore.push({ key: 'hervorhebung', title: 'Ränder', html: `<span class="hand">Seit dieser Nacht sehe ich Ränder. Um manche Dinge liegt ein Schimmer, wie Atem auf kaltem Glas – erst, wenn ich nah dran bin oder lange genug hinsehe.\n\nIch hab mir die Farben gemerkt:</span>\n` +
-      `${dot(HL_FARBE.interakt)} Mondblau – Türen, Schalter, alles, was man untersuchen kann\n${dot(HL_FARBE.sammel)} Jadegrün – etwas zum Mitnehmen\n${dot(HL_FARBE.hinweis)} Violett – ein Hinweis: Zettel, Briefe, Bilder\n` +
-      `${dot(HL_FARBE.glanz)} Bernstein – Glänzendes. Für Whiskey.\n${dot(HL_FARBE.sammlung)} Rosa – Seiten und Fotos, die zusammengehören: Polaroids, Stundenbuch, Laternenbote, Pells Heft\n\n` +
-      `<span class="hand">Lucy hätte gesagt, der Ort will mir was zeigen. Ich sag: zu wenig Schlaf.</span>\n<small>Einstellungen → Objekt-Hervorhebung: stark · dezent · aus</small>` });
-    subtitle('<i>Da liegt ein Schimmer drum. Als wollte es gefunden werden.</i>', 3600, 'LUKE'); setTimeout(() => { try { toast('Neu in der Fibel: „Ränder“ – was die Farben bedeuten.', 4600); } catch (e) {} }, 3800); } catch (e) {} }
+  try { const alt = story.lore.find(l => l.key === 'hervorhebung'); if (alt) { alt.html = hl_fibelHtml(); return; } // alter Spielstand: Fibel auf die neuen Farben bringen, keine zweite Karte
+    story.lore.push({ key: 'hervorhebung', title: 'Ränder', html: hl_fibelHtml() });
+    subtitle('<i>Da liegt ein Schimmer drum. Als wollte es gefunden werden.</i>', 3600, 'LUKE'); setTimeout(() => { try { hl_karte(); } catch (e) {} }, 1800); } catch (e) {} }
+// Benutzt merken: E auf ein angesehenes Objekt (vor der Aktion der Basis, damit es auch bei schließenden Notizen zählt)
+addEventListener('keydown', e => { try { if (e.code !== 'KeyE' || e.repeat || ui.overlay || !target || !target.userData.action) return; const u = target.userData; u.hlBenutzt = true; HL.benutzt.add(hl_key(target)); u.hlKt = 0; } catch (er) {} }, true);
 function hl_einstellung() { try { const P = document.getElementById('subPanel'), z = P && P.querySelector(':scope > div.close'); if (!z || !P.querySelector('#sGfx') || document.getElementById('sHl')) return;
   z.insertAdjacentHTML('beforebegin', `<div class="row"><span>Objekt-Hervorhebung</span><select id="sHl">${[[2, 'stark'], [1, 'dezent'], [0, 'aus']].map(([v, n]) => `<option value="${v}" ${(settings.hl ?? 2) === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>`);
   const s = document.getElementById('sHl'); s.onclick = ev => ev.stopPropagation(); s.onchange = ev => { settings.hl = +ev.target.value; saveSettings(); }; } catch (e) {} }
@@ -194,10 +236,12 @@ WORLD_TICK.push((dt, t) => {
   const F = HL_STUFE[mode] || HL_STUFE[2]; let n = 0, best = 0;
   for (let i = 0; i < HL.slots.length; i++) { const s = HL.slots[i]; if (!s.o) continue; let kT = 0;
     if (mode && s.sel) kT = s.o === target ? F[0] : (s.d < 2.6 || s.look) ? F[1] : F[2] * Math.max(0, 1 - (s.d - 2.6) / 5.4);
+    if (kT && s.cat === 'lesbar' && hl_benutzt(s.o)) kT *= HL_GELESEN;
     s.k += (kT - s.k) * Math.min(1, dt * (kT > s.k ? 4.5 : 7)); if (s.k < .004 && !kT) { hl_frei(s); continue; }
     s.mat.uniforms.k.value = s.k * (.82 + .18 * Math.sin(t * 2.2 + s.ph)); n++; if (s.k > best) best = s.k; }
   HL.aktiv = n; HL.glow.enabled = n > 0; HL.glow.uniforms.time.value = t; HL.glow.uniforms.asp.value = camera.aspect;
   if (!HL.legende && !aus && best > .45 && !(typeof subtitle === 'undefined')) hl_legende();
+  if (!HL.nbGezeigt && !aus && state.started && (HL.nbT = (HL.nbT || 0) - dt) < 0) { HL.nbT = .5; hl_nachbild(); }
   glanz_tick(dt, t);
 });
 window.__hl = { HL, GLZ, kat: o => hl_kat(o), vis: o => hl_visuals(o), slots: () => HL.slots.filter(s => s.o).map(s => ({ label: (l => typeof l === 'function' ? l() : l)(s.o.userData.label), cat: s.cat, k: +s.k.toFixed(2), d: +(+s.d).toFixed(2), n: s.px.length })) }; // Testzugriff

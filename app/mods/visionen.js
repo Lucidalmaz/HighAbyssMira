@@ -77,10 +77,10 @@ function visionen_totem(i) {
   const S = visionen_S; if (S.V || state.talking || state.ending) return false;
   const v = VISIONS.find(x => !S.shown.has(x.id) && (() => { try { return x.open(); } catch (e) { return false; } })());
   if (!v) { // Deutung: das Gestell zeigt die Richtung zum wichtigsten offenen Ort
-    if (S.deutT > 0) return toast('Das Gestell ist still. Der Teddy sieht zum Wald.', 2600), true;
+    if (S.deutT > 0) return toast('Das Gestell ist still. Gleich wieder.', 2200), true;
     const far = visionen_near(900).filter(o => o.d > 8)[0]; S.deutT = 45;
     if (!far) return toast('Das Gestell ist still. Hier hat niemand mehr etwas zu sagen.', 3000), true;
-    visionen_show([{ ...far, far: true }], 22); Audio.whisper(far.h.x, 1.4, far.h.z, 2.4); subtitle('<i>Die Knoten der Schnur zeigen alle in eine Richtung. Dort ist noch etwas.</i>', 4600, 'LUKE'); return true;
+    visionen_show([{ ...far, far: true }], 22); Audio.whisper(far.h.x, 1.4, far.h.z, 2.4); toast('Folge dem Licht – dort ist noch etwas zu finden.', 3800); return true;
   }
   S.shown.add(v.id); visionen_play(v); return true;
 }
@@ -108,6 +108,7 @@ function visionen_end() {
   if (S.V.flashWas) flashOn = true; S.V = null; setCamOverride(null); state.talking = false; renderer.domElement.style.filter = ''; S.vig.classList.remove('on'); glitchV = .5; shake = .02;
   if (typeof PERF_CULL !== 'undefined') PERF_CULL.t = 0;
   story.lore.push({ key: 'vision_' + v.id, title: 'Vision · ' + v.title, html: v.shots.map(s => s.text).join('\n\n') }); questPop('VISION', v.title);
+  { const L = v.shots[v.shots.length - 1].look, P = player.pos; setTimeout(() => { visionen_show([{ h: { x: L[0], y: 0, z: L[2], kind: 'story' }, d: Math.hypot(L[0] - P.x, L[2] - P.z), far: true }], 25); toast('Folge dem Licht – dort ist, was du gesehen hast.', 3800); }, 2600); } // Vision → Lichtsäule zum gezeigten Ort (vorher wusste man nicht, wohin)
   const react = { keller: 'Das war … Nr. 7. Hildes Werkbank. Woher weiß ich, wie es da drin aussieht?', anwesen: 'Acht Teile. Ein Schlüssel für ein Haus, in dem seit Jahren keiner mehr wohnt. Okay. Ich such sie.', gedenk: 'Ein achtes Grab. Ich kenn sie. Ich weiß, dass ich sie kenne.',
     wald: 'Zayn. Das war Zayn. Er stand da, als wäre er nie weg gewesen.', rabe: 'Der Rabe will was. Was Warmes, das leuchtet. … Eine Batterie?', steine: 'Licht aus. Die Steine zeigen sich nur im Dunkeln.' }[v.id];
   if (react && typeof gedanke === 'function') gedanke('vision_' + v.id, react, 1200, 3); else if (react) setTimeout(() => subtitle(react, 4200, 'LUKE'), 1200);
