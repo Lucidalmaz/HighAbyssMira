@@ -182,14 +182,44 @@ if 'zaehl' in wahl:  # Horror am Schrottplatz: „ZÄHL NICHT MIT“ in Rostrot,
     s = Wand(41); R = s.R
     s.echt('r_tag_gross', 1250, 40, 760, alpha=.4, buff=.5)
     s.echt('r_tag_unten', 60, 40, 280, alpha=.5, buff=.4)
-    s.spray(bahn(text_mask('ZÄHL NICHT MIT', 220, COV, 120, 330, rot=2, jitter=.7, seed=42)), (112, 26, 20), sig=8, drips=26, os_=1.2, dichte=3.6)
+    s.spray(bahn(text_mask('ZÄHL NICHT MIT', 220, COV, 120, 330, rot=2, jitter=.7, seed=42)), (168, 34, 26), sig=8, drips=26, os_=1.2, dichte=3.6)
     polys = []; x0 = 260
     for g in range(4):
         for i in range(5 if g < 3 else 2):
             x = x0 + g * 330 + i * 52 + R.normal(0, 4); polys.append([(x, 690 + R.normal(0, 8)), (x + R.normal(0, 8), 900 + R.normal(0, 8))])
         if g < 3: polys.append([(x0 + g * 330 - 30, 860), (x0 + g * 330 + 250, 720)])
-    s.spray(linien(polys, R, 2), (24, 22, 22), sig=5.5, drips=10)
+    s.spray(linien(polys, R, 2), (226, 224, 214), sig=5.5, drips=10)
     dots = np.zeros((H, W), np.float32)
     for (px, py) in [(1720, 860), (1700, 892), (1740, 892)]: dots[py, px] = 1
     s.marker(ss(G(dots, 5) * 160, .25, .6), (230, 228, 220), .8)
     s.save('wand_zaehl', .3)
+
+def kreide(s, mask, col=(234, 232, 224), breit=5, al=.95):  # Kinderkreide auf Asphalt: dicke trockene Spur, haftet nur auf den Kornspitzen, Staub daneben
+    m = G(ndi.binary_dilation(mask > .5, iterations=breit).astype(np.float32), 1.2)
+    korn = s.korn; haft = ss(korn * .9 + 1.15 - .25 * s.R.random(m.shape), .35, 1.5)
+    staub = G(m, 7) * .14 * (.6 + .4 * s.R.random(m.shape))
+    a = np.clip(m * haft * al + staub, 0, 1); c = np.array(col, np.float32) / 255
+    rgb = np.clip(c * (1 + .06 * korn[..., None]), 0, 1); s.over(rgb, a * (1 - .95 * s.pore))
+
+if 'kreide17' in wahl:  # Lunas Zählen auf dem Spielplatz (Kap. 3): 1 … 17, dann „UND NOCH EINS“ – Kinderschrift, ungleich groß, die 7 gespiegelt
+    s = Wand(51); R = s.R; x = 90
+    for i, z in enumerate(range(1, 18)):
+        t = str(z); row = 0 if z < 10 else 1; size = int(150 + R.normal(0, 18) - (0 if z < 15 else (z - 14) * 12))
+        if z == 10: x = 110
+        y = 170 + row * 330 + R.normal(0, 22)
+        m = text_mask(t, size, GOC, x, y, rot=R.normal(0, 8), jitter=1., seed=60 + z)
+        if z == 7: m = m[:, ::-1].copy(); m = np.roll(m, (2 * x + int(size * .5)) - W, axis=1)  # gespiegelte Sieben
+        kreide(s, bahn(m), breit=6); x += int(ImageFont.truetype(F + GOC, size).getlength(t)) + 70 + int(R.normal(0, 14))
+    kreide(s, bahn(text_mask('UND NOCH EINS', 160, GOC, 300, 830, rot=-4, jitter=1.1, seed=80)), breit=4, al=.75)
+    s.save('boden_kreide17', .15)
+
+if 'sumpfgas' in wahl:  # Schrottplatz: Verschwörungswand – die Zeitungszeile von 1975 („Experte: Sumpfgas“) zieht die Dorfjugend durch den Kakao
+    s = Wand(61); R = s.R
+    s.echt('r_tag_links', 1720, 600, 280, alpha=.55, buff=.4)
+    s.spray(bahn(text_mask('SUMPFGAS?', 230, GOC, 160, 260, rot=-3, jitter=.6, seed=62)), (226, 224, 214), sig=7, drips=10)
+    s.spray(linien([[(140, 345), (1180, 315)]], R, 4), (182, 30, 28), sig=6, drips=5)
+    s.spray(bahn(text_mask('LÜGE!', 260, COV, 1440, 250, rot=-9, jitter=.6, seed=63)), (182, 30, 28), sig=7.5, drips=12)
+    s.spray(linien([[(1640, 760), (1640, 580)], [(1580, 640), (1640, 570), (1700, 640)]], R, 2), (182, 30, 28), sig=6, drips=3)
+    s.marker(text_mask('Alufolie hilft', 92, COV, 380, 720, rot=-5, jitter=.5, seed=64), (120, 170, 230), .85)
+    s.marker(text_mask('sie gucken', 80, COV, 1100, 880, rot=4, jitter=.6, seed=65), (214, 200, 60), .85)
+    s.save('wand_sumpfgas', .3)
