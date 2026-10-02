@@ -350,9 +350,17 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const handTex = canvasTex(256, 512, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(215,220,220,.3)'; const hand = (cx, cy, s) => { x.beginPath(); x.ellipse(cx, cy, 16 * s, 20 * s, 0, 0, 7); x.fill(); for (let f = 0; f < 5; f++) { x.beginPath(); x.ellipse(cx - 18 * s + f * 9 * s, cy - 30 * s + Math.abs(f - 2) * 5 * s, 3.5 * s, 11 * s, (f - 2) * .15, 0, 7); x.fill(); } };
       hand(96, 300, .9); hand(150, 270, .9); x.font = '40px Caveat'; x.fillStyle = 'rgba(30,20,20,.8)'; x.fillText('03:13', 70, 120); x.fillStyle = 'rgba(40,40,40,.7)'; for (let i = 0; i < 8; i++) x.fillRect(60 + i * 14, 160, 4, 30); x.fillRect(58, 176, 112, 3); });
     const handMat = new T.MeshStandardMaterial({ map: handTex, transparent: true, depthWrite: false, side: T.DoubleSide, roughness: .5 });
-    for (const [x, z, r] of [[0, .515, 0], [-.515, 0, PI / 2], [.515, 0, PI / 2]]) { const p = new T.Mesh(new T.PlaneGeometry(.97, 2.2), glassMat); p.position.set(x, 1.22, z); p.rotation.y = r; p.renderOrder = 3; g.add(p);
+    for (const [x, z, r] of [[-.515, 0, PI / 2], [.515, 0, PI / 2]]) { const p = new T.Mesh(new T.PlaneGeometry(.97, 2.2), glassMat); p.position.set(x, 1.22, z); p.rotation.y = r; p.renderOrder = 3; g.add(p);
       for (const y of [.62, 1.85]) { const bar = P(r ? .03 : .97, .035, r ? .97 : .03, x, y, z, yellow); bar.castShadow = false; } }
-    { const hp = new T.Mesh(new T.PlaneGeometry(.5, 1), handMat); hp.position.set(.1, 1.3, .505); hp.renderOrder = 4; g.add(hp); } // Kinderhände, „03:13“ und acht Striche, von innen an die Scheibe gemalt
+    // Nutzer 02.10.: „Die Telefonzelle hat keinen Eingang“ – vorn jetzt eine Glastür im gelben Rahmen (Scharnier links, öffnet nach außen), statt Vollkasten drei dünne Wände
+    { const gx = g.position.x, gz = g.position.z, D = makeDoor(gx, gz + .515, .97, -1.45, glassMat); D.leaf.position.y = 1.22; D.leaf.scale.set(1, 2.2 / 2.18, .4); D.leaf.renderOrder = 3; D.leaf.castShadow = false;
+      D.pivot.children.forEach(c => { if (c !== D.leaf) { c.position.y = 1.2; c.position.x = .86; c.material = grey; } }); // Griff aus Blech, rechts
+      const fr = (w, h, x, y) => { const b = box(w, h, .04, x, y, 0, yellow, { parent: D.pivot }); b.castShadow = false; return b; };
+      fr(.97, .05, .485, .14); fr(.97, .05, .485, 2.3); fr(.05, 2.2, .025, 1.22); fr(.05, 2.2, .945, 1.22); fr(.97, .035, .485, .62); fr(.97, .035, .485, 1.85);
+      { const hp = new T.Mesh(new T.PlaneGeometry(.5, 1), handMat); hp.position.set(.585, 1.3, -.01); hp.renderOrder = 4; D.pivot.add(hp); } // Kinderhände, „03:13“ und acht Striche, von innen an die Scheibe gemalt – wandern mit der Tür
+      interact(D.leaf, () => D.open ? 'Tür schließen' : 'Tür öffnen', doorAction(D, ''));
+      for (const c of colliders) if (Math.abs(c.minX - 7.45) < .01 && Math.abs(c.maxX - 8.55) < .01 && Math.abs(c.minZ - 7.05) < .01 && Math.abs(c.maxZ - 8.15) < .01) { c.minX = c.maxX = -9999; }
+      addCol(gx - .55, gx + .55, gz - .55, gz - .48, 2.6); addCol(gx - .55, gx - .48, gz - .55, gz + .5, 2.6); addCol(gx + .48, gx + .55, gz - .55, gz + .5, 2.6); S.zellTuer = D; }
     booth.phone.material = grey; booth.phone.castShadow = true;
     const face = new T.Mesh(new T.PlaneGeometry(.23, .33), new T.MeshStandardMaterial({ roughness: .5, metalness: .4, map: canvasTex(160, 230, (x, w, h) => { x.fillStyle = '#4a4d50'; x.fillRect(0, 0, w, h); grain(x, w, h, 500, .3);
       x.fillStyle = '#1d2a22'; x.fillRect(20, 16, 120, 34); x.fillStyle = '#8fd49a'; x.font = '15px monospace'; x.fillText('KARTE/MÜNZE', 26, 38); x.fillStyle = '#222'; x.fillRect(118, 62, 6, 34);

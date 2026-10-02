@@ -1,6 +1,6 @@
 # High Abyss Mira
 
-Psychologischer Horror/Mystery in Lost Eyengless – „Ein Horror, der dich das Fürchten lehrt“ · directed by Lucidworkz (Three.js, Desktop-App mit Electron).
+Psychologischer Horror/Mystery in Lost Eyengless – „Nichts ist, wie es scheint“ · directed by Lucidworkz (Three.js, Desktop-App mit Electron).
 
 - `game/` – das Spiel (`index.html`, Assets unter `assets/`, Fab/Megascans/Unreal-Exporte). `game/index.html` wird **erzeugt** (siehe unten) – nicht direkt bearbeiten.
 - `app/` – Desktop-App: `main.js`, `build.js` (kopiert `game/` nach `app/game`), `npm run release` baut die EXE; `mods/` = Welt-Module (Briefing, Katalog), `tools/` = Test-/Vorschau-Werkzeuge, `story/` = Story-Bibel
