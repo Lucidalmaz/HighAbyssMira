@@ -62,9 +62,10 @@ const KI = {
 const KL_MOTIV = ['E5', 'D5', 'C5', 'B4', 'C5']; // Lucys Spieluhr
 // ---------------------------------------------------------------- Musik: Stücke aus echten Instrumenten (Klavier, Streicher, Harfe, Glockenspiel als Spieluhr), vorab gerendert
 // [Datei, Stufe, Ort, Lautstärke] – menue/traum spielen eigene Wege (Menü, Einstieg); gefahr ist eine nahtlose Schleife. Dateien auf −24 LUFS (gefahr −22).
-const KL_MUSIK = [['mu_menue', null, null, .8], ['mu_traum', null, null, .8], ['mu_ort', 'calm', 'ort', .75], ['mu_unruhe', 'uneasy', null, .75], ['mu_friedhof', 'calm', 'friedhof', .75],
-  ['mu_wald', 'calm', 'wald', .75], ['mu_amt', 'uneasy', 'amt', .75], ['mu_kanal', 'calm', 'kanal', .75], ['mu_villa', 'calm', 'villa', .75], ['mu_weiss', 'calm', 'weiss', .75],
-  ['mu_lauern', 'uneasy', 'keller', .75], ['mu_gefahr', 'danger', null, .7]];
+const KL_MUSIK = [['mu_menue', null, null, 1.28], ['mu_traum', null, null, 1.28], ['mu_ort', 'calm', 'ort', 1.20], ['mu_unruhe', 'uneasy', null, 1.20], ['mu_friedhof', 'calm', 'friedhof', 1.20],
+  ['mu_wald', 'calm', 'wald', 1.20], ['mu_amt', 'uneasy', 'amt', 1.20], ['mu_kanal', 'calm', 'kanal', 1.20], ['mu_villa', 'calm', 'villa', 1.20], ['mu_weiss', 'calm', 'weiss', 1.20],
+  ['mu_lauern', 'uneasy', 'keller', 1.20], ['mu_gefahr', 'danger', null, 1.12]];
+MUSIC.rest.calm = [80, 180]; MUSIC.firstRest = [40, 90]; MUSIC.uneasy = .3; // Musik kommt etwas öfter und früher (vorher zu leise/zu selten gehört), Pausen bleiben
 // Einzelgeräusche und Instrumente: klein, früh geladen. Betten lädt klang_betten beim Betreten eines Ortes, die Jagdmusik lädt mit.
 const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende', 'mb_spieluhr', 'st_klein_1', 'st_klein_2', 'st_klein_3', 'st_gross_1', 'st_gross_2',
   'sc_screech', 'sc_scream', 'sc_violin', 'sc_growl', 'sc_whisper', 'sc_static', 'fx_tief_1', 'fx_tief_2', 'fx_atem', 'fx_telefon', 'fx_rauschen', 'fx_glocke',
@@ -161,7 +162,7 @@ function klang_step(s, v = 1, x, z) {
   else if (s === 'wet') { A.play(pk('stepWet1', 'stepWet2', 'stepWet3'), { gain: .34 * v, vary: .07, varyGain: .25, ...P }); if (Math.random() < .12) A.play('waterLoop', { gain: .06 * v, offset: rand(0, 3), dur: .25, rate: 1.3, hp: 600, ...P }); }
   else if (s === 'water') { A.play(pk('stepWet1', 'stepWet2', 'stepWet3'), { gain: .42 * v, vary: .1, rate: .85, ...P }); A.play('waterLoop', { gain: .14 * v, offset: rand(0, 4), dur: .35, rate: rand(.9, 1.2), ...P }); }
   else if (s === 'leaves') { A.play(pk('stepG1', 'stepG2', 'stepG3'), { gain: .32 * v, vary: .12, varyGain: .3, ...P }); const d = at ? A.at(x, .05, z, 2) : A.world;
-    if (!at || !A.cut) { const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2500, 4200); bp.Q.value = .8; n.connect(bp); A.env(bp, .05 * v, .01, .16, 0, d); n.stop(A.ctx.currentTime + .3); }
+    A.laub(at ? x : player.pos.x, at ? z : player.pos.z, .7 * v); // echte Laubaufnahme statt erzeugtem Rauschen
     if (!at && Math.random() < .05) A.twig(player.pos.x + rand(-.4, .4), player.pos.z + rand(-.4, .4)); }
   else if (s === 'gravel') { A.play(pk('stepC1', 'stepC3', 'stepC5'), { gain: .3 * v, vary: .1, rate: .9, ...P }); A.play('stones1', { gain: .08 * v, offset: rand(0, 1.2), dur: .18, rate: rand(1.3, 1.6), hp: 1200, ...P }); }
   else if (s === 'grass') A.play(pk('stepG1', 'stepG2', 'stepG3'), { gain: .32 * v, vary: .1, varyGain: .3, lp: 5000, ...P });
@@ -171,6 +172,7 @@ Audio.step = function (s) { if (this.ctx) klang_step(s || 'grass', 1); };
 // ---------------------------------------------------------------- Aufnahmen statt Synthese: gleiche Namen (andere Module rufen sie), echte Quellen.
 // Fehlt eine Datei (noch nicht geladen), spielt die alte Fassung – synthetische Tierstimmen/Signale ohne Aufnahme bleiben stumm (lieber Stille als ein falscher Ton).
 const KL_ALT = {}; for (const k of ['stinger', 'scareSound', 'screech', 'whisper', 'musicBox', 'pianoNote', 'chaseMusic', 'hum', 'drip', 'thump', 'tape', 'radio', 'chime', 'bell']) KL_ALT[k] = Audio[k];
+for (const k of ['stinger', 'scareSound', 'screech', 'whisper', 'musicBox', 'pianoNote', 'drip', 'thump', 'tape', 'radio', 'bell']) KL_ALT[k] = function () {}; // Aufnahme noch nicht geladen/fehlt: still statt erzeugtem Ersatzgeräusch (Synthese klang „komisch“); chaseMusic/hum/chime behalten ihren Weg
 const kl_has = n => !!(Audio.buf && Audio.buf[n]);
 function kl_pick(p, n) { const L = []; for (let i = 1; i <= n; i++) if (kl_has(p + i)) L.push(p + i); return L.length ? Audio.pick(...L) : null; }
 const kl_mv = () => typeof settings !== 'undefined' ? settings.music ?? 1 : 1;

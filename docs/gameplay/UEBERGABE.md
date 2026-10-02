@@ -110,3 +110,19 @@ Neu zu beginnen erst nach Absprache: Menü R-27, Symbol R-28 (siehe 4.3/4.4).
 ## 8. Orte
 Repo `C:\Users\GIGABYTE\HighAbyssMira-Repo` (Hauptzweig `claude/wonderful-wozniak-twn7nr`, WIP-Zweige `wip/pause-2026-10-01`, `wip/uebergabe-2026-10-02`) · Fab-Downloads `C:\Users\GIGABYTE\HAM_FabDownloads` · Stimmenwerkzeuge `C:\Users\GIGABYTE\HAM_Stimmen` ·
 Testwerkzeuge `C:\Users\GIGABYTE\_game_run.sh`, `_testgate.sh`, `_schluss\` (QA-Läufe) · Gesprächsverlauf der alten Sitzung `C:\Users\GIGABYTE\.claude\projects\C--Users-GIGABYTE-OneDrive-Desktop-Claude-projekte\84aa0656-63f8-4f2e-a4e4-340c81f4c03a.jsonl`.
+
+
+## 9. Nachtrag 02.10.2026 (Nachmittag) – Testrückmeldungen des Nutzers und Stand
+**Erledigt und committet (Branch `claude/wonderful-wozniak-twn7nr`, auf GitHub):** 4.5 Aufräumen übernommen (Schlankbau, Spindel-Modell 9 MB; `lorenz` aus der Ungenutzt-Liste genommen),
+riesige Leiter im Amt (Maßstab über Dicke → 52 m Balken; `amt.js` `amt_kit(..., 'lang')`), Ranken durch Wind-Shader (`inverse()` bei entarteten Instanzen, Basis `windVert`), Laub nicht an Möbeln/Stufen (`bewuchs.js`),
+Zimmer-7-Tür-Absicherung (`zimmer7.js`, Erleichterungsszene hängt nicht mehr), Beta-Vermerk unten links (`teststand.js`, `HAM_BUILD` aus `assemble.js`), Release liegt auf dem Desktop (Build 02.10.).
+**Verworfen:** `leistung.js` Abschnitte 11–13 (kein messbarer Gewinn; Zweig `wip/uebergabe-2026-10-02` bleibt).
+**Im Arbeitsverzeichnis, gebaut, NICHT im Desktop-Bau:** Klang (`klang.js`: stille statt synthetischer Ersatzgeräusche, echtes Laub statt Rauschen, Musik ≈ +4 dB, kürzere Pausen).
+**Noch offen (Nutzerwünsche, nach Dringlichkeit):**
+1. **Haustür-Treppe Nr. 7 (Kap. 1):** Mittig (x = 23) bleibt man beim Rennen auf der ersten Stufe (z ≈ −11,0) hängen, y flackert 0 ↔ 0,22 (74–156 Wechsel in 4 s); x = 22,6 / 23,4 kommen durch. Stufen = nackte Boxen (Stufe 1: 22,1–23,9 × −11,8…−10,7, Oberkante 0,22; Stufe 2 bis −11,25, Oberkante 0,43) ohne Collider (Boden über `solidGround`, Regel `best <= y+.05 || cnt >= 3`). Verdächtig: Katze PETER (streunt auf der Veranda), Gras-Büschel `gruen` (noCol) auf den Stufen. Test: `_t_steps.json` (Schritt `treppe`).
+2. **Kellertreppe (Kap. 1):** nicht untersucht (`enterBasement`/`leaveBasement` sind Fade-Wechsel mit `stairBusy`).
+3. **Selbstgezeichnetes ersetzen:** Kreidestriche an Laternen schweben als Balken; Telefonzelle ohne Eingang; Schränke ohne sichtbare Tür; Farb-Ausreißer; blutige Hände/Kratzer (Kap. 2), UFO-Bilder im Keller (Kap. 1) – alles Canvas-Decals. Ersatz durch echte Scans/Decals nur mit freien Fab/Quixel-Assets (Nutzer meldet sich selbst an).
+4. **Tassen/Gegenstände falsch platziert:** Orte nötig (Haus/Raum), Handplatzierungen in vielen Modulen.
+5. **Tür Zimmer 7 (Kap. 2):** Ursache nur vermutet (hängende Untertitel-Szene); der „Balken“ war die Leiter (behoben) – bitte im neuen Bau prüfen.
+6. 4.1 Rest, 4.2 Atem, 4.3 Menü, 4.4 Symbol, 4.6 Stimmen wie oben (am 07.10. weiter).
+7. Klangprüfung: Abstürze/Aussetzer nicht reproduziert; Ursachenforschung nur mit Hörtest möglich.
