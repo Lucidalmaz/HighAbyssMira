@@ -134,3 +134,12 @@ in `HAM_FabDownloads/v20_texturen` frei → `_cut/`), `gr_compose.py <nr9|tanke|
 Villenwand im Test nicht gesetzt (Bereich nicht geladen) – prüfen. Credits ergänzt (commonspence, Punttulanbro).
 **Berichte:** `docs/gameplay/AAA_Bewertung.md` (Noten, 10 Hebel, Szenenvorschläge), `docs/technical/selbstgezeichnet_inventar.md` (~430 offene selbstgezeichnete Texturen; größte Hebel: Papier-Scan-Satz, Decal-Set Kreide/Kratzer/Abdrücke).
 **Offen (Nutzerwunsch):** weitere Mystery-/Horror-/Alien-Graffiti, Lunas Kreide „1 … 17 UND NOCH EINS“ (Kap. 3), Kornkreis „sieben Kreise und ein halber“ am Hof als weitere Nazca-Figur. Wochenlimit 100 % (Reset 07.10.), Arbeit lief über bezahltes Zusatzkontingent.
+
+## 11. Nachtrag 02.10.2026 (Vormittag, 20-€-Paket des Nutzers)
+**Committet und im Desktop-Bau:** Lunas Kreide „1 … 17 UND NOCH EINS“ auf dem Spielplatz Kirchberg (nur Kap. 3, `spielplatz_zaehlen`, Bild `boden_kreide17.png`; Kapitelsichtbarkeit der Bild-Netze über `zeichen_S.bildM`),
+Verschwörungswand „SUMPFGAS? LÜGE!“ (Wellblechzaun Schrottplatz z ≈ −10,4) und „ZÄHL NICHT MIT“ (z ≈ −14), beide hell auf dem dunklen Blech, im Spiel angesehen. Nazca-Figur „sieben Kreise und ein halber“
+(`ZEICHEN_NAZCA` id `kreise`, c [29.5, 169], Perlen an einer Schnur) – **nur gebaut, nicht im Spiel angesehen** (Wald erst ab Kap. 6).
+**Echtes Papier:** `papierScan(ctx, w, h, farbe)` in der Basis (Megascans „Dirty Papers“, leere Blattfläche → `game/assets/ms/papier/faser.jpg`, multipliziert über die Grundfarbe) ersetzt Farbfläche + gemalte Pünktchen in
+`amt_papier`, `kapitel1_papier`, `kirchberg_papier`, `villa_papierCv`, `innen_kapitel` paperCanvas und im Lesefenster (`ob_papier`, gemalte Wolken/Fasern nur noch als Hauch). „Paper Grime“ (Megascans) ist unbrauchbar (durchgehend dunkle Fläche) und nicht verwendet.
+Noch nicht umgestellt: `karte.js`, `album.js`, `ausbau_nord_paper`-Aufrufer. Testzugriff `__papier`. Quelle: `HAM_FabDownloads/v21_papier`.
+**Offen:** Decal-Set (Kratzer, Blut, Abdrücke), Kinderzeichnungen, restliche Einträge aus `docs/technical/selbstgezeichnet_inventar.md`.
