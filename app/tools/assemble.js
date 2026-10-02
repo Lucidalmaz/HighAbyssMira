@@ -58,7 +58,7 @@ const crlf = /\r\n/.test(fs.readFileSync(path.join(MODS, '_base_source_index.htm
 html = html.replace(/\r\n/g, '\n'); if (crlf) html = html.replace(/\n/g, '\r\n');
 // Zwischenversion: HAM_TESTSTAND=<letztes Kapitel> → nach diesem Kapitel zeigt mods/teststand.js „Ende der Testversion“
 if (process.env.HAM_TESTSTAND) html = html.replace('<head>', `<head>
-<script>window.HAM_TESTSTAND = ${+process.env.HAM_TESTSTAND};</script>`);
+<script>window.HAM_TESTSTAND = ${+process.env.HAM_TESTSTAND}; window.HAM_BUILD = '${new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}';</script>`);
 if (RELEASE) {
   if (!html.includes('<head>')) throw new Error('Veröffentlichung: <head> fehlt');
   html = html.replace('<head>', '<head>\n<script>window.IS_RELEASE = true;</script>');

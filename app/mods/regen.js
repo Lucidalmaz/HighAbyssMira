@@ -16,7 +16,7 @@
 //   Traufe, Fallrohr, drinnen gedämpft. Pegel und Richtung (Stereo) aus derselben Karte, lauter in Böen und Schauern. Das Modul übernimmt diese Betten
 //   von klang.js (regen_bett), sie laufen über denselben Bettbus (Sprache duckt, Regie-Stille) – nichts doppelt.
 // · Kamera: nur wer nach oben in den offenen Regen sieht, bekommt vereinzelt Tropfen an den Bildrand (DOM mit backdrop-filter, kein Render-Durchgang).
-// Testzugriff: window.__regen (stats, ab(alt) = alter CPU-Regen zum Vergleich).
+// Testzugriff: __regen am window (stats, ab(alt) = alter CPU-Regen zum Vergleich).
 const RG = { N: 64, C: .5, budget: .2, map: null, tex: null, spiral: null, pcx: 1e9, pcz: 1e9, cur: 0, solN: -1, dirty: 0, upT: 0, trees: null, treeN: -1, mats: new Map(),
   U: null, m: null, sp: null, alt: null, altN: 0, frame: 0, drawnF: -9, t: 0, prev: new THREE.Vector3(1e9, 0, 0), camV: new THREE.Vector3(), aktiv: false, schauer: 0, traum: false,
   ms: 0, cells: 0, cellMs: 0, hitFace: null, gy: 0, v: new THREE.Vector3(), v2: new THREE.Vector2(), resT: 0, pipes: null, pipeT: 0,

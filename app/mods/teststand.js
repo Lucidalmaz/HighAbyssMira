@@ -16,6 +16,10 @@ function teststand_ende() {
   document.body.appendChild(d); requestAnimationFrame(() => { d.style.opacity = 1; });
   d.querySelector('#teststandZurueck').onclick = () => location.reload();
 }
+if (TESTSTAND_MAX) { // Beta-Vermerk: immer sichtbar (Titel, Spiel, Pause), klickt nichts weg
+  const bv = document.createElement('div'); bv.id = 'betaVermerk';
+  bv.style.cssText = 'position:fixed;left:14px;bottom:10px;z-index:99998;pointer-events:none;font:16px "Special Elite",Georgia,serif;letter-spacing:.14em;color:#d8d2c4;opacity:.62;text-shadow:0 1px 3px #000,0 0 8px #000';
+  bv.textContent = `BETA · Testversion Kapitel 1–${TESTSTAND_MAX} · Build ${window.HAM_BUILD || ''}`; document.body.appendChild(bv); }
 if (TESTSTAND_MAX) setChapter = (o => n => { if (n > TESTSTAND_MAX) { teststand_ende(); return; } o(n); })(setChapter);
 WORLD_MODS.push(['Teststand', async () => {}]);
 WORLD_TICK.push(() => {});
