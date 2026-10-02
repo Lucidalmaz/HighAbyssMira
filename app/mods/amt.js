@@ -233,11 +233,29 @@ async function amt_bauTunnel(S, K) {
   const spz = amt_cv(256, 180, (x, w, h) => { amt_rs = 81; amt_papier(x, w, h, { bg: '#e8e4d4', flecken: 2 }); x.fillStyle = '#1c2a55'; x.font = '19px Caveat'; ['Bandschleife Ansagen 2009, Sprecher H. W.', 'Nicht löschen. Läuft bei Stromausfall', 'über Batterie. Wer das Band verstellt', 'hört: das ist nicht das Band.'].forEach((t, i) => x.fillText(t, 14, 40 + i * 34)); });
   amt_flaeche(amt_decal(spz), AMT_BOXEN[0][0], 2.03, AMT_BOXEN[0][2] - .003, .2, .14, PI, .04);
   amt_hit(AMT_BOXEN[0][0], 2.1, zN - .12, .35, .4, .2, 'Zettel am Lautsprecher', () => amt_note('Speicherzettel', '<span class="hand">„Bandschleife Ansagen 2009, Sprecher H. W. Nicht löschen. Läuft bei Stromausfall über Batterie. Wer das Band verstellt hört: das ist nicht das Band.“</span>', 'speicherzettel'));
-  // Kinderhandabdrücke in Wandfarbe, dichter werdend, alle in derselben Höhe (letzte Tunnelmeter)
-  const hand = (x, s) => { x.save(); x.scale(s, s); x.beginPath(); x.ellipse(0, 0, 14, 17, 0, 0, 7); x.fill(); for (const [a, l] of [[-1.05, 18], [-.45, 23], [-.1, 25], [.25, 23], [.75, 16]]) { x.save(); x.rotate(a); x.beginPath(); x.ellipse(0, -18 - l / 2, 4.2, l / 2, 0, 0, 7); x.fill(); x.restore(); } x.restore(); };
-  const haende = amt_cv(2048, 160, (x, w, h) => { x.clearRect(0, 0, w, h); amt_rs = 83; let px = 20; while (px < w - 20) { const dich = px / w; x.fillStyle = `rgba(${amt_R(120, 170) | 0},${amt_R(40, 70) | 0},${amt_R(30, 50) | 0},${amt_R(.35, .6)})`;
-    x.save(); x.translate(px, 80 + amt_R(-4, 4)); x.rotate(amt_R(-.35, .35)); hand(x, amt_R(.9, 1.15)); x.restore(); px += amt_R(40, 150) * (1.15 - dich * .95); } });
-  const hm = amt_decal(haende); hm.side = THREE.DoubleSide; amt_flaeche(hm, X0 + 13.8, .92, zN - .012, 7.6, .6, PI); const h2 = amt_flaeche(hm, X0 + 13.8, .92, zS + .012, 7.6, .6, 0); h2.scale.x = -1;
+  // Kinderhandabdrücke, dichter werdend, alle in derselben Höhe (letzte Tunnelmeter).
+  // Nutzer 02.10.: „selbst gezeichnet → ultra realistisch“. Vorher: Ellipsen in Flachfarbe. Jetzt: Farbe und Relief aus dem Megascans-Blutfoto (blood_hv: Farbe, Normalen,
+  // Rauheit – nass glänzend, wo dick), die Form als Maske: Handballen mit Druckzonen (Mitte dünn, Ränder satt), Fingerglieder mit Lücken an den Gelenken,
+  // trockene Aussparungen (Hautporen/Rillen), verwischte Ränder; manche Abdrücke rutschen ab und ziehen eine Spur, an einigen läuft ein Tropfen herab.
+  const handM = (x, s, rut, tropf) => { x.save(); x.scale(s, s);
+    const blob = (cx, cy, rx, ry, a, k) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry)); g.addColorStop(0, `rgba(255,255,255,${.55 * k})`); g.addColorStop(.62, `rgba(255,255,255,${.95 * k})`); g.addColorStop(.86, `rgba(255,255,255,${.7 * k})`); g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.save(); x.translate(cx, cy); x.rotate(a); x.scale(1, ry / rx); x.translate(-cx, -cy); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, rx, 0, 7); x.fill(); x.restore(); };
+    blob(0, 2, 15, 18, 0, 1); blob(-6, 10, 8, 9, .3, .8); blob(7, 9, 7, 8, -.2, .7); // Ballen (Daumen-/Kleinfingerballen satter)
+    for (const [a, l] of [[-1.05, 18], [-.45, 23], [-.1, 25], [.25, 23], [.75, 16]]) { x.save(); x.rotate(a + amt_R(-.06, .06)); for (let gl = 0; gl < 3; gl++) { const L = l / 3; blob(0, -16 - gl * (L + 1.6) - L / 2, 4.4 - gl * .35, L / 2 + .6, 0, gl === 2 ? 1 : .85); } x.restore(); }
+    x.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 70; k++) { x.fillStyle = `rgba(0,0,0,${amt_R(.25, .8)})`; x.beginPath(); x.arc(amt_R(-14, 14), amt_R(-38, 18), amt_R(.4, 1.6), 0, 7); x.fill(); } // Poren, trockene Stellen
+    x.lineWidth = .7; x.strokeStyle = 'rgba(0,0,0,.5)'; for (let k = 0; k < 6; k++) { x.beginPath(); const yy = amt_R(-6, 12); x.moveTo(-14, yy); x.bezierCurveTo(-4, yy + amt_R(-3, 3), 4, yy + amt_R(-3, 3), 14, yy + amt_R(-2, 2)); x.stroke(); } // Handlinien
+    x.globalCompositeOperation = 'source-over';
+    if (rut) { const g = x.createLinearGradient(0, 18, 0, 18 + rut); g.addColorStop(0, 'rgba(255,255,255,.75)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(-12, 14, 24, rut); } // abgerutscht: Wischspur nach unten
+    if (tropf) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(amt_R(-6, 6), 14, 1.6, tropf); x.beginPath(); x.arc(0, 14 + tropf, 1.7, 0, 7); x.fill(); }
+    x.restore(); };
+  const haende = amt_cv(2048, 192, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); amt_rs = 83; let px = 22; while (px < w - 22) { const dich = px / w;
+    x.save(); x.translate(px, 78 + amt_R(-5, 5)); x.rotate(amt_R(-.35, .35)); handM(x, amt_R(.9, 1.15) * .95, amt_R(0, 1) < .18 ? amt_R(18, 42) : 0, amt_R(0, 1) < .22 ? amt_R(14, 60) : 0); x.restore(); px += amt_R(40, 150) * (1.15 - dich * .95); } });
+  const hTex = amt_tex(haende); hTex.colorSpace = THREE.NoColorSpace;
+  const bt = (f, srgb) => { const t = msTex('blood_hv/' + f, srgb).clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(10.7, 1); t.needsUpdate = true; return t; };
+  const hm = new THREE.MeshStandardMaterial({ map: bt('b.png', true), normalMap: bt('n.jpg', false), roughnessMap: bt('orm.jpg', false), color: 0x7a2a22, roughness: .55, metalness: 0,
+    alphaMap: hTex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, side: THREE.DoubleSide });
+  hm.normalScale.set(.9, .9);
+  amt_flaeche(hm, X0 + 13.8, .92, zN - .012, 7.6, .71, PI); const h2 = amt_flaeche(hm, X0 + 13.8, .92, zS + .012, 7.6, .71, 0); h2.scale.x = -1;
   // Tote Rauchmelder an der Decke, Kabelkanal, Wasserflecken (Leben im Beton)
   amt_rauchmelder(X0 + 3, Z0); amt_rauchmelder(X0 + 12, Z0);
 }
