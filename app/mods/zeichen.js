@@ -35,7 +35,7 @@ const ZEICHEN_TAB = [
   { id: 'tanke_graffiti', a: 'ort', m: 'g_tanke', s: 0, op: .9, ray: [110.6, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Jugend-Graffiti an der Tankstelle: „HIER LANDEN VERBOTEN“, Herz, ein abgemaltes Auge mit Fragezeichen' },
   { id: 'tanke_alien', a: 'ort', m: 'g_alien', s: 0, op: .9, ray: [107.5, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Alien-Schablone der Dorfjugend: grauer Kopf, „NIMM MICH MIT“, darunter „VEGAS HAT RECHT“ – Witz über Lichter am Himmel und Vegas’ Theorien' },
   { id: 'schrott_zaehl', a: 'ort', m: 'g_zaehl', s: 0, op: .92, ray: [113, 1.4, -14, 1, 0, 0, 4], w: 2.4, was: 'Am Schrottplatz, rostrot und gelaufen: „ZÄHL NICHT MIT“, darunter siebzehn Striche, klein ∴ – wer hier gezählt hat, bleibt offen' },
-  { id: 'schrott_sumpfgas', a: 'ort', m: 'g_sumpfgas', s: 0, op: .92, ray: [113, 1.4, -28.2, 1, 0, 0, 4], w: 2.4, was: 'Verschwörungswand der Dorfjugend: „SUMPFGAS?“ durchgestrichen, „LÜGE!“, „Alufolie hilft“, „sie gucken“ – die Zeitungszeile von damals, verspottet' },
+  { id: 'schrott_sumpfgas', a: 'ort', m: 'g_sumpfgas', s: 0, op: .92, ray: [114.4, 1.4, -10.4, 1, 0, 0, 3], w: 2.4, was: 'Verschwörungswand der Dorfjugend: „SUMPFGAS?“ durchgestrichen, „LÜGE!“, „Alufolie hilft“, „sie gucken“ – die Zeitungszeile von damals, verspottet' },
   // ---- Kirchberg
   { id: 'tor_turm', a: 'kirchberg', m: 'turm_alt', s: 1, ray: [-56.2, .62, 65.2, 0, 0, 1, 2.6], w: .3, rot: -.05, was: 'Turm über dem Abgrund (Wappen), alte Ritzung an der Friedhofsmauer neben dem Tor' },
   { id: 'mauer_birke', a: 'kirchberg', m: 'birke_alt', s: 1, ray: [-64.6, .58, 68.8, 0, 0, -1, 2.6], w: .22, rot: .06, was: '1312-Motiv Birke, verwittert, innen an der alten Friedhofsmauer' },
