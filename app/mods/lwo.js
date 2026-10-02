@@ -470,7 +470,9 @@ function lwo_figTick(F, dt) {
   let want = 0;
   if (F.path && F.pi < F.path.length) { const p = F.path[F.pi], dx = p.x - g.position.x, dz = p.z - g.position.z, d = Math.hypot(dx, dz);
     if (d < .3) { F.pi++; if (F.pi >= F.path.length) { F.path = null; if (F.done) { const r = F.done; F.done = null; r(); } } }
-    else { const yw = Math.atan2(dx, dz); let dy = yw - g.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    else { const y0 = Math.atan2(dx, dz), yw = d > 1.4 && typeof leben_umweg === 'function' ? leben_umweg(F, g.position.x, g.position.z, y0, { r: .34, y: .9, vor: 1.2 }) : y0; let dy = yw - g.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+      // festgelaufen (2 s kaum Fortschritt trotz Gehwunsch): diesen Wegpunkt überspringen statt gegen die Wand zu drücken
+      F.stk = F.stk || { t: 0, d: d }; F.stk.t += dt; if (F.stk.t > 2 && (F.speedWant || def.speed) > .2 && F.sp > .05) { if (F.stk.d - d < .25 && F.pi < F.path.length - 1) F.pi++; F.stk.t = 0; F.stk.d = d; }
       F.yawV += (Math.sign(dy) * Math.min(Math.abs(dy) * 3, 2.4) - F.yawV) * Math.min(1, dt * 6); g.rotation.y += F.yawV * dt;
       want = (F.speedWant || def.speed) * Math.max(.25, 1 - Math.abs(dy) / 1.6) * Math.min(1, d / 1.1 + .35); } }
   else F.yawV *= Math.max(0, 1 - dt * 5);

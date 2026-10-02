@@ -41,6 +41,15 @@ function leben_free(x, z, y, r) {
   for (let i = 0; i < colliders.length; i++) { const c = colliders[i]; if (c.minX < -5000 || c.top < 1.6) continue; if (x + r > c.minX && x - r < c.maxX && z + r > c.minZ && z - r < c.maxZ && c.base < y + r && c.top > y) return false; }
   return true;
 }
+// Nutzer 02.10.: „Tiere und Agenten sollen nicht gegen Steine, Bäume, Wände laufen.“ Gemeinsames Ausweichen: alle 0,25 s ein Fühler voraus (Körperhöhe y, Breite r);
+// ist er zu, die nächste freie Richtung (±0,45 … ±1,6 rad, die zum Ziel nähere zuerst) für 0,8 s halten. Rückgabe: Kurs (Gierwinkel), den die Figur jetzt nehmen soll.
+function leben_umweg(V, x, z, yw, { r = .32, y = .5, vor = 1.1 } = {}) {
+  const U = V.umweg || (V.umweg = { bis: 0, a: 0, ab: 0, chk: 0 }), now = performance.now() / 1000;
+  if (now < U.bis) return U.a;
+  if (now < U.chk) return yw; U.chk = now + .25;
+  if (leben_free(x + Math.sin(yw) * vor, z + Math.cos(yw) * vor, y, r)) return yw;
+  for (const o of [.45, -.45, .9, -.9, 1.6, -1.6]) { const a = yw + o * (U.ab || 1); if (leben_free(x + Math.sin(a) * vor, z + Math.cos(a) * vor, y, r) && leben_free(x + Math.sin(a) * vor * .5, z + Math.cos(a) * vor * .5, y, r)) { U.a = a; U.bis = now + .8; U.ab = Math.sign(o) || 1; return a; } }
+  return yw; }
 function leben_path(x0, z0, x1, z1) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.ceil(L / .4); for (let i = 1; i <= n; i++) { const k = i / n; if (!leben_free(x0 + (x1 - x0) * k, z0 + (z1 - z0) * k, .1, .1)) return false; } return true; }
 
 // ---------------------------------------------------------------- Klänge (vorhandene Audio-Bausteine)
@@ -432,7 +441,7 @@ function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenh
   // Nutzer 02.10.: „Lebewesen sollen nicht mehr rückwärts gehen“ – vorher sofort zum Ziel geschoben, Körper drehte erst hinterher (rutschte bis 0,5 s rückwärts/seitwärts).
   // Jetzt wie die Katzen: erst wenden, dann vorwärts in Blickrichtung; je größer der Winkel, desto langsamer (Wende im Stand, dann Bogen).
   if (!face) { const st = Math.min(dd, V.sp * dt); p.x += dx / dd * st; p.z += dz / dd * st; }
-  else { const want = Math.atan2(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, want, Math.min(1, dt * (V.sp > 3 ? 7 : 5))); let df = want - V.g.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df));
+  else { const want = dd > 1.2 ? leben_umweg(V, p.x, p.z, Math.atan2(dx, dz), { r: V.sp > 3 ? .45 : .32, y: .5, vor: V.sp > 3 ? 2 : 1.1 }) : Math.atan2(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, want, Math.min(1, dt * (V.sp > 3 ? 7 : 5))); let df = want - V.g.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df));
     const k = dd < .35 ? 1 : Math.max(0, Math.cos(Math.min(1.57, Math.abs(df) * 1.15))), st = Math.min(dd, V.sp * dt * k);
     if (dd < .35) { p.x += dx / dd * st; p.z += dz / dd * st; } else { p.x += Math.sin(V.g.rotation.y) * st; p.z += Math.cos(V.g.rotation.y) * st; } }
   V.gy -= dt; if (V.gy < 0) { V.gy = .2; const sg = solidGround(p.x, p.y + .1, p.z); V.ty = sg > -1 ? Math.max(0, sg) : 0; } p.y += (V.ty - p.y) * Math.min(1, dt * 8);

@@ -280,6 +280,6 @@ WORLD_TICK.push((dt, t) => {
   if (!HL.legende && !aus && best > .45 && !(typeof subtitle === 'undefined')) hl_legende();
   if (!HL.nbGezeigt && !aus && state.started && (HL.nbT = (HL.nbT || 0) - dt) < 0) { HL.nbT = .5; hl_nachbild(); }
   glanz_tick(dt, t); try { gli_tick(dt, t, aus || !mode); } catch (e) {}
-  if (HL.karte && HL.karteZu && (ui.overlay || (typeof beutel_S !== 'undefined' && beutel_S.open) || (typeof kino_S !== 'undefined' && kino_S.on))) HL.karteZu(); // Tasche/Notiz/Film geht auf: Karte weicht
+  if (HL.karte && HL.karteZu && (ui.overlay || state.talking || (typeof beutel_S !== 'undefined' && beutel_S.open) || (typeof kino_S !== 'undefined' && kino_S.on))) HL.karteZu(); // Tasche/Notiz/Film geht auf: Karte weicht
 });
 window.__hl = { HL, GLZ, kat: o => hl_kat(o), vis: o => hl_visuals(o), slots: () => HL.slots.filter(s => s.o).map(s => ({ label: (l => typeof l === 'function' ? l() : l)(s.o.userData.label), cat: s.cat, k: +s.k.toFixed(2), d: +(+s.d).toFixed(2), n: s.px.length })) }; // Testzugriff

@@ -4737,7 +4737,10 @@ function fabUpdate(dt, t) {
     if (Math.hypot(P.x - S.g.position.x, P.z - S.g.position.z) > 25) continue;
     S.mx.update(dt); S.t -= dt;
     if (S.t < 0 && S.acts.walk) { S.walking = !S.walking; S.t = S.walking ? rand(.8, 2.2) : rand(2, 6); const a = S.walking ? S.acts.walk : S.acts.idle; a.reset().fadeIn(.2).play(); S.cur.fadeOut(.2); S.cur = a; if (S.walking) S.dir += rand(-1.4, 1.4); }
-    if (S.walking) { const nx = S.g.position.x + Math.sin(S.dir) * .18 * dt, nz = S.g.position.z + Math.cos(S.dir) * .18 * dt; if (Math.hypot(nx - S.home.x, nz - S.home.z) < 1.2) { S.g.position.x = nx; S.g.position.z = nz; } else S.dir += PI; S.g.rotation.y = S.dir; }
+    // Nutzer 02.10.: „Spinnen laufen rückwärts“ – Kopf des Modells zeigt nach −z (Pedipalpen/Kieferklauen gemessen), gelaufen wurde nach +z. Jetzt: Blick = Laufrichtung (+π),
+    // weiche Wende (statt 180° in einem Bild), erst laufen, wenn sie ungefähr in Laufrichtung schaut; am Rand des Reviers kehrt sie in einem Bogen um.
+    { let df = S.dir + PI - S.g.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df)); S.g.rotation.y += Math.sign(df) * Math.min(Math.abs(df), dt * 2.4);
+      if (S.walking && Math.abs(df) < .5) { const nx = S.g.position.x + Math.sin(S.dir) * .18 * dt, nz = S.g.position.z + Math.cos(S.dir) * .18 * dt; if (Math.hypot(nx - S.home.x, nz - S.home.z) < 1.2) { S.g.position.x = nx; S.g.position.z = nz; } else S.dir = Math.atan2(S.home.x - S.g.position.x, S.home.z - S.g.position.z) + rand(-.6, .6); } }
   }
 }
 
