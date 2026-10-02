@@ -27,13 +27,21 @@ function entd_kreideTex(n) { return tex(cnv(256, (c, w) => { c.clearRect(0, 0, w
 WORLD_MODS.push(['Entdecker', async () => {
   const S = ENTD_S, T = THREE;
   // Masten wählen: über die ganze Stadt verteilt (größter Abstand zueinander), nicht im Amt, nicht im Kanal, nicht in der Villenhalle
-  const poles = (typeof lamps !== 'undefined' ? lamps : []).map(L => ({ x: L.g.position.x, z: L.g.position.z })).filter(p => Math.abs(p.x) < 220 && p.z > -80 && p.z < 200);
+  const poles = (typeof lamps !== 'undefined' ? lamps : []).map(L => ({ x: L.g.position.x, z: L.g.position.z, L })).filter(p => Math.abs(p.x) < 220 && p.z > -80 && p.z < 200);
   const pick = []; if (poles.length) { poles.sort((a, b) => Math.hypot(a.x, a.z) - Math.hypot(b.x, b.z)); pick.push(poles[0]);
     while (pick.length < 16 && pick.length < poles.length) { let best = null, bd = -1; for (const p of poles) { if (pick.includes(p)) continue; const d = Math.min(...pick.map(q => Math.hypot(p.x - q.x, p.z - q.z))); if (d > bd) { bd = d; best = p; } } if (!best || bd < 12) break; pick.push(best); } }
-  const spots = pick.map(p => ({ x: p.x, z: p.z, r: .116, y: 1.3 }));
+  // Nutzer 02.10.: „Kreidestriche auf den Laternen schweben als Balken in der Luft“ – der Ring saß am Ursprung der Laterne, der gescannte Mast steht woanders.
+  // Jetzt: das sichtbare Laternenmodell der Laterne auf 1,3 m Höhe mit parallelen Strahlen (von vier Seiten) abtasten → Mitte und Radius des Masts; Kreide liegt auf dem Lack.
+  const rc = new T.Raycaster(); rc.far = 4; const mast = p => { const L = p.L, ziel = []; L.g.updateMatrixWorld(true);
+    L.g.traverse(o => { if (o.isMesh && o !== L.bulb && o !== L.cone) { let v = true; for (let q = o; q && q !== L.g; q = q.parent) if (!q.visible) v = false; if (v) ziel.push(o); } });
+    const pts = []; for (let k = -12; k <= 12; k++) { const q = k * .05; for (const [ox, oz, dx, dz] of [[-2, q, 1, 0], [2, q, -1, 0], [q, -2, 0, 1], [q, 2, 0, -1]]) {
+      rc.set(new T.Vector3(p.x + ox, 1.3, p.z + oz), new T.Vector3(dx, 0, dz)); const h = rc.intersectObjects(ziel, false)[0]; if (h) pts.push(h.point); } }
+    if (pts.length < 6) return null; const cx = pts.reduce((a, h) => a + h.x, 0) / pts.length, cz = pts.reduce((a, h) => a + h.z, 0) / pts.length;
+    const r = pts.reduce((a, h) => a + Math.hypot(h.x - cx, h.z - cz), 0) / pts.length; return r > .35 ? null : { x: cx, z: cz, r: r + .004 }; };
+  const spots = pick.map(p => { const m = mast(p); return m ? { id: Math.round(p.x) + '_' + Math.round(p.z), x: m.x, z: m.z, r: m.r, y: 1.3 } : null; }).filter(Boolean); // id wie bisher (Spielstände)
   if (typeof TIEF !== 'undefined') spots.push({ x: TIEF.stand.x - .85, z: TIEF.stand.z - .85, r: .12, y: 1.4, box: true }); // am Hochsitz-Pfosten
   const mat = new T.MeshBasicMaterial({ map: entd_kreideTex(), transparent: true, alphaTest: .3, depthWrite: false, side: T.DoubleSide, fog: true });
-  spots.forEach((p, i) => { const id = Math.round(p.x) + '_' + Math.round(p.z), g = p.box ? new T.BoxGeometry(.2, .2, .2) : new T.CylinderGeometry(p.r, p.r, .2, 16, 1, true);
+  spots.forEach((p, i) => { const id = p.id || Math.round(p.x) + '_' + Math.round(p.z), g = p.box ? new T.BoxGeometry(.2, .2, .2) : new T.CylinderGeometry(p.r, p.r, .2, 16, 1, true);
     const m = new T.Mesh(g, p.box ? new T.MeshBasicMaterial({ map: mat.map, transparent: true, alphaTest: .3, depthWrite: false }) : mat); m.position.set(p.x, p.y, p.z); m.userData.noCol = true; m.renderOrder = 2; scene.add(m);
     const hit = box(.5, .6, .5, p.x, p.y, p.z, hidden, { cast: false }); interact(hit, () => story.lore.some(l => l.key === 'kerbe_' + id) ? 'Kreidestriche' : 'Kreidestriche am Mast', () => entd_kerbe(id));
     S.kerben.push({ id, x: p.x, z: p.z, m }); if (typeof hintAdd === 'function') hintAdd({ id: 'kerbe_' + id, x: p.x, y: 0, z: p.z, kind: 'geheim', near: 26, open: () => !story.lore.some(l => l.key === 'kerbe_' + id) }); });

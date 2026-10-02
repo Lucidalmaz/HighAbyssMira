@@ -25,14 +25,14 @@ const ZEICHEN_TAB = [
   { id: 'mast_auge', a: 'ort', m: 'auge_schab', s: 0, op: .78, ray: [0, 1.62, 6.0, 0, 0, 1, 2.4], w: .21, was: 'Auge über der Flamme im Kreis – Messmarke des Amts, gesprüht wie eine Vermessungsmarke',
     luke: 'Ein Auge über einer Flamme. Gesprüht wie eine Vermessungsmarke. Was vermisst man an einem Strommast?' },
   { id: 'laterne_drin', a: 'ort', m: 'aufkleber', s: 0, lampe: [-20, -6], w: .11, rot: -.08, was: 'Aufkleber „ICH WAR DRIN“ – Dorfgerücht über Lichter am Himmel, mit Augenzwinkern' },
-  { id: 'nr9_graffiti', a: 'ort', m: 'g_nr9', s: 0, op: .93, ray: [43.0, 1.4, -14.2, 1, 0, 0, 3], w: 1.7, was: 'Jugend-Graffiti: Band „SCHIMMEL“, Herz, ein klein dazwischengesetztes ∴ – Alltag und Zeichen gemischt' },
+  { id: 'nr9_graffiti', a: 'ort', m: 'g_nr9', s: 0, op: .93, ray: [43.0, 1.4, -14.2, 1, 0, 0, 3], w: 2.4, was: 'Jugend-Graffiti: Band „SCHIMMEL“, Herz, ein klein dazwischengesetztes ∴ – Alltag und Zeichen gemischt' },
   { id: 'nr7_striche', a: 'ort', m: 'striche_blei', s: 0, op: .8, ray: [24.25, 1.32, -10.9, 0, 0, -1, 2.6], w: .34, rot: -.03, was: 'Strichliste in Fünfergruppen neben Hildes Tür (Hilde zählt)' },
   { id: 'nr8_dina', a: 'ort', m: 'dina_kreide', s: 0, op: .42, ray: [48.6, .98, 11.0, 0, 0, 1, 2.6], w: .6, was: 'Dinas Kreise „von unten“ (Kreis, Flamme, Stiel), uralte Kinderkreide unter dem Fenster der Aydıns' },
   { id: 'kreuzung_komme', a: 'ort', m: 'komme_kreide', s: 3, k: [3, 7], neu: true, nurNeu: true, boden: [3.0, -2.3, 0], w: 4.4, rot: .03, was: 'Lunas weiße Kreide „ICH KOMME“ und siebzehn Striche (Kap. 3, erscheint im Rücken)',
     luke: 'Das war eben noch nicht da.' },
   { id: 'nr1_kreise', a: 'ort', m: 'kreise7_schimmer', s: 2, k: [5, 5], ray: [-49.6, 1.25, -10.4, 0, 0, -1, 2.8], w: 1.5, was: 'Sieben Kreise und ein halber (Lunas Zählung) an Nr. 1 – nur im Polaroid',
     foto: 'Auf dem Foto sind Kreise an der Wand. An der Wand sind keine.' },
-  { id: 'tanke_graffiti', a: 'ort', m: 'g_tanke', s: 0, op: .9, ray: [110.6, 1.45, 33.2, 0, 0, -1, 3.2], w: 1.7, was: 'Jugend-Graffiti an der Tankstelle: „HIER LANDEN VERBOTEN“, Herz, ein abgemaltes Auge mit Fragezeichen' },
+  { id: 'tanke_graffiti', a: 'ort', m: 'g_tanke', s: 0, op: .9, ray: [110.6, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Jugend-Graffiti an der Tankstelle: „HIER LANDEN VERBOTEN“, Herz, ein abgemaltes Auge mit Fragezeichen' },
   // ---- Kirchberg
   { id: 'tor_turm', a: 'kirchberg', m: 'turm_alt', s: 1, ray: [-56.2, .62, 65.2, 0, 0, 1, 2.6], w: .3, rot: -.05, was: 'Turm über dem Abgrund (Wappen), alte Ritzung an der Friedhofsmauer neben dem Tor' },
   { id: 'mauer_birke', a: 'kirchberg', m: 'birke_alt', s: 1, ray: [-64.6, .58, 68.8, 0, 0, -1, 2.6], w: .22, rot: .06, was: '1312-Motiv Birke, verwittert, innen an der alten Friedhofsmauer' },
@@ -47,7 +47,7 @@ const ZEICHEN_TAB = [
   { id: 'remise_brand', a: 'hof', m: 'kreise7_brand', s: 0, op: .9, such: [-124.6, 1.25, -30.2, 4], w: .72, was: 'Brandzeichen wie an der Kuh: sieben Kreise und ein halber' },
   { id: 'hof_dina', a: 'hof', m: 'dina_schimmer', s: 2, k: [5, 5], ray: [-124.9, 1.15, -12.6, 1, 0, 0, 2.8], w: .5, was: 'Dinas Kreis von unten am Hofhaus – nur im Polaroid' },
   // ---- Villa
-  { id: 'villa_graffiti', a: 'villa', m: 'g_villa', s: 0, op: .9, such: [-104.6, 1.2, 57.4, 3.2], w: 1.5, was: 'Mutprobe an der Villenmauer: „SPUKHAUS“, „TIM WAR DRIN 2014“ – darunter „LÜGNER“' },
+  { id: 'villa_graffiti', a: 'villa', m: 'g_villa', s: 0, op: .9, such: [-104.6, 1.2, 57.4, 3.2], w: 2.4, was: 'Mutprobe an der Villenmauer: „SPUKHAUS“, „TIM WAR DRIN 2014“ – darunter „LÜGNER“' },
   { id: 'villa_turm', a: 'villa', m: 'turm_alt', s: 1, such: [-109.0, 1.0, 58.4, 3.2], w: .3, was: 'Turm über dem Abgrund im Stein der Villenmauer' },
   // ---- Tunnel zum Amt
   { id: 'tunnel_striche', a: 'tunnel', m: 'striche_ritz', s: 1, ray: [605.6, .42, -2600, 0, 0, 1, 2.6], w: .5, was: 'Strichliste in Fünfergruppen, auf Kniehöhe in den Putz gekratzt – wer hier wartete, zählte' },
@@ -233,16 +233,25 @@ const ZEICHEN_MOTIVE = {
   stoeck_rinde: [1, 1, (A, Hc, W, H) => zeichen_stil(A, Hc, W, H, ZF.stoeck(5), { art: 'ritz', mat: 'rinde', lw: 5 })],
   stoeck_rinde2: [1, 1, (A, Hc, W, H) => zeichen_stil(A, Hc, W, H, ZF.stoeck(8), { art: 'ritz', mat: 'rinde', lw: 4.5, alt: true })],
   hoch_holz: [1, 1, (A, Hc, W, H) => zeichen_stil(A, Hc, W, H, ZF.viele(...['75', '92', '09'].map((s, i) => ZF.teil(ZF.viele(ZF.text(s, 50, ZEICHEN_DRUCK, 80 + i, .5, .1, .2), ZF.teil(ZF.striche(3 + i * 4, 90 + i), .38, .1, .62, .8)), 0, .05 + i * .31, 1, .3))), { art: 'ritz', mat: 'holz', lw: 3.6 })] };
+// Nutzer 02.10.: „Graffiti sind selbst gezeichnet – realistisch, AAA“. Die drei Graffiti-Wände sind eigene Bilder (2048 x 1024 = 2,4 x 1,2 m, offline erzeugt):
+//   echte, aus Fotoscans freigestellte Tags/Sprühfarbe (Fab „Red Graffiti Wall Scan“ commonspence, „Graffitis en apeadero“, beide CC-BY) + Story-Schriftzüge,
+//   gesprüht entlang einer Handschrift (Kern, Sprühnebel aus Tröpfchen, Läufer, Farbkorn aus dem Betonscan). Übrige Sprüh-Motive im Atlas bekommen Korn und Poren.
+const ZEICHEN_BILD = { g_nr9: 'wand_nr9.png', g_tanke: 'wand_tanke.png', g_villa: 'wand_villa.png' };
+function zeichen_bild(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/graffiti_echt/' + src; setTimeout(() => r(null), 6000); }); }
+function zeichen_echt(a, W, H, k, Z) { if (!Z || !Z.korn) return;
+  a.save(); a.globalCompositeOperation = 'source-atop'; a.globalAlpha = .24; for (let yy = 0; yy < H; yy += 512) for (let xx = 0; xx < W; xx += 512) a.drawImage(Z.korn, xx, yy, 512, 512); a.restore(); // Farbkorn
+  if (Z.poren) { a.save(); a.globalCompositeOperation = 'destination-out'; a.globalAlpha = .85; for (let yy = 0; yy < H; yy += 384) for (let xx = 0; xx < W; xx += 384) a.drawImage(Z.poren, xx, yy, 384, 384); a.restore(); } } // Poren, Risse
 async function zeichen_atlas() {
   try { await Promise.race([document.fonts.load('80px Caveat'), wait(1500)]); } catch (e) {}
+  const ZE = {}; try { const L = ['korn.jpg', 'poren.png']; const B = await Promise.all(L.map(zeichen_bild)); L.forEach((n, i) => { ZE[n.replace(/\..*$/, '')] = B[i]; }); } catch (e) { console.warn('Zeichen: echte Graffiti', e); }
   const N = 2048, G = 256, A = zeichen_cv(N, N), Hc = zeichen_cv(N, N), a = A.getContext('2d'), hx = Hc.getContext('2d', { willReadFrequently: true });
   hx.fillStyle = 'rgb(128,128,128)'; hx.fillRect(0, 0, N, N); const frei = Array.from({ length: 8 }, () => Array(8).fill(true)), cells = {}, nrmRects = [];
-  for (const [k, [gw, gh, mal]] of Object.entries(ZEICHEN_MOTIVE)) {
+  for (const [k, [gw, gh, mal]] of Object.entries(ZEICHEN_MOTIVE)) { if (ZEICHEN_BILD[k]) continue;
     let at = null; for (let r = 0; r + gh <= 8 && !at; r++) for (let c = 0; c + gw <= 8 && !at; c++) { let ok = true; for (let i = 0; i < gh; i++) for (let j = 0; j < gw; j++) if (!frei[r + i][c + j]) ok = false; if (ok) at = [c, r]; }
     if (!at) { console.warn('Zeichen: Atlas voll', k); continue; } for (let i = 0; i < gh; i++) for (let j = 0; j < gw; j++) frei[at[1] + i][at[0] + j] = false;
     const px = at[0] * G, py = at[1] * G, W = gw * G - 12, H = gh * G - 12; // 6 px Rand gegen Überlaufen der Mip-Stufen
     a.save(); hx.save(); a.translate(px + 6, py + 6); hx.translate(px + 6, py + 6); a.beginPath(); a.rect(0, 0, W, H); a.clip(); hx.beginPath(); hx.rect(0, 0, W, H); hx.clip();
-    try { if (mal(a, hx, W, H)) nrmRects.push([px, py, gw * G, gh * G]); } catch (e) { console.warn('Zeichen: Motiv', k, e); } a.restore(); hx.restore();
+    try { if (mal(a, hx, W, H)) nrmRects.push([px, py, gw * G, gh * G]); if (/spray|auge_schab|ufo/i.test(k)) zeichen_echt(a, W, H, k, ZE); } catch (e) { console.warn('Zeichen: Motiv', k, e); } a.restore(); hx.restore();
     cells[k] = { u0: (px + 6) / N, u1: (px + 6 + W) / N, v0: 1 - (py + 6 + H) / N, v1: 1 - (py + 6) / N, ah: H / W }; }
   // Normal-Map nur dort rechnen, wo es Höhe gibt (Ritzungen, Brand); sonst flach
   const nc = zeichen_cv(N, N), nx = nc.getContext('2d'); nx.fillStyle = 'rgb(128,128,255)'; nx.fillRect(0, 0, N, N);
@@ -295,7 +304,8 @@ function zeichen_lampe(x, z) { let best = null, bd = 1e9; for (const L of (typeo
 function zeichen_boden(x, z) { let g = -Infinity; try { g = solidGround(x, .8, z); } catch (e) {} return g > -1 ? Math.max(0, g) : 0; }
 // ---------------------------------------------------------------- Platzieren: Rahmen aus Treffer + Normale, Gitter schmiegt sich per Strahl an (Rinde, Stein, Bretter)
 function zeichen_platz(B, d) {
-  const cell = zeichen_S.atlas.cells[d.m]; if (!cell) return false;
+  const bild = zeichen_S.bilder && zeichen_S.bilder[d.m], cell = bild ? { u0: 0, u1: 1, v0: 0, v1: 1, ah: bild.ah } : zeichen_S.atlas.cells[d.m]; if (!cell) return false;
+  if (bild) B = { pos: [], nrm: [], uv: [], info: [], show: [], idx: [] }; // eigenes Netz mit eigenem Bild
   const w = d.w, h = d.h || d.w * cell.ah, P = new THREE.Vector3(), N = new THREE.Vector3(), U = new THREE.Vector3(), V = new THREE.Vector3(); let anschmiegen = true;
   if (d.boden) { const [bx, bz, yaw] = d.boden; P.set(bx, zeichen_boden(bx, bz) + .03, bz); N.set(0, 1, 0); V.set(-Math.sin(yaw), 0, -Math.cos(yaw)); anschmiegen = false; }
   else { let ok = false;
@@ -312,7 +322,10 @@ function zeichen_platz(B, d) {
     _zv.addScaledVector(n, .006);
     B.pos.push(_zv.x, _zv.y, _zv.z); B.nrm.push(n.x, n.y, n.z); B.uv.push(cell.u0 + (cell.u1 - cell.u0) * i / cols, cell.v0 + (cell.v1 - cell.v0) * j / rows); B.info.push(d.s, k[0], k[1], d.op ?? 1); B.show.push(show); }
   for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) { const a = base + j * (cols + 1) + i; B.idx.push(a, a + 1, a + cols + 2, a, a + cols + 2, a + cols + 1); }
-  B.neu = true; d.P = P; d.N = N; d.v0 = base; d.vn = (cols + 1) * (rows + 1); d.B = B; d.ok = true;
+  if (bild) { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(B.pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(B.nrm, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(B.uv, 2)); g.setIndex(B.idx); g.computeBoundingSphere();
+    const m = new THREE.Mesh(g, bild.mat); m.renderOrder = 3; m.receiveShadow = true; m.userData.noCol = true; m.matrixAutoUpdate = false; scene.add(m); B.mesh = m; B.showA = null; }
+  else B.neu = true; d.P = P; d.N = N; d.v0 = base; d.vn = (cols + 1) * (rows + 1); d.B = B; d.ok = true;
   if (d.luke && !d.nurNeu) zeichen_S.luke.push(d); if (d.neu) zeichen_S.neuL.push(d); return true;
 }
 function zeichen_mesh(B) { // ein Mesh je Bereich (ein Zeichenaufruf); die kleine Geometrie wird nach jedem neu gesetzten Zeichen frisch gebaut (selten, wenige hundert Ecken)
@@ -530,7 +543,9 @@ function zeichen_tick(dt, t, indoor) {
 }
 MOD_SAVE.push(['zeichen', () => ({ neu: [...zeichen_S.neu] }), v => { zeichen_S.neu = new Set((v && v.neu) || []); zeichen_showSync(); }]);
 WORLD_MODS.push(['Zeichen', async () => {
-  const S = zeichen_S; S.atlas = await zeichen_atlas(); S.mat = zeichen_material(S.atlas);
+  const S = zeichen_S; S.atlas = await zeichen_atlas(); S.mat = zeichen_material(S.atlas); S.bilder = {};
+  await Promise.all(Object.entries(ZEICHEN_BILD).map(async ([k, f]) => { const im = await zeichen_bild(f); if (!im) return; const t = new THREE.Texture(im); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.needsUpdate = true;
+    S.bilder[k] = { ah: im.height / im.width, mat: new THREE.MeshStandardMaterial({ map: t, transparent: true, opacity: .95, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, roughness: .82, metalness: 0, envMapIntensity: .3 }) }; }));
   try { zeichen_wandMauer(); } catch (e) { console.warn('Zeichen: Wandbild-Mauer', e); }
   // Neues Versteck, auf das das Wandbild zeigt (Laterne am linken Friedhofspfeiler); alles andere zeigt auf vorhandene Fundorte
   try { if (typeof TAUSCH_FUNDE !== 'undefined' && !TAUSCH_FUNDE.some(f => f.id === 'x7_tor')) TAUSCH_FUNDE.push({ id: 'x7_tor', k: [1, 5], at: [-55.3, 66.2], w: ['ring'], bat: 1, t: 'Am Fuß des Torpfeilers, unter einem losen Stein: ein Ring aus dem Kaugummiautomaten. Und eine Batterie, in Wachstuch eingeschlagen.' }); } catch (e) {}

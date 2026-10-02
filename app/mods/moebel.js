@@ -1,7 +1,7 @@
 // =====================================================================  MÖBEL (Modul „moebel“, Nutzer-Rückmeldung 02.10.2026: „viele Schränke haben keine sichtbare Tür“)
 // Im Grundspiel stehen noch nackte Kästen als Schränke (Archiv im Amt, Kommode Nr. 1, Villa). Sie werden ausgeblendet (Kollision bleibt) und durch die gescannten
 // Möbel ersetzt: Kleiderschrank (Fab „wardrobe“: Türen, Griffe, Sockel) bzw. Kommode („dresser“: Schubladen). Größe aus dem Kasten (Höhe genau, Breite/Tiefe ±12 %),
-// Vorderseite zur freien Seite (dort, wo im Raum Platz ist). Der Kühlschrank in Nr. 7 bleibt vorerst (kein Kühlschrank-Scan vorhanden – Nutzer: Fab).
+// Vorderseite zur freien Seite (dort, wo im Raum Platz ist). Kühlschrank Nr. 7 bleibt vorerst (das Fab-Modell „Fridge - Refrigerator - Freezer“ liegt offen auf dem Rücken – unbrauchbar).
 const MOEBEL_ZIEL = [ // [x, z, Breite, Höhe, Tiefe, Modell] (gemessen im Spiel, Mitte der Grundfläche)
   [-48.6, -16.6, 1.57, 1.27, .67, 'dresser'],
   ...[620, 622, 624, 626, 628].map(x => [C2.x + x - 600, C2.z - 5.6, 1.0, 2.2, .5, 'wardrobe']),
@@ -26,7 +26,8 @@ async function moebel_bau() {
     m.scale.multiply(new THREE.Vector3(sW, sH, sD)); m.updateMatrixWorld(true); const mb2 = new THREE.Box3().setFromObject(m); m.position.sub(new THREE.Vector3((mb2.min.x + mb2.max.x) / 2, mb2.min.y, (mb2.min.z + mb2.max.z) / 2));
     g.position.set(cx, y0, cz); g.rotation.y = Math.atan2(f[0], f[1]); // Modell schaut nach +z → Drehung zur freien Seite
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
-    box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; } // Kollision des Kastens bleibt (gleiche Grundfläche)
+    if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
+    box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; } // Kollision des Kastens bleibt (gleiche Grundfläche)
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff
