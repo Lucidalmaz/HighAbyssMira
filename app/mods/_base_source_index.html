@@ -1711,8 +1711,8 @@ for (const x of [-39, -17, 34, 57]) tree(x, rand(9.5, 10.5), rand(.85, 1.05));
   const im = new THREE.InstancedMesh(geo, M.hedge, spots.length), m4 = new THREE.Matrix4();
   spots.forEach(([x, z], i) => { const s = rand(.8, 1.15); m4.compose(new THREE.Vector3(x, .75 * s, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rand(0, 3), rand(0, 3), 0)), new THREE.Vector3(s, s * 1.1, s)); im.setMatrixAt(i, m4); });
   im.castShadow = true; im.receiveShadow = true; scene.add(im);
-  for (const hx of [-39.5, -17.5, 37, 59]) addCol(hx - .6, hx + .6, -25, -8, 1.5);
-  for (const hx of [-39.5, -17.5, 34, 58]) addCol(hx - .6, hx + .6, 9, 25, 1.5);
+  for (const hx of [-39.5, -17.5, 37, 59]) addCol(hx - .6, hx + .6, -25, -8, 1.5).weich = true; // weich: man läuft nicht hindurch, zieht sich aber auch nicht darauf hoch
+  for (const hx of [-39.5, -17.5, 34, 58]) addCol(hx - .6, hx + .6, 9, 25, 1.5).weich = true;
 })();
 
 // Lattenzäune
@@ -2877,6 +2877,12 @@ function beginGame(resume) { // resume: Spielstand von „Weiterspielen“ (Kapi
 const R = .3, vel = new THREE.Vector3(), wish = new THREE.Vector3();
 function stepSurface(indoor) { const k = typeof klang_surface === 'function' ? klang_surface(indoor) : null; return k || (indoor ? (state.inBasement ? 'hard' : 'wood') : isWalk(player.pos.x, player.pos.z) ? 'hard' : 'grass'); }
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
+// Ducken (Nutzer 02.10.): Strg halten oder C umschalten. Augenhöhe 1,65 → 1,03 m, Körper 1,7 → 1,15 m (unter Tischen, Ästen, Rohren durch), halbes Tempo, kein Sprint.
+// Aufstehen nur mit Platz über dem Kopf (sonst bleibt man unten); Space aus der Hocke richtet auf.
+let crouchK = 0, crouchZiel = false;
+const bodyH = () => 1.7 - .55 * crouchK;
+function crouchKann() { return headCeiling(player.pos.x, player.pos.y + .5, player.pos.z) - player.pos.y >= HEAD_CLEAR - .02; }
+addEventListener('keydown', e => { if (e.code !== 'KeyC' || e.repeat || ui.overlay || !state.started) return; if (typeof kamera_S !== 'undefined' && kamera_S.frei) return; if (crouchZiel && !crouchKann()) return; crouchZiel = !crouchZiel; });
 // Körpergefühl (Premium-Auftrag „Spielfigur/Kamera“): Federn für Laufen, Augenhöhe, Nachschwingen, Landen und Blick. Konstanten in FEELC, Zustand in FEEL (keine Allokationen im Takt).
 // w… = Federkreisfrequenz (1/s): kritisch gedämpft erreicht 90 % nach ≈ 3,9 / w Sekunden. Längen in m, Winkel in rad.
 const FEELC = { wWalk: 9, wSprint: 4.6, wSlow: 6, wStop: 13, lat: .55, back: .78, stride0: 1.05, strideK: .12, bobV: .02, bobVS: .014, sway: .55, roll: .0045, rollS: .003, rollLag: .9,
@@ -2896,7 +2902,7 @@ function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Ac
   if (state.zone === 'canal') return canalCollide(axis);
   let hit = false; const v = step;
   for (const c of colliders) {
-    if (c.top <= player.pos.y + .36 || c.base >= player.pos.y + 1.7) continue; // darunter (stehen wir drauf) oder darüber
+    if (c.top <= player.pos.y + .36 || c.base >= player.pos.y + bodyH()) continue; // darunter (stehen wir drauf) oder darüber (geduckt: niedriger)
     if (player.pos.x + R > c.minX && player.pos.x - R < c.maxX && player.pos.z + R > c.minZ && player.pos.z - R < c.maxZ) {
       // nur auflösen, wenn GENAU dieser Achsenschritt hineingeführt hat, und dann dorthin zurück, woher man kam.
       // Vorher: „zum nächsten Ende“ – in Raumecken schob das durch die Nachbarwand nach draußen.
@@ -2926,15 +2932,28 @@ function canalCollide(axis) {
   return false;
 }
 // Kante vor dem Spieler, an der man sich hochziehen kann
+// Nutzer 02.10.: „hochziehen auf Zäune, mehrere Ebenen, smooth wie in Fortnite“. Vorher nur Kollisionskästen und Stand AUF der Kante (dünner Zaun: oben stehen, dann fallen).
+// Jetzt: Hindernis vor der Brust (Kästen UND echte Formen: Autos, Kisten, Mauern, Container), dann
+//   · „hoch“: Standplatz 45 cm hinter der Kante auf gleicher Höhe, frei, Kopf frei → hochziehen und oben stehen;
+//   · „drueber“: dünnes Hindernis bis 1,3 m (Zaun, Geländer, Mauerkrone) mit Boden und Platz dahinter → in einem Bogen drübersteigen.
+function mantleObst(px, pz, y) { let top = -Infinity; for (const c of colliders) { if (c.minX < -9000) continue; if (c.weich && px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ) return -Infinity; const h = c.top - y; if (h < .45 || h > 1.65 || c.base > y + 1.2) continue; if (px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ && c.top > top) top = c.top; }
+  const sg = solidGround(px, y + 1.28, pz); if (sg > y + .45 && sg < y + 1.65 && sg > top) top = sg; return top; }
+function mantleFree(x, z, y) { if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
+  return typeof leben_free !== 'function' || (leben_free(x, z, y + .9, .26) && leben_free(x, z, y + 1.45, .22)); }
+function mantleGround(x, z, yRef) { let g = state.inBasement ? 0 : (indoorRects.find(r => inRect(r, x, z)) || { y: 0 }).y; for (const c of colliders) if (c.minX > -9000 && c.top > g && c.top <= yRef + .4 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; const sg = solidGround(x, yRef + .2, z); return sg > g ? sg : g; }
 function mantleTarget() {
-  const f = flatDir(), px = player.pos.x + f.x * .75, pz = player.pos.z + f.z * .75; let best = null;
-  for (const c of colliders) { const h = c.top - player.pos.y; if (h < .45 || h > 1.65) continue;
-    if (px > c.minX - .1 && px < c.maxX + .1 && pz > c.minZ - .1 && pz < c.maxZ + .1 && !(best && best.top < c.top)) best = c; }
-  if (!best) return null;
-  if (headCeiling(px, best.top + .1, pz) - best.top < HEAD_CLEAR) return null; // oben kein Platz zum Stehen → nicht hochziehen (sonst Kopf durch die Decke)
-  const above = colliders.some(c => c !== best && c.base < best.top + 1.7 && c.top > best.top + .3 && px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ);
-  return above ? null : { top: best.top, x: px, z: pz };
+  if (crouchK > .3) return null; const f = flatDir(), P = player.pos; let ob = null, obD = 0;
+  for (let d = .32; d <= 1.0 && ob === null; d += .12) { const t = mantleObst(P.x + f.x * d, P.z + f.z * d, P.y); if (t > -Infinity) { ob = t; obD = d; } }
+  if (ob === null) return null; const h = ob - P.y;
+  for (const back of [.42, .6]) { const sx = P.x + f.x * (obD + back), sz = P.z + f.z * (obD + back);
+    if (Math.abs(mantleGround(sx, sz, ob) - ob) < .09 && mantleFree(sx, sz, ob) && headCeiling(sx, ob + .1, sz) - ob >= HEAD_CLEAR) return { top: ob, x: sx, z: sz, h, art: 'hoch', land: ob, dur: .3 + .13 * h }; }
+  if (h > 1.3) return null;
+  for (const back of [.7, .95, 1.25]) { const lx = P.x + f.x * (obD + back), lz = P.z + f.z * (obD + back), g = mantleGround(lx, lz, P.y);
+    if (Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
+    return { top: ob, x: lx, z: lz, h, art: 'drueber', land: g, dur: .5 + .08 * h }; }
+  return null;
 }
+function mantleStart(m) { mantle = { t: 0, y0: player.pos.y, x0: player.pos.x, z0: player.pos.z, ...m }; vy = 0; FEEL.dipV += .35; Audio.play(Audio.pick('stepC2', 'stepC4'), { gain: .45, rate: .85 }); try { Audio.play('cloth1', { gain: .25, rate: 1.1 }); } catch (e) {} }
 const inRect = (r, x, z, m = 0) => x > r.x0 - m && x < r.x1 + m && z > r.zb - m && z < r.zf + m;
 const indoorRect = () => state.inBasement ? null : indoorRects.find(r => inRect(r, player.pos.x, player.pos.z));
 const isIndoor = () => state.inBasement || !!indoorRect();
@@ -5766,7 +5785,7 @@ function update(dt, t) {
   wish.set(0, 0, 0);
   if (canMove) {
     const f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0), s = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
-    if (f || s) { const sp = (run ? 5 : 2.6) * (f < 0 ? FC.back : 1), len = Math.hypot(f, s);
+    if (f || s) { const sp = (run && crouchK < .3 ? 5 : 2.6) * (f < 0 ? FC.back : 1) * (1 - .5 * crouchK), len = Math.hypot(f, s);
       wish.set((-Math.sin(player.yaw) * f + Math.cos(player.yaw) * s) / len * sp, 0, (-Math.cos(player.yaw) * f - Math.sin(player.yaw) * s) / len * sp); }
   }
   if (vel.x === 0 && vel.z === 0 && F.vv > .05) F.ax = F.az = 0; // von außen angehalten (Teleport, Szene, Leiter): keine Restbeschleunigung
@@ -5780,10 +5799,13 @@ function update(dt, t) {
     if (wl < 1e-4 && vel.x * vel.x + vel.z * vel.z < 1e-6 && F.ax * F.ax + F.az * F.az < 1e-4) { vel.x = vel.z = 0; F.ax = F.az = 0; } }
   if (scripted) { vel.set(0, 0, 0); F.ax = F.az = 0; if (scripted(dt) === false) { scripted = null; grounded = true; vy = 0; } }
   else if (mantle) { // Hochziehen: erst hoch, dann über die Kante
-    mantle.t += dt / .55; const k = Math.min(1, mantle.t), e = k < .55 ? (k / .55) : 1, e2 = k < .55 ? 0 : (k - .55) / .45;
-    player.pos.y = mantle.y0 + (mantle.top - mantle.y0) * (e * e * (3 - 2 * e)) + Math.sin(k * PI) * .12;
-    player.pos.x = mantle.x0 + (mantle.x - mantle.x0) * e2; player.pos.z = mantle.z0 + (mantle.z - mantle.z0) * e2; vel.set(0, 0, 0);
-    if (k >= 1) { player.pos.y = mantle.top; mantle = null; grounded = true; Audio.step('hard'); }
+    // fließend: Hochdrücken (schnell an, weich aus) und Vorschieben überlappen; Drübersteigen als Bogen mit weicher Landung (Knie federn)
+    const M = mantle; M.t += dt / (M.dur || .5); const k = Math.min(1, M.t), sm = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }, oc = x => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
+    if (M.art === 'drueber') { const pk = M.top + .14, hs = sm(k); player.pos.y = k < .45 ? M.y0 + (pk - M.y0) * oc(k / .45) : pk + (M.land - pk) * Math.pow((k - .45) / .55, 2);
+      player.pos.x = M.x0 + (M.x - M.x0) * hs; player.pos.z = M.z0 + (M.z - M.z0) * hs; }
+    else { player.pos.y = M.y0 + (M.top - M.y0) * oc(k / .7) + Math.sin(k * PI) * .04; const hs = sm((k - .32) / .68); player.pos.x = M.x0 + (M.x - M.x0) * hs; player.pos.z = M.z0 + (M.z - M.z0) * hs; }
+    vel.set(0, 0, 0);
+    if (k >= 1) { player.pos.y = M.land ?? M.top; mantle = null; grounded = true; FEEL.dipV -= M.art === 'drueber' ? .45 : .25; Audio.step(stepSurface(state.inBasement || !!indoorRect())); }
   } else {
     player.pos.x += vel.x * dt; if (collide('x', vel.x * dt)) { vel.x *= .3; F.ax = 0; }
     player.pos.z += vel.z * dt; if (collide('z', vel.z * dt)) { vel.z *= .3; F.az = 0; }
@@ -5798,8 +5820,9 @@ function update(dt, t) {
   const hm = settings.bob ? 1 : 0, sk = Math.min(1, Math.max(0, (spd - 2.7) / 2.1)), amp = hm * (FC.bobV * Math.min(spd / 2.6, 1) + FC.bobVS * sk);
   const floorY = rect ? rect.y : 0;
   if (!mantle && !scripted) {
-    if (jumpQueued && canMove && grounded) { const m = mantleTarget(); if (m) { mantle = { t: 0, y0: player.pos.y, x0: player.pos.x, z0: player.pos.z, ...m }; Audio.play(Audio.pick('stepC2', 'stepC4'), { gain: .5, rate: .8 }); } else { vy = 5.6; grounded = false; Audio.play(Audio.pick('stepG1', 'stepC3'), { gain: .35, rate: 1.1 }); } }
-    if (!grounded && vy < 2 && (keys.KeyW || keys.ArrowUp)) { const m = mantleTarget(); if (m && m.top - player.pos.y < 1.2) { mantle = { t: 0, y0: player.pos.y, x0: player.pos.x, z0: player.pos.z, ...m }; vy = 0; } }
+    if (jumpQueued && canMove && grounded && crouchK > .3) { if (crouchKann()) crouchZiel = false; } // aus der Hocke: Space richtet auf
+    else if (jumpQueued && canMove && grounded) { const m = mantleTarget(); if (m) mantleStart(m); else { vy = 5.6; grounded = false; Audio.play(Audio.pick('stepG1', 'stepC3'), { gain: .35, rate: 1.1 }); } }
+    if (!grounded && vy < 2 && (keys.KeyW || keys.ArrowUp)) { const m = mantleTarget(); if (m && m.top - player.pos.y < 1.2) mantleStart(m); }
     if (!mantle) {
       vy -= 15 * dt; player.pos.y += vy * dt;
       if (vy > 0) { const cy = headCeiling(player.pos.x, player.pos.y + 1, player.pos.z); // Kopfstoß: nie durch Decken springen
@@ -5816,7 +5839,8 @@ function update(dt, t) {
   { let gy = player.pos.y; // Treppe aufwärts: Boden 0,16 s voraus abtasten → die Augenhöhe steigt wie auf einer Rampe statt Stufe für Stufe (abwärts: Feder + kleiner Dip)
     if (grounded && !scripted && !mantle && F.vv > .4) { const ox = player.pos.x, oz = player.pos.z; player.pos.x += vel.x * FC.look; player.pos.z += vel.z * FC.look; const ra = indoorRect(), ga = groundAt(ra ? ra.y : 0); player.pos.x = ox; player.pos.z = oz; if (ga > gy && ga - gy < FC.lookMax) gy = ga; }
     if (grounded && !F.ext && Math.abs(gy - F.gy) < FC.lookMax) { const m = Math.max(FC.rampV, F.vv * .9) * dt; F.gy += Math.max(-m, Math.min(m, gy - F.gy)); gy = F.gy; } else F.gy = gy; // Bodenhöhe als Rampe (begrenzte Steiggeschwindigkeit) → kein Ruck am Stufenbeginn
-    const eye = gy + 1.65; if (camY !== F.camW) { F.ext = true; F.camV = 0; }
+    { const want = (keys.ControlLeft || keys.ControlRight || crouchZiel) && canMove !== false && !mantle; const tgt = want || (crouchK > .05 && !crouchKann()) ? 1 : 0; crouchK += (tgt - crouchK) * Math.min(1, dt * (tgt ? 9 : 7)); if (crouchK < .002) crouchK = 0; }
+    const eye = gy + 1.65 - .62 * crouchK; if (camY !== F.camW) { F.ext = true; F.camV = 0; }
     feelSpring(camY - eye, F.camV, F.ext ? FC.camWext : (F.air > .25 || vy > .5) ? FC.camWair : FC.camW, dt); camY = eye + F.sx; F.camV = F.sv;
     if (F.ext) { if (Math.abs(camY - eye) < .02) F.ext = false; } else if (Math.abs(camY - eye) > FC.camMax) { camY = eye + (camY > eye ? FC.camMax : -FC.camMax); F.camV = 0; } }
   // Körper-Nachschwingen (unterkritisch): Kopf läuft beim Bremsen leicht vor und pendelt zurück, beim Anlaufen bleibt er kurz zurück; Lande-Dip

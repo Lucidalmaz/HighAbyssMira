@@ -294,7 +294,43 @@ TOD_RESET.push((id, kind) => {
   counted.forEach(c => { c.f.visible = false; c.f.rotation.x = 0; });
 });
 
-WORLD_MODS.push(['Tod', async () => { tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
+// ---------------------------------------------------------------- Rettung bei Feststecken (Nutzer 02.10.: „man darf niemals irgendwo festhängen“)
+// Pause → „FESTGESTECKT?“: ein paar Schritte zurück (letzter sicherer Ort der Basis, SAFE.at, jede Sekunde gemerkt, wenn nichts läuft) · letzter Speicherpunkt · Kapitelanfang.
+// Ohne Tod, ohne Strafe; Verfolgungen/Szenen werden wie beim Wiederkehren zurückgesetzt (TOD_RESET, Art 'zurueck'). Automatisch: unter die Welt gefallen → zurück zum sicheren Ort;
+// 6 s lang Laufen ohne Fortschritt → Hinweis auf die Pause-Hilfe.
+async function tod_zurueck(ziel) {
+  const S = tod_S; if (S.dying || S.respawning || S.zurueck) return; S.zurueck = true;
+  try { $('pause').classList.remove('show'); ui.paused = false; closeAllOverlays(); } catch (e) {}
+  $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
+  try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
+  const ch = curChapter(); let cp = null;
+  if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+  if (!cp && ziel !== 'start' && S.cp && (!S.cp.chapter || S.cp.chapter === ch)) cp = S.cp;
+  if (!cp) { const sp = chSpawn(ch); cp = { id: 'start', label: 'Kapitel ' + ch + ' · ' + chTitle(ch), x: sp.x, y: sp.y, z: sp.z, yaw: sp.yaw }; }
+  if (cp.id !== 'schritt') for (const f of TOD_RESET) { try { f(cp.id, 'zurueck'); } catch (e) { console.warn('Rettung', e); } }
+  if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Rettung', e); } } else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
+  if (cp.id === 'start' && ch === 1) state.inBasement = false;
+  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true;
+  try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt'); S.zurueck = false;
+}
+function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns'); if (!P || document.getElementById('pRettung')) return;
+  const b = document.createElement('button'); b.id = 'pRettung'; b.textContent = 'FESTGESTECKT?'; const j = document.getElementById('pJournal'); P.insertBefore(b, j ? j.nextSibling : null);
+  const box = document.createElement('div'); box.id = 'pRettungBox'; box.style.cssText = 'display:none;flex-direction:column;gap:8px;margin:6px 0 2px;padding:10px 0 4px;border-top:1px solid rgba(220,210,190,.15)';
+  box.innerHTML = '<div style="font-size:14px;opacity:.6;letter-spacing:.06em;margin-bottom:2px">Wohin? Dein Fortschritt bleibt erhalten.</div>' +
+    '<button data-z="schritt">EIN PAAR SCHRITTE ZURÜCK</button><button data-z="cp">ZUM LETZTEN SPEICHERPUNKT</button><button data-z="start">AN DEN KAPITELANFANG</button>';
+  P.insertBefore(box, b.nextSibling);
+  b.onclick = e => { e.stopPropagation(); box.style.display = box.style.display === 'none' ? 'flex' : 'none'; };
+  box.querySelectorAll('button').forEach(x => x.onclick = e => { e.stopPropagation(); box.style.display = 'none'; tod_zurueck(x.dataset.z); }); }
+const TOD_FEST = { t: 0, x: 0, z: 0, hinweis: 0 };
+function tod_festTick(dt) {
+  if (!state.started || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { TOD_FEST.t = 0; return; }
+  const P = player.pos; if (P.y < -25 && !state.zone) { tod_zurueck('schritt'); return; } // unter die Welt gefallen
+  const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown;
+  if (!will) { TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; return; }
+  TOD_FEST.t += dt; if (TOD_FEST.t < 6) return;
+  if (Math.hypot(P.x - TOD_FEST.x, P.z - TOD_FEST.z) < .6 && performance.now() > TOD_FEST.hinweis) { TOD_FEST.hinweis = performance.now() + 60000; toast('Festgesteckt? Pause (Esc) → FESTGESTECKT? bringt dich ein paar Schritte zurück.', 5200); }
+  TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; }
+WORLD_MODS.push(['Tod', async () => { try { tod_rettungMenue(); } catch (e) { console.warn('Rettung', e); } tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
 WORLD_TICK.push((dt) => {
   try {
     const S = tod_S, P = player.pos, sn = S.seen;
@@ -311,3 +347,5 @@ WORLD_TICK.push((dt) => {
       todCheckpoint('gezaehlte', 'Die Behaltenen', { x: 29, y: 0, z: -4.6, yaw: PI / 2, persist: false, respawn: async () => { player.pos.set(29, 0, -4.6); player.yaw = PI / 2; gtAfter(2600, () => { if (ch3.chase === 'caught') startC3Chase(); }); subtitle('Renn. Nicht stehen bleiben. Zum Licht.', 3600); } }); }
   } catch (e) { if (!tod_S.err) { tod_S.err = true; console.warn('Tod-Tick', e); } }
 });
+
+WORLD_TICK.push(dt => { try { tod_festTick(dt); } catch (e) {} });
