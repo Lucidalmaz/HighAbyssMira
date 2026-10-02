@@ -151,3 +151,45 @@ if 'villa' in wahl:  # Villenmauer: Mutprobe „SPUKHAUS“, Gespenst, „TIM WA
     s.marker(text_mask('TIM WAR DRIN 2014', 100, COV, 260, 640, rot=-2, jitter=.5, seed=22), (20, 20, 22))
     s.marker(text_mask('LÜGNER', 124, COV, 980, 800, rot=-8, jitter=.6, seed=23), (150, 26, 26), .9)
     s.save('wand_villa', .25)
+
+if 'alien' in wahl:  # Alien-Schablone (Dorfwitz über Lichter am Himmel): grauer Kopf, mandelförmige Augen, „NIMM MICH MIT“, „VEGAS HAT RECHT“
+    s = Wand(31); R = s.R
+    s.echt('r_tag_oben', 1700, 560, 300, alpha=.6, buff=.35)
+    s.echt('a_bubble', 40, 700, 620, alpha=.45, buff=.55)
+    im = Image.new('L', (W, H), 0); d = ImageDraw.Draw(im); cx, cy = 620, 430
+    kopf = [(cx + 250 * math.cos(t), cy - 60 + 220 * math.sin(t)) for t in np.linspace(math.pi, 2 * math.pi, 60)]  # breite Schädelkuppel
+    kopf += [(cx + 250 * (1 - u) ** 1.15 * math.cos(u * 1.2), cy - 60 + 340 * u) for u in np.linspace(0, 1, 40)]  # Wange → schmales Kinn
+    kopf += [(cx - 250 * (1 - u) ** 1.15 * math.cos(u * 1.2), cy - 60 + 340 * u) for u in np.linspace(1, 0, 40)]
+    d.polygon(kopf, fill=255)
+    m0 = np.asarray(im).astype(np.float32) / 255
+    au = Image.new('L', (W, H), 0); da = ImageDraw.Draw(au)
+    for sg in (-1, 1):  # große schräge Mandelaugen, schwarz gesprüht
+        ex, ey = cx + sg * 105, cy + 40; da.polygon([(ex + sg * (95 * math.cos(t) * math.cos(.45) ) - 42 * math.sin(t) * math.sin(.45) * sg, ey - 95 * math.cos(t) * math.sin(.45) + 42 * math.sin(t) * math.cos(.45)) for t in np.linspace(0, 2 * math.pi, 60)], fill=255)
+    augen = np.asarray(au).astype(np.float32) / 255
+    m = m0 * (1 - augen)
+    # Schablone: scharfe Kante, gleichmäßige Deckung, Nebel nur außen an der Schablonenkante, eine Stelle verrutscht (Doppelkante)
+    a = G(m, .9) * (.82 + .2 * G(R.random(m.shape).astype(np.float32), 25) * 3.5)
+    ghost = np.roll(G(m, 1.2), (6, -9), (0, 1)) * .22
+    mist = (R.random(m.shape) < G(m, 22) * .06).astype(np.float32) * .5
+    rgb, aa = s.farbe((148, 156, 150), np.clip(np.maximum(a, np.maximum(ghost, mist)), 0, 1), .08); s.over(rgb, aa)
+    rgb, aa = s.farbe((14, 14, 16), G(augen, .9) * .95, .05); s.over(rgb, aa)
+    s.spray(bahn(text_mask('NIMM MICH MIT', 126, COV, 1000, 300, rot=-3, jitter=.5, seed=32)), (22, 22, 24), sig=5, drips=8)
+    s.marker(text_mask('VEGAS HAT RECHT', 86, COV, 1030, 520, rot=-6, jitter=.5, seed=33), (40, 60, 150), .85)
+    s.spray(linien([[(1610, 470), (1750, 470)], [(1700, 430), (1750, 470), (1700, 510)]], R, 1.5), (40, 60, 150), sig=3, drips=0, os_=.4)
+    s.save('wand_alien', .3)
+
+if 'zaehl' in wahl:  # Horror am Schrottplatz: „ZÄHL NICHT MIT“ in Rostrot, viel gelaufen, darunter siebzehn Striche und klein ∴
+    s = Wand(41); R = s.R
+    s.echt('r_tag_gross', 1250, 40, 760, alpha=.4, buff=.5)
+    s.echt('r_tag_unten', 60, 40, 280, alpha=.5, buff=.4)
+    s.spray(bahn(text_mask('ZÄHL NICHT MIT', 220, COV, 120, 330, rot=2, jitter=.7, seed=42)), (112, 26, 20), sig=8, drips=26, os_=1.2, dichte=3.6)
+    polys = []; x0 = 260
+    for g in range(4):
+        for i in range(5 if g < 3 else 2):
+            x = x0 + g * 330 + i * 52 + R.normal(0, 4); polys.append([(x, 690 + R.normal(0, 8)), (x + R.normal(0, 8), 900 + R.normal(0, 8))])
+        if g < 3: polys.append([(x0 + g * 330 - 30, 860), (x0 + g * 330 + 250, 720)])
+    s.spray(linien(polys, R, 2), (24, 22, 22), sig=5.5, drips=10)
+    dots = np.zeros((H, W), np.float32)
+    for (px, py) in [(1720, 860), (1700, 892), (1740, 892)]: dots[py, px] = 1
+    s.marker(ss(G(dots, 5) * 160, .25, .6), (230, 228, 220), .8)
+    s.save('wand_zaehl', .3)

@@ -33,6 +33,8 @@ const ZEICHEN_TAB = [
   { id: 'nr1_kreise', a: 'ort', m: 'kreise7_schimmer', s: 2, k: [5, 5], ray: [-49.6, 1.25, -10.4, 0, 0, -1, 2.8], w: 1.5, was: 'Sieben Kreise und ein halber (Lunas Zählung) an Nr. 1 – nur im Polaroid',
     foto: 'Auf dem Foto sind Kreise an der Wand. An der Wand sind keine.' },
   { id: 'tanke_graffiti', a: 'ort', m: 'g_tanke', s: 0, op: .9, ray: [110.6, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Jugend-Graffiti an der Tankstelle: „HIER LANDEN VERBOTEN“, Herz, ein abgemaltes Auge mit Fragezeichen' },
+  { id: 'tanke_alien', a: 'ort', m: 'g_alien', s: 0, op: .9, ray: [107.5, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Alien-Schablone der Dorfjugend: grauer Kopf, „NIMM MICH MIT“, darunter „VEGAS HAT RECHT“ – Witz über Lichter am Himmel und Vegas’ Theorien' },
+  { id: 'schrott_zaehl', a: 'ort', m: 'g_zaehl', s: 0, op: .92, ray: [113, 1.4, -20, 1, 0, 0, 4], w: 2.4, was: 'Am Schrottplatz, rostrot und gelaufen: „ZÄHL NICHT MIT“, darunter siebzehn Striche, klein ∴ – wer hier gezählt hat, bleibt offen' },
   // ---- Kirchberg
   { id: 'tor_turm', a: 'kirchberg', m: 'turm_alt', s: 1, ray: [-56.2, .62, 65.2, 0, 0, 1, 2.6], w: .3, rot: -.05, was: 'Turm über dem Abgrund (Wappen), alte Ritzung an der Friedhofsmauer neben dem Tor' },
   { id: 'mauer_birke', a: 'kirchberg', m: 'birke_alt', s: 1, ray: [-64.6, .58, 68.8, 0, 0, -1, 2.6], w: .22, rot: .06, was: '1312-Motiv Birke, verwittert, innen an der alten Friedhofsmauer' },
@@ -236,7 +238,7 @@ const ZEICHEN_MOTIVE = {
 // Nutzer 02.10.: „Graffiti sind selbst gezeichnet – realistisch, AAA“. Die drei Graffiti-Wände sind eigene Bilder (2048 x 1024 = 2,4 x 1,2 m, offline erzeugt):
 //   echte, aus Fotoscans freigestellte Tags/Sprühfarbe (Fab „Red Graffiti Wall Scan“ commonspence, „Graffitis en apeadero“, beide CC-BY) + Story-Schriftzüge,
 //   gesprüht entlang einer Handschrift (Kern, Sprühnebel aus Tröpfchen, Läufer, Farbkorn aus dem Betonscan). Übrige Sprüh-Motive im Atlas bekommen Korn und Poren.
-const ZEICHEN_BILD = { g_nr9: 'wand_nr9.png', g_tanke: 'wand_tanke.png', g_villa: 'wand_villa.png' };
+const ZEICHEN_BILD = { g_nr9: 'wand_nr9.png', g_tanke: 'wand_tanke.png', g_villa: 'wand_villa.png', g_alien: 'wand_alien.png', g_zaehl: 'wand_zaehl.png' };
 function zeichen_bild(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/graffiti_echt/' + src; setTimeout(() => r(null), 6000); }); }
 function zeichen_echt(a, W, H, k, Z) { if (!Z || !Z.korn) return;
   a.save(); a.globalCompositeOperation = 'source-atop'; a.globalAlpha = .24; for (let yy = 0; yy < H; yy += 512) for (let xx = 0; xx < W; xx += 512) a.drawImage(Z.korn, xx, yy, 512, 512); a.restore(); // Farbkorn
