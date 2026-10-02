@@ -143,3 +143,6 @@ Verschwörungswand „SUMPFGAS? LÜGE!“ (Wellblechzaun Schrottplatz z ≈ −1
 `amt_papier`, `kapitel1_papier`, `kirchberg_papier`, `villa_papierCv`, `innen_kapitel` paperCanvas und im Lesefenster (`ob_papier`, gemalte Wolken/Fasern nur noch als Hauch). „Paper Grime“ (Megascans) ist unbrauchbar (durchgehend dunkle Fläche) und nicht verwendet.
 Noch nicht umgestellt: `karte.js`, `album.js`, `ausbau_nord_paper`-Aufrufer. Testzugriff `__papier`. Quelle: `HAM_FabDownloads/v21_papier`.
 **Offen:** Decal-Set (Kratzer, Blut, Abdrücke), Kinderzeichnungen, restliche Einträge aus `docs/technical/selbstgezeichnet_inventar.md`.
+**Nachtrag (restliches Budget):** `kreideKorn(ctx, w, h)` (Basis, Maske `ms/papier/kreide_korn.png` aus dem Betonscan, nahtlos) in `kapitel1_verwaschen` (alle Kreide-Leinwände Kap. 1), `chalkTex`, `entd_kreideTex`,
+`tausch_kreideTex`, `k5_tKreide` – im Spiel nicht angesehen (Pfeile nur im Taschenlampenlicht). Kino-Einschlagriss (`kino.js` `riss`) = Megascans „Concrete Crack“ sternförmig zusammengesetzt (`ms/riss/b.png` + Höhe `h.jpg`, Erzeugung im
+Gesprächsverlauf 02.10.). Blut-Leinwand der Basis ist nur Ersatz ohne `FAB.blood` – nicht umgestellt. Megascans „Scratches“ (Pinsel) liegt in `HAM_FabDownloads/v22_risse/scr2`, noch nicht verwendet (Beobachter-Kratzer `beob_texte`).
