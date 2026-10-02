@@ -2992,7 +2992,8 @@ function windVert(sh, hh, fl, push) {
       vec3 wR = (wm * vec4(0., 0., 0., 1.)).xyz, wV = (wm * vec4(transformed, 1.)).xyz;
       vec3 off = hamWind(wR, wV, ${hh}, ${fl});${push ? `
       off += hamPush(wV, clamp((wV.y - wR.y) / 1.1, 0., 1.)) * (${push});` : ''}
-      transformed += inverse(mat3(wm)) * off;
+      mat3 wm3 = mat3(wm); float wDet = determinant(wm3);
+      if (abs(wDet) > 1e-7 && wDet == wDet) { vec3 dl = inverse(wm3) * off; float dll = length(dl); if (dll > 3.) dl *= 3. / dll; transformed += dl; } // degenerate instances: inverse() would be infinite
     }`);
 }
 function addWind(mat, amt) {

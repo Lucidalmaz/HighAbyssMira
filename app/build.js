@@ -2,7 +2,7 @@
 // Vorher: node tools/assemble.js baut ../game/index.html aus mods/_base_source_index.html + allen Welt-Modulen.
 const fs = require('fs'), path = require('path');
 const SRC = process.env.HAM_SRC ? path.resolve(process.env.HAM_SRC) : path.join(__dirname, '..', 'game');
-const OUT = path.join(__dirname, 'game');
+const OUT = process.env.HAM_OUT ? path.resolve(process.env.HAM_OUT) : path.join(__dirname, 'game'); // HAM_OUT: Testkopie woanders hin (z. B. HAM_SLIM=1 prüfen, ohne app/game anzufassen)
 // Nicht mehr löschen und neu kopieren: laufende Spielfenster (Selbsttests) verlören sonst mitten im Lauf ihre Dateien. Nur Geändertes wird kopiert
 // (Größe/Zeitstempel). Vollständig neu: HAM_CLEAN=1 node build.js
 // Veröffentlichung: node build.js --release (oder HAM_RELEASE=1) nimmt ../game/index.release.html (tools/assemble.js --release) und lässt die
@@ -13,12 +13,16 @@ const RELEASE = process.argv.includes('--release') || process.env.HAM_RELEASE ==
 const VERSION = require('./package.json').version;
 if (process.env.HAM_CLEAN) fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
+// R-25: Veröffentlichung (oder HAM_SLIM=1 zum Prüfen – nicht während fremder Selbsttests) ohne ungenutzte Assets und ohne Originale, deren KTX-Fassung
+// das Spiel lädt (Liste: tools/release_auslassen.js). Sie werden in app/game entfernt; der nächste normale `node build.js` kopiert sie wieder.
+const SKIP = RELEASE || process.env.HAM_SLIM === '1' ? new Set([...require('./tools/release_auslassen.js').auslassen(SRC).keys()].map(r => path.resolve(OUT, r))) : null;
 const want = new Set(); // alles, was diese Kopie in app/game erwartet
 const copy = (a, b) => { const st = fs.statSync(a);
   if (st.isDirectory()) { fs.mkdirSync(b, { recursive: true }); for (const f of fs.readdirSync(a)) copy(path.join(a, f), path.join(b, f)); return; }
+  if (SKIP && SKIP.has(path.resolve(b))) { try { fs.rmSync(b); } catch (e) {} return; }
   want.add(path.resolve(b));
   try { const t = fs.statSync(b); if (t.size === st.size && t.mtimeMs >= st.mtimeMs) return; } catch (e) {}
-  const tmp = b + '.tmp' + process.pid; fs.copyFileSync(a, tmp); fs.renameSync(tmp, b); };
+  const tmp = b + '.tmp' + process.pid; fs.mkdirSync(path.dirname(b), { recursive: true }); fs.copyFileSync(a, tmp); fs.renameSync(tmp, b); };
 for (const f of ['sounds.js', 'sounds_extra.js', 'justin.js']) if (fs.existsSync(path.join(SRC, f))) copy(path.join(SRC, f), path.join(OUT, f));
 if (fs.existsSync(path.join(SRC, 'assets'))) copy(path.join(SRC, 'assets'), path.join(OUT, 'assets'));
 if (fs.existsSync(path.join(SRC, 'audio'))) copy(path.join(SRC, 'audio'), path.join(OUT, 'audio')); // Klang: Musik, Betten, Geräusche (Opus, bei Bedarf geladen – Modul klang)
@@ -58,4 +62,5 @@ if (!process.env.HAM_KEEP) {
     prune(OUT); console.log(`Aufgeräumt: ${orphans.length} verwaiste Dateien` + (orphans.length <= 12 ? ' (' + orphans.map(f => path.relative(OUT, f)).join(', ') + ')' : ''));
   }
 }
+if (SKIP) console.log(`Ausgelassen (tools/release_auslassen.js): ${SKIP.size} Dateien`);
 console.log((RELEASE ? 'Veröffentlichung ' : 'Spiel ') + VERSION + ' kopiert:', fs.readdirSync(OUT).join(', '));

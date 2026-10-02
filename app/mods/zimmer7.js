@@ -52,18 +52,18 @@ function z7_snd(kind) {
 function z7_protokoll() {
   if (!ch2.z7Key) { ch2.z7Key = true; addItem('zimmer7'); setC2Objective('Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.'); z7_uhr(1, 31); }
   if (z7_S.relief) return; z7_S.relief = true;
-  z7_S.reliefP = (async () => {
+  setTimeout(() => { z7_S.reliefDone = true; }, 14000); // Sicherung: hängt say() (Untertitel-Warteschlange), bleibt die Tür sonst für immer zu
+  z7_S.reliefP = (async () => { try {
     await wait(700); await say([['Das achte Kind. Ein Mädchen.', 3200, 'LUKE']]);
     await wait(900); z7_snd('atem'); await wait(1300); z7_snd('cello'); await wait(900);
     await say([['Das bin nicht ich.', 3200, 'LUKE']]);
-    z7_S.reliefDone = true; z7_S.gT = 90;
-  })();
+  } finally { z7_S.reliefDone = true; z7_S.gT = 90; } })();
 }
 function z7_doorUse() {
   const D = z7_S.door; if (!D) return;
   if (D.locked) {
     if (!ch2.z7Key) { if (!z7_S.bandZu && typeof amt_band === 'function') { z7_S.bandZu = true; setTimeout(() => amt_band('Zimmer sieben ist heute geschlossen.'), 700); } return toast('Abgeschlossen. Ein Emailleschild: ZIMMER 7 · H. WENDT · ZÄHLUNG.', 3600); }
-    if (!z7_S.reliefDone && z7_S.reliefP) return; // erst die Erleichterung, dann die Tür (die Zeilen laufen noch)
+    if (!z7_S.reliefDone && z7_S.reliefP) return toast('Einen Moment. Deine Hände zittern noch.', 1800); // erst die Erleichterung, dann die Tür (die Zeilen laufen noch)
     D.locked = false; Audio.play('lockOpen', { gain: .5, x: C2.x + 33, y: 1, z: C2.z - 2, ref: 2 }); toast('Der Schlüssel passt.', 2200);
   }
   if (D.open && typeof doorSwingBlocked === 'function' && doorSwingBlocked(D)) return toast('Du stehst in der Tür.', 1600);

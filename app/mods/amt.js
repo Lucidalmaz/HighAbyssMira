@@ -69,6 +69,7 @@ function amt_in(x0, x1, z0, z1) { const P = player.pos; return P.x > x0 && P.x <
 async function amt_kit(key, file, size, axis = 'y', spec) {
   try { const root = file.endsWith('.fbx') ? await msFBX(key, file, spec || {}) : (await msModel(key, file)).clone(true); root.updateMatrixWorld(true);
     const parts = []; root.traverse(m => { if (m.isMesh && !m.isSkinnedMesh) parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
+    if (axis === 'lang') { const R = new THREE.Matrix4().makeRotationZ(PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); axis = 'y'; } // Leiter: liegt im Modell entlang x → aufrichten (sonst Maßstab über die Dicke = 22-fach, riesiger Balken im Gang)
     const bb = new THREE.Box3(); parts.forEach(p => { p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); }); const sz = bb.getSize(new THREE.Vector3()), s = size / (axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[axis]);
     const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));
     parts.forEach(p => { p.geo.applyMatrix4(mt); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); });
@@ -165,7 +166,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
     amt_kit('wardrobe', 'model.gltf', 1.95), amt_kit('shelf', 'model.gltf', .85, 'x'), amt_kit('trashbag', 'model.gltf', .68, 'x'), amt_kit('trashcan', 'model.gltf', .59),
     amt_kit('crt', 'model.glb', .37, 'x'), amt_kit('radio', 'model.gltf', .42, 'x'), amt_kit('frame_deco', 'model.gltf', .5), amt_kit('wallclock', 'model.gltf', 1.05), amt_kit('door1', 'model.gltf', 2.02),
     amt_kit('w_funk', 'model.glb', .34, 'max'), amt_kit('w_telefon', 'model.glb', .22, 'max'), amt_kit('w_thermos', 'model.glb', .31), amt_kit('w_blech', 'model.glb', .32, 'max'), amt_kit('w_becher', 'model.glb', .1),
-    amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
+    amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35, 'lang'), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
     amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), amt_kit('busstop1', 'model.glb', .045)]);
   for (const K of [kSack, kEimer, kRoehre, kRadio, kRahmen, kBecher, kBatt, kAscher, kSchuppe, kSchuppe2, kHalte, kTelefon, kBlech, kThermos]) if (K) K.shadow = false;
   const kSchrankStahl = amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });

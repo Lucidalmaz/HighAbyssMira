@@ -2994,7 +2994,8 @@ function windVert(sh, hh, fl, push) {
       vec3 wR = (wm * vec4(0., 0., 0., 1.)).xyz, wV = (wm * vec4(transformed, 1.)).xyz;
       vec3 off = hamWind(wR, wV, ${hh}, ${fl});${push ? `
       off += hamPush(wV, clamp((wV.y - wR.y) / 1.1, 0., 1.)) * (${push});` : ''}
-      transformed += inverse(mat3(wm)) * off;
+      mat3 wm3 = mat3(wm); float wDet = determinant(wm3);
+      if (abs(wDet) > 1e-7 && wDet == wDet) { vec3 dl = inverse(wm3) * off; float dll = length(dl); if (dll > 3.) dl *= 3. / dll; transformed += dl; } // degenerate instances: inverse() would be infinite
     }`);
 }
 function addWind(mat, amt) {
@@ -32436,18 +32437,18 @@ function z7_snd(kind) {
 function z7_protokoll() {
   if (!ch2.z7Key) { ch2.z7Key = true; addItem('zimmer7'); setC2Objective('Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.'); z7_uhr(1, 31); }
   if (z7_S.relief) return; z7_S.relief = true;
-  z7_S.reliefP = (async () => {
+  setTimeout(() => { z7_S.reliefDone = true; }, 14000); // Sicherung: hängt say() (Untertitel-Warteschlange), bleibt die Tür sonst für immer zu
+  z7_S.reliefP = (async () => { try {
     await wait(700); await say([['Das achte Kind. Ein Mädchen.', 3200, 'LUKE']]);
     await wait(900); z7_snd('atem'); await wait(1300); z7_snd('cello'); await wait(900);
     await say([['Das bin nicht ich.', 3200, 'LUKE']]);
-    z7_S.reliefDone = true; z7_S.gT = 90;
-  })();
+  } finally { z7_S.reliefDone = true; z7_S.gT = 90; } })();
 }
 function z7_doorUse() {
   const D = z7_S.door; if (!D) return;
   if (D.locked) {
     if (!ch2.z7Key) { if (!z7_S.bandZu && typeof amt_band === 'function') { z7_S.bandZu = true; setTimeout(() => amt_band('Zimmer sieben ist heute geschlossen.'), 700); } return toast('Abgeschlossen. Ein Emailleschild: ZIMMER 7 · H. WENDT · ZÄHLUNG.', 3600); }
-    if (!z7_S.reliefDone && z7_S.reliefP) return; // erst die Erleichterung, dann die Tür (die Zeilen laufen noch)
+    if (!z7_S.reliefDone && z7_S.reliefP) return toast('Einen Moment. Deine Hände zittern noch.', 1800); // erst die Erleichterung, dann die Tür (die Zeilen laufen noch)
     D.locked = false; Audio.play('lockOpen', { gain: .5, x: C2.x + 33, y: 1, z: C2.z - 2, ref: 2 }); toast('Der Schlüssel passt.', 2200);
   }
   if (D.open && typeof doorSwingBlocked === 'function' && doorSwingBlocked(D)) return toast('Du stehst in der Tür.', 1600);
@@ -32810,6 +32811,7 @@ function amt_in(x0, x1, z0, z1) { const P = player.pos; return P.x > x0 && P.x <
 async function amt_kit(key, file, size, axis = 'y', spec) {
   try { const root = file.endsWith('.fbx') ? await msFBX(key, file, spec || {}) : (await msModel(key, file)).clone(true); root.updateMatrixWorld(true);
     const parts = []; root.traverse(m => { if (m.isMesh && !m.isSkinnedMesh) parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
+    if (axis === 'lang') { const R = new THREE.Matrix4().makeRotationZ(PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); axis = 'y'; } // Leiter: liegt im Modell entlang x → aufrichten (sonst Maßstab über die Dicke = 22-fach, riesiger Balken im Gang)
     const bb = new THREE.Box3(); parts.forEach(p => { p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); }); const sz = bb.getSize(new THREE.Vector3()), s = size / (axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[axis]);
     const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));
     parts.forEach(p => { p.geo.applyMatrix4(mt); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); });
@@ -32906,7 +32908,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
     amt_kit('wardrobe', 'model.gltf', 1.95), amt_kit('shelf', 'model.gltf', .85, 'x'), amt_kit('trashbag', 'model.gltf', .68, 'x'), amt_kit('trashcan', 'model.gltf', .59),
     amt_kit('crt', 'model.glb', .37, 'x'), amt_kit('radio', 'model.gltf', .42, 'x'), amt_kit('frame_deco', 'model.gltf', .5), amt_kit('wallclock', 'model.gltf', 1.05), amt_kit('door1', 'model.gltf', 2.02),
     amt_kit('w_funk', 'model.glb', .34, 'max'), amt_kit('w_telefon', 'model.glb', .22, 'max'), amt_kit('w_thermos', 'model.glb', .31), amt_kit('w_blech', 'model.glb', .32, 'max'), amt_kit('w_becher', 'model.glb', .1),
-    amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
+    amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35, 'lang'), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
     amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), amt_kit('busstop1', 'model.glb', .045)]);
   for (const K of [kSack, kEimer, kRoehre, kRadio, kRahmen, kBecher, kBatt, kAscher, kSchuppe, kSchuppe2, kHalte, kTelefon, kBlech, kThermos]) if (K) K.shadow = false;
   const kSchrankStahl = amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });
@@ -39375,7 +39377,7 @@ WORLD_MODS.push(['Bewuchs', async () => {
     bfern: (x, y, z, s = 1, k = Math.random()) => bewuchs_add(sets.bf, x, y, z, Math.random() * PI2, s * (.7 + Math.random() * .6), null, .06, autumn(k, FERN_G, FERN_B)),
     ivyG: (x, y, z, s = 1) => bewuchs_add(sets.ef, x, y, z, Math.random() * PI2, s * (.5 + Math.random() * .5), null, .03, autumn(Math.random() * .4, [.9, 1, .9], [1.1, .95, .75])),
     pilz: (x, y, z, n = 3) => { if (!sets.pz) return; for (let i = 0; i < n; i++) { const a = Math.random() * PI2, r = .05 + Math.random() * .22 * Math.sqrt(n); bewuchs_add(sets.pz, x + Math.cos(a) * r, y - .005, z + Math.sin(a) * r, Math.random() * PI2, .8 + Math.random() * .7, null, .2, autumn(Math.random(), [1, 1, 1], [.75, .7, .62])); } },
-    leaf: (x, y, z, s = 1) => bewuchs_add(sets.lb, x, y - .02, z, Math.random() * PI2, s * (.5 + Math.random() * .6) / S.p.lbW, s * (.35 + Math.random() * .3) / S.p.lbW, .03, autumn(Math.random(), [.95, .9, .82], [1.15, .95, .7])),
+    leaf: (x, y, z, s = 1) => { if (colliders.some(c => c.top > .1 && c.base < .5 && x > c.minX - .3 && x < c.maxX + .3 && z > c.minZ - .3 && z < c.maxZ + .3)) return null; return bewuchs_add(sets.lb, x, y - .02, z, Math.random() * PI2, s * (.5 + Math.random() * .6) / S.p.lbW, s * (.35 + Math.random() * .3) / S.p.lbW, .03, autumn(Math.random(), [.95, .9, .82], [1.15, .95, .7])); },
     bush: (x, z, big) => { if (!SH) return; const v = Math.floor(Math.random() * SH.variants.length), bb = SH.variants[v][0][0].geo.boundingBox, s = Math.min(1.6, (big ? 1.2 + Math.random() * .8 : .7 + Math.random() * .5) / Math.max(.3, bb.max.y));
       gruen_lodAdd(SH, v, x, -.03, z, Math.random() * PI2, s, s, .05, bewuchs_lerp([.72, .7, .58], [1, .96, .84], Math.random())); gruen_softAdd(x, z, Math.min(1.1, Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) * s * .38)); } };
   S.put = put;
