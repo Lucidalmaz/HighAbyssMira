@@ -126,3 +126,11 @@ Zimmer-7-Tür-Absicherung (`zimmer7.js`, Erleichterungsszene hängt nicht mehr),
 5. **Tür Zimmer 7 (Kap. 2):** Ursache nur vermutet (hängende Untertitel-Szene); der „Balken“ war die Leiter (behoben) – bitte im neuen Bau prüfen.
 6. 4.1 Rest, 4.2 Atem, 4.3 Menü, 4.4 Symbol, 4.6 Stimmen wie oben (am 07.10. weiter).
 7. Klangprüfung: Abstürze/Aussetzer nicht reproduziert; Ursachenforschung nur mit Hörtest möglich.
+
+## 10. Nachtrag 02.10.2026 (Morgen) – echte Graffiti, Bewertung, Inventar
+**Committet:** Graffiti-Wände sind eigene 2048-px-Bilder statt Atlas-Zeichnung (`zeichen.js` → `ZEICHEN_BILD`, eigenes Netz je Wand): Nr. 9, Tankstelle, Villenmauer, neu Alien-Schablone (Tankstelle, `tanke_alien`)
+und Horror „ZÄHL NICHT MIT“ + 17 Striche (Schrottplatz, Wand x ≈ 116, `schrott_zaehl`, Bild im Spiel noch nicht angesehen). Erzeugung offline: `app/tools/grafik/gr_extract.py` (stellt echte Sprühfarbe aus den 8k-Scans
+in `HAM_FabDownloads/v20_texturen` frei → `_cut/`), `gr_compose.py <nr9|tanke|villa|alien|zaehl>` (echte Ausschnitte + gesprühte Schriftzüge: Kern, Tröpfchennebel, Läufer, Korn). Kreidestriche sitzen auf dem echten Mast (`entdecker.js`).
+Villenwand im Test nicht gesetzt (Bereich nicht geladen) – prüfen. Credits ergänzt (commonspence, Punttulanbro).
+**Berichte:** `docs/gameplay/AAA_Bewertung.md` (Noten, 10 Hebel, Szenenvorschläge), `docs/technical/selbstgezeichnet_inventar.md` (~430 offene selbstgezeichnete Texturen; größte Hebel: Papier-Scan-Satz, Decal-Set Kreide/Kratzer/Abdrücke).
+**Offen (Nutzerwunsch):** weitere Mystery-/Horror-/Alien-Graffiti, Lunas Kreide „1 … 17 UND NOCH EINS“ (Kap. 3), Kornkreis „sieben Kreise und ein halber“ am Hof als weitere Nazca-Figur. Wochenlimit 100 % (Reset 07.10.), Arbeit lief über bezahltes Zusatzkontingent.
