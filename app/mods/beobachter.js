@@ -630,8 +630,7 @@ function beob_k2Tick(dt) { // die eine Fast-Sichtung: Durchgang nach Zimmer 7, L
 // drei Kiesel, gefaltetes Bonbonpapier, angelehnte Türen, verschobene Dinge, Schatten unter Türen
 const BEOB_TEX = {};
 function beob_texte() { const T = BEOB_TEX; if (T.done) return T; T.done = true;
-  T.kratzer = tex(cnv(128, (x, w) => { x.clearRect(0, 0, w, w); for (let i = 0; i < 3; i++) { const x0 = 38 + i * 22 + rand(-3, 3); x.lineCap = 'round';
-      for (const [col, lw] of [['rgba(30,22,16,.55)', 7], ['rgba(214,196,160,.95)', 3.2], ['rgba(250,240,215,.8)', 1.2]]) { x.strokeStyle = col; x.lineWidth = lw; x.beginPath(); x.moveTo(x0, 20 + rand(0, 6)); x.bezierCurveTo(x0 + 4, 50, x0 + 7, 80, x0 + 11 + rand(-2, 2), 108 + rand(-6, 4)); x.stroke(); } } }), true);
+  T.kratzer = msTex('spuren/kratzer.png', true); // drei Krallenspuren: Riefen aus Megascans „Scratches“, ausgebrochener Putzrand aus dem Betonscan (vorher gemalte Linien)
   T.fuss = tex(cnv(128, (x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = '#fff'; x.filter = 'blur(2px)'; x.beginPath(); x.ellipse(64, 84, 18, 26, 0, 0, 7); x.fill();
       for (const [a, L] of [[-.55, 30], [0, 36], [.55, 30]]) { const tx = 64 + Math.sin(a) * L * 1.2, ty = 60 - Math.cos(a) * L; x.beginPath(); x.ellipse(tx, ty, 7, 13, a, 0, 7); x.fill(); x.beginPath(); x.moveTo(64, 70); x.lineTo(tx, ty + 6); x.lineWidth = 9; x.strokeStyle = '#fff'; x.stroke(); } }), false);
   const beschlag = (hand) => cnv(256, (x, w) => { x.clearRect(0, 0, w, w); const g = x.createRadialGradient(w / 2, w / 2, 20, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(225,232,238,.55)'); g.addColorStop(.7, 'rgba(225,232,238,.35)'); g.addColorStop(1, 'rgba(225,232,238,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w);
