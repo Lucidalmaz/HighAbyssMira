@@ -7,7 +7,7 @@
 //   · Wesen taucht auf (Kindschatten, Graukind, Peter, Echo-Figuren, Figuren der Basis, Justin) und ist < 32 m entfernt, aber nicht im Blick → weicher Schwenk.
 //   · UFO erscheint (state.ufoOn) → Blick nach oben zum Licht.
 //   · Neues Hauptziel mit bekanntem Ort (nächster offener Story-Hinweis aus HINTS) und Hilfe = 2 → sanfter Schwenk in Richtung Ziel.
-// Schnittstelle für Module: blick_hin(x, y, z, { sek, schnell, art }) – bei Skript-Schreckmomenten kurz davor aufrufen. Testzugriff window.__blick.
+// Schnittstelle für Module: blick_hin(x, y, z, { sek, schnell, art }) – bei Skript-Schreckmomenten kurz davor aufrufen. Testzugriff: __blick (am window)
 const BLICK = { t: null, cancelUntil: 0, cool: 0, ly: 0, lp: 0, vis: new Map(), scan: 0, ufoWar: false, objT: 0, n: { start: 0, abbruch: 0, ziel: 0 }, log: [] };
 const blick_stufe = () => { try { const h = settings.hilfe; return h === 0 || h === 2 ? h : 1; } catch (e) { return 1; } };
 function blick_frei() { // darf die Lenkung jetzt überhaupt arbeiten?
