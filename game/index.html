@@ -5129,7 +5129,18 @@ function fearUpdate(dt, indoor) {
   if (!fear.told && fear.v > .6 && !lit) { fear.told = true; toast('Die Dunkelheit zerrt an dir. Die Taschenlampe (F) hilft.', 4200); }
 }
 
-{ try { stage('Modelle laden'); await loadFabAssets(); } catch (e) { console.warn('Fab-Modelle konnten nicht geladen werden', e); } }
+// Echtes Papier (Nutzer 02.10.: „alles Selbstgezeichnete echt“): Megascans „Dirty Papers“ (leere Blattfläche, Knitter-Schatten), Fab Standard. papierScan(ctx, w, h, farbe, { dreck }) füllt die Grundfarbe und multipliziert den Scan darüber – Text/Stempel zeichnen die Module danach wie bisher.
+const PAPIER = { faser: null, dreck: null };
+function papierLaden() { const L = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/papier/' + s; setTimeout(() => r(null), 8000); });
+  return L('faser.jpg').then(a => { PAPIER.faser = a; }); }
+window.__papier = { P: PAPIER, scan: (...a) => papierScan(...a), note: (t, h) => showNote(t, h) }; // Testzugriff
+function papierScan(x, w, h, farbe, o = {}) {
+  x.save(); x.fillStyle = farbe; x.fillRect(0, 0, w, h); const F = PAPIER.faser;
+  if (F) { x.globalCompositeOperation = 'multiply'; const quer = w >= h, r = quer ? h / w : w / h; let sw = F.width * (.55 + Math.random() * .45); sw = Math.min(sw, F.height / r); const sh = sw * r, sx = Math.random() * (F.width - sw), sy = Math.random() * (F.height - sh);
+    if (quer) x.drawImage(F, sx, sy, sw, sh, 0, 0, w, h); else { x.translate(w, 0); x.rotate(Math.PI / 2); x.drawImage(F, sx, sy, sw, sh, 0, 0, h, w); } }
+  x.restore(); const D = PAPIER.dreck, k = o.dreck ?? .3;
+  if (D && k > 0) { x.save(); x.globalCompositeOperation = 'multiply'; x.globalAlpha = k; const s = Math.max(w, h) * (.9 + Math.random() * .9); x.translate(w / 2, h / 2); x.rotate(Math.random() * 6.28); x.drawImage(D, -s / 2 + (Math.random() - .5) * w * .5, -s / 2 + (Math.random() - .5) * h * .5, s, s); x.restore(); } }
+{ try { stage('Modelle laden'); await Promise.all([loadFabAssets(), papierLaden().catch(() => {})]); } catch (e) { console.warn('Fab-Modelle konnten nicht geladen werden', e); } }
 // =====================================================================  KÖRPER-KOLLISION an der sichtbaren Geometrie
 // Alles Sichtbare und Feste hält den Körper auf – genau an seiner Form, nicht an einer unsichtbaren Kiste.
 // Man gleitet an Kanten entlang, steigt Stufen und Veranden hinauf; bewegte Dinge (Türen, Schubladen, Schaukel) wandern mit.
@@ -10173,8 +10184,8 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // Papier: Akten, Formulare, Kinderzeichnungen (Canvas, auf echten Oberflächen)
   function paperCanvas(kind, seed) {
     const c = document.createElement('canvas'); c.width = 256; c.height = 362; const x = c.getContext('2d'); let k = seed * 7 + 1; const r = (a, b) => { k = (k * 16807) % 2147483647; return a + (b - a) * (k / 2147483647); };
-    x.fillStyle = kind === 'kid' ? '#ece6d6' : ['#d8d0b8', '#d3cbb3', '#ddd6c0'][seed % 3]; x.fillRect(0, 0, 256, 362);
-    for (let i = 0; i < 7; i++) { const g = x.createRadialGradient(r(0, 256), r(0, 362), 0, r(0, 256), r(0, 362), r(40, 140)); g.addColorStop(0, `rgba(120,90,40,${r(.05, .18)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 362); }
+    papierScan(x, 256, 362, kind === 'kid' ? '#ece6d6' : ['#d8d0b8', '#d3cbb3', '#ddd6c0'][seed % 3], { dreck: kind === 'kid' ? .2 : .4 }); // echtes Papier
+    for (let i = 0; i < 3; i++) { const g = x.createRadialGradient(r(0, 256), r(0, 362), 0, r(0, 256), r(0, 362), r(40, 140)); g.addColorStop(0, `rgba(120,90,40,${r(.05, .18)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 362); }
     if (kind === 'kid') { // Kinderzeichnung: Buntstift
       x.lineCap = 'round'; x.lineWidth = 4; const cols = ['#c02020', '#2040c0', '#208030', '#101010', '#d08010'];
       if (seed % 3 === 0) { x.strokeStyle = '#d08010'; x.beginPath(); x.arc(200, 60, 26, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) { const sx = 30 + i * 26; x.strokeStyle = cols[i % 5]; x.beginPath(); x.arc(sx, 200, 9, 0, 7); x.moveTo(sx, 209); x.lineTo(sx, 250); x.moveTo(sx, 250); x.lineTo(sx - 8, 280); x.moveTo(sx, 250); x.lineTo(sx + 8, 280); x.moveTo(sx - 12, 225); x.lineTo(sx + 12, 225); x.stroke(); } x.fillStyle = '#101010'; x.font = '30px Caveat'; x.fillText('wir 8', 90, 330); }
@@ -12234,8 +12245,7 @@ let kirchberg_rs = 1312; function kirchberg_r(a = 0, b = 1) { kirchberg_rs = (ki
 // Papier mit Handschrift: o = { w, h (Pixel), bg, lin: 'kariert'|'liniert'|null, zeilen: [[text, x, y, px, farbe?, font?, rot?]], flecken, tesa, knick }
 function kirchberg_papier(o) {
   return kirchberg_tex(kirchberg_cnv(o.w || 512, o.h || 384, (x, w, h) => {
-    const bg = o.bg || '#ece3cb'; x.fillStyle = bg; x.fillRect(0, 0, w, h);
-    for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${90 + kirchberg_r() * 60},${70 + kirchberg_r() * 40},${40 + kirchberg_r() * 30},${kirchberg_r() * .05})`; x.fillRect(kirchberg_r() * w, kirchberg_r() * h, 1 + kirchberg_r() * 3, 1 + kirchberg_r() * 3); } // Papierfaser
+    const bg = o.bg || '#ece3cb'; papierScan(x, w, h, bg); // echtes Papier (Faser, Knitter, Schmutz aus dem Scan)
     if (o.lin === 'kariert') { x.strokeStyle = 'rgba(70,110,160,.22)'; x.lineWidth = 1; for (let i = 14; i < w; i += 18) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } for (let i = 14; i < h; i += 18) { x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } }
     else if (o.lin === 'liniert') { x.strokeStyle = 'rgba(70,110,160,.25)'; for (let i = 44; i < h; i += 30) { x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } x.strokeStyle = 'rgba(190,60,60,.3)'; x.beginPath(); x.moveTo(52, 0); x.lineTo(52, h); x.stroke(); }
     const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .2, w / 2, h / 2, Math.max(w, h) * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(80,55,20,.28)'); x.fillStyle = g; x.fillRect(0, 0, w, h); // vergilbter Rand
@@ -19915,8 +19925,7 @@ function villa_cv(w, h, fn) { const c = document.createElement('canvas'); c.widt
 function villa_decal(cv, w, h, x, y, z, rx = 0, ry = 0, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex(cv, true), transparent: !!o.alpha, alphaTest: o.alpha ? .05 : 0, roughness: o.rough ?? .92, metalness: o.metal || 0,
   side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, emissive: o.glow ? 0xffffff : 0x000000, emissiveMap: o.glow ? tex(cv, true) : null, emissiveIntensity: o.glow || 0 }));
   m.position.set(x, y, z); m.rotation.set(rx, ry, 0, 'YXZ'); m.userData.noCol = true; m.receiveShadow = true; VILLA.g.add(m); return m; }
-function villa_papierCv(zeilen, o = {}) { return villa_cv(o.w || 256, o.h || 340, (c, w, h) => { c.fillStyle = o.grund || '#e6ddc6'; c.fillRect(0, 0, w, h);
-  for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(90,70,40,${Math.random() * .05})`; c.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 12, 1 + Math.random() * 3); }
+function villa_papierCv(zeilen, o = {}) { return villa_cv(o.w || 256, o.h || 340, (c, w, h) => { papierScan(c, w, h, o.grund || '#e6ddc6', { dreck: .35 }); // echtes Papier
   c.fillStyle = o.tinte || '#26241f'; c.font = o.font || '15px "Courier New", monospace'; let y = o.y0 || 34; for (const z of zeilen) { c.fillText(z, 16, y); y += o.lh || 20; }
   if (o.auge && typeof akte_auge === 'function') try { akte_auge(c, w - 34, 30, 12, '#3a3a3a'); } catch (e) {}
   if (o.fuss) { c.font = '9px "Courier New", monospace'; c.fillStyle = '#5a564c'; c.fillText(o.fuss, 16, h - 12); } }); }
@@ -30591,7 +30600,7 @@ function kapitel1_zeile(t, ms, who) { subtitle(t, ms, who); }
 function kapitel1_cnv(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); draw(x, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
 function kapitel1_mat(tex, o = {}) { return new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: .04, depthWrite: false, roughness: o.rough ?? .95, metalness: o.metal ?? 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, color: o.color ?? 0xffffff }); }
 function kapitel1_decal(tex, w, h, x, y, z, rx, ry, rz = 0, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), kapitel1_mat(tex, o)); m.position.set(x, y, z); m.rotation.set(rx, ry, rz, 'YXZ'); m.receiveShadow = true; m.renderOrder = 2; scene.add(m); K1.deco.push(m); return m; }
-function kapitel1_papier(x, w, h, tint = '#e8e0cc') { x.fillStyle = tint; x.fillRect(0, 0, w, h); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '90,70,40' : '255,255,245'},${rand(.02, .07)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); }
+function kapitel1_papier(x, w, h, tint = '#e8e0cc') { papierScan(x, w, h, tint); // echtes Papier
   const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .2, w / 2, h / 2, Math.max(w, h) * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(90,60,20,.28)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
 function kapitel1_kreideStrich(x, pts, lw = 7, col = 'rgba(236,232,220,.85)') { x.lineCap = 'round'; x.lineJoin = 'round'; // Kreide: mehrere dünne, zittrige Züge übereinander, dazwischen Korn
   for (let pass = 0; pass < 4; pass++) { x.strokeStyle = col; x.globalAlpha = pass ? .38 : .55; x.lineWidth = lw * (pass ? rand(.35, .6) : .75); x.beginPath(); pts.forEach((p, i) => { const j = lw * .22; i ? x.lineTo(p[0] + rand(-j, j), p[1] + rand(-j, j)) : x.moveTo(p[0] + rand(-j, j), p[1] + rand(-j, j)); }); x.stroke(); }
@@ -32968,9 +32977,8 @@ setC2Objective = (o => t => o(Object.prototype.hasOwnProperty.call(AMT_ZIEL, t) 
 let amt_rs = 16061; const amt_R = (a, b) => { amt_rs = (amt_rs * 16807) % 2147483647; return a + (b - a) * (amt_rs / 2147483647); };
 function amt_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
 // Papier: Grundton, Faser, Stockflecken, Kaffeerand, Knick (Q-3: echte Oberflächen)
-function amt_papier(x, w, h, o = {}) { const R = amt_R; x.fillStyle = o.bg || '#ddd4bb'; x.fillRect(0, 0, w, h);
-  for (let i = 0; i < (o.flecken ?? 8); i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(w * .08, w * .45)); g.addColorStop(0, `rgba(120,90,40,${R(.03, .12)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
-  for (let i = 0; i < w * h / 400; i++) { x.fillStyle = `rgba(${R(60, 120) | 0},${R(50, 90) | 0},30,${R(.03, .09)})`; x.fillRect(R(0, w), R(0, h), R(.6, 1.6), R(.6, 1.6)); }
+function amt_papier(x, w, h, o = {}) { const R = amt_R; papierScan(x, w, h, o.bg || '#ddd4bb', { dreck: .4 }); // echtes Papier statt Fläche + Pünktchen
+  for (let i = 0; i < (o.flecken ?? 3); i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(w * .08, w * .45)); g.addColorStop(0, `rgba(120,90,40,${R(.03, .12)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
   if (o.knick) { const y = h * R(.35, .65); const g = x.createLinearGradient(0, y - 6, 0, y + 6); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(60,40,20,.18)'); g.addColorStop(1, 'rgba(255,255,255,.06)'); x.fillStyle = g; x.fillRect(0, y - 6, w, 12); }
   if (o.kaffee) { x.strokeStyle = 'rgba(110,70,30,.35)'; x.lineWidth = 5; x.beginPath(); x.arc(w * R(.55, .8), h * R(.6, .85), w * .12, 0, 5.6); x.stroke(); }
   const e = x.createLinearGradient(0, 0, w, 0); e.addColorStop(0, 'rgba(80,60,30,.18)'); e.addColorStop(.06, 'rgba(0,0,0,0)'); e.addColorStop(.94, 'rgba(0,0,0,0)'); e.addColorStop(1, 'rgba(80,60,30,.18)'); x.fillStyle = e; x.fillRect(0, 0, w, h); }
@@ -39090,6 +39098,7 @@ function ob_quelle(title, html) { const t = String(title || ''); for (const [k, 
 function ob_papier(o) {
   const W = 640, H = 880, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true }), R = Math.random;
   x.fillStyle = o.base; x.fillRect(0, 0, W, H); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+  const scan = o.fasern > 0 && PAPIER.faser; if (scan) { papierScan(x, W, H, o.base, { dreck: .3 }); o = { ...o, wolke: o.wolke * .35, fasern: o.fasern * .15 }; } // echtes Papier (Scan) trägt Faser und Knitter; die gemalten Wolken/Fasern nur noch als Hauch
   for (const [n, a] of [[5, 1], [13, .7], [34, .45]]) { const s = document.createElement('canvas'); s.width = n; s.height = Math.round(n * H / W); const sx = s.getContext('2d'), id = sx.createImageData(s.width, s.height);
     for (let i = 0; i < id.data.length; i += 4) { const hell = R() < .45; id.data[i] = hell ? o.hell[0] : o.dunkel[0]; id.data[i + 1] = hell ? o.hell[1] : o.dunkel[1]; id.data[i + 2] = hell ? o.hell[2] : o.dunkel[2]; id.data[i + 3] = R() * 255 * a * o.wolke; }
     sx.putImageData(id, 0, 0); x.drawImage(s, 0, 0, W, H); }

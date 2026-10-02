@@ -84,8 +84,8 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // Papier: Akten, Formulare, Kinderzeichnungen (Canvas, auf echten Oberflächen)
   function paperCanvas(kind, seed) {
     const c = document.createElement('canvas'); c.width = 256; c.height = 362; const x = c.getContext('2d'); let k = seed * 7 + 1; const r = (a, b) => { k = (k * 16807) % 2147483647; return a + (b - a) * (k / 2147483647); };
-    x.fillStyle = kind === 'kid' ? '#ece6d6' : ['#d8d0b8', '#d3cbb3', '#ddd6c0'][seed % 3]; x.fillRect(0, 0, 256, 362);
-    for (let i = 0; i < 7; i++) { const g = x.createRadialGradient(r(0, 256), r(0, 362), 0, r(0, 256), r(0, 362), r(40, 140)); g.addColorStop(0, `rgba(120,90,40,${r(.05, .18)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 362); }
+    papierScan(x, 256, 362, kind === 'kid' ? '#ece6d6' : ['#d8d0b8', '#d3cbb3', '#ddd6c0'][seed % 3], { dreck: kind === 'kid' ? .2 : .4 }); // echtes Papier
+    for (let i = 0; i < 3; i++) { const g = x.createRadialGradient(r(0, 256), r(0, 362), 0, r(0, 256), r(0, 362), r(40, 140)); g.addColorStop(0, `rgba(120,90,40,${r(.05, .18)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 362); }
     if (kind === 'kid') { // Kinderzeichnung: Buntstift
       x.lineCap = 'round'; x.lineWidth = 4; const cols = ['#c02020', '#2040c0', '#208030', '#101010', '#d08010'];
       if (seed % 3 === 0) { x.strokeStyle = '#d08010'; x.beginPath(); x.arc(200, 60, 26, 0, 7); x.stroke(); for (let i = 0; i < 8; i++) { const sx = 30 + i * 26; x.strokeStyle = cols[i % 5]; x.beginPath(); x.arc(sx, 200, 9, 0, 7); x.moveTo(sx, 209); x.lineTo(sx, 250); x.moveTo(sx, 250); x.lineTo(sx - 8, 280); x.moveTo(sx, 250); x.lineTo(sx + 8, 280); x.moveTo(sx - 12, 225); x.lineTo(sx + 12, 225); x.stroke(); } x.fillStyle = '#101010'; x.font = '30px Caveat'; x.fillText('wir 8', 90, 330); }

@@ -5127,7 +5127,18 @@ function fearUpdate(dt, indoor) {
   if (!fear.told && fear.v > .6 && !lit) { fear.told = true; toast('Die Dunkelheit zerrt an dir. Die Taschenlampe (F) hilft.', 4200); }
 }
 
-{ try { stage('Modelle laden'); await loadFabAssets(); } catch (e) { console.warn('Fab-Modelle konnten nicht geladen werden', e); } }
+// Echtes Papier (Nutzer 02.10.: „alles Selbstgezeichnete echt“): Megascans „Dirty Papers“ (leere Blattfläche, Knitter-Schatten), Fab Standard. papierScan(ctx, w, h, farbe, { dreck }) füllt die Grundfarbe und multipliziert den Scan darüber – Text/Stempel zeichnen die Module danach wie bisher.
+const PAPIER = { faser: null, dreck: null };
+function papierLaden() { const L = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/papier/' + s; setTimeout(() => r(null), 8000); });
+  return L('faser.jpg').then(a => { PAPIER.faser = a; }); }
+window.__papier = { P: PAPIER, scan: (...a) => papierScan(...a), note: (t, h) => showNote(t, h) }; // Testzugriff
+function papierScan(x, w, h, farbe, o = {}) {
+  x.save(); x.fillStyle = farbe; x.fillRect(0, 0, w, h); const F = PAPIER.faser;
+  if (F) { x.globalCompositeOperation = 'multiply'; const quer = w >= h, r = quer ? h / w : w / h; let sw = F.width * (.55 + Math.random() * .45); sw = Math.min(sw, F.height / r); const sh = sw * r, sx = Math.random() * (F.width - sw), sy = Math.random() * (F.height - sh);
+    if (quer) x.drawImage(F, sx, sy, sw, sh, 0, 0, w, h); else { x.translate(w, 0); x.rotate(Math.PI / 2); x.drawImage(F, sx, sy, sw, sh, 0, 0, h, w); } }
+  x.restore(); const D = PAPIER.dreck, k = o.dreck ?? .3;
+  if (D && k > 0) { x.save(); x.globalCompositeOperation = 'multiply'; x.globalAlpha = k; const s = Math.max(w, h) * (.9 + Math.random() * .9); x.translate(w / 2, h / 2); x.rotate(Math.random() * 6.28); x.drawImage(D, -s / 2 + (Math.random() - .5) * w * .5, -s / 2 + (Math.random() - .5) * h * .5, s, s); x.restore(); } }
+{ try { stage('Modelle laden'); await Promise.all([loadFabAssets(), papierLaden().catch(() => {})]); } catch (e) { console.warn('Fab-Modelle konnten nicht geladen werden', e); } }
 // =====================================================================  KÖRPER-KOLLISION an der sichtbaren Geometrie
 // Alles Sichtbare und Feste hält den Körper auf – genau an seiner Form, nicht an einer unsichtbaren Kiste.
 // Man gleitet an Kanten entlang, steigt Stufen und Veranden hinauf; bewegte Dinge (Türen, Schubladen, Schaukel) wandern mit.

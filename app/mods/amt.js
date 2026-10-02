@@ -45,9 +45,8 @@ setC2Objective = (o => t => o(Object.prototype.hasOwnProperty.call(AMT_ZIEL, t) 
 let amt_rs = 16061; const amt_R = (a, b) => { amt_rs = (amt_rs * 16807) % 2147483647; return a + (b - a) * (amt_rs / 2147483647); };
 function amt_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
 // Papier: Grundton, Faser, Stockflecken, Kaffeerand, Knick (Q-3: echte Oberflächen)
-function amt_papier(x, w, h, o = {}) { const R = amt_R; x.fillStyle = o.bg || '#ddd4bb'; x.fillRect(0, 0, w, h);
-  for (let i = 0; i < (o.flecken ?? 8); i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(w * .08, w * .45)); g.addColorStop(0, `rgba(120,90,40,${R(.03, .12)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
-  for (let i = 0; i < w * h / 400; i++) { x.fillStyle = `rgba(${R(60, 120) | 0},${R(50, 90) | 0},30,${R(.03, .09)})`; x.fillRect(R(0, w), R(0, h), R(.6, 1.6), R(.6, 1.6)); }
+function amt_papier(x, w, h, o = {}) { const R = amt_R; papierScan(x, w, h, o.bg || '#ddd4bb', { dreck: .4 }); // echtes Papier statt Fläche + Pünktchen
+  for (let i = 0; i < (o.flecken ?? 3); i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(w * .08, w * .45)); g.addColorStop(0, `rgba(120,90,40,${R(.03, .12)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
   if (o.knick) { const y = h * R(.35, .65); const g = x.createLinearGradient(0, y - 6, 0, y + 6); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(60,40,20,.18)'); g.addColorStop(1, 'rgba(255,255,255,.06)'); x.fillStyle = g; x.fillRect(0, y - 6, w, 12); }
   if (o.kaffee) { x.strokeStyle = 'rgba(110,70,30,.35)'; x.lineWidth = 5; x.beginPath(); x.arc(w * R(.55, .8), h * R(.6, .85), w * .12, 0, 5.6); x.stroke(); }
   const e = x.createLinearGradient(0, 0, w, 0); e.addColorStop(0, 'rgba(80,60,30,.18)'); e.addColorStop(.06, 'rgba(0,0,0,0)'); e.addColorStop(.94, 'rgba(0,0,0,0)'); e.addColorStop(1, 'rgba(80,60,30,.18)'); x.fillStyle = e; x.fillRect(0, 0, w, h); }

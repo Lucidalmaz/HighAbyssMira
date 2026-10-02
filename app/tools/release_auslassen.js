@@ -22,6 +22,7 @@ const BRAUCHT_ORIGINAL = [ // Präfixe/Dateien relativ zu game/
   'assets/ms/gas_signs/OldGasStationSign.jpg', 'assets/ms/rust_sheet/b.jpg',                 // ausbau_ost_west.js, fassaden.js: new Image
   'assets/ms/vans/van_undamaged_d.jpg', 'assets/ms/hydrant/t0.jpg', 'assets/ms/parksign/t0.jpg', // strasse.js: Umfärben über Leinwand
   'assets/forestfloor/b.jpg', 'assets/ms/curtain_retro/curtainroom_01_-_Default_BaseColor.jpg', 'assets/ms/floor_worn/b.jpg', // fassaden.js small(): createImageBitmap
+  'assets/ms/papier/',                                                                         // papierScan (Basis): echtes Papier (Image, Leinwand)
   'assets/ms/graffiti_echt/',                                                                  // zeichen.js: echte Graffiti (Image, Leinwand)
   'assets/ms/wall_damaged/b.jpg', 'assets/ms/wall_plaster/b.jpg', 'assets/ms/wallpaper_deco/b.jpg', 'assets/ms/wallpaper_fabric/b.jpg', 'assets/ms/wallpaper_old/b.jpg',
 ];

@@ -106,6 +106,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Gas Station Signs | commonspence | Tankstellenschilder (`ms/gas_signs`) | https://www.fab.com/listings/15423edd-fd02-479f-bfc6-1d76d65dc011 |
 | Red Graffiti Wall Scan | commonspence | echte Sprühfarbe/Tags als Graffiti-Schichten (`ms/graffiti_echt`) | https://www.fab.com/listings/75db7a3e-ea68-409b-bf20-b504e4c5c810 |
 | Graffitis en apeadero | Punttulanbro | echte Graffiti-Motive (Elefant, Bubble-Letters) in den Graffiti-Wänden (`ms/graffiti_echt`) | https://www.fab.com/listings/25e3bcb8-cfa3-4493-ab60-f65a4521fe7a |
+| Dirty Papers (Megascans, Fab Standard) | Quixel | echte Papierfaser und Knitter für alle Zettel, Akten und Briefe (`ms/papier`) | https://www.fab.com/listings/9092365a-4b22-4e11-8280-d9b969dbac8b |
 | Simple Old Shed | Jimbogies | alter Schuppen (`ms/shed_old`) | https://www.fab.com/listings/df46b840-269f-4a5c-99b4-cee389e80ebb |
 | Backyard Utility Shed | Jimbogies | Geräteschuppen (`ms/shed_util`) | https://www.fab.com/listings/7a40ef73-c76a-48b0-8953-73aaaf098165 |
 | Wooden Garden Shed | KenVeel | Gartenhaus (`ms/shed_garden`) | https://www.fab.com/listings/b8424660-c244-43ca-bffe-77a9e4441c94 |

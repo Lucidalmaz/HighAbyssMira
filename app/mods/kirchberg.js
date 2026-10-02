@@ -22,8 +22,7 @@ let kirchberg_rs = 1312; function kirchberg_r(a = 0, b = 1) { kirchberg_rs = (ki
 // Papier mit Handschrift: o = { w, h (Pixel), bg, lin: 'kariert'|'liniert'|null, zeilen: [[text, x, y, px, farbe?, font?, rot?]], flecken, tesa, knick }
 function kirchberg_papier(o) {
   return kirchberg_tex(kirchberg_cnv(o.w || 512, o.h || 384, (x, w, h) => {
-    const bg = o.bg || '#ece3cb'; x.fillStyle = bg; x.fillRect(0, 0, w, h);
-    for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${90 + kirchberg_r() * 60},${70 + kirchberg_r() * 40},${40 + kirchberg_r() * 30},${kirchberg_r() * .05})`; x.fillRect(kirchberg_r() * w, kirchberg_r() * h, 1 + kirchberg_r() * 3, 1 + kirchberg_r() * 3); } // Papierfaser
+    const bg = o.bg || '#ece3cb'; papierScan(x, w, h, bg); // echtes Papier (Faser, Knitter, Schmutz aus dem Scan)
     if (o.lin === 'kariert') { x.strokeStyle = 'rgba(70,110,160,.22)'; x.lineWidth = 1; for (let i = 14; i < w; i += 18) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); } for (let i = 14; i < h; i += 18) { x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } }
     else if (o.lin === 'liniert') { x.strokeStyle = 'rgba(70,110,160,.25)'; for (let i = 44; i < h; i += 30) { x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } x.strokeStyle = 'rgba(190,60,60,.3)'; x.beginPath(); x.moveTo(52, 0); x.lineTo(52, h); x.stroke(); }
     const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * .2, w / 2, h / 2, Math.max(w, h) * .75); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(80,55,20,.28)'); x.fillStyle = g; x.fillRect(0, 0, w, h); // vergilbter Rand

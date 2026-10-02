@@ -19,6 +19,7 @@ function ob_quelle(title, html) { const t = String(title || ''); for (const [k, 
 function ob_papier(o) {
   const W = 640, H = 880, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true }), R = Math.random;
   x.fillStyle = o.base; x.fillRect(0, 0, W, H); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+  const scan = o.fasern > 0 && PAPIER.faser; if (scan) { papierScan(x, W, H, o.base, { dreck: .3 }); o = { ...o, wolke: o.wolke * .35, fasern: o.fasern * .15 }; } // echtes Papier (Scan) trägt Faser und Knitter; die gemalten Wolken/Fasern nur noch als Hauch
   for (const [n, a] of [[5, 1], [13, .7], [34, .45]]) { const s = document.createElement('canvas'); s.width = n; s.height = Math.round(n * H / W); const sx = s.getContext('2d'), id = sx.createImageData(s.width, s.height);
     for (let i = 0; i < id.data.length; i += 4) { const hell = R() < .45; id.data[i] = hell ? o.hell[0] : o.dunkel[0]; id.data[i + 1] = hell ? o.hell[1] : o.dunkel[1]; id.data[i + 2] = hell ? o.hell[2] : o.dunkel[2]; id.data[i + 3] = R() * 255 * a * o.wolke; }
     sx.putImageData(id, 0, 0); x.drawImage(s, 0, 0, W, H); }

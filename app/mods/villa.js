@@ -98,8 +98,7 @@ function villa_cv(w, h, fn) { const c = document.createElement('canvas'); c.widt
 function villa_decal(cv, w, h, x, y, z, rx = 0, ry = 0, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex(cv, true), transparent: !!o.alpha, alphaTest: o.alpha ? .05 : 0, roughness: o.rough ?? .92, metalness: o.metal || 0,
   side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, emissive: o.glow ? 0xffffff : 0x000000, emissiveMap: o.glow ? tex(cv, true) : null, emissiveIntensity: o.glow || 0 }));
   m.position.set(x, y, z); m.rotation.set(rx, ry, 0, 'YXZ'); m.userData.noCol = true; m.receiveShadow = true; VILLA.g.add(m); return m; }
-function villa_papierCv(zeilen, o = {}) { return villa_cv(o.w || 256, o.h || 340, (c, w, h) => { c.fillStyle = o.grund || '#e6ddc6'; c.fillRect(0, 0, w, h);
-  for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(90,70,40,${Math.random() * .05})`; c.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 12, 1 + Math.random() * 3); }
+function villa_papierCv(zeilen, o = {}) { return villa_cv(o.w || 256, o.h || 340, (c, w, h) => { papierScan(c, w, h, o.grund || '#e6ddc6', { dreck: .35 }); // echtes Papier
   c.fillStyle = o.tinte || '#26241f'; c.font = o.font || '15px "Courier New", monospace'; let y = o.y0 || 34; for (const z of zeilen) { c.fillText(z, 16, y); y += o.lh || 20; }
   if (o.auge && typeof akte_auge === 'function') try { akte_auge(c, w - 34, 30, 12, '#3a3a3a'); } catch (e) {}
   if (o.fuss) { c.font = '9px "Courier New", monospace'; c.fillStyle = '#5a564c'; c.fillText(o.fuss, 16, h - 12); } }); }
