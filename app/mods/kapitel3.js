@@ -258,7 +258,7 @@ async function kapitel3_handNehmen() { const S = kapitel3_S; if (!S.handWarte ||
 // Whiskey K3-3 „Kum!“: bleibt Luke am Rand stehen und nimmt die Hand nicht
 async function kapitel3_kum() { const S = kapitel3_S; if (S.kum) return; S.kum = true; state.talking = true;
   try { const J = justin.g.position; if (typeof whiskey_setzen === 'function') try { whiskey_setzen(J.x + .8, .05, J.z + .4); } catch (e) {} await wait(1800);
-    let ok = false; if (typeof whiskey_mimic === 'function') try { ok = !!whiskey_mimic('kum', { force: true }); } catch (e) {} subtitle('„Kum!“', 1800, 'WHISKEY'); if (!ok) Audio.whisper(J.x + .8, .4, J.z + .4, .8);
+    let ok = false; if (typeof whiskey_mimic === 'function') try { ok = !!whiskey_mimic('kum', { force: true }); } catch (e) {} subtitle('„Kum!“<span style="opacity:.62;font-size:.8em;font-style:normal"> – alt für „Komm!“</span>', 2200, 'WHISKEY'); if (!ok) Audio.whisper(J.x + .8, .4, J.z + .4, .8);
     await wait(2600); await say([['„Das ist ihr Wort.“', 2600, JS]]); } finally { state.talking = false; } }
 
 // ---------------------------------------------------------------- UK 9 · Hufeisen über der Stalltür (B-K3-07), zweiter Riegel + grauer Kasten

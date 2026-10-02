@@ -141,7 +141,7 @@ function hl_karte(K) { if (HL.karte || document.getElementById('hlKarte')) retur
     `<div style="margin-top:16px;font-size:14px;opacity:.5;letter-spacing:.06em">E · weiter &nbsp;·&nbsp; jederzeit in der Fibel unter „Ränder“</div>`;
   document.body.appendChild(d); requestAnimationFrame(() => { d.style.opacity = 1; d.style.transform = 'translate(0,-50%)'; });
   const zu = () => { if (!HL.karte) return; HL.karte = null; d.style.opacity = 0; d.style.transform = 'translate(-14px,-50%)'; setTimeout(() => d.remove(), 950); removeEventListener('keydown', taste, true); };
-  const taste = e => { if (e.code === 'KeyE' || e.code === 'Escape') { e.stopPropagation(); zu(); } }; addEventListener('keydown', taste, true); d.onclick = zu; setTimeout(zu, 14000); }
+  const taste = e => { if (e.code === 'KeyE' || e.code === 'Escape') { e.stopPropagation(); zu(); } }; addEventListener('keydown', taste, true); d.onclick = zu; HL.karteZu = zu; setTimeout(zu, 14000); }
 // Nachbilder (die blauen Lichter, „Berühren“): beim ersten Sichten erklären, was sie sind und – ohne die spätere Enthüllung vorwegzunehmen – dass nur Luke sie sieht
 const HL_NB = `<div style="font:13px/1 'Special Elite',Georgia,serif;letter-spacing:.32em;opacity:.55;margin-bottom:12px">NACHBILDER</div>
   <div style="display:flex;align-items:center;margin-bottom:14px"><span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle,#e6f0ff 0%,#8fb6ff 45%,rgba(143,182,255,0) 75%);box-shadow:0 0 14px #8fb6ff,0 0 30px #8fb6ff66;margin-right:14px"></span>
@@ -156,6 +156,41 @@ function hl_nachbild() { if (HL.nbGezeigt) return; try { if (story.lore.some(l =
       if ((dx * HL.fwd.x + dy * HL.fwd.y + dz * HL.fwd.z) / d < .9) continue; HL.nbGezeigt = true;
       story.lore.push({ key: 'nachbilder', title: 'Nachbilder', html: `<span class="hand">Blaue Lichter, die in der Luft hängen. Wenn ich eins berühre, sehe ich, was dort passiert ist – Menschen wie aus Licht, Stimmen von damals. Danach ist es weg, als hätte ich es aufgebraucht.\n\nWie ein Nachbild, wenn man zu lange in eine Lampe gesehen hat.\n\nLucy hat sie nie gesehen. Niemand hier. Nur ich. Ich weiß noch nicht, was das über mich sagt.</span>` });
       subtitle('<i>Da hängt ein Licht in der Luft. Blau. Wie ein Nachbild, wenn man zu lange in eine Lampe gesehen hat.</i>', 4600, 'LUKE'); setTimeout(() => { try { hl_karte(HL_NB); } catch (e) {} }, 2200); return; } } catch (e) {} }
+// ---------------------------------------------------------------- Warum Luke die Nachbilder sieht (Nutzer 02.10.: „sinnvoll und spannend: weil er nicht der echte Luke ist“)
+// Kanon (story_final.md): Nachbilder sieht nur, wer lange im Licht/Nimmerheim war oder aus so jemandem gemacht ist. Stufenweise, nie vor der Enthüllung (Kap. 5, der echte Luke im Stall):
+//   1 erstes Licht: „Nur ich.“ · 2 nach dem Nachbild im Kinderzimmer (er sieht sich selbst wie einen Fremden) · 3 Nimmerheim (die Behaltenen sehen sie auch – die waren lange im Licht)
+//   · 4 nach dem Stall: Er ist nicht der, der weggegangen ist; er ist aus einem gemacht, der lange im Licht war. Jede Stufe schreibt die Fibel-Seite „Nachbilder“ fort.
+const NB_TEXT = {
+  2: 'Der Junge auf der Bettkante war ich. Ich hab mich gesehen wie einen Fremden. Wer sieht sich selbst als Nachbild?',
+  3: 'Hier drin sehen sie alle. Die Behaltenen. Die waren lange im Licht. Und ich sehe sie seit der ersten Nacht.',
+  4: 'Er hat gefragt, ob sein Leben schön war. Sein Leben. Das, an das ich mich erinnere. Darum sehe ich die Nachbilder: Ich bin nicht der, der damals weggegangen ist. Ich bin aus einem gemacht, der lange im Licht war.' };
+function nb_wissen(n) { try { const L = story.lore.find(l => l.key === 'nachbilder'); if (!L) return; const k = 'nb:' + n; if (HL.benutzt.has(k)) return;
+    HL.benutzt.add(k); L.html += `\n\n<span class="hand">${NB_TEXT[n]}</span>`;
+    const t = NB_TEXT[n]; if (n === 4) { setTimeout(() => { subtitle('<i>' + t + '</i>', 9000, 'LUKE'); try { questPop('FIBEL', 'Nachbilder – warum ich sie sehe'); } catch (e) {} }, 2500); }
+    else if (typeof gedanke === 'function') gedanke('nb_' + n, t, 1800, 3); else setTimeout(() => subtitle('<i>' + t + '</i>', 5600, 'LUKE'), 1800); } catch (e) {} }
+
+// ---------------------------------------------------------------- Glitzern an Gegenständen zum Mitnehmen (Nutzer 02.10.: „deutlich erkennbar, glitzern und schimmern, extrem hochwertig, nicht billig“)
+// Wie in RE/TLOU: ein kurzer, scharfer Lichtstern auf der Oberkante des Gegenstands – selten (alle 2,4–4,2 s), stärker im Lampenkegel, nie Dauerblinken.
+// Nur für Jadegrün/Gold/Purpurrosa (zum Mitnehmen, wichtig, selten) und nur, solange der Rand aktiv ist (in Reichweite). Gold glitzert wärmer, Purpurrosa kühler.
+const GLI = { pool: [], tex: null };
+function gli_tex() { if (GLI.tex) return GLI.tex; const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), m = 64;
+  const g = x.createRadialGradient(m, m, 0, m, m, 22); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.25, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+  x.globalCompositeOperation = 'lighter'; for (const [a, l, w] of [[0, 62, 2.2], [Math.PI / 2, 62, 2.2], [Math.PI / 4, 30, 1.2], [-Math.PI / 4, 30, 1.2]]) { x.save(); x.translate(m, m); x.rotate(a);
+    const q = x.createLinearGradient(-l, 0, l, 0); q.addColorStop(0, 'rgba(255,255,255,0)'); q.addColorStop(.5, 'rgba(255,255,255,.95)'); q.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = q; x.fillRect(-l, -w, l * 2, w * 2); x.restore(); }
+  GLI.tex = new THREE.CanvasTexture(c); GLI.tex.colorSpace = THREE.SRGBColorSpace; return GLI.tex; }
+function gli_tick(dt, t, aus) { const lit = typeof flashOn !== 'undefined' && flashOn && FLASH.charge > 0, c = camera.position; camera.getWorldDirection(HL.fwd);
+  for (let i = 0; i < HL.slots.length; i++) { const s = HL.slots[i]; let p = GLI.pool[i];
+    if (!p) { p = GLI.pool[i] = new THREE.Sprite(new THREE.SpriteMaterial({ map: gli_tex(), transparent: true, depthWrite: false, depthTest: true, blending: THREE.AdditiveBlending, fog: false })); p.visible = false; p.renderOrder = 960; p.userData = { ph: Math.random() * 9, per: 2.4 + Math.random() * 1.8, src: null }; scene.add(p); }
+    const ok = !aus && s.o && s.k > .05 && (s.cat === 'sammel' || s.cat === 'wichtig' || s.cat === 'selten'); if (!ok) { p.visible = false; continue; }
+    const V = s.o.userData.hlV && s.o.userData.hlV[0] || s.o; const g = V.geometry; if (!g) { p.visible = false; continue; } if (!g.boundingSphere) g.computeBoundingSphere();
+    HL.s.copy(g.boundingSphere).applyMatrix4(V.matrixWorld); const ctr = HL.s.center, d = ctr.distanceTo(c); if (d > 12) { p.visible = false; continue; }
+    const u = p.userData, ph = ((t + u.ph) % u.per) / u.per, f = ph < .12 ? Math.sin(ph / .12 * Math.PI) : 0; // kurzes Aufblitzen
+    const cone = lit ? Math.max(0, ((ctr.x - c.x) * HL.fwd.x + (ctr.y - c.y) * HL.fwd.y + (ctr.z - c.z) * HL.fwd.z) / Math.max(d, 1e-3) - .93) / .07 : 0;
+    const a = f * (.55 + .45 * Math.min(1, cone + (d < 2.5 ? .5 : 0))) * Math.min(1, s.k * 1.6); if (a < .02) { p.visible = false; continue; }
+    // auf der Oberkante, leicht zur Kamera hin (dort sitzt das Glanzlicht)
+    HL.v.subVectors(c, ctr).normalize(); p.position.copy(ctr).addScaledVector(HL.v, HL.s.radius * .55); p.position.y += HL.s.radius * .45;
+    p.material.color.setHex(s.cat === 'wichtig' ? 0xffe2a0 : s.cat === 'selten' ? 0xffd6f4 : 0xe6fff6); p.material.opacity = a; p.material.rotation = .3 + t * .4;
+    p.scale.setScalar((.09 + d * .012) * (.6 + .9 * f)); p.visible = true; } }
 function hl_legende() { if (HL.legende) return; HL.legende = true;
   try { const alt = story.lore.find(l => l.key === 'hervorhebung'); if (alt) { alt.html = hl_fibelHtml(); return; } // alter Spielstand: Fibel auf die neuen Farben bringen, keine zweite Karte
     story.lore.push({ key: 'hervorhebung', title: 'Ränder', html: hl_fibelHtml() });
@@ -212,6 +247,8 @@ function glanz_klang(x, y, z) { // leiser, kristalliner Ton: zwei hohe Spieluhr-
 // ---------------------------------------------------------------- Einbindung
 if (typeof sammeln_platz === 'function') sammeln_platz = (o => function () { const O = o.apply(this, arguments); try { if (O && O.hit) { O.hit.userData.hl = 'sammlung'; O.hit.userData.hlObj = () => O.m && O.m.visible ? O.m : null; } } catch (e) {} return O; })(sammeln_platz);
 WORLD_MODS.push(['Hervorhebung', async () => {
+  try { const e0 = ECHO_CAST.end; ECHO_CAST.end = function (E) { const r = e0 ? e0.apply(this, arguments) : undefined; try { if (E && E.id === 'echo_kinderzimmer') nb_wissen(2); if (E && E.id === 'echo_mira') nb_wissen(3); } catch (e) {} return r; }; } catch (e) {}
+  try { if (typeof k5_augenAuf === 'function') { const au0 = k5_augenAuf; k5_augenAuf = function (zwang) { if (zwang === true) try { nb_wissen(4); } catch (e) {} return au0.apply(this, arguments); }; } } catch (e) {} // nur der vollständige Stall (nach „War es schön? Mein Leben?“) ruft k5_augenAuf(true)
   try { if (settings.hl === undefined) settings.hl = 2; } catch (e) {}
   const mS = document.getElementById('mSet'); if (mS) mS.addEventListener('click', () => setTimeout(hl_einstellung, 0));
   try { if (typeof sammeln_S !== 'undefined') for (const O of Object.values(sammeln_S.orte)) if (O && O.hit) { O.hit.userData.hl = 'sammlung'; O.hit.userData.hlObj = () => O.m && O.m.visible ? O.m : null; } } catch (e) {}
@@ -242,6 +279,7 @@ WORLD_TICK.push((dt, t) => {
   HL.aktiv = n; HL.glow.enabled = n > 0; HL.glow.uniforms.time.value = t; HL.glow.uniforms.asp.value = camera.aspect;
   if (!HL.legende && !aus && best > .45 && !(typeof subtitle === 'undefined')) hl_legende();
   if (!HL.nbGezeigt && !aus && state.started && (HL.nbT = (HL.nbT || 0) - dt) < 0) { HL.nbT = .5; hl_nachbild(); }
-  glanz_tick(dt, t);
+  glanz_tick(dt, t); try { gli_tick(dt, t, aus || !mode); } catch (e) {}
+  if (HL.karte && HL.karteZu && (ui.overlay || (typeof beutel_S !== 'undefined' && beutel_S.open) || (typeof kino_S !== 'undefined' && kino_S.on))) HL.karteZu(); // Tasche/Notiz/Film geht auf: Karte weicht
 });
 window.__hl = { HL, GLZ, kat: o => hl_kat(o), vis: o => hl_visuals(o), slots: () => HL.slots.filter(s => s.o).map(s => ({ label: (l => typeof l === 'function' ? l() : l)(s.o.userData.label), cat: s.cat, k: +s.k.toFixed(2), d: +(+s.d).toFixed(2), n: s.px.length })) }; // Testzugriff

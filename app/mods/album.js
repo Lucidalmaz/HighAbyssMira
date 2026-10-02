@@ -319,15 +319,25 @@ function album_hand(sd, w, f, n, c, s, t) { const H = album_H, B = H.B[sd], V = 
     if (fi === 0) { ch[0].quaternion.copy(bd[0]).multiply(V.q0.setFromEuler(V.e0.set(k * .35 + t * .3, -sg * t * .55, sg * t * .35))); ch[1].quaternion.copy(bd[1]).multiply(V.q0.setFromEuler(V.e0.set(k * .75, 0, 0))); ch[2].quaternion.copy(bd[2]).multiply(V.q0.setFromEuler(V.e0.set(k, 0, 0))); continue; }
     const spr = (fi === 1 ? -1.1 : fi === 2 ? 0 : fi === 3 ? .7 : 1.4) * s * .16 * sg; ch[0].quaternion.copy(bd[0]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.35, 0, spr)));
     ch[1].quaternion.copy(bd[1]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.62, 0, 0))); if (ch[2]) ch[2].quaternion.copy(bd[2]).multiply(V.q0.setFromEuler(V.e0.set(k * 1.1, 0, 0))); } }
+// Form eines gehaltenen Modells im eigenen Raum: tiefster Punkt über der Handfläche, rechte Außenseite auf halber Höhe (Ecken, Riemen und Schlaufen zählen nicht)
+function album_taschenForm(R) { const T = THREE, inv = new T.Matrix4(), m = new T.Matrix4(), v = new T.Vector3(), P = []; R.updateMatrixWorld(true); inv.copy(R.matrixWorld).invert();
+  R.traverse(o => { if (!o.isMesh || !o.geometry || !o.geometry.attributes.position) return; m.multiplyMatrices(inv, o.matrixWorld); const a = o.geometry.attributes.position, st = Math.max(1, Math.floor(a.count / 4000));
+    for (let i = 0; i < a.count; i += st) P.push(v.fromBufferAttribute(a, i).applyMatrix4(m).clone()); });
+  const bb = new T.Box3().setFromPoints(P), c = bb.getCenter(new T.Vector3()), sz = bb.getSize(new T.Vector3()); let boden = Infinity, seite = -Infinity;
+  for (const p of P) { if (Math.abs(p.x - c.x) < sz.x / 3 && Math.abs(p.z - c.z) < sz.z * .55) boden = Math.min(boden, p.y); /* alles, was über der Handfläche liegt (auch die vorn hängende Schnalle): Hand darunter, nie hindurch */ if (Math.abs(p.y - c.y) < sz.y / 6 && Math.abs(p.z - c.z) < sz.z / 4) seite = Math.max(seite, p.x); }
+  return { cx: c.x, cy: c.y, cz: c.z, dx: sz.x, dz: sz.z, boden: isFinite(boden) ? boden : bb.min.y, seite: isFinite(seite) ? seite : bb.max.x }; }
 const ALBUM_GRIFF = { c: [.28, .12, .14, .2, .26], s: .12, t: .78 }, ALBUM_RUHE = { c: [.3, .45, .5, .55, .6], s: .2, t: .3 };
 // Griff an der unteren Außenecke (im Achsenraum des Buchs), k 0 = Hand unten aus dem Bild, 1 = hält
 function album_haendeTick(dt, vonBeutel) { const H = album_H, S = album_S; if (!H.ready) return; if (album_B.owner === 'beutel' && !vonBeutel) { if (!(typeof beutel_S !== 'undefined' && beutel_S.open)) H.rig.visible = false; return; } // Beutel ruft nach seiner Bewegung auf (kein Bild Versatz)
   // Gürteltasche: links trägt die Hand von unten, rechts hält sie die Seite (die großen Rucksäcke stehen weiter weg – ohne Hände)
   if (album_B.owner === 'beutel' && typeof beutel_S !== 'undefined' && beutel_S.open && beutel_S.stufe === 1 && beutel_S.mod[0]) { const R = beutel_S.mod[0], V = H.V; H.rig.visible = true; R.updateMatrixWorld(true);
     const k = beutel_S.phase === 'zu' ? 1 - album_ease((beutel_S.t - .3) / .5) : 1;
-    V.g.set(-.012, .004, .004); R.localToWorld(V.g); V.n.set(0, 1, 0).transformDirection(R.matrixWorld); V.f.set(.42, 0, .9).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.07).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
+    // Nutzer 02.10.: „Hände greifen nicht richtig, Items verschwinden in der Hand“ – Griffpunkte aus der echten Form der Tasche (einmal gemessen): Boden unter der Mitte
+    // (ohne Riemen/Schlaufe, die tiefer hängen) und Außenseite auf halber Höhe; Handfläche 3 mm davor statt im Leder.
+    const F = R.userData.griff || (R.userData.griff = album_taschenForm(R));
+    V.g.set(F.cx, F.boden - .004, F.cz); R.localToWorld(V.g); V.n.set(0, 1, 0).transformDirection(R.matrixWorld); V.f.set(.42, 0, .9).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.07).addScaledVector(V.n, -.03); V.w.y -= (1 - k) * .3;
     album_hand('L', V.w, V.f, V.n, [.3, .38, .4, .45, .5], .16, .35);
-    V.g.set(.064, .07, -.01); R.localToWorld(V.g); V.n.set(-1, 0, 0).transformDirection(R.matrixWorld); V.f.set(0, .55, -.83).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.075).addScaledVector(V.n, -.02); V.w.y -= (1 - k) * .3;
+    V.g.set(F.seite + .003, F.cy, F.cz); R.localToWorld(V.g); V.n.set(-1, 0, 0).transformDirection(R.matrixWorld); V.f.set(0, .55, -.83).transformDirection(R.matrixWorld); V.w.copy(V.g).addScaledVector(V.f, -.075).addScaledVector(V.n, -.03); V.w.y -= (1 - k) * .3;
     album_hand('R', V.w, V.f, V.n, [.35, .42, .46, .5, .55], .1, .55); album_griffAnw('beutel', dt); return; }
   if (vonBeutel) { H.rig.visible = false; return; }
   const vis = S.open && album_B.owner === 'album'; H.rig.visible = vis; if (!vis) return;

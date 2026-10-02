@@ -1445,7 +1445,7 @@ function kino_defProlog() {
         KINO_GK.uMund.value = .5 + .5 * Math.sin(t * 4.2); kino_S.lit[0] = kino_S.litKP || (kino_S.litKP = { p: kino_V(0, 0, 0), c: 0xe4ecf8, d: 2.5, i: 0 }); kino_S.litKP.p.copy(p).add(kino_V(0, -.35, 0)).addScaledVector(kino_d, -.15); kino_S.litKP.i = .45; /* schwach, von unten aus dem Laternenglas */ },
       teardown() { kino_hide('grauKopf'); KINO_GK.uMund.value = 0; } },
     { from: nahe(.72, .04), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9) blur(.8px)', filterT: 2.5 },
-      lines: [['<i>Kum, Wîse.</i>', 'DER RABE', 1.3, 2200]],
+      lines: [['<i>Kum, Wîse.</i><span style="opacity:.62;font-size:.8em;font-style:normal"> – alt für „Komm, Wîse.“</span>', 'DER RABE', 1.3, 2600]],
       setup() { if (typeof whiskey_play === 'function') whiskey_play('IdleScratchWing', .2); kino_after(1.3, () => kino_kum(W().g.position)); }, tick(k, t, dt) { mix(dt); } },
     { from: nahe(1.1, .15), to: nahe(1.0, -1.25), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y - .25, p.z]; }, dur: 4, fov: 36, fovTo: 58, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85) blur(1.4px)', filterT: 3 },
       setup() { kino_regen(.5, 3.5); const p = P(); const l = kino_show('lampe', p.x, p.y - .25, p.z); l.material.opacity = 0; kino_after(1.6, () => { for (let i = 0; i < 6; i++) setTimeout(() => Audio.ding && Audio.ding(.05), i * 650); }); },

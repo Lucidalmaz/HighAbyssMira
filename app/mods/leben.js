@@ -429,7 +429,12 @@ function leben_beast(key, s = 1) {
 }
 function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenhöhe aus der echten Form
   const p = V.g.position, dx = V.tx - p.x, dz = V.tz - p.z, dd = Math.hypot(dx, dz); if (dd < .05) return true;
-  const st = Math.min(dd, V.sp * dt); p.x += dx / dd * st; p.z += dz / dd * st; if (face) V.g.rotation.y = leben_ang(V.g.rotation.y, Math.atan2(dx, dz), Math.min(1, dt * 6));
+  // Nutzer 02.10.: „Lebewesen sollen nicht mehr rückwärts gehen“ – vorher sofort zum Ziel geschoben, Körper drehte erst hinterher (rutschte bis 0,5 s rückwärts/seitwärts).
+  // Jetzt wie die Katzen: erst wenden, dann vorwärts in Blickrichtung; je größer der Winkel, desto langsamer (Wende im Stand, dann Bogen).
+  if (!face) { const st = Math.min(dd, V.sp * dt); p.x += dx / dd * st; p.z += dz / dd * st; }
+  else { const want = Math.atan2(dx, dz); V.g.rotation.y = leben_ang(V.g.rotation.y, want, Math.min(1, dt * (V.sp > 3 ? 7 : 5))); let df = want - V.g.rotation.y; df = Math.atan2(Math.sin(df), Math.cos(df));
+    const k = dd < .35 ? 1 : Math.max(0, Math.cos(Math.min(1.57, Math.abs(df) * 1.15))), st = Math.min(dd, V.sp * dt * k);
+    if (dd < .35) { p.x += dx / dd * st; p.z += dz / dd * st; } else { p.x += Math.sin(V.g.rotation.y) * st; p.z += Math.cos(V.g.rotation.y) * st; } }
   V.gy -= dt; if (V.gy < 0) { V.gy = .2; const sg = solidGround(p.x, p.y + .1, p.z); V.ty = sg > -1 ? Math.max(0, sg) : 0; } p.y += (V.ty - p.y) * Math.min(1, dt * 8);
   return dd < .15;
 }

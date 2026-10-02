@@ -5,6 +5,9 @@
 // NACHBILDER (Fassung 3, Kern §2) – warum Luke sie sieht: Wo das Lichtschiff jemanden nimmt oder zurückgibt, brennt sich ein Bild ein.
 //   Sehen kann es nur, wer lange in Nimmerheim war oder aus so jemandem gemacht ist – Luke ist aus Justins Hand gemacht; beim Berühren brennt die halbrunde Narbe.
 //   Darstellung deshalb bewusst schemenhaft: kaltes Leuchten, Filmflackern, Ränder lösen sich auf, das Bild wird blass – Erinnerung, kein Mensch aus Fleisch.
+{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere; // Nutzer 02.10.: „Skins lösen sich ständig auf“ – Ursache: Aussondern mit der Hülle der Ruhepose
+  THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { cbs.call(this); const b = this.boundingSphere; if (!b) return; let sc = 1; try { this.updateWorldMatrix(true, false); sc = this.matrixWorld.getMaxScaleOnAxis() || 1; } catch (e) {}
+    b.radius = Math.max(b.radius * 1.6, 2.4 / sc); }; }
 const figuren_S = { list: null, cache: new Map(), sk: null, ghost: new Map(), T: { value: 0 }, embodied: new Set(), ownFilter: false };
 async function figuren_list() { if (!figuren_S.list) { try { figuren_S.list = await (await fetch('assets/chars/chars.json')).json(); } catch (e) { figuren_S.list = []; } } return figuren_S.list; }
 async function figuren_load(id) {
@@ -41,12 +44,27 @@ function figuren_ghostMat(src) {
       float n = gn3(vWP * 6. + vec3(0., uT * .45, uT * .2)) * .65 + gn3(vWP * 19. - vec3(0., uT * 1.3, 0.)) * .35;
       float edge = smoothstep(.66, .38, n * .8 + fr * .5) * (.55 + .45 * smoothstep(.2, .7, gn3(vWP * 2.3 + uT * .15)));
       edge = max(edge, .3 * smoothstep(.5, .2, fr)); // R-3: nur der Umriss zerfällt – Arme, Beine, Kopf lösen sich nie ganz auf (sah aus wie verschwundene Körperteile)
-      float band = .82 + .18 * sin(vWP.y * 42. - uT * 4.5), film = .88 + .12 * sin(uT * 21. + sin(uT * 6.3) * 3.);
-      vec3 col = (vec3(.42, .58, .9) * (.03 + .95 * fr) + vec3(.7, .8, .95) * lum * .3) * band * film * .5;
+      float band = .94 + .06 * sin(vWP.y * 18. - uT * 1.6), film = .96 + .04 * sin(uT * 2.3 + sin(uT * .9) * 2.); // calm and mystic instead of flicker
+      vec3 col = (mix(vec3(.46, .62, .95), vec3(.86, .92, 1.), fr) * (.06 + .94 * fr) + vec3(.72, .8, .95) * lum * .22) * band * film * .5;
       if (edge < .03) discard;
       gl_FragColor = vec4(col * edge * uGhost, 1.);`); };
   m.forceSinglePass = true; // additiv ohne Tiefe: ein Durchgang sieht gleich aus. Sonst schaltet three.js bei beidseitigen Teilen (Haare, Kleidung) jedes Bild zweimal die Seite um (needsUpdate → Programmsuche/-übersetzung, Ruckler beim Auftritt der Nachbilder)
-  m.customProgramCacheKey = () => 'figuren_ghost2'; figuren_S.ghost.set(src, m); return m;
+  m.customProgramCacheKey = () => 'figuren_ghost3'; m.depthTest = true; figuren_S.ghost.set(src, m); return m;
+}
+// Geist ohne Innenleben: additive Hülle zeigte Augäpfel, Gebiss und Mundraum durch den Kopf hindurch (Nutzer 02.10.: „durch die Augen und das Gebiss sieht es sehr komisch aus“).
+// Innenteile ausblenden; jede übrige Hülle bekommt einen Tiefen-Zwilling (gleiche Geometrie/Skelett/Morphs, schreibt nur Tiefe, nach allem Undurchsichtigen gezeichnet),
+// danach leuchtet nur die vorderste Fläche – kein Durchscheinen von Rückseiten, Zähnen oder Ärmel-Innenseiten.
+const FIG_INNEN = /eye|cornea|tear|occlusion|teeth|tooth|tongue|lash|gum|mouth_?inner|caruncle|iris|pupil|sclera/i;
+function figuren_geistBau(obj) {
+  const L = []; obj.traverse(o => { if (o.isMesh) L.push(o); });
+  for (const o of L) { const mats = [].concat(o.material), nm = (o.name || '') + ' ' + mats.map(m => m && m.name || '').join(' ');
+    if (FIG_INNEN.test(nm) || mats.every(m => m && m.transparent && m.opacity < .5)) { o.visible = false; continue; }
+    o.material = Array.isArray(o.material) ? o.material.map(figuren_ghostMat) : figuren_ghostMat(o.material); o.castShadow = false; o.receiveShadow = false; o.renderOrder = 951;
+    const src = mats[0] || {}, dm = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, map: src.alphaTest > 0 ? src.map || null : null, alphaTest: src.alphaTest || 0, side: THREE.FrontSide });
+    let z; if (o.isSkinnedMesh) { z = new THREE.SkinnedMesh(o.geometry, dm); z.bind(o.skeleton, o.bindMatrix); } else z = new THREE.Mesh(o.geometry, dm);
+    if (o.morphTargetInfluences) { z.morphTargetInfluences = o.morphTargetInfluences; z.morphTargetDictionary = o.morphTargetDictionary; }
+    z.position.copy(o.position); z.quaternion.copy(o.quaternion); z.scale.copy(o.scale); z.renderOrder = 950; z.frustumCulled = o.frustumCulled; z.castShadow = z.receiveShadow = false; z.name = (o.name || '') + '_tiefe'; z.userData.noCol = true;
+    o.parent.add(z); }
 }
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
 // ghost: Erinnerung · doll: mit der Gruppe skalieren (Puppen im Weißen) · clip: feste Bewegung · sit: Sitzhöhe (Weltlage y)
@@ -57,7 +75,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   const T = await figuren_load(id); if (!T || tok !== g.userData.personTok) return null;
   const sk = await figuren_skc(), obj = sk(T.scene); obj.name = 'Person_' + id;
   if (id === 'justin' && typeof justin_nachbildKlon === 'function') justin_nachbildKlon(obj); // AP-12: Nachbilder ohne Flicken, ohne Gesicht/Haar
-  if (ghost) obj.traverse(o => { if (o.isMesh) { o.material = Array.isArray(o.material) ? o.material.map(figuren_ghostMat) : figuren_ghostMat(o.material); o.castShadow = false; o.receiveShadow = false; } });
+  if (ghost) figuren_geistBau(obj);
   const hide = P ? P.hide : []; if (P) { g.remove(P.obj); P.mx.stopAllAction(); }
   for (const c of g.children) if (c.visible && c !== obj) { hide.push(c); c.visible = false; }
   g.add(obj); g.userData.noCol = true;

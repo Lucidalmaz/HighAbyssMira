@@ -5551,7 +5551,7 @@ function sceneDietTick(dt) {
   DIET.t -= dt; if (DIET.t > 0) return; DIET.t = .5; const K = scene.children, n = Math.max(1, Math.ceil(K.length / 12));
   for (let j = 0; j < n; j++) { const c = K[DIET.i++ % Math.max(1, K.length)]; if (!c) continue;
     c.traverse(o => { if (!o.isMesh || DIET.done.has(o) || !o.geometry) return; DIET.done.add(o); perfSinglePass(o); if (o.isSkinnedMesh) { LMOV.list.push(o); skelShare(o); } if (o.userData.keepShadow) return;
-      if (o.isSkinnedMesh && o.frustumCulled === false && !o.userData.noCull) { try { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const b = o.geometry.boundingSphere.clone(); b.radius = Math.max(b.radius * 2, 1.2); o.boundingSphere = b; o.frustumCulled = true; } catch (e) {} return; } // Hülle aus der Ruhepose, doppelt so groß: Animationen bleiben sicher drin
+      if (o.isSkinnedMesh && o.frustumCulled === false && !o.userData.noCull) { try { if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); const b = o.geometry.boundingSphere.clone(); o.updateWorldMatrix(true, false); b.radius = Math.max(b.radius * 2, 2.4 / (o.matrixWorld.getMaxScaleOnAxis() || 1)); o.boundingSphere = b; o.frustumCulled = true; } catch (e) {} return; } // Hülle aus der Ruhepose, doppelt so groß: Animationen bleiben sicher drin
       if (!o.castShadow || o.isInstancedMesh || o.isSkinnedMesh) return; if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere(); if (!o.geometry.boundingSphere) return;
       o.updateWorldMatrix(true, false); DIET.s.copy(o.geometry.boundingSphere).applyMatrix4(o.matrixWorld); if (DIET.s.radius < .3) { o.castShadow = false; if (DIET.s.radius >= .12) SMALL_M.push(o); else if (DIET.s.radius >= .03) SMALL_T.push(o); } }); }
 }

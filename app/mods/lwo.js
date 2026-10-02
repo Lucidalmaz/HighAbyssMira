@@ -423,7 +423,7 @@ async function lwo_neueFigur(key, def) {
     const sm = new THREE.SpriteMaterial({ map: LWO.glareTex, color: 0xdfe8ff, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0 }); F.glare = new THREE.Sprite(sm); F.glare.scale.set(.5, .5, 1); F.glare.position.copy(F.lampLocal); F.glare.position.z += .03; g.add(F.glare); }
   // Nachsorge 12: Notizblock an der Schnur (Telefon-Pose mit Block = „Schreiben“)
   if (def.schreibt && F.handR) { try { const b = await msModel('w_buch', 'model.glb'); const blk = msFit(b.clone(true), .15, 'max'); const w = new THREE.Group(); w.add(blk); blk.position.set(0, 0, 0);
-      w.position.set(0, .08, .03); w.rotation.set(0, 0, 1.2); const s = 1 / (F.handR.getWorldScale(_lv1).x || 1); w.scale.setScalar(s); F.handR.add(w); w.visible = false; F.block = w; w.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } }); } catch (e) { console.warn('LWO: Block', e); } }
+      const s = 1 / (F.handR.getWorldScale(_lv1).x || 1); w.position.set(0, .08 * s, .03 * s); w.rotation.set(0, 0, 1.2); w.scale.setScalar(s); /* Versatz in Metern wie der Maßstab (vorher 0,08 Knochen-Einheiten = 0,8 mm bei cm-Figuren: Block steckte im Handgelenk) */ F.handR.add(w); w.visible = false; F.block = w; w.traverse(o => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } }); } catch (e) { console.warn('LWO: Block', e); } }
   LWO.F[key] = F; return F;
 }
 function lwo_figur(k) { return LWO.F[k] || null; }

@@ -126,17 +126,20 @@ function whiskey_beakTex() { return tex(cnv(64, (c, w) => { const g = c.createRa
   c.strokeStyle = 'rgba(255,248,230,.7)'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(w / 2, 6); c.lineTo(w / 2, w - 6); c.moveTo(6, w / 2); c.lineTo(w - 6, w / 2); c.stroke(); }), true); }
 // Schnabelspitze im Kopfknochen-Raum (einmal aus dem Modell gemessen): der am weitesten nach vorn liegende Punkt, der fast nur am Kopf hängt – dort hält er den Glanz
 function whiskey_beakTip() { const S = whiskey_S; let sk = null; S.m.traverse(o => { if (o.isSkinnedMesh && !sk) sk = o; }); if (!sk || !S.head) return null;
-  try { const bi = sk.skeleton.bones.indexOf(S.head), si = sk.geometry.attributes.skinIndex, sw = sk.geometry.attributes.skinWeight; if (bi < 0 || !si) return null;
-    S.g.updateMatrixWorld(true); const hp = S.head.getWorldPosition(new THREE.Vector3()), a = S.g.rotation.y + S.hy, f = new THREE.Vector3(Math.sin(a), -.25, Math.cos(a)).normalize(), v = new THREE.Vector3(), best = new THREE.Vector3(); let bd = -1e9;
+  // Nutzer 02.10.: „Items im Schnabel schweben“ – vorher Suche entlang einer geschätzten Blickrichtung in der aktuellen Pose (Modell ist um 90° gedreht → falsche Seite, 28 cm daneben).
+  // Jetzt posenunabhängig in der Ruhelage: Kopfpunkte (Gewicht ≥ 0,6 am Kopfknochen) in den Knochenraum (boneInverse · bindMatrix) – der vom Knochen am weitesten entfernte ist die
+  // Schnabelspitze; gehalten wird 30 % davor, zwischen den Schnabelhälften.
+  try { const bi = sk.skeleton.bones.indexOf(S.head), si = sk.geometry.attributes.skinIndex, sw = sk.geometry.attributes.skinWeight, pos = sk.geometry.attributes.position; if (bi < 0 || !si) return null;
+    const M = new THREE.Matrix4().multiplyMatrices(sk.skeleton.boneInverses[bi], sk.bindMatrix), v = new THREE.Vector3(), best = new THREE.Vector3(); let bd = -1;
     for (let i = 0; i < si.count; i++) { let w = 0; for (let c = 0; c < 4; c++) if (si.getComponent(i, c) === bi) w += sw.getComponent(i, c); if (w < .6) continue;
-      sk.getVertexPosition(i, v); sk.localToWorld(v); const d = (v.x - hp.x) * f.x + (v.y - hp.y) * f.y + (v.z - hp.z) * f.z; if (d > bd) { bd = d; best.copy(v); } }
-    if (bd <= 0) return null; best.addScaledVector(f, -.012); return S.head.worldToLocal(best); } catch (e) { return null; } }
+      v.fromBufferAttribute(pos, i).applyMatrix4(M); const d = v.lengthSq(); if (d > bd) { bd = d; best.copy(v); } }
+    if (bd <= 0) return null; return best.multiplyScalar(.7); } catch (e) { return null; } }
 // ---------------------------------------------------------------- Nachahmungen (83 §3): vorhandene Aufnahme an der Rabenposition, leicht verstimmt (rate .92), Tiefpass
 const WHISKEY_STIMMEN = { vegas: 'WHISKEY (MIT VEGAS’ STIMME)', luke: 'WHISKEY (MIT DEINER STIMME)', wolter: 'WHISKEY (MIT WOLTERS STIMME)', frau: 'WHISKEY (EINE FRAUENSTIMME)', hilde: 'WHISKEY (MIT HILDES STIMME)' };
 const WHISKEY_MIMIC = {
   himmelherrgott: { v: 'vegas', t: 'Himmelherrgott!', taufe: true }, junge: { v: 'vegas', t: 'Junge.', taufe: true, einmal: true }, funk3110: { v: 'vegas', t: '… einunddreißig-zehn.', taufe: true },
   scheisse: { v: 'luke', t: 'Scheiße!' }, super: { v: 'luke', t: 'Super. Ganz toll.' }, bedauerlich: { v: 'wolter', t: 'Das ist bedauerlich.' }, bedauerlich_kurz: { v: 'wolter', t: 'Bedauerlich.' },
-  hilde: { v: 'hilde', t: '… sieben. Acht.', einmal: true }, kum: { v: 'frau', t: 'Kum!', wort: true }, such: { v: 'frau', t: 'Such!', wort: true }, luna: { v: 'frau', t: 'Luna.', wort: true, einmal: true },
+  hilde: { v: 'hilde', t: '… sieben. Acht.', einmal: true }, kum: { v: 'frau', t: 'Kum!', alt: 'Komm!', wort: true }, such: { v: 'frau', t: 'Such!', wort: true }, luna: { v: 'frau', t: 'Luna.', wort: true, einmal: true },
   pling: { s: 1 }, klingelton: { s: 1 }, kinderlachen: { s: 1 }, fahrrad: { s: 1 }, wecker: { s: 1 }, glocke: { s: 1 }, knurren: { s: 1 }, funk: { s: 1 }, wiegenlied: { s: 1 }, fauchen: { s: 1 },
   rehschrecken: { s: 1 }, grunzen: { s: 1 }, netzbrummen: { s: 1 }, ruestung: { s: 1 }, kuli: { s: 1 }, schrei: { s: 1 }, autotuer: { s: 1 }, standgas: { s: 1 }, telefonzelle: { s: 1 }, gurren: { s: 1 } };
 // Klang-Ziel: Tiefpass → Raumposition des Raben (null = außer Hörweite)
@@ -187,7 +190,7 @@ function whiskey_mimic(key, o = {}) {
   if (M.einmal) S.said.add(key); if (S.light && key === 'bedauerlich_kurz') S.said.add('nachW13');
   const p = o.at || null;
   if (M.s) whiskey_klang(key, p); else whiskey_stimme(M, key, p);
-  if (M.t && !o.stumm) subtitle(`„${M.t}“`, Math.max(1800, M.t.length * 90), WHISKEY_STIMMEN[M.v]);
+  if (M.t && !o.stumm) subtitle(`„${M.t}“` + (M.alt ? `<span style="opacity:.62;font-size:.8em;font-style:normal"> – alt für „${M.alt}“</span>` : ''), Math.max(M.alt ? 2400 : 1800, M.t.length * 90), WHISKEY_STIMMEN[M.v]); // Nutzer 02.10.: altes Wort übersetzen
   if (!o.at && S.mode === 'perch' && !o.still) { whiskey_play(M.s ? 'IdleLookAround' : 'EatSomething', .15); S.idleT = 1.4; S.puff = Math.max(S.puff, .5); }
   return true;
 }
@@ -483,7 +486,10 @@ function whiskey_perchTick(dt, t) {
   // Kopf: ruckartige Blicksprünge (Sakkaden) zum Ziel, dazwischen neugierige Seitenblicke; handel: Kopf schief
   S.sacT -= dt; if (S.sacT <= 0) { S.sacT = still ? 99 : rand(.35, 1.5); const aim = Math.max(-1.15, Math.min(1.15, diff)); S.hyT = still ? Math.max(-.6, Math.min(.6, diff)) : Math.random() < .72 ? aim + rand(-.18, .18) : rand(-1.2, 1.2);
     S.hrT = S.mood === 'handel' ? (Math.random() < .7 ? .48 : .12) * (Math.random() < .5 ? 1 : -1) : (!still && Math.random() < .25 ? rand(-.35, .35) : 0); }
-  const kk = Math.min(1, dt * (still ? 3 : 22)); S.hy += (S.hyT - S.hy) * kk; S.hr += (S.hrT - S.hr) * Math.min(1, dt * 10);
+  // Nutzer 02.10.: „Kopf dreht durch und spinnt“ – gemessen bis 1,45 rad in einem Bild. Jetzt: Ziel begrenzt (±0,95 rad gegen den Körper), Kopf mit Höchstgeschwindigkeit
+  // (Rabe: schnell, aber sichtbar – 9 rad/s) und kurzem Abbremsen; während der Körper hüpft-dreht, hält der Kopf die Richtung (kein Gegendrehen).
+  S.hyT = Math.max(-.95, Math.min(.95, S.hyT)); if (S.turn) S.hyT = 0;
+  const vmax = (still ? 2.2 : 9) * dt, dh = S.hyT - S.hy; S.hy += Math.sign(dh) * Math.min(Math.abs(dh), vmax, .16, Math.abs(dh) * Math.min(1, dt * 24)); S.hr += (S.hrT - S.hr) * Math.min(1, dt * 8);
   // Gefieder: aufplustern (nach dem Landen, beim Putzen, in Kälte) und leiser Atem
   S.puff = Math.max(0, S.puff - dt * .45); S.breath += dt * (still ? 1.6 : 2.6); if (S.setz > 0) { S.setz = Math.max(0, S.setz - dt * 2.8); S.m.position.y = -.035 * Math.sin((1 - S.setz) * PI) * S.setz; } // Q-1: Gewicht beim Aufsetzen
   const b = S.base * (1 + .012 * Math.sin(S.breath)) , pf = 1 + .08 * Math.sin(Math.min(1, S.puff) * PI);
@@ -544,9 +550,14 @@ WORLD_TICK.push((dt, t) => {
   if (S.light && !S.said.has('nachW13') && whiskey_k6() === 'epilog' && S.mode === 'perch' && Math.hypot(P.x - g.position.x, P.z - g.position.z) < 9 && !state.talking) { S.bedT = (S.bedT || 0) + dt; if (S.bedT > 20) whiskey_bedauerlich(); }
   whiskey_helpTick(dt);
   // Glanz im Schnabel (Autoschlüssel W-03)
-  const beakOn = S.hatSchluessel && !S.fl && !far; S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
-  if (!far) { S.mx.update(dt * (S.tired ? .7 : 1)); if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy, S.hr);
+  const beakOn = S.hatSchluessel && !far; // auch im Flug: er trägt ihn weiter im Schnabel (vorher verschwand er beim Auffliegen) S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
+  if (!far) { S.mx.update(dt * (S.tired ? .7 : 1));
+    // Clips, die den Kopf selbst bewegen (Umschauen, Putzen, Strecken, Picken, Hüpfen): Blicksteuerung weich ausblenden – sonst addieren sich beide Drehungen (Kopf „spinnt“)
+    const cn = S.cur && S.cur.getClip ? S.cur.getClip().name : '', eigen = /LookAround|Scratch|Stretch|Eat|Hop|Landing|TakeOff/.test(cn);
+    S.hw = (S.hw ?? 1) + ((eigen ? .25 : 1) - (S.hw ?? 1)) * Math.min(1, dt * 5);
+    if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy * S.hw, S.hr * S.hw);
+    if (S.beakL === undefined) S.beakL = whiskey_beakTip(); // posenunabhängig: einmal genügt (auch im Flug und auf der Schulter)
     if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3));
-      if (S.glz) { if (S.beakL === undefined && S.mode === 'perch') S.beakL = whiskey_beakTip(); if (S.beakL) { S.glz.g.position.copy(S.beakL); S.head.localToWorld(S.glz.g.position); } else S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
+      if (S.glz) { if (S.beakL) { S.glz.g.position.copy(S.beakL); S.head.localToWorld(S.glz.g.position); } else S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
 });
 window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s) }; // Testzugriff
