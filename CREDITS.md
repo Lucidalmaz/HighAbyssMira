@@ -105,6 +105,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Road Sign Pack (Free) | Awlok.dev | Verkehrsschilder (`ms/roadsigns`) | https://www.fab.com/listings/5ade29f1-c0b2-4565-a740-4eceeba3c829 |
 | Gas Station Signs | commonspence | Tankstellenschilder (`ms/gas_signs`) | https://www.fab.com/listings/15423edd-fd02-479f-bfc6-1d76d65dc011 |
 | Red Graffiti Wall Scan | commonspence | echte Sprühfarbe/Tags als Graffiti-Schichten (`ms/graffiti_echt`) | https://www.fab.com/listings/75db7a3e-ea68-409b-bf20-b504e4c5c810 |
+| Graffitis en apeadero | Punttulanbro | echte Graffiti-Motive (Elefant, Bubble-Letters) in den Graffiti-Wänden (`ms/graffiti_echt`) | https://www.fab.com/listings/25e3bcb8-cfa3-4493-ab60-f65a4521fe7a |
 | Simple Old Shed | Jimbogies | alter Schuppen (`ms/shed_old`) | https://www.fab.com/listings/df46b840-269f-4a5c-99b4-cee389e80ebb |
 | Backyard Utility Shed | Jimbogies | Geräteschuppen (`ms/shed_util`) | https://www.fab.com/listings/7a40ef73-c76a-48b0-8953-73aaaf098165 |
 | Wooden Garden Shed | KenVeel | Gartenhaus (`ms/shed_garden`) | https://www.fab.com/listings/b8424660-c244-43ca-bffe-77a9e4441c94 |
