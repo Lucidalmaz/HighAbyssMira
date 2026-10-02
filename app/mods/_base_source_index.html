@@ -5128,9 +5128,13 @@ function fearUpdate(dt, indoor) {
 }
 
 // Echtes Papier (Nutzer 02.10.: „alles Selbstgezeichnete echt“): Megascans „Dirty Papers“ (leere Blattfläche, Knitter-Schatten), Fab Standard. papierScan(ctx, w, h, farbe, { dreck }) füllt die Grundfarbe und multipliziert den Scan darüber – Text/Stempel zeichnen die Module danach wie bisher.
-const PAPIER = { faser: null, dreck: null };
+const PAPIER = { faser: null, dreck: null, korn: null };
 function papierLaden() { const L = s => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/papier/' + s; setTimeout(() => r(null), 8000); });
-  return L('faser.jpg').then(a => { PAPIER.faser = a; }); }
+  return Promise.all([L('faser.jpg'), L('kreide_korn.png')]).then(([a, k]) => { PAPIER.faser = a; PAPIER.korn = k;
+    try { kreideKorn(chalkTex.image.getContext('2d'), chalkTex.image.width, chalkTex.image.height); chalkTex.needsUpdate = true; } catch (e) {} }); }
+// Kreide haftet nur auf den Kornspitzen (Maske aus dem Betonscan, nahtlos): auf eine Leinwand anwenden, die nur Kreide/Spur enthält
+function kreideKorn(x, w, h, t = Math.max(96, Math.min(w, h) / 2.5)) { const K = PAPIER.korn; if (!K) return; x.save(); x.globalCompositeOperation = 'destination-in';
+  const ox = -Math.random() * t, oy = -Math.random() * t; for (let yy = oy; yy < h; yy += t) for (let xx = ox; xx < w; xx += t) x.drawImage(K, xx, yy, t, t); x.restore(); }
 window.__papier = { P: PAPIER, scan: (...a) => papierScan(...a), note: (t, h) => showNote(t, h) }; // Testzugriff
 function papierScan(x, w, h, farbe, o = {}) {
   x.save(); x.fillStyle = farbe; x.fillRect(0, 0, w, h); const F = PAPIER.faser;

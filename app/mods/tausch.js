@@ -336,7 +336,7 @@ function tausch_marke(M, i) { const S = tausch_S, m = S.dec[i % S.dec.length]; i
 function tausch_markenZeigen() { const S = tausch_S; S.dec.forEach(m => m.visible = false); S.marken.forEach((M, i) => tausch_marke(M, i)); }
 function tausch_kreideTex() { return tex(cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.strokeStyle = 'rgba(245,214,96,.92)'; c.lineCap = 'round'; c.lineJoin = 'round';
   for (let p = 0; p < 3; p++) { c.globalAlpha = .45 + p * .2; c.lineWidth = 15 - p * 4; c.beginPath(); c.moveTo(128 + rand(-3, 3), 214); c.lineTo(128 + rand(-3, 3), 58); c.moveTo(80 + rand(-3, 3), 104); c.lineTo(128, 50); c.lineTo(176 + rand(-3, 3), 104); c.stroke(); }
-  c.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 900; i++) { c.globalAlpha = rand(.2, .7); c.fillRect(rand(0, w), rand(0, w), rand(1, 3), rand(1, 3)); } }), true); }
+  c.globalAlpha = 1; kreideKorn(c, w, w); }), true); } // echtes Korn statt gestanzter Pünktchen
 function tausch_waermer() { const S = tausch_S; if (S.warmN <= 0) return; S.warmN--; S.warmT = 300; Audio.play('keys3', { gain: .12, rate: 2, dur: .3 }); toast('Knack. Das Kissen wird warm. Warm wie eine Hand.', 3200); if (ui.overlay === 'journal') renderJournal(); }
 // Angst (Basis fearUpdate): brennende Lampe oder Streichholz zählt als Licht; warme Hände → die Angst steigt langsamer
 fearUpdate = (o => function (dt, indoor) { const S = tausch_S, lit = S.L && S.L.intensity > .15;
