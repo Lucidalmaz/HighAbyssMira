@@ -723,7 +723,7 @@ async function fassaden_build() {
   scene.traverse(o => { if (o.isMesh && !before.has(o) && !o.userData.noColHit) S.added.push(o); });
   S.toggle = on => { S.off = !on; S.houses.forEach(h => h.detOn = undefined); for (const o of S.added) o.visible = on; for (const [m, a, b] of S.swapped) m.material = on ? b : a; for (const m of S.retired) m.visible = !on; };
   // Spiegelungs-Sonde einmal ganz füllen (Ortsmitte); im Spiel folgt sie dem Spieler abschnittsweise
-  try { fassaden_probeAt(0, 1.7, 0); for (let i = 0; i < 6; i++) fassaden_probeFace(i); S.probe.face = -1; S.probe.t = 2; } catch (e) { console.warn('Fassaden: Spiegelung', e); }
+  try { fassaden_probeAt(0, 1.7, 0); } catch (e) { console.warn('Fassaden: Spiegelung', e); } // Seiten füllt der Takt nach dem Laden (vorher hier: 6 Würfelseiten → ~25 s blockierendes Shader-Übersetzen beim Laden)
   S.ready = true;
   S.log.push('Häuser: ' + S.houses.length + ', Fenster: ' + S.windows.length + ', Gestalten: ' + S.figs.length + ', ' + Math.round(performance.now() - T0) + ' ms');
   console.log('[Fassaden] ' + S.log.join(' | ')); window.fassaden_dbg = S.log; window.fassaden_S = S; // Debug-Zugriff für Tests
@@ -748,7 +748,7 @@ function fassaden_probeFace(i) {
 }
 function fassaden_probeAt(x, y, z) { const P = fassaden_S.probe; P.cam.position.set(x, y, z); P.cam.updateMatrixWorld(true); P.x = x; P.z = z; P.t = 50; P.face = 0; }
 function fassaden_probeTick(dt, indoor) {
-  const P = fassaden_S.probe; if (!P) return;
+  const P = fassaden_S.probe; if (!P || !window.__ready) return;
   if (P.face >= 0) { fassaden_probeFace(P.face); P.face = P.face < 5 ? P.face + 1 : -1; return; }
   if (indoor || state.inBasement) return;
   P.t -= dt; const c = camera.position;

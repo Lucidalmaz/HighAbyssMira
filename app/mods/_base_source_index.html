@@ -6082,7 +6082,12 @@ stage('Erstes Bild fertig');
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
         if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
-    renderer.setRenderTarget(composer.renderTarget1); try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } renderer.setRenderTarget(null);
+    // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
+    const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
+    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1);
+    for (let i = 0; i < teile.length; i += 12) { const an = new Set(teile.slice(i, i + 12)); for (const c of teile) c.visible = an.has(c);
+      try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
+    renderer.setRenderTarget(null);
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
     all.forEach(o => o.visible = true);
   }

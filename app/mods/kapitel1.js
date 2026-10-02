@@ -152,8 +152,12 @@ function kapitel1_polaAnsehen() { const src = K1.polaImg ? K1.polaImg.toDataURL(
   openNote('Polaroid auf dem Stuhl', (src ? `<img src="${src}" style="width:62%;display:block;margin:0 auto 14px;transform:rotate(-1.5deg);box-shadow:0 6px 18px rgba(0,0,0,.6)">` : '') + 'Hildes Schrift auf dem weißen Rand:\n<span class="hand">„31.10. Sie sitzt still, solange ich zähle.“</span>\n\nDerselbe Stuhl. Festgeschnallt darin ein Mädchen in Lucys blauem Kleid. Das Gesicht grau, ohne Mund, die Augen schwarz.', 'k1_polaStuhl',
     () => { if (!K1.f.has('polaStuhl')) { K1.f.add('polaStuhl'); setTimeout(() => kapitel1_zeile('Wie schnallt man jemanden fest, der nicht da ist?', 3600, 'LUKE'), 700); } }); }
 // Zeichnungswand: Dutzende Kinderzeichnungen, alle „LUKE, 9“; rote Lackschrift; in der Ecke die Regel
-function kapitel1_wachs(x, pts, col, lw = 4) { const c = x.canvas, t = document.createElement('canvas'); t.width = c.width; t.height = c.height; const y = t.getContext('2d'); y.setTransform(x.getTransform());
-  kapitel1_kreideStrich(y, pts, lw, col); y.setTransform(1, 0, 0, 1, 0, 0); kreideKorn(y, t.width, t.height, 64); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(t, 0, 0); x.restore(); } // Wachsmalstift: Wachs bleibt nur auf den Papierhöhen (echtes Korn)
+function kapitel1_wachs(x, pts, col, lw = 4) { // Wachsmalstift: Wachs bleibt nur auf den Papierhöhen (echtes Korn) – kleine Hilfsleinwand nur um den Strich
+  const m = x.getTransform(), P = pts.map(([a, b]) => [m.a * a + m.c * b + m.e, m.b * a + m.d * b + m.f]), pad = lw * 3 + 6;
+  const x0 = Math.floor(Math.min(...P.map(p => p[0])) - pad), y0 = Math.floor(Math.min(...P.map(p => p[1])) - pad), w = Math.ceil(Math.max(...P.map(p => p[0])) + pad) - x0, h = Math.ceil(Math.max(...P.map(p => p[1])) + pad) - y0;
+  if (w <= 0 || h <= 0 || w * h > 4e6) { kapitel1_kreideStrich(x, pts, lw, col); return; }
+  const t = document.createElement('canvas'); t.width = w; t.height = h; const y = t.getContext('2d'); y.setTransform(m.a, m.b, m.c, m.d, m.e - x0, m.f - y0);
+  kapitel1_kreideStrich(y, pts, lw, col); kreideKorn(y, w, h, 64); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(t, x0, y0); x.restore(); }
 function kapitel1_kritzel(x, cx, cy, rx, ry, col, n = 14) { const pts = []; for (let i = 0; i < n; i++) { const u = i / (n - 1); pts.push([cx - rx + u * rx * 2 + rand(-3, 3), cy + (i % 2 ? -ry : ry) * Math.sqrt(Math.max(0, 1 - (2 * u - 1) ** 2)) + rand(-3, 3)]); } kapitel1_wachs(x, pts, col, 5); }
 function kapitel1_wandTex() {
   const W = (c, a) => `rgba(${c},${a ?? .9})`, motiv = [
