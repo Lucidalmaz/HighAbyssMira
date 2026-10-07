@@ -123,5 +123,12 @@ Geprüft wurde, ob jeder per `msModel/msFBX/msBake` angeforderte Ordner unter `g
 
 ## Zahlen
 
-- Eingetragene Lücken: **62** Tabellenzeilen (hoch 10, mittel 31, niedrig 21; in fünf Zeilen steht „unklar“, weil nur Scan-Modelle betroffen sind, deren Details nicht prüfbar waren). Einzelne Zeilen bündeln mehrere Details (vier Grabsteine, drei Behälter), die Zahl der Einzelmängel liegt deshalb bei rund 75.
+- Eingetragene Lücken: **62** Tabellenzeilen (hoch 10, mittel 31, niedrig 21; in sechs Zeilen steht „unklar“, weil nur Scan-Modelle ohne Sicht auf Details betroffen sind). Einige Zeilen bündeln mehrere Einzeldetails (z. B. vier Grabsteine, drei Behälter).
 - Eine Tabellenzeile in Abschnitt 1 („Drinnen brennt Licht“) ist ein Positivbeleg ohne Lücke (Strich in der Prio-Spalte) und nicht mitgezählt.
+
+
+## Stand der Umsetzung (07.10., Abschluss)
+Ausführliche Liste: `basis_umsetzung.md`.
+- Erledigt und im Bild geprüft: Himmel und Hölle, achter Stein, Madonna (Band + Zettel), Sühnekreuz (Kiesel), Zayn, Dina, Mike, Heidi, Spaten, Kranz, Unbekanntes Kind, Geldkassette, Becher + Handabdrücke am Schaufenster, Ladentür-Schild, Zapfinsel-Striche, Picknicktisch, Hildes Laube, Stalltür, Schrottbüro-Kalender, Verkehrsschild, Echo Brand, Keller (Rekorder, Gläser-Etiketten, Eisenbett), Nr. 7 Bett + Karton.
+- Erledigt, nicht im Bild verifiziert: Eisenkreuz-Haarbänder, Rutsche, Reifen, Traktor, Heuballen, Bolzen, Fassaden Nr. 2/6/8/9, Fußmatte, Panda, Zäune (4) + Absperrgitter, Lichtung, Türrahmen-Kratzer, Fensterbrett, Milchzahn, Schrank-Mäntel, Riemen, Rahmenfleck, Stuhlkratzer, Streichhölzer, Klebeband, Müllsack.
+- Offen: Puppe-Namensband, Auto Schlüssel/Laub, Container/Brandauto/Schrottauto-Inhalt, Transporter-Schriftzug, Fahrrad-Aufkleber, Vogelscheuche-Jacke (Scan trägt schon Blau), Kellertür „Stahltür“ in `kapitel1.js:333` (fremde Datei).

@@ -6105,7 +6105,8 @@ camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, pl
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
-{
+// Testschalter ?fast (nur Selbsttests, --page=index.html?fast): kein Vorübersetzen, kein Textur-Hochladen – die Programme entstehen erst beim ersten Zeigen; spart je Testlauf Minuten.
+if (!/[?&]fast/.test(location.search)) {
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
@@ -6133,7 +6134,7 @@ stage('Erstes Bild fertig');
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
-  if (!/noupload/.test(location.search)) {
+  if (!/noupload|[?&]fast/.test(location.search)) {
     const keep = []; const texs = new Set();
     scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }

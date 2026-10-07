@@ -63,13 +63,14 @@ function tief_vanOeffnen(van) { const T = THREE; van.updateMatrixWorld(true); co
     m.geometry = ng; for (const mt of [].concat(m.material)) { mt.side = T.DoubleSide; } });
   for (const m of rm) m.removeFromParent(); }
 // Das Innere: Laderaum mit sieben Kindersitzen, Hofers Spind, Fahrerhaus mit Armaturenbrett, Fahrtenbuch
-async function tief_busInnen(o) { const T = THREE, FY = .5, g = new T.Group(); g.name = 'busInnen'; g.userData.noCol = true; o.add(g);
+// FY: Boden des Laderaums (aufgesetzt, damit man die Sitze durch die Heckscheibe sieht), FC: Boden des Fahrerhauses
+async function tief_busInnen(o) { const T = THREE, FY = .72, FC = .5, g = new T.Group(); g.name = 'busInnen'; g.userData.noCol = true; o.add(g);
   const dark = new T.MeshStandardMaterial({ color: 0x22201e, roughness: .85, metalness: .2, side: T.DoubleSide }), stoff = new T.MeshStandardMaterial({ color: 0x1d2536, roughness: .96 }), kunst = new T.MeshStandardMaterial({ color: 0x2b2d31, roughness: .55 });
   const metall = { gurt: new T.MeshStandardMaterial({ color: 0x35373a, roughness: .9 }), schloss: new T.MeshStandardMaterial({ color: 0x9a9a98, roughness: .3, metalness: .9 }) };
   const rb = (w, h, d, r, mat, x, y, z) => { const sh = new T.Shape(), a = w / 2 - r, bb = d / 2 - r; sh.moveTo(-a, -d / 2); sh.lineTo(a, -d / 2); sh.quadraticCurveTo(w / 2, -d / 2, w / 2, -bb); sh.lineTo(w / 2, bb); sh.quadraticCurveTo(w / 2, d / 2, a, d / 2); sh.lineTo(-a, d / 2); sh.quadraticCurveTo(-w / 2, d / 2, -w / 2, bb); sh.lineTo(-w / 2, -bb); sh.quadraticCurveTo(-w / 2, -d / 2, -a, -d / 2);
     const ge = new T.ExtrudeGeometry(sh, { depth: Math.max(.002, h - r * .8), bevelEnabled: true, bevelSize: r * .4, bevelThickness: r * .4, bevelSegments: 2, curveSegments: 4 }); ge.rotateX(-PI / 2); ge.translate(0, r * .4, 0); const m = new T.Mesh(ge, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
   // Boden: Riffelblech, hinten und im Fahrerhaus
-  { const fl = msSurfMat('corrugated', { tint: 0x4a4744 }); fl.userData.tile = 1; fl.side = T.DoubleSide; const f = box(1.92, .03, 3.6, 0, FY - .015, -.9, fl, { parent: g, cast: false }); f.receiveShadow = true; const f2 = box(1.92, .03, 1.3, 0, FY + .01, 1.5, dark, { parent: g, cast: false }); f2.receiveShadow = true; }
+  { const fl = msSurfMat('corrugated', { tint: 0x4a4744 }); fl.userData.tile = 1; fl.side = T.DoubleSide; const f = box(1.92, .03, 3.6, 0, FY - .015, -.9, fl, { parent: g, cast: false }); f.receiveShadow = true; const f2 = box(1.92, .03, 1.3, 0, FC + .01, 1.5, dark, { parent: g, cast: false }); f2.receiveShadow = true; }
   // Sieben Kindersitze: hinten drei, davor vier, alle nach vorn, einer umgekippt; auf dem mittleren hinteren klebt das Z, daneben Jonas’ Zettel
   const zTex = tex(cnv(128, (c, w) => { c.fillStyle = '#c9c0a4'; c.beginPath(); c.moveTo(6, 8); c.lineTo(w - 4, 4); c.lineTo(w - 7, w - 10); c.lineTo(w - 30, w - 4); c.lineTo(10, w - 6); c.closePath(); c.fill();
     for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(90,70,40,${rand(.03, .14)})`; c.fillRect(rand(0, w), rand(0, w), rand(2, 18), rand(1, 4)); }
@@ -84,7 +85,7 @@ async function tief_busInnen(o) { const T = THREE, FY = .5, g = new T.Group(); g
   // Fahrerhaus: Armaturenbrett, Lenkrad, zwei Sitze
   { rb(1.9, .1, .5, .04, dark, 0, .93, 1.45); rb(.5, .16, .22, .05, dark, .42, 1.02, 1.36); // Armaturenbrett mit Instrumentenhaube
     const lr = new T.Mesh(new T.TorusGeometry(.19, .014, 8, 24), dark); lr.position.set(.42, .9, 1.12); lr.rotation.x = 1.0; g.add(lr); for (const aa of [0, 2.1, 4.2]) { const sp = new T.Mesh(new T.BoxGeometry(.012, .17, .012), dark); sp.position.set(.42, .9, 1.12); sp.rotation.set(1.0, 0, aa); g.add(sp); }
-    for (const sx of [.42, -.42]) { rb(.5, .14, .5, .06, stoff, sx, FY + .32, .75); const lh = rb(.5, .62, .12, .05, stoff, sx, FY + .4, .52); lh.rotation.x = -.14; rb(.24, .2, .1, .04, stoff, sx, FY + 1.0, .44); } }
+    for (const sx of [.42, -.42]) { rb(.5, .14, .5, .06, stoff, sx, FC + .32, .75); const lh = rb(.5, .62, .12, .05, stoff, sx, FC + .4, .52); lh.rotation.x = -.14; rb(.24, .2, .1, .04, stoff, sx, FC + 1.0, .44); } }
   // Fahrtenbuch auf dem Armaturenbrett, in einer Klarsichthülle
   try { const src = await msModel('w_buch', 'model.glb'), bk = msGround(msFit(src.clone(true), .24, 'max')); bk.position.set(-.3, 1.0, 1.52); bk.rotation.set(-.12, .5, 0); bk.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(bk);
     const sl = new T.Mesh(new T.BoxGeometry(.3, .004, .24), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .2, roughness: .06, clearcoat: 1, depthWrite: false })); sl.position.set(-.3, 1.06, 1.52); sl.rotation.set(-.12, .5, 0); sl.userData.noCol = true; g.add(sl); } catch (e) { console.warn('Tiefwald: Fahrtenbuch', e); }

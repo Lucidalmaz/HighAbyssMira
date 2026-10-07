@@ -39,6 +39,12 @@ Stand der Prüfung: Spiellauf r1 (Halle) und r2 (Nr. 3) mit Screenshots gesichte
 | 31 | Stein auf der Rechnung | kleiner bemooster Stein auf der Ecke. |
 | 32 | Regentonne | `w_barrel` hinter Nr. 3 (−28,6 / −24,5). |
 
+## Prüfstand
+
+- Im Spiel mit Screenshots gesichtet und für gut befunden: Galerie samt Flur-Öffnung und Laterne (Whiskey auf dem Handlauf), Küche in Nr. 3 (Kühlschrank, Herd, Spüle, offene Schublade, Kanonenofen, Klofenster, Speisekammertür, Bruno mit Napf), Ritzstriche am Kopfteil, Messingschild.
+- Mit Mangel: Die Strickjacke renderte im Lauf schwarz; danach auf eine graue Wollkarte umgestellt, aber nicht mehr im Spiel gesehen.
+- NICHT im Spiel gesehen (Läufe r3 bis r5 scheiterten viermal beim Laden: Arbeitsspeicher und WebGL-Kontext durch parallele Spielinstanzen, das Spiel kam nie über „Texturen hochladen“): Arbeitszimmer (Fenster, Klappe, Ausschnitte, Schirmlampe), Anrichte (Batterien, Whiskey auf Buffet), Heinrichs Zimmer, Keller (Nierenschale, Sicherungen, Zettel), Kanne auf dem Buffet, Aufräumkommando samt Kreide-Ausblendung, Zeitungsrollen, Kerzenkreide, Blechkistenschrift, Pfandkiste, Radio Nr. 1, Grabkranz, Stein, Lichtschacht, Nest, Regentonne, Heft Nr. 9. Alle bestehen `node --check`; Platzierungen sind gerechnet, der Feinabgleich (Gardine, Kranz-Lehnwinkel, Radio-Drehung, Rollenposition) steht aus. Testschritte: `C:\Users\GIGABYTE\_kap45_r3.json` bis `_kap45_r5.json` (je höchstens 12 Bilder), Aufruf über `bash _run_locked.sh`.
+
 ## Nicht umgesetzt
 
 - 19 Laube Parzelle 7: geschlossener Scan, Innenraum nicht sichtbar; Text unverändert (siehe „braucht Download“).

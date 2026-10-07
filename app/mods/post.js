@@ -200,8 +200,8 @@ async function post_nr9Bau() { const S = post_S;
   const pl = kirchberg_mat('planks_painted', 0x5a4a3a, 1); for (const [y, r] of [[2.25, .06], [1.35, -.05]]) { const b = box(1.35, .16, .04, 52.75, y, -21.58, pl); b.rotation.z = r; b.rotation.y = PI; b.userData.noCol = true; }
   S.tuerHit = kirchberg_hit(1.1, 2.1, .5, 47.8, 1.1, -21.8, 'Hintertür (Scheibe)', () => post_blatt212());
   try { post_hintertuer(); } catch (e) { console.warn('Post: Hintertür', e); }
-  if (typeof beob_spur === 'function') beob_spur('kratzer', { pos: [44.62, .32, -14.2], ry: -PI / 2, w: .07, h: .11, k: [1, 2, 3] });
-  kirchberg_hit(.5, .8, 1.2, 44.6, .4, -14.2, 'Gartenzaun', () => { S.steps.zaun = 1; kirchberg_start('k1_butter'); toast('Zwei Latten unten auseinandergebogen, gerade weit genug für ein kleines Kind. Daneben drei Kratzer.', 4200); post_butterCheck(); post_save(); });
+  try { post_zaun(); } catch (e) { console.warn('Post: Zaun', e); }
+  if (typeof beob_spur === 'function') /* Kratzer neben der Lücke: post_zaun() */
   S.meldHit = kirchberg_hit(.35, .25, .5, 51.45, 1.36, -6.95, 'Zettel im Briefkastenschlitz', () => post_meldezettel()); }
 // Hintertür von Nr. 9 mit Glasscheibe: die Scan-Tür (Vollblatt) wird durch Rahmentür mit großer, verschmutzter Scheibe ersetzt; dahinter am Boden das Blatt 212 (Schreibmaschine), nur im Lampenlicht lesbar
 function post_hintertuer() { const T = THREE, S = post_S, X = 47.8, Zo = -21.62;
@@ -214,6 +214,20 @@ function post_hintertuer() { const T = THREE, S = post_S, X = 47.8, Zo = -21.62;
   const gr = new T.Mesh(new T.CylinderGeometry(.018, .018, .16, 8), new T.MeshStandardMaterial({ color: 0x4a4a4c, metalness: 1, roughness: .4 })); gr.position.set(.38, 1.0, -.15); g.add(gr);
   g.traverse(m => { m.userData.noCol = false; }); g.position.set(X, .45, Zo); scene.add(g); S.hintertuer = g;
   const blatt = kirchberg_decal(kirchberg_papier({ w: 256, h: 340, bg: '#e9e3d0', flecken: 4, knick: true, zeilen: [['Blatt 212', 24, 42, 22, '#222', '"Special Elite","Courier New",monospace', 0], ['23.10., 21:10  L. B. (26)', 24, 84, 15, '#333', '"Courier New",monospace', 0], ['betritt Nr. 7. Licht Keller.', 24, 108, 15, '#333', '"Courier New",monospace', 0], ['21:40  Frau Wendt vor dem', 24, 142, 15, '#333', '"Courier New",monospace', 0], ['Haus, zählt. Acht.', 24, 166, 15, '#333', '"Courier New",monospace', 0]] }), .21, .3, X - .08, .452, -21.27, 0, { rx: -PI / 2, rz: .5 }); blatt.material.color.setRGB(.8, .8, .76); S.blatt = blatt; }
+// Gartenzaun von Nr. 9 (Lattenzaun von der Hausecke nach Westen): zwei Latten sind unten auseinandergebogen, gerade weit genug für ein kleines Kind; am Rand der Lücke drei Kratzer im Holz
+function post_zaun() { const T = THREE, holz = kirchberg_mat('planks_painted', 0x6b6150, 1), alt = kirchberg_mat('planks_painted', 0x544a3c, 1), g = new T.Group(), z0 = -14.2, xE = 44.45, nL = 17, dx = .165;
+  const bx = (w, h, d, x, y, z, m) => { const q = new T.Mesh(new T.BoxGeometry(w, h, d), m); q.position.set(x, y, z); q.castShadow = q.receiveShadow = true; g.add(q); return q; };
+  const xs = []; for (let i = 0; i < nL; i++) xs.push(xE - .12 - i * dx); const lueck = 4; // Lattenindex der Lücke (x ≈ 43.7)
+  bx(nL * dx + .1, .08, .05, xE - nL * dx / 2 - .02, .28, z0 - .03, alt); bx(nL * dx + .1, .08, .05, xE - nL * dx / 2 - .02, .72, z0 - .03, alt); // zwei Riegel (hinten)
+  for (const px of [xE - .05, xE - nL * dx - .1]) bx(.1, 1.05, .1, px, .525, z0 - .03, alt); // Pfosten
+  xs.forEach((x, i) => { const h = .84 + (i % 5) * .012 - .02, geknickt = i === lueck || i === lueck + 1, s = i === lueck ? -1 : 1;
+    if (!geknickt) { const q = bx(.1, h, .022, x, .08 + h / 2 + .02, z0, holz); q.rotation.z = ((i * 37) % 7 - 3) * .004; const sp = new T.Mesh(new T.ConeGeometry(.05, .06, 4), holz); sp.rotation.y = PI / 4; sp.scale.set(1, 1, .22); sp.position.set(x, .1 + h + .03, z0); g.add(sp); return; }
+    const piv = new T.Group(); piv.position.set(x, .08 + h + .02 - .06, z0); const q = new T.Mesh(new T.BoxGeometry(.1, h, .022), holz); q.position.y = -h / 2 + .06; q.castShadow = true; piv.add(q); const sp = new T.Mesh(new T.ConeGeometry(.05, .06, 4), holz); sp.rotation.y = PI / 4; sp.scale.set(1, 1, .22); sp.position.y = .09; piv.add(sp);
+    piv.rotation.z = s * .34; piv.rotation.y = s * .08; g.add(piv); }); // Pivot oben: die Unterkanten klappen nach außen
+  const xl = xs[lueck];
+  if (typeof beob_spur === 'function') beob_spur('kratzer', { pos: [xl - .32, .3, z0 + .014], ry: 0, w: .09, h: .12, k: [1, 2, 3] });
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = false; }); scene.add(g); post_S.zaun = g;
+  const hit = kirchberg_hit(.9, .8, .6, xl, .4, z0, 'Gartenzaun', () => { post_S.steps.zaun = 1; kirchberg_start('k1_butter'); toast('Zwei Latten unten auseinandergebogen, gerade weit genug für ein kleines Kind. Daneben drei Kratzer.', 4200); post_butterCheck(); post_save(); }); post_S.zaunHit = hit; }
 // Objektiv im Astloch (AP-14 baut das Glimmen): Lampe länger als zwei Sekunden darauf → es surrt und dreht sich einen Fingerbreit zu Luke
 function post_objektivTick(dt) { const S = post_S; if (kap() !== 1 || typeof flashOn === 'undefined') return; const P = player.pos, x = 46.95, y = 1.5, z = -12.42, d = Math.hypot(P.x - x, P.z - z); if (d > 11) { S.objT = 0; return; }
   S.v.set(x - camera.position.x, y - camera.position.y, z - camera.position.z).normalize(); if (flashOn && fwd.dot(S.v) > .985) { S.objT = (S.objT || 0) + dt; if (S.objT > 2 && !S.objGedreht) { S.objGedreht = true; S.steps.objektiv = 1; kirchberg_start('k1_butter');

@@ -53,7 +53,7 @@ Abschnitt 4, `ausbau_ost_west.js`
 - Schaufenster: Text „leere Regale“ geändert (die Regale sind bestückt); acht Pappbecher auf dem Tresen, einer umgefallen, der neunte erscheint nach der Licht-Szene; Handabdrücke im Staub von innen am Glas.
 - Picknicktisch: umgesetzt (acht Teller, acht Gabeln, neun Kiesel).
 - Hildes Laube: umgesetzt (Bank, Schuhkarton „Nächte“, Blechdose, Streichholzschachtel, Petroleumlampe mit kleiner Flamme und Licht, zwei Stühle, auf dem zweiten ein eingedrücktes Kissen, Zettel „Drei. Immer drei.“ mit Reißzwecke).
-- Roxys Heft: siehe Nachtrag.
+- Roxys Heft: umgesetzt, aber außen: Hocker vor den Fenstern der Laube mit dem Scan `lbook` (die Laube ist innen nicht einsehbar); die Klickfläche wurde dorthin verlegt. Im Test sichtbar die Laube, das Heft nicht eigens verifiziert.
 - Ladentür-Schild „Komme gleich wieder“: umgesetzt (Pappschild mit Staub); Text „An der Tür“ statt „Hinter der Tür“.
 - Zapfinseln: umgesetzt (vier abgeschnittene Bolzen je Insel, Ölfleck, acht Kreidestriche).
 - Reifenstapel: umgesetzt (I bis VII in Kreide, achter Strich frisch).
@@ -61,8 +61,8 @@ Abschnitt 4, `ausbau_ost_west.js`
 - Stalltür: umgesetzt (1312 und 2026 geritzt über dem Eingang).
 - Traktor: umgesetzt (Kreidepfeil nach Osten auf dem Kotflügel).
 - Fahrrad (niedrig): nur rot getönt, der Aufkleber „L. B. – 4b“ fehlt (Lage des Gepäckträgers im Scan unbekannt).
-- Vogelscheuche (niedrig, unklar): blaue Kinderjacke aus `w_jacke` angezogen.
-- Schrottbüro-Kalender: umgesetzt (Juli 1992, Tage bis zum 13. durchgestrichen).
+- Vogelscheuche (niedrig, unklar): nicht geändert (trägt bereits ein abgewetztes blaues Hemd; ein eigener Jackenversuch sah schwarz aus und wurde entfernt).
+- Schrottbüro-Kalender: umgesetzt (Juli 1992, Tage bis zum 13. durchgestrichen), hängt außen an der Brettwand (verifiziert); Text angepasst.
 - Transporter (niedrig): nicht (Ladefläche geschlossen, Schriftzug nicht einsehbar).
 - Verkehrsschild (niedrig): umgesetzt als Zusatzschild mit Filzstift „AUSFAHRT AUCH.“; Sperre-Aushang mit Kuli-Zeile ergänzt.
 - Container, ausgebranntes Auto, Schrottauto (niedrig): nicht (geschlossene Behälter).
@@ -94,3 +94,7 @@ Abschnitt 8, Ladefehler: `innen_ort.js` fängt die Promise.all-Modellfehler jetz
 ## Auffälligkeiten
 - Beim Bauen liefen vor meiner Änderung mehrere Module (`neben3x Schilder`, `Kap. 3 Hufeisen`) in `Cannot read properties of null (reading 'matrixWorld')`. Ursache: Strahlen über Gruppen mit Sprites (Raycaster ohne Kamera). Mein `bu_strahl` setzt die Kamera und überspringt Sprites.
 - Dateien wurden von mir mit CRLF gespeichert (wie im Repo-Stand HEAD).
+
+## Testlage (07.10., Abschluss)
+Verifiziert per Screenshot: Himmel und Hölle, Gedenkfeld (Zayn Astern, Mike 2026, Dina Kreise, Heidi Postkarte, Spaten, Madonna Haarband + Zettel), Kranz-Kreide, 08 am unbekannten Kind, Sühnekreuz-Kiesel, Kiosk (acht Becher, Handabdrücke, Schild, Kassette), Zapfinsel-Kreidestriche, Picknicktisch (acht Teller), Hildes Laube (Stühle, Lampenschein), Stalltür-Brett, Schrottbüro-Kalender, Verkehrs-Zusatzschild, Echo Brand (Flammen, Licht), Keller (Radio als Rekorder, Etiketten, Eisenbett), Nr. 7 (Bett Gras, Karton).
+Nicht verifiziert (gebaut, Build und Syntax laufen, kein Fehler im Spiel-Log, aber im Bild nicht erkennbar oder nicht aufgenommen): Eisenkreuz-Haarbänder (nach Korrektur nicht erneut getestet, vorher 0 gesetzt), Rutsche-Handabdrücke, Reifen-Kreide (Treffer vorhanden, im Bild nicht lesbar), Traktor-Pfeil (nach Korrektur nicht getestet), Heuballen-Mulde, Zapfinsel-Bolzen, Fassaden-Karten Nr. 6/9/8-Keller und Nr. 2, Fußmatte mit Schlüssel, Panda am Schlüssel, Zaun-Details (Nord/Ost/West/Süd), Lichtung, Türrahmen-Kratzer, Fensterbrett-Striche, Taschentuch/Milchzahn, Mäntel + Kinderschuh im Schrank, Eisenbett-Riemen (nach Korrektur nicht getestet).

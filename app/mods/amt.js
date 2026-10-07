@@ -153,6 +153,20 @@ function amtp_druckerWagen(pm) { const G = new THREE.Group(), hT = .8; G.add(amt
   G.add(amtp_band([[0, hT + .12, .0], [0, hT + .15, .04], [0, hT + .185, .075], [0, hT + .195, .12], [0, hT + .17, .17], [0, hT + .09, .21], [0, hT - .05, .245], [0, .45, .255], [0, .12, .265], [0, .012, .33]], .22, pm, { n: 70, fromTop: true }));
   return G; }
 
+// ---- Modell-Tankstelle (Maßstab 1:87, ca. 18 × 10 cm): Kiosk mit Flachdach, Zapfsäulendach auf vier Stützen, zwei Zapfsäulen, Preisschild-Mast, Asphaltplatte; Front +z
+function amtp_tankstelle() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]), B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const putz = AMTP.mats.tkPutz || (AMTP.mats.tkPutz = new THREE.MeshStandardMaterial({ color: 0xd9d4c4, roughness: .85, bumpMap: amtp_noise(), bumpScale: .6 })), rot = AMTP.mats.tkRot || (AMTP.mats.tkRot = new THREE.MeshStandardMaterial({ color: 0xa8281e, roughness: .5 })),
+    asph = AMTP.mats.tkAsphalt || (AMTP.mats.tkAsphalt = new THREE.MeshStandardMaterial({ color: 0x4a4a48, roughness: .95, bumpMap: amtp_noise(), bumpScale: 1 })), glas = AMTP.mats.tkGlas || (AMTP.mats.tkGlas = new THREE.MeshStandardMaterial({ color: 0x1c2a30, roughness: .1, metalness: .3 }));
+  A(B(.19, .002, .11), asph, 0, .001, 0);
+  A(B(.062, .032, .042), putz, -.05, .018, -.025); A(B(.068, .003, .048), rot, -.05, .0355, -.025); A(B(.034, .016, .0012), glas, -.05, .022, -.0036); A(B(.012, .024, .0012), glas, -.008 - .035, .016, -.0036);   // Kiosk
+  A(B(.1, .004, .06), putz, .035, .056, .015); A(B(.1, .0025, .0025), rot, .035, .0545, .0455); A(B(.1, .0025, .0025), rot, .035, .0545, -.0155);                                                       // Dach der Zapfsäulen
+  for (const [x, z] of [[-.012, -.012], [.082, -.012], [-.012, .042], [.082, .042]]) A(amtp_cyl(.0016, .054, 6), 'stahl', x, .028, z);
+  for (const x of [.015, .055]) { A(B(.009, .024, .007), rot, x, .014, .015); A(B(.0092, .004, .0072), 'plastikDunkel', x, .027, .015); A(B(.006, .006, .0008), 'chrom', x, .019, .0188); }
+  A(amtp_cyl(.0012, .085, 5), 'stahl', .09, .0445, -.04); A(B(.02, .016, .003), 'plastikDunkel', .09, .084, -.04);
+  const G = amtp_baue(P, { cast: false });
+  const pr = amtp_schild(amt_cv(64, 48, (x, w, h) => { x.fillStyle = '#e8d44a'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b1b1b'; x.font = 'bold 15px Arial'; x.fillText('S 1,29', 4, 17); x.fillText('N 1,19', 4, 34); x.fillStyle = '#a8281e'; x.fillRect(0, h - 8, w, 8); }), .019, .0145, { rough: .5 }); pr.position.set(.09, .084, -.0385); G.add(pr);
+  G.traverse(o => { if (o.isMesh) { o.userData.noCol = true; o.receiveShadow = true; } }); return G; }
+
 // ---- Lederriemen (Fesselgurte) für die Stühle im Messraum: Beckengurt über der Sitzfläche mit Schnalle, Fußriemen an den Vorderbeinen; Stuhl 8: sauber durchtrennt (cut)
 // Maße im Stuhlsystem (Mitte der Grundfläche, +z = Blickrichtung des Sitzenden): Sitzhöhe sy, halbe Sitzbreite sw, Sitztiefe zb (hinten) … zf (vorn)
 function amtp_gurte(cut, o = {}) { const sy = o.sy ?? .46, sw = o.sw ?? .2, zb = o.zb ?? -.17, zf = o.zf ?? .19, P = [], W = .036, T = .005;
@@ -477,7 +491,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
     amt_kit('crt', 'model.glb', .37, 'x'), amt_kit('radio', 'model.gltf', .42, 'x'), amt_kit('frame_deco', 'model.gltf', .5), amt_kit('wallclock', 'model.gltf', 1.05), amt_kit('door1', 'model.gltf', 2.02),
     amt_kit('w_funk', 'model.glb', .34, 'max'), amt_kit('w_telefon', 'model.glb', .22, 'max'), amt_kit('w_thermos', 'model.glb', .31), amt_kit('w_blech', 'model.glb', .32, 'max'), amt_kit('w_becher', 'model.glb', .1),
     amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35, 'lang'), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
-    amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), amt_kit('gas_retro', 'model.fbx', .2, 'max', { '*': { b: '1000_F_223871261_iSyiIGwdLyqP2fLSuoK80dke3.jpg', rough: .85 } })]);
+    amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), null]); // kHalte: die Tankstelle wird in amt_bauPlanung aus Teilen gebaut (gas_retro bleibt aus der Veröffentlichung draußen)
   for (const K of [kSack, kEimer, kRoehre, kRadio, kRahmen, kBecher, kBatt, kAscher, kSchuppe, kSchuppe2, kHalte, kTelefon, kBlech, kThermos]) if (K) K.shadow = false;
   const kSchrankStahl = amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });
   const kKuehl = amt_variant(kSchrank, m => { const n = m.clone(); n.map = null; n.color = new THREE.Color(0xa9aeaa); n.metalness = .75; n.roughness = .32; return n; });
@@ -609,7 +623,7 @@ async function amt_bauArchiv(S, K) {
     amt_boden(dust, X0 + 28, Z0 - 5.42, .62, .388, .0, 2.204); }
   S.gruendHit = amt_hit(X0 + 28, 2.0, Z0 - 5.2, .8, .5, .4, () => amt_S.gruendung ? 'Archivschrank' : amt_S.leiterSteht ? 'Die Leiter hinaufsteigen' : story.items.includes('leiter_amt') ? 'Leiter aufstellen' : 'Ganz oben auf dem Schrank', () => amt_gruendung());
   S.leiterArchiv = K.kLeiter ? amt_einzel(K.kLeiter, X0 + 28, 0, Z0 - 5.05, { rx: -.28, noCol: true }) : null; if (S.leiterArchiv) S.leiterArchiv.visible = false;
-  // Aktenvernichter (Rückfall: Mülleimer mit Schneidwerk-Aufsatz als Aufkleber; fehlendes Modell: Aktenvernichter), Streifen hängen heraus
+  // Aktenvernichter: Bürogerät aus Teilen (amtp_vernichter), Streifen hängen heraus
   const vx = X0 + 19.05, vz = Z0 + 5.25; // Aktenvernichter (Bürogerät mit Auffangkorb) an der Südwand, Papierstreifen hängen aus dem Schlitz
   { const vg = amtp_vernichter(); vg.position.set(vx, 0, Z0 + 5.68); vg.rotation.y = PI; scene.add(vg); S.streifen = vg.userData.streifen; S.vernichterGrp = vg; }
   amt_hit(vx, .5, Z0 + 5.55, .5, .7, .45, () => amt_S.vernichter ? 'Aktenvernichter' : 'Streifen herausziehen', () => amt_vernichter());
@@ -806,7 +820,7 @@ async function amt_bauPlanung(S, K) {
   // Häuser (echte Scans, 1:87): Ahornstraße Nr. 1–7, Hof, Tankstelle, Kapelle; Nr. 3 in Alufolie
   const hs = [[-.55, -.25, K.kSchuppe], [-.35, -.27, K.kSchuppe2], [-.05, -.25, K.kFolie], [.2, -.26, K.kSchuppe], [-.55, .05, K.kSchuppe2], [-.3, .06, K.kSchuppe], [.02, .06, K.kSchuppe2], [.32, .2, K.kSchuppe]];
   for (const [dx, dz, KK] of hs) amt_put(KK, cx - dx, cz - dz, { ry: amt_R(-.2, .2) + PI, y: ty + .006 });
-  amt_put(K.kModellKirche, cx - .72, cz + .38, { ry: 2.6, y: ty + .006 }); amt_put(K.kHalte, cx + .5, cz - .05, { ry: .2, y: ty + .006 });
+  amt_put(K.kModellKirche, cx - .72, cz + .38, { ry: 2.6, y: ty + .006 }); { const tg = amtp_tankstelle(); tg.position.set(cx + .46, ty + .002, cz - .05); tg.rotation.y = .15; scene.add(tg); S.tankstelle = tg; }
   // Pappschild „Pfand hier abgeben“ an der Modell-Tankstelle: Pappe auf einem Holzspieß, mit Filzstift beschriftet
   { const pk = amtp_baue([[amtp_cyl(.0012, .075, 6), 'holz', amtp_m(0, .0375, 0)], [new THREE.BoxGeometry(.1, .05, .0022), 'karton', amtp_m(0, .085, 0)]], { cast: false });
     const tx = amtp_schild(amt_cv(256, 128, (x, w, h) => { x.fillStyle = '#c9b388'; x.fillRect(0, 0, w, h); for (let i = 0; i < 200; i++) { x.fillStyle = `rgba(90,70,40,${amt_R(.05, .2)})`; x.fillRect(amt_R(0, w), amt_R(0, h), 2, 1); } x.fillStyle = '#1b1b1b'; x.font = 'bold 54px Caveat'; x.textAlign = 'center'; x.fillText('Pfand hier', w / 2, 58); x.fillText('abgeben', w / 2, 112); }), .096, .046, { rough: .9 });
@@ -853,7 +867,7 @@ async function amt_bauPruef(S, K) {
   // Turm ausgespülter Plastikdosen neben der Klappe in der Tür (Rückfall: Becher; fehlendes Modell: Plastikdosen mit Schraubdeckel), Kreppband „Do.“
   { const dg = amtp_dosenTurm(); dg.position.set(X0 + 36.52, 0, Z0 + 1.2); dg.rotation.y = .3; scene.add(dg); }   // Turm ausgespülter Plastikdosen mit Schraubdeckel und Kreppband „Do.“
   amt_hit(X0 + 36.5, .2, Z0 + 1.25, .35, .4, .35, 'Dosen', () => { toast('Ein Turm ausgespülter Dosen mit Schraubdeckel. Auf jedem Deckel ein Streifen Kreppband: „Do.“', 4200); if (!amt_S.said.do) { amt_S.said.do = 1; setTimeout(() => say([['Donnerstags. Oma hat immer gesagt, sie muss ‚zum Amt‘. Ich dachte, wegen der Rente.', 4600, 'LUKE']]), 1300); } });
-  // Karteikasten „VERSUCHSREIHE K“ (Rückfall: kleiner Holzkasten)
+  // Karteikasten „VERSUCHSREIHE K“ (Blechkasten mit Karteikarten, amtp_kartei)
   { const kg = amtp_kartei('VERSUCHSREIHE K'); kg.position.set(X0 + 43.6, 0, Z0 - 4.35); kg.rotation.y = .2; scene.add(kg); S.karteiGrp = kg; }
   amt_hit(X0 + 43.6, .25, Z0 - 4.3, .4, .4, .4, 'Karteikasten „VERSUCHSREIHE K“', () => amt_karteiK());
   amt_rauchmelder(X0 + 41, Z0 + 2);
@@ -905,9 +919,9 @@ async function amt_bauMessraum(S, K) {
   amt_hit(s8.x, .75, s8.z, .6, 1.1, .6, 'Stuhl 8', () => amt_stuhl8());
   if (typeof sammeln_platz === 'function') try { sammeln_platz('SB-04', { x: s8.x, y: .3, z: s8.z, ab: 2, unsichtbar: 1, hb: .3, label: 'Unter der Sitzfläche, mit Klebeband' }); } catch (e) { console.warn('amt SB-04', e); }
   // Zweiter Nadeldrucker auf dem Seitentisch (erscheint erst mit seinem Druck)
-  S.messDruck = { x: X0 + 111.2, y: 1.0, z: Z0 - 7.4 }; // zweiter Nadeldrucker auf dem Seitentisch, Papier liegt auf der Platte
+  S.messDruck = { x: X0 + 114.0, y: 1.0, z: Z0 - 7.5 }; // zweiter Nadeldrucker auf dem Seitentisch, Papier liegt auf der Platte
   { const g = new THREE.Group(); g.add(amtp_drucker()); g.add(amtp_band([[0, .12, 0], [0, .15, .04], [0, .185, .075], [0, .195, .12], [0, .15, .2], [0, .02, .29], [0, .004, .42]], .22, S.papierMat, { n: 36, fromTop: true, vSpan: .42 }));
-    g.position.set(X0 + 111.2, .79, Z0 - 7.35); g.rotation.y = 0; g.visible = false; scene.add(g); S.messDruckObj = g; }
+    g.position.set(X0 + 114.0, .79, Z0 - 7.52); g.rotation.y = 0; g.visible = false; scene.add(g); S.messDruckObj = g; }
   // Notbeleuchtung (Batterie-Notleuchten, beim Laden 0): nach dem Sterben der Röhren – Licht für „Ihre Augen“ und den Aufstieg
   const nl = amt_decal(amt_cv(256, 96, (x, w, h) => { x.fillStyle = '#e8eee6'; x.fillRect(4, 4, w - 8, h - 8); x.fillStyle = '#1c7a3a'; x.fillRect(16, 16, w - 32, h - 32); x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.fillText('NOTLICHT', 40, 60); }), { em: 0xffffff, emI: 0 });
   S.notlicht = []; for (const [x, y, z, ry] of [[X0 + 110.17, 2.2, Z0 + 4.6, PI / 2], [X0 + 121.83, 2.2, Z0 - 3.5, -PI / 2], [X0 + 116.5, 2.2, Z0 + 7.83, PI]]) {

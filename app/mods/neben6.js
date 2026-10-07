@@ -89,7 +89,7 @@ WORLD_MODS.push(['Kapitel 6 · Nebenaufgaben (N6-7, N6-8)', async () => {
 }]);
 // Hofers Spind: schmaler Blechspind im Laderaum hinter dem Fahrersitz (links, Tür nach hinten), grüngraue Farbe, Rost, Lüftungsschlitze, eine weiße „3“ und das Auge darunter, Hebelgriff und Hängeschloss.
 // Die Tür schwingt auf, sobald Annis Lampion herausgenommen ist (n6_spindTick).
-function n6_spindBau(bus) { const T = THREE, g = new T.Group(); g.position.set(.78, .5, .22); g.rotation.y = PI; bus.add(g); // Ursprung: Boden des Laderaums; Vorderseite des Spinds = +z der Gruppe (nach hinten gedreht)
+function n6_spindBau(bus) { const T = THREE, g = new T.Group(); g.position.set(.78, .72, .22); g.rotation.y = PI; g.scale.y = .8; bus.add(g); // Ursprung: Boden des Laderaums; Vorderseite des Spinds = +z der Gruppe (nach hinten gedreht)
   const door = new T.Group(); door.position.set(-.16, 0, .18); g.add(door); // Scharnier an der linken Kante
   const tx = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 768; const x = c.getContext('2d'); x.fillStyle = '#5c6a5e'; x.fillRect(0, 0, 256, 768);
     for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(${rand(30, 80) | 0},${rand(40, 80) | 0},${rand(30, 70) | 0},${rand(.03, .12)})`; x.fillRect(rand(0, 256), rand(0, 768), rand(2, 30), rand(1, 4)); }
