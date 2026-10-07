@@ -250,25 +250,26 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
         x.fillStyle = 'rgba(200,190,150,.55)'; x.save(); x.translate(40, 24); x.rotate(-.5); x.fillRect(-26, -9, 64, 18); x.restore(); x.save(); x.translate(w - 40, h - 24); x.rotate(-.5); x.fillRect(-38, -9, 64, 18); x.restore(); })), XA + 35.84, 1.6, ZA - 1.38, .44, .11, -Math.PI / 2, .025);
       spot(XA + 35.7, 1.72, ZA - 1.38, .15, .5, .6, 'Türschild', note('Prüfraum 3', 'Ein Emailleschild, an den Kanten abgeplatzt: <b>PRÜFRAUM 3 · Unterscheidung Original / Rückläufer</b>\n\nDarunter, jünger, mit Klebeband angeklebt: <i>„KRANZ, P. · Rückläufer · verwahrt seit 11/1992“</i>\n\n<span class="hand">Kranz. So hieß Mama, bevor sie Brandt hieß.</span>', 'pruefraum_schild'));
       // Kratzspuren: an allen Wänden, tausendfach – mit Fingernägeln, Löffelstielen, irgendwas
-      const scratchCanvas = seed => pc(1024, 704, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; x.lineJoin = 'round'; rs = 7 + seed * 131;
-        for (let i = 0; i < 150; i++) { const s = R(13, 46), a = R(.1, .36); x.save(); x.translate(R(-60, w), R(10, h)); x.rotate(R(-.13, .13)); x.font = `bold ${s}px Arial`;
-          x.lineWidth = s / 24 + .8; x.strokeStyle = `rgba(18,16,14,${a * .8})`; x.strokeText('ICH WEISS ES JETZT', 1.4, 1.4); x.strokeStyle = `rgba(214,207,192,${a})`; x.strokeText('ICH WEISS ES JETZT', 0, 0); x.restore(); }
-        for (let i = 0; i < 90; i++) { const px = R(0, w), py = R(0, h), l = R(20, 120), an = R(-1.8, -1.3); x.strokeStyle = `rgba(210,202,188,${R(.1, .3)})`; x.lineWidth = R(.8, 2); x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(an) * l, py + Math.sin(an) * l); x.stroke(); } });
-      const scr = [0, 1, 2].map(i => dMat(scratchCanvas(i), .95));
+      const rMat = (f, r = .95) => new THREE.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: r, metalness: 0 }); // Abziehbild mit Höhenrelief (Modul ritzschrift)
+      const scr = [0, 1, 2].map(i => rMat(ritz_flaeche(1024, 704, { seed: 41 + i * 7, zeilen: 30, min: 22, max: 52, text: 'ICH WEISS ES JETZT' }))); // von Hand geritzt (Strichschrift, nie abgeschnitten)
       for (const [cx, k] of [[XA + 37.8, 0], [XA + 41, 1], [XA + 44.2, 2]]) { onWall(scr[k], cx, 1.18, ZA + 4.838, 3.2, 2.2, Math.PI); onWall(scr[(k + 1) % 3], cx, 1.18, ZA - 4.838, 3.2, 2.2, 0); }
       for (const [cz, k] of [[ZA - 2.85, 0], [ZA + 2.85, 2]]) { onWall(scr[k], XA + 45.838, 1.18, cz, 3.9, 2.2, -Math.PI / 2); onWall(scr[(k + 1) % 3], XA + 36.162, 1.18, cz, 3.9, 2.2, Math.PI / 2); }
       // Strichliste über dem Bett: Tage in Fünfergruppen, Jahr für Jahr, von 1992 bis heute – die letzte Gruppe ist nicht fertig
-      onWall(dMat(pc(1024, 512, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; rs = 991; let px = 8, py = 30; const YR = [1992, 1995, 1998, 2001, 2004, 2007, 2010, 2013, 2016, 2019, 2022, 2026];
-        for (let row = 0; row < 12; row++, py += 40, px = 8) { x.fillStyle = 'rgba(222,214,198,.75)'; x.font = 'bold 17px Arial'; x.fillText(String(YR[row]), px, py + 22); px += 54;
-          for (let g = 0; g < 22 && px < w - 30; g++, px += 42) { const last = row === 11 && g >= 12; if (last && g > 12) break; const n = last ? 3 : 4; x.strokeStyle = `rgba(214,206,190,${R(.45, .8)})`; x.lineWidth = R(1.6, 2.6);
-            for (let k = 0; k < n; k++) { x.beginPath(); x.moveTo(px + k * 7 + R(-1, 1), py + R(0, 4)); x.lineTo(px + k * 7 + R(-2, 2), py + 30 + R(-3, 2)); x.stroke(); }
-            if (!last) { x.beginPath(); x.moveTo(px - 4, py + 24); x.lineTo(px + 27, py + 6); x.stroke(); } } } })), XA + 41.4, 1.62, ZA - 4.83, 2.3, 1.15, 0, .01);
+      { const w = 1024, h = 512, c = document.createElement('canvas'), b = document.createElement('canvas'); c.width = b.width = w; c.height = b.height = h; const C = c.getContext('2d'), B = b.getContext('2d'); B.fillStyle = '#808080'; B.fillRect(0, 0, w, h); ritz_rs = 991;
+        let px = 8, py = 30; const YR = [1992, 1995, 1998, 2001, 2004, 2007, 2010, 2013, 2016, 2019, 2022, 2026]; // Jahreszahlen und Striche mit der Ritz-Schrift (Fünfergruppen, die letzte nicht fertig)
+        for (let row = 0; row < 12; row++, py += 40, px = 8) { ritz_zeile(C, B, String(YR[row]), px, py + 24, 19, { stil: 'ritz', alpha: .9 }); px += 62;
+          for (let g = 0; g < 22 && px < w - 36; g++, px += 42) { const last = row === 11 && g >= 12; if (last && g > 12) break; const n = last ? 3 : 4, al = ritz_R(.6, 1);
+            for (let k = 0; k < n; k++) ritz_strich(C, B, [[px + k * 7 + ritz_RN() * 1.2, py + ritz_R(0, 4)], [px + k * 7 + ritz_RN() * 2, py + 30 + ritz_R(-3, 2)]], 36, 'ritz', al);
+            if (!last) ritz_strich(C, B, [[px - 4, py + 24], [px + 27, py + 6]], 36, 'ritz', al); } }
+        onWall(rMat({ c, b }, .95), XA + 41.4, 1.62, ZA - 4.83, 2.3, 1.15, 0, .01); }
       // Die Tafel (kanonisch) – bis zum Schwarm unter einem dichten Gespinst, danach lesbar
       const board = plane(1.3, .85, XA + 39.1, 1.55, ZA + 4.829, new THREE.MeshStandardMaterial({ roughness: .92, map: tex(pc(768, 502, (x, w, h) => { x.fillStyle = '#1c201e'; x.fillRect(0, 0, w, h); rs = 4242;
         for (let i = 0; i < 26; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(40, 160)); g.addColorStop(0, `rgba(200,200,190,${R(.03, .08)})`); g.addColorStop(1, 'rgba(200,200,190,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
-        x.strokeStyle = '#3a3129'; x.lineWidth = 14; x.strokeRect(7, 7, w - 14, h - 14); x.fillStyle = 'rgba(232,228,214,.9)'; x.font = '40px Caveat, "Segoe Print", cursive';
-        x.fillText('Original B., Luke (Vermessung Frühjahr 2009):', 44, 118); x.fillText('starke Spinnenangst.', 84, 172); x.fillText('Rückläufer 08 (Sommer 2009):', 44, 290); x.fillText('keine Reaktion. Lacht.', 84, 344);
-        x.strokeStyle = 'rgba(232,228,214,.7)'; x.lineWidth = 3; x.beginPath(); x.moveTo(40, 216); x.lineTo(w - 60, 210); x.stroke(); }), true) }), 0, Math.PI);
+        x.strokeStyle = '#3a3129'; x.lineWidth = 14; x.strokeRect(7, 7, w - 14, h - 14); ritz_rs = 777;
+        const kz = (t, px, py, sz) => { const k = Math.min(1, (w - 70 - px) / ritz_breite(t, sz)); ritz_zeile(x, null, t, px, py, sz * k, { stil: 'kreide', alpha: ritz_R(.78, .95), winkel: ritz_RN() * .012 }); }; // Kreide in Druckbuchstaben, nie über den Rand
+        kz('Original B., Luke', 44, 112, 40); kz('(Vermessung Frühjahr 2009):', 44, 160, 30); kz('starke Spinnenangst.', 84, 214, 38);
+        ritz_strich(x, null, [[40, 246], [w * .5, 242 + ritz_RN() * 3], [w - 60, 248]], 30, 'kreide', .8);
+        kz('Rückläufer 08', 44, 322, 40); kz('(Sommer 2009):', 44, 370, 30); kz('keine Reaktion. Lacht.', 84, 428, 36); }), true) }), 0, Math.PI);
       board.userData.noCol = true; S.pruefTafel = board;
       const cover = S.pruefCover = plane(1.42, .97, XA + 39.1, 1.55, ZA + 4.815, new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, map: tex(pc(512, 350, (x, w, h) => { x.clearRect(0, 0, w, h); rs = 5151;
         for (let i = 0; i < 60; i++) { const g = x.createRadialGradient(R(40, w - 40), R(30, h - 30), 0, R(40, w - 40), R(30, h - 30), R(40, 130)); g.addColorStop(0, 'rgba(150,146,136,.5)'); g.addColorStop(1, 'rgba(150,146,136,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }

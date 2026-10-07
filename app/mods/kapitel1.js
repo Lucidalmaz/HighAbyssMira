@@ -159,6 +159,10 @@ function kapitel1_wachs(x, pts, col, lw = 4) { // Wachsmalstift: Wachs bleibt nu
   const t = document.createElement('canvas'); t.width = w; t.height = h; const y = t.getContext('2d'); y.setTransform(m.a, m.b, m.c, m.d, m.e - x0, m.f - y0);
   kapitel1_kreideStrich(y, pts, lw, col); kreideKorn(y, w, h, 64); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(t, x0, y0); x.restore(); }
 function kapitel1_kritzel(x, cx, cy, rx, ry, col, n = 14) { const pts = []; for (let i = 0; i < n; i++) { const u = i / (n - 1); pts.push([cx - rx + u * rx * 2 + rand(-3, 3), cy + (i % 2 ? -ry : ry) * Math.sqrt(Math.max(0, 1 - (2 * u - 1) ** 2)) + rand(-3, 3)]); } kapitel1_wachs(x, pts, col, 5); }
+// Hildes Satz in Blut: gerade Druckbuchstaben, zwei Zeilen, dicke Striche mit Wulst und Tropfen, Klarlack-Glanz (Höhenrelief aus der Deckkraft). Nur die Wand trägt es, keine Schriftart.
+function kapitel1_blutSchrift() { const A = B.wallArt; if (!A || A.userData.blut) return; A.userData.blut = true; ritz_rs = 4711; const W = 2048, H = 324, y0 = 700; // Streifen y 700…1024 der Wandleinwand (2048×1024 auf 8×3,8 m)
+  const f = ritz_blutFlaeche(W, H, C => { ritz_zeile(C, null, 'SIE NEHMEN NUR DIE,', 150, 118, 72, { stil: 'blut', winkel: -.006, jit: .6, alpha: .96 }); ritz_zeile(C, null, 'DIE SCHON MAL WEG WAREN.', 130, 232, 72, { stil: 'blut', winkel: .004, jit: .6, alpha: .96 }); });
+  const m = ritz_blutMat(f, .95), hh = H / 1024 * 3.8, cy = 1.9 + (.5 - (y0 + H / 2) / 1024) * 3.8, mesh = new THREE.Mesh(new THREE.PlaneGeometry(8, hh), m); mesh.position.set(0, cy - 1.9, .006); mesh.userData.noCol = true; A.add(mesh); A.userData.blutMesh = mesh; } // Kind der Wand: atmet, skaliert und wandert mit
 function kapitel1_wandTex() {
   const W = (c, a) => `rgba(${c},${a ?? .9})`, motiv = [
     (x, w, h) => { kapitel1_kritzel(x, w / 2, h * .3, w * .36, h * .1, W('235,205,90'), 18); for (let i = -3; i <= 3; i++) kapitel1_wachs(x, [[w / 2 + i * 11, h * .21], [w / 2 + i * 14, h * .31], [w / 2 + i * 11, h * .4]], W('150,110,50'), 3); // Scheibe mit Rippen wie ein Fisch von unten
@@ -171,14 +175,13 @@ function kapitel1_wandTex() {
   ];
   return kapitel1_cnv(2048, 1024, (x, w, h) => { x.clearRect(0, 0, w, h); const farben = ['30,50,150', '150,30,30', '30,110,50', '110,60,30', '30,30,30'];
     for (let i = 0; i < 58; i++) { const px = rand(20, w - 170), py = rand(16, h * .66), pw = rand(118, 168), ph = rand(128, 168);
-      x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.fillStyle = `hsl(${rand(38, 52)},${rand(12, 30)}%,${rand(66, 82)}%)`; x.fillRect(-pw / 2, -ph / 2, pw, ph);
-      x.translate(-pw / 2, -ph / 2); for (let k = 0; k < 40; k++) { x.fillStyle = `rgba(90,70,40,${rand(.03, .09)})`; x.fillRect(rand(0, pw), rand(0, ph), rand(2, 10), rand(1, 4)); } motiv[i % motiv.length](x, pw, ph);
+      x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.translate(-pw / 2, -ph / 2); papierScan(x, pw, ph, `hsl(${rand(38, 52)},${rand(10, 28)}%,${rand(70, 86)}%)`, { dreck: rand(.18, .5) }); // echtes Papier (Faserscan + Altersflecken) statt flacher Farbe
+      { const eg = x.createLinearGradient(0, 0, pw, ph); eg.addColorStop(0, 'rgba(255,250,235,.10)'); eg.addColorStop(.5, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(60,40,20,.14)'); x.fillStyle = eg; x.fillRect(0, 0, pw, ph); x.strokeStyle = 'rgba(80,60,40,.22)'; x.lineWidth = 1.2; x.strokeRect(.6, .6, pw - 1.2, ph - 1.2); } // Papierkanten dunkeln, Licht von links oben
+      motiv[i % motiv.length](x, pw, ph);
       kapitel1_kritzel(x, pw * .88, ph * .5, 8, 22, W('125,125,130', .5), 9); // grauer Fleck am Bildrand, weggerubbelt
       x.fillStyle = W(farben[i % farben.length], .85); x.font = `${rand(13, 17) | 0}px "Comic Sans MS", Caveat, cursive`; x.save(); x.translate(pw - 62, ph - 9); x.rotate(rand(-.08, .06)); x.fillText('LUKE, 9', 0, 0); x.restore();
       x.fillStyle = '#a9a9a9'; x.beginPath(); x.arc(pw / 2 + rand(-4, 4), 6, 3.5, 0, 7); x.fill(); x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(pw / 2 - 1, 8, 3, 3); x.restore(); }
-    // Hildes gerade Druckbuchstaben, roter Lackstift – Buchstabe für Buchstabe, mit Läufern
-    const zeile = (t, x0, y0, sz) => { let cx = x0; x.font = `bold ${sz}px "Arial Narrow", Arial`; for (const ch of t) { x.save(); x.translate(cx, y0 + rand(-2, 2)); x.rotate(rand(-.03, .03)); x.fillStyle = 'rgba(150,12,12,.92)'; x.fillText(ch, 0, 0); if (ch !== ' ' && Math.random() < .28) { x.fillStyle = 'rgba(120,10,10,.7)'; x.fillRect(rand(4, sz * .4), 2, 2.5, rand(10, 40)); } x.restore(); cx += x.measureText(ch).width + 3; } };
-    zeile('SIE NEHMEN NUR DIE, DIE SCHON MAL WEG WAREN.', 140, 842, 70);
+    // Hildes Satz („SIE NEHMEN NUR DIE …“) steht jetzt als echte Blutschrift auf einer eigenen Ebene (kapitel1_blutSchrift)
     x.save(); x.translate(1700, 990); x.rotate(-.1); x.fillStyle = 'rgba(40,60,150,.7)'; x.font = '19px "Comic Sans MS", Caveat, cursive'; x.fillText('REGEL: WER GEFUNDEN', 0, 0); x.fillText('WIRD MUSS ZÄLEN', 8, 22); x.restore(); });
 }
 
@@ -497,7 +500,7 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   // Staub im Strahl: weiche runde Partikel statt harter Quadrate (von nah sonst große helle Kästchen und viel Überzeichnung)
   try { const m = ufo.userData.motes.material; m.map = kapitel1_cnv(64, 64, (x, w) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.4, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }); m.size = .05; m.needsUpdate = true; } catch (e) {}
   // Zeichnungswand: neue Kinderzeichnungen (alle „LUKE, 9“) – das Material teilen alle Stücke (auch die aus uebergang.js)
-  try { const m = B.wallArt.material; if (m.map) m.map.dispose(); m.map = kapitel1_wandTex(); m.needsUpdate = true; } catch (e) {}
+  try { const m = B.wallArt.material; if (m.map) m.map.dispose(); m.map = kapitel1_wandTex(); m.needsUpdate = true; kapitel1_blutSchrift(); } catch (e) { console.warn('Blutschrift', e); }
   // Texte/Aktionen der Basis im Hauptweg (Fassung 3)
   MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.';
   // F3 Verständlichkeit: jede Aufgabe sagt, warum (Lucys Anruf, Lucys Band, das, was die Treppe hoch ist)
