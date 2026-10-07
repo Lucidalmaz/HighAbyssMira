@@ -74,7 +74,8 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo',
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
-  ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i)]; // R-7/R-8 Umwelt
+  ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
+  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen)
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -386,6 +387,30 @@ Object.assign(Audio, {
     const indoor = this.area !== 'o', P = player.pos, pan = Math.max(-.8, Math.min(.8, (-WIND.dx * -fwd.z + -WIND.dz * fwd.x) * .7));
     this.play(n, { gain: rand(.65, .95) * (indoor ? .28 : 1), rate: rand(.9, 1.06), lp: indoor ? 500 : undefined, pan, dest: this.hushG });
     if (!indoor && Math.random() < .35 && (typeof spannung_ask !== 'function' || spannung_ask('treeCreak', 'amb'))) this.treeCreak(P.x + rand(-12, 12), P.z + rand(-12, 12)); }; }
+// ---------------------------------------------------------------- Donner (Nutzer 07.10.: „klingt generiert, wiederholt sich“, „Entfernung muss zu Klang und Lautstärke stimmen“)
+// Zehn verschiedene echte Aufnahmen (klang_donner.py) in drei Abstandsklassen. Der Abstand folgt aus der Zeit zwischen Blitz und Donner (343 m/s): wer 3 s nach dem Blitz
+// den Donner hört, steht ~1 km entfernt. Pegel fällt mit ~3,5 dB je Abstandsverdopplung (alle Aufnahmen sind auf gleiche Basis normiert), die Luft nimmt die Höhen weg (Tiefpass nach Abstand,
+// der während des Rollens weiter sinkt – spätere Schallanteile kommen von weiter weg), in Häusern dumpf und leiser. Nie zweimal dieselbe Aufnahme hintereinander,
+// Tonhöhe/Dauer ±6 %, Stereobild zufällig gespiegelt und gedreht.
+const KL_DONNER_BASIS = .3; // Pegel der Aufnahmen (lautester 85-ms-Abschnitt, klang_donner.py) × Busfaktor
+const KL_DONNER = { krach: { n: 3, ref: 100, gain: .6 }, nah: { n: 3, ref: 500, gain: .55 }, fern: { n: 4, ref: 1800, gain: .62 } };
+function kl_donnerKlasse(r) { const u = Math.random(); return r < 200 ? 'krach' : r < 380 ? (u < .6 ? 'krach' : 'nah') : r < 800 ? 'nah' : r < 1250 ? (u < .5 ? 'nah' : 'fern') : 'fern'; }
+{ const alt = Audio.thunder; Audio.thunder = function (delay, close = 0) { if (!this.ctx || this.area === 'b') return;
+    const L = ['krach', 'nah', 'fern'].some(k => kl_pick('fx_donner_' + k + '_', KL_DONNER[k].n)) ? null : 1; if (L) return alt.call(this, delay, close);
+    const ctx = this.ctx, r = Math.max(25, Math.min(4000, (delay + .05) * 343)); let cls = kl_donnerKlasse(r), D = KL_DONNER[cls]; const S = klang_S; S.donnerLetzt = S.donnerLetzt || [];
+    let name = null; for (let k = 0; k < 6 && !name; k++) { const n = kl_pick('fx_donner_' + cls + '_', D.n); if (n && !S.donnerLetzt.includes(n)) name = n; }
+    if (!name) { cls = cls === 'fern' ? 'nah' : 'fern'; D = KL_DONNER[cls]; name = kl_pick('fx_donner_' + cls + '_', D.n) || kl_pick('fx_donner_krach_', 3); } if (!name) return alt.call(this, delay, close);
+    S.donnerLetzt.push(name); if (S.donnerLetzt.length > 4) S.donnerLetzt.shift();
+    const b = this.buf[name], indoor = typeof isIndoor === 'function' && isIndoor(), t = ctx.currentTime + delay, rate = rand(.94, 1.06), dur = b.duration / rate;
+    const v = Math.min(.34, .24 * Math.pow(150 / r, .58)) / KL_DONNER_BASIS * (indoor ? .5 : 1) * rand(.9, 1.1); // Zielpegel am Hauptbus (RMS) nach Abstand: ~3,5 dB je Verdopplung, nah gedeckelt
+    const ratio = (1 + D.ref / 150) / (1 + r / 150), fc0 = Math.max(500, Math.min(17000, 17000 * Math.min(1, ratio))) * (indoor ? .3 : 1); // weiter weg als die Aufnahme: Höhen fehlen
+    const src = ctx.createBufferSource(); src.buffer = b; src.playbackRate.value = rate;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = .5; lp.frequency.setValueAtTime(fc0, t); lp.frequency.exponentialRampToValueAtTime(Math.max(240, fc0 * (cls === 'krach' ? .55 : .4)), t + dur * .85);
+    const g = ctx.createGain(); g.gain.value = v; src.connect(lp); lp.connect(g); let out = g;
+    if (Math.random() < .5) { const sp = ctx.createChannelSplitter(2), mg = ctx.createChannelMerger(2); g.connect(sp); sp.connect(mg, 0, 1); sp.connect(mg, 1, 0); out = mg; } // Seiten vertauscht
+    const pan = ctx.createStereoPanner(); pan.pan.value = rand(-.55, .55); out.connect(pan); pan.connect(this.world); if (this._thMess) pan.connect(this._thMess); src.start(t); this.voices = (this.voices || 0) + 1; src.onended = () => { this.voices--; };
+    if (r < 650) { setTimeout(() => this.rattle(), delay * 1000 + 260); if (r < 300) setTimeout(() => this.rattle(), delay * 1000 + 1900); } // Fensterglas, nur bei nahen Einschlägen
+    return { name, r: Math.round(r), cls, v: +v.toFixed(3), fc0: Math.round(fc0) }; }; }
 // ---------------------------------------------------------------- Menümusik
 function klang_menu(on) {
   const S = klang_S, A = Audio; if (!A.ctx || A.ctx.state !== 'running') return;

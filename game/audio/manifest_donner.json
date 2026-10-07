@@ -1,0 +1,62 @@
+{
+"fx_donner_fern_1": {
+"kb": 90,
+"lufs": -18.5,
+"pk": -1.0,
+"s": 11.59
+},
+"fx_donner_fern_2": {
+"kb": 115,
+"lufs": -19.2,
+"pk": -1.0,
+"s": 14.8
+},
+"fx_donner_fern_3": {
+"kb": 147,
+"lufs": -18.9,
+"pk": -1.0,
+"s": 19.0
+},
+"fx_donner_fern_4": {
+"kb": 113,
+"lufs": -23.7,
+"pk": -3.0,
+"s": 14.5
+},
+"fx_donner_krach_1": {
+"kb": 64,
+"lufs": -17.4,
+"pk": -3.8,
+"s": 8.2
+},
+"fx_donner_krach_2": {
+"kb": 62,
+"lufs": -20.0,
+"pk": -1.0,
+"s": 7.98
+},
+"fx_donner_krach_3": {
+"kb": 119,
+"lufs": -21.2,
+"pk": -2.1,
+"s": 15.39
+},
+"fx_donner_nah_1": {
+"kb": 112,
+"lufs": -20.9,
+"pk": -1.0,
+"s": 14.67
+},
+"fx_donner_nah_2": {
+"kb": 106,
+"lufs": -21.2,
+"pk": -1.1,
+"s": 13.6
+},
+"fx_donner_nah_3": {
+"kb": 63,
+"lufs": -18.4,
+"pk": -1.0,
+"s": 8.09
+}
+}

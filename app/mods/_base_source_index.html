@@ -3372,10 +3372,10 @@ async function lightning() {
   const outdoor = !isIndoor(); const spawnFig = outdoor && !dir.busy && Math.random() < .45;
   let sp = spawnFig ? pickSpawn(0, .3, 13, 18) : null;
   if (sp) { stalker.position.set(sp[0], 0, sp[1]); stalker.lookAt(player.pos.x, 0, player.pos.z); dir.busy = true; }
-  const dist = rand(0, .45), seq = flashSeq(dist);
+  const dist = Math.random() < .14 ? rand(.75, 1) : rand(0, .7), rM = Math.min(2400, 60 + Math.pow(1 - dist, 1.7) * 2800), seq = flashSeq(dist); // meist fern, selten nah; Abstand rM in Metern
   for (const [v, ms] of seq) { skyMat.uniforms.flash.value = v; lightBoost = v; if (sp) stalker.visible = v > .2; await wait(ms); }
   if (sp) { stalker.visible = false; dir.busy = false; }
-  Audio.thunder(1.2 + (1 - dist) * 3.2, dist);
+  Audio.thunder(rM / 343, dist); // Schall braucht 343 m/s: Abstand = Zeit zwischen Blitz und Donner
 }
 
 // =====================================================================  NATÜRLICHE SCHRECKMOMENTE
