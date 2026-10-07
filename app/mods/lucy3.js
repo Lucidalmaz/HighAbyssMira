@@ -487,11 +487,12 @@ WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
   try { await document.fonts.load('500 190px Caveat'); await document.fonts.load('500 104px Caveat'); } catch (e) {}
   try { lucy3_buildCar(); } catch (e) { console.warn('Lucy3: Auto', e); }
   try { lucy3_buildArrows(); } catch (e) { console.warn('Lucy3: Pfeile', e); }
+  try { lucy3_hebelBau(); } catch (e) { console.warn('Lucy3: Hebel', e); } // Abgleich Kap. 3: Hebel und Blechschild an den vier Kästen
   // Kasten vor Nr. 7: Zettel in Hildes Druckschrift „ZULETZT.“ (leuchtet nach dem dritten Fehlschlag im Lampenlicht auf) · ab Kap. 4 Absperrband an allen vier Kästen
   try { const B7 = switchBoxes.find(b => b.n === 7); if (B7) { const c = document.createElement('canvas'); c.width = 256; c.height = 160; const x = c.getContext('2d'); x.fillStyle = '#e8e0c8'; x.fillRect(6, 8, 244, 146);
       x.fillStyle = 'rgba(120,100,70,.25)'; for (let i = 0; i < 300; i++) x.fillRect(Math.random() * 256, Math.random() * 160, 2, 1); x.fillStyle = '#2a2622'; x.font = 'bold 52px "Special Elite", Courier New'; x.textAlign = 'center'; x.fillText('ZULETZT.', 128, 100);
       const m = new THREE.Mesh(new THREE.PlaneGeometry(.2, .125), new THREE.MeshStandardMaterial({ map: tex(c, true), roughness: .95, emissive: 0xfff2d0, emissiveMap: tex(c, true), emissiveIntensity: 0, polygonOffset: true, polygonOffsetFactor: -3 }));
-      m.position.set(B7.m.position.x + .08, .56, -5.388); m.rotation.z = -.06; m.userData.noCol = true; scene.add(m); lucy3_S.zuletzt = m; }
+      m.position.set(B7.m.position.x + .08, .15, -5.388); m.rotation.z = -.06; m.userData.noCol = true; scene.add(m); lucy3_S.zuletzt = m; }
     const bc = document.createElement('canvas'); bc.width = 512; bc.height = 64; const bx = bc.getContext('2d'); for (let i = 0; i < 16; i++) { bx.fillStyle = i % 2 ? '#f1efe6' : '#c8261e'; bx.beginPath(); bx.moveTo(i * 32, 0); bx.lineTo(i * 32 + 32, 0); bx.lineTo(i * 32 + 16, 64); bx.lineTo(i * 32 - 16, 64); bx.fill(); }
     bx.fillStyle = '#111'; bx.font = 'bold 26px Arial'; bx.textAlign = 'center'; bx.fillText('GASLECK · BETRETEN VERBOTEN', 256, 42);
     const bm = new THREE.MeshStandardMaterial({ map: tex(bc, true), roughness: .6, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2 }); lucy3_S.band = [];
@@ -504,6 +505,7 @@ WORLD_MODS.push(['Lucy (Kap. 3)', async () => {
 }]);
 WORLD_TICK.push((dt, t) => {
   const S = lucy3_S, C = S.car;
+  lucy3_hebelTick(dt);
   if (S.boxed && ui.overlay !== 'puzzle') { S.boxed = false; lucy3_unbox(); lucy3_radioOff(); } // auch wenn das Fenster anders geschlossen wurde
   { const ab4 = typeof kap === 'function' && kap() >= 4; if (S.band && S.band.length && S.band[0].visible !== ab4) for (const m of S.band) m.visible = ab4; }
   if (S.zuletzt) { let k = 0; if (S.zuletztLeuchtet && flashOn && ch3.on && !ch3.lampsOff) { const z = S.zuletzt.position, dx = z.x - camera.position.x, dy = z.y - camera.position.y, dz = z.z - camera.position.z, d = Math.hypot(dx, dy, dz) || 1; if (d < 14 && (fwd.x * dx + fwd.y * dy + fwd.z * dz) / d > .9) k = .8; }
@@ -531,3 +533,43 @@ WORLD_TICK.push((dt, t) => {
     const hit = flashOn && d < 16 ? Math.max(0, ((fwd.x * ax + fwd.y * ay + fwd.z * az) / d - .9) / .1) : 0; const tgt = .12 + hit * .9 * (1 - d / 20);
     a.material.emissiveIntensity += (tgt - a.material.emissiveIntensity) * Math.min(1, dt * 6); }
 });
+
+// ---------------------------------------------------------------- Abgleich Kap. 3: Schaltkästen der Stadtwerke mit Hebel und Blechschild (LEUCHTE AUS / EIN)
+// Der Text spricht von einem Hebel („steht schon auf AUS“, „die Hebel springen zurück“) und einem Blechschild; vorher stand nur ein grauer Kasten mit „Nr. n“.
+function lucy3_hebelBau() {
+  const T = THREE, S = lucy3_S; S.hebel = [];
+  const mt = (c, r = .5, m = .6) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const dunkel = mt(0x17181a, .6, .5), stahl = mt(0x9aa09c, .32, .9), rot = mt(0x9c2418, .28, .15), tuerM = mt(0x72776e, .55, .45), sockelM = mt(0x3c403c, .8, .3);
+  const rr = (w, h, d, r, b = .004) => { const s = new T.Shape(), x = -w / 2, y = -h / 2; r = Math.min(r, w / 2, h / 2); s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y);
+    const g = new T.ExtrudeGeometry(s, { depth: Math.max(.001, d - b * 2), bevelEnabled: true, bevelThickness: b, bevelSize: b, bevelSegments: 2, curveSegments: 6 }); g.translate(0, 0, -(d - b * 2) / 2); return g; };
+  // Emailleschild: weiß, blauer Rand, Ecken abgeplatzt, Rostnasen unter den Schrauben
+  const schildT = kirchberg_tex(kirchberg_cnv(640, 240, (x, w, h) => {
+    x.fillStyle = '#d9d6cb'; x.fillRect(0, 0, w, h); x.strokeStyle = '#1f3f7a'; x.lineWidth = 10; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#1f3f7a'; x.textAlign = 'center';
+    x.font = 'bold 30px Arial'; x.fillText('STADTWERKE LOST EYENGLESS', w / 2, 52); x.fillStyle = '#9a1c1c'; x.font = 'bold 64px Arial'; x.fillText('LEUCHTE AUS / EIN', w / 2, 122); x.fillStyle = '#1b1b1b'; x.font = '28px Arial'; x.fillText('Nur für befugtes Personal', w / 2, 166); x.font = '22px Arial'; x.fillText('Schlüssel beim Amt', w / 2, 204);
+    for (const [px, py] of [[26, 26], [w - 26, 26], [26, h - 26], [w - 26, h - 26]]) { x.fillStyle = '#6a6a66'; x.beginPath(); x.arc(px, py, 7, 0, 7); x.fill(); const g = x.createLinearGradient(px, py, px, py + 60); g.addColorStop(0, 'rgba(120,60,24,.7)'); g.addColorStop(1, 'rgba(120,60,24,0)'); x.fillStyle = g; x.fillRect(px - 4, py, 8, 60); }
+    for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(${kirchberg_r(40, 90) | 0},${kirchberg_r(30, 60) | 0},${kirchberg_r(20, 40) | 0},${kirchberg_r(.05, .35)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(2, 9), kirchberg_r(2, 9)); }
+    x.fillStyle = '#3a3a38'; for (const [cx, cy] of [[0, 0], [w, 0], [0, h], [w, h]]) { x.beginPath(); x.arc(cx, cy, 26, 0, 7); x.fill(); } })); // abgeplatzte Ecken (Metall darunter)
+  const schildM = new T.MeshStandardMaterial({ map: schildT, roughness: .32, metalness: .15 });
+  const slotT = kirchberg_tex(kirchberg_cnv(128, 288, (x, w, h) => { x.fillStyle = '#1b1c1d'; x.fillRect(0, 0, w, h); x.fillStyle = '#e8e4d4'; x.font = 'bold 34px Arial'; x.textAlign = 'center'; x.fillText('EIN', w * .5, 44); x.fillText('AUS', w * .5, h - 20);
+    x.strokeStyle = '#e8e4d4'; x.lineWidth = 5; x.beginPath(); x.moveTo(w * .5, 62); x.lineTo(w * .5, h * .5 - 14); x.moveTo(w * .5, h * .5 + 14); x.lineTo(w * .5, h - 62); x.stroke(); x.fillStyle = '#0a0a0a'; x.fillRect(w * .5 - 7, h * .5 - 6, 14, 12); }));
+  const slotM = new T.MeshStandardMaterial({ map: slotT, roughness: .6, metalness: .3 });
+  for (const B of switchBoxes) { const m = B.m, bx = m.position.x, bz = m.position.z, G = new T.Group(); G.position.set(bx, 0, bz); G.userData.noCol = true; scene.add(G); // lokal: +z = Straßenseite, Kastenfront bei z = +.15
+    if (m.material && typeof msSurf === 'function') try { msSurf(m.material, 'rust_sheet', { tint: 0x8a9082, nrm: .8, tile: .5 }); } catch (e) {}
+    const add = (geo, mat, x, y, z, o = {}) => { const k = new T.Mesh(geo, mat); k.position.set(x, y, z); k.castShadow = o.cast !== false; k.receiveShadow = true; k.userData.noCol = true; if (o.rx) k.rotation.x = o.rx; if (o.rz) k.rotation.z = o.rz; G.add(k); return k; };
+    add(rr(.5, .07, .34, .02), sockelM, 0, .035, 0);                                       // Sockel
+    add(rr(.5, .03, .36, .015), tuerM, 0, .915, 0);                                          // Dachkappe mit Überstand
+    add(rr(.39, .76, .012, .02), tuerM, 0, .46, .152);                                       // Tür (dünn, damit das Nr.-Schild davor liegt)
+    for (const y of [.2, .72]) add(new T.CylinderGeometry(.01, .01, .05, 8), stahl, -.205, y, .158);  // Scharniere links
+    const sc = add(new T.PlaneGeometry(.30, .113), schildM, 0, .585, .1635); sc.castShadow = false; sc.material.polygonOffset = true; sc.material.polygonOffsetFactor = -2; // Blechschild
+    for (const [dx, dy] of [[-.14, .05], [.14, .05], [-.14, -.05], [.14, -.05]]) add(new T.CylinderGeometry(.005, .005, .006, 8), stahl, dx, .585 + dy * .85, .1645, { rx: Math.PI / 2 });
+    add(rr(.11, .3, .014, .015), slotM, -.075, .34, .162).castShadow = false;                // Schlitzplatte EIN / AUS
+    add(new T.CylinderGeometry(.024, .024, .03, 16), stahl, -.075, .34, .176, { rx: Math.PI / 2 });  // Lagerzapfen
+    const piv = new T.Group(); piv.position.set(-.075, .34, .19); G.add(piv); piv.userData.noCol = true;
+    const arm = new T.Mesh(new T.CylinderGeometry(.009, .011, .17, 10), stahl); arm.rotation.z = -Math.PI / 2; arm.position.set(.085, 0, 0); arm.castShadow = true; arm.userData.noCol = true; piv.add(arm);
+    const kn = new T.Mesh(new T.SphereGeometry(.024, 16, 12), rot); kn.position.set(.18, 0, 0); kn.castShadow = true; kn.userData.noCol = true; piv.add(kn);
+    add(new T.CylinderGeometry(.022, .022, .014, 16), stahl, .13, .34, .162, { rx: Math.PI / 2 }); add(new T.BoxGeometry(.004, .026, .01), dunkel, .13, .34, .17); // Schloss mit Schlitz
+    piv.rotation.z = B.off ? -.72 : .72; S.hebel.push({ B, piv, last: undefined }); }
+}
+// Hebel folgen dem Zustand des Kastens: EIN = nach oben, AUS = nach unten; beim Zurückspringen (falsche Reihenfolge) schnell, mit Klacken
+function lucy3_hebelTick(dt) { const S = lucy3_S; if (!S.hebel) return; for (const h of S.hebel) { const aus = !!h.B.off; if (aus !== h.last) { if (h.last !== undefined && !aus) { try { Audio.play('switch1', { gain: .16, rate: 1.4, x: h.B.m.position.x, y: .5, z: -5.4, ref: 2 }); } catch (e) {} } h.last = aus; }
+    const ziel = aus ? -.72 : .72, a = h.piv.rotation.z; h.piv.rotation.z = a + (ziel - a) * Math.min(1, dt * (aus ? 7 : 16)); } }

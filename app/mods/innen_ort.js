@@ -92,8 +92,8 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const toySpec = { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg', r: 'T_Toys_ORM.jpg', ao: 'T_Toys_ORM.jpg' } };
   await msFBX('chair', 'model.fbx', chairSpec); // FBX-Lader anlegen
   await Promise.all([
-    ...['wardrobe', 'floorlamp', 'wallclock', 'radio', 'frame_dmg', 'frame_deco', 'shelf', 'metaltable', 'trashbag', 'window', 'door1', 'jerrycan', 'giraffe'].map(k => msModel(k)),
-    msModel('crt', 'model.glb'), msModel('teddy_scan', 'model.glb'),
+    ...['wardrobe', 'floorlamp', 'wallclock', 'radio', 'frame_dmg', 'frame_deco', 'shelf', 'metaltable', 'trashbag', 'window', 'door1', 'jerrycan', 'giraffe'].map(k => msModel(k).catch(e => console.warn('innen_ort Modell ' + k, e))),
+    msModel('crt', 'model.glb').catch(e => console.warn('innen_ort Modell crt', e)), msModel('teddy_scan', 'model.glb').catch(e => console.warn('innen_ort Modell teddy_scan', e)),
     ...['sofa', 'hospbed', 'dresser', 'mirror', 'crib', 'doll', 'curtain_retro', 'curtain_sheer', 'candles', 'toys_old'].map(k => msFBX(k, 'model.fbx', {}).catch(e => console.warn('innen_ort Modell ' + k, e)))]);
   S.tLoad = Math.round(performance.now() - t0);
 
@@ -177,7 +177,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   let shadeMat = null; { const ms = meshes(gLamp).map(m => ({ m, y: bbox(m).max.y })).sort((a, b) => b.y - a.y); const sm = ms[0].m; shadeMat = sm.material.clone(); shadeMat.emissive = new T.Color(0xffa050); shadeMat.emissiveMap = shadeMat.map; shadeMat.emissiveIntensity = .55; sm.material = shadeMat; }
   livingLight.position.set(20.58, Y + 1.42, -13.35);
   const gWChair = await chair(G7, { x: 21.45, z: -13.05, y: Y, ry: .18 });
-  interact(firstMesh(gWChair), 'Stuhl am Fenster', () => toast('Hildes Stuhl. Er steht so, dass man durch die Gardine genau auf die Kreuzung sieht. Auf dem Fensterbrett: Striche in Siebenergruppen. Hunderte.', 6200)); // STORY-HOOK: Hilde zählt die Kinder
+  interact(firstMesh(gWChair), 'Stuhl am Fenster', () => toast('Hildes Stuhl. Er steht so, dass man durch die Gardine genau auf die Kreuzung sieht. Auf dem Fensterbrett: Striche in Fünfergruppen. Hunderte.', 6200)); // STORY-HOOK: Hilde zählt die Kinder
   zbook.position.set(21.45, surfY(gWChair, 21.45, -13.05, 2) + .025, -13.05); zbook.rotation.y = .4;
   // Zeitung liegt jetzt aufgeschlagen auf dem Sofa
   newspaper.position.set(24.25, surfY(gSofa, 24.25, -16.05) + .012, -16.05);
@@ -186,8 +186,14 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   await clock(G7, { minX: 20.21, z: -15.35, yc: Y + 1.9, ry: PI / 2 }, 'Drei Uhr dreizehn. Die Zeiger sind festgerostet. Das Pendel schwingt trotzdem.');
   const gFr1 = await frame(G7, 'frame_dmg', { x: 24.2, minZ: -16.89, yc: Y + 1.62, rz: .07 });
   await frame(G7, 'frame_deco', { x: 25.33, minZ: -16.89, yc: Y + 1.72, rz: -.05, s: .78 });
+  try { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 320; const x = cv.getContext('2d'); x.filter = 'blur(7px)'; x.fillStyle = 'rgba(238,230,208,.55)'; x.fillRect(26, 30, 204, 260); x.filter = 'none'; for (let i = 0; i < 30; i++) { x.fillStyle = `rgba(238,230,208,${Math.random() * .06})`; x.fillRect(Math.random() * 256, Math.random() * 320, 30, 3); }
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; const fl = new T.Mesh(new T.PlaneGeometry(.58, .72), new T.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, roughness: 1 })); fl.position.set(24.2, Y + 1.62, -16.893); fl.userData.noCol = true; fl.renderOrder = 1; G7.add(fl); } catch (e) { console.warn('Basis-Umsetzung Rahmenfleck', e); }
   interact(firstMesh(gFr1), 'Leerer Bilderrahmen', () => toast('Der Rahmen ist leer. Dahinter ein hellerer Fleck auf der Tapete – das Bild hing hier jahrelang. Jemand hat es vor Kurzem abgenommen.', 5600));
-  await winIn(G7, 21.4, -12.2, '-z', { curt: 'both' });
+  const gWin7 = await winIn(G7, 21.4, -12.2, '-z', { curt: 'both' });
+  try { // Basis-Umsetzung: Hildes Striche auf dem Fensterbrett (Fünfergruppen, Hunderte)
+    const sy = surfY(gWin7, 21.4, -12.33, Y + 1.25, Y + 1.0), m = bu_ritz(1.0, .11, (C, B, W, H, ppm) => { let n = 0; for (let row = 0; row < 2; row++) for (let g = 0; g < 21 && n < 41; g++, n++) { const gx = W * .03 + g * ppm * .0455 + (row ? ppm * .02 : 0), gy = H * (row ? .56 : .08), al = ritz_R(.55, 1);
+          for (let k = 0; k < 4; k++) ritz_strich(C, B, [[gx + k * ppm * .0065 + ritz_RN(), gy + ritz_RN()], [gx + k * ppm * .0065 + ritz_RN() * 1.3, gy + ppm * .036 + ritz_RN()]], 26, 'ritz', al); ritz_strich(C, B, [[gx - ppm * .004, gy + ppm * .029], [gx + ppm * .028, gy + ppm * .005]], 26, 'ritz', al); } }, { ppm: 1100, seed: 5, bump: 2.4 });
+    m.rotation.set(-PI / 2, 0, 0); m.position.set(21.4, sy + .002, -12.325); G7.add(m); } catch (e) { console.warn('Basis-Umsetzung Fensterbrett', e); }
   await decal(G7, 'grime', 1.8, .9, 22.1, Y + .45, -16.893, '+z', 0, 0x807060, .8);
   await decal(G7, 'grime', 1.4, 1.4, 25.2, 3.196, -12.9, 'ceil', 1.2, 0x7a6a50, .7);
   await decal(G7, 'grime', 1.0, 1.6, 25.893, Y + 2.1, -12.8, '-x', 0, 0x807060, .6);
@@ -205,6 +211,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const topK7 = Y + .92;
   const radio = await GL('radio'); meshes(radio).forEach(m => { if (m.name === 'tubes') m.parent.remove(m); });
   const gRadio = put(radio, { x: 27.95, maxZ: -12.24, y: topK7, ry: PI / 2 }, G7); gRadio.traverse(m => { if (m.isMesh) m.castShadow = false; });
+  try { const tu = firstMesh(gRadio, /tuner/); if (tu) { const b = bbox(tu), c0 = b.getCenter(V()), h = bu_strahl(tu, c0.x, c0.y, c0.z - 1, 0, 0, 1, 2), p = h ? h.p : c0, n = h ? h.n : V(0, 0, -1);
+      const tm = new T.Mesh(new T.PlaneGeometry(.052, .017), new T.MeshStandardMaterial({ color: 0xd8cfae, transparent: true, opacity: .8, roughness: .25, polygonOffset: true, polygonOffsetFactor: -3 })); bu_an(tm, p, n, V(0, 1, 0), .004); tm.rotateZ(.35); tm.userData.noCol = true; G7.add(tm);
+      const t2 = tm.clone(); bu_an(t2, p.clone().add(V(.0, .006, 0)), n, V(0, 1, 0), .0052); t2.rotateZ(-.5); G7.add(t2); } } catch (e) { console.warn('Basis-Umsetzung Radio-Klebeband', e); }
   let radioN = 0;
   interact(firstMesh(gRadio, /case/), 'Radio einschalten', async () => { // STORY-HOOK: Radio 31,10 MHz
     if (state.talking) return; const p = bbox(gRadio).getCenter(V()); Audio.radio(p.x, p.z); Audio.play('switch1', { gain: .4, x: p.x, y: p.y, z: p.z, ref: 1.5 });
@@ -214,8 +223,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   { const t = await GL('metaltable'); t.scale.set(.4, .88, 1); put(t, { x: 28.2, z: -14.95, y: Y }, G7); }
   await chair(G7, { x: 27.3, z: -14.95, y: Y, ry: PI / 2 + .12 });
   { const c = await FBX('chair', chairSpec); msFit(c, .92, 'y'); c.rotation.x = -PI / 2 + .06; const g = put(c, { x: 29.75, z: -14.35, y: Y, ry: -2.3 }, G7);
+    try { const k = bu_ritz(.7, 6.5, (C, B, W, H, ppm) => { for (let i = 0; i < 4; i++) { const x0 = W * (.2 + i * .19) + ritz_RN() * 3, pts = []; for (let t = 0; t <= 14; t++) pts.push([x0 + Math.sin(t * .5 + i * 2) * 3 + t * .8 * (i - 1.5), H * .96 - t * H * .066]); ritz_strich(C, B, pts.slice(0, 7 + (i * 3) % 6), 90, 'ritz', ritz_R(.75, 1)); ritz_strich(C, B, pts.slice(8), 90, 'ritz', ritz_R(.4, .8)); } }, { ppm: 200, seed: 21, bump: 2.2 });
+      k.rotation.set(-PI / 2, 0, 0); k.position.set(29.85, Y + .006, -17.65); G7.add(k); } catch (e) { console.warn('Basis-Umsetzung Kratzer', e); }
     interact(firstMesh(g), 'Umgekippter Stuhl', () => toast('Umgekippt. Die Stuhlbeine haben helle Kratzer in die Dielen gezogen – in Richtung Kellertür.', 5000)); }
   const bag1 = await trashbag(G7, { x: 31.42, z: -13.35, y: Y, ry: .5 }); await trashbag(G7, { x: 31.46, z: -13.95, y: Y, ry: 2.1, s: .85 });
+  try { const R_ = ausbau_nord_rng(31); for (let i = 0; i < 7; i++) { const b = bu_grablichtBecher(), x = 31.42 + (R_() - .5) * .3, z = -13.35 + (R_() - .5) * .3; b.position.set(x, surfY(bag1, x, z, Y + 1.5, Y + .75), z); b.rotation.set(R_() > .5 ? 1.2 + R_() * .5 : (R_() - .5) * .5, R_() * 6, R_() * 2); G7.add(b); }
+    const sh = bu_kinderschuh(0x2c4f9c); sh.position.set(31.5, surfY(bag1, 31.5, -13.55, Y + 1.5, Y + .75) + .006, -13.55); sh.rotation.set(0, 2.2, .18); G7.add(sh); } catch (e) { console.warn('Basis-Umsetzung Müllsack', e); }
   interact(firstMesh(bag1), 'Müllsäcke', () => toast('Prall gefüllt, süßlicher Geruch. Obenauf: sieben leere Grablicht-Packungen. Und ein Kinderschuh, Größe 31.', 5400));
   FAB.flies.forEach(f => { if (nr(f.c.x, 29.8, .05) && nr(f.c.z, -16.5, .05)) f.c.set(31.4, Y + .75, -13.6); });
   await winIn(G7, 27.4, -12.2, '-z', { yc: 2.08, sy: .64 }); await winIn(G7, 30.3, -12.2, '-z', { yc: 2.08, sy: .64 });
@@ -227,6 +240,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Schlafzimmer (x 20.2…25.9, z −21.8…−17.1)
   hideAt(21.2, .68, -20.7, [2, .5, 2.2]); hideAt(21.2, .93, -21.8, [2, .8, .15]); hideAt(25, 1.53, -21.5, [1.6, 2.2, .6]);
   const gBed7 = await bed(G7, 0xa8a098, .009, { x: 21.42, minZ: -21.77, y: Y });
+  try { const by = surfY(gBed7, 21.42, -20.3, Y + 1.5, Y + .6), cv = document.createElement('canvas'); cv.width = 256; cv.height = 512; const x = cv.getContext('2d'), R_ = ausbau_nord_rng(7);
+    const foot = (px, py, rot, mir) => { x.save(); x.translate(px, py); x.rotate(rot); x.scale(mir ? -1 : 1, 1); x.filter = 'blur(1.2px)'; x.fillStyle = 'rgba(92,80,62,.62)'; x.beginPath(); x.ellipse(0, 18, 15, 26, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(2, 52, 11, 11, 0, 0, 7); x.fill();
+      [[-16, -12, 5], [-8, -20, 5.4], [1, -23, 5.2], [10, -19, 4.8], [17, -10, 4.2]].forEach(([tx, ty, r]) => { x.beginPath(); x.arc(tx, ty - 6, r, 0, 7); x.fill(); }); x.restore(); };
+    foot(70, 420, .08, false); foot(150, 330, .05, true); foot(78, 220, -.05, false); foot(148, 120, .1, true);
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const pr = new T.Mesh(new T.PlaneGeometry(.32, .64), new T.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: 1 })); pr.rotation.set(-PI / 2, 0, PI); pr.position.set(21.42, by + .004, -20.25); pr.userData.noCol = true; G7.add(pr);
+    const gr = bu_gras([[21.3, by, -20.78], [21.5, by, -20.45], [21.34, by, -19.98], [21.46, by, -19.6]], 9); G7.add(gr); } catch (e) { console.warn('Basis-Umsetzung Bett Nr. 7', e); }
   interact(firstMesh(gBed7, /blanket/), 'Bett', () => toast('Die Decke ist zurückgeschlagen, als wäre sie mitten in der Nacht aufgestanden. Auf dem Laken: kleine, trockene Fußabdrücke. Barfuß. Grashalme darin, die hier nirgends wachsen.', 5600));
   // Zayns Kinderbett – Hilde hat es nie weggegeben
   const crib = await FBX('crib', { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xcfc6b6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xc8c0b0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } });
@@ -250,9 +269,11 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const benchTop = surfY(gBench, 26.42, -19.9, Y + 1.5);
   for (const [n, dz, dx] of [['Candle_large_small_new001', 0, 0], ['Candle_large_big_new', .12, .1], ['Candle_small_new001', -.1, .12], ['Candle_large_small_new', .05, -.12], ['Candle_thin_new', -.18, -.05], ['Candle_large_small_used_low', .25, .05]])
     candle(G7, n, 26.42 + dx, benchTop, -19.4 + dz, false);
+  try { const kt = bu_karton(.42, .07, .3, 'für die Kinder – jede Nacht eins', 62); kt.position.set(26.5, benchTop, -20.2); kt.rotation.y = PI / 2 + .07; G7.add(kt); } catch (e) { console.warn('Basis-Umsetzung Karton', e); }
   { const hot = new T.Mesh(new T.BoxGeometry(.5, .2, .5), hidden); hot.position.set(26.42, benchTop + .1, -19.35); G7.add(hot);
     interact(hot, 'Grablichter', () => toast('Grablichter. Dutzende. Alle schon einmal angezündet und wieder ausgeblasen. Auf dem Karton, in Hildes Schrift: „für die Kinder – jede Nacht eins“.', 5800)); }
   const gCan = put(await GL('jerrycan'), { x: 26.45, z: -21.25, y: Y, ry: 1.3 }, G7);
+  try { const sm = bu_streichholz(); sm.position.set(26.85, Y + .002, -21.05); sm.rotation.y = .6; G7.add(sm); } catch (e) { console.warn('Basis-Umsetzung Streichhölzer', e); }
   interact(firstMesh(gCan), 'Kanister', () => toast('Benzin, halb leer. Daneben eine Schachtel Streichhölzer. Wollte sie etwas verbrennen?', 4600)); // STORY-HOOK: Brand Haus Nr. 5 (Dez. 2009)?
   const gShUT = await shelfModel(G7, { maxX: 31.79, z: -19.35, y: Y, ry: PI });
   { const l = surfY(gShUT, 31.5, -19.35, Y + .8), m = surfY(gShUT, 31.5, -19.35, Y + 1.6);
@@ -262,7 +283,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // Kellertür: gescannte, beschlagene Holztür mit Gitterfenster (folgt Öffnen und Rütteln der alten Tür), dahinter Schwärze
   { const d = await GL('door1'); d.scale.set(1.1 / 1.055, 2.2 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); });
     d.position.set(0, -1.1, 0); cellarDoor.add(d); cellarDoor.material = hidden;
-    const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; }
+    const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; if (typeof ritz_kratzer === 'function') { const f = ritz_kratzer(576, 384, { seed: 9, bueschel: 5, groesse: 100 }); sc.material = new T.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8, metalness: 0 }); } } // Krallenspuren als echte Rillen mit Relief, nicht als leuchtende Linien
     const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.797); G7.add(vp); }
   await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0x6a3a38, .75);
   await decal(G7, 'grime', 1.4, 1.2, 30.1, Y + .004, -20.9, 'floor', 1.1, 0x5a4a38, .9);
@@ -334,6 +355,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Elternschlafzimmer (x −49.9…−44.2, z −21.8…−17.1)
   hideAt(-47, .68, -20.8, [1.6, .5, 2.1]); hideAt(-47, .88, -21.85, [1.6, .9, .12]); hideAt(-44.74, 1.05, -18.6, [.1, .02, .02]); hide(wardrobe1); hideAt(-44.12, 1.93, -20.3, [0, 1.4, .6]);
   const gBedP = await bed(G1, 0xb0a8a0, .009, { x: -47.02, minZ: -21.77, y: Y });
+  try { const px = -46.62, pz = -21.3, py = surfY(gBedP, px, pz, Y + 1.5, Y + .75), tt = bu_taschentuch('Luke, 7'); tt.position.set(px, py + .002, pz); tt.rotation.y = .5; G1.add(tt); } catch (e) { console.warn('Basis-Umsetzung Milchzahn', e); }
   interact(firstMesh(gBedP, /blanket/), 'Bett', () => toast('Nur eine Seite ist benutzt. Auf dem Kissen der anderen: ein Milchzahn in einem Taschentuch. Mit Kuli: „Luke, 7“.', 5400)); // STORY-HOOK
   // Kommode (Unterschrank des Buffets) mit flacher Schublade unter der Platte – die alte Kiste bleibt unsichtbare Klickfläche
   dresser.material = hidden; if (dresser.userData.col) dresser.userData.col.minX = dresser.userData.col.maxX = -9999; unOcc(dresser);
@@ -345,7 +367,10 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   { const b = bbox(gWr), H = b.max.y - Y, D = b.max.z - b.min.z; wPiv.position.set(b.max.x + .006, Y, b.min.z); wPiv.rotation.y = 0;
     wLeaf.geometry = new T.BoxGeometry(.03, H - .04, D); wLeaf.position.set(.015, (H - .04) / 2 + .02, D / 2); wLeaf.material = await surf('floor_wood', { rx: .55, ry: .8, tint: 0x8a6a52 });
     wPiv.children.forEach(m => { if (m !== wLeaf && m.isMesh) m.position.set(.04, 1.05, D - .1); });
-    for (const [dz, col] of [[-.3, 0x6a6258], [.05, 0x4a4540], [.36, 0x5a4a44]]) { const c = await FBX('curtain_sheer', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', ds: 1, flipN: true, color: col } });
+    try { const mk = async (c0) => { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true, color: c0 } }); msFit(o, .98, 'y'); return o; };
+      for (const [dz, col, ry] of [[-.3, 0x6a6258, PI / 2 + .1], [.05, 0x4a4540, PI / 2 - .08]]) put(await mk(col), { x: b.min.x + .27, z: -20.45 + dz, top: b.max.y - .1, ry }, G1);
+      const sh = bu_kinderschuh(0x3a5ca8), sy = surfY(gWr, b.min.x + .14, -20.2, b.min.y + .8, Y + .02); sh.position.set(b.min.x + .13, sy + .004, -20.1); sh.rotation.y = -PI / 2 + .3; G1.add(sh); } catch (e) { console.warn('Basis-Umsetzung Mäntel', e); }
+    for (const [dz, col] of [[.36, 0x5a4a44]]) { const c = await FBX('curtain_sheer', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', ds: 1, flipN: true, color: col } });
       c.scale.set(.0042, .0082, .006); put(c, { x: b.min.x + .27, z: -20.45 + dz, top: b.max.y - .07, ry: PI / 2 + rand(-.15, .15) }, G1); } }
   // Viktorianischer Spiegel
   const mir = await FBX('mirror', { 'Mirror Border': { b: 'Gold_MIrror_Diffuse.png', n: 'Gold_Mirror_Normal.jpg', r: 'Gold_Mirror_Roughness.png', metal: 1, color: 0xc8b890 }, Mirror: { r: 'Mirror_Roughness.png', metal: 1, rough: .08, color: 0x9aa2aa } });
@@ -382,17 +407,22 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   { const b = bbox(gBC), seat = surfY(gBC, 299, 300.05, 1.2, .47), w = b.max.x - b.min.x;
     const st = find(299, .62, 299.9, [.64, .04, .08])[0]; if (st) { st.position.set(299, .74, b.min.z + .035); st.scale.x = (w + .03) / .64; }
     for (const [sx, s] of [[298.72, -1], [299.28, 1]]) { const m = find(sx, .56, 300, [.08, .04, .5])[0]; if (m) { m.position.set(299 + s * (w / 2 - .01), seat + .02, 300.12); m.scale.z = .75; } }
+    try { const m = bu_ritz(.3, .12, (C, B, W, H, ppm) => { for (let k = 0; k < 7; k++) ritz_strich(C, B, [[W * .05 + k * ppm * .0295 + ritz_RN(), H * .1], [W * .05 + k * ppm * .0295 + ritz_RN() * 1.4, H * .86]], 34, 'ritz', ritz_R(.75, 1));
+        ritz_strich(C, B, [[W * .86, H * .06], [W * .86 + 2, H * .9]], 56, 'ritz', 1); ritz_strich(C, B, [[W * .86 + 3, H * .08], [W * .86 + 4, H * .88]], 40, 'ritz', 1); }, { ppm: 900, seed: 8, bump: 3.2 });   // sieben Striche, der achte tiefer und frischer
+      m.rotation.set(-PI / 2, 0, 0); m.position.set(299, seat + .002, 300.22); GB.add(m); } catch (e) { console.warn('Basis-Umsetzung Stuhlstriche', e); }
     interact(firstMesh(gBC), 'Stuhl', () => toast('In die Sitzfläche sind Striche geritzt. Sieben. Daneben ein achter – tiefer, frischer.', 5000)); } // STORY-HOOK: das achte Kind
   // Tisch mit Tonbandgerät (Tischplatte exakt auf alter Höhe → Band, Foto, Kerze bleiben liegen)
   hideAt(302, .38, 296.7, [1.4, .75, .7]);
   put(await GL('metaltable'), { x: 302.0, maxZ: 296.92, y: 0, s: [1, .88, 1] }, GB);
-  B.tape.material = await surf('rust_sheet', { rx: .25, ry: .12, tint: 0xa09890 });
+  try { const rd = await GL('radio'); meshes(rd).forEach(m => { if (m.name === 'tubes' || m.name === 'wires') m.parent.remove(m); }); msFit(rd, .27, 'y'); const gtp = put(rd, { x: B.x + 2, z: B.z - 3.25, y: .83 - .075, ry: -PI / 2 }, GB); B.tape.material = hidden; gtp.traverse(m => { if (m.isMesh) m.castShadow = false; }); S.tapeGerat = gtp; // Kassettenrekorder (Scan Radio statt Kiste)
+    const kt = new T.Mesh(new T.BoxGeometry(.105, .016, .068), new T.MeshStandardMaterial({ color: 0x1a1a1c, roughness: .5 })); kt.position.set(B.x + 2.36, .763, B.z - 3.05); kt.rotation.y = .3; GB.add(kt); } catch (e) { console.warn('Basis-Umsetzung Kassettenrekorder', e); B.tape.material = await surf('rust_sheet', { rx: .25, ry: .12, tint: 0xa09890 }); }
   // Regal mit Einmachgläsern
   hideAt(295.25, .95, 302, [.35, 1.9, 1.6]); hideAt(295.25, .95, 301.99, [.35, 1.9, 1.6]); hideAt(295.25, .95, 301.98, [.35, 1.9, 1.6]);
   const gJar = await shelfModel(GB, { minX: 295.11, z: 302.0, y: 0 });
   { const lv = [surfY(gJar, 295.4, 302, .8), surfY(gJar, 295.4, 302, 1.6), surfY(gJar, 295.4, 302, 2.45)];
     const jars = pool.filter(e => e.m.geometry.type === 'CylinderGeometry' && nr(e.c.x, 295.3, .05) && e.m.material.transparent).map(e => e.m);
     jars.forEach((j, i) => j.position.set(295.36 + (i % 2) * .05, lv[Math.floor(i / 4) % 3] + .08, 301.45 + (i % 4) * .36));
+    try { const ev = jars.filter((j, i) => i % 2 === 0).slice(0, 4); ['1975', '1992', '2009', '2026'].forEach((jr, i) => { const j = ev[i]; if (!j) return; j.geometry.computeBoundingBox(); const r = (j.geometry.parameters && j.geometry.parameters.radiusTop) || .045, e = bu_etikett(jr, i === 3); e.position.set(j.position.x + r * 1.0 + .0035, j.position.y, j.position.z); e.rotation.y = PI / 2; GB.add(e); }); } catch (e) { console.warn('Basis-Umsetzung Gläser', e); }
     if (jars[0]) { const hot = new T.Mesh(new T.BoxGeometry(.4, 1.9, 1.5), hidden); hot.position.set(295.35, 1.0, 302); GB.add(hot);
       interact(hot, 'Einmachgläser', () => toast('Einmachgläser, beschriftet mit Jahreszahlen: 1975. 1992. 2009. Das letzte ist leer. Das Etikett ist schon beschriftet: 2026.', 6000)); } } // STORY-HOOK: 17-Jahres-Zyklus
   // Sieben Spielsachen im Kreis um den Stuhl, dazwischen Kerzen
@@ -466,6 +496,8 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   await decal(G1, 'grime', 1.0, 1.0, -50.8, Y + .004, -16.3, 'floor', 1.4, 0x4a3a2a, .8);
   // ---------- Keller: Eisenbett mit Riemen an der Südwand, angelehnte Palette, Kanister, Mülleimer
   { const g = await bed(GB, 0x8a8278, .0085, { x: 300.6, maxZ: 303.93, y: 0, ry: PI / 2 });
+    try { const b = bbox(g), my = surfY(g, (b.min.x + b.max.x) / 2, (b.min.z + b.max.z) / 2, 1.6, .5), lw = Math.min(.9, b.max.z - b.min.z) - .05, leder = new T.MeshStandardMaterial({ color: 0x3a2618, roughness: .6 }), schnalle = new T.MeshStandardMaterial({ color: 0xa8a8a0, metalness: 1, roughness: .35 });
+      for (const sx of [b.min.x + .32, b.min.x + .6, b.max.x - .5]) { const st = new T.Group(), band = new T.Mesh(new T.BoxGeometry(.045, .008, lw), leder), sc = new T.Mesh(new T.BoxGeometry(.03, .012, .03), schnalle); sc.position.set(0, .006, lw * .36); st.add(band, sc); st.position.set(sx, my + .006, (b.min.z + b.max.z) / 2); st.traverse(o => { if (o.isMesh) { o.castShadow = true; o.userData.noCol = true; } }); GB.add(st); } } catch (e) { console.warn('Basis-Umsetzung Riemen', e); }
     interact(firstMesh(g, /mattress/) || firstMesh(g), 'Eisenbett', () => toast('Ein Eisenbett im Keller. Die Matratze ist fleckig und nach der Mitte zu durchgelegen – von einem Kind. An den Pfosten: Lederriemen, sehr kurz eingestellt.', 5800)); // STORY-HOOK
     const top = surfY(g, 300.2, 303.4, 1.4, .5); toy('SM_ToyBunny', GB, 301.1, top, 303.45, PI + .4); }
   { const p = await GL('pallet_ms'); p.rotation.z = -(PI / 2 - .24); put(p, { minX: 295.12, z: 297.3, y: 0 }, GB); }

@@ -243,11 +243,18 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     if (flag) { const fl = new T.Box3().setFromObject(flag).applyMatrix4(inv), fp = new T.Group(); fp.position.set((fl.min.x + fl.max.x) / 2, fl.min.y + .01, fl.min.z + .01); g.add(fp); fp.updateMatrixWorld(true); fp.attach(flag); if (!def.flag) fp.rotation.x = -PI / 2 + .1; }
     const bbx = new T.Box3().setFromObject(mb).applyMatrix4(inv), backZ = bbx.min.z, midY = (fbb.min.y + fbb.max.y) / 2;
     const fh = rayHit(mb, g.localToWorld(V3(0, midY, (fbb.min.z + backZ) / 2)), V3(0, -1, 0).applyQuaternion(g.quaternion), .4); const floorY = fh ? g.worldToLocal(fh.point.clone()).y : fbb.min.y + .01;
-    if (is7) { keyMesh.position.set(.015, floorY + .006, fbb.min.z - .1);
-      for (const c of [...g.children]) if (isRibbon(c)) { c.visible = true; c.position.set(.028, fbb.max.y - .075, fbb.max.z + .006); c.rotation.set(PI / 2, 0, .12); piv.attach(c); } // rotes Band klemmt in der Klappe
+    if (is7) { keyMesh.position.set(.0, floorY + .006, fbb.min.z - .1);
+      // Haustürschlüssel an Lucys Panda-Anhänger (Plastik, ein Ohr ab): keyMesh bleibt unsichtbarer Träger (liftTo hebt ihn ins Bild), das rote Band der Basis entfällt
+      if (typeof kapitel1_pandaSchluessel === 'function') { try { const pk = kapitel1_pandaSchluessel(); keyMesh.material = new T.MeshBasicMaterial({ visible: false }); keyMesh.castShadow = false; pk.position.set(-.02, -.012, -.0045); keyMesh.add(pk); keyMesh.rotation.set(-PI / 2, 0, .5); keyMesh.scale.setScalar(1); } catch (e) { console.warn('Strasse: Panda-Schlüssel', e); } }
+      for (const c of [...g.children]) if (isRibbon(c)) c.visible = false;
       S.info.mb7 = [floorY, fbb.min.y, fbb.max.y, fbb.min.z, fbb.max.z].map(v => +v.toFixed(3)); continue; }
     const hit = hitBox(.22, .34, fbb.max.z - backZ + .06, 0, midY + .02, (fbb.max.z + backZ) / 2, g);
     let letter = null; if (def.note) { letter = new T.Mesh(new T.PlaneGeometry(.1, .16), envMat); letter.rotation.set(-PI / 2, 0, rand(-.2, .2)); letter.position.set(0, floorY + .006, fbb.min.z - .12); g.add(letter); }
+    if (def.empty) { // Nr. 4: feuchte Erde im Kasten und ein Milchzahn (Krone, zwei Wurzelreste)
+      const erde = new T.Mesh(new T.CircleGeometry(.05, 14), new T.MeshStandardMaterial({ color: 0x2a2018, roughness: 1 })); erde.rotation.x = -PI / 2; erde.position.set(0, floorY + .003, fbb.min.z - .1); erde.scale.set(1, 1.4, 1); g.add(erde);
+      const zahn = new T.Group(), zm = new T.MeshStandardMaterial({ color: 0xe6e0cc, roughness: .35 }), kr = new T.Mesh(new T.SphereGeometry(.0046, 12, 8), zm); kr.scale.set(1, .85, .9); kr.position.y = .0045; zahn.add(kr);
+      for (const s of [-1, 1]) { const w = new T.Mesh(new T.ConeGeometry(.0017, .0065, 6), new T.MeshStandardMaterial({ color: 0xcfc4a4, roughness: .6 })); w.position.set(s * .0024, -.0006, 0); w.rotation.z = s * .2; zahn.add(w); }
+      zahn.rotation.set(PI / 2 - .3, .8, .5); zahn.position.set(.012, floorY + .008, fbb.min.z - .105); zahn.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); g.add(zahn); }
     const st = { open: false }, wx = g.position.x, wz = g.position.z;
     interact(hit, () => st.open ? 'Briefkasten schließen' : 'Briefkasten öffnen (' + (def.who || 'Nachbar') + ')', () => {
       st.open = !st.open; tween(piv, { rx: st.open ? 1.45 : 0 }, st.open ? .45 : .3); Audio.play(st.open ? 'metalOpen' : 'metalClose', { gain: .3, rate: 1.4, x: wx, y: 1.1, z: wz, ref: 2 });
@@ -468,6 +475,11 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   if (S.poleGeo) for (const [x, k] of [[-19, 'amt'], [38, 'bruno'], [-57, 'lena'], [57, 'fest']]) { const i = poleSpots.findIndex(p => Math.abs(p[0] - x) < .5); if (i < 0) continue;
     const tmp = new T.Mesh(S.poleGeo, new T.MeshBasicMaterial()); tmp.matrixAutoUpdate = false; tmp.matrix.copy(poleM4[i]); tmp.matrixWorld.copy(poleM4[i]); posterOn(tmp, x, 7.6, -1, k, 'z', 1.65); }
   S.info.posters = posters.length;
+  // Müll vor Nr. 9: aus dem aufgerissenen Sack quellen Vermisstenzettel (Lucys Gesicht) – nass, zerknüllt, in den Rinnstein und auf die Säcke gerutscht
+  { const nass = new T.MeshStandardMaterial({ map: posterTex.lena, roughness: .32, color: 0xa8a49a, side: T.DoubleSide }), fetzen = (x, y, z, ry, bogen, sc) => { const g = new T.PlaneGeometry(.2 * sc, .28 * sc, 12, 16), P = g.attributes.position;
+      for (let i = 0; i < P.count; i++) { const u = P.getX(i) / (.1 * sc), v = P.getY(i) / (.14 * sc); P.setZ(i, Math.sin(u * 3.1 + v * 2.2 + i * .01) * .012 + Math.sin(v * 5.3 - u * 1.7) * .008 + (Math.abs(u) > .7 ? (Math.abs(u) - .7) * .05 * bogen : 0) + rand(-.003, .003)); P.setX(i, P.getX(i) * (1 - .06 * Math.abs(v))); }
+      g.computeVertexNormals(); const m = new T.Mesh(g, nass); m.rotation.set(-PI / 2 + rand(-.12, .12), ry, rand(-.2, .2), 'YXZ'); m.position.set(x, y, z); m.receiveShadow = true; m.userData.noCol = true; scene.add(m); return m; };
+    for (const [x, z, ry, b, sc] of [[46.75, -6.2, .4, 1, 1], [45.2, -6.15, 2.2, -1, .95], [47.45, -6.55, 4.1, 1, 1.05], [46.05, -5.95, 1.1, 1, .9], [44.9, -6.6, 5.2, -1, 1]]) fetzen(x, z < -6 ? .014 : .156, z, ry, b, sc); }
 
   // =====================================================================  SPIELZEUG (vor Türen und an der Straße liegengelassen – „eben noch benutzt“)
   if (toySrc) { toySrc.updateMatrixWorld(true);

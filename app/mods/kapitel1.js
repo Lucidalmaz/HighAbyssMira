@@ -37,6 +37,76 @@ function kapitel1_pfeile(tex, list, size) { const im = new THREE.InstancedMesh(n
 const kapitel1_rc = new THREE.Raycaster();
 function kapitel1_topY(name, x, z, yFrom, fb) { const g = name ? scene.getObjectByName(name) : scene; if (!g) return fb; kapitel1_rc.set(kapitel1_v3.set(x, yFrom, z), kapitel1_v3b.set(0, -1, 0)); kapitel1_rc.far = yFrom; kapitel1_rc.camera = camera; const h = kapitel1_rc.intersectObject(g, true).find(h => h.object.visible && h.object.material && h.object.material.visible !== false && !h.object.material.transparent && !h.object.isSprite); return h ? h.point.y : fb; }
 
+// ================================================================= Umsetzung Text gegen Welt (Kap. 1): Schlüssel mit Panda-Anhänger, Linse im Astloch, Wolldecke, Obstschale, Bus
+// Haustürschlüssel (Nickel), Ring, Kettchen und Lucys Panda aus Plastik („ein Ohr ab“). Aufgebaut in der xy-Ebene (Vorderseite = +z), weil liftTo den Träger mit +z zur Kamera dreht; im Briefkasten liegt der Träger mit rotation.x = −π/2 flach.
+function kapitel1_pandaSchluessel() { const T = THREE, g = new T.Group(); g.userData.noCol = true;
+  const nickel = new T.MeshStandardMaterial({ color: 0xb9bcc0, metalness: 1, roughness: .3 }), messing = new T.MeshStandardMaterial({ color: 0xa8873c, metalness: 1, roughness: .35 });
+  // Schlüssel: Kopf (Rundbügel mit Loch), Hals, Schaft mit Bart (Zähne) – 2 mm stark, in der xz-Ebene, Spitze nach −z
+  const prof = new T.Shape(); // Umriss in (x, z): Bügel oben (z>0), Schaft nach −z
+  prof.moveTo(-.0034, -.003); prof.lineTo(-.0034, -.0295); prof.lineTo(-.0075, -.0295); prof.lineTo(-.0075, -.0325); prof.lineTo(-.0034, -.0325); prof.lineTo(-.0034, -.0365); prof.lineTo(-.0075, -.0365); prof.lineTo(-.0075, -.039); prof.lineTo(-.0034, -.039); prof.lineTo(-.0034, -.0425); prof.lineTo(.0034, -.0425); prof.lineTo(.0034, -.003);
+  prof.absarc(0, .008, .0125, -.2, PI + .2, false); prof.lineTo(-.0034, -.003);
+  const loch = new T.Path(); loch.absarc(0, .0105, .0042, 0, PI * 2, true); prof.holes.push(loch);
+  const schl = new T.Mesh(new T.ExtrudeGeometry(prof, { depth: .0022, bevelEnabled: true, bevelSize: .0004, bevelThickness: .0004, bevelSegments: 1, curveSegments: 14 }), nickel); schl.position.set(0, 0, -.0011); schl.castShadow = true; g.add(schl);
+  // Schlüsselring (Stahldraht) durch das Loch, daran das Kettchen und der Panda
+  const ring = new T.Mesh(new T.TorusGeometry(.0105, .0007, 6, 22), nickel); ring.position.set(0, .0105, 0); ring.rotation.set(.9, 0, 0); g.add(ring);
+  const kette = []; for (let i = 0; i < 6; i++) { const gl = new T.Mesh(new T.TorusGeometry(.0027, .0004, 5, 10), nickel); gl.position.set(.011 + i * .0045, .0105 + Math.sin(i * 1.1) * .002, .0012); gl.rotation.set(i % 2 ? PI / 2 : 0, 0, 0); g.add(gl); kette.push(gl); }
+  // Panda (Plastik, ca. 3,4 cm): liegt auf dem Rücken neben dem Schlüssel – weißer Körper, schwarze Arme/Beine/Augenflecken, ein Ohr abgebrochen
+  const pw = new T.MeshStandardMaterial({ color: 0xf0eee6, roughness: .32, metalness: 0 }), ps = new T.MeshStandardMaterial({ color: 0x151515, roughness: .35 }), pb = new T.MeshStandardMaterial({ color: 0xd8cfae, roughness: .6 }), P = new T.Group(); P.position.set(.049, .0105, .0105 * 0 + .0001); P.rotation.set(0, 0, -PI / 2 + .25); g.add(P);
+  const sp = (r, mat, x, y, z, sx = 1, sy = 1, sz = 1) => { const m = new T.Mesh(new T.SphereGeometry(r, 16, 12), mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.castShadow = true; P.add(m); return m; };
+  sp(.0125, pw, 0, 0, 0, 1, 1.12, .8); sp(.0108, pw, 0, .0185, .002, 1.05, .95, .9); // Körper, Kopf
+  sp(.0052, ps, -.0098, .027, .0005, 1, 1, .6); sp(.0043, pb, .0098, .0262, .0005, 1, .8, .5); // linkes Ohr, rechtes Ohr abgebrochen (heller Bruchstumpf)
+  sp(.0033, ps, -.0045, .019, .0092, 1, 1.3, .5); sp(.0033, ps, .0045, .019, .0092, 1, 1.3, .5); sp(.0011, pw, -.0045, .0195, .0108); sp(.0011, pw, .0045, .0195, .0108); sp(.0016, ps, 0, .0148, .0112, 1.2, .9, .8); // Augenflecken, Augen, Nase
+  sp(.0036, ps, -.0128, .004, .0005, .8, 1.8, .8); sp(.0036, ps, .0128, .004, .0005, .8, 1.8, .8); sp(.0042, ps, -.006, -.0128, .0008, 1, 1.2, 1); sp(.0042, ps, .006, -.0128, .0008, 1, 1.2, 1); // Arme, Beine
+  const osen = new T.Mesh(new T.TorusGeometry(.0028, .0005, 5, 10), nickel); osen.position.set(0, .0292, -.001); osen.rotation.y = PI / 2; P.add(osen);
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Linse hinter dem Astloch von Nr. 9: schwarzes Objektivrohr mit entspiegeltem Glas (bläulich-violett), konzentrische Ringe; dahinter die rote Leuchte (Sprite aus kapitel1_welt)
+function kapitel1_linseBau() { const T = THREE, g = new T.Group(), schwarz = new T.MeshStandardMaterial({ color: 0x0e0e10, roughness: .6, metalness: .5 });
+  const rohr = new T.Mesh(new T.CylinderGeometry(.034, .037, .06, 24, 1, true), schwarz); rohr.rotation.x = PI / 2; rohr.material.side = T.DoubleSide; g.add(rohr);
+  const ring = new T.Mesh(new T.TorusGeometry(.034, .004, 8, 28), schwarz); ring.position.z = .03; g.add(ring);
+  const glas = new T.MeshStandardMaterial({ color: 0x1a1a3a, metalness: .2, roughness: .03, envMapIntensity: 2.4, emissive: 0x0a0a22, emissiveIntensity: .6 });
+  const linse = new T.Mesh(new T.SphereGeometry(.031, 24, 12, 0, PI * 2, 0, .85), glas); linse.rotation.x = PI / 2; linse.position.z = .012; linse.scale.set(1, 1, .5); g.add(linse);
+  for (const r of [.02, .0125, .006]) { const rr = new T.Mesh(new T.TorusGeometry(r, .0007, 6, 24), new T.MeshStandardMaterial({ color: 0x3a3a60, roughness: .1, metalness: .8 })); rr.position.z = .021 - r * .25; g.add(rr); }
+  g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Obstschale (Steingut, blauer Rand) mit Äpfeln; die Dienstmarke liegt frei auf dem Schalenboden daneben
+function kapitel1_obstschale() { const T = THREE, g = new T.Group(), kera = new T.MeshStandardMaterial({ color: 0xe0d8c0, roughness: .35 }), blau = new T.MeshStandardMaterial({ color: 0x27427a, roughness: .35 });
+  const prof = [[0, 0], [.055, 0], [.07, .006], [.1, .032], [.126, .062], [.1285, .066], [.1245, .068], [.12, .062], [.095, .036], [.066, .014], [.05, .0085], [0, .0085]].map(p => new T.Vector2(p[0], p[1]));
+  const sch = new T.Mesh(new T.LatheGeometry(prof, 36), kera); sch.castShadow = sch.receiveShadow = true; g.add(sch); const rd = new T.Mesh(new T.TorusGeometry(.1255, .0032, 6, 40), blau); rd.rotation.x = PI / 2; rd.position.y = .064; g.add(rd);
+  const tx = kapitel1_cnv(64, 64, (x, w) => { const q = x.createLinearGradient(0, 0, w, 0); q.addColorStop(0, '#9a1c14'); q.addColorStop(.5, '#c4551e'); q.addColorStop(1, '#8a2a16'); x.fillStyle = q; x.fillRect(0, 0, w, w); for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(230,200,80,${Math.random() * .3})`; x.fillRect(Math.random() * w, Math.random() * w, 1, 6); } });
+  const am = new T.MeshStandardMaterial({ map: tx, roughness: .38 }), sm = new T.MeshStandardMaterial({ color: 0x4a3418, roughness: .9 });
+  for (const [x, z, r] of [[-.05, -.03, 1], [-.015, .035, .95], [-.075, .045, .9]]) { const a = new T.Mesh(new T.SphereGeometry(.036 * r, 18, 14), am); a.scale.y = .9; a.position.set(x, .0085 + .03 * r, z); a.castShadow = true; g.add(a); const st = new T.Mesh(new T.CylinderGeometry(.0013, .0013, .016, 5), sm); st.position.set(x, .0085 + .062 * r, z); st.rotation.z = .2; g.add(st); }
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); g.userData.noCol = true; return g; }
+// Zusammengelegte Wolldecke: gefaltet (Drittel, Drittel), Schottenkaro aus Wolle, Fransen an einer Schmalseite, Kanten rundlich gewellt, ein Zipfel hängt über die Lehne
+function kapitel1_deckeTex() { const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#6a2a24'; x.fillRect(0, 0, 512, 512); // rotbraun
+  const band = (pos, w, col, alpha) => { x.fillStyle = col; x.globalAlpha = alpha; x.fillRect(pos, 0, w, 512); x.fillRect(0, pos, 512, w); x.globalAlpha = 1; };
+  band(64, 36, '#1f3a2c', .85); band(192, 12, '#d6c9a0', .8); band(256, 64, '#1f3a2c', .85); band(384, 12, '#d6c9a0', .8); band(448, 36, '#1a1a1c', .6); band(130, 6, '#c8a24a', .7);
+  for (let i = 0; i < 9000; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '255,240,210' : '20,10,6'},${Math.random() * .12})`; const l = 2 + Math.random() * 6; if (Math.random() < .5) x.fillRect(Math.random() * 512, Math.random() * 512, l, 1); else x.fillRect(Math.random() * 512, Math.random() * 512, 1, l); }
+  x.strokeStyle = 'rgba(0,0,0,.18)'; x.lineWidth = 1; for (let i = 0; i < 512; i += 3) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 512); x.stroke(); } x.strokeStyle = 'rgba(255,255,255,.07)'; for (let i = 1; i < 512; i += 3) { x.beginPath(); x.moveTo(0, i); x.lineTo(512, i); x.stroke(); } // Webstruktur
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t; }
+function kapitel1_decke(w = .62, l = .42, h = .085) { const T = THREE, g = new T.Group(), tx = kapitel1_deckeTex(); tx.repeat.set(1.1, .8);
+  const mat = new T.MeshStandardMaterial({ map: tx, bumpMap: tx, bumpScale: .6, roughness: 1, side: T.DoubleSide }), geo = new T.BoxGeometry(w, h, l, 28, 6, 20), P = geo.attributes.position, v = new T.Vector3();
+  for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); const ux = v.x / (w / 2), uz = v.z / (l / 2), uy = v.y / (h / 2), e = 2.8, k = Math.pow(Math.abs(ux), e) + Math.pow(Math.abs(uz), e); // gerundete Kanten
+    const rr = k > 1 ? 1 / Math.pow(k, 1 / e) : 1; let x = v.x * (1 - (1 - rr) * .55), z = v.z * (1 - (1 - rr) * .55), y = v.y;
+    y *= 1 - .22 * Math.pow(Math.abs(ux), 3) - .12 * Math.pow(Math.abs(uz), 3); y += Math.sin(v.x * 38 + 1.3) * .0022 * (uy + 1) + Math.sin(v.z * 31) * .0016 * (uy + 1) + (uy > 0 ? Math.sin(v.x * 11) * .004 : 0); // Falten, weiche Wölbung
+    P.setXYZ(i, x, y, z); }
+  geo.computeVertexNormals(); const dk = new T.Mesh(geo, mat); dk.castShadow = dk.receiveShadow = true; g.add(dk);
+  const fr = new T.MeshStandardMaterial({ color: 0xcbbd98, roughness: 1 }); for (let i = 0; i < 26; i++) { const f = new T.Mesh(new T.CylinderGeometry(.0013, .0013, .05, 4), fr); f.rotation.z = PI / 2 - .12 + Math.random() * .24; f.rotation.y = (Math.random() - .5) * .3; f.position.set(w / 2 + .02, -h * .35 + Math.random() * .01, -l / 2 + .012 + i * (l - .024) / 25); g.add(f); } // Fransen an der Schmalseite
+  g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+
+// Geheimes Ende „Fahr heim“: der Bus (Transporter-Scan, auf Buslänge gestreckt) rollt im Nebel an die Haltestelle – zwei Scheinwerfer, Fahrer als dunkle Silhouette hinter der Scheibe, sonst leer
+async function kapitel1_busBau() { if (K1.bus) return K1.bus; const T = THREE; K1.bus = { g: new T.Group(), L: null, fertig: false }; K1.bus.g.visible = false; K1.bus.g.userData.noCol = true; scene.add(K1.bus.g);
+  try { const o = await msFBX('vans', 'model.fbx', { 'Material #928': { b: 'van_undamaged_d.jpg', n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } });
+    msFit(o, 7.4, 'max'); const gg = msGround(o); gg.traverse(m => { if (m.isMesh) { m.castShadow = false; m.userData.noCol = true; } }); K1.bus.g.add(gg); const bb = new T.Box3().setFromObject(gg); K1.bus.bb = bb; K1.bus.lang = bb.max.x - bb.min.x > bb.max.z - bb.min.z ? 'x' : 'z'; } catch (e) { console.warn('kapitel1 Bus', e); }
+  const glow = new T.SpriteMaterial({ map: kapitel1_cnv(64, 64, (x, w) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,248,226,1)'); g.addColorStop(.25, 'rgba(255,236,190,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }), color: 0xfff0d0, transparent: true, depthWrite: false, blending: T.AdditiveBlending });
+  K1.bus.glow = []; for (let i = 0; i < 2; i++) { const s = new T.Sprite(glow); s.scale.setScalar(1.8); K1.bus.g.add(s); K1.bus.glow.push(s); }
+  K1.bus.licht = new VLight(0xffe8c0, 0, 16, 2); K1.bus.licht.position.set(0, 1.2, 0); scene.add(K1.bus.licht); return K1.bus; }
+async function kapitel1_busFahrt() { const B = K1.bus; if (!B || !B.bb) return; const bb = B.bb, lang = B.lang, T = THREE, vorn = B.vorn || 1, L = bb.max[lang] - bb.min[lang], quer = lang === 'x' ? 'z' : 'x';
+  // Scheinwerfer an die Frontkante
+  B.glow.forEach((s, i) => { const p = new T.Vector3(); p[lang] = vorn > 0 ? bb.max[lang] - .1 : bb.min[lang] + .1; p[quer] = (i ? .75 : -.75); p.y = .78; s.position.copy(p); });
+  const g = B.g, x0 = -34, x1 = 5.2, z = 57.4, ry0 = lang === 'x' ? (vorn > 0 ? 0 : PI) : (vorn > 0 ? PI / 2 : -PI / 2); // fährt nach +x (Straße Am Kirchberg, Haltestelle bei x ≈ 9)
+  g.rotation.y = ry0; g.position.set(x0, 0, z); g.visible = true; const t0 = performance.now(), D = 6200;
+  await new Promise(res => { const f = () => { const k = Math.min(1, (performance.now() - t0) / D), e = 1 - Math.pow(1 - k, 2.2), x = x0 + (x1 - x0) * e; g.position.x = x; B.licht.position.set(x + L * .5 * vorn, 1.1, z); B.licht.intensity = 2.4 * Math.min(1, k * 4); B.glow.forEach(s => s.material.opacity = Math.min(1, k * 3)); if (k < 1) requestAnimationFrame(f); else res(); }; f(); });
+  setTimeout(() => { g.visible = false; B.licht.intensity = 0; }, 5200); }
+
 // ================================================================= Welt: Kreide, Hufeisen, Zeichen, Requisiten (Q-8 / X-7)
 async function kapitel1_welt() {
   // --- weiße Kinderkreide-Pfeile vom Ortsschild nach Osten („der erste zeigt nach Osten, die Straße hinunter“)
@@ -68,23 +138,31 @@ async function kapitel1_welt() {
     kapitel1_decal(t, .19, .38, 68.3, .035, 5.1, -PI / 2, .4, 0, { rough: .3 }); }
   // --- Nr. 9: rotes Glimmen im Astloch der Bretter (Standby-Leuchte einer Kamera); kein „Aufbrechen“ in Kap. 1 (02 C10)
   { const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: kapitel1_cnv(64, 64, (x, w) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,60,40,1)'); g.addColorStop(.3, 'rgba(255,20,10,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }), color: 0xff5040, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-    glow.position.set(46.95, 1.5, -12.42); glow.scale.setScalar(.13); scene.add(glow); K1.glimmen = glow;
+    glow.position.set(46.985, 1.536, -12.282); glow.scale.setScalar(.075); scene.add(glow); K1.glimmen = glow;
+    { // Astloch im Brett (dunkles Loch mit Jahresringen) und die Linse einer Kamera, die dahinter sitzt und mit dem Glas durch das Loch ragt
+      const c = kapitel1_cnv(256, 256, (x, w) => { const g = x.createRadialGradient(128, 128, 20, 128, 128, 126); g.addColorStop(0, 'rgba(4,3,2,1)'); g.addColorStop(.52, 'rgba(6,4,3,1)'); g.addColorStop(.62, 'rgba(60,38,20,.95)'); g.addColorStop(.74, 'rgba(34,22,12,.85)'); g.addColorStop(.88, 'rgba(70,46,26,.55)'); g.addColorStop(1, 'rgba(70,46,26,0)'); x.fillStyle = g; x.beginPath(); x.ellipse(128, 128, 126, 108, .3, 0, 7); x.fill();
+        x.strokeStyle = 'rgba(20,12,6,.55)'; x.lineWidth = 2; for (let r = 78; r < 126; r += 8) { x.beginPath(); x.ellipse(128, 128, r, r * .86, .3, 0, 7); x.stroke(); } });
+      kapitel1_decal(c, .125, .11, 46.95, 1.5, -12.2965, 0, 0, .2); K1.linse = kapitel1_linseBau(); K1.linse.position.set(46.95, 1.5, -12.318); K1.linse.rotation.y = -.45; scene.add(K1.linse); }
     interact(kapitel1_hit(.35, .35, .3, 47.2, 1.52, -12.3), 'Astloch', () => { toast('Im Astloch der Bretter glimmt es rot, wie eine Standby-Leuchte. Dahinter ein rundes Glas. Es zeigt auf Nr. 7.', 5200); if (typeof gedanke === 'function') gedanke('ort_nr9', 'Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.', 5600, 2); }); }
   // --- Lucys altes Fahrrad an der Mauer vor Nr. 1 (Deckung beim Verstecken)
   try { const s = await msModel('bicycle'); const o = msGround(msFit(s.clone(true), 1.72, 'max')); o.rotation.z = .12; msPlace(o, -44.1, 0, -11.45, PI / 2 - .05); o.traverse(m => { if (m.isMesh) m.userData.noCol = true; });
     interact(kapitel1_hit(1.8, 1, .6, -44.1, .5, -11.45), 'Fahrrad', () => toast('Lucys altes Fahrrad. Die Kette ist rostig, der Sattel zerkratzt. Am Lenker hängt noch die Klingel, die nie funktioniert hat.', 4800)); } catch (e) { console.warn('kapitel1 Fahrrad', e); }
   // --- Nr. 7: Teller mit dem angebissenen Butterbrot auf der Sofalehne, Dienstmarke + Kugelschreiber in der Schale am Küchentisch
   try { const brot = await msModel('w_brot', 'model.glb'), tel = await msModel('w_teller', 'model.glb');
-    const ys = kapitel1_topY('io_nr7', 25.55, -16.3, Y + 1.4, Y + .6); const t1 = msGround(msFit(tel.clone(true), .2, 'max')); msPlace(t1, 25.55, ys + .003, -16.3, .4); const b1 = msGround(msFit(brot.clone(true), .12, 'max')); msPlace(b1, 25.53, ys + .02, -16.29, 1.2); K1.brot = [t1, b1];
-    const yt = kapitel1_topY('io_nr7', 28.35, -14.85, Y + 1.5, Y + .78); K1.yTisch = yt; const t2 = msGround(msFit(tel.clone(true), .24, 'max')); msPlace(t2, 28.25, yt + .003, -15.05, 0); K1.schale = t2; } catch (e) { console.warn('kapitel1 Teller', e); }
+    // Sessel neben dem Sofa (Sofa-Scan auf Sesselbreite gestaucht, brauner Bezug): davor der Teller mit dem angebissenen Brot auf dem Sitz, über der Lehne die zusammengelegte Wolldecke
+    let SX = 22.4, SZ = -16.15; try { const ses = await msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x86725c } }); msFit(ses, 2.0, 'x'); ses.scale.x *= .52; const sg = msGround(ses); sg.updateMatrixWorld(true);
+      const sb = new THREE.Box3().setFromObject(sg), sd = sb.max.z - sb.min.z; sg.name = 'k1_sessel'; sg.position.set(SX, Y, -16.87 + sd / 2); sg.rotation.y = .06; sg.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(sg); sg.updateMatrixWorld(true); K1.sessel = sg;
+      const bb = new THREE.Box3().setFromObject(sg), dk = kapitel1_decke(); dk.position.set(SX + .04, bb.max.y + .03, -16.87 + .2); dk.rotation.set(-.2, .1, .02); scene.add(dk); K1.decke = dk; SZ = -16.87 + sd * .55; } catch (e) { console.warn('kapitel1 Sessel', e); }
+    const ys = kapitel1_topY('k1_sessel', SX, SZ, Y + 1.4, Y + .5); const t1 = msGround(msFit(tel.clone(true), .2, 'max')); msPlace(t1, SX, ys + .003, SZ, .4); const b1 = msGround(msFit(brot.clone(true), .12, 'max')); msPlace(b1, SX - .02, ys + .02, SZ + .01, 1.2); K1.brot = [t1, b1];
+    const yt = kapitel1_topY('io_nr7', 28.35, -14.85, Y + 1.5, Y + .78); K1.yTisch = yt; const t2 = kapitel1_obstschale(); t2.position.set(28.38, yt + .002, -14.86); scene.add(t2); K1.schale = t2; } catch (e) { console.warn('kapitel1 Teller', e); }
   { const marke = kapitel1_cnv(256, 160, (x, w, h) => { x.clearRect(0, 0, w, h); const g = x.createRadialGradient(80, 70, 6, 80, 80, 62); g.addColorStop(0, '#d8d2c0'); g.addColorStop(.6, '#9a9484'); g.addColorStop(1, '#4a463c'); x.fillStyle = g; x.beginPath(); x.ellipse(80, 80, 58, 62, 0, 0, 7); x.fill();
       x.fillStyle = '#2a2822'; x.font = 'bold 15px Georgia'; x.textAlign = 'center'; x.fillText('BfR', 80, 64); x.font = '11px Georgia'; x.fillText('VERWALTUNG', 80, 86); x.font = 'bold 20px Georgia'; x.fillText('03', 80, 110);
       x.fillStyle = '#20263a'; x.fillRect(150, 30, 90, 10); x.fillStyle = '#b8b8b8'; x.fillRect(228, 28, 20, 14); x.fillStyle = '#c0c0c0'; x.fillRect(158, 26, 50, 3); x.strokeStyle = '#333'; x.lineWidth = 1; x.beginPath(); x.arc(170, 27, 2.5, 0, 7); x.stroke(); });
-    const ym = (K1.yTisch || Y + .78) + .022; kapitel1_decal(marke, .22, .14, 28.42, ym - .015, -14.72, -PI / 2, .3, 0, { rough: .4, metal: .5 });
-    interact(kapitel1_hit(.26, .12, .26, 28.35, ym, -14.85), 'Schale', () => { toast('In der Obstschale: Hildes alte Dienstmarke. „BfR · Verwaltung · 03“. Daneben ein Kugelschreiber.', 4800);
+    const ym = (K1.yTisch || Y + .78) + .022; kapitel1_decal(marke, .22, .14, 28.45, ym - .0, -14.8, -PI / 2, .3, 0, { rough: .4, metal: .5 });
+    interact(kapitel1_hit(.3, .12, .3, 28.38, ym, -14.86), 'Schale', () => { toast('In der Obstschale: Hildes alte Dienstmarke. „BfR · Verwaltung · 03“. Daneben ein Kugelschreiber.', 4800);
       if (kapitel1_lore('zeichen_1', 'Zeichen · 1', '<span class="hand">Kugelschreiber, Nr. 7, Obstschale. Auf dem Clip, winzig: ein Auge über einer Flamme, in einem Kreis.</span>')) questPop('ABENTEUERFIBEL', 'Zeichen'); }); }
   // Sessel: leer und warm; Decke, Butterbrot
-  interact(kapitel1_hit(1.9, .7, .8, 24.8, Y + .45, -16.35), 'Sessel', () => { if (!K1.f.has('sessel')) { K1.f.add('sessel'); toast('Leer. Und warm. Auf der Lehne eine zusammengelegte Wolldecke, ein Butterbrot mit einem Bissen raus.', 5200); setTimeout(() => { if (!state.talking) kapitel1_zeile('<i>Sie war eben noch hier.</i>', 2600, 'LUKE'); }, 5400); } else toast('Das Polster ist noch warm.', 2600); });
+  interact(kapitel1_hit(1.0, .9, .85, 22.4, Y + .5, -16.4), 'Sessel', () => { if (!K1.f.has('sessel')) { K1.f.add('sessel'); toast('Leer. Und warm. Auf der Lehne eine zusammengelegte Wolldecke, ein Butterbrot mit einem Bissen raus.', 5200); setTimeout(() => { if (!state.talking) kapitel1_zeile('<i>Sie war eben noch hier.</i>', 2600, 'LUKE'); }, 5400); } else toast('Das Polster ist noch warm.', 2600); });
   // Kühlschrank: Magnet vom Kaninchenzüchterverein und das Foto „Laternenfest 2008“
   { const im = new Image(); im.src = 'assets/polaroid/zayn.jpg'; await new Promise(r => { im.onload = r; im.onerror = r; setTimeout(r, 2500); });
     const foto = kapitel1_cnv(256, 300, (x, w, h) => { x.fillStyle = '#efe7d4'; x.fillRect(0, 0, w, h); if (im.width) { x.filter = 'sepia(.55) saturate(.7) contrast(.9) brightness(.95)'; x.drawImage(im, 14, 14, w - 28, 230); x.filter = 'none'; } else { x.fillStyle = '#6a6252'; x.fillRect(14, 14, w - 28, 230); }
@@ -93,7 +171,7 @@ async function kapitel1_welt() {
     const mag = kapitel1_cnv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = '#e8dcc0'; x.beginPath(); x.arc(64, 64, 54, 0, 7); x.fill(); x.fillStyle = '#6a4a2a'; x.beginPath(); x.ellipse(64, 70, 22, 16, 0, 0, 7); x.fill(); x.beginPath(); x.ellipse(56, 44, 6, 16, -.3, 0, 7); x.fill(); x.beginPath(); x.ellipse(72, 44, 6, 16, .3, 0, 7); x.fill();
       x.fillStyle = '#3a2a1a'; x.font = 'bold 11px Arial'; x.textAlign = 'center'; x.fillText('KZV L.E.', 64, 108); });
     kapitel1_decal(mag, .06, .06, 30.93, Y + 1.07, -16.47, 0, -PI / 2, 0, { rough: .3 });
-    interact(kapitel1_hit(.1, .24, .22, 30.9, Y + .99, -16.52), 'Foto am Kühlschrank', () => openNote('Foto am Kühlschrank', 'Hilde, viel jünger. Zwei Jungs: einer klein, mit Locken. Einer mit Zahnlücke.\n\n<i>Rückseite:</i>\n<span class="hand">„Laternenfest 2008. Jonas hat die Laterne angezündet. Nicht die Kerze. Die Laterne.“</span>', 'k1_foto2008')); }
+    interact(kapitel1_hit(.1, .24, .22, 30.9, Y + .99, -16.52), 'Foto am Kühlschrank', () => openNote('Foto am Kühlschrank', 'Ein kleiner Junge mit Locken, im roten Shirt, die Arme lang an den Seiten. Er lächelt nicht.\n\n<i>Rückseite:</i>\n<span class="hand">„Laternenfest 2008. Jonas hat die Laterne angezündet. Nicht die Kerze. Die Laterne.“</span>', 'k1_foto2008')); }
   try { fridgeNote.material.map = kapitel1_cnv(220, 270, (x, w, h) => { kapitel1_papier(x, w, h, '#efe6c4'); x.fillStyle = '#1a1a1a'; x.font = 'bold 22px "Arial Narrow", Arial'; x.fillText('31.10.', 18, 38); x.font = 'bold 27px "Arial Narrow", Arial';
       ['KELLER', 'BLEIBT ZU.'].forEach((l, i) => x.fillText(l, 18, 92 + i * 34)); x.font = 'bold 17px "Arial Narrow", Arial'; ['Egal wer ruft.', 'Egal mit welcher', 'Stimme.'].forEach((l, i) => x.fillText(l, 18, 176 + i * 22)); x.font = '16px Georgia'; x.fillText('– H. Wendt', 110, 256);
       x.fillStyle = 'rgba(90,40,20,.35)'; x.beginPath(); x.arc(170, 30, 16, 0, 7); x.fill(); }); fridgeNote.material.color.set(0xffffff); fridgeNote.material.needsUpdate = true; } catch (e) {}
@@ -133,6 +211,7 @@ async function kapitel1_welt() {
   { const t = kapitel1_cnv(512, 96, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(30,22,14,.75)'; x.lineWidth = 3; x.font = '46px Georgia'; x.strokeText('1958 1975 1992 2009', 14, 64); });
     kapitel1_decal(t, .9, .17, 298.6, 2.25, 300.2, PI / 2, PI / 2, 0); }
   // Gurte am Stuhl (Basis-Gummibänder): geschlossen, nach dem Schreck „offen“ (hängen herab)
+  try { await kapitel1_busBau(); } catch (e) { console.warn('kapitel1 Bus', e); }
   K1.gurte = []; scene.traverse(o => { if (o.isMesh && o.material === M.rubber && Math.abs(o.position.x - 299) < .5 && Math.abs(o.position.z - 300) < .5) K1.gurte.push({ o, p: o.position.clone(), r: o.rotation.clone() }); });
 }
 // Polaroid auf dem Gurtstuhl (Hilde hat es gemacht): Mädchen in Lucys blauem Kleid, grau, ohne Mund, festgeschnallt
@@ -149,7 +228,7 @@ function kapitel1_polaStuhl() { const c = document.createElement('canvas'); c.wi
   const im = new Image(); im.onload = () => { const s = kapitel1_polaCanvas(im); c.getContext('2d').drawImage(s, 0, 0); t.needsUpdate = true; K1.polaImg = s; }; im.onerror = () => { const s = kapitel1_polaCanvas(null); c.getContext('2d').drawImage(s, 0, 0); t.needsUpdate = true; K1.polaImg = s; }; im.src = 'assets/polaroid/lucy.jpg';
   return m; }
 function kapitel1_polaAnsehen() { const src = K1.polaImg ? K1.polaImg.toDataURL('image/jpeg', .85) : '';
-  openNote('Polaroid auf dem Stuhl', (src ? `<img src="${src}" style="width:62%;display:block;margin:0 auto 14px;transform:rotate(-1.5deg);box-shadow:0 6px 18px rgba(0,0,0,.6)">` : '') + 'Hildes Schrift auf dem weißen Rand:\n<span class="hand">„31.10. Sie sitzt still, solange ich zähle.“</span>\n\nDerselbe Stuhl. Festgeschnallt darin ein Mädchen in Lucys blauem Kleid. Das Gesicht grau, ohne Mund, die Augen schwarz.', 'k1_polaStuhl',
+  openNote('Polaroid auf dem Stuhl', (src ? `<img src="${src}" style="width:62%;display:block;margin:0 auto 14px;transform:rotate(-1.5deg);box-shadow:0 6px 18px rgba(0,0,0,.6)">` : '') + 'Hildes Schrift auf dem weißen Rand:\n<span class="hand">„31.10. Sie sitzt still, solange ich zähle.“</span>\n\nFestgeschnallt, zwei Gurte quer über Brust und Bauch, wie auf diesem Stuhl: ein Mädchen in Lucys Panda-Top. Das Gesicht grau, ohne Mund, die Augen schwarz.', 'k1_polaStuhl',
     () => { if (!K1.f.has('polaStuhl')) { K1.f.add('polaStuhl'); setTimeout(() => kapitel1_zeile('Wie schnallt man jemanden fest, der nicht da ist?', 3600, 'LUKE'), 700); } }); }
 // Zeichnungswand: Dutzende Kinderzeichnungen, alle „LUKE, 9“; rote Lackschrift; in der Ecke die Regel
 function kapitel1_wachs(x, pts, col, lw = 4) { // Wachsmalstift: Wachs bleibt nur auf den Papierhöhen (echtes Korn) – kleine Hilfsleinwand nur um den Strich
@@ -402,9 +481,13 @@ function kapitel1_versteck() {
   MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.'; setMain(7); $('objText').textContent = trX(MAIN[7]);
   const P = player.pos; V.last = { x: P.x, z: P.z, yaw: player.yaw }; V.sp.x = ufo.position.x; V.sp.z = ufo.position.z; V.sp.vx = V.sp.vz = 0; V.tgt.x = P.x + 1.2; V.tgt.z = P.z + .4; V.tT = 3.2; V.grace = 3; V.exp = 0;
   if (V.n >= 3) V.spd = 3.4 * 1.2; Audio.hum(true);
-  if (typeof lwo_kapitelende === 'function') try { const E = lwo_kapitelende(1); if (E.stufe === 'hoch') { K1.stift = kapitel1_hit(.3, .1, .3, 22.5, .06, 2.0); interact(K1.stift, 'Kugelschreiber', () => { uninteract(K1.stift); kapitel1_lore('k1_stift', 'Ein Kugelschreiber', '<span class="hand">Neben der Lesebrille, zwischen den Polaroids: ein Kugelschreiber. Auf dem Clip ein Auge über einer Flamme. Wir waren hier.</span>'); toast('Ein Kugelschreiber. Auf dem Clip: ein Auge über einer Flamme.', 4000); }); } } catch (e) {}
+  if (typeof lwo_kapitelende === 'function') try { const E = lwo_kapitelende(1); if (E.stufe === 'hoch') { K1.stift = kapitel1_hit(.3, .1, .3, 22.5, .06, 2.0); kapitel1_stiftWelt(); interact(K1.stift, 'Kugelschreiber', () => { uninteract(K1.stift); if (K1.stiftG) K1.stiftG.visible = false; kapitel1_lore('k1_stift', 'Ein Kugelschreiber', '<span class="hand">Neben der Lesebrille, zwischen den Polaroids: ein Kugelschreiber. Auf dem Clip ein Auge über einer Flamme. Wir waren hier.</span>'); toast('Ein Kugelschreiber. Auf dem Clip: ein Auge über einer Flamme.', 4000); }); } } catch (e) {}
   if (typeof whiskey_S !== 'undefined') whiskey_S.forceStill = 999;
 }
+// Auf dem Asphalt vor Nr. 7 (Kapitelende, Stufe „hoch“): Lesebrille und der graue Kugelschreiber mit dem Auge auf dem Clip, bis Luke ihn aufhebt
+function kapitel1_stiftWelt() { if (K1.stiftG) { K1.stiftG.visible = true; return; } const g = new THREE.Group(), y = kapitel1_bodenY(22.5, 2.0); K1.stiftG = g; g.position.set(22.5, y, 2.0); scene.add(g);
+  if (typeof kirchberg_kuliBau === 'function') { const k = kirchberg_kuliBau(); k.position.set(.04, 0, .03); k.rotation.y = 1.1; g.add(k); }
+  msModel('brille', 'model.glb').then(b => { const o = msGround(msFit(b.clone(true), .14, 'max')); o.position.set(-.12, 0, -.05); o.rotation.y = .5; o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); g.add(o); }).catch(() => {}); }
 function kapitel1_vTick(dt, t) { const V = K1.v; if (!V.on) return; const P = player.pos, S = V.sp;
   // Kegel: sucht wie eine Taschenlampe in einer Kinderhand – zu schnell, dann zu langsam, zittrig; schnüffelt an Deckungen
   V.tT -= dt; if (V.grace > 0) V.grace -= dt;
@@ -475,7 +558,7 @@ function kapitel1_heimOk() { return kapitel1_on() && !state.heardTape && !state.
 async function kapitel1_heim() { if (!kapitel1_heimOk() || state.talking || K1.heim) return; K1.heim = true; state.talking = true; const mitSchluessel = story.items.includes('autoschluessel');
   const f = $('fade'); f.style.transition = 'opacity 5s'; f.style.background = '#d8d2c2'; f.style.opacity = .82; subtitle('Es wird hell, ohne dass die Nacht etwas getan hätte.', 4200);
   if (!mitSchluessel && typeof whiskey_setzen === 'function') whiskey_setzen(8.45, 2.25, 51.9);
-  await wait(4200); Audio.engine && Audio.engine(true, -20, 60); await wait(2600); subtitle('Der Bus kommt. Leer bis auf den Fahrer, der nichts fragt.', 4200); await wait(3800); Audio.engine && Audio.engine(false);
+  await wait(4200); Audio.engine && Audio.engine(true, -20, 60); await wait(2600); kapitel1_busFahrt(); subtitle('Der Bus kommt. Leer bis auf den Fahrer, der nichts fragt.', 4200); await wait(3800); Audio.engine && Audio.engine(false);
   f.style.transition = 'opacity 1.2s'; f.style.background = '#000'; f.style.opacity = 1; await wait(1400);
   const karte = typeof kino_karte === 'function' ? kino_karte : async l => { toast(l.join(' '), 9000); await wait(9000); };
   await karte([' ', 'Du steigst ein. Du fragst nichts.', 'In der Stadt legst du dich angezogen aufs Bett und schläfst sofort ein.', 'Um 03:13 stehst du auf, ziehst die Schuhe aus und gehst hinaus.', 'Wer einmal drin war, den findet sie wieder.'], { bleiben: true });
@@ -519,7 +602,7 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   // Nach dem Laden: Stand der Welt nachziehen
   if (K1.f.has('gurte')) kapitel1_gurteAuf(); if (state.watcherGone) { watcher.visible = false; if (typeof eyes !== 'undefined') eyes.visible = false; }
   if (state.ch1Done && typeof uebergang_S !== 'undefined' && uebergang_S.plug && !uebergang_S.open) { const S = uebergang_S; S.open = true; S.plug.forEach(o => { uninteract(o); msHide(o); }); }
-  window.__k1 = { K1, versteck: kapitel1_versteck, ausfall: kapitel1_ausfall, ende: kapitel1_ende, heim: kapitel1_heim, kellerEnde: kapitel1_kellerEnde, erwischt: kapitel1_erwischt, nichtDu: kapitel1_nichtDu, danke: kapitel1_danke, ostende: kapitel1_ostende, nachbild: kapitel1_nachbild }; // Testzugriff
+  window.__k1 = { K1, versteck: kapitel1_versteck, ausfall: kapitel1_ausfall, ende: kapitel1_ende, heim: kapitel1_heim, kellerEnde: kapitel1_kellerEnde, erwischt: kapitel1_erwischt, nichtDu: kapitel1_nichtDu, danke: kapitel1_danke, ostende: kapitel1_ostende, nachbild: kapitel1_nachbild, bus: kapitel1_busFahrt, briefkasten: kapitel1_briefkasten }; // Testzugriff
   K1.ready = true;
 }]);
 WORLD_TICK.push((dt, t) => {

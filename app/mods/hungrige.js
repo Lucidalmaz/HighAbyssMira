@@ -8,7 +8,7 @@
 // hinter dem Autowrack die Enthüllung: zwei Whiskeys, einer davon falsch. Der echte vertreibt ihn (Kapitel 6 · „Der Hungrige“).
 // Garantierte Begegnungen mit gehäuteten Tieren („die Nackten“): am Hochsitz und am Amtsbus. Modelle: Unreal Animal Variety Pack (Reh, Krähe, Fuchs,
 // Wolf, Hirsch), Deer Thing (Sketchfab, CC-BY) als wahre Gestalt, Megascans-Tierschädel, Fleisch/Organe und Blut aus dem Kuh-Sturz.
-const HUNGRIGE = { spuren: { x: 1.5, z: 199.6 }, bau: { x: -13.2, z: 206.8 }, pfahl: { x: -13.9, z: 207.6 }, reh: { x: 14, z: 178.5 }, wolf: { x: 65, z: 199.5 }, dtYaw: PI / 2, dtH: 2.75 };
+const HUNGRIGE = { spuren: { x: 1.5, z: 199.6 }, bau: { x: -13.2, z: 206.8 }, pfahl: { x: -13.9, z: 207.6 }, reh: { x: 14, z: 178.5 }, wolf: { x: 65, z: 199.5 }, dtYaw: PI / 2, dtH: 2.75, wunde: [.17, .62, .0, .3] };
 const HUNGRIGE_STUFEN = ['reh', 'kraehe', 'fuchs', 'spuren', 'hirsch', 'wolf_funk', 'blick', 'hofer', 'bau'];
 // Reihenfolge in Kapitel 6 (Fassung 3, AP-23): Dustwoods 1–3 · am Bus Funk · Fraßstelle (Seite 1, Pflicht) · danach der Hirsch · Silhouette und Hofer auf dem Weg vom Lager zum Wrack · Bau (Seite 6)
 const HUNGRIGE_FOLGE = ['reh', 'kraehe', 'fuchs', 'wolf_funk', 'hirsch', 'blick', 'hofer'];
@@ -133,12 +133,27 @@ function hungrige_seite(i) {
     else if (i === 6) { if (!hungrige_has('bau')) hungrige_done('bau', 'Es frisst die Bilder. Die, die nur ich sehe. … Und ich bin ein einziger Abdruck, der herumläuft.'); hungrige_S.finT = 2.6; } // das Finale startet der Takt
     if (typeof k6_seite === 'function') try { k6_seite(i, neu); } catch (e) { console.warn('Kapitel6: Seite', e); } });
 }
+// Der Kadaver an der Fraßstelle: das Rehmodell (animal_deerdoe), Clip „Death“ auf dem letzten Bild festgehalten, liegt auf der Seite; die Flanke ist aufgerissen (Fleisch-Shader aus kreaturen.js,
+// Fell bleibt am Rest). Das Netz ist geskinnt (keine automatische Kollision): darum eine unsichtbare Kollisionskiste, so groß wie der Körper am Boden.
+async function hungrige_kadaver(P, ry = 1.7) {
+  const L = typeof leben_S !== 'undefined' ? leben_S : null, T = THREE; if (!L || !L.M || !L.M.deer || !L.skc) return null; const B = L.M.deer;
+  if (typeof kr_tex === 'function') { try { await kr_tex(); } catch (e) {} }
+  const o = L.skc(B.src), clip = B.clips.find(c => /Death$/.test(c.name)), mx = new T.AnimationMixer(o);
+  if (clip) { const a = mx.clipAction(clip); a.setLoop(T.LoopOnce, 1); a.clampWhenFinished = true; a.play(); a.time = clip.duration; mx.update(0); }
+  if (typeof kr_haut === 'function' && typeof KR !== 'undefined' && KR.tex) kr_haut(o, { mus: 0, scale: 6, veins: .6, wet: 1, wrap: .55, wound: HUNGRIGE.wunde, bump: 1, nass: .25 }, true);
+  o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; } });
+  const g = new T.Group(); g.add(o); g.position.set(P.x, 0, P.z); g.rotation.y = ry; g.userData.noCol = true; scene.add(g); g.updateMatrixWorld(true);
+  let bb = new T.Box3().setFromObject(o, true); g.position.y -= bb.min.y + .03; g.updateMatrixWorld(true); bb = new T.Box3().setFromObject(o, true);
+  const c = bb.getCenter(new T.Vector3()), s = bb.getSize(new T.Vector3()); g.position.x += P.x - c.x; g.position.z += P.z - c.z; bb.translate(new T.Vector3(P.x - c.x, 0, P.z - c.z));
+  const hit = box(Math.max(.5, s.x - .35), Math.min(.55, s.y), Math.max(.5, s.z - .35), P.x, Math.min(.55, s.y) / 2, P.z, hidden, { cast: false, collide: true }); hit.userData.noCol = true;
+  hungrige_S.kadaver = { g, bb, size: s }; return g;
+}
 // ---------------------------------------------------------------- Aufbau: Fraßstelle, Bau, Modelle
 WORLD_MODS.push(['Wendigo (Dorfname: der Hungrige)', async () => {
   const S = hungrige_S, T = THREE;
   story.side.hungrige = story.side.hungrige || { title: 'Der Hungrige', desc: 'Im Wald stimmt etwas mit den Tieren nicht.', state: 'hidden' };
-  const paper = new T.MeshStandardMaterial({ color: 0xcfc8b4, roughness: .92 }), page = (x, y, z, ry, i) => { const m = plane(.15, .21, x, y, z, paper, -PI / 2 + .12, ry); m.rotation.z = rand(-.3, .3);
-    const hit = box(.6, .5, .6, x, y + .1, z, hidden, { cast: false }); interact(hit, () => !hungrige_seiteFrei(i) ? '' : story.lore.some(l => l.key === 'hungrige_seite_' + i) ? 'Hofers Dienstbuch' : 'Eine Seite aus einem Dienstbuch', () => { if (hungrige_seiteFrei(i)) hungrige_seite(i); }); S.pages[i] = m; return m; }; // Seite 6 erst nach der Fraßstelle und wenn Kapitel 6 den Bau freigibt
+  const paper = new T.MeshStandardMaterial({ color: 0xcfc8b4, roughness: .92 }), page = (x, y, z, ry, i, hs = [.6, .5, .6]) => { const m = plane(.15, .21, x, y, z, paper, -PI / 2 + .12, ry); m.rotation.z = rand(-.3, .3);
+    const hit = box(hs[0], hs[1], hs[2], x, y + .1, z, hidden, { cast: false }); interact(hit, () => !hungrige_seiteFrei(i) ? '' : story.lore.some(l => l.key === 'hungrige_seite_' + i) ? 'Hofers Dienstbuch' : 'Eine Seite aus einem Dienstbuch', () => { if (hungrige_seiteFrei(i)) hungrige_seite(i); }); S.pages[i] = m; return m; }; // Seite 6 erst nach der Fraßstelle und wenn Kapitel 6 den Bau freigibt
   const blood = (mat, x, z, s, rz, y = .045) => { if (!mat) return; const m = new T.Mesh(new T.PlaneGeometry(1, 1), mat); m.rotation.set(-PI / 2, 0, rz); m.position.set(x, y, z); m.scale.setScalar(s); m.receiveShadow = true; scene.add(m); };
   for (let i = 0; i < 80 && !(FAB.blood && FAB.gore); i++) await wait(250);
   const Bd = FAB.blood || {}, G = FAB.gore;
@@ -146,6 +161,7 @@ WORLD_MODS.push(['Wendigo (Dorfname: der Hungrige)', async () => {
   // --- Fraßstelle auf dem Pfad zum Wrack: angefressenes Reh, Blut, Seite 1
   { const P = HUNGRIGE.spuren; blood(Bd.stain1, P.x, P.z, 2.2, .4); blood(Bd.stain2, P.x + 1.1, P.z - .6, 1.5, 2.1, .046); for (let i = 0; i < 7; i++) blood(Bd.spatter, P.x + rand(-2.4, 2.4), P.z + rand(-2, 2), rand(.8, 1.8), rand(0, 6), .047 + i * .0004);
     if (G) { gore(G.meat, P.x + 1.4, P.z + .9, rand(0, 6)); gore(G.kid, P.x - .9, P.z + 1.2, rand(0, 6)); gore(G.gut, P.x + .6, P.z - 1.3, 0); }
+    try { await hungrige_kadaver(P); } catch (e) { console.warn('Hungrige: Kadaver', e); }
     page(P.x - 1.6, .06, P.z - 1.1, .7, 1); S.fix.spurenY = .06; }
   // --- Der Bau hinter dem Autowrack: Schädel auf dem Pfahl, Knochen, Blut, letzte Seite
   try { const P = HUNGRIGE.pfahl, parts = await msBake('fencepost'); let post = null, hTop = 0;
@@ -156,7 +172,8 @@ WORLD_MODS.push(['Wendigo (Dorfname: der Hungrige)', async () => {
     if (G) { gore(G.ribs, B.x + 1.3, B.z - .8, rand(0, 6)); gore(G.meat, B.x - 1.4, B.z - 1.1, rand(0, 6)); gore(G.meat, B.x + .4, B.z + 1.5, rand(0, 6)); gore(G.kid, B.x - .3, B.z - 1.7, rand(0, 6)); gore(G.gut, B.x + 1.6, B.z + .7, 0); }
     page(B.x + 1.1, .06, B.z - .2, -.9, 6);
     // Seiten 2–4 (Bibel 1.10): Hochsitz an der Leiter · Zaunlücke · Amtsbus unter dem Fahrersitz (Seite 5 liegt im Handschuhfach des Wracks: kapitel6.js)
-    if (typeof TIEF !== 'undefined') { page(TIEF.stand.x + .45, .06, TIEF.stand.z - 1.95, .3, 2); page(40.9, .06, 155.5, -.4, 3); page(TIEF.bus.x + 1.25, .3, TIEF.bus.z - .75, .5, 4); }
+    if (typeof TIEF !== 'undefined') { page(TIEF.stand.x + .45, .06, TIEF.stand.z - 1.95, .3, 2); page(40.9, .06, 155.5, -.4, 3); { const w = typeof tief_busW === 'function' ? tief_busW(.42, .545, .64) : null; // Seite 4: auf dem Boden des Fahrerhauses, unter dem Fahrersitz (Wagen innen, Scheiben fehlen: man sieht sie durch die Frontscheibe)
+      if (w) page(w.x, w.y, w.z, .5, 4, [1.6, 1.2, 1.6]); else page(TIEF.bus.x + 1.25, .3, TIEF.bus.z - .75, .5, 4); } }
     if (typeof hintAdd === 'function') { hintAdd({ id: 'hungrige_spuren', x: HUNGRIGE.spuren.x, y: 0, z: HUNGRIGE.spuren.z, kind: 'geheim', near: 26, open: () => wald_frei() && !hungrige_has('spuren') }); hintAdd({ id: 'hungrige_bau', x: B.x, y: 0, z: B.z, kind: 'geheim', near: 24, open: () => wald_frei() && hungrige_has('spuren') && !hungrige_has('bau') && hungrige_seiteFrei(6) }); }
   } catch (e) { console.warn('Hungrige: Bau', e); }
   // --- Hirsch ins Tierregister von leben.js (für leben_beast)

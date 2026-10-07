@@ -213,7 +213,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   { const rs = only(roadSignS, n => n === 'Road_Sign_01'); const g = fit(rs, 2.5); put(g, 144.4, -6.9, -PI / 2, 0, BK); }
   const blockTx = canvasTex(400, 520, (c, w, h) => { c.fillStyle = '#e8e2cf'; c.fillRect(0, 0, w, h); c.fillStyle = '#111'; c.textAlign = 'center'; c.font = 'bold 40px Arial'; c.fillText('SPERRGEBIET', w / 2, 70); c.font = '22px Arial';
     ['Durchfahrt und Betreten', 'verboten.', '', 'Anordnung des', 'Amtes für Rückführung', 'vom 13.07.1992', '', 'Zuwiderhandlungen werden', 'nicht verfolgt.'].forEach((l, i) => c.fillText(l, w / 2, 130 + i * 34));
-    c.strokeStyle = 'rgba(120,10,10,.8)'; c.lineWidth = 5; c.beginPath(); c.moveTo(40, 470); c.lineTo(360, 440); c.stroke(); c.fillStyle = 'rgba(90,70,40,.25)'; c.fillRect(0, h - 90, w, 90); });
+    c.strokeStyle = 'rgba(120,10,10,.8)'; c.lineWidth = 5; c.beginPath(); c.moveTo(40, 416); c.lineTo(360, 410); c.stroke(); c.fillStyle = 'rgba(24,30,110,.85)'; c.font = '30px Caveat, cursive'; c.textAlign = 'left'; c.fillText('Weil keiner zurückkommt,', 36, 452); c.fillText('den man verfolgen könnte.', 44, 486); c.textAlign = 'center'; c.fillStyle = 'rgba(90,70,40,.25)'; c.fillRect(0, h - 90, w, 90); });
   decal(blockTx, .42, .55, 146.2, .6, .1, -PI / 2, 0, { p: BK });
   carAt(burned.cross, 4.3, 150.6, 2.6, 2.05, BK); carAt(burned.sedan, 4.4, 153.8, -2.9, .9, BK);
   for (let i = 0; i < 5; i++) { const d = debrisS.clone(true); put(d, rand(147.5, 156), rand(-5, 5), rand(0, 6), 0, BK); }
@@ -258,11 +258,11 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // Parzelle W2: Vogelscheuche im Gemüsebeet – trägt Lukes Kinderjacke
   const scare = fit(scareS.clone(true), 2.15); put(scare, -121.2, 24.8, PI / 2, 0, A);
   // Parzelle W3: verwilderte Parzelle 7 (Wendt) mit Geräteschuppen
-  { const s = fit(shedUtilS.clone(true), 2.7); put(s, -122.8, 36.2, -PI / 2, 0, A); }
+  { const s = fit(shedUtilS.clone(true), 2.7); put(s, -122.8, 36.2, -PI / 2, 0, A); OW.shedP7 = s; }
   const p7Tx = canvasTex(256, 128, (c, w, h) => { c.fillStyle = '#5a4a36'; c.fillRect(0, 0, w, h); c.fillStyle = '#d8ceb4'; c.font = 'bold 34px Georgia'; c.textAlign = 'center'; c.fillText('Parzelle 7', w / 2, 52); c.font = '24px Georgia'; c.fillText('Wendt', w / 2, 96); });
   decal(p7Tx, .5, .25, -116.9, 1.05, 36.2, PI / 2, 0, { p: A });
   // Parzelle E1: Picknicktisch, acht Teller
-  { const p = fit(picnicS.clone(true), .78); put(p, -108, 13.2, .3, 0, A); const w = wbarS.clone(true); put(w, -104.5, 10.6, -1.2, 0, A); }
+  { const p = fit(picnicS.clone(true), .78); put(p, -108, 13.2, .3, 0, A); OW.picnic = p; const w = wbarS.clone(true); put(w, -104.5, 10.6, -1.2, 0, A); }
   // Parzelle E2: die Laube mit Licht
   const laube = fit(shedGarS.clone(true), 3.1); put(laube, -107.2, 25, -PI / 2, 0, A);
   const laubeLight = vlight(0xffb468, 1.8, 6, -107.2, 1.8, 25), laubeGlow = glow(0xffa050, 3.2, -108.6, 1.5, 25, A), laubePool = pool(0xffa050, 5, -110.3, 25, .3, A);
@@ -316,7 +316,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // Bauernhaus (makeHouse, Kisten-Hitbox wie die anderen Häuser); das Fassaden-Team veredelt alle HOUSES
   const farmhouse = makeHouse({ x: -117.5, z: -13, facing: -1, w: 11, d: 9, H: 6, tint: 0x8d877c, lit: [4], chimney: true, porch: true, porchLight: false, shutters: M.dark, boarded: [1] });
   const fhDoor = hit(1.2, 2.3, .35, -117.5, 1.6, -13 - 4.65, 'Klopfen', () => { Audio.knock(-117.5, 1.3, -13 - 4.65); toast(['Niemand öffnet. Hinter der Tür scharrt ein Hund. Dann nicht mehr.', 'Du klopfst. Oben knarrt ein Dielenbrett. Genau über dir.', 'Verschlossen. Am Klingelschild: AYDIN. Darunter, mit Kinderschrift: und Dina.'][Math.floor(rand(0, 3))], 4200); });
-  { const b = fit(bikeS.clone(true), 1.75, 'max'); put(b, -121.6, -18.6, .3, 0, F); b.rotateX(PI / 2 - .1); b.position.y = .27; } // liegt auf der Seite im Matsch
+  { const b = fit(bikeS.clone(true), 1.75, 'max'); put(b, -121.6, -18.6, .3, 0, F); b.rotateX(PI / 2 - .1); b.position.y = .27; OW.rad = b; b.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(mt => { const k = mt.clone(); k.color.multiply(new T.Color(0xff5c48)); return k; }); if (m.material.length === 1) m.material = m.material[0]; } }); } // liegt auf der Seite im Matsch; rotes Damenrad
 
   // ---------------------------------------------------------------- Die alte Villa (−125, 70) – Wahrzeichen, verschlossen
   const VG = R.villa.g;
@@ -383,8 +383,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     }); });
   // STORY-HOOK: Preistafel = Zahlencode 0-3-1-3
   hit(1, 3, 1, 99.2, 3.2, 8.2, 'Leuchtschild', () => { toast('TANKSTELLE KRANZ. Die Röhre summt. Auf der Preistafel hängen nur noch vier Ziffern: 0 … 3 … 1 … 3.', 5200); Audio.buzz(99.2, 4.5, 8.2); OW.signFlick = 2.5; });
-  hit(5, 1.6, .4, 109.9, 1.75, 24.75, 'Schaufenster', () => toast(['Drinnen: leere Regale, ein Kalender. Oktober 2009. Der 31. ist rot umkringelt.', 'Auf dem Tresen stehen acht Pappbecher. Einer ist umgefallen.', 'Im Staub am Fenster: kleine Handabdrücke. Von innen.'][Math.floor(rand(0, 3))], 4200));
-  hit(1.2, 2.2, .5, 113.35, 1.1, 24.7, 'Ladentür', () => { Audio.play('metalHit2', { gain: .3, rate: 1.2, x: 113, y: 1, z: 25, ref: 2 }); toast('Abgeschlossen. Hinter der Tür hängt ein Schild: „Komme gleich wieder.“ Der Staub darauf ist fingerdick.', 4000); });
+  hit(5, 1.6, .4, 109.9, 1.75, 24.75, 'Schaufenster', () => toast(['Drinnen: Regale mit Kanistern, Grablichtern und Spielzeug, ein Kalender. Oktober 2009. Der 31. ist rot umkringelt.', 'Auf dem Tresen stehen acht Pappbecher. Einer ist umgefallen.', 'Im Staub am Fenster: kleine Handabdrücke. Von innen.'][Math.floor(rand(0, 3))], 4200));
+  hit(1.2, 2.2, .5, 113.35, 1.1, 24.7, 'Ladentür', () => { Audio.play('metalHit2', { gain: .3, rate: 1.2, x: 113, y: 1, z: 25, ref: 2 }); toast('Abgeschlossen. An der Tür hängt ein Schild: „Komme gleich wieder.“ Der Staub darauf ist fingerdick.', 4000); });
   for (const x of [107, 115]) hit(1.4, .6, 4.4, x, .4, 15, () => Q.kanisterHave && !Q.kanisterDone ? 'Kanister abstellen' : 'Zapfinsel', () => {
     if (Q.kanisterHave && !Q.kanisterDone) { Q.kanisterDone = true; story.items = story.items.filter(k => k !== 'ow_kanister'); const j = jerryS.clone(true); j.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(j, x + .2, 14.2, .4, .22, K);
       Audio.play('metalHit1', { gain: .4, x, y: .3, z: 15, ref: 2 }); OW.canopyDie = 3.5; setTimeout(() => { Audio.giggle(x - 2, 1, 11); subtitle('Aus dem Kanister tropft es. Kein Benzin. Wasser. Kalt, wie aus einem Brunnen.', 4800); OW.footsteps = { x: x, z: 13, t: 0 }; }, 1800);
@@ -476,7 +476,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       if (Kk.st === 'idle' && !Kk.done && calm() && dist2(112, 22) < 9 && lookAt(111, 1.6, 26.5, .85)) { Kk.st = 'dark'; Kk.t = 0; Kk.done = true; Audio.buzz(111, 3, 28); }
       if (Kk.st === 'dark') { Kk.t += dt; kl = 0; if (Kk.t > 1.4) { Kk.st = 'show'; Kk.t = 0; OW.sil.visible = true; Audio.bell(113, 25); } }
       else if (Kk.st === 'show') { Kk.t += dt; kl = Math.random() < .3 ? .4 : 1.2; if (Kk.t > .7) { Kk.st = 'gone'; Kk.t = 0; OW.sil.visible = false; kl = 0; Audio.stinger(false); } }
-      else if (Kk.st === 'gone') { Kk.t += dt; kl = 0; if (Kk.t > 2.5) { Kk.st = 'idle'; toast('Das Licht im Kiosk ist wieder an. Der Tresen ist leer. Auf ihm liegt jetzt ein Pappbecher mehr.', 4200); } }
+      else if (Kk.st === 'gone') { Kk.t += dt; kl = 0; if (Kk.t > 2.5) { Kk.st = 'idle'; if (OW.becherNeu) OW.becherNeu.visible = true; toast('Das Licht im Kiosk ist wieder an. Der Tresen ist leer. Auf ihm liegt jetzt ein Pappbecher mehr.', 4200); } }
       kioskLight.intensity = 1.6 * kl; tubeK.material.emissiveIntensity = 2.2 * kl;
       // Scheinwerfer im Nebel hinter der Sperre
       const Lh = G.lights; Lh.t += dt;
@@ -527,6 +527,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // Silhouette hinter dem Kiosk-Tresen
   OW.sil = new T.Mesh(new T.PlaneGeometry(.8, 1.05), new T.MeshBasicMaterial({ map: silTex, color: 0x000000, transparent: true, opacity: .92, depthWrite: false })); OW.sil.position.set(111.4, 1.55, 27.2); OW.sil.visible = false; K.add(OW.sil);
 
+  try { const bc = { T, K, A, F, J, R, put, fit, hit, decal, canvasTex, wbox, sm, lanternS, vlight, glow, barnDoor, barnIn }; await ausbau_ost_west_bu_ost(OW, bc); await ausbau_ost_west_bu_west(OW, bc); } catch (e) { console.warn('Basis-Umsetzung Ost/West', e); }
   try { await ausbau_ost_west_f3(OW, { Q, hit, put, fit, carAt, only, vanS, shedOldS, jerryS, lanternS, candleS, toysS, hayMat, barnRect, barnDoor, J, A, F, T, canvasTex, decal, glow, vlight, sm }); } catch (e) { console.warn('Ost/West F3 (AP-15)', e); }
   OW.stats = { ms: Math.round(performance.now() - t0) };
   OW.dbg = { R, regions, barnRect, barnDoor, nestP, vbb, villaLit: !!villaLit, farmhouse };
@@ -567,6 +568,16 @@ async function ausbau_ost_west_f3(OW, c) {
   // ================= „Acht Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
   const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
   const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
+  try { // Basis-Umsetzung: der Kalender von 1992 an der Rückwand, Juli: jeder Tag durchgestrichen bis zum 13.
+    bueroS.updateMatrixWorld(true); let h = null; for (const y of [1.5, 1.25, 1.75]) { h = bu_strahl(bueroS, 112.6, y, -24.5, 0, 0, -1, 8); if (h) break; }
+    const cv = document.createElement('canvas'); cv.width = 320; cv.height = 440; const x = cv.getContext('2d'); x.fillStyle = '#e4dcc4'; x.fillRect(0, 0, 320, 440); x.fillStyle = '#3a5a3a'; x.fillRect(0, 0, 320, 130); x.fillStyle = '#c8c0a8'; x.beginPath(); x.moveTo(30, 108); x.lineTo(110, 40); x.lineTo(190, 100); x.lineTo(240, 60); x.lineTo(300, 110); x.lineTo(300, 125); x.lineTo(30, 125); x.fill();
+    x.fillStyle = '#6a1a14'; x.font = 'bold 34px Georgia'; x.textAlign = 'center'; x.fillText('JULI 1992', 160, 172); x.font = '15px Arial'; x.fillStyle = '#333'; ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].forEach((d, i) => x.fillText(d, 28 + i * 44, 200));
+    for (let d = 1; d <= 31; d++) { const col = (d + 1) % 7, row = Math.floor((d + 1) / 7), px = 28 + col * 44, py = 232 + row * 40; x.fillStyle = col > 4 ? '#8a1a14' : '#222'; x.font = '19px Arial'; x.fillText(String(d), px, py);
+      if (d <= 13) { x.strokeStyle = 'rgba(14,14,40,.85)'; x.lineWidth = 2.6; x.beginPath(); x.moveTo(px - 14, py + 6); x.lineTo(px + 14, py - 17 + Math.random() * 3); x.stroke(); x.beginPath(); x.moveTo(px - 13, py - 15); x.lineTo(px + 13, py + 5 + Math.random() * 3); x.stroke(); } }
+    x.strokeStyle = 'rgba(160,20,16,.9)'; x.lineWidth = 3.4; x.beginPath(); x.ellipse(28 + ((13 + 1) % 7) * 44, 232 + Math.floor(14 / 7) * 40 - 6, 21, 17, .1, 0, 7); x.stroke();
+    for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(100,80,50,${Math.random() * .08})`; x.beginPath(); x.arc(Math.random() * 320, Math.random() * 440, 4 + Math.random() * 24, 0, 7); x.fill(); }
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const m = new T.Mesh(new T.PlaneGeometry(.34, .47), new T.MeshStandardMaterial({ map: t, roughness: .9 })); const p = h ? h.p : new T.Vector3(112.6, 1.5, -30.4), n = h ? h.n : new T.Vector3(0, 0, 1);
+    bu_an(m, p, n, new T.Vector3(0, 1, 0), .012); m.rotateZ(.03); m.userData.noCol = true; c.J.add(m); OW.f3.kalender = m; } catch (e) { console.warn('Basis-Umsetzung Schrottbüro-Kalender', e); }
   const owSpaeter = () => typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp'); // H-6 (Story-Prüfung): „Acht Kindersitze“ erst ab Kap. 3
   c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { if (owSpaeter()) return toast('Abgeschlossen. Ein Schrottbüro, Wellblech, ein Kalender hinter Glas.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. Durch den Spalt: ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
   c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { if (owSpaeter()) return toast('Ein alter Transporter. Die Ladefläche ist mit einer Plane zugebunden.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
@@ -606,8 +617,11 @@ async function ausbau_ost_west_f3(OW, c) {
     const fisch = new T.Sprite(new T.SpriteMaterial({ map: kirchberg_tex(kirchberg_cnv(64, 32, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#e8781c'; x.beginPath(); x.ellipse(28, 16, 18, 8, 0, 0, 7); x.fill(); x.beginPath(); x.moveTo(44, 16); x.lineTo(60, 6); x.lineTo(60, 26); x.fill(); x.fillStyle = '#111'; x.beginPath(); x.arc(18, 14, 2, 0, 7); x.fill(); })), transparent: true, depthWrite: false })); fisch.scale.set(.05, .025, 1); fisch.position.copy(glas.position); scene.add(fisch); OW.f3.fisch = { s: fisch, c: glas.position.clone(), a: 0, zu: 0 };
     c.hit(.4, .4, .4, lx - .6, .95, lz - .8, 'Goldfischglas', () => { OW.f3.fischGesehen = true; subtitle('Wer füttert den?', 2000, 'LUKE'); setTimeout(() => subtitle('Du heißt jetzt Fisch. Das ist wenigstens ehrlich.', 3200, 'LUKE'), 2600); kirchberg_start('ow_laternen', { x: lx, z: lz }); });
     // Hildes Beete an Parzelle 7: Kinderportionen, Namensstöcke ZAYN, ROXY, MIKE; das Beet LUCY frisch gegossen
-    const px = -119.6, pz = 38.2; const beet = c.sm('../forestfloor', 0x5a4632); for (let i = 0; i < 4; i++) { const b = new T.Mesh(new T.PlaneGeometry(.8, 2.2), beet); b.rotation.x = -PI / 2; b.position.set(px + i * 1.05, .024, pz); b.userData.noCol = true; scene.add(b);
+    const px = -119.6, pz = 38.2; const beet = boden_weichMat(c.sm('../forestfloor', 0x3e3226), .5); for (let i = 0; i < 4; i++) { const bg = boden_weich(new T.PlaneGeometry(.8, 2.2), .8, 2.2), b = new T.Mesh(bg, beet); b.rotation.x = -PI / 2; b.position.set(px + i * 1.05, .024, pz); b.userData.noCol = true; scene.add(b); // Erde, Ränder fransen aus (kein hartes Quadrat)
       const n = ['ZAYN', 'ROXY', 'MIKE', 'LUCY'][i]; const st = kirchberg_decal(kirchberg_papier({ w: 128, h: 48, bg: '#c8b890', zeilen: [[n, 10, 36, 30, '#1a1a1a', '"Caveat", cursive', 0]] }), .16, .06, px + i * 1.05, .3, pz + 1.12, 0); }
+    try { const parts = await msBake('w_clover', 'model.glb'); if (parts.length) { const bb = new T.Box3(); for (const q of parts) { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); } const sz = bb.getSize(new T.Vector3()), k0 = .3 / Math.max(sz.x, sz.z), M4 = []; // Gemüse in zwei Reihen je Beet (Kohlrabi/Möhrengrün): echtes Pflanzenmodell, klein und unregelmäßig
+      for (let i = 0; i < 4; i++) for (let r = 0; r < 2; r++) for (let j = 0; j < 7; j++) if (Math.random() > .12) M4.push(msM4(px + i * 1.05 + (r ? .17 : -.17) + (Math.random() - .5) * .08, .02 - bb.min.y * k0, pz - .95 + j * .32 + (Math.random() - .5) * .1, Math.random() * 6.28, k0 * (.7 + Math.random() * .7)));
+      msInst(parts, M4, { shadow: false }).forEach(im => { im.userData.noCol = true; scene.add(im); }); } } catch (e) { console.warn('Beetpflanzen', e); }
     { const n = kirchberg_decal(kirchberg_tex(kirchberg_cnv(64, 64, (x) => { const g = x.createRadialGradient(32, 32, 4, 32, 32, 32); g.addColorStop(0, 'rgba(20,14,8,.55)'); g.addColorStop(1, 'rgba(20,14,8,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); })), .8, 2, px + 3.15, .03, pz, 0, { rx: -PI / 2, alpha: true }); } // nass
     c.hit(4.2, .6, 2.4, px + 1.6, .3, pz, 'Hildes Beete', () => { toast('Möhren, Kohlrabi, Radieschen – in Kinderportionen. Namensstöcke: ZAYN, ROXY, MIKE. Das Beet LUCY ist frisch gegossen.', 5000); setTimeout(() => subtitle('Gemüse für Kinder, die nicht mehr zum Essen kommen.', 3200, 'LUKE'), 2400); OW.f3.beete = true; kirchberg_start('ow_laternen'); });
     // Nachbild zwischen den Beeten (ersetzt die Figur aus schrecken.js „garten“): Juni, warm, Grillen – Roxy dreht Lampen zur Senke
@@ -692,3 +706,161 @@ function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f
 // AP-25 · „Das Heft im Heu“ (Kap. 1/3/5): gefundene Seiten und Heft-Stand speichern – sonst fehlen die Kap.-1-/3-Seiten in Kap. 5 und der Faden beginnt nach dem Laden neu
 MOD_SAVE.push(['ow_heft', () => { const Q = ausbau_ost_west_OW.Q; return Q ? { pages: [...Q.pages], seen: !!Q.heftSeen, done: !!Q.heftDone, jacke: !!Q.jacket } : null; },
   v => { const Q = ausbau_ost_west_OW.Q; if (!v || !Q) return; (v.pages || []).forEach(p => Q.pages.add(p)); Q.heftSeen = !!v.seen; Q.heftDone = !!v.done; Q.jacket = !!v.jacke; }]);
+
+// =====================================================================  Basis-Umsetzung „Text gegen Welt“ – Ost (Tankstelle, Sperre, Schrottplatz) · docs/gameplay/abgleich/basis_umsetzung.md
+// Was die Texte der Orte behaupten, ist sichtbar: Geldkassette, acht Pappbecher, Handabdrücke am Fenster, „Komme gleich wieder“, Bolzen + Kreidestriche, Reifenzählung, Verkehrsschild
+async function ausbau_ost_west_bu_ost(OW, c) {
+  try { await document.fonts.load('40px Caveat'); } catch (e) {}
+  const T = c.T, V3 = T.Vector3, K = c.K, UPZ = new V3(0, 0, 1), UP = new V3(0, 1, 0), R2 = ausbau_nord_rng(2009);
+  const mk = (fn, label) => { try { return fn(); } catch (e) { console.warn('Basis-Umsetzung Ost: ' + label, e); return null; } };
+  // ---- Acht Pappbecher auf dem Tresen (einer umgefallen); der neunte kommt, wenn im Kiosk das Licht wieder angeht
+  mk(() => {
+    const counter = K.children.find(o => Math.abs(o.position.x - 110.3) < .01 && Math.abs(o.position.z - 26) < .01), th = counter ? bu_strahl(counter, 111.2, 1.8, 26, 0, -1, 0, 2) : null, ty = th ? th.p.y : .93;
+    const prof = [[0, 0], [.026, 0], [.0375, .095], [.0394, .0985], [.0385, .1008], [.0364, .0975], [.0262, .004], [0, .004]], geo = new T.LatheGeometry(prof.map(([r, y]) => new V3(r, y, 0)), 28);
+    const tx = (() => { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 128; const x = cv.getContext('2d'); x.fillStyle = '#e9e5d9'; x.fillRect(0, 0, 256, 128); x.fillStyle = '#a82a22'; x.fillRect(0, 128 * (1 - .40), 256, 14); x.fillRect(0, 128 * (1 - .17), 256, 6);
+      x.fillStyle = '#6a3a1c'; for (let i = 0; i < 4; i++) x.fillRect(i * 64 + 22, 128 * (1 - .34) + 6, 20, 14); x.fillStyle = 'rgba(80,60,40,.25)'; x.fillRect(0, 70, 256, 58); const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; return t; })();
+    const mat = new T.MeshStandardMaterial({ map: tx, roughness: .8, side: T.DoubleSide }), cups = new T.Group();
+    for (let i = 0; i < 8; i++) { const m = new T.Mesh(geo, mat), x = 109.78 + i * .26 + (R2() - .5) * .05, z = 25.96 + Math.sin(i * 2.3) * .13;
+      if (i === 4) { m.rotation.set(0, R2() * 6, PI / 2 + .12); m.position.set(x, ty + .039, z); } else { m.position.set(x, ty, z); m.rotation.y = R2() * 6; }
+      m.castShadow = true; m.userData.noCol = true; cups.add(m); }
+    const neu = new T.Mesh(geo, mat); neu.position.set(110.62, ty, 26.38); neu.rotation.y = 1.3; neu.visible = false; neu.userData.noCol = true; neu.castShadow = true; cups.add(neu); OW.becherNeu = neu; K.add(cups); OW.becher = cups; }, 'Becher');
+  // ---- Handabdrücke im Staub am Schaufenster (von innen, Kinderhöhe)
+  mk(() => {
+    const W = 2048, H = 656, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d'), rr = (a, b) => a + R2() * (b - a);
+    x.fillStyle = 'rgba(150,146,132,.20)'; x.fillRect(0, 0, W, H); for (let i = 0; i < 260; i++) { const px = rr(0, W), py = rr(0, H), r = rr(20, 140), g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, `rgba(150,144,128,${rr(.03, .1)})`); g.addColorStop(1, 'rgba(150,144,128,0)'); x.fillStyle = g; x.fillRect(px - r, py - r, r * 2, r * 2); }
+    x.globalCompositeOperation = 'destination-out'; const hand = (px, py, rot, s, mir) => { x.save(); x.translate(px, py); x.rotate(rot); x.scale(mir ? -s : s, s); x.filter = 'blur(1.2px)'; x.fillStyle = 'rgba(0,0,0,.85)'; x.beginPath(); x.ellipse(0, 12, 17, 20, 0, 0, 7); x.fill();
+      [[-14, -14, 4.6, 14, -.28], [-5, -22, 4.8, 17, -.08], [5, -23, 4.8, 18, .05], [14, -17, 4.4, 15, .24]].forEach(([fx, fy, rx, ry, a]) => { x.beginPath(); x.ellipse(fx, fy, rx, ry, a, 0, 7); x.fill(); }); x.beginPath(); x.ellipse(-19, 10, 5, 12, -.9, 0, 7); x.fill(); x.restore(); };
+    for (const [px, py, rot, s] of [[640, 560, .1, 1.5], [720, 520, -.15, 1.45], [676, 440, .05, 1.4], [1450, 575, -.1, 1.5], [1530, 500, .2, 1.5], [1488, 400, 0, 1.4], [980, 590, .3, 1.35]]) hand(px, py, rot, s, px > 1000);
+    x.lineWidth = 16; x.lineCap = 'round'; x.strokeStyle = 'rgba(0,0,0,.35)'; for (const [x0, y0, x1, y1] of [[600, 610, 640, 470], [1440, 620, 1470, 470], [940, 600, 1010, 520]]) { x.beginPath(); x.moveTo(x0, y0); x.lineTo(x1, y1); x.stroke(); }
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const d = c.decal(t, 5, 1.6, 109.9, 1.75, 25.03, PI, 0, { p: K, mat: { roughness: .95 } }); d.renderOrder = 0; d.userData.noCol = true; }, 'Handabdrücke');
+  // ---- Geldkassette auf dem Brett des Nachtschalters (Blech, Tragegriff, Zahlenschloss mit vier Rädchen, „P. K.“ im Deckel)
+  mk(() => {
+    const g = new T.Group(), by = 1.055, cx = 115.38, cz = 24.8, steel = new T.MeshStandardMaterial({ color: 0x8a8a84, roughness: .45, metalness: .8 });
+    const body = c.wbox('rust_sheet', .27, .1, .19, cx, by + .05, cz, { tint: 0x4d5f52, tile: .5, p: K }), lid = c.wbox('rust_sheet', .276, .042, .196, cx, by + .121, cz, { tint: 0x435447, tile: .5, p: K });
+    const seam = new T.Mesh(new T.BoxGeometry(.274, .004, .194), new T.MeshStandardMaterial({ color: 0x1c1f1c, roughness: .8 })); seam.position.set(cx, by + .1, cz); K.add(seam);
+    const arch = new T.Mesh(new T.TorusGeometry(.04, .0042, 6, 16, PI), steel); arch.position.set(cx, by + .142, cz); arch.scale.set(1, .8, 1); K.add(arch);
+    for (const s of [-1, 1]) { const h = new T.Mesh(new T.BoxGeometry(.03, .022, .008), steel); h.position.set(cx + s * .085, by + .1, cz + .098); K.add(h); }
+    const lt = (() => { const cv = document.createElement('canvas'); cv.width = 256; cv.height = 96; const x = cv.getContext('2d'); x.fillStyle = '#6c6c66'; x.fillRect(0, 0, 256, 96); x.strokeStyle = '#2a2a28'; x.lineWidth = 5; x.strokeRect(3, 3, 250, 90); const dg = ['7', '2', '5', '1'];
+      for (let i = 0; i < 4; i++) { x.fillStyle = '#121212'; x.fillRect(16 + i * 58, 14, 50, 68); x.fillStyle = '#d8d4c4'; x.font = 'bold 44px Arial'; x.textAlign = 'center'; x.fillText(dg[i], 41 + i * 58, 62); x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(16 + i * 58, 14, 50, 12); for (let k = 0; k < 8; k++) { x.fillStyle = 'rgba(0,0,0,.45)'; x.fillRect(16 + i * 58, 18 + k * 8, 3, 3); } }
+      const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
+    const lock = new T.Mesh(new T.PlaneGeometry(.1, .0375), new T.MeshStandardMaterial({ map: lt, roughness: .5, metalness: .6 })); lock.rotation.y = PI; lock.position.set(cx, by + .06, cz - .0975); K.add(lock);
+    const pk = bu_ritz(.1, .05, (C, B, W, H) => { const sz = H * .62, w = ritz_breite('P. K.', sz); ritz_zeile(C, B, 'P. K.', (W - w) / 2, H * .78, sz, { stil: 'ritz', jit: 1.2 }); }, { ppm: 800, seed: 17, bump: 3 });
+    bu_an(pk, new V3(cx - .03, by + .1425, cz - .03), UP, UPZ, .0006); K.add(pk);
+    g.add(body, lid); OW.kassette = { body, lid }; }, 'Kassette');
+  // ---- Schild „Komme gleich wieder.“ an der Ladentür (Pappe, Faden, Staub fingerdick)
+  mk(() => {
+    const door = K.children.find(o => Math.abs(o.position.x - 113.35) < .02 && Math.abs(o.position.z - 25.02) < .02), h = door ? bu_strahl(door, 113.35, 1.55, 22.5, 0, 0, 1, 4) : null, p = h ? h.p : new V3(113.35, 1.55, 24.98), n = h ? h.n : new V3(0, 0, -1);
+    const cv = document.createElement('canvas'); cv.width = 512; cv.height = 340; const x = cv.getContext('2d'); x.fillStyle = '#b8a888'; x.fillRect(0, 0, 512, 340); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(${90 + R2() * 40},${70 + R2() * 30},40,${R2() * .12})`; x.fillRect(R2() * 512, R2() * 340, 2 + R2() * 20, 1 + R2() * 3); }
+    x.strokeStyle = 'rgba(40,30,20,.5)'; x.lineWidth = 6; x.strokeRect(14, 14, 484, 312); x.fillStyle = '#1a1814'; x.font = 'bold 74px Caveat, cursive'; x.textAlign = 'center'; x.fillText('Komme gleich', 256, 110); x.fillText('wieder.', 256, 190);
+    x.beginPath(); x.arc(256, 262, 44, 0, 7); x.fillStyle = '#e8e2d0'; x.fill(); x.strokeStyle = '#1a1814'; x.lineWidth = 4; x.stroke(); x.beginPath(); x.moveTo(256, 262); x.lineTo(256, 232); x.moveTo(256, 262); x.lineTo(276, 270); x.stroke(); // Uhr zum Verstellen
+    const dust = x.getImageData(0, 0, 512, 340); x.globalAlpha = 1; for (let i = 0; i < 700; i++) { const px = R2() * 512, py = R2() * 340, r = 10 + R2() * 46, g = x.createRadialGradient(px, py, 0, px, py, r), top = 1 - py / 340; g.addColorStop(0, `rgba(138,132,120,${(.12 + .3 * top) * R2()})`); g.addColorStop(1, 'rgba(138,132,120,0)'); x.fillStyle = g; x.fillRect(px - r, py - r, r * 2, r * 2); }
+    x.fillStyle = 'rgba(140,134,122,.75)'; x.fillRect(8, 0, 496, 20); void dust;           // Staubkante oben
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const m = new T.Mesh(new T.PlaneGeometry(.26, .172), new T.MeshStandardMaterial({ map: t, roughness: .95 }));
+    bu_an(m, p.clone().add(new V3(0, -.0, 0)), n, UP, .012); m.rotateZ(.04); m.position.y = 1.55; m.userData.noCol = true; K.add(m); const st = new T.Mesh(new T.BoxGeometry(.003, .09, .003), new T.MeshStandardMaterial({ color: 0x2a2620 })); st.position.copy(m.position).add(new V3(0, .126, 0)); st.position.addScaledVector(n, -.004); K.add(st); OW.ladenSchild = m; }, 'Schild');
+  // ---- Zapfinseln: vier abgeschnittene Bolzen am Sockel der Zapfsäule, daneben acht Kreidestriche
+  mk(() => {
+    const rust = new T.MeshStandardMaterial({ color: 0x6e5440, roughness: .55, metalness: .72 }), geos = [], grime = msSurfMat('grime', { alpha: true, tint: 0x14110e });
+    for (const ix of [107, 115]) { const bx = ix, bz = 13.9, y0 = .22;
+      for (const [dx, dz] of [[-.14, -.09], [.14, -.09], [-.14, .09], [.14, .09]]) { const w = new T.CylinderGeometry(.024, .024, .004, 14).translate(dx, y0 + .002, dz), nt = new T.CylinderGeometry(.018, .018, .016, 6).translate(dx, y0 + .012, dz), st = new T.CylinderGeometry(.0098, .0105, .036, 8).translate(dx, y0 + .034, dz); geos.push(w, nt, st); }
+      const fp = new T.Mesh(new T.PlaneGeometry(.56, .34), new T.MeshStandardMaterial({ map: grime.map, color: 0x0e0c0a, transparent: true, opacity: .55, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .6 })); fp.rotation.x = -PI / 2; fp.position.set(bx, y0 + .002, bz); fp.userData.noCol = true; K.add(fp); // Ölfleck, wo die Säule stand
+      const ch = bu_ritz(.5, .15, (C, B, W, H, ppm) => { for (let g2 = 0; g2 < 2; g2++) { const gx = W * (.12 + g2 * .46), n = g2 ? 3 : 4; for (let k = 0; k < n; k++) ritz_strich(C, null, [[gx + k * ppm * .045 + ritz_RN() * 2, H * .2], [gx + k * ppm * .045 + ritz_RN() * 3, H * .82]], 54, 'kreide', ritz_R(.7, .95)); if (!g2) ritz_strich(C, null, [[gx - ppm * .03, H * .72], [gx + ppm * .2, H * .26]], 54, 'kreide', .85); } }, { ppm: 560, seed: 8 + ix, relief: false });
+      bu_an(ch, new V3(bx + .12, y0 + .001, bz + .55), UP, UPZ, .0008); K.add(ch); }
+    const bm = new T.Mesh(mergeGeometries(geos), rust); bm.castShadow = true; bm.userData.noCol = true; K.add(bm); }, 'Bolzen');
+  // ---- Reifenstapel: I II III IV V VI VII mit weißer Kreide, der achte Strich frisch
+  mk(() => {
+    const tr = K.children.find(o => Math.abs(o.position.x - 124.2) < .02 && Math.abs(o.position.z - 23.5) < .02); if (!tr) return;
+    let hit = null; for (const [ox, oy] of [[124.0, .5], [124.4, .6], [123.6, .45], [124.8, .55], [123.2, .5]]) { const h = bu_strahl(tr, ox, oy, 17.5, 0, 0, 1, 9); if (h && Math.abs(h.n.y) < .75) { hit = h; break; } }
+    if (!hit) return;
+    const m = bu_ritz(.62, .14, (C, B, W, H) => { const t = 'I II III IV V VI VII', sz = H * .62, w = ritz_breite(t, sz), k = Math.min(1, (W * .78) / w); ritz_zeile(C, null, t, W * .05, H * .74, sz * k, { stil: 'kreide', alpha: .62, winkel: -.01 });
+        ritz_strich(C, null, [[W * .9, H * .2], [W * .9 + 3, H * .8]], sz * k * 1.05, 'kreide', 1); }, { ppm: 600, seed: 7, relief: false });
+    bu_an(m, hit.p, hit.n, UP, .006); K.add(m); OW.reifenKreide = m; }, 'Reifen');
+  // ---- Verkehrsschild an der Sperre: Zusatzschild mit Filzstift „AUSFAHRT AUCH.“
+  mk(() => {
+    const BK = c.R.block.g, sg = BK.children.find(o => Math.abs(o.position.x - 144.4) < .02 && Math.abs(o.position.z + 6.9) < .02); if (!sg) return;
+    let h = null; for (const y of [1.5, 1.3, 1.7, 1.9]) { h = bu_strahl(sg, 140, y, -6.9, 1, 0, 0, 8); if (h) { h.y = y; break; } }
+    const px = h ? h.p.x : 144.4, cv = document.createElement('canvas'); cv.width = 512; cv.height = 160; const x = cv.getContext('2d'); x.fillStyle = '#e8e6de'; x.fillRect(0, 0, 512, 160); for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(${90 + R2() * 60},${60 + R2() * 20},30,${R2() * .08})`; x.beginPath(); x.arc(R2() * 512, R2() * 160, 3 + R2() * 20, 0, 7); x.fill(); }
+    x.strokeStyle = '#26262a'; x.lineWidth = 8; x.strokeRect(5, 5, 502, 150); x.fillStyle = 'rgba(14,14,20,.92)'; x.font = 'bold 84px Caveat, cursive'; x.textAlign = 'center'; x.save(); x.translate(256, 112); x.rotate(-.025); x.fillText('AUSFAHRT AUCH.', 0, 0); x.restore();
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const m = new T.Mesh(new T.PlaneGeometry(.5, .156), new T.MeshStandardMaterial({ map: t, roughness: .45, metalness: .3, side: T.DoubleSide }));
+    m.position.set(px - .02, 1.12, -6.9); m.rotation.y = -PI / 2; m.castShadow = true; BK.add(m);
+    for (const dz of [-.18, .18]) { const b = new T.Mesh(new T.BoxGeometry(.012, .02, .02), new T.MeshStandardMaterial({ color: 0x555550, metalness: .8, roughness: .5 })); b.position.set(px - .008, 1.12 + .0, -6.9 + dz); BK.add(b); }
+    OW.zusatzschild = m; }, 'Verkehrsschild');
+}
+
+// =====================================================================  Basis-Umsetzung „Text gegen Welt“ – West (Schrebergärten, Hof): Picknicktisch, Hildes Laube, Heuballen, Stalltür, Traktor
+async function ausbau_ost_west_bu_west(OW, c) {
+  const T = c.T, V3 = T.Vector3, A = c.A, F = c.F, UP = new V3(0, 1, 0), UPZ = new V3(0, 0, 1), R2 = ausbau_nord_rng(1312), rr = (a, b) => a + R2() * (b - a);
+  try { await document.fonts.load('40px Caveat'); } catch (e) {}
+  const mk = async (fn, label) => { try { return await fn(); } catch (e) { console.warn('Basis-Umsetzung West: ' + label, e); return null; } };
+  const chairSpec = { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } };
+  // ---- Picknicktisch (Parzelle E1): acht Teller, acht Gabeln; auf jedem Teller ein Kiesel, auf dem achten zwei
+  await mk(async () => {
+    const p = OW.picnic; if (!p) return; const rot = p.rotation.y; p.rotation.y = 0; p.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(p), sx = bb.max.x - bb.min.x, sz = bb.max.z - bb.min.z; p.rotation.y = rot; p.updateMatrixWorld(true);
+    const cx = p.position.x, cz = p.position.z, longX = sx >= sz, Ll = Math.max(sx, sz), Ls = Math.min(sx, sz), th = bu_strahl(p, cx, 3, cz, 0, -1, 0, 4), top = th ? th.p.y : .75, sp = Math.min(.5, Ll * .21), vv = Math.min(.25, Ls * .17), cs = Math.cos(rot), sn = Math.sin(rot);
+    const W = (u, v) => { const lx = longX ? u : v, lz = longX ? v : u; return [cx + lx * cs + lz * sn, cz - lx * sn + lz * cs]; };
+    const pebbles = []; let n = 0;
+    for (let side = 0; side < 2; side++) for (let k = 0; k < 4; k++, n++) { const u = (k - 1.5) * sp, v = (side ? 1 : -1) * vv, [x, z] = W(u, v), pl = await bu_teil('w_teller', 'model.glb', /^Object_4$/, .22, { flach: true }), fk = await bu_teil('w_besteck', 'model.glb', /^fork/, .17, { flach: true });
+      if (pl) { pl.position.set(x, top, z); pl.rotation.y = rr(0, 6); A.add(pl); pl.userData.noCol = true; }
+      if (fk) { const [fx, fz] = W(u + (side ? .165 : -.165), v), vx = longX ? sn : cs, vz = longX ? cs : -sn; fk.position.set(fx, top, fz); fk.rotation.y = Math.atan2(vx, vz) + rr(-.1, .1); fk.userData.noCol = true; A.add(fk); }
+      pebbles.push([x + rr(-.012, .012), top + .0055, z + rr(-.012, .012), .042 + rr(0, .008), rr(0, 6), .6]); if (n === 7) pebbles.push([x + .03, top + .0085, z - .02, .036, rr(0, 6), .6]); }
+    await bu_kiesel(pebbles, A); OW.picnicDeck = n; }, 'Picknick');
+  // ---- Hildes Laube (Parzelle 7): Zettel mit Reißzwecke, Petroleumlampe (brennt klein), Streichhölzer, Bank mit Schuhkarton „Nächte“, Blechdose, zwei Stühle (auf dem zweiten ein eingedrücktes Kissen)
+  await mk(async () => {
+    const s = OW.shedP7; if (!s) return; s.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(s), X0 = bb.max.x, z0 = 36.2, wood = (w, h, d, x, y, z, ry = 0) => { const m = c.wbox('planks_painted', w, h, d, x, y, z, { tint: 0x6e5f4c, tile: 1.1, p: A, ry }); m.userData.noCol = false; return m; };
+    // Bank an der Wand: Sitzbrett + zwei Böcke
+    const bx = X0 + .36, bz = z0 - .55; wood(.34, .045, 1.5, bx, .44, bz); for (const dz of [-.6, .6]) { wood(.05, .42, .3, bx, .21, bz + dz); wood(.34, .03, .05, bx, .1, bz + dz); }
+    const bt = bu_strahl(A, bx, 1, bz, 0, -1, 0, 2); const sy = bt ? bt.p.y : .465;
+    // Schuhkarton „Nächte“ (Deckel mit Filzstiftschrift), Streichholzschachtel, Petroleumlampe
+    const sk = (() => { const g = new T.Group(), cardM = new T.MeshStandardMaterial({ color: 0xb09870, roughness: .95 }), cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const x = cv.getContext('2d'); x.fillStyle = '#b4a078'; x.fillRect(0, 0, 512, 256); for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(${80 + R2() * 40},${60 + R2() * 30},30,${R2() * .1})`; x.fillRect(R2() * 512, R2() * 256, 2 + R2() * 30, 1 + R2() * 2); }
+      x.strokeStyle = 'rgba(70,50,30,.4)'; x.lineWidth = 3; x.strokeRect(18, 18, 476, 220); x.fillStyle = 'rgba(14,12,10,.92)'; x.font = 'bold 110px Caveat, cursive'; x.textAlign = 'center'; x.save(); x.translate(256, 150); x.rotate(-.03); x.fillText('Nächte', 0, 0); x.restore();
+      const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const lid = new T.Mesh(new T.BoxGeometry(.33, .045, .19), [cardM, cardM, new T.MeshStandardMaterial({ map: t, roughness: .95 }), cardM, cardM, cardM]), base = new T.Mesh(new T.BoxGeometry(.318, .1, .178), cardM);
+      base.position.y = .05; lid.position.y = .1225; g.add(base, lid); g.traverse(m => { m.castShadow = true; m.userData.noCol = true; }); return g; })();
+    sk.position.set(bx, sy, bz + .08); sk.rotation.y = PI / 2 + .08; A.add(sk);
+    const mb = (() => { const cv = document.createElement('canvas'); cv.width = 128; cv.height = 64; const x = cv.getContext('2d'); x.fillStyle = '#d8b030'; x.fillRect(0, 0, 128, 64); x.fillStyle = '#a02018'; x.fillRect(0, 0, 128, 14); x.fillStyle = '#1a1a1a'; x.font = 'bold 20px Arial'; x.textAlign = 'center'; x.fillText('ZÜNDHÖLZER', 64, 44); const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace;
+      const side = new T.MeshStandardMaterial({ color: 0x8a6a40, roughness: .9 }), m = new T.Mesh(new T.BoxGeometry(.056, .015, .037), [side, side, new T.MeshStandardMaterial({ map: t, roughness: .8 }), side, side, side]); m.castShadow = true; m.userData.noCol = true; return m; })();
+    mb.position.set(bx + .03, sy + .0075, bz + .62); mb.rotation.y = .5; A.add(mb);
+    const lamp = c.fit(c.lanternS.clone(true), .3); lamp.position.set(bx, sy, bz + .45); lamp.traverse(m => { if (m.isMesh) { m.castShadow = true; if (/buln|bulb/i.test(m.name + [].concat(m.material)[0].name)) { m.material = m.material.clone(); m.material.emissive = new T.Color(0xffa040); m.material.emissiveIntensity = 1.6; } } }); lamp.userData.noCol = true; A.add(lamp);
+    const L = c.vlight(0xffa860, 1.1, 5.5, bx, sy + .2, bz + .45), gl = c.glow(0xffa040, .7, bx, sy + .12, bz + .45, A); OW.hildeLampe = { L, gl, lamp };
+    WORLD_TICK.push((dt, t) => { if (!OW.hildeLampe) return; const f = .86 + Math.sin(t * 8.1) * .06 + Math.sin(t * 21) * .05 + (Math.random() < .02 ? -.2 : 0), on = OW.hildeLampe.on !== false; L.intensity = on ? 1.1 * f : 0; gl.visible = on; });
+    // Blechdose unter der Bank
+    const dose = await bu_mod('w_blech', 'model.glb', .2, 'max'); if (dose) { dose.position.set(bx + .02, 0, bz - .35); dose.rotation.y = 1.1; dose.userData.noCol = true; A.add(dose); }
+    // zwei Stühle mit dem Gesicht zur Wand; auf dem zweiten ein Kissen, eingedrückt
+    const ch = [await msFBX('chair', 'model.fbx', chairSpec).catch(() => null), await msFBX('chair', 'model.fbx', chairSpec).catch(() => null)];
+    const spots = [[X0 + 1.3, z0 - .15, -PI / 2 + .12], [X0 + 1.25, z0 + .62, -PI / 2 - .2]];
+    ch.forEach((o, i) => { if (!o) return; const g = c.fit(o, .92), [x, z, ry] = spots[i]; g.position.set(x, 0, z); g.rotation.y = ry; A.add(g); g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+      if (i === 1) { const st = bu_strahl(g, x, 1.6, z, 0, -1, 0, 3), ky = st ? st.p.y : .46, kg = new T.BoxGeometry(.36, .07, .36, 10, 2, 10), P = kg.attributes.position;
+        for (let j = 0; j < P.count; j++) { const px = P.getX(j), pz = P.getZ(j), py = P.getY(j), r2 = px * px + pz * pz; if (py > 0) P.setY(j, py - .042 * Math.exp(-r2 / .006) + .012 * Math.exp(-r2 / .05)); const e = Math.max(Math.abs(px), Math.abs(pz)) / .18; P.setX(j, px * (1 - .06 * e * e * (py < 0 ? 1 : .4))); }
+        kg.computeVertexNormals(); const km = new T.Mesh(kg, c.sm('wallpaper_fabric', 0x7a3c34)); km.position.set(x, ky + .035, z); km.rotation.y = ry + .3; km.castShadow = true; km.userData.noCol = true; A.add(km); OW.hildeKissen = km; } });
+    // Zettel mit Reißzwecke: „Drei. Immer drei.“
+    const zh = bu_strahl(s, X0 + 3, 1.45, z0 + 1.15, -1, 0, 0, 6);
+    if (zh) { const zt = (() => { const cv = document.createElement('canvas'); cv.width = 260; cv.height = 340; const x = cv.getContext('2d'); x.fillStyle = '#e8e2cf'; x.fillRect(0, 0, 260, 340); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(110,90,60,${R2() * .08})`; x.beginPath(); x.arc(R2() * 260, R2() * 340, 5 + R2() * 26, 0, 7); x.fill(); }
+        x.fillStyle = '#1c1e3a'; x.font = '62px Caveat, cursive'; x.textAlign = 'center'; x.fillText('Drei.', 130, 150); x.fillText('Immer drei.', 130, 232); const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
+      const pm = new T.Mesh(new T.PlaneGeometry(.13, .17), new T.MeshStandardMaterial({ map: zt, roughness: .95, side: T.DoubleSide })); const pg = pm.geometry.attributes.position; for (let j = 0; j < pg.count; j++) pg.setZ(j, Math.sin(pg.getX(j) * 40) * .002 + Math.max(0, -pg.getY(j) - .04) * .12 * (pg.getX(j) > 0 ? 1 : .3)); pm.geometry.computeVertexNormals();
+      bu_an(pm, zh.p, zh.n, UP, .004); pm.rotateZ(.05); pm.userData.noCol = true; A.add(pm);
+      const pin = new T.Mesh(new T.SphereGeometry(.0085, 10, 6, 0, PI * 2, 0, PI / 2), new T.MeshStandardMaterial({ color: 0xb02a22, roughness: .35, metalness: .3 })); pin.position.copy(zh.p).addScaledVector(zh.n, .0075).add(new V3(0, .06, 0)); pin.quaternion.setFromUnitVectors(UP, zh.n); pin.userData.noCol = true; A.add(pin); OW.hildeZettel = pm; } }, 'Hildes Laube');
+  // ---- Vogelscheuche (Parzelle W2): trägt eine blaue, abgewetzte Kinderjacke
+  await mk(async () => {
+    const jk = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true, color: 0x4a68a8 } }); msFit(jk, .66, 'y'); const g = msGround(jk), sx = -121.2, sz = 24.8;
+    g.position.set(sx - .02, 1.0, sz); g.rotation.y = PI / 2 + PI; g.scale.multiplyScalar(1.08); g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); A.add(g); OW.scareJacke = g; }, 'Vogelscheuche');
+  // ---- Heuballen: eine kindgroße Mulde auf dem obersten Ballen, darin acht Kiesel im Kreis
+  await mk(async () => {
+    let best = null; for (const [x, z] of [[-128.2, -33.5], [-126.4, -33.4], [-127.3, -33.6], [-125.6, -33.3]]) { const h = bu_strahl(F, x, 3.2, z, 0, -1, 0, 6); if (h && h.n.y > .5 && (!best || h.p.y > best.p.y)) best = h; }
+    if (!best) return;
+    const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'), g = x.createRadialGradient(128, 128, 20, 128, 128, 124); g.addColorStop(0, 'rgba(40,28,10,.8)'); g.addColorStop(.7, 'rgba(60,44,18,.55)'); g.addColorStop(1, 'rgba(60,44,18,0)'); x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 160; i++) { const a = R2() * 6.3, r = 50 + R2() * 70; x.strokeStyle = `rgba(${150 + R2() * 60},${120 + R2() * 50},50,${.2 + R2() * .4})`; x.lineWidth = 1.5; x.beginPath(); x.moveTo(128 + Math.cos(a) * r, 128 + Math.sin(a) * r); x.lineTo(128 + Math.cos(a + .4) * (r + 14), 128 + Math.sin(a + .4) * (r + 14)); x.stroke(); }
+    const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; const m = new T.Mesh(new T.PlaneGeometry(.78, .78), new T.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: 1 })); bu_an(m, best.p, best.n, UPZ, .01); m.userData.noCol = true; F.add(m);
+    const ks = []; for (let i = 0; i < 8; i++) { const a = i / 8 * PI * 2; ks.push([best.p.x + Math.cos(a) * .17, best.p.y + .012, best.p.z + Math.sin(a) * .17, .05 + rr(0, .01), rr(0, 6), .6]); } await bu_kiesel(ks, F); OW.heuMulde = m; }, 'Heuballen');
+  // ---- Stalltür: über dem Eingang eingeschnitzt 1312, darunter, frischer, 2026
+  await mk(async () => {
+    const d = c.barnDoor, inn = c.barnIn || null, out = inn ? new V3(d.x - inn.x, 0, d.z - inn.z).normalize() : new V3(1, 0, 0); let h = null;
+    for (const y of [2.55, 2.75, 2.35, 2.95, 3.15]) { h = bu_strahl(F, d.x + out.x * 4, y, d.z + out.z * 4, -out.x, 0, -out.z, 8); if (h && Math.abs(h.n.y) < .4) break; h = null; }
+    if (!h) return;
+    const m = bu_ritz(1.0, .3, (C, B, W, H) => { ritz_zeile(C, B, '1312', W * .14, H * .46, H * .4, { stil: 'ritz', alpha: .8, jit: 1.1 }); ritz_zeile(C, B, '2026', W * .14 + 6, H * .9, H * .4, { stil: 'ritz', alpha: 1, jit: 1.1 }); }, { ppm: 520, seed: 1312, bump: 3.2 });
+    bu_an(m, new V3(h.p.x, h.p.y, h.p.z), h.n, UP, .004); m.userData.noCol = true; F.add(m); OW.stallZahlen = m; }, 'Stalltür');
+  // ---- Traktor: Kreidepfeil nach Osten auf dem Kotflügel
+  await mk(async () => {
+    const tr = F.children.find(o => Math.abs(o.position.x + 132) < .02 && Math.abs(o.position.z + 20.5) < .02); if (!tr) return; tr.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(tr), cx = (bb.min.x + bb.max.x) / 2, cz = (bb.min.z + bb.max.z) / 2; let best = null;
+    for (let a = 0; a < 6.28; a += .26) for (const r of [.7, 1.0, 1.3]) { const h = bu_strahl(tr, cx + Math.cos(a) * r, bb.max.y + .5, cz + Math.sin(a) * r, 0, -1, 0, 4); if (h && h.n.y > .7 && h.p.y > .8 && h.p.y < 1.7) { const sc = Math.hypot(h.p.x - cx, h.p.z - cz) + (h.p.z < cz ? .6 : 0); if (!best || sc > best.sc) best = { h, sc }; } }
+    if (!best) return;
+    const m = bu_ritz(.42, .22, (C, B, W, H) => { ritz_strich(C, null, [[W * .1, H * .5], [W * .85, H * .5 + ritz_RN() * 2]], 60, 'kreide', .9); ritz_strich(C, null, [[W * .62, H * .16], [W * .88, H * .5]], 60, 'kreide', .9); ritz_strich(C, null, [[W * .62, H * .84], [W * .88, H * .5]], 60, 'kreide', .9); }, { ppm: 520, seed: 77, relief: false });
+    bu_an(m, best.h.p, best.h.n, new V3(0, 0, -1), .004); m.userData.noCol = true; F.add(m); OW.traktorPfeil = m; }, 'Traktor');
+}

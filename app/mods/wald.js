@@ -61,11 +61,15 @@ WORLD_MODS.push(['Forbidden Dustwoods', async () => {
     kr.rotation.set(-PI / 2, 0, .5); kr.position.set(Fk.x + .35, .021, Fk.z + .25); scene.add(kr); // im Schlamm, wo es stand
     const kn = new T.Mesh(new T.PlaneGeometry(.34, .2), dm((c, w) => { c.clearRect(0, 0, w, w); for (const x of [38, 90]) { const g = c.createRadialGradient(x, 64, 0, x, 64, 22); g.addColorStop(0, 'rgba(22,16,10,.8)'); g.addColorStop(1, 'rgba(22,16,10,0)'); c.fillStyle = g; c.beginPath(); c.ellipse(x, 64, 22, 30, 0, 0, 7); c.fill(); } }));
     kn.rotation.set(-PI / 2, 0, .4); kn.position.set(WALD.wolf.x + .95, .02, WALD.wolf.z + .35); scene.add(kn);
+    // die Batterie selbst: liegt am Rand des Busches im Laub (Scan ue/batterie, echte Größe); sichtbar erst, wenn das Reh weg ist
+    try { const src = await msModel('../ue/batterie', 'model.glb'), o = msGround(msFit(src.clone(true), .06, 'max')); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } });
+      const g = new T.Group(); g.add(o); o.position.y += .0075; o.rotation.set(0, 0, PI / 2); o.position.x += .03; g.position.set(Fk.x + .46, .012, Fk.z + .33); g.rotation.set(.08, 2.2, .1); g.visible = false; g.userData.noCol = true; scene.add(g); S.fakeBat = g; } catch (e) { console.warn('Wald: Batterie', e); }
     S.fakeHit = box(.7, .5, .7, Fk.x + .55, .3, Fk.z + .45, hidden, { cast: false }); interact(S.fakeHit, () => S.fakeGone && !story.lore.some(l => l.key === 'wald_fake') ? 'In den Brombeeren glänzt etwas' : '', () => wald_fakeFund()); }
   // --- Grenzzaun (West, Ost, Nord) – sichtbar, alt, schief
   { const F = []; const run = (x0, z0, x1, z1) => { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.floor(L / 3.05), a = Math.atan2(-(z1 - z0), x1 - x0);
       for (let i = 0; i < n; i++) { const k = i * 3.05 / L; F.push(m4(x0 + (x1 - x0) * k, 0, z0 + (z1 - z0) * k, a, 1, rand(-.05, .05), rand(-.06, .06))); } };
-    run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, 39.6, WALD.z1); run(44.4, WALD.z1, WALD.x1, WALD.z1); // Lücke 39,6…44,4: eingedrückt, dahinter der tiefe Wald run(WALD.x1, WALD.z1, WALD.x1, 98.2);
+    run(WALD.x0, 98.2, WALD.x0, WALD.z1); run(WALD.x0, WALD.z1, 39.6, WALD.z1); run(44.4, WALD.z1, WALD.x1, WALD.z1); // Lücke 39,6…44,4: eingedrückt, dahinter der tiefe Wald
+    run(WALD.x1, WALD.z1, WALD.x1, 98.2); // Ostzaun (x 110): stand vorher hinter dem Kommentar und wurde nie gebaut
     chunk(fence, F, true, 60, 26); } // jedes Zaunfeld vollständig (alle Teile des Scans)
   // --- Boden: Waldboden-Flecken, Laub auf den Wegen, Findlinge
   try { const ff = msSurfMat('../forestfloor', { tint: 0x5a5046 }); ff.userData.tile = 4; const p = plane(WALD.x1 - WALD.x0 + 30, WALD.z1 - WALD.z0 + 24, (WALD.x0 + WALD.x1) / 2, .012, (WALD.z0 + WALD.z1) / 2 + 10, ff); p.receiveShadow = true;
@@ -130,6 +134,15 @@ async function wald_beasts() {
   const pup = leben_beast('wolf', .48); if (pup) { pup.g.position.set(WALD.wolf.x, 0, WALD.wolf.z); pup.g.rotation.y = -2.2; pup.g.visible = true; pup.st = 'caught'; leben_play(pup, 'IdleLookAround', 0); S.pup = pup; if (story.lore.some(l => l.key === 'wald_welpe')) { pup.st = 'gone'; pup.g.visible = false; }
     const snare = new THREE.Mesh(new THREE.TorusGeometry(.18, .008, 6, 24), new THREE.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); snare.rotation.x = PI / 2; snare.position.set(WALD.wolf.x + .25, .18, WALD.wolf.z); scene.add(snare); S.snare = snare;
     const pole = box(.06, .7, .06, WALD.wolf.x + .5, .35, WALD.wolf.z + .1, M.wood, { collide: false });
+    { const T = THREE, g = S.snareItems = new T.Group(), sx = WALD.wolf.x, sz = WALD.wolf.z; g.userData.noCol = true; // Jonas’ Taschenmesser steckt im Draht, die Plombe hängt mit Draht am Pflock – beides weg, sobald die Schlinge offen ist
+      const wood = new T.MeshStandardMaterial({ color: 0x4a2a1e, roughness: .7 }), brass = new T.MeshStandardMaterial({ color: 0x8a6a34, roughness: .4, metalness: .85 }), rust = new T.MeshStandardMaterial({ color: 0x5a4636, roughness: .55, metalness: .7 });
+      const kn = new T.Group(); const h = new T.Mesh(new T.BoxGeometry(.092, .013, .021), wood); kn.add(h); for (const sg of [-1, 1]) { const c = new T.Mesh(new T.BoxGeometry(.008, .0145, .0225), brass); c.position.x = sg * .0475; kn.add(c); }
+      const bl = new T.Mesh(new T.BoxGeometry(.088, .004, .016), rust); bl.position.set(0, -.0085, 0); kn.add(bl); const lo = new T.Mesh(new T.TorusGeometry(.0065, .0016, 5, 10), brass); lo.position.x = -.054; kn.add(lo);
+      kn.position.set(sx + .25 + .02, .15, sz + .17); kn.rotation.set(.25, .5, .9); kn.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kn);
+      const pl = new T.Mesh(new T.PlaneGeometry(.042, .03), new T.MeshStandardMaterial({ roughness: .4, metalness: .6, side: T.DoubleSide, map: tex(cnv(64, (c, w) => { c.fillStyle = '#9a9d9b'; c.fillRect(0, 0, w, w); c.fillStyle = 'rgba(70,40,20,.3)'; for (let i = 0; i < 10; i++) c.fillRect(rand(0, w), rand(0, w), rand(2, 10), rand(2, 6)); if (typeof akte_auge === 'function') akte_auge(c, 32, 32, 12, 'rgba(25,25,25,.9)'); }), true) }));
+      pl.position.set(sx + .5 - .035, .46, sz + .1 - .02); pl.rotation.set(.1, .6, 0); g.add(pl);
+      const wr = new T.Mesh(new T.TorusGeometry(.036, .0022, 5, 14), new T.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); wr.rotation.x = PI / 2; wr.position.set(sx + .5, .5, sz + .1); g.add(wr);
+      const wr2 = new T.Mesh(new T.CylinderGeometry(.0018, .0018, .05, 4), wr.material); wr2.position.set(sx + .5 - .03, .48, sz + .1 - .01); wr2.rotation.z = .5; g.add(wr2); g.visible = !story.lore.some(l => l.key === 'wald_welpe'); scene.add(g); }
     const hit = box(1.2, .8, 1.2, WALD.wolf.x, .4, WALD.wolf.z, hidden, { cast: false });
     interact(hit, () => story.lore.some(l => l.key === 'wald_welpe') ? 'Die offene Schlinge' : 'Der Welpe in der Schlinge', () => wald_pup()); }
   S.beasts = [...S.deer, ...(S.fox ? [S.fox] : []), ...S.wolves, ...(S.pup ? [S.pup] : [])];
@@ -175,7 +188,7 @@ function wald_cutTick(dt, P) {
 }
 function wald_pupFrei() {
   const S = wald_S; if (story.lore.some(l => l.key === 'wald_welpe')) return;
-  Audio.play('metalHit2', { gain: .3, rate: 1.9, x: WALD.wolf.x, y: .2, z: WALD.wolf.z }); if (S.snare) S.snare.visible = false;
+  Audio.play('metalHit2', { gain: .3, rate: 1.9, x: WALD.wolf.x, y: .2, z: WALD.wolf.z }); if (S.snare) S.snare.visible = false; if (S.snareItems) S.snareItems.visible = false;
   story.lore.push({ key: 'wald_welpe', title: 'Nicht rennen, Lampe an', html: 'Ein Wolfswelpe in einer Drahtschlinge. Ich hab sie aufgeschnitten, die Lampe starr auf die Wölfe. Sie haben zugesehen und nichts getan.\n\nIm Draht: ein Taschenmesser. In den Griff geritzt: <b>JONAS W.</b>\nAm Pflock eine Plombe aus Blech, das Auge über der Flamme: <b>AST 7 · Köder W · nicht entfernen</b>.\n\nDie haben einen Welpen an einen Draht gebunden, damit was Hungriges kommt.' });
   addItem('jonas_messer'); addItem('plombe');
   sideDone('wald_welpe', 'Der Welpe ist frei. Im Draht: Jonas’ Taschenmesser. Am Pflock: eine Plombe vom Amt – „Köder W“.');
@@ -192,7 +205,7 @@ function wald_warnsprung(x, z, g) { // Stufe 2: er hat nicht zugebissen – Luke
   if (typeof cutLights === 'function') cutLights(900); if (typeof gedanke === 'function') gedanke('wald_warnung', 'Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung. Nicht rennen.', 1800, 3); }
 // ---------------------------------------------------------------- N6-1 · das Reh, das nicht wegläuft (Stufe 1): Licht drauf – es steht; senken – ein Schritt; beim dritten Heben ist es weg
 function wald_fakeAn() { const S = wald_S, F = S.fake; if (!F || S.fakeOn || S.fakeGone) return; S.fakeOn = true; F.g.position.set(WALD.fake.x, 0, WALD.fake.z); F.g.visible = true; F.st = 'stand'; S.fk = { lit: false, lowered: false, raises: 0, step: 0 }; }
-function wald_fakeWeg() { const S = wald_S; if (S.fake) { S.fake.g.visible = false; S.fake.st = 'gone'; } S.fakeOn = false; S.fakeGone = true; }
+function wald_fakeWeg() { const S = wald_S; if (S.fakeBat && !story.lore.some(l => l.key === 'wald_fake')) S.fakeBat.visible = true; if (S.fake) { S.fake.g.visible = false; S.fake.st = 'gone'; } S.fakeOn = false; S.fakeGone = true; }
 function wald_fakeTick(dt, P) {
   const S = wald_S, F = S.fake; if (!F || !S.fakeOn || F.st !== 'stand') return; leben_beastUpd(F, dt, 60);
   const p = F.g.position, d = Math.hypot(p.x - P.x, p.z - P.z), K = S.fk, lit = flashOn && d < 26 && leben_facing(p.x, p.y + .9, p.z) > .955;
@@ -202,7 +215,7 @@ function wald_fakeTick(dt, P) {
   if (K.step > 0 && d > 3) { const st = Math.min(K.step, dt * 1.4); K.step -= st; p.x += (P.x - p.x) / d * st; p.z += (P.z - p.z) / d * st; }
   if (d < 3 || d > 60) wald_fakeWeg(); }
 function wald_fakeFund() {
-  const S = wald_S; if (!S.fakeGone || story.lore.some(l => l.key === 'wald_fake')) return; addBattery(1); Audio.play('items1', { gain: .2, rate: 1.2 });
+  const S = wald_S; if (!S.fakeGone || story.lore.some(l => l.key === 'wald_fake')) return; addBattery(1); if (S.fakeBat) S.fakeBat.visible = false; Audio.play('items1', { gain: .2, rate: 1.2 });
   story.lore.push({ key: 'wald_fake', title: S.fakeSeen ? 'Das Reh, das nicht kaute' : 'Im Brombeerbusch', html: (S.fakeSeen ? 'Als die Herde floh, blieb eines stehen. Es hat nicht gekaut. Hielt ich die Lampe drauf, rührte es sich nicht. Senkte ich sie, kam es einen Schritt näher. Beim dritten Heben war es weg, ohne Geräusch.\n\n' : '') + 'Im Brombeerbusch am Rand der Lichtung: eine Batterie. Daneben im Schlamm drei parallele Kratzer, klein.' });
   openNote('Im Brombeerbusch', (S.fakeSeen ? 'Wo das Reh stand, liegt' : 'Im Gestrüpp am Rand der Lichtung liegt') + ' eine Batterie.\n\nDaneben im Schlamm: drei Kratzer, parallel, klein. So klein wie von einem Kind.');
   if (S.fakeSeen && typeof gedanke === 'function') gedanke('wald_fake', 'Die Herde ist gerannt. Das eine nicht. … Was stehen bleibt, wenn alle rennen, hat Hunger.', 1500, 3); }
@@ -210,8 +223,8 @@ function wald_hirschFertig() { // Schritt 4 + Fibel-Regel in Jonas’ Stil; weit
   if (story.lore.some(l => l.key === 'wald_hirsch')) return;
   story.lore.push({ key: 'wald_hirsch', title: 'Was wegläuft, ist echt', html: 'Lukes Regel, schief, in Jonas’ Stil:\n\n<span class="hand">Was wegläuft, ist echt. Was stehen bleibt, wenn alle rennen, hat Hunger.\n(Lampe oben lassen. Merk dir das, Idiot.)</span>\n\nDer Hirsch hat mich zu dem großen Baum im Westen geführt. Oben hängt ein Baumhaus.' });
   sideDone('wald_hirsch', 'Der Hirsch hat dich zum großen Baum geführt. Oben hängt ein Baumhaus. Fibel-Regel: „Was wegläuft, ist echt.“');
-  if (typeof gedanke === 'function') gedanke('wald_baum', 'Ein Baumhaus. Mit einem Schloss an der Klappe. … Hier hat mal jemand gespielt, als hier noch keiner Angst hatte.', 1500, 3);
-  if (typeof cleo_start === 'function' && story.side.cleo && story.side.cleo.state === 'hidden') cleo_start('Unter dem großen Baum im Westen hängt ein Baumhaus. Die Klappe hat ein Vorhängeschloss.'); }
+  if (typeof gedanke === 'function') gedanke('wald_baum', 'Ein Baumhaus. Oben eine Kiste mit einem Schloss. … Hier hat mal jemand gespielt, als hier noch keiner Angst hatte.', 1500, 3);
+  if (typeof cleo_start === 'function' && story.side.cleo && story.side.cleo.state === 'hidden') cleo_start('Unter dem großen Baum im Westen hängt ein Baumhaus. Oben steht eine Kiste mit Vorhängeschloss.'); }
 WORLD_TICK.push((dt, t) => {
   const S = wald_S; if (!S.ready || !state.started || menu.attract) return;
   // Kapitel 1–5: gesperrt – alles aus, nur der Waldsaum als Kulisse (Prüfung zweimal je Sekunde, keine Schatten)

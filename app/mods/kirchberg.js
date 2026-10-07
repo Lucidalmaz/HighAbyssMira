@@ -216,7 +216,7 @@ async function kirchberg_giselaAussen() {
     S.brett = { x: bx, z: bz, len }; }
   // Das rote Kinderrad von 1958, am Zaunpfosten angekettet, Sattel trocken (Fahrrad-Scan 0,55, rot)
   { const b = await kirchberg_mod('bicycle', 'model.gltf', .66); if (b) { b.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color && !/tire|rubber|reifen/i.test(m.material.name || m.name)) m.material.color.lerp(new THREE.Color(0xa01c14), .72); m.material.roughness = Math.min(1, (m.material.roughness ?? .6) + .15); } });
-      kirchberg_setze(b, H.x + 3.9, 0, fz + 5.55, PI / 2 - .12); S.rad = b; b.rotation.z = .05; }
+      try { b.add(kirchberg_stuetz(kirchberg_radFrame(b))); } catch (e) { console.warn('Kirchberg: Stützräder', e); } kirchberg_setze(b, H.x + 3.9, 0, fz + 5.55, PI / 2 - .12); S.rad = b; b.rotation.z = .05; }
     kirchberg_hit(1, .8, .5, H.x + 3.9, .45, fz + 5.55, 'Rotes Kinderrad', () => kirchberg_notiz('Ein Kinderfahrrad', 'Klein, rot, Stützräder, Vollgummireifen. Mit einer Kette am Zaunpfosten angeschlossen.\nDie Klingel fehlt. Das Schutzblech ist geputzt, die Reifen sind hart.\n\nDer Sattel ist trocken. Überall regnet es, nur hier nicht.', 'kb_rad')); }
   // Regentonne in der Ecke (Fass-Scan), drei Kratzer am Rand, ein Kiesel
   { const t = await kirchberg_mod('w_barrel', 'model.glb', .95); if (t) kirchberg_setze(t, H.x - 5.1, 0, fz + .75, .4); S.tonne = [H.x - 5.1, fz + .75];
@@ -325,10 +325,10 @@ async function kirchberg_kapelleAussen() {
   const lied = kirchberg_papier({ w: 300, h: 420, bg: '#e9e3cf', zeilen: [['Laterne, Laterne', 26, 50, 30, '#222', 'Georgia, serif', 0], ['Sonne, Mond und Sterne', 26, 86, 22, '#333', 'Georgia, serif', 0], ['brenne auf, mein Licht,', 26, 116, 22, '#333', 'Georgia, serif', 0], ['brenne auf, mein Licht,', 26, 146, 22, '#333', 'Georgia, serif', 0], ['aber nur meine liebe', 26, 176, 22, '#333', 'Georgia, serif', 0], ['Laterne nicht.', 26, 206, 22, '#333', 'Georgia, serif', 0], ['— Strophe des Dorfes: —', 26, 262, 17, '#555', 'Georgia, serif', 0], ['bei Nacht die Lampe aus,', 26, 292, 20, '#333', 'Georgia, serif', 0], ['dann findet sie kein Haus.', 26, 318, 20, '#333', 'Georgia, serif', 0]] });
   // Martinsnische: an der Westwand der Kapelle, hinter einem Eisengitter (Scan-Zaunstück); Martin + Bettler: Heiligenfigur-Scan als Ersatz (fehlendes Asset)
   const nx = K.x - 5.2, nz = 80.6;
-  { const st = await kirchberg_fbx('madre', { '*': { b: 'madrestatue_Color_4k.jpg', n: 'MadeStatue_normal_4k.jpg', ao: 'madrestatue_AO_4ks.jpg', color: 0xc8c4bc } }, 1.45); if (st) { st.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiplyScalar(.55); } }); kirchberg_setze(st, nx, .15, nz, PI); S.martin = st; }
+  { try { const bs = kirchberg_bildstock(nx, nz + .3); scene.add(bs); S.martin = bs; const L = kirchberg_licht(null, 0xffa860, .55, 4.2, nx, 1.7, nz - .2); S.martinLicht = L; } catch (e) { console.warn('Kirchberg: Martinsnische', e); } // Grablicht in der Nische (Licht beim Laden angelegt)
     const g = await kirchberg_mod('ironfence_ms', 'model.gltf', 1.25); if (g) { kirchberg_setze(g, nx, 0, nz - .75, 0); S.gitter = g; }
     kirchberg_decal(lied, .2, .28, nx + .35, 1.05, nz - .82, PI, { rz: -.05 });
-    kirchberg_hit(1.4, 1.8, .6, nx, .9, nz - .6, 'Martinsnische', () => kirchberg_nische()); }
+    kirchberg_hit(1.4, 2.2, .6, nx, 1.1, nz - .6, 'Martinsnische', () => kirchberg_nische()); }
   // Kapellenfenster, acht Felder (von außen nur Umrisse – das Glas ist innen dunkel); Textur wird in Kap. 3 von innen wiederverwendet
   S.fensterTex = kirchberg_fensterTex(false); S.fensterTexInnen = kirchberg_fensterTex(true);
   kirchberg_decal(S.fensterTex, .9, 1.9, K.x + 3.05, 2.3, 80.35, PI, { rough: .3 });
@@ -378,11 +378,244 @@ function kirchberg_festCheck() { const S = kirchberg_S, st = S.steps; const n = 
   kirchberg_desc('kb_fest', `Aushang, Kapellenfenster, Sühnekreuz, Martinsnische, Pfarrhaus. (${n}/6)`);
   if (n >= 6) { kirchberg_fertig('kb_fest', 'Das Fest fällt aus, alle siebzehn Jahre. Auf dem Bußkreuz steht 1312. Der Pfarrer verschwand 1992 – sein Rad wird gepflegt.');
     story.lore.push({ key: 'kb_pfarrer_rad', title: 'Der Pfarrer mit dem Rad', html: 'Pfarrer Bernhard Voss, Am Kirchberg 1. Seit 1992 verschwunden. Im Studierzimmer brennt jeden Abend Licht. Sein Rad hat pralle Reifen und hinten einen Kindersitz.' }); } }
+// ---------------------------------------------------------------------  Werkstatt Kap. 1 (Text gegen Welt): Korbgeflecht, Kindersitz, Schild, Mappe, Kuli – kleine Requisiten aus mehreren Teilen mit echten Oberflächen
+// Flechtwerk (Rattan): senkrechte Stäbe, waagerechte Bänder im Wechsel über/unter, Maserung, Schmutz – Farbe und Höhenrelief aus derselben Zeichnung
+function kirchberg_flechtTex(farbe = '#b08a52', dunkel = '#5a3d1c') {
+  const S = kirchberg_S; if (S.flecht) return S.flecht; const W = 512, H = 512, nS = 10, rows = 40, sw = W / nS, rh = H / rows;
+  const zeichne = (x, f0, f1, f2, tief) => { x.fillStyle = f0; x.fillRect(0, 0, W, H);
+    for (let r = 0; r < rows; r++) for (let s = 0; s < nS; s++) { const oben = (r + s) % 2 === 0, px = s * sw, py = r * rh; // oben: Band liegt über dem Stab
+      if (oben) { const g = x.createLinearGradient(0, py, 0, py + rh); g.addColorStop(0, f2); g.addColorStop(.5, f1); g.addColorStop(1, f2); x.fillStyle = g; x.fillRect(px - 1, py + 1, sw + 2, rh - 2); }
+      else { const g = x.createLinearGradient(px, 0, px + sw, 0); g.addColorStop(0, f2); g.addColorStop(.5, f1); g.addColorStop(1, f2); x.fillStyle = g; x.fillRect(px + sw * .12, py, sw * .76, rh); } }
+    for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(${tief ? '255,255,255' : '40,24,8'},${.04 + kirchberg_r() * .08})`; const l = 3 + kirchberg_r() * 14; if (kirchberg_r() < .5) x.fillRect(kirchberg_r() * W, kirchberg_r() * H, l, 1); else x.fillRect(kirchberg_r() * W, kirchberg_r() * H, 1, l); } };
+  const c = kirchberg_cnv(W, H, (x) => { zeichne(x, dunkel, farbe, '#8a6638', false); const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(30,18,6,0)'); g.addColorStop(1, 'rgba(30,18,6,.28)'); x.fillStyle = g; x.fillRect(0, 0, W, H); // Grund dunkler, nach unten verschmutzt
+    for (let i = 0; i < 70; i++) { x.fillStyle = `rgba(60,44,22,${.03 + kirchberg_r() * .05})`; x.beginPath(); x.arc(kirchberg_r() * W, kirchberg_r() * H, 6 + kirchberg_r() * 26, 0, 7); x.fill(); } });
+  const b = kirchberg_cnv(W, H, (x) => zeichne(x, '#101010', '#e8e8e8', '#9a9a9a', true));
+  const map = kirchberg_tex(c), bump = new THREE.CanvasTexture(b); for (const t of [map, bump]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; }
+  return S.flecht = { map, bump }; }
+// Korb: Eimerform mit schrägem Rand (hinten hoch, vorn niedrig), z = Fahrtrichtung. Gibt Geometrie des Mantels und die Randkurve zurück
+function kirchberg_korbGeo(w, l, hVorn, hHinten, n = 64, m = 14) {
+  const pos = [], uv = [], idx = [], rim = [], e = 4.2, sg = v => Math.sign(v) * Math.pow(Math.abs(v), 2 / e);
+  for (let j = 0; j <= m; j++) { const t = j / m; for (let i = 0; i <= n; i++) { const a = i / n * PI * 2, cx = sg(Math.cos(a)), cz = sg(Math.sin(a)), r = (.86 + .14 * Math.sin(t * PI * .5)) * (1 + .035 * Math.sin(t * PI));
+      const z = cz * l / 2 * r, hh = hVorn + (hHinten - hVorn) * Math.min(1, Math.max(0, (l / 2 - z) / l)); // schräger Rand
+      const p = [cx * w / 2 * r, t * hh, z]; pos.push(...p); uv.push(i / n * 4.2, t * hh * 9); if (j === m) rim.push(new THREE.Vector3(...p)); } }
+  for (let j = 0; j < m; j++) for (let i = 0; i < n; i++) { const a = j * (n + 1) + i, b = a + 1, c = a + n + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
+  // Boden: Scheibe mit kleinem Rand
+  const bp = [0, 0, 0], bu = [.5, .5], bi = []; for (let i = 0; i <= n; i++) { const a = i / n * PI * 2, cx = sg(Math.cos(a)), cz = sg(Math.sin(a)); bp.push(cx * w / 2 * .86, 0, cz * l / 2 * .86); bu.push(.5 + cx * .5, .5 + cz * .5); if (i < n) bi.push(0, i + 2, i + 1); }
+  const gb = new THREE.BufferGeometry(); gb.setAttribute('position', new THREE.Float32BufferAttribute(bp, 3)); gb.setAttribute('uv', new THREE.Float32BufferAttribute(bu, 2)); gb.setIndex(bi); gb.computeVertexNormals();
+  return { mantel: g, boden: gb, rim }; }
+// Gurtband zwischen zwei Punkten (flaches Band, Kanten mit Naht), in der Gruppe g
+function kirchberg_band(g, a, b, breit, mat, dick = .004) { const d = b.clone().sub(a), L = d.length(); if (L < 1e-4) return null; const m = new THREE.Mesh(new THREE.BoxGeometry(breit, dick, L), mat); m.position.copy(a).addScaledVector(d, .5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.normalize()); m.castShadow = true; m.userData.noCol = true; g.add(m); return m; }
+// Fahrrad-Kindersitz aus Korbgeflecht (Rattan, Chromstreben, Fußrasten, Dreipunktgurt – geschlossen) auf dem Gepäckträger. bike = Gruppe aus kirchberg_mod (noch nicht gesetzt, Welt = lokal).
+// Rückgabe: { seat, fwd (Fahrtrichtung in bike-lokal), ... }
+function kirchberg_radFrame(bike) { // Fahrrad-Scan (Gruppe, noch ungedreht, Welt = lokal): Längsachse, Fahrtrichtung (Lenker = höchste Punkte), Hinterachse, Radius
+  if (bike.userData.radF) return bike.userData.radF; const T = THREE; bike.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(bike), sz = bb.getSize(new T.Vector3()), lang = sz.x > sz.z ? 'x' : 'z', quer = lang === 'x' ? 'z' : 'x', H = sz.y;
+  const v = new T.Vector3(), pts = []; bike.traverse(m => { if (!m.isMesh) return; const P = m.geometry.attributes.position; for (let i = 0; i < P.count; i += 3) { v.fromBufferAttribute(P, i).applyMatrix4(m.matrixWorld); pts.push([v.y, v[lang]]); } });
+  pts.sort((p, q) => q[0] - p[0]); const top = pts.slice(0, Math.max(8, pts.length * .02 | 0)), mt = top.reduce((a, p) => a + p[1], 0) / top.length, mid = (bb.min[lang] + bb.max[lang]) / 2, vorn = mt > mid ? 1 : -1;
+  const hinten = vorn > 0 ? bb.min[lang] : bb.max[lang], r = H * .34, achse = hinten + vorn * r, cl = bb.getCenter(new T.Vector3()), fwd = new T.Vector3(); fwd[lang] = vorn;
+  const achsePunkt = new T.Vector3(); achsePunkt[lang] = achse; achsePunkt[quer] = cl[quer]; achsePunkt.y = r;
+  return bike.userData.radF = { bb, lang, quer, H, vorn, hinten, r, achse, cl, fwd, achsePunkt }; }
+// Rohr suchen: waagerechte Strahlen quer zum Rad bei Längsposition mx, Höhen y0…y1 – liefert die Höhe des Treffers, der y0 am nächsten liegt, und den Abstand von der Mittelebene
+function kirchberg_rohrQuer(bike, F, mx, yWunsch, y0, y1) { const T = THREE, rc = new T.Raycaster(), o = new T.Vector3(), d = new T.Vector3(); bike.updateMatrixWorld(true); let best = null; d[F.quer] = -1;
+  for (let y = y0; y <= y1; y += .01) { o[F.lang] = mx; o[F.quer] = F.cl[F.quer] + .5; o.y = y; rc.set(o, d); rc.far = 1; const h = rc.intersectObject(bike, true)[0]; if (!h) continue; const lat = .5 - h.distance; if (Math.abs(lat) > .09) continue; if (!best || Math.abs(y - yWunsch) < Math.abs(best.y - yWunsch)) best = { y, lat }; }
+  return best; }
+// Fahrrad-Kindersitz aus Korbgeflecht (Rattan, Chromstreben, Fußrasten, Dreipunktgurt – geschlossen) auf dem Gepäckträger. bike = Gruppe aus kirchberg_mod (noch nicht gesetzt, Welt = lokal).
+function kirchberg_kindersitz(bike) {
+  const T = THREE, F = kirchberg_radFrame(bike), { bb, lang, quer, H, vorn, hinten, r, achse, cl, fwd } = F;
+  const ptRack = new T.Vector3(); ptRack[lang] = achse; ptRack[quer] = cl[quer]; ptRack.y = 0; ptRack[lang] = achse - vorn * .05; const pS = ptRack.clone(); pS[lang] = achse - vorn * .14; const yRack = Math.max(.7, Math.min(.84, kirchberg_top(bike, pS.x, pS.z, 1.0, H * .7)));
+  const rig = new T.Group(); rig.userData.noCol = true; // lokale Achsen: +z = Fahrtrichtung, +y oben, +x links
+  rig.position.set(ptRack.x, yRack + .015, ptRack.z); rig.rotation.y = Math.atan2(fwd.x, fwd.z); bike.add(rig);
+  const fl = kirchberg_flechtTex(), mat = new T.MeshStandardMaterial({ map: fl.map, bumpMap: fl.bump, bumpScale: 2.2, roughness: .86, side: T.DoubleSide, color: 0xc8b090 }); mat.map.repeat.set(1, 1);
+  const w = .34, l = .37, hV = .15, hH = .4, K = kirchberg_korbGeo(w, l, hV, hH), korb = new T.Mesh(K.mantel, mat), boden = new T.Mesh(K.boden, mat); korb.castShadow = korb.receiveShadow = true; rig.add(korb, boden); boden.position.y = .002;
+  // Randwulst (Rattanrolle) und zweiter Bindering weiter unten
+  const cur = new T.CatmullRomCurve3(K.rim, true), rimM = new T.MeshStandardMaterial({ color: 0x7a5530, roughness: .7, map: fl.map, bumpMap: fl.bump, bumpScale: 1.2 }), rand1 = new T.Mesh(new T.TubeGeometry(cur, 120, .0125, 8, true), rimM); rand1.castShadow = true; rig.add(rand1);
+  const unten = K.rim.map(p => new T.Vector3(p.x * .93, .045, p.z * .93)), rand2 = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(unten, true), 100, .007, 6, true), rimM); rig.add(rand2);
+  // Gestell: zwei verchromte Rohrbügel längs unter dem Boden, vorn und hinten quer, Befestigungsplatte auf dem Gepäckträger
+  const chrom = new T.MeshStandardMaterial({ color: 0x8e9296, metalness: 1, roughness: .34 }), rohr = (a, b, rad) => { const d = b.clone().sub(a), q = new T.Mesh(new T.CylinderGeometry(rad, rad, d.length(), 10), chrom); q.position.copy(a).addScaledVector(d, .5); q.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize()); q.castShadow = true; rig.add(q); return q; };
+  for (const s of [-1, 1]) { rohr(new T.Vector3(s * .105, -.012, -l / 2 + .02), new T.Vector3(s * .105, -.012, l / 2 - .02), .0085); rohr(new T.Vector3(s * .105, -.012, l / 2 - .02), new T.Vector3(s * .165, .1, l / 2 - .02), .0075); rohr(new T.Vector3(s * .105, -.012, -l / 2 + .02), new T.Vector3(s * .165, .12, -l / 2 + .03), .0075); }
+  rohr(new T.Vector3(-.105, -.012, 0), new T.Vector3(.105, -.012, 0), .007);
+  { const p = new T.Mesh(new T.BoxGeometry(.22, .006, .14), new T.MeshStandardMaterial({ color: 0x2a2c2e, metalness: .7, roughness: .5 })); p.position.set(0, -.018, 0); rig.add(p); }
+  // Fußrasten: Haltestange seitlich nach unten, Trittbrett mit Gummischlaufe
+  const gummi = new T.MeshStandardMaterial({ color: 0x1c1c1e, roughness: .9 });
+  for (const s of [-1, 1]) { rohr(new T.Vector3(s * .17, .02, .12), new T.Vector3(s * .205, -.165, .165), .006); const tr = new T.Mesh(new T.BoxGeometry(.06, .012, .11), new T.MeshStandardMaterial({ color: 0x24262a, roughness: .6, metalness: .3 })); tr.position.set(s * .222, -.172, .165); rig.add(tr);
+    const sl = new T.Mesh(new T.TorusGeometry(.03, .004, 6, 14, PI), gummi); sl.position.set(s * .222, -.166, .2); sl.rotation.set(0, PI / 2, PI / 2); rig.add(sl); }
+  // Dreipunktgurt, geschlossen: zwei Schultergurte vom Rücken zum Schloss in der Mitte, zwei Beckengurte von den Seiten; Schloss mit roter Taste
+  const stoff = new T.MeshStandardMaterial({ color: 0x2c3036, roughness: .95 }), P = (x, y, z) => new T.Vector3(x, y, z), sc = P(0, .115, .05);
+  for (const s of [-1, 1]) { kirchberg_band(rig, P(s * .075, hH - .035, -l / 2 + .045), P(s * .07, .14, -l / 2 + .075), .026, stoff); kirchberg_band(rig, P(s * .07, .14, -l / 2 + .075), P(s * .045, .105, -.02), .026, stoff, .006); kirchberg_band(rig, P(s * .045, .105, -.02), P(s * .012, .12, .05), .026, stoff, .006);
+    kirchberg_band(rig, P(s * .155, .095, -.05), P(s * .08, .115, .02), .025, stoff, .006); kirchberg_band(rig, P(s * .08, .115, .02), P(s * .015, .125, .05), .025, stoff, .006); }
+  { const sch = new T.Mesh(new T.BoxGeometry(.05, .02, .045), new T.MeshStandardMaterial({ color: 0x1a1b1d, roughness: .45, metalness: .35 })); sch.position.copy(sc); sch.position.y += .01; rig.add(sch);
+    const tast = new T.Mesh(new T.BoxGeometry(.022, .008, .022), new T.MeshStandardMaterial({ color: 0xb8231a, roughness: .45 })); tast.position.copy(sc); tast.position.y += .024; rig.add(tast);
+    for (const s of [-1, 1]) { const z = new T.Mesh(new T.BoxGeometry(.02, .004, .035), chrom); z.position.set(s * .03, sc.y + .01, sc.z + .015); rig.add(z); } }
+  // Schmutz: Spinnweben/Staub nicht nötig – Gebrauchsspuren als Wachstuch: helles Kissen im Rücken (blaues Frottee)
+  { const ks = new T.Mesh(new T.BoxGeometry(.25, .22, .028, 8, 8, 1), new T.MeshStandardMaterial({ map: kirchberg_tex(kirchberg_cnv(128, 128, (x, w, h) => { x.fillStyle = '#6a7f9e'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(235,238,244,.55)'; for (let i = 0; i < 8; i++) for (let j = 0; j < 8; j++) if ((i + j) % 2 === 0) x.fillRect(i * 16, j * 16, 16, 16); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(40,50,70,${kirchberg_r() * .12})`; x.fillRect(kirchberg_r() * w, kirchberg_r() * h, 2, 1); } })), roughness: 1 })); ks.position.set(0, .2, -l / 2 + .045); ks.rotation.x = -.14; ks.castShadow = true; rig.add(ks); }
+  rig.traverse(m => { if (m.isMesh) { m.userData.noCol = true; } });
+  return { rig, F, yRack, w, l, hH }; }
+// Emaille-Schild „Pfarramt St. Martin“ an der Querstange des Herrenrads (Schmutz, Absplitterungen, zwei Kabelbinder)
+function kirchberg_schild() {
+  const t = kirchberg_tex(kirchberg_cnv(512, 160, (x, w, h) => { const r = 14, rr = (a, b, c, d, rad) => { x.beginPath(); x.moveTo(a + rad, b); x.arcTo(a + c, b, a + c, b + d, rad); x.arcTo(a + c, b + d, a, b + d, rad); x.arcTo(a, b + d, a, b, rad); x.arcTo(a, b, a + c, b, rad); x.closePath(); };
+    x.clearRect(0, 0, w, h); rr(2, 2, w - 4, h - 4, r); x.fillStyle = '#e9e5d6'; x.fill(); x.strokeStyle = '#1f2f5c'; x.lineWidth = 7; rr(14, 14, w - 28, h - 28, 8); x.stroke();
+    x.fillStyle = '#1f2f5c'; x.textAlign = 'center'; x.font = 'bold 60px "Arial Narrow", Arial, sans-serif'; x.fillText('PFARRAMT', w / 2, 82); x.font = 'bold 34px "Arial Narrow", Arial, sans-serif'; x.fillText('ST. MARTIN', w / 2, 126);
+    x.globalCompositeOperation = 'source-atop'; for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(${40 + kirchberg_r() * 30},${30 + kirchberg_r() * 20},20,${.05 + kirchberg_r() * .18})`; x.beginPath(); x.arc(kirchberg_r() * w, kirchberg_r() * h, 1 + kirchberg_r() * 6, 0, 7); x.fill(); }
+    for (let i = 0; i < 7; i++) { x.fillStyle = '#2a2a2a'; x.beginPath(); x.arc(kirchberg_r() * w, kirchberg_r() * h, 1.5 + kirchberg_r() * 3, 0, 7); x.fill(); } // Absplitterungen bis aufs Blech
+    x.globalCompositeOperation = 'source-over'; }));
+  const g = new THREE.Group(), pl = new THREE.Mesh(new THREE.PlaneGeometry(.13, .04), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .3, roughness: .3, metalness: .15, side: THREE.DoubleSide })); g.add(pl); pl.castShadow = true;
+  const bind = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: .6 }); for (const s of [-1, 1]) { const b = new THREE.Mesh(new THREE.TorusGeometry(.0105, .0016, 5, 12), bind); b.position.set(s * .045, .015, 0); b.rotation.y = PI / 2; g.add(b); }
+  g.userData.noCol = true; return g; }
+// Ledermappe (zugeknöpft): gerundeter Deckel, Lederkorn, Naht, Lasche mit Messingknopf; Gummispanner vom Gepäckträger darüber
+function kirchberg_mappe() {
+  const T = THREE, W = 384, H = 300, tx = kirchberg_tex(kirchberg_cnv(W, H, (x) => { x.fillStyle = '#4a2c18'; x.fillRect(0, 0, W, H); for (let i = 0; i < 4200; i++) { x.fillStyle = `rgba(${kirchberg_r() < .5 ? '20,10,4' : '120,80,48'},${.04 + kirchberg_r() * .1})`; x.beginPath(); x.arc(kirchberg_r() * W, kirchberg_r() * H, .7 + kirchberg_r() * 1.6, 0, 7); x.fill(); }
+    const g = x.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * .65); g.addColorStop(0, 'rgba(120,80,40,.25)'); g.addColorStop(1, 'rgba(10,6,2,.45)'); x.fillStyle = g; x.fillRect(0, 0, W, H); // an den Kanten abgegriffen/dunkel
+    x.strokeStyle = 'rgba(210,180,120,.65)'; x.setLineDash([7, 5]); x.lineWidth = 2; x.strokeRect(14, 14, W - 28, H - 28); x.setLineDash([]); }));
+  tx.wrapS = tx.wrapT = T.ClampToEdgeWrapping; const lm = new T.MeshStandardMaterial({ map: tx, roughness: .62, metalness: .02 }), gr = new T.Group();
+  const body = new T.Mesh(new T.BoxGeometry(.34, .26, .034, 1, 1, 1), lm); body.castShadow = true; gr.add(body);
+  const laschen = new T.Mesh(new T.BoxGeometry(.075, .1, .004), lm); laschen.position.set(0, -.085, .019); gr.add(laschen);
+  const knopf = new T.Mesh(new T.CylinderGeometry(.011, .011, .006, 14), new T.MeshStandardMaterial({ color: 0xb08a3a, metalness: 1, roughness: .3 })); knopf.rotation.x = PI / 2; knopf.position.set(0, -.115, .024); gr.add(knopf);
+  const kante = new T.Mesh(new T.BoxGeometry(.346, .266, .01), new T.MeshStandardMaterial({ color: 0x2c180c, roughness: .8 })); kante.position.z = -.012; gr.add(kante); // Rücken/Kante dunkler
+  gr.userData.noCol = true; return gr; }
+// Stützräder: zwei kleine Gummirollen auf Haltern links und rechts am Hinterrad des roten Kinderrads (Giselas Zaunpfosten, 1958)
+function kirchberg_stuetz(info) { const T = THREE; // info: Ergebnis von kirchberg_radFrame
+  const rad = new T.MeshStandardMaterial({ color: 0x1a1a1a, roughness: .88 }), stahl = new T.MeshStandardMaterial({ color: 0x8a8d90, metalness: 1, roughness: .38 }), rot = new T.MeshStandardMaterial({ color: 0x9a1812, roughness: .6, metalness: .3 });
+  const g = new T.Group(); g.userData.noCol = true; g.position.copy(info.achsePunkt); g.rotation.y = Math.atan2(info.fwd.x, info.fwd.z);
+  for (const s of [-1, 1]) { const arm = new T.Mesh(new T.CylinderGeometry(.0045, .0045, .15, 8), stahl); arm.position.set(s * .075, -.02, 0); arm.rotation.z = s * (PI / 2 - .32); g.add(arm); // schräger Arm
+    const st = new T.Mesh(new T.CylinderGeometry(.0042, .0042, .055, 8), stahl); st.position.set(s * .145, -.145, 0); g.add(st);
+    const lauf = new T.Mesh(new T.CylinderGeometry(.045, .045, .028, 20), rad); lauf.rotation.z = PI / 2; lauf.position.set(s * .152, -(info.r - .045) + .0, 0); g.add(lauf);
+    const nabe = new T.Mesh(new T.CylinderGeometry(.034, .034, .03, 16), rot); nabe.rotation.z = PI / 2; nabe.position.set(s * .152, lauf.position.y, 0); g.add(nabe); }
+  return g; }
+// Pfarrhaus-Herrenrad: Schild an der Hauptstange (zur Hausseite hin lesbar) und die Ledermappe unter dem Gummispanner auf dem Vordergepäckträger. ry = Drehung, mit der das Rad gesetzt wird.
+function kirchberg_radZubehoer(bike, ry) { const T = THREE, F = kirchberg_radFrame(bike), { lang, quer, H, vorn, r, cl, bb } = F;
+  // welche Querseite zeigt nach Welt +z (zur Straße/zum Betrachter)?
+  const seiteVonQuer = s => { const e = new T.Vector3(); e[quer] = s; e.applyAxisAngle(new T.Vector3(0, 1, 0), ry); return e.z; }, side = seiteVonQuer(1) >= seiteVonQuer(-1) ? 1 : -1;
+  const mx = cl[lang] + vorn * .0, rt = kirchberg_rohrQuer(bike, F, mx, H * .5, H * .26, H * .8), yT = rt ? rt.y : H * .6, rad = rt ? Math.abs(rt.lat) : .0;
+  const schild = kirchberg_schild(); const sp = new T.Vector3(); sp[lang] = mx; sp[quer] = cl[quer] + side * (rad + .026); sp.y = yT - .012; schild.position.copy(sp);
+  schild.rotation.y = quer === 'x' ? (side > 0 ? PI / 2 : -PI / 2) : (side > 0 ? 0 : PI); schild.rotation.z = .05; bike.add(schild);
+  // Mappe auf dem Vordergepäckträger (liegt flach, Verschlusslasche zeigt zur Straße), Gummispanner quer darüber
+  const aV = new T.Vector3(); aV[lang] = (vorn > 0 ? bb.max[lang] : bb.min[lang]) - vorn * r; aV[quer] = cl[quer]; const yR = Math.max(.66, Math.min(.86, kirchberg_top(bike, aV.x, aV.z, 1.1, H * .72)));
+  const mp = kirchberg_mappe(); mp.rotation.x = -PI / 2; mp.position.copy(aV); mp.position.y = yR + .018; mp.rotation.z = (quer === 'x' ? PI / 2 : 0); bike.add(mp);
+  const gum = new T.MeshStandardMaterial({ color: 0x141414, roughness: .8 }), grp = new T.Group(); grp.userData.noCol = true;
+  for (const d of [-.06, .06]) { const a = new T.Vector3(), b = new T.Vector3(), c = new T.Vector3(); for (const v of [a, b, c]) { v[lang] = aV[lang] + vorn * d; } a[quer] = cl[quer] - .15; b[quer] = cl[quer]; c[quer] = cl[quer] + .15; a.y = yR + .004; b.y = yR + .042; c.y = yR + .004;
+    kirchberg_band(grp, a, b, .012, gum, .004); kirchberg_band(grp, b, c, .012, gum, .004); }
+  bike.add(grp); return { schild, mappe: mp, side }; }
+
+// ---------------------------------------------------------------------  Martinsnische: Sankt Martin zu Pferd als Steinrelief (Höhenfeld → echte Verschiebung + Normalen), Bettler mit abgebrochenem Arm
+// Gezeichnet als Schichten (Höhenstufen), weich gerundet, dann Gravur (Falten, Mähne, Kettenhemd, Fugen). Farbe: Sandstein mit Verwitterung und Regenspuren.
+function kirchberg_blob(c, pts, closed = true) { // glatte Kurve durch Stützpunkte (Mittelpunkt-Quadratik)
+  const n = pts.length; c.beginPath(); const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], m0 = mid(pts[n - 1], pts[0]); c.moveTo(m0[0], m0[1]);
+  for (let i = 0; i < n; i++) { const p = pts[i], q = pts[(i + 1) % n], m = mid(p, q); c.quadraticCurveTo(p[0], p[1], m[0], m[1]); } c.closePath(); }
+function kirchberg_martinRelief(W = 512, H = 640) {
+  const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; }, hc = mk(), h = hc.getContext('2d'), tmp = mk(), t = tmp.getContext('2d'), sx = W / 640, sy = H / 800;
+  h.fillStyle = 'rgb(46,46,46)'; h.fillRect(0, 0, W, H); h.scale(sx, sy);
+  const schicht = (pts, lv, blur = 7, close = true) => { t.setTransform(1, 0, 0, 1, 0, 0); t.clearRect(0, 0, W, H); t.fillStyle = '#000'; t.fillRect(0, 0, W, H); t.scale(sx, sy); t.fillStyle = `rgb(${lv},${lv},${lv})`; kirchberg_blob(t, pts, close); t.fill();
+    h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.globalCompositeOperation = 'lighten'; h.filter = `blur(${blur * sx}px)`; h.drawImage(tmp, 0, 0); h.restore(); };
+  const kreis = (cx, cy, r, lv, blur = 6) => { t.setTransform(1, 0, 0, 1, 0, 0); t.clearRect(0, 0, W, H); t.fillStyle = '#000'; t.fillRect(0, 0, W, H); t.scale(sx, sy); t.fillStyle = `rgb(${lv},${lv},${lv})`; t.beginPath(); t.arc(cx, cy, r, 0, 7); t.fill(); h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.globalCompositeOperation = 'lighten'; h.filter = `blur(${blur * sx}px)`; h.drawImage(tmp, 0, 0); h.restore(); };
+  const stab = (a, b, w, lv, blur = 3) => { t.setTransform(1, 0, 0, 1, 0, 0); t.clearRect(0, 0, W, H); t.fillStyle = '#000'; t.fillRect(0, 0, W, H); t.scale(sx, sy); t.strokeStyle = `rgb(${lv},${lv},${lv})`; t.lineCap = 'round'; t.lineWidth = w; t.beginPath(); t.moveTo(a[0], a[1]); t.lineTo(b[0], b[1]); t.stroke(); h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.globalCompositeOperation = 'lighten'; h.filter = `blur(${blur * sx}px)`; h.drawImage(tmp, 0, 0); h.restore(); };
+  // Sockel / Boden
+  schicht([[10, 770], [10, 742], [320, 734], [630, 742], [630, 790], [320, 796]], 70, 5);
+  // Pferd (blickt nach links, Schritt, ein Vorderhuf angehoben): ferne Beine, Rumpf, Hals, Kopf, nahe Beine, Schweif
+  schicht([[414, 546], [452, 542], [458, 600], [450, 646], [452, 700], [460, 742], [426, 744], [428, 700], [424, 648], [418, 600]], 86, 3);                 // hinteres fernes Bein
+  schicht([[302, 552], [338, 548], [340, 604], [334, 646], [338, 700], [346, 740], [310, 742], [308, 700], [306, 650], [300, 604]], 88, 3);                 // vorderes fernes Bein
+  schicht([[238, 462], [262, 410], [304, 372], [372, 366], [440, 372], [500, 376], [534, 410], [548, 470], [536, 522], [492, 548], [420, 556], [338, 558], [270, 546], [240, 510]], 110, 13); // Rumpf (Widerrist, Kruppe)
+  schicht([[262, 430], [236, 372], [214, 312], [202, 262], [220, 236], [248, 244], [270, 276], [292, 326], [312, 376], [316, 424]], 118, 12); // Hals mit Kamm
+  schicht([[212, 258], [172, 280], [134, 322], [110, 360], [106, 378], [128, 384], [158, 360], [196, 322], [226, 290], [236, 262]], 128, 8); // Kopf
+  schicht([[104, 372], [124, 388], [138, 372], [118, 360]], 134, 3);                                                                // Nüstern/Maul
+  schicht([[216, 250], [220, 218], [238, 240]], 130, 3);                                                                            // Ohr
+  schicht([[484, 470], [540, 474], [560, 532], [560, 604], [546, 640], [540, 700], [546, 742], [506, 744], [506, 700], [510, 650], [498, 614], [474, 560]], 120, 5); // hinteres nahes Bein
+  schicht([[248, 520], [292, 524], [302, 566], [284, 604], [246, 626], [208, 634], [176, 646], [158, 660], [148, 646], [166, 622], [206, 604], [228, 584], [236, 556]], 122, 5); // vorderes nahes Bein, angehoben
+  schicht([[160, 652], [180, 640], [192, 658], [178, 682], [152, 686], [146, 670]], 118, 3);                                           // Huf (angehoben)
+  schicht([[534, 396], [588, 450], [606, 560], [594, 670], [572, 700], [566, 620], [572, 540], [540, 470]], 98, 6);                // Schweif
+  // Sattel(decke) und Zaumzeug
+  schicht([[326, 372], [430, 370], [440, 396], [428, 440], [400, 450], [340, 446], [316, 410]], 138, 5);
+  // Martin: Bein im Steigbügel, Tunika, Oberkörper, Kopf mit Helm, erhobener Schwertarm, linke Hand mit dem Mantelstück
+  schicht([[350, 424], [394, 436], [350, 500], [324, 548], [320, 590], [284, 594], [282, 556], [304, 500], [330, 450]], 150, 6);
+  schicht([[322, 420], [300, 340], [302, 284], [334, 262], [378, 262], [408, 286], [412, 350], [410, 420], [426, 450], [312, 456]], 162, 9);    // Oberkörper mit Tunikasaum
+  kreis(348, 214, 36, 176, 7);                                                                                                       // Kopf
+  schicht([[308, 214], [310, 176], [348, 160], [390, 176], [392, 212], [378, 202], [348, 194], [322, 204]], 190, 4);               // Helm
+  stab([392, 290], [444, 240], 28, 170, 6); stab([444, 240], [474, 192], 24, 172, 6);                                              // rechter Arm erhoben
+  kreis(477, 186, 16, 178, 4);                                                                                                       // Faust
+  stab([477, 186], [556, 52], 10, 192, 2); stab([452, 204], [506, 168], 9, 194, 2); kreis(470, 192, 8, 196, 2);                    // Schwert
+  stab([314, 296], [276, 344], 24, 168, 5); stab([276, 344], [244, 396], 22, 170, 5); kreis(240, 404, 14, 174, 3);                  // linker Arm gesenkt
+  // Mantel: hinten wehend (gerade Schnittkante), das abgeschnittene Stück in der linken Hand
+  schicht([[398, 276], [438, 290], [472, 330], [498, 384], [524, 440], [516, 482], [496, 470], [478, 494], [452, 466], [432, 480], [418, 430], [406, 360]], 138, 6);
+  schicht([[232, 408], [270, 402], [282, 450], [272, 508], [250, 538], [220, 504], [214, 444]], 144, 6);
+  // Bettler (kniet, nur ein Arm): Kapuzenmantel, Kopf, rechter Arm hoch zum Stoff, links Bruchstelle der Schulter
+  schicht([[106, 580], [146, 570], [170, 604], [176, 670], [186, 716], [196, 744], [170, 752], [150, 740], [132, 752], [112, 740], [92, 752], [70, 738], [60, 750], [50, 700], [56, 640], [68, 604]], 134, 6);
+  schicht([[176, 726], [212, 724], [230, 736], [220, 750], [186, 752]], 128, 3);                                                         // nackter Fuß
+  kreis(118, 538, 24, 150, 5); schicht([[88, 548], [92, 508], [120, 498], [146, 514], [148, 552], [132, 530], [110, 530]], 160, 4);
+  stab([152, 590], [198, 548], 17, 150, 4); stab([198, 548], [228, 516], 15, 154, 4); kreis(232, 512, 11, 156, 3);
+  schicht([[62, 600], [88, 594], [86, 628], [68, 642], [52, 628]], 128, 4);                                                           // Schulter links: der Arm ist abgebrochen
+  // Gravur
+  const g = (fn) => { h.save(); h.setTransform(1, 0, 0, 1, 0, 0); h.scale(sx, sy); h.filter = `blur(${1.1 * sx}px)`; fn(h); h.restore(); };
+  g(c => { c.strokeStyle = 'rgba(0,0,0,.42)'; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = 2.6; const lin = (a) => { c.beginPath(); c.moveTo(a[0][0], a[0][1]); for (let i = 1; i < a.length; i++) c.lineTo(a[i][0], a[i][1]); c.stroke(); };
+    for (let k = 0; k < 8; k++) lin([[222 + k * 7, 248 + k * 9], [204 + k * 8, 300 + k * 10], [196 + k * 7, 352 + k * 8]]);              // Mähne
+    lin([[128, 326], [152, 330], [172, 316]]); c.beginPath(); c.arc(166, 301, 2.6, 0, 7); c.stroke(); lin([[116, 372], [128, 378]]);        // Maul, Auge, Nüstern
+    lin([[214, 262], [190, 318], [136, 360]]);                                                                                         // Zaumzeug (Stirnriemen, Nasenband)
+    lin([[130, 376], [196, 420], [262, 456], [326, 396]]); c.lineWidth = 1.6; lin([[130, 376], [200, 428], [262, 462], [330, 404]]);     // Zügel zu Martins Hand
+    c.lineWidth = 2.4; lin([[536, 470], [572, 540], [578, 640]]); lin([[548, 456], [588, 534], [594, 650]]); lin([[540, 470], [566, 600]]);   // Schweifsträhnen
+    lin([[326, 392], [338, 440]]); lin([[432, 394], [424, 440]]);                                                                     // Sattelkanten
+    lin([[322, 296], [360, 288], [402, 298]]); lin([[318, 326], [360, 318], [408, 328]]); lin([[316, 356], [360, 348], [410, 358]]); lin([[316, 388], [362, 380], [410, 390]]); // Ringpanzer
+    lin([[316, 440], [370, 448], [420, 440]]); lin([[330, 448], [334, 456]]);                                                         // Tunikasaum
+    lin([[332, 210], [348, 220], [366, 210]]); c.beginPath(); c.arc(336, 204, 1.9, 0, 7); c.arc(362, 204, 1.9, 0, 7); c.stroke();      // Gesicht
+    lin([[478, 186], [534, 84]]); c.lineWidth = 1.8; lin([[472, 192], [454, 204]]);                                                   // Schwertgrat
+    c.lineWidth = 2.6; lin([[410, 296], [424, 380], [432, 470]]); lin([[428, 292], [458, 370], [470, 480]]); lin([[446, 300], [488, 380], [508, 470]]); lin([[470, 336], [512, 430]]); // Mantelfalten (fallen von der Schulter)
+    lin([[236, 414], [246, 470], [240, 520]]); lin([[252, 410], [262, 480]]);
+    lin([[98, 584], [112, 654], [102, 730]]); lin([[134, 576], [146, 654], [156, 724]]); lin([[96, 548], [118, 560], [142, 548]]); lin([[142, 590], [160, 640]]);   // Bettler: Falten, Gesicht
+    c.lineWidth = 4; c.strokeStyle = 'rgba(255,255,255,.4)'; lin([[58, 602], [74, 610], [64, 626], [80, 634]]); c.strokeStyle = 'rgba(0,0,0,.6)'; lin([[56, 604], [70, 616], [60, 630], [76, 640]]); }); // Bruchkante
+  // Körnung (Sandstein) im Höhenfeld
+  { const id = h.getImageData(0, 0, W, H), d = id.data; for (let i = 0; i < d.length; i += 4) { const nz = (kirchberg_r() - .5) * 9; d[i] = Math.max(0, Math.min(255, d[i] + nz)); } h.putImageData(id, 0, 0); }
+  // Farbe + Normalen aus dem Höhenfeld
+  const id = h.getImageData(0, 0, W, H), hd = id.data, ht = new Float32Array(W * H); for (let i = 0; i < W * H; i++) ht[i] = hd[i * 4] / 255;
+  const blur2 = new Float32Array(W * H); // grobe Mittelung (Kavität = Höhe unter Umgebung)
+  { const tmpA = new Float32Array(W * H), R = 6; for (let y = 0; y < H; y++) { let s = 0; for (let x = -R; x <= R; x++) s += ht[y * W + Math.min(W - 1, Math.max(0, x))]; for (let x = 0; x < W; x++) { tmpA[y * W + x] = s / (2 * R + 1); s += ht[y * W + Math.min(W - 1, x + R + 1)] - ht[y * W + Math.max(0, x - R)]; } }
+    for (let x = 0; x < W; x++) { let s = 0; for (let y = -R; y <= R; y++) s += tmpA[Math.min(H - 1, Math.max(0, y)) * W + x]; for (let y = 0; y < H; y++) { blur2[y * W + x] = s / (2 * R + 1); s += tmpA[Math.min(H - 1, y + R + 1) * W + x] - tmpA[Math.max(0, y - R) * W + x]; } } }
+  const col = mk(), cx = col.getContext('2d'), nm = mk(), nx = nm.getContext('2d'), ci = cx.createImageData(W, H), ni = nx.createImageData(W, H), cd = ci.data, nd = ni.data, S = 3.4;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const i = y * W + x, l = ht[Math.max(0, i - 1)], r = ht[Math.min(W * H - 1, i + 1)], u = ht[Math.max(0, i - W)], d = ht[Math.min(W * H - 1, i + W)];
+    let gx = (r - l) * S * 6, gy = (d - u) * S * 6, nxv = -gx, nyv = gy, nzv = 1; const L = Math.hypot(nxv, nyv, nzv); nd[i * 4] = (nxv / L * .5 + .5) * 255; nd[i * 4 + 1] = (nyv / L * .5 + .5) * 255; nd[i * 4 + 2] = (nzv / L * .5 + .5) * 255; nd[i * 4 + 3] = 255;
+    const hv = ht[i], cav = Math.max(0, blur2[i] - hv) * 4.5, regen = Math.sin(x * .9 + Math.sin(y * .013) * 3) * .5 + .5, dirty = Math.max(0, (y / H - .55)) * .35 + (kirchberg_r() < .002 ? .2 : 0);
+    const base = 168 + hv * 52 - cav * 90 - dirty * 60 + (regen > .93 ? -7 : 0) + (kirchberg_r() - .5) * 16; cd[i * 4] = Math.max(0, base * 1.0); cd[i * 4 + 1] = Math.max(0, base * .955); cd[i * 4 + 2] = Math.max(0, base * .86 - (hv < .3 ? 6 : 0) + (y > H * .92 ? -8 : 0)); cd[i * 4 + 3] = 255; }
+  cx.putImageData(ci, 0, 0); nx.putImageData(ni, 0, 0);
+  return { color: col, normal: nm, height: hc }; }
+
+// Giselas LWO-Kuli: grauer Metallkugelschreiber mit Clip; auf dem Clip das eingeprägte Zeichen (Auge über einer Flamme, im Kreis). Liegt auf der Fensterbank, Ursprung = tiefster Punkt
+function kirchberg_kuliBau() { const T = THREE, g = new T.Group(), grau = new T.MeshStandardMaterial({ color: 0x7a7d82, metalness: .85, roughness: .36 }), dunkel = new T.MeshStandardMaterial({ color: 0x25272a, metalness: .6, roughness: .5 });
+  const prof = [[.0, 0], [.0012, .0], [.0028, .006], [.0042, .014], [.0058, .026], [.0066, .042], [.0068, .12], [.0073, .126], [.0073, .131], [.0066, .134], [.0062, .136], [.0058, .146], [.0, .146]].map(p => new T.Vector2(p[0], p[1]));
+  const leib = new T.Mesh(new T.LatheGeometry(prof, 20), grau); leib.rotation.z = -PI / 2; leib.position.set(-.073, .0075, 0); leib.castShadow = true; g.add(leib); // Spitze bei +x
+  const spitze = new T.Mesh(new T.CylinderGeometry(.0009, .0005, .004, 8), dunkel); spitze.rotation.z = PI / 2; spitze.position.set(-.073 + .0001 - .0, .0075, 0); spitze.position.x = .0 + .0; spitze.position.x = -.073 - .0015; g.add(spitze);
+  const ring = new T.Mesh(new T.CylinderGeometry(.0072, .0072, .006, 20), dunkel); ring.rotation.z = PI / 2; ring.position.set(-.073 + .124, .0075, 0); g.add(ring);                                 // Rille nahe dem Drücker
+  const druecker = new T.Mesh(new T.CylinderGeometry(.0042, .0046, .014, 12), grau); druecker.rotation.z = PI / 2; druecker.position.set(-.073 + .1425, .0075, 0); g.add(druecker);
+  const clip = new T.Mesh(new T.BoxGeometry(.048, .0014, .0068), grau); clip.position.set(-.073 + .1, .0075 + .0078, 0); clip.castShadow = true; g.add(clip); // Clip, liegt oben auf
+  const kopf = new T.Mesh(new T.CylinderGeometry(.0058, .0058, .002, 18), grau); kopf.position.set(-.073 + .12, .0075 + .0078, 0); g.add(kopf);
+  const zeichen = new T.MeshStandardMaterial({ map: kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.fillStyle = '#7a7d82'; x.fillRect(0, 0, w, w); x.strokeStyle = '#1c1d1f'; x.lineWidth = 6; x.beginPath(); x.arc(64, 64, 52, 0, 7); x.stroke(); x.beginPath(); x.ellipse(64, 50, 26, 13, 0, 0, 7); x.stroke(); x.fillStyle = '#1c1d1f'; x.beginPath(); x.arc(64, 50, 7, 0, 7); x.fill();
+    x.beginPath(); x.moveTo(64, 112); x.quadraticCurveTo(46, 94, 64, 70); x.quadraticCurveTo(82, 94, 64, 112); x.fill(); })), metalness: .8, roughness: .4 });
+  const med = new T.Mesh(new T.CircleGeometry(.0052, 20), zeichen); med.rotation.x = -PI / 2; med.position.set(-.073 + .12, .0075 + .0078 + .0011, 0); g.add(med); med.rotation.z = PI / 2;
+  g.rotation.z = 0; g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+
+// Martinsnische: Bildstock aus Sandstein (Sockel, Rückwand, Bogenrahmen, Satteldach) mit dem Steinrelief „Sankt Martin zu Pferd, Mantelteilung“ (echte Verschiebung, 3,5 cm Relieftiefe). Blickt nach −z (zur Eisengitter-Seite).
+function kirchberg_bildstock(x, z) { const T = THREE, g = new T.Group(), stein = kirchberg_mat('wall_damaged', 0x938a78, 1.1), steinD = kirchberg_mat('wall_damaged', 0x6f6759, 1.1), R = kirchberg_martinRelief(512, 640);
+  const ex = (shape, depth, mat) => { const m = new T.Mesh(new T.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: .012, bevelThickness: .012, bevelSegments: 2, curveSegments: 28 }), mat); m.castShadow = m.receiveShadow = true; return m; };
+  const rahmen = new T.Shape(); rahmen.moveTo(-.8, 0); rahmen.lineTo(.8, 0); rahmen.lineTo(.8, 2.2); rahmen.lineTo(-.8, 2.2); rahmen.lineTo(-.8, 0);
+  const loch = new T.Path(); loch.moveTo(-.55, .4); loch.lineTo(.55, .4); loch.lineTo(.55, 1.38); loch.absarc(0, 1.38, .55, 0, PI, false); loch.lineTo(-.55, .4); rahmen.holes.push(loch);
+  const fr = ex(rahmen, .3, stein); fr.position.z = 0; g.add(fr);
+  const rueck = new T.Mesh(new T.BoxGeometry(1.64, 2.2, .2), steinD); rueck.position.set(0, 1.1, -.12); rueck.castShadow = rueck.receiveShadow = true; g.add(rueck);
+  const sockel = new T.Mesh(new T.BoxGeometry(1.84, .4, .78), stein); sockel.position.set(0, .2 - .0, .12); sockel.castShadow = sockel.receiveShadow = true; g.add(sockel);
+  const plinth = new T.Mesh(new T.BoxGeometry(1.84, .5, .78), stein); plinth.position.set(0, -.25, .12); plinth.castShadow = plinth.receiveShadow = true; g.add(plinth);
+  const sims = new T.Mesh(new T.BoxGeometry(1.7, .08, .42), stein); sims.position.set(0, .44, .09); g.add(sims); // Fensterbank der Nische
+  for (const s of [-1, 1]) { const d = new T.Mesh(new T.BoxGeometry(1.2, .1, .72), stein); d.position.set(s * .5, 2.5, .08); d.rotation.z = -s * .55; d.castShadow = true; g.add(d); }
+  const first = new T.Mesh(new T.BoxGeometry(.14, .12, .74), steinD); first.position.set(0, 2.84, .08); g.add(first);
+  const gie = new T.Mesh(new T.BoxGeometry(1.66, .16, .02), steinD); gie.position.set(0, 2.2, .3); g.add(gie);
+  // Relief: Verschiebungsfläche
+  const col = new T.CanvasTexture(R.color), nor = new T.CanvasTexture(R.normal), hei = new T.CanvasTexture(R.height); col.colorSpace = T.SRGBColorSpace; for (const t of [col, nor, hei]) t.anisotropy = 8;
+  const pm = new T.MeshStandardMaterial({ map: col, normalMap: nor, normalScale: new T.Vector2(1.3, 1.3), displacementMap: hei, displacementScale: .045, displacementBias: -.012, roughness: .96 });
+  const rel = new T.Mesh(new T.PlaneGeometry(1.02, 1.275, 150, 190), pm); rel.position.set(0, 1.08, -.012); rel.castShadow = false; rel.receiveShadow = true; rel.userData.noCol = true; g.add(rel);
+  // Moos und Schmutz am Sockel
+  const sch = new T.Mesh(new T.PlaneGeometry(1.7, .5), msSurfMat('grime', { alpha: true, tint: 0x3a4a30 })); sch.material.opacity = .65; sch.position.set(0, .22, .52); sch.userData.noCol = true; g.add(sch);
+  g.position.set(x, .5, z); g.rotation.y = PI; return g; }
+
 async function kirchberg_pfarrAussen() {
   const S = kirchberg_S, P = KB_PFARR, fz = P.z + P.d / 2; // Vorbau (Veranda) z 49.5 … 51.1
   // schwarzes Herrenrad mit prallen Reifen im Vorbau, Ledermappe im Gepäckträgergummi (Kindersitz: fehlendes Asset → Obstkiste/Korb-Ersatz nicht sichtbar, Text)
-  const b = await kirchberg_mod('bicycle', 'model.gltf', 1.02); if (b) { b.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color) m.material.color.lerp(new THREE.Color(0x121212), .75); } }); kirchberg_setze(b, P.x - 1.05, .35, fz + .55, PI / 2 + .08); }
-  { const mappe = await kirchberg_mod('w_buch', 'model.glb', .3, 'max'); if (mappe) { mappe.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.32, .2, .12); } }); kirchberg_setze(mappe, P.x - 1.45, .35 + .86, fz + .55, .1); mappe.rotation.z = .08; } }
+  const b = await kirchberg_mod('bicycle', 'model.gltf', 1.02); if (b) { b.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color) m.material.color.lerp(new THREE.Color(0x121212), .75); } });
+    const RY = .08; try { kirchberg_kindersitz(b); kirchberg_radZubehoer(b, RY); } catch (e) { console.warn('Kirchberg: Kindersitz/Schild/Mappe', e); } // Korbsitz mit Gurt, Emaille-Schild, Ledermappe unter dem Gummispanner (Text: „Hinten ein Kindersitz …“)
+    kirchberg_setze(b, P.x - 1.05, .35, fz + .55, RY); S.pfarrRad = b; }
   kirchberg_hit(1.8, 1.2, .8, P.x - 1.2, .9, fz + .55, 'Herrenrad', async () => { S.steps.rad = 1; kirchberg_start('kb_fest', { x: P.x, z: fz + 3 });
     openNote('Ein Herrenrad', 'Schwarz, alt, gepflegt. Die Reifen sind prall. Hinten ein Kindersitz aus Korbgeflecht, der Gurt geschlossen. Im Gepäckträgergummi eine Ledermappe, zugeknöpft.\n\nAn der Stange ein Schild: <i>Pfarramt St. Martin</i>.', 'kb_pfarrrad', () => { subtitle('Wer pumpt einem Toten die Reifen?', 3000, 'LUKE'); kirchberg_festCheck(); }); });
   // vergilbter Gemeindebrief im Vorbau (auf der Bank / am Boden)
@@ -510,7 +743,7 @@ WORLD_MODS.push(['Kirchberg (Gisela, Pfarrhaus, Kapelle)', async () => {
   try { await document.fonts.load('30px Caveat'); await document.fonts.load('20px "Special Elite"'); } catch (e) {}
   await kirchberg_giselaAussen(); await kirchberg_kapelleAussen(); await kirchberg_pfarrAussen();
   // der LWO-Kuli zwischen den Näpfen (Auge auf dem Clip) – erst nach Giselas Liste, Whiskey schnappt ihn weg
-  { const k = await kirchberg_mod('w_lighter', 'model.glb', .13, 'max'); if (k) { k.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.45, .46, .48); m.material.metalness = .7; } }); k.rotation.set(0, 0, 0); kirchberg_setze(k, S.fenster.x + .3, S.fenster.y - .6, S.fenster.z + .12, .3); k.visible = false; S.kuliM = k; }
+  { const k = kirchberg_kuliBau(); kirchberg_setze(k, S.fenster.x + .3, S.fenster.y - .6, S.fenster.z + .12, .3); k.visible = false; S.kuliM = k;
     S.kuliHit = kirchberg_hit(.4, .3, .3, S.fenster.x + .3, S.fenster.y - .55, S.fenster.z + .2, 'Kugelschreiber', () => subtitle('Bevor du zugreifst, ist er weg. Der Rabe.', 2600)); kirchberg_an(S.kuliHit, false); }
   try { await kirchberg_innen(); } catch (e) { console.warn('Kirchberg: Innenräume', e); }
   if (typeof KAP_BEGIN !== 'undefined') for (let k = 1; k <= 6; k++) KAP_BEGIN[k].push(() => kirchberg_kapitel());

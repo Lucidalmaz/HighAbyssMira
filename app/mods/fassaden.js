@@ -40,11 +40,11 @@ vec3 fWall(vec2 p, float sd) {
   return c * mix(vec3(1.), vec3(1.05, .95, .8), fh1(sd + 8.2));
 }
 float fSpot(vec3 hw) { vec3 f = hw - uFlashPos; float fd = length(f); return smoothstep(.82, .95, dot(f / fd, uFlashDir)) * 3.2 / (1.0 + fd * fd * .9); }
-// Möbel-Karte (Atlas 5 × 2): q in Metern, x −1,6…1,6, y 0…2,5; row 0 = Rückwand, 1 = Möbel im Raum
+// Möbel-Karte (Atlas 8 × 2): q in Metern, x −1,6…1,6, y 0…2,5; row 0 = Rückwand, 1 = Möbel im Raum
 vec4 fCard(vec2 q, float col, float row) {
   vec2 u = vec2(q.x / 3.2 + .5, q.y / 2.5);
   if (u.x < .004 || u.x > .996 || u.y < .004 || u.y > .996) return vec4(0.);
-  return texture2D(tAtlas, vec2((col + u.x) * .2, (row + u.y) * .5));
+  return texture2D(tAtlas, vec2((col + u.x) * .125, (row + u.y) * .5));
 }
 vec3 fLight(vec3 hp, vec3 nn, vec3 L, vec3 lc, float lt, float kk, float lo) {
   vec3 tl = L - hp; float dl = length(tl);
@@ -81,6 +81,7 @@ void main() {
   // Rückwand-Karte: Schrank, Regal, Fernseher, Bilder …
   float cOff = (fh1(sd + 12.3) - .5) * .5;
   if (t == tz && kind < 1.5 && motif > -.5) { vec4 cb = fCard(vec2(h.x - cOff, h.y), motif, 0.); col = mix(col, cb.rgb, cb.a); }
+  if (t == tx && kind < 1.5 && motif > 5.5 && motif < 6.5) { vec4 cs = fCard(vec2(h.z * .8 - 1.6, h.y), motif, 0.); col = mix(col, cs.rgb, cs.a); }  // Nr. 9: auch die Seitenwände voller Striche
   // Licht im Zimmer – jede Helligkeit hat eine Quelle
   float mode = vRoom.y, lt = 0.; vec3 lc = uLitCol * mix(vec3(1.), vec3(1.1, .75, .55), fh1(sd + 6.6));
   vec3 L = vec3(fh1(sd + 5.3) * .8 - .4, rh - .45, max(1.3, dp * mix(.3, .6, fh1(sd + 2.2))));
@@ -101,9 +102,9 @@ void main() {
   vec3 hwld = vW + V * t;
   vec3 c = col * (light + amb + fill * exp(-h.z * .6) * (n.y > .5 ? 1.3 : .7) + vec3(1., .93, .82) * uFlash * fSpot(hwld)) * ao;
   // Möbel im Raum (Sofa, Tisch, Bett …): zweite Karte in halber Tiefe – Parallaxe zur Rückwand
-  if (kind < .5 && motif > -.5 && dp > 2.4) {
+  if (motif > -.5 && ((kind < .5 && dp > 2.4) || (kind > 1.5 && kind < 2.5 && motif > 6.5))) {
     float zm = clamp(dp * .42, 1.05, 1.7), tm = zm * id.z;
-    if (tm < t) { vec3 hm = p + d * tm; vec4 cm = fCard(vec2(hm.x - cOff * .6 - (fh1(sd + 3.9) - .5) * .5, hm.y), motif, 1.);
+    if (tm < t) { vec3 hm = p + d * tm; vec4 cm = fCard(vec2(hm.x - (motif > 6.5 ? 0. : cOff * .6 + (fh1(sd + 3.9) - .5) * .5), hm.y), motif, 1.);
       if (cm.a > .45 && abs(hm.x) < hw && hm.y < rh) {
         vec3 lm = fLight(hm, vec3(0., 0., -1.), L, lc, lt, kk, .15);
         c = cm.rgb * (lm + amb + fill * .8 + vec3(1., .93, .82) * uFlash * fSpot(vW + V * tm)) * .9; t = tm; } } }
@@ -311,10 +312,10 @@ async function fassaden_build() {
   // ---------- Hausweise Gestaltung
   const STY = {
     3: { wall: 'planks', tint: 0x93a08c, door: 0x7f8f78, shut: 0x2c3a2e, roof: 'shingle', roofTint: 0x9aa096, casing: 0xc8c4b8, figs: { 1: 1.78 }, cellar: 'dark' },
-    9: { wall: 'planks', tint: 0xa8a49c, door: 'door1', roof: 'corr', casing: 0x9a958a, dirt: 1, cellar: null, backDoor: -2.2, skipWin: [3], motif: { 4: 1 } }, // R-12: „Hintertür (Scheibe)“ (post.js) – dort stand vorher ein Fenster
-    2: { wall: 'brick', tint: 0xa89088, door: 0x8a4a3c, roof: 'shingle', roofTint: 0x948a84, casing: 0xb8b4aa, cellar: 'dark', motif: { 0: 0 } },
+    9: { wall: 'planks', tint: 0xa8a49c, door: 'door1', roof: 'corr', casing: 0x9a958a, dirt: 1, cellar: null, backDoor: -2.2, skipWin: [3], motif: { 0: 6, 4: 1 } }, // R-12: „Hintertür (Scheibe)“ (post.js) – dort stand vorher ein Fenster
+    2: { wall: 'brick', tint: 0xa89088, door: 0x8a4a3c, roof: 'shingle', roofTint: 0x948a84, casing: 0xb8b4aa, cellar: 'dark', motif: { 0: 1 } }, // Fenster 0: Küche mit Radio („Hinter dem Vorhang spielt ein Radio“)
     4: { wall: 'planks', tint: 0xb8ad96, door: 0x505c68, shut: 0x3a2a24, roof: 'tar', roofTint: 0x8f989a, casing: 0xd0ccc0, twitch: 0 },
-    6: { wall: 'plaster', plasterKey: 'wall_damaged', tint: 0xa39a86, door: 0x6a5846, roof: 'tar', roofTint: 0xa09890, casing: 0xa8a49a, motif: { 3: 1 } }, // gedeckter Tisch (Hineinsehen)
+    6: { wall: 'plaster', plasterKey: 'wall_damaged', tint: 0xa39a86, door: 0x6a5846, roof: 'tar', roofTint: 0xa09890, casing: 0xa8a49a, motif: { 3: 5 } }, // gedeckter Tisch (Hineinsehen): acht Teller, acht Gläser, Stühle zum Fenster
     8: { wall: 'brick', tint: 0x8c847c, door: 0x3c4a3a, roof: 'shingle', roofTint: 0x8a8e8a, casing: 0xc0bcb0, figs: { 3: 1.22 }, cellar: 'lit', motif: { 3: 3 } }, // Kind an der Scheibe
     15: { motif: { 0: 1 } }, 11: { motif: { 1: 0 } }, // Giselas Küchenfenster, Studierzimmer im Pfarrhaus
     7: { wall: 'planks', tint: 0xb09c72, roof: 'shingle', roofTint: 0xa09486, casing: 0xc8c0a8 },
@@ -534,7 +535,7 @@ async function fassaden_build() {
       const at = (x, y, z, sx = 1, sy = sx, sz = sx, rz = 0) => mm.clone().multiply(m4(x, y, z, 0, sx, sy, sz, 0, rz));
       frameM.push(at(.305, 0, .02, .3, .3, .3, Math.PI / 2));
       CB.add(glassMat, new THREE.PlaneGeometry(.5, .28), at(0, 0, .045));
-      addRoom(at(0, 0, .004), .56, .34, hsh + 11, sty.cellar === 'lit' ? 1.0 : 0, 2, 0, .56, .34, 1.75, 0, 0); if (sty.cellar === 'lit') hd.cellarLit = true;
+      addRoom(at(0, 0, .004), .56, .34, hsh + 11, sty.cellar === 'lit' ? 1.0 : 0, 2, 0, .56, .34, 1.75, 0, 0, sty.cellar === 'lit' ? 7 : -1); if (sty.cellar === 'lit') hd.cellarLit = true;
       hd.cellar = { x: cx, y: .245, z: d / 2 + .07, lit: sty.cellar === 'lit' };
     }
     // Rahmen (Instanzen), Einfassungen, Glas
@@ -644,6 +645,9 @@ async function fassaden_build() {
       const lp = hitDoor(hd, .45 + 1.5); if (!lp) { S.log.push('Türspion: keine Türfläche an ' + (hd.n || hd.o.x)); continue; }
       const sp = fassaden_spionBau(hd.g, lp.x, lp.y, lp.z + .001, 0, brass, (hd.lit ? .35 : 0) * (hd.o.lit && hd.o.lit.length ? 1 : 0)); sp.hd = hd; hd.detail.push(sp.g);
       if (hd.n) S.spione[hd.n] = sp; hd.spion = sp;
+      if ([2, 4, 6, 8, 9].includes(hd.n) && typeof ritz_kratzer === 'function') { const ks = hitDoor(hd, .45 + .22); if (ks) { // „Am Türrahmen: kleine Kratzspuren, ganz unten.“ (Basis-Umsetzung)
+        const f = ritz_kratzer(256, 288, { seed: 40 + hd.n, bueschel: 2, groesse: 70 }), km = new THREE.Mesh(new THREE.PlaneGeometry(.3, .34), new THREE.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8 }));
+        km.position.set(ks.x - .4, ks.y, ks.z + .003); km.userData.noCol = true; km.castShadow = false; hd.g.add(km); hd.detail.push(km); } }
       if (hd.n === 3) { const ls = hitDoor(hd, .45 + .95); if (ls) { const B = new Bag(); // Briefschlitz mit Messingklappe (anwesen.js: „Die Klappe vom Briefschlitz geht auf“)
         B.box(brass, .3, .075, .01, m4(ls.x, ls.y, ls.z + .005)); B.box(dark, .24, .02, .004, m4(ls.x, ls.y - .006, ls.z + .0105)); B.box(brass, .25, .028, .005, m4(ls.x, ls.y + .006, ls.z + .013, 0, 1, 1, 1, -.12)); for (const mesh of B.flush(hd.g, { cast: false })) hd.detail.push(mesh); } }
     }
@@ -807,13 +811,13 @@ vec3 gDrops(vec2 q) {
   return m;
 }
 // Möbel-Karten (Atlas 5 × 2 Felder à 256 px): je Motiv die Rückwand und die Möbel im Raum, orthografisch aus echten Scan-Möbeln gerendert.
-// Spalten: 0 Wohnzimmer, 1 Küche, 2 Schlafzimmer, 3 Kinderzimmer, 4 Flur. Kein selbstgebautes Möbel – nur die Scans, die auch innen stehen.
+// Spalten: 0 Wohnzimmer, 1 Küche, 2 Schlafzimmer, 3 Kinderzimmer, 4 Flur, 5 gedeckter Tisch (Nr. 6), 6 Strichwände (Nr. 9), 7 Keller: Kerze + Kinderstuhl (Nr. 8). Kein selbstgebautes Möbel – nur die Scans, die auch innen stehen.
 async function fassaden_atlas() {
   const T = THREE, S = fassaden_S, CW = 256;
-  const rt = new T.WebGLRenderTarget(CW * 5, CW * 2, { colorSpace: T.SRGBColorSpace, generateMipmaps: true, minFilter: T.LinearMipmapLinearFilter, magFilter: T.LinearFilter });
+  const rt = new T.WebGLRenderTarget(CW * 8, CW * 2, { colorSpace: T.SRGBColorSpace, generateMipmaps: true, minFilter: T.LinearMipmapLinearFilter, magFilter: T.LinearFilter });
   rt.texture.anisotropy = 4;
   const sc = new T.Scene(); sc.add(new T.HemisphereLight(0xfff2e4, 0x3a3028, 1.5)); const dl = new T.DirectionalLight(0xfff0dc, 2.0); dl.position.set(-1.5, 3, 4); sc.add(dl);
-  const cells = Array.from({ length: 10 }, () => { const g = new T.Group(); g.visible = false; sc.add(g); return g; });
+  const cells = Array.from({ length: 16 }, () => { const g = new T.Group(); g.visible = false; sc.add(g); return g; });
   const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg` });
   const hutchSpec = tint => ({ 'Wood-1': { ...W_('Wood-1'), color: tint }, 'Wood-2': { ...W_('Wood-2'), color: tint }, 'Wood-3': { ...W_('Wood-3'), color: tint }, Metal: { ...W_('Metal'), m: 'T_Metal_Metallic.jpg' } });
   const bedSpec = b => ({ blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: 1, color: b }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg', color: 0xb8b0a4 }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } });
@@ -834,7 +838,7 @@ async function fassaden_atlas() {
     FBX('mirror', { 'Mirror Border': { b: 'Gold_MIrror_Diffuse.png', n: 'Gold_Mirror_Normal.jpg', r: 'Gold_Mirror_Roughness.png', metal: 1, color: 0xc8b890 }, Mirror: { r: 'Mirror_Roughness.png', metal: 1, rough: .08, color: 0x9aa2aa } }),
     FBX('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }), FBX('teddy_retro', { material0: { b: 'teddy-bear.jpg', color: 0xa89a88 }, material1: { b: 'teddy-bear1.jpg', color: 0xa89a88 } })].map(safe));
   // put: Größe (size/axis), Unterkante y, Mitte x, Tiefe z, Drehung ry → in Feld (col, row)
-  const put = (o, col, row, x, y, z = 0, ry = 0, size = 0, axis = 'y') => { if (!o) return null; if (size) msFit(o, size, axis); const g = msGround(o); g.rotation.y = ry; g.position.set(x, y, z); cells[row * 5 + col].add(g); return g; };
+  const put = (o, col, row, x, y, z = 0, ry = 0, size = 0, axis = 'y') => { if (!o) return null; if (size) msFit(o, size, axis); const g = msGround(o); g.rotation.y = ry; g.position.set(x, y, z); cells[row * 8 + col].add(g); return g; };
   // 0 Wohnzimmer: Regal, Fernseher auf der Anrichte, Bild, Uhr – davor das Sofa (Rücken zum Fenster) und die Stehlampe
   put(shelfW, 0, 0, -1.05, 0, -.3, 0, 1.95); put(cab1, 0, 0, .45, 0, -.3); put(crt, 0, 0, .45, .62, -.25, 0, .42); put(frX, 0, 0, .45, 1.32, -.5, 0, .5, 'max'); put(clock, 0, 0, 1.3, 1.5, -.5, 0, .5, 'y');
   if (mirror) mirror.rotation.x = -PI / 2;
@@ -849,12 +853,39 @@ async function fassaden_atlas() {
   put(crib, 3, 0, -.65, 0, -.3, 0, .95); put(teddy, 3, 0, -.65, .5, -.2, .3, .26); put(shelf, 3, 0, .9, 1.05, -.4, 0, .9, 'x'); put(giraffe, 3, 0, 1.05, 0, -.3, -.4, .55); put(frD2, 3, 0, .4, 1.55, -.5, 0, .38, 'max');
   // 4 Flur: Spiegel über der Kommode, Jacke am Haken
   put(cab4, 4, 0, .5, 0, -.3); put(mirror, 4, 0, .5, .98, -.5, 0, .84, 'max'); put(jacke, 4, 0, -.75, .8, -.4, 0, .82);
+  // 5 gedeckter Tisch (Nr. 6: „Acht Teller, acht Gläser. Alle Stühle sind zum Fenster gedreht“): Tisch, acht Gedecke, acht Stühle; diese Karte wird leicht von oben gesehen (Teller sind sonst nur Striche)
+  try {
+    const tbl = await GL('metaltable').catch(() => null); if (tbl) { msFit(tbl, .76, 'y'); const tg = msGround(tbl); tg.scale.set(1.7, 1, 1.25); tg.position.set(0, 0, 0); cells[8 + 5].add(tg); }
+    const gedeck = async (x, z, flip) => { const pl = await bu_teil('w_teller', 'model.glb', /^Object_4$/, .24, { flach: true }), gl = await bu_teil('w_becher', 'model.glb', /./, .1);
+      if (pl) { pl.position.set(x, .765, z); cells[8 + 5].add(pl); } if (gl) { gl.position.set(x + (flip ? -.2 : .2), .765, z + (flip ? -.1 : .1)); cells[8 + 5].add(gl); } };
+    for (const x of [-.82, -.28, .28, .82]) { await gedeck(x, .26, false); await gedeck(x, -.26, true); }
+    const chs = await Promise.all(Array.from({ length: 8 }, () => FBX('chair', chairSpec).catch(() => null)));
+    [[-1.05, -.85, 0], [-.35, -.85, .08], [.35, -.85, -.06], [1.05, -.85, .1], [-.7, .85, PI + .1], [0, .85, PI - .06], [.7, .85, PI + .04], [-1.5, 0, .55]].forEach(([x, z, ry], i) => { if (chs[i]) { put(chs[i], 5, 1, x, 0, z, ry, .92); } });
+    S.log.push('Karte gedeckt');
+  } catch (e) { console.warn('Fassaden-Karte gedeckt', e); }
+  // 6 Strichwände (Nr. 9: „An jeder Wand Striche, in Fünfergruppen. Tausende. Die letzte Gruppe hat nur drei“): Rückwand-Karte; die Seitenwände lesen dieselbe Karte (Shader)
+  try {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 800; const x = c.getContext('2d'); let sd = 9; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, cols = 24, rows = 17, list = [];
+    x.lineCap = 'round'; for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) if (rnd() >= .22) list.push([q, r]);
+    list.forEach(([q, r], idx) => { const gx = 22 + q * 41.5 + (rnd() - .5) * 5, gy = 70 + r * 40.5 + (rnd() - .5) * 5, isLast = idx === list.length - 1, k = isLast ? 3 : 4, al = .45 + rnd() * .45;   // die letzte Gruppe hat nur drei
+      x.strokeStyle = `rgba(24,20,16,${al})`; x.lineWidth = 1.8 + rnd() * 1.2; for (let i = 0; i < k; i++) { x.beginPath(); x.moveTo(gx + i * 7.5 + (rnd() - .5) * 1.5, gy + (rnd() - .5) * 3); x.lineTo(gx + i * 7.5 + (rnd() - .5) * 3, gy + 29 + (rnd() - .5) * 4); x.stroke(); }
+      if (!isLast) { x.beginPath(); x.moveTo(gx - 4, gy + 24 + (rnd() - .5) * 3); x.lineTo(gx + 33, gy + 4 + (rnd() - .5) * 3); x.stroke(); } });
+    const tx = new T.CanvasTexture(c); tx.colorSpace = T.SRGBColorSpace; tx.anisotropy = 4; const q = new T.Mesh(new T.PlaneGeometry(3.2, 2.5), new T.MeshBasicMaterial({ map: tx, transparent: true })); q.position.set(0, 1.25, 0); cells[6].add(q);
+    S.log.push('Karte Strichwände');
+  } catch (e) { console.warn('Fassaden-Karte Strichwände', e); }
+  // 7 Keller (Nr. 8: „Unten brennt eine Kerze. Daneben ein Kinderstuhl. Er ist zur Wand gedreht“): niedriger Stuhl mit dem Rücken zum Fenster, Kerze auf dem Boden
+  try {
+    const kc = await FBX('chair', chairSpec).catch(() => null); if (kc) put(kc, 7, 1, -.32, 0, .05, PI + .15, .58);
+    const ker = await bu_teil('candles', 'model.fbx', /^Candle_large_big_used_low$/, .2, { fbx: { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', n: 'Extra_for_candles_Normal.jpg', r: 'Extra_for_candles_Roughness.jpg', m: 'Extra_for_candles_Metallic.jpg' } } }).catch(() => null);
+    if (ker) { ker.position.set(.15, 0, .1); cells[8 + 7].add(ker); }
+  } catch (e) { console.warn('Fassaden-Karte Keller', e); }
   const cam = new T.OrthographicCamera(-1.6, 1.6, 2.5, 0, .1, 30); cam.position.set(0, 0, 10); cam.lookAt(0, 0, 0); cam.updateMatrixWorld(true);
+  const camT = new T.OrthographicCamera(-1.6, 1.6, 1.25, -1.25, .1, 30), pt = .25; camT.position.set(0, 1.25 + 10 * Math.sin(pt), 10 * Math.cos(pt)); camT.lookAt(0, 1.25, 0); camT.updateMatrixWorld(true);
   const draw = () => { const r = renderer, prev = r.getRenderTarget(), au = r.autoClear, cc = new T.Color(); r.getClearColor(cc); const ca = r.getClearAlpha();
     try { r.setRenderTarget(rt); r.setClearColor(0x000000, 0); r.clear(); r.autoClear = false;
-      for (let i = 0; i < 10; i++) { if (!cells[i].children.length) continue; cells.forEach((g, j) => g.visible = j === i);
-        rt.viewport.set((i % 5) * CW, Math.floor(i / 5) * CW, CW, CW); r.setRenderTarget(rt); r.render(sc, cam); } }
-    finally { rt.viewport.set(0, 0, CW * 5, CW * 2); r.setRenderTarget(prev); r.autoClear = au; r.setClearColor(cc, ca); } };
+      for (let i = 0; i < 16; i++) { if (!cells[i].children.length) continue; cells.forEach((g, j) => g.visible = j === i);
+        rt.viewport.set((i % 8) * CW, Math.floor(i / 8) * CW, CW, CW); r.setRenderTarget(rt); r.render(sc, i === 13 ? camT : cam); } }
+    finally { rt.viewport.set(0, 0, CW * 8, CW * 2); r.setRenderTarget(prev); r.autoClear = au; r.setClearColor(cc, ca); } };
   try { await Promise.race([Promise.allSettled(KTX.pending.slice()), wait(4000)]); } catch (e) {}
   draw(); S.atlasDraw = draw; S.atlasRT = rt; S.atlasT = [8, 25]; // Nachzeichnen, sobald alle Texturen da sind
   return rt.texture;

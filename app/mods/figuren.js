@@ -462,7 +462,8 @@ function figuren_lit(w) { if (typeof flashOn === 'undefined' || !flashOn || (typ
 function figuren_q6Mat(root) { root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m || m.userData.q6) continue; m.userData.q6 = 1; const n = m.name || '';
   try { if (/std_skin_head/i.test(n)) figuren_hautMat(m, 1); else if (/std_skin_(body|arm|leg)/i.test(n)) figuren_hautMat(m, 0);
     else if (/std_cornea/i.test(n)) figuren_corneaMat(m, false); else if (/std_tearline/i.test(n)) figuren_corneaMat(m, true);
-    else if (/std_eye_[lr]$/i.test(n)) { m.roughness = .34; m.envMapIntensity = .5; }
+    else if (/std_eye_[lr]$/i.test(n)) { m.roughness = .34; m.envMapIntensity = .5; figuren_augeMat(m); }
+    else if (m.alphaTest > 0 && /eyelash/i.test(n)) figuren_wimperMat(m);
     else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m);
     // Durchsichtig + beidseitig in einem Durchgang (wie die Basis für alles beim Laden): sonst schaltet three.js in jedem Bild zweimal die Seite um (needsUpdate → Programmsuche, Ruckler beim Auftritt)
     if (m.transparent && m.side === THREE.DoubleSide) m.forceSinglePass = true; } catch (e) { console.warn('figuren Material', n, e); } } }); }
@@ -484,6 +485,16 @@ function figuren_corneaMat(m, tear) { m.transparent = true; m.depthWrite = false
       outgoingLight = (reflectedLight.directSpecular + reflectedLight.indirectSpecular * (.5 + fr)) * ${tear ? '.55' : '1.'} + vec3(c1 * ${tear ? '.25' : '1.'}); }
     #include <opaque_fragment>`); };
   m.customProgramCacheKey = () => 'fig_cornea' + (tear ? 't' : ''); m.needsUpdate = true; }
+// Wimpernkarten (Character-Creator-Karten): die Karte trägt an der Basis ein dickes, ganz deckendes schwarzes Band – bei weit offenen Kinderaugen sieht das aus wie Kajal (Nutzer 07.10.: „Augen unnatürlich“).
+// Vollflächig deckende Stellen (alle acht Nachbartexel im Abstand 3 Texel deckend) werden ausgeblendet: es bleiben die Härchen und ein feiner Lidrand.
+function figuren_wimperMat(m) { figuren_haarMat(m); const vor = m.onBeforeCompile; m.onBeforeCompile = sh => { vor(sh);
+  sh.fragmentShader = sh.fragmentShader.replace('#include <alphatest_fragment>', `#ifdef USE_MAP\n  { vec2 o = 3. / vec2(textureSize(map, 0)); float c = texture2D(map, vMapUv).a, q = texture2D(map, vMapUv + vec2(o.x, 0.)).a + texture2D(map, vMapUv - vec2(o.x, 0.)).a + texture2D(map, vMapUv + vec2(0., o.y)).a + texture2D(map, vMapUv - vec2(0., o.y)).a + texture2D(map, vMapUv + o).a + texture2D(map, vMapUv - o).a + texture2D(map, vMapUv + vec2(o.x, -o.y)).a + texture2D(map, vMapUv + vec2(-o.x, o.y)).a; if (c > .5 && q > 7.5) diffuseColor.a = 0.; }\n  #endif\n  #include <alphatest_fragment>`); };
+  m.customProgramCacheKey = () => 'fig_wimper'; m.needsUpdate = true; }
+// Augapfel (Std_Eye_L/R): die Textur hat überall rosa Äderchen und einen sehr harten dunklen Rand; Sklera wird zum warmen Weiß entsättigt (Gefäße bleiben schwach),
+// der Limbus-Ring weicher, die Iris kräftiger und mit mehr Tiefe; zum Lidrand hin wird der Augapfel leicht verschattet (Lidschatten) – so wirkt das Auge feucht und rund statt gläsern.
+function figuren_augeMat(m) { m.onBeforeCompile = sh => {
+  sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>\n  #ifdef USE_MAP\n  { vec2 q = vMapUv - .5; float r = length(q), lum = dot(diffuseColor.rgb, vec3(.299, .587, .114));\n    float skl = smoothstep(.15, .22, r), ir = 1. - smoothstep(.105, .14, r), lim = smoothstep(.095, .125, r) * (1. - smoothstep(.125, .165, r));\n    vec3 weiss = mix(vec3(lum), diffuseColor.rgb, .38) * vec3(1.04, 1., .93);\n    diffuseColor.rgb = mix(diffuseColor.rgb, weiss * 1.04, skl * .78);\n    diffuseColor.rgb *= 1. - lim * .22;\n    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * diffuseColor.rgb * 1.55, ir * .45); }\n  #endif`); };
+  m.customProgramCacheKey = () => 'fig_auge'; m.needsUpdate = true; }
 // Haarkarten, Wimpern, Brauen: Deckkraft mit der Mip-Stufe anheben – sonst dünnen sie in der Ferne aus, bis Haare „verschwinden“ (R-3)
 function figuren_haarMat(m) { m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <alphatest_fragment>', `#ifdef USE_MAP
   { vec2 ts = vec2(textureSize(map, 0)); vec2 dx = dFdx(vMapUv * ts), dy = dFdy(vMapUv * ts); float lod = max(0., .5 * log2(max(dot(dx, dx), dot(dy, dy)))); diffuseColor.a *= 1. + lod * .3; }

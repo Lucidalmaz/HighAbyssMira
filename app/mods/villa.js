@@ -26,9 +26,9 @@ const VILLA_TUER = { az: [-914.2, 898, PI / 2], an: [-889.8, 900, -PI / 2], og: 
   halleW: [-905.8, 897.6, -PI / 2], halleO: [-894.2, 900, PI / 2], anOben: [-887.6, 901.6, PI / 2], anUnten: [-889.4, 898.3, PI] };
 const villa_S = Object.assign(typeof kap_saveDefault === 'function' ? kap_saveDefault('villa') || {} : {}, { uk: 0, f: new Set(), still: 0 });
 if (typeof KAP_SAVE !== 'undefined' && KAP_SAVE.villa) Object.assign(villa_S, KAP_SAVE.villa, { f: new Set(), uk: 0 });
-MOD_SAVE.push(['villa', () => ({ rooms: [...VILLA.gebaut].filter(k => villa_S.f.has('in_' + k)), kuehl: !!villa_S.kuehl, zaehlbuch: villa_S.zaehlbuch ?? null, grete: !!villa_S.grete, kanne: !!villa_S.kanne,
+MOD_SAVE.push(['villa', () => ({ rooms: [...VILLA.gebaut].filter(k => villa_S.f.has('in_' + k)), kuehl: !!villa_S.kuehl, zaehlbuch: villa_S.zaehlbuch ?? null, grete: !!villa_S.grete, kanne: !!villa_S.kanne, kreide: villa_S.kreide || 0, bandWeg: !!villa_S.bandWeg,
   uk: villa_S.uk, f: [...villa_S.f], still: villa_S.still }),
-  v => { if (!v || typeof v !== 'object') return; villa_S.rooms = v.rooms || []; villa_S.kuehl = !!v.kuehl; villa_S.zaehlbuch = v.zaehlbuch ?? null; villa_S.grete = !!v.grete; villa_S.kanne = !!v.kanne;
+  v => { if (!v || typeof v !== 'object') return; villa_S.rooms = v.rooms || []; villa_S.kuehl = !!v.kuehl; villa_S.zaehlbuch = v.zaehlbuch ?? null; villa_S.grete = !!v.grete; villa_S.kanne = !!v.kanne; villa_S.kreide = +v.kreide || 0; villa_S.bandWeg = !!v.bandWeg;
     villa_S.uk = +v.uk || 0; villa_S.f = new Set(v.f || []); villa_S.still = +v.still || 0; }]);
 const villa_hat = k => villa_S.f.has(k);
 const villa_setz = k => { villa_S.f.add(k); };
@@ -36,7 +36,7 @@ const villa_kap4 = () => (typeof kap === 'function' ? kap() : curChapter()) === 
 const villa_item = k => story.items.includes(k);
 const villa_in = (R, x, z, m = 0) => x > R.x0 - m && x < R.x1 + m && z > R.z0 - m && z < R.z1 + m;
 function villa_raumBei(x, z) { for (const k in VILLA_R) if (villa_in(VILLA_R[k], x, z, .3)) return k; return null; }
-function villa_neu() { villa_S.f.clear(); villa_S.uk = 1; villa_S.still = 0; villa_S.kuehl = false; villa_S.zaehlbuch = null; villa_S.grete = false; villa_S.kanne = false; }
+function villa_neu() { villa_S.kreide = 0; villa_S.bandWeg = false; villa_S.f.clear(); villa_S.uk = 1; villa_S.still = 0; villa_S.kuehl = false; villa_S.zaehlbuch = null; villa_S.grete = false; villa_S.kanne = false; }
 function villa_uk(n) { if (n > villa_S.uk) villa_S.uk = n; villa_ziel(); }
 function villa_ziel() { if (!villa_kap4() || typeof setC3 !== 'function') return; const A = typeof anwesen_S !== 'undefined' ? anwesen_S : {}, c = typeof anwesen_count === 'function' ? anwesen_count() : 8;
   let t;
@@ -131,6 +131,201 @@ async function villa_bauen(k) { if (VILLA.gebaut.has(k)) return; if (VILLA.bau[k
     VILLA.gebaut.add(k); console.log('[Villa] Raum ' + k + ' gebaut in ' + Math.round(performance.now() - t0) + ' ms'); })();
   return VILLA.bau[k]; }
 
+// ---------------------------------------------------------------- Bauteile für Möbel und Geräte aus Einzelteilen (Küche, Heizung, Schalen …)
+// Abgerundeter Quader (Haushaltsgeräte): Rechteck mit Eckenradius r in XY, in z um d extrudiert, leicht abgeschrägt; Mittelpunkt im Ursprung
+function villa_rund(w, h, d, r, mat, par) { const T = THREE, s = new T.Shape(), x = -w / 2, y = -h / 2; r = Math.min(r, w / 2 - .002, h / 2 - .002);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -PI / 2, 0); s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, PI / 2); s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, PI / 2, PI); s.lineTo(x, y + r); s.absarc(x + r, y + r, r, PI, PI * 1.5);
+  const bv = Math.min(.01, d / 4), g = new T.ExtrudeGeometry(s, { depth: d - 2 * bv, bevelEnabled: true, bevelThickness: bv, bevelSize: bv * .8, bevelSegments: 2, curveSegments: 10 }); g.translate(0, 0, -(d - 2 * bv) / 2);
+  const m = new T.Mesh(g, mat); m.castShadow = true; m.receiveShadow = true; (par || VILLA.g).add(m); return m; }
+// Einzelteil (beliebige Geometrie) in die Villa-Gruppe: Position, Drehung (YXZ)
+function villa_teil(geo, mat, x, y, z, rx = 0, ry = 0, rz = 0, par) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, rz, 'YXZ'); m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; (par || VILLA.g).add(m); return m; }
+// gemeinsame Werkstoffe (einmal angelegt)
+function villa_stoff(k) { const V = VILLA.stoff || (VILLA.stoff = {}), T = THREE; if (V[k]) return V[k];
+  const D = { email: () => new T.MeshStandardMaterial({ color: 0xd6cfba, roughness: .34, metalness: .1 }), chrom: () => new T.MeshStandardMaterial({ color: 0xcfd3d6, roughness: .26, metalness: .9 }), messing: () => new T.MeshStandardMaterial({ color: 0xb48a42, roughness: .38, metalness: .85 }),
+    schwarz: () => new T.MeshStandardMaterial({ color: 0x151412, roughness: .45, metalness: .35 }), glas: () => new T.MeshStandardMaterial({ color: 0x0c0b0a, roughness: .06, metalness: .4 }),
+    lack: () => { const m = msSurfMat('planks_painted', { tint: 0x8e9a84 }); m.userData.tile = .7; m.roughness = .72; return m; }, lackHell: () => { const m = msSurfMat('planks_painted', { tint: 0xb4bca6 }); m.userData.tile = .7; m.roughness = .7; return m; },
+    platte: () => new T.MeshStandardMaterial({ color: 0xc8bfa6, roughness: .5, metalness: .05 }), stahl: () => new T.MeshStandardMaterial({ color: 0x9a9ea0, roughness: .4, metalness: .85 }),
+    eisen: () => { const m = msSurfMat('rust_sheet', { tint: 0x4a4440 }); m.userData.tile = .6; m.metalness = .55; m.roughness = .72; return m; },
+    holzDunkel: () => { const m = msSurfMat('planks_painted', { tint: 0x4a3828 }); m.userData.tile = .6; return m; }, heiz: () => new T.MeshStandardMaterial({ color: 0xe0dccc, roughness: .5, metalness: .12 }) };
+  return (V[k] = D[k]()); }
+// Schmutz-/Rostschleier als durchsichtiges Abziehbild (über Gerätefronten): senkrechte Laufspuren, Flecken, dunkle Kanten
+function villa_grimeCv(w, h, o = {}) { return villa_cv(w, h, (c, W, H) => { c.clearRect(0, 0, W, H); let a = o.seed || 11; const r = () => { a = (a * 16807) % 2147483647; return a / 2147483647; };
+  for (let i = 0; i < (o.n || 40); i++) { const x = r() * W, y0 = r() * H * .5, L = 20 + r() * H * .6; const g = c.createLinearGradient(0, y0, 0, y0 + L); g.addColorStop(0, 'rgba(90,70,40,0)'); g.addColorStop(.3, `rgba(90,70,40,${.05 + r() * .09})`); g.addColorStop(1, 'rgba(90,70,40,0)'); c.fillStyle = g; c.fillRect(x, y0, 1 + r() * 3, L); }
+  for (let i = 0; i < (o.fl || 22); i++) { const x = r() * W, y = r() * H, rr = 3 + r() * 14, g = c.createRadialGradient(x, y, 0, x, y, rr); g.addColorStop(0, `rgba(${o.rost ? '120,60,30' : '80,66,40'},${.1 + r() * .14})`); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, rr, 0, 7); c.fill(); }
+  const e = c.createLinearGradient(0, 0, 0, H); e.addColorStop(0, 'rgba(0,0,0,.08)'); e.addColorStop(.12, 'rgba(0,0,0,0)'); e.addColorStop(.85, 'rgba(60,44,24,0)'); e.addColorStop(1, 'rgba(60,44,24,.22)'); c.fillStyle = e; c.fillRect(0, 0, W, H);
+  const s = c.createLinearGradient(0, 0, W, 0); s.addColorStop(0, 'rgba(0,0,0,.14)'); s.addColorStop(.06, 'rgba(0,0,0,0)'); s.addColorStop(.94, 'rgba(0,0,0,0)'); s.addColorStop(1, 'rgba(0,0,0,.14)'); c.fillStyle = s; c.fillRect(0, 0, W, H); }); }
+// Scan-Modell der Unreal-Requisiten (assets/ue/<rolle>): size = größte Kante, lie = liegend (Längsachse y → z), Unterkante auf y
+async function villa_ue(role, size, x, y, z, ry = 0, o = {}) { try { const m = await msModel('../ue/' + role, 'model.glb'); const inner = msFit(m.clone(true), size, 'max'); let top = inner; if (o.lie) { top = new THREE.Group(); top.add(inner); inner.rotation.x = PI / 2; }
+  const g = msGround(top); g.position.set(x, y, z); g.rotation.y = ry; g.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; if (o.tint !== undefined) { q.material = q.material.clone(); q.material.color.setHex(o.tint); if (o.rough !== undefined) q.material.roughness = o.rough; } } }); g.userData.noCol = true; VILLA.g.add(g); return g; } catch (e) { console.warn('Villa ue/' + role, e); return null; } }
+// Zeitungsrolle (gerollt, Gummiband) im Türgriff: key 'z09' (Nr. 7, Sammelstück Z-09) bzw. 'nr1' (Haustür von Nr. 1, Günther-Szene in neben4.js)
+function villa_zeitungBau(x, y, z, key, ry = 0) { const T = THREE, Z = VILLA.zeit || (VILLA.zeit = {}); if (Z[key]) return Z[key];
+  const cv = villa_cv(256, 128, (c, w, h) => { papierScan(c, w, h, '#cfcbbb', { dreck: .5 }); c.fillStyle = '#2a2824'; c.font = 'bold 30px Georgia'; c.fillText('KIRCHBERGER BOTE', 14, 40); c.fillRect(12, 50, w - 24, 2);
+    c.fillStyle = 'rgba(40,38,34,.62)'; for (let k = 0; k < 7; k++) for (let j = 0; j < 3; j++) c.fillRect(12 + j * 82, 62 + k * 8, 70 - (k * j * 7) % 30, 3); c.fillStyle = 'rgba(80,76,68,.5)'; c.fillRect(176, 62, 64, 50); });
+  const g = new T.Group(); const mt = new T.MeshStandardMaterial({ map: tex(cv, true), roughness: .92 }), r = new T.Mesh(new T.CylinderGeometry(.03, .03, .37, 18), mt); r.rotation.z = PI / 2; r.castShadow = true; g.add(r);
+  for (const sx of [-1, 1]) { const e = new T.Mesh(new T.CylinderGeometry(.028, .028, .002, 18), new T.MeshStandardMaterial({ color: 0xbdb8a6, roughness: .95 })); e.rotation.z = PI / 2; e.position.x = sx * .186; g.add(e); }
+  const band = new T.Mesh(new T.TorusGeometry(.0315, .0028, 6, 18), new T.MeshStandardMaterial({ color: 0x8a3a1c, roughness: .7 })); band.rotation.y = PI / 2; band.position.x = .07; g.add(band);
+  g.position.set(x, y, z); g.rotation.set(0, ry, .12); g.userData.noCol = true; g.visible = false; scene.add(g); Z[key] = g; return g; }
+function villa_zeitungTick() { const Z = VILLA.zeit; if (!Z || !Z.z09) return; let da = false; try { da = (typeof kap === 'function' ? kap() : curChapter()) >= 4 && !(typeof sammeln_hatZ === 'function' && sammeln_hatZ(9)); } catch (e) {} Z.z09.visible = da;
+  if (Z.nr1) Z.nr1.visible = !!Z.nr1.userData.an && (typeof kap === 'function' ? kap() : curChapter()) === 4; }
+function villa_zeitungZeigen(key, an) { const g = VILLA.zeit && VILLA.zeit[key]; if (g) { g.userData.an = !!an; g.visible = !!an; } }
+// Oberkante eines Möbels per Strahl von oben
+function villa_oben(o, x, z, from = 4) { o.updateMatrixWorld(true); const rc = new THREE.Raycaster(new THREE.Vector3(x, from, z), new THREE.Vector3(0, -1, 0), 0, from + 1), h = rc.intersectObject(o, true)[0]; return h ? h.point.y : new THREE.Box3().setFromObject(o).max.y; }
+function villa_koll(w, h, d, x, y, z) { const m = box(w, h, d, x, y, z, hidden, { cast: false, collide: true, parent: VILLA.g }); m.userData.noCol = true; return m; }
+// ---------------------------------------------------------------- Vegas' Stube: Küchenecke (Südwand) mit Kühlschrank, Herd samt Backofen, Küchenschränken mit der Streichholz-Schublade, Spüle; Kanonenofen mit Rohr; Speisekammertür; Klofenster; Bruno mit Napf
+async function villa_kueche(R) {
+  const T = THREE, zS = R.z0 + .1, em = villa_stoff('email'), ch = villa_stoff('chrom'), bk = villa_stoff('schwarz'), lk = villa_stoff('lack'), lh = villa_stoff('lackHell'), pl = villa_stoff('platte'), V = (x, y, z) => new T.Vector3(x, y, z);
+  const kasten = (w, h, d, x, y, z, mat, col) => villa_box(w, h, d, x, y, z, mat, { collide: !!col, cast: true });
+  // --- Kühlschrank in der Südostecke (abgerundeter Schrank, zwei Türen, Chromgriffe); oben sitzt Whiskey
+  { const fx = -977.46, fz = zS + .33, fy = .05, fh = 1.72, f = villa_rund(.62, fh, .64, .07, em); f.position.set(fx, fy + fh / 2, fz); villa_box(.56, .05, .56, fx, .025, fz, bk, { collide: false });
+    villa_koll(.62, fh, .64, fx, fy + fh / 2, fz);
+    const front = fz + .32; villa_box(.58, .012, .008, fx, fy + fh * .73, front + .002, bk, { cast: false }); // Fuge zwischen Gefrierfach und Kühlteil
+    for (const [yy, hh] of [[fy + fh * .87, .16], [fy + fh * .38, .44]]) { for (const dz of [.045]) { const b = villa_teil(new T.CylinderGeometry(.011, .011, hh, 10), ch, fx + .22, yy, front + dz); } for (const o of [-.5, .5]) villa_teil(new T.CylinderGeometry(.006, .006, .04, 8), ch, fx + .22, yy + o * (hh - .04), front + .022, PI / 2, 0, 0); }
+    villa_teil(new T.BoxGeometry(.11, .028, .006), ch, fx - .12, fy + fh * .93, front + .003); villa_decal(villa_grimeCv(256, 512, { seed: 5, n: 22, fl: 8 }), .6, fh - .04, fx, fy + fh / 2, front + .004, 0, 0, { alpha: true });
+    VILLA.o.kuehl = { x: fx, top: fy + fh, z: fz }; }
+  // --- Herd mit Backofen: Kochfeld, vier Brenner, Backofenfenster, Griff, drei Knöpfe – der vierte (Backofen) ist abgezogen; Pfanne mit grauem Rührei und verkohltem Speck
+  { const hx = -978.12, hz = zS + .31, hy = .03, hh = .86, f = villa_rund(.6, hh, .62, .025, em); f.position.set(hx, hy + hh / 2, hz); villa_koll(.6, hh, .62, hx, hy + hh / 2, hz); villa_box(.54, .03, .5, hx, .015, hz, bk, { cast: false });
+    const front = hz + .31, top = hy + hh; villa_box(.6, .024, .62, hx, top + .005, hz, bk, { cast: false });
+    for (const [bx, bz, r] of [[-.15, -.14, .08], [.15, -.14, .065], [-.15, .12, .065], [.15, .12, .08]]) { villa_teil(new T.CylinderGeometry(r, r, .012, 20), villa_stoff('eisen'), hx + bx, top + .02, hz + bz); villa_teil(new T.TorusGeometry(r * .62, .005, 6, 18), bk, hx + bx, top + .027, hz + bz, -PI / 2); }
+    villa_box(.46, .34, .012, hx, hy + .39, front + .001, villa_stoff('glas'), { cast: false }); villa_box(.5, .38, .008, hx, hy + .39, front - .002, ch, { cast: false }); // Backofenfenster in Chromrahmen
+    villa_teil(new T.CylinderGeometry(.011, .011, .44, 10), ch, hx, hy + .6, front + .045, 0, 0, PI / 2); for (const o of [-.2, .2]) villa_teil(new T.CylinderGeometry(.006, .006, .04, 8), ch, hx + o, hy + .6, front + .022, PI / 2);
+    for (const [i, kx] of [-.2, -.07, .07, .2].entries()) { if (i === 0) { villa_teil(new T.CylinderGeometry(.006, .006, .02, 8), ch, hx + kx, hy + .78, front + .01, PI / 2); villa_teil(new T.CylinderGeometry(.016, .016, .003, 14), ch, hx + kx, hy + .78, front + .002, PI / 2); continue; } // Backofenknopf fehlt
+      villa_teil(new T.CylinderGeometry(.021, .018, .028, 14), bk, hx + kx, hy + .78, front + .014, PI / 2); villa_teil(new T.BoxGeometry(.004, .016, .004), ch, hx + kx, hy + .79, front + .03); }
+    villa_decal(villa_grimeCv(256, 256, { seed: 9, n: 14, fl: 8, rost: 1 }), .6, hh - .02, hx, hy + hh / 2, front + .004, 0, 0, { alpha: true });
+    // Pfanne auf dem linken hinteren Brenner
+    const px = hx - .15, pz = hz - .14, py = top + .03; const pm = villa_stoff('stahl').clone(); pm.side = T.DoubleSide; villa_teil(new T.CylinderGeometry(.13, .115, .045, 24, 1, true), pm, px, py + .0225, pz); villa_teil(new T.CylinderGeometry(.115, .115, .006, 24), bk, px, py + .004, pz);
+    const ei = villa_teil(new T.CylinderGeometry(.106, .106, .012, 22), new T.MeshStandardMaterial({ color: 0x8b8678, roughness: .75 }), px, py + .012, pz); void ei;
+    villa_teil(new T.BoxGeometry(.2, .018, .026), bk, px - .12 - .1, py + .036, pz - .02, 0, 0, .0); // Stiel zeigt nach links
+    for (let i = 0; i < 5; i++) villa_teil(new T.BoxGeometry(.075, .006, .016), new T.MeshStandardMaterial({ color: i % 2 ? 0x1a1310 : 0x2c1c14, roughness: .8 }), px - .04 + (i % 3) * .035, py + .022 + i * .0008, pz - .06 + i * .03, 0, .4 + i * .7);
+    VILLA.o.herd = { x: hx, z: hz, top }; }
+  // --- Unterschränke: links Spüle (zwei Türen), rechts das Schubladenelement (zwei Schubladen oben, eine Tür); die oberste Schublade steht offen, darin die Streichholzschachtel
+  const unter = (xc, w, art) => { const zc = zS + .29, fr = zS + .58; kasten(w, .78, .58, xc, .08 + .39, zc, lk, true); villa_box(w - .04, .08, .5, xc, .04, zc, villa_stoff('holzDunkel'), { cast: false });
+    const top = villa_box(w + .02, .04, .64, xc, .88, zc + .03, pl, { cast: true }); void top; return { zc, fr, xc, w }; };
+  const griff = (x, y, z, l = .1, senk = false) => { villa_teil(new T.CylinderGeometry(.007, .007, l, 8), ch, x, y, z + .028, senk ? 0 : 0, 0, senk ? 0 : PI / 2); for (const o of [-1, 1]) villa_teil(new T.CylinderGeometry(.004, .004, .03, 6), ch, x + (senk ? 0 : o * (l / 2 - .012)), y + (senk ? o * (l / 2 - .012) : 0), z + .013, PI / 2); };
+  const tuer = (x, y, z, w, h, mat) => { villa_box(w, h, .02, x, y, z + .01, mat, { cast: false }); villa_box(w - .1, h - .1, .01, x, y, z + .025, lh, { cast: false }); };
+  { const U = unter(-980.14, 1.2), z = U.fr; tuer(U.xc - .3, .5, z, .57, .7, lk); tuer(U.xc + .3, .5, z, .57, .7, lk); griff(U.xc - .06, .55, z + .02, .1, true); griff(U.xc + .06, .55, z + .02, .1, true);
+    // Spülbecken in die Platte (Stahl), Hahn mit zwei Griffen
+    villa_box(.52, .012, .4, U.xc - .12, .908, U.zc + .0, villa_stoff('stahl'), { cast: false }); villa_box(.44, .004, .32, U.xc - .12, .915, U.zc + .0, villa_stoff('glas'), { cast: false });
+    villa_teil(new T.CylinderGeometry(.02, .024, .05, 12), ch, U.xc - .12, .94, zS + .14); villa_teil(new T.CylinderGeometry(.009, .009, .2, 8), ch, U.xc - .12, 1.06, zS + .14); villa_teil(new T.CylinderGeometry(.009, .009, .13, 8), ch, U.xc - .12, 1.16, zS + .2, PI / 2, 0, 0);
+    for (const o of [-.07, .07]) villa_teil(new T.CylinderGeometry(.016, .014, .03, 10), villa_stoff('messing'), U.xc - .12 + o, .93, zS + .12); }
+  let schubU = null; void schubU;
+  { const U = unter(-978.98, 1.04), z = U.fr, hy = .76; // zwei Schubladen oben (die obere offen), Tür unten
+    tuer(U.xc, .26, z, .98, .46, lk); griff(U.xc, .36, z + .02, .1, false); villa_box(.98, .17, .02, U.xc, hy - .21, z + .01, lk, { cast: false }); griff(U.xc, hy - .21, z + .02, .12, false);
+    // offene Schublade: Front, Seiten, Boden, Rückwand – 32 cm herausgezogen
+    const out = .32, dz = z + out, fy = hy - .0;
+    villa_box(.98, .17, .02, U.xc, fy, dz + .01, lk, { cast: true }); griff(U.xc, fy + .02, dz + .02, .12, false); const bw = .9, bd = .5;
+    villa_box(.012, .13, bd, U.xc - bw / 2, fy - .02, dz - bd / 2 + .02, villa_stoff('holzDunkel'), { cast: false }); villa_box(.012, .13, bd, U.xc + bw / 2, fy - .02, dz - bd / 2 + .02, villa_stoff('holzDunkel'), { cast: false });
+    villa_box(bw, .01, bd, U.xc, fy - .075, dz - bd / 2 + .02, villa_stoff('holzDunkel'), { cast: false });
+    villa_box(.2, .012, .14, U.xc - .3, fy - .062, dz - .1, villa_stoff('stahl'), { cast: false }); // Besteckreste
+    for (const o of [.12, .2]) villa_teil(new T.CylinderGeometry(.007, .007, .17, 8), ch, U.xc - .3 + o * .5, fy - .06, dz - .2 + o * .3, PI / 2, .5, 0);
+    // Streichholzschachtel (Hülle + Schieber) in der Schublade
+    const sch = villa_cv(128, 80, (c, w, h) => { c.fillStyle = '#c8362a'; c.fillRect(0, 0, w, h); c.fillStyle = '#e8d8a8'; c.fillRect(8, 8, w - 16, h - 16); c.fillStyle = '#c8362a'; c.font = 'bold 26px Arial'; c.fillText('SAFETY', 18, 40); c.font = '15px Arial'; c.fillText('MATCHES', 24, 60); });
+    const mt = new T.MeshStandardMaterial({ map: tex(sch, true), roughness: .9 }); const mb = villa_teil(new T.BoxGeometry(.052, .016, .036), mt, U.xc + .05, fy - .07 + .008, dz - .14, 0, .35, 0); void mb; schubU = U; } // Fundort für kiffen_fund: (−978,93 / 0,706 / 855,86)
+  // Teller und Tasse neben dem Becken
+  await villa_put('w_teller', 'model.glb', .22, 'max', -980.74 + .12 - .6, zS + .32, 0, .9); await villa_put('w_tasse', 'model.glb', .1, 'max', -979.76, zS + .22, .6, .9);
+  // --- Kanonenofen im Nordwesten (Rostblech, Ofenrohr bis zur Decke, Feuerschlitz glimmt); Tür nach Süden in den Raum
+  { const ox = -983.3, oz = R.z1 - .55, g = new T.Group(); g.position.set(ox, 0, oz); g.rotation.y = PI + .25; VILLA.g.add(g); const ei = villa_stoff('eisen');
+    const add = (geo, mat, x, y, z, rx = 0, ry = 0, rz = 0) => villa_teil(geo, mat, x, y, z, rx, ry, rz, g);
+    for (const [lx, lz] of [[-.14, -.14], [.14, -.14], [-.14, .14], [.14, .14]]) add(new T.CylinderGeometry(.02, .028, .16, 8), ei, lx, .08, lz);
+    add(new T.CylinderGeometry(.22, .22, .6, 28), ei, 0, .46, 0); add(new T.CylinderGeometry(.24, .24, .03, 28), ei, 0, .775, 0); add(new T.CylinderGeometry(.24, .24, .03, 28), ei, 0, .17, 0);
+    for (const y of [.32, .6]) add(new T.TorusGeometry(.222, .008, 6, 28), ei, 0, y, 0, PI / 2);
+    add(new T.BoxGeometry(.2, .24, .02), villa_stoff('schwarz'), 0, .5, .215); add(new T.BoxGeometry(.11, .05, .012), new T.MeshStandardMaterial({ color: 0x2a0c04, emissive: 0xff7a2a, emissiveIntensity: 1.6, roughness: .5 }), 0, .53, .226);
+    add(new T.BoxGeometry(.02, .02, .04), ch, .12, .5, .225); add(new T.CylinderGeometry(.055, .055, 1.9, 16), ei, 0, 1.73, -.02); add(new T.TorusGeometry(.057, .008, 6, 16), ei, 0, 1.2, -.02, PI / 2); add(new T.TorusGeometry(.057, .008, 6, 16), ei, 0, 2.2, -.02, PI / 2);
+    add(new T.CylinderGeometry(.075, .075, .03, 16), ei, 0, 2.58, -.02); villa_koll(.5, .8, .5, ox, .4, oz);
+    // Kohlen im Eimer neben dem Ofen
+    const eim = villa_teil(new T.CylinderGeometry(.13, .1, .24, 16, 1, true), villa_stoff('stahl'), ox - .55, .12, oz - .05); eim.material = villa_stoff('stahl').clone(); eim.material.side = T.DoubleSide;
+    for (let i = 0; i < 9; i++) villa_teil(new T.DodecahedronGeometry(.032 + (i % 3) * .008, 0), new T.MeshStandardMaterial({ color: 0x141312, roughness: .6, metalness: .2 }), ox - .55 + Math.cos(i * 2.4) * .06, .2 + (i % 2) * .02, oz - .05 + Math.sin(i * 2.4) * .06, i, i * 2, 0);
+    VILLA.o.ofenL = villa_licht(ox, .55, oz - .6, 0xff8a3c, 1.0, 5); VILLA.o.ofenPos = { x: ox, z: oz }; }
+  // --- Speisekammertür (Nordwand, östlich der Haustür): geschlossen
+  await villa_put('door1', 'model.gltf', 2.05, 'y', -978.6, R.z1 - .08, PI); villa_hit(.9, 2.1, .3, -978.6, 1.05, R.z1 - .3, 'Speisekammer', () => toast('Die Speisekammertür ist zu. Dahinter kaut jemand. Oder lauscht. Bei Vegas ist das schwer zu unterscheiden.', 4200));
+  // --- Klofenster: kleines, gekipptes Milchglasfenster hoch in der Südwand
+  { const wx = -981.9, wy = 1.95, wm = villa_stoff('holzDunkel'), ww = .5, wh = .58, zz = zS - .005; villa_decal(villa_cv(96, 112, (c, w, h) => { const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#c4ccd2'); g.addColorStop(1, '#9aa4ac'); c.fillStyle = g; c.fillRect(0, 0, w, h); c.fillStyle = 'rgba(255,255,255,.18)'; for (let i = 0; i < 90; i++) c.fillRect(Math.random() * w, Math.random() * h, 2, 2); }), ww, wh, wx, wy, zz + .006, 0, 0, { glow: .4 });
+    for (const [bw, bh, bx, by] of [[ww + .1, .05, 0, wh / 2 + .02], [ww + .1, .05, 0, -wh / 2 - .02], [.05, wh, -ww / 2 - .02, 0], [.05, wh, ww / 2 + .02, 0]]) villa_box(bw, bh, .06, wx + bx, wy + by, zz + .03, wm, { cast: false });
+    villa_box(ww + .14, .035, .13, wx, wy - wh / 2 - .06, zz + .06, wm, { cast: false }); const fl = villa_box(ww - .04, .02, wh * .5, wx, wy + wh * .06, zz + .09, new T.MeshStandardMaterial({ color: 0xb8c4cc, roughness: .15, transparent: true, opacity: .55 }), { cast: false }); fl.rotation.x = -.45; }
+  // --- Bruno liegt an der Tür, daneben der volle Napf
+  { const nx = -982.65, nz = R.z1 - .95, ma = new T.MeshStandardMaterial({ color: 0xa8acae, roughness: .35, metalness: .85, side: T.DoubleSide });
+    const pr = [[0, 0], [.07, 0], [.1, .055], [.105, .06], [.095, .062], [.065, .012], [0, .012]].map(([r, y]) => new T.Vector2(r, y)); villa_teil(new T.LatheGeometry(pr, 24), ma, nx, .0, nz);
+    villa_teil(new T.CylinderGeometry(.088, .088, .02, 20), new T.MeshStandardMaterial({ color: 0x5a3a24, roughness: .9 }), nx, .045, nz); for (let i = 0; i < 12; i++) villa_teil(new T.DodecahedronGeometry(.012, 0), new T.MeshStandardMaterial({ color: 0x4a2e1c, roughness: .9 }), nx + Math.cos(i * 2.1) * .06, .062, nz + Math.sin(i * 2.1) * .06, i, i, 0);
+    try { if (typeof figuren_hund === 'function') { const H = await figuren_hund(VILLA.g, nx + .75, nz + .45, { ry: PI + .5 }); if (H) VILLA.o.bruno = H; } } catch (e) { console.warn('Villa: Bruno', e); } }
+}
+// ---------------------------------------------------------------- Heinrichs Zimmer (OG, Ostwand): Heizkörper auf Stellung 5, leere Hakenleiste, Blechdose unter dem Bett
+async function villa_ogZimmer(R) {
+  const T = THREE, W = -886.1, hz = 928.4, hm = villa_stoff('heiz'), ch = villa_stoff('chrom'), hx = W - .07;
+  // Gliederheizkörper: zwölf Glieder (abgerundet), zwei Sammelrohre, Wandhalter; Ventil mit Thermostatkopf, Rohre zum Boden
+  for (let i = 0; i < 12; i++) { const f = villa_rund(.062, .6, .095, .028, hm); f.rotation.y = PI / 2; f.position.set(hx, .47, hz - .41 + i * .075); }
+  for (const y of [.2, .73]) villa_teil(new T.CylinderGeometry(.019, .019, .93, 12), hm, hx, y, hz, PI / 2);
+  for (const z of [-.3, .3]) villa_box(.05, .035, .06, W - .03, .4, hz + z, hm, { cast: false });
+  const vz = hz + .5; villa_teil(new T.CylinderGeometry(.017, .017, .06, 10), ch, hx, .2, hz + .47, PI / 2); villa_teil(new T.CylinderGeometry(.011, .011, .2, 8), hm, hx, .1, vz, 0, 0, 0);
+  villa_teil(new T.CylinderGeometry(.036, .036, .075, 18), hm, hx, .2, vz + .02, PI / 2); villa_teil(new T.CylinderGeometry(.04, .04, .012, 18), ch, hx, .2, vz + .062, PI / 2);
+  villa_decal(villa_cv(128, 96, (c, w, h) => { c.fillStyle = '#e8e4d6'; c.fillRect(0, 0, w, h); c.fillStyle = '#222'; c.font = 'bold 30px Arial'; for (let i = 1; i <= 5; i++) { c.fillText(String(i), 12 + (i - 1) * 20, 62); } c.fillStyle = '#b02018'; c.fillRect(12 + 4 * 20, 66, 14, 5); c.beginPath(); c.moveTo(106, 20); c.lineTo(122, 20); c.lineTo(114, 38); c.fill(); }), .066, .05, hx, .2 + .0375, vz + .02, -PI / 2, 0);
+  villa_decal(villa_grimeCv(256, 128, { seed: 3, n: 14, fl: 10 }), .96, .62, W - .121, .47, hz, 0, -PI / 2, { alpha: true });
+  // Hakenleiste mit drei leeren Messinghaken neben der Heizung
+  { const z0 = 929.55, hy = 1.62; villa_box(.02, .09, .5, W - .011, hy, z0, villa_stoff('holzDunkel'), { cast: true });
+    for (const o of [-.17, 0, .17]) { villa_teil(new T.CylinderGeometry(.006, .006, .06, 8), villa_stoff('messing'), W - .05, hy - .005, z0 + o, 0, 0, PI / 2); villa_teil(new T.CylinderGeometry(.006, .006, .04, 8), villa_stoff('messing'), W - .078, hy + .014, z0 + o, 0, 0, 0); villa_teil(new T.SphereGeometry(.009, 8, 6), villa_stoff('messing'), W - .078, hy + .035, z0 + o); villa_teil(new T.CylinderGeometry(.012, .012, .004, 10), villa_stoff('messing'), W - .021, hy - .005, z0 + o, 0, 0, PI / 2); } }
+  // zweite Blechdose: leer, unter dem Bett (die Pastillen)
+  await villa_put('w_blech', 'model.glb', .11, 'max', -887.65, 930.95, 1.1, .01);
+}
+// ---------------------------------------------------------------- Arbeitszimmer: Fenster (Westwand) neben der Karte, Kartenrahmen mit Messingklappe, lose Zeitungsausschnitte
+function villa_ausschnitt(w, h, x, y, z, rx, ry, rz, kopf, seed) { const cv = villa_cv(160, 210, (c, W, H) => { let a = seed || 3; const r = () => { a = (a * 16807) % 2147483647; return a / 2147483647; }; papierScan(c, W, H, '#cfcab8', { dreck: .4 });
+    c.fillStyle = '#26241f'; c.font = 'bold 21px Georgia'; c.fillText(kopf, 10, 30); c.fillRect(10, 38, W - 20, 2); c.fillStyle = 'rgba(40,38,34,.55)'; for (let k = 0; k < 14; k++) c.fillRect(10, 54 + k * 11, 40 + r() * (W - 60), 4); c.fillStyle = 'rgba(70,66,60,.5)'; c.fillRect(W - 62, 54, 50, 56);
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, 'rgba(120,100,60,.12)'); g.addColorStop(1, 'rgba(90,70,30,.25)'); c.fillStyle = g; c.fillRect(0, 0, W, H); });
+  const m = villa_decal(cv, w, h, x, y, z, rx, ry); m.rotation.z = rz; return m; }
+async function villa_azFenster(R) {
+  const T = THREE, X = R.x0 + .1, wz = 899.7, wy = 1.75, ww = .74, wh = 1.05, ho = villa_stoff('holzDunkel');
+  villa_decal(villa_cv(128, 160, (c, w, h) => { const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#cfd6da'); g.addColorStop(1, '#a9b2b6'); c.fillStyle = g; c.fillRect(0, 0, w, h); c.fillStyle = 'rgba(255,255,255,.2)'; for (let i = 0; i < 70; i++) c.fillRect(Math.random() * w, Math.random() * h, 2, 8 + Math.random() * 16);
+    c.strokeStyle = '#3a3026'; c.lineWidth = 5; c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.moveTo(0, h * .42); c.lineTo(w, h * .42); c.stroke(); }), ww, wh, X + .012, wy, wz, 0, PI / 2, { glow: .4 });
+  for (const [bz, by, bd, bh] of [[0, wh / 2 + .03, ww + .12, .06], [0, -wh / 2 - .03, ww + .12, .06]]) villa_box(.07, bh, bd, X + .035, wy + by, wz + bz, ho, { cast: false });
+  for (const s of [-1, 1]) villa_box(.07, wh, .06, X + .035, wy, wz + s * (ww / 2 + .03), ho, { cast: false });
+  villa_box(.16, .035, ww + .22, X + .08, wy - wh / 2 - .075, wz, ho, { cast: true }); // Fensterbank
+  // Gardine: zwei Bahnen am Stab, halb zugezogen
+  try { const spec = { 'curtainroom_01_-_Default': { b: 'curtainroom_01_-_Default_BaseColor.jpg', n: 'curtainroom_01_-_Default_Normal.jpg', r: 'curtainroom_01_-_Default_Roughness.jpg', ds: 1, color: 0xa89a82 } };
+    const c0 = await msFBX('curtain_retro', 'model.fbx', spec); msFit(c0, 1.55, 'y'); const gc = msGround(c0); gc.position.set(X + .1, wy - wh / 2 - .35, wz); gc.rotation.y = -PI / 2; gc.traverse(q => { if (q.isMesh) { q.castShadow = false; q.receiveShadow = true; } }); VILLA.g.add(gc); VILLA.o.azVorhang = gc; } catch (e) { console.warn('Villa: Gardine', e); }
+  villa_teil(new T.CylinderGeometry(.012, .012, 1.3, 8), villa_stoff('messing'), X + .1, wy + wh / 2 + .22, wz, PI / 2, 0, 0);
+}
+function villa_azKartenwand(R) {
+  const T = THREE, X = R.x0 + .1, cz = 901.6, ho = villa_stoff('holzDunkel'), mg = villa_stoff('messing');
+  // Rahmen um die Karte (Karte: 1,9 × 1,12 m, Mitte y 1,75)
+  for (const [w, h, d, y, z] of [[.04, .07, 2.04, 2.315 + .03, cz], [.04, .07, 2.04, 1.185 - .03, cz], [.04, 1.2, .07, 1.75, cz - .985], [.04, 1.2, .07, 1.75, cz + .985]]) villa_box(w, h, d, X + .02, y, z, ho, { cast: false });
+  // Fach unter dem Rahmen: Wände, Rückwand schwarz, Messingklappe an der Unterkante gelenkt (öffnet nach vorn unten), Schlüsselloch
+  const by = 1.03, bz = .56, mt = .012; villa_box(.085, mt, bz, X + .045, by + .1, cz, ho, { cast: false }); villa_box(.085, mt, bz, X + .045, by - .1, cz, ho, { cast: false });
+  for (const s of [-1, 1]) villa_box(.085, .2, mt, X + .045, by, cz + s * (bz / 2), ho, { cast: false });
+  villa_decal(villa_cv(32, 16, (c, w, h) => { c.fillStyle = '#0a0908'; c.fillRect(0, 0, w, h); }), bz, .2, X + .006, by, cz, 0, PI / 2);
+  const piv = new T.Group(); piv.position.set(X + .088, by - .095, cz); VILLA.g.add(piv); VILLA.o.klappeG = piv;
+  const tuer = new T.Mesh(new T.BoxGeometry(.012, .19, bz - .006), mg); tuer.position.set(0, .095, 0); tuer.castShadow = true; tuer.receiveShadow = true; tuer.userData.noCol = true; piv.add(tuer);
+  const sl = villa_decal(villa_cv(96, 64, (c, w, h) => { c.fillStyle = 'rgba(0,0,0,0)'; c.clearRect(0, 0, w, h); c.fillStyle = '#6a5224'; c.beginPath(); c.arc(w / 2, 30, 13, 0, 7); c.fill(); c.fillStyle = '#0a0806'; c.beginPath(); c.arc(w / 2, 27, 4.5, 0, 7); c.fill(); c.fillRect(w / 2 - 2, 27, 4, 14); c.strokeStyle = 'rgba(255,230,160,.5)'; c.lineWidth = 1.5; c.strokeRect(2, 2, w - 4, h - 4); }), .12, .08, 0, 0, 0, 0, PI / 2, { alpha: true, metal: .6, rough: .5 });
+  VILLA.g.remove(sl); sl.position.set(.0075, .098, 0); piv.add(sl);
+  // Tonband im Fach (erst sichtbar, wenn die Klappe offen ist)
+  const tb = new T.Group(); const sp = new T.Mesh(new T.BoxGeometry(.13, .013, .13), new T.MeshStandardMaterial({ color: 0x1c1b19, roughness: .5, metalness: .2 })); tb.add(sp);
+  const lab = villa_decal(villa_cv(128, 128, (c, w, h) => { c.fillStyle = '#17161a'; c.fillRect(0, 0, w, h); c.fillStyle = '#bdb8a8'; c.beginPath(); c.arc(w * .3, h * .5, 26, 0, 7); c.arc(w * .7, h * .5, 26, 0, 7); c.fill(); c.fillStyle = '#17161a'; c.beginPath(); c.arc(w * .3, h * .5, 9, 0, 7); c.arc(w * .7, h * .5, 9, 0, 7); c.fill(); c.fillStyle = '#e6e0cc'; c.fillRect(14, 12, 100, 20); c.fillStyle = '#26241f'; c.font = '10px "Courier New"'; c.fillText('KANAL 3 · ALLE AST', 17, 20); c.fillText('1992', 17, 29); }), .13, .13, 0, .008, 0, -PI / 2, 0); VILLA.g.remove(lab); tb.add(lab);
+  tb.position.set(X + .05, by - .095 + .0065, cz); tb.rotation.y = .3; tb.visible = false; VILLA.g.add(tb); VILLA.o.klappeBand = tb;
+  VILLA.o.klappeOffen = false; VILLA.o.klappeHit = villa_hit(.2, .26, .6, X + .08, by, cz, () => villa_hat('klappe') ? 'Fach am Kartenrahmen' : 'Messingklappe am Kartenrahmen', () => villa_klappeText());
+  // sechs lose Zeitungsausschnitte: vier unter der Karte auf dem Boden, zwei auf der Tischkante
+  [['OHIO', -920.35, 900.9, .4], ['NORDSEE', -920.05, 901.7, 1.9], ['LAGUNE', -919.7, 902.5, -.5], ['URAL', -920.55, 902.8, 2.6]].forEach(([k, x, z, a], i) => villa_ausschnitt(.15, .2, x, .014, z, -PI / 2, a, 0, k, 3 + i));
+  [['IRLAND', -917.55, .805, 899.75, .7], ['CHILE', -917.2, .805, 899.55, -.9]].forEach(([k, x, y, z, a], i) => villa_ausschnitt(.15, .2, x, y, z, -PI / 2, a, 0, k, 9 + i));
+}
+function villa_klappeText() { if (villa_hat('klappe')) return toast(VILLA.o.klappeBand && VILLA.o.klappeBand.visible ? 'Die Klappe steht offen. Darin liegt das Tonband.' : 'Die Klappe steht offen. Das Fach ist leer, nur ein hellerer Rand im Staub, wo das Band lag.', 3400);
+  toast('Unten am Kartenrahmen eine kleine Messingklappe mit Schlüsselloch. Kein Schlüssel. Man hört nichts, wenn man klopft. Das ist auch eine Auskunft.', 4600); }
+function villa_klappeAuf() { villa_setz('klappe'); const O = VILLA.o; VILLA.klappeSoll = true; if (!O.klappeG) return; O.klappeOffen = true; if (O.klappeBand) O.klappeBand.visible = !villa_S.bandWeg; try { tween(O.klappeG, { rz: -1.45 }, .9); } catch (e) { O.klappeG.rotation.z = -1.45; } }
+function villa_klappeLeer() { villa_S.bandWeg = true; if (VILLA.o.klappeBand) VILLA.o.klappeBand.visible = false; }
+// ---------------------------------------------------------------- Anrichte: drei Batterien im Dreieck auf der fünften Stufe der Dienstbotentreppe
+async function villa_anBatterien() {
+  const cx = -886.2, cz = 901.0, y = .9 + .008, ps = [];
+  for (let i = 0; i < 3; i++) { const a = PI / 2 + i * PI * 2 / 3, px = cx + Math.cos(a) * .05, pz = cz + Math.sin(a) * .05; const b = await villa_ue('batterie', .05, px, y - .008 + .0, pz, -a + PI / 2 * 0, { lie: true }); if (b) { b.rotation.y = Math.atan2(cx - px, cz - pz); ps.push(b); } }
+  VILLA.o.batt = ps; VILLA.o.battHit = villa_hit(.34, .2, .34, cx, y + .06, cz, 'Drei Batterien', () => { if (villa_hat('batt3')) return; villa_setz('batt3'); for (const b of VILLA.o.batt) b.visible = false; try { addBattery(3); } catch (e) {} try { Audio.play('metalHit1', { gain: .12, rate: 2.4 }); } catch (e) {}
+    toast('Drei Batterien, die Spitzen nach innen, im Dreieck. Das Metall ist warm. Die Stufe darüber auch.', 4200); villa_uninteract(VILLA.o.battHit); });
+}
+function villa_uninteract(m) { const i = interactables.indexOf(m); if (i >= 0) interactables.splice(i, 1); }
+// ---------------------------------------------------------------- Keller: Nierenschale mit Eisensplitter, drei Schraubsicherungen vor dem Kasten, Zettel auf dem Kopfkissen der Zelle
+function villa_nierenschale(x, y, z, ry = 0) {
+  const T = THREE, bean = (w, h, k) => { const s = new T.Shape(); s.moveTo(-w, 0); s.bezierCurveTo(-w, h * 1.1, -w * .25, h * (1 - k), 0, h * (1 - k)); s.bezierCurveTo(w * .25, h * (1 - k), w, h * 1.1, w, 0); s.bezierCurveTo(w * .9, -h * 1.0, w * .35, -h * .95, 0, -h * .95); s.bezierCurveTo(-w * .35, -h * .95, -w * .9, -h * 1.0, -w, 0); return s; };
+  const stahl = villa_stoff('stahl'), g = new T.Group(); g.position.set(x, y, z); g.rotation.y = ry; VILLA.g.add(g);
+  const a = new T.ExtrudeGeometry(bean(.115, .05, .5), { depth: .014, bevelEnabled: true, bevelThickness: .004, bevelSize: .004, bevelSegments: 2, curveSegments: 14 }); a.rotateX(-PI / 2); const m1 = new T.Mesh(a, stahl); m1.castShadow = true; m1.receiveShadow = true; g.add(m1);
+  const b = new T.ExtrudeGeometry(bean(.1, .04, .5), { depth: .002, bevelEnabled: false, curveSegments: 14 }); b.rotateX(-PI / 2); const m2 = new T.Mesh(b, new T.MeshStandardMaterial({ color: 0x55595b, roughness: .35, metalness: .85 })); m2.position.y = .0145; g.add(m2);
+  const sp = new T.Mesh(new T.IcosahedronGeometry(.022, 0), new T.MeshStandardMaterial({ color: 0x5c5f63, roughness: .55, metalness: .8 })); sp.scale.set(1.2, .7, .8); sp.position.set(-.01, .027, .005); sp.rotation.set(.4, .7, .2); sp.castShadow = true; g.add(sp);
+  const sch = new T.Mesh(new T.PlaneGeometry(.026, .018), new T.MeshStandardMaterial({ map: tex(villa_cv(64, 44, (c, w, h) => { papierScan(c, w, h, '#e0d8c2', { dreck: .3 }); c.fillStyle = '#222'; c.fillRect(8, 12, 48, 2); c.fillRect(8, 20, 40, 2); c.fillRect(8, 28, 44, 2); c.fillStyle = '#7a1a14'; c.beginPath(); c.arc(54, 8, 3, 0, 7); c.fill(); }), true), roughness: .9, side: T.DoubleSide }));
+  sch.rotation.x = -PI / 2 + .1; sch.rotation.z = .5; sch.position.set(.05, .0165, .02); g.add(sch); const ss = new T.Mesh(new T.CylinderGeometry(.0006, .0006, .05, 4), new T.MeshStandardMaterial({ color: 0xb0a890 })); ss.rotation.z = PI / 2; ss.position.set(.03, .028, .012); g.add(ss);
+  return g; }
+async function villa_krSicherungen() { const x = -897.62; const ps = [[x, 867.3, 0xa02a1c, .6], [x - .1, 867.14, 0x9a9ea0, 1.4], [x - .1, 867.46, 0x2c4aa0, 2.2]]; for (const [px, pz, tint, a] of ps) await villa_ue('sicherung', .055, px, .01, pz, a, { tint, rough: .45 }); }
+
 // =====================================================================  RÄUME
 const VILLA_BAU = {};
 // ---- Vegas' Stube, Nr. 3 (UK 2): Alufolie, Ordner, drei Funkgeräte, Mondlandung mit LÜGE, Mike als Baby; Lucy auf dem Sofa
@@ -144,8 +339,9 @@ VILLA_BAU.nr3 = async R => {
   const ch = async (x, z, ry) => villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', x, z, ry);
   await ch(R.x0 + 2.6, 856.6, -PI / 2 - .4); await ch(R.x1 - 1.3, 859.6, PI + .3);
   const kom = await villa_fbx('dresser', VILLA_SPEC.hutch, 1.25, 'y', R.x1 - .35, 857.2, -PI / 2);
-  for (let i = 0; i < 3; i++) await villa_put('w_funk', 'model.glb', .24, 'max', R.x1 - .32, 856.6 + i * .34, -PI / 2 + (i - 1) * .2, kom ? new T.Box3().setFromObject(kom).max.y - .01 : 1.2);
+  for (let i = 0; i < 3; i++) await villa_put('w_funk', 'model.glb', .21, 'max', R.x1 - .33, 857.2 + (i - 1) * .22, -PI / 2 + (i - 1) * .2, kom ? new T.Box3().setFromObject(kom).max.y - .01 : 1.2);
   await villa_put('crt', 'model.glb', .42, 'y', R.x0 + .5, 855.6, PI / 2 + .5, 0);
+  { const rt = await villa_put('metaltable', 'model.gltf', .78, 'y', R.x1 - .45, 859.4, PI / 2); if (rt) { rt.scale.x *= .2; rt.scale.z *= .75; } }
   await villa_put('radio', 'model.gltf', .42, 'max', R.x1 - .4, 859.4, -PI / 2, .78);
   await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .5, 860.3, .3);
   await villa_put('w_teller', 'model.glb', .24, 'max', R.x1 - 1.3, 859.6, 0, .47);
@@ -154,12 +350,13 @@ VILLA_BAU.nr3 = async R => {
   // Alufolie an den Fenstern (Südwand), Poster Mondlandung „LÜGE“, Ordnerstapel mit „(hw)“
   const alu = villa_cv(256, 256, (c, w, h) => { const g = c.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#b8bcc0'); g.addColorStop(.5, '#e8ecef'); g.addColorStop(1, '#9ea3a8'); c.fillStyle = g; c.fillRect(0, 0, w, h);
     for (let i = 0; i < 60; i++) { c.strokeStyle = `rgba(${Math.random() < .5 ? '60,64,70' : '255,255,255'},.35)`; c.beginPath(); c.moveTo(Math.random() * w, Math.random() * h); c.lineTo(Math.random() * w, Math.random() * h); c.stroke(); } c.fillStyle = 'rgba(180,160,90,.5)'; c.fillRect(0, 0, w, 10); c.fillRect(0, h - 10, w, 10); });
-  for (const x of [-983.4, -978.6]) villa_decal(alu, 1.1, 1.2, x, 1.5, R.z0 + .12, 0, 0, { rough: .3, metal: .7 });
+  for (const x of [-983.4, -980.14]) villa_decal(alu, 1.1, 1.2, x, 1.5, R.z0 + .12, 0, 0, { rough: .3, metal: .7 });
   villa_decal(villa_cv(256, 340, (c, w, h) => { c.fillStyle = '#10131a'; c.fillRect(0, 0, w, h); c.fillStyle = '#d8d4c8'; c.beginPath(); c.arc(w * .5, h * .72, 90, PI, 0); c.fill(); c.fillStyle = '#a8a498'; c.fillRect(w * .44, h * .38, 30, 70);
     c.fillStyle = '#e8e4d8'; c.font = 'bold 22px Arial'; c.textAlign = 'center'; c.fillText('APOLLO 11 · 1969', w / 2, 36); c.save(); c.translate(w / 2, h * .5); c.rotate(-.35); c.fillStyle = '#c01818'; c.font = 'bold 74px Arial'; c.fillText('LÜGE', 0, 20); c.restore(); }),
-    .62, .82, R.x0 + .12, 1.65, 859.9, 0, PI / 2);
+    .62, .82, R.x0 + .12, 1.65, 857.9, 0, PI / 2);
   villa_zettel(['(hw)  (hw)', 'Gasleck 1975 (hw)', 'Umspannwerk?? (hw)', '— rot eingekreist —'], .3, .4, R.x1 - .12, 1.4, 855.9, 0, -PI / 2, { font: '18px Caveat, cursive', tinte: '#8a1a14' });
-  villa_licht(-981, 2.3, 858, 0xffc890, 2.0, 8); villa_licht(R.x0 + .6, 1.5, 860.2, 0xffb070, 1.1, 5); villa_licht(R.x1 - .8, 1.8, 856.4, 0xffd8b0, .9, 5);
+  villa_licht(-981, 2.3, 858, 0xffc890, 2.0, 8); villa_licht(R.x0 + .6, 1.5, 860.2, 0xffb070, 1.1, 5); villa_licht(R.x1 - .8, 1.8, 857.4, 0xffd8b0, .9, 5);
+  await villa_kueche(R);
   // Küchenecke: Schublade mit den Streichhölzern (Tips, „Fünf Minuten“) – kiffen_fund wurde beim Laden auf diese Stelle gesetzt
   // Figuren: Vegas (Schürze) und Lucy auf dem Sofa, weißer Ring in den Augen
   if (typeof figuren_embody === 'function') {
@@ -199,6 +396,8 @@ VILLA_BAU.nr9 = async R => {
   villa_hit(.3, 1.6, .5, R.x1 - .2, 1.5, 899.2, 'Dienstplan', () => { villa_note('Dienstplan · Posten 9', villa_masch('Mo N11 · Di N12 · Mi N11 · <u><b>Do AMT</b></u> · Fr N12 · Sa N11 · So N12') + '\n\n' + villa_hand('Donnerstag ist unterstrichen. Zweimal.'), 'villa_dienstplan'); villa_setz('dienstplan'); });
   villa_hit(.3, .8, .6, R.x1 - .2, 1.55, 897.3, () => villa_hat('da10') ? 'Schwarzes Brett' : 'Schwarzes Brett · Dienstanweisungen', () => villa_nr9Brett());
   villa_hit(.6, 1.1, .6, -977.2, 1.2, 900.3, 'Durch das Kameraloch sehen', () => villa_nr9Kamera());
+  villa_decal(villa_cv(128, 176, (c, w, h) => { papierScan(c, w, h, '#d8d2bc', { dreck: .3 }); c.strokeStyle = '#3a3830'; c.lineWidth = 1; for (let i = 0; i < 9; i++) for (let j = 0; j < 7; j++) { const x = 10 + j * 15, y = 34 + i * 15; c.strokeRect(x, y, 15, 15); if ((i * 3 + j * 5) % 4 === 0) { c.fillStyle = '#26241f'; c.fillRect(x, y, 15, 15); } }
+    c.fillStyle = '#26241f'; c.fillRect(10, 10, 108, 14); }), .17, .23, -977.6, .475, 899.6, -PI / 2, .3);
   villa_hit(.7, .9, .7, -977.6, .5, 899.6, 'Klappstuhl', () => { villa_note('Auf dem Klappstuhl', 'Ein Kreuzworträtselheft, halb gelöst. Eine Lösung ist mit Bleistift eingetragen und falsch:\n\n' + villa_blei('Himmelskörper, 5 Buchstaben: <b>UFO</b>') + '\n\nDaneben, andere Schrift: ' + villa_hand('„Passt nicht. Nachzählen.“'), 'villa_raetselheft'); });
   villa_hit(.5, .6, .5, -976.4, .3, 899.9, 'Thermoskanne und Aschenbecher', () => toast('Eine Thermoskanne, kalt. Ein Aschenbecher voller Kippen ohne Filter. Daneben Butterbrotpapier, sorgfältig gefaltet. Ein Stapel.', 4600));
   void kam; };
@@ -214,6 +413,7 @@ VILLA_BAU.az = async R => {
   { const t = await villa_put('metaltable', 'model.gltf', .8, 'y', -917, 899.2, 0); if (t) { t.scale.x *= .8; } }
   VILLA.o.azStuhl = await villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', -917, 898.3, .1);
   await villa_put('floorlamp', 'model.gltf', 1.55, 'y', -915.9, 899.9, -.4);
+  await villa_ue('lampe3', .3, -916.35, .8, 899.45, 2.6, { tint: 0x2f7a46, rough: .4 }); // grüne Schirmlampe auf dem Schreibtisch
   villa_licht(-916.2, 1.4, 899.6, 0x9fd8a0, 1.5, 6); villa_licht(-917, 3, 900.5, 0xffd8a8, .9, 9);
   villa_zettel(['An den, der die', 'acht Teile …'], .16, .2, -917.3, .83, 899.1, -PI / 2, .3, { font: '16px Caveat, cursive' });
   // Aktenschrank (Ostwand südlich der Tür): Anrichte-Scan als Rückfall, mit fünf Messingschildern
@@ -225,9 +425,11 @@ VILLA_BAU.az = async R => {
   // Weltkarte (Westwand) mit neun Nadeln
   villa_decal(villa_cv(512, 300, (c, w, h) => { c.fillStyle = '#d8ceae'; c.fillRect(0, 0, w, h); c.fillStyle = '#a89a72'; const L = [[60, 70, 110, 90], [150, 170, 60, 100], [230, 60, 70, 60], [240, 130, 80, 110], [320, 60, 150, 100], [400, 190, 60, 50]];
     for (const [x, y, a, b] of L) { c.beginPath(); c.ellipse(x + a / 2, y + b / 2, a / 2, b / 2, .3, 0, 7); c.fill(); }
-    const N = [[262, 88], [300, 96], [120, 110], [420, 120], [180, 210], [360, 100], [270, 92], [440, 220], [330, 170]]; N.forEach(([x, y], i) => { c.fillStyle = i === 6 ? '#b01818' : '#303030'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); c.fillStyle = '#26241f'; c.font = '12px Caveat, cursive'; c.fillText(String(i + 1) + (i === 6 ? ' wir.' : ''), x + 6, y - 4); });
+    const N = [[262, 88], [300, 96], [120, 110], [420, 120], [180, 210], [360, 100], [270, 92], [440, 220], [330, 170]]; N.forEach(([x, y], i) => { if ([0, 8, 2, 4, 1, 7].includes(i)) { c.fillStyle = 'rgba(60,48,30,.55)'; for (const [dx, dy] of [[-9, 7], [8, 9]]) { c.beginPath(); c.arc(x + dx, y + dy, 1.6, 0, 7); c.fill(); } } c.fillStyle = i === 6 ? '#b01818' : '#303030'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); c.fillStyle = '#26241f'; c.font = '12px Caveat, cursive'; c.fillText(String(i + 1) + (i === 6 ? ' wir.' : ''), x + 6, y - 4); });
     for (let i = 0; i < 7; i++) { c.fillStyle = '#efe9da'; c.fillRect(10 + i * 70, 250, 58, 40); c.fillStyle = '#555'; for (let r = 0; r < 4; r++) c.fillRect(14 + i * 70, 256 + r * 8, 48, 2); } }), 1.9, 1.12, R.x0 + .12, 1.75, 901.6, 0, PI / 2);
   villa_hit(.3, 1.2, 2, R.x0 + .2, 1.75, 901.6, 'Weltkarte mit Nadeln', () => villa_azKarte());
+  villa_azKartenwand(R); await villa_azFenster(R);
+  try { if (typeof n4_st === 'function' && n4_st('welt').fertig) villa_klappeAuf(); } catch (e) {}
   // Fotowand (Südwand): sechs Fotos, Wolter am Rand
   VILLA.o.fotos = [];
   const FT = [['Lehrgang, Herbst 1957', 'jung'], ['Einweihung der Außenstelle, Frühjahr 1958', 'alt'], ['1975', 'alt'], ['1992 · Pell und „Buck“', 'pell'], ['2009', 'alt'], ['2012', 'alt']];
@@ -254,7 +456,7 @@ VILLA_BAU.an = async R => {
   villa_raum(R, wp, fl, pl);
   await villa_put('door2', 'model.gltf', 2.15, 'y', R.x0 + .06, 900, PI / 2);
   villa_hit(.4, 2.2, 1.2, R.x0 + .25, 1.1, 900, 'In die Halle', () => villa_geh('halle', { p: VILLA_TUER.halleO }));
-  await villa_fbx('dresser', VILLA_SPEC.hutch, 2.0, 'y', -886.2, 898.6, -PI / 2);
+  VILLA.o.anBuffet = await villa_fbx('dresser', VILLA_SPEC.hutch, 2.0, 'y', -886.2, 898.6, -PI / 2);
   // Dienstbotentreppe (Nordostecke): Stufen aus Brettern, oben eine Tür mit Messingschild
   for (let k = 0; k < 6; k++) villa_box(1.1, .18, .3, -886.2, .09 + k * .18, 901.2 + k * .3 - 1.4, dk, { collide: k < 2 });
   await villa_put('door1', 'model.gltf', 2.05, 'y', -887.6, R.z1 - .06, PI);
@@ -269,7 +471,9 @@ VILLA_BAU.an = async R => {
   // Fenster zum Garten (Ostwand) – Whiskey sitzt draußen auf dem Sims
   villa_decal(villa_cv(128, 160, (c, w, h) => { const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#b8c0c8'); g.addColorStop(1, '#8a9098'); c.fillStyle = g; c.fillRect(0, 0, w, h); c.strokeStyle = '#3a3026'; c.lineWidth = 8; c.strokeRect(4, 4, w - 8, h - 8); c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.moveTo(0, h / 2); c.lineTo(w, h / 2); c.stroke(); }),
     .7, .9, R.x1 - .11, 1.6, 900.4, 0, -PI / 2, { glow: .35 });
-  villa_licht(-888, 2.6, 900, 0xfff0d8, .7, 6); };
+  villa_licht(-888, 2.6, 900, 0xfff0d8, .7, 6); await villa_anBatterien();
+  if (villa_hat('batt3')) { for (const b of VILLA.o.batt || []) b.visible = false; villa_uninteract(VILLA.o.battHit); }
+  try { if (VILLA.o.anBuffet) VILLA.o.anBuffetTop = villa_oben(VILLA.o.anBuffet, -886.2, 898.6); } catch (e) {} };
 // ---- Obergeschoss Ost (UK 8/9): Archiv (Rollregale, Tisch, Leselampe, Garderobenschrank, Vorhang) und Heinrichs Zimmer (Bett, Heizung, Teedose)
 VILLA_BAU.og = async R => {
   const wp = villa_mat('wallpaper_old', 0x746a58, 1.4), fl = villa_mat('floor_worn', 0x50443a, 1), pl = villa_mat('wall_plaster', 0x6a665e, 2), holz = villa_mat('planks_painted', 0x5a4a38, .7);
@@ -295,6 +499,7 @@ VILLA_BAU.og = async R => {
   await villa_fbx('hospbed', VILLA_SPEC.bed, 0, 'y', -887.2, 930.8, PI / 2, 0, [.008, .008, -.008]);
   VILLA.o.teedose = await villa_put('w_blech', 'model.glb', .12, 'max', -888.4, 932.5, .3, .62);
   await villa_fbx('dresser', VILLA_SPEC.hutch, .62, 'y', -888.4, 932.5, PI).catch?.(() => null);
+  await villa_ogZimmer(R);
   villa_decal(villa_cv(96, 96, (c, w, h) => { c.fillStyle = '#e8ecee'; c.fillRect(0, 0, w, h); c.fillStyle = '#2a2a2a'; c.font = 'bold 30px Georgia'; c.fillText('HEINRICH', 2, 58); }), .3, .1, -893.1, 2.05, 929, 0, -PI / 2);
   villa_decal(villa_cv(128, 160, (c, w, h) => { const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#c8ccd0'); g.addColorStop(1, '#a0a6ac'); c.fillStyle = g; c.fillRect(0, 0, w, h); c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(0, 0, w, h);
     c.fillStyle = 'rgba(60,70,80,.55)'; for (const [x, y] of [[52, 70], [76, 70], [64, 92]]) { c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); } c.strokeStyle = '#3a3026'; c.lineWidth = 8; c.strokeRect(4, 4, w - 8, h - 8); }), .7, .9, -889.6, 1.55, R.z0 + .12, 0, 0, { glow: .25 });
@@ -368,6 +573,7 @@ VILLA_BAU.kr = async R => {
   villa_hit(.9, 1, .9, -902.65, ty + .4, 869.2, '∴-2', () => villa_note('∴-2', 'Leer. Schon lange. Innen ein trockener Rand, wie in einer Vase, in der seit Jahren nichts steht.\n\nDer Eisendeckel liegt daneben auf dem Tisch, ordentlich hingelegt, nicht heruntergeworfen.', 'villa_glas2'));
   villa_hit(.4, .6, .3, -903.1, ty + .55, 868.62, 'Beobachtungsblatt DREIPUNKT', () => villa_note('Beobachtungsblatt DREIPUNKT', villa_masch('∴-1 · gefangen 1958, Eisennetz · † sofort · konserviert.\n∴-2 · gefangen 1958 · † nach 11 Tagen · hat 11 Tage lang zugesehen · konserviert · Glas seit ████ leer · Spuren dreizehig, nass, zum Fenster.\n∴-3 · frei · nicht fixierbar · seit 1958 611 Zettel, 0 Aufnahmen · Foto 1975 (Seiler) vernichtet.') + '\n\n' + villa_hand('Vermerk (Seiler, 2012): „Er hat mich fotografiert. Ich glaube, er hat das Foto noch. Ich glaube, er hat alles noch.“'), 'villa_dreipunkt', () => villa_gedanke('villa_drei', 'Drei Punkte. Er unterschreibt mit drei Punkten. Zwei davon stehen hier.')));
   villa_hit(.4, .3, .4, -904.1, ty + .1, 869.5, 'Nierenschale', () => villa_krSplitter());
+  villa_nierenschale(-904.15, ty, 869.36, .5); await villa_krSicherungen();
   // Neonröhren: drei VLights (Intensität 0) + Leuchtkörper nur über Emission
   const rohrM = [0, 1, 2].map(() => new T.MeshStandardMaterial({ color: 0xdfe6ea, emissive: 0xe8f0ff, emissiveIntensity: 0, roughness: .3 }));
   [[-906, 868.2], [-903.2, 869.8], [-900.4, 868.4]].forEach(([x, z], i) => { const r = new T.Mesh(new T.CylinderGeometry(.022, .022, 1.2, 8), rohrM[i]); r.rotation.z = PI / 2; r.position.set(x, R.h - .08, z); VILLA.g.add(r); VILLA.rohr.push(rohrM[i]);
@@ -381,6 +587,7 @@ VILLA_BAU.kr = async R => {
   villa_hit(.8, .6, .3, -890.5, 1.5, 868.85, 'Schild an der Tür', () => villa_krSchild());
   villa_hit(.5, .5, .5, -888.6, .6, 868.1, 'Tonbandgerät · „Marion 2009“', () => villa_krBand());
   villa_hit(2.1, .7, 1, -890.2, .45, 867.3, 'Das Bett', () => toast('Ein Bett, frisch bezogen. Ein Kopfkissen mit Knick in der Mitte, wie im Hotel. Am Fußende eine Liste in Wolters Schrift. Auf dem Kopfkissen ein Zettel, Schreibmaschine: „Subjekt gilt als kooperativ. Bitte freundlich.“', 6200));
+  villa_zettel(['Subjekt gilt als', 'kooperativ.', 'Bitte freundlich.'], .15, .11, -890.55, .66, 867.3, -PI / 2, .25, { w: 256, h: 190, font: '17px "Courier New", monospace', lh: 24, y0: 44 });
   villa_licht(-890.5, 2.6, 870.3, 0xdde8ff, 0, 7); VILLA.o.zgLicht = VILLA.L[VILLA.Lf - 1]; };
 
 // =====================================================================  UK 1 · „Alle wohlauf“ – Straße bei Tag, Aufräumkommando (AG-11), Zeitung, „Fünf Minuten“
@@ -388,14 +595,64 @@ function villa_kapStart() { if (!villa_kap4()) return; if (!villa_S.uk) villa_S.
 // nach dem Klick auf die Intro-Tafel (anwesen.js chapter4Begin)
 function villa_nachIntro() { villa_ziel(); setTimeout(() => { try { if (typeof kiffen_start === 'function' && villa_kap4() && !state.talking) kiffen_start(); } catch (e) { console.warn('Villa: Fünf Minuten', e); } }, 6500);
   setTimeout(() => { if (villa_kap4() && !villa_hat('funk_vier') && typeof lwo_funk === 'function') { villa_setz('funk_vier'); lwo_funk('„Vier ist sauber.“', { x: 9, z: -1.3 }); } }, 21000); }
-const VILLA_CREW = { b1: { at: [9.8, -.4], ry: PI + .4 }, b2: { at: [22.2, -9.4], ry: PI, weg: [[21.4, -9.6], [23.6, -9.3], [25.6, -9.6]] }, b3: { at: [4.2, -5.6], ry: -PI / 2 } };
-function villa_crewAn() { if (VILLA.crew || typeof lwo_figur !== 'function' || typeof LWO === 'undefined' || !LWO.ready) return; VILLA.crew = true;
-  for (const k in VILLA_CREW) { const F = lwo_figur(k), C = VILLA_CREW[k]; if (!F) continue; lwo_zeigen(F, C.at[0], C.at[1], C.ry); lwo_lampe(F, false); lwo_clip(F, k === 'b3' ? 'look' : 'idle'); C.i = 0; C.laeuft = false; C.weg2 = 0; } }
-function villa_crewAus() { if (!VILLA.crew) return; VILLA.crew = false; for (const k in VILLA_CREW) { const F = lwo_figur(k); if (F) lwo_weg(F); } }
+// Aufräumkommando: b1 und b3 schrubben mit langen Bürsten die Kreide („ICH KOMME“) von der Kreuzung, je ein Eimer mit grauem Seifenwasser daneben; b2 geht seinen Weg zwischen den Kerzen
+const VILLA_CREW = { b1: { at: [2.35, -3.75], ry: .12, schrubb: true, eimer: [3.25, -4.25], phi: 0 }, b2: { at: [22.2, -9.4], ry: PI, weg: [[21.4, -9.6], [23.6, -9.3], [25.6, -9.6]] }, b3: { at: [4.55, -3.65], ry: -.12, schrubb: true, eimer: [5.3, -4.05], phi: 2.1 } };
+const VILLA_KREIDE = { x: 3.0, z: -2.3, w: 4.6 };
+// Eimer (verzinkt, Rippen, Henkel) mit grauem Seifenwasser; liegt eine Handbürste daneben
+function villa_eimerBau(x, z, ry = 0) { const T = THREE, g = new T.Group(); g.position.set(x, 0, z); g.rotation.y = ry; g.userData.noCol = true;
+  const zink = new T.MeshStandardMaterial({ color: 0xa4a8aa, roughness: .42, metalness: .85, side: T.DoubleSide }), add = (geo, mat, px, py, pz, rx = 0, ry2 = 0, rz = 0) => { const m = new T.Mesh(geo, mat); m.position.set(px, py, pz); m.rotation.set(rx, ry2, rz); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+  add(new T.CylinderGeometry(.15, .117, .29, 28, 1, true), zink, 0, .145, 0); add(new T.CircleGeometry(.117, 24), zink, 0, .004, 0, -PI / 2); add(new T.TorusGeometry(.151, .007, 6, 28), zink, 0, .29, 0, PI / 2); add(new T.TorusGeometry(.118, .006, 6, 28), zink, 0, .01, 0, PI / 2);
+  for (const y of [.1, .2]) add(new T.TorusGeometry(.117 + (y / .29) * .033, .004, 5, 28), zink, 0, y, 0, PI / 2);
+  add(new T.CylinderGeometry(.136, .136, .004, 26), new T.MeshStandardMaterial({ color: 0x9a9890, roughness: .18, metalness: .1 }), 0, .225, 0);
+  for (let i = 0; i < 9; i++) { const a = i * 2.4; add(new T.SphereGeometry(.014 + (i % 3) * .004, 7, 5), new T.MeshStandardMaterial({ color: 0xe4e2dc, roughness: .5 }), Math.cos(a) * (.04 + (i % 4) * .025), .232, Math.sin(a) * (.04 + (i % 4) * .025)); }
+  add(new T.TorusGeometry(.16, .004, 6, 22, PI), new T.MeshStandardMaterial({ color: 0x4a4a4a, roughness: .5, metalness: .8 }), 0, .29, 0); // Henkel (Bügel)
+  for (const s of [-1, 1]) add(new T.BoxGeometry(.02, .028, .016), zink, s * .152, .285, 0);
+  // Handbürste im Eimerschatten
+  const b = new T.Group(); b.position.set(.26, 0, .1); b.rotation.y = .8; const wood = new T.MeshStandardMaterial({ color: 0x8a6a3c, roughness: .8 }), br = new T.MeshStandardMaterial({ color: 0x3a3228, roughness: 1 });
+  const bm = new T.Mesh(new T.BoxGeometry(.2, .03, .07), wood); bm.position.y = .045; bm.castShadow = true; b.add(bm); const bb = new T.Mesh(new T.BoxGeometry(.19, .03, .06), br); bb.position.y = .015; bb.castShadow = true; b.add(bb); g.add(b);
+  scene.add(g); return g; }
+// Schrubber: langer Stiel, Holzblock mit Borsten; das Ende wird jedes Bild zwischen Hand und Boden gespannt
+function villa_schrubberBau() { const T = THREE, g = new T.Group(); g.userData.noCol = true;
+  const st = new T.Mesh(new T.CylinderGeometry(.013, .013, 1, 8), new T.MeshStandardMaterial({ color: 0x8c7040, roughness: .7 })); st.castShadow = true; g.add(st);
+  const kopf = new T.Group(); const bl = new T.Mesh(new T.BoxGeometry(.3, .05, .09), new T.MeshStandardMaterial({ color: 0x7a5a30, roughness: .8 })); bl.position.y = .07; bl.castShadow = true; kopf.add(bl);
+  const bo = new T.Mesh(new T.BoxGeometry(.29, .045, .08), new T.MeshStandardMaterial({ color: 0x3a3126, roughness: 1 })); bo.position.y = .0225; bo.castShadow = true; kopf.add(bo); g.add(kopf); scene.add(g); g.visible = false; return { g, st, kopf }; }
+function villa_schrubbBau() { if (VILLA.sch) return; const T = THREE; VILLA.sch = {};
+  for (const k of ['b1', 'b3']) { const C = VILLA_CREW[k]; VILLA.sch[k] = { eimer: villa_eimerBau(C.eimer[0], C.eimer[1], k === 'b1' ? .4 : -.6), brush: villa_schrubberBau(), lastS: 0 }; VILLA.sch[k].eimer.visible = false; }
+  // saubere, nasse Fläche, wo die Kreide war (wächst mit dem Fortschritt)
+  const cv = villa_cv(512, 256, (c, w, h) => { c.clearRect(0, 0, w, h); const g = c.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, w * .5); g.addColorStop(0, 'rgba(20,20,22,.34)'); g.addColorStop(.7, 'rgba(28,28,30,.26)'); g.addColorStop(1, 'rgba(30,30,32,0)'); c.save(); c.scale(1, .52); c.translate(0, h * .46); c.fillStyle = g; c.fillRect(0, 0, w, h * 2); c.restore();
+    c.strokeStyle = 'rgba(210,214,216,.22)'; c.lineWidth = 3; for (let i = 0; i < 26; i++) { const x = 40 + Math.random() * (w - 80), y = 70 + Math.random() * 110; c.beginPath(); c.arc(x, y, 30 + Math.random() * 40, -.5 + Math.random(), .9 + Math.random()); c.stroke(); }
+    for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(240,242,244,${.12 + Math.random() * .25})`; c.beginPath(); c.arc(40 + Math.random() * (w - 80), 60 + Math.random() * 140, 1 + Math.random() * 3.5, 0, 7); c.fill(); } });
+  const m = new T.Mesh(new T.PlaneGeometry(VILLA_KREIDE.w + 1.2, 2.6), new T.MeshStandardMaterial({ map: tex(cv, true), transparent: true, depthWrite: false, roughness: .15, metalness: 0, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
+  m.rotation.x = -PI / 2; m.position.set(VILLA_KREIDE.x, .015, VILLA_KREIDE.z); m.userData.noCol = true; m.visible = false; m.material.opacity = 0; scene.add(m); VILLA.nass = m; }
+function villa_crewAn() { if (VILLA.crew || typeof lwo_figur !== 'function' || typeof LWO === 'undefined' || !LWO.ready) return; VILLA.crew = true; villa_schrubbBau();
+  for (const k in VILLA_CREW) { const F = lwo_figur(k), C = VILLA_CREW[k]; if (!F) continue; lwo_zeigen(F, C.at[0], C.at[1], C.ry); lwo_lampe(F, false); lwo_clip(F, 'idle'); C.i = 0; C.laeuft = false; C.weg2 = 0;
+    if (C.schrubb) { if (!C.def0) C.def0 = F.def; F.def = Object.assign({}, F.def); F.def.hunch = .4; const S = VILLA.sch[k]; S.eimer.visible = true; S.brush.g.visible = true; } } }
+function villa_crewAus() { if (!VILLA.crew) return; VILLA.crew = false; for (const k in VILLA_CREW) { const F = lwo_figur(k); if (F) { lwo_weg(F); if (VILLA_CREW[k].def0) { F.def = VILLA_CREW[k].def0; VILLA_CREW[k].def0 = null; } } const S = VILLA.sch && VILLA.sch[k]; if (S) { S.eimer.visible = false; S.brush.g.visible = false; } }
+  if (villa_kap4()) { villa_S.kreide = 1; villa_kreideAnwenden(); } }
+// Kreide: Fortschritt 0…1 (das Kommando schrubbt, solange Luke in der Nähe zusieht); ab Kapitel 4 wirkt er auf das Zeichen „ICH KOMME“ (zeichen.js) und die nasse Stelle
+function villa_kreideAnwenden() { const p = Math.max(0, Math.min(1, villa_S.kreide || 0)), kp = typeof kap === 'function' ? kap() : curChapter(); let d = VILLA.kreideD;
+  if (!d && typeof zeichen_S !== 'undefined') { for (const B of Object.values(zeichen_S.B || {})) for (const e of (B.list || [])) if (e.id === 'kreuzung_komme') d = e; if (d) VILLA.kreideD = d; }
+  const f = kp >= 4 ? 1 - p : 1; if (d && d.ok && d.B && d.B.show && Math.abs((d.B.show[d.v0] ?? 1) - f) > .02 && (d.neu ? (typeof zeichen_S !== 'undefined' && zeichen_S.neu.has(d.id)) : true)) { try { zeichen_zeig(d, f); } catch (e) {} }
+  if (VILLA.nass) { VILLA.nass.visible = kp >= 4 && p > .02; VILLA.nass.material.opacity = Math.min(1, p * 1.4); VILLA.nass.scale.set(.25 + .75 * Math.min(1, p * 1.6), 1, 1); } }
+function villa_schrubbTick(dt, t) { const P = player.pos; if (!VILLA.crew || !VILLA.sch) return; const spielt = typeof LWO !== 'undefined' && LWO.playing;
+  for (const k of ['b1', 'b3']) { const F = lwo_figur(k), C = VILLA_CREW[k], S = VILLA.sch[k]; if (!F || !F.g.visible || !S) continue; const g = F.g, d = Math.hypot(P.x - g.position.x, P.z - g.position.z); S.brush.g.visible = true; S.eimer.visible = true;
+    if (spielt || (typeof LWO !== 'undefined' && LWO.drehen && LWO.drehen.includes(F))) { F.def.hunch = Math.max(0, F.def.hunch - dt * .5); } else if (d < 80) {
+      // zurück auf den Posten, falls eine Szene sie versetzt hat
+      if (Math.hypot(g.position.x - C.at[0], g.position.z - C.at[1]) > .6 && !F.path) { if (d > 22) lwo_zeigen(F, C.at[0], C.at[1], C.ry); else lwo_gehe(F, [[C.at[0], C.at[1]]], .8); }
+      if (!F.path) { let dy = C.ry - g.rotation.y; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); g.rotation.y += dy * Math.min(1, dt * 2); }
+      const ph = t * 8.1 + C.phi, sw = Math.sin(ph); F.def.hunch += (.42 + .1 * Math.cos(ph) - F.def.hunch) * Math.min(1, dt * 6);
+      if ((sw > 0) !== (S.lastS > 0) && d < 28) { try { Audio.play('scrape3', { gain: .07, rate: 1.6 + Math.random() * .3, dur: .3, x: g.position.x, y: .1, z: g.position.z, ref: 3 }); } catch (e) {} } S.lastS = sw;
+      if (F.handR) { const y = g.rotation.y, fx = Math.sin(y), fz = Math.cos(y), rx = -Math.cos(y), rz = Math.sin(y), reach = .92 + .26 * sw, side = .17 + .06 * Math.sin(ph * .5);
+        const hx = g.position.x + fx * reach + rx * side, hz = g.position.z + fz * reach + rz * side, gy = g.position.y; // Bürstenkopf
+        F.handR.getWorldPosition(_vsA); const dx = _vsA.x - hx, dy2 = _vsA.y - (gy + .05), dz = _vsA.z - hz, L = Math.hypot(dx, dy2, dz) || 1, ext = .4;
+        S.brush.kopf.position.set(hx, gy, hz); S.brush.kopf.rotation.y = y; // Block quer zur Blickrichtung
+        const mx = hx + dx / L * (L + ext) * .5, my = gy + .07 + dy2 / L * (L + ext) * .5, mz = hz + dz / L * (L + ext) * .5; S.brush.st.position.set(mx - S.brush.g.position.x, my - S.brush.g.position.y, mz - S.brush.g.position.z);
+        _vsB.set(dx / L, dy2 / L, dz / L); S.brush.st.quaternion.setFromUnitVectors(_vsU, _vsB); S.brush.st.scale.set(1, L + ext, 1); } } } }
+const _vsA = new THREE.Vector3(), _vsB = new THREE.Vector3(), _vsU = new THREE.Vector3(0, 1, 0);
 function villa_crewTick() { const P = player.pos;
   const b2 = lwo_figur('b2'), C = VILLA_CREW.b2; if (b2 && b2.g.visible && !C.laeuft && !(typeof LWO !== 'undefined' && LWO.playing)) { C.laeuft = true; C.i = (C.i + 1) % C.weg.length; lwo_gehe(b2, [C.weg[C.i]], .7).then(() => setTimeout(() => { C.laeuft = false; }, 2400 + Math.random() * 2000)); }
   for (const k in VILLA_CREW) { const F = lwo_figur(k); if (!F || !F.g.visible) continue; const d = Math.hypot(P.x - F.g.position.x, P.z - F.g.position.z);
-    if (d < 3 && !villa_hat('rueck_' + k) && !state.talking && !(typeof LWO !== 'undefined' && LWO.playing)) { villa_setz('rueck_' + k); F.g.userData.zielYaw = Math.atan2(F.g.position.x - P.x, F.g.position.z - P.z); if (typeof LWO !== 'undefined') LWO.drehen = [F]; lwo_sprich(F, 1600); subtitle('„Anwohner. Männlich.“', 2600, 'ARBEITER'); } }
+    if (d < 3 && !villa_hat('rueck_' + k) && !state.talking && !(typeof LWO !== 'undefined' && LWO.playing)) { villa_setz('rueck_' + k); F.g.userData.zielYaw = Math.atan2(F.g.position.x - P.x, F.g.position.z - P.z); if (typeof LWO !== 'undefined') LWO.drehen = [F]; F.g.userData.drehenT = performance.now() / 1000; lwo_sprich(F, 1600); subtitle('„Anwohner. Männlich.“', 2600, 'ARBEITER'); } }
   if (!villa_hat('ag11') && !state.talking && !ui.overlay && !(typeof LWO !== 'undefined' && LWO.playing) && b2 && b2.g.visible && Math.hypot(P.x - b2.g.position.x, P.z - b2.g.position.z) < 6.5) { villa_setz('ag11');
     lwo_szene('AG-11', { figuren: { A1: b2, A2: lwo_figur('b1') }, at: { x: P.x, z: P.z }, radius: 16 }).then(() => { villa_gedanke('villa_ag11', 'Die Bilder. Er tauscht Hildes Polaroids gegen leere.'); }); } }
 
@@ -420,10 +677,10 @@ async function villa_nr3Szene() { villa_setz('lucy'); villa_uk(2); const V = (t,
     L('„Ich weiß, was du guckst. Ich hab’s auch geguckt. Die sind noch da. Die Linien.“', 4000)]);
   if (lucyZ[A]) await villa_says([L(lucyZ[A], 5200)]);
   await villa_says([['Mehr sagt sie nicht über drinnen. Sie will nicht. Sie hat Hunger.', 3400], ['Vegas kocht. Rührei mit Speck. Das Ei ist grau, der Speck ist schwarz.', 3600], U('„Ist das verbrannt?“', 1800), V('„Das ist Röstaroma.“', 2000), U('„Das ist Kohle.“', 1600), V('„Kohle ist auch ein Aroma.“', 2200),
-    ['Bruno liegt an der Tür und sieht zu, ohne Laut. Seinen Napf hat er nicht angerührt.', 3600], V('„Seit er wieder da ist, frisst er keinen Speck. Und er bellt nicht. Bruno hat immer gebellt.“', 5200)]); // Q-9 B-3 / Story-Prüfung Widerspruch 6
+    ['Bruno steht an der Tür und sieht zu, ohne Laut. Seinen Napf hat er nicht angerührt.', 3600], V('„Seit er wieder da ist, frisst er keinen Speck. Und er bellt nicht. Bruno hat immer gebellt.“', 5200)]); // Q-9 B-3 / Story-Prüfung Widerspruch 6
   // K4-1: Whiskey durchs Klofenster, auf den Kühlschrank, Vegas' Stimme
-  try { if (typeof whiskey_setzen === 'function') whiskey_setzen(VILLA_R.nr3.x1 - .5, 2.05, 856.6); } catch (e) {}
-  await wait(1800); try { Audio.play('woodHit2', { gain: .3, rate: 1.4, x: VILLA_R.nr3.x1 - .5, y: 2.05, z: 856.6 }); } catch (e) {}
+  try { if (typeof whiskey_setzen === 'function') whiskey_setzen(-977.46, 1.77, 855.45); } catch (e) {}
+  await wait(1800); try { Audio.play('woodHit2', { gain: .3, rate: 1.4, x: -977.46, y: 1.77, z: 855.45 }); } catch (e) {}
   let taufe = false; try { if (typeof whiskey_mimic === 'function') taufe = whiskey_mimic('junge', { force: true }); } catch (e) {} // Gag-Budget H-1: „Junge.“ statt eines weiteren „Himmelherrgott!“
   await wait(1400); await villa_says([V('„Sag das nicht mit meiner Stimme!“', 2600), ['Whiskey hat den Speck. Lucy lacht zum ersten Mal, hustet, lacht weiter.', 3800]]);
   if (typeof whiskey_S !== 'undefined') whiskey_S.flags.add('k4_1');
@@ -525,9 +782,9 @@ function villa_halleTueren(H) { const x0 = H.x - H.w / 2, x1 = H.x + H.w / 2;
   (async () => { try { for (const [x, z, ry] of [[x0 + .06, 897.6, PI / 2], [x1 - .06, 900, -PI / 2]]) { const m = await msModel('door2'); const o = msGround(msFit(m.clone(true), 2.15, 'y')); o.position.set(x, 0, z); o.rotation.y = ry; o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); } } catch (e) { console.warn('Villa: Hallentüren', e); } })();
   const hw = box(.4, 2.2, 1.2, x0 + .25, 1.1, 897.6, hidden, { cast: false }); interact(hw, 'Westtür · Arbeitszimmer', () => villa_geh('az'));
   const ho = box(.4, 2.2, 1.2, x1 - .25, 1.1, 900, hidden, { cast: false }); interact(ho, 'Osttür · Anrichte', () => villa_geh('an'));
-  // Wolters Thermoskanne (bleibt nach AG-14 stehen): beim Hallenbau angelegt, unsichtbar, auf dem Schreibtisch an der Ostwand
-  (async () => { try { const m = await msModel('w_thermos', 'model.glb'), o = msGround(msFit(m.clone(true), .3, 'y')); o.position.set(x1 - 1.05, .785, H.z - H.d / 2 + 2.2); o.visible = false; scene.add(o); VILLA.o.tee = o;
-    const h = box(.3, .4, .3, x1 - 1.05, .98, H.z - H.d / 2 + 2.2, hidden, { cast: false }); interact(h, 'Wolters Thermoskanne', () => villa_teeTrinken()); uninteract(h); VILLA.o.teeHit = h;
+  // Wolters Thermoskanne (bleibt nach AG-14 stehen): beim Hallenbau angelegt, unsichtbar, auf dem Buffet neben den heruntergebrannten Kerzen (Oberkante aus anwesen.js)
+  (async () => { try { const m = await msModel('w_thermos', 'model.glb'), o = msGround(msFit(m.clone(true), .3, 'y')); const kx = anwesen_S.hutchX ?? x1 - .46, kz = H.z + 3.74, ky = anwesen_S.hutchTop ?? 1.45; o.position.set(kx, ky, kz); o.visible = false; scene.add(o); VILLA.o.tee = o;
+    const h = box(.3, .4, .3, kx, ky + .17, kz, hidden, { cast: false }); interact(h, 'Wolters Thermoskanne', () => villa_teeTrinken()); uninteract(h); VILLA.o.teeHit = h;
     if (villa_hat('ag14')) villa_tee(H); } catch (e) { console.warn('Villa: Thermoskanne', e); } })();
   // Post unter dem Briefschlitz (Z-07)
   try { if (typeof sammeln_platz === 'function') sammeln_platz('Z-07', { x: H.x + .5, y: .03, z: H.z - H.d / 2 + .55, ry: .3, ab: 4, label: 'Post unter dem Briefschlitz' }); } catch (e) {}
@@ -589,12 +846,12 @@ function villa_azTisch() { if (villa_hat('w11') && !villa_hat('ring')) return vi
 async function villa_anOben() { if (!villa_item('dienstnadel')) { toast('Statt Klinke ein kleines Messingschild mit einem Schlitz und dem Auge: „Zutritt nur mit Dienstnadel“.' + (villa_hat('da10') ? '' : ' Darunter, klein: „Die Nadel bleibt am Mann.“'), 5200); if (!villa_hat('nadelHin')) { villa_setz('nadelHin'); setTimeout(() => villa_gedanke('villa_nadelhin', 'Eine Nadel. Die bleibt am Mann. Welcher Mann, der ist tot.'), 900); } return; }
   if (villa_hat('ag13_lauf') && !villa_hat('ag13')) return;
   try { Audio.play('switch1', { gain: .4, rate: 1.4 }); } catch (e) {}
-  await villa_geh('og', { danach: () => { if (!villa_hat('og1')) { villa_setz('og1'); villa_uk(8); toast('Das Schloss klickt, als hätte es sich gefreut. Die Treppe ist eng und steil, Linoleum. Auf der fünften Stufe drei Batterien, Spitzen nach innen, im Dreieck. Die Stufe darüber ist warm.', 6200);
+  await villa_geh('og', { danach: () => { if (!villa_hat('og1')) { villa_setz('og1'); villa_uk(8); toast('Das Schloss klickt, als hätte es sich gefreut. Die Treppe ist eng und steil, Linoleum. ' + (villa_hat('batt3') ? 'Auf der fünften Stufe nur noch ein heller Abdruck im Staub. Die Stufe darüber ist warm.' : 'Auf der fünften Stufe drei Batterien, Spitzen nach innen, im Dreieck. Die Stufe darüber ist warm.'), 6200);
     if (typeof todCheckpoint === 'function') setTimeout(() => todCheckpoint('k4_archiv', 'Villa · Archiv'), 1200); } } }); }
 async function villa_anUnten() { if (!villa_item('dienstnadel')) return toast('Die Kellertür. Dasselbe Messingschild mit dem Schlitz und dem Auge.', 3400);
   if (!villa_hat('ag13')) return villa_gedanke('villa_erstoben', 'Von unten zieht es kalt herauf. Erst will ich wissen, was oben liegt.');
-  if (!villa_hat('keller1')) { villa_setz('keller1'); villa_uk(10); try { if (typeof whiskey_kellertreppe === 'function') whiskey_kellertreppe([-885.3, 2.3, 900.4], true); } catch (e) {}
-    await villa_says([['Whiskey sitzt oben auf dem Geländer der Kellertreppe, durchs Anrichtefenster hereingeschlüpft, und schreit. Kein Krächzen. Ein Laut, den du von ihm noch nie gehört hast.', 5600], ['Du gehst trotzdem. Der Rabe bleibt oben.', 2800]]); }
+  if (!villa_hat('keller1')) { villa_setz('keller1'); villa_uk(10); try { if (typeof whiskey_kellertreppe === 'function') whiskey_kellertreppe([-886.2, VILLA.o.anBuffetTop ?? 2.0, 898.6], true); } catch (e) {}
+    await villa_says([['Whiskey sitzt oben auf dem Buffet neben der Kellertür, durchs Anrichtefenster hereingeschlüpft, und schreit. Kein Krächzen. Ein Laut, den du von ihm noch nie gehört hast.', 5600], ['Du gehst trotzdem. Der Rabe bleibt oben.', 2800]]); }
   await villa_geh('kr', { danach: () => { if (!villa_hat('kr1')) { villa_setz('kr1'); if (typeof todCheckpoint === 'function') todCheckpoint('k4_keller', 'Villa · Keller', { x: -906, z: 869, yaw: -PI / 2 }); } } }); }
 async function villa_ogRunter() { if (villa_hat('ag13_lauf') && !villa_hat('ag13')) return toast('Unten sind Schritte. Nicht jetzt.', 2200);
   await villa_geh('an', { p: VILLA_TUER.anOben });
@@ -807,7 +1064,7 @@ async function villa_ag14() { if (villa_hat('ag14') || villa_hat('ag14_lauf')) r
   player.yaw = Math.atan2(player.pos.x - W.g.position.x, player.pos.z - W.g.position.z);
   await villa_says([['Der Stromstoß hat das ganze Haus aufgeweckt. Das Radio auf dem Schreibtisch rauscht.' + (villa_hat('presseLeer') ? ' Draußen hat die Presse dreimal ins Leere gestampft.' : ''), 4200],
     ['Unter dem Porträt steht Heinrich Wolter. Hut auf, Handschuhe an, die Thermoskanne auf dem Buffet neben den heruntergebrannten Kerzen. Whiskey sitzt oben auf dem Geländer der Galerie, still.', 6200]]);
-  try { if (typeof whiskey_w10 === 'function') VILLA.w10 = whiskey_w10([H.x + 1.2, 4.3, H.z + H.d / 2 - 1.4], [H.x + 3.8, 1.5, H.z + 3.4]); } catch (e) {}
+  try { if (typeof whiskey_w10 === 'function') VILLA.w10 = whiskey_w10([H.x + 2.2, 4.3, anwesen_S.gal ? anwesen_S.gal.z : H.z + H.d / 2 - 1.55], [H.x + 3.8, 1.5, H.z + 3.4]); } catch (e) {}
   const res = await lwo_szene('AG-14', { figuren: { W }, bed: b => b === 'entdeckt' ? false : b === 'dunkel' ? !VILLA.halleStrom : b === 'grete' ? !!villa_S.grete : b === 'gretefoto' ? villa_hat('gretefoto') : b === 'kanne' ? villa_item('thermoskanne') : false,
     hook: async (tu) => {
       if (tu === 'zaehlbuch') { const w = villa_S.zaehlbuch || 'ablehnen', L = (typeof LWO_AG14_ZAEHLBUCH !== 'undefined' ? LWO_AG14_ZAEHLBUCH : {})[w === 'spaeter' ? 'ablehnen' : w]; if (L && typeof lwo_schritte === 'function') await lwo_schritte(L, { figuren: { W } }, { wahl: [], nachher: [] }); return true; }
@@ -881,6 +1138,12 @@ function villa_portraetBild(frame) { const T = THREE, b = new T.Box3().setFromOb
     // Signatur
     x.fillStyle = 'rgba(150,120,80,.85)'; x.font = 'italic 26px Georgia'; x.fillText('L. B.', w * .78, h * .95);
     const vg = x.createRadialGradient(w / 2, h / 2, h * .3, w / 2, h / 2, h * .72); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.55)'); x.fillStyle = vg; x.fillRect(0, 0, w, h); });
+  { const x0w = ANW_HALL.x - ANW_HALL.w / 2 + .15, pc = villa_cv(256, 72, (c, w, h) => { const g = c.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#b8924a'); g.addColorStop(.5, '#d6b66c'); g.addColorStop(1, '#a07c38'); c.fillStyle = g; c.fillRect(0, 0, w, h);
+      for (let i = 0; i < 170; i++) { c.strokeStyle = `rgba(${Math.random() < .5 ? '255,236,170' : '90,64,24'},${.05 + Math.random() * .1})`; c.beginPath(); const x = Math.random() * w, y = Math.random() * h; c.moveTo(x, y); c.lineTo(x + 10 + Math.random() * 40, y + (Math.random() - .5) * 4); c.stroke(); }
+      c.fillStyle = 'rgba(66,44,14,.85)'; c.font = 'bold 34px Georgia'; c.textAlign = 'center'; c.fillText('… IRA', w * .55, 50); const f = c.createLinearGradient(0, 0, w * .5, 0); f.addColorStop(0, 'rgba(206,176,104,.97)'); f.addColorStop(1, 'rgba(206,176,104,0)'); c.fillStyle = f; c.fillRect(6, 10, w * .5, 52); // blank gerieben
+      c.strokeStyle = 'rgba(60,40,12,.7)'; c.lineWidth = 3; c.strokeRect(3, 3, w - 6, h - 6); c.fillStyle = 'rgba(40,28,8,.9)'; for (const [x, y] of [[10, 10], [w - 10, 10], [10, h - 10], [w - 10, h - 10]]) { c.beginPath(); c.arc(x, y, 2.4, 0, 7); c.fill(); } });
+    const back = new T.Mesh(new T.BoxGeometry(.012, .076, .25), new T.MeshStandardMaterial({ color: 0x3a2c1c, roughness: .6 })); back.position.set(x0w + .006, b.min.y - .075, c.z); back.castShadow = true; scene.add(back); back.userData.noCol = true;
+    const pm = new T.Mesh(new T.PlaneGeometry(.24, .068), new T.MeshStandardMaterial({ map: tex(pc, true), roughness: .34, metalness: .85 })); pm.rotation.y = PI / 2; pm.position.set(x0w + .0125, b.min.y - .075, c.z); pm.userData.noCol = true; scene.add(pm); }
   const m = new T.Mesh(new T.PlaneGeometry(s.z * .7, s.y * .74), new T.MeshStandardMaterial({ map: tex(cv, true), roughness: .62, metalness: 0 }));
   m.position.set(b.min.x + s.x * .62, c.y, c.z); m.rotation.y = PI / 2; m.userData.noCol = true; m.receiveShadow = true; scene.add(m); return m; }
 async function villa_portraet() { const A = anwesen_S, H = ANW_HALL;
@@ -919,9 +1182,11 @@ WORLD_MODS.push(['Villa', async () => {
   const g = new THREE.Group(); g.name = 'villa'; g.visible = false; scene.add(g); VILLA.g = g;
   for (let i = 0; i < 18; i++) { const L = new VLight(0xffffff, 0, 6, 2); L.position.set(-5000, -50, -5000); scene.add(L); VILLA.L.push(L); } // alle Lichter beim Laden, Intensität 0
   if (typeof kiffen_S !== 'undefined') kiffen_S.auto = false;
-  try { if (typeof kiffen_fund === 'function') kiffen_fund('tips', [VILLA_R.nr3.x1 - 1.1, .92, 855.5], { label: 'Küchenschublade · Streichhölzer' }); } catch (e) { console.warn('Villa: Tips', e); }
+  try { if (typeof kiffen_fund === 'function') kiffen_fund('tips', [-978.93, .707, 855.86, .35], { label: 'Küchenschublade · Streichhölzer' }); } catch (e) { console.warn('Villa: Tips', e); }
   try { if (typeof karte_blatt === 'function') karte_blatt('villa', { x0: -945, x1: -855, z0: 855, z1: 945 }); } catch (e) {}
-  try { if (typeof sammeln_platz === 'function') sammeln_platz('Z-09', { x: 23.35, y: 1.02, z: -11.86, ry: 0, stehend: 1, ab: 4, label: 'Zeitungsrolle im Türgriff · Nr. 7' }); } catch (e) { console.warn('Villa: Z-09', e); }
+  try { if (typeof sammeln_platz === 'function') sammeln_platz('Z-09', { x: 23.35, y: 1.02, z: -11.86, ry: 0, stehend: 1, ab: 4, unsichtbar: 1, label: 'Zeitungsrolle im Türgriff · Nr. 7' }); villa_zeitungBau(23.35, 1.0, -11.8, 'z09'); } catch (e) { console.warn('Villa: Z-09', e); }
+  // Regentonne hinter Nr. 3 (Kap. 5: „kleine schnelle Schritte hinter der Regentonne“)
+  try { const bm = await msModel('w_barrel', 'model.glb'), bo = msGround(msFit(bm.clone(true), .92, 'y')); bo.position.set(-28.6, typeof solidGround === 'function' ? Math.max(0, solidGround(-28.6, 3, -24.5)) : 0, -24.5); bo.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(bo); } catch (e) { console.warn('Villa: Regentonne', e); }
   // Vegas' Tür in Kap. 4 (Nr. 3), Garagentor Nr. 9, Kombi-Gespräch „später“
   VILLA.hit.nr3 = box(1.1, 2.1, .35, -28, 1.5, -12.0, hidden, { cast: false }); interact(VILLA.hit.nr3, () => villa_hat('lucy') ? 'Nr. 3 · Vegas' : 'An Vegas’ Tür klopfen', () => villa_nr3Klopfen()); uninteract(VILLA.hit.nr3);
   VILLA.hit.nr9 = box(1.6, 1.2, .5, 57.7, .6, -12.25, hidden, { cast: false }); interact(VILLA.hit.nr9, 'Garagentor Nr. 9 · einen Spalt offen', () => villa_nr9Rein()); uninteract(VILLA.hit.nr9);
@@ -933,11 +1198,15 @@ WORLD_TICK.push(dt => {
   if (!VILLA.g || !state.started) return;
   villa_heil(dt);
   villa_tagTick(); if (VILLA.hp || VILLA.ag13) { villa_ag13Tick(dt); }
+  if (VILLA.crew) { try { villa_schrubbTick(dt, performance.now() / 1000); } catch (e) { if (!VILLA.schErr) { VILLA.schErr = 1; console.warn('Villa: Schrubben', e); } } }
+  if (VILLA.o.ofenL && VILLA.raum === 'nr3') { const tt = performance.now() / 1000; VILLA.o.ofenL.intensity = .95 + Math.sin(tt * 9.3) * .12 + Math.sin(tt * 23.1) * .08 + Math.random() * .05; }
   VILLA.chk -= dt; if (VILLA.chk > 0) return; VILLA.chk = .25; const k4 = villa_kap4();
-  villa_sichtbar(); if (!k4) { if (VILLA.crew) villa_crewAus(); if (VILLA.kombi === true) { VILLA.kombi = 'aus'; try { lwo_kombiWeg(); } catch (e) {} } return; }
+  villa_sichtbar(); villa_zeitungTick(); if (!k4) { if (VILLA.crew) villa_crewAus(); if (VILLA.kombi === true) { VILLA.kombi = 'aus'; try { lwo_kombiWeg(); } catch (e) {} } return; }
   for (const [k, f] of _villaHits()) { const h = VILLA.hit[k]; if (!h) continue; const on = !!f(), i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); }
   const A = typeof anwesen_S !== 'undefined' ? anwesen_S : null, P = player.pos;
   if (A && A.ch4 && !A.open && !A.hallDone) { if (!VILLA.crew && !villa_hat('villa_betreten')) villa_crewAn(); if (VILLA.crew) villa_crewTick(); } else if (VILLA.crew) villa_crewAus();
+  if (VILLA.crew && (villa_S.kreide || 0) < .98 && Math.hypot(P.x - VILLA_KREIDE.x, P.z - VILLA_KREIDE.z) < 60) villa_S.kreide = Math.min(.98, (villa_S.kreide || 0) + .25 / 80);
+  try { villa_kreideAnwenden(); } catch (e) {}
   if (A && A.open && !villa_hat('villa_betreten')) { villa_setz('villa_betreten'); villa_ag12Verfall(); villa_uk(6); }
   // Kombi rollt heran, sobald Luke auf Nr. 3 zugeht; B-K4-02 auf der Fußmatte
   if (!VILLA.kombi && !villa_hat('lucy') && Math.hypot(P.x + 28, P.z + 9) < 20 && typeof lwo_kombiZeigen === 'function') { VILLA.kombi = true; try { lwo_kombiZeigen(96, -5.6, -PI / 2, { motor: true }); lwo_kombiFahre([[70, -6], [53, -9.2]], 6).then(() => { try { lwo_kombiMotor(false); } catch (e) {} }); } catch (e) {} villa_beob('b_k4_02', { pos: [-28, .02, -11.72] }); }

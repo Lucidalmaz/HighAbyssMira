@@ -180,6 +180,7 @@ WORLD_MODS.push(['Nimmerheim · Raum 3 und Ende C', async () => {
 
   // ================= Fassung 3 (AP-17): Raum 1 (Gegenstände, Kreidefrage), Raum 2 (Voss), Nacht 1312 (Luna, Mira, Riss, sechs Kinder), Abgrund (Behaltene, Lichtschiff)
   try { await weiss_f3Bau(N, A, CX, CZ, lantern, flameT, glowT); } catch (e) { console.warn('weiss Fassung 3', e); }
+  try { await weiss_luecken(N, A, CX, CZ); } catch (e) { console.warn('weiss Abgleich Kap. 3', e); } // Hände, Ring, Brandmal, Schleifspur, Kreisel, Nachtlicht-Fisch, Spieluhr
 
   // Raum 3 beginnt als Nacht: Stühle, sitzende Kinder und die Kleine erst in Teil 2
   weiss_teil2Sichtbar(false); N.visible = true; // Nacht ist ab jetzt der Ausgangszustand des Raums (Lichter dort erst ab offener Tür gedimmt)
@@ -603,3 +604,57 @@ if (typeof justin_runde === 'function') justin_runde = (o => async function (...
 
 window.__weiss = { S: weiss_S, hints: weiss_hinweise, spur: n => weiss_spur(n), wahl: n => weiss_luegtWahl(n), teil2: () => weiss_teil2(), helm: () => weiss_helmSzene(), blitze: n => weiss_blitze(n), env: m => weiss_env(m), aufraeumen: weiss_aufraeumen,
   room3: () => room3Scene(), hilde: () => hildeTalks(), room2: () => room2Solved(), choice: () => showChoice(), endC: () => endingC() }; // Testzugriff
+
+// ---------------------------------------------------------------- Abgleich Kap. 3 (Text gegen Welt): was Luke an den Händen und im Reif „sieht“ muss dort auch sein
+// Rätsel „Wessen Hand ist aufgegangen?“: Miras rechte Hand geschlossen mit Ring (halber Mond), Handschuh des Ritters offen und innen verbrannt, Schleifspur im Reif hinter dem Stiefel.
+// Bindepose-Annahme: Handflächen zeigen im Rest nach unten (T-/A-Pose); die Fingerdrehung wird daraus für jeden Knochen berechnet und jeden Takt auf die Grundpose gesetzt (überschreibt die Animation).
+const _wlV = new THREE.Vector3(), _wlQ = new THREE.Quaternion(), _wlM = new THREE.Matrix4();
+function weiss_knochenBind(b) { const root = weiss_wurzel(b); let sk = null; root.traverse(m => { if (!sk && m.isSkinnedMesh && m.skeleton.bones.indexOf(b) >= 0) sk = m.skeleton; }); if (!sk) return null; const i = sk.bones.indexOf(b); return new THREE.Matrix4().copy(sk.boneInverses[i]).invert(); }
+function weiss_wurzel(b) { let o = b; while (o.parent && !(o.parent.isScene)) o = o.parent; return o; }
+function weiss_fingerKetten(hand) { const k = {}; hand.traverse(b => { if (!b.isBone || b === hand) return; const m = /(thumb|index|middle|ring|pinky|little)/i.exec(b.name); if (!m) return; const f = m[1].toLowerCase().replace('little', 'pinky'); (k[f] = k[f] || []).push(b); });
+  const tiefe = b => { let n = 0; for (let o = b; o && o.parent; o = o.parent) n++; return n; }; for (const f in k) k[f].sort((a, b) => tiefe(a) - tiefe(b)); return k; }
+// job: { b, base, dq } – jeder Takt: b.quaternion = base * dq
+function weiss_handPose(hand, o) { const jobs = [], K = weiss_fingerKetten(hand), p = o.palm || new THREE.Vector3(0, -1, 0), up = new THREE.Vector3(0, 1, 0); const bp = {}; const mat = b => (bp[b.uuid] || (bp[b.uuid] = weiss_knochenBind(b)));
+  const mids = K.middle && K.middle[0] && mat(K.middle[0]); const pm = mids ? new THREE.Vector3().setFromMatrixPosition(mids) : null;
+  for (const [f, ch] of Object.entries(K)) { const curl = (o.curl && o.curl[f] !== undefined ? o.curl[f] : o.curl && o.curl.all) || 0, spread = o.spread ? o.spread[f] || 0 : 0;
+    for (let i = 0; i < Math.min(3, ch.length - 1); i++) { const b = ch[i], M = mat(b), Mn = mat(ch[i + 1]); if (!M || !Mn) continue; const pos = new THREE.Vector3().setFromMatrixPosition(M), pn = new THREE.Vector3().setFromMatrixPosition(Mn), d = pn.clone().sub(pos).normalize();
+      const Rb = new THREE.Quaternion().setFromRotationMatrix(M.clone().extractRotation(M)), Ri = Rb.clone().invert(); let dq = new THREE.Quaternion();
+      if (i === 0 && spread && pm) { const s = new THREE.Vector3().crossVectors(up, d), lat = pos.clone().sub(pm).dot(s), sg = Math.sign(lat) || 1; dq.multiply(new THREE.Quaternion().setFromAxisAngle(up.clone().applyQuaternion(Ri), sg * spread * Math.PI / 180)); }
+      const a = new THREE.Vector3().crossVectors(d, p); if (a.lengthSq() > 1e-6) { a.normalize().applyQuaternion(Ri); const ang = (Array.isArray(curl) ? curl[i] : curl * (i === 0 ? .8 : i === 1 ? 1 : .7)) * Math.PI / 180; dq.multiply(new THREE.Quaternion().setFromAxisAngle(a, ang)); }
+      jobs.push({ b, base: b.quaternion.clone(), dq }); } }
+  return jobs; }
+function weiss_handTick() { const J = weiss_S.handJobs; if (!J) return; for (const j of J) j.b.quaternion.copy(j.base).multiply(j.dq); }
+// Schleifspur: abgeschabter Reif, zwei Fersenrillen, ausgerissene Halme am Rand
+function weiss_schleifspur(N, J) { const ux = Math.cos(.3), uz = Math.sin(.3), c = kirchberg_cnv(512, 160, (x, w, h) => { x.clearRect(0, 0, w, h);
+    for (const dy of [-26, 26]) { const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(34,46,38,0)'); g.addColorStop(.25, 'rgba(34,46,38,.55)'); g.addColorStop(1, 'rgba(24,34,28,.9)'); x.strokeStyle = g; x.lineWidth = 20 + (dy > 0 ? 3 : 0); x.lineCap = 'round'; x.beginPath(); x.moveTo(8, h / 2 + dy * .3); x.bezierCurveTo(w * .35, h / 2 + dy * .4, w * .65, h / 2 + dy * .8, w - 20, h / 2 + dy); x.stroke(); }
+    x.fillStyle = 'rgba(28,38,32,.35)'; x.beginPath(); x.moveTo(0, h / 2); x.quadraticCurveTo(w * .5, h * .2, w, h * .28); x.lineTo(w, h * .76); x.quadraticCurveTo(w * .5, h * .8, 0, h / 2); x.fill();
+    for (let i = 0; i < 160; i++) { const px = kirchberg_r(30, w - 10), py = h / 2 + kirchberg_r(-46, 46); x.fillStyle = kirchberg_r() < .55 ? `rgba(240,248,255,${kirchberg_r(.2, .7)})` : `rgba(40,56,40,${kirchberg_r(.3, .8)})`; x.fillRect(px, py, kirchberg_r(2, 9), kirchberg_r(1, 3)); } }),
+    m = new THREE.Mesh(new THREE.PlaneGeometry(1.7, .53).rotateX(-Math.PI / 2), weiss_decalMat(c, { color: 0xbfc8cc })); m.position.set(J.x + ux * .75, .038, J.z + uz * .75); m.rotation.y = Math.PI - .3; m.userData.noCol = true; N.add(m); return m; }
+async function weiss_luecken(N, A, CX, CZ) { const S = weiss_S, T = THREE, V = T.Vector3, F3 = WEISS_F3; S.handJobs = [];
+  // Schleifspur hinter dem Stiefel des Ritters
+  if (S.jPos) F3.schleif = weiss_schleifspur(N, S.jPos);
+  // Miras rechte Hand: Finger zu, gekrümmt; Ring mit halbem Mond am Ringfinger
+  try { const P = F3.mira && F3.mira.userData.person; if (P) { let hr = null; P.obj.traverse(b => { if (!hr && b.isBone && /RightHand(_\d+)?$/.test(b.name)) hr = b; });
+      if (hr) { S.handJobs.push(...weiss_handPose(hr, { curl: { all: 82, thumb: 40 } }));
+        const K = weiss_fingerKetten(hr), rg = K.ring && K.ring[0], rn = K.ring && K.ring[1]; if (rg && rn) { const s = 1 / (rg.getWorldScale(new V()).x || 1), dir = rn.position.clone().normalize(), q = new T.Quaternion().setFromUnitVectors(new V(0, 0, 1), dir);
+          const silber = new T.MeshStandardMaterial({ color: 0xd8dce0, roughness: .22, metalness: 1 }), g = new T.Group(); g.scale.setScalar(s); g.position.copy(rn.position).multiplyScalar(.5); g.quaternion.copy(q);
+          g.add(new T.Mesh(new T.TorusGeometry(.0092, .0016, 8, 24), silber)); const mond = new T.Mesh(new T.CircleGeometry(.0058, 16, 0, Math.PI), silber); mond.position.set(.0092, 0, 0); mond.rotation.set(0, Math.PI / 2, 0); mond.scale.set(1, 1, 1); g.add(mond);
+          const mond2 = mond.clone(); mond2.rotation.y = -Math.PI / 2; g.add(mond2); g.traverse(m => { if (m.isMesh) { m.userData.noCol = true; m.castShadow = false; } }); rg.add(g); F3.ring = g; } } } } catch (e) { console.warn('weiss Miras Hand', e); }
+  // Handschuh des Ritters: offen, Finger gespreizt, Leder innen verbrannt (halbrund)
+  try { if (S.jgHandL) { S.handJobs.push(...weiss_handPose(S.jgHandL, { curl: { all: -6 }, spread: { all: 14, thumb: 18 } }));
+      const K = weiss_fingerKetten(S.jgHandL), mid = K.middle && K.middle[0], s = 1 / (S.jgHandL.getWorldScale(new V()).x || 1); const M = weiss_knochenBind(S.jgHandL);
+      if (mid && M) { const Ri = new T.Quaternion().setFromRotationMatrix(M.clone().extractRotation(M)).invert(), pal = new V(0, -1, 0).applyQuaternion(Ri), br = kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); const g = x.createRadialGradient(w / 2, w * .62, 4, w / 2, w * .62, w * .42); g.addColorStop(0, 'rgba(10,6,4,.96)'); g.addColorStop(.7, 'rgba(30,16,8,.9)'); g.addColorStop(1, 'rgba(60,34,16,0)'); x.fillStyle = g; x.beginPath(); x.arc(w / 2, w * .62, w * .42, Math.PI, 0); x.lineTo(w * .92, w * .62); x.lineTo(w * .08, w * .62); x.fill(); x.strokeStyle = 'rgba(200,90,30,.5)'; x.lineWidth = 3; x.beginPath(); x.arc(w / 2, w * .62, w * .4, Math.PI * 1.05, Math.PI * 1.95); x.stroke(); }));
+        const d = new T.Mesh(new T.PlaneGeometry(.075 * s, .075 * s), new T.MeshStandardMaterial({ map: br, transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -3, side: T.DoubleSide })); d.quaternion.setFromUnitVectors(new V(0, 0, 1), pal); d.position.copy(mid.position).multiplyScalar(.45).addScaledVector(pal, .012 * s); d.userData.noCol = true; S.jgHandL.add(d); F3.brand = d; } } } catch (e) { console.warn('weiss Handschuh', e); }
+  // Abgrund: der Kreisel des Mädchens auf Stuhl 7 (Blechkreisel, vor ihre Füße gefallen)
+  try { const k = kids[6] && kids[6].k; if (k) { const prof = [[0, 0], [.004, .004], [.03, .05], [.052, .082], [.058, .1], [.05, .108], [.02, .112], [.007, .13], [.007, .17], [.0045, .175], [0, .175]].map(p => new T.Vector2(p[0], p[1])), geo = new T.LatheGeometry(prof, 24);
+      const farbe = kirchberg_tex(kirchberg_cnv(256, 64, (x, w, h) => { const cs = ['#8a2c22', '#2d4f7a', '#c9a03a', '#2d4f7a']; for (let i = 0; i < 4; i++) { x.fillStyle = cs[i]; x.fillRect(0, i * 16, w, 16); } for (let i = 0; i < 200; i++) { x.fillStyle = `rgba(60,50,40,${kirchberg_r(.1, .4)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(1, 5), kirchberg_r(1, 3)); } }));
+      const m = new T.Mesh(geo, new T.MeshStandardMaterial({ map: farbe, roughness: .5, metalness: .7 })); m.castShadow = true; m.userData.noCol = true; const g = new T.Group(); g.add(m); m.rotation.z = Math.PI / 2 - .25; m.position.y = .06;
+      g.position.set(k.position.x + Math.sin(k.rotation.y) * .42 + Math.cos(k.rotation.y) * .12, 0, k.position.z + Math.cos(k.rotation.y) * .42 - Math.sin(k.rotation.y) * .12); g.rotation.y = k.rotation.y * 1.7; A.add(g); F3.kreisel = g; } } catch (e) { console.warn('weiss Kreisel', e); }
+  // Raum 1: das Nachtlicht ist ein Fisch (steckdosenblau), die Spieluhr die Rosenkiste aus dem Scan
+  try { const R = r1Items; const lm = R.licht.m, fish = new T.Shape(); fish.moveTo(.07, 0); fish.quadraticCurveTo(.03, .05, -.025, .036); fish.lineTo(-.075, .06); fish.quadraticCurveTo(-.058, 0, -.075, -.06); fish.lineTo(-.025, -.036); fish.quadraticCurveTo(.03, -.05, .07, 0);
+    const eye = new T.Path(); eye.absarc(.04, .008, .006, 0, Math.PI * 2, true); fish.holes.push(eye); const fg = new T.ExtrudeGeometry(fish, { depth: .02, bevelEnabled: true, bevelThickness: .006, bevelSize: .005, bevelSegments: 3 });
+    lm.geometry = fg; lm.position.set(lm.position.x, .32, Z3 - 5.963); lm.rotation.set(0, 0, 0); lm.material = lm.material.clone(); lm.material.color.setHex(0x1a2a50); lm.material.emissive.setHex(0x5f86ff); lm.material.emissiveIntensity = 2.2; lm.material.roughness = .35;
+    const platte = new T.Mesh(neben3x_rbox ? neben3x_rbox(.13, .13, .02, .02) : new T.BoxGeometry(.13, .13, .02), new T.MeshStandardMaterial({ color: 0xcfcdc4, roughness: .5 })); platte.position.set(lm.position.x, lm.position.y, Z3 - 5.975); platte.userData.noCol = true; scene.add(platte); F3.nachtlicht = platte;
+    const sm = R.spieluhr.m, mod = await kirchberg_mod('w_spieluhr', 'model.glb', .17, 'max'); if (mod) { mod.position.set(sm.position.x, sm.position.y - .06, sm.position.z); mod.rotation.y = sm.rotation.y; mod.traverse(o => { o.userData.noCol = true; }); scene.add(mod); sm.material = hidden; F3.spieluhr = mod; } } catch (e) { console.warn('weiss Raum 1', e); } }
+
+WORLD_TICK.push(() => weiss_handTick());

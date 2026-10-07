@@ -33,6 +33,62 @@ function tief_free(x, z, pathR = 2.6) { if (tief_pathDist(x, z) < pathR || tief_
   for (const [p, r] of [[TIEF.stand, 4.5], [TIEF.bus, 6], [TIEF.dig, 3], [TIEF.ring, TIEF.ring.r + 3], [TIEF.swing, 3.8], [TIEF.wreck, 4.5], [TIEF.camp, 5.5]]) if (Math.hypot(x - p.x, z - p.z) < r) return false; return true; }
 function tief_note(t) { return '<span class="hand">' + t + '</span>'; }
 function tief_ok() { return wald_frei() && state.started && !state.talking && !state.ending && !ui.overlay && !menu.attract && !scripted && !(typeof hunt !== 'undefined' && hunt.on); }
+// Papier mit Bleistiftzeilen (Kinderhand, nicht lesbar – der Text steht im Zettel selbst): Zettel am Pfahl, am Stein, am Steg
+function tief_blatt() { if (tief_S.blatt) return tief_S.blatt; const T = THREE;
+  tief_S.blatt = new T.MeshStandardMaterial({ roughness: .95, side: T.DoubleSide, map: tex(cnv(256, (c, w) => { c.fillStyle = '#d8cfb6'; c.fillRect(0, 0, w, w); for (let i = 0; i < 60; i++) { c.fillStyle = `rgba(120,96,60,${rand(.02, .09)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(4, 30), 0, 7); c.fill(); }
+    c.strokeStyle = 'rgba(46,42,40,.6)'; c.lineCap = 'round'; c.lineWidth = 2.4; for (let l = 0; l < 7; l++) { let x = 22 + rand(0, 6); const y = 40 + l * 28; c.beginPath(); c.moveTo(x, y); while (x < w - 30 - (l === 6 ? 90 : 0)) { x += rand(5, 14); c.quadraticCurveTo(x - 4, y + rand(-12, 8), x, y + rand(-4, 4)); if (Math.random() < .14) { x += rand(6, 12); c.moveTo(x, y + rand(-2, 2)); } } c.stroke(); }
+    c.fillStyle = 'rgba(60,48,30,.18)'; c.fillRect(0, 0, w, 6); c.fillRect(0, w - 6, w, 6); }), true) }); return tief_S.blatt; }
+// Kindersitz (Gruppe 1/2): Schale mit Polster, Seitenflügel, Rückenlehne, Gurte mit Schloss. Ursprung: Mitte der Sitzfläche am Boden, Blick (Lehne hinten) nach +z. Maße in Metern, ein Kindersitz ist ca. 0,36 breit, 0,5 hoch.
+function tief_kindersitz(stoff, kunst, metall, alt = 0) { const T = THREE, g = new T.Group();
+  const rb = (w, h, d, r, mat, x, y, z, rx = 0) => { const sh = new T.Shape(), a = w / 2 - r, b = d / 2 - r; sh.moveTo(-a, -d / 2); sh.lineTo(a, -d / 2); sh.quadraticCurveTo(w / 2, -d / 2, w / 2, -b); sh.lineTo(w / 2, b); sh.quadraticCurveTo(w / 2, d / 2, a, d / 2); sh.lineTo(-a, d / 2); sh.quadraticCurveTo(-w / 2, d / 2, -w / 2, b); sh.lineTo(-w / 2, -b); sh.quadraticCurveTo(-w / 2, -d / 2, -a, -d / 2);
+    const ge = new T.ExtrudeGeometry(sh, { depth: h - r * .8, bevelEnabled: true, bevelSize: r * .4, bevelThickness: r * .4, bevelSegments: 2, curveSegments: 4 }); ge.rotateX(-PI / 2); ge.translate(0, r * .4, 0);
+    const m = new T.Mesh(ge, mat); m.position.set(x, y, z); m.rotation.x = rx; m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+  rb(.38, .14, .34, .05, kunst, 0, .02, 0); // Wanne
+  rb(.32, .06, .27, .04, stoff, 0, .15, .01); // Sitzpolster
+  rb(.34, .44, .09, .04, kunst, 0, .12, -.17, -.2); // Lehnenschale (leicht nach hinten geneigt)
+  rb(.27, .36, .05, .03, stoff, 0, .17, -.115, -.2); // Lehnenpolster
+  for (const sx of [-1, 1]) rb(.05, .24, .13, .02, kunst, sx * .185, .17, -.1, -.1); // Seitenflügel
+  for (const sx of [-1, 1]) { const st = new T.Mesh(new T.BoxGeometry(.034, .36, .004), metall.gurt); st.position.set(sx * .075, .33, -.075); st.rotation.x = -.62; st.castShadow = false; g.add(st); } // Schultergurte
+  const bu = new T.Mesh(new T.BoxGeometry(.06, .035, .018), metall.schloss); bu.position.set(0, .2, .07); g.add(bu);
+  for (const sx of [-1, 1]) { const st = new T.Mesh(new T.BoxGeometry(.034, .004, .22), metall.gurt); st.position.set(sx * .075, .185, -.02); g.add(st); } // Beckengurte
+  g.rotation.z = alt; return g; }
+// ---- Amtsbus: Wagen öffnen und einrichten. Koordinaten im Wagen (Gruppe o): x seitlich (+x = Fahrerseite, links), y hoch, z längs (+z vorn, Kühler; −z hinten, Heck), Ursprung Bodenmitte.
+function tief_busW(x, y, z) { const g = tief_S.busG, T = THREE; if (!g) return new T.Vector3(TIEF.bus.x, y, TIEF.bus.z); g.updateMatrixWorld(true); return g.localToWorld(new T.Vector3(x, y, z)); }
+// Aus dem Scan: den zweiten (unbeschädigten) Wagen entfernen, Heckscheibe und Windschutzscheibe herausnehmen (Dreiecke im Fensterrahmen), Innenseiten sichtbar
+function tief_vanOeffnen(van) { const T = THREE; van.updateMatrixWorld(true); const v = new T.Vector3(), rm = [];
+  van.traverse(m => { if (!m.isMesh) return; if (m.name === 'Object016') { rm.push(m); return; } const g = m.geometry, P = g.attributes.position; if (g.index || P.count % 3) return; // Rahmen in FBX-Koordinaten (Breite x ±77, Höhe y 0…139, Länge z −192 … +186; Heck bei z<0)
+    const inWin = (x, y, z) => (Math.abs(x) < 58 && y > 90 && y < 130 && z < -170) || (Math.abs(x) < 62 && y > 84 && y < 132 && z > 95 && z < 175), keep = [];
+    for (let i = 0; i < P.count; i += 3) { let all = true; for (let k = 0; k < 3; k++) { v.fromBufferAttribute(P, i + k).applyMatrix4(m.matrixWorld); if (!inWin(v.x, v.y, v.z)) { all = false; break; } } if (!all) keep.push(i); }
+    const ng = new T.BufferGeometry(); for (const name of Object.keys(g.attributes)) { const A = g.attributes[name], arr = new A.array.constructor(keep.length * 3 * A.itemSize); keep.forEach((i, j) => { for (let k = 0; k < 3 * A.itemSize; k++) arr[j * 3 * A.itemSize + k] = A.array[i * A.itemSize + k]; }); ng.setAttribute(name, new T.BufferAttribute(arr, A.itemSize, A.normalized)); }
+    m.geometry = ng; for (const mt of [].concat(m.material)) { mt.side = T.DoubleSide; } });
+  for (const m of rm) m.removeFromParent(); }
+// Das Innere: Laderaum mit sieben Kindersitzen, Hofers Spind, Fahrerhaus mit Armaturenbrett, Fahrtenbuch
+async function tief_busInnen(o) { const T = THREE, FY = .5, g = new T.Group(); g.name = 'busInnen'; g.userData.noCol = true; o.add(g);
+  const dark = new T.MeshStandardMaterial({ color: 0x22201e, roughness: .85, metalness: .2, side: T.DoubleSide }), stoff = new T.MeshStandardMaterial({ color: 0x1d2536, roughness: .96 }), kunst = new T.MeshStandardMaterial({ color: 0x2b2d31, roughness: .55 });
+  const metall = { gurt: new T.MeshStandardMaterial({ color: 0x35373a, roughness: .9 }), schloss: new T.MeshStandardMaterial({ color: 0x9a9a98, roughness: .3, metalness: .9 }) };
+  const rb = (w, h, d, r, mat, x, y, z) => { const sh = new T.Shape(), a = w / 2 - r, bb = d / 2 - r; sh.moveTo(-a, -d / 2); sh.lineTo(a, -d / 2); sh.quadraticCurveTo(w / 2, -d / 2, w / 2, -bb); sh.lineTo(w / 2, bb); sh.quadraticCurveTo(w / 2, d / 2, a, d / 2); sh.lineTo(-a, d / 2); sh.quadraticCurveTo(-w / 2, d / 2, -w / 2, bb); sh.lineTo(-w / 2, -bb); sh.quadraticCurveTo(-w / 2, -d / 2, -a, -d / 2);
+    const ge = new T.ExtrudeGeometry(sh, { depth: Math.max(.002, h - r * .8), bevelEnabled: true, bevelSize: r * .4, bevelThickness: r * .4, bevelSegments: 2, curveSegments: 4 }); ge.rotateX(-PI / 2); ge.translate(0, r * .4, 0); const m = new T.Mesh(ge, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; g.add(m); return m; };
+  // Boden: Riffelblech, hinten und im Fahrerhaus
+  { const fl = msSurfMat('corrugated', { tint: 0x4a4744 }); fl.userData.tile = 1; fl.side = T.DoubleSide; const f = box(1.92, .03, 3.6, 0, FY - .015, -.9, fl, { parent: g, cast: false }); f.receiveShadow = true; const f2 = box(1.92, .03, 1.3, 0, FY + .01, 1.5, dark, { parent: g, cast: false }); f2.receiveShadow = true; }
+  // Sieben Kindersitze: hinten drei, davor vier, alle nach vorn, einer umgekippt; auf dem mittleren hinteren klebt das Z, daneben Jonas’ Zettel
+  const zTex = tex(cnv(128, (c, w) => { c.fillStyle = '#c9c0a4'; c.beginPath(); c.moveTo(6, 8); c.lineTo(w - 4, 4); c.lineTo(w - 7, w - 10); c.lineTo(w - 30, w - 4); c.lineTo(10, w - 6); c.closePath(); c.fill();
+    for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(90,70,40,${rand(.03, .14)})`; c.fillRect(rand(0, w), rand(0, w), rand(2, 18), rand(1, 4)); }
+    c.strokeStyle = '#161412'; c.lineWidth = 11; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(30, 32); c.lineTo(94, 28); c.lineTo(36, 98); c.lineTo(98, 94); c.stroke(); c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.18)'; c.beginPath(); c.moveTo(31, 30); c.lineTo(92, 26); c.stroke();
+    c.fillStyle = 'rgba(60,50,35,.5)'; c.beginPath(); c.moveTo(w - 30, w - 4); c.lineTo(w - 7, w - 10); c.lineTo(w - 24, w - 28); c.closePath(); c.fill(); }), true);
+  const zMat = new T.MeshStandardMaterial({ map: zTex, roughness: .6, transparent: true, alphaTest: .02, polygonOffset: true, polygonOffsetFactor: -2 });
+  const seats = []; const rows = [[-1.95, [-.5, 0, .5]], [-1.0, [-.72, -.24, .24, .72]]]; let n = 0;
+  for (const [sz, xs] of rows) for (const sx of xs) { n++; const st = tief_kindersitz(stoff, kunst, metall); st.position.set(sx + rand(-.02, .02), FY, sz + rand(-.03, .03)); st.rotation.y = rand(-.07, .07);
+    if (n === 6) { st.rotation.set(0, .3, 1.35); st.position.set(sx + .1, FY + .2, sz); } // einer liegt auf der Seite
+    g.add(st); seats.push(st); if (n === 2) { const lz = new T.Mesh(new T.PlaneGeometry(.15, .15), zMat); lz.position.set(0, .3, -.272); lz.rotation.set(-.2, PI, .06); lz.userData.noCol = true; st.add(lz); }
+    if (n === 1) { const zp = new T.Mesh(new T.PlaneGeometry(.12, .17), tief_blatt()); zp.position.set(.02, .29, -.272); zp.rotation.set(-.2, PI, .1); zp.userData.noCol = true; st.add(zp); } }
+  // Fahrerhaus: Armaturenbrett, Lenkrad, zwei Sitze
+  { rb(1.9, .1, .5, .04, dark, 0, .93, 1.45); rb(.5, .16, .22, .05, dark, .42, 1.02, 1.36); // Armaturenbrett mit Instrumentenhaube
+    const lr = new T.Mesh(new T.TorusGeometry(.19, .014, 8, 24), dark); lr.position.set(.42, .9, 1.12); lr.rotation.x = 1.0; g.add(lr); for (const aa of [0, 2.1, 4.2]) { const sp = new T.Mesh(new T.BoxGeometry(.012, .17, .012), dark); sp.position.set(.42, .9, 1.12); sp.rotation.set(1.0, 0, aa); g.add(sp); }
+    for (const sx of [.42, -.42]) { rb(.5, .14, .5, .06, stoff, sx, FY + .32, .75); const lh = rb(.5, .62, .12, .05, stoff, sx, FY + .4, .52); lh.rotation.x = -.14; rb(.24, .2, .1, .04, stoff, sx, FY + 1.0, .44); } }
+  // Fahrtenbuch auf dem Armaturenbrett, in einer Klarsichthülle
+  try { const src = await msModel('w_buch', 'model.glb'), bk = msGround(msFit(src.clone(true), .24, 'max')); bk.position.set(-.3, 1.0, 1.52); bk.rotation.set(-.12, .5, 0); bk.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(bk);
+    const sl = new T.Mesh(new T.BoxGeometry(.3, .004, .24), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .2, roughness: .06, clearcoat: 1, depthWrite: false })); sl.position.set(-.3, 1.06, 1.52); sl.rotation.set(-.12, .5, 0); sl.userData.noCol = true; g.add(sl); } catch (e) { console.warn('Tiefwald: Fahrtenbuch', e); }
+  tief_S.busInnen = true; }
 WORLD_MODS.push(['Der tiefe Wald', async () => {
   const S = tief_S, T = THREE, q = new T.Quaternion(), e = new T.Euler(), m4 = (x, y, z, ry, s, tx = 0, tz = 0) => new T.Matrix4().compose(new T.Vector3(x, y, z), q.setFromEuler(e.set(tx, ry, tz, 'YXZ')), new T.Vector3(s, s, s));
   const n0 = scene.children.length; // alles ab hier gehört zum tiefen Wald (Kapitel-Sperre: wald_huelle)
@@ -92,24 +148,54 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const bs = new T.Mesh(new T.PlaneGeometry(.34, .2), new T.MeshStandardMaterial({ roughness: .45, metalness: .7, map: tex(cnv(256, (c, w) => { c.fillStyle = '#7d8580'; c.fillRect(0, 0, w, w); for (let i = 0; i < 50; i++) { c.fillStyle = `rgba(90,50,20,${rand(.1, .35)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(2, 12), 0, 7); c.fill(); }
       c.fillStyle = '#161616'; c.textAlign = 'center'; c.font = 'bold 28px Arial'; c.fillText('BfR · AST 7', w / 2, 62); c.font = 'bold 32px Arial'; c.fillText('PROBE T', w / 2, 104); c.font = '24px Arial'; c.fillText('nicht bergen · zieht', w / 2, 144); }), true) }));
     bs.material.map.repeat.set(1, .62); bs.material.map.offset.set(0, .38); bs.position.set(S.postEnd[0] - Math.sin(ang) * .07, .5, S.postEnd[1] - Math.cos(ang) * .07); bs.rotation.y = ang + PI; scene.add(bs); }
-  // --- Der rote Faden: Pflöcke neben dem Weg, Wolle dazwischen (eine Instanzgruppe), am Ende ins Wasser
+  // --- Stämme für die Wolle: Mitte und Radius der Totholz-Scans in 1,1 m Modellhöhe (aus den Scans gemessen: deadtree1 (.03|.10) r .19 · deadtree3 (.02|.17) r .24), je Instanz mit Maßstab und Neigung
+  const TR = []; { const v = new T.Vector3(), sc = new T.Vector3(), qq = new T.Quaternion(), ps = new T.Vector3();
+    for (const [Lst, cx, cz, r] of [[A, .03, .10, .19], [B, .02, .17, .24]]) for (const m of Lst) { m.decompose(ps, qq, sc); v.set(cx, 1.1, cz).applyMatrix4(m); TR.push({ x: v.x, y: v.y, z: v.z, r: r * sc.x }); } }
+  // --- Der rote Faden: Jonas hat die Wolle von Stamm zu Stamm gespannt (je Stamm zweimal herum geschlungen); wo am Weg kein Stamm steht, hält ein Pfahl. Am Ende hängt sie ins Wasser.
   { const route = []; for (let i = 0; i < 4; i++) for (const p of TIEF_PATHS[i]) if (!route.length || Math.hypot(p[0] - route[route.length - 1][0], p[1] - route[route.length - 1][1]) > .1) route.push(p);
     route.push([TIEF.jetty.x1, TIEF.jetty.z1]);
     const pts = []; for (let i = 0; i < route.length - 1; i++) { const [ax, az] = route[i], [bx, bz] = route[i + 1], L = Math.hypot(bx - ax, bz - az), n = Math.max(1, Math.round(L / 5)), nx = (bz - az) / L, nz = -(bx - ax) / L;
-      for (let k = 0; k < n; k++) { const t = k / n, off = i === route.length - 2 ? .5 : 1.3; pts.push([ax + (bx - ax) * t + nx * off, az + (bz - az) * t + nz * off]); } }
-    const end = route[route.length - 1]; pts.push([end[0] + .35, end[1] + .1]);
-    const stakeMat = new T.MeshStandardMaterial({ color: 0x2e241a, roughness: .9 }), segs = [];
-    pts.forEach(([x, z], i) => { if (i < pts.length - 1) box(.035, 1.0, .035, x, .5, z, stakeMat, { cast: false }); });
-    for (let i = 0; i < pts.length - 1; i++) { const [ax, az] = pts[i], [bx, bz] = pts[i + 1], last = i === pts.length - 2;
-      for (let k = 0; k < 3; k++) { const t0 = k / 3, t1 = (k + 1) / 3, sag = t => (last ? 0 : -.16 * Math.sin(t * PI)), y0 = (last ? .95 - t0 * 1.1 : .95) + sag(t0), y1 = (last ? .95 - t1 * 1.1 : .95) + sag(t1);
-        segs.push([new T.Vector3(ax + (bx - ax) * t0, y0, az + (bz - az) * t0), new T.Vector3(ax + (bx - ax) * t1, y1, az + (bz - az) * t1)]); } }
-    const cg = new T.CylinderGeometry(.007, .007, 1, 4, 1); cg.translate(0, .5, 0); cg.rotateX(PI / 2);
-    const im = new T.InstancedMesh(cg, new T.MeshStandardMaterial({ color: 0x9a1212, emissive: 0x3a0404, roughness: .8 }), segs.length); const up = new T.Vector3(0, 0, 1);
-    segs.forEach(([a, b], i) => { const d = b.clone().sub(a), L = d.length(); im.setMatrixAt(i, new T.Matrix4().compose(a, new T.Quaternion().setFromUnitVectors(up, d.normalize()), new T.Vector3(1, 1, L))); });
-    im.castShadow = false; im.userData.noCol = true; im.userData.noCull = true; im.computeBoundingSphere(); scene.add(im); S.thread = im; S.threadN = segs.length; S.threadSegs = segs; }
+      for (let k = 0; k < n; k++) { const t = k / n, off = i === route.length - 2 ? .5 : 1.3; pts.push([ax + (bx - ax) * t + nx * off, az + (bz - az) * t + nz * off, nx, nz]); } }
+    const end = route[route.length - 1]; pts.push([end[0] + .35, end[1] + .1, 0, 0]);
+    const stakeMat = new T.MeshStandardMaterial({ color: 0x2e241a, roughness: .9 });
+    // 1) Anker: erst der Zaunpfahl mit dem ersten Zettel, dann je Wegpunkt der nächste Stamm auf der Wegseite (min. 3,2 m Abstand zum vorigen), sonst ein Pfahl
+    const anchors = [{ x: 39.8, y: 1.05, z: 156.3, r: .055, post: true, fence: true }]; let prev = anchors[0];
+    for (let i = 0; i < pts.length - 2; i++) { const [px, pz, nx, nz] = pts[i]; if (pz < 158) continue; let best = null, bd = 1e9;
+      for (const t of TR) { const dx = t.x - px, dz = t.z - pz, d = Math.hypot(dx, dz); if (d > 6 || (dx * nx + dz * nz) < -.3 || t.y > 1.7 || t.y < .9) continue; if (d < bd) { bd = d; best = t; } }
+      if (best && Math.hypot(best.x - prev.x, best.z - prev.z) < 3.2) continue; if (best && best === prev) continue;
+      let a = best; if (!a) { if (Math.hypot(px - prev.x, pz - prev.z) < 3.2) continue; a = { x: px, y: 1.25, z: pz, r: .03, post: true }; } anchors.push(a); prev = a; }
+    const [sx, sz] = pts[pts.length - 2]; anchors.push({ x: sx, y: 1.0, z: sz, r: .02, post: true, last: true });
+    // 2) Steht zwischen zwei Ankern noch ein anderer Stamm im Weg, wird die Wolle auch um ihn geschlungen
+    const blocker = (a, b) => { const vx = b.x - a.x, vz = b.z - a.z, L2 = vx * vx + vz * vz; for (const t of TR) { if (t === a || t === b) continue; const k = ((t.x - a.x) * vx + (t.z - a.z) * vz) / L2; if (k < .08 || k > .92) continue; const y = a.y + (b.y - a.y) * k; if (Math.abs(y - t.y) > .9) continue;
+        if (Math.hypot(t.x - a.x - vx * k, t.z - a.z - vz * k) < t.r + .07) return t; } return null; };
+    const chain = [anchors[0]]; for (let i = 1; i < anchors.length; i++) { const stack = [anchors[i]]; let guard = 0; while (stack.length && guard++ < 12) { const b = stack[stack.length - 1], a = chain[chain.length - 1], bl = blocker(a, b); if (bl && !stack.includes(bl) && !chain.includes(bl)) stack.push(bl); else chain.push(stack.pop()); } }
+    // 3) Pfähle (nur wo kein Stamm steht) und Wolle
+    for (const a of chain) if (a.post && !a.fence) { const h = a.last ? 1.0 : 1.5; box(a.last ? .035 : .06, h, a.last ? .035 : .06, a.x, h / 2, a.z, stakeMat, { cast: false }); }
+    const segs = [], up = new T.Vector3(0, 0, 1), dirv = new T.Vector3();
+    for (let i = 0; i < chain.length - 1; i++) { const a = chain[i], b = chain[i + 1], dx = b.x - a.x, dz = b.z - a.z, L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, ax = a.x + ux * (a.r + .012), az = a.z + uz * (a.r + .012), bx = b.x - ux * (b.r + .012), bz = b.z - uz * (b.r + .012);
+      const n = Math.max(4, Math.ceil(L / 1.1)), sag = Math.min(.34, .04 + .02 * L), pt = t => new T.Vector3(ax + (bx - ax) * t, a.y + (b.y - a.y) * t - sag * Math.sin(t * PI), az + (bz - az) * t);
+      for (let k = 0; k < n; k++) segs.push([pt(k / n), pt((k + 1) / n)]); }
+    { const a = chain[chain.length - 1], bx = end[0] + .35, bz = end[1] + .1; for (let k = 0; k < 3; k++) { const t0 = k / 3, t1 = (k + 1) / 3; segs.push([new T.Vector3(a.x + (bx - a.x) * t0, .95 - t0 * 1.1, a.z + (bz - a.z) * t0), new T.Vector3(a.x + (bx - a.x) * t1, .95 - t1 * 1.1, a.z + (bz - a.z) * t1)]); } }
+    const woolMat = new T.MeshStandardMaterial({ color: 0x9a1212, emissive: 0x3a0404, roughness: .9 });
+    const cg = new T.CylinderGeometry(.0075, .0075, 1, 5, 1); cg.translate(0, .5, 0); cg.rotateX(PI / 2);
+    const im = new T.InstancedMesh(cg, woolMat, segs.length);
+    segs.forEach(([a, b], i) => { dirv.copy(b).sub(a); const L = dirv.length(); im.setMatrixAt(i, new T.Matrix4().compose(a, new T.Quaternion().setFromUnitVectors(up, dirv.normalize()), new T.Vector3(1, 1, L))); });
+    im.castShadow = false; im.userData.noCol = true; im.userData.noCull = true; im.computeBoundingSphere(); scene.add(im); S.thread = im; S.threadN = segs.length; S.threadSegs = segs;
+    // 4) Wicklungen: zweimal um jeden Stamm (und um den Zaunpfahl am Anfang)
+    const wr = chain.filter(a => !a.last && !(a.post && !a.fence)); const tg = new T.TorusGeometry(1, .04, 5, 20); tg.rotateX(PI / 2);
+    const ri = new T.InstancedMesh(tg, woolMat, wr.length * 2), qa = new T.Quaternion(), ea = new T.Euler(), pa = new T.Vector3(), sa = new T.Vector3();
+    wr.forEach((a, i) => { for (let k = 0; k < 2; k++) { const R = a.r + .012 + k * .002; ri.setMatrixAt(i * 2 + k, new T.Matrix4().compose(pa.set(a.x, a.y + (k ? .045 : -.02), a.z), qa.setFromEuler(ea.set(rand(-.1, .1), rand(0, 6), rand(-.1, .1))), sa.set(R, R, R))); } });
+    ri.castShadow = false; ri.userData.noCol = true; ri.computeBoundingSphere(); scene.add(ri);
+    // 5) Der frisch nachgeknotete Knoten (Gedanke tief_knoten): heller, kleiner Knoten mit zwei losen Enden an dem Stamm, der (46 | 212,8) am nächsten steht
+    { let best = null, bd = 1e9; for (const a of chain) { if (a.post || a.last) continue; const d = Math.hypot(a.x - 46, a.z - 212.8); if (d < bd) { bd = d; best = a; } }
+      if (best && bd < 9) { S.knotAt = [best.x, best.z]; const g = new T.Group(), fm = new T.MeshStandardMaterial({ color: 0xc92424, emissive: 0x4a0808, roughness: .85 }), toP = Math.atan2(46 - best.x, 212.8 - best.z);
+        const ring = new T.Mesh(new T.TorusGeometry(best.r + .016, .0085, 5, 20), fm); ring.rotation.x = PI / 2; ring.position.y = .02; g.add(ring);
+        const kn = new T.Mesh(new T.SphereGeometry(.02, 8, 6), fm); kn.position.set(Math.sin(toP) * (best.r + .02), .02, Math.cos(toP) * (best.r + .02)); kn.scale.set(1.1, .8, 1); g.add(kn);
+        for (const s of [-1, 1]) { const e = new T.Mesh(new T.CylinderGeometry(.005, .004, .09, 4), fm); e.position.set(Math.sin(toP + s * .09) * (best.r + .03), -.02, Math.cos(toP + s * .09) * (best.r + .03)); e.rotation.set(.3 * s, 0, .25 * s); g.add(e); }
+        g.position.set(best.x, best.y, best.z); g.userData.noCol = true; scene.add(g); } } }
   const note = (x, y, z, label, fn, w = .5, h = .5, d = .5) => { const hit = box(w, h, d, x, y, z, hidden, { cast: false }); interact(hit, label, fn); return hit; };
   // --- 1) Zaunlücke: Zettel in einer Klarsichthülle am Pfahl
-  { plane(.16, .2, 39.8, 1.1, 156.25, paperMat, 0, 0); note(39.8, 1.1, 156.3, () => tief_has('tief_zettel_1') ? 'Jonas’ Zettel' : 'Zettel am Zaunpfahl', () => tief_zettel(1)); }
+  { plane(.16, .2, 39.8, 1.1, 156.25, tief_blatt(), 0, 0); { const sl = new T.Mesh(new T.PlaneGeometry(.18, .225), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .2, roughness: .06, clearcoat: 1, side: T.DoubleSide, depthWrite: false })); sl.position.set(39.8, 1.1, 156.255); sl.userData.noCol = true; scene.add(sl); } note(39.8, 1.1, 156.3, () => tief_has('tief_zettel_1') ? 'Jonas’ Zettel' : 'Zettel am Zaunpfahl', () => tief_zettel(1)); }
   // --- 2) Hochsitz: vier Pfosten, Plattform in 3,1 m, Leiter; Blechdose an der Leiter
   { const H = TIEF.stand, y = 3.1, wood = msSurfMat('planks_painted', { tint: 0x4a3e32 }); wood.userData.tile = 1;
     for (const [dx, dz] of [[-.85, -.85], [.85, -.85], [-.85, .85], [.85, .85]]) box(.16, y + 1.1, .16, H.x + dx, (y + 1.1) / 2, H.z + dz, wood, { collide: true });
@@ -128,13 +214,15 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(H.x, y + .7, H.z - .6, () => player.pos.y > 1.5 ? 'Hinuntersteigen' : '', () => tief_climb(false), 1.4, .8, .5); S.standY = y; }
   // --- 3) Der Amtsbus: überwuchert, eingesunken, mitten im Wald ohne Weg
   try { const van = await msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1, color: 0x8a8478 } });
-    const o = msGround(msFit(van, 5.3, 'max')); o.position.set(TIEF.bus.x, -.18, TIEF.bus.z); o.rotation.set(0, .5, .05); msPlace(o, TIEF.bus.x, -.18, TIEF.bus.z, .5); o.rotation.z = .05; } catch (e) { console.warn('Tiefwald: Bus', e); }
+    tief_vanOeffnen(van); // nur ein Wagen (der Scan enthält zwei), Heck- und Frontscheibe fehlen: man sieht in den Laderaum und ins Fahrerhaus
+    const o = msGround(msFit(van, 5.3, 'max')); o.position.set(TIEF.bus.x, -.18, TIEF.bus.z); o.rotation.set(0, .5, .05); msPlace(o, TIEF.bus.x, -.18, TIEF.bus.z, .5); o.rotation.z = .05; S.busG = o; o.updateMatrixWorld(true);
+    try { await tief_busInnen(o); } catch (e) { console.warn('Tiefwald: Bus innen', e); } } catch (e) { console.warn('Tiefwald: Bus', e); }
   { const sign = new T.Mesh(new T.PlaneGeometry(1.4, .45), new T.MeshStandardMaterial({ roughness: .7, metalness: .5, map: tex(cnv(512, (c, w) => { c.fillStyle = '#6c7a72'; c.fillRect(0, 0, w, w); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(90,50,20,${rand(.1, .4)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(3, 30), 0, 7); c.fill(); }
       c.fillStyle = '#e4e0d4'; c.font = 'bold 50px Arial'; c.textAlign = 'center'; c.fillText('AMT FÜR RÜCKFÜHRUNG', w / 2, 96); c.font = '38px Arial'; c.fillText('FAHRDIENST · LOST EYENGLESS', w / 2, 150); }), true) }));
     sign.material.map.repeat.set(1, .32); sign.material.map.offset.set(0, .68); sign.position.set(TIEF.bus.x - 2.6, .09, TIEF.bus.z - 2.2); sign.rotation.set(-PI / 2 + .1, 0, .6); scene.add(sign);
-    note(TIEF.bus.x - 2.6, .3, TIEF.bus.z - 2.2, 'Blechschild im Laub', () => toast('BUNDESSTELLE FÜR RÜCKFÜHRUNG · FAHRDIENST. Das Schild ist abgefallen – oder abgerissen. Der Bus steht hier, als wäre er zwischen die Bäume gefahren, die damals noch nicht da waren.', 5600), 1.4, .4, .6);
-    note(TIEF.bus.x - 1.4, 1.1, TIEF.bus.z + 1.4, () => tief_has('tief_zettel_3') ? 'Jonas’ Zettel im Bus' : 'In den Bus sehen', () => tief_zettel(3), 1.4, 1.6, 1.4);
-    note(TIEF.bus.x + 1.6, 1.1, TIEF.bus.z - 1.2, 'Fahrtenbuch am Armaturenbrett', () => tief_fahrtenbuch(), 1.2, 1.2, 1.2);
+    note(TIEF.bus.x - 2.6, .3, TIEF.bus.z - 2.2, 'Blechschild im Laub', () => toast('AMT FÜR RÜCKFÜHRUNG · FAHRDIENST · LOST EYENGLESS. Das Schild ist abgefallen – oder abgerissen. Der Bus steht hier, als wäre er zwischen die Bäume gefahren, die damals noch nicht da waren.', 5600), 1.4, .4, .6);
+    { const w = tief_busW(-.35, 1.3, -3.1); note(w.x, w.y, w.z, () => tief_has('tief_zettel_3') ? 'Jonas’ Zettel im Bus' : 'In den Bus sehen', () => tief_zettel(3), 1.4, 1.4, 2.2); } // Blick durch die Heckscheibe auf die Kindersitze
+    { const w = tief_busW(0, 1.25, 2.95); note(w.x, w.y, w.z, 'Fahrtenbuch am Armaturenbrett', () => tief_fahrtenbuch(), 2.2, 1.2, 2.2); } // Blick durch die Frontscheibe aufs Armaturenbrett
     // aufgewühlte Erde (die Rotte gräbt hier)
     const dirt = new T.Mesh(new T.CircleGeometry(1.3, 20), new T.MeshStandardMaterial({ color: 0x241a12, roughness: 1 })); dirt.rotation.x = -PI / 2; dirt.position.set(TIEF.dig.x, .018, TIEF.dig.z); dirt.userData.noCol = true; scene.add(dirt);
     note(TIEF.dig.x, .3, TIEF.dig.z, () => tief_has('tief_rotte') ? '' : tief_S.rooted ? 'Aufgewühlte Erde durchsuchen' : 'Aufgewühlte Erde', () => tief_dig(), 1.6, .5, 1.6); }
@@ -153,7 +241,10 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const g8 = stick(.72); g8.position.set(R.x - .4, 1.45, R.z - 2.2); scene.add(g8); S.eighth = { g: g8, ph: 0, y0: 1.45, home: g8.position.clone() }; S.figs.push(S.eighth);
     const tag = new T.Mesh(new T.PlaneGeometry(.07, .05), paperMat); tag.position.set(0, -.05, .03); g8.add(tag);
     note(R.x - .4, 1.4, R.z - 2.2, () => tief_has('tief_achter') ? 'Der achte Stöckchenmann' : 'Der achte Stöckchenmann – er hängt tiefer', () => tief_achter(), .6, 1, .6);
-    note(R.x + R.r * .95, .9, R.z + .3, () => tief_has('tief_zettel_4') ? 'Jonas’ Zettel am Stein' : 'Zettel unter einem Stein', () => tief_zettel(4), .7, .8, .7);
+    { const zx = R.x + Math.cos(.2) * (R.r - .74) + .1, zz = R.z + Math.sin(.2) * (R.r - .74) - .3, blatt = tief_blatt(); // am Fuß des ersten stehenden Steins, die eine Ecke unter einem faustgroßen Stein
+      const bl = plane(.15, .21, zx, .026, zz, blatt, -PI / 2 + .04, .5); bl.rotation.z = .12; bl.receiveShadow = true;
+      const sm = msGround(msFit(rock.clone(true), .2, 'max')); sm.scale.y *= .62; sm.position.set(zx + .06, -.012, zz + .05); sm.rotation.y = rand(0, 6); sm.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(sm);
+      note(zx, .25, zz, () => tief_has('tief_zettel_4') ? 'Jonas’ Zettel am Stein' : 'Zettel unter einem Stein', () => tief_zettel(4), .7, .5, .7); }
     // drei heruntergebrannte Kerzen auf den Findlingen – jemand war gerade hier (flackern wie die Grablichter)
     if (typeof ausbau_nord_flame === 'function') for (const i of [1, 3, 5]) { const a = i / 8 * PI * 2 + .2; ausbau_nord_flame(R.x + Math.cos(a) * (R.r - 1.3), .07, R.z + Math.sin(a) * (R.r - 1.3), true, .8); }
     // AP-24 (N6-5, Suche 29): Andeutung Landeplatz – im Kreis ist der Boden glatt und glasig, Moos in Rosetten aus je drei Punkten, eine Messplakette am Stein
@@ -172,6 +263,9 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const C = TIEF.camp; for (let i = 0; i < 7; i++) { const a = i / 7 * 6.28, o = msGround(msFit(rock.clone(true), .28, 'max')); msPlace(o, C.x - 1.2 + Math.cos(a) * .55, -.03, C.z + .8 + Math.sin(a) * .55, rand(0, 6)); }
   } catch (e) { console.warn('Tiefwald: Steinkreis', e); }
   // --- 5) Weiher: letzter Zettel am Stegpfosten, Stein werfen
+  { const J = TIEF.jetty, ang = Math.atan2(J.x1 - J.x0, J.z1 - J.z0), ix = -Math.cos(ang), iz = Math.sin(ang), th = ang - PI / 2; // an die Innenseite des letzten Pfostens, in einer Hülle
+    const pp = plane(.11, .15, S.postEnd[0] + ix * .056, .42, S.postEnd[1] + iz * .056, tief_blatt(), 0, th); pp.castShadow = false;
+    const sl = new T.Mesh(new T.PlaneGeometry(.125, .165), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .2, roughness: .06, clearcoat: 1, side: T.DoubleSide, depthWrite: false })); sl.position.set(S.postEnd[0] + ix * .058, .42, S.postEnd[1] + iz * .058); sl.rotation.y = th; sl.userData.noCol = true; scene.add(sl); }
   note(S.postEnd[0], .7, S.postEnd[1], () => tief_has('tief_zettel_5') ? 'Das Ende der Wolle' : 'Hier endet die Wolle', () => tief_zettel(5), .5, .9, .5);
   note(TIEF.jetty.x1 + .3, .5, TIEF.jetty.z1 + .3, 'Einen Stein ins Wasser werfen', () => tief_stein(), .9, .6, .9);
   // --- Nebenorte: Schaukel, Autowrack, Jonas' Lager
@@ -183,8 +277,20 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
   try { const car = await msModel('car_rusty', 'model.glb'); const o = msGround(msFit(car.clone(true), 4.3, 'max')); msPlace(o, TIEF.wreck.x, -.22, TIEF.wreck.z, 1.9); o.rotation.z = -.06;
     o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
     note(TIEF.wreck.x + .33, 1, TIEF.wreck.z - .44, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
-  { const C = TIEF.camp, canvas = new T.MeshStandardMaterial({ color: 0x33402c, roughness: .95, side: T.DoubleSide });
-    for (const s of [-1, 1]) { const p = new T.Mesh(new T.PlaneGeometry(2.4, 1.3), canvas); p.position.set(C.x + s * .42, .5, C.z); p.rotation.set(0, PI / 2, s * .95); p.castShadow = true; p.receiveShadow = true; scene.add(p); }
+  { const C = TIEF.camp, TX = 81.3, TZ = 233.2; // das eingefallene Zelt: eine Firststange (Whiskey sitzt bei kapitel6 / whiskey.js auf ihr: x 81,3, z 233,2), vorn auf einem Stützstock, hinten auf den Boden gesackt
+    const rinde = msSurfMat('bark', { tint: 0x8a7a66 }); for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (rinde[k]) { rinde[k] = rinde[k].clone(); rinde[k].repeat.set(.25, 1.2); rinde[k].needsUpdate = true; }
+    const hF = 1.12, hB = .46, z0 = TZ - 1.55, z1 = TZ + 1.5, ridge = z => hF + (hB - hF) * (z - z0) / (z1 - z0);
+    const pole = (x0, y0, z0_, x1, y1, z1_, r) => { const L = Math.hypot(x1 - x0, y1 - y0, z1_ - z0_), g = new T.CylinderGeometry(r * .8, r, L, 8, 1); const m = new T.Mesh(g, rinde); m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0_ + z1_) / 2);
+      m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), new T.Vector3(x1 - x0, y1 - y0, z1_ - z0_).normalize()); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m; };
+    pole(TX, ridge(z0) + .02, z0, TX, ridge(z1) + .02, z1, .026); // First
+    pole(TX + .05, 0, z0 + .12, TX, ridge(z0 + .12) - .02, z0 + .12, .024).rotation.x += .1; // Stützstock vorn
+    const cl = tex(cnv(256, (c, w) => { c.fillStyle = '#4a5740'; c.fillRect(0, 0, w, w); for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(${rand(20, 90) | 0},${rand(40, 100) | 0},${rand(20, 60) | 0},${rand(.04, .16)})`; c.fillRect(rand(0, w), rand(0, w), rand(1, 4), rand(1, 14)); }
+      for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(30,24,16,${rand(.05, .22)})`; c.beginPath(); c.arc(rand(0, w), rand(w * .6, w), rand(6, 26), 0, 7); c.fill(); } const g = c.createLinearGradient(0, w * .7, 0, w); g.addColorStop(0, 'rgba(40,30,18,0)'); g.addColorStop(1, 'rgba(40,30,18,.55)'); c.fillStyle = g; c.fillRect(0, w * .7, w, w * .3); }), true);
+    const canvas = new T.MeshStandardMaterial({ map: cl, roughness: .95, side: T.DoubleSide });
+    for (const sd of [-1, 1]) { const NU = 20, NV = 8, g = new T.PlaneGeometry(1, 1, NU, NV), pa = g.attributes.position;
+      for (let i = 0; i <= NU; i++) for (let j = 0; j <= NV; j++) { const k = j * (NU + 1) + i, u = i / NU, v = j / NV, z = z0 + .1 + (z1 - z0 - .2) * u, h = ridge(z), wd = 1.05 - .35 * u, fold = Math.sin(u * 9 + sd * 1.7 + v * 2.2) * .05 * Math.sin(v * PI) + Math.sin(u * 23 + v * 5) * .012;
+        pa.setXYZ(k, TX + sd * (wd * Math.pow(v, .95) + fold * .6), Math.max(.015, h * Math.pow(1 - v, 1.3) - .12 * Math.sin(v * PI) * (1 - u * .4) + fold * .5 * (1 - v)), z); pa.setX(k, pa.getX(k) + sd * .01 * 0); }
+      g.computeVertexNormals(); const m = new T.Mesh(g, canvas); m.castShadow = true; m.receiveShadow = true; scene.add(m); }
     const tins = new T.MeshStandardMaterial({ color: 0x7a6e60, roughness: .45, metalness: .8 }); for (let i = 0; i < 5; i++) { const c = new T.Mesh(new T.CylinderGeometry(.04, .04, .11, 10), tins); c.position.set(C.x - 1.2 + rand(-1, 1), .05, C.z + 1.8 + rand(-.4, .4)); c.rotation.z = Math.random() < .5 ? PI / 2 : 0; c.castShadow = true; scene.add(c); }
     note(C.x, .5, C.z, () => tief_has('tief_lager') ? 'Jonas’ Lager' : 'Ein eingefallenes Zelt', () => tief_lager(), 2.2, 1, 2.6); }
   // --- Nebelschwaden und fallende Blätter (nur in der Nähe des Spielers, laufen mit)
@@ -332,7 +438,7 @@ function tief_stein() {
 function tief_schaukel() {
   const S = tief_S; if (S.swingStop > 0) return; S.swingStop = 3.2; S.swingW = 0; Audio.creak(.2, TIEF.swing.x, 3.6, TIEF.swing.z);
   setTimeout(() => { const W = TIEF.swing; Audio.whisper(W.x, 1.2, W.z, 1.2); subtitle('<i>Ganz nah an deinem Ohr, ein Kind: „Noch mal!“</i>', 2600); Audio.giggle(W.x + .5, 1, W.z); S.swingW = 1.8; shake = .03; }, 3000);
-  if (!tief_has('tief_schaukel')) story.lore.push({ key: 'tief_schaukel', title: 'Die Schaukel im Wald', html: 'Eine Schaukel zwischen zwei toten Bäumen, tief im Wald. Sie schwingt ohne Wind. Wer sie anhält, hört: „Noch mal!“' });
+  if (!tief_has('tief_schaukel')) story.lore.push({ key: 'tief_schaukel', title: 'Die Schaukel im Wald', html: 'Eine Schaukel zwischen zwei Holzpfosten, tief im Wald. Sie schwingt ohne Wind. Wer sie anhält, hört: „Noch mal!“' });
 }
 function tief_wrack() {
   const h = 'Auf dem Beifahrersitz, vom Regen gewellt, eine Kinderzeichnung: eine große Frau in einem langen, dunklen Kleid. In der Hand eine Laterne, deren Flamme gerade nach oben steht. An ihrem Rock halten sich sieben kleine Strichkinder fest.\n\nDarunter, in Erwachsenenschrift, fast weggewischt:\n<span class="hand">„Sie kommt noch.“</span>';
@@ -419,7 +525,7 @@ WORLD_TICK.push((dt, t) => {
     else if (B.st === 'flee') { if (leben_beastMove(B, dt) || d > 50) { B.st = 'gone'; B.t = 150; } } }
   tief_digTick(dt, P);
   // AP-24 (N6-5, Stufe 1): an einer Stelle ist die Wolle frisch nachgeknotet – von kleinen Händen
-  if (!S.told.has('knoten') && tief_has('tief_zettel_1') && Math.hypot(P.x - 46, P.z - 212.8) < 3.2 && ok) { S.told.add('knoten'); if (typeof gedanke === 'function') gedanke('tief_knoten', 'Hier ist die Wolle nachgeknotet. Frisch. Ein kleiner Knoten, zweimal rum. So knotet ein Kind.', 200, 3); }
+  if (!S.told.has('knoten') && tief_has('tief_zettel_1') && Math.hypot(P.x - (S.knotAt ? S.knotAt[0] : 46), P.z - (S.knotAt ? S.knotAt[1] : 212.8)) < 3.6 && ok) { S.told.add('knoten'); if (typeof gedanke === 'function') gedanke('tief_knoten', 'Hier ist die Wolle nachgeknotet. Frisch. Ein kleiner Knoten, zweimal rum. So knotet ein Kind.', 200, 3); }
   // --- Rehe am Lager
   for (const D of S.deer) { if (D.st === 'gone') { D.g.visible = false; D.t -= dt; if (D.t < 0 && Math.hypot(P.x - D.home[0], P.z - D.home[1]) > 45) { D.g.position.set(D.home[0], 0, D.home[1]); D.st = 'graze'; } continue; }
     D.g.visible = true; leben_beastUpd(D, dt, 60); const p = D.g.position, d = Math.hypot(p.x - P.x, p.z - P.z);

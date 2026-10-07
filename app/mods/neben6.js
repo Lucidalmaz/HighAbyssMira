@@ -79,13 +79,34 @@ WORLD_MODS.push(['Kapitel 6 · Nebenaufgaben (N6-7, N6-8)', async () => {
     N6.keyHit = box(.4, .3, .4, TS.x - .55, .12, TS.z - 2.35, hidden, { cast: false }); interact(N6.keyHit, () => n6_offen() && !(story.items || []).includes('spindschluessel') && !n6_has('n67_spind') ? 'Etwas glänzt im Laub' : '', () => n6_schluessel());
     if (typeof hintAdd === 'function') hintAdd({ id: 'n6_schluessel', x: TS.x - .55, y: 0, z: TS.z - 2.35, kind: 'geheim', near: 14, open: () => n6_offen() && !(story.items || []).includes('spindschluessel') && !n6_has('n67_spind') }); }
   // --- N6-7 · Hofers Spind im Amtsbus, hinter dem Fahrersitz
-  if (typeof TIEF !== 'undefined') { const B = TIEF.bus; N6.spindHit = box(.8, 1, .8, B.x + .5, 1.2, B.z + .2, hidden, { cast: false });
+  if (typeof TIEF !== 'undefined') { const B = TIEF.bus, bg = typeof tief_S !== 'undefined' ? tief_S.busG : null; let sw = null; if (bg) { try { n6_spindBau(bg); sw = tief_busW(.78, 1.1, -.55); } catch (e) { console.warn('Neben6: Spind', e); } }
+    N6.spindHit = sw ? box(1.1, 1.5, 2.6, sw.x, sw.y, sw.z, hidden, { cast: false }) : box(.8, 1, .8, B.x + .5, 1.2, B.z + .2, hidden, { cast: false }); // lang nach hinten gestreckt: man zielt durch die Heckscheibe auf die Tür
     interact(N6.spindHit, () => !n6_offen() || n6_falle() ? '' : n6_has('n67_spind') ? 'Hofers Spind (leer)' : (story.items || []).includes('spindschluessel') ? 'Den Blechspind mit der 3 aufschließen' : 'Ein schmaler Blechspind hinter dem Fahrersitz', () => n6_spind());
     if (typeof hintAdd === 'function') hintAdd({ id: 'n6_spind', x: B.x + .5, y: 0, z: B.z + .2, kind: 'story', near: 40, open: () => n6_offen() && (story.items || []).includes('spindschluessel') && !n6_has('n67_spind') && !n6_falle() });
     // --- N6-8 · Pells Rekorder im Handschuhfach des Wracks (nach dem Polaroid aus kapitel6.js an derselben Stelle)
     const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
   N6.ready = true; // Stand nach dem Laden setzt der MOD_SAVE-Eintrag (beim Aufbau gibt es story.items noch nicht)
 }]);
+// Hofers Spind: schmaler Blechspind im Laderaum hinter dem Fahrersitz (links, Tür nach hinten), grüngraue Farbe, Rost, Lüftungsschlitze, eine weiße „3“ und das Auge darunter, Hebelgriff und Hängeschloss.
+// Die Tür schwingt auf, sobald Annis Lampion herausgenommen ist (n6_spindTick).
+function n6_spindBau(bus) { const T = THREE, g = new T.Group(); g.position.set(.78, .5, .22); g.rotation.y = PI; bus.add(g); // Ursprung: Boden des Laderaums; Vorderseite des Spinds = +z der Gruppe (nach hinten gedreht)
+  const door = new T.Group(); door.position.set(-.16, 0, .18); g.add(door); // Scharnier an der linken Kante
+  const tx = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 768; const x = c.getContext('2d'); x.fillStyle = '#5c6a5e'; x.fillRect(0, 0, 256, 768);
+    for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(${rand(30, 80) | 0},${rand(40, 80) | 0},${rand(30, 70) | 0},${rand(.03, .12)})`; x.fillRect(rand(0, 256), rand(0, 768), rand(2, 30), rand(1, 4)); }
+    for (let i = 0; i < 30; i++) { const rx = rand(0, 256), ry = rand(300, 768), gr = x.createLinearGradient(0, ry, 0, ry + rand(60, 220)); gr.addColorStop(0, `rgba(110,56,24,${rand(.2, .5)})`); gr.addColorStop(1, 'rgba(110,56,24,0)'); x.fillStyle = gr; x.fillRect(rx, ry, rand(3, 10), 240); }
+    for (let i = 0; i < 20; i++) { x.fillStyle = `rgba(120,64,30,${rand(.25, .6)})`; x.beginPath(); x.arc(rand(0, 256), rand(500, 768), rand(4, 22), 0, 7); x.fill(); }
+    for (let k = 0; k < 4; k++) { x.fillStyle = '#1b1c1b'; x.fillRect(60, 40 + k * 22, 136, 8); x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(60, 48 + k * 22, 136, 2); } // Lüftungsschlitze
+    x.strokeStyle = '#e4e0d2'; x.lineWidth = 17; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath(); x.moveTo(84, 232); x.bezierCurveTo(100, 196, 166, 196, 168, 244); x.bezierCurveTo(170, 282, 122, 292, 118, 292); x.bezierCurveTo(176, 296, 182, 350, 164, 386); x.bezierCurveTo(146, 420, 92, 420, 78, 384); x.stroke(); // von Hand gemalte 3
+    x.fillStyle = 'rgba(0,0,0,.22)'; x.fillRect(0, 0, 8, 768); x.fillRect(248, 0, 8, 768); if (typeof akte_auge === 'function') akte_auge(x, 128, 540, 34, 'rgba(235,230,214,.92)');
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
+  const dm = new T.MeshStandardMaterial({ map: tx, roughness: .55, metalness: .55 }), body = new T.MeshStandardMaterial({ color: 0x4a574c, roughness: .6, metalness: .5 }), met = new T.MeshStandardMaterial({ color: 0x8a8a86, roughness: .35, metalness: .9 });
+  const dr = new T.Mesh(new T.BoxGeometry(.32, 1.2, .018), [body, body, body, body, dm, body]); dr.position.set(.16, .6, 0); dr.castShadow = true; dr.receiveShadow = true; door.add(dr);
+  const ha = new T.Mesh(new T.BoxGeometry(.022, .1, .02), met); ha.position.set(.27, .62, .02); door.add(ha); const lk = new T.Mesh(new T.BoxGeometry(.03, .045, .02), met); lk.position.set(.27, .5, .016); door.add(lk); // Griff, Schloss
+  const sh = new T.Mesh(new T.TorusGeometry(.011, .003, 5, 12, PI * 1.3), met); sh.position.set(.27, .545, .016); door.add(sh);
+  // Korpus (hinten, Seiten, Decke, Boden): innen leer
+  const parts = [[.32, 1.2, .012, 0, .6, -.17], [.012, 1.2, .36, -.158, .6, 0], [.012, 1.2, .36, .158, .6, 0], [.32, .012, .36, 0, 1.194, 0], [.32, .012, .36, 0, .006, 0]]; for (const [w, h, d, x, y, z] of parts) { const m = new T.Mesh(new T.BoxGeometry(w, h, d), body); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; g.add(m); }
+  N6.spind = { g, door }; return g; }
+function n6_spindTick(dt) { const S = N6.spind; if (!S) return; const ziel = n6_has('n67_spind') ? -1.75 : 0, d = S.door.rotation.y; if (Math.abs(d - ziel) > .002) S.door.rotation.y += (ziel - d) * Math.min(1, dt * 2.2); }
 function n6_offen() { return typeof wald_frei === 'function' && wald_frei(); }
 function n6_falle() { return typeof K6 !== 'undefined' && K6.falleAn && !K6.falleFertig; }
 // Laden: Villa-Seiten als Lore nachtragen, Funde ausblenden, Rekorder-Stand
@@ -215,7 +236,7 @@ function n6_torFail(P) { // Satz 2 direkt am Ohr; die Zone lässt die Lampe drei
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {
   const S = N6; if (!S.ready || !state.started || menu.attract) return; const on = n6_offen(); if (S.g.visible !== on) S.g.visible = on; if (!on) return;
-  const P = player.pos; n6_loopTick(dt, P);
+  const P = player.pos; n6_loopTick(dt, P); n6_spindTick(dt);
   S.t -= dt; if (S.t > 0) return; S.t = .25;
   if (!S.villaChk) { S.villaChk = true; n6_nachLaden(); } // auch für Spielstände ohne „neben6“-Eintrag: Villa-Seiten nachtragen, Funde ausblenden
   // Umschläge auf die echte Oberfläche legen (Beton, Plattform, Steg), sobald die Kollision steht

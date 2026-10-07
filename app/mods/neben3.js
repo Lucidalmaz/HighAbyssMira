@@ -26,7 +26,7 @@ const NEBEN3 = {
   k3_heim: ['Heimgehen', 'Vom Kirchweg aus riecht man frische Erde.'],
   k3_klar: ['Klar!', 'Kinderlachen am Karussell.'],
   k3_ast3: ['Außenstelle 3', 'Aus den Schlitzen des Gullydeckels fällt warmes Licht.'],
-  k3_ort: ['Leg sie auf den Ort', 'In der Remise am Hof sitzt Dina, die Augenbinde über den Augen.'],
+  k3_ort: ['Leg sie auf den Ort', 'In der Scheune am Hof sitzt Dina, die Augenbinde über den Augen.'],
   k3_bus: ['Der Bus um 03:13', 'Fahrplan an der Bushaltestelle: „03:13 – nur für Kinder“.'],
   zayn: ['Hast du dich an mich erinnert?', 'Rote Wolle an einem Zaunpfahl hinter Nr. 7.', true],
   cleo: ['Eine für sieben', 'Whiskey hat etwas im Schnabel.', true],
@@ -609,10 +609,11 @@ function neben3_busTick(dt) { const st = neben3_st('bus'); if (st.fertig || !neb
   if (Math.hypot(player.pos.x - B[0], player.pos.z - B[1]) < 4.5) st.warte = (st.warte || 0) + dt; else st.warte = 0;
   if (st.warte > 30) { st.warte = 0; neben3_bus(); } }
 async function neben3_bus() { const st = neben3_st('bus'); if (state.talking) return; state.talking = true; neben3_start('k3_bus'); if (typeof ausbau_nord !== 'undefined' && ausbau_nord.bus) ausbau_nord.bus.phase = 'done';
-  let eng = null; try { eng = Audio.play('carEngine', { loop: true, gain: .5, lp: 420, rate: .6, x: 30, y: .8, z: 56, ref: 6 }); await say([['Ein Diesel ohne Scheinwerfer. Ein alter Bus hält, grau: AMT FÜR RÜCKFÜHRUNG · FAHRDIENST. Zielanzeige: HOHER ABGRUND.', 5400], ['Die Tür zischt auf. Kein Fahrer.', 2600]]);
+  let eng = null, B = null; try { B = neben3x_busBau(); eng = neben3x_busMotor(B); const kommt = neben3x_busFahre(B, 'come'); // Abgleich Kap. 3: ein echter Bus fährt heran (vorher nur Text und Ton)
+    await say([['Ein Diesel ohne Scheinwerfer. Ein alter Bus hält, grau: AMT FÜR RÜCKFÜHRUNG · FAHRDIENST. Zielanzeige: HOHER ABGRUND.', 5400]]); await kommt; neben3x_busTuer(B, true); await say([['Die Tür zischt auf. Kein Fahrer.', 2600]]);
     if (neben3_justinDa(25)) await say([['„Ich reite nicht in Kästen.“', 2400, JS]]);
-    state.talking = false; const a = await kirchberg_wahl(['Einsteigen', 'Stehen bleiben']); state.talking = true; if (a !== 0) { await say([['Die Tür schließt sich. Der Bus fährt in den Nebel.', 3000]]); return; }
-    await fade(1, 900); Audio.play('metalClose', { gain: .5, rate: .8 }); await wait(600); Audio.beep(false);
+    state.talking = false; const a = await kirchberg_wahl(['Einsteigen', 'Stehen bleiben']); state.talking = true; if (a !== 0) { neben3x_busTuer(B, false); await say([['Die Tür schließt sich. Der Bus fährt in den Nebel.', 3000]]); neben3x_busFahre(B, 'go'); return; }
+    await fade(1, 900); neben3x_busWeg(B); Audio.play('metalClose', { gain: .5, rate: .8 }); await wait(600); Audio.beep(false);
     const karte = story.items.includes('nord_fahrkarte') || story.lore.some(l => l.key === 'nord_fahrkarte');
     await say([['Der Entwerter piept rot.', 2200], ...(karte ? [['„Kinderfahrkarte. Ich bin sechsundzwanzig. Laut Pass.“', 3200, 'DU'], ['Der Drucker setzt ins leere Zielfeld: HOF.', 3000]] : [['Luke hat keine Fahrkarte. Der Bus fährt trotzdem.', 3000]]),
       ['Hinten sitzen Kinder in Kleidern aus verschiedenen Jahrzehnten, grau, ohne Mund, mit dem Gesicht nach vorn.', 5000], ['Jedes dreht den Kopf, sobald du an ihm vorbei bist.', 3400], ['Du drehst dich um: Alle sehen dich an. Du drehst dich nach vorn: hinter dir raschelt Stoff.', 5000],
@@ -624,10 +625,10 @@ async function neben3_bus() { const st = neben3_st('bus'); if (state.talking) re
     st.fertig = 1; if (karte) story.lore.push({ key: 'k3_fahrkarte_hof', title: 'Kinderfahrkarte, entwertet', html: 'nach: <b>HOF</b>' });
     if (!story.lore.some(l => l.key === 'k3_linie7')) story.lore.push({ key: 'k3_linie7', title: 'Linie 7', html: '03:13 – nur für Kinder. Der Bus hält tatsächlich. Kein Fahrer. Er hat mich zum Hof gebracht.' });
     neben3_fertig('k3_bus', 'Linie 7. Ziel: Hof.'); }
-  finally { if (eng) eng.stop(1.5); state.talking = false; if (+$('fade').style.opacity > 0) fade(0, 600); } }
+  finally { if (eng) eng.stop(1.5); if (B && B.phase !== 'go') neben3x_busWeg(B); state.talking = false; if (+$('fade').style.opacity > 0) fade(0, 600); } }
 
 // ---- 5 · „Ich hol sie selbst“ (Briefkasten am Villa-Tor, SB-06)
-function neben3_villaBau() { const x = -123.2, z = 55.4; kirchberg_mod('mailbox2', 'model.gltf', 1.25).then(o => { if (o) kirchberg_setze(o, x, kirchberg_boden(x, z), z, PI); });
+function neben3_villaBau() { const x = -121.9, z = 56.6; // Abgleich Kap. 3: der vollgestopfte Briefkasten steht schon (anwesen.js) – kein zweiter Kasten, die Klickfläche liegt auf ihm
   neben3_ort(x, 1.1, z, .7, .8, .7, 'Überquellender Briefkasten', async () => { const st = neben3_st('selbst'); neben3_start('k3_selbst', { x, z });
     if (!st.post) { st.post = 1; await neben3_note('Die Post eines toten Mannes', '„Letzte Mahnung: Ihr Abonnement ‚Schach heute‘ (Dr. Th. Seiler)“\nEin Prospekt: „Treppenlift – jetzt 20 % sparen“\nEine Karte: „Sie haben gewonnen!“', 'k3_seiler_post'); await say([['„Er ist seit Jahren tot, und die Post schreibt ihm noch. Die Einzige im Dorf, die nicht aufgibt.“', 5000, 'DU']]); return; }
     st.sb = 1; if (typeof sammeln_sb === 'function') await new Promise(r => { ui.pendingClose2 = r; sammeln_sb(6); });
@@ -676,10 +677,11 @@ async function neben3_kerbenCheck() { const s = neben3_st('kerben'); if (!(s.ste
 
 // ---- 10 · „Leg sie auf den Ort“ (Dina; Remise fehlt noch → Scheune am Hof), Butterbrotpapier umdrehen, RH-5
 function neben3_dinaBau() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, R = OW && OW.dbg && OW.dbg.barnRect; if (!R) return; const x = R.x1 - 1.1, z = (R.z0 + R.z1) / 2 - 1.2; neben3_S.dinaP = [x, z];
-  kirchberg_mod('haybale', 'model.gltf', .9, 'max').then(o => { if (o) kirchberg_setze(o, x, 0, z, .3); });
+  kirchberg_mod('haybale', 'model.gltf', 1.0, 'max').then(o => { if (o) { o.scale.y *= .5; kirchberg_setze(o, x, 0, z, .3); } }); // Abgleich Kap. 3: flacher Sitzballen – Dina (26) sitzt darauf
   neben3_ort(x, .9, z, 1.2, 1.6, 1.2, 'Dina', () => neben3_dina(), () => neben3_auf('k3_ort')); }
 async function neben3_dinaFigur() { const S = neben3_S; if (S.dina || S.dinaLaed || !S.dinaP || typeof kirchberg_figur !== 'function') return; S.dinaLaed = true;
-  const F = await kirchberg_figur('dina_k3', { id: 'dina', speed: .8 }); if (!F) return; S.dina = F; F.g.position.set(S.dinaP[0], .38, S.dinaP[1]); F.g.rotation.y = -PI / 2; lwo_clip(F, F.acts.sit ? 'sit' : 'idle'); lwo_blick(F, 'luke'); F.g.visible = true; }
+  const F = await kirchberg_figur('dina_k3', { id: 'dina_erw', speed: .6, stride: .9 }); if (!F) return; S.dina = F; neben3x_augenbinde(F); // Abgleich Kap. 3: Dina ist 26 (erwachsene Figur) und trägt die Augenbinde
+  lwo_zeigen(F, S.dinaP[0], S.dinaP[1], -PI / 2); F.g.position.y = 0; lwo_sitzen(F, S.dinaSitz || .46); lwo_blick(F, 'luke'); F.g.visible = true; }
 async function neben3_dina() { const st = neben3_st('ort'), F = neben3_S.dina, D = 'DINA', sag = z => typeof kirchberg_sag === 'function' ? kirchberg_sag(F, z.map(l => [l[0], l[1], l[2] || D])) : say(z); if (state.talking) return; neben3_start('k3_ort'); state.talking = true;
   try { if (!st.hallo) { st.hallo = 1; await sag([['„Du atmest wie ein Staubsauger, Luke. Setz dich.“', 3400]]); if (neben3_q('k3_stein') === 'done') await sag([['„Du warst bei Mama. Die hat im Schlaf mit mir geredet. Das tut sie nur, wenn einer da war.“', 5200]]);
       await sag([['„Ich mach die Augen nicht auf, bis es hell ist. Ich hab’s einmal gemacht. Da hat sie zurückgeguckt.“', 5200]]);
@@ -759,3 +761,274 @@ function neben3_minimalTick(dt) { const S = neben3_S; S.oT = (S.oT || 0) - dt; i
   neben3_kanalTick(dt); if (neben3_k3()) { neben3_busTick(dt); neben3_bandTick(); }
   if (S.abLed) S.abLed.visible = neben3_frei() && !neben3_st('zayn').ab && Math.sin(S.t * 5) > 0; }
 function neben3_fehltCheckT() { const st = neben3_st('fehlt'); if (st.n1 && !st.neun && typeof echoSeen !== 'undefined' && echoSeen.has('echo_kreuzung')) neben3_fehltCheck(); }
+
+// =====================================================================  ABGLEICH KAP. 3 (Text gegen Welt): sichtbare Objekte statt reiner Klickflächen
+// (Bericht docs/gameplay/abgleich/kap3.md; Protokoll docs/gameplay/abgleich/kap3_umsetzung.md)
+const neben3x = { L: [], bus: null, aydin: 0, t: 0 };
+function neben3x_an(o, fn) { o.visible = false; neben3x.L.push([o, fn]); return o; } // sichtbar nur, solange fn() wahr ist
+function neben3x_tex(w, h, fn) { return kirchberg_tex(kirchberg_cnv(w, h, fn)); }
+// Rundrechteck (Shape/Path) um den Mittelpunkt (cx, cy)
+function neben3x_rr(cx, cy, w, h, r, path) { const s = path || new THREE.Shape(), x = cx - w / 2, y = cy - h / 2; r = Math.min(r, w / 2, h / 2);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h); s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s; }
+// Extrusion mit Fase; UV = Lage in der Shape-Ebene, auf 0..1 normiert (ein Bild über die ganze Fläche)
+function neben3x_ext(shape, depth, bev = .012) { const g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(.001, depth - bev * 2), bevelEnabled: bev > 0, bevelThickness: bev, bevelSize: bev, bevelSegments: 2, curveSegments: 10 });
+  g.computeBoundingBox(); const b = g.boundingBox, p = g.attributes.position, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - b.min.x) / (b.max.x - b.min.x || 1), (p.getY(i) - b.min.y) / (b.max.y - b.min.y || 1)); return g; }
+function neben3x_rbox(w, h, d, r, bev = .006) { const g = neben3x_ext(neben3x_rr(0, 0, w, h, r), d, bev); g.translate(0, 0, -(d - bev * 2) / 2); return g; } // Rundkantenkörper um den Ursprung (Tiefe z)
+function neben3x_mesh(geo, mat, x, y, z, par, o = {}) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = o.cast !== false; m.receiveShadow = true; m.userData.noCol = true; if (o.ry) m.rotation.y = o.ry; if (o.rx) m.rotation.x = o.rx; (par || scene).add(m); return m; }
+function neben3x_uvTile(g, su, sv) { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * su, uv.getY(i) * sv); return g; }
+
+// ---------------------------------------------------------------- Der Bus (Linie 7, 03:13): grauer Fahrdienstbus des Amts, ohne Fahrer, ohne Licht
+// Fahrzeug-Koordinaten: +z vorn, -x rechte Seite (Tür). Maße 10,8 × 2,5 × 3,1 m. Es gibt kein passendes Modell im Bestand → aus Karosserieplatten, Glas, Sitzen und Rädern gebaut.
+function neben3x_busBau() {
+  if (neben3x.bus) return neben3x.bus;
+  const T = THREE, G = new T.Group(), L = 10.8, W = 2.5, H0 = .34, H1 = 2.9, FA = 3.95, RA = -2.85, WR = .52, AR = .66; G.name = 'k3_bus'; G.visible = false; G.userData.noCol = true; scene.add(G);
+  const B = { g: G, x: 0, phase: 'weg', t: 0, tuer: 0, tuerZiel: 0, leaves: [], rad: [], lamp: null, col: null, led: null, pan: null };
+  // --- Lack (Bildachse u = Shape-x, v = Höhe): grau, Schmutzfahnen, Rost an den Schwellern, Schriftzug des Amts
+  const lack = sg => neben3x_tex(2048, 512, (x, w, h) => {
+    x.fillStyle = '#7b8286'; x.fillRect(0, 0, w, h); const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(255,255,255,.10)'); gr.addColorStop(.55, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(20,16,10,.5)'); x.fillStyle = gr; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(${kirchberg_r(30, 70) | 0},${kirchberg_r(30, 70) | 0},${kirchberg_r(30, 60) | 0},${kirchberg_r(.02, .08)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(2, 26), kirchberg_r(1, 4)); }
+    x.fillStyle = '#4e565a'; x.fillRect(0, h * .72, w, h * .28); x.fillStyle = '#8a1c1c'; x.fillRect(0, h * .70, w, 7); x.fillStyle = '#c8ccce'; x.fillRect(0, h * .70 - 14, w, 3);
+    x.fillStyle = '#d6d9d8'; x.font = 'bold 56px Arial, sans-serif'; x.textBaseline = 'alphabetic'; x.fillText('AMT FÜR RÜCKFÜHRUNG · FAHRDIENST', w * (sg > 0 ? .05 : .1), h * .91);
+    x.font = 'bold 110px Arial'; x.fillText('7', w * (sg > 0 ? .93 : .88), h * .66);
+    for (let i = 0; i < 90; i++) { const px = kirchberg_r(0, w), py = h * kirchberg_r(.78, 1); x.fillStyle = `rgba(${kirchberg_r(90, 130) | 0},${kirchberg_r(46, 70) | 0},24,${kirchberg_r(.2, .55)})`; x.fillRect(px, py, kirchberg_r(3, 30), kirchberg_r(2, 12)); }
+    for (let i = 0; i < 30; i++) { const px = kirchberg_r(0, w), g2 = x.createLinearGradient(px, 0, px, h); g2.addColorStop(0, 'rgba(30,26,20,0)'); g2.addColorStop(1, 'rgba(30,26,20,.28)'); x.fillStyle = g2; x.fillRect(px, 0, kirchberg_r(2, 7), h); } });
+  const lackM = [lack(1), lack(-1)].map(t => new T.MeshStandardMaterial({ map: t, roughness: .62, metalness: .35 }));
+  const stirnT = neben3x_tex(512, 512, (x, w, h) => { x.fillStyle = '#7b8286'; x.fillRect(0, 0, w, h); for (let i = 0; i < 700; i++) { x.fillStyle = `rgba(${kirchberg_r(30, 70) | 0},${kirchberg_r(30, 70) | 0},${kirchberg_r(30, 60) | 0},${kirchberg_r(.02, .09)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(2, 20), kirchberg_r(1, 5)); }
+    const g = x.createLinearGradient(0, h * .5, 0, h); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(24,18,10,.55)'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = '#8a1c1c'; x.fillRect(0, h * .74, w, 6); });
+  const stirnM = new T.MeshStandardMaterial({ map: stirnT, roughness: .62, metalness: .35 });
+  const dunkel = new T.MeshStandardMaterial({ color: 0x1a1d1f, roughness: .8, metalness: .2 }), gummi = new T.MeshStandardMaterial({ color: 0x0e0e0f, roughness: .95 }), blech = new T.MeshStandardMaterial({ color: 0x5b6164, roughness: .5, metalness: .75 });
+  const glas = new T.MeshStandardMaterial({ color: 0x05090a, roughness: .04, metalness: .85, transparent: true, opacity: .5, depthWrite: false, side: T.DoubleSide });
+  const stoff = msSurfMat('wallpaper_fabric', { tint: 0x35444a, nrm: .5 }), boden = msSurfMat('floor_worn', { tint: 0x2f2f2d, nrm: .6 });
+  // --- Seitenplatten mit Fenstern, Radläufen und (rechts) der Türöffnung
+  const fz = [-4.45, -3.35, -2.25, -1.15, -.05, 1.05, 2.15, 4.1];
+  const platte = sg => { const s = new T.Shape(), rc = .3, a = Math.asin((WR - H0) / AR), x0 = -L / 2, x1 = L / 2, arches = [sg * RA, sg * FA].sort((p, q) => p - q);
+    s.moveTo(x0 + .12, H0); for (const c of arches) { s.lineTo(c - AR * Math.cos(a), H0); s.absarc(c, WR, AR, Math.PI + a, -a, true); }
+    s.lineTo(x1 - .12, H0); s.quadraticCurveTo(x1, H0, x1, H0 + .12); s.lineTo(x1, H1 - rc); s.quadraticCurveTo(x1, H1, x1 - rc, H1); s.lineTo(x0 + rc, H1); s.quadraticCurveTo(x0, H1, x0, H1 - rc); s.lineTo(x0, H0 + .12); s.quadraticCurveTo(x0, H0, x0 + .12, H0);
+    for (const z of fz) { if (sg > 0 && z > 2 && z < 3) continue; s.holes.push(neben3x_rr(sg * z, 1.82, .94, 1.22, .1, new T.Path())); }
+    if (sg > 0) s.holes.push(neben3x_rr(2.55, 1.5, 1.4, 1.9, .06, new T.Path()));
+    return s; };
+  for (const sg of [1, -1]) { const g = neben3x_ext(platte(sg), .07, .012), m = new T.Mesh(g, lackM[sg > 0 ? 0 : 1]); m.rotation.y = sg > 0 ? -Math.PI / 2 : Math.PI / 2; m.position.x = sg > 0 ? -W / 2 + .07 : W / 2 - .07; m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; G.add(m);
+    for (const z of fz) { if (sg > 0 && z > 2 && z < 3) continue; const p = new T.Mesh(new T.ShapeGeometry(neben3x_rr(0, 0, .96, 1.24, .1)), glas); p.rotation.y = sg > 0 ? -Math.PI / 2 : Math.PI / 2; p.position.set(sg > 0 ? -W / 2 + .045 : W / 2 - .045, 1.82, z); p.userData.noCol = true; p.renderOrder = 2; G.add(p); } }
+  // --- Dach (gewölbt, mit Klimagerät), Stirn- und Heckplatte mit Scheibe
+  { const s = new T.Shape(); s.moveTo(-W / 2, H1 - .1); s.lineTo(W / 2, H1 - .1); s.lineTo(W / 2, H1 - .02); s.quadraticCurveTo(0, H1 + .38, -W / 2, H1 - .02); const g = new T.ExtrudeGeometry(s, { depth: L - .5, bevelEnabled: true, bevelThickness: .1, bevelSize: .05, bevelSegments: 2, curveSegments: 10 }); g.translate(0, 0, -(L - .5) / 2);
+    neben3x_mesh(g, new T.MeshStandardMaterial({ color: 0x8d9396, roughness: .6, metalness: .35 }), 0, 0, 0, G); neben3x_mesh(neben3x_rbox(1.5, .22, 1.9, .08), blech, 0, H1 + .3, -2.3, G); neben3x_mesh(neben3x_rbox(.5, .08, .5, .03), dunkel, .3, H1 + .27, 1.2, G); }
+  const kopf = (sz, loch) => { const s = neben3x_rr(0, (H0 + H1) / 2, W, H1 - H0, .26); for (const l of loch) s.holes.push(neben3x_rr(l[0], l[1], l[2], l[3], l[4], new T.Path())); const g = neben3x_ext(s, .1, .012), m = new T.Mesh(g, stirnM); if (sz < 0) m.rotation.y = Math.PI; m.position.z = sz * (L / 2 - .1); m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; G.add(m); return m; };
+  kopf(1, [[0, 2.0, 2.2, 1.08, .14]]); kopf(-1, [[0, 2.1, 1.5, .55, .08]]);
+  { const ws = new T.Mesh(new T.ShapeGeometry(neben3x_rr(0, 0, 2.24, 1.1, .14)), glas); ws.position.set(0, 2.0, L / 2 - .04); ws.userData.noCol = true; ws.renderOrder = 2; G.add(ws);
+    const rs = new T.Mesh(new T.ShapeGeometry(neben3x_rr(0, 0, 1.54, .57, .08)), glas); rs.rotation.y = Math.PI; rs.position.set(0, 2.1, -L / 2 + .04); rs.userData.noCol = true; rs.renderOrder = 2; G.add(rs); }
+  // --- Zielanzeigen (Punktmatrix, gedämpftes Orange – die einzige Lichtquelle am Fahrzeug)
+  const anzeige = (w, h, txt) => { const t = neben3x_tex(w, h, (x, ww, hh) => { x.fillStyle = '#060504'; x.fillRect(0, 0, ww, hh); x.fillStyle = '#ffa030'; x.font = `bold ${Math.round(hh * .62)}px "Courier New", monospace`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(txt, ww / 2, hh / 2 + 2);
+      x.fillStyle = 'rgba(0,0,0,.6)'; for (let i = 0; i < ww; i += 5) x.fillRect(i, 0, 1.4, hh); for (let j = 0; j < hh; j += 5) x.fillRect(0, j, ww, 1.4); });
+    return new T.MeshStandardMaterial({ map: t, emissive: 0xff9020, emissiveMap: t, emissiveIntensity: .75, roughness: .4 }); };
+  B.anzeigeM = [];
+  { const a1 = anzeige(1024, 128, '7  HOHER ABGRUND'); neben3x_mesh(new T.PlaneGeometry(1.9, .24), a1, 0, 2.72, L / 2 + .015, G, { cast: false }); const a2 = anzeige(768, 112, '7  HOHER ABGRUND'); neben3x_mesh(new T.PlaneGeometry(1.1, .18), a2, -W / 2 - .014, 2.66, 3.9, G, { cast: false, ry: -Math.PI / 2 });
+    const a3 = anzeige(160, 110, '7'); neben3x_mesh(new T.PlaneGeometry(.3, .2), a3, 0, 2.65, -L / 2 - .015, G, { cast: false, ry: Math.PI }); B.anzeigeM.push(a1, a2, a3); }
+  // --- Front und Heck: Stoßfänger, Kühlergrill, ausgeschaltete Scheinwerfer, Kennzeichen, Wischer, Spiegel
+  neben3x_mesh(neben3x_rbox(W + .08, .26, .26, .08), dunkel, 0, .5, L / 2 + .04, G); neben3x_mesh(neben3x_rbox(W + .08, .26, .26, .08), dunkel, 0, .5, -L / 2 - .04, G);
+  { const gt = neben3x_tex(256, 96, (x, w, h) => { x.fillStyle = '#0c0d0d'; x.fillRect(0, 0, w, h); x.fillStyle = '#2b2f31'; for (let i = 8; i < h - 6; i += 12) x.fillRect(8, i, w - 16, 5); }), gm = new T.MeshStandardMaterial({ map: gt, roughness: .6, metalness: .5 });
+    neben3x_mesh(new T.PlaneGeometry(1.0, .36), gm, 0, .98, L / 2 + .012, G, { cast: false }); neben3x_mesh(new T.PlaneGeometry(1.0, .36), gm, 0, .98, -L / 2 - .012, G, { cast: false, ry: Math.PI });
+    const kt = neben3x_tex(256, 64, (x, w, h) => { x.fillStyle = '#d8d6c8'; x.fillRect(0, 0, w, h); x.strokeStyle = '#222'; x.lineWidth = 4; x.strokeRect(3, 3, w - 6, h - 6); x.fillStyle = '#1a1a1a'; x.font = 'bold 40px Arial'; x.textAlign = 'center'; x.fillText('AMT · 0313', w / 2, 46); });
+    const km = new T.MeshStandardMaterial({ map: kt, roughness: .5, metalness: .2 }); neben3x_mesh(new T.PlaneGeometry(.52, .13), km, 0, .5, L / 2 + .176, G, { cast: false }); neben3x_mesh(new T.PlaneGeometry(.52, .13), km, 0, .5, -L / 2 - .176, G, { cast: false, ry: Math.PI }); }
+  for (const sx of [-.86, .86]) { const k = neben3x_mesh(new T.SphereGeometry(.13, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), glas, sx, .98, L / 2 + .01, G, { cast: false, rx: Math.PI / 2 }); k.scale.set(1, 1, .5); k.renderOrder = 2;
+    neben3x_mesh(new T.TorusGeometry(.135, .016, 8, 24), blech, sx, .98, L / 2 + .012, G, { cast: false }); neben3x_mesh(new T.PlaneGeometry(.22, .14), new T.MeshStandardMaterial({ color: 0x3a0606, roughness: .3, metalness: .2 }), sx, .72, -L / 2 - .014, G, { cast: false, ry: Math.PI }); }
+  for (const sx of [-.45, .5]) neben3x_mesh(new T.BoxGeometry(.7, .025, .02), gummi, sx, 1.5, L / 2 - .02, G, { cast: false }).rotation.z = sx < 0 ? .12 : -.1;
+  for (const sg of [-1, 1]) { neben3x_mesh(new T.BoxGeometry(.3, .035, .035), blech, sg * (W / 2 + .12), 2.12, L / 2 - .6, G, { cast: false }); neben3x_mesh(neben3x_rbox(.06, .34, .16, .02), dunkel, sg * (W / 2 + .26), 2.12, L / 2 - .6, G); }
+  // --- Unterboden und Räder (zwei Achsen, hinten Zwillingsbereifung)
+  neben3x_mesh(new T.BoxGeometry(2.1, .26, 9.6), dunkel, 0, .36, 0, G, { cast: false });
+  for (const [z, doppelt] of [[FA, false], [RA, true]]) { neben3x_mesh(new T.CylinderGeometry(.07, .07, 2.1, 10), blech, 0, WR, z, G, { cast: false }).rotation.z = Math.PI / 2;
+    for (const sg of [-1, 1]) for (const dx of (doppelt ? [1.09, .8] : [1.06])) { const w = new T.Group(); w.position.set(sg * dx, WR, z); G.add(w);
+      const prof = [[.30, -.15], [.44, -.16], [.50, -.13], [.52, -.07], [.525, 0], [.52, .07], [.50, .13], [.44, .16], [.30, .15]].map(p => new T.Vector2(p[0], p[1])), tg = new T.LatheGeometry(prof, 32); tg.rotateZ(Math.PI / 2);
+      const tire = new T.Mesh(tg, gummi); tire.castShadow = true; tire.userData.noCol = true; w.add(tire);
+      const rp = [[0, .105], [.12, .115], [.26, .09], [.29, .15], [.30, .06], [.30, -.1]].map(p => new T.Vector2(p[0], p[1])), rg = new T.LatheGeometry(rp, 24); rg.rotateZ(Math.PI / 2); const rim = new T.Mesh(rg, blech); rim.userData.noCol = true; if (sg < 0) rim.rotation.y = Math.PI; w.add(rim);
+      B.rad.push(w); } }
+  // --- Innenraum: Boden, Decke mit Leuchtleisten, Sitze in Reihen, Haltestangen, Fahrerplatz (leer), Entwerter an der Tür
+  { const f = new T.Mesh(neben3x_uvTile(new T.PlaneGeometry(2.34, 10.0), 1.1, 5), boden); f.rotation.x = -Math.PI / 2; f.position.set(0, .62, -.1); f.receiveShadow = true; f.userData.noCol = true; G.add(f);
+    const c = new T.Mesh(new T.PlaneGeometry(2.3, 10), new T.MeshStandardMaterial({ color: 0x9a9c94, roughness: .9, side: T.DoubleSide })); c.rotation.x = Math.PI / 2; c.position.set(0, H1 - .13, 0); c.userData.noCol = true; G.add(c);
+    const lm = new T.MeshStandardMaterial({ color: 0xcfe0d2, emissive: 0xb8d8c4, emissiveIntensity: .55, roughness: .6 }); for (const sx of [-.55, .55]) { const l = new T.Mesh(new T.PlaneGeometry(.14, 8.4), lm); l.rotation.x = Math.PI / 2; l.position.set(sx, H1 - .14, -.4); l.userData.noCol = true; G.add(l); } B.lampM = lm;
+    const sitzP = new T.InstancedMesh(neben3x_rbox(.78, .1, .46, .04), stoff, 14), lehneP = new T.InstancedMesh(neben3x_rbox(.78, .62, .09, .05), stoff, 14), m4 = new T.Matrix4(); let n = 0;
+    for (const sx of [-.8, .8]) for (let k = 0; k < 7; k++) { const z = -4.35 + k * 1.1; m4.makeTranslation(sx, .98, z); sitzP.setMatrixAt(n, m4); m4.makeTranslation(sx, 1.36, z - .22); lehneP.setMatrixAt(n, m4); n++; }
+    sitzP.count = lehneP.count = n; for (const im of [sitzP, lehneP]) { im.castShadow = false; im.receiveShadow = true; im.userData.noCol = true; G.add(im); }
+    for (const [px, pz] of [[-.5, 1.4], [-.5, 3.7], [0, 0], [0, -2.2]]) neben3x_mesh(new T.CylinderGeometry(.018, .018, 2.2, 8), new T.MeshStandardMaterial({ color: 0xc9a028, roughness: .45, metalness: .5 }), px, 1.72, pz, G, { cast: false });
+    neben3x_mesh(neben3x_rbox(.5, .1, .5, .04), stoff, .62, .98, 4.15, G); neben3x_mesh(neben3x_rbox(.5, .6, .1, .05), stoff, .62, 1.36, 3.9, G);
+    neben3x_mesh(neben3x_rbox(2.2, .5, .5, .1), dunkel, 0, 1.12, 4.85, G); const lenk = neben3x_mesh(new T.TorusGeometry(.2, .018, 8, 24), gummi, .62, 1.42, 4.55, G); lenk.rotation.x = Math.PI / 2 - .5;
+    neben3x_mesh(new T.CylinderGeometry(.03, .03, 1.3, 8), blech, -.78, 1.25, 3.45, G, { cast: false }); neben3x_mesh(neben3x_rbox(.2, .26, .16, .03), new T.MeshStandardMaterial({ color: 0xc0841c, roughness: .55, metalness: .3 }), -.78, 1.78, 3.45, G);
+    B.led = new T.Mesh(new T.PlaneGeometry(.1, .04), new T.MeshBasicMaterial({ color: 0xff2410 })); B.led.position.set(-.686, 1.82, 3.45); B.led.rotation.y = -Math.PI / 2; B.led.visible = false; B.led.userData.noCol = true; G.add(B.led); }
+  // --- Falttüren (rechts, zwei Flügel, schwingen nach außen auf)
+  for (const [hz, dir] of [[3.25, -1], [1.85, 1]]) { const p = new T.Group(); p.position.set(-W / 2 + .05, 0, hz); G.add(p);
+    const rs = neben3x_rr(0, 0, .68, 1.86, .05); rs.holes.push(neben3x_rr(0, 0, .56, 1.72, .04, new T.Path())); const rg = neben3x_ext(rs, .05, .008); rg.translate(0, 0, -.025); rg.rotateY(Math.PI / 2); neben3x_mesh(rg, dunkel, 0, 1.5, dir * .35, p);
+    const gl = new T.Mesh(new T.PlaneGeometry(.58, 1.72), glas); gl.rotation.y = Math.PI / 2; gl.position.set(0, 1.5, dir * .35); gl.userData.noCol = true; gl.renderOrder = 2; p.add(gl); B.leaves.push({ p, dir }); }
+  B.lamp = typeof VLight === 'function' ? new VLight(0xcfe6d8, 0, 9, 2) : null; if (B.lamp) scene.add(B.lamp);
+  neben3x.bus = B; return B; }
+
+// Bewegung: Anfahrt aus Osten, Halt an der Haltestelle (Tür zur Seite des Wartehäuschens), Abfahrt nach Westen
+const NEBEN3X_BUS = { z: 58.3, xHalt: 15.2, x0: 90, x1: -115, tAn: 7.2, tAb: 10 };
+function neben3x_busSetze(B, x) { B.x = x; B.g.position.set(x, 0, NEBEN3X_BUS.z); B.g.rotation.y = -Math.PI / 2; if (B.pan && Audio.setze) Audio.setze(B.pan, x, .8, NEBEN3X_BUS.z); if (B.lamp) B.lamp.position.set(x, 2.3, NEBEN3X_BUS.z); }
+function neben3x_busFahre(B, art) { if (!B) return Promise.resolve(); B.g.visible = true; B.phase = art; B.t = 0; if (B.lamp) B.lamp.intensity = 1.3; if (art === 'come') { neben3x_busSetze(B, NEBEN3X_BUS.x0); B.tuer = B.tuerZiel = 0; if (B.led) B.led.visible = false; }
+  return new Promise(r => { B.res = r; }); }
+function neben3x_busTuer(B, auf) { if (!B) return; B.tuerZiel = auf ? 1 : 0; if (B.led) B.led.visible = !!auf; if (Audio.ctx) { Audio.play(auf ? 'metalOpen' : 'metalClose', { gain: .55, rate: .8, x: B.x - 1.4, y: 1.2, z: NEBEN3X_BUS.z - 1.2, ref: 3 }); const n = Audio.noise(false), hp = Audio.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2600; n.connect(hp); Audio.env(hp, .2, .02, 1.1, 0, Audio.at(B.x - 1.4, 1.2, NEBEN3X_BUS.z - 1.2, 4)); n.stop(Audio.ctx.currentTime + 1.6); } } // Druckluft zischt
+function neben3x_busWeg(B) { if (!B) return; B.phase = 'weg'; B.g.visible = false; B.tuer = B.tuerZiel = 0; if (B.lamp) B.lamp.intensity = 0; neben3x_busCol(B, false); if (B.res) { const r = B.res; B.res = null; r(); } }
+function neben3x_busCol(B, an) { if (!B) return; if (!B.col) { const x0 = NEBEN3X_BUS.xHalt - 5.5, x1 = NEBEN3X_BUS.xHalt + 5.5, z = NEBEN3X_BUS.z; B.col = addCol(x0, x1, z - 1.3, z + 1.3, 3.2, 0); B.col0 = { ...B.col }; } if (an) Object.assign(B.col, B.col0); else { B.col.minX = B.col.maxX = -9999; } }
+function neben3x_busMotor(B) { if (!Audio.ctx) return null; B.pan = Audio.at(NEBEN3X_BUS.x0, .8, NEBEN3X_BUS.z, 6, { dauer: 60 }); const e = Audio.play('carEngine', { loop: true, gain: 0, lp: 520, rate: .72, dest: B.pan }); if (e && e.g) e.g.gain.linearRampToValueAtTime(.9, Audio.ctx.currentTime + 3); return e; }
+function neben3x_busTick(dt) { const B = neben3x.bus; if (!B || B.phase === 'weg') return; B.t += dt; const Z = NEBEN3X_BUS; let v = 0;
+  if (B.phase === 'come') { const k = Math.min(1, B.t / Z.tAn), e = 1 - Math.pow(1 - k, 2.2), x = Z.x0 + (Z.xHalt - Z.x0) * e; v = Math.abs(x - B.x) / Math.max(dt, 1e-3); neben3x_busSetze(B, x); if (k >= 1) { B.phase = 'stand'; B.t = 0; neben3x_busCol(B, true); const r = B.res; B.res = null; if (r) r(); } }
+  else if (B.phase === 'go') { neben3x_busCol(B, false); const k = Math.min(1, B.t / Z.tAb), x = Z.xHalt + (Z.x1 - Z.xHalt) * k * k; v = Math.abs(x - B.x) / Math.max(dt, 1e-3); neben3x_busSetze(B, x); if (k >= 1) neben3x_busWeg(B); }
+  for (const w of B.rad) w.rotation.x -= v * dt / .52; B.tuer += (B.tuerZiel - B.tuer) * Math.min(1, dt * 2.2); const e = B.tuer * B.tuer * (3 - 2 * B.tuer); for (const l of B.leaves) l.p.rotation.y = -l.dir * 1.42 * e;
+  if (B.led) B.led.visible = B.tuerZiel > 0 && Math.sin(neben3x.t * 4) > -.4; if (B.lampM) B.lampM.emissiveIntensity = .5 + Math.sin(neben3x.t * 31) * .05 * (Math.sin(neben3x.t * 1.3) > .85 ? 4 : 1); }
+// Takt für alles, was in diesem Abschnitt gebaut wird
+WORLD_TICK.push((dt, t) => { const X = neben3x; X.t += dt; try { neben3x_tick(dt); } catch (e) { if (!X.fehler) { X.fehler = 1; console.warn('neben3x Takt', e); } } });
+function neben3x_tick(dt) { const X = neben3x; neben3x_busTick(dt); neben3x_aydinTick(); neben3x_deckeBau(); neben3x_heimTick(); neben3x_abTick(); neben3x_weckerTick(); neben3x_monitorTick(dt); if (neben3_S.dina) neben3_S.dina.g.visible = neben3_k3();
+  for (const [o, fn] of X.L) { let an = false; try { an = !!fn(); } catch (e) {} if (o.visible !== an) o.visible = an; }
+  // Kap. 3: das Licht-Bus-Ereignis aus ausbau_nord würde „Da ist kein Bus. Nur Licht.“ sagen – hier fährt ein echter Bus, also ruhig stellen
+  if (typeof ausbau_nord !== 'undefined' && ausbau_nord.bus) { const nb = ausbau_nord.bus, k3 = neben3_k3() && neben3_q('k3_bus') !== 'done' && !neben3_st('bus').fertig; if (k3 && nb.phase === 'idle') { nb.phase = 'done'; X.nbRuhe = true; } else if (!k3 && X.nbRuhe && !(neben3_k3())) { nb.phase = 'idle'; X.nbRuhe = false; } } }
+
+// ---------------------------------------------------------------- Figuren: Frau Aydın am Fenster von Nr. 8 (auch in Kap. 3), Dina (26) mit Augenbinde im Stall
+// Frau Aydın: die Figur gehört ausbau_ost_west (nur Kap. 1 sichtbar). Hier wird ihr Sichtbarkeitsschalter in Kap. 3 überstimmt, solange Luke in der Nähe ist.
+function neben3x_aydinHuelle() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, K = OW && OW.f3, A = K && K.aydinF; if (!A || A.g.userData.n3x) return !!(A && A.g.userData.n3x); A.g.userData.n3x = 1; let v = A.g.visible;
+  Object.defineProperty(A.g, 'visible', { configurable: true, enumerable: true, get() { return v; }, set(x) { v = neben3x.aydin === 1 ? true : x; } }); return true; }
+function neben3x_aydinTick() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, K = OW && OW.f3, A = K && K.aydinF; if (!A || !neben3x_aydinHuelle()) return;
+  const an = neben3_k3() && !state.inBasement && Math.hypot(player.pos.x - K.nr8.x, player.pos.z - K.nr8.z) < 16; if (an) { neben3x.aydin = 1; if (!A.g.visible) A.g.visible = true; } else if (neben3x.aydin === 1) { neben3x.aydin = 0; if (neben3_k3()) A.g.visible = false; } }
+// Augenbinde (Stoffband um den Kopf, Stoff-Scan, hinten ein Knoten) – wie in ausbau_ost_west, hier für die Figur im Stall
+function neben3x_augenbinde(F) { if (!F || !F.head || F.head.userData.n3binde) return; F.head.userData.n3binde = 1; const s = 1 / (F.head.getWorldScale(new THREE.Vector3()).x || 1);
+  const m = new THREE.MeshStandardMaterial({ map: msTex('wallpaper_fabric/b.jpg', true), color: 0x2a2224, roughness: 1, side: THREE.DoubleSide });
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(.095, .098, .05, 24, 1, true), m); band.scale.setScalar(s); band.position.set(0, .085 * s, .008 * s); band.userData.noCol = true; band.castShadow = true; F.head.add(band);
+  const knoten = new THREE.Mesh(new THREE.SphereGeometry(.024, 10, 8), m); knoten.scale.set(s, s * .8, s * 1.2); knoten.position.set(0, .082 * s, -.098 * s); knoten.userData.noCol = true; F.head.add(knoten);
+  for (const sx of [-1, 1]) { const z = new THREE.Mesh(new THREE.BoxGeometry(.012, .075, .006), m); z.scale.setScalar(s); z.position.set(sx * .012 * s, .04 * s, -.105 * s); z.rotation.set(.25, 0, sx * .22); z.userData.noCol = true; F.head.add(z); } }
+
+WORLD_MODS.push(['Kap. 3 · Abgleich Text/Welt (sichtbare Objekte)', async () => {
+  for (const [n, f] of [['Bus', neben3x_busInit], ['Kerben', neben3x_kerbenBau], ['Grab', neben3x_heimBau], ['Anrufbeantworter', neben3x_abBau], ['Fenster Nr. 8', neben3x_fensterBau], ['Kiosk', neben3x_monitorBau], ['Schilder', neben3x_schildBau]]) { try { await f(); } catch (e) { console.warn('neben3x ' + n, e); } }
+  window.__n3x = { X: neben3x, bus: () => neben3x_busBau(), busTest: art => { const B = neben3x_busBau(); if (art === 'weg') return neben3x_busWeg(B); B.g.visible = true; B.phase = 'stand'; neben3x_busSetze(B, NEBEN3X_BUS.xHalt); neben3x_busTuer(B, art !== 'zu'); neben3x_busCol(B, true); return B; }, k3bus: () => neben3_bus() }; // Testzugriff
+}]);
+// Bus beim Laden bauen (versteckt) und seine Shader vorwärmen – sonst ruckelt es, wenn er zum ersten Mal erscheint
+async function neben3x_busInit() { const B = neben3x_busBau(); B.g.position.set(0, -300, 0); B.g.visible = true; try { await renderer.compileAsync(B.g, camera, scene); } catch (e) {} B.g.visible = false; }
+
+// ---------------------------------------------------------------- Kerben in Justins Lager (neun im Fundamentstein, achtundzwanzig im Balken mit Rabenfuß bei der 26.)
+function neben3x_kerbenTex(n, w, h, holz, rabe) { return kirchberg_tex(kirchberg_cnv(w, h, (x, ww, hh) => { x.clearRect(0, 0, ww, hh); const reihen = n > 14 ? 2 : 1, pro = Math.ceil(n / reihen), dx = ww / (pro + 1), rh = hh / reihen;
+  for (let i = 0; i < n; i++) { const r = Math.floor(i / pro), k = i % pro, cx = dx * (k + 1) + kirchberg_r(-3, 3), cy = rh * (r + .5), len = rh * (holz ? .5 : .55) + kirchberg_r(-4, 4), sk = kirchberg_r(-.06, .06);
+    x.save(); x.translate(cx, cy); x.rotate(sk); x.fillStyle = holz ? 'rgba(24,14,8,.92)' : 'rgba(40,36,30,.88)'; x.beginPath(); x.moveTo(-3.2, -len / 2); x.lineTo(3.2, -len / 2); x.lineTo(1.2, len / 2); x.lineTo(-1.2, len / 2); x.closePath(); x.fill();
+    x.fillStyle = holz ? 'rgba(220,180,120,.55)' : 'rgba(210,205,195,.5)'; x.fillRect(3.4, -len / 2 + 2, 1.6, len - 4); x.restore(); } // dunkler Schnitt, heller Spanrand
+  if (rabe) { const k = 25 - pro, cx = dx * (k + 1) + dx * .5, cy = rh * 1.5; x.strokeStyle = 'rgba(24,14,8,.92)'; x.lineWidth = 3.4; x.lineCap = 'round'; x.beginPath(); x.moveTo(cx, cy + rh * .3); x.lineTo(cx, cy - rh * .05); x.moveTo(cx, cy - rh * .05); x.lineTo(cx - 12, cy - rh * .32); x.moveTo(cx, cy - rh * .05); x.lineTo(cx + 12, cy - rh * .32); x.moveTo(cx, cy - rh * .05); x.lineTo(cx, cy - rh * .4); x.stroke(); } })); }
+function neben3x_kerbenBau() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, L = OW && OW.f3 && OW.f3.lager, R = OW && OW.dbg && OW.dbg.barnRect; if (!L || !R) return; const zc = (R.z0 + R.z1) / 2;
+  kirchberg_decal(neben3x_kerbenTex(9, 512, 80, false, false), .34, .055, L.x - .05, .17, L.z + .382, PI, { alpha: true, rough: .8 });                    // neun Kerben unter dem Turm
+  kirchberg_decal(kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(40,36,30,.85)'; x.lineWidth = 6; x.lineCap = 'round'; x.beginPath(); x.moveTo(w * .42, w * .7); x.lineTo(w * .42, w * .38); x.lineTo(w * .5, w * .38); x.lineTo(w * .5, w * .3); x.lineTo(w * .58, w * .3); x.lineTo(w * .58, w * .38); x.lineTo(w * .66, w * .38); x.lineTo(w * .66, w * .7); x.moveTo(w * .3, w * .7); x.lineTo(w * .78, w * .7); x.stroke(); })), .07, .07, L.x - .27, .105, L.z + .381, PI, { alpha: true }); // kleiner Turm über einem Strich, unter der ersten Kerbe
+  kirchberg_decal(neben3x_kerbenTex(28, 1024, 200, true, true), 1.5, .3, R.x0 + .06, 2.3, zc - .15, PI / 2, { alpha: true, rough: .7 }); }                      // achtundzwanzig Kerben im Balken, Rabenfuß neben der 26.
+
+// ---------------------------------------------------------------- Das Grab (k3_heim): Kinderschuh in der Grube, Knieabdruck, neuer Stein „LUKE BRANDT · 2009 – 2026“
+function neben3x_schuh() { const T = THREE, G = new T.Group();
+  const prof = new T.Shape(); prof.moveTo(0, .0); prof.lineTo(.205, 0); prof.quadraticCurveTo(.222, .004, .221, .03); prof.quadraticCurveTo(.215, .056, .17, .063); prof.quadraticCurveTo(.12, .07, .1, .088); prof.quadraticCurveTo(.07, .112, .03, .108); prof.quadraticCurveTo(-.006, .1, -.004, .06); prof.quadraticCurveTo(-.004, .01, 0, 0);
+  const g = new T.ExtrudeGeometry(prof, { depth: .06, bevelEnabled: true, bevelThickness: .012, bevelSize: .011, bevelSegments: 3, curveSegments: 10 }); g.translate(-.11, 0, -.03);
+  const dreck = kirchberg_tex(kirchberg_cnv(128, 128, (x, w, h) => { x.fillStyle = '#4a5f86'; x.fillRect(0, 0, w, h); for (let i = 0; i < 700; i++) { const m = kirchberg_r() < .55; x.fillStyle = m ? `rgba(${kirchberg_r(50, 80) | 0},${kirchberg_r(36, 56) | 0},${kirchberg_r(24, 40) | 0},${kirchberg_r(.2, .7)})` : `rgba(210,210,220,${kirchberg_r(.04, .14)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(1, 7), kirchberg_r(1, 7)); } }));
+  { const b = (g.computeBoundingBox(), g.boundingBox), p = g.attributes.position, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - b.min.x) / (b.max.x - b.min.x), (p.getY(i) - b.min.y) / (b.max.y - b.min.y)); }
+  const ob = new T.Mesh(g, new T.MeshStandardMaterial({ map: dreck, roughness: .9 })); G.add(ob);
+  const sg = new T.ExtrudeGeometry((() => { const s = new T.Shape(); s.moveTo(-.012, -.014); s.lineTo(.205, -.014); s.quadraticCurveTo(.228, -.012, .228, .014); s.lineTo(.228, .02); s.lineTo(-.012, .02); s.closePath(); return s; })(), { depth: .066, bevelEnabled: true, bevelThickness: .008, bevelSize: .006, bevelSegments: 2 }); sg.translate(-.11, 0, -.033);
+  G.add(new T.Mesh(sg, new T.MeshStandardMaterial({ color: 0xcfcbc0, roughness: .75 })));                                                                                 // Gummisohle, schmutzig weiß
+  const klett = new T.Mesh(new T.BoxGeometry(.075, .006, .085), new T.MeshStandardMaterial({ color: 0x2c2f33, roughness: .95 })); klett.position.set(-.02, .092, 0); klett.rotation.z = -.55; G.add(klett); // Klettverschluss quer über dem Spann
+  const lasche = new T.Mesh(new T.BoxGeometry(.05, .01, .05), new T.MeshStandardMaterial({ color: 0x3b3f44, roughness: .95 })); lasche.position.set(-.012, .081, 0); lasche.rotation.z = -.5; G.add(lasche);
+  G.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.userData.noCol = true; } }); return G; }
+function neben3x_heimBau() { if (typeof ausbau_nord === 'undefined' || !ausbau_nord.pit || !ausbau_nord.kids) return; const T = THREE, P = ausbau_nord.pit, K = ausbau_nord.kids[6], X = neben3x;
+  // Kinderschuh (Größe 33, rechts) auf dem Grubenboden – die Grube wird mit Tiefenmaske gezeichnet, darum früh (renderOrder wie die Wände)
+  const sh = neben3x_schuh(); sh.position.set(P.x + .13, -1.15 + .045, P.z + .22); sh.rotation.set(Math.PI / 2, 0, 0); sh.rotation.order = 'YXZ'; sh.rotation.y = .5; sh.traverse(m => { if (m.isMesh) m.renderOrder = -3; }); scene.add(sh); neben3x_an(sh, () => kap() >= 3);
+  // Knieabdruck im frischen Aushub: tiefe Mulde mit Wulst, ein Metallknie (Kniekachel mit Rippen), daneben der zweite, flacher
+  const knie = kirchberg_tex(kirchberg_cnv(256, 256, (x, w) => { x.clearRect(0, 0, w, w); const g = x.createRadialGradient(w / 2, w / 2, 10, w / 2, w / 2, w * .46); g.addColorStop(0, 'rgba(14,10,6,.96)'); g.addColorStop(.7, 'rgba(26,18,12,.9)'); g.addColorStop(.92, 'rgba(70,52,36,.7)'); g.addColorStop(1, 'rgba(70,52,36,0)'); x.save(); x.translate(w / 2, w / 2); x.scale(.82, 1); x.translate(-w / 2, -w / 2); x.fillStyle = g; x.beginPath(); x.arc(w / 2, w / 2, w * .46, 0, 7); x.fill(); x.restore();
+    x.strokeStyle = 'rgba(98,76,54,.75)'; x.lineWidth = 5; for (let i = -2; i <= 2; i++) { x.beginPath(); x.moveTo(w * .3, w / 2 + i * 28); x.quadraticCurveTo(w / 2, w / 2 + i * 28 - 14, w * .7, w / 2 + i * 28); x.stroke(); }
+    x.strokeStyle = 'rgba(108,84,60,.8)'; x.lineWidth = 6; x.beginPath(); x.ellipse(w / 2, w / 2, w * .3, w * .38, 0, 0, 7); x.stroke(); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(${kirchberg_r(20, 60) | 0},${kirchberg_r(14, 40) | 0},${kirchberg_r(8, 24) | 0},${kirchberg_r(.2, .6)})`; x.fillRect(kirchberg_r(30, 226), kirchberg_r(30, 226), kirchberg_r(1, 5), kirchberg_r(1, 5)); } }));
+  const km = kirchberg_decal(knie, .42, .5, P.x - .1, .02, P.z - 1.45, .2, { alpha: true, rx: -Math.PI / 2 }), k2 = kirchberg_decal(knie, .36, .42, P.x + .42, .02, P.z - 1.55, -.1, { alpha: true, rx: -Math.PI / 2 }); neben3x_an(km, () => kap() >= 3); neben3x_an(k2, () => kap() >= 3);
+  const wulstM = new T.MeshStandardMaterial({ color: 0x3a2c20, roughness: 1 }); for (const [dx, dz, s] of [[-.1, -1.45, 1], [.42, -1.55, .85]]) { const w = new T.Mesh(new T.TorusGeometry(.17 * s, .035 * s, 8, 24), wulstM); w.rotation.x = Math.PI / 2; w.scale.set(.85, 1, .45); w.position.set(P.x + dx, .01, P.z + dz); w.userData.noCol = true; w.castShadow = false; scene.add(w); neben3x_an(w, () => kap() >= 3); }
+  // Neuer Stein: Inschrift ab Kapitel 3 „LUKE BRANDT · 2009 – 2026“ (Granit, frisch gemeißelt)
+  const alt = K.plate; if (alt && typeof ausbau_nord_paper === 'function') { const neu = ausbau_nord_paper(.3, .19, (x2, w, h) => { x2.clearRect(0, 0, w, h); x2.textAlign = 'center'; x2.fillStyle = 'rgba(20,18,16,.88)'; x2.font = 'bold 56px Georgia'; x2.fillText('LUKE BRANDT', w / 2, h * .46); x2.font = '40px Georgia'; x2.fillText('2009 – 2026', w / 2, h * .8); x2.fillStyle = 'rgba(255,255,255,.14)'; x2.fillRect(w * .12, h * .53, w * .76, 1.5); }, 384);
+    neu.material.roughness = 1; neu.material.transparent = true; neu.material.depthWrite = false; neu.position.copy(alt.position); neu.rotation.copy(alt.rotation); neu.position.z += .0008; scene.add(neu); X.stein = [alt, neu]; X.steinNeu = neu; neu.visible = false; } }
+function neben3x_heimTick() { const X = neben3x; if (!X.stein) return; const k = typeof kap === 'function' ? kap() >= 3 : false; if (X.stein[0].visible === k) X.stein[0].visible = !k; if (X.stein[1].visible !== k) X.stein[1].visible = k; }
+
+// ---------------------------------------------------------------- Nr. 7: Telefontisch mit Wählscheibentelefon und Anrufbeantworter („Speicher voll“, rote Leuchte)
+function neben3x_abBau() { const T = THREE, S = neben3_S, X = neben3x, tx = 22.22, tz = -12.4, fy = Y, ty = Y + .74, G = new T.Group(); G.position.set(tx, 0, tz); scene.add(G); G.userData.noCol = false;
+  const holz = msSurfMat('floor_wood', { tint: 0x6d4f36, nrm: .5 }), mt = (c, r = .5, m = .1) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const add = (geo, mat, x, y, z, o = {}) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = o.cast !== false; m.receiveShadow = true; if (o.rx) m.rotation.x = o.rx; G.add(m); return m; };
+  // Tisch: Platte mit Schublade, vier schlanke Beine, Ablage
+  add(neben3x_rbox(.58, .03, .3, .012), holz, 0, ty - .015, 0); add(neben3x_rbox(.52, .09, .26, .01), holz, 0, ty - .075, 0); add(new T.BoxGeometry(.06, .014, .008), mt(0xb89a4a, .35, .8), 0, ty - .075, .134, { cast: false });
+  for (const sx of [-.26, .26]) for (const sz of [-.12, .12]) add(new T.CylinderGeometry(.013, .009, ty - .03 - fy, 8), holz, sx, (ty - .03 + fy) / 2, sz);
+  add(neben3x_rbox(.5, .02, .24, .008), holz, 0, fy + .2, 0);
+  // Anrufbeantworter: vergilbtes Gehäuse, Kassettenfach unter getönter Klappe, Tasten, Anzeige „FUL“
+  const gh = mt(0xcbc2aa, .55), ab = new T.Group(); ab.position.set(.12, ty, 0); ab.rotation.y = -.08; G.add(ab);
+  const part = (geo, mat, x, y, z) => { const m = new T.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; ab.add(m); return m; };
+  part(neben3x_rbox(.27, .06, .19, .02), gh, 0, .03, 0);
+  const kas = kirchberg_tex(kirchberg_cnv(256, 160, (x, w, h) => { x.fillStyle = '#1b1814'; x.fillRect(0, 0, w, h); x.fillStyle = '#d8d0b4'; x.fillRect(14, 20, w - 28, h - 40); x.fillStyle = '#2a2622'; for (const cx of [70, 186]) { x.beginPath(); x.arc(cx, h / 2, 22, 0, 7); x.fill(); x.fillStyle = '#d8d0b4'; x.beginPath(); x.arc(cx, h / 2, 8, 0, 7); x.fill(); x.fillStyle = '#2a2622'; } x.fillRect(80, h / 2 - 2, 100, 4); x.fillStyle = '#7a1a12'; x.font = '15px monospace'; x.fillText('C-60', 108, 46); }));
+  part(new T.PlaneGeometry(.17, .106), new T.MeshStandardMaterial({ map: kas, roughness: .6 }), .0, .0615, .0).rotation.x = -Math.PI / 2;
+  const klappe = part(neben3x_rbox(.19, .014, .12, .008), new T.MeshStandardMaterial({ color: 0x1b1a18, roughness: .1, metalness: .3, transparent: true, opacity: .55 }), 0, .07, 0); klappe.castShadow = false;
+  for (let i = 0; i < 5; i++) part(neben3x_rbox(.032, .012, .022, .004), mt(i === 3 ? 0x8a1a14 : 0x8e8b82, .5), -.095 + i * .0475, .066, .072);
+  const anz = kirchberg_tex(kirchberg_cnv(128, 64, (x, w, h) => { x.fillStyle = '#120404'; x.fillRect(0, 0, w, h); x.fillStyle = '#ff3a1c'; x.shadowColor = '#ff2a10'; x.shadowBlur = 8; x.font = 'bold 44px "Courier New", monospace'; x.textAlign = 'center'; x.fillText('FUL', w / 2, 48); }));
+  const am = new T.MeshStandardMaterial({ map: anz, emissive: 0xff2a10, emissiveMap: anz, emissiveIntensity: .8, roughness: .4 }); const ad = part(new T.PlaneGeometry(.05, .025), am, .09, .061, -.055); ad.rotation.x = -Math.PI / 2; X.abAnz = am;
+  const ledGeo = new T.SphereGeometry(.0065, 10, 8), led = part(ledGeo, new T.MeshBasicMaterial({ color: 0xff2410 }), -.105, .063, -.06); X.abLedM = led; // die blinkende Leuchte (Netz); der Sprite aus zaynBau sitzt jetzt hier
+  // Telefon (Wählscheibe, Bakelit) links daneben
+  kirchberg_mod('w_telefon', 'model.glb', .23, 'max').then(o => { if (o) { o.position.set(-.16, ty, .0); o.rotation.y = .5; G.add(o); } });
+  // Hit und Leuchte an die neue Stelle
+  const O = typeof NEBEN3_ORTE !== 'undefined' ? NEBEN3_ORTE.find(q => q.m.userData.label && q.m.userData.label.indexOf('Anrufbeantworter') === 0) : null; if (O) O.m.position.set(tx + .12, ty + .05, tz);
+  if (S.abLed) { S.abLed.position.set(tx + .12 - .105 * Math.cos(.08), ty + .075, tz - .06); S.abLed.scale.setScalar(.05); } X.abG = G; }
+function neben3x_abTick() { const X = neben3x; if (!X.abLedM) return; const S = neben3_S, an = neben3_frei() && !neben3_st('zayn').ab; X.abLedM.visible = an ? Math.sin(X.t * 5) > 0 : false; if (X.abAnz) X.abAnz.emissiveIntensity = an ? .8 : .08; }
+
+// ---------------------------------------------------------------- Frau Aydın am Fenster (Nr. 8): Wecker, Foto auf der Fensterbank
+function neben3x_weckerBau() { const T = THREE, G = new T.Group(), mt = (c, r = .4, m = .7) => new T.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const face = kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.fillStyle = '#e6e1cf'; x.fillRect(0, 0, w, w); x.strokeStyle = '#222'; x.fillStyle = '#222'; x.font = 'bold 15px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle'; for (let i = 1; i <= 12; i++) { const a = i / 12 * 6.283 - 1.5708; x.fillText(String(i), w / 2 + Math.cos(a) * 46, w / 2 + Math.sin(a) * 46); }
+    x.lineWidth = 5; x.beginPath(); x.moveTo(w / 2, w / 2); x.lineTo(w / 2 + Math.cos(-1.5708 + 3 * .5236) * 26, w / 2 + Math.sin(-1.5708 + 3 * .5236) * 26); x.stroke(); x.lineWidth = 3; x.beginPath(); x.moveTo(w / 2, w / 2); x.lineTo(w / 2 + Math.cos(-1.5708 + 13 * .1047) * 40, w / 2 + Math.sin(-1.5708 + 13 * .1047) * 40); x.stroke(); x.strokeStyle = '#a82418'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(w / 2, w / 2); x.lineTo(w / 2 - 12, w / 2 - 38); x.stroke(); }));
+  const body = new T.Mesh(new T.CylinderGeometry(.052, .052, .042, 28), mt(0xb8b2a0, .35, .8)); body.rotation.x = Math.PI / 2; body.position.y = .06; G.add(body);
+  const fl = new T.Mesh(new T.CircleGeometry(.047, 28), new T.MeshStandardMaterial({ map: face, roughness: .45 })); fl.position.set(0, .06, .0225); G.add(fl);
+  for (const sx of [-1, 1]) { const g = new T.Mesh(new T.SphereGeometry(.026, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), mt(0xc4bca4, .3, .9)); g.position.set(sx * .031, .108, 0); g.rotation.z = -sx * .45; G.add(g); const b = new T.Mesh(new T.CylinderGeometry(.002, .002, .03, 5), mt(0x666, .5, .5)); b.position.set(sx * .031, .108, 0); G.add(b); const f = new T.Mesh(new T.CylinderGeometry(.004, .004, .034, 6), mt(0x888, .4, .8)); f.rotation.z = sx * .35; f.position.set(sx * .035, .018, -.008); G.add(f); }
+  const h = new T.Mesh(new T.BoxGeometry(.003, .03, .003), mt(0x444)); h.rotation.z = .3; h.position.set(0, .122, 0); G.add(h);
+  G.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); return G; }
+function neben3x_fotoBau() { const T = THREE, G = new T.Group();
+  const bild = kirchberg_tex(kirchberg_cnv(160, 224, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#9c8a6a'); g.addColorStop(1, '#6a5a44'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(230,214,176,.9)'; x.fillRect(64, 116, 44, 108); x.beginPath(); x.arc(86, 86, 24, 0, 7); x.fill(); x.fillStyle = '#3a2c1e'; x.beginPath(); x.arc(86, 76, 24, Math.PI, 0); x.fill();
+    x.fillStyle = 'rgba(236,200,110,.95)'; x.fillRect(116, 120, 12, 90); x.fillRect(112, 126, 40, 12); x.fillRect(146, 100, 10, 36); x.fillRect(142, 96, 20, 10); x.fillStyle = '#6a4a22'; for (const [px, py] of [[122, 150], [128, 176], [124, 196]]) x.fillRect(px, py, 5, 5);
+    x.fillStyle = 'rgba(255,255,255,.1)'; x.fillRect(0, 0, w, 30); x.fillStyle = 'rgba(60,40,20,.45)'; x.font = '15px Caveat, cursive'; x.fillText('D.', w - 28, h - 10); for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(255,255,255,${kirchberg_r(.02, .1)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), 1.5, 1.5); } }));
+  const rs = neben3x_rr(0, 0, .105, .145, .006); rs.holes.push(neben3x_rr(0, 0, .085, .125, .004, new T.Path())); const rg = neben3x_ext(rs, .014, .003);
+  const rahmen = new T.Mesh(rg, new T.MeshStandardMaterial({ color: 0x3a2c20, roughness: .6, metalness: .2 })); rahmen.position.z = -.007; G.add(rahmen); const pic = new T.Mesh(new T.PlaneGeometry(.087, .127), new T.MeshStandardMaterial({ map: bild, roughness: .5 })); pic.position.z = -.002; G.add(pic);
+  G.rotation.x = -.18; G.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); return G; }
+function neben3x_fensterBau() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, K = OW && OW.f3 && OW.f3.nr8; if (!K) return; const X = neben3x, y = K.sillY || 1.03, z = K.z + .22;
+  const w = neben3x_weckerBau(); w.position.set(K.x - .42, y, z); w.rotation.y = Math.PI + .25; scene.add(w); neben3x_an(w, () => neben3_k3()); X.wecker = w;
+  const f = neben3x_fotoBau(); f.position.set(K.x + .45, y, z - .02); f.rotation.y = Math.PI - .2; scene.add(f); neben3x_an(f, () => neben3_k3()); X.foto = f; }
+function neben3x_weckerTick() { const X = neben3x; if (!X.wecker || !X.wecker.visible) return; const st = neben3_st('stein'), lauf = neben3_auf('k3_stein') && !st.wecker; X.wecker.rotation.z = lauf ? Math.sin(X.t * 60) * .018 * (Math.sin(X.t * 2.2) > .2 ? 1 : 0) : 0; if (st.foto && X.foto && X.foto.visible) X.foto.visible = false; }
+
+// ---------------------------------------------------------------- Kiosk Tankstelle: das flimmernde Bild des Röhrenfernsehers (der Hit saß 5 m daneben) und der Aufkleber an der Tür
+function neben3x_monitorBau() { const X = neben3x; let crt = null, bestD = 9; scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || !o.geometry) return; const b = new THREE.Box3().setFromObject(o), sz = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3()), d = Math.hypot(c.x - 109.2, c.z - 26); if (d < 1 && sz.y > .22 && sz.y < .5 && sz.x < .55 && sz.z < .55 && sz.x > .25 && d < bestD) { bestD = d; crt = o; } }); if (!crt) { console.warn('neben3x: CRT am Kiosk nicht gefunden'); return; }
+  crt.geometry.computeBoundingBox(); const bb = crt.geometry.boundingBox, c = document.createElement('canvas'); c.width = 96; c.height = 72; const cx = c.getContext('2d'), t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.minFilter = THREE.LinearFilter;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry((bb.max.z - bb.min.z) * .66, (bb.max.y - bb.min.y) * .62), new THREE.MeshBasicMaterial({ map: t, toneMapped: false, fog: true })); m.geometry.rotateY(Math.PI / 2); m.position.set(bb.max.x + .002, bb.min.y + (bb.max.y - bb.min.y) * .52, (bb.max.z + bb.min.z) / 2); m.userData.noCol = true; crt.add(m); X.crt = { crt, m, cx, c, t, T: 0 };
+  const O = typeof NEBEN3_ORTE !== 'undefined' ? NEBEN3_ORTE.find(q => q.m.userData.label === 'Monitor über der Kasse') : null; if (O) { const p = crt.getWorldPosition(new THREE.Vector3()); O.m.position.set(p.x, p.y + .18, p.z); O.m.scale.set(.5, .5, .6); }
+  // Aufkleber an der Tür: gelb-schwarzes Kamerasymbol, „Bitte lächeln“, darunter winzig ein Auge
+  const st = kirchberg_tex(kirchberg_cnv(256, 180, (x, w, h) => { x.fillStyle = '#e8d24a'; x.fillRect(0, 0, w, h); x.strokeStyle = '#1b1b1b'; x.lineWidth = 6; x.strokeRect(5, 5, w - 10, h - 10); x.fillStyle = '#1b1b1b'; x.fillRect(86, 26, 84, 50); x.fillRect(96, 18, 28, 10); x.fillStyle = '#e8d24a'; x.beginPath(); x.arc(128, 51, 17, 0, 7); x.fill(); x.fillStyle = '#1b1b1b'; x.beginPath(); x.arc(128, 51, 10, 0, 7); x.fill();
+    x.font = 'bold 21px Arial'; x.textAlign = 'center'; x.fillText('BITTE LÄCHELN', w / 2, 112); x.font = '15px Arial'; x.fillText('Sie werden gefilmt.', w / 2, 134); x.strokeStyle = '#7a6a1a'; x.lineWidth = 1; x.beginPath(); x.ellipse(w / 2, 158, 9, 4.5, 0, 0, 7); x.stroke(); x.beginPath(); x.arc(w / 2, 158, 2, 0, 7); x.stroke();
+    for (let i = 0; i < 120; i++) { x.fillStyle = `rgba(60,50,20,${kirchberg_r(.04, .2)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(1, 6), kirchberg_r(1, 4)); } }));
+  X.sticker = kirchberg_decal(st, .16, .113, 116.15, 1.45, 22.165, PI, { rough: .4 }); }
+function neben3x_monitorTick(dt) { const X = neben3x, C = X.crt; if (!C) return; const an = neben3_auf('k3_band') && Math.hypot(player.pos.x - 110, player.pos.z - 26) < 30; if (!an) { if (C.last !== 0) { C.cx.fillStyle = '#050605'; C.cx.fillRect(0, 0, 96, 72); C.t.needsUpdate = true; C.last = 0; } return; }
+  C.T -= dt; if (C.T > 0) return; C.T = .09; const x = C.cx; x.fillStyle = '#0c1210'; x.fillRect(0, 0, 96, 72); x.fillStyle = 'rgba(150,176,156,.5)'; x.fillRect(0, 50, 96, 3); x.fillRect(60, 22, 7, 28); x.beginPath(); x.arc(63.5, 18, 4, 0, 7); x.fill(); // Hof, Zapfsäule, Gestalt
+  for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(200,230,210,${Math.random() * .22})`; x.fillRect(Math.random() * 96, Math.random() * 72, 2 + Math.random() * 10, 1); }
+  const j = (Math.sin(X.t * 1.7) > .6) ? (Math.random() * 72) | 0 : -1; if (j >= 0) { x.fillStyle = 'rgba(220,240,226,.45)'; x.fillRect(0, j, 96, 3); } x.fillStyle = 'rgba(190,230,200,.8)'; x.font = '8px monospace'; x.fillText('AUSSENKAMERA 03:13', 3, 9); C.t.needsUpdate = true; C.last = 1; }
+
+// Wolldecke um Frau Aydıns Schultern (erscheint, wenn Luke sie ihr umlegt) – karierte Wolle, offen nach vorn, an der Figur befestigt
+function neben3x_deckeBau() { const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, K = OW && OW.f3, A = K && K.aydinF; if (!A || neben3x.decke) return !!neben3x.decke;
+  const T = THREE, tx = kirchberg_tex(kirchberg_cnv(256, 256, (x, w) => { x.fillStyle = '#b9a98c'; x.fillRect(0, 0, w, w); x.fillStyle = 'rgba(150,40,32,.75)'; for (let i = 0; i < 4; i++) { x.fillRect(i * 64 + 8, 0, 22, w); x.fillRect(0, i * 64 + 8, w, 22); } x.fillStyle = 'rgba(40,30,24,.35)'; for (let i = 0; i < 4; i++) { x.fillRect(i * 64 + 40, 0, 6, w); x.fillRect(0, i * 64 + 40, w, 6); }
+    for (let i = 0; i < 3000; i++) { x.fillStyle = `rgba(${kirchberg_r(120, 220) | 0},${kirchberg_r(100, 190) | 0},${kirchberg_r(80, 150) | 0},${kirchberg_r(.05, .2)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, w), 1, kirchberg_r(2, 5)); } }));
+  tx.wrapS = tx.wrapT = T.RepeatWrapping; tx.repeat.set(3, 1.2);
+  const g = new T.CylinderGeometry(.2, .27, .34, 28, 6, true, .7, Math.PI * 2 - 1.4), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i), k = (y + .17) / .34, n = Math.sin(p.getX(i) * 31 + y * 17) * .006; p.setX(i, p.getX(i) * (1 + n * 3)); p.setZ(i, p.getZ(i) * (1 + n * 3) * (y > .1 ? .94 : 1)); p.setY(i, y - Math.pow(Math.abs(p.getX(i)) * 3.2, 2) * .02); } g.computeVertexNormals();
+  const m = new T.Mesh(g, new T.MeshStandardMaterial({ map: tx, roughness: 1, side: T.DoubleSide })); m.position.set(0, 1.27, .0); m.castShadow = true; m.userData.noCol = true; A.g.add(m); neben3x_an(m, () => !!neben3_st('stein').decke && A.g.visible); neben3x.decke = m; return true; }
+
+// ---------------------------------------------------------------- Schilder und Post an der Straße: Verkaufsschild (Nr. 2), Türschild (Nr. 6), Postkarte im Briefkasten von Nr. 2
+// Strahl gegen sichtbare Netze (ohne Klickflächen, Instanzen, Skinning); jedes Netz einzeln abgesichert
+function neben3x_ray(o, d, far) { const rc = new THREE.Raycaster(o, d, 0, far), out = []; scene.traverse(m => { if (!m.isMesh || m.isInstancedMesh || m.isSkinnedMesh || !m.visible || !m.geometry || !m.material || m.material.visible === false || m.userData.label || (m.material.transparent && m.material.opacity < .5)) return;
+    try { const h = rc.intersectObject(m, false); if (h.length) out.push(h[0]); } catch (e) {} }); out.sort((p, q) => p.distance - q.distance); return out; }
+function neben3x_strahl(x, y, z0, dz, far = 12) { const l = neben3x_ray(new THREE.Vector3(x, y, z0), new THREE.Vector3(0, 0, dz), far); return l[0] || null; }
+function neben3x_schildBau() { const X = neben3x, T = THREE, ORT = t => typeof NEBEN3_ORTE !== 'undefined' ? NEBEN3_ORTE.find(q => q.m.userData.label === t) : null;
+  // Nr. 6: emailliertes Türschild neben der Haustür
+  { const h = neben3x_strahl(22.9, 1.5, 11.6, 1, 2), zw = h ? h.point.z : 12.5; X.schild6w = h ? (h.object.name || h.object.type) : null;
+    const t = kirchberg_tex(kirchberg_cnv(320, 176, (x, w, hh) => { x.fillStyle = '#ddd9cc'; x.fillRect(0, 0, w, hh); x.strokeStyle = '#2a2a28'; x.lineWidth = 6; x.strokeRect(6, 6, w - 12, hh - 12); x.fillStyle = '#1c1c1a'; x.textAlign = 'center'; x.font = 'bold 34px Arial'; x.fillText('Keine Werbung.', w / 2, 56); x.fillText('Keine Zeugen Jehovas.', w / 2, 100); x.fillStyle = '#9a1c1c'; x.fillText('Kein Amt.', w / 2, 146);
+      for (const [px, py] of [[16, 16], [w - 16, 16], [16, hh - 16], [w - 16, hh - 16]]) { x.fillStyle = '#77756c'; x.beginPath(); x.arc(px, py, 4, 0, 7); x.fill(); } for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(80,66,44,${kirchberg_r(.05, .3)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, hh), kirchberg_r(1, 6), kirchberg_r(1, 5)); } }));
+    X.schild6 = kirchberg_decal(t, .2, .11, 22.9, 1.5, zw - .006, PI, { rough: .35 }); }
+  // Nr. 2: Verkaufsschild auf zwei Holzpfosten im Vorgarten
+  { const h = neben3x_strahl(-49.2, 1.0, 9.5, 1, 4), zs = Math.min(11.8, (h ? h.point.z : 12.5) - .45), G = new T.Group(); G.position.set(-49.2, 0, zs); scene.add(G); X.schild2w = h ? (h.object.name || h.object.type) : null;
+    const holz = msSurfMat('bark', { tint: 0x6e5a44, nrm: .6 }), t = kirchberg_tex(kirchberg_cnv(512, 352, (x, w, hh) => { x.fillStyle = '#e8e6de'; x.fillRect(0, 0, w, hh); x.fillStyle = '#b4281e'; x.fillRect(0, 0, w, 96); x.fillStyle = '#f4f2ea'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('ZU VERKAUFEN', w / 2, 70); x.fillStyle = '#1c1c1a'; x.font = 'bold 36px Arial'; x.fillText('Objekt frei ab sofort.', w / 2, 168); x.fillText('Ruhige Lage.', w / 2, 220); x.font = '26px Arial'; x.fillText('Besichtigung nach Vereinbarung', w / 2, 290);
+      for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(90,84,70,${kirchberg_r(.04, .24)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, hh), kirchberg_r(1, 8), kirchberg_r(1, 6)); } const g = x.createLinearGradient(0, hh * .7, 0, hh); g.addColorStop(0, 'rgba(70,60,40,0)'); g.addColorStop(1, 'rgba(70,60,40,.35)'); x.fillStyle = g; x.fillRect(0, hh * .7, w, hh * .3); }));
+    for (const sx of [-.34, .34]) { const p = new T.Mesh(new T.BoxGeometry(.07, 1.55, .07), holz); p.position.set(sx, .72, 0); p.castShadow = true; p.userData.noCol = false; G.add(p); }
+    const bg = neben3x_rbox(.78, .54, .025, .015, .004), board = new T.Mesh(bg, new T.MeshStandardMaterial({ map: t, roughness: .55 })); board.position.set(0, 1.18, -.045); board.rotation.y = Math.PI; board.castShadow = true; board.userData.noCol = true; G.add(board);
+    for (const sx of [-.34, .34]) { const s = new T.Mesh(new T.CylinderGeometry(.008, .008, .02, 8), new T.MeshStandardMaterial({ color: 0x777, metalness: .8, roughness: .4 })); s.rotation.x = Math.PI / 2; s.position.set(sx, 1.18, -.06); G.add(s); }
+    X.schild2 = G; const O = ORT('Schild am Gartentor'); if (O) O.m.position.set(-49.2, 1.18, zs - .1); }
+  // Postkarte im Briefkasten von Nr. 2 (nur solange „Ja.“ offen ist): ragt aus dem Schlitz, trocken, Rückseite nach oben
+  { const h = neben3x_strahl(-51.45, 1.05, 2, 1, 8), zz = h ? h.point.z - .02 : 6.62; X.postW = h ? (h.object.name || h.object.type) : null;
+    const t = kirchberg_tex(kirchberg_cnv(256, 170, (x, w, hh) => { x.fillStyle = '#efeadb'; x.fillRect(0, 0, w, hh); x.strokeStyle = 'rgba(60,60,60,.5)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(w * .52, 12); x.lineTo(w * .52, hh - 12); x.stroke(); x.strokeRect(w - 54, 12, 40, 48); for (const y of [100, 124, 148]) { x.beginPath(); x.moveTo(w * .58, y); x.lineTo(w - 14, y); x.stroke(); }
+      x.fillStyle = 'rgba(40,40,52,.82)'; x.font = '22px Caveat, cursive'; x.fillText('An: Heidi W.', w * .58, 96); x.font = '44px Caveat, cursive'; x.fillText('Ja.', 24, 84); for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(110,94,60,${kirchberg_r(.04, .2)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, hh), kirchberg_r(1, 5), kirchberg_r(1, 4)); } }));
+    const k = new T.Mesh(new T.PlaneGeometry(.145, .097), new T.MeshStandardMaterial({ map: t, roughness: .8, side: T.DoubleSide })); k.position.set(-51.45, 1.12, zz); k.rotation.set(-.22, Math.PI, .08); k.castShadow = true; k.userData.noCol = true; scene.add(k); neben3x_an(k, () => neben3_auf('k3_ja')); X.postkarte = k; } }

@@ -68,18 +68,20 @@ WORLD_MODS.push(['Geheimnisse', async () => {
       const o = ueWreck ? ueWreck.clone(true) : geheimnisse_plate(wr, hm); o.position.set(x, .06, z); o.rotation.set(-PI / 2 + .25, i * 1.3, .15); o.userData.noCol = true; scene.add(o);
       const hit = box(1.1, .5, .9, x, .25, z, hidden, { cast: false }), key = 'geh_wrack_' + i; S.wrecks.push({ o, key, i });
       interact(hit, () => geheimnisse_has(key) ? 'Metallteil' : 'Metallteil untersuchen', () => geheimnisse_wreck(i, text, key));
+      if (i === 2 || i === 4) geheimnisse_stempel(o, x, z, i); // „Unter dem Rost ein Stempel: ein Turm über einem Abgrund“ – dasselbe Zeichen wie Whiskeys Ring
     });
   } catch (e) { console.warn('Geheimnisse: Wrack', e); }
   // --- Zähl-Totems
   try {
     const pole = await msModel('pole_old'), bear = await msModel('teddy_scan', 'model.glb');
     const cs = await msFBX('candles', 'model.fbx', { Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', r: 'Extra_for_candles_Roughness.jpg' } });
-    const ueTotem = await ausruestung_ue('totem', 1.9);
+    const ueTotem = await ausruestung_ue('totem', 1.9); let wood = null; try { wood = await msModel('w_branches', 'model.glb'); } catch (e) { try { wood = await msModel('w_branches'); } catch (e2) {} }
     GEHEIM_TOTEMS.forEach(([x, z], i) => {
       const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
       if (ueTotem) g.add(ueTotem.clone(true));
       else { const p = msGround(msFit(pole.clone(true), 1.9, 'y')); g.add(p); const b = msGround(msFit(bear.clone(true), .34, 'max')); b.position.set(0, 1.18, .07); b.rotation.x = -.25; g.add(b);
         for (let k = 0; k < 3; k++) { const cc = msGround(msFit(cs.clone(true), .16, 'y')); cc.position.set(Math.cos(k * 2.1) * .35, 0, Math.sin(k * 2.1) * .35); g.add(cc); } }
+      try { geheimnisse_gestell(g, wood); } catch (e) { console.warn('Geheimnisse: Gestell', e); }
       g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true;
       const l = new VLight(0xffa860, .6, 3.5, 2); l.position.set(x, .4, z); scene.add(l);
       const hit = box(.8, 1.9, .8, x, .95, z, hidden, { cast: false }), key = 'geh_totem_' + i; S.totems.push({ g, key, i, seen: true, turned: 0, l, flare: 0, nah: false });
@@ -88,6 +90,24 @@ WORLD_MODS.push(['Geheimnisse', async () => {
   } catch (e) { console.warn('Geheimnisse: Totems', e); }
   S.ready = true;
 }]);
+// Stempel „Turm über Abgrund“ (tief ins Blech geprägt, vom Rost halb gefüllt): Abziehbild, auf die Oberfläche des Wracks gelegt und an der Fläche ausgerichtet
+function geheimnisse_stempel(o, x, z, i) { try { o.updateMatrixWorld(true); const rc = new THREE.Raycaster(new THREE.Vector3(x + (i === 2 ? .06 : -.05), 3, z + .03), new THREE.Vector3(0, -1, 0), 0, 6), h = rc.intersectObject(o, true).find(q => q.face); if (!h) return;
+    const n = h.face.normal.clone().transformDirection(h.object.matrixWorld), c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); g.clearRect(0, 0, 256, 256); g.lineJoin = 'round'; g.lineCap = 'round';
+    g.strokeStyle = 'rgba(18,10,6,.85)'; g.lineWidth = 9; g.beginPath(); g.arc(128, 128, 104, 0, 7); g.stroke(); g.lineWidth = 3; g.beginPath(); g.arc(128, 128, 90, 0, 7); g.stroke();
+    g.fillStyle = 'rgba(18,10,6,.85)'; g.fillRect(104, 58, 48, 82); for (const dx of [-24, 0, 16]) g.fillRect(104 + dx + 8, 48, 14, 14); g.clearRect(120, 78, 16, 24); g.fillStyle = 'rgba(80,36,14,.9)'; g.fillRect(122, 80, 12, 20); // Turm mit Zinnen und Fenster
+    g.strokeStyle = 'rgba(18,10,6,.9)'; g.lineWidth = 8; g.beginPath(); g.moveTo(54, 156); g.lineTo(98, 148); g.lineTo(118, 178); g.lineTo(134, 150); g.lineTo(150, 188); g.lineTo(166, 156); g.lineTo(204, 164); g.stroke(); // Abgrund: Riss darunter
+    g.lineWidth = 5; g.beginPath(); g.moveTo(104, 140); g.lineTo(118, 178); g.moveTo(152, 140); g.lineTo(150, 188); g.stroke();
+    for (let k = 0; k < 700; k++) { g.fillStyle = `rgba(${90 + Math.random() * 60 | 0},${40 + Math.random() * 30 | 0},14,${Math.random() * .5})`; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 3, 1 + Math.random() * 3); } // Rost im Stempel
+    g.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 220; k++) { g.fillStyle = `rgba(0,0,0,${Math.random() * .8})`; g.fillRect(Math.random() * 256, Math.random() * 256, 2 + Math.random() * 5, 2 + Math.random() * 4); }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; const m = new THREE.Mesh(new THREE.PlaneGeometry(.26, .26), new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
+    m.position.copy(h.point).addScaledVector(n, .006); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), n); m.userData.noCol = true; scene.add(m); } catch (e) { console.warn('Geheimnisse: Stempel', e); } }
+// Zählgestell: drei schräg angelehnte Äste (Astscan) und rote Schnur, die in engen Wicklungen um den Pfosten läuft und lose zu den Ästen hängt
+function geheimnisse_gestell(g, ast) { const T = THREE, rot = new T.MeshStandardMaterial({ color: 0xa81c16, roughness: 1 });
+  if (ast) for (let k = 0; k < 3; k++) { const a = msGround(msFit(ast.clone(true), 1.5 + k * .15, 'max')); a.position.set(Math.cos(k * 2.1 + .4) * .32, 0, Math.sin(k * 2.1 + .4) * .32); a.rotation.set(Math.sin(k * 2.1 + .4) * .32, k * 1.7, -Math.cos(k * 2.1 + .4) * .32); g.add(a); }
+  const pts = []; for (let i = 0; i <= 90; i++) { const t = i / 90, a = t * PI * 2 * 14; pts.push(new T.Vector3(Math.cos(a) * .052, .5 + t * 1.2 + Math.sin(a * 3) * .003, Math.sin(a) * .052)); }
+  g.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 360, .0042, 5), rot));
+  for (let k = 0; k < 3; k++) { const a0 = 1 + k * 2.1, p0 = new T.Vector3(Math.cos(a0) * .052, 1.1 + k * .16, Math.sin(a0) * .052), p1 = new T.Vector3(Math.cos(a0) * .3, .9 + k * .1, Math.sin(a0) * .3), p2 = new T.Vector3(Math.cos(k * 2.1 + .4) * .32, 1.05, Math.sin(k * 2.1 + .4) * .32);
+    g.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3([p0, p1, p2]), 20, .0035, 5), rot)); } }
 function geheimnisse_takeStone(s) {
   if (!s.on || geheimnisse_has(s.key)) return; story.lore.push({ key: s.key, title: 'Lichtstein · ' + GEHEIM_WORDS[s.i], html: `Ein kleiner Stein, warm wie eine Hand. Im Dunkeln leuchten seine Risse.\n\n${s.hint}` });
   s.o.visible = false; uninteract(s.hit); if (typeof neben3_start === 'function') neben3_start('geh_steine', { x: s.o.position.x, z: s.o.position.z }); else sideStart('geh_steine'); addItem('geh_lichtstein');

@@ -68,6 +68,13 @@ function ausbau_nord_groundTop(mesh, q = .35) {
 // Objekt auf Höhe/Größe bringen und mit der Unterkante auf y = 0 stellen (Mitte x/z = 0) – liefert Gruppe
 function ausbau_nord_fit(o, size, axis = 'y') { msFit(o, size, axis); return msGround(o); }
 // Ebene mit Scan-Oberfläche in Weltmetern (tile 2 m)
+// Weiche, ausgefranste Ränder für flache Bodenflächen (Laub, Beete, Gräber): aE.x = Abstand zum Rand in m, Alpha steigt über ~45 cm mit Rauschen an (Nutzer 07.10., Foto 3: hartes Quadrat im Gras)
+function boden_weich(geo, w, d) { const uv = geo.attributes.uv, e = new Float32Array(uv.count * 2); for (let i = 0; i < uv.count; i++) { const u = uv.getX(i), v = uv.getY(i); e[i * 2] = Math.min(u * w, (1 - u) * w, v * d, (1 - v) * d); } geo.setAttribute('aE', new THREE.BufferAttribute(e, 2)); return geo; }
+function boden_weichMat(mat, fe = .45) { const m = mat.clone(); m.transparent = true; m.depthWrite = false; m.polygonOffset = true; m.polygonOffsetFactor = -2; m.userData.tile = mat.userData.tile;
+  m.onBeforeCompile = sh => { sh.vertexShader = 'attribute vec2 aE; varying float vAE;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAE = aE.x;');
+    sh.fragmentShader = 'varying float vAE;\nfloat bwH(vec2 p){ return fract(sin(dot(floor(p), vec2(127.1, 311.7))) * 43758.5453); }\nfloat bwN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(bwH(i), bwH(i + vec2(1,0)), f.x), mix(bwH(i + vec2(0,1)), bwH(i + vec2(1,1)), f.x), f.y); }\n'
+      + sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n { float bn = bwN(vMapUv * 7.) * .6 + bwN(vMapUv * 23.) * .4; diffuseColor.a *= smoothstep(0., ' + fe.toFixed(2) + ' * (.55 + .9 * bn), vAE + (bn - .5) * .12); if (diffuseColor.a < .01) discard; }'); };
+  m.customProgramCacheKey = () => 'bodenweich' + fe; m.needsUpdate = true; return m; }
 function ausbau_nord_surf(key, tint = 0xffffff, nrm = 1) { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = 2; return m; }
 // Kerze (Scan-Modell per Instanz) + Flamme/Licht/Lichtschein wie die Kerzen im Ort (flackern über candlesUpdate)
 function ausbau_nord_flame(x, y, z, on, k = 1) {
@@ -105,6 +112,116 @@ function ausbau_nord_board(parts, x, z, ry, paper, y = 1.56) {
   for (const s of [1, -1]) { const p = s > 0 ? paper : paper.clone(); p.position.set(x + nx * .042 * s, y, z + nz * .042 * s); p.rotation.y = s > 0 ? ry : ry + PI; scene.add(p); }
 }
 const ausbau_nord_hand = (x, t, px, py, size = 26, col = '#1c1a2e') => { x.font = `${size}px Caveat, cursive`; x.fillStyle = col; x.fillText(t, px, py); };
+
+// ---- Basis-Umsetzung „Text gegen Welt“ (docs/gameplay/abgleich/basis_umsetzung.md): gemeinsame Bausteine, auch von den anderen Modulen genutzt (Funktionen werden hochgezogen, nur zur Bauzeit aufrufen)
+const bu_S = { kp: null, pap: null };
+// Handschrift-/Kreide-/Ritz-Abziehbild (Modul ritzschrift) als Ebene w × h m. draw(C, B, W, H, ppm) malt in Pixeln; B = Höhenrelief (null bei relief:false)
+function bu_ritz(w, h, draw, o = {}) {
+  const ppm = o.ppm ?? 400, W = Math.max(8, Math.round(w * ppm)), H = Math.max(8, Math.round(h * ppm)), c = document.createElement('canvas'), b = document.createElement('canvas'); c.width = b.width = W; c.height = b.height = H;
+  const C = c.getContext('2d'), B = b.getContext('2d'); B.fillStyle = '#808080'; B.fillRect(0, 0, W, H); ritz_rs = ((o.seed ?? 1) * 2654435761 + 4242) >>> 0;
+  draw(C, o.relief === false ? null : B, W, H, ppm);
+  const T1 = new THREE.CanvasTexture(c); T1.colorSpace = THREE.SRGBColorSpace; T1.anisotropy = 8;
+  const mo = { map: T1, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: o.pof ?? -4, polygonOffsetUnits: -4, roughness: o.rough ?? .95, metalness: 0 };
+  if (o.relief !== false) { const T2 = new THREE.CanvasTexture(b); T2.anisotropy = 8; mo.bumpMap = T2; mo.bumpScale = o.bump ?? 1.6; }
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial(mo)); m.renderOrder = 2; m.userData.noCol = true; return m; }
+// Ebene auf eine Fläche legen: Punkt p, Normale n (zeigt zum Betrachter), „oben“ der Leinwand zeigt nach up; off = Abstand von der Fläche
+function bu_an(m, p, n, up, off = .004) {
+  const z = n.clone().normalize(), u = up || new THREE.Vector3(0, 1, 0), x = new THREE.Vector3().crossVectors(u, z); if (x.lengthSq() < 1e-6) x.set(1, 0, 0); x.normalize(); const y = new THREE.Vector3().crossVectors(z, x);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z)); m.position.copy(p).addScaledVector(z, off); return m; }
+// Strahl auf Objekte: liefert { p, n (zum Strahlursprung gewandt, Welt), o, d } oder null
+function bu_strahl(objs, ox, oy, oz, dx, dy, dz, far = 6) {
+  const list = [].concat(objs).filter(Boolean); list.forEach(o => o.updateMatrixWorld(true)); const rc = new THREE.Raycaster(new THREE.Vector3(ox, oy, oz), new THREE.Vector3(dx, dy, dz).normalize(), 0, far); rc.camera = camera; const h = rc.intersectObjects(list, true).find(q => !q.object.isSprite); if (!h) return null;
+  const n = h.face ? h.face.normal.clone() : new THREE.Vector3(0, 1, 0), m4 = new THREE.Matrix4(); if (h.object.isInstancedMesh && h.instanceId !== undefined) { h.object.getMatrixAt(h.instanceId, m4); n.transformDirection(m4); }
+  n.transformDirection(h.object.matrixWorld); if (n.dot(rc.ray.direction) > 0) n.negate(); return { p: h.point.clone(), n, o: h.object, d: h.distance }; }
+// Scan-Modell holen: Klon, auf Größe gebracht, Unterkante y = 0, Mitte x/z = 0 (null bei Ladefehler)
+async function bu_mod(key, file = 'model.glb', size = 0, axis = 'y') { try { const o = (await msModel(key, file)).clone(true); if (size) msFit(o, size, axis); const g = msGround(o); g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); return g; } catch (e) { console.warn('basis_umsetzung: Modell ' + key, e); return null; } }
+// Materialien eines Modells klonen und einfärben (color: Hex oder null; mul = Multiplikation mit der vorhandenen Farbe)
+function bu_tint(o, color, { metal, rough, mul = false } = {}) { o.traverse(m => { if (!m.isMesh) return; m.material = [].concat(m.material).map(mt => { const c = mt.clone(); if (color !== null && color !== undefined) { if (mul) c.color.multiply(new THREE.Color(color)); else c.color.set(color); } if (metal !== undefined) c.metalness = metal; if (rough !== undefined) c.roughness = rough; return c; }); if (m.material.length === 1) m.material = m.material[0]; }); return o; }
+// Astern (Kopf: Strahlenblüten mit gelber Mitte als Abziehbild-Ebene, Stiele als Röhren) – ein liegender Strauß, Köpfe zu +z, Stiele zu −z; Gruppe wird mit y-Drehung gestellt
+function bu_asterTex(pal) { const k = 'aster' + pal; if (bu_S[k]) return bu_S[k]; const P = [['#6a4aa8', '#c8b6f0'], ['#a8487a', '#f2b8d6'], ['#b8b6cc', '#ffffff']][pal % 3], c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'); x.translate(64, 64);
+  for (let ring = 0; ring < 2; ring++) for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2 + ring * .11 + Math.sin(i * 7.3) * .03, L = 60 - ring * 11 - (i % 3) * 2, w = 4.6; x.save(); x.rotate(a); const g = x.createLinearGradient(0, 8, 0, L); g.addColorStop(0, ring ? P[0] : '#50388a'); g.addColorStop(.35, P[0]); g.addColorStop(1, P[1]); x.fillStyle = g; x.beginPath(); x.moveTo(-w * .45, 7); x.quadraticCurveTo(-w * 1.1, L * .55, 0, L); x.quadraticCurveTo(w * 1.1, L * .55, w * .45, 7); x.fill(); x.restore(); }
+  x.fillStyle = '#d9a82a'; x.beginPath(); x.arc(0, 0, 9.5, 0, 7); x.fill(); x.fillStyle = '#a8701a'; x.beginPath(); x.arc(0, 0, 5, 0, 7); x.fill(); for (let i = 0; i < 24; i++) { x.fillStyle = `rgba(255,236,150,${.3 + .4 * Math.sin(i)})`; x.fillRect(Math.cos(i * 2.4) * 6.5, Math.sin(i * 2.4) * 6.5, 1.6, 1.6); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return bu_S[k] = t; }
+function bu_strauss(x, y, z, ry, n = 9, seed = 1) {
+  const R_ = ausbau_nord_rng(seed), g = new THREE.Group(), stems = [], mats = [0, 1, 2].map(i => new THREE.MeshStandardMaterial({ map: bu_asterTex(i), alphaTest: .45, side: THREE.DoubleSide, roughness: .7 }));
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x4f6c37, roughness: .75 });
+  for (let i = 0; i < n; i++) { const a = (i / (n - 1) - .5) * 1.5 + (R_() - .5) * .25, L = .24 + R_() * .1, hx = Math.sin(a) * L, hz = Math.cos(a) * L, hy = .028 + R_() * .045 + (i % 2) * .018;
+    const cur = new THREE.CatmullRomCurve3([new THREE.Vector3((R_() - .5) * .016 - hx * .45, .012, -.13), new THREE.Vector3((R_() - .5) * .014, .02 + R_() * .01, 0), new THREE.Vector3(hx * .55, hy * .7, hz * .55), new THREE.Vector3(hx, hy, hz)]);
+    stems.push(new THREE.TubeGeometry(cur, 10, .0024 + R_() * .0006, 5)); const m = mats[i < n * .6 ? 0 : (i % 2 ? 1 : 2)], tilt = -.55 + (R_() - .5) * .5;
+    for (const [sz, off, rr] of [[.078 + R_() * .014, .0, 0], [.058, .004, .5]]) { const pl = new THREE.Mesh(new THREE.PlaneGeometry(sz, sz), m); pl.rotation.set(-PI / 2 + tilt, rr + R_() * .6, 0, 'YXZ'); pl.position.set(hx, hy + off + .008, hz); pl.castShadow = false; pl.receiveShadow = true; pl.userData.noCol = true; g.add(pl); }
+    if (i % 2 === 0) { const lf = new THREE.Mesh(new THREE.PlaneGeometry(.045, .012), new THREE.MeshStandardMaterial({ color: 0x57783c, side: THREE.DoubleSide, roughness: .7 })); lf.position.set(hx * .6, hy * .75 + .004, hz * .55); lf.rotation.set(-PI / 2 + .2, a * 1.3, 0, 'YXZ'); g.add(lf); } }
+  const sm = new THREE.Mesh(mergeGeometries(stems), stemMat); sm.castShadow = false; sm.userData.noCol = true; g.add(sm);
+  const tw = new THREE.Mesh(new THREE.TorusGeometry(.016, .0022, 6, 14), new THREE.MeshStandardMaterial({ color: 0x8a7248, roughness: .95 })); tw.rotation.x = PI / 2; tw.position.set(0, .02, .0); g.add(tw); tw.userData.noCol = true; // Bindfaden
+  g.position.set(x, y, z); g.rotation.y = ry; g.traverse(o => { if (o.isMesh) o.userData.noCol = true; }); return g; }
+// Spaten (Stahlblatt mit Erde am Ende, Hülse, Holzschaft, D-Griff): Ursprung = Blattspitze, Schaft zeigt nach +y (Länge ~1,0 m)
+function bu_spaten() {
+  const g = new THREE.Group(), T = THREE, steel = new T.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: .55, metalness: .72, side: T.DoubleSide });
+  const sh = new T.Shape(); sh.moveTo(-.095, .27); sh.lineTo(-.098, .1); sh.bezierCurveTo(-.09, .035, -.04, .004, 0, 0); sh.bezierCurveTo(.04, .004, .09, .035, .098, .1); sh.lineTo(.095, .27); sh.lineTo(-.095, .27);
+  const bg = new T.ExtrudeGeometry(sh, { depth: .0028, bevelEnabled: false, curveSegments: 10 }); { const P = bg.attributes.position, col = new Float32Array(P.count * 3), er = new T.Color(0x3a2a1a), st = new T.Color(0x7a746a), ru = new T.Color(0x6a4a30), c = new T.Color();
+    for (let i = 0; i < P.count; i++) { const x = P.getX(i), y = P.getY(i); P.setZ(i, P.getZ(i) + x * x * 1.7 + Math.max(0, y - .2) * .0); const k = Math.min(1, Math.max(0, (y - .05) / .1)); c.copy(er).lerp(st, k * (.7 + .3 * Math.sin(x * 70 + y * 40))); if (k > .8) c.lerp(ru, .25 + .2 * Math.sin(x * 33 - y * 51)); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; } bg.setAttribute('color', new T.BufferAttribute(col, 3)); bg.computeVertexNormals(); }
+  const bl = new T.Mesh(bg, steel); bl.castShadow = true; g.add(bl);
+  const hul = new T.Mesh(new T.CylinderGeometry(.021, .027, .11, 12), steel); hul.position.set(0, .3, .008); g.add(hul);
+  const wc = document.createElement('canvas'); wc.width = 32; wc.height = 256; { const x = wc.getContext('2d'); x.fillStyle = '#a2845a'; x.fillRect(0, 0, 32, 256); for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(${60 + Math.random() * 40},${40 + Math.random() * 30},20,${.08 + Math.random() * .2})`; x.fillRect(Math.random() * 32, 0, .6 + Math.random() * 1.6, 256); } }
+  const wt = new T.CanvasTexture(wc); wt.colorSpace = T.SRGBColorSpace; const wood = new T.MeshStandardMaterial({ map: wt, roughness: .78, metalness: 0 });
+  const shf = new T.Mesh(new T.CylinderGeometry(.0165, .0175, .68, 10), wood); shf.position.set(0, .64, .008); g.add(shf);
+  const grip = new T.Mesh(new T.CylinderGeometry(.0185, .0185, .17, 10), wood); grip.rotation.z = PI / 2; grip.position.set(0, .99, .008); g.add(grip); // T-Griff
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); return g; }
+// Einzelnes Teilnetz aus einem Scan als Mesh: Welt-Matrix eingebacken, optional flach gelegt (dünnste Achse nach oben), auf Größe (größte Kante) gebracht, Mitte x/z = 0, Unterkante y = 0. o.fbx = Materialspec für FBX
+async function bu_teil(key, file, nameRe, size, o = {}) {
+  bu_S.teil = bu_S.teil || new Map(); const k = key + '|' + nameRe + '|' + size + '|' + (o.flach ? 1 : 0);
+  if (!bu_S.teil.has(k)) bu_S.teil.set(k, (async () => { const src = o.fbx ? await msFBX(key, file, o.fbx) : await msModel(key, file); src.updateMatrixWorld(true); let m = null; src.traverse(q => { if (!m && q.isMesh && nameRe.test(q.name)) m = q; }); if (!m) return null;
+    const g = m.geometry.clone().applyMatrix4(m.matrixWorld); g.computeBoundingBox(); let b = g.boundingBox, s = b.getSize(new THREE.Vector3());
+    if (o.flach) { const ax = s.x <= s.y && s.x <= s.z ? 'x' : s.y <= s.z ? 'y' : 'z'; if (ax === 'x') g.rotateZ(PI / 2); else if (ax === 'z') g.rotateX(-PI / 2); g.computeBoundingBox(); b = g.boundingBox; s = b.getSize(new THREE.Vector3()); }
+    g.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); const sc = size / Math.max(s.x, s.y, s.z); g.scale(sc, sc, sc); g.computeBoundingBox(); g.computeBoundingSphere(); return { geo: g, mat: m.material }; })());
+  const r = await bu_S.teil.get(k); if (!r) return null; const me = new THREE.Mesh(r.geo, r.mat); me.castShadow = true; me.receiveShadow = true; return me; }
+// Kinderschuh (Größe 31, Klettverschluss, ~20 cm): Sohle, Obermaterial als Querschnitt-Loft (Ferse hoch, Zehenkappe flach), Klettband – Ursprung Fersenmitte, Spitze zeigt nach +z
+function bu_kinderschuh(farbe = 0x2c4f9c) {
+  const T = THREE, g = new T.Group(), N = 18, M = 14, L = .205;
+  const curve = (tab, t) => { for (let i = 1; i < tab.length; i++) if (t <= tab[i][0]) { const a = tab[i - 1], b = tab[i], k = (t - a[0]) / (b[0] - a[0]); return a[1] + (b[1] - a[1]) * k; } return tab[tab.length - 1][1]; };
+  const H = [[0, .068], [.2, .066], [.4, .05], [.6, .042], [.8, .034], [1, .006]], Wd = [[0, .03], [.3, .034], [.6, .04], [.85, .039], [1, .012]];
+  const loft = (t0, t1, grow, skipTop) => { const pos = [], idx = [], rows = 10; for (let i = 0; i <= rows; i++) { const tt = t0 + (t1 - t0) * i / rows, z = tt * L, a = curve(Wd, tt) + grow, b = curve(H, tt) + grow; for (let j = 0; j <= M; j++) { const th = j / M * PI; pos.push(Math.cos(th) * a, .013 + Math.sin(th) * b, z); } }
+    for (let i = 0; i < rows; i++) for (let j = 0; j < M; j++) { const a0 = i * (M + 1) + j, a1 = a0 + 1, b0 = a0 + M + 1, b1 = b0 + 1, tt = t0 + (t1 - t0) * i / rows; if (skipTop && tt < .3 && j >= 4 && j < 10) continue; idx.push(a0, b0, a1, a1, b0, b1); }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals(); return geo; };
+  const fab = new T.MeshStandardMaterial({ color: farbe, roughness: .88, side: T.DoubleSide }), velcro = new T.MeshStandardMaterial({ color: 0xc8c8c4, roughness: .95, side: T.DoubleSide }), rub = new T.MeshStandardMaterial({ color: 0xdedcd4, roughness: .7 });
+  const up = new T.Mesh(loft(0, 1, 0, true), fab), strap = new T.Mesh(loft(.4, .5, .003, false), velcro); g.add(up, strap);
+  const sh = new T.Shape(); sh.moveTo(0, 0); sh.bezierCurveTo(.034, 0, .036, .035, .033, .07); sh.bezierCurveTo(.031, .12, .043, .14, .041, .175); sh.bezierCurveTo(.039, .205, .012, .212, 0, .212); sh.bezierCurveTo(-.012, .212, -.039, .205, -.041, .175); sh.bezierCurveTo(-.043, .14, -.031, .12, -.033, .07); sh.bezierCurveTo(-.036, .035, -.034, 0, 0, 0);
+  const sg = new T.ExtrudeGeometry(sh, { depth: .013, bevelEnabled: true, bevelSize: .002, bevelThickness: .002, bevelSegments: 2, curveSegments: 12 }); sg.rotateX(PI / 2); sg.translate(0, .013, 0); const sole = new T.Mesh(sg, rub); sole.position.set(0, 0, 0); g.add(sole);
+  g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.userData.noCol = true; } }); g.userData.noCol = true; return g; }
+// Grablicht-Becher, leer (rotes Kunststoffgefäß): Ursprung Boden
+function bu_grablichtBecher() { const prof = [[0, 0], [.027, 0], [.0335, .075], [.0345, .0785], [.0325, .0775], [.0262, .004], [0, .004]], m = new THREE.Mesh(new THREE.LatheGeometry(prof.map(([r, y]) => new THREE.Vector2(r, y)), 20), new THREE.MeshStandardMaterial({ color: 0xa81818, roughness: .22, metalness: 0, transparent: true, opacity: .88, side: THREE.DoubleSide })); m.castShadow = true; m.userData.noCol = true; return m; }
+// verdorrte Grashalme (n Büschel à 5–7 Halme), liegen auf einer Fläche; ein Mesh
+function bu_gras(spots, seed = 5) { const R_ = ausbau_nord_rng(seed), geos = []; for (const [x, y, z] of spots) { const nb = 5 + Math.floor(R_() * 3); for (let b = 0; b < nb; b++) { const L = .1 + R_() * .08, gp = new THREE.PlaneGeometry(.0042, L, 1, 5), P = gp.attributes.position; gp.translate(0, L / 2, 0);
+      for (let i = 0; i < P.count; i++) { const yy = P.getY(i); P.setZ(i, yy * yy * 1.3 * (R_() > .5 ? 1 : 1)); P.setX(i, P.getX(i) * (1 - yy / L * .8)); } gp.rotateX(-PI / 2 + .12 + R_() * .35); gp.rotateY(R_() * 6.28); gp.translate(x + (R_() - .5) * .03, y + .004 + R_() * .004, z + (R_() - .5) * .03); geos.push(gp); } }
+  const m = new THREE.Mesh(mergeGeometries(geos), new THREE.MeshStandardMaterial({ color: 0x8e9a52, roughness: .85, side: THREE.DoubleSide })); m.castShadow = false; m.userData.noCol = true; return m; }
+// Pappkarton (Deckel mit Handschrift in Kuli), Ursprung Mitte Boden
+function bu_karton(w, h, d, text, px = 70, farbe = '#b09870') {
+  const T = THREE, cv = document.createElement('canvas'); cv.width = 512; cv.height = Math.round(512 * d / w); const x = cv.getContext('2d'); x.fillStyle = farbe; x.fillRect(0, 0, cv.width, cv.height);
+  for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(${80 + Math.random() * 40},${60 + Math.random() * 30},30,${Math.random() * .1})`; x.fillRect(Math.random() * cv.width, Math.random() * cv.height, 2 + Math.random() * 30, 1 + Math.random() * 2); }
+  x.fillStyle = 'rgba(20,22,60,.92)'; x.font = `${px}px Caveat, cursive`; x.textAlign = 'center'; const words = text.split(' '); let line = '', y = cv.height * .42, ls = [];
+  for (const wd of words) { const t = line ? line + ' ' + wd : wd; if (x.measureText(t).width > cv.width * .86 && line) { ls.push(line); line = wd; } else line = t; } ls.push(line); ls.forEach((l, i) => { x.save(); x.translate(cv.width / 2, y + i * px * .95); x.rotate(-.02 + i * .012); x.fillText(l, 0, 0); x.restore(); });
+  const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const side = new T.MeshStandardMaterial({ color: 0xa08a64, roughness: .95 }), top = new T.MeshStandardMaterial({ map: t, roughness: .95 });
+  const g = new T.Group(), body = new T.Mesh(new T.BoxGeometry(w * .985, h * .75, d * .985), side), lid = new T.Mesh(new T.BoxGeometry(w, h * .3, d), [side, side, top, side, side, side]); body.position.y = h * .375; lid.position.y = h * .85; g.add(body, lid);
+  g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true; return g; }
+// Streichholzschachtel (6 × 4 × 1,5 cm): Ursprung Mitte Boden
+function bu_streichholz() { const T = THREE, cv = document.createElement('canvas'); cv.width = 192; cv.height = 128; const x = cv.getContext('2d'); x.fillStyle = '#d8b030'; x.fillRect(0, 0, 192, 128); x.fillStyle = '#a02018'; x.fillRect(0, 0, 192, 30); x.fillStyle = '#1a1a1a'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('ZÜNDHÖLZER', 96, 80); x.font = '16px Arial'; x.fillText('Sicherheits-Streichhölzer', 96, 108);
+  const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; const side = new T.MeshStandardMaterial({ color: 0x8a6a40, roughness: .9 }), m = new T.Mesh(new T.BoxGeometry(.06, .015, .04), [side, side, new T.MeshStandardMaterial({ map: t, roughness: .8 }), side, side, side]); m.position.y = .0075; const g = new T.Group(); g.add(m); g.traverse(o => { if (o.isMesh) o.castShadow = true; }); g.userData.noCol = true; return g; }
+// Taschentuch (zerknittertes Stoffquadrat) mit Kuli-Schrift, darin ein Milchzahn: Ursprung Mitte Unterseite
+function bu_taschentuch(text) { const T = THREE, cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d'); x.fillStyle = '#ece8dc'; x.fillRect(0, 0, 256, 256); x.strokeStyle = 'rgba(160,150,130,.5)'; x.lineWidth = 6; x.strokeRect(10, 10, 236, 236); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(150,130,100,${Math.random() * .08})`; x.beginPath(); x.arc(Math.random() * 256, Math.random() * 256, 8 + Math.random() * 30, 0, 7); x.fill(); }
+  x.fillStyle = 'rgba(24,30,120,.9)'; x.font = '40px Caveat, cursive'; x.textAlign = 'center'; x.save(); x.translate(128, 190); x.rotate(-.06); x.fillText(text, 0, 0); x.restore(); const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8;
+  const g = new T.PlaneGeometry(.12, .12, 12, 12), P = g.attributes.position; for (let i = 0; i < P.count; i++) { const u = P.getX(i), v = P.getY(i); P.setZ(i, .004 + Math.sin(u * 55 + v * 20) * .0035 + Math.sin(v * 70 - u * 15) * .003 + Math.exp(-((u + .01) ** 2 + (v - .035) ** 2) / .0004) * .006); } g.rotateX(-PI / 2); g.computeVertexNormals();
+  const m = new T.Mesh(g, new T.MeshStandardMaterial({ map: t, roughness: 1, side: T.DoubleSide })), zahn = new T.Mesh(new T.SphereGeometry(.0042, 10, 8), new T.MeshStandardMaterial({ color: 0xf0ecdc, roughness: .35 })); zahn.scale.set(1, .85, 1.1); zahn.position.set(-.01, .0092, -.035);
+  const o = new T.Group(); o.add(m, zahn); o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); o.userData.noCol = true; return o; }
+// kleines Papieretikett fürs Einmachglas (Jahreszahl in Kuli)
+function bu_etikett(text, leer) { const T = THREE, cv = document.createElement('canvas'); cv.width = 256; cv.height = 160; const x = cv.getContext('2d'); x.fillStyle = leer ? '#efe9d6' : '#e2d8bc'; x.fillRect(0, 0, 256, 160); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(110,90,50,${Math.random() * .12})`; x.beginPath(); x.arc(Math.random() * 256, Math.random() * 160, 4 + Math.random() * 20, 0, 7); x.fill(); }
+  x.strokeStyle = 'rgba(70,50,30,.4)'; x.lineWidth = 3; x.strokeRect(6, 6, 244, 148); x.fillStyle = 'rgba(22,28,100,.92)'; x.font = '86px Caveat, cursive'; x.textAlign = 'center'; x.save(); x.translate(128, 110); x.rotate(-.04); x.fillText(text, 0, 0); x.restore(); const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8;
+  const m = new T.Mesh(new T.PlaneGeometry(.075, .047), new T.MeshStandardMaterial({ map: t, roughness: .9, polygonOffset: true, polygonOffsetFactor: -3 })); m.userData.noCol = true; return m; }
+// glatte Kiesel (Scan ‚boulder‘, auf Einheitsgröße normiert, Unterkante 0)
+function bu_kieselTeile() { return bu_S.kp || (bu_S.kp = msBake('../boulder').then(parts => { const bb = new THREE.Box3(); parts.forEach(p => { p.geo = p.geo.clone(); p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); });
+  const s = bb.getSize(new THREE.Vector3()), k = 1 / Math.max(s.x, s.y, s.z), c = bb.getCenter(new THREE.Vector3()); parts.forEach(p => { p.geo.translate(-c.x, -bb.min.y, -c.z); p.geo.scale(k, k, k); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); }); return parts; }).catch(e => { console.warn('basis_umsetzung: Kiesel', e); return null; })); }
+// Kiesel setzen: list = [[x, y, z, Größe(m), ry, Höhenanteil]]; par = Gruppe (sonst Szene) – ein Instanzsatz je Modellteil
+async function bu_kiesel(list, par, tint) { const P = await bu_kieselTeile(); if (!P || !list.length) return []; const q = new THREE.Quaternion(), e = new THREE.Euler();
+  const mats = list.map(([x, y, z, s, ry = 0, fl = .62]) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), q.setFromEuler(e.set(0, ry, 0)), new THREE.Vector3(s * (1 + .2 * Math.sin(x * 91 + z * 17)), s * fl, s * (1 - .15 * Math.cos(x * 53 + z * 29)))));
+  return P.map(p => { let mt = p.mat; if (tint !== undefined) { mt = mt.clone(); mt.color.multiply(new THREE.Color(tint)); } const im = new THREE.InstancedMesh(p.geo, mt, mats.length); mats.forEach((m, i) => im.setMatrixAt(i, m)); im.castShadow = true; im.receiveShadow = true; im.computeBoundingSphere(); (par || scene).add(im); return im; }); }
 
 async function ausbau_nord_build() {
   const N = ausbau_nord, R = ausbau_nord_rng(1312), r = (a, b) => a + R() * (b - a);
@@ -154,7 +271,7 @@ async function ausbau_nord_build() {
   }
 
   // ---------------------------------------------------------------- Böden: Gasse, Straße, Gehwege, Wege
-  const pave = ausbau_nord_surf('pavement', 0xa9a49a), gravel = ausbau_nord_surf('gravel', 0x9a948a), leaves = ausbau_nord_surf('../leaves', 0x8a8078, 1.2), dirt = ausbau_nord_surf('wet_asphalt', 0x6d6256, 1.3), tiles = ausbau_nord_surf('sidewalk_tiles', 0xa0a0a0);
+  const pave = ausbau_nord_surf('pavement', 0xa9a49a), gravel = ausbau_nord_surf('gravel', 0x9a948a), leaves = ausbau_nord_surf('../leaves', 0x8a8078, 1.2), dirt = ausbau_nord_surf('wet_asphalt', 0x6d6256, 1.3), tiles = ausbau_nord_surf('sidewalk_tiles', 0xa0a0a0), leavesW = boden_weichMat(leaves);
   plane(3.1, 48.9, -7, .024, 30.45, pave);                                    // Kirchweg-Gasse z 6 … 54.9
   plane(140, 7, -10, .02, 60, M.asphalt);                                     // Am Kirchberg
   for (let i = 0; i < 4; i++) { const cx = -80 + 17.5 + i * 35;               // Gehwege (Segmente < 80 m, damit sie begehbare Stufen sind)
@@ -259,7 +376,7 @@ async function ausbau_nord_build() {
     const list = graveMats[type]; if (!list) return;
     const sc = type === 'tomb' ? s : s; list.push(msM4(x, -.02, z, ry, sc, r(-.02, .02), r(-.025, .025)));
     blocked.push([x - .7, x + .7, z - 1.4, z + .5]);
-    if (bed && type !== 'c1') { const b = new THREE.PlaneGeometry(.9, 1.7); planeUV(b, .9, 1.7, 2); b.rotateX(-PI / 2); b.rotateY(ry); b.translate(x - Math.sin(ry) * .95, .012 + R() * .004, z - Math.cos(ry) * .95); bedGeos.push(b); }
+    if (bed && type !== 'c1') { const b = new THREE.PlaneGeometry(.9, 1.7); boden_weich(b, .9, 1.7); planeUV(b, .9, 1.7, 2); b.rotateX(-PI / 2); b.rotateY(ry); b.translate(x - Math.sin(ry) * .95, .012 + R() * .004, z - Math.cos(ry) * .95); bedGeos.push(b); }
     if (R() < .38) candleSpots.push([x - Math.sin(ry) * .3 + r(-.25, .25), z - Math.cos(ry) * .3]);
   };
   // Besondere Gräber (Positionen fest, Texte weiter unten)
@@ -284,10 +401,10 @@ async function ausbau_nord_build() {
   addGrave('gw', -34.2, 89.3, .1, .8);
   // Grab mit Gusseisen-Einfassung
   addGrave('g2', -57.2, 71.4, 0, .95);
-  inst(grave1P, graveMats.g1, {}); inst(grave2P, graveMats.g2, {}); inst(gwP, graveMats.gw, {}); inst(tombP, graveMats.tomb, {});
-  for (const k of ['c1', 'c2', 'c3', 'c4']) inst(coll[k], graveMats[k], {});
+  const graveInst = [...inst(grave1P, graveMats.g1, {}), ...inst(grave2P, graveMats.g2, {}), ...inst(gwP, graveMats.gw, {}), ...inst(tombP, graveMats.tomb, {})];
+  for (const k of ['c1', 'c2', 'c3', 'c4']) graveInst.push(...inst(coll[k], graveMats[k], {}));
   // Grabbeete (flache Erde/Laub-Flächen, zusammengefasst)
-  if (bedGeos.length) { const m = new THREE.Mesh(mergeGeometries(bedGeos), leaves); m.receiveShadow = true; scene.add(m); }
+  if (bedGeos.length) { const m = new THREE.Mesh(mergeGeometries(bedGeos), leavesW); m.receiveShadow = true; scene.add(m); }
 
   // ---- Das Gedenkfeld: sieben Kindergräber, eines offen (Aufgabe „Sieben Namen“ und „Ein Licht für jeden“)
   const KIDS = [
@@ -311,7 +428,7 @@ async function ausbau_nord_build() {
         x2.font = '34px Georgia'; x2.fillText('† 28. 7. 2009', w / 2, h * .82); }, 384);
       plate.material.roughness = 1; plate.material.transparent = true; plate.material.depthWrite = false;
       plate.position.set(x + Math.sin(ry) * faceZ * sc, .45 * sc / .7, z + Math.cos(ry) * faceZ * sc - .006); plate.rotation.y = PI + ry; K.plate = plate; scene.add(plate);
-      if (!K.open) { const b = new THREE.PlaneGeometry(.72, 1.25); planeUV(b, .72, 1.25, 2); b.rotateX(-PI / 2); b.translate(x, .014, z - .78); const bm = new THREE.Mesh(b, leaves); bm.receiveShadow = true; scene.add(bm); }
+      if (!K.open) { const b = new THREE.PlaneGeometry(.72, 1.25); boden_weich(b, .72, 1.25); planeUV(b, .72, 1.25, 2); b.rotateX(-PI / 2); b.translate(x, .014, z - .78); const bm = new THREE.Mesh(b, leavesW); bm.receiveShadow = true; scene.add(bm); }
       K.hit = box(.62, .62, .3, x, .46, z, hidden, { cast: false });
       interact(K.hit, 'Grabstein lesen', () => ausbau_nord_readKid(i));
       blocked.push([x - .6, x + .6, z - 1.7, z + .4]);
@@ -319,8 +436,52 @@ async function ausbau_nord_build() {
     // neuer, heller Stein für Luke
     const kidP = tombP.map(p => ({ geo: p.geo, mat: p.mat })), kaiMat = tombP.map(p => { const m = p.mat.clone(); m.color = new THREE.Color(0xd8d4cc); return { geo: p.geo, mat: m }; });
     inst(kidP, tk.slice(0, 6), {}); inst(kaiMat, [tk[6]], {});
+    { const x8 = KIDS[6].x + 2.02, z8 = 72.95; inst(kaiMat, [msM4(x8, -.03, z8, .02, .7, 0, 0)], {}); N.achter = { x: x8, z: z8 };      // der achte Stein: neu, glatt, ohne Namen („Sieben Namen. Acht Steine.“)
+      const h8 = box(.62, .62, .3, x8, .46, z8, hidden, { cast: false }); interact(h8, 'Grabstein ansehen', () => toast('Ein achter Stein. Neu, glatt, ohne Namen. Kein Grab davor.', 4200)); blocked.push([x8 - .6, x8 + .6, z8 - 1.7, z8 + .4]); }
     N.kids = KIDS;
   }
+
+  // ---- Basis-Umsetzung · Gedenkfeld und Gräber: was die Grabtexte behaupten, ist am Stein zu sehen (Astern, Kratzstriche im Moos, Kreidekreise, Postkarte, Meißelung)
+  try {
+    const stoneB = new THREE.Box3(); tombP.forEach(p => { p.geo.computeBoundingBox(); stoneB.union(p.geo.boundingBox); }); const stoneW = stoneB.max.x - stoneB.min.x, UP = new THREE.Vector3(0, 1, 0);
+    const onStone = (i, w, h, draw, o = {}) => { const K = KIDS[i], m = bu_ritz(w, h, draw, o); m.position.copy(K.plate.position); m.quaternion.copy(K.plate.quaternion); m.translateZ(.007); m.translateX(o.dx || 0); m.translateY(o.dy || 0); scene.add(m); return m; };
+    const mossProto = await bu_mod('w_mosspatch', 'model.glb', .5, 'max');
+    const moos = (x, z, ry, k = 1) => { if (!mossProto) return null; const g = mossProto.clone(true); g.scale.multiplyScalar(k); g.position.set(x, .006, z); g.rotation.y = ry; g.traverse(o => { if (o.isMesh) { o.userData.noCol = true; o.castShadow = false; } }); scene.add(g); return g; };
+    const flachBei = (x, z, w, h, draw, o = {}) => { const m = bu_ritz(w, h, draw, o); m.rotation.set(-PI / 2, 0, o.rz || 0, 'YXZ'); m.position.set(x, o.y ?? .05, z); scene.add(m); return m; };
+    const zF = i => KIDS[i].plate.position.z;
+    // Dina: Kreidekreise um den Namen, einer im anderen, immer kleiner, bis nur ein Punkt bleibt
+    onStone(4, .5, .5, (C, B, W, H, ppm) => { const rm = Math.min(.22, stoneW * .69 / 2 - .03) * ppm, n = 9;
+      for (let k = 0; k < n; k++) { const r = rm * Math.pow(1 - k / n, 1.25), cx = W / 2 + ritz_RN() * 4 + k * .6, cy = H / 2 + ritz_RN() * 4, pts = [];
+        for (let a = 0; a < 25; a++) { const t = a / 24 * PI * 2 * 1.04 + k * .7; pts.push([cx + Math.cos(t) * r * (1 + ritz_RN() * .02), cy + Math.sin(t) * r * .88 * (1 + ritz_RN() * .02)]); } ritz_strich(C, null, pts, 22, 'kreide', ritz_R(.3, .6)); }
+      C.fillStyle = 'rgba(240,238,230,.9)'; C.beginPath(); C.arc(W / 2, H / 2, 4, 0, 7); C.fill(); }, { ppm: 500, seed: 4, relief: false });
+    // Mike: „2026“ viel später eingemeißelt, schief
+    onStone(3, .34, .13, (C, B, W, H) => { ritz_zeile(C, B, '2026', W * .13, H * .76, H * .6, { stil: 'ritz', winkel: .08, alpha: 1, jit: 1.7 }); }, { ppm: 520, seed: 31, bump: 3.2, dy: -.17 });
+    // Heidi: die aufgeweichte Postkarte ohne Absender, an den Stein gelehnt
+    { const pc = ausbau_nord_paper(.148, .105, (x, w, h) => { x.fillStyle = '#d9d1b8'; x.fillRect(0, 0, w, h); for (let i = 0; i < 14; i++) { const gx = Math.random() * w, gy = Math.random() * h, g = x.createRadialGradient(gx, gy, 0, gx, gy, 30 + Math.random() * 80); g.addColorStop(0, 'rgba(120,104,70,.28)'); g.addColorStop(1, 'rgba(120,104,70,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
+        x.strokeStyle = 'rgba(60,50,40,.35)'; x.lineWidth = 2; x.beginPath(); x.moveTo(w * .56, 18); x.lineTo(w * .56, h - 18); x.stroke(); x.strokeRect(w - 74, 16, 52, 62); for (let k = 0; k < 4; k++) { x.beginPath(); x.moveTo(w * .62, h * .5 + k * 30); x.lineTo(w - 24, h * .5 + k * 30); x.stroke(); }
+        ausbau_nord_hand(x, 'Sind sie', 28, 82, 44, 'rgba(34,40,92,.85)'); ausbau_nord_hand(x, 'wieder da?', 40, 132, 44, 'rgba(34,40,92,.8)');
+        x.fillStyle = 'rgba(70,90,110,.22)'; for (let k = 0; k < 6; k++) { x.beginPath(); x.ellipse(Math.random() * w, Math.random() * h, 20 + Math.random() * 40, 6 + Math.random() * 14, Math.random() * 3, 0, 7); x.fill(); } }, 512);
+      pc.material.alphaTest = .02; pc.material.roughness = .62; pc.geometry.dispose(); pc.geometry = new THREE.PlaneGeometry(.148, .105, 10, 6); { const P = pc.geometry.attributes.position; for (let i = 0; i < P.count; i++) { const u = P.getX(i), v = P.getY(i); P.setZ(i, Math.sin(u * 38 + 1.3) * .0035 + Math.sin(v * 52) * .002 + Math.max(0, u - .045) * Math.max(0, v - .01) * .45); } pc.geometry.computeVertexNormals(); }
+      const K = KIDS[5], ang = 1.18, L = .105; pc.userData.noCol = true; pc.position.set(K.x + .13, .014 + Math.sin(ang) * L / 2 + .002, zF(5) - Math.cos(ang) * L / 2 - .004); pc.rotation.set(-(PI / 2 - ang), PI - .18, .12, 'YXZ'); scene.add(pc); N.postkarte = pc; }
+    // Zayn: frische Astern auf dem Grab; ins Moos am Sockel sind Striche gekratzt, Reihe um Reihe, gezählt
+    { const Z = KIDS[0]; moos(Z.x - .04, zF(0) - .24, .4, 1);
+      flachBei(Z.x - .04, zF(0) - .25, .5, .4, (C, B, W, H, ppm) => { let y = H * .17; for (let row = 0; row < 3; row++, y += H * .3) { let x = W * .08; for (let g = 0; g < 4 + (row === 2 ? -1 : 0); g++, x += W * .22) {
+              for (let k = 0; k < 4; k++) ritz_strich(C, B, [[x + k * ppm * .017 + ritz_RN() * 1.5, y], [x + k * ppm * .017 + ritz_RN() * 2, y + ppm * .075 + ritz_RN() * 3]], 60, 'ritz', ritz_R(.75, 1)); ritz_strich(C, B, [[x - ppm * .01, y + ppm * .06], [x + ppm * .07, y + ppm * .01]], 60, 'ritz', ritz_R(.75, 1)); } } }, { ppm: 520, seed: 7, bump: 2.6, y: .06, rz: -.1 });
+      scene.add(bu_strauss(Z.x + .17, .026, zF(0) - .72, -.1, 10, 1312)); }
+    // Lucy: Spuren von Fingern im Moos (Wischspuren), frisch; Familie Brandt: LUCY mit dem Finger ins Moos geschrieben
+    { const L = KIDS[2]; moos(L.x + .02, zF(2) - .24, 1.7, 1);
+      flachBei(L.x + .02, zF(2) - .25, .46, .36, (C, B, W, H, ppm) => { for (let k = 0; k < 4; k++) { const x0 = W * (.2 + k * .17) + ritz_RN() * 3, pts = []; for (let t = 0; t <= 6; t++) pts.push([x0 + Math.sin(t * .9 + k) * ppm * .012, H * .72 - t * H * .1]); ritz_strich(C, B, pts, 150, 'ritz', ritz_R(.85, 1)); } }, { ppm: 480, seed: 11, bump: 3, y: .055 }); }
+    const sp = SPECIAL.find(q => q.id === 'brandt'); if (sp) { const h0 = bu_strahl(graveInst, sp.x, .3, sp.z - 3, 0, 0, 1, 6), zf = h0 ? h0.p.z : sp.z - .12;
+      moos(sp.x + .02, zf - .27, .9, 1.1); flachBei(sp.x + .02, zf - .27, .6, .3, (C, B, W, H) => { const sz = H * .55, w = ritz_breite('LUCY', sz); for (const dx of [0, 2.2]) { ritz_rs = 5150; ritz_zeile(C, B, 'LUCY', (W - w) / 2 + dx, H * .78, sz, { stil: 'ritz', jit: 1.6 }); } }, { ppm: 480, seed: 12, bump: 3, y: .058 }); }
+    // Peter Kranz: frisch mit Kreide auf dem Sockel
+    { const sp2 = SPECIAL.find(q => q.id === 'kranz'); let h0 = null; for (const y of [.14, .2, .26, .32]) { h0 = bu_strahl(graveInst, sp2.x, y, sp2.z - 3, 0, 0, 1, 6); if (h0) { h0.y = y; break; } }
+      if (h0) { const m = bu_ritz(.5, .1, (C, B, W, H) => { const t = '1975  1992  2009  2026', sz = H * .56, w = ritz_breite(t, sz), k = Math.min(1, (W - 12) / w); ritz_zeile(C, null, t, (W - w * k) / 2, H * .72, sz * k, { stil: 'kreide', alpha: .92, winkel: -.012 }); }, { ppm: 520, seed: 1975, relief: false }); bu_an(m, h0.p, h0.n, UP, .006); m.position.y = h0.y; scene.add(m); } }
+    // Unbekanntes Kind: „08“ eingemeißelt (vorn), auf der Rückseite ein Auge
+    { const sp3 = SPECIAL.find(q => q.id === 'unbekannt'), f = bu_strahl(graveInst, sp3.x, .42, sp3.z - 3, 0, 0, 1, 6), b = bu_strahl(graveInst, sp3.x, .42, sp3.z + 3, 0, 0, -1, 6);
+      if (f) { const m = bu_ritz(.3, .16, (C, B, W, H) => { const sz = H * .78, w = ritz_breite('08', sz); ritz_zeile(C, B, '08', (W - w) / 2, H * .88, sz, { stil: 'ritz', jit: .8 }); }, { ppm: 520, seed: 8, bump: 3.4 }); bu_an(m, f.p, f.n, UP, .006); scene.add(m); }
+      if (b) { const m = bu_ritz(.14, .09, (C, B, W, H) => { const cx = W / 2, cy = H / 2; ritz_strich(C, B, [[cx - W * .42, cy], [cx - W * .2, cy - H * .3], [cx + W * .2, cy - H * .3], [cx + W * .42, cy]], 46, 'ritz', 1); ritz_strich(C, B, [[cx - W * .42, cy], [cx - W * .2, cy + H * .3], [cx + W * .2, cy + H * .3], [cx + W * .42, cy]], 46, 'ritz', 1);
+          const pts = []; for (let a = 0; a <= 12; a++) pts.push([cx + Math.cos(a / 12 * 6.4) * H * .17, cy + Math.sin(a / 12 * 6.4) * H * .17]); ritz_strich(C, B, pts, 40, 'ritz', 1); ritz_strich(C, B, [[cx - 2, cy], [cx + 2, cy + 1]], 40, 'ritz', 1); }, { ppm: 700, seed: 9, bump: 3.4 }); bu_an(m, b.p, b.n, UP, .006); scene.add(m); } }
+  } catch (e) { console.warn('Basis-Umsetzung Gedenkfeld', e); }
 
   // ---- Das offene Grab: Grube (Wände/Boden mit Erd-Scan), Tiefenmaske statt Loch im Boden, Erdhügel daneben
   {
@@ -335,7 +496,7 @@ async function ausbau_nord_build() {
     const mg = new THREE.SphereGeometry(1, 28, 14, 0, PI * 2, 0, PI / 2), mp = mg.attributes.position;
     for (let i = 0; i < mp.count; i++) { const x = mp.getX(i), y = mp.getY(i), z = mp.getZ(i), n = Math.sin(x * 9.1 + z * 4.3) * Math.sin(z * 7.7) * .09 + Math.sin(x * 23 + z * 19) * .03; mp.setXYZ(i, x * (1 + n * .4), Math.max(0, y * (.85 + n) - .02), z * (1 + n * .3)); }
     mg.computeVertexNormals(); const uv = mg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 2.2, uv.getY(i) * 1.1);
-    const mound = new THREE.Mesh(mg, dirt); mound.scale.set(.62, .42, 1.15); mound.position.set(gx + 1.02, 0, gz + .05); mound.rotation.y = .06; mound.castShadow = true; mound.receiveShadow = true; scene.add(mound);
+    const mound = new THREE.Mesh(mg, dirt); mound.scale.set(.62, .42, 1.15); mound.position.set(gx + 1.02, 0, gz + .05); mound.rotation.y = .06; mound.castShadow = true; mound.receiveShadow = true; scene.add(mound); N.mound = mound;
     addCol(gx - W / 2, gx + W / 2, gz - L / 2, gz + L / 2);   // in die Grube fällt man nicht – der Rand hält auf
     N.pit = { x: gx, z: gz }; blocked.push([gx - 1, gx + 1.8, gz - 1.3, gz + 1.3]);
   }
@@ -351,6 +512,24 @@ async function ausbau_nord_build() {
     const lhit = box(.35, .5, .35, -41.45, .25, 74.2, hidden, { cast: false });
     N.lantern = { g: lg, flame: lf, hit: lhit, home: lg.position.clone() };
     interact(lhit, () => ausbau_nord.lantern.taken ? '' : 'Laterne nehmen', () => ausbau_nord_takeLantern());
+    // Basis-Umsetzung: das rote Kinderhaarband, zweimal um die gefalteten Handgelenke geknotet, und der laminierte Zettel zu ihren Füßen
+    try {
+      const FZ = 72.4; let best = null;
+      for (let y = .8; y <= 1.4; y += .02) { const h = bu_strahl(g, -42.05, y, FZ, 0, 0, 1, 4); if (h && (!best || h.p.z < best.z - .004)) best = { y, z: h.p.z }; }
+      if (best) {
+        const wl = bu_strahl(g, -42.6, best.y, best.z + .05, 1, 0, 0, 1), wr = bu_strahl(g, -41.5, best.y, best.z + .05, -1, 0, 0, 1), halfW = wl && wr ? Math.min(.17, Math.max(.045, (wr.p.x - wl.p.x) / 2)) : .07, cx = wl && wr ? (wl.p.x + wr.p.x) / 2 : -42.05;
+        const ribbon = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: 0xb01a20, roughness: .42, metalness: 0, side: THREE.DoubleSide }), ax = new THREE.Vector3(0, -.45, -.89).normalize();
+        for (let k = 0; k < 2; k++) { const t = new THREE.Mesh(new THREE.TorusGeometry(1, .0065, 6, 28), mat); t.scale.set(halfW + .012 + k * .004, halfW * .62 + .012, .9); t.position.copy(ax).multiplyScalar(-.012 + k * .016); t.castShadow = true; ribbon.add(t); }
+        const knot = new THREE.Mesh(new THREE.SphereGeometry(.012, 10, 8), mat); knot.scale.set(1.3, 1, 1); knot.position.set(.0, -(halfW * .62 + .012), 0); ribbon.add(knot);
+        for (const [dx, L, rz] of [[-.006, .085, .12], [.008, .06, -.2]]) { const tail = new THREE.Mesh(new THREE.PlaneGeometry(.011, L, 1, 5), mat); const P = tail.geometry.attributes.position; for (let i = 0; i < P.count; i++) P.setZ(i, Math.sin(P.getY(i) * 60) * .004); tail.geometry.translate(0, -L / 2, 0); tail.position.set(dx, knot.position.y - .006, .004); tail.rotation.z = rz; ribbon.add(tail); }
+        ribbon.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), ax); ribbon.position.set(cx, best.y + .01, best.z + .075); ribbon.traverse(o => { if (o.isMesh) o.userData.noCol = true; }); scene.add(ribbon); N.haarband = ribbon; }
+      const bz = bu_strahl(g, -42.4, .12, FZ, 0, 0, 1, 4), zq = bz ? bz.p.z : 74.3, ang = 1.3, Lh = .17;
+      const zet = ausbau_nord_paper(.125, Lh, (x, w, h) => { x.fillStyle = '#e8e2cf'; x.fillRect(0, 0, w, h); for (let i = 0; i < 30; i++) { x.fillStyle = `rgba(110,90,60,${Math.random() * .08})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 5 + Math.random() * 25, 0, 7); x.fill(); }
+        ['Für unsere', 'Sieben.', 'Wer ihnen ein Licht', 'bringt, den vergessen', 'sie nicht.'].forEach((l, i) => ausbau_nord_hand(x, l, 26, 84 + i * 52, i < 2 ? 54 : 44, '#1c1a2e')); ausbau_nord_hand(x, '— H. W.', 190, h - 36, 46, '#1c1a2e'); }, 512);
+      zet.material = new THREE.MeshPhysicalMaterial({ map: zet.material.map, roughness: .22, metalness: 0, clearcoat: 1, clearcoatRoughness: .08, side: THREE.DoubleSide });  // laminiert: glänzende Folie
+      const lam = new THREE.Mesh(new THREE.PlaneGeometry(.136, Lh + .011), new THREE.MeshPhysicalMaterial({ color: 0xf2f0ea, transparent: true, opacity: .55, roughness: .15, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false })); // Folienrand
+      const zg = new THREE.Group(); zg.add(lam, zet); zet.position.z = .0015; lam.position.z = .0005; zg.userData.noCol = true; zg.rotation.set(-(PI / 2 - ang), PI + .2, .08, 'YXZ'); zg.position.set(-42.42, Math.sin(ang) * Lh / 2 + .016, zq - Math.cos(ang) * Lh / 2 - .012); scene.add(zg); N.madonnaZettel = zg;
+    } catch (e) { console.warn('Basis-Umsetzung Madonna', e); }
     blocked.push([-43, -40.8, 74, 76]);
   }
 
@@ -379,6 +558,18 @@ async function ausbau_nord_build() {
     const cg = new THREE.Group(); cg.add(crossIronM); const hgt = tmpB.max.y - tmpB.min.y; crossIronM.scale.multiplyScalar(1.95 / hgt);
     crossIronM.updateMatrixWorld(true); const b2 = new THREE.Box3(); crossIronM.traverse(o => { if (o.isMesh && o.visible) b2.expandByObject(o); }); const c2 = b2.getCenter(new THREE.Vector3());
     crossIronM.position.set(-c2.x, -b2.min.y - .15, -c2.z); cg.position.set(-66.2, 0, 77.9); cg.rotation.y = .12; scene.add(cg); cg.traverse(o => { if (o.isMesh) o.castShadow = true; });
+    // Basis-Umsetzung: acht Haarbänder an den Ranken – sieben ausgebleicht vom Regen, das achte neu und rot (fester Knoten)
+    try { cg.updateMatrixWorld(true); const R2 = ausbau_nord_rng(8077), rib = new THREE.Group(); let n = 0;
+      const cand = []; for (let cx = -66.9; cx <= -65.5; cx += .02) for (let cy = 1.05; cy <= 1.85; cy += .03) { const h = bu_strahl(cg, cx, cy, 75.4, 0, 0, 1, 4); if (h && Math.abs(h.n.y) < .85) cand.push(h); }
+      for (let i = cand.length - 1; i > 0; i--) { const j = Math.floor(R2() * (i + 1)); [cand[i], cand[j]] = [cand[j], cand[i]]; }
+      for (const h of cand) { if (n >= 8) break;
+        if (rib.children.some(q => Math.abs(q.position.x - h.p.x) < .09 && Math.abs(q.position.y - h.p.y) < .14)) continue;
+        const neu = n === 7, L = neu ? .17 : .1 + R2() * .08, col = neu ? 0xb2171d : [0x8a8884, 0x7e7c78, 0x94918a][n % 3], mat = new THREE.MeshStandardMaterial({ color: col, roughness: neu ? .4 : .92, side: THREE.DoubleSide }), band = new THREE.Group();
+        const kn = new THREE.Mesh(new THREE.TorusGeometry(.011, .0045, 6, 12), mat); kn.rotation.y = PI / 2; band.add(kn); // Schlaufe um die Ranke
+        for (const dx of [-.006, .006]) { const gp = new THREE.PlaneGeometry(.013, L * (dx < 0 ? 1 : .72), 1, 8), P = gp.attributes.position; gp.translate(0, -(L * (dx < 0 ? 1 : .72)) / 2 - .008, 0); for (let i = 0; i < P.count; i++) { const yy = -P.getY(i); P.setZ(i, Math.sin(yy * 38 + n) * .005 * Math.min(1, yy * 12)); P.setX(i, P.getX(i) + Math.sin(yy * 14 + n * 2) * .004 * yy * 8); } gp.computeVertexNormals(); const t = new THREE.Mesh(gp, mat); t.position.x = dx; t.rotation.z = dx * 3 + (R2() - .5) * .12; band.add(t); }
+        band.position.copy(h.p); band.position.z -= .012; band.position.y += .004; band.rotation.y = (R2() - .5) * .5; rib.add(band); n++; }
+      rib.traverse(o => { if (o.isMesh) { o.userData.noCol = true; o.castShadow = false; } }); scene.add(rib); N.haarbaender = n; if (n < 8) console.warn('Eisenkreuz: nur ' + n + ' Haarbänder gesetzt');
+    } catch (e) { console.warn('Basis-Umsetzung Eisenkreuz', e); }
     const hit = box(.8, 1.9, .5, -66.2, .95, 77.9, hidden, { cast: false });
     interact(hit, 'Eisenkreuz', () => openNote('Das Eisenkreuz', 'Ein schmiedeeisernes Grabkreuz, fast zwei Meter hoch. Der Name darunter ist weggerostet.\n\nAn den Ranken hängen sieben ausgebleichte Haarbänder, vom Regen grau.\nEin achtes ist neu. Rot. Der Knoten ist noch fest.', 'nord_eisenkreuz')); // STORY-HOOK: acht Haarbänder
     blocked.push([-67.2, -65.2, 77, 78.8]);
@@ -403,6 +594,19 @@ async function ausbau_nord_build() {
     crossStoneM.traverse(o => { if (!o.isMesh) return; const p = o.geometry.attributes.position; for (let i = 0; i < p.count; i += 7) { v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); const d = Math.hypot(v.x - c.x, v.y - c.y); if (d > fd) { fd = d; far = v.clone(); } } });
     const a = Math.atan2(far.y - c.y, far.x - c.x); crossStoneM.rotation.z += -PI / 2 - a;
     const g = ausbau_nord_fit(g0, 1.08); g.position.set(-10.7, -.1, 53.3); g.rotation.y = PI / 2 + .25; scene.add(g); g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    // Basis-Umsetzung: Schwert, 1312 und die verwitterte Umschrift in den Stein geritzt; sieben glatte Kiesel in einer Reihe am Fuß, ein achter abseits
+    try {
+      const fz = bu_strahl(g, -8.0, .38, 53.3, -1, 0, 0, 3);
+      if (fz) { const sw = (() => { const a = bu_strahl(g, fz.p.x + .5, .38, 52.9, 0, 0, 1, 1.2), b = bu_strahl(g, fz.p.x + .5, .38, 53.7, 0, 0, -1, 1.2); return a && b ? Math.abs(b.p.z - a.p.z) : .2; })(), w = Math.min(.3, Math.max(.12, sw * .86)), h = .5;
+        const m = bu_ritz(w, h, (C, B, W, H, ppm) => { const cx = W / 2, bl = H * .5, sz = Math.min(W * .78, ppm * .36);
+            ritz_strich(C, B, [[cx, H * .1], [cx + 3, bl]], sz, 'ritz', 1); ritz_strich(C, B, [[cx - W * .26, H * .3], [cx - 1, H * .31], [cx + W * .26, H * .3]], sz, 'ritz', 1); ritz_strich(C, B, [[cx - 1, H * .32], [cx - 1, H * .4]], sz, 'ritz', .9); ritz_strich(C, B, [[cx - 7, H * .41], [cx + 6, H * .41]], sz * .7, 'ritz', .9);
+            ritz_strich(C, B, [[cx - 4, H * .1], [cx, H * .02], [cx + 4, H * .1]], sz, 'ritz', 1);
+            const t = '1312', tz = Math.min(H * .15, (W - 10) / ritz_breite(t, 1)); ritz_zeile(C, B, t, (W - ritz_breite(t, tz)) / 2, H * .64, tz, { stil: 'ritz', jit: 1.3 });
+            C.save(); C.translate(W * .1, H * .98); C.rotate(-PI / 2); ritz_zeile(C, B, 'BIS DASS ER DIE SEINE SELBST SUCHE', 0, 0, W * .15, { stil: 'ritz', alpha: .38, jit: 1.8 }); C.restore(); }, { ppm: 700, seed: 1312, bump: 3 });
+        bu_an(m, fz.p, fz.n, new THREE.Vector3(0, 1, 0), .004); m.position.y = .62; scene.add(m); N.suehneRitz = m;
+        const gz = fz.p.z, k0 = fz.p.x + .1, ks = []; for (let k = 0; k < 7; k++) ks.push([k0 + Math.sin(k * 2.1) * .012, 0, gz + (k - 3) * .105, .05 + .012 * Math.sin(k * 3.7), k * 1.3, .6]); ks.push([k0 + .26, 0, gz + .62, .054, 2.2, .6]);
+        bu_kiesel(ks).then(() => {}); }
+    } catch (e) { console.warn('Basis-Umsetzung Sühnekreuz', e); }
     const hit = box(.8, 1.1, .6, -10.7, .55, 53.3, hidden, { cast: false });
     interact(hit, 'Steinkreuz', () => openNote('Das Sühnekreuz', 'Ein altes Steinkreuz, schief und halb im Boden versunken. Solche Kreuze stellte man im Mittelalter auf – als Buße für einen Mord.\n\nIn den Stein geritzt, kaum noch zu erkennen: ein Schwert. Daneben eine Jahreszahl: <b>1312</b>.\n\nDarunter, in der Umschrift, noch lesbar: „… bis dass er die Seine selbst suche und finde.“\n\nAm Fuß liegen sieben glatte Kiesel in einer Reihe. Ein achter liegt ein Stück abseits, als wäre er weggerollt.', 'nord_suehnekreuz')); // STORY-HOOK: Justin, 1312
   }
@@ -422,13 +626,26 @@ async function ausbau_nord_build() {
     ausbau_nord_board(psignP, -9.45, 6.9, PI, sign);
     const sh = box(.7, .6, .2, -9.45, 1.5, 6.9, hidden, { cast: false });
     interact(sh, 'Wegweiser', () => toast('KIRCHWEG – zum Friedhof, zur Kapelle, zum Spielplatz. „Spielplatz“ ist durchgestrichen. Darunter, in Rot: NICHT NACHTS.', 5200));
-    // Himmel und Hölle (Kreide, Kinderhand)
-    const hop = ausbau_nord_paper(1.3, 3.2, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(235,228,205,.85)'; x.lineWidth = 7; x.lineCap = 'round'; x.fillStyle = 'rgba(235,228,205,.85)'; x.textAlign = 'center'; x.font = 'bold 60px Georgia';
-      const s = w / 2, rows = [[1], [2], [3], [4, 5], [6], [7, 8]]; let yy = h - 20;
-      rows.forEach(rw => { const bw = rw.length === 1 ? s : s; const y0 = yy - s * .9; rw.forEach((n, j) => { const x0 = rw.length === 1 ? w / 2 - s / 2 : j * s; x.strokeRect(x0 + 6, y0, bw - 12, s * .9 - 6); x.fillText(n, x0 + bw / 2, y0 + s * .6); }); yy = y0; });
-      x.font = '34px Caveat, cursive'; x.fillStyle = 'rgba(160,30,30,.9)'; x.fillText('LUKE', w * .75, 118);
-      x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${R() * .5})`; x.beginPath(); x.arc(R() * w, R() * h * .8 + h * .2, R() * 10 + 2, 0, 7); x.fill(); } }, 256);
-    hop.material.depthWrite = false; hop.rotation.x = -PI / 2; hop.position.set(-7.1, .032, 20.5); hop.rotation.z = PI; scene.add(hop);
+    // Himmel und Hölle (Kreide, Kinderhand): sechs Reihen à 50 cm – 1 · 2 · 3 · 4/5 · 6 · 7/8; der Regen hat alles verwaschen, nur die Acht (mit LUKE) ist frisch nachgezogen
+    const hop = bu_ritz(1.3, 3.2, (C, B, W, H, ppm) => {
+      const c = .5 * ppm, rows = [[1], [2], [3], [4, 5], [6], [7, 8]], cells = []; let yb = H - .08 * ppm;
+      rows.forEach(rw => { const y0 = yb - c; rw.forEach((n, j) => cells.push({ n, x0: W / 2 - rw.length * c / 2 + j * c, y0 })); yb = y0; });
+      const j = () => ritz_RN() * c * .02;
+      const zelle = (k, al) => { const { n, x0, y0 } = k, ln = (a, b, p2, q) => ritz_strich(C, null, [[a, b], [p2, q]], c * .42, 'kreide', al);
+        ln(x0 + j(), y0 + j(), x0 + c + j(), y0 + j()); ln(x0 + c + j(), y0 + j(), x0 + c + j(), y0 + c + j()); ln(x0 + c + j(), y0 + c + j(), x0 + j(), y0 + c + j()); ln(x0 + j(), y0 + c + j(), x0 + j(), y0 + j());
+        const sz = c * .52, t = String(n); ritz_zeile(C, null, t, x0 + c / 2 - ritz_breite(t, sz) / 2 + sz * .1, y0 + c * .7, sz, { stil: 'kreide', alpha: al }); };
+      const k8 = cells.find(q => q.n === 8);
+      cells.forEach(k => { if (k.n !== 8) zelle(k, k.n === 7 ? .86 : ritz_R(.6, .88)); });
+      C.save(); C.globalCompositeOperation = 'destination-out';          // Regen, Schuhe, Jahre: Kreide ausgewaschen (unten stärker, die Sieben nur leicht)
+      for (let i = 0; i < 1100; i++) { const px = ritz_R(0, W), py = ritz_R(0, H), r = ritz_R(1.5, 11) * ppm / 300, in8 = px > k8.x0 - c * .15 && px < k8.x0 + c * 1.15 && py > k8.y0 - c * .15 && py < k8.y0 + c * 1.15, in7 = px > k8.x0 - c * 1.15 && px < k8.x0 - c * .15 && py < k8.y0 + c * 1.15;
+        if (in8) continue; const g = C.createRadialGradient(px, py, 0, px, py, r), a = ritz_R(.25, .8) * (in7 ? .3 : .55 + .6 * py / H); g.addColorStop(0, `rgba(0,0,0,${a})`); g.addColorStop(1, 'rgba(0,0,0,0)'); C.fillStyle = g; C.fillRect(px - r, py - r, r * 2, r * 2); }
+      for (let i = 0; i < 38; i++) { const px = ritz_R(0, W), py = ritz_R(0, H), L = ritz_R(.1, .5) * ppm; if (px > k8.x0 - c * .2 && px < k8.x0 + c * 1.2 && py > k8.y0 - c * .2 && py < k8.y0 + c * 1.2) continue; C.strokeStyle = `rgba(0,0,0,${ritz_R(.12, .4)})`; C.lineWidth = ritz_R(2, 9) * ppm / 300; C.lineCap = 'round'; C.beginPath(); C.moveTo(px, py); C.lineTo(px + ritz_RN() * 6, py + L); C.stroke(); }
+      C.restore();
+      zelle(k8, .98); zelle(k8, .45);                                       // frisch nachgezogen: doppelte Spur
+      const t = document.createElement('canvas'); t.width = Math.ceil(c); t.height = Math.ceil(c * .3); const tc = t.getContext('2d'), sz = c * .2, lw = ritz_breite('LUKE', sz); ritz_zeile(tc, null, 'LUKE', (t.width - lw) / 2, t.height * .8, sz, { stil: 'kreide', alpha: .95 });
+      tc.globalCompositeOperation = 'source-in'; tc.fillStyle = 'rgb(214,92,80)'; tc.fillRect(0, 0, t.width, t.height); C.drawImage(t, k8.x0, k8.y0 + c * .7);  // klein, in Kinderschrift, rote Kreide
+    }, { ppm: 360, seed: 8, relief: false });
+    hop.rotation.x = -PI / 2; hop.rotation.z = PI; hop.position.set(-7.1, .032, 20.5); scene.add(hop);
     const hh = box(1.3, .15, 3.2, -7.1, .05, 20.5, hidden, { cast: false });
     interact(hh, 'Kreidezeichnung', () => openNote('Himmel und Hölle', 'Ein Hüpfspiel, mit Kreide aufs Pflaster gemalt. Der Regen hat fast alles weggewaschen.\n\nNur die Acht nicht. Die Acht ist frisch nachgezogen.\nUnd in der Acht, klein, in einer Kinderschrift, die du kennst:\n<span class="hand" style="color:#8a1010">LUKE</span>', 'nord_hupfspiel')); // STORY-HOOK: die Acht
     // Kreidepfeile den Weg hinauf (wie die Pfeile im Ort)
@@ -449,12 +666,12 @@ async function ausbau_nord_build() {
       ausbau_nord_hand(x, '03:13 nur für Kinder', 60, h - 60, 40, '#101a50'); x.strokeStyle = '#101a50'; x.lineWidth = 3; for (let k = 0; k < 3; k++) { x.beginPath(); x.moveTo(60, h - 48 + k * 6); x.lineTo(330, h - 50 + k * 6); x.stroke(); } }, 360);
     tt.position.set(8.4, 1.55, 51.98); scene.add(tt);
     const th = box(.6, .8, .3, 8.4, 1.55, 52.1, hidden, { cast: false });
-    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); ausbau_nord_quest('plakat'); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Kirchberg → Kreisstadt\n\nMo–Fr früh und nachmittags je einer\nSa vormittags\nSo kein Verkehr\n\nUnten, Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan', () => ausbau_nord_plakatCheck()); }); // STORY-HOOK: Linie 7, 03:13
+    interact(th, 'Fahrplan lesen', () => { N.busArmed = Math.max(N.busArmed, 1); ausbau_nord_quest('plakat'); openNote('Fahrplan · Haltestelle Kirchberg', '<b>Linie 7</b> · Kirchberg → Kreisstadt\n\nMo–Fr früh und nachmittags je zwei\nSa vormittags\nSo kein Verkehr\n\nUnten, Kuli, dreimal unterstrichen:\n<span class="hand">03:13 – nur für Kinder</span>', 'nord_fahrplan', () => ausbau_nord_plakatCheck()); }); // STORY-HOOK: Linie 7, 03:13
     // Fahrkarte auf der Sitzbank
     const tk = ausbau_nord_paper(.075, .05, (x, w, h) => { x.fillStyle = '#eee6c8'; x.fillRect(0, 0, w, h); x.fillStyle = '#b8201c'; x.fillRect(0, 0, w, 26); x.fillStyle = '#222'; x.font = 'bold 20px Arial'; x.fillText('KIND · EINFACH', 14, 60); x.font = '18px Arial'; x.fillText('28.07.2009  03:13', 14, 92); x.fillText('Kirchberg → ——', 14, 122); }, 256);
     tk.rotation.set(-PI / 2, 0, .4); tk.position.set(11.3, .468, 52.35); scene.add(tk); N.ticketMesh = tk;
     const kh = box(.3, .15, .3, 11.3, .47, 52.35, hidden, { cast: false });
-    interact(kh, 'Fahrkarte', () => openNote('Eine Fahrkarte', 'Kinderfahrkarte, einfache Fahrt.\n\n<b>29.07.2009 · 03:13</b>\nvon: Lost Eyengless Kirchberg\nnach: ——\n\nDas Zielfeld ist leer. Nicht verwaschen. Nie bedruckt.\nDie Karte ist trocken. Alles andere hier ist nass.', 'nord_fahrkarte')); // STORY-HOOK: die Nacht vom 28. Juli
+    interact(kh, 'Fahrkarte', () => openNote('Eine Fahrkarte', 'Kinderfahrkarte, einfache Fahrt.\n\n<b>28.07.2009 · 03:13</b>\nvon: Lost Eyengless Kirchberg\nnach: ——\n\nDas Zielfeld ist leer. Nicht verwaschen. Nie bedruckt.\nDie Karte ist trocken. Alles andere hier ist nass.', 'nord_fahrkarte')); // STORY-HOOK: die Nacht vom 28. Juli
     // Haltestellenschild „H“ (Scan-Schild, gelbe Scheibe als Aufkleber)
     const sgp = ausbau_nord_piece(signM, 'Road_Sign_01', .01);
     if (sgp) { msFit(sgp, 2.55); const s2 = msGround(sgp); s2.position.set(6.3, 0, 56.3); s2.rotation.y = 0; scene.add(s2);
@@ -470,10 +687,21 @@ async function ausbau_nord_build() {
     const cx = 31.5, cz = 74;
     const lg = new THREE.CircleGeometry(1, 40); lg.rotateX(-PI / 2); const lp = lg.attributes.position, lu = lg.attributes.uv;
     for (let i = 0; i < lp.count; i++) { const x = lp.getX(i), z = lp.getZ(i), a = Math.atan2(z, x), k = i === 0 ? 1 : 1 + Math.sin(a * 5) * .06 + Math.sin(a * 11) * .03; lp.setXYZ(i, x * 13.5 * k, 0, z * 9.2 * k); lu.setXY(i, x * 13.5 * k / 2, z * 9.2 * k / 2); }
-    const lm = new THREE.Mesh(lg, leaves); lm.position.set(cx, .021, cz); lm.receiveShadow = true; scene.add(lm);
+    { const ae = new Float32Array(lp.count * 2); for (let i = 0; i < lp.count; i++) { const x = lp.getX(i) / 13.5, z = lp.getZ(i) / 9.2, r = Math.hypot(x, z); ae[i * 2] = Math.max(0, (1 - r)) * 9.2; } lg.setAttribute('aE', new THREE.BufferAttribute(ae, 2)); }
+    const lm = new THREE.Mesh(lg, leavesW); lm.position.set(cx, .021, cz); lm.receiveShadow = true; scene.add(lm);
     // Rutsche
     const sl = ausbau_nord_fit(slideM, 2.25); sl.position.set(24.3, 0, 76.4); sl.rotation.y = PI; scene.add(sl); sl.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     const sb = new THREE.Box3().setFromObject(sl);
+    // Basis-Umsetzung: kleine nasse Handabdrücke auf dem Blech – sie führen hinauf, keine herunter
+    try { const hits = []; for (let ix = 0; ix <= 16; ix++) for (let iz = 0; iz <= 34; iz++) { const h = bu_strahl(sl, sb.min.x + (sb.max.x - sb.min.x) * ix / 16, 3.5, sb.min.z + (sb.max.z - sb.min.z) * iz / 34, 0, -1, 0, 5); if (h && h.n.y > .55 && h.n.y < .93) hits.push(h.p); }
+      if (hits.length > 12) { const n0 = hits.length, mx = hits.reduce((a, p) => a + p.x, 0) / n0, mz = hits.reduce((a, p) => a + p.z, 0) / n0, my = hits.reduce((a, p) => a + p.y, 0) / n0; let sxy = 0, szy = 0, syy = 0; hits.forEach(p => { sxy += (p.x - mx) * (p.y - my); szy += (p.z - mz) * (p.y - my); syy += (p.y - my) ** 2; }); const bx = sxy / (syy || 1), bz = szy / (syy || 1), y0 = Math.min(...hits.map(p => p.y)), y1 = Math.max(...hits.map(p => p.y));
+        const tx = (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 160; const x = c.getContext('2d'); x.filter = 'blur(1.4px)'; x.fillStyle = 'rgba(20,28,34,.9)'; x.beginPath(); x.ellipse(64, 110, 30, 34, 0, 0, 7); x.fill(); [[30, 62, 9, 30, -.35], [50, 40, 9.5, 36, -.1], [72, 36, 9.5, 38, .05], [93, 46, 9, 33, .25]].forEach(([fx, fy, rx, ry, a]) => { x.beginPath(); x.ellipse(fx + 6, fy + 12, rx, ry, a, 0, 7); x.fill(); }); x.beginPath(); x.ellipse(24, 112, 10, 22, -.9, 0, 7); x.fill();
+          x.filter = 'none'; for (let i = 0; i < 14; i++) { x.fillStyle = 'rgba(20,28,34,.6)'; x.beginPath(); x.arc(30 + Math.random() * 70, 70 + Math.random() * 90, 1 + Math.random() * 2.2, 0, 7); x.fill(); } const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; })();
+        const pm = new THREE.MeshStandardMaterial({ map: tx, transparent: true, opacity: .8, roughness: .06, metalness: .15, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4, envMapIntensity: 1.4 }), prints = new THREE.Group();
+        for (let k = 0; k < 8; k++) { const y = y0 + (y1 - y0) * (.12 + k * .095), side = k % 2 ? 1 : -1, px = mx + bx * (y - my), pz = mz + bz * (y - my), h = bu_strahl(sl, px, 3.5, pz, 0, -1, 0, 5); if (!h || h.n.y > .95) continue;
+          const up = new THREE.Vector3(0, 1, 0).addScaledVector(h.n, -h.n.y).normalize(), sd = new THREE.Vector3().crossVectors(up, h.n).normalize(), m = new THREE.Mesh(new THREE.PlaneGeometry(.075, .095), pm); if (side > 0) m.scale.x = -1;
+          bu_an(m, h.p.clone().addScaledVector(sd, side * .075), h.n, up, .004); m.rotateZ(side * -.12 + (k % 3 - 1) * .07); m.renderOrder = 3; m.userData.noCol = true; prints.add(m); }
+        scene.add(prints); N.rutscheHaende = prints; } } catch (e) { console.warn('Basis-Umsetzung Rutsche', e); }
     const sh = box(sb.max.x - sb.min.x, 1.2, sb.max.z - sb.min.z, (sb.min.x + sb.max.x) / 2, .6, (sb.min.z + sb.max.z) / 2, hidden, { cast: false });
     interact(sh, 'Rutsche', () => toast('Kleine, nasse Handabdrücke auf dem Blech. Sie führen hinauf. Keine führen herunter.', 4800));
     blocked.push([sb.min.x - .5, sb.max.x + .5, sb.min.z - .5, sb.max.z + .5]);
@@ -798,6 +1026,8 @@ async function ausbau_nord_f3(N, psignP) {
       for (let i = 0; i < 90; i++) { x.fillStyle = `rgba(60,45,25,${Math.random() * .25})`; x.beginPath(); x.arc(Math.random() * w, Math.random() * h, 3 + Math.random() * 16, 0, 7); x.fill(); } }, 256);
     tarp.material.transparent = false; tarp.material.alphaTest = 0; tarp.material.roughness = .55; tarp.rotation.x = -PI / 2; tarp.position.set(P.x, .03, P.z); tarp.renderOrder = 1; scene.add(tarp); N.tarp = tarp;
     N.tarpStones = new T.Group(); scene.add(N.tarpStones);
+    try { const sp = bu_spaten(), sx = P.x + .98, sz = P.z + .5, hh = N.mound ? bu_strahl(N.mound, sx, 2, sz, 0, -1, 0, 4) : null, sy = hh ? hh.p.y : .25;  // Spaten im Erdhügel neben der Plane
+      sp.position.set(sx, sy - .13, sz); sp.rotation.set(.11, 1.1, -.16, 'YXZ'); N.tarpStones.add(sp); N.spaten = sp; } catch (e) { console.warn('Basis-Umsetzung Spaten', e); }
     try { const r = await MSL.gl.loadAsync('assets/boulder/model.gltf'); const b = new T.Box3().setFromObject(r.scene), sz = Math.max(...b.getSize(new T.Vector3()).toArray());
       for (const [dx, dz, s] of [[-.6, -1.12, .2], [.6, -1.1, .17], [-.62, 1.1, .19], [.58, 1.13, .22], [.63, 0, .15], [-.64, .05, .16]]) { const k = r.scene.clone(true); k.scale.setScalar(s / sz); const g = msGround(k); g.position.set(P.x + dx, .02, P.z + dz); g.rotation.y = Math.random() * 6; g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); N.tarpStones.add(g); } } catch (e) { console.warn('Plane: Steine', e); }
     const hit = box(1.2, .3, 2.2, P.x, .15, P.z, hidden, { cast: false }); N.tarpHit = hit;
@@ -831,7 +1061,7 @@ async function ausbau_nord_f3(N, psignP) {
       const g = x.createRadialGradient(w / 2, h / 2, w * .2, w / 2, h / 2, w * .8); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(70,50,20,.45)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
       x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 26; i++) { x.fillStyle = 'rgba(0,0,0,.9)'; const ex = Math.random() < .5 ? 0 : w - 30 - Math.random() * 40; x.fillRect(ex, Math.random() * h, 20 + Math.random() * 50, 10 + Math.random() * 40); } }, 512);
     const P58 = plak('1958', '#d8c89a', ['Lampionumzug für die Kleinen'], (x, w, h) => { x.strokeStyle = '#a01818'; x.lineWidth = 5; x.beginPath(); x.arc(70 + 6 * (w - 140) / 6 + 20, h - 90, 16, 0, 7); x.arc(70 + 6 * (w - 140) / 6 - 12, h - 90, 16, 0, 7); x.stroke(); });
-    const P75 = plak('1975', '#e2d4b0', ['Schützenkapelle · Lampions']);
+    const P75 = plak('1975', '#e2d4b0', ['Schützenkapelle · Lampions'], (x, w, h) => { const cx = 70 + 3 * (w - 140) / 6, cy = h - 170; x.fillStyle = '#6a4a2a'; x.beginPath(); x.arc(cx, cy - 2, 14.5, PI, 0); x.fill(); x.fillStyle = '#2a2420'; x.beginPath(); x.arc(cx + 3, cy - 3, 12, PI * 1.05, PI * 1.9); x.fill(); x.strokeStyle = '#efe2c4'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(cx - 3, cy - 15); x.lineTo(cx - 7, cy - 3); x.stroke(); }); // das Kind mit dem Scheitel (Schulfoto aus Nr. 4)
     const P92 = plak('1992', '#e8dcc0', ['Lampionumzug'], (x, w, h) => { x.fillStyle = '#e8e4d8'; x.fillRect(w - 160, h - 110, 130, 60); x.fillStyle = '#b01818'; x.fillRect(w - 102, h - 104, 6, 26); x.fillRect(w - 110, h - 96, 22, 6); });
     const P09 = plak('27. Juli 2009', '#f0e8d2', ['Lampions für die Kleinen', '(solange Vorrat reicht)']);
     const Z = 51.965, X = 11.15, Y = 1.32; const L = [[P58, 0, 0, 0], [P75, .02, -.01, .004], [P92, -.015, .012, .008], [P09, .01, .004, .012]];

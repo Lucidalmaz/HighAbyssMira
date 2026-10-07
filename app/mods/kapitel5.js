@@ -251,6 +251,9 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg` }); const dr = await msFBX('dresser', 'model.fbx', { 'Wood-1': W_('Wood-1'), 'Wood-2': W_('Wood-2'), 'Wood-3': W_('Wood-3'), Metal: { ...W_('Metal'), m: 'T_Metal_Metallic.jpg' } }); msFit(dr, 1.0, 'y'); S.o.anrichte = put(dr, -48.55, K5_Y, -16.6, 0); S.o.anrichte.userData.noCol = false;
     const ch = await msFBX('chair', 'model.fbx', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }); msFit(ch, .92, 'y'); S.o.sessel = put(ch, -49.15, K5_Y, -15.45, PI / 2 + .5); S.o.sessel.userData.noCol = false;
   } catch (e) { console.warn('Kapitel 5: Möbel', e); }
+  // Röhrenradio (Scan, ohne Röhren-Netz) auf der Anrichte – dort kommt der Walzer her
+  try { const rd = await msModel('radio'), rm = rd.clone(true), tot = []; rm.traverse(m => { if (m.isMesh && m.name === 'tubes') tot.push(m); }); tot.forEach(m => m.parent && m.parent.remove(m)); msFit(rm, .42, 'max');
+    const top = S.o.anrichte ? new T.Box3().setFromObject(S.o.anrichte).max.y : K5_Y + 1; S.o.radio = put(rm, -48.55, top, -16.58, 0); } catch (e) { console.warn('Kapitel 5: Radio', e); }
   S.teddy = null; if (G1 !== scene) for (const c of G1.children) { if (within(c, -45.1, -44.3, -14.9, -14.2)) { bb.setFromObject(c); if (bb.max.y - bb.min.y < .45 && bb.min.y > .6) { S.teddy = c; S.teddyY = c.position.y; break; } } }
   // Decals: nasse Fußspuren mit fremdem Gras (Küche → Kinderzimmer), HASENBROT an der Küchenscheibe, Gras um die Füße der Heimkehrerin
   S.spuren = []; { const pts = [[-53.5, -15.95], [-53.25, -16.35], [-53.45, -16.85], [-53.15, -17.35], [-53.4, -17.9], [-53.1, -18.45], [-53.35, -19.0], [-53.05, -19.6], [-53.3, -20.2], [-53.05, -20.8]]; const tl = k5_tFuss(true), tr = k5_tFuss(false);
@@ -317,6 +320,9 @@ WORLD_MODS.push(['Kapitel 5', async () => {
   S.o.kreisel = k5_sprite(papier(128, 128, c => { c.clearRect(0, 0, 128, 128); const g = c.createLinearGradient(20, 0, 108, 0); g.addColorStop(0, '#6a6e70'); g.addColorStop(.5, '#d8dadc'); g.addColorStop(1, '#5a5e60'); c.fillStyle = g; c.beginPath(); c.moveTo(64, 112); c.lineTo(18, 60); c.quadraticCurveTo(64, 30, 110, 60); c.closePath(); c.fill();
     c.fillStyle = '#b8342a'; c.fillRect(24, 56, 80, 7); c.fillStyle = '#2a4a8a'; c.fillRect(30, 66, 68, 5); c.fillStyle = '#4a4e50'; c.fillRect(60, 16, 8, 30); }), 0xffffff, .12, .12);
   S.o.kreisel.material.blending = T.NormalBlending; S.o.kreisel.material.fog = true;
+  // Grabkranz am Gedenkfeld (Tannenzweige, Schleife, ein Filmpack in Folie steckt zwischen den Zweigen) und der Stein auf der Rechnung des Steinmetzes
+  try { S.o.kranz = k5_kranzBau(); scene.add(S.o.kranz); S.o.kranz.visible = false; } catch (e) { console.warn('Kapitel 5: Kranz', e); }
+  try { const rk = await msModel('w_mossrocks', 'model.glb'); S.o.kranzStein = put(msFit(rk.clone(true), .42, 'max'), 0, -30, 0, 1.2); S.o.rechnungStein = put(msFit(rk.clone(true), .11, 'max'), 0, -30, 0, .4); } catch (e) { console.warn('Kapitel 5: Steine', e); }
   // Ich-Hände (Detective Hands, CC-BY) zum Tragen des Katers (UK 4) – folgen der Kamera, nur sichtbar, solange Luke Hänschen trägt
   try { const src = await msModel('haende', 'model.glb'); const { clone } = await import('three/addons/utils/SkeletonUtils.js'); k5_haendeBau(clone(src)); } catch (e) { console.warn('Kapitel 5: Hände', e); }
   // Stall: Palette als Brett-Tisch, Kreidestriche, AUGEN ZU, später DU + ICH; Erdspur unter dem Absperrgitter
@@ -422,7 +428,7 @@ function k5_setup(beat, spring) {
   if (typeof album !== 'undefined') { if (S.albumY === undefined) S.albumY = album.position.y; album.position.y = tischVoll ? -40 : S.albumY; }
   try { const pm = PHOTOS[5] && PHOTOS[5].mesh; if (pm) { if (S.p5Y === undefined) S.p5Y = pm.position.y; pm.position.y = tischVoll ? -40 : S.p5Y; } } catch (e) {}
   for (const [k, g] of S.gras) g.visible = k === 'luke' && tischVoll;
-  (S.laken || []).forEach(m => { m.visible = !drin; }); for (const k of ['sofa', 'anrichte', 'sessel']) vis(k, drin);
+  (S.laken || []).forEach(m => { m.visible = !drin; }); for (const k of ['sofa', 'anrichte', 'sessel', 'radio']) vis(k, drin);
   if (S.teddy && S.o.sofa) { S.teddy.position.y = S.teddyY; if (drin) { const tb = new THREE.Box3().setFromObject(S.teddy), y = k5_sitzY((tb.min.x + tb.max.x) / 2, (tb.min.z + tb.max.z) / 2, S.o.sofa); if (y > K5_Y + .2) S.teddy.position.y += (y - .01) - tb.min.y; } }
   for (const k of ['stuhlN', 'stuhlS']) vis(k, drin);
   S.spuren.forEach(d => d.visible = drin); vis('hasen', drin); vis('film', false);
@@ -465,9 +471,9 @@ function k5_setup(beat, spring) {
     if (S.o.karten && S.tisch) { const t = S.tisch; S.o.karten.position.set(t.max.x - .14, t.max.y + .006, S.alongX ? t.min.z + .12 : t.max.z - .12); if (kartenDa && !k5.f.karten) at('karten', S.o.karten.position.x, t.max.y + .06, S.o.karten.position.z); } }
   { const v9 = b >= k5_i('brot') && b <= k5_i('stall') && k5_lwo() === 'miserabel' && !k5.f.v09; vis('v09', v9); if (v9 && S.plaetze) { const [x, z] = S.plaetze.papa; S.o.v09.position.set(x - .06, S.tisch.max.y + .005, z + .16); at('v09', x - .06, S.tisch.max.y + .06, z + .16); } }
   vis('plakat', b >= k5_i('tappen') && b <= k5_i('ende') && !k5.f.plakatWeg); if (b >= k5_i('tappen')) k5_plakatOrt(b === k5_i('tappen'));
-  vis('rechnung', b >= k5_i('grab') && !k5_hat('rechnung_kuehnle')); vis('kreisel', b >= k5_i('grab') && b <= k5_i('zaun')); vis('blumen', b >= k5_i('grab') && !!k5.f.v10);
+  vis('rechnung', b >= k5_i('grab') && !k5_hat('rechnung_kuehnle')); vis('rechnungStein', b >= k5_i('grab') && !k5_hat('rechnung_kuehnle')); vis('kranz', b >= k5_i('grab')); vis('kranzStein', b >= k5_i('grab')); if (S.o.kranzFilm) S.o.kranzFilm.visible = !k5.f.kranz; if (b >= k5_i('grab') && S.pit) { k5_kranzSetze(S.pit); if (S.o.rechnungStein) S.o.rechnungStein.position.set(S.pit.x + 1.05 + .075, .055, S.pit.z + 1.25 - .06); } vis('kreisel', b >= k5_i('grab') && b <= k5_i('zaun')); vis('blumen', b >= k5_i('grab') && !!k5.f.v10);
   if (S.o.blumen) S.o.blumen.position.set(-52.1, .02, 63.6);
-  if (b === k5_i('grab') && S.pit) { if (!k5_hat('rechnung_kuehnle')) { S.o.rechnung.position.set(S.pit.x + 1.05, .06, S.pit.z + 1.25); at('rechnung', S.pit.x + 1.05, .15, S.pit.z + 1.25); } at('kreide', S.pit.x - .55, .15, S.pit.z - 1.05); if (!k5.f.kranz) at('kranz', S.pit.x - 3.6, .25, S.pit.z + 2.4); }
+  if (b === k5_i('grab') && S.pit) { if (!k5_hat('rechnung_kuehnle')) { S.o.rechnung.position.set(S.pit.x + 1.05, .06, S.pit.z + 1.25); at('rechnung', S.pit.x + 1.05, .15, S.pit.z + 1.25); } at('kreide', S.pit.x - .55, .15, S.pit.z - 1.05); if (!k5.f.kranz) at('kranz', S.pit.x - 3.6, .3, S.pit.z + 2.4); }
   if (b >= k5_i('brot') && b <= k5_i('stall') && k5_antwort() === 'C' && k5_hat('schnalle_turm') && !k5.f.schnalle) { const L = k5_lager(); if (L) at('schnalle', L.x - .05, .42, L.z + .55); }
   if (b >= k5_i('veranda')) k5_katerTakt(beat);
   if (S.g.gisela && !(k5.renne && k5.renne.g === S.g.gisela)) { S.g.gisela.visible = b === k5_i('licht') && !k5.f.gisela; if (S.g.gisela.visible) { S.g.gisela.position.set(-48.6, 0, -8.4); S.g.gisela.rotation.y = PI; k5_clip(S.g.gisela, 'idle', false); } }
@@ -1098,6 +1104,31 @@ async function k5_plakat() {
       await wait(2600); k5_zettel('B-K5-05', { pos: [x + Math.sin(ry) * .35, .02, z + Math.cos(ry) * .35] }); /* mit Kaugummi darunter */ } finally { state.talking = false; }
     k5.f.plakatGelesen = true; }); }
 // ---------------------------------------------------------------- K5-16 · Das Bett
+// Grabkranz: Strohkern, Tannenzweige (gezeichnete Zweig-Karten, zwei Lagen), dunkelrote Schleife mit goldenem Rand, Filmpack in Folie zwischen den Zweigen
+function k5_zweigTex() { const c = document.createElement('canvas'); c.width = 128; c.height = 64; const x = c.getContext('2d'); x.clearRect(0, 0, 128, 64); let a = 17; const r = () => { a = (a * 16807) % 2147483647; return a / 2147483647; };
+  x.strokeStyle = '#3a2a18'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(2, 32); x.quadraticCurveTo(64, 30, 126, 33); x.stroke();
+  for (let i = 0; i < 46; i++) { const t = 4 + i * 2.6, side = i % 2 ? 1 : -1, L = 9 + r() * 15 * (1 - t / 190), ang = side * (.7 + r() * .35), y0 = 32 + (t / 128) * 0; x.strokeStyle = ['#1f3d1c', '#27481f', '#16301a', '#2f5226'][i % 4]; x.lineWidth = 1.6; x.beginPath(); x.moveTo(t, y0); x.lineTo(t + Math.cos(ang) * L * .7, y0 + Math.sin(ang) * L); x.stroke(); }
+  for (let i = 0; i < 6; i++) { x.fillStyle = 'rgba(120,80,40,.8)'; x.fillRect(100 + r() * 24, 26 + r() * 12, 2, 2); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
+function k5_kranzBau() { const T = THREE, g = new T.Group(), R = .27, inner = new T.Group(); g.add(inner); inner.position.set(0, R + .06, 0);
+  const kern = new T.Mesh(new T.TorusGeometry(R, .05, 8, 28), new T.MeshStandardMaterial({ color: 0x4a3820, roughness: 1 })); kern.castShadow = true; inner.add(kern);
+  const tm = new T.MeshStandardMaterial({ map: k5_zweigTex(), transparent: true, alphaTest: .4, side: T.DoubleSide, roughness: 1 }); let a = 5; const r = () => { a = (a * 16807) % 2147483647; return a / 2147483647; };
+  for (let i = 0; i < 64; i++) { const ang = i / 64 * PI * 2 + r() * .05, rr = R + (r() - .5) * .05, m = new T.Mesh(new T.PlaneGeometry(.2 + r() * .06, .1), tm); m.position.set(Math.cos(ang) * rr, Math.sin(ang) * rr, (r() - .5) * .07);
+    m.rotation.set((r() - .5) * 1.1, (r() - .5) * .9, ang + PI / 2 + (i % 2 ? .5 : -.5) + (r() - .5) * .5 + (i % 3 ? 0 : PI)); m.castShadow = i % 3 === 0; inner.add(m); }
+  // Schleife unten (dunkelrot, Goldrand), zwei Bahnen
+  const rib = document.createElement('canvas'); rib.width = 128; rib.height = 160; const x = rib.getContext('2d'); x.fillStyle = '#5a0e12'; x.fillRect(0, 0, 128, 160); x.fillStyle = '#b48a42'; x.fillRect(5, 0, 4, 160); x.fillRect(119, 0, 4, 160); x.fillRect(20, 0, 1.6, 160); x.fillRect(106, 0, 1.6, 160);
+  for (let i = 0; i < 280; i++) { x.fillStyle = `rgba(0,0,0,${Math.random() * .12})`; x.fillRect(Math.random() * 128, Math.random() * 160, 1, 3 + Math.random() * 6); }
+  const rt = new T.CanvasTexture(rib); rt.colorSpace = T.SRGBColorSpace; const rm = new T.MeshStandardMaterial({ map: rt, roughness: .55, side: T.DoubleSide });
+  for (const [sx, rot] of [[-1, .22], [1, -.2]]) { const b = new T.Mesh(new T.PlaneGeometry(.075, .24), rm); b.position.set(sx * .045, -R - .12, .075); b.rotation.set(-.12, sx * .1, rot); inner.add(b); }
+  const kn = new T.Mesh(new T.SphereGeometry(.034, 10, 8), rm); kn.scale.set(1.2, .9, .8); kn.position.set(0, -R + .0, .075); inner.add(kn);
+  for (const [sx, rot] of [[-1, .9], [1, -.9]]) { const l = new T.Mesh(new T.PlaneGeometry(.1, .075), rm); l.position.set(sx * .075, -R + .02, .08); l.rotation.set(-.1, 0, rot); inner.add(l); }
+  // Filmpack (Polaroid-Pack, noch in Folie), rechts oben zwischen die Zweige gesteckt
+  const fm = new T.MeshStandardMaterial({ map: tex(k5_tFilm(), true), roughness: .22, metalness: .15 }); const f = new T.Mesh(new T.BoxGeometry(.108, .088, .016), [fm, fm, fm, fm, fm, new T.MeshStandardMaterial({ color: 0x9a9690, roughness: .3, metalness: .5 })]);
+  f.position.set(Math.cos(.8) * R + .012, Math.sin(.8) * R, .04); f.rotation.set(.2, -.1, .8 + PI / 2 - .3); f.castShadow = true; inner.add(f); K5.o.kranzFilm = f;
+  g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+function k5_kranzSetze(pit) { const S = K5, K = S.o.kranz; if (!K || !pit) return; const x = pit.x - 3.6, z = pit.z + 2.4; K.position.set(x, 0, z); K.rotation.set(-.32, -.5, 0, 'YXZ');
+  // der Kranz lehnt mit dem Rücken an einem bemoosten Stein, der Stein steht unmittelbar dahinter
+  if (S.o.kranzStein) { S.o.kranzStein.position.set(x - Math.sin(-.5) * -.17 + .08, 0, z - .17 * Math.cos(-.5) - .02); } }
 function k5_grabAufbau(on) { const S = K5, N = typeof ausbau_nord !== 'undefined' ? ausbau_nord : null;
   const pit = N && N.pit ? N.pit : { x: -36.95, z: 71.83 }; S.pit = pit;
   if (N && N.cand) for (const C of N.cand) { if (!C) continue; if (on) { C.k5 = C.k5 ?? C.on; ausbau_nord_setFlame(C, true); } else if (C.k5 !== undefined) { ausbau_nord_setFlame(C, C.k5); C.k5 = undefined; } }

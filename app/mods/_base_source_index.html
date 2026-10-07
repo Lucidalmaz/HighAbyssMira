@@ -1379,6 +1379,17 @@ const door7 = makeDoor(23, s7.zf + .1, 1.2, 1.55, M.wood); door7.locked = true;
 const mailbox7 = mailboxAt(28.4, -6.9, 1, 0x4a1d18);
 const keyMesh = box(.026, .008, .07, .02, 1.11, .03, new THREE.MeshStandardMaterial({ color: 0xc9a040, metalness: 1, roughness: .3 }), { parent: mailbox7.userData.group }); keyMesh.rotation.y = .5;
 box(.006, .006, .12, .02, 1.115, -.02, new THREE.MeshStandardMaterial({ color: 0x8a1010, roughness: 1 }), { parent: mailbox7.userData.group, cast: false });
+// Anhänger am Schlüssel: Lucys Panda aus Plastik – ein Ohr ab (liegt auf dem Rücken, Kugelkette zum Schlüsselring)
+{ const pd = new THREE.Group(), wh = new THREE.MeshStandardMaterial({ color: 0xe6e4de, roughness: .3 }), bk = new THREE.MeshStandardMaterial({ color: 0x141313, roughness: .35 }), steel = new THREE.MeshStandardMaterial({ color: 0xa8a8a2, metalness: 1, roughness: .35 }), sph = new THREE.SphereGeometry(1, 14, 10);
+  const part = (mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(sph, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.castShadow = false; pd.add(m); return m; };
+  part(wh, 0, 0, 0, .0105, .0125, .0095); part(wh, 0, .0172, .0006, .0098, .0086, .0088);
+  part(bk, -.0092, .0236, 0, .0034, .0034, .0024); part(bk, .0082, .0225, 0, .0015, .0012, .0012);   // das eine Ohr – von dem anderen ist nur der Stumpf übrig
+  part(bk, -.0036, .0186, .0079, .0026, .0034, .0012); part(bk, .0036, .0186, .0079, .0026, .0034, .0012); part(bk, 0, .0152, .0088, .0012, .0009, .0009);
+  part(bk, -.0108, .005, .0036, .0035, .0066, .0034); part(bk, .0108, .005, .0036, .0035, .0066, .0034); part(bk, -.0058, -.0108, .0024, .0038, .0044, .0038); part(bk, .0058, -.0108, .0024, .0038, .0044, .0038);
+  pd.rotation.x = -PI / 2; pd.position.set(0, -.0004, .084);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(.0058, .0014, 6, 14), steel); ring.rotation.x = PI / 2; ring.position.set(0, 0, .0385); keyMesh.add(ring);
+  for (let i = 0; i < 4; i++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.0016, 8, 6), steel); b.position.set(0, 0, .046 + i * .0066); keyMesh.add(b); }
+  pd.traverse(m => { m.userData.noCol = true; }); keyMesh.add(pd); }
 
 // Wohnzimmer
 const Y = .43;
@@ -1436,6 +1447,16 @@ wall('x', -17, s1.x0, s1.x1, H1.H, M.wallpaper2, [{ at: -53, w: 1.1 }, { at: -47
 wall('z', -50, -17, s1.zf, H1.H, M.wallpaper2, [{ at: -14.5, w: 1.2 }]);
 wall('z', -50, s1.zb, -17, H1.H, M.wallpaper2);
 const door1 = makeDoor(-47, s1.zf + .1, 1.2, 1.55, M.wood);
+// Fußmatte vor der Haustür von Nr. 1 („Der Schlüssel liegt noch unter der Fußmatte. Wie früher.“): Kokosmatte mit Rand, vordere Ecke angehoben, der Schlüssel schaut darunter hervor
+{ const cv = cnv(256, (c, w) => { c.fillStyle = '#6a4e30'; c.fillRect(0, 0, w, w); for (let i = 0; i < 2400; i++) { c.strokeStyle = `rgba(${70 + rand(0, 60)},${46 + rand(0, 40)},${24 + rand(0, 20)},${rand(.25, .8)})`; c.lineWidth = rand(.6, 1.6); const x = rand(0, w), y = rand(0, w), a = rand(0, 6.3); c.beginPath(); c.moveTo(x, y); c.lineTo(x + Math.cos(a) * rand(4, 12), y + Math.sin(a) * rand(4, 12)); c.stroke(); }
+    c.strokeStyle = '#2a1d12'; c.lineWidth = 14; c.strokeRect(16, 16, w - 32, w - 32); c.strokeStyle = '#8a6a40'; c.lineWidth = 3; c.strokeRect(34, 34, w - 68, w - 68); });
+  const mt = tex(cv, true), mg = new THREE.BoxGeometry(.72, .024, .46, 24, 1, 14), P = mg.attributes.position, mm = new THREE.MeshStandardMaterial({ map: mt, bumpMap: mt, bumpScale: 2, roughness: 1 });
+  for (let i = 0; i < P.count; i++) { const x = P.getX(i), z = P.getZ(i); const a = Math.max(0, (x + .36) / .72 - .5) / .5, b = Math.max(0, (z + .23) / .46 - .45) / .55; P.setY(i, P.getY(i) + a * a * b * b * .13 + Math.sin(x * 19) * .0012); } mg.computeVertexNormals();
+  const mat = new THREE.Mesh(mg, mm); mat.position.set(-47.04, .43 + .013, s1.zf + .46); mat.rotation.y = .035; mat.receiveShadow = true; mat.castShadow = true; mat.userData.noCol = true; scene.add(mat);
+  const brass = new THREE.MeshStandardMaterial({ color: 0xb89a48, metalness: 1, roughness: .32 }), key = new THREE.Group();
+  const bow = new THREE.Mesh(new THREE.TorusGeometry(.0105, .0036, 8, 18), brass); bow.rotation.x = PI / 2; bow.position.z = .035; key.add(bow);
+  const shaft = new THREE.Mesh(new THREE.BoxGeometry(.0062, .0038, .066), brass); key.add(shaft); for (const [dz, dx] of [[-.026, .0058], [-.018, .0048], [-.01, .0062]]) { const t = new THREE.Mesh(new THREE.BoxGeometry(.0058, .0036, .0046), brass); t.position.set(dx, 0, dz); key.add(t); }
+  key.position.set(-46.82, .43 + .0025, s1.zf + .66); key.rotation.y = -.5; key.traverse(m => { m.userData.noCol = true; m.castShadow = true; }); scene.add(key); }
 // Tücher über Möbeln
 function sheet(w, h, d, x, z, rot = 0) {
   const geo = new THREE.BoxGeometry(w, h, d, 10, 5, 10), p = geo.attributes.position;
@@ -1472,7 +1493,7 @@ const crayon = tex(cnv(512, (c, w, h) => {
   c.clearRect(0, 0, w, h); c.lineCap = 'round';
   for (let i = 0; i < 9; i++) { const px = 40 + (i % 3) * 160, py = 40 + Math.floor(i / 3) * 150; c.fillStyle = '#e8e2d0'; c.fillRect(px - 10, py - 10, 140, 125);
     c.strokeStyle = ['#c02020', '#2040c0', '#208030', '#101010'][i % 4]; c.lineWidth = 3;
-    if (i === 4) { for (let k = 0; k < 8; k++) { const sx = px + 12 + k * 15; c.beginPath(); c.arc(sx, py + 50, 5, 0, 7); c.moveTo(sx, py + 55); c.lineTo(sx, py + 80); c.moveTo(sx, py + 80); c.lineTo(sx - 5, py + 95); c.moveTo(sx, py + 80); c.lineTo(sx + 5, py + 95); c.stroke(); } c.font = '18px Caveat'; c.fillStyle = '#101010'; c.fillText('wir 8', px + 40, py + 20); }
+    if (i === 4) { for (let k = 0; k < 7; k++) { const sx = px + 12 + k * 15; c.beginPath(); c.arc(sx, py + 50, 5, 0, 7); c.moveTo(sx, py + 55); c.lineTo(sx, py + 80); c.moveTo(sx, py + 80); c.lineTo(sx - 5, py + 95); c.moveTo(sx, py + 80); c.lineTo(sx + 5, py + 95); c.stroke(); } c.font = '18px Caveat'; c.fillStyle = '#101010'; c.fillText('wir 7', px + 40, py + 20); }
     else { c.beginPath(); c.ellipse(px + 60, py + 35, 45, 10, 0, 0, 7); c.stroke(); c.beginPath(); c.moveTo(px + 45, py + 42); c.lineTo(px + 20, py + 105); c.moveTo(px + 75, py + 42); c.lineTo(px + 100, py + 105); c.stroke();
       c.beginPath(); c.arc(px + 60, py + 80, 5, 0, 7); c.stroke(); } }
   c.font = '44px Caveat'; c.fillStyle = '#8a1010'; c.fillText('LUKE + LUCY', 150, 500);
@@ -2666,7 +2687,7 @@ interact(fridgeNote, 'Zettel lesen', () => { state.readFridge = true; setMain(3)
   openNote('Zettel am Kühlschrank', '<span class="hand">31.10.\n\nKELLER BLEIBT ZU.\nEgal wer ruft. Egal mit welcher Stimme.\n\n– H. Wendt</span>', 'fridge', () => { if (!state.scFridge) { state.scFridge = true; setTimeout(() => armBehind(6, Y, 'wendt'), 200); } }); });
 interact(calendar, 'Kalender ansehen', () => { if (!state.readCal) Audio.stinger(false); state.readCal = true;
   openNote('Kalender · Oktober', 'Der <b>23.</b> ist rot durchgestrichen. Daneben: <span class="hand">„weg“</span>\n\nDer <b>31.</b> ist dick eingekreist. Darunter, mehrfach nachgezogen:\n\n<span class="hand" style="color:#8a1010">„SIE IST ZURÜCK.\nABER DAS IST NICHT LUCY.“</span>', 'calendar'); });
-interact(cellarDoor, 'Kellertür', () => toast('Eine Stahltür. Frische Kratzspuren. Von innen.'));
+interact(cellarDoor, 'Kellertür', () => toast('Eine schwere Tür. Frische Kratzspuren. Von innen.'));
 interact(keypadMesh, 'Tastenfeld benutzen', () => { setMain(3); if (state.cellarOpen) return enterBasement(); kpValue = ''; kpRender(); openOverlay('keypad');
   kpSay('Drei Tasten sind abgegriffen, fast blank: 0, 1 und 3. Auf den anderen liegt Staub.'); });
 interact(tvScreen, 'Fernseher', () => toast(state.tvSeen ? 'Nur Rauschen. Jetzt.' : 'Rauschen. Du könntest schwören, darin bewegt sich etwas.'));
@@ -4807,16 +4828,31 @@ function addEcho(E) {
   interact(hit, () => echoSeen.has(E.id) ? '' : 'Berühren', () => playEcho(E)); const a = { E, s, hit }; echoAnchors.push(a); return a;
 }
 ECHOES.slice().forEach(addEcho);
+// Nachbild „Brand“ (Haus Nr. 5): hinter dem Mädchen brennt das Haus, in der Hand ein Feuerzeug – Flammen an den Resten des Hauses, nur solange das Nachbild läuft
+const brandFx = { g: null, flames: [], light: null, lighter: null, timer: 0 };
+function brandFeuer(on) {
+  if (on && !brandFx.g) { const g = brandFx.g = new THREE.Group(); scene.add(g); g.userData.noCol = true;
+    const spots = []; for (let i = 0; i < 9; i++) spots.push([-17, -18 - 2.4 + i * .6]); for (let i = 0; i < 6; i++) spots.push([-16.4 + i * .8, -21.3]); spots.push([-9.5, -20], [-11.5, -19], [-13.5, -18], [-15, -16.5], [-12, -16], [-14, -19.6]);
+    spots.forEach(([x, z], i) => { const h = 1.6 + (i % 4) * .55, f = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); f.userData = { h, ph: i * 1.7 }; f.scale.set(h * .62, h, 1); f.position.set(x + rand(-.25, .25), h * .42, z + rand(-.25, .25)); g.add(f); brandFx.flames.push(f); });
+    const L = brandFx.light = new VLight(0xff7a2a, 3.2, 17, 2); L.position.set(-13, 2.2, -18); g.add(L);
+    const li = brandFx.lighter = new THREE.Group(); li.position.set(-12.84, .7, -10.4); const body = new THREE.Mesh(new THREE.BoxGeometry(.026, .05, .012), new THREE.MeshStandardMaterial({ color: 0x8a1c1c, roughness: .35, metalness: .6 })); body.position.y = 0; li.add(body);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(.026, .014, .012), new THREE.MeshStandardMaterial({ color: 0xb8b8b4, roughness: .3, metalness: 1 })); cap.position.y = .032; li.add(cap);
+    const lf = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); lf.scale.set(.05, .09, 1); lf.position.y = .085; li.add(lf); li.userData.flame = lf; g.add(li); }
+  if (!brandFx.g) return; brandFx.g.visible = on; clearInterval(brandFx.timer);
+  if (on) brandFx.timer = setInterval(() => { const t = performance.now() / 1000; brandFx.flames.forEach(f => { const k = .8 + Math.sin(t * 7 + f.userData.ph) * .14 + Math.sin(t * 17 + f.userData.ph * 2) * .1; f.scale.set(f.userData.h * .62 * k, f.userData.h * k * (1 + Math.sin(t * 3 + f.userData.ph) * .15), 1); f.material.opacity = .75 + Math.sin(t * 11 + f.userData.ph) * .2; });
+    brandFx.light.intensity = 3.2 * (.85 + Math.sin(t * 9) * .1 + Math.random() * .08); const lf = brandFx.lighter.userData.flame; lf.scale.set(.05 * (.9 + Math.random() * .25), .09 * (.9 + Math.random() * .3), 1); }, 55);
+}
 async function playEcho(E) {
   if (echoSeen.has(E.id) || state.talking) return; echoSeen.add(E.id); state.talking = true;
   const A = echoAnchors.find(a => a.E === E); uninteract(A.hit); A.s.visible = false;
   Audio.stinger(false); Audio.whisper(E.at[0], 1.6, E.at[2], 2.4); glitchV = .7; shake = .02;
   E.figs.forEach((f, i) => { const F = echoFigs[i]; F.position.set(f[0], E.floor !== undefined ? E.floor : (E.at[1] > 1.2 ? Y : 0), f[1]); F.rotation.y = f[2]; F.scale.setScalar(f[3]); F.visible = true; });
+  if (E.id === 'echo_brand') brandFeuer(true);
   if (ECHO_CAST.start) try { await ECHO_CAST.start(E); } catch (e) { console.warn('Echo-Besetzung', e); } // Modul figuren: echte Personen als Erinnerung
   for (let k = 0; k <= 20; k++) { echoMat.opacity = k / 20 * .32; await wait(40); }
   await say(E.lines);
   for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .32 * (Math.random() < .3 ? .3 : 1); await wait(45); }
-  echoFigs.forEach(F => F.visible = false); state.talking = false; if (ECHO_CAST.end) ECHO_CAST.end(E);
+  echoFigs.forEach(F => F.visible = false); if (E.id === 'echo_brand') brandFeuer(false); state.talking = false; if (ECHO_CAST.end) ECHO_CAST.end(E);
   story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
   questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
 }
@@ -5944,6 +5980,7 @@ function update(dt, t) {
     if (L.mode === 'pulse') k = ch3.pulse;
     if (L.mode === 'k1puste') { L.dead = (L.dead ?? 0) + dt; k = L.dead < .12 ? 1 - L.dead / .12 * .75 : Math.max(0, .25 * Math.exp(-(L.dead - .12) * 2.6)); } // Kap. 1 (kapitel1.js): ausgeblasen, der Draht glüht nach
     L.k = k; L.bulbMat.emissiveIntensity = 4 * k * (L.mode === 'k1puste' && L.dead > .12 ? 1.8 : 1); L.cm.uniforms.opacity.value = L.mode === 'k1puste' && L.dead > .12 ? 0 : .09 * k;
+    L.bulb.visible = L.bulbMat.emissiveIntensity > .5; // Lampe aus: keine schwarze Platte unter dem Laternenkopf (Nutzer 07.10., Foto 2)
   });
   for (let i = 0; i < 10; i++) { const L = LP.order[i]; if (L) fogUniforms.lamps.value[i].set(L.wx, 0, L.wz, L.k); else fogUniforms.lamps.value[i].set(0, 0, 0, 0); } // Nebelschein: die zehn NÄCHSTEN Laternen
   // Flackern bildratenunabhängig: Wahrscheinlichkeit je Sekunde, jeder Aussetzer wird eine feste Zeit gehalten

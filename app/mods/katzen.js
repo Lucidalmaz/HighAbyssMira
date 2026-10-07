@@ -310,7 +310,10 @@ function katzen_auto(kp) {
     katzen_spawn({ name: 'ZAYN', x: -54.4, z: 66.9, sims: true, starrt: [-56, .6, 76] });                   // oben auf dem Friedhofstor, sieht zur Kapellenmauer
     katzen_spawn({ name: 'GRETE', x: 34.6, z: 71.4, sims: true, starrt: [37.2, .4, 74.2] });                // Karussell, sieht zum Spielhaus
     katzen_spawn({ name: 'KEINER', x: -10.7, z: 53.3, sims: true, starrt: [-6.5, .05, 49.5] });             // Sockel des Sühnekreuzes, sieht die Straße hinunter
-    garten('LUNA', -2.4, -.4); garten('LISBETH', 1.2, .3, { pose: 'loaf' }); garten('FRITZ', 3.1, -.6); garten('MARIE', -3.6, .8, { pose: 'sleep' }); garten('JAKOB', 2.2, 1.1, { pose: 'loaf' });
+    // „Im Fenster sitzen drei Katzen wie Buchstützen“ (kirchberg.js, Klopfen): LUNA, LISBETH, MARIE sitzen auf der Fensterbank von Giselas Küchenfenster und sehen auf die Straße
+    { const wx = 22.7, wz = 49.64; let sy = katzen_perchY(wx, wz, 1.7); if (!(sy > .85 && sy < 1.5)) sy = 1.08;
+      [['LUNA', -.5, 0], ['LISBETH', 0, .12], ['MARIE', .5, -.1]].forEach(([n, dx, ry]) => { const k = katzen_spawn({ name: n, x: wx + dx, z: wz, y: sy, ry, pose: 'sit', starrt: [wx + dx + ry * 8, 1.05, wz + 7] }); if (k) { k.hold = { x: wx + dx, z: wz, ry }; k.perch = sy; k.zahm = true; } }); }
+    garten('FRITZ', 3.1, -.6); garten('JAKOB', 2.2, 1.1, { pose: 'loaf' });
     garten('KATHRIN', -1.2, 1.3); garten('VEIT', 4.2, .9); garten('ROXY', 5.5, -.3); garten('MIKE', -5, -.2); garten('LUCY', .2, -1.1);
   } else {
     garten('HÄNSCHEN', -1.5, -.8, { pose: 'sleep' }); garten('LUNA', -2.4, -.4); garten('LISBETH', 1.2, .3, { pose: 'loaf' }); garten('FRITZ', 3.1, -.6); garten('MARIE', -3.6, .8, { pose: 'sleep' });

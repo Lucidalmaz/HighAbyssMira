@@ -302,7 +302,41 @@ async function whiskey_speck1() {
     V('„Speck ist Speck. Der Vogel kriegt keinen. Das ist keine Verschwörung, das ist Prinzip.“', 4400), L('<i>Er hat die Kompression falsch. Wer bringt einem Vogel Kompression bei?</i>', 3600)];
   try { if (typeof albers_whiskey === 'function') await albers_whiskey(lines); else await say(lines.filter(l => Array.isArray(l))); } catch (e) { console.warn('Whiskey Speck', e); }
   state.talking = false; S.speckWeg = false; S.speckBusy = false; }
-function whiskey_speck3() { const S = whiskey_S; whiskey_setzen(-25, 1.18, -12.2, () => whiskey_play('IdleScratchWing', .2));
+// ---------------------------------------------------------------- Vegas' Speckfalle am Küchenfenster (Nr. 3): gusseiserne Pfanne mit Speckstreifen, ein Nudelsieb (Lochblech) umgedreht darüber – darauf sitzt der Rabe (K1-4, dritter Besuch)
+function whiskey_pfanneBau() { const T = THREE, g = new T.Group(), eisen = new T.MeshStandardMaterial({ color: 0x232325, metalness: .85, roughness: .52 }), eisenR = new T.MeshStandardMaterial({ color: 0x2c2926, metalness: .8, roughness: .8 });
+  // Pfanne (Ø 24 cm): Boden, schräg ansteigende Wand, umgelegter Rand, Gießschnauzen an beiden Seiten, Stiel mit Aufhängeloch; Innenseite mit eingebranntem Fett
+  const prof = [[0, 0], [.088, 0], [.097, .004], [.112, .024], [.122, .042], [.1255, .046], [.1245, .0485], [.118, .0485], [.1155, .046], [.106, .03], [.092, .01], [.084, .0068], [0, .0068]].map(p => new T.Vector2(p[0], p[1]));
+  const bodenFett = new T.MeshStandardMaterial({ color: 0x141312, metalness: .5, roughness: .32 }), wanne = new T.Mesh(new T.LatheGeometry(prof, 40), eisen); wanne.castShadow = wanne.receiveShadow = true; g.add(wanne);
+  const innen = new T.Mesh(new T.CircleGeometry(.0875, 36), bodenFett); innen.rotation.x = -PI / 2; innen.position.y = .0072; g.add(innen);
+  const stielS = new T.Shape(); stielS.moveTo(0, -.0125); stielS.lineTo(.17, -.0095); stielS.absarc(.17, 0, .0095, -PI / 2, PI / 2, false); stielS.lineTo(0, .0125); stielS.lineTo(0, -.0125);
+  const loch = new T.Path(); loch.absarc(.177, 0, .0042, 0, PI * 2, true); stielS.holes.push(loch);
+  const stiel = new T.Mesh(new T.ExtrudeGeometry(stielS, { depth: .006, bevelEnabled: true, bevelSize: .0008, bevelThickness: .0008, bevelSegments: 1, curveSegments: 12 }), eisen); stiel.rotation.x = -PI / 2; stiel.rotation.z = 0; stiel.position.set(.118, .043, 0); stiel.rotation.y = 0; g.add(stiel);
+  stiel.rotation.x = PI / 2; stiel.position.set(.118, .0475, .003); // Stiel liegt waagerecht, leicht angehoben
+  const niet = new T.Mesh(new T.CylinderGeometry(.0042, .0042, .012, 8), eisenR); niet.position.set(.127, .0475, 0); g.add(niet);
+  for (const s of [-1, 1]) { const sn = new T.Mesh(new T.ConeGeometry(.012, .016, 8, 1, true, 0, PI), eisen); sn.position.set(0, .045, s * .1245); sn.rotation.set(0, s > 0 ? 0 : PI, PI / 2); } // Schnauzen weggelassen (nur Wulst)
+  // Speck: drei Streifen, rosa/weiß gestreift, leicht gewellt, in der Pfanne
+  const speck = new T.MeshStandardMaterial({ map: kirchberg_tex(kirchberg_cnv(128, 32, (x, w, h) => { x.fillStyle = '#e9d8c4'; x.fillRect(0, 0, w, h); const sz = [['#b7584a', 3], ['#d98a78', 4], ['#c26a58', 2], ['#e9d8c4', 3], ['#a64a3e', 4]]; let y = 0; for (let k = 0; k < 14; k++) { const [c, t] = sz[k % 5]; x.fillStyle = c; x.fillRect(0, y, w, t * 1.1); y += t * 1.1; } for (let i = 0; i < 80; i++) { x.fillStyle = `rgba(80,30,20,${Math.random() * .25})`; x.fillRect(Math.random() * w, Math.random() * h, 3, 1); } })), roughness: .45 });
+  for (const [dx, dz, ry, L] of [[-.02, -.03, .15, .11], [.015, .01, -.1, .105], [-.01, .045, .25, .1]]) { const sg = new T.PlaneGeometry(L, .022, 14, 2), P = sg.attributes.position; for (let i = 0; i < P.count; i++) P.setZ(i, Math.sin(P.getX(i) * 60) * .0022 + .0016); sg.computeVertexNormals();
+    const st = new T.Mesh(sg, speck); st.rotation.set(-PI / 2, 0, ry); st.position.set(dx, .0085, dz); st.material.side = T.DoubleSide; g.add(st); }
+  g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Nudelsieb: Halbkugel aus Lochblech (Löcher als Alphamaske, 6-mm-Raster), Fußring oben, zwei seitliche Griffe, Randring – umgedreht, Rand liegt auf dem Pfannenrand
+function whiskey_siebBau() { const T = THREE, g = new T.Group(), R = .135;
+  const lochTex = (() => { const c = document.createElement('canvas'); c.width = 256; c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, 256, 256); x.fillStyle = '#000'; for (let j = 0; j < 16; j++) for (let i = 0; i < 16; i++) { x.beginPath(); x.arc((i + (j % 2 ? .5 : 0) + .5) * 16, (j + .5) * 16, 4.6, 0, 7); x.fill(); } const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(10, 3.2); return t; })();
+  const blech = new T.MeshStandardMaterial({ color: 0xaeb2b6, metalness: .95, roughness: .34, side: T.DoubleSide, alphaMap: lochTex, alphaTest: .5, transparent: false });
+  const dom = new T.Mesh(new T.SphereGeometry(R, 40, 14, 0, PI * 2, 0, PI / 2 * .92), blech); dom.castShadow = true; g.add(dom);
+  const vollM = new T.MeshStandardMaterial({ color: 0xaeb2b6, metalness: .95, roughness: .3 });
+  const rand = new T.Mesh(new T.TorusGeometry(R * Math.sin(PI / 2 * .92), .0032, 8, 48), vollM); rand.rotation.x = PI / 2; rand.position.y = R * Math.cos(PI / 2 * .92); g.add(rand);
+  const fuss = new T.Mesh(new T.TorusGeometry(.036, .0042, 8, 24), vollM); fuss.rotation.x = PI / 2; fuss.position.y = R - .003; g.add(fuss);
+  const kappe = new T.Mesh(new T.CircleGeometry(.036, 24), vollM); kappe.rotation.x = -PI / 2; kappe.position.y = R + .0008; g.add(kappe);
+  const ry = R * Math.sin(PI / 2 * .92), yh = R * Math.cos(PI / 2 * .92);
+  for (const s of [-1, 1]) { const gr = new T.Mesh(new T.TorusGeometry(.03, .0038, 8, 20, PI), vollM); gr.position.set(s * (ry + .008), yh + .004, 0); gr.rotation.set(0, PI / 2, s > 0 ? -PI / 2 : PI / 2); g.add(gr); const bl = new T.Mesh(new T.BoxGeometry(.016, .002, .02), vollM); bl.position.set(s * (ry - .002), yh + .0, 0); g.add(bl); }
+  g.userData.noCol = true; g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Falle auf die Fensterbank von Nr. 3 setzen: Höhe der Bank per Strahl (die Bank liegt als Kiste unter dem Fenster, fassaden.js), Sieb liegt auf dem Pfannenrand
+function whiskey_falleSetzen() { const S = whiskey_S; if (S.falle) return S.falle; try { const T = THREE, p = whiskey_pfanneBau(), sb = whiskey_siebBau(), rc = new T.Raycaster(), cx = -25.0; rc.camera = camera; let best = null;
+    scene.updateMatrixWorld(true); for (const z of [-12.12, -12.08, -12.16, -12.04]) { rc.set(new T.Vector3(cx, 1.5, z), new T.Vector3(0, -1, 0)); rc.far = 1.5; const h = rc.intersectObjects(scene.children, true).find(q => q.object.isMesh && q.object.visible && !q.object.isSprite && (!q.object.material || !q.object.material.transparent || q.object.material.opacity > .5)); if (h && h.point.y > .7 && h.point.y < 1.45) { best = { y: h.point.y, z }; break; } }
+    const y = best ? best.y : 1.0, z = best ? best.z : -12.12; p.position.set(cx, y, z); p.rotation.y = -.5; sb.position.set(cx, y + .0485, z); sb.rotation.y = .4; scene.add(p, sb); p.visible = sb.visible = false; S.falle = { p, sb, y, z, top: y + .0485 + .135 + .006 }; } catch (e) { console.warn('Whiskey: Falle', e); S.falle = { fehler: true, top: 1.18, z: -12.2 }; }
+  return S.falle; }
+function whiskey_speck3() { const S = whiskey_S, F = whiskey_falleSetzen(); whiskey_setzen(-25, F.top ? F.top + .015 : 1.18, F.z ?? -12.2, () => whiskey_play('IdleScratchWing', .2));
   setTimeout(() => subtitle('<i>Eine Pfanne am gekippten Küchenfenster, ein Nudelsieb drüber. Und auf dem Sieb: der Vogel.</i>', 4400, 'LUKE'), 2600);
   setTimeout(() => { S.speck = 3; S.speckWeg = false; S.speckBusy = false; }, 14000); }
 // W-04 „Über dem Lager“
@@ -505,6 +539,7 @@ function whiskey_perchTick(dt, t) {
 }
 WORLD_TICK.push((dt, t) => {
   const S = whiskey_S; if (!S.ready || !state.started || menu.attract) return; const P = player.pos, g = S.g;
+  if (S.speck >= 1 && whiskey_k() === 1) { const F = whiskey_falleSetzen(); if (F.p && !F.p.visible) F.p.visible = F.sb.visible = true; } else if (S.falle && S.falle.p && S.falle.p.visible && (S.speck < 1 || whiskey_k() !== 1)) S.falle.p.visible = S.falle.sb.visible = false; // Vegas’ Pfanne unter dem Sieb steht ab dem zweiten Besuch am Fenster
   // nach Miras Licht (W-13): einen Tag nur ein Rabe – müde, schief, kein Tausch
   if (!S.light && typeof hungrige_S !== 'undefined' && hungrige_S.finale && whiskey_k() >= 6) { S.light = true; S.tired = true; }
   S.tired = S.light && whiskey_k() >= 6 && !S.said.has('luna');

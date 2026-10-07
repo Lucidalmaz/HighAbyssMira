@@ -382,7 +382,7 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       const dc = Math.hypot(x - C.x, z - C.z); if (dc < C.r) continue;
       const s = rand(.85, 1.45), ry = rand(0, 6.28); let m;
       if (dc < C.r + 6) { // Lichtung: alle Bäume vom Mittelpunkt weg geneigt
-        const dx = (x - C.x) / dc, dz = (z - C.z) / dc, q = new THREE.Quaternion().setFromAxisAngle(new V3(dz, 0, -dx), rand(.14, .24) * (1 - (dc - C.r) / 8)).multiply(new THREE.Quaternion().setFromAxisAngle(up, ry));
+        const dx = (x - C.x) / dc, dz = (z - C.z) / dc, q = new THREE.Quaternion().setFromAxisAngle(new V3(dz, 0, -dx), rand(.2, .34) * (1 - (dc - C.r) / 9)).multiply(new THREE.Quaternion().setFromAxisAngle(up, ry));
         m = new THREE.Matrix4().compose(new V3(x, -.1, z), q, new V3(s, s, s));
       } else m = gruen_m4(x, -.1, z, ry, s, s, s, rand(-.07, .07), rand(-.07, .07));
       add(x, z, m); if (ins) gruen_markDisc(x, z, .5, 3);
@@ -504,6 +504,30 @@ WORLD_MODS.push(['Böden & Pflanzen', async () => {
       [-110, O.z0 + .15, 0, 'Hinter dem Zaun steht jemand zwischen den Stämmen. Du blinzelst. Nur ein Baumstumpf. Er war vorhin noch nicht da.']];
     SPOTS.forEach(([x, z, ry, txt], i) => { const b = box(2.8, 1.2, .5, x, .6, z, hidden, { cast: false, parent: gruen_R }); b.rotation.y = ry;
       interact(b, 'Den Zaun ansehen', () => { gruen_find('gruen_zaun' + i, 'Am Weidezaun', txt, 6000); if (i === 3) setTimeout(() => Audio.whisper(x, 1.5, z + (z < 0 ? -6 : 6), 1.4), 900); }); });
+    // ---- Basis-Umsetzung: was die Zaun-Texte behaupten, hängt und steht am Zaun (verbogener Draht, nasse Haare am Stacheldraht, Kerben im Pfahl, der Baumstumpf)
+    try {
+      const wireM = new THREE.MeshStandardMaterial({ color: 0x77777a, roughness: .4, metalness: .9 }), R_ = ausbau_nord_rng(1992), tube = (pts, r) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 4, r, 5, false);
+      // Nordzaun: zwei Drahtstränge, nach außen (Norden) gedrückt, ein Ende aufgebogen
+      { const geos = []; for (const [y, bu] of [[.62, .55], [1.02, .42]]) { const pts = []; for (let i = 0; i <= 12; i++) { const t = i / 12, x = -21.7 + t * 3.4; pts.push(new THREE.Vector3(x, y - Math.sin(t * PI) * .06, O.z1 + .02 + Math.sin(t * PI) ** 1.6 * bu)); } geos.push(tube(pts, .0042)); }
+        geos.push(tube([new THREE.Vector3(-18.3, .62, O.z1 + .02), new THREE.Vector3(-18.1, .72, O.z1 + .2), new THREE.Vector3(-17.9, .95, O.z1 + .32)], .0042));
+        const m = new THREE.Mesh(mergeGeometries(geos), wireM); m.castShadow = true; m.userData.noCol = true; gruen_add(m); }
+      // Ostzaun: Stacheldrahtstrang mit Stacheln, daran lange helle, noch nasse Haare
+      { const X = O.x1 - .12, geos = [], barbs = [], hair = []; const pts = []; for (let i = 0; i <= 16; i++) pts.push(new THREE.Vector3(X, .98 - Math.sin(i / 16 * PI) * .05, 15.8 + i * .26)); geos.push(tube(pts, .0036));
+        for (let i = 1; i < 16; i++) { const p = pts[i]; for (const a of [0, 1.57]) { const b = new THREE.CylinderGeometry(.0009, .0025, .026, 5); b.rotateX(a ? PI / 2 : 0); b.rotateZ(a ? 0 : PI / 2); b.translate(p.x, p.y, p.z); barbs.push(b); } }
+        for (let k = 0; k < 15; k++) { const i = 2 + Math.floor(R_() * 12), p = pts[i], L = .35 + R_() * .45, hp = [p.clone()]; for (let j = 1; j <= 7; j++) hp.push(new THREE.Vector3(p.x - .01 - Math.sin(j * .4 + k) * .02 + (R_() - .5) * .01, p.y - j / 7 * L, p.z + Math.sin(j * .7 + k * 2) * .035 + j * .004)); hair.push(tube(hp, .00085)); }
+        const wm = new THREE.Mesh(mergeGeometries([...geos, ...barbs]), wireM), hm = new THREE.Mesh(mergeGeometries(hair), new THREE.MeshStandardMaterial({ color: 0xe0d6b4, roughness: .12, metalness: 0, envMapIntensity: 1.6 })); wm.castShadow = true; hm.userData.noCol = wm.userData.noCol = true; gruen_add(wm); gruen_add(hm); }
+      // Westzaun: ein Pfahl mit Kerben – sieben alte, eine frische
+      { const X = O.x0 + .75, Z = -6, g = new THREE.BoxGeometry(.15, 1.45, .15); worldUV(g, .15, 1.45, .15, 1.2); const mat = msSurfMat('planks_painted', { tint: 0x7a6a56 }), post = new THREE.Mesh(g, mat); post.position.set(X, .72, Z); post.rotation.set(.02, .4, .03); post.castShadow = true; gruen_add(post);
+        const top = new THREE.Mesh(new THREE.BoxGeometry(.16, .03, .16), mat); top.position.set(0, .745, 0); top.rotation.y = .1; post.add(top);
+        for (let k = 0; k < 8; k++) { const fresh = k === 7, n = new THREE.Mesh(new THREE.BoxGeometry(.1, .013, .012), new THREE.MeshStandardMaterial({ color: fresh ? 0xe2cc98 : 0x1f1710, roughness: .9 })); n.position.set(-.005, .5 - k * .075 + (k === 7 ? -.015 : 0), .0765); n.rotation.z = (k - 3.5) * .035; post.add(n); const sh = new THREE.Mesh(new THREE.BoxGeometry(.11, .006, .004), new THREE.MeshStandardMaterial({ color: 0x0c0906 })); sh.position.set(-.005, n.position.y - .009, .0745); sh.rotation.z = n.rotation.z; post.add(sh); }
+        post.traverse(o => { o.userData.noCol = false; }); }
+      // Südzaun: hinter dem Zaun steht – sobald man nicht hinsieht – „jemand“: ein Baumstumpf (er war vorhin noch nicht da)
+      { const st = await bu_mod('w_stumprot', 'model.glb', 1.55, 'y'); if (st) { st.position.set(-110.6, 0, O.z0 - 3.4); st.rotation.y = 1.3; st.visible = false; st.userData.noCol = true; scene.add(st); gruen_S.stumpf = st;
+          WORLD_TICK.push((dt) => { const P = player.pos, dx = st.position.x - P.x, dz = st.position.z - P.z, d = Math.hypot(dx, dz); if (st.visible || d > 16 || d < 3) return; const f = new THREE.Vector3(); camera.getWorldDirection(f); if (f.x * dx / d + f.z * dz / d < .1) st.visible = true; }); } }
+      // Absperrgitter im Nordzaun: mit Draht an die Pfosten gebunden (Wicklungen um die Gitterstäbe)
+      { const geos = []; for (const x of [25.96, 30.0, 34.04]) for (const y of [.42, 1.28]) { const pts = []; for (let i = 0; i <= 40; i++) { const a = i / 40 * PI * 2 * 4.2; pts.push(new THREE.Vector3(x + Math.cos(a) * .034, y + i / 40 * .13, 97.95 + Math.sin(a) * .034)); } geos.push(tube(pts, .0026)); geos.push(tube([pts[40], new THREE.Vector3(x + .06, y + .15, 97.9), new THREE.Vector3(x + .1, y + .12, 97.84)], .0026)); }
+        const m = new THREE.Mesh(mergeGeometries(geos), wireM); m.castShadow = true; m.userData.noCol = true; gruen_add(m); }
+    } catch (e) { console.warn('gruen Basis-Umsetzung Zaun', e); }
     // Pfützen: wer hineinsieht, sieht kurz jemanden hinter sich
     let pudScare = 0;
     (gruen_S.pudList || []).filter(p => p[1] > .1).slice(0, 6).forEach(([x, y, z, ry, sx, sz]) => { const b = box(sx * .8, .06, sz * .8, x, y + .02, z, hidden, { cast: false, parent: gruen_R }); b.rotation.y = ry;

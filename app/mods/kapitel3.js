@@ -313,6 +313,10 @@ WORLD_MODS.push(['Kapitel 3 · Hauptweg Straße (AP-17)', async () => {
   addEventListener('keydown', e => { if (e.code === 'KeyQ' && !e.repeat && kapitel3_S.jagd.on && document.pointerLockElement === renderer.domElement) kapitel3_ausIhrenAugen(); });
   // Weiterspielen mitten in Kapitel 3: Zustand herstellen (nach dem Kapitelaufbau)
   if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => kapitel3_fortsetzen(d, at));
+  // Abgleich Kap. 3 (Text gegen Welt): sichtbares Hufeisen über der Stalltür, Vegas’ Dahlienbeete vor Nr. 3
+  try { kapitel3_hufeisenBau(); } catch (e) { console.warn('Kap. 3 Hufeisen', e); }
+  try { S.dah = [kapitel3_dahlienBeet(-32.7, -29.6, -12.15, -11.0, 0, 11), kapitel3_dahlienBeet(-26.4, -23.3, -12.15, -11.0, 0, 23)]; } catch (e) { console.warn('Kap. 3 Dahlien', e); }
+  try { kapitel3_senkeBau(); } catch (e) { console.warn('Kap. 3 Senke', e); }
   window.__k3 = { S, kuh: () => kapitel3_kuhStellen(), unters: k => kapitel3_kuhUntersuchen(k, S.kuhHits.find(() => true)), tel: () => kapitel3_telefon(), raus: w => kapitel3_raus(w), jam: w => kapitel3_justinAmAusgang(w),
     buch: () => kapitel3_zaehlbuch(), nb: () => kapitel3_nachbild2009(), jagd: () => kapitel3_jagdStart(), erwischt: () => kapitel3_erwischt(), augen: () => kapitel3_ausIhrenAugen(), aus: () => kapitel3_lampsOut(),
     sicher: () => kapitel3_behSicher(), hand: () => kapitel3_handNehmen(), riegel: () => kapitel3_riegel(), huf: () => kapitel3_hufeisen(), eisen: () => kapitel3_amEisen(), fort: (d, at) => kapitel3_fortsetzen(d, at), ev: code => eval(code) }; // Testzugriff (ev: Ausdruck im Modulbereich auswerten)
@@ -373,3 +377,67 @@ WORLD_TICK.push((dt, t) => {
   // UK 10: an der Lichtsäule nicht die Hand nehmen → Whiskey „Kum!“
   if (S.handWarte && !state.talking && !ui.overlay) { S.handT += dt; if (S.handT > 9 && !S.kum && jDist() < 6) kapitel3_kum(); }
 });
+
+// ---------------------------------------------------------------- Abgleich Kap. 3 (Text gegen Welt): Hufeisen über der Stalltür, Vegas’ Dahlien
+// Die Texte (B-K3-07 „Hufeisen über der Stalltür“, Vegas: „Und nicht durch meine Dahlien!“) verlangen sichtbare Dinge; vorher gab es nur eine Klickfläche bzw. nichts.
+function kapitel3_hufeisenBau() {
+  const S = kapitel3_S, OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, D = OW && OW.dbg && OW.dbg.barnDoor; if (!D) return;
+  // Wandfläche über der Tür per Strahl finden (nur sichtbare Netze, keine Klickflächen)
+  const hoehe = S.hufY || 2.35; let wx = null;
+  for (const dz of [0, -.4, .4]) { const hit = typeof neben3x_ray === 'function' ? neben3x_ray(new THREE.Vector3(D.x + 3, hoehe, D.z + dz), new THREE.Vector3(-1, 0, 0), 6)[0] : null; if (hit) { wx = hit.point.x; S.hufWand = hit.object.name || hit.object.type; break; } }
+  if (wx === null) wx = D.x + .35; // Rückfall: Lage laut Stall-Aufbau
+  const T = THREE, Ra = .07, Ri = .04, a = 2.5, shape = new T.Shape(), n = 28;
+  for (let i = 0; i <= n; i++) { const t = -T.MathUtils.lerp(-a, a, i / n) - Math.PI / 2; const x = Ra * Math.cos(t), y = Ra * Math.sin(t); if (i) shape.lineTo(x, y); else shape.moveTo(x, y); }
+  for (let i = n; i >= 0; i--) { const t = -T.MathUtils.lerp(-a, a, i / n) - Math.PI / 2; shape.lineTo(Ri * Math.cos(t), Ri * Math.sin(t)); }
+  for (const k of [-2.1, -1.4, -.7, 0, .7, 1.4, 2.1]) { const t = -Math.PI / 2 + k, r = (Ra + Ri) / 2, h = new T.Path(); h.absarc(r * Math.cos(t), r * Math.sin(t), .0052, 0, Math.PI * 2, true); shape.holes.push(h); } // sieben Nagellöcher
+  const g = new T.ExtrudeGeometry(shape, { depth: .011, bevelEnabled: true, bevelThickness: .0028, bevelSize: .0028, bevelSegments: 2, curveSegments: 10 });
+  const eisen = kirchberg_tex(kirchberg_cnv(128, 128, (x, w, h) => { x.fillStyle = '#3b332d'; x.fillRect(0, 0, w, h); for (let i = 0; i < 900; i++) { const o = kirchberg_r(); x.fillStyle = o < .5 ? `rgba(${kirchberg_r(110, 160) | 0},${kirchberg_r(54, 80) | 0},26,${kirchberg_r(.12, .5)})` : `rgba(20,16,12,${kirchberg_r(.2, .6)})`; x.fillRect(kirchberg_r(0, w), kirchberg_r(0, h), kirchberg_r(1, 5), kirchberg_r(1, 4)); } }));
+  { const b = g.boundingBox || (g.computeBoundingBox(), g.boundingBox), p = g.attributes.position, uv = g.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - b.min.x) / (b.max.x - b.min.x), (p.getY(i) - b.min.y) / (b.max.y - b.min.y)); }
+  const m = new T.Mesh(g, new T.MeshStandardMaterial({ map: eisen, color: 0xbbb2aa, roughness: .6, metalness: .82 })); m.castShadow = true; m.receiveShadow = true;
+  const gr = new T.Group(); gr.add(m); // Öffnung nach oben: das Glück läuft nicht heraus
+  const nagel = new T.Mesh(new T.CylinderGeometry(.0035, .0035, .05, 6), new T.MeshStandardMaterial({ color: 0x2a2622, roughness: .5, metalness: .9 })); nagel.rotation.x = Math.PI / 2; nagel.position.set(0, -.055, .01); gr.add(nagel);
+  const kopf = new T.Mesh(new T.CylinderGeometry(.009, .007, .004, 8), nagel.material); kopf.rotation.x = Math.PI / 2; kopf.position.set(0, -.055, .0165); gr.add(kopf);
+  gr.position.set(wx + .005, hoehe, D.z); gr.rotation.y = Math.PI / 2; gr.rotation.z = .05; gr.userData.noCol = true; scene.add(gr); gr.updateMatrixWorld(true); S.hufMesh = gr;
+  const rost = kirchberg_decal(kirchberg_tex(kirchberg_cnv(64, 128, (x, w, h) => { const q = x.createLinearGradient(0, 0, 0, h); q.addColorStop(0, 'rgba(96,48,20,.55)'); q.addColorStop(1, 'rgba(96,48,20,0)'); x.fillStyle = q; x.beginPath(); x.moveTo(w * .42, 0); x.lineTo(w * .58, 0); x.lineTo(w * .7, h); x.lineTo(w * .3, h); x.fill(); })), .05, .22, wx + .004, hoehe - .17, D.z, Math.PI / 2, { alpha: true }); // Rostfahne unter dem Nagel
+  S.hufRost = rost; return gr; }
+// ---- Dahlien: Kopf (Pompon aus Blütenblättern), Blatt, Beet
+function kapitel3_dahlieGeo() {
+  const pos = [], uv = [], idx = []; let v = 0;
+  const ringe = [[13, .030, 4, .05, .026, .036], [12, .024, 22, .045, .024, .034], [11, .018, 40, .04, .022, .03], [9, .012, 58, .034, .02, .026], [7, .007, 74, .028, .017, .02], [5, .003, 86, .022, .014, .016]]; // n, r0, Neigung°, Länge, Breite, Höhe
+  ringe.forEach(([n, r0, tilt, len, wid, h0], ri) => { for (let i = 0; i < n; i++) { const a = (i + (ri % 2) * .5) / n * Math.PI * 2, t = tilt * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), bx = ca * r0, bz = sa * r0, by = h0 * .0 + ri * .004;
+      const dx = ca * Math.cos(t) * len, dy = Math.sin(t) * len, dz = sa * Math.cos(t) * len, sx = -sa * wid / 2, sz = ca * wid / 2;
+      const P = [[bx - sx * .55, by, bz - sz * .55], [bx + sx * .55, by, bz + sz * .55], [bx + dx * .55 + sx, by + dy * .55 + .003, bz + dz * .55 + sz], [bx + dx * .55 - sx, by + dy * .55 + .003, bz + dz * .55 - sz], [bx + dx + sx * .3, by + dy - .002 * (90 - tilt) / 90, bz + dz + sz * .3], [bx + dx - sx * .3, by + dy - .002 * (90 - tilt) / 90, bz + dz - sz * .3]];
+      P.forEach(p => pos.push(p[0], p[1], p[2])); uv.push(0, 0, 1, 0, 1, .55, 0, .55, .85, 1, .15, 1); idx.push(v, v + 1, v + 2, v, v + 2, v + 3, v + 3, v + 2, v + 4, v + 3, v + 4, v + 5); v += 6; } });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g; }
+function kapitel3_dahlienBeet(x0, x1, z0, z1, ry, seed) {
+  const T = THREE, S = kapitel3_S, grp = new T.Group(); grp.userData.noCol = true; scene.add(grp); const w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2; let rs = seed || 7; const r = (a = 0, b = 1) => { rs = (rs * 16807) % 2147483647; return a + (b - a) * rs / 2147483647; };
+  if (!S.dahT) { S.dahT = {
+      blatt: kirchberg_tex(kirchberg_cnv(256, 256, (x, ww, hh) => { x.clearRect(0, 0, ww, hh); x.translate(ww / 2, hh); x.fillStyle = '#243d1e'; x.strokeStyle = '#142410'; x.lineWidth = 2; for (const s of [-1, 1]) { x.beginPath(); x.moveTo(0, -8); for (let k = 0; k <= 12; k++) { const t = k / 12, yy = -8 - t * 220, xx = s * (Math.sin(t * 2.6) * 78 * (1 - t * .15) + (k % 2 ? 7 : 0)); x.lineTo(xx, yy); } x.lineTo(0, -232); x.closePath(); x.fill(); x.stroke(); }
+        x.strokeStyle = 'rgba(170,200,120,.55)'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, -4); x.lineTo(0, -228); x.stroke(); x.lineWidth = 1.5; for (let k = 1; k < 8; k++) for (const s of [-1, 1]) { x.beginPath(); x.moveTo(0, -k * 28); x.lineTo(s * 60 * (1 - k / 10), -k * 28 - 22); x.stroke(); } })),
+      bl: kirchberg_tex(kirchberg_cnv(64, 128, (x, ww, hh) => { x.clearRect(0, 0, ww, hh); const gr = x.createLinearGradient(0, hh, 0, 0); gr.addColorStop(0, 'rgba(110,110,110,1)'); gr.addColorStop(.35, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(235,235,235,1)'); x.fillStyle = gr; x.beginPath(); x.moveTo(ww * .2, hh); x.quadraticCurveTo(-ww * .15, hh * .35, ww * .5, 2); x.quadraticCurveTo(ww * 1.15, hh * .35, ww * .8, hh); x.fill(); x.strokeStyle = 'rgba(70,70,70,.5)'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(ww * .5, hh); x.lineTo(ww * .5, 14); x.stroke(); })),
+      geo: kapitel3_dahlieGeo() }; }
+  // Erdbeet: weich auslaufende, dunkle Erde mit Rindenmulch
+  const erde = kirchberg_tex(kirchberg_cnv(512, 256, (x, ww, hh) => { x.clearRect(0, 0, ww, hh); const gr = x.createRadialGradient(ww / 2, hh / 2, hh * .15, ww / 2, hh / 2, ww * .52); gr.addColorStop(0, 'rgba(46,34,24,1)'); gr.addColorStop(.78, 'rgba(52,38,26,1)'); gr.addColorStop(1, 'rgba(52,38,26,0)'); x.save(); x.scale(1, hh / ww * 1.5); x.fillStyle = gr; x.fillRect(0, 0, ww, ww); x.restore();
+    for (let i = 0; i < 2600; i++) { const px = kirchberg_r(30, ww - 30), py = kirchberg_r(14, hh - 14), o = kirchberg_r(); x.fillStyle = o < .5 ? `rgba(${kirchberg_r(20, 40) | 0},${kirchberg_r(14, 28) | 0},${kirchberg_r(8, 18) | 0},${kirchberg_r(.4, .9)})` : `rgba(${kirchberg_r(80, 120) | 0},${kirchberg_r(58, 84) | 0},${kirchberg_r(36, 56) | 0},${kirchberg_r(.2, .6)})`; x.fillRect(px, py, kirchberg_r(2, 9), kirchberg_r(1.5, 4)); } }));
+  kirchberg_decal(erde, w + .5, d + .5, cx, .025, cz, -ry, { alpha: true, rx: -Math.PI / 2, parent: grp });
+  const n = Math.max(4, Math.round(w / .55)), blatt = [], blueten = [], stiele = [], stab = [];
+  const lm = new T.MeshStandardMaterial({ map: S.dahT.blatt, alphaTest: .4, side: T.DoubleSide, roughness: .75, color: 0xb8d0a0 }), bm = new T.MeshStandardMaterial({ map: S.dahT.bl, alphaTest: .35, side: T.DoubleSide, roughness: .62, color: 0xffffff }), sm = new T.MeshStandardMaterial({ color: 0x35502a, roughness: .8 }), pm = new T.MeshStandardMaterial({ color: 0xa68a56, roughness: .85 });
+  const farben = [0x8f0c1c, 0xb41428, 0xc4281c, 0xd9641a, 0xe5a216, 0xcc4a7e, 0x7a2468, 0xe8d8b0, 0xa01836], M = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), sc = new T.Vector3(), p = new T.Vector3(), cos = Math.cos(ry), sin = Math.sin(ry);
+  for (let i = 0; i < n; i++) { const lx = -w / 2 + (i + .5) * w / n + r(-.12, .12), lz = r(-d / 2 + .15, d / 2 - .15), px = cx + lx * cos - lz * sin, pz = cz + lx * sin + lz * cos, hh = r(.85, 1.25), sw = r(-.1, .1), sx = r(-.1, .1);
+    p.set(px, hh / 2, pz); q.setFromEuler(e.set(sx, r(0, 6.28), sw)); sc.set(1, hh, 1); stiele.push(M.compose(p.clone(), q.clone(), sc.clone()).clone());
+    p.set(px + r(-.03, .03), (hh + .05) / 2, pz + r(-.03, .03)); sc.set(1, hh + .05, 1); q.setFromEuler(e.set(0, 0, 0)); stab.push(M.compose(p.clone(), q.clone(), sc.clone()).clone());
+    for (let k = 0; k < 9; k++) { const ph = r(.12, .8) * hh, a = r(0, 6.28), s = r(.16, .27) * (1.05 - ph / hh * .4); q.setFromEuler(e.set(r(.5, 1.1), a, 0, 'YXZ')); p.set(px + Math.sin(a) * .03, ph, pz + Math.cos(a) * .03); sc.set(s, s, s); blatt.push(M.compose(p.clone(), q.clone(), sc.clone()).clone()); }
+    const nb = r() < .45 ? 3 : 2; for (let k = 0; k < nb; k++) { const hy = hh * (k ? r(.62, .86) : 1) + .01, ox = k ? r(-.17, .17) : sx * hh * .5, oz = k ? r(-.17, .17) : sw * hh * .5, s = k ? r(.62, .85) : r(.85, 1.15); q.setFromEuler(e.set(r(-.5, .5) + (k ? .4 : 0), r(0, 6.28), r(-.5, .5))); p.set(px + ox, hy, pz + oz); sc.set(s, s, s); blueten.push([M.compose(p.clone(), q.clone(), sc.clone()).clone(), farben[Math.floor(r(0, farben.length)) % farben.length]]); } }
+  const mk = (geo, mat, list, o = {}) => { const im = new T.InstancedMesh(geo, mat, list.length); list.forEach((mm, i) => im.setMatrixAt(i, Array.isArray(mm) ? mm[0] : mm)); im.castShadow = o.cast !== false; im.receiveShadow = true; im.userData.noCol = true; im.frustumCulled = false; grp.add(im); return im; };
+  const bg = new T.PlaneGeometry(1, 1); bg.translate(0, .5, 0); const lg = bg;
+  mk(new T.CylinderGeometry(.0055, .011, 1, 5).translate(0, 0, 0), sm, stiele); mk(new T.CylinderGeometry(.004, .004, 1, 4), pm, stab, { cast: false }); mk(lg, lm, blatt);
+  const bi = mk(S.dahT.geo, bm, blueten); blueten.forEach((b, i) => bi.setColorAt(i, new T.Color(b[1]))); bi.instanceColor.needsUpdate = true;
+  return grp; }
+
+// Hufeisen: ab Kapitel 3 sichtbar (Eisen ist frei)
+WORLD_TICK.push(dt => { const S = kapitel3_S; kapitel3_senkeTick(dt); if (S.hufMesh) { const an = typeof kap !== 'function' || kap() >= 3; if (S.hufMesh.visible !== an) S.hufMesh.visible = an; if (S.hufRost && S.hufRost.visible !== an) S.hufRost.visible = an; } });
+
+// Senke im Osten: das Weiß „über der Senke“ (Justin: „Das Licht da hinten ist kein Licht. Es ist ein Schiff.“) – ein fernes, bleiches Leuchten über dem Horizont (Sprite, keine Lichtquelle)
+function kapitel3_senkeBau() { const S = kapitel3_S, c = kirchberg_cnv(256, 256, (x, w) => { const g = x.createRadialGradient(w / 2, w / 2, 4, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(244,248,255,.95)'); g.addColorStop(.18, 'rgba(226,236,255,.5)'); g.addColorStop(.5, 'rgba(200,214,240,.14)'); g.addColorStop(1, 'rgba(200,214,240,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); });
+  const t = kirchberg_tex(c), m = new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, opacity: 0 }), sp = new THREE.Sprite(m); sp.scale.set(70, 34, 1); sp.position.set(118, 15, 0); sp.userData.noCol = true; sp.renderOrder = -1; scene.add(sp); S.senke = sp; }
+function kapitel3_senkeTick(dt) { const S = kapitel3_S, sp = S.senke; if (!sp) return; const an = typeof kap === 'function' && kap() === 3 && ch3.on && ch3.part === 'town', ziel = an ? .34 + Math.sin(performance.now() * .0006) * .06 : 0; const o = sp.material.opacity + (ziel - sp.material.opacity) * Math.min(1, dt * .8); sp.material.opacity = o; sp.visible = o > .004; }

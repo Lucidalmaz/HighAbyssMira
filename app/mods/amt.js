@@ -41,6 +41,12 @@ const AMT_ZIEL = { 'Folge dem Tunnel.': 'Folge dem Gang. Irgendwo hier unten ist
   'Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.': 'Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.', 'Der Messraum. Hier ist es passiert.': 'Da vorn liegt der Messraum. Von dort kommt Lucys Summen.', 'Der Messraum. Das Klavier.': 'Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach, was sie summt.' };
 setC2Objective = (o => t => o(Object.prototype.hasOwnProperty.call(AMT_ZIEL, t) ? AMT_ZIEL[t] : t))(setC2Objective);
 
+// Matratze in Peters Zelle (Prüfraum 3): Eisenbett ist eine InstancedMesh (innen_kapitel) – feuer_bedSpot sucht nur normale Meshes und fällt dann auf den Boden zurück.
+// Hier wird die Oberkante der Matratze direkt an den Instanzen gemessen (Strahl von oben); feuer_bedSpot (Feuerzeug) und das Oma-Foto nutzen diesen Wert.
+function amt_bettOben() { try { const X0 = C2.x, Z0 = C2.z, rc = new THREE.Raycaster(), o = new THREE.Vector3(), dn = new THREE.Vector3(0, -1, 0); rc.camera = camera; rc.far = 1.8;
+    for (const [dx, dz] of [[.2, 0], [.45, .02], [-.1, -.02], [.7, 0], [-.35, 0]]) { const x = X0 + 41.4 + dx, z = Z0 - 4.45 + dz; rc.set(o.set(x, 1.7, z), dn);
+      const h = rc.intersectObjects(scene.children, true).find(q => q.object.visible && q.object.isInstancedMesh && q.point.y > .35 && q.point.y < .85); if (h) return { x, y: h.point.y, z }; } } catch (e) {} return null; }
+try { if (typeof feuer_bedSpot === 'function') feuer_bedSpot = (orig => () => { const r = orig(); if (r && r.y < .2) { const b = amt_bettOben(); if (b) return b; } return r; })(feuer_bedSpot); } catch (e) {}
 // ---------------------------------------------------------------- Werkzeuge
 let amt_rs = 16061; const amt_R = (a, b) => { amt_rs = (amt_rs * 16807) % 2147483647; return a + (b - a) * (amt_rs / 2147483647); };
 function amt_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
@@ -87,6 +93,311 @@ function amt_top(K, m, x, z, from = 3) { const g = new THREE.Group(); for (const
   const h = new THREE.Raycaster(new THREE.Vector3(x, from, z), new THREE.Vector3(0, -1, 0)).intersectObject(g, true)[0]; return h ? h.point.y : 0; }
 function amt_flush() { for (const K of amt_S.kits) { if (!K.list.length) continue; msInst(K.parts, K.list, { shadow: K.shadow }); K.list = []; } }
 
+// ---------------------------------------------------------------- Requisiten aus Teilen (Fassung K2): Gehäuse mit Fasen und echten Materialien, je Material zu einem Mesh verschmolzen
+// Teile: [Geometrie, Materialname, Matrix]; Maße in Metern, Unterkante y = 0, Vorderseite +z (Gruppe danach per Drehung ausrichten)
+const AMTP = { mats: {}, noise: null };
+function amtp_noise() { if (!AMTP.noise) { const c = amt_cv(128, 128, (x, w, h) => { amt_rs = 7; x.fillStyle = '#808080'; x.fillRect(0, 0, w, h); for (let i = 0; i < 6000; i++) { const v = amt_R(70, 190) | 0; x.fillStyle = `rgb(${v},${v},${v})`; x.fillRect(amt_R(0, w), amt_R(0, h), 1.6, 1.6); } });
+  AMTP.noise = amt_tex(c, false); AMTP.noise.repeat.set(8, 8); } return AMTP.noise; }
+function amtp_mat(k) { const C = AMTP.mats; if (C[k]) return C[k]; const std = (o) => new THREE.MeshStandardMaterial(o); let m;
+  switch (k) {
+    case 'plastik': m = std({ color: 0xcdc5ad, roughness: .52, bumpMap: amtp_noise(), bumpScale: .35 }); break;
+    case 'plastikGrau': m = std({ color: 0x9a9b94, roughness: .5, bumpMap: amtp_noise(), bumpScale: .35 }); break;
+    case 'plastikDunkel': m = std({ color: 0x2a2c2e, roughness: .42, bumpMap: amtp_noise(), bumpScale: .3 }); break;
+    case 'rauch': m = std({ color: 0x23282c, roughness: .1, metalness: .05, transparent: true, opacity: .5, depthWrite: false }); break;
+    case 'gummi': m = std({ color: 0x141414, roughness: .88, bumpMap: amtp_noise(), bumpScale: .5 }); break;
+    case 'stahl': m = std({ color: 0xa9adac, roughness: .32, metalness: .9 }); break;
+    case 'stahlMatt': m = std({ color: 0x8c908c, roughness: .5, metalness: .65, bumpMap: amtp_noise(), bumpScale: .25 }); break;
+    case 'lack': m = std({ color: 0x5f6a60, roughness: .55, metalness: .3, bumpMap: amtp_noise(), bumpScale: .4 }); break;
+    case 'chrom': m = std({ color: 0xdfe2e1, roughness: .16, metalness: 1 }); break;
+    case 'messing': m = std({ color: 0xb59a58, roughness: .35, metalness: .85 }); break;
+    case 'papier': m = std({ color: 0xe6e1d0, roughness: .95, side: THREE.DoubleSide }); break;
+    case 'karton': m = std({ color: 0xa88f66, roughness: .92, bumpMap: amtp_noise(), bumpScale: .5 }); break;
+    case 'holz': m = std({ color: 0x8a6a45, roughness: .7, bumpMap: amtp_noise(), bumpScale: .5 }); break;
+    case 'ton': m = std({ color: 0xb4623c, roughness: .88, bumpMap: amtp_noise(), bumpScale: .8 }); break;
+    case 'erde': m = std({ color: 0x3a2a1e, roughness: 1, bumpMap: amtp_noise(), bumpScale: 1 }); break;
+    case 'gruen': m = std({ color: 0x4f7a45, roughness: .62, bumpMap: amtp_noise(), bumpScale: .6 }); break;
+    case 'ledGruen': m = std({ color: 0x103018, emissive: 0x22ff55, emissiveIntensity: .9, roughness: .3 }); break;
+    case 'ledRot': m = std({ color: 0x301010, emissive: 0xff2a1a, emissiveIntensity: .7, roughness: .3 }); break;
+    default: m = std({ color: 0xff00ff });
+  } return (C[k] = m); }
+const amtp_m = (x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0, s = 1) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz, 'YXZ')), new THREE.Vector3(s, s, s));
+// Abgerundeter Quader (Fase r), Mitte im Ursprung
+function amtp_rbox(w, h, d, r = .006) { r = Math.min(r, w / 2 - .0005, h / 2 - .0005, d / 2 - .0005); const sh = new THREE.Shape(), a = w / 2 - r, b = h / 2 - r, q = r * .6;
+  sh.moveTo(-a + q, -b); sh.lineTo(a - q, -b); sh.quadraticCurveTo(a, -b, a, -b + q); sh.lineTo(a, b - q); sh.quadraticCurveTo(a, b, a - q, b); sh.lineTo(-a + q, b); sh.quadraticCurveTo(-a, b, -a, b - q); sh.lineTo(-a, -b + q); sh.quadraticCurveTo(-a, -b, -a + q, -b);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: Math.max(.0004, d - 2 * r), bevelEnabled: true, bevelThickness: r, bevelSize: r, bevelSegments: 2, curveSegments: 3 }); g.translate(0, 0, -(d - 2 * r) / 2); return g; }
+// Profil (u = z, v = y) entlang x extrudiert, Mitte in x
+function amtp_prof(pts, breite, r = .004) { const sh = new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], p[1]))); const g = new THREE.ExtrudeGeometry(sh, { depth: Math.max(.0004, breite - 2 * r), bevelEnabled: r > 0, bevelThickness: r, bevelSize: r * .8, bevelSegments: 1, curveSegments: 2 });
+  g.translate(0, 0, -(breite - 2 * r) / 2); g.rotateY(-PI / 2); return g; }
+const amtp_cyl = (r, h, seg = 20, r2) => new THREE.CylinderGeometry(r, r2 ?? r, h, seg);
+const amtp_cylX = (r, l, seg = 20) => { const g = new THREE.CylinderGeometry(r, r, l, seg); g.rotateZ(PI / 2); return g; };
+const amtp_cylZ = (r, l, seg = 20) => { const g = new THREE.CylinderGeometry(r, r, l, seg); g.rotateX(PI / 2); return g; };
+// Boxprojektion der UVs (1 m = 1 Einheit), damit Bump/Textur gleichmäßig liegen, egal welche Primitive
+function amtp_uv(g) { const P = g.attributes.position, N = g.attributes.normal, uv = new Float32Array(P.count * 2);
+  for (let i = 0; i < P.count; i++) { const ax = Math.abs(N.getX(i)), ay = Math.abs(N.getY(i)), az = Math.abs(N.getZ(i)); let u, v; if (ay >= ax && ay >= az) { u = P.getX(i); v = P.getZ(i); } else if (ax >= az) { u = P.getZ(i); v = P.getY(i); } else { u = P.getX(i); v = P.getY(i); } uv[i * 2] = u; uv[i * 2 + 1] = v; }
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); return g; }
+// Teile → Gruppe (je Material ein Mesh). o.cast: wirft Schatten
+function amtp_baue(parts, o = {}) { const by = new Map();
+  for (const [geo, mk, mat4] of parts) { let g = geo.index ? geo.toNonIndexed() : geo.clone(); for (const n of Object.keys(g.attributes)) if (n !== 'position' && n !== 'normal') g.deleteAttribute(n); if (!g.attributes.normal) g.computeVertexNormals(); g.applyMatrix4(mat4); amtp_uv(g); const mm = typeof mk === 'string' ? amtp_mat(mk) : mk; if (!by.has(mm)) by.set(mm, []); by.get(mm).push(g); }
+  const G = new THREE.Group(); for (const [mm, list] of by) { const m = new THREE.Mesh(mergeGeometries(list), mm); m.castShadow = o.cast !== false && !mm.transparent; m.receiveShadow = true; G.add(m); } return G; }
+// Band (Papierstreifen, Gurt): Pfad aus Punkten (lokal), Breite quer zur x-Achse der Gruppe
+function amtp_band(pts, breite, mat, o = {}) { const cur = new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(...p)), false, 'catmullrom', .4), n = o.n || 40, P = [], U = [], I = [];
+  for (let i = 0; i <= n; i++) { const t = i / n, p = cur.getPoint(t); P.push(p.x - breite / 2, p.y, p.z, p.x + breite / 2, p.y, p.z); const vv = o.fromTop ? 1 - t * (o.vSpan || 1) : t * (o.vSpan || 1); U.push(0, vv, 1, vv); if (i < n) { const a = i * 2; I.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(U, 2)); g.setIndex(I); g.computeVertexNormals();
+  const m = new THREE.Mesh(g, mat); m.castShadow = false; m.receiveShadow = true; return m; }
+// Quader-Fläche mit Canvas-Beschriftung (Etiketten, Tastenfelder): ebene Platte ohne Dicke, Blickrichtung +z
+function amtp_schild(cv, w, h, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: amt_tex(cv), roughness: o.rough ?? .6, metalness: o.metal ?? 0, transparent: !!o.alpha, depthWrite: !o.alpha, polygonOffset: true, polygonOffsetFactor: -2 })); m.receiveShadow = true; return m; }
+// Druckerwagen komplett: Wagen, Drucker, Papierstapel, Zuführ- und Ausgabebahn (pm: Papiermaterial mit der Live-Textur)
+function amtp_druckerWagen(pm) { const G = new THREE.Group(), hT = .8; G.add(amtp_wagen(.72, .46, hT)); const d = amtp_drucker(); d.position.y = hT; G.add(d);
+  const st = amtp_stapel(.27, .22, .30); st.position.set(0, .23 + .11, -.02); G.add(st);
+  G.add(amtp_band([[0, .46, -.1], [0, .5, -.2], [0, .66, -.26], [0, .86, -.258], [0, hT + .13, -.2], [0, hT + .125, -.15]], .21, amtp_mat('papier')));
+  G.add(amtp_band([[0, hT + .12, .0], [0, hT + .15, .04], [0, hT + .185, .075], [0, hT + .195, .12], [0, hT + .17, .17], [0, hT + .09, .21], [0, hT - .05, .245], [0, .45, .255], [0, .12, .265], [0, .012, .33]], .22, pm, { n: 70, fromTop: true }));
+  return G; }
+
+// ---- Lederriemen (Fesselgurte) für die Stühle im Messraum: Beckengurt über der Sitzfläche mit Schnalle, Fußriemen an den Vorderbeinen; Stuhl 8: sauber durchtrennt (cut)
+// Maße im Stuhlsystem (Mitte der Grundfläche, +z = Blickrichtung des Sitzenden): Sitzhöhe sy, halbe Sitzbreite sw, Sitztiefe zb (hinten) … zf (vorn)
+function amtp_gurte(cut, o = {}) { const sy = o.sy ?? .46, sw = o.sw ?? .2, zb = o.zb ?? -.17, zf = o.zf ?? .19, P = [], W = .036, T = .005;
+  const leder = AMTP.mats.leder || (AMTP.mats.leder = new THREE.MeshStandardMaterial({ color: 0x3b2a1b, roughness: .55, metalness: .05, bumpMap: amtp_noise(), bumpScale: .9 }));
+  const seg = (a, b, w = W) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length(), m = new THREE.Matrix4(), up = Math.abs(d.y / L) > .9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+    m.lookAt(A, B, up); m.setPosition(A.clone().add(B).multiplyScalar(.5)); P.push([new THREE.BoxGeometry(w, T, L), leder, m]); return L; };
+  const poly = (pts, w = W) => { for (let i = 0; i < pts.length - 1; i++) seg(pts[i], pts[i + 1], w); };
+  const nieten = (p) => P.push([amtp_cyl(.004, .003, 8), 'messing', amtp_m(p[0], p[1] + .004, p[2])]);
+  const schnalle = (x, y, z, ry = 0) => { const q = [[new THREE.BoxGeometry(.046, .004, .006), 0, -.016], [new THREE.BoxGeometry(.046, .004, .006), 0, .016], [new THREE.BoxGeometry(.006, .004, .038), -.023, 0], [new THREE.BoxGeometry(.006, .004, .038), .023, 0], [new THREE.BoxGeometry(.003, .003, .034), 0, 0]];
+    for (const [g, dx, dz] of q) { g.rotateY(ry); P.push([g, 'chrom', amtp_m(x + dx * Math.cos(ry) + dz * Math.sin(ry), y, z - dx * Math.sin(ry) + dz * Math.cos(ry))]); } };
+  const y1 = sy + .012, yb = sy + .09;
+  // Beckengurt: von den Seiten der Lehne über die Sitzfläche
+  const links = [[-sw + .01, yb, zb + .02], [-sw + .01, y1 + .03, zb + .08], [-sw + .03, y1, 0], [-.05, y1, zf * .55]], rechts = [[sw - .01, yb, zb + .02], [sw - .01, y1 + .03, zb + .08], [sw - .03, y1, 0], [.05, y1, zf * .55]];
+  if (!cut) { poly(links); poly(rechts); poly([[-.05, y1, zf * .55], [.05, y1, zf * .55]]); schnalle(0, y1 + .004, zf * .55, PI / 2); nieten([-.05, y1, zf * .55]); nieten([.05, y1, zf * .55]); nieten([-sw + .01, yb, zb + .02]); nieten([sw - .01, yb, zb + .02]);
+    for (const sx of [-1, 1]) for (let i = 0; i < 4; i++) P.push([amtp_cyl(.0028, .0009, 8), 'gummi', amtp_m(sx * (.065 + i * .018), y1 + .0028, zf * .55)]); }
+  else { // durchtrennt: links liegt der Rest auf der Sitzfläche, rechts hängt er über die Kante; die Schnittkanten sind glatt und hell
+    poly([[-sw + .01, yb, zb + .02], [-sw + .01, y1 + .03, zb + .08], [-sw + .03, y1, 0], [-.07, y1, zf * .35]]); poly([[sw - .01, yb, zb + .02], [sw - .01, y1 + .03, zb + .08], [sw - .02, y1, zb + .12], [sw - .02, y1 - .06, zb + .13]]);
+    P.push([new THREE.BoxGeometry(W, T * .6, .004), 'papier', amtp_m(-.07, y1 + .001, zf * .35 + .002)]); P.push([new THREE.BoxGeometry(W, .004, T * .6), 'papier', amtp_m(sw - .02, y1 - .06 - .002, zb + .13, .1)]);
+    poly([[.05, y1 - .002, zf * .72], [.11, y1 - .002, zf * .6], [.19, y1, zf * .3]]); schnalle(.05, y1 + .002, zf * .72, 0.5);   // das andere Ende mit Schnalle liegt lose auf der Sitzfläche
+    nieten([-sw + .01, yb, zb + .02]); nieten([sw - .01, yb, zb + .02]);
+    // Kerbe in der Lehne, zwei Finger breit, mit hellen Spänen an den Kanten (hier klemmt die Feder)
+    P.push([new THREE.BoxGeometry(.04, .036, .034), 'gummi', amtp_m(0, o.ky ?? .79, o.kz ?? -.2)]); for (const sx of [-1, 1]) P.push([new THREE.BoxGeometry(.006, .04, .036), 'holz', amtp_m(sx * .0235, (o.ky ?? .79) + .004, o.kz ?? -.2, 0, 0, sx * .12)]); }
+  // Fußriemen um die Vorderbeine (Schlaufe mit kurzem Ende); bei Stuhl 8 aufgeschnitten
+  for (const sx of [-1, 1]) { const lx = sx * (sw - .025), lz = zf - .03, y = .14, r = .026, ring = new THREE.TorusGeometry(r, T / 2 + .0006, 5, 18, cut ? PI * 1.6 : PI * 2); ring.scale(1, 1, 1); ring.rotateX(PI / 2); ring.scale(1, W / .01, 1);
+    const rg = new THREE.TorusGeometry(r, .0035, 5, 18, cut ? PI * 1.55 : PI * 2); rg.rotateX(PI / 2); P.push([rg, leder, amtp_m(lx, y, lz, 0, cut ? sx * .8 : 0, 0)]);
+    const rg2 = new THREE.TorusGeometry(r, .0035, 5, 18, cut ? PI * 1.55 : PI * 2); rg2.rotateX(PI / 2); P.push([rg2, leder, amtp_m(lx, y + .014, lz, 0, cut ? sx * .8 : 0, 0)]);
+    if (!cut) { schnalle(lx, y + .02, lz + r + .016, 0); } else { poly([[lx + sx * .01, y - .03, lz + r], [lx + sx * .02, .004, lz + r + .05]], .02); } }
+  return amtp_baue(P, { cast: false }); }
+
+// ---- Brotdose (Blechbüchse mit Verschluss), Deckel zu: Front +z, .17 × .065 × .12
+function amtp_brotdose() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]), blau = AMTP.mats.dosenblau || (AMTP.mats.dosenblau = new THREE.MeshStandardMaterial({ color: 0x4f6c78, roughness: .42, metalness: .35, bumpMap: amtp_noise(), bumpScale: .5 }));
+  A(amtp_rbox(.17, .042, .12, .008), blau, 0, .021, 0); A(amtp_rbox(.172, .024, .122, .01), blau, 0, .054, 0); A(amtp_rbox(.174, .004, .124, .002), 'stahl', 0, .041, 0);
+  A(amtp_rbox(.03, .02, .008, .002), 'stahl', 0, .045, .064); A(amtp_rbox(.012, .012, .006, .002), 'stahlMatt', 0, .052, .068);
+  for (const sx of [-1, 1]) A(amtp_cylZ(.003, .006, 8), 'stahl', sx * .07, .052, -.062);
+  const G = amtp_baue(P);
+  const bs = new THREE.Mesh(new THREE.PlaneGeometry(.1, .04), new THREE.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: .4, polygonOffset: true, polygonOffsetFactor: -2, map: amt_tex(amt_cv(256, 100, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#e8e2cc'; x.fillRect(30, 10, 196, 56); x.fillStyle = '#1d2a55'; x.font = '36px Caveat'; x.fillText('Hilde W.', 52, 52); x.strokeStyle = 'rgba(0,0,0,.2)'; x.strokeRect(30, 10, 196, 56); })) })); bs.position.set(0, .054, .0625); G.add(bs);
+  return G; }
+// ---- Aktenordner (Hebelordner), stehend: Rücken +x, Maße .08 × .32 × .285; rücken: Beschriftung
+function amtp_ordner(farbe, rueck) { const mat = new THREE.MeshStandardMaterial({ color: farbe, roughness: .62, bumpMap: amtp_noise(), bumpScale: .6 }), P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  A(amtp_rbox(.285, .32, .08, .004), mat, 0, .16, 0); A(amtp_cylX(.011, .004, 14), 'stahl', .1425, .03, 0); A(amtp_rbox(.006, .32, .08, .002), 'stahlMatt', .1425, .16, 0);
+  const G = amtp_baue(P);
+  const lb = new THREE.Mesh(new THREE.PlaneGeometry(.2, .05), new THREE.MeshStandardMaterial({ roughness: .7, polygonOffset: true, polygonOffsetFactor: -2, map: amt_tex(amt_cv(512, 128, (x, w, h) => { x.fillStyle = '#ece6d2'; x.fillRect(0, 0, w, h); x.strokeStyle = '#7a7a70'; x.lineWidth = 4; x.strokeRect(2, 2, w - 4, h - 4); x.fillStyle = '#1b1b1b'; x.font = 'bold 64px "Special Elite", Courier New'; x.textAlign = 'center'; x.fillText(rueck, w / 2, 84); })) }));
+  lb.rotation.order = 'YXZ'; lb.rotation.y = PI / 2; lb.rotation.z = -PI / 2; lb.position.set(.1457, .17, 0); G.add(lb); return G; }
+
+// ---- Laborkühlschrank (Edelstahl, Glastür-Rahmen, vier Edelstahlböden mit Etikettenschienen, Magnetschloss): Front +z, Breite .78, Tiefe .62, Höhe 1.95
+function amtp_kuehl() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]), B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const innen = AMTP.mats.innen || (AMTP.mats.innen = new THREE.MeshStandardMaterial({ color: 0xdde1de, roughness: .5, bumpMap: amtp_noise(), bumpScale: .2 }));
+  A(B(.78, 1.95, .03), 'stahlMatt', 0, .975, -.295); for (const sx of [-1, 1]) A(amtp_rbox(.03, 1.95, .62, .004), 'stahl', sx * .375, .975, 0);
+  A(amtp_rbox(.78, .05, .62, .006), 'stahl', 0, 1.925, 0); A(amtp_rbox(.78, .18, .62, .006), 'stahlMatt', 0, .09, 0);
+  A(B(.72, 1.68, .01), innen, 0, 1.03, -.275); for (const sx of [-1, 1]) A(B(.008, 1.68, .55), innen, sx * .356, 1.03, 0); A(B(.72, .008, .55), innen, 0, .19, 0); A(B(.72, .008, .55), innen, 0, 1.865, 0);
+  const sy = [.30, .72, 1.14, 1.56];
+  for (const y of sy) { A(B(.70, .012, .52), 'stahl', 0, y, 0); A(B(.70, .028, .01), 'stahl', 0, y + .008, .26); A(amtp_rbox(.70, .022, .014, .003), 'plastikGrau', 0, y - .004, .27); for (const sx of [-1, 1]) A(B(.012, .02, .5), 'stahlMatt', sx * .346, y - .012, 0); }
+  // Frontrahmen und Türrahmen (die Glasscheibe selbst setzt der Aufbau davor)
+  for (const sx of [-1, 1]) A(B(.06, 1.76, .02), 'stahl', sx * .36, 1.04, .30); A(B(.78, .1, .02), 'stahl', 0, 1.895, .30); A(B(.78, .08, .02), 'stahl', 0, .24, .30);
+  A(B(.66, .012, .008), 'gummi', 0, 1.835, .31); A(B(.66, .012, .008), 'gummi', 0, .265, .31); for (const sx of [-1, 1]) A(B(.012, 1.58, .008), 'gummi', sx * .33, 1.05, .31);
+  for (const sx of [-1, 1]) A(B(.024, 1.62, .016), 'chrom', sx * .335, 1.05, .322); A(B(.694, .024, .016), 'chrom', 0, 1.862, .322); A(B(.694, .024, .016), 'chrom', 0, .238, .322);
+  A(amtp_cyl(.011, .6, 14), 'chrom', .3, 1.0, .352); for (const y of [.75, 1.25]) A(amtp_cylZ(.007, .04, 8), 'chrom', .3, y, .335);
+  // Magnetschloss: Gehäuse am Rahmen oben, Ankerplatte an der Tür, Kontrolllicht
+  A(amtp_rbox(.13, .05, .034, .004), 'plastikDunkel', .2, 1.905, .33); A(B(.12, .022, .006), 'stahl', .2, 1.855, .332); A(new THREE.BoxGeometry(.008, .005, .004), 'ledRot', .255, 1.9, .349);
+  // Inhalt: Kassler-Dose (privat), Schild „KÜHLUNG“ kommt vom Aufbau
+  A(amtp_cyl(.046, .078, 24), 'stahl', .16, .306 + .039, .06); A(new THREE.TorusGeometry(.046, .0024, 6, 24), 'stahlMatt', .16, .306 + .074, .06, PI / 2); A(new THREE.TorusGeometry(.046, .0024, 6, 24), 'stahlMatt', .16, .31, .06, PI / 2);
+  const G = amtp_baue(P);
+  const lab = (txt, sub, y, x = 0, w = .15, strike = false) => { const m = amtp_schild(amt_cv(256, 56, (c, W, H) => { c.fillStyle = '#e6e0cb'; c.fillRect(0, 0, W, H); c.strokeStyle = 'rgba(0,0,0,.25)'; c.strokeRect(1, 1, W - 2, H - 2); c.fillStyle = '#1b1b1b'; c.font = 'bold 26px "Special Elite", Courier New'; c.fillText(txt, 8, 26); c.font = '17px "Special Elite", Courier New'; c.fillText(sub || '', 8, 48); if (strike) { c.strokeStyle = '#8a1a14'; c.lineWidth = 3; c.beginPath(); c.moveTo(4, 20); c.lineTo(W - 6, 14); c.stroke(); } }), w, w * 56 / 256, { rough: .7 }); m.position.set(x, y - .004, .2785); G.add(m); };
+  lab('∴-1', 'verlegt Villa', 1.56, -.18); lab('∴-2', 'verlegt Villa', 1.14, -.18); lab('∴-3', 'nicht fixierbar', .72, -.18, .15, true);
+  lab('Substanz S', 'Charge 92/3 · K-1', 1.56, .2, .17); lab('Substanz S', 'Ration · monatlich', 1.14, .2, .17); lab('Privat.', 'Nicht anfassen. N. 12.', .30, -.18, .17);
+  const dk = new THREE.Mesh(new THREE.CylinderGeometry(.0462, .0462, .05, 28, 1, true), new THREE.MeshStandardMaterial({ roughness: .6, map: amt_tex(amt_cv(256, 64, (c, W, H) => { c.fillStyle = '#c9b66a'; c.fillRect(0, 0, W, H); c.fillStyle = '#2a1e10'; c.font = 'bold 30px Arial'; c.fillText('KASSLER', 70, 42); })) })); dk.position.set(.16, .306 + .039, .06); G.add(dk);
+  // Spuren auf den Böden: Reifring (∴-1), Fleck (Charge), Staub mit sauberem Kreis (Ration)
+  const spur = (cv, y, x, z, w, d) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ map: amt_tex(cv), transparent: true, depthWrite: false, roughness: .9, polygonOffset: true, polygonOffsetFactor: -3 })); m.rotation.x = -PI / 2; m.position.set(x, y + .0066, z); G.add(m); };
+  spur(amt_cv(128, 128, (c, w) => { c.clearRect(0, 0, w, w); c.strokeStyle = 'rgba(240,248,250,.8)'; c.lineWidth = 6; c.beginPath(); c.arc(64, 64, 40, 0, 7); c.stroke(); c.lineWidth = 2; c.beginPath(); c.arc(64, 64, 49, 0, 7); c.stroke(); for (let i = 0; i < 80; i++) { c.fillStyle = `rgba(250,252,255,${amt_R(.1, .5)})`; c.fillRect(amt_R(10, 118), amt_R(10, 118), 2, 2); } }), sy[3], -.18, .0, .14, .14);
+  spur(amt_cv(128, 128, (c, w) => { c.clearRect(0, 0, w, w); const g = c.createRadialGradient(64, 64, 4, 64, 64, 56); g.addColorStop(0, 'rgba(70,40,24,.85)'); g.addColorStop(.6, 'rgba(90,60,40,.45)'); g.addColorStop(1, 'rgba(90,60,40,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w); }), sy[3], .2, .02, .13, .13);
+  spur(amt_cv(256, 128, (c, w, h) => { c.clearRect(0, 0, w, h); c.fillStyle = 'rgba(150,146,134,.5)'; c.fillRect(0, 0, w, h); c.globalCompositeOperation = 'destination-out'; c.beginPath(); c.arc(w / 2, h / 2, 40, 0, 7); c.fill(); }), sy[2], .2, .0, .3, .15);
+  G.userData.led = null; return G; }
+
+// ---- Hängemappe (Pendelregistratur), flach auf dem Tisch: Rückseite, abgehobene Vorderseite, Aufhängeschiene mit Haken, Reiter mit Jahreszahl
+function amtp_mappe(farbe, jahr) { const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(farbe), roughness: .9, bumpMap: amtp_noise(), bumpScale: .5 }), P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  A(new THREE.BoxGeometry(.33, .0016, .24), mat, 0, .0008, 0);
+  A(new THREE.BoxGeometry(.33, .0016, .225), mat, 0, .0042, .008, .02);
+  A(new THREE.BoxGeometry(.33, .006, .01), mat, 0, .0028, -.113);
+  A(amtp_cylX(.0026, .385, 8), 'stahl', 0, .0066, -.121);
+  for (const sx of [-1, 1]) A(amtp_rbox(.012, .006, .016, .002), 'stahl', sx * .19, .0066, -.121);
+  A(amtp_rbox(.044, .004, .016, .0015), 'rauch', -.09, .0092, -.13);
+  const G = amtp_baue(P, { cast: true });
+  const lb = amtp_schild(amt_cv(64, 32, (x, w, h) => { x.fillStyle = '#ece6d2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b1b1b'; x.font = 'bold 20px "Special Elite", Courier New'; x.fillText(jahr, 8, 24); }), .036, .012, { rough: .6 });
+  lb.rotation.x = -PI / 2; lb.position.set(-.09, .0114, -.13); G.add(lb); return G; }
+
+// ---- Aktenvernichter (Bürogerät mit Auffangkorb): Front +z, Breite .42, Höhe .57; Papierstreifen hängen aus dem Schlitz (eigene Gruppe, damit sie verschwinden können)
+function amtp_vernichter() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { A(amtp_cylX(.02, .016, 14), 'gummi', sx * .17, .02, sz * .09); A(amtp_rbox(.012, .02, .03, .002), 'stahlMatt', sx * .17, .045, sz * .09); }
+  A(amtp_rbox(.38, .46, .26, .012), 'plastikDunkel', 0, .27, 0);
+  A(amtp_rbox(.34, .30, .014, .005), 'plastikGrau', 0, .26, .134);                  // Schubladenfront
+  A(amtp_rbox(.14, .024, .018, .007), 'plastikDunkel', 0, .39, .142);              // Griffmulde
+  A(amtp_rbox(.20, .1, .006, .003), 'rauch', 0, .2, .142);                           // Sichtfenster
+  A(amtp_rbox(.42, .04, .30, .01), 'plastikDunkel', 0, .52, 0);                      // Kopf, unten
+  for (const sz of [-1, 1]) A(amtp_rbox(.42, .034, .142, .008), 'plastikDunkel', 0, .557, sz * .079);
+  A(new THREE.BoxGeometry(.31, .002, .016), 'gummi', 0, .5405, 0);                  // Schlitzgrund
+  A(amtp_rbox(.36, .006, .018, .003), 'plastikGrau', 0, .575, .11);                  // Zierleiste
+  A(amtp_rbox(.056, .032, .014, .004), 'plastikGrau', .13, .52, .152);               // Schaltfeld
+  A(amtp_rbox(.026, .014, .016, .004), 'plastikDunkel', .13, .52, .158);             // Wippschalter
+  A(new THREE.BoxGeometry(.006, .004, .004), 'ledRot', .112, .538, .16); A(new THREE.BoxGeometry(.012, .005, .006), 'plastikDunkel', -.14, .575, .06);
+  for (let i = 0; i < 9; i++) A(new THREE.BoxGeometry(.003, .018, .002), 'gummi', -.16 + i * .007, .52, .152);   // Lüftungsschlitze
+  const G = amtp_baue(P);
+  const sticker = amtp_schild(amt_cv(256, 64, (x, w, h) => { x.fillStyle = '#e9d34a'; x.fillRect(0, 0, w, h); x.strokeStyle = '#1b1b1b'; x.lineWidth = 4; x.strokeRect(3, 3, w - 6, h - 6); x.fillStyle = '#1b1b1b'; x.font = 'bold 30px Arial'; x.fillText('Max. 8 Blatt!', 22, 44); }), .13, .034, { rough: .5 });
+  sticker.rotation.x = -PI / 2; sticker.position.set(-.1, .5745 + .0006, .092); G.add(sticker);
+  const st = new THREE.Group(); const cv = amt_cv(128, 256, (x, w, h) => { x.clearRect(0, 0, w, h); for (let i = 0; i < 9; i++) { x.fillStyle = `rgb(${224 - i * 3},${219 - i * 3},${200 - i * 3})`; const sx = 6 + i * 13, ln = h * amt_R(.45, 1); x.fillRect(sx, 0, 10, ln); x.fillStyle = 'rgba(30,30,30,.55)'; for (let y = 8; y < ln; y += 7) if (amt_R(0, 1) < .6) x.fillRect(sx + 1.5, y, 7, 1.6); } });
+  const sm = new THREE.MeshStandardMaterial({ map: amt_tex(cv), color: 0x9a968a, roughness: .95, side: THREE.DoubleSide, alphaTest: .4 });
+  for (const [dx, ry, s0] of [[-.1, .06, 1], [.0, -.04, .8], [.1, .1, .95]]) { const b = amtp_band([[0, .56, 0], [0, .585, .02], [0, .59, .06], [0, .57, .115], [0, .53, .163], [0, .45 * s0 + .06, .185], [0, .3 * s0 + .06, .19], [0, .2 * s0 + .06, .2]], .105, sm, { n: 34 }); b.position.x = dx; b.rotation.y = ry; st.add(b); }
+  // Gekringelte Reste am Boden: dünne Papierröhren
+  const rr = []; for (let i = 0; i < 26; i++) { const cx = amt_R(-.16, .16), cz = amt_R(.2, .46), pts = []; for (let k = 0; k < 6; k++) pts.push(new THREE.Vector3(cx + amt_R(-.07, .07), .004 + amt_R(0, .02), cz + amt_R(-.07, .07))); rr.push([new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 14, .0032, 4), 'papier', amtp_m()]); }
+  G.add(amtp_baue(rr, { cast: false }));
+  G.userData.streifen = st; G.add(st); return G; }
+// ---- Filterkaffeemaschine mit Warmhalteplatte, Glaskanne (Satz am Boden), versteinertem Filter und Display „ENTKALKEN“: Front +z, Breite .24, Höhe .36
+function amtp_kaffee() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]), zc = .045;
+  A(amtp_rbox(.25, .034, .27, .01), 'plastikDunkel', 0, .017, 0);
+  A(amtp_cyl(.082, .006, 28), 'stahl', 0, .037, zc); A(amtp_cyl(.07, .003, 28), 'plastikDunkel', 0, .0405, zc);          // Warmhalteplatte
+  A(amtp_rbox(.23, .27, .095, .016), 'plastikDunkel', 0, .17, -.088);             // Säule
+  A(amtp_rbox(.235, .085, .22, .016), 'plastikDunkel', 0, .31, -.02);             // Brühkopf
+  A(amtp_rbox(.18, .008, .1, .004), 'plastikGrau', 0, .358, -.06);                // Deckelwulst
+  A(amtp_cyl(.05, .014, 22, .056), 'plastikDunkel', 0, .258, zc);                 // Filterhalter
+  A(amtp_cyl(.043, .052, 22, .034), 'plastikDunkel', 0, .228, zc);                // Filterkorb
+  A(amtp_cyl(.0095, .02, 12), 'plastikDunkel', 0, .205, zc);                      // Auslauf
+  A(amtp_rbox(.03, .014, .05, .005), 'plastikDunkel', .066, .258, zc + .045);     // Griff des Halters
+  A(amtp_rbox(.07, .03, .01, .004), 'plastikGrau', -.07, .205, -.038);            // Tastenfeld
+  A(amtp_rbox(.022, .012, .012, .004), 'plastikGrau', .02, .16, -.036); A(amtp_rbox(.022, .012, .012, .004), 'plastikGrau', .05, .16, -.036);
+  A(new THREE.BoxGeometry(.006, .004, .004), 'ledRot', .085, .205, -.037);
+  A(amtp_rbox(.012, .2, .006, .003), 'rauch', .095, .17, -.0405);                  // Wasserstandsstreifen
+  // Kanne: Glas, Satz, Deckel, Henkel
+  const gl = new THREE.MeshStandardMaterial({ color: 0xcfe0de, roughness: .05, metalness: 0, transparent: true, opacity: .32, depthWrite: false });
+  A(amtp_cyl(.056, .17, 26, .05), gl, 0, .043 + .085, zc); A(amtp_cyl(.0535, .012, 26), amtp_kaffeeSatz(), 0, .05, zc);
+  A(amtp_cyl(.058, .016, 26), 'plastikDunkel', 0, .221, zc); A(amtp_cyl(.026, .01, 14), 'plastikDunkel', 0, .234, zc);
+  A(new THREE.TorusGeometry(.044, .0058, 7, 16, PI), 'plastikDunkel', .056, .12, zc, 0, 0, -PI / 2);
+  const G = amtp_baue(P);
+  const disp = new THREE.Mesh(new THREE.PlaneGeometry(.1, .036), amt_decal(amt_cv(128, 46, (x, w, h) => { x.fillStyle = '#0c140e'; x.fillRect(0, 0, w, h); x.fillStyle = '#7dff9c'; x.font = 'bold 20px Courier New'; x.fillText('ENTKALKEN', 8, 31); x.strokeStyle = 'rgba(125,255,156,.25)'; x.strokeRect(1.5, 1.5, w - 3, h - 3); }), { em: 0xffffff, emI: 0, rough: .25 }));
+  disp.position.set(0, .205, -.0405 + .0006); G.add(disp); G.userData.disp = disp;
+  // Papierfilter, braun und hart (ragt aus dem Korb)
+  { const f = new THREE.Mesh(new THREE.CylinderGeometry(.049, .03, .028, 22, 1, true), new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: .95, side: THREE.DoubleSide, bumpMap: amtp_noise(), bumpScale: 1 })); f.position.set(0, .274, zc); G.add(f); const fl = new THREE.Mesh(new THREE.RingGeometry(.047, .052, 22), new THREE.MeshStandardMaterial({ color: 0x75552f, roughness: 1, side: THREE.DoubleSide })); fl.rotation.x = -PI / 2; fl.position.set(0, .2888, zc); G.add(fl); }
+  return G; }
+function amtp_kaffeeSatz() { const k = 'kaffeesatz'; if (!AMTP.mats[k]) AMTP.mats[k] = new THREE.MeshStandardMaterial({ color: 0x2a1a10, roughness: .6, bumpMap: amtp_noise(), bumpScale: .8 }); return AMTP.mats[k]; }
+// ---- Blechdose mit Münzschlitz und beklebtem Etikett „KAFFEEKASSE“ (ø 14 cm)
+function amtp_dose() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  A(amtp_cyl(.068, .098, 32), 'stahl', 0, .049, 0);
+  for (const y of [.006, .092]) A(new THREE.TorusGeometry(.0685, .0036, 6, 32), 'stahl', 0, y, 0, PI / 2);
+  A(amtp_cyl(.0715, .014, 32), 'stahl', 0, .1, 0); A(new THREE.TorusGeometry(.0715, .0032, 6, 32), 'stahlMatt', 0, .107, 0, PI / 2);
+  A(new THREE.BoxGeometry(.05, .0016, .0052), 'gummi', 0, .1075, 0, 0, .25, 0);
+  const G = amtp_baue(P);
+  const lab = new THREE.Mesh(new THREE.CylinderGeometry(.0692, .0692, .056, 36, 1, true), new THREE.MeshStandardMaterial({ roughness: .75, side: THREE.FrontSide, map: amt_tex(amt_cv(512, 128, (x, w, h) => { amt_rs = 71; x.fillStyle = '#7a1f19'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(225,200,120,.9)'; x.fillRect(0, 8, w, 3); x.fillRect(0, h - 11, w, 3);
+    x.fillStyle = '#e9e2c8'; x.save(); x.translate(w * .5, h * .5); x.rotate(-.025); x.fillRect(-120, -34, 240, 68); x.fillStyle = 'rgba(0,0,0,.12)'; x.fillRect(-120, 28, 240, 6); x.fillStyle = '#1d1c1a'; x.font = 'bold 36px "Special Elite", Courier New'; x.textAlign = 'center'; x.fillText('KAFFEEKASSE', 0, 12); x.restore();
+    for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(0,0,0,${amt_R(.04, .16)})`; x.fillRect(amt_R(0, w), amt_R(0, h), 2, 1); } })), bumpMap: amtp_noise(), bumpScale: .3 }));
+  lab.position.y = .052; lab.rotation.y = -PI / 2; lab.castShadow = false; G.add(lab); return G; }
+// ---- Karteikasten (Blech, Deckel hochgeklappt, Karteikarten mit Reitern, Etikettenhalter)
+function amtp_kartei(beschrift) { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  A(amtp_rbox(.34, .12, .2, .007), 'lack', 0, .06, 0);
+  A(amtp_rbox(.325, .004, .185, .002), 'plastikDunkel', 0, .117, 0);
+  { const lid = amtp_rbox(.34, .006, .2, .004); P.push([lid, 'lack', amtp_m(0, .125, -.1, 0, 0, 0).multiply(new THREE.Matrix4().makeRotationX(-1.92)).multiply(new THREE.Matrix4().makeTranslation(0, 0, .1))]); }
+  for (const sx of [-1, 1]) A(amtp_cylX(.0045, .02, 8), 'stahl', sx * .12, .122, -.1);
+  A(amtp_rbox(.096, .036, .005, .002), 'messing', 0, .06, .1);
+  const cols = [0xb23a30, 0x3f6e9c, 0x5e8a46, 0xd6b13a], kard = [];
+  for (let i = 0; i < 46; i++) { const z = -.088 + i * .0038, tl = amt_R(-.012, .012);
+    kard.push([new THREE.BoxGeometry(.3, .092, .0016), 'papier', amtp_m(tl * .3, .122 + .018 + amt_R(-.006, .003), z, amt_R(-.04, .05), 0, amt_R(-.018, .018))]);
+    if (i % 5 === 2) kard.push([new THREE.BoxGeometry(.034, .012, .0018), new THREE.MeshStandardMaterial({ color: cols[(i / 5 | 0) % 4], roughness: .7 }), amtp_m(-.12 + ((i / 5 | 0) % 6) * .05, .122 + .018 + .052, z, 0, 0, 0)]); }
+  const G = amtp_baue(P.concat(kard));
+  const lb = amtp_schild(amt_cv(256, 80, (x, w, h) => { x.fillStyle = '#e4ddc6'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b1b1b'; x.font = 'bold 27px "Special Elite", Courier New'; x.textAlign = 'center'; x.fillText(beschrift || 'VERSUCHSREIHE K', w / 2, 50); }), .078, .024, { rough: .6 });
+  lb.position.set(0, .06, .1026); G.add(lb); return G; }
+// ---- Plastikdosen mit Schraubdeckel (Brotdosen), Deckel farbig mit Rippenrand; Kreppband „Do.“ auf jedem Deckel
+function amtp_dosenTurm() { const G = new THREE.Group(), cols = [0x3a6aa8, 0x4f8a5c, 0xb8553a, 0x3a6aa8, 0x6a5aa0, 0x4f8a5c];
+  const milch = new THREE.MeshStandardMaterial({ color: 0xe2e7df, roughness: .32, bumpMap: amtp_noise(), bumpScale: .25 });
+  const tape = new THREE.MeshStandardMaterial({ roughness: .9, bumpMap: amtp_noise(), bumpScale: .4, map: amt_tex(amt_cv(128, 64, (x, w, h) => { x.fillStyle = '#e2d8ac'; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(255,255,255,.2)'; x.fillRect(0, 0, w, 6); x.fillStyle = '#1f2a55'; x.font = '34px Caveat'; x.fillText('Do.', 38, 44); x.strokeStyle = 'rgba(120,100,50,.35)'; x.strokeRect(1, 1, w - 2, h - 2); })), polygonOffset: true, polygonOffsetFactor: -2 });
+  for (let i = 0; i < 6; i++) { const col = (i % 2), row = (i / 2) | 0, P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+    const lm = new THREE.MeshStandardMaterial({ color: cols[i], roughness: .45, bumpMap: amtp_noise(), bumpScale: .3 });
+    A(amtp_cyl(.0565, .088, 28, .047), milch, 0, .044, 0); A(amtp_cyl(.0595, .018, 28), lm, 0, .097, 0); A(amtp_cyl(.0465, .004, 24), lm, 0, .108, 0);
+    for (let k = 0; k < 28; k++) { const a = k / 28 * PI * 2; A(new THREE.BoxGeometry(.0035, .016, .0045), lm, Math.sin(a) * .0605, .097, Math.cos(a) * .0605, 0, a, 0); }
+    const t = amtp_baue(P); const tp = new THREE.Mesh(new THREE.PlaneGeometry(.045, .02), tape); tp.rotation.x = -PI / 2; tp.rotation.z = amt_R(-.4, .4); tp.position.set(amt_R(-.006, .006), .1075 + .0007, amt_R(-.006, .006)); t.add(tp);
+    t.position.set((col - .5) * .13 + amt_R(-.008, .008), row * .112, amt_R(-.008, .008)); t.rotation.y = amt_R(-.5, .5); t.rotation.z = amt_R(-.025, .025); G.add(t); }
+  return G; }
+// ---- Kaktus im Tontopf (Säulenkaktus mit Rippen, Dornenpolstern, Seitenarm, eine Blüte); Unterkante y = 0
+function amtp_kaktus() { const G = new THREE.Group(), P = [], y0 = .011;
+  const pot = [[.034, 0], [.046, 0], [.054, .08], [.063, .084], [.065, .102], [.058, .104], [.055, .092]].map(p => new THREE.Vector2(p[0], p[1])), pg = new THREE.LatheGeometry(pot, 32);
+  const topfM = new THREE.MeshStandardMaterial({ roughness: .88, color: 0xffffff, side: THREE.DoubleSide, bumpMap: amtp_noise(), bumpScale: .9, map: amt_tex(amt_cv(256, 256, (x, w, h) => { amt_rs = 82; x.fillStyle = '#b3603a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 2500; i++) { x.fillStyle = `rgba(${amt_R(90, 190) | 0},${amt_R(60, 110) | 0},${amt_R(40, 80) | 0},.18)`; x.fillRect(amt_R(0, w), amt_R(0, h), amt_R(1, 5), amt_R(1, 3)); }
+    const g = x.createLinearGradient(0, 0, 0, h * .25); g.addColorStop(0, 'rgba(235,228,214,.55)'); g.addColorStop(1, 'rgba(235,228,214,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h * .25); for (let i = 0; i < 14; i++) { x.fillStyle = 'rgba(240,236,225,.28)'; x.fillRect(amt_R(0, w), amt_R(0, h * .6), amt_R(2, 8), amt_R(20, 80)); } })) });
+  topfM.map.repeat.set(3, 1); const pm = new THREE.Mesh(pg, topfM); pm.position.y = y0; pm.castShadow = true; pm.receiveShadow = true; G.add(pm);
+  const sa = amtp_baue([[amtp_cyl(.072, .011, 30, .062), 'ton', amtp_m(0, .0055, 0)]]); G.add(sa);
+  P.push([new THREE.CylinderGeometry(.053, .053, .004, 24), 'erde', amtp_m(0, y0 + .0935, 0)]);
+  const rib = (r0, h, ribs, seg) => { const rings = 20, pos = [], idx = [], ns = ribs * seg;
+    for (let i = 0; i <= rings; i++) { const t = i / rings, yy = t * h, dome = t > .9 ? Math.sqrt(Math.max(0, 1 - Math.pow((t - .9) / .1, 2))) : 1, rr0 = r0 * (1 - .12 * t) * dome + .0005;
+      for (let j = 0; j < ns; j++) { const a = j / ns * PI * 2, w = .5 + .5 * Math.cos(a * ribs), rr = rr0 * (.8 + .2 * Math.pow(w, .6)); pos.push(Math.cos(a) * rr, yy, Math.sin(a) * rr); } }
+    for (let i = 0; i < rings; i++) for (let j = 0; j < ns; j++) { const a = i * ns + j, b = i * ns + (j + 1) % ns, c = (i + 1) * ns + j, d = (i + 1) * ns + (j + 1) % ns; idx.push(a, c, b, b, c, d); }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g; };
+  const ribs = 9, seg = 4, spineGeo = [], spine = (x, y, z, nx, nz) => { const an = Math.atan2(nz, nx); for (let k = 0; k < 5; k++) { const g = new THREE.CylinderGeometry(.00012, .0006, .0125, 3); g.translate(0, .00625, 0); g.rotateZ(PI / 2 - .25 - (k % 3) * .3); g.rotateY(PI - an + (k - 2) * .3); spineGeo.push([g, amtp_spineM(), amtp_m(x + nx * .0008, y, z + nz * .0008)]); } };
+  P.push([rib(.04, .22, ribs, seg), 'gruen', amtp_m(0, y0 + .094, 0)]);
+  for (let i = 1; i < 13; i++) { const t = i / 14, yy = y0 + .094 + t * .22, rr = .04 * (1 - .12 * t); for (let r = 0; r < ribs; r++) { const a = r / ribs * PI * 2; spine(Math.cos(a) * rr, yy, Math.sin(a) * rr, Math.cos(a), Math.sin(a)); } }
+  P.push([rib(.024, .075, ribs, seg), 'gruen', amtp_m(.036, y0 + .19, 0, 0, 0, -PI / 2 + .18)]);
+  P.push([rib(.024, .13, ribs, seg), 'gruen', amtp_m(.108, y0 + .198, 0, 0, 0, -.06)]);
+  for (let i = 1; i < 6; i++) { const t = i / 6; for (let r = 0; r < ribs; r++) { const a = r / ribs * PI * 2, rr = .024 * (1 - .12 * t); spine(.108 - t * .13 * .06 + Math.cos(a) * rr, y0 + .198 + t * .13, Math.sin(a) * rr, Math.cos(a), Math.sin(a)); } }
+  const bl = new THREE.MeshStandardMaterial({ color: 0xf0a8c4, roughness: .55, emissive: 0x321018, emissiveIntensity: .25, side: THREE.DoubleSide });
+  for (let i = 0; i < 12; i++) { const a = i / 12 * PI * 2, pg2 = new THREE.PlaneGeometry(.014, .035); pg2.translate(0, .0175, 0); P.push([pg2, bl, amtp_m(Math.cos(a) * .008, y0 + .316, Math.sin(a) * .008, 0, -PI / 2 - a, 0).multiply(new THREE.Matrix4().makeRotationX(-.9))]); }
+  P.push([new THREE.CylinderGeometry(.006, .004, .012, 8), new THREE.MeshStandardMaterial({ color: 0xe8c23a, roughness: .7 }), amtp_m(0, y0 + .322, 0)]);
+  G.add(amtp_baue(P)); G.add(amtp_baue(spineGeo, { cast: false })); return G; }
+function amtp_spineM() { const k = 'dorn'; if (!AMTP.mats[k]) AMTP.mats[k] = new THREE.MeshStandardMaterial({ color: 0xd8cfa8, roughness: .6 }); return AMTP.mats[k]; }
+// ---- Nadeldrucker (Matrixdrucker, Endlospapier); Mitte x/z, Unterkante y = 0, Front +z, Breite .44
+function amtp_drucker() { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  const W = .42, y0 = .008, hU = .075, yT = y0 + hU, zF = .12, zB = .03, hK = .055;
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) A(amtp_cyl(.013, .008, 14), 'gummi', sx * .17, .004, sz * .14);
+  A(amtp_rbox(W, hU, .38, .01), 'plastik', 0, y0 + hU / 2, 0);
+  A(amtp_rbox(W - .03, .004, .365, .002), 'plastikGrau', 0, y0 + .002, 0);   // Bodenplatte
+  for (const sx of [-1, 1]) A(amtp_prof([[zF, 0], [zF, .02], [zB, hK], [-.17, hK], [-.17, 0]], .022, .003), 'plastik', sx * (W / 2 - .011), yT, 0); // Wangen
+  A(amtp_rbox(W - .02, hK, .205, .006), 'plastik', 0, yT + hK / 2, -.0675);   // Rückblock
+  A(amtp_rbox(W - .03, .005, .32, .002), 'plastikGrau', 0, yT + hK + .0015, -.1, 0, 0, 0);
+  const ang = Math.atan2(hK - .02, zF - zB), L = Math.hypot(zF - zB, hK - .02);
+  A(new THREE.BoxGeometry(W - .046, .004, L), 'rauch', 0, yT + .02 + (hK - .02) / 2 + .002, (zF + zB) / 2, ang, 0, 0); // Rauchglasdeckel
+  A(amtp_rbox(W - .046, .01, .006, .002), 'plastikGrau', 0, yT + .026, zF + .002);   // Deckelkante
+  // Walze, Führungsstangen, Druckkopf, Farbband
+  A(amtp_cylX(.017, W - .03, 22), 'gummi', 0, yT + .034, .068);
+  for (const sx of [-1, 1]) { A(amtp_cylX(.023, .014, 20), 'plastik', sx * (W / 2 + .004), yT + .034, .068); A(amtp_cylX(.011, .012, 20), 'plastikGrau', sx * (W / 2 + .015), yT + .034, .068);
+    for (let i = 0; i < 10; i++) A(new THREE.BoxGeometry(.016, .003, .004), 'plastikGrau', sx * (W / 2 + .004), yT + .034 + Math.cos(i * PI / 5) * .0235, .068 + Math.sin(i * PI / 5) * .0235, i * PI / 5); }
+  A(amtp_cylX(.0035, W - .04, 10), 'chrom', 0, yT + .045, .098); A(amtp_cylX(.0035, W - .04, 10), 'chrom', 0, yT + .028, .098);
+  A(amtp_rbox(.034, .028, .03, .004), 'plastikDunkel', -.07, yT + .037, .098); A(amtp_rbox(.026, .006, .012, .002), 'stahl', -.07, yT + .052, .1);
+  A(amtp_rbox(.16, .02, .012, .004), 'plastikDunkel', -.07, yT + .045, .078); // Farbbandkassette
+  for (const sx of [-1, 1]) A(amtp_rbox(.02, .02, .05, .003), 'stahlMatt', sx * (W / 2 - .03), yT + .021, .05); // Traktoren
+  A(amtp_rbox(.30, .006, .012, .002), 'stahl', 0, yT + hK - .004, zB - .002);    // Abreißkante
+  A(amtp_rbox(.20, .003, .006, .001), 'plastikDunkel', 0, yT + hK + .004, -.145); // Papiereinzug (Schlitz hinten)
+  // Bedienfeld vorn rechts
+  A(amtp_rbox(.115, .006, .052, .003), 'plastikDunkel', .1, yT + .003, .152);
+  for (let i = 0; i < 4; i++) A(amtp_rbox(.02, .006, .016, .0025), 'plastikGrau', .066 + i * .025, yT + .008, .157);
+  A(new THREE.BoxGeometry(.006, .003, .006), 'ledGruen', .151, yT + .0075, .137); A(new THREE.BoxGeometry(.006, .003, .006), 'ledRot', .136, yT + .0075, .137);
+  A(amtp_rbox(.02, .008, .012, .003), 'plastikGrau', W / 2 - .002, y0 + .05, .12, 0, 0, 0); // Netzschalter seitlich
+  const G = amtp_baue(P);
+  const lab = amtp_schild(amt_cv(256, 64, (x, w, h) => { x.fillStyle = '#d9d4c2'; x.fillRect(0, 0, w, h); x.fillStyle = '#2a2b2a'; x.font = 'bold 9px Arial'; ['ON LINE', 'FORM FEED', 'LINE FEED', 'TOF'].forEach((t, i) => x.fillText(t, 6 + i * 62, 24)); x.font = '8px Arial'; x.fillText('POWER', 6 + 3.2 * 62, 54); x.fillText('ERROR', 6 + 2.2 * 62, 54); }), .115, .028, { rough: .5 });
+  lab.rotation.x = -PI / 2; lab.position.set(.1, yT + .0066, .134); G.add(lab);
+  const fr = amtp_schild(amt_cv(512, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#17181a'; for (let i = 0; i < 14; i++) x.fillRect(30 + i * 8, 40, 4, 44); x.fillStyle = '#b6b7b2'; x.fillRect(w - 170, 30, 140, 40); x.fillStyle = '#222'; x.font = 'bold 22px Arial'; x.fillText('MATRIX 80', w - 160, 60); x.fillStyle = '#7a1c14'; x.fillRect(w - 170, 74, 140, 5); }), .30, .075, { alpha: true, rough: .5 });
+  fr.position.set(-.04, y0 + hU / 2, .1915); G.add(fr);
+  return G; }
+// Endlospapier-Stapel (Leporello, Grünstreifen) mit Lochrand
+function amtp_stapel(w, h, d) { const c = amt_cv(512, 256, (x, W, H) => { amt_rs = 33; x.fillStyle = '#e4e2d2'; x.fillRect(0, 0, W, H); for (let y = 0; y < H; y += 6) { x.fillStyle = (y / 6) % 2 ? 'rgba(200,215,190,.55)' : 'rgba(255,255,255,.25)'; x.fillRect(0, y, W, 3); x.fillStyle = 'rgba(70,70,60,.30)'; x.fillRect(0, y, W, 1); }
+    x.fillStyle = 'rgba(40,40,36,.55)'; for (let y = 3; y < H; y += 12) { x.beginPath(); x.arc(9, y, 2.4, 0, 7); x.fill(); x.beginPath(); x.arc(W - 9, y, 2.4, 0, 7); x.fill(); } x.fillStyle = 'rgba(120,100,60,.12)'; x.fillRect(0, 0, W, H * .06); });
+  const t = amt_tex(c), m = new THREE.MeshStandardMaterial({ map: t, roughness: .95 }), top = new THREE.MeshStandardMaterial({ color: 0xe9e6d8, roughness: .95 });
+  const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), [m, m, top, top, m, m]); g.castShadow = true; g.receiveShadow = true; return g; }
+// Rollwagen: Stahltabletts, vier Rollen, Schiebebügel (Front +z, Maße wie der Druckerwagen)
+function amtp_wagen(W = .72, D = .46, hTop = .8) { const P = [], A = (g, m, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => P.push([g, m, amtp_m(x, y, z, rx, ry, rz)]);
+  const tray = (y) => { A(amtp_rbox(W, .02, D, .006), 'stahlMatt', 0, y, 0); for (const [w, d, x, z] of [[W, .012, 0, D / 2 - .006], [W, .012, 0, -D / 2 + .006], [.012, D, W / 2 - .006, 0], [.012, D, -W / 2 + .006, 0]]) A(amtp_rbox(w, .03, d, .004), 'stahlMatt', x, y + .02, z); };
+  tray(hTop - .01); tray(.22);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const x = sx * (W / 2 - .035), z = sz * (D / 2 - .035); A(amtp_cyl(.0125, hTop - .1, 14), 'chrom', x, .09 + (hTop - .1) / 2, z);
+    A(amtp_cyl(.018, .012, 14), 'stahlMatt', x, .1, z); A(amtp_cyl(.006, .03, 8), 'stahl', x, .075, z); A(amtp_rbox(.012, .05, .04, .002), 'stahl', x, .05, z + sz * 0); A(amtp_cylX(.034, .022, 18), 'gummi', x, .036, z); A(amtp_cylX(.014, .028, 12), 'stahl', x, .036, z); }
+  for (const sx of [-1, 1]) A(amtp_cyl(.0105, .24, 12), 'chrom', sx * (W / 2 - .06), hTop + .1, -D / 2 + .02); A(amtp_cylX(.0115, W - .12 + .021, 12), 'chrom', 0, hTop + .22, -D / 2 + .02);
+  for (const sx of [-1, 1]) A(amtp_cylZ(.0095, .06, 10), 'chrom', sx * (W / 2 - .06), hTop + .04, -D / 2 - .01);
+  return amtp_baue(P); }
+
 // ---------------------------------------------------------------- Klänge (synthetisch, positioniert; keine Allokation pro Bild – nur bei Ereignissen)
 function amt_nadel(x, y, z, zeilen = 1, v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, d0 = A.at(x, y, z, 3);
   try { for (let l = 0; l < zeilen; l++) { for (let i = 0; i < 30; i++) { const d = l * 1.35 + i * .031 + Math.random() * .007, n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400 + Math.random() * 1100; bp.Q.value = 5; n.connect(bp); A.env(bp, .05 * v, .002, .02, d, d0); n.stop(t + d + .1); }
@@ -110,9 +421,9 @@ function amt_druckJetzt(text, o) { const S = amt_S, P = o.mess ? S.messDruck : A
   amt_nadel(P.x, P.y, P.z, 1, o.mess ? 1.1 : 1); amt_papierNeu(); S.druckT = 2.2;
   const nah = amt_nah(P.x, P.z, 7); if (o.still) return;
   setTimeout(() => { if (state.talking && !o.immer) return; subtitle(nah ? `Der Nadeldrucker rattert: „${zeile}“` : `${o.mess ? 'Hinter dir' : 'Im Archiv'} rattert ein Nadeldrucker: „${zeile}“`, 5200); }, 700); }
-function amt_papierNeu() { const S = amt_S; if (!S.papierCtx) return; const x = S.papierCtx, w = 256, h = 512; x.clearRect(0, 0, w, h); amt_rs = 404; amt_papier(x, w, h, { bg: '#e7e2d2', flecken: 3 });
+function amt_papierNeu() { const S = amt_S; if (!S.papierCtx) return; const x = S.papierCtx, w = 256, h = 1216; x.clearRect(0, 0, w, h); amt_rs = 404; amt_papier(x, w, h, { bg: '#e7e2d2', flecken: 3 });
   x.fillStyle = 'rgba(80,70,60,.35)'; for (let y = 6; y < h; y += 22) { x.beginPath(); x.arc(9, y, 3.5, 0, 7); x.fill(); x.beginPath(); x.arc(w - 9, y, 3.5, 0, 7); x.fill(); } // Lochrand
-  x.fillStyle = '#26221e'; x.font = '12px "Courier New", monospace'; const L = S.druckZ.slice(-16); L.forEach((z, i) => { const y = 30 + i * 29; x.globalAlpha = .55 + .4 * (i === L.length - 1 ? 1 : .6); x.fillText(z.slice(0, 30), 22, y); if (z.length > 30) x.fillText(z.slice(30, 60), 22, y + 13); }); x.globalAlpha = 1;
+  x.fillStyle = '#26221e'; x.font = '12px "Courier New", monospace'; const L = S.druckZ.slice(-26).reverse(); L.forEach((z, i) => { const y = 430 + i * 29; x.globalAlpha = i === 0 ? .95 : .62; /* neueste Zeile am Austritt, ältere weiter unten am Band */ x.fillText(z.slice(0, 30), 22, y); if (z.length > 30) x.fillText(z.slice(30, 60), 22, y + 13); }); x.globalAlpha = 1;
   S.papierTex.needsUpdate = true; }
 
 // ---------------------------------------------------------------- Lautsprecher: Wolters Bandschleife (AG-05), von ihr verstellt
@@ -166,7 +477,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
     amt_kit('crt', 'model.glb', .37, 'x'), amt_kit('radio', 'model.gltf', .42, 'x'), amt_kit('frame_deco', 'model.gltf', .5), amt_kit('wallclock', 'model.gltf', 1.05), amt_kit('door1', 'model.gltf', 2.02),
     amt_kit('w_funk', 'model.glb', .34, 'max'), amt_kit('w_telefon', 'model.glb', .22, 'max'), amt_kit('w_thermos', 'model.glb', .31), amt_kit('w_blech', 'model.glb', .32, 'max'), amt_kit('w_becher', 'model.glb', .1),
     amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35, 'lang'), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
-    amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), amt_kit('busstop1', 'model.glb', .045)]);
+    amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), amt_kit('gas_retro', 'model.fbx', .2, 'max', { '*': { b: '1000_F_223871261_iSyiIGwdLyqP2fLSuoK80dke3.jpg', rough: .85 } })]);
   for (const K of [kSack, kEimer, kRoehre, kRadio, kRahmen, kBecher, kBatt, kAscher, kSchuppe, kSchuppe2, kHalte, kTelefon, kBlech, kThermos]) if (K) K.shadow = false;
   const kSchrankStahl = amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });
   const kKuehl = amt_variant(kSchrank, m => { const n = m.clone(); n.map = null; n.color = new THREE.Color(0xa9aeaa); n.metalness = .75; n.roughness = .32; return n; });
@@ -271,14 +582,12 @@ async function amt_bauArchiv(S, K) {
   const X0 = C2.x, Z0 = C2.z, H = C2.h, B = S.build;
   B.wandWeg((o, bb) => Math.abs((bb.min.x + bb.max.x) / 2 - (X0 + 18)) < .06 && bb.max.x - bb.min.x < .35 && bb.min.z > Z0 - 6.3 && bb.max.z < Z0 + 6.3 && o.material === M.block);
   wall('z', X0 + 18, Z0 - 6, Z0 + 6, H, M.block, [{ at: Z0 - 4.6, w: 1.0 }, { at: Z0, w: 1.6 }, { at: Z0 + 4.3, w: 1.0 }], .3);
-  // Rollwagen (kleiner Stahltisch) mit dem Nadeldrucker (Rückfall: Röhrengehäuse; fehlendes Modell: Nadeldrucker) und Endlospapier bis auf den Boden
-  const wg = amt_put(K.kTisch, AMT_DRUCK.x, AMT_DRUCK.z, { ry: PI / 2, s: .3 }); const wy = K.kTisch ? amt_top(K.kTisch, wg, AMT_DRUCK.x, AMT_DRUCK.z) : .75; AMT_DRUCK.y = wy + .12;
-  amt_put(K.kRadio, AMT_DRUCK.x, AMT_DRUCK.z, { ry: -PI / 2, y: wy });
-  const pc = amt_cv(256, 512, () => {}); S.papierCtx = pc.getContext('2d'); S.papierTex = amt_tex(pc); amt_papierNeu();
+  // Rollwagen aus Stahl mit Nadeldrucker, Leporello-Stapel und Endlospapier bis auf den Boden
+  const pc = amt_cv(256, 1216, () => {}); S.papierCtx = pc.getContext('2d'); S.papierTex = amt_tex(pc); amt_papierNeu();
   const pm = new THREE.MeshStandardMaterial({ map: S.papierTex, roughness: .95, side: THREE.DoubleSide });
-  amt_flaeche(pm, AMT_DRUCK.x - .24, wy / 2 + .02, AMT_DRUCK.z, .22, wy, -PI / 2, 0, -.06);
+  S.papierMat = pm; AMT_DRUCK.y = .98; S.druckerGrp = amtp_druckerWagen(pm); S.druckerGrp.position.set(AMT_DRUCK.x, 0, AMT_DRUCK.z); S.druckerGrp.rotation.y = -PI / 2; scene.add(S.druckerGrp);
   amt_boden(pm, AMT_DRUCK.x - .5, AMT_DRUCK.z + .05, .22, .46, .15, .015); amt_boden(pm, AMT_DRUCK.x - .55, AMT_DRUCK.z - .02, .22, .46, -.1, .02);
-  amt_hit(AMT_DRUCK.x - .12, wy, AMT_DRUCK.z, .7, .5, .6, 'Nadeldrucker', () => amt_note('Endlospapier', '<span style="font-family:Courier New,monospace;font-size:.9em">' + (amt_S.druckZ.length ? amt_S.druckZ.join('<br>') : 'Leer. Nur die Lochränder.') + '</span>', null));
+  amt_hit(AMT_DRUCK.x - .1, .98, AMT_DRUCK.z, .7, .5, .6, 'Nadeldrucker', () => amt_note('Endlospapier', '<span style="font-family:Courier New,monospace;font-size:.9em">' + (amt_S.druckZ.length ? amt_S.druckZ.join('<br>') : 'Leer. Nur die Lochränder.') + '</span>', null));
   // Dienstanweisung 2 (Nordwand)
   const da2 = amt_cv(512, 640, (x, w, h) => { amt_rs = 85; amt_papier(x, w, h, { bg: '#c8c5bb', knick: 1 }); x.fillStyle = '#1e1d1b'; x.font = 'bold 26px "Special Elite", Courier New'; x.fillText('DIENSTANWEISUNG', 40, 80); x.fillRect(40, 94, w - 80, 2);
     x.font = '28px "Special Elite", Courier New'; ['Rückläufer werden nicht', 'geduzt. Rückläufer sind', 'Köder. Köder haben keine', 'Namen, sie haben Nummern.'].forEach((t, i) => x.fillText(t, 40, 180 + i * 50));
@@ -295,15 +604,15 @@ async function amt_bauArchiv(S, K) {
   // GRÜNDUNG: Aktendeckel oben auf dem letzten Schrank (ragt ein Stück über die Kante)
   const gd = amt_cv(256, 180, (x, w, h) => { amt_rs = 87; x.fillStyle = '#b89a6a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(60,40,20,${amt_R(.03, .12)})`; x.fillRect(amt_R(0, w), amt_R(0, h), amt_R(1, 4), amt_R(1, 4)); } x.fillStyle = '#2a1e10'; x.font = 'bold 30px "Special Elite", Courier New'; x.fillText('GRÜNDUNG', 40, 100); amt_auge(x, w - 40, 40, 16, '#3a2a18'); });
   S.gruendDeckel = amt_flaeche(new THREE.MeshStandardMaterial({ map: amt_tex(gd), roughness: .9 }), X0 + 28, 2.215, Z0 - 5.42, .34, .24, 0, .15, -PI / 2 + .06);
+  { const dust = amt_decal(amt_cv(256, 160, (x, w, h) => { amt_rs = 77; x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(168,164,150,.7)'; x.fillRect(0, 0, w, h); for (let i = 0; i < 900; i++) { x.fillStyle = `rgba(${amt_R(120, 200) | 0},${amt_R(116, 196) | 0},${amt_R(104, 180) | 0},${amt_R(.1, .45)})`; x.fillRect(amt_R(0, w), amt_R(0, h), amt_R(1, 4), amt_R(1, 3)); }
+    x.globalCompositeOperation = 'destination-out'; x.save(); x.translate(w / 2, h / 2); x.rotate(.15); x.fillStyle = '#000'; x.fillRect(-w * .275, -h * .3, w * .55, h * .6); x.restore(); }), { rough: 1 });   // Staub auf dem Schrank; sauberes Rechteck dort, wo der Deckel lag
+    amt_boden(dust, X0 + 28, Z0 - 5.42, .62, .388, .0, 2.204); }
   S.gruendHit = amt_hit(X0 + 28, 2.0, Z0 - 5.2, .8, .5, .4, () => amt_S.gruendung ? 'Archivschrank' : amt_S.leiterSteht ? 'Die Leiter hinaufsteigen' : story.items.includes('leiter_amt') ? 'Leiter aufstellen' : 'Ganz oben auf dem Schrank', () => amt_gruendung());
   S.leiterArchiv = K.kLeiter ? amt_einzel(K.kLeiter, X0 + 28, 0, Z0 - 5.05, { rx: -.28, noCol: true }) : null; if (S.leiterArchiv) S.leiterArchiv.visible = false;
   // Aktenvernichter (Rückfall: Mülleimer mit Schneidwerk-Aufsatz als Aufkleber; fehlendes Modell: Aktenvernichter), Streifen hängen heraus
-  const vx = X0 + 19.05, vz = Z0 + 5.25; amt_put(K.kEimer, vx, vz, { ry: .2 });
-  const kopf = amt_cv(256, 128, (x, w, h) => { x.fillStyle = '#2d2f2c'; x.fillRect(0, 0, w, h); x.fillStyle = '#121312'; x.fillRect(30, 50, w - 60, 14); x.fillStyle = '#d33'; x.fillRect(w - 40, 20, 14, 14); x.fillStyle = '#e8e2c8'; x.fillRect(20, 84, 120, 28); x.fillStyle = '#1b1b1b'; x.font = 'bold 18px Arial'; x.fillText('Max. 8 Blatt!', 24, 104); });
-  amt_boden(amt_decal(kopf, { rough: .5, metal: .3 }), vx, vz, .42, .21, .2, .6);
-  const streifen = amt_cv(128, 256, (x, w, h) => { x.clearRect(0, 0, w, h); for (let i = 0; i < 7; i++) { x.fillStyle = `rgb(${220 - i * 4},${214 - i * 4},${196 - i * 4})`; const sx = 8 + i * 17; x.fillRect(sx, 0, 11, h * amt_R(.4, 1)); x.fillStyle = 'rgba(30,30,30,.5)'; for (let y = 10; y < h; y += 9) if (amt_R(0, 1) < .55) x.fillRect(sx + 2, y, 7, 2); } });
-  S.streifen = amt_flaeche(amt_decal(streifen), vx, .46, vz - .21, .18, .3, 0, 0, .12);
-  amt_hit(vx, .5, vz, .5, .7, .5, () => amt_S.vernichter ? 'Aktenvernichter' : 'Streifen herausziehen', () => amt_vernichter());
+  const vx = X0 + 19.05, vz = Z0 + 5.25; // Aktenvernichter (Bürogerät mit Auffangkorb) an der Südwand, Papierstreifen hängen aus dem Schlitz
+  { const vg = amtp_vernichter(); vg.position.set(vx, 0, Z0 + 5.68); vg.rotation.y = PI; scene.add(vg); S.streifen = vg.userData.streifen; S.vernichterGrp = vg; }
+  amt_hit(vx, .5, Z0 + 5.55, .5, .7, .45, () => amt_S.vernichter ? 'Aktenvernichter' : 'Streifen herausziehen', () => amt_vernichter());
   // Wandkalender (März 2012), Papierstapel auf den Schränken, Kabel
   const kal = amt_cv(300, 420, (x, w, h) => { amt_rs = 89; amt_papier(x, w, h, { bg: '#e4dfd0' }); x.fillStyle = '#51624a'; x.fillRect(0, 0, w, 150); x.fillStyle = '#1d1c1a'; x.font = 'bold 30px Georgia'; x.fillText('MÄRZ 2012', 60, 196); x.font = '15px Georgia'; for (let d = 1; d <= 31; d++) { const k = d + 3, px = 22 + (k % 7) * 38, py = 240 + Math.floor(k / 7) * 32; x.fillText(String(d), px, py); } });
   amt_flaeche(amt_decal(kal), X0 + 25.8, 1.62, Z0 + 5.845, .26, .36, PI);
@@ -332,12 +641,11 @@ async function amt_bauKantine(S, K) {
   S.kzMesh = amt_flaeche(amt_decal(kz), xi0 + .66, 1.3, Z0 + 7.2, .26, .26, PI / 2);
   amt_hit(xi0 + .6, 1.3, Z0 + 7.2, .2, .35, .35, 'Zettel am Kühlschrank', () => amt_note('Zwei Zettel am Kühlschrank', '<span class="hand">„Wer meinen Joghurt nimmt, wird rückgeführt. – N. 12“</span>\n\nDarunter:\n<span class="hand">„Der Joghurt war von 2009. Das war Bergung. – N. 11“</span>', 'kuehlschrank'));
   const rg = amt_put(K.kRegal, 0, Z0 + 2.9, { ry: PI / 2, s: 1.4, minX: xi0 + .02 }); const ry1 = (K.kRegal ? amt_top(K.kRegal, rg, xi0 + .16, Z0 + 2.9, 1.8) : 0) || .9;
-  amt_put(K.kThermos, xi0 + .17, Z0 + 2.45, { ry: .6, y: ry1 }); amt_put(K.kBlech, xi0 + .18, Z0 + 2.8, { ry: 1.1, y: ry1 }); amt_put(K.kBecher, xi0 + .16, Z0 + 3.05, { ry: 2, y: ry1 });
-  const disp = amt_cv(128, 48, (x, w, h) => { x.fillStyle = '#0c140e'; x.fillRect(0, 0, w, h); x.fillStyle = '#7dff9c'; x.font = 'bold 18px Courier New'; x.fillText('ENTKALKEN', 10, 30); });
-  S.kaffeeDisp = amt_flaeche(amt_decal(disp, { em: 0xffffff, emI: 0 }), xi0 + .012, ry1 + .3, Z0 + 2.5, .12, .045, PI / 2);
-  amt_hit(xi0 + .3, ry1 + .15, Z0 + 2.6, .5, .4, .5, 'Kaffeeecke', () => toast('Eine Warmhalteplatte, darauf eine Kanne. Ein Filter von 2012, versteinert. Daneben eine Blechdose: KAFFEEKASSE.', 4200));
-  amt_put(K.kUrneGrau, xi0 + .17, Z0 + 3.3, { ry: .3, y: ry1, s: .45 }); // Blechdose der Kaffeekasse (Rückfall: kleiner Kasten)
-  amt_hit(xi0 + .17, ry1 + .1, Z0 + 3.3, .3, .25, .3, 'Kaffeekasse', () => amt_kaffeekasse());
+  { const km = amtp_kaffee(); km.position.set(xi0 + .21, ry1, Z0 + 2.62); km.rotation.y = PI / 2; scene.add(km); S.kaffeeGrp = km; S.kaffeeDisp = km.userData.disp;   // Filterkaffeemaschine mit Warmhalteplatte und Kanne
+    const kd = amtp_dose(); kd.position.set(xi0 + .17, ry1, Z0 + 3.36); kd.rotation.y = .3; scene.add(kd); S.kassenDose = kd; }                                              // Blechdose KAFFEEKASSE
+  amt_put(K.kThermos, xi0 + .17, Z0 + 2.88, { ry: .6, y: ry1 }); amt_put(K.kBlech, xi0 + .18, Z0 + 3.08, { ry: 1.1, y: ry1 }); amt_put(K.kBecher, xi0 + .15, Z0 + 3.22, { ry: 2, y: ry1 });
+  amt_hit(xi0 + .3, ry1 + .15, Z0 + 2.65, .5, .4, .4, 'Kaffeeecke', () => toast('Eine Warmhalteplatte, darauf eine Kanne. Ein Filter von 2012, versteinert. Daneben eine Blechdose: KAFFEEKASSE.', 4200));
+  amt_hit(xi0 + .17, ry1 + .06, Z0 + 3.36, .22, .14, .22, 'Kaffeekasse', () => amt_kaffeekasse());
   amt_put(K.kTelefon, X0 + 13.95, Z0 + 4.85, { ry: PI + .4, y: ty });
   amt_put(K.kAscher, X0 + 13.9, Z0 + 4.2, { ry: 1.3, y: ty }); amt_hit(X0 + 13.9, ty + .05, Z0 + 4.2, .25, .15, .25, 'Aschenbecher', () => amt_ascher());
   amt_put(K.kBecher, X0 + 10.5, Z0 + 5.3, { ry: .4, y: ty }); amt_put(K.kBlech, X0 + 9.7, Z0 + 5.0, { ry: 2.4, y: ty }); amt_put(K.kSack, X0 + 16.8, 0, { ry: 1, s: .8, minZ: zi0 + .05 }); amt_put(K.kEimer, X0 + 17.3, Z0 + 6.9, { ry: 2 });
@@ -361,7 +669,11 @@ async function amt_bauKantine(S, K) {
   amt_hit(X0 + 16.2, 1.6, zi1 - .1, .3, .4, .2, 'Wandkalender', () => amt_note('Wandkalender', 'März 2012. Weiter wurde nicht geblättert. Der letzte Tag ist eingekreist:\n\n<span class="hand">„Umzug Kühlung → Villa S.“</span>', 'kalender2012'));
   if (typeof sammeln_platz === 'function') try { sammeln_platz('Z-05', { x: X0 + 13.3, y: ty + .05, z: Z0 + 4.55, ab: 2, label: 'Zeitung mit Kaffeerand' }); } catch (e) { console.warn('amt Z-05', e); }
   // Schublade unter dem Tisch: Erkundung wird belohnt (Batterie, Glänzendes)
-  amt_hit(X0 + 10.2, ty - .12, Z0 + 4.75, .6, .12, .2, () => amt_S.said.kschub ? 'Tischschublade' : 'Tischschublade durchsuchen', () => { if (amt_S.said.kschub) return toast('Besteck, eine Serviette mit Lippenstift, sonst nichts.', 2600); amt_S.said.kschub = 1; addBattery(1); try { if (typeof tausch_gib === 'function') tausch_gib('uhrdeckel'); } catch (e) {} toast('Besteck. Eine Batterie, mit einem Gummi an einen Löffel gebunden. Und der Deckel einer Taschenuhr.', 5200); });
+  { const kb = await amt_kit('w_besteck', 'model.glb', .2, 'max'); amt_put(kb, X0 + 10.42, Z0 + 4.88, { y: ty + .004, ry: .5 });   // Besteck, Serviette mit Lippenstift, Batterie mit Gummi am Löffel
+    amt_boden(amt_decal(amt_cv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.save(); x.translate(64, 64); x.rotate(.2); x.fillStyle = '#ece8dc'; x.fillRect(-52, -52, 104, 104); x.strokeStyle = 'rgba(0,0,0,.12)'; x.strokeRect(-52, -52, 104, 104); x.beginPath(); x.moveTo(-52, 0); x.lineTo(52, 0); x.moveTo(0, -52); x.lineTo(0, 52); x.stroke();
+      x.fillStyle = 'rgba(165,28,44,.7)'; x.beginPath(); x.moveTo(-24, 30); x.quadraticCurveTo(-8, 14, 0, 22); x.quadraticCurveTo(8, 14, 24, 30); x.quadraticCurveTo(8, 46, 0, 40); x.quadraticCurveTo(-8, 46, -24, 30); x.fill(); x.restore(); })), X0 + 10.18, Z0 + 4.62, .2, .2, .3, ty + .002);
+    S.kschubBatt = K.kBatt ? amt_einzel(K.kBatt, X0 + 10.5, ty + .017, Z0 + 4.8, { ry: .5, rz: PI / 2, noCol: true }) : null; }
+  amt_hit(X0 + 10.35, ty + .03, Z0 + 4.8, .45, .1, .35, () => amt_S.said.kschub ? 'Besteck' : 'Besteck durchsuchen', () => { if (amt_S.said.kschub) return toast('Besteck, eine Serviette mit Lippenstift, sonst nichts.', 2600); amt_S.said.kschub = 1; if (S.kschubBatt) S.kschubBatt.visible = false; addBattery(1); try { if (typeof tausch_gib === 'function') tausch_gib('uhrdeckel'); } catch (e) {} toast('Besteck. Eine Batterie, mit einem Gummi an einen Löffel gebunden. Und der Deckel einer Taschenuhr.', 5200); });
   const ring = amt_decal(amt_cv(64, 64, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = 'rgba(70,45,20,.45)'; x.lineWidth = 5; x.beginPath(); x.arc(32, 32, 24, .3, 5.9); x.stroke(); }));
   for (let i = 0; i < 5; i++) amt_boden(ring, X0 + 9.4 + i * .9, Z0 + 4.9 + (i % 2) * .5, .12, .12, i, ty + .003);
   amt_rauchmelder(X0 + 12, Z0 + 6.2); AMT_BOXEN.push([X0 + 15.2, 2.3, Z0 + 7.84, PI]); amt_flaeche(S.lkMat, X0 + 15.2, 2.3, Z0 + 7.84, .24, .24, PI);
@@ -386,7 +698,8 @@ async function amt_bauRegistratur(S, K) {
   const rt = amt_put(K.kTisch, X0 + 12.4, Z0 - 5.0, { ry: 0, s: .55 }); const rty = K.kTisch ? amt_top(K.kTisch, rt, X0 + 12.4, Z0 - 5.0) : .76; S.regTischY = rty;
   amt_put(K.kStuhl, X0 + 12.1, Z0 - 5.85, { ry: .2 }); amt_put(K.kSack, X0 + 16.6, 0, { ry: 2, s: .8, minZ: zi0 + .05 }); amt_put(K.kRoehre, X0 + 13.1, Z0 - 4.8, { ry: 2.8, y: rty });
   const mappen = amt_decal(amt_cv(1024, 256, (x, w, h) => { amt_rs = 101; x.clearRect(0, 0, w, h); for (let i = 0; i < 40; i++) { const px = i * 25 + amt_R(-3, 3); x.fillStyle = ['#8a7a58', '#6e7a5c', '#9b8a62', '#7a6a50'][i % 4]; x.fillRect(px, 30 + amt_R(0, 10), 22, h - 40); x.fillStyle = '#e8e2cc'; x.fillRect(px + 2, 20, 18, 22); x.fillStyle = '#222'; x.font = '10px Courier New'; x.fillText(['58', '75', '92', '09'][i % 4], px + 4, 36); } }));
-  S.regFotoMesh = []; for (let i = 0; i < 4; i++) { const m = amt_boden(new THREE.MeshStandardMaterial({ map: amt_tex(amt_regFoto(i, false)), roughness: .45 }), X0 + 11.75 + i * .42, Z0 - 5.0, .3, .2, amt_R(-.08, .08), rty + .004); m.visible = false; S.regFotoMesh.push(m); }
+  S.regFotoMesh = []; for (let i = 0; i < 4; i++) { const m = amt_boden(new THREE.MeshStandardMaterial({ map: amt_tex(amt_regFoto(i, false)), roughness: .45 }), X0 + 11.75 + i * .42, Z0 - 5.0, .3, .2, amt_R(-.08, .08), rty + .0135); m.visible = false; S.regFotoMesh.push(m);
+    const mg = amtp_mappe(['#8a7a58', '#6e7a5c', '#9b8a62', '#7a6a50'][i], ['1958', '1975', '1992', '2009'][i]); mg.position.set(X0 + 11.75 + i * .42, rty + .001, Z0 - 5.0 + (i % 2 ? .02 : -.015)); mg.rotation.y = [-.06, .05, -.03, .08][i]; scene.add(mg); }  // die vier Hängemappen liegen fest auf dem Tisch
   S.regBack = new THREE.MeshStandardMaterial({ map: amt_tex(amt_regFoto(0, true)), roughness: .8 });
   S.regMappen = amt_hit(X0 + 12.4, rty + .1, Z0 - 5.0, 1.8, .3, .8, 'Vier Hängemappen', () => amt_regMappen());
   amt_hit(X0 + 7.3, 1.2, zi0 + .5, .9, .5, .3, () => amt_S.said.regschub ? 'Registraturschrank' : 'Registraturschrank durchsuchen', () => { if (amt_S.said.regschub) return toast('Leere Reiter, 1958 bis 2009. Nichts für 2026. Noch nicht.', 3000); amt_S.said.regschub = 1; addBattery(1); toast('Hinter den Hängemappen, mit Klebeband: eine Batterie. „Notreserve“, in Druckschrift.', 4200); });
@@ -394,22 +707,32 @@ async function amt_bauRegistratur(S, K) {
 }
 // Die vier Sommerfest-Fotos (Hängeregistratur): alt, unscharf, gekörnt – Kinder mit Lampions, am Rand das blasse Mädchen, am anderen Rand der Mann im grauen Mantel
 function amt_regFoto(i, hinten) { const J = [1958, 1975, 1992, 2009][i];
-  return amt_cv(600, 400, (x, w, h) => { amt_rs = 200 + i * 17; if (hinten) { amt_papier(x, w, h, { bg: '#e6e0cc' }); x.fillStyle = '#2a2622'; x.font = '30px Caveat'; x.fillText(['Rieke, Hans, 6 – Verbleib.', 'Hofer, A., 9 – Verbleib.', 'Pfarrer entfernt. Bericht (hw).', 'Belegfoto. B anwesend.'][i], 40, 90); return; }
+  return amt_cv(900, 600, (x, W_, H_) => { x.scale(1.5, 1.5); const w = 600, h = 400; amt_rs = 200 + i * 17; if (hinten) { amt_papier(x, w, h, { bg: '#e6e0cc' }); x.fillStyle = '#2a2622'; x.font = '30px Caveat'; x.fillText(['Rieke, Hans, 6 – Verbleib.', 'Hofer, A., 9 – Verbleib.', 'Pfarrer entfernt. Bericht (hw).', 'Belegfoto. B anwesend.'][i], 40, 90); return; }
     const sepia = i === 0 ? [118, 112, 104] : i === 1 ? [168, 120, 70] : i === 2 ? [120, 110, 95] : [110, 118, 104]; x.fillStyle = `rgb(${sepia})`; x.fillRect(0, 0, w, h);
     const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, i === 0 ? 'rgba(40,40,40,.55)' : 'rgba(20,24,40,.5)'); g.addColorStop(.6, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.35)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-    x.filter = 'blur(1.6px)';
+    x.filter = 'blur(2px)';
     if (i === 0) { x.fillStyle = '#4a4640'; x.beginPath(); x.moveTo(250, 250); x.lineTo(250, 120); x.lineTo(300, 70); x.lineTo(350, 120); x.lineTo(350, 250); x.fill(); } // Kapelle
     if (i === 2) { x.fillStyle = '#6e6454'; x.fillRect(120, 110, 360, 150); x.fillStyle = '#8a7c66'; x.beginPath(); x.moveTo(110, 110); x.lineTo(300, 50); x.lineTo(490, 110); x.fill(); } // Schützenzelt
-    const kinder = 7, y0 = 300; for (let k = 0; k < kinder; k++) { const px = 150 + k * 50 + amt_R(-6, 6), s = amt_R(.85, 1.05); x.fillStyle = `rgba(${40 + k * 5},${35 + k * 4},${30 + k * 3},.95)`; x.beginPath(); x.arc(px, y0 - 70 * s, 12 * s, 0, 7); x.fill(); x.fillRect(px - 13 * s, y0 - 58 * s, 26 * s, 58 * s);
-      const lg = x.createRadialGradient(px + 16, y0 - 100 * s, 1, px + 16, y0 - 100 * s, 18); lg.addColorStop(0, i === 0 ? 'rgba(250,250,240,.95)' : 'rgba(255,220,140,.95)'); lg.addColorStop(1, 'rgba(255,200,120,0)'); x.fillStyle = lg; x.beginPath(); x.arc(px + 16, y0 - 100 * s, 18, 0, 7); x.fill(); x.strokeStyle = 'rgba(30,30,30,.6)'; x.beginPath(); x.moveTo(px + 6, y0 - 60 * s); x.lineTo(px + 16, y0 - 90 * s); x.stroke(); }
-    if (i === 2) { x.fillStyle = 'rgba(20,20,20,.9)'; x.fillRect(290, 200, 26, 100); x.beginPath(); x.arc(303, 188, 14, 0, 7); x.fill(); x.filter = 'none'; x.strokeStyle = '#1b2656'; x.lineWidth = 4; x.beginPath(); x.moveTo(270, 170); x.lineTo(340, 300); x.moveTo(340, 170); x.lineTo(270, 300); x.stroke(); x.filter = 'blur(1.6px)'; }
+    const mann = (hx, hy, hand) => { x.fillStyle = 'rgba(70,72,74,.95)'; x.fillRect(hx - 20, hy + 30, 40, 150); x.beginPath(); x.arc(hx, hy + 16, 14, 0, 7); x.fill(); x.fillStyle = 'rgba(40,40,42,.95)'; x.fillRect(hx - 20, hy, 40, 8); x.fillRect(hx - 12, hy - 14, 24, 16);
+      if (hand) { x.strokeStyle = 'rgba(70,72,74,.95)'; x.lineWidth = 12; x.lineCap = 'round'; x.beginPath(); x.moveTo(hx + 14, hy + 50); x.lineTo(hx + 34, hy + 96); x.lineTo(hx + 12, hy + 128); x.stroke(); x.fillStyle = 'rgba(12,10,10,.97)'; x.beginPath(); x.ellipse(hx + 12, hy + 130, 9, 7, .4, 0, 7); x.fill(); } }; // Hand (Lederhandschuh) liegt auf der Schulter
+    const hx = i === 3 ? 302 : i === 0 ? 20 : 545, hy = i === 3 ? 150 : 150;
+    if (i === 3) mann(hx, hy - 36, true);  // 2009: direkt hinter den Kindern, eine Hand auf Zayns Schulter
+    const kinder = 7, y0 = 300; for (let k = 0; k < kinder; k++) { const px = 150 + k * 50 + amt_R(-6, 6), s = (i === 0 && k === 4 ? .72 : amt_R(.85, 1.05)); x.fillStyle = `rgba(${40 + k * 5},${35 + k * 4},${30 + k * 3},.95)`; x.beginPath(); x.arc(px, y0 - 70 * s, 12 * s, 0, 7); x.fill(); x.fillRect(px - 13 * s, y0 - 58 * s, 26 * s, 58 * s);
+      const lg = x.createRadialGradient(px + 16, y0 - 100 * s, 1, px + 16, y0 - 100 * s, 18); lg.addColorStop(0, i === 0 ? 'rgba(250,250,240,.95)' : 'rgba(255,220,140,.95)'); lg.addColorStop(1, 'rgba(255,200,120,0)'); x.fillStyle = lg; x.beginPath(); x.arc(px + 16, y0 - 100 * s, 18, 0, 7); x.fill(); x.strokeStyle = 'rgba(30,30,30,.6)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(px + 6, y0 - 60 * s); x.lineTo(px + 16, y0 - 90 * s); x.stroke();
+      if (i === 1 && k === 1) { x.fillStyle = 'rgba(205,70,56,.95)'; x.fillRect(px - 13 * s, y0 - 76 * s, 26 * s, 6); }                                 // Junge mit Stirnband
+      if (i === 1 && k === 3) { x.strokeStyle = 'rgba(80,52,30,.97)'; x.lineWidth = 5; x.lineCap = 'round'; x.beginPath(); x.moveTo(px - 11 * s, y0 - 64 * s); x.quadraticCurveTo(px - 17 * s, y0 - 46 * s, px - 12 * s, y0 - 30 * s); x.moveTo(px + 11 * s, y0 - 64 * s); x.quadraticCurveTo(px + 17 * s, y0 - 46 * s, px + 12 * s, y0 - 30 * s); x.stroke();   // Zöpfe
+        x.strokeStyle = 'rgba(60,90,40,.95)'; x.lineWidth = 2; x.beginPath(); x.moveTo(px - 18 * s, y0 - 38 * s); x.lineTo(px - 22 * s, y0 - 14 * s); x.stroke(); x.fillStyle = 'rgba(250,214,50,.98)'; x.beginPath(); x.arc(px - 18 * s, y0 - 40 * s, 6, 0, 7); x.fill(); } // Butterblume in der Hand
+      if ((i === 1 && k === 5) || (i === 3 && k === 5)) { x.fillStyle = `rgba(${40 + k * 5},${35 + k * 4},${30 + k * 3},.95)`; x.beginPath(); x.moveTo(px + 10 * s, y0 - 76 * s); x.lineTo(px + 21 * s, y0 - 68 * s); x.lineTo(px + 10 * s, y0 - 62 * s); x.fill(); } } // Nase im Profil: guckt nach rechts (1975: falsche Richtung; 2009: Lucy sieht das Mädchen an)
+    if (i === 0) { x.strokeStyle = 'rgba(25,25,25,.92)'; x.lineWidth = 3.4; x.lineCap = 'round'; const bx = 404, by = y0 - 34; x.beginPath(); x.arc(bx, by, 34, 0, 7); x.stroke(); x.beginPath(); x.arc(bx + 70, by, 34, 0, 7); x.stroke(); x.beginPath(); x.moveTo(bx, by); x.lineTo(bx + 24, by - 40); x.lineTo(bx + 70, by); x.moveTo(bx + 24, by - 40); x.lineTo(bx + 62, by - 44); x.lineTo(bx + 70, by); x.moveTo(bx + 62, by - 44); x.lineTo(bx + 60, by - 66); x.moveTo(bx + 50, by - 66); x.lineTo(bx + 72, by - 66); x.stroke(); } // 1958: Kinderfahrrad, zu groß für den kleinen Jungen (Lenker über seinem Kopf)
+    if (i === 2) { x.fillStyle = 'rgba(20,20,20,.9)'; x.fillRect(290, 200, 26, 100); x.beginPath(); x.arc(303, 188, 14, 0, 7); x.fill(); x.filter = 'none'; x.strokeStyle = '#1b2656'; x.lineWidth = 4; x.beginPath(); x.moveTo(270, 170); x.lineTo(340, 300); x.moveTo(340, 170); x.lineTo(270, 300); x.stroke(); x.filter = 'blur(2px)'; }
     // das Mädchen im weißen Sommerkleid, barfuß, immer gleich alt – am Rand
-    const mx = i === 3 ? 470 : 70; x.fillStyle = 'rgba(236,236,230,.92)'; x.beginPath(); x.arc(mx, 222, 11, 0, 7); x.fill(); x.beginPath(); x.moveTo(mx - 10, 236); x.lineTo(mx + 10, 236); x.lineTo(mx + 18, 300); x.lineTo(mx - 18, 300); x.fill();
-    // der Mann im grauen Mantel mit Hut – anderer Rand (2009: hinter den Kindern, Hand auf einer Schulter)
-    const hx = i === 3 ? 440 : 545, hy = i === 3 ? 170 : 150; x.fillStyle = 'rgba(70,72,74,.95)'; x.fillRect(hx - 20, hy + 30, 40, 150); x.beginPath(); x.arc(hx, hy + 16, 14, 0, 7); x.fill(); x.fillStyle = 'rgba(40,40,42,.95)'; x.fillRect(hx - 20, hy, 40, 8); x.fillRect(hx - 12, hy - 14, 24, 16);
+    const mx = (i === 3 || i === 0) ? 545 : 70; x.fillStyle = 'rgba(236,236,230,.92)'; x.beginPath(); x.arc(mx, 222, 11, 0, 7); x.fill(); x.beginPath(); x.moveTo(mx - 10, 236); x.lineTo(mx + 10, 236); x.lineTo(mx + 18, 300); x.lineTo(mx - 18, 300); x.fill();
+    // der Mann im grauen Mantel mit Hut – anderer Rand (1958: ganz links, halb hinter dem Fotografen)
+    if (i !== 3) mann(hx, hy, false);
     if (i === 2) { x.fillStyle = 'rgba(150,150,150,.9)'; x.fillRect(hx + 18, hy + 90, 10, 30); } // Thermoskanne
+    if (i === 0) { x.fillStyle = 'rgba(20,20,20,.55)'; x.beginPath(); x.moveTo(0, 120); x.quadraticCurveTo(46, 150, 52, 400); x.lineTo(0, 400); x.fill(); } // der Fotograf: unscharfer Schatten am linken Bildrand
     x.filter = 'none';
-    for (let k = 0; k < 9000; k++) { const v = amt_R(0, 255) | 0; x.fillStyle = `rgba(${v},${v},${v},.06)`; x.fillRect(amt_R(0, w), amt_R(0, h), 1.4, 1.4); } // Korn
+    for (let k = 0; k < 14000; k++) { const v = amt_R(0, 255) | 0; x.fillStyle = `rgba(${v},${v},${v},.06)`; x.fillRect(amt_R(0, w), amt_R(0, h), 1.1, 1.1); } // Korn
     x.strokeStyle = i === 0 ? '#e9e5da' : '#efeae0'; x.lineWidth = i === 0 ? 16 : 18; x.strokeRect(0, 0, w, h);
     if (i === 0) { x.fillStyle = '#e9e5da'; for (let k = 0; k < w; k += 16) { x.beginPath(); x.arc(k, 0, 8, 0, PI); x.fill(); x.beginPath(); x.arc(k, h, 8, PI, 7); x.fill(); } } // Zackenrand
     if (i === 1 || i === 3) { x.save(); x.translate(w - 170, h - 60); x.rotate(-.12); x.strokeStyle = 'rgba(160,20,20,.7)'; x.lineWidth = 3; x.strokeRect(-10, -26, 180, 40); x.fillStyle = 'rgba(160,20,20,.7)'; x.font = 'bold 14px Arial'; x.fillText('ERSCHEINUNGSFORM B', 0, -2); x.restore(); }
@@ -444,15 +767,16 @@ async function amt_bauSicherung(S, K) {
   S.leiterSich = K.kLeiter ? amt_einzel(K.kLeiter, X0 + 35.55, 0, Z0 + 6.7, { ry: -PI / 2, rx: -.18, noCol: true }) : null;
   S.leiterHit = amt_hit(X0 + 35.5, 1.1, Z0 + 6.7, .4, 2.0, .6, () => amt_S.leiter ? '' : 'Leiter nehmen', () => amt_leiterNehmen());
   // Kühlregal (Nische an der Ostwand): Stahlschrank mit Glastür (Rückfall), Schild, Magnetschloss erst nach dem Notstrom
-  amt_put(K.kKuehl, 0, Z0 + 3.55, { ry: -PI / 2, s: .9, maxX: X0 + 35.84 });
+  { const kg = amtp_kuehl(); kg.position.set(X0 + 35.84 - .31, 0, Z0 + 3.55); kg.rotation.y = -PI / 2; scene.add(kg); S.kuehlGrp = kg;   // Laborkühlschrank in einer Wandnische (Pilaster und Sturz aus Putz)
+    for (const dz of [-.49, .49]) box(.7, H, .12, X0 + 35.49, H / 2, Z0 + 3.55 + dz, B.putz, { collide: true }); box(.7, .3, 1.1, X0 + 35.49, 2.35, Z0 + 3.55, B.putz, { collide: true }); }
   const glas = amt_cv(256, 512, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(150,170,175,.22)'; x.fillRect(10, 10, w - 20, h - 20); x.strokeStyle = 'rgba(230,240,240,.35)'; x.lineWidth = 3; for (let i = 0; i < 4; i++) { x.beginPath(); x.moveTo(20, 60 + i * 120); x.lineTo(w - 20, 60 + i * 120); x.stroke(); }
     const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, 'rgba(255,255,255,.12)'); g.addColorStop(.4, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(10, 10, w - 20, h - 20); });
-  S.kuehlGlas = amt_flaeche(new THREE.MeshStandardMaterial({ map: amt_tex(glas), transparent: true, depthWrite: false, roughness: .08, metalness: .1, envMapIntensity: 1.4 }), X0 + 35.84 - .66, 1.05, Z0 + 3.55, .72, 1.5, -PI / 2);
+  S.kuehlGlas = amt_flaeche(new THREE.MeshStandardMaterial({ map: amt_tex(glas), transparent: true, depthWrite: false, roughness: .08, metalness: .1, envMapIntensity: 1.4 }), X0 + 35.208, 1.05, Z0 + 3.55, .66, 1.58, -PI / 2);
   S.kuehlBeschlag = amt_flaeche(amt_decal(amt_cv(256, 512, (x, w, h) => { x.clearRect(0, 0, w, h); const g = x.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, h * .6); g.addColorStop(0, 'rgba(235,240,240,.75)'); g.addColorStop(1, 'rgba(235,240,240,.35)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
-    x.globalCompositeOperation = 'destination-out'; x.fillStyle = '#000'; for (const [px, py] of [[118, 220], [98, 256], [140, 256]]) { x.beginPath(); x.arc(px, py, 10, 0, 7); x.fill(); } }), { rough: .3 }), X0 + 35.84 - .675, 1.05, Z0 + 3.55, .72, 1.5, -PI / 2);
+    x.globalCompositeOperation = 'destination-out'; x.fillStyle = '#000'; for (const [px, py] of [[118, 220], [98, 256], [140, 256]]) { x.beginPath(); x.arc(px, py, 10, 0, 7); x.fill(); } }), { rough: .3 }), X0 + 35.2, 1.05, Z0 + 3.55, .66, 1.58, -PI / 2);
   S.kuehlBeschlag.material.opacity = 0;
   const ks = amt_cv(512, 180, (x, w, h) => { x.fillStyle = '#d9d3bf'; x.fillRect(6, 6, w - 12, h - 12); x.fillStyle = '#b3261a'; x.fillRect(6, 6, w - 12, 36); x.fillStyle = '#fff'; x.font = 'bold 26px Arial'; x.fillText('KÜHLUNG', 20, 34); x.fillStyle = '#1b1b1b'; x.font = '24px Arial'; x.fillText('Substanz S', 20, 84); x.fillText('Zutritt nur mit Freigabe', 20, 124); amt_auge(x, w - 50, 120, 22); });
-  amt_flaeche(amt_decal(ks, { rough: .4 }), X0 + 35.18, 2.12, Z0 + 3.55, .42, .15, -PI / 2);
+  amt_flaeche(amt_decal(ks, { rough: .4 }), X0 + 35.138, 2.35, Z0 + 3.55, .42, .15, -PI / 2);
   amt_hit(X0 + 35.3, 1.1, Z0 + 3.55, .5, 1.6, 1.0, () => amt_S.kuehl ? 'Kühlregal' : 'Kühlregal öffnen', () => amt_kuehlregal());
   amt_put(K.kSack, X0 + 31.9, 0, { ry: 1.4, s: .8, maxZ: Z0 + 7.8 }); amt_rauchmelder(X0 + 33, Z0 + 5);
   // Planungsraum (x 630–638, z +8…+14): Wände, Boden, Decke, Röhre (erst mit Notstrom), Tür
@@ -483,14 +807,28 @@ async function amt_bauPlanung(S, K) {
   const hs = [[-.55, -.25, K.kSchuppe], [-.35, -.27, K.kSchuppe2], [-.05, -.25, K.kFolie], [.2, -.26, K.kSchuppe], [-.55, .05, K.kSchuppe2], [-.3, .06, K.kSchuppe], [.02, .06, K.kSchuppe2], [.32, .2, K.kSchuppe]];
   for (const [dx, dz, KK] of hs) amt_put(KK, cx - dx, cz - dz, { ry: amt_R(-.2, .2) + PI, y: ty + .006 });
   amt_put(K.kModellKirche, cx - .72, cz + .38, { ry: 2.6, y: ty + .006 }); amt_put(K.kHalte, cx + .5, cz - .05, { ry: .2, y: ty + .006 });
-  const pfand = amt_cv(128, 64, (x, w, h) => { x.fillStyle = '#d8c89c'; x.fillRect(0, 0, w, h); x.fillStyle = '#222'; x.font = 'bold 16px Arial'; x.fillText('Pfand hier', 10, 26); x.fillText('abgeben', 10, 48); });
-  amt_flaeche(amt_decal(pfand), cx - .7, ty + .03, cz + .05, .05, .025, PI - .3);
+  // Pappschild „Pfand hier abgeben“ an der Modell-Tankstelle: Pappe auf einem Holzspieß, mit Filzstift beschriftet
+  { const pk = amtp_baue([[amtp_cyl(.0012, .075, 6), 'holz', amtp_m(0, .0375, 0)], [new THREE.BoxGeometry(.1, .05, .0022), 'karton', amtp_m(0, .085, 0)]], { cast: false });
+    const tx = amtp_schild(amt_cv(256, 128, (x, w, h) => { x.fillStyle = '#c9b388'; x.fillRect(0, 0, w, h); for (let i = 0; i < 200; i++) { x.fillStyle = `rgba(90,70,40,${amt_R(.05, .2)})`; x.fillRect(amt_R(0, w), amt_R(0, h), 2, 1); } x.fillStyle = '#1b1b1b'; x.font = 'bold 54px Caveat'; x.textAlign = 'center'; x.fillText('Pfand hier', w / 2, 58); x.fillText('abgeben', w / 2, 112); }), .096, .046, { rough: .9 });
+    tx.position.set(0, .085, -.0013); tx.rotation.y = PI; pk.add(tx); pk.position.set(cx + .36, ty + .006, cz - .12); pk.rotation.y = PI + .3; scene.add(pk); S.pfandSchild = pk; }
+  // Pappkuppel über der Senke (Halbkugel aus Wellpappe, mit Streifen „OBJEKT“)
+  { const dm = new THREE.MeshStandardMaterial({ roughness: .95, bumpMap: amtp_noise(), bumpScale: 1.2, side: THREE.DoubleSide, map: amt_tex(amt_cv(512, 256, (x, w, h) => { amt_rs = 5; x.fillStyle = '#a58a60'; x.fillRect(0, 0, w, h); for (let i = 0; i < h; i += 5) { x.fillStyle = (i / 5) % 2 ? 'rgba(80,58,30,.22)' : 'rgba(255,230,180,.12)'; x.fillRect(0, i, w, 3); } for (let i = 0; i < 700; i++) { x.fillStyle = `rgba(60,40,20,${amt_R(.05, .22)})`; x.fillRect(amt_R(0, w), amt_R(0, h), amt_R(1, 5), 1); }
+      x.fillStyle = 'rgba(220,210,170,.55)'; x.fillRect(0, h * .46, w, 3); x.fillRect(w * .25, 0, 3, h); x.fillRect(w * .75, 0, 3, h); })) });
+    const dg = new THREE.SphereGeometry(.078, 30, 14, 0, PI * 2, 0, PI / 2); dg.scale(1, .7, 1); const dome = new THREE.Mesh(dg, dm); dome.castShadow = true; dome.receiveShadow = true; dome.position.set(cx - .69, ty + .004, cz - .12); scene.add(dome); S.pappKuppel = dome;
+    const ob = amtp_schild(amt_cv(192, 56, (x, w, h) => { x.fillStyle = '#e8e2cc'; x.fillRect(0, 0, w, h); x.fillStyle = '#7a1c14'; x.font = 'bold 40px Arial'; x.textAlign = 'center'; x.fillText('OBJEKT', w / 2, 42); }), .08, .023, { rough: .8 }); ob.position.set(cx - .69, ty + .03, cz - .12 - .07); ob.rotation.x = -.8; ob.rotation.y = PI; scene.add(ob); }
   // Pappfiguren: Hilde am Faden über der Kreuzung, Luke (gestreiftes Hemd, Lampe), DREIPUNKT (weiß, Zettel „Standort?“), EISEN (grau, unbemalt)
   const figur = (art) => amt_cv(64, 128, (x, w, h) => { x.clearRect(0, 0, w, h); const col = { hilde: '#6b5a7a', luke: '#335577', drei: '#f0efe8', eisen: '#8d9093' }[art]; x.fillStyle = col; x.beginPath(); x.arc(32, 22, 11, 0, 7); x.fill(); x.fillRect(20, 34, 24, 56); x.fillRect(22, 90, 8, 34); x.fillRect(34, 90, 8, 34);
     if (art === 'luke') { x.fillStyle = '#e8e4d8'; for (let y = 38; y < 88; y += 8) x.fillRect(20, y, 24, 3); x.fillStyle = '#ffe9a0'; x.fillRect(46, 50, 10, 6); } if (art === 'hilde') { x.fillStyle = '#ddd'; x.fillRect(31, 0, 2, 12); } if (art === 'eisen') { x.fillStyle = '#6a6d70'; x.fillRect(22, 12, 20, 6); } });
   const fig = (art, x, z, hgt = .034) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(hgt * .5, hgt), new THREE.MeshStandardMaterial({ map: amt_tex(figur(art)), transparent: true, alphaTest: .4, side: THREE.DoubleSide, roughness: .8 })); m.position.set(x, ty + .004 + hgt / 2, z); m.userData.noCol = true; scene.add(m); return m; };
-  S.hildeFig = fig('hilde', cx, cz - .05); S.hildeFig.position.y = ty + .22; amt_flaeche(amt_decal(amt_cv(4, 64, (x) => { x.fillStyle = '#ddd'; x.fillRect(1, 0, 2, 64); })), cx, ty + .45, cz - .05, .002, .44, 0);
-  fig('drei', cx - .93, cz + .32, .026); fig('eisen', cx + .95, cz - .52, .036);
+  S.hildeFig = fig('hilde', cx, cz - .05); S.hildeFig.position.y = ty + .22;
+  { const fy0 = ty + .22 + .017, th = new THREE.Mesh(amtp_cyl(.0011, C2.h - fy0, 5), amtp_mat('papier')); th.position.set(cx, fy0 + (C2.h - fy0) / 2, cz - .05); th.userData.noCol = true; th.castShadow = false; scene.add(th); S.faden = th;   // die Frau hängt an einem Faden von der Decke
+    const kl = amtp_baue([[new THREE.BoxGeometry(.03, .0008, .02), 'papier', amtp_m(cx, C2.h - .0004, cz - .05)]], { cast: false }); scene.add(kl); }
+  fig('drei', cx - .93, cz + .32, .026); const fe = fig('eisen', cx + .95, cz - .52, .036); fe.position.y += .012;
+  // Zettel „DREIPUNKT · Standort?“ als Fähnchen an einer Stecknadel neben der weißen Figur
+  { const fl = new THREE.Group(); fl.add(new THREE.Mesh(amtp_cyl(.0008, .06, 5), amtp_mat('stahl'))); fl.children[0].position.y = .03; const zt = amtp_schild(amt_cv(192, 112, (x, w, h) => { x.fillStyle = '#ece4c6'; x.fillRect(0, 0, w, h); x.fillStyle = '#1f2a55'; x.font = '34px Caveat'; x.fillText('DREIPUNKT', 10, 44); x.fillText('Standort?', 10, 92); }), .055, .032, { rough: .85 }); zt.position.set(.03, .05, 0); zt.material.side = THREE.DoubleSide; fl.add(zt); fl.position.set(cx - .9, ty + .004, cz + .32); fl.rotation.y = PI + .4; scene.add(fl); }
+  // Sockel der grauen Figur mit eingeritzter Gravur „EISEN“
+  { const sk = amtp_baue([[amtp_rbox(.075, .012, .034, .002), 'holz', amtp_m(cx + .95, ty + .006, cz - .52)]], { cast: false }); scene.add(sk);
+    const gr = amtp_schild(amt_cv(256, 64, (x, w, h) => { x.fillStyle = '#6a4a30'; x.fillRect(0, 0, w, h); x.font = 'bold 44px Arial'; x.textAlign = 'center'; x.fillStyle = 'rgba(255,230,190,.55)'; x.fillText('EISEN', w / 2 + 1.5, 46); x.fillStyle = '#1e1208'; x.fillText('EISEN', w / 2, 44); }), .06, .0094, { rough: .85 }); gr.position.set(cx + .95, ty + .006, cz - .52 - .0171); gr.rotation.y = PI; scene.add(gr); }
   S.lukeFig = fig('luke', 0, 0, .03); S.lukeWeg = [[-1.0, .52], [-.8, .52], [-.45, .52], [-.2, .52], [0, .52], [.2, .5], [.62, .5], [.62, .52]]; amt_modellLuke(amt_S.modellN || 0);
   const ms = amt_cv(512, 96, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#c9a45a'); g.addColorStop(1, '#7a5a2a'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = '#2a1e10'; x.font = 'bold 26px Georgia'; x.fillText('Lost Eyengless · Maßstab 1 : 87 · Zyklus 42', 18, 58); });
   amt_flaeche(amt_decal(ms, { rough: .3, metal: .8 }), cx, ty - .03, cz - D / 2 - .012, .42, .08, PI);
@@ -509,18 +847,14 @@ async function amt_bauPruef(S, K) {
   const X0 = C2.x, Z0 = C2.z;
   const foto = amt_cv(300, 380, (x, w, h) => { amt_rs = 131; x.fillStyle = '#efe9da'; x.fillRect(0, 0, w, h); x.fillStyle = '#9a7a52'; x.fillRect(16, 16, w - 32, h - 110); x.filter = 'blur(2px)'; x.fillStyle = '#5a4430'; x.beginPath(); x.arc(110, 110, 26, 0, 7); x.fill(); x.fillRect(80, 136, 60, 120); x.fillStyle = '#4a3a2a'; x.beginPath(); x.arc(190, 150, 18, 0, 7); x.fill(); x.fillRect(172, 168, 36, 80); x.fillStyle = '#c2a070'; x.fillRect(140, 180, 36, 8); x.filter = 'none';
     for (let i = 0; i < 3000; i++) { x.fillStyle = `rgba(80,60,30,${amt_R(.02, .08)})`; x.fillRect(amt_R(0, w), amt_R(0, h), 1.5, 1.5); } x.fillStyle = '#1c2a55'; x.font = '26px Caveat'; x.fillText('Peter, 8, Sommerfest.', 30, h - 40); });
-  const bs = typeof feuer_bedSpot === 'function' ? feuer_bedSpot() : { x: X0 + 41.6, y: .6, z: Z0 - 4.4 }; const ox = bs.x - .7, oy = bs.y > .2 ? bs.y + .006 : .6;
+  const bs = amt_bettOben() || (typeof feuer_bedSpot === 'function' ? feuer_bedSpot() : { x: X0 + 41.6, y: .6, z: Z0 - 4.4 }); const ox = bs.x - .7, oy = bs.y > .2 ? bs.y + .006 : .6;
   S.omaFoto = amt_boden(new THREE.MeshStandardMaterial({ map: amt_tex(foto), roughness: .5 }), ox, bs.z + .05, .09, .115, .6, oy);
   amt_hit(ox, oy + .03, bs.z + .05, .25, .15, .25, 'Ein Foto', () => amt_note('Ein Foto auf der Matratze', 'Oma Erna Kranz, jung, mit einem Jungen an der Hand. Kuli auf dem weißen Rand:\n\n<span class="hand">„Peter, 8, Sommerfest.“</span>', 'oma_foto'));
   // Turm ausgespülter Plastikdosen neben der Klappe in der Tür (Rückfall: Becher; fehlendes Modell: Plastikdosen mit Schraubdeckel), Kreppband „Do.“
-  for (let i = 0; i < 6; i++) amt_put(K.kBecher, X0 + 36.45 + (i % 2) * .12, Z0 + 1.2 + Math.floor(i / 2) * .02, { y: Math.floor(i / 2) * .1, ry: i });
-  const krepp = amt_decal(amt_cv(64, 32, (x, w, h) => { x.fillStyle = '#e6dcb4'; x.fillRect(0, 4, w, h - 8); x.fillStyle = '#1f2a55'; x.font = '20px Caveat'; x.fillText('Do.', 16, 24); }));
-  amt_flaeche(krepp, X0 + 36.46, .28, Z0 + 1.14, .06, .03, 0);
+  { const dg = amtp_dosenTurm(); dg.position.set(X0 + 36.52, 0, Z0 + 1.2); dg.rotation.y = .3; scene.add(dg); }   // Turm ausgespülter Plastikdosen mit Schraubdeckel und Kreppband „Do.“
   amt_hit(X0 + 36.5, .2, Z0 + 1.25, .35, .4, .35, 'Dosen', () => { toast('Ein Turm ausgespülter Dosen mit Schraubdeckel. Auf jedem Deckel ein Streifen Kreppband: „Do.“', 4200); if (!amt_S.said.do) { amt_S.said.do = 1; setTimeout(() => say([['Donnerstags. Oma hat immer gesagt, sie muss ‚zum Amt‘. Ich dachte, wegen der Rente.', 4600, 'LUKE']]), 1300); } });
   // Karteikasten „VERSUCHSREIHE K“ (Rückfall: kleiner Holzkasten)
-  amt_put(K.kUrneGrau, X0 + 43.6, Z0 - 4.35, { ry: .2, s: .9 });
-  const kk = amt_decal(amt_cv(256, 64, (x, w, h) => { x.fillStyle = '#e4ddc6'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b1b1b'; x.font = 'bold 26px "Special Elite", Courier New'; x.fillText('VERSUCHSREIHE K', 12, 42); }));
-  amt_flaeche(kk, X0 + 43.6, .2, Z0 - 4.19, .14, .035, 0);
+  { const kg = amtp_kartei('VERSUCHSREIHE K'); kg.position.set(X0 + 43.6, 0, Z0 - 4.35); kg.rotation.y = .2; scene.add(kg); S.karteiGrp = kg; }
   amt_hit(X0 + 43.6, .25, Z0 - 4.3, .4, .4, .4, 'Karteikasten „VERSUCHSREIHE K“', () => amt_karteiK());
   amt_rauchmelder(X0 + 41, Z0 + 2);
 }
@@ -565,10 +899,15 @@ async function amt_bauMessraum(S, K) {
   const fed = amt_cv(64, 256, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#1a1a1c'; x.lineWidth = 2; x.beginPath(); x.moveTo(32, 250); x.lineTo(32, 10); x.stroke(); for (let y = 20; y < 230; y += 3) { const l = 26 * Math.sin((y / 240) * PI) + 4; x.strokeStyle = `rgba(${18 + (y % 7)},${18 + (y % 5)},${24 + (y % 9)},.9)`; x.beginPath(); x.moveTo(32, y); x.lineTo(32 - l, y - 10); x.moveTo(32, y); x.lineTo(32 + l * .9, y - 9); x.stroke(); } x.fillStyle = 'rgba(80,90,120,.25)'; x.fillRect(20, 40, 24, 120); });
   S.feder = amt_flaeche(amt_decal(fed, { rough: .45 }), s8.x, .78, s8.z, .05, .2, 0, .5); S.feder.visible = false; // in der Kerbe der Stuhllehne (Stuhlkreis aus innen_kapitel)
   { const k = typeof innen_kapitel_S !== 'undefined' && innen_kapitel_S.stuhlKreis ? innen_kapitel_S.stuhlKreis[7] : null; if (k) { S.feder.position.set(k.x - Math.sin(k.ry) * .215, .8, k.z - Math.cos(k.ry) * .215); S.feder.rotation.set(0, k.ry + PI, .45, 'YXZ'); } }
+  { const SK = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null; // Lederriemen an allen acht Stühlen; an Stuhl 8 sauber durchtrennt, mit Kerbe in der Lehne
+    if (SK) SK.forEach((k, i) => { const g = amtp_gurte(i === 7); g.position.set(k.x, 0, k.z); g.rotation.y = k.ry; scene.add(g); if (i === 7) S.stuhl8Gurte = g; }); }
+  S.feder.visible = true; // die Feder steckt von Anfang an in der Kerbe
   amt_hit(s8.x, .75, s8.z, .6, 1.1, .6, 'Stuhl 8', () => amt_stuhl8());
   if (typeof sammeln_platz === 'function') try { sammeln_platz('SB-04', { x: s8.x, y: .3, z: s8.z, ab: 2, unsichtbar: 1, hb: .3, label: 'Unter der Sitzfläche, mit Klebeband' }); } catch (e) { console.warn('amt SB-04', e); }
   // Zweiter Nadeldrucker auf dem Seitentisch (erscheint erst mit seinem Druck)
-  S.messDruck = { x: X0 + 111.2, y: 1.0, z: Z0 - 7.4 }; S.messDruckObj = K.kRadio ? amt_einzel(K.kRadio, X0 + 111.2, .79, Z0 - 7.35, { ry: PI, s: 1, noCol: true }) : null; if (S.messDruckObj) S.messDruckObj.visible = false;
+  S.messDruck = { x: X0 + 111.2, y: 1.0, z: Z0 - 7.4 }; // zweiter Nadeldrucker auf dem Seitentisch, Papier liegt auf der Platte
+  { const g = new THREE.Group(); g.add(amtp_drucker()); g.add(amtp_band([[0, .12, 0], [0, .15, .04], [0, .185, .075], [0, .195, .12], [0, .15, .2], [0, .02, .29], [0, .004, .42]], .22, S.papierMat, { n: 36, fromTop: true, vSpan: .42 }));
+    g.position.set(X0 + 111.2, .79, Z0 - 7.35); g.rotation.y = 0; g.visible = false; scene.add(g); S.messDruckObj = g; }
   // Notbeleuchtung (Batterie-Notleuchten, beim Laden 0): nach dem Sterben der Röhren – Licht für „Ihre Augen“ und den Aufstieg
   const nl = amt_decal(amt_cv(256, 96, (x, w, h) => { x.fillStyle = '#e8eee6'; x.fillRect(4, 4, w - 8, h - 8); x.fillStyle = '#1c7a3a'; x.fillRect(16, 16, w - 32, h - 32); x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.fillText('NOTLICHT', 40, 60); }), { em: 0xffffff, emI: 0 });
   S.notlicht = []; for (const [x, y, z, ry] of [[X0 + 110.17, 2.2, Z0 + 4.6, PI / 2], [X0 + 121.83, 2.2, Z0 - 3.5, -PI / 2], [X0 + 116.5, 2.2, Z0 + 7.83, PI]]) {
@@ -752,11 +1091,23 @@ async function amt_akte08() { const S = amt_S; if (S.akte8) return; S.akte8 = tr
 // X-7: Zeichen – ∴ klein in den Putz geritzt (Tunnel, neben den Kratzern; Durchgang über der Tür von Zimmer 7), nur im Streiflicht der Lampe deutlich
 function amt_zeichen() { const c = amt_cv(128, 64, (x, w, h) => { x.clearRect(0, 0, w, h); for (const [px, py] of [[64, 16], [40, 48], [88, 48]]) { x.fillStyle = 'rgba(25,22,18,.7)'; x.beginPath(); x.arc(px, py, 7, 0, 7); x.fill(); x.fillStyle = 'rgba(215,208,190,.35)'; x.beginPath(); x.arc(px - 2, py - 2, 3, 0, 7); x.fill(); } });
   const m = amt_decal(c, { rough: .95 }); amt_flaeche(m, C2.x + 16.05, .52, C2.z - 1.84, .07, .035, 0); amt_flaeche(m, C2.x + 34.3, 2.32, C2.z - 1.84, .06, .03, 0); }
+// Plastikarmband „KRANZ, P.“ am linken Handgelenk der Peter-Figur (feuer.js lädt sie): angeschmolzenes Krankenhausband mit Etikett und Tropfen
+function amt_armband(S) { S.armband = true;
+  try { const h = PZ.ue.hand_l, ws = new THREE.Vector3(); h.updateWorldMatrix(true, false); h.getWorldScale(ws); const k = 1 / (ws.x || 1), ch = h.children.find(c => c.isBone && c.position.lengthSq() > 0), dir = ch ? ch.position.clone().normalize() : new THREE.Vector3(0, 1, 0);
+    const mat = new THREE.MeshStandardMaterial({ roughness: .4, side: THREE.DoubleSide, map: amt_tex(amt_cv(1024, 72, (x, w, h2) => { const g = x.createLinearGradient(0, 0, 0, h2); g.addColorStop(0, '#ddd8c4'); g.addColorStop(1, '#bdb69a'); x.fillStyle = g; x.fillRect(0, 0, w, h2); x.fillStyle = 'rgba(70,40,20,.35)'; x.fillRect(0, h2 - 12, w, 12);
+        for (let r = 0; r < 2; r++) { x.fillStyle = '#1d2a4a'; x.font = 'bold 40px "Courier New", monospace'; x.fillText('KRANZ, P.  K-1 · 1992', 20 + r * 512, 46); }
+        for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(30,18,10,${amt_R(.1, .5)})`; x.beginPath(); x.arc(amt_R(0, w), amt_R(h2 * .5, h2), amt_R(1, 5), 0, 7); x.fill(); } })) });
+    const g = new THREE.Group(), band = new THREE.Mesh(new THREE.CylinderGeometry(.037, .037, .017, 30, 1, true), mat); g.add(band);
+    const tag = new THREE.Mesh(new THREE.BoxGeometry(.05, .004, .028), new THREE.MeshStandardMaterial({ color: 0xe6e1cd, roughness: .5 })); tag.position.set(0, .0395, 0); g.add(tag);
+    const drip = new THREE.MeshStandardMaterial({ color: 0xb9b196, roughness: .35 }); for (const [a, r] of [[.6, .004], [2.4, .0055], [4.1, .0035]]) { const d = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 6), drip); d.scale.set(1, 1.7, 1); d.position.set(Math.cos(a) * .0375, -.012 - r, Math.sin(a) * .0375); g.add(d); }
+    g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.userData.noCol = true; } });
+    g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); g.scale.setScalar(k); g.position.copy(dir).multiplyScalar(-.02 * k); h.add(g); S.armbandObj = g;
+  } catch (e) { console.warn('amt: Armband', e); } }
 function amt_nachLaden() { const S = amt_S; if (!S.ready) return;
   if (S.tuer.reg) S.tuer.reg.locked = !S.reg; if (S.leiter && S.leiterSich) { S.leiterSich.visible = false; uninteract(S.leiterHit); } if (S.leiterSteht && S.leiterArchiv && !S.gruendung) S.leiterArchiv.visible = true;
   if (S.gruendung && S.gruendDeckel) S.gruendDeckel.visible = false; if (S.gruendung) amt_sprosse(); if (S.vernichter && S.streifen) S.streifen.visible = false;
   if (S.regFotos && S.regFotoMesh) S.regFotoMesh.forEach((m, i) => m.visible = i < S.regFotos); if (S.regDreh && S.regFotoMesh) S.regFotoMesh[0].material = S.regBack;
-  if (S.batt === true) (S.battObj || []).forEach(g => g.visible = false); S.modellP = null; amt_modellLuke(S.modellN || 0); if (S.stuhl8 && S.feder) S.feder.visible = true; amt_papierNeu(); }
+  if (S.batt === true) (S.battObj || []).forEach(g => g.visible = false); S.modellP = null; amt_modellLuke(S.modellN || 0); if (S.stuhl8 && S.feder) S.feder.visible = true; if (S.said.kschub && S.kschubBatt) S.kschubBatt.visible = false; amt_papierNeu(); }
 
 // UK8: Klavier – sobald Luke die Tasten berührt, summt Lucy im Tank; die Tasten, die sie trifft, beschlagen (E D C H C). Nach 3 Fehlern langsamer, nach 6 bleibt der Beschlag.
 function amt_klavier(box) { const S = amt_S, fehl = S.klavierFehl || 0, lang = fehl >= 3 ? 1.6 : 1, bleibt = fehl >= 6, TK = { x: C2.x + 118, z: C2.z + 6 };
@@ -827,6 +1178,7 @@ WORLD_TICK.push((dt, t) => {
     if (S.ruhig > 0) { S.ruhig -= dt; shake = 0; if (typeof fear !== 'undefined' && fear.v > .2) fear.v *= .96; }
     amt_lichtTick(dt);
     if (!ch2.on) return;
+    if (!S.armband && typeof PZ !== 'undefined' && PZ.P && PZ.ue && PZ.ue.hand_l) amt_armband(S);
     if (S.planTube) S.planTube.mode = ch2.power ? (S.planTube.mode === 'off' ? 'flicker' : S.planTube.mode) : 'off';
     amt_regieTick(dt); amt_k1Tick(dt); amt_modellTick(dt); amt_messraumTick(dt);
     if (typeof feuer_S !== 'undefined' && feuer_S.done && !S.danke && player.pos.x > C2.x + 106.4) amt_danke();

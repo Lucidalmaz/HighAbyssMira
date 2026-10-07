@@ -127,6 +127,10 @@ async function neben4_gasBau() { const S = neben4_S, O = S.o, T = THREE, g = new
     const m = new T.Mesh(new T.PlaneGeometry(.088, .107), new T.MeshStandardMaterial({ map: n4_rahmenTex(null), roughness: .55 })); m.position.set(x + .07, y + .055, z + .03); m.rotation.set(-.32, .1 - i * .08, 0, 'YXZ'); m.userData.noCol = true; g.add(m); O.polas.push(m);
     const h = kirchberg_hit(.45, .5, .45, x, y + .2, z, () => n4_kerzeLabel(i), () => n4_kerze(i)); kirchberg_an(h, false); O['kh' + i] = h; }
   O.leerTex = O.polas[0].material.map;
+  // Hildes Kreide: ein Stück weiße Tafelkreide neben der mittleren Kerze (verschwindet, wenn Luke sie einsteckt)
+  { const [kx, kz] = N4_KERZEN[1], ky = n4_boden(kx, kz), ch = new T.Group(), cm = new T.MeshStandardMaterial({ color: 0xe9e6dc, roughness: .95 }); const st = new T.Mesh(new T.CylinderGeometry(.0085, .0085, .052, 12), cm); st.rotation.z = PI / 2; st.castShadow = true; ch.add(st);
+    const st2 = new T.Mesh(new T.CylinderGeometry(.0072, .0072, .02, 10), cm); st2.rotation.z = PI / 2; st2.position.set(.045, 0, .03); st2.rotation.y = .5; ch.add(st2);
+    ch.position.set(kx + .17, ky + .0095, kz + .15); ch.rotation.y = .6; ch.userData.noCol = true; g.add(ch); O.kreideStueck = ch; }
   // Absperrband „GASLECK · BETRETEN VERBOTEN“ zwischen vier Leitkegeln (Scan), Band als Stoffstreifen (Abziehbild)
   const bt = kirchberg_tex(kirchberg_cnv(512, 32, (x, w, h) => { for (let i = -2; i < w / 16 + 2; i++) { x.fillStyle = i % 2 ? '#c8231c' : '#f2efe6'; x.beginPath(); x.moveTo(i * 16, 0); x.lineTo(i * 16 + 16, 0); x.lineTo(i * 16 + 4, h); x.lineTo(i * 16 - 12, h); x.fill(); }
     x.fillStyle = 'rgba(242,239,230,.94)'; x.fillRect(150, 5, 212, 22); x.fillStyle = '#1a1a1a'; x.font = 'bold 17px Arial'; x.fillText('GASLECK · BETRETEN VERBOTEN', 156, 22); }));
@@ -137,7 +141,11 @@ async function neben4_gasBau() { const S = neben4_S, O = S.o, T = THREE, g = new
     m.position.set((ax + bx) / 2, .46, (az + bz) / 2); m.rotation.y = -Math.atan2(bz - az, bx - ax); m.userData.noCol = true; m.userData.band = 1; g.add(m); };
   band(B.x0, B.z1, B.x1, B.z1); band(B.x0, B.z1, B.x0, B.z0 + .35); band(B.x1, B.z1, B.x1, B.z0 + .35);
   // Blechkiste des Kommandos (Blechdosen-Scan, groß) – Whiskey bringt hier das vierte Bild (K4-2)
-  const ki = await kirchberg_mod('w_blech', 'model.glb', .46, 'max'); if (ki) { ki.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiplyScalar(.75); } }); kirchberg_setze(ki, N4_KISTE[0], n4_boden(...N4_KISTE), N4_KISTE[1], .4, g); O.kiste = ki; }
+  const ki = await kirchberg_mod('w_blech', 'model.glb', .46, 'max'); if (ki) { ki.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiplyScalar(.75); } }); kirchberg_setze(ki, N4_KISTE[0], n4_boden(...N4_KISTE), N4_KISTE[1], .4, g); O.kiste = ki;
+    // Schablonenschrift „AST 7 · BILDTAUSCH“ auf dem Deckel (Farbe mit Lücken an den Stegen, wie aus einer Schablone gesprüht)
+    const sc = kirchberg_tex(kirchberg_cnv(512, 160, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(214,210,188,.9)'; x.font = 'bold 74px "Arial Black", Arial'; x.textAlign = 'center'; x.fillText('AST 7', w / 2, 62); x.font = 'bold 54px "Arial Black", Arial'; x.fillText('BILDTAUSCH', w / 2, 132);
+      x.globalCompositeOperation = 'destination-out'; for (const y of [30, 100]) for (let i = 0; i < 12; i++) x.fillRect(w / 2 - 230 + i * 40 + (y > 60 ? 8 : 0), y, 34, 3); x.fillRect(0, 70, w, 2); for (let i = 0; i < 160; i++) { x.fillStyle = 'rgba(0,0,0,.5)'; x.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 3, 2); } }));
+    const kb = new T.Box3().setFromObject(ki); const sk = kirchberg_decal(sc, .3, .094, N4_KISTE[0], kb.max.y + .003, N4_KISTE[1], .4 - PI / 2, { alpha: true, rx: -PI / 2, parent: g }); O.kisteSchrift = sk; }
   const kTop = ki ? new T.Box3().setFromObject(ki).max.y : .35; O.kisteY = kTop;
   O.pola4 = new T.Mesh(new T.PlaneGeometry(.088, .107), new T.MeshStandardMaterial({ map: n4_rahmenTex(null), roughness: .55 })); O.pola4.rotation.set(-PI / 2, 0, .6, 'YXZ'); O.pola4.position.set(N4_KISTE[0], kTop + .004, N4_KISTE[1]); O.pola4.visible = false; O.pola4.userData.noCol = true; g.add(O.pola4);
   O.kisteHit = kirchberg_hit(.6, .6, .6, N4_KISTE[0], .3, N4_KISTE[1], () => neben4_S.st.gas && neben4_S.st.gas.w4 === 'da' ? 'Polaroid auf der Blechkiste' : 'Blechkiste des Kommandos', () => n4_kiste()); kirchberg_an(O.kisteHit, false);
@@ -190,7 +198,8 @@ async function n4_kreide() { const G = n4_st('gas'), O = neben4_S.o; if (G.kreid
 function n4_gasTick(dt) { const S = neben4_S, O = S.o, G = n4_st('gas'), P = player.pos; if (!O.gas) return; G.c = G.c || ['hilde', 'hilde', 'hilde'];
   const k4 = n4_k4(), da = k4 && n4_draussen(); const crew = n4_kommandoDa();
   O.gas.visible = k4; for (let i = 0; i < 3; i++) { const C = O.kerzen[i]; if (C.on !== k4) { C.on = k4; C.g.visible = k4; if (!k4) C.light.intensity = 0; } O.polas[i].visible = k4 && (G.c[i] !== 'luke' || !!G.zurueck && !!(G.p && G.p[i])); kirchberg_an(O['kh' + i], k4 && da); }
-  for (const m of O.gas.children) if (m.userData.band) m.visible = crew; if (O.kiste) O.kiste.visible = crew || G.w4 === 'da';
+  for (const m of O.gas.children) if (m.userData.band) m.visible = crew; if (O.kiste) { O.kiste.visible = crew || G.w4 === 'da'; if (O.kisteSchrift) O.kisteSchrift.visible = O.kiste.visible; }
+  if (O.kreideStueck) O.kreideStueck.visible = !G.kreide0;
   O.tueteG.visible = k4; kirchberg_an(O.tueteHit, k4 && n4_offen('k4_gasleck')); kirchberg_an(O.kisteHit, k4 && (crew || G.w4 === 'da')); O.kreideG.visible = k4 && !!G.kreide;
   kirchberg_an(O.laterneHit, k4 && !!G.kreide0 && !G.kreide && n4_kommandoWeg());
   if (!k4) return;
@@ -286,6 +295,7 @@ function n4_postTick(dt) { const S = neben4_S, P = n4_st('post'), R = typeof pos
 async function n4_guenther() { const P = n4_st('post'), R = post_S.ride, S = neben4_S; P.szene = 1; S.busy = true; state.talking = true; const G = (t, ms) => post_zeile(t, ms, 'GÜNTHER'), L = (t, ms) => { subtitle(t, (ms || 2800) + 250, 'LUKE'); return wait(ms || 2800); };
   n4_start('k4_post', null, { x: N4_TOR1[0], z: N4_TOR1[1] });
   try { try { Audio.play('metalHit2', { gain: .3, rate: 1.3, x: R.g.position.x, y: .6, z: R.g.position.z, ref: 3 }); } catch (e) {}
+    try { if (typeof villa_zeitungBau === 'function' && typeof door1 !== 'undefined') { const D = door1.pivot.position; villa_zeitungBau(D.x + 1.1 + .03, 1.37, D.z + .085, 'nr1'); villa_zeitungZeigen('nr1', true); } } catch (e) { console.warn('neben4: Zeitungsrolle', e); }
     await n4_says([['Der Postbote steckt die Zeitungsrolle an deine Haustür. Das Rad lehnt schief am Zaun, das Schutzblech klappert noch.', 5200]]); state.talking = true; // Gag-Budget H-1: kein drittes Gartentor
     await G('Das ist die Zeitung. Ich bring nur die Zeitung. Da steht drin, alle wohlauf.', 3800); await L('„Wer hat das geschrieben?“', 2000); await G('Steht drunter. (hw). Steht immer drunter.', 2800);
     await L('„Sie haben mich gestern gemeldet.“', 2400); await G('Ich hab … also, ich hab gesagt, dass Sie da sind. Das ist keine Meldung. Das ist … Auskunft.', 4400);
@@ -408,8 +418,9 @@ function n4_weltRaetsel() { const W = n4_st('welt'); W.sitz = W.sitz || {}; W.fe
 function n4_whiskeyScheibe() { try { for (let k = 0; k < 3; k++) Audio.play('woodHit1', { gain: .12, rate: 2.8, delay: k * .22, x: player.pos.x - 1, y: 1.8, z: player.pos.z + 1.5, ref: 2 }); } catch (e) {} }
 async function n4_weltFertig() { const W = n4_st('welt'); if (W.fertig) return; W.fertig = 1; state.talking = true;
   try { try { Audio.play('drawer1', { gain: .45, x: -920.7, y: 1.2, z: 901.6, ref: 2 }) || Audio.play('woodHit1', { gain: .3, rate: .8, x: -920.7, y: 1.2, z: 901.6, ref: 2 }); } catch (e) {}
+    try { if (typeof villa_klappeAuf === 'function') villa_klappeAuf(); } catch (e) { console.warn('neben4: Klappe', e); }
     await n4_says([['Als der letzte Ausschnitt an seiner Nadel steckt, springt unten am Kartenrahmen die Klappe auf. Darin: ein Tonband. Aufkleber, Schreibmaschine: „Kanal 3 · alle AST · 1992“.', 6200]]); state.talking = true;
-    modItem('tonband_ast', 'Tonband · Kanal 3', '„Kanal 3 · alle AST · 1992“. Funkfetzen aus neun Außenstellen. Eine Stimme sagt auf Deutsch „danke“.', 'paper'); addItem('tonband_ast');
+    modItem('tonband_ast', 'Tonband · Kanal 3', '„Kanal 3 · alle AST · 1992“. Funkfetzen aus neun Außenstellen. Eine Stimme sagt auf Deutsch „danke“.', 'paper'); addItem('tonband_ast'); try { if (typeof villa_klappeLeer === 'function') villa_klappeLeer(); } catch (e) {}
     try { Audio.play('switch1', { gain: .4 }); } catch (e) {} const band = (t, ms) => { try { if (typeof lwo_funkKlang === 'function') lwo_funkKlang(ms / 1000, null, 'band'); } catch (e) {} subtitle(t, ms + 250, 'TONBAND'); return wait(ms); };
     await band('(Rauschen. Funkfetzen in fremden Sprachen. Jemand zählt, auf Spanisch, sehr langsam.)', 4600); await band('„… it’s counting again …“', 3000);
     subtitle('(Drei Klopfzeichen. Dumpf, wie durch Fels.)', 3400, 'TONBAND'); try { for (let k = 0; k < 3; k++) Audio.play('woodHit1', { gain: .16, rate: .55, delay: k * .9 }); } catch (e) {} await wait(3400);

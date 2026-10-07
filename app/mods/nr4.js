@@ -36,7 +36,7 @@ const NR4_ZETTEL = {
   t_pfand: 'LUKAS. Pfandflaschen sind KEIN Deko!',
   t_kuehl: 'Kind, der Kühlschrank ist kein Fernseher. Zumachen.',
   t_zaehl: 'Mein Wechselbalg hat heute Nacht wieder im Schlaf gezählt. Ich hab mitgezählt. Wir sind bis vierzehn gekommen.' };
-const NR4_ORT = { 'E-01': 'Garderobe', 'E-02': 'Küchentisch', 'E-03': 'Pfandkisten', 'E-04': 'Kühlschranktür', 'E-05': 'Haustür, unter dem Hufeisen', 'E-06': 'Am Telefon', 'E-07': 'Fensterbank, beim Küchenwecker', 'E-08': 'Couchtisch', 'E-09': 'Wandkalender',
+const NR4_ORT = { 'E-01': 'Garderobe', 'E-02': 'Küchentisch', 'E-03': 'Pfandkisten', 'E-04': 'Kühlschranktür', 'E-05': 'Haustür, unter dem Hufeisen', 'E-06': 'Am Telefon', 'E-07': 'Fensterbank, wo der Küchenwecker stand', 'E-08': 'Couchtisch', 'E-09': 'Wandkalender',
   'E-10': 'Peters Zimmertür', 'E-11': 'Keksdosen im Schrank', 'E-12': 'Wohnzimmerfenster', 'E-13': 'Schuhregal', 'E-14': 'Türspion', 'E-15': 'Spülbecken', 'E-16': 'Schublade, unter Trauerkarten', 'E-17': 'Badezimmerspiegel', 'E-18': 'Haushaltsbuch',
   'E-19': 'Flurkommode', 'E-20': 'Nähkasten', herd: 'Herd', kassetten: 'Kassettenregal', album: 'Im Album, zwischen den Peter-Fotos', t_pfand: 'Kellertreppe', t_kuehl: 'Kühlschrank, innen', t_zaehl: 'Nachttisch oben' };
 
@@ -46,7 +46,7 @@ function nr4_zettel(id, x, y, z, ry, o = {}) { const t = NR4_ZETTEL[id]; if (!t)
   const px = Math.max(26, Math.min(40, 300 / Math.max(6, zeilen.length)));
   const map = kirchberg_papier({ w: 384, h: 280, bg: o.bg || '#efe6c4', flecken: 1, tesa: !o.liegt, zeilen: zeilen.slice(0, 7).map((l, i) => [l, 22, 52 + i * px * 1.05, px, 'rgba(22,32,96,.92)', null, (i % 2 ? .012 : -.01), /NICHT|KEIN|LUKAS|ALLES|NIE/.test(l) ? 1 : 0]) });
   const d = kirchberg_decal(map, w, h, x, y, z, ry, { rx: o.liegt ? -PI / 2 : 0, rz: o.rz ?? (kirchberg_r() - .5) * .12, parent: o.parent });
-  const hit = kirchberg_hit(Math.max(.22, w + .08), o.liegt ? .12 : Math.max(.2, h + .08), .22, x, y, z, 'Zettel · ' + NR4_ORT[id], () => nr4_lesen(id)); hit.rotation.y = ry; return d; }
+  const hit = kirchberg_hit(Math.max(.22, w + .08), o.liegt ? .12 : Math.max(.2, h + .08), .22, x, y, z, 'Zettel · ' + NR4_ORT[id], () => nr4_lesen(id)); hit.rotation.y = ry; if (o.parent) o.parent.add(hit); return d; }
 function nr4_lesen(id) { if (id === 'E-18' && kapAb(4) && typeof neben4_haushaltsbuch === 'function') return neben4_haushaltsbuch(); // AP-20: ab Kap. 4 das ganze Haushaltsbuch
   const S = nr4_S, neu = !S.zettel.has(id); S.zettel.add(id); kirchberg_start('nr4_oma', { x: NR4.haus.x, z: NR4.haus.z - 6 });
   openNote('Oma Ernas Zettel · ' + NR4_ORT[id], `<span class="hand">${NR4_ZETTEL[id]}</span><br><br><i style="opacity:.7">Kuli, Tesafilm. ${id.startsWith('E-') ? id : ''}</i>`, 'nr4_' + id, () => nr4_nachZettel(id, neu)); }
@@ -60,6 +60,90 @@ function nr4_check() { const S = nr4_S, n = [...S.zettel].filter(k => k.startsWi
   if (n >= 20 && S.zettel.has('album') && S.steps.fotos) { kirchberg_fertig('nr4_oma', 'Peter kam mit anderen Augen zurück und wurde geliebt. Luke hieß genauso: Wechselbalg.');
     if (!story.lore.some(l => l.key === 'nr4_oma')) story.lore.push({ key: 'nr4_oma', title: 'Oma Erna', html: 'Erna Kranz, 1934–2020. Es gibt sie nur noch als Handschrift: Kuli, Tesafilm, Ausrufezeichen. Sie hat für den Fall geschrieben, dass du kommst.' });
     if (!story.lore.some(l => l.key === 'nr4_peter')) story.lore.push({ key: 'nr4_peter', title: 'Onkel Peter', html: 'Peter Kranz, Sommer 1974: blaue Augen. 1976: braune. Derselbe Scheitel.' }); } }
+
+// ---------------------------------------------------------------------  Umsetzung Text gegen Welt (Kap. 1): Küchenwecker, Kühlschrank mit Tür, Pfandkisten, Keksdosen, Wolle, Türspion, Kinderschuh
+// Alle Teile aus mehreren Körpern mit Materialparametern; Ursprung = Standfläche (y = 0), Maße in Metern.
+// Küchenwecker (Metall, zwei Glocken, Klöppel, Füße, Zifferblatt 3:13, Stell- und Weckerzeiger)
+function nr4_weckerBau() { const T = THREE, g = new T.Group(), chrom = new T.MeshStandardMaterial({ color: 0xc4c6c8, metalness: 1, roughness: .3 }), creme = new T.MeshStandardMaterial({ color: 0xd9cfae, metalness: .6, roughness: .45 });
+  const zt = kirchberg_tex(kirchberg_cnv(256, 256, (x, w) => { x.fillStyle = '#ece4cc'; x.fillRect(0, 0, w, w); x.strokeStyle = '#1c1a16'; x.fillStyle = '#1c1a16'; x.lineWidth = 3; x.beginPath(); x.arc(128, 128, 118, 0, 7); x.stroke();
+    for (let i = 0; i < 60; i++) { const a = i / 60 * PI * 2 - PI / 2, r1 = i % 5 ? 108 : 98, r2 = 114; x.lineWidth = i % 5 ? 1.5 : 4; x.beginPath(); x.moveTo(128 + Math.cos(a) * r1, 128 + Math.sin(a) * r1); x.lineTo(128 + Math.cos(a) * r2, 128 + Math.sin(a) * r2); x.stroke(); }
+    x.font = 'bold 26px Georgia'; x.textAlign = 'center'; x.textBaseline = 'middle'; for (let i = 1; i <= 12; i++) { const a = i / 12 * PI * 2 - PI / 2; x.fillText(String(i), 128 + Math.cos(a) * 80, 128 + Math.sin(a) * 80); }
+    const zeiger = (a, L, b) => { x.save(); x.translate(128, 128); x.rotate(a); x.fillStyle = '#16140f'; x.beginPath(); x.moveTo(-b, 10); x.lineTo(-b * .6, -L); x.lineTo(b * .6, -L); x.lineTo(b, 10); x.fill(); x.restore(); };
+    zeiger((3 + 13 / 60) / 12 * PI * 2, 52, 5); zeiger(13 / 60 * PI * 2, 78, 3.5); x.beginPath(); x.arc(128, 128, 7, 0, 7); x.fill(); // Stunden- und Minutenzeiger: 3:13
+    x.strokeStyle = '#a02018'; x.lineWidth = 2; x.save(); x.translate(128, 128); x.rotate(3 / 12 * PI * 2 + .05); x.beginPath(); x.moveTo(0, 0); x.lineTo(0, -62); x.stroke(); x.restore(); // Weckerzeiger auf 3
+    for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(90,70,40,${Math.random() * .1})`; x.fillRect(Math.random() * w, Math.random() * w, 2, 1); } }));
+  const leib = new T.Mesh(new T.CylinderGeometry(.052, .052, .042, 32), chrom); leib.rotation.x = PI / 2; leib.position.set(0, .066, 0); leib.castShadow = true; g.add(leib);
+  const rim = new T.Mesh(new T.TorusGeometry(.0505, .0045, 10, 36), chrom); rim.position.set(0, .066, .0215); g.add(rim);
+  const blatt = new T.Mesh(new T.CircleGeometry(.0485, 36), new T.MeshStandardMaterial({ map: zt, roughness: .5 })); blatt.position.set(0, .066, .0212); g.add(blatt);
+  const glas = new T.Mesh(new T.SphereGeometry(.0485, 24, 8, 0, PI * 2, 0, .35), new T.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: .16, roughness: .05 })); glas.rotation.x = PI / 2; glas.position.set(0, .066, .0212 - .0485 * .94); glas.scale.set(1, 1, .5); g.add(glas);
+  for (const s of [-1, 1]) { const glocke = new T.Mesh(new T.SphereGeometry(.0225, 16, 8, 0, PI * 2, 0, PI / 2), chrom); glocke.position.set(s * .029, .118, -.004); glocke.rotation.z = -s * .45; glocke.castShadow = true; g.add(glocke); const fuss = new T.Mesh(new T.CylinderGeometry(.004, .0035, .026, 8), chrom); fuss.position.set(s * .034, .017, .0); fuss.rotation.z = -s * .55; g.add(fuss); }
+  const hammer = new T.Mesh(new T.CylinderGeometry(.0012, .0012, .034, 6), chrom); hammer.position.set(0, .122, -.004); hammer.rotation.z = PI / 2; g.add(hammer); const kn = new T.Mesh(new T.SphereGeometry(.004, 10, 8), chrom); kn.position.set(0, .122, -.004); g.add(kn);
+  const buegel = new T.Mesh(new T.TorusGeometry(.0165, .0022, 6, 14, PI), chrom); buegel.position.set(0, .122, -.004); g.add(buegel);
+  const ruecken = new T.Mesh(new T.CylinderGeometry(.0105, .0105, .006, 14), creme); ruecken.rotation.x = PI / 2; ruecken.position.set(0, .066, -.026); g.add(ruecken); // Aufzugsknopf hinten
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); g.userData.noCol = true; return g; }
+// Flasche (Mehrwegbügel-/Pfandflasche 0,5 l): Lathe, Glas mit Farbton, Bügelverschluss-Andeutung; als Geometrie für viele Instanzen
+function nr4_flascheGeo() { const prof = [[0, 0], [.0305, 0], [.0325, .004], [.0335, .02], [.0335, .125], [.031, .155], [.022, .185], [.0135, .205], [.0125, .23], [.0128, .238], [.0135, .242], [.0128, .246], [0, .246]].map(p => new THREE.Vector2(p[0], p[1])); return new THREE.LatheGeometry(prof, 18); }
+function nr4_flaschenMat(farbe) { return new THREE.MeshStandardMaterial({ color: farbe, roughness: .08, metalness: 0, transparent: true, opacity: .78, envMapIntensity: 1.6 }); }
+// Getränkekiste (Kunststoff, 4×3 Fächer): Boden, Wände mit Griffmulden, Zwischenstege; Flaschen stehen drin. Rückgabe: Gruppe, Flaschen = Kinder mit userData.flasche
+function nr4_kiste(geo, mat, n = 12, farbe = 0x1d3f82) { const T = THREE, g = new T.Group(), k = new T.MeshStandardMaterial({ color: farbe, roughness: .62 }), W = .4, D = .3, Hh = .12, dk = .008;
+  const b = (w, h, d, x, y, z) => { const m = new T.Mesh(new T.BoxGeometry(w, h, d), k); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; g.add(m); return m; };
+  b(W, .012, D, 0, .006, 0); b(W, Hh, dk, 0, Hh / 2, D / 2 - dk / 2); b(W, Hh, dk, 0, Hh / 2, -D / 2 + dk / 2); b(dk, Hh, D, W / 2 - dk / 2, Hh / 2, 0); b(dk, Hh, D, -W / 2 + dk / 2, Hh / 2, 0);
+  for (let i = 1; i < 4; i++) b(.004, Hh * .8, D - .02, -W / 2 + i * W / 4, Hh * .45, 0); for (let j = 1; j < 3; j++) b(W - .02, Hh * .8, .004, 0, Hh * .45, -D / 2 + j * D / 3);
+  for (const s of [-1, 1]) { const gr = new T.Mesh(new T.BoxGeometry(.1, .03, .003), new T.MeshStandardMaterial({ color: 0x0c0c0e, roughness: .9 })); gr.position.set(0, Hh * .82, s * (D / 2 + .0008)); g.add(gr); } // Griffmulden
+  let c = 0; for (let j = 0; j < 3; j++) for (let i = 0; i < 4 && c < n; i++, c++) { const f = new T.Mesh(geo, mat); f.position.set(-W / 2 + (i + .5) * W / 4, .012, -D / 2 + (j + .5) * D / 3); f.userData.flasche = true; f.castShadow = true; g.add(f); }
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Keksdose (Blech, runde Dose mit Deckel und Zierband): farbe 0x… ; kleines Schild-Etikett mit Aufschrift fehlt bewusst (Zettel E-11 erklärt)
+function nr4_keksdose(farbe, band = 0xe4d8b0) { const T = THREE, g = new T.Group(), blech = new T.MeshStandardMaterial({ color: farbe, metalness: .75, roughness: .4 }), bm = new T.MeshStandardMaterial({ color: band, metalness: .5, roughness: .5 });
+  const kor = new T.Mesh(new T.CylinderGeometry(.092, .088, .125, 32), blech); kor.position.y = .0625; kor.castShadow = true; g.add(kor);
+  const deckel = new T.Mesh(new T.CylinderGeometry(.097, .097, .022, 32), blech); deckel.position.y = .136; g.add(deckel); const kn = new T.Mesh(new T.SphereGeometry(.014, 12, 8), bm); kn.position.y = .15; kn.scale.y = .8; g.add(kn);
+  const r1 = new T.Mesh(new T.TorusGeometry(.0905, .003, 6, 40), bm); r1.rotation.x = PI / 2; r1.position.y = .1; g.add(r1); const r2 = r1.clone(); r2.position.y = .03; g.add(r2);
+  const tex = kirchberg_tex(kirchberg_cnv(256, 64, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#e4d8b0'; x.lineWidth = 3; for (let i = 0; i < 8; i++) { x.beginPath(); x.arc(16 + i * 32, 32, 12, 0, 7); x.stroke(); x.beginPath(); x.moveTo(16 + i * 32 - 12, 32); x.lineTo(16 + i * 32 + 12, 32); x.stroke(); } })), zb = new T.Mesh(new T.CylinderGeometry(.0925, .0905, .05, 32, 1, true), new T.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: .1, roughness: .5, metalness: .4 })); zb.position.y = .065; g.add(zb);
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Wollknäuel (rot) mit losem Faden, der zum Nähkasten hängt
+function nr4_wolle() { const T = THREE, g = new T.Group(), tx = kirchberg_tex(kirchberg_cnv(256, 128, (x, w, h) => { x.fillStyle = '#9c1c18'; x.fillRect(0, 0, w, h); for (let i = 0; i < 260; i++) { x.strokeStyle = `rgba(${Math.random() < .5 ? '210,70,60' : '60,5,5'},${.2 + Math.random() * .35})`; x.lineWidth = 1 + Math.random() * 1.4; x.beginPath(); const a = Math.random() * w; x.moveTo(a, 0); x.bezierCurveTo(a + 30 * (Math.random() - .5), h * .3, a + 40 * (Math.random() - .5), h * .6, a + 20 * (Math.random() - .5), h); x.stroke(); } }));
+  const kn = new T.Mesh(new T.SphereGeometry(.04, 24, 16), new T.MeshStandardMaterial({ map: tx, bumpMap: tx, bumpScale: 1.2, roughness: 1 })); kn.position.y = .04; kn.scale.set(1, .92, 1); kn.castShadow = true; g.add(kn);
+  const pts = [[.03, .012, .02], [.07, .004, .05], [.12, .003, .03], [.17, .003, .08], [.2, .002, .16], [.19, .002, .24]].map(p => new T.Vector3(...p)); const faden = new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts), 24, .0011, 5), new T.MeshStandardMaterial({ color: 0xa8201c, roughness: 1 })); g.add(faden);
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); return g; }
+// Türspion: Messingring mit Fischaugenlinse (Innenseite der Tür)
+function nr4_spion() { const T = THREE, g = new T.Group(), m = new T.MeshStandardMaterial({ color: 0xb08a40, metalness: 1, roughness: .32 });
+  const ring = new T.Mesh(new T.CylinderGeometry(.0165, .0175, .006, 24), m); ring.rotation.x = PI / 2; g.add(ring); const rohr = new T.Mesh(new T.CylinderGeometry(.0105, .0105, .016, 20), m); rohr.rotation.x = PI / 2; rohr.position.z = .01; g.add(rohr);
+  const glas = new T.Mesh(new T.SphereGeometry(.0085, 16, 10, 0, PI * 2, 0, PI / 2), new T.MeshStandardMaterial({ color: 0x223022, roughness: .04, metalness: .1, envMapIntensity: 2 })); glas.rotation.x = PI / 2; glas.position.z = .016; g.add(glas);
+  g.traverse(o => { if (o.isMesh) o.userData.noCol = true; }); return g; }
+// Kinderschuh (blau, Größe 33, Klettverschluss, linker): Sohle (Gummi), Oberteil aus Stoff, Kappe, Lasche, Klettband; liegt auf der Seite
+function nr4_kinderschuh() { const T = THREE, g = new T.Group(), sohle = new T.MeshStandardMaterial({ color: 0xe8e4da, roughness: .85 }), blau = new T.MeshStandardMaterial({ color: 0x244f9a, roughness: .78 }), dunkel = new T.MeshStandardMaterial({ color: 0x0f2150, roughness: .7 }), klett = new T.MeshStandardMaterial({ color: 0xc8c8c4, roughness: 1 });
+  const L = .21, sh = new T.Shape(); sh.moveTo(0, -.035); sh.bezierCurveTo(.06, -.04, .17, -.044, .205, -.02); sh.bezierCurveTo(.222, .0, .214, .03, .19, .038); sh.bezierCurveTo(.12, .047, .05, .04, 0, .033); sh.bezierCurveTo(-.008, .01, -.008, -.012, 0, -.035);
+  const so = new T.Mesh(new T.ExtrudeGeometry(sh, { depth: .014, bevelEnabled: true, bevelSize: .002, bevelThickness: .002, bevelSegments: 2 }), sohle); so.rotation.x = -PI / 2; so.position.set(-.1, 0, 0); so.castShadow = true; g.add(so);
+  const ob = new T.Mesh(new T.SphereGeometry(.052, 20, 12, 0, PI * 2, 0, PI / 2), blau); ob.scale.set(1.5, .85, .8); ob.position.set(-.075, .014, 0); ob.castShadow = true; g.add(ob); // Fersen-/Mittelteil
+  const kappe = new T.Mesh(new T.SphereGeometry(.04, 18, 10, 0, PI * 2, 0, PI / 2), dunkel); kappe.scale.set(1.25, .75, 1); kappe.position.set(.062, .014, 0); g.add(kappe);
+  const schaft = new T.Mesh(new T.CylinderGeometry(.034, .04, .05, 18, 1, true, 0, PI * 2), blau); schaft.material.side = T.DoubleSide; schaft.position.set(-.115, .052, 0); g.add(schaft);
+  const lasche = new T.Mesh(new T.BoxGeometry(.04, .006, .026), blau); lasche.position.set(-.012, .063, 0); lasche.rotation.z = -.35; g.add(lasche);
+  const band = new T.Mesh(new T.BoxGeometry(.012, .003, .07), klett); band.position.set(-.04, .06, 0); band.rotation.z = -.2; g.add(band); const band2 = band.clone(); band2.position.x = -.065; g.add(band2); // Klettverschluss
+  g.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); g.userData.noCol = true; return g; }
+
+
+// Kühlschrank (Emaille): Korpus aus Platten, Innenraum mit Glasböden und Gemüsefach, Tür an der rechten Seite angeschlagen (schwenkt zu Luke), Griff links, Zettel hängen an der Tür. Auf dem Gemüsefach: der Küchenwecker, 3:13.
+function nr4_kuehlschrank(g, cx, cz, em) { const T = THREE, S = nr4_S, W = .66, D = .64, H = 1.62, wd = .02, tuerD = .045, hz = cz + D / 2 - tuerD / 2;
+  const innen = new T.MeshStandardMaterial({ color: 0xe4e2d8, roughness: .5 }), glas = new T.MeshStandardMaterial({ color: 0xcfe0e0, transparent: true, opacity: .35, roughness: .1 }), chrom = new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 });
+  const p = (w, h, d, x, y, z, m) => { const q = new T.Mesh(new T.BoxGeometry(w, h, d), m); q.position.set(x, y, z); q.castShadow = q.receiveShadow = true; q.userData.noCol = true; g.add(q); return q; };
+  p(wd, H, D - tuerD, cx - W / 2 + wd / 2, H / 2, cz - tuerD / 2, em); p(wd, H, D - tuerD, cx + W / 2 - wd / 2, H / 2, cz - tuerD / 2, em); p(W, H, wd, cx, H / 2, cz - D / 2 + wd / 2, em); p(W, wd, D - tuerD, cx, H - wd / 2, cz - tuerD / 2, em); p(W, wd, D - tuerD, cx, wd / 2, cz - tuerD / 2, em);
+  const iw = W - 2 * wd, id = D - tuerD - wd; p(iw, H - 2 * wd, .004, cx, H / 2, cz - D / 2 + wd + .002, innen);                                              // Innenrückwand
+  for (const y of [.62, .95, 1.28]) p(iw - .02, .006, id - .03, cx, y, cz - tuerD / 2 - .004, glas);                                                            // Glasböden
+  const fach = p(iw - .04, .17, id - .06, cx, .13, cz - tuerD / 2 - .006, new T.MeshStandardMaterial({ color: 0xd8e6e0, transparent: true, opacity: .55, roughness: .15 })); // Gemüsefach (milchiger Kunststoff)
+  for (const y of [.2, .24]) p(iw - .08, .004, id - .1, cx, .035 + (y - .2) * 0, cz - tuerD / 2 - .006, innen);
+  const wecker = nr4_weckerBau(); wecker.position.set(cx - .06, .218, cz - tuerD / 2 + .02); wecker.rotation.y = -.35; wecker.scale.setScalar(1.04); g.add(wecker); S.wecker = wecker; // Zifferblatt zur Tür hin, 3:13
+  // Tür: Drehpunkt rechts; Platte, Innenseite mit Fächern (Eierhalter, Flaschenhalter als Bügel), Griff links
+  const piv = new T.Group(); piv.position.set(cx + W / 2, 0, hz); g.add(piv); S.kTuer = piv;
+  const tp = new T.Mesh(new T.BoxGeometry(W, H, tuerD), em); tp.position.set(-W / 2, H / 2, 0); tp.castShadow = tp.receiveShadow = true; tp.userData.noCol = true; piv.add(tp);
+  for (const y of [.5, .85, 1.2]) { const b = new T.Mesh(new T.BoxGeometry(W - .08, .02, .06), glas); b.position.set(-W / 2, y, -tuerD / 2 - .028); b.userData.noCol = true; piv.add(b); const bg = new T.Mesh(new T.BoxGeometry(W - .08, .06, .004), glas); bg.position.set(-W / 2, y + .03, -tuerD / 2 - .057); bg.userData.noCol = true; piv.add(bg); }
+  const gr = new T.Mesh(new T.BoxGeometry(.03, .34, .03), chrom); gr.position.set(-W + .06, 1.12, tuerD / 2 + .015); gr.userData.noCol = true; piv.add(gr); S.kGriff = gr;
+  for (const y of [.97, 1.27]) { const st = new T.Mesh(new T.BoxGeometry(.02, .03, .03), chrom); st.position.set(-W + .06, y, tuerD / 2 + .008); piv.add(st); }
+  // Zettel auf der Tür (Koordinaten im Drehpunkt-System)
+  nr4_zettel('E-04', -.33, 1.32, tuerD / 2 + .003, 0, { w: .13, h: .1, parent: piv }); nr4_zettel('t_kuehl', -.18, 1.05, tuerD / 2 + .003, 0, { w: .12, h: .09, parent: piv });
+  box(W, H, D, cx, H / 2, cz, hidden, { collide: true, cast: false, parent: g }); // Kollision wie vorher: ein Block (Tür schwenkt ohne eigene Kollision)
+  S.kOffen = 0; S.kZiel = 0;
+  S.kHit = kirchberg_hit(.7, 1.7, .5, cx, .85, cz + D / 2 + .1, () => S.kZiel ? 'Kühlschrank schließen' : 'Kühlschrank öffnen', () => { S.kZiel = S.kZiel ? 0 : 1; Audio.play(S.kZiel ? 'woodSqueak1' : 'woodClose1', { gain: .22, rate: S.kZiel ? 1.5 : 1.2, x: cx, y: 1, z: cz, ref: 2 });
+    if (S.kZiel) setTimeout(() => { if (!nr4_S.zettel.has('E-07') && !S.kGesagt) { S.kGesagt = 1; toast('Der Kühlschrank ist leer bis auf eine Sache: ein alter Küchenwecker, auf dem Gemüsefach. Zeiger auf 3:13.', 4200); } else if (S.kZiel) toast('Kalt. Leer. Nur der Wecker.', 2200); }, 500); });
+  S.kHit.userData.noCol = true; }
 
 // ---------------------------------------------------------------------  Bau
 async function nr4_bau() {
@@ -94,6 +178,7 @@ async function nr4_bau() {
     const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .8); if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); put(jacke, C.x - 1.5, 1.05, z1 - .2, PI, g); }
     nr4_zettel('E-01', C.x - .075, 1.45, C.z + 3.3, -PI / 2, { parent: null }); // an der Garderobe
     nr4_zettel('E-05', C.x - 3 + .45, 2.12, z1 - .115, PI); nr4_zettel('E-14', C.x - 3 - .38, 1.58, z1 - .115, PI, { w: .12, h: .09 });
+    { const sp = nr4_spion(); sp.position.set(C.x - 3 - .02, 1.55, z1 - .1); sp.rotation.y = PI; g.add(sp); } // Türspion (Messing, Fischauge) – Zettel E-14 hängt daneben
     // Hufeisen über der Tür (Scan-Oberfläche Rost auf gebogenem Band – kein Modell im Katalog: als Abziehbild)
     kirchberg_decal(kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.strokeStyle = '#5a4230'; x.lineWidth = 16; x.lineCap = 'round'; x.beginPath(); x.arc(w / 2, w * .44, w * .3, PI * .95, PI * .05, true); x.stroke(); x.fillStyle = '#2a1e14'; for (let i = 0; i < 6; i++) { const a = PI * (1 - i / 5) * .9 + .15; x.beginPath(); x.arc(w / 2 + Math.cos(a) * w * .3, w * .44 - Math.sin(a) * w * .3, 3, 0, 7); x.fill(); } })), .2, .2, C.x - 3, 2.42, z1 - .112, PI, { alpha: true, parent: g });
     const reg = await kirchberg_fbx('dresser', hutchSpec(0x7a6a58), .55); if (reg) put(reg, C.x - 1.1, 0, z1 - .35, PI, g); nr4_zettel('E-13', C.x - 1.1, .58, z1 - .38, 0, { liegt: true });
@@ -101,7 +186,7 @@ async function nr4_bau() {
     const ky = S.kom ? kirchberg_top(S.kom, C.x - .35, C.z + 1.3, 3, .95) : .95;
     nr4_zettel('E-19', C.x - .32, ky + .002, C.z + 1.45, 0, { liegt: true });
     // Telefon mit Wählscheibe (Radio-Scan als Ersatz für das fehlende Telefon – nur der Hörer-Klang), Zettel E-06
-    { const tel = await kirchberg_mod('radio', 'model.gltf', .22, 'max'); if (tel) { tel.traverse(m => { if (m.name === 'tubes') m.visible = false; if (m.isMesh) { m.material = m.material.clone(); m.material.color.multiplyScalar(.35); } }); put(tel, C.x - .4, ky, C.z + 1.0, -PI / 2, g); }
+    { const tel = await kirchberg_mod('w_telefon', 'model.glb'); if (tel) { put(tel, C.x - .4, ky, C.z + 1.0, -PI / 2, g); S.telefon = tel; }
       nr4_zettel('E-06', C.x - .115, ky + .25, C.z + .95, -PI / 2, { w: .13, h: .1 }); }
     // zwei Fotos im Flur: Peter 1974 (blaue Augen), Peter 1976 (braune Augen)
     const foto = (jahr, augen) => kirchberg_papier({ w: 256, h: 320, bg: '#d8ccb0', flecken: 1, fn: (x, w, h) => { const gg = x.createLinearGradient(0, 20, 0, h - 60); gg.addColorStop(0, jahr < 1975 ? '#b8a878' : '#a8a098'); gg.addColorStop(1, '#5a4a30'); x.fillStyle = gg; x.fillRect(16, 16, w - 32, h - 70);
@@ -142,7 +227,7 @@ async function nr4_bau() {
     { const al = await kirchberg_mod('w_buch', 'model.glb', .3, 'max'); if (al) { al.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.35, .24, .16); } }); put(al, C.x + 4.2, .48, C.z + 2.3, .7, g); }
       kirchberg_hit(.4, .3, .4, C.x + 4.2, .55, C.z + 2.3, 'Fotoalbum', () => nr4_lesen('album')); }
     // Nähkasten (Kommode klein) mit rotem Wollfaden, Wandkalender, Wohnzimmerfenster mit E-12
-    { const n = await kirchberg_fbx('dresser', hutchSpec(0x9a7a5a), .42); if (n) put(n, x1 - .45, 0, z1 - .4, -PI / 2, g); nr4_zettel('E-20', x1 - .45, .43, z1 - .38, 0, { liegt: true }); }
+    { const n = await kirchberg_fbx('dresser', hutchSpec(0x9a7a5a), .42); if (n) put(n, x1 - .45, 0, z1 - .4, -PI / 2, g); nr4_zettel('E-20', x1 - .45, .43, z1 - .38, 0, { liegt: true }); const wo = nr4_wolle(); wo.position.set(x1 - .36, .425, z1 - .5); wo.rotation.y = 2.4; g.add(wo); }
     { const kal = kirchberg_papier({ w: 300, h: 420, bg: '#f2ecde', zeilen: [['NOVEMBER 2020', 26, 50, 30, '#8a1a14', 'Georgia, serif', 0]], fn: (x, w, h) => { x.strokeStyle = '#999'; for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) x.strokeRect(20 + c * 38, 80 + r * 50, 38, 50); x.fillStyle = 'rgba(20,30,100,.85)'; x.font = '20px Caveat'; x.fillText('Hilde Kaffee', 62, 170); x.fillText('Arzt', 172, 270); } });
       kirchberg_decal(kal, .3, .42, C.x + .115, 1.5, C.z + 4, PI / 2, { parent: g }); nr4_zettel('E-09', C.x + .118, 1.18, C.z + 4.1, PI / 2, { w: .12, h: .09 }); }
     await fenster(R, C.x + 3.2, z1 - .11, PI); nr4_zettel('E-12', C.x + 2.55, 1.2, z1 - .12, PI, { w: .12, h: .09 });
@@ -155,13 +240,12 @@ async function nr4_bau() {
   { let cabW = 0; for (let i = 0; i < 4; i++) { const c = await kirchberg_fbx('dresser', hutchSpec(0xd8cfb8), .9); if (!c) continue; const gg = put(c, x0 + .6 + i * (cabW || .9), 0, z0 + .38, 0, g); if (!cabW) { const b = new T.Box3().setFromObject(gg); cabW = b.max.x - b.min.x; } }
     const topY = .92;
     const em = new T.MeshStandardMaterial({ map: msTex('wall_plaster/b.jpg', true), normalMap: msTex('wall_plaster/n.jpg'), color: 0xdcd4c2, roughness: .4, metalness: .05 }); em.normalScale.set(.3, .3);
-    box(.66, 1.62, .64, C.x - .45, .81, z0 + .45, em, { collide: true, parent: g }); box(.03, .32, .03, C.x - .8, 1.15, z0 + .79, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
-    nr4_zettel('E-04', C.x - .45, 1.32, z0 + .775, 0, { w: .13, h: .1 }); nr4_zettel('t_kuehl', C.x - .3, 1.05, z0 + .775, 0, { w: .12, h: .09 });
-    kirchberg_hit(.7, 1.7, .5, C.x - .45, .85, z0 + .6, 'Kühlschrank öffnen', () => { if (!nr4_S.zettel.has('E-07')) return toast('Der Kühlschrank ist leer bis auf eine Sache: ein alter Küchenwecker, auf dem Gemüsefach. Zeiger auf 3:13.', 4200); toast('Kalt. Leer. Nur der Wecker.', 2200); });
+    nr4_kuehlschrank(g, C.x - .45, z0 + .45, em);
     nr4_zettel('E-07', x0 + .6 + 1.4, 1.52, z0 + .115, 0, { w: .13, h: .1 }); // Fensterbank beim Wecker
     await fenster(R, x0 + 2, z0 + .11, 0, 1.6, 'sheer');
     nr4_zettel('herd', x0 + .65, topY + .2, z0 + .66, 0, { liegt: false, w: .12, h: .09 }); nr4_zettel('E-15', x0 + 2.4, topY + .3, z0 + .12, 0, { w: .13, h: .1 });
     nr4_zettel('E-16', x0 + 1.6, topY - .25, z0 + .79, 0, { w: .12, h: .09 }); nr4_zettel('E-11', x0 + 3.2, topY - .3, z0 + .79, 0, { w: .12, h: .09 });
+    { const kb = nr4_keksdose(0x2a5a9a), kr = nr4_keksdose(0xa8221c); kb.position.set(x0 + 2.0, topY - .02, z0 + .38); kr.position.set(x0 + 2.36, topY - .02, z0 + .4); kr.rotation.y = 1.1; g.add(kb, kr); } // blaue Dose: Wechselbalg, rote Dose: Lucy (E-11)
     { const buf = await kirchberg_fbx('dresser', hutchSpec(0xcfc2a4), 2.0); if (buf) put(buf, x0 + .38, 0, C.z - 2.8, PI / 2, g);
       const tas = await kirchberg_mod('w_tasse', 'model.glb', .09); if (tas) for (let i = 0; i < 5; i++) { put(tas.clone(true), x0 + .3, 1.3, C.z - 3.35 + i * .2, kirchberg_r(0, 6), g); } }
     const tisch = await kirchberg_mod('metaltable', 'model.gltf', 0); if (tisch) { tisch.scale.set(.3, .82, .75); S.kt = put(tisch, C.x - 2.6, 0, C.z - 2.4, 0, g); }
@@ -230,7 +314,11 @@ async function nr4_bau() {
     for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.2 + i * 1.6, -PI / 2, g3); }
     const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 1.6 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
     // Pfandkisten (fehlendes Modell „Getränkekiste mit Pfandflaschen“ → Paletten-Scan mit Kanistern als Rückfall)
-    { const p = await kirchberg_mod('pallet_ms', 'model.gltf', 1.1, 'max'); if (p) put(p, K.x - .6, 0, d0 + .7, .1, g3); const k2 = await kirchberg_mod('jerrycan', 'model.gltf', .45); if (k2) { put(k2, K.x - .9, .14, d0 + .6, .4, g3); put(k2.clone(true), K.x - .45, .14, d0 + .75, -.3, g3); } }
+    { const p = await kirchberg_mod('pallet_ms', 'model.gltf', 1.1, 'max'); if (p) put(p, K.x - .6, 0, d0 + .7, .1, g3);
+      const pt = p ? kirchberg_top(p, K.x - .6, d0 + .7, 1, .14) : .14, geo = nr4_flascheGeo(), grn = nr4_flaschenMat(0x4a7a42), brn = nr4_flaschenMat(0x6a3c18); S.flaschen = [];
+      const k1 = nr4_kiste(geo, grn, 12, 0x1d3f82), k2 = nr4_kiste(geo, grn, 12, 0x1d3f82), k3 = nr4_kiste(geo, brn, 7, 0xa8221c); // 12 + 12 + 7 = 31 Pfandflaschen
+      k1.position.set(K.x - .83, pt, d0 + .62); k1.rotation.y = .1; k2.position.set(K.x - .36, pt, d0 + .72); k2.rotation.y = .06; k3.position.set(K.x - .8, pt + .122, d0 + .64); k3.rotation.y = -.05; g3.add(k1, k2, k3);
+      for (const k of [k1, k2, k3]) k.traverse(m => { if (m.userData.flasche) S.flaschen.push(m); }); } // Rückfall (Kanister) entfällt
     nr4_zettel('E-03', K.x - .6, .75, d0 + .115, 0, { w: .13, h: .1 });
     S.domHit = kirchberg_hit(1.4, 1, 1, K.x - .6, .4, d0 + .7, 'Pfandkisten', () => nr4_domino());
     kirchberg_licht(R3, 0xffd8a0, .7, 5, K.x, 2.1, K.z); // nackte Glühbirne an der Decke (Birne als Emission)
@@ -263,9 +351,11 @@ async function nr4_schluesselloch() { const S = nr4_S; if (kapAb(3)) return toas
     await wait(3200); await fade(1, 400); hole.remove(); player.pos.set(cam0.x, 0, cam0.z); player.yaw = cam0.yaw; player.pitch = cam0.pitch; await fade(0, 500); }
   finally { state.talking = false; if (hole.parentNode) hole.remove(); } }
 // S-09 Pfanddomino: der Flaschenturm kippt, jede klingt anders (E D C H C), die letzte richtet sich auf (Stufe 1)
+function nr4_lehn(b, ang, ms = 260) { if (!b) return; const a0 = b.rotation.z, t0 = performance.now(), f = () => { const k = Math.min(1, (performance.now() - t0) / ms); b.rotation.z = a0 + (ang - a0) * k * k * (3 - 2 * k); if (k < 1) requestAnimationFrame(f); }; f(); } // Flasche kippt gegen die nächste (Domino)
 async function nr4_domino() { const S = nr4_S; if (S.steps.domino) return toast('Omas Pfandkisten. Einunddreißig Flaschen, jede sauber gespült.', 3000); S.steps.domino = 1; state.talking = true;
-  try { const K = NR4.keller; const noten = [659, 587, 523, 494, 523, 587, 440]; for (let i = 0; i < noten.length; i++) { Audio.play('glass1', { gain: .35, rate: noten[i] / 587, x: K.x - .6 + i * .2, y: .3, z: K.z - 1.8 + i * .1, ref: 2 }); await wait(260 + i * 30); if (i === 4) subtitle('E. D. C. H. C …', 1600, 'LUKE'); }
-    await wait(900); Audio.play('stones1', { gain: .08, rate: 2.6, dur: 1.2, x: K.x + 1, y: .1, z: K.z, ref: 2 }); await wait(1300); Audio.play('glass1', { gain: .12, rate: .8, x: K.x + 1.8, y: .2, z: K.z + .3, ref: 2 });
+  try { const K = NR4.keller; const noten = [659, 587, 523, 494, 523, 587, 440]; const fl = S.flaschen || [], reihe = fl.slice(12).concat(fl.slice(0, 12)); // oberste Kiste zuerst, dann nach und nach die unteren
+  for (let i = 0; i < noten.length; i++) { Audio.play('glass1', { gain: .35, rate: noten[i] / 587, x: K.x - .6 + i * .2, y: .3, z: K.z - 1.8 + i * .1, ref: 2 }); for (let k = 0; k < 4; k++) nr4_lehn(reihe[i * 4 + k], -.2 - k * .03); await wait(260 + i * 30); if (i === 4) subtitle('E. D. C. H. C …', 1600, 'LUKE'); }
+    await wait(900); Audio.play('stones1', { gain: .08, rate: 2.6, dur: 1.2, x: K.x + 1, y: .1, z: K.z, ref: 2 }); await wait(1300); if (reihe.length) nr4_lehn(reihe[reihe.length - 1], 0, 900); // die letzte richtet sich auf Audio.play('glass1', { gain: .12, rate: .8, x: K.x + 1.8, y: .2, z: K.z + .3, ref: 2 });
     await wait(700); subtitle('Nein. Das hab ich nicht gehört.', 2600, 'LUKE'); } finally { state.talking = false; } }
 
 // ---------------------------------------------------------------------  Nr. 1: Ergänzungen für „Flocke“ (Hundenapf, Becher, Kinderrad, Kinderkiste, U-Heft, Kinderschuh)
@@ -275,9 +365,17 @@ async function nr4_nr1() { const S = nr4_S, Yh = typeof Y !== 'undefined' ? Y : 
     const wasser = new THREE.Mesh(new THREE.CircleGeometry(.085, 20), new THREE.MeshStandardMaterial({ color: 0x0a0c0e, roughness: .04, metalness: .2, transparent: true, opacity: .8 })); wasser.rotation.x = -PI / 2; wasser.position.set(-46.1, .245, -11.35); wasser.userData.noCol = true; scene.add(wasser);
     kirchberg_decal(kirchberg_tex(kirchberg_cnv(256, 64, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(240,238,228,.9)'; x.font = 'bold 44px Georgia'; x.textAlign = 'center'; x.fillText('FLOCKE', w / 2, 46); })), .16, .04, -46.1, .235, -11.25, 0, { alpha: true });
     kirchberg_hit(.4, .25, .4, -46.1, .3, -11.35, 'Hundenapf', () => { toast('Ein Blechnapf mit Regenwasser. Weiße Lackschrift: FLOCKE.', 3400); setTimeout(async () => { await say([['Flocke.', 1400, 'LUKE']]); await wait(600); await say([['Wir hatten einen Hund. Ich weiß nicht mal, wie der aussah.', 3600, 'LUKE']]); }, 1200); kirchberg_start('home'); }); }
-  // Küche Nr. 1: Hakenbrett mit fünf getöpferten Bechern (MAMA, PAPA mit geklebtem Henkel, LUCY, LUKE, einer ohne Namen)
-  { const b = await kirchberg_mod('w_tasse', 'model.glb', .1); if (b) { const namen = ['MAMA', 'PAPA', 'LUCY', 'LUKE', '']; namen.forEach((n, i) => { const c = b.clone(true); c.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.45 + i * .03, .38, .28); } }); put(c, -55.84, Yh + 1.52, -16.2 + i * .18, PI / 2); }); }
-    kirchberg_hit(.3, .3, 1, -55.8, Yh + 1.55, -15.85, 'Hakenbrett mit fünf Bechern', () => openNote('Die Becher', 'Fünf, selbst getöpfert: MAMA. PAPA, der Henkel geklebt. LUCY. LUKE. Der fünfte hat dieselbe Glasur und keinen Namen, innen ein brauner Kakaorand. Der mit LUKE ist staubig.', 'nr1_becher',
+  // Küche Nr. 1: Hakenbrett mit fünf getöpferten Bechern (MAMA, PAPA mit geklebtem Henkel, LUCY, LUKE, einer ohne Namen): Holzbrett an der Wand, Messinghaken, Becher hängen am Henkel, Namen mit weißer Farbe darunter
+  { const b = await kirchberg_mod('w_tasse', 'model.glb', .1); const T = THREE, zc = -15.84, bx = -55.78;
+    const brett = kirchberg_mat('planks_painted', 0x5a4632, 1), brettG = new T.Mesh(new T.BoxGeometry(.036, .34, 1.02), brett); brettG.position.set(bx, Yh + 1.54, zc); brettG.castShadow = brettG.receiveShadow = true; brettG.userData.noCol = true; scene.add(brettG);
+    const leiste = new T.Mesh(new T.BoxGeometry(.05, .03, 1.06), brett); leiste.position.set(bx + .004, Yh + 1.725, zc); leiste.userData.noCol = true; scene.add(leiste); // Abschlussleiste oben
+    const messing = new T.MeshStandardMaterial({ color: 0xb08a3c, metalness: 1, roughness: .32 }); const namen = ['MAMA', 'PAPA', 'LUCY', 'LUKE', ''];
+    const nc = document.createElement('canvas'); nc.width = 1024; nc.height = 128; const nx = nc.getContext('2d'); nx.clearRect(0, 0, 1024, 128); if (typeof ritz_zeile === 'function') { ritz_rs = 2009; namen.forEach((n, i) => { if (!n) return; const w = ritz_breite(n, 54); ritz_zeile(nx, null, n, (i + .5) * 1024 / 5 - w / 2, 92, 54, { stil: 'kreide', jit: .5, alpha: .95 }); }); }
+    const nt = new T.CanvasTexture(nc); nt.colorSpace = T.SRGBColorSpace; nt.anisotropy = 4; const nm = new T.Mesh(new T.PlaneGeometry(1.0, .125), new T.MeshStandardMaterial({ map: nt, transparent: true, alphaTest: .05, roughness: .9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); nm.rotation.y = PI / 2; nm.position.set(bx + .0195, Yh + 1.425, zc); nm.userData.noCol = true; scene.add(nm);
+    namen.forEach((n, i) => { const z = zc - .4 + i * .2; const h = new T.Group(); const st = new T.Mesh(new T.CylinderGeometry(.0035, .0035, .05, 8), messing); st.rotation.z = PI / 2; st.position.set(.025, 0, 0); h.add(st); const kn = new T.Mesh(new T.SphereGeometry(.007, 10, 8), messing); kn.position.set(.05, 0, 0); h.add(kn); const bg = new T.Mesh(new T.TorusGeometry(.011, .0025, 6, 12, PI), messing); bg.position.set(.047, .006, 0); bg.rotation.set(0, PI / 2, PI); h.add(bg); h.position.set(bx + .018, Yh + 1.64, z); h.userData.noCol = true; h.traverse(m => { m.userData.noCol = true; }); scene.add(h);
+      if (b) { const c = b.clone(true); c.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.45 + i * .03, .38, .28); } }); put(c, bx + .063, Yh + 1.535, z, PI / 2); c.rotation.y = PI / 2;
+        if (n === 'PAPA') { const kl = new T.Mesh(new T.SphereGeometry(.0075, 8, 6), new T.MeshStandardMaterial({ color: 0xd8c690, roughness: .4 })); kl.scale.set(1.6, 1, 1); kl.position.set(bx + .063, Yh + 1.58, z + .045); kl.userData.noCol = true; scene.add(kl); } } }); // geklebter Henkel: Leimwulst
+    kirchberg_hit(.3, .4, 1.05, -55.8, Yh + 1.55, -15.84, 'Hakenbrett mit fünf Bechern', () => openNote('Die Becher', 'Fünf, selbst getöpfert: MAMA. PAPA, der Henkel geklebt. LUCY. LUKE. Der fünfte hat dieselbe Glasur und keinen Namen, innen ein brauner Kakaorand. Der mit LUKE ist staubig.', 'nr1_becher',
       async () => { await say([['Der ohne Namen war meiner. Aus dem hab ich immer getrunken.', 3400, 'LUKE']]); await wait(700); await say([['Warum steht auf meinem nichts drauf?', 2600, 'LUKE']]); nr4_flocke('becher'); })); }
   // Flur: Lukes blaues Kinderrad – kein Kratzer, keine Delle
   { const r = await kirchberg_mod('bicycle', 'model.gltf', .7); if (r) { r.traverse(m => { if (m.isMesh && m.material) { m.material = m.material.clone(); if (m.material.color) m.material.color.lerp(new THREE.Color(0x2a4a9a), .7); } }); put(r, -44.55, Yh, -13.2, PI / 2); }
@@ -289,6 +387,12 @@ async function nr4_nr1() { const S = nr4_S, Yh = typeof Y !== 'undefined' ? Y : 
       async () => { await say([['Regel vier ist von mir. Die Schrift ist meine.', 3000, 'LUKE']]); await wait(700); await say([['Ich erinnere mich bloß nicht dran.', 2600, 'LUKE']]); if (typeof sammeln_fibel === 'function') try { sammeln_fibel('R-K1'); } catch (e) {} nr4_flocke('regeln'); })); }
   // Elternschlafzimmer: gelbes Kinderuntersuchungsheft in der Kommode, ein Kinderschuh zwischen Mamas Mänteln (kein Schuh-Modell: Notiz)
   kirchberg_hit(.5, .3, .4, -45.2, Yh + .85, -21.4, 'Kommodenschublade', () => openNote('Kinderuntersuchungsheft', 'Gelb. Brandt, Luke. U11: o. B. (Stempel, Frühjahr 2009).\nDarunter ohne Stempel, Mamas Schrift: <span class="hand">Aug. 09 – Narbe li. Handfläche, halbrund. Fahrradunfall.</span>', 'nr1_uheft', () => { subtitle('Fahrradunfall. Das Rad hat nicht mal einen Kratzer.', 3200, 'LUKE'); nr4_flocke('heft'); }));
+  // Elternzimmer, Ostwand: Garderobenleiste mit Messinghaken und drei Wintermänteln (Jacken-Scan, dunkle Wolltöne); zwischen den Mänteln unten ein einzelner blauer Kinderschuh (links, Größe 33)
+  try { const T = THREE, xw = -44.2, zc = -20.15, holz = kirchberg_mat('planks_painted', 0x4a3a2c, 1), br = new T.Mesh(new T.BoxGeometry(.04, .11, 1.12), holz); br.position.set(xw - .02, Yh + 1.78, zc); br.castShadow = true; scene.add(br);
+    const mess = new T.MeshStandardMaterial({ color: 0xb08a3c, metalness: 1, roughness: .32 }); const farben = [0x3a3a40, 0x4a3a2c, 0x2c3a34];
+    for (let i = 0; i < 4; i++) { const z = zc - .42 + i * .28, h = new T.Group(), st = new T.Mesh(new T.CylinderGeometry(.004, .004, .06, 8), mess); st.rotation.z = PI / 2; st.position.x = -.03; h.add(st); const kn = new T.Mesh(new T.SphereGeometry(.009, 10, 8), mess); kn.position.x = -.06; h.add(kn); h.position.set(xw - .04, Yh + 1.8, z); h.traverse(m => { m.userData.noCol = true; }); scene.add(h); }
+    for (let i = 0; i < 3; i++) { const j = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .86 + i * .04); if (!j) continue; j.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHex(farben[i]); } }); put(j, xw - .17, Yh + 1.74 - (.86 + i * .04), zc - .28 + i * .28 + (i === 1 ? .05 : 0), -PI / 2); j.traverse(m => { if (m.isMesh) m.userData.noCol = true; }); }
+    const sc = nr4_kinderschuh(); sc.position.set(xw - .36, Yh + .004, zc + .18); sc.rotation.y = -.7; scene.add(sc); } catch (e) { console.warn('Nr. 4: Mäntel/Schuh Nr. 1', e); }
   kirchberg_hit(.6, 1.2, .5, -44.5, Yh + 1, -20.2, 'Zwischen Mamas Mänteln', () => openNote('Ein Kinderschuh', 'Blau, Klettverschluss, Größe 33. Nur der linke.', 'nr1_schuh', () => { subtitle('Dreiunddreißig. Mit neun hatte ich fünfunddreißig. Glaub ich.', 3400, 'LUKE'); nr4_flocke('schuh'); }));
 }
 function nr4_flocke(k) { const S = nr4_S; S.steps['f_' + k] = 1; const n = ['becher', 'rad', 'regeln', 'heft', 'schuh'].filter(x => S.steps['f_' + x]).length;
@@ -301,6 +405,7 @@ MOD_SAVE.push(['nr4', () => ({ zettel: [...nr4_S.zettel], steps: nr4_S.steps }),
 WORLD_MODS.push(['Nr. 4 (Oma Ernas Haus)', async () => { try { await document.fonts.load('30px Caveat'); } catch (e) {} await nr4_bau(); try { await nr4_nr1(); } catch (e) { console.warn('Nr. 1 Ergänzungen', e); } nr4_S.ready = true;
   window.__nr4 = { S: nr4_S, rein: () => kirchberg_rein('nr4'), wechsel: nr4_wechsel, lesen: nr4_lesen, domino: nr4_domino, loch: nr4_schluesselloch }; }]); // Testzugriff
 WORLD_TICK.push(dt => { const S = nr4_S; if (!S.ready) return;
+  if (S.kTuer) { S.kOffen += (S.kZiel - S.kOffen) * Math.min(1, dt * 4); S.kTuer.rotation.y = S.kOffen * 1.75; } // Kühlschranktür
   if (S.kf && !S.kfOk && typeof kiffen_S !== 'undefined' && kiffen_S.ready && typeof kiffen_fund === 'function') { S.kfOk = true; try { kiffen_fund('papes', S.kf.papes, { label: 'Hinter dem Poster von 2016' }); kiffen_fund('grinder', S.kf.grinder, { label: 'Schreibtischschublade' }); } catch (e) { console.warn('Nr. 4: Kiffen-Fundorte', e); } }
   // Beim Gehen rasselt Omas Küchenwecker im Garten (E-07: der Wecker liegt drinnen im Kühlschrank) – Whiskey, einmal in diesem Kapitel
   if (S.ausGeh && !kirchberg_S.inRaum) { S.ausGeh = false; if (!S.steps.wecker && kap() === 1) { S.steps.wecker = 1; setTimeout(() => { if (typeof whiskey_mimic === 'function') whiskey_mimic('wecker', { force: true, at: [NR4.haus.x + 4, 1.2, NR4.haus.z - 2] }); setTimeout(() => subtitle('Mach das nicht. Bitte.', 2600, 'LUKE'), 2400); }, 600); } }

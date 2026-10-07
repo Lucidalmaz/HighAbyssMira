@@ -98,6 +98,16 @@ function ritz_flaeche(w, h, o = {}) {
     if (ritz_R() < .08) { const yy = y - size * .35; ritz_strich(C, B, [[x0 - size * .1, yy + ritz_RN() * size * .1], [x0 + full * .5, yy + ritz_RN() * size * .2], [x0 + full * 1.02, yy + ritz_RN() * size * .1]], size * 1.4, stil, al); } } // durchgestrichen
   for (let i = 0; i < (o.kratzer ?? 14); i++) { const px = ritz_R(m, w - m), py = ritz_R(m, h - m), l = ritz_R(20, 90), an = ritz_R(-1.9, -1.2); ritz_strich(C, B, [[px, py], [px + Math.cos(an) * l, py + Math.sin(an) * l]], ritz_R(14, 24), stil, ritz_R(.25, .55)); } // freie Kratzer
   return { c, b }; }
+// Krallenspuren (Finger/Nägel von innen an eine Tür gezogen): Bündel aus 3–5 fast parallelen Rillen, leicht gebogen, unten kräftig, oben auslaufend
+function ritz_kratzer(w, h, o = {}) {
+  ritz_rs = ((o.seed ?? 1) * 2654435761 + 777) >>> 0; const c = document.createElement('canvas'), b = document.createElement('canvas'); c.width = b.width = w; c.height = b.height = h;
+  const C = c.getContext('2d'), B = b.getContext('2d'); C.clearRect(0, 0, w, h); B.fillStyle = '#808080'; B.fillRect(0, 0, w, h); const gr = o.bueschel ?? 5, sz = o.groesse ?? 120;
+  for (let g = 0; g < gr; g++) { const x0 = w * (.1 + .8 * (g + ritz_R(-.2, .2)) / Math.max(1, gr - 1)) * (gr > 1 ? 1 : 0) + (gr > 1 ? 0 : w / 2), y0 = h * ritz_R(.55, .95), len = h * ritz_R(.3, .75), ang = -Math.PI / 2 + ritz_RN() * .35, bend = ritz_RN() * .22, n = 3 + Math.floor(ritz_R(0, 2.99)), gap = ritz_R(11, 17);
+    for (let k = 0; k < n; k++) { const L = len * ritz_R(.75, 1.05), pts = [], ox = Math.cos(ang + Math.PI / 2) * (k - (n - 1) / 2) * gap, oy = Math.sin(ang + Math.PI / 2) * (k - (n - 1) / 2) * gap;
+      for (let t = 0; t <= 1.001; t += .125) { const a = ang + bend * t * 1.6; pts.push([x0 + ox + Math.cos(a) * L * t + ritz_RN() * 1.2, y0 + oy + Math.sin(a) * L * t + ritz_RN() * 1.2]); }
+      ritz_strich(C, B, pts, sz * ritz_R(.85, 1.15), 'ritz', ritz_R(.7, 1)); } }
+  for (let i = 0; i < 40; i++) { const x = ritz_R(0, w), y = ritz_R(h * .3, h), r = ritz_R(.6, 2.2); C.fillStyle = `rgba(220,212,196,${ritz_R(.15, .5)})`; C.beginPath(); C.arc(x, y, r, 0, 6.3); C.fill(); } // abgesplitterte Farbe
+  return { c, b }; }
 // Material-Parameter für ein Abziehbild mit Höhenrelief
 function ritz_tex(c, b) { const T = new THREE.CanvasTexture(c); T.colorSpace = THREE.SRGBColorSpace; T.anisotropy = 8; T.needsUpdate = true; const o = { map: T }; if (b) { const H = new THREE.CanvasTexture(b); H.anisotropy = 8; H.needsUpdate = true; o.bumpMap = H; o.bumpScale = 1.6; } return o; }
 // Blutschrift als eigene Ebene: Farbe+Alpha und ein weich verlaufendes Höhenrelief (Wulst an jedem Strich, Tropfen hängen) – mit Klarlack-Glanz beleuchtet wirkt es nass
@@ -123,4 +133,4 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
     finally { this.textAlign = al; this.globalAlpha = ga; tief = false; } };
   P.fillText = hand(ft); P.strokeText = hand(st); }
 WORLD_MODS.push(['Ritzschrift', async () => {}]);
-window.__ritz = { flaeche: ritz_flaeche, zeile: ritz_zeile, breite: ritz_breite, blut: ritz_blutFlaeche }; // Testzugriff
+window.__ritz = { kratzer: ritz_kratzer, flaeche: ritz_flaeche, zeile: ritz_zeile, breite: ritz_breite, blut: ritz_blutFlaeche }; // Testzugriff

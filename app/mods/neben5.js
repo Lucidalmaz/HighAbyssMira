@@ -468,6 +468,18 @@ function n5_huellenK5() { const S = neben5_S; if (S.hK5) return; S.hK5 = true; c
 // ---------------------------------------------------------------------  Spielstand · Laden · Takt
 MOD_SAVE.push(['neben5', () => ({ st: neben5_S.st }), v => { if (v && v.st && typeof v.st === 'object') neben5_S.st = v.st; neben5_S.nachLaden = true; }]);
 beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!resume && state.started) { neben5_S.st = {}; neben5_S.nachLaden = true; } return r; })(beginGame);
+// Pfandkiste hinter der Tankstelle Kranz (Südwand-Rückseite, bei x 114): Platz für zweiunddreißig Flaschen, es stehen einunddreißig darin (Vegas, „Einunddreißig Flaschen“)
+function n5_pfandkiste() { const T = THREE, g = new T.Group(); g.name = 'neben5_pfand'; const cx = 114.2, cz = 31.55, cy = (typeof solidGround === 'function' ? Math.max(0, solidGround(cx, 3, cz)) : 0); g.position.set(cx, cy, cz); g.rotation.y = .03; g.userData.noCol = true; scene.add(g);
+  const kunst = new T.MeshStandardMaterial({ color: 0x9a7a22, roughness: .55, metalness: 0 }), dunkel = new T.MeshStandardMaterial({ color: 0x7a5e18, roughness: .6 }), W = .66, D = .34, Hh = .24;
+  const add = (w, h, d, x, y, z, m) => { const b = new T.Mesh(new T.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = true; b.receiveShadow = true; b.userData.noCol = true; g.add(b); return b; };
+  add(W, Hh, .014, 0, Hh / 2 + .02, D / 2, kunst); add(W, Hh, .014, 0, Hh / 2 + .02, -D / 2, kunst); add(.014, Hh, D, W / 2, Hh / 2 + .02, 0, kunst); add(.014, Hh, D, -W / 2, Hh / 2 + .02, 0, kunst); add(W, .02, D, 0, .01, 0, dunkel);
+  for (let i = 1; i < 8; i++) add(.008, .17, D - .01, -W / 2 + i * W / 8, .1, 0, dunkel); for (let j = 1; j < 4; j++) add(W - .01, .17, .008, 0, .1, -D / 2 + j * D / 4, dunkel);
+  for (const [x, z] of [[-W / 2 + .06, D / 2], [W / 2 - .06, D / 2]]) add(.1, .04, .018, x, Hh - .03, z + .002, dunkel); // Griffmulden
+  const pr = [[0, 0], [.029, 0], [.0335, .012], [.0335, .15], [.032, .172], [.021, .2], [.0128, .236], [.0138, .256], [.0152, .262], [0, .262]].map(([r, y]) => new T.Vector2(r, y));
+  const bm = new T.MeshStandardMaterial({ color: 0x4a2a0c, roughness: .12, metalness: .15, transparent: true, opacity: .93 }), geo = new T.LatheGeometry(pr, 16), cap = new T.MeshStandardMaterial({ color: 0xb08a2a, roughness: .35, metalness: .8 });
+  const mats = [], caps = []; for (let i = 0; i < 8; i++) for (let j = 0; j < 4; j++) { if (i === 5 && j === 2) continue; const x = -W / 2 + (i + .5) * W / 8, z = -D / 2 + (j + .5) * D / 4; mats.push(new T.Matrix4().makeTranslation(x, .03, z)); caps.push(new T.Matrix4().makeTranslation(x, .03 + .264, z)); }
+  const im = new T.InstancedMesh(geo, bm, mats.length); mats.forEach((m, i) => im.setMatrixAt(i, m)); im.castShadow = true; im.receiveShadow = true; im.userData.noCol = true; im.computeBoundingSphere(); g.add(im);
+  const ic = new T.InstancedMesh(new T.CylinderGeometry(.0158, .0152, .006, 12), cap, caps.length); caps.forEach((m, i) => ic.setMatrixAt(i, m)); ic.userData.noCol = true; ic.computeBoundingSphere(); g.add(ic); neben5_S.o.pfand = g; return g; }
 WORLD_MODS.push(['Nebenaufgaben Kap. 5', async () => { const S = neben5_S; neben5_register();
   for (const [k, [n, d]] of Object.entries(N5_ITEMS)) modItem(k, n, d, 'paper');
   try { await n5_jonasBau(); } catch (e) { console.warn('neben5: Jonas', e); }
@@ -476,6 +488,7 @@ WORLD_MODS.push(['Nebenaufgaben Kap. 5', async () => { const S = neben5_S; neben
   try { await n5_kastenBau(); } catch (e) { console.warn('neben5: Kasten', e); }
   try { n5_gasBau(); } catch (e) { console.warn('neben5: Kerzen', e); }
   try { n5_huellenWelt(); } catch (e) { console.warn('neben5: Hüllen', e); }
+  try { n5_pfandkiste(); } catch (e) { console.warn('neben5: Pfandkiste', e); }
   if (typeof kamera_zielDazu === 'function') kamera_zielDazu(neben5_kameraZiel);
   if (typeof KAP_END !== 'undefined') KAP_END[5].push(() => neben5_kapEnde());
   S.ready = true; window.__neben5 = { S, st: n5_st, laube: n5_laube, maas: n5_maas, heidi: n5_heidiAnruf, karte: n5_karte, nacht: n5_nachttisch, einwerfen: n5_einwerfen, kapsel: n5_kapsel,
