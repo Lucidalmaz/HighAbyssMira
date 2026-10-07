@@ -2943,7 +2943,7 @@ function canalCollide(axis) {
 //   · „drueber“: dünnes Hindernis bis 1,3 m (Zaun, Geländer, Mauerkrone) mit Boden und Platz dahinter → in einem Bogen drübersteigen.
 function mantleObst(px, pz, y) { let top = -Infinity; for (const c of colliders) { if (c.minX < -9000) continue; if (c.weich && px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ) return -Infinity; const h = c.top - y; if (h < .45 || h > 1.65 || c.base > y + 1.2) continue; if (px > c.minX && px < c.maxX && pz > c.minZ && pz < c.maxZ && c.top > top) top = c.top; }
   const sg = solidGround(px, y + 1.28, pz); if (sg > y + .45 && sg < y + 1.65 && sg > top) top = sg; return top; }
-function mantleFree(x, z, y) { if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
+function mantleFree(x, z, y) { if (typeof tod_blockiert === 'function' && tod_blockiert(x, y, z, null, .27) > 0) return false; /* Landeplatz frei von festen Netzen (Wand, Baum, Auto), nicht nur von Kisten */ if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
   return typeof leben_free !== 'function' || (leben_free(x, z, y + .9, .26) && leben_free(x, z, y + 1.45, .22)); }
 function mantleGround(x, z, yRef) { let g = state.inBasement ? 0 : (indoorRects.find(r => inRect(r, x, z)) || { y: 0 }).y; for (const c of colliders) if (c.minX > -9000 && c.top > g && c.top <= yRef + .4 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; const sg = solidGround(x, yRef + .2, z); return sg > g ? sg : g; }
 // Hinter der Südsperre (bei Lucys Auto) endet die Welt: Kollisionskisten rundum, kein Rückweg. Dort darf man nicht landen (Nutzer 07.10.: „halb im Wald gefangen“).
@@ -5221,6 +5221,13 @@ function ceilingAt(x, y, z, maxUp = 3.5) {
 // über den ganzen Kopf (Mitte + vier Randpunkte), damit man nicht mit der Kopfkante durch eine Deckenkante rutscht
 function headCeiling(x, y, z) { let b = ceilingAt(x, y, z); for (const [dx, dz] of [[.2, 0], [-.2, 0], [0, .2], [0, -.2]]) b = Math.min(b, ceilingAt(x + dx, y, z + dz)); return b; }
 // Körper = drei Kugeln (Knie, Hüfte, Brust). Alles unterhalb der Stufenhöhe darf man betreten.
+// Kamera-Schutz: Kugel (r 17 cm) um die Kamera gegen feste Netze; Eindringen wird waagerecht zurückgeschoben (nie durch Wände schauen, auch nicht an Ecken oder beim Anlehnen)
+function camGuard() {
+  if (mantle || scripted || camOverride || state.zone === 'canal') return; const c = camera.position, r = .17; let px = c.x, pz = c.z;
+  for (let pass = 0; pass < 2; pass++) for (const it of solidNear(px, pz)) { const bb = it.bb; if (it.soft || px + r < bb.min.x || px - r > bb.max.x || pz + r < bb.min.z || pz - r > bb.max.z || c.y + r < bb.min.y || c.y - r > bb.max.y || !solidLive(it)) continue;
+    _sp.set(px, c.y, pz).applyMatrix4(it.inv); const rr = it.o.geometry.boundsTree.closestPointToPoint(_sp, _stgt, 0, r / it.sc); if (!rr) continue; _sw.copy(rr.point).applyMatrix4(it.mw); const d = _sw.distanceTo(_sd.set(px, c.y, pz)); if (d >= r) continue;
+    if (_sw.y < player.pos.y + .37) continue; _sn.set(px - _sw.x, 0, pz - _sw.z); const hl = _sn.length(); if (hl < 1e-4) continue; _sn.divideScalar(hl); px += _sn.x * (r - d); pz += _sn.z * (r - d); }
+  c.x = px; c.z = pz; }
 function solidPush() {
   if (state.zone === 'canal') return;
   const P = player.pos; let soft = 0;
@@ -9924,9 +9931,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     scene.traverse(o => { const P = o.isMesh && o.geometry && o.geometry.parameters; if (!deckeK && P && P.width === 10.4 && P.depth === 8.4 && Math.abs(o.position.x - B.x) < .01 && Math.abs(o.position.z - B.z) < .01) deckeK = o; });
     find(303.8, 2.38, 300, [.2, .25, 8]).forEach(hide); // der östliche Balken läge im Durchbruch → endet jetzt an den Wechseln
     kirchberg_treppe({ par: GB, x0: B.x + 3.68, x1: B.x + 4.88, zA: B.z + 2.97, zB: B.z, y0: 0, y1: 2.7, n: 11, podest: .9, offen: 'x0', mat: stepMat, matWange: beamMat, begehbar: true,
-      decke: deckeK, loch: [B.x + 3.55, B.x + 4.95, B.z - .9, B.z + 3.0], schachtH: 2.6, schachtMat: M.block });
-    box(.2, .25, 3.0, B.x + 3.8, 2.38, B.z - 2.5, beamMat, { parent: GB }); box(.2, .25, .9, B.x + 3.8, 2.38, B.z + 3.5, beamMat, { parent: GB });
-    box(2.4, .25, .2, B.x + 3.75, 2.38, B.z - 1.0, beamMat, { parent: GB }); box(2.4, .25, .2, B.x + 3.75, 2.38, B.z + 3.1, beamMat, { parent: GB });
+      decke: deckeK, loch: [B.x + 3.55, B.x + 4.95, B.z - .9, B.z + 3.45], schachtH: 2.6, schachtMat: M.block }); // Durchbruch am Fuß 45 cm länger: beim Runtergehen stieß die Kopfkugel an die Deckenkante (unsichtbare Wand auf den unteren Stufen)
+    box(.2, .25, 3.0, B.x + 3.8, 2.38, B.z - 2.5, beamMat, { parent: GB }); box(.2, .25, .55, B.x + 3.8, 2.38, B.z + 3.925, beamMat, { parent: GB });
+    box(2.4, .25, .2, B.x + 3.75, 2.38, B.z - 1.0, beamMat, { parent: GB }); box(2.4, .25, .2, B.x + 3.75, 2.38, B.z + 3.55, beamMat, { parent: GB }); // Wechsel hinter dem Durchbruch (vorher über den unteren Stufen: Kopf stieß an → unsichtbare Wand)
     { const d = await GL('door1'); d.scale.set(1 / 1.055, 2.05 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); }); put(d, { x: B.x + 4.28, minZ: B.z - .89, y: 2.7 }, GB); }
     if (typeof stairs !== 'undefined') { stairs.position.set(B.x + 4.28, 3.75, B.z - .75); stairs.scale.set(.9, 1, .3); stairs.updateMatrixWorld(true); } }
   else for (let i = 0; i < 8; i++) find(B.x + 4.2, .11 * (i + 1), B.z + 3.7 - i * .3 - .8, [1.2, .22 * (i + 1), .3]).forEach(m => { m.visible = true; m.material = stepMat; });
@@ -12340,7 +12347,7 @@ function kirchberg_treppe(o) { const T = THREE, par = o.par || scene, s = Math.s
     B(.07, hl + .05, .07, xg, yf + (hl + .05) / 2 - .02, zf, gm); const Lh = Math.hypot(zEnd - zf, yEnd - yf);
     B(.05, .06, Lh, xg, (yf + yEnd) / 2 + hl, (zf + zEnd) / 2, gm, Math.atan2(yEnd - yf, Math.abs(zEnd - zf)) * -s);
     const k = Math.max(2, Math.round(Math.abs(zEnd - zf) / .45)); for (let j = 1; j < k; j++) { const zz = zf + (zEnd - zf) * j / k, yy = yf + (yEnd - yf) * j / k; B(.025, hl, .025, xg, yy + hl / 2, zz, gm); }
-    if (o.begehbar) addCol(xg - .05, xg + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); }
+    if (o.begehbar) { const dx = o.offen === 'x0' ? -.1 : .1; addCol(xg + dx - .05, xg + dx + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); } } // Geländerkiste 10 cm nach außen: die ganze Stufenbreite ist begehbar (vorher blockierte die Randspur)
   // Deckendurchbruch + Schacht
   if (o.loch && o.decke) { const D = o.decke; D.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(D), dm = D.material, [lx0, lx1, lz0, lz1] = o.loch, yc = (bb.min.y + bb.max.y) / 2, h = bb.max.y - bb.min.y;
     msHide ? msHide(D) : (D.visible = false); const P = (x0, x1, z0, z1) => { if (x1 - x0 > .01 && z1 - z0 > .01) box(x1 - x0, h, z1 - z0, (x0 + x1) / 2, yc, (z0 + z1) / 2, dm, { cast: false, parent: par }); };
@@ -31480,7 +31487,7 @@ function tod_festTick(dt) {
   TOD_FEST.t += dt; if (TOD_FEST.t < 6) return;
   if (Math.hypot(P.x - TOD_FEST.x, P.z - TOD_FEST.z) < .6 && performance.now() > TOD_FEST.hinweis) { TOD_FEST.hinweis = performance.now() + 60000; toast('Festgesteckt? Pause (Esc) → FESTGESTECKT? bringt dich ein paar Schritte zurück.', 5200); }
   TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; }
-WORLD_MODS.push(['Tod', async () => { try { tod_rettungMenue(); } catch (e) { console.warn('Rettung', e); } tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
+WORLD_MODS.push(['Tod', async () => { try { tod_rettungMenue(); } catch (e) { console.warn('Rettung', e); } tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, blk: (x, y, z, o, rr) => tod_blockiert(x, y, z, o, rr), die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
 WORLD_TICK.push((dt) => {
   try {
     const S = tod_S, P = player.pos, sn = S.seen;
@@ -33876,7 +33883,7 @@ function amt_akte06() { const S = amt_S; if (typeof files === 'undefined') retur
 //    Anzeige „Befall“/„Wucht“ unten. Mehr Befall = dunkleres Bild, Herzschlag, Atem, Farbsaum, Verzerrung (alles proportional und am Ende weg).
 //  · Ton: synthetisierter Spinnen-Lauf (Klickfolgen + Scharren, Schleife), räumlich über Spinnen in Luke-Nähe, Stoffrascheln beim Schütteln, Atem und Herzschlag nach Befall; nichts Lautes.
 //  · Licht: defekte Leuchtstoffröhre (Aussetzer, Dunkelphasen, kaltweiß) statt Regenbogenfarben.
-// Testzugriff: window.__spinnen.
+// Testzugriff: __spinnen (am window).
 const SPN_V = new THREE.Vector3();
 const SPN_S = { ready: false, camActive: 0, heroN: 0, token: 0, active: false, pt: 0, acc: 0, camN: 36, cam: [], heroes: [], hud: null, charge: 0, power: 0, cool: 0, shT: 0, assistT: 0, load: 0, heartT: 0, breathT: 0, rustT: 0, fl: { t: 0, k: 1 },
   vig0: 1, ca0: .003, saved: false, kx: 0, ky: 0, lastKey: '', flip: 0, ext: .075, sndOn: false, snd: null, burstT: 0, hitSnd: 0 };
@@ -38364,7 +38371,7 @@ function umwelt_schaukelTeilen(holder) {
   for (const s of [1, 2]) { if (!sel[s].length) continue; const g = sub(sel[s]); g.computeBoundingBox(); const b = g.boundingBox, px = (b.min.x + b.max.x) / 2, py = b.max.y, pz = (b.min.z + b.max.z) / 2;
     g.translate(-px, -py, -pz); g.computeBoundingBox(); g.computeBoundingSphere(); const piv = new THREE.Group(); piv.position.set(px, py, pz); piv.rotation.order = 'YXZ'; if (!alongX) piv.rotation.y = PI / 2; piv.userData.noCol = true; scene.add(piv);
     if (!alongX) g.rotateY(-PI / 2); const m = new THREE.Mesh(g, mesh.material); m.castShadow = true; m.userData.noCol = true; piv.add(m);
-    out.push({ piv, L: Math.max(.6, (py - b.min.y) * .92), w: Math.max(.2, (alongX ? b.max.x - b.min.x : b.max.z - b.min.z) / 2) }); }
+    out.push({ piv, L: Math.max(.6, -b.min.y * .92) /* b ist nach dem erneuten computeBoundingBox schon verschoben: Sitzhöhe = −min.y (vorher py − min.y → Sitz unter dem Boden, nie anstoßbar) */, w: Math.max(.2, (alongX ? b.max.x - b.min.x : b.max.z - b.min.z) / 2) }); }
   return out; }
 // Alle Schaukeln der Welt einsammeln, sobald ihre Module sie gebaut haben
 function umwelt_schaukelnSuchen() {
@@ -41573,9 +41580,9 @@ function update(dt, t) {
     vel.set(0, 0, 0);
     if (k >= 1) { player.pos.y = M.land ?? M.top; mantle = null; grounded = true; FEEL.dipV -= M.art === 'drueber' ? .45 : .25; Audio.step(stepSurface(state.inBasement || !!indoorRect())); }
   } else {
-    player.pos.x += vel.x * dt; if (collide('x', vel.x * dt)) { vel.x *= .3; F.ax = 0; }
-    player.pos.z += vel.z * dt; if (collide('z', vel.z * dt)) { vel.z *= .3; F.az = 0; }
-    solidPush();
+    { const nsub = Math.min(6, Math.max(1, Math.ceil(Math.hypot(vel.x, vel.z) * dt / .1))), sd = dt / nsub; let hx = false, hz = false; // Teilschritte: nie mehr als 10 cm je Schritt – bei Rucklern (25 FPS) wird keine dünne Wand/Kiste übersprungen
+      for (let k = 0; k < nsub; k++) { player.pos.x += vel.x * sd; if (collide('x', vel.x * sd)) hx = true; player.pos.z += vel.z * sd; if (collide('z', vel.z * sd)) hz = true; solidPush(); }
+      if (hx) { vel.x *= .3; F.ax = 0; } if (hz) { vel.z *= .3; F.az = 0; } }
     if (SOL.soft > 0 && Math.hypot(vel.x, vel.z) > .5) { vel.x *= 1 - SOL.soft * dt * 6; vel.z *= 1 - SOL.soft * dt * 6; SOL.rustleT -= dt; if (SOL.rustleT < 0) { SOL.rustleT = rand(.25, .45); if (Audio.busch) Audio.busch(player.pos.x, player.pos.z, Math.min(1, SOL.soft * 1.5)); else Audio.step('grass'); } } // Gestrüpp bremst und raschelt
   }
   const spd = Math.hypot(vel.x, vel.z); F.vv = spd; F.air = grounded ? 0 : F.air + dt;
@@ -41618,6 +41625,7 @@ function update(dt, t) {
   const ph = player.bob, sn = Math.sin(ph), cyw = Math.cos(player.yaw), syw = Math.sin(player.yaw), side = amp * FC.sway * sn + F.ls;
   camera.position.set(player.pos.x + cyw * side - syw * F.lf, camY + amp * (.65 * Math.abs(sn) + .35 * sn * sn - .55) + F.dip, player.pos.z - syw * side - cyw * F.lf);
   { const cy = ceilingAt(camera.position.x, player.pos.y + .9, camera.position.z); if (camera.position.y > cy - .12) { camera.position.y = cy - .12; camY = Math.min(camY, camera.position.y); } } // Kamera nie in/über der Decke
+  camGuard(); // …und nie in einer Wand (Anlehnen, Ecken, Treppen)
   F.camW = camY;
   // Umsehen: der Kopf neigt sich minimal verzögert in schnelle Drehungen (nur Rollen – Blickrichtung und Zielen bleiben exakt an der Maus)
   { let dy = player.yaw - F.yaw0; F.yaw0 = player.yaw; if (Math.abs(dy) > .6) dy = 0; F.yr += (dy / Math.max(dt, 1e-4) - F.yr) * (1 - Math.exp(-dt * 10)); }

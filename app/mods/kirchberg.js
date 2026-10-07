@@ -95,7 +95,7 @@ function kirchberg_treppe(o) { const T = THREE, par = o.par || scene, s = Math.s
     B(.07, hl + .05, .07, xg, yf + (hl + .05) / 2 - .02, zf, gm); const Lh = Math.hypot(zEnd - zf, yEnd - yf);
     B(.05, .06, Lh, xg, (yf + yEnd) / 2 + hl, (zf + zEnd) / 2, gm, Math.atan2(yEnd - yf, Math.abs(zEnd - zf)) * -s);
     const k = Math.max(2, Math.round(Math.abs(zEnd - zf) / .45)); for (let j = 1; j < k; j++) { const zz = zf + (zEnd - zf) * j / k, yy = yf + (yEnd - yf) * j / k; B(.025, hl, .025, xg, yy + hl / 2, zz, gm); }
-    if (o.begehbar) addCol(xg - .05, xg + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); }
+    if (o.begehbar) { const dx = o.offen === 'x0' ? -.1 : .1; addCol(xg + dx - .05, xg + dx + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); } } // Geländerkiste 10 cm nach außen: die ganze Stufenbreite ist begehbar (vorher blockierte die Randspur)
   // Deckendurchbruch + Schacht
   if (o.loch && o.decke) { const D = o.decke; D.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(D), dm = D.material, [lx0, lx1, lz0, lz1] = o.loch, yc = (bb.min.y + bb.max.y) / 2, h = bb.max.y - bb.min.y;
     msHide ? msHide(D) : (D.visible = false); const P = (x0, x1, z0, z1) => { if (x1 - x0 > .01 && z1 - z0 > .01) box(x1 - x0, h, z1 - z0, (x0 + x1) / 2, yc, (z0 + z1) / 2, dm, { cast: false, parent: par }); };

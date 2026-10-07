@@ -341,7 +341,7 @@ function tod_festTick(dt) {
   TOD_FEST.t += dt; if (TOD_FEST.t < 6) return;
   if (Math.hypot(P.x - TOD_FEST.x, P.z - TOD_FEST.z) < .6 && performance.now() > TOD_FEST.hinweis) { TOD_FEST.hinweis = performance.now() + 60000; toast('Festgesteckt? Pause (Esc) → FESTGESTECKT? bringt dich ein paar Schritte zurück.', 5200); }
   TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; }
-WORLD_MODS.push(['Tod', async () => { try { tod_rettungMenue(); } catch (e) { console.warn('Rettung', e); } tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
+WORLD_MODS.push(['Tod', async () => { try { tod_rettungMenue(); } catch (e) { console.warn('Rettung', e); } tod_S.vig0 = filmPass.uniforms.vig.value; tod_S.ca0 = filmPass.uniforms.ca.value; tod_S.faceL = new VLight(0xcfc2aa, 0, 3.5, 2); tod_S.faceL.position.set(0, -50, 0); scene.add(tod_S.faceL); window.__tod = { S: tod_S, blk: (x, y, z, o, rr) => tod_blockiert(x, y, z, o, rr), die: todDie, respawn: todRespawn, checkpoint: todCheckpoint, reset: TOD_RESET, snap: tod_ch2Snap, apply: tod_ch2Apply }; }]);
 WORLD_TICK.push((dt) => {
   try {
     const S = tod_S, P = player.pos, sn = S.seen;

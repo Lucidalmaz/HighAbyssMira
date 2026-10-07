@@ -54,7 +54,7 @@ function umwelt_schaukelTeilen(holder) {
   for (const s of [1, 2]) { if (!sel[s].length) continue; const g = sub(sel[s]); g.computeBoundingBox(); const b = g.boundingBox, px = (b.min.x + b.max.x) / 2, py = b.max.y, pz = (b.min.z + b.max.z) / 2;
     g.translate(-px, -py, -pz); g.computeBoundingBox(); g.computeBoundingSphere(); const piv = new THREE.Group(); piv.position.set(px, py, pz); piv.rotation.order = 'YXZ'; if (!alongX) piv.rotation.y = PI / 2; piv.userData.noCol = true; scene.add(piv);
     if (!alongX) g.rotateY(-PI / 2); const m = new THREE.Mesh(g, mesh.material); m.castShadow = true; m.userData.noCol = true; piv.add(m);
-    out.push({ piv, L: Math.max(.6, (py - b.min.y) * .92), w: Math.max(.2, (alongX ? b.max.x - b.min.x : b.max.z - b.min.z) / 2) }); }
+    out.push({ piv, L: Math.max(.6, -b.min.y * .92) /* b ist nach dem erneuten computeBoundingBox schon verschoben: Sitzhöhe = −min.y (vorher py − min.y → Sitz unter dem Boden, nie anstoßbar) */, w: Math.max(.2, (alongX ? b.max.x - b.min.x : b.max.z - b.min.z) / 2) }); }
   return out; }
 // Alle Schaukeln der Welt einsammeln, sobald ihre Module sie gebaut haben
 function umwelt_schaukelnSuchen() {

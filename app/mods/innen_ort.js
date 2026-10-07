@@ -370,9 +370,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     scene.traverse(o => { const P = o.isMesh && o.geometry && o.geometry.parameters; if (!deckeK && P && P.width === 10.4 && P.depth === 8.4 && Math.abs(o.position.x - B.x) < .01 && Math.abs(o.position.z - B.z) < .01) deckeK = o; });
     find(303.8, 2.38, 300, [.2, .25, 8]).forEach(hide); // der östliche Balken läge im Durchbruch → endet jetzt an den Wechseln
     kirchberg_treppe({ par: GB, x0: B.x + 3.68, x1: B.x + 4.88, zA: B.z + 2.97, zB: B.z, y0: 0, y1: 2.7, n: 11, podest: .9, offen: 'x0', mat: stepMat, matWange: beamMat, begehbar: true,
-      decke: deckeK, loch: [B.x + 3.55, B.x + 4.95, B.z - .9, B.z + 3.0], schachtH: 2.6, schachtMat: M.block });
-    box(.2, .25, 3.0, B.x + 3.8, 2.38, B.z - 2.5, beamMat, { parent: GB }); box(.2, .25, .9, B.x + 3.8, 2.38, B.z + 3.5, beamMat, { parent: GB });
-    box(2.4, .25, .2, B.x + 3.75, 2.38, B.z - 1.0, beamMat, { parent: GB }); box(2.4, .25, .2, B.x + 3.75, 2.38, B.z + 3.1, beamMat, { parent: GB });
+      decke: deckeK, loch: [B.x + 3.55, B.x + 4.95, B.z - .9, B.z + 3.45], schachtH: 2.6, schachtMat: M.block }); // Durchbruch am Fuß 45 cm länger: beim Runtergehen stieß die Kopfkugel an die Deckenkante (unsichtbare Wand auf den unteren Stufen)
+    box(.2, .25, 3.0, B.x + 3.8, 2.38, B.z - 2.5, beamMat, { parent: GB }); box(.2, .25, .55, B.x + 3.8, 2.38, B.z + 3.925, beamMat, { parent: GB });
+    box(2.4, .25, .2, B.x + 3.75, 2.38, B.z - 1.0, beamMat, { parent: GB }); box(2.4, .25, .2, B.x + 3.75, 2.38, B.z + 3.55, beamMat, { parent: GB }); // Wechsel hinter dem Durchbruch (vorher über den unteren Stufen: Kopf stieß an → unsichtbare Wand)
     { const d = await GL('door1'); d.scale.set(1 / 1.055, 2.05 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); }); put(d, { x: B.x + 4.28, minZ: B.z - .89, y: 2.7 }, GB); }
     if (typeof stairs !== 'undefined') { stairs.position.set(B.x + 4.28, 3.75, B.z - .75); stairs.scale.set(.9, 1, .3); stairs.updateMatrixWorld(true); } }
   else for (let i = 0; i < 8; i++) find(B.x + 4.2, .11 * (i + 1), B.z + 3.7 - i * .3 - .8, [1.2, .22 * (i + 1), .3]).forEach(m => { m.visible = true; m.material = stepMat; });
