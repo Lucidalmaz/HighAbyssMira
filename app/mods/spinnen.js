@@ -12,7 +12,7 @@
 //    Anzeige „Befall“/„Wucht“ unten. Mehr Befall = dunkleres Bild, Herzschlag, Atem, Farbsaum, Verzerrung (alles proportional und am Ende weg).
 //  · Ton: synthetisierter Spinnen-Lauf (Klickfolgen + Scharren, Schleife), räumlich über Spinnen in Luke-Nähe, Stoffrascheln beim Schütteln, Atem und Herzschlag nach Befall; nichts Lautes.
 //  · Licht: defekte Leuchtstoffröhre (Aussetzer, Dunkelphasen, kaltweiß) statt Regenbogenfarben.
-// Testzugriff: window.__spinnen.
+// Testzugriff: __spinnen (am window).
 const SPN_V = new THREE.Vector3();
 const SPN_S = { ready: false, camActive: 0, heroN: 0, token: 0, active: false, pt: 0, acc: 0, camN: 36, cam: [], heroes: [], hud: null, charge: 0, power: 0, cool: 0, shT: 0, assistT: 0, load: 0, heartT: 0, breathT: 0, rustT: 0, fl: { t: 0, k: 1 },
   vig0: 1, ca0: .003, saved: false, kx: 0, ky: 0, lastKey: '', flip: 0, ext: .075, sndOn: false, snd: null, burstT: 0, hitSnd: 0 };
