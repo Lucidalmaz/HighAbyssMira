@@ -97,7 +97,7 @@ function hl_waehle() { // 5× je Sekunde: die 6 nächsten Kandidaten innerhalb 8
   for (let i = 0; i < HL.slots.length; i++) HL.slots[i].sel = false;
   for (let r = 0; r < 6; r++) { let bi = -1, bd = 1e9; for (let i = 0; i < n; i++) if (HL.cand[i] && HL.dist[i] < bd) { bd = HL.dist[i]; bi = i; } if (bi < 0) break; hl_nimm(HL.cand[bi], bd, HL.look[bi]); HL.cand[bi] = null; }
   for (let i = 0; i < n; i++) { if (HL.cand[i] && (HL.cand[i] === target || HL.look[i] && HL.dist[i] < 6)) hl_nimm(HL.cand[i], HL.dist[i], HL.look[i]); HL.cand[i] = null; } }
-function hl_aus() { try { if (!state.started || menu.attract || state.ending || state.talking || ui.overlay || ui.paused || scripted || camOverride || state.blackout) return true;
+function hl_aus() { try { if (ch2.spiderPhase === 'lock' || ch2.spiderPhase === 'swarm' || ch2.spiderPhase === 'shake') return true; /* Spinnenraum: keine Ränder, keine Erklärkarte mitten im Schwarm */ if (!state.started || menu.attract || state.ending || state.talking || ui.overlay || ui.paused || scripted || camOverride || state.blackout) return true;
   if (typeof kino_S !== 'undefined' && kino_S.on) return true; if (typeof SP !== 'undefined' && SP.chase) return true; } catch (e) {} return false; }
 // Masken-Pass (nach dem RenderPass): liest die eben aufgelöste Szenentiefe, zeichnet nur die Stellvertreter der aktiven Kandidaten
 function hl_maske(r, wb, rb) { if (!HL.aktiv) return;

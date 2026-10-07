@@ -3771,6 +3771,7 @@ function screenSpider() { const d = document.createElement('div'); d.className =
   d.style.setProperty('--tx', rand(.2, .8) * innerWidth - parseFloat(d.style.left) + 'px'); d.style.setProperty('--ty', rand(.2, .8) * innerHeight - parseFloat(d.style.top) + 'px'); d.style.setProperty('--r', rand(0, 360) + 'deg'); d.style.setProperty('--d', rand(.9, 1.6) + 's');
   spiderLayer.appendChild(d); return d; }
 async function spiderEvent() {
+  if (typeof spn_event === 'function') return spn_event(); // Modul „spinnen“ (07.10.2026): neuer Ablauf mit Sicherungen; das Folgende bleibt als Rückfall
   ch2.spiderPhase = 'lock'; spiderDoorIn.set(false); spiderDoorIn.locked = true; spiderDoorIn.lockedText = 'Zu. Von außen. Etwas hat den Riegel vorgeschoben.';
   Audio.slam(spiderDoorIn.m.position.x, 1.2, spiderDoorIn.m.position.z); shake = .05; setC2Objective('Die Tür ist zu.');
   await wait(1500); ch2.lampsCrazy = 1; Audio.buzz(X + 41, 2.3, Z); Audio.strobe(true);
@@ -3782,6 +3783,7 @@ async function spiderEvent() {
 }
 function spawnSpider(i) { const d = spData[i]; d.hidden = false; const side = Math.floor(rand(0, 4)); d.x = side === 0 ? X + 36.2 : side === 1 ? X + 45.8 : rand(X + 36.2, X + 45.8); d.z = side === 2 ? Z - 4.8 : side === 3 ? Z + 4.8 : rand(Z - 4.8, Z + 4.8); d.y = Math.random() < .35 ? C2.h - .05 : .02; d.sp = rand(.9, 2.2); d.on = true; }
 function spiderUpdate(dt, t) {
+  if (typeof spn_update === 'function') return spn_update(dt, t);
   if (ch2.lampsCrazy > 0) { const L = spiderLight; const m = Math.floor(t * 17) % 7; L.k = [1, 0, 1, .2, 0, 1, 0][m] * (1 + Math.sin(t * 40) * .3); L.l.color.setHSL((t * 1.7) % 1, m % 3 === 0 ? .8 : 0, .6); L.tube.material.emissive.copy(L.l.color); glitchV = Math.max(glitchV, .25); }
   if (ch2.spiderPhase !== 'swarm' && ch2.spiderPhase !== 'shake') return;
   ch2.spiderT += dt; const P = player.pos;
