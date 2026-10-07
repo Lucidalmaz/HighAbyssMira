@@ -75,7 +75,7 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
-  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen)
+  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen)
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -411,6 +411,10 @@ function kl_donnerKlasse(r) { const u = Math.random(); return r < 200 ? 'krach' 
     const pan = ctx.createStereoPanner(); pan.pan.value = rand(-.55, .55); out.connect(pan); pan.connect(this.world); if (this._thMess) pan.connect(this._thMess); src.start(t); this.voices = (this.voices || 0) + 1; src.onended = () => { this.voices--; };
     if (r < 650) { setTimeout(() => this.rattle(), delay * 1000 + 260); if (r < 300) setTimeout(() => this.rattle(), delay * 1000 + 1900); } // Fensterglas, nur bei nahen Einschlägen
     return { name, r: Math.round(r), cls, v: +v.toFixed(3), fc0: Math.round(fc0) }; }; }
+// Letzte synthetische Geräusche → echte Aufnahmen (Nutzer 07.10.: „alle Sounds extrem hochwertig und realistisch“): Knochenbruch (crack) und Papier (paper)
+{ const c0 = Audio.crack, p0 = Audio.paper;
+  Audio.crack = function () { const n = kl_pick('wd_knochen_', 6); if (!this.ctx || !n) return c0.call(this); this.play(n, { gain: .9, vary: .07 }); };
+  Audio.paper = function () { if (!this.ctx) return; if (kl_has('ui_seite')) this.play('ui_seite', { gain: .26, vary: .08, rate: rand(.95, 1.15), offset: rand(0, .2) }); else p0.call(this); }; }
 // ---------------------------------------------------------------- Menümusik
 function klang_menu(on) {
   const S = klang_S, A = Audio; if (!A.ctx || A.ctx.state !== 'running') return;

@@ -487,9 +487,10 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       const sz = bb.getSize(new T.Vector3()), k0 = 1.5 / Math.max(sz.x, sz.z), spots = [], rr = (a, b) => a + Math.random() * (b - a);
       for (const L of lamps) if (Math.abs(L.wz) < 9 && Math.abs(L.wx) < 76) spots.push([L.wx + rr(-1.8, 1.8), (L.wz < 0 ? -1 : 1) * 3.52]);
       for (const [x, z] of [[-2.1, -38.5], [66, 1.3], [-12, -1.6]]) spots.push([x + rr(-.9, .9), z + rr(-.6, .6)]);
-      const mats = spots.map(([x, z]) => { const k = k0 * rr(.75, 1.15); return msM4(x, -bb.min.y * k * .55 + .005, z, rr(0, 6.28), new T.Vector3(k * rr(.9, 1.2), k * .55, k * rr(.7, 1))); });
+      const par = spots.map(([x, z]) => { const k = k0 * rr(.75, 1.15); return { x, z, y0: -bb.min.y * k * .55 + .005, ry: rr(0, 6.28), sx: k * rr(.9, 1.2), sy: k * .55, sz: k * rr(.7, 1), k, r: k * Math.max(sz.x, sz.z) * .38 }; }); // Form je Haufen merken: Zertrampeln (umwelt.js) baut die Matrix neu
+      const mats = par.map(p => msM4(p.x, p.y0, p.z, p.ry, new T.Vector3(p.sx, p.sy, p.sz)));
       const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); strasse_laubKante(mt, bb.min, bb.max); } }
-      (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; } } catch (e) { warn(e); }
+      (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; S.haufen = { par, ims, flat: new Float32Array(par.length), M: new T.Matrix4() }; } } catch (e) { warn(e); }
 }]);
 // Laub-Haufen: Kanten des Scans weich ausblenden (stochastisch, ohne Sortierung). Nutzer 07.10.: harte Rechtecke aus Laub liegen im Gras.
 function strasse_laubKante(mt, bmin, bmax) {

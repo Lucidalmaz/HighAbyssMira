@@ -205,6 +205,20 @@ function umwelt_blaetterTick(dt, P, aussen, sp) {
     const n = 1 + Math.floor(Math.random() * 2); for (let k = 0; k < n; k++) umwelt_blatt(P.x + vel.x * .08 + rand(-.3, .3), P.y + .03, P.z + vel.z * .08 + rand(-.3, .3), rand(.8, 1.6), rand(.07, .1), 3); if (Math.random() < .5 && Audio.laub) Audio.laub(P.x, P.z, .8); }
 }
 
+// Laubhaufen am Rinnstein (strasse.js): wer hindurchgeht, tritt sie platt und wirbelt Blätter auf; die Haufen bleiben danach niedriger (nass, zertreten) und erholen sich nur zum Teil
+function umwelt_haufenTick(dt, P, aussen, sp) {
+  const H = typeof strasse_S !== 'undefined' && strasse_S.haufen; if (!H || !aussen) return; let dirty = false;
+  for (let i = 0; i < H.par.length; i++) { const p = H.par[i], dx = P.x - p.x, dz = P.z - p.z, d2 = dx * dx + dz * dz; if (d2 > 25) continue; const d = Math.sqrt(d2), f = H.flat[i];
+    if (d < p.r * 1.1 && sp > .25 && P.y < .5) { // im Haufen: platt treten, ~1,2 s Gehen bis fast flach
+      const nf = Math.min(1, f + dt * Math.min(1.6, sp / 2.6) * 1.4); if (nf > f) { H.flat[i] = nf; dirty = true; }
+      H.kick = (H.kick || 0) - dt; if (H.kick < 0) { H.kick = rand(.09, .2) / Math.max(.4, sp / 2.5); const n = 1 + (sp > 3 ? 1 : 0);
+        for (let k = 0; k < n; k++) umwelt_blatt(P.x + vel.x * .1 + rand(-.35, .35), P.y + .04, P.z + vel.z * .1 + rand(-.35, .35), rand(.5, 1.5) * (.6 + sp * .12), rand(.06, .1), 3);
+        if (Audio.laub && Math.random() < .55) Audio.laub(P.x, P.z, Math.min(1, .4 + sp * .15)); } }
+    else if (f > 0 && f < .995 && d > p.r * 1.3) { const nf = Math.max(0, f - dt * .0006 * (1 + WIND.base * 3)); if (nf < f && nf < .55) { H.flat[i] = nf; dirty = true; } } } // sehr langsam: Wind lockert das Laub wieder, nie ganz
+  if (dirty) { H.cur = H.cur || new Float32Array(H.par.length).fill(-1);
+    for (let i = 0; i < H.par.length; i++) { const f = H.flat[i]; if (Math.abs(f - H.cur[i]) < .01) continue; H.cur[i] = f; const p = H.par[i], e = f * f * (3 - 2 * f), sxz = 1 + .22 * e;
+      H.M.copy(msM4(p.x, p.y0, p.z, p.ry + e * .35, new THREE.Vector3(p.sx * sxz, p.sy * (1 - .62 * e), p.sz * sxz))); for (const m of H.ims) m.setMatrixAt(i, H.M); }
+    for (const m of H.ims) m.instanceMatrix.needsUpdate = true; } }
 // ---------------------------------------------------------------- Licht für Teilchen: Taschenlampenkegel (fogUniforms.flP/flD/flK) + die zehn nächsten Laternen
 const UMW_LIGHT = `uniform vec3 flP, flD; uniform vec2 flK; uniform vec4 lamps[10]; uniform float uAmb;
 vec3 uLicht(vec3 w, float nah){ vec3 q = w - flP; float l = length(q), c = dot(q / max(l, 1e-3), flD);
@@ -345,6 +359,6 @@ WORLD_TICK.push((dt, t, indoor) => {
   S.regT -= dt; if (S.regT < 0) { S.regT = 2; try { umwelt_schaukelnSuchen(); } catch (e) {} if (S.amb) S.amb.value = typeof kap === 'function' && kap() === 4 ? .4 : .04;
     renderer.getDrawingBufferSize(umwelt_V2); const px = umwelt_V2.y * .5 / Math.tan(camera.fov * PI / 360); if (S.motes) S.motes.U.uPx.value = px; if (S.puff) S.puff.U.uPx.value = px; if (S.atem) S.atem.U.uPx.value = px; }
   umwelt_schaukelnTick(dt, P);
-  umwelt_blaetterTick(dt, P, aussen, sp);
+  umwelt_blaetterTick(dt, P, aussen, sp); umwelt_haufenTick(dt, P, aussen, sp);
   umwelt_luftTick(dt, P, indoor, aussen, sp);
 });
