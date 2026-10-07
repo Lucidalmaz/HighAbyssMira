@@ -1984,6 +1984,9 @@ const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 10, stingerGap: 20 }; // 
 const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [70, 140], restAfter: [70, 150],
   rest: { calm: [120, 260], uneasy: [60, 140], danger: [0, 3] }, after: 40, talk: .3, gain: .9 }; // lange Pausen: echte Stille ist Teil der Musik (Klangbetten tragen dazwischen)
 const ctx0 = A => A.ctx;
+// Pegel-Abgleich (Nutzer 02.10./07.10.: „ständig extrem lauter Rausch-Sound“): die Aufnahme „rumble“ steht fast auf Vollaussteuerung (RMS 0,50; die übrigen Geräusche 0,02–0,07). Im Donner schwoll sie
+// auf das 20- bis 28-fache des Klangbetts an (gemessen am Hauptbus). RUMBLE_K bringt sie auf ein Maß, das noch grollt, aber nicht mehr alles überdeckt.
+const RUMBLE_K = .24;
 const Audio = {
   ctx: null,
   build(ctx) {
@@ -2129,12 +2132,12 @@ const Audio = {
       const n = this.noise(false), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500; n.connect(hp); this.env(hp, .9, .001, .18, delay); n.stop(t + .5);
       // 2) Der Knall (tief, wuchtig) + Tiefbass
       this.play('thunder1', { gain: 1.5, rate: .82, lp: 1100, delay: delay + .12, pan: pan * .5 });
-      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, .45, .02, 3.4, delay + .1); // Tiefbass nur als Stütze der Aufnahme
+      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, .45 * .35, .02, 3.4, delay + .1); // Tiefbass nur als Stütze der Aufnahme
       // 3) Der echte Donner: 22 Sekunden Rollen mit natürlichem Ausklingen
       this.play('rainThunder', { gain: 1.35, offset: 21.0, dur: 22, delay: delay + .22, pan: pan * .4, hp: 45 });
       // 4) Zusätzliches Grollen, das später anschwillt und langsam vergeht (andere Seite)
       const r = this.play('rumble', { gain: .001, rate: .72, lp: 220, delay: delay + 1.2, pan: -pan, offset: rand(0, 8) });
-      if (r) { r.g.gain.setValueAtTime(.001, t + 1.2); r.g.gain.exponentialRampToValueAtTime(.7, t + 3.4); this.ramp(r.g, .7, t, 6, 15); r.src.stop(t + 15.5); }
+      if (r) { r.g.gain.setValueAtTime(.001, t + 1.2); r.g.gain.exponentialRampToValueAtTime(.7 * RUMBLE_K, t + 3.4); this.ramp(r.g, .7 * RUMBLE_K, t, 6, 15); r.src.stop(t + 15.5); }
       // 5) Wellen von den Hauswänden
       this.play('rainThunder', { gain: .4, offset: 22.4, dur: 7, delay: delay + 4.2, pan: rand(.4, .9) * (pan < 0 ? 1 : -1), lp: 600 });
       this.play('rainThunder', { gain: .22, offset: 24.0, dur: 6, delay: delay + 8.8, pan: rand(.3, .8) * (pan < 0 ? -1 : 1), lp: 380 });
@@ -2144,8 +2147,8 @@ const Audio = {
       const lp = 320 + close * 700;
       this.play('rainThunder', { gain: .55 + close * .5, offset: 21.15, dur: 20, delay, pan, lp, fadeIn: .9 });
       const r = this.play('rumble', { gain: .001, rate: rand(.6, .7), lp: 170, delay: delay + .6, pan: pan * .5, offset: rand(0, 8) });
-      if (r) { r.g.gain.setValueAtTime(.001, t + .6); r.g.gain.exponentialRampToValueAtTime(.45 + close * .3, t + 3); this.ramp(r.g, .45 + close * .3, t, 5, 14); r.src.stop(t + 14.5); }
-      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, .15 + close * .15, 1.2, 5.5, delay + .4);
+      if (r) { r.g.gain.setValueAtTime(.001, t + .6); r.g.gain.exponentialRampToValueAtTime((.45 + close * .3) * RUMBLE_K, t + 3); this.ramp(r.g, (.45 + close * .3) * RUMBLE_K, t, 5, 14); r.src.stop(t + 14.5); }
+      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, (.15 + close * .15) * .3, 1.2, 5.5, delay + .4);
       this.play('rainThunder', { gain: .28 + close * .2, offset: 26.2, dur: 8, delay: delay + 5.5, pan: -pan, lp: lp * .8 });
       if (Math.random() < .6) this.play('rainThunder', { gain: .16, offset: 30.5, dur: 7, delay: delay + 11, pan: pan * .3, lp: 260 });
     } },
@@ -2941,15 +2944,18 @@ function mantleObst(px, pz, y) { let top = -Infinity; for (const c of colliders)
 function mantleFree(x, z, y) { if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
   return typeof leben_free !== 'function' || (leben_free(x, z, y + .9, .26) && leben_free(x, z, y + 1.45, .22)); }
 function mantleGround(x, z, yRef) { let g = state.inBasement ? 0 : (indoorRects.find(r => inRect(r, x, z)) || { y: 0 }).y; for (const c of colliders) if (c.minX > -9000 && c.top > g && c.top <= yRef + .4 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; const sg = solidGround(x, yRef + .2, z); return sg > g ? sg : g; }
+// Hinter der Südsperre (bei Lucys Auto) endet die Welt: Kollisionskisten rundum, kein Rückweg. Dort darf man nicht landen (Nutzer 07.10.: „halb im Wald gefangen“).
+const MANTLE_SPERR = [[-20, 20, -56, -46.2]];
+const mantleVerboten = (x, z) => MANTLE_SPERR.some(([a, b, c, d]) => x > a && x < b && z > c && z < d);
 function mantleTarget() {
   if (crouchK > .3) return null; const f = flatDir(), P = player.pos; let ob = null, obD = 0;
   for (let d = .32; d <= 1.0 && ob === null; d += .12) { const t = mantleObst(P.x + f.x * d, P.z + f.z * d, P.y); if (t > -Infinity) { ob = t; obD = d; } }
   if (ob === null) return null; const h = ob - P.y;
   for (const back of [.42, .6]) { const sx = P.x + f.x * (obD + back), sz = P.z + f.z * (obD + back);
-    if (Math.abs(mantleGround(sx, sz, ob) - ob) < .09 && mantleFree(sx, sz, ob) && headCeiling(sx, ob + .1, sz) - ob >= HEAD_CLEAR) return { top: ob, x: sx, z: sz, h, art: 'hoch', land: ob, dur: .3 + .13 * h }; }
+    if (!mantleVerboten(sx, sz) && Math.abs(mantleGround(sx, sz, ob) - ob) < .09 && mantleFree(sx, sz, ob) && headCeiling(sx, ob + .1, sz) - ob >= HEAD_CLEAR) return { top: ob, x: sx, z: sz, h, art: 'hoch', land: ob, dur: .3 + .13 * h }; }
   if (h > 1.3) return null;
   for (const back of [.7, .95, 1.25]) { const lx = P.x + f.x * (obD + back), lz = P.z + f.z * (obD + back), g = mantleGround(lx, lz, P.y);
-    if (Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
+    if (mantleVerboten(lx, lz) || Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
     return { top: ob, x: lx, z: lz, h, art: 'drueber', land: g, dur: .5 + .08 * h }; }
   return null;
 }
@@ -5187,6 +5193,8 @@ async function buildSolids() {
 }
 function solidLive(it) { // unsichtbar, aufgehoben oder als „keine Wand“ markiert → zählt nicht
   for (let p = it.o; p; p = p.parent) { if (!p.visible || p.userData.noCol) return false; }
+  if (it.o.layers.mask === 0) return false; // wird nicht gezeichnet (Kamera sieht die Ebene nicht) → keine unsichtbare Wand
+  { const m = it.o.material, mm = Array.isArray(m) ? m[0] : m; if (mm && (mm.visible === false || mm.opacity < .05)) return false; } // ganz ausgeblendet (Erscheinungen, Geister) → keine Wand
   if (!it.inst) { const e = it.o.matrixWorld.elements; let same = true; for (let i = 0; i < 16; i++) if (e[i] !== it.me[i]) { same = false; break; }
     if (!same) { it.me.set(e); it.mw.copy(it.o.matrixWorld); it.inv.copy(it.mw).invert(); it.sc = Math.cbrt(Math.abs(it.mw.determinant()));
       it.bb.copy(it.o.geometry.boundingBox).applyMatrix4(it.mw); for (const l of it.cells) { const k = l.indexOf(it); if (k >= 0) l.splice(k, 1); } solidPut(it); } }

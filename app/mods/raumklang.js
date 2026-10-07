@@ -115,6 +115,7 @@ Object.assign(Audio, {
   frei(p) { const r = p && p._rk; if (r) r.end = Math.min(r.end, this.ctx.currentTime + .5); },
   play(name, o = RK_O) {
     const b = this.buf && this.buf[name]; if (!b) return null; const ctx = this.ctx, now = ctx.currentTime;
+    { const tk = typeof KL_TRIM !== 'undefined' ? KL_TRIM[name] : 0; if (tk && typeof o.gain === 'number' && o.gain > .01) o = { ...o, gain: o.gain * tk }; } // Pegel-Abgleich überlauter Aufnahmen (klang.js)
     const sp = (o.x !== undefined || o.obj) && o.pan === undefined; let pd = null, r = null, pr = o.gain ?? 1;
     if (sp) { pd = rk_at(o.x, o.y ?? 1, o.z, o.ref, o); if (this.cut) return null; r = pd._rk; pr *= r.pr * (o.wichtig ? 3 : 1); if (pr < .0015 && !o.loop && !o.obj) { rk_drop(r); RK.n.stumm++; return null; } }
     else if (o.dest && o.dest._rk) { r = o.dest._rk; pr *= r.pr; }

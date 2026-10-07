@@ -1986,6 +1986,9 @@ const AUDIO_MIX = { voices: 22, quiet: .2, whisperGap: 10, stingerGap: 20 }; // 
 const MUSIC = { uneasy: .38, danger: .66, hold: 8, order: ['off', 'calm', 'uneasy', 'danger'], firstRest: [70, 140], restAfter: [70, 150],
   rest: { calm: [120, 260], uneasy: [60, 140], danger: [0, 3] }, after: 40, talk: .3, gain: .9 }; // lange Pausen: echte Stille ist Teil der Musik (Klangbetten tragen dazwischen)
 const ctx0 = A => A.ctx;
+// Pegel-Abgleich (Nutzer 02.10./07.10.: „ständig extrem lauter Rausch-Sound“): die Aufnahme „rumble“ steht fast auf Vollaussteuerung (RMS 0,50; die übrigen Geräusche 0,02–0,07). Im Donner schwoll sie
+// auf das 20- bis 28-fache des Klangbetts an (gemessen am Hauptbus). RUMBLE_K bringt sie auf ein Maß, das noch grollt, aber nicht mehr alles überdeckt.
+const RUMBLE_K = .24;
 const Audio = {
   ctx: null,
   build(ctx) {
@@ -2131,12 +2134,12 @@ const Audio = {
       const n = this.noise(false), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500; n.connect(hp); this.env(hp, .9, .001, .18, delay); n.stop(t + .5);
       // 2) Der Knall (tief, wuchtig) + Tiefbass
       this.play('thunder1', { gain: 1.5, rate: .82, lp: 1100, delay: delay + .12, pan: pan * .5 });
-      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, .45, .02, 3.4, delay + .1); // Tiefbass nur als Stütze der Aufnahme
+      const b = this.osc('sine', 46, delay + .1, 4); b.frequency.exponentialRampToValueAtTime(22, t + 3.2); this.env(b, .45 * .35, .02, 3.4, delay + .1); // Tiefbass nur als Stütze der Aufnahme
       // 3) Der echte Donner: 22 Sekunden Rollen mit natürlichem Ausklingen
       this.play('rainThunder', { gain: 1.35, offset: 21.0, dur: 22, delay: delay + .22, pan: pan * .4, hp: 45 });
       // 4) Zusätzliches Grollen, das später anschwillt und langsam vergeht (andere Seite)
       const r = this.play('rumble', { gain: .001, rate: .72, lp: 220, delay: delay + 1.2, pan: -pan, offset: rand(0, 8) });
-      if (r) { r.g.gain.setValueAtTime(.001, t + 1.2); r.g.gain.exponentialRampToValueAtTime(.7, t + 3.4); this.ramp(r.g, .7, t, 6, 15); r.src.stop(t + 15.5); }
+      if (r) { r.g.gain.setValueAtTime(.001, t + 1.2); r.g.gain.exponentialRampToValueAtTime(.7 * RUMBLE_K, t + 3.4); this.ramp(r.g, .7 * RUMBLE_K, t, 6, 15); r.src.stop(t + 15.5); }
       // 5) Wellen von den Hauswänden
       this.play('rainThunder', { gain: .4, offset: 22.4, dur: 7, delay: delay + 4.2, pan: rand(.4, .9) * (pan < 0 ? 1 : -1), lp: 600 });
       this.play('rainThunder', { gain: .22, offset: 24.0, dur: 6, delay: delay + 8.8, pan: rand(.3, .8) * (pan < 0 ? -1 : 1), lp: 380 });
@@ -2146,8 +2149,8 @@ const Audio = {
       const lp = 320 + close * 700;
       this.play('rainThunder', { gain: .55 + close * .5, offset: 21.15, dur: 20, delay, pan, lp, fadeIn: .9 });
       const r = this.play('rumble', { gain: .001, rate: rand(.6, .7), lp: 170, delay: delay + .6, pan: pan * .5, offset: rand(0, 8) });
-      if (r) { r.g.gain.setValueAtTime(.001, t + .6); r.g.gain.exponentialRampToValueAtTime(.45 + close * .3, t + 3); this.ramp(r.g, .45 + close * .3, t, 5, 14); r.src.stop(t + 14.5); }
-      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, .15 + close * .15, 1.2, 5.5, delay + .4);
+      if (r) { r.g.gain.setValueAtTime(.001, t + .6); r.g.gain.exponentialRampToValueAtTime((.45 + close * .3) * RUMBLE_K, t + 3); this.ramp(r.g, (.45 + close * .3) * RUMBLE_K, t, 5, 14); r.src.stop(t + 14.5); }
+      const b = this.osc('sine', 38, delay + .4, 7); this.env(b, (.15 + close * .15) * .3, 1.2, 5.5, delay + .4);
       this.play('rainThunder', { gain: .28 + close * .2, offset: 26.2, dur: 8, delay: delay + 5.5, pan: -pan, lp: lp * .8 });
       if (Math.random() < .6) this.play('rainThunder', { gain: .16, offset: 30.5, dur: 7, delay: delay + 11, pan: pan * .3, lp: 260 });
     } },
@@ -2943,15 +2946,18 @@ function mantleObst(px, pz, y) { let top = -Infinity; for (const c of colliders)
 function mantleFree(x, z, y) { if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
   return typeof leben_free !== 'function' || (leben_free(x, z, y + .9, .26) && leben_free(x, z, y + 1.45, .22)); }
 function mantleGround(x, z, yRef) { let g = state.inBasement ? 0 : (indoorRects.find(r => inRect(r, x, z)) || { y: 0 }).y; for (const c of colliders) if (c.minX > -9000 && c.top > g && c.top <= yRef + .4 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; const sg = solidGround(x, yRef + .2, z); return sg > g ? sg : g; }
+// Hinter der Südsperre (bei Lucys Auto) endet die Welt: Kollisionskisten rundum, kein Rückweg. Dort darf man nicht landen (Nutzer 07.10.: „halb im Wald gefangen“).
+const MANTLE_SPERR = [[-20, 20, -56, -46.2]];
+const mantleVerboten = (x, z) => MANTLE_SPERR.some(([a, b, c, d]) => x > a && x < b && z > c && z < d);
 function mantleTarget() {
   if (crouchK > .3) return null; const f = flatDir(), P = player.pos; let ob = null, obD = 0;
   for (let d = .32; d <= 1.0 && ob === null; d += .12) { const t = mantleObst(P.x + f.x * d, P.z + f.z * d, P.y); if (t > -Infinity) { ob = t; obD = d; } }
   if (ob === null) return null; const h = ob - P.y;
   for (const back of [.42, .6]) { const sx = P.x + f.x * (obD + back), sz = P.z + f.z * (obD + back);
-    if (Math.abs(mantleGround(sx, sz, ob) - ob) < .09 && mantleFree(sx, sz, ob) && headCeiling(sx, ob + .1, sz) - ob >= HEAD_CLEAR) return { top: ob, x: sx, z: sz, h, art: 'hoch', land: ob, dur: .3 + .13 * h }; }
+    if (!mantleVerboten(sx, sz) && Math.abs(mantleGround(sx, sz, ob) - ob) < .09 && mantleFree(sx, sz, ob) && headCeiling(sx, ob + .1, sz) - ob >= HEAD_CLEAR) return { top: ob, x: sx, z: sz, h, art: 'hoch', land: ob, dur: .3 + .13 * h }; }
   if (h > 1.3) return null;
   for (const back of [.7, .95, 1.25]) { const lx = P.x + f.x * (obD + back), lz = P.z + f.z * (obD + back), g = mantleGround(lx, lz, P.y);
-    if (Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
+    if (mantleVerboten(lx, lz) || Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
     return { top: ob, x: lx, z: lz, h, art: 'drueber', land: g, dur: .5 + .08 * h }; }
   return null;
 }
@@ -5189,6 +5195,8 @@ async function buildSolids() {
 }
 function solidLive(it) { // unsichtbar, aufgehoben oder als „keine Wand“ markiert → zählt nicht
   for (let p = it.o; p; p = p.parent) { if (!p.visible || p.userData.noCol) return false; }
+  if (it.o.layers.mask === 0) return false; // wird nicht gezeichnet (Kamera sieht die Ebene nicht) → keine unsichtbare Wand
+  { const m = it.o.material, mm = Array.isArray(m) ? m[0] : m; if (mm && (mm.visible === false || mm.opacity < .05)) return false; } // ganz ausgeblendet (Erscheinungen, Geister) → keine Wand
   if (!it.inst) { const e = it.o.matrixWorld.elements; let same = true; for (let i = 0; i < 16; i++) if (e[i] !== it.me[i]) { same = false; break; }
     if (!same) { it.me.set(e); it.mw.copy(it.o.matrixWorld); it.inv.copy(it.mw).invert(); it.sc = Math.cbrt(Math.abs(it.mw.determinant()));
       it.bb.copy(it.o.geometry.boundingBox).applyMatrix4(it.mw); for (const l of it.cells) { const k = l.indexOf(it); if (k >= 0) l.splice(k, 1); } solidPut(it); } }
@@ -7602,9 +7610,17 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       for (const L of lamps) if (Math.abs(L.wz) < 9 && Math.abs(L.wx) < 76) spots.push([L.wx + rr(-1.8, 1.8), (L.wz < 0 ? -1 : 1) * 3.52]);
       for (const [x, z] of [[-2.1, -38.5], [66, 1.3], [-12, -1.6]]) spots.push([x + rr(-.9, .9), z + rr(-.6, .6)]);
       const mats = spots.map(([x, z]) => { const k = k0 * rr(.75, 1.15); return msM4(x, -bb.min.y * k * .55 + .005, z, rr(0, 6.28), new T.Vector3(k * rr(.9, 1.2), k * .55, k * rr(.7, 1))); });
-      const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); } }
+      const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); strasse_laubKante(mt, bb.min, bb.max); } }
       (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; } } catch (e) { warn(e); }
 }]);
+// Laub-Haufen: Kanten des Scans weich ausblenden (stochastisch, ohne Sortierung). Nutzer 07.10.: harte Rechtecke aus Laub liegen im Gras.
+function strasse_laubKante(mt, bmin, bmax) {
+  mt.alphaHash = true; const lo = new THREE.Vector2(bmin.x, bmin.z), hi = new THREE.Vector2(bmax.x, bmax.z);
+  mt.onBeforeCompile = sh => { sh.uniforms.lbMin = { value: lo }; sh.uniforms.lbMax = { value: hi };
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vLb;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvLb = position.xz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vLb; uniform vec2 lbMin; uniform vec2 lbMax;')
+      .replace('#include <alphahash_fragment>', 'vec2 lbE = min(vLb - lbMin, lbMax - vLb) / (.5 * (lbMax - lbMin)); diffuseColor.a *= smoothstep(0., .4, min(lbE.x, lbE.y));\n#include <alphahash_fragment>'); };
+  mt.customProgramCacheKey = () => 'laubkante'; mt.needsUpdate = true; }
 // Leitungen im Wind (R-7): Ausschlag je Punkt aus aSw (uv.x der Röhre = Lage entlang der Leitung), gemeinsamer Windzustand der Basis (windV/windU):
 // ruhig wenige Zentimeter, in der Böe bis ~10 cm quer zur Windrichtung, leicht verzögert und nie im Gleichtakt (Phase aus der Weltlage)
 function strasse_sway(g, f) { const U = g.attributes.uv, a = new Float32Array(U.count); for (let i = 0; i < U.count; i++) a[i] = f(U.getX(i)); g.setAttribute('aSw', new THREE.BufferAttribute(a, 1)); return g; }
@@ -27312,6 +27328,10 @@ function klang_wind(dt) {
     if (!B.h) continue; if (Math.abs(v - B.v) > .002) { const up = v > B.v; B.v = v; B.h.g.gain.setTargetAtTime(v, t, up ? .7 : 1.1); }
     B.idle = v > .005 ? 0 : B.idle + 1; if (B.idle > 100) { B.h.stop(.5); B.h = null; B.v = 0; } }
 }
+// Pegel-Abgleich einzelner Aufnahmen, die weit über dem Rest liegen (gemessen RMS/Spitze je Aufnahme): rumble (0,50), crow2 (0,11), woodSlam2/3, metalSlam (Spitze 0,86–1,0).
+// Donner (rainThunder/thunder1): der Donnerschlag in der Aufnahme lag bei RMS 0,35 am Weltbus, davon 70 % unter 80 Hz – das 25-fache des Klangbetts, alle 35–75 s (Blitz). Jetzt ca. das 6-fache.
+// Feste Pegel werden hier gesenkt; die Donner-Rampen stehen in der Basis (RUMBLE_K).
+const KL_TRIM = { rumble: .3, rainThunder: .35, thunder1: .55, crow2: .35, woodSlam2: .55, woodSlam3: .55, woodSlam1: .65, metalSlam: .6 }; // angewandt in Audio.play (raumklang.js ersetzt play – ein Umhüllen hier ging verloren)
 // Umwelt-Geräusche (R-7): Busch beim Durchlaufen, Laub beim Rennen, Schaukelkette und -quietschen – Aufnahmen, sonst Ersatz aus dem Grundspiel
 Object.assign(Audio, {
   busch(x, z, v = 1) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.buschAt || 0) < .16) return; this.buschAt = t; const n = kl_pick('fx_busch_', 6);
@@ -27487,6 +27507,7 @@ Object.assign(Audio, {
   frei(p) { const r = p && p._rk; if (r) r.end = Math.min(r.end, this.ctx.currentTime + .5); },
   play(name, o = RK_O) {
     const b = this.buf && this.buf[name]; if (!b) return null; const ctx = this.ctx, now = ctx.currentTime;
+    { const tk = typeof KL_TRIM !== 'undefined' ? KL_TRIM[name] : 0; if (tk && typeof o.gain === 'number' && o.gain > .01) o = { ...o, gain: o.gain * tk }; } // Pegel-Abgleich überlauter Aufnahmen (klang.js)
     const sp = (o.x !== undefined || o.obj) && o.pan === undefined; let pd = null, r = null, pr = o.gain ?? 1;
     if (sp) { pd = rk_at(o.x, o.y ?? 1, o.z, o.ref, o); if (this.cut) return null; r = pd._rk; pr *= r.pr * (o.wichtig ? 3 : 1); if (pr < .0015 && !o.loop && !o.obj) { rk_drop(r); RK.n.stumm++; return null; } }
     else if (o.dest && o.dest._rk) { r = o.dest._rk; pr *= r.pr; }
@@ -31387,6 +31408,7 @@ async function todRespawn() {
   filmPass.uniforms.vig.value = S.vig0; filmPass.uniforms.ca.value = S.ca0; // nach den Modulen: tod ist der einzige, der das Bild nach dem Tod zurücksetzt
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Wiederkehr', e); } }
   else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
+  tod_umwelt(player.pos.x, player.pos.z);
   player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; document.body.classList.remove('todDying');
   todMuffle(22000, 1.2); lockPointer();
   await wait(500); S.dying = false; S.respawning = false; fade(0, 1600);
@@ -31410,6 +31432,14 @@ TOD_RESET.push((id, kind) => {
   counted.forEach(c => { c.f.visible = false; c.f.rotation.x = 0; });
 });
 
+// Umwelt-Merker zum Zielort setzen. Keller (x/z ≈ 300), Amt und Weiß-Räume (z ≈ −2600) und Kanal (z ≈ +2600) liegen weit weg vom Ort. Nach dem Versetzen müssen
+// inBasement/zone dazu passen: blieb inBasement nach der Rettung aus dem Keller hängen, waren draußen Mond und Spiegelung aus und die Luft gedämpft – schwarze Welt („nichts lädt“).
+function tod_umwelt(x, z) {
+  const keller = Math.abs(x - B.x) < 20 && Math.abs(z - B.z) < 20, tief = z < -2000, kanal = z > 2000;
+  state.inBasement = keller || tief;
+  if (!kanal && state.zone === 'canal') { state.zone = null; if (ch3.part === 'canal') ch3.part = 'town'; try { canalAtmo(false); } catch (e) {} if (canal.obj) { try { $('objText').textContent = canal.obj; } catch (e) {} } }
+  indoorK = 0; lastArea = ''; // Innen-/Außenlicht und Klangbett sofort neu bestimmen
+}
 // ---------------------------------------------------------------- Rettung bei Feststecken (Nutzer 02.10.: „man darf niemals irgendwo festhängen“)
 // Pause → „FESTGESTECKT?“: ein paar Schritte zurück (letzter sicherer Ort der Basis, SAFE.at, jede Sekunde gemerkt, wenn nichts läuft) · letzter Speicherpunkt · Kapitelanfang.
 // Ohne Tod, ohne Strafe; Verfolgungen/Szenen werden wie beim Wiederkehren zurückgesetzt (TOD_RESET, Art 'zurueck'). Automatisch: unter die Welt gefallen → zurück zum sicheren Ort;
@@ -31420,13 +31450,15 @@ async function tod_zurueck(ziel) {
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
   try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
   const ch = curChapter(); let cp = null;
-  if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+  const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
+  if (ziel === 'schritt' && imKeller) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 }; // Fuß der Kellertreppe
+  else if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
   if (!cp && ziel !== 'start' && S.cp && (!S.cp.chapter || S.cp.chapter === ch)) cp = S.cp;
   if (!cp) { const sp = chSpawn(ch); cp = { id: 'start', label: 'Kapitel ' + ch + ' · ' + chTitle(ch), x: sp.x, y: sp.y, z: sp.z, yaw: sp.yaw }; }
   if (cp.id !== 'schritt') for (const f of TOD_RESET) { try { f(cp.id, 'zurueck'); } catch (e) { console.warn('Rettung', e); } }
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Rettung', e); } } else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
-  if (cp.id === 'start' && ch === 1) state.inBasement = false;
-  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true;
+  tod_umwelt(player.pos.x, player.pos.z);
+  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true; vy = 0; stairBusy = false; state.blackout = false;
   try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt'); S.zurueck = false;
 }
 function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns'); if (!P || document.getElementById('pRettung')) return;
@@ -31465,6 +31497,38 @@ WORLD_TICK.push((dt) => {
 });
 
 WORLD_TICK.push(dt => { try { tod_festTick(dt); } catch (e) {} });
+// ---------------------------------------------------------------- Klemmt: Ursache ins Protokoll, Freischieben aus Kollisionskörpern
+// Nutzer 02.10./07.10.: „überall unsichtbare Wände“. Läuft Luke 1,2 s gegen etwas und kommt keinen Schritt weiter, wird (1) das blockierende Objekt mit Namen ins Protokoll geschrieben
+// (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.
+const TOD_KL = { t: 0, x: 0, z: 0, logT: 0, a: new THREE.Vector3(), b: new THREE.Vector3(), c: new THREE.Vector3(), g: {} };
+const tod_nm = o => { const a = []; for (let p = o, i = 0; p && i < 4; p = p.parent, i++) a.push(p.name || p.type); return a.join('<'); };
+function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen
+  let n = 0; const H = typeof bodyH === 'function' ? bodyH() : 1.7;
+  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H) continue;
+    if (x + rr > c.minX && x - rr < c.maxX && z + rr > c.minZ && z - rr < c.maxZ) { n++; if (out && out.length < 6) out.push('Kiste[' + [c.minX, c.maxX, c.minZ, c.maxZ].map(v => v.toFixed(1)).join(',') + '|' + c.base + '…' + c.top + ']'); } }
+  const A = TOD_KL.a, Bv = TOD_KL.b, C = TOD_KL.c;
+  for (const it of solidNear(x, z)) { const bb = it.bb; if (it.soft || x + rr < bb.min.x || x - rr > bb.max.x || z + rr < bb.min.z || z - rr > bb.max.z || y + 1.8 < bb.min.y || y + .37 > bb.max.y || !solidLive(it)) continue;
+    for (const h of [.62, 1.05, 1.5, 1.72]) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
+      A.set(x, cy, z).applyMatrix4(it.inv); const r = it.o.geometry.boundsTree.closestPointToPoint(A, TOD_KL.g, 0, rr / it.sc); if (!r) continue;
+      Bv.copy(r.point).applyMatrix4(it.mw); if (Bv.y < y + .37 || Bv.distanceTo(C.set(x, cy, z)) >= rr) continue;
+      n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
+  return n; }
+function tod_klemmTick(dt) {
+  const K = TOD_KL;
+  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
+  const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
+  if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
+  K.t += dt; if (K.t < 1.2) return; K.t = 0; const d = Math.hypot(P.x - K.x, P.z - K.z); K.x = P.x; K.z = P.z; if (d > .35) return;
+  const info = []; const drin = tod_blockiert(P.x, P.y, P.z, info, R * .8); // steckt IN etwas (Überlappung)
+  const nah = []; if (!drin) tod_blockiert(P.x, P.y, P.z, nah, R + .12); // oder steht dicht davor
+  if (performance.now() > K.logT) { K.logT = performance.now() + 15000; console.warn('Klemmt: pos=' + [P.x, P.y, P.z].map(v => v.toFixed(2)).join(',') + ' kap=' + curChapter() + ' keller=' + state.inBasement + ' zone=' + state.zone + ' ' + (drin ? 'STECKT: ' + info.join(' | ') : 'davor: ' + (nah.join(' | ') || 'nichts gefunden (Bremsung?)'))); }
+  if (!drin) return;
+  for (const r of [.5, .8, 1.1, 1.5, 2, 2.6, 3.2]) for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
+    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z })) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
+// Hinter der Südsperre (z < −46,4; Kollisionskisten rundum, kein Rückweg): wer dort landet (Hochziehen, Szene, älterer Spielstand), wird davor abgesetzt
+WORLD_TICK.push(() => { try { const P = player.pos;
+  if (state.started && !menu.attract && !state.inBasement && !state.zone && !scripted && !mantle && P.z < -46.4 && P.z > -56 && Math.abs(P.x) < 20 && P.y < 3 && curChapter() < 7) { P.set(Math.max(-3.5, Math.min(3.5, P.x)), 0, -44.9); vel.set(0, 0, 0); console.warn('Klemmt: hinter der Südsperre zurückgesetzt'); } } catch (e) {} });
+WORLD_TICK.push(dt => { try { tod_klemmTick(dt); } catch (e) { if (!TOD_KL.err) { TOD_KL.err = 1; console.warn('Klemmt-Tick', e); } } });
 // =====================================================================  FEUER (Modul „feuer“): Das Ölfass im langen Gang, Onkel Peter brennt, Flucht vor dem Rauch
 // Kanon: Der Zahn-Mann ist Peter Kranz – Mamas Bruder, die Kopie von 1975, seit 1992 auf Ebene −2 eingesperrt. Er jagt nicht aus Bosheit, er sucht den Ausgang.
 // Ablauf:

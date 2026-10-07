@@ -488,9 +488,17 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       for (const L of lamps) if (Math.abs(L.wz) < 9 && Math.abs(L.wx) < 76) spots.push([L.wx + rr(-1.8, 1.8), (L.wz < 0 ? -1 : 1) * 3.52]);
       for (const [x, z] of [[-2.1, -38.5], [66, 1.3], [-12, -1.6]]) spots.push([x + rr(-.9, .9), z + rr(-.6, .6)]);
       const mats = spots.map(([x, z]) => { const k = k0 * rr(.75, 1.15); return msM4(x, -bb.min.y * k * .55 + .005, z, rr(0, 6.28), new T.Vector3(k * rr(.9, 1.2), k * .55, k * rr(.7, 1))); });
-      const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); } }
+      const ims = msInst(parts, mats, { shadow: false, recv: true }); for (const m of ims) { m.userData.noCol = true; for (const mt of [].concat(m.material)) { mt.roughness = Math.min(mt.roughness ?? 1, .55); strasse_laubKante(mt, bb.min, bb.max); } }
       (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; } } catch (e) { warn(e); }
 }]);
+// Laub-Haufen: Kanten des Scans weich ausblenden (stochastisch, ohne Sortierung). Nutzer 07.10.: harte Rechtecke aus Laub liegen im Gras.
+function strasse_laubKante(mt, bmin, bmax) {
+  mt.alphaHash = true; const lo = new THREE.Vector2(bmin.x, bmin.z), hi = new THREE.Vector2(bmax.x, bmax.z);
+  mt.onBeforeCompile = sh => { sh.uniforms.lbMin = { value: lo }; sh.uniforms.lbMax = { value: hi };
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vLb;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvLb = position.xz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vLb; uniform vec2 lbMin; uniform vec2 lbMax;')
+      .replace('#include <alphahash_fragment>', 'vec2 lbE = min(vLb - lbMin, lbMax - vLb) / (.5 * (lbMax - lbMin)); diffuseColor.a *= smoothstep(0., .4, min(lbE.x, lbE.y));\n#include <alphahash_fragment>'); };
+  mt.customProgramCacheKey = () => 'laubkante'; mt.needsUpdate = true; }
 // Leitungen im Wind (R-7): Ausschlag je Punkt aus aSw (uv.x der Röhre = Lage entlang der Leitung), gemeinsamer Windzustand der Basis (windV/windU):
 // ruhig wenige Zentimeter, in der Böe bis ~10 cm quer zur Windrichtung, leicht verzögert und nie im Gleichtakt (Phase aus der Weltlage)
 function strasse_sway(g, f) { const U = g.attributes.uv, a = new Float32Array(U.count); for (let i = 0; i < U.count; i++) a[i] = f(U.getX(i)); g.setAttribute('aSw', new THREE.BufferAttribute(a, 1)); return g; }

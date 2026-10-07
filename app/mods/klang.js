@@ -367,6 +367,10 @@ function klang_wind(dt) {
     if (!B.h) continue; if (Math.abs(v - B.v) > .002) { const up = v > B.v; B.v = v; B.h.g.gain.setTargetAtTime(v, t, up ? .7 : 1.1); }
     B.idle = v > .005 ? 0 : B.idle + 1; if (B.idle > 100) { B.h.stop(.5); B.h = null; B.v = 0; } }
 }
+// Pegel-Abgleich einzelner Aufnahmen, die weit über dem Rest liegen (gemessen RMS/Spitze je Aufnahme): rumble (0,50), crow2 (0,11), woodSlam2/3, metalSlam (Spitze 0,86–1,0).
+// Donner (rainThunder/thunder1): der Donnerschlag in der Aufnahme lag bei RMS 0,35 am Weltbus, davon 70 % unter 80 Hz – das 25-fache des Klangbetts, alle 35–75 s (Blitz). Jetzt ca. das 6-fache.
+// Feste Pegel werden hier gesenkt; die Donner-Rampen stehen in der Basis (RUMBLE_K).
+const KL_TRIM = { rumble: .3, rainThunder: .35, thunder1: .55, crow2: .35, woodSlam2: .55, woodSlam3: .55, woodSlam1: .65, metalSlam: .6 }; // angewandt in Audio.play (raumklang.js ersetzt play – ein Umhüllen hier ging verloren)
 // Umwelt-Geräusche (R-7): Busch beim Durchlaufen, Laub beim Rennen, Schaukelkette und -quietschen – Aufnahmen, sonst Ersatz aus dem Grundspiel
 Object.assign(Audio, {
   busch(x, z, v = 1) { if (!this.ctx) return; const t = this.ctx.currentTime; if (t - (this.buschAt || 0) < .16) return; this.buschAt = t; const n = kl_pick('fx_busch_', 6);

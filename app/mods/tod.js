@@ -271,6 +271,7 @@ async function todRespawn() {
   filmPass.uniforms.vig.value = S.vig0; filmPass.uniforms.ca.value = S.ca0; // nach den Modulen: tod ist der einzige, der das Bild nach dem Tod zurücksetzt
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Wiederkehr', e); } }
   else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
+  tod_umwelt(player.pos.x, player.pos.z);
   player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; document.body.classList.remove('todDying');
   todMuffle(22000, 1.2); lockPointer();
   await wait(500); S.dying = false; S.respawning = false; fade(0, 1600);
@@ -294,6 +295,14 @@ TOD_RESET.push((id, kind) => {
   counted.forEach(c => { c.f.visible = false; c.f.rotation.x = 0; });
 });
 
+// Umwelt-Merker zum Zielort setzen. Keller (x/z ≈ 300), Amt und Weiß-Räume (z ≈ −2600) und Kanal (z ≈ +2600) liegen weit weg vom Ort. Nach dem Versetzen müssen
+// inBasement/zone dazu passen: blieb inBasement nach der Rettung aus dem Keller hängen, waren draußen Mond und Spiegelung aus und die Luft gedämpft – schwarze Welt („nichts lädt“).
+function tod_umwelt(x, z) {
+  const keller = Math.abs(x - B.x) < 20 && Math.abs(z - B.z) < 20, tief = z < -2000, kanal = z > 2000;
+  state.inBasement = keller || tief;
+  if (!kanal && state.zone === 'canal') { state.zone = null; if (ch3.part === 'canal') ch3.part = 'town'; try { canalAtmo(false); } catch (e) {} if (canal.obj) { try { $('objText').textContent = canal.obj; } catch (e) {} } }
+  indoorK = 0; lastArea = ''; // Innen-/Außenlicht und Klangbett sofort neu bestimmen
+}
 // ---------------------------------------------------------------- Rettung bei Feststecken (Nutzer 02.10.: „man darf niemals irgendwo festhängen“)
 // Pause → „FESTGESTECKT?“: ein paar Schritte zurück (letzter sicherer Ort der Basis, SAFE.at, jede Sekunde gemerkt, wenn nichts läuft) · letzter Speicherpunkt · Kapitelanfang.
 // Ohne Tod, ohne Strafe; Verfolgungen/Szenen werden wie beim Wiederkehren zurückgesetzt (TOD_RESET, Art 'zurueck'). Automatisch: unter die Welt gefallen → zurück zum sicheren Ort;
@@ -304,13 +313,15 @@ async function tod_zurueck(ziel) {
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
   try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
   const ch = curChapter(); let cp = null;
-  if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+  const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
+  if (ziel === 'schritt' && imKeller) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 }; // Fuß der Kellertreppe
+  else if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
   if (!cp && ziel !== 'start' && S.cp && (!S.cp.chapter || S.cp.chapter === ch)) cp = S.cp;
   if (!cp) { const sp = chSpawn(ch); cp = { id: 'start', label: 'Kapitel ' + ch + ' · ' + chTitle(ch), x: sp.x, y: sp.y, z: sp.z, yaw: sp.yaw }; }
   if (cp.id !== 'schritt') for (const f of TOD_RESET) { try { f(cp.id, 'zurueck'); } catch (e) { console.warn('Rettung', e); } }
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Rettung', e); } } else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
-  if (cp.id === 'start' && ch === 1) state.inBasement = false;
-  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true;
+  tod_umwelt(player.pos.x, player.pos.z);
+  player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true; vy = 0; stairBusy = false; state.blackout = false;
   try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt'); S.zurueck = false;
 }
 function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns'); if (!P || document.getElementById('pRettung')) return;
@@ -349,3 +360,35 @@ WORLD_TICK.push((dt) => {
 });
 
 WORLD_TICK.push(dt => { try { tod_festTick(dt); } catch (e) {} });
+// ---------------------------------------------------------------- Klemmt: Ursache ins Protokoll, Freischieben aus Kollisionskörpern
+// Nutzer 02.10./07.10.: „überall unsichtbare Wände“. Läuft Luke 1,2 s gegen etwas und kommt keinen Schritt weiter, wird (1) das blockierende Objekt mit Namen ins Protokoll geschrieben
+// (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.
+const TOD_KL = { t: 0, x: 0, z: 0, logT: 0, a: new THREE.Vector3(), b: new THREE.Vector3(), c: new THREE.Vector3(), g: {} };
+const tod_nm = o => { const a = []; for (let p = o, i = 0; p && i < 4; p = p.parent, i++) a.push(p.name || p.type); return a.join('<'); };
+function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen
+  let n = 0; const H = typeof bodyH === 'function' ? bodyH() : 1.7;
+  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H) continue;
+    if (x + rr > c.minX && x - rr < c.maxX && z + rr > c.minZ && z - rr < c.maxZ) { n++; if (out && out.length < 6) out.push('Kiste[' + [c.minX, c.maxX, c.minZ, c.maxZ].map(v => v.toFixed(1)).join(',') + '|' + c.base + '…' + c.top + ']'); } }
+  const A = TOD_KL.a, Bv = TOD_KL.b, C = TOD_KL.c;
+  for (const it of solidNear(x, z)) { const bb = it.bb; if (it.soft || x + rr < bb.min.x || x - rr > bb.max.x || z + rr < bb.min.z || z - rr > bb.max.z || y + 1.8 < bb.min.y || y + .37 > bb.max.y || !solidLive(it)) continue;
+    for (const h of [.62, 1.05, 1.5, 1.72]) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
+      A.set(x, cy, z).applyMatrix4(it.inv); const r = it.o.geometry.boundsTree.closestPointToPoint(A, TOD_KL.g, 0, rr / it.sc); if (!r) continue;
+      Bv.copy(r.point).applyMatrix4(it.mw); if (Bv.y < y + .37 || Bv.distanceTo(C.set(x, cy, z)) >= rr) continue;
+      n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
+  return n; }
+function tod_klemmTick(dt) {
+  const K = TOD_KL;
+  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
+  const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
+  if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
+  K.t += dt; if (K.t < 1.2) return; K.t = 0; const d = Math.hypot(P.x - K.x, P.z - K.z); K.x = P.x; K.z = P.z; if (d > .35) return;
+  const info = []; const drin = tod_blockiert(P.x, P.y, P.z, info, R * .8); // steckt IN etwas (Überlappung)
+  const nah = []; if (!drin) tod_blockiert(P.x, P.y, P.z, nah, R + .12); // oder steht dicht davor
+  if (performance.now() > K.logT) { K.logT = performance.now() + 15000; console.warn('Klemmt: pos=' + [P.x, P.y, P.z].map(v => v.toFixed(2)).join(',') + ' kap=' + curChapter() + ' keller=' + state.inBasement + ' zone=' + state.zone + ' ' + (drin ? 'STECKT: ' + info.join(' | ') : 'davor: ' + (nah.join(' | ') || 'nichts gefunden (Bremsung?)'))); }
+  if (!drin) return;
+  for (const r of [.5, .8, 1.1, 1.5, 2, 2.6, 3.2]) for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
+    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z })) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
+// Hinter der Südsperre (z < −46,4; Kollisionskisten rundum, kein Rückweg): wer dort landet (Hochziehen, Szene, älterer Spielstand), wird davor abgesetzt
+WORLD_TICK.push(() => { try { const P = player.pos;
+  if (state.started && !menu.attract && !state.inBasement && !state.zone && !scripted && !mantle && P.z < -46.4 && P.z > -56 && Math.abs(P.x) < 20 && P.y < 3 && curChapter() < 7) { P.set(Math.max(-3.5, Math.min(3.5, P.x)), 0, -44.9); vel.set(0, 0, 0); console.warn('Klemmt: hinter der Südsperre zurückgesetzt'); } } catch (e) {} });
+WORLD_TICK.push(dt => { try { tod_klemmTick(dt); } catch (e) { if (!TOD_KL.err) { TOD_KL.err = 1; console.warn('Klemmt-Tick', e); } } });
