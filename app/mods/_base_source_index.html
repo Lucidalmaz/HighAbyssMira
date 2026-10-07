@@ -3577,7 +3577,7 @@ function lifeUpdate(dt, t, indoor, rect) {
   // Regie: zufällige Ereignisse
   if (state.started && !state.outage && !state.talking && !ui.overlay && !state.ch2) {
     dir.t -= dt; if (dir.t < 0) { if (nat.calm > 0) dir.t = 3; else { dir.t = rand(26, 50); runEvent(indoor); nat.calm = Math.max(nat.calm, 10); } }
-    dir.lightT -= dt; if (dir.lightT < 0) { dir.lightT = rand(35, 75); lightning(); }
+    dir.lightT -= dt; if (dir.lightT < 0) { dir.lightT = rand(55, 120); lightning(); } // seltener (07.10.: Donner störte)
   }
   // Wackeln & Bildstörung
   if (shake > 0) { camera.position.x += (Math.random() - .5) * shake; camera.position.y += (Math.random() - .5) * shake; camera.rotation.z += (Math.random() - .5) * shake * .5; shake = Math.max(0, shake - dt * .15); }
