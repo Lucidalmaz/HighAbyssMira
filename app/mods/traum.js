@@ -67,7 +67,8 @@ runIntro = async function traum_intro() {
   S.ptrFn = () => { if (!S.on || S.kino || S.waking) return; if (S.free) { if (document.pointerLockElement !== renderer.domElement) lockPointer(); return; } S.skip = true; };
   S.keyFn = e => { if (!S.on || S.kino || S.waking || e.repeat) return; if (e.code === 'Escape' || (e.code === 'Space' && !S.free)) S.skip = true; };
   $('introSeq').classList.remove('show'); renderer.domElement.addEventListener('pointerdown', S.ptrFn); document.addEventListener('keydown', S.keyFn);
-  await wait(3200); if (!S.skip) { title.style.opacity = 0; await wait(1400); }
+  // Nutzer 08.10.2026: der Traum (Nebelstraße, Rabe, Kino „Kum, Wîse“) dauerte zu lang und blieb ohne Kontext unverständlich → übersprungen; der Kontext kommt im Aufwachen (Kühns Mailbox, Lucys Anruf). Der Traum-Code bleibt für traum_zweiter (Abspann Kap. 4).
+  S.skip = true; title.style.opacity = 0; await wait(900);
   $('fade').style.transition = 'opacity 2.2s'; $('fade').style.opacity = 0; S.shot = 0; S.t = 0; traum_lines();
   setCamOverride((cam, dt) => traum_cam(cam, dt));
 };

@@ -152,9 +152,9 @@ function kino_lensPass() { if (typeof ShaderPass === 'undefined' || !composer) r
   const p = new ShaderPass({ uniforms: { tDiffuse: { value: null }, uAmt: { value: 0 }, uC: { value: new THREE.Vector2(.5, .5) }, uR: { value: .22 }, uAsp: { value: 1.7 }, uPx: { value: new THREE.Vector2(1 / 1600, 1 / 900) } },
     vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
     fragmentShader: `uniform sampler2D tDiffuse; uniform float uAmt, uR, uAsp; uniform vec2 uC, uPx; varying vec2 vUv;
-      void main(){ vec4 c = texture2D(tDiffuse, vUv); vec2 d = (vUv - uC) * vec2(uAsp, 1.); float k = smoothstep(uR, uR + .42, length(d)) * uAmt;
+      void main(){ vec4 c = texture2D(tDiffuse, vUv); vec2 d = (vUv - uC) * vec2(uAsp, 1.); float k = smoothstep(uR + .16, uR + .65, length(d)) * uAmt * .3;
         if (k < .02) { gl_FragColor = c; return; } vec3 s = c.rgb; float w = 1.;
-        for (int i = 0; i < 16; i++) { float a = float(i) * 2.39996, r = sqrt((float(i) + .5) / 16.); vec2 o = vec2(cos(a), sin(a)) * r * k * 7.5 * uPx; vec3 x = texture2D(tDiffuse, vUv + o).rgb; float b = 1. + dot(x, vec3(.3, .5, .2)) * 1.5; s += x * b; w += b; }
+        for (int i = 0; i < 16; i++) { float a = float(i) * 2.39996, r = sqrt((float(i) + .5) / 16.); vec2 o = vec2(cos(a), sin(a)) * r * k * 5. * uPx; vec3 x = texture2D(tDiffuse, vUv + o).rgb; float b = 1. + dot(x, vec3(.3, .5, .2)) * 1.5; s += x * b; w += b; }
         gl_FragColor = vec4(s / w, c.a); }` });
   const i = composer.passes.indexOf(filmPass); if (i < 0) return null; composer.insertPass(p, i); return p; }
 function kino_lensSet(L, k, e) { const S = kino_S, P = S.lens; if (!P) return; if (!L) { P.uniforms.uAmt.value = 0; P.enabled = false; return; }
@@ -1442,10 +1442,10 @@ function kino_defProlog() {
       tick(k, t, dt) { mix(dt); const p = S.kpF; kopf(p); camera.getWorldDirection(kino_d); p.addScaledVector(kino_d, -.012); p.y -= .03; const G = kino_gkZeig(p, camera.position, .5, false); if (G) G.rotateZ(-.06 + .03 * Math.sin(t * 2));
         KINO_GK.uMund.value = .5 + .5 * Math.sin(t * 4.2); kino_S.lit[0] = kino_S.litKP || (kino_S.litKP = { p: kino_V(0, 0, 0), c: 0xe4ecf8, d: 2.5, i: 0 }); kino_S.litKP.p.copy(p).add(kino_V(0, -.35, 0)).addScaledVector(kino_d, -.15); kino_S.litKP.i = .45; /* schwach, von unten aus dem Laternenglas */ },
       teardown() { kino_hide('grauKopf'); KINO_GK.uMund.value = 0; } },
-    { from: nahe(.72, .04), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9) blur(.8px)', filterT: 2.5 },
+    { from: nahe(.72, .04), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9)', filterT: 2.5 },
       lines: [['<i>Kum, Wîse.</i><span style="opacity:.62;font-size:.8em;font-style:normal"> – alt für „Komm, Wîse.“</span>', 'DER RABE', 1.3, 2600]],
       setup() { if (typeof whiskey_play === 'function') whiskey_play('IdleScratchWing', .2); kino_after(1.3, () => kino_kum(W().g.position)); }, tick(k, t, dt) { mix(dt); } },
-    { from: nahe(1.1, .15), to: nahe(1.0, -1.25), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y - .25, p.z]; }, dur: 4, fov: 36, fovTo: 58, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85) blur(1.4px)', filterT: 3 },
+    { from: nahe(1.1, .15), to: nahe(1.0, -1.25), look: () => kopf(kino_V(0, 0, 0)).toArray(), lookTo: () => { const p = P(); return [p.x, p.y - .25, p.z]; }, dur: 4, fov: 36, fovTo: 58, hand: .2, ease: 'in', film: { vig: 1.2, filter: 'grayscale(.6) brightness(1.3) contrast(.85)', filterT: 3 },
       setup() { kino_regen(.5, 3.5); const p = P(); const l = kino_show('lampe', p.x, p.y - .25, p.z); l.material.opacity = 0; kino_after(1.6, () => { for (let i = 0; i < 6; i++) setTimeout(() => Audio.ding && Audio.ding(.05), i * 650); }); },
       tick(k, t, dt) { mix(dt); const l = kino_S.obj.lampe, u = kino_ramp(t, .8, 3.6); l.material.opacity = .9 * u; l.scale.setScalar(.9 + 9 * u * u); // die Laterne wird weiß und füllt das Bild
         if (t > 2.6) { const f = $('fade'); f.style.transition = 'opacity 1.3s'; f.style.background = '#fff'; f.style.opacity = 1; } }, teardown() { kino_hide('lampe'); } },

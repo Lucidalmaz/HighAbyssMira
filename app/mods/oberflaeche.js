@@ -121,6 +121,12 @@ function ob_css() {
 #prompt { font-family: var(--f-ui); font-weight: 500; font-size: 18px; }
 #prompt kbd, kbd.k, .hint kbd { font-family: var(--f-ui-sc) !important; font-weight: 700 !important; }
 #toast { font-family: var(--f-ui); font-style: italic; font-size: 20px; letter-spacing: .01em; }
+/* Textordnung (Nutzer 08.10.): Gesprochenes und Gedanken unten in der Mitte (Name oben, Gedanken kursiv-blau mit „· GEDANKE“); Hinweise (toast) in einer eigenen, kleineren Zeile direkt darüber; Aufgabe oben links, neue Aufgabe oben rechts, E-Hinweis am Fadenkreuz */
+#toast { top: auto !important; bottom: calc(8% + 118px); font-size: 17px; padding: 8px 40px !important; color: #d8cfba; letter-spacing: .03em; }
+#toast::before { content: 'HINWEIS'; display: block; font: 700 10px var(--f-ui-sc, Georgia), serif; letter-spacing: .5em; color: #b9a173; margin-bottom: 2px; font-style: normal; }
+#subtitle.thought .who { color: #9fb3c8; }
+#subtitle.thought { font-style: italic; }
+#subtitle[data-art="erz"] { color: #cfc8b8; font-style: italic; }
 .hint, #keypad .hint, #puzzle .hint, #journal .hint, #note .hint { font-family: var(--f-ui-sc) !important; font-weight: 500 !important; }
 #subtitle { font-family: var(--f-ui); font-weight: 500; font-size: calc(23px * var(--subScale, 1)); line-height: 1.38; letter-spacing: .005em; }
 #subtitle.thought { font-family: var(--f-luke); font-style: normal; font-weight: 400; font-size: calc(24px * var(--subScale, 1)); line-height: 1.35; color: #e4e8ee; }
@@ -197,4 +203,9 @@ showNote = (o => function (title, html) { const r = o.apply(this, arguments);
 // Untertitel: fremde Stimmen in fremder Schrift
 subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments); // an subShow: färbt erst, wenn der Text wirklich erscheint (Lese-Warteschlange der Basis)
   try { const el = document.getElementById('subtitle'), w = String(who || '').toUpperCase(); if (el) el.dataset.ob = /WEISS|LICHTSCHIFF|∴|BEOBACHTER|NIMMER|DAS FREMDE/.test(w) ? 'fremd' : /KIND|LUNA|LUCY/.test(w) ? 'kind' : ''; } catch (e) {}
+  return r; })(subShow);
+// Gedanke oder laut gesprochen? Gedanken stehen als <i>…</i> (Quelle: Gedankenmodul und Skripte); alles andere von Luke ist gesprochen. Zeilen ohne Namen sind Erzähltext.
+subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments);
+  try { const el = document.getElementById('subtitle'), w = String(who || '').toUpperCase(), luke = w === 'LUKE' || w === 'DU', gedanke = luke && /^\s*<i>/.test(String(t));
+    el.classList.toggle('thought', gedanke); el.dataset.art = !who ? 'erz' : ''; const wh = el.querySelector('.who'); if (wh && luke) wh.textContent = gedanke ? 'LUKE · GEDANKE' : 'LUKE'; } catch (e) {}
   return r; })(subShow);
