@@ -37,7 +37,7 @@ function umwelt_pendel(S, dt, P) {
         if (dv > .3 && S.hitT <= 0) { S.hitT = .3; const hx = S.px + S.fx * sl, hz = S.pz + S.fz * sl; if (S.seil) Audio.play(Audio.pick('woodHit1', 'woodHit3'), { gain: Math.min(.35, dv * .15), rate: rand(.5, .65), x: hx, y: sy, z: hz, ref: 2 }); else Audio.kette(hx, sy + .6, hz, Math.min(1, dv / 2)); } } } }
   // Umkehrpunkt: Kette quietscht / Seil knarrt am Ast – nur bei Schwung
   if ((S.v >= 0) !== (S.lv >= 0) && Math.abs(S.a) > .1) { const d = Math.hypot(dx, dz), amp = Math.min(1, Math.abs(S.a) * 1.6);
-    if (d < 24) { if (S.seil) Audio.play('doorCreak', { gain: .1 * amp, rate: rand(.8, 1.05), offset: rand(0, .6), dur: rand(1, 1.5), x: S.px, y: S.py, z: S.pz, ref: 2.5 }); else Audio.quietsch(S.px, S.py - .2, S.pz, amp); } }
+    if (d < 24) { if (S.seil) { const tn = performance.now(); if (tn - (S.knarrT || 0) > 7000 && amp > .3) { S.knarrT = tn; Audio.play('doorCreak', { gain: .1 * amp, rate: rand(.8, 1.05), offset: rand(0, .6), dur: rand(1, 1.5), x: S.px, y: S.py, z: S.pz, ref: 2.5 }); } } /* Messung 08.10.: Seil knarrte bei jedem Umkehrpunkt (22× in 40 s) */ else Audio.quietsch(S.px, S.py - .2, S.pz, amp); } }
   S.lv = S.v; S.piv.rotation.x = S.a; }
 // Schaukel-Scan in Gerüst + frei hängende Sitze (samt Ketten) teilen – wie ausbau_nord_swing, aber für ein schon platziertes Modell (Weltkoordinaten)
 function umwelt_schaukelTeilen(holder) {

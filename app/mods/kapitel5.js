@@ -65,7 +65,7 @@ function k5_summen(x, y, z, v = .03) { // Lucys Lied, gesummt (eine Oktave tiefe
   return t - c.currentTime + .3; }
 function k5_atem(x, y, z, v = .12) { // ein kleiner, kalter Atemzug
   const A = Audio; if (!A.ctx) return; const c = A.ctx, d = A.at(x, y, z, .6), t = c.currentTime;
-  for (const [t0, dur, f0, f1, g0] of [[0, .9, 700, 1500, v], [1.05, 1.2, 1300, 600, v * .8]]) { const n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+  for (const [t0, dur, f0, f1, g0] of [[0, .9, 700, 1500, v], [1.05, 1.2, 1300, 600, v * .8]]) { const n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); g.gain.value = 0; bp.type = 'bandpass'; bp.Q.value = 1.2;
     bp.frequency.setValueAtTime(f0, t + t0); bp.frequency.linearRampToValueAtTime(f1, t + t0 + dur); n.connect(bp); bp.connect(g); g.connect(d);
     g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(g0, t + t0 + dur * .45); g.gain.linearRampToValueAtTime(0, t + t0 + dur); n.stop(t + t0 + dur + .1); } }
 function k5_klirr(x, y, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x, y, z, 1.4); for (let i = 0; i < 2; i++) { const o = A.osc('sine', rand(2600, 4200), i * rand(.05, .12), .5); A.env(o, .03, .002, .3, i * .08, d); } }

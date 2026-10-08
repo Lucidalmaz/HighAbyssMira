@@ -534,7 +534,7 @@ function lwo_figTick(F, dt) {
 }
 // Filteratem (zwei Kartuschen): gefiltertes Rauschen, Ein- und Ausatmen, langsam
 function lwo_filterAtem(x, y, z) { const A = Audio, c = A.ctx; if (!c) return; const d = A.at(x, y, z, 1.6); if (A.cut) return; const t = c.currentTime;
-  for (const [t0, len, f, v] of [[0, 1.5, 1100, .07], [1.9, 1.8, 700, .09]]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 1.8; const g = c.createGain(); g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(v, t + t0 + len * .4); g.gain.linearRampToValueAtTime(0, t + t0 + len);
+  for (const [t0, len, f, v] of [[0, 1.5, 1100, .07], [1.9, 1.8, 700, .09]]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = 1.8; const g = c.createGain(); g.gain.value = 0; g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(v, t + t0 + len * .4); g.gain.linearRampToValueAtTime(0, t + t0 + len);
     n.connect(bp); bp.connect(g); g.connect(d); n.stop(t + t0 + len + .1); } }
 
 // =====================================================================  KOMBI (grau, Magnetschild, kein Kennzeichen – „Es ist keine dran.“)

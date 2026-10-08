@@ -402,7 +402,7 @@ function kl_donnerKlasse(r) { const u = Math.random(); return r < 200 ? 'krach' 
     if (!name) { cls = cls === 'fern' ? 'nah' : 'fern'; D = KL_DONNER[cls]; name = kl_pick('fx_donner_' + cls + '_', D.n) || kl_pick('fx_donner_krach_', 3); } if (!name) return alt.call(this, delay, close);
     S.donnerLetzt.push(name); if (S.donnerLetzt.length > 4) S.donnerLetzt.shift();
     const b = this.buf[name], indoor = typeof isIndoor === 'function' && isIndoor(), t = ctx.currentTime + delay, rate = rand(.94, 1.06), dur = b.duration / rate;
-    const v = Math.min(.34, .24 * Math.pow(150 / r, .58)) / KL_DONNER_BASIS * (indoor ? .5 : 1) * rand(.9, 1.1); // Zielpegel am Hauptbus (RMS) nach Abstand: ~3,5 dB je Verdopplung, nah gedeckelt
+    const v = Math.min(.21, .15 * Math.pow(150 / r, .58)) / KL_DONNER_BASIS * (indoor ? .5 : 1) * rand(.9, 1.1); // Zielpegel am Hauptbus (RMS) nach Abstand: ~3,5 dB je Verdopplung, nah gedeckelt
     const ratio = (1 + D.ref / 150) / (1 + r / 150), fc0 = Math.max(500, Math.min(17000, 17000 * Math.min(1, ratio))) * (indoor ? .3 : 1); // weiter weg als die Aufnahme: Höhen fehlen
     const src = ctx.createBufferSource(); src.buffer = b; src.playbackRate.value = rate;
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = .5; lp.frequency.setValueAtTime(fc0, t); lp.frequency.exponentialRampToValueAtTime(Math.max(240, fc0 * (cls === 'krach' ? .55 : .4)), t + dur * .85);
@@ -442,7 +442,7 @@ function klang_funk(sec = 2.5, o = {}) { const A = Audio, c = A.ctx; if (!c) ret
   const v = A.noise(true), f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; const vg = c.createGain(); vg.gain.value = 0; v.connect(f1); f1.connect(vg); vg.connect(hp);
   let k = t + .12; while (k < t + sec - .1) { const d = .09 + Math.random() * .12; f1.frequency.setValueAtTime((art === 'band' ? 500 : 650) + Math.random() * 900, k); vg.gain.setValueAtTime(0, k); vg.gain.linearRampToValueAtTime(Math.random() < .12 ? 0 : .5 + Math.random() * .4, k + d * .3); vg.gain.linearRampToValueAtTime(.05, k + d); k += d + (Math.random() < .15 ? .18 : .02); }
   // Rauschsperre: Klack am Anfang und am Ende (Blechmann-Gerät, Handy knackt)
-  for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
+  for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.value = 0; g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
   hiss.stop(t + sec + .3); v.stop(t + sec + .3); }
 WORLD_MODS.push(['Klang', async () => { window.klang_ambient = klang_ambient; }]);
 WORLD_TICK.push(dt => {
