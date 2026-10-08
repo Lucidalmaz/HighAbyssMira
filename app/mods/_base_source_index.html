@@ -2966,6 +2966,17 @@ function mantleObst(px, pz, y) { let top = -Infinity; for (const c of colliders)
   const sg = solidGround(px, y + 1.28, pz); if (sg > y + .45 && sg < y + 1.65 && sg > top) top = sg; return top; }
 function mantleFree(x, z, y) { if (typeof tod_blockiert === 'function' && tod_blockiert(x, y, z, null, .27) > 0) return false; /* Landeplatz frei von festen Netzen (Wand, Baum, Auto), nicht nur von Kisten */ if (colliders.some(c => c.minX > -9000 && c.base < y + 1.7 && c.top > y + .3 && x + .26 > c.minX && x - .26 < c.maxX && z + .26 > c.minZ && z - .26 < c.maxZ)) return false;
   return typeof leben_free !== 'function' || (leben_free(x, z, y + .9, .26) && leben_free(x, z, y + 1.45, .22)); }
+// Weg über die Kante frei? (Nutzer 08.10.: „durch Wände gesprungen“ – das Hochziehen sah nur eine niedrige Kante (Fensterbank, Sockel) und stieg über die ganze, 3 m hohe Wand.)
+// Auf Brust- und Kopfhöhe über der Kante darf zwischen Start und Landeplatz nichts Festes stehen (Kollisionskiste oder Netz), sonst kein Hochziehen/Drübersteigen.
+function mantleWeg(x0, z0, x1, z1, ob) {
+  const dx = x1 - x0, dz = z1 - z0, L = Math.hypot(dx, dz), n = Math.max(1, Math.ceil(L / .15));
+  for (const h of [.4, 1.0]) { const yy = ob + h;
+    for (let i = 1; i <= n; i++) { const k = i / n, x = x0 + dx * k, z = z0 + dz * k; if (k * L < .12) continue;
+      for (const c of colliders) if (c.minX > -9000 && !c.weich && c.top > yy && c.base < yy && x + .12 > c.minX && x - .12 < c.maxX && z + .12 > c.minZ && z - .12 < c.maxZ) return false;
+      for (const it of solidNear(x, z)) { const bb = it.bb; if (it.soft || yy < bb.min.y - .15 || yy > bb.max.y + .15 || x + .15 < bb.min.x || x - .15 > bb.max.x || z + .15 < bb.min.z || z - .15 > bb.max.z || !solidLive(it)) continue;
+        _sp.set(x, yy, z).applyMatrix4(it.inv); if (it.o.geometry.boundsTree.closestPointToPoint(_sp, _stgt, 0, .15 / it.sc)) return false; } } }
+  return true;
+}
 function mantleGround(x, z, yRef) { let g = state.inBasement ? 0 : (indoorRects.find(r => inRect(r, x, z)) || { y: 0 }).y; for (const c of colliders) if (c.minX > -9000 && c.top > g && c.top <= yRef + .4 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; const sg = solidGround(x, yRef + .2, z); return sg > g ? sg : g; }
 // Hinter der Südsperre (bei Lucys Auto) endet die Welt: Kollisionskisten rundum, kein Rückweg. Dort darf man nicht landen (Nutzer 07.10.: „halb im Wald gefangen“).
 const MANTLE_SPERR = [[-20, 20, -56, -46.2]];
@@ -2977,10 +2988,10 @@ function mantleTarget() {
   // Standplatz hinter der Kante: echte Standhöhe g (Motorhaube/Kofferraum steigen oder fallen leicht, nur Platte ±9 cm ging vorher), Kopf und Körper an g geprüft
   for (const { ob, obD } of hits) for (const back of [.42, .6, .8, 1.0, 1.25]) { const sx = P.x + f.x * (obD + back), sz = P.z + f.z * (obD + back); if (mantleVerboten(sx, sz)) continue;
     const g = mantleGround(sx, sz, ob + .1); if (g - ob < -.25 || g - ob > .3 || g - P.y > 1.5 || g - P.y < .4) continue;
-    if (mantleFree(sx, sz, g) && headCeiling(sx, g + .1, sz) - g >= HEAD_CLEAR) return { top: g, x: sx, z: sz, h: g - P.y, art: 'hoch', land: g, dur: .3 + .13 * (g - P.y) }; }
+    if (mantleFree(sx, sz, g) && headCeiling(sx, g + .1, sz) - g >= HEAD_CLEAR && mantleWeg(P.x, P.z, sx, sz, ob)) return { top: g, x: sx, z: sz, h: g - P.y, art: 'hoch', land: g, dur: .3 + .13 * (g - P.y) }; }
   for (const { ob, obD } of hits) { const h = ob - P.y; if (h > 1.3) continue;
     for (const back of [.7, .95, 1.25]) { const lx = P.x + f.x * (obD + back), lz = P.z + f.z * (obD + back), g = mantleGround(lx, lz, P.y);
-      if (mantleVerboten(lx, lz) || Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
+      if (mantleVerboten(lx, lz) || Math.abs(g - P.y) > .7 || !mantleFree(lx, lz, g) || !mantleWeg(P.x, P.z, lx, lz, ob) || headCeiling(lx, g + .1, lz) - g < HEAD_CLEAR || headCeiling(P.x + f.x * obD, ob + .1, P.z + f.z * obD) - ob < 1.0) continue;
       return { top: ob, x: lx, z: lz, h, art: 'drueber', land: g, dur: .5 + .08 * h }; } }
   return null;
 }
@@ -5266,6 +5277,7 @@ function camGuard() {
     _sp.set(px, c.y, pz).applyMatrix4(it.inv); const rr = it.o.geometry.boundsTree.closestPointToPoint(_sp, _stgt, 0, r / it.sc); if (!rr) continue; _sw.copy(rr.point).applyMatrix4(it.mw); const d = _sw.distanceTo(_sd.set(px, c.y, pz)); if (d >= r) continue;
     if (_sw.y < player.pos.y + .37) continue; _sn.set(px - _sw.x, 0, pz - _sw.z); const hl = _sn.length(); if (hl < 1e-4) continue; _sn.divideScalar(hl); px += _sn.x * (r - d); pz += _sn.z * (r - d); }
   c.x = px; c.z = pz; }
+function colHit(x, z, y) { for (const c of colliders) { if (c.minX < -9000 || c.top <= y + .36 || c.base >= y + bodyH()) continue; if (x + R > c.minX && x - R < c.maxX && z + R > c.minZ && z - R < c.maxZ) return true; } return false; }
 function solidPush() {
   if (state.zone === 'canal') return;
   const P = player.pos; let soft = 0;
@@ -5282,7 +5294,8 @@ function solidPush() {
         if (_sw.y < P.y + .37) continue; // Stufe: darauf steigen statt dagegen laufen
         if (it.soft) { soft = Math.max(soft, 1 - d / R); continue; }
         _sn.set(P.x - _sw.x, 0, P.z - _sw.z); const hl = _sn.length(); if (hl < 1e-4) continue; _sn.divideScalar(hl);
-        const pen = R - d; P.x += _sn.x * pen; P.z += _sn.z * pen;
+        const pen = R - d; if (colHit(P.x + _sn.x * pen, P.z + _sn.z * pen, P.y) && !colHit(P.x, P.z, P.y)) continue; // nie in eine Kollisionskiste (Wand) hineinschieben: collide() ignoriert vorhandene Überlappung → man wäre im Haus/in der Wand gelandet (Nutzer 08.10.)
+        P.x += _sn.x * pen; P.z += _sn.z * pen;
         const vn = vel.x * _sn.x + vel.z * _sn.z; if (vn < 0) { vel.x -= _sn.x * vn; vel.z -= _sn.z * vn; } // an der Kante entlanggleiten
       }
     }
@@ -5865,9 +5878,11 @@ function mapGuard(dt) {
   const G_ = MAPG, P = player.pos; if (!state.started || menu.attract || scripted || mantle || state.zone === 'canal' || window.__noBounds) return;
   G_.scan -= dt; if (G_.scan <= 0) { G_.scan = G_.nSol ? 2 : .5; mapGuardScan(); if (G_.occ.size < 20) return; }
   if (G_.occ.size < 20) return;
+  if (G_.lx !== undefined && Math.hypot(P.x - G_.lx, P.z - G_.lz) > 20) { if (mapGuardOk(P.x, P.z, false)) G_.hist = []; G_.out = 0; } G_.lx = P.x; G_.lz = P.z; // Teleport (Szene, Kapitelwechsel): alte Rückkehrpunkte gelten nicht mehr
   const bad = !(isFinite(P.x) && isFinite(P.y) && isFinite(P.z)) || P.y < -80 || !mapGuardOk(P.x, P.z, false);
   if (!bad) { G_.out = 0; G_.histT -= dt; if (G_.histT <= 0 && grounded && mapGuardOk(P.x, P.z, true)) { G_.histT = .5; G_.hist.push([P.x, P.y, P.z]); if (G_.hist.length > 5) G_.hist.shift(); } return; }
   G_.out += dt; if (G_.out < 1 || !G_.hist.length) return;
+  { const R2 = 45 * 45; for (const o of scene.children) if (o.visible && !o.userData.noCol && (o.isMesh || o.isGroup)) { const d2 = (o.position.x - P.x) ** 2 + (o.position.z - P.z) ** 2; if (d2 > 16 && d2 < R2 && o.position.y > -50) { G_.occ.add(Math.floor(P.x / G_.cs) * 100003 + Math.floor(P.z / G_.cs)); G_.out = 0; return; } } } // frisch gebaute Szene ohne Kollision (noch nicht in SOL) → gültig; Dinge, die dem Spieler folgen (Himmel, Regen), liegen < 4 m und zählen nicht
   const h = G_.hist[0]; P.set(h[0], h[1], h[2]); vel.set(0, 0, 0); vy = 0; grounded = true; FEEL.ext = true; G_.out = 0; G_.n++; G_.hist = [h]; console.warn('Weltgrenze: Spieler zurückgeholt', h.map(v => v.toFixed(1)).join(','));
 }
 let tvFrame = 0, indoorK = 0, ringT = 0, dingT = 0, heartT = 0, lastArea = '';
