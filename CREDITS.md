@@ -188,6 +188,23 @@ nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitte
 - Peter/Flucht (R-10, `pz_*`, `app/tools/klang_peter.py`): Airborne Sound – Human (Herzschlag; Keuchen hinter vorgehaltener Hand), Variety 1 (Ausatmen) · The Sound Pack Tree – Footstep Loops (nackte Sohle) · Studio 23 – Ultimate Footstep Collection (Schlurfen) · Eiravaein Sound – Mouthy (Zähne/Mund) · Gamemaster Audio – Fun Character Voices (gebrochene Lachstöße, tief und dumpf) · Red Libraries – Bodyfall · Articulated Sounds – Fight Vocalizations · TheWorkRoom Audio Post – Cloths & Sponges Foley · Jeffrey Mengyan – Vegetable Carnage (nasser Tritt)
 - Umwelt (R-7/R-8, `app/tools/klang_bau4.py`): Hzandbits – Urban Winds II (Wind heult/pfeift um Ecken), Wind In Trees (Gras/Kronen im Wind) · toneglowlibraries – Town Winds (Böen mit nassem Laub) · Articulated Sounds – Rustle Tones (Busch beim Durchlaufen), Ghosts Return (Schaukelkette) · Sounds Visual – Footsteps on Leaves (Laub beim Rennen) · Matt Script – Squeaks & Creaks (Schaukel quietscht)
 
+**AP „Echte Klänge“ (08.10.2026, `app/tools/klang_bau5.py`)** – ersetzt die letzten erzeugten Geräusche durch Aufnahmen; Titel/Urheber wie auf den Seiten angegeben, alle Lizenzen vor dem Laden auf der jeweiligen Seite geprüft.
+- *Sonniss GDC Game Audio Bundles 2016–2019 (lizenzfrei, keine Namensnennung nötig; nur als Teil des Spiels weitergegeben)*:
+  - Feuer (`fx_feuer_*`, `amb_feuer*`): Pole Position – The Burning House Library (Hochbrand, Glut mit Knistern) · The Sound Keeper – Small Fire (Kaminholz) · UberDuo – The Cabin Audio Playset (Feuer im Holzofen) · Gregor Quendel – Designed Fire (Zündung) · Soundrangers – Whooshes And Transitions (Fackel)
+  - Zombie-Röcheln (`zb_roech_*`): MatiasMacSD – Infected Zone (Zombie Vocalizations) · Glitchedtones – Zombie · Öl/Schlamm (`fx_oel_blub_*`): Eiravaein Sound – Vaeyan III (Öl, Stoßdämpfer) · Soundrangers – Hydrology Bubbles and Splashes · SoundMorph – Elemental
+  - Funk (`fx_funk_klick_*`): Sergey Eybog – Handheld Tranceivers (Cobra MicroTalk, Rauschsperre) · Relais (`fx_relais_*`): Omar Alvarado – Household sounds (Überspannungsschutz, Relais) · Kamera (`fx_kamera_*`, `fx_blitz_laden`): SoundHolder – Cameras (Nikon D5500 Verschluss, Canon EOS 3000N Blitz lädt) · Nadeldrucker (`fx_nadel_*`): Chris Skyes – Vintage Dot Matrix Printer · Kauen (`fx_kauen_*`): Soundreorganized – Everyday Actions 1 (Apfel, Bissen)
+- *freesound.org – ausschließlich CC0 („No Rights Reserved“), als 128-kbit/s-Vorschau ohne Konto geladen* (Titel – Nutzer – Nummer):
+  - Flügelschläge (`fx_flug_*`): „Beating wings of a pigeon“ – gerardcatala – 153277 · „short pigeon wing flap“ – zouzmusic – 414671 · „Duck Flapping Wings“ – OwennewO – 719107 · „Bald Eagle, wing flaps flying overhead“ – TRP – 568810
+  - Funk-Rauschen (`fx_funk_stat`): „Radio – Hallicrafters SX-122 radio noise“ – jodybruchon – 433881 (Röhrenempfänger)
+  - Feuerzeug (`fx_feuerzeug_*`): „LIGHTER FLICK 1 / 11 / 17“ – reergaregs – 827017 / 827019 / 827025
+  - Glucksen (`fx_oel_blub_*`): „gunk bubbling in cave.wav“ – rolle Andersson – 436905 · „Hot Bubbling Mud“ – Breviceps – 456806
+  - Tastenfeld (`ui_taste_*`): „Korean_digital_door_lock_keypad“ – cristyaria – 867650 · „Keypad“ – Ultra-Edward – 840450 · Relais: „Relay 2“ – JoontheFloof – 740252 · „Relay and loud click“ – bassmosphere – 384701
+  - Krabbeln (`fx_krabbel_*`, `amb_krabbel`): „43.Spider_steps.wav“ – miguelab1998 – 408572 · „BS _Swarm of roaches.wav“ – szczur_banshee – 380769
+  - Waldkauz (`fx_eule_*`): „Tawny owl hooting“ – Patrick_Corra – 745208 · Fuchsschrei (`fx_fuchs_*`): „Fox Screams“ – Soundburst – 634005 · Schwein (`fx_schwein_*`): „Pig Grunt“ – qubodup – 442907, „Pig.ogg“ – egomassive – 536746
+  - Husten/Würgen (`fx_husten_*`, `fx_wuergen_*`): „Male Cough [3] / [6] / [4]“ – SoundDesignForYou – 646654 / 646657 / 646653 · „Male Choking_1“ – Drkvixn91 – 318080
+- *Wikimedia Commons (CC0 bzw. gemeinfrei)*: Katze miaut (`fx_katze_miau_*`): „Meow of a Siamese cat“ – freemaster2 (CC0), „Maullido de gata hembra joven“ – George Miquilena (CC0) · faucht (`fx_katze_fauch_*`): „Cat hissing“ – Zabuhailo (CC0) · schnurrt (`fx_katze_schnurr`): „Purr (10 sec loopable)“ – Insanejeff (gemeinfrei)
+- Nicht verwendet, aber geprüft: Dateien mit Share-Alike-Lizenz (CC BY-SA) wurden bewusst ausgelassen.
+
 **Weiterhin im Spiel:** die CC0-Aufnahmen von OpenGameArt.org in `game/sounds.js`/`sounds_extra.js` (Quellen: `game/sounds_src/QUELLEN.txt`).
 
 ## Sprachausgabe (`game/assets/stimmen/*.opus`, Modul `stimmen.js`, Werkzeuge in `C:\Users\GIGABYTE\HAM_Stimmen\`)

@@ -15,7 +15,7 @@ In Arbeit (Agenten): Durchspieltest Kap. 1/3 und 4–6, Zombie-Szene Kap. 2 (Zom
 - Echte Scans für Sichtbares (Laternen-Kreide, Telefonzelle, Schrank-Türen, Blut/Kratzer, UFO-Bilder, Kinderzeichnungen), Graffiti/Nazca (Kornkreis ungeprüft), graues Kind „steht hinter dir“, fehlende Modelle/HD-Spinne (freie Fab-Assets).
 - Fotofehler: docs/gameplay/fotofehler_0810.md.
 - Grafikspeicher Kap. 5/6 (Texturen gezielt kleiner, kapitelweise laden).
-- Welt-Abgleich-Rest, Durchschlag „Akte 08“ erst nach Umschlag (Nutzerentscheidung offen), Donner leiser/seltener (Gehör).
+- Welt-Abgleich-Rest, Durchschlag „Akte 08“ erst nach Umschlag (Nutzerentscheidung offen), Donner: erledigt 08.10. (−3 dB, 70–150 s) – im gebündelten Test hören. Ton: Inventar und offene synthetische Klänge in `klang_inventar.md`; neue Aufnahmen (Flügelschlag, Feuer, Zombie, Katze, Funk, Tasten …) ungehört, Pegel im Test prüfen.
 - Stimmen zurückgestellt (Smart App Control).
 
 ## Später prüfen
