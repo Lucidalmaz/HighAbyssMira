@@ -128,7 +128,7 @@ vec3 katzenFarbe(vec3 tex, vec4 m){
   fur *= mix(1., det, kDet);
   vec3 wc = kWhiteCol * (.82 + .22 * det);
   fur = mix(fur, wc, clamp(W * kWhite + kAllWhite * (1. - pink), 0., 1.) * (kCal > .5 ? smoothstep(.36, .4, cp) * smoothstep(.6, .56, cp) + W : 1.));
-  float sd = distance(vKR, kSpot.xyz) + (n1 - .5) * .014; fur = mix(fur, kSpotCol * (.8 + .25 * det), kSpot.w > 0. ? smoothstep(kSpot.w, kSpot.w * .6, sd) : 0.);
+  float sd = distance(vKR, kSpot.xyz) + (n1 - .5) * .014; float sw = max(kSpot.w, .0001); fur = mix(fur, kSpotCol * (.8 + .25 * det), step(.0001, kSpot.w) * smoothstep(sw, sw * .6, sd)); // kein smoothstep(0, 0, x): auf manchen Grafikkarten NaN → schwarze Katzen
   fur = mix(fur, vec3(.5, .22, .22), pink * .85);
   fur *= 1. - kDull * .32 * smoothstep(.45, .75, kN(p * 2.4 + 7.));
   vec3 q = vKR - kColC; float al = dot(q, kColN); float rr = length(q - kColN * al);
@@ -142,7 +142,7 @@ function katzen_fellMat(src, d) {
   const m = src.clone(); m.metalnessMap = null; m.metalness = 0; m.roughness = F.rough; m.color.setRGB(1, 1, 1); m.name = 'katzen_fell_' + d.name;
   const notch = d.ohr ? R.notch[d.ohr] : [0, 0, 0, 0];
   const u = m.userData.ku = { kBase: { value: V3(F.base) }, kStripe: { value: V3(F.stripe) }, kWhiteCol: { value: V3(F.whiteCol || [.86, .84, .8]) }, kCalA: { value: V3(F.calA) }, kCalB: { value: V3(F.calB) },
-    kSpotCol: { value: V3(F.spot) }, kSpot: { value: d.fleck && F.spot ? new THREE.Vector4(R.spot.x, R.spot.y, R.spot.z, .03) : new THREE.Vector4() }, kNotch: { value: new THREE.Vector4(...notch) },
+    kSpotCol: { value: V3(F.spot) }, kSpot: { value: d.fleck && F.spot ? new THREE.Vector4(R.spot.x, R.spot.y, R.spot.z, .03) : new THREE.Vector4(0, 0, 0, 0) /* Vector4() hat w = 1 → Fleck-Radius 1 m = ganzer Körper in Fleckfarbe (schwarz)! */ }, kNotch: { value: new THREE.Vector4(...notch) },
     kSA: { value: F.sa || 0 }, kWhite: { value: d.weiss != null ? d.weiss : F.white || 0 }, kAllWhite: { value: F.allWhite || 0 }, kCal: { value: F.cal || 0 }, kOrig: { value: F.orig || 0 },
     kDull: { value: (F.dull || 0) + (d.alt ? .25 : 0) }, kDet: { value: F.det || .7 }, kSeed: { value: Math.random() * 40 }, kColOn: { value: 1 }, kColW: { value: d.tuch ? .012 : .0048 }, kTuch: { value: d.tuch ? 1 : 0 },
     kColCol: { value: new THREE.Color(d.band || 0x5a3a22) }, kColC: { value: R.colC.clone() }, kColN: { value: R.colN.clone() } };

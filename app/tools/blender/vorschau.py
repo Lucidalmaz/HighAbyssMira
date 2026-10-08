@@ -38,7 +38,7 @@ light('AREA', c + Vector((1.5, .8, .6)) * k * 2, 2.5 * k * k * 40, k * 2, (.8, .
 light('AREA', c + Vector((0, 2, 1.2)) * k * 2, 3 * k * k * 40, k, (1, 1, 1))
 w = scn.world or bpy.data.worlds.new('w'); scn.world = w; w.use_nodes = True; w.node_tree.nodes['Background'].inputs['Strength'].default_value = .25
 cam_d = bpy.data.cameras.new('cam'); cam = bpy.data.objects.new('cam', cam_d); scn.collection.objects.link(cam); scn.camera = cam; cam_d.lens = 85
-dirs = {'34': Vector((-1.1, 1.3, .9)), 'seite': Vector((-1.6, .1, .35)), 'oben': Vector((0, .02, 1.6)), 'nah': Vector((-.5, 1.4, .45)), 'vorn': Vector((0, 1.6, .25)), 'hinten': Vector((-.3, -1.4, .9))}
+dirs = {'34': Vector((-1.1, 1.3, .9)), 'seite': Vector((-1.6, .1, .35)), 'oben': Vector((0, .02, 1.6)), 'nah': Vector((-.5, 1.4, .45)), 'vorn': Vector((0, 1.6, .25)), 'hinten': Vector((-.3, -1.4, .9)), 'front': Vector((.15, -1.6, .35)), 'm34': Vector((-1.0, -1.3, .55))}
 ok = False
 for eng in ('BLENDER_EEVEE_NEXT', 'BLENDER_EEVEE'):
   try: scn.render.engine = eng; ok = True; break

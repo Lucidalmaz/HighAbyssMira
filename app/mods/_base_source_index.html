@@ -5540,24 +5540,6 @@ const COMPILE_LATER = [], _compileAsync0 = renderer.compileAsync.bind(renderer);
 renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); return Promise.resolve(s); };
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
-// 08.10.: Strahltests während des Modulbaus beschleunigen. Die Module setzen Dinge per Strahl auf Böden/Wände (bu_strahl, kf_boden …) – bisher Dreieck für
-// Dreieck (Profil: ~9 s der Ladezeit), weil three-mesh-bvh erst in der Kollision (buildSolids) eingeschaltet wird. Jetzt bekommt eine Form beim zweiten Strahl,
-// der ihre Hüllkugel trifft, einen BVH (ab 3000 Ecken); buildSolids nutzt ihn weiter. Ändert ein Modul danach die Form (Positionen/Index), wird er verworfen.
-// Ausgenommen: Figuren (Skinning), Morph-Formen, Teil-Zeichenbereiche – dort gilt weiter der normale Strahltest. Abschalten: ?noloadbvh.
-const LOADRAY = { on: !/noloadbvh/.test(location.search), built: [], ms: 0 };
-const lrStale = g => g.__lrP !== g.attributes.position || g.__lrV !== g.attributes.position.version || g.__lrI !== g.index || (g.index && g.__lrIV !== g.index.version);
-const lrMark = g => { g.__lrP = g.attributes.position; g.__lrV = g.attributes.position.version; g.__lrI = g.index; g.__lrIV = g.index ? g.index.version : -1; };
-if (LOADRAY.on) try { const { computeBoundsTree, acceleratedRaycast } = await import('three-mesh-bvh'); THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-  const orig = THREE.Mesh.prototype.raycast, sp = new THREE.Sphere();
-  THREE.Mesh.prototype.raycast = function (rc, hits) { const g = this.geometry;
-    if (g && g.attributes && g.attributes.position && !this.isSkinnedMesh && !g.morphAttributes.position && g.drawRange.start === 0 && g.drawRange.count === Infinity) {
-      if (g.boundsTree && g.__lrP && lrStale(g)) g.boundsTree = null;
-      if (!g.boundsTree) { if (!g.boundingSphere) g.computeBoundingSphere(); sp.copy(g.boundingSphere).applyMatrix4(this.matrixWorld);
-        if (rc.ray.intersectsSphere(sp) && (g.__lrN = (g.__lrN | 0) + 1) >= 2 && g.attributes.position.count > 3000) {
-          const t = performance.now(); try { g.computeBoundsTree(); lrMark(g); LOADRAY.built.push(g); } catch (e) { g.boundsTree = null; } LOADRAY.ms += performance.now() - t; } }
-      if (g.boundsTree) return acceleratedRaycast.call(this, rc, hits); }
-    return orig.call(this, rc, hits); };
-} catch (e) { console.warn('Strahltests beim Laden', e); }
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
 // 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
@@ -5572,7 +5554,6 @@ function perfMergeGroups(g) {
 }
 { const seen = new Set(); let n = 0, before = 0; scene.traverse(o => { if (!o.isMesh || !Array.isArray(o.material) || seen.has(o.geometry)) return; seen.add(o.geometry); const c = o.geometry.groups.length; if (perfMergeGroups(o.geometry)) { n++; before += c; } });
   if (n) console.info(`Leistung: ${n} Geometrien zusammengefasst (${before} Abschnitte → je 1 pro Material)`); }
-for (const g of LOADRAY.built) if (g.boundsTree && lrStale(g)) g.boundsTree = null; // beim Laden gebaute BVH: Form seither geändert → buildSolids baut neu
 { try { stage('Kollision'); await buildSolids(); } catch (e) { console.warn('Kollision', e); } }
 // 10) Instanz-Gruppen mit gemeinsamer Form (Gräser, Sträucher in mehreren Feldern) bekommen je eine eigene flache Formhülle über denselben Puffern: three.js merkt sich
 //     die Vertex-Bindung je Form + Programm – bei geteilter Form wurde sie für jede Gruppe in jedem Bild neu aufgebaut (gemessen ~600 vertexAttribPointer je Bild).
@@ -6242,11 +6223,6 @@ function texDedupe() {
 }
 try { await Promise.race([Promise.all(KTX.pending), wait(60000)]); } catch (e) {} // komprimierte Texturen fertig, bevor alles hochgeladen wird
 try { texDedupe(); } catch (e) { console.warn('Texturen', e); }
-// 08.10.: Lichter in unsichtbaren Gruppen bleiben beim Vorübersetzen/Hochladen aus. Vorher machten die Durchgänge unten ganze Gruppen sichtbar – samt der Lichter darin
-// (gemessen 5 statt 4 Punkt-, 6 statt 5 Kegellichter). Jedes Programm hängt an der Lichterzahl: alles wurde für die falsche Zahl übersetzt und im ersten Bild
-// noch einmal – im Bild, also wartend (Profil: 22 s im ersten Bild, ~9 s im Hochladen).
-const LIGHTS_OFF = []; if (!/nolightfix/.test(location.search)) scene.traverse(o => { if (!o.isLight) return; for (let p = o; p; p = p.parent) if (!p.visible) { LIGHTS_OFF.push([o, o.visible]); return; } });
-const lightsOff = () => { for (const [l] of LIGHTS_OFF) l.visible = false; }, lightsBack = () => { for (const [l, v] of LIGHTS_OFF) l.visible = v; };
 camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, player.yaw, 0);
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
@@ -6254,8 +6230,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
-  if (DEV) { const L = window.__lightsPre = []; scene.traverseVisible(o => { if (o.isLight) L.push(o); }); } // Messung: Lichter, für die vorübersetzt wird
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
@@ -6269,7 +6244,7 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
   try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
   clearInterval(prog); renderer.setRenderTarget(null);
-  saved.forEach((v, o) => o.visible = v); lightsBack();
+  saved.forEach((v, o) => o.visible = v);
 }
 const PROGLOG = DEV ? (window.__proglog = { pre: renderer.info.programs.map(p => p.cacheKey) }) : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
 loop();
@@ -6278,7 +6253,7 @@ stage('Erstes Bild fertig');
 {
   const all = [...scene.children, scarePlane].filter(o => !o.isLight);
   const saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
@@ -6286,7 +6261,7 @@ stage('Erstes Bild fertig');
     const keep = []; const texs = new Set();
     scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
-        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } }); lightsOff();
+        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
@@ -6295,14 +6270,14 @@ stage('Erstes Bild fertig');
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null);
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
-    all.forEach(o => o.visible = true); lightsOff();
+    all.forEach(o => o.visible = true);
   }
   // Ein Bild mit allem Sichtbaren rendern: übersetzt auch die Schattenprogramme
   stage('Schatten vorbereiten'); await wait(0);
   assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); keyLight.shadow.needsUpdate = true; moonShadowFollow(camera.position.x, camera.position.z, 1e9);
   try { composer.render(); } catch (e) {}
   lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); try { composer.render(); } catch (e) {}
-  saved.forEach((v, o) => o.visible = v); lightsBack();
+  saved.forEach((v, o) => o.visible = v);
   scarePlane.material.map = faceTexes.pale;
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); if (window.gc && KTXF.mb > 100) window.gc(); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)

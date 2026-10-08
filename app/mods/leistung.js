@@ -299,8 +299,14 @@ function mwf_try(o) {
   if (!B.isEmpty()) { B.getBoundingSphere(MWF.sp); x = MWF.sp.center.x; y = MWF.sp.center.y; z = MWF.sp.center.z; r = MWF.sp.radius; }
   if (r > MWF.maxR) { o.__mwNo = MWF.now + 60000; return; } // zu groß: die Kinder werden einzeln eingefroren
   for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
-  MWF.base.call(o, true); o.traverse(mwf_moved); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen
+  MWF.base.call(o, true); o.traverse(mwf_prime); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen, Drehungen melden lassen
   o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
+// Drehungen (Türen, Klappen, Schilder …) melden sich selbst: three.js ruft bei jeder Änderung von rotation/quaternion einen Rückruf je Objekt → Zweig im selben Bild auftauen
+function mwf_poke(x) { for (let p = x; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; return; } }
+function mwf_prime(x) { mwf_moved(x); if (x.__mwHook) return; x.__mwHook = true;
+  const r = x.rotation, q = x.quaternion, r0 = r._onChangeCallback, q0 = q._onChangeCallback;
+  if (typeof r0 === 'function') r._onChange(function () { r0.apply(this, arguments); mwf_poke(x); });
+  if (typeof q0 === 'function') q._onChange(function () { q0.apply(this, arguments); mwf_poke(x); }); }
 // Wache: ganzer Zweig (auch unsichtbare Teile) gegen die gespeicherten Werte; Änderung → markieren (die Basis-Logik rechnet im selben Bild nach)
 function mwf_verify(o) { let hit = false; const S = MWF.stk || (MWF.stk = []); S.length = 0; S.push(o);
   if (!o.children.length) { if (o.updateMatrixWorld !== MWF.base || o.isBone) return true; if (mwf_moved(o)) { o.matrixWorldNeedsUpdate = true; return true; } return false; }
