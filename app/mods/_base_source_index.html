@@ -788,6 +788,11 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
 document.body.prepend(renderer.domElement);
+// 08.10.: Weichzeichner der Umgebungsspiegelung (PMREM) gleich zu Beginn übersetzen lassen – der Treiber übersetzt parallel, während die Welt entsteht.
+// Vorher entstanden diese Programme (Schleifen-Shader, unter D3D sehr langsam) erst beim ersten Gebrauch und wartend: Messing-Schlüssel (hervorhebung,
+// Umgebungsbild 256 px → Stufe 64) 9 s im Vorübersetzen, Fenster-Sonde (fassaden, 128) ~7 s nach dem Laden. Gleiche Quelle = gleiches Programm (three.js teilt es).
+if (!/nopmrem/.test(location.search)) try { const cam = new THREE.OrthographicCamera(); for (const size of [64, 128, 256]) { const pm = new THREE.PMREMGenerator(renderer); pm._setSize(size); const rt = pm._allocateTargets(); rt.dispose();
+    renderer.compile(new THREE.Mesh(pm._lodPlanes[0], pm._blurMaterial), cam); if (size === 64) { pm.compileEquirectangularShader(); pm.compileCubemapShader(); } } } catch (e) { console.warn('PMREM vorab', e); }
 // Komprimierte Texturen (app/tools/ktx.mjs → assets/ktx2.json): Grafikkarte bekommt BC7 statt unkomprimierter Bilder – ~4× weniger Grafikspeicher,
 // schnelleres Hochladen, gleiche Optik. Fehlt die Liste oder eine Datei, wird wie bisher das Original geladen. Kein Modul muss etwas davon wissen.
 const KTX = { loader: null, img: new Set(), mdl: new Set(), cache: new Map(), pending: [] };
@@ -6223,6 +6228,11 @@ function texDedupe() {
 }
 try { await Promise.race([Promise.all(KTX.pending), wait(60000)]); } catch (e) {} // komprimierte Texturen fertig, bevor alles hochgeladen wird
 try { texDedupe(); } catch (e) { console.warn('Texturen', e); }
+// 08.10.: Lichter in unsichtbaren Gruppen bleiben beim Vorübersetzen/Hochladen aus. Vorher machten die Durchgänge unten ganze Gruppen sichtbar – samt der Lichter darin
+// (gemessen 5 statt 4 Punkt-, 6 statt 5 Kegellichter). Jedes Programm hängt an der Lichterzahl: alles wurde für die falsche Zahl übersetzt und im ersten Bild
+// noch einmal – im Bild, also wartend (Profil: 22 s im ersten Bild, ~9 s im Hochladen).
+const LIGHTS_OFF = []; if (!/nolightfix/.test(location.search)) scene.traverse(o => { if (!o.isLight) return; for (let p = o; p; p = p.parent) if (!p.visible) { LIGHTS_OFF.push([o, o.visible]); return; } });
+const lightsOff = () => { for (const [l] of LIGHTS_OFF) l.visible = false; }, lightsBack = () => { for (const [l, v] of LIGHTS_OFF) l.visible = v; };
 camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, player.yaw, 0);
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
@@ -6230,7 +6240,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
@@ -6244,16 +6254,16 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
   try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
   clearInterval(prog); renderer.setRenderTarget(null);
-  saved.forEach((v, o) => o.visible = v);
+  saved.forEach((v, o) => o.visible = v); lightsBack();
 }
-const PROGLOG = DEV ? { pre: renderer.info.programs.map(p => p.cacheKey) } : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
+const PROGLOG = DEV ? (window.__proglog = { pre: renderer.info.programs.map(p => p.cacheKey) }) : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
 loop();
 stage('Erstes Bild fertig');
 // Schattenprogramme: ein Bild mit allem Sichtbaren rendern
 {
   const all = [...scene.children, scarePlane].filter(o => !o.isLight);
   const saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
@@ -6261,7 +6271,7 @@ stage('Erstes Bild fertig');
     const keep = []; const texs = new Set();
     scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
-        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
+        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } }); lightsOff();
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
@@ -6270,14 +6280,14 @@ stage('Erstes Bild fertig');
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null);
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
-    all.forEach(o => o.visible = true);
+    all.forEach(o => o.visible = true); lightsOff();
   }
   // Ein Bild mit allem Sichtbaren rendern: übersetzt auch die Schattenprogramme
   stage('Schatten vorbereiten'); await wait(0);
   assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); keyLight.shadow.needsUpdate = true; moonShadowFollow(camera.position.x, camera.position.z, 1e9);
   try { composer.render(); } catch (e) {}
   lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); try { composer.render(); } catch (e) {}
-  saved.forEach((v, o) => o.visible = v);
+  saved.forEach((v, o) => o.visible = v); lightsBack();
   scarePlane.material.map = faceTexes.pale;
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)

@@ -67,7 +67,7 @@ function auftritt_reg(g, o = {}) {
 function auftritt_neu(g, o) { const r = g.__auf || auftritt_reg(g, o); if (r) { auftritt_prep(r); if (r.real && r.prepped) auftritt_apply(r, r.a); } return r; }
 function auftritt_pos(rec, v) { const g = rec.g; if (g.parent) g.updateWorldMatrix(true, false); return v.setFromMatrixPosition(g.matrixWorld); }
 function auftritt_cloneMat(src) {
-  const c = src.clone(); if (src.onBeforeCompile && src.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile;
+  const c = src.clone(); c.userData = src.userData; /* clone() kopiert userData per JSON: Color/Vector3-Uniforms (userData.ku der Katzen-/Figuren-Shader) würden zu Datenobjekten ohne set() */ if (src.onBeforeCompile && src.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile;
   if (Object.prototype.hasOwnProperty.call(src, 'customProgramCacheKey')) c.customProgramCacheKey = src.customProgramCacheKey;
   if (src.defines) c.defines = Object.assign({}, src.defines);
   return c;

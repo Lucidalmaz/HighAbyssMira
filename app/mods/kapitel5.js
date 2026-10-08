@@ -391,7 +391,7 @@ function k5_huellen() {
   if (typeof familyPhoto !== 'undefined' && interactables.includes(familyPhoto)) { const o = familyPhoto.userData.action; familyPhoto.userData.action = () => {
     if (!(k5.on && k5_ab('tuer') && k5_vor('heimweg'))) return o && o();
     toast(['Der Junge hat blaue Augen. Heute Abend sieht er müde aus.', 'Der Junge ist blasser. Als hätte jemand das Foto zu lange ins Licht gehalten.', 'Der Junge ist fast weiß. Nur die Augen sind noch blau.', 'Der Junge fehlt. Mamas Hand liegt auf einer leeren Schulter.'][Math.min(3, k5.runde || 0)], 4600); }; }
-  wrap(/^Laube/, -107.2, 25, 2.5, (m, o, ol) => { m.userData.label = () => k5.on && !k5.f.laube ? 'Laube · Schublade' : (typeof ol === 'function' ? ol() : ol); m.userData.action = () => k5.on && !k5.f.laube ? k5_laube() : o(); });
+  // (Laube: Hit „Hildes Laube“ bei -122.8/36.2 gehört neben5.js – der alte Wrap auf /^Laube/ fand nichts mehr und warnte bei jedem Start)
   if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { if (!k5.on) return o(...a); if (state.talking) return;
     state.talking = true; albers_S.open = 1; try { await say([[k5_ab('lucy') && k5_vor('ende') ? '„Sie schläft. Diesmal richtig. Geh, Junge. Mach, was du machen musst.“' : '„Sie schläft. Lass sie schlafen, Junge.“', 3800, K5_W.V]]); } finally { albers_S.open = 0; state.talking = false; } })(albers_talk);
 }

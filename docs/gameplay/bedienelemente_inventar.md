@@ -5,11 +5,11 @@ Darstellung: **Box** = einfache Quader/Flächen mit Materialfarbe, **Canvas** = 
 
 | # | Gerät | Kap. | Modul / Ort | Art der Bedienung | Darstellung vorher | Status |
 |---|-------|------|-------------|-------------------|--------------------|--------|
-| 1 | Tastenfeld Kellertür (Code 3110) | 1 | Basis `keypadMesh`, Textur `kapitel1.js` ~178 | E, Overlay `#keypad`, Tasten 0-9, C, OK | Box .18×.26 + flache Canvas-Textur | **ersetzt** (BED.keypad) |
+| 1 | Tastenfeld Kellertür (Code 3110) | 1 | Basis `keypadMesh`, Textur `kapitel1.js` ~178 | E, Overlay `#keypad`, Tasten 0-9, C, OK | Box .18×.26 + flache Canvas-Textur | **ersetzt 09.10.: Modell Keypad Door Lock** (plaggy), Eingabefenster mit Tastenblock-Bild aus den Modelltexturen |
 | 2 | Etikett „BITTE NICHT HÄMMERN“ | 1 | `kapitel1.js` ~186 | nur Anblick | Canvas-Decal | bleibt (Rätsel/Atmosphäre), sitzt über dem neuen Feld |
-| 3 | Sicherungskasten (Hebel 1-6, Lights-out) | 2 | Basis `fusePanel`/`fuseCover`/`fuseLeds` (~3750) | E öffnet Klappe, Overlay `fuseOpenPanel` | graue Quader, 6 Leuchtquader | **ersetzt** (BED.sicherung) |
+| 3 | Sicherungskasten (Hebel 1-6, Lights-out) | 2 | Basis `fusePanel`/`fuseCover`/`fuseLeds` (~3750) | E öffnet Klappe, Overlay `fuseOpenPanel` | graue Quader, 6 Leuchtquader | **ersetzt 09.10.: Quixel „Electrical Boxes“ (Verteilertafel)** + 6 schlichte Kipphebel; Villa-Kühlraum ebenso |
 | 4 | Notentriegelung Brandschutztür (Hebel, Plombe, Rundumleuchte) | 2 | `feuer.js` ~256-267 | E halten (Fluchtphase) | flache Canvas-Platte (`relSign`) + Leuchtsprite | **angeglichen** an Notschalter der Szene (siehe Bericht) |
-| 5 | Funkkasten (31,10 MHz, Kanal-Rätsel) | 3 | Basis `radioBox`/`radioLed` (~4134), Overlay `lucy3.js` (`radioPuzzle`) | E, Overlay mit Skala, Regler, Kanalfenster | grauer Quader + Canvas-Schild | **ersetzt** (BED.funk) |
+| 5 | Funkkasten (31,10 MHz, Kanal-Rätsel) | 3 | Basis `radioBox`/`radioLed` (~4134), Overlay `lucy3.js` (`radioPuzzle`) | E, Overlay mit Skala, Regler, Kanalfenster | grauer Quader + Canvas-Schild | **ersetzt 09.10.: Modell Military Radio** auf dem Funkkasten (ein Stück, keine beweglichen Knöpfe) |
 | 6 | Schaltkästen der Stadtwerke (4 Stück, Hebel EIN/AUS) | 3 | `lucy3.js` `lucy3_hebelBau` | E, Reihenfolge-Rätsel | 3D (Emailleschild, Hebel, Schloss) | bereits hochwertig, unverändert |
 | 7 | Lucys Autoradio (31,10) | 3 | `lucy3.js` ~478 | nur Klang | Fahrzeugmodell | unverändert |
 | 8 | Telefonzelle / Hörer („Der Anruf“) | 1-6 | Basis `booth` (~1855), Kap. 5 `k5_telefon` | E hebt Hörer ab | 3D aus Boxen/Modell | unverändert (Kandidat Nachbesserung) |
@@ -18,7 +18,7 @@ Darstellung: **Box** = einfache Quader/Flächen mit Materialfarbe, **Canvas** = 
 | 11 | Lautsprecher der Bandschleife, Nummernautomat | 2 | `amt.js` ~509-560 | E (Zettel), Knopf | 3D / Canvas | unverändert |
 | 12 | Klavier (Messgerät-Melodie E-D-C-H-C) | 2 | Basis `piano` (~3929), `amt.js` ~1127 | E, Tonfolge | Box (Holz) + Tastenreihe | Kandidat (Tasten ohne eigene 3D-Drücke) |
 | 13 | Röhrenradio Wunschkonzert | 5 | `kapitel5.js` ~254 | Anblick/Klang | Scan `radio` | Scan |
-| 14 | Sicherungskasten Kühlraum (Villa) | 5/6 | `villa.js` ~565 | E (`villa_krKasten`) | Canvas-Decal | Kandidat |
+| 14 | Sicherungskasten Kühlraum (Villa) | 5/6 | `villa.js` ~565 | E (`villa_krKasten`) | Canvas-Decal | **ersetzt 09.10.** (Verteilertafel-Scan, verkleinert; Fassungen im Overlay) |
 | 15 | Tonbandgerät „Marion 2009“ | 5/6 | `villa.js` ~588 | E | Modell/Decal | Kandidat |
 | 16 | Kassettenrekorder / B.tape | 1 | Basis ~1540, `kapitel1.js` | E | Box (Metall) | Kandidat |
 | 17 | Spieluhr | 1 | Basis `musicBox` ~1486 | E | Box (Holz) | Kandidat |

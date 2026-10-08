@@ -420,8 +420,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const spots = [[-44.3, 5.45, .4], [12.7, -5.45, 2.2], [63.4, 5.45, 1.1], [-4.62, -23.8, 4.1], [-66.8, -5.45, .2]];
     reg('hyd', msInst(parts, spots.map(([x, z, r]) => msM4(x, .14, z, r, 1.12)), { shadow: true })); // auf dem Gehweg (Oberkante 0,14)
     // Kreidestriche neben dem Hydranten an der Kreuzung – STORY-HOOK: Zählen (7 + 1)
-    const ch = new T.Mesh(new T.PlaneGeometry(.6, .3), new T.MeshBasicMaterial({ transparent: true, depthWrite: false, opacity: .75, map: canvasTex(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(235,228,205,.85)'; x.lineCap = 'round';
-      for (let i = 0; i < 8; i++) { x.lineWidth = i === 7 ? 9 : 6; x.globalAlpha = i === 7 ? 1 : .55; x.beginPath(); x.moveTo(26 + i * 26, 22 + rand(-4, 4)); x.lineTo(24 + i * 26 + rand(-5, 5), 104 + rand(-4, 4)); x.stroke(); } }) }));
+    const ch = new T.Mesh(new T.PlaneGeometry(.6, .3), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, map: canvasTex(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(214,208,188,.9)'; x.lineCap = 'round'; // lit (nicht selbstleuchtend), Kreide: je Strich mehrere zittrige Züge, dann Körnung ausgestanzt
+      for (let i = 0; i < 8; i++) for (let pass = 0; pass < 3; pass++) { x.lineWidth = (i === 7 ? 8 : 5) * (pass ? .55 : 1); x.globalAlpha = (i === 7 ? 1 : .5) * (pass ? .6 : .8); x.beginPath(); x.moveTo(26 + i * 26 + rand(-2, 2), 22 + rand(-4, 4)); x.lineTo(24 + i * 26 + rand(-5, 5), 104 + rand(-4, 4)); x.stroke(); }
+      x.globalAlpha = 1; x.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 900; k++) { x.fillStyle = `rgba(0,0,0,${rand(.25, .9)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); } x.globalCompositeOperation = 'source-over'; }) }));
     ch.rotation.x = -PI / 2; ch.position.set(13.4, .145, -5.25); scene.add(ch);
     interact(hitBox(.5, .95, .5, 12.7, .62, -5.45), 'Hydrant', () => toast('Neben dem Hydranten: Kreidestriche. Sieben, vom Regen fast weggewaschen. Der achte ist frisch.', 5000)); }
   // Tonnen und Säcke am Streifen zwischen Gehweg und Zaun (außerhalb der Tor-Schwenkbereiche); vor Nr. 9 (verlassen): Säcke, umgekippte Tonne

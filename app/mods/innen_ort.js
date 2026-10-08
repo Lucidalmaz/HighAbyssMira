@@ -283,8 +283,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // Kellertür: gescannte, beschlagene Holztür mit Gitterfenster (folgt Öffnen und Rütteln der alten Tür), dahinter Schwärze
   { const d = await GL('door1'); d.scale.set(1.1 / 1.055, 2.2 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); });
     d.position.set(0, -1.1, 0); cellarDoor.add(d); cellarDoor.material = hidden;
+    { // Der Türscan hat ein echtes Loch (fehlende Bohlen, unten rechts) – dahinter stand Tapete/Schwärze („großer schwarzer Fleck“, Foto 7). Deckende Holzrückwand hinter dem Scan, mit Ausschnitt nur am Gitterfenster (dort bleibt die Schwärze), dreht mit der Tür.
+      const sh = new T.Shape(); sh.moveTo(-.54, -1.09); sh.lineTo(.54, -1.09); sh.lineTo(.54, 1.09); sh.lineTo(-.54, 1.09); sh.closePath();
+      const hl = new T.Path(), hw = .45, hb = .35, ht = .99, rr = .05; hl.moveTo(-hw + rr, hb); hl.lineTo(hw - rr, hb); hl.quadraticCurveTo(hw, hb, hw, hb + rr); hl.lineTo(hw, ht - rr); hl.quadraticCurveTo(hw, ht, hw - rr, ht); hl.lineTo(-hw + rr, ht); hl.quadraticCurveTo(-hw, ht, -hw, ht - rr); hl.lineTo(-hw, hb + rr); hl.quadraticCurveTo(-hw, hb, -hw + rr, hb); sh.holes.push(hl);
+      const bm = await surf('floor_wood', { rx: .55, ry: .55, tint: 0x5a4a3a }), back = new T.Mesh(new T.ShapeGeometry(sh), bm); back.position.set(.55, 0, -.138); back.receiveShadow = true; cellarDoor.add(back); }
     const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; if (typeof ritz_kratzer === 'function') { const f = ritz_kratzer(576, 384, { seed: 9, bueschel: 5, groesse: 100 }); sc.material = new T.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8, metalness: 0 }); } } // Krallenspuren als echte Rillen mit Relief, nicht als leuchtende Linien
-    const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.797); G7.add(vp); }
+    const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.99); /* hinter der RÜCKSEITE des Türscans (Scan z −21,96…−21,745): bei −21,797 lag die Ebene vor den eingesunkenen Bohlen und zeichnete die große schwarze Fläche auf die Tür (Foto 7) */ G7.add(vp); }
   await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0xf0d0c8, .75);
   await decal(G7, 'grime', 1.4, 1.2, 30.1, Y + .004, -20.9, 'floor', 1.1, 0x5a4a38, .9);
   await decal(G7, 'grime', 1.4, 1.0, 26.105, Y + .5, -21.0, '+x', 0, 0x6a5a48, .8);
@@ -406,7 +410,27 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const gBC = await chair(GB, { x: 299, z: 300, y: 0 });
   { const b = bbox(gBC), seat = surfY(gBC, 299, 300.05, 1.2, .47), w = b.max.x - b.min.x;
     const st = find(299, .62, 299.9, [.64, .04, .08])[0]; if (st) { st.position.set(299, .74, b.min.z + .035); st.scale.x = (w + .03) / .64; }
-    for (const [sx, s] of [[298.72, -1], [299.28, 1]]) { const m = find(sx, .56, 300, [.08, .04, .5])[0]; if (m) { m.position.set(299 + s * (w / 2 - .01), seat + .02, 300.12); m.scale.z = .75; } }
+    const armR = [];
+    for (const [sx, s] of [[298.72, -1], [299.28, 1]]) { const m = find(sx, .56, 300, [.08, .04, .5])[0]; if (m) { m.position.set(299 + s * (w / 2 - .01), seat + .02, 300.12); m.scale.z = .75; armR.push([m, s]); } }
+    // Echte Gurtbänder statt Gummi-Balken (Nutzer 08.10., Foto 9: „Gurt als flacher Balken diagonal durch die Lehne“): Lederband mit Naht, Metallschnalle und Nieten;
+    // zugezogen liegt es an der Lehne bzw. über der Sitzfläche, nach dem Schreck (userData.gurtAuf) hängt es lose herab.
+    try { const leder = new T.MeshStandardMaterial({ color: 0x2b1d13, roughness: .5, metalness: .04 }), stahl = new T.MeshStandardMaterial({ color: 0xa8a49a, roughness: .35, metalness: .9 });
+      const band = (pts, bw, up) => { const cur = new T.CatmullRomCurve3(pts.map(p => V(...p)), false, 'catmullrom', .3), n = 22, G = []; for (let i = 0; i < n; i++) { const a = cur.getPoint(i / n), c = cur.getPoint((i + 1) / n), d = c.clone().sub(a), L = d.length();
+          const g = new T.BoxGeometry(bw, .007, L * 1.04), m4 = new T.Matrix4().lookAt(a, c, up); m4.setPosition(a.clone().add(c).multiplyScalar(.5)); g.applyMatrix4(m4); G.push(g); }
+        const m = new T.Mesh(mergeGeometries(G), leder); m.castShadow = false; return m; };
+      const schnalle = (x, y, z, ry, wd) => { const g = new T.Group(), fr = (bx, by, bz, px, pz) => { const m = new T.Mesh(new T.BoxGeometry(bx, by, bz), stahl); m.position.set(px, 0, pz); return m; };
+        g.add(fr(wd + .012, .006, .008, 0, -.022), fr(wd + .012, .006, .008, 0, .022), fr(.008, .006, .052, -(wd / 2 + .004), 0), fr(.008, .006, .052, wd / 2 + .004, 0), fr(.004, .005, .046, 0, 0)); g.position.set(x, y, z); g.rotation.y = ry; return g; };
+      const pit = (parent, x, y, z) => { const m = new T.Mesh(new T.CylinderGeometry(.006, .006, .004, 8), stahl); m.position.set(x, y, z); parent.add(m); };
+      const par = st ? st.parent : GB, wb = .075, zr = b.min.z + .045, yr = .74, xl = 299 - w / 2 + .012, xr = 299 + w / 2 - .012, len = w / 2 - .09, K = new T.Group(), bk = schnalle(299, yr + .003, zr + .004, 0, wb);
+      bk.rotation.x = PI / 2; K.add(bk); // Brustgurt: an den Lehnenpfosten befestigt, vorn über der Lehne zusammengeschnallt
+      for (const sx of [-1, 1]) { const gi = new T.Group(); gi.position.set(sx < 0 ? xl : xr, yr, zr); // Drehpunkt = Pfosten
+        gi.add(band([[0, 0, 0], [-sx * len * .5, -.006, .004], [-sx * len, 0, .002]], wb, V(0, 0, 1))); pit(gi, 0, .005, 0); pit(gi, -sx * .03, .005, 0); K.userData[sx < 0 ? 'L' : 'R'] = gi; K.add(gi); }
+      K.userData.gurtAuf = () => { const L = K.userData.L, R = K.userData.R; L.rotation.z = -1.38; R.rotation.z = 1.38; L.position.y -= .03; R.position.y -= .03; bk.rotation.set(PI / 2, 0, .05); bk.position.set(xl + .006, yr - .03 - len - .02, zr + .006); };
+      par.add(K);
+      armR.forEach(([m, s], i) => { m.visible = false; m.material = hidden; const gx = 299 + s * (w / 2 - .01), z0 = 300.12 - .19, z1 = 300.12 + .19, A = new T.Group(); A.position.set(gx, seat + .02, z0);
+        const bd = band([[0, 0, 0], [0, .003, .12], [0, .003, .25], [0, 0, z1 - z0]], wb * .8, V(0, 1, 0)); A.add(bd); A.add(schnalle(0, .006, (z1 - z0) * .6, PI / 2, wb * .8)); pit(A, 0, .006, .02);
+        A.userData.gurtAuf = () => { A.rotation.z = s * 1.45; A.position.x += s * .035; A.position.y -= .045; A.rotation.x = .12; }; par.add(A); });
+      if (st) { st.visible = false; st.material = hidden; } K.name = 'gurtstuhl'; } catch (e) { console.warn('Gurtbänder', e); }
     try { const m = bu_ritz(.3, .12, (C, B, W, H, ppm) => { for (let k = 0; k < 7; k++) ritz_strich(C, B, [[W * .05 + k * ppm * .0295 + ritz_RN(), H * .1], [W * .05 + k * ppm * .0295 + ritz_RN() * 1.4, H * .86]], 34, 'ritz', ritz_R(.75, 1));
         ritz_strich(C, B, [[W * .86, H * .06], [W * .86 + 2, H * .9]], 56, 'ritz', 1); ritz_strich(C, B, [[W * .86 + 3, H * .08], [W * .86 + 4, H * .88]], 40, 'ritz', 1); }, { ppm: 900, seed: 8, bump: 3.2 });   // sieben Striche, der achte tiefer und frischer
       m.rotation.set(-PI / 2, 0, 0); m.position.set(299, seat + .002, 300.22); GB.add(m); } catch (e) { console.warn('Basis-Umsetzung Stuhlstriche', e); }

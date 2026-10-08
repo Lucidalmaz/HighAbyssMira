@@ -788,6 +788,11 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
 document.body.prepend(renderer.domElement);
+// 08.10.: Weichzeichner der Umgebungsspiegelung (PMREM) gleich zu Beginn übersetzen lassen – der Treiber übersetzt parallel, während die Welt entsteht.
+// Vorher entstanden diese Programme (Schleifen-Shader, unter D3D sehr langsam) erst beim ersten Gebrauch und wartend: Messing-Schlüssel (hervorhebung,
+// Umgebungsbild 256 px → Stufe 64) 9 s im Vorübersetzen, Fenster-Sonde (fassaden, 128) ~7 s nach dem Laden. Gleiche Quelle = gleiches Programm (three.js teilt es).
+if (!/nopmrem/.test(location.search)) try { const cam = new THREE.OrthographicCamera(); for (const size of [64, 128, 256]) { const pm = new THREE.PMREMGenerator(renderer); pm._setSize(size); const rt = pm._allocateTargets(); rt.dispose();
+    renderer.compile(new THREE.Mesh(pm._lodPlanes[0], pm._blurMaterial), cam); if (size === 64) { pm.compileEquirectangularShader(); pm.compileCubemapShader(); } } } catch (e) { console.warn('PMREM vorab', e); }
 // Komprimierte Texturen (app/tools/ktx.mjs → assets/ktx2.json): Grafikkarte bekommt BC7 statt unkomprimierter Bilder – ~4× weniger Grafikspeicher,
 // schnelleres Hochladen, gleiche Optik. Fehlt die Liste oder eine Datei, wird wie bisher das Original geladen. Kein Modul muss etwas davon wissen.
 const KTX = { loader: null, img: new Set(), mdl: new Set(), cache: new Map(), pending: [] };
@@ -8094,8 +8099,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const spots = [[-44.3, 5.45, .4], [12.7, -5.45, 2.2], [63.4, 5.45, 1.1], [-4.62, -23.8, 4.1], [-66.8, -5.45, .2]];
     reg('hyd', msInst(parts, spots.map(([x, z, r]) => msM4(x, .14, z, r, 1.12)), { shadow: true })); // auf dem Gehweg (Oberkante 0,14)
     // Kreidestriche neben dem Hydranten an der Kreuzung – STORY-HOOK: Zählen (7 + 1)
-    const ch = new T.Mesh(new T.PlaneGeometry(.6, .3), new T.MeshBasicMaterial({ transparent: true, depthWrite: false, opacity: .75, map: canvasTex(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(235,228,205,.85)'; x.lineCap = 'round';
-      for (let i = 0; i < 8; i++) { x.lineWidth = i === 7 ? 9 : 6; x.globalAlpha = i === 7 ? 1 : .55; x.beginPath(); x.moveTo(26 + i * 26, 22 + rand(-4, 4)); x.lineTo(24 + i * 26 + rand(-5, 5), 104 + rand(-4, 4)); x.stroke(); } }) }));
+    const ch = new T.Mesh(new T.PlaneGeometry(.6, .3), new T.MeshStandardMaterial({ transparent: true, depthWrite: false, roughness: 1, metalness: 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, map: canvasTex(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = 'rgba(214,208,188,.9)'; x.lineCap = 'round'; // lit (nicht selbstleuchtend), Kreide: je Strich mehrere zittrige Züge, dann Körnung ausgestanzt
+      for (let i = 0; i < 8; i++) for (let pass = 0; pass < 3; pass++) { x.lineWidth = (i === 7 ? 8 : 5) * (pass ? .55 : 1); x.globalAlpha = (i === 7 ? 1 : .5) * (pass ? .6 : .8); x.beginPath(); x.moveTo(26 + i * 26 + rand(-2, 2), 22 + rand(-4, 4)); x.lineTo(24 + i * 26 + rand(-5, 5), 104 + rand(-4, 4)); x.stroke(); }
+      x.globalAlpha = 1; x.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 900; k++) { x.fillStyle = `rgba(0,0,0,${rand(.25, .9)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); } x.globalCompositeOperation = 'source-over'; }) }));
     ch.rotation.x = -PI / 2; ch.position.set(13.4, .145, -5.25); scene.add(ch);
     interact(hitBox(.5, .95, .5, 12.7, .62, -5.45), 'Hydrant', () => toast('Neben dem Hydranten: Kreidestriche. Sieben, vom Regen fast weggewaschen. Der achte ist frisch.', 5000)); }
   // Tonnen und Säcke am Streifen zwischen Gehweg und Zaun (außerhalb der Tor-Schwenkbereiche); vor Nr. 9 (verlassen): Säcke, umgekippte Tonne
@@ -10455,8 +10461,12 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // Kellertür: gescannte, beschlagene Holztür mit Gitterfenster (folgt Öffnen und Rütteln der alten Tür), dahinter Schwärze
   { const d = await GL('door1'); d.scale.set(1.1 / 1.055, 2.2 / 1.9, 1); meshes(d).forEach(m => { m.material = m.material.clone(); m.material.color.setHex(0x8a7c6c); });
     d.position.set(0, -1.1, 0); cellarDoor.add(d); cellarDoor.material = hidden;
+    { // Der Türscan hat ein echtes Loch (fehlende Bohlen, unten rechts) – dahinter stand Tapete/Schwärze („großer schwarzer Fleck“, Foto 7). Deckende Holzrückwand hinter dem Scan, mit Ausschnitt nur am Gitterfenster (dort bleibt die Schwärze), dreht mit der Tür.
+      const sh = new T.Shape(); sh.moveTo(-.54, -1.09); sh.lineTo(.54, -1.09); sh.lineTo(.54, 1.09); sh.lineTo(-.54, 1.09); sh.closePath();
+      const hl = new T.Path(), hw = .45, hb = .35, ht = .99, rr = .05; hl.moveTo(-hw + rr, hb); hl.lineTo(hw - rr, hb); hl.quadraticCurveTo(hw, hb, hw, hb + rr); hl.lineTo(hw, ht - rr); hl.quadraticCurveTo(hw, ht, hw - rr, ht); hl.lineTo(-hw + rr, ht); hl.quadraticCurveTo(-hw, ht, -hw, ht - rr); hl.lineTo(-hw, hb + rr); hl.quadraticCurveTo(-hw, hb, -hw + rr, hb); sh.holes.push(hl);
+      const bm = await surf('floor_wood', { rx: .55, ry: .55, tint: 0x5a4a3a }), back = new T.Mesh(new T.ShapeGeometry(sh), bm); back.position.set(.55, 0, -.138); back.receiveShadow = true; cellarDoor.add(back); }
     const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; if (typeof ritz_kratzer === 'function') { const f = ritz_kratzer(576, 384, { seed: 9, bueschel: 5, groesse: 100 }); sc.material = new T.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8, metalness: 0 }); } } // Krallenspuren als echte Rillen mit Relief, nicht als leuchtende Linien
-    const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.797); G7.add(vp); }
+    const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.99); /* hinter der RÜCKSEITE des Türscans (Scan z −21,96…−21,745): bei −21,797 lag die Ebene vor den eingesunkenen Bohlen und zeichnete die große schwarze Fläche auf die Tür (Foto 7) */ G7.add(vp); }
   await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0xf0d0c8, .75);
   await decal(G7, 'grime', 1.4, 1.2, 30.1, Y + .004, -20.9, 'floor', 1.1, 0x5a4a38, .9);
   await decal(G7, 'grime', 1.4, 1.0, 26.105, Y + .5, -21.0, '+x', 0, 0x6a5a48, .8);
@@ -10578,7 +10588,27 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const gBC = await chair(GB, { x: 299, z: 300, y: 0 });
   { const b = bbox(gBC), seat = surfY(gBC, 299, 300.05, 1.2, .47), w = b.max.x - b.min.x;
     const st = find(299, .62, 299.9, [.64, .04, .08])[0]; if (st) { st.position.set(299, .74, b.min.z + .035); st.scale.x = (w + .03) / .64; }
-    for (const [sx, s] of [[298.72, -1], [299.28, 1]]) { const m = find(sx, .56, 300, [.08, .04, .5])[0]; if (m) { m.position.set(299 + s * (w / 2 - .01), seat + .02, 300.12); m.scale.z = .75; } }
+    const armR = [];
+    for (const [sx, s] of [[298.72, -1], [299.28, 1]]) { const m = find(sx, .56, 300, [.08, .04, .5])[0]; if (m) { m.position.set(299 + s * (w / 2 - .01), seat + .02, 300.12); m.scale.z = .75; armR.push([m, s]); } }
+    // Echte Gurtbänder statt Gummi-Balken (Nutzer 08.10., Foto 9: „Gurt als flacher Balken diagonal durch die Lehne“): Lederband mit Naht, Metallschnalle und Nieten;
+    // zugezogen liegt es an der Lehne bzw. über der Sitzfläche, nach dem Schreck (userData.gurtAuf) hängt es lose herab.
+    try { const leder = new T.MeshStandardMaterial({ color: 0x2b1d13, roughness: .5, metalness: .04 }), stahl = new T.MeshStandardMaterial({ color: 0xa8a49a, roughness: .35, metalness: .9 });
+      const band = (pts, bw, up) => { const cur = new T.CatmullRomCurve3(pts.map(p => V(...p)), false, 'catmullrom', .3), n = 22, G = []; for (let i = 0; i < n; i++) { const a = cur.getPoint(i / n), c = cur.getPoint((i + 1) / n), d = c.clone().sub(a), L = d.length();
+          const g = new T.BoxGeometry(bw, .007, L * 1.04), m4 = new T.Matrix4().lookAt(a, c, up); m4.setPosition(a.clone().add(c).multiplyScalar(.5)); g.applyMatrix4(m4); G.push(g); }
+        const m = new T.Mesh(mergeGeometries(G), leder); m.castShadow = false; return m; };
+      const schnalle = (x, y, z, ry, wd) => { const g = new T.Group(), fr = (bx, by, bz, px, pz) => { const m = new T.Mesh(new T.BoxGeometry(bx, by, bz), stahl); m.position.set(px, 0, pz); return m; };
+        g.add(fr(wd + .012, .006, .008, 0, -.022), fr(wd + .012, .006, .008, 0, .022), fr(.008, .006, .052, -(wd / 2 + .004), 0), fr(.008, .006, .052, wd / 2 + .004, 0), fr(.004, .005, .046, 0, 0)); g.position.set(x, y, z); g.rotation.y = ry; return g; };
+      const pit = (parent, x, y, z) => { const m = new T.Mesh(new T.CylinderGeometry(.006, .006, .004, 8), stahl); m.position.set(x, y, z); parent.add(m); };
+      const par = st ? st.parent : GB, wb = .075, zr = b.min.z + .045, yr = .74, xl = 299 - w / 2 + .012, xr = 299 + w / 2 - .012, len = w / 2 - .09, K = new T.Group(), bk = schnalle(299, yr + .003, zr + .004, 0, wb);
+      bk.rotation.x = PI / 2; K.add(bk); // Brustgurt: an den Lehnenpfosten befestigt, vorn über der Lehne zusammengeschnallt
+      for (const sx of [-1, 1]) { const gi = new T.Group(); gi.position.set(sx < 0 ? xl : xr, yr, zr); // Drehpunkt = Pfosten
+        gi.add(band([[0, 0, 0], [-sx * len * .5, -.006, .004], [-sx * len, 0, .002]], wb, V(0, 0, 1))); pit(gi, 0, .005, 0); pit(gi, -sx * .03, .005, 0); K.userData[sx < 0 ? 'L' : 'R'] = gi; K.add(gi); }
+      K.userData.gurtAuf = () => { const L = K.userData.L, R = K.userData.R; L.rotation.z = -1.38; R.rotation.z = 1.38; L.position.y -= .03; R.position.y -= .03; bk.rotation.set(PI / 2, 0, .05); bk.position.set(xl + .006, yr - .03 - len - .02, zr + .006); };
+      par.add(K);
+      armR.forEach(([m, s], i) => { m.visible = false; m.material = hidden; const gx = 299 + s * (w / 2 - .01), z0 = 300.12 - .19, z1 = 300.12 + .19, A = new T.Group(); A.position.set(gx, seat + .02, z0);
+        const bd = band([[0, 0, 0], [0, .003, .12], [0, .003, .25], [0, 0, z1 - z0]], wb * .8, V(0, 1, 0)); A.add(bd); A.add(schnalle(0, .006, (z1 - z0) * .6, PI / 2, wb * .8)); pit(A, 0, .006, .02);
+        A.userData.gurtAuf = () => { A.rotation.z = s * 1.45; A.position.x += s * .035; A.position.y -= .045; A.rotation.x = .12; }; par.add(A); });
+      if (st) { st.visible = false; st.material = hidden; } K.name = 'gurtstuhl'; } catch (e) { console.warn('Gurtbänder', e); }
     try { const m = bu_ritz(.3, .12, (C, B, W, H, ppm) => { for (let k = 0; k < 7; k++) ritz_strich(C, B, [[W * .05 + k * ppm * .0295 + ritz_RN(), H * .1], [W * .05 + k * ppm * .0295 + ritz_RN() * 1.4, H * .86]], 34, 'ritz', ritz_R(.75, 1));
         ritz_strich(C, B, [[W * .86, H * .06], [W * .86 + 2, H * .9]], 56, 'ritz', 1); ritz_strich(C, B, [[W * .86 + 3, H * .08], [W * .86 + 4, H * .88]], 40, 'ritz', 1); }, { ppm: 900, seed: 8, bump: 3.2 });   // sieben Striche, der achte tiefer und frischer
       m.rotation.set(-PI / 2, 0, 0); m.position.set(299, seat + .002, 300.22); GB.add(m); } catch (e) { console.warn('Basis-Umsetzung Stuhlstriche', e); }
@@ -33377,7 +33407,7 @@ async function kapitel1_welt() {
     kapitel1_decal(t, .9, .17, 298.6, 2.25, 300.2, PI / 2, PI / 2, 0); }
   // Gurte am Stuhl (Basis-Gummibänder): geschlossen, nach dem Schreck „offen“ (hängen herab)
   try { await kapitel1_busBau(); } catch (e) { console.warn('kapitel1 Bus', e); }
-  K1.gurte = []; scene.traverse(o => { if (o.isMesh && o.material === M.rubber && Math.abs(o.position.x - 299) < .5 && Math.abs(o.position.z - 300) < .5) K1.gurte.push({ o, p: o.position.clone(), r: o.rotation.clone() }); });
+  K1.gurte = []; scene.traverse(o => { if (o.userData && typeof o.userData.gurtAuf === 'function') K1.gurte.push({ o }); }); // Gurtbänder baut innen_ort (echte Lederbänder mit Schnalle), jedes kennt sein Aufgehen
 }
 // Polaroid auf dem Gurtstuhl (Hilde hat es gemacht): Mädchen in Lucys blauem Kleid, grau, ohne Mund, festgeschnallt
 function kapitel1_polaCanvas(im) { const c = document.createElement('canvas'); c.width = 300; c.height = 360; const x = c.getContext('2d');
@@ -33573,7 +33603,7 @@ async function kapitel1_danke() {
   await wait(400); b.dark = false; b.bulb.material.emissiveIntensity = 5; state.blackout = false; flashOn = true; state.flashFail = 1.2; kapitel1_gurteAuf(); state.chainsT = 6;
   for (let i = 0; i < 8; i++) setTimeout(() => Audio.stepAt(B.x + 4.2, B.z + 2.9 - i * .3, .09 + i * .004), 900 + i * 260); // nackte Füße, nach oben
   toast('Der Stuhl ist leer. Die Gurte sind offen.', 4200); }
-function kapitel1_gurteAuf() { K1.f.add('gurte'); K1.gurte.forEach(({ o }, i) => { o.rotation.z += (i % 2 ? 1 : -1) * 1.1; o.position.y -= .12; }); if (K1.pola) K1.pola.visible = false; if (K1.polaHit) uninteract(K1.polaHit); }
+function kapitel1_gurteAuf() { K1.f.add('gurte'); if (!K1.gurte || !K1.gurte.length) { K1.gurte = []; scene.traverse(o => { if (o.userData && typeof o.userData.gurtAuf === 'function') K1.gurte.push({ o }); }); } K1.gurte.forEach(({ o }) => { if (!o.userData.offen) { o.userData.offen = true; o.userData.gurtAuf(); } }); if (K1.pola) K1.pola.visible = false; if (K1.polaHit) uninteract(K1.polaHit); }
 function kapitel1_treppe() { if (K1.v.on || K1.v.done || state.ch1Done) return toast('Die schwere Tür ist zu. Von dieser Seite gibt es kein Tastenfeld.', 3800); if (!state.heardTape) return toast('Noch nicht. Lucy wollte, dass du hier etwas findest.'); leaveBasement(); }
 
 // ================================================================= UK 6: Von Ost nach West
@@ -39069,7 +39099,7 @@ function k5_huellen() {
   if (typeof familyPhoto !== 'undefined' && interactables.includes(familyPhoto)) { const o = familyPhoto.userData.action; familyPhoto.userData.action = () => {
     if (!(k5.on && k5_ab('tuer') && k5_vor('heimweg'))) return o && o();
     toast(['Der Junge hat blaue Augen. Heute Abend sieht er müde aus.', 'Der Junge ist blasser. Als hätte jemand das Foto zu lange ins Licht gehalten.', 'Der Junge ist fast weiß. Nur die Augen sind noch blau.', 'Der Junge fehlt. Mamas Hand liegt auf einer leeren Schulter.'][Math.min(3, k5.runde || 0)], 4600); }; }
-  wrap(/^Laube/, -107.2, 25, 2.5, (m, o, ol) => { m.userData.label = () => k5.on && !k5.f.laube ? 'Laube · Schublade' : (typeof ol === 'function' ? ol() : ol); m.userData.action = () => k5.on && !k5.f.laube ? k5_laube() : o(); });
+  // (Laube: Hit „Hildes Laube“ bei -122.8/36.2 gehört neben5.js – der alte Wrap auf /^Laube/ fand nichts mehr und warnte bei jedem Start)
   if (typeof albers_talk === 'function') albers_talk = (o => async (...a) => { if (!k5.on) return o(...a); if (state.talking) return;
     state.talking = true; albers_S.open = 1; try { await say([[k5_ab('lucy') && k5_vor('ende') ? '„Sie schläft. Diesmal richtig. Geh, Junge. Mach, was du machen musst.“' : '„Sie schläft. Lass sie schlafen, Junge.“', 3800, K5_W.V]]); } finally { albers_S.open = 0; state.talking = false; } })(albers_talk);
 }
@@ -44802,7 +44832,7 @@ function auftritt_reg(g, o = {}) {
 function auftritt_neu(g, o) { const r = g.__auf || auftritt_reg(g, o); if (r) { auftritt_prep(r); if (r.real && r.prepped) auftritt_apply(r, r.a); } return r; }
 function auftritt_pos(rec, v) { const g = rec.g; if (g.parent) g.updateWorldMatrix(true, false); return v.setFromMatrixPosition(g.matrixWorld); }
 function auftritt_cloneMat(src) {
-  const c = src.clone(); if (src.onBeforeCompile && src.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile;
+  const c = src.clone(); c.userData = src.userData; /* clone() kopiert userData per JSON: Color/Vector3-Uniforms (userData.ku der Katzen-/Figuren-Shader) würden zu Datenobjekten ohne set() */ if (src.onBeforeCompile && src.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile;
   if (Object.prototype.hasOwnProperty.call(src, 'customProgramCacheKey')) c.customProgramCacheKey = src.customProgramCacheKey;
   if (src.defines) c.defines = Object.assign({}, src.defines);
   return c;
@@ -45822,6 +45852,11 @@ function texDedupe() {
 }
 try { await Promise.race([Promise.all(KTX.pending), wait(60000)]); } catch (e) {} // komprimierte Texturen fertig, bevor alles hochgeladen wird
 try { texDedupe(); } catch (e) { console.warn('Texturen', e); }
+// 08.10.: Lichter in unsichtbaren Gruppen bleiben beim Vorübersetzen/Hochladen aus. Vorher machten die Durchgänge unten ganze Gruppen sichtbar – samt der Lichter darin
+// (gemessen 5 statt 4 Punkt-, 6 statt 5 Kegellichter). Jedes Programm hängt an der Lichterzahl: alles wurde für die falsche Zahl übersetzt und im ersten Bild
+// noch einmal – im Bild, also wartend (Profil: 22 s im ersten Bild, ~9 s im Hochladen).
+const LIGHTS_OFF = []; if (!/nolightfix/.test(location.search)) scene.traverse(o => { if (!o.isLight) return; for (let p = o; p; p = p.parent) if (!p.visible) { LIGHTS_OFF.push([o, o.visible]); return; } });
+const lightsOff = () => { for (const [l] of LIGHTS_OFF) l.visible = false; }, lightsBack = () => { for (const [l, v] of LIGHTS_OFF) l.visible = v; };
 camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, player.yaw, 0);
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
@@ -45829,7 +45864,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
@@ -45843,16 +45878,16 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
   try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
   clearInterval(prog); renderer.setRenderTarget(null);
-  saved.forEach((v, o) => o.visible = v);
+  saved.forEach((v, o) => o.visible = v); lightsBack();
 }
-const PROGLOG = DEV ? { pre: renderer.info.programs.map(p => p.cacheKey) } : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
+const PROGLOG = DEV ? (window.__proglog = { pre: renderer.info.programs.map(p => p.cacheKey) }) : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
 loop();
 stage('Erstes Bild fertig');
 // Schattenprogramme: ein Bild mit allem Sichtbaren rendern
 {
   const all = [...scene.children, scarePlane].filter(o => !o.isLight);
   const saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
+  all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
@@ -45860,7 +45895,7 @@ stage('Erstes Bild fertig');
     const keep = []; const texs = new Set();
     scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
-        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
+        if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } }); lightsOff();
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
@@ -45869,14 +45904,14 @@ stage('Erstes Bild fertig');
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null);
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
-    all.forEach(o => o.visible = true);
+    all.forEach(o => o.visible = true); lightsOff();
   }
   // Ein Bild mit allem Sichtbaren rendern: übersetzt auch die Schattenprogramme
   stage('Schatten vorbereiten'); await wait(0);
   assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); keyLight.shadow.needsUpdate = true; moonShadowFollow(camera.position.x, camera.position.z, 1e9);
   try { composer.render(); } catch (e) {}
   lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); try { composer.render(); } catch (e) {}
-  saved.forEach((v, o) => o.visible = v);
+  saved.forEach((v, o) => o.visible = v); lightsBack();
   scarePlane.material.map = faceTexes.pale;
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)

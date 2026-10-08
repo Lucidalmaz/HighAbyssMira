@@ -206,7 +206,7 @@ async function kapitel1_welt() {
     kapitel1_decal(t, .9, .17, 298.6, 2.25, 300.2, PI / 2, PI / 2, 0); }
   // Gurte am Stuhl (Basis-Gummibänder): geschlossen, nach dem Schreck „offen“ (hängen herab)
   try { await kapitel1_busBau(); } catch (e) { console.warn('kapitel1 Bus', e); }
-  K1.gurte = []; scene.traverse(o => { if (o.isMesh && o.material === M.rubber && Math.abs(o.position.x - 299) < .5 && Math.abs(o.position.z - 300) < .5) K1.gurte.push({ o, p: o.position.clone(), r: o.rotation.clone() }); });
+  K1.gurte = []; scene.traverse(o => { if (o.userData && typeof o.userData.gurtAuf === 'function') K1.gurte.push({ o }); }); // Gurtbänder baut innen_ort (echte Lederbänder mit Schnalle), jedes kennt sein Aufgehen
 }
 // Polaroid auf dem Gurtstuhl (Hilde hat es gemacht): Mädchen in Lucys blauem Kleid, grau, ohne Mund, festgeschnallt
 function kapitel1_polaCanvas(im) { const c = document.createElement('canvas'); c.width = 300; c.height = 360; const x = c.getContext('2d');
@@ -402,7 +402,7 @@ async function kapitel1_danke() {
   await wait(400); b.dark = false; b.bulb.material.emissiveIntensity = 5; state.blackout = false; flashOn = true; state.flashFail = 1.2; kapitel1_gurteAuf(); state.chainsT = 6;
   for (let i = 0; i < 8; i++) setTimeout(() => Audio.stepAt(B.x + 4.2, B.z + 2.9 - i * .3, .09 + i * .004), 900 + i * 260); // nackte Füße, nach oben
   toast('Der Stuhl ist leer. Die Gurte sind offen.', 4200); }
-function kapitel1_gurteAuf() { K1.f.add('gurte'); K1.gurte.forEach(({ o }, i) => { o.rotation.z += (i % 2 ? 1 : -1) * 1.1; o.position.y -= .12; }); if (K1.pola) K1.pola.visible = false; if (K1.polaHit) uninteract(K1.polaHit); }
+function kapitel1_gurteAuf() { K1.f.add('gurte'); if (!K1.gurte || !K1.gurte.length) { K1.gurte = []; scene.traverse(o => { if (o.userData && typeof o.userData.gurtAuf === 'function') K1.gurte.push({ o }); }); } K1.gurte.forEach(({ o }) => { if (!o.userData.offen) { o.userData.offen = true; o.userData.gurtAuf(); } }); if (K1.pola) K1.pola.visible = false; if (K1.polaHit) uninteract(K1.polaHit); }
 function kapitel1_treppe() { if (K1.v.on || K1.v.done || state.ch1Done) return toast('Die schwere Tür ist zu. Von dieser Seite gibt es kein Tastenfeld.', 3800); if (!state.heardTape) return toast('Noch nicht. Lucy wollte, dass du hier etwas findest.'); leaveBasement(); }
 
 // ================================================================= UK 6: Von Ost nach West
