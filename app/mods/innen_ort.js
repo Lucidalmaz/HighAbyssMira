@@ -290,6 +290,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; if (typeof ritz_kratzer === 'function') { const f = ritz_kratzer(576, 384, { seed: 9, bueschel: 5, groesse: 100 }); sc.material = new T.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8, metalness: 0 }); } } // Krallenspuren als echte Rillen mit Relief, nicht als leuchtende Linien
     const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.99); /* hinter der RÜCKSEITE des Türscans (Scan z −21,96…−21,745): bei −21,797 lag die Ebene vor den eingesunkenen Bohlen und zeichnete die große schwarze Fläche auf die Tür (Foto 7) */ G7.add(vp); }
   await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0xf0d0c8, .75);
+  await decal(G7, 'blood_hs', .55, .55, 30.55, Y + .006, -20.55, 'floor', .5, 0xf0d0c8, .8); // verschmierte Hand (Megascans „Hand Smear“) neben der Spur zur Kellertür
   await decal(G7, 'grime', 1.4, 1.2, 30.1, Y + .004, -20.9, 'floor', 1.1, 0x5a4a38, .9);
   await decal(G7, 'grime', 1.4, 1.0, 26.105, Y + .5, -21.0, '+x', 0, 0x6a5a48, .8);
   web(G7, 31.62, Y + 2.5, -21.62, -PI / 4 + PI / 2, .8); web(G7, 26.3, Y + .5, -21.62, PI / 4, .45);

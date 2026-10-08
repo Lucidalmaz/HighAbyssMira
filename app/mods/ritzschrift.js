@@ -152,7 +152,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 const ECHT = { img: {}, an: 0, rs: 4242 };
 const echt_R = (a = 0, b = 1) => { ECHT.rs = (ECHT.rs * 1664525 + 1013904223) >>> 0; return a + (b - a) * (ECHT.rs / 4294967296); };
 ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
-function echt_an(fn, modus = 'druck') { const m0 = ECHT.modus; ECHT.an++; ECHT.modus = modus; try { return fn(); } finally { ECHT.an--; ECHT.modus = m0; } } // modus 'druck' (Standard: Farbband/Toner mit Papierzahn) oder 'schablone' (gesprühte Schablonenschrift mit Stegen, Abplatzern, Overspray)
+function echt_an(fn, modus) { const m0 = ECHT.modus; ECHT.an++; ECHT.modus = modus || m0 || 'druck'; try { return fn(); } finally { ECHT.an--; ECHT.modus = m0; } } // modus 'druck' (Standard: Farbband/Toner mit Papierzahn) oder 'schablone' (gesprühte Schablonenschrift mit Stegen, Abplatzern, Overspray)
 // Pinsel gefärbt stempeln: Mitte (cx, cy), Breite in Pixeln (Höhe nach Seitenverhältnis), optional Ausschnitt [sx, sy, sw, sh] des Pinselbildes
 function echt_stempel(x, name, cx, cy, bw, farbe = '#000', alpha = 1, rot = 0, spiegel = false, ausschnitt = null) {
   const im = ECHT.img[name]; if (!im) return false; const [sx, sy, sw, sh] = ausschnitt || [0, 0, im.width, im.height], bh = bw * sh / sw, W = Math.max(2, Math.min(1024, Math.ceil(bw))), H = Math.max(2, Math.min(1024, Math.ceil(bh * W / bw)));
@@ -163,13 +163,25 @@ function echt_stempel(x, name, cx, cy, bw, farbe = '#000', alpha = 1, rot = 0, s
 function echt_hand(x, cx, cy, hoehe, farbe = '#fff', alpha = 1, rot = 0, spiegel = false, art = 'blut') {
   const n = art === 'blut' && ECHT.img.handblut ? 'handblut' : 'hand', im = ECHT.img[n]; if (!im) return false; return echt_stempel(x, n, cx, cy, hoehe * im.width / im.height, farbe, alpha, rot, spiegel); }
 // Wachsmal-/Buntstiftkorn: auf eine Leinwand anwenden, die nur die Striche enthält (kleine Hilfsleinwand um den Strich) – Zahn des Papiers + Streifen des Wischscans
-function echt_wachsKorn(x, w, h, st = .55) { try { kreideKorn(x, w, h, 64); const W = ECHT.img.wisch; if (!W || w < 4 || h < 4) return;
+function echt_wachsKorn(x, w, h, st = .4) { try { kreideKorn(x, w, h, 64); const W = ECHT.img.wisch; if (!W || w < 4 || h < 4) return;
     const m = document.createElement('canvas'); m.width = w; m.height = h; const c = m.getContext('2d'), k = Math.max(w, h) > 220 ? 1 : 1.6, sw = Math.min(W.width, w / k), sh = Math.min(W.height, h / k), sx = echt_R(0, W.width - sw), sy = echt_R(0, W.height - sh);
-    c.globalAlpha = 1 - st; c.fillStyle = '#fff'; c.fillRect(0, 0, w, h); c.globalAlpha = 1; c.drawImage(W, sx, sy, sw, sh, 0, 0, w, h); // Alpha = (1 − st) + Streifen
-    x.save(); x.globalCompositeOperation = 'destination-in'; x.drawImage(m, 0, 0); x.restore(); } catch (e) {} }
+    c.globalAlpha = 1 - st; c.fillStyle = '#fff'; c.fillRect(0, 0, w, h); c.globalAlpha = 1; c.drawImage(W, sx, sy, sw, sh, 0, 0, w, h); c.globalAlpha = .6; c.drawImage(W, sx, sy, sw, sh, 0, 0, w, h); c.globalAlpha = 1; // Alpha ≈ (1 − st) + Streifen (verstärkt)
+    x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(m, 0, 0); x.restore(); } catch (e) {} }
 // Schrift mit Wachsmalstift/Buntstift (Name unter einer Zeichnung): erst auf Hilfsleinwand schreiben, dann das Wachskorn drüber
 function echt_wachsText(x, text, px, py, font, col, rot = 0) { const m = /(\d+(?:\.\d+)?)px/.exec(font), sz = m ? +m[1] : 16, w = Math.ceil(text.length * sz * .8 + 24), h = Math.ceil(sz * 2), t = document.createElement('canvas'); t.width = w; t.height = h; const c = t.getContext('2d');
   c.font = font; c.fillStyle = col; c.fillText(text, 10, sz * 1.35); echt_wachsKorn(c, w, h); x.save(); x.translate(px, py); x.rotate(rot); x.drawImage(t, -10, -sz * 1.35); x.restore(); }
+// Fußabdruck (nackt/Schuhsohle) aus echten Farbspritzern: Ferse, Ballen, fünf Zehen als gestempelte Farb-Pinsel (Paint Brush) – ausgefranste, nasse Ränder statt glatter Ellipsen; links = gespiegelt
+function echt_fuss(x, cx, cy, L, farbe, alpha = .7, links = false) { const W0 = ECHT.img.wisch, T0 = ECHT.img.tropfen; if (!W0 || !T0) return false;
+  const W = Math.ceil(L * .9), H = Math.ceil(L * 1.15), t = document.createElement('canvas'); t.width = W; t.height = H; const c = t.getContext('2d'); c.translate(W / 2, H / 2); if (links) c.scale(-1, 1); c.fillStyle = '#fff'; c.filter = 'blur(' + Math.max(.8, L * .008) + 'px)';
+  const E = (px, py, rx, ry, a = 0) => { c.beginPath(); c.ellipse(px * L, py * L, rx * L, ry * L, a, 0, 7); c.fill(); };
+  E(.02, .31, .105, .12); E(.035, .14, .07, .12, .1); E(-.01, -.07, .155, .14); E(.045, .0, .1, .12); // Ferse, Außenkante, Ballen
+  [[-.115, -.325, .05, .06], [-.045, -.37, .042, .05], [.02, -.385, .038, .047], [.083, -.368, .034, .043], [.135, -.325, .03, .04]].forEach(([px, py, rx, ry]) => E(px, py, rx, ry)); // fünf Zehen
+  c.filter = 'none'; c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'destination-out'; // nasser Schlamm: Streifen des Wischscans und kleine Löcher aus dem Tropfenscan
+  c.globalAlpha = .55; c.drawImage(W0, echt_R(0, W0.width * .4), echt_R(0, W0.height * .4), W0.width * .6, W0.height * .6, 0, 0, W, H); c.globalAlpha = 1;
+  for (let i = 0; i < 5; i++) echt_stempel(c, 'tropfen', echt_R(.15, .85) * W, echt_R(.1, .9) * H, L * .09, '#000', .8, echt_R(0, 6), false, [echt_R(0, 600), echt_R(0, 600), 400, 400]);
+  c.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) echt_stempel(c, 'tropfen', echt_R(.05, .95) * W, echt_R(.05, .95) * H, L * .05, '#fff', .9, echt_R(0, 6), false, [echt_R(0, 600), echt_R(0, 600), 240, 240]); // Spritzer daneben
+  c.globalCompositeOperation = 'source-in'; c.fillStyle = farbe; c.fillRect(0, 0, W, H);
+  x.save(); x.globalAlpha *= alpha; x.drawImage(t, cx - W / 2, cy - H / 2); x.restore(); return true; }
 // Papierflecken: Feuchtigkeit (Moisture-Stain-Scan) als Wasserrand auf einem Blatt
 function echt_fleck(x, cx, cy, breite, farbe = 'rgba(120,96,60,1)', alpha = .25, rot = 0) { return echt_stempel(x, 'feucht', cx, cy, breite, farbe, alpha, rot, echt_R() < .5); }
 // Kratzer (Scratches-Scan) in eine Fläche: n Stücke, farbe = freigelegtes Material
@@ -194,15 +206,17 @@ function echt_text(ctx, orig, text, x, y, maxW) {
     sx.save(); sx.globalCompositeOperation = 'destination-out'; sx.fillStyle = '#000'; const cap = sz * .72, yb = bl === 'middle' ? y + cap / 2 : bl === 'top' || bl === 'hanging' ? y + cap : bl === 'bottom' ? y - sz * .2 : y, gap = Math.max(1.3, sz * .055);
     for (let i = 0; i < text.length; i++) { if (!/[ABDOPQRÄÖ04689]/.test(text[i])) continue; const cx = x0 + ctx.measureText(text.slice(0, i)).width, cw = ctx.measureText(text[i]).width; sx.fillRect(cx + cw * .02, yb - cap * .5 - gap / 2, cw * .24, gap); sx.fillRect(cx + cw * .72, yb - cap * .5 - gap / 2, cw * .26, gap); }
     sx.restore(); }
-  // Zahn des Papiers/der Wand: Farbe haftet nur auf den Kornspitzen; darunter die unmaskierte Schrift als Tintenhof
+  // Druck: Farbe sitzt auf dem Papierzahn – unmaskierte Schrift als Tintenhof (Grundstärke), darüber die gekörnte; Schablone: volle Deckkraft mit Abplatzern aus dem Tropfenscan und Kratzern
   const sy = document.createElement('canvas'); sy.width = bw; sy.height = bh; const yx = sy.getContext('2d'); yx.drawImage(sc, 0, 0);
-  kreideKorn(yx, bw, bh, gross ? 140 : Math.max(96, Math.min(bw, bh) * .6));
-  if (gross) { yx.globalCompositeOperation = 'destination-out'; echt_kratz(yx, bw, bh, 1 + Math.floor(bw / 220), '#000', .55, .45); // Abplatzer: Kratzer und Ausbrüche in der Farbe
-    yx.fillStyle = '#000'; for (let i = 0, n = Math.floor(bw * bh / 1400); i < n; i++) { yx.globalAlpha = echt_R(.35, .9); yx.beginPath(); yx.arc(echt_R(0, bw), echt_R(0, bh), echt_R(.5, 1.9), 0, 7); yx.fill(); } yx.globalAlpha = 1; yx.globalCompositeOperation = 'source-over'; }
+  if (gross) { yx.globalCompositeOperation = 'destination-out'; echt_kratz(yx, bw, bh, 1 + Math.floor(bw / 260), '#000', .6, .45); // Abplatzer: Kratzer und Ausbrüche in der Farbe
+    for (let i = 0, n = 2 + Math.floor(bw / 70); i < n; i++) echt_stempel(yx, 'tropfen', echt_R(0, bw), echt_R(bh * .2, bh * .8), sz * echt_R(.25, .6), '#000', echt_R(.6, 1), echt_R(0, 6), false, [echt_R(0, 600), echt_R(0, 600), 380, 380]);
+    yx.globalCompositeOperation = 'source-over'; }
+  else kreideKorn(yx, bw, bh, Math.max(96, Math.min(bw, bh) * .6));
   ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-  if (gross) { ctx.save(); ctx.filter = 'blur(' + Math.max(1.5, sz * .06) + 'px)'; ctx.globalAlpha *= .2; ctx.drawImage(sc, bx, by); ctx.restore(); // Overspray: weicher Farbhof
-    for (let i = 0, n = Math.floor(bw / 5); i < n; i++) { const a = echt_R(0, bw), b = echt_R(bh * .25, bh * .75); ctx.save(); ctx.globalAlpha *= echt_R(.12, .4); ctx.fillStyle = sx.fillStyle; ctx.beginPath(); ctx.arc(bx + a, by + b, echt_R(.4, 1.1), 0, 7); ctx.fill(); ctx.restore(); } }
-  else { ctx.save(); ctx.globalAlpha *= .3; ctx.drawImage(sc, bx, by); ctx.restore(); }
+  if (gross) { ctx.save(); ctx.filter = 'blur(' + Math.max(1, sz * .035) + 'px)'; ctx.globalAlpha *= .16; ctx.drawImage(sc, bx, by); ctx.restore(); // Overspray: weicher Farbhof und feine Sprühpunkte
+    for (let i = 0, n = Math.floor(bw / 4); i < n; i++) { const a = echt_R(0, bw), b = echt_R(bh * .25, bh * .75); ctx.save(); ctx.globalAlpha *= echt_R(.1, .35); ctx.fillStyle = sx.fillStyle; ctx.beginPath(); ctx.arc(bx + a, by + b, echt_R(.4, 1), 0, 7); ctx.fill(); ctx.restore(); } }
+  else { ctx.save(); ctx.globalAlpha *= mono ? .35 : .6; ctx.drawImage(sc, bx, by); ctx.restore(); }
   ctx.drawImage(sy, bx, by); ctx.restore(); return true; }
-WORLD_MODS.push(['Ritzschrift', async () => { await ECHT.p; }]);
+WORLD_MODS.unshift(['Echt-Pinsel', async () => { await ECHT.p; }]); // als Erstes: alle Pinsel (Hände, Kratzer, Kreide, Spritzer) sind geladen, bevor die Module ihre Leinwände malen
+WORLD_MODS.push(['Ritzschrift', async () => {}]);
 window.__ritz = { kratzer: ritz_kratzer, flaeche: ritz_flaeche, zeile: ritz_zeile, breite: ritz_breite, blut: ritz_blutFlaeche }; // Testzugriff

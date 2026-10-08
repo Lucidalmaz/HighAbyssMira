@@ -175,6 +175,7 @@ function justin_haut(src, o = {}) {
   m.customProgramCacheKey = () => 'justin_haut' + (o.key || '');
   return m; }
 function justin_kratzerTex() { const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d'); x.fillStyle = '#808080'; x.fillRect(0, 0, 512, 512);
+  if (typeof echt_kratz === 'function' && ECHT.img.kratz) { echt_kratz(x, 512, 512, 22, 'rgb(236,236,236)', .45, .6, 31); echt_kratz(x, 512, 512, 22, 'rgb(14,14,14)', .45, .6, 32); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; } // echte Kratzer (Megascans „Scratches“) als Höhenfeld
   for (let i = 0; i < 900; i++) { const a = Math.random() * 6.28, l = 6 + Math.random() * 60, px = Math.random() * 512, py = Math.random() * 512; x.strokeStyle = `rgba(${Math.random() < .5 ? '255,255,255' : '20,20,20'},${(.08 + Math.random() * .22).toFixed(2)})`; x.lineWidth = Math.random() * 1.2 + .3;
     x.beginPath(); x.moveTo(px, py); x.quadraticCurveTo(px + Math.cos(a) * l * .5 + rand(-4, 4), py + Math.sin(a) * l * .5 + rand(-4, 4), px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; }

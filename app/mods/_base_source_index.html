@@ -5273,8 +5273,9 @@ function papierLaden() { const L = s => new Promise(r => { const i = new Image()
   return Promise.all([L('faser.jpg'), L('kreide_korn.png')]).then(([a, k]) => { PAPIER.faser = a; PAPIER.korn = k;
     try { kreideKorn(chalkTex.image.getContext('2d'), chalkTex.image.width, chalkTex.image.height); chalkTex.needsUpdate = true; } catch (e) {} }); }
 // Kreide haftet nur auf den Kornspitzen (Maske aus dem Betonscan, nahtlos): auf eine Leinwand anwenden, die nur Kreide/Spur enthält
-function kreideKorn(x, w, h, t = Math.max(96, Math.min(w, h) / 2.5)) { const K = PAPIER.korn; if (!K) return; x.save(); x.globalCompositeOperation = 'destination-in';
-  const ox = -Math.random() * t, oy = -Math.random() * t; for (let yy = oy; yy < h; yy += t) for (let xx = ox; xx < w; xx += t) x.drawImage(K, xx, yy, t, t); x.restore(); }
+function kreideKorn(x, w, h, t = Math.max(96, Math.min(w, h) / 2.5)) { const K = PAPIER.korn; if (!K || w < 1 || h < 1) return; const m = document.createElement('canvas'); m.width = Math.ceil(w); m.height = Math.ceil(h); const c = m.getContext('2d'); // Kacheln zuerst zu EINER Maske (früher: je Kachel ein destination-in – bei mehr als einer Kachel blieb nur die letzte übrig)
+  const ox = -Math.random() * t, oy = -Math.random() * t; for (let yy = oy; yy < h; yy += t) for (let xx = ox; xx < w; xx += t) c.drawImage(K, xx, yy, t, t);
+  x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.globalCompositeOperation = 'destination-in'; x.drawImage(m, 0, 0); x.restore(); }
 window.__papier = { P: PAPIER, scan: (...a) => papierScan(...a), note: (t, h) => showNote(t, h) }; // Testzugriff
 function papierScan(x, w, h, farbe, o = {}) {
   x.save(); x.fillStyle = farbe; x.fillRect(0, 0, w, h); const F = PAPIER.faser;
@@ -6228,38 +6229,75 @@ stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
+// Lichter genau wie im ersten echten Bild (Ladezeit 08.10.2026): three.js baut die Lichterzahl in jedes Programm ein. Früher wurden fürs Vorübersetzen
+// alle obersten Gruppen sichtbar geschaltet (für die Materialien unnötig – compile() geht ohnehin durch alles) und beim Hochladen sogar jedes Licht –
+// das ergab andere Lichterzahlen als im Spiel, und gut ein Drittel der Programme wurde im ersten Bild noch einmal blockierend übersetzt.
+// LSET = die Lichter, die das erste Bild wirklich sieht; Vorübersetzen, Hochladen und Schattenbild benutzen genau diese.
+const LSET = new Set(), lsetTake = () => { LSET.clear(); scene.traverseVisible(o => { if (o.isLight && o.layers.test(camera.layers)) LSET.add(o); }); };
+const lsetApply = () => { const k = []; scene.traverse(o => { if (!o.isLight) return; const v = LSET.has(o); if (o.visible !== v) { k.push([o, o.visible]); o.visible = v; } }); return () => { for (const [o, v] of k) o.visible = v; }; };
+const lightSig = () => { const c = [0, 0, 0, 0, 0, 0, 0, 0]; scene.traverseVisible(o => { if (!o.isLight || !o.layers.test(camera.layers)) return;
+  if (o.isDirectionalLight) { c[0]++; if (o.castShadow) c[1]++; } else if (o.isPointLight) { c[2]++; if (o.castShadow) c[3]++; } else if (o.isSpotLight) { c[4]++; if (o.castShadow) c[5]++; if (o.map) c[6]++; } else if (o.isHemisphereLight) c[7]++; }); return c.join(','); };
+const PMW = []; // vorübersetzte PMREM-Programme (Spiegelsonde, Messing-Schlüssel): die Materialien bleiben am Leben, damit three.js die Programme wiederverwendet
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
-  const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
-  all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
+  try { update(.016, clock.elapsedTime); } catch (e) { console.warn('Vorübersetzen: Probebild', e); } // ein Takt wie im ersten Bild (Menü-Kamera, Sichtbarkeiten der Module), erst dann die Lichter festhalten
+  lsetTake();
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
   const extra = [scarePlane, new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), boltMat)];
   renderer.compileAsync = _compileAsync0; const inScene = o => { for (let p = o; p; p = p.parent) if (p === scene) return true; return false; };
   const later = COMPILE_LATER.filter(([s, c, t]) => !((t === null || t === scene) && inScene(s))); COMPILE_LATER.length = 0; // was in der Szene hängt, übersetzt der Gesamtdurchgang
-  const compiling = Promise.all([renderer.compileAsync(scene, camera), ...extra.map(o => renderer.compileAsync(o, camera, scene)), ...later.map(([s, c, t]) => renderer.compileAsync(s, c, t))]);
+  // Umgebungsbilder, die three.js beim ersten Gebrauch per PMREM umwandelt (Würfel-Spiegelsonde der Fenster, Messing-Schlüssel): Die Umwandlung übersetzte
+  // mitten im Bild einen langsamen Weichzeichner (7–9 s Standbild). Jetzt: PMREM-Programme je Größe hier parallel mitübersetzen; die betroffenen Materialien
+  // übersetzen erst danach (mit fertig umgewandeltem Umgebungsbild), damit die Umwandlung im Gesamtdurchgang nicht blockiert.
+  const envDefer = [], envObj = new Map();
+  try { const isEq = e => e.mapping === THREE.EquirectangularReflectionMapping || e.mapping === THREE.EquirectangularRefractionMapping, isCu = e => e.mapping === THREE.CubeReflectionMapping || e.mapping === THREE.CubeRefractionMapping;
+    const seen = new Set(), sizes = new Set(), add = (m, o) => { if (!m || !m.isMeshStandardMaterial || seen.has(m)) return; const e = m.envMap; if (!e || !(isEq(e) || isCu(e))) return; seen.add(m); envDefer.push([m, e]); if (o) envObj.set(m, o);
+      const s = isCu(e) ? (e.image && e.image.length ? (e.image[0].width || (e.image[0].image && e.image[0].image.width) || 16) : 16) : (e.image && e.image.width ? e.image.width / 4 : 0); if (s >= 16) sizes.add(Math.floor(Math.log2(s))); };
+    scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) add(m, o); });
+    if (typeof GLZ !== 'undefined' && GLZ.mat) add(GLZ.mat, GLZ.proto || null);
+    for (const lod of sizes) { const pm = new THREE.PMREMGenerator(renderer); pm._setSize(Math.pow(2, lod)); pm._allocateTargets().dispose(); pm.compileCubemapShader(); pm.compileEquirectangularShader();
+      const g = new THREE.Group(); for (const m of [pm._blurMaterial, pm._cubemapMaterial, pm._equirectMaterial]) if (m) g.add(new THREE.Mesh(pm._lodPlanes[0], m)); PMW.push({ pm, g, lod }); }
+    for (const [m] of envDefer) m.envMap = null; } catch (e) { console.warn('Vorübersetzen: PMREM', e); }
+  const flatCam = new THREE.OrthographicCamera();
+  const compiling = Promise.all([renderer.compileAsync(scene, camera), ...extra.map(o => renderer.compileAsync(o, camera, scene)), ...later.map(([s, c, t]) => renderer.compileAsync(s, c, t)),
+    ...PMW.map(P => renderer.compileAsync(P.g, flatCam))]);
   // Texturen hochladen, während die Grafikkarte übersetzt (vorher nacheinander: ~15 s Übersetzen, danach ~14 s Hochladen). „Texturen hochladen“ unten findet sie dann schon vor.
   try { const texs = new Set(); scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
       if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
   try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
+  // Jetzt die Umgebungsbilder umwandeln (PMREM-Programme sind fertig → kein Standbild) und ihre Materialien nachübersetzen (parallel, wenige Programme)
+  try { for (const [m, e] of envDefer) { m.envMap = e; if (e.isRenderTargetTexture) e.needsPMREMUpdate = true; }
+    const objs = [...new Set(envDefer.map(([m]) => envObj.get(m)).filter(Boolean))];
+    if (objs.length) await Promise.race([Promise.all(objs.map(o => renderer.compileAsync(o, camera, scene))), wait(30000)]); } catch (e) { for (const [m, e2] of envDefer) m.envMap = e2; console.warn('Vorübersetzen: Umgebungsbilder', e); }
   clearInterval(prog); renderer.setRenderTarget(null);
-  saved.forEach((v, o) => o.visible = v);
 }
-const PROGLOG = DEV ? (window.__proglog = { pre: renderer.info.programs.map(p => p.cacheKey) }) : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
+const PROGLOG = DEV ? (window.__proglog = { pre: renderer.info.programs.map(p => p.cacheKey), ev: [], later: [], stalls: [], lset: [...LSET].map(o => o.type + ':' + (o.name || (o.parent && o.parent.name) || '')) }) : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
+if (PROGLOG) { // Messung: Programme, Lichter und Standbilder nach dem Vorübersetzen (window.__proglog: ev = [Abschnitt, s, Programme, Lichter], later = neue Programme, stalls = Bilder > 100 ms)
+  const T = () => +((performance.now() - window.__t0) / 1000).toFixed(1), known = new Set(PROGLOG.pre);
+  PROGLOG.mark = n => PROGLOG.ev.push([n, T(), renderer.info.programs.length, lightSig()]); PROGLOG.mark('vorübersetzt');
+  const lDiff = () => { const now = new Set(); scene.traverseVisible(o => { if (o.isLight && o.layers.test(camera.layers)) now.add(o); }); const nm = o => o.type + ':' + (o.name || '') + '<' + (o.parent && (o.parent.name || o.parent.type));
+    return [[...now].filter(o => !LSET.has(o)).map(nm), [...LSET].filter(o => !now.has(o)).map(nm)]; };
+  setInterval(() => { for (const p of renderer.info.programs) if (!known.has(p.cacheKey)) { known.add(p.cacheKey); if (PROGLOG.later.length < 1500) PROGLOG.later.push([T(), window.__stage, lightSig(), p.cacheKey]); } }, 200);
+  let last = performance.now(), nf = 0; const fr = () => { const n = performance.now(), d = n - last; last = n; nf++; if (d > 100 && PROGLOG.stalls.length < 400) PROGLOG.stalls.push([T(), Math.round(d), renderer.info.programs.length, window.__stage, lightSig(), nf < 4 || d > 1000 ? lDiff() : null]); requestAnimationFrame(fr); }; requestAnimationFrame(fr);
+  PROGLOG.lDiff = lDiff; PROGLOG.sig = lightSig;
+}
 loop();
 stage('Erstes Bild fertig');
 // Schattenprogramme: ein Bild mit allem Sichtbaren rendern
 {
   const all = [...scene.children, scarePlane].filter(o => !o.isLight);
   const saved = new Map();
+  if (!LSET.size) lsetTake(); if (PROGLOG) PROGLOG.mark('erstes Bild');
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
+  const lightsBack = lsetApply(); // Lichter wie im ersten Bild (sonst neue Lichterzahl → alles noch einmal blockierend übersetzt)
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
   if (!FASTLOAD && !/noupload/.test(location.search)) {
     const keep = []; const texs = new Set();
-    scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
+    scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); if (o.isLight) { o.visible = LSET.has(o); return; } o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
         if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
@@ -6270,15 +6308,17 @@ stage('Erstes Bild fertig');
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null);
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
-    all.forEach(o => o.visible = true);
+    all.forEach(o => o.visible = true); lsetApply(); // keep hat auch die Lichter zurückgesetzt – fürs Schattenbild wieder wie im ersten Bild (lightsBack unten stellt den Spielzustand her)
+    if (PROGLOG) PROGLOG.mark('hochgeladen');
   }
   // Ein Bild mit allem Sichtbaren rendern: übersetzt auch die Schattenprogramme
   stage('Schatten vorbereiten'); await wait(0);
   assignLampPool(); lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); keyLight.shadow.needsUpdate = true; moonShadowFollow(camera.position.x, camera.position.z, 1e9);
   try { composer.render(); } catch (e) {}
   lampPool.forEach(l => { if (l.castShadow) l.shadow.needsUpdate = true; }); try { composer.render(); } catch (e) {}
-  saved.forEach((v, o) => o.visible = v);
+  saved.forEach((v, o) => o.visible = v); lightsBack();
   scarePlane.material.map = faceTexes.pale;
+  if (PROGLOG) PROGLOG.mark('Schatten');
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); if (window.gc && KTXF.mb > 100) window.gc(); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
 ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;

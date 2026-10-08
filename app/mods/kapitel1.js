@@ -251,7 +251,7 @@ function kapitel1_wandTex() {
     for (let i = 0; i < 58; i++) { const px = rand(20, w - 170), py = rand(16, h * .66), pw = rand(118, 168), ph = rand(128, 168);
       x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.translate(-pw / 2, -ph / 2); papierScan(x, pw, ph, `hsl(${rand(38, 52)},${rand(10, 28)}%,${rand(70, 86)}%)`, { dreck: rand(.18, .5) }); // echtes Papier (Faserscan + Altersflecken) statt flacher Farbe
       { const eg = x.createLinearGradient(0, 0, pw, ph); eg.addColorStop(0, 'rgba(255,250,235,.10)'); eg.addColorStop(.5, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(60,40,20,.14)'); x.fillStyle = eg; x.fillRect(0, 0, pw, ph); x.strokeStyle = 'rgba(80,60,40,.22)'; x.lineWidth = 1.2; x.strokeRect(.6, .6, pw - 1.2, ph - 1.2); } // Papierkanten dunkeln, Licht von links oben
-      if (rand(0, 1) < .5) echt_fleck(x, rand(0, pw), rand(0, ph), pw * rand(.5, 1.1), 'rgb(112,86,50)', rand(.1, .26), rand(0, 6.28)); // Wasserflecken aus dem Feuchtescan
+      if (rand(0, 1) < .5) { x.save(); x.beginPath(); x.rect(0, 0, pw, ph); x.clip(); echt_fleck(x, rand(0, pw), rand(0, ph), pw * rand(.5, 1.1), 'rgb(112,86,50)', rand(.1, .26), rand(0, 6.28)); x.restore(); } // Wasserflecken aus dem Feuchtescan
       motiv[i % motiv.length](x, pw, ph);
       kapitel1_kritzel(x, pw * .88, ph * .5, 8, 22, W('125,125,130', .5), 9); // grauer Fleck am Bildrand, weggerubbelt
       echt_wachsText(x, 'LUKE, 9', pw - 62, ph - 9, `${rand(13, 17) | 0}px "Comic Sans MS", Caveat, cursive`, W(farben[i % farben.length], .85), rand(-.08, .06)); // Wachsstift-Unterschrift mit Korn
@@ -321,7 +321,7 @@ async function kapitel1_nichtDu() {
   flashOn = true; try { saveGame(1); } catch (e) {} if (typeof todCpShow === 'function') todCpShow('Der Sessel ist noch warm');
 }
 const kapitel1_ease = k => k * k * (3 - 2 * k);
-function kapitel1_fussspuren() { if (K1.fuss) { K1.fuss.visible = true; return; } const t = kapitel1_cnv(64, 128, (x, w, h) => { x.fillStyle = 'rgba(46,56,30,.55)'; x.beginPath(); x.ellipse(32, 80, 13, 30, 0, 0, 7); x.fill(); for (let i = 0; i < 5; i++) { x.beginPath(); x.arc(20 + i * 6, 42 - Math.abs(2 - i) * 3, 4, 0, 7); x.fill(); }
+function kapitel1_fussspuren() { if (K1.fuss) { K1.fuss.visible = true; return; } const t = kapitel1_cnv(64, 128, (x, w, h) => { x.fillStyle = 'rgba(46,56,30,.55)'; if (!echt_fuss(x, 32, 64, 108, 'rgb(46,56,30)', .6, false)) { x.beginPath(); x.ellipse(32, 80, 13, 30, 0, 0, 7); x.fill(); for (let i = 0; i < 5; i++) { x.beginPath(); x.arc(20 + i * 6, 42 - Math.abs(2 - i) * 3, 4, 0, 7); x.fill(); } } // echter Abdruck aus Farbspritzern
     x.strokeStyle = 'rgba(120,190,70,.8)'; x.lineWidth = 1.5; for (let i = 0; i < 4; i++) { x.beginPath(); x.moveTo(rand(18, 46), rand(60, 110)); x.lineTo(rand(18, 46), rand(60, 110)); x.stroke(); } });
   const pts = [[27.2, -15.2], [27.7, -16.1], [28.1, -17.2], [28.8, -18.1], [29.2, -19.2], [29.9, -20.1], [30.2, -21.1]]; const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(.075, .15), kapitel1_mat(t), pts.length);
   pts.forEach(([x, z], i) => { const n = pts[Math.min(i + 1, pts.length - 1)], p = pts[Math.max(0, i - 1)]; kapitel1_o.position.set(x + (i % 2 ? .07 : -.07), Y + .006, z); kapitel1_o.rotation.set(-PI / 2, 0, Math.atan2(n[0] - p[0], -(n[1] - p[1]))); kapitel1_o.scale.setScalar(1); kapitel1_o.updateMatrix(); im.setMatrixAt(i, kapitel1_o.matrix); });

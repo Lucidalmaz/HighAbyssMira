@@ -23,7 +23,8 @@ const entd_kerbenN = () => story.lore.filter(l => /^kerbe_/.test(l.key)).length;
 // Kreidestriche als Ring um den Mast (von allen Seiten zu sehen)
 function entd_kreideTex(n) { return tex(cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.strokeStyle = 'rgba(236,232,220,.92)'; c.lineWidth = 7; c.lineCap = 'round';
   for (let rep = 0; rep < 3; rep++) { const ox = 12 + rep * 84; for (let i = 0; i < 4; i++) { c.beginPath(); c.moveTo(ox + i * 13 + rand(-2, 2), 70 + rand(-4, 4)); c.lineTo(ox + i * 13 + rand(-2, 2), 186 + rand(-4, 4)); c.stroke(); }
-    c.beginPath(); c.moveTo(ox - 8, 160); c.lineTo(ox + 52, 92); c.stroke(); } kreideKorn(c, w, w, 90); }), true); } // Kreide auf Lack: echtes Korn
+    c.beginPath(); c.moveTo(ox - 8, 160); c.lineTo(ox + 52, 92); c.stroke(); for (let i = 0; i < 5; i++) if (typeof echt_stempel === 'function') echt_stempel(c, 'spray', ox + i * 13 + rand(-3, 3), 130 + rand(-30, 30), 26, '#ece8dc', .22, rand(0, 6)); } // Kreidestaub um die Striche (Spray-Scan)
+  if (typeof echt_wachsKorn === 'function') echt_wachsKorn(c, w, w, .6); else kreideKorn(c, w, w, 90); }), true); } // Kreide auf Lack: Papier-/Wischkorn aus echten Scans
 WORLD_MODS.push(['Entdecker', async () => {
   const S = ENTD_S, T = THREE;
   // Masten wählen: über die ganze Stadt verteilt (größter Abstand zueinander), nicht im Amt, nicht im Kanal, nicht in der Villenhalle

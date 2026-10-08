@@ -221,6 +221,66 @@
 "pk": -7.4,
 "s": 1.1
 },
+"fx_feuer_knist_1": {
+"kb": 1,
+"lufs": -34.1,
+"pk": -6.0,
+"s": 0.15
+},
+"fx_feuer_knist_2": {
+"kb": 1,
+"lufs": -33.5,
+"pk": -6.0,
+"s": 0.14
+},
+"fx_feuer_knist_3": {
+"kb": 1,
+"lufs": -33.7,
+"pk": -6.0,
+"s": 0.14
+},
+"fx_feuer_knist_4": {
+"kb": 1,
+"lufs": -32.4,
+"pk": -6.0,
+"s": 0.14
+},
+"fx_feuer_knist_5": {
+"kb": 1,
+"lufs": -30.0,
+"pk": -6.0,
+"s": 0.15
+},
+"fx_feuer_knist_6": {
+"kb": 1,
+"lufs": -30.3,
+"pk": -6.0,
+"s": 0.14
+},
+"fx_feuer_pop_1": {
+"kb": 3,
+"lufs": -24.7,
+"pk": -3.0,
+"s": 0.5
+},
+"fx_feuer_pop_2": {
+"kb": 2,
+"lufs": -24.0,
+"pk": -3.4,
+"s": 0.31
+},
+"fx_feuer_pop_3": {
+"kb": 3,
+"lufs": -24.0,
+"pk": -12.0,
+"s": 0.5
+},
+"fx_feuer_wuff": {
+"kb": 31,
+"lufs": -20.0,
+"pk": -10.6,
+"s": 4.0
+},
 "fx_fluester_1": {
 "kb": 11,
 "lufs": -22.0,

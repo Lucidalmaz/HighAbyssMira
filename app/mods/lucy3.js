@@ -419,6 +419,7 @@ function lucy3_fogTex() { const c = document.createElement('canvas'); c.width = 
   const fy = x.createLinearGradient(0, 0, 0, h); fy.addColorStop(0, 'rgba(0,0,0,0)'); fy.addColorStop(.08, '#000'); fy.addColorStop(.92, '#000'); fy.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = fy; x.fillRect(0, 0, w, h); x.globalCompositeOperation = 'source-over';
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 function lucy3_handTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+  if (echt_hand(x, 128, 128, 236, 'rgb(14,18,22)', .8, -.18, false, 'trocken')) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; } // echter Handabdruck (Megascans „Hand Print“)
   x.fillStyle = 'rgba(14,18,22,.72)'; x.translate(128, 150); x.rotate(-.18);
   x.beginPath(); x.ellipse(0, 20, 40, 48, 0, 0, 7); x.fill();
   [[-38, -30, -.5, 13, 44], [-16, -58, -.12, 11, 52], [4, -64, .02, 11, 56], [24, -56, .15, 10, 50], [42, -34, .42, 9, 38]].forEach(([fx, fy, r, rw, rh]) => { x.save(); x.translate(fx, fy); x.rotate(r); x.beginPath(); x.ellipse(0, 0, rw, rh / 2, 0, 0, 7); x.fill(); x.restore(); });

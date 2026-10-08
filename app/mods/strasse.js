@@ -128,9 +128,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   }
   // Limousine (car_amsedan) für eine car()-Gruppe (Front = lokal −x); Lack mit Laufspuren und Spritzschmutz, Glas dunkel
   // Deutsche Kennzeichen (Kfz-Schild „BH …“), Platzierung wie im Original-Atlas (Schrift mittig)
-  const plateTex = txt => canvasTex(512, 512, (x, w, h) => { x.fillStyle = '#d6d4cc'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .15); x.fillStyle = '#1d3f9a'; x.fillRect(22, 196, 52, 120); x.fillStyle = '#e0c040'; x.beginPath(); x.arc(48, 232, 12, 0, 7); x.fill();
+  const plateTex = txt => echt_an(() => canvasTex(512, 512, (x, w, h) => { x.fillStyle = '#d6d4cc'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .15); x.fillStyle = '#1d3f9a'; x.fillRect(22, 196, 52, 120); x.fillStyle = '#e0c040'; x.beginPath(); x.arc(48, 232, 12, 0, 7); x.fill();
     x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('D', 48, 298); x.fillStyle = '#111'; x.font = 'bold 118px Arial'; x.fillText(txt, 292, 300);
-    x.strokeStyle = '#111'; x.lineWidth = 6; x.strokeRect(14, 186, 484, 140); });
+    x.strokeStyle = '#111'; x.lineWidth = 6; x.strokeRect(14, 186, 484, 140); }), 'sauber'); // Metallschild: Schrift bleibt sauber (Prägung/Emaille, keine Papierwirkung)
   function fitSedan(o, lights, plate) {
     o.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true;
       for (const mt of [].concat(m.material)) { if (mt.name === 'Glass') { mt.opacity = .84; }
@@ -311,12 +311,12 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   if (rsSrc) { roadSign('Road_Sign_01', 3.4, -44.55, 0); roadSign('Road_Sign_02', -4.4, -40.2, .08, .6, .03); roadSign('Road_Sign_06', 4.75, 4.72, PI / 2 + .1); }
   // Ortstafel „Lost Eyengless“ (Vorderseite gelb; Rückseite Ortsende, rot durchgestrichen) + Zusatzschild mit korrigierter Einwohnerzahl
   { for (const o of findNear(-72, 1.8, 6.2, 1.6, (m, bb) => bb.max.y - bb.min.y < 3 && !bb.isEmpty())) msHide(o);
-    const plateMat = front => weather(new T.MeshStandardMaterial({ roughness: .5, metalness: .2, map: canvasTex(1024, 560, (x, w, h) => {
+    const plateMat = front => weather(new T.MeshStandardMaterial({ roughness: .5, metalness: .2, map: echt_an(() => canvasTex(1024, 560, (x, w, h) => {
       x.fillStyle = '#e3b21f'; x.fillRect(0, 0, w, h); grain(x, w, h, 5000, .18); x.fillStyle = '#111';
       x.lineWidth = 16; x.strokeStyle = '#111'; x.beginPath(); x.roundRect(22, 22, w - 44, h - 44, 30); x.stroke();
       x.textAlign = 'center'; x.font = 'bold 150px Arial'; x.fillText('Lost Eyengless', w / 2, front ? 250 : 300);
       if (front) { x.font = 'bold 60px Arial'; x.fillText('Landkreis Hohen Abgrund', w / 2, 370); } else { x.strokeStyle = '#b3160f'; x.lineWidth = 58; x.beginPath(); x.moveTo(60, h - 70); x.lineTo(w - 60, 70); x.stroke(); }
-    }) }), { amt: .22, lowAmt: 0, scale: .8 });
+    }), 'sauber') }), { amt: .22, lowAmt: 0, scale: .8 });
     const back = new T.MeshStandardMaterial({ color: 0x8a8c88, roughness: .6, metalness: .6 });
     const plate = new T.Mesh(new T.BoxGeometry(1.4, .77, .025), [back, back, back, back, plateMat(false), plateMat(true)]); plate.position.set(-72.3, 2.05, 6.3); plate.rotation.y = PI / 2; plate.castShadow = true; scene.add(plate);
     const zus = new T.Mesh(new T.BoxGeometry(.72, .3, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(512, 214, (x, w, h) => {
@@ -345,8 +345,8 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     P(1.18, .07, 1.18, 0, .035, 0, conc);
     for (const [x, z] of [[-.52, -.52], [.52, -.52], [-.52, .52], [.52, .52]]) P(.075, 2.36, .075, x, 1.25, z, yellow);
     P(1.14, .09, 1.14, 0, 2.47, 0, yellow); P(1.24, .05, 1.24, 0, 2.75, 0, grey);
-    const signTex = canvasTex(512, 96, (x, w, h) => { x.fillStyle = '#f0c21e'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .2); x.fillStyle = '#111'; x.font = 'bold 66px Arial'; x.textAlign = 'center'; x.fillText('TELEFON', w / 2 + 30, 72);
-      x.lineWidth = 9; x.strokeStyle = '#111'; x.beginPath(); x.arc(58, 50, 26, PI * .15, PI * .85, false); x.stroke(); x.fillRect(26, 58, 18, 14); x.fillRect(72, 58, 18, 14); });
+    const signTex = echt_an(() => canvasTex(512, 96, (x, w, h) => { x.fillStyle = '#f0c21e'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .2); x.fillStyle = '#111'; x.font = 'bold 66px Arial'; x.textAlign = 'center'; x.fillText('TELEFON', w / 2 + 30, 72);
+      x.lineWidth = 9; x.strokeStyle = '#111'; x.beginPath(); x.arc(58, 50, 26, PI * .15, PI * .85, false); x.stroke(); x.fillRect(26, 58, 18, 14); x.fillRect(72, 58, 18, 14); }), 'sauber');
     const signMat = new T.MeshStandardMaterial({ map: signTex, emissive: 0xffffff, emissiveMap: signTex, emissiveIntensity: 1.1, roughness: .5 }); S.signGlow.push(signMat);
     const band = new T.Mesh(new T.BoxGeometry(1.1, .22, 1.1), [signMat, signMat, yellow, yellow, signMat, signMat]); band.position.set(0, 2.61, 0); band.castShadow = true; g.add(band);
     P(1.0, 2.2, .025, 0, 1.2, -.515, yellow); // Rückwand zur Straße (Apparat innen)

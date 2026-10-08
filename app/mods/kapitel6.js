@@ -48,13 +48,13 @@ function k6_tex(w, h, fn) { const c = document.createElement('canvas'); c.width 
 function k6_blot(g, x, y, rx, ry, a, col) { const gr = g.createRadialGradient(x, y, 0, x, y, Math.max(rx, ry)); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(.72, `rgba(${col},${a * .8})`); gr.addColorStop(1, `rgba(${col},0)`);
   g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rx, 0, 7); g.fill(); g.restore(); }
 // kleiner nackter Fuß (links; rechts = gespiegelt): Ferse, Außenkante, Ballen, fünf Zehen – nasse Erde, ausgefranst
-const k6_footTex = () => k6_tex(128, 256, (g, w, h) => { g.clearRect(0, 0, w, h); const c = '34,24,16';
+const k6_footTex = () => k6_tex(128, 256, (g, w, h) => { g.clearRect(0, 0, w, h); const c = '34,24,16'; if (echt_fuss(g, w / 2, h / 2, h * .84, 'rgb(' + c + ')', .8, false)) { echt_wachsKorn(g, w, h, .35); return; } // echter Matschabdruck aus Farbspritzern
   k6_blot(g, 66, 206, 25, 31, .8, c); for (let i = 0; i < 9; i++) k6_blot(g, 74 - i * 1.2, 180 - i * 11, 16 + Math.sin(i * .7) * 3, 14, .72, c); // Ferse, Außenkante
   k6_blot(g, 60, 92, 34, 26, .82, c); // Ballen
   [[40, 50, 11], [56, 42, 9], [70, 42, 8], [82, 47, 7], [92, 55, 6]].forEach(([x, y, r]) => k6_blot(g, x, y, r, r * 1.2, .85, c));
   const id = g.getImageData(0, 0, w, h), d = id.data; for (let i = 3; i < d.length; i += 4) d[i] *= .7 + Math.random() * .3; g.putImageData(id, 0, 0); });
 // kleine Hand im Staub (hell, trocken) bzw. im Moos (dunkel, eingedrückt)
-const k6_handTex = col => k6_tex(128, 128, (g, w, h) => { g.clearRect(0, 0, w, h);
+const k6_handTex = col => k6_tex(128, 128, (g, w, h) => { g.clearRect(0, 0, w, h); if (echt_hand(g, 64, 64, 122, 'rgb(' + col + ')', .9, 0, false, 'trocken')) return; // echter Handabdruck (Megascans „Hand Print“)
   k6_blot(g, 64, 80, 26, 24, .75, col); [[34, 52, 8, 16, -.5], [48, 32, 7, 18, -.15], [64, 26, 7, 19, 0], [79, 31, 6, 17, .15], [92, 60, 6, 12, .7]].forEach(([x, y, rx, ry, a]) => { g.save(); g.translate(x, y); g.rotate(a); g.translate(-x, -y); k6_blot(g, x, y, rx, ry, .75, col); g.restore(); });
   const id = g.getImageData(0, 0, w, h), d = id.data; for (let i = 3; i < d.length; i += 4) d[i] *= .6 + Math.random() * .4; g.putImageData(id, 0, 0); });
 // gespaltener Huf, frisch und tief (A-23): zwei Klauen, der Rand aufgeworfen, nass glänzend

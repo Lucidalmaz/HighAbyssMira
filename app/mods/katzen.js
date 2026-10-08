@@ -28,37 +28,52 @@ const katzen_S = { ok: false, src: null, clips: null, sk: null, cats: [], byName
 const katzen_V = [0, 1, 2, 3, 4, 5, 6, 7].map(() => new THREE.Vector3()), katzen_Q = [0, 1, 2, 3, 4].map(() => new THREE.Quaternion()), katzen_E = new THREE.Euler();
 const katzen_AX = { x: new THREE.Vector3(1, 0, 0), y: new THREE.Vector3(0, 1, 0), z: new THREE.Vector3(0, 0, 1) };
 const katzen_M4 = new THREE.Matrix4();
-// Felle (lineare Farben): base = Grundfarbe · stripe = Streifen · sa = Streifenstärke · white = Anteil der weißen Partien der Vorlage · allWhite = ganz weiß ·
-// cal = Glückskatzen-Flecken (calA rot, calB schwarz) · orig = Farbtextur der Vorlage (braun getigert) · dull = struppig/stumpf · rough = Rauheit
+// Felle (lineare Farben). Muster pat: 0 Makrele (Querstreifen) · 1 klassisch (Wirbel an der Flanke, Rückenstreifen) · 2 Flecken · 3 fast einfarbig.
+// base = Grundfarbe · stripe = Zeichnung · sa = Zeichnungsstärke · white = Anteil der weißen Partien der Vorlage (Socken, Latz, Schnauze) · allWhite = ganz weiß ·
+// cal = Flecken (calA / calB) · orig = Hautfarbe der Vorlage (braun getigert) · dull = struppig · rough · det = Detailkontrast · len = Haarlänge 0–1 (Haarkarten schrumpfen zur Wurzel)
+// point = Abzeichen (Siam: Gesicht, Ohren, Beine, Schwanz) · root = Wurzelfarbe der Haare (Smoke: heller Flaum) · rootK = deren Stärke · pink = Nase/Ballen/Innenohr · tint = Helligkeit/Farbstich · bart = Schnurrhaare
 const katzen_c = h => { const c = new THREE.Color(h); return [c.r, c.g, c.b]; };
 const KATZEN_FELLE = {
-  schwarz: { base: katzen_c(0x0e0c0b), stripe: katzen_c(0x070606), sa: .3, white: 0, rough: .62, det: .55 },
-  grau_getigert: { base: katzen_c(0x77726a), stripe: katzen_c(0x26231f), sa: .85, white: .15, rough: .78, det: .8 },
-  rot: { base: katzen_c(0xb9692e), stripe: katzen_c(0x6d3413), sa: .65, white: .3, rough: .76, det: .8 },
-  dreifarbig: { base: katzen_c(0xd8d2c4), stripe: katzen_c(0xd8d2c4), sa: 0, white: 1, cal: 1, calA: katzen_c(0xb4642a), calB: katzen_c(0x151210), rough: .78, det: .75 },
-  weiss_fleck: { base: katzen_c(0xdfdbd2), stripe: katzen_c(0xdfdbd2), sa: 0, white: 1, allWhite: 1, spot: katzen_c(0x6f6c68), rough: .8, det: .6 },
-  struppig: { base: katzen_c(0x5f5b54), stripe: katzen_c(0x33302b), sa: .35, white: .35, whiteCol: katzen_c(0x8a857a), dull: 1, rough: .92, det: 1.25 },
-  braun_getigert: { base: katzen_c(0x6b4a2c), stripe: katzen_c(0x2b1c10), sa: 0, orig: 1, white: .55, rough: .8, det: .5 },
-  schwarzweiss: { base: katzen_c(0x0f0d0c), stripe: katzen_c(0x080707), sa: .2, white: 1, rough: .66, det: .6 } };
-// Giselas Liste (86): Name · Fell · Größe · Körper · Halsband · Augen · Besonderheiten
+  rot_klassisch: { base: katzen_c(0xc2742f), stripe: katzen_c(0x7c3a14), sa: .8, pat: 1, white: .18, rough: .78, det: .75, len: .55, pink: katzen_c(0xd98a74), bart: [.95, .92, .85] },
+  rot_makrele: { base: katzen_c(0xe0a35c), stripe: katzen_c(0xa8541f), sa: .7, pat: 0, white: .5, rough: .78, det: .75, len: .5, pink: katzen_c(0xe09a86), bart: [.97, .95, .9] },
+  rot_weiss: { base: katzen_c(0xd0782f), stripe: katzen_c(0x8a4416), sa: .45, pat: 0, white: 1, rough: .78, det: .7, len: .5, pink: katzen_c(0xe0907c), bart: [.97, .95, .9] },
+  schwarz_zart: { base: katzen_c(0x131110), stripe: katzen_c(0x0a0909), sa: .25, pat: 3, white: .55, whiteCol: katzen_c(0xd9d4c8), rough: .6, det: .6, len: .35, pink: katzen_c(0x6a4a46), root: katzen_c(0x2a2220), rootK: .35, bart: [.9, .88, .82] },
+  schwarz_alt: { base: katzen_c(0x171412), stripe: katzen_c(0x0a0908), sa: .3, pat: 0, white: 0, rough: .66, det: .6, len: .45, dull: .3, pink: katzen_c(0x4a3636), root: katzen_c(0x4a423c), rootK: .5, bart: [.78, .76, .72] },
+  schwarzweiss: { base: katzen_c(0x100e0d), stripe: katzen_c(0x080707), sa: .2, pat: 3, white: 1, rough: .66, det: .6, len: .4, pink: katzen_c(0xd98a80), bart: [.95, .93, .88] },
+  kuh: { base: katzen_c(0xe6e1d6), stripe: katzen_c(0xe6e1d6), sa: 0, pat: 3, white: 1, cal: 1, calA: katzen_c(0x141211), calB: katzen_c(0x141211), rough: .72, det: .6, len: .4, pink: katzen_c(0xdc948a), bart: [.97, .96, .92] },
+  grau_klassisch: { base: katzen_c(0x8a867e), stripe: katzen_c(0x2a2724), sa: .9, pat: 1, white: .2, rough: .78, det: .8, len: .6, pink: katzen_c(0x9a7a74), bart: [.9, .9, .88] },
+  grau_flecken: { base: katzen_c(0x8f8a80), stripe: katzen_c(0x35312c), sa: .9, pat: 2, white: .35, rough: .74, det: .8, len: .3, pink: katzen_c(0xb08882), bart: [.93, .92, .9] },
+  smoke: { base: katzen_c(0x4a4a4c), stripe: katzen_c(0x2a2a2c), sa: .3, pat: 3, white: .1, rough: .66, det: .7, len: .85, root: katzen_c(0xcfd0d2), rootK: .9, pink: katzen_c(0x6c5656), bart: [.88, .88, .9] },
+  blau: { base: katzen_c(0x5f6670), stripe: katzen_c(0x4a5058), sa: .25, pat: 3, white: 0, rough: .6, det: .5, len: .32, pink: katzen_c(0x6e5c60), tint: [1.04, 1.04, 1.06], bart: [.88, .9, .94] },
+  siam: { base: katzen_c(0xe8dcc6), stripe: katzen_c(0xcdbb9e), sa: .3, pat: 3, white: 0, point: katzen_c(0x3a2a22), pt: 1, rough: .7, det: .5, len: .3, pink: katzen_c(0x5a403c), bart: [.95, .93, .88] },
+  schildpatt: { base: katzen_c(0x14110f), stripe: katzen_c(0x0a0908), sa: .3, pat: 3, white: 0, cal: 1, calA: katzen_c(0xc0662a), calB: katzen_c(0x14110f), rough: .72, det: .75, len: .5, pink: katzen_c(0xb07a6e), bart: [.88, .84, .78] },
+  dreifarbig: { base: katzen_c(0xdcd6c8), stripe: katzen_c(0xdcd6c8), sa: 0, white: 1, cal: 1, calA: katzen_c(0xb4642a), calB: katzen_c(0x151210), pat: 3, rough: .76, det: .75, len: .45, pink: katzen_c(0xd9887a), bart: [.97, .95, .9] },
+  weiss_fleck: { base: katzen_c(0xe8e4dc), stripe: katzen_c(0xe8e4dc), sa: 0, white: 1, allWhite: 1, spot: katzen_c(0x6f6c68), pat: 3, rough: .78, det: .55, len: .55, pink: katzen_c(0xe0a0a0), bart: [.98, .97, .95] },
+  struppig: { base: katzen_c(0x5a564f), stripe: katzen_c(0x2c2925), sa: .35, pat: 0, white: .3, whiteCol: katzen_c(0x8a857a), dull: 1, mat: 1, rough: .94, det: 1.3, len: .3, pink: katzen_c(0x8a6a64), root: katzen_c(0x2a2622), rootK: .3, bart: [.7, .68, .62] },
+  braun_getigert: { base: katzen_c(0x6b4a2c), stripe: katzen_c(0x2b1c10), sa: 0, orig: 1, white: .55, rough: .8, det: .5, len: .8, pink: katzen_c(0xa07060), bart: [.9, .86, .78] } };
+// Alias der alten Namen (andere Module / gespeicherte Spiele)
+Object.assign(KATZEN_FELLE, { rot: KATZEN_FELLE.rot_klassisch, schwarz: KATZEN_FELLE.schwarz_alt, grau_getigert: KATZEN_FELLE.grau_klassisch });
+// Giselas Liste: Name · Fell · Größe · Körper · Halsband · Augen (Iris-Farbe, linear) · Pupille pup (0 Schlitz … 1 rund; runder = niedlicher) · Besonderheiten. Die meisten sind niedlich,
+// wenige „Gruselkatzen“ (sparsam: KEINER, GRETE, FRITZ, LUNA, HÄNSCHEN): Narben (narben), trübe Augen (trueb), verklebtes/struppiges Fell, mager (duenn), gleißende Schlitzpupillen.
+// bau [Breite, Höhe, Länge] ±: jede Katze hat eigene Proportionen · laenge überschreibt die Haarlänge des Fells · zeichnung/tint: kleine Abweichungen derselben Fellart
 const KATZEN_LISTE = [
-  { name: 'ANNI', fell: 'rot', gr: 'L', dick: 1, band: 0xb08a1a, iris: [1, .78, .32] },
-  { name: 'ZAYN', fell: 'schwarz', gr: 'S', band: 0x1f3f7a, iris: [1, .92, .38], jung: 1 },
-  { name: 'GRETE', fell: 'schwarz', gr: 'M', band: 0x8a1c1c, iris: [.62, .95, .42], alt: 1, ohr: 'R' },
-  { name: 'KEINER', fell: 'struppig', gr: 'M', duenn: 1, band: 0x3a3a3a, iris: [.8, .9, .45] },
-  { name: 'HÄNSCHEN', fell: 'braun_getigert', gr: 'L', schwer: 1, band: 0x5a3a22, iris: [1, .72, .3], alt: 1, ohr: 'L' },
-  { name: 'LUNA', fell: 'weiss_fleck', gr: 'S', band: 0xc8c8c8, iris: [.55, .78, 1], fleck: 'kopf' },
-  { name: 'PETER', fell: 'rot', gr: 'L', dick: 1, band: 0x2d5a2d, iris: [1, .65, .28] },
-  { name: 'LISBETH', fell: 'dreifarbig', gr: 'M', band: 0x6a2a5a, iris: [1, .85, .35], alt: 1 },
-  { name: 'FRITZ', fell: 'grau_getigert', gr: 'L', band: 0x8a1c1c, iris: [.9, .95, .4], alt: 1 },
-  { name: 'MARIE', fell: 'dreifarbig', gr: 'S', band: 0x1f3f7a, iris: [1, .8, .3], alt: 1 },
-  { name: 'JAKOB', fell: 'grau_getigert', gr: 'M', band: 0xb08a1a, iris: [.7, .95, .45], alt: 1, weiss: .6 },
-  { name: 'KATHRIN', fell: 'schwarzweiss', gr: 'M', band: 0x2d5a2d, iris: [1, .9, .4], alt: 1 },
-  { name: 'VEIT', fell: 'rot', gr: 'M', band: 0x1f3f7a, iris: [1, .7, .3], alt: 1, weiss: .8 },
-  { name: 'BÄRBEL', fell: 'schwarzweiss', gr: 'M', band: 0x8a1c1c, iris: [.75, .95, .4], alt: 1 },
-  { name: 'ROXY', fell: 'grau_getigert', gr: 'S', band: 0xa04070, iris: [.7, 1, .45], jung: 1 },
-  { name: 'MIKE', fell: 'schwarz', gr: 'S', band: 0xb08a1a, iris: [1, .95, .4], jung: 1 },
-  { name: 'LUCY', fell: 'dreifarbig', gr: 'S', band: 0x1f7a6a, iris: [1, .82, .35], jung: 1 }];
+  { name: 'ANNI', fell: 'rot_klassisch', gr: 'L', dick: 1, bau: [1.05, 1, .98], band: 0xb08a1a, iris: [.9, .62, .16], pup: .5, laenge: .6 },
+  { name: 'ZAYN', fell: 'schwarz_zart', gr: 'S', jung: 1, bau: [.96, 1.02, .96], band: 0x1f3f7a, iris: [.85, .8, .12], pup: .62, laenge: .35 },
+  { name: 'GRETE', fell: 'schwarz_alt', gr: 'M', alt: 1, ohr: 'R', bau: [.98, .96, 1.04], band: 0x8a1c1c, iris: [.5, .78, .2], pup: .14, trueb: [.9, 0], narben: ['nase', 'wange'], laenge: .45 },
+  { name: 'KEINER', fell: 'struppig', gr: 'M', duenn: 1, bau: [.94, 1, 1.05], band: 0x3a3a3a, iris: [.7, .78, .28], pup: .08, trueb: [0, .75], narben: ['flanke'], laenge: .3 },
+  { name: 'HÄNSCHEN', fell: 'braun_getigert', gr: 'L', schwer: 1, alt: 1, ohr: 'L', bau: [1.06, 1, 1.02], band: 0x5a3a22, iris: [.85, .55, .16], pup: .22, narben: ['auge'], laenge: .8 },
+  { name: 'LUNA', fell: 'weiss_fleck', gr: 'S', fleck: 'kopf', bau: [.97, 1, .98], band: 0xc8c8c8, iris: [.36, .6, .9], pup: .12, trueb: .15, laenge: .55 },
+  { name: 'PETER', fell: 'rot_makrele', gr: 'L', dick: 1, bau: [1.04, 1.02, 1], band: 0x2d5a2d, iris: [.88, .58, .15], pup: .55, laenge: .5 },
+  { name: 'LISBETH', fell: 'schildpatt', gr: 'M', alt: 1, bau: [1.02, .98, 1.02], band: 0x6a2a5a, iris: [.9, .72, .16], pup: .4, laenge: .55 },
+  { name: 'FRITZ', fell: 'grau_klassisch', gr: 'L', alt: 1, bau: [1.03, 1.02, 1.04], band: 0x8a1c1c, iris: [.62, .78, .2], pup: .2, narben: ['auge'], laenge: .6 },
+  { name: 'MARIE', fell: 'dreifarbig', gr: 'S', alt: 1, bau: [1, .98, .96], band: 0x1f3f7a, iris: [.88, .66, .14], pup: .46, laenge: .45 },
+  { name: 'JAKOB', fell: 'smoke', gr: 'M', alt: 1, weiss: .5, bau: [1.02, 1, 1.02], band: 0xb08a1a, iris: [.6, .8, .22], pup: .35, laenge: .85 },
+  { name: 'KATHRIN', fell: 'schwarzweiss', gr: 'M', alt: 1, bau: [1, 1, 1], band: 0x2d5a2d, iris: [.82, .72, .14], pup: .45, laenge: .4 },
+  { name: 'VEIT', fell: 'rot_weiss', gr: 'M', alt: 1, bau: [1, 1.02, .98], band: 0x1f3f7a, iris: [.9, .6, .16], pup: .42, laenge: .5 },
+  { name: 'BÄRBEL', fell: 'kuh', gr: 'M', alt: 1, bau: [1.03, .98, 1], band: 0x8a1c1c, iris: [.55, .8, .2], pup: .5, laenge: .4 },
+  { name: 'ROXY', fell: 'grau_flecken', gr: 'S', jung: 1, bau: [.94, 1.03, 1.04], band: 0xa04070, iris: [.55, .85, .22], pup: .6, laenge: .3 },
+  { name: 'MIKE', fell: 'blau', gr: 'S', jung: 1, bau: [1.02, .98, .98], band: 0xb08a1a, iris: [.45, .85, .25], pup: .58, laenge: .32 },
+  { name: 'LUCY', fell: 'siam', gr: 'S', jung: 1, bau: [.95, 1.04, 1.02], band: 0x1f7a6a, iris: [.28, .55, 1.0], pup: .55, laenge: .3 }];
 const KATZEN_GR = { S: .86, M: 1, L: 1.12 };
 // Rastlage (Ruhelage des Modells in m): Halsband, Augen, Ohrspitzen – aus den Knochen des Modells (katzen_rest)
 const KATZEN_STATIC = new Set(['sit', 'loaf', 'sleep', 'stand', 'hiss', 'crouch', 'carry', 'leap']), KATZEN_OB = ['spine1', 'neck2', 'head', 'jaw', 'earL', 'earR', 'tail1', 'tail2', 'tail3', 'tail4'];
@@ -86,13 +101,14 @@ function katzen_rest() {
   const piv = n => { const i = sk.bones.findIndex(b => b.name === n); return i < 0 ? new THREE.Vector3() : new THREE.Vector3().setFromMatrixPosition(katzen_M4.copy(sk.boneInverses[i]).invert()); };
   const neck = piv('neck'), neck2 = piv('neck2'), head = piv('head'), eL = piv('earL'), eR = piv('earR');
   const n = neck2.clone().sub(neck).normalize(), c = neck.clone().lerp(neck2, .45);
-  S.R = { neck, neck2, head, colC: c, colN: n, earL: eL, earR: eR };
+  S.R = { neck, neck2, head, colC: c, colN: n, earL: eL, earR: eR, spine2: piv('spine2'), eyeL: [0, 0, 0], eyeR: [0, 0, 0] };
   // Gesichtsachsen in Bind-Lage: Kopfdrehung in der Stand-Pose (Modellraum) zurückrechnen – die Bind-Lage des Modells ist nicht die Ruhelage
   const bones = {}; S.src.traverse(o => { if (o.isBone) bones[o.name] = o; }); const mx = new THREE.AnimationMixer(S.src); mx.clipAction(S.clips.stand).play(); mx.setTime(0);
   const hq = new THREE.Quaternion(); for (const b of ['hips', 'spine1', 'spine2', 'chest', 'neck', 'neck2', 'head']) hq.multiply(bones[b].quaternion); const hqi = hq.clone().invert(); mx.stopAllAction(); mx.uncacheRoot(S.src);
   S.R.fwd = new THREE.Vector3(0, -.12, 1).normalize().applyQuaternion(hqi); S.R.up = new THREE.Vector3(0, 1, 0).applyQuaternion(hqi);
   let eg = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'augen') eg = o.geometry; });
   const ec = new THREE.Vector3(); if (eg) { const E = eg.attributes.position; for (let i = 0; i < E.count; i++) ec.add(v0.fromBufferAttribute(E, i)); ec.divideScalar(E.count); } else ec.copy(head).addScaledVector(S.R.fwd, .04);
+  if (eg) { const A = eg.attributes.position, q = [[0, 0, 0, 0], [0, 0, 0, 0]]; for (let i = 0; i < A.count; i++) { const sd = A.getX(i) > 0 ? 0 : 1; q[sd][0] += A.getX(i); q[sd][1] += A.getY(i); q[sd][2] += A.getZ(i); q[sd][3]++; } S.R.eyeL = [q[0][0] / q[0][3], q[0][1] / q[0][3], q[0][2] / q[0][3]]; S.R.eyeR = [q[1][0] / q[1][3], q[1][1] / q[1][3], q[1][2] / q[1][3]]; }
   S.R.eyeC = ec; S.R.spot = head.clone().addScaledVector(S.R.up, .042).addScaledVector(S.R.fwd, .012);
   // Kehle: tiefster Punkt des Halsbands (für das Namensschild)
   let geo = null, fsk = null; S.src.traverse(o => { if (o.isSkinnedMesh && o.name === 'fell') { geo = o.geometry; fsk = o.skeleton; } });
@@ -103,73 +119,108 @@ function katzen_rest() {
     S.R.notch[side] = best ? [best.x, best.y, best.z, .0065] : [0, 0, 0, 0]; }
   const P = geo.attributes.position, v = v0, up = new THREE.Vector3(0, 1, 0).addScaledVector(n, -n.y).normalize(); let best = null, bs = 1e9;
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).sub(c); const along = v.dot(n); if (Math.abs(along) > .004) continue; const r = v.clone().addScaledVector(n, -along); if (r.length() > .07) continue; const s = r.dot(up); if (s < bs) { bs = s; best = v.clone().add(c); } }
-  S.R.throat = best || c.clone().addScaledVector(up, -.03);
+  S.R.fellP = P.array; S.R.fellI = geo.index ? geo.index.array : null; S.R.throat = best || c.clone().addScaledVector(up, -.03);
   S.R.throatN = S.R.throat.clone().sub(c).addScaledVector(n, -S.R.throat.clone().sub(c).dot(n)).normalize();
 }
 
 // ---------------------------------------------------------------- Material: Fell im Shader
+// Eine Farbfunktion für Haut UND Haarkarten (gleiche Zeichnung: Muster hängt am Wurzelpunkt im Ruhezustand, vKR). vKT: Lage entlang der Haarkarte (0 Wurzel … 1 Spitze; Haut = 1).
 const KATZEN_GLSL = `
-uniform vec3 kBase, kStripe, kWhiteCol, kCalA, kCalB, kSpotCol, kColCol, kColC, kColN; uniform vec4 kSpot, kNotch; uniform float kSA, kWhite, kAllWhite, kCal, kOrig, kDull, kDet, kSeed, kColOn, kColW, kTuch;
-varying vec3 vKR;
+uniform vec3 kBase, kStripe, kWhiteCol, kCalA, kCalB, kSpotCol, kColCol, kColC, kColN, kRootC, kPink, kTint, kPoint; uniform vec3 kSc[12]; uniform vec4 kSpot, kNotch;
+uniform float kSA, kWhite, kAllWhite, kCal, kOrig, kDull, kDet, kSeed, kColOn, kColW, kTuch, kPat, kPt, kMat, kScarW, kRootK;
+varying vec3 vKR; varying float vKT;
 float kH(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float kN(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
   return mix(mix(mix(kH(i), kH(i + vec3(1,0,0)), f.x), mix(kH(i + vec3(0,1,0)), kH(i + vec3(1,1,0)), f.x), f.y), mix(mix(kH(i + vec3(0,0,1)), kH(i + vec3(1,0,1)), f.x), mix(kH(i + vec3(0,1,1)), kH(i + vec3(1,1,1)), f.x), f.y), f.z); }
+float kSeg(vec3 p, vec3 a, vec3 b){ vec3 ab = b - a; float t = clamp(dot(p - a, ab) / max(dot(ab, ab), 1e-8), 0., 1.); return length(p - a - ab * t); }
+float katzenNarbe(){ if (kScarW <= 0.) return 0.; float d = 1.; for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) d = min(d, kSeg(vKR, kSc[i * 4 + j], kSc[i * 4 + j + 1])); d += (kN(vKR * 300. + kSeed) - .5) * .0016; return 1. - smoothstep(kScarW * .5, kScarW, d); }
 vec3 katzenFarbe(vec3 tex, vec4 m){
   float det = clamp(m.r * 2., .25, 1.9), W = m.g, pink = m.b; vec3 p = vKR * 30.;
   float n1 = kN(p * 1.7 + kSeed), n2 = kN(p * .7 + kSeed * 2.3);
   float leg = smoothstep(.15, .09, vKR.y), tail = smoothstep(-.2, -.25, vKR.z);
-  float bands = sin(vKR.z * 105. + n1 * 2.6 + vKR.y * 24.); float rings = sin(vKR.y * 140. + n1 * 2.2); float tr = sin(vKR.z * 150. + vKR.y * 60. + n1 * 2.);
-  float band = mix(mix(bands, rings, leg), tr, tail);
-  float st = smoothstep(.15, .8, band * .5 + .5 + (n2 - .5) * .6);
+  float rings = sin(vKR.y * 140. + n1 * 2.2), tr = sin(vKR.z * 150. + vKR.y * 60. + n1 * 2.), st;
+  if (kPat < .5) { float bands = sin(vKR.z * 105. + n1 * 2.6 + vKR.y * 24.); float band = mix(mix(bands, rings, leg), tr, tail); st = smoothstep(.15, .8, band * .5 + .5 + (n2 - .5) * .6); }
+  else if (kPat < 1.5) { vec2 c = vec2(vKR.z - .02, vKR.y - .2); float sw = sin(length(vec2(c.x * .9, c.y * 1.4)) * 82. + n1 * 3.4 + abs(vKR.x) * 36.); float band = mix(mix(sw, rings, leg), tr, tail);
+    float spine = (1. - smoothstep(.004, .016, abs(vKR.x))) * smoothstep(.17, .24, vKR.y); st = max(smoothstep(.25, .9, band * .5 + .5 + (n2 - .5) * .5), spine * .9); }
+  else if (kPat < 2.5) { float sp = kN(p * 1.2 + kSeed * 1.7); st = smoothstep(.6, .66, sp) * (1. - .35 * smoothstep(.72, .8, sp)); st = max(st, leg * smoothstep(.2, .9, rings * .5 + .5) * .7); st = max(st, tail * smoothstep(.3, .9, tr * .5 + .5)); }
+  else st = smoothstep(.55, .95, n2) * .4;
   vec3 fur = mix(kBase, kStripe, st * kSA);
   float cp = kN(p * .33 + kSeed * 3.1) * .7 + kN(p * .9 + kSeed) * .3;
   fur = mix(fur, kCalA, kCal * smoothstep(.56, .6, cp)); fur = mix(fur, kCalB, kCal * smoothstep(.4, .36, cp));
   fur = mix(fur, tex, kOrig);
+  float pt = max(max(smoothstep(.15, .09, vKR.y), smoothstep(-.17, -.24, vKR.z)), smoothstep(.17, .21, vKR.z) * smoothstep(.15, .2, vKR.y)) + (n1 - .5) * .25; fur = mix(fur, kPoint, kPt * clamp(pt, 0., 1.));
   fur *= mix(1., det, kDet);
+  fur *= kTint;
   vec3 wc = kWhiteCol * (.82 + .22 * det);
   fur = mix(fur, wc, clamp(W * kWhite + kAllWhite * (1. - pink), 0., 1.) * (kCal > .5 ? smoothstep(.36, .4, cp) * smoothstep(.6, .56, cp) + W : 1.));
-  float sd = distance(vKR, kSpot.xyz) + (n1 - .5) * .014; float sw = max(kSpot.w, .0001); fur = mix(fur, kSpotCol * (.8 + .25 * det), step(.0001, kSpot.w) * smoothstep(sw, sw * .6, sd)); // kein smoothstep(0, 0, x): auf manchen Grafikkarten NaN → schwarze Katzen
-  fur = mix(fur, vec3(.5, .22, .22), pink * .85);
+  float sd = distance(vKR, kSpot.xyz) + (n1 - .5) * .014; float sw2 = max(kSpot.w, .0001); fur = mix(fur, kSpotCol * (.8 + .25 * det), step(.0001, kSpot.w) * smoothstep(sw2, sw2 * .6, sd));
+  fur = mix(fur, kPink, pink * .85);
   fur *= 1. - kDull * .32 * smoothstep(.45, .75, kN(p * 2.4 + 7.));
+  fur *= 1. - kMat * .5 * smoothstep(.42, .66, kN(p * 3.3 + 11.)); // verklebte Strähnen: dunkle, fettige Partien
+  // Haarkarten: Tiefe (Wurzel dunkler) und Wurzelfarbe (Smoke: helle Unterwolle)
+  float rt = 1. - smoothstep(0., .7, vKT); fur = mix(fur, kRootC, kRootK * rt); fur *= mix(.82, 1., smoothstep(0., .55, vKT));
+  float sc = katzenNarbe(); fur = mix(fur, mix(fur, vec3(.62, .5, .47), .75) + kPink * .15, sc);
   vec3 q = vKR - kColC; float al = dot(q, kColN); float rr = length(q - kColN * al);
   float cb = kColOn * step(abs(al), kColW) * step(rr, .062);
   vec3 cc = kColCol * (.75 + .35 * kN(p * 7.)); if (kTuch > .5) cc *= .7 + .3 * step(.5, fract((vKR.x + vKR.y) * 180.));
   fur = mix(fur, cc, cb);
   return fur;
 }`;
+// Narben als Strecken im Ruhezustand (glTF-Koordinaten: +x links, +y oben, +z nach vorn); Anker aus den Knochen und Augen des Modells (katzen_rest)
+function katzen_narben(namen) {
+  const R = katzen_S.R, A = v => Array.isArray(v) ? v : [v.x, v.y, v.z], s = [], pu = (A, B, cen) => { const q = [A, B]; q.cen = cen; s.push(q); }, far = [9, 9, 9], sd = Math.random() < .5 ? 1 : -1, eye = A(sd > 0 ? R.eyeL : R.eyeR), head = A(R.head), sp2 = A(R.spine2), up = [0, 1, 0], fw = [0, 0, 1], add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k];
+  for (const n of namen || []) {
+    if (n === 'auge') { const c = add(add(eye, fw, -.004), [sd * .002, 0, 0]); pu(add(c, up, .034), add(add(c, up, -.016), [sd * .008, 0, .002]), head); }
+    else if (n === 'nase') { const c = add(add(head, fw, .05), up, .006); pu(add(c, [1, 0, 0], .026 * sd), add(add(c, [1, 0, 0], -.014 * sd), up, -.014), head); }
+    else if (n === 'wange') { const c = add(add(head, fw, .026), up, -.016), x = sd * .036; pu([x, c[1] + .014, c[2] - .004], [x, c[1] - .02, c[2] + .016], head); }
+    else if (n === 'flanke') { const c = sp2, x = sd * .066; for (let i = 0; i < 3; i++) pu([x, c[1] - .01, c[2] + .05 - i * .014], [x, c[1] - .085, c[2] + .02 - i * .014], [0, c[1] - .05, c[2]]); } }
+  // jede Narbe = Linienzug aus 4 Punkten, die auf die Haut gelegt werden: Punkt der Sehne nach außen schieben und den nächsten Hautpunkt nehmen (folgt der Krümmung)
+  const P = R.fellP, I = R.fellI, hit = (o, dr) => { let bt = 1e9; for (let t = 0; t < I.length; t += 3) { const a = I[t] * 3, b = I[t + 1] * 3, c = I[t + 2] * 3, e1 = [P[b] - P[a], P[b + 1] - P[a + 1], P[b + 2] - P[a + 2]], e2 = [P[c] - P[a], P[c + 1] - P[a + 1], P[c + 2] - P[a + 2]],
+      h = [dr[1] * e2[2] - dr[2] * e2[1], dr[2] * e2[0] - dr[0] * e2[2], dr[0] * e2[1] - dr[1] * e2[0]], det = e1[0] * h[0] + e1[1] * h[1] + e1[2] * h[2]; if (Math.abs(det) < 1e-12) continue; const f = 1 / det, sv = [o[0] - P[a], o[1] - P[a + 1], o[2] - P[a + 2]], u = f * (sv[0] * h[0] + sv[1] * h[1] + sv[2] * h[2]); if (u < 0 || u > 1) continue;
+      const qv = [sv[1] * e1[2] - sv[2] * e1[1], sv[2] * e1[0] - sv[0] * e1[2], sv[0] * e1[1] - sv[1] * e1[0]], v = f * (dr[0] * qv[0] + dr[1] * qv[1] + dr[2] * qv[2]); if (v < 0 || u + v > 1) continue; const tt = f * (e2[0] * qv[0] + e2[1] * qv[1] + e2[2] * qv[2]); if (tt > 0 && tt < bt) bt = tt; }
+    return bt < 1e8 ? [o[0] + dr[0] * bt, o[1] + dr[1] * bt, o[2] + dr[2] * bt] : null; };
+  const nn = (p, o, l) => { const org = [p[0] + o[0] / l * .06, p[1] + o[1] / l * .06, p[2] + o[2] / l * .06], h = hit(org, [-o[0] / l, -o[1] / l, -o[2] / l]); return h || p; };
+  const out = [], far4 = [far, far, far, far];
+  for (const q of s.slice(0, 3)) { const cen = q.cen, pts = []; for (let i = 0; i < 4; i++) { const t = i / 3, p = [q[0][0] + (q[1][0] - q[0][0]) * t, q[0][1] + (q[1][1] - q[0][1]) * t, q[0][2] + (q[1][2] - q[0][2]) * t], o = [p[0] - cen[0], p[1] - cen[1], p[2] - cen[2]], l = Math.hypot(...o) || 1; pts.push(nn(p, o, l)); } out.push(pts); }
+  while (out.length < 3) out.push(far4); return out.flat();
+}
+const V3k = a => new THREE.Vector3(...(a || [0, 0, 0]));
 function katzen_fellMat(src, d) {
-  const F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_getigert, R = katzen_S.R, V3 = a => new THREE.Vector3(...(a || [0, 0, 0]));
+  const F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_klassisch, R = katzen_S.R;
   const m = src.clone(); m.metalnessMap = null; m.metalness = 0; m.roughness = F.rough; m.color.setRGB(1, 1, 1); m.name = 'katzen_fell_' + d.name;
-  const notch = d.ohr ? R.notch[d.ohr] : [0, 0, 0, 0];
-  const u = m.userData.ku = { kBase: { value: V3(F.base) }, kStripe: { value: V3(F.stripe) }, kWhiteCol: { value: V3(F.whiteCol || [.86, .84, .8]) }, kCalA: { value: V3(F.calA) }, kCalB: { value: V3(F.calB) },
-    kSpotCol: { value: V3(F.spot) }, kSpot: { value: d.fleck && F.spot ? new THREE.Vector4(R.spot.x, R.spot.y, R.spot.z, .03) : new THREE.Vector4(0, 0, 0, 0) /* Vector4() hat w = 1 → Fleck-Radius 1 m = ganzer Körper in Fleckfarbe (schwarz)! */ }, kNotch: { value: new THREE.Vector4(...notch) },
-    kSA: { value: F.sa || 0 }, kWhite: { value: d.weiss != null ? d.weiss : F.white || 0 }, kAllWhite: { value: F.allWhite || 0 }, kCal: { value: F.cal || 0 }, kOrig: { value: F.orig || 0 },
+  const notch = d.ohr ? R.notch[d.ohr] : [0, 0, 0, 0], sc = katzen_narben(d.narben), j = () => 1 + (Math.random() - .5) * .1, ti = F.tint || [1, 1, 1];
+  const u = m.userData.ku = { kBase: { value: V3k(F.base) }, kStripe: { value: V3k(F.stripe) }, kWhiteCol: { value: V3k(F.whiteCol || [.86, .84, .8]) }, kCalA: { value: V3k(F.calA) }, kCalB: { value: V3k(F.calB) },
+    kSpotCol: { value: V3k(F.spot) }, kSpot: { value: d.fleck && F.spot ? new THREE.Vector4(R.spot.x, R.spot.y, R.spot.z, .03) : new THREE.Vector4(0, 0, 0, 0) /* Vector4() hat w = 1 → Fleck-Radius 1 m = ganzer Körper in Fleckfarbe */ }, kNotch: { value: new THREE.Vector4(...notch) },
+    kSA: { value: F.sa || 0 }, kWhite: { value: d.weiss != null ? d.weiss : F.white || 0 }, kAllWhite: { value: F.allWhite || 0 }, kCal: { value: F.cal || 0 }, kOrig: { value: F.orig || 0 }, kPat: { value: F.pat || 0 },
     kDull: { value: (F.dull || 0) + (d.alt ? .25 : 0) }, kDet: { value: F.det || .7 }, kSeed: { value: Math.random() * 40 }, kColOn: { value: 1 }, kColW: { value: d.tuch ? .012 : .0048 }, kTuch: { value: d.tuch ? 1 : 0 },
-    kColCol: { value: new THREE.Color(d.band || 0x5a3a22) }, kColC: { value: R.colC.clone() }, kColN: { value: R.colN.clone() } };
+    kColCol: { value: new THREE.Color(d.band || 0x5a3a22) }, kColC: { value: R.colC.clone() }, kColN: { value: R.colN.clone() },
+    kRootC: { value: V3k(F.root || F.base) }, kRootK: { value: F.rootK || 0 }, kPink: { value: V3k(F.pink || [.5, .22, .22]) }, kTint: { value: new THREE.Vector3(ti[0] * j(), ti[1] * j(), ti[2] * j()) }, kPoint: { value: V3k(F.point) }, kPt: { value: F.pt || 0 }, kMat: { value: F.mat || 0 },
+    kSc: { value: sc.map(V3k) }, kScarW: { value: d.narben && d.narben.length ? .0017 : 0 } };
   m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u);
-    sh.vertexShader = 'varying vec3 vKR;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vKR = position;');
+    sh.vertexShader = 'varying vec3 vKR; varying float vKT;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vKR = position; vKT = 1.;');
     sh.fragmentShader = KATZEN_GLSL + '\n' + sh.fragmentShader
       .replace('#include <map_fragment>', '#include <map_fragment>\n vec4 kM = texture2D(roughnessMap, vRoughnessMapUv);\n if (kNotch.w > 0. && distance(vKR, kNotch.xyz) < kNotch.w) discard;\n diffuseColor.rgb = katzenFarbe(diffuseColor.rgb, kM);')
       .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = roughness * (.92 + .16 * clamp(1. - kM.r, 0., 1.));'); };
-  m.customProgramCacheKey = () => 'katzen_fell_1'; return m;
+  m.customProgramCacheKey = () => 'katzen_fell_2'; return m;
 }
-// Haarkarten (Netz `haar`, aus tools/katzen_fell.mjs): gleiche Farbfunktion wie das Fell (Maske und Hautfarbe über die Haut-UV TEXCOORD_1, Muster über den Wurzelpunkt _root),
-// Länge je Katze (kLen: Karte schrumpft zur Wurzel). EIN zusätzliches Programm für alle Katzen (Cache-Schlüssel), Uniforms der Haut werden geteilt.
+// Haarkarten (Netz `haar`, aus tools/katzen_fell.mjs): gleiche Farbfunktion wie die Haut (Maske und Hautfarbe über die Haut-UV TEXCOORD_1, Muster über den Wurzelpunkt _root),
+// Länge je Katze (kLen: Karte schrumpft zur Wurzel), Ränder der Karte laufen aus (_card), Narben schneiden das Fell weg. EIN zusätzliches Programm für alle Katzen (Cache-Schlüssel),
+// die Uniforms der Haut werden geteilt (Umfärben wirkt auf beide).
 function katzen_hairMat(src, d, fm) {
   const m = src.clone(); m.name = 'katzen_haar_' + d.name; m.color.setRGB(1, 1, 1); m.metalness = 0; m.roughness = .88; m.side = THREE.DoubleSide; m.alphaTest = .32; m.transparent = false; m.normalMap = null;
-  const fu = fm.userData.ku, F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_getigert;
-  const u = Object.assign({}, fu, { kLen: { value: d.laenge != null ? d.laenge : F.len != null ? F.len : .5 }, kMask: { value: fm.roughnessMap }, kSkin: { value: fm.map } }); m.userData.ku = u;
+  const fu = fm.userData.ku, F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_klassisch;
+  const u = Object.assign({}, fu, { kColOn: { value: 0 }, kLen: { value: d.laenge != null ? d.laenge : F.len != null ? F.len : .5 }, kMask: { value: fm.roughnessMap }, kSkin: { value: fm.map } }); m.userData.ku = u;
   m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u);
-    sh.vertexShader = 'varying vec3 vKR; varying vec2 vKUv; attribute vec3 _root; attribute vec2 uv1; uniform float kLen;\n' + sh.vertexShader.replace('#include <begin_vertex>', 'vec3 transformed = _root + (position - _root) * kLen; vKR = _root; vKUv = uv1;');
-    sh.fragmentShader = 'uniform sampler2D kMask, kSkin; varying vec2 vKUv;\n' + KATZEN_GLSL + '\n' + sh.fragmentShader
-      .replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n normal *= faceDirection;')  // Karten von beiden Seiten gleich beleuchten (Haut-Normale)
-      .replace('#include <map_fragment>', '#include <map_fragment>\n vec4 kM = texture2D(kMask, vKUv); float kLum = clamp(dot(diffuseColor.rgb, vec3(.333)) * 1.9, 0., 1.4);\n diffuseColor.rgb = katzenFarbe(texture2D(kSkin, vKUv).rgb, kM) * (.5 + .75 * kLum);'); };
-  m.customProgramCacheKey = () => 'katzen_haar_1'; return m;
+    sh.vertexShader = 'varying vec3 vKR; varying vec2 vKUv, vKC; varying float vKT; attribute vec3 _root; attribute vec2 uv1, _card; uniform float kLen;\n' + sh.vertexShader.replace('#include <begin_vertex>', 'vec3 transformed = _root + (position - _root) * kLen; vKR = _root; vKUv = uv1; vKC = _card; vKT = _card.y;');
+    sh.fragmentShader = 'uniform sampler2D kMask, kSkin; varying vec2 vKUv, vKC;\n' + KATZEN_GLSL + '\n' + sh.fragmentShader
+      .replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n normal *= faceDirection;') // Karten von beiden Seiten gleich beleuchten (Haut-Normale)
+      .replace('#include <map_fragment>', '#include <map_fragment>\n vec4 kM = texture2D(kMask, vKUv); float kLum = clamp(dot(diffuseColor.rgb, vec3(.333)) * 1.9, 0., 1.4);\n diffuseColor.rgb = katzenFarbe(texture2D(kSkin, vKUv).rgb, kM) * (.62 + .7 * kLum);\n diffuseColor.a *= mix(1., smoothstep(0., .28, vKC.x) * smoothstep(0., .28, 1. - vKC.x), .92);\n if (kScarW > 0. && katzenNarbe() > .4) discard;\n if (kMat > .5) diffuseColor.a *= step(.38, kN(vKR * 120. + vec3(vKC.x * 3., 0., 0.) + kSeed));'); };
+  m.customProgramCacheKey = () => 'katzen_haar_2'; return m;
 }
 // Augen: Iris im Shader (Fasern, heller Kragen um die Pupille, dunkler Limbusring), senkrechte Schlitzpupille (kPup: 0 Schlitz … 1 rund), kein Weiß der Lederhaut (Katzen zeigen keins),
 // Tapetum: glimmt über Emission in der Irisfarbe, wenn die Lampe trifft (katzen_eyes). Trübe Augen (kTrub) für die Gruselkatzen: milchig-blaugrau, Pupille verwaschen.
 const KATZEN_EYE_GLSL = `
-uniform vec3 kIris; uniform float kPup, kTrub, kESeed;
+uniform vec3 kIris; uniform vec2 kTrub; uniform float kPup, kESeed; varying float kSide;
 float eH(vec2 p){ p = fract(p * vec2(.1031, .1030)); p += dot(p, p.yx + 33.33); return fract((p.x + p.y) * p.x); }
 float eN(vec2 x){ vec2 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(mix(eH(i), eH(i + vec2(1,0)), f.x), mix(eH(i + vec2(0,1)), eH(i + vec2(1,1)), f.x), f.y); }
 vec3 katzenAuge(vec2 uv, out float glow){
@@ -183,15 +234,15 @@ vec3 katzenAuge(vec2 uv, out float glow){
   float limb = smoothstep(.27, .36, r); col = mix(col, vec3(.02, .015, .012), limb * .85);
   col = mix(col, vec3(.045, .03, .025), smoothstep(.34, .42, r));
   col = mix(col, vec3(.005), pupil);
-  float milk = kTrub * (.55 + .4 * eN(uv * 18. + kESeed)); col = mix(col, vec3(.52, .6, .62) * (.8 + .3 * eN(uv * 40.)), milk * (1. - smoothstep(.34, .44, r) * .5));
-  glow = (1. - pupil) * (1. - limb * .8) * (.55 + .6 * fib) * (1. - kTrub * .85);
+  float tr = mix(kTrub.y, kTrub.x, kSide); float milk = tr * (.55 + .4 * eN(uv * 18. + kESeed)); col = mix(col, vec3(.52, .6, .62) * (.8 + .3 * eN(uv * 40.)), milk * (1. - smoothstep(.34, .44, r) * .5));
+  glow = (1. - pupil) * (1. - limb * .8) * (.55 + .6 * fib) * (1. - tr * .85);
   return col;
 }`;
 function katzen_eyeMat(src, d) { const m = src.clone(); m.name = 'katzen_auge_' + d.name; m.color.setRGB(1, 1, 1); m.roughness = .05; m.metalness = 0; m.emissiveMap = null;
-  const I = d.iris || [1, .85, .4], tr = d.trueb != null ? d.trueb : 0;
+  const I = d.iris || [1, .85, .4], tr = d.trueb != null ? (Array.isArray(d.trueb) ? d.trueb : [d.trueb, d.trueb]) : [0, 0];
   m.emissive = new THREE.Color(Math.min(1, I[0] * 1.1), Math.min(1, I[1] * 1.1), Math.min(1, I[2] * 1.1)); m.emissiveIntensity = 0;
-  const u = m.userData.ku = { kIris: { value: new THREE.Vector3(I[0], I[1], I[2]) }, kPup: { value: d.pup != null ? d.pup : .3 }, kTrub: { value: tr }, kESeed: { value: Math.random() * 30 } };
-  m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u); sh.fragmentShader = KATZEN_EYE_GLSL + '\n' + sh.fragmentShader
+  const u = m.userData.ku = { kIris: { value: new THREE.Vector3(I[0], I[1], I[2]) }, kPup: { value: d.pup != null ? d.pup : .3 }, kTrub: { value: new THREE.Vector2(tr[0], tr[1]) }, kESeed: { value: Math.random() * 30 } };
+  m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u); sh.vertexShader = 'varying float kSide;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n kSide = position.x > 0. ? 1. : 0.;'); sh.fragmentShader = KATZEN_EYE_GLSL + '\n' + sh.fragmentShader
     .replace('#include <map_fragment>', 'float kGlow = 0.; diffuseColor.rgb = katzenAuge(vMapUv, kGlow);')
     .replace('#include <emissivemap_fragment>', 'totalEmissiveRadiance *= kGlow;'); };
   m.customProgramCacheKey = () => 'katzen_auge_1'; return m; }
@@ -229,7 +280,7 @@ function katzen_make(d) {
   if (d.schwer) { sc('belly', 1.18, 1.1, 1.05); sc('spine2', 1.06, 1.02, 1); }
   if (d.duenn) { sc('spine1', .86, .96, 1); sc('hips', .9, 1, 1); sc('belly', .8, .85, 1); }
   k.bellyS = k.B.belly ? k.B.belly.scale.clone() : new THREE.Vector3(1, 1, 1);
-  const size = typeof d.gr === 'number' ? d.gr : KATZEN_GR[d.gr] || 1; k.size = size * (d.jung ? .96 : 1); g.scale.setScalar(k.size);
+  const size = typeof d.gr === 'number' ? d.gr : KATZEN_GR[d.gr] || 1; k.size = size * (d.jung ? .96 : 1); k.bau = d.bau || [1, 1, 1]; g.scale.set(k.size * k.bau[0], k.size * k.bau[1], k.size * k.bau[2]);
   // Augenreflex (Textur der eyePairs): eine Karte vor den Augen, folgt dem Kopf – zeigt in dieselbe Richtung wie der Kopf
   const R = S.R, head = k.B.head;
   if (head && typeof eyeTex !== 'undefined') { const em = new THREE.MeshBasicMaterial({ map: eyeTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0, color: new THREE.Color(.8, 1, .5).multiplyScalar(1.4), toneMapped: false });
@@ -255,8 +306,11 @@ function katzen_spawn(o = {}) {
   katzen_place(k, o.x, o.z, { y: o.y, ry: o.ry != null ? o.ry : o.starrt ? Math.atan2(o.starrt[0] - o.x, o.starrt[2] - o.z) : rand(0, 6.28), pose: o.pose || 'sit', sims: o.sims });
   return k;
 }
-function katzen_recolor(k, fell, gr) { if (fell && KATZEN_FELLE[fell]) { const F = KATZEN_FELLE[fell], u = k.fell.material.userData.ku; u.kBase.value.set(...F.base); u.kStripe.value.set(...F.stripe); u.kSA.value = F.sa || 0; u.kWhite.value = F.white || 0; u.kAllWhite.value = F.allWhite || 0; u.kCal.value = F.cal || 0; u.kOrig.value = F.orig || 0; u.kDull.value = F.dull || 0; u.kDet.value = F.det || .7; if (F.calA) u.kCalA.value.set(...F.calA); if (F.calB) u.kCalB.value.set(...F.calB); k.fell.material.roughness = F.rough; }
-  if (gr) { k.size = typeof gr === 'number' ? gr : KATZEN_GR[gr] || 1; k.g.scale.setScalar(k.size); } }
+function katzen_recolor(k, fell, gr) { if (fell && KATZEN_FELLE[fell]) { const F = KATZEN_FELLE[fell], u = k.fell.material.userData.ku, V = a => (a || [0, 0, 0]);
+    u.kBase.value.set(...V(F.base)); u.kStripe.value.set(...V(F.stripe)); u.kSA.value = F.sa || 0; u.kWhite.value = F.white || 0; u.kAllWhite.value = F.allWhite || 0; u.kCal.value = F.cal || 0; u.kOrig.value = F.orig || 0; u.kPat.value = F.pat || 0;
+    u.kDull.value = F.dull || 0; u.kDet.value = F.det || .7; u.kCalA.value.set(...V(F.calA)); u.kCalB.value.set(...V(F.calB)); u.kRootC.value.set(...V(F.root || F.base)); u.kRootK.value = F.rootK || 0; u.kPink.value.set(...V(F.pink || [.5, .22, .22]));
+    u.kPoint.value.set(...V(F.point)); u.kPt.value = F.pt || 0; u.kMat.value = F.mat || 0; u.kTint.value.set(...(F.tint || [1, 1, 1])); k.fell.material.roughness = F.rough; if (k.haar) k.haar.material.userData.ku.kLen.value = F.len != null ? F.len : .5; }
+  if (gr) { k.size = typeof gr === 'number' ? gr : KATZEN_GR[gr] || 1; k.g.scale.set(k.size * k.bau[0], k.size * k.bau[1], k.size * k.bau[2]); } }
 function katzen_place(k, x, z, o = {}) {
   k.x = x; k.z = z; k.ry = o.ry != null ? o.ry : k.ry; let y = o.y;
   if (y == null) { y = katzen_ground(x, z, .3); if (o.sims) { const top = katzen_perchY(x, z, 2.2); if (top > .25) { y = top; k.perch = top; } } }

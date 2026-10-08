@@ -288,7 +288,8 @@ function kino_tex_papa() { return cnv(512, (c, w) => { // Kinderzeichnung vor de
   c.strokeStyle = yel; c.lineWidth = 5; c.beginPath(); c.arc(430, 80, 26, 0, 7); c.stroke(); for (let a = 0; a < 6.28; a += .8) cray(yel, 3, [[430 + Math.cos(a) * 34, 80 + Math.sin(a) * 34], [430 + Math.cos(a) * 48, 80 + Math.sin(a) * 48]]);
   c.fillStyle = '#b3261e'; c.font = 'bold 56px "Comic Sans MS", cursive'; c.save(); c.translate(70, 488); c.rotate(-.04); c.globalAlpha = .85; c.fillText('PAPA + ICH', 0, 0); c.restore();
   c.strokeStyle = '#3a3a8a'; c.lineWidth = 5; c.beginPath(); c.arc(452, 466, 20, -PI / 2, PI / 2); c.stroke(); }); } // halber Mond
-function kino_tex_hand(big = 1) { return cnv(128, (c, w) => { c.clearRect(0, 0, w, w); c.fillStyle = 'rgba(235,245,250,.55)'; c.filter = 'blur(2px)';
+function kino_tex_hand(big = 1) { return cnv(128, (c, w) => { c.clearRect(0, 0, w, w); if (echt_hand(c, 64, 70, 100 * big, 'rgb(235,245,250)', .75, 0, big > 1, 'trocken')) return; // echter Handabdruck am Glas (Megascans „Hand Print“)
+  c.fillStyle = 'rgba(235,245,250,.55)'; c.filter = 'blur(2px)';
   c.beginPath(); c.ellipse(64, 84, 26 * big, 30 * big, 0, 0, 7); c.fill(); [[34, 48, 9, 26, -.5], [48, 30, 8, 30, -.15], [64, 24, 8, 32, 0], [80, 30, 8, 30, .15], [100, 60, 8, 22, .8]].forEach(([x, y, rx, ry, a]) => { c.beginPath(); c.ellipse(64 + (x - 64) * big, 84 + (y - 84) * big, rx * big, ry * big, a, 0, 7); c.fill(); }); c.filter = 'none'; }); }
 function kino_tex_shadow() { return cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.filter = 'blur(9px)'; c.fillStyle = 'rgba(0,0,0,.8)';
   c.beginPath(); c.ellipse(128, 84, 36, 44, 0, 0, 7); c.fill(); c.beginPath(); c.moveTo(40, 256); c.quadraticCurveTo(44, 150, 128, 134); c.quadraticCurveTo(212, 150, 216, 256); c.fill(); c.filter = 'none'; }); }

@@ -19,6 +19,17 @@ const fellN = nodeByName('fell'), haarN = nodeByName('haar'), augenN = nodeByNam
 const joints = skin.listJoints(), jn = joints.map(j => j.getName()), jpos = joints.map(j => { const m = j.getWorldMatrix(); return [m[12], m[13], m[14]]; });
 const P = fellN.getMesh().listPrimitives()[0], pos = P.getAttribute('POSITION').getArray(), nor = P.getAttribute('NORMAL').getArray(), uv = P.getAttribute('TEXCOORD_0').getArray(), jnt = P.getAttribute('JOINTS_0').getArray(), wgt = P.getAttribute('WEIGHTS_0').getArray(), idx = P.getIndices().getArray();
 const nV = pos.length / 3, nT = idx.length / 3;
+// ---------------------------------------------------------------- Proportionen: größerer Kopf (Kindchenschema), kräftigerer Hals – nur Netz, Knochen und Clips bleiben
+const KOPF = +(process.env.KOPF || 1.14), HALS = 1.12;
+{ const jn0 = skin.listJoints().map(j => j.getName()), jw = jn0.map(n => /^(head|jaw|earL|earR|x_lip.*|x_DEFspine.*)$/.test(n) ? 1 : 0), nw = jn0.map(n => /^(neck|neck2)$/.test(n) ? 1 : 0);
+  const pj = n => { const m = joints[jn0.indexOf(n)].getWorldMatrix(); return [m[12], m[13], m[14]]; }, hp0 = pj('head'), nk = pj('neck'), n2 = pj('neck2'), ax = V.norm(V.sub(n2, nk));
+  const scaleMesh = (prim) => { const A = prim.getAttribute('POSITION'), arr = A.getArray(), J = prim.getAttribute('JOINTS_0').getArray(), Wt = prim.getAttribute('WEIGHTS_0').getArray();
+    for (let i = 0; i < arr.length / 3; i++) { let wh = 0, wn = 0; for (let k = 0; k < 4; k++) { wh += Wt[i * 4 + k] * jw[J[i * 4 + k]]; wn += Wt[i * 4 + k] * nw[J[i * 4 + k]]; }
+      let p = [arr[i * 3], arr[i * 3 + 1], arr[i * 3 + 2]];
+      if (wh > 0) { const f = 1 + (KOPF - 1) * Math.min(1, wh); p = V.add(hp0, V.mul(V.sub(p, hp0), f)); }
+      if (wn > 0) { const q = V.sub(p, nk), al = V.dot(q, ax), r = V.sub(q, V.mul(ax, al)), f = 1 + (HALS - 1) * Math.min(1, wn); p = V.add(V.add(nk, V.mul(ax, al)), V.mul(r, f)); }
+      arr[i * 3] = p[0]; arr[i * 3 + 1] = p[1]; arr[i * 3 + 2] = p[2]; } A.setArray(arr); };
+  for (const nm of ['fell', 'augen', 'zaehne']) scaleMesh(nodeByName(nm).getMesh().listPrimitives()[0]); }
 // ---------------------------------------------------------------- Maske (Rosa = Nase, Pfotenballen, Ohrinnenseite: dort kein Fell)
 const maskTex = root.listTextures().find(t => /png/.test(t.getMimeType()) && root.listMaterials()[0].getMetallicRoughnessTexture() === t) || root.listMaterials()[0].getMetallicRoughnessTexture();
 const mk = await sharp(Buffer.from(maskTex.getImage())).raw().toBuffer({ resolveWithObject: true }), MW = mk.info.width, MH = mk.info.height, MC = mk.info.channels;
@@ -65,15 +76,18 @@ console.log('Fläche je Region (cm²):', Object.fromEntries(Object.entries(areaR
 const bary = () => { let a = rnd(), b = rnd(); if (a + b > 1) { a = 1 - a; b = 1 - b; } return [a, b, 1 - a - b]; };
 for (let t = 0; t < nT; t++) {
   const [a, b, c] = tri[t], reg = vReg[a], par = PAR[reg]; const regs = new Set([vReg[a], vReg[b], vReg[c]]); const r2 = regs.size > 1 ? vReg[[a, b, c].sort((x, y) => 0)[0]] : reg;
-  let n = tArea[t] * par.d; let cnt = Math.floor(n) + (rnd() < n - Math.floor(n) ? 1 : 0);
+  let n = tArea[t] * par.d * (+process.env.DICHTE || .88); let cnt = Math.floor(n) + (rnd() < n - Math.floor(n) ? 1 : 0);
   for (let s = 0; s < cnt; s++) {
     const [u, v, w] = bary(), at = (arr, k) => arr[a * k] * u + arr[b * k] * v + arr[c * k] * w;
     const p = [pos[a * 3] * u + pos[b * 3] * v + pos[c * 3] * w, pos[a * 3 + 1] * u + pos[b * 3 + 1] * v + pos[c * 3 + 1] * w, pos[a * 3 + 2] * u + pos[b * 3 + 2] * v + pos[c * 3 + 2] * w];
     const nn = V.norm([nor[a * 3] * u + nor[b * 3] * v + nor[c * 3] * w, nor[a * 3 + 1] * u + nor[b * 3 + 1] * v + nor[c * 3 + 1] * w, nor[a * 3 + 2] * u + nor[b * 3 + 2] * v + nor[c * 3 + 2] * w]);
     const best = u >= v && u >= w ? a : v >= w ? b : c; const tu = uv[best * 2], tv = uv[best * 2 + 1];
+    { const nk = jpos[jIdx('neck')], n2 = jpos[jIdx('neck2')], cc = V.add(nk, V.mul(V.sub(n2, nk), .45)), ax = V.norm(V.sub(n2, nk)), q = V.sub(p, cc), al = V.dot(q, ax); if (Math.abs(al) < .0075 && V.len(V.sub(q, V.mul(ax, al))) < .075) continue; } // Halsband: kein Fell darüber
     if (isPink(tu, tv)) continue; // Nase, Ballen, Innenohr (Flaum folgt separat)
     let pr = reg, L = R(...par.L), W = R(...par.w);
     // Augen und Nase aussparen
+    if (reg === 'kopf' && p[2] > headP[2] + .02 && p[1] < Math.min(eyeC[0][1], eyeC[1][1]) - .02) continue; // Kinn/Maul: kein Fell (sonst „Papierschnipsel“)
+    if (reg === 'hals' && nn[1] < -.3) L *= .6;
     if (reg === 'kopf') { if (V.len(V.sub(p, eyeC[0])) < .011 || V.len(V.sub(p, eyeC[1])) < .011) continue; const fw = p[2] - headP[2]; if (fw > .035) { L *= .45; W *= .6; } /* Schnauze: fast kahl */ if (V.len(V.sub(p, eyeC[0])) < .02 || V.len(V.sub(p, eyeC[1])) < .02) { L *= .6; } }
     if (reg === 'ohr') { const pv = p[0] > 0 ? earP.L : earP.R; const dd = V.len(V.sub(p, pv)); if (dd > .03) { L *= 1.2; } }
     const f0 = flowDir(reg, p, nn, best); let lift0 = par.l0, lift1 = par.l1, g = par.g;
@@ -95,7 +109,7 @@ for (const side of ['L', 'R']) { const pv = earP[side], sg = side === 'L' ? 1 : 
 console.log('Karten:', cards.length, Object.fromEntries(REGS.map(r => [r, cards.filter(c => c.reg === r).length])));
 // ---------------------------------------------------------------- Geometrie
 const ATLAS = { S: { u: [.0, .5], v: [.004, .49] }, L: { u: [.5, 1.0], v: [.004, .965] } }; // Atlas aus tools/katzen_strands.py
-const Pa = [], Na = [], U0 = [], U1 = [], Ja = [], Wa = [], Ra = [], Ix = [];
+const Pa = [], Na = [], U0 = [], U1 = [], Ja = [], Wa = [], Ra = [], Ca = [], Ix = [];
 for (const c of cards) {
   const big = c.big, at = big ? ATLAS.L : ATLAS.S, uw = (at.u[1] - at.u[0]) * (big ? .5 : .5), u0 = R(at.u[0], at.u[1] - uw), mirror = rnd() < .5;
   const nS = c.segs; let q = V.sub(c.p, V.mul(c.n, .0015)), d = c.f; const step = c.L / nS, rowStart = Pa.length / 3; let prevCenter = q;
@@ -105,7 +119,7 @@ for (const c of cards) {
     const wd = V.norm(V.cross(d, c.n)), wv = rotAxis(wd, d, c.roll), hw = c.W * .5 * (1 - .45 * t) * (c.flaum ? 1 : 1);
     const l = V.add(q, V.mul(wv, -hw)), r = V.add(q, V.mul(wv, hw)); const vv = at.v[0] + (at.v[1] - at.v[0]) * t * (big ? 1 : 1);
     for (const [pt, ux] of [[l, 0], [r, 1]]) { Pa.push(...pt); const nb = V.norm(V.add(c.n, V.mul(d, .15 * t))); Na.push(...nb); U0.push(u0 + uw * (mirror ? 1 - ux : ux), vv); U1.push(uv[c.best * 2], uv[c.best * 2 + 1]);
-      for (let kk = 0; kk < 4; kk++) { Ja.push(jnt[c.best * 4 + kk]); Wa.push(wgt[c.best * 4 + kk]); } Ra.push(...c.p); }
+      for (let kk = 0; kk < 4; kk++) { Ja.push(jnt[c.best * 4 + kk]); Wa.push(wgt[c.best * 4 + kk]); } Ra.push(...c.p); Ca.push(ux, t); }
   }
   for (let k = 0; k < nS; k++) { const i = rowStart + k * 2; Ix.push(i, i + 1, i + 2, i + 1, i + 3, i + 2); }
 }
@@ -116,7 +130,7 @@ const mkAcc = (type, arr, ct) => doc.createAccessor().setType(type).setArray(arr
 hp.getAttribute('POSITION').setArray(new Float32Array(Pa)); hp.getAttribute('NORMAL').setArray(new Float32Array(Na)); hp.getAttribute('TEXCOORD_0').setArray(new Float32Array(U0));
 hp.getAttribute('JOINTS_0').setArray(new Uint16Array(Ja)); hp.getAttribute('WEIGHTS_0').setArray(new Float32Array(Wa)); hp.getIndices().setArray(new Uint16Array(Ix));
 if (Pa.length / 3 > 65000) throw new Error('zu viele Eckpunkte für 16 Bit');
-hp.setAttribute('TEXCOORD_1', mkAcc('VEC2', new Float32Array(U1))); hp.setAttribute('_ROOT', mkAcc('VEC3', new Float32Array(Ra)));
+hp.setAttribute('TEXCOORD_1', mkAcc('VEC2', new Float32Array(U1))); hp.setAttribute('_ROOT', mkAcc('VEC3', new Float32Array(Ra))); hp.setAttribute('_CARD', mkAcc('VEC2', new Float32Array(Ca)));
 haarN.setSkin(skin); // dieselbe Haut (gleiche Knochenreihenfolge) wie das Fell
 const hmat = hp.getMaterial(); { const nt = hmat.getNormalTexture(), bt = hmat.getBaseColorTexture(); hmat.setNormalTexture(null); const at = doc.createTexture('haar_atlas').setImage(new Uint8Array(fs.readFileSync(process.env.ATLAS || 'C:/Users/GIGABYTE/HAM_Blender/katzen/strands.png'))).setMimeType('image/png'); hmat.setBaseColorTexture(at); if (nt) nt.dispose(); if (bt) bt.dispose(); }
 hmat.setAlphaCutoff(.3);

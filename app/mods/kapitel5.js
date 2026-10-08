@@ -87,7 +87,7 @@ function k5_cv(w, h, fn) { const c = document.createElement('canvas'); c.width =
 function k5_decal(canvas, w, h, o = {}) { const m = new THREE.MeshStandardMaterial({ map: tex(canvas, true), transparent: true, depthWrite: false, roughness: o.rough ?? .95, metalness: 0, polygonOffset: true, polygonOffsetFactor: -4, opacity: o.op ?? 1, side: o.ds ? THREE.DoubleSide : THREE.FrontSide });
   if (o.emissive) { m.emissive = new THREE.Color(o.emissive); m.emissiveMap = m.map; m.emissiveIntensity = o.ei ?? .3; }
   const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.renderOrder = 2; p.receiveShadow = true; p.userData.noCol = true; p.visible = false; scene.add(p); return p; }
-function k5_tFuss(links) { return k5_cv(96, 192, (c, w, h) => { c.clearRect(0, 0, w, h); c.save(); if (links) { c.translate(w, 0); c.scale(-1, 1); } c.fillStyle = 'rgba(28,30,26,.55)'; c.filter = 'blur(1.4px)';
+function k5_tFuss(links) { return k5_cv(96, 192, (c, w, h) => { c.clearRect(0, 0, w, h); if (echt_fuss(c, w / 2, h / 2, h * .84, 'rgb(28,30,26)', .6, links)) return; c.save(); if (links) { c.translate(w, 0); c.scale(-1, 1); } c.fillStyle = 'rgba(28,30,26,.55)'; c.filter = 'blur(1.4px)';
   c.beginPath(); c.ellipse(46, 118, 20, 44, .08, 0, 7); c.fill(); c.beginPath(); c.ellipse(52, 60, 22, 22, 0, 0, 7); c.fill();
   [[30, 30, 8], [44, 22, 7], [57, 22, 6.5], [68, 28, 6], [77, 38, 5]].forEach(([x, y, r]) => { c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); });
   c.filter = 'none'; c.strokeStyle = 'rgba(70,96,40,.9)'; c.lineWidth = 2; for (let i = 0; i < 5; i++) { const x = rand(28, 70), y = rand(40, 150); c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + rand(-8, 8), y - 8, x + rand(-10, 10), y - rand(12, 22)); c.stroke(); } c.restore(); }); }
