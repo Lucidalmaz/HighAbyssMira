@@ -59,6 +59,8 @@ function lst_scan() {
 // 2) UNSICHTBARE TIERE UND FIGUREN SELTENER ANIMIEREN. Die Basis rechnet Animationen ferner Figuren nur ~3× je Sekunde (Abschnitt 6). Was nah, aber
 //    gerade außerhalb des Blickfelds ist (Ratten, Krähen, Katzen, Figuren hinter Luke – von der Blickfeld-Auslese für das Bild ausgeblendet), lief weiter
 //    in jedem Bild. Jetzt ~10× je Sekunde; die Zeit wird aufgeholt (Abläufe und Ende-Ereignisse bleiben pünktlich). Sobald es ins Blickfeld kommt, wieder jedes Bild.
+// Sprites lassen sich ohne Raycaster.camera nicht treffen (three wirft sonst `null.matrixWorld` mitten in Boden-/Wandstrahlen der Module): dann überspringen
+{ const sr = THREE.Sprite.prototype.raycast; THREE.Sprite.prototype.raycast = function (rc, hits) { if (rc.camera) sr.call(this, rc, hits); }; }
 let LST_FR = 0;
 function lst_mixer() {
   const mu = THREE.AnimationMixer.prototype.update;
