@@ -17,12 +17,13 @@
 // Testzugriff: __geister (S, stat(), echo(id), look(on), show(...)).
 const GEIST = {
   G: { uT: figuren_S.T, uSat: { value: 1 }, uBl: { value: 0 }, uWav: { value: .011 }, uCA: { value: new THREE.Color(.20, .38, .86) }, uCB: { value: new THREE.Color(.80, .89, 1.0) }, uCC: { value: new THREE.Color(.48, .56, .72) } },
-  L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [2.5, 7], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .06, satEcho: .45, blEcho: .38, vigEcho: .55, caPuls: .016 },
+  L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [2.5, 7], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .035, satEcho: .6, blEcho: .14, vigEcho: .22, caPuls: .008 },
   list: [], str: new Map(), s0: { value: 0 }, now: 0, t: 0, ms: 0, fx: null, kegel: null, echo: null, look: { k: 0, want: 0, ca: 0, vig: null, caU: null }, lamps: [],
   slots: [], v: new THREE.Vector3(), q: new THREE.Quaternion(), sv: new THREE.Vector3(), n: { vis: 0, nb: 0, fx: 0 }, snd: false, wrap: 0, stock: 0,
 };
 // ---------------------------------------------------------------- GLSL (gemeinsam für Geist und Tiefen-Zwilling)
-const GEIST_U = `uniform float uGhost, uT, uWav, uE, uMA, uSat; uniform vec4 uF, uK; uniform vec3 uCA, uCB, uCC;
+const GEIST_U = `uniform float uGhost, uT, uWav, uE, uMA, uSat; uniform vec4 uF, uK, uHd; uniform vec3 uCA, uCB, uCC;
+// uHd: xyz Kopfmitte (Welt), w Radius (0 = kein Kopf bekannt) – Kopf/Gesicht lösen sich nie zerrissen auf
 // uF: x Fortschritt Auftritt/Abgang 0..1 · y Bodenhöhe (Welt) · z Körperhöhe m (0 = unbekannt: ohne Höhenwirkungen) · w Saat
 // uK: x,z Mitte (Welt) · y Modus (0 Auftritt, 1 Abgang) · w Flimmern (Helligkeit)
 float gh3(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
@@ -37,8 +38,10 @@ const GEIST_PROJ = `vec4 gW = modelMatrix * vec4(transformed, 1.); gW.xyz += gWa
   vec4 mvPosition = viewMatrix * gW; gl_Position = projectionMatrix * mvPosition;`;
 const GEIST_DISS = `float gH = uF.z > 0. ? clamp((vWP.y - uF.y) / uF.z, -.2, 1.4) : .5;
   float gDn = gn3(vWP * 7.3 + uF.w) * .6 + gn3(vWP * 23. - uF.w) * .4, gP = clamp(uF.x, 0., 1.);
-  float gD = (uK.y < .5 ? (gP * 1.6 - .3) - gH : gH - ((1. - gP) * 1.6 - .3)) + (gDn - .5) * .3;
-  if (uF.z > 0. && gD < 0.) discard;`;
+  float gHd = uHd.w > 0. ? 1. - smoothstep(uHd.w * .55, uHd.w, distance(vWP, uHd.xyz)) : 0.;
+  float gD = (uK.y < .5 ? (gP * 1.6 - .3) - gH : gH - ((1. - gP) * 1.6 - .3)) + (gDn - .5) * .3 * (1. - gHd);
+  if (uF.z > 0. && gD < 0. && gHd < .5) discard;
+  float gHf = uF.z > 0. && gHd >= .5 ? smoothstep(-.14, .04, gD) : 1.; // Kopf: weich ein-/ausblenden statt Rausch-Kante`;
 const GEIST_FS = `
   float gEmb = uF.z > 0. ? (1. - smoothstep(0., .07, gD)) * (1. - step(.999, gP)) : 0.;
   vec3 gN = normalize(normal), gV = normalize(vViewPosition);
@@ -47,24 +50,24 @@ const GEIST_FS = `
   float gWn = gn3(gS) * .62 + gn3(gS * 2.7 + 3.1) * .38;
   float gExt = uF.z > 0. ? smoothstep(.8, 1.7, length(vWP.xz - uK.xz) / (.26 * uF.z / 1.7 + .04)) : 0.;
   float gTop = uF.z > 0. ? smoothstep(.88, 1.05, gH) : 0., gBot = uF.z > 0. ? 1. - smoothstep(0., .16, gH) : 0.;
-  float gEro = clamp(gFr * .5 + gExt * .45 + gTop * .6 + gBot * .75 + uE * .3, 0., 1.);
+  float gEro = clamp((gFr * .5 + gTop * .6) * (1. - gHd) + gExt * .45 + gBot * .75 + uE * .3, 0., 1.); // Gesicht: keine Schlieren
   float gWisp = 1. - gEro * (1. - smoothstep(.28, .74, gWn)) * .93;
-  float gAl = dot(diffuseColor.rgb, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * .6, 0., 1.);
+  float gAl = dot(diffuseColor.rgb, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * mix(.75, 1.35, gHd), 0., 1.); // Gesicht: Albedo mit mehr Kontrast (Augen, Brauen, Mund lesbar)
   float gLit = dot(gl_FragColor.rgb, vec3(.299, .587, .114));
   vec3 gRim = mix(uCA, uCB, clamp(smoothstep(.2, .95, gFr) * .7 + clamp(gH, 0., 1.) * .3, 0., 1.));
-  vec3 gCol = uCC * (.5 + 1.1 * gAl * (1. - uE)) * (.3 + .3 * (1. - gFr)) + gRim * gFr * 1.2 + vec3(.95, .97, 1.) * gEmb * 1.4;
+  vec3 gCol = uCC * (.35 + 1.3 * gAl * (1. - uE)) * (.32 + .3 * (1. - gFr) + .18 * gHd) + gRim * gFr * (1.1 - .45 * gHd) + vec3(.95, .97, 1.) * gEmb * 1.4;
   gCol *= (1. + min(gLit * 2.2, 1.4)) * uK.w;
   float gStr = uGhost <= 1. ? min(uGhost / .45, 1.) : 1. + (uGhost - 1.) * .3; gStr *= 1. - uE * .7;
   float gMA = uMA > .5 ? diffuseColor.a : 1.;
   float gL = dot(gCol, vec3(.299, .587, .114)); gCol = max(vec3(0.), gL + (gCol - gL) / max(uSat, .3));
-  float gA = (mix(.1, .5, gFr) + .12 * gAl) * gWisp * (1. - uE * .6);
-  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * .55, clamp(gA * gStr * gMA, 0., .85));
+  float gA = (mix(.06, .3, gFr) + .08 * gAl + .1 * gHd) * gWisp * (1. - uE) * gHf; // Nachbild (uE) dunkelt nie ab, nur Licht
+  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * gHf * .55, clamp(gA * gStr * gMA, 0., .6));
   if (gl_FragColor.a + gl_FragColor.r + gl_FragColor.b < .004) discard;`;
 // ---------------------------------------------------------------- Uniform-Bündel je Figur (Material-Klone teilen das Programm)
-function geister_bundle(s) { return { s: s || null, uF: { value: new THREE.Vector4(1, 0, 0, Math.random() * 50) }, uK: { value: new THREE.Vector4(0, 0, 0, 1) }, uE: { value: 0 }, cache: new Map(), zc: new Map() }; }
+function geister_bundle(s) { return { s: s || null, uF: { value: new THREE.Vector4(1, 0, 0, Math.random() * 50) }, uK: { value: new THREE.Vector4(0, 0, 0, 1) }, uE: { value: 0 }, uHd: { value: new THREE.Vector4(0, 0, 0, 0) }, cache: new Map(), zc: new Map() }; }
 GEIST.U0 = geister_bundle(null); // ohne Figur (z. B. Laterne in kapitel5): ohne Höhenwirkungen, Stärke = FAB.ghostU
 const geister_s = B => B.s || (typeof FAB !== 'undefined' && FAB.ghostU) || GEIST.s0;
-function geister_uni(sh, B, uMA) { const G = GEIST.G, U = sh.uniforms; U.uGhost = geister_s(B); U.uF = B.uF; U.uK = B.uK; U.uE = B.uE; U.uMA = uMA; U.uT = G.uT; U.uWav = G.uWav; U.uSat = G.uSat; U.uCA = G.uCA; U.uCB = G.uCB; U.uCC = G.uCC;
+function geister_uni(sh, B, uMA) { const G = GEIST.G, U = sh.uniforms; U.uGhost = geister_s(B); U.uF = B.uF; U.uK = B.uK; U.uHd = B.uHd; U.uE = B.uE; U.uMA = uMA; U.uT = G.uT; U.uWav = G.uWav; U.uSat = G.uSat; U.uCA = G.uCA; U.uCB = G.uCB; U.uCC = G.uCC;
   sh.vertexShader = GEIST_U + GEIST_VS + sh.vertexShader.replace('#include <project_vertex>', GEIST_PROJ); }
 // Geister-Material zu einem Quellmaterial (je Bündel zwischengespeichert)
 function geister_mat(src, B = GEIST.U0) {
@@ -85,10 +88,13 @@ function geister_tiefe(src, B) { const at = src.alphaTest || 0, map = at > 0 ? s
   m.customProgramCacheKey = () => 'geistZ5'; B.zc.set(k, m); return m; }
 // ---------------------------------------------------------------- Bau: Figur (oder beliebiges Objekt) zum Geist machen
 // o: { strength (Uniform {value}), g (Wurzelgruppe), h (Körperhöhe m, wenn keine Person), P (Person) }
+// Innenteile: Hornhaut/Tränenrand/Augenschatten (durchsichtige Hüllen vor dem Auge), Zähne, Zunge, Mundraum, Wimpern. Die Augäpfel bleiben sichtbar (Gesicht lesbar);
+// das frühere Durchscheinen (Nutzer 02.10.) verhindern die Tiefen-Zwillinge – es leuchtet nur die vorderste Fläche.
+const GEIST_INNEN = /cornea|tear|occlusion|teeth|tooth|tongue|lash|gum|mouth_?inner|caruncle/i;
 function geister_bau(obj, o = {}) {
   const B = geister_bundle(o.strength || null), L = []; obj.traverse(m => { if (m.isMesh && !m.userData.geistZ && !m.userData.geistN) L.push(m); });
   for (const m of L) { const mats = [].concat(m.material), nm = (m.name || '') + ' ' + mats.map(x => x && x.name || '').join(' ');
-    if (FIG_INNEN.test(nm) || mats.every(x => x && x.transparent && x.opacity < .5 && !(x.userData && x.userData.geistOf))) { m.visible = false; continue; }
+    if (GEIST_INNEN.test(nm) || mats.every(x => x && x.transparent && x.opacity < .5 && !(x.userData && x.userData.geistOf))) { m.visible = false; continue; }
     const src = mats[0] && mats[0].userData && mats[0].userData.geistOf ? mats[0].userData.geistOf : mats[0] || {};
     m.material = Array.isArray(m.material) ? m.material.map(x => geister_mat(x, B)) : geister_mat(m.material, B); m.castShadow = false; m.receiveShadow = false; m.renderOrder = 951; m.userData.noCol = true;
     if (m.userData.geistTw) continue; // schon ein Zwilling da (zweiter Bau)
@@ -111,12 +117,12 @@ function geister_ring(sk) { if (sk.__gRing) return sk.__gRing; const R = sk.__gR
 function geister_nbBau(e) { e.nb = []; try {
   const L = []; e.obj.traverse(m => { if (m.isSkinnedMesh && m.visible && m.skeleton && !m.userData.geistZ && !m.userData.geistN) L.push(m); });
   L.sort((a, b) => b.geometry.attributes.position.count - a.geometry.attributes.position.count);
-  e.BA = { s: e.B.s, uF: e.B.uF, uK: e.B.uK, uE: { value: 1 }, cache: new Map(), zc: new Map() };
+  e.BA = { s: e.B.s, uF: e.B.uF, uK: e.B.uK, uHd: e.B.uHd, uE: { value: 1 }, cache: new Map(), zc: new Map() };
   for (const m of L.slice(0, GEIST.L.nbN)) { const R = geister_ring(m.skeleton); if (!e.rings.includes(R)) e.rings.push(R);
     const sk = new THREE.Skeleton(m.skeleton.bones, m.skeleton.boneInverses);
     sk.update = function () { const tgt = GEIST.now - GEIST.L.lag; let best = -1, bt = -1e9, old = -1, ot = 1e18; for (let k = 0; k < 16; k++) { const t = R.t[k]; if (!R.buf[k]) continue; if (t <= tgt && t > bt) { bt = t; best = k; } if (t < ot) { ot = t; old = k; } }
       if (best < 0) best = old; if (best < 0) return; const s = R.buf[best], d = this.boneMatrices; if (s.length === d.length) d.set(s); else d.set(s.length > d.length ? s.subarray(0, d.length) : s); if (this.boneTexture) this.boneTexture.needsUpdate = true; };
-    const mats = [].concat(m.material).map(x => geister_mat(x, e.BA)), n = new THREE.SkinnedMesh(m.geometry, Array.isArray(m.material) ? mats : mats[0]);
+    const mats = [].concat(m.material).map(x => { const g = geister_mat(x, e.BA); g.depthFunc = THREE.LessDepth; return g; }), n = new THREE.SkinnedMesh(m.geometry, Array.isArray(m.material) ? mats : mats[0]);
     n.bind(sk, m.bindMatrix); n.bindMode = m.bindMode; if (m.morphTargetInfluences) { n.morphTargetInfluences = m.morphTargetInfluences; n.morphTargetDictionary = m.morphTargetDictionary; }
     n.position.copy(m.position); n.quaternion.copy(m.quaternion); n.scale.copy(m.scale); n.renderOrder = 952; n.frustumCulled = false; n.castShadow = n.receiveShadow = false; n.visible = false;
     n.name = (m.name || '') + '_nachbild'; n.userData.noCol = true; n.userData.geistN = true; m.parent.add(n); e.nb.push(n); }
@@ -243,13 +249,13 @@ function geister_echoTick(dt) { const X = GEIST.echo; if (!X) return; X.t += dt;
   if (X.aus) X.ausT += dt;
   // Lampen: leises Flackern, am Anfang ein Aufbäumen; am Ende zurück auf den Wert, den die Lampe selbst hat
   for (let i = 0; i < GEIST.lamps.length; i++) { const o = GEIST.lamps[i], L = o.L; if (L.intensity !== o.set) o.base = L.intensity;
-    const dip = flickDip(o.d, .25 + 3 * X.surge, dt, .07), f = dip ? .38 + .2 * Math.random() : 1 - (.05 + .05 * Math.sin(GEIST.t * 13 + i * 2.1)) * k; L.intensity = o.base * (1 - (1 - f) * k); o.set = L.intensity; }
+    const dip = flickDip(o.d, .25 + 3 * X.surge, dt, .07), f = dip ? .7 + .15 * Math.random() : 1.22 - (.02 + .025 * Math.sin(GEIST.t * 13 + i * 2.1)); // heller statt dunkler: Szene bleibt lesbar L.intensity = o.base * (1 - (1 - f) * k); o.set = L.intensity; }
   if (GEIST.kegel) GEIST.kegel.material.uniforms.uStr.value = GEIST.L.kegel * k * (.85 + .15 * Math.sin(GEIST.t * .7));
   if (X.aus && k <= .001) { for (const o of GEIST.lamps) if (o.L.intensity === o.set) o.L.intensity = o.base; GEIST.lamps.length = 0; if (GEIST.kegel) { GEIST.kegel.material.uniforms.uStr.value = 0; GEIST.kegel.position.y = -999; } GEIST.echo = null; } }
 // ---------------------------------------------------------------- Takt
 function geister_strTick(dt) { // Fortschritt je Stärke-Quelle: folgt dem Wert mit begrenzter Rate (Flimmer-Einbrüche bewegen die Auflösung kaum)
   for (const e of GEIST.list) { const u = geister_s(e.B); if (!GEIST.str.has(u)) GEIST.str.set(u, { p: 0, mode: 0 }); }
-  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5, p0 = T.p; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p < p0 - 1e-4) T.mode = 1; else if (T.p > p0 + 1e-4) T.mode = 0; } }
+  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5, p0 = T.p; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p >= .999) T.mode = 1; else if (T.p <= .001) T.mode = 0; void p0; } } // Modus nur an den Enden: Auftritt läuft bis 1, Abgang bis 0 – Einbrüche drehen die Richtung nie um
 function geister_sichtbar(o) { for (let p = o, n = 0; p && n < 12; p = p.parent, n++) { if (!p.visible) return false; if (p === scene) return true; } return false; }
 function geister_tick(dt) { const t0 = performance.now(); GEIST.now = t0 / 1000; GEIST.t += dt;
   if (typeof FAB !== 'undefined') { if (!GEIST.fab && FAB.ok) geister_fab(); if (FAB.ghostU) GEIST.s0.value = FAB.ghostU.value; } // s0: Rückfall, falls ein Material vor FAB.ghostU übersetzt wurde
@@ -275,7 +281,8 @@ function geister_tick(dt) { const t0 = performance.now(); GEIST.now = t0 / 1000;
       P.mx.timeScale = mv ? 1 : e.frz > 0 ? 0 : e.slow;
       const a = P.cur; if (a && a.loop === THREE.LoopRepeat) { if (a.time < e.lt - .25) { e.dip = .12; e.dipK = .6; e.boost = .6; M.wrap++; } e.lt = a.time; }
       if (e.talkT > 0 && (e.talkT -= dt) <= 0 && e.base && P.curK !== e.base) figuren_play(P, e.base, false, { fade: .6 }); }
-    const B = e.B; B.uF.value.x = p; B.uF.value.y = fy; B.uF.value.z = e.H; B.uK.value.set(cx, mode, cz, e.fl);
+    const B = e.B; if (P && P.rig && P.rig.head) { P.rig.head.getWorldPosition(M.v); const kk = Math.max(e.H / 1.7, .75); B.uHd.value.set(M.v.x, M.v.y + .07 * kk, M.v.z, .17 * kk); } else B.uHd.value.w = 0;
+    B.uF.value.x = p; B.uF.value.y = fy; B.uF.value.z = e.H; B.uK.value.set(cx, mode, cz, e.fl);
     // Nachbild nur nah und sichtbar
     const near = dist < GEIST.L.nbNah && p > .3 && M.n.nb < GEIST.L.nbMax && !(P && P.cur && P.cur.timeScale === 0); if (near && !e.nb && e.P) geister_nbBau(e); // höchstens nbMax Figuren, eingefrorene (weiss) ohne
     if (e.nb) { for (const R of e.rings) R.on = near; for (const n of e.nb) n.visible = near; if (near) M.n.nb++; if (e.BA) e.BA.uE.value = 1 - e.boost * .6; }

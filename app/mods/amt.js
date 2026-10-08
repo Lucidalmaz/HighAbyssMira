@@ -73,14 +73,14 @@ function amt_in(x0, x1, z0, z1) { const P = player.pos; return P.x > x0 && P.x <
 // Modelle als Instanzen: laden, normieren (Unterkante y = 0, Mitte x/z = 0), platzieren (x/z = Mitte der Grundfläche; minX/maxX/minZ/maxZ richten an einer Wand aus)
 async function amt_kit(key, file, size, axis = 'y', spec) {
   try { const root = file.endsWith('.fbx') ? await msFBX(key, file, spec || {}) : (await msModel(key, file)).clone(true); root.updateMatrixWorld(true);
-    const parts = []; root.traverse(m => { if (m.isMesh && !m.isSkinnedMesh) parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
+    const parts = []; root.traverse(m => { if (m.isMesh && !m.isSkinnedMesh) parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material, name: m.name }); });
     if (axis === 'lang') { const R = new THREE.Matrix4().makeRotationZ(PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); axis = 'y'; } // Leiter: liegt im Modell entlang x → aufrichten (sonst Maßstab über die Dicke = 22-fach, riesiger Balken im Gang)
     if (key === 'wardrobe') { const R = new THREE.Matrix4().makeRotationY(-PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); } // Fab „wardrobe“: Breite entlang z, Vorderseite +x → Vorderseite +z, Breite entlang x (alle Platzierungen unten gehen von „schaut nach +z“ aus; vorher standen die Schränke quer zur Wand)
     const bb = new THREE.Box3(); parts.forEach(p => { p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); }); const sz = bb.getSize(new THREE.Vector3()), s = size / (axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[axis]);
     const wx = key === 'wardrobe' ? .64 : 1, mt = new THREE.Matrix4().makeScale(s * wx, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2)); // wardrobe: 1,52 → 0,97 m breit (Schränke stehen im Abstand von ca. 1 m)
     parts.forEach(p => { p.geo.applyMatrix4(mt); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); });
     const K = { key, parts, size: sz.multiplyScalar(s).multiply(new THREE.Vector3(wx, 1, 1)), list: [], shadow: true }; amt_S.kits.push(K); return K; } catch (e) { console.warn('amt: Modell ' + key, e); return null; } }
-function amt_variant(K, fn) { if (!K) return null; const V = { key: K.key + '*', parts: K.parts.map(p => ({ geo: p.geo, mat: Array.isArray(p.mat) ? p.mat.map(fn) : fn(p.mat) })), size: K.size, list: [], shadow: K.shadow }; amt_S.kits.push(V); return V; }
+function amt_variant(K, fn) { if (!K) return null; const V = { key: K.key + '*', parts: K.parts.map(p => ({ geo: p.geo, name: p.name, mat: Array.isArray(p.mat) ? p.mat.map(fn) : fn(p.mat) })), size: K.size, list: [], shadow: K.shadow }; amt_S.kits.push(V); return V; }
 const _amtV = new THREE.Vector3();
 function amt_box(K, m) { const b = new THREE.Box3(); for (const p of K.parts) { const P = p.geo.attributes.position, st = Math.max(1, Math.floor(P.count / 800)); for (let i = 0; i < P.count; i += st) b.expandByPoint(_amtV.fromBufferAttribute(P, i).applyMatrix4(m)); } return b; }
 function amt_put(K, x, z, o = {}) { if (!K) return null; const { ry = 0, s = 1, rx = 0, rz = 0, y = 0 } = o; const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx, ry, rz, 'YXZ'));
@@ -92,7 +92,7 @@ function amt_einzel(K, x, y, z, o = {}) { if (!K) return null; const g = new THR
   g.position.set(x, y, z); g.rotation.set(o.rx || 0, o.ry || 0, o.rz || 0, 'YXZ'); if (o.s) g.scale.setScalar(o.s); if (o.noCol) g.userData.noCol = true; scene.add(g); return g; }
 function amt_top(K, m, x, z, from = 3) { const g = new THREE.Group(); for (const p of K.parts) g.add(new THREE.Mesh(p.geo, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }))); g.applyMatrix4(m); g.updateMatrixWorld(true);
   const h = new THREE.Raycaster(new THREE.Vector3(x, from, z), new THREE.Vector3(0, -1, 0)).intersectObject(g, true)[0]; return h ? h.point.y : 0; }
-function amt_flush() { for (const K of amt_S.kits) { if (!K.list.length) continue; msInst(K.parts, K.list, { shadow: K.shadow }); K.list = []; } }
+function amt_flush() { for (const K of amt_S.kits) { if (!K.list.length) continue; const ims = msInst(K.parts, K.list, { shadow: K.shadow }); if (Array.isArray(ims)) ims.forEach((im, i) => { if (im) im.name = K.key + ':' + (K.parts[i].name || i); }); K.list = []; } } // Name z. B. „aktenschrank:korpus“ (Prüfung/Bildprüfer)
 
 // ---------------------------------------------------------------- Requisiten aus Teilen (Fassung K2): Gehäuse mit Fasen und echten Materialien, je Material zu einem Mesh verschmolzen
 // Teile: [Geometrie, Materialname, Matrix]; Maße in Metern, Unterkante y = 0, Vorderseite +z (Gruppe danach per Drehung ausrichten)

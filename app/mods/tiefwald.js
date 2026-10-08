@@ -33,7 +33,11 @@ function tief_pathDist(x, z) { let d = 1e9; for (const P of TIEF_PATHS) for (let
 function tief_pond(x, z, m = 0) { const P = TIEF.pond; return ((x - P.x) / (P.rx + m)) ** 2 + ((z - P.z) / (P.rz + m)) ** 2 < 1; }
 function tief_onJetty(x, z) { const J = TIEF.jetty, vx = J.x1 - J.x0, vz = J.z1 - J.z0, L = Math.hypot(vx, vz), k = ((x - J.x0) * vx + (z - J.z0) * vz) / (L * L); if (k < -.1 || k > 1.05) return false;
   return Math.abs((x - J.x0) * vz - (z - J.z0) * vx) / L < .75; }
-function tief_free(x, z, pathR = 2.6) { if (tief_pathDist(x, z) < pathR || tief_pond(x, z, 2.5)) return false;
+// Nazca-Linien (zeichen.js ZEICHEN_NAZCA): Freifläche um jede Figur und ein Sichtstreifen vom Hochsitz dorthin, sonst verdecken Stämme und Lebendbäume die Bodenzeichnung
+const TIEF_NAZCA = [[29.5, 169, 11], [46, 166, 10], [-12, 167, 9.5], [-1, 173.1, 10], [13.2, 162.5, 10]];
+function tief_nazcaFrei(x, z) { const S = TIEF.stand; for (const [cx, cz, r] of TIEF_NAZCA) { if (Math.hypot(x - cx, z - cz) < r) return true;
+    const dx = cx - S.x, dz = cz - S.z, l2 = dx * dx + dz * dz, t = Math.max(0, Math.min(1, ((x - S.x) * dx + (z - S.z) * dz) / l2)); if (Math.hypot(x - (S.x + dx * t), z - (S.z + dz * t)) < 2.6) return true; } return false; }
+function tief_free(x, z, pathR = 2.6) { if (tief_pathDist(x, z) < pathR || tief_pond(x, z, 2.5) || tief_nazcaFrei(x, z)) return false;
   for (const [p, r] of [[TIEF.stand, 4.5], [TIEF.bus, 6], [TIEF.dig, 3], [TIEF.ring, TIEF.ring.r + 3], [TIEF.swing, 3.8], [TIEF.wreck, 4.5], [TIEF.camp, 5.5]]) if (Math.hypot(x - p.x, z - p.z) < r) return false; return true; }
 function tief_note(t) { return '<span class="hand">' + t + '</span>'; }
 function tief_ok() { return wald_frei() && state.started && !state.talking && !state.ending && !ui.overlay && !menu.attract && !scripted && !(typeof hunt !== 'undefined' && hunt.on); }
@@ -83,14 +87,14 @@ function tief_vanFenster(wrap, heck = true, front = false) { const T = THREE, r 
 //   opt.kipp: Index des umgekippten Sitzes (−1 keiner) · opt.var: Varianten der sieben Sitze (a Marine, b Karo, c grau/verschlissen)
 async function tief_busEinbau(o, k = 1, opt = {}) { const T = THREE, [raum, ks] = await Promise.all([msModel('bus_innen', 'model.glb'), msModel('kindersitz', 'model.glb')]);
   const g = raum.clone(true); g.name = 'busInnen'; g.scale.setScalar(k); g.userData.noCol = true; o.add(g);
-  g.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  g.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = m.name === 'bus_einbau'; m.receiveShadow = true; } }); // Verkleidung wirft keinen Schatten (die Hülle tut es schon)
   const src = {}; ks.traverse(m => { if (m.isMesh) src[m.name.slice(-1)] = m; });
   const sitze = new T.Group(); sitze.name = 'kindersitze'; g.add(sitze); const VAR = opt.var || 'bacabca', out = [];
   for (let i = 0; i < 7; i++) { const p = g.getObjectByName('p_sitz_' + (i + 1)), m = (src[VAR[i]] || src.a).clone(); if (!p) continue;
     const s = new T.Group(); s.add(m); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); s.position.copy(p.position); s.rotation.y = rand(-.05, .05); s.position.x += rand(-.012, .012);
     if (i === opt.kipp) { s.rotation.set(1.45, .3, .05); s.position.z += .3; s.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(m); // nach vorn auf die Polsterseite gekippt; s hängt noch nirgends: Box im Sitz-Gruppenraum
       s.position.y += p.position.y - bb.min.y + .002; }
-    m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; sitze.add(s); out.push(s); }
+    m.castShadow = false; m.receiveShadow = true; m.userData.noCol = true; sitze.add(s); out.push(s); } // im geschlossenen Wagen: kein Schattenwurf (spart den Schattendurchgang für 7 × 20 k Dreiecke)
   return { g, sitze, out, buch: g.getObjectByName('p_fahrtenbuch') }; }
 async function tief_busInnen(o) { const T = THREE;
   try { const B = await tief_busEinbau(o, 1, { kipp: 5 });

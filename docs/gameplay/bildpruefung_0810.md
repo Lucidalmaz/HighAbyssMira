@@ -53,3 +53,34 @@ Bildnummern verweisen auf die Dateinamen in den Ordnern oben. Keine GLSL- und ke
 - Die Schritte `069`/`070` (Mike) und mehrere Folgeschritte liefen im Lauf B in ein Zeitlimit (120 s). Ursache nicht geklärt; in Lauf C mit 60 s Limit nicht aufgetreten. Wiederholte Läufe in derselben Instanz verlangsamen sich offenbar (Speicher 2,9 GB Heap).
 - Brennendes Haus nutzt das Echo `echo_brand`; die Erinnerung läuft nur, wenn man die Dialoge mit X weiterklickt (Schritt `echo_brand_ende`).
 - In den Zombie-Kapiteln wurde nichts im Code geändert; es wurden keine Dateien im Spiel verändert.
+
+## Bündel 2 (09.10.2026, Normallauf, Dauerinstanz)
+Ordner: Lauf 1 `C:\Users\GIGABYTE\_b2_out` (Menü, Traum, Fibel-Tour, Kap. 1/2, Geister; ab Kino k2 ungültig, siehe unten), Lauf 2c `C:\Users\GIGABYTE\_b2c_out` (Kap. 1 Nahaufnahmen, Katzen, Spinnen, Kap. 6, Fass-Kino). Raster: `_b2_*.png`, `_b2c_*.png` in `C:\Users\GIGABYTE`. Schrittdateien `_bundle2_steps.json`, `_bundle2b_steps.json`.
+
+| Punkt | Urteil | Bild |
+|---|---|---|
+| Zombie nah (war unsichtbar) | behoben | `_b2_out\115_zombie_zombie_nah.png`, `116`, `117`, `118`: Zombie steht sichtbar im Gang, Wunden und Gesicht sauber; Fass-Kino-Gesicht `_b2c_out\060`–`063` stark |
+| Fass-Kino Totale | nicht sicher | `_b2c_out\z2_jagd`, `fass_*`: Gesicht groß im Bild, QTE „LEER“ und Aktenschild „KRANZ, P.“ sichtbar; Totale des Fasses selbst nicht erkennbar |
+| Menü Kapelle | OK | `_b2_out\008_menue_m4_kapelle.png` (Titel + Beta sichtbar); jetzt „Weiterspielen“-Eintrag da |
+| Fibel-Tour 720p | OK | `_b2_out\027_traum_tour_720p_auf.png` |
+| Fibel-Tour 1080p/1440p | nicht prüfbar | `029`, `031`: Fenster lässt sich nur bis 1584x913 vergrößern (Monitor), 1080p/1440p identisch |
+| Rabe Traum | OK | `_b2_out\014_traum_t03_rabe_start.png` |
+| Whiskey | OK | `082_whiskey_whiskey_total.png`, `083` |
+| Katzen (17 Tiere) | gebaut, Bilder zu weit | `_b2c_out\026`–`033` (Kopf-Nahaufnahmen): Kamera 1,65 m hoch, Tiere von oben klein; Fellmuster und Zeichnung erkennbar, Gesicht/Schnurrhaare nicht. Besser mit Perch-Position oder Kamera tief (Spielerhöhe begrenzt) |
+| Spinnen-Arten | nur Vogelspinne sichtbar | `_b2c_out\037_spinne_nah_vogel.png`; die kleineren Arten sind bei 0,3 m Abstand von oben nicht zu sehen (Spannweite 5–9 cm) |
+| Spinnenraum Befall | läuft | `_b2_out\107`–`109` phase lock, Bilder dunkel |
+| Metall-Aktenschränke | Mangel | `_b2_out\099`–`105`: Nahaufnahmen zeigen fast nur nackte Wand, Schrank nur am Rand (`102`); Kamera zielt daneben. GRÜNDUNG oben nicht sichtbar (`099`). Registratur: keine `korpus`-Objekte im Radius (`103`). Kantine/Planungsraum dunkel mit Netzen |
+| Geister | Mangel | `_b2_out\122`–`144`: weiße transparente Kindergestalten, Köpfe zerrissen/abgeschnitten (`124`, `125`), Reihe ohne Gesichter; Gang-Szenen (`142`–`144`) sehr dunkel |
+| Zeichnungswand/Kinderzeichnungen | OK | `_b2_out\056`–`058`: Zeichnungen „LUKE, 9“ sichtbar, Papier hell, Beleuchtung grell |
+| Polaroid in Lucys Auto | Mangel | `_b2_out\060_pola_polaroid_auto.png`, `061`: Auto-Innenraum nur grau, Polaroid nicht klar erkennbar |
+| Tankstelle (Hand, Ölfleck, Plakate) | nicht klar | `063`–`066`: Gesamtbild Tankstelle gut (Schild „STELLE KRANZ“), Handabdrücke und Plakate nicht gefunden (Name `poster` fehlt) |
+| Nazca | Mangel | `_b2c_out\039`–`044`: nach `__zeichen.nazca()` `nazca=1`, aber Hochsitz-Sicht zeigt nur Holzgerüst im Wald, kein Linienbild |
+| Bus außen | OK | `_b2c_out\045`–`047`: Bus „…ghter Future“ gut lesbar |
+| Kindersitze/Bus-Innen | nicht sichtbar | `049`: zwei Cluster (133/0/-25 und 65/0/200), `050`–`053`: dunkle Kästen, Sitze kaum erkennbar. Bus-/Wrack-Innenmodell (`bus_innen`) existiert noch nicht |
+| Messer/Rekorder | Mangel | `_b2c_out\019_mod_mod1.png`: Messer-Größe weiter falsch (22x87x629), beide Objekte im Bild nicht erkennbar |
+| Neuer Rabe (Blender) | nicht eingebaut | Asset `animal_crow` unverändert |
+
+### Wichtigste neue Befunde
+1. **Hauptthread steht minutenlang still, wenn das Spiel in einer frischen Instanz startet** (oder nach `window.resizeTo`): in drei Läufen liefen 8–17 aufeinanderfolgende Schritte (Kreide-/Zeichen-, Funk-, amt1-, Mike-Schritte) in das 40-s-Zeitlimit, danach ging alles wieder. Das erklärt auch die 120-s-Timeouts aus Lauf B am 08.10. Ursache vermutlich Nachladen/Kompilieren nach `beginGame` (Texturen, Shader). Bilder aus dieser Phase zeigen starkes RGB-Glitch-Rauschen (`_b2c_out\007`–`011`). Das ist ein echtes Problem für Spieler: gleich nach Spielstart sollte nichts mehr stocken.
+2. **Kino k2 (Abspann) lässt sich nicht überspringen**; nach Ende bleibt der Bildschirm schwarz mit „KLICK · ÜBERSPRINGEN“ (alle Folgebilder in `_b2_out\148`–`177` ungültig).
+3. Metall-Aktenschränke und Geister haben die größten sichtbaren Mängel (siehe Tabelle).

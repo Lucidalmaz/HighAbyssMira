@@ -30,7 +30,8 @@ function figuren_teileZus(root) { try {
   const G = new Map(), eq = (a, b) => { for (let k = 0; k < 16; k++) if (Math.abs(a[k] - b[k]) > 1e-6) return false; return true; };
   root.traverse(o => { if (!o.isSkinnedMesh || Array.isArray(o.material) || !o.material || o.material.transparent || o.material.alphaTest > 0 || !o.skeleton || !o.parent) return;
     const ga = o.geometry; if (!ga || !ga.index || (ga.morphAttributes && Object.keys(ga.morphAttributes).length)) return;
-    const k = o.parent.uuid + '|' + o.material.uuid; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
+    const m = o.material, tx = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap'].map(t => m[t] ? m[t].uuid : '').join(','); // GLB: jedes Teil hat eine eigene, aber gleiche Material-Kopie
+    const k = o.parent.uuid + '|' + [m.type, m.name, m.color && m.color.getHexString(), m.roughness, m.metalness, m.side, m.opacity, m.emissive && m.emissive.getHexString(), m.vertexColors, tx].join('|'); if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
   for (const L of G.values()) { if (L.length < 3) continue; const a = L[0], sa = a.skeleton, attr = Object.keys(a.geometry.attributes).sort().join();
     const ok = L.filter(o => { const s = o.skeleton; if (o.bindMode !== a.bindMode || s.bones.length !== sa.bones.length || Object.keys(o.geometry.attributes).sort().join() !== attr) return false;
       for (let i = 0; i < s.bones.length; i++) if (s.bones[i] !== sa.bones[i] || !eq(s.boneInverses[i].elements, sa.boneInverses[i].elements)) return false;
@@ -160,9 +161,10 @@ function figuren_memoryLook(on) { geister_look(!!on); }
 // Becken auf der Sitzfläche (figuren_seat), Sitzmitte über dem Möbel. Wer steht, behält die Etagenhöhe (die Fußanpassung figuren_feet fängt Bordsteine/Stufen ab); Standplätze, die in Wänden/Möbeln lagen, stehen als p: [x, z, ry].
 //   stuhl: Index im Stuhlkreis · sitz: [x, z, ry] (ry null = Lehne suchen, Blick nach vorn) · y: feste Sitzhöhe (sonst Strahl) · h: Rückfall-Sitzhöhe über dem Boden · p: [x, z, ry] Standplatz · clip: feste Pose
 const FIGUREN_PLATZ = {
-  echo_messraum: { 0: { stuhl: 1 }, 1: { stuhl: 2 }, 2: { stuhl: 3 }, 3: { stuhl: 4 }, 4: { stuhl: 7 } }, // Kinder in den Gurtstühlen 2–5 und 8 (vorher mitten im Stuhl stehend)
+  echo_messraum: { 0: { stuhl: 1, y: .44 }, 1: { stuhl: 2, y: .44 }, 2: { stuhl: 3, y: .44 }, 3: { stuhl: 4, y: .44 }, 4: { stuhl: 7, y: .44 } }, // Sitzfläche 0,44 (Gurte/Federn auf dem Stuhl 8 verfälschen den Strahl) // Kinder in den Gurtstühlen 2–5 und 8 (vorher mitten im Stuhl stehend)
   echo_kueche: { 0: { sitz: [27.3, -14.95, 1.69] }, 2: { p: [30.35, -16.35, -1.5] } },          // Hilde am Tisch auf dem Küchenstuhl (stand auf einem Möbel, Fuß .2 m zu hoch); Mann 2 steckte in der Wand hinter dem Kühlschrank (z −16,9)
-  echo_kinderzimmer: { 0: { sitz: [-50.85, -19.95, -1.5708], y: .88 }, 1: { p: [-52.0, -19.95, 1.5708] } }, // Mama auf der Bettkante (Bett 2: Oberkante Y + .45), Junge vor ihr
+  echo_kinderzimmer: { 0: { sitz: [-50.75, -20.8, 0] }, 1: { p: [-50.75, -19.6, Math.PI] } }, // Mama auf der Bettkante (Lukes Bett: x −51,3…−50,3, z −21,8…−20,5, Decke ≈ 1,0 m; Sitzhöhe per Strahl), Junge vor ihr (beide Betten sind Scan-Krankenbetten, nicht mehr die alten Kisten)
+  echo_k3_treppe6: { 0: { sitz: [22.3, 12.35, Math.PI] } }, // Hilde (9) sitzt auf dem Sockel vor Nr. 6 (Wand-Collider ab z 12,5; vorher z 12,6 = halb in der Wand)
 };
 const FIGUREN_SCAN = { R: new THREE.Raycaster(), o: new THREE.Vector3(), d: new THREE.Vector3(0, -1, 0), s: new THREE.Sphere() };
 // Feste Netze in der Nähe (ohne Figuren, Unsichtbares, Decals, Instanzen)
@@ -196,8 +198,13 @@ ECHO_CAST.start = async E => { const cast = FIGUREN_ECHO[E.id]; figuren_memoryLo
   await Promise.all(E.figs.map(async (f, i) => { if (!cast[i]) return; const F = echoFigs[i], w = want[i], doll = f[3] < .45; let P = F.userData.person;
     if (P && w.sit !== null && !P.sit || P && w.sit === null && P.sit) { figuren_release(F); P = null; } // Sitz-/Standwechsel: frisch besetzen (kein Überblenden einer anderen Pose in die Sitzhöhe)
     P = await figuren_embody(F, cast[i], { ghost: true, doll, clip: doll ? 'idle' : w.clip, sit: w.sit }); if (!P) return;
-    if (w.sit !== null) figuren_sitzMitte(P);
-    if (w.clip && !doll) { P.fixed = true; if (P.acts[w.clip] && P.cur !== P.acts[w.clip]) figuren_play(P, w.clip); } })); };
+    if (w.sit !== null) { figuren_sitzMitte(P) }
+    if (w.clip && !doll) { P.fixed = true; if (P.acts[w.clip] && P.cur !== P.acts[w.clip]) figuren_play(P, w.clip); } }));
+  // 09.10.: Der Clip 'sit' beginnt mit einem Absetzen: das Becken liegt in den ersten Bildern ≈ 0,17 m höher als in der Sitzhaltung nach ~1 s (gemessen: Kinder, Hilde, Mama); figuren_seat misst auf Bild 0 ein →
+  // alle Sitzenden sanken nach einer Sekunde 9 cm in die Sitzfläche. Hier (Nachbilder, noch unsichtbar): Sitzhaltung abwarten, Becken neu auf die Sitzfläche setzen.
+  if (want.some(w => w.sit !== null)) { await new Promise(r => setTimeout(r, 1500)); const M = FIGUREN_MV;
+    for (let i = 0; i < E.figs.length; i++) { const P = echoFigs[i].userData.person, w = want[i]; if (!P || !P.sit || w.sit === null || !P.rig.hips) continue;
+      try { P.mx.update(0); P.obj.updateMatrixWorld(true); P.rig.hips.getWorldPosition(M.v); const gs = P.g.getWorldScale(M.v2).y || 1; P.obj.position.y += (w.sit + .08 - M.v.y) / gs; P.obj.updateMatrixWorld(true); } catch (e) { console.warn('Nachbild-Sitz', e); } } } };
 ECHO_CAST.end = () => figuren_memoryLook(false);
 // ---------- Schreckgestalten: gemaltes Gesicht → echte Person (die Größe entscheidet Kind oder Erwachsener)
 function figuren_faceWho(kind, small) {
@@ -700,4 +707,4 @@ function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgele
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
 window.__figuren = { S: figuren_S, MV: FIGUREN_MV, LOD: FIGUREN_LOD, lodAlle() { let n = 0; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.lod) continue; FIGUREN_MV.v.setFromMatrixPosition(g.matrixWorld); figuren_lodSet(P, Math.hypot(FIGUREN_MV.v.x - camera.position.x, FIGUREN_MV.v.z - camera.position.z)); if (P.lod.far) n += P.lod.face.length; } return (FIGUREN_LOD.n = n); }, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
-window.__echo = { figs: echoFigs, cast: ECHO_CAST, FE: FIGUREN_ECHO, get SK() { return typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null; } }; // Testzugang Nachbilder (Prüfskript _echo)
+window.__echo = { figs: echoFigs, cast: ECHO_CAST, FE: FIGUREN_ECHO, scan: figuren_scan, sitzAn: figuren_sitzAn, get SK() { return typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null; } }; // Testzugang Nachbilder (Prüfskript _echo)

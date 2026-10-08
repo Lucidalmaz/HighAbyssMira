@@ -834,7 +834,7 @@ function ktxTrack(ct, re) {
   if (!KTXF.on || !ct || !ct.isCompressedTexture || !ct.mipmaps || !ct.mipmaps.length) return; const s = ct.source; if (!s || s.__kre) return;
   const img = s.data; if (!img || typeof img !== 'object' || 'complete' in img) return;
   s.__kre = re; s.__kmips = ct.mipmaps; s.__kfree = false; KTXF.list.push(s);
-  Object.defineProperty(img, 'complete', { configurable: true, get() { if (s.__kfree) { ktxRestore(s); return false; } return true; } });
+  Object.defineProperty(img, 'complete', { configurable: true, get() { if (s.__kfree) { if (KTXF.busy < 3) ktxRestore(s); return false; /* höchstens 3 Nachladungen gleichzeitig (Spielstart: sonst Dutzende GLB-Abrufe/Umwandlungen auf einmal) */ } return true; } });
 }
 function ktxSweep() {
   if (!KTXF.on) return; const R = renderer.properties; let n = 0, b = 0;
@@ -5537,7 +5537,7 @@ renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); ret
 // (localStorage „ham_lsig“, sonst EARLY_SIG0). Gleiche Lichterzahl, Nebel und Umgebung → gleicher Programmschlüssel → der Gesamtdurchgang findet die Programme fertig vor.
 // Stimmt die Vorhersage nicht, bleiben die Frühprogramme nur unbenutzt (der Gesamtdurchgang übersetzt wie bisher). Nur Materialien ohne eigenes onBeforeCompile
 // (deren Hook liest teils Werte, die spätere Module erst anlegen) und ohne umzuwandelndes Umgebungsbild (PMREM, siehe „Grafik vorbereiten“). Testschalter: ?noearly
-const EARLY_SIG0 = ['Ds', 'H', 'P', 'P', 'P', 'P', 'Ps', 'S', 'S', 'S', 'S', 'S', 'Ss', 'Ss', 'Ss', 'Ssm']; // Lichter je Art im ersten Bild (gemessen 08.10.2026, Codes wie earlySig) – für den allerersten Start ohne gespeicherte Vorhersage
+const EARLY_SIG0 = null; // Lichter je Art im ersten Bild (Codes wie earlySig) für den allerersten Start; seit den Licht-Platzhaltern (09.10.) neu zu messen (__earlySig.jetzt), bis dahin erst ab dem zweiten Start
 const earlySig = L => [...L].map(o => (o.isDirectionalLight ? 'D' : o.isPointLight ? 'P' : o.isSpotLight ? 'S' : o.isHemisphereLight ? 'H' : o.isRectAreaLight ? 'R' : o.isLightProbe ? 'L' : o.isAmbientLight ? 'A' : '?') + (o.castShadow ? 's' : '') + (o.isSpotLight && o.map ? 'm' : '')).sort();
 const EARLY = { on: !LITE && !/[?&]noearly/.test(location.search), sc: null, sig: null, seen: new WeakSet(), q: [], pend: [], fly: [], cap: 12, last: 0, n: 0, ms: 0, runs: 0, maxFly: 0, timer: 0 };
 { try { const v = JSON.parse(localStorage.getItem('ham_lsig') || 'null'); EARLY.sig = Array.isArray(v) ? v : EARLY_SIG0; } catch (e) { EARLY.sig = EARLY_SIG0; }
@@ -6210,6 +6210,16 @@ function update(dt, t) {
 }
 
 // Lesen friert die Welt ein (Gegner, Gefahren, Zeitgeber) – außer in Zwischensequenzen, dort laufen Notizen einfach mit
+// GLEICHE LICHTERZAHL IN JEDEM BILD (09.10.2026, Stillstand nach Spielstart): three.js baut die Zahl der Lichter je Art in jedes Programm ein. Taucht ein echtes Licht auf
+// oder verschwindet (Gruppe ein-/ausgeblendet: Auto, Lichtschiff, Feuer …), muss JEDES beleuchtete Material neu übersetzt werden – blockierend, Hunderte Programme.
+// Darum hat jedes echte Licht einen „Platzhalter“ gleicher Art (Stärke 0, Schatten nie gezeichnet), der genau dann zählt, wenn das echte Licht nicht zählt. Bild unverändert.
+const LB = { list: null, twin: new Map(), on: !LITE && !/[?&]nolb/.test(location.search), dummy: null };
+function lightBallast() { if (!LB.on) return; try {
+  if (!LB.list) { LB.list = []; LB.dummy = new THREE.Texture(); scene.traverse(o => { if (o.isLight && !o.userData.lbTwin && (o.isSpotLight || o.isPointLight || o.isDirectionalLight || o.isHemisphereLight)) LB.list.push(o); });
+    for (const l of LB.list) { const t = l.isSpotLight ? new THREE.SpotLight(0xffffff, 0) : l.isPointLight ? new THREE.PointLight(0xffffff, 0) : l.isDirectionalLight ? new THREE.DirectionalLight(0xffffff, 0) : new THREE.HemisphereLight(0, 0, 0);
+      t.intensity = 0; t.userData.lbTwin = true; t.castShadow = l.castShadow; t.shadow && (t.shadow.autoUpdate = false, t.shadow.needsUpdate = false); if (l.isSpotLight && l.map) t.map = LB.dummy; t.visible = false; t.position.set(0, -9999, 0); scene.add(t); LB.twin.set(l, t); } }
+  const cl = camera.layers; for (const [l, t] of LB.twin) { let v = !!l.parent && l.layers.test(cl); for (let p = l; v && p; p = p.parent) if (!p.visible) v = false; t.visible = !v; if (t.castShadow !== l.castShadow) t.castShadow = l.castShadow; if (t.isSpotLight) t.map = l.map ? LB.dummy : null; }
+} catch (e) { LB.on = false; console.warn('Licht-Platzhalter', e); } }
 // Während „Texturen hochladen“ (Schwarzblende #fade deckt die Leinwand ganz ab) keine vollen Bilder zeichnen: sie waren unsichtbar und kosteten je Häppchen ein ganzes Bild mit Nachbearbeitung
 const LOAD_NORENDER = { on: false };
 const FREEZE_OV = new Set(['note', 'journal', 'puzzle', 'keypad', 'editor']);
@@ -6224,7 +6234,7 @@ function loop() {
   try { if (!frozen) { update(dt, t); gtAdvance(Math.min(raw, .25) * 1000); } else flashHudTick(dt); } catch (e) { loopErr('update', e); }
   try { updateInteract(); } catch (e) { loopErr('interact', e); }
   const p1 = PERF.on ? performance.now() : 0;
-  if (!GL.lost && !LOAD_NORENDER.on) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
+  if (!GL.lost && !LOAD_NORENDER.on) { try { rigFarHide(); vcullHide(); dcullHide(); lightBallast(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
   if (PERF.on) { const p2 = performance.now(); perfFrame(p2, p1 - p0, p2 - p1); }
 }
 // Grafikkontext verloren (Treiberabsturz, Energiesparen): Spiel anhalten, Hinweis, sauber neu laden – der Spielstand bleibt
@@ -6272,7 +6282,7 @@ const PMW = []; // vorübersetzte PMREM-Programme (Spiegelsonde, Messing-Schlüs
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   try { update(.016, clock.elapsedTime); } catch (e) { console.warn('Vorübersetzen: Probebild', e); } // ein Takt wie im ersten Bild (Menü-Kamera, Sichtbarkeiten der Module), erst dann die Lichter festhalten
-  lsetTake(); try { const sg = earlySig(LSET); if (DEV) window.__earlySig = { vorher: EARLY.sig, jetzt: sg }; localStorage.setItem('ham_lsig', JSON.stringify(sg)); } catch (e) {} // Vorhersage fürs Früh-Übersetzen beim nächsten Start
+  lightBallast(); lsetTake(); try { const sg = earlySig(LSET); if (DEV) window.__earlySig = { vorher: EARLY.sig, jetzt: sg }; localStorage.setItem('ham_lsig', JSON.stringify(sg)); } catch (e) {} // Vorhersage fürs Früh-Übersetzen beim nächsten Start
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
   const extra = [scarePlane, new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), boltMat)];
@@ -6322,7 +6332,9 @@ if (PROGLOG) { // Messung: Programme, Lichter und Standbilder nach dem Vorübers
     return [[...now].filter(o => !LSET.has(o)).map(nm), [...LSET].filter(o => !now.has(o)).map(nm)]; };
   setInterval(() => { for (const p of renderer.info.programs) if (!known.has(p.cacheKey)) { known.add(p.cacheKey); if (PROGLOG.later.length < 1500) PROGLOG.later.push([T(), window.__stage, lightSig(), p.cacheKey]); } }, 200);
   let last = performance.now(), nf = 0; const fr = () => { const n = performance.now(), d = n - last; last = n; nf++; if (d > 100 && PROGLOG.stalls.length < 400) PROGLOG.stalls.push([T(), Math.round(d), renderer.info.programs.length, window.__stage, lightSig(), nf < 4 || d > 1000 ? lDiff() : null]); requestAnimationFrame(fr); }; requestAnimationFrame(fr);
-  PROGLOG.lDiff = lDiff; PROGLOG.sig = lightSig;
+  PROGLOG.lDiff = lDiff; PROGLOG.sig = lightSig; PROGLOG.long = [];
+  try { new PerformanceObserver(L => { for (const e of L.getEntries()) if (PROGLOG.long.length < 600) PROGLOG.long.push([+((e.startTime - window.__t0) / 1000).toFixed(1), Math.round(e.duration), window.__stage, state.started ? 1 : 0, renderer.info.programs.length]); }).observe({ type: 'longtask', buffered: false }); } catch (e) {}
+  PROGLOG.lb = () => LB.on ? [...LB.twin].filter(([l, t]) => t.visible).map(([l]) => l.type + ':' + (l.name || (l.parent && (l.parent.name || l.parent.type)))) : null;
 }
 loop();
 stage('Erstes Bild fertig');

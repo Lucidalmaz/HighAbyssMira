@@ -67,7 +67,13 @@ function kino_card(lines) { const c = $('kinoCard'); if (kino_S.tw) { kino_S.tw.
   return .6 + L.length * 2 + 2.6; }
 // Endkarte außerhalb einer Sequenz (z. B. Kapitel 2 am Gully unter den Glockenschlägen): Schwarz, Karte, Promise nach Ende
 async function kino_karte(lines, opts = {}) { kino_css(); const fd = $('fade'); fd.style.transition = 'opacity .6s'; fd.style.background = '#000'; fd.style.opacity = 1; document.body.classList.add('cine');
-  const d = kino_card(lines); await wait((opts.dauer || d) * 1000); kino_card(null); await wait(900); if (!opts.bleiben) document.body.classList.remove('cine'); }
+  const d = kino_card(lines), t0 = performance.now(); let skip = false;
+  // Überspringen (Klick, Leertaste, Enter, Esc) nach 3 s – Karten waren bisher nicht überspringbar (schwarzer Bildschirm mit „KLICK · ÜBERSPRINGEN“)
+  const on = e => { if (e.type === 'keydown' ? !['Space', 'Enter', 'Escape', 'NumpadEnter'].includes(e.code) : e.button !== 0) return; if (e.type === 'keydown') { e.preventDefault(); e.stopPropagation(); } if (performance.now() - t0 >= 3000) skip = true; };
+  addEventListener('keydown', on, true); addEventListener('pointerdown', on, true);
+  try { const end = t0 + (opts.dauer || d) * 1000; while (!skip && performance.now() < end) await wait(60); kino_card(null); await wait(skip ? 250 : 900); }
+  finally { removeEventListener('keydown', on, true); removeEventListener('pointerdown', on, true); }
+  if (!opts.bleiben) document.body.classList.remove('cine'); }
 // Zeitgeber in Kinozeit (steht bei Pause still, verfällt beim Schnitt nicht – nur beim Ende)
 function kino_after(sec, fn) { kino_S.ev.push([kino_S.T + sec, fn]); }
 // Blinzeln: Lider schließen sich von oben und unten (0,15 s zu, 0,15 s auf) – das Spiel, nicht der Spieler
@@ -536,8 +542,9 @@ WORLD_MODS.push(['Kino', async () => {
   if (typeof figuren_load === 'function') await Promise.all(casts.map(([k, id]) => kino_mkFig(k, id)));
   lap('figuren');
   // Rabe (eigener Klon von Whiskeys Scan: der echte Whiskey bleibt, wo er ist)
-  try { const src = await msModel('animal_crow', 'model.glb'), sk = await figuren_skc(), m = sk(src); m.scale.setScalar(1.45);
-    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
+  try { let src, neu = true; try { src = await msModel('rabe_whiskey', 'model.glb'); } catch (e) { neu = false; src = await msModel('animal_crow', 'model.glb'); } // 08.10.: Whiskeys eigenes Rabenmodell (Rückfall: alte Krähe)
+    const sk = await figuren_skc(), m = sk(src); m.scale.setScalar(1.45);
+    m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; o.material = [].concat(o.material).map(x => { const c = x.clone(); if (!neu) { c.color = (c.color || new T.Color(1, 1, 1)).clone().multiplyScalar(.55); c.roughness = .45; } return c; }); if (o.material.length === 1) o.material = o.material[0]; } });
     const g = new T.Group(); g.add(m); kino_obj('rabe', g); const mx = new T.AnimationMixer(m), A = {}; for (const c of src.animations || []) A[c.name.replace(/^.*\|/, '').replace(/^ANIM_Crow_/, '')] = mx.clipAction(c); S.rabe = { g, mx, A, cur: null, fl: null };
   } catch (e) { console.warn('Kino: Rabe', e); }
   const ld = kino_ld;
@@ -614,7 +621,7 @@ async function kino_play(id, opts = {}) {
     fadeBg: fd.style.background || '#000', world: A.world ? A.world.gain.value : 1, bed: A.bedTrim ? A.bedTrim.gain.value : .5, rain: A.rain ? A.rain.gain.value : 0, master: A.master ? A.master.gain.value : 1, sub: $('subtitle').style.opacity, glitch: glitchV, flashOn };
   if (A.mus && A.ctx) { const g = A.mus.duck.gain, t = A.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + 1.6); } // adaptive Musik weicht
   state.talking = true; setScripted(() => true); glitchV = 0; shake = 0;
-  S.onKey = e => { if (!S.on) return; if (e.code === 'Space') { e.preventDefault(); kino_skip(); } };
+  S.onKey = e => { if (!S.on) return; if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape') { e.preventDefault(); if (e.code === 'Escape') e.stopPropagation(); kino_skip(); } };
   S.onClick = e => { if (!S.on || e.button !== 0) return; kino_skip(); };
   addEventListener('keydown', S.onKey, true); addEventListener('pointerdown', S.onClick, true);
   document.body.classList.add('cine', 'kino'); document.body.classList.toggle('kinoNoSkip', D.skipAfter > 0); $('traumSkip') && ($('traumSkip').style.display = D.skipAfter === Infinity ? 'none' : '');
