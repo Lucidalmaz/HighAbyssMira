@@ -1016,7 +1016,7 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   S.o.augen.visible = true; S.o.augen.scale.setScalar(.75); S.o.augen.rotation.set(-PI / 2, 0, PI / 2); S.o.augen.position.set(px + .12, top + .004, pz + .3);
   S.o.duich.rotation.set(-PI / 2, 0, PI / 2); S.o.duich.position.set(px - .22, top + .005, pz - .08); S.o.duich.scale.setScalar(.62);
   S.o.striche.visible = true; S.o.striche.scale.set(.85, .7, 1); S.o.striche.position.set(px + .4, .52, z1 - .1); S.o.striche.rotation.set(0, PI, 0);
-  if (S.hit.stallTeller) S.hit.stallTeller.position.set(px + .1, top + .15, pz);
+  if (S.hit.stallTeller) { S.hit.stallTeller.scale.set(2.8, 1.4, 2.8); S.hit.stallTeller.position.set(px + 1.2, top + .3, pz); } /* großzügige Klickbox zur Tür hin: Heu, Fass und Pfosten lassen nur einen schmalen Zugang zum Teller */
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }
 async function k5_brotHin() {
   if (!(k5.beat === 'stall' || k5.beat === 'brot') || k5.f.brotStall) return;

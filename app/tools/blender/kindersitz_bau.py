@@ -86,7 +86,7 @@ def section3d(a, upto=None, pad=None):
 # ---------------------------------------------------------------- Schale
 shellP = [section3d(a)[0] for a in ROWS_A]
 bm = grid(shellP)
-schale = obj_bm(bm, 'schale'); mod(schale, 'SOLIDIFY', thickness=.0085, offset=1, use_even_offset=True, use_rim=True)
+schale = obj_bm(bm, 'schale'); mod(schale, 'SOLIDIFY', thickness=.0085, offset=1, use_even_offset=False, use_quality_normals=True, use_rim=True)
 apply_all(schale)
 bm = bmesh.new(); bm.from_mesh(schale.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
 # Normalen müssen zum Kind zeigen: Stichprobe Mitte Sitzfläche

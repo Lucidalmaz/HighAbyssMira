@@ -599,7 +599,7 @@ function k6_epilog() {
 }
 function k6_guide(dt) {
   const W = whiskey_S; if (!W || !W.g) return; k6_whiskeyStation(); if (W.fl || W.mode === 'take' || W.mode === 'fly') return; K6.guideT -= dt; if (K6.guideT > 0) return;
-  const d = Math.hypot(player.pos.x - W.g.position.x, player.pos.z - W.g.position.z); if (d > 12 && K6.gi > 0) return;
+  const d = Math.hypot(player.pos.x - W.g.position.x, player.pos.z - W.g.position.z); if (d > 25 && K6.gi > 0) { if (!K6.wartHint || performance.now() - K6.wartHint > 20000) { K6.wartHint = performance.now(); try { subtitle('<i>Whiskey wartet auf dich.</i>', 2600, ''); } catch (e) {} } whiskey_fly(new THREE.Vector3(player.pos.x + 4 * Math.sin(player.yaw), 2.4, player.pos.z + 4 * Math.cos(player.yaw)), null); K6.guideT = 4; K6.gi = Math.max(0, K6.gi - 1); return; }
   const TS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 };
   if (K6.gi < K6_WEG.length) { const [x, z] = K6_WEG[K6.gi++]; const y = typeof whiskey_perch === 'function' ? whiskey_perch(x, z) : 0; whiskey_fly(new THREE.Vector3(x, y, z), null); K6.guideT = 1; }
   else if (K6.gi === K6_WEG.length) { K6.gi++; whiskey_fly(new THREE.Vector3(TS.x + .95, 4.02, TS.z), () => { if (K6.beat === 'epilog') { k6_obj('Der Hochsitz. Oben sitzt jemand.'); k6_set('hochsitz'); } }); }
@@ -608,7 +608,7 @@ async function k6_boy(on) {
   const b = K6.boy; if (!b) return; b.g.visible = on; if (!on || b.P || b.loading || typeof figuren_embody !== 'function') return; b.loading = true;
   try { const P = await figuren_embody(b.g, 'luke_echt', { clip: 'idle', sit: 3.1 + .46 }); b.P = P; if (P) { P.obj.traverse(o => { if (o.isMesh) o.castShadow = true; }); if (P.mx) P.mx.stopAllAction(); } } catch (e) { console.warn('Kapitel6: Junge', e); } b.loading = false;
 }
-function k6_zuWarten() { return new Promise(res => { const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu()) ? res() : setTimeout(f, 80); f(); }); }
+function k6_zuWarten() { return new Promise(res => { const t0 = performance.now(); const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu() || performance.now() - t0 > 30000) ? res() : setTimeout(f, 80); f(); }); } /* Notausstieg nach 30 s: die Szene bleibt nie an geschlossenen Augen hängen */
 async function k6_sayZu(lines) { for (const l of lines) { await k6_zuWarten(); const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await k6_wait(d); } }
 function k6_tasteZu(n, ms) { return new Promise(res => { let done = false; const k = e => { const m = /^(Digit|Numpad)([1-9])$/.exec(e.code); if (!m || +m[2] > n) return; if (typeof augenzu_zu === 'function' && !augenzu_zu()) return; done = true; removeEventListener('keydown', k, true); res(+m[2] - 1); };
   addEventListener('keydown', k, true); if (ms) setTimeout(() => { if (!done) { removeEventListener('keydown', k, true); res(-1); } }, ms); }); }
@@ -631,7 +631,7 @@ async function k6_hochsitz() {
       ['Hat Mama …', [['Mama ist drin. Sie wartet an der Kette, bis ich wiederkomm. Sie hat gesagt, ich soll dich nicht ansehen, sonst wird’s dir schlecht.', 5600, 'ECHTER LUKE'], ['Ich hab dich trotzdem einmal angeguckt. Bei Vegas, durchs Fenster. Du guckst wie ich, wenn ich lüg.', 5200, 'ECHTER LUKE']]]];
     let asked = 0;
     while (opt.length) { await k6_zuWarten(); K6.wahl.innerHTML = opt.map((o, i) => `<div><b>${i + 1}</b><span>„${trX(o[0])}“</span></div>`).join(''); K6.wahl.classList.add('show');
-      const i = await k6_tasteZu(opt.length, asked ? 16000 : 0); K6.wahl.classList.remove('show'); if (i < 0) break;
+      const i = await k6_tasteZu(opt.length, asked ? 16000 : 60000); K6.wahl.classList.remove('show'); if (i < 0) break;
       const [q, a] = opt.splice(i, 1)[0]; asked++; await k6_sayZu([[q, 2400, 'LUKE'], ...a]); await k6_wait(500);
       if (q === 'Kommst du mit heim?') await k6_zweiLukes(); }
     await k6_sayZu([['Du zitterst ja.', 2200, 'ECHTER LUKE']]);
