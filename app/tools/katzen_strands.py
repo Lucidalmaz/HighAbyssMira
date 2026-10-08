@@ -36,15 +36,11 @@ def block(x0, y0, bw, bh, n_clumps, per_clump, lmin, lmax, th, wave, wave_f, spr
     for s in range(per_clump):
       x = cx + rng.gauss(0, spread * bw); L = cl * rng.uniform(.82, 1.08); y = y0 + rng.uniform(-.004, .012) * bh
       lm = lum_mean * rng.uniform(.82, 1.18)
-      strand(x * SS, y * SS, L * bh * SS, th * rng.uniform(.8, 1.25), wave * rng.uniform(.5, 1.4) * bw * SS, wave_f * rng.uniform(.8, 1.5), (cdrift + rng.gauss(0, .006)) * bw * SS, rng.gauss(0, .012) * bw * SS, lm * .55, lm * 1.15)
-  # dichter Wurzelstreifen (keine Lücken an der Haut): schmales, oben fast geschlossenes Band
-  for i in range(int(bw * 1.2)):
-    x = x0 + rng.uniform(0, bw); strand(x * SS, y0 * SS, rng.uniform(.05, .12) * bh * SS, th * 1.2, 0, 1, 0, 0, lum_mean * .4, lum_mean * .6)
-
+      strand(x * SS, y * SS, L * bh * SS, th * rng.uniform(.8, 1.25), wave * rng.uniform(.5, 1.4) * bw * SS, wave_f * rng.uniform(.8, 1.5), (cdrift + rng.gauss(0, .006)) * bw * SS, rng.gauss(0, .012) * bw * SS, lm * .8, lm * 1.15)
 # kurzes Fell: Tile 512 × 512
-block(0, 0, 512, 512, 46, 5, .78, .98, 2.6, .006, 1.3, .02, .55)
+block(0, 0, 512, 512, 60, 6, .78, .98, 2.6, .006, 1.3, .02, .55)
 # langes Fell: Tile 512 × 1024 (längere, wellige Locken)
-block(512, 0, 512, 1024, 38, 5, .72, .97, 3.1, .016, 1.1, .02, .55)
+block(512, 0, 512, 1024, 50, 6, .72, .97, 3.1, .016, 1.1, .02, .55)
 a = np.array(A.resize((W, W), Image.LANCZOS)).astype(np.float32); l = np.array(Lm.resize((W, W), Image.LANCZOS)).astype(np.float32)
 # Helligkeit dort, wo Haar ist (Division durch Alpha wegen Mittelung)
 al = np.clip(a / 255., 0, 1); lum = np.where(al > .02, np.clip(l / np.maximum(a, 1) , 0, 1), .0) if False else np.clip(l / np.maximum(a / 255., .02) / 255., 0, 1)

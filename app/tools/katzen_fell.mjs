@@ -33,15 +33,17 @@ for (let i = 0; i < nV; i++) { const acc = {}; let bb = 0, bw = -1; for (let k =
 // Augenmitten
 const AP = augenN.getMesh().listPrimitives()[0].getAttribute('POSITION').getArray(), eyes = [[0, 0, 0, 0], [0, 0, 0, 0]];
 for (let i = 0; i < AP.length / 3; i++) { const s = AP[i * 3] > 0 ? 0 : 1; eyes[s][0] += AP[i * 3]; eyes[s][1] += AP[i * 3 + 1]; eyes[s][2] += AP[i * 3 + 2]; eyes[s][3]++; } const eyeC = eyes.map(e => [e[0] / e[3], e[1] / e[3], e[2] / e[3]]);
+// Augen 12 % größer (niedlicher), um die eigene Mitte
+{ const ap = augenN.getMesh().listPrimitives()[0].getAttribute('POSITION'), arr = ap.getArray(); for (let i = 0; i < arr.length / 3; i++) { const e = eyeC[arr[i * 3] > 0 ? 0 : 1]; for (let k = 0; k < 3; k++) arr[i * 3 + k] = e[k] + (arr[i * 3 + k] - e[k]) * 1.12; } ap.setArray(arr); }
 const jIdx = n => jn.indexOf(n), tailC = ['tail1', 'tail2', 'tail3', 'tail4'].map(n => jpos[jIdx(n)]); const tip = V.add(tailC[3], V.mul(V.norm(V.sub(tailC[3], tailC[2])), .07)); tailC.push(tip);
 const headP = jpos[jIdx('head')], earP = { L: jpos[jIdx('earL')], R: jpos[jIdx('earR')] };
 // ---------------------------------------------------------------- Parameter je Region: Länge, Breite, Anhebung (Wurzel → Spitze, rad), Hängen, Dichte (Karten/m²), Fellrichtung
 const PAR = {
-  kopf: { L: [.011, .016], w: [.010, .014], l0: .25, l1: .6, g: 0, d: 5200 }, ohr: { L: [.006, .010], w: [.006, .008], l0: .3, l1: .5, g: 0, d: 4200 },
-  hals: { L: [.030, .045], w: [.016, .022], l0: .3, l1: .75, g: .5, d: 3200 }, brust: { L: [.035, .05], w: [.017, .024], l0: .3, l1: .8, g: .8, d: 3300 },
-  rumpf: { L: [.028, .042], w: [.016, .022], l0: .28, l1: .7, g: .6, d: 2700 }, schenkel: { L: [.032, .05], w: [.016, .022], l0: .3, l1: .75, g: 1.0, d: 2900 },
-  bein: { L: [.014, .022], w: [.010, .014], l0: .2, l1: .5, g: .2, d: 3600 }, pfote: { L: [.005, .009], w: [.006, .009], l0: .15, l1: .35, g: 0, d: 1800 },
-  schwanz: { L: [.040, .060], w: [.014, .020], l0: .35, l1: .65, g: .3, d: 4600 } };
+  kopf: { L: [.011, .016], w: [.010, .014], l0: .25, l1: .6, g: 0, d: 6500 }, ohr: { L: [.006, .010], w: [.006, .008], l0: .3, l1: .5, g: 0, d: 4200 },
+  hals: { L: [.030, .045], w: [.016, .022], l0: .3, l1: .75, g: .5, d: 4600 }, brust: { L: [.035, .05], w: [.017, .024], l0: .3, l1: .8, g: .8, d: 4600 },
+  rumpf: { L: [.028, .042], w: [.016, .022], l0: .28, l1: .7, g: .6, d: 4800 }, schenkel: { L: [.032, .05], w: [.016, .022], l0: .3, l1: .75, g: 1.0, d: 4600 },
+  bein: { L: [.014, .022], w: [.010, .014], l0: .2, l1: .5, g: .2, d: 6000 }, pfote: { L: [.005, .009], w: [.006, .009], l0: .15, l1: .35, g: 0, d: 2600 },
+  schwanz: { L: [.040, .060], w: [.014, .020], l0: .35, l1: .65, g: .3, d: 5400 } };
 const grav = [0, -1, 0];
 function flowDir(reg, p, n, i) {
   let f;
@@ -78,7 +80,7 @@ for (let t = 0; t < nT; t++) {
     if (reg === 'rumpf' && nn[1] < -.45) { L *= 1.2; g *= 1.6; } // Bauchfell hängt länger
     if (reg === 'rumpf' && nn[1] > .5) { L *= .9; } // Rückenlinie flacher
     // Richtungsstreuung
-    const fj = V.norm(V.add(f0, V.mul(V.cross(nn, f0), R(-.28, .28)))), segs = L > .02 ? 3 : 2;
+    const fj = V.norm(V.add(f0, V.mul(V.cross(nn, f0), R(-.28, .28)))), segs = L > .034 ? 3 : 2;
     cards.push({ p, n: nn, f: fj, L, W, lift0: lift0 * R(.8, 1.2), lift1: lift1 * R(.85, 1.15), g, segs, roll: R(-.7, .7), reg: pr, best, a, b, c, bw: [u, v, w], big: L > .024 });
   }
 }
@@ -124,7 +126,7 @@ hmat.setAlphaCutoff(.3);
   let mz = -1e9; for (let i = 0; i < nV; i++) if (vReg[i] === 'kopf') mz = Math.max(mz, pos[i * 3 + 2]); const noseZ = mz; console.log('Nasenspitze z', noseZ.toFixed(3), 'Kopf', headP.map(x => x.toFixed(3)).join(','));
   const rows = [[.018, .006, .50, -.04], [.021, .003, .30, -.02], [.020, .000, .10, -.0], [.018, -.003, -.15, .02], [.015, -.005, -.35, .04]]; // x, y, Winkel nach oben (rad), Länge-Versatz
   for (const side of [1, -1]) for (let r = 0; r < rows.length; r++) { const [x0, y0, ang, dl] = rows[r]; const root = [side * x0, headP[1] + y0 - .006, noseZ - .012 - r * .002];
-    const len = .062 + dl, segs = 5, bend = .5 + r * .08; let q = root, dir = V.norm([side * Math.cos(ang) * .75, Math.sin(ang) * .55, .55 - r * .08]); const row0 = bp.length / 3; const width = .0022;
+    const len = .062 + dl, segs = 5, bend = .5 + r * .08; let q = root, dir = V.norm([side * Math.cos(ang) * .75, Math.sin(ang) * .55, .55 - r * .08]); const row0 = bp.length / 3; const width = .0016;
     for (let k = 0; k <= segs; k++) { const t = k / segs; if (k > 0) { dir = V.norm(V.add(dir, [side * .06, -bend * t * .1 - .02, -.05 * t])); q = V.add(q, V.mul(dir, len / segs)); }
       const wv = V.norm(V.cross(dir, [0, 0, 1])), w2 = width * (1 - .85 * t) * .5; for (const sx of [-1, 1]) { bp.push(...V.add(q, V.mul(wv, sx * w2))); bn.push(0, 1, 0); bu.push(sx < 0 ? 0 : 1, t);
         bj.push(jH, 0, 0, 0); bw.push(1, 0, 0, 0); } }

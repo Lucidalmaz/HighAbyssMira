@@ -178,7 +178,7 @@ vec3 katzenAuge(vec2 uv, out float glow){
   float pd = length(vec2(e.x / pw, e.y / ph)); float pupil = 1. - smoothstep(.86, 1.02, pd);
   float fib = eN(vec2(an * 9., r * 14. + kESeed)) * .6 + eN(vec2(an * 23., r * 30. + kESeed * 2.)) * .4;
   float collar = smoothstep(.06, .17, r);
-  vec3 col = mix(kIris * 1.35, kIris * .62, collar) * (.72 + .5 * fib);
+  vec3 col = mix(kIris * 1.0, kIris * .5, collar) * (.7 + .55 * fib);
   col = mix(col, kIris * vec3(.5, .7, .45) * .55, smoothstep(.2, .3, r) * .6);
   float limb = smoothstep(.27, .36, r); col = mix(col, vec3(.02, .015, .012), limb * .85);
   col = mix(col, vec3(.045, .03, .025), smoothstep(.34, .42, r));
@@ -221,7 +221,7 @@ function katzen_make(d) {
     if (o.geometry) { o.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); } });
   del.forEach(o => o.parent.remove(o));
   if (haarM) { if (k.fell && haarM.geometry.attributes._root) { haarM.material = katzen_hairMat(haarM.material, d, k.fell.material); haarM.castShadow = false; haarM.receiveShadow = true; haarM.frustumCulled = true; haarM.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); k.haar = haarM; } else haarM.parent.remove(haarM); }
-  if (bartM) { const F = KATZEN_FELLE[d.fell] || {}; bartM.material = bartM.material.clone(); bartM.material.color.setRGB(...(F.bart || [.8, .78, .72])); bartM.castShadow = false; bartM.receiveShadow = false; bartM.frustumCulled = true; bartM.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); k.bart = bartM; }
+  if (bartM) { const F = KATZEN_FELLE[d.fell] || {}; bartM.material = bartM.material.clone(); bartM.material.color.setRGB(...(F.bart || [.92, .9, .84])); bartM.material.emissive = bartM.material.color.clone().multiplyScalar(.28); bartM.castShadow = false; bartM.receiveShadow = false; bartM.frustumCulled = true; bartM.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); k.bart = bartM; }
   for (const n of ['walk', 'stand', 'sit', 'groom', 'loaf', 'sleep', 'hiss', 'crouch', 'leap', 'carry']) if (S.clips[n]) { const a = k.mx.clipAction(S.clips[n]); a.setLoop(THREE.LoopRepeat, Infinity); k.A[n] = a; }
   // Körperbau: dick / dünn / schwer (Knochen-Skalierung bleibt, die Animation setzt nur Lage und Drehung)
   const sc = (n, x, y, z) => { if (k.B[n]) k.B[n].scale.set(x, y, z); };
