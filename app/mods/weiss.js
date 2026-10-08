@@ -17,7 +17,7 @@ function weiss_hinweise() { const other = WEISS_HINTS.filter(weiss_has), n = (we
 const _wv = new THREE.Vector3(), _wd = new THREE.Vector3(), _wq = new THREE.Quaternion(), _wm = new THREE.Matrix4();
 
 // ---------------------------------------------------------------- Klang: Atem, Glocke über dem Weißen
-function weiss_atem(v, x, y, z) { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 640; bp.Q.value = .9;
+function weiss_atem(v, x, y, z) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v * 1.5, .85, x, y, z)) return; const c = A.ctx, t = c.currentTime, n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 640; bp.Q.value = .9;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .9); g.gain.linearRampToValueAtTime(v * .12, t + 1.25); g.gain.linearRampToValueAtTime(v * .75, t + 1.7); g.gain.linearRampToValueAtTime(0, t + 2.7);
   n.connect(bp); bp.connect(g); g.connect(A.at(x, y, z, 1.1)); n.stop(t + 2.9); }
 // Einzelner Glockenschlag (leben_bellStrike), hier aus dem Weiß über der Senke statt vom Kirchberg
@@ -47,7 +47,7 @@ const WEISS_TEX = {
   tau: () => weiss_cv(256, 256, (x, w) => { const g = x.createRadialGradient(w / 2, w / 2, w * .3, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.18, 'rgba(255,255,255,.95)'); g.addColorStop(.55, 'rgba(255,255,255,.5)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }),
   spalt: () => weiss_cv(16, 128, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(0,0,0,.96)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 4, w, h - 8); }),
   // Papier der großen Laterne: Kinderzeichnungen wie an der Wand in Hildes Keller (Buntstift), Rippen quer
-  papier: () => weiss_cv(1024, 512, (x, w, h) => { x.fillStyle = '#f2e4c6'; x.fillRect(0, 0, w, h); for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(150,110,60,${(Math.random() * .08).toFixed(3)})`; x.fillRect(Math.random() * w, Math.random() * h, Math.random() * 30, 1); }
+  papier: () => weiss_cv(1024, 512, (X, w, h) => { papierScan(X, w, h, '#f2e4c6', { dreck: .4 }); const Lc = document.createElement('canvas'); Lc.width = w; Lc.height = h; const x = Lc.getContext('2d'); // echtes Papier; die Buntstiftstriche auf eigener Ebene mit Wachskorn (echte Scans)
     const cr = (col, wd = 4) => { x.strokeStyle = col; x.lineWidth = wd; x.lineCap = 'round'; x.lineJoin = 'round'; }; const jit = v => v + (Math.random() - .5) * 2.4;
     const kid = (cx, cy, s, col) => { cr(col, 3.5); x.beginPath(); x.arc(cx, cy - 44 * s, 10 * s, 0, 7); x.moveTo(jit(cx), cy - 34 * s); x.lineTo(jit(cx), cy); x.lineTo(cx - 10 * s, cy + 26 * s); x.moveTo(cx, cy); x.lineTo(cx + 10 * s, cy + 26 * s); x.moveTo(cx - 14 * s, cy - 22 * s); x.lineTo(cx + 16 * s, cy - 20 * s); x.stroke();
       cr('#c87818', 3); x.beginPath(); x.moveTo(cx + 16 * s, cy - 20 * s); x.lineTo(cx + 16 * s, cy - 6 * s); x.stroke(); x.fillStyle = 'rgba(230,150,30,.8)'; x.beginPath(); x.arc(cx + 16 * s, cy, 7 * s, 0, 7); x.fill(); };
@@ -56,7 +56,7 @@ const WEISS_TEX = {
       cr('#303030', 6); x.beginPath(); x.moveTo(o + 440, 200); x.lineTo(o + 440, 380); x.moveTo(o + 400, 260); x.lineTo(o + 480, 260); x.moveTo(o + 440, 380); x.lineTo(o + 415, 430); x.moveTo(o + 440, 380); x.lineTo(o + 465, 430); x.stroke(); x.beginPath(); x.arc(o + 440, 176, 22, 0, 7); x.stroke();
       cr('#a01818', 5); x.beginPath(); x.ellipse(o + 250, 150, 110, 30, 0, 0, 7); x.stroke(); cr('#d8d8e8', 10); for (let k = 0; k < 5; k++) { x.beginPath(); x.moveTo(o + 205 + k * 22, 178); x.lineTo(o + 180 + k * 34, 290); x.stroke(); }
       x.fillStyle = '#a01818'; x.font = 'bold 34px Caveat, cursive'; x.fillText(rep ? 'wir 8' : 'DAS LICHT', o + 170, 90); }
-    x.fillStyle = 'rgba(90,60,30,.55)'; for (let i = 1; i < 16; i++) x.fillRect(0, i * h / 16, w, 2); }),
+    echt_wachsKorn(x, w, h, .4); X.drawImage(Lc, 0, 0); X.fillStyle = 'rgba(90,60,30,.4)'; for (let i = 1; i < 16; i++) X.fillRect(0, i * h / 16, w, 2); }),
   // Spiegelung im blanken Visier: weißer Raum, darin ein Gesicht mit braunen Augen (verzerrt, verblasst)
   visier: () => weiss_cv(256, 160, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#eef0f2'); g.addColorStop(1, '#c4c9cf'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     x.save(); x.translate(w / 2, h * .52); x.scale(1.25, .92); x.filter = 'blur(1.4px)'; x.fillStyle = '#4a4038'; x.beginPath(); x.ellipse(0, 70, 78, 38, 0, 0, 7); x.fill();

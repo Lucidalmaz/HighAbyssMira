@@ -4,7 +4,7 @@
 // am Ohr zur Spitze), sich zur Spitze hin von der Haut abhebt und je nach Region hängt (Bauch, Hosen, Schwanz). Gewichte und Knochen kommen vom nächsten Hautpunkt,
 // die Normale ist die der Haut (weiches Licht statt Kartenkanten). Zusätzliche Eckpunktdaten: TEXCOORD_1 = UV der Haut (Fellmaske!), _ROOT = Wurzelpunkt
 // (katzen.js verkürzt das Fell je Katze: pos = Wurzel + (pos − Wurzel) · Länge).
-import { NodeIO } from '@gltf-transform/core'; import { ALL_EXTENSIONS } from '@gltf-transform/extensions'; import fs from 'fs'; import sharp from 'sharp';
+import { NodeIO, VertexLayout } from '@gltf-transform/core'; import { ALL_EXTENSIONS } from '@gltf-transform/extensions'; import fs from 'fs'; import sharp from 'sharp';
 const SRC = process.argv[2] || 'C:/Users/GIGABYTE/HAM_Blender/katzen/model_orig.glb', DST = process.argv[3] || 'C:/Users/GIGABYTE/HighAbyssMira-Repo/game/assets/ms/katze/model.glb';
 const BUDGET = +(process.env.KARTEN || 0); // optional: Zahl der Karten erzwingen
 let seed = 20261008; const rnd = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
@@ -13,7 +13,7 @@ const V = { sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], add: (a, b) 
   cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], len: a => Math.hypot(a[0], a[1], a[2]), norm: a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; } };
 const rotAxis = (v, ax, ang) => { const c = Math.cos(ang), s = Math.sin(ang), k = V.cross(ax, v), d = V.dot(ax, v) * (1 - c); return [v[0] * c + k[0] * s + ax[0] * d, v[1] * c + k[1] * s + ax[1] * d, v[2] * c + k[2] * s + ax[2] * d]; };
 
-const io = new NodeIO().registerExtensions(ALL_EXTENSIONS), doc = await io.read(SRC), root = doc.getRoot();
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).setVertexLayout(VertexLayout.SEPARATE), doc = await io.read(SRC), root = doc.getRoot();
 const nodeByName = n => root.listNodes().find(x => x.getName() === n);
 const fellN = nodeByName('fell'), haarN = nodeByName('haar'), augenN = nodeByName('augen'), skin = fellN.getSkin();
 const joints = skin.listJoints(), jn = joints.map(j => j.getName()), jpos = joints.map(j => { const m = j.getWorldMatrix(); return [m[12], m[13], m[14]]; });

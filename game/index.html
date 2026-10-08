@@ -4676,10 +4676,9 @@ async function loadFabAssets() {
   const fitMax = (o, size) => { const b = new THREE.Box3().setFromObject(o), s = b.getSize(new THREE.Vector3()); o.scale.multiplyScalar(size / Math.max(s.x, s.y, s.z)); return o; };
   const ground = o => { const b = new THREE.Box3().setFromObject(o); o.position.y -= b.min.y; return o; };
   const holder = (o, x, y, z, ry = 0) => { const g = new THREE.Group(); g.add(o); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g); return g; };
-  const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM, tar, little] = await Promise.all([
+  const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM] = await Promise.all([
     GL.loadAsync('assets/rat/rat.glb'), GL.loadAsync('assets/bench/model.gltf'), GL.loadAsync('assets/boulder/model.gltf'), GL.loadAsync('assets/manhole/model.gltf'), GL.loadAsync('assets/deadshrubs/model.gltf'),
-    FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx'),
-    FL.loadAsync('assets/spider_tarantula/model.fbx'), FL.loadAsync('assets/spider_little/model.fbx')]);
+    FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx')]);
 
   // --- Laternen: echte Straßenlaterne statt Rohr und Kasten (Licht, Lichtkegel und Birne bleiben)
   const lampMat = new THREE.MeshStandardMaterial({ map: T('lamp/color.jpg'), normalMap: T('lamp/normal.jpg', false), roughness: .55, metalness: .7 });
@@ -4738,20 +4737,12 @@ async function loadFabAssets() {
   for (const [x, y, z] of [[29.8, Y + 1.1, -16.5], [-13, .5, -10.2], [C2.x + 118, 1.4, C2.z + 4.6], [C3.x + 26, 1.1, C3.z + 3.6]]) for (let k = 0; k < 5; k++) {
     const o = fly.clone(); scene.add(o); FAB.flies.push({ o, c: new THREE.Vector3(x, y, z), ph: rand(0, 6), r: rand(.15, .45), sp: rand(3, 7) });
   }
-  // --- Spinnen: echte Vogelspinnen im Spinnenraum und im Keller; der Schwarm bekommt das Modell der kleinen Spinne
-  const tarMat = new THREE.MeshStandardMaterial({ map: T('spider_tarantula/color.jpg'), roughness: .75 });
-  tar.traverse(m => { if (m.isMesh) m.material = tarMat; });
-  for (const [x, y, z, ry, s] of [[C2.x + 38.5, .01, C2.z - 3.6, .6, .16], [C2.x + 44.2, .01, C2.z + 3.2, 2.5, .2], [C2.x + 41, .01, C2.z + 4.2, 4, .14], [B.x + 3.6, .01, B.z - 2.9, 1.2, .15]]) {
-    const o = skClone(tar); fitMax(o, s); ground(o); shade(o); const g = holder(o, x, y, z, ry); const mx = new THREE.AnimationMixer(o);
-    const idle = tar.animations.find(a => /^idle$/.test(a.name)) || tar.animations[0], walk = tar.animations.find(a => a.name === 'walk');
-    const acts = { idle: mx.clipAction(idle), walk: walk && mx.clipAction(walk) }; acts.idle.play(); mx.update(rand(0, 3));
-    FAB.spiders.push({ g, mx, acts, cur: acts.idle, home: g.position.clone(), t: rand(1, 5), dir: ry, walking: false });
+  // --- Spinnen: nur noch die Standplätze (Spinnenraum und Keller). Die alten FBX-Spinnen (spider_tarantula/spider_little) werden nicht mehr geladen: Modul spinnen.js setzt die Blender-Spinnen
+  //     in diese leeren Halter (spn_fabErsetzen) und gibt dem Schwarm die neue Form; ohne das Modul bleiben Halter leer und der Schwarm behält die einfache Kugelform.
+  for (const [x, y, z, ry] of [[C2.x + 38.5, .01, C2.z - 3.6, .6], [C2.x + 44.2, .01, C2.z + 3.2, 2.5], [C2.x + 41, .01, C2.z + 4.2, 4], [B.x + 3.6, .01, B.z - 2.9, 1.2]]) {
+    const g = holder(new THREE.Group(), x, y, z, ry);
+    FAB.spiders.push({ g, mx: new THREE.AnimationMixer(g), acts: { idle: null, walk: null }, cur: null, home: g.position.clone(), t: rand(1, 5), dir: ry, walking: false });
   }
-  { let sm = null; little.traverse(m => { if (m.isMesh && !sm) sm = m; });
-    if (sm) { const geo = sm.geometry.clone(); geo.deleteAttribute('skinIndex'); geo.deleteAttribute('skinWeight'); geo.computeBoundingBox(); const bb = geo.boundingBox, sz = bb.getSize(new THREE.Vector3());
-      const k = .075 / Math.max(sz.x, sz.z); geo.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); geo.scale(k, k, k);
-      if (sz.z > sz.x) geo.rotateY(PI / 2); // Körperachse nach +X, wie beim alten Schwarm
-      spiders.geometry = geo; spiders.material = new THREE.MeshStandardMaterial({ map: T('spider_little/color.jpg'), roughness: .7 }); } }
   try { const cw = await GL.loadAsync('assets/cow/cow.glb'); const c = cw.scene;
     // Skelett-Mesh in ein festes Mesh umwandeln (sie bewegt sich nicht mehr – und Klone brauchen kein Skelett)
     const bone = {}; c.traverse(o => { if (o.isBone) bone[o.name] = o; });
@@ -6918,6 +6909,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // ---------------------------------------------------------------- Tankstelle Kranz (x 97 … 128, z 4 … 31)
   flat('sidewalk_tiles', 30, 26.9, 112, 17.5, { tint: 0x8c8a84, tile: 3, y: .024, p: R.station.g });
   for (let i = 0; i < 9; i++) decal(msTex('grime/b.png', true), rand(1.5, 4), rand(1.5, 4), rand(99, 126), .036, rand(6, 29), 0, -PI / 2, { p: R.station.g, mat: { color: 0x14110e, opacity: .8 } }).rotation.z = rand(0, 6);
+  for (const [ox, oz, s] of [[107, 14.6, 1.6], [115, 15.4, 1.3], [111, 22.5, 2.2], [120, 11, 1.1]]) decal(msTex('oel/b.png', true), s * rand(.9, 1.2), s * rand(.8, 1.1), ox, .037, oz, 0, -PI / 2, { p: R.station.g, mat: { color: 0x3a342c, opacity: .9 } }).rotation.z = rand(0, 6); // echte Ölflecken (Megascans „Oil Stain“) unter den Zapfinseln
   // Kiosk: Wände mit Scan-Putz, großes Schaufenster, Tür, Nachtschalter
   const KW = 'wall_damaged', KT = 0xa29e94, K = R.station.g;
   wbox(KW, 12, 3.3, .25, 112, 1.65, 30.875, { tint: KT, p: K }); wbox(KW, .25, 3.3, 6, 106.125, 1.65, 28, { tint: KT, p: K }); wbox(KW, .25, 3.3, 6, 117.875, 1.65, 28, { tint: KT, p: K });
@@ -8134,7 +8126,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       x.fillStyle = '#d8d8d2'; x.fillRect(14, 196, 228, 150); x.fillStyle = '#222'; x.font = 'bold 13px Arial'; x.fillText('AMTLICHER AUSHANG', 56, 218); x.font = '13px Arial'; ['Die Veranstaltung entfällt.', 'Es besteht kein Anlass', 'zur Sorge.', '', 'Amt für Rückführung', 'Außenstelle Lost Eyengless'].forEach((l, i) => x.fillText(l, 26, 244 + i * 17)); if (typeof lwo_auge === 'function') lwo_auge(x, 220, 326, 9, 'rgba(30,30,30,.8)'); }, // F3 AP-06: unten rechts das Auge (5.4 B)
       note: ['Plakat: Bürgerversammlung', 'Bürgerversammlung: <i>„Die Lichter über dem Wald“</i>. Donnerstag, 19 Uhr, Gemeindesaal.\n\nQuer darübergeklebt, auf grauem Amtspapier:\n<b>Die Veranstaltung entfällt. Es besteht kein Anlass zur Sorge.</b>\n— Bundesstelle für Rückführung, Außenstelle Lost Eyengless', 'strasse_p_amt'] }, // STORY-HOOK: Amt
   };
-  const posterTex = {}; for (const [k, d] of Object.entries(posterDefs)) posterTex[k] = canvasTex(256, 362, (x, w, h) => { x.fillStyle = k === 'amt' ? '#e2dcc8' : '#e6e2d6'; x.fillRect(0, 0, w, h); grain(x, w, h, 1400, .22); d.draw(x, w, h);
+  const posterTex = {}; for (const [k, d] of Object.entries(posterDefs)) posterTex[k] = canvasTex(256, 362, (x, w, h) => { papierScan(x, w, h, k === 'amt' ? '#e2dcc8' : '#e6e2d6', { dreck: .5 }); d.draw(x, w, h); // echtes Plakatpapier (Scan) statt Fläche + Körnung
     const g2 = x.createLinearGradient(0, 0, 0, h); g2.addColorStop(0, 'rgba(90,70,40,0)'); g2.addColorStop(1, 'rgba(90,70,40,.35)'); x.globalCompositeOperation = 'source-atop'; x.fillStyle = g2; x.fillRect(0, 0, w, h); x.globalCompositeOperation = 'source-over';
     x.fillStyle = 'rgba(200,200,190,.8)'; x.fillRect(w / 2 - 20, 0, 40, 10); x.fillRect(w / 2 - 20, h - 10, 40, 10); });
   const posters = [];
@@ -12556,7 +12548,7 @@ function katzen_rest() {
     S.R.notch[side] = best ? [best.x, best.y, best.z, .0065] : [0, 0, 0, 0]; }
   const P = geo.attributes.position, v = v0, up = new THREE.Vector3(0, 1, 0).addScaledVector(n, -n.y).normalize(); let best = null, bs = 1e9;
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).sub(c); const along = v.dot(n); if (Math.abs(along) > .004) continue; const r = v.clone().addScaledVector(n, -along); if (r.length() > .07) continue; const s = r.dot(up); if (s < bs) { bs = s; best = v.clone().add(c); } }
-  S.R.fellP = P.array; S.R.fellI = geo.index ? geo.index.array : null; S.R.throat = best || c.clone().addScaledVector(up, -.03);
+  { const fp = new Float32Array(P.count * 3); for (let i = 0; i < P.count; i++) { fp[i * 3] = P.getX(i); fp[i * 3 + 1] = P.getY(i); fp[i * 3 + 2] = P.getZ(i); } S.R.fellP = fp; } S.R.fellI = geo.index ? geo.index.array : null; S.R.throat = best || c.clone().addScaledVector(up, -.03);
   S.R.throatN = S.R.throat.clone().sub(c).addScaledVector(n, -S.R.throat.clone().sub(c).dot(n)).normalize();
 }
 
@@ -12596,7 +12588,7 @@ vec3 katzenFarbe(vec3 tex, vec4 m){
   fur *= 1. - kMat * .5 * smoothstep(.42, .66, kN(p * 3.3 + 11.)); // verklebte Strähnen: dunkle, fettige Partien
   // Haarkarten: Tiefe (Wurzel dunkler) und Wurzelfarbe (Smoke: helle Unterwolle)
   float rt = 1. - smoothstep(0., .7, vKT); fur = mix(fur, kRootC, kRootK * rt); fur *= mix(.82, 1., smoothstep(0., .55, vKT));
-  float sc = katzenNarbe(); fur = mix(fur, mix(fur, vec3(.62, .5, .47), .75) + kPink * .15, sc);
+  float sc = katzenNarbe(); fur = mix(fur, mix(fur, vec3(.62, .5, .47), .6) + kPink * .1, sc);
   vec3 q = vKR - kColC; float al = dot(q, kColN); float rr = length(q - kColN * al);
   float cb = kColOn * step(abs(al), kColW) * step(rr, .062);
   vec3 cc = kColCol * (.75 + .35 * kN(p * 7.)); if (kTuch > .5) cc *= .7 + .3 * step(.5, fract((vKR.x + vKR.y) * 180.));
@@ -26075,8 +26067,8 @@ WORLD_MODS.push(['Zayn', async () => {
     wr.rotation.set(-.6, .8, .3); spot('brause', 35.3, .42, 135.4, wr); }
   // --- Hütte: Zeichnungen, Radio, Decke, Kerze
   const H = WALD.hut, draw = (fn, w, h, x, y, z, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ roughness: .95, map: tex(cnv(512, fn), true) })); m.position.set(x, y, z); m.rotation.y = ry; scene.add(m); S.wald.push(m); return m; };
-  const kid = (x, c, px, py, s, col) => { x.strokeStyle = col; x.lineWidth = 7 * s; x.lineCap = 'round'; x.beginPath(); x.arc(px, py, 26 * s, 0, 7); x.stroke(); x.beginPath(); x.moveTo(px, py + 26 * s); x.lineTo(px, py + 110 * s); x.moveTo(px - 40 * s, py + 60 * s); x.lineTo(px + 40 * s, py + 60 * s); x.moveTo(px, py + 110 * s); x.lineTo(px - 28 * s, py + 170 * s); x.moveTo(px, py + 110 * s); x.lineTo(px + 28 * s, py + 170 * s); x.stroke(); };
-  const paper = x => { x.fillStyle = '#ece4cc'; x.fillRect(0, 0, 512, 512); for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(90,70,40,${rand(.02, .06)})`; x.fillRect(rand(0, 512), rand(0, 512), rand(20, 90), rand(2, 8)); } };
+  const kid = (x, c, px, py, s, col) => { const lw = 7 * s; echt_kreis(x, px, py, 26 * s, 26 * s, col, lw); echt_kind(x, [[px, py + 26 * s], [px, py + 110 * s]], col, lw); echt_kind(x, [[px - 40 * s, py + 60 * s], [px + 40 * s, py + 60 * s]], col, lw); echt_kind(x, [[px - 28 * s, py + 170 * s], [px, py + 110 * s], [px + 28 * s, py + 170 * s]], col, lw); }; // Kinderhand-Strich (echt_kind)
+  const paper = x => { papierScan(x, 512, 512, '#ece4cc', { dreck: .45 }); }; // echtes Papier
   S.drawing = draw(x => { paper(x); kid(x, 0, 150, 150, 1, '#2a4ac0'); kid(x, 0, 290, 150, 1, '#c03a2a'); kid(x, 0, 400, 205, .7, '#2a9a3a');
     x.fillStyle = '#333'; x.font = '28px "Comic Sans MS", cursive'; x.fillText('LUKE', 110, 380); x.fillText('JONAS', 245, 380); x.fillText('ICH', 375, 380); x.fillStyle = '#a02020'; x.font = 'bold 34px "Comic Sans MS", cursive'; x.fillText('Versprochen ist versprochen.', 40, 460); }, .62, .62, H.x - .3, 1.45, H.z + 1.84, PI);
   draw(x => { paper(x); x.strokeStyle = '#5a3a1a'; x.lineWidth = 12; for (let i = 0; i < 7; i++) { x.beginPath(); x.moveTo(40 + i * 70, 470); x.lineTo(60 + i * 70, 120); x.stroke(); } x.fillStyle = '#e8c020'; x.beginPath(); x.arc(256, 70, 40, 0, 7); x.fill(); kid(x, 0, 256, 260, .6, '#2a9a3a'); }, .5, .5, H.x - 1.64, 1.5, H.z - .4, PI / 2);
@@ -29313,7 +29305,14 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
-  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen)
+  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i),
+  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
+// Seltene Klänge werden erst beim ersten Gebrauch (oder beim Betreten des passenden Ortes) geladen – hält den Speicher klein (Audio-PCM liegt dekodiert im Heap).
+const KL_GRUPPEN = { feuer: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_feuer_knist_' + i), ...[1, 2, 3].map(i => 'fx_feuer_pop_' + i), 'fx_feuer_wuff', 'amb_feuer', 'amb_feuer_lo'],
+  zombie: [...[1, 2, 3, 4, 5, 6].map(i => 'zb_roech_' + i), 'zb_zisch'], oel: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_oel_blub_' + i)], funk: ['fx_funk_stat'],
+  krabbel: [...[1, 2, 3, 4].map(i => 'fx_krabbel_' + i), 'amb_krabbel'], katze: [...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i), 'fx_katze_schnurr'] };
+const KL_ORT_GRUPPEN = { amt: ['feuer', 'zombie', 'oel', 'funk', 'krabbel'], keller: ['funk', 'krabbel'] }; // beim Betreten laden (Kapitel 2: Brand, Peter, Spinnen)
+function kl_gruppe(g) { const S = klang_S; if (!KL_GRUPPEN[g]) return; S.gr = S.gr || {}; if (S.gr[g]) return; S.gr[g] = 1; (async () => { for (const n of KL_GRUPPEN[g]) await klang_load(n); })(); }
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -29479,6 +29478,41 @@ Object.assign(Audio, {
   // Ohrklingeln nach Schlag/Knall: schmalbandiges Rauschen um 3,3 kHz, weich ein- und ausgeblendet (statt Sinus bei 4 kHz)
   ohrklingeln(v = 1) { if (!this.ctx || !kl_has('fx_ohrklingeln')) return null; return this.play('fx_ohrklingeln', { gain: .9 * v, dest: this.master }); },
   phraseCalm() { return null; }, phraseUneasy() { return null; }, phraseDanger() { return null; }, // keine Synth-Phrasen: ohne Aufnahme lieber Stille
+});
+// ---------------------------------------------------------------- Echte Aufnahmen 2 (AP „Echte Klänge“, 08.10.2026): Atem, Flügelschläge, Katze, Zombie, Öl, Tasten, Relais, Krabbeln, Funk
+// Quellen: Sonniss GDC (lizenzfrei), freesound.org (nur CC0), Wikimedia Commons (CC0/gemeinfrei) – siehe CREDITS.md. Fehlt eine Datei, bleibt es still (kein erzeugter Ersatz) bzw. der alte Weg.
+const kl_ort = (x, y, z, ref, obj) => obj ? { obj, h: Math.max(0, (y ?? 1) - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2, ref } : (x !== undefined ? { x, y, z, ref } : {});
+Object.assign(Audio, {
+  // Atemzug / Keuchen / Stoff als Aufnahme (Lukes Atem ohne Ort, sonst räumlich). art: 'atem' (Ausatmen) · 'keuch' (nach Luft schnappen) · 'stoff'
+  atemEcht(v = .09, rate = 1, x, y, z, art = 'atem') { if (!this.ctx) return false; const n = kl_pick(art === 'keuch' ? 'pz_keuch_' : art === 'stoff' ? 'pz_stoff_' : 'pz_atem_', art === 'atem' ? 4 : art === 'keuch' ? 3 : 2); if (!n) return false;
+    this.play(n, { gain: Math.min(.55, v * 4.5), rate: Math.max(.7, Math.min(1.35, .92 * rate)), vary: .04, varyGain: .15, ...(x !== undefined ? { x, y, z, ref: 1.2 } : {}) }); return true; },
+  // Katze: 'miau' | 'fauch' (obj: die Katze läuft mit)
+  katze(art, x, y, z, obj, v = 1) { if (!this.ctx) return false; kl_gruppe('katze'); const n = art === 'miau' ? kl_pick('fx_katze_miau_', 2) : kl_pick('fx_katze_fauch_', 3); if (!n) return false;
+    this.play(n, { gain: (art === 'miau' ? .5 : .7) * v, vary: .05, rate: art === 'miau' ? rand(.92, 1.1) : 1, ...kl_ort(x, y, z, 2.5, obj) }); return true; },
+  // Zombie-Röcheln (Kapitel 2, Peter): Aufnahmen von Zombie-Stimmen; true = gespielt
+  roecheln(x, z, loud, obj) { if (!this.ctx) return false; kl_gruppe('zombie'); const n = kl_pick('zb_roech_', 6); if (!n) return false;
+    this.play(n, { gain: loud ? .85 : .55, vary: .06, varyGain: .15, ...kl_ort(x, 1.4, z, 3, obj) }); return true; },
+  // Öl/Schlamm: Blasen und Gluckser (n Stück, über t Sekunden verteilt)
+  oelBlasen(x, z, n = 4, t = 2, v = 1) { if (!this.ctx) return false; kl_gruppe('oel'); if (!kl_pick('fx_oel_blub_', 6)) return false;
+    for (let i = 0; i < n; i++) this.play(kl_pick('fx_oel_blub_', 6), { gain: rand(.3, .55) * v, vary: .08, delay: rand(0, t), x: x + rand(-.4, .4), y: .15, z: z + rand(-.4, .4), ref: 2.5 }); return true; },
+  // Feuerzeug (Rädchen + Flamme): echte Aufnahme
+  feuerzeug(x, y, z) { if (!this.ctx) return false; const n = kl_pick('fx_feuerzeug_', 3); if (!n) return false; this.play(n, { gain: .5, vary: .05, ...(x !== undefined ? { x, y, z, ref: 1.5 } : {}) }); return true; },
+  // Funk-Klick (Rauschsperre / Sprechtaste) – echtes Handfunkgerät
+  funkKlick(x, y, z, v = 1) { if (!this.ctx) return false; const n = kl_pick('fx_funk_klick_', 3); if (!n) return false; this.play(n, { gain: .5 * v, vary: .05, ...(x !== undefined ? { x, y, z, ref: 2 } : {}) }); return true; },
+  // Relais im Gerät (kurzer, trockener Klack)
+  relais(x, y, z, v = 1) { if (!this.ctx) return false; const n = kl_pick('fx_relais_', 3); if (!n) return false; this.play(n, { gain: .55 * v, vary: .06, ...(x !== undefined ? { x, y, z, ref: 3 } : {}) }); return true; },
+  // Tastenfeld: Piepen einer echten Quittungstaste (ok = Ton hell, sonst tief)
+  beep(ok) { if (!this.ctx) return; const n = kl_pick('ui_taste_', 4); if (!n) return this.play('switch2', { gain: .16, rate: ok ? 1.7 : 1.15, hp: 500 }); this.play(n, { gain: .5, rate: ok ? 1 : .6, vary: .02 }); },
+  // Dingdong / Klingel: zwei Zinken der Spieluhr-Bank
+  ding(v) { if (!this.ctx || v < .005) return; if (!kl_has('kb_spieluhr_E6')) return; this.play('kb_spieluhr_E6', { gain: Math.min(.5, v * 5), rate: 1 }); this.play('kb_spieluhr_A6', { gain: Math.min(.4, v * 4), delay: .25 }); },
+  // Flackern/Funken eines Schalters (Sicherung, Lampe): Relais-Klack statt Rauschstoß
+  flick() { if (!this.ctx) return; if (!this.relais(undefined, undefined, undefined, .5)) this.play('switch2', { gain: .2, rate: 1.6, hp: 800 }); },
+  // Krabbeln (Spinnen, Käfer): Schwarm-Schleife + einzelne Schritte, alles Aufnahmen
+  skitter(on) { if (!this.ctx) return; kl_gruppe('krabbel');
+    if (on && !this.skit) { const g = this.ctx.createGain(); g.gain.value = 0; g.connect(this.master); g.gain.linearRampToValueAtTime(.7, this.ctx.currentTime + 4); const s = this.skit = { g, nodes: [], h: null };
+      const tick = () => { if (this.skit !== s) return; if (!s.h && this.buf.amb_krabbel) s.h = this.loop('amb_krabbel', { gain: 1, dest: g });
+        const n = kl_pick('fx_krabbel_', 4); this.play(n || this.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: rand(.2, .4), rate: rand(.9, 1.3), pan: rand(-1, 1), dest: g }); setTimeout(tick, rand(120, 420)); }; tick(); }
+    else if (!on && this.skit) { const s = this.skit; s.g.gain.linearRampToValueAtTime(0, this.ctx.currentTime + .15); setTimeout(() => { try { if (s.h) s.h.stop(.1); } catch (e) {} }, 300); this.skit = null; } },
 });
 Audio.stepSound = klang_step; Audio.surfaceAt = (x, z) => klang_floor(x, z); Audio.roomHint = () => klang_reverb();
 // ---------------------------------------------------------------- Umgebung je Ort
@@ -29689,7 +29723,7 @@ WORLD_TICK.push(dt => {
   if (S.pending.length && Audio.mus) for (const [lv, tr] of S.pending.splice(0)) Audio.mus.tracks[lv].push(tr); // fertige Stücke in die Musikauswahl
   const menuOn = !state.started && $('start').classList.contains('show') && !S.intro; klang_menu(menuOn);
   if (!state.started) return;
-  S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; } S.areaSince = (S.areaSince || 0) + 1;
+  S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; for (const g of KL_ORT_GRUPPEN[a] || []) kl_gruppe(g); } S.areaSince = (S.areaSince || 0) + 1;
     const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = rand(8, 16); } // Ort gewechselt: langsam aus, kurz Stille
     try { Audio.setRoom(klang_reverb()); klang_beds(); klang_betten(); } catch (e) { console.warn('Klang: Raum', e); } }
   try { klang_wind(dt); } catch (e) { if (!S.windErr) { S.windErr = 1; console.warn('Klang: Wind', e); } }
@@ -29843,8 +29877,7 @@ Object.assign(Audio, {
     const P = { x, y: y ?? 1.2, z, typ: 'laut' }; this.play(this.pick('woodSlam1', 'woodSlam2', 'woodSlam3'), { gain: 1, vary: .06, ...P }); const d = this.at(x, P.y, z, 6); if (!this.cut) { const o = this.osc('sine', 70, 0, .6); this.env(o, .4, .003, .4, 0, d); } },
   knock(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.3, z, ref: 3 }; for (let i = 0; i < 3; i++) this.play(this.pick('woodHit1', 'woodHit2', 'woodHit3'), { gain: .7, vary: .06, delay: i * .29 + rand(0, .04), ...P }); },
   creak(v = .22, x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.2, z, ref: 2.5 }; this.play('doorCreak', { gain: v * 1.8, rate: rand(.8, 1.05), offset: rand(0, .6), dur: rand(1.4, 2.4), ...P }); },
-  intercomClick(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.6, z, ref: 2 }; this.play('switch2', { gain: .6, ...P }); const d = x === undefined ? undefined : this.at(x, P.y, z, 2); if (d && this.cut) return;
-    const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 1; n.connect(bp); this.env(bp, .15, .003, .12, .05, d); n.stop(this.ctx.currentTime + .4); },
+  intercomClick(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.6, z, ref: 2 }; if (this.funkKlick(x, P.y, z, 1.2)) return; /* echtes Funkgerät (klang.js) */ this.play('switch2', { gain: .6, ...P }); },
 });
 // Telefon/Spieluhr/Klavier/Tank: Fassung aus klang.js mit Ort (ohne Ort: Hörer am Ohr, Luke spielt selbst …)
 { const ring0 = Audio.ring, mb0 = Audio.musicBox, pn0 = Audio.pianoNote, tank0 = Audio.tankHum;
@@ -29867,15 +29900,18 @@ Object.assign(Audio, {
 // Tier-/Kreaturlaute mit optionalem obj (letzter Parameter): fliehende Rehe, auffliegende Krähen, das Hirschding – der Laut läuft mit
 { const g0 = Audio.groan, d0 = Audio.deerBark, f0 = Audio.flap;
   Object.assign(Audio, {
-    groan(x, z, loud, obj) { if (!obj || !this.ctx) return g0.call(this, x, z, loud); const b = this.buf.zombie1, O = { gain: loud ? 1.1 : .7, obj, h: 1.4, ref: 3 };
+    groan(x, z, loud, obj) { if (this.ctx && Math.random() < .65 && this.roecheln(x, z, loud, obj)) return; if (!obj || !this.ctx) return g0.call(this, x, z, loud); const b = this.buf.zombie1, O = { gain: loud ? 1.1 : .7, obj, h: 1.4, ref: 3 };
       if (Math.random() < .5 && b) this.play('zombie1', { ...O, vary: .08, offset: rand(0, Math.max(0, b.duration - 2.5)), dur: 2.2 }); else this.play(this.pick('undead1', 'undead2', 'undead3', 'undead4'), { ...O, vary: .1 }); },
     deerBark(x, z, obj) { if (!obj || !this.ctx) return d0.call(this, x, z); const n = kl_pick('fx_reh_', 3); if (n) this.play(n, { gain: .4, vary: .05, obj, h: 1, ref: 8, lp: 3500 }); },
     // Flügelschläge: sechs weiche, tiefe Stöße (Messung 08.10.: mit Pegel .25 und 600 Hz kam jeder Rabenflug als Rauschblock mit Spitzen bis .7 bei sonst .05)
     // Ursache des „wiederkehrenden Rauschens“ (Messung 08.10.): Audio.env legte die Hüllkurve mit setValueAtTime(0, t) erst ab dem Zeitpunkt t an – davor lag der Standardwert 1 am Gain, das schon laufende Rauschen ging also bei JEDEM verzögerten Impuls (t0 > 0: Flügelschläge, Schreck-/Flüster-Stöße, Atem, Papier …) mit voller Lautstärke durch (Spitze .6 statt .07).
     env(node, peak, a, dcy, t0 = 0, dest) { const g = this.ctx.createGain(), t = this.ctx.currentTime + t0; g.gain.value = 0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + dcy); node.connect(g); g.connect(dest || this.master); return g; },
     // Messung 08.10. (stehend, 45 s): Krähen landen/starten dauernd in Hörweite → ein Flap-Rauschen alle ~6 s (draußen 42 Rauschquellen/40 s, ca. 7 Flüge). Darum: > 26 m gar nicht, ferne (> 9 m) höchstens alle 9 s, nahe höchstens alle 1,2 s (Skripte mit Folgeschlägen bleiben hörbar).
-    flap(x, y, z, obj) { if (!this.ctx) return; const dd = Math.hypot(x - (this.lx ?? x), z - (this.lz ?? z)), tn = this.ctx.currentTime; if (dd > 26) return; if (tn - (this.flapT || -99) < (dd > 9 ? 9 : 1.2)) return; this.flapT = tn; const d = obj ? this.at(x, y, z, 3, { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2 }) : this.at(x, y, z, 3); if (this.cut) return;
-      for (let i = 0; i < 6; i++) { const n = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520 - i * 20; n.connect(lp); this.env(lp, .4 * (1 - i * .08), .015, .09, i * .1, d); n.stop(this.ctx.currentTime + 1); } },
+    // Flügelschläge jetzt als echte Aufnahmen (Taube, Ente, Adler; AP Echte Klänge) – der Rauschblock-Ersatz entfällt. Fehlt die Datei: Stille.
+    // Messung 08.10. (stehend, 45 s): Krähen landen/starten dauernd in Hörweite. Darum: > 26 m gar nicht, ferne (> 9 m) höchstens alle 6 s, nahe höchstens alle 0,8 s.
+    flap(x, y, z, obj) { if (!this.ctx) return; const dd = Math.hypot(x - (this.lx ?? x), z - (this.lz ?? z)), tn = this.ctx.currentTime; if (dd > 26) return; if (tn - (this.flapT || -99) < (dd > 9 ? 6 : .8)) return;
+      const n = typeof kl_pick === 'function' ? kl_pick('fx_flug_', 4) : null; if (!n) return; this.flapT = tn;
+      this.play(n, { gain: dd > 9 ? .5 : .65, vary: .07, varyGain: .2, ...(obj ? { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2, ref: 3 } : { x, y, z, ref: 3 }) }); },
   }); }
 // Fernseher in Nr. 7: das Rauschen kommt aus dem Gerät (die Basis regelt nur noch an/aus)
 function rk_tv() { const A = Audio; if (RK.tvOk || !A.tv || typeof tvScreen === 'undefined' || A.lsp === undefined || A.lsp === 'u') return; RK.tvOk = true;
@@ -30856,7 +30892,7 @@ function weiss_hinweise() { const other = WEISS_HINTS.filter(weiss_has), n = (we
 const _wv = new THREE.Vector3(), _wd = new THREE.Vector3(), _wq = new THREE.Quaternion(), _wm = new THREE.Matrix4();
 
 // ---------------------------------------------------------------- Klang: Atem, Glocke über dem Weißen
-function weiss_atem(v, x, y, z) { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 640; bp.Q.value = .9;
+function weiss_atem(v, x, y, z) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v * 1.5, .85, x, y, z)) return; const c = A.ctx, t = c.currentTime, n = A.noise(false), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 640; bp.Q.value = .9;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .9); g.gain.linearRampToValueAtTime(v * .12, t + 1.25); g.gain.linearRampToValueAtTime(v * .75, t + 1.7); g.gain.linearRampToValueAtTime(0, t + 2.7);
   n.connect(bp); bp.connect(g); g.connect(A.at(x, y, z, 1.1)); n.stop(t + 2.9); }
 // Einzelner Glockenschlag (leben_bellStrike), hier aus dem Weiß über der Senke statt vom Kirchberg
@@ -30886,7 +30922,7 @@ const WEISS_TEX = {
   tau: () => weiss_cv(256, 256, (x, w) => { const g = x.createRadialGradient(w / 2, w / 2, w * .3, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.18, 'rgba(255,255,255,.95)'); g.addColorStop(.55, 'rgba(255,255,255,.5)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }),
   spalt: () => weiss_cv(16, 128, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, 'rgba(0,0,0,.96)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 4, w, h - 8); }),
   // Papier der großen Laterne: Kinderzeichnungen wie an der Wand in Hildes Keller (Buntstift), Rippen quer
-  papier: () => weiss_cv(1024, 512, (x, w, h) => { x.fillStyle = '#f2e4c6'; x.fillRect(0, 0, w, h); for (let i = 0; i < 1400; i++) { x.fillStyle = `rgba(150,110,60,${(Math.random() * .08).toFixed(3)})`; x.fillRect(Math.random() * w, Math.random() * h, Math.random() * 30, 1); }
+  papier: () => weiss_cv(1024, 512, (X, w, h) => { papierScan(X, w, h, '#f2e4c6', { dreck: .4 }); const Lc = document.createElement('canvas'); Lc.width = w; Lc.height = h; const x = Lc.getContext('2d'); // echtes Papier; die Buntstiftstriche auf eigener Ebene mit Wachskorn (echte Scans)
     const cr = (col, wd = 4) => { x.strokeStyle = col; x.lineWidth = wd; x.lineCap = 'round'; x.lineJoin = 'round'; }; const jit = v => v + (Math.random() - .5) * 2.4;
     const kid = (cx, cy, s, col) => { cr(col, 3.5); x.beginPath(); x.arc(cx, cy - 44 * s, 10 * s, 0, 7); x.moveTo(jit(cx), cy - 34 * s); x.lineTo(jit(cx), cy); x.lineTo(cx - 10 * s, cy + 26 * s); x.moveTo(cx, cy); x.lineTo(cx + 10 * s, cy + 26 * s); x.moveTo(cx - 14 * s, cy - 22 * s); x.lineTo(cx + 16 * s, cy - 20 * s); x.stroke();
       cr('#c87818', 3); x.beginPath(); x.moveTo(cx + 16 * s, cy - 20 * s); x.lineTo(cx + 16 * s, cy - 6 * s); x.stroke(); x.fillStyle = 'rgba(230,150,30,.8)'; x.beginPath(); x.arc(cx + 16 * s, cy, 7 * s, 0, 7); x.fill(); };
@@ -30895,7 +30931,7 @@ const WEISS_TEX = {
       cr('#303030', 6); x.beginPath(); x.moveTo(o + 440, 200); x.lineTo(o + 440, 380); x.moveTo(o + 400, 260); x.lineTo(o + 480, 260); x.moveTo(o + 440, 380); x.lineTo(o + 415, 430); x.moveTo(o + 440, 380); x.lineTo(o + 465, 430); x.stroke(); x.beginPath(); x.arc(o + 440, 176, 22, 0, 7); x.stroke();
       cr('#a01818', 5); x.beginPath(); x.ellipse(o + 250, 150, 110, 30, 0, 0, 7); x.stroke(); cr('#d8d8e8', 10); for (let k = 0; k < 5; k++) { x.beginPath(); x.moveTo(o + 205 + k * 22, 178); x.lineTo(o + 180 + k * 34, 290); x.stroke(); }
       x.fillStyle = '#a01818'; x.font = 'bold 34px Caveat, cursive'; x.fillText(rep ? 'wir 8' : 'DAS LICHT', o + 170, 90); }
-    x.fillStyle = 'rgba(90,60,30,.55)'; for (let i = 1; i < 16; i++) x.fillRect(0, i * h / 16, w, 2); }),
+    echt_wachsKorn(x, w, h, .4); X.drawImage(Lc, 0, 0); X.fillStyle = 'rgba(90,60,30,.4)'; for (let i = 1; i < 16; i++) X.fillRect(0, i * h / 16, w, 2); }),
   // Spiegelung im blanken Visier: weißer Raum, darin ein Gesicht mit braunen Augen (verzerrt, verblasst)
   visier: () => weiss_cv(256, 160, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#eef0f2'); g.addColorStop(1, '#c4c9cf'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     x.save(); x.translate(w / 2, h * .52); x.scale(1.25, .92); x.filter = 'blur(1.4px)'; x.fillStyle = '#4a4038'; x.beginPath(); x.ellipse(0, 70, 78, 38, 0, 0, 7); x.fill();
@@ -31716,10 +31752,12 @@ function kino_blinzeln(zu = .15, auf = .15, onZu) { kino_css(); const L = $('kin
 function kino_bus() { const A = Audio; if (!A.ctx) return null; if (!kino_S.bus) { const g = A.ctx.createGain(); g.gain.value = 1; g.connect(A.master); if (A.musSend) g.connect(A.musSend); kino_S.bus = g; } return kino_S.bus; }
 function kino_nz(A) { return A.noise(false); }
 function kino_atem(v = .09, rate = 1, x, y, z) { // ein Atemzug: gefiltertes Rauschen, ein – aus
+  if (Audio.atemEcht && Audio.atemEcht(v, rate, x, y, z)) return; // echte Aufnahme (klang.js), sonst der alte Weg
   const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 520 * rate; bp.Q.value = .8;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 1.1 / rate); g.gain.linearRampToValueAtTime(v * .15, t + 1.5 / rate); g.gain.linearRampToValueAtTime(v * .8, t + 2 / rate); g.gain.linearRampToValueAtTime(0, t + 3.2 / rate);
   n.connect(bp); bp.connect(g); g.connect(x !== undefined ? A.at(x, y, z, 1.2) : A.master); n.stop(t + 3.4 / rate); }
 function kino_einatmen(v = .12, x, y, z, hoch = 1) { // Luftholen eines Kindes (Laterne auspusten, „tief Luft holen“)
+  if (Audio.atemEcht && Audio.atemEcht(v * .7, 1.15 * hoch, x, y, z, 'keuch')) return;
   const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.Q.value = 1.1;
   bp.frequency.setValueAtTime(900 * hoch, t); bp.frequency.linearRampToValueAtTime(1700 * hoch, t + .55); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .45); g.gain.linearRampToValueAtTime(0, t + .62);
   n.connect(bp); bp.connect(g); g.connect(x !== undefined ? A.at(x, y, z, 2) : A.master); n.stop(t + .7); }
@@ -31747,12 +31785,12 @@ function kino_taube(x, y, z) { if (Audio.taube && Audio.taube(x, y, z)) return; 
 function kino_pling(x, y, z) { if (Audio.rabeTon && Audio.ctx && Audio.buf.fx_rabe_1) { const d = Audio.at(x, y, z, 3); Audio.rabeTon(1760, 0, .5, .1, d); Audio.rabeTon(1318, .24, .55, .08, d); return; } /* Whiskey ahmt die Mikrowelle nach */ const A = Audio; if (!A.ctx) return; const c = A.ctx, d = A.at(x, y, z, 3), t = c.currentTime; // Mikrowellen-Pling (Whiskeys Nachahmung)
   for (const [m, a] of [[1, 1], [2.02, .35], [3.9, .12]]) { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = 1760 * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12 * a, t + .004); g.gain.exponentialRampToValueAtTime(.0004, t + 1.4); o.connect(g); g.connect(d); o.start(t); o.stop(t + 1.5); } }
 function kino_klapper(x, y, z, n = 1) { for (let i = 0; i < n; i++) Audio.play('woodHit3', { gain: .12, rate: 3.2, hp: 1200, dur: .06, delay: i * .09, x, y, z, ref: 1.5 }); } // Schnabelklappern
-function kino_relais(x, y, z, v = .22) { Audio.play('switch1', { gain: v, rate: .62, hp: 400, x, y, z, ref: 4 }); Audio.play('metalHit2', { gain: v * .25, rate: 2.6, hp: 1500, dur: .08, delay: .02, x, y, z, ref: 4 }); }
+function kino_relais(x, y, z, v = .22) { if (Audio.relais && Audio.relais(x, y, z, v * 3)) return; Audio.play('switch1', { gain: v, rate: .62, hp: 400, x, y, z, ref: 4 }); Audio.play('metalHit2', { gain: v * .25, rate: 2.6, hp: 1500, dur: .08, delay: .02, x, y, z, ref: 4 }); }
 function kino_kreide(x, y, z) { for (let i = 0; i < 3; i++) Audio.play(Audio.pick('scrape1', 'scrape3'), { gain: .16, rate: rand(2.4, 3), hp: 1800, dur: rand(.18, .3), delay: i * rand(.22, .34), x, y, z, ref: 1.5 }); }
 function kino_trippeln(x, z, v = .06, n = 3) { for (let i = 0; i < n; i++) setTimeout(() => Audio.stepAt && Audio.stepAt(x + i * .18, z + rand(-.05, .05), v), i * 115); }
 function kino_klingel(x, z) { if (Audio.ctx && Audio.buf.kb_spieluhr_A6) { for (let i = 0; i < 2; i++) Audio.play('kb_spieluhr_A6', { gain: .35, rate: .78, delay: i * .13, x, y: 1.1, z, ref: 25 }); return; } /* Glöckchen (Aufnahme) */ const A = Audio; if (!A.ctx) return; const c = A.ctx, d = A.at(x, 1.1, z, 25); for (let i = 0; i < 2; i++) { const t = c.currentTime + i * .13; for (const [m, a] of [[1, 1], [2.71, .4], [5.2, .15]]) { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2080 * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05 * a, t + .003); g.gain.exponentialRampToValueAtTime(.0004, t + .9); o.connect(g); g.connect(d); o.start(t); o.stop(t + 1); } } } // Fahrradklingel, weit weg
 function kino_kiesel(x, y, z) { Audio.play('stones1', { gain: .14, rate: rand(1.6, 2.1), dur: .5, hp: 700, x, y, z, ref: 1.2 }); }
-function kino_stoff(v = .05) { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = .6;
+function kino_stoff(v = .05) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v, 1, undefined, undefined, undefined, 'stoff')) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = .6;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .25); g.gain.linearRampToValueAtTime(v * .4, t + .6); g.gain.linearRampToValueAtTime(v, t + .9); g.gain.linearRampToValueAtTime(0, t + 1.5); n.connect(bp); bp.connect(g); g.connect(A.master); n.stop(t + 1.6); }
 function kino_taste(v = 1) { if (Audio.ctx && Audio.buf.switch2) { Audio.play('switch2', { gain: .12 * v, rate: rand(1.4, 1.8), hp: 800, dest: Audio.master }); return; } /* Tastenklick (Aufnahme) */ const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = rand(2200, 3200); bp.Q.value = 2;
   g.gain.setValueAtTime(.05 * v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .035); n.connect(bp); bp.connect(g); g.connect(A.master); n.stop(t + .05);
@@ -31913,19 +31951,19 @@ function kino_decal(key, canvas, w, h, o = {}) { const m = new (o.phys ? THREE.M
   const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.receiveShadow = true; p.castShadow = !!o.cast; return kino_obj(key, p); }
 
 // ---------------------------------------------------------------- Texturen (beim Laden gezeichnet)
-function kino_tex_papa() { return cnv(512, (c, w) => { // Kinderzeichnung vor dem achten Stuhl: „PAPA + ICH“, signiert mit einem halben Mond
-  c.fillStyle = '#e9e1cc'; c.fillRect(0, 0, w, w); for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(90,70,40,${rand(.01, .05)})`; c.fillRect(rand(0, w), rand(0, w), rand(1, 3), rand(1, 3)); }
-  const cray = (col, lw, pts) => { c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; for (let k = 0; k < 3; k++) { c.globalAlpha = .45; c.beginPath(); pts.forEach(([x, y], i) => { const X = x + rand(-2, 2), Y = y + rand(-2, 2); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); } c.globalAlpha = 1; };
+function kino_tex_papa() { return cnv(512, (c, w) => { // Kinderzeichnung vor dem achten Stuhl: „PAPA + ICH“, signiert mit einem halben Mond – Wachsmalstift mit Kinderhand (echt_kind: Zittern, Druck, überfahrene Konturen, Papierscan + Wachskorn)
+  papierScan(c, w, w, '#e9e1cc', { dreck: .5 });
+  const cray = (col, lw, pts) => echt_kind(c, pts, col, lw);
   const grey = '#55585e', pink = '#b04a60', yel = '#d8a820';
   cray(grey, 7, [[150, 128], [206, 128], [206, 190], [150, 190], [150, 128]]); cray('#222', 4, [[158, 158], [198, 158]]); cray('#222', 5, [[160, 118], [178, 96], [196, 118]]); // Helm mit Sehschlitz und Zacken
   cray(grey, 8, [[178, 190], [178, 330]]); cray(grey, 7, [[130, 215], [226, 215]]); cray(grey, 7, [[178, 330], [148, 430]]); cray(grey, 7, [[178, 330], [210, 430]]);
   cray('#888', 5, [[130, 215], [118, 150]]); cray('#999', 4, [[112, 170], [112, 60]]);
-  cray(pink, 6, [[330, 250], [330, 330]]); c.fillStyle = 'rgba(176,74,96,.35)'; c.beginPath(); c.moveTo(330, 280); c.lineTo(290, 380); c.lineTo(370, 380); c.fill(); cray(pink, 5, [[330, 280], [290, 380], [370, 380], [330, 280]]);
-  c.strokeStyle = '#6a4a2a'; c.lineWidth = 5; c.beginPath(); c.arc(330, 228, 24, 0, 7); c.stroke();
+  cray(pink, 6, [[330, 250], [330, 330]]); echt_schraff(c, [296, 284, 366, 380], 'rgba(176,74,96,.75)', 9, 8); cray(pink, 5, [[330, 280], [290, 380], [370, 380], [330, 280]]);
+  echt_kreis(c, 330, 228, 24, 24, '#6a4a2a', 5);
   cray(pink, 5, [[306, 290], [226, 215]]); cray(pink, 5, [[312, 380], [305, 440]]); cray(pink, 5, [[350, 380], [356, 440]]);
-  c.strokeStyle = yel; c.lineWidth = 5; c.beginPath(); c.arc(430, 80, 26, 0, 7); c.stroke(); for (let a = 0; a < 6.28; a += .8) cray(yel, 3, [[430 + Math.cos(a) * 34, 80 + Math.sin(a) * 34], [430 + Math.cos(a) * 48, 80 + Math.sin(a) * 48]]);
-  c.fillStyle = '#b3261e'; c.font = 'bold 56px "Comic Sans MS", cursive'; c.save(); c.translate(70, 488); c.rotate(-.04); c.globalAlpha = .85; c.fillText('PAPA + ICH', 0, 0); c.restore();
-  c.strokeStyle = '#3a3a8a'; c.lineWidth = 5; c.beginPath(); c.arc(452, 466, 20, -PI / 2, PI / 2); c.stroke(); }); } // halber Mond
+  echt_kreis(c, 430, 80, 26, 26, yel, 5); for (let a = 0; a < 6.28; a += .8) cray(yel, 3, [[430 + Math.cos(a) * 34, 80 + Math.sin(a) * 34], [430 + Math.cos(a) * 48, 80 + Math.sin(a) * 48]]);
+  echt_wachsText(c, 'PAPA + ICH', 70, 488, 'bold 56px "Comic Sans MS", cursive', 'rgba(179,38,30,.9)', -.04);
+  { const m = []; for (let a = -PI / 2; a <= PI / 2; a += .2) m.push([452 + Math.cos(a) * 20, 466 + Math.sin(a) * 20]); echt_kind(c, m, '#3a3a8a', 5); } }); } // halber Mond
 function kino_tex_hand(big = 1) { return cnv(128, (c, w) => { c.clearRect(0, 0, w, w); if (echt_hand(c, 64, 70, 100 * big, 'rgb(235,245,250)', .75, 0, big > 1, 'trocken')) return; // echter Handabdruck am Glas (Megascans „Hand Print“)
   c.fillStyle = 'rgba(235,245,250,.55)'; c.filter = 'blur(2px)';
   c.beginPath(); c.ellipse(64, 84, 26 * big, 30 * big, 0, 0, 7); c.fill(); [[34, 48, 9, 26, -.5], [48, 30, 8, 30, -.15], [64, 24, 8, 32, 0], [80, 30, 8, 30, .15], [100, 60, 8, 22, .8]].forEach(([x, y, rx, ry, a]) => { c.beginPath(); c.ellipse(64 + (x - 64) * big, 84 + (y - 84) * big, rx * big, ry * big, a, 0, 7); c.fill(); }); c.filter = 'none'; }); }
@@ -31957,13 +31995,13 @@ function kino_tex_brille() { return cnv(1024, (c, w) => { c.clearRect(0, 0, w, w
 // Brille zeigen: Modell (mit Perlenkette), sonst das alte Bild
 function kino_brille(x, z, ry) { const m = kino_S.obj.brilleM; if (m) { kino_show('brilleM', x, 0, z, ry); return m; } const b = kino_show('brille', x, .024, z); if (b) b.rotation.set(-PI / 2, 0, ry); return b; }
 // Zeichnung von der Kellerwand: das Mädchen mit der Laterne, „LUKE, 9“
-function kino_tex_zeichnung() { return cnv(512, (c, w) => { c.fillStyle = '#ddd2b6'; c.fillRect(0, 0, w, w); for (let i = 0; i < 700; i++) { c.fillStyle = `rgba(80,60,30,${rand(.01, .05)})`; c.fillRect(rand(0, w), rand(0, w), rand(1, 3), rand(1, 3)); }
-  const cr = (col, lw, pts) => { c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; for (let k = 0; k < 3; k++) { c.globalAlpha = .45; c.beginPath(); pts.forEach(([x, y], i) => { const X = x + rand(-2, 2), Y = y + rand(-2, 2); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); } c.globalAlpha = 1; };
-  c.fillStyle = 'rgba(40,40,70,.9)'; c.fillRect(0, 0, w, 150); cr('#222', 5, [[250, 150], [250, 330]]); cr('#222', 5, [[250, 330], [215, 440]]); cr('#222', 5, [[250, 330], [285, 440]]);
-  c.strokeStyle = '#222'; c.lineWidth = 5; c.beginPath(); c.arc(250, 132, 26, 0, 7); c.stroke(); cr('#222', 5, [[250, 200], [320, 240]]); cr('#222', 5, [[250, 200], [190, 250]]);
-  const g = c.createRadialGradient(330, 262, 4, 330, 262, 70); g.addColorStop(0, 'rgba(255,220,120,.95)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.fillRect(250, 190, 160, 160);
+function kino_tex_zeichnung() { return cnv(512, (c, w) => { papierScan(c, w, w, '#ddd2b6', { dreck: .5 }); // Nachthimmel, Strichmännchen, gelbes Licht – Kinderhand mit echten Wachs-Pinseln
+  const cr = (col, lw, pts) => echt_kind(c, pts, col, lw);
+  echt_schraff(c, [0, 0, w, 150], 'rgba(40,40,70,.85)', 14, 11); cr('#222', 5, [[250, 150], [250, 330]]); cr('#222', 5, [[250, 330], [215, 440]]); cr('#222', 5, [[250, 330], [285, 440]]);
+  echt_kreis(c, 250, 132, 26, 26, '#222', 5); cr('#222', 5, [[250, 200], [320, 240]]); cr('#222', 5, [[250, 200], [190, 250]]);
+  echt_schraff(c, [288, 214, 376, 312], 'rgba(255,205,80,.8)', 12, 9);
   cr('#b07020', 4, [[320, 240], [330, 245], [345, 290], [315, 290], [330, 245]]); cr('#222', 3, [[230, 128], [236, 128]]); cr('#222', 3, [[262, 128], [268, 128]]);
-  c.fillStyle = '#1a1a1a'; c.font = '34px "Comic Sans MS", cursive'; c.save(); c.translate(300, 488); c.rotate(-.05); c.fillText('LUKE, 9', 0, 0); c.restore();
+  echt_wachsText(c, 'LUKE, 9', 300, 488, '34px "Comic Sans MS", cursive', '#1a1a1a', -.05);
   c.fillStyle = 'rgba(150,150,150,.9)'; c.beginPath(); c.arc(256, 14, 6, 0, 7); c.fill(); }); }
 function kino_tex_feder() { return cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.save(); c.translate(128, 250); c.rotate(-.05); // breite schwarze Feder, alt, am Kiel abgerissen
   c.strokeStyle = '#2a2622'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(6, -120, 0, -240); c.stroke();
@@ -34090,7 +34128,7 @@ const TOD_SND = {
   cough(v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, n = Math.random() < .5 ? 2 : 3;
     for (let k = 0; k < n; k++) { const d = k * rand(.2, .28); const s = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(650, 1100); bp.Q.value = .9; s.connect(bp); A.env(bp, .5 * v, .012, .16, d); s.stop(t + d + .5);
       const o = A.osc('sawtooth', rand(120, 160), d, .22), f = A.ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 3; o.frequency.setValueAtTime(rand(150, 175), t + d); o.frequency.exponentialRampToValueAtTime(95, t + d + .2); o.connect(f); A.env(f, .16 * v, .01, .18, d); } },
-  gasp(v = .6) { const A = Audio; if (!A.ctx) return; const s = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; const t = A.ctx.currentTime; bp.frequency.setValueAtTime(900, t); bp.frequency.linearRampToValueAtTime(1800, t + .5); s.connect(bp); A.env(bp, .22 * v, .25, .35); s.stop(t + 1); },
+  gasp(v = .6) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v * .35, 1, undefined, undefined, undefined, 'keuch')) return; const s = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; const t = A.ctx.currentTime; bp.frequency.setValueAtTime(900, t); bp.frequency.linearRampToValueAtTime(1800, t + .5); s.connect(bp); A.env(bp, .22 * v, .25, .35); s.stop(t + 1); },
   ring(on) { const A = Audio; if (!A.ctx) return; if (on && !tod_S.ring && A.ohrklingeln) { const h = A.ohrklingeln(.9); if (h) { tod_S.ring = { h }; return; } } // Ohrklingeln als schmalbandiges Rauschen (Modul klang)
     if (!on && tod_S.ring && tod_S.ring.h) { tod_S.ring.h.stop(.6); tod_S.ring = null; return; }
     if (on && !tod_S.ring) { const o = A.ctx.createOscillator(); o.frequency.value = 3950; const g = A.ctx.createGain(); g.gain.value = 0; g.gain.linearRampToValueAtTime(.022, A.ctx.currentTime + 2.5); o.connect(g); g.connect(A.ctx.destination); o.start(); tod_S.ring = { o, g }; }
@@ -34604,6 +34642,7 @@ WORLD_MODS.push(['Feuer', async () => {
   // Öllache (Decal): Farbe, Glanz, Ausbreitung, Glutfront und Verkohlen per Uniform – ein Programm, beim Laden übersetzt
   { const cv = document.createElement('canvas'); cv.width = FEU.fw; cv.height = FEU.fh; S.fieldCtx = cv.getContext('2d'); S.fieldCtx.fillStyle = '#000'; S.fieldCtx.fillRect(0, 0, FEU.fw, FEU.fh); S.fieldTex = new THREE.CanvasTexture(cv); S.field = new Float32Array(FEU.fw * FEU.fh);
     const col = new THREE.CanvasTexture(feuer_canvas(256, 256, (x, w) => { x.fillStyle = '#0b0806'; x.fillRect(0, 0, w, w); for (let i = 0; i < 90; i++) { const g = x.createRadialGradient(Math.random() * w, Math.random() * w, 0, Math.random() * w, Math.random() * w, 10 + Math.random() * 40); g.addColorStop(0, `rgba(${40 + Math.random() * 30},${24 + Math.random() * 20},${10 + Math.random() * 12},.35)`); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }
+      if (ECHT.img.oel) { x.save(); x.globalCompositeOperation = 'lighten'; x.globalAlpha = .9; x.drawImage(ECHT.img.oel, 0, 0, w, w); x.restore(); } // echter Ölfleck (Megascans „Oil Stain“): Filmstruktur und Ränder als Detail der Lache
       x.globalAlpha = .08; for (let i = 0; i < 7; i++) { x.strokeStyle = ['#6a2fa0', '#2f7fa0', '#a09a2f', '#a0442f'][i % 4]; x.lineWidth = 6 + Math.random() * 10; x.beginPath(); x.arc(Math.random() * w, Math.random() * w, 30 + Math.random() * 90, 0, 6.28); x.stroke(); } }));
     col.colorSpace = THREE.SRGBColorSpace; col.wrapS = col.wrapT = THREE.RepeatWrapping; col.repeat.set(2.5, 1.4);
     const U = S.oilU = { uSpread: { value: 1.1 }, uIgn: { value: new THREE.Vector2(0, 0) }, uBurnR: { value: 0 }, uHeat: { value: 0 }, uTime: { value: 0 }, uChar: { value: 0 } };
@@ -37603,18 +37642,7 @@ function spn_allePflegen() { const S = SPN_S, tauscht = new Map(); // alle Spinn
 async function spn_modell() { const S = SPN_S;
   try { const xs = await spn_starr('winkel', 'xs'), lo = await spn_starr('winkel', 'lo'); if (xs && lo) { spiders.geometry = xs.geo; spiders.material = xs.mat; S.camGeo = lo.geo; S.camMat = lo.mat; S.ext = .125; return true; } }
   catch (e) { console.warn('Spinnen: neue Schwarmform', e); }
-  return spn_modellAlt(); }
-async function spn_modellAlt() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
-  const BU = await import('three/addons/utils/BufferGeometryUtils.js'), { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'); let g = sm.geometry.clone();
-  try { // Gehpose einbacken (Beine gebeugt statt gestreckt): Klon, Lauf-Animation auf einen Schritt gestellt, Eckpunkte per Skelett ausgelesen
-    const root = FAB.spiders[0].g.children[0], cl = skClone(root), mx = new THREE.AnimationMixer(cl), clip = (FAB.spiders[0].acts.walk || FAB.spiders[0].acts.idle).getClip(); const a = mx.clipAction(clip); a.play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
-    let sm2 = null; cl.traverse(o => { if (o.isSkinnedMesh && !sm2) sm2 = o; }); sm2.skeleton.update(); const pos = g.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < pos.count; i++) { sm2.getVertexPosition(i, v); pos.setXYZ(i, v.x, v.y, v.z); } pos.needsUpdate = true;
-  } catch (e) { console.warn('Spinnen: Pose', e); }
-  g.deleteAttribute('skinIndex'); g.deleteAttribute('skinWeight'); g.deleteAttribute('normal'); g = BU.mergeVertices(g, 1e-4); g.computeVertexNormals();
-  g.computeBoundingBox(); const bb = g.boundingBox, sz = bb.getSize(new THREE.Vector3()), ext = .125, k = ext / Math.max(sz.x, sz.z); g.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); g.scale(k, k, k); g.rotateY(-PI / 2); // Kopf (−z) → +X
-  g.computeBoundingBox(); g.computeBoundingSphere(); const m0 = sm.material;
-  S.tarOrig = m0; const mat = spn_haut(m0.map);
-  spiders.geometry = g; spiders.material = mat; S.ext = ext; return true; }
+  return false; } // Rückfall: Schwarm behält die einfache Kugelform der Basis (die alten FBX-Spinnen werden nicht mehr geladen)
 WORLD_MODS.push(['Spinnen', async () => { const S = SPN_S;
   try { try { await Promise.all(Object.keys(SPN_ARTEN).map(a => spn_art(a))); await spn_fabErsetzen(); } catch (e) { console.warn('Spinnen: Arten', e); }
     let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }
@@ -43712,7 +43740,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 // Schablonenschrift mit Stegen, Abplatzern und Overspray, Druckfarbe mit Papierzahn und Tintenhof – die Texte bleiben, nur die Anmutung ist echt.
 const ECHT = { img: {}, an: 0, rs: 4242 };
 const echt_R = (a = 0, b = 1) => { ECHT.rs = (ECHT.rs * 1664525 + 1013904223) >>> 0; return a + (b - a) * (ECHT.rs / 4294967296); };
-ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
+ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz', 'oel'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = n === 'oel' ? 'assets/ms/oel/b.png' : 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
 function echt_an(fn, modus) { const m0 = ECHT.modus; ECHT.an++; ECHT.modus = modus || m0 || 'druck'; try { return fn(); } finally { ECHT.an--; ECHT.modus = m0; } } // modus 'druck' (Standard: Farbband/Toner mit Papierzahn) oder 'schablone' (gesprühte Schablonenschrift mit Stegen, Abplatzern, Overspray)
 // Pinsel gefärbt stempeln: Mitte (cx, cy), Breite in Pixeln (Höhe nach Seitenverhältnis), optional Ausschnitt [sx, sy, sw, sh] des Pinselbildes
 function echt_stempel(x, name, cx, cy, bw, farbe = '#000', alpha = 1, rot = 0, spiegel = false, ausschnitt = null) {
@@ -43743,6 +43771,21 @@ function echt_fuss(x, cx, cy, L, farbe, alpha = .7, links = false) { const W0 = 
   c.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) echt_stempel(c, 'tropfen', echt_R(.05, .95) * W, echt_R(.05, .95) * H, L * .05, '#fff', .9, echt_R(0, 6), false, [echt_R(0, 600), echt_R(0, 600), 240, 240]); // Spritzer daneben
   c.globalCompositeOperation = 'source-in'; c.fillStyle = farbe; c.fillRect(0, 0, W, H);
   x.save(); x.globalAlpha *= alpha; x.drawImage(t, cx - W / 2, cy - H / 2); x.restore(); return true; }
+// Kinderhand-Strich (Wachsmalstift/Buntstift): zittrige, leicht schwankende Linie mit wechselndem Druck, überfahrenen Konturen (zweiter Zug daneben), Überschuss am Ende,
+// dann Papierzahn + Wischstreifen aus den echten Scans (echt_wachsKorn). pts = [[x, y], …] in Leinwandkoordinaten, lw = Strichbreite, o: { zuege, zittern, druck }
+function echt_kind(c, pts, col = '#333', lw = 5, o = {}) { if (!pts || pts.length < 2) return; const zuege = o.zuege ?? 2, zit = o.zittern ?? 1, pad = Math.ceil(lw * 3 + 14), xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad), W = Math.ceil(Math.max(...xs) + pad) - x0, H = Math.ceil(Math.max(...ys) + pad) - y0; if (W < 2 || H < 2 || W * H > 4e6) return;
+  const t = document.createElement('canvas'); t.width = W; t.height = H; const g = t.getContext('2d'); g.translate(-x0, -y0); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = col;
+  for (let z = 0; z < zuege; z++) { const ph = echt_R(0, 6.28), ph2 = echt_R(0, 6.28), P = pts.map(p => [p[0], p[1]]); const L = pts.length, a = P[L - 1], b = P[L - 2], dl = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1; // Überschuss am Ende
+    P[L - 1] = [a[0] + (a[0] - b[0]) / dl * echt_R(0, lw * 1.6), a[1] + (a[1] - b[1]) / dl * echt_R(0, lw * 1.6)];
+    let prev = null, dist = 0; for (let i = 1; i < P.length; i++) { const [ax, ay] = P[i - 1], [bx, by] = P[i], len = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.ceil(len / 6)), nx = -(by - ay) / (len || 1), ny = (bx - ax) / (len || 1);
+      for (let k = 0; k <= n; k++) { const u = k / n, d = dist + len * u, w = Math.sin(d / 23 + ph) * lw * .45 * zit + Math.sin(d / 9 + ph2) * lw * .18 * zit + echt_R(-.5, .5) * zit, X = ax + (bx - ax) * u + nx * w + (z ? echt_R(-1, 1) * lw * .5 : 0), Y = ay + (by - ay) * u + ny * w + (z ? echt_R(-1, 1) * lw * .5 : 0);
+        if (prev) { g.globalAlpha = (z ? .5 : .8) * (o.druck ?? 1) * (.65 + .35 * Math.sin(d / 31 + ph2 * 2)); g.lineWidth = lw * (.7 + .5 * (.5 + .5 * Math.sin(d / 17 + ph))) * (z ? .8 : 1); g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(X, Y); g.stroke(); } prev = [X, Y]; } dist += len; } }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; echt_wachsKorn(g, W, H, .4); c.drawImage(t, x0, y0); }
+// Ausmalen wie ein Kind: Zickzack-Schraffur über ein Rechteck [x0, y0, x1, y1] (läuft über die Ränder hinaus, ungleiche Abstände)
+function echt_schraff(c, r, col, lw = 8, sp = 7, o = {}) { const [x0, y0, x1, y1] = r, pts = []; let up = false; for (let y = y0; y <= y1; y += sp * echt_R(.8, 1.3)) { const a = [x0 + echt_R(-6, 3), y + echt_R(-3, 3)], b = [x1 + echt_R(-3, 7), y + sp * .4 + echt_R(-3, 3)]; if (up) pts.push(b, a); else pts.push(a, b); up = !up; } echt_kind(c, pts, col, lw, { zuege: 1, zittern: .6, ...o }); }
+// Kreis/Ellipse als Kinderstrich (nicht ganz geschlossen, Anfang und Ende überlappen)
+function echt_kreis(c, cx, cy, rx, ry, col, lw = 5, o = {}) { const pts = [], a0 = echt_R(0, 6.28), n = Math.max(10, Math.ceil(Math.max(rx, ry) / 3)); for (let i = 0; i <= n + 2; i++) { const a = a0 + i / n * 6.28 * 1.04, k = 1 + .05 * Math.sin(a * 2 + a0); pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]); } echt_kind(c, pts, col, lw, o); }
 // Papierflecken: Feuchtigkeit (Moisture-Stain-Scan) als Wasserrand auf einem Blatt
 function echt_fleck(x, cx, cy, breite, farbe = 'rgba(120,96,60,1)', alpha = .25, rot = 0) { return echt_stempel(x, 'feucht', cx, cy, breite, farbe, alpha, rot, echt_R() < .5); }
 // Kratzer (Scratches-Scan) in eine Fläche: n Stücke, farbe = freigelegtes Material
@@ -45666,7 +45709,43 @@ WORLD_TICK.push(dt => {
   if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }
 });
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
-for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
+// FRÜH-ÜBERSETZEN (Ladezeit 08.10.2026): Die Grafikkarte übersetzt Programme in eigenen Fäden, während die Module auf dem Hauptfaden weiterbauen. Die Lichterzahl des
+// ersten Bildes ist erst am Ende bekannt – darum übersetzen wir gegen eine Stellvertreter-Szene mit genau so vielen Lichtern je Art wie im ersten Bild des letzten Laufs
+// (localStorage „ham_lsig“, sonst EARLY_SIG0). Gleiche Lichterzahl, Nebel und Umgebung → gleicher Programmschlüssel → der Gesamtdurchgang findet die Programme fertig vor.
+// Stimmt die Vorhersage nicht, bleiben die Frühprogramme nur unbenutzt (der Gesamtdurchgang übersetzt wie bisher). Nur Materialien ohne eigenes onBeforeCompile
+// (deren Hook liest teils Werte, die spätere Module erst anlegen) und ohne umzuwandelndes Umgebungsbild (PMREM, siehe „Grafik vorbereiten“). Testschalter: ?noearly
+const EARLY_SIG0 = null; // Lichter je Art im ersten Bild (Codes wie earlySig); null = erst ab dem zweiten Lauf
+const earlySig = L => [...L].map(o => (o.isDirectionalLight ? 'D' : o.isPointLight ? 'P' : o.isSpotLight ? 'S' : o.isHemisphereLight ? 'H' : o.isRectAreaLight ? 'R' : o.isLightProbe ? 'L' : o.isAmbientLight ? 'A' : '?') + (o.castShadow ? 's' : '') + (o.isSpotLight && o.map ? 'm' : '')).sort();
+const EARLY = { on: !LITE && !/[?&]noearly/.test(location.search), sc: null, sig: null, seen: new WeakSet(), q: [], pend: [], fly: [], cap: 12, last: 0, n: 0, ms: 0, runs: 0, maxFly: 0, timer: 0 };
+{ try { const v = JSON.parse(localStorage.getItem('ham_lsig') || 'null'); EARLY.sig = Array.isArray(v) ? v : EARLY_SIG0; } catch (e) { EARLY.sig = EARLY_SIG0; }
+  if (!EARLY.sig || EARLY.sig.some(c => /^[?RL]/.test(c))) EARLY.on = false; }
+const _onBC0 = THREE.Material.prototype.onBeforeCompile;
+function earlyOk(m) { if (!m || m.onBeforeCompile !== _onBC0) return false; const e = m.envMap; if (e && m.isMeshStandardMaterial && (e.mapping === THREE.EquirectangularReflectionMapping || e.mapping === THREE.EquirectangularRefractionMapping || e.mapping === THREE.CubeReflectionMapping || e.mapping === THREE.CubeRefractionMapping)) return false; return true; }
+// Sammeln (nach jedem Modul, höchstens alle 0,4 s): neue zeichenbare Teile mit geeigneten Materialien in die Warteschlange
+function earlyCollect(force) { if (!EARLY.on) return; const t0 = performance.now(); if (!force && t0 - EARLY.last < 400) return;
+  try { const list = EARLY.q.splice(0); scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material && !EARLY.seen.has(o)) list.push(o); });
+    for (const o of list) { if (EARLY.seen.has(o)) continue; EARLY.seen.add(o); const M = [].concat(o.material); if (M.length && M.every(earlyOk)) EARLY.pend.push(o); } } catch (e) { EARLY.on = false; console.warn('Früh-Übersetzen', e); }
+  EARLY.last = performance.now(); EARLY.ms += EARLY.last - t0; }
+// Pumpe (alle 30 ms, auch während die Module auf Dateien warten): höchstens EARLY.cap Programme gleichzeitig in Arbeit – sonst müsste ein Modul, das selbst
+// zeichnet (Beutel-Bildchen, Album), hinter einer langen Warteschlange der Grafikkarte warten. Je Takt höchstens ~6 ms Hauptfaden.
+function earlyPump() { if (!EARLY.on) return; const t0 = performance.now();
+  try { EARLY.fly = EARLY.fly.filter(p => { try { return !p.isReady(); } catch (e) { return false; } });
+    if (!EARLY.pend.length || EARLY.fly.length >= EARLY.cap) return;
+    if (!EARLY.sc) { const S = EARLY.sc = new THREE.Scene(), dummy = new THREE.Texture();
+      for (const c of EARLY.sig) { const k = c[0]; const l = k === 'D' ? new THREE.DirectionalLight() : k === 'P' ? new THREE.PointLight() : k === 'S' ? new THREE.SpotLight() : k === 'H' ? new THREE.HemisphereLight() : new THREE.AmbientLight();
+        l.castShadow = c.includes('s'); if (k === 'S' && c.includes('m')) l.map = dummy; S.add(l); } }
+    const S = EARLY.sc; S.fog = scene.fog; S.environment = scene.environment;
+    const rt0 = renderer.getRenderTarget(), P = renderer.info.programs; renderer.setRenderTarget(composer.renderTarget1); // wie der Gesamtdurchgang: Programme für den Nachbearbeitungs-Puffer
+    try { while (EARLY.pend.length && EARLY.fly.length < EARLY.cap && performance.now() - t0 < 6) { const objs = EARLY.pend.splice(0, 4), n0 = P.length;
+        renderer.compile({ traverse: cb => { for (const o of objs) cb(o); }, traverseVisible: () => {} }, camera, S); EARLY.n += objs.length;
+        for (let i = n0; i < P.length; i++) EARLY.fly.push(P[i]); } } finally { renderer.setRenderTarget(rt0); }
+    EARLY.maxFly = Math.max(EARLY.maxFly, EARLY.fly.length);
+  } catch (e) { EARLY.on = false; console.warn('Früh-Übersetzen', e); }
+  EARLY.runs++; EARLY.ms += performance.now() - t0; }
+{ const cl = renderer.compileAsync; renderer.compileAsync = (s, c, t = null) => { if (EARLY.on && s && s.traverse && (t === null || t === scene)) { try { s.traverse(o => { if ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material) EARLY.q.push(o); }); } catch (e) {} } return cl(s, c, t); }; }
+if (EARLY.on) EARLY.timer = setInterval(earlyPump, 30);
+for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } earlyCollect(false); }
+earlyCollect(true); if (DEV) window.__early = EARLY;
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
 // 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
 function perfMergeGroups(g) {
@@ -46350,6 +46429,7 @@ function texDedupe() {
 try { await Promise.race([Promise.all(KTX.pending), wait(60000)]); } catch (e) {} // komprimierte Texturen fertig, bevor alles hochgeladen wird
 try { texDedupe(); } catch (e) { console.warn('Texturen', e); }
 camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, player.yaw, 0);
+clearInterval(EARLY.timer); EARLY.rest = EARLY.pend.length; EARLY.pend.length = 0; // Rest übersetzt der Gesamtdurchgang
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
@@ -46366,7 +46446,7 @@ const PMW = []; // vorübersetzte PMREM-Programme (Spiegelsonde, Messing-Schlüs
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   try { update(.016, clock.elapsedTime); } catch (e) { console.warn('Vorübersetzen: Probebild', e); } // ein Takt wie im ersten Bild (Menü-Kamera, Sichtbarkeiten der Module), erst dann die Lichter festhalten
-  lsetTake();
+  lsetTake(); try { const sg = earlySig(LSET); if (DEV) window.__earlySig = { vorher: EARLY.sig, jetzt: sg }; localStorage.setItem('ham_lsig', JSON.stringify(sg)); } catch (e) {} // Vorhersage fürs Früh-Übersetzen beim nächsten Start
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
   const extra = [scarePlane, new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), boltMat)];

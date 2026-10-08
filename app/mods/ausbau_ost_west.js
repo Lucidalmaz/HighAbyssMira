@@ -108,6 +108,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   // ---------------------------------------------------------------- Tankstelle Kranz (x 97 … 128, z 4 … 31)
   flat('sidewalk_tiles', 30, 26.9, 112, 17.5, { tint: 0x8c8a84, tile: 3, y: .024, p: R.station.g });
   for (let i = 0; i < 9; i++) decal(msTex('grime/b.png', true), rand(1.5, 4), rand(1.5, 4), rand(99, 126), .036, rand(6, 29), 0, -PI / 2, { p: R.station.g, mat: { color: 0x14110e, opacity: .8 } }).rotation.z = rand(0, 6);
+  for (const [ox, oz, s] of [[107, 14.6, 1.6], [115, 15.4, 1.3], [111, 22.5, 2.2], [120, 11, 1.1]]) decal(msTex('oel/b.png', true), s * rand(.9, 1.2), s * rand(.8, 1.1), ox, .037, oz, 0, -PI / 2, { p: R.station.g, mat: { color: 0x3a342c, opacity: .9 } }).rotation.z = rand(0, 6); // echte Ölflecken (Megascans „Oil Stain“) unter den Zapfinseln
   // Kiosk: Wände mit Scan-Putz, großes Schaufenster, Tür, Nachtschalter
   const KW = 'wall_damaged', KT = 0xa29e94, K = R.station.g;
   wbox(KW, 12, 3.3, .25, 112, 1.65, 30.875, { tint: KT, p: K }); wbox(KW, .25, 3.3, 6, 106.125, 1.65, 28, { tint: KT, p: K }); wbox(KW, .25, 3.3, 6, 117.875, 1.65, 28, { tint: KT, p: K });

@@ -75,7 +75,14 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
-  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen)
+  ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i),
+  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
+// Seltene Klänge werden erst beim ersten Gebrauch (oder beim Betreten des passenden Ortes) geladen – hält den Speicher klein (Audio-PCM liegt dekodiert im Heap).
+const KL_GRUPPEN = { feuer: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_feuer_knist_' + i), ...[1, 2, 3].map(i => 'fx_feuer_pop_' + i), 'fx_feuer_wuff', 'amb_feuer', 'amb_feuer_lo'],
+  zombie: [...[1, 2, 3, 4, 5, 6].map(i => 'zb_roech_' + i), 'zb_zisch'], oel: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_oel_blub_' + i)], funk: ['fx_funk_stat'],
+  krabbel: [...[1, 2, 3, 4].map(i => 'fx_krabbel_' + i), 'amb_krabbel'], katze: [...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i), 'fx_katze_schnurr'] };
+const KL_ORT_GRUPPEN = { amt: ['feuer', 'zombie', 'oel', 'funk', 'krabbel'], keller: ['funk', 'krabbel'] }; // beim Betreten laden (Kapitel 2: Brand, Peter, Spinnen)
+function kl_gruppe(g) { const S = klang_S; if (!KL_GRUPPEN[g]) return; S.gr = S.gr || {}; if (S.gr[g]) return; S.gr[g] = 1; (async () => { for (const n of KL_GRUPPEN[g]) await klang_load(n); })(); }
 // Schleifen (Betten, Gefahr, Jagd) tragen je 0,25 s Rand – Opus verfälscht die ersten/letzten Millisekunden; hier abgeschnitten, damit die Naht nicht klickt
 function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2 * k; if (n <= 0) return b; const o = Audio.ctx.createBuffer(b.numberOfChannels, n, b.sampleRate);
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
@@ -241,6 +248,41 @@ Object.assign(Audio, {
   // Ohrklingeln nach Schlag/Knall: schmalbandiges Rauschen um 3,3 kHz, weich ein- und ausgeblendet (statt Sinus bei 4 kHz)
   ohrklingeln(v = 1) { if (!this.ctx || !kl_has('fx_ohrklingeln')) return null; return this.play('fx_ohrklingeln', { gain: .9 * v, dest: this.master }); },
   phraseCalm() { return null; }, phraseUneasy() { return null; }, phraseDanger() { return null; }, // keine Synth-Phrasen: ohne Aufnahme lieber Stille
+});
+// ---------------------------------------------------------------- Echte Aufnahmen 2 (AP „Echte Klänge“, 08.10.2026): Atem, Flügelschläge, Katze, Zombie, Öl, Tasten, Relais, Krabbeln, Funk
+// Quellen: Sonniss GDC (lizenzfrei), freesound.org (nur CC0), Wikimedia Commons (CC0/gemeinfrei) – siehe CREDITS.md. Fehlt eine Datei, bleibt es still (kein erzeugter Ersatz) bzw. der alte Weg.
+const kl_ort = (x, y, z, ref, obj) => obj ? { obj, h: Math.max(0, (y ?? 1) - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2, ref } : (x !== undefined ? { x, y, z, ref } : {});
+Object.assign(Audio, {
+  // Atemzug / Keuchen / Stoff als Aufnahme (Lukes Atem ohne Ort, sonst räumlich). art: 'atem' (Ausatmen) · 'keuch' (nach Luft schnappen) · 'stoff'
+  atemEcht(v = .09, rate = 1, x, y, z, art = 'atem') { if (!this.ctx) return false; const n = kl_pick(art === 'keuch' ? 'pz_keuch_' : art === 'stoff' ? 'pz_stoff_' : 'pz_atem_', art === 'atem' ? 4 : art === 'keuch' ? 3 : 2); if (!n) return false;
+    this.play(n, { gain: Math.min(.55, v * 4.5), rate: Math.max(.7, Math.min(1.35, .92 * rate)), vary: .04, varyGain: .15, ...(x !== undefined ? { x, y, z, ref: 1.2 } : {}) }); return true; },
+  // Katze: 'miau' | 'fauch' (obj: die Katze läuft mit)
+  katze(art, x, y, z, obj, v = 1) { if (!this.ctx) return false; kl_gruppe('katze'); const n = art === 'miau' ? kl_pick('fx_katze_miau_', 2) : kl_pick('fx_katze_fauch_', 3); if (!n) return false;
+    this.play(n, { gain: (art === 'miau' ? .5 : .7) * v, vary: .05, rate: art === 'miau' ? rand(.92, 1.1) : 1, ...kl_ort(x, y, z, 2.5, obj) }); return true; },
+  // Zombie-Röcheln (Kapitel 2, Peter): Aufnahmen von Zombie-Stimmen; true = gespielt
+  roecheln(x, z, loud, obj) { if (!this.ctx) return false; kl_gruppe('zombie'); const n = kl_pick('zb_roech_', 6); if (!n) return false;
+    this.play(n, { gain: loud ? .85 : .55, vary: .06, varyGain: .15, ...kl_ort(x, 1.4, z, 3, obj) }); return true; },
+  // Öl/Schlamm: Blasen und Gluckser (n Stück, über t Sekunden verteilt)
+  oelBlasen(x, z, n = 4, t = 2, v = 1) { if (!this.ctx) return false; kl_gruppe('oel'); if (!kl_pick('fx_oel_blub_', 6)) return false;
+    for (let i = 0; i < n; i++) this.play(kl_pick('fx_oel_blub_', 6), { gain: rand(.3, .55) * v, vary: .08, delay: rand(0, t), x: x + rand(-.4, .4), y: .15, z: z + rand(-.4, .4), ref: 2.5 }); return true; },
+  // Feuerzeug (Rädchen + Flamme): echte Aufnahme
+  feuerzeug(x, y, z) { if (!this.ctx) return false; const n = kl_pick('fx_feuerzeug_', 3); if (!n) return false; this.play(n, { gain: .5, vary: .05, ...(x !== undefined ? { x, y, z, ref: 1.5 } : {}) }); return true; },
+  // Funk-Klick (Rauschsperre / Sprechtaste) – echtes Handfunkgerät
+  funkKlick(x, y, z, v = 1) { if (!this.ctx) return false; const n = kl_pick('fx_funk_klick_', 3); if (!n) return false; this.play(n, { gain: .5 * v, vary: .05, ...(x !== undefined ? { x, y, z, ref: 2 } : {}) }); return true; },
+  // Relais im Gerät (kurzer, trockener Klack)
+  relais(x, y, z, v = 1) { if (!this.ctx) return false; const n = kl_pick('fx_relais_', 3); if (!n) return false; this.play(n, { gain: .55 * v, vary: .06, ...(x !== undefined ? { x, y, z, ref: 3 } : {}) }); return true; },
+  // Tastenfeld: Piepen einer echten Quittungstaste (ok = Ton hell, sonst tief)
+  beep(ok) { if (!this.ctx) return; const n = kl_pick('ui_taste_', 4); if (!n) return this.play('switch2', { gain: .16, rate: ok ? 1.7 : 1.15, hp: 500 }); this.play(n, { gain: .5, rate: ok ? 1 : .6, vary: .02 }); },
+  // Dingdong / Klingel: zwei Zinken der Spieluhr-Bank
+  ding(v) { if (!this.ctx || v < .005) return; if (!kl_has('kb_spieluhr_E6')) return; this.play('kb_spieluhr_E6', { gain: Math.min(.5, v * 5), rate: 1 }); this.play('kb_spieluhr_A6', { gain: Math.min(.4, v * 4), delay: .25 }); },
+  // Flackern/Funken eines Schalters (Sicherung, Lampe): Relais-Klack statt Rauschstoß
+  flick() { if (!this.ctx) return; if (!this.relais(undefined, undefined, undefined, .5)) this.play('switch2', { gain: .2, rate: 1.6, hp: 800 }); },
+  // Krabbeln (Spinnen, Käfer): Schwarm-Schleife + einzelne Schritte, alles Aufnahmen
+  skitter(on) { if (!this.ctx) return; kl_gruppe('krabbel');
+    if (on && !this.skit) { const g = this.ctx.createGain(); g.gain.value = 0; g.connect(this.master); g.gain.linearRampToValueAtTime(.7, this.ctx.currentTime + 4); const s = this.skit = { g, nodes: [], h: null };
+      const tick = () => { if (this.skit !== s) return; if (!s.h && this.buf.amb_krabbel) s.h = this.loop('amb_krabbel', { gain: 1, dest: g });
+        const n = kl_pick('fx_krabbel_', 4); this.play(n || this.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: rand(.2, .4), rate: rand(.9, 1.3), pan: rand(-1, 1), dest: g }); setTimeout(tick, rand(120, 420)); }; tick(); }
+    else if (!on && this.skit) { const s = this.skit; s.g.gain.linearRampToValueAtTime(0, this.ctx.currentTime + .15); setTimeout(() => { try { if (s.h) s.h.stop(.1); } catch (e) {} }, 300); this.skit = null; } },
 });
 Audio.stepSound = klang_step; Audio.surfaceAt = (x, z) => klang_floor(x, z); Audio.roomHint = () => klang_reverb();
 // ---------------------------------------------------------------- Umgebung je Ort
@@ -451,7 +493,7 @@ WORLD_TICK.push(dt => {
   if (S.pending.length && Audio.mus) for (const [lv, tr] of S.pending.splice(0)) Audio.mus.tracks[lv].push(tr); // fertige Stücke in die Musikauswahl
   const menuOn = !state.started && $('start').classList.contains('show') && !S.intro; klang_menu(menuOn);
   if (!state.started) return;
-  S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; } S.areaSince = (S.areaSince || 0) + 1;
+  S.areaT -= dt; if (S.areaT < 0) { S.areaT = 1; const a = klang_area(); if (a !== S.area) { S.area = a; S.areaSince = 0; for (const g of KL_ORT_GRUPPEN[a] || []) kl_gruppe(g); } S.areaSince = (S.areaSince || 0) + 1;
     const M = Audio.mus; if (M && M.cur && M.cur.area && M.cur.area !== S.area && S.areaSince > 4) { M.cur.stop(6); M.cur = null; M.rest = rand(8, 16); } // Ort gewechselt: langsam aus, kurz Stille
     try { Audio.setRoom(klang_reverb()); klang_beds(); klang_betten(); } catch (e) { console.warn('Klang: Raum', e); } }
   try { klang_wind(dt); } catch (e) { if (!S.windErr) { S.windErr = 1; console.warn('Klang: Wind', e); } }

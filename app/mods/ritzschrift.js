@@ -151,7 +151,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 // Schablonenschrift mit Stegen, Abplatzern und Overspray, Druckfarbe mit Papierzahn und Tintenhof – die Texte bleiben, nur die Anmutung ist echt.
 const ECHT = { img: {}, an: 0, rs: 4242 };
 const echt_R = (a = 0, b = 1) => { ECHT.rs = (ECHT.rs * 1664525 + 1013904223) >>> 0; return a + (b - a) * (ECHT.rs / 4294967296); };
-ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
+ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz', 'oel'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = n === 'oel' ? 'assets/ms/oel/b.png' : 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
 function echt_an(fn, modus) { const m0 = ECHT.modus; ECHT.an++; ECHT.modus = modus || m0 || 'druck'; try { return fn(); } finally { ECHT.an--; ECHT.modus = m0; } } // modus 'druck' (Standard: Farbband/Toner mit Papierzahn) oder 'schablone' (gesprühte Schablonenschrift mit Stegen, Abplatzern, Overspray)
 // Pinsel gefärbt stempeln: Mitte (cx, cy), Breite in Pixeln (Höhe nach Seitenverhältnis), optional Ausschnitt [sx, sy, sw, sh] des Pinselbildes
 function echt_stempel(x, name, cx, cy, bw, farbe = '#000', alpha = 1, rot = 0, spiegel = false, ausschnitt = null) {
@@ -182,6 +182,21 @@ function echt_fuss(x, cx, cy, L, farbe, alpha = .7, links = false) { const W0 = 
   c.globalCompositeOperation = 'source-over'; for (let i = 0; i < 4; i++) echt_stempel(c, 'tropfen', echt_R(.05, .95) * W, echt_R(.05, .95) * H, L * .05, '#fff', .9, echt_R(0, 6), false, [echt_R(0, 600), echt_R(0, 600), 240, 240]); // Spritzer daneben
   c.globalCompositeOperation = 'source-in'; c.fillStyle = farbe; c.fillRect(0, 0, W, H);
   x.save(); x.globalAlpha *= alpha; x.drawImage(t, cx - W / 2, cy - H / 2); x.restore(); return true; }
+// Kinderhand-Strich (Wachsmalstift/Buntstift): zittrige, leicht schwankende Linie mit wechselndem Druck, überfahrenen Konturen (zweiter Zug daneben), Überschuss am Ende,
+// dann Papierzahn + Wischstreifen aus den echten Scans (echt_wachsKorn). pts = [[x, y], …] in Leinwandkoordinaten, lw = Strichbreite, o: { zuege, zittern, druck }
+function echt_kind(c, pts, col = '#333', lw = 5, o = {}) { if (!pts || pts.length < 2) return; const zuege = o.zuege ?? 2, zit = o.zittern ?? 1, pad = Math.ceil(lw * 3 + 14), xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.floor(Math.min(...xs) - pad), y0 = Math.floor(Math.min(...ys) - pad), W = Math.ceil(Math.max(...xs) + pad) - x0, H = Math.ceil(Math.max(...ys) + pad) - y0; if (W < 2 || H < 2 || W * H > 4e6) return;
+  const t = document.createElement('canvas'); t.width = W; t.height = H; const g = t.getContext('2d'); g.translate(-x0, -y0); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = col;
+  for (let z = 0; z < zuege; z++) { const ph = echt_R(0, 6.28), ph2 = echt_R(0, 6.28), P = pts.map(p => [p[0], p[1]]); const L = pts.length, a = P[L - 1], b = P[L - 2], dl = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1; // Überschuss am Ende
+    P[L - 1] = [a[0] + (a[0] - b[0]) / dl * echt_R(0, lw * 1.6), a[1] + (a[1] - b[1]) / dl * echt_R(0, lw * 1.6)];
+    let prev = null, dist = 0; for (let i = 1; i < P.length; i++) { const [ax, ay] = P[i - 1], [bx, by] = P[i], len = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.ceil(len / 6)), nx = -(by - ay) / (len || 1), ny = (bx - ax) / (len || 1);
+      for (let k = 0; k <= n; k++) { const u = k / n, d = dist + len * u, w = Math.sin(d / 23 + ph) * lw * .45 * zit + Math.sin(d / 9 + ph2) * lw * .18 * zit + echt_R(-.5, .5) * zit, X = ax + (bx - ax) * u + nx * w + (z ? echt_R(-1, 1) * lw * .5 : 0), Y = ay + (by - ay) * u + ny * w + (z ? echt_R(-1, 1) * lw * .5 : 0);
+        if (prev) { g.globalAlpha = (z ? .5 : .8) * (o.druck ?? 1) * (.65 + .35 * Math.sin(d / 31 + ph2 * 2)); g.lineWidth = lw * (.7 + .5 * (.5 + .5 * Math.sin(d / 17 + ph))) * (z ? .8 : 1); g.beginPath(); g.moveTo(prev[0], prev[1]); g.lineTo(X, Y); g.stroke(); } prev = [X, Y]; } dist += len; } }
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; echt_wachsKorn(g, W, H, .4); c.drawImage(t, x0, y0); }
+// Ausmalen wie ein Kind: Zickzack-Schraffur über ein Rechteck [x0, y0, x1, y1] (läuft über die Ränder hinaus, ungleiche Abstände)
+function echt_schraff(c, r, col, lw = 8, sp = 7, o = {}) { const [x0, y0, x1, y1] = r, pts = []; let up = false; for (let y = y0; y <= y1; y += sp * echt_R(.8, 1.3)) { const a = [x0 + echt_R(-6, 3), y + echt_R(-3, 3)], b = [x1 + echt_R(-3, 7), y + sp * .4 + echt_R(-3, 3)]; if (up) pts.push(b, a); else pts.push(a, b); up = !up; } echt_kind(c, pts, col, lw, { zuege: 1, zittern: .6, ...o }); }
+// Kreis/Ellipse als Kinderstrich (nicht ganz geschlossen, Anfang und Ende überlappen)
+function echt_kreis(c, cx, cy, rx, ry, col, lw = 5, o = {}) { const pts = [], a0 = echt_R(0, 6.28), n = Math.max(10, Math.ceil(Math.max(rx, ry) / 3)); for (let i = 0; i <= n + 2; i++) { const a = a0 + i / n * 6.28 * 1.04, k = 1 + .05 * Math.sin(a * 2 + a0); pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]); } echt_kind(c, pts, col, lw, o); }
 // Papierflecken: Feuchtigkeit (Moisture-Stain-Scan) als Wasserrand auf einem Blatt
 function echt_fleck(x, cx, cy, breite, farbe = 'rgba(120,96,60,1)', alpha = .25, rot = 0) { return echt_stempel(x, 'feucht', cx, cy, breite, farbe, alpha, rot, echt_R() < .5); }
 // Kratzer (Scratches-Scan) in eine Fläche: n Stücke, farbe = freigelegtes Material

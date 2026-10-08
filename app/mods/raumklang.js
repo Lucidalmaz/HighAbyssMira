@@ -145,8 +145,7 @@ Object.assign(Audio, {
     const P = { x, y: y ?? 1.2, z, typ: 'laut' }; this.play(this.pick('woodSlam1', 'woodSlam2', 'woodSlam3'), { gain: 1, vary: .06, ...P }); const d = this.at(x, P.y, z, 6); if (!this.cut) { const o = this.osc('sine', 70, 0, .6); this.env(o, .4, .003, .4, 0, d); } },
   knock(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.3, z, ref: 3 }; for (let i = 0; i < 3; i++) this.play(this.pick('woodHit1', 'woodHit2', 'woodHit3'), { gain: .7, vary: .06, delay: i * .29 + rand(0, .04), ...P }); },
   creak(v = .22, x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.2, z, ref: 2.5 }; this.play('doorCreak', { gain: v * 1.8, rate: rand(.8, 1.05), offset: rand(0, .6), dur: rand(1.4, 2.4), ...P }); },
-  intercomClick(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.6, z, ref: 2 }; this.play('switch2', { gain: .6, ...P }); const d = x === undefined ? undefined : this.at(x, P.y, z, 2); if (d && this.cut) return;
-    const n = this.noise(false), bp = this.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 1; n.connect(bp); this.env(bp, .15, .003, .12, .05, d); n.stop(this.ctx.currentTime + .4); },
+  intercomClick(x, y, z) { if (!this.ctx) return; const P = x === undefined ? {} : { x, y: y ?? 1.6, z, ref: 2 }; if (this.funkKlick(x, P.y, z, 1.2)) return; /* echtes Funkgerät (klang.js) */ this.play('switch2', { gain: .6, ...P }); },
 });
 // Telefon/Spieluhr/Klavier/Tank: Fassung aus klang.js mit Ort (ohne Ort: Hörer am Ohr, Luke spielt selbst …)
 { const ring0 = Audio.ring, mb0 = Audio.musicBox, pn0 = Audio.pianoNote, tank0 = Audio.tankHum;
@@ -169,15 +168,18 @@ Object.assign(Audio, {
 // Tier-/Kreaturlaute mit optionalem obj (letzter Parameter): fliehende Rehe, auffliegende Krähen, das Hirschding – der Laut läuft mit
 { const g0 = Audio.groan, d0 = Audio.deerBark, f0 = Audio.flap;
   Object.assign(Audio, {
-    groan(x, z, loud, obj) { if (!obj || !this.ctx) return g0.call(this, x, z, loud); const b = this.buf.zombie1, O = { gain: loud ? 1.1 : .7, obj, h: 1.4, ref: 3 };
+    groan(x, z, loud, obj) { if (this.ctx && Math.random() < .65 && this.roecheln(x, z, loud, obj)) return; if (!obj || !this.ctx) return g0.call(this, x, z, loud); const b = this.buf.zombie1, O = { gain: loud ? 1.1 : .7, obj, h: 1.4, ref: 3 };
       if (Math.random() < .5 && b) this.play('zombie1', { ...O, vary: .08, offset: rand(0, Math.max(0, b.duration - 2.5)), dur: 2.2 }); else this.play(this.pick('undead1', 'undead2', 'undead3', 'undead4'), { ...O, vary: .1 }); },
     deerBark(x, z, obj) { if (!obj || !this.ctx) return d0.call(this, x, z); const n = kl_pick('fx_reh_', 3); if (n) this.play(n, { gain: .4, vary: .05, obj, h: 1, ref: 8, lp: 3500 }); },
     // Flügelschläge: sechs weiche, tiefe Stöße (Messung 08.10.: mit Pegel .25 und 600 Hz kam jeder Rabenflug als Rauschblock mit Spitzen bis .7 bei sonst .05)
     // Ursache des „wiederkehrenden Rauschens“ (Messung 08.10.): Audio.env legte die Hüllkurve mit setValueAtTime(0, t) erst ab dem Zeitpunkt t an – davor lag der Standardwert 1 am Gain, das schon laufende Rauschen ging also bei JEDEM verzögerten Impuls (t0 > 0: Flügelschläge, Schreck-/Flüster-Stöße, Atem, Papier …) mit voller Lautstärke durch (Spitze .6 statt .07).
     env(node, peak, a, dcy, t0 = 0, dest) { const g = this.ctx.createGain(), t = this.ctx.currentTime + t0; g.gain.value = 0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + dcy); node.connect(g); g.connect(dest || this.master); return g; },
     // Messung 08.10. (stehend, 45 s): Krähen landen/starten dauernd in Hörweite → ein Flap-Rauschen alle ~6 s (draußen 42 Rauschquellen/40 s, ca. 7 Flüge). Darum: > 26 m gar nicht, ferne (> 9 m) höchstens alle 9 s, nahe höchstens alle 1,2 s (Skripte mit Folgeschlägen bleiben hörbar).
-    flap(x, y, z, obj) { if (!this.ctx) return; const dd = Math.hypot(x - (this.lx ?? x), z - (this.lz ?? z)), tn = this.ctx.currentTime; if (dd > 26) return; if (tn - (this.flapT || -99) < (dd > 9 ? 9 : 1.2)) return; this.flapT = tn; const d = obj ? this.at(x, y, z, 3, { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2 }) : this.at(x, y, z, 3); if (this.cut) return;
-      for (let i = 0; i < 6; i++) { const n = this.noise(false), lp = this.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520 - i * 20; n.connect(lp); this.env(lp, .4 * (1 - i * .08), .015, .09, i * .1, d); n.stop(this.ctx.currentTime + 1); } },
+    // Flügelschläge jetzt als echte Aufnahmen (Taube, Ente, Adler; AP Echte Klänge) – der Rauschblock-Ersatz entfällt. Fehlt die Datei: Stille.
+    // Messung 08.10. (stehend, 45 s): Krähen landen/starten dauernd in Hörweite. Darum: > 26 m gar nicht, ferne (> 9 m) höchstens alle 6 s, nahe höchstens alle 0,8 s.
+    flap(x, y, z, obj) { if (!this.ctx) return; const dd = Math.hypot(x - (this.lx ?? x), z - (this.lz ?? z)), tn = this.ctx.currentTime; if (dd > 26) return; if (tn - (this.flapT || -99) < (dd > 9 ? 6 : .8)) return;
+      const n = typeof kl_pick === 'function' ? kl_pick('fx_flug_', 4) : null; if (!n) return; this.flapT = tn;
+      this.play(n, { gain: dd > 9 ? .5 : .65, vary: .07, varyGain: .2, ...(obj ? { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2, ref: 3 } : { x, y, z, ref: 3 }) }); },
   }); }
 // Fernseher in Nr. 7: das Rauschen kommt aus dem Gerät (die Basis regelt nur noch an/aus)
 function rk_tv() { const A = Audio; if (RK.tvOk || !A.tv || typeof tvScreen === 'undefined' || A.lsp === undefined || A.lsp === 'u') return; RK.tvOk = true;

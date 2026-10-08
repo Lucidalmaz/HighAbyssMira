@@ -78,10 +78,12 @@ function kino_blinzeln(zu = .15, auf = .15, onZu) { kino_css(); const L = $('kin
 function kino_bus() { const A = Audio; if (!A.ctx) return null; if (!kino_S.bus) { const g = A.ctx.createGain(); g.gain.value = 1; g.connect(A.master); if (A.musSend) g.connect(A.musSend); kino_S.bus = g; } return kino_S.bus; }
 function kino_nz(A) { return A.noise(false); }
 function kino_atem(v = .09, rate = 1, x, y, z) { // ein Atemzug: gefiltertes Rauschen, ein – aus
+  if (Audio.atemEcht && Audio.atemEcht(v, rate, x, y, z)) return; // echte Aufnahme (klang.js), sonst der alte Weg
   const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 520 * rate; bp.Q.value = .8;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 1.1 / rate); g.gain.linearRampToValueAtTime(v * .15, t + 1.5 / rate); g.gain.linearRampToValueAtTime(v * .8, t + 2 / rate); g.gain.linearRampToValueAtTime(0, t + 3.2 / rate);
   n.connect(bp); bp.connect(g); g.connect(x !== undefined ? A.at(x, y, z, 1.2) : A.master); n.stop(t + 3.4 / rate); }
 function kino_einatmen(v = .12, x, y, z, hoch = 1) { // Luftholen eines Kindes (Laterne auspusten, „tief Luft holen“)
+  if (Audio.atemEcht && Audio.atemEcht(v * .7, 1.15 * hoch, x, y, z, 'keuch')) return;
   const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.Q.value = 1.1;
   bp.frequency.setValueAtTime(900 * hoch, t); bp.frequency.linearRampToValueAtTime(1700 * hoch, t + .55); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .45); g.gain.linearRampToValueAtTime(0, t + .62);
   n.connect(bp); bp.connect(g); g.connect(x !== undefined ? A.at(x, y, z, 2) : A.master); n.stop(t + .7); }
@@ -109,12 +111,12 @@ function kino_taube(x, y, z) { if (Audio.taube && Audio.taube(x, y, z)) return; 
 function kino_pling(x, y, z) { if (Audio.rabeTon && Audio.ctx && Audio.buf.fx_rabe_1) { const d = Audio.at(x, y, z, 3); Audio.rabeTon(1760, 0, .5, .1, d); Audio.rabeTon(1318, .24, .55, .08, d); return; } /* Whiskey ahmt die Mikrowelle nach */ const A = Audio; if (!A.ctx) return; const c = A.ctx, d = A.at(x, y, z, 3), t = c.currentTime; // Mikrowellen-Pling (Whiskeys Nachahmung)
   for (const [m, a] of [[1, 1], [2.02, .35], [3.9, .12]]) { const o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = 1760 * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.12 * a, t + .004); g.gain.exponentialRampToValueAtTime(.0004, t + 1.4); o.connect(g); g.connect(d); o.start(t); o.stop(t + 1.5); } }
 function kino_klapper(x, y, z, n = 1) { for (let i = 0; i < n; i++) Audio.play('woodHit3', { gain: .12, rate: 3.2, hp: 1200, dur: .06, delay: i * .09, x, y, z, ref: 1.5 }); } // Schnabelklappern
-function kino_relais(x, y, z, v = .22) { Audio.play('switch1', { gain: v, rate: .62, hp: 400, x, y, z, ref: 4 }); Audio.play('metalHit2', { gain: v * .25, rate: 2.6, hp: 1500, dur: .08, delay: .02, x, y, z, ref: 4 }); }
+function kino_relais(x, y, z, v = .22) { if (Audio.relais && Audio.relais(x, y, z, v * 3)) return; Audio.play('switch1', { gain: v, rate: .62, hp: 400, x, y, z, ref: 4 }); Audio.play('metalHit2', { gain: v * .25, rate: 2.6, hp: 1500, dur: .08, delay: .02, x, y, z, ref: 4 }); }
 function kino_kreide(x, y, z) { for (let i = 0; i < 3; i++) Audio.play(Audio.pick('scrape1', 'scrape3'), { gain: .16, rate: rand(2.4, 3), hp: 1800, dur: rand(.18, .3), delay: i * rand(.22, .34), x, y, z, ref: 1.5 }); }
 function kino_trippeln(x, z, v = .06, n = 3) { for (let i = 0; i < n; i++) setTimeout(() => Audio.stepAt && Audio.stepAt(x + i * .18, z + rand(-.05, .05), v), i * 115); }
 function kino_klingel(x, z) { if (Audio.ctx && Audio.buf.kb_spieluhr_A6) { for (let i = 0; i < 2; i++) Audio.play('kb_spieluhr_A6', { gain: .35, rate: .78, delay: i * .13, x, y: 1.1, z, ref: 25 }); return; } /* Glöckchen (Aufnahme) */ const A = Audio; if (!A.ctx) return; const c = A.ctx, d = A.at(x, 1.1, z, 25); for (let i = 0; i < 2; i++) { const t = c.currentTime + i * .13; for (const [m, a] of [[1, 1], [2.71, .4], [5.2, .15]]) { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = 2080 * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.05 * a, t + .003); g.gain.exponentialRampToValueAtTime(.0004, t + .9); o.connect(g); g.connect(d); o.start(t); o.stop(t + 1); } } } // Fahrradklingel, weit weg
 function kino_kiesel(x, y, z) { Audio.play('stones1', { gain: .14, rate: rand(1.6, 2.1), dur: .5, hp: 700, x, y, z, ref: 1.2 }); }
-function kino_stoff(v = .05) { const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = .6;
+function kino_stoff(v = .05) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v, 1, undefined, undefined, undefined, 'stoff')) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = .6;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .25); g.gain.linearRampToValueAtTime(v * .4, t + .6); g.gain.linearRampToValueAtTime(v, t + .9); g.gain.linearRampToValueAtTime(0, t + 1.5); n.connect(bp); bp.connect(g); g.connect(A.master); n.stop(t + 1.6); }
 function kino_taste(v = 1) { if (Audio.ctx && Audio.buf.switch2) { Audio.play('switch2', { gain: .12 * v, rate: rand(1.4, 1.8), hp: 800, dest: Audio.master }); return; } /* Tastenklick (Aufnahme) */ const A = Audio; if (!A.ctx) return; const c = A.ctx, t = c.currentTime, n = kino_nz(A), bp = c.createBiquadFilter(), g = c.createGain(); bp.type = 'bandpass'; bp.frequency.value = rand(2200, 3200); bp.Q.value = 2;
   g.gain.setValueAtTime(.05 * v, t); g.gain.exponentialRampToValueAtTime(.0005, t + .035); n.connect(bp); bp.connect(g); g.connect(A.master); n.stop(t + .05);
@@ -275,19 +277,19 @@ function kino_decal(key, canvas, w, h, o = {}) { const m = new (o.phys ? THREE.M
   const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.receiveShadow = true; p.castShadow = !!o.cast; return kino_obj(key, p); }
 
 // ---------------------------------------------------------------- Texturen (beim Laden gezeichnet)
-function kino_tex_papa() { return cnv(512, (c, w) => { // Kinderzeichnung vor dem achten Stuhl: „PAPA + ICH“, signiert mit einem halben Mond
-  c.fillStyle = '#e9e1cc'; c.fillRect(0, 0, w, w); for (let i = 0; i < 900; i++) { c.fillStyle = `rgba(90,70,40,${rand(.01, .05)})`; c.fillRect(rand(0, w), rand(0, w), rand(1, 3), rand(1, 3)); }
-  const cray = (col, lw, pts) => { c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; for (let k = 0; k < 3; k++) { c.globalAlpha = .45; c.beginPath(); pts.forEach(([x, y], i) => { const X = x + rand(-2, 2), Y = y + rand(-2, 2); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); } c.globalAlpha = 1; };
+function kino_tex_papa() { return cnv(512, (c, w) => { // Kinderzeichnung vor dem achten Stuhl: „PAPA + ICH“, signiert mit einem halben Mond – Wachsmalstift mit Kinderhand (echt_kind: Zittern, Druck, überfahrene Konturen, Papierscan + Wachskorn)
+  papierScan(c, w, w, '#e9e1cc', { dreck: .5 });
+  const cray = (col, lw, pts) => echt_kind(c, pts, col, lw);
   const grey = '#55585e', pink = '#b04a60', yel = '#d8a820';
   cray(grey, 7, [[150, 128], [206, 128], [206, 190], [150, 190], [150, 128]]); cray('#222', 4, [[158, 158], [198, 158]]); cray('#222', 5, [[160, 118], [178, 96], [196, 118]]); // Helm mit Sehschlitz und Zacken
   cray(grey, 8, [[178, 190], [178, 330]]); cray(grey, 7, [[130, 215], [226, 215]]); cray(grey, 7, [[178, 330], [148, 430]]); cray(grey, 7, [[178, 330], [210, 430]]);
   cray('#888', 5, [[130, 215], [118, 150]]); cray('#999', 4, [[112, 170], [112, 60]]);
-  cray(pink, 6, [[330, 250], [330, 330]]); c.fillStyle = 'rgba(176,74,96,.35)'; c.beginPath(); c.moveTo(330, 280); c.lineTo(290, 380); c.lineTo(370, 380); c.fill(); cray(pink, 5, [[330, 280], [290, 380], [370, 380], [330, 280]]);
-  c.strokeStyle = '#6a4a2a'; c.lineWidth = 5; c.beginPath(); c.arc(330, 228, 24, 0, 7); c.stroke();
+  cray(pink, 6, [[330, 250], [330, 330]]); echt_schraff(c, [296, 284, 366, 380], 'rgba(176,74,96,.75)', 9, 8); cray(pink, 5, [[330, 280], [290, 380], [370, 380], [330, 280]]);
+  echt_kreis(c, 330, 228, 24, 24, '#6a4a2a', 5);
   cray(pink, 5, [[306, 290], [226, 215]]); cray(pink, 5, [[312, 380], [305, 440]]); cray(pink, 5, [[350, 380], [356, 440]]);
-  c.strokeStyle = yel; c.lineWidth = 5; c.beginPath(); c.arc(430, 80, 26, 0, 7); c.stroke(); for (let a = 0; a < 6.28; a += .8) cray(yel, 3, [[430 + Math.cos(a) * 34, 80 + Math.sin(a) * 34], [430 + Math.cos(a) * 48, 80 + Math.sin(a) * 48]]);
-  c.fillStyle = '#b3261e'; c.font = 'bold 56px "Comic Sans MS", cursive'; c.save(); c.translate(70, 488); c.rotate(-.04); c.globalAlpha = .85; c.fillText('PAPA + ICH', 0, 0); c.restore();
-  c.strokeStyle = '#3a3a8a'; c.lineWidth = 5; c.beginPath(); c.arc(452, 466, 20, -PI / 2, PI / 2); c.stroke(); }); } // halber Mond
+  echt_kreis(c, 430, 80, 26, 26, yel, 5); for (let a = 0; a < 6.28; a += .8) cray(yel, 3, [[430 + Math.cos(a) * 34, 80 + Math.sin(a) * 34], [430 + Math.cos(a) * 48, 80 + Math.sin(a) * 48]]);
+  echt_wachsText(c, 'PAPA + ICH', 70, 488, 'bold 56px "Comic Sans MS", cursive', 'rgba(179,38,30,.9)', -.04);
+  { const m = []; for (let a = -PI / 2; a <= PI / 2; a += .2) m.push([452 + Math.cos(a) * 20, 466 + Math.sin(a) * 20]); echt_kind(c, m, '#3a3a8a', 5); } }); } // halber Mond
 function kino_tex_hand(big = 1) { return cnv(128, (c, w) => { c.clearRect(0, 0, w, w); if (echt_hand(c, 64, 70, 100 * big, 'rgb(235,245,250)', .75, 0, big > 1, 'trocken')) return; // echter Handabdruck am Glas (Megascans „Hand Print“)
   c.fillStyle = 'rgba(235,245,250,.55)'; c.filter = 'blur(2px)';
   c.beginPath(); c.ellipse(64, 84, 26 * big, 30 * big, 0, 0, 7); c.fill(); [[34, 48, 9, 26, -.5], [48, 30, 8, 30, -.15], [64, 24, 8, 32, 0], [80, 30, 8, 30, .15], [100, 60, 8, 22, .8]].forEach(([x, y, rx, ry, a]) => { c.beginPath(); c.ellipse(64 + (x - 64) * big, 84 + (y - 84) * big, rx * big, ry * big, a, 0, 7); c.fill(); }); c.filter = 'none'; }); }
@@ -319,13 +321,13 @@ function kino_tex_brille() { return cnv(1024, (c, w) => { c.clearRect(0, 0, w, w
 // Brille zeigen: Modell (mit Perlenkette), sonst das alte Bild
 function kino_brille(x, z, ry) { const m = kino_S.obj.brilleM; if (m) { kino_show('brilleM', x, 0, z, ry); return m; } const b = kino_show('brille', x, .024, z); if (b) b.rotation.set(-PI / 2, 0, ry); return b; }
 // Zeichnung von der Kellerwand: das Mädchen mit der Laterne, „LUKE, 9“
-function kino_tex_zeichnung() { return cnv(512, (c, w) => { c.fillStyle = '#ddd2b6'; c.fillRect(0, 0, w, w); for (let i = 0; i < 700; i++) { c.fillStyle = `rgba(80,60,30,${rand(.01, .05)})`; c.fillRect(rand(0, w), rand(0, w), rand(1, 3), rand(1, 3)); }
-  const cr = (col, lw, pts) => { c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; for (let k = 0; k < 3; k++) { c.globalAlpha = .45; c.beginPath(); pts.forEach(([x, y], i) => { const X = x + rand(-2, 2), Y = y + rand(-2, 2); i ? c.lineTo(X, Y) : c.moveTo(X, Y); }); c.stroke(); } c.globalAlpha = 1; };
-  c.fillStyle = 'rgba(40,40,70,.9)'; c.fillRect(0, 0, w, 150); cr('#222', 5, [[250, 150], [250, 330]]); cr('#222', 5, [[250, 330], [215, 440]]); cr('#222', 5, [[250, 330], [285, 440]]);
-  c.strokeStyle = '#222'; c.lineWidth = 5; c.beginPath(); c.arc(250, 132, 26, 0, 7); c.stroke(); cr('#222', 5, [[250, 200], [320, 240]]); cr('#222', 5, [[250, 200], [190, 250]]);
-  const g = c.createRadialGradient(330, 262, 4, 330, 262, 70); g.addColorStop(0, 'rgba(255,220,120,.95)'); g.addColorStop(1, 'rgba(255,200,80,0)'); c.fillStyle = g; c.fillRect(250, 190, 160, 160);
+function kino_tex_zeichnung() { return cnv(512, (c, w) => { papierScan(c, w, w, '#ddd2b6', { dreck: .5 }); // Nachthimmel, Strichmännchen, gelbes Licht – Kinderhand mit echten Wachs-Pinseln
+  const cr = (col, lw, pts) => echt_kind(c, pts, col, lw);
+  echt_schraff(c, [0, 0, w, 150], 'rgba(40,40,70,.85)', 14, 11); cr('#222', 5, [[250, 150], [250, 330]]); cr('#222', 5, [[250, 330], [215, 440]]); cr('#222', 5, [[250, 330], [285, 440]]);
+  echt_kreis(c, 250, 132, 26, 26, '#222', 5); cr('#222', 5, [[250, 200], [320, 240]]); cr('#222', 5, [[250, 200], [190, 250]]);
+  echt_schraff(c, [288, 214, 376, 312], 'rgba(255,205,80,.8)', 12, 9);
   cr('#b07020', 4, [[320, 240], [330, 245], [345, 290], [315, 290], [330, 245]]); cr('#222', 3, [[230, 128], [236, 128]]); cr('#222', 3, [[262, 128], [268, 128]]);
-  c.fillStyle = '#1a1a1a'; c.font = '34px "Comic Sans MS", cursive'; c.save(); c.translate(300, 488); c.rotate(-.05); c.fillText('LUKE, 9', 0, 0); c.restore();
+  echt_wachsText(c, 'LUKE, 9', 300, 488, '34px "Comic Sans MS", cursive', '#1a1a1a', -.05);
   c.fillStyle = 'rgba(150,150,150,.9)'; c.beginPath(); c.arc(256, 14, 6, 0, 7); c.fill(); }); }
 function kino_tex_feder() { return cnv(256, (c, w) => { c.clearRect(0, 0, w, w); c.save(); c.translate(128, 250); c.rotate(-.05); // breite schwarze Feder, alt, am Kiel abgerissen
   c.strokeStyle = '#2a2622'; c.lineWidth = 4; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(6, -120, 0, -240); c.stroke();

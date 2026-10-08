@@ -4674,10 +4674,9 @@ async function loadFabAssets() {
   const fitMax = (o, size) => { const b = new THREE.Box3().setFromObject(o), s = b.getSize(new THREE.Vector3()); o.scale.multiplyScalar(size / Math.max(s.x, s.y, s.z)); return o; };
   const ground = o => { const b = new THREE.Box3().setFromObject(o); o.position.y -= b.min.y; return o; };
   const holder = (o, x, y, z, ry = 0) => { const g = new THREE.Group(); g.add(o); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g); return g; };
-  const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM, tar, little] = await Promise.all([
+  const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM] = await Promise.all([
     GL.loadAsync('assets/rat/rat.glb'), GL.loadAsync('assets/bench/model.gltf'), GL.loadAsync('assets/boulder/model.gltf'), GL.loadAsync('assets/manhole/model.gltf'), GL.loadAsync('assets/deadshrubs/model.gltf'),
-    FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx'),
-    FL.loadAsync('assets/spider_tarantula/model.fbx'), FL.loadAsync('assets/spider_little/model.fbx')]);
+    FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx')]);
 
   // --- Laternen: echte Straßenlaterne statt Rohr und Kasten (Licht, Lichtkegel und Birne bleiben)
   const lampMat = new THREE.MeshStandardMaterial({ map: T('lamp/color.jpg'), normalMap: T('lamp/normal.jpg', false), roughness: .55, metalness: .7 });
@@ -4736,20 +4735,12 @@ async function loadFabAssets() {
   for (const [x, y, z] of [[29.8, Y + 1.1, -16.5], [-13, .5, -10.2], [C2.x + 118, 1.4, C2.z + 4.6], [C3.x + 26, 1.1, C3.z + 3.6]]) for (let k = 0; k < 5; k++) {
     const o = fly.clone(); scene.add(o); FAB.flies.push({ o, c: new THREE.Vector3(x, y, z), ph: rand(0, 6), r: rand(.15, .45), sp: rand(3, 7) });
   }
-  // --- Spinnen: echte Vogelspinnen im Spinnenraum und im Keller; der Schwarm bekommt das Modell der kleinen Spinne
-  const tarMat = new THREE.MeshStandardMaterial({ map: T('spider_tarantula/color.jpg'), roughness: .75 });
-  tar.traverse(m => { if (m.isMesh) m.material = tarMat; });
-  for (const [x, y, z, ry, s] of [[C2.x + 38.5, .01, C2.z - 3.6, .6, .16], [C2.x + 44.2, .01, C2.z + 3.2, 2.5, .2], [C2.x + 41, .01, C2.z + 4.2, 4, .14], [B.x + 3.6, .01, B.z - 2.9, 1.2, .15]]) {
-    const o = skClone(tar); fitMax(o, s); ground(o); shade(o); const g = holder(o, x, y, z, ry); const mx = new THREE.AnimationMixer(o);
-    const idle = tar.animations.find(a => /^idle$/.test(a.name)) || tar.animations[0], walk = tar.animations.find(a => a.name === 'walk');
-    const acts = { idle: mx.clipAction(idle), walk: walk && mx.clipAction(walk) }; acts.idle.play(); mx.update(rand(0, 3));
-    FAB.spiders.push({ g, mx, acts, cur: acts.idle, home: g.position.clone(), t: rand(1, 5), dir: ry, walking: false });
+  // --- Spinnen: nur noch die Standplätze (Spinnenraum und Keller). Die alten FBX-Spinnen (spider_tarantula/spider_little) werden nicht mehr geladen: Modul spinnen.js setzt die Blender-Spinnen
+  //     in diese leeren Halter (spn_fabErsetzen) und gibt dem Schwarm die neue Form; ohne das Modul bleiben Halter leer und der Schwarm behält die einfache Kugelform.
+  for (const [x, y, z, ry] of [[C2.x + 38.5, .01, C2.z - 3.6, .6], [C2.x + 44.2, .01, C2.z + 3.2, 2.5], [C2.x + 41, .01, C2.z + 4.2, 4], [B.x + 3.6, .01, B.z - 2.9, 1.2]]) {
+    const g = holder(new THREE.Group(), x, y, z, ry);
+    FAB.spiders.push({ g, mx: new THREE.AnimationMixer(g), acts: { idle: null, walk: null }, cur: null, home: g.position.clone(), t: rand(1, 5), dir: ry, walking: false });
   }
-  { let sm = null; little.traverse(m => { if (m.isMesh && !sm) sm = m; });
-    if (sm) { const geo = sm.geometry.clone(); geo.deleteAttribute('skinIndex'); geo.deleteAttribute('skinWeight'); geo.computeBoundingBox(); const bb = geo.boundingBox, sz = bb.getSize(new THREE.Vector3());
-      const k = .075 / Math.max(sz.x, sz.z); geo.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); geo.scale(k, k, k);
-      if (sz.z > sz.x) geo.rotateY(PI / 2); // Körperachse nach +X, wie beim alten Schwarm
-      spiders.geometry = geo; spiders.material = new THREE.MeshStandardMaterial({ map: T('spider_little/color.jpg'), roughness: .7 }); } }
   try { const cw = await GL.loadAsync('assets/cow/cow.glb'); const c = cw.scene;
     // Skelett-Mesh in ein festes Mesh umwandeln (sie bewegt sich nicht mehr – und Klone brauchen kein Skelett)
     const bone = {}; c.traverse(o => { if (o.isBone) bone[o.name] = o; });
@@ -5541,7 +5532,43 @@ const COMPILE_LATER = [], _compileAsync0 = renderer.compileAsync.bind(renderer);
 renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); return Promise.resolve(s); };
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
-for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
+// FRÜH-ÜBERSETZEN (Ladezeit 08.10.2026): Die Grafikkarte übersetzt Programme in eigenen Fäden, während die Module auf dem Hauptfaden weiterbauen. Die Lichterzahl des
+// ersten Bildes ist erst am Ende bekannt – darum übersetzen wir gegen eine Stellvertreter-Szene mit genau so vielen Lichtern je Art wie im ersten Bild des letzten Laufs
+// (localStorage „ham_lsig“, sonst EARLY_SIG0). Gleiche Lichterzahl, Nebel und Umgebung → gleicher Programmschlüssel → der Gesamtdurchgang findet die Programme fertig vor.
+// Stimmt die Vorhersage nicht, bleiben die Frühprogramme nur unbenutzt (der Gesamtdurchgang übersetzt wie bisher). Nur Materialien ohne eigenes onBeforeCompile
+// (deren Hook liest teils Werte, die spätere Module erst anlegen) und ohne umzuwandelndes Umgebungsbild (PMREM, siehe „Grafik vorbereiten“). Testschalter: ?noearly
+const EARLY_SIG0 = null; // Lichter je Art im ersten Bild (Codes wie earlySig); null = erst ab dem zweiten Lauf
+const earlySig = L => [...L].map(o => (o.isDirectionalLight ? 'D' : o.isPointLight ? 'P' : o.isSpotLight ? 'S' : o.isHemisphereLight ? 'H' : o.isRectAreaLight ? 'R' : o.isLightProbe ? 'L' : o.isAmbientLight ? 'A' : '?') + (o.castShadow ? 's' : '') + (o.isSpotLight && o.map ? 'm' : '')).sort();
+const EARLY = { on: !LITE && !/[?&]noearly/.test(location.search), sc: null, sig: null, seen: new WeakSet(), q: [], pend: [], fly: [], cap: 12, last: 0, n: 0, ms: 0, runs: 0, maxFly: 0, timer: 0 };
+{ try { const v = JSON.parse(localStorage.getItem('ham_lsig') || 'null'); EARLY.sig = Array.isArray(v) ? v : EARLY_SIG0; } catch (e) { EARLY.sig = EARLY_SIG0; }
+  if (!EARLY.sig || EARLY.sig.some(c => /^[?RL]/.test(c))) EARLY.on = false; }
+const _onBC0 = THREE.Material.prototype.onBeforeCompile;
+function earlyOk(m) { if (!m || m.onBeforeCompile !== _onBC0) return false; const e = m.envMap; if (e && m.isMeshStandardMaterial && (e.mapping === THREE.EquirectangularReflectionMapping || e.mapping === THREE.EquirectangularRefractionMapping || e.mapping === THREE.CubeReflectionMapping || e.mapping === THREE.CubeRefractionMapping)) return false; return true; }
+// Sammeln (nach jedem Modul, höchstens alle 0,4 s): neue zeichenbare Teile mit geeigneten Materialien in die Warteschlange
+function earlyCollect(force) { if (!EARLY.on) return; const t0 = performance.now(); if (!force && t0 - EARLY.last < 400) return;
+  try { const list = EARLY.q.splice(0); scene.traverse(o => { if ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material && !EARLY.seen.has(o)) list.push(o); });
+    for (const o of list) { if (EARLY.seen.has(o)) continue; EARLY.seen.add(o); const M = [].concat(o.material); if (M.length && M.every(earlyOk)) EARLY.pend.push(o); } } catch (e) { EARLY.on = false; console.warn('Früh-Übersetzen', e); }
+  EARLY.last = performance.now(); EARLY.ms += EARLY.last - t0; }
+// Pumpe (alle 30 ms, auch während die Module auf Dateien warten): höchstens EARLY.cap Programme gleichzeitig in Arbeit – sonst müsste ein Modul, das selbst
+// zeichnet (Beutel-Bildchen, Album), hinter einer langen Warteschlange der Grafikkarte warten. Je Takt höchstens ~6 ms Hauptfaden.
+function earlyPump() { if (!EARLY.on) return; const t0 = performance.now();
+  try { EARLY.fly = EARLY.fly.filter(p => { try { return !p.isReady(); } catch (e) { return false; } });
+    if (!EARLY.pend.length || EARLY.fly.length >= EARLY.cap) return;
+    if (!EARLY.sc) { const S = EARLY.sc = new THREE.Scene(), dummy = new THREE.Texture();
+      for (const c of EARLY.sig) { const k = c[0]; const l = k === 'D' ? new THREE.DirectionalLight() : k === 'P' ? new THREE.PointLight() : k === 'S' ? new THREE.SpotLight() : k === 'H' ? new THREE.HemisphereLight() : new THREE.AmbientLight();
+        l.castShadow = c.includes('s'); if (k === 'S' && c.includes('m')) l.map = dummy; S.add(l); } }
+    const S = EARLY.sc; S.fog = scene.fog; S.environment = scene.environment;
+    const rt0 = renderer.getRenderTarget(), P = renderer.info.programs; renderer.setRenderTarget(composer.renderTarget1); // wie der Gesamtdurchgang: Programme für den Nachbearbeitungs-Puffer
+    try { while (EARLY.pend.length && EARLY.fly.length < EARLY.cap && performance.now() - t0 < 6) { const objs = EARLY.pend.splice(0, 4), n0 = P.length;
+        renderer.compile({ traverse: cb => { for (const o of objs) cb(o); }, traverseVisible: () => {} }, camera, S); EARLY.n += objs.length;
+        for (let i = n0; i < P.length; i++) EARLY.fly.push(P[i]); } } finally { renderer.setRenderTarget(rt0); }
+    EARLY.maxFly = Math.max(EARLY.maxFly, EARLY.fly.length);
+  } catch (e) { EARLY.on = false; console.warn('Früh-Übersetzen', e); }
+  EARLY.runs++; EARLY.ms += performance.now() - t0; }
+{ const cl = renderer.compileAsync; renderer.compileAsync = (s, c, t = null) => { if (EARLY.on && s && s.traverse && (t === null || t === scene)) { try { s.traverse(o => { if ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && o.material) EARLY.q.push(o); }); } catch (e) {} } return cl(s, c, t); }; }
+if (EARLY.on) EARLY.timer = setInterval(earlyPump, 30);
+for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } earlyCollect(false); }
+earlyCollect(true); if (DEV) window.__early = EARLY;
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
 // 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
 function perfMergeGroups(g) {
@@ -6225,6 +6252,7 @@ function texDedupe() {
 try { await Promise.race([Promise.all(KTX.pending), wait(60000)]); } catch (e) {} // komprimierte Texturen fertig, bevor alles hochgeladen wird
 try { texDedupe(); } catch (e) { console.warn('Texturen', e); }
 camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, player.yaw, 0);
+clearInterval(EARLY.timer); EARLY.rest = EARLY.pend.length; EARLY.pend.length = 0; // Rest übersetzt der Gesamtdurchgang
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
@@ -6241,7 +6269,7 @@ const PMW = []; // vorübersetzte PMREM-Programme (Spiegelsonde, Messing-Schlüs
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   try { update(.016, clock.elapsedTime); } catch (e) { console.warn('Vorübersetzen: Probebild', e); } // ein Takt wie im ersten Bild (Menü-Kamera, Sichtbarkeiten der Module), erst dann die Lichter festhalten
-  lsetTake();
+  lsetTake(); try { const sg = earlySig(LSET); if (DEV) window.__earlySig = { vorher: EARLY.sig, jetzt: sg }; localStorage.setItem('ham_lsig', JSON.stringify(sg)); } catch (e) {} // Vorhersage fürs Früh-Übersetzen beim nächsten Start
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);
   const extra = [scarePlane, new THREE.Mesh(new THREE.BoxGeometry(.1, .1, .1), boltMat)];

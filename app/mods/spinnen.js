@@ -278,18 +278,7 @@ function spn_allePflegen() { const S = SPN_S, tauscht = new Map(); // alle Spinn
 async function spn_modell() { const S = SPN_S;
   try { const xs = await spn_starr('winkel', 'xs'), lo = await spn_starr('winkel', 'lo'); if (xs && lo) { spiders.geometry = xs.geo; spiders.material = xs.mat; S.camGeo = lo.geo; S.camMat = lo.mat; S.ext = .125; return true; } }
   catch (e) { console.warn('Spinnen: neue Schwarmform', e); }
-  return spn_modellAlt(); }
-async function spn_modellAlt() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
-  const BU = await import('three/addons/utils/BufferGeometryUtils.js'), { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'); let g = sm.geometry.clone();
-  try { // Gehpose einbacken (Beine gebeugt statt gestreckt): Klon, Lauf-Animation auf einen Schritt gestellt, Eckpunkte per Skelett ausgelesen
-    const root = FAB.spiders[0].g.children[0], cl = skClone(root), mx = new THREE.AnimationMixer(cl), clip = (FAB.spiders[0].acts.walk || FAB.spiders[0].acts.idle).getClip(); const a = mx.clipAction(clip); a.play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
-    let sm2 = null; cl.traverse(o => { if (o.isSkinnedMesh && !sm2) sm2 = o; }); sm2.skeleton.update(); const pos = g.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < pos.count; i++) { sm2.getVertexPosition(i, v); pos.setXYZ(i, v.x, v.y, v.z); } pos.needsUpdate = true;
-  } catch (e) { console.warn('Spinnen: Pose', e); }
-  g.deleteAttribute('skinIndex'); g.deleteAttribute('skinWeight'); g.deleteAttribute('normal'); g = BU.mergeVertices(g, 1e-4); g.computeVertexNormals();
-  g.computeBoundingBox(); const bb = g.boundingBox, sz = bb.getSize(new THREE.Vector3()), ext = .125, k = ext / Math.max(sz.x, sz.z); g.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); g.scale(k, k, k); g.rotateY(-PI / 2); // Kopf (−z) → +X
-  g.computeBoundingBox(); g.computeBoundingSphere(); const m0 = sm.material;
-  S.tarOrig = m0; const mat = spn_haut(m0.map);
-  spiders.geometry = g; spiders.material = mat; S.ext = ext; return true; }
+  return false; } // Rückfall: Schwarm behält die einfache Kugelform der Basis (die alten FBX-Spinnen werden nicht mehr geladen)
 WORLD_MODS.push(['Spinnen', async () => { const S = SPN_S;
   try { try { await Promise.all(Object.keys(SPN_ARTEN).map(a => spn_art(a))); await spn_fabErsetzen(); } catch (e) { console.warn('Spinnen: Arten', e); }
     let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }

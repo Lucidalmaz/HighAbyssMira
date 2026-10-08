@@ -9,17 +9,17 @@ from klang_lib import *
 FS = os.path.join(HAM, 'fsdl'); CM = os.path.join(HAM, 'commons')
 def ld(path):  # beliebige Datei (wav/ogg/mp3/flac) -> 48 kHz, (n, 2)
     x, sr = sf.read(path, dtype='float32', always_2d=True); return st(resample(x, sr))
-def fsx(id): return ld(glob.glob(os.path.join(FS, str(id) + '_*-hq.mp3'))[0])
+def fsx(id): return ld(glob.glob(os.path.join(FS, str(id).split('_')[0] + '_*-hq.mp3'))[0])
 def cmx(key): return ld(glob.glob(os.path.join(CM, key + '.*'))[0])
 def pitch(x, r): return resample(x, SR, int(SR / r))  # r < 1: tiefer und länger
 def cut(x, a, b): return x[int(a * SR):int(b * SR)]
 def seg(x, n, thr=-30, minl=.05, maxl=1.2, post=.12, gap=.08, fl=None):
     y = ffilt(x, fl) if fl else x; return segments(y, n, thr, minl, maxl, gap=gap, post=post)
 def out(name, x, target=-23, pk=-3, lp=None, hp=30, mono_=True, q=.9, a=.003, r=.06):
-    x = mono(x) if mono_ else st(x); x = ffilt(x, chain(HP(hp), LP(lp, 1)) if lp else HP(hp)); x = fade(x, a, r)
+    x = mono(x) if mono_ else st(x); x = ffilt(x, chain(HP(hp), LP(lp, 1)) if lp else HP(hp)); x = fade(x, min(a, len(x) / SR * .2), min(r, len(x) / SR * .4))
     save(name, norm(x, target, pk), q)
 def loop(name, x, L, xf=2.0, target=-24, fl=None, q=.9, t0=0):
-    x = mono(cut(x, t0, t0 + L)); x = ffilt(x, fl or chain(HP(40), HSH(9000, -3))); save(name, norm(loopify(x, xf), target, -3), q)
+    x = st(cut(x, t0, t0 + L)); x = ffilt(x, fl or chain(HP(40), HSH(9000, -3))); save(name, mono(norm(loopify(x, xf), target, -3)), q)
 def top(segs, n):  # die n lautesten (Spitze) – für Einzelereignisse
     segs = sorted(segs, key=lambda s: -np.abs(s).max()); return segs[:n]
 
@@ -85,8 +85,9 @@ def katze():
     out('fx_katze_miau_1', pitch(cmx('katze_miau1'), 1.0), -22, -3, 10000, 150, a=.005, r=.15)
     out('fx_katze_miau_2', pitch(cmx('katze_miau2'), 1.0), -22, -3, 10000, 150, a=.005, r=.15)
     f = mono(cmx('katze_fauch')); S = seg(f, 3, -30, .3, 2.5, .2, .2, chain(HP(500), LP(9000)))
-    S = sorted(S, key=lambda s: -len(s))[:2]
-    for i, s in enumerate(S): out(f'fx_katze_fauch_{i + 1}', s, -22, -3, 12000, 300, a=.01, r=.25)
+    S = sorted(S, key=lambda s: -len(s))
+    out('fx_katze_fauch_1', S[0], -22, -3, 12000, 300, a=.01, r=.25)
+    out('fx_katze_fauch_2', S[1] if len(S) > 1 else pitch(S[0], 1.08), -22, -3, 12000, 300, a=.01, r=.25)
     out('fx_katze_fauch_3', pitch(S[0], .9), -22, -3, 11000, 250, a=.01, r=.25)
     p = mono(cmx('katze_schnurr3')); loop('fx_katze_schnurr', p, min(len(p) / SR - .2, 9.5), 1.0, -24, chain(HP(35), LP(2500, 1)))
 

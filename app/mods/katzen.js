@@ -119,7 +119,7 @@ function katzen_rest() {
     S.R.notch[side] = best ? [best.x, best.y, best.z, .0065] : [0, 0, 0, 0]; }
   const P = geo.attributes.position, v = v0, up = new THREE.Vector3(0, 1, 0).addScaledVector(n, -n.y).normalize(); let best = null, bs = 1e9;
   for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).sub(c); const along = v.dot(n); if (Math.abs(along) > .004) continue; const r = v.clone().addScaledVector(n, -along); if (r.length() > .07) continue; const s = r.dot(up); if (s < bs) { bs = s; best = v.clone().add(c); } }
-  S.R.fellP = P.array; S.R.fellI = geo.index ? geo.index.array : null; S.R.throat = best || c.clone().addScaledVector(up, -.03);
+  { const fp = new Float32Array(P.count * 3); for (let i = 0; i < P.count; i++) { fp[i * 3] = P.getX(i); fp[i * 3 + 1] = P.getY(i); fp[i * 3 + 2] = P.getZ(i); } S.R.fellP = fp; } S.R.fellI = geo.index ? geo.index.array : null; S.R.throat = best || c.clone().addScaledVector(up, -.03);
   S.R.throatN = S.R.throat.clone().sub(c).addScaledVector(n, -S.R.throat.clone().sub(c).dot(n)).normalize();
 }
 
@@ -159,7 +159,7 @@ vec3 katzenFarbe(vec3 tex, vec4 m){
   fur *= 1. - kMat * .5 * smoothstep(.42, .66, kN(p * 3.3 + 11.)); // verklebte Strähnen: dunkle, fettige Partien
   // Haarkarten: Tiefe (Wurzel dunkler) und Wurzelfarbe (Smoke: helle Unterwolle)
   float rt = 1. - smoothstep(0., .7, vKT); fur = mix(fur, kRootC, kRootK * rt); fur *= mix(.82, 1., smoothstep(0., .55, vKT));
-  float sc = katzenNarbe(); fur = mix(fur, mix(fur, vec3(.62, .5, .47), .75) + kPink * .15, sc);
+  float sc = katzenNarbe(); fur = mix(fur, mix(fur, vec3(.62, .5, .47), .6) + kPink * .1, sc);
   vec3 q = vKR - kColC; float al = dot(q, kColN); float rr = length(q - kColN * al);
   float cb = kColOn * step(abs(al), kColW) * step(rr, .062);
   vec3 cc = kColCol * (.75 + .35 * kN(p * 7.)); if (kTuch > .5) cc *= .7 + .3 * step(.5, fract((vKR.x + vKR.y) * 180.));
