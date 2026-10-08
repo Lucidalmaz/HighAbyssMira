@@ -16,6 +16,7 @@ const UNGENUTZT = [ // Ordner (mit /) oder Dateien relativ zu game/
 ];
 const BRAUCHT_ORIGINAL = [ // Präfixe/Dateien relativ zu game/
   'assets/fotos/', 'assets/polaroid/',                                                      // Tagebuch/Album/Polaroids: <img>, Leinwand
+  'assets/ms/bed_keypad/tafel.jpg',  // bedienung.js: CSS-Hintergrund des Tastenfeld-Fensters
   'assets/ms/album/cover.jpg',                                                               // album.js: CSS-Hintergrund
   'assets/ms/beutel1/futter.jpg', 'assets/ms/beutel2/futter.jpg', 'assets/ms/beutel3/futter.jpg', // beutel.js: CSS-Hintergrund
   'assets/ms/beobachter/model.glb',                                                          // beobachter.js: fetch → Rohdaten (Knoten/Clips)

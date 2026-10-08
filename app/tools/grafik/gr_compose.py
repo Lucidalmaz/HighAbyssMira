@@ -194,6 +194,61 @@ if 'zaehl' in wahl:  # Horror am Schrottplatz: „ZÄHL NICHT MIT“ in Rostrot,
     s.marker(ss(G(dots, 5) * 160, .25, .6), (230, 228, 220), .8)
     s.save('wand_zaehl', .3)
 
+
+if 'auge' in wahl:  # Mystery (Gartenmauer Hauptstraße): Dreieck mit Auge und Strahlen, „ES SIEHT UNS ZU“, klein „∴“, darunter „WER ZÄHLT?“
+    s = Wand(71); R = s.R
+    s.echt('r_tag_oben', 1680, 600, 300, alpha=.55, buff=.4)
+    s.echt('a_bubble', 40, 640, 560, alpha=.4, buff=.55)
+    cx, cy = 560, 420
+    tri = [(cx, cy - 300), (cx + 290, cy + 190), (cx - 290, cy + 190), (cx, cy - 300)]
+    s.spray(linien([tri], R, 2.5), (232, 230, 220), sig=6, drips=6)
+    auge = [ellipse(cx, cy + 10, 130, 62, n=100), ellipse(cx, cy + 10, 44, 44, n=50)]
+    s.spray(linien(auge, R, 2), (232, 230, 220), sig=5, drips=3)
+    s.spray(G(linien([ellipse(cx, cy + 10, 16, 16, n=24)], R, 1), 5) * 20, (232, 230, 220), sig=4, drips=1)
+    s.spray(linien([[(cx + 330 * math.cos(a), cy + 10 + 330 * math.sin(a)), (cx + 450 * math.cos(a), cy + 10 + 450 * math.sin(a))] for a in np.linspace(-.9, .9, 7)] if False else [[(cx + (360 + 0) * math.cos(a) * .9, cy - 40 + 340 * math.sin(a) * .5), (cx + 470 * math.cos(a) * .9, cy - 40 + 440 * math.sin(a) * .5)] for a in np.linspace(math.pi * 1.15, math.pi * 1.85, 6)], R, 2), (232, 230, 220), sig=4, drips=0, os_=.5)
+    s.spray(bahn(text_mask('ES SIEHT UNS ZU', 128, COV, 940, 330, rot=-3, spacing=12, jitter=.4, seed=72)), (232, 230, 220), sig=3.8, drips=12, dichte=3.4)
+    s.marker(text_mask('WER ZÄHLT?', 110, COV, 1000, 600, rot=-6, jitter=.5, seed=73), (178, 30, 28), .9)
+    dots = np.zeros((H, W), np.float32)
+    for (px, py) in [(1810, 880), (1790, 912), (1830, 912)]: dots[py, px] = 1
+    s.marker(ss(G(dots, 5) * 160, .25, .6), (18, 18, 20))
+    s.save('wand_auge', .3)
+
+if 'abholung' in wahl:  # Alien (Gartenmauer): Untertasse mit Lichtkegel, kleine Strichfigur schwebt hinauf, „31.10. KOMMEN SIE WIEDER“, „ICH WAR DRIN“
+    s = Wand(81); R = s.R
+    s.echt('r_tag_links', 1700, 40, 300, alpha=.6, buff=.35)
+    s.echt('a_elefant', 40, 560, 480, alpha=.4, buff=.5)
+    ufo = [ellipse(520, 250, 250, 62), ellipse(520, 226, 105, 88, math.pi, 2 * math.pi, 50)]
+    s.spray(linien(ufo, R, 2), (24, 26, 30), sig=6, drips=4)
+    cone = [[(380, 300), (230, 820)], [(660, 300), (810, 820)]]
+    s.spray(linien(cone, R, 3), (220, 214, 120), sig=5, drips=3, os_=.6)
+    fig = [ellipse(520, 470, 28, 28, n=30), [(520, 498), (520, 640)], [(520, 540), (470, 590)], [(520, 540), (572, 590)], [(520, 640), (488, 720)], [(520, 640), (556, 720)]]
+    s.spray(linien(fig, R, 1.5), (24, 26, 30), sig=4.5, drips=1)
+    s.spray(bahn(text_mask('HALLOWEEN KOMMEN SIE', 104, COV, 860, 280, rot=-2, spacing=8, jitter=.4, seed=82)), (30, 150, 90), sig=3.6, drips=9)
+    s.marker(text_mask('ICH WAR DRIN', 98, COV, 1060, 560, rot=-5, jitter=.5, seed=83), (30, 30, 34), .9)
+    s.spray(linien([[(1180, 760), (1500, 760)], [(1450, 730), (1510, 760), (1450, 790)]], R, 2), (30, 150, 90), sig=3.5, drips=0, os_=.4)
+    s.save('wand_abholung', .3)
+
+if 'umdrehen' in wahl:  # Horror (Gartenmauer): kleine Kinderhand als Schablone, „NICHT UMDREHEN“ weiß verlaufen, darunter acht Striche, einer fehlt
+    s = Wand(91); R = s.R
+    s.echt('r_tag_gross', 1250, 520, 760, alpha=.35, buff=.55)
+    s.echt('r_tag_unten', 60, 640, 300, alpha=.45, buff=.4)
+    im = Image.new('L', (W, H), 0); d = ImageDraw.Draw(im); cx, cy = 330, 640
+    d.ellipse([cx - 100, cy - 90, cx + 100, cy + 120], fill=255)
+    for ox, a, L in [(-66, -9, 175), (-24, -3, 215), (20, 2, 225), (62, 8, 200)]:   # vier Finger leicht gefächert
+        bx, by = cx + ox, cy - 60; ex, ey = bx + L * math.sin(math.radians(a)), by - L * math.cos(math.radians(a)); d.line([(bx, by), (ex, ey)], fill=255, width=38); d.ellipse([ex - 19, ey - 19, ex + 19, ey + 19], fill=255)
+    bx, by = cx + 88, cy + 10; ex, ey = bx + 120 * math.sin(math.radians(62)), by - 120 * math.cos(math.radians(62)); d.line([(bx, by), (ex, ey)], fill=255, width=42); d.ellipse([ex - 21, ey - 21, ex + 21, ey + 21], fill=255)  # Daumen
+    m = G(np.asarray(im).astype(np.float32) / 255, .9)
+    a = m * (.82 + .2 * G(R.random(m.shape).astype(np.float32), 25) * 3.5); mist = (R.random(m.shape) < G(m, 22) * .06).astype(np.float32) * .5
+    rgb, aa = s.farbe((236, 234, 226), np.clip(np.maximum(a, mist), 0, 1), .08); s.over(rgb, aa)
+    s.spray(bahn(text_mask('NICHT UMDREHEN', 168, COV, 640, 340, rot=2, spacing=14, jitter=.45, seed=92)), (236, 234, 226), sig=4.6, drips=26, os_=1.0, dichte=3.8)
+    polys = []
+    for i in range(8):
+        x = 760 + i * 70 + R.normal(0, 4)
+        if i == 5: continue                       # der sechste fehlt
+        polys.append([(x, 640 + R.normal(0, 6)), (x + R.normal(0, 7), 820 + R.normal(0, 8))])
+    s.spray(linien(polys, R, 2), (176, 30, 28), sig=5, drips=6)
+    s.save('wand_umdrehen', .3)
+
 def kreide(s, mask, col=(234, 232, 224), breit=5, al=.95):  # Kinderkreide auf Asphalt: dicke trockene Spur, haftet nur auf den Kornspitzen, Staub daneben
     m = G(ndi.binary_dilation(mask > .5, iterations=breit).astype(np.float32), 1.2)
     korn = s.korn; haft = ss(korn * .9 + 1.15 - .25 * s.R.random(m.shape), .35, 1.5)

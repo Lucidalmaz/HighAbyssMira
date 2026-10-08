@@ -285,7 +285,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     d.position.set(0, -1.1, 0); cellarDoor.add(d); cellarDoor.material = hidden;
     const sc = find(30, .93, -21.77, [.9, .6, 0])[0]; if (sc) { cellarDoor.updateMatrixWorld(true); cellarDoor.attach(sc); sc.position.z += .035; if (typeof ritz_kratzer === 'function') { const f = ritz_kratzer(576, 384, { seed: 9, bueschel: 5, groesse: 100 }); sc.material = new T.MeshStandardMaterial({ ...ritz_tex(f.c, f.b), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, roughness: .8, metalness: 0 }); } } // Krallenspuren als echte Rillen mit Relief, nicht als leuchtende Linien
     const vp = new T.Mesh(new T.PlaneGeometry(1.08, 2.18), new T.MeshBasicMaterial({ color: 0x010101 })); vp.position.set(30, Y + 1.1, -21.797); G7.add(vp); }
-  await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0x6a3a38, .75);
+  await decal(G7, 'blood_hv', 1.5, .8, 30.0, Y + .005, -21.05, 'floor', PI / 2 + .15, 0xf0d0c8, .75);
   await decal(G7, 'grime', 1.4, 1.2, 30.1, Y + .004, -20.9, 'floor', 1.1, 0x5a4a38, .9);
   await decal(G7, 'grime', 1.4, 1.0, 26.105, Y + .5, -21.0, '+x', 0, 0x6a5a48, .8);
   web(G7, 31.62, Y + 2.5, -21.62, -PI / 4 + PI / 2, .8); web(G7, 26.3, Y + .5, -21.62, PI / 4, .45);
@@ -414,7 +414,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // Tisch mit Tonbandgerät (Tischplatte exakt auf alter Höhe → Band, Foto, Kerze bleiben liegen)
   hideAt(302, .38, 296.7, [1.4, .75, .7]);
   put(await GL('metaltable'), { x: 302.0, maxZ: 296.92, y: 0, s: [1, .88, 1] }, GB);
-  try { const rd = await GL('radio'); meshes(rd).forEach(m => { if (m.name === 'tubes' || m.name === 'wires') m.parent.remove(m); }); msFit(rd, .27, 'y'); const gtp = put(rd, { x: B.x + 2, z: B.z - 3.25, y: .83 - .075, ry: -PI / 2 }, GB); B.tape.material = hidden; gtp.traverse(m => { if (m.isMesh) m.castShadow = false; }); S.tapeGerat = gtp; // Kassettenrekorder (Scan Radio statt Kiste)
+  try { let echt = true, rd; try { rd = await GL('rekorder', 'model.glb'); } catch (e) { echt = false; rd = await GL('radio'); } if (!echt) meshes(rd).forEach(m => { if (m.name === 'tubes' || m.name === 'wires') m.parent.remove(m); }); if (echt) msFit(rd, .3, 'max'); else msFit(rd, .27, 'y'); /* echter Kassettenrekorder (Fab, Ryptimal Games, CC-BY) */ const gtp = put(rd, { x: B.x + 2, z: B.z - 3.25, y: .83 - .075, ry: -PI / 2 }, GB); B.tape.material = hidden; gtp.traverse(m => { if (m.isMesh) m.castShadow = false; }); S.tapeGerat = gtp; // Kassettenrekorder (Scan Radio statt Kiste)
     const kt = new T.Mesh(new T.BoxGeometry(.105, .016, .068), new T.MeshStandardMaterial({ color: 0x1a1a1c, roughness: .5 })); kt.position.set(B.x + 2.36, .763, B.z - 3.05); kt.rotation.y = .3; GB.add(kt); } catch (e) { console.warn('Basis-Umsetzung Kassettenrekorder', e); B.tape.material = await surf('rust_sheet', { rx: .25, ry: .12, tint: 0xa09890 }); }
   // Regal mit Einmachgläsern
   hideAt(295.25, .95, 302, [.35, 1.9, 1.6]); hideAt(295.25, .95, 301.99, [.35, 1.9, 1.6]); hideAt(295.25, .95, 301.98, [.35, 1.9, 1.6]);
@@ -435,9 +435,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     if (first) interact(first, 'Spielzeug', () => toast('Sieben Spielsachen, im Kreis um den Stuhl gestellt. Alle schauen zum Stuhl. Die Kerzen dazwischen brennen. Wer hat sie angezündet?', 6000)); }
   await trashbag(GB, { x: 296.0, z: 303.3, y: 0, ry: .7 }); await trashbag(GB, { x: 296.65, z: 303.5, y: 0, ry: 2.4, s: .8 });
   { const f = await GL('frame_dmg'); f.rotation.x = -.2; put(f, { minX: 295.13, z: 299.35, y: 0, ry: PI / 2 }, GB); }
-  await decal(GB, 'blood_s1', 1.5, 1.5, 299, .005, 300.05, 'floor', .6, 0x7a4a48, .85);
-  await decal(GB, 'blood_hv', 2.2, .9, 299.2, .006, 298.3, 'floor', PI / 2 + .25, 0x6a3a38, .8);
-  await decal(GB, 'blood_s2', 1.2, 1.4, 295.105, 1.15, 298.5, '+x', 0, 0x7a4a48, .75);
+  await decal(GB, 'blood_s1', 1.5, 1.5, 299, .005, 300.05, 'floor', .6, 0xf0d0c8, .85);
+  await decal(GB, 'blood_hv', 2.2, .9, 299.2, .006, 298.3, 'floor', PI / 2 + .25, 0xf0d0c8, .8);
+  await decal(GB, 'blood_s2', 1.2, 1.4, 295.105, 1.15, 298.5, '+x', 0, 0xf0d0c8, .75);
   await decal(GB, 'grime', 2.4, 1.2, 300.5, .6, 303.895, '-z', 0, 0x5a4a38, .9);
   await decal(GB, 'grime', 1.8, 1.8, 302.5, 2.495, 298.5, 'ceil', 2, 0x5a4a38, .8);
   web(GB, 295.4, 2.2, 301.2, PI / 4, .7); web(GB, 304.6, .6, 303.5, -PI / 4, .5); web(GB, 300.2, 2.3, 296.3, 0, .6);

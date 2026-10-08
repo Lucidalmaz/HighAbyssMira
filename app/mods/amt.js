@@ -14,7 +14,7 @@
 const AMT = { x: C2.x, z: C2.z, h: C2.h };
 const amt_S = { ready: false, t: 0, said: {}, q: [], druckT: 0, druckZ: [], band: false, bandQ: [], k1: { t: 150, n: 0 }, nr: false, tuer: {}, kits: [], alt: {}, uhrT: 0, schritt: {}, luke: 0 };
 // Spielstand: Fortschritt dieses Moduls (Basis-Flags der Ebene speichert tod.js über tod_ch2Snap)
-const AMT_SAVE = ['akte06', 'batt', 'klavierFehl', 'danke', 'nr', 'ag06', 'ag07', 'reg', 'regFotos', 'regDreh', 'kantine', 'brett', 'kasse', 'leiter', 'leiterSteht', 'gruendung', 'vernichter', 'modell', 'modellN', 'kuehl', 'bogen', 'stuhl8', 'feder', 'bogenFlocke', 'akte8', 'tankHand', 'lucyDa', 'umschlag'];
+const AMT_SAVE = ['akte06', 'batt', 'klavierFehl', 'danke', 'nr', 'ag06', 'ag07', 'reg', 'regFotos', 'regDreh', 'kantine', 'brett', 'kasse', 'leiter', 'leiterSteht', 'gruendung', 'vernichter', 'modell', 'modellN', 'kuehl', 'bogen', 'stuhl8', 'bogenFlocke', 'akte8', 'tankHand', 'lucyDa', 'umschlag'];
 MOD_SAVE.push(['amt', () => { const o = {}; for (const k of AMT_SAVE) if (amt_S[k] !== undefined) o[k] = amt_S[k]; o.druck = amt_S.druckZ.slice(-14); return o; },
   v => { if (!v || typeof v !== 'object') return; for (const k of AMT_SAVE) if (v[k] !== undefined) amt_S[k] = v[k]; if (Array.isArray(v.druck)) amt_S.druckZ = v.druck.slice(-14); amt_S.geladen = true; }]);
 

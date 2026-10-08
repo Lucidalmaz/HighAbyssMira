@@ -112,16 +112,15 @@ function hl_glowPass() { const p = new ShaderPass({ uniforms: { tDiffuse: { valu
     float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(h21(i), h21(i + vec2(1., 0.)), f.x), mix(h21(i + vec2(0., 1.)), h21(i + vec2(1., 1.)), f.x), f.y); }
     void main(){
       vec4 c = texture2D(tDiffuse, vUv), m0 = texture2D(tMask, vUv);
-      vec2 r1 = vec2(.0042 / asp, .0042), r2 = vec2(.0095 / asp, .0095), r3 = vec2(.0175 / asp, .0175); vec3 g = vec3(0.); float a = 0.;
-      for (int i = 0; i < 8; i++) { float w = float(i) * .7853982 + .3927, j = .8 + .4 * fract(float(i) * .618); vec2 d = vec2(cos(w), sin(w)), d2 = vec2(cos(w + .39), sin(w + .39));
-        vec4 s1 = texture2D(tMask, vUv + d * r1), s2 = texture2D(tMask, vUv + d2 * r2 * j), s3 = texture2D(tMask, vUv + d * r3 * j);
-        g += s1.rgb * .045 + s2.rgb * .045 + s3.rgb * .035; a += s1.a * .045 + s2.a * .045 + s3.a * .035; }
+      vec2 r1 = vec2(.0030 / asp, .0030), r2 = vec2(.0075 / asp, .0075), r3 = vec2(.0150 / asp, .0150); vec3 g = vec3(0.); float a = 0.;
+      for (int i = 0; i < 14; i++) { float w = float(i) * .4487989 + .2, j = .85 + .3 * fract(float(i) * .618); vec2 d = vec2(cos(w), sin(w)), d2 = vec2(cos(w + .224), sin(w + .224)), d3 = vec2(cos(w + .112), sin(w + .112));
+        vec4 s1 = texture2D(tMask, vUv + d * r1), s2 = texture2D(tMask, vUv + d2 * r2 * j), s3 = texture2D(tMask, vUv + d3 * r3 * j);
+        g += s1.rgb * .0225 + s2.rgb * .0225 + s3.rgb * .0175; a += s1.a * .0225 + s2.a * .0225 + s3.a * .0175; }
       vec2 q = vUv * vec2(asp, 1.);
-      float n = vn(q * 85. + vec2(0., -time * .8)) * .6 + vn(q * 220. + vec2(time * .25, -time * 2.)) * .4;
-      float sp = smoothstep(.8, .97, vn(q * 430. + vec2(-time * .3, -time * 3.)));
-      vec3 aura = g * (1. - m0.a) * (.5 + .8 * n + .45 * sp); /* Nutzer 07.10.: gepunktete Ränder wirken wie Bildfehler – Funkeln deutlich leiser (vorher 1,6) */
-      vec3 rim = m0.rgb * (clamp(1. - a * 1.1, 0., 1.) * .28 + .05) * (.7 + .3 * n); /* innen nur ein Hauch, keine harte Linie */
-      vec3 e = clamp(aura * 1.9 + rim, 0., 1.);
+      float n = vn(q * 18. + vec2(0., -time * .5)) * .6 + vn(q * 40. + vec2(time * .2, -time * .9)) * .4; /* langsame, weiche Schwankung statt Pixelrauschen */
+      vec3 aura = g * (1. - m0.a) * (.62 + .55 * n); /* dezent: kein Funkeln mehr, keine Perlen */
+      vec3 rim = m0.rgb * (clamp(1. - a * 1.1, 0., 1.) * .22 + .03) * (.8 + .2 * n);
+      vec3 e = clamp(aura * 1.6 + rim, 0., 1.);
       c.rgb = 1. - (1. - c.rgb) * (1. - e);
       gl_FragColor = c; }` }); return p; }
 
@@ -258,11 +257,11 @@ WORLD_MODS.push(['Hervorhebung', async () => {
     for (const r of [composer.renderTarget1, composer.renderTarget2]) if (!r.depthTexture) { r.depthTexture = new THREE.DepthTexture(r.width, r.height, THREE.UnsignedIntType); r.dispose(); }
   } catch (e) { console.warn('Hervorhebung: keine Szenentiefe', e); }
   const W = composer.renderTarget1.width, H = composer.renderTarget1.height;
-  HL.rt = new THREE.WebGLRenderTarget(Math.max(1, W >> 1), Math.max(1, H >> 1), { depthBuffer: false, type: THREE.UnsignedByteType }); HL.uRes.value.set(HL.rt.width, HL.rt.height);
+  HL.rt = new THREE.WebGLRenderTarget(Math.max(1, W), Math.max(1, H), { depthBuffer: false, type: THREE.UnsignedByteType }); HL.uRes.value.set(HL.rt.width, HL.rt.height);
   HL.scene = new THREE.Scene(); HL.scene.matrixWorldAutoUpdate = false;
   for (let i = 0; i < 10; i++) HL.slots.push({ o: null, k: 0, sel: false, d: 9, look: 0, ph: 0, cat: 'interakt', px: [], mat: hl_maskMat() });
   HL.mask = { enabled: true, needsSwap: false, clear: false, renderToScreen: false, render: hl_maske, dispose() {},
-    setSize(w, h) { HL.rt.setSize(Math.max(1, w >> 1), Math.max(1, h >> 1)); HL.uRes.value.set(HL.rt.width, HL.rt.height); } };
+    setSize(w, h) { HL.rt.setSize(Math.max(1, w), Math.max(1, h)); HL.uRes.value.set(HL.rt.width, HL.rt.height); } };
   HL.glow = hl_glowPass(); HL.glow.uniforms.tMask.value = HL.rt.texture; HL.glow.enabled = false;
   composer.insertPass(HL.mask, 1);
   const P = composer.passes, io = P.findIndex(p => p.constructor && p.constructor.name === 'OutputPass'); composer.insertPass(HL.glow, io >= 0 ? io + 1 : Math.max(1, P.indexOf(filmPass)));

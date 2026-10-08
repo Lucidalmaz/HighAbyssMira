@@ -175,13 +175,7 @@ async function kapitel1_welt() {
   try { fridgeNote.material.map = kapitel1_cnv(220, 270, (x, w, h) => { kapitel1_papier(x, w, h, '#efe6c4'); x.fillStyle = '#1a1a1a'; x.font = 'bold 22px "Arial Narrow", Arial'; x.fillText('31.10.', 18, 38); x.font = 'bold 27px "Arial Narrow", Arial';
       ['KELLER', 'BLEIBT ZU.'].forEach((l, i) => x.fillText(l, 18, 92 + i * 34)); x.font = 'bold 17px "Arial Narrow", Arial'; ['Egal wer ruft.', 'Egal mit welcher', 'Stimme.'].forEach((l, i) => x.fillText(l, 18, 176 + i * 22)); x.font = '16px Georgia'; x.fillText('– H. Wendt', 110, 256);
       x.fillStyle = 'rgba(90,40,20,.35)'; x.beginPath(); x.arc(170, 30, 16, 0, 7); x.fill(); }); fridgeNote.material.color.set(0xffffff); fridgeNote.material.needsUpdate = true; } catch (e) {}
-  // Tastenfeld: Blech, zwölf Tasten, 0 · 1 · 3 blank gegriffen, kleines Display (leuchtet nur dort)
-  try { const kt = kapitel1_cnv(180, 260, (x, w, h) => { const g = x.createLinearGradient(0, 0, w, h); g.addColorStop(0, '#4a4c4e'); g.addColorStop(1, '#2a2b2c'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.strokeStyle = '#151515'; x.lineWidth = 6; x.strokeRect(3, 3, w - 6, h - 6);
-      x.fillStyle = '#0c1a0e'; x.fillRect(22, 18, w - 44, 34); ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'OK'].forEach((k, i) => { const cx = 36 + (i % 3) * 54, cy = 84 + Math.floor(i / 3) * 44, blank = '013'.includes(k);
-        x.fillStyle = blank ? '#b8b4aa' : '#6a6a66'; x.fillRect(cx - 18, cy - 15, 36, 30); x.fillStyle = blank ? 'rgba(255,255,255,.35)' : 'rgba(40,36,30,.5)'; x.fillRect(cx - 18, cy - 15, 36, 5); x.fillStyle = blank ? '#555' : '#1e1e1e'; x.font = 'bold 16px Arial'; x.textAlign = 'center'; x.fillText(k, cx, cy + 6); });
-      for (let i = 0; i < 300; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '120,70,40' : '0,0,0'},${rand(.05, .2)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 4), rand(1, 4)); } });
-    const em = kapitel1_cnv(180, 260, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.fillRect(22, 18, w - 44, 34); });
-    keypadMesh.material.map = kt; keypadMesh.material.emissiveMap = em; keypadMesh.material.color.set(0xffffff); keypadMesh.material.roughness = .5; keypadMesh.material.metalness = .5; keypadMesh.material.emissiveIntensity = .9; keypadMesh.material.needsUpdate = true; } catch (e) {}
+  // Tastenfeld: Modell (Keypad Door Lock) und Anzeige baut bedienung.js; keypadMesh bleibt unsichtbare Klickfläche
   // Etikett aus Hildes Prägegerät über dem Tastenfeld
   { const t = kapitel1_cnv(256, 48, (x, w, h) => { x.fillStyle = '#141414'; x.fillRect(0, 0, w, h); x.fillStyle = '#e8e8e2'; x.font = 'bold 19px "Courier New", monospace'; x.textAlign = 'center'; x.fillText('BITTE NICHT HÄMMERN', w / 2, 31); x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 6, w, 3); });
     kapitel1_decal(t, .17, .032, 30.75, Y + 1.29, -21.73, 0, 0, .015, { rough: .3 }); }
@@ -409,7 +403,7 @@ async function kapitel1_danke() {
   for (let i = 0; i < 8; i++) setTimeout(() => Audio.stepAt(B.x + 4.2, B.z + 2.9 - i * .3, .09 + i * .004), 900 + i * 260); // nackte Füße, nach oben
   toast('Der Stuhl ist leer. Die Gurte sind offen.', 4200); }
 function kapitel1_gurteAuf() { K1.f.add('gurte'); K1.gurte.forEach(({ o }, i) => { o.rotation.z += (i % 2 ? 1 : -1) * 1.1; o.position.y -= .12; }); if (K1.pola) K1.pola.visible = false; if (K1.polaHit) uninteract(K1.polaHit); }
-function kapitel1_treppe() { if (K1.v.on || K1.v.done || state.ch1Done) return toast('Die Stahltür ist zu. Von dieser Seite gibt es kein Tastenfeld.', 3800); if (!state.heardTape) return toast('Noch nicht. Lucy wollte, dass du hier etwas findest.'); leaveBasement(); }
+function kapitel1_treppe() { if (K1.v.on || K1.v.done || state.ch1Done) return toast('Die schwere Tür ist zu. Von dieser Seite gibt es kein Tastenfeld.', 3800); if (!state.heardTape) return toast('Noch nicht. Lucy wollte, dass du hier etwas findest.'); leaveBasement(); }
 
 // ================================================================= UK 6: Von Ost nach West
 async function kapitel1_leaveBasement() {

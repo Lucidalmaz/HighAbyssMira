@@ -69,11 +69,11 @@ function ausbau_nord_groundTop(mesh, q = .35) {
 function ausbau_nord_fit(o, size, axis = 'y') { msFit(o, size, axis); return msGround(o); }
 // Ebene mit Scan-Oberfläche in Weltmetern (tile 2 m)
 // Weiche, ausgefranste Ränder für flache Bodenflächen (Laub, Beete, Gräber): aE.x = Abstand zum Rand in m, Alpha steigt über ~45 cm mit Rauschen an (Nutzer 07.10., Foto 3: hartes Quadrat im Gras)
-function boden_weich(geo, w, d) { const uv = geo.attributes.uv, e = new Float32Array(uv.count * 2); for (let i = 0; i < uv.count; i++) { const u = uv.getX(i), v = uv.getY(i); e[i * 2] = Math.min(u * w, (1 - u) * w, v * d, (1 - v) * d); } geo.setAttribute('aE', new THREE.BufferAttribute(e, 2)); return geo; }
+function boden_weich(geo, w, d) { const uv = geo.attributes.uv, e = new Float32Array(uv.count * 4); for (let i = 0; i < uv.count; i++) { e[i * 4] = uv.getX(i) * w; e[i * 4 + 1] = uv.getY(i) * d; e[i * 4 + 2] = w; e[i * 4 + 3] = d; } geo.setAttribute('aE', new THREE.BufferAttribute(e, 4)); return geo; } // aE = (x, y, Breite, Tiefe) in m: der Randabstand wird erst im Fragment gebildet (Minimum über Ecken-Werte wäre überall 0)
 function boden_weichMat(mat, fe = .45) { const m = mat.clone(); m.transparent = true; m.depthWrite = false; m.polygonOffset = true; m.polygonOffsetFactor = -2; m.userData.tile = mat.userData.tile;
-  m.onBeforeCompile = sh => { sh.vertexShader = 'attribute vec2 aE; varying float vAE;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAE = aE.x;');
-    sh.fragmentShader = 'varying float vAE;\nfloat bwH(vec2 p){ return fract(sin(dot(floor(p), vec2(127.1, 311.7))) * 43758.5453); }\nfloat bwN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(bwH(i), bwH(i + vec2(1,0)), f.x), mix(bwH(i + vec2(0,1)), bwH(i + vec2(1,1)), f.x), f.y); }\n'
-      + sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n { float bn = bwN(vMapUv * 7.) * .6 + bwN(vMapUv * 23.) * .4; diffuseColor.a *= smoothstep(0., ' + fe.toFixed(2) + ' * (.55 + .9 * bn), vAE + (bn - .5) * .12); if (diffuseColor.a < .01) discard; }'); };
+  m.onBeforeCompile = sh => { sh.vertexShader = 'attribute vec4 aE; varying vec4 vAE;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAE = aE;');
+    sh.fragmentShader = 'varying vec4 vAE;\nfloat bwH(vec2 p){ return fract(sin(dot(floor(p), vec2(127.1, 311.7))) * 43758.5453); }\nfloat bwN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(bwH(i), bwH(i + vec2(1,0)), f.x), mix(bwH(i + vec2(0,1)), bwH(i + vec2(1,1)), f.x), f.y); }\n'
+      + sh.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n { float bn = bwN(vMapUv * 7.) * .6 + bwN(vMapUv * 23.) * .4; diffuseColor.a *= smoothstep(0., ' + fe.toFixed(2) + ' * (.55 + .9 * bn), min(min(vAE.x, vAE.z - vAE.x), min(vAE.y, vAE.w - vAE.y)) + (bn - .5) * .12); if (diffuseColor.a < .01) discard; }'); };
   m.customProgramCacheKey = () => 'bodenweich' + fe; m.needsUpdate = true; return m; }
 function ausbau_nord_surf(key, tint = 0xffffff, nrm = 1) { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = 2; return m; }
 // Kerze (Scan-Modell per Instanz) + Flamme/Licht/Lichtschein wie die Kerzen im Ort (flackern über candlesUpdate)
@@ -687,7 +687,7 @@ async function ausbau_nord_build() {
     const cx = 31.5, cz = 74;
     const lg = new THREE.CircleGeometry(1, 40); lg.rotateX(-PI / 2); const lp = lg.attributes.position, lu = lg.attributes.uv;
     for (let i = 0; i < lp.count; i++) { const x = lp.getX(i), z = lp.getZ(i), a = Math.atan2(z, x), k = i === 0 ? 1 : 1 + Math.sin(a * 5) * .06 + Math.sin(a * 11) * .03; lp.setXYZ(i, x * 13.5 * k, 0, z * 9.2 * k); lu.setXY(i, x * 13.5 * k / 2, z * 9.2 * k / 2); }
-    { const ae = new Float32Array(lp.count * 2); for (let i = 0; i < lp.count; i++) { const x = lp.getX(i) / 13.5, z = lp.getZ(i) / 9.2, r = Math.hypot(x, z); ae[i * 2] = Math.max(0, (1 - r)) * 9.2; } lg.setAttribute('aE', new THREE.BufferAttribute(ae, 2)); }
+    { const ae = new Float32Array(lp.count * 4); for (let i = 0; i < lp.count; i++) { const x = lp.getX(i) / 13.5, z = lp.getZ(i) / 9.2, r = Math.hypot(x, z); ae[i * 4] = Math.max(0, (1 - r)) * 9.2; ae[i * 4 + 1] = 1e4; ae[i * 4 + 2] = 1e4; ae[i * 4 + 3] = 2e4; } lg.setAttribute('aE', new THREE.BufferAttribute(ae, 4)); } // (Randabstand, Rest sehr groß = nur x zählt)
     const lm = new THREE.Mesh(lg, leavesW); lm.position.set(cx, .021, cz); lm.receiveShadow = true; scene.add(lm);
     // Rutsche
     const sl = ausbau_nord_fit(slideM, 2.25); sl.position.set(24.3, 0, 76.4); sl.rotation.y = PI; scene.add(sl); sl.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });

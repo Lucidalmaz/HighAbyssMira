@@ -113,12 +113,18 @@ function ritz_tex(c, b) { const T = new THREE.CanvasTexture(c); T.colorSpace = T
 // Blutschrift als eigene Ebene: Farbe+Alpha und ein weich verlaufendes Höhenrelief (Wulst an jedem Strich, Tropfen hängen) – mit Klarlack-Glanz beleuchtet wirkt es nass
 function ritz_blutFlaeche(w, h, zeilenfn) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; const C = c.getContext('2d'); zeilenfn(C);
+  { // Blut läuft und zieht ins Material: weicher dunkler Hof unter der Schrift, von den Strichunterkanten laufen Spuren nach unten (Schwerkraft), enden in einem Tropfen
+    const t = document.createElement('canvas'); t.width = w; t.height = h; t.getContext('2d').drawImage(c, 0, 0); C.save(); C.globalCompositeOperation = 'destination-over'; C.filter = 'blur(7px)'; C.globalAlpha = .45; C.drawImage(t, 0, 0); C.restore();
+    const d = C.getImageData(0, 0, w, h).data; let x = 20 + ritz_R(0, 14); while (x < w - 20) { let yb = -1; for (let y = h - 8; y > 0; y--) if (d[(y * w + (x | 0)) * 4 + 3] > 200) { yb = y; break; }
+      if (yb > 0 && ritz_R() < .38) { const L = Math.min(h - yb - 4, ritz_R(18, 85)), lw = ritz_R(1.6, 3.4); if (L > 8) { const g = C.createLinearGradient(0, yb, 0, yb + L); g.addColorStop(0, 'rgba(96,9,8,.92)'); g.addColorStop(.85, 'rgba(78,6,6,.75)'); g.addColorStop(1, 'rgba(70,5,5,.0)');
+        C.fillStyle = g; C.fillRect(x - lw / 2, yb - 3, lw, L + 3); C.fillStyle = 'rgba(78,6,6,.7)'; C.beginPath(); C.ellipse(x, yb + L * .9, lw * .75, lw * 1.1, 0, 0, 6.3); C.fill(); } }
+      x += ritz_R(16, 44); } }
   const b = document.createElement('canvas'); b.width = w; b.height = h; const B = b.getContext('2d'); B.fillStyle = '#000'; B.fillRect(0, 0, w, h);
   B.filter = 'blur(5px)'; B.drawImage(c, 0, 0); B.filter = 'blur(2px)'; B.globalAlpha = .6; B.drawImage(c, 0, 0); B.filter = 'none'; B.globalAlpha = 1; // Höhe aus der Deckkraft (Alpha → Grau)
   const id = B.getImageData(0, 0, w, h), d = id.data, src = C.getImageData(0, 0, w, h).data; for (let i = 0; i < d.length; i += 4) { const a = Math.min(255, d[i + 3] * 1.0 * 0 + (src[i + 3] * .55 + d[i + 3] * .6)); d[i] = d[i + 1] = d[i + 2] = a; d[i + 3] = 255; } B.putImageData(id, 0, 0);
   return { c, b }; }
 function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T.colorSpace = THREE.SRGBColorSpace; T.anisotropy = 8; const H = new THREE.CanvasTexture(f.b); H.anisotropy = 8;
-  return new THREE.MeshPhysicalMaterial({ map: T, bumpMap: H, bumpScale: 3.2, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -5, roughness: .22, metalness: 0, clearcoat: glanz, clearcoatRoughness: .08, color: 0xffffff }); }
+  return new THREE.MeshPhysicalMaterial({ map: T, bumpMap: H, bumpScale: 3.2, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, roughness: .3, metalness: 0, clearcoat: glanz, clearcoatRoughness: .08, color: 0xffffff }); }
 // ---------------------------------------------------------------- Handschrift in Schreibschrift-Schriftarten (Caveat, Comic Sans …) auf allen Leinwänden der Welt
 // Eine Schriftart setzt jeden Buchstaben gleich. Hier wird jeder Buchstabe einzeln gesetzt: eigene Grundlinie, Neigung, Größe, Druck (Deckkraft), dazu ein Zeilendrift –
 // so entsteht das unregelmäßige Bild echter Handschrift. Gilt nur für Handschrift-Schriften; Druckschriften (Arial, Courier, Georgia) bleiben unberührt.

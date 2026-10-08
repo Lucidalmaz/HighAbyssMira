@@ -9,7 +9,7 @@
 // Momente: spinneAb · blitzNah · netzGesicht · vogelBusch · dose · tuerZu · flasche · glasBruch · kratzen (Liste NS_M).
 // Bewusst NICHT hier: Auftritte der Geschichtsfiguren (Justin, Vegas, Hilde …) – sie haben feste Dialoge und Auftrittsbedingungen in ihren Modulen.
 const NS = { t: 0, tick: 0, next: rand(360, 480), calm: 0, ids: [], indoorT: 0, wasIndoor: false, spider: null, web: null, n: {}, log: [] };
-const NS_GAP = { spinneab: 1500, blitznah: 1100, netzgesicht: 900, vogelbusch: 600, dosen: 700, tuerzu: 800, flasche: 900, glasbruch: 1000, kratzen: 800 }; // Mindestabstand je Familie in s (Regie SP_GAP)
+const NS_GAP = { graukind: 1500, spinneab: 1500, blitznah: 1100, netzgesicht: 900, vogelbusch: 600, dosen: 700, tuerzu: 800, flasche: 900, glasbruch: 1000, kratzen: 800 }; // Mindestabstand je Familie in s (Regie SP_GAP)
 if (typeof SP_GAP !== 'undefined') Object.assign(SP_GAP, NS_GAP);
 const ns_fwd = () => (typeof schreck_fwd === 'function' ? schreck_fwd() : (() => { const d = new THREE.Vector3(); camera.getWorldDirection(d); d.y = 0; return d.normalize(); })());
 function ns_ruhig() {
@@ -120,8 +120,34 @@ function ns_glas() {
 function ns_kratzen() {
   const P = player.pos, f = ns_fwd(), s = Math.random() < .5 ? 1 : -1, x = P.x + f.x * 1.2 - f.z * s * 1.4, z = P.z + f.z * 1.2 + f.x * s * 1.4, A = Audio; let n = 0; const max = 9 + Math.floor(rand(0, 4));
   const tick = () => { n++; A.play('scrape1', { gain: .07 + .016 * n, rate: rand(1.8, 2.4), x, y: .5 + (n % 3) * .25, z, ref: 1.5, dur: rand(.12, .3) }); if (n < max) setTimeout(tick, Math.max(110, 420 - n * 36) + rand(-40, 40)); else setTimeout(() => { A.play('woodHit1', { gain: .09, rate: 1.7, x, y: .5, z, ref: 1.5 }); }, 520); }; tick(); }
+// ---------------------------------------------------------------- Graues Kind steht plötzlich hinter dir (Kap. 3–5, selten)
+// Es erscheint 6,5–8,5 m hinter Luke (außerhalb des Bildes, also ohne Poppen). Dreht sich Luke um, steht es still und sieht ihn ohne Gesicht an; leises Zählen, Stille.
+// Es verschwindet, sobald Luke wegsieht oder die Augen schließt (sofort, nur außerhalb des Bildes) bzw. nach 3–5 s Ansehen / bei Annäherung (weich über auftritt.js).
+const GK = { g: null, ph: null, t: 0, cnt: 0, building: false, hold: 0 };
+function ns_gkBau() { if (GK.g || GK.building || typeof figuren_embody !== 'function') return; GK.building = true; const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; scene.add(g);
+  figuren_embody(g, 'graue', { clip: 'idle' }).then(P => { if (P) { P.obj.traverse(o => { if (o.isMesh && /eye|cornea|iris|pupil|sclera|lash|brow/i.test((o.name || '') + ' ' + [].concat(o.material).map(m => m && m.name || '').join(' '))) o.visible = false; }); GK.g = g; } GK.building = false; }).catch(e => { GK.building = false; console.warn('Graukind hinter dir', e); }); }
+function ns_gkStart() {
+  if (!GK.g) { ns_gkBau(); return false; } if (GK.ph) return false;
+  const P = player.pos, f = ns_fwd();
+  for (let i = 0; i < 14; i++) { const a = Math.atan2(-f.x, -f.z) + rand(-.45, .45), d = rand(6.5, 8.5), x = P.x + Math.sin(a) * d, z = P.z + Math.cos(a) * d;
+    if (typeof tod_blockiert === 'function' && (tod_blockiert(x, P.y, z, null, .5) > 0 || tod_blockiert((x + P.x) / 2, P.y, (z + P.z) / 2, null, .3) > 0)) continue;
+    if (colliders.some(c => c.top > .1 && x > c.minX - .6 && x < c.maxX + .6 && z > c.minZ - .6 && z < c.maxZ + .6)) continue;
+    if (typeof auftritt_imBild === 'function' && auftritt_imBild(x, P.y + 1, z, .8, .2, false)) continue; // nur außerhalb des Bildes einblenden
+    GK.g.position.set(x, P.y, z); GK.g.rotation.set(0, Math.atan2(P.x - x, P.z - z), 0); GK.g.visible = true; GK.ph = 'wait'; GK.t = 0; GK.cnt = 2; return true; }
+  return false; }
+function ns_gkEnde() { if (GK.g) GK.g.visible = false; GK.ph = null; }
+function ns_gkTick(dt) {
+  if (!GK.ph || !GK.g) return; const P = player.pos, g = GK.g, f = ns_fwd(), dx = g.position.x - P.x, dz = g.position.z - P.z, d = Math.hypot(dx, dz) || 1, dot = (dx * f.x + dz * f.z) / d; GK.t += dt;
+  if (GK.ph === 'wait') { if (GK.t > 40 || d > 18 || state.talking || (typeof schreck_ok === 'function' && !schreck_ok())) { ns_gkEnde(); return; }
+    if (dot > .78 && d > 4) { GK.ph = 'seen'; GK.t = 0; GK.hold = rand(3.2, 5); GK.cnt = 1.2; GK.away = 0; if (typeof spannung_hush === 'function') spannung_hush(GK.hold + 2, .12); } return; }
+  GK.cnt -= dt; if (GK.cnt <= 0 && Audio.whisper) { GK.cnt = rand(2, 2.8); Audio.whisper(g.position.x, 1, g.position.z, 1.3); }
+  const zu = typeof augenzu_zu === 'function' && augenzu_zu(); GK.away = dot < .55 ? GK.away + dt : 0;
+  if (zu || GK.away > .25) { ns_gkEnde(); return; }            // Wegsehen / Blinzeln: weg, ohne dass man es sieht
+  if (GK.t > GK.hold || d < 3.6 || state.talking) { ns_gkEnde(); }  // sonst weich (Auftritt blendet aus, solange es im Bild ist)
+}
 // ---------------------------------------------------------------- Auswahl
 const NS_M = [
+  { id: 'graukindHinten', fam: 'graukind', w: 2, ok: () => { const k = typeof kap === 'function' ? kap() : 1; if (k < 3 || k > 5) return false; ns_gkBau(); return !!GK.g && !GK.ph && !ns_innen() && !state.inBasement && NS.t > 600; }, run: () => ns_gkStart() },
   { id: 'spinneAb', fam: 'spinneab', w: 3, ok: () => ns_innen() && NS.indoorT > 20 && ns_spinneBereit() && !NS.spider && !!indoorRect() && Math.hypot(vel.x, vel.z) > .5, run: () => ns_spinneStart() },
   { id: 'blitzNah', fam: 'blitznah', w: 2, ok: () => !state.inBasement && dir.lightT > 14 && (typeof nat === 'undefined' || !nat.calm || nat.calm < 1), run: () => { ns_blitzNah(); return true; } },
   { id: 'netzGesicht', fam: 'netzgesicht', w: 3, ok: () => ns_innen() && NS.indoorT > 12 && Math.hypot(vel.x, vel.z) > .6, run: () => { ns_netz(); return true; } },
@@ -137,7 +163,7 @@ function ns_waehle() {
   let s = C.reduce((a, m) => a + m.w, 0), r = Math.random() * s; for (const m of C) { r -= m.w; if (r <= 0) return m; } return C[0]; }
 WORLD_MODS.push(['Naturschreck', async () => {}]);
 WORLD_TICK.push((dt, t) => {
-  if (!state.started || menu.attract) return; ns_spinneTick(dt); const inn = ns_innen(); if (inn) NS.indoorT += dt; else NS.indoorT = 0;
+  if (!state.started || menu.attract) return; ns_spinneTick(dt); ns_gkTick(dt); const inn = ns_innen(); if (inn) NS.indoorT += dt; else NS.indoorT = 0;
   NS.tick -= dt; if (NS.tick > 0) return; NS.tick = .5; NS.t += .5;
   if (NS.spider) return; if (!ns_ruhig()) return; NS.next -= .5; if (NS.next > 0) return;
   const m = ns_waehle(); if (!m) { NS.next = rand(15, 30); return; }
@@ -145,4 +171,4 @@ WORLD_TICK.push((dt, t) => {
   if (typeof spannung_did === 'function') spannung_did(m.fam, 'minor'); if (typeof schreck_mark === 'function') schreck_mark(t); NS.ids.push(m.id); NS.log.push([Math.round(t), m.id]);
   const k = typeof kap === 'function' ? kap() : 1; NS.next = rand(300, 540) * (1 - .05 * Math.min(5, k - 1)); // spätere Kapitel etwas dichter
 });
-window.__ns = { S: NS, M: NS_M, busch: ns_busch, run: id => { const m = NS_M.find(x => x.id === id); return m ? m.run() : null; }, ruhig: ns_ruhig }; // Testzugriff
+window.__ns = { S: NS, M: NS_M, busch: ns_busch, run: id => { const m = NS_M.find(x => x.id === id); return m ? m.run() : null; }, ruhig: ns_ruhig, gk: GK, gkStart: ns_gkStart }; // Testzugriff

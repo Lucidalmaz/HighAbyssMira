@@ -35,6 +35,10 @@ const ZEICHEN_TAB = [
   { id: 'tanke_graffiti', a: 'ort', m: 'g_tanke', s: 0, op: .9, ray: [110.6, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Jugend-Graffiti an der Tankstelle: „HIER LANDEN VERBOTEN“, Herz, ein abgemaltes Auge mit Fragezeichen' },
   { id: 'tanke_alien', a: 'ort', m: 'g_alien', s: 0, op: .9, ray: [107.5, 1.45, 33.2, 0, 0, -1, 3.2], w: 2.4, was: 'Alien-Schablone der Dorfjugend: grauer Kopf, „NIMM MICH MIT“, darunter „VEGAS HAT RECHT“ – Witz über Lichter am Himmel und Vegas’ Theorien' },
   { id: 'schrott_zaehl', a: 'ort', m: 'g_zaehl', s: 0, op: .92, ray: [113, 1.4, -14, 1, 0, 0, 4], w: 2.4, was: 'Am Schrottplatz, rostrot und gelaufen: „ZÄHL NICHT MIT“, darunter siebzehn Striche, klein ∴ – wer hier gezählt hat, bleibt offen' },
+  // 08.10.: drei weitere Wände (Gartenmauern an der Hauptstraße, Nr. 7 und gegenüber): Mystery „Auge im Dreieck“, Alien „Abholung“, Horror „Nicht umdrehen“
+  { id: 'mauer_auge', a: 'ort', m: 'g_auge', s: 0, op: .92, ray: [28.6, 1.4, -10.6, 0, 0, -1, 2.6], w: 2.4, was: 'Mystery-Graffiti der Dorfjugend: Auge im Dreieck, „ES SIEHT UNS ZU“, „WER ZÄHLT?“, klein ∴' },
+  { id: 'mauer_abholung', a: 'ort', m: 'g_abholung', s: 0, op: .9, ray: [-52.2, 1.4, -10.6, 0, 0, -1, 2.6], w: 2.4, was: 'Alien-Graffiti: Untertasse mit Lichtkegel, Strichmännchen schwebt hinauf, „HALLOWEEN KOMMEN SIE“, „ICH WAR DRIN“' },
+  { id: 'mauer_umdrehen', a: 'ort', m: 'g_umdrehen', s: 0, op: .92, ray: [-48.4, 1.4, -10.6, 0, 0, -1, 2.6], w: 2.4, k: [2, 7], was: 'Horror-Graffiti: weiße Kinderhand, „NICHT UMDREHEN“, acht Striche, der sechste fehlt' },
   { id: 'schrott_sumpfgas', a: 'ort', m: 'g_sumpfgas', s: 0, op: .92, ray: [114.4, 1.4, -10.4, 1, 0, 0, 3], w: 2.4, was: 'Verschwörungswand der Dorfjugend: „SUMPFGAS?“ durchgestrichen, „LÜGE!“, „Alufolie hilft“, „sie gucken“ – die Zeitungszeile von damals, verspottet' },
   // ---- Kirchberg
   { id: 'tor_turm', a: 'kirchberg', m: 'turm_alt', s: 1, ray: [-56.2, .62, 65.2, 0, 0, 1, 2.6], w: .3, rot: -.05, was: 'Turm über dem Abgrund (Wappen), alte Ritzung an der Friedhofsmauer neben dem Tor' },
@@ -240,7 +244,7 @@ const ZEICHEN_MOTIVE = {
 // Nutzer 02.10.: „Graffiti sind selbst gezeichnet – realistisch, AAA“. Die drei Graffiti-Wände sind eigene Bilder (2048 x 1024 = 2,4 x 1,2 m, offline erzeugt):
 //   echte, aus Fotoscans freigestellte Tags/Sprühfarbe (Fab „Red Graffiti Wall Scan“ commonspence, „Graffitis en apeadero“, beide CC-BY) + Story-Schriftzüge,
 //   gesprüht entlang einer Handschrift (Kern, Sprühnebel aus Tröpfchen, Läufer, Farbkorn aus dem Betonscan). Übrige Sprüh-Motive im Atlas bekommen Korn und Poren.
-const ZEICHEN_BILD = { g_nr9: 'wand_nr9.png', g_tanke: 'wand_tanke.png', g_villa: 'wand_villa.png', g_alien: 'wand_alien.png', g_zaehl: 'wand_zaehl.png', g_sumpfgas: 'wand_sumpfgas.png', k_zaehlen: 'boden_kreide17.png' };
+const ZEICHEN_BILD = { g_nr9: 'wand_nr9.png', g_tanke: 'wand_tanke.png', g_villa: 'wand_villa.png', g_alien: 'wand_alien.png', g_zaehl: 'wand_zaehl.png', g_sumpfgas: 'wand_sumpfgas.png', g_auge: 'wand_auge.png', g_abholung: 'wand_abholung.png', g_umdrehen: 'wand_umdrehen.png', k_zaehlen: 'boden_kreide17.png' };
 function zeichen_bild(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = 'assets/ms/graffiti_echt/' + src; setTimeout(() => r(null), 6000); }); }
 function zeichen_echt(a, W, H, k, Z) { if (!Z || !Z.korn) return;
   a.save(); a.globalCompositeOperation = 'source-atop'; a.globalAlpha = .24; for (let yy = 0; yy < H; yy += 512) for (let xx = 0; xx < W; xx += 512) a.drawImage(Z.korn, xx, yy, 512, 512); a.restore(); // Farbkorn
@@ -485,7 +489,13 @@ const ZEICHEN_NAZCA = [
   { id: 'hirsch', c: [13.2, 162.5], s: .85, luke: 'Und daneben ein Hirsch. Der Kopf sitzt verkehrt herum.',
     pts: [[-4.9, -9.6], [-4.9, -5.9], [-4.5, -5.9], [-4.6, -5], [-4.9, -2.5], [-4.5, -.5], [-2, -.8], [1, -.7], [3.4, -.9], [3.8, -3], [3.9, -5.9], [4.6, -5.9], [4.5, -5.2], [4.3, -2.8], [4.2, -.4], [4.6, .8], [5, 2.2], [5.3, 3.6],
       [5.6, 4.8], [5.9, 5.1], [6.3, 5.7], [5.3, 5.45], [5.6, 6], [6.1, 7.2], [5.3, 6.6], [5.4, 7.9], [4.9, 7], [4.5, 8], [4.4, 7], [3.9, 7.3], [4.5, 6.4], [4.6, 5.35], [3.4, 5.15], [2.1, 4.95], [1.7, 4.6], [2.1, 4.3], [3.2, 4.15],
-      [4.3, 4.1], [4, 3.5], [3.3, 2.7], [1.5, 2.3], [-1.5, 2.5], [-4.5, 2.6], [-7.2, 2.2], [-7.4, 2.5], [-7.9, 2], [-7.3, 1.6], [-7, .4], [-6.4, -1.5], [-5.6, -3.4], [-5.2, -5.9], [-4.9, -5.9]] }];
+      [4.3, 4.1], [4, 3.5], [3.3, 2.7], [1.5, 2.3], [-1.5, 2.5], [-4.5, 2.6], [-7.2, 2.2], [-7.4, 2.5], [-7.9, 2], [-7.3, 1.6], [-7, .4], [-6.4, -1.5], [-5.6, -3.4], [-5.2, -5.9], [-4.9, -5.9]] },
+  { id: 'spirale', c: [46, 166], s: .75, luke: 'Eine Spirale. Drei Windungen, und am Ende läuft die Linie einfach aus dem Kreis hinaus. Als würde etwas nach draußen wollen. Oder hinein.',
+    pts: (() => { const P = []; for (let i = 0; i <= 54; i++) { const t = i / 54 * PI * 6, r = .5 + t * .36; P.push([r * Math.cos(t + PI), r * Math.sin(t + PI)]); } const e = P[P.length - 1]; P.push([e[0] + 2.4, e[1] + .4], [e[0] + 5, e[1] - 1.2], [e[0] + 8, e[1] - 4.5]); return P; })() },
+  { id: 'spinne', c: [-12, 167], s: .8, luke: 'Eine Spinne. Acht Beine, jedes mit zwei Knicken. Genauso hat sie im Amt an der Decke gesessen.',
+    pts: (() => { const P = [], K = 14; for (let i = 0; i <= K; i++) { const t = i / K * PI * 2; P.push([1.3 * Math.cos(t), 1.8 * Math.sin(t)]); }
+      const bein = (sx, y0, dy) => { const j = [[1.3 * sx, y0], [3.2 * sx, y0 + dy * 1.6], [5.2 * sx, y0 + dy * .9], [6.8 * sx, y0 + dy * -1.4]]; for (const q of j) P.push(q); for (let k = j.length - 2; k >= 0; k--) P.push(j[k]); };
+      for (const [y0, dy] of [[1, 1], [.4, .5], [-.4, -.5], [-1, -1]]) { bein(1, y0, dy); bein(-1, y0, dy); } P.push([0, 0]); return P; })() }];
 function zeichen_nazcaTex() { // Kachel 256²: u entlang der Linie, v quer – freigescharrte helle Erde, Ränder aus zur Seite geschobenem Laub
   const N = 256, c = zeichen_cv(N, N), x = c.getContext('2d'), hc = zeichen_cv(N, N), y = hc.getContext('2d'), R = zeichen_rng(1312);
   const img = x.createImageData(N, N), hi = y.createImageData(N, N), d = img.data, e = hi.data;

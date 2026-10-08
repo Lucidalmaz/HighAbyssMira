@@ -879,6 +879,8 @@ if (LITE) {
   const cv = document.createElement('canvas'); cv.width = cv.height = 4; const cx = cv.getContext('2d'); cx.fillStyle = '#8a8580'; cx.fillRect(0, 0, 4, 4);
   const tiny = () => { const t = new THREE.Texture(cv); t.needsUpdate = true; return t; };
   renderer.capabilities.maxTextureSize = 64; // three.js verkleinert jedes größere Bild beim Hochladen selbst
+  // Ton mit 8 kHz statt 48 kHz: dekodierte Aufnahmen brauchen ~1/6 des Speichers (Normal 0,7–1 GB), Längen und Zeitabläufe bleiben gleich
+  { const AC = window.AudioContext; if (AC) window.AudioContext = class extends AC { constructor(o) { super(Object.assign({ sampleRate: 8000 }, o || {})); } }; }
   THREE.TextureLoader.prototype.load = function (url, onLoad) { const t = tiny(); if (onLoad) setTimeout(() => onLoad(t), 0); return t; };
   const gp = GLTFLoader.prototype.parse;
   GLTFLoader.prototype.parse = function (...a) { if (!this.__lite) { this.__lite = true; this.register(p => { p.loadTextureImage = () => Promise.resolve(tiny()); return { name: 'ham_lite' }; }); } return gp.apply(this, a); };
@@ -5482,7 +5484,7 @@ function msFit(o, size, axis = 'y') { o.updateMatrixWorld(true); const b = new T
 function msGround(o) { const g = new THREE.Group(); g.add(o); o.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()); o.position.x -= c.x; o.position.z -= c.z; o.position.y -= b.min.y; return g; }
 function msPlace(o, x, y, z, ry = 0) { o.position.set(x, y, z); o.rotation.y = ry; scene.add(o); o.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); return o; }
 // Selbstgebautes verstecken – samt seiner Kisten-Hitbox (die echte Form des Ersatzes hält später auf)
-function msHide(o) { if (!o) return; o.visible = false; o.traverse(m => { const c = m.userData && m.userData.col; if (c) { c.minX = c.maxX = -9999; } }); }
+function msHide(o) { if (!o) return; o.visible = false; o.traverse(m => { const c = m.userData && m.userData.col; if (c) { c.minX = c.maxX = -9999; } const oi = occluders.indexOf(m); if (oi >= 0) occluders.splice(oi, 1); /* ausgeblendete Wand blockiert sonst weiter den Interaktionsstrahl (Zimmer 7 / Registratur: Klickfläche verdeckt) */ }); }
 // Meshes in der Szene finden (pred bekommt Mesh und seine Weltbox)
 function msFind(pred) { scene.updateMatrixWorld(true); const out = [], bb = new THREE.Box3(); scene.traverse(o => { if (o.isMesh && pred(o, bb.setFromObject(o))) out.push(o); }); return out; }
 // Kisten-Hitbox, deren Fläche einen Punkt enthält, abschalten (für ersetzte Dinge ohne userData.col)
@@ -6244,6 +6246,7 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
   clearInterval(prog); renderer.setRenderTarget(null);
   saved.forEach((v, o) => o.visible = v);
 }
+const PROGLOG = DEV ? { pre: renderer.info.programs.map(p => p.cacheKey) } : null; // Messung (nur Entwicklung): welche Programme entstehen erst nach dem Vorübersetzen?
 loop();
 stage('Erstes Bild fertig');
 // Schattenprogramme: ein Bild mit allem Sichtbaren rendern
