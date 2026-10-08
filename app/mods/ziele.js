@@ -16,7 +16,7 @@
 //     Ziel/Neben/Fortsetzung/Erledigt/Verpasst/Fibel/Karte/Speicherpunkt (todCpShow).
 // Schnittstelle: ziele_zeigen(sek, label) · ziele_fehl(titel, text) (gescheiterte/verpasste Aufgabe) · Audio.aufheben(material | Gegenstandsname)
 //   · ziele_warum(regex, text) (eigene Begründung für ein Hauptziel nachtragen) · ziele_stress() · Testzugriff window.__ziele
-const ZIELE = { zeig: 9, neu: 11, idle: 45, nach: 2.5, gap: 3.4 };
+const ZIELE = { zeig: 8, neu: 11, idle: 45, nach: 2.5, gap: 3.4 };
 const ziele_S = { q: [], hold: [], popBis: 0, log: [], last: '', hideAt: 0, zeigeAn: false, pending: null, stressAn: false, frei: 0, freiSeit: 0, wasHeld: false,
   idleT: 0, idleZeig: false, px: 0, pz: 0, nachLaden: false, objT: 0, stuckT: 0, geladen: false, papT: null, papMute: 0, sperr: null, chimeAus: false, hinweise: 0, el: {}, lastAus: '' };
 MOD_SAVE.push(['ziele', () => ({ log: ziele_S.log.slice(-60), hw: ziele_S.hinweise }), v => { if (v && Array.isArray(v.log)) ziele_S.log = v.log; if (v && v.hw) ziele_S.hinweise = v.hw; }]);

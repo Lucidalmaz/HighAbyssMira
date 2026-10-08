@@ -132,6 +132,7 @@ function ob_css() {
 #subtitle.thought { font-family: var(--f-luke); font-style: normal; font-weight: 400; font-size: calc(24px * var(--subScale, 1)); line-height: 1.35; color: #e4e8ee; }
 #subtitle[data-ob="fremd"] { font-family: var(--f-fremd); letter-spacing: .14em; color: #eef2ff; text-shadow: 0 0 6px rgba(200,215,255,.5), 0 0 22px rgba(170,190,255,.22), 0 1px 2px #000, 0 0 10px #000; }
 #subtitle[data-ob="kind"] .who { color: #e8c9a0; }
+body.kino:has(#kinoCard.on) #subtitle, body.kino:has(#kinoCard.on) #toast { opacity: 0 !important; } /* Kino-Endkarte ersetzt die Untertitel-Spur */
 #introSeq #intro { font-family: var(--f-titel-l); font-size: 25px; line-height: 1.7; }
 #introSeq .skip { font-family: var(--f-ui-sc); font-weight: 500; }
 /* ---------- Fibel */
@@ -209,3 +210,19 @@ subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments);
   try { const el = document.getElementById('subtitle'), w = String(who || '').toUpperCase(), luke = w === 'LUKE' || w === 'DU', gedanke = luke && /^\s*<i>/.test(String(t));
     el.classList.toggle('thought', gedanke); el.dataset.art = !who ? 'erz' : ''; const wh = el.querySelector('.who'); if (wh && luke) wh.textContent = gedanke ? 'LUKE · GEDANKE' : 'LUKE'; } catch (e) {}
   return r; })(subShow);
+// Textführung (Nutzer 08.10.: „oft weiß man nicht, wo man hingucken soll“). EINE Spur für Rede, Gedanken und Erzähltext: #subtitle unten Mitte (Warteschlange der Basis).
+// Hinweise (toast) und neue-Aufgabe-Meldungen (questPop) kommen nie gleichzeitig mit einer Dialogzeile: sie warten, bis die Spur ruhig ist (kurze Warteschlange),
+// ein später einsetzender Untertitel blendet einen eben erst gezeigten Hinweis aus und stellt ihn hinten an. Kino-Endkarte ersetzt den Untertitel.
+const OBT = { q: [], h: null, toastAn: 0 };
+const obt_ruhig = () => { const s = document.getElementById('subtitle'); return !(s && parseFloat(s.style.opacity) > .05) && !subQ.length; }; // Spur frei? (auch von anderen Modulen nutzbar)
+function obt_poll() { if (OBT.h) return; OBT.h = setTimeout(() => { OBT.h = null; const n = performance.now(); OBT.q = OBT.q.filter(a => n - a.t < 25000);
+  if (!OBT.q.length) return; if (!obt_ruhig() || (typeof ui !== 'undefined' && ui.paused)) return obt_poll();
+  const tt = document.getElementById('toast'), a = OBT.q[0]; if (a.k === 'toast' && tt && parseFloat(tt.style.opacity) > .05) return obt_poll(); OBT.q.shift();
+  if (a.k === 'toast') toast(a.a[0], a.a[1]); else questPop(a.a[0], a.a[1]); if (OBT.q.length) obt_poll(); }, 450); }
+toast = (o => function (t, ms) { if (!obt_ruhig()) { if (!OBT.q.some(a => a.k === 'toast' && a.a[0] === t)) { OBT.q.push({ k: 'toast', a: [t, ms], t: performance.now() }); if (OBT.q.length > 4) OBT.q.shift(); } obt_poll(); return; }
+  OBT.toastAn = performance.now(); OBT.toastT = t; OBT.toastMs = ms; return o.apply(this, arguments); })(toast);
+questPop = (o => function (kind, text) { if (!obt_ruhig()) { OBT.q.push({ k: 'quest', a: [kind, text], t: performance.now() }); if (OBT.q.length > 4) OBT.q.shift(); obt_poll(); return; } return o.apply(this, arguments); })(questPop);
+subShow = (o => function (t, ms, who) { try { const tt = document.getElementById('toast');
+    if (tt && parseFloat(tt.style.opacity) > .05) { tt.style.opacity = 0; clearTimeout(toastT); if (performance.now() - OBT.toastAn < 2500 && OBT.toastT) { OBT.q.unshift({ k: 'toast', a: [OBT.toastT, OBT.toastMs], t: performance.now() }); obt_poll(); } } } catch (e) {}
+  return o.apply(this, arguments); })(subShow);
+window.__obt = { quest: (k, t) => questPop(k, t), karte: () => hl_karte(), q: () => OBT.q.length, ruhig: () => obt_ruhig() }; // Testzugriff
