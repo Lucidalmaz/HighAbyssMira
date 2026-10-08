@@ -12,12 +12,75 @@
 //    Anzeige „Befall“/„Wucht“ unten. Mehr Befall = dunkleres Bild, Herzschlag, Atem, Farbsaum, Verzerrung (alles proportional und am Ende weg).
 //  · Ton: synthetisierter Spinnen-Lauf (Klickfolgen + Scharren, Schleife), räumlich über Spinnen in Luke-Nähe, Stoffrascheln beim Schütteln, Atem und Herzschlag nach Befall; nichts Lautes.
 //  · Licht: defekte Leuchtstoffröhre (Aussetzer, Dunkelphasen, kaltweiß) statt Regenbogenfarben.
+// 08.10.2026: alle Spinnen sind jetzt eigene Blender-Modelle in sechs Arten (SPN_ARTEN, unten): Schwarm/Bild = Hauswinkelspinne, große Schwarmspinnen gemischt
+//   (Riesenkrabbenspinne, Wolfsspinne, Nosferatu-Spinne, Hauswinkelspinne, Vogelspinne), Spinnenraum/Keller (FAB.spiders) ersetzt, Netze (leben.js) = Kreuzspinnen.
 // Testzugriff: __spinnen (am window).
 const SPN_V = new THREE.Vector3();
 const SPN_S = { ready: false, camActive: 0, heroN: 0, token: 0, active: false, pt: 0, acc: 0, camN: 36, cam: [], heroes: [], hud: null, charge: 0, power: 0, cool: 0, shT: 0, assistT: 0, load: 0, heartT: 0, breathT: 0, rustT: 0, fl: { t: 0, k: 1 },
   vig0: 1, ca0: .003, saved: false, kx: 0, ky: 0, lastKey: '', flip: 0, ext: .075, sndOn: false, snd: null, burstT: 0, hitSnd: 0 };
 const SPN_U = { uT: { value: 0 } };
 const spn_clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+// ---------------------------------------------------------------- Arten (08.10.2026, Nutzer: „keine Fixierung auf Vogelspinnen – gruselig, realistisch, Vielfalt, keine zwei gleich“)
+// Eigene Arbeit (Blender, app/tools/blender/spinnen_bau.py): sechs Arten mit Skelett (8 Beine × Coxa–Trochanter–Femur–Patella–Tibia–Metatarsus–Tarsus,
+// Taster, Cheliceren) und den Clips idle · walk · lauern · zucken; Texturen gebacken (Zeichnung, Chitin, Haarstriche), Haarkarten „haar“ (nur Nahmodell).
+// Dateien assets/ms/spinnen/<art>.glb (Nahmodell 11–13 k Dreiecke + Haar), <art>_lo.glb (≈ 4 k), winkel_xs.glb (Schwarm, ≈ 1,5 k).
+// spann: Beinspannweite im Spiel (m) · stride/cyc/cl: Gehzyklus aus dem Bau (Schrittlänge in Prosoma-Längen, Bilder bei 30 fps, Prosomalänge im Modell in m)
+const SPN_ARTEN = {
+  winkel:    { n: 'Hauswinkelspinne', spann: [.07, .1],   stride: 1.0, cyc: 18, cl: .008 },
+  nosferatu: { n: 'Nosferatu-Spinne', spann: [.05, .07],  stride: .75, cyc: 24, cl: .0075 },
+  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125 },
+  kreuz:     { n: 'Kreuzspinne',      spann: [.045, .06], stride: .6,  cyc: 26, cl: .0062 },
+  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095 },
+  vogel:     { n: 'Vogelspinne',      spann: [.16, .21],  stride: .6,  cyc: 34, cl: .024 } };
+const SPN_SRC = new Map(), SPN_HAAR = [];
+// Quelle einer Art laden (einmal): Skalierungs- und Glieder-Positionsspuren entfernen (Knochen-Skalierung bleibt frei für die Variation je Tier), Materialien aufbereiten
+function spn_art(art, res = '') { const key = art + (res ? '_' + res : ''); if (SPN_SRC.has(key)) return SPN_SRC.get(key);
+  const p = (async () => { const sc = await msModel('spinnen', key + '.glb'), clips = {};
+    for (const c of sc.animations || []) { c.tracks = c.tracks.filter(t => !/\.scale$/.test(t.name) && (!/\.position$/.test(t.name) || /^(body|abdomen)\./.test(t.name))); clips[c.name] = c; }
+    sc.traverse(o => { if (!o.isMesh) return; o.receiveShadow = false;
+      if (/^haar/.test(o.name)) { const m = o.material; m.alphaTest = .42; m.transparent = false; m.depthWrite = true; m.side = THREE.DoubleSide; m.userData.spnNeu = true; o.castShadow = false; }
+      else { o.material = spn_hautNeu(o.material); o.castShadow = true; } });
+    sc.updateMatrixWorld(true); const sz = new THREE.Box3().setFromObject(sc).getSize(new THREE.Vector3());
+    return { scene: sc, clips, ext: Math.max(sz.x, sz.z) || .1 }; })();
+  SPN_SRC.set(key, p); return p; }
+// Haut: die gebackenen Karten (Albedo, Normal, Rauheit) + Samtglanz der Behaarung, dünner Chitin-Klarlack, schwaches Eigenlicht aus der Albedo (im Dunkeln lesbar)
+function spn_hautNeu(src) { if (src.userData && src.userData.spnNeu) return src;
+  const m = new THREE.MeshPhysicalMaterial({ map: src.map, normalMap: src.normalMap, roughnessMap: src.roughnessMap, roughness: 1, metalness: 0,
+    sheen: .55, sheenRoughness: .5, sheenColor: new THREE.Color(.3, .26, .21), clearcoat: .14, clearcoatRoughness: .42,
+    emissive: new THREE.Color(.16, .13, .1), emissiveMap: src.map || null, emissiveIntensity: src.map ? .12 : 0 });
+  if (src.normalScale) m.normalScale.copy(src.normalScale); if (m.map) m.map.anisotropy = 8; m.name = src.name; m.userData.spnNeu = true; return m; }
+// Ein Tier: eigener Klon mit eigener Größe, Beinlänge, Hinterleib, Färbung, Tempo – keine zwei gleich. o: { spann, res, bauch, ton }
+async function spn_neu(art, o = {}) { const A = SPN_ARTEN[art], src = await spn_art(art, o.res || ''), { clone } = await import('three/addons/utils/SkeletonUtils.js');
+  const g = clone(src.scene), spann = o.spann || rand(A.spann[0], A.spann[1]), k = spann / src.ext; g.scale.setScalar(k); g.userData.noCol = true;
+  const B = {}; g.traverse(b => { if (b.isBone) B[b.name] = b; });
+  const lf = rand(.92, 1.1); for (const s of 'LR') for (let i = 1; i <= 4; i++) { const b = B[s + i + '_coxa']; if (b) b.scale.setScalar(lf * rand(.97, 1.03)); }
+  if (B.abdomen) B.abdomen.scale.setScalar(o.bauch || rand(.86, 1.22));
+  const v = o.ton || rand(.8, 1.16), col = new THREE.Color(v * rand(.95, 1.06), v * rand(.95, 1.04), v * rand(.9, 1.05)), mats = new Map(), haar = [];
+  g.traverse(m => { if (!m.isMesh) return; if (!mats.has(m.material)) { const c = m.material.clone(); c.color.multiply(col); mats.set(m.material, c); } m.material = mats.get(m.material); if (/^haar/.test(m.name)) haar.push(m); });
+  for (const h of haar) SPN_HAAR.push({ m: h, root: g });
+  const mx = new THREE.AnimationMixer(g), acts = {}; for (const n in src.clips) acts[n] = mx.clipAction(src.clips[n]);
+  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase
+  return { g, mx, acts, art, k, v1, spann }; }
+// Starre Pose für Instanzen (Schwarm, Bildschirm): Gehpose einbacken, Haut-Attribute entfernen, glatt schattieren (Normalen über Nähte gemittelt), auf ext normieren, Kopf → +X
+async function spn_starr(art, res, ext = .125) { const src = await spn_art(art, res), { clone } = await import('three/addons/utils/SkeletonUtils.js');
+  const cl = clone(src.scene), mx = new THREE.AnimationMixer(cl), clip = src.clips.walk || src.clips.idle; mx.clipAction(clip).play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
+  let sm = null; cl.traverse(o => { if (o.isSkinnedMesh && !/^haar/.test(o.name) && !sm) sm = o; }); if (!sm) return null; sm.skeleton.update();
+  const g = sm.geometry.clone(), pos = g.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < pos.count; i++) { sm.getVertexPosition(i, v); pos.setXYZ(i, v.x, v.y, v.z); }
+  g.deleteAttribute('skinIndex'); g.deleteAttribute('skinWeight'); if (g.attributes.tangent) g.deleteAttribute('tangent');
+  { const BU = await import('three/addons/utils/BufferGeometryUtils.js'), p0 = new THREE.BufferGeometry(); p0.setAttribute('position', pos.clone()); if (g.index) p0.setIndex(g.index.clone());
+    const pm = BU.mergeVertices(p0, 1e-6); pm.computeVertexNormals(); const nm = new Map(), PP = pm.attributes.position, NN = pm.attributes.normal, key = (x, y, z) => Math.round(x * 1e6) + ',' + Math.round(y * 1e6) + ',' + Math.round(z * 1e6);
+    for (let i = 0; i < PP.count; i++) nm.set(key(PP.getX(i), PP.getY(i), PP.getZ(i)), i);
+    const n = new Float32Array(pos.count * 3); for (let i = 0; i < pos.count; i++) { const j = nm.get(key(pos.getX(i), pos.getY(i), pos.getZ(i))); if (j != null) { n[i * 3] = NN.getX(j); n[i * 3 + 1] = NN.getY(j); n[i * 3 + 2] = NN.getZ(j); } }
+    g.setAttribute('normal', new THREE.BufferAttribute(n, 3)); }
+  g.computeBoundingBox(); const bb = g.boundingBox, sz = bb.getSize(new THREE.Vector3()), k = ext / Math.max(sz.x, sz.z); g.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); g.scale(k, k, k); g.rotateY(-PI / 2); // Kopf (−z) → +X
+  g.computeBoundingBox(); g.computeBoundingSphere(); const mat = sm.material.clone(); mat.color.setRGB(1, 1, 1); return { geo: g, mat }; }
+// Die vier Spinnen der Basis (Spinnenraum Amt: Vogelspinne, Riesenkrabbenspinne, Wolfsspinne; Keller: Hauswinkelspinne) – statt des einen Fab-Modells
+async function spn_fabErsetzen() { if (typeof FAB === 'undefined' || !FAB.spiders || !FAB.spiders.length) return;
+  const plan = ['vogel', 'huntsman', 'wolf', 'winkel'], gr = { vogel: .2, huntsman: .17, wolf: .13, winkel: .1 };
+  for (let i = 0; i < FAB.spiders.length; i++) { const S = FAB.spiders[i], art = plan[i % plan.length], n = await spn_neu(art, { spann: gr[art] * rand(.9, 1.1) });
+    for (const c of [...S.g.children]) S.g.remove(c); S.g.add(n.g); try { S.mx.stopAllAction(); } catch (e) {}
+    S.mx = n.mx; S.acts = n.acts; S.acts.walk.timeScale = spn_clamp(.18 / n.v1, .4, 4); S.acts.idle.timeScale = rand(.8, 1.2); S.acts.idle.play(); S.mx.update(rand(0, 3)); S.cur = S.acts.idle; S.art = art; } }
 
 // ---------------------------------------------------------------- Beine im Vertex-Shader (Instanzen): Tetrapodengang, Hubbewegung, Körperwippen
 function spn_beine(mat, ext) {
@@ -104,12 +167,13 @@ function spn_schleudern(n) { const S = SPN_S, list = S.cam.filter(c => c.on && !
   for (const c of list) { if (k >= n) break; c.fl = .001; const a = Math.atan2(c.v, c.u) + rand(-.5, .5), v = rand(1.6, 3.4); c.fu = Math.cos(a) * v; c.fv = Math.sin(a) * v; c.spin = rand(-14, 14); k++; }
   return k; }
 
-// ---------------------------------------------------------------- Vogelspinnen (skelettanimiert)
-async function spn_helden() { const S = SPN_S; if (S.heroes.length || !FAB.spiders || !FAB.spiders.length) return;
-  const { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'), src = FAB.spiders[0].g.children[0], A = FAB.spiders[0].acts; if (!src || !A || !A.walk) return;
-  const clip = A.walk.getClip();
-  for (let i = 0; i < 14; i++) { const o = skClone(src); o.scale.setScalar(src.scale.x * rand(.9, 1.5)); o.position.copy(src.position); o.rotation.copy(src.rotation); const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Spinne(Held)', ein: .3, aus: .3, r: .5 }); } catch (e) {} 
-    const mx = new THREE.AnimationMixer(o), w = mx.clipAction(clip); w.timeScale = rand(1.5, 2.2); w.play(); mx.update(rand(0, 2)); S.heroes.push({ g, mx, on: false, x: 0, z: 0, dir: 0, sp: rand(.5, .9), t: 0 }); } }
+// ---------------------------------------------------------------- Große Spinnen im Schwarm (skelettanimiert): gemischte Arten, jede anders groß/gefärbt/schnell
+async function spn_helden() { const S = SPN_S; if (S.heroes.length) return;
+  const plan = ['huntsman', 'wolf', 'nosferatu', 'winkel', 'huntsman', 'vogel', 'wolf', 'nosferatu', 'winkel', 'huntsman', 'wolf', 'nosferatu', 'vogel', 'winkel'],
+    gr = { huntsman: [.15, .2], wolf: [.1, .14], nosferatu: [.08, .11], winkel: [.1, .13], vogel: [.17, .22] };
+  for (let i = 0; i < plan.length; i++) { const art = plan[i]; let n; try { n = await spn_neu(art, { spann: rand(...gr[art]) }); } catch (e) { console.warn('Spinnen: Art', art, e); continue; }
+    const g = new THREE.Group(); g.add(n.g); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Spinne(Held)', ein: .3, aus: .3, r: .5 }); } catch (e) {}
+    const sp = Math.min(rand(.5, .9), n.v1 * 4.5), w = n.acts.walk; w.timeScale = sp / n.v1; w.play(); n.mx.update(rand(0, 2)); S.heroes.push({ g, mx: n.mx, on: false, x: 0, z: 0, dir: 0, sp, t: 0, art }); } }
 function spn_heldStart() { const S = SPN_S; let k = 0; for (const h of S.heroes) { h.on = true; h.g.visible = true; const side = Math.floor(rand(0, 4)); h.x = side === 0 ? X + 36.6 : side === 1 ? X + 45.4 : rand(X + 37, X + 45); h.z = side === 2 ? Z - 4.5 : side === 3 ? Z + 4.5 : rand(Z - 4.5, Z + 4.5); h.t = 1 + k++ * .6; h.g.position.set(h.x, 0, h.z); h.g.visible = false; } }
 function spn_heldUpdate(dt) { const S = SPN_S, P = player.pos; let n = 0;
   for (const h of S.heroes) { if (!h.on) continue; h.t -= dt; if (h.t > 0) { continue; } h.g.visible = true; n++;
@@ -206,11 +270,16 @@ function spn_haut(map, o = {}) { const S = SPN_S; if (map) map.anisotropy = Math
   const m = new THREE.MeshPhysicalMaterial({ map, color: o.color ?? 0xcabdae, roughness: .56, metalness: 0, sheen: 1, sheenRoughness: .36, sheenColor: new THREE.Color(.64, .58, .5), clearcoat: .24, clearcoatRoughness: .38, normalMap: spn_haarNormal(), normalScale: new THREE.Vector2(.8, .8) });
   if (map) { m.emissive = new THREE.Color(.2, .16, .12); m.emissiveMap = map; m.emissiveIntensity = o.eigen ?? .32; } return m; }
 function spn_allePflegen() { const S = SPN_S, tauscht = new Map(); // alle Spinnen im Spiel (Vogelspinnen in Räumen/Keller, Kreuzspinnen an Netzen, die abseilende) bekommen dieselbe Haut
-  const tausche = o => { if (!o.isMesh || !o.material || !o.material.map || o.material.isMeshPhysicalMaterial) return; const m = o.material; if (!tauscht.has(m)) tauscht.set(m, spn_haut(m.map, { color: m === (S.tarOrig) ? 0xcabdae : 0xc0b2a2 })); o.material = tauscht.get(m); };
+  const tausche = o => { if (!o.isMesh || !o.material || !o.material.map || o.material.isMeshPhysicalMaterial || (o.material.userData && o.material.userData.spnNeu)) return; // neue Arten haben ihre Haut schon const m = o.material; if (!tauscht.has(m)) tauscht.set(m, spn_haut(m.map, { color: m === (S.tarOrig) ? 0xcabdae : 0xc0b2a2 })); o.material = tauscht.get(m); };
   if (typeof FAB !== 'undefined' && FAB.spiders) for (const sp of FAB.spiders) sp.g.traverse(tausche);
   if (typeof leben_S !== 'undefined') { for (const w of leben_S.webs || []) if (w.g) w.g.traverse(tausche); if (leben_S.drop && leben_S.drop.g) leben_S.drop.g.traverse(tausche); } }
 // Die echte Vogelspinne des Spiels (Fab, skelettanimiert im Spinnenraum/Keller) als starre Instanz-Geometrie: Skin entfernt, Eckpunkte verschweißt und glatt geschattet, Beine laufen im Shader.
-async function spn_modell() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
+// Neu (08.10.): Schwarm = Hauswinkelspinne „xs“ (≈ 1,5 k Dreiecke × 2400), Spinnen auf dem Bild = „lo“ (≈ 4 k, eigene Karten 512²)
+async function spn_modell() { const S = SPN_S;
+  try { const xs = await spn_starr('winkel', 'xs'), lo = await spn_starr('winkel', 'lo'); if (xs && lo) { spiders.geometry = xs.geo; spiders.material = xs.mat; S.camGeo = lo.geo; S.camMat = lo.mat; S.ext = .125; return true; } }
+  catch (e) { console.warn('Spinnen: neue Schwarmform', e); }
+  return spn_modellAlt(); }
+async function spn_modellAlt() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
   const BU = await import('three/addons/utils/BufferGeometryUtils.js'), { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'); let g = sm.geometry.clone();
   try { // Gehpose einbacken (Beine gebeugt statt gestreckt): Klon, Lauf-Animation auf einen Schritt gestellt, Eckpunkte per Skelett ausgelesen
     const root = FAB.spiders[0].g.children[0], cl = skClone(root), mx = new THREE.AnimationMixer(cl), clip = (FAB.spiders[0].acts.walk || FAB.spiders[0].acts.idle).getClip(); const a = mx.clipAction(clip); a.play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
@@ -222,16 +291,19 @@ async function spn_modell() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.
   S.tarOrig = m0; const mat = spn_haut(m0.map);
   spiders.geometry = g; spiders.material = mat; S.ext = ext; return true; }
 WORLD_MODS.push(['Spinnen', async () => { const S = SPN_S;
-  try { let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }
+  try { try { await Promise.all(Object.keys(SPN_ARTEN).map(a => spn_art(a))); await spn_fabErsetzen(); } catch (e) { console.warn('Spinnen: Arten', e); }
+    let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }
     const g = spiders.geometry; g.computeBoundingBox(); const bb = g.boundingBox; if (!ok) S.ext = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) || .075; spn_beine(spiders.material, S.ext); spiders.instanceMatrix.setUsage(THREE.DynamicDrawUsage); spiders.userData.noCol = true;
     { const c = new THREE.Color(); for (let i = 0; i < SPN; i++) { const v = .5 + Math.random() * .55; c.setRGB(v, v * (.92 + Math.random() * .1), v * (.86 + Math.random() * .12)); spiders.setColorAt(i, c); } spiders.instanceColor.needsUpdate = true; }
     S.qFlat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), PI / 2); S.qH = new THREE.Quaternion(); S.zAx = new THREE.Vector3(0, 0, 1);
-    const cm = spiders.material.clone(); cm.depthTest = false; cm.depthWrite = false; cm.transparent = true; if (cm.map) { cm.emissiveIntensity = .55; } spn_beine(cm, S.ext);
-    const M = S.camMesh = new THREE.InstancedMesh(g, cm, S.camN); M.frustumCulled = false; M.renderOrder = 1000; M.visible = false; M.userData.noCol = true; M.instanceMatrix.setUsage(THREE.DynamicDrawUsage); camera.add(M);
+    const cm = (S.camMat || spiders.material).clone(); cm.depthTest = false; cm.depthWrite = false; cm.transparent = true; if (cm.map) { cm.emissiveIntensity = S.camMat ? .3 : .55; } spn_beine(cm, S.ext);
+    const M = S.camMesh = new THREE.InstancedMesh(S.camGeo || g, cm, S.camN); M.frustumCulled = false; M.renderOrder = 1000; M.visible = false; M.userData.noCol = true; M.instanceMatrix.setUsage(THREE.DynamicDrawUsage); camera.add(M);
     for (let i = 0; i < S.camN; i++) { S.cam.push({ on: false }); const m = new THREE.Matrix4().makeScale(0, 0, 0); M.setMatrixAt(i, m); }
     try { spn_allePflegen(); } catch (e) { console.warn('Spinnen: Haut', e); }
     S.flip = 0; spn_eingabe(); S.ready = true; } catch (e) { console.warn('Spinnen: Aufbau', e); }
   try { TOD_RESET.push(() => { if (['lock', 'swarm', 'shake'].includes(ch2.spiderPhase)) spn_abbruch(); }); } catch (e) {}
-  window.__spinnen = { S, spiders, FAB, heldStart: () => spn_heldStart(), helden: () => spn_helden(), start: () => spiderEvent(), abbruch: () => spn_abbruch(), ende: () => spn_ende(), schleudern: n => spn_schleudern(n || 3), eingabe: v => { S.inp = (S.inp || 0) + v; }, flip: v => { S.flip = v; } }; // Testzugriff
+  window.__spinnen = { S, spiders, FAB, ARTEN: SPN_ARTEN, neu: (a, o) => spn_neu(a, o), haar: SPN_HAAR, heldStart: () => spn_heldStart(), helden: () => spn_helden(), start: () => spiderEvent(), abbruch: () => spn_abbruch(), ende: () => spn_ende(), schleudern: n => spn_schleudern(n || 3), eingabe: v => { S.inp = (S.inp || 0) + v; }, flip: v => { S.flip = v; } }; // Testzugriff
 }]);
-WORLD_TICK.push(() => { try { const S = SPN_S; if (S.ready && S.active && ch2.spiderPhase !== 'swarm' && ch2.spiderPhase !== 'shake' && ch2.spiderPhase !== 'lock') spn_aufraeumen(); } catch (e) {} });
+WORLD_TICK.push(() => { try { const S = SPN_S; if (S.ready && S.active && ch2.spiderPhase !== 'swarm' && ch2.spiderPhase !== 'shake' && ch2.spiderPhase !== 'lock') spn_aufraeumen(); } catch (e) {}
+  // Haarkarten nur in der Nähe (< 3,5 m): weiter weg sind sie kleiner als ein Bildpunkt und kosten nur Zeichenzeit
+  if ((SPN_S.hT = (SPN_S.hT | 0) + 1) % 8 === 0) { const c = camera.position; for (const h of SPN_HAAR) { h.root.getWorldPosition(SPN_V); const on = SPN_V.distanceToSquared(c) < 12.25; if (h.m.visible !== on) h.m.visible = on; } } });

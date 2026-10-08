@@ -87,9 +87,48 @@ function lst_rigs() {
       if (o.isMesh && o.geometry && o.geometry.attributes.position) { const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); bb.union(tb.copy(g.boundingBox).applyMatrix4(o.matrixWorld)); } });
     const size = bb.isEmpty() ? 1 : bb.getBoundingSphere(sp).radius, R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 48, RIGS.R); // 08.10. (Auftritt): Mindestweite 28 -> 48 m, sonst poppen kleine Tiere bei 36 % Sichtbarkeit weg
     RIGS.known.set(r, { R, size }); L.push({ r, R, size }); }
+  for (let i = 0; i < L.length; i++) lst_kHook(L[i].r);
   RIGS.list = L; LST.rigNext.clear();
   if (!LST.rigOk) { LST.rigOk = true; rigScan = () => {}; } // ab jetzt pflegt die Durchsicht die Liste
 }
+
+// 14) KNOCHEN NUR NACHRECHNEN, WENN SIE SICH BEWEGT HABEN (08.10.). Die Basis (Abschnitt 5) rechnet Weltmatrizen nur für Bewegtes nach – Knochen aber immer
+//    („bewegen sich fast immer“), und jedes Figurenteil (SkinnedMesh, bis 30 je Figur) kehrt seine Matrix jedes Bild um. Seit die Animationen ferner Figuren
+//    nur noch 30/15/5× je Sekunde laufen (figuren.js, Basis 6, Abschnitt 2), stehen deren Knochen in den Bildern dazwischen still. Jetzt gilt in jeder
+//    Skelett-Wurzel derselbe Vergleich wie für alles andere (Lage/Drehung/Größe gegen das letzte Bild), unbewegte Figurenteile behalten ihre Matrizen.
+//    Ergebnis Zahl für Zahl gleich (gleiche Eingaben → gleiche Matrizen); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
+//    Dazu (Skelett): die Knochen-Textur wird nur neu gefüllt und hochgeladen, wenn sich eine Knochen-Weltmatrix geändert hat.
+const LK = { on: LST_NEU, sk: LST_NEU, act: false, OBJ: THREE.Object3D.prototype.updateMatrixWorld, skip: 0, upd: 0 };
+function lst_kAuto() { const s0 = scene.updateMatrixWorld; scene.updateMatrixWorld = function (f) { if (f) return s0.call(this, f); LK.act = true; try { return s0.call(this, f); } finally { LK.act = false; } }; } // nur der automatische Aufruf beim Zeichnen
+function lst_kHook(r) { if (r.updateMatrixWorld === lst_kRoot) return; if (r.updateMatrixWorld !== LK.OBJ) return; r.updateMatrixWorld = lst_kRoot; } // nur Knoten mit der Standard-Logik (keine Kameras, keine Figurenteile mit eigener)
+function lst_kRoot(force) { if (!LK.act) return LK.OBJ.call(this, force); lst_kUpd(this, !!force, true); } // ausdrückliche Aufrufe der Spiel-Logik: Standard (rechnet alles)
+function lst_kMoved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher)
+  if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
+    if (c && c[0] === p.x && c[1] === p.y && c[2] === p.z && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w && c[7] === s.x && c[8] === s.y && c[9] === s.z) return false;
+    if (!c || c.length !== 10) c = o.__mc = new Float64Array(10);
+    c[0] = p.x; c[1] = p.y; c[2] = p.z; c[3] = q._x; c[4] = q._y; c[5] = q._z; c[6] = q._w; c[7] = s.x; c[8] = s.y; c[9] = s.z; o.updateMatrix(); return true; }
+  const e = o.matrix.elements; if (c && c.length === 16) { let same = true; for (let k = 0; k < 16; k++) if (c[k] !== e[k]) { same = false; break; } if (same) return false; }
+  if (!c || c.length !== 16) c = o.__mc = new Float64Array(16); c.set(e); return true; }
+function lst_kUpd(o, force, root) {
+  const um = o.updateMatrixWorld;
+  if (!root && um !== LK.OBJ && um !== lst_kRoot) { // eigene Logik (Figurenteile: Umkehrmatrix fürs Skinning, Kameras …)
+    if (!(LK.on && o.isSkinnedMesh) || force || o.matrixWorldNeedsUpdate || lst_kMoved(o)) { o.updateMatrixWorld(force); return; }
+    const ch = o.children; for (let i = 0; i < ch.length; i++) if (ch[i].matrixWorldAutoUpdate === true) lst_kUpd(ch[i], false, false); return; } // unbewegt: Weltmatrix und Umkehrung gelten weiter
+  if (o.isBone && !LK.on) { o.updateMatrix(); force = true; } else if (lst_kMoved(o)) force = true;
+  if (o.matrixWorldNeedsUpdate || force) { if (o.matrixWorldAutoUpdate) { if (o.parent) o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix); else o.matrixWorld.copy(o.matrix); } o.matrixWorldNeedsUpdate = false; force = true; }
+  const ch = o.children; if (!ch.length) return;
+  if (!o.visible) { o.__mwStale = true; return; } // unsichtbarer Zweig: wie Basis 5 (beim Wiedersichtbarwerden alles nach)
+  if (o.__mwStale) { o.__mwStale = false; force = true; }
+  for (let i = 0; i < ch.length; i++) { const c = ch[i]; if (c.matrixWorldAutoUpdate === true || force === true) lst_kUpd(c, force, false); } }
+{ const su = THREE.Skeleton.prototype.update;
+  THREE.Skeleton.prototype.update = function () { const B = this.bones, n = B.length;
+    if (LK.sk) { let c = this.__mwc;
+      if (c && c.length === n * 16) { let same = true; for (let i = 0; i < n && same; i++) { const b = B[i]; if (!b) continue; const e = b.matrixWorld.elements, o = i * 16; for (let k = 0; k < 16; k++) if (e[k] !== c[o + k]) { same = false; break; } }
+        if (same) { LK.skip++; return; } }
+      else c = this.__mwc = new Float64Array(n * 16);
+      for (let i = 0; i < n; i++) { const b = B[i]; if (b) { const e = b.matrixWorld.elements, o = i * 16; for (let k = 0; k < 16; k++) c[o + k] = e[k]; } } }
+    else this.__mwc = null;
+    LK.upd++; return su.call(this); }; }
 
 // 3) DUNKLE LICHTER WERFEN KEINEN SCHATTEN. three.js zeichnet das Schattenbild jedes Lichts mit Schatten in jedem Bild neu – auch wenn es gerade aus ist
 //    (Taschenlampe aus: Stärke 0, trotzdem ein voller Szenendurchgang je Bild). Lichter mit Stärke 0 werden für dieses Bild übersprungen; geht die Lampe an,
@@ -218,8 +257,88 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
     do await new Promise(r => requestAnimationFrame(r)); while (ECP.ruhig < .5 && !state.talking); }
 }
 
+// 15) STILLE ZWEIGE EINFRIEREN (08.10., Gras/Transparente/Matrizen-Agent). Die Basis (Abschnitt 5) vergleicht in jedem Bild Lage/Drehung/Größe JEDES sichtbaren
+//    Knotens mit dem letzten Bild (gemessen an der Kreuzung: moved/upd/updateMatrixWorld ≈ 15 % der Rechenzeit) – auch von Häusern, Zäunen, Möbeln, die nie
+//    bewegt werden. Jetzt: Ein Zweig (Hülle ≤ 20 m), in dem sich 4 s lang nichts bewegt hat und der keine Figur/Knochen/Kamera/Licht/eigene Matrix-Logik
+//    enthält, wird eingefroren – der Durchlauf überspringt ihn. Wache: Zweige bis 10 m um Kamera und Luke werden JEDES Bild vollständig geprüft (Türen,
+//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 6 Bildern; jede Änderung (auch unsichtbarer Teile oder neu angehängter
+//    Kinder über add/attach) taut den Zweig sofort auf und rechnet wie bisher. Bewegt sich ein Elternteil, wird der Zweig ebenfalls aufgetaut.
+//    Gleiche Matrizen wie vorher (nichts wird geschätzt); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
+const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 6,
+  units: [], cur: 0, tick: 0, chk: -1, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
+function mwf_moved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher __mc)
+  if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
+    if (c && c[0] === p.x && c[1] === p.y && c[2] === p.z && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w && c[7] === s.x && c[8] === s.y && c[9] === s.z) return false;
+    if (!c || c.length !== 10) c = o.__mc = new Float64Array(10);
+    c[0] = p.x; c[1] = p.y; c[2] = p.z; c[3] = q._x; c[4] = q._y; c[5] = q._z; c[6] = q._w; c[7] = s.x; c[8] = s.y; c[9] = s.z; o.updateMatrix(); return true; }
+  const e = o.matrix.elements; if (c && c.length === 16) { let same = true; for (let k = 0; k < 16; k++) if (c[k] !== e[k]) { same = false; break; } if (same) return false; }
+  if (!c || c.length !== 16) c = o.__mc = new Float64Array(16); c.set(e); return true; }
+// Durchlauf wie Basis 5; liefert true, wenn sich im Zweig etwas bewegt hat (oder er von oben mitbewegt wurde)
+function mwf_upd(o, force) {
+  if (o.updateMatrixWorld !== MWF.base) { o.updateMatrixWorld(force); o.__lm = MWF.now; return true; } // Kameras, Figuren, Skelett-Wurzeln: eigene Logik, gelten als bewegt
+  let ch = force;
+  if (o.isBone) { o.updateMatrix(); force = true; ch = true; } else if (mwf_moved(o)) { force = true; ch = true; }
+  if (o.matrixWorldNeedsUpdate || force) { if (o.matrixWorldAutoUpdate) o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix); o.matrixWorldNeedsUpdate = false; force = true; ch = true; }
+  const c = o.children;
+  if (c.length) {
+    if (!o.visible) o.__mwStale = true;
+    else { if (o.__mwStale) { o.__mwStale = false; force = true; ch = true; }
+      for (let i = 0; i < c.length; i++) { const k = c[i];
+        if (k.__frz) { if (force) { k.__frz = false; MWF.wake++; mwf_upd(k, true); ch = true; } continue; }
+        if (k.matrixWorldAutoUpdate === true || force === true) { if (mwf_upd(k, force)) ch = true; } } } }
+  if (ch || o.__lm === undefined) o.__lm = MWF.now; else if (MWF.now - o.__lm > MWF.still && !(o.__mwNo > MWF.now)) mwf_try(o);
+  return ch; }
+// Einfrieren versuchen: nur kleine Zweige ohne Bewegliches mit eigener Logik
+function mwf_try(o) {
+  let bad = false, n = 0; const inner = [];
+  o.traverse(x => { n++; if (x !== o && x.__frz) inner.push(x); if (x.isBone || x.isSkinnedMesh || x.isCamera || x.isLight || x.updateMatrixWorld !== MWF.base) bad = true; });
+  if (bad) { o.__mwNo = MWF.now + 20000; return; }
+  const B = MWF.box.setFromObject(o); let x = o.matrixWorld.elements[12], y = o.matrixWorld.elements[13], z = o.matrixWorld.elements[14], r = 0;
+  if (!B.isEmpty()) { B.getBoundingSphere(MWF.sp); x = MWF.sp.center.x; y = MWF.sp.center.y; z = MWF.sp.center.z; r = MWF.sp.radius; }
+  if (r > MWF.maxR) { o.__mwNo = MWF.now + 20000; return; } // zu groß: die Kinder werden einzeln eingefroren
+  for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
+  MWF.base.call(o, true); o.traverse(mwf_moved); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen
+  o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
+// Wache: ganzer Zweig (auch unsichtbare Teile) gegen die gespeicherten Werte; Änderung → markieren (die Basis-Logik rechnet im selben Bild nach)
+function mwf_verify(o) { let hit = false; const S = [o];
+  while (S.length) { const x = S.pop(); if (x.updateMatrixWorld !== MWF.base || x.isBone) { hit = true; continue; }
+    if (mwf_moved(x)) { x.matrixWorldNeedsUpdate = true; hit = true; }
+    const c = x.children; for (let i = 0; i < c.length; i++) S.push(c[i]); }
+  return hit; }
+function mwf_check() {
+  const U = MWF.units; if (!U.length) return;
+  const e = camera.matrixWorld.elements, cx = e[12], cy = e[13], cz = e[14], px = player.pos.x, py = player.pos.y + 1, pz = player.pos.z, R = MWF.R;
+  let w = 0, nodes = 0, near = 0;
+  for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; U[w++] = u; nodes += u.n;
+    const rr = R + u.r, dx = u.x - cx, dy = u.y - cy, dz = u.z - cz, qx = u.x - px, qy = u.y - py, qz = u.z - pz;
+    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+  U.length = w; MWF.n = w; MWF.nodes = nodes; MWF.nearN = near; if (!w) return;
+  // ferne Zweige reihum: alle in höchstens MWF.sweep Bildern
+  let budget = Math.ceil(nodes / MWF.sweep);
+  for (let k = 0; k < w && budget > 0; k++) { const u = U[MWF.cur++ % w]; if (u.nf === MWF.tick || !u.o.__frz) continue; budget -= u.n;
+    if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+function lst_freeze() {
+  if (!MWF.on) return;
+  // Neu angehängte Kinder: eingefrorenen Vorfahren sofort auftauen (sonst stünde das Kind bis zur nächsten Wache im Nullpunkt)
+  const add0 = THREE.Object3D.prototype.add;
+  THREE.Object3D.prototype.add = function (...a) { const r = add0.apply(this, a);
+    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].__frz) a[i].__frz = false; for (let p = this; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; break; } }
+    return r; };
+  const s0 = scene.updateMatrixWorld;
+  scene.updateMatrixWorld = function (force) {
+    if (force || !MWF.on) return s0.call(this, force);
+    MWF.now = performance.now();
+    if (MWF.chk !== MWF.tick) { MWF.chk = MWF.tick; try { mwf_check(); } catch (e) { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; console.warn('Leistung: Einfrieren', e); return s0.call(this, force); } }
+    if (mwf_moved(this) || this.matrixWorldNeedsUpdate) { this.matrixWorld.copy(this.matrix); this.matrixWorldNeedsUpdate = false; force = true; }
+    const ch = this.children; for (let i = 0; i < ch.length; i++) { const c = ch[i];
+      if (c.__frz) { if (force) { c.__frz = false; mwf_upd(c, true); } continue; }
+      if (c.matrixWorldAutoUpdate === true || force === true) mwf_upd(c, !!force); } };
+  MWF.off = () => { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; MWF.units.length = 0; }; // Vergleichsmessung
+  MWF.an = () => { MWF.on = true; };
+}
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -232,7 +351,8 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } try { lst_kAuto(); } catch (e) { LK.on = false; console.warn('Leistung: Knochen', e); } return; }
+  MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
   if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }

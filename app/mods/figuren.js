@@ -81,11 +81,25 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
+  if (!ghost) Q.lod = figuren_lodBau(obj);
   g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
   return Q;
 }
+// LEISTUNG (08.10.): Gesichts-Innenteile der CC-Köpfe. Hornhaut, Tränenrand, Augenschatten, Zähne, Zunge und Augäpfel liegen im Kopf bzw. sind durchsichtige Hüllen –
+//   ihr Schatten fällt nie sichtbar, darum werfen sie keinen (spart je Figur bis 11 Zeichenaufrufe in jedem Taschenlampen-Schattenbild).
+//   Ab FIGUREN_LOD.fern m (25) werden Hornhaut, Tränenrand, Augenschatten, Zähne und Zunge nicht gezeichnet (Auge ≈ 1 Pixel, Mundraum im Nebel), unter FIGUREN_LOD.nah m (22) wieder (Hysterese, kein Flackern).
+//   Nur ganze Netze, deren Materialien alle dazugehören (zusammengeführte Netze bleiben unberührt); ausgeblendet über Ebene 0 (layers) statt visible – Module, die selbst Teile verstecken, bleiben unberührt.
+const FIGUREN_LOD = { on: true, fern: 25, nah: 22, n: 0 };
+const FIG_LODRE = /std_(cornea|tearline|eye_occlusion|upper_teeth|lower_teeth|tongue)/i, FIG_SHRE = /std_(cornea|tearline|eye_occlusion|upper_teeth|lower_teeth|tongue|eye_[lr]$)|eyelash/i;
+function figuren_lodBau(obj) { const L = { far: false, face: [] }; try {
+  obj.traverse(o => { if (!o.isMesh) return; const ms = [].concat(o.material); if (!ms.length || !ms.every(m => m && m.name)) return;
+    if (ms.every(m => FIG_SHRE.test(m.name))) o.castShadow = false;
+    if (ms.every(m => FIG_LODRE.test(m.name))) L.face.push(o); }); } catch (e) { console.warn('figuren LOD', e); }
+  return L.face.length ? L : null; }
+function figuren_lodSet(P, dist) { const L = P.lod, far = FIGUREN_LOD.on && (L.far ? dist > FIGUREN_LOD.nah : dist > FIGUREN_LOD.fern); if (far === L.far) return; L.far = far;
+  for (const o of L.face) { if (far) o.layers.disable(0); else o.layers.enable(0); } }
 // P2 Sperrliste: Clips, die nach Übertragung + Glättung (tools/mocap_glatt.mjs) noch Drehsprünge > 30 rad/s zeigen (tools/mocap_check.mjs), spielen einen sicheren Rückfall-Clip
 const FIGUREN_SPERRE = { '*': { gestik: 'talk', klopfen: 'idle', getup_floor: 'idle', walk_vorsicht: 'walk' },
   vegas: { schleichen: 'walk', turn_180: 'turn_l', sit_down: 'sit', stand_up: 'idle', getup: 'idle', aufheben: 'idle', window: 'idle2', window_lean: 'idle2', run_panik: 'run' } };
@@ -219,7 +233,7 @@ function figuren_rest(r) { for (const [o, q, p] of r.base) { o.quaternion.copy(q
 // Knoten mit Spuren in den Clips (einmal je Vorlage)
 function figuren_animSet(T) { if (!T.anim) { T.anim = new Set(); for (const k in T.clips) for (const t of T.clips[k].tracks) T.anim.add(t.name.slice(0, t.name.lastIndexOf('.'))); } return T.anim; }
 function figuren_mvNew() { return { init: false, yaw: 0, yawV: 0, spd: 0, spdV: 0, moving: false, run: false, turn: null, turnT: 0, turnY0: 0, turnD: 0, idleT: 4 + Math.random() * 8, once: false, clipT: 0, shot: null, then: null,
-  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false, autoLook: null, spricht: 0 }; }
+  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: Math.random() * .066, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false, autoLook: null, spricht: 0 }; }
 // Kritisch gedämpfte Feder (implizit, stabil bei großen dt): s[k] Wert, s[kv] Geschwindigkeit
 function figuren_spr(s, k, kv, target, w, dt) { const f = 1 + 2 * dt * w, oo = w * w, hoo = dt * oo, hhoo = dt * hoo, di = 1 / (f + hhoo), x = s[k], v = s[kv]; s[k] = (f * x + dt * v + hhoo * target) * di; s[kv] = (v + hoo * (target - x)) * di; }
 const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
@@ -256,7 +270,7 @@ function figuren_tick(dt) {
   const cam = camera.position, w = M.v4; M.pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); M.fr.setFromProjectionMatrix(M.pm);
   for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !g.visible || !g.parent) { if (P) P.mv.vis = false; continue; }
     const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); if (Math.abs(P.obj.scale.x - s) > 1e-4) P.obj.scale.setScalar(s); // echte Körpergröße, egal wie die alte Gestalt skaliert war
-    w.setFromMatrixPosition(g.matrixWorld); const dx = w.x - cam.x, dz = w.z - cam.z, dist = Math.hypot(dx, dz); if (dist > 70) { P.last.copy(w); P.mv.vis = false; continue; }
+    w.setFromMatrixPosition(g.matrixWorld); const dx = w.x - cam.x, dz = w.z - cam.z, dist = Math.hypot(dx, dz); if (P.lod) figuren_lodSet(P, dist); if (dist > 70) { P.last.copy(w); P.mv.vis = false; continue; }
     const V = P.mv, wsc = P.doll ? g.getWorldScale(M.s).x : 1; M.n++;
     // Blickrichtung der Gruppe (Welt) und Tempo (kritisch gedämpft)
     g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(0, 0, 1).applyQuaternion(M.q); const gy = Math.atan2(M.v.x, M.v.z);
@@ -650,4 +664,4 @@ function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgele
   return true; }
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
-window.__figuren = { S: figuren_S, MV: FIGUREN_MV, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
+window.__figuren = { S: figuren_S, MV: FIGUREN_MV, LOD: FIGUREN_LOD, lodAlle() { let n = 0; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.lod) continue; FIGUREN_MV.v.setFromMatrixPosition(g.matrixWorld); figuren_lodSet(P, Math.hypot(FIGUREN_MV.v.x - camera.position.x, FIGUREN_MV.v.z - camera.position.z)); if (P.lod.far) n += P.lod.face.length; } return (FIGUREN_LOD.n = n); }, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
