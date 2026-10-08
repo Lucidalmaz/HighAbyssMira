@@ -215,3 +215,9 @@ Alle lokal gebündelt (nur Teilmengen `latin` + `latin-ext`, Quelle Google Fonts
 - Covered By Your Grace – Kimberly Geswein – SIL OFL 1.1 – `LICENSE-CoveredByYourGrace-OFL.txt`
 - Courier Prime – Alan Dague-Greene (Quote-Unquote Apps) – SIL OFL 1.1 – `LICENSE-CourierPrime-OFL.txt`
 - Julius Sans One – Luciano Vergara (LatinoType) – SIL OFL 1.1 – `LICENSE-JuliusSansOne-OFL.txt`
+
+### Fab-Listing-Links (Nachtrag 08.10.2026)
+- Military Radio – Game Ready (Camille BARRAL): https://www.fab.com/listings/61defbfb-f21e-4601-ae96-0eb25832cb68
+- CC0 – Keypad Door Lock (plaggy, CC-BY): https://www.fab.com/listings/0addf94d-c016-4679-abfb-5a5a3142fba9
+- Electrical Boxes (Quixel Megascans): https://www.fab.com/listings/ff612f42-a707-4412-96b3-7f09748952c3
+- Fire Alarm Button (Thorrian, CC-BY): https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4
