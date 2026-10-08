@@ -768,7 +768,7 @@ const GL = { lost: false }; // Grafikkontext verloren (Treiber-Reset): Spiel ste
 const HAM_VERSION = window.HAM_VERSION || 'dev'; // einzige Quelle: package.json „version“ (build.js schreibt sie in die Seite)
 const DEV = !window.IS_RELEASE; // Veröffentlichung (tools/assemble.js --release): ohne Story-Editor, F3-Messanzeige und Entwickler-Hinweise
 // Testmodus ?lite (nur Selbsttests, nie in der Veröffentlichung): wenig Speicher für Logik-/Kollisions-/Auslöser-Tests, damit mehrere Testfenster parallel laufen (docs/gameplay/TESTEN.md).
-// ?lite: kein Textur-Vorabhochladen, kein Vorladen. ?fast bleibt wie bisher: sein altes Muster enthielt ein Steuerzeichen und übersprang
+// ?lite: ein Einheitsmaterial, kein Vorübersetzen, kein Textur-Vorabhochladen, kein Vorladen. ?fast bleibt wie bisher: sein altes Muster enthielt ein Steuerzeichen und übersprang
 // Übersetzen/Hochladen nie (nur das Vorladen in kapitel.js) – die Testschritte der Agenten verlassen sich auf vollständige Bilder.
 const LITE = DEV && /[?&]lite\b/.test(location.search), FASTLOAD = LITE;
 const $ = id => document.getElementById(id);
@@ -887,6 +887,8 @@ if (LITE) {
 }
 
 const scene = new THREE.Scene();
+// ?lite: ein einziges graues Material für alles (Materialien der Module bleiben unverändert und werden weiter von der Logik benutzt) → statt ~800 nur wenige Shader-Programme
+if (LITE) scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x8a8580 });
 const FOG = new THREE.Color(0x0d1220);
 scene.fog = new THREE.FogExp2(FOG, 0.034);
 scene.background = FOG.clone();
@@ -7486,7 +7488,7 @@ async function ausbau_ost_west_roxyHeft() { const OW = ausbau_ost_west_OW; kirch
   const s = ['Die Lampen sind für sie. Damit sie weiß, dass ich komme. Ich lass sie an, auch wenn Lars meckert.', 'Seit Mama im Heim ist, ist es im Haus so kalt. Heizung auf fünf und trotzdem kalt. Da oben war es warm. Ich weiß das noch. Sonst weiß ich fast nichts mehr, aber das weiß ich.', 'Wenn ich gehe, mach ich Licht. Richtig Licht. Damit sie mich findet und nicht die anderen.', '<i>(andere Tinte)</i> Fisch füttern!!! Wie heißt der noch.'];
   openNote('Roxys Heft', s.map(t => `<span class="hand">${t}</span>`).join('<br><br>'), 'ow_roxy_heft', () => { subtitle('Roxy hat ihr eigenes Haus angezündet.', 3000, 'LUKE'); if (!story.lore.some(l => l.key === 'ow_roxy')) story.lore.push({ key: 'ow_roxy', title: 'Roxy', html: 'Roxy ist im Juni selbst gegangen, weil sie sich an einen warmen Ort erinnerte. Die Lampen in ihrer Laube brennen noch, alle zur Senke gedreht.' }); ausbau_ost_west_warmCheck(); }); }
 async function ausbau_ost_west_figuren() { const OW = ausbau_ost_west_OW, K = OW.f3; if (K.figTry || typeof lwo_neueFigur !== 'function' || typeof LWO === 'undefined' || !LWO.ready) return; K.figTry = true;
-  const A = await kirchberg_figur('aydin', { id: 'aydin', speed: .8, stride: 1 }); if (A) { kirchberg_clip(A, A.acts.window_lean ? 'window_lean' : 'idle'); const W = K.nr8; A.g.position.set(W.x, -.08, W.z + .3); A.g.rotation.y = PI; A.g.visible = false; lwo_blick(A, 'luke'); K.aydinF = A; }
+  const A = await kirchberg_figur('aydin', { id: 'aydin', speed: .8, stride: 1 }); if (A) { kirchberg_clip(A, A.acts.window_lean ? 'window_lean' : 'idle'); const W = K.nr8; A.g.position.set(W.x, .14, W.z + .34); A.g.rotation.y = PI; /* 08.10.: Foto 4 (nur Kopf im Fenster): Figur stand zu tief, Schultern lagen hinter der Fensterbank – 22 cm höher, 4 cm weiter ins Haus */ A.g.visible = false; lwo_blick(A, 'luke'); K.aydinF = A; }
   const D = await kirchberg_figur('dina_erw', { id: 'dina_erw', speed: .6, stride: .9 }); if (D) { D.g.visible = false; K.dina = D; lwo_blick(D, null); // Augenbinde: dunkles Stoffband um den Kopf (Stoff-Scan)
     if (D.head) { const m = new THREE.MeshStandardMaterial({ map: msTex('wallpaper_fabric/b.jpg', true), color: 0x2a2224, roughness: 1, side: THREE.DoubleSide }); const band = new THREE.Mesh(new THREE.CylinderGeometry(.095, .098, .045, 20, 1, true), m); const s = 1 / (D.head.getWorldScale(new THREE.Vector3()).x || 1); band.scale.setScalar(s); band.position.set(0, .085 * s, .01 * s); band.userData.noCol = true; D.head.add(band); } } }
 function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f3; if (!K) return; K.t += dt;
@@ -17437,8 +17439,10 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
         float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
       diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
   { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
-    float thr = mix(.1, .44, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
-    gScalp = smoothstep(thr, thr + .2, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    if (kc.y < -1.2 && abs(kc.x) > .85) discard; // Halsrand des Kopfnetzes (Kragen/Schulter): sonst ragen flache Hautlappen aus dem Hemdkragen (Lucy erwachsen)
+    float thr = mix(.1, .38, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
+    gScalp = smoothstep(thr, thr + .27, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    diffuseColor.rgb *= mix(1., .5 + 1.1 * (hN(vec2(kc.x * 46., kc.z * 3. + kc.y * 2.)) * .6 + hN(vec2(kc.x * 150., kc.z * 8.)) * .4), gScalp * .75); // Haarsträhnen von vorn nach hinten (Hildes Scheitel hat im Modell gar keine Haarkarten)
     float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .09 * gAO; // Augenhöhle
     gLip = 1. - smoothstep(.6, 1., length((vMapUv - vec2(.49, .478)) / vec2(.07, .033))); }` : ''}
   { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));
@@ -45909,7 +45913,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
-{ // auch ?lite übersetzt vorab: sonst entstehen alle Programme einzeln im ersten Bild (gemessen 160 s statt ~20 s)
+if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt

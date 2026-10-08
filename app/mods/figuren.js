@@ -531,8 +531,10 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
         float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
       diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
   { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
-    float thr = mix(.1, .44, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
-    gScalp = smoothstep(thr, thr + .2, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    if (kc.y < -1.2 && abs(kc.x) > .85) discard; // Halsrand des Kopfnetzes (Kragen/Schulter): sonst ragen flache Hautlappen aus dem Hemdkragen (Lucy erwachsen)
+    float thr = mix(.1, .38, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
+    gScalp = smoothstep(thr, thr + .27, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    diffuseColor.rgb *= mix(1., .5 + 1.1 * (hN(vec2(kc.x * 46., kc.z * 3. + kc.y * 2.)) * .6 + hN(vec2(kc.x * 150., kc.z * 8.)) * .4), gScalp * .75); // Haarsträhnen von vorn nach hinten (Hildes Scheitel hat im Modell gar keine Haarkarten)
     float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .09 * gAO; // Augenhöhle
     gLip = 1. - smoothstep(.6, 1., length((vMapUv - vec2(.49, .478)) / vec2(.07, .033))); }` : ''}
   { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));

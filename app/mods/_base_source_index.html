@@ -768,7 +768,7 @@ const GL = { lost: false }; // Grafikkontext verloren (Treiber-Reset): Spiel ste
 const HAM_VERSION = window.HAM_VERSION || 'dev'; // einzige Quelle: package.json „version“ (build.js schreibt sie in die Seite)
 const DEV = !window.IS_RELEASE; // Veröffentlichung (tools/assemble.js --release): ohne Story-Editor, F3-Messanzeige und Entwickler-Hinweise
 // Testmodus ?lite (nur Selbsttests, nie in der Veröffentlichung): wenig Speicher für Logik-/Kollisions-/Auslöser-Tests, damit mehrere Testfenster parallel laufen (docs/gameplay/TESTEN.md).
-// ?lite: kein Textur-Vorabhochladen, kein Vorladen. ?fast bleibt wie bisher: sein altes Muster enthielt ein Steuerzeichen und übersprang
+// ?lite: ein Einheitsmaterial, kein Vorübersetzen, kein Textur-Vorabhochladen, kein Vorladen. ?fast bleibt wie bisher: sein altes Muster enthielt ein Steuerzeichen und übersprang
 // Übersetzen/Hochladen nie (nur das Vorladen in kapitel.js) – die Testschritte der Agenten verlassen sich auf vollständige Bilder.
 const LITE = DEV && /[?&]lite\b/.test(location.search), FASTLOAD = LITE;
 const $ = id => document.getElementById(id);
@@ -887,6 +887,8 @@ if (LITE) {
 }
 
 const scene = new THREE.Scene();
+// ?lite: ein einziges graues Material für alles (Materialien der Module bleiben unverändert und werden weiter von der Logik benutzt) → statt ~800 nur wenige Shader-Programme
+if (LITE) scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x8a8580 });
 const FOG = new THREE.Color(0x0d1220);
 scene.fog = new THREE.FogExp2(FOG, 0.034);
 scene.background = FOG.clone();
@@ -6224,7 +6226,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
 // Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
-{ // auch ?lite übersetzt vorab: sonst entstehen alle Programme einzeln im ersten Bild (gemessen 160 s statt ~20 s)
+if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
