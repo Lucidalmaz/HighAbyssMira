@@ -531,9 +531,9 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
         float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
       diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
   { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
-    float thr = mix(.1, .6, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
-    gScalp = smoothstep(thr, thr + .26, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * .5 + diffuseColor.rgb * .08, gScalp * .85);
-    float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .14 * gAO; // Augenhöhle
+    float thr = mix(.1, .44, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
+    gScalp = smoothstep(thr, thr + .2, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .09 * gAO; // Augenhöhle
     gLip = 1. - smoothstep(.6, 1., length((vMapUv - vec2(.49, .478)) / vec2(.07, .033))); }` : ''}
   { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));
     if (fade > .01) { vec2 ip = floor(pu), fp = fract(pu); float h = 0.;
@@ -547,14 +547,14 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
   #endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
   #ifdef USE_MAP
   { float so = hN(vMapUv * ${face ? '41.' : '23.'} + 3.) * .6 + hN(vMapUv * ${face ? '130.' : '70.'}) * .4; roughnessFactor = clamp(roughnessFactor * (.8 + .55 * so) + gPore * .08, .28, .9); }
-  ${face ? 'roughnessFactor = mix(roughnessFactor, .86, gScalp * .7) * (1. - .42 * gLip);' : ''}
+  ${face ? 'roughnessFactor = mix(roughnessFactor, .86, gScalp * .7) * (1. - .34 * gLip);' : ''}
   #endif`).replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
   #ifdef USE_MAP
   { float h = -gPore * .00011; ${face ? 'h -= (hN(vMapUv * 230.) - .5) * .00004;' : ''}
     vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition), r1 = cross(sy, normal), r2 = cross(normal, sx); float det = dot(sx, r1) * faceDirection;
     vec3 gr = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2); normal = normalize(abs(det) * normal - gr); }
   #endif`).replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
-  ${face ? 'reflectedLight.indirectDiffuse *= 1. - .42 * gAO; reflectedLight.directDiffuse *= 1. - .16 * gAO;' : ''}
+  ${face ? 'reflectedLight.indirectDiffuse *= 1. - .34 * gAO; reflectedLight.directDiffuse *= 1. - .1 * gAO;' : ''}
   reflectedLight.directDiffuse *= vec3(1.05, .965, .945); reflectedLight.indirectDiffuse *= vec3(1.035, .975, .96);
   { float Ld = dot(reflectedLight.directDiffuse, vec3(.3, .59, .11)), Lm = Ld / (1. + Ld);
     reflectedLight.directDiffuse += diffuseColor.rgb * vec3(1., .36, .2) * (sqrt(Lm) - Lm) * .4; // Streulicht: Übergang zum Schatten bleibt rötlich-warm

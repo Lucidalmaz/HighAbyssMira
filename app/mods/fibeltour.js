@@ -42,7 +42,7 @@ function fibeltour_css() { if (document.getElementById('fibeltourCss')) return; 
   #ftCard.on { opacity: 1; transform: translateX(-50%) rotate(-.5deg); }
   .ftPap { position: relative; padding: 15px 32px 12px 66px; background-color: #e6dcc3; background-size: cover; background-position: center; color: #1b2a5e; }
   .ftPap::before { content: ''; position: absolute; left: 48px; top: 0; bottom: 0; width: 2px; background: rgba(176,52,40,.4); }
-  .ftTape { position: absolute; left: 50%; top: -11px; width: 92px; height: 24px; margin-left: -46px; transform: rotate(-2.5deg); background: linear-gradient(180deg, rgba(232,214,150,.78), rgba(210,190,120,.7)); box-shadow: 0 1px 3px rgba(0,0,0,.35); clip-path: polygon(0 8%, 4% 0, 8% 12%, 12% 0, 92% 0, 96% 12%, 100% 0, 100% 90%, 96% 100%, 92% 88%, 88% 100%, 8% 100%, 4% 88%, 0 100%); }
+  .ftTape { z-index: 2; position: absolute; left: 50%; top: -11px; width: 92px; height: 24px; margin-left: -46px; transform: rotate(-2.5deg); background: linear-gradient(180deg, rgba(232,214,150,.78), rgba(210,190,120,.7)); box-shadow: 0 1px 3px rgba(0,0,0,.35); clip-path: polygon(0 8%, 4% 0, 8% 12%, 12% 0, 92% 0, 96% 12%, 100% 0, 100% 90%, 96% 100%, 92% 88%, 88% 100%, 8% 100%, 4% 88%, 0 100%); }
   .ftKopf { display: flex; justify-content: space-between; align-items: baseline; font: 400 clamp(11px, 1.35vh, 14px) var(--f-titel, "IM Fell English SC", Georgia, serif); letter-spacing: .3em; color: #6d2418; }
   .ftTxt { margin: 6px 0 2px; font: 400 clamp(22px, 3.1vh, 31px)/1.42 var(--f-luke, Kalam, Caveat, cursive); min-height: 4.26em; color: #1b2a5e;
     background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.42em - 2px), rgba(70,100,160,.3) calc(1.42em - 2px), rgba(70,100,160,.3) 1.42em); }
@@ -72,7 +72,7 @@ function fibeltour_kringel(r) { const pen = document.getElementById('ftPen'); if
     const ph = document.createElementNS('http://www.w3.org/2000/svg', 'path'); ph.setAttribute('d', d); if (stroke) ph.setAttribute('class', stroke); pen.appendChild(ph);
     const len = ph.getTotalLength(); ph.style.strokeDasharray = len; ph.style.strokeDashoffset = len; void ph.getBoundingClientRect(); ph.style.transition = `stroke-dashoffset ${stroke ? 1.3 : 0.95}s cubic-bezier(.3,.6,.3,1)`; ph.style.strokeDashoffset = 0; } }
 // Das Fenster im Dunkel gleitet weich zur neuen Stelle (eigene Interpolation, unabhängig davon, ob der Browser SVG-Maße per CSS animiert)
-function fibeltour_lauf(t0) { const S = FIBT; if (!S.on) return; const dt = Math.min(.1, ((t0 || performance.now()) - (S.lastT || (t0 || performance.now()))) / 1000), k = 1 - Math.exp(-dt * 9); S.lastT = t0 || performance.now();
+function fibeltour_lauf(now) { const S = FIBT; if (!S.on) return; const dt = Math.min(.1, S.lastT ? (now - S.lastT) / 1000 : 0), k = 1 - Math.exp(-dt * 9); S.lastT = now;
   if (S.holes && S.tgt) for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (!h || !t) continue; for (const a of ['x', 'y', 'w', 'h']) h.v[a] += (t[a] - h.v[a]) * k; h.e.setAttribute('x', h.v.x.toFixed(1)); h.e.setAttribute('y', h.v.y.toFixed(1)); h.e.setAttribute('width', Math.max(0, h.v.w).toFixed(1)); h.e.setAttribute('height', Math.max(0, h.v.h).toFixed(1)); }
   S.raf = requestAnimationFrame(fibeltour_lauf); }
 function fibeltour_fenster(st) { const S = FIBT, hole = (el, pad) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - pad, y: r.top - pad, w: r.width + 2 * pad, h: r.height + 2 * pad } : null; };
@@ -103,17 +103,17 @@ function fibeltour_ende(skip) { const S = FIBT; if (!S.on) return; S.on = false;
   setTimeout(() => { try { if (L) L.remove(); document.body.classList.remove('ftOn'); $('journal').classList.remove('ftZu'); jTab = S.tab0 || 'aufgaben'; const B = $('jBody'); if (B) B.classList.remove('ftSeite'); if (ui.overlay === 'journal') closeOverlay(); } catch (e) { console.warn('Fibel-Tour: Ende', e); }
     S.layer = null; const r = S.res; S.res = null; if (r) r(!skip); }, 560); }
 // Die Tour als Fund „So funktioniert die Fibel“: jederzeit unter Tab → Funde nachlesbar (Handschrift auf dem Notizblatt)
-function fibeltour_fund() { try { if (story.lore.some(l => l.key === 'fibel_tour')) return; const BS = String.fromCharCode(92);
-  story.lore.push({ key: 'fibel_tour', title: 'So funktioniert die Fibel', html: '<span class="hand">' + ['aufgaben', 'inventar', 'funde', 'fotos', 'raender', 'karte'].map(k => FIBT_TEXT[k]).join(BS + 'n' + BS + 'n') + BS + 'n' + BS + 'n' + 'Mit Tab geht sie jederzeit auf.</span>' }); } catch (e) {} }
+function fibeltour_fund() { try { if (story.lore.some(l => l.key === 'fibel_tour')) return;
+  story.lore.push({ key: 'fibel_tour', title: 'So funktioniert die Fibel', html: '<span class="hand">' + ['aufgaben', 'inventar', 'funde', 'fotos', 'raender', 'karte'].map(k => FIBT_TEXT[k]).join('\n\n') + '\n\nMit Tab geht sie jederzeit auf.</span>' }); } catch (e) {} }
 function fibeltour_start() { const S = FIBT; if (S.on) return Promise.resolve(false);
   return new Promise(res => { try { fibeltour_css(); fibeltour_fund(); S.res = res; S.on = true; S.i = 0; S.steps = fibeltour_schritte(); S.tab0 = 'aufgaben'; S.lastT = 0; S.tgt = null;
     const L = document.createElement('div'); L.id = 'ftLayer'; S.layer = L;
     L.innerHTML = `<svg id="ftDim" xmlns="http://www.w3.org/2000/svg"><defs><mask id="ftMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><rect x="0" y="0" width="100%" height="100%" fill="#fff"/><rect id="ftH1" rx="5" fill="#000"/><rect id="ftH2" rx="4" fill="#000"/></mask></defs><rect x="0" y="0" width="100%" height="100%" fill="rgba(5,3,2,.6)" mask="url(#ftMask)"/></svg><svg id="ftPen"></svg>
-      <div id="ftCard"><div class="ftPap"><div class="ftTape"></div><div class="ftKopf"><span class="ftSeiteNr"></span><span class="ftTitel"></span></div><div class="ftTxt"></div><div class="ftFuss"><span class="ftPunkte"></span><span class="ftHinweis"></span></div></div></div>`;
+      <div id="ftCard"><div class="ftTape"></div><div class="ftPap"><div class="ftKopf"><span class="ftSeiteNr"></span><span class="ftTitel"></span></div><div class="ftTxt"></div><div class="ftFuss"><span class="ftPunkte"></span><span class="ftHinweis"></span></div></div></div>`;
     document.body.appendChild(L); const pp = fibeltour_papier(); if (pp) L.querySelector('.ftPap').style.backgroundImage = `url(${pp})`;
     S.holes = { h1: { e: L.querySelector('#ftH1'), v: null }, h2: { e: L.querySelector('#ftH2'), v: null } };
     S.keyFn = e => { if (!S.on) return; const c = e.code; e.preventDefault(); e.stopImmediatePropagation(); if (e.repeat) return;
-      if (c === 'KeyX' || c === 'Escape') fibeltour_ende(true); else if (c === 'Enter' || c === 'NumpadEnter' || c === 'Space' || c === 'KeyE' || c === 'ArrowRight' || c === 'KeyD') fibeltour_weiter(); else if (c === 'ArrowLeft' || c === 'Backspace' || c === 'KeyA') fibeltour_zurueck(); };
+      if (c === 'KeyX' || c === 'Escape') fibeltour_ende(true); else if (c === 'Enter' || c === 'NumpadEnter' || c === 'Space' || c === 'KeyE' || c === 'ArrowRight') fibeltour_weiter(); else if (c === 'ArrowLeft' || c === 'Backspace') fibeltour_zurueck(); };
     S.ptrFn = e => { if (!S.on) return; e.preventDefault(); e.stopImmediatePropagation(); if (e.button === 0 || e.pointerType === 'touch') fibeltour_weiter(); }; S.clickFn = e => { if (S.on) { e.preventDefault(); e.stopImmediatePropagation(); } };
     S.rsFn = () => { if (S.on) fibeltour_fenster(S.steps[S.i]); };
     addEventListener('keydown', S.keyFn, true); addEventListener('pointerdown', S.ptrFn, true); addEventListener('click', S.clickFn, true); addEventListener('resize', S.rsFn);

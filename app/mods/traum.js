@@ -6,10 +6,10 @@
 // er gibt die Abenteuerfibel zurück; Höhepunkt „Kum, Wîse“ (kino.js, 22 s, Kindergesicht 1,2 s). Aufwachen im Regen am Ortsschild, Autotür hinter ihm offen,
 // Innenlicht an (strasse.js), die Fibel nass in der Jacke. Stimmen: Hook stimmen_spielen (X-1), bis dahin gehauchte Formant-Stimme.
 const traum_S = { on: false, t: 0, shot: -1, book: null, skip: false, fog0: null, crow: null, free: null, zI: 0, zDone: false, snd: [], keyFn: null, ptrFn: null, nebelG: null, tf: null };
-// 08.10.2026 (Nutzerentscheidung: Traum bleibt, wird besser): Rabe spätestens ~11 s nach Traumbeginn (kurze Einführung 3,8 s, dann Gehen 2–4 s, Anflug 4,8 s),
+// 08.10.2026 (Nutzerentscheidung: Traum bleibt, wird besser): Rabe spätestens ~11 s nach Traumbeginn (kurze Einführung 3,8 s, dann Gehen 2–3,5 s, Anflug 4,8 s),
 // scharfes Bild (kein Weichzeichner, Tiefe durch Nebelschichten), skripteter Anflug mit Gleiten, Bremsflügeln, Flare, Zehen-Griff und Ausbalancieren,
 // Kamera mit Schrittgewicht, echte Samples im Ton, klarer Story-Kontext (Lucy, Haus Nr. 7, Fibel), danach die geführte Fibel-Tour (fibeltour.js).
-const TRAUM_FREI = { v: 1.1, kx: .15, kz: .5, rad: 4, tMin: 2.2, tMax: 4.4, weg: 1.4, fovMax: 94, schritt: .74, flug: 4.8 };
+const TRAUM_FREI = { v: 1.1, kx: .15, kz: .5, rad: 4, tMin: 1.8, tMax: 3.4, weg: 1.0, fovMax: 94, schritt: .74, flug: 4.8 };
 const TRAUM_SHOTS = [ // Kamera von → nach, Blick, Dauer, Zeilen [Text, Sprecher, Zeitpunkt in s, Art ('gedanke' | 'frau')]
   { from: [-20, 1.3, .6], to: [-15.6, 1.5, .3], look: 'perch', dur: 3.8, frei: true, lines: [['Die Straße deiner Kindheit. Lost Eyengless. Kein Mensch. Kein Laut.', '', .5], ['Nur irgendwo ein Kind, das zählt.', '', 2.6]] },
   { rel: 'perch', from: [-6, -1.6, 5], to: [-3.4, -1.2, 3.2], look: 'crow', dur: 11.5, lines: [['Luke.', 'DER RABE', 1.4], ['Du hast lange geschlafen. Siebzehn Jahre lang.', 'DER RABE', 3],
@@ -122,7 +122,7 @@ function traum_schichten() { const S = traum_S, T = THREE; if (S.nebelG) { S.neb
         const gr = c.createRadialGradient(0, 0, 0, 0, 0, r); gr.addColorStop(0, `rgba(255,255,255,${rand(.4, .8).toFixed(2)})`); gr.addColorStop(.55, 'rgba(255,255,255,.18)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
         c.save(); c.translate(x, y); c.scale(band ? 2 : 1.3, band ? .42 : .85); c.fillStyle = gr; c.fillRect(-r, -r, 2 * r, 2 * r); c.restore(); } }), true);
   const maps = [mk(false), mk(false), mk(true), mk(true)];
-  for (let i = 0; i < 16; i++) { const band = i % 3 === 2, m = new T.SpriteMaterial({ map: maps[(band ? 2 : 0) + (i % 2)], color: band ? 0x8f99a4 : 0xaab3bc, transparent: true, opacity: 0, depthWrite: false }), sp = new T.Sprite(m);
+  for (let i = 0; i < 16; i++) { const band = i % 3 === 2, m = new T.SpriteMaterial({ map: maps[(band ? 2 : 0) + (i % 2)], color: band ? 0x5d6671 : 0x78818b, transparent: true, opacity: 0, depthWrite: false }), sp = new T.Sprite(m);
     sp.scale.set(band ? rand(20, 30) : rand(14, 24), band ? rand(1.6, 2.4) : rand(4, 7), 1); sp.position.set(rand(-34, 12), band ? rand(.35, .8) : rand(1.5, 3.4), rand(-8, 8));
     sp.userData = { base: band ? rand(.3, .46) : rand(.16, .3), vx: rand(.12, .34) * (Math.random() < .8 ? 1 : -1), ph: rand(0, 6.28) }; sp.renderOrder = 2; g.add(sp); }
   scene.add(g); S.nebelG = g; }
@@ -139,12 +139,12 @@ function traum_rabenruf(p, gain = .5, lp = 0) { const A = Audio; if (!A.ctx) ret
 function traum_krallen(p) { const A = Audio; if (!A.ctx) return; const k = traum_nm('pk_metall_1', 'pk_metall_2', 'pk_metall_3'); if (k) { A.play(k, { gain: .1, rate: rand(1.5, 1.9), dur: .16, x: p.x, y: p.y, z: p.z, ref: 2 }); A.play(k, { gain: .06, rate: rand(1.7, 2.1), dur: .12, delay: .17, x: p.x, y: p.y, z: p.z, ref: 2 }); } }
 function traum_atmen(v = 1) { const A = Audio; if (!A.ctx) return; const n = traum_nm('fx_atem'); if (n) A.play(n, { gain: .09 * v, lp: 2600, rate: rand(.9, 1.0), vary: .03 }); } // Lukes eigener Atem, leise im Kopf
 // Zehen-Griff: nach dem Mixer die Zehenglieder um eine zur Zehenrichtung senkrechte, waagrechte Achse nach unten krümmen (Achse einmal aus der Pose bestimmt, in Knochenkoordinaten gespeichert)
-function traum_zehen(k) { const S = traum_S, W = S.crow; if (!W || !W.m) return; let Z = S.zehen;
-  if (Z === undefined) { Z = S.zehen = []; try { W.g.updateMatrixWorld(true); const down = new THREE.Vector3(0, -1, 0), p = new THREE.Vector3(), q = new THREE.Vector3(), d = new THREE.Vector3();
-      W.m.traverse(b => { if (!b.isBone || !/Toe/.test(b.name)) return; const kid = b.children.find(c => c.isBone && /Toe/.test(c.name));
-        if (kid) { b.getWorldPosition(p); kid.getWorldPosition(q); } else if (b.parent && b.parent.isBone) { b.parent.getWorldPosition(p); b.getWorldPosition(q); } else return;
-        d.subVectors(q, p); if (d.lengthSq() < 1e-10) return; d.normalize(); const ax = d.clone().cross(down); if (ax.lengthSq() < .05) return; ax.normalize();
-        ax.applyQuaternion(b.getWorldQuaternion(new THREE.Quaternion()).invert()); Z.push({ b, q0: b.quaternion.clone(), ax }); });
+function traum_zehen(k) { const S = traum_S, W = S.crow; if (!W || !W.m) return; let Z = S.zehen; if (Z === undefined && k < .02) return; // Achsen erst bestimmen, wenn die Füße die Landehaltung haben
+  if (Z === undefined) { Z = S.zehen = []; try { W.g.updateMatrixWorld(true); const T = THREE, dls = new Map(), cand = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+      W.m.traverse(b => { if (!b.isBone || !/Toe/.test(b.name)) return; const kid = b.children.find(c => c.isBone && /Toe/.test(c.name)); let dl = kid ? kid.position.clone() : dls.get(b.parent); if (!dl || dl.lengthSq() < 1e-10) return; dl = dl.clone().normalize(); dls.set(b, dl); // Glied-Richtung in Knochenkoordinaten
+        const wq = b.getWorldQuaternion(new T.Quaternion()), dW = dl.clone().applyQuaternion(wq); let best = null, bd = 0; // die Drehachse wählen, die die Zehenspitze am stärksten nach unten bewegt
+        for (const a of cand) { const av = new T.Vector3(a[0], a[1], a[2]); if (Math.abs(av.dot(dl)) > .7) continue; const d2 = dW.clone().applyAxisAngle(av.clone().applyQuaternion(wq), .4), dy = d2.y - dW.y; if (dy < bd) { bd = dy; best = av; } }
+        if (best && bd < -.02) Z.push({ b, q0: b.quaternion.clone(), ax: best }); });
     } catch (e) { Z.length = 0; } }
   if (!Z.length) return; if (k < .002) { if (S.zehenAn) { for (const z of Z) z.b.quaternion.copy(z.q0); S.zehenAn = false; } return; }
   S.zehenAn = true; for (const z of Z) { _trQ.setFromAxisAngle(z.ax, k * .55); z.b.quaternion.copy(z.q0).multiply(_trQ); } }
@@ -166,7 +166,7 @@ function traum_sitz(dt) { const S = traum_S, W = S.crow, g = W.g; if (!g.visible
 function traum_anflugStart(cam) { const S = traum_S, W = S.crow, P = TRAUM_PERCH, T = THREE; if (!W || !W.g || typeof whiskey_play !== 'function') return false;
   const fx = P.x - cam.position.x, fz = P.z - cam.position.z, fl = Math.hypot(fx, fz) || 1, ax = fx / fl, az = fz / fl, lx = az, lz = -ax; // vor / links (aus Lukes Blick)
   const A = new T.Vector3(P.x + lx * 25 - ax * 4, P.y + 5.2, P.z + lz * 25 - az * 4), c1 = new T.Vector3(P.x + lx * 12 - ax * 7.5, P.y + 4.2, P.z + lz * 12 - az * 7.5), c2 = new T.Vector3(P.x + lx * 3.4 - ax * 1.6, P.y + 1.15, P.z + lz * 3.4 - az * 1.6), L = new T.Vector3(P.x, P.y, P.z);
-  W.fl = null; W.mode = 'intro'; W.g.visible = true; W.g.position.copy(A); W.g.rotation.set(0, Math.atan2(L.x - A.x, L.z - A.z), 0); traum_sitzD().toe = 0;
+  W.fl = null; W.mode = 'intro'; W.g.position.copy(A); W.g.visible = true; W.g.rotation.set(0, Math.atan2(L.x - A.x, L.z - A.z), 0); traum_sitzD().toe = 0;
   S.tf = { A, c1, c2, L, sec: 0, t: 0, dur: TRAUM_FREI.flug, bi: 0, stage: 0, caw1: false, caw2: false, touch: null, yaw: W.g.rotation.y, z0: 0,
     beats: [[.04, .5], [.11, .5], [.19, .55], [.26, .5], [.70, 1], [.745, .95], [.79, .9], [.835, .8], [.875, .7], [.91, .55], [.95, .4]] }; // Flügelschläge (Zeitpunkt 0–1, Stärke): erst ruhige Schläge, dann dicht und kräftig beim Bremsen
   whiskey_play('Fly', .1); return true; }
@@ -195,6 +195,7 @@ function traum_anflug(dt) { const S = traum_S, W = S.crow, g = W.g, tf = S.tf, D
 function traum_flug(dt) { const S = traum_S, W = S.crow; if (!W || !W.g) return; if (W.mx) W.mx.update(dt); const g = W.g, F = W.fl;
   if (S.tf) { traum_anflug(dt); if (S.tf && S.tf.touch) traum_sitz(dt); else if (S.tf) traum_zehen(traum_sitzD().toe); return; }
   if (!F) { g.rotation.x += (0 - g.rotation.x) * Math.min(1, dt * 5); traum_sitz(dt); return; }
+  traum_zehen(0); // Hüpfer zur Fibel: Zehen wieder lösen
   F.t = Math.min(1, F.t + dt / F.dur); const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u;
   const nx = a * F.from.x + b * F.ctrl.x + c * F.to.x, ny = a * F.from.y + b * F.ctrl.y + c * F.to.y, nz = a * F.from.z + b * F.ctrl.z + c * F.to.z;
   const dx = nx - g.position.x, dz = nz - g.position.z, dy = ny - g.position.y, h = Math.hypot(dx, dz); if (h > 1e-4) { let d = Math.atan2(dx, dz) - g.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); g.rotation.y += d * Math.min(1, dt * 10); }

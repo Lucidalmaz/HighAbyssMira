@@ -17437,9 +17437,9 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
         float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
       diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
   { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
-    float thr = mix(.1, .6, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
-    gScalp = smoothstep(thr, thr + .26, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * .5 + diffuseColor.rgb * .08, gScalp * .85);
-    float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .14 * gAO; // Augenhöhle
+    float thr = mix(.1, .44, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
+    gScalp = smoothstep(thr, thr + .2, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
+    float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .09 * gAO; // Augenhöhle
     gLip = 1. - smoothstep(.6, 1., length((vMapUv - vec2(.49, .478)) / vec2(.07, .033))); }` : ''}
   { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));
     if (fade > .01) { vec2 ip = floor(pu), fp = fract(pu); float h = 0.;
@@ -17453,14 +17453,14 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
   #endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
   #ifdef USE_MAP
   { float so = hN(vMapUv * ${face ? '41.' : '23.'} + 3.) * .6 + hN(vMapUv * ${face ? '130.' : '70.'}) * .4; roughnessFactor = clamp(roughnessFactor * (.8 + .55 * so) + gPore * .08, .28, .9); }
-  ${face ? 'roughnessFactor = mix(roughnessFactor, .86, gScalp * .7) * (1. - .42 * gLip);' : ''}
+  ${face ? 'roughnessFactor = mix(roughnessFactor, .86, gScalp * .7) * (1. - .34 * gLip);' : ''}
   #endif`).replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
   #ifdef USE_MAP
   { float h = -gPore * .00011; ${face ? 'h -= (hN(vMapUv * 230.) - .5) * .00004;' : ''}
     vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition), r1 = cross(sy, normal), r2 = cross(normal, sx); float det = dot(sx, r1) * faceDirection;
     vec3 gr = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2); normal = normalize(abs(det) * normal - gr); }
   #endif`).replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
-  ${face ? 'reflectedLight.indirectDiffuse *= 1. - .42 * gAO; reflectedLight.directDiffuse *= 1. - .16 * gAO;' : ''}
+  ${face ? 'reflectedLight.indirectDiffuse *= 1. - .34 * gAO; reflectedLight.directDiffuse *= 1. - .1 * gAO;' : ''}
   reflectedLight.directDiffuse *= vec3(1.05, .965, .945); reflectedLight.indirectDiffuse *= vec3(1.035, .975, .96);
   { float Ld = dot(reflectedLight.directDiffuse, vec3(.3, .59, .11)), Lm = Ld / (1. + Ld);
     reflectedLight.directDiffuse += diffuseColor.rgb * vec3(1., .36, .2) * (sqrt(Lm) - Lm) * .4; // Streulicht: Übergang zum Schatten bleibt rötlich-warm
@@ -30150,10 +30150,10 @@ window.__spannung = { S: SP, can: spannung_can, ask: spannung_ask, hush: spannun
 // er gibt die Abenteuerfibel zurück; Höhepunkt „Kum, Wîse“ (kino.js, 22 s, Kindergesicht 1,2 s). Aufwachen im Regen am Ortsschild, Autotür hinter ihm offen,
 // Innenlicht an (strasse.js), die Fibel nass in der Jacke. Stimmen: Hook stimmen_spielen (X-1), bis dahin gehauchte Formant-Stimme.
 const traum_S = { on: false, t: 0, shot: -1, book: null, skip: false, fog0: null, crow: null, free: null, zI: 0, zDone: false, snd: [], keyFn: null, ptrFn: null, nebelG: null, tf: null };
-// 08.10.2026 (Nutzerentscheidung: Traum bleibt, wird besser): Rabe spätestens ~11 s nach Traumbeginn (kurze Einführung 3,8 s, dann Gehen 2–4 s, Anflug 4,8 s),
+// 08.10.2026 (Nutzerentscheidung: Traum bleibt, wird besser): Rabe spätestens ~11 s nach Traumbeginn (kurze Einführung 3,8 s, dann Gehen 2–3,5 s, Anflug 4,8 s),
 // scharfes Bild (kein Weichzeichner, Tiefe durch Nebelschichten), skripteter Anflug mit Gleiten, Bremsflügeln, Flare, Zehen-Griff und Ausbalancieren,
 // Kamera mit Schrittgewicht, echte Samples im Ton, klarer Story-Kontext (Lucy, Haus Nr. 7, Fibel), danach die geführte Fibel-Tour (fibeltour.js).
-const TRAUM_FREI = { v: 1.1, kx: .15, kz: .5, rad: 4, tMin: 2.2, tMax: 4.4, weg: 1.4, fovMax: 94, schritt: .74, flug: 4.8 };
+const TRAUM_FREI = { v: 1.1, kx: .15, kz: .5, rad: 4, tMin: 1.8, tMax: 3.4, weg: 1.0, fovMax: 94, schritt: .74, flug: 4.8 };
 const TRAUM_SHOTS = [ // Kamera von → nach, Blick, Dauer, Zeilen [Text, Sprecher, Zeitpunkt in s, Art ('gedanke' | 'frau')]
   { from: [-20, 1.3, .6], to: [-15.6, 1.5, .3], look: 'perch', dur: 3.8, frei: true, lines: [['Die Straße deiner Kindheit. Lost Eyengless. Kein Mensch. Kein Laut.', '', .5], ['Nur irgendwo ein Kind, das zählt.', '', 2.6]] },
   { rel: 'perch', from: [-6, -1.6, 5], to: [-3.4, -1.2, 3.2], look: 'crow', dur: 11.5, lines: [['Luke.', 'DER RABE', 1.4], ['Du hast lange geschlafen. Siebzehn Jahre lang.', 'DER RABE', 3],
@@ -30266,7 +30266,7 @@ function traum_schichten() { const S = traum_S, T = THREE; if (S.nebelG) { S.neb
         const gr = c.createRadialGradient(0, 0, 0, 0, 0, r); gr.addColorStop(0, `rgba(255,255,255,${rand(.4, .8).toFixed(2)})`); gr.addColorStop(.55, 'rgba(255,255,255,.18)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
         c.save(); c.translate(x, y); c.scale(band ? 2 : 1.3, band ? .42 : .85); c.fillStyle = gr; c.fillRect(-r, -r, 2 * r, 2 * r); c.restore(); } }), true);
   const maps = [mk(false), mk(false), mk(true), mk(true)];
-  for (let i = 0; i < 16; i++) { const band = i % 3 === 2, m = new T.SpriteMaterial({ map: maps[(band ? 2 : 0) + (i % 2)], color: band ? 0x8f99a4 : 0xaab3bc, transparent: true, opacity: 0, depthWrite: false }), sp = new T.Sprite(m);
+  for (let i = 0; i < 16; i++) { const band = i % 3 === 2, m = new T.SpriteMaterial({ map: maps[(band ? 2 : 0) + (i % 2)], color: band ? 0x5d6671 : 0x78818b, transparent: true, opacity: 0, depthWrite: false }), sp = new T.Sprite(m);
     sp.scale.set(band ? rand(20, 30) : rand(14, 24), band ? rand(1.6, 2.4) : rand(4, 7), 1); sp.position.set(rand(-34, 12), band ? rand(.35, .8) : rand(1.5, 3.4), rand(-8, 8));
     sp.userData = { base: band ? rand(.3, .46) : rand(.16, .3), vx: rand(.12, .34) * (Math.random() < .8 ? 1 : -1), ph: rand(0, 6.28) }; sp.renderOrder = 2; g.add(sp); }
   scene.add(g); S.nebelG = g; }
@@ -30283,12 +30283,12 @@ function traum_rabenruf(p, gain = .5, lp = 0) { const A = Audio; if (!A.ctx) ret
 function traum_krallen(p) { const A = Audio; if (!A.ctx) return; const k = traum_nm('pk_metall_1', 'pk_metall_2', 'pk_metall_3'); if (k) { A.play(k, { gain: .1, rate: rand(1.5, 1.9), dur: .16, x: p.x, y: p.y, z: p.z, ref: 2 }); A.play(k, { gain: .06, rate: rand(1.7, 2.1), dur: .12, delay: .17, x: p.x, y: p.y, z: p.z, ref: 2 }); } }
 function traum_atmen(v = 1) { const A = Audio; if (!A.ctx) return; const n = traum_nm('fx_atem'); if (n) A.play(n, { gain: .09 * v, lp: 2600, rate: rand(.9, 1.0), vary: .03 }); } // Lukes eigener Atem, leise im Kopf
 // Zehen-Griff: nach dem Mixer die Zehenglieder um eine zur Zehenrichtung senkrechte, waagrechte Achse nach unten krümmen (Achse einmal aus der Pose bestimmt, in Knochenkoordinaten gespeichert)
-function traum_zehen(k) { const S = traum_S, W = S.crow; if (!W || !W.m) return; let Z = S.zehen;
-  if (Z === undefined) { Z = S.zehen = []; try { W.g.updateMatrixWorld(true); const down = new THREE.Vector3(0, -1, 0), p = new THREE.Vector3(), q = new THREE.Vector3(), d = new THREE.Vector3();
-      W.m.traverse(b => { if (!b.isBone || !/Toe/.test(b.name)) return; const kid = b.children.find(c => c.isBone && /Toe/.test(c.name));
-        if (kid) { b.getWorldPosition(p); kid.getWorldPosition(q); } else if (b.parent && b.parent.isBone) { b.parent.getWorldPosition(p); b.getWorldPosition(q); } else return;
-        d.subVectors(q, p); if (d.lengthSq() < 1e-10) return; d.normalize(); const ax = d.clone().cross(down); if (ax.lengthSq() < .05) return; ax.normalize();
-        ax.applyQuaternion(b.getWorldQuaternion(new THREE.Quaternion()).invert()); Z.push({ b, q0: b.quaternion.clone(), ax }); });
+function traum_zehen(k) { const S = traum_S, W = S.crow; if (!W || !W.m) return; let Z = S.zehen; if (Z === undefined && k < .02) return; // Achsen erst bestimmen, wenn die Füße die Landehaltung haben
+  if (Z === undefined) { Z = S.zehen = []; try { W.g.updateMatrixWorld(true); const T = THREE, dls = new Map(), cand = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+      W.m.traverse(b => { if (!b.isBone || !/Toe/.test(b.name)) return; const kid = b.children.find(c => c.isBone && /Toe/.test(c.name)); let dl = kid ? kid.position.clone() : dls.get(b.parent); if (!dl || dl.lengthSq() < 1e-10) return; dl = dl.clone().normalize(); dls.set(b, dl); // Glied-Richtung in Knochenkoordinaten
+        const wq = b.getWorldQuaternion(new T.Quaternion()), dW = dl.clone().applyQuaternion(wq); let best = null, bd = 0; // die Drehachse wählen, die die Zehenspitze am stärksten nach unten bewegt
+        for (const a of cand) { const av = new T.Vector3(a[0], a[1], a[2]); if (Math.abs(av.dot(dl)) > .7) continue; const d2 = dW.clone().applyAxisAngle(av.clone().applyQuaternion(wq), .4), dy = d2.y - dW.y; if (dy < bd) { bd = dy; best = av; } }
+        if (best && bd < -.02) Z.push({ b, q0: b.quaternion.clone(), ax: best }); });
     } catch (e) { Z.length = 0; } }
   if (!Z.length) return; if (k < .002) { if (S.zehenAn) { for (const z of Z) z.b.quaternion.copy(z.q0); S.zehenAn = false; } return; }
   S.zehenAn = true; for (const z of Z) { _trQ.setFromAxisAngle(z.ax, k * .55); z.b.quaternion.copy(z.q0).multiply(_trQ); } }
@@ -30310,7 +30310,7 @@ function traum_sitz(dt) { const S = traum_S, W = S.crow, g = W.g; if (!g.visible
 function traum_anflugStart(cam) { const S = traum_S, W = S.crow, P = TRAUM_PERCH, T = THREE; if (!W || !W.g || typeof whiskey_play !== 'function') return false;
   const fx = P.x - cam.position.x, fz = P.z - cam.position.z, fl = Math.hypot(fx, fz) || 1, ax = fx / fl, az = fz / fl, lx = az, lz = -ax; // vor / links (aus Lukes Blick)
   const A = new T.Vector3(P.x + lx * 25 - ax * 4, P.y + 5.2, P.z + lz * 25 - az * 4), c1 = new T.Vector3(P.x + lx * 12 - ax * 7.5, P.y + 4.2, P.z + lz * 12 - az * 7.5), c2 = new T.Vector3(P.x + lx * 3.4 - ax * 1.6, P.y + 1.15, P.z + lz * 3.4 - az * 1.6), L = new T.Vector3(P.x, P.y, P.z);
-  W.fl = null; W.mode = 'intro'; W.g.visible = true; W.g.position.copy(A); W.g.rotation.set(0, Math.atan2(L.x - A.x, L.z - A.z), 0); traum_sitzD().toe = 0;
+  W.fl = null; W.mode = 'intro'; W.g.position.copy(A); W.g.visible = true; W.g.rotation.set(0, Math.atan2(L.x - A.x, L.z - A.z), 0); traum_sitzD().toe = 0;
   S.tf = { A, c1, c2, L, sec: 0, t: 0, dur: TRAUM_FREI.flug, bi: 0, stage: 0, caw1: false, caw2: false, touch: null, yaw: W.g.rotation.y, z0: 0,
     beats: [[.04, .5], [.11, .5], [.19, .55], [.26, .5], [.70, 1], [.745, .95], [.79, .9], [.835, .8], [.875, .7], [.91, .55], [.95, .4]] }; // Flügelschläge (Zeitpunkt 0–1, Stärke): erst ruhige Schläge, dann dicht und kräftig beim Bremsen
   whiskey_play('Fly', .1); return true; }
@@ -30339,6 +30339,7 @@ function traum_anflug(dt) { const S = traum_S, W = S.crow, g = W.g, tf = S.tf, D
 function traum_flug(dt) { const S = traum_S, W = S.crow; if (!W || !W.g) return; if (W.mx) W.mx.update(dt); const g = W.g, F = W.fl;
   if (S.tf) { traum_anflug(dt); if (S.tf && S.tf.touch) traum_sitz(dt); else if (S.tf) traum_zehen(traum_sitzD().toe); return; }
   if (!F) { g.rotation.x += (0 - g.rotation.x) * Math.min(1, dt * 5); traum_sitz(dt); return; }
+  traum_zehen(0); // Hüpfer zur Fibel: Zehen wieder lösen
   F.t = Math.min(1, F.t + dt / F.dur); const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u;
   const nx = a * F.from.x + b * F.ctrl.x + c * F.to.x, ny = a * F.from.y + b * F.ctrl.y + c * F.to.y, nz = a * F.from.z + b * F.ctrl.z + c * F.to.z;
   const dx = nx - g.position.x, dz = nz - g.position.z, dy = ny - g.position.y, h = Math.hypot(dx, dz); if (h > 1e-4) { let d = Math.atan2(dx, dz) - g.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); g.rotation.y += d * Math.min(1, dt * 10); }
@@ -30501,6 +30502,129 @@ async function traum_zweiter(o = {}) { // o.x/y/z: Flüsterort (Standard: an der
     subtitle(`<i>${t}</i>`, Math.max(2400, (next - at) * 1000 - 200), who); Audio.whisper(p.x + .4, (p.y || 1.4) + .1, p.z + .3, 1.2); await wait((next - at) * 1000); }
   if (!story.lore.some(l => l.key === 'traum2')) story.lore.push({ key: 'traum2', title: 'Der zweite Traum', html: TRAUM_ZWEITER.map(l => '„' + l[0] + '“').join('\n') }); }
 window.__traum = { S: traum_S, P: TRAUM_PERCH, st: () => (typeof strasse_S !== 'undefined' ? strasse_S : null), wh: () => (typeof whiskey_S !== 'undefined' ? whiskey_S : null), zu: () => strasse_autoZu(), start: () => runIntro(), applySave: d => applySave(d), loadSave: () => loadSave(), saveGame: c => saveGame(c) }; // Testzugriff
+// =====================================================================  FIBEL-TOUR (Modul „fibeltour“, 08.10.2026)
+// Geführte Tour beim Aufwachen (traum.js ruft fibeltour_start() nach „Die Fibel steckt drin“): Luke schlägt die nasse Fibel auf und geht sie Seite für Seite durch –
+// Aufgaben · Inventar · Funde · Fotos · Ränder · Karte. Gezeigt wird die ECHTE Fibel-Oberfläche (renderJournal, echte Reiter und Seiten, keine nachgemalten Grafiken):
+// Ein Fenster im Dunkel (SVG-Maske) hebt Reiter und Seite hervor, ein Filzstift-Kringel umkreist sie, darunter schreibt Luke je einen Satz auf ein Zettelblatt
+// (echter Papierscan aus der Basis [papierScan], Heftlinien, Wasserflecken, gerissene Kanten; Schrift „Kalam“/„Caveat“ mit zufälligem Versatz je Buchstabe).
+// Enter / Klick / Leertaste = weiter (beim Schreiben: erst fertig schreiben), Pfeil links = zurück, X oder Esc = alles überspringen. Danach steht die Tour als Fund
+// „So funktioniert die Fibel“ in der Fibel (Tab). Das große „Ränder“-Fenster (hervorhebung.js, hl_karte) wird hier als Seite der Fibel gezeigt und poppt danach nicht mehr auf.
+// Testzugriff: window.__fibeltour (S, start, ende).
+const FIBT = { on: false, i: 0, steps: [], layer: null, res: null, typeIv: 0, raf: 0, holes: null, tgt: null, keyFn: null, ptrFn: null, clickFn: null, rsFn: null, papier: null, tab0: 'aufgaben', fertig: false };
+const FIBT_TEXT = {
+  aufgaben: 'Aufgaben. Was als Nächstes zu tun ist, steht hier. Ganz oben die Hauptsache: Lucy finden. Haus Nr. 7, der Keller.',
+  inventar: 'Inventar. Alles, was ich bei mir trage. Die Fibel liegt jetzt auch drin – nass, aber heil.',
+  funde: 'Funde. Jeder Zettel, jede Notiz, die ich lese, landet hier. Sogar der Traum von eben.',
+  fotos: 'Fotos. Polaroids, die ich unterwegs finde. Noch ist jeder Platz leer.',
+  raender: 'Ränder. Seit dieser Nacht liegt ein Schimmer um manche Dinge. Die Farbe verrät mir, was es ist.',
+  karte: 'Karte. Meine eigene, mit Bleistift. Sie füllt sich, wo ich gewesen bin. Mit M ist sie sofort da.' };
+function fibeltour_schritte() {
+  const B = () => $('jBody'), tab = k => { const b = $('jTabs').querySelector(`[data-t="${k}"]`) || document.querySelector(`#samReiter [data-t="${k}"]`); return b; };
+  return [
+    { id: 'aufgaben', titel: 'AUFGABEN', tab: 'aufgaben', text: FIBT_TEXT.aufgaben, el: B, btn: () => tab('aufgaben') },
+    { id: 'inventar', titel: 'INVENTAR', tab: 'inventar', text: FIBT_TEXT.inventar, el: B, btn: () => tab('inventar'), nach: () => { const s = B().querySelector('.slot.has[data-k="fibel"]'); if (s && s.onmouseenter) s.onmouseenter(); } }, // die echte Beschreibung unter den Feldern einblenden
+    { id: 'funde', titel: 'FUNDE', tab: 'funde', text: FIBT_TEXT.funde, el: B, btn: () => tab('funde') },
+    { id: 'fotos', titel: 'FOTOS', tab: 'fotos', text: FIBT_TEXT.fotos, el: B, btn: () => tab('fotos') },
+    { id: 'raender', titel: 'RÄNDER', tab: 'funde', text: FIBT_TEXT.raender, el: B, btn: () => tab('funde'), nach: fibeltour_raender },
+    { id: 'karte', titel: 'KARTE', tab: 'karte', text: FIBT_TEXT.karte, el: B, btn: () => tab('karte'), warte: 700 }]; }
+// Die „Ränder“-Seite: der echte Fibel-Eintrag aus hervorhebung.js (Farbpunkte und Bedeutung), statt des Fensters mitten im Bild
+function fibeltour_raender() {
+  try { if (typeof hl_legende === 'function') hl_legende(true); if (typeof HL !== 'undefined') HL.tourGezeigt = true; } catch (e) {}
+  try { const l = story.lore.find(x => x.key === 'hervorhebung'); const B = $('jBody'); if (!l || !B) return;
+    B.innerHTML = `<h2>RÄNDER</h2><div class="ftNote">${l.html}</div>`; } catch (e) { console.warn('Fibel-Tour: Ränder', e); } }
+function fibeltour_css() { if (document.getElementById('fibeltourCss')) return; const s = document.createElement('style'); s.id = 'fibeltourCss';
+  s.textContent = `body.ftOn #journal .book { translate: 0 -12vh; } body.ftOn #jBody { max-height: calc(64vh - 90px); }
+  #journal.ftZu .book { animation: ftZu .5s ease-in forwards !important; } @keyframes ftZu { to { opacity: 0; transform: translateY(24px) scale(.97) rotate(.8deg); } }
+  @keyframes ftSeite { from { opacity: 0; transform: translateX(18px) rotate(.25deg); } to { opacity: 1; transform: none; } } #jBody.ftSeite { animation: ftSeite .45s cubic-bezier(.2,.8,.2,1); }
+  #jBody .ftNote { white-space: pre-wrap; font: 400 clamp(15px, 1.95vh, 20px)/1.55 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #2a2016; }
+  #jBody .ftNote .hand { font-family: var(--f-hand, Caveat, cursive); font-size: clamp(19px, 2.6vh, 26px); line-height: 1.3; color: #1e2b5c; } #jBody .ftNote small { opacity: .7; }
+  #ftLayer { position: fixed; inset: 0; z-index: 9600; opacity: 0; transition: opacity .5s; cursor: pointer; } #ftLayer.on { opacity: 1; } #ftLayer.aus { opacity: 0; }
+  #ftLayer svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  #ftPen path { fill: none; stroke: #f0d58a; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(240,213,138,.45)); }
+  #ftPen path.d { stroke-width: 1.4; stroke: #f7e7b4; opacity: .55; }
+  #ftCard { position: absolute; left: 50%; bottom: 2.4vh; width: min(720px, 92vw); transform: translateX(-50%) rotate(-.5deg) translateY(26px); opacity: 0; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 16px 20px rgba(0,0,0,.65)); }
+  #ftCard.on { opacity: 1; transform: translateX(-50%) rotate(-.5deg); }
+  .ftPap { position: relative; padding: 15px 32px 12px 66px; background-color: #e6dcc3; background-size: cover; background-position: center; color: #1b2a5e; }
+  .ftPap::before { content: ''; position: absolute; left: 48px; top: 0; bottom: 0; width: 2px; background: rgba(176,52,40,.4); }
+  .ftTape { z-index: 2; position: absolute; left: 50%; top: -11px; width: 92px; height: 24px; margin-left: -46px; transform: rotate(-2.5deg); background: linear-gradient(180deg, rgba(232,214,150,.78), rgba(210,190,120,.7)); box-shadow: 0 1px 3px rgba(0,0,0,.35); clip-path: polygon(0 8%, 4% 0, 8% 12%, 12% 0, 92% 0, 96% 12%, 100% 0, 100% 90%, 96% 100%, 92% 88%, 88% 100%, 8% 100%, 4% 88%, 0 100%); }
+  .ftKopf { display: flex; justify-content: space-between; align-items: baseline; font: 400 clamp(11px, 1.35vh, 14px) var(--f-titel, "IM Fell English SC", Georgia, serif); letter-spacing: .3em; color: #6d2418; }
+  .ftTxt { margin: 6px 0 2px; font: 400 clamp(22px, 3.1vh, 31px)/1.42 var(--f-luke, Kalam, Caveat, cursive); min-height: 4.26em; color: #1b2a5e;
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(1.42em - 2px), rgba(70,100,160,.3) calc(1.42em - 2px), rgba(70,100,160,.3) 1.42em); }
+  .ftTxt .w { display: inline-block; white-space: nowrap; } .ftTxt .c { display: inline-block; opacity: 0; transform: translateY(var(--dy, 0)) rotate(var(--r, 0deg)) scale(var(--s, 1)); transition: opacity .1s; } .ftTxt .c.on { opacity: var(--o, 1); }
+  .ftFuss { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font: 400 clamp(10px, 1.2vh, 13px) var(--f-typo, "Special Elite", monospace); letter-spacing: .1em; color: #6d5a3e; }
+  .ftPunkte span { display: inline-block; width: 8px; height: 8px; margin-right: 7px; border-radius: 50%; border: 1.5px solid #5a3a22; } .ftPunkte span.on { background: #7c2418; border-color: #7c2418; } .ftPunkte span.ok { background: rgba(90,58,34,.5); }`;
+  document.head.appendChild(s); }
+// Papier für den Zettel: echter Scan (papierScan der Basis), Wasserflecken (die Fibel ist nass), einmal erzeugt
+function fibeltour_papier() { if (FIBT.papier) return FIBT.papier; const W = 1200, H = 640, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  try { if (typeof papierScan === 'function') papierScan(c, W, H, '#e9e0c7', { dreck: .4 }); else { c.fillStyle = '#e9e0c7'; c.fillRect(0, 0, W, H); } } catch (e) { c.fillStyle = '#e9e0c7'; c.fillRect(0, 0, W, H); }
+  c.save(); c.globalCompositeOperation = 'multiply';
+  for (let i = 0; i < 5; i++) { const x = rand(0, W), y = rand(0, H), r = rand(60, 170), g = c.createRadialGradient(x, y, r * .6, x, y, r); g.addColorStop(0, 'rgba(130,108,66,0)'); g.addColorStop(.86, 'rgba(130,108,66,.10)'); g.addColorStop(1, 'rgba(96,74,42,.22)'); c.fillStyle = g; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }
+  c.restore(); try { return FIBT.papier = cv.toDataURL('image/jpeg', .9); } catch (e) { return FIBT.papier = ''; } }
+function fibeltour_kante() { const n = 26, a = [], b = []; for (let i = 0; i <= n; i++) { const x = (i / n * 100).toFixed(2) + '%'; a.push(`${x} ${rand(0, 5).toFixed(1)}px`); b.push(`${x} calc(100% - ${rand(0, 5).toFixed(1)}px)`); }
+  return `polygon(${a.join(',')},${b.reverse().join(',')})`; }
+function fibeltour_ton(was) { const A = Audio; if (!A.ctx) return; try {
+  if (was === 'auf') { if (A.buf.ui_fibel_1) A.play('ui_fibel_1', { gain: .28 }); setTimeout(() => { const k = traum_nm('fx_tropfen_1', 'fx_tropfen_2', 'fx_tropfen_3'); if (k) A.play(k, { gain: .1, rate: rand(.9, 1.1) }); }, 900); }
+  else if (was === 'zu') { if (A.buf.ui_fibel_2) A.play('ui_fibel_2', { gain: .26 }); else A.paper && A.paper(); }
+  else if (was === 'seite') { A.paper && A.paper(); }
+  else if (was === 'stift') { if (A.buf.ui_stift) A.play('ui_stift', { gain: .075, rate: rand(.85, 1.2), dur: .2 }); } } catch (e) {} }
+// Filzstift-Kringel um ein Rechteck: unregelmäßig, leicht überlappend, wird beim Erscheinen „gezogen“
+function fibeltour_kringel(r) { const pen = document.getElementById('ftPen'); if (!pen) return; pen.innerHTML = ''; if (!r) return; const p = 9, x0 = r.left - p, y0 = r.top - p, x1 = r.right + p, y1 = r.bottom + p, J = () => (Math.random() - .5) * 5, pts = [];
+  const side = (ax, ay, bx, by, k) => { for (let i = 0; i < k; i++) { const t = i / k; pts.push([ax + (bx - ax) * t + J(), ay + (by - ay) * t + J()]); } };
+  const k = v => Math.max(3, Math.round(v / 130)); side(x0 + 14, y0, x1 - 14, y0, k(x1 - x0)); side(x1, y0 + 14, x1, y1 - 14, k(y1 - y0)); side(x1 - 14, y1, x0 + 14, y1, k(x1 - x0)); side(x0, y1 - 14, x0, y0 + 24, k(y1 - y0)); pts.push([x0 + 20, y0 + 1], [x0 + 52, y0 - 1]);
+  for (const [stroke, jit] of [['', 1], ['d', 2.2]]) { const q = pts.map(([x, y]) => [x + (jit - 1) * J(), y + (jit - 1) * J()]); let d = `M${q[0][0].toFixed(1)} ${q[0][1].toFixed(1)}`;
+    for (let i = 1; i < q.length - 1; i++) d += ` Q${q[i][0].toFixed(1)} ${q[i][1].toFixed(1)} ${((q[i][0] + q[i + 1][0]) / 2).toFixed(1)} ${((q[i][1] + q[i + 1][1]) / 2).toFixed(1)}`;
+    const ph = document.createElementNS('http://www.w3.org/2000/svg', 'path'); ph.setAttribute('d', d); if (stroke) ph.setAttribute('class', stroke); pen.appendChild(ph);
+    const len = ph.getTotalLength(); ph.style.strokeDasharray = len; ph.style.strokeDashoffset = len; void ph.getBoundingClientRect(); ph.style.transition = `stroke-dashoffset ${stroke ? 1.3 : 0.95}s cubic-bezier(.3,.6,.3,1)`; ph.style.strokeDashoffset = 0; } }
+// Das Fenster im Dunkel gleitet weich zur neuen Stelle (eigene Interpolation, unabhängig davon, ob der Browser SVG-Maße per CSS animiert)
+function fibeltour_lauf(now) { const S = FIBT; if (!S.on) return; const dt = Math.min(.1, S.lastT ? (now - S.lastT) / 1000 : 0), k = 1 - Math.exp(-dt * 9); S.lastT = now;
+  if (S.holes && S.tgt) for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (!h || !t) continue; for (const a of ['x', 'y', 'w', 'h']) h.v[a] += (t[a] - h.v[a]) * k; h.e.setAttribute('x', h.v.x.toFixed(1)); h.e.setAttribute('y', h.v.y.toFixed(1)); h.e.setAttribute('width', Math.max(0, h.v.w).toFixed(1)); h.e.setAttribute('height', Math.max(0, h.v.h).toFixed(1)); }
+  S.raf = requestAnimationFrame(fibeltour_lauf); }
+function fibeltour_fenster(st) { const S = FIBT, hole = (el, pad) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - pad, y: r.top - pad, w: r.width + 2 * pad, h: r.height + 2 * pad } : null; };
+  const e = st.el && st.el(), b = st.btn && st.btn(); S.tgt = { h1: hole(e, 6), h2: hole(b, 3) };
+  for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (t && !h.v) h.v = { x: t.x + t.w / 2, y: t.y + t.h / 2, w: 0, h: 0 }; if (!t) { S.tgt[id] = { x: h.v ? h.v.x : 0, y: h.v ? h.v.y : 0, w: 0, h: 0 }; if (!h.v) h.v = { x: 0, y: 0, w: 0, h: 0 }; } }
+  try { fibeltour_kringel(e ? e.getBoundingClientRect() : null); } catch (er) {} }
+// Zettel beschreiben: Buchstabe für Buchstabe mit eigenem Versatz, Neigung, Größe und Tinte; je Wort ein Stiftgeräusch
+function fibeltour_schreibe(txt) { const S = FIBT, T = document.querySelector('#ftCard .ftTxt'); clearInterval(S.typeIv); T.innerHTML = ''; const cs = [];
+  txt.split(' ').forEach((w, wi, arr) => { const sw = document.createElement('span'); sw.className = 'w'; for (const ch of w) { const c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
+      c.style.setProperty('--dy', rand(-1.8, 1.8).toFixed(1) + 'px'); c.style.setProperty('--r', rand(-2.2, 2.2).toFixed(1) + 'deg'); c.style.setProperty('--s', rand(.95, 1.06).toFixed(2)); c.style.setProperty('--o', rand(.82, 1).toFixed(2)); sw.appendChild(c); cs.push([c, wi, ch === w[0]]); }
+    T.appendChild(sw); if (wi < arr.length - 1) T.appendChild(document.createTextNode(' ')); });
+  let i = 0; S.typeCs = cs; S.typeIv = setInterval(() => { if (!S.on) return clearInterval(S.typeIv); const e = cs[i]; if (!e) { clearInterval(S.typeIv); S.typeIv = 0; return; } e[0].classList.add('on'); if (e[2] && i % 2 === 0) fibeltour_ton('stift'); i++; }, 30); }
+function fibeltour_fertigSchreiben() { const S = FIBT; if (!S.typeIv) return false; clearInterval(S.typeIv); S.typeIv = 0; for (const e of S.typeCs || []) e[0].classList.add('on'); return true; }
+function fibeltour_zeige(i, erst) { const S = FIBT; if (!S.on) return; i = Math.max(0, Math.min(S.steps.length - 1, i)); S.i = i; const st = S.steps[i], card = document.getElementById('ftCard'), pap = card.querySelector('.ftPap');
+  card.classList.remove('on'); clearInterval(S.typeIv); S.typeIv = 0;
+  const neu = jTab !== st.tab; jTab = st.tab; try { renderJournal(); } catch (e) { console.warn('Fibel-Tour: Seite', e); }
+  const B = $('jBody'); if (B) { B.classList.remove('ftSeite'); void B.offsetWidth; B.classList.add('ftSeite'); } if (!erst) fibeltour_ton('seite');
+  setTimeout(() => { if (!S.on || S.i !== i) return; try { st.nach && st.nach(); } catch (e) {}
+    pap.style.clipPath = fibeltour_kante(); pap.querySelector('.ftSeiteNr').textContent = `SEITE ${i + 1} VON ${S.steps.length}`; pap.querySelector('.ftTitel').textContent = st.titel;
+    pap.querySelector('.ftPunkte').innerHTML = S.steps.map((s, j) => `<span class="${j === i ? 'on' : j < i ? 'ok' : ''}"></span>`).join('');
+    pap.querySelector('.ftHinweis').textContent = i === S.steps.length - 1 ? 'ENTER · FERTIG     TAB · FIBEL JEDERZEIT' : 'ENTER · WEITER     X · ÜBERSPRINGEN';
+    setTimeout(() => { if (!S.on || S.i !== i) return; fibeltour_fenster(st); card.classList.add('on'); fibeltour_schreibe(st.text); }, 80); }, (st.warte || 130) + (neu ? 60 : 0)); }
+function fibeltour_weiter() { const S = FIBT; if (!S.on) return; if (fibeltour_fertigSchreiben()) return; if (S.i >= S.steps.length - 1) return fibeltour_ende(false); fibeltour_zeige(S.i + 1); }
+function fibeltour_zurueck() { const S = FIBT; if (!S.on || S.i <= 0) return; fibeltour_zeige(S.i - 1); }
+function fibeltour_ende(skip) { const S = FIBT; if (!S.on) return; S.on = false; S.fertig = !skip; clearInterval(S.typeIv); cancelAnimationFrame(S.raf);
+  removeEventListener('keydown', S.keyFn, true); removeEventListener('pointerdown', S.ptrFn, true); removeEventListener('click', S.clickFn, true); removeEventListener('resize', S.rsFn);
+  const L = S.layer; if (L) { L.classList.remove('on'); L.classList.add('aus'); } fibeltour_ton('zu'); $('journal').classList.add('ftZu');
+  setTimeout(() => { try { if (L) L.remove(); document.body.classList.remove('ftOn'); $('journal').classList.remove('ftZu'); jTab = S.tab0 || 'aufgaben'; const B = $('jBody'); if (B) B.classList.remove('ftSeite'); if (ui.overlay === 'journal') closeOverlay(); } catch (e) { console.warn('Fibel-Tour: Ende', e); }
+    S.layer = null; const r = S.res; S.res = null; if (r) r(!skip); }, 560); }
+// Die Tour als Fund „So funktioniert die Fibel“: jederzeit unter Tab → Funde nachlesbar (Handschrift auf dem Notizblatt)
+function fibeltour_fund() { try { if (story.lore.some(l => l.key === 'fibel_tour')) return;
+  story.lore.push({ key: 'fibel_tour', title: 'So funktioniert die Fibel', html: '<span class="hand">' + ['aufgaben', 'inventar', 'funde', 'fotos', 'raender', 'karte'].map(k => FIBT_TEXT[k]).join('\n\n') + '\n\nMit Tab geht sie jederzeit auf.</span>' }); } catch (e) {} }
+function fibeltour_start() { const S = FIBT; if (S.on) return Promise.resolve(false);
+  return new Promise(res => { try { fibeltour_css(); fibeltour_fund(); S.res = res; S.on = true; S.i = 0; S.steps = fibeltour_schritte(); S.tab0 = 'aufgaben'; S.lastT = 0; S.tgt = null;
+    const L = document.createElement('div'); L.id = 'ftLayer'; S.layer = L;
+    L.innerHTML = `<svg id="ftDim" xmlns="http://www.w3.org/2000/svg"><defs><mask id="ftMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><rect x="0" y="0" width="100%" height="100%" fill="#fff"/><rect id="ftH1" rx="5" fill="#000"/><rect id="ftH2" rx="4" fill="#000"/></mask></defs><rect x="0" y="0" width="100%" height="100%" fill="rgba(5,3,2,.6)" mask="url(#ftMask)"/></svg><svg id="ftPen"></svg>
+      <div id="ftCard"><div class="ftTape"></div><div class="ftPap"><div class="ftKopf"><span class="ftSeiteNr"></span><span class="ftTitel"></span></div><div class="ftTxt"></div><div class="ftFuss"><span class="ftPunkte"></span><span class="ftHinweis"></span></div></div></div>`;
+    document.body.appendChild(L); const pp = fibeltour_papier(); if (pp) L.querySelector('.ftPap').style.backgroundImage = `url(${pp})`;
+    S.holes = { h1: { e: L.querySelector('#ftH1'), v: null }, h2: { e: L.querySelector('#ftH2'), v: null } };
+    S.keyFn = e => { if (!S.on) return; const c = e.code; e.preventDefault(); e.stopImmediatePropagation(); if (e.repeat) return;
+      if (c === 'KeyX' || c === 'Escape') fibeltour_ende(true); else if (c === 'Enter' || c === 'NumpadEnter' || c === 'Space' || c === 'KeyE' || c === 'ArrowRight') fibeltour_weiter(); else if (c === 'ArrowLeft' || c === 'Backspace') fibeltour_zurueck(); };
+    S.ptrFn = e => { if (!S.on) return; e.preventDefault(); e.stopImmediatePropagation(); if (e.button === 0 || e.pointerType === 'touch') fibeltour_weiter(); }; S.clickFn = e => { if (S.on) { e.preventDefault(); e.stopImmediatePropagation(); } };
+    S.rsFn = () => { if (S.on) fibeltour_fenster(S.steps[S.i]); };
+    addEventListener('keydown', S.keyFn, true); addEventListener('pointerdown', S.ptrFn, true); addEventListener('click', S.clickFn, true); addEventListener('resize', S.rsFn);
+    document.body.classList.add('ftOn'); jTab = 'aufgaben'; renderJournal(); openOverlay('journal'); fibeltour_ton('auf'); requestAnimationFrame(() => L.classList.add('on')); S.raf = requestAnimationFrame(fibeltour_lauf);
+    setTimeout(() => fibeltour_zeige(0, true), 650);
+  } catch (e) { console.warn('Fibel-Tour', e); S.on = false; try { document.body.classList.remove('ftOn'); if (S.layer) S.layer.remove(); } catch (er) {} res(false); } }); }
+window.__fibeltour = { S: FIBT, start: () => fibeltour_start(), ende: s => fibeltour_ende(!!s), weiter: () => fibeltour_weiter(), zeige: i => fibeltour_zeige(i) }; // Testzugriff
 // =====================================================================  WELT-MODUL · weiss (Paket W2-P7) – Kapitel 3 · Das Weiße & Ende C
 // Texte wortgleich aus story_final.md, „Produktionsplan Kapitel 1–6“, PK-C K3-6 … K3-10 (T7 in PK-G).
 //   Raum 1: Schrank an der Nordwand, ein Spalt offen – wer näher als 3 m ist, hört ein Kind atmen; sieht Luke hinein, ist es still (leer).
