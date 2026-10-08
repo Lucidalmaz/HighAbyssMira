@@ -190,7 +190,7 @@ async function nr4_bau() {
     tuer: [C.x - 3, C.z + 4.95, PI], tuerWand: 'n', rein: { x: C.x - 3, z: C.z + 3.9, yaw: 0 }, raus: { x: H.x, z: H.z - H.d / 2 - 1.5, yaw: 0 }, rausLabel: 'Hinaus (Haustür)' });
   S.R = R; const g = R.g, x0 = R.x0, x1 = R.x1, z0 = R.z0, z1 = R.z1;
   // ---- Diele (x −6…0, z 0…5)
-  { const gar = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (gar) put(gar, C.x - .36, 0, C.z + 4.25, -PI / 2, g); // R-6: Garderobe an der Innenwand (an der Westwand läuft die Treppe)
+  { const gar = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (gar) put(gar, C.x - .36, 0, C.z + 4.25, PI, g); // R-6: Garderobe an der Innenwand (an der Westwand läuft die Treppe)
     const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .8); if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); put(jacke, C.x - 1.5, 1.05, z1 - .2, PI, g); }
     nr4_zettel('E-01', C.x - .075, 1.45, C.z + 3.3, -PI / 2, { parent: null }); // an der Garderobe
     nr4_zettel('E-05', C.x - 3 + .45, 2.12, z1 - .115, PI); nr4_zettel('E-14', C.x - 3 - .38, 1.58, z1 - .115, PI, { w: .12, h: .09 });
@@ -300,7 +300,7 @@ async function nr4_bau() {
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;
     { const c = await kirchberg_fbx('chair', chairSpec, .9); if (c) put(c, O.x - .1, 0, b0 + 1.05, PI + .3, g2); }
     { const tv = await kirchberg_mod('crt', 'model.glb', .36); if (tv) put(tv, O.x + .45, ly, b0 + .35, -.2, g2); const r = await kirchberg_mod('radio', 'model.gltf', .28, 'max'); if (r) { r.traverse(m => { if (m.name === 'tubes') m.visible = false; }); put(r, O.x - .75, ly, b0 + .32, .15, g2); } }
-    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x + 1.05, 0, b1 - .6, PI, g2); }
+    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x + .4, 0, b1 - .3, PI / 2, g2); } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
     { const sl = await kirchberg_mod('floorlamp', 'model.gltf', 1.45); if (sl) put(sl, O.x + 1.05, 0, b0 + .35, 0, g2); } kirchberg_licht(R2, 0xffc890, 1, 5, O.x + 1.0, 1.35, b0 + .45);
     await fenster(R2, a0 + 1.1, b0 + .11, 0, 1.45, 'sheer');
     // Poster „Die Nebelkrähen – 2016“ (kiffen.js) über dem Schreibtisch; Aufkleber am Schrank und am Fensterrahmen
@@ -327,7 +327,7 @@ async function nr4_bau() {
       mat: st, matWange: kirchberg_mat('planks_painted', 0x2e241c, 1), decke: R3.decke, loch: [c0 + .1, c0 + 1.25, d1 - 3.1, d1 - .1], schachtH: 2.4, schachtMat: R3.wm });
       const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, c0 + .65, R3.H + .2, d1 - .115, PI, g3); }
     kirchberg_hit(1, 2, .8, c0 + .65, 1, d1 - 3.0, 'Kellertreppe hinauf', () => nr4_wechsel('eg'));
-    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.2 + i * 1.6, -PI / 2, g3); }
+    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.2 + i * 1.6, PI, g3); }
     const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 1.6 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
     // Pfandkisten (fehlendes Modell „Getränkekiste mit Pfandflaschen“ → Paletten-Scan mit Kanistern als Rückfall)
     { const p = await kirchberg_mod('pallet_ms', 'model.gltf', 1.1, 'max'); if (p) put(p, K.x - .6, 0, d0 + .7, .1, g3);

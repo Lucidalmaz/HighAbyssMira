@@ -22,9 +22,12 @@ async function moebel_bau() {
     const frei = (dx, dz) => { let n = 0; for (let k = 1; k <= 6; k++) if (typeof mantleFree === 'function' ? mantleFree(cx + dx * (k * .25 + (alongX ? sz.z : sz.x) / 2), cz + dz * (k * .25 + (alongX ? sz.z : sz.x) / 2), y0) : true) n++; else break; return n; };
     const sides = alongX ? [[0, 1], [0, -1]] : [[1, 0], [-1, 0]], f = frei(...sides[0]) >= frei(...sides[1]) ? sides[0] : sides[1];
     const m = src.clone(true), g = new THREE.Group(); g.add(m); m.updateMatrixWorld(true); const mb = new THREE.Box3().setFromObject(m), ms = mb.getSize(new THREE.Vector3());
-    const sH = sz.y / ms.y, sW = THREE.MathUtils.clamp((alongX ? sz.x : sz.z) / ms.x, sH * .88, sH * 1.12), sD = THREE.MathUtils.clamp((alongX ? sz.z : sz.x) / ms.z, sH * .88, sH * 1.12);
-    m.scale.multiply(new THREE.Vector3(sW, sH, sD)); m.updateMatrixWorld(true); const mb2 = new THREE.Box3().setFromObject(m); m.position.sub(new THREE.Vector3((mb2.min.x + mb2.max.x) / 2, mb2.min.y, (mb2.min.z + mb2.max.z) / 2));
-    g.position.set(cx, y0, cz); g.rotation.y = Math.atan2(f[0], f[1]); // Modell schaut nach +z → Drehung zur freien Seite
+    // Achsen der Modelle (gemessen): Fab „wardrobe“ ist entlang z breit (1,52 m) und nur 0,5 m tief, Vorderseite +x; „dresser“ ist entlang x breit, Vorderseite +z.
+    // Vorher galt für beide „breit entlang x, schaut nach +z“: die Schränke im Archiv standen quer zur Wand (Seitenansicht, 1,5 m tief in den Gang).
+    const wd = key === 'wardrobe', aw = wd ? 'z' : 'x', ad = wd ? 'x' : 'z';
+    const sH = sz.y / ms.y, sW = THREE.MathUtils.clamp((alongX ? sz.x : sz.z) / ms[aw], sH * (wd ? .55 : .88), sH * 1.12), sD = THREE.MathUtils.clamp((alongX ? sz.z : sz.x) / ms[ad], sH * .88, sH * 1.12);
+    const sc_ = new THREE.Vector3(); sc_[aw] = sW; sc_[ad] = sD; sc_.y = sH; m.scale.multiply(sc_); m.updateMatrixWorld(true); const mb2 = new THREE.Box3().setFromObject(m); m.position.sub(new THREE.Vector3((mb2.min.x + mb2.max.x) / 2, mb2.min.y, (mb2.min.z + mb2.max.z) / 2));
+    g.position.set(cx, y0, cz); g.rotation.y = wd ? Math.atan2(-f[1], f[0]) : Math.atan2(f[0], f[1]); // dresser schaut nach +z, wardrobe nach +x → Drehung zur freien Seite
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
     if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
     box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; } // Kollision des Kastens bleibt (gleiche Grundfläche)

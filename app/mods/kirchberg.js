@@ -696,8 +696,8 @@ async function kirchberg_innen() {
   { const C = KB_RAUM.pfarrhaus, P = KB_PFARR, R = kirchberg_raum({ id: 'pfarrhaus', x: C.x, z: C.z, w: 8, d: 6, h: 2.8, wand: 'wallpaper_fabric', wandTint: 0x8a8070, boden: 'floor_wood', bodenTint: 0x5a4432,
       tuer: [C.x - 2.8, C.z + 2.9, PI], tuerWand: 'n', rein: { x: C.x - 2.8, z: C.z + 1.9, yaw: 0 }, raus: { x: P.x, z: P.z + P.d / 2 + 1.7, yaw: 0 }, rausLabel: 'Hinaus' });
     const x0 = R.x0, x1 = R.x1, z0 = R.z0, z1 = R.z1, g = R.g;
-    for (let i = 0; i < 3; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 2.1); if (s) put(s, x0 + 1 + i * 1.25, 0, z0 + .32, 0, g); }
-    const buch = await kirchberg_mod('w_buch', 'model.glb', .24, 'max'); if (buch) { for (let i = 0; i < 26; i++) { const b = buch.clone(true); b.rotation.z = PI / 2 + kirchberg_r(-.08, .08); put(b, x0 + .55 + (i % 9) * .1 + (i / 9 | 0) * 1.25, .45 + (i % 3) * .43, z0 + .3, kirchberg_r(-.1, .1), g); } }
+    for (let i = 0; i < 3; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 2.1); if (s) put(s, x0 + 1 + i * 1.65, 0, z0 + .32, -PI / 2, g); } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → mit -PI/2 steht sie breit an der Nordwand (vorher 0 = quer, 1,5 m tief in den Raum)
+    const buch = await kirchberg_mod('w_buch', 'model.glb', .24, 'max'); if (buch) { for (let i = 0; i < 26; i++) { const b = buch.clone(true); b.rotation.z = PI / 2 + kirchberg_r(-.08, .08); put(b, x0 + .55 + (i % 9) * .1 + (i / 9 | 0) * 1.65, .45 + (i % 3) * .43, z0 + .3, kirchberg_r(-.1, .1), g); } }
     const tisch = await kirchberg_mod('metaltable', 'model.gltf', 0); if (tisch) { tisch.scale.set(.46, .82, .8); S.pTisch = put(tisch, C.x + 1.2, 0, C.z + .4, 0, g); }
     const ty = S.pTisch ? kirchberg_top(S.pTisch, C.x + 1.2, C.z + .4, 3, .78) : .78;
     { const c = await kirchberg_fbx('chair', chairSpec, .95); if (c) put(c, C.x + 1.2, 0, C.z + 1.05, PI + .2, g); }

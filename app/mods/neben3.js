@@ -194,7 +194,7 @@ async function neben3_kapelleBau() {
     kirchberg_hit(.6, .5, .8, x1 - .45, ty + .1, z1 - 1.6, 'Kirchenführer lesen', () => neben3_fuehrer()); }
   // ---- Sakristei (Südostecke hinter dem Altar): Trennwände aus demselben Putz, Tür nach Norden
   { const zS = z0 + 2.6, xS = x1 - 2.4; wall('z', xS, z0, zS, R.H, R.wm, [], .12); wall('x', zS, xS, x1, R.H, R.wm, [{ at: x1 - .52, w: .9 }], .12);
-    const sch = await kirchberg_mod('wardrobe', 'model.gltf', 2.05); if (sch) put(sch, xS + .45, 0, z0 + .95, PI / 2);
+    const sch = await kirchberg_mod('wardrobe', 'model.gltf', 2.05); if (sch) put(sch, xS + .33, 0, z0 + .95, 0); // Fab „wardrobe“: Vorderseite +x, Breite entlang z → an der Trennwand x = xS, Blick in den Raum (vorher PI/2 = quer durch die Wand)
     const ti = await kirchberg_mod('metaltable', 'model.gltf', 0); if (ti) { ti.scale.set(.3, .78, .5); put(ti, x1 - .55, 0, z0 + .75, -PI / 2); }
     const tY = ti ? kirchberg_top(ti, x1 - .55, z0 + .75, 3, .76) : .76;
     { const c = await kirchberg_fbx('chair', NEBEN3_STUHL, .92); if (c) put(c, x1 - 1.2, 0, z0 + .7, -.4); }

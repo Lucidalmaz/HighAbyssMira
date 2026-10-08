@@ -491,8 +491,8 @@ VILLA_BAU.og = async R => {
   { const t = await villa_put('metaltable', 'model.gltf', .78, 'y', -900.5, 929.6, 0); if (t) t.scale.x *= .8; }
   await villa_fbx('chair', VILLA_SPEC.chair, .9, 'y', -900.5, 928.8, .2);
   await villa_put('floorlamp', 'model.gltf', 1.5, 'y', -899.3, 930.4, -.2);
-  VILLA.o.schrank = await villa_put('wardrobe', 'model.gltf', 2.1, 'y', R.x0 + .45, 929.2, PI / 2);
-  VILLA.o.schrank2 = await villa_put('wardrobe', 'model.gltf', 2.1, 'y', R.x0 + .45, 930.9, PI / 2);
+  VILLA.o.schrank = await villa_put('wardrobe', 'model.gltf', 2.1, 'y', R.x0 + .45, 929.2, 0); // Fab „wardrobe“: Vorderseite +x, Breite entlang z (vorher PI/2 = quer zur Wand)
+  VILLA.o.schrank2 = await villa_put('wardrobe', 'model.gltf', 2.1, 'y', R.x0 + .45, 930.9, 0);
   villa_decal(villa_cv(256, 256, (c, w, h) => { c.fillStyle = '#4a3a2e'; c.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 7) { c.fillStyle = `rgba(0,0,0,${.15 + Math.random() * .15})`; c.fillRect(x, 0, 3, h); } }), 1.3, 2.3, -903.4, 1.25, R.z0 + .14, 0, 0);
   villa_licht(-899.4, 1.5, 930.3, 0xffd8a0, .9, 6); VILLA.o.ogLicht = villa_licht(-900, 2.7, 930, 0xffe8c8, 0, 9);
   // Heinrichs Zimmer: schmales Bett, Heizung (5), Mantelhaken ohne Mantel, Teedose, beschlagene Scheibe mit ∴
@@ -947,7 +947,7 @@ async function villa_ag13() {
   const still = Math.max(4, Math.round(A.stillMax)); villa_S.still = still; if (typeof beob_S !== 'undefined') beob_S.stat.stillMax = Math.max(beob_S.stat.stillMax, still);
   await wait(1500); if (A.versteck) villa_rauskommen(); VILLA.ag13 = null; villa_setz('ag13'); villa_uk(9);
   try { if (typeof whiskey_w09Ende === 'function') whiskey_w09Ende(); } catch (e) {}
-  villa_beob('b_k4_05', { pos: [-907.1, .02, 931.2] }); if (VILLA.o.schrank2) VILLA.o.schrank2.rotation.y = PI / 2 + .12;
+  villa_beob('b_k4_05', { pos: [-907.1, .02, 931.2] }); if (VILLA.o.schrank2) VILLA.o.schrank2.rotation.y = .12;
   if (typeof todCheckpoint === 'function') setTimeout(() => todCheckpoint('k4_og', 'Villa · Obergeschoss'), 5000); villa_ziel(); void res; }
 async function villa_ag13Entdeckt() { const A = VILLA.ag13; if (!A || A.fertig) return; A.fertig = true; villa_atemHinweis('', false); if (A.versteck) villa_rauskommen(); flashOn = true;
   const N11 = lwo_figur('n11'), N12 = lwo_figur('n12'), B = lwo_figur('b0'); villa_trust('ag13_entdeckt'); villa_setz('entdeckt');

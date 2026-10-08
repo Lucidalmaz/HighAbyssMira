@@ -75,10 +75,11 @@ async function amt_kit(key, file, size, axis = 'y', spec) {
   try { const root = file.endsWith('.fbx') ? await msFBX(key, file, spec || {}) : (await msModel(key, file)).clone(true); root.updateMatrixWorld(true);
     const parts = []; root.traverse(m => { if (m.isMesh && !m.isSkinnedMesh) parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
     if (axis === 'lang') { const R = new THREE.Matrix4().makeRotationZ(PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); axis = 'y'; } // Leiter: liegt im Modell entlang x → aufrichten (sonst Maßstab über die Dicke = 22-fach, riesiger Balken im Gang)
+    if (key === 'wardrobe') { const R = new THREE.Matrix4().makeRotationY(-PI / 2); parts.forEach(p => p.geo.applyMatrix4(R)); } // Fab „wardrobe“: Breite entlang z, Vorderseite +x → Vorderseite +z, Breite entlang x (alle Platzierungen unten gehen von „schaut nach +z“ aus; vorher standen die Schränke quer zur Wand)
     const bb = new THREE.Box3(); parts.forEach(p => { p.geo.computeBoundingBox(); bb.union(p.geo.boundingBox); }); const sz = bb.getSize(new THREE.Vector3()), s = size / (axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[axis]);
-    const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));
+    const wx = key === 'wardrobe' ? .64 : 1, mt = new THREE.Matrix4().makeScale(s * wx, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2)); // wardrobe: 1,52 → 0,97 m breit (Schränke stehen im Abstand von ca. 1 m)
     parts.forEach(p => { p.geo.applyMatrix4(mt); p.geo.computeBoundingBox(); p.geo.computeBoundingSphere(); });
-    const K = { key, parts, size: sz.multiplyScalar(s), list: [], shadow: true }; amt_S.kits.push(K); return K; } catch (e) { console.warn('amt: Modell ' + key, e); return null; } }
+    const K = { key, parts, size: sz.multiplyScalar(s).multiply(new THREE.Vector3(wx, 1, 1)), list: [], shadow: true }; amt_S.kits.push(K); return K; } catch (e) { console.warn('amt: Modell ' + key, e); return null; } }
 function amt_variant(K, fn) { if (!K) return null; const V = { key: K.key + '*', parts: K.parts.map(p => ({ geo: p.geo, mat: Array.isArray(p.mat) ? p.mat.map(fn) : fn(p.mat) })), size: K.size, list: [], shadow: K.shadow }; amt_S.kits.push(V); return V; }
 const _amtV = new THREE.Vector3();
 function amt_box(K, m) { const b = new THREE.Box3(); for (const p of K.parts) { const P = p.geo.attributes.position, st = Math.max(1, Math.floor(P.count / 800)); for (let i = 0; i < P.count; i += st) b.expandByPoint(_amtV.fromBufferAttribute(P, i).applyMatrix4(m)); } return b; }
