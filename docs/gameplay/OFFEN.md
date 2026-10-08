@@ -20,3 +20,6 @@ In Arbeit (Agenten): Durchspieltest Kap. 1/3 und 4–6, Zombie-Szene Kap. 2 (Zom
 
 ## Später prüfen
 - Unreal-Fassung als zweites Projekt (Premium): erst nach der Testversion; Neubau der ~87 Module nötig, daher keine Beschleunigung für die aktuelle Arbeit.
+
+## QA-Auftrag des Nutzers (09.10.2026, nach Fertigstellung aller Inhalte)
+Komplette Prüfung des ganzen Spiels auf Spielbarkeit: alles bedien-/sammel-/erreichbar; alle Rätsel lösbar UND verständlich; Grafikfehler, falsch positionierte Schriften/Objekte; Logikfehler (z. B. hinter einer Tür direkt eine Wand wie in Omas Haus – nirgends erlaubt); keine unsichtbaren Wände; Wände und Türen dürfen nicht durchlaufbar/durchspringbar sein (auch nicht beim Gegenlaufen + Sprung-Spam); Ausrichtung/Lage/Fall aller Gegenstände realistisch (nichts schwebt/kippt falsch); alles hochwertig und realistisch. Mit so vielen Fehlerfunden wie möglich, dann beheben.
