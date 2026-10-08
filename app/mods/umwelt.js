@@ -307,7 +307,7 @@ function umwelt_atemBau() {
         vec2 wq = c * 2.6 + vec2(fb(c * 2.2 + vS * 9. + vU * 1.3), fb(c * 2.2 - vS * 7. - vU)) * .9;
         float d = fb(wq * 1.8 + vS * 5.), st = n(vec2(c.x * 2.5, c.y * 11.) + vS * 13. + vU * 2.);
         float rad = smoothstep(.5, .08, length(c) * (1. + .35 * (d - .5)));
-        float a = vA * rad * smoothstep(.28 + .3 * vU, .72 + .12 * vU, d * .8 + st * .3);
+        float a = vA * rad * smoothstep(.2 + .3 * vU, .85 + .1 * vU, d * .88 + st * .14);
         if (a < .002) discard; gl_FragColor = vec4(min(vCol, vec3(1.3)), a); }` });
   const p = new THREE.Points(g, m); p.frustumCulled = false; p.userData.noCol = true; p.renderOrder = 8; p.name = 'umwelt_atem'; scene.add(p);
   umwelt_S.atem = { p, U, N, next: 0, g, E: 0, T: 2, ex: 0, exK: 0, emT: 0 }; }
@@ -328,7 +328,7 @@ function umwelt_atemTick(dt, aussen, sp) {
   const v0 = (.75 + .55 * A.E) * rand(.8, 1.15), life = rand(.8, 1.4) * (1 + .15 * A.E);
   g.aO.setXYZW(i, c.x + fx * .1 + rand(-.015, .015), c.y - .16 + rand(-.01, .01), c.z + fz * .1 + rand(-.015, .015), umwelt_S.t);
   g.aV.setXYZW(i, fx * v0 + vel.x * .85 + rand(-.12, .12), -.22 * v0 + rand(-.05, .06), fz * v0 + vel.z * .85 + rand(-.12, .12), life);
-  g.aP.setXYZW(i, rand(.035, .05), rand(.2, .3) * (1 + .3 * A.E), rand(.09, .14) * A.exK, Math.random());
+  g.aP.setXYZW(i, rand(.035, .05), rand(.2, .3) * (1 + .3 * A.E), rand(.065, .1) * A.exK, Math.random());
   g.aW.setXYZW(i, WIND.fx, WIND.fz, rand(0, 6.28), rand(2.8, 3.6));
   for (const a of [g.aO, g.aV, g.aP, g.aW]) { a.addUpdateRange(i * 4, 4); a.needsUpdate = true; } }
 function umwelt_luftTick(dt, P, indoor, aussen, sp) {

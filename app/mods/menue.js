@@ -23,7 +23,8 @@ const MZ_SHOTS = [
   { id: 'kapelle', fov: 44, T: 30, a: mz_v(-52.5, 1.5, 71.5), b: mz_v(-52.1, 1.7, 74.6), la: mz_v(-52.5, 4.2, 86.6), lb: mz_v(-52.5, 3.7, 86.6), tick: (dt, t) => { if (mz_once('glocke', t > 12)) mz_play('fx_glocke', { gain: .16, x: -52.5, y: 8, z: 86.6, ref: 14 }); } },
   { id: 'wald', fov: 50, T: 32, a: mz_v(29, 1.45, 85), b: mz_v(29.8, 1.4, 88), la: mz_v(28.5, 2.8, 104), lb: mz_v(30, 2.4, 104),
     start: () => { try { for (const V of wald_S.beasts) V.g.visible = false; } catch (e) {} },
-    tick: (dt, t) => { if (mz_once('knack', t > 9)) mz_play('fx_knarren_2', { gain: .4, x: 33, y: 3, z: 101, ref: 4 }); if (mz_once('reh', t > 21)) mz_play('fx_reh_1', { gain: .12, x: 10, y: 1, z: 125, ref: 6 }); } }];
+    tick: (dt, t) => { if (MZ.after3 && mz_once('schatten', t > 15 && Math.random() < .004)) { try { if (beob_S.V) { beob_show([27.2, 0, 99]); MZ.o.beob = true; setTimeout(() => { try { beob_hide(); } catch (e) {} MZ.o.beob = false; }, 900); } } catch (e) {} }
+      if (mz_once('knack', t > 9)) mz_play('fx_knarren_2', { gain: .4, x: 33, y: 3, z: 101, ref: 4 }); if (mz_once('reh', t > 21)) mz_play('fx_reh_1', { gain: .12, x: 10, y: 1, z: 125, ref: 6 }); } }];
 // Leerlauf (60 s ohne Eingabe): auf Nr. 7 zu, die Tür geht einen Spalt auf
 const MZ_IDLE = { id: 'naeher', fov: 44, T: 90, a: mz_v(21.3, 1.66, 2.5), b: mz_v(22.75, 1.6, -7.6), la: mz_v(22.95, 1.5, -12), lb: mz_v(22.85, 1.45, -12),
   tick: (dt, t) => { const k = mz_ss((t - 10) / 7) * .24; if (typeof door7 !== 'undefined' && k > 0) door7.pivot.rotation.y = Math.max(door7.cur, k);
@@ -104,10 +105,18 @@ function mz_latTick(dt, t) {
       g.position.set((1 - q) * (1 - q) * a.x + 2 * (1 - q) * q * c.x + q * q * b.x, (1 - q) * (1 - q) * a.y + 2 * (1 - q) * q * c.y + q * q * b.y, (1 - q) * (1 - q) * a.z + 2 * (1 - q) * q * c.z + q * q * b.z);
       if (u < .97) g.rotation.y = Math.atan2(g.position.x - px, g.position.z - pz); g.rotation.x = u < .8 ? -.12 : 0;
       if (u >= 1) { W.landed = true; W.lt = 0; whiskey_play(W.idle, .35); W.face = Math.atan2(cam.x - g.position.x, cam.z - g.position.z) + 1.35; mz_play('crow1', { gain: .32, rate: .78, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5, delay: .5 }); } }
+    else if (t > 25.5) { // Abgang: Flügelschlag, steigt auf und verschwindet im Nebel (erst unsichtbar, wenn weit weg – dann Schnitt)
+      if (!W.left) { W.left = { u: 0, a: g.position.clone(), d: new THREE.Vector3(g.position.x - cam.x, 0, g.position.z - cam.z).normalize() }; whiskey_play(W.fly, .1); try { Audio.flap(g.position.x, g.position.y, g.position.z); } catch (e) {} }
+      const L = W.left; L.u = Math.min(1, L.u + dt / 4.2); const q = L.u * L.u; g.position.set(L.a.x + L.d.x * 70 * q, L.a.y + 16 * q + 1.2 * L.u, L.a.z + L.d.z * 70 * q);
+      g.rotation.y += whiskey_wrap(Math.atan2(L.d.x, L.d.z) - g.rotation.y) * Math.min(1, dt * 4); g.rotation.x = -.15; if (L.u >= 1) { g.visible = false; }
+      try { W.S.mx.update(dt); } catch (e) {} return mz_latRest(t, O); }
     else { W.lt += dt; g.rotation.y += whiskey_wrap(W.face - g.rotation.y) * Math.min(1, dt * 5);
       const want = Math.max(-1.5, Math.min(1.5, whiskey_wrap(Math.atan2(cam.x - g.position.x, cam.z - g.position.z) - g.rotation.y)));
       const tgt = t < 10 ? 0 : t < 11.2 ? want * .45 : want; W.hy += (tgt - W.hy) * Math.min(1, dt * 16); W.roll += ((t > 12.6 ? .24 : 0) - W.roll) * Math.min(1, dt * 10); }
     try { W.S.mx.update(dt); if (W.landed) whiskey_headApply(W.hy, W.roll); } catch (e) {} }
+  mz_latRest(t, O);
+}
+function mz_latRest(t, O) {
   // Licht aus (Wackelkontakt, Brummen), 1,4 s dunkel, dann wieder an: nasse Abdrücke führen aus dem Dunkel zur Fibel
   if (O.L) { if (mz_once('aus', t > 16)) { O.L.mode = 'dying'; O.L.dead = 0; try { Audio.buzz(O.L.wx, 5, O.L.wz); } catch (e) {} }
     if (mz_once('an', t > 18.6)) { O.L.mode = 'flicker'; if (O.spur) O.spur.visible = true;
@@ -206,6 +215,29 @@ function mz_pencil(b) { const tn = [...b.childNodes].find(n => n.nodeType === 3 
   const h1 = st.querySelector('h1'), m = h1 && h1.querySelector('.m'); if (m) { const s = document.createElement('span'); s.className = 'mzSig ob-fremd'; s.textContent = '∴'; m.appendChild(s); const d = document.createElement('canvas'); d.id = 'mzDust'; h1.appendChild(d); }
   st.querySelectorAll('#mainMenu button').forEach(mz_pencil);
 } catch (e) { console.warn('Menü: Oberfläche', e); } })();
+// R-27: Lesbarkeit (alle Schriften im Menü ≥ 14 px, Menüpunkte ≥ 22 px), Beta-Vermerk, einmaliger Hinweis – alles hier, damit die Basis unberührt bleibt
+(function mz_r27() { try { const st = document.createElement('style'); st.id = 'mzR27'; st.textContent = `
+  #start .sub { font-size: 16px; letter-spacing: .4em; color: #a99c80; } #start .dir { font-size: 17px; }
+  #mainMenu button { font-size: 28px; padding-top: 9px; padding-bottom: 9px; } #mainMenu button small { font-size: 15px; letter-spacing: .24em; color: #8d7f66; }
+  @media (max-height: 860px) { #mainMenu button { font-size: clamp(22px, 3.3vh, 28px); padding-top: .5vh; padding-bottom: .6vh; } #start .dir { font-size: 15px; } }
+  #start .foot { font-size: 14px; color: #85795f; } #goText { font-size: 15px; }
+  #subPanel .close button, #pause .pbtns button, .case button { font-size: 16px; } #subPanel .chap button small { font-size: 14px; }
+  #mzCred .bar, #mzCred .bar button { font-size: 14px; }
+  #start .mzBeta { margin: -22px 0 26px; font: 600 17px "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; color: #d9b36c; text-shadow: 0 0 14px rgba(217,179,108,.3), 0 2px 4px #000; }
+  #start .mzBeta b { color: #fff0cf; letter-spacing: .34em; border: 1px solid rgba(217,179,108,.7); padding: 2px 10px 1px; margin-right: 12px; }
+  #mzHint { position: absolute; right: 36px; bottom: 64px; width: min(430px, 40vw); padding: 20px 24px 18px; z-index: 6; background: rgba(8,6,5,.9); border: 1px solid rgba(217,179,108,.5); box-shadow: 0 0 40px rgba(0,0,0,.8); color: #e3d9c2; font: 18px/1.5 "Cormorant Garamond", Georgia, serif; opacity: 0; transition: opacity .9s; }
+  #mzHint.on { opacity: 1; } #mzHint h4 { margin: 0 0 8px; font: 600 16px "Cormorant Garamond", Georgia, serif; letter-spacing: .34em; color: #d9b36c; font-weight: 600; }
+  #mzHint button { margin-top: 12px; background: none; border: 1px solid rgba(217,179,108,.6); color: #f0e6cc; font: 600 16px "Cormorant Garamond", Georgia, serif; letter-spacing: .3em; padding: 8px 20px; cursor: pointer; } #mzHint button:hover, #mzHint button:focus { background: rgba(142,29,21,.35); outline: none; }`;
+  document.head.appendChild(st);
+  const dir = $('start').querySelector('.dir'); if (dir) { const b = document.createElement('div'); b.className = 'mzBeta'; b.id = 'mzBeta'; dir.after(b); }
+} catch (e) { console.warn('Menü: R-27 Oberfläche', e); } })();
+function mz_beta() { // Vermerk unter dem Titel + einmaliger Hinweis (je Rechner, localStorage)
+  const bld = typeof window.HAM_BUILD === 'string' ? window.HAM_BUILD : '', ts = window.HAM_TESTSTAND ? `Kapitel 1–${window.HAM_TESTSTAND}` : 'Kapitel 1–6';
+  const B = $('mzBeta'); if (B) B.innerHTML = `<b>BETA</b>Testversion ${ts}${bld ? ' · Build ' + bld : ''}`;
+  let seen = false; try { seen = !!localStorage.getItem('ham_beta_hinweis'); } catch (e) {} if (seen || $('mzHint')) return;
+  const h = document.createElement('div'); h.id = 'mzHint'; h.innerHTML = `<h4>BETA · TESTVERSION</h4>Du spielst eine unfertige Testversion (${ts}). Es kann noch Fehler, fehlende Stimmen und ruckelnde Stellen geben. Jede Rückmeldung hilft.<br><button>VERSTANDEN</button>`;
+  $('start').appendChild(h); const zu = () => { h.classList.remove('on'); try { localStorage.setItem('ham_beta_hinweis', '1'); } catch (e) {} setTimeout(() => h.remove(), 1000); };
+  h.querySelector('button').onclick = e => { e.stopPropagation(); menuSound(); zu(); h.dataset.zu = 1; }; setTimeout(() => h.classList.add('on'), 1800); setTimeout(() => { if (!h.dataset.zu && h.isConnected) zu(); }, 26000); }
 function mz_titel(dt) { // Kreide bröckelt, selten Wasserflimmern, sehr selten das Zeichen
   const h1 = $('start').querySelector('h1'), d = $('mzDust'); if (!h1 || !d) return;
   MZ.dustT -= dt; if (MZ.dustT < 0) { const burst = Math.random() < .18; MZ.dustT = rand(2, 5); const L = h1.querySelectorAll('.m i'), cr = d.getBoundingClientRect(); if (d.width !== Math.round(cr.width * .75)) { d.width = Math.round(cr.width * .75); d.height = Math.round(cr.height * .75); }
@@ -219,7 +251,7 @@ function mz_titel(dt) { // Kreide bröckelt, selten Wasserflimmern, sehr selten 
 }
 function mz_fokus(list, dir) { const L = list.filter(b => b.offsetParent !== null && !b.disabled); if (!L.length) return; let i = L.indexOf(document.activeElement); i = i < 0 ? (dir > 0 ? 0 : L.length - 1) : (i + dir + L.length) % L.length; L[i].focus(); }
 function mz_init() {
-  MZ.init = true;
+  MZ.init = true; try { mz_beta(); } catch (e) { console.warn('Menü: Beta', e); }
   $('mainMenu').querySelectorAll('button').forEach(b => { mz_pencil(b); b.onmouseenter = () => mz_hover(); b.addEventListener('focus', () => mz_hover()); });
   { const oc = $('mChap').onclick; $('mChap').onclick = e => { oc(e); try { mz_polaroids(); } catch (er) { console.warn('Menü: Polaroids', er); } }; }
   if ($('mCred')) $('mCred').onclick = e => { e.stopPropagation(); menuSound(); mz_credits(true); };
@@ -274,11 +306,7 @@ WORLD_MODS.push(['Menü-Bühne', async () => {
   try { const src = await msModel('w_buch', 'model.glb'), b = msFit(src.clone(true), .27, 'max'); b.updateMatrixWorld(true); let bb = new THREE.Box3().setFromObject(b); const s = bb.getSize(new THREE.Vector3());
     if (s.x < s.y && s.x <= s.z) b.rotation.z = PI / 2; else if (s.z < s.y && s.z < s.x) b.rotation.x = PI / 2; // die dünne Seite nach oben: die Fibel liegt flach
     b.traverse(m => { if (m.isMesh) { m.material = [].concat(m.material).map(x => { const c = x.clone(); c.userData.mzEigen = true; if (c.color) c.color.multiply(new THREE.Color(.62, .26, .2)); c.roughness = .38; return c; }); if (m.material.length === 1) m.material = m.material[0]; m.castShadow = true; m.receiveShadow = true; } });
-    const F = new THREE.Group(); F.add(b); F.updateMatrixWorld(true); bb = new THREE.Box3().setFromObject(F); b.position.y -= bb.min.y; const top = bb.max.y - bb.min.y, sz = bb.getSize(new THREE.Vector3());
-    const c = document.createElement('canvas'); c.width = 256; c.height = 128; const x = c.getContext('2d'); x.fillStyle = '#ece6d4'; x.fillRect(6, 10, 244, 108); x.strokeStyle = 'rgba(120,30,30,.8)'; x.lineWidth = 3; x.strokeRect(12, 16, 232, 96);
-    x.fillStyle = '#1f2a55'; x.textAlign = 'center'; x.font = '34px "Gochi Hand", Caveat, cursive'; x.fillText('ABENTEUERFIBEL', 128, 56); x.font = '22px "Gochi Hand", Caveat, cursive'; x.fillText('LUKE · JONAS · ZAYN', 128, 84); x.fillStyle = '#9a1c16'; x.fillText('GEHEIM!!', 128, 106);
-    const lt = new THREE.CanvasTexture(c); lt.colorSpace = THREE.SRGBColorSpace; const lab = eigen(new THREE.Mesh(new THREE.PlaneGeometry(Math.max(sz.x, sz.z) * .55, Math.max(sz.x, sz.z) * .275), new THREE.MeshStandardMaterial({ map: lt, roughness: .6, polygonOffset: true, polygonOffsetFactor: -1 })));
-    lab.rotation.set(-PI / 2, 0, (sz.x >= sz.z ? 0 : PI / 2) + .08); lab.position.y = top + .002; F.add(lab);
+    const F = new THREE.Group(); F.add(b); F.updateMatrixWorld(true); bb = new THREE.Box3().setFromObject(F); b.position.y -= bb.min.y; 
     F.position.set(-19.7, 0, 3.7); F.rotation.y = .6; F.visible = false; G.add(F); O.fibel = F; } catch (e) { console.warn('Menü: Fibel', e); }
 }]);
 WORLD_TICK.push(dt => { if (!MZ.init && ui.ready) { try { mz_init(); } catch (e) { console.warn('Menü', e); } }
