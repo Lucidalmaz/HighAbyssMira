@@ -578,6 +578,7 @@ function leben_wolfTick(Wf, dt, live, ok) {
 }
 // ---- Schwein auf dem Hof
 function leben_grunt(x, y, z) {
+  { const n = typeof kl_pick === 'function' ? kl_pick('fx_schwein_', 3) : null; if (n) { Audio.play(n, { gain: .5, vary: .08, x, y, z, ref: 4 }); return; } } // echte Aufnahme (klang.js)
   if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 3);
   for (let i = 0, n = 2 + Math.floor(rand(0, 3)); i < n; i++) { const t0 = i * rand(.18, .3), n_ = Audio.noise(false), lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = rand(180, 320); lp.Q.value = 2.5; n_.connect(lp);
     const am = ctx.createGain(); am.gain.value = .5; lp.connect(am); Audio.env(am, .5, .02, rand(.1, .2), t0, d); n_.stop(ctx.currentTime + t0 + .5);

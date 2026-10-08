@@ -97,7 +97,42 @@ def krabbel():  # Spinnen/Käfer: einzelne Schritte und ein Schwarm
     for i in range(len(X)): out(f'fx_krabbel_{i + 1}', X[i], -26, -5, 12000, 400, a=.002, r=.06)
     loop('amb_krabbel', fsx('380769_1732954'), 18, 2.0, -26, chain(HP(300), LP(11000, 1)), t0=4)  # Schwarm (lazy)
 
-JOBS = {'flug': flug, 'feuer': feuer, 'zombie': zombie, 'oel': oel, 'funk': funk, 'taste': taste, 'relais': relais, 'katze': katze, 'krabbel': krabbel}
+def tiere():  # Waldkauz, Fuchsschrei, Schwein – bisher stumm bzw. erzeugt; jetzt Aufnahmen (freesound CC0)
+    o = mono(fsx('745208_8711646')); w = ffilt(o, chain(HP(200), LP(2500)))
+    E = seg(o, 6, -30, .5, 3.2, .6, .35, chain(HP(200), LP(2500)))
+    E = sorted(E, key=lambda t: -np.abs(t).max())[:3]
+    for i in range(len(E)): out(f'fx_eule_{i + 1}', E[i], -24, -4, 3500, 180, a=.02, r=.5)
+    f = mono(fsx('634005_13454867')); F = seg(f, 6, -28, .35, 2.5, .4, .2, chain(HP(300), LP(8000)))
+    F = sorted(F, key=lambda t: -np.abs(t).max())[:3]
+    for i in range(len(F)): out(f'fx_fuchs_{i + 1}', F[i], -22, -3, 9000, 250, a=.01, r=.3)
+    P = [mono(fsx('442907_71257')), mono(fsx('536746_1415754'))]
+    for i, t in enumerate(P): out(f'fx_schwein_{i + 1}', t, -22, -3, 4500, 70, a=.005, r=.12)
+    out('fx_schwein_3', pitch(P[0], .85), -22, -3, 4500, 70, a=.005, r=.12)
+
+def husten():  # Husten und Würgen (Männer), Körperfall
+    for i, k in enumerate(['646654_13085623', '646657_13085623', '646653_13085623']): out(f'fx_husten_{i + 1}', fsx(k), -22, -3, 9000, 90, a=.005, r=.12)
+    c = mono(fsx('318080_5057106')); W = seg(c, 4, -30, .4, 2.5, .3, .25, chain(HP(100), LP(7000)))
+    W = sorted(W, key=lambda t: -len(t))[:2]
+    for i in range(len(W)): out(f'fx_wuergen_{i + 1}', W[i], -22, -3, 8000, 90, a=.01, r=.2)
+
+def kamera():  # Kamera (Kap. 5): Verschlussklicks, Blitz lädt auf
+    K = seg(mono(src('kam_verschluss')), 4, -26, .01, .5, .05, .02)
+    K = sorted(K, key=lambda t: -np.abs(t).max())[:3]
+    for i in range(len(K)): out(f'fx_kamera_{i + 1}', K[i], -24, -3, 12000, 100, a=.001, r=.1)
+    out('fx_blitz_laden', mono(src('kam_blitz'))[:int(5 * SR)], -26, -4, 12000, 200, a=.01, r=.3)
+
+def nadel():  # Nadeldrucker (Amt, Zimmer 7): Zeilen-Bursts und Wagenvorschub
+    N = [mono(src('nadel_a')), mono(src('nadel_b')), mono(src('nadel_kurz'))]
+    for i, t in enumerate(N): out(f'fx_nadel_{i + 1}', t, -23, -4, 11000, 150, a=.002, r=.06)
+    out('fx_nadel_servo', mono(src('nadel_servo')), -25, -4, 9000, 100, a=.01, r=.15)
+
+def kauen():  # Kauen (Kap. 5, Tiere/Kinder): Bissen und Mahlen
+    C = seg(mono(src('kauen')), 5, -30, .15, 1.2, .25, .1, chain(HP(150), LP(6000)))
+    m = mono(src('kauen')); C += [cut(m, a, a + 1.1) for a in (1.5, 3.0, 4.5)]
+    C = sorted(C, key=lambda t: -np.abs(t).max())[:3]
+    for i in range(len(C)): out(f'fx_kauen_{i + 1}', C[i], -26, -4, 7000, 120, a=.005, r=.1)
+
+JOBS = {'flug': flug, 'feuer': feuer, 'zombie': zombie, 'oel': oel, 'funk': funk, 'taste': taste, 'relais': relais, 'katze': katze, 'krabbel': krabbel, 'tiere': tiere, 'husten': husten, 'kamera': kamera, 'nadel': nadel, 'kauen': kauen}
 if __name__ == '__main__':
     for k in (sys.argv[1:] or JOBS):
         print('==', k)

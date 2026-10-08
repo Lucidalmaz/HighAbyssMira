@@ -292,25 +292,26 @@ function beob_nextNote() {
   return (stuck && open.find(d => d.stuck)) || open.find(d => !d.stuck) || null;
 }
 // ---------------------------------------------------------------- Klänge (vorhandene Aufnahmen + synthetisch: Atmen, Papierreißen, Bleistift, Bonbon)
-function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3, { typ: 'leise' }), n0 = rand(3, 6);
+function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; if (Audio.atemEcht && Audio.buf.pz_stoff_1) { Audio.play(Audio.pick('pz_stoff_1', 'pz_stoff_2'), { gain: .1 * v, rate: rand(.9, 1.2), vary: .05, x, y: .5, z, ref: 3, typ: 'leise' }); return; } /* Stoff (Aufnahme) */ const d = Audio.at(x, .5, z, 3, { typ: 'leise' }), n0 = rand(3, 6);
   for (let i = 0; i < n0; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 4200); bp.Q.value = .9; n.connect(bp); Audio.env(bp, rand(.05, .11) * v, .01, rand(.05, .14), i * rand(.05, .12), d); n.stop(Audio.ctx.currentTime + 1.5); } }
 function beob_patter(x, z, n = 4, v = 1, y = 0) { const a = rand(0, 6.28), dx = Math.cos(a) * .35, dz = Math.sin(a) * .35;
   for (let i = 0; i < n; i++) setTimeout(() => Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .09 * v, rate: rand(1.7, 2.1), x: x + i * dx, y, z: z + i * dz, ref: 2 }), i * rand(80, 120)); }
 function beob_chirp(x, z, y = .7) { if (!Audio.ctx) return; // (früher ein Sinus-Zwitschern) jetzt: leises Quietschen einer Schuhsohle – jemand verlagert das Gewicht
   Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: rand(.03, .05), rate: rand(2, 2.5), hp: 1200, dur: rand(.15, .25), x, y: Math.min(y, .2), z, ref: 2 }); }
 function beob_atem(x, z, y = .75, n = 0) { // kurzes, schnelles Kinder-Atmen nach dem Rennen: 3–5 Züge, hoch gefiltert, ganz leise (unter dem Wind)
-  if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 1.4), N = n || Math.round(rand(3, 5)); let t = 0;
+  if (!Audio.ctx) return; if (Audio.atemEcht && Audio.buf.pz_atem_1) { for (let i = 0, N = n || Math.round(rand(3, 5)); i < N; i++) setTimeout(() => Audio.atemEcht(.03, 1.3, x, y, z), i * rand(380, 520)); return; } /* echte Atemzüge (Aufnahme) */ const ctx = Audio.ctx, d = Audio.at(x, y, z, 1.4), N = n || Math.round(rand(3, 5)); let t = 0;
   for (let i = 0; i < N; i++) { for (const [pk, a, dc, f] of [[.045, .16, .14, rand(1500, 2100)], [.06, .05, .24, rand(1100, 1600)]]) { const s = Audio.noise(false), bp = ctx.createBiquadFilter(), hp = ctx.createBiquadFilter();
       bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = .8; hp.type = 'highpass'; hp.frequency.value = 650; s.connect(bp); bp.connect(hp); Audio.env(hp, pk * rand(.8, 1.1), a, dc, t, d); s.stop(ctx.currentTime + t + 1); t += a + dc * .8; }
     t += rand(.05, .14); }
 }
 function beob_reissen(x, z, y = .6) { // Notizblockblatt, das abgerissen wird: viele kleine Faser-Knackser, dann der Riss
+  if (Audio.ctx && Audio.buf.ui_seite) { Audio.play('ui_seite', { gain: .4, rate: 1.55, x, y, z, ref: 2 }); return; } /* Papier (Aufnahme) */
   if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 2);
   for (let i = 0; i < 26; i++) { const s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2400, 6500); bp.Q.value = rand(2, 5); s.connect(bp); Audio.env(bp, rand(.03, .08), .002, rand(.008, .03), i * .014 + rand(0, .01), d); s.stop(ctx.currentTime + 1); }
   const s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 1.2; s.connect(bp); Audio.env(bp, .07, .01, .09, .38, d); s.stop(ctx.currentTime + 1);
 }
 function beob_bleistift(x, z, dur = 8) { // Schreiben auf Papier, das auf einem Knie liegt: Striche, Absätze, 7–10 s
-  if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, .45, z, 2.2); let t = 0;
+  if (!Audio.ctx) return; if (Audio.buf.ui_stift) { for (let t = 0; t < dur; t += rand(.35, .8)) Audio.play('ui_stift', { gain: rand(.18, .3), rate: rand(.9, 1.1), delay: t, x, y: .45, z, ref: 2.2 }); return; } /* echter Bleistift auf Papier (Aufnahme) */ const ctx = Audio.ctx, d = Audio.at(x, .45, z, 2.2); let t = 0;
   while (t < dur) { const L = rand(.05, .2), s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 5200); bp.Q.value = rand(3, 6); s.connect(bp); Audio.env(bp, rand(.018, .03), .008, L, t, d); s.stop(ctx.currentTime + t + L + .3);
     t += L + rand(.03, .1); if (Math.random() < .12) t += rand(.3, .7); }
 }

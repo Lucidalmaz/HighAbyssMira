@@ -3683,7 +3683,7 @@ function lifeUpdate(dt, t, indoor, rect) {
   // Regie: zufällige Ereignisse
   if (state.started && !state.outage && !state.talking && !ui.overlay && !state.ch2) {
     dir.t -= dt; if (dir.t < 0) { if (nat.calm > 0) dir.t = 3; else { dir.t = rand(26, 50); runEvent(indoor); nat.calm = Math.max(nat.calm, 10); } }
-    dir.lightT -= dt; if (dir.lightT < 0) { dir.lightT = rand(55, 120); lightning(); } // seltener (07.10.: Donner störte)
+    dir.lightT -= dt; if (dir.lightT < 0) { dir.lightT = rand(70, 150); lightning(); } // seltener (07.10.: Donner störte; 08.10.: 70–150 s)
   }
   // Wackeln & Bildstörung
   if (shake > 0) { camera.position.x += (Math.random() - .5) * shake; camera.position.y += (Math.random() - .5) * shake; camera.rotation.z += (Math.random() - .5) * shake * .5; shake = Math.max(0, shake - dt * .15); }
@@ -11915,6 +11915,7 @@ function leben_wolfTick(Wf, dt, live, ok) {
 }
 // ---- Schwein auf dem Hof
 function leben_grunt(x, y, z) {
+  { const n = typeof kl_pick === 'function' ? kl_pick('fx_schwein_', 3) : null; if (n) { Audio.play(n, { gain: .5, vary: .08, x, y, z, ref: 4 }); return; } } // echte Aufnahme (klang.js)
   if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 3);
   for (let i = 0, n = 2 + Math.floor(rand(0, 3)); i < n; i++) { const t0 = i * rand(.18, .3), n_ = Audio.noise(false), lp = ctx.createBiquadFilter(); lp.type = 'bandpass'; lp.frequency.value = rand(180, 320); lp.Q.value = 2.5; n_.connect(lp);
     const am = ctx.createGain(); am.gain.value = .5; lp.connect(am); Audio.env(am, .5, .02, rand(.1, .2), t0, d); n_.stop(ctx.currentTime + t0 + .5);
@@ -25443,25 +25444,26 @@ function beob_nextNote() {
   return (stuck && open.find(d => d.stuck)) || open.find(d => !d.stuck) || null;
 }
 // ---------------------------------------------------------------- Klänge (vorhandene Aufnahmen + synthetisch: Atmen, Papierreißen, Bleistift, Bonbon)
-function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; const d = Audio.at(x, .5, z, 3, { typ: 'leise' }), n0 = rand(3, 6);
+function beob_rustle(x, z, v = 1) { if (!Audio.ctx) return; if (Audio.atemEcht && Audio.buf.pz_stoff_1) { Audio.play(Audio.pick('pz_stoff_1', 'pz_stoff_2'), { gain: .1 * v, rate: rand(.9, 1.2), vary: .05, x, y: .5, z, ref: 3, typ: 'leise' }); return; } /* Stoff (Aufnahme) */ const d = Audio.at(x, .5, z, 3, { typ: 'leise' }), n0 = rand(3, 6);
   for (let i = 0; i < n0; i++) { const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 4200); bp.Q.value = .9; n.connect(bp); Audio.env(bp, rand(.05, .11) * v, .01, rand(.05, .14), i * rand(.05, .12), d); n.stop(Audio.ctx.currentTime + 1.5); } }
 function beob_patter(x, z, n = 4, v = 1, y = 0) { const a = rand(0, 6.28), dx = Math.cos(a) * .35, dz = Math.sin(a) * .35;
   for (let i = 0; i < n; i++) setTimeout(() => Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .09 * v, rate: rand(1.7, 2.1), x: x + i * dx, y, z: z + i * dz, ref: 2 }), i * rand(80, 120)); }
 function beob_chirp(x, z, y = .7) { if (!Audio.ctx) return; // (früher ein Sinus-Zwitschern) jetzt: leises Quietschen einer Schuhsohle – jemand verlagert das Gewicht
   Audio.play(Audio.pick('woodSqueak1', 'woodSqueak2'), { gain: rand(.03, .05), rate: rand(2, 2.5), hp: 1200, dur: rand(.15, .25), x, y: Math.min(y, .2), z, ref: 2 }); }
 function beob_atem(x, z, y = .75, n = 0) { // kurzes, schnelles Kinder-Atmen nach dem Rennen: 3–5 Züge, hoch gefiltert, ganz leise (unter dem Wind)
-  if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 1.4), N = n || Math.round(rand(3, 5)); let t = 0;
+  if (!Audio.ctx) return; if (Audio.atemEcht && Audio.buf.pz_atem_1) { for (let i = 0, N = n || Math.round(rand(3, 5)); i < N; i++) setTimeout(() => Audio.atemEcht(.03, 1.3, x, y, z), i * rand(380, 520)); return; } /* echte Atemzüge (Aufnahme) */ const ctx = Audio.ctx, d = Audio.at(x, y, z, 1.4), N = n || Math.round(rand(3, 5)); let t = 0;
   for (let i = 0; i < N; i++) { for (const [pk, a, dc, f] of [[.045, .16, .14, rand(1500, 2100)], [.06, .05, .24, rand(1100, 1600)]]) { const s = Audio.noise(false), bp = ctx.createBiquadFilter(), hp = ctx.createBiquadFilter();
       bp.type = 'bandpass'; bp.frequency.value = f; bp.Q.value = .8; hp.type = 'highpass'; hp.frequency.value = 650; s.connect(bp); bp.connect(hp); Audio.env(hp, pk * rand(.8, 1.1), a, dc, t, d); s.stop(ctx.currentTime + t + 1); t += a + dc * .8; }
     t += rand(.05, .14); }
 }
 function beob_reissen(x, z, y = .6) { // Notizblockblatt, das abgerissen wird: viele kleine Faser-Knackser, dann der Riss
+  if (Audio.ctx && Audio.buf.ui_seite) { Audio.play('ui_seite', { gain: .4, rate: 1.55, x, y, z, ref: 2 }); return; } /* Papier (Aufnahme) */
   if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 2);
   for (let i = 0; i < 26; i++) { const s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(2400, 6500); bp.Q.value = rand(2, 5); s.connect(bp); Audio.env(bp, rand(.03, .08), .002, rand(.008, .03), i * .014 + rand(0, .01), d); s.stop(ctx.currentTime + 1); }
   const s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 1.2; s.connect(bp); Audio.env(bp, .07, .01, .09, .38, d); s.stop(ctx.currentTime + 1);
 }
 function beob_bleistift(x, z, dur = 8) { // Schreiben auf Papier, das auf einem Knie liegt: Striche, Absätze, 7–10 s
-  if (!Audio.ctx) return; const ctx = Audio.ctx, d = Audio.at(x, .45, z, 2.2); let t = 0;
+  if (!Audio.ctx) return; if (Audio.buf.ui_stift) { for (let t = 0; t < dur; t += rand(.35, .8)) Audio.play('ui_stift', { gain: rand(.18, .3), rate: rand(.9, 1.1), delay: t, x, y: .45, z, ref: 2.2 }); return; } /* echter Bleistift auf Papier (Aufnahme) */ const ctx = Audio.ctx, d = Audio.at(x, .45, z, 2.2); let t = 0;
   while (t < dur) { const L = rand(.05, .2), s = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 5200); bp.Q.value = rand(3, 6); s.connect(bp); Audio.env(bp, rand(.018, .03), .008, L, t, d); s.stop(ctx.currentTime + t + L + .3);
     t += L + rand(.03, .1); if (Math.random() < .12) t += rand(.3, .7); }
 }
@@ -29308,10 +29310,10 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
   ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i),
-  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i), ...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
+  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i), ...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i), ...[1, 2, 3].map(i => 'fx_eule_' + i), ...[1, 2, 3].map(i => 'fx_fuchs_' + i), ...[1, 2, 3].map(i => 'fx_schwein_' + i), 'pz_fall_1', 'pz_fall_2', ...[1, 2, 3].map(i => 'fx_kamera_' + i), 'fx_blitz_laden', ...[1, 2, 3].map(i => 'fx_nadel_' + i), 'fx_nadel_servo']; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
 // Seltene Klänge werden erst beim ersten Gebrauch (oder beim Betreten des passenden Ortes) geladen – hält den Speicher klein (Audio-PCM liegt dekodiert im Heap).
 const KL_GRUPPEN = { feuer: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_feuer_knist_' + i), ...[1, 2, 3].map(i => 'fx_feuer_pop_' + i), 'fx_feuer_wuff', 'amb_feuer', 'amb_feuer_lo'],
-  zombie: [...[1, 2, 3, 4, 5, 6].map(i => 'zb_roech_' + i), 'zb_zisch'], oel: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_oel_blub_' + i)], funk: ['fx_funk_stat'],
+  zombie: [...[1, 2, 3, 4, 5, 6].map(i => 'zb_roech_' + i), 'zb_zisch', ...[1, 2, 3].map(i => 'fx_husten_' + i), ...[1, 2].map(i => 'fx_wuergen_' + i)], oel: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_oel_blub_' + i)], funk: ['fx_funk_stat'],
   krabbel: [...[1, 2, 3, 4].map(i => 'fx_krabbel_' + i), 'amb_krabbel'], katze: [...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i), 'fx_katze_schnurr'] };
 const KL_ORT_GRUPPEN = { amt: ['feuer', 'zombie', 'oel', 'funk', 'krabbel'], keller: ['funk', 'krabbel'] }; // beim Betreten laden (Kapitel 2: Brand, Peter, Spinnen)
 function kl_gruppe(g) { const S = klang_S; if (!KL_GRUPPEN[g]) return; S.gr = S.gr || {}; if (S.gr[g]) return; S.gr[g] = 1; (async () => { for (const n of KL_GRUPPEN[g]) await klang_load(n); })(); }
@@ -29433,7 +29435,9 @@ Object.assign(Audio, {
   pianoNote(k) { if (!this.ctx) return; if (!kl_has('pn_' + k)) return KL_ALT.pianoNote.call(this, k); this.play('pn_' + k, { gain: .7, dest: this.world }); },
   drip(x, y, z) { if (!this.ctx) return; const n = kl_pick('fx_tropfen_', 8); if (!n) return KL_ALT.drip.call(this, x, y, z); this.play(n, { gain: rand(.2, .38), vary: .06, x, y, z, ref: 1.6 }); },
   thump(x, y, z) { if (!this.ctx) return; if (!kl_has('fx_tief_1')) return KL_ALT.thump.call(this, x, y, z); this.play('fx_tief_1', { gain: .7, vary: .05, x, y, z, ref: 3 }); },
-  owl() {}, owlPair() {}, fox() {}, trainHorn() {},
+  // Waldkauz und Fuchsschrei: echte Aufnahmen (freesound CC0, AP Echte Klänge) – vorher stumm, weil die Synthese falsch klang
+  owl(x, z) { if (!this.ctx) return; const n = kl_pick('fx_eule_', 3); if (n) this.play(n, { gain: .55, vary: .04, x, y: 9, z, ref: 12, typ: 'laut' }); }, owlPair(x, z) { this.owl(x, z); },
+  fox(x, z) { if (!this.ctx) return; const n = kl_pick('fx_fuchs_', 3); if (n) this.play(n, { gain: .6, vary: .05, x, y: .6, z, ref: 8, typ: 'laut' }); }, trainHorn() {},
   deerBark(x, z) { if (!this.ctx) return; const n = kl_pick('fx_reh_', 3); if (n) this.play(n, { gain: .4, vary: .05, x, y: 1, z, ref: 8, lp: 3500 }); },
   twig(x, z) { if (!this.ctx) return; this.play('woodCrack', { gain: rand(.1, .18), rate: rand(1.6, 2.3), hp: 900, dur: .35, x, y: .2, z, ref: 3 }); },
   bark(x, z, cut) { if (!this.ctx) return; const n = kl_pick('fx_hund_', 4); if (!n) return this.play('dog', { gain: .5, vary: .08, x, y: .6, z, ref: 6 }); this.play(n, { gain: .55, vary: .04, x, y: .6, z, ref: 6, dur: cut ? rand(.5, .8) : undefined }); },
@@ -29676,7 +29680,7 @@ function kl_donnerKlasse(r) { const u = Math.random(); return r < 200 ? 'krach' 
     if (!name) { cls = cls === 'fern' ? 'nah' : 'fern'; D = KL_DONNER[cls]; name = kl_pick('fx_donner_' + cls + '_', D.n) || kl_pick('fx_donner_krach_', 3); } if (!name) return alt.call(this, delay, close);
     S.donnerLetzt.push(name); if (S.donnerLetzt.length > 4) S.donnerLetzt.shift();
     const b = this.buf[name], indoor = typeof isIndoor === 'function' && isIndoor(), t = ctx.currentTime + delay, rate = rand(.94, 1.06), dur = b.duration / rate;
-    const v = Math.min(.21, .15 * Math.pow(150 / r, .58)) / KL_DONNER_BASIS * (indoor ? .5 : 1) * rand(.9, 1.1); // Zielpegel am Hauptbus (RMS) nach Abstand: ~3,5 dB je Verdopplung, nah gedeckelt
+    const v = Math.min(.15, .107 * Math.pow(150 / r, .58)) / KL_DONNER_BASIS * (indoor ? .5 : 1) * rand(.9, 1.1); // Zielpegel am Hauptbus (RMS) nach Abstand: ~3,5 dB je Verdopplung, nah gedeckelt; 08.10.: gesamt −3 dB (Deckel .21 → .15, Nutzer: Donner zu laut)
     const ratio = (1 + D.ref / 150) / (1 + r / 150), fc0 = Math.max(500, Math.min(17000, 17000 * Math.min(1, ratio))) * (indoor ? .3 : 1); // weiter weg als die Aufnahme: Höhen fehlen
     const src = ctx.createBufferSource(); src.buffer = b; src.playbackRate.value = rate;
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = .5; lp.frequency.setValueAtTime(fc0, t); lp.frequency.exponentialRampToValueAtTime(Math.max(240, fc0 * (cls === 'krach' ? .55 : .4)), t + dur * .85);
@@ -34125,11 +34129,11 @@ function todMuffle(freq, sec = .5) {
 }
 // Einzelne Klänge (synthetisch – keine Aufnahme nötig)
 const TOD_SND = {
-  thud(v = 1) { const A = Audio; if (!A.ctx) return; const o = A.osc('sine', 90, 0, .6); o.frequency.exponentialRampToValueAtTime(34, A.ctx.currentTime + .3); A.env(o, .9 * v, .003, .45); const n = A.noise(false), lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; n.connect(lp); A.env(lp, .5 * v, .002, .18); n.stop(A.ctx.currentTime + .5); },
-  choke(v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime; // gepresste Luft zwischen Fingern: zwei kurze, tiefe Stöße, gedämpft
+  thud(v = 1) { const A = Audio; if (!A.ctx) return; { const n = typeof kl_pick === 'function' ? kl_pick('pz_fall_', 2) : null; if (n) { A.play(n, { gain: .55 * v, vary: .06 }); return; } } /* Körperfall (Aufnahme) */ const o = A.osc('sine', 90, 0, .6); o.frequency.exponentialRampToValueAtTime(34, A.ctx.currentTime + .3); A.env(o, .9 * v, .003, .45); const n = A.noise(false), lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 380; n.connect(lp); A.env(lp, .5 * v, .002, .18); n.stop(A.ctx.currentTime + .5); },
+  choke(v = 1) { const A = Audio; if (!A.ctx) return; if (typeof kl_gruppe === 'function') kl_gruppe('zombie'); { const n = typeof kl_pick === 'function' ? kl_pick('fx_wuergen_', 2) : null; if (n) { A.play(n, { gain: .5 * v, vary: .05 }); return; } } const t = A.ctx.currentTime; // gepresste Luft zwischen Fingern: zwei kurze, tiefe Stöße, gedämpft
     for (let k = 0; k < 2; k++) { const d = k * rand(.12, .18); const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(380, 620); bp.Q.value = 1.6; n.connect(bp); A.env(bp, .32 * v, .02, rand(.09, .14), d); n.stop(t + d + .4);
       const o = A.osc('sawtooth', rand(95, 120), d, .16), f = A.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 300; o.connect(f); A.env(f, .1 * v, .015, .12, d); } },
-  cough(v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, n = Math.random() < .5 ? 2 : 3;
+  cough(v = 1) { const A = Audio; if (!A.ctx) return; if (typeof kl_gruppe === 'function') kl_gruppe('zombie'); { const n = typeof kl_pick === 'function' ? kl_pick('fx_husten_', 3) : null; if (n) { A.play(n, { gain: .5 * v, vary: .05 }); return; } } const t = A.ctx.currentTime, n = Math.random() < .5 ? 2 : 3;
     for (let k = 0; k < n; k++) { const d = k * rand(.2, .28); const s = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(650, 1100); bp.Q.value = .9; s.connect(bp); A.env(bp, .5 * v, .012, .16, d); s.stop(t + d + .5);
       const o = A.osc('sawtooth', rand(120, 160), d, .22), f = A.ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 520; f.Q.value = 3; o.frequency.setValueAtTime(rand(150, 175), t + d); o.frequency.exponentialRampToValueAtTime(95, t + d + .2); o.connect(f); A.env(f, .16 * v, .01, .18, d); } },
   gasp(v = .6) { const A = Audio; if (!A.ctx) return; if (A.atemEcht && A.atemEcht(v * .35, 1, undefined, undefined, undefined, 'keuch')) return; const s = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; const t = A.ctx.currentTime; bp.frequency.setValueAtTime(900, t); bp.frequency.linearRampToValueAtTime(1800, t + .5); s.connect(bp); A.env(bp, .22 * v, .25, .35); s.stop(t + 1); },
@@ -35820,6 +35824,7 @@ function z7_snd(kind) {
       for (const f of [130.8, 131.2, 65.4]) { const o = A.osc('sawtooth', f, 0, 6.5), lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = f < 100 ? 300 : 820; lp.Q.value = .6; o.connect(lp); A.env(lp, f < 100 ? .03 : .045, 1.1, 4.8); }
     } else if (kind === 'atem') { // hörbares Ausatmen
       const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 620; bp.Q.value = .7; n.connect(bp); A.env(bp, .16, .22, 1.3); n.stop(t + 2);
+    } else if (kind === 'drucker' && A.buf.fx_nadel_2) { for (let l = 0; l < 3; l++) { A.play(A.pick('fx_nadel_1', 'fx_nadel_2'), { gain: .3, delay: l * 1.25, lp: 3000 }); A.play('fx_nadel_servo', { gain: .18, delay: l * 1.25 + .9, lp: 3000 }); } // echter Nadeldrucker, fern
     } else if (kind === 'drucker') { // Nadeldrucker, fern (Archiv): drei Zeilen, dazwischen Wagenrücklauf
       for (let l = 0; l < 3; l++) for (let i = 0; i < 26; i++) { const d = l * 1.25 + i * .034 + Math.random() * .006; const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600 + Math.random() * 900; bp.Q.value = 5; n.connect(bp); A.env(bp, .035, .002, .02, d); n.stop(t + d + .1); }
     }
@@ -36553,7 +36558,7 @@ function amtp_wagen(W = .72, D = .46, hTop = .8) { const P = [], A = (g, m, x = 
   return amtp_baue(P); }
 
 // ---------------------------------------------------------------- Klänge (synthetisch, positioniert; keine Allokation pro Bild – nur bei Ereignissen)
-function amt_nadel(x, y, z, zeilen = 1, v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, d0 = A.at(x, y, z, 3);
+function amt_nadel(x, y, z, zeilen = 1, v = 1) { const A = Audio; if (!A.ctx) return; if (A.buf.fx_nadel_2) { for (let l = 0; l < zeilen; l++) { A.play(A.pick('fx_nadel_1', 'fx_nadel_2'), { gain: .5 * v, delay: l * 1.35, x, y, z, ref: 3 }); A.play('fx_nadel_servo', { gain: .3 * v, delay: l * 1.35 + 1.0, x, y, z, ref: 3 }); } return; } /* echter Nadeldrucker (Aufnahme) */ const t = A.ctx.currentTime, d0 = A.at(x, y, z, 3);
   try { for (let l = 0; l < zeilen; l++) { for (let i = 0; i < 30; i++) { const d = l * 1.35 + i * .031 + Math.random() * .007, n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400 + Math.random() * 1100; bp.Q.value = 5; n.connect(bp); A.env(bp, .05 * v, .002, .02, d, d0); n.stop(t + d + .1); }
       const n2 = A.noise(false), bp2 = A.ctx.createBiquadFilter(); bp2.type = 'bandpass'; bp2.frequency.value = 700; bp2.Q.value = 2; n2.connect(bp2); A.env(bp2, .04 * v, .05, .25, l * 1.35 + 1.0, d0); n2.stop(t + l * 1.35 + 1.5); } // Wagenrücklauf
   } catch (e) {} }
@@ -38929,7 +38934,8 @@ function kamera_darf() { return kamera_S.frei && state.started && !ui.overlay &&
 function kamera_heben(on = !kamera_S.hoch) {
   const S = kamera_S; if (on && (!kamera_darf() || state.talking || S.busy)) return false;
   if (on === S.hoch) return true; S.hoch = on; S.el.sucher.classList.toggle('on', on); kamera_hud(); kamera_sperrText('');
-  if (Audio.ctx) { const o = Audio.osc('square', on ? 1900 : 1500, 0, .05); Audio.env(o, .025, .002, .03); const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 2; n.connect(bp); Audio.env(bp, .05, .01, .12); n.stop(Audio.ctx.currentTime + .3); }
+  if (Audio.ctx && Audio.buf.fx_relais_1) Audio.play(Audio.pick('fx_relais_1', 'fx_relais_2', 'fx_relais_3'), { gain: on ? .3 : .25, rate: on ? 1.2 : .9 }); // echter Schalter (Aufnahme)
+  else if (Audio.ctx) { const o = Audio.osc('square', on ? 1900 : 1500, 0, .05); Audio.env(o, .025, .002, .03); const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 2; n.connect(bp); Audio.env(bp, .05, .01, .12); n.stop(Audio.ctx.currentTime + .3); }
   if (on) { S.sperre = null; const Z = kamera_zielJetzt(); if (Z && Z.beimHeben) { try { Z.beimHeben(); } catch (e) { console.warn('Kamera: beimHeben', e); } }
     if (Z && Z.sperre) { S.sperre = Z; kamera_sperrText(Z.sperrText || ''); } }
   return true;
@@ -38949,7 +38955,8 @@ async function kamera_ausloesen() {
   try { if (Z && Z.nachFoto) Z.nachFoto(); } catch (e) { console.warn('Kamera: nachFoto', e); }
   kamera_blitz(); S.fotos.push({ url, text: Z ? Z.text || '' : '' });
   // Surren: das Bild wird ausgeworfen
-  if (Audio.ctx) { const o = Audio.osc('sawtooth', 110, .18, 1.1), lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); Audio.env(lp, .035, .05, 1, .18); }
+  if (Audio.ctx && Audio.buf.fx_blitz_laden) Audio.play('fx_blitz_laden', { gain: .3, delay: .18 }); // Blitz lädt auf (Aufnahme)
+  else if (Audio.ctx) { const o = Audio.osc('sawtooth', 110, .18, 1.1), lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); Audio.env(lp, .035, .05, 1, .18); }
   await wait(380); kamera_heben(false); S.busy = true;
   const P = S.el.pola, img = P.querySelector('img'); P.classList.remove('dev', 'raus'); P.querySelector(".kpHand").textContent = Z && Z.hand ? Z.hand : '';
   if (url) img.src = url; void P.offsetWidth; P.classList.add('raus');
@@ -38962,7 +38969,8 @@ async function kamera_ausloesen() {
 // Blitz: weißes Bild, das in ~0,4 s abklingt; der Knall der Birne
 function kamera_blitz() {
   const b = kamera_S.el.blitz; b.style.transition = 'none'; b.style.opacity = .96; void b.offsetWidth; b.style.transition = 'opacity .55s ease-out'; b.style.opacity = 0;
-  if (Audio.ctx) { const n = Audio.noise(false), hp = Audio.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); Audio.env(hp, .16, .002, .06); n.stop(Audio.ctx.currentTime + .3);
+  if (Audio.ctx && Audio.buf.fx_kamera_1) Audio.play(Audio.pick('fx_kamera_1', 'fx_kamera_2', 'fx_kamera_3'), { gain: .7, vary: .03 }); // Verschluss (Aufnahme, Nikon)
+  else if (Audio.ctx) { const n = Audio.noise(false), hp = Audio.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); Audio.env(hp, .16, .002, .06); n.stop(Audio.ctx.currentTime + .3);
     const o = Audio.osc('sine', 5200, 0, .25); Audio.env(o, .02, .001, .2); }
   if (typeof leben_crowScare === 'function') { try { leben_crowScare(player.pos.x, player.pos.z, 14); } catch (e) {} }
 }

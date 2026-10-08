@@ -62,7 +62,8 @@ function kamera_darf() { return kamera_S.frei && state.started && !ui.overlay &&
 function kamera_heben(on = !kamera_S.hoch) {
   const S = kamera_S; if (on && (!kamera_darf() || state.talking || S.busy)) return false;
   if (on === S.hoch) return true; S.hoch = on; S.el.sucher.classList.toggle('on', on); kamera_hud(); kamera_sperrText('');
-  if (Audio.ctx) { const o = Audio.osc('square', on ? 1900 : 1500, 0, .05); Audio.env(o, .025, .002, .03); const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 2; n.connect(bp); Audio.env(bp, .05, .01, .12); n.stop(Audio.ctx.currentTime + .3); }
+  if (Audio.ctx && Audio.buf.fx_relais_1) Audio.play(Audio.pick('fx_relais_1', 'fx_relais_2', 'fx_relais_3'), { gain: on ? .3 : .25, rate: on ? 1.2 : .9 }); // echter Schalter (Aufnahme)
+  else if (Audio.ctx) { const o = Audio.osc('square', on ? 1900 : 1500, 0, .05); Audio.env(o, .025, .002, .03); const n = Audio.noise(false), bp = Audio.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600; bp.Q.value = 2; n.connect(bp); Audio.env(bp, .05, .01, .12); n.stop(Audio.ctx.currentTime + .3); }
   if (on) { S.sperre = null; const Z = kamera_zielJetzt(); if (Z && Z.beimHeben) { try { Z.beimHeben(); } catch (e) { console.warn('Kamera: beimHeben', e); } }
     if (Z && Z.sperre) { S.sperre = Z; kamera_sperrText(Z.sperrText || ''); } }
   return true;
@@ -82,7 +83,8 @@ async function kamera_ausloesen() {
   try { if (Z && Z.nachFoto) Z.nachFoto(); } catch (e) { console.warn('Kamera: nachFoto', e); }
   kamera_blitz(); S.fotos.push({ url, text: Z ? Z.text || '' : '' });
   // Surren: das Bild wird ausgeworfen
-  if (Audio.ctx) { const o = Audio.osc('sawtooth', 110, .18, 1.1), lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); Audio.env(lp, .035, .05, 1, .18); }
+  if (Audio.ctx && Audio.buf.fx_blitz_laden) Audio.play('fx_blitz_laden', { gain: .3, delay: .18 }); // Blitz lädt auf (Aufnahme)
+  else if (Audio.ctx) { const o = Audio.osc('sawtooth', 110, .18, 1.1), lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); Audio.env(lp, .035, .05, 1, .18); }
   await wait(380); kamera_heben(false); S.busy = true;
   const P = S.el.pola, img = P.querySelector('img'); P.classList.remove('dev', 'raus'); P.querySelector(".kpHand").textContent = Z && Z.hand ? Z.hand : '';
   if (url) img.src = url; void P.offsetWidth; P.classList.add('raus');
@@ -95,7 +97,8 @@ async function kamera_ausloesen() {
 // Blitz: weißes Bild, das in ~0,4 s abklingt; der Knall der Birne
 function kamera_blitz() {
   const b = kamera_S.el.blitz; b.style.transition = 'none'; b.style.opacity = .96; void b.offsetWidth; b.style.transition = 'opacity .55s ease-out'; b.style.opacity = 0;
-  if (Audio.ctx) { const n = Audio.noise(false), hp = Audio.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); Audio.env(hp, .16, .002, .06); n.stop(Audio.ctx.currentTime + .3);
+  if (Audio.ctx && Audio.buf.fx_kamera_1) Audio.play(Audio.pick('fx_kamera_1', 'fx_kamera_2', 'fx_kamera_3'), { gain: .7, vary: .03 }); // Verschluss (Aufnahme, Nikon)
+  else if (Audio.ctx) { const n = Audio.noise(false), hp = Audio.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); Audio.env(hp, .16, .002, .06); n.stop(Audio.ctx.currentTime + .3);
     const o = Audio.osc('sine', 5200, 0, .25); Audio.env(o, .02, .001, .2); }
   if (typeof leben_crowScare === 'function') { try { leben_crowScare(player.pos.x, player.pos.z, 14); } catch (e) {} }
 }

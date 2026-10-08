@@ -16,7 +16,7 @@ random.seed(7); scn = reset(); world(1)
 # ---------------------------------------------------------------- Profil der Sitzfläche (y, z, halbe Innenbreite, Wangenhöhe, Neigung der Wange)
 CTRL = [(-.214, .148, .100, .012, 10), (-.205, .194, .124, .030, 10), (-.150, .201, .134, .058, 10), (-.060, .184, .140, .098, 10), (.052, .166, .141, .116, 12),
         (.093, .214, .136, .100, 14), (.118, .300, .131, .084, 14), (.138, .400, .130, .092, 15), (.153, .482, .124, .132, 18), (.164, .560, .119, .168, 20),
-        (.170, .626, .114, .150, 20), (.196, .648, .090, .030, 14), (.226, .630, .070, .012, 10)]
+        (.170, .622, .112, .128, 20), (.192, .648, .092, .045, 14), (.226, .632, .070, .012, 10)]
 DENSE = catmull([(0, y, z) for y, z, *_ in CTRL], 600)
 arc = [0.]
 for i in range(1, len(DENSE)): arc.append(arc[-1] + (DENSE[i] - DENSE[i - 1]).length)
@@ -31,12 +31,19 @@ def at_arc(a):
   f = (a - arc[lo]) / max(1e-9, arc[hi] - arc[lo]); p = DENSE[lo].lerp(DENSE[hi], f)
   t = (DENSE[min(hi + 2, len(DENSE) - 1)] - DENSE[max(lo - 2, 0)]).normalized(); nrm = Vector((0, -t.z, t.y)).normalized()
   return p, t, nrm
-def param(a, k):  # Kontrollgröße k (2 hw, 3 wh, 4 Neigung) bei Bogenlänge a, linear zwischen den Kontrollpunkten
+def _param_lin(a, k):
   for i in range(m):
     if a <= CARC[i + 1] or i == m - 1:
-      f = min(1, max(0, (a - CARC[i]) / (CARC[i + 1] - CARC[i]))); f = f * f * (3 - 2 * f); return CTRL[i][k] * (1 - f) + CTRL[i + 1][k] * f
+      f = min(1, max(0, (a - CARC[i]) / (CARC[i + 1] - CARC[i]))); return CTRL[i][k] * (1 - f) + CTRL[i + 1][k] * f
+# Kontrollgrößen über die Bogenlänge geglättet (Gauß, σ ≈ 3 cm): Wangen laufen weich aus, keine Stufen an Schulter und Kopf
+_PA = np.linspace(0, LEN, 400); _PT = {}
+for _k in (2, 3, 4):
+  raw = np.array([_param_lin(a, _k) for a in _PA]); sm = np.zeros_like(raw)
+  for i, a in enumerate(_PA): w = np.exp(-((_PA - a) / .03) ** 2); sm[i] = (w * raw).sum() / w.sum()
+  _PT[_k] = sm
+def param(a, k): return float(np.interp(a, _PA, _PT[k]))
 
-NFLAT, NFIL, NWALL, NLIP = 9, 4, 3, 6
+NFLAT, NFIL, NWALL, NLIP = 7, 4, 3, 5
 def half_section(a):
   # Halbquerschnitt (u quer ≥ 0, v entlang Sitznormale) mit 2D-Innennormalen; Index 0 = Mitte
   hw, wh, tilt = param(a, 2), param(a, 3), math.radians(param(a, 4)); rr = .032; lr = .0095
@@ -60,7 +67,7 @@ def half_section(a):
   P.append((P[-1][0] - d[0] * .014, P[-1][1] - d[1] * .014)); Nn.append(Nn[-1]); W.append(1)
   return P, Nn, W
 
-NS = 66
+NS = 54
 ROWS_A = [LEN * i / (NS - 1) for i in range(NS)]
 def section3d(a, upto=None, pad=None):
   p, t, n = at_arc(a); X = Vector((1, 0, 0)); P, Nn, W = half_section(a); K = len(P) if upto is None else upto
@@ -115,7 +122,7 @@ for i, c in enumerate(cov):
 # Ausrichtung: Normale nach außen (zum Kind)
 bm.normal_update(); bm.faces.ensure_lookup_table(); f0 = bm.faces[len(bm.faces) // 2]
 if f0.normal.dot(cov[NS // 2][1][ncol // 2]) < 0: bmesh.ops.reverse_faces(bm, faces=bm.faces)
-bezug = obj_bm(bm, 'bezug'); mod(bezug, 'SOLIDIFY', thickness=.003, offset=-1, use_rim=True)
+bezug = obj_bm(bm, 'bezug')
 # Keder rund um den Bezugsrand
 loop = [c[0][0] for c in cov] + cov[-1][0][1:] + [c[0][-1] for c in cov[::-1]][1:] + cov[0][0][::-1][1:]
 loopn = [c[1][0] for c in cov] + cov[-1][1][1:] + [c[1][-1] for c in cov[::-1]][1:] + cov[0][1][::-1][1:]
@@ -218,8 +225,8 @@ def stoff(v):
       c1 = nb.mix(stripe(qx, .085, .035, .37), c1, (.5, .06, .05)); c1 = nb.mix(stripe(qy, .085, .03, .6), c1, (.62, .52, .12))
       c1 = nb.mix(stripe(qx, .0425, .02, .1), c1, (.08, .1, .3)); col = nb.mix(nb.mr(wing, .4, .6), c1, (.52, .22, .05))
     else:
-      base = nb.mix(mel, (.115, .125, .15), (.17, .18, .205)); col = nb.mix(nb.mr(wing, .4, .6), base, (.05, .053, .058))
-      col = nb.mix(nb.mr(nb.noise(Q, 1400, 1, .5), .55, .7), col, (.22, .22, .24))
+      base = nb.mix(mel, (.085, .10, .14), (.13, .15, .19)); col = nb.mix(nb.mr(wing, .4, .6), base, (.045, .048, .055))
+      col = nb.mix(nb.mr(nb.noise(Q, 1400, 1, .5), .7, .78, 0, .5), col, (.2, .21, .24))
     col = nb.mix(nb.mr(fuzz, .3, .7, -.08, .08), col, (1, 1, 1), 'ADD') if False else col
     # Ausbleichen auf der Sonnenseite (oben), Staub, Flecken, Schimmel
     nz = nb.sep(nb.geo('Normal'))[2]; expo = nb.mr(nz, -.2, .9, 0, 1)

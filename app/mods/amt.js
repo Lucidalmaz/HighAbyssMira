@@ -414,7 +414,7 @@ function amtp_wagen(W = .72, D = .46, hTop = .8) { const P = [], A = (g, m, x = 
   return amtp_baue(P); }
 
 // ---------------------------------------------------------------- Klänge (synthetisch, positioniert; keine Allokation pro Bild – nur bei Ereignissen)
-function amt_nadel(x, y, z, zeilen = 1, v = 1) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, d0 = A.at(x, y, z, 3);
+function amt_nadel(x, y, z, zeilen = 1, v = 1) { const A = Audio; if (!A.ctx) return; if (A.buf.fx_nadel_2) { for (let l = 0; l < zeilen; l++) { A.play(A.pick('fx_nadel_1', 'fx_nadel_2'), { gain: .5 * v, delay: l * 1.35, x, y, z, ref: 3 }); A.play('fx_nadel_servo', { gain: .3 * v, delay: l * 1.35 + 1.0, x, y, z, ref: 3 }); } return; } /* echter Nadeldrucker (Aufnahme) */ const t = A.ctx.currentTime, d0 = A.at(x, y, z, 3);
   try { for (let l = 0; l < zeilen; l++) { for (let i = 0; i < 30; i++) { const d = l * 1.35 + i * .031 + Math.random() * .007, n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400 + Math.random() * 1100; bp.Q.value = 5; n.connect(bp); A.env(bp, .05 * v, .002, .02, d, d0); n.stop(t + d + .1); }
       const n2 = A.noise(false), bp2 = A.ctx.createBiquadFilter(); bp2.type = 'bandpass'; bp2.frequency.value = 700; bp2.Q.value = 2; n2.connect(bp2); A.env(bp2, .04 * v, .05, .25, l * 1.35 + 1.0, d0); n2.stop(t + l * 1.35 + 1.5); } // Wagenrücklauf
   } catch (e) {} }

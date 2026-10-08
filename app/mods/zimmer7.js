@@ -41,6 +41,7 @@ function z7_snd(kind) {
       for (const f of [130.8, 131.2, 65.4]) { const o = A.osc('sawtooth', f, 0, 6.5), lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = f < 100 ? 300 : 820; lp.Q.value = .6; o.connect(lp); A.env(lp, f < 100 ? .03 : .045, 1.1, 4.8); }
     } else if (kind === 'atem') { // hörbares Ausatmen
       const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 620; bp.Q.value = .7; n.connect(bp); A.env(bp, .16, .22, 1.3); n.stop(t + 2);
+    } else if (kind === 'drucker' && A.buf.fx_nadel_2) { for (let l = 0; l < 3; l++) { A.play(A.pick('fx_nadel_1', 'fx_nadel_2'), { gain: .3, delay: l * 1.25, lp: 3000 }); A.play('fx_nadel_servo', { gain: .18, delay: l * 1.25 + .9, lp: 3000 }); } // echter Nadeldrucker, fern
     } else if (kind === 'drucker') { // Nadeldrucker, fern (Archiv): drei Zeilen, dazwischen Wagenrücklauf
       for (let l = 0; l < 3; l++) for (let i = 0; i < 26; i++) { const d = l * 1.25 + i * .034 + Math.random() * .006; const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2600 + Math.random() * 900; bp.Q.value = 5; n.connect(bp); A.env(bp, .035, .002, .02, d); n.stop(t + d + .1); }
     }
