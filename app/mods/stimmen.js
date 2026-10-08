@@ -100,7 +100,16 @@ if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { const
 else subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
 // say(): wartet, bis die Stimme ausgesprochen hat (Lesezeit bleibt Mindestdauer); lädt die Zeilen des Blocks vor
 say = async function (lines) { try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
-  for (const l of lines) { const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t))), v = who === 'LUKE' ? 0 : stimmen_dauer(t, who), d = v ? Math.max(d0, v * 1000 + 350) : d0; subtitle(t, d + 250, who); await wait(d); } };
+  SAY_C.all = false;
+  for (const l of lines) { if (SAY_C.all) break; const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t))), v = who === 'LUKE' ? 0 : stimmen_dauer(t, who), d = v ? Math.max(d0, v * 1000 + 350) : d0; subtitle(t, d + 250, who); await say_warte(d); }
+  say_hinweis(false); };
+// Dialog steuern (Nutzer 08.10.2026): Klick/Enter = nächste Zeile sofort, X = den ganzen Block überspringen. Das Spiel läuft dabei weiter (siehe Tastenbehandlung der Basis: freeTalk).
+const SAY_C = { cur: null, all: false };
+function say_warte(d) { return new Promise(res => { const t = gtAfter(d, () => { SAY_C.cur = null; res(); }); SAY_C.cur = () => { try { gtCancel(t); } catch (e) {} SAY_C.cur = null; res(); }; say_hinweis(true); }); }
+function say_hinweis(an) { let h = document.getElementById('sayHint'); if (!h) { h = document.createElement('div'); h.id = 'sayHint'; h.textContent = 'KLICK · WEITER      X · ÜBERSPRINGEN'; h.style.cssText = 'position:fixed;left:50%;bottom:3.2%;transform:translateX(-50%);font:600 11px Georgia,serif;letter-spacing:.35em;color:#8e8470;opacity:0;transition:opacity .5s;pointer-events:none;z-index:5;text-shadow:0 0 6px #000'; document.body.appendChild(h); } h.style.opacity = an ? .8 : 0; }
+function say_weiter(alle) { if (!SAY_C.cur) return false; if (alle) SAY_C.all = true; const f = SAY_C.cur; try { subMin = 0; subQ.length = 0; if (typeof st_stop === 'function') st_stop(.15); const el = document.getElementById('subtitle'); if (el) el.style.opacity = 0; } catch (e) {} f(); return true; }
+addEventListener('mousedown', e => { if (e.button === 0 && state.started && !ui.overlay && !ui.paused && document.pointerLockElement === renderer.domElement) say_weiter(false); }, true);
+addEventListener('keydown', e => { if (e.repeat || !state.started || ui.overlay || ui.paused) return; if (e.code === 'Enter' || e.code === 'NumpadEnter') say_weiter(false); else if (e.code === 'KeyX') say_weiter(true); }, true);
 function st_einstellung() { try { const P = document.getElementById('subPanel'), z = P && P.querySelector(':scope > div.close'); if (!z || !P.querySelector('#sGfx') || document.getElementById('sStA')) return;
   z.insertAdjacentHTML('beforebegin', `<div class="row"><span>Sprachausgabe</span><input type="checkbox" id="sStA" ${st_an() ? 'checked' : ''}></div><div class="row"><span>Lautstärke Sprache</span><input type="range" min="0" max="1.5" step="0.05" value="${st_vol()}" id="sStV"></div>`);
   const a = document.getElementById('sStA'), v = document.getElementById('sStV'); a.onclick = v.onclick = ev => ev.stopPropagation();
@@ -126,3 +135,4 @@ WORLD_TICK.push(() => { // Hüllkurve für Mundbewegung (nur solange gesprochen 
   const a = ST.ana, d = ST.tmp; a.getFloatTimeDomainData(d); let s = 0; for (let i = 0; i < d.length; i++) s += d[i] * d[i];
   const r = Math.min(1, Math.sqrt(s / d.length) * 6); ST.env += (r - ST.env) * (r > ST.env ? .6 : .25);
   if (typeof figuren_mund === 'function' && ST.stimme !== 'luke') try { figuren_mund(ST.stimme, ST.env); } catch (e) {} }); // figuren.js: Pegel-Weg (Lippen folgen der Stimme)
+window.__ui = { say: l => say(l), subtitle: (t, ms, w) => subtitle(t, ms, w), toast: (t, ms) => toast(t, ms), flash: () => flashOn, weiter: a => say_weiter(a) }; // Testzugriff (Selbsttests)

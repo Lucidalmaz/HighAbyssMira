@@ -2838,8 +2838,10 @@ addEventListener('keydown', e => {
   if (e.code === 'Space') e.preventDefault();
   // Während Dialogen und Zwischensequenzen (state.talking): kein E, keine Fibel, keine Lampe, kein Springen/Nachladen.
   // Ausnahme: Interaktionen mit userData.talkOk (derzeit keine – alle Aktionen prüfen state.talking selbst).
-  const talk = state.talking;
-  if (e.code === 'KeyE' && target && !e.repeat && (!talk || target.userData.talkOk)) { try { target.userData.action(); } catch (err) { console.error('Aktion ' + (target.userData.label || ''), err); } }
+  // Nutzer 08.10.2026: ein Gespräch friert das Spiel nicht mehr ein. Solange keine Zwischensequenz läuft (kein scripted/camOverride/Mantle/Ende), gelten E, Lampe, Nachladen, Sprung und Fibel auch im Dialog;
+  // Aktionen laufen dabei mit state.talking = false (sie prüfen es selbst), danach wird der Dialogzustand wiederhergestellt.
+  const freeTalk = state.talking && !scripted && !camOverride && !mantle && !state.ending && !state.zone && !state.blackout, talk = state.talking && !freeTalk;
+  if (e.code === 'KeyE' && target && !e.repeat && (!talk || target.userData.talkOk)) { const was = state.talking; if (freeTalk) state.talking = false; try { target.userData.action(); } catch (err) { console.error('Aktion ' + (target.userData.label || ''), err); } finally { if (was && freeTalk && !state.talking) state.talking = true; } }
   if (talk) return;
   if (e.code === 'KeyF' && !e.repeat) { flashOn = !flashOn; Audio.beep(true); FLASH.hudT = 2.5; }
   if (e.code === 'KeyR' && !e.repeat) flashReload();
@@ -3930,7 +3932,7 @@ interact(piano, 'Klavier spielen', () => {
 async function safeOpens() {
   ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.'); if (typeof amt_safe === 'function') amt_safe(); // Fassung 3 (AP-16): B-K2-07 auf dem Klavierdeckel
   subtitle('Beim letzten Ton springt ein Aktenfach ohne Griff auf. Darin: eine Akte ohne Namen.', 4000);
-  const file8 = plane(.22, .3, X + 120.7, 1.81, Z - .2, paperMat, -PI / 2, .2);
+  const file8 = plane(.22, .3, X + 120.06, 1.42, Z - .2, paperMat, 0, -PI / 2); // Fix K2: lag flach auf dem Gerät (Oberkante 1,80 m, Augenhöhe 1,65 m: nie anvisierbar) → steckt senkrecht in einem Fach an der Westseite
   interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name] · R-Fall', 'Rückführung: <b>Mittwoch, in der Nacht</b>, Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.\n\nBefund: <b>Rückläufer.</b> Augen braun (Vermessung Original: blau). Linke Handfläche: halbrunde Narbe, frisch, wie eingebrannt. Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n\nOriginal Brandt, Luke: Verbleib im Objekt. Mutter informiert. Sie hat den Rückläufer angesehen und gesagt: „Das ist meiner.“ Sie unterschreibt. Schwester: weiß es. Vermerk H. W.: „Sie hat ihn am ersten Morgen gewählt.“\n\nVermerk Seiler: Der Rückläufer erfährt es nicht. Wer es weiß, durch den sieht es. Vorgesehen für Versuchsreihe K nach der nächsten Öffnung.\nAm Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren.“</span>' + (typeof amt_akte08Foto === 'function' ? amt_akte08Foto() : ''), 'akte8', () => { uninteract(file8); file8.visible = false; if (typeof amt_akte08 === 'function') amt_akte08(); else finale(); })); // Fassung 3 (AP-16): Foto, Durchschlag 7, ein Satz, Zettel, dann Lucy
 }
 // Kanon PK-D K2-7: Lucy im Tank (Dialog mit Auswahl, Peter-Frage), dann „Mach die Augen zu!“ – Augen zu versagt (augenzu.js, wirkt:false) – Kinosequenz K2
@@ -5845,6 +5847,29 @@ function flashUpgrade(tier) {
 const battEl = document.createElement('div'); battEl.id = 'batt'; battEl.innerHTML = '<i></i><i></i><i></i><i></i><span></span>'; document.getElementById('hud').appendChild(battEl);
 function flashHud() { const segs = battEl.querySelectorAll('i'), c = FLASH.charge; segs.forEach((el, i) => el.classList.toggle('on', c > i / 4 + .01)); battEl.classList.toggle('low', c < FLASH.LOW); battEl.querySelector('span').textContent = FLASH.spare ? `+${FLASH.spare}` : ''; }
 function flashHudTick(dt) { FLASH.hudT -= dt; const show = state.started && !menu.attract && (FLASH.hudT > 0 || FLASH.charge < FLASH.LOW || ui.overlay === 'journal'); battEl.classList.toggle('show', show); if (show) flashHud(); }
+// --- Weltgrenze (Nutzer 08.10.): Die Welt besteht aus Inseln (Ort, Wald, Kapitel-Räume weit abseits). Raster 24 m: belegt = dort steht Festes (Netz, Kollisionskiste, Haus).
+// Steht der Spieler > 1 s weiter als zwei Zellen (48–72 m) von jeder belegten Zelle weg (oder fällt unter −80 m, NaN), kommt er an die Stelle von vor ~2,5 s zurück.
+// Fremdgesteuerte Bewegung (Leiter, Szenen, Hochziehen) und der Kanal werden nicht berührt; Teleports in gebaute Gebiete zählen als gültig.
+const MAPG = { cs: 24, occ: new Set(), nSol: 0, nCol: 0, scan: 0, hist: [], histT: 0, out: 0, n: 0 };
+function mapGuardScan() {
+  const G_ = MAPG, mark = (x0, x1, z0, z1) => { const a = Math.floor(x0 / G_.cs), b = Math.floor(x1 / G_.cs), c = Math.floor(z0 / G_.cs), d = Math.floor(z1 / G_.cs); if ((b - a + 1) * (d - c + 1) > 400) return; for (let i = a; i <= b; i++) for (let j = c; j <= d; j++) G_.occ.add(i * 100003 + j); };
+  for (; G_.nSol < SOL.items.length; G_.nSol++) { const bb = SOL.items[G_.nSol].bb; mark(bb.min.x, bb.max.x, bb.min.z, bb.max.z); }
+  for (; G_.nCol < colliders.length; G_.nCol++) { const c = colliders[G_.nCol]; if (c.minX > -9000) mark(c.minX, c.maxX, c.minZ, c.maxZ); }
+  for (const r of indoorRects) mark(r.x0, r.x1, r.zb, r.zf);
+}
+function mapGuardOk(x, z, strikt) {
+  const G_ = MAPG, a = Math.floor(x / G_.cs), b = Math.floor(z / G_.cs); if (strikt) return G_.occ.has(a * 100003 + b);
+  for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) if (G_.occ.has((a + i) * 100003 + b + j)) return true; return false;
+}
+function mapGuard(dt) {
+  const G_ = MAPG, P = player.pos; if (!state.started || menu.attract || scripted || mantle || state.zone === 'canal' || window.__noBounds) return;
+  G_.scan -= dt; if (G_.scan <= 0) { G_.scan = G_.nSol ? 2 : .5; mapGuardScan(); if (G_.occ.size < 20) return; }
+  if (G_.occ.size < 20) return;
+  const bad = !(isFinite(P.x) && isFinite(P.y) && isFinite(P.z)) || P.y < -80 || !mapGuardOk(P.x, P.z, false);
+  if (!bad) { G_.out = 0; G_.histT -= dt; if (G_.histT <= 0 && grounded && mapGuardOk(P.x, P.z, true)) { G_.histT = .5; G_.hist.push([P.x, P.y, P.z]); if (G_.hist.length > 5) G_.hist.shift(); } return; }
+  G_.out += dt; if (G_.out < 1 || !G_.hist.length) return;
+  const h = G_.hist[0]; P.set(h[0], h[1], h[2]); vel.set(0, 0, 0); vy = 0; grounded = true; FEEL.ext = true; G_.out = 0; G_.n++; G_.hist = [h]; console.warn('Weltgrenze: Spieler zurückgeholt', h.map(v => v.toFixed(1)).join(','));
+}
 let tvFrame = 0, indoorK = 0, ringT = 0, dingT = 0, heartT = 0, lastArea = '';
 function update(dt, t) {
   attractUpdate(dt, t); flashHudTick(dt); perfCullTick(dt); sceneDietTick(dt);
@@ -5905,6 +5930,7 @@ function update(dt, t) {
     }
   }
   jumpQueued = false;
+  mapGuard(dt); // Weltgrenze: nie außerhalb der Karte / unter dem Boden (Nutzer 08.10.: „außerhalb der Map gelandet“)
   // Augenhöhe über kritisch gedämpfte Feder (Treppen/Schrägen ohne Stufen, höchstens 40 cm Nachlauf – nie im Boden, nie schwebend). Von außen gesetzt (Aufwachen, Teleport, Knien): weich zurück.
   { let gy = player.pos.y; // Treppe aufwärts: Boden 0,16 s voraus abtasten → die Augenhöhe steigt wie auf einer Rampe statt Stufe für Stufe (abwärts: Feder + kleiner Dip)
     if (grounded && !scripted && !mantle && F.vv > .4) { const ox = player.pos.x, oz = player.pos.z; player.pos.x += vel.x * FC.look; player.pos.z += vel.z * FC.look; const ra = indoorRect(), ga = groundAt(ra ? ra.y : 0); player.pos.x = ox; player.pos.z = oz; if (ga > gy && ga - gy < FC.lookMax) gy = ga; }
