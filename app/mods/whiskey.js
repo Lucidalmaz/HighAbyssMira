@@ -96,7 +96,15 @@ function whiskey_perch(x, z) {
 }
 function whiskey_play(k, fade = .25, once = false, ts = 1) { const S = whiskey_S, a = S.A[k]; if (!a) return; a.timeScale = ts; if (a === S.cur) return; a.reset();
   if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else { a.setLoop(THREE.LoopRepeat, Infinity); if (/^Idle|^Eat/.test(k)) { a.time = Math.random() * a.getClip().duration; a.timeScale = ts * rand(.88, 1.12); } } a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; } // Q-1: keine identischen Schleifen
-function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, obj: g, doppler: true, ref: 5 }); }
+function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, obj: g, doppler: true, ref: 5 });
+  whiskey_schnabel(.34, .5); if (S.mode === 'perch' && S.A.Caw && !S.turn && Math.random() < .6) { whiskey_play('Caw', .12, true, rand(.95, 1.1)); S.idleT = Math.max(S.idleT, 1.8); } } // 08.10.: Schnabel auf beim Ruf, im Sitzen Verbeugung (Clip „Caw“)
+// Schnabel auf/zu (Krächzen, Nachahmungen, Traumstimme): Kieferknochen nach dem Mixer um die im Modell hinterlegte Achse drehen (whiskey_kiefer, je Bild einmal nach mx.update)
+const whiskey_qj = new THREE.Quaternion();
+function whiskey_schnabel(dauer = .3, weit = .45, nach = 0) { const S = whiskey_S; if (!S.jawAx) return; (S.kQ = S.kQ || []).push({ t: -nach, d: dauer, w: weit }); if (S.kQ.length > 48) S.kQ.shift(); }
+function whiskey_sprechen(ms) { const n = Math.min(40, Math.max(1, Math.round(ms / 240))); for (let i = 0; i < n; i++) whiskey_schnabel(rand(.12, .2), rand(.16, .36), i * .24 + rand(0, .05)); }
+function whiskey_kiefer(dt) { const S = whiskey_S, Q = S.kQ; if (!S.jaw || !S.jawAx || !Q || !Q.length) return; let a = 0;
+  for (let i = Q.length - 1; i >= 0; i--) { const q = Q[i]; q.t += dt; if (q.t >= q.d) { Q.splice(i, 1); continue; } if (q.t > 0) a = Math.max(a, q.w * Math.sin(PI * q.t / q.d)); }
+  if (a > 0) S.jaw.quaternion.multiply(whiskey_qj.setFromAxisAngle(S.jawAx, a)); }
 function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil > .5) || (typeof SP !== 'undefined' && SP.silent > .5); } // Stille-Zonen (Kap. 6): Whiskey stumm
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
@@ -114,12 +122,12 @@ function whiskey_hin(x, z, y) { whiskey_setzen(x, y ?? whiskey_perch(x, z), z); 
 function whiskey_blick(x, y, z, s = 4) { const S = whiskey_S; S.look = S.look || new THREE.Vector3(); S.look.set(x, y, z); S.lookT = s; }
 // Eiserner Ring am Lauf (linkes Bein; rechts = das falsche Nachbild am Bau). Klein, dunkel, abgegriffen – ein Detail am Modell, kein eigenes Objekt in der Welt.
 function whiskey_ring(model, rechts = false) {
-  let link = null, foot = null; model.traverse(o => { if (!o.isBone) return; const n = o.name; if (/(^|-)L-HorseLink$/.test(n) && !rechts) link = o; if (/(^|-)R-HorseLink$/.test(n) && rechts) link = o; });
+  let link = null, foot = null, neu = false; model.traverse(o => { if (!o.isBone) return; const n = o.name; if (/(^|-)L-HorseLink$/.test(n) && !rechts) link = o; if (/(^|-)R-HorseLink$/.test(n) && rechts) link = o; if (o.userData && o.userData.oeffnen) neu = true; }); // neu = eigener Rabe (schlankerer Lauf)
   if (!link) return null; foot = link.children.find(c => c.isBone) || null; let root = model; while (root.parent) root = root.parent; root.updateMatrixWorld(true);
   const dir = foot ? foot.position.clone() : new THREE.Vector3(0, 1, 0), len = dir.length() || 1; dir.normalize();
   const ws = new THREE.Vector3(); link.getWorldScale(ws); const k = 1 / (ws.x || 1);
   const mat = new THREE.MeshStandardMaterial({ color: 0x2c2724, roughness: .55, metalness: .85 });
-  const r = new THREE.Mesh(new THREE.TorusGeometry(.0105 * k, .0032 * k, 6, 14), mat); r.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir); r.position.copy(dir).multiplyScalar(len * .45); r.castShadow = false; link.add(r);
+  const r = new THREE.Mesh(new THREE.TorusGeometry((neu ? .0078 : .0105) * k, (neu ? .0024 : .0032) * k, 6, 14), mat); r.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir); r.position.copy(dir).multiplyScalar(len * .45); r.castShadow = false; link.add(r);
   return r; }
 // Glanz im Schnabel (Autoschlüssel, Deckel …): ein kleiner Lichtfunke (Sprite), folgt dem Kopf
 function whiskey_beakTex() { return tex(cnv(64, (c, w) => { const g = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); g.addColorStop(0, 'rgba(255,250,235,1)'); g.addColorStop(.18, 'rgba(255,236,190,.85)'); g.addColorStop(.5, 'rgba(255,220,160,.12)'); g.addColorStop(1, 'rgba(0,0,0,0)'); c.fillStyle = g; c.fillRect(0, 0, w, w);
@@ -177,7 +185,8 @@ function whiskey_klang(key, at) {
 // Stimme in Rabenmund: kurzer, bandbegrenzter Krähenlaut in Silben – klingt nach Wort, nie sauber (Sprachausgabe X-1 ersetzt ihn später: stimmen_spielen)
 function whiskey_stimme(M, key, at) {
   const A = Audio, g = at ? { position: { x: at[0], y: at[1], z: at[2] } } : whiskey_S.g, silben = Math.max(1, Math.round(M.t.replace(/[^aeiouäöüAEIOUÄÖÜ]/g, '').length * .8)), r = { vegas: .92, luke: 1.05, wolter: .86, frau: 1.25, hilde: 1.12 }[M.v] || 1;
-  if (typeof stimmen_spielen === 'function') { try { if (stimmen_spielen('whiskey_' + key, [g.position.x, g.position.y, g.position.z])) return; } catch (e) {} }
+  if (typeof stimmen_spielen === 'function') { try { if (stimmen_spielen('whiskey_' + key, [g.position.x, g.position.y, g.position.z])) { if (!at) whiskey_sprechen(Math.max(400, M.t.length * 70)); return; } } catch (e) {} }
+  if (!at) for (let i = 0; i < Math.min(silben, 6); i++) whiskey_schnabel(.15, rand(.24, .36), i * .19); // Schnabel im Silbentakt
   for (let i = 0; i < Math.min(silben, 6); i++) A.play('crow1', { rate: r * .92 * rand(.97, 1.04) * 1.4, lp: 1900, hp: 420, gain: .42, dur: .16, delay: i * .19, ...(at ? { x: at[0], y: at[1] + .25, z: at[2] } : { obj: g, h: .25 }), ref: 4 });
 }
 function whiskey_mimic(key, o = {}) {
@@ -189,7 +198,7 @@ function whiskey_mimic(key, o = {}) {
   if (!o.at && (!S.g.visible || whiskey_unten())) return false;
   if (M.einmal) S.said.add(key); if (S.light && key === 'bedauerlich_kurz') S.said.add('nachW13');
   const p = o.at || null;
-  if (M.s) whiskey_klang(key, p); else whiskey_stimme(M, key, p);
+  if (M.s) { whiskey_klang(key, p); if (!p) whiskey_schnabel(.55, .22); } else whiskey_stimme(M, key, p);
   if (M.t && !o.stumm) subtitle(`„${M.t}“` + (M.alt ? `<span style="opacity:.62;font-size:.8em;font-style:normal"> – alt für „${M.alt}“</span>` : ''), Math.max(M.alt ? 2400 : 1800, M.t.length * 90), WHISKEY_STIMMEN[M.v]); // Nutzer 02.10.: altes Wort übersetzen
   if (!o.at && S.mode === 'perch' && !o.still) { whiskey_play(M.s ? 'IdleLookAround' : 'EatSomething', .15); S.idleT = 1.4; S.puff = Math.max(S.puff, .5); }
   return true;
@@ -479,11 +488,14 @@ beginGame = (o => function (resume) { const r = o.apply(this, arguments); if (!r
 WORLD_MODS.push(['Whiskey', async () => {
   const S = whiskey_S; modItem('baumhausschluessel', 'Kleiner Messingschlüssel', 'Von Whiskey, gegen etwas Glänzendes getauscht. In den Bart ist ein „C“ gefeilt.', 'key');
   try {
-    const src = await msModel('animal_crow', 'model.glb'), sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src);
+    // 08.10.: eigener Kolkrabe (Museumsscan CC0 + gebaute Federn/Beine/Augen, tools/blender/rabe_bau*.py) auf dem Skelett der alten Krähe – gleiche Knochen und Clips; Rückfall: altes Modell
+    let src; try { src = await msModel('rabe_whiskey', 'model.glb'); S.neu = true; } catch (e) { console.warn('Whiskey: neues Rabenmodell fehlt – altes Modell', e); src = await msModel('animal_crow', 'model.glb'); S.neu = false; }
+    const sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src);
     m.rotation.y = PI / 2; // das Modell schaut entlang +X: wie die Dorfkrähen (leben.js) drehen, damit der Kopf in Flugrichtung zeigt
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
-      o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.5); c.roughness = .42; if ('sheen' in c) { c.sheen = .35; c.sheenColor = new THREE.Color(0x3a4a7a); } return c; }); if (o.material.length === 1) o.material = o.material[0]; } // blauer Schimmer im Licht
-      if (o.isBone && /(^|-)Head$/.test(o.name)) S.head = o; });
+      o.material = [].concat(o.material).map(x => { const c = x.clone(); if (!S.neu) { c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.5); c.roughness = .42; } if ('sheen' in c) { c.sheen = S.neu ? .3 : .35; c.sheenColor = new THREE.Color(0x3a4a7a); } return c; }); if (o.material.length === 1) o.material = o.material[0]; } // blauer Schimmer im Licht (neu: Farbe/Rauheit aus dem Atlas)
+      if (o.isBone && /(^|-)Head$/.test(o.name)) S.head = o;
+      if (o.isBone && /Queue-de-cheval-1$/.test(o.name)) { S.jaw = o; const ax = o.userData && o.userData.oeffnen; if (ax) S.jawAx = new THREE.Vector3(ax[0], ax[1], ax[2]).normalize(); } }); // Unterschnabel (Kiefer, Öffnungsachse aus dem Modell)
     const inner = new THREE.Group(); inner.add(m); inner.scale.setScalar(S.base); S.m = inner;
     const g = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(inner); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g; try { auftritt_reg(g, { name: 'Whiskey', r: 1.2 }); } catch (e) {}
     S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) { if (/_RM$/.test(c.name)) continue; S.A[c.name.replace(/^.*\|/, '').replace(/^ANIM_[A-Za-z]+_/, '')] = S.mx.clipAction(c); }
@@ -588,9 +600,10 @@ WORLD_TICK.push((dt, t) => {
   const beakOn = S.hatSchluessel && !far; // auch im Flug: er trägt ihn weiter im Schnabel (vorher verschwand er beim Auffliegen) S.beak.visible = beakOn && !S.glz; if (S.glz) S.glz.g.visible = beakOn;
   if (!far) { S.mx.update(dt * (S.tired ? .7 : 1));
     // Clips, die den Kopf selbst bewegen (Umschauen, Putzen, Strecken, Picken, Hüpfen): Blicksteuerung weich ausblenden – sonst addieren sich beide Drehungen (Kopf „spinnt“)
-    const cn = S.cur && S.cur.getClip ? S.cur.getClip().name : '', eigen = /LookAround|Scratch|Stretch|Eat|Hop|Landing|TakeOff/.test(cn);
+    const cn = S.cur && S.cur.getClip ? S.cur.getClip().name : '', eigen = /LookAround|Scratch|Stretch|Eat|Hop|Landing|TakeOff|Caw/.test(cn);
     S.hw = (S.hw ?? 1) + ((eigen ? .25 : 1) - (S.hw ?? 1)) * Math.min(1, dt * 5);
     if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy * S.hw, S.hr * S.hw);
+    whiskey_kiefer(dt * (S.tired ? .7 : 1));
     if (S.beakL === undefined) S.beakL = whiskey_beakTip(); // posenunabhängig: einmal genügt (auch im Flug und auf der Schulter)
     if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); const AA = g.__auf ? g.__auf.a : 1; S.beak.material.opacity = (.55 + .35 * Math.abs(Math.sin(t * 2.3))) * AA; if (S.glz) S.glz.g.scale.setScalar(Math.max(.001, AA)); // Glanz blendet mit dem Raben ein/aus
       if (S.glz) { if (S.beakL) { S.glz.g.position.copy(S.beakL); S.head.localToWorld(S.glz.g.position); } else S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf

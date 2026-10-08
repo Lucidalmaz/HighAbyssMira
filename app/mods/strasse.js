@@ -162,6 +162,10 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const seat = (lx, lz) => { const h = rayHit(car, lenaCar.localToWorld(V3(lx, 1.1, lz)), V3(0, -1, 0), 1.1); return h ? lenaCar.worldToLocal(h.point.clone()).y : .55; };
     lenaPhone.position.set(-.12, seat(-.12, -.36) + .012, -.36); lenaPhone.rotation.set(0, .4, 0);
     if (PHOTOS[1] && PHOTOS[1].mesh) PHOTOS[1].mesh.position.set(.1, seat(.1, .36) + .01, .36);
+    // 09.10.: Polaroid war nicht zu erreichen – das Foto ist nur 15 × 18 cm klein und lag im Strahl-Schatten der Handschuhfach-Box (post.js, ging bis hierher) und der Fahrertür-Box.
+    // Jetzt: Handschuhfach sitzt vorn auf der Beifahrerseite (post.js), und um das Foto liegt eine großzügige unsichtbare Klickfläche (46 × 34 × 50 cm), durch Fenster/offene Tür anvisierbar.
+    if (PHOTOS[1] && PHOTOS[1].mesh) { const pm = PHOTOS[1].mesh, ph = hitBox(.46, .34, .5, pm.position.x, pm.position.y + .12, pm.position.z, lenaCar); ph.userData.noCol = true;
+      pm.userData.label = 'Polaroid nehmen'; interact(ph, () => story.photos.has(1) ? '' : 'Polaroid nehmen', () => { if (story.photos.has(1)) return; pm.userData.action(); if (story.photos.has(1)) uninteract(ph); }); S.info.polaHit = ph; }
     S.info.seats = [seat(-.12, -.36), seat(.1, .36), seat(.9, 0)].map(v => +v.toFixed(2));
   }
   // ---- Geisterauto (fährt einmal durch den Ort): fast schwarz, Scheinwerfer an

@@ -288,7 +288,7 @@ function post_autoBau() { const S = post_S; if (typeof lenaCar === 'undefined') 
   const m = new THREE.Mesh(new THREE.PlaneGeometry(.95, .3), new THREE.MeshStandardMaterial({ map: t, transparent: true, depthWrite: false, roughness: .2 })); m.position.set(2.05, 1.05, 0); m.rotation.set(0, PI / 2, 0); m.rotation.x = -.35; m.visible = false; m.userData.noCol = true; car.add(m); S.nichtSie = m;
   const h = new THREE.Mesh(new THREE.PlaneGeometry(.12, .15), new THREE.MeshStandardMaterial({ map: kirchberg_tex(kirchberg_cnv(64, 80, (x, w, hh) => { x.clearRect(0, 0, w, hh); if (echt_hand(x, 32, 42, 76, 'rgb(40,30,25)', .5, 0, false, 'trocken')) return; x.fillStyle = 'rgba(40,30,25,.35)'; x.filter = 'blur(2px)'; x.beginPath(); x.ellipse(32, 52, 14, 18, 0, 0, 7); x.fill(); for (let f = 0; f < 5; f++) { x.beginPath(); x.ellipse(14 + f * 9, 26 - Math.abs(f - 2) * 4, 3.5, 11, (f - 2) * .15, 0, 7); x.fill(); } })), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 }));
   h.position.set(.95, .62, .1); h.rotation.x = -PI / 2; h.visible = false; h.userData.noCol = true; car.add(h); S.hand = h;
-  S.hsfHit = box(.5, .3, .4, 0, .75, .45, hidden, { cast: false, parent: car }); S.hsfHit.userData.noCol = true; interact(S.hsfHit, 'Handschuhfach', () => post_handschuhfach());
+  S.hsfHit = box(.35, .28, .5, -.45, .72, -.38, hidden, { cast: false, parent: car }); S.hsfHit.userData.noCol = true; interact(S.hsfHit, 'Handschuhfach', () => post_handschuhfach());
   { const kd = post_kindBau(); kd.position.set(.85, .42, 0); kd.rotation.y = PI / 2; kd.visible = false; car.add(kd); S.kind = kd; } // Rücksitz
   S.nichtSie.visible = !!S.steps.nichtSie; S.hand.visible = !!S.steps.nichtSie; }
 

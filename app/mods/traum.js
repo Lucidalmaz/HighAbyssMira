@@ -102,7 +102,7 @@ function traum_stimme(key, who, art, p) { if (art === 'gedanke' || !who) return;
   if (art === 'frau' && typeof kino_kum === 'function') return kino_kum(p); Audio.whisper(p.x, p.y, p.z, 1.4); }
 function traum_lines() { const sh = TRAUM_SHOTS[traum_S.shot]; if (!sh) return; const id = traum_S.shot;
   sh.lines.forEach(([txt, who, at, art], i) => setTimeout(() => { const S = traum_S; if (S.shot !== id || S.skip || S.free || !S.on) return;
-    subtitle(`<i>${txt}</i>`, Math.max(1700, txt.length * 62), who); const p = S.crow ? S.crow.g.position : camera.position; traum_stimme('traum_' + id + '_' + i, who, art, p); }, at * 1000)); }
+    subtitle(`<i>${txt}</i>`, Math.max(1700, txt.length * 62), who); const p = S.crow ? S.crow.g.position : camera.position; traum_stimme('traum_' + id + '_' + i, who, art, p); if (who === 'DER RABE' && typeof whiskey_sprechen === 'function') whiskey_sprechen(Math.max(1200, txt.length * 58)); }, at * 1000)); }
 function traum_crowPos(what) { const S = traum_S, W = S.crow; if (!W) return;
   if (what === 'land') { const p = TRAUM_PERCH; if (W.g.visible && W.g.position.distanceTo(_trV.set(p.x, p.y, p.z)) < .4) { if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', .3); return; } // schon gelandet (A-01)
     W.g.visible = true; if (W.g.position.y < -10) W.g.position.set(p.x - 24, p.y + 7, p.z - 14);
@@ -192,7 +192,7 @@ function traum_anflug(dt) { const S = traum_S, W = S.crow, g = W.g, tf = S.tf, D
     D.toe = .6 + .4 * traum_sm(0, .3, e);
     if (e >= 2) { S.tf = null; D.toe = .95; if (S.free) { S.free.phase = 'gelandet'; S.free.rt = 0; } traum_rabenruf(L, .5); } } }
 // Flug des Raben im Traum: Anflug (skriptet, traum_anflug), Sitzen (traum_sitz) und der kurze Hüpfer zur Fibel (wie im laufenden Spiel: schnell ab, langsam an, Nase in Flugrichtung)
-function traum_flug(dt) { const S = traum_S, W = S.crow; if (!W || !W.g) return; if (W.mx) W.mx.update(dt); const g = W.g, F = W.fl;
+function traum_flug(dt) { const S = traum_S, W = S.crow; if (!W || !W.g) return; if (W.mx) { W.mx.update(dt); if (typeof whiskey_kiefer === 'function') whiskey_kiefer(dt); } const g = W.g, F = W.fl; // Kiefer: Schnabel bewegt sich, wenn der Rabe spricht
   if (S.tf) { traum_anflug(dt); if (S.tf && S.tf.touch) traum_sitz(dt); else if (S.tf) traum_zehen(traum_sitzD().toe); return; }
   if (!F) { g.rotation.x += (0 - g.rotation.x) * Math.min(1, dt * 5); traum_sitz(dt); return; }
   traum_zehen(0); // Hüpfer zur Fibel: Zehen wieder lösen

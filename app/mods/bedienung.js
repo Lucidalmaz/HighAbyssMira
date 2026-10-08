@@ -130,7 +130,8 @@ BED.funk = async function () { if (BED.funkB || typeof radioBox === 'undefined')
   const p = radioBox.position, o = await msFBX('bed_funk', 'model.fbx', { '*': { b: 'b.jpg', n: 'n.jpg', r: 'orm.jpg', m: 'orm.jpg', ao: 'orm.jpg' } }), g = new THREE.Group();
   scene.traverse(m => { if (m.isMesh && m.geometry.type === 'PlaneGeometry' && Math.abs(m.position.x - p.x) < .05 && Math.abs(m.position.y - .75) < .05 && Math.abs(m.position.z - (p.z + .21)) < .03) m.visible = false; });
   msFit(o, .30, 'max'); o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o), c = bb.getCenter(new THREE.Vector3()); o.position.set(-c.x, -bb.min.y, -c.z); g.add(o); bed_pos(g, o);
-  g.position.set(p.x, p.y + .55 + .002, p.z); g.rotation.y = BED.funkRy ?? 0; scene.add(g); BED.funkB.g = g;
+  g.position.set(p.x, p.y - .55 + .01, p.z); g.rotation.y = BED.funkRy ?? 0; // steht auf dem Boden am Rand der Kreuzung; der Quader des Amts bleibt nur als unsichtbare Klickfläche (auf Gerätgröße geschrumpft)
+  radioBox.material.visible = false; radioBox.castShadow = false; radioBox.scale.set(.6, .3 / 1.1, .5); radioBox.position.y = .17; scene.add(g); BED.funkB.g = g;
   radioBox.userData.label = () => (typeof ch3 !== 'undefined' && ch3.radio) ? 'Funkgerät (Rauschen)' : 'Funkgerät abstimmen'; radioBox.userData.hlObj = g; };
 WORLD_TICK.push(() => { if (!BED.funkB && !BED._funkTry && typeof radioBox !== 'undefined' && typeof camera !== 'undefined' && camera.position.distanceTo(radioBox.position) < 24) { BED._funkTry = true; BED.funk().catch(e => { BED.funkB = null; console.warn('Bedienung: Funkgerät', e); }); } });
 

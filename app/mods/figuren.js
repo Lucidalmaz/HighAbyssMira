@@ -509,8 +509,9 @@ const FIGUREN_HAAR = { aydin: '#281c17', cleo: '#b84320', dina: '#211812', dina_
 // Kopf-Rahmen (08.10.): Lage jedes Punktes zum Schädel, im Vertex-Raum der Köpfe („position“ – alle Netze eines Skeletts teilen ihn, der Netzknoten zählt nicht).
 // Aus der Geometrie des Kopfnetzes (Std_Skin_Head: Kopf mit Hals) und der Augenmitten: oben = größte Ausdehnung zu den Augen hin, vorn = Achse der Augen. kc = (seitlich, hoch, vorn), Schädeloberfläche ≈ 1.
 // Daraus: Kopfhaut-Tönung der Haut (Haarfarbe an Scheitel und Schläfe), Wurzelschatten der Haarkarten, Augenhöhlen-Verschattung, Hemdsaum der Kinderhose.
-const FIG_LEER = { uKX: { value: new THREE.Vector4(0, 0, 0, 9) }, uKY: { value: new THREE.Vector4(0, 0, 0, 9) }, uKZ: { value: new THREE.Vector4(0, 0, 0, 9) }, uAugeL: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeR: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeRad: { value: 1 } };
+const FIG_LEER = { uKX: { value: new THREE.Vector4(0, 0, 0, 9) }, uKY: { value: new THREE.Vector4(0, 0, 0, 9) }, uKZ: { value: new THREE.Vector4(0, 0, 0, 9) }, uAugeL: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeR: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeRad: { value: 1 }, uCut: { value: 0 } };
 function figuren_kopf(root) { try {
+  let flach = false; root.traverse(o => { if (o.isMesh && /^body$/i.test([].concat(o.material)[0] && [].concat(o.material)[0].name || '')) { const im = [].concat(o.material)[0].map && [].concat(o.material)[0].map.image; if (im && im.width <= 4) flach = true; } }); // Halsrand nur bei Figuren mit flacher Körperfarbe (Kragen-Fehler Lucy erw.)
   let head = null, eL = null, eR = null, shirt = null;
   root.traverse(o => { if (!o.isMesh || !o.geometry) return; const n = [].concat(o.material).map(m => m && m.name || '').join(' ');
     if (!head && /std_skin_head/i.test(n)) head = o; else if (!eL && /std_eye_l$/i.test(n)) eL = o; else if (!eR && /std_eye_r$/i.test(n)) eR = o; else if (!shirt && /t_?shirt/i.test(n)) shirt = o; });
@@ -528,8 +529,9 @@ function figuren_kopf(root) { try {
   const cu = top - H / 2, cf = fw.dot(Ct) - .04 * cmp(S, f), cs = sd.dot(Ct);
   const row = (d, c, h) => new THREE.Vector4(d.x / h, d.y / h, d.z / h, -c / h);
   const u = { uKX: { value: row(sd, cs, hs) }, uKY: { value: row(up, cu, hu) }, uKZ: { value: row(fw, cf, hf) }, uAugeL: { value: A }, uAugeR: { value: Bv }, uAugeRad: { value: .058 * H } };
+  const ed = A.distanceTo(Bv) / H; if (!(ed > .18 && ed < .55) || !(cmp(S, s) / H > .6 && cmp(S, s) / H < 1.3) || !(extU / cmp(S, f) > 1 && extU / cmp(S, f) < 2.2)) return null; // Plausibilität (Augenabstand, Kopfmaße): sonst ohne Effekte
   let hem = null; if (shirt) hem = minD(up, bbox(shirt)) + .075 * H; // Hemdsaum (tiefster Punkt des Hemds) + 1,5 cm
-  return { u, up, hem, H };
+  u.uCut = { value: flach ? 1 : 0 }; return { u, up, hem, H };
 } catch (e) { console.warn('figuren_kopf', e); return null; } }
 // Materialien (einmal je Vorlage): Haut mit Poren-Relief und warmer Streuung, nasse Hornhaut mit Lichtpunkt, Tränenrand, Haare ohne Ausdünnen in der Ferne
 function figuren_q6Mat(root, skin, id) { const K = figuren_kopf(root), haar = FIGUREN_HAAR[id] ? new THREE.Color(FIGUREN_HAAR[id]) : null,
@@ -563,7 +565,7 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
   const fs = sh.fragmentShader; if (U) sh.uniforms.uHaut = U;
   if (face) { Object.assign(sh.uniforms, K ? K.u : FIG_LEER, { uHaar: { value: haar || new THREE.Color(0, 0, 0) }, uSk: { value: K && haar ? 1 : 0 } });
     sh.vertexShader = 'varying vec3 vOP;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vOP = position;'); }
-  sh.fragmentShader = (U ? 'uniform vec3 uHaut;\n' : '') + (face ? 'varying vec3 vOP; uniform vec4 uKX, uKY, uKZ; uniform vec3 uAugeL, uAugeR, uHaar; uniform float uAugeRad, uSk;\nfloat gAO = 0., gScalp = 0., gLip = 0.;\n' : '') + `float gPore = 0.;
+  sh.fragmentShader = (U ? 'uniform vec3 uHaut;\n' : '') + (face ? 'varying vec3 vOP; uniform vec4 uKX, uKY, uKZ; uniform vec3 uAugeL, uAugeR, uHaar; uniform float uAugeRad, uSk, uCut;\nfloat gAO = 0., gScalp = 0., gLip = 0.;\n' : '') + `float gPore = 0.;
   float hN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); vec2 k = vec2(127.1, 311.7);
     return mix(mix(fract(sin(dot(i, k)) * 43758.5453), fract(sin(dot(i + vec2(1., 0.), k)) * 43758.5453), f.x), mix(fract(sin(dot(i + vec2(0., 1.), k)) * 43758.5453), fract(sin(dot(i + vec2(1., 1.), k)) * 43758.5453), f.x), f.y); }
   ` + fs.replace('#include <map_fragment>', `#include <map_fragment>
@@ -575,7 +577,7 @@ function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { v
         float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
       diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
   { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
-    if (kc.y < -1.2 && abs(kc.x) > .85) discard; // Halsrand des Kopfnetzes (Kragen/Schulter): sonst ragen flache Hautlappen aus dem Hemdkragen (Lucy erwachsen)
+    if (uCut > .5 && kc.y < -1.2 && abs(kc.x) > .85) discard; // Halsrand des Kopfnetzes (Kragen/Schulter): sonst ragen flache Hautlappen aus dem Hemdkragen (Lucy erwachsen)
     float thr = mix(.1, .38, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
     gScalp = smoothstep(thr, thr + .27, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * mix(.3, .58, smoothstep(.15, .7, dot(uHaar, vec3(.3, .59, .11)))) + diffuseColor.rgb * .06, gScalp * .92);
     diffuseColor.rgb *= mix(1., .5 + 1.1 * (hN(vec2(kc.x * 46., kc.z * 3. + kc.y * 2.)) * .6 + hN(vec2(kc.x * 150., kc.z * 8.)) * .4), gScalp * .75); // Haarsträhnen von vorn nach hinten (Hildes Scheitel hat im Modell gar keine Haarkarten)

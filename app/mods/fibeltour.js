@@ -29,8 +29,7 @@ function fibeltour_raender() {
   try { const l = story.lore.find(x => x.key === 'hervorhebung'); const B = $('jBody'); if (!l || !B) return;
     B.innerHTML = `<h2>RÄNDER</h2><div class="ftNote">${l.html}</div>`; } catch (e) { console.warn('Fibel-Tour: Ränder', e); } }
 function fibeltour_css() { if (document.getElementById('fibeltourCss')) return; const s = document.createElement('style'); s.id = 'fibeltourCss';
-  s.textContent = `body.ftOn #journal .book { translate: 0 -12vh; } body.ftOn #jBody { max-height: calc(64vh - 90px); }
-  #journal.ftZu .book { animation: ftZu .5s ease-in forwards !important; } @keyframes ftZu { to { opacity: 0; transform: translateY(24px) scale(.97) rotate(.8deg); } }
+  s.textContent = `  #journal.ftZu .book { animation: ftZu .5s ease-in forwards !important; } @keyframes ftZu { to { opacity: 0; transform: translateY(24px) scale(.97) rotate(.8deg); } }
   @keyframes ftSeite { from { opacity: 0; transform: translateX(18px) rotate(.25deg); } to { opacity: 1; transform: none; } } #jBody.ftSeite { animation: ftSeite .45s cubic-bezier(.2,.8,.2,1); }
   #jBody .ftNote { white-space: pre-wrap; font: 400 clamp(15px, 1.95vh, 20px)/1.55 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #2a2016; }
   #jBody .ftNote .hand { font-family: var(--f-hand, Caveat, cursive); font-size: clamp(19px, 2.6vh, 26px); line-height: 1.3; color: #1e2b5c; } #jBody .ftNote small { opacity: .7; }
@@ -38,7 +37,7 @@ function fibeltour_css() { if (document.getElementById('fibeltourCss')) return; 
   #ftLayer svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
   #ftPen path { fill: none; stroke: #f0d58a; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(240,213,138,.45)); }
   #ftPen path.d { stroke-width: 1.4; stroke: #f7e7b4; opacity: .55; }
-  #ftCard { position: absolute; left: 50%; bottom: 2.4vh; width: min(720px, 92vw); transform: translateX(-50%) rotate(-.5deg) translateY(26px); opacity: 0; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 16px 20px rgba(0,0,0,.65)); }
+  #ftCard { position: absolute; left: 50%; top: 70vh; width: min(720px, 92vw); transform: translateX(-50%) rotate(-.5deg) translateY(26px); opacity: 0; transition: opacity .55s, transform .7s cubic-bezier(.2,.8,.2,1); filter: drop-shadow(0 16px 20px rgba(0,0,0,.65)); }
   #ftCard.on { opacity: 1; transform: translateX(-50%) rotate(-.5deg); }
   .ftPap { position: relative; padding: 15px 32px 12px 66px; background-color: #e6dcc3; background-size: cover; background-position: center; color: #1b2a5e; }
   .ftPap::before { content: ''; position: absolute; left: 48px; top: 0; bottom: 0; width: 2px; background: rgba(176,52,40,.4); }
@@ -75,7 +74,14 @@ function fibeltour_kringel(r) { const pen = document.getElementById('ftPen'); if
 function fibeltour_lauf(now) { const S = FIBT; if (!S.on) return; const dt = Math.min(.1, S.lastT ? (now - S.lastT) / 1000 : 0), k = 1 - Math.exp(-dt * 9); S.lastT = now;
   if (S.holes && S.tgt) for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (!h || !t) continue; for (const a of ['x', 'y', 'w', 'h']) h.v[a] += (t[a] - h.v[a]) * k; h.e.setAttribute('x', h.v.x.toFixed(1)); h.e.setAttribute('y', h.v.y.toFixed(1)); h.e.setAttribute('width', Math.max(0, h.v.w).toFixed(1)); h.e.setAttribute('height', Math.max(0, h.v.h).toFixed(1)); }
   S.raf = requestAnimationFrame(fibeltour_lauf); }
-function fibeltour_fenster(st) { const S = FIBT, hole = (el, pad) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - pad, y: r.top - pad, w: r.width + 2 * pad, h: r.height + 2 * pad } : null; };
+// Layout: erst den Zettel messen, dann das Buch so verkleinern/anheben, dass der Zettel UNTER dem Buch steht (nie über Seite, Fenster oder Kringel); Abstände in px, für 720p bis 1440p
+function fibeltour_layout() { const card = document.getElementById('ftCard'), bk = document.querySelector('#journal .book'), jb = $('jBody'); if (!card || !bk || !jb) return;
+  const vh = innerHeight, ch = card.offsetHeight + 44, gap = 14, rand0 = 8; bk.style.translate = '0 0'; jb.style.maxHeight = '';
+  let r = bk.getBoundingClientRect(), chrome = r.height - jb.getBoundingClientRect().height; const maxBook = Math.max(260, vh - ch - gap - 2 * rand0);
+  if (r.height > maxBook) { jb.style.maxHeight = Math.max(160, maxBook - chrome) + 'px'; r = bk.getBoundingClientRect(); }
+  const free = vh - r.bottom - gap - ch; let up = 0; if (free < 0) up = Math.min(-free, Math.max(0, r.top - rand0)); else up = Math.min(Math.max(0, r.top - rand0), 0);
+  bk.style.translate = `0 ${-up}px`; r = bk.getBoundingClientRect(); card.style.top = Math.max(r.bottom + gap, Math.min(vh - ch + 40, r.bottom + gap)) + 'px'; }
+function fibeltour_fenster(st) { try { fibeltour_layout(); } catch (e) {} const S = FIBT, hole = (el, pad) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - pad, y: r.top - pad, w: r.width + 2 * pad, h: r.height + 2 * pad } : null; };
   const e = st.el && st.el(), b = st.btn && st.btn(); S.tgt = { h1: hole(e, 6), h2: hole(b, 3) };
   for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (t && !h.v) h.v = { x: t.x + t.w / 2, y: t.y + t.h / 2, w: 0, h: 0 }; if (!t) { S.tgt[id] = { x: h.v ? h.v.x : 0, y: h.v ? h.v.y : 0, w: 0, h: 0 }; if (!h.v) h.v = { x: 0, y: 0, w: 0, h: 0 }; } }
   try { fibeltour_kringel(e ? e.getBoundingClientRect() : null); } catch (er) {} }
@@ -100,7 +106,7 @@ function fibeltour_zurueck() { const S = FIBT; if (!S.on || S.i <= 0) return; fi
 function fibeltour_ende(skip) { const S = FIBT; if (!S.on) return; S.on = false; S.fertig = !skip; clearInterval(S.typeIv); cancelAnimationFrame(S.raf);
   removeEventListener('keydown', S.keyFn, true); removeEventListener('pointerdown', S.ptrFn, true); removeEventListener('click', S.clickFn, true); removeEventListener('resize', S.rsFn);
   const L = S.layer; if (L) { L.classList.remove('on'); L.classList.add('aus'); } fibeltour_ton('zu'); $('journal').classList.add('ftZu');
-  setTimeout(() => { try { if (L) L.remove(); document.body.classList.remove('ftOn'); $('journal').classList.remove('ftZu'); jTab = S.tab0 || 'aufgaben'; const B = $('jBody'); if (B) B.classList.remove('ftSeite'); if (ui.overlay === 'journal') closeOverlay(); } catch (e) { console.warn('Fibel-Tour: Ende', e); }
+  setTimeout(() => { try { if (L) L.remove(); document.body.classList.remove('ftOn'); { const bk = document.querySelector('#journal .book'); if (bk) bk.style.translate = ''; const jb = $('jBody'); if (jb) jb.style.maxHeight = ''; } $('journal').classList.remove('ftZu'); jTab = S.tab0 || 'aufgaben'; const B = $('jBody'); if (B) B.classList.remove('ftSeite'); if (ui.overlay === 'journal') closeOverlay(); } catch (e) { console.warn('Fibel-Tour: Ende', e); }
     S.layer = null; const r = S.res; S.res = null; if (r) r(!skip); }, 560); }
 // Die Tour als Fund „So funktioniert die Fibel“: jederzeit unter Tab → Funde nachlesbar (Handschrift auf dem Notizblatt)
 function fibeltour_fund() { try { if (story.lore.some(l => l.key === 'fibel_tour')) return;

@@ -510,7 +510,7 @@ function zeichen_nazcaTex() { // Kachel 256²: u entlang der Linie, v quer – f
   const nrm = new THREE.CanvasTexture(normalFromHeight(hc, 4)); nrm.wrapS = THREE.RepeatWrapping; return { map, nrm };
 }
 function zeichen_nazcaBau() {
-  const S = zeichen_S, TS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }, pos = [], uv = [], nrm = [], idx = [], proben = [], W = .95;
+  const S = zeichen_S, TS = typeof TIEF !== 'undefined' ? TIEF.stand : { x: 14, z: 178.5 }, pos = [], uv = [], nrm = [], idx = [], proben = [], W = 1.25;
   for (const F of ZEICHEN_NAZCA) {
     const fx = F.c[0] - TS.x, fz = F.c[1] - TS.z, fl = Math.hypot(fx, fz), f = [fx / fl, fz / fl], r = [-f[1], f[0]]; // r = rechts vom Betrachter
     const wp = F.pts.map(([a, b]) => new THREE.Vector3(F.c[0] + (a * r[0] + b * f[0]) * F.s, 0, F.c[1] + (a * r[1] + b * f[1]) * F.s));
@@ -522,8 +522,8 @@ function zeichen_nazcaBau() {
       if (i % 6 === 0) proben.push(p[i].x, p[i].z); if (i < n) { const k = base + i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); } }
     F.cw = new THREE.Vector3(F.c[0], 0, F.c[1]); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeBoundingSphere();
-  const T = zeichen_nazcaTex(), m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: T.map, normalMap: T.nrm, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, roughness: .97, envMapIntensity: .1 }));
-  m.receiveShadow = true; m.userData.noCol = true; m.matrixAutoUpdate = false; m.renderOrder = 1; scene.add(m); S.nazca = { m, proben, ts: TS };
+  const T = zeichen_nazcaTex(), m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: T.map, normalMap: T.nrm, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, roughness: .97, envMapIntensity: .1, emissive: 0x8a7a62, emissiveMap: T.map, emissiveIntensity: .32 })); // leicht selbstleuchtend: im Nachtlicht vom Hochsitz lesbar, ohne Lampe
+  m.receiveShadow = true; m.userData.noCol = true; m.matrixAutoUpdate = false; m.renderOrder = 1; m.frustumCulled = false; m.name = 'nazca'; scene.add(m); S.nazca = { m, proben, ts: TS };
 }
 // ---------------------------------------------------------------- Lukes Gedanken (höchstens einige, knapp) und Kreide, die im Rücken erscheint
 function zeichen_gedanke(id, text, ms = 400, prio = 2) { if (typeof gedanke === 'function') try { gedanke('x7_' + id, text, ms, prio); } catch (e) {} }
@@ -553,9 +553,10 @@ function zeichen_tick(dt, t, indoor) {
   if (S.q.length) for (let n = 0; n < 2 && S.q.length; n++) { const [B, d] = S.q.shift(); let ok = false; try { ok = B.kanal ? zeichen_kanalPlatz(B, d) : zeichen_platz(B, d); } catch (e) { console.warn('Zeichen: Platz', d.id, e); }
     d.wartet = false; if (!ok) { d.tries = (d.tries || 0) + 1; d.next = performance.now() + 6000; if (d.tries >= 3) S.warn.push(d.id); } else if (!S.q.some(e => e[0] === B)) zeichen_geo(B); }
   if (!S.q.length) for (const id in S.B) if (S.B[id].neu) zeichen_geo(S.B[id]);
-  S.t -= dt; if (S.t <= 0) { S.t = .5; ZU.uKap.value = typeof kap === 'function' ? kap() : 1; zeichen_bereiche();
+  S.t -= dt; if (S.t <= 0) { S.t = .5; ZU.uKap.value = typeof kap === 'function' ? kap() : 1;
+    if (!S.nazca && !S.nazcaFehler && ZU.uKap.value >= 6 && Math.hypot(player.pos.x - 14, player.pos.z - 175) < 90) { try { zeichen_nazcaBau(); } catch (e) { S.nazcaFehler = 1; console.warn('Zeichen: Nazca-Bau', e); } } // eigener Versuch vor allem anderen: ein Fehler anderswo darf den Bau nicht verhindern
+    try { zeichen_bereiche(); } catch (e) { console.warn('Zeichen: Bereiche', e); }
     if (S.wand && !S.wand.mesh && Math.hypot(player.pos.x - ZEICHEN_WAND.x, player.pos.z - ZEICHEN_WAND.z) < 45) zeichen_wandBau();
-    if (!S.nazca && ZU.uKap.value >= 6 && Math.hypot(player.pos.x - 14, player.pos.z - 175) < 60) zeichen_nazcaBau();
     if (S.B.kanal && S.B.kanal.mesh) S.B.kanal.mesh.visible = state.zone === 'canal'; if (S.nazca) S.nazca.m.visible = ZU.uKap.value >= 6; }
   if (S.blitzN !== S.blitzSeen) { S.blitzSeen = S.blitzN; zeichen_foto(); }
   S.tL -= dt; if (S.tL <= 0 && !indoor) { S.tL = .3; zeichen_lesen(.3); }

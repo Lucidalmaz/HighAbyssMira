@@ -127,8 +127,9 @@ function leben_variiere(root, o = {}) { if (!root) return root; const gr = o.gr 
   return root; }
 async function leben_loadModels() {
   const S = leben_S; S.M = {};
-  const load = async (k, key) => { try { const sc = await msModel(key, 'model.glb'); leben_shrink(sc, 1024); S.M[k] = { src: sc, clips: sc.animations || [] }; } catch (e) { console.warn('leben: Modell ' + key, e); } };
-  await Promise.all([load('crow', 'animal_crow'), load('fox', 'animal_fox'), load('deer', 'animal_deerdoe'), load('wolf', 'animal_wolf'), load('pig', 'animal_pig')]);
+  const load = async (k, key, alt, ganz) => { try { let sc; try { sc = await msModel(key, 'model.glb'); } catch (e) { if (!alt) throw e; console.warn('leben: ' + key + ' fehlt – ' + alt, e); sc = await msModel(alt, 'model.glb'); } if (!ganz) leben_shrink(sc, 1024); S.M[k] = { src: sc, clips: sc.animations || [] }; } catch (e) { console.warn('leben: Modell ' + key, e); } };
+  // 08.10.: Krähen = eigene Rabenkrähe (rabe_kraehe, 4–8 k Dreiecke, gleiches Skelett/Clips wie animal_crow); „rabe“ = Whiskeys Modell (für die zwei Raben am Bau, nicht verkleinert – Textur teilt er mit Whiskey)
+  await Promise.all([load('crow', 'rabe_kraehe', 'animal_crow'), load('rabe', 'rabe_whiskey', null, true), load('fox', 'animal_fox'), load('deer', 'animal_deerdoe'), load('wolf', 'animal_wolf'), load('pig', 'animal_pig')]);
 }
 // Modelle der anderen Module finden (Mülltonnen, Müllsäcke, tote Bäume) – nur, wenn sie wirklich geladen wurden
 async function leben_findModels() {
@@ -267,7 +268,8 @@ function leben_crowAnimTick(W, dt, flying, ground) {
   else if (flying) { if (V.mode !== 'fly' && V.mode !== 'glide' && V.mode !== 'land') { V.mode = 'fly'; leben_play(V, 'Fly', .2); } }
   else if (V.mode !== 'land') { V.next -= dt; if (V.next < 0) { const r = Math.random();
       if (ground) { if (r < .45) { leben_play(V, 'EatSomething', .2); V.next = rand(2, 5); } else if (r < .72) { leben_play(V, 'IdleLookAround', .25); V.next = rand(2, 4); } else if (r < .9) { V.hop = .5; leben_play(V, 'Hop', .1, 1.2); V.next = .55; } else { leben_play(V, 'IdleScratchWing', .25); V.next = rand(2, 3.5); } }
-      else { if (r < .66) { leben_play(V, 'IdleLookAround', .3); V.next = rand(3, 8); } else if (r < .86) { leben_play(V, 'IdleScratchWing', .3); V.next = rand(2.5, 4); } else { leben_play(V, 'IdleStretchWings', .3); V.next = rand(2.5, 4); } } }
+      else { if (r < .1 && V.A.Caw && d2 < 60 * 60) { leben_play(V, 'Caw', .15, rand(.9, 1.15), true); V.next = 1.8; Audio.at(Math.random() < .7 ? 'crow1' : 'crow2', g, { gain: .5, vary: .12, ref: 4 }); } // 08.10.: Krächzen mit Verbeugung und offenem Schnabel (Clip „Caw“)
+        else if (r < .66) { leben_play(V, 'IdleLookAround', .3); V.next = rand(3, 8); } else if (r < .86) { leben_play(V, 'IdleScratchWing', .3); V.next = rand(2.5, 4); } else { leben_play(V, 'IdleStretchWings', .3); V.next = rand(2.5, 4); } } }
   }
   if (V.mode === 'land' && V.cur && !V.cur.isRunning()) { V.mode = ''; leben_play(V, 'IdleLookAround', .3); }
   V.skip = !V.skip; if (d2 < 45 * 45) V.mx.update(dt); else if (V.skip) V.mx.update(dt * 2);
