@@ -20,8 +20,9 @@ const AKTE = [ // [Nr, Titel, Ort (Anker: x, yProbe, z | Funktion), Text] – Fa
 const akte_has = n => story.lore.some(l => l.key === 'akte_' + n);
 // Kapitel-Sperren (PK-A A14–A20): ab welchem Kapitel ein Durchschlag ausliegt (fehlt = ab Kapitel 1)
 const AKTE_AB = { 5: 3, 6: 3, 7: 2, 8: 3, 9: 6, 10: 4 };
-const akte_offen = n => kapAb(AKTE_AB[n] || 1);
-function akte_sperre() { for (const d of AKTE_S.docs) { const on = akte_offen(d.n), i = interactables.indexOf(d.hit); d.m.visible = on && !akte_has(d.n); if (on && i < 0) interactables.push(d.hit); else if (!on && i >= 0) interactables.splice(i, 1); } }
+// Durchschlag 7 liegt NICHT mehr offen im langen Gang (Kap. 2 hätte die Wendung vor Akte 08 verraten): er kommt erst als Umschlag aus dem Amt (amt_akte08 → umschlag7 → akte_umschlag7) – 10/10 zählt unverändert über story.lore
+const akte_offen = n => n === 7 ? false : kapAb(AKTE_AB[n] || 1);
+function akte_sperre() { for (const d of AKTE_S.docs) { const on = akte_offen(d.n), i = interactables.indexOf(d.hit); d.m.visible = on && !akte_has(d.n) && !d.weg; if (on && i < 0) interactables.push(d.hit); else if (!on && i >= 0) interactables.splice(i, 1); } }
 const akte_n = () => AKTE.filter(a => akte_has(a[0])).length;
 function akte_tex() { return tex(cnv(256, (c, w) => { c.fillStyle = '#b89a6a'; c.fillRect(0, 0, w, w); for (let i = 0; i < 60; i++) { c.fillStyle = `rgba(60,40,20,${rand(.03, .12)})`; c.fillRect(rand(0, w), rand(0, w), rand(4, 40), rand(2, 10)); }
   c.fillStyle = '#efe8d8'; c.fillRect(30, 18, 196, 60); c.fillStyle = '#2a2a2a'; c.font = 'bold 22px Courier New'; c.textAlign = 'center'; c.fillText('BfR · AST LE', w / 2, 44); c.font = '16px Courier New'; c.fillText('DURCHSCHLAG', w / 2, 66);

@@ -5545,6 +5545,24 @@ const COMPILE_LATER = [], _compileAsync0 = renderer.compileAsync.bind(renderer);
 renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); return Promise.resolve(s); };
 { try { stage('Megascans'); await loadMS(); } catch (e) { console.warn('Megascans', e); } }
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
+// 08.10.: Strahltests während des Modulbaus beschleunigen. Die Module setzen Dinge per Strahl auf Böden/Wände (bu_strahl, kf_boden …) – bisher Dreieck für
+// Dreieck (Profil: ~9 s der Ladezeit), weil three-mesh-bvh erst in der Kollision (buildSolids) eingeschaltet wird. Jetzt bekommt eine Form beim zweiten Strahl,
+// der ihre Hüllkugel trifft, einen BVH (ab 3000 Ecken); buildSolids nutzt ihn weiter. Ändert ein Modul danach die Form (Positionen/Index), wird er verworfen.
+// Ausgenommen: Figuren (Skinning), Morph-Formen, Teil-Zeichenbereiche – dort gilt weiter der normale Strahltest. Abschalten: ?noloadbvh.
+const LOADRAY = { on: !/noloadbvh/.test(location.search), built: [], ms: 0 };
+const lrStale = g => g.__lrP !== g.attributes.position || g.__lrV !== g.attributes.position.version || g.__lrI !== g.index || (g.index && g.__lrIV !== g.index.version);
+const lrMark = g => { g.__lrP = g.attributes.position; g.__lrV = g.attributes.position.version; g.__lrI = g.index; g.__lrIV = g.index ? g.index.version : -1; };
+if (LOADRAY.on) try { const { computeBoundsTree, acceleratedRaycast } = await import('three-mesh-bvh'); THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+  const orig = THREE.Mesh.prototype.raycast, sp = new THREE.Sphere();
+  THREE.Mesh.prototype.raycast = function (rc, hits) { const g = this.geometry;
+    if (g && g.attributes && g.attributes.position && !this.isSkinnedMesh && !g.morphAttributes.position && g.drawRange.start === 0 && g.drawRange.count === Infinity) {
+      if (g.boundsTree && g.__lrP && lrStale(g)) g.boundsTree = null;
+      if (!g.boundsTree) { if (!g.boundingSphere) g.computeBoundingSphere(); sp.copy(g.boundingSphere).applyMatrix4(this.matrixWorld);
+        if (rc.ray.intersectsSphere(sp) && (g.__lrN = (g.__lrN | 0) + 1) >= 2 && g.attributes.position.count > 3000) {
+          const t = performance.now(); try { g.computeBoundsTree(); lrMark(g); LOADRAY.built.push(g); } catch (e) { g.boundsTree = null; } LOADRAY.ms += performance.now() - t; } }
+      if (g.boundsTree) return acceleratedRaycast.call(this, rc, hits); }
+    return orig.call(this, rc, hits); };
+} catch (e) { console.warn('Strahltests beim Laden', e); }
 for (const [n, f] of WORLD_MODS) { try { stage(n); await f(); } catch (e) { console.error('Modul ' + n + ' fehlgeschlagen', e); devNotice('Modul „' + n + '“ fehlgeschlagen: ' + (e && e.message || e)); } }
 // --- LEISTUNG (gemessen mit F3/Analyse: Kapelle 445 383 Draw Calls, Reifenstapel je 12 458, Welt-Wälder als Instanzen immer komplett gezeichnet)
 // 1) Geometrie-Abschnitte je Material zusammenfassen: gleiche Optik, ein Draw Call pro Material statt pro Abschnitt (vor der Kollision, die BVH baut)
@@ -5559,6 +5577,7 @@ function perfMergeGroups(g) {
 }
 { const seen = new Set(); let n = 0, before = 0; scene.traverse(o => { if (!o.isMesh || !Array.isArray(o.material) || seen.has(o.geometry)) return; seen.add(o.geometry); const c = o.geometry.groups.length; if (perfMergeGroups(o.geometry)) { n++; before += c; } });
   if (n) console.info(`Leistung: ${n} Geometrien zusammengefasst (${before} Abschnitte → je 1 pro Material)`); }
+for (const g of LOADRAY.built) if (g.boundsTree && lrStale(g)) g.boundsTree = null; // beim Laden gebaute BVH: Form seither geändert → buildSolids baut neu
 { try { stage('Kollision'); await buildSolids(); } catch (e) { console.warn('Kollision', e); } }
 // 10) Instanz-Gruppen mit gemeinsamer Form (Gräser, Sträucher in mehreren Feldern) bekommen je eine eigene flache Formhülle über denselben Puffern: three.js merkt sich
 //     die Vertex-Bindung je Form + Programm – bei geteilter Form wurde sie für jede Gruppe in jedem Bild neu aufgebaut (gemessen ~600 vertexAttribPointer je Bild).
@@ -6290,7 +6309,7 @@ stage('Erstes Bild fertig');
   saved.forEach((v, o) => o.visible = v); lightsBack();
   scarePlane.material.map = faceTexes.pale;
 }
-try { ktxSweep(); setInterval(ktxSweep, 2000); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
+try { ktxSweep(); setInterval(ktxSweep, 2000); if (window.gc && KTXF.mb > 100) window.gc(); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
 ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();

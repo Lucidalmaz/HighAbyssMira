@@ -260,8 +260,8 @@ WORLD_MODS.push(['Feuer', async () => {
   { S.relSign = feuer_notschalter(FEU.relX, FEU.relZ);
     const lampM = new THREE.MeshBasicMaterial({ map: feuer_texDot(), color: 0xff2a14, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
     const lp = plane(.5, .5, FEU.relX, 1.72, FEU.relZ - .03, lampM, 0, PI); lp.userData.noCol = true; S.relLamp = lp;
-    S.relHit = box(.7, .9, .4, FEU.relX, 1.25, FEU.relZ - .2, hidden, { cast: false }); S.relHit.userData.noCol = true;
-    interact(S.relHit, () => S.phase === 'escape' && !S.relOpen ? 'Notentriegelung ziehen (E halten)' : 'Notentriegelung', () => { if (S.phase !== 'escape') { Audio.play(Audio.pick('keys1', 'keys2'), { gain: .3, rate: .5, x: FEU.relX, y: 1.2, z: FEU.relZ, ref: 2 }); toast(S.done ? 'Der Hebel hängt unten. Die Plombe ist gerissen.' : 'Der Hebel ist verplombt. „Nur bei Brandalarm.“ Er rührt sich keinen Millimeter.', 3600); } }); }
+    S.relHit = box(1.5, 1.7, 1.3, FEU.relX, 1.2, FEU.relZ - .5, hidden, { cast: false }); S.relHit.userData.noCol = true;
+    interact(S.relHit, () => S.phase === 'escape' && !S.relOpen ? 'Notentriegelung ziehen (E halten)' : 'Notentriegelung', () => { if (S.phase === 'idle' && S.spent && (S.spentT || 0) > 90 && !S.done) { feuer_notAlarm(); return; } if (S.phase !== 'escape') { Audio.play(Audio.pick('keys1', 'keys2'), { gain: .3, rate: .5, x: FEU.relX, y: 1.2, z: FEU.relZ, ref: 2 }); toast(S.done ? 'Der Hebel hängt unten. Die Plombe ist gerissen.' : 'Der Hebel ist verplombt. „Nur bei Brandalarm.“ Er rührt sich keinen Millimeter.', 3600); } }); }
   // Brandschutztür: von Anfang an zu (PK-D K2-5). Schild auf dem Türblatt (fährt mit), kein Licht.
   { const sm = new THREE.MeshStandardMaterial({ roughness: .5, metalness: .25, transparent: true, polygonOffset: true, polygonOffsetFactor: -4, map: new THREE.CanvasTexture(feuer_canvas(256, 320, (x, w, h) => {
       x.fillStyle = '#b8231a'; x.fillRect(0, 0, w, h); x.fillStyle = '#efe6d2'; x.fillRect(10, 10, w - 20, h - 20); x.fillStyle = '#b8231a'; x.fillRect(10, 10, w - 20, 70);
@@ -355,6 +355,9 @@ function feuer_notschalterAlt(x, z, o = {}) {
   return g;
 }
 // Notschalter-Teile: Klappe geht beim Greifen auf, der Hebel folgt dem Halten, Plombe reißt, Leuchten wechseln von rot (Alarm) auf grün (frei)
+// Rückfallweg ohne Kampf (90 s nach dem Aufstehen, nicht gezündet): Luke schlägt die Scheibe ein, der Alarm läuft, Peter bleibt stehen und zurück; dann wie gewohnt E halten
+function feuer_notAlarm() { const S = feuer_S; if (S.phase !== 'idle') return; ch2.chase = 'fire'; try { Audio.chaseMusic(false); Audio.chaseLevel(0); } catch (e) {} PZ.ki = null; S.zs = null; feuer_anim(true);
+  if (typeof qte_aktiv === 'function' && qte_aktiv() && typeof qte_ende === 'function') qte_ende(null); subtitle('Du schlägst die Scheibe ein. Irgendwo springt eine Sirene an.', 2800); feuer_escapeStart(); S.sanft = true; S.air = 30; if (S.airEl) S.airEl.classList.remove('show'); }
 function feuer_relTick(pulse) { const S = feuer_S, R = S.relParts; if (!R) return; const p = S.relOpen ? 1 : Math.min(1, S.hold / 1.4), k = x => x * x * (3 - 2 * x);
   R.cover.rotation.x = -1.45 * (S.hold > 0 || S.relOpen ? k(Math.min(1, .35 + p * 1.5)) : 0); R.lever.rotation.x = -.95 * k(p); R.plombe.visible = S.hold < .15 && !S.relOpen; if (R.glass) { R.glass.visible = !(S.relOpen || S.hold > .7); }
   R.ledR.emissiveIntensity = S.relOpen ? 0 : .6 + 3.2 * pulse; R.ledG.emissiveIntensity = S.relOpen ? 3 : 0; }
@@ -531,8 +534,17 @@ function feuer_charUpdate(t) { const S = feuer_S, Q = S.zs; if (!Q) return; cons
 function feuer_matsReset() { for (const e of feuer_mats()) { e.m.color.copy(e.c); e.m.emissive.copy(e.e); e.m.emissiveIntensity = e.ei; } }
 
 // ---------------------------------------------------------------- Zünden (Zwischensequenz mit Handkamera)
-function feuer_canIgnite() { const S = feuer_S, P = player.pos, Q = S.zs;
-  return S.lighter && S.spilled && Q && Q.st === 'down' && S.phase !== 'ignite' && ch2.chase === 'fire' && S.spread < .8 && P.x > S.oilMaxX + .35 && Math.hypot(P.x - Q.x, P.z - Q.z) < 10 && !state.talking && !ui.overlay; }
+// Erste Chance: Peter liegt im Öl. Zweite Chance (er ist wieder aufgestanden): er läuft durch die Lache und Luke steht außerhalb, mit Abstand – dann kann man ihn immer noch anzünden.
+// state.talking sperrt nicht mehr (Eingaben im Zeitdruck nie verschlucken); der Grund, warum es (noch) nicht geht, steht in feuer_igniteWhy.
+function feuer_igniteBase() { const S = feuer_S; return S.lighter && S.spilled && S.phase !== 'ignite' && S.phase !== 'burn' && S.phase !== 'escape' && S.phase !== 'dying' && S.phase !== 'done' && !ui.overlay && S.spread < .8 && !(typeof tod_S !== 'undefined' && tod_S.dying); }
+function feuer_outsideOil(P) { const S = feuer_S; return P.x > S.oilMaxX + .35 || P.x < S.oilMinX - .35; }
+function feuer_canIgnite() { const S = feuer_S, P = player.pos, Q = S.zs; if (!feuer_igniteBase()) return false;
+  if (Q) return Q.st === 'down' && ch2.chase === 'fire' && P.x > S.oilMaxX + .35 && Math.hypot(P.x - Q.x, P.z - Q.z) < 10;
+  const d = Math.hypot(P.x - zombie.x, P.z - zombie.z);
+  return S.spent && ch2.chase === 'run' && zombie.g.visible && Math.abs(zombie.z - Z) < 2.1 && zombie.x > S.oilMinX - .3 && zombie.x < S.oilMaxX + .3 && feuer_outsideOil(P) && d > 1.6 && d < 14; }
+function feuer_igniteWhy() { const S = feuer_S, P = player.pos, Q = S.zs; if (!feuer_igniteBase()) return null;
+  if (Q && Q.st === 'down' && ch2.chase === 'fire' && !feuer_outsideOil(P)) return 'Zu nah am Öl. Ein paar Schritte zurück.';
+  if (!Q && S.spent && ch2.chase === 'run' && zombie.g.visible && Math.abs(zombie.z - Z) < 2.1 && zombie.x > S.oilMinX - .3 && zombie.x < S.oilMaxX + .3) { if (!feuer_outsideOil(P)) return 'Du stehst selbst im Öl. Raus aus der Lache!'; if (Math.hypot(P.x - zombie.x, P.z - zombie.z) <= 1.6) return 'Zu nah. Er ist gleich bei dir.'; } return null; }
 const _fcq = new THREE.Quaternion(), _fcq2 = new THREE.Quaternion(), _fce = new THREE.Euler(), _fcm = new THREE.Matrix4(), _fcv = new THREE.Vector3(), _fct = new THREE.Vector3(), _fcu = new THREE.Vector3(0, 1, 0);
 function feuer_cam(cam, dt) {
   const S = feuer_S, C = S.cine; if (!C) return; C.t += dt;
@@ -551,7 +563,8 @@ function feuer_cam(cam, dt) {
 }
 async function feuer_ignite() {
   const S = feuer_S; if (S.phase === 'ignite' || S.phase === 'burn' || S.phase === 'escape') return; if (!S.spilled) { feuer_spill(); S.spillT = 6; }
-  const Q = S.zs || (zombie.g.visible ? (feuer_zombieFall(false), S.zs) : null); if (!Q) return; if (Q.st !== 'down') { Q.st = 'down'; Q.t = 0; Q.th = 1.52; Q.arms = 0; }
+  if (!S.zs && S.spent && ch2.chase === 'run' && zombie.g.visible) { try { Audio.chaseMusic(false); PZ.ki = null; } catch (e) {} } // zweite Chance: die Jagd endet, er rutscht im Öl (feuer_zombieFall → Zustand „fall“)
+  const Q = S.zs || (zombie.g.visible ? (feuer_zombieFall(false), S.zs) : null); if (!Q) return; if (Q.st !== 'down' && Q.st !== 'fall') { Q.st = 'down'; Q.t = 0; Q.th = 1.52; Q.arms = 0; }
   feuer_hurry(null); const vor = S.phase; S.phase = 'ignite'; const run = ++S.run; S.ignHit.position.set(0, -80, 0); uninteract(S.ignHit);
   state.talking = true; setScripted(() => true); vel.set(0, 0, 0);
   const P = player.pos, f = { x: -Math.sin(player.yaw), z: -Math.cos(player.yaw) };
@@ -609,7 +622,7 @@ function feuer_escapeStart(restart) {
   at(21500, () => subtitle('Nicht hier unten. Nicht so wie er.', 2800, 'LUKE'));
 }
 function feuer_escapeUpdate(dt, t) {
-  const S = feuer_S, P = player.pos; S.escT += dt; if (!tod_S.dying) S.air = Math.max(0, S.air - dt); const s = 1 - S.air / 30;
+  const S = feuer_S, P = player.pos; S.escT += dt; if (!tod_S.dying && !S.sanft) S.air = Math.max(0, S.air - dt); const s = 1 - S.air / 30;
   S.airEl.querySelector('u').style.transform = `scaleX(${(S.air / 30).toFixed(3)})`; S.airEl.classList.toggle('low', S.air < 9);
   // Sicht: Rauch wird dichter und sinkt; Ränder werden schwarz, das Bild verschwimmt; der Klang wird dumpf
   S.ceil = C2.h - .35 - 1.2 * Math.min(1, s * 1.25);
@@ -626,9 +639,9 @@ function feuer_escapeUpdate(dt, t) {
   const pulse = Math.pow(Math.max(0, Math.sin(t * 5.2)), 3); S.redL.intensity = S.relOpen ? .6 : .8 + 5 * pulse; S.relLamp.material.opacity = S.relOpen ? .25 : .25 + .75 * pulse;
   feuer_relTick(pulse);
   const dR = Math.hypot(P.x - FEU.relX, P.z - (FEU.relZ - .3)); camera.getWorldDirection(_fct);
-  const facing = _fct.z > .25 || dR < .9;
+  const rx = FEU.relX - P.x, rz = FEU.relZ - P.z, rl = Math.hypot(rx, rz) || 1, facing = dR < 1.3 || (_fct.x * rx + _fct.z * rz) / (Math.hypot(_fct.x, _fct.z) || 1) / rl > .3;
   if (!S.relOpen) {
-    if (dR < 1.8 && facing && keys.KeyE && !ui.overlay) { S.hold += dt; if (S.hold % .3 < dt) Audio.play(Audio.pick('keys1', 'keys2'), { gain: .25, rate: .5, x: FEU.relX, y: 1.2, z: FEU.relZ, ref: 2 }); } else S.hold = Math.max(0, S.hold - dt * 1.5);
+    if (dR < 2.4 && facing && keys.KeyE && !ui.overlay) { S.hold += dt; if (S.hold % .3 < dt) Audio.play(Audio.pick('keys1', 'keys2'), { gain: .25, rate: .5, x: FEU.relX, y: 1.2, z: FEU.relZ, ref: 2 }); } else S.hold = Math.max(0, S.hold - dt * 1.5);
     $('sideInfo').textContent = S.hold > 0 ? '▮'.repeat(Math.ceil(S.hold / 1.4 * 10)).padEnd(10, '▯') : '';
     if (S.hold >= 1.4) { S.relOpen = true; $('sideInfo').textContent = ''; chaseDoor.locked = false; chaseDoor.set(true); Audio.slide(X + 106, Z); Audio.play('metalOpen', { gain: 1, rate: .7, x: X + 106, y: 1.2, z: Z, ref: 5 });
       FEU_SND.level('draft', 2.4); FEU_SND.level('draft2', 3); Audio.play('wind2', { gain: .9, rate: .8, dur: 3, fadeIn: .4, x: X + 106.5, y: 1, z: Z, ref: 3 }); subtitle('Kalte Luft!', 1600, 'LUKE'); setC2Objective('Durch die Tür!'); }
@@ -676,7 +689,7 @@ function feuer_reset(cpId) {
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
   // alles auf Anfang: Fass steht, kein Öl, kein Feuer, kein Ruß, Verfolger fort, Tür offen
-  feuer_hurry(null); feuer_relReset(); S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; if (S.stream) S.stream.visible = false; S.spillBodyX = undefined; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
+  feuer_hurry(null); feuer_relReset(); S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.sanft = false; S.spentT = 0; S.eWas = false; S.said.zweit = S.said.zweit2 = false; if (S.stream) S.stream.visible = false; S.spillBodyX = undefined; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
   if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; S.barrel.userData.noCol = false; }
   if (!interactables.includes(S.bHit)) interact(S.bHit, S.bHit.userData.label, S.bHit.userData.action);
   S.oil.position.y = -40; S.oilU.uSpread.value = 1.1; S.oilU.uBurnR.value = 0; S.oilU.uHeat.value = 0; S.oilU.uChar.value = 0;
@@ -721,6 +734,11 @@ WORLD_TICK.push((dt, t) => {
     if (S.spilled) { S.spillT += dt; S.spread = 1.02 - .94 * (1 - Math.exp(-S.spillT / 2.3)); S.oilU.uSpread.value = S.spread; S.oilU.uTime.value = t;
       const st = S.stream; if (st) { const u = S.spillT, on = u < 3.4 && S.bx !== undefined; st.visible = on; if (on) { const h = .55 * Math.min(1, u / .25) * (1 - Math.max(0, (u - 2.4) / 1)); st.scale.set(1 + Math.sin(t * 40) * .08, Math.max(.001, h), 1); st.position.set(S.bx, .02 + h / 2, S.bz + FEU.r + .43); } } }
     // Zünden anbieten: unsichtbare Fläche vor der Kamera trägt die Aufforderung (gleiches Aussehen wie jede Handlung)
+    { const e = !!keys.KeyE, tap = e && !S.eWas; S.eWas = e; const can = feuer_canIgnite();
+      if (tap && can) feuer_ignite(); else if (tap && !state.talking) { const why = feuer_igniteWhy(); if (why) toast(why, 2200); } // E zündet auch ohne getroffene Klickfläche
+      if (S.spent && S.phase !== 'ignite' && S.phase !== 'burn' && S.phase !== 'escape' && ch2.chase === 'run' && !S.done) { S.spentT = (S.spentT || 0) + dt;
+        if (S.spentT > 10 && !S.said.zweit && S.spilled && S.lighter) { S.said.zweit = true; subtitle('Das Öl liegt noch da. Das Feuerzeug auch.', 2800, 'LUKE'); }
+        if (S.spentT > 90 && !S.said.zweit2) { S.said.zweit2 = true; subtitle('Locke ihn zurück ins Öl – oder schlag an der Brandschutztür Alarm.', 4200, 'LUKE'); try { setC2Objective('Peter ins Öl locken und anzünden – oder die Notentriegelung ziehen'); } catch (e2) {} } } }
     if (feuer_canIgnite()) { camera.getWorldDirection(_fcv); if (!interactables.includes(S.ignHit)) interact(S.ignHit, 'Das Öl anzünden', () => feuer_ignite()); S.ignHit.position.copy(camera.position).addScaledVector(_fcv, 1.1); S.ignHit.lookAt(camera.position);
       if (!S.said.feuer) { S.said.feuer = true; subtitle('Das Feuerzeug.', 1600, 'LUKE'); } }
     else if (interactables.includes(S.ignHit)) { uninteract(S.ignHit); S.ignHit.position.set(0, -80, 0); }
@@ -894,7 +912,7 @@ function pz_play(P, k, first, o) { if (!P.own) return figuren_play(P, k, first, 
 function pz_look(P, t, w = 1) { if (!P) return; if (P.own) { P.look = t; P.lookW = t ? w : 0; } else figuren_lookAt(P, t, w); }
 function pz_mim(P, n, w, d) { if (P && !P.own && typeof figuren_mimik === 'function') return figuren_mimik(P, n, w, d); return false; }
 function pz_zmLoco(k, s) { const P = PZ.P, a = P.cur, m = P.motion[PZ.loco];
-  if (a && m && m.speed) a.timeScale = Math.max(k === 'walk' ? .7 : .6, Math.min(k === 'walk' ? 3.6 : 1.6, s / m.speed));
+  if (a && m && m.speed) { const want = Math.max(k === 'walk' ? .45 : .5, Math.min(k === 'walk' ? 4.6 : 2.2, s / m.speed)); a.timeScale += (want - a.timeScale) * .18; } // Strecke je Zyklus aus dem Clip (m.speed), keine feste Grenze → Füße gleiten kaum
   if (a && m && m.phaseL !== undefined && s > .1) { const u = (a.time / a.getClip().duration) % 1, u0 = PZ.ph; PZ.ph = u; if (u0 >= 0) for (const f of [m.phaseL, m.phaseR]) if ((u0 < f && u >= f) || (u0 > u && (f > u0 || f <= u))) {
       if (!pz_ton('schritt', Math.min(1.1, .32 + s * .22), k === 'run' ? 1.06 : .96, false, .05)) Audio.stepAt(zombie.x, zombie.z, .5); if (k === 'walk' && f === m.phaseR && Math.random() < .6) pz_ton('schlurf', .6, .95, false, .05); } } else PZ.ph = -1; }
 // Blick: Kopf folgt dem Ziel (Kamera, Punkt, Objekt) begrenzt (±63° Gier, ±29° Neigung) – nach dem Mischer, vor der Zusatzschicht

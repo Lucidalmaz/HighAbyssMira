@@ -22,6 +22,8 @@ app.commandLine.appendSwitch('ignore-gpu-blocklist');
 app.commandLine.appendSwitch('gpu-program-cache-size-kb', String(256 * 1024));
 app.commandLine.appendSwitch('gpu-disk-cache-size-kb', String(512 * 1024));
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
+// Speicher: nach dem Laden gibt das Spiel ~3,5 GB Texturdaten frei (KTXF) – window.gc() räumt sie einmal sofort weg, statt auf die nächste große Bereinigung zu warten
+app.commandLine.appendSwitch('js-flags', '--expose-gc');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required'); // Menümusik ohne ersten Klick
 // Testläufe: Fenster außerhalb des Bildschirms, weiterhin gerendert (keine Verdeckungs-Drosselung)
 if (selftest) app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
