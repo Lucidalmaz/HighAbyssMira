@@ -20,7 +20,7 @@ const MZ_SHOTS = [
   { id: 'nr7', fov: 46, T: 34, a: mz_v(16.6, 1.72, 3.4), b: mz_v(19.0, 1.62, 1.0), la: mz_v(23.9, 2.05, -12), lb: mz_v(24.0, 1.9, -12), start: () => mz_nr7(true), tick: (dt, t) => mz_nr7Tick(dt, t), end: () => mz_nr7(false) },
   { id: 'laterne', fov: 50, T: 34, a: mz_v(-14.6, 1.15, -1.6), b: mz_v(-15.5, 1.05, -.7), la: mz_v(-20, 2.55, 4.2), lb: mz_v(-20, 2.8, 4.3), start: () => mz_lat(true), tick: (dt, t) => mz_latTick(dt, t), end: () => mz_lat(false) },
   { id: 'ortstafel', fov: 52, T: 32, a: mz_v(-64.4, 1.42, 2.5), b: mz_v(-66.1, 1.38, 3.4), la: mz_v(-72.3, 1.75, 6.3), lb: mz_v(-72.6, 1.7, 6.0), start: () => mz_glas(true), tick: (dt, t) => mz_glasTick(dt, t), end: () => mz_glas(false) },
-  { id: 'kapelle', fov: 44, T: 30, a: mz_v(-52.5, 1.5, 71.5), b: mz_v(-52.1, 1.7, 74.6), la: mz_v(-52.5, 4.2, 86.6), lb: mz_v(-52.5, 3.7, 86.6), tick: (dt, t) => { if (mz_once('glocke', t > 12)) mz_play('fx_glocke', { gain: .16, x: -52.5, y: 8, z: 86.6, ref: 14 }); } },
+  { id: 'kapelle', fov: 44, T: 30, a: mz_v(-52.5, 1.5, 71.5), b: mz_v(-52.1, 1.7, 74.6), la: mz_v(-52.5, 4.2, 86.6), lb: mz_v(-52.5, 3.7, 86.6), start: () => mz_kap(true), end: () => mz_kap(false), tick: (dt, t) => { mz_kap(true, true); if (mz_once('glocke', t > 12)) mz_play('fx_glocke', { gain: .16, x: -52.5, y: 8, z: 86.6, ref: 14 }); } },
   { id: 'wald', fov: 50, T: 32, a: mz_v(29, 1.45, 85), b: mz_v(29.8, 1.4, 88), la: mz_v(28.5, 2.8, 104), lb: mz_v(30, 2.4, 104),
     start: () => { try { for (const V of wald_S.beasts) V.g.visible = false; } catch (e) {} },
     tick: (dt, t) => { if (MZ.after3 && mz_once('schatten', t > 15 && Math.random() < .004)) { try { if (beob_S.V) { beob_show([27.2, 0, 99]); MZ.o.beob = true; setTimeout(() => { try { beob_hide(); } catch (e) {} MZ.o.beob = false; }, 900); } } catch (e) {} }
@@ -125,6 +125,14 @@ function mz_latRest(t, O) {
     if (mz_once('ok', t > 19.4)) { O.L.mode = O.lampMode || 'on'; O.L.dead = 0; } }
 }
 
+// Kapelle im Menü: der Foto-Scan blieb schwarz (kein Lampenlicht, Kulling). Hier: sichtbar halten, nicht wegschneiden, ein kaltes Mondlicht-Grundlicht über die
+// Emissivfarbe (kein neues Licht, keine Shader-Neuübersetzung) – die Taschenlampe am Kamerastand setzt dann Textur und Kanten.
+function mz_kap(an, nur) {
+  const g = typeof ausbau_nord !== 'undefined' ? ausbau_nord.chapel : null; if (!g) return; const O = MZ.o;
+  if (an) { g.visible = true; if (nur && O.kapOk) return; O.kapOk = true; O.kapM = O.kapM || [];
+    g.traverse(m => { if (!m.isMesh) return; m.visible = true; m.frustumCulled = false; for (const x of [].concat(m.material)) { if (!x || !x.emissive) continue; if (!O.kapM.some(e => e[0] === x)) O.kapM.push([x, x.emissive.getHex(), x.emissiveIntensity]); x.emissive.setHex(0x2a3550); x.emissiveIntensity = x.map ? .55 : .35; } }); }
+  else if (O.kapM) { for (const [x, h, i] of O.kapM) { x.emissive.setHex(h); x.emissiveIntensity = i; } O.kapM = null; O.kapOk = false; }
+}
 // ---------------------------------------------------------------- Motiv 3: Ortstafel durch die beschlagene Scheibe – jemand malt ∴ hinein
 function mz_glas(an) {
   $('start').classList.toggle('mzGlas', an);
