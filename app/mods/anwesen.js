@@ -129,7 +129,7 @@ WORLD_MODS.push(['Anwesen', async () => {
     sign.material.map.repeat.set(1, .23); sign.material.map.offset.set(0, .77); sign.position.set(-.3, .38, .66); g.add(sign);
     for (const [px, pz] of [[-1.3, -1], [1.5, -1], [-1.3, 1], [1.5, 1]]) add(new T.CylinderGeometry(.06, .07, 2.5, 8), wood, px, 1.25, pz);
     add(new T.PlaneGeometry(3.4, 2.6), roofM, .1, 2.55, 0, -PI / 2 + .12);
-    box(1.9, 1.7, 2.6, mx, .85, mz, hidden, { collide: true, cast: false });
+    { const cb = box(1.9, 1.7, 2.6, mx, .85, mz, hidden, { collide: true, cast: false }); const oi = occluders.indexOf(cb); if (oi >= 0) occluders.splice(oi, 1); } // Kollision ja, aber kein Strahlblocker: sonst deckt die Kiste die kleinere Klickfläche ab und der Strahl trifft die Presse nie (Test 08.10.)
     const L = new VLight(0xffb070, .0, 4, 2); L.position.set(mx, 1.6, mz); scene.add(L); S.pressLight = L;
     const hit = box(1.6, 1.4, 2.3, mx, .9, mz, hidden, { cast: false });
     interact(hit, () => S.key ? 'Prägepresse' : 'Prägepresse · Seiler & Sohn', () => anwesen_press());

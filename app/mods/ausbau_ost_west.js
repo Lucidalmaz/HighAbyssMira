@@ -396,7 +396,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   hit(3.5, 1.2, 3, 124.2, .6, 23.5, 'Reifenstapel', () => toast('Auf den Reifen, mit weißer Kreide gezählt: I II III IV V VI VII. Der achte Strich ist frisch.', 4200));
   hit(4.4, 1.6, 2, 122.5, .8, -14.5, 'Ausgebranntes Auto', () => toast('Auf dem Rücksitz: ein geschmolzener Kindersitz. Der Gurt ist noch geschlossen.', 4200));
   hit(4.5, 1.4, 2, 130.5, .7, -12.6, 'Schrottauto', () => { Audio.play('metalOpen', { gain: .3, rate: 1.1, x: 130, y: 1, z: -12, ref: 2 }); toast('Kofferraum: eine Decke, eine Taschenlampe ohne Batterien, ein Schulranzen. Name herausgeschnitten.', 4400); });
-  // Transporter: siehe ausbau_ost_west_f3 („Acht Kindersitze“)
+  // Transporter: siehe ausbau_ost_west_f3 („Sieben Kindersitze“)
   // Schrottbüro: eigener Schuppen am Wendehammer (ausbau_ost_west_f3); der Geräteschuppen hier ist Günthers Schuppen (post.js)
   hit(1.6, 1.1, 17, 146.3, .55, 0, 'Straßensperre', () => openNote('Aushang an der Betonsperre', 'Laminiert, vergilbt, mit Kabelbinder befestigt:\n\n<b>SPERRGEBIET</b>\nDurchfahrt und Betreten verboten.\nAnordnung des Amtes für Rückführung vom 13.07.1992.\n' + noteHand('Zuwiderhandlungen werden nicht verfolgt.') + '\n\nDarunter hat jemand mit Kuli geschrieben:\n' + noteHand('„Weil keiner zurückkommt, den man verfolgen könnte.“'), 'ow_sperre')); // STORY-HOOK: Amt/1992
   hit(4.5, 1.6, 2.2, 150.6, .8, 2.6, 'Ausgebranntes Auto', () => { Audio.radio(150.6, 2.6); setTimeout(() => say([['*Rauschen*', 1400], ['„…einunddreißig Komma eins null… wer das hört: nicht über die Sperre…“', 3600, 'AUTORADIO'], ['*Klick*', 700]]), 500); }); // STORY-HOOK: 31,10 MHz
@@ -537,7 +537,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
 WORLD_TICK.push((dt, t, indoor) => { const OW = ausbau_ost_west_OW; if (OW.on && OW.tick) OW.tick(dt, t, indoor); if (OW.on && OW.f3) ausbau_ost_west_f3Tick(dt, t); });
 
 // =====================================================================  Fassung 3 (AP-15): Kapitel-1-Nebenaufgaben Ost/West
-// 15 „Zapfsäule 3“ (Nachtschalter: Bon, Mikes Schichtbuch, Kassette 0313; Z-02; Günthers Schuppen) · 17 „Acht Kindersitze“ (zwei Transporter, Klopfen zählt die Klopfer,
+// 15 „Zapfsäule 3“ (Nachtschalter: Bon, Mikes Schichtbuch, Kassette 0313; Z-02; Günthers Schuppen) · 17 „Sieben Kindersitze“ (zwei Transporter, Klopfen zählt die Klopfer,
 // Lampion-Kiste, Schrottbüro mit Kalender 1992) · 19 „Die Kreise sind von unten“ (Frau Aydın am Küchenfenster Nr. 8, Dina in der Scheune, Rätsel „Laterne, Laterne“,
 // „Augen zu“ gezeigt, Dinas Zeichnung, Justins Lager mit Fundamentstein, W-04, SB-01) · 20 „Da oben war es warm“ (Roxys Laube, Heft, Fisch, Brunnen, Hildes Laube, Beete, Nachbild).
 function ausbau_ost_west_schalter(Q) { const OW = ausbau_ost_west_OW; kirchberg_start('ow_kasse', { x: 112, z: 20 });
@@ -565,7 +565,7 @@ function ausbau_ost_west_warmCheck() { const OW = ausbau_ost_west_OW, Q = OW.Q |
 
 async function ausbau_ost_west_f3(OW, c) {
   const T = c.T, Q = c.Q; OW.f3 = { t: 0 };
-  // ================= „Acht Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
+  // ================= „Sieben Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
   const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
   const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
   try { // Basis-Umsetzung: der Kalender von 1992 an der Rückwand, Juli: jeder Tag durchgestrichen bis zum 13.
@@ -578,10 +578,10 @@ async function ausbau_ost_west_f3(OW, c) {
     for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(100,80,50,${Math.random() * .08})`; x.beginPath(); x.arc(Math.random() * 320, Math.random() * 440, 4 + Math.random() * 24, 0, 7); x.fill(); }
     const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; const m = new T.Mesh(new T.PlaneGeometry(.34, .47), new T.MeshStandardMaterial({ map: t, roughness: .9 })); const p = h ? h.p : new T.Vector3(112.6, 1.5, -30.4), n = h ? h.n : new T.Vector3(0, 0, 1);
     bu_an(m, p, n, new T.Vector3(0, 1, 0), .012); m.rotateZ(.03); m.userData.noCol = true; c.J.add(m); OW.f3.kalender = m; } catch (e) { console.warn('Basis-Umsetzung Schrottbüro-Kalender', e); }
-  const owSpaeter = () => typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp'); // H-6 (Story-Prüfung): „Acht Kindersitze“ erst ab Kap. 3
+  const owSpaeter = () => typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp'); // H-6 (Story-Prüfung): „Sieben Kindersitze“ erst ab Kap. 3
   c.hit(2.8, 2.6, 2.4, 112.6, 1.3, -29.2, 'Schrottbüro', () => { if (owSpaeter()) return toast('Abgeschlossen. Ein Schrottbüro, Wellblech, ein Kalender hinter Glas.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); Audio.knock(112.6, 1.3, -29.2); OW.f3.kal = true; toast('Abgeschlossen. An der Brettwand hängt ein Kalender von 1992. Jedes Datum ist durchgestrichen – bis zum 13. Juli.', 4600); ausbau_ost_west_transpCheck(); });
   c.hit(4.8, 2, 2.4, 133.2, 1, -25.2, 'Erster Transporter', () => { if (owSpaeter()) return toast('Ein alter Transporter. Die Ladefläche ist mit einer Plane zugebunden.', 2600); kirchberg_start('ow_transp', { x: 128, z: -22 }); OW.f3.sitze = true;
-    openNote('Der erste Transporter', 'Unter dem Rost an der Seite: BUNDESSTELLE FÜR RÜCKF… Das Auge halb abgekratzt.\n\nAuf der Ladefläche: acht festgeschraubte Kindersitze mit Messingschildern. Eines ist abgekratzt bis zum Glanz, nur der Rand eines C ist geblieben.\n\nEine Kiste, der Deckel weiß überstrichen. Mit schräger Lampe liest man die Schrift darunter: <b>SEHEN · BERGEN · SCHWEIGEN</b>.', 'ow_transporter1', () => ausbau_ost_west_transpCheck()); });
+    openNote('Der erste Transporter', 'Unter dem Rost an der Seite: BUNDESSTELLE FÜR RÜCKF… Das Auge halb abgekratzt.\n\nAuf der Ladefläche: sieben festgeschraubte Kindersitze mit Messingschildern. Eines ist abgekratzt bis zum Glanz, nur der Rand eines C ist geblieben.\n\nEine Kiste, der Deckel weiß überstrichen. Mit schräger Lampe liest man die Schrift darunter: <b>SEHEN · BERGEN · SCHWEIGEN</b>.', 'ow_transporter1', () => ausbau_ost_west_transpCheck()); });
   c.hit(2.2, 1.8, 1.4, 127.4 + Math.sin(.35) * 2.6, 1, -20.2 + Math.cos(.35) * 2.6, () => owSpaeter() ? 'Transporter' : OW.f3.klopfAn ? 'Klopfen' : 'Zweiter Transporter (es klopft)', () => owSpaeter() ? toast('Ein zweiter Transporter. Still.', 2200) : ausbau_ost_west_klopf());
   c.hit(1.6, 1.2, 1, 127.4 - Math.sin(.35) * 2.6, .9, -20.2 - Math.cos(.35) * 2.6, 'Kofferraum', () => owSpaeter() ? toast('Der Kofferraum klemmt.', 2000) : ausbau_ost_west_kiste());
   // ================= „Die Kreise sind von unten“: Frau Aydın (Nr. 8, Küchenfenster), Dina (Scheune), Justins Lager
@@ -640,7 +640,7 @@ function ausbau_ost_west_kiste() { const OW = ausbau_ost_west_OW, K = OW.f3; kir
   openNote('Kiste im Kofferraum', 'Stempel: <b>EINGEZOGEN · SOMMERFEST 2009 · 7 STK.</b>, darunter das Auge.\n\nSieben gefaltete Papierlampions mit Namenszetteln: ROXY, HEIDI, MIKE, DINA, LUCY, LUKE, ZAYN.\nObenauf ein achter, ungefaltet, ohne Zettel. Das Papier ist warm.', 'ow_lampions',
     () => { subtitle('Die haben die Lampions eingesammelt. Wie Beweisstücke.', 3200, 'LUKE'); ausbau_ost_west_transpCheck(); }); }
 function ausbau_ost_west_transpCheck() { const K = ausbau_ost_west_OW.f3; const n = [K.sitze, K.kiste, K.kal, K.m3 || K.m2].filter(Boolean).length; kirchberg_desc('ow_transp', `Zwei Transporter, das Klopfen, eine Kiste, das Schrottbüro. (${n}/4)`);
-  if (n >= 4) kirchberg_fertig('ow_transp', 'Sieben Kinder kamen 2009 zurück, und jemand hatte acht Sitze eingebaut. SEHEN · BERGEN · SCHWEIGEN.'); }
+  if (n >= 4) kirchberg_fertig('ow_transp', 'Sieben Sitze, sieben Kinder, 2009. Sechs kamen zurück. SEHEN · BERGEN · SCHWEIGEN.'); }
 // ---- Frau Aydın (Nr. 8): Päckchen in Alufolie für Dina
 async function ausbau_ost_west_aydin() { const OW = ausbau_ost_west_OW, K = OW.f3; if (state.talking || kap() !== 1) return; state.talking = true; K.fensterAuf = true; const A = 'FRAU AYDIN';
   try { if (!K.aydin) { K.aydin = true; kirchberg_start('ow_kreise', { x: 46, z: 10 });
@@ -670,7 +670,7 @@ async function ausbau_ost_west_dinaFund() { const OW = ausbau_ost_west_OW, K = O
     await say([['„Augen zu. Dann siehst du nichts. Dann sieht sie nichts. Fair.“', 3800, D], ['Wer war das?', 1600, 'LUKE'], ['„Nicht sie. Der Junge. Kommt, wenn keiner guckt.“', 3200, D], ['„Den Eisernen sieht sie nie. Der schläft da hinten. Manchmal.“', 3600, D]]);
     openNote('Dinas Zeichnung', 'Wachsmalkreide auf Packpapier: Sieben Kreise, in jedem eine kleine Flamme, jeder mit einem Strich nach oben wie ein Stiel. Vier sind durchgestrichen, jeder anders: dünn, dick, doppelt, zittrig. Keine Straße, keine Häuser.', 'ow_dina_zeichnung',
       async () => { await say([['„Die Kreise sind von unten.“', 2200, D], ['Sieht aus wie Spiegeleier am Stiel.', 2400, 'LUKE']]); await wait(1000); await say([['„Du auch.“', 1400, D]]); await wait(700);
-        await say([['„Ich hab die Transporter gesehen. Acht Sitze. Ich zähl nicht gern. Ich hab trotzdem gezählt.“', 4600, D]]); K.zeichnung = true; if (!ITEMS.dina_zeichnung) modItem('dina_zeichnung', 'Dinas Zeichnung', 'Sieben Kreise mit Flamme und Stiel. Vier durchgestrichen.', 'paper'); addItem('dina_zeichnung'); ausbau_ost_west_kreiseCheck(); });
+        await say([['„Ich hab die Transporter gesehen. Sieben Sitze. Ich zähl nicht gern. Ich hab trotzdem gezählt.“', 4600, D]]); K.zeichnung = true; if (!ITEMS.dina_zeichnung) modItem('dina_zeichnung', 'Dinas Zeichnung', 'Sieben Kreise mit Flamme und Stiel. Vier durchgestrichen.', 'paper'); addItem('dina_zeichnung'); ausbau_ost_west_kreiseCheck(); });
   } finally { state.talking = false; } }
 function ausbau_ost_west_lager() { const OW = ausbau_ost_west_OW, K = OW.f3; kirchberg_start('ow_kreise'); K.lager = true;
   openNote('Ein Lager im Heu', 'Unter dem Heuboden eine Strohmulde, unten zu Staub zerfallen, oben frisch. Eine Blechdose Rüstungsöl, ranzig. Ein Schleifstein mit einer daumentiefen Mulde. Ein Laternenhaken ohne Laterne.\n\nIm Heu ein Fundamentstein. Darauf, eingeritzt: ein Turm über einem Abgrund.', 'ow_justinlager',

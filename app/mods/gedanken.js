@@ -89,7 +89,7 @@ const LUKE_BLICK = {
     ['U-21', 'wrack', 'Kindersitz hinten, Koffer drin. Die wollten weg. Die Tür steht offen, als wär einer nur kurz ausgestiegen.', { g: 1 }],
     ['U-22', 'beschlagen', 'Da sitzt keiner drin. Ich schreib nichts drauf, und ich les auch nichts.', { g: 1 }],
     ['U-23', 'traktor', 'Baujahr: als Traktoren noch Gesichter hatten. Der guckt.'],
-    ['U-24', 'transporter', 'Acht Kindersitze. Einer mehr, als man braucht. Oder genau so viele.', { g: 1 }],
+    ['U-24', 'transporter', 'Sieben Kindersitze. Genau so viele, wie sie damals waren.', { g: 1 }],
     ['U-25', 'postrad', 'Klingel wie ein Rabe. Wer baut so eine Klingel? Wer will so eine?']
   ],
   zeichnung: [

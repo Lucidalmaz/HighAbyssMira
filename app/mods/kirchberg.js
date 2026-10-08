@@ -166,7 +166,7 @@ const KB_K1 = {
   nord_strich: ['Der Strich ohne Namen', 'Am Kirchberg 5, Praxis Dr. Seiler. Durchs Flurfenster eine Messlatte.'],
   ow_kasse: ['Zapfsäule 3', 'Tankstelle Kranz. Über der Kasse brennt eine einzige Röhre.'],
   post_brief: ['Empfänger unbekannt verzogen', 'Eine Fahrradklingel im Nebel.'],
-  ow_transp: ['Acht Kindersitze', 'Schrottplatz am Wendehammer. Aus einem Transporter klopft es.'],
+  ow_transp: ['Sieben Kindersitze', 'Schrottplatz am Wendehammer. Aus einem Transporter klopft es.'],
   gruen_wild: ['Wildschaden, 1992', 'Der Nordzaun. Absperrgitter und ein Schild.'],
   ow_kreise: ['Die Kreise sind von unten', 'Nr. 8, Frau Aydın am Küchenfenster: Dina ist in der Scheune.'],
   ow_laternen: ['Da oben war es warm', 'Schrebergärten. In einer Laube brennen alle Lampen.'],
