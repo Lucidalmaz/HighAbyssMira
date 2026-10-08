@@ -6209,6 +6209,8 @@ function update(dt, t) {
 }
 
 // Lesen friert die Welt ein (Gegner, Gefahren, Zeitgeber) – außer in Zwischensequenzen, dort laufen Notizen einfach mit
+// Während „Texturen hochladen“ (Schwarzblende #fade deckt die Leinwand ganz ab) keine vollen Bilder zeichnen: sie waren unsichtbar und kosteten je Häppchen ein ganzes Bild mit Nachbearbeitung
+const LOAD_NORENDER = { on: false };
 const FREEZE_OV = new Set(['note', 'journal', 'puzzle', 'keypad', 'editor']);
 const readingFreeze = () => !!ui.overlay && FREEZE_OV.has(ui.overlay) && !state.talking && !scripted && !camOverride && !state.ending;
 const LOOP = { err: new Map() };
@@ -6221,7 +6223,7 @@ function loop() {
   try { if (!frozen) { update(dt, t); gtAdvance(Math.min(raw, .25) * 1000); } else flashHudTick(dt); } catch (e) { loopErr('update', e); }
   try { updateInteract(); } catch (e) { loopErr('interact', e); }
   const p1 = PERF.on ? performance.now() : 0;
-  if (!GL.lost) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
+  if (!GL.lost && !LOAD_NORENDER.on) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
   if (PERF.on) { const p2 = performance.now(); perfFrame(p2, p1 - p0, p2 - p1); }
 }
 // Grafikkontext verloren (Treiberabsturz, Energiesparen): Spiel anhalten, Hinweis, sauber neu laden – der Spielstand bleibt
@@ -6331,10 +6333,10 @@ stage('Erstes Bild fertig');
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
-    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1);
+    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true;
     for (let i = 0; i < teile.length; i += 12) { const an = new Set(teile.slice(i, i + 12)); for (const c of teile) c.visible = an.has(c);
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
-    renderer.setRenderTarget(null);
+    renderer.setRenderTarget(null); LOAD_NORENDER.on = false;
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
     all.forEach(o => o.visible = true); lsetApply(); // keep hat auch die Lichter zurückgesetzt – fürs Schattenbild wieder wie im ersten Bild (lightsBack unten stellt den Spielzustand her)
     if (PROGLOG) PROGLOG.mark('hochgeladen');
@@ -6349,7 +6351,7 @@ stage('Erstes Bild fertig');
   if (PROGLOG) PROGLOG.mark('Schatten');
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); if (window.gc && KTXF.mb > 100) window.gc(); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
-ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
+LOAD_NORENDER.on = false; ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   const pr = typeof qualityPR === 'function' ? qualityPR() : Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);

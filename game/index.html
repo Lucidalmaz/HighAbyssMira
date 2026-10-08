@@ -11396,7 +11396,7 @@ function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kein Sinus-Pfeifen me
 }
 function leben_click() {} // Fledermaus: im November kaum da, die Klicks lagen an der Hörgrenze – ersatzlos still
 function leben_hiss(x, y, z) { // Katze im Dunkeln: Fauchen
-  if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
+  if (!Audio.ctx || !Audio.started) return; if (Audio.katze && Audio.katze('fauch', x, y, z)) return; // echte Aufnahme (klang.js) const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
   n.connect(bp); Audio.env(bp, .22, .035, .55, 0, d); n.stop(ctx.currentTime + 1.2);
 }
 function leben_bellStrike(amp, damp) { // Kapellenglocke: aufgenommene Röhrenglocke (VSCO, CC0), auf g gestimmt, mit tiefem Summton darunter; gedämpft = kurz abgefangen
@@ -12427,11 +12427,12 @@ function leben_run(dt, t, indoor) {
 }
 // Testzugriff (für die Selbsttests; im Spiel ungenutzt)
 function leben_debug() { return { S: leben_S, EV: leben_EV, bell: () => leben_bell313(ch3.on), hunt: leben_huntStart, chase: leben_ratChase, shadow: () => leben_shadowStart(true), scare: leben_scare, crowScare: leben_crowScare, drop: () => { if (leben_S.drop) leben_S.drop.T = 0; }, flash: v => { flashOn = !!v; } }; }
-// =====================================================================  KATZEN (Modul „katzen“, AP-09 Fassung 3): Giselas siebzehn Katzen und der Kater Hänschen
-// Ein Tiermodell (Fab „Cat long haired“, Sean4297, CC-BY; aufbereitet in game/assets/ms/katze/model.glb: 56 statt 972 Knochen, Gehzyklus +
-// eigene Posen sitzen/putzen/liegen/schlafen/Buckel/ducken/Sprung/getragen). Sechs Felle (+ braun getigert für Hänschen) entstehen im Shader aus einer
-// Maske (Detail · weiße Partien · rosa Haut) und Mustern in Ruhelage (Streifen, Glückskatzen-Flecken, Einzelfleck), drei Größen, Halsband im Fell +
-// Namensschild (Filzstift) als Decal. Keine Lichter: die Augen leuchten über Emission und eine Reflexkarte (Textur der eyePairs), wenn die Lampe trifft.
+// =====================================================================  KATZEN (Modul „katzen“, AP-09 Fassung 3, Überarbeitung 08.10.: Fell, Augen, Individuen): Giselas siebzehn Katzen und der Kater Hänschen
+// Ein Tiermodell (Fab „Cat long haired“, Sean4297, CC-BY; aufbereitet in game/assets/ms/katze/model.glb: 56 statt 972 Knochen, Gehzyklus + eigene Posen). Aufbau der Datei: tools/katzen_fell.mjs
+// (größerer Kopf/Hals, ~6 k Dreiecke Haarkarten `haar` je Körperregion mit Atlas aus tools/katzen_strands.py, Schnurrhaare `bart`, Augen 12 % größer). Farbe/Muster aus EINER Shader-Funktion für Haut und
+// Haarkarten (Maske in der roughnessMap: Detail · weiße Partien · rosa Haut): Makrele, klassisch, Flecken, Siam-Abzeichen, Smoke (helle Unterwolle), Schildpatt/Dreifarbig/Kuh, Narben, verklebtes Fell;
+// Augen im Shader (Schlitzpupille, Iris, trübe Augen je Seite); Haarlänge je Katze (kLen), Proportionen je Katze (bau). Halsband im Fell + Namensschild (Filzstift) als Decal.
+// Keine Lichter: die Augen leuchten über Emission (Tapetum) und eine Reflexkarte (Textur der eyePairs), wenn die Lampe trifft.
 //
 // Regeln (Dossier „Wie die Katzen den Beobachter zeigen“): 1 Starren (Kopf + Ohren auf den Beobachter < 15 m, Kopf folgt Sprüngen mit 0,5 s, kein
 // Blinzeln) · 2 Folgen (nicht sitzende Katzen trotten 2–3 m hinter seiner Spur) · 3 Fauchen (Beobachter < 4 m von hinten an Luke; ab Kap. 3 bei
@@ -12759,11 +12760,12 @@ function katzen_absetzen(k, x, z) { const S = katzen_S; if (!k) k = S.carry; if 
 function katzen_arm(k, obj, off = [0, 0, 0]) { if (!k) return; k.arm = obj ? { obj, off: new THREE.Vector3(...off) } : null; if (obj) { k.st = 'arm'; k.play('carry', .3); } else { k.st = 'stand'; k.t = 1; } }
 function katzen_klick(k, label, fn) { if (!k) return; if (!k.klick) { k.klick = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, .5), hidden); k.klick.position.set(0, .2, 0); k.g.add(k.klick); } if (fn) interact(k.klick, label, () => fn(k)); else uninteract(k.klick); }
 function katzen_regie(an) { katzen_S.regie = !!an; }
-function katzen_schnurren(k, an) { // Schnurren: tiefes, pulsierendes Rauschen (Brustkorb), räumlich an der Katze
-  if (!k) return; if (!an) { if (k.purr) { try { const t = Audio.ctx.currentTime; k.purr.g.gain.setTargetAtTime(0, t, .25); const p = k.purr; setTimeout(() => { try { p.n.stop(); p.lfo.stop(); } catch (e) {} Audio.frei(p.d); }, 1500); } catch (e) {} k.purr = null; } return; }
-  if (k.purr || !Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2, { obj: k.g, h: .2, dauer: 1e9 }), n = Audio.noise(true), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = 1.4;
-  const am = ctx.createGain(); am.gain.value = 0; const lfo = ctx.createOscillator(); lfo.frequency.value = 24 + rand(-2, 3); const lg = ctx.createGain(); lg.gain.value = .5; lfo.connect(lg); lg.connect(am.gain); lfo.start();
-  const g = ctx.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(.55, ctx.currentTime, .4); n.connect(lp); lp.connect(am); am.connect(g); g.connect(d); k.purr = { n, lfo, g, d }; }
+function katzen_schnurren(k, an) { // Schnurren: echte Aufnahme (Schleife, Wikimedia Commons, gemeinfrei), räumlich an der Katze
+  if (!k) return; if (!an) { k.purrWant = false; if (k.purr) { try { k.purr.h.stop(1.2); } catch (e) {} try { Audio.frei(k.purr.d); } catch (e) {} k.purr = null; } return; }
+  if (k.purr || !Audio.ctx || !Audio.started) return; k.purrWant = true;
+  if (!Audio.buf.fx_katze_schnurr) { if (typeof klang_load === 'function') klang_load('fx_katze_schnurr').then(b => { if (b && k.purrWant && !k.purr) katzen_schnurren(k, true); }); return; } // erst beim ersten Bedarf geladen
+  const p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2, { obj: k.g, h: .2, dauer: 1e9 }), h = Audio.loop('fx_katze_schnurr', { gain: .5, fadeIn: .8, dest: d }); if (!h) return;
+  k.purr = { h, d }; if (Math.random() < .5) Audio.katze('miau', undefined, undefined, undefined, k.g, .6); }
 // Fauchen (Regel 3): Körper und Kopf in seine Richtung, Buckel, Ohren flach, Maul auf – nie auf Luke. ziel = null → ohne Richtung (Graukind, Kap. 5)
 function katzen_fauch(k, ziel, kurz = false) {
   if (!k || !k.on) return false; if (k.noHiss && !k.forceHiss) return false; if (katzen_in1(k.x, k.z) && k === katzen_get('HÄNSCHEN') && !k.forceHiss) return false; // in Nr. 1 faucht der Kater nie
@@ -18484,9 +18486,9 @@ function whiskey_klang(key, at) {
     case 'glocke': { const d = D(28); if (!d) return; const at3 = [0, 1.6, 3.2], at13 = [...Array(13)].map((_, i) => 6.4 + i * 1.6); for (const t0 of [...at3, ...at13]) { whiskey_ton(311, t0, 1.4, .06, d); whiskey_ton(311 * 2.4, t0, .8, .025, d); } break; }
     case 'wiegenlied': { const d = D(); if (!d) return; [659, 587, 523, 494, 523].forEach((f, i) => { const osc = whiskey_ton(f * 2, i * .46, .38, .05, d, 'sine', .03); try { A.lfo(5.5, 9, osc.frequency); } catch (e) {} }); break; } // gepfiffen E D C H C, bricht ab
     case 'netzbrummen': { const d = D(); if (!d) return; whiskey_ton(50, 0, 2.2, .06, d, 'sawtooth', .2); whiskey_ton(100, 0, 2.2, .03, d, 'sine', .2); break; }
-    case 'funk': { A.play('switch2', { ...o, gain: .35, rate: 1.1 }); const d = D(); if (!d) return; const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 1.2; n.connect(bp); A.env(bp, .12, .01, .5, 0, d); n.stop(A.ctx.currentTime + 1);
+    case 'funk': { if (typeof kl_gruppe === 'function') kl_gruppe('funk'); if (A.buf.fx_funk_klick_1) { A.play(A.pick('fx_funk_klick_1', 'fx_funk_klick_2', 'fx_funk_klick_3'), { ...o, gain: .45, rate: 1 }); if (A.buf.fx_funk_stat) A.play('fx_funk_stat', { ...o, gain: .25, rate: 1, dur: .7, offset: rand(0, 8), fadeIn: .05 }); break; } /* echtes Funkgerät */ A.play('switch2', { ...o, gain: .35, rate: 1.1 }); const d = D(); if (!d) return; const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 1.2; n.connect(bp); A.env(bp, .12, .01, .5, 0, d); n.stop(A.ctx.currentTime + 1);
       whiskey_ton(1000, .75, .14, .05, d, 'square', .004); break; } // Knacken, Rauschen, Quittungston
-    case 'fauchen': { const d = D(); if (!d) return; const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); A.env(hp, .14, .03, .6, 0, d); n.stop(A.ctx.currentTime + 1); break; }
+    case 'fauchen': { if (typeof kl_gruppe === 'function') kl_gruppe('katze'); if (A.buf.fx_katze_fauch_1) { A.play(A.pick('fx_katze_fauch_1', 'fx_katze_fauch_2', 'fx_katze_fauch_3'), { ...o, gain: .35 }); break; } /* die Katze, die er nachmacht (echte Aufnahme) */ const d = D(); if (!d) return; const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800; n.connect(hp); A.env(hp, .14, .03, .6, 0, d); n.stop(A.ctx.currentTime + 1); break; }
     case 'kinderlachen': A.play('giggle', { ...o, rate: 1.38, gain: .32, offset: rand(0, .8), dur: 1.4, hp: 300 }); break;
     case 'knurren': A.play('undead1', { ...o, rate: .52, lp: 620, gain: .45, dur: 1.2 }); break;
     case 'rehschrecken': A.play('dog', { ...o, rate: 1.2, lp: 1500, gain: .45, dur: .32 }); A.play('dog', { ...o, rate: 1.16, lp: 1500, gain: .4, dur: .3, delay: .9 }); break;
@@ -29306,7 +29308,7 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
   ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i),
-  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
+  ...[1, 2, 3, 4].map(i => 'fx_flug_' + i), ...[1, 2, 3, 4].map(i => 'ui_taste_' + i), ...[1, 2, 3].map(i => 'fx_relais_' + i), ...[1, 2, 3].map(i => 'fx_feuerzeug_' + i), ...[1, 2, 3].map(i => 'fx_funk_klick_' + i), ...[1, 2, 3, 4].map(i => 'pz_atem_' + i), ...[1, 2, 3].map(i => 'pz_keuch_' + i), ...[1, 2].map(i => 'pz_stoff_' + i), ...[1, 2].map(i => 'fx_katze_miau_' + i), ...[1, 2, 3].map(i => 'fx_katze_fauch_' + i)]; // R-7/R-8 Umwelt · Donner (echte Aufnahmen, Abstandsklassen) · Flügelschläge, Tastenfeld, Relais, Feuerzeug, Funk-Klick, Atem/Keuchen/Stoff (echte Aufnahmen, AP Echte Klänge)
 // Seltene Klänge werden erst beim ersten Gebrauch (oder beim Betreten des passenden Ortes) geladen – hält den Speicher klein (Audio-PCM liegt dekodiert im Heap).
 const KL_GRUPPEN = { feuer: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_feuer_knist_' + i), ...[1, 2, 3].map(i => 'fx_feuer_pop_' + i), 'fx_feuer_wuff', 'amb_feuer', 'amb_feuer_lo'],
   zombie: [...[1, 2, 3, 4, 5, 6].map(i => 'zb_roech_' + i), 'zb_zisch'], oel: [...[1, 2, 3, 4, 5, 6].map(i => 'fx_oel_blub_' + i)], funk: ['fx_funk_stat'],
@@ -29318,7 +29320,7 @@ function kl_trim(b) { const k = Math.round(.25 * b.sampleRate), n = b.length - 2
   for (let ch = 0; ch < b.numberOfChannels; ch++) o.copyToChannel(b.getChannelData(ch).subarray(k, k + n), ch); return o; }
 function klang_load(name) { const A = Audio, S = klang_S; if (A.buf[name]) return Promise.resolve(A.buf[name]); if (S.loading[name]) return S.loading[name];
   return S.loading[name] = fetch('audio/' + name + '.ogg').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); }).then(ab => A.ctx.decodeAudioData(ab))
-    .then(b => { if (name.startsWith('amb_') || name === 'mu_gefahr' || name.startsWith('mu_jagd')) b = kl_trim(b); A.buf[name] = b; return b; }).catch(e => { S.missing.push(name); console.warn('Klang fehlt: ' + name, e && e.message); return null; }); }
+    .then(b => { if (name.startsWith('amb_') || name === 'mu_gefahr' || name.startsWith('mu_jagd') || name === 'fx_katze_schnurr' || name === 'fx_funk_stat') b = kl_trim(b); A.buf[name] = b; return b; }).catch(e => { S.missing.push(name); console.warn('Klang fehlt: ' + name, e && e.message); return null; }); }
 function klang_render(name) { return klang_load(name.startsWith('mu_') ? name : 'mu_' + name); } // (Testzugriff, alter Name)
 // Nacheinander im Hintergrund laden (Menü und Traum zuerst), dann in die Musikauswahl einreihen
 async function klang_renderAll() {
@@ -29437,8 +29439,8 @@ Object.assign(Audio, {
   bark(x, z, cut) { if (!this.ctx) return; const n = kl_pick('fx_hund_', 4); if (!n) return this.play('dog', { gain: .5, vary: .08, x, y: .6, z, ref: 6 }); this.play(n, { gain: .55, vary: .04, x, y: .6, z, ref: 6, dur: cut ? rand(.5, .8) : undefined }); },
   gutter(x, z) { if (!this.ctx) return; for (let k = 0, n = 3 + Math.floor(rand(0, 4)); k < n; k++) setTimeout(() => this.drip(x + rand(-.2, .2), rand(1.6, 3.2), z + rand(-.2, .2)), k * rand(350, 900)); },
   tape(on) { if (!this.ctx) return; if (!kl_has('fx_rauschen')) return KL_ALT.tape.call(this, on); if (on && !this.tapeL) this.tapeL = this.loop('fx_rauschen', { gain: .05, fadeIn: .3, dest: this.master }); else if (!on && this.tapeL) { this.tapeL.stop(1); this.tapeL = null; } },
-  radio(x, z, off) { if (!this.ctx) return; if (!kl_has('fx_rauschen')) return KL_ALT.radio.call(this, x, z, off); if (this.radioL) { this.radioL.stop(.3); this.radioL = null; } if (off) return;
-    const h = this.radioL = this.loop('fx_rauschen', { gain: .3, fadeIn: .3, x, y: 1, z, ref: 3 }); setTimeout(() => { if (this.radioL === h && h) { h.stop(.4); this.radioL = null; } }, 6400); },
+  radio(x, z, off) { if (!this.ctx) return; kl_gruppe('funk'); if (!kl_has('fx_rauschen')) return KL_ALT.radio.call(this, x, z, off); if (this.radioL) { this.radioL.stop(.3); this.radioL = null; } if (off) return;
+    const h = this.radioL = this.loop(kl_has('fx_funk_stat') ? 'fx_funk_stat' : 'fx_rauschen', { gain: .3, fadeIn: .3, x, y: 1, z, ref: 3 }); setTimeout(() => { if (this.radioL === h && h) { h.stop(.4); this.radioL = null; } }, 6400); },
   // Telefon: im Hörer das Freizeichen (425 Hz wie in Deutschland, leise, schmal); die Zelle selbst klingelt mit einer echten Glocke
   ring(v) { if (!this.ctx || v < .005) return; if (v < .03 || !kl_has('fx_telefon')) { const o = this.osc('sine', 425, 0, 1.1), g = this.ctx.createGain(), t = this.ctx.currentTime;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v * .5, t + .02); g.gain.setValueAtTime(v * .5, t + 1); g.gain.linearRampToValueAtTime(0, t + 1.05); o.connect(g); g.connect(this.master); return; }
@@ -29709,12 +29711,14 @@ function klang_funk(sec = 2.5, o = {}) { const A = Audio, c = A.ctx; if (!c) ret
   const out = c.createGain(); out.gain.value = art === 'handy' ? .5 : .75; out.connect(dest);
   const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = art === 'handy' ? 450 : 320; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = art === 'handy' ? 3200 : art === 'band' ? 2400 : 2900;
   const pk = c.createBiquadFilter(); pk.type = 'peaking'; pk.frequency.value = art === 'band' ? 1100 : 1700; pk.gain.value = 7; pk.Q.value = 1.2; hp.connect(lp); lp.connect(pk); pk.connect(out);
-  const hiss = A.noise(true), hg = c.createGain(); hg.gain.setValueAtTime(0, t); hg.gain.linearRampToValueAtTime(art === 'band' ? .035 : .07, t + .05); hg.gain.setValueAtTime(art === 'band' ? .035 : .07, t + sec); hg.gain.linearRampToValueAtTime(0, t + sec + .12); hiss.connect(hg); hg.connect(hp);
+  const hiss = A.buf.fx_funk_stat ? (() => { const s = c.createBufferSource(); s.buffer = A.buf.fx_funk_stat; s.loop = true; s.start(0, Math.random() * 8); return s; })() : A.noise(true), hg = c.createGain(); /* echter Röhrenempfänger (freesound CC0) */ hg.gain.setValueAtTime(0, t); hg.gain.linearRampToValueAtTime(art === 'band' ? .035 : .07, t + .05); hg.gain.setValueAtTime(art === 'band' ? .035 : .07, t + sec); hg.gain.linearRampToValueAtTime(0, t + sec + .12); hiss.connect(hg); hg.connect(hp);
   // „Stimme“: Rauschen durch wandernde Formanten, Silben 5–7 pro Sekunde, kleine Pausen
   const v = A.noise(true), f1 = c.createBiquadFilter(); f1.type = 'bandpass'; f1.Q.value = 5; const vg = c.createGain(); vg.gain.value = 0; v.connect(f1); f1.connect(vg); vg.connect(hp);
   let k = t + .12; while (k < t + sec - .1) { const d = .09 + Math.random() * .12; f1.frequency.setValueAtTime((art === 'band' ? 500 : 650) + Math.random() * 900, k); vg.gain.setValueAtTime(0, k); vg.gain.linearRampToValueAtTime(Math.random() < .12 ? 0 : .5 + Math.random() * .4, k + d * .3); vg.gain.linearRampToValueAtTime(.05, k + d); k += d + (Math.random() < .15 ? .18 : .02); }
   // Rauschsperre: Klack am Anfang und am Ende (Blechmann-Gerät, Handy knackt)
-  for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.value = 0; g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
+  const kn = kl_pick('fx_funk_klick_', 3); if (!A.buf.fx_funk_stat && typeof kl_gruppe === 'function') kl_gruppe('funk');
+  if (kn) for (const t0 of [0, sec + .1]) A.play(A.pick(...['fx_funk_klick_1', 'fx_funk_klick_2', 'fx_funk_klick_3'].filter(kl_has)), { gain: .5, delay: t0, ...(o.x !== undefined ? { x: o.x, y: o.y ?? 1.3, z: o.z, ref: o.ref || 2.2 } : {}) }); // echte Rauschsperre (Handfunkgerät)
+  else for (const t0 of [0, sec + .1]) { const n = A.noise(false), bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2400; bp.Q.value = 2; const g = c.createGain(); g.gain.value = 0; g.gain.setValueAtTime(0, t + t0); g.gain.linearRampToValueAtTime(.35, t + t0 + .004); g.gain.exponentialRampToValueAtTime(.001, t + t0 + .06); n.connect(bp); bp.connect(g); g.connect(out); n.stop(t + t0 + .1); }
   hiss.stop(t + sec + .3); v.stop(t + sec + .3); }
 WORLD_MODS.push(['Klang', async () => { window.klang_ambient = klang_ambient; }]);
 WORLD_TICK.push(dt => {
@@ -34531,21 +34535,21 @@ function feuer_burnPoint() { const S = feuer_S, A = S.pts; if (!A || !A.length) 
 // ---------------------------------------------------------------- Klänge (synthetisch und aus vorhandenen Aufnahmen, räumlich an der Brandstelle)
 const FEU_SND = {
   clank(x, z, v = .5) { Audio.play(Audio.pick('metalHit1', 'metalHit2'), { gain: v, rate: rand(.5, .7), x, y: .3, z, ref: 3 }); },
-  flick() { const A = Audio; if (!A.ctx) return; A.play('switch1', { gain: .45, rate: 1.9 }); const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; n.connect(hp); A.env(hp, .25, .002, .09, .06); n.stop(A.ctx.currentTime + .3); },
+  flick() { const A = Audio; if (!A.ctx) return; if (A.feuerzeug && A.feuerzeug()) return; /* echtes Feuerzeug (klang.js) */ A.play('switch1', { gain: .45, rate: 1.9 }); const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; n.connect(hp); A.env(hp, .25, .002, .09, .06); n.stop(A.ctx.currentTime + .3); },
   // Entzündung: tiefer Luftsog, dann das „Wuff“ der Druckwelle, danach Nachhall der Flammen
-  wuff(x, z) { const A = Audio; if (!A.ctx) return; const t = A.ctx.currentTime, d = A.at(x, .5, z, 6);
+  wuff(x, z) { const A = Audio; if (!A.ctx) return; if (typeof kl_gruppe === 'function') kl_gruppe('feuer'); if (A.buf.fx_feuer_wuff) { A.play('fx_feuer_wuff', { gain: 1, x, y: .5, z, ref: 6, typ: 'laut' }); return; } /* echte Zündung (Sonniss, Designed Fire) */ const t = A.ctx.currentTime, d = A.at(x, .5, z, 6);
     const s = A.noise(false), sb = A.ctx.createBiquadFilter(); sb.type = 'bandpass'; sb.Q.value = .9; sb.frequency.setValueAtTime(90, t); sb.frequency.exponentialRampToValueAtTime(520, t + .38); s.connect(sb); const sg = A.ctx.createGain(); sg.gain.setValueAtTime(0, t); sg.gain.linearRampToValueAtTime(.55, t + .36); sg.gain.linearRampToValueAtTime(0, t + .42); sb.connect(sg); sg.connect(d); s.stop(t + .6);
     const n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = .7; bp.frequency.setValueAtTime(180, t + .38); bp.frequency.exponentialRampToValueAtTime(2400, t + .9); bp.frequency.exponentialRampToValueAtTime(420, t + 2.6); n.connect(bp); A.env(bp, 1.3, .03, 2.4, .38, d); n.stop(t + 3.3);
     const o = A.osc('sine', 58, .38, 1.6); o.frequency.setValueAtTime(58, t + .38); o.frequency.exponentialRampToValueAtTime(24, t + 1.6); A.env(o, 1.1, .01, 1.3, .38);
     const o2 = A.osc('triangle', 36, .4, 1.2); A.env(o2, .6, .02, 1, .4); A.play('wind3', { gain: .8, rate: 1.6, dur: 1.8, delay: .38, x, y: 1, z, ref: 4 }); },
-  crackle(x, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x, .4, z, 3), n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 5200); bp.Q.value = 3; n.connect(bp); A.env(bp, rand(.3, .8), .001, rand(.01, .04), 0, d); if (Math.random() < .45) A.env(bp, rand(.2, .6), .001, .02, rand(.03, .08), d); n.stop(A.ctx.currentTime + .3); },
-  pop(x, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x, .5, z, 4); const o = A.osc('sine', rand(90, 140), 0, .3); o.frequency.exponentialRampToValueAtTime(40, A.ctx.currentTime + .15); A.env(o, .6, .002, .18, 0, d); const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900; n.connect(hp); A.env(hp, .7, .001, .06, 0, d); n.stop(A.ctx.currentTime + .3); },
+  crackle(x, z) { const A = Audio; if (!A.ctx) return; { const n = typeof kl_pick === 'function' ? kl_pick('fx_feuer_knist_', 6) : null; if (n) { A.play(n, { gain: rand(.4, .9), vary: .12, x, y: .4, z, ref: 3 }); return; } } const d = A.at(x, .4, z, 3), n = A.noise(false), bp = A.ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(1800, 5200); bp.Q.value = 3; n.connect(bp); A.env(bp, rand(.3, .8), .001, rand(.01, .04), 0, d); if (Math.random() < .45) A.env(bp, rand(.2, .6), .001, .02, rand(.03, .08), d); n.stop(A.ctx.currentTime + .3); },
+  pop(x, z) { const A = Audio; if (!A.ctx) return; { const n = typeof kl_pick === 'function' ? kl_pick('fx_feuer_pop_', 3) : null; if (n) { A.play(n, { gain: rand(.6, .95), vary: .1, x, y: .5, z, ref: 4 }); return; } } const d = A.at(x, .5, z, 4); const o = A.osc('sine', rand(90, 140), 0, .3); o.frequency.exponentialRampToValueAtTime(40, A.ctx.currentTime + .15); A.env(o, .6, .002, .18, 0, d); const n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900; n.connect(hp); A.env(hp, .7, .001, .06, 0, d); n.stop(A.ctx.currentTime + .3); },
   collapse(x, z) { Audio.play(Audio.pick('woodFall1', 'woodFall2'), { gain: .8, rate: rand(.55, .75), x, y: 1.5, z, ref: 4 }); if (Math.random() < .6) Audio.play('metalHit2', { gain: .6, rate: .45, delay: .15, x, y: .3, z, ref: 4 }); TOD_SND.thud(.45); },
   // brennender Körper: vorhandene Stimmen tiefer, verzerrt, dumpf
   scream(x, z, k = 0) { const A = Audio; if (!A.ctx) return; const name = ['undead2', 'undead4', 'undead1', 'zombie1', 'undead3'][k % 5], b = A.buf[name]; if (!b) return;
     const s = A.ctx.createBufferSource(); s.buffer = b; s.playbackRate.value = [.72, .64, .8, .6, .7][k % 5]; const ws = A.ctx.createWaveShaper(); if (!FEU_SND.curve) { const c = new Float32Array(1024); for (let i = 0; i < 1024; i++) { const v = i / 511.5 - 1; c[i] = Math.tanh(v * 3.5); } FEU_SND.curve = c; } ws.curve = FEU_SND.curve;
     const lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2200; const g = A.ctx.createGain(); g.gain.value = 1.1; s.connect(ws); ws.connect(lp); lp.connect(g); g.connect(A.at(x, .6, z, 4)); s.start(0, k === 3 ? rand(0, Math.max(0, b.duration - 3)) : 0, Math.min(b.duration, 3.2)); },
-  pour(x, z) { Audio.play('waterFlow', { gain: .75, rate: .5, lp: 420, dur: 4.5, fadeIn: .3, x, y: .3, z, ref: 3 }); Audio.play('waterFlow', { gain: .35, rate: .38, lp: 300, dur: 6, delay: .8, x, y: .1, z, ref: 3 }); },
+  pour(x, z) { if (Audio.oelBlasen) Audio.oelBlasen(x, z, 6, 4, .9); /* echte Gluckser (klang.js) */ Audio.play('waterFlow', { gain: .75, rate: .5, lp: 420, dur: 4.5, fadeIn: .3, x, y: .3, z, ref: 3 }); Audio.play('waterFlow', { gain: .35, rate: .38, lp: 300, dur: 6, delay: .8, x, y: .1, z, ref: 3 }); },
   // Endlose Rauschquellen (Brüllen in drei Bändern, zischendes Öl, Rollen, Luftzug, Atem)
   // Brandalarm: elektrische Glocke (Klöppel ~21 Hz auf einer Schale), unter der Decke am Ende des Gangs
   alarm(on) { const A = Audio, S = feuer_S.snd; if (!A.ctx) return; const t = A.ctx.currentTime;
@@ -34558,12 +34562,19 @@ const FEU_SND = {
       o.start(); o2.start(); lf.start(); S.alarm = { o, o2, lf, g, p }; }
     if (!on && S.alarm) { const a = S.alarm; S.alarm = null; a.g.gain.setTargetAtTime(0, t, .15); setTimeout(() => { try { a.o.stop(); a.o2.stop(); a.lf.stop(); a.p.disconnect(); } catch (e) {} }, 1200); } },
   loopNoise(key, on, { x, y = 1, z, ref = 4, lp, bp, hp, q = 1, gain = .3, am = 0, flat = false } = {}) { const A = Audio, S = feuer_S.snd; if (!A.ctx) return null;
+    // Echte Aufnahmen statt Rauschen: Brüllen/Knistern des Feuers (Sonniss, Burning House Library), Atem unter dem Rauch (Aufnahmen, getaktet). hiss entfällt (steckt in der Aufnahme).
+    if (on && !S[key] && (key === 'roar' || key === 'roar2' || key === 'hiss' || key === 'breath')) { if (typeof kl_gruppe === 'function') kl_gruppe('feuer');
+      if (key === 'hiss' && A.buf.amb_feuer) { const d0 = { stop() {} }; return S[key] = { n: d0, g: A.ctx.createGain(), p: null, gain, amO: null }; }
+      if ((key === 'roar' || key === 'roar2') && A.buf.amb_feuer && A.buf.amb_feuer_lo) { const p = flat ? null : A.at(x, y, z, ref, { dauer: 1e9 }), hh = A.play(key === 'roar' ? 'amb_feuer' : 'amb_feuer_lo', { loop: true, gain: 0, offset: rand(0, 10), dest: p || A.world });
+        if (hh) return S[key] = { n: { stop() { hh.stop(.4); } }, g: hh.g, p, gain: key === 'roar' ? .55 : .35, amO: null }; }
+      if (key === 'breath' && A.buf.pz_atem_1) { const g = A.ctx.createGain(), h = { n: { stop() { clearTimeout(h.tm); h.dead = 1; } }, g, p: null, gain, amO: null, lv: 0, tm: 0, dead: 0 };
+        const tick = () => { if (h.dead) return; if (h.lv > .02) A.atemEcht(Math.min(.14, h.lv * .3), 1.05, undefined, undefined, undefined, Math.random() < .4 ? 'keuch' : 'atem'); h.tm = setTimeout(tick, Math.max(450, 1800 - h.lv * 1000)); }; tick(); return S[key] = h; } }
     if (on && !S[key]) { const n = A.noise(true); let node = n; if (hp) { const f = A.ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp; node.connect(f); node = f; } if (lp) { const f = A.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = lp; node.connect(f); node = f; } let bpf = null; if (bp) { bpf = A.ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = bp; bpf.Q.value = q; node.connect(bpf); node = bpf; }
       let amG = null, amO = null; if (am) { amG = A.ctx.createGain(); amG.gain.value = .5; amO = A.ctx.createOscillator(); amO.frequency.value = am; const og = A.ctx.createGain(); og.gain.value = .5; amO.connect(og); og.connect(amG.gain); amO.start(); node.connect(amG); node = amG; }
       const g = A.ctx.createGain(); g.gain.value = 0; node.connect(g); const p = flat ? null : A.at(x, y, z, ref); g.connect(p || A.master); S[key] = { n, g, p, gain, amO, bpf }; return S[key]; }
     if (!on && S[key]) { const s = S[key]; S[key] = null; s.g.gain.setTargetAtTime(0, A.ctx.currentTime, .4); setTimeout(() => { try { s.n.stop(); if (s.amO) s.amO.stop(); if (s.p) s.p.disconnect(); } catch (e) {} }, 2500); }
     return S[key] || null; },
-  level(key, v, x, z) { const s = feuer_S.snd[key]; if (!s || !Audio.ctx) return; s.g.gain.setTargetAtTime(v * s.gain, Audio.ctx.currentTime, .12); if (x !== undefined && s.p && s.p.positionX) { s.p.positionX.value = x; s.p.positionZ.value = z; } },
+  level(key, v, x, z) { const s = feuer_S.snd[key]; if (!s || !Audio.ctx) return; s.lv = v * s.gain; s.g.gain.setTargetAtTime(v * s.gain, Audio.ctx.currentTime, .12); if (x !== undefined && s.p && s.p.positionX) { s.p.positionX.value = x; s.p.positionZ.value = z; } },
 };
 // ---------------------------------------------------------------- Musik: vorab offline gerendert (kostet im Spiel nichts)
 function feuer_mus() {
@@ -37929,7 +37940,7 @@ function lucy3_scratch(x, z, twice) { const A = Audio; if (!A.ctx) return; const
   [0, twice ? 1.25 : -1].forEach(off => { if (off < 0) return; const n = A.noise(false), bp = ctx.createBiquadFilter(), g = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 1.6; g.gain.value = 0;
     n.connect(bp); bp.connect(g); g.connect(d); const t = t0 + off; for (let k = 0; k < 14; k++) g.gain.setValueAtTime(Math.random() < .75 ? rand(.08, .22) : 0, t + k * .045); g.gain.setValueAtTime(0, t + .66); n.stop(t + .8); }); }
 // Rauschschleife des Funkgeräts (nur solange ein Fenster offen ist) mit Überlagerungspfeifen beim Abstimmen
-function lucy3_radioOn() { const A = Audio; if (!A.ctx || lucy3_S.win) return; const ctx = A.ctx, n = A.noise(true), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+function lucy3_radioOn() { const A = Audio; if (!A.ctx || lucy3_S.win) return; if (typeof kl_gruppe === 'function') kl_gruppe('funk'); const ctx = A.ctx, n = A.buf.fx_funk_stat ? (() => { const s = ctx.createBufferSource(); s.buffer = A.buf.fx_funk_stat; s.loop = true; s.start(0, Math.random() * 8); return s; })() : A.noise(true) /* echter Röhrenempfänger */, bp = ctx.createBiquadFilter(), g = ctx.createGain();
   bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = .6; g.gain.value = 0; g.gain.setTargetAtTime(.055, ctx.currentTime, .15); n.connect(bp); bp.connect(g); const p = A.at(5.4, 1, -6.6, 3); g.connect(p);
   const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sine'; o.frequency.value = 900; og.gain.value = 0; o.connect(og); og.connect(p); o.start();
   lucy3_S.win = { n, g, o, og }; }
@@ -46386,6 +46397,8 @@ function update(dt, t) {
 }
 
 // Lesen friert die Welt ein (Gegner, Gefahren, Zeitgeber) – außer in Zwischensequenzen, dort laufen Notizen einfach mit
+// Während „Texturen hochladen“ (Schwarzblende #fade deckt die Leinwand ganz ab) keine vollen Bilder zeichnen: sie waren unsichtbar und kosteten je Häppchen ein ganzes Bild mit Nachbearbeitung
+const LOAD_NORENDER = { on: false };
 const FREEZE_OV = new Set(['note', 'journal', 'puzzle', 'keypad', 'editor']);
 const readingFreeze = () => !!ui.overlay && FREEZE_OV.has(ui.overlay) && !state.talking && !scripted && !camOverride && !state.ending;
 const LOOP = { err: new Map() };
@@ -46398,7 +46411,7 @@ function loop() {
   try { if (!frozen) { update(dt, t); gtAdvance(Math.min(raw, .25) * 1000); } else flashHudTick(dt); } catch (e) { loopErr('update', e); }
   try { updateInteract(); } catch (e) { loopErr('interact', e); }
   const p1 = PERF.on ? performance.now() : 0;
-  if (!GL.lost) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
+  if (!GL.lost && !LOAD_NORENDER.on) { try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } catch (e) { loopErr('render', e); } finally { try { rigFarShow(); } catch (e) {} } }
   if (PERF.on) { const p2 = performance.now(); perfFrame(p2, p1 - p0, p2 - p1); }
 }
 // Grafikkontext verloren (Treiberabsturz, Energiesparen): Spiel anhalten, Hinweis, sauber neu laden – der Spielstand bleibt
@@ -46508,10 +46521,10 @@ stage('Erstes Bild fertig');
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
-    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1);
+    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true;
     for (let i = 0; i < teile.length; i += 12) { const an = new Set(teile.slice(i, i + 12)); for (const c of teile) c.visible = an.has(c);
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
-    renderer.setRenderTarget(null);
+    renderer.setRenderTarget(null); LOAD_NORENDER.on = false;
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }
     all.forEach(o => o.visible = true); lsetApply(); // keep hat auch die Lichter zurückgesetzt – fürs Schattenbild wieder wie im ersten Bild (lightsBack unten stellt den Spielzustand her)
     if (PROGLOG) PROGLOG.mark('hochgeladen');
@@ -46526,7 +46539,7 @@ stage('Erstes Bild fertig');
   if (PROGLOG) PROGLOG.mark('Schatten');
 }
 try { ktxSweep(); setInterval(ktxSweep, 2000); if (window.gc && KTXF.mb > 100) window.gc(); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
-ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
+LOAD_NORENDER.on = false; ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   const pr = typeof qualityPR === 'function' ? qualityPR() : Math.min(devicePixelRatio, 1.5); renderer.setPixelRatio(pr); composer.setPixelRatio(pr);

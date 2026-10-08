@@ -59,7 +59,7 @@ function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kein Sinus-Pfeifen me
 }
 function leben_click() {} // Fledermaus: im November kaum da, die Klicks lagen an der Hörgrenze – ersatzlos still
 function leben_hiss(x, y, z) { // Katze im Dunkeln: Fauchen
-  if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
+  if (!Audio.ctx || !Audio.started) return; if (Audio.katze && Audio.katze('fauch', x, y, z)) return; // echte Aufnahme (klang.js) const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
   n.connect(bp); Audio.env(bp, .22, .035, .55, 0, d); n.stop(ctx.currentTime + 1.2);
 }
 function leben_bellStrike(amp, damp) { // Kapellenglocke: aufgenommene Röhrenglocke (VSCO, CC0), auf g gestimmt, mit tiefem Summton darunter; gedämpft = kurz abgefangen

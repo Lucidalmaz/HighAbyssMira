@@ -1,8 +1,9 @@
-// =====================================================================  KATZEN (Modul „katzen“, AP-09 Fassung 3): Giselas siebzehn Katzen und der Kater Hänschen
-// Ein Tiermodell (Fab „Cat long haired“, Sean4297, CC-BY; aufbereitet in game/assets/ms/katze/model.glb: 56 statt 972 Knochen, Gehzyklus +
-// eigene Posen sitzen/putzen/liegen/schlafen/Buckel/ducken/Sprung/getragen). Sechs Felle (+ braun getigert für Hänschen) entstehen im Shader aus einer
-// Maske (Detail · weiße Partien · rosa Haut) und Mustern in Ruhelage (Streifen, Glückskatzen-Flecken, Einzelfleck), drei Größen, Halsband im Fell +
-// Namensschild (Filzstift) als Decal. Keine Lichter: die Augen leuchten über Emission und eine Reflexkarte (Textur der eyePairs), wenn die Lampe trifft.
+// =====================================================================  KATZEN (Modul „katzen“, AP-09 Fassung 3, Überarbeitung 08.10.: Fell, Augen, Individuen): Giselas siebzehn Katzen und der Kater Hänschen
+// Ein Tiermodell (Fab „Cat long haired“, Sean4297, CC-BY; aufbereitet in game/assets/ms/katze/model.glb: 56 statt 972 Knochen, Gehzyklus + eigene Posen). Aufbau der Datei: tools/katzen_fell.mjs
+// (größerer Kopf/Hals, ~6 k Dreiecke Haarkarten `haar` je Körperregion mit Atlas aus tools/katzen_strands.py, Schnurrhaare `bart`, Augen 12 % größer). Farbe/Muster aus EINER Shader-Funktion für Haut und
+// Haarkarten (Maske in der roughnessMap: Detail · weiße Partien · rosa Haut): Makrele, klassisch, Flecken, Siam-Abzeichen, Smoke (helle Unterwolle), Schildpatt/Dreifarbig/Kuh, Narben, verklebtes Fell;
+// Augen im Shader (Schlitzpupille, Iris, trübe Augen je Seite); Haarlänge je Katze (kLen), Proportionen je Katze (bau). Halsband im Fell + Namensschild (Filzstift) als Decal.
+// Keine Lichter: die Augen leuchten über Emission (Tapetum) und eine Reflexkarte (Textur der eyePairs), wenn die Lampe trifft.
 //
 // Regeln (Dossier „Wie die Katzen den Beobachter zeigen“): 1 Starren (Kopf + Ohren auf den Beobachter < 15 m, Kopf folgt Sprüngen mit 0,5 s, kein
 // Blinzeln) · 2 Folgen (nicht sitzende Katzen trotten 2–3 m hinter seiner Spur) · 3 Fauchen (Beobachter < 4 m von hinten an Luke; ab Kap. 3 bei
@@ -330,11 +331,12 @@ function katzen_absetzen(k, x, z) { const S = katzen_S; if (!k) k = S.carry; if 
 function katzen_arm(k, obj, off = [0, 0, 0]) { if (!k) return; k.arm = obj ? { obj, off: new THREE.Vector3(...off) } : null; if (obj) { k.st = 'arm'; k.play('carry', .3); } else { k.st = 'stand'; k.t = 1; } }
 function katzen_klick(k, label, fn) { if (!k) return; if (!k.klick) { k.klick = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, .5), hidden); k.klick.position.set(0, .2, 0); k.g.add(k.klick); } if (fn) interact(k.klick, label, () => fn(k)); else uninteract(k.klick); }
 function katzen_regie(an) { katzen_S.regie = !!an; }
-function katzen_schnurren(k, an) { // Schnurren: tiefes, pulsierendes Rauschen (Brustkorb), räumlich an der Katze
-  if (!k) return; if (!an) { if (k.purr) { try { const t = Audio.ctx.currentTime; k.purr.g.gain.setTargetAtTime(0, t, .25); const p = k.purr; setTimeout(() => { try { p.n.stop(); p.lfo.stop(); } catch (e) {} Audio.frei(p.d); }, 1500); } catch (e) {} k.purr = null; } return; }
-  if (k.purr || !Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2, { obj: k.g, h: .2, dauer: 1e9 }), n = Audio.noise(true), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180; lp.Q.value = 1.4;
-  const am = ctx.createGain(); am.gain.value = 0; const lfo = ctx.createOscillator(); lfo.frequency.value = 24 + rand(-2, 3); const lg = ctx.createGain(); lg.gain.value = .5; lfo.connect(lg); lg.connect(am.gain); lfo.start();
-  const g = ctx.createGain(); g.gain.value = 0; g.gain.setTargetAtTime(.55, ctx.currentTime, .4); n.connect(lp); lp.connect(am); am.connect(g); g.connect(d); k.purr = { n, lfo, g, d }; }
+function katzen_schnurren(k, an) { // Schnurren: echte Aufnahme (Schleife, Wikimedia Commons, gemeinfrei), räumlich an der Katze
+  if (!k) return; if (!an) { k.purrWant = false; if (k.purr) { try { k.purr.h.stop(1.2); } catch (e) {} try { Audio.frei(k.purr.d); } catch (e) {} k.purr = null; } return; }
+  if (k.purr || !Audio.ctx || !Audio.started) return; k.purrWant = true;
+  if (!Audio.buf.fx_katze_schnurr) { if (typeof klang_load === 'function') klang_load('fx_katze_schnurr').then(b => { if (b && k.purrWant && !k.purr) katzen_schnurren(k, true); }); return; } // erst beim ersten Bedarf geladen
+  const p = k.g.position, d = Audio.at(p.x, p.y + .2, p.z, 1.2, { obj: k.g, h: .2, dauer: 1e9 }), h = Audio.loop('fx_katze_schnurr', { gain: .5, fadeIn: .8, dest: d }); if (!h) return;
+  k.purr = { h, d }; if (Math.random() < .5) Audio.katze('miau', undefined, undefined, undefined, k.g, .6); }
 // Fauchen (Regel 3): Körper und Kopf in seine Richtung, Buckel, Ohren flach, Maul auf – nie auf Luke. ziel = null → ohne Richtung (Graukind, Kap. 5)
 function katzen_fauch(k, ziel, kurz = false) {
   if (!k || !k.on) return false; if (k.noHiss && !k.forceHiss) return false; if (katzen_in1(k.x, k.z) && k === katzen_get('HÄNSCHEN') && !k.forceHiss) return false; // in Nr. 1 faucht der Kater nie

@@ -93,7 +93,7 @@ function lucy3_scratch(x, z, twice) { const A = Audio; if (!A.ctx) return; const
   [0, twice ? 1.25 : -1].forEach(off => { if (off < 0) return; const n = A.noise(false), bp = ctx.createBiquadFilter(), g = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = 3600; bp.Q.value = 1.6; g.gain.value = 0;
     n.connect(bp); bp.connect(g); g.connect(d); const t = t0 + off; for (let k = 0; k < 14; k++) g.gain.setValueAtTime(Math.random() < .75 ? rand(.08, .22) : 0, t + k * .045); g.gain.setValueAtTime(0, t + .66); n.stop(t + .8); }); }
 // Rauschschleife des Funkgeräts (nur solange ein Fenster offen ist) mit Überlagerungspfeifen beim Abstimmen
-function lucy3_radioOn() { const A = Audio; if (!A.ctx || lucy3_S.win) return; const ctx = A.ctx, n = A.noise(true), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+function lucy3_radioOn() { const A = Audio; if (!A.ctx || lucy3_S.win) return; if (typeof kl_gruppe === 'function') kl_gruppe('funk'); const ctx = A.ctx, n = A.buf.fx_funk_stat ? (() => { const s = ctx.createBufferSource(); s.buffer = A.buf.fx_funk_stat; s.loop = true; s.start(0, Math.random() * 8); return s; })() : A.noise(true) /* echter Röhrenempfänger */, bp = ctx.createBiquadFilter(), g = ctx.createGain();
   bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = .6; g.gain.value = 0; g.gain.setTargetAtTime(.055, ctx.currentTime, .15); n.connect(bp); bp.connect(g); const p = A.at(5.4, 1, -6.6, 3); g.connect(p);
   const o = ctx.createOscillator(), og = ctx.createGain(); o.type = 'sine'; o.frequency.value = 900; og.gain.value = 0; o.connect(og); og.connect(p); o.start();
   lucy3_S.win = { n, g, o, og }; }
