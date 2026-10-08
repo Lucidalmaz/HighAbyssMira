@@ -163,6 +163,11 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 - **Camille BARRAL** – Military Radio – Game Ready (`ms/bed_funk`, Fab Professionell, Preis 0; Funkgerät auf dem Funkkasten, Kap. 3, Textur BaseColor 2k, Normal/ORM 1k; Fab-Link nachtragen, Download 09.10.2026) · **Quixel Megascans** – Electrical Boxes (Verteilertafel, `ms/bed_elec`, Mid-Qualität, Textur B 2k, N/ORM 1k; Sicherungskasten Kap. 2 und Kühlraum der Villa; Fab-Link nachtragen)
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
+## Eigene Arbeit (Blender)
+- **Spinnen** (`game/assets/ms/spinnen/*.glb`, Modul `spinnen.js`, Netze in `leben.js`) – eigene Arbeit, prozedural in Blender 4.5 gebaut (`app/tools/blender/spinnen_bau.py`):
+  Nosferatu-Spinne (Zoropsis spinimana), Riesenkrabbenspinne (Sparassidae), Hauswinkelspinne (Eratigena atrica), Gartenkreuzspinne (Araneus diadematus), Wolfsspinne (Lycosidae), Vogelspinne (Theraphosidae);
+  Skelett, Gangarten (Tetrapodengang über IK gebacken), Texturen (Zeichnung/Chitin/Haarstriche aus einem OSL-Muster gebacken) und Haarkarten. Ersetzen im Spiel die Fab-Spinnen (spider_tarantula, spider_little, spider_cross – Dateien liegen als Rückfall noch bei).
+
 ## Heruntergeladen, derzeit nicht im Spiel
 Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monster; Insectoid Monster (DM-913), False Bear (Cherryvania), Realistic PBR Monster (Prit Patel) – angesehen für die Wendigo-Formen, nicht genommen.
 
