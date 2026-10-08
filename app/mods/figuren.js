@@ -144,6 +144,8 @@ const FIGUREN_ECHO = {
   echo_messraum: ['lucy', 'dina', 'zayn', 'justin'],
   echo_1975: ['justin', 'mike', 'gezaehlt_j', 'gezaehlt_m', 'graue'],   // Lars Vegas mit 9 sieht aus wie sein Enkel Mike; das letzte Kind hat kein Gesicht
   echo_mira: ['graukind', 'lucy', 'roxy', 'zayn', 'mike', 'dina', 'heidi', 'luke'], // sieben Puppen mit den Gesichtern der Kinder, klein wie Spielzeug
+  echo_k3_klar: ['graukind', 'luke_echt', 'mike'],            // das blasse Mädchen, der Junge mit den blauen Augen, ein Kind, das wegschaut
+  echo_k3_treppe6: ['kleine', 'gezaehlt_j', 'gezaehlt_m', 'mike', 'justin'], // Hilde mit neun auf der Treppe, die gezählten Kinder, der Ritter
   echo_kanal_ritter: ['justin'],
   echo_kanal_laterne: ['gezaehlt_m', 'gezaehlt_j', 'graukind'],
   echo_nord_grab: ['amt1', 'amt2', 'luke_echt'],
@@ -155,10 +157,12 @@ async function figuren_person(F, id, opt = {}) { try { await figuren_embody(F, i
 function figuren_memoryLook(on) { geister_look(!!on); }
 // ---------- Plätze der Nachbilder (Nutzer 08.10.: „sitzende Geister hängen in der Luft“, „eine Frau steht halb in der Wand“)
 // Wer in der Erinnerung sitzt, wird an das TATSÄCHLICHE Möbel gebunden: Stuhlkreis aus innen_kapitel (S.stuhlKreis), sonst Stuhl-/Bettkante per Strahl (Sitzhöhe + Rückenlehne),
-// Becken auf der Sitzfläche (figuren_seat), Sitzmitte über dem Möbel. Wer steht, bekommt die echte Bodenhöhe (Collider/begehbare Fläche/Strahl) statt der festen Etagenhöhe.
+// Becken auf der Sitzfläche (figuren_seat), Sitzmitte über dem Möbel. Wer steht, behält die Etagenhöhe (die Fußanpassung figuren_feet fängt Bordsteine/Stufen ab); Standplätze, die in Wänden/Möbeln lagen, stehen als p: [x, z, ry].
 //   stuhl: Index im Stuhlkreis · sitz: [x, z, ry] (ry null = Lehne suchen, Blick nach vorn) · y: feste Sitzhöhe (sonst Strahl) · h: Rückfall-Sitzhöhe über dem Boden · p: [x, z, ry] Standplatz · clip: feste Pose
 const FIGUREN_PLATZ = {
   echo_messraum: { 0: { stuhl: 1 }, 1: { stuhl: 2 }, 2: { stuhl: 3 }, 3: { stuhl: 4 }, 4: { stuhl: 7 } }, // Kinder in den Gurtstühlen 2–5 und 8 (vorher mitten im Stuhl stehend)
+  echo_kueche: { 0: { sitz: [27.3, -14.95, 1.69] }, 2: { p: [30.35, -16.35, -1.5] } },          // Hilde am Tisch auf dem Küchenstuhl (stand auf einem Möbel, Fuß .2 m zu hoch); Mann 2 steckte in der Wand hinter dem Kühlschrank (z −16,9)
+  echo_kinderzimmer: { 0: { sitz: [-50.85, -19.95, -1.5708], y: .88 }, 1: { p: [-52.0, -19.95, 1.5708] } }, // Mama auf der Bettkante (Bett 2: Oberkante Y + .45), Junge vor ihr
 };
 const FIGUREN_SCAN = { R: new THREE.Raycaster(), o: new THREE.Vector3(), d: new THREE.Vector3(0, -1, 0), s: new THREE.Sphere() };
 // Feste Netze in der Nähe (ohne Figuren, Unsichtbares, Decals, Instanzen)
@@ -171,8 +175,6 @@ function figuren_scanListe(x, z, r) { const L = [], S = FIGUREN_SCAN.s;
 // Oberste feste Fläche über (x, z) zwischen y0 − 0,3 und y0 + h (Strahl von oben); null = keine
 function figuren_scan(x, z, y0, h = 1.2, L = null) { const R = FIGUREN_SCAN.R; try { L = L || figuren_scanListe(x, z, .6); R.set(FIGUREN_SCAN.o.set(x, y0 + h, z), FIGUREN_SCAN.d); R.near = 0; R.far = h + .3;
   for (const t of R.intersectObjects(L, false)) { if (t.face && t.face.normal.clone().transformDirection(t.object.matrixWorld).y < .5) continue; return t.point.y; } } catch (e) {} return null; }
-// Bodenhöhe für Stehende: begehbare Kante (wie figuren_ground), sonst Strahl, sonst die Etagenhöhe
-function figuren_echoBoden(x, z, fl) { const g = figuren_ground(x, fl + .1, z); if (g !== null && g >= fl - .02 && g <= fl + .5) return g; const s = figuren_scan(x, z, fl, .6); return s !== null && s >= fl - .02 && s <= fl + .5 ? s : fl; }
 // Sitzfläche und Blickrichtung an (x, z): Sitzhöhe = oberste Fläche unter Hüfthöhe; Lehne = Richtung mit der höchsten Fläche (Radius 0,22 m) → Blick in die Gegenrichtung
 function figuren_sitzAn(x, z, fl, o) { const L = figuren_scanListe(x, z, .8); let y = o.y !== undefined ? o.y : figuren_scan(x, z, fl, .9, L); if (y === null || y < fl + .15 || y > fl + .75) y = fl + (o.h || .46);
   let ry = o.ry; if (ry === null || ry === undefined) { let best = -1, ba = 0; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, t = figuren_scan(x + Math.sin(a) * .22, z + Math.cos(a) * .22, fl, 1.4, L); const th = t === null ? 0 : t; if (th > best) { best = th; ba = a; } } ry = ba + Math.PI; }
@@ -186,13 +188,14 @@ ECHO_CAST.start = async E => { const cast = FIGUREN_ECHO[E.id]; figuren_memoryLo
     try { if (sp) { if (sp.stuhl !== undefined && SK && SK[sp.stuhl]) { const k = SK[sp.stuhl]; x = k.x; z = k.z; ry = k.ry; sit = figuren_sitzAn(x, z, fl, { ry: k.ry, y: sp.y, h: sp.h }).y; }
         else if (sp.sitz) { [x, z] = sp.sitz; const s = figuren_sitzAn(x, z, fl, { ry: sp.sitz[2], y: sp.y, h: sp.h }); sit = s.y; ry = s.ry; }
         else if (sp.p) [x, z, ry] = sp.p; clip = sp.clip || null; }
-      F.position.set(x, sit === null ? figuren_echoBoden(x, z, fl) : fl, z); F.rotation.y = ry; } catch (e) { console.warn('Nachbild-Platz', E.id, i, e); }
+      F.position.set(x, fl, z); F.rotation.y = ry; } catch (e) { console.warn('Nachbild-Platz', E.id, i, e); }
     want[i] = { sit, clip }; });
+  // Plätze ohne Besetzung zeigen nicht die Person des vorigen Nachbilds (die Gestalten werden zwischen den Nachbildern wiederverwendet), sondern wieder die einfache Erinnerungsgestalt
+  E.figs.forEach((f, i) => { const F = echoFigs[i]; if (F.userData.person && !(cast && cast[i])) figuren_release(F); });
   if (!cast) return;
   await Promise.all(E.figs.map(async (f, i) => { if (!cast[i]) return; const F = echoFigs[i], w = want[i], doll = f[3] < .45; let P = F.userData.person;
-    if (P && P.id === cast[i] && P.sit && w.sit === null) { figuren_release(F); P = null; } // war beim letzten Nachbild eine Sitzende: frisch besetzen
+    if (P && w.sit !== null && !P.sit || P && w.sit === null && P.sit) { figuren_release(F); P = null; } // Sitz-/Standwechsel: frisch besetzen (kein Überblenden einer anderen Pose in die Sitzhöhe)
     P = await figuren_embody(F, cast[i], { ghost: true, doll, clip: doll ? 'idle' : w.clip, sit: w.sit }); if (!P) return;
-    if (w.sit !== null && !P.sit) figuren_seat(P, w.sit);
     if (w.sit !== null) figuren_sitzMitte(P);
     if (w.clip && !doll) { P.fixed = true; if (P.acts[w.clip] && P.cur !== P.acts[w.clip]) figuren_play(P, w.clip); } })); };
 ECHO_CAST.end = () => figuren_memoryLook(false);

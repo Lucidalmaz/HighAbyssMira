@@ -39,7 +39,7 @@ const FEU_VS = `attribute vec3 iPos; attribute vec4 iD; uniform float uCyl, uAsp
 // Farbe als Temperatur: unten orange-rot, dazwischen dunkle, rußige Taschen (undurchsichtig), Gelb nur an dünnen Rändern und Spitzen; oben geht die Zunge in
 // schwarzen Ruß über. Fast deckend gezeichnet (vorvervielfachte Deckkraft), damit sich Schichten nicht zu Weiß aufaddieren.
 const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varying float vAge, vSeed; varying vec3 vW; ${FEU_NOISE}
-  void main(){ float y = vUv.y, t = uTime * 1.5 + vSeed * 17.;
+  void main(){ float y = vUv.y * 1.25, t = uTime * 1.5 + vSeed * 17.;
     float hgt = .72 + .38 * fract(vSeed * 7.31), yy = y / hgt;
     vec2 q = vec2(vUv.x * 2.4 + vSeed * 9.1, yy * 2.0 - t * 1.9);
     vec2 w = vec2(fB(q * .6 + vec2(0., t * .4)), fB(q * .6 + vec2(4.7, t * .35))) - .5;
@@ -49,7 +49,7 @@ const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varyin
     float life = smoothstep(0., .1, vAge) * (1. - smoothstep(.55, 1., vAge));
     float hot = smoothstep(.12, .8, env * (nz * 1.5 + fine * .35 + .05 + uCore * .3 * (1. - yy)) - yy * .28) * life * (.62 + .38 * nz);
     float dark = smoothstep(.06, .45, env * (1. - nz) * (.4 + .6 * fine)) * smoothstep(.1, .65, yy) * life;
-    float a = max(hot, dark * .75) * smoothstep(1., .68, y) * smoothstep(.5, .3, abs(vUv.x - .5)); if (a < .02) discard;
+    float a = max(hot, dark * .75) * smoothstep(1., .5 + .22 * nz + .08 * fine, y) * smoothstep(.5, .3, abs(vUv.x - .5)); if (a < .02) discard;
     float base = 1. - smoothstep(0., .4, yy), thin = 1. - smoothstep(.2, .7, env);
     vec3 col = mix(vec3(.28, .025, .004), vec3(.88, .18, .015), smoothstep(0., .35, hot));
     col = mix(col, vec3(1., .38, .05), smoothstep(.3, .8, hot) * (.55 + .45 * base));
@@ -256,7 +256,7 @@ WORLD_MODS.push(['Feuer', async () => {
   { const dot = feuer_texDot(), T = S.timeU = { value: 0 };
     const mkMat = (fs, u, blend) => { const m = new THREE.ShaderMaterial({ uniforms: u, vertexShader: FEU_VS, fragmentShader: fs, transparent: true, depthWrite: false, blending: blend, fog: false }); if (blend === THREE.CustomBlending) { m.blendSrc = THREE.OneFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor; m.blendSrcAlpha = THREE.ZeroFactor; m.blendDstAlpha = THREE.OneFactor; } return m; };
     const fl = (int, core, asp) => mkMat(FEU_FS_FLAME, { uTime: T, uInt: { value: int }, uCore: { value: core }, uCyl: { value: 1 }, uAsp: { value: asp } }, THREE.CustomBlending);
-    S.pw = feuer_sys(120, fl(.62, 0, 1.5), 12); S.pf = feuer_sys(300, fl(.72, .2, 1.9), 13); S.pc = feuer_sys(140, fl(.8, .5, 1.1), 14);
+    S.pw = feuer_sys(120, fl(.62, 0, 1.875), 12); S.pf = feuer_sys(300, fl(.72, .2, 2.375), 13); S.pc = feuer_sys(140, fl(.8, .5, 1.375), 14);
     S.ps = feuer_sys(320, mkMat(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x0a0908) }, uA: { value: .95 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
     S.pe = feuer_sys(300, mkMat(FEU_FS_DOT, { map: { value: dot }, uCyl: { value: 0 }, uAsp: { value: 3.2 } }, THREE.AdditiveBlending), 15); }
   // Licht: ein echtes Punktlicht mit Schatten (Wände, Möbel, der Körper werfen flackernde Schatten), Schatten nur während des Feuers neu gezeichnet
@@ -392,7 +392,7 @@ function feuer_flamme(parent, pos, o = {}) {
   const fl = (int, core, asp) => mk(FEU_FS_FLAME, { uTime: T, uInt: { value: int }, uCore: { value: core }, uCyl: { value: 1 }, uAsp: { value: asp } }, THREE.CustomBlending);
   const F = { on: true, I: o.intensity ?? 1, size, h: o.height ?? size * 1.6, smoke: o.smoke ?? 1, sparks: o.sparks ?? 1, parent, pos: pos ? pos.clone() : new THREE.Vector3(), licht: o.licht || null, lichtFaktor: o.lichtFaktor ?? 2.2, deckeY: o.deckeY, klang: !!o.klang, T, a: [0, 0, 0, 0], world: new THREE.Vector3(), seed: Math.random() * 50 };
   F.licht0 = F.licht ? F.licht.intensity : 0;
-  F.pf = feuer_sys(70, fl(.74, .25, 1.9), 13); F.pc = feuer_sys(40, fl(.82, .5, 1.1), 14);
+  F.pf = feuer_sys(70, fl(.74, .25, 2.375), 13); F.pc = feuer_sys(40, fl(.82, .5, 1.375), 14);
   F.ps = feuer_sys(90, mk(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x0a0908) }, uA: { value: .9 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
   F.pe = feuer_sys(50, mk(FEU_FS_DOT, { map: { value: feuer_texDot() }, uCyl: { value: 0 }, uAsp: { value: 3.2 } }, THREE.AdditiveBlending), 15);
   F.set = i => { F.I = Math.max(0, i); F.on = F.I > .001 || F.pf.n + F.ps.n > 0; return F; };
@@ -864,7 +864,7 @@ async function pz_laden() {
     for (const c of zombie.g.children) if (c !== pg) c.visible = false;
     const old = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (old && old.zm) old.zm.visible = false;
     PZ.ue = pz_ueMap(P); if (typeof innen_kapitel_S !== 'undefined') innen_kapitel_S.zombie = { zm: P.obj, mx: P.mx, b: PZ.ue, eigen: true, peter: P };
-    if (P.own) pz_zmHaut(P.obj); else await pz_haut(P.obj); feuer_S.zmats = null; if (!P.own) pz_mimik(); pz_play(P, 'idle', true);
+    if (P.own) { pz_zmHaut(P.obj); pz_zmVorwaermen(P.obj); } else await pz_haut(P.obj); feuer_S.zmats = null; if (!P.own) pz_mimik(); pz_play(P, 'idle', true);
     { const fe = window.__feuer; if (fe) fe.peter = PZ; } // Testzugriff (in der Veröffentlichung fehlt __feuer)
   } catch (e) { console.warn('Peter laden', e); }
 }
@@ -910,6 +910,8 @@ function pz_zmHaut(root) {
       c.customProgramCacheKey = () => 'pzzm'; c.needsUpdate = true; return c; });
     m.material = Array.isArray(m.material) ? ms : ms[0]; });
 }
+// leistung.js zeichnet nie übersetzte Programme: sonst fehlt Peter in den ersten Bildern – hier gleich zur Übersetzung vormerken (und nie von der Hüllkugel-Auslese der Basis abschneiden lassen)
+function pz_zmVorwaermen(root) { root.traverse(o => { if (!o.isMesh) return; o.userData.noCull = true; o.frustumCulled = false; if (typeof lst_check === 'function') try { for (const m of [].concat(o.material)) if (m) lst_check(o, m); } catch (e) { console.warn('Peter: Vorübersetzen', e); } }); }
 // Eigenes Abspielen (wie figuren_play: weich überblenden, Einmal-Clips halten das letzte Bild, Ping-Pong für das Halten)
 function pz_play(P, k, first, o) { if (!P.own) return figuren_play(P, k, first, o);
   const a = P.acts[k] || P.acts.idle; if (!a || a === P.cur) return; const m = P.motion[k] || {}, prev = P.cur, once = o && o.once !== undefined ? o.once : m.loop === false, fade = Math.max(.15, (o && o.fade) || .4);
