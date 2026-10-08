@@ -8,6 +8,10 @@
 //   Autowrack, Jonas' Lager (Karte + Batterie), eine Schaukel, die nicht stillhält, zwei Rehe. Schreckmomente: siehe tief_* unten.
 const TIEF = { x0: -22, x1: 92, z0: 156, z1: 266, stand: { x: 14, z: 178.5 }, bus: { x: 65, z: 199.5 }, dig: { x: 60.5, z: 204.5 }, ring: { x: 15, z: 225, r: 5.2, acht: null }, // acht: der umgefallene achte Stein (N6-3)
   pond: { x: 51.5, z: 255.5, rx: 8, rz: 6 }, jetty: { x0: 44, z0: 248, x1: 48.4, z1: 252.2 }, swing: { x: 82, z: 177 }, wreck: { x: -10, z: 204.5 }, camp: { x: 80.5, z: 233 } };
+// Wrack (Coupé aus car_rusty, Innenraum aus Blender: wrack_innen): Lage und daraus Handschuhfach/Beifahrersitz in Weltkoordinaten (kapitel6.js, neben6.js lesen TIEF.hf)
+TIEF.wreck.ry = 1.9; TIEF.wreck.y = -.12;
+TIEF.wreckW = (lx, ly, lz) => { const W = TIEF.wreck, c = Math.cos(W.ry), s = Math.sin(W.ry); return { x: W.x + lx * c + lz * s, y: W.y + ly, z: W.z - lx * s + lz * c }; };
+TIEF.hf = TIEF.wreckW(-.40, .60, .42); TIEF.beifahrer = TIEF.wreckW(-.40, .62, -.30);
 TIEF.ring.acht = (a => ({ x: TIEF.ring.x + Math.cos(a) * TIEF.ring.r, z: TIEF.ring.z + Math.sin(a) * TIEF.ring.r, ry: -a, a }))(7 / 8 * Math.PI * 2 + .2); // AP-24: sieben stehen, der achte liegt
 const TIEF_PATHS = [ // die ersten vier bilden den Weg mit dem roten Faden
   [[42, 152], [42, 158], [37, 165], [28, 172], [19, 176.5]],
@@ -317,9 +321,12 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const piv = new T.Group(); piv.position.set(W.x, 3.62, W.z); scene.add(piv); for (const s of [-.25, .25]) box(.025, 2.9, .025, s, -1.45, 0, M.wood, { parent: piv, cast: false });
     box(.62, .05, .22, 0, -2.9, 0, wood, { parent: piv }); S.swingPiv = piv;
     note(W.x, 1, W.z, () => tief_S.swingStop > 0 ? '' : 'Die Schaukel anhalten', () => tief_schaukel(), 1.2, 1.2, .8); }
-  try { const car = await msModel('car_rusty', 'model.glb'); const o = msGround(msFit(car.clone(true), 4.3, 'max')); msPlace(o, TIEF.wreck.x, -.22, TIEF.wreck.z, 1.9); o.rotation.z = -.06;
-    o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
-    note(TIEF.wreck.x + .33, 1, TIEF.wreck.z - .44, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
+  try { const car = await msModel('car_rusty', 'model.glb'), root = car.clone(true), drop = [], under = (o, n) => { for (let p = o; p; p = p.parent) if (p.name === n) return true; return false; };
+    root.traverse(m => { if (m.isMesh && !under(m, 'Group002')) drop.push(m); }); drop.forEach(m => m.removeFromParent()); // nur das Coupé (die Datei enthält mehrere Wracks; vorher wurde der ganze Satz auf 4,3 m geschrumpft)
+    const o = msGround(msFit(root, 4.3, 'max')); msPlace(o, TIEF.wreck.x, TIEF.wreck.y, TIEF.wreck.z, TIEF.wreck.ry); o.rotation.z = -.025;
+    o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); if (c.transparent) { c.transparent = false; c.alphaTest = .45; c.depthWrite = true; c.side = THREE.DoubleSide; } return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
+    try { const inn = (await msModel('wrack_innen', 'model.glb')).clone(true); inn.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.add(inn); S.wrackInnen = inn; } catch (e) { console.warn('Tiefwald: Wrack-Innenraum', e); } // Blender (wrack_innen_bau.py), Wagen-Koordinaten
+    note(TIEF.beifahrer.x, TIEF.beifahrer.y + .35, TIEF.beifahrer.z, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
   { const C = TIEF.camp, TX = 81.3, TZ = 233.2; // das eingefallene Zelt: eine Firststange (Whiskey sitzt bei kapitel6 / whiskey.js auf ihr: x 81,3, z 233,2), vorn auf einem Stützstock, hinten auf den Boden gesackt
     const rinde = msSurfMat('bark', { tint: 0x8a7a66 }); for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (rinde[k]) { rinde[k] = rinde[k].clone(); rinde[k].repeat.set(.25, 1.2); rinde[k].needsUpdate = true; }
     const hF = 1.12, hB = .46, z0 = TZ - 1.55, z1 = TZ + 1.5, ridge = z => hF + (hB - hF) * (z - z0) / (z1 - z0);

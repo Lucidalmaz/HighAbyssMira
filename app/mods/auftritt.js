@@ -7,7 +7,7 @@
 //     einer sichtbaren Gruppe ab (blendet am neuen Ort neu ein, statt zu springen).
 //  2) Flug-/Wegpunkt-Bausteine: auftritt_fernpunkt (Anflugpunkt außer Sicht), auftritt_abgangsziel (Abflugpunkt hinter der Nebelgrenze),
 //     auftritt_imBild (Test), auftritt_nebel (Sichtweite), auftritt_weg (erst entfernen, wenn außer Sicht).
-// Testzugriff: window.__auf (S, log, stat, report(), imBild(x,y,z)).
+// Testzugriff: __auf (S, log, stat, report(), imBild(x,y,z)).
 function auftritt_S() {
   const w = window; if (w.__auf) return w.__auf;
   return (w.__auf = { recs: [], log: [], stat: { pop: 0, jump: 0, flick: 0, fadeIn: 0, fadeOut: 0, hart: 0 }, frame: 0, t: 0, v: new THREE.Vector3(), v2: new THREE.Vector3(), mi: new THREE.Matrix4(), logOn: true,

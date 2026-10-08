@@ -5,7 +5,7 @@
 // (echter Papierscan aus der Basis [papierScan], Heftlinien, Wasserflecken, gerissene Kanten; Schrift „Kalam“/„Caveat“ mit zufälligem Versatz je Buchstabe).
 // Enter / Klick / Leertaste = weiter (beim Schreiben: erst fertig schreiben), Pfeil links = zurück, X oder Esc = alles überspringen. Danach steht die Tour als Fund
 // „So funktioniert die Fibel“ in der Fibel (Tab). Das große „Ränder“-Fenster (hervorhebung.js, hl_karte) wird hier als Seite der Fibel gezeigt und poppt danach nicht mehr auf.
-// Testzugriff: window.__fibeltour (S, start, ende).
+// Testzugriff: __fibeltour (S, start, ende).
 const FIBT = { on: false, i: 0, steps: [], layer: null, res: null, typeIv: 0, raf: 0, holes: null, tgt: null, keyFn: null, ptrFn: null, clickFn: null, rsFn: null, papier: null, tab0: 'aufgaben', fertig: false };
 const FIBT_TEXT = {
   aufgaben: 'Aufgaben. Was als Nächstes zu tun ist, steht hier. Ganz oben die Hauptsache: Lucy finden. Haus Nr. 7, der Keller.',

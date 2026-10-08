@@ -14,7 +14,7 @@
 //  · Animation: Zeitlupe 0,72–0,85, Stocken 80–150 ms, Schleifensprung verdeckt (Flimmern + Nachbild), kein Gleiten (beim Gehen Tempo 1), Regie je Echo (Clips, Sprecher, Blicke).
 //  · Echo-Start/-Ende: Linse (Farbsaum-Puls, Vignette, Korn/Bleichung), Entsättigung nur über film-Uniforms (gSat/gBl, kein neuer Pass), Staub-Lichtkegel,
 //    Flackern der vorhandenen Lampen (vlights), Ton: Flüsterschicht (fx_fluester_*), Herzschlag (pz_herz_*), Druck (fx_tief_2), Ausatmen; Hall über raumklang.
-// Testzugriff: window.__geister (S, stat(), echo(id), look(on), show(...)).
+// Testzugriff: __geister (S, stat(), echo(id), look(on), show(...)).
 const GEIST = {
   G: { uT: figuren_S.T, uSat: { value: 1 }, uBl: { value: 0 }, uWav: { value: .011 }, uCA: { value: new THREE.Color(.20, .38, .86) }, uCB: { value: new THREE.Color(.80, .89, 1.0) }, uCC: { value: new THREE.Color(.48, .56, .72) } },
   L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [2.5, 7], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .06, satEcho: .45, blEcho: .38, vigEcho: .55, caPuls: .016 },

@@ -828,7 +828,7 @@ if (KTX.img.size || KTX.mdl.size) {
 // Jetzt: hat die Grafikkarte eine Quelle in ihrem aktuellen Stand, werden ihre CPU-Daten freigegeben (Sichtung beim Fertig-Laden und danach alle 2 s). Braucht three.js
 // sie später noch einmal (Kopie mit anderen Filter-/Wiederhol-Einstellungen, needsUpdate), meldet die Quelle „unvollständig“ – three.js lädt dann nicht hoch und
 // zeichnet so lange mit dem bisherigen Stand – und die Daten kommen im Hintergrund aus der Datei zurück (Bild: die .ktx2; Modell: Ausschnitt der .ktx.glb).
-// Abschalten zum Vergleich: ?noktxfree. Zählung: window.__ktxf.
+// Abschalten zum Vergleich: ?noktxfree. Zählung: __ktxf.
 const KTXF = { list: [], freed: 0, mb: 0, restores: 0, fails: 0, busy: 0, on: !!KTX.loader && !LITE && !/noktxfree/.test(location.search), glb: new Map(), cur: null };
 function ktxTrack(ct, re) {
   if (!KTXF.on || !ct || !ct.isCompressedTexture || !ct.mipmaps || !ct.mipmaps.length) return; const s = ct.source; if (!s || s.__kre) return;

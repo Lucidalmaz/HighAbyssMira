@@ -84,7 +84,7 @@ WORLD_MODS.push(['Kapitel 6 · Nebenaufgaben (N6-7, N6-8)', async () => {
     interact(N6.spindHit, () => !n6_offen() || n6_falle() ? '' : n6_has('n67_spind') ? 'Hofers Spind (leer)' : (story.items || []).includes('spindschluessel') ? 'Den Blechspind mit der 3 aufschließen' : 'Ein schmaler Blechspind hinter dem Fahrersitz', () => n6_spind());
     if (typeof hintAdd === 'function') hintAdd({ id: 'n6_spind', x: B.x + .5, y: 0, z: B.z + .2, kind: 'story', near: 40, open: () => n6_offen() && (story.items || []).includes('spindschluessel') && !n6_has('n67_spind') && !n6_falle() });
     // --- N6-8 · Pells Rekorder im Handschuhfach des Wracks (nach dem Polaroid aus kapitel6.js an derselben Stelle)
-    const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
+    const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, TIEF.hf ? TIEF.hf.x : W.x + 1.1, TIEF.hf ? TIEF.hf.y : .9, TIEF.hf ? TIEF.hf.z : W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
   N6.ready = true; // Stand nach dem Laden setzt der MOD_SAVE-Eintrag (beim Aufbau gibt es story.items noch nicht)
 }]);
 // Hofers Spind: schmaler Blechspind im Laderaum hinter dem Fahrersitz (links, Tür nach hinten), grüngraue Farbe, Rost, Lüftungsschlitze, eine weiße „3“ und das Auge darunter, Hebelgriff und Hängeschloss.

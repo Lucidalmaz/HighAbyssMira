@@ -828,7 +828,7 @@ if (KTX.img.size || KTX.mdl.size) {
 // Jetzt: hat die Grafikkarte eine Quelle in ihrem aktuellen Stand, werden ihre CPU-Daten freigegeben (Sichtung beim Fertig-Laden und danach alle 2 s). Braucht three.js
 // sie später noch einmal (Kopie mit anderen Filter-/Wiederhol-Einstellungen, needsUpdate), meldet die Quelle „unvollständig“ – three.js lädt dann nicht hoch und
 // zeichnet so lange mit dem bisherigen Stand – und die Daten kommen im Hintergrund aus der Datei zurück (Bild: die .ktx2; Modell: Ausschnitt der .ktx.glb).
-// Abschalten zum Vergleich: ?noktxfree. Zählung: window.__ktxf.
+// Abschalten zum Vergleich: ?noktxfree. Zählung: __ktxf.
 const KTXF = { list: [], freed: 0, mb: 0, restores: 0, fails: 0, busy: 0, on: !!KTX.loader && !LITE && !/noktxfree/.test(location.search), glb: new Map(), cur: null };
 function ktxTrack(ct, re) {
   if (!KTXF.on || !ct || !ct.isCompressedTexture || !ct.mipmaps || !ct.mipmaps.length) return; const s = ct.source; if (!s || s.__kre) return;
@@ -22945,6 +22945,10 @@ window.__wald = { S: wald_S, W: WALD, paths: WALD_PATHS, fake: () => wald_fakeAn
 //   Autowrack, Jonas' Lager (Karte + Batterie), eine Schaukel, die nicht stillhält, zwei Rehe. Schreckmomente: siehe tief_* unten.
 const TIEF = { x0: -22, x1: 92, z0: 156, z1: 266, stand: { x: 14, z: 178.5 }, bus: { x: 65, z: 199.5 }, dig: { x: 60.5, z: 204.5 }, ring: { x: 15, z: 225, r: 5.2, acht: null }, // acht: der umgefallene achte Stein (N6-3)
   pond: { x: 51.5, z: 255.5, rx: 8, rz: 6 }, jetty: { x0: 44, z0: 248, x1: 48.4, z1: 252.2 }, swing: { x: 82, z: 177 }, wreck: { x: -10, z: 204.5 }, camp: { x: 80.5, z: 233 } };
+// Wrack (Coupé aus car_rusty, Innenraum aus Blender: wrack_innen): Lage und daraus Handschuhfach/Beifahrersitz in Weltkoordinaten (kapitel6.js, neben6.js lesen TIEF.hf)
+TIEF.wreck.ry = 1.9; TIEF.wreck.y = -.12;
+TIEF.wreckW = (lx, ly, lz) => { const W = TIEF.wreck, c = Math.cos(W.ry), s = Math.sin(W.ry); return { x: W.x + lx * c + lz * s, y: W.y + ly, z: W.z - lx * s + lz * c }; };
+TIEF.hf = TIEF.wreckW(-.40, .60, .42); TIEF.beifahrer = TIEF.wreckW(-.40, .62, -.30);
 TIEF.ring.acht = (a => ({ x: TIEF.ring.x + Math.cos(a) * TIEF.ring.r, z: TIEF.ring.z + Math.sin(a) * TIEF.ring.r, ry: -a, a }))(7 / 8 * Math.PI * 2 + .2); // AP-24: sieben stehen, der achte liegt
 const TIEF_PATHS = [ // die ersten vier bilden den Weg mit dem roten Faden
   [[42, 152], [42, 158], [37, 165], [28, 172], [19, 176.5]],
@@ -23254,9 +23258,12 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     const piv = new T.Group(); piv.position.set(W.x, 3.62, W.z); scene.add(piv); for (const s of [-.25, .25]) box(.025, 2.9, .025, s, -1.45, 0, M.wood, { parent: piv, cast: false });
     box(.62, .05, .22, 0, -2.9, 0, wood, { parent: piv }); S.swingPiv = piv;
     note(W.x, 1, W.z, () => tief_S.swingStop > 0 ? '' : 'Die Schaukel anhalten', () => tief_schaukel(), 1.2, 1.2, .8); }
-  try { const car = await msModel('car_rusty', 'model.glb'); const o = msGround(msFit(car.clone(true), 4.3, 'max')); msPlace(o, TIEF.wreck.x, -.22, TIEF.wreck.z, 1.9); o.rotation.z = -.06;
-    o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
-    note(TIEF.wreck.x + .33, 1, TIEF.wreck.z - .44, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
+  try { const car = await msModel('car_rusty', 'model.glb'), root = car.clone(true), drop = [], under = (o, n) => { for (let p = o; p; p = p.parent) if (p.name === n) return true; return false; };
+    root.traverse(m => { if (m.isMesh && !under(m, 'Group002')) drop.push(m); }); drop.forEach(m => m.removeFromParent()); // nur das Coupé (die Datei enthält mehrere Wracks; vorher wurde der ganze Satz auf 4,3 m geschrumpft)
+    const o = msGround(msFit(root, 4.3, 'max')); msPlace(o, TIEF.wreck.x, TIEF.wreck.y, TIEF.wreck.z, TIEF.wreck.ry); o.rotation.z = -.025;
+    o.traverse(m => { if (m.isMesh && m.material) { m.material = [].concat(m.material).map(x => { const c = x.clone(); if (c.color) c.color.multiplyScalar(.55); if (c.transparent) { c.transparent = false; c.alphaTest = .45; c.depthWrite = true; c.side = THREE.DoubleSide; } return c; }); if (m.material.length === 1) m.material = m.material[0]; } });
+    try { const inn = (await msModel('wrack_innen', 'model.glb')).clone(true); inn.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); o.add(inn); S.wrackInnen = inn; } catch (e) { console.warn('Tiefwald: Wrack-Innenraum', e); } // Blender (wrack_innen_bau.py), Wagen-Koordinaten
+    note(TIEF.beifahrer.x, TIEF.beifahrer.y + .35, TIEF.beifahrer.z, () => tief_has('tief_wrack') ? 'Der Beifahrersitz' : 'Das Autowrack durchsuchen', () => tief_wrack(), .8, 1, .8); } catch (e) { console.warn('Tiefwald: Wrack', e); } // AP-24: kleiner (Beifahrersitz) – der große Kasten verdeckte das Handschuhfach (kapitel6.js) und den Rekorder (neben6.js)
   { const C = TIEF.camp, TX = 81.3, TZ = 233.2; // das eingefallene Zelt: eine Firststange (Whiskey sitzt bei kapitel6 / whiskey.js auf ihr: x 81,3, z 233,2), vorn auf einem Stützstock, hinten auf den Boden gesackt
     const rinde = msSurfMat('bark', { tint: 0x8a7a66 }); for (const k of ['map', 'normalMap', 'roughnessMap', 'aoMap']) if (rinde[k]) { rinde[k] = rinde[k].clone(); rinde[k].repeat.set(.25, 1.2); rinde[k].needsUpdate = true; }
     const hF = 1.12, hB = .46, z0 = TZ - 1.55, z1 = TZ + 1.5, ridge = z => hF + (hB - hF) * (z - z0) / (z1 - z0);
@@ -30835,7 +30842,7 @@ window.__traum = { S: traum_S, P: TRAUM_PERCH, st: () => (typeof strasse_S !== '
 // (echter Papierscan aus der Basis [papierScan], Heftlinien, Wasserflecken, gerissene Kanten; Schrift „Kalam“/„Caveat“ mit zufälligem Versatz je Buchstabe).
 // Enter / Klick / Leertaste = weiter (beim Schreiben: erst fertig schreiben), Pfeil links = zurück, X oder Esc = alles überspringen. Danach steht die Tour als Fund
 // „So funktioniert die Fibel“ in der Fibel (Tab). Das große „Ränder“-Fenster (hervorhebung.js, hl_karte) wird hier als Seite der Fibel gezeigt und poppt danach nicht mehr auf.
-// Testzugriff: window.__fibeltour (S, start, ende).
+// Testzugriff: __fibeltour (S, start, ende).
 const FIBT = { on: false, i: 0, steps: [], layer: null, res: null, typeIv: 0, raf: 0, holes: null, tgt: null, keyFn: null, ptrFn: null, clickFn: null, rsFn: null, papier: null, tab0: 'aufgaben', fertig: false };
 const FIBT_TEXT = {
   aufgaben: 'Aufgaben. Was als Nächstes zu tun ist, steht hier. Ganz oben die Hauptsache: Lucy finden. Haus Nr. 7, der Keller.',
@@ -41227,7 +41234,7 @@ WORLD_MODS.push(['Kapitel 6', async () => {
     f.rotation.set(PI / 2 - .08, 0, .9); f.position.set(20.4, .035, 120.2); f.castShadow = true; K6.grp.add(f); K6.flascheM = f;
     K6.flascheHit = box(.5, .4, .5, 20.4, .2, 120.2, hidden, { cast: false }); interact(K6.flascheHit, () => K6.on && !K6.flasche ? 'Eine Pfandflasche' : '', () => k6_flascheNehmen()); }
   // --- Wrack: Handschuhfach (Hofers Seite 5, Hildes Polaroid „— H.“) · Bau: die gefallene Batterie zwischen den Rippen (nach dem Höhepunkt)
-  if (typeof TIEF !== 'undefined') { const W = TIEF.wreck; K6.hfHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(K6.hfHit, () => K6.on && !K6.told.has('handschuhfach') ? 'Das Handschuhfach' : '', () => k6_handschuhfach()); }
+  if (typeof TIEF !== 'undefined') { const W = TIEF.wreck; K6.hfHit = box(.6, .5, .6, TIEF.hf ? TIEF.hf.x : W.x + 1.1, TIEF.hf ? TIEF.hf.y : .9, TIEF.hf ? TIEF.hf.z : W.z - .7, hidden, { cast: false }); interact(K6.hfHit, () => K6.on && !K6.told.has('handschuhfach') ? 'Das Handschuhfach' : '', () => k6_handschuhfach()); }
   { const B = typeof HUNGRIGE !== 'undefined' ? HUNGRIGE.bau : { x: -13.2, z: 206.8 }; const bt = new T.Mesh(new T.CylinderGeometry(.017, .017, .06, 10), new T.MeshStandardMaterial({ color: 0x2b2b2e, roughness: .35, metalness: .6 })); bt.rotation.z = PI / 2 - .3; bt.position.set(B.x + .9, .03, B.z - .6); bt.visible = false; K6.grp.add(bt); K6.batM = bt;
     K6.batHit = box(.5, .4, .5, B.x + .9, .2, B.z - .6, hidden, { cast: false }); interact(K6.batHit, () => K6.on && K6.batFall && !K6.batDa ? 'Die Batterie zwischen den Rippen' : '', () => { if (!K6.batFall || K6.batDa) return; K6.batDa = true; bt.visible = false; if (typeof addBattery === 'function') addBattery(1); k6_luke('Da bist du ja.', 1800); }); }
   // --- AP-24 (Autorentscheid 01.10.2026): das Funkgerät der Bergung zurücklegen (+4) – am Hochsitz statt am Gitter (der Weg führt nicht zurück; dort holt die Bergung es ab)
@@ -41971,7 +41978,7 @@ WORLD_MODS.push(['Kapitel 6 · Nebenaufgaben (N6-7, N6-8)', async () => {
     interact(N6.spindHit, () => !n6_offen() || n6_falle() ? '' : n6_has('n67_spind') ? 'Hofers Spind (leer)' : (story.items || []).includes('spindschluessel') ? 'Den Blechspind mit der 3 aufschließen' : 'Ein schmaler Blechspind hinter dem Fahrersitz', () => n6_spind());
     if (typeof hintAdd === 'function') hintAdd({ id: 'n6_spind', x: B.x + .5, y: 0, z: B.z + .2, kind: 'story', near: 40, open: () => n6_offen() && (story.items || []).includes('spindschluessel') && !n6_has('n67_spind') && !n6_falle() });
     // --- N6-8 · Pells Rekorder im Handschuhfach des Wracks (nach dem Polaroid aus kapitel6.js an derselben Stelle)
-    const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, W.x + 1.1, .9, W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
+    const W = TIEF.wreck; N6.rekHit = box(.6, .5, .6, TIEF.hf ? TIEF.hf.x : W.x + 1.1, TIEF.hf ? TIEF.hf.y : .9, TIEF.hf ? TIEF.hf.z : W.z - .7, hidden, { cast: false }); interact(N6.rekHit, () => !n6_offen() ? '' : !n6_has('pell_9') ? 'Im Handschuhfach: ein Rekorder' : !N6.band ? 'Pells Rekorder – das Band hören (zwei Batterien)' : 'Pells Rekorder', () => n6_rekorder()); uninteract(N6.rekHit); }
   N6.ready = true; // Stand nach dem Laden setzt der MOD_SAVE-Eintrag (beim Aufbau gibt es story.items noch nicht)
 }]);
 // Hofers Spind: schmaler Blechspind im Laderaum hinter dem Fahrersitz (links, Tür nach hinten), grüngraue Farbe, Rost, Lüftungsschlitze, eine weiße „3“ und das Auge darunter, Hebelgriff und Hängeschloss.
@@ -45273,7 +45280,7 @@ WORLD_TICK.push(dt => { const S = ziele_S; if (!S.geladen) ziele_laden(); if (!s
 //     einer sichtbaren Gruppe ab (blendet am neuen Ort neu ein, statt zu springen).
 //  2) Flug-/Wegpunkt-Bausteine: auftritt_fernpunkt (Anflugpunkt außer Sicht), auftritt_abgangsziel (Abflugpunkt hinter der Nebelgrenze),
 //     auftritt_imBild (Test), auftritt_nebel (Sichtweite), auftritt_weg (erst entfernen, wenn außer Sicht).
-// Testzugriff: window.__auf (S, log, stat, report(), imBild(x,y,z)).
+// Testzugriff: __auf (S, log, stat, report(), imBild(x,y,z)).
 function auftritt_S() {
   const w = window; if (w.__auf) return w.__auf;
   return (w.__auf = { recs: [], log: [], stat: { pop: 0, jump: 0, flick: 0, fadeIn: 0, fadeOut: 0, hart: 0 }, frame: 0, t: 0, v: new THREE.Vector3(), v2: new THREE.Vector3(), mi: new THREE.Matrix4(), logOn: true,
@@ -45446,7 +45453,7 @@ WORLD_TICK.push((dt) => { try { auftritt_tick(Math.min(dt, .1)); } catch (e) { i
 //  · Animation: Zeitlupe 0,72–0,85, Stocken 80–150 ms, Schleifensprung verdeckt (Flimmern + Nachbild), kein Gleiten (beim Gehen Tempo 1), Regie je Echo (Clips, Sprecher, Blicke).
 //  · Echo-Start/-Ende: Linse (Farbsaum-Puls, Vignette, Korn/Bleichung), Entsättigung nur über film-Uniforms (gSat/gBl, kein neuer Pass), Staub-Lichtkegel,
 //    Flackern der vorhandenen Lampen (vlights), Ton: Flüsterschicht (fx_fluester_*), Herzschlag (pz_herz_*), Druck (fx_tief_2), Ausatmen; Hall über raumklang.
-// Testzugriff: window.__geister (S, stat(), echo(id), look(on), show(...)).
+// Testzugriff: __geister (S, stat(), echo(id), look(on), show(...)).
 const GEIST = {
   G: { uT: figuren_S.T, uSat: { value: 1 }, uBl: { value: 0 }, uWav: { value: .011 }, uCA: { value: new THREE.Color(.20, .38, .86) }, uCB: { value: new THREE.Color(.80, .89, 1.0) }, uCC: { value: new THREE.Color(.48, .56, .72) } },
   L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [2.5, 7], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .06, satEcho: .45, blEcho: .38, vigEcho: .55, caPuls: .016 },
