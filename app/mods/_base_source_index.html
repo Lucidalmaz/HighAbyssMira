@@ -767,6 +767,9 @@ const wait = ms => new Promise(r => gtAfter(ms, r));
 const GL = { lost: false }; // Grafikkontext verloren (Treiber-Reset): Spiel steht, Hinweis, Neuladen
 const HAM_VERSION = window.HAM_VERSION || 'dev'; // einzige Quelle: package.json „version“ (build.js schreibt sie in die Seite)
 const DEV = !window.IS_RELEASE; // Veröffentlichung (tools/assemble.js --release): ohne Story-Editor, F3-Messanzeige und Entwickler-Hinweise
+// Testmodus ?lite (nur Selbsttests, nie in der Veröffentlichung): wenig Speicher für Logik-/Kollisions-/Auslöser-Tests, damit mehrere Testfenster parallel laufen (docs/gameplay/TESTEN.md).
+// ?fast (bisher wegen eines Steuerzeichens im Muster wirkungslos): kein Textur-Vorabhochladen, kein Vorladen. ?lite schließt das ein und übersetzt auch nicht vorab.
+const LITE = DEV && /[?&]lite\b/.test(location.search), FASTLOAD = LITE || /[?&]fast/.test(location.search);
 const $ = id => document.getElementById(id);
 
 // Intro-Text läuft, während die Welt generiert wird
@@ -819,6 +822,18 @@ if (KTX.img.size || KTX.mdl.size) {
   const tc0 = THREE.Texture.prototype.clone, cp0 = THREE.Texture.prototype.copy;
   THREE.Texture.prototype.clone = function () { const c = tc0.call(this); if (this.__ktx) { this.__ktx.push(c); c.__ktx = this.__ktx; } return c; };
   THREE.Texture.prototype.copy = function (src) { cp0.call(this, src); if (src.isCompressedTexture && !this.isCompressedTexture) this.isCompressedTexture = true; return this; }; // Kopien bleiben komprimiert
+}
+// ?lite: Bilddateien und Modell-Texturen werden gar nicht geladen/dekodiert (4×4-Platzhalter), alles Übrige (Canvas) kommt höchstens 64 px groß auf die Grafikkarte.
+// Formen, Kollision, Auslöser und Abläufe bleiben unverändert – nur das Bild ist falsch (Selbsttests prüfen damit Logik, nie Optik).
+if (LITE) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 4; const cx = cv.getContext('2d'); cx.fillStyle = '#8a8580'; cx.fillRect(0, 0, 4, 4);
+  const tiny = () => { const t = new THREE.Texture(cv); t.needsUpdate = true; return t; };
+  renderer.capabilities.maxTextureSize = 64; // three.js verkleinert jedes größere Bild beim Hochladen selbst
+  THREE.TextureLoader.prototype.load = function (url, onLoad) { const t = tiny(); if (onLoad) setTimeout(() => onLoad(t), 0); return t; };
+  const gp = GLTFLoader.prototype.parse;
+  GLTFLoader.prototype.parse = function (...a) { if (!this.__lite) { this.__lite = true; this.register(p => { p.loadTextureImage = () => Promise.resolve(tiny()); return { name: 'ham_lite' }; }); } return gp.apply(this, a); };
+  const w0 = console.warn; console.warn = function (m, ...r) { if (typeof m === 'string' && m.startsWith('THREE.WebGLRenderer: Texture has been resized')) return; return w0.call(this, m, ...r); };
+  console.info('Testmodus lite: Platzhalter-Texturen, kein Vorübersetzen/Hochladen');
 }
 
 const scene = new THREE.Scene();
@@ -3424,7 +3439,7 @@ function crowFlock() {
   flock.forEach((c, i) => {
     c.g.position.set(tx + rand(-1.5, 1.5), rand(3.5, 6) * ts, tz + rand(-1.5, 1.5));
     const v = aim.clone().add(new THREE.Vector3(rand(-2.5, 2.5), rand(-.6, 1.4), rand(-2.5, 2.5))).sub(c.g.position).normalize().multiplyScalar(rand(9, 12.5));
-    c.vel.copy(v); c.on = true; c.g.visible = true; c.delay = i * rand(.03, .09);
+    c.vel.copy(v); c.on = true; c.delay = i * rand(.03, .09); // 08.10.: sichtbar erst beim Abflug (nicht schon starr im Baum)
   });
   Audio.flap(tx, 5, tz); Audio.flap(tx + 1, 4, tz - 1);
   for (let i = 0; i < 4; i++) setTimeout(() => Audio.caw(tx + rand(-3, 3), 5, tz + rand(-3, 3)), 80 + i * rand(120, 260));
@@ -3435,6 +3450,7 @@ function flockUpdate(dt, t) {
   for (const c of flock) {
     if (!c.on) continue;
     if (c.delay > 0) { c.delay -= dt; continue; }
+    if (!c.g.visible) c.g.visible = true;
     c.g.position.addScaledVector(c.vel, dt); c.vel.y += dt * 1.2;
     c.g.rotation.y = Math.atan2(-c.vel.z, c.vel.x); c.g.rotation.z = Math.atan2(c.vel.y, Math.hypot(c.vel.x, c.vel.z)) * .6;
     c.wings.forEach((w, i) => w.rotation.x = (i ? 1 : -1) * Math.sin(t * 26 + c.vel.x) * 1.0);
@@ -4530,7 +4546,7 @@ function cowUpdate(dt) {
     cowFx.ufoT += dt; const k = Math.min(1, cowFx.ufoT / 16), e = k * k;
     ufo.position.set(-13.5 - 260 * e, 62 + 70 * e + Math.sin(cowFx.ufoT) * .5, -13 - 420 * e); ufo.rotation.z = Math.sin(cowFx.ufoT * .8) * .06;
     ufo.userData.dots.rotation.y += dt * 1.2; ufo.userData.dots.children.forEach((q, i) => q.material.emissiveIntensity = Math.sin(cowFx.ufoT * 6 + i) > 0 ? 7 : 1); ufo.userData.tick(dt, cowFx.ufoT);
-    if (k >= 1) { cowFx.ufoT = -1; ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; }
+    if (k >= 1) { cowFx.ufoT = -1; try { ufo.visible = false; auftritt_wenn_weg(ufo, () => { ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; }); } catch (e) { ufo.position.set(0, -800, 0); ufo.userData.under.intensity = 0; } } // 08.10.: Lichtschiff blendet am Ende aus, erst dann wegsetzen
   }
   if (!ch3.cowSeen && cowFx.done && cowFx.t >= 1) { tmp.set(cowFx.g.position.x - camera.position.x, 0, cowFx.g.position.z - camera.position.z).normalize(); if (fwd.x * tmp.x + fwd.z * tmp.z > .8) { ch3.cowSeen = true; Audio.stinger(false);
     say([['Eine Kuh. Mitten auf der Kreuzung. Aus dem Nichts.', 3200], ['Über den Dächern: Lichter, die sich lautlos entfernen. Immer kleiner. Dann nichts.', 4200]]); } }
@@ -4657,7 +4673,7 @@ async function loadFabAssets() {
   bat.traverse(m => { if (m.isMesh) m.material = /eye/i.test(m.name) ? new THREE.MeshStandardMaterial({ map: T('bat/eye.jpg'), roughness: .2 }) : batMat; });
   for (let i = 0; i < 4; i++) {
     const o = skClone(bat); fitMax(o, .42); shade(o); const g = holder(o, 0, 8, 0); const mx = new THREE.AnimationMixer(o); const a = mx.clipAction(bat.animations[0]); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
-    FAB.bats.push({ g, mx, cx: rand(-45, 45), cz: rand(-8, 8), r: rand(7, 15), h: rand(6, 11), sp: rand(.5, .9) * (i % 2 ? 1 : -1), ph: rand(0, 6), swoop: 0 });
+    FAB.bats.push({ g, mx, cx: rand(-45, 45), cz: rand(-8, 8), r: rand(7, 15), h: rand(6, 11), sp: rand(.5, .9) * (i % 2 ? 1 : -1), ph: rand(0, 6), swoop: 0 }); try { auftritt_reg(g, { name: 'Fledermaus', r: .6 }); } catch (e) {}
   }
   FAB.batT = rand(40, 80);
   // --- Fliegen: in Wendts Küche, am Brandhaus, im Amt beim Tank
@@ -4794,7 +4810,7 @@ function fabUpdate(dt, t) {
     if (b.swoop > 0) { b.swoop -= dt; const k = 1 - Math.abs(b.swoop - 1.2) / 1.2; x += (P.x - x) * k; y += (1.75 - y) * k; z += (P.z - z) * k; }
     const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz);
   }
-  if (outdoor && !state.talking && !ui.overlay && state.started) { FAB.batT -= dt; if (FAB.batT < 0) { FAB.batT = rand(55, 110); const b = FAB.bats[Math.floor(rand(0, FAB.bats.length))]; b.swoop = 2.4; setTimeout(() => Audio.flap(P.x, 1.8, P.z), 900); } }
+  if (outdoor && !state.talking && !ui.overlay && state.started) { FAB.batT -= dt; if (FAB.batT < 0) { FAB.batT = rand(55, 110); let b = null, bd = 28; for (const q of FAB.bats) { const d = Math.hypot(q.g.position.x - P.x, q.g.position.z - P.z); if (d < bd && q.g.visible) { bd = d; b = q; } } if (b) { b.swoop = 2.4; setTimeout(() => Audio.flap(P.x, 1.8, P.z), 900); } else FAB.batT = 6; } } // 08.10.: nur eine Fledermaus in Reichweite stürzt herab (vorher aus bis 60 m Entfernung = Sprung quer durchs Bild)
   for (const f of FAB.flies) { const far = Math.abs(f.c.x - P.x) > 30 || Math.abs(f.c.z - P.z) > 30; f.o.visible = !far; if (far) continue; f.ph += dt * f.sp; f.o.position.set(f.c.x + Math.cos(f.ph) * f.r + Math.sin(f.ph * 3.1) * .05, f.c.y + Math.sin(f.ph * 1.7) * .12, f.c.z + Math.sin(f.ph * 1.3) * f.r); f.o.rotation.y = -f.ph; }
   for (const S of FAB.spiders) {
     if (Math.hypot(P.x - S.g.position.x, P.z - S.g.position.z) > 25) continue;
@@ -5553,7 +5569,7 @@ function rigScan() {
   RIGS.list = [...set].map(r => { const k = RIGS.known.get(r); if (k) return { r, R: k.R, size: k.size };
     let glow = false; r.traverse(o => { if (o.material) for (const m of [].concat(o.material)) if (m && m.fog === false) glow = true; });
     bb.setFromObject(r); const size = bb.isEmpty() ? 1 : bb.getBoundingSphere(sp).radius; // kleine Tiere (Ratten) verschwinden im Dunkeln viel früher als ein Mensch
-    const R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 28, RIGS.R); RIGS.known.set(r, { R, size }); return { r, R, size }; });
+    const R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 48, RIGS.R); RIGS.known.set(r, { R, size }); return { r, R, size }; }); // 08.10.: Mindestweite 28 → 48 m (bei 28 m lässt der Nebel noch 36 % durch: kleine Tiere/Krähen/Katzen poppten weg)
 }
 function rigFarHide() {
   if ((RIGS.t -= 1) <= 0) { RIGS.t = 300; rigScan(); } // alle ~5 s neu einsammeln (neu geladene Kapitel, Tiere)
@@ -6147,7 +6163,7 @@ stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
 // Testschalter ?fast (nur Selbsttests, --page=index.html?fast): kein Vorübersetzen, kein Textur-Hochladen – die Programme entstehen erst beim ersten Zeigen; spart je Testlauf Minuten.
-if (!/[?&]fast/.test(location.search)) {
+if (!LITE) { // ?lite: kein Vorübersetzen (Programme entstehen beim ersten Zeigen); ?fast übersetzt wie das Spiel (Bilder der Tests vollständig), lädt aber nicht vorab hoch
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
@@ -6175,7 +6191,7 @@ stage('Erstes Bild fertig');
   // Alle Texturen und Formen jetzt auf die Grafikkarte laden – auch Verborgenes und alles außerhalb des Blickfelds.
   // Sonst geschieht das beim ersten Hinsehen mitten im Spiel (gemessen: Ruckler bis 180 ms beim Umdrehen).
   stage('Texturen hochladen'); await wait(0);
-  if (!/noupload|[?&]fast/.test(location.search)) {
+  if (!FASTLOAD && !/noupload/.test(location.search)) {
     const keep = []; const texs = new Set();
     scene.traverse(o => { keep.push([o, o.visible, o.frustumCulled, o.layers.mask]); o.visible = true; o.frustumCulled = false; o.layers.enable(0);
       if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }

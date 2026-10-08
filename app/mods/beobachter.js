@@ -403,7 +403,7 @@ async function beob_hautBild() { // Grundfarbe (JPEG) direkt aus der glb: das Ma
 }
 async function beob_loadModel() {
   try { await beob_rigLaden(); return; } catch (e) { console.warn('Beobachter: Rig, Rückfall auf das alte Modell', e); beob_S.V = null; } // R-21
-  const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
+  const S = beob_S; try { const src = await msModel('beobachter', 'model.glb'); const m = src.clone(true); const g = new THREE.Group(); g.add(msGround(msFit(m, BEOB.h, 'y'))); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g); try { auftritt_reg(g, { name: 'Beobachter', ein: .35, aus: .25, r: 1.2 }); } catch (e) {}
     let map0 = null; m.traverse(o => { if (o.isMesh && !map0) map0 = o.material.map; });
     let skin = null; if (map0) { try { const cv = beob_haut(await beob_hautBild()); skin = new THREE.CanvasTexture(cv); skin.flipY = map0.flipY; skin.colorSpace = THREE.SRGBColorSpace; skin.wrapS = map0.wrapS; skin.wrapT = map0.wrapT;
         skin.offset.copy(map0.offset); skin.repeat.copy(map0.repeat); skin.rotation = map0.rotation; skin.center.copy(map0.center); skin.channel = map0.channel; skin.anisotropy = 4; skin.needsUpdate = true; } catch (e) { console.warn('Beobachter: Haut', e); } }
@@ -504,7 +504,7 @@ function beob_rigMat(T) { const uT = { value: 0 }, uFl = { value: 0 }, uH = { va
   return { haut, auge, uT, uFl }; }
 async function beob_rigLaden() { const S = beob_S;
   const src = await msModel('beobachter', 'beobachter_rig.glb'); const tx = { haut: msTex('beobachter/haut.png'), auge: msTex('beobachter/auge.jpg', true) };
-  tx.auge.wrapS = tx.auge.wrapT = THREE.ClampToEdgeWrapping; const M = beob_rigMat(tx), g = new THREE.Group(); g.add(src); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g);
+  tx.auge.wrapS = tx.auge.wrapT = THREE.ClampToEdgeWrapping; const M = beob_rigMat(tx), g = new THREE.Group(); g.add(src); g.visible = false; g.userData.noCol = true; g.name = 'beobachter'; scene.add(g); try { auftritt_reg(g, { name: 'Beobachter', ein: .35, aus: .25, r: 1.2 }); } catch (e) {}
   let mesh = null; src.traverse(o => { if (o.isMesh) { mesh = o; o.castShadow = true; o.receiveShadow = false; o.frustumCulled = false; } }); // keine Schattenempfang-Texturen: der Hautshader bleibt unter der Grenze der Textureinheiten
   src.traverse(o => { if (o.isMesh) o.material = (o.material && o.material.name === 'Auge') ? M.auge : M.haut; });
   const B = {}; src.traverse(o => { if (o.isBone) B[o.name] = o; }); const mx = new THREE.AnimationMixer(src), act = {}, meta = (src.userData && src.userData.motion) || {};

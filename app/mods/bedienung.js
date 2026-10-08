@@ -135,9 +135,8 @@ BED.keypad = function (o = {}) { const P = o.parent || scene, g = new THREE.Grou
       const r = bed_rng(77); // abgegriffene Zone um die Tasten 0·1·3: blank poliert, übrige Platte verschmutzt
       for (let i = 0; i < 18; i++) { const cx = w * (.22 + r() * .56), cy = h * (.30 + r() * .55), rr = 18 + r() * 40, gg = x.createRadialGradient(cx, cy, 0, cx, cy, rr); gg.addColorStop(0, 'rgba(34,26,18,.14)'); gg.addColorStop(1, 'rgba(34,26,18,0)'); x.fillStyle = gg; x.fillRect(cx - rr, cy - rr, rr * 2, rr * 2); }
       x.textAlign = 'center'; const gravur = (t, px, py, sz, st = '') => { x.font = `${st} ${sz}px "Arial Narrow", "Segoe UI", Arial, sans-serif`; x.fillStyle = 'rgba(255,255,255,.55)'; x.fillText(t, px + 1, py + 1.5); x.fillStyle = 'rgba(28,26,24,.88)'; x.fillText(t, px, py); };
-      gravur('ZUTRITT', w / 2, 86, 34, 'bold'); gravur('KELLER  ·  TÜR 1', w / 2, 760, 24, 'bold'); x.fillStyle = 'rgba(28,26,24,.7)'; x.fillRect(60, 100, w - 120, 2);
-      x.font = 'bold 15px "Courier New", monospace'; x.fillStyle = 'rgba(28,26,24,.8)'; x.textAlign = 'left'; x.fillText('SN 0442-H', 36, 788); x.textAlign = 'right'; x.fillText('12 V', w - 36, 788); });
-  const plateHeight = bed_cv(512, 800, (x, w, h) => { x.fillStyle = '#808080'; x.fillRect(0, 0, w, h); x.fillStyle = '#404040'; x.textAlign = 'center'; x.font = 'bold 34px "Arial Narrow", Arial'; x.fillText('ZUTRITT', w / 2, 86); x.font = 'bold 24px "Arial Narrow", Arial'; x.fillText('KELLER  ·  TÜR 1', w / 2, 760); x.fillRect(60, 100, w - 120, 2); });
+      });
+  const plateHeight = bed_cv(512, 800, (x, w, h) => { x.fillStyle = '#808080'; x.fillRect(0, 0, w, h); });
   const stahl = mat('stahl').clone(); stahl.map = bed_tex(plate); stahl.normalMap = bed_tex(bed_normal(plateHeight, 3), false); stahl.roughnessMap = BED._t.stahl.rough; stahl.normalScale.set(.9, .9);
   M(g, BED.rr(PW, PH, .004, .006, .0012), stahl, 0, 0, D / 2 + .0005);
   for (const sx of [-1, 1]) for (const sy of [-1, 1]) BED.schraube(g, sx * (PW / 2 - .011), sy * (PH / 2 - .011), zF + .0008, .0045, sx * 3 + sy + 5);
@@ -223,14 +222,11 @@ BED.sicherung = function () { if (BED.sic || typeof fusePanel === 'undefined' ||
   const kgeo = BED.rr(.11, .24, .024, .008, .003), hgeo = new THREE.BoxGeometry(.036, .09, .018);
   for (let i = 0; i < 6; i++) { const x = .5 - i * .2;
     M(root, BED.rr(.14, .3, .004, .008, .001), mat('stahl'), x, -.1, .008, { cast: false }); M(root, kgeo, mat('bakelit'), x, -.1, .02);
-    BED.label(root, .12, .04, x, .08, .0325, (c, w, h) => { c.fillStyle = '#e6e0cc'; c.fillRect(0, 0, w, h); c.strokeStyle = '#2a2a28'; c.lineWidth = 4; c.strokeRect(3, 3, w - 6, h - 6); c.fillStyle = '#1a1a18'; c.textAlign = 'center'; c.font = 'bold 40px "Arial Narrow", Arial'; c.fillText('KREIS ' + (i + 1), w / 2, h * .7); }, { px: 192, rough: .7 });
     M(root, new THREE.BoxGeometry(.05, .006, .004), mat('bakelit'), x, -.1, .033, { cast: false });                  // Schlitz
     const pv = new THREE.Group(); pv.position.set(x, -.1, .03); root.add(pv); M(pv, hgeo, mat('rot'), 0, 0, .006); S.hebel.push({ pv }); }
   for (const sx of [-1, 1]) for (const sy of [-1, 1]) BED.schraube(root, sx * .66, sy * .53, .01, .012, sx + sy * 2 + 9);
   // Klappe (Außenseite = −z der Welt): Warnschild, Griff, Scharniere – als Kinder von fuseCover, lokal gedreht (+z = Raumseite)
   const cv = new THREE.Group(); cv.position.set(0, 0, -.0155); cv.rotation.y = Math.PI; fuseCover.add(cv); S.cv = cv; // lokal x gespiegelt: Griff rechts = lokal −x
-  BED.label(cv, .6, .22, .08, .3, .0012, (c, w, h) => { c.fillStyle = '#d9d4c4'; c.fillRect(0, 0, w, h); c.fillStyle = '#b3201a'; c.fillRect(0, 0, w, h * .34); c.fillStyle = '#f2ead8'; c.textAlign = 'center'; c.font = 'bold 50px "Arial Narrow", Arial'; c.fillText('ACHTUNG  ·  550 V', w / 2, h * .26);
-    c.fillStyle = '#1a1a18'; c.font = 'bold 30px "Arial Narrow", Arial'; c.fillText('HAUPTVERTEILUNG  E-2', w / 2, h * .6); c.font = '23px "Arial Narrow", Arial'; c.fillText('Nur durch Elektrofachkraft öffnen', w / 2, h * .82); }, { px: 512, rough: .45 });
   M(cv, BED.rr(.05, .14, .026, .02, .004), mat('stahl'), -.6, -.1, .02);                                           // Griff (rechts)
   for (const y of [.4, -.4]) M(cv, new THREE.CylinderGeometry(.014, .014, .12, 12), mat('stahl'), .69, y, -.004);  // Scharniere (links)
   for (const sx of [-1, 1]) for (const sy of [-1, 1]) BED.schraube(cv, sx * .64, sy * .54, .0028, .011, sx * 2 + sy + 31);
@@ -243,19 +239,18 @@ WORLD_TICK.push((dt) => { if (BED.sic) return BED.sic.tick(dt); if (!BED._sicTry
 // Ergänzt Basis-Kasten radioBox (.6 × 1.1 × .4 bei 5,4 | −6,6, Front nach +z): Skala mit Bernsteinlicht, zwei Drehknöpfe, Kippschalter, Lautsprecher, Schilder, Griff, Antenne.
 BED.funk = function () { if (BED.funkB || typeof radioBox === 'undefined') return; const mat = BED.mat, M = BED.mesh, p = radioBox.position, S = BED.funkB = {}, root = new THREE.Group(); root.position.set(p.x, p.y - .55, p.z + .2 + .0); scene.add(root); // y = Boden, z = Vorderseite
   radioBox.material = mat('lackGross');
+  scene.traverse(o => { if (o.isMesh && o.geometry.type === 'PlaneGeometry' && Math.abs(o.position.x - p.x) < .05 && Math.abs(o.position.y - .75) < .05 && Math.abs(o.position.z - (p.z + .21)) < .03) o.visible = false; }); // aufgeklebtes Amtsschild der Basis weg
   // Skala (Glas, Bernstein beleuchtet), Frequenzstriche, Zeiger
   const sk = BED.label(root, .36, .1, -.08, .93, .0016, (c, w, h) => { const g = c.createLinearGradient(0, 0, w, 0); g.addColorStop(0, '#6a3c10'); g.addColorStop(.5, '#e0a24a'); g.addColorStop(1, '#6a3c10'); c.fillStyle = g; c.fillRect(0, 0, w, h);
-      c.strokeStyle = '#2a1608'; c.fillStyle = '#2a1608'; c.textAlign = 'center'; c.font = 'bold 22px "Arial Narrow", Arial'; for (let i = 0; i <= 40; i++) { const x = 20 + i * (w - 40) / 40, l = i % 5 ? 14 : 28; c.lineWidth = i % 5 ? 2 : 3; c.beginPath(); c.moveTo(x, h * .62); c.lineTo(x, h * .62 - l); c.stroke(); if (i % 10 === 0) c.fillText(String(28 + i / 10 * 2).replace('.', ','), x, h * .62 + 26); }
-      c.font = 'bold 24px "Arial Narrow", Arial'; c.fillText('MHz', w - 44, h * .2); c.fillText('UKW', 44, h * .2); }, { px: 512, rough: .25 }); sk.material.emissive = new THREE.Color(0xff9a30); sk.material.emissiveMap = sk.material.map; sk.material.emissiveIntensity = .55; S.skala = sk;
+      c.strokeStyle = '#2a1608'; c.fillStyle = '#2a1608'; c.textAlign = 'center'; c.font = 'bold 22px "Arial Narrow", Arial'; for (let i = 0; i <= 40; i++) { const x = 20 + i * (w - 40) / 40, l = i % 5 ? 14 : 28; c.lineWidth = i % 5 ? 2 : 3; c.beginPath(); c.moveTo(x, h * .62); c.lineTo(x, h * .62 - l); c.stroke(); }
+      }, { px: 512, rough: .25 }); sk.material.emissive = new THREE.Color(0xff9a30); sk.material.emissiveMap = sk.material.map; sk.material.emissiveIntensity = .55; S.skala = sk;
   M(root, BED.rr(.4, .14, .02, .012, .003), mat('bakelit'), -.08, .93, -.0085, { cast: false }); const gl = new THREE.Mesh(new THREE.PlaneGeometry(.36, .1), mat('glas')); gl.position.set(-.08, .93, .0036); gl.userData.noCol = true; root.add(gl);
   M(root, new THREE.BoxGeometry(.002, .11, .002), mat('rot'), -.15, .93, .004, { cast: false }); // Zeiger bei ~31,1
-  // Typenschild und Schutzblech über den Knöpfen
-  BED.label(root, .3, .07, .0, .29, .0018, (c, w, h) => { c.fillStyle = '#b8bab4'; c.fillRect(0, 0, w, h); c.strokeStyle = '#3a3c38'; c.lineWidth = 3; c.strokeRect(3, 3, w - 6, h - 6); c.fillStyle = '#22221f'; c.textAlign = 'center'; c.font = 'bold 30px "Arial Narrow", Arial'; c.fillText('FUNKKASTEN FK-31', w / 2, 40); c.font = '19px "Courier New", monospace'; c.fillText('Stadtwerke L.E. · Bj. 1971 · 24 V', w / 2, 70); }, { px: 400, rough: .4, metal: .5 });
   // Knöpfe: Bakelit mit Riffelung, Messing-Skalenring
   const kn = (x, y, r, txt) => { M(root, new THREE.CylinderGeometry(r * 1.45, r * 1.5, .004, 28), mat('messing'), x, y, .002, { rx: Math.PI / 2, cast: false });
     const k = M(root, new THREE.CylinderGeometry(r, r * 1.08, .04, 28), mat('bakelit'), x, y, .022, { rx: Math.PI / 2 }); k.userData.dreh = true; for (let i = 0; i < 16; i++) { const a = i / 16 * 6.283; M(k, new THREE.BoxGeometry(r * .1, .036, r * .12), mat('bakelit'), Math.cos(a) * r * 1.02, 0, Math.sin(a) * r * 1.02, { cast: false }); }
     M(k, new THREE.BoxGeometry(r * .12, .003, r * .7), mat('messing'), 0, .021, r * .45, { cast: false }); // Markierung
-    BED.label(root, r * 3.4, r * .8, x, y - r * 1.9, .002, (c, w, h) => { c.fillStyle = '#14120f'; c.fillRect(0, 0, w, h); c.fillStyle = '#e8e0c6'; c.textAlign = 'center'; c.font = `bold ${h * .66}px "Arial Narrow", Arial`; c.fillText(txt, w / 2, h * .76); }, { px: 128, rough: .5 }); return k; };
+    return k; };
   S.k1 = kn(-.14, .55, .05, 'ABSTIMMUNG'); S.k2 = kn(.1, .55, .035, 'LAUTSTÄRKE');
   // Kippschalter-Reihe
   for (let i = 0; i < 3; i++) { const x = -.14 + i * .1, y = .36; M(root, new THREE.CylinderGeometry(.016, .016, .006, 14), mat('stahl'), x, y, .003, { rx: Math.PI / 2, cast: false }); const h = M(root, new THREE.CylinderGeometry(.005, .007, .045, 10), mat('stahl'), x, y + .012, .02, { rz: .0, rx: i === 1 ? -.45 : .45 });

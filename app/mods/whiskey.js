@@ -101,13 +101,13 @@ function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil 
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
   const S = whiskey_S, from = S.g.position.clone(), dist = from.distanceTo(to), apex = Math.max(from.y, to.y) + Math.min(8, 2 + dist * .25);
-  S.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, apex, (from.z + to.z) / 2), t: 0, dur: Math.max(1.6, dist / 7.5), then, land: false };
+  S.fl = { from, to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, apex, (from.z + to.z) / 2), t: 0, dur: Math.max(1.6, dist / (dist > 40 ? 11 : 7.5)), then, land: false }; // weite Flüge (An-/Abflug aus der Ferne) etwas zügiger
   S.mode = 'take'; S.tt = .45; S.turn = null; S.fl.hold = .14; whiskey_play('TakeOff', .08, true, rand(1.1, 1.3)); if (dist > 3) { whiskey_caw({ gain: .5 }); Audio.flap(from.x, from.y + .2, from.z); } whiskey_noHit();
 }
 function whiskey_noHit() { const S = whiskey_S; if (!S.hit) return; uninteract(S.hit); S.hit.position.set(0, -50, 0); }
-function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; whiskey_noHit(); S.ride = null; const p = S.g.position; whiskey_fly(new THREE.Vector3(p.x + rand(-25, 25), p.y + 18, p.z + rand(-25, 25)), () => { S.g.visible = false; S.mode = 'gone'; }); }
+function whiskey_leave() { const S = whiskey_S; if (!S.g || S.mode === 'gone') return; whiskey_noHit(); S.ride = null; const p = S.g.position; whiskey_fly(auftritt_abgangsziel(p.x, p.y, p.z), () => { S.g.visible = false; S.mode = 'gone'; }); } // 08.10.: weiterfliegen bis hinter die Nebelgrenze, erst dort entfernen (vorher 18–35 m weit = mitten im Bild verschwunden)
 // Sofort an einen Ort (für Szenen, die ein Kapitel-AP startet): landet sichtbar aus der Luft
-function whiskey_setzen(x, y, z, then) { const S = whiskey_S; if (!S.g) return; S.ride = null; if (!S.g.visible || S.mode === 'gone') { S.g.position.set(x + rand(-12, 12), y + 12, z + rand(-12, 12)); S.g.visible = true; }
+function whiskey_setzen(x, y, z, then) { const S = whiskey_S; if (!S.g) return; S.ride = null; if (!S.g.visible || S.mode === 'gone') { const q = auftritt_fernpunkt(x, y, z, { r: 1.2, min: typeof indoorRect === 'function' && indoorRect() ? 5 : 34 }); S.g.position.copy(q); S.g.rotation.y = Math.atan2(x - q.x, z - q.z); S.g.visible = true; } // 08.10.: Anflug von außerhalb des Bildes
   whiskey_fly(new THREE.Vector3(x, y, z), () => { S.mode = 'perch'; S.idleT = 1.2; then && then(); }); }
 function whiskey_hin(x, z, y) { whiskey_setzen(x, y ?? whiskey_perch(x, z), z); } // Hilfe: zum nächsten Ort fliegen
 // Blickziel (auch für andere Module: „Whiskey schaut nach rechts“): s Sekunden, danach wieder Luke
@@ -485,7 +485,7 @@ WORLD_MODS.push(['Whiskey', async () => {
       o.material = [].concat(o.material).map(x => { const c = x.clone(); c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.5); c.roughness = .42; if ('sheen' in c) { c.sheen = .35; c.sheenColor = new THREE.Color(0x3a4a7a); } return c; }); if (o.material.length === 1) o.material = o.material[0]; } // blauer Schimmer im Licht
       if (o.isBone && /(^|-)Head$/.test(o.name)) S.head = o; });
     const inner = new THREE.Group(); inner.add(m); inner.scale.setScalar(S.base); S.m = inner;
-    const g = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(inner); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g;
+    const g = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(inner); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g; try { auftritt_reg(g, { name: 'Whiskey', r: 1.2 }); } catch (e) {}
     S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) { if (/_RM$/.test(c.name)) continue; S.A[c.name.replace(/^.*\|/, '').replace(/^ANIM_[A-Za-z]+_/, '')] = S.mx.clipAction(c); }
     S.ringM = whiskey_ring(m, false);
     const beak = new THREE.Sprite(new THREE.SpriteMaterial({ map: whiskey_beakTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .9 })); beak.scale.setScalar(.09); beak.visible = false; scene.add(beak); S.beak = beak;
@@ -551,13 +551,13 @@ WORLD_TICK.push((dt, t) => {
     if (st !== S.st && S.mode !== 'take' && S.mode !== 'fly' && (!st || S.left !== st)) {
       const was = S.st; S.st = st; uninteract(S.hit); S.ride = null; S.moodPick = st && typeof tausch_moeglich === 'function' && Math.random() < .4 ? 'handel' : 'eitel'; S.lookSt = false;
       if (st) { const pp = st.pos ? st.pos() : null; const to = pp ? new THREE.Vector3(pp[0], pp[1], pp[2]) : new THREE.Vector3(st.at[0], st.hover ?? st.y ?? whiskey_perch(st.at[0], st.at[1]), st.at[1]);
-        if (S.mode === 'gone' || !g.visible || g.position.distanceTo(to) > 150) { g.position.set(to.x + rand(-18, 18), to.y + 14, to.z + rand(-18, 18)); g.visible = true; } // weit weg (Nimmerheim, Villa-Halle): aus der Luft kommen
+        if (S.mode === 'gone' || !g.visible || g.position.distanceTo(to) > 150) { const q = auftritt_fernpunkt(to.x, to.y, to.z, { r: 1.2, min: typeof indoorRect === 'function' && indoorRect() ? 5 : 34 }); g.position.copy(q); g.rotation.y = Math.atan2(to.x - q.x, to.z - q.z); g.visible = true; } // weit weg (Nimmerheim, Villa-Halle): aus der Luft kommen
         whiskey_fly(to, () => { S.mode = st.ride || st.pos ? 'ride' : 'perch'; S.idleT = 1.5; S.puff = 1; if (!interactables.includes(S.hit)) interactables.push(S.hit); whiskey_zurueck(to.x + .3, null, to.z + .2); }); }
       else if (g.visible && was) whiskey_leave(); } }
   if (!g.visible) { S.beak.visible = false; if (S.glz) S.glz.g.visible = false; return; }
   const far = Math.hypot(P.x - g.position.x, P.z - g.position.z) > 70;
   // Flug
-  if (S.fl) { const F = S.fl; if (F.hold > 0) { F.hold -= dt; S.m.position.y = -.025 * Math.sin(Math.min(1, F.hold / .14) * PI); } else { S.m.position.y = 0; F.t = Math.min(1, F.t + dt / F.dur); } /* Q-1: Ducken vor dem Absprung */ const u = .25 * F.t + .75 * (1 - (1 - F.t) * (1 - F.t)), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u; // schnell ab, langsam an
+  if (S.fl) { const F = S.fl; if (F.hold > 0) { F.hold -= dt; S.m.position.y = -.025 * Math.sin(Math.min(1, F.hold / .14) * PI); } else { S.m.position.y = 0; F.t = Math.min(1, F.t + dt / F.dur); } /* Q-1: Ducken vor dem Absprung */ const st0 = Math.min(1, F.t / .14), u = (1 - (1 - F.t) * (1 - F.t)) * st0 * st0 * (3 - 2 * st0), a = (1 - u) * (1 - u), b = 2 * (1 - u) * u, c = u * u; // schnell ab, langsam an
     const nx = a * F.from.x + b * F.ctrl.x + c * F.to.x, ny = a * F.from.y + b * F.ctrl.y + c * F.to.y, nz = a * F.from.z + b * F.ctrl.z + c * F.to.z;
     const dx = nx - g.position.x, dz = nz - g.position.z, dy = ny - g.position.y, h = Math.hypot(dx, dz); if (h > 1e-4) { const ny_ = Math.atan2(dx, dz), yr = whiskey_wrap(ny_ - g.rotation.y) / Math.max(dt, 1e-3); g.rotation.y = ny_; g.rotation.z += (Math.max(-.6, Math.min(.6, -yr * .35)) - g.rotation.z) * Math.min(1, dt * 5); } // in die Kurve legen
     g.rotation.x += (Math.max(-.5, Math.min(.5, -Math.atan2(dy, h + 1e-3) * .8)) * (F.t > .85 ? -.6 : 1) - g.rotation.x) * Math.min(1, dt * 8); g.position.set(nx, ny, nz); // Nase in Flugrichtung, beim Landen aufgerichtet
@@ -592,7 +592,7 @@ WORLD_TICK.push((dt, t) => {
     S.hw = (S.hw ?? 1) + ((eigen ? .25 : 1) - (S.hw ?? 1)) * Math.min(1, dt * 5);
     if (S.head && (S.mode === 'perch' || S.mode === 'ride')) whiskey_headApply(S.hy * S.hw, S.hr * S.hw);
     if (S.beakL === undefined) S.beakL = whiskey_beakTip(); // posenunabhängig: einmal genügt (auch im Flug und auf der Schulter)
-    if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); S.beak.material.opacity = .55 + .35 * Math.abs(Math.sin(t * 2.3));
+    if (beakOn && S.head) { S.head.getWorldPosition(whiskey_v3); const a = g.rotation.y + S.hy; S.beak.position.set(whiskey_v3.x + Math.sin(a) * .11, whiskey_v3.y - .015, whiskey_v3.z + Math.cos(a) * .11); const AA = g.__auf ? g.__auf.a : 1; S.beak.material.opacity = (.55 + .35 * Math.abs(Math.sin(t * 2.3))) * AA; if (S.glz) S.glz.g.scale.setScalar(Math.max(.001, AA)); // Glanz blendet mit dem Raben ein/aus
       if (S.glz) { if (S.beakL) { S.glz.g.position.copy(S.beakL); S.head.localToWorld(S.glz.g.position); } else S.glz.g.position.set(whiskey_v3.x + Math.sin(a) * .155, whiskey_v3.y - .03, whiskey_v3.z + Math.cos(a) * .155); S.glz.g.rotation.set(0, a + PI / 2, .3 + .1 * Math.sin(t * 2.7) + S.hr * .5, 'YXZ'); } } } // Schlüssel quer im Schnabel, pendelt leicht mit dem Kopf
 });
-window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s) }; // Testzugriff
+window.__whiskey = { S: whiskey_S, ST: WHISKEY_ST, klick: () => whiskey_klick(), mimic: (k, o) => whiskey_mimic(k, o), setzen: (x, y, z) => whiskey_setzen(x, y, z), w01: () => whiskey_w01(), schacht: () => whiskey_schacht(), luna: () => whiskey_luna(), bedauerlich: () => whiskey_bedauerlich(), gefahr: () => whiskey_gefahr(), blick: (x, y, z, s) => whiskey_blick(x, y, z, s), leave: () => whiskey_leave() }; // Testzugriff

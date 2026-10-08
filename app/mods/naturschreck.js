@@ -35,7 +35,7 @@ function ns_spinneStart() {
   return true;
 }
 function ns_spinneTick(dt) {
-  const S = NS.spider; if (!S) return; S.t += dt; const P = player.pos, m = S.m; if (typeof SPN_U !== 'undefined') SPN_U.uT.value += dt; let x = S.x, z = S.z, y = S.y, sw = 0;
+  const S = NS.spider; if (!S) return; S.t += dt; S.age = (S.age || 0) + dt; const P = player.pos, m = S.m; if (typeof SPN_U !== 'undefined') SPN_U.uT.value += dt; let x = S.x, z = S.z, y = S.y, sw = 0;
   if (S.ph === 'fall') { // Fall an der Fadenseide: beschleunigt, kurz vor Augenhöhe weich abgefangen (der Faden spannt sich)
     if (!S.snd) { S.snd = true; ns_faden(); } S.vy -= 9 * dt; S.y += S.vy * dt; y = S.y; const rest = S.yEye;
     if (S.y <= rest + .22 && S.vy < 0) { S.vy *= Math.max(0, 1 - dt * 14); }
@@ -46,12 +46,12 @@ function ns_spinneTick(dt) {
   else if (S.ph === 'up') { S.vy += 14 * dt; S.y += S.vy * dt; y = S.y; if (S.y >= S.ceil) { ns_spinneEnde(); return; } } // zieht sich schnell an den Faden hinauf
   else if (S.ph === 'drop') { S.vy -= 9.8 * dt; S.y += S.vy * dt; y = S.y; const fl = S.ground + .03; if (S.y <= fl) { S.y = y = fl; S.ph = 'run'; S.t = 0; S.run = 1; const a = Math.atan2(S.z - P.z, S.x - P.x) + rand(-.6, .6); S.rx = Math.cos(a); S.rz = Math.sin(a); S.th.visible = false;
       Audio.play(Audio.pick('stepC2', 'stepC4'), { gain: .12, rate: 1.7, x: S.x, y: S.ground + .05, z: S.z, ref: 1.5 }); } }
-  else if (S.ph === 'run') { const sp = 1.7 * Math.min(1, S.t * 3); S.x += S.rx * sp * dt; S.z += S.rz * sp * dt; x = S.x; z = S.z; y = S.ground + .03; if (S.t > 1.6 || colliders.some(c => c.top > .1 && S.x > c.minX - .1 && S.x < c.maxX + .1 && S.z > c.minZ - .1 && S.z < c.maxZ + .1)) { ns_spinneEnde(); return; } } // läuft weg, bis eine Wand/Kante kommt
+  else if (S.ph === 'run') { const sp = S.stop ? 0 : 1.7 * Math.min(1, S.t * 3); S.x += S.rx * sp * dt; S.z += S.rz * sp * dt; x = S.x; z = S.z; y = S.ground + .03; if (S.t > 1.6) { ns_spinneEnde(); return; } if (!S.stop && colliders.some(c => c.top > .1 && S.x > c.minX - .1 && S.x < c.maxX + .1 && S.z > c.minZ - .1 && S.z < c.maxZ + .1)) { S.stop = true; S.t = Math.max(S.t, 1.15); } } // 08.10.: an der Wand nicht plötzlich weg, sondern kurz stehen und im Dunkeln verschwinden (Verkleinern) // läuft weg, bis eine Wand/Kante kommt
   // Darstellung
-  const dx = P.x - x, dz = P.z - z, th = Math.atan2(-dz, dx), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, th, S.ph === 'run' ? 0 : .35 + sw * 2, 'YXZ')), s = S.size * (S.ph === 'run' ? .8 : 1);
+  const dx = P.x - x, dz = P.z - z, th = Math.atan2(-dz, dx), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, th, S.ph === 'run' ? 0 : .35 + sw * 2, 'YXZ')), kin = Math.min(1, S.age / .45), kout = S.ph === 'up' ? Math.max(0, Math.min(1, (S.ceil - S.y) / .4)) : S.ph === 'run' ? Math.max(0, Math.min(1, (1.6 - S.t) / .45)) : 1, sk = (kin * kin * (3 - 2 * kin)) * (kout * kout * (3 - 2 * kout)), s = S.size * (S.ph === 'run' ? .8 : 1) * Math.max(.001, sk); // 08.10.: taucht aus dem Deckenspalt auf / verschwindet im Spalt bzw. im Dunkeln (Verkleinern, organisch)
   const px = x + (S.ph === 'hang' ? Math.cos(th + 1.57) * sw : 0), pz = z + (S.ph === 'hang' ? -Math.sin(th + 1.57) * sw : 0), mat = new THREE.Matrix4().compose(new THREE.Vector3(px, S.ph === 'run' ? y : y - .06 * s, pz), q, new THREE.Vector3(s, s, s));
   m.setMatrixAt(0, mat); m.instanceMatrix.needsUpdate = true; m.visible = true;
-  if (S.th.visible) { const a = S.th.geometry.attributes.position; a.setXYZ(0, px, S.ceil, pz); a.setXYZ(1, px, y + .02 * s, pz); a.needsUpdate = true; S.th.geometry.computeBoundingSphere(); }
+  S.th.material.opacity = .38 * sk; if (S.th.visible) { const a = S.th.geometry.attributes.position; a.setXYZ(0, px, S.ceil, pz); a.setXYZ(1, px, y + .02 * s, pz); a.needsUpdate = true; S.th.geometry.computeBoundingSphere(); }
 }
 function ns_spinneEnde() { const S = NS.spider; if (!S) return; scene.remove(S.m, S.th); S.th.geometry.dispose(); S.th.material.dispose(); if (S.m.dispose) S.m.dispose(); NS.spider = null; }
 function ns_faden(up) { const A = Audio; if (!A.ctx) return; const ctx = A.ctx, n = A.noise(false), hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = up ? 7200 : 5200; n.connect(hp); A.env(hp, up ? .05 : .075, .004, up ? .16 : .26); n.stop(ctx.currentTime + .6); } // Seidenfaden: hohes, feines Zischen

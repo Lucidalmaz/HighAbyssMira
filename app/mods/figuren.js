@@ -81,7 +81,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
-  g.userData.person = Q; figuren_S.embodied.add(g);
+  g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
   return Q;

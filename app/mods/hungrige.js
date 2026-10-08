@@ -100,10 +100,10 @@ function hungrige_lucy(x, y, z, text, ms = 2200) { hungrige_stimme(x, y, z, text
 async function hungrige_loadDT() {
   const S = hungrige_S; if (S.dt) return S.dt; if (S.dtP) return S.dtP; S.dtP = (async () => {
   try { const K = typeof kr_hirschding === 'function' ? await kr_hirschding() : null; // Q-1: Hirschding mit Skelett und Clips (kreaturen.js), sonst das alte starre Modell
-    if (K) { const g = new THREE.Group(); g.add(K.o); g.visible = false; g.userData.noCol = true; scene.add(g); S.dt = { g, o: K.o, t: 0, kr: K }; return S.dt; } } catch (e) { console.warn('Hungrige: Hirschding (Skelett)', e); }
+    if (K) { const g = new THREE.Group(); g.add(K.o); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Hirschding', ein: .35, aus: .3, r: 2.5 }); } catch (e) {} S.dt = { g, o: K.o, t: 0, kr: K }; return S.dt; } } catch (e) { console.warn('Hungrige: Hirschding (Skelett)', e); }
   try { const src = await msModel('wendigo', 'hirschding.glb'); const o = msGround(msFit(src.clone(true), HUNGRIGE.dtH, 'y')); o.rotation.y = HUNGRIGE.dtYaw;
     o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; const mats = [].concat(m.material).map(x => { const c = x.clone(); if (/eye/i.test(c.name || '')) { c.emissive = new THREE.Color(0x3a0a06); c.emissiveIntensity = 1.2; } c.roughness = Math.min(c.roughness ?? .6, .5); return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; } });
-    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); S.dt = { g, o, t: 0 }; return S.dt; } catch (e) { console.warn('Hungrige: Hirschding', e); return null; } })(); return S.dtP;
+    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Hirschding', ein: .35, aus: .3, r: 2.5 }); } catch (e) {} S.dt = { g, o, t: 0 }; return S.dt; } catch (e) { console.warn('Hungrige: Hirschding', e); return null; } })(); return S.dtP;
 }
 function hungrige_dtHide() { const D = hungrige_S.dt; if (!D) return; D.g.visible = false; D.o.scale.setScalar(D.s0 || D.o.scale.x); D.g.scale.setScalar(1); D.g.rotation.set(0, 0, 0); }
 // ---------------------------------------------------------------- Hofers Dienstbuch
@@ -254,7 +254,7 @@ const HUNGRIGE_EV = {
   // 8) Gefreiter Hofer im Bergungsanzug von damals, mit dem Rücken zu dir. Der Kopf dreht sich zu dir um – der Körper bleibt stehen. Drei Stimmen aus einem Mund, der sich nicht bewegt.
   // Kapitel 6: Pflichtstelle zwischen Fraßstelle und Wrack (nach dem Lager)
   hofer: { need: () => hungrige_has('spuren') && hungrige_tief(player.pos.x, player.pos.z) && player.pos.x < 34 && typeof figuren_embody === 'function' && (typeof k6_nachLager !== 'function' || k6_nachLager()), skip: () => hungrige_has('bau'),
-    start() { const sp = hungrige_spot(11, 15, .35, false, 1.6); if (!sp) return false; const S = hungrige_S; if (!S.hoferG) { S.hoferG = new THREE.Group(); scene.add(S.hoferG); }
+    start() { const sp = hungrige_spot(11, 15, .35, false, 1.6); if (!sp) return false; const S = hungrige_S; if (!S.hoferG) { S.hoferG = new THREE.Group(); scene.add(S.hoferG); try { auftritt_reg(S.hoferG, { name: 'Hofer', ein: .35, aus: .3, r: 1.2 }); } catch (e) {} }
       const g = S.hoferG; g.position.set(sp[0], sp[1], sp[2]); g.rotation.y = Math.atan2(sp[0] - player.pos.x, sp[2] - player.pos.z); g.visible = true; this.t = 0; this.ph = 'wait'; this.P = null; this.v = 0;
       const an = P => { if (!P) return false; this.P = P; this.head = hungrige_bone(P.obj, /^(mixamorig)?Head$|Head$/i); if (P.mx) P.mx.timeScale = .15; return true; }; // Rückfall Polizist (Bibel 1.11); Atmung fast still
       figuren_embody(g, 'blechmann', { clip: 'idle' }).then(P => an(P) || figuren_embody(g, 'polizist', { clip: 'idle' }).then(Q => { if (!an(Q)) this.fail = true; })).catch(() => { this.fail = true; }); return true; },

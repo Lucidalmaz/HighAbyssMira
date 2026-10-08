@@ -183,7 +183,7 @@ async function kapitel1_welt() {
     const em = kapitel1_cnv(180, 260, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.fillRect(22, 18, w - 44, 34); });
     keypadMesh.material.map = kt; keypadMesh.material.emissiveMap = em; keypadMesh.material.color.set(0xffffff); keypadMesh.material.roughness = .5; keypadMesh.material.metalness = .5; keypadMesh.material.emissiveIntensity = .9; keypadMesh.material.needsUpdate = true; } catch (e) {}
   // Etikett aus Hildes Prägegerät über dem Tastenfeld
-  { const t = kapitel1_cnv(256, 48, (x, w, h) => { x.fillStyle = '#141414'; x.fillRect(0, 0, w, h); x.fillStyle = '#e8e8e2'; x.font = 'bold 24px "Courier New", monospace'; x.textAlign = 'center'; x.fillText('BITTE NICHT HÄMMERN', w / 2, 32); x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 6, w, 3); });
+  { const t = kapitel1_cnv(256, 48, (x, w, h) => { x.fillStyle = '#141414'; x.fillRect(0, 0, w, h); x.fillStyle = '#e8e8e2'; x.font = 'bold 19px "Courier New", monospace'; x.textAlign = 'center'; x.fillText('BITTE NICHT HÄMMERN', w / 2, 31); x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 6, w, 3); });
     kapitel1_decal(t, .17, .032, 30.75, Y + 1.29, -21.73, 0, 0, .015, { rough: .3 }); }
   // Batterien im Dreieck im Flur, Kontakte nach innen
   K1.batt = []; try { const yb = Math.max(Y, kapitel1_topY(null, 22.35, -14.45, Y + .5, Y)); for (let i = 0; i < 3; i++) { const o = typeof ausruestung_ue === 'function' ? await ausruestung_ue('batterie', .055) : null; if (!o) break; const a = i / 3 * PI * 2 + .3, w = new THREE.Group(); o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o), hgt = bb.max.y - bb.min.y; o.rotation.set(0, 0, PI / 2); o.position.set(hgt / 2 + .015, Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2, 0); w.add(o); w.position.set(22.35 + Math.sin(a) * .09, yb + .002, -14.45 + Math.cos(a) * .09); w.rotation.y = a + PI / 2; scene.add(w); K1.batt.push(w); } } catch (e) { console.warn('kapitel1 Batterien', e); }
@@ -421,7 +421,10 @@ async function kapitel1_leaveBasement() {
   if (K1.zettel) { K1.zettel.visible = true; interact(K1.zettelHit, 'Lucys Zettel', () => openNote('Lucys Zettel', '<span class="hand">Großer, falls ich nicht heimkomme:\nHilde macht nachts nicht auf. Sie weiß nie, wer vor der Tür steht.\nDas Band im Keller ist für dich. Hör es. Dann fahr <u>heim</u>.\nHinter den Bildern ist eine Tür. Mach sie NICHT auf.\nL. (22.10.)</span>\n\n<i>Fibel:</i> <span class="hand">Das war vorhin nicht unterstrichen. Ich hab keinen Bleistift.</span>', 'k1_zettel2')); }
   K1.obenT = 0;
 }
-function kapitel1_obenTick(dt) { if (!K1.f.has('oben') || state.outage || !kapitel1_on()) return; K1.obenT += dt; if (!door7.open && K1.tuerWinkel !== undefined) { door7.openAngle = K1.tuerWinkel; K1.tuerWinkel = undefined; }
+function kapitel1_obenTick(dt) { if (!K1.f.has('oben') || !kapitel1_on()) return;
+  /* Haustür nach dem Keller steht nur „angelehnt“ (27°): die Türplatte sperrt dann fast die ganze Öffnung, man kam nur nach Schließen + Öffnen hinaus (Testlauf 08.10.). Tritt Luke an die Tür (oder schließt er sie), schwingt sie ganz auf – auch während des Stromausfalls. */
+  if (K1.tuerWinkel !== undefined && (!door7.open || (!state.inBasement && kapitel1_d(23, -13.4) < 2.6))) { door7.openAngle = K1.tuerWinkel; K1.tuerWinkel = undefined; }
+  if (state.outage) return; K1.obenT += dt;
   const P = player.pos, drin = !!indoorRect() || state.inBasement;
   if (!drin && !K1.still && kapitel1_d(28.4, -6.9) < 14) { K1.still = { t: 0 }; if (typeof whiskey_S !== 'undefined') whiskey_S.forceStill = 30; }
   if (K1.still) { K1.still.t += dt; if (K1.still.t > .6 && !K1.still.g) { K1.still.g = 1; kapitel1_zeile('<i>Der Vogel ist still. Seit ich hier bin, war der nie still.</i>', 4200, 'LUKE'); } if (K1.still.t > 5.2) startOutage(); }
@@ -500,7 +503,7 @@ function kapitel1_vTick(dt, t) { const V = K1.v; if (!V.on) return; const P = pl
   ufo.position.set(S.x, 20 + Math.sin(t * .9) * .3, S.z); ufo.rotation.z = Math.sin(t * .7) * .04; const atmen = V.lift && V.lift.n === 3 ? 1 + .03 * Math.sin(t * 1.9) : 1; ufo.scale.setScalar(atmen);
   kapitel1_ufoTick(dt, t, .62 + .08 * Math.sin(t * 7));
   if (V.lift) return kapitel1_liftTick(dt);
-  if (Math.hypot(P.x - 30.5, P.z + 21.1) < 1.3 && !stairBusy) return kapitel1_kellerEnde();
+  if ((Math.hypot(P.x - 30.5, P.z + 21.1) < 1.3 || state.inBasement) && !stairBusy) return kapitel1_kellerEnde(); /* auch wenn Luke beim Beginn des Versteckens schon unten ist: die Treppe ist dann zu (kapitel1_treppe), sonst gäbe es keinen Weg weiter (Testlauf 08.10.) */
   // Deckung, Innenraum, Erfassung
   const c = kapitel1_deckung(P.x, P.z), innen = !!indoorRect(), front = innen && P.z > -13.8 && P.x > 20 && P.x < 32;
   if (c) { V.last = { x: c.rx, z: c.rz, yaw: player.yaw }; /* R-1: die Zelle klingelt im Versteck nicht mehr */

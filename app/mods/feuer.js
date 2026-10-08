@@ -49,7 +49,7 @@ const FEU_FS_FLAME = `uniform float uTime, uInt, uCore; varying vec2 vUv; varyin
     float life = smoothstep(0., .1, vAge) * (1. - smoothstep(.55, 1., vAge));
     float hot = smoothstep(.12, .8, env * (nz * 1.5 + fine * .35 + .05 + uCore * .3 * (1. - yy)) - yy * .28) * life * (.62 + .38 * nz);
     float dark = smoothstep(.06, .45, env * (1. - nz) * (.4 + .6 * fine)) * smoothstep(.1, .65, yy) * life;
-    float a = max(hot, dark * .75); if (a < .02) discard;
+    float a = max(hot, dark * .75) * smoothstep(1., .68, y) * smoothstep(.5, .3, abs(vUv.x - .5)); if (a < .02) discard;
     float base = 1. - smoothstep(0., .4, yy), thin = 1. - smoothstep(.2, .7, env);
     vec3 col = mix(vec3(.28, .025, .004), vec3(.88, .18, .015), smoothstep(0., .35, hot));
     col = mix(col, vec3(1., .38, .05), smoothstep(.3, .8, hot) * (.55 + .45 * base));
@@ -77,12 +77,13 @@ function feuer_emit(P, x, y, z, vx, vy, vz, life, size, size1, rot, rv) {
   if (P.n >= P.N) return; const i = P.n++; P.x[i] = x; P.y[i] = y; P.z[i] = z; P.vx[i] = vx; P.vy[i] = vy; P.vz[i] = vz; P.age[i] = 0; P.life[i] = life; P.size[i] = size; P.s1[i] = size1; P.rot[i] = rot; P.rv[i] = rv; P.seed[i] = Math.random();
 }
 // kind: 0 Flamme, 1 Rauch (steigt bis unter die Decke, breitet sich aus, zieht zur Tür, sinkt ab), 2 Funken/Glut (wirbeln, fallen, Streifen in Flugrichtung)
-function feuer_step(P, dt, kind, t) {
-  const ip = P.ip.array, id = P.id.array, ceil = feuer_S.ceil;
+function feuer_step(P, dt, kind, t, F) {
+  const ip = P.ip.array, id = P.id.array, ceil = kind === 3 && F && F.deckeY !== undefined ? F.deckeY : feuer_S.ceil;
   for (let i = 0; i < P.n; i++) {
     P.age[i] += dt; if (P.age[i] >= P.life[i]) { const j = --P.n; if (i !== j) { P.x[i] = P.x[j]; P.y[i] = P.y[j]; P.z[i] = P.z[j]; P.vx[i] = P.vx[j]; P.vy[i] = P.vy[j]; P.vz[i] = P.vz[j]; P.age[i] = P.age[j]; P.life[i] = P.life[j]; P.size[i] = P.size[j]; P.s1[i] = P.s1[j]; P.rot[i] = P.rot[j]; P.rv[i] = P.rv[j]; P.seed[i] = P.seed[j]; } i--; continue; }
     if (kind === 0) { P.vy[i] *= 1 - dt * .5; P.vx[i] += Math.sin(t * 2.3 + P.seed[i] * 30) * dt * .25; }
     else if (kind === 1) { if (P.y[i] > ceil) { P.vy[i] = Math.min(P.vy[i], 0) - dt * .04; P.vx[i] = Math.min(.5, P.vx[i] + dt * .14); } else if (P.y[i] < ceil - .6) P.vy[i] += dt * .06; P.vz[i] *= 1 - dt * .4; if (P.z[i] > Z + 1.5 || P.z[i] < Z - 1.5) P.vz[i] = -P.vz[i] * .5; }
+    else if (kind === 3) { P.vx[i] *= 1 - dt * .25; P.vz[i] *= 1 - dt * .25; P.vx[i] += Math.sin(t * .8 + P.seed[i] * 40) * dt * .05; if (F && F.deckeY !== undefined && P.y[i] > ceil) { P.vy[i] = Math.min(P.vy[i], 0); P.vx[i] += dt * .15; } else P.vy[i] += dt * .03; }
     else { const dr = 1 - dt * .35; P.vx[i] = P.vx[i] * dr + Math.sin(t * 5 + P.seed[i] * 50) * dt * .7; P.vz[i] = P.vz[i] * dr + Math.cos(t * 4.3 + P.seed[i] * 40) * dt * .7; P.vy[i] = P.vy[i] * (1 - dt * .15) - dt * (P.seed[i] > .6 ? 1.6 : .25); P.rot[i] = Math.atan2(-P.vx[i], P.vy[i]); }
     P.x[i] += P.vx[i] * dt; P.y[i] += P.vy[i] * dt; P.z[i] += P.vz[i] * dt; if (kind !== 2) P.rot[i] += P.rv[i] * dt;
     const k = P.age[i] / P.life[i]; ip[i * 3] = P.x[i]; ip[i * 3 + 1] = P.y[i]; ip[i * 3 + 2] = P.z[i];
@@ -254,13 +255,7 @@ WORLD_MODS.push(['Feuer', async () => {
   S.redL = new VLight(0xff1c0c, 0, 6, 2); S.redL.position.set(FEU.relX, 2.05, FEU.relZ - .35); scene.add(S.redL);
   try { S.haze = feuer_hazePass(); } catch (e) { console.warn('Feuer: Flimmern', e); }
   // Notentriegelung der Brandschutztür: Schild an der Nordwand, rote Rundumleuchte, Griff (E halten)
-  { const sign = new THREE.MeshStandardMaterial({ roughness: .55, metalness: .3, transparent: true, polygonOffset: true, polygonOffsetFactor: -4, map: new THREE.CanvasTexture(feuer_canvas(256, 384, (x, w, h) => {
-      x.fillStyle = '#5b5e5a'; x.fillRect(0, 0, w, h); for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '40,24,12' : '120,110,96'},${Math.random() * .12})`; x.fillRect(Math.random() * w, Math.random() * h, Math.random() * 12, Math.random() * 3); }
-      x.fillStyle = '#9b1b12'; x.fillRect(18, 18, w - 36, 62); x.fillStyle = '#f1e6cf'; x.font = 'bold 25px Arial'; x.textAlign = 'center'; x.fillText('NOTENTRIEGELUNG', w / 2, 50); x.font = 'bold 15px Arial'; x.fillText('BRANDSCHUTZTÜR  E-2 / 7', w / 2, 72);
-      for (let i = -2; i < 12; i++) { x.fillStyle = i % 2 ? '#d9b41a' : '#161410'; x.beginPath(); x.moveTo(18 + i * 22, 100); x.lineTo(40 + i * 22, 100); x.lineTo(18 + i * 22, 122); x.lineTo(-4 + i * 22, 122); x.fill(); }
-      x.fillStyle = '#2b2d2b'; x.fillRect(70, 140, 116, 196); x.fillStyle = '#131412'; x.fillRect(122, 160, 12, 150); const g = x.createLinearGradient(80, 0, 176, 0); g.addColorStop(0, '#7a130c'); g.addColorStop(.5, '#d0301f'); g.addColorStop(1, '#6a0f08'); x.fillStyle = g; x.fillRect(84, 168, 88, 26); x.fillStyle = '#1a1a18'; x.fillRect(118, 188, 20, 40);
-      x.fillStyle = '#e8dcc0'; x.font = 'bold 14px Arial'; x.fillText('HEBEL ZIEHEN', w / 2, 356); x.fillText('UND HALTEN', w / 2, 374); })) });
-    sign.map.colorSpace = THREE.SRGBColorSpace; const sp = plane(.42, .63, FEU.relX, 1.25, FEU.relZ - .012, sign, 0, PI); sp.userData.noCol = true; S.relSign = sp;
+  { S.relSign = feuer_notschalter(FEU.relX, FEU.relZ);
     const lampM = new THREE.MeshBasicMaterial({ map: feuer_texDot(), color: 0xff2a14, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
     const lp = plane(.5, .5, FEU.relX, 1.72, FEU.relZ - .03, lampM, 0, PI); lp.userData.noCol = true; S.relLamp = lp;
     S.relHit = box(.7, .9, .4, FEU.relX, 1.25, FEU.relZ - .2, hidden, { cast: false }); S.relHit.userData.noCol = true;
@@ -278,14 +273,116 @@ WORLD_MODS.push(['Feuer', async () => {
   S.heatCol = addCol(-9999, -9998, -9999, -9998, 3, -1);
   S.ignHit = new THREE.Mesh(new THREE.PlaneGeometry(3, 3), hidden); S.ignHit.position.set(0, -80, 0); S.ignHit.userData.noCol = true; scene.add(S.ignHit);
   // Luftanzeige
-  { const css = document.createElement('style'); css.textContent = `#feuerAir { position: absolute; top: 118px; left: 56px; width: 220px; opacity: 0; transition: opacity .6s; }
+  { const css = document.createElement('style'); css.textContent = `#feuerAir { position: absolute; top: 146px; left: 56px; width: 220px; opacity: 0; transition: opacity .6s; }
     #feuerAir.show { opacity: 1; } #feuerAir b { display: block; font: 600 11px "Cormorant Garamond", Georgia, serif; letter-spacing: .5em; color: #d8b98a; text-shadow: 0 0 2px #000, 0 0 8px #000; margin-bottom: 6px; }
     #feuerAir i { display: block; height: 2px; background: rgba(201,163,106,.18); box-shadow: 0 0 6px #000; } #feuerAir u { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #8e1d15, #c9a36a); transform-origin: left; }
     #feuerAir.low u { background: #c23a2b; animation: feuerPulse .6s infinite; } @keyframes feuerPulse { 50% { opacity: .35; } }`; document.head.appendChild(css);
     const el = S.airEl = document.createElement('div'); el.id = 'feuerAir'; el.innerHTML = '<b>LUFT</b><i><u></u></i>'; document.getElementById('hud').appendChild(el); }
-  window.__feuer = { S: feuer_S, FEU, zombie, obstacles, chaseDoor, gate, cell: spiderDoorOut, near: feuer_bedSpot, knock: () => feuer_knock(), ignite: () => feuer_ignite(), escape: () => feuer_escapeStart(), reset: id => feuer_reset(id || 'gang'), giveLighter: () => { feuer_lighterGone(); feuer_items(); addItem('feuerzeug'); }, render: () => feuer_renderCues() };
+  window.__feuer = { flamme: (p, v, o) => feuer_flamme(p, v, o), S: feuer_S, FEU, zombie, obstacles, chaseDoor, gate, cell: spiderDoorOut, near: feuer_bedSpot, knock: () => feuer_knock(), ignite: () => feuer_ignite(), escape: () => feuer_escapeStart(), reset: id => feuer_reset(id || 'gang'), giveLighter: () => { feuer_lighterGone(); feuer_items(); addItem('feuerzeug'); }, render: () => feuer_renderCues() };
 }]);
 // Oberseite der Matratze im Prüfraum finden (Möbel kommen aus innen_kapitel); sonst neben dem Bett auf dem Boden
+// ---------------------------------------------------------------- Notschalter (Notentriegelung): Metallgehäuse mit Schutzklappe, Plombe, Hebel, Kontrollleuchten, Leitungsrohr, Schrauben, Gebrauchsspuren (alles aus PBR-Teilen, ein Aufruf)
+// feuer_notschalter(x, z, opts) → Gruppe; Stil später mit app/mods/bedienung.js angleichbar. Teile in feuer_S.relParts: lever, cover, ledR, ledG (Zugriff aus feuer_escapeUpdate).
+function feuer_notschalter(x, z, o = {}) {
+  const S = feuer_S, y = o.y ?? 1.25, g = new THREE.Group(); g.position.set(x, y, z - .02); g.rotation.y = PI; // lokale +z = in den Gang
+  const wear = (w, h, base, fn) => { const c = feuer_canvas(w, h, (cx) => { cx.fillStyle = base; cx.fillRect(0, 0, w, h);
+      for (let i = 0; i < w * h / 90; i++) { cx.fillStyle = `rgba(${Math.random() < .5 ? '14,10,8' : '210,200,185'},${Math.random() * .1})`; cx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 1 + Math.random() * 1.5); }
+      for (let i = 0; i < 26; i++) { cx.strokeStyle = `rgba(215,205,190,${.05 + Math.random() * .16})`; cx.lineWidth = .6; cx.beginPath(); const px = Math.random() * w, py = Math.random() * h; cx.moveTo(px, py); cx.lineTo(px + (Math.random() - .5) * 26, py + (Math.random() - .5) * 8); cx.stroke(); }
+      const gr = cx.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(10,8,6,.38)'); cx.fillStyle = gr; cx.fillRect(0, 0, w, h); fn && fn(cx, w, h); }); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
+  const rough = new THREE.CanvasTexture(feuer_canvas(128, 128, (cx, w, h) => { cx.fillStyle = '#9a9a9a'; cx.fillRect(0, 0, w, h); for (let i = 0; i < 700; i++) { const v = 90 + Math.random() * 150; cx.fillStyle = `rgb(${v},${v},${v})`; cx.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 1 + Math.random() * 3); } }));
+  const redM = new THREE.MeshStandardMaterial({ map: wear(256, 384, '#8f1d14'), roughnessMap: rough, roughness: .7, metalness: .35, bumpMap: rough, bumpScale: .6 });
+  const bed = typeof BED !== 'undefined'; // Baukasten bedienung.js: gleiche Materialien wie Tastenfeld, Sicherungs- und Funkkasten
+  const steel = bed ? BED.mat('stahl') : new THREE.MeshStandardMaterial({ color: 0x8c8e8b, roughness: .42, metalness: .9, roughnessMap: rough });
+  const dark = bed ? BED.mat('bakelit') : new THREE.MeshStandardMaterial({ color: 0x1a1a18, roughness: .8, metalness: .2 });
+  const brass = bed ? BED.mat('messing') : new THREE.MeshStandardMaterial({ color: 0xa88a4a, roughness: .45, metalness: .85 });
+  const add = (geo, mat, px, py, pz, rx = 0, ry = 0, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); m.rotation.set(rx, ry, rz); m.castShadow = false; g.add(m); return m; };
+  // Rückplatte (Wandanschluss) und Gehäuse mit Rand
+  add(new THREE.BoxGeometry(.32, .46, .012), dark, 0, 0, .006);
+  add(new THREE.BoxGeometry(.28, .42, .07), redM, 0, 0, .047);
+  add(new THREE.BoxGeometry(.296, .436, .014), redM, 0, 0, .082);
+  // Beschriftung und Nische
+  const lbl = wear(256, 128, '#d8d1bd', (cx, w) => { cx.fillStyle = '#7d130c'; cx.fillRect(0, 0, w, 38); cx.fillStyle = '#f1e6cf'; cx.textAlign = 'center'; cx.font = 'bold 25px Arial'; cx.fillText('NOTENTRIEGELUNG', w / 2, 28);
+    cx.fillStyle = '#1b1a17'; cx.font = 'bold 15px Arial'; cx.fillText('BRANDSCHUTZTÜR  E-2 / 7', w / 2, 62); cx.font = '13px Arial'; cx.fillText('Klappe öffnen · Hebel ziehen', w / 2, 84); cx.fillText('nur bei BRANDALARM', w / 2, 104); });
+  add(new THREE.PlaneGeometry(.236, .118), new THREE.MeshStandardMaterial({ map: lbl, roughness: .6, metalness: .1 }), 0, .148, .0905);
+  add(new THREE.BoxGeometry(.236, .17, .004), dark, 0, -.062, .09);
+  // Hebelachse, Hebel (T-Griff), Plombe
+  const lever = new THREE.Group(); lever.position.set(0, -.016, .098); g.add(lever);
+  { const m = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .09, 12), steel); m.position.y = -.045; lever.add(m);
+    const h = new THREE.Mesh(new THREE.CylinderGeometry(.013, .013, .11, 16), new THREE.MeshStandardMaterial({ color: 0xb02416, roughness: .45, metalness: .1 })); h.rotation.z = PI / 2; h.position.y = -.095; lever.add(h);
+    for (const sx of [-1, 1]) { const c = new THREE.Mesh(new THREE.SphereGeometry(.015, 12, 8), h.material); c.position.set(sx * .055, -.095, 0); lever.add(c); } }
+  add(new THREE.CylinderGeometry(.017, .017, .012, 16), steel, 0, -.016, .093, PI / 2);
+  const plombe = add(new THREE.CylinderGeometry(.006, .006, .004, 10), new THREE.MeshStandardMaterial({ color: 0x777b78, roughness: .35, metalness: .95 }), .012, -.052, .102, PI / 2); // Bleiplombe mit Draht
+  add(new THREE.TorusGeometry(.012, .0012, 6, 14, PI * 1.4), brass, .012, -.04, .102, 0, 0, .6);
+  // Schutzklappe (klarer, vergilbter Kunststoff, oben angeschlagen)
+  const cover = new THREE.Group(); cover.position.set(0, .035, .105); g.add(cover);
+  { const pm = new THREE.MeshPhysicalMaterial({ color: 0xcfd6d2, roughness: .22, metalness: 0, transparent: true, opacity: .34, clearcoat: .6, side: THREE.DoubleSide, depthWrite: false });
+    const f = new THREE.Mesh(new THREE.BoxGeometry(.2, .15, .006), pm); f.position.set(0, -.075, .02); cover.add(f);
+    for (const sx of [-1, 1]) { const w = new THREE.Mesh(new THREE.BoxGeometry(.006, .15, .03), pm); w.position.set(sx * .097, -.075, .006); cover.add(w); }
+    const gr = new THREE.Mesh(new THREE.BoxGeometry(.05, .01, .012), dark); gr.position.set(0, -.145, .028); cover.add(gr); }
+  for (const sx of [-1, 1]) add(new THREE.CylinderGeometry(.005, .005, .028, 8), steel, sx * .08, .036, .105, 0, 0, PI / 2); // Scharniere
+  // Kontrollleuchten mit Beschriftung
+  const ledR = new THREE.MeshStandardMaterial({ color: 0x300604, emissive: 0xff1608, emissiveIntensity: 0, roughness: .3 }), ledG = new THREE.MeshStandardMaterial({ color: 0x052008, emissive: 0x18ff40, emissiveIntensity: 0, roughness: .3 });
+  add(new THREE.CylinderGeometry(.01, .011, .012, 14), ledR, -.07, -.172, .092, PI / 2); add(new THREE.CylinderGeometry(.01, .011, .012, 14), ledG, .07, -.172, .092, PI / 2);
+  add(new THREE.PlaneGeometry(.2, .03), new THREE.MeshStandardMaterial({ map: wear(256, 40, '#c9c2ae', (cx, w) => { cx.fillStyle = '#1b1a17'; cx.font = 'bold 20px Arial'; cx.textAlign = 'center'; cx.fillText('ALARM', 50, 28); cx.fillText('FREI', w - 52, 28); }), roughness: .7 }), 0, -.2, .0905);
+  // Schrauben, Leitungsrohr zur Decke mit Schellen, Kabelausgang
+  for (const [sx, sy] of [[-.135, .2], [.135, .2], [-.135, -.2], [.135, -.2]]) { const sm = add(new THREE.CylinderGeometry(.008, .008, .006, 6), steel, sx, sy, .09, PI / 2); sm.rotation.y = Math.random() * 3; }
+  add(new THREE.CylinderGeometry(.013, .013, 1.0, 10), steel, 0, .72, .03);
+  for (const py of [.36, .6, .84]) add(new THREE.BoxGeometry(.04, .012, .018), steel, 0, py, .042);
+  add(new THREE.CylinderGeometry(.018, .018, .03, 10), steel, 0, .235, .05);
+  g.traverse(m => { m.userData.noCol = true; m.raycast = () => {}; }); scene.add(g);
+  S.relParts = { g, lever, cover, ledR, ledG, plombe };
+  return g;
+}
+// Notschalter-Teile: Klappe geht beim Greifen auf, der Hebel folgt dem Halten, Plombe reißt, Leuchten wechseln von rot (Alarm) auf grün (frei)
+function feuer_relTick(pulse) { const S = feuer_S, R = S.relParts; if (!R) return; const p = S.relOpen ? 1 : Math.min(1, S.hold / 1.4), k = x => x * x * (3 - 2 * x);
+  R.cover.rotation.x = -1.45 * (S.hold > 0 || S.relOpen ? k(Math.min(1, .35 + p * 1.5)) : 0); R.lever.rotation.x = -.95 * k(p); R.plombe.visible = S.hold < .15 && !S.relOpen;
+  R.ledR.emissiveIntensity = S.relOpen ? 0 : .6 + 3.2 * pulse; R.ledG.emissiveIntensity = S.relOpen ? 3 : 0; }
+function feuer_relReset() { const R = feuer_S.relParts; if (!R) return; R.cover.rotation.x = 0; R.lever.rotation.x = 0; R.plombe.visible = true; R.ledR.emissiveIntensity = 0; R.ledG.emissiveIntensity = 0; }
+// Zeitdruck nach dem Sturz: eine Zeile („ER STEHT AUF“) mit schwindender Frist, schneller werdender Herzschlag, Ziel „Öl anzünden“
+function feuer_hurry(k, dt = 0) { const S = feuer_S, el = S.airEl; if (!el) return;
+  if (k === null) { if (S.hurry) { S.hurry = false; el.classList.remove('show', 'low'); el.querySelector('b').textContent = 'LUFT'; } return; }
+  if (!S.hurry) { S.hurry = true; S.hurryBeat = 0; el.querySelector('b').textContent = 'ER STEHT AUF'; el.classList.add('show'); try { setC2Objective('Das Öl anzünden – schnell! (E)'); } catch (e) {} }
+  k = Math.max(0, Math.min(1, k)); el.querySelector('u').style.transform = `scaleX(${k.toFixed(3)})`; el.classList.toggle('low', k < .45);
+  S.hurryBeat -= dt; if (S.hurryBeat <= 0) { S.hurryBeat = .95 - .5 * (1 - k); Audio.heart(); } }
+// ---------------------------------------------------------------- Wiederverwendbare Flamme (Flammenzungen mit Rausch-Shader, rußiger Rauch, Funken, Licht-Modulation)
+// feuer_flamme(parent, pos, opts) → { set(intensität 0…1.5), stop(), start(), update(dt, t) (läuft von selbst), posWorld }
+//   parent  Object3D, an dem die Flamme hängt (null = Welt); pos  THREE.Vector3 lokal zum parent (Fußpunkt der Flamme)
+//   opts    size (Meter Breite, Standard 1), height (Standard 1.6·size), intensity (Standard 1), smoke (0…2, Standard 1), sparks (0…2, Standard 1),
+//           licht  ein VORHANDENES Licht (PointLight o. ä.) – seine Stärke wird um den Ausgangswert herum flackernd moduliert (es wird nie ein Licht angelegt),
+//           lichtFaktor (Standard 2.2: Faktor auf die Ausgangsstärke bei intensity 1), deckeY (Rauch staut sich unter dieser Höhe, Standard: kein Dach),
+//           klang  true = Knistern/Fauchen aus der Brandstelle (Audio), Rückgabe .set() steuert die Lautstärke
+// Beispiel Haus der Erinnerung: const f = feuer_flamme(wandObj, new THREE.Vector3(0, 0, .1), { size: 1.4, licht: vorhandenesPunktlicht }); … f.set(.4) glimmt, f.stop() löscht.
+// Leistung: je Flamme ein Instanz-Zeichenaufruf je Schicht (Flamme, Rauch, Funken), kein neues Licht, keine Zuweisungen pro Bild.
+const FEU_FL = [];
+function feuer_flamme(parent, pos, o = {}) {
+  const S = feuer_S, size = o.size ?? 1, T = { value: 0 };
+  const mk = (fs, u, blend) => { const m = new THREE.ShaderMaterial({ uniforms: u, vertexShader: FEU_VS, fragmentShader: fs, transparent: true, depthWrite: false, blending: blend, fog: false }); if (blend === THREE.CustomBlending) { m.blendSrc = THREE.OneFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor; m.blendSrcAlpha = THREE.ZeroFactor; m.blendDstAlpha = THREE.OneFactor; } return m; };
+  const fl = (int, core, asp) => mk(FEU_FS_FLAME, { uTime: T, uInt: { value: int }, uCore: { value: core }, uCyl: { value: 1 }, uAsp: { value: asp } }, THREE.CustomBlending);
+  const F = { on: true, I: o.intensity ?? 1, size, h: o.height ?? size * 1.6, smoke: o.smoke ?? 1, sparks: o.sparks ?? 1, parent, pos: pos ? pos.clone() : new THREE.Vector3(), licht: o.licht || null, lichtFaktor: o.lichtFaktor ?? 2.2, deckeY: o.deckeY, klang: !!o.klang, T, a: [0, 0, 0, 0], world: new THREE.Vector3(), seed: Math.random() * 50 };
+  F.licht0 = F.licht ? F.licht.intensity : 0;
+  F.pf = feuer_sys(70, fl(.74, .25, 1.9), 13); F.pc = feuer_sys(40, fl(.82, .5, 1.1), 14);
+  F.ps = feuer_sys(90, mk(FEU_FS_SMOKE, { uTime: T, uCol: { value: new THREE.Color(0x0a0908) }, uA: { value: .9 }, uGlowPos: { value: new THREE.Vector3() }, uGlow: { value: 0 }, uCyl: { value: 0 }, uAsp: { value: 1 } }, THREE.NormalBlending), 11);
+  F.pe = feuer_sys(50, mk(FEU_FS_DOT, { map: { value: feuer_texDot() }, uCyl: { value: 0 }, uAsp: { value: 3.2 } }, THREE.AdditiveBlending), 15);
+  F.set = i => { F.I = Math.max(0, i); F.on = F.I > .001 || F.pf.n + F.ps.n > 0; return F; };
+  F.stop = () => { F.I = 0; return F; }; F.start = i => { F.I = i ?? 1; F.on = true; return F; };
+  F.dispose = () => { const k = FEU_FL.indexOf(F); if (k >= 0) FEU_FL.splice(k, 1); for (const P of [F.pf, F.pc, F.ps, F.pe]) { scene.remove(P.m); P.g.dispose(); P.m.material.dispose(); } if (F.licht) F.licht.intensity = F.licht0; };
+  FEU_FL.push(F); return F;
+}
+function feuer_flammenTick(dt, t) {
+  for (const F of FEU_FL) { if (!F.on) continue; const I = F.I, s = F.size;
+    if (F.parent) { _fhw.copy(F.pos); F.parent.localToWorld(_fhw); } else _fhw.copy(F.pos); F.world.copy(_fhw); F.T.value = t;
+    const A = F.a; if (I > .001) {
+      A[0] += I * (6 + 14 * s) * dt; while (A[0] > 1) { A[0]--; feuer_emit(F.pf, _fhw.x + rand(-.25, .25) * s, _fhw.y + .02, _fhw.z + rand(-.25, .25) * s, rand(-.06, .06), rand(.6, 1.2) * F.h / 1.6, rand(-.06, .06), rand(.8, 1.7), .35 * s, rand(.55, 1.1) * s * (.7 + .3 * I), rand(-.18, .18), rand(-.3, .3)); }
+      A[1] += I * (4 + 8 * s) * dt; while (A[1] > 1) { A[1]--; feuer_emit(F.pc, _fhw.x + rand(-.1, .1) * s, _fhw.y, _fhw.z + rand(-.1, .1) * s, 0, rand(.15, .35), 0, rand(.5, .9), .3 * s, rand(.45, .8) * s * I, rand(-.1, .1), 0); }
+      A[2] += I * F.smoke * (3 + 5 * s) * dt; while (A[2] > 1) { A[2]--; feuer_emit(F.ps, _fhw.x + rand(-.15, .15) * s, _fhw.y + F.h * rand(.8, 1.1), _fhw.z + rand(-.15, .15) * s, rand(-.08, .12), rand(.35, .7), rand(-.08, .08), rand(5, 8), rand(.45, .7) * s, rand(1.6, 2.6) * s, rand(0, 6), rand(-.1, .1)); }
+      A[3] += I * F.sparks * (6 + 6 * s) * dt; while (A[3] > 1) { A[3]--; feuer_emit(F.pe, _fhw.x + rand(-.2, .2) * s, _fhw.y + F.h * rand(.2, .7), _fhw.z + rand(-.2, .2) * s, rand(-.3, .3), rand(.9, 2.2), rand(-.3, .3), rand(1, 2.6), .02, .01, 0, 0); } }
+    for (const [Ps, k] of [[F.pf, 0], [F.pc, 0], [F.ps, 3], [F.pe, 2]]) if (Ps.n) feuer_step(Ps, dt, k, t, F);
+    F.ps.m.material.uniforms.uGlowPos.value.set(_fhw.x, _fhw.y + .3 * s, _fhw.z); F.ps.m.material.uniforms.uGlow.value = I * .7;
+    if (F.licht) { const f = 1 + Math.sin(t * 17 + F.seed) * .16 + Math.sin(t * 23.7 + F.seed) * .12 + Math.sin(t * 5.3) * .1 + (Math.random() - .5) * .16; F.licht.intensity = F.licht0 + (F.licht0 > 0 ? F.licht0 : 1) * F.lichtFaktor * I * f * (F.licht0 > 0 ? 1 : 3); }
+    if (F.klang && I > .001) { if (Math.random() < dt * 9 * I) FEU_SND.crackle(_fhw.x, _fhw.z); }
+    if (I <= .001 && !F.pf.n && !F.ps.n && !F.pe.n && !F.pc.n) { F.on = false; if (F.licht) F.licht.intensity = F.licht0; } }
+}
+const _fhw = new THREE.Vector3();
 function feuer_bedSpot() {
   const rc = new THREE.Raycaster(), dn = new THREE.Vector3(0, -1, 0), o = new THREE.Vector3(), bb = new THREE.Box3(); scene.updateMatrixWorld(true);
   const near = []; scene.traverse(m => { if (!m.isMesh || m.isInstancedMesh || !m.geometry || !m.visible) return; bb.setFromObject(m); if (bb.isEmpty() || bb.max.x < X + 39.8 || bb.min.x > X + 43 || bb.max.z < Z - 4.9 || bb.min.z > Z - 3.3 || bb.max.y > 1.4 || bb.max.y < .3) return; near.push({ m, top: bb.max.y, b: bb.clone() }); });
@@ -371,8 +468,9 @@ function feuer_zombieUpdate(dt, t) {
     if (S.griff) { Q.sit = Q.down > 8.5 ? Math.min(.6, (Q.down - 8.5) / 3.5 * .6) : .04 + .02 * Math.sin(Q.t * 1.3); Q.writhe = Q.down > 8.5 ? .3 : .08; Q.slip = true; } // Fassung 3: er liegt im Öl, steht nicht auf, sieht Luke an – erst nach etwa zwölf Sekunden kommt er auf die Knie
     if (cyc > .5 && cyc < .52 && !Q.slip) { Q.slip = true; Audio.play('waterFlow', { gain: .3, rate: .9, lp: 900, dur: .5, x: Q.x - .8, y: .2, z: Q.z, ref: 2 }); Audio.groan(Q.x, Q.z, false); } if (cyc < .1) Q.slip = false;
     const limit = S.griff ? 12 : S.lighter ? 11 : 4.8; // Fassung 3: wer etwa zwölf Sekunden wartet, sieht Peter auf die Knie kommen
+    if (S.lighter && S.spilled && S.phase === 'rest') feuer_hurry(1 - Q.down / limit, dt); else feuer_hurry(null);
     if (!S.said.oel && Q.down > 1.2) { S.said.oel = true; if (S.lighter) subtitle('Er liegt im Öl. Das Feuerzeug in deiner Tasche wiegt plötzlich schwer.', 3600, ''); else say([['Öl. Überall Öl. Wenn ich jetzt Feuer hätte …', 3000, 'LUKE']]); }
-    if (Q.down > limit && S.phase !== 'ignite') { Q.st = 'rise'; Q.t = 0; Audio.groan(Q.x, Q.z, true); } }
+    if (Q.down > limit && S.phase !== 'ignite') { feuer_hurry(null); Q.st = 'rise'; Q.t = 0; Audio.groan(Q.x, Q.z, true); } }
   else if (Q.st === 'rise') { const k = Math.min(1, Q.t / (PZ.P ? 1.8 : 1.1)); Q.sit = Math.sin(Math.min(1, k * 1.6) * PI / 2) * (1 - k); Q.th = 1.52 * (1 - k * k * (3 - 2 * k)); Q.writhe = .3 * (1 - k);
     if (k >= 1) { zombie.greifT = 99; Q.st = null; S.zs = null; S.spent = true; S.fell = false; S.slipIn = 0; zombie.g.rotation.set(0, Q.yaw, 0); feuer_anim(false); ch2.chase = 'run'; Audio.chaseMusic(true); zombie.t = 0; if (!S.said.weiter) { S.said.weiter = true; subtitle('Er steht wieder auf. Das Öl tropft von ihm.', 2800); } return; } }
   else if (Q.st === 'nick') { Q.th = 1.52; const k = Q.t / 2; Q.nick = k < .45 ? Math.sin(k / .45 * PI) : 0; Q.weg = k > .5 ? Math.min(1, (k - .5) / .4) : 0; Q.weg = Q.weg * Q.weg * (3 - 2 * Q.weg); // einmal nicken, dann den Kopf wegdrehen
@@ -433,7 +531,7 @@ function feuer_cam(cam, dt) {
 async function feuer_ignite() {
   const S = feuer_S; if (S.phase === 'ignite' || S.phase === 'burn' || S.phase === 'escape') return; if (!S.spilled) { feuer_spill(); S.spillT = 6; }
   const Q = S.zs || (zombie.g.visible ? (feuer_zombieFall(false), S.zs) : null); if (!Q) return; if (Q.st !== 'down') { Q.st = 'down'; Q.t = 0; Q.th = 1.52; Q.arms = 0; }
-  const vor = S.phase; S.phase = 'ignite'; const run = ++S.run; S.ignHit.position.set(0, -80, 0); uninteract(S.ignHit);
+  feuer_hurry(null); const vor = S.phase; S.phase = 'ignite'; const run = ++S.run; S.ignHit.position.set(0, -80, 0); uninteract(S.ignHit);
   state.talking = true; setScripted(() => true); vel.set(0, 0, 0);
   const P = player.pos, f = { x: -Math.sin(player.yaw), z: -Math.cos(player.yaw) };
   S.cine = { t: 0, ox: P.x, oz: P.z, sx: f.z * .45, sz: -f.x * .45 }; setCamOverride(feuer_cam);
@@ -469,7 +567,7 @@ function feuer_zombieIgnite() { const S = feuer_S, Q = S.zs; if (!Q || Q.st === 
 
 // ---------------------------------------------------------------- Flucht vor dem Rauch
 function feuer_escapeStart(restart) {
-  const S = feuer_S, run = restart ? ++S.run : S.run; S.phase = 'escape'; S.air = 30; S.hold = 0; S.relOpen = false; S.escT = 0;
+  const S = feuer_S, run = restart ? ++S.run : S.run; S.phase = 'escape'; S.air = 30; S.hold = 0; S.relOpen = false; feuer_relReset(); S.escT = 0;
   if (!restart) { S.fog0 = { c: scene.fog.color.getHex(), d: scene.fog.density }; S.vig0 = filmPass.uniforms.vig.value; S.ca0 = filmPass.uniforms.ca.value; }
   setScripted(null); state.talking = false; if (S.cine) S.cine.out = S.cine.out || S.cine.t;
   const P = player.pos; if (!restart || !S.escPos) S.escPos = { x: Math.min(X + 105.4, Math.max(P.x, S.oilMaxX + .8)), z: Math.max(Z - 1.4, Math.min(Z + 1.4, P.z)), yaw: player.yaw };
@@ -505,12 +603,13 @@ function feuer_escapeUpdate(dt, t) {
   Audio.duck(1.2);
   // Notentriegelung: rote Rundumleuchte, E halten
   const pulse = Math.pow(Math.max(0, Math.sin(t * 5.2)), 3); S.redL.intensity = S.relOpen ? .6 : .8 + 5 * pulse; S.relLamp.material.opacity = S.relOpen ? .25 : .25 + .75 * pulse;
+  feuer_relTick(pulse);
   const dR = Math.hypot(P.x - FEU.relX, P.z - (FEU.relZ - .3)); camera.getWorldDirection(_fct);
   const facing = _fct.z > .25 || dR < .9;
   if (!S.relOpen) {
     if (dR < 1.8 && facing && keys.KeyE && !ui.overlay) { S.hold += dt; if (S.hold % .3 < dt) Audio.play(Audio.pick('keys1', 'keys2'), { gain: .25, rate: .5, x: FEU.relX, y: 1.2, z: FEU.relZ, ref: 2 }); } else S.hold = Math.max(0, S.hold - dt * 1.5);
-    $('sideInfo').textContent = S.hold > 0 ? '▮'.repeat(Math.ceil(S.hold / 2.2 * 10)).padEnd(10, '▯') : '';
-    if (S.hold >= 2.2) { S.relOpen = true; $('sideInfo').textContent = ''; chaseDoor.locked = false; chaseDoor.set(true); Audio.slide(X + 106, Z); Audio.play('metalOpen', { gain: 1, rate: .7, x: X + 106, y: 1.2, z: Z, ref: 5 });
+    $('sideInfo').textContent = S.hold > 0 ? '▮'.repeat(Math.ceil(S.hold / 1.4 * 10)).padEnd(10, '▯') : '';
+    if (S.hold >= 1.4) { S.relOpen = true; $('sideInfo').textContent = ''; chaseDoor.locked = false; chaseDoor.set(true); Audio.slide(X + 106, Z); Audio.play('metalOpen', { gain: 1, rate: .7, x: X + 106, y: 1.2, z: Z, ref: 5 });
       FEU_SND.level('draft', 2.4); FEU_SND.level('draft2', 3); Audio.play('wind2', { gain: .9, rate: .8, dur: 3, fadeIn: .4, x: X + 106.5, y: 1, z: Z, ref: 3 }); subtitle('Kalte Luft!', 1600, 'LUKE'); setC2Objective('Durch die Tür!'); }
   }
   if (S.relOpen && P.x > X + 106.6) return feuer_escaped();
@@ -556,7 +655,7 @@ function feuer_reset(cpId) {
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
   // alles auf Anfang: Fass steht, kein Öl, kein Feuer, kein Ruß, Verfolger fort, Tür offen
-  S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
+  feuer_hurry(null); feuer_relReset(); S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
   if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; S.barrel.userData.noCol = false; }
   if (!interactables.includes(S.bHit)) interact(S.bHit, S.bHit.userData.label, S.bHit.userData.action);
   S.oil.position.y = -40; S.oilU.uSpread.value = 1.1; S.oilU.uBurnR.value = 0; S.oilU.uHeat.value = 0; S.oilU.uChar.value = 0;
@@ -575,6 +674,7 @@ MOD_SAVE.push(['feuer', () => ({ l: feuer_S.lighter, d: feuer_S.done }), v => { 
 
 // ---------------------------------------------------------------- Pro Bild
 const _fhz = new THREE.Vector3();
+WORLD_TICK.push((dt, t) => { try { if (FEU_FL.length) feuer_flammenTick(dt, t); } catch (e) { if (!feuer_S.errF) { feuer_S.errF = true; console.warn('Flamme', e); } } }); // wiederverwendbare Flammen laufen in jedem Kapitel
 WORLD_TICK.push((dt, t) => {
   const S = feuer_S;
   try {
@@ -724,8 +824,8 @@ function pz_ueMap(P) { const r = P.rig, f = re => { let o = null; P.obj.traverse
     lowerarm_l: r.lFore, lowerarm_r: r.rFore, hand_l: r.lHand, hand_r: r.rHand, thigh_l: r.lUp, thigh_r: r.rUp, calf_l: r.lLeg, calf_r: r.rLeg, foot_l: r.lFoot, foot_r: r.rFoot }; }
 // Mimik: das Lachen, das nicht aufhört (Zähne zeigen, Augen weit, Brauen innen hoch) – als eigener Eintrag in figuren.js
 function pz_mimik() { try { if (typeof FIGUREN_MIMIK_V === 'undefined' || FIGUREN_MIMIK_V.zahn) return; const v = new Float32Array(FIGUREN_FACE_CH.length), set = (n, w) => { for (const k of [n, n + '_L', n + '_R']) if (FIGUREN_FACE_IX[k] !== undefined) v[FIGUREN_FACE_IX[k]] = w; };
-  set('Mouth_Smile', .82); set('Mouth_Stretch', .5); set('V_Wide', .42); set('V_Open', .2); set('Cheek_Raise', .45); set('Nose_Sneer', .22); set('Eye_Wide', .28); set('Brow_Raise_Inner', .4); FIGUREN_MIMIK_V.zahn = v;
-  const w = new Float32Array(FIGUREN_FACE_CH.length); w.set(FIGUREN_MIMIK_V.schmerz || v); w[FIGUREN_FACE_IX.V_Open] = .35; FIGUREN_MIMIK_V.brand = w; } catch (e) {} }
+  set('V_Open', .85); set('Mouth_Stretch', .38); set('Mouth_Frown', .22); set('Nose_Sneer', .5); set('Brow_Drop', .3); set('Eye_Squint', .12); set('Cheek_Raise', .12); FIGUREN_MIMIK_V.zahn = v; // schlaffer, offener Kiefer, gefletschte Zähne
+  const w = new Float32Array(FIGUREN_FACE_CH.length); w.set(FIGUREN_MIMIK_V.schmerz || v); w[FIGUREN_FACE_IX.V_Open] = .6; FIGUREN_MIMIK_V.brand = w; } catch (e) {} }
 // ---------------------------------------------------------------- Haut und Kleidung (je Figur eigene Materialien; die Werkstatt-Shader aus figuren.js bleiben davor)
 function pz_bindOrt(root, re) { let p = null; root.traverse(m => { if (p || !m.isSkinnedMesh) return; m.skeleton.bones.forEach((b, i) => { if (!p && re.test(b.name)) p = new THREE.Vector3().setFromMatrixPosition(new THREE.Matrix4().copy(m.skeleton.boneInverses[i]).invert()); }); }); return p; }
 async function pz_haut(root) {
@@ -746,40 +846,51 @@ async function pz_haut(root) {
       c.userData.pz = kind; c.needsUpdate = true; return c; });
     m.material = Array.isArray(m.material) ? ms : ms[0]; });
 }
+// Eingefallene Augenhöhlen, hohle Wangen und Schläfen: die Haut wird entlang ihrer Normalen nach innen gedrückt – nur an diesen Stellen (die Augäpfel selbst bleiben)
+const PZ_HOHL = `{ vec3 q = vPz; float eL = distance(q, pzEyeL), eR = distance(q, pzEyeR), e = min(eL, eR);
+  float ring = smoothstep(.02, .034, e) * (1. - smoothstep(.042, .075, e));
+  vec3 cL = pzEyeL + vec3(.012, -.075, .0), cR = pzEyeR + vec3(-.012, -.075, .0); float ch = max(1. - smoothstep(.0, .05, distance(q, cL)), 1. - smoothstep(.0, .05, distance(q, cR)));
+  vec3 tL = pzEyeL + vec3(.05, .025, -.02), tR = pzEyeR + vec3(-.05, .025, -.02); float te = max(1. - smoothstep(.0, .04, distance(q, tL)), 1. - smoothstep(.0, .04, distance(q, tR)));
+  transformed -= objectNormal * (ring * .0075 + ch * .0095 + te * .005) / pzS; }`;
 function pz_shader(sh, u, kind) { Object.assign(sh.uniforms, u);
-  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform mat4 pzBind; uniform float pzS, pzY0; varying vec3 vPz; varying vec3 vPzN;')
-    .replace('#include <begin_vertex>', '#include <begin_vertex>\n{ vec3 b = (pzBind * vec4(transformed, 1.)).xyz; vPz = vec3(b.x * pzS, (b.y - pzY0) * pzS, b.z * pzS); vPzN = normalize(mat3(pzBind) * objectNormal); }');
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform mat4 pzBind; uniform float pzS, pzY0; uniform vec3 pzEyeL, pzEyeR; varying vec3 vPz; varying vec3 vPzN;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\n{ vec3 b = (pzBind * vec4(transformed, 1.)).xyz; vPz = vec3(b.x * pzS, (b.y - pzY0) * pzS, b.z * pzS); vPzN = normalize(mat3(pzBind) * objectNormal); }\n' + (kind === 0 ? PZ_HOHL : ''));
   const head = `uniform float pzT, pzOel; uniform vec3 pzEyeL, pzEyeR, pzScarA, pzScarB; uniform sampler2D pzMus; uniform float pzHasMus; varying vec3 vPz; varying vec3 vPzN; float pzHt;\n${PZ_NOISE}
 void pzWrap(IncidentLight L, vec3 n, vec3 dc, inout ReflectedLight R){ float nl = dot(n, L.direction); float w = max(0., (nl + .55) / 1.55) - max(0., nl); R.directDiffuse += L.color * dc * vec3(.62, .24, .17) * w * 1.5; }`;
   let col = '', rough = '';
   if (kind === 0) { // Haut
     col = `{ vec3 pp = vPz; float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); float n1 = pzN(pp * 6.), n2 = pzN(pp * 17. + 3.1), n3 = pzN(pp * 43. + 7.7);
-      vec3 sk = mix(vec3(L0) * vec3(.84, .9, .87), diffuseColor.rgb, .2) * mix(.74, 1.08, n1) * mix(.9, 1.05, n3);
-      float ve = smoothstep(.94, .99, 1. - abs(pzN(pp * 11. + vec3(0., pp.y * 4., 0.)) * 2. - 1.)) * (.35 + .65 * n2); sk = mix(sk, vec3(.19, .22, .3), ve * .62);
-      float lv = smoothstep(.6, .82, n1) * smoothstep(.35, .75, n2); sk = mix(sk, vec3(.3, .22, .3) * (.5 + L0), lv * .5);
-      float eo = min(distance(pp, pzEyeL), distance(pp, pzEyeR)); float so = 1. - smoothstep(.014, .048, eo); sk = mix(sk, vec3(.17, .11, .13), so * .6);
-      float uN = pzN(pp * 8.5 + 11.), ul = smoothstep(.8, .87, uN) * smoothstep(.25, .6, n3), ur = max(0., smoothstep(.72, .8, uN) - ul);
+      vec3 sk = mix(vec3(L0) * vec3(.66, .74, .6), diffuseColor.rgb * vec3(.7, .8, .68), .12) * mix(.78, 1.08, n1) * mix(.9, 1.06, n3); // graugrüne, verrottende Haut
+      sk = mix(sk, vec3(.2, .27, .17) * (.55 + L0), smoothstep(.5, .78, pzN(pp * 3.7 + 9.)) * .6); sk = mix(sk, vec3(.4, .3, .22) * (.5 + L0), smoothstep(.62, .85, pzN(pp * 9. + 2.)) * .35);
+      float ve = smoothstep(.9, .985, 1. - abs(pzN(pp * 11. + vec3(0., pp.y * 4., 0.)) * 2. - 1.)) * (.4 + .6 * n2); sk = mix(sk, vec3(.11, .09, .16), ve * .85);
+      float lv = smoothstep(.55, .8, n1) * smoothstep(.3, .7, n2); sk = mix(sk, vec3(.26, .17, .26) * (.5 + L0), lv * .6);
+      float eo = min(distance(pp, pzEyeL), distance(pp, pzEyeR)); float so = 1. - smoothstep(.016, .07, eo); sk = mix(sk, vec3(.035, .022, .03), so * .88);
+      vec3 mc = (pzEyeL + pzEyeR) * .5 + vec3(0., -.105, .035); float md = length(vec2(pp.x - mc.x, (pp.y - mc.y) * (pp.y < mc.y ? .3 : 1.2))) + (n2 - .5) * .035 + (pzN(vec3(pp.x * 60., 0., 1.)) - .5) * .03 * step(pp.y, mc.y) * step(.0, pp.z - mc.z + .1);
+      sk = mix(sk, vec3(.13, .02, .015), (1. - smoothstep(.016, .05, md)) * .62 * step(.0, pp.z - mc.z + .1)); // getrocknetes Blut um Mund und Kinn
+      float uN = pzN(pp * 8.5 + 11.), ul = smoothstep(.77, .84, uN) * smoothstep(.22, .6, n3), ur = max(0., smoothstep(.68, .77, uN) - ul);
       vec3 fl = vec3(.34, .06, .045) * (.6 + .6 * n3); if (pzHasMus > .5) { vec3 kw = pow(abs(vPzN), vec3(4.)); kw /= kw.x + kw.y + kw.z + 1e-4; fl = (texture2D(pzMus, pp.zy * 7.).rgb * kw.x + texture2D(pzMus, pp.xz * 7.).rgb * kw.y + texture2D(pzMus, pp.xy * 7.).rgb * kw.z) * 1.25; }
       sk = mix(sk, vec3(.42, .33, .19) * (.7 + .5 * n3), ur * .65); sk = mix(sk, fl, ul);
       vec3 ab = pzScarB - pzScarA; float h = clamp(dot(pp - pzScarA, ab) / dot(ab, ab), 0., 1.); float sd = distance(pp, pzScarA + ab * h) * (1. + .5 * pzN(pp * 90.));
       float sc = (1. - smoothstep(.002, .0055, sd)) * step(.001, h) * step(h, .999), stp = smoothstep(.82, .93, fract(h * 24.)) * (1. - smoothstep(.007, .011, sd)) * step(.001, h) * step(h, .999);
       sk = mix(sk, vec3(.45, .2, .2), (1. - smoothstep(.004, .012, sd)) * .5 * step(.001, h) * step(h, .999)); sk = mix(sk, vec3(.12, .03, .03), sc); sk = mix(sk, vec3(.2, .19, .17), stp);
-      sk = mix(sk, sk * .32, pzOel * smoothstep(.3, .6, n1 + .2));
+      sk = mix(sk, sk * vec3(.58, .52, .46), pzOel * (.6 + .4 * smoothstep(.3, .6, n1 + .2)));
       pzHt = ul * .6 - sc * .5 + stp * .4 + ur * .25; diffuseColor.rgb = sk; }`;
     rough = `roughnessFactor = mix(.36, .6, pzN(vPz * 17. + 3.1)); roughnessFactor = mix(roughnessFactor, .16, smoothstep(.8, .87, pzN(vPz * 8.5 + 11.))); roughnessFactor = mix(roughnessFactor, .2, pzOel);`; }
   else if (kind === 1) { // Anstaltshemd und -hose
     col = `{ vec3 pp = vPz; float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); float n1 = pzN(pp * 4.), n2 = pzN(pp * 13. + 2.), n3 = pzN(pp * 31. + 5.);
-      vec3 cl = vec3(.52, .6, .59) * (.38 + .82 * L0);
+      vec3 cl = vec3(.62, .59, .5) * (.38 + .82 * L0) * mix(.78, 1., n2); // verdreckter, vergilbter Anstaltskittel
+      cl = mix(cl, vec3(.1, .075, .05), (1. - smoothstep(.2, 1.5, pp.y)) * smoothstep(.3, .7, n1) * .4 + smoothstep(.55, .8, pzN(pp * 7. + 6.)) * .25); // Dreck, Schweißränder
       float pr = (1. - smoothstep(.05, .08, abs(fract(pp.x * 30. + pp.y * 30. + pp.z * 30.) - .5))) * (1. - smoothstep(.05, .08, abs(fract(pp.x * 30. - pp.y * 30. - pp.z * 30.) - .5))); cl *= 1. - pr * .2;
       float tie = (1. - smoothstep(.4, .6, L0)) * step(1.05, pp.y); cl = mix(cl, vec3(.22, .1, .065) * (.7 + .5 * n2), tie * .85);
       cl *= 1. - (smoothstep(.45, .8, n1) * .35 + (1. - smoothstep(.1, .9, pp.y)) * .3);
       float bl = smoothstep(.74, .82, pzN(pp * 5. + 4.)) * smoothstep(.3, .7, n3); cl = mix(cl, vec3(.25, .045, .03), bl * .75);
-      float rip = smoothstep(.975, .996, 1. - abs(pzN(vec3(pp.x * 8., pp.y * 2.2, pp.z * 8.) + 9.) * 2. - 1.)) * smoothstep(.55, .7, pzN(pp * 2.6 + 1.)); cl = mix(cl, vec3(.025), rip * .9);
-      cl = mix(cl, cl * .22, pzOel * smoothstep(.25, .6, n1 + (1.2 - pp.y) * .45));
+      float rip = smoothstep(.96, .994, 1. - abs(pzN(vec3(pp.x * 8., pp.y * 2.2, pp.z * 8.) + 9.) * 2. - 1.)) * smoothstep(.42, .62, pzN(pp * 2.6 + 1.)); cl = mix(cl, vec3(.1, .085, .07), rip * .55);
+      float lo = smoothstep(.7, .8, pzN(pp * vec3(5., 3., 5.) + 21.)) * smoothstep(.45, .65, pzN(pp * 1.7 + 4.)); if (lo > .55 && pp.y > .25) discard; // zerrissene Stellen: die Haut darunter scheint durch
+      cl = mix(cl, cl * vec3(.42, .38, .34), pzOel * (.6 + .4 * smoothstep(.25, .6, n1 + (1.2 - pp.y) * .45)));
       pzHt = -rip * .7 + bl * .1; diffuseColor.rgb = cl; }`;
     rough = `roughnessFactor = mix(.92, .5, smoothstep(.74, .82, pzN(vPz * 5. + 4.))); roughnessFactor = mix(roughnessFactor, .24, pzOel * smoothstep(.25, .6, pzN(vPz * 4.) + (1.2 - vPz.y) * .45));`; }
   else if (kind === 2) { col = `{ diffuseColor.rgb *= mix(.6, 1., pzN(vPz * 9.)); diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * .3, pzOel); pzHt = 0.; }`; rough = 'roughnessFactor = mix(roughnessFactor, .25, pzOel);'; }
-  else if (kind === 3) { col = `{ float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); diffuseColor.rgb = mix(diffuseColor.rgb * vec3(.8, .78, .74), vec3(.74, .75, .71) * (.55 + .5 * L0), .62); pzHt = 0.; }`; rough = 'roughnessFactor = .5;'; }
+  else if (kind === 3) { col = `{ float L0 = dot(diffuseColor.rgb, vec3(.3, .59, .11)); vec3 ey = mix(diffuseColor.rgb * vec3(.8, .78, .74), vec3(.62, .62, .5) * (.5 + .45 * L0), .7); float rv = smoothstep(.78, .95, 1. - abs(pzN(vPz * 240.) * 2. - 1.)); diffuseColor.rgb = mix(ey, vec3(.5, .08, .06), rv * .55 * smoothstep(.3, .6, L0)); pzHt = 0.; }`; rough = 'roughnessFactor = .5;'; }
   else if (kind === 4) { col = `{ diffuseColor.rgb *= mix(vec3(.62, .48, .3), vec3(1.), smoothstep(.25, .75, pzN(vPz * 160.))); pzHt = 0.; }`; rough = 'roughnessFactor = .32;'; }
   else if (kind === 5) { col = `{ if (pzN(vPz * vec3(70., 12., 70.)) < .5 + .28 * pzN(vPz * 6.)) discard; diffuseColor.rgb *= .8; pzHt = 0.; }`; rough = 'roughnessFactor = mix(roughnessFactor, .3, pzOel);'; }
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + head)
@@ -796,6 +907,8 @@ function pz_ton(art, gain = 1, rate = 1, flat = false, y = 1.3) { const n = PZ_K
   Audio.play(k, flat ? { gain, rate } : { gain, rate: rate * rand(.95, 1.05), x: zombie.x, y, z: zombie.z, ref: 3 }); return true; }
 // ---------------------------------------------------------------- Knochen-Schicht (nach dem Mischer, nur in Bildern, in denen figuren.js die Figur bewegt hat)
 const _pqa = new THREE.Quaternion(), _pqb = new THREE.Quaternion(), _pqc = new THREE.Quaternion(), _pqi = new THREE.Quaternion(), _pv1 = new THREE.Vector3(), _pv2 = new THREE.Vector3(), _pv3 = new THREE.Vector3(), _pv4 = new THREE.Vector3(), _pax = new THREE.Vector3(), _pfw = new THREE.Vector3(), _pup = new THREE.Vector3(0, 1, 0);
+function pz_knack() { if (!Audio.ctx) return; const n = 'wd_knochen_' + (1 + Math.floor(Math.random() * 6)); if (!Audio.buf || !Audio.buf[n]) return; Audio.play(n, { gain: .4, rate: rand(.8, 1.05), x: zombie.x, y: 1.5, z: zombie.z, ref: 2.5 }); }
+function pz_schrei() { if (!Audio.ctx || !Audio.buf || !Audio.buf.sc_scream) return; Audio.play('sc_scream', { gain: .5, rate: rand(.68, .78), x: zombie.x, y: 1.5, z: zombie.z, ref: 4 }); }
 function pz_bend(b, ax, a) { if (!b || !b.parent || !a) return; b.parent.getWorldQuaternion(_pqa); b.getWorldQuaternion(_pqb); _pqc.setFromAxisAngle(ax, a); b.quaternion.copy(_pqa.invert().multiply(_pqc).multiply(_pqb)); b.updateMatrixWorld(true); }
 function pz_ziel(b, kind, T, w) { if (!b || !kind || !b.parent || w <= .001) return; b.getWorldPosition(_pv1); kind.getWorldPosition(_pv2); _pv2.sub(_pv1).normalize(); _pv3.copy(T).sub(_pv1).normalize();
   _pqc.setFromUnitVectors(_pv2, _pv3).slerp(_pqi, 1 - Math.min(1, w)); b.parent.getWorldQuaternion(_pqa); b.getWorldQuaternion(_pqb); b.quaternion.copy(_pqa.invert().multiply(_pqc).multiply(_pqb)); b.updateMatrixWorld(true); }
@@ -805,6 +918,13 @@ function pz_handPos(v = new THREE.Vector3(), s = 1) { const r = PZ.P && PZ.P.rig
 function pz_kopfPos(v = new THREE.Vector3()) { const h = PZ.P && PZ.P.rig.head; if (h) return h.getWorldPosition(v); return v.set(zombie.x, 1.75, zombie.z); }
 function pz_schicht(dt, t) { const P = PZ.P, L = PZ.lay, r = P && P.rig; if (!r || !zombie.g.visible || !P.mv.vis || P.mv.acc !== 0) return;
   P.obj.getWorldQuaternion(_pqb); _pax.set(1, 0, 0).applyQuaternion(_pqb); _pfw.set(0, 0, 1).applyQuaternion(_pqb); const sp = PZ.ue;
+  // Zombie-Gang: Torkeln (Rumpf pendelt im Schritt), hängender Kopf, ruckartiges Zucken mit Knochenknacken
+  if (!feuer_S.zs && !(typeof kino_S !== 'undefined' && kino_S.on && kino_S.id === 'k2a')) { const J = PZ.jerk || (PZ.jerk = { t: rand(1.2, 3), tz: 0, tn: 0, ty: 0, z: 0, n: 0, y: 0, hold: 0 }), mv = Math.min(1, PZ.spd / 1.3), k = 1 - Math.exp(-dt * 24);
+    J.t -= dt; if (J.t <= 0) { J.t = rand(1.1, 3.6); J.hold = rand(.12, .5); J.tz = rand(-.5, .5); J.tn = rand(-.12, .22); J.ty = rand(-.4, .4); if (PZ.spd > .05 || Math.random() < .5) pz_knack(); }
+    else if (J.hold > 0) { J.hold -= dt; if (J.hold <= 0) { J.tz *= .3; J.tn *= .3; J.ty *= .3; } }
+    J.z += (J.tz - J.z) * k; J.n += (J.tn - J.n) * k; J.y += (J.ty - J.y) * k;
+    pz_bend(r.head, _pfw, J.z + .13); pz_bend(r.neck, _pax, J.n + .1); pz_bend(r.head, _pup, J.y);
+    if (mv > .04) { const ph = t * (2.6 + PZ.spd * 1.1); pz_bend(sp.spine_01, _pfw, Math.sin(ph) * .09 * mv); pz_bend(sp.spine_02, _pfw, Math.sin(ph + 1.1) * .07 * mv); pz_bend(sp.spine_03, _pax, .09 * mv); } }
   // Oberkörper: vorgebeugt, beim Ausfall weiter; Hinken hebt die Schulter im Takt
   if (L.lean) { pz_bend(sp.spine_02, _pax, L.lean * .6); pz_bend(sp.spine_03, _pax, L.lean * .4); }
   // Kopf: sucht (Drehung), lauscht (schief), nickt, wendet sich ab
@@ -924,7 +1044,7 @@ function pz_stimmung(st) { const P = PZ.P; if (!P) return;
 function pz_wort(raus) { const P = PZ.P; if (!P || PZ.wortT > 0) return; PZ.wortT = rand(9, 15); const tx = raus ? '„… raus …“' : '„… Lu… ke …“';
   try { subtitle(tx, 1700, 'PETER'); } catch (e) {} pz_ton('lachen', .32, .78); setTimeout(() => pz_ton('atem', .6, .86), 500); }
 // Ausfall mit Ausweich-QTE: die Hand kommt aus dem Dunkel, Luke duckt sich zur freien Seite weg
-function pz_ausfall(d) { const K = PZ.ki, P = player.pos; pz_clip('run', { fade: .15 }); PZ.lay.greif = 0; pz_ton('atem', 1.2, 1.05); if (Math.random() < .6) pz_ton('lachen', .5, 1);
+function pz_ausfall(d) { const K = PZ.ki, P = player.pos; pz_clip('run', { fade: .15 }); PZ.lay.greif = 0; pz_schrei(); pz_knack(); pz_ton('atem', 1.2, 1.05); if (Math.random() < .6) pz_ton('lachen', .5, 1);
   const fwdL = { x: -Math.sin(player.yaw), z: -Math.cos(player.yaw) }, rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw), hinten = ((zombie.x - P.x) * fwdL.x + (zombie.z - P.z) * fwdL.z) < -.2;
   if (hinten && PZ.cam.autoN < 2 && !keys[qte_tasteSicher('zurueck')]) { PZ.cam.autoT = .85; PZ.cam.autoN++; }
   if (K.ausw >= 2 || typeof qte_start !== 'function') return; // danach nur noch Laufen
@@ -972,7 +1092,7 @@ function pz_qte(o) { return new Promise(res => { if (typeof qte_start !== 'funct
 const pz_shake = (a, d) => { if (typeof kino_shake === 'function' && typeof kino_S !== 'undefined' && kino_S.on) kino_shake(a, d); else shake = Math.max(shake, a); };
 async function pz_qteLos() { let k0 = 0;
   for (let r = 0; r < 2; r++) {
-    const ok = await pz_qte({ type: 'haemmern', keys: 'ruetteln', need: r ? 8 : 10, duration: r ? 2.6 : 3.2, decay: r ? .4 : .32, label: r ? 'Luft!' : 'Losreißen', at: () => pz_handPos(_pv3, -1).lerp(pz_handPos(_pv4, 1), .5),
+    const ok = await pz_qte({ type: 'haemmern', keys: 'ruetteln', need: r ? 8 : 10, duration: r ? 2.6 : 3.2, decay: r ? .4 : .32, label: r ? 'Luft!' : 'Losreißen', gross: true, onHit: k => { pz_shake(.02 + k * .02, .12); PZ.cam.kickV = (Math.random() < .5 ? -1 : 1) * (.9 + k); PZ.cam.dipV = -.8; if (Math.random() < .5) pz_knack(); else pz_ton('stoff', .5, rand(.9, 1.1), true); },
       onTick: k => { if (k > k0 + .05) { pz_shake(.012 + k * .01, .14); if (Math.random() < .35) pz_ton(Math.random() < .5 ? 'stoff' : 'keuch', .45, rand(.95, 1.1), true); } k0 = k; },
       ok: () => { pz_ton('stoehn', .9, 1, true); pz_ton('stoff', .8, .85, true); pz_shake(.05, .35); } });
     if (ok) return 'ok';
@@ -1000,7 +1120,7 @@ function feuer_k2aTot() { return !!(PZ.k2a && PZ.k2a.tot); }
 function pz_k2aTick(dt) { const K = PZ.k2a, L = PZ.lay, A = kino_S.k2a; if (!K || !A) return;
   L.greif += (K.greifZ - L.greif) * (1 - Math.exp(-dt * 3.2)); L.greifP.copy(camera.position); L.greifP.y -= .07; L.lean += (.2 - L.lean) * Math.min(1, dt * 3); L.kopf *= .9; L.tilt += (.12 - L.tilt) * Math.min(1, dt * 2);
   if (!K.fall && zombie.g.visible) { const d0 = Math.hypot(zombie.g.position.x - A.x, zombie.g.position.z - A.z), dn = d0 + (K.nah - d0) * Math.min(1, dt * 1.6); zombie.g.position.set(A.x - A.fx * dn, 0, A.z - A.fz * dn); }
-  if (K.fall) { const fv = PZ.P.acts.fall_vor; if (fv && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .3, rate: .7, dur: .8, x: zombie.x + 1, y: .1, z: zombie.z, ref: 2 }); } } }
+  if (K.fall) { PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * .3); const fv = PZ.P.acts.fall_vor; if (fv && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_knack(); pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .5, rate: .55, lp: 500, dur: 3, x: zombie.x, y: .1, z: zombie.z, ref: 2.5 }); Audio.play('waterFlow', { gain: .3, rate: .7, dur: .8, x: zombie.x + 1, y: .1, z: zombie.z, ref: 2 }); } } }
 // ---------------------------------------------------------------- Peter im Öl, im Feuer, sein letzter Griff zur Tür (Zustände aus feuer_zombieUpdate, Bewegung aus echten Clips)
 function pz_zsTick(dt, t) { const S = feuer_S, Q = S.zs, P = PZ.P, L = PZ.lay; if (!Q || !P || !zombie.g.visible) return; const fv = P.acts.fall_vor; if (!fv) return; const D = fv.getClip().duration, KN = 2.75;
   const halt = tm => { if (PZ.loco !== 'fall_vor') pz_clip('fall_vor', { once: true, fade: .5 }); fv.paused = false; fv.timeScale = 0; fv.time = Math.max(0, Math.min(D - .02, tm)); }, ez = k => k * k * (3 - 2 * k);

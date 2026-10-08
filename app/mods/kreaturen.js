@@ -107,7 +107,7 @@ function kr_spiel(K, name, fade = .2, once = false) { const a = K.A[name]; if (!
 // Geschälter Wolf als Tier im Format von leben_beast (V.A/V.cur/V.mx – leben_play, leben_beastMove, leben_beastUpd funktionieren unverändert)
 function kr_wolf() { const B = KR.wolf; if (!B || typeof leben_S === 'undefined' || !leben_S.skc) return null; const m = leben_S.skc(B.src);
   m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); if (KR.tex) kr_haut(m, KR_FORM.wolf, true);
-  const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; scene.add(g); const mx = new THREE.AnimationMixer(m);
+  const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Geschälter Wolf', ein: .35, aus: .3, r: 2 }); } catch (e) {} const mx = new THREE.AnimationMixer(m);
   const V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false, kr: 'wolf', krForm: 'wolf', meta: B.meta, lp: new THREE.Vector3(), v: 0, atemT: 1, mT: -1 };
   leben_play(V, 'IdleBreathe', 0); KR.live.add(V); return V; }
 // hungrige_nackt (Geschältes Reh): Fleisch statt des alten Einheitsmaterials; true = erledigt

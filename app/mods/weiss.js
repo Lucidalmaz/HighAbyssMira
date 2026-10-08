@@ -658,3 +658,6 @@ async function weiss_luecken(N, A, CX, CZ) { const S = weiss_S, T = THREE, V = T
     const sm = R.spieluhr.m, mod = await kirchberg_mod('w_spieluhr', 'model.glb', .17, 'max'); if (mod) { mod.position.set(sm.position.x, sm.position.y - .06, sm.position.z); mod.rotation.y = sm.rotation.y; mod.traverse(o => { o.userData.noCol = true; }); scene.add(mod); sm.material = hidden; F3.spieluhr = mod; } } catch (e) { console.warn('weiss Raum 1', e); } }
 
 WORLD_TICK.push(() => weiss_handTick());
+
+// Ende von Kapitel 3 → Kapitel 4: enterWhite setzt state.inBasement, die Kinosequenz stellt es danach wieder her, nichts setzte es zurück – Kapitel 4 begann im Dorf mit „Keller“-Umwelt (Mond und Spiegelung aus, Regen aus, Klang gedämpft, Dorfleben aus). Testlauf 08.10.
+chapter4Begin = (o => function (...a) { state.inBasement = false; indoorK = 0; lastArea = ''; return o.apply(this, a); })(chapter4Begin);

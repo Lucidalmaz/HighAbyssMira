@@ -127,6 +127,15 @@ app.whenReady().then(() => {
               res[st.name] = list.map(f => f.path + ' (' + Math.round(f.b64.length * .75 / 1024) + ' KB)' + (f.note ? ' ' + f.note : ''));
             }
             if (st.trace) { const { contentTracing } = require('electron'); await contentTracing.startRecording({ included_categories: ['gpu', 'gpu.service', 'gpu.command_buffer', 'toplevel', 'v8', 'blink', 'disabled-by-default-gpu.service', 'viz', 'cc', 'benchmark', 'renderer.scheduler'] }); await new Promise(r => setTimeout(r, st.trace)); const tp = await contentTracing.stopRecording(path.join(out, st.name + '.trace.json')); } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
+            if (st.heap) { // Speicher laut V8 (Heap + ArrayBuffer-Speicher) nach dem Schritt; "snap" schreibt zusätzlich einen Heap-Snapshot – nur Selbsttest
+              const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
+              try { await d.sendCommand('HeapProfiler.collectGarbage'); const u = await d.sendCommand('Runtime.getHeapUsage'); const mb = v => v === undefined ? '?' : Math.round(v / 1048576);
+                res[st.name + '_heap'] = `used=${mb(u.usedSize)}MB total=${mb(u.totalSize)}MB embedder=${mb(u.embedderHeapUsedSize)}MB backing=${mb(u.backingStorageSize)}MB`;
+                if (st.heap === 'snap') { const fd = fs.openSync(path.join(out, st.name + '.heapsnapshot'), 'w'); const on = (_e, m, p) => { if (m === 'HeapProfiler.addHeapSnapshotChunk') fs.writeSync(fd, p.chunk); };
+                  d.on('message', on); await d.sendCommand('HeapProfiler.enable'); await d.sendCommand('HeapProfiler.takeHeapSnapshot', { reportProgress: false }); d.removeListener('message', on); fs.closeSync(fd); }
+              } catch (e) { res[st.name + '_heap'] = 'FEHLER ' + e; }
+              try { d.detach(); } catch (e) {}
+            }
             if (st.profile) { // CPU-Profil (Chrome DevTools-Format) über st.profile ms aufzeichnen
               const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
               await d.sendCommand('Profiler.enable'); await d.sendCommand('Profiler.setSamplingInterval', { interval: 200 }); await d.sendCommand('Profiler.start');

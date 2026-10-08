@@ -108,7 +108,7 @@ function spn_schleudern(n) { const S = SPN_S, list = S.cam.filter(c => c.on && !
 async function spn_helden() { const S = SPN_S; if (S.heroes.length || !FAB.spiders || !FAB.spiders.length) return;
   const { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'), src = FAB.spiders[0].g.children[0], A = FAB.spiders[0].acts; if (!src || !A || !A.walk) return;
   const clip = A.walk.getClip();
-  for (let i = 0; i < 14; i++) { const o = skClone(src); o.scale.setScalar(src.scale.x * rand(.9, 1.5)); o.position.copy(src.position); o.rotation.copy(src.rotation); const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g);
+  for (let i = 0; i < 14; i++) { const o = skClone(src); o.scale.setScalar(src.scale.x * rand(.9, 1.5)); o.position.copy(src.position); o.rotation.copy(src.rotation); const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Spinne(Held)', ein: .3, aus: .3, r: .5 }); } catch (e) {} 
     const mx = new THREE.AnimationMixer(o), w = mx.clipAction(clip); w.timeScale = rand(1.5, 2.2); w.play(); mx.update(rand(0, 2)); S.heroes.push({ g, mx, on: false, x: 0, z: 0, dir: 0, sp: rand(.5, .9), t: 0 }); } }
 function spn_heldStart() { const S = SPN_S; let k = 0; for (const h of S.heroes) { h.on = true; h.g.visible = true; const side = Math.floor(rand(0, 4)); h.x = side === 0 ? X + 36.6 : side === 1 ? X + 45.4 : rand(X + 37, X + 45); h.z = side === 2 ? Z - 4.5 : side === 3 ? Z + 4.5 : rand(Z - 4.5, Z + 4.5); h.t = 1 + k++ * .6; h.g.position.set(h.x, 0, h.z); h.g.visible = false; } }
 function spn_heldUpdate(dt) { const S = SPN_S, P = player.pos; let n = 0;

@@ -378,7 +378,7 @@ function lwo_bone(obj, re) { let b = null; obj.traverse(o => { if (!b && o.isBon
 async function lwo_neueFigur(key, def) {
   if (typeof figuren_load !== 'function') return null;
   const T = await figuren_load(def.id); if (!T) { console.warn('LWO: Modell fehlt', def.id); return null; }
-  const sk = await figuren_skc(), obj = sk(T.scene), g = new THREE.Group(); g.name = 'lwo_' + key; g.add(obj); g.visible = false; g.userData.noCol = true; scene.add(g);
+  const sk = await figuren_skc(), obj = sk(T.scene), g = new THREE.Group(); g.name = 'lwo_' + key; g.add(obj); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'lwo_' + key, ein: .6, aus: .6, r: 1.2 }); } catch (e) {} 
   if (def.sx) { obj.scale.x *= def.sx; obj.scale.z *= def.sx; }
   obj.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) { const a = mx.clipAction(c); a.play(); a.setEffectiveWeight(0); acts[k] = a; }
@@ -560,7 +560,7 @@ async function lwo_kombiLaden() {
     Glass: { color: 0x0a0d10, rough: .06, metal: .7, transparent: true }, Car_number: { color: 0x3a3a38, rough: .9 }, Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: 0xfff0d6 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: 0x7a0a04 },
     Car_backLight: { color: 0x220505, rough: .25, emissive: 0x6a0804 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
   const lf = [], stop = []; src.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true; const mats = [].concat(m.material).map(mt => { const c = mt.clone(); if (c.name === 'Glass') c.opacity = .86; if (c.name === 'Car_LightForward') { c.emissiveIntensity = 0; lf.push(c); } if (c.name === 'Car_stopLight' || c.name === 'Car_backLight') { c.emissiveIntensity = 0; stop.push(c); } return c; }); m.material = Array.isArray(m.material) ? mats : mats[0]; });
-  src.scale.setScalar(4.7 / 212.53); const inner = msGround(src), g = new THREE.Group(); g.add(inner); g.visible = false; g.name = 'lwo_kombi'; scene.add(g); g.updateMatrixWorld(true);
+  src.scale.setScalar(4.7 / 212.53); const inner = msGround(src), g = new THREE.Group(); g.add(inner); g.visible = false; g.name = 'lwo_kombi'; scene.add(g); try { auftritt_reg(g, { name: 'Kombi', ein: .7, aus: .7, r: 4 }); } catch (e) {} g.updateMatrixWorld(true);
   const bb = new THREE.Box3().setFromObject(inner), K = { g, lf, stop, bb, sp: 0, path: null, pi: 0, rueck: false, motor: null, pan: null, stand: false, fern: 0, done: null };
   // Leuchtbilder: Standlicht vorn (zwei kleine + Dunst), Rücklicht, Deckenleuchte innen (nur Sprites, kein Licht)
   const glow = (x, y, z, s, col, op) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: LWO.glareTex, color: col, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); sp.position.set(x, y, z); sp.scale.set(s, s, 1); sp.visible = false; g.add(sp); return sp; };

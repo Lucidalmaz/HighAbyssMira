@@ -95,13 +95,14 @@ WORLD_MODS.push(['Leben', async () => {
   try { await leben_spiderSetup(); } catch (e) { console.warn('leben: Spinnen', e); }
   leben_shadowSetup();
   // Krähenschwarm: bricht aus einer Baumkrone 10–22 m vor dir und zieht dicht über deinen Kopf hinweg (echtes Krähenmodell)
+  flock.forEach(c => leben_reg(c.g, 'Krähenschwarm', .6));
   crowFlock = function () {
     const P = player.pos, f = flatDir();
     const cands = treeSpots.filter(([x, z]) => { const dx = x - P.x, dz = z - P.z, d = Math.hypot(dx, dz); return d > 10 && d < 22 && (dx * f.x + dz * f.z) / d > .25; });
     if (!cands.length) return false;
     const [tx, tz, ts] = cands[Math.floor(Math.random() * cands.length)];
     flock.forEach((c, i) => { c.g.position.set(tx + rand(-1.5, 1.5), rand(5.8, 7.4) * ts, tz + rand(-1.5, 1.5));
-      c.vel.set(P.x + rand(-3, 3), rand(3.3, 4.8), P.z + rand(-3, 3)).sub(c.g.position).normalize().multiplyScalar(rand(9, 12.5)); c.on = true; c.g.visible = true; c.delay = i * rand(.03, .09); });
+      c.vel.set(P.x + rand(-3, 3), rand(3.3, 4.8), P.z + rand(-3, 3)).sub(c.g.position).normalize().multiplyScalar(rand(9, 12.5)); c.on = true; c.delay = i * rand(.03, .09); });
     Audio.flap(tx, 6, tz); Audio.flap(tx + 1, 5, tz - 1);
     for (let i = 0; i < 4; i++) setTimeout(() => Audio.at(Math.random() < .7 ? 'crow1' : 'crow2', flock[i % flock.length].g, { gain: .6, vary: .12, ref: 4 }), 80 + i * rand(120, 260));
     setTimeout(() => { shake = Math.max(shake, .02); }, 650);
@@ -167,13 +168,14 @@ function leben_crowSetup() {
   crows.forEach((c, i) => { calm(c); const k = (i + 1) / (crows.length + 1), [a, m, e] = span;
     const p = new THREE.Vector3().copy(a).multiplyScalar((1 - k) ** 2).addScaledVector(m, 2 * k * (1 - k)).addScaledVector(e, k * k); p.y += .1;
     c.g.position.copy(p); c.g.rotation.set(0, rand(1.2, 1.9) * (i % 2 ? 1 : -1), 0);
-    S.crows.push({ c, V: C ? leben_crowVis(c.g, -.087) : null, base: true, slot: p, st: 'base', t: 0, take: 0, pf: false, L: null, perch: null }); });
+    S.crows.push({ c, V: C ? leben_crowVis(c.g, -.087) : null, base: true, slot: p, st: 'base', t: 0, take: 0, pf: false, L: null, perch: null }); if (C) leben_reg(c.g, 'Krähe(Mast)', 1); });
   if (!C) return;
   // Weitere Krähen: Dächer, Schornsteine, Masten, Baumkronen, Wiesen und Straßen – auch Kirchberg, Landstraße, Höfe
   for (const reg of ['ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'nord', 'nord', 'nord', 'ost', 'ost', 'west', 'west', 'west']) {
     const g = new THREE.Group(); g.visible = false; g.userData.noCol = true; S.root.add(g);
-    S.crows.push({ c: { g, wings: [], fly: false, gone: true, vel: new THREE.Vector3() }, V: leben_crowVis(g, 0), base: false, reg, st: 'away', t: rand(1, 25), take: 0, perch: null, L: null, C: null, hopT: 0, hx: 0, hz: 0 }); }
+    S.crows.push({ c: { g, wings: [], fly: false, gone: true, vel: new THREE.Vector3() }, V: leben_crowVis(g, 0), base: false, reg, st: 'away', t: rand(1, 25), take: 0, perch: null, L: null, C: null, hopT: 0, hx: 0, hz: 0 }); leben_reg(g, 'Krähe', 1); }
 }
+function leben_reg(g, name, r) { try { auftritt_reg(g, { name, r: r || 1 }); } catch (e) { console.warn('Leben: Auftritt', e); } return g; } // 08.10.: weiche Sichtbarkeit (auftritt.js)
 function leben_perchInit() {
   const S = leben_S, out = S.perches, add = (x, y, z, kind, grp) => { const p = { x, y, z, kind, reg: leben_region(x, z), used: null, grp }; out.push(p); return p; };
   // Draht sichtbar? (Das Straßen-Modul darf die Leitungen ersetzen – dann sitzen die acht woanders)
@@ -222,7 +224,7 @@ function leben_crowLandAt(W, px, py, pz, here) {
   const P = player.pos, g = W.c.g; let ax = px - P.x, az = pz - P.z; const d = Math.hypot(ax, az) || 1; ax /= d; az /= d;
   const sd = rand(-.7, .7), L = W.L || (W.L = {});
   if (here) { L.sx = g.position.x; L.sy = g.position.y; L.sz = g.position.z; L.cx = px + (L.sx - px) * .35; L.cy = py + 3; L.cz = pz + (L.sz - pz) * .35; L.dur = rand(3.5, 4.5); } // aus dem Kreisen direkt hinunter
-  else { L.sx = px + (ax - sd * az) * 42; L.sy = py + rand(12, 20); L.sz = pz + (az + sd * ax) * 42; L.cx = px + ax * 8; L.cy = py + 4; L.cz = pz + az * 8; L.dur = rand(5.5, 7.5); }
+  else { L.sx = px + (ax - sd * az) * 62; L.sy = py + rand(12, 20); L.sz = pz + (az + sd * ax) * 62; L.cx = px + ax * 8; L.cy = py + 4; L.cz = pz + az * 8; L.dur = rand(7, 9); } // 08.10.: Anflug aus 62 m (jenseits des Nebels), nicht erst aus 42 m
   L.px = px; L.py = py; L.pz = pz; L.t = 0; L.fl = 0;
   W.st = 'land'; g.visible = true; g.position.set(L.sx, L.sy, L.sz); if (W.V) { W.V.mode = 'glide'; leben_play(W.V, 'Glide', .1); }
 }
@@ -332,7 +334,7 @@ function leben_ratSetup() {
   const src = R0.g.children[0], clip = k => R0.acts[k].getClip();
   for (const reg of ['ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'nord', 'nord', 'nord', 'nord', 'ost', 'ost', 'ost', 'ost', 'ost', 'west', 'west', 'west', 'west', 'west']) {
     const o = S.skc(src); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } });
-    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g);
+    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Ratte', .6);
     const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(clip('idle')), sniff: mx.clipAction(clip('sniff')), walk: mx.clipAction(clip('walk')), run: mx.clipAction(clip('run')) };
     acts.idle.play(); mx.update(rand(0, 3));
     S.rats.push({ g, mx, acts, cur: acts.idle, reg, on: false, st: 'idle', t: rand(1, 6), tx: 0, tz: 0, sp: 0, np: false, burst: 0, pause: 0, gy: 0, ty: 0, spot: null, lead: null, far: true, skip: false, tmp: { x: 0, z: 0, hide: false } });
@@ -431,7 +433,7 @@ function leben_ratChase() {
 function leben_beast(key, s = 1) {
   const S = leben_S, B = S.M[key]; if (!B) return null;
   const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } });
-  const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g);
+  const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Tier:' + key, 1.6);
   const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false };
   const first = Object.keys(V.A).find(k => /IdleBreathe/.test(k)) || Object.keys(V.A)[0]; if (first) leben_play(V, first, 0);
   return V;
@@ -589,7 +591,7 @@ function leben_batSetup() {
   const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
   [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
     const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; });
-    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g);
+    const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Fledermaus', .6);
     const mx = new THREE.AnimationMixer(o), a = mx.clipAction(clip); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
     S.bats.push({ g, mx, cx, cz, r, h, sp: rand(.5, .85) * (i % 2 ? 1 : -1), ph: rand(0, 6.28) }); });
 }

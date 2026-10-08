@@ -199,7 +199,7 @@ function katzen_make(d) {
   k.ob = KATZEN_OB.map(n => k.B[n]).filter(Boolean); k.baseQ = k.ob.map(() => new THREE.Quaternion()); k.fadeT = 0; k.cached = false;
   k.play = (n, fade = .3, ts = 1) => { const a = k.A[n]; if (!a) return; a.timeScale = ts; if (a === k.cur) return; if (fade > 0) fade = Math.max(.25, fade); k.fadeT = fade + .1; a.reset().play(); if (k.cur) { a.crossFadeFrom(k.cur, fade, false); } k.cur = a; k.curK = n; };
   k.play('sit', 0); k.mx.update(rand(0, 1));
-  g.visible = true; g.position.set(0, -500, 0); // beim Laden sichtbar (Shader werden vorab übersetzt), weit unten
+  try { auftritt_reg(g, { name: 'Katze_' + d.name, r: .6 }); } catch (e) {} g.visible = true; g.position.set(0, -500, 0); // beim Laden sichtbar (Shader werden vorab übersetzt), weit unten
   katzen_S.cats.push(k); katzen_S.byName[d.name] = k; return k;
 }
 
@@ -220,7 +220,7 @@ function katzen_place(k, x, z, o = {}) {
   if (y == null) { y = katzen_ground(x, z, .3); if (o.sims) { const top = katzen_perchY(x, z, 2.2); if (top > .25) { y = top; k.perch = top; } } }
   k.y = k.gy = y; k.perch = y > .3 ? y : 0; k.st = o.pose || 'sit'; k.t = rand(4, 12); k.sp = 0; k.jump = null;
   k.g.position.set(x, y, z); k.g.rotation.y = k.ry; k.play(k.st === 'stand' ? 'stand' : k.st, 0); k.g.visible = true; }
-function katzen_hide(k) { k.on = false; k.st = 'aus'; k.g.visible = false; k.g.position.y = -500; if (k.klick) { uninteract(k.klick); k.klick.position.y = -50; } katzen_schnurren(k, false); if (katzen_S.carry === k) katzen_S.carry = null; }
+function katzen_hide(k) { k.on = false; k.st = 'aus'; k.g.visible = false; auftritt_wenn_weg(k.g, () => { if (!k.on) k.g.position.y = -500; }); /* 08.10.: erst nach dem Ausblenden wegsetzen */ if (k.klick) { uninteract(k.klick); k.klick.position.y = -50; } katzen_schnurren(k, false); if (katzen_S.carry === k) katzen_S.carry = null; }
 function katzen_stare(k, p) { if (!k) return; k.stare = p ? (p.isVector3 ? p.clone() : new THREE.Vector3(p[0], p[1], p[2])) : null; }
 function katzen_goto(k, x, z, o = {}) { if (!k) return; k.tx = x; k.tz = z; k.ty = o.y != null ? o.y : null; k.lauf = !!o.lauf; k.frei = !!o.frei; k.then = o.dann || 'sit'; k.onArrive = o.fertig || null; if (k.st !== 'jump') { k.st = 'go'; } }
 function katzen_jumpTo(k, x, y, z, dann = 'sit') { if (!k || !k.on) return; const d = Math.hypot(x - k.x, z - k.z);

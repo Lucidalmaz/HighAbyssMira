@@ -85,7 +85,7 @@ function lst_rigs() {
     let glow = false; bb.makeEmpty(); r.updateWorldMatrix(true, true);
     r.traverse(o => { if (o.material) for (const m of [].concat(o.material)) if (m && m.fog === false) glow = true;
       if (o.isMesh && o.geometry && o.geometry.attributes.position) { const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); bb.union(tb.copy(g.boundingBox).applyMatrix4(o.matrixWorld)); } });
-    const size = bb.isEmpty() ? 1 : bb.getBoundingSphere(sp).radius, R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 28, RIGS.R);
+    const size = bb.isEmpty() ? 1 : bb.getBoundingSphere(sp).radius, R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 48, RIGS.R); // 08.10. (Auftritt): Mindestweite 28 -> 48 m, sonst poppen kleine Tiere bei 36 % Sichtbarkeit weg
     RIGS.known.set(r, { R, size }); L.push({ r, R, size }); }
   RIGS.list = L; LST.rigNext.clear();
   if (!LST.rigOk) { LST.rigOk = true; rigScan = () => {}; } // ab jetzt pflegt die Durchsicht die Liste
