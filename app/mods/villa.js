@@ -94,7 +94,7 @@ const VILLA_SPEC = {
 { const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg`, color: 0x7a6e60 });
   VILLA_SPEC.hutch = { 'Wood-1': W_('Wood-1'), 'Wood-2': W_('Wood-2'), 'Wood-3': W_('Wood-3'), Metal: { b: 'T_Metal_BaseColor.jpg', n: 'T_Metal_Normal.jpg', r: 'T_Metal_Roughness.jpg', m: 'T_Metal_Metallic.jpg' } }; }
 // Papier/Schild als Decal (Canvas), optional mit Interaktion
-function villa_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function villa_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }
 function villa_decal(cv, w, h, x, y, z, rx = 0, ry = 0, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex(cv, true), transparent: !!o.alpha, alphaTest: o.alpha ? .05 : 0, roughness: o.rough ?? .92, metalness: o.metal || 0,
   side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, emissive: o.glow ? 0xffffff : 0x000000, emissiveMap: o.glow ? tex(cv, true) : null, emissiveIntensity: o.glow || 0 }));
   m.position.set(x, y, z); m.rotation.set(rx, ry, 0, 'YXZ'); m.userData.noCol = true; m.receiveShadow = true; VILLA.g.add(m); return m; }

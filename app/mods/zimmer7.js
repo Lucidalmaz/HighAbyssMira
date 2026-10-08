@@ -122,7 +122,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
   const x0 = Z7.x0, x1 = Z7.x1, z0 = Z7.z0, z1 = Z7.z1, iX0 = x0 + .15, iX1 = x1 - .15, iZ0 = z0 + .15, iZ1 = z1 - .15;
   try { await document.fonts.load('40px Caveat'); await document.fonts.load('30px "Special Elite"'); } catch (e) {}
   let rs = 77; const R = (a, b) => { rs = (rs * 16807) % 2147483647; return a + (b - a) * (rs / 2147483647); };
-  const cv = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; };
+  const cv = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; };
   const surf = (key, tint, tile = 2, nrm = 1) => { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = tile; return m; };
   const decalMat = (c, rough = .9) => new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: rough });
   const paperMat = (c, rough = .95) => new THREE.MeshStandardMaterial({ map: tex(c, true), roughness: rough, side: THREE.DoubleSide });

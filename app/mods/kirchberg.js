@@ -16,7 +16,7 @@ const KB_KAP = { x: -52.5, z: 86.6 };                  // Kapelle St. Martin (Sc
 const KB_RAUM = { gisela: { x: -1440, z: 1400 }, pfarrhaus: { x: -1440, z: 1440 }, kapelle: { x: -1480, z: 1400 } };
 
 // ---------------------------------------------------------------------  Werkzeuge (auch für post.js, nr4.js)
-function kirchberg_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function kirchberg_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }
 function kirchberg_tex(c) { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 let kirchberg_rs = 1312; function kirchberg_r(a = 0, b = 1) { kirchberg_rs = (kirchberg_rs * 16807) % 2147483647; return a + (b - a) * (kirchberg_rs / 2147483647); } // fester Zufall
 // Papier mit Handschrift: o = { w, h (Pixel), bg, lin: 'kariert'|'liniert'|null, zeilen: [[text, x, y, px, farbe?, font?, rot?]], flecken, tesa, knick }

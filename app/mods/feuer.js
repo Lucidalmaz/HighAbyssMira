@@ -18,7 +18,7 @@
 const feuer_S = { phase: 'idle', lighter: false, done: false, items: false, run: 0, t: 0, H: 0, burnR: 0, spread: 1.1, zs: null, air: 30, hold: 0, said: {}, cues: null, cueBusy: false, snd: {}, lightModes: null, lines: [], soot: 0, frame: 0 };
 const FEU = { bx: X + 76.3, bz: Z - 1.25, tip: 1, r: .29, h: .86, relX: X + 103.0, relZ: Z + 1.84, oilW: 6.4, oilD: 3.64, fw: 256, fh: 146 };
 // ---------------------------------------------------------------- Texturen (prozedural, einmal beim Laden)
-function feuer_canvas(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return c; }
+function feuer_canvas(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => draw(c.getContext('2d'), w, h)); return c; }
 function feuer_texDot() { return new THREE.CanvasTexture(feuer_canvas(32, 32, (x, w) => { const g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, '#fff'); g.addColorStop(.35, 'rgba(255,255,255,.6)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); })); }
 function feuer_texSoot(w, h, vertical) { const t = new THREE.CanvasTexture(feuer_canvas(w, h, (x) => { x.clearRect(0, 0, w, h);
   for (let i = 0; i < 260; i++) { const px = Math.random() * w, py = vertical ? h * (.25 + Math.random() * .75) : Math.random() * h, r = 8 + Math.random() * (vertical ? 40 : 60), g = x.createRadialGradient(px, py, 0, px, py, r); const a = vertical ? .1 + .25 * (py / h) : .16;

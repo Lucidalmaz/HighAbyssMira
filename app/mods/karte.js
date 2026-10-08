@@ -204,11 +204,12 @@ function karte_papier(b, W, Hh) {
   for (let i = n; i >= 0; i--) E.push([18 + (PW - 36) * i / n, PH - 16 - R() * 7]); for (let i = n; i >= 0; i--) E.push([16 + R() * 5, 18 + (PH - 36) * i / n]);
   x.save(); x.shadowColor = 'rgba(0,0,0,.5)'; x.shadowBlur = 26; x.shadowOffsetY = 10; karte_poly(x, E); x.fillStyle = b.id === 'wald' ? '#ddd0b0' : '#e6dcc2'; x.fill(); x.restore();
   x.save(); karte_poly(x, E); x.clip();
-  let g = x.createRadialGradient(PW * .45, PH * .42, 100, PW / 2, PH / 2, PW * .75); g.addColorStop(0, b.id === 'wald' ? '#e6dabd' : '#efe6ce'); g.addColorStop(.7, b.id === 'wald' ? '#d3c29c' : '#e0d3b3'); g.addColorStop(1, '#b9a47b'); x.fillStyle = g; x.fillRect(0, 0, PW, PH);
+  // Papier: echter Megascans-Scan („Dirty Papers“: Faser, Knitter, Altersflecken) statt Verlauf; nur der Randton (Vergilbung) bleibt als Hauch darüber
+  papierScan(x, PW, PH, b.id === 'wald' ? '#dccfae' : '#e8dfc6', { dreck: .55 });
+  let g = x.createRadialGradient(PW * .5, PH * .46, PW * .28, PW / 2, PH / 2, PW * .78); g.addColorStop(0, 'rgba(185,164,123,0)'); g.addColorStop(1, 'rgba(150,124,80,.5)'); x.fillStyle = g; x.fillRect(0, 0, PW, PH);
   // Karo (5 mm), blass blau, wie in einem Schulheft
   const k = 34; x.lineWidth = 1; x.strokeStyle = 'rgba(80,110,160,.17)'; x.beginPath(); for (let px = 24 + R() * k; px < PW; px += k) { x.moveTo(px, 0); x.lineTo(px + 2, PH); } for (let py = 20 + R() * k; py < PH; py += k) { x.moveTo(0, py); x.lineTo(PW, py + 1.5); } x.stroke();
-  x.fillStyle = x.createPattern(karte_korn(.012, 'rgba(110,85,50,.07)', 21), 'repeat'); x.fillRect(0, 0, PW, PH); x.fillStyle = x.createPattern(karte_korn(.012, 'rgba(255,252,240,.08)', 22), 'repeat'); x.fillRect(0, 0, PW, PH);
-  x.lineWidth = .8; for (let i = 0; i < 700; i++) { const px = R() * PW, py = R() * PH, l = 5 + R() * 18, a = R() * 6.28; x.strokeStyle = `rgba(110,85,50,${.05 + R() * .07})`; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
+  if (typeof echt_fleck === 'function') for (let i = 0; i < 3; i++) echt_fleck(x, R() * PW, R() * PH, PW * (.18 + R() * .25), 'rgb(120,92,52)', .1 + R() * .12, R() * 6.28); // Wasserränder aus dem Feuchtescan
   // Knicke (einmal längs, einmal quer gefaltet): heller Grat, dunkle Kehle, abgeriebenes Karo
   for (const [ax, ay, bx, by] of [[PW * .5 + (R() - .5) * 20, 0, PW * .5 + (R() - .5) * 20, PH], [0, PH * .5 + (R() - .5) * 16, PW, PH * .5 + (R() - .5) * 16]]) {
     const vx = bx - ax, vy = by - ay, L = Math.hypot(vx, vy), nx = -vy / L, ny = vx / L; g = x.createLinearGradient(ax - nx * 26, ay - ny * 26, ax + nx * 26, ay + ny * 26);
@@ -229,6 +230,11 @@ function karte_papier(b, W, Hh) {
     x.strokeStyle = 'rgba(160,150,120,.25)'; x.lineWidth = 1; for (let i = -60; i < 70; i += 9) { x.beginPath(); x.moveTo(i, -16); x.lineTo(i + 3, 16); x.stroke(); } x.restore(); }
   return c;
 }
+// Bleistift haftet nur auf dem Zahn des Papiers: Tinte mit dem Kornscan (kreideKorn) maskiert, einmal je Blatt; darunter der unmaskierte Strich schwach (Graphit zieht ins Papier)
+function karte_stiftKorn(id, ink) { const S = karte_S.stift || (karte_S.stift = {}); if (S[id] && S[id].k === ink) return S[id].c;
+  const c = document.createElement('canvas'); c.width = ink.width; c.height = ink.height; const x = c.getContext('2d', KARTE_CPU); x.drawImage(ink, 0, 0);
+  try { kreideKorn(x, c.width, c.height, 128); x.globalCompositeOperation = 'destination-over'; x.globalAlpha = .5; x.drawImage(ink, 0, 0); } catch (e) { x.globalCompositeOperation = 'source-over'; x.globalAlpha = 1; x.drawImage(ink, 0, 0); }
+  S[id] = { k: ink, c }; return c; }
 // ---------------------------------------------------------------------  Zusammensetzen (beim Öffnen und nach Änderungen – nie im Tick)
 function karte_maske(b, W, Hh) { // Nebel: Raster weich hochskaliert, körnig ausgefranst
   const [gw, gh] = karte_S.dims[b.id], G = karte_S.g[b.id], sm = document.createElement('canvas'); sm.width = gw + 2; sm.height = gh + 2; const sx = sm.getContext('2d', KARTE_CPU), id = sx.createImageData(gw + 2, gh + 2);
@@ -248,7 +254,7 @@ function karte_comp(b) {
   const ink = karte_S.ink[b.id], W = ink.width, Hh = ink.height; if (!karte_S.paper[b.id]) karte_S.paper[b.id] = karte_papier(b, W, Hh);
   const pap = karte_S.paper[b.id], c = karte_S.comp && karte_S.comp.width === pap.width && karte_S.comp.height === pap.height ? karte_S.comp : document.createElement('canvas'); c.width = pap.width; c.height = pap.height; const x = c.getContext('2d', KARTE_CPU);
   x.drawImage(pap, 0, 0);
-  const t = document.createElement('canvas'); t.width = W; t.height = Hh; const tx = t.getContext('2d', KARTE_CPU); tx.drawImage(karte_maske(b, W, Hh), 0, 0); tx.globalCompositeOperation = 'source-in'; tx.drawImage(ink, 0, 0);
+  const t = document.createElement('canvas'); t.width = W; t.height = Hh; const tx = t.getContext('2d', KARTE_CPU); tx.drawImage(karte_maske(b, W, Hh), 0, 0); tx.globalCompositeOperation = 'source-in'; tx.drawImage(karte_stiftKorn(b.id, ink), 0, 0);
   x.save(); x.globalCompositeOperation = 'multiply'; x.drawImage(t, KARTE_PAD, KARTE_PAD); x.restore(); t.width = t.height = 0;
   karte_ueber(b, x); karte_S.comp = c; karte_S.compKey = key; return c;
 }

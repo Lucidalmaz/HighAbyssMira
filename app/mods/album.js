@@ -155,19 +155,13 @@ const ALBUM_PX = { W: 768, H: 1222, L: .1805, Z: .1435 }; ALBUM_PX.mm = ALBUM_PX
 let album_papier = null;
 function album_papierBau() { const { W, H } = ALBUM_PX, out = {};
   for (const side of ['L', 'R']) { const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
-    x.fillStyle = '#d6cbb2'; x.fillRect(0, 0, W, H);
-    // Karton: grobe Wolken, Fasern, Stockflecken
-    for (let i = 0; i < 90; i++) { const r = 40 + Math.random() * 180, g = x.createRadialGradient(Math.random() * W, Math.random() * H, 0, 0, 0, 0); void g; }
-    for (let i = 0; i < 70; i++) { const cx = Math.random() * W, cy = Math.random() * H, r = 50 + Math.random() * 220, g = x.createRadialGradient(cx, cy, 0, cx, cy, r); const d = Math.random() < .5; g.addColorStop(0, d ? 'rgba(120,90,50,.07)' : 'rgba(255,248,230,.07)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(cx - r, cy - r, 2 * r, 2 * r); }
-    const im = x.getImageData(0, 0, W, H), d = im.data; for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * 14; d[i] += n; d[i + 1] += n; d[i + 2] += n * .8; } x.putImageData(im, 0, 0);
-    x.lineCap = 'round'; for (let i = 0; i < 900; i++) { const px = Math.random() * W, py = Math.random() * H, a = Math.random() * 6.28, l = 3 + Math.random() * 12; x.strokeStyle = Math.random() < .6 ? 'rgba(110,86,52,.16)' : 'rgba(255,250,236,.22)'; x.lineWidth = .6 + Math.random() * .8; x.beginPath(); x.moveTo(px, py); x.quadraticCurveTo(px + Math.cos(a + .5) * l * .5, py + Math.sin(a + .5) * l * .5, px + Math.cos(a) * l, py + Math.sin(a) * l); x.stroke(); }
-    for (let i = 0; i < 26; i++) { const px = Math.random() * W, py = Math.random() * H, r = .8 + Math.random() * (Math.random() < .15 ? 7 : 2.4), g = x.createRadialGradient(px, py, 0, px, py, r * 2); g.addColorStop(0, 'rgba(128,78,36,.38)'); g.addColorStop(.5, 'rgba(140,92,48,.16)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(px - r * 2, py - r * 2, r * 4, r * 4); }
+    // Karton: echter Papierscan (Megascans „Dirty Papers“: Faser, Knitter, Altersflecken) statt gemalter Wolken/Fasern; dazu Wasserränder aus dem Feuchtescan
+    papierScan(x, W, H, '#d2c6aa', { dreck: .6 });
+    if (typeof echt_fleck === 'function') for (let i = 0; i < 4; i++) echt_fleck(x, Math.random() * W, Math.random() * H, W * (.25 + Math.random() * .5), 'rgb(120,88,48)', .08 + Math.random() * .14, Math.random() * 6.28);
     // Ränder nachgedunkelt, Falz zur Bindung hin (links bei rechten Seiten)
     const edge = x.createLinearGradient(0, 0, 0, H); edge.addColorStop(0, 'rgba(90,64,34,.22)'); edge.addColorStop(.05, 'rgba(0,0,0,0)'); edge.addColorStop(.95, 'rgba(0,0,0,0)'); edge.addColorStop(1, 'rgba(90,64,34,.26)'); x.fillStyle = edge; x.fillRect(0, 0, W, H);
     const gx = side === 'R' ? 0 : W, g2 = x.createLinearGradient(gx, 0, side === 'R' ? 110 : W - 110, 0); g2.addColorStop(0, 'rgba(40,26,12,.55)'); g2.addColorStop(.35, 'rgba(60,40,20,.14)'); g2.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g2; x.fillRect(0, 0, W, H);
     const ox = side === 'R' ? W : 0, g3 = x.createLinearGradient(ox, 0, side === 'R' ? W - 40 : 40, 0); g3.addColorStop(0, 'rgba(90,64,34,.3)'); g3.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g3; x.fillRect(0, 0, W, H);
-    // Prägung der Kartonrippe (feine senkrechte Linien)
-    x.globalAlpha = .05; for (let px = 0; px < W; px += 3) { x.fillStyle = px % 6 ? '#fff' : '#5a4428'; x.fillRect(px, 0, 1, H); } x.globalAlpha = 1;
     out[side] = c; }
   // Vorsatz: dunkles, gewolktes Papier mit Lukes Kürzel auf einem Schildchen
   { const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'); x.fillStyle = '#2f2a24'; x.fillRect(0, 0, W, H);
@@ -182,7 +176,11 @@ function album_papierBau() { const { W, H } = ALBUM_PX, out = {};
 function album_blei(x, text, px, py, { size = 34, max = 600, rot = -.02, align = 'left', farbe = 'rgba(48,47,54,.86)' } = {}) {
   x.save(); x.translate(px, py); x.rotate(rot); x.font = `${size}px Caveat, cursive`; x.textAlign = align; x.textBaseline = 'alphabetic';
   const words = String(text).split(/\s+/), lines = []; let l = ''; for (const w of words) { const t = l ? l + ' ' + w : w; if (x.measureText(t).width > max && l) { lines.push(l); l = w; } else l = t; } if (l) lines.push(l);
-  lines.forEach((ln, i) => { const y = i * size * 1.02, dx = Math.sin(i * 1.7) * 2; x.fillStyle = farbe; x.fillText(ln, dx, y); x.globalAlpha = .35; x.fillStyle = 'rgba(120,120,130,.6)'; x.fillText(ln, dx + .6, y - .5); x.globalAlpha = 1; });
+  // Graphit haftet nur auf dem Zahn des Papiers (Korn aus dem Papierscan, kreideKorn); darunter ein schwacher, ungekörnter Hof
+  const ww = Math.ceil(max + size * 3), hh = Math.ceil(lines.length * size * 1.02 + size * 1.8), ox = align === 'center' ? ww / 2 : align === 'right' || align === 'end' ? ww - size * 1.5 : size * 1.5, t = document.createElement('canvas'); t.width = ww; t.height = hh; const c = t.getContext('2d');
+  c.font = x.font; c.textAlign = align; c.textBaseline = 'alphabetic';
+  lines.forEach((ln, i) => { const y = size * 1.1 + i * size * 1.02, dx = Math.sin(i * 1.7) * 2; c.fillStyle = farbe; c.fillText(ln, ox + dx, y); c.globalAlpha = .35; c.fillStyle = 'rgba(120,120,130,.6)'; c.fillText(ln, ox + dx + .6, y - .5); c.globalAlpha = 1; });
+  x.globalAlpha *= .4; x.drawImage(t, -ox, -size * 1.1); x.globalAlpha /= .4; try { kreideKorn(c, ww, hh, 96); } catch (e) {} x.drawImage(t, -ox, -size * 1.1);
   x.restore(); return lines.length * size * 1.02; }
 // Ein Abzug mit Rahmen in einen 2D-Kontext zeichnen (Mitte cx|cy, Drehung rot, Maßstab px/mm); gibt die Rahmenmaße in px zurück
 function album_abzugMalen(x, e, cx, cy, rot, mm, { schatten = true, ohne = false } = {}) {

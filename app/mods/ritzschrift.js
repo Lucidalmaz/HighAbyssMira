@@ -100,6 +100,10 @@ function ritz_flaeche(w, h, o = {}) {
   return { c, b }; }
 // Krallenspuren (Finger/Nägel von innen an eine Tür gezogen): Bündel aus 3–5 fast parallelen Rillen, leicht gebogen, unten kräftig, oben auslaufend
 function ritz_kratzer(w, h, o = {}) {
+  if (typeof ECHT !== 'undefined' && ECHT.img.kratz) { // echte Kratzer: Megascans „Scratches“ (Brush) – freigelegtes Material hell mit dunklem Schatten, im Relief als Rille
+    const c = document.createElement('canvas'), bc = document.createElement('canvas'); c.width = bc.width = w; c.height = bc.height = h; const C = c.getContext('2d'), B = bc.getContext('2d'), n = (o.bueschel ?? 5) + 1, sd = ((o.seed ?? 1) * 2654435761 + 777) >>> 0, gs = Math.min(1, (o.groesse ?? 120) / 110) * .8;
+    B.fillStyle = '#808080'; B.fillRect(0, 0, w, h); C.save(); C.translate(1.2, 1.6); echt_kratz(C, w, h, n, 'rgba(20,14,10,1)', .55, gs, sd); C.restore(); echt_kratz(C, w, h, n, 'rgba(226,218,200,1)', .85, gs, sd); echt_kratz(B, w, h, n, 'rgb(36,36,36)', .95, gs, sd);
+    return { c, b: bc }; }
   ritz_rs = ((o.seed ?? 1) * 2654435761 + 777) >>> 0; const c = document.createElement('canvas'), b = document.createElement('canvas'); c.width = b.width = w; c.height = b.height = h;
   const C = c.getContext('2d'), B = b.getContext('2d'); C.clearRect(0, 0, w, h); B.fillStyle = '#808080'; B.fillRect(0, 0, w, h); const gr = o.bueschel ?? 5, sz = o.groesse ?? 120;
   for (let g = 0; g < gr; g++) { const x0 = w * (.1 + .8 * (g + ritz_R(-.2, .2)) / Math.max(1, gr - 1)) * (gr > 1 ? 1 : 0) + (gr > 1 ? 0 : w / 2), y0 = h * ritz_R(.55, .95), len = h * ritz_R(.3, .75), ang = -Math.PI / 2 + ritz_RN() * .35, bend = ritz_RN() * .22, n = 3 + Math.floor(ritz_R(0, 2.99)), gap = ritz_R(11, 17);
@@ -130,6 +134,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 // so entsteht das unregelmäßige Bild echter Handschrift. Gilt nur für Handschrift-Schriften; Druckschriften (Arial, Courier, Georgia) bleiben unberührt.
 { const P = CanvasRenderingContext2D.prototype, ft = P.fillText, st = P.strokeText, HAND = /Caveat|Comic Sans|Segoe Print|Gochi|Marker|Indie/i; let tief = false;
   const hand = (orig, kind) => function (text, x, y, maxW) {
+    if (ECHT.an > 0 && !tief && kind === 'fill' && typeof text === 'string' && !HAND.test(this.font)) { tief = true; try { if (echt_text(this, orig, text, x, y, maxW)) return; } catch (e) {} finally { tief = false; } } // gedruckte/gemalte Schrift auf Schildern und Zetteln: Farbband, Schablone, Abplatzer (echt_text)
     if (tief || maxW !== undefined || typeof text !== 'string' || text.length < 2 || !HAND.test(this.font)) return orig.call(this, text, x, y, maxW);
     const fm = /(\d+(?:\.\d+)?)px/.exec(this.font), sz = fm ? +fm[1] : 20; if (sz < 7) return orig.call(this, text, x, y);
     tief = true; const al = this.textAlign, ga = this.globalAlpha; try {
@@ -137,6 +142,67 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
       for (let i = 0; i < n; i++) { const ch = text[i]; if (ch === ' ') continue; const px = x0 + (i ? this.measureText(text.slice(0, i)).width : 0), t = i / Math.max(1, n - 1) - .5, dy = (Math.random() - .5) * .09 * sz + t * drift, rot = (Math.random() - .5) * .12 + t * .02, sc = .94 + Math.random() * .12;
         this.save(); this.translate(px, y + dy); this.rotate(rot); this.scale(sc, sc * (.97 + Math.random() * .06)); this.globalAlpha = ga * (.82 + Math.random() * .18); orig.call(this, ch, 0, 0); this.restore(); } }
     finally { this.textAlign = al; this.globalAlpha = ga; tief = false; } };
-  P.fillText = hand(ft); P.strokeText = hand(st); }
-WORLD_MODS.push(['Ritzschrift', async () => {}]);
+  P.fillText = hand(ft, 'fill'); P.strokeText = hand(st, 'stroke'); }
+
+// ================================================================  ECHT: Pinsel, Spuren und Schrift aus echten Scans (Nutzer 08.10.: „keine generierten Schriften/Zeichnungen, alles echt“)
+// Pinsel = Megascans-Brushes (Fab Standard, kostenlos): Hand Print, Hand Smear, Blood Drops, Wipe Marks, Paint Brush, Spray Paint, Moisture Stain, Scratches → assets/ms/pinsel/*.png (weiß + Alpha).
+// echt_stempel(x, name, cx, cy, breite, farbe, alpha, drehung, spiegeln) stempelt einen Pinsel in Farbe; echt_wachsKorn(x, w, h) macht aus gezogenen Linien Wachsmal-/Buntstiftstriche
+// (Papierzahn + Wischstreifen des Wipe-Marks-Scans); echt_an(fn) schaltet für alles, was fn auf Leinwände schreibt, die Echt-Schrift ein (echt_text): Schreibmaschine mit Farbbandschwankung,
+// Schablonenschrift mit Stegen, Abplatzern und Overspray, Druckfarbe mit Papierzahn und Tintenhof – die Texte bleiben, nur die Anmutung ist echt.
+const ECHT = { img: {}, an: 0, rs: 4242 };
+const echt_R = (a = 0, b = 1) => { ECHT.rs = (ECHT.rs * 1664525 + 1013904223) >>> 0; return a + (b - a) * (ECHT.rs / 4294967296); };
+ECHT.p = Promise.all(['hand', 'handblut', 'tropfen', 'wisch', 'farbe', 'spray', 'feucht', 'kratz'].map(n => new Promise(r => { const i = new Image(); i.onload = () => { ECHT.img[n] = i; r(); }; i.onerror = () => r(); i.src = 'assets/ms/pinsel/' + n + '.png'; setTimeout(r, 9000); })));
+function echt_an(fn, modus = 'druck') { const m0 = ECHT.modus; ECHT.an++; ECHT.modus = modus; try { return fn(); } finally { ECHT.an--; ECHT.modus = m0; } } // modus 'druck' (Standard: Farbband/Toner mit Papierzahn) oder 'schablone' (gesprühte Schablonenschrift mit Stegen, Abplatzern, Overspray)
+// Pinsel gefärbt stempeln: Mitte (cx, cy), Breite in Pixeln (Höhe nach Seitenverhältnis), optional Ausschnitt [sx, sy, sw, sh] des Pinselbildes
+function echt_stempel(x, name, cx, cy, bw, farbe = '#000', alpha = 1, rot = 0, spiegel = false, ausschnitt = null) {
+  const im = ECHT.img[name]; if (!im) return false; const [sx, sy, sw, sh] = ausschnitt || [0, 0, im.width, im.height], bh = bw * sh / sw, W = Math.max(2, Math.min(1024, Math.ceil(bw))), H = Math.max(2, Math.min(1024, Math.ceil(bh * W / bw)));
+  const t = document.createElement('canvas'); t.width = W; t.height = H; const c = t.getContext('2d'); c.drawImage(im, sx, sy, sw, sh, 0, 0, W, H); c.globalCompositeOperation = 'source-in'; c.fillStyle = farbe; c.fillRect(0, 0, W, H);
+  if (ausschnitt) { const g = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .2, W / 2, H / 2, Math.min(W, H) * .5); g.addColorStop(0, '#fff'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.globalCompositeOperation = 'destination-in'; c.fillStyle = g; c.fillRect(0, 0, W, H); } // Ausschnitt weich auslaufen lassen
+  x.save(); x.globalAlpha *= alpha; x.translate(cx, cy); x.rotate(rot); if (spiegel) x.scale(-1, 1); x.drawImage(t, -bw / 2, -bh / 2, bw, bh); x.restore(); return true; }
+// Handabdruck: art 'blut' (frische, verschmierte Hand – Hand-Smear-Scan) oder 'trocken' (Staub-/Feuchtabdruck – Hand-Print-Scan); hoehe = Höhe in Pixeln
+function echt_hand(x, cx, cy, hoehe, farbe = '#fff', alpha = 1, rot = 0, spiegel = false, art = 'blut') {
+  const n = art === 'blut' && ECHT.img.handblut ? 'handblut' : 'hand', im = ECHT.img[n]; if (!im) return false; return echt_stempel(x, n, cx, cy, hoehe * im.width / im.height, farbe, alpha, rot, spiegel); }
+// Wachsmal-/Buntstiftkorn: auf eine Leinwand anwenden, die nur die Striche enthält (kleine Hilfsleinwand um den Strich) – Zahn des Papiers + Streifen des Wischscans
+function echt_wachsKorn(x, w, h, st = .55) { try { kreideKorn(x, w, h, 64); const W = ECHT.img.wisch; if (!W || w < 4 || h < 4) return;
+    const m = document.createElement('canvas'); m.width = w; m.height = h; const c = m.getContext('2d'), k = Math.max(w, h) > 220 ? 1 : 1.6, sw = Math.min(W.width, w / k), sh = Math.min(W.height, h / k), sx = echt_R(0, W.width - sw), sy = echt_R(0, W.height - sh);
+    c.globalAlpha = 1 - st; c.fillStyle = '#fff'; c.fillRect(0, 0, w, h); c.globalAlpha = 1; c.drawImage(W, sx, sy, sw, sh, 0, 0, w, h); // Alpha = (1 − st) + Streifen
+    x.save(); x.globalCompositeOperation = 'destination-in'; x.drawImage(m, 0, 0); x.restore(); } catch (e) {} }
+// Schrift mit Wachsmalstift/Buntstift (Name unter einer Zeichnung): erst auf Hilfsleinwand schreiben, dann das Wachskorn drüber
+function echt_wachsText(x, text, px, py, font, col, rot = 0) { const m = /(\d+(?:\.\d+)?)px/.exec(font), sz = m ? +m[1] : 16, w = Math.ceil(text.length * sz * .8 + 24), h = Math.ceil(sz * 2), t = document.createElement('canvas'); t.width = w; t.height = h; const c = t.getContext('2d');
+  c.font = font; c.fillStyle = col; c.fillText(text, 10, sz * 1.35); echt_wachsKorn(c, w, h); x.save(); x.translate(px, py); x.rotate(rot); x.drawImage(t, -10, -sz * 1.35); x.restore(); }
+// Papierflecken: Feuchtigkeit (Moisture-Stain-Scan) als Wasserrand auf einem Blatt
+function echt_fleck(x, cx, cy, breite, farbe = 'rgba(120,96,60,1)', alpha = .25, rot = 0) { return echt_stempel(x, 'feucht', cx, cy, breite, farbe, alpha, rot, echt_R() < .5); }
+// Kratzer (Scratches-Scan) in eine Fläche: n Stücke, farbe = freigelegtes Material
+function echt_kratz(x, w, h, n, farbe, alpha = .8, groesse = .5, seed) { const im = ECHT.img.kratz; if (!im) return false; if (seed !== undefined) ECHT.rs = seed >>> 0;
+  for (let i = 0; i < n; i++) { const s = Math.min(im.width, im.height) * echt_R(.28, .5), sx = echt_R(0, im.width - s), sy = echt_R(0, im.height - s), bw = Math.min(w, h) * groesse * echt_R(.7, 1.3);
+    echt_stempel(x, 'kratz', echt_R(.15, .85) * w, echt_R(.15, .85) * h, bw, farbe, alpha, echt_R(-.5, .5) + (echt_R() < .5 ? 0 : Math.PI), echt_R() < .5, [sx, sy, s, s]); } return true; }
+// Schrift auf Schildern/Zetteln (aus dem fillText-Haken oben, nur innerhalb von echt_an)
+function echt_text(ctx, orig, text, x, y, maxW) {
+  if (ECHT.modus === 'sauber') return false; // Email, Displays, Glas: keine Papier-/Farbwirkung
+  const f = ctx.font, m = /(\d+(?:\.\d+)?)px/.exec(f), sz = m ? +m[1] : 16; if (sz < 9 || sz > 160 || text.trim().length < 2) return false;
+  const bold = /bold|[6-9]00/.test(f), mono = /Courier|monospace|Special Elite/i.test(f), serif = /Georgia|Times|serif/i.test(f) && !/sans-serif/i.test(f), gross = ECHT.modus === 'schablone' && bold && !mono && !serif && text === text.toUpperCase() && /[A-ZÄÖÜ]{2}/.test(text) && sz >= 16;
+  const tm = ctx.getTransform(), w = ctx.measureText(text).width, al = ctx.textAlign, bl = ctx.textBaseline, pad = sz * .5 + 6, x0 = al === 'center' ? x - w / 2 : (al === 'right' || al === 'end') ? x - w : x;
+  const lx = x0 - pad, ly = y - sz * 1.4, lw = w + pad * 2, lh = sz * 2.8, P = [[lx, ly], [lx + lw, ly], [lx, ly + lh], [lx + lw, ly + lh]].map(([a, b]) => [tm.a * a + tm.c * b + tm.e, tm.b * a + tm.d * b + tm.f]);
+  const bx = Math.floor(Math.min(...P.map(p => p[0]))), by = Math.floor(Math.min(...P.map(p => p[1]))), bw = Math.ceil(Math.max(...P.map(p => p[0]))) - bx, bh = Math.ceil(Math.max(...P.map(p => p[1]))) - by;
+  if (bw < 4 || bh < 4 || bw > 2400 || bh > 1600) return false;
+  const sc = document.createElement('canvas'); sc.width = bw; sc.height = bh; const sx = sc.getContext('2d'); sx.setTransform(tm.a, tm.b, tm.c, tm.d, tm.e - bx, tm.f - by); sx.font = f; sx.textAlign = 'left'; sx.textBaseline = bl; sx.fillStyle = ctx.fillStyle; sx.direction = ctx.direction || 'ltr';
+  if (mono) { // Schreibmaschine: jeder Anschlag anders – Grundlinie, Neigung, Farbbanddruck, Doppelschlag, halbe Buchstaben
+    for (let i = 0; i < text.length; i++) { const ch = text[i]; if (ch === ' ') continue; const px = x0 + ctx.measureText(text.slice(0, i)).width, a = echt_R() < .08 ? echt_R(.3, .5) : echt_R(.68, 1);
+      sx.save(); sx.translate(px, y + echt_R(-1, 1) * sz * .03); sx.rotate(echt_R(-1, 1) * .018); sx.globalAlpha = a; orig.call(sx, ch, 0, 0); if (echt_R() < .14) { sx.globalAlpha = a * .4; orig.call(sx, ch, echt_R(.4, .9), echt_R(-.5, .5)); } sx.restore(); } }
+  else orig.call(sx, text, x0, y);
+  if (gross) { // Schablone: Stege in geschlossenen Buchstaben (O, D, A, B …)
+    sx.save(); sx.globalCompositeOperation = 'destination-out'; sx.fillStyle = '#000'; const cap = sz * .72, yb = bl === 'middle' ? y + cap / 2 : bl === 'top' || bl === 'hanging' ? y + cap : bl === 'bottom' ? y - sz * .2 : y, gap = Math.max(1.3, sz * .055);
+    for (let i = 0; i < text.length; i++) { if (!/[ABDOPQRÄÖ04689]/.test(text[i])) continue; const cx = x0 + ctx.measureText(text.slice(0, i)).width, cw = ctx.measureText(text[i]).width; sx.fillRect(cx + cw * .02, yb - cap * .5 - gap / 2, cw * .24, gap); sx.fillRect(cx + cw * .72, yb - cap * .5 - gap / 2, cw * .26, gap); }
+    sx.restore(); }
+  // Zahn des Papiers/der Wand: Farbe haftet nur auf den Kornspitzen; darunter die unmaskierte Schrift als Tintenhof
+  const sy = document.createElement('canvas'); sy.width = bw; sy.height = bh; const yx = sy.getContext('2d'); yx.drawImage(sc, 0, 0);
+  kreideKorn(yx, bw, bh, gross ? 140 : Math.max(96, Math.min(bw, bh) * .6));
+  if (gross) { yx.globalCompositeOperation = 'destination-out'; echt_kratz(yx, bw, bh, 1 + Math.floor(bw / 220), '#000', .55, .45); // Abplatzer: Kratzer und Ausbrüche in der Farbe
+    yx.fillStyle = '#000'; for (let i = 0, n = Math.floor(bw * bh / 1400); i < n; i++) { yx.globalAlpha = echt_R(.35, .9); yx.beginPath(); yx.arc(echt_R(0, bw), echt_R(0, bh), echt_R(.5, 1.9), 0, 7); yx.fill(); } yx.globalAlpha = 1; yx.globalCompositeOperation = 'source-over'; }
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (gross) { ctx.save(); ctx.filter = 'blur(' + Math.max(1.5, sz * .06) + 'px)'; ctx.globalAlpha *= .2; ctx.drawImage(sc, bx, by); ctx.restore(); // Overspray: weicher Farbhof
+    for (let i = 0, n = Math.floor(bw / 5); i < n; i++) { const a = echt_R(0, bw), b = echt_R(bh * .25, bh * .75); ctx.save(); ctx.globalAlpha *= echt_R(.12, .4); ctx.fillStyle = sx.fillStyle; ctx.beginPath(); ctx.arc(bx + a, by + b, echt_R(.4, 1.1), 0, 7); ctx.fill(); ctx.restore(); } }
+  else { ctx.save(); ctx.globalAlpha *= .3; ctx.drawImage(sc, bx, by); ctx.restore(); }
+  ctx.drawImage(sy, bx, by); ctx.restore(); return true; }
+WORLD_MODS.push(['Ritzschrift', async () => { await ECHT.p; }]);
 window.__ritz = { kratzer: ritz_kratzer, flaeche: ritz_flaeche, zeile: ritz_zeile, breite: ritz_breite, blut: ritz_blutFlaeche }; // Testzugriff

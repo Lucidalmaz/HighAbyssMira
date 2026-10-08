@@ -49,7 +49,7 @@ function amt_bettOben() { try { const X0 = C2.x, Z0 = C2.z, rc = new THREE.Rayca
 try { if (typeof feuer_bedSpot === 'function') feuer_bedSpot = (orig => () => { const r = orig(); if (r && r.y < .2) { const b = amt_bettOben(); if (b) return b; } return r; })(feuer_bedSpot); } catch (e) {}
 // ---------------------------------------------------------------- Werkzeuge
 let amt_rs = 16061; const amt_R = (a, b) => { amt_rs = (amt_rs * 16807) % 2147483647; return a + (b - a) * (amt_rs / 2147483647); };
-function amt_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function amt_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }
 // Papier: Grundton, Faser, Stockflecken, Kaffeerand, Knick (Q-3: echte Oberflächen)
 function amt_papier(x, w, h, o = {}) { const R = amt_R; papierScan(x, w, h, o.bg || '#ddd4bb', { dreck: .4 }); // echtes Papier statt Fläche + Pünktchen
   for (let i = 0; i < (o.flecken ?? 3); i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(w * .08, w * .45)); g.addColorStop(0, `rgba(120,90,40,${R(.03, .12)})`); g.addColorStop(1, 'rgba(120,90,40,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); }
@@ -488,18 +488,25 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
   // ---------------------------------------------------------------- Modelle
   const [kTisch, kStuhl, kSchrank, kRegal, kSack, kEimer, kRoehre, kRadio, kRahmen, kUhr, kTuer, kFunk, kTelefon, kThermos, kBlech, kBecher, kKette, kLeiter, kBatt, kAscher, kUrne, kSchuppe, kSchuppe2, kHalte] = await Promise.all([
     amt_kit('metaltable', 'model.gltf', 3.0, 'x'), amt_kit('chair', 'model.fbx', .93, 'y', { '*': { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }),
-    amt_kit('wardrobe', 'model.gltf', 1.95), amt_kit('shelf', 'model.gltf', .85, 'x'), amt_kit('trashbag', 'model.gltf', .68, 'x'), amt_kit('trashcan', 'model.gltf', .59),
+    amt_kit('aktenschrank', 'archiv_grau.glb', 1.95).then(k => k || amt_kit('wardrobe', 'model.gltf', 1.95)), amt_kit('shelf', 'model.gltf', .85, 'x'), amt_kit('trashbag', 'model.gltf', .68, 'x'), amt_kit('trashcan', 'model.gltf', .59),
     amt_kit('crt', 'model.glb', .37, 'x'), amt_kit('radio', 'model.gltf', .42, 'x'), amt_kit('frame_deco', 'model.gltf', .5), amt_kit('wallclock', 'model.gltf', 1.05), amt_kit('door1', 'model.gltf', 2.02),
     amt_kit('w_funk', 'model.glb', .34, 'max'), amt_kit('w_telefon', 'model.glb', .22, 'max'), amt_kit('w_thermos', 'model.glb', .31), amt_kit('w_blech', 'model.glb', .32, 'max'), amt_kit('w_becher', 'model.glb', .1),
     amt_kit('w_kette', 'model.glb', .62, 'max'), amt_kit('../ue/leiter', 'model.glb', 2.35, 'lang'), amt_kit('../ue/batterie', 'model.glb', .06, 'max'), amt_kit('kiffen/ascher', 'model.glb', .13, 'max'), amt_kit('w_urne', 'model.glb', .3),
     amt_kit('shed_garden', 'model.glb', .075), amt_kit('shed_old', 'model.gltf', .08), null]); // kHalte: die Tankstelle wird in amt_bauPlanung aus Teilen gebaut (gas_retro bleibt aus der Veröffentlichung draußen)
   for (const K of [kSack, kEimer, kRoehre, kRadio, kRahmen, kBecher, kBatt, kAscher, kSchuppe, kSchuppe2, kHalte, kTelefon, kBlech, kThermos]) if (K) K.shadow = false;
-  const kSchrankStahl = amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });
+  // 08.10.2026 (Nutzer: „Holz-Kleiderschränke statt Aktenschränke“): eigene Metallschränke (Blender, tools/blender/schrank_bau.py) – Archivschrank grau/grün, Hängeregistratur grau/oliv/beige
+  const metall = kSchrank && kSchrank.key === 'aktenschrank';
+  const [kSchrankGruen, kAkte1, kAkte2, kAkte3] = await Promise.all([amt_kit('aktenschrank', 'archiv_gruen.glb', 1.95), amt_kit('aktenschrank', 'akte_grau.glb', 1.32), amt_kit('aktenschrank', 'akte_oliv.glb', 1.32), amt_kit('aktenschrank', 'akte_beige.glb', 1.32)]);
+  const kSchrankStahl = metall ? (kSchrankGruen || kSchrank) : amt_variant(kSchrank, m => { const n = m.clone(); n.color = new THREE.Color(0x9aa39a); n.metalness = .35; n.roughness = .55; return n; });
+  const kAkten = [kAkte1, kAkte2, kAkte3].filter(Boolean);
+  // Schrankplatz (≈ 1 m): zwei Hängeregistraturschränke nebeneinander, sonst Archivschrank; Farben wechseln
+  const amt_schrankPlatz = (x, z, o, i) => { if (kAkten.length >= 2) { amt_put(kAkten[i % kAkten.length], x - .245, z, o); amt_put(kAkten[(i + 1) % kAkten.length], x + .245, z, o); } else amt_put(kSchrankStahl, x, z, o); };
+  const amt_archivPlatz = (x, z, o, i) => amt_put(i % 2 && metall ? kSchrank : kSchrankStahl, x, z, o);
   const kKuehl = amt_variant(kSchrank, m => { const n = m.clone(); n.map = null; n.color = new THREE.Color(0xa9aeaa); n.metalness = .75; n.roughness = .32; return n; });
   const kUrneGrau = amt_variant(kUrne, m => { const n = m.clone(); n.color = new THREE.Color(0x8c8f8a); return n; });
   const kFolie = amt_variant(kSchuppe2, m => { const n = m.clone(); n.map = null; n.color = new THREE.Color(0xd8dcdf); n.metalness = 1; n.roughness = .22; return n; }); // Nr. 3 mit Alufolie
   const kModellKirche = await amt_kit('chapel', 'model.fbx', .11, 'y', Object.fromEntries(['u1_v1', 'u2_v1', 'u3_v1', 'u1_v2', 'u2_v2'].map(k => ['kaplicka_' + k, { b: 'kaplicka_' + k + '.jpg', rough: .92 }])));
-  S.K = { kTisch, kStuhl, kSchrank, kSchrankStahl, kRegal, kSack, kEimer, kRoehre, kRadio, kRahmen, kUhr, kTuer, kFunk, kTelefon, kThermos, kBlech, kBecher, kKette, kLeiter, kBatt, kAscher, kUrne, kUrneGrau, kSchuppe, kSchuppe2, kHalte, kFolie, kModellKirche, kKuehl };
+  S.K = { amt_schrankPlatz, amt_archivPlatz, kAkten, kTisch, kStuhl, kSchrank, kSchrankStahl, kRegal, kSack, kEimer, kRoehre, kRadio, kRahmen, kUhr, kTuer, kFunk, kTelefon, kThermos, kBlech, kBecher, kKette, kLeiter, kBatt, kAscher, kUrne, kUrneGrau, kSchuppe, kSchuppe2, kHalte, kFolie, kModellKirche, kKuehl };
   for (const [n, f] of [['Tunnel', amt_bauTunnel], ['Archiv', amt_bauArchiv], ['Kantine', amt_bauKantine], ['Registratur', amt_bauRegistratur], ['Sicherungsraum', amt_bauSicherung], ['Planungsraum', amt_bauPlanung], ['Prüfraum', amt_bauPruef], ['Gang', amt_bauGang], ['Vorraum', amt_bauVorraum], ['Messraum', amt_bauMessraum]])
     try { await f(S, S.K); } catch (e) { console.warn('amt: Aufbau ' + n, e); }
   batch.flush(scene, false); amt_flush(); try { amt_akte06(); } catch (e) { console.warn('amt: Akte 06', e); } try { amt_zeichen(); } catch (e) {}
@@ -510,11 +517,11 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
 async function amt_bauTunnel(S, K) {
   const X0 = C2.x, Z0 = C2.z, zN = Z0 + 1.845, zS = Z0 - 1.845;
   // Schild der Bundesstelle (Email statt Pappe)
-  if (typeof tunnelSign !== 'undefined') { const c = amt_cv(1024, 440, (x, w, h) => { amt_rs = 71; x.fillStyle = '#233a2e'; x.fillRect(0, 0, w, h); x.fillStyle = '#e9e2cc'; x.fillRect(14, 14, w - 28, h - 28); x.fillStyle = '#233a2e'; x.fillRect(26, 26, w - 52, h - 52);
+  if (typeof tunnelSign !== 'undefined') { const c = echt_an(() => amt_cv(1024, 440, (x, w, h) => { amt_rs = 71; x.fillStyle = '#233a2e'; x.fillRect(0, 0, w, h); x.fillStyle = '#e9e2cc'; x.fillRect(14, 14, w - 28, h - 28); x.fillStyle = '#233a2e'; x.fillRect(26, 26, w - 52, h - 52);
       x.fillStyle = '#ece5cf'; x.textAlign = 'center'; x.font = 'bold 74px Arial'; x.fillText('BUNDESSTELLE', w / 2, 128); x.fillText('FÜR RÜCKFÜHRUNG', w / 2, 212); x.font = '38px Arial'; x.fillText('Außenstelle Lost Eyengless · Ebene −2', w / 2, 292);
       amt_auge(x, w - 92, h - 84, 22, 'rgba(236,229,207,.7)'); // klein, wie ein Druckfehler
       for (let i = 0; i < 26; i++) { const px = amt_R(0, w), py = amt_R(0, 1) < .6 ? amt_R(0, 30) : amt_R(h - 30, h), r = amt_R(4, 16); x.fillStyle = '#16140f'; x.beginPath(); x.ellipse(px, py, r, r * amt_R(.5, 1), amt_R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,60,20,.45)'; x.beginPath(); x.arc(px, py + r, r * .8, 0, 7); x.fill(); }
-      for (let i = 0; i < 12; i++) { const px = amt_R(40, w - 40), g = x.createLinearGradient(0, 300, 0, h); g.addColorStop(0, 'rgba(90,40,10,0)'); g.addColorStop(1, 'rgba(90,40,10,.4)'); x.fillStyle = g; x.fillRect(px, 300, amt_R(3, 8), h - 300); } });
+      for (let i = 0; i < 12; i++) { const px = amt_R(40, w - 40), g = x.createLinearGradient(0, 300, 0, h); g.addColorStop(0, 'rgba(90,40,10,0)'); g.addColorStop(1, 'rgba(90,40,10,.4)'); x.fillStyle = g; x.fillRect(px, 300, amt_R(3, 8), h - 300); } }), 'sauber');
     tunnelSign.material.map = amt_tex(c); tunnelSign.material.map.repeat.set(1, 1); tunnelSign.material.map.offset.set(0, 0); tunnelSign.material.roughness = .45; tunnelSign.material.metalness = .15; tunnelSign.material.needsUpdate = true;
     tunnelSign.scale.set(1, .86, 1); tunnelSign.position.y = 1.8;
     amt_hit(tunnelSign.position.x - .1, 1.8, tunnelSign.position.z, .15, .5, 1.2, 'Schild', () => toast('„Bundesstelle für Rückführung · Außenstelle Lost Eyengless · Ebene −2“. Unten rechts, klein, wie ein Druckfehler: ein Kreis, darin ein Auge über einer Flamme.', 5200)); }
@@ -574,7 +581,9 @@ async function amt_bauTunnel(S, K) {
     if (tropf) { x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(amt_R(-6, 6), 14, 1.6, tropf); x.beginPath(); x.arc(0, 14 + tropf, 1.7, 0, 7); x.fill(); }
     x.restore(); };
   const haende = amt_cv(2048, 192, (x, w, h) => { x.fillStyle = '#000'; x.fillRect(0, 0, w, h); amt_rs = 83; let px = 22; while (px < w - 22) { const dich = px / w;
-    x.save(); x.translate(px, 78 + amt_R(-5, 5)); x.rotate(amt_R(-.35, .35)); handM(x, amt_R(.9, 1.15) * .95, amt_R(0, 1) < .18 ? amt_R(18, 42) : 0, amt_R(0, 1) < .22 ? amt_R(14, 60) : 0); x.restore(); px += amt_R(40, 150) * (1.15 - dich * .95); } });
+    x.save(); x.translate(px, 78 + amt_R(-5, 5)); x.rotate(amt_R(-.35, .35)); const hs = amt_R(.9, 1.15) * .95;
+    if (ECHT.img.handblut) { x.globalAlpha = amt_R(.7, 1); echt_hand(x, 0, -6, 62 * hs, '#fff', 1, 0, amt_R(0, 1) < .5, amt_R(0, 1) < .3 ? 'trocken' : 'blut'); } // echte Hand: Megascans „Hand Smear“ / „Hand Print“ (Maske für das Blutfoto)
+    else handM(x, hs, amt_R(0, 1) < .18 ? amt_R(18, 42) : 0, amt_R(0, 1) < .22 ? amt_R(14, 60) : 0); x.restore(); px += amt_R(40, 150) * (1.15 - dich * .95); } });
   const hTex = amt_tex(haende); hTex.colorSpace = THREE.NoColorSpace;
   const bt = (f, srgb) => { const t = msTex('blood_hv/' + f, srgb).clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(10.7, 1); t.needsUpdate = true; return t; };
   const hm = new THREE.MeshStandardMaterial({ map: bt('b.png', true), normalMap: bt('n.jpg', false), roughnessMap: bt('orm.jpg', false), color: 0x7a2a22, roughness: .55, metalness: 0,
@@ -708,8 +717,8 @@ async function amt_bauRegistratur(S, K) {
   const schloss = amt_cv(256, 256, (x, w) => { const g = x.createLinearGradient(0, 0, w, w); g.addColorStop(0, '#6c6456'); g.addColorStop(1, '#3a342a'); x.fillStyle = g; x.fillRect(20, 20, w - 40, w - 40); for (let i = 0; i < 4; i++) { x.fillStyle = '#16140f'; x.fillRect(38 + i * 46, 90, 36, 76); x.fillStyle = '#d8d0b8'; x.font = 'bold 30px Courier New'; x.fillText('0', 46 + i * 46, 138); } });
   amt_flaeche(amt_decal(schloss, { rough: .4, metal: .6 }), X0 + 18.158, 1.12, Z0 - 3.98, .1, .1, PI / 2);
   // Einrichtung: Registraturschränke (Stahl), Hängemappen (Aufkleber), Tisch
-  for (const x of [X0 + 7.3, X0 + 9.3, X0 + 11.3, X0 + 13.3]) amt_put(K.kSchrankStahl, x, 0, { ry: 0, minZ: zi0 + .02 });
-  for (const x of [X0 + 7.6, X0 + 9.6, X0 + 14.6]) amt_put(K.kSchrankStahl, x, 0, { ry: PI, maxZ: zi1 - .02 });
+  [X0 + 7.3, X0 + 9.3, X0 + 11.3, X0 + 13.3].forEach((x, i) => K.amt_schrankPlatz(x, 0, { ry: 0, minZ: zi0 + .02 }, i));      // Hängeregistraturschränke (je Platz zwei, 0,47 m)
+  [X0 + 7.6, X0 + 9.6, X0 + 14.6].forEach((x, i) => K.amt_schrankPlatz(x, 0, { ry: PI, maxZ: zi1 - .02 }, i + 1));
   const rt = amt_put(K.kTisch, X0 + 12.4, Z0 - 5.0, { ry: 0, s: .55 }); const rty = K.kTisch ? amt_top(K.kTisch, rt, X0 + 12.4, Z0 - 5.0) : .76; S.regTischY = rty;
   amt_put(K.kStuhl, X0 + 12.1, Z0 - 5.85, { ry: .2 }); amt_put(K.kSack, X0 + 16.6, 0, { ry: 2, s: .8, minZ: zi0 + .05 }); amt_put(K.kRoehre, X0 + 13.1, Z0 - 4.8, { ry: 2.8, y: rty });
   const mappen = amt_decal(amt_cv(1024, 256, (x, w, h) => { amt_rs = 101; x.clearRect(0, 0, w, h); for (let i = 0; i < 40; i++) { const px = i * 25 + amt_R(-3, 3); x.fillStyle = ['#8a7a58', '#6e7a5c', '#9b8a62', '#7a6a50'][i % 4]; x.fillRect(px, 30 + amt_R(0, 10), 22, h - 40); x.fillStyle = '#e8e2cc'; x.fillRect(px + 2, 20, 18, 22); x.fillStyle = '#222'; x.font = '10px Courier New'; x.fillText(['58', '75', '92', '09'][i % 4], px + 4, 36); } }));
@@ -717,7 +726,7 @@ async function amt_bauRegistratur(S, K) {
     const mg = amtp_mappe(['#8a7a58', '#6e7a5c', '#9b8a62', '#7a6a50'][i], ['1958', '1975', '1992', '2009'][i]); mg.position.set(X0 + 11.75 + i * .42, rty + .001, Z0 - 5.0 + (i % 2 ? .02 : -.015)); mg.rotation.y = [-.06, .05, -.03, .08][i]; scene.add(mg); }  // die vier Hängemappen liegen fest auf dem Tisch
   S.regBack = new THREE.MeshStandardMaterial({ map: amt_tex(amt_regFoto(0, true)), roughness: .8 });
   S.regMappen = amt_hit(X0 + 12.4, rty + .1, Z0 - 5.0, 1.8, .3, .8, 'Vier Hängemappen', () => amt_regMappen());
-  amt_hit(X0 + 7.3, 1.2, zi0 + .5, .9, .5, .3, () => amt_S.said.regschub ? 'Registraturschrank' : 'Registraturschrank durchsuchen', () => { if (amt_S.said.regschub) return toast('Leere Reiter, 1958 bis 2009. Nichts für 2026. Noch nicht.', 3000); amt_S.said.regschub = 1; addBattery(1); toast('Hinter den Hängemappen, mit Klebeband: eine Batterie. „Notreserve“, in Druckschrift.', 4200); });
+  amt_hit(X0 + 7.3, 1.2, zi0 + .68, .9, .5, .3, () => amt_S.said.regschub ? 'Registraturschrank' : 'Registraturschrank durchsuchen', () => { if (amt_S.said.regschub) return toast('Leere Reiter, 1958 bis 2009. Nichts für 2026. Noch nicht.', 3000); amt_S.said.regschub = 1; addBattery(1); toast('Hinter den Hängemappen, mit Klebeband: eine Batterie. „Notreserve“, in Druckschrift.', 4200); });
   amt_rauchmelder(X0 + 12, Z0 - 3.5);
 }
 // Die vier Sommerfest-Fotos (Hängeregistratur): alt, unscharf, gekörnt – Kinder mit Lampions, am Rand das blasse Mädchen, am anderen Rand der Mann im grauen Mantel
@@ -851,7 +860,7 @@ async function amt_bauPlanung(S, K) {
   S.reim = amt_flaeche(amt_decal(reim), cx, ty - .02, cz + D / 2 + .012, 1.3, .06, 0);
   amt_hit(cx, ty + .1, cz, 2.3, .3, 1.4, 'Das Modelldorf', () => amt_modell());
   amt_hit(cx, ty - .03, cz + D / 2 + .04, 1.3, .1, .08, 'In die Tischkante geritzt', () => amt_reim());
-  for (const [x, z] of [[X0 + 30.8, Z0 + 13.2], [X0 + 37.2, Z0 + 12.9]]) amt_put(K.kSchrankStahl, x, z, { ry: PI });
+  [[X0 + 30.8, Z0 + 13.2], [X0 + 37.2, Z0 + 12.9]].forEach(([x, z], i) => K.amt_archivPlatz(x, z, { ry: PI }, i));
   amt_put(K.kStuhl, cx + 1.3, cz + .9, { ry: 2.2 }); amt_put(K.kEimer, X0 + 37.3, Z0 + 8.6, { ry: 1 });
   const plaene = amt_decal(amt_cv(1024, 512, (x, w, h) => { amt_rs = 123; x.clearRect(0, 0, w, h); for (let i = 0; i < 4; i++) { const px = 20 + i * 250; x.fillStyle = '#d9d2bc'; x.fillRect(px, 30, 220, 300); x.strokeStyle = '#3a4a6a'; x.lineWidth = 2; for (let k = 0; k < 12; k++) { x.beginPath(); x.moveTo(px + 20, 60 + k * 20); x.lineTo(px + amt_R(80, 200), 60 + k * 20 + amt_R(-8, 8)); x.stroke(); } x.fillStyle = '#1e1d1b'; x.font = '18px "Special Elite"'; x.fillText('Zyklus ' + [1958, 1975, 1992, 2009][i], px + 20, 350); } }));
   amt_flaeche(plaene, X0 + 34, 1.6, Z0 + 13.845, 2.2, 1.1, PI);
@@ -883,10 +892,10 @@ async function amt_bauVorraum(S, K) {
   wall('z', X0 + 110, Z0 - 8, Z0 + 8, H, M.plaster, [{ at: Z0, w: 1.5 }], .3);
   S.vorTube = c2Tube(X0 + 108, Z0 - 3, 1.2, 'z', 0xd8ecff, 1.1, 8);
   // Reihe Aktenschränke vor der Nordwand – dahinter ist Platz (Luke kauert dort); am Westende eine Lücke zum Hineinschlüpfen
-  for (const x of [X0 + 107.45, X0 + 108.42, X0 + 109.39]) amt_put(K.kSchrankStahl, x, Z0 + 5.25, { ry: PI });
+  [X0 + 107.45, X0 + 108.42, X0 + 109.39].forEach((x, i) => K.amt_archivPlatz(x, Z0 + 5.25, { ry: PI }, i));
   addCol(X0 + 106.95, X0 + 109.85, Z0 + 4.95, Z0 + 5.55, 2);
   S.versteck = { x0: X0 + 106.2, x1: X0 + 109.8, z0: Z0 + 5.65, z1: Z0 + 7.8 };
-  for (const x of [X0 + 107, X0 + 108.1]) amt_put(K.kSchrankStahl, x, 0, { ry: 0, minZ: Z0 - 7.83 });
+  [X0 + 107, X0 + 108.1].forEach((x, i) => K.amt_archivPlatz(x, 0, { ry: 0, minZ: Z0 - 7.83 }, i + 1));
   const vt = amt_put(K.kTisch, X0 + 108.9, Z0 - 5.9, { ry: PI / 2, s: .45 }); const vty = K.kTisch ? amt_top(K.kTisch, vt, X0 + 108.9, Z0 - 5.9) : .76;
   amt_put(K.kRoehre, X0 + 108.9, Z0 - 6.2, { ry: PI / 2, y: vty }); amt_put(K.kStuhl, X0 + 108.3, Z0 - 5.3, { ry: 1.6 }); amt_put(K.kSack, X0 + 106.6, 0, { ry: .4, s: .8, minZ: Z0 - 7.8 });
   // Butterbrotpapier (Atempause nach AG-07), sauber gefaltet, vor dem Schrank

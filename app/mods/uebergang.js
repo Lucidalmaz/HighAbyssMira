@@ -103,7 +103,8 @@ function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
 }
 function uebergang3_haende(cx, cz, y0) { // nasse Handabdrücke auf zwei Sprossen (Decal an der Wand hinter der Leiter): klein, klein, groß
   const c = document.createElement('canvas'); c.width = 128; c.height = 128; const x = c.getContext('2d'); x.clearRect(0, 0, 128, 128); x.fillStyle = 'rgba(200,215,220,.55)';
-  x.beginPath(); x.ellipse(64, 78, 22, 26, 0, 0, 7); x.fill(); for (const [a, l] of [[-1, 26], [-.4, 34], [0, 38], [.4, 34], [1, 22]]) { x.save(); x.translate(64, 64); x.rotate(a); x.beginPath(); x.ellipse(0, -30 - l / 2, 6, l / 2, 0, 0, 7); x.fill(); x.restore(); }
+  if (typeof ECHT !== 'undefined' && ECHT.img.hand) echt_hand(x, 64, 64, 118, 'rgb(205,220,226)', .9, 0, false, 'trocken'); // echter Abdruck (Megascans „Hand Print“)
+  else { x.beginPath(); x.ellipse(64, 78, 22, 26, 0, 0, 7); x.fill(); for (const [a, l] of [[-1, 26], [-.4, 34], [0, 38], [.4, 34], [1, 22]]) { x.save(); x.translate(64, 64); x.rotate(a); x.beginPath(); x.ellipse(0, -30 - l / 2, 6, l / 2, 0, 0, 7); x.fill(); x.restore(); } }
   const mat = new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, roughness: .08, metalness: .2, polygonOffset: true, polygonOffsetFactor: -5 });
   for (const [dx, dy, s] of [[-.1, 1.2, .07], [.12, 2.4, .07], [.02, 3.3, .1]]) { const m = new THREE.Mesh(new THREE.PlaneGeometry(s, s), mat); m.position.set(cx + dx, y0 + dy, cz + .59); m.rotation.y = PI; m.userData.noCol = true; scene.add(m); } }
 WORLD_MODS.push(['Übergang Kapitel 3', async () => {

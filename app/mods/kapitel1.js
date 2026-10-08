@@ -18,7 +18,7 @@ function kapitel1_blick(x, y, z) { camera.getWorldDirection(kapitel1_v3b); kapit
 const kapitel1_hit = (w, h, d, x, y, z) => box(w, h, d, x, y, z, hidden, { cast: false });
 function kapitel1_zeile(t, ms, who) { subtitle(t, ms, who); }
 // ---------------------------------------------------------------- Papier/Kreide als Decal (Canvas-Textur, im Dunkeln nur mit Lampe lesbar)
-function kapitel1_cnv(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); draw(x, w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
+function kapitel1_cnv(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d'); echt_an(() => draw(x, w, h)); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; }
 function kapitel1_mat(tex, o = {}) { return new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: .04, depthWrite: false, roughness: o.rough ?? .95, metalness: o.metal ?? 0, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, color: o.color ?? 0xffffff }); }
 function kapitel1_decal(tex, w, h, x, y, z, rx, ry, rz = 0, o = {}) { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), kapitel1_mat(tex, o)); m.position.set(x, y, z); m.rotation.set(rx, ry, rz, 'YXZ'); m.receiveShadow = true; m.renderOrder = 2; scene.add(m); K1.deco.push(m); return m; }
 function kapitel1_papier(x, w, h, tint = '#e8e0cc') { papierScan(x, w, h, tint); // echtes Papier
@@ -172,13 +172,14 @@ async function kapitel1_welt() {
       x.fillStyle = '#3a2a1a'; x.font = 'bold 11px Arial'; x.textAlign = 'center'; x.fillText('KZV L.E.', 64, 108); });
     kapitel1_decal(mag, .06, .06, 30.93, Y + 1.07, -16.47, 0, -PI / 2, 0, { rough: .3 });
     interact(kapitel1_hit(.1, .24, .22, 30.9, Y + .99, -16.52), 'Foto am Kühlschrank', () => openNote('Foto am Kühlschrank', 'Ein kleiner Junge mit Locken, im roten Shirt, die Arme lang an den Seiten. Er lächelt nicht.\n\n<i>Rückseite:</i>\n<span class="hand">„Laternenfest 2008. Jonas hat die Laterne angezündet. Nicht die Kerze. Die Laterne.“</span>', 'k1_foto2008')); }
-  try { fridgeNote.material.map = kapitel1_cnv(220, 270, (x, w, h) => { kapitel1_papier(x, w, h, '#efe6c4'); x.fillStyle = '#1a1a1a'; x.font = 'bold 22px "Arial Narrow", Arial'; x.fillText('31.10.', 18, 38); x.font = 'bold 27px "Arial Narrow", Arial';
-      ['KELLER', 'BLEIBT ZU.'].forEach((l, i) => x.fillText(l, 18, 92 + i * 34)); x.font = 'bold 17px "Arial Narrow", Arial'; ['Egal wer ruft.', 'Egal mit welcher', 'Stimme.'].forEach((l, i) => x.fillText(l, 18, 176 + i * 22)); x.font = '16px Georgia'; x.fillText('– H. Wendt', 110, 256);
+  try { fridgeNote.material.map = kapitel1_cnv(220, 270, (x, w, h) => { kapitel1_papier(x, w, h, '#efe6c4'); x.fillStyle = '#16161a'; x.font = 'bold 28px Caveat, cursive'; x.fillText('31.10.', 18, 38); x.font = 'bold 40px Caveat, cursive'; // Filzstift in Hildes Handschrift (Strichjitter je Buchstabe), keine Druckschrift
+      ['KELLER', 'BLEIBT ZU.'].forEach((l, i) => x.fillText(l, 18, 94 + i * 40)); x.font = 'bold 24px Caveat, cursive'; ['Egal wer ruft.', 'Egal mit welcher', 'Stimme.'].forEach((l, i) => x.fillText(l, 18, 180 + i * 26)); x.font = '24px Caveat, cursive'; x.fillText('– H. Wendt', 110, 256);
       x.fillStyle = 'rgba(90,40,20,.35)'; x.beginPath(); x.arc(170, 30, 16, 0, 7); x.fill(); }); fridgeNote.material.color.set(0xffffff); fridgeNote.material.needsUpdate = true; } catch (e) {}
   // Tastenfeld: Modell (Keypad Door Lock) und Anzeige baut bedienung.js; keypadMesh bleibt unsichtbare Klickfläche
   // Etikett aus Hildes Prägegerät über dem Tastenfeld
-  { const t = kapitel1_cnv(256, 48, (x, w, h) => { x.fillStyle = '#141414'; x.fillRect(0, 0, w, h); x.fillStyle = '#e8e8e2'; x.font = 'bold 19px "Courier New", monospace'; x.textAlign = 'center'; x.fillText('BITTE NICHT HÄMMERN', w / 2, 31); x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 6, w, 3); });
-    kapitel1_decal(t, .17, .032, 30.75, Y + 1.29, -21.73, 0, 0, .015, { rough: .3 }); }
+  // (Nutzer 08.10.: keine generierten Aufkleber) – kein Etikett mehr, sondern Schablonenschrift in grauer Sprühfarbe direkt auf der Stahltür, mit Abplatzern und Overspray
+  { const t = echt_an(() => kapitel1_cnv(512, 64, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = 'rgba(214,212,200,.92)'; x.font = 'bold 36px Arial'; x.textAlign = 'center'; x.fillText('BITTE NICHT HÄMMERN', w / 2, 44); }), 'schablone');
+    kapitel1_decal(t, .17, .021, 30.75, Y + 1.29, -21.73, 0, 0, .015, { rough: .55 }); }
   // Batterien im Dreieck im Flur, Kontakte nach innen
   K1.batt = []; try { const yb = Math.max(Y, kapitel1_topY(null, 22.35, -14.45, Y + .5, Y)); for (let i = 0; i < 3; i++) { const o = typeof ausruestung_ue === 'function' ? await ausruestung_ue('batterie', .055) : null; if (!o) break; const a = i / 3 * PI * 2 + .3, w = new THREE.Group(); o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o), hgt = bb.max.y - bb.min.y; o.rotation.set(0, 0, PI / 2); o.position.set(hgt / 2 + .015, Math.min(bb.max.x - bb.min.x, bb.max.z - bb.min.z) / 2, 0); w.add(o); w.position.set(22.35 + Math.sin(a) * .09, yb + .002, -14.45 + Math.cos(a) * .09); w.rotation.y = a + PI / 2; scene.add(w); K1.batt.push(w); } } catch (e) { console.warn('kapitel1 Batterien', e); }
   if (!K1.f.has('batt')) interact(K1.battHit = kapitel1_hit(.4, .12, .4, 22.35, Y + .05, -14.45), 'Batterien', () => { if (K1.f.has('batt')) return; K1.f.add('batt'); K1.batt.forEach(o => o.visible = false); uninteract(K1.battHit); addBattery(3); kapitel1_zeile('Wer legt Batterien in ein Dreieck? … Danke, wer immer du bist.', 4200, 'LUKE'); });
@@ -191,7 +192,7 @@ async function kapitel1_welt() {
   { const t = kapitel1_cnv(256, 96, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#9c9a92'); g.addColorStop(1, '#6e6c66'); x.fillStyle = g; x.fillRect(0, 0, w, h); x.fillStyle = '#1c1c1a'; x.font = 'bold 15px Arial'; x.textAlign = 'center';
       x.fillText('Inventar BfR', w / 2, 28); x.font = '13px Arial'; x.fillText('Außenstelle Lost Eyengless · Nachsorge', w / 2, 50); x.strokeStyle = '#1c1c1a'; x.lineWidth = 2; x.beginPath(); x.ellipse(w / 2, 74, 11, 6, 0, 0, 7); x.stroke(); x.beginPath(); x.arc(w / 2, 74, 3, 0, 7); x.fill();
       x.beginPath(); x.moveTo(w / 2 - 4, 88); x.quadraticCurveTo(w / 2, 80, w / 2 + 4, 88); x.stroke(); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(90,50,20,${rand(.1, .3)})`; x.fillRect(rand(0, w), rand(0, h), rand(2, 6), rand(2, 5)); } });
-    kapitel1_decal(t, .17, .064, 299, .82, 299.69, 0, PI, 0, { rough: .4, metal: .7 }); }
+    { const m = kapitel1_decal(t, .17, .064, 299, .82, 299.69, 0, PI, 0, { rough: .4, metal: .7 }); m.material.bumpMap = t; m.material.bumpScale = 1.6; m.material.needsUpdate = true; } } // Prägung: die dunkle Schrift ist im Relief vertieft (Bump aus der Farbleinwand)
   K1.pola = kapitel1_polaStuhl(); { const p = K1.pola; p.position.set(299.05, kapitel1_topY('io_keller', 299.05, 300.05, 1.2, .5) + .004, 300.05); }
   interact(K1.polaHit = kapitel1_hit(.2, .08, .2, 299.05, .52, 300.05), 'Polaroid', () => kapitel1_polaAnsehen());
   { const t = kapitel1_cnv(256, 160, (x, w, h) => { kapitel1_papier(x, w, h, '#e4dcc4'); x.fillStyle = '#2a2a3a'; x.font = '20px Caveat, cursive'; ['Hilde, Deine Kassetten sind', 'noch bei mir. Die mit Heino', 'behalte ich. – Erna.'].forEach((l, i) => x.fillText(l, 16, 40 + i * 32)); });
@@ -230,7 +231,7 @@ function kapitel1_wachs(x, pts, col, lw = 4) { // Wachsmalstift: Wachs bleibt nu
   const x0 = Math.floor(Math.min(...P.map(p => p[0])) - pad), y0 = Math.floor(Math.min(...P.map(p => p[1])) - pad), w = Math.ceil(Math.max(...P.map(p => p[0])) + pad) - x0, h = Math.ceil(Math.max(...P.map(p => p[1])) + pad) - y0;
   if (w <= 0 || h <= 0 || w * h > 4e6) { kapitel1_kreideStrich(x, pts, lw, col); return; }
   const t = document.createElement('canvas'); t.width = w; t.height = h; const y = t.getContext('2d'); y.setTransform(m.a, m.b, m.c, m.d, m.e - x0, m.f - y0);
-  kapitel1_kreideStrich(y, pts, lw, col); kreideKorn(y, w, h, 64); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(t, x0, y0); x.restore(); }
+  kapitel1_kreideStrich(y, pts, lw, col); echt_wachsKorn(y, w, h); x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.drawImage(t, x0, y0); x.restore(); }
 function kapitel1_kritzel(x, cx, cy, rx, ry, col, n = 14) { const pts = []; for (let i = 0; i < n; i++) { const u = i / (n - 1); pts.push([cx - rx + u * rx * 2 + rand(-3, 3), cy + (i % 2 ? -ry : ry) * Math.sqrt(Math.max(0, 1 - (2 * u - 1) ** 2)) + rand(-3, 3)]); } kapitel1_wachs(x, pts, col, 5); }
 // Hildes Satz in Blut: gerade Druckbuchstaben, zwei Zeilen, dicke Striche mit Wulst und Tropfen, Klarlack-Glanz (Höhenrelief aus der Deckkraft). Nur die Wand trägt es, keine Schriftart.
 function kapitel1_blutSchrift() { const A = B.wallArt; if (!A || A.userData.blut) return; A.userData.blut = true; ritz_rs = 4711; const W = 2048, H = 324, y0 = 700; // Streifen y 700…1024 der Wandleinwand (2048×1024 auf 8×3,8 m)
@@ -250,9 +251,10 @@ function kapitel1_wandTex() {
     for (let i = 0; i < 58; i++) { const px = rand(20, w - 170), py = rand(16, h * .66), pw = rand(118, 168), ph = rand(128, 168);
       x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.translate(-pw / 2, -ph / 2); papierScan(x, pw, ph, `hsl(${rand(38, 52)},${rand(10, 28)}%,${rand(70, 86)}%)`, { dreck: rand(.18, .5) }); // echtes Papier (Faserscan + Altersflecken) statt flacher Farbe
       { const eg = x.createLinearGradient(0, 0, pw, ph); eg.addColorStop(0, 'rgba(255,250,235,.10)'); eg.addColorStop(.5, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(60,40,20,.14)'); x.fillStyle = eg; x.fillRect(0, 0, pw, ph); x.strokeStyle = 'rgba(80,60,40,.22)'; x.lineWidth = 1.2; x.strokeRect(.6, .6, pw - 1.2, ph - 1.2); } // Papierkanten dunkeln, Licht von links oben
+      if (rand(0, 1) < .5) echt_fleck(x, rand(0, pw), rand(0, ph), pw * rand(.5, 1.1), 'rgb(112,86,50)', rand(.1, .26), rand(0, 6.28)); // Wasserflecken aus dem Feuchtescan
       motiv[i % motiv.length](x, pw, ph);
       kapitel1_kritzel(x, pw * .88, ph * .5, 8, 22, W('125,125,130', .5), 9); // grauer Fleck am Bildrand, weggerubbelt
-      x.fillStyle = W(farben[i % farben.length], .85); x.font = `${rand(13, 17) | 0}px "Comic Sans MS", Caveat, cursive`; x.save(); x.translate(pw - 62, ph - 9); x.rotate(rand(-.08, .06)); x.fillText('LUKE, 9', 0, 0); x.restore();
+      echt_wachsText(x, 'LUKE, 9', pw - 62, ph - 9, `${rand(13, 17) | 0}px "Comic Sans MS", Caveat, cursive`, W(farben[i % farben.length], .85), rand(-.08, .06)); // Wachsstift-Unterschrift mit Korn
       x.fillStyle = '#a9a9a9'; x.beginPath(); x.arc(pw / 2 + rand(-4, 4), 6, 3.5, 0, 7); x.fill(); x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(pw / 2 - 1, 8, 3, 3); x.restore(); }
     // Hildes Satz („SIE NEHMEN NUR DIE …“) steht jetzt als echte Blutschrift auf einer eigenen Ebene (kapitel1_blutSchrift)
     x.save(); x.translate(1700, 990); x.rotate(-.1); x.fillStyle = 'rgba(40,60,150,.7)'; x.font = '19px "Comic Sans MS", Caveat, cursive'; x.fillText('REGEL: WER GEFUNDEN', 0, 0); x.fillText('WIRD MUSS ZÄLEN', 8, 22); x.restore(); });

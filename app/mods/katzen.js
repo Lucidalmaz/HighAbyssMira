@@ -153,8 +153,48 @@ function katzen_fellMat(src, d) {
       .replace('#include <roughnessmap_fragment>', 'float roughnessFactor = roughness * (.92 + .16 * clamp(1. - kM.r, 0., 1.));'); };
   m.customProgramCacheKey = () => 'katzen_fell_1'; return m;
 }
-function katzen_eyeMat(src, d) { const m = src.clone(); m.name = 'katzen_auge_' + d.name; m.color.setRGB(...(d.iris || [1, .85, .4])); m.roughness = .06; m.metalness = 0;
-  m.emissive = new THREE.Color(.75, 1, .45); m.emissiveMap = m.map; m.emissiveIntensity = 0; return m; }
+// Haarkarten (Netz `haar`, aus tools/katzen_fell.mjs): gleiche Farbfunktion wie das Fell (Maske und Hautfarbe über die Haut-UV TEXCOORD_1, Muster über den Wurzelpunkt _root),
+// Länge je Katze (kLen: Karte schrumpft zur Wurzel). EIN zusätzliches Programm für alle Katzen (Cache-Schlüssel), Uniforms der Haut werden geteilt.
+function katzen_hairMat(src, d, fm) {
+  const m = src.clone(); m.name = 'katzen_haar_' + d.name; m.color.setRGB(1, 1, 1); m.metalness = 0; m.roughness = .88; m.side = THREE.DoubleSide; m.alphaTest = .32; m.transparent = false; m.normalMap = null;
+  const fu = fm.userData.ku, F = KATZEN_FELLE[d.fell] || KATZEN_FELLE.grau_getigert;
+  const u = Object.assign({}, fu, { kLen: { value: d.laenge != null ? d.laenge : F.len != null ? F.len : .5 }, kMask: { value: fm.roughnessMap }, kSkin: { value: fm.map } }); m.userData.ku = u;
+  m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u);
+    sh.vertexShader = 'varying vec3 vKR; varying vec2 vKUv; attribute vec3 _root; attribute vec2 uv1; uniform float kLen;\n' + sh.vertexShader.replace('#include <begin_vertex>', 'vec3 transformed = _root + (position - _root) * kLen; vKR = _root; vKUv = uv1;');
+    sh.fragmentShader = 'uniform sampler2D kMask, kSkin; varying vec2 vKUv;\n' + KATZEN_GLSL + '\n' + sh.fragmentShader
+      .replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n normal *= faceDirection;')  // Karten von beiden Seiten gleich beleuchten (Haut-Normale)
+      .replace('#include <map_fragment>', '#include <map_fragment>\n vec4 kM = texture2D(kMask, vKUv); float kLum = clamp(dot(diffuseColor.rgb, vec3(.333)) * 1.9, 0., 1.4);\n diffuseColor.rgb = katzenFarbe(texture2D(kSkin, vKUv).rgb, kM) * (.5 + .75 * kLum);'); };
+  m.customProgramCacheKey = () => 'katzen_haar_1'; return m;
+}
+// Augen: Iris im Shader (Fasern, heller Kragen um die Pupille, dunkler Limbusring), senkrechte Schlitzpupille (kPup: 0 Schlitz … 1 rund), kein Weiß der Lederhaut (Katzen zeigen keins),
+// Tapetum: glimmt über Emission in der Irisfarbe, wenn die Lampe trifft (katzen_eyes). Trübe Augen (kTrub) für die Gruselkatzen: milchig-blaugrau, Pupille verwaschen.
+const KATZEN_EYE_GLSL = `
+uniform vec3 kIris; uniform float kPup, kTrub, kESeed;
+float eH(vec2 p){ p = fract(p * vec2(.1031, .1030)); p += dot(p, p.yx + 33.33); return fract((p.x + p.y) * p.x); }
+float eN(vec2 x){ vec2 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(mix(eH(i), eH(i + vec2(1,0)), f.x), mix(eH(i + vec2(0,1)), eH(i + vec2(1,1)), f.x), f.y); }
+vec3 katzenAuge(vec2 uv, out float glow){
+  vec2 e = uv - .5; float r = length(e), an = atan(e.y, e.x);
+  float pw = mix(.034, .105, kPup), ph = mix(.215, .13, kPup * kPup);
+  float pd = length(vec2(e.x / pw, e.y / ph)); float pupil = 1. - smoothstep(.86, 1.02, pd);
+  float fib = eN(vec2(an * 9., r * 14. + kESeed)) * .6 + eN(vec2(an * 23., r * 30. + kESeed * 2.)) * .4;
+  float collar = smoothstep(.06, .17, r);
+  vec3 col = mix(kIris * 1.35, kIris * .62, collar) * (.72 + .5 * fib);
+  col = mix(col, kIris * vec3(.5, .7, .45) * .55, smoothstep(.2, .3, r) * .6);
+  float limb = smoothstep(.27, .36, r); col = mix(col, vec3(.02, .015, .012), limb * .85);
+  col = mix(col, vec3(.045, .03, .025), smoothstep(.34, .42, r));
+  col = mix(col, vec3(.005), pupil);
+  float milk = kTrub * (.55 + .4 * eN(uv * 18. + kESeed)); col = mix(col, vec3(.52, .6, .62) * (.8 + .3 * eN(uv * 40.)), milk * (1. - smoothstep(.34, .44, r) * .5));
+  glow = (1. - pupil) * (1. - limb * .8) * (.55 + .6 * fib) * (1. - kTrub * .85);
+  return col;
+}`;
+function katzen_eyeMat(src, d) { const m = src.clone(); m.name = 'katzen_auge_' + d.name; m.color.setRGB(1, 1, 1); m.roughness = .05; m.metalness = 0; m.emissiveMap = null;
+  const I = d.iris || [1, .85, .4], tr = d.trueb != null ? d.trueb : 0;
+  m.emissive = new THREE.Color(Math.min(1, I[0] * 1.1), Math.min(1, I[1] * 1.1), Math.min(1, I[2] * 1.1)); m.emissiveIntensity = 0;
+  const u = m.userData.ku = { kIris: { value: new THREE.Vector3(I[0], I[1], I[2]) }, kPup: { value: d.pup != null ? d.pup : .3 }, kTrub: { value: tr }, kESeed: { value: Math.random() * 30 } };
+  m.onBeforeCompile = sh => { Object.assign(sh.uniforms, u); sh.fragmentShader = KATZEN_EYE_GLSL + '\n' + sh.fragmentShader
+    .replace('#include <map_fragment>', 'float kGlow = 0.; diffuseColor.rgb = katzenAuge(vMapUv, kGlow);')
+    .replace('#include <emissivemap_fragment>', 'totalEmissiveRadiance *= kGlow;'); };
+  m.customProgramCacheKey = () => 'katzen_auge_1'; return m; }
 // Namensschild (Filzstift auf hellem Leder)
 function katzen_tagTex(name, band) { const c = document.createElement('canvas'); c.width = 192; c.height = 64; const x = c.getContext('2d');
   const col = new THREE.Color(band || 0x5a3a22); x.fillStyle = '#' + col.getHexString(); x.fillRect(0, 0, 192, 64);
@@ -173,13 +213,15 @@ function katzen_make(d) {
     ear: { t: rand(1, 5), k: 0, side: 1, flat: 0 }, tail: { ph: rand(0, 6), amp: .12, flick: 0 }, breath: rand(0, 6), blinkT: rand(2, 6), blink: 0, hissT: 0, hissDir: null, purr: null, shine: 0,
     acc: 0, lod: 0, far: true, idleT: rand(3, 9), gyT: 0, freeT: 0, arm: null, klick: null, avoid: null, avoidT: 0, sniff: 0, lastLit: 0, curioT: rand(20, 60), follow: false, tripT: 0, thrT: 0, noHiss: false };
   m.traverse(o => { if (o.isBone) k.B[o.name] = o; });
-  const del = []; m.traverse(o => { if (!o.isMesh) return; if (o.name === 'haar') { del.push(o); return; }
+  const del = []; let haarM = null, bartM = null; m.traverse(o => { if (!o.isMesh) return; if (o.name === 'haar') { haarM = o; return; } if (o.name === 'bart') { bartM = o; return; }
     o.frustumCulled = true; o.castShadow = o.name === 'fell'; o.receiveShadow = true;
     if (o.name === 'fell') { o.material = katzen_fellMat(o.material, d); k.fell = o; }
     else if (o.name === 'augen') { o.material = katzen_eyeMat(o.material, d); k.eyeM = o.material; k.eyeMesh = o; o.castShadow = false; }
     else if (o.name === 'zaehne') { k.teeth = o; o.visible = false; o.castShadow = false; }
     if (o.geometry) { o.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); } });
   del.forEach(o => o.parent.remove(o));
+  if (haarM) { if (k.fell && haarM.geometry.attributes._root) { haarM.material = katzen_hairMat(haarM.material, d, k.fell.material); haarM.castShadow = false; haarM.receiveShadow = true; haarM.frustumCulled = true; haarM.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); k.haar = haarM; } else haarM.parent.remove(haarM); }
+  if (bartM) { const F = KATZEN_FELLE[d.fell] || {}; bartM.material = bartM.material.clone(); bartM.material.color.setRGB(...(F.bart || [.8, .78, .72])); bartM.castShadow = false; bartM.receiveShadow = false; bartM.frustumCulled = true; bartM.geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, .2, 0), .55); k.bart = bartM; }
   for (const n of ['walk', 'stand', 'sit', 'groom', 'loaf', 'sleep', 'hiss', 'crouch', 'leap', 'carry']) if (S.clips[n]) { const a = k.mx.clipAction(S.clips[n]); a.setLoop(THREE.LoopRepeat, Infinity); k.A[n] = a; }
   // Körperbau: dick / dünn / schwer (Knochen-Skalierung bleibt, die Animation setzt nur Lage und Drehung)
   const sc = (n, x, y, z) => { if (k.B[n]) k.B[n].scale.set(x, y, z); };
@@ -357,7 +399,7 @@ function katzen_tick(dt, t, indoor) {
     const dx = k.x - cam.x, dz = k.z - cam.z, d = Math.hypot(dx, dz), inFront = (dx * cf.x + dz * cf.z) > -2.5;
     const vis = d < 48 || k.st === 'carry'; if (k.g.visible !== vis) k.g.visible = vis; k.far = !vis; if (!vis && k.st !== 'go' && !k.hold && !(S.kater.mode === 'folgen' && k.name === 'HÄNSCHEN')) continue;
     // Nähe-Stufen: Augen-Mesh (< 8 m), Namensschild (< 4 m), Schattenwurf (< 12 m, Taschenlampe/Laternen) – sonst nur das Fell (ein Draw Call)
-    const near = k.st === 'carry' || k.st === 'arm'; if (k.eyeMesh) k.eyeMesh.visible = near || d < 8; if (k.tag) k.tag.visible = near || d < 4; if (k.fell) k.fell.castShadow = !near && d < 12;
+    const near = k.st === 'carry' || k.st === 'arm'; if (k.haar) k.haar.visible = near || d < 15; if (k.bart) k.bart.visible = near || d < 5; if (k.eyeMesh) k.eyeMesh.visible = near || d < 8; if (k.tag) k.tag.visible = near || d < 4; if (k.fell) k.fell.castShadow = !near && d < 12;
     k.lod = k.st === 'carry' ? 0 : d < 22 ? 0 : d < 36 ? 1 : 2;
     katzen_brain(k, dt, t, d, lampOn, kp);
     katzen_move(k, dt);

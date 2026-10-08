@@ -83,7 +83,7 @@ function k5_stroh(x, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x,
 function k5_kauen(x, z) { const A = Audio; if (!A.ctx) return; const d = A.at(x, .6, z, .8); for (let i = 0; i < 6; i++) { const n = A.noise(false), lp = A.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = rand(500, 900); n.connect(lp); A.env(lp, .06, .01, .07, i * .32 + rand(0, .05), d); n.stop(A.ctx.currentTime + 2.5); } }
 
 // ---------------------------------------------------------------- Texturen (Decals, Papier) – per Canvas, einmal beim Laden
-function k5_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function k5_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }
 function k5_decal(canvas, w, h, o = {}) { const m = new THREE.MeshStandardMaterial({ map: tex(canvas, true), transparent: true, depthWrite: false, roughness: o.rough ?? .95, metalness: 0, polygonOffset: true, polygonOffsetFactor: -4, opacity: o.op ?? 1, side: o.ds ? THREE.DoubleSide : THREE.FrontSide });
   if (o.emissive) { m.emissive = new THREE.Color(o.emissive); m.emissiveMap = m.map; m.emissiveIntensity = o.ei ?? .3; }
   const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); p.renderOrder = 2; p.receiveShadow = true; p.userData.noCol = true; p.visible = false; scene.add(p); return p; }

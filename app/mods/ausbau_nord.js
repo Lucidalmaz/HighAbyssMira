@@ -102,7 +102,7 @@ function ausbau_nord_dropItem(k) { const i = story.items.indexOf(k); if (i >= 0)
 function ausbau_nord_save() { try { const N = ausbau_nord; localStorage.setItem('ham_nord', JSON.stringify({ names: [...N.names], lights: [...N.lights], bear: N.bear, lq: N.lq ? N.lq.state : 'hidden', ochs: N.ochs ? N.ochs.n : 0, plakat: N.plakat || 0, namesDone: !!N.namesDone })); } catch (e) {} }
 // Papier/Schild als Textur-Ebene (Decal) – Text wird auf Leinwand gemalt
 function ausbau_nord_paper(w, h, draw, px = 512) {
-  const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * h / w); draw(c.getContext('2d'), c.width, c.height);
+  const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * h / w); echt_an(() => draw(c.getContext('2d'), c.width, c.height));
   const t = tex(c, true); t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
   return new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: t, roughness: .95, transparent: true, alphaTest: .05, polygonOffset: true, polygonOffsetFactor: -2 }));
 }

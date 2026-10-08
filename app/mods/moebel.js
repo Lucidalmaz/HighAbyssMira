@@ -4,18 +4,21 @@
 // Vorderseite zur freien Seite (dort, wo im Raum Platz ist). Kühlschrank Nr. 7 bleibt vorerst (das Fab-Modell „Fridge - Refrigerator - Freezer“ liegt offen auf dem Rücken – unbrauchbar).
 const MOEBEL_ZIEL = [ // [x, z, Breite, Höhe, Tiefe, Modell] (gemessen im Spiel, Mitte der Grundfläche)
   [-48.6, -16.6, 1.57, 1.27, .67, 'dresser'],
-  ...[620, 622, 624, 626, 628].map(x => [C2.x + x - 600, C2.z - 5.6, 1.0, 2.2, .5, 'wardrobe']),
-  ...[621, 623, 625, 627].map(x => [C2.x + x - 600, C2.z + 5.6, 1.0, 2.2, .5, 'wardrobe']),
+  // 08.10.2026: Archiv Kap. 2 = Metall-Archivschränke mit Flügeltüren (eigene Arbeit, Blender: tools/blender/schrank_bau.py) statt Holz-Kleiderschrank
+  ...[620, 622, 624, 626, 628].map(x => [C2.x + x - 600, C2.z - 5.6, 1.0, 2.2, .5, 'archiv']),
+  ...[621, 623, 625, 627].map(x => [C2.x + x - 600, C2.z + 5.6, 1.0, 2.2, .5, 'archiv']),
   [-1444.1, 1402.4, .62, 1.52, .62, 'wardrobe'], [-1400.5, 1395.5, .66, 1.62, .64, 'wardrobe']];
 const moebel_S = { n: 0, weg: [] };
 async function moebel_bau() {
   const W_ = n => ({ b: 'T_' + n + '_BaseColor.jpg', n: 'T_' + n + '_Normal.jpg', r: 'T_' + n + '_Roughness.jpg', ao: 'T_' + n + '_Ao.jpg' });
   const M0 = {}; try { M0.wardrobe = await msModel('wardrobe'); } catch (e) { console.warn('Möbel: Modell wardrobe', e); }
+  try { M0.archivV = await Promise.all(['archiv_grau.glb', 'archiv_gruen.glb'].map(f => msModel('aktenschrank', f))); M0.archiv = M0.archivV[0]; } catch (e) { console.warn('Möbel: Archivschrank', e); M0.archiv = M0.wardrobe; M0.archivAlt = true; }
   try { M0.dresser = await msFBX('dresser', 'model.fbx', { 'Wood-1': W_('Wood-1'), 'Wood-2': W_('Wood-2'), 'Wood-3': W_('Wood-3'), Metal: { ...W_('Metal'), m: 'T_Metal_Metallic.jpg' } }); } catch (e) { console.warn('Möbel: Modell dresser', e); }
   const B = new THREE.Box3(), sz = new THREE.Vector3(), cands = [];
   scene.traverse(o => { if (o.isMesh && o.geometry && o.geometry.type === 'BoxGeometry' && o.visible) cands.push(o); });
-  for (const [x, z, w, h, d, key] of MOEBEL_ZIEL) {
-    const src = M0[key]; if (!src) continue;
+  let ai = 0;
+  for (const [x, z, w, h, d, key0] of MOEBEL_ZIEL) {
+    const key = key0 === 'archiv' && M0.archivAlt ? 'wardrobe' : key0; const src = key0 === 'archiv' && M0.archivV ? M0.archivV[ai++ % 2] : M0[key]; if (!src) continue;
     const box_ = cands.find(o => { B.setFromObject(o); B.getSize(sz); const cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2; return Math.abs(cx - x) < .15 && Math.abs(cz - z) < .15 && Math.abs(sz.y - h) < .08; }); if (!box_) continue;
     B.setFromObject(box_); B.getSize(sz); const alongX = sz.x >= sz.z, cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, y0 = B.min.y;
     // Vorderseite: die Seite mit mehr freiem Raum davor
