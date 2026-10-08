@@ -191,7 +191,6 @@ for v in base.data.vertices:  # Kufen: Unterseite vorn und hinten leicht angehob
 unter = taper(box(.30, .30, .07, loc=(0, -.06, .14), bev=.02, seg=3, name='unterschale'), .06)
 rueck = box(.22, .03, .27, loc=(0, .166, .40), rot=(math.radians(-14), 0, 0), bev=.022, seg=4, name='rueckplatte')
 ribs = [box(.15, .012, .016, loc=(0, .183, z), rot=(math.radians(-14), 0, 0), bev=.005, seg=2, name='rippe') for z in (.47, .495)]
-haken = [box(.03, .05, .06, loc=(sg * .2, .135, .43), rot=(math.radians(-14), 0, sg * .12), bev=.012, seg=3, name='gurtfuehrung') for sg in (-1, 1)]
 fuehr = []
 for sg in (-1, 1):
   hk = box(.03, .075, .022, loc=(sg * .192, -.13, .128), bev=.008, seg=3, name='gurtfuehrung'); fuehr.append(hk)
@@ -203,7 +202,7 @@ niete = [cyl(.0032, .004, loc=(x, -.248, .05), rot=(math.pi / 2, 0, 0), seg=10, 
 # ---------------------------------------------------------------- Materialien (je Variante), danach alles zu einem Netz
 VAR = {'a': dict(wear=.45, shell=(.040, .041, .044), guide=(.42, .035, .03), strap=(.020, .021, .024)),
        'b': dict(wear=.7, shell=(.028, .029, .032), guide=(.03, .11, .38), strap=(.11, .11, .105)),
-       'c': dict(wear=1.0, shell=(.105, .104, .10), guide=(.06, .062, .065), strap=(.085, .085, .08))}
+       'c': dict(wear=1.0, shell=(.07, .07, .068), guide=(.06, .062, .065), strap=(.085, .085, .08))}
 
 def stoff(v):
   W = VAR[v]['wear']
@@ -224,7 +223,7 @@ def stoff(v):
       base = nb.mix(mel, (.48, .2, .05), (.56, .26, .07))
       c1 = nb.mix(stripe(qx, .085, .17), base, (.04, .26, .26)); c1 = nb.mix(stripe(qy, .085, .17, .25), c1, nb.mix(.5, c1, (.04, .05, .16)))
       c1 = nb.mix(stripe(qx, .085, .035, .37), c1, (.5, .06, .05)); c1 = nb.mix(stripe(qy, .085, .03, .6), c1, (.62, .52, .12))
-      c1 = nb.mix(stripe(qx, .0425, .02, .1), c1, (.08, .1, .3)); col = nb.mix(nb.mr(wing, .4, .6), c1, (.52, .22, .05))
+      c1 = nb.mix(stripe(qx, .0425, .02, .1), c1, (.08, .1, .3)); col = nb.mix(nb.mr(wing, .4, .6), c1, nb.mix(mel, (.42, .17, .04), (.55, .25, .07)))
     else:
       base = nb.mix(mel, (.085, .10, .14), (.13, .15, .19)); col = nb.mix(nb.mr(wing, .4, .6), base, (.045, .048, .055))
       col = nb.mix(nb.mr(nb.noise(Q, 1400, 1, .5), .7, .78, 0, .5), col, (.2, .21, .24))
@@ -238,7 +237,7 @@ def stoff(v):
     dust = nb.math('MULTIPLY', nb.mr(nz, .3, .95, 0, 1), nb.mr(nb.noise(P, 30, 4, .6), .35, .7, .2 * W, .65 * W))
     col = nb.mix(dust, col, (.33, .3, .25))
     rough = nb.mix(nb.mr(st, .6, .75, 0, .2 * W), nb.mr(fuzz, 0, 1, .88, .97), .7, kind='FLOAT')
-    hgt = nb.math('ADD', nb.math('MULTIPLY', fuzz, .35), nb.math('MULTIPLY', mel, .25))
+    hgt = nb.math('ADD', nb.math('MULTIPLY', fuzz, .5), nb.math('MULTIPLY', mel, .35))
     if v == 'c':
       mold = nb.math('MULTIPLY', nb.mr(nb.vor(P, 160), .0, .3, 1, 0), nb.mr(nb.noise(P, 9, 3, .6), .58, .66))
       col = nb.mix(nb.math('MULTIPLY', mold, .8), col, (.03, .04, .025))
@@ -260,9 +259,9 @@ def plastik(v, kind='shell'):
     P = nb.coord('Object'); base = VAR[v]['shell'] if kind == 'shell' else VAR[v]['guide'] if kind == 'guide' else (.03, .03, .032) if kind == 'schloss' else (.5, .035, .025)
     grain = nb.noise(P, 1100, 2, .5); col = nb.mix(nb.mr(grain, .3, .7, -.15, .15), base, (1, 1, 1), 'ADD') if False else nb.mix(nb.mr(grain, .3, .7), base, nb.hsv(base, .5, 1, 1.25))
     pt = nb.mr(nb.geo('Pointiness'), .5, .56, 0, 1); sc = nb.mr(nb.noise(nb.vec(P, scale=(1, 1, 22), rot=(0, .4, .3)), 160, 2, .6), .62, .66, 0, 1)
-    wearm = nb.math('MAXIMUM', nb.math('MULTIPLY', pt, nb.mr(nb.noise(P, 60, 3), .35, .6)), nb.math('MULTIPLY', sc, .7))
-    col = nb.mix(nb.math('MULTIPLY', wearm, .55 * W + .15), col, nb.hsv(base, .5, .6, 2.6))
-    nz = nb.sep(nb.geo('Normal'))[2]; dust = nb.math('MULTIPLY', nb.mr(nz, .45, .98), nb.mr(nb.noise(P, 45, 4, .6), .35, .75, .04 * W, .3 * W))
+    pt = nb.mr(nb.geo('Pointiness'), .53, .6, 0, 1); wearm = nb.math('MAXIMUM', nb.math('MULTIPLY', pt, nb.mr(nb.noise(P, 90, 3), .45, .65)), nb.math('MULTIPLY', sc, .6))
+    col = nb.mix(nb.math('MULTIPLY', wearm, .3 * W + .1), col, nb.hsv(base, .5, .7, 1.9))
+    nz = nb.sep(nb.geo('Normal'))[2]; dust = nb.math('MULTIPLY', nb.mr(nz, .55, .98), nb.mr(nb.noise(P, 45, 4, .6), .4, .75, .02 * W, .2 * W))
     col = nb.mix(dust, col, (.26, .245, .22))
     if v == 'c' and kind == 'shell': col = nb.mix(nb.mr(nb.noise(nb.vec(P, scale=(1, 1, .15)), 14, 2), .5, .65, 0, .22), col, (.2, .195, .185))
     rough = nb.mix(dust, nb.mix(wearm, nb.mr(grain, 0, 1, .42, .58), .7, kind='FLOAT'), .9, kind='FLOAT')

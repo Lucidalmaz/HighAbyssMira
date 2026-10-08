@@ -8,7 +8,7 @@
 { const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere; // Nutzer 02.10.: „Skins lösen sich ständig auf“ – Ursache: Aussondern mit der Hülle der Ruhepose
   THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { cbs.call(this); const b = this.boundingSphere; if (!b) return; let sc = 1; try { this.updateWorldMatrix(true, false); sc = this.matrixWorld.getMaxScaleOnAxis() || 1; } catch (e) {}
     b.radius = Math.max(b.radius * 1.6, 2.4 / sc); }; }
-const figuren_S = { list: null, cache: new Map(), sk: null, ghost: new Map(), T: { value: 0 }, embodied: new Set(), ownFilter: false };
+const figuren_S = { list: null, cache: new Map(), sk: null, T: { value: 0 }, embodied: new Set() };
 async function figuren_list() { if (!figuren_S.list) { try { figuren_S.list = await (await fetch('assets/chars/chars.json')).json(); } catch (e) { figuren_S.list = []; } } return figuren_S.list; }
 async function figuren_load(id) {
   if (id === 'alter_mann') id = 'vegas'; // früherer Rollenname
@@ -48,41 +48,13 @@ async function figuren_clone(F, height) {
   const sk = await figuren_skc(), o = sk(F.scene); o.scale.multiplyScalar(height / (F.height || height)); o.rotation.y = F.yaw || 0;
   const w = new THREE.Group(); w.add(o); w.userData.noCol = true; w.userData.clips = F.clips; return w;
 }
-// ---------- Erinnerungs-Material: schemenhaft, kalt leuchtend, flackernd, an den Rändern zerfallend
-function figuren_ghostMat(src) {
-  if (figuren_S.ghost.has(src)) return figuren_S.ghost.get(src);
-  const m = new THREE.MeshStandardMaterial({ map: src.map || null, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, side: src.side, alphaTest: src.alphaTest || 0 });
-  m.onBeforeCompile = sh => { sh.uniforms.uGhost = FAB.ghostU || { value: 0 }; sh.uniforms.uT = figuren_S.T;
-    sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vWP = (modelMatrix * vec4(transformed, 1.)).xyz;');
-    sh.fragmentShader = 'uniform float uGhost, uT; varying vec3 vWP;\nfloat gh3(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }\nfloat gn3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(mix(mix(gh3(i), gh3(i + vec3(1,0,0)), f.x), mix(gh3(i + vec3(0,1,0)), gh3(i + vec3(1,1,0)), f.x), f.y), mix(mix(gh3(i + vec3(0,0,1)), gh3(i + vec3(1,0,1)), f.x), mix(gh3(i + vec3(0,1,1)), gh3(i + vec3(1,1,1)), f.x), f.y), f.z); }\n'
-      + sh.fragmentShader.replace('#include <dithering_fragment>', `#include <dithering_fragment>
-      float fr = pow(1. - abs(dot(normalize(normal), normalize(vViewPosition))), 2.);
-      float lum = dot(diffuseColor.rgb, vec3(.3, .59, .11));
-      float n = gn3(vWP * 6. + vec3(0., uT * .45, uT * .2)) * .65 + gn3(vWP * 19. - vec3(0., uT * 1.3, 0.)) * .35;
-      float edge = smoothstep(.66, .38, n * .8 + fr * .5) * (.55 + .45 * smoothstep(.2, .7, gn3(vWP * 2.3 + uT * .15)));
-      edge = max(edge, .3 * smoothstep(.5, .2, fr)); // R-3: nur der Umriss zerfällt – Arme, Beine, Kopf lösen sich nie ganz auf (sah aus wie verschwundene Körperteile)
-      float band = .94 + .06 * sin(vWP.y * 18. - uT * 1.6), film = .96 + .04 * sin(uT * 2.3 + sin(uT * .9) * 2.); // calm and mystic instead of flicker
-      vec3 col = (mix(vec3(.46, .62, .95), vec3(.86, .92, 1.), fr) * (.06 + .94 * fr) + vec3(.72, .8, .95) * lum * .22) * band * film * .5;
-      if (edge < .03) discard;
-      gl_FragColor = vec4(col * edge * uGhost, 1.);`); };
-  m.forceSinglePass = true; // additiv ohne Tiefe: ein Durchgang sieht gleich aus. Sonst schaltet three.js bei beidseitigen Teilen (Haare, Kleidung) jedes Bild zweimal die Seite um (needsUpdate → Programmsuche/-übersetzung, Ruckler beim Auftritt der Nachbilder)
-  m.customProgramCacheKey = () => 'figuren_ghost3'; m.depthTest = true; figuren_S.ghost.set(src, m); return m;
-}
+// ---------- Erinnerungs-Material: Modul geister (geister.js, docs/gameplay/geister.md) – ein gemeinsamer Look für alle Geister. B: Uniform-Bündel je Figur (ohne: gemeinsames Bündel, Stärke FAB.ghostU)
+function figuren_ghostMat(src, B) { return geister_mat(src, B); }
 // Geist ohne Innenleben: additive Hülle zeigte Augäpfel, Gebiss und Mundraum durch den Kopf hindurch (Nutzer 02.10.: „durch die Augen und das Gebiss sieht es sehr komisch aus“).
 // Innenteile ausblenden; jede übrige Hülle bekommt einen Tiefen-Zwilling (gleiche Geometrie/Skelett/Morphs, schreibt nur Tiefe, nach allem Undurchsichtigen gezeichnet),
 // danach leuchtet nur die vorderste Fläche – kein Durchscheinen von Rückseiten, Zähnen oder Ärmel-Innenseiten.
 const FIG_INNEN = /eye|cornea|tear|occlusion|teeth|tooth|tongue|lash|gum|mouth_?inner|caruncle|iris|pupil|sclera/i;
-function figuren_geistBau(obj) {
-  const L = []; obj.traverse(o => { if (o.isMesh) L.push(o); });
-  for (const o of L) { const mats = [].concat(o.material), nm = (o.name || '') + ' ' + mats.map(m => m && m.name || '').join(' ');
-    if (FIG_INNEN.test(nm) || mats.every(m => m && m.transparent && m.opacity < .5)) { o.visible = false; continue; }
-    o.material = Array.isArray(o.material) ? o.material.map(figuren_ghostMat) : figuren_ghostMat(o.material); o.castShadow = false; o.receiveShadow = false; o.renderOrder = 951;
-    const src = mats[0] || {}, dm = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, map: src.alphaTest > 0 ? src.map || null : null, alphaTest: src.alphaTest || 0, side: THREE.FrontSide });
-    let z; if (o.isSkinnedMesh) { z = new THREE.SkinnedMesh(o.geometry, dm); z.bind(o.skeleton, o.bindMatrix); } else z = new THREE.Mesh(o.geometry, dm);
-    if (o.morphTargetInfluences) { z.morphTargetInfluences = o.morphTargetInfluences; z.morphTargetDictionary = o.morphTargetDictionary; }
-    z.position.copy(o.position); z.quaternion.copy(o.quaternion); z.scale.copy(o.scale); z.renderOrder = 950; z.frustumCulled = o.frustumCulled; z.castShadow = z.receiveShadow = false; z.name = (o.name || '') + '_tiefe'; z.userData.noCol = true;
-    o.parent.add(z); }
-}
+function figuren_geistBau(obj, o) { return geister_bau(obj, o); } // Innenteile aus, Tiefen-Zwillinge, Geister-Shader, Anmeldung (geister.js)
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
 // ghost: Erinnerung · doll: mit der Gruppe skalieren (Puppen im Weißen) · clip: feste Bewegung · sit: Sitzhöhe (Weltlage y)
 // gait (AP-MOCAP): Gangart der automatischen Fortbewegung – null (normal) · 'vorsicht' · 'muede' · 'panik' · 'alt' · 'zombie' (Clips z_*)
@@ -99,6 +71,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
   if (!ghost) Q.lod = figuren_lodBau(obj);
+  if (ghost) geister_person(Q); // Geister: Eintrag mit der Person verbinden (Regie, Zeitlupe, Nachbild)
   g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
@@ -178,10 +151,50 @@ const FIGUREN_ECHO = {
 // Einzelne Gestalt als Erinnerung besetzen (cleo.js, visionen.js, zayn.js)
 async function figuren_person(F, id, opt = {}) { try { await figuren_embody(F, id, { ghost: true, ...opt }); } catch (e) { console.warn('figuren_person', e); } }
 // Bild wird blass, solange eine Erinnerung läuft (Erinnerung, keine Gegenwart)
-function figuren_memoryLook(on) { const c = renderer.domElement; if (on) { if (!c.style.filter) { c.style.transition = 'filter .9s'; c.style.filter = 'saturate(.42) sepia(.16) contrast(1.06) brightness(1.04)'; figuren_S.ownFilter = true; } }
-  else if (figuren_S.ownFilter) { c.style.filter = ''; figuren_S.ownFilter = false; } }
-ECHO_CAST.start = async E => { const cast = FIGUREN_ECHO[E.id]; figuren_memoryLook(true); if (!cast) return;
-  await Promise.all(E.figs.map((f, i) => cast[i] ? figuren_embody(echoFigs[i], cast[i], { ghost: true, doll: f[3] < .45, clip: f[3] < .45 ? 'idle' : null }) : null)); };
+// Geister (08.10.): über film-Uniforms (Entsättigung, Bleichung, Vignette, Farbsaum-Puls) statt CSS-Filter – die Geister selbst behalten ihre Farbe
+function figuren_memoryLook(on) { geister_look(!!on); }
+// ---------- Plätze der Nachbilder (Nutzer 08.10.: „sitzende Geister hängen in der Luft“, „eine Frau steht halb in der Wand“)
+// Wer in der Erinnerung sitzt, wird an das TATSÄCHLICHE Möbel gebunden: Stuhlkreis aus innen_kapitel (S.stuhlKreis), sonst Stuhl-/Bettkante per Strahl (Sitzhöhe + Rückenlehne),
+// Becken auf der Sitzfläche (figuren_seat), Sitzmitte über dem Möbel. Wer steht, bekommt die echte Bodenhöhe (Collider/begehbare Fläche/Strahl) statt der festen Etagenhöhe.
+//   stuhl: Index im Stuhlkreis · sitz: [x, z, ry] (ry null = Lehne suchen, Blick nach vorn) · y: feste Sitzhöhe (sonst Strahl) · h: Rückfall-Sitzhöhe über dem Boden · p: [x, z, ry] Standplatz · clip: feste Pose
+const FIGUREN_PLATZ = {
+  echo_messraum: { 0: { stuhl: 1 }, 1: { stuhl: 2 }, 2: { stuhl: 3 }, 3: { stuhl: 4 }, 4: { stuhl: 7 } }, // Kinder in den Gurtstühlen 2–5 und 8 (vorher mitten im Stuhl stehend)
+};
+const FIGUREN_SCAN = { R: new THREE.Raycaster(), o: new THREE.Vector3(), d: new THREE.Vector3(0, -1, 0), s: new THREE.Sphere() };
+// Feste Netze in der Nähe (ohne Figuren, Unsichtbares, Decals, Instanzen)
+function figuren_scanListe(x, z, r) { const L = [], S = FIGUREN_SCAN.s;
+  scene.traverseVisible(o => { if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || !o.geometry) return;
+    const m = [].concat(o.material)[0]; if (!m || m.visible === false || m.colorWrite === false || m.opacity === 0 || (m.transparent && m.depthWrite === false)) return;
+    for (let p = o; p; p = p.parent) if (p.userData && p.userData.noCol) return;
+    const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (!g.boundingSphere) return; S.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);
+    if (Math.hypot(S.center.x - x, S.center.z - z) - S.radius > r) return; L.push(o); }); return L; }
+// Oberste feste Fläche über (x, z) zwischen y0 − 0,3 und y0 + h (Strahl von oben); null = keine
+function figuren_scan(x, z, y0, h = 1.2, L = null) { const R = FIGUREN_SCAN.R; try { L = L || figuren_scanListe(x, z, .6); R.set(FIGUREN_SCAN.o.set(x, y0 + h, z), FIGUREN_SCAN.d); R.near = 0; R.far = h + .3;
+  for (const t of R.intersectObjects(L, false)) { if (t.face && t.face.normal.clone().transformDirection(t.object.matrixWorld).y < .5) continue; return t.point.y; } } catch (e) {} return null; }
+// Bodenhöhe für Stehende: begehbare Kante (wie figuren_ground), sonst Strahl, sonst die Etagenhöhe
+function figuren_echoBoden(x, z, fl) { const g = figuren_ground(x, fl + .1, z); if (g !== null && g >= fl - .02 && g <= fl + .5) return g; const s = figuren_scan(x, z, fl, .6); return s !== null && s >= fl - .02 && s <= fl + .5 ? s : fl; }
+// Sitzfläche und Blickrichtung an (x, z): Sitzhöhe = oberste Fläche unter Hüfthöhe; Lehne = Richtung mit der höchsten Fläche (Radius 0,22 m) → Blick in die Gegenrichtung
+function figuren_sitzAn(x, z, fl, o) { const L = figuren_scanListe(x, z, .8); let y = o.y !== undefined ? o.y : figuren_scan(x, z, fl, .9, L); if (y === null || y < fl + .15 || y > fl + .75) y = fl + (o.h || .46);
+  let ry = o.ry; if (ry === null || ry === undefined) { let best = -1, ba = 0; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, t = figuren_scan(x + Math.sin(a) * .22, z + Math.cos(a) * .22, fl, 1.4, L); const th = t === null ? 0 : t; if (th > best) { best = th; ba = a; } } ry = ba + Math.PI; }
+  return { y, ry }; }
+// Becken über die Mitte des Möbels (die Sitz-Clips stehen nicht genau über dem Ursprung der Figur)
+function figuren_sitzMitte(P) { try { const h = P.rig.hips; if (!h) return; const g = P.g, M = FIGUREN_MV; g.updateMatrixWorld(true); h.getWorldPosition(M.v); const w = g.localToWorld(new THREE.Vector3()); M.v2.set(w.x - M.v.x, 0, w.z - M.v.z);
+    const a = g.worldToLocal(w.clone()), b = g.worldToLocal(w.clone().add(M.v2)); P.obj.position.x += b.x - a.x; P.obj.position.z += b.z - a.z; g.updateMatrixWorld(true); } catch (e) { console.warn('figuren_sitzMitte', e); } }
+ECHO_CAST.start = async E => { const cast = FIGUREN_ECHO[E.id]; figuren_memoryLook(true);
+  const fl = E.floor !== undefined ? E.floor : (E.at[1] > 1.2 ? (typeof Y !== 'undefined' ? Y : .43) : 0), plan = FIGUREN_PLATZ[E.id] || {}, SK = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null, want = [];
+  E.figs.forEach((f, i) => { const F = echoFigs[i], sp = plan[i]; let x = f[0], z = f[1], ry = f[2], sit = null, clip = null;
+    try { if (sp) { if (sp.stuhl !== undefined && SK && SK[sp.stuhl]) { const k = SK[sp.stuhl]; x = k.x; z = k.z; ry = k.ry; sit = figuren_sitzAn(x, z, fl, { ry: k.ry, y: sp.y, h: sp.h }).y; }
+        else if (sp.sitz) { [x, z] = sp.sitz; const s = figuren_sitzAn(x, z, fl, { ry: sp.sitz[2], y: sp.y, h: sp.h }); sit = s.y; ry = s.ry; }
+        else if (sp.p) [x, z, ry] = sp.p; clip = sp.clip || null; }
+      F.position.set(x, sit === null ? figuren_echoBoden(x, z, fl) : fl, z); F.rotation.y = ry; } catch (e) { console.warn('Nachbild-Platz', E.id, i, e); }
+    want[i] = { sit, clip }; });
+  if (!cast) return;
+  await Promise.all(E.figs.map(async (f, i) => { if (!cast[i]) return; const F = echoFigs[i], w = want[i], doll = f[3] < .45; let P = F.userData.person;
+    if (P && P.id === cast[i] && P.sit && w.sit === null) { figuren_release(F); P = null; } // war beim letzten Nachbild eine Sitzende: frisch besetzen
+    P = await figuren_embody(F, cast[i], { ghost: true, doll, clip: doll ? 'idle' : w.clip, sit: w.sit }); if (!P) return;
+    if (w.sit !== null && !P.sit) figuren_seat(P, w.sit);
+    if (w.sit !== null) figuren_sitzMitte(P);
+    if (w.clip && !doll) { P.fixed = true; if (P.acts[w.clip] && P.cur !== P.acts[w.clip]) figuren_play(P, w.clip); } })); };
 ECHO_CAST.end = () => figuren_memoryLook(false);
 // ---------- Schreckgestalten: gemaltes Gesicht → echte Person (die Größe entscheidet Kind oder Erwachsener)
 function figuren_faceWho(kind, small) {
@@ -682,3 +695,4 @@ function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgele
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
 window.__figuren = { S: figuren_S, MV: FIGUREN_MV, LOD: FIGUREN_LOD, lodAlle() { let n = 0; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.lod) continue; FIGUREN_MV.v.setFromMatrixPosition(g.matrixWorld); figuren_lodSet(P, Math.hypot(FIGUREN_MV.v.x - camera.position.x, FIGUREN_MV.v.z - camera.position.z)); if (P.lod.far) n += P.lod.face.length; } return (FIGUREN_LOD.n = n); }, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
+window.__echo = { figs: echoFigs, cast: ECHO_CAST, FE: FIGUREN_ECHO, get SK() { return typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null; } }; // Testzugang Nachbilder (Prüfskript _echo)

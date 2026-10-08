@@ -568,6 +568,11 @@ async function ausbau_ost_west_f3(OW, c) {
   const T = c.T, Q = c.Q; OW.f3 = { t: 0 };
   // ================= „Sieben Kindersitze“: zweiter Transporter, Klopfen, Kiste im Kofferraum, Schrottbüro mit Kalender von 1992
   const v2 = c.carAt(c.only(c.vanS, n => n === 'Object016'), 4.9, 127.4, -20.2, .35, c.J);
+  // Blender-Modelle (tiefwald.js tief_busEinbau): im ersten Transporter Innenausbau und sieben festgeschraubte Kindersitze, Heckscheibe zerschlagen (Blick hinein);
+  // die Sitze erst, wenn „Sieben Kindersitze“ offen ist (vorher ist die Ladefläche abgedeckt)
+  try { let t1 = null; c.J.traverse(o => { if (!t1 && o.isGroup && o.children.length === 1 && Math.abs(o.position.x - 133.2) < .01 && Math.abs(o.position.z + 25.2) < .01) t1 = o; });
+    if (t1 && typeof tief_busEinbau === 'function') { tief_vanFenster(t1, true, false);
+      tief_busEinbau(t1, 4.9 / 5.3, { kipp: -1, var: 'cabacba' }).then(B => { OW.f3.sitzeG = B.sitze; B.sitze.visible = !(typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp')); }).catch(e => console.warn('Transporter innen', e)); } } catch (e) { console.warn('Transporter innen', e); }
   const bueroS = c.fit(c.shedOldS.clone(true), 2.6); c.put(bueroS, 112.6, -29.2, 0, 0, c.J);
   try { // Basis-Umsetzung: der Kalender von 1992 an der Rückwand, Juli: jeder Tag durchgestrichen bis zum 13.
     bueroS.updateMatrixWorld(true); let h = null; for (const y of [1.5, 1.25, 1.75]) { h = bu_strahl(bueroS, 112.6, y, -24.5, 0, 0, -1, 8); if (h) break; }
@@ -692,6 +697,7 @@ function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f
   if (K.aydinF) { const d = Math.hypot(player.pos.x - K.nr8.x, player.pos.z - K.nr8.z), an = kap() === 1 && (K.fensterAuf || d < 7) && !state.inBasement; if (K.aydinF.g.visible !== an) K.aydinF.g.visible = an; }
   if (K.aydinLicht) K.aydinLicht.intensity += (((K.fensterAuf || K.aydinF && K.aydinF.g.visible) ? 1.1 : .2) - K.aydinLicht.intensity) * Math.min(1, dt * 2);
   // Klopf-Antwort nach der Pause
+  if (K.sitzeG) { const an = !(typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp')); if (K.sitzeG.visible !== an) K.sitzeG.visible = an; } // Kindersitze im ersten Transporter ab „Sieben Kindersitze“
   if (K.klopfT > 0) { K.klopfT -= dt; if (K.klopfT <= 0) { const n = K.klopfN; K.klopfN = 0; ausbau_ost_west_antwort(n); ausbau_ost_west_transpCheck(); } }
   // Goldfisch schwimmt zur Glaswand, wenn Luke kommt
   if (K.fisch) { const F = K.fisch, d = Math.hypot(player.pos.x - F.c.x, player.pos.z - F.c.z); F.a += dt * (d < 2.5 ? .4 : 1.1); const r = d < 2.5 ? .02 : .07; F.s.position.set(F.c.x + Math.cos(F.a) * r, F.c.y - .01 + Math.sin(t * 1.3) * .015, F.c.z + Math.sin(F.a) * r); }

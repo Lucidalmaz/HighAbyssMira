@@ -25,10 +25,9 @@ function weiss_glocke(v = .8) { if (typeof leben_bellStrike !== 'function' || ty
   C.x = X3 + 42; C.y = 26; C.z = Z3; try { leben_bellStrike(v, false); } finally { C.x = o[0]; C.y = o[1]; C.z = o[2]; } }
 async function weiss_kino(id) { if (typeof kino_play === 'function') { try { await kino_play(id); } catch (e) { console.error('Kino ' + id, e); } } }
 
-// ---------------------------------------------------------------- Nachhall-Material: wie figuren_ghostMat, aber mit eigener Stärke (nicht an Echos gebunden)
-function weiss_ghostMat(src) { const M = weiss_S.gm || (weiss_S.gm = new Map()); if (M.has(src)) return M.get(src);
-  const b = figuren_ghostMat(src), m = b.clone(); m.onBeforeCompile = sh => { b.onBeforeCompile(sh); sh.uniforms.uGhost = weiss_S.ghostU; }; m.customProgramCacheKey = () => 'figuren_ghost2'; M.set(src, m); return m; }
-function weiss_ghostify(o) { o.traverse(m => { if (m.isMesh) { m.material = Array.isArray(m.material) ? m.material.map(weiss_ghostMat) : weiss_ghostMat(m.material); m.castShadow = false; m.receiveShadow = false; m.frustumCulled = false; } }); }
+// ---------------------------------------------------------------- Nachhall: derselbe Geister-Look wie alle Erinnerungen (geister.js), eigene Stärke weiss_S.ghostU (nicht an Echos gebunden)
+function weiss_ghostify(o) { const Q = o.parent && o.parent.userData.person, P = Q && Q.obj === o ? Q : null;
+  geister_bau(o, { strength: weiss_S.ghostU, P, g: P ? P.g : o.parent || null, h: P ? P.h : 1.94 }); if (P) geister_person(P); o.traverse(m => { if (m.isMesh) m.frustumCulled = false; }); }
 
 // ---------------------------------------------------------------- Texturen (Canvas): Flamme, Schein, Reif, Abdrücke, Tau, Laternenpapier, Spiegelung, Spalt
 function weiss_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }

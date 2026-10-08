@@ -92,6 +92,26 @@ def auge(n, hell):
   nrm = np.zeros(r.shape + (3,)); nrm[..., 2] = 1
   return np.concatenate([np.clip(rgb, 0, 1), np.ones(r.shape + (1,))], -1), nrm, np.full(r.shape, .04), np.ones(r.shape)
 
+def schuppen(L, Hh):
+  """Lauf und Zehen: vorn quer liegende Hornschilde (Scuta), hinten feine Netzschuppen, am Ende (u > 0,86) Kralle: schwarz, glatt, glänzend.
+  u = Länge, v = Umfang (0,5 = vorn)."""
+  u = np.linspace(0, 1, L)[None, :].repeat(Hh, 0); v = np.linspace(0, 1, Hh)[:, None].repeat(L, 1)
+  front = np.clip(1 - np.abs(v - .5) / .27, 0, 1) ** .5
+  ph = u * 15 + .25 * np.sin(v * 6.283 * 2); plate = np.abs(((ph % 1) - .5) * 2)          # 1 an den Fugen
+  groove = np.clip((plate - .82) / .18, 0, 1)
+  hx = u * L / 7; hy = v * Hh / 6; cell = np.abs(np.sin(hx * 3.14 + np.sin(hy * 2.1))) * np.abs(np.sin(hy * 3.14 + np.cos(hx * 1.7)))
+  net = np.clip((.25 - cell) / .25, 0, 1)
+  rill = front * groove + (1 - front) * net
+  claw = np.clip((u - .86) / .03, 0, 1)
+  lum = (.085 - .04 * rill + .01 * np.sin(u * 40)) * (1 - claw) + .03 * claw
+  rgb = np.stack([lum, lum * .99, lum * 1.03], -1)
+  hgt = (1 - rill) * .8 * (1 - claw) + claw * .9
+  gy, gx = np.gradient(hgt); nx_, ny_ = -gx * 3, -gy * 3; nz_ = np.ones_like(nx_); nl = np.sqrt(nx_ ** 2 + ny_ ** 2 + 1)
+  nrm = np.stack([nx_ / nl, ny_ / nl, nz_ / nl], -1)
+  rough = (.5 + .15 * rill) * (1 - claw) + .28 * claw
+  ao = 1 - .35 * rill * (1 - claw)
+  return np.concatenate([rgb, np.ones(u.shape + (1,))], -1), nrm, rough, ao
+
 def streifen(WD, hell_auge):
   H = WD // 4; row = H // 4
   rgba = np.zeros((H, WD, 4)); rgba[..., :3] = .04; nrm = np.zeros((H, WD, 3)); nrm[..., 2] = 1; rgh = np.full((H, WD), .5); ao = np.ones((H, WD))
@@ -101,7 +121,8 @@ def streifen(WD, hell_auge):
   put(row, 0, feder(WD, row, 'arm', 12))
   put(2 * row, 0, feder(WD, row, 'schwanz', 13))
   cw = (WD - row) // 4
-  for i in range(4): put(3 * row, i * cw, feder(cw, row, 'deck', 20 + i))
+  for i in range(3): put(3 * row, i * cw, feder(cw, row, 'deck', 20 + i))
+  put(3 * row, 3 * cw, schuppen(cw, row))
   put(3 * row, WD - row, auge(row, hell_auge))
   return rgba, nrm, rgh, ao
 

@@ -5537,7 +5537,7 @@ renderer.compileAsync = (s, c, t = null) => { COMPILE_LATER.push([s, c, t]); ret
 // (localStorage „ham_lsig“, sonst EARLY_SIG0). Gleiche Lichterzahl, Nebel und Umgebung → gleicher Programmschlüssel → der Gesamtdurchgang findet die Programme fertig vor.
 // Stimmt die Vorhersage nicht, bleiben die Frühprogramme nur unbenutzt (der Gesamtdurchgang übersetzt wie bisher). Nur Materialien ohne eigenes onBeforeCompile
 // (deren Hook liest teils Werte, die spätere Module erst anlegen) und ohne umzuwandelndes Umgebungsbild (PMREM, siehe „Grafik vorbereiten“). Testschalter: ?noearly
-const EARLY_SIG0 = null; // Lichter je Art im ersten Bild (Codes wie earlySig); null = erst ab dem zweiten Lauf
+const EARLY_SIG0 = ['Ds', 'H', 'P', 'P', 'P', 'P', 'Ps', 'S', 'S', 'S', 'S', 'S', 'Ss', 'Ss', 'Ss', 'Ssm']; // Lichter je Art im ersten Bild (gemessen 08.10.2026, Codes wie earlySig) – für den allerersten Start ohne gespeicherte Vorhersage
 const earlySig = L => [...L].map(o => (o.isDirectionalLight ? 'D' : o.isPointLight ? 'P' : o.isSpotLight ? 'S' : o.isHemisphereLight ? 'H' : o.isRectAreaLight ? 'R' : o.isLightProbe ? 'L' : o.isAmbientLight ? 'A' : '?') + (o.castShadow ? 's' : '') + (o.isSpotLight && o.map ? 'm' : '')).sort();
 const EARLY = { on: !LITE && !/[?&]noearly/.test(location.search), sc: null, sig: null, seen: new WeakSet(), q: [], pend: [], fly: [], cap: 12, last: 0, n: 0, ms: 0, runs: 0, maxFly: 0, timer: 0 };
 { try { const v = JSON.parse(localStorage.getItem('ham_lsig') || 'null'); EARLY.sig = Array.isArray(v) ? v : EARLY_SIG0; } catch (e) { EARLY.sig = EARLY_SIG0; }
@@ -5551,12 +5551,13 @@ function earlyCollect(force) { if (!EARLY.on) return; const t0 = performance.now
   EARLY.last = performance.now(); EARLY.ms += EARLY.last - t0; }
 // Pumpe (alle 30 ms, auch während die Module auf Dateien warten): höchstens EARLY.cap Programme gleichzeitig in Arbeit – sonst müsste ein Modul, das selbst
 // zeichnet (Beutel-Bildchen, Album), hinter einer langen Warteschlange der Grafikkarte warten. Je Takt höchstens ~6 ms Hauptfaden.
+function earlyLichtSzene(sig) { const S = new THREE.Scene(), dummy = new THREE.Texture(); // Stellvertreter-Lichter (nur Anzahl/Art/Schatten zählen für den Programmschlüssel)
+  for (const c of sig) { const k = c[0]; const l = k === 'D' ? new THREE.DirectionalLight() : k === 'P' ? new THREE.PointLight() : k === 'S' ? new THREE.SpotLight() : k === 'H' ? new THREE.HemisphereLight() : new THREE.AmbientLight();
+    l.castShadow = c.includes('s'); if (k === 'S' && c.includes('m')) l.map = dummy; S.add(l); } return S; }
 function earlyPump() { if (!EARLY.on) return; const t0 = performance.now();
   try { EARLY.fly = EARLY.fly.filter(p => { try { return !p.isReady(); } catch (e) { return false; } });
     if (!EARLY.pend.length || EARLY.fly.length >= EARLY.cap) return;
-    if (!EARLY.sc) { const S = EARLY.sc = new THREE.Scene(), dummy = new THREE.Texture();
-      for (const c of EARLY.sig) { const k = c[0]; const l = k === 'D' ? new THREE.DirectionalLight() : k === 'P' ? new THREE.PointLight() : k === 'S' ? new THREE.SpotLight() : k === 'H' ? new THREE.HemisphereLight() : new THREE.AmbientLight();
-        l.castShadow = c.includes('s'); if (k === 'S' && c.includes('m')) l.map = dummy; S.add(l); } }
+    if (!EARLY.sc) EARLY.sc = earlyLichtSzene(EARLY.sig);
     const S = EARLY.sc; S.fog = scene.fog; S.environment = scene.environment;
     const rt0 = renderer.getRenderTarget(), P = renderer.info.programs; renderer.setRenderTarget(composer.renderTarget1); // wie der Gesamtdurchgang: Programme für den Nachbearbeitungs-Puffer
     try { while (EARLY.pend.length && EARLY.fly.length < EARLY.cap && performance.now() - t0 < 6) { const objs = EARLY.pend.splice(0, 4), n0 = P.length;
@@ -6290,8 +6291,18 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
       const g = new THREE.Group(); for (const m of [pm._blurMaterial, pm._cubemapMaterial, pm._equirectMaterial]) if (m) g.add(new THREE.Mesh(pm._lodPlanes[0], m)); PMW.push({ pm, g, lod }); }
     for (const [m] of envDefer) m.envMap = null; } catch (e) { console.warn('Vorübersetzen: PMREM', e); }
   const flatCam = new THREE.OrthographicCamera();
+  // Schattenprogramme (Tiefen-/Abstandsmaterial je Variante) parallel mitübersetzen: three.js legt sie sonst erst beim ersten Schattenbild an und übersetzt
+  // blockierend (gemessen: ~50 Programme, 10 s Standbild beim Hochladen). Stellvertreter mit genau den Einstellungen, die WebGLShadowMap.getDepthMaterial setzt;
+  // Programme hängen nur an den Einstellungen, nicht am Material selbst → das Schattenbild findet sie fertig vor.
+  const shadowRoots = []; try { const SIDE = { [THREE.FrontSide]: THREE.BackSide, [THREE.BackSide]: THREE.FrontSide, [THREE.DoubleSide]: THREE.DoubleSide }, vsm = renderer.shadowMap.type === THREE.VSMShadowMap;
+    const kinds = new Set(); for (const l of LSET) if (l.castShadow) kinds.add(!!l.isPointLight);
+    for (const pt of kinds) { const C = new Map(), prox = m => { let d = C.get(m); if (d) return d; d = pt ? new THREE.MeshDistanceMaterial() : new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking });
+        d.visible = m.visible; d.wireframe = m.wireframe; d.side = m.shadowSide !== null && m.shadowSide !== undefined ? m.shadowSide : vsm ? m.side : SIDE[m.side]; d.alphaMap = m.alphaMap || null; d.alphaTest = m.alphaTest || 0; d.map = m.map || null;
+        d.clipShadows = m.clipShadows; d.clippingPlanes = m.clippingPlanes; d.clipIntersection = m.clipIntersection; d.displacementMap = m.displacementMap || null; d.displacementScale = m.displacementScale ?? 1; d.displacementBias = m.displacementBias || 0; C.set(m, d); return d; };
+      shadowRoots.push({ traverseVisible: () => {}, traverse: cb => scene.traverse(o => { if (!(o.isMesh || o.isLine || o.isPoints) || !o.castShadow || !o.material) return; const M = o.material, cu = pt ? o.customDistanceMaterial : o.customDepthMaterial;
+        o.material = Array.isArray(M) ? M.map(m => m ? (cu || prox(m)) : m) : (cu || prox(M)); try { cb(o); } finally { o.material = M; } }) }); } } catch (e) { console.warn('Vorübersetzen: Schatten', e); }
   const compiling = Promise.all([renderer.compileAsync(scene, camera), ...extra.map(o => renderer.compileAsync(o, camera, scene)), ...later.map(([s, c, t]) => renderer.compileAsync(s, c, t)),
-    ...PMW.map(P => renderer.compileAsync(P.g, flatCam))]);
+    ...PMW.map(P => renderer.compileAsync(P.g, flatCam)), ...(shadowRoots.length ? [earlyLichtSzene(earlySig(LSET))] : []).flatMap(LS => shadowRoots.map(R => renderer.compileAsync(R, camera, LS)))]); // Schattenbild zeichnet ohne Nebel (leere Szene), mit den Lichtern des Bildes
   // Texturen hochladen, während die Grafikkarte übersetzt (vorher nacheinander: ~15 s Übersetzen, danach ~14 s Hochladen). „Texturen hochladen“ unten findet sie dann schon vor.
   try { const texs = new Set(); scene.traverse(o => { if (o.material) for (const m of [].concat(o.material)) { if (!m) continue; for (const k in m) { const v = m[k]; if (v && v.isTexture) texs.add(v); }
       if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });

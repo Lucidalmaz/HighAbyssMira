@@ -57,14 +57,53 @@ function tief_busW(x, y, z) { const g = tief_S.busG, T = THREE; if (!g) return n
 // Aus dem Scan: den zweiten (unbeschädigten) Wagen entfernen, Heckscheibe und Windschutzscheibe herausnehmen (Dreiecke im Fensterrahmen), Innenseiten sichtbar
 function tief_vanOeffnen(van) { const T = THREE; van.updateMatrixWorld(true); const v = new T.Vector3(), rm = [];
   van.traverse(m => { if (!m.isMesh) return; if (m.name === 'Object016') { rm.push(m); return; } const g = m.geometry, P = g.attributes.position; if (g.index || P.count % 3) return; // Rahmen in FBX-Koordinaten (Breite x ±77, Höhe y 0…139, Länge z −192 … +186; Heck bei z<0)
-    const inWin = (x, y, z) => (Math.abs(x) < 58 && y > 90 && y < 130 && z < -170) || (Math.abs(x) < 62 && y > 84 && y < 132 && z > 95 && z < 175), keep = [];
+    // Fensterrahmen in Blender am Scan ausgemessen (Glas der Heckscheibe y 92…132, schräge Hecktür z −182…−169; Windschutzscheibe y 94…131, z 141…97) – vorher blieb die obere Hälfte stehen und die Motorhaube verlor ihr Ende
+    const inWin = (x, y, z) => (Math.abs(x) < 55.5 && y > 91.5 && y < 133.5 && z < -165) || (Math.abs(x) < 57 && y > 93.5 && y < 133 && z > 90 && z < 145), keep = [];
     for (let i = 0; i < P.count; i += 3) { let all = true; for (let k = 0; k < 3; k++) { v.fromBufferAttribute(P, i + k).applyMatrix4(m.matrixWorld); if (!inWin(v.x, v.y, v.z)) { all = false; break; } } if (!all) keep.push(i); }
     const ng = new T.BufferGeometry(); for (const name of Object.keys(g.attributes)) { const A = g.attributes[name], arr = new A.array.constructor(keep.length * 3 * A.itemSize); keep.forEach((i, j) => { for (let k = 0; k < 3 * A.itemSize; k++) arr[j * 3 * A.itemSize + k] = A.array[i * A.itemSize + k]; }); ng.setAttribute(name, new T.BufferAttribute(arr, A.itemSize, A.normalized)); }
     m.geometry = ng; for (const mt of [].concat(m.material)) { mt.side = T.DoubleSide; } });
   for (const m of rm) m.removeFromParent(); }
+// Dasselbe für einen schon eingepassten Wagen (msGround-Hülle, z. B. Kap. 1): Fensterdreiecke im Raum der FBX-Wurzel suchen; nur die eigenen Klone bekommen neue Geometrie
+function tief_vanFenster(wrap, heck = true, front = false) { const T = THREE, r = wrap.children[0]; if (!r) return; wrap.updateMatrixWorld(true); const inv = new T.Matrix4().copy(r.matrixWorld).invert(), M = new T.Matrix4(), v = new T.Vector3();
+  const inWin = (x, y, z) => (heck && Math.abs(x) < 55.5 && y > 91.5 && y < 133.5 && z < -165) || (front && Math.abs(x) < 57 && y > 93.5 && y < 133 && z > 90 && z < 145);
+  r.traverse(m => { if (!m.isMesh) return; const g = m.geometry, P = g.attributes.position; if (g.index || P.count % 3) return; M.multiplyMatrices(inv, m.matrixWorld); const keep = [];
+    for (let i = 0; i < P.count; i += 3) { let all = true; for (let k = 0; k < 3; k++) { v.fromBufferAttribute(P, i + k).applyMatrix4(M); if (!inWin(v.x, v.y, v.z)) { all = false; break; } } if (!all) keep.push(i); }
+    if (keep.length * 3 === P.count) return;
+    const ng = new T.BufferGeometry(); for (const name of Object.keys(g.attributes)) { const A = g.attributes[name], arr = new A.array.constructor(keep.length * 3 * A.itemSize); keep.forEach((i, j) => { for (let k = 0; k < 3 * A.itemSize; k++) arr[j * 3 * A.itemSize + k] = A.array[i * A.itemSize + k]; }); ng.setAttribute(name, new T.BufferAttribute(arr, A.itemSize, A.normalized)); }
+    m.geometry = ng; m.material = [].concat(m.material).map(mt => { const c = mt.clone(); c.side = T.DoubleSide; return c; }); if (m.material.length === 1) m.material = m.material[0]; }); }
 // Das Innere: Laderaum mit sieben Kindersitzen, Hofers Spind, Fahrerhaus mit Armaturenbrett, Fahrtenbuch
 // FY: Boden des Laderaums (aufgesetzt, damit man die Sitze durch die Heckscheibe sieht), FC: Boden des Fahrerhauses
-async function tief_busInnen(o) { const T = THREE, FY = .72, FC = .5, g = new T.Group(); g.name = 'busInnen'; g.userData.noCol = true; o.add(g);
+// Blender-Modelle (eigene Arbeit, app/tools/blender/bus_innen_bau.py + kindersitz_bau.py): Innenausbau passend zur Hülle des Scans und sieben Kindersitze
+// (ein Netz, drei Stoff-/Verschleiß-Varianten). Auch der erste Transporter in Kap. 1 (ausbau_ost_west.js „Sieben Kindersitze“) nutzt das.
+//   o: msGround-Hülle des Wagens (Ursprung Bodenmitte, +z vorn); k: Maßstab (Kap. 6: 5,3 m lang = 1; Kap. 1: 4,9 m)
+//   opt.kipp: Index des umgekippten Sitzes (−1 keiner) · opt.var: Varianten der sieben Sitze (a Marine, b Karo, c grau/verschlissen)
+async function tief_busEinbau(o, k = 1, opt = {}) { const T = THREE, [raum, ks] = await Promise.all([msModel('bus_innen', 'model.glb'), msModel('kindersitz', 'model.glb')]);
+  const g = raum.clone(true); g.name = 'busInnen'; g.scale.setScalar(k); g.userData.noCol = true; o.add(g);
+  g.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
+  const src = {}; ks.traverse(m => { if (m.isMesh) src[m.name.slice(-1)] = m; });
+  const sitze = new T.Group(); sitze.name = 'kindersitze'; g.add(sitze); const VAR = opt.var || 'bacabca', out = [];
+  for (let i = 0; i < 7; i++) { const p = g.getObjectByName('p_sitz_' + (i + 1)), m = (src[VAR[i]] || src.a).clone(); if (!p) continue;
+    const s = new T.Group(); s.add(m); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); s.position.copy(p.position); s.rotation.y = rand(-.05, .05); s.position.x += rand(-.012, .012);
+    if (i === opt.kipp) { s.rotation.set(1.45, .3, .05); s.position.z += .3; s.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(m); // nach vorn auf die Polsterseite gekippt; s hängt noch nirgends: Box im Sitz-Gruppenraum
+      s.position.y += p.position.y - bb.min.y + .002; }
+    m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true; sitze.add(s); out.push(s); }
+  return { g, sitze, out, buch: g.getObjectByName('p_fahrtenbuch') }; }
+async function tief_busInnen(o) { const T = THREE;
+  try { const B = await tief_busEinbau(o, 1, { kipp: 5 });
+    // auf dem mittleren hinteren Sitz klebt das Z (Rückenplatte, zur Heckscheibe), auf dem linken Jonas’ Zettel
+    const zTex = tex(cnv(128, (c, w) => { c.fillStyle = '#c9c0a4'; c.beginPath(); c.moveTo(6, 8); c.lineTo(w - 4, 4); c.lineTo(w - 7, w - 10); c.lineTo(w - 30, w - 4); c.lineTo(10, w - 6); c.closePath(); c.fill();
+      for (let i = 0; i < 70; i++) { c.fillStyle = `rgba(90,70,40,${rand(.03, .14)})`; c.fillRect(rand(0, w), rand(0, w), rand(2, 18), rand(1, 4)); }
+      c.strokeStyle = '#161412'; c.lineWidth = 11; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); c.moveTo(30, 32); c.lineTo(94, 28); c.lineTo(36, 98); c.lineTo(98, 94); c.stroke(); }), true);
+    const zMat = new T.MeshStandardMaterial({ map: zTex, roughness: .6, transparent: true, alphaTest: .02, polygonOffset: true, polygonOffsetFactor: -2 });
+    if (B.out[1]) { const lz = new T.Mesh(new T.PlaneGeometry(.13, .13), zMat); lz.position.set(0, .45, -.186); lz.rotation.set(.244, PI, .06); lz.userData.noCol = true; B.out[1].add(lz); }
+    if (B.out[0]) { const zp = new T.Mesh(new T.PlaneGeometry(.12, .17), tief_blatt()); zp.position.set(.03, .37, -.185); zp.rotation.set(.244, PI, .1); zp.userData.noCol = true; B.out[0].add(zp); }
+    // Fahrtenbuch im Halter auf dem Armaturenbrett, in einer Klarsichthülle
+    try { const src = await msModel('w_buch', 'model.glb'), bk = msGround(msFit(src.clone(true), .22, 'max')), p = B.buch ? B.buch.position : new T.Vector3(-.18, 1.26, 1.72);
+      bk.position.set(p.x, p.y + .004, p.z); bk.rotation.set(-.31, .14, 0); bk.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); B.g.add(bk);
+      const sl = new T.Mesh(new T.BoxGeometry(.27, .004, .22), new T.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: .2, roughness: .06, clearcoat: 1, depthWrite: false })); sl.position.set(p.x, p.y + .03, p.z); sl.rotation.set(-.31, .14, 0); sl.userData.noCol = true; B.g.add(sl); } catch (e) { console.warn('Tiefwald: Fahrtenbuch', e); }
+    tief_S.busInnen = true; return; } catch (e) { console.warn('Tiefwald: Bus-Innenraum (Blender-Modell) fehlt – einfacher Ausbau', e); }
+  return tief_busInnenAlt(o); }
+async function tief_busInnenAlt(o) { const T = THREE, FY = .72, FC = .5, g = new T.Group(); g.name = 'busInnen'; g.userData.noCol = true; o.add(g);
   const dark = new T.MeshStandardMaterial({ color: 0x22201e, roughness: .85, metalness: .2, side: T.DoubleSide }), stoff = new T.MeshStandardMaterial({ color: 0x1d2536, roughness: .96 }), kunst = new T.MeshStandardMaterial({ color: 0x2b2d31, roughness: .55 });
   const metall = { gurt: new T.MeshStandardMaterial({ color: 0x35373a, roughness: .9 }), schloss: new T.MeshStandardMaterial({ color: 0x9a9a98, roughness: .3, metalness: .9 }) };
   const rb = (w, h, d, r, mat, x, y, z) => { const sh = new T.Shape(), a = w / 2 - r, bb = d / 2 - r; sh.moveTo(-a, -d / 2); sh.lineTo(a, -d / 2); sh.quadraticCurveTo(w / 2, -d / 2, w / 2, -bb); sh.lineTo(w / 2, bb); sh.quadraticCurveTo(w / 2, d / 2, a, d / 2); sh.lineTo(-a, d / 2); sh.quadraticCurveTo(-w / 2, d / 2, -w / 2, bb); sh.lineTo(-w / 2, -bb); sh.quadraticCurveTo(-w / 2, -d / 2, -a, -d / 2);
@@ -218,8 +257,8 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     tief_vanOeffnen(van); // nur ein Wagen (der Scan enthält zwei), Heck- und Frontscheibe fehlen: man sieht in den Laderaum und ins Fahrerhaus
     const o = msGround(msFit(van, 5.3, 'max')); o.position.set(TIEF.bus.x, -.18, TIEF.bus.z); o.rotation.set(0, .5, .05); msPlace(o, TIEF.bus.x, -.18, TIEF.bus.z, .5); o.rotation.z = .05; S.busG = o; o.updateMatrixWorld(true);
     try { // Welt-Abgleich: Windschutzscheibe fehlt im Scan → eingesetzte Glasscheibe (staubig, grünlich, nur leicht durchsichtig); die Heckscheibe bleibt zerschlagen (Blick auf die Sitze)
-      const gl = new T.Mesh(new T.PlaneGeometry(1.72, .86), new T.MeshStandardMaterial({ color: 0x5d6b66, roughness: .08, metalness: 0, transparent: true, opacity: .26, depthWrite: false, side: T.DoubleSide, envMapIntensity: 1.8 }));
-      gl.position.set(0, 1.52, 1.9); gl.rotation.x = -.62; gl.userData.noCol = true; gl.renderOrder = 4; gl.name = 'busScheibe'; o.add(gl); S.busScheibe = gl; } catch (e) { console.warn('Tiefwald: Windschutzscheibe', e); }
+      const gl = new T.Mesh(new T.PlaneGeometry(1.6, .8), new T.MeshStandardMaterial({ color: 0x5d6b66, roughness: .08, metalness: 0, transparent: true, opacity: .26, depthWrite: false, side: T.DoubleSide, envMapIntensity: 1.8 }));
+      gl.position.set(0, 1.565, 1.715); gl.rotation.x = -.86; /* Lage aus dem Scan: Unterkante y 1,31 / z 2,02, Oberkante y 1,83 / z 1,42 (Wagen-Koordinaten) */ gl.userData.noCol = true; gl.renderOrder = 4; gl.name = 'busScheibe'; o.add(gl); S.busScheibe = gl; } catch (e) { console.warn('Tiefwald: Windschutzscheibe', e); }
     try { await tief_busInnen(o); } catch (e) { console.warn('Tiefwald: Bus innen', e); } } catch (e) { console.warn('Tiefwald: Bus', e); }
   { const sign = new T.Mesh(new T.PlaneGeometry(1.4, .45), new T.MeshStandardMaterial({ roughness: .7, metalness: .5, map: tex(cnv(512, (c, w) => { c.fillStyle = '#6c7a72'; c.fillRect(0, 0, w, w); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(90,50,20,${rand(.1, .4)})`; c.beginPath(); c.arc(rand(0, w), rand(0, w), rand(3, 30), 0, 7); c.fill(); }
       c.fillStyle = '#e4e0d4'; c.font = 'bold 50px Arial'; c.textAlign = 'center'; c.fillText('AMT FÜR RÜCKFÜHRUNG', w / 2, 96); c.font = '38px Arial'; c.fillText('FAHRDIENST · LOST EYENGLESS', w / 2, 150); }), true) }));
