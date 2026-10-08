@@ -133,6 +133,7 @@ function ob_css() {
 #subtitle[data-ob="fremd"] { font-family: var(--f-fremd); letter-spacing: .14em; color: #eef2ff; text-shadow: 0 0 6px rgba(200,215,255,.5), 0 0 22px rgba(170,190,255,.22), 0 1px 2px #000, 0 0 10px #000; }
 #subtitle[data-ob="kind"] .who { color: #e8c9a0; }
 body.kino:has(#kinoCard.on) #subtitle, body.kino:has(#kinoCard.on) #toast { opacity: 0 !important; } /* Kino-Endkarte ersetzt die Untertitel-Spur */
+#subtitle[data-art="erz"] .who { display: none; }
 #introSeq #intro { font-family: var(--f-titel-l); font-size: 25px; line-height: 1.7; }
 #introSeq .skip { font-family: var(--f-ui-sc); font-weight: 500; }
 /* ---------- Fibel */

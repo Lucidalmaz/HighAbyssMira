@@ -25,6 +25,8 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Human Kidney Anatomy | clacydarch | Organ im Kuh-Sturz / Fraßstellen | https://www.fab.com/listings/3dff700e-9bbf-4d9d-babf-5328d263b512 |
 | Rusty and Oil Stained Oil Barrel | Sunbox Games | Ölfass im Langen Gang, Jonas' Blechdose | https://www.fab.com/listings/fe9d49ab-2e76-416d-87ee-6f506a63d1de |
 | Vintage Lighter | LR-Scans | Peters Feuerzeug | https://www.fab.com/listings/de2ec1d3-31f8-45bc-85b1-e1996daa6685 |
+| Zombie Number 7 – Animated (Mixamo-Skelett, 13 Clips; `game/assets/ms/zombie_p7/zom_7.glb`, unverändert, 1k-Texturen) | Tony Flanagan | Peter (Zombie) im langen Gang: Jagd, Sturz, Brand; Clips umgetaktet, Wurzelbewegung entfernt, Ölnässe per Shader | Fab (v20_zombie, Download 08.10.2026) – Listing-Adresse nachtragen |
+| Fire Alarm Button (`game/assets/ms/w_alarm/`: model.fbx + Texturen BaseColor/Normal_GL/Roughness/Opacity) | Thorrian | Notentriegelung der Brandschutztür (Handmelder „BREAK GLASS · PRESS HERE · FIRE“) | https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4 |
 | SM_ Pine_b_04 | Big bubble | Kiefern im Wald | https://www.fab.com/listings/612c4f3e-e147-4d68-8f35-82f38047da80 |
 | More Realistic Trees Free! | Nicholas 3D | Laubbäume | https://www.fab.com/listings/d9a40b15-46e7-41f9-ac46-99b487ddea60 |
 | Realistic Trees Pack of 2 Free | Nicholas 3D | Büsche/Unterholz | https://www.fab.com/listings/b988606a-788e-4032-abf4-f50fccada472 |

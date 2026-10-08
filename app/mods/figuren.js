@@ -18,7 +18,7 @@ async function figuren_load(id) {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
     const info = (await figuren_list()).find(x => x.id === id); if (!info) return FIGUREN_ERSATZ[id] ? figuren_load(FIGUREN_ERSATZ[id]) : null; // Q-6: neue Figur noch nicht gebaut → Stellvertreter
     const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
-    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_q6Mat(g.scene, info.skin); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
+    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
     return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
@@ -459,24 +459,82 @@ function figuren_autoBlick(P, V, dist, lit, dt) { const F = P.face; if (!F || F.
 // Taschenlampe trifft die Figur (Kegel ~ 28°, bis 12 m)
 function figuren_lit(w) { if (typeof flashOn === 'undefined' || !flashOn || (typeof state !== 'undefined' && state.blackout)) return false; const M = FIGUREN_MV; camera.getWorldDirection(M.v2); M.v.copy(w); M.v.y += 1.45; M.v.sub(camera.position); const d = M.v.length(); if (d > 12 || d < .2) return false; return M.v.dot(M.v2) / d > .88; }
 // ---------- Materialien (einmal je Vorlage): Haut mit Poren-Relief und warmer Streuung, nasse Hornhaut mit Lichtpunkt, Tränenrand, Haare ohne Ausdünnen in der Ferne
-function figuren_q6Mat(root, skin) { root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m || m.userData.q6) continue; m.userData.q6 = 1; const n = m.name || '';
-  try { if (/std_skin_head/i.test(n)) figuren_hautMat(m, 1); else if (/std_skin_(body|arm|leg)/i.test(n)) figuren_hautMat(m, 0, skin);
+// Haarfarbe je Figur (Mittel der echten Haartexturen, offline aus den GLB gemessen): Kopfhaut und Haaransatz nehmen sie an (kein „Glatzen-Scheitel“ zwischen den Haarkarten)
+const FIGUREN_HAAR = { aydin: '#281c17', cleo: '#b84320', dina: '#211812', dina_erw: '#211812', gezaehlt_j: '#504e49', gezaehlt_m: '#6c6760', gisela: '#ffffff', graue: '#95908a', guenther: '#989187', heidi: '#fcd997', hilde: '#ffffff', hilde_tot: '#c8c8c9', kleine: '#fffff3',
+  lorenz: '#6f523f', lucy: '#805130', lucy_erw: '#7f5030', luke: '#583d2b', luke_echt: '#83603e', luke_erw: '#4b321f', mama: '#6c472d', mike: '#d79d62', mira: '#2a130b', peter: '#5a554f', reuter: '#332116', roxy: '#3f291c', voss: '#c8c6c4', zayn: '#4f3420' };
+// Kopf-Rahmen (08.10.): Lage jedes Punktes zum Schädel, im Vertex-Raum der Köpfe („position“ – alle Netze eines Skeletts teilen ihn, der Netzknoten zählt nicht).
+// Aus der Geometrie des Kopfnetzes (Std_Skin_Head: Kopf mit Hals) und der Augenmitten: oben = größte Ausdehnung zu den Augen hin, vorn = Achse der Augen. kc = (seitlich, hoch, vorn), Schädeloberfläche ≈ 1.
+// Daraus: Kopfhaut-Tönung der Haut (Haarfarbe an Scheitel und Schläfe), Wurzelschatten der Haarkarten, Augenhöhlen-Verschattung, Hemdsaum der Kinderhose.
+const FIG_LEER = { uKX: { value: new THREE.Vector4(0, 0, 0, 9) }, uKY: { value: new THREE.Vector4(0, 0, 0, 9) }, uKZ: { value: new THREE.Vector4(0, 0, 0, 9) }, uAugeL: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeR: { value: new THREE.Vector3(1e6, 0, 0) }, uAugeRad: { value: 1 } };
+function figuren_kopf(root) { try {
+  let head = null, eL = null, eR = null, shirt = null;
+  root.traverse(o => { if (!o.isMesh || !o.geometry) return; const n = [].concat(o.material).map(m => m && m.name || '').join(' ');
+    if (!head && /std_skin_head/i.test(n)) head = o; else if (!eL && /std_eye_l$/i.test(n)) eL = o; else if (!eR && /std_eye_r$/i.test(n)) eR = o; else if (!shirt && /t_?shirt/i.test(n)) shirt = o; });
+  if (!head || !eL || !eR) return null;
+  const _fv = new THREE.Vector3(), bbox = m => { const p = m.geometry.attributes.position, b = new THREE.Box3(); for (let i = 0; i < p.count; i++) b.expandByPoint(_fv.set(p.getX(i), p.getY(i), p.getZ(i))); return b; }; // ohne Morph-Ziele (geometry.computeBoundingBox bezieht sie ein und bläht die Box auf)
+  const B = bbox(head), S = B.getSize(new THREE.Vector3()), Ct = B.getCenter(new THREE.Vector3());
+  const cen = m => { const p = m.geometry.attributes.position, ix = m.geometry.index, seen = new Set(), c = new THREE.Vector3(); let n = 0;
+    const add = i => { if (seen.has(i)) return; seen.add(i); c.x += p.getX(i); c.y += p.getY(i); c.z += p.getZ(i); n++; }; if (ix) for (let i = 0; i < ix.count; i++) add(ix.getX(i)); else for (let i = 0; i < p.count; i++) add(i); return n ? c.divideScalar(n) : null; };
+  const A = cen(eL), Bv = cen(eR); if (!A || !Bv) return null; const E = A.clone().add(Bv).multiplyScalar(.5), cmp = (v, k) => k === 0 ? v.x : k === 1 ? v.y : v.z;
+  const ax = S.x >= S.y && S.x >= S.z ? 0 : S.y >= S.z ? 1 : 2, k1 = (ax + 1) % 3, k2 = (ax + 2) % 3;
+  const f = Math.abs(cmp(E, k1) - cmp(Ct, k1)) >= Math.abs(cmp(E, k2) - cmp(Ct, k2)) ? k1 : k2, s = f === k1 ? k2 : k1;
+  const up = new THREE.Vector3().setComponent(ax, cmp(E, ax) >= cmp(Ct, ax) ? 1 : -1), fw = new THREE.Vector3().setComponent(f, cmp(E, f) >= cmp(Ct, f) ? 1 : -1), sd = new THREE.Vector3().setComponent(s, 1);
+  const maxD = (d, b) => (d.x >= 0 ? d.x * b.max.x : d.x * b.min.x) + (d.y >= 0 ? d.y * b.max.y : d.y * b.min.y) + (d.z >= 0 ? d.z * b.max.z : d.z * b.min.z), minD = (d, b) => -maxD(d.clone().negate(), b);
+  const top = maxD(up, B), extU = top - minD(up, B), H = extU * .72, hu = H / 2, hs = .43 * cmp(S, s), hf = .46 * cmp(S, f);
+  const cu = top - H / 2, cf = fw.dot(Ct) - .04 * cmp(S, f), cs = sd.dot(Ct);
+  const row = (d, c, h) => new THREE.Vector4(d.x / h, d.y / h, d.z / h, -c / h);
+  const u = { uKX: { value: row(sd, cs, hs) }, uKY: { value: row(up, cu, hu) }, uKZ: { value: row(fw, cf, hf) }, uAugeL: { value: A }, uAugeR: { value: Bv }, uAugeRad: { value: .058 * H } };
+  let hem = null; if (shirt) hem = minD(up, bbox(shirt)) + .075 * H; // Hemdsaum (tiefster Punkt des Hemds) + 1,5 cm
+  return { u, up, hem, H };
+} catch (e) { console.warn('figuren_kopf', e); return null; } }
+// Materialien (einmal je Vorlage): Haut mit Poren-Relief und warmer Streuung, nasse Hornhaut mit Lichtpunkt, Tränenrand, Haare ohne Ausdünnen in der Ferne
+function figuren_q6Mat(root, skin, id) { const K = figuren_kopf(root), haar = FIGUREN_HAAR[id] ? new THREE.Color(FIGUREN_HAAR[id]) : null,
+    aniso = Math.min(8, (typeof renderer !== 'undefined' && renderer.capabilities && renderer.capabilities.getMaxAnisotropy()) || 1);
+  root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) { if (!m || m.userData.q6) continue; m.userData.q6 = 1; const n = m.name || '';
+  try { for (const t of [m.map, m.normalMap]) if (t && t.anisotropy < aniso) t.anisotropy = aniso; // Textur-Filter: gestreifte Hemden (Roxy) flimmerten als Moiré, Modelltexturen hatten keine Anisotropie
+    if (/std_skin_head/i.test(n)) figuren_hautMat(m, 1, null, K, haar);
+    else if (/std_skin_(body|arm|leg)/i.test(n)) { figuren_hautMat(m, 0, skin); figuren_unterlage(m); }
+    else if (/^body$/i.test(n)) figuren_koerperMat(m, skin, id);
     else if (/std_cornea/i.test(n)) figuren_corneaMat(m, false); else if (/std_tearline/i.test(n)) figuren_corneaMat(m, true);
     else if (/std_eye_[lr]$/i.test(n)) { m.roughness = .34; m.envMapIntensity = .5; figuren_augeMat(m); }
-    else if (/waistband/i.test(n)) figuren_hosenMat(m);
+    else if (/std_(upper|lower)_teeth/i.test(n)) { m.color.setRGB(.8, .76, .7); m.roughness = Math.max(m.roughness, .45); } // Zähne im Mundraum: ohne Lippenschatten wirkten sie hell leuchtend
+    else if (/std_tongue/i.test(n)) m.color.setRGB(.8, .7, .7);
+    else if (/waistband/i.test(n)) figuren_hosenMat(m, K);
     else if (/eyelash/i.test(n)) m.visible = false; // Wimpernkarten tragen ein massives schwarzes Band an der Basis (wirkt wie Kajal); ohne sie sind die Augen sauber und natürlich
-    else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m);
+    else if (m.alphaTest > 0 && (/hair|lash|brow|beard|scalp|transparency|locken/i.test(n) || /hair|lash|brow|beard|scalp|locken/i.test(o.name))) figuren_haarMat(m, K, /beard|brow|bushy|lash/i.test(n + ' ' + o.name) ? 0 : 1);
+    else if (id === 'vegas' && m.metalnessMap) { m.metalness = .12; m.needsUpdate = true; } // Vegas: Metallkarte (Blau-Kanal) der Kleidung ≈ 0,26 im Mittel
     // Durchsichtig + beidseitig in einem Durchgang (wie die Basis für alles beim Laden): sonst schaltet three.js in jedem Bild zweimal die Seite um (needsUpdate → Programmsuche, Ruckler beim Auftritt)
     if (m.transparent && m.side === THREE.DoubleSide) m.forceSinglePass = true; } catch (e) { console.warn('figuren Material', n, e); } } }); }
-// Haut (Q7): Poren (Albedo + Relief), Fleckung/Rötung, ungleichmäßiger Glanz, Streulicht (rötlicher Übergang zum Schatten), feiner Flaum am Rand – gegen den „Plastik“-Eindruck (Nutzer 07.10.)
-function figuren_hautMat(m, face, skin) { const U = skin && !face ? { value: new THREE.Color(skin) } : null; m.onBeforeCompile = sh => {
+// Haut unter Kleidung: Körperhaut darf Hemd/Hose in der Tiefe nie gewinnen (Hautflecken im Hemd: Foto 17, Lucy im Tank) – Tiefenversatz weg vom Betrachter
+function figuren_unterlage(m) { m.polygonOffset = true; m.polygonOffsetFactor = 1.5; m.polygonOffsetUnits = 3; }
+// Erwachsene (Material „body“/„Body“): 1×1-Textur = flache Farbe (passte nicht zum Gesicht: Hemdkragen-Fehler Lucy erwachsen) → Hautton der Figur; Vegas: BLEND (weiße Quadrate auf den Armen = Alpha-/Metallpunkte der Textur) → deckend, ohne Metallkarte
+function figuren_koerperMat(m, skin, id) { figuren_unterlage(m); const im = m.map && m.map.image;
+  if (im && im.width <= 4 && skin) { m.map = null; m.color.set(skin); m.needsUpdate = true; }
+  if (m.transparent) { m.transparent = false; m.depthWrite = true; m.alphaTest = 0; m.blending = THREE.NormalBlending; m.needsUpdate = true; }
+  if (m.metalnessMap) { m.metalnessMap = null; m.metalness = 0; m.needsUpdate = true; } }
+// Haut (Q8): Poren (Albedo + Relief), Fleckung/Rötung, ungleichmäßiger Glanz, Streulicht (rötlicher Übergang zum Schatten), feiner Flaum am Rand – gegen den „Plastik“-Eindruck (Nutzer 07.10.)
+// Gesicht (face): dünne schwarze Lidrand-Linien der Textur werden weich ausgeglichen (Lidstrich Gisela, Schmiere Lucy), Kopfhaut/Scheitel/Schläfen bekommen die Haarfarbe der Figur (keine nackte Haut zwischen den Haarkarten),
+//   Augenhöhlen-Verschattung (Abstand zu den Augenmitten), Lippen glänzen etwas feuchter. Ein Programm für alle Köpfe (Werte stecken in Uniforms, customProgramCacheKey bleibt je face gleich).
+function figuren_hautMat(m, face, skin, K, haar) { const U = skin && !face ? { value: new THREE.Color(skin) } : null; m.onBeforeCompile = sh => {
   const fs = sh.fragmentShader; if (U) sh.uniforms.uHaut = U;
-  sh.fragmentShader = (U ? 'uniform vec3 uHaut;\n' : '') + `float gPore = 0.;
+  if (face) { Object.assign(sh.uniforms, K ? K.u : FIG_LEER, { uHaar: { value: haar || new THREE.Color(0, 0, 0) }, uSk: { value: K && haar ? 1 : 0 } });
+    sh.vertexShader = 'varying vec3 vOP;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vOP = position;'); }
+  sh.fragmentShader = (U ? 'uniform vec3 uHaut;\n' : '') + (face ? 'varying vec3 vOP; uniform vec4 uKX, uKY, uKZ; uniform vec3 uAugeL, uAugeR, uHaar; uniform float uAugeRad, uSk;\nfloat gAO = 0., gScalp = 0., gLip = 0.;\n' : '') + `float gPore = 0.;
   float hN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); vec2 k = vec2(127.1, 311.7);
     return mix(mix(fract(sin(dot(i, k)) * 43758.5453), fract(sin(dot(i + vec2(1., 0.), k)) * 43758.5453), f.x), mix(fract(sin(dot(i + vec2(0., 1.), k)) * 43758.5453), fract(sin(dot(i + vec2(1., 1.), k)) * 43758.5453), f.x), f.y); }
   ` + fs.replace('#include <map_fragment>', `#include <map_fragment>
   #ifdef USE_MAP
   ${U ? '{ float l = dot(diffuseColor.rgb, vec3(.299, .587, .114)); diffuseColor.rgb = mix(diffuseColor.rgb, uHaut * (.8 + .5 * l), 1. - smoothstep(.04, .12, l)); } // schwarze Unterwäsche der Körpertextur → Hautton (sonst scheint sie durch Risse in Hemd/Hose)' : ''}
+  ${face ? `{ float l0 = dot(diffuseColor.rgb, vec3(.299, .587, .114)); // dünne dunkle Linie (Lidrand, Mundspalt): beide Nachbarn quer zur Linie (5 Texel) sind hell → durch deren Mittel ersetzen; breite Brauen bleiben
+    if (l0 < .4) { vec2 ts = 1. / vec2(textureSize(map, 0)); float bq = 0.; vec3 av = diffuseColor.rgb;
+      for (int i = 0; i < 4; i++) { float a = float(i) * .7854; vec2 dv = vec2(cos(a), sin(a)) * 5. * ts; vec3 c1 = textureLod(map, vMapUv + dv, 0.).rgb, c2 = textureLod(map, vMapUv - dv, 0.).rgb;
+        float q = min(dot(c1, vec3(.299, .587, .114)), dot(c2, vec3(.299, .587, .114))); if (q > bq) { bq = q; av = (c1 + c2) * .5; } }
+      diffuseColor.rgb = mix(diffuseColor.rgb, av, smoothstep(.07, .2, bq - l0) * (1. - smoothstep(.22, .4, l0)) * .85); } }
+  { vec4 po = vec4(vOP, 1.); vec3 kc = vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ));
+    float thr = mix(.1, .6, smoothstep(.1, .6, kc.z)); thr = max(thr, .3 * smoothstep(.7, .95, abs(kc.x))); // Haaransatz: vorn hoch (Stirn), seitlich/hinten tief, Ohren frei
+    gScalp = smoothstep(thr, thr + .26, kc.y) * uSk; diffuseColor.rgb = mix(diffuseColor.rgb, uHaar * .5 + diffuseColor.rgb * .08, gScalp * .85);
+    float dE = min(distance(vOP, uAugeL), distance(vOP, uAugeR)); gAO = 1. - smoothstep(uAugeRad * 1.15, uAugeRad * 3.6, dE); diffuseColor.rgb *= 1. - .14 * gAO; // Augenhöhle
+    gLip = 1. - smoothstep(.6, 1., length((vMapUv - vec2(.49, .478)) / vec2(.07, .033))); }` : ''}
   { vec2 pu = vMapUv * ${face ? '760.' : '420.'}; vec2 fw = fwidth(pu); float fade = 1. - smoothstep(.3, .85, max(fw.x, fw.y));
     if (fade > .01) { vec2 ip = floor(pu), fp = fract(pu); float h = 0.;
       for (int j = -1; j <= 1; j++) for (int i = -1; i <= 1; i++) { vec2 c = ip + vec2(i, j); vec2 rr = fract(sin(vec2(dot(c, vec2(127.1, 311.7)), dot(c, vec2(269.5, 183.3)))) * 43758.5453); h = max(h, 1. - smoothstep(.0, .3, length(vec2(i, j) + rr - fp))); }
@@ -485,40 +543,50 @@ function figuren_hautMat(m, face, skin) { const U = skin && !face ? { value: new
     diffuseColor.rgb *= vec3(1. + (fl - .5) * .17, 1. - (fl - .5) * .11, 1. - (fl - .5) * .13);
     float lu = dot(diffuseColor.rgb, vec3(.299, .587, .114)); diffuseColor.rgb = mix(vec3(lu), diffuseColor.rgb, 1.06);
     diffuseColor.rgb *= 1. - gPore * vec3(.10, .13, .12); }
+  ${face ? 'diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(1.08, .92, .94), gLip * .5);' : ''}
   #endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
   #ifdef USE_MAP
   { float so = hN(vMapUv * ${face ? '41.' : '23.'} + 3.) * .6 + hN(vMapUv * ${face ? '130.' : '70.'}) * .4; roughnessFactor = clamp(roughnessFactor * (.8 + .55 * so) + gPore * .08, .28, .9); }
+  ${face ? 'roughnessFactor = mix(roughnessFactor, .86, gScalp * .7) * (1. - .42 * gLip);' : ''}
   #endif`).replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
   #ifdef USE_MAP
   { float h = -gPore * .00011; ${face ? 'h -= (hN(vMapUv * 230.) - .5) * .00004;' : ''}
     vec3 sx = dFdx(-vViewPosition), sy = dFdy(-vViewPosition), r1 = cross(sy, normal), r2 = cross(normal, sx); float det = dot(sx, r1) * faceDirection;
     vec3 gr = sign(det) * (dFdx(h) * r1 + dFdy(h) * r2); normal = normalize(abs(det) * normal - gr); }
   #endif`).replace('#include <lights_fragment_end>', `#include <lights_fragment_end>
+  ${face ? 'reflectedLight.indirectDiffuse *= 1. - .42 * gAO; reflectedLight.directDiffuse *= 1. - .16 * gAO;' : ''}
   reflectedLight.directDiffuse *= vec3(1.05, .965, .945); reflectedLight.indirectDiffuse *= vec3(1.035, .975, .96);
   { float Ld = dot(reflectedLight.directDiffuse, vec3(.3, .59, .11)), Lm = Ld / (1. + Ld);
     reflectedLight.directDiffuse += diffuseColor.rgb * vec3(1., .36, .2) * (sqrt(Lm) - Lm) * .4; // Streulicht: Übergang zum Schatten bleibt rötlich-warm
     reflectedLight.directDiffuse += diffuseColor.rgb * pow(1. - clamp(dot(normal, normalize(vViewPosition)), 0., 1.), 3.) * .2 * min(1., Ld * 2.); } // Flaum am Rand`); };
-  m.customProgramCacheKey = () => 'fig_haut7' + face; m.needsUpdate = true; }
+  m.customProgramCacheKey = () => 'fig_haut8' + face; m.needsUpdate = true; }
 function figuren_corneaMat(m, tear) { m.transparent = true; m.depthWrite = false; m.blending = THREE.AdditiveBlending; m.color.setRGB(0, 0, 0); m.map = null; m.alphaMap = null; m.opacity = 1; m.roughness = tear ? .1 : .035; m.metalness = 0; m.envMapIntensity = tear ? .5 : 1.1; m.visible = true;
   m.onBeforeCompile = sh => { sh.uniforms.uCatch = FIGUREN_EYEU.catch; sh.fragmentShader = 'uniform float uCatch;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', `{ vec3 vv = normalize(vViewPosition), rr = reflect(-vv, normal);
       float c1 = pow(max(dot(rr, normalize(vec3(.28, .32, 1.))), 0.), 1400.) * 5. * uCatch, fr = .02 + .98 * pow(1. - clamp(dot(normal, vv), 0., 1.), 5.);
       outgoingLight = (reflectedLight.directSpecular + reflectedLight.indirectSpecular * (.5 + fr)) * ${tear ? '.55' : '1.'} + vec3(c1 * ${tear ? '.25' : '1.'}); }
     #include <opaque_fragment>`); };
   m.customProgramCacheKey = () => 'fig_cornea' + (tear ? 't' : ''); m.needsUpdate = true; }
-// Kinder-Hosen („Lincoln“, Material Waistband): Durch die Risse am Hemdsaum sieht man Bund und Reißverschluss der Hose als schwarze Zacken und ein Reißverschluss-Muster (Nutzer 07.10.: „komische Bildfehler auf den Klamotten“).
-// Sehr dunkle Pixel werden durch die hellste Farbe in ihrer Nachbarschaft ersetzt (16 Proben, zwei Radien): aus Bund und Reißverschluss wird ruhiger Hosenstoff; die Risse selbst bleiben.
-function figuren_hosenMat(m) { m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>\n  #ifdef USE_MAP\n  { float l0 = dot(diffuseColor.rgb, vec3(.299, .587, .114)); if (l0 < .09) { vec2 ts = 1. / vec2(textureSize(map, 0)); vec3 best = diffuseColor.rgb; float bl = l0;\n    for (int i = 0; i < 16; i++) { float a = float(i) * .3927, r = (i < 8 ? 26. : 70.); vec3 c = textureLod(map, vMapUv + vec2(cos(a), sin(a)) * r * ts, 0.).rgb; float lc = dot(c, vec3(.299, .587, .114)); if (lc > bl) { bl = lc; best = c; } }\n    diffuseColor.rgb = mix(diffuseColor.rgb, best, smoothstep(.09, .03, l0)); } }\n  #endif`); };
-  m.customProgramCacheKey = () => 'fig_hose2'; m.needsUpdate = true; }
+// Kinder-Hosen („Lincoln“, Material Waistband): Der Reißverschluss/Bund der Hose ragt auf dem Bauch durch das Hemd (Nutzer 07.10.: „komische Bildfehler auf den Klamotten“; im GLB: Hosenteile bis ~8 cm über dem Hemdsaum).
+// Ursache (offline gerendert): Hosengeometrie (Fly) liegt über dem Saum vor dem Hemdstoff. Lösung: Hosenfragmente oberhalb Hemdsaum + 1,5 cm entfallen (liegen ohnehin unter dem Hemd); Wert aus K.hem (Kopf-Rahmen, Hemdnetz).
+// Zusätzlich: sehr dunkle Pixel werden durch die hellste Farbe der Nachbarschaft ersetzt (16 Proben, zwei Radien): aus Bund und Reißverschluss wird ruhiger Hosenstoff.
+function figuren_hosenMat(m, K) { const cut = !!(K && K.hem !== null && K.hem !== undefined), U = cut ? { uUp: { value: K.up }, uHem: { value: K.hem } } : null; m.onBeforeCompile = sh => {
+  let fs = sh.fragmentShader; if (cut) { Object.assign(sh.uniforms, U); sh.vertexShader = 'varying vec3 vOP;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vOP = position;'); fs = 'varying vec3 vOP; uniform vec3 uUp; uniform float uHem;\n' + fs; }
+  sh.fragmentShader = fs.replace('#include <map_fragment>', `${cut ? 'if (dot(vOP, uUp) > uHem) discard;\n  ' : ''}#include <map_fragment>\n  #ifdef USE_MAP\n  { float l0 = dot(diffuseColor.rgb, vec3(.299, .587, .114)); if (l0 < .09) { vec2 ts = 1. / vec2(textureSize(map, 0)); vec3 best = diffuseColor.rgb; float bl = l0;\n    for (int i = 0; i < 16; i++) { float a = float(i) * .3927, r = (i < 8 ? 26. : 70.); vec3 c = textureLod(map, vMapUv + vec2(cos(a), sin(a)) * r * ts, 0.).rgb; float lc = dot(c, vec3(.299, .587, .114)); if (lc > bl) { bl = lc; best = c; } }\n    diffuseColor.rgb = mix(diffuseColor.rgb, best, smoothstep(.09, .03, l0)); } }\n  #endif`); };
+  m.customProgramCacheKey = () => 'fig_hose3' + (cut ? 'c' : ''); m.needsUpdate = true; }
 // Augapfel (Std_Eye_L/R): die Textur hat überall rosa Äderchen und einen sehr harten dunklen Rand; Sklera wird zum warmen Weiß entsättigt (Gefäße bleiben schwach),
 // der Limbus-Ring weicher, die Iris kräftiger und mit mehr Tiefe; zum Lidrand hin wird der Augapfel leicht verschattet (Lidschatten) – so wirkt das Auge feucht und rund statt gläsern.
 function figuren_augeMat(m) { m.onBeforeCompile = sh => {
   sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>\n  #ifdef USE_MAP\n  { vec2 q = vMapUv - .5; float r = length(q), lum = dot(diffuseColor.rgb, vec3(.299, .587, .114));\n    float skl = smoothstep(.15, .22, r), ir = 1. - smoothstep(.105, .14, r), lim = smoothstep(.095, .125, r) * (1. - smoothstep(.125, .165, r));\n    vec3 weiss = mix(vec3(lum), diffuseColor.rgb, .38) * vec3(1.04, 1., .93);\n    diffuseColor.rgb = mix(diffuseColor.rgb, weiss * 1.04, skl * .78);\n    diffuseColor.rgb *= 1. - lim * .22;\n    diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * diffuseColor.rgb * 1.55, ir * .45); }\n  #endif`); };
   m.customProgramCacheKey = () => 'fig_auge'; m.needsUpdate = true; }
 // Haarkarten, Wimpern, Brauen: Deckkraft mit der Mip-Stufe anheben – sonst dünnen sie in der Ferne aus, bis Haare „verschwinden“ (R-3)
-function figuren_haarMat(m) { m.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <alphatest_fragment>', `#ifdef USE_MAP
+// Wurzelschatten (ao = 1): Karten dicht am Schädel (Kopf-Rahmen, kc-Länge 1 … 1,3) werden dunkler – die flachen Deckschichten der Frisur (Mikes Kappe, Hildes Scheitelkarten) glänzten als helle Streifen, der Haaransatz saß hart auf der Haut
+function figuren_haarMat(m, K, ao) { m.onBeforeCompile = sh => { Object.assign(sh.uniforms, K ? K.u : FIG_LEER, { uAO: { value: K && ao ? 1 : 0 } });
+  sh.vertexShader = 'varying vec3 vOP;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vOP = position;');
+  sh.fragmentShader = 'varying vec3 vOP; uniform vec4 uKX, uKY, uKZ; uniform float uAO;\n' + sh.fragmentShader.replace('#include <alphatest_fragment>', `#ifdef USE_MAP
   { vec2 ts = vec2(textureSize(map, 0)); vec2 dx = dFdx(vMapUv * ts), dy = dFdy(vMapUv * ts); float lod = max(0., .5 * log2(max(dot(dx, dx), dot(dy, dy)))); diffuseColor.a *= 1. + lod * .3; }
   #endif
-  #include <alphatest_fragment>`); }; m.customProgramCacheKey = () => 'fig_haar'; m.needsUpdate = true; }
+  { vec4 po = vec4(vOP, 1.); float dk = length(vec3(dot(po, uKX), dot(po, uKY), dot(po, uKZ))); diffuseColor.rgb *= mix(1., mix(.5, 1., smoothstep(1., 1.32, dk)), uAO); }
+  #include <alphatest_fragment>`); }; m.customProgramCacheKey = () => 'fig_haar2'; m.needsUpdate = true; }
 // Kino-Figuren (kino.js klont figuren_load-Vorlagen ohne Bewegungsschicht): Blinzeln + Sakkaden + Mund auch dort
 function figuren_kinoFaces(dt) { if (typeof kino_S === 'undefined' || !kino_S.fig) return; for (const k in kino_S.fig) { const K = kino_S.fig[k]; if (!K || !K.g || !K.g.visible || !K.obj) continue;
   if (K.q6 === undefined) { K.q6 = figuren_faceRig(K.obj, K.id) || null; if (K.q6) K.q6.starr = FIGUREN_STARR.has(K.id); }

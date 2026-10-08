@@ -768,8 +768,9 @@ const GL = { lost: false }; // Grafikkontext verloren (Treiber-Reset): Spiel ste
 const HAM_VERSION = window.HAM_VERSION || 'dev'; // einzige Quelle: package.json „version“ (build.js schreibt sie in die Seite)
 const DEV = !window.IS_RELEASE; // Veröffentlichung (tools/assemble.js --release): ohne Story-Editor, F3-Messanzeige und Entwickler-Hinweise
 // Testmodus ?lite (nur Selbsttests, nie in der Veröffentlichung): wenig Speicher für Logik-/Kollisions-/Auslöser-Tests, damit mehrere Testfenster parallel laufen (docs/gameplay/TESTEN.md).
-// ?fast (bisher wegen eines Steuerzeichens im Muster wirkungslos): kein Textur-Vorabhochladen, kein Vorladen. ?lite schließt das ein und übersetzt auch nicht vorab.
-const LITE = DEV && /[?&]lite\b/.test(location.search), FASTLOAD = LITE || /[?&]fast/.test(location.search);
+// ?lite: kein Textur-Vorabhochladen, kein Vorladen. ?fast bleibt wie bisher: sein altes Muster enthielt ein Steuerzeichen und übersprang
+// Übersetzen/Hochladen nie (nur das Vorladen in kapitel.js) – die Testschritte der Agenten verlassen sich auf vollständige Bilder.
+const LITE = DEV && /[?&]lite\b/.test(location.search), FASTLOAD = LITE;
 const $ = id => document.getElementById(id);
 
 // Intro-Text läuft, während die Welt generiert wird
@@ -814,7 +815,7 @@ if (KTX.img.size || KTX.mdl.size) {
     const full = this.manager.resolveURL((this.path || '') + url), k = ktxKey(full);
     if (!KTX.img.has(k)) return tl0.call(this, url, onLoad, onProgress, onError);
     const t = new THREE.Texture(), group = t.__ktx = [t];
-    if (!KTX.cache.has(k)) KTX.cache.set(k, KTX.loader.loadAsync(full + '.ktx2'));
+    if (!KTX.cache.has(k)) KTX.cache.set(k, KTX.loader.loadAsync(full + '.ktx2').then(ct => { ktxTrack(ct, { url: full + '.ktx2' }); return ct; }));
     const p = KTX.cache.get(k).then(ct => { for (const x of group) { apply(x, ct); x.__ktx = null; } onLoad && onLoad(t); },
       e => { console.warn('KTX2 ' + k, e); tl0.call(this, url, o => { for (const x of group) { x.source = o.source; x.__ktx = null; x.needsUpdate = true; } onLoad && onLoad(t); }, onProgress, onError); });
     KTX.pending.push(p); return t;
@@ -822,6 +823,55 @@ if (KTX.img.size || KTX.mdl.size) {
   const tc0 = THREE.Texture.prototype.clone, cp0 = THREE.Texture.prototype.copy;
   THREE.Texture.prototype.clone = function () { const c = tc0.call(this); if (this.__ktx) { this.__ktx.push(c); c.__ktx = this.__ktx; } return c; };
   THREE.Texture.prototype.copy = function (src) { cp0.call(this, src); if (src.isCompressedTexture && !this.isCompressedTexture) this.isCompressedTexture = true; return this; }; // Kopien bleiben komprimiert
+}
+// Speicher (08.10.2026): die komprimierten Texturdaten (KTX2 → BC7) blieben nach dem Hochladen als CPU-Kopie liegen – gemessen 3,4 GB der 5,5 GB ArrayBuffer-Speicher.
+// Jetzt: hat die Grafikkarte eine Quelle in ihrem aktuellen Stand, werden ihre CPU-Daten freigegeben (Sichtung beim Fertig-Laden und danach alle 2 s). Braucht three.js
+// sie später noch einmal (Kopie mit anderen Filter-/Wiederhol-Einstellungen, needsUpdate), meldet die Quelle „unvollständig“ – three.js lädt dann nicht hoch und
+// zeichnet so lange mit dem bisherigen Stand – und die Daten kommen im Hintergrund aus der Datei zurück (Bild: die .ktx2; Modell: Ausschnitt der .ktx.glb).
+// Abschalten zum Vergleich: ?noktxfree. Zählung: window.__ktxf.
+const KTXF = { list: [], freed: 0, mb: 0, restores: 0, fails: 0, busy: 0, on: !!KTX.loader && !LITE && !/noktxfree/.test(location.search), glb: new Map(), cur: null };
+function ktxTrack(ct, re) {
+  if (!KTXF.on || !ct || !ct.isCompressedTexture || !ct.mipmaps || !ct.mipmaps.length) return; const s = ct.source; if (!s || s.__kre) return;
+  const img = s.data; if (!img || typeof img !== 'object' || 'complete' in img) return;
+  s.__kre = re; s.__kmips = ct.mipmaps; s.__kfree = false; KTXF.list.push(s);
+  Object.defineProperty(img, 'complete', { configurable: true, get() { if (s.__kfree) { ktxRestore(s); return false; } return true; } });
+}
+function ktxSweep() {
+  if (!KTXF.on) return; const R = renderer.properties; let n = 0, b = 0;
+  for (const s of KTXF.list) { if (s.__kfree || s.__kbusy) continue; const P = R.get(s); if (P.__version === undefined || P.__version !== s.version) continue;
+    for (const m of s.__kmips) if (m && m.data) { b += m.data.byteLength; m.data = null; } s.__kfree = true; n++; }
+  KTXF.freed += n; KTXF.mb += b / 1048576;
+}
+async function ktxRestore(s) {
+  if (s.__kbusy) return; s.__kbusy = true; KTXF.restores++; KTXF.busy++;
+  try { const r = s.__kre; let buf;
+    if (r.bv) { let p = KTXF.glb.get(r.url); if (!p) { p = fetch(r.url).then(x => x.arrayBuffer()); KTXF.glb.set(r.url, p); setTimeout(() => KTXF.glb.delete(r.url), 8000); }
+      const ab = await p, o = r.binOff + (r.bv.byteOffset || 0); buf = ab.slice(o, o + r.bv.byteLength); }
+    else buf = await (await fetch(r.url)).arrayBuffer();
+    const ct = await new Promise((res, rej) => KTX.loader.parse(buf, res, rej));
+    if (ct.mipmaps.length !== s.__kmips.length) throw new Error('andere Mip-Zahl');
+    ct.mipmaps.forEach((m, i) => { s.__kmips[i].data = m.data; }); s.__kfree = false;
+  } catch (e) { KTXF.fails++; console.warn('KTX nachladen', s.__kre && s.__kre.url, e); }
+  finally { s.__kbusy = false; KTXF.busy--; }
+}
+if (KTXF.on) {
+  // Modelle: Lage der Bild-Ausschnitte in der .ktx.glb merken (Datei + Beginn des Binärteils + bufferView), damit freigegebene Texturen nachladbar bleiben
+  const fl0 = THREE.FileLoader.prototype.load;
+  THREE.FileLoader.prototype.load = function (url, onLoad, onProgress, onError) {
+    if (onLoad && this.responseType === 'arraybuffer' && typeof url === 'string' && /\.ktx\.glb$/.test(url)) { const full = this.manager.resolveURL((this.path || '') + url), ok = onLoad;
+      onLoad = data => { let binOff = -1; try { const dv = new DataView(data); if (dv.getUint32(0, true) === 0x46546C67) binOff = 20 + dv.getUint32(12, true) + 8; } catch (e) {}
+        KTXF.cur = binOff > 0 ? { url: full, binOff } : null; try { ok(data); } finally { KTXF.cur = null; } }; }
+    return fl0.call(this, url, onLoad, onProgress, onError); };
+  const gp0 = GLTFLoader.prototype.parse;
+  GLTFLoader.prototype.parse = function (...a) {
+    if (!this.__kf) { this.__kf = true; this.register(p => { const src = KTXF.cur; if (src) { const lis = p.loadImageSource.bind(p);
+      p.loadImageSource = (si, loader) => { const pr = lis(si, loader);
+        if (loader === KTX.loader) { const im = p.json.images && p.json.images[si], bv = im && im.bufferView !== undefined && p.json.bufferViews ? p.json.bufferViews[im.bufferView] : null;
+          if (bv && !bv.buffer) pr.then(t => ktxTrack(t, { url: src.url, binOff: src.binOff, bv }), () => {}); }
+        return pr; }; } return { name: 'ham_ktxfrei' }; }); }
+    return gp0.apply(this, a); };
+  const w0 = console.warn; console.warn = function (m, ...r) { if (KTXF.busy && m === 'THREE.WebGLRenderer: Texture marked for update but image is incomplete') return; return w0.call(this, m, ...r); };
+  window.__ktxf = KTXF;
 }
 // ?lite: Bilddateien und Modell-Texturen werden gar nicht geladen/dekodiert (4×4-Platzhalter), alles Übrige (Canvas) kommt höchstens 64 px groß auf die Grafikkarte.
 // Formen, Kollision, Auslöser und Abläufe bleiben unverändert – nur das Bild ist falsch (Selbsttests prüfen damit Logik, nie Optik).
@@ -832,8 +882,8 @@ if (LITE) {
   THREE.TextureLoader.prototype.load = function (url, onLoad) { const t = tiny(); if (onLoad) setTimeout(() => onLoad(t), 0); return t; };
   const gp = GLTFLoader.prototype.parse;
   GLTFLoader.prototype.parse = function (...a) { if (!this.__lite) { this.__lite = true; this.register(p => { p.loadTextureImage = () => Promise.resolve(tiny()); return { name: 'ham_lite' }; }); } return gp.apply(this, a); };
-  const w0 = console.warn; console.warn = function (m, ...r) { if (typeof m === 'string' && m.startsWith('THREE.WebGLRenderer: Texture has been resized')) return; return w0.call(this, m, ...r); };
-  console.info('Testmodus lite: Platzhalter-Texturen, kein Vorübersetzen/Hochladen');
+  const w0 = console.warn; console.warn = function (m, ...r) { if (typeof m === 'string' && (m.startsWith('THREE.WebGLRenderer: Texture has been resized') || m.startsWith('THREE.WebGLRenderer: Image in DataTexture is too big'))) return; return w0.call(this, m, ...r); };
+  console.info('Testmodus lite: Platzhalter-Texturen, kein Vorab-Hochladen');
 }
 
 const scene = new THREE.Scene();
@@ -4859,17 +4909,28 @@ function addEcho(E) {
 ECHOES.slice().forEach(addEcho);
 // Nachbild „Brand“ (Haus Nr. 5): hinter dem Mädchen brennt das Haus, in der Hand ein Feuerzeug – Flammen an den Resten des Hauses, nur solange das Nachbild läuft
 const brandFx = { g: null, flames: [], light: null, lighter: null, timer: 0 };
+// Fassung 3 (08.10.): echte Flammen (feuer_flamme aus dem Modul feuer: Rausch-Shader-Zungen, Rauch, Funken, Licht-Flackern) an Fenstern und Dachresten, Glutbett aus kleinen Sprites, Hitzeflimmern (Durchgang des Moduls feuer).
+// Ohne das Modul: die alten Flammen-Sprites als Rückfall. Das Licht (VLight) gab es schon – feuer_flamme moduliert nur dessen Stärke.
 function brandFeuer(on) {
+  const mod = typeof feuer_flamme === 'function';
   if (on && !brandFx.g) { const g = brandFx.g = new THREE.Group(); scene.add(g); g.userData.noCol = true;
-    const spots = []; for (let i = 0; i < 9; i++) spots.push([-17, -18 - 2.4 + i * .6]); for (let i = 0; i < 6; i++) spots.push([-16.4 + i * .8, -21.3]); spots.push([-9.5, -20], [-11.5, -19], [-13.5, -18], [-15, -16.5], [-12, -16], [-14, -19.6]);
-    spots.forEach(([x, z], i) => { const h = 1.6 + (i % 4) * .55, f = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); f.userData = { h, ph: i * 1.7 }; f.scale.set(h * .62, h, 1); f.position.set(x + rand(-.25, .25), h * .42, z + rand(-.25, .25)); g.add(f); brandFx.flames.push(f); });
     const L = brandFx.light = new VLight(0xff7a2a, 3.2, 17, 2); L.position.set(-13, 2.2, -18); g.add(L);
+    if (mod) { // Herde: Fenster der Westwand (x = -17), Giebel (z = -21,3), Dachreste (hoch, groß), zwei am Hauseingang
+      const H = [[-17, -19.6, 1.5, 1.2, .5], [-17, -18, 1.6, 1.4, .3], [-17, -16.2, 1.5, 1.1, .3], [-15.6, -21.3, 1.8, 1.5, .6], [-14, -21.3, 1.4, 1.1, .4], [-12.2, -21.3, 1.9, 1.6, .7], [-15.5, -20, 2.6, 1.9, 1.4], [-10.2, -19.4, 1.1, .9, .2]];
+      brandFx.fl = H.map(([x, z, h, sz, y], i) => feuer_flamme(g, new THREE.Vector3(x, y, z), { size: sz, height: h * 1.6, intensity: .8 + (i % 3) * .15, smoke: 1.4, sparks: 1, licht: i === 3 ? L : null, lichtFaktor: .5 }));
+    }
+    const spots = []; for (let i = 0; i < 9; i++) spots.push([-17, -18 - 2.4 + i * .6]); for (let i = 0; i < 6; i++) spots.push([-16.4 + i * .8, -21.3]); spots.push([-9.5, -20], [-11.5, -19], [-13.5, -18], [-15, -16.5], [-12, -16], [-14, -19.6]);
+    spots.forEach(([x, z], i) => { const h = mod ? .35 + (i % 3) * .12 : 1.6 + (i % 4) * .55, f = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, color: mod ? 0xff5a20 : 0xffffff })); f.userData = { h, ph: i * 1.7 }; f.scale.set(h * (mod ? 1.4 : .62), h, 1); f.position.set(x + rand(-.25, .25), h * (mod ? .3 : .42), z + rand(-.25, .25)); g.add(f); brandFx.flames.push(f); }); // mit Modul: Glutbett am Boden
     const li = brandFx.lighter = new THREE.Group(); li.position.set(-12.84, .7, -10.4); const body = new THREE.Mesh(new THREE.BoxGeometry(.026, .05, .012), new THREE.MeshStandardMaterial({ color: 0x8a1c1c, roughness: .35, metalness: .6 })); body.position.y = 0; li.add(body);
     const cap = new THREE.Mesh(new THREE.BoxGeometry(.026, .014, .012), new THREE.MeshStandardMaterial({ color: 0xb8b8b4, roughness: .3, metalness: 1 })); cap.position.y = .032; li.add(cap);
     const lf = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); lf.scale.set(.05, .09, 1); lf.position.y = .085; li.add(lf); li.userData.flame = lf; g.add(li); }
   if (!brandFx.g) return; brandFx.g.visible = on; clearInterval(brandFx.timer);
-  if (on) brandFx.timer = setInterval(() => { const t = performance.now() / 1000; brandFx.flames.forEach(f => { const k = .8 + Math.sin(t * 7 + f.userData.ph) * .14 + Math.sin(t * 17 + f.userData.ph * 2) * .1; f.scale.set(f.userData.h * .62 * k, f.userData.h * k * (1 + Math.sin(t * 3 + f.userData.ph) * .15), 1); f.material.opacity = .75 + Math.sin(t * 11 + f.userData.ph) * .2; });
-    brandFx.light.intensity = 3.2 * (.85 + Math.sin(t * 9) * .1 + Math.random() * .08); const lf = brandFx.lighter.userData.flame; lf.scale.set(.05 * (.9 + Math.random() * .25), .09 * (.9 + Math.random() * .3), 1); }, 55);
+  if (brandFx.fl) for (const f of brandFx.fl) { if (on) f.start(.9); else f.stop(); }
+  if (!on && typeof feuer_S !== 'undefined' && feuer_S.haze) feuer_S.haze.uniforms.uAmt.value = 0;
+  if (on) brandFx.timer = setInterval(() => { const t = performance.now() / 1000; brandFx.flames.forEach(f => { const k = .8 + Math.sin(t * 7 + f.userData.ph) * .14 + Math.sin(t * 17 + f.userData.ph * 2) * .1; const w = mod ? 1.4 : .62; f.scale.set(f.userData.h * w * k, f.userData.h * k * (1 + Math.sin(t * 3 + f.userData.ph) * .15), 1); f.material.opacity = (mod ? .55 : .75) + Math.sin(t * 11 + f.userData.ph) * .2; });
+    if (!mod) brandFx.light.intensity = 3.2 * (.85 + Math.sin(t * 9) * .1 + Math.random() * .08); const lf = brandFx.lighter.userData.flame; lf.scale.set(.05 * (.9 + Math.random() * .25), .09 * (.9 + Math.random() * .3), 1);
+    if (mod && typeof feuer_S !== 'undefined' && feuer_S.haze) { const U = feuer_S.haze.uniforms, p = new THREE.Vector3(-14, 2, -19.5).project(camera), d = camera.position.distanceTo(new THREE.Vector3(-14, 1.5, -19.5));
+      U.uAmt.value = p.z < 1 && Math.abs(p.x) < 1.6 && Math.abs(p.y) < 1.6 ? .55 : 0; U.uC.value.set(p.x * .5 + .5, p.y * .5 + .5); U.uR.value = Math.min(.6, 6 / Math.max(6, d)); U.uT.value = t; U.uAsp.value = camera.aspect; } }, 55);
 }
 async function playEcho(E) {
   if (echoSeen.has(E.id) || state.talking) return; echoSeen.add(E.id); state.talking = true;
@@ -6162,8 +6223,8 @@ camera.position.set(player.pos.x, 1.65, player.pos.z); camera.rotation.set(0, pl
 stage('Grafik vorbereiten'); await wait(60);
 // Alle Shader-Programme parallel im Hintergrund übersetzen (KHR_parallel_shader_compile), bevor das erste Bild entsteht.
 // Vorher: eins nach dem anderen im laufenden Bild, ~200 Programme → über eine Minute Ladezeit.
-// Testschalter ?fast (nur Selbsttests, --page=index.html?fast): kein Vorübersetzen, kein Textur-Hochladen – die Programme entstehen erst beim ersten Zeigen; spart je Testlauf Minuten.
-if (!LITE) { // ?lite: kein Vorübersetzen (Programme entstehen beim ersten Zeigen); ?fast übersetzt wie das Spiel (Bilder der Tests vollständig), lädt aber nicht vorab hoch
+// Testschalter: ?fast lässt nur das Vorladen aus (kapitel.js); ?lite (Platzhalter-Texturen) zusätzlich das Textur-Vorabhochladen unten.
+{ // auch ?lite übersetzt vorab: sonst entstehen alle Programme einzeln im ersten Bild (gemessen 160 s statt ~20 s)
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; });
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
@@ -6214,6 +6275,7 @@ stage('Erstes Bild fertig');
   saved.forEach((v, o) => o.visible = v);
   scarePlane.material.map = faceTexes.pale;
 }
+try { ktxSweep(); setInterval(ktxSweep, 2000); } catch (e) { console.warn('KTX freigeben', e); } // CPU-Kopien hochgeladener Texturen freigeben (siehe KTXF)
 ui.ready = true; window.__ready = true; stage('Fertig'); $('loadBar').style.display = 'none'; $('goText').style.display = 'none'; $('mainMenu').style.display = 'flex'; $('start').classList.add('ready'); $('fade').style.transition = 'opacity 2s'; $('fade').style.opacity = 0;
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();

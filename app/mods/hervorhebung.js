@@ -133,7 +133,7 @@ function hl_dot(c, px = 12) { const h = '#' + c.toString(16).padStart(6, '0'); r
 function hl_fibelHtml() { return `<span class="hand">Seit dieser Nacht sehe ich Ränder. Um manche Dinge liegt ein Schimmer, wie Atem auf kaltem Glas – erst, wenn ich nah dran bin oder lange genug hinsehe.\n\nIch hab mir die Farben gemerkt:</span>\n` +
   HL_LEG.map(([k, n, t]) => `${hl_dot(HL_FARBE[k])}<b>${n}</b> – ${t}`).join('\n') + `\n\n<span class="hand">Lucy hätte gesagt, der Ort will mir was zeigen. Ich sag: zu wenig Schlaf.</span>\n<small>Einstellungen → Objekt-Hervorhebung: stark · dezent · aus</small>`; }
 // Erklärkarte beim ersten Sichten: ruhig, links, blockiert nichts (man kann weitergehen), schließt nach 14 s oder mit E/Klick
-function hl_karte(K, n = 0) { if (HL.karte || document.getElementById('hlKarte')) return; if (typeof obt_ruhig === 'function' && !obt_ruhig() && n < 150) return void setTimeout(() => { try { hl_karte(K, n + 1); } catch (e) {} }, 700); /* Textführung: nicht mitten im Bild, solange Untertitel laufen – wartet auf Ruhe */ const d = document.createElement('div'); d.id = 'hlKarte'; HL.karte = d;
+function hl_karte(K, n = 0) { if (HL.karte || document.getElementById('hlKarte')) return; if (!K && HL.tourGezeigt) return; /* die Fibel-Tour (fibeltour.js) hat die Ränder-Legende schon gezeigt: kein zweites Fenster mitten im Bild */ if (typeof obt_ruhig === 'function' && !obt_ruhig() && n < 150) return void setTimeout(() => { try { hl_karte(K, n + 1); } catch (e) {} }, 700); /* Textführung: nicht mitten im Bild, solange Untertitel laufen – wartet auf Ruhe */ const d = document.createElement('div'); d.id = 'hlKarte'; HL.karte = d;
   d.style.cssText = 'position:fixed;left:3.2vw;top:50%;transform:translate(-14px,-50%);z-index:9000;max-width:470px;padding:24px 28px 20px;background:linear-gradient(160deg,rgba(14,16,20,.93),rgba(8,9,12,.9));border:1px solid rgba(220,210,190,.16);box-shadow:0 18px 60px rgba(0,0,0,.65),inset 0 0 40px rgba(255,255,255,.02);color:#ddd6c8;font-family:Georgia,serif;opacity:0;transition:opacity .9s ease,transform .9s ease;pointer-events:auto;border-radius:3px';
   d.innerHTML = K ? K : `<div style="font:13px/1 'Special Elite',Georgia,serif;letter-spacing:.32em;opacity:.55;margin-bottom:12px">RÄNDER</div>
     <div style="font-size:19px;line-height:1.45;margin-bottom:16px;font-style:italic;opacity:.9">Um manche Dinge liegt ein Schimmer. Die Farbe sagt, was es ist.</div>` +
@@ -191,9 +191,10 @@ function gli_tick(dt, t, aus) { const lit = typeof flashOn !== 'undefined' && fl
     HL.v.subVectors(c, ctr).normalize(); p.position.copy(ctr).addScaledVector(HL.v, HL.s.radius * .55); p.position.y += HL.s.radius * .45;
     p.material.color.setHex(s.cat === 'wichtig' ? 0xffe2a0 : s.cat === 'selten' ? 0xffd6f4 : 0xe6fff6); p.material.opacity = a; p.material.rotation = .3 + t * .4;
     p.scale.setScalar((.09 + d * .012) * (.6 + .9 * f)); p.visible = true; } }
-function hl_legende() { if (HL.legende) return; HL.legende = true;
+function hl_legende(still) { if (HL.legende) return; HL.legende = true; // still = true: nur den Fibel-Eintrag anlegen (Fibel-Tour), ohne Untertitel und ohne Erklärkarte
   try { const alt = story.lore.find(l => l.key === 'hervorhebung'); if (alt) { alt.html = hl_fibelHtml(); return; } // alter Spielstand: Fibel auf die neuen Farben bringen, keine zweite Karte
     story.lore.push({ key: 'hervorhebung', title: 'Ränder', html: hl_fibelHtml() });
+    if (still) return;
     subtitle('<i>Da liegt ein Schimmer drum. Als wollte es gefunden werden.</i>', 3600, 'LUKE'); setTimeout(() => { try { hl_karte(); } catch (e) {} }, 1800); } catch (e) {} }
 // Benutzt merken: E auf ein angesehenes Objekt (vor der Aktion der Basis, damit es auch bei schließenden Notizen zählt)
 addEventListener('keydown', e => { try { if (e.code !== 'KeyE' || e.repeat || ui.overlay || !target || !target.userData.action) return; const u = target.userData; u.hlBenutzt = true; HL.benutzt.add(hl_key(target)); u.hlKt = 0; } catch (er) {} }, true);

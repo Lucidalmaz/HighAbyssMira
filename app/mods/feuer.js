@@ -238,6 +238,8 @@ WORLD_MODS.push(['Feuer', async () => {
         .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n roughnessFactor = mix(roughnessFactor, .85, uChar);')
         .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n float feuD = distance(vFeuW.xz, uIgn); float feuB = (1. - smoothstep(uBurnR - .5, uBurnR, feuD)) * feuA * uHeat; float feuN = .55 + .45 * sin(uTime * 11. + vFeuW.x * 7.3 + sin(vFeuW.z * 5. + uTime * 3.)); float feuP = smoothstep(.35, .8, sin(vFeuW.x * 3.1 + uTime * 1.3) * sin(vFeuW.z * 4.3 - uTime * .9) * .5 + .5 * feuF); totalEmissiveRadiance += vec3(1., .26, .04) * feuB * feuN * (.12 + .36 * feuP) + vec3(1., .4, .07) * (1. - smoothstep(0., .35, abs(feuD - uBurnR))) * feuA * step(.01, uHeat) * step(uBurnR, 7.) * .7;'); };
     const oil = S.oil = new THREE.Mesh(new THREE.PlaneGeometry(FEU.oilW, FEU.oilD), mat); oil.rotation.x = -PI / 2; oil.position.set(X + 96, -40, Z); oil.renderOrder = 2; oil.receiveShadow = true; oil.userData.noCol = true; scene.add(oil); }
+  // Ölstrahl aus dem Spund des liegenden Fasses (glänzend, dunkel; nur in den ersten Sekunden des Auslaufens)
+  S.stream = new THREE.Mesh(new THREE.CylinderGeometry(.02, .032, 1, 8, 1, true), new THREE.MeshStandardMaterial({ color: 0x140b05, roughness: .04, metalness: .15, transparent: true, opacity: .9, envMapIntensity: 1.6, side: THREE.DoubleSide })); S.stream.visible = false; S.stream.userData.noCol = true; S.stream.castShadow = false; scene.add(S.stream);
   // Ruß danach: Decke und beide Wände über der Brandstelle (Deckkraft wächst mit der Brenndauer)
   { const mk = (tex, w, h) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ map: tex, color: 0xffffff, roughness: 1, transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3 })); m.userData.noCol = true; m.renderOrder = 1; m.position.set(0, -50, 0); scene.add(m); return m; };
     const tc = feuer_texSoot(512, 256, false), tw = feuer_texSoot(512, 192, true);
@@ -283,7 +285,26 @@ WORLD_MODS.push(['Feuer', async () => {
 // Oberseite der Matratze im Prüfraum finden (Möbel kommen aus innen_kapitel); sonst neben dem Bett auf dem Boden
 // ---------------------------------------------------------------- Notschalter (Notentriegelung): Metallgehäuse mit Schutzklappe, Plombe, Hebel, Kontrollleuchten, Leitungsrohr, Schrauben, Gebrauchsspuren (alles aus PBR-Teilen, ein Aufruf)
 // feuer_notschalter(x, z, opts) → Gruppe; Stil später mit app/mods/bedienung.js angleichbar. Teile in feuer_S.relParts: lever, cover, ledR, ledG (Zugriff aus feuer_escapeUpdate).
+// Echtes Modell: „Fire Alarm Button“ (Thorrian, CC-BY 4.0, Fab) – Handmelder mit Glasscheibe; Aufschrift „BREAK GLASS · PRESS HERE · FIRE“ ist Teil der Textur. Das Halten (E) drückt die Scheibe ein, beim Öffnen springt sie.
+// Fehlt das Modell, springt feuer_notschalterAlt ein (Gehäuse aus Primitiven). Teile (Schnittstelle zu feuer_relTick): lever, cover, plombe, ledR, ledG (ohne Gegenstück am echten Modell: Platzhalter), glass.
 function feuer_notschalter(x, z, o = {}) {
+  const S = feuer_S, y = o.y ?? 1.3, g = new THREE.Group(); g.position.set(x, y, z - .02); g.rotation.y = PI; scene.add(g); g.userData.noCol = true;
+  S.relParts = { g, lever: new THREE.Object3D(), cover: new THREE.Object3D(), plombe: { visible: true }, ledR: { emissiveIntensity: 0 }, ledG: { emissiveIntensity: 0 }, glass: null };
+  (async () => { try {
+    const m = await msFBX('w_alarm', 'model.fbx', { '*': { b: 'BaseColor.png', n: 'Normal_GL.png', r: 'Roughness.png', rough: 1 } });
+    m.updateMatrixWorld(true); msFit(m, .13, 'y'); m.updateMatrixWorld(true);
+    let body = null, glass = null; m.traverse(c => { if (!c.isMesh) return; if (/sphere/i.test(c.name)) glass = c; else if (!body) body = c; });
+    if (!body) throw new Error('kein Gehäuse');
+    // Vorderseite finden: vom Gehäuse zur Glasscheibe (waagrecht) → lokale +z (in den Gang)
+    const bb = new THREE.Box3().setFromObject(body), gb = glass ? new THREE.Box3().setFromObject(glass) : bb, d = gb.getCenter(new THREE.Vector3()).sub(bb.getCenter(new THREE.Vector3()));
+    m.rotation.y = -Math.atan2(d.x, d.z); // dreht die Richtung (d.x, d.z) auf +z
+    if (glass) { const gm = [].concat(glass.material)[0].clone(); gm.alphaMap = msTex('w_alarm/Opacity.png'); gm.transparent = true; gm.alphaTest = 0; gm.depthWrite = false; gm.roughness = .15; glass.material = gm; glass.castShadow = false; S.relParts.glass = glass; }
+    m.updateMatrixWorld(true); const b2 = new THREE.Box3().setFromObject(m), c = b2.getCenter(new THREE.Vector3()); m.position.x -= c.x; m.position.z -= b2.min.z; m.position.y -= c.y; // Rückseite an die Wand (z = 0), mittig
+    m.traverse(c => { c.userData.noCol = true; c.raycast = () => {}; }); g.add(m); S.relModel = m;
+  } catch (e) { console.warn('Notschalter: Modell fehlt – Ersatzgehäuse', e); scene.remove(g); feuer_notschalterAlt(x, z, o); } })();
+  return g;
+}
+function feuer_notschalterAlt(x, z, o = {}) {
   const S = feuer_S, y = o.y ?? 1.25, g = new THREE.Group(); g.position.set(x, y, z - .02); g.rotation.y = PI; // lokale +z = in den Gang
   const wear = (w, h, base, fn) => { const c = feuer_canvas(w, h, (cx) => { cx.fillStyle = base; cx.fillRect(0, 0, w, h);
       for (let i = 0; i < w * h / 90; i++) { cx.fillStyle = `rgba(${Math.random() < .5 ? '14,10,8' : '210,200,185'},${Math.random() * .1})`; cx.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 3, 1 + Math.random() * 1.5); }
@@ -335,9 +356,9 @@ function feuer_notschalter(x, z, o = {}) {
 }
 // Notschalter-Teile: Klappe geht beim Greifen auf, der Hebel folgt dem Halten, Plombe reißt, Leuchten wechseln von rot (Alarm) auf grün (frei)
 function feuer_relTick(pulse) { const S = feuer_S, R = S.relParts; if (!R) return; const p = S.relOpen ? 1 : Math.min(1, S.hold / 1.4), k = x => x * x * (3 - 2 * x);
-  R.cover.rotation.x = -1.45 * (S.hold > 0 || S.relOpen ? k(Math.min(1, .35 + p * 1.5)) : 0); R.lever.rotation.x = -.95 * k(p); R.plombe.visible = S.hold < .15 && !S.relOpen;
+  R.cover.rotation.x = -1.45 * (S.hold > 0 || S.relOpen ? k(Math.min(1, .35 + p * 1.5)) : 0); R.lever.rotation.x = -.95 * k(p); R.plombe.visible = S.hold < .15 && !S.relOpen; if (R.glass) { R.glass.visible = !(S.relOpen || S.hold > .7); }
   R.ledR.emissiveIntensity = S.relOpen ? 0 : .6 + 3.2 * pulse; R.ledG.emissiveIntensity = S.relOpen ? 3 : 0; }
-function feuer_relReset() { const R = feuer_S.relParts; if (!R) return; R.cover.rotation.x = 0; R.lever.rotation.x = 0; R.plombe.visible = true; R.ledR.emissiveIntensity = 0; R.ledG.emissiveIntensity = 0; }
+function feuer_relReset() { const R = feuer_S.relParts; if (!R) return; R.cover.rotation.x = 0; R.lever.rotation.x = 0; R.plombe.visible = true; if (R.glass) R.glass.visible = true; R.ledR.emissiveIntensity = 0; R.ledG.emissiveIntensity = 0; }
 // Zeitdruck nach dem Sturz: eine Zeile („ER STEHT AUF“) mit schwindender Frist, schneller werdender Herzschlag, Ziel „Öl anzünden“
 function feuer_hurry(k, dt = 0) { const S = feuer_S, el = S.airEl; if (!el) return;
   if (k === null) { if (S.hurry) { S.hurry = false; el.classList.remove('show', 'low'); el.querySelector('b').textContent = 'LUFT'; } return; }
@@ -442,7 +463,7 @@ function feuer_barrelUpdate(dt, t) {
 // ---------------------------------------------------------------- Öl läuft aus
 function feuer_spill() {
   const S = feuer_S; if (S.spilled) return; S.spilled = true; S.spillT = 0;
-  const bodyX = S.fell ? zombie.x - .85 : S.bx - 1.1; S.oilX = S.bx - FEU.oilW / 2 + 1.1;
+  const bodyX = S.spillBodyX !== undefined ? S.spillBodyX : S.fell ? zombie.x - .85 : S.bx - 1.1; S.oilX = S.bx - FEU.oilW / 2 + 1.1;
   feuer_field(S.bx, S.bz, bodyX); S.oil.position.set(S.oilX, .016, Z); S.oilU.uSpread.value = 1.02; FEU_SND.pour(S.bx, S.bz);
 }
 // ---------------------------------------------------------------- Der Verfolger stürzt, liegt im Öl, steht wieder auf – oder brennt
@@ -655,7 +676,7 @@ function feuer_reset(cpId) {
   if (cpId === 'flucht' && (S.phase === 'escape' || S.phase === 'dying')) { // Feuer brennt weiter, Rauch zurück auf Anfang, 30 Sekunden
     S.ps.n = Math.min(S.ps.n, 120); feuer_escapeStart(true); return; }
   // alles auf Anfang: Fass steht, kein Öl, kein Feuer, kein Ruß, Verfolger fort, Tür offen
-  feuer_hurry(null); feuer_relReset(); S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
+  feuer_hurry(null); feuer_relReset(); S.phase = 'idle'; S.cine = null; S.throwT = null; S.spilled = false; if (S.stream) S.stream.visible = false; S.spillBodyX = undefined; S.fell = false; S.spent = false; S.zs = null; S.griff = false; S.griffLauf = false; S.lampe = null; if (S.lampeHit) uninteract(S.lampeHit); FEU.bx = X + 76.3; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); zombie.greifT = 0; S.spread = 1.1; S.H = 0; S.burnR = 0; S.hold = 0; S.relOpen = false; S.said.oel = false; S.said.fassHint = false; S.soot = 0;
   if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; S.barrel.userData.noCol = false; }
   if (!interactables.includes(S.bHit)) interact(S.bHit, S.bHit.userData.label, S.bHit.userData.action);
   S.oil.position.y = -40; S.oilU.uSpread.value = 1.1; S.oilU.uBurnR.value = 0; S.oilU.uHeat.value = 0; S.oilU.uChar.value = 0;
@@ -697,7 +718,8 @@ WORLD_TICK.push((dt, t) => {
     if (S.throwT && S.throwObj) { const W = S.throwT; W.t += dt; const k = Math.min(1, W.t / W.d); S.throwObj.position.set(W.sx + (W.ex - W.sx) * k, W.sy + (.02 - W.sy) * k + Math.sin(k * PI) * .45, W.sz + (W.ez - W.sz) * k); S.throwObj.rotation.set(k * 9, k * 5, 0);
       if (Math.random() < .8) feuer_emit(S.pc, S.throwObj.position.x, S.throwObj.position.y + .02, S.throwObj.position.z, 0, .25, 0, .3, .04, .08, 0, 0); }
     // Öl breitet sich aus
-    if (S.spilled) { S.spillT += dt; S.spread = 1.02 - .94 * (1 - Math.exp(-S.spillT / 2.3)); S.oilU.uSpread.value = S.spread; S.oilU.uTime.value = t; }
+    if (S.spilled) { S.spillT += dt; S.spread = 1.02 - .94 * (1 - Math.exp(-S.spillT / 2.3)); S.oilU.uSpread.value = S.spread; S.oilU.uTime.value = t;
+      const st = S.stream; if (st) { const u = S.spillT, on = u < 3.4 && S.bx !== undefined; st.visible = on; if (on) { const h = .55 * Math.min(1, u / .25) * (1 - Math.max(0, (u - 2.4) / 1)); st.scale.set(1 + Math.sin(t * 40) * .08, Math.max(.001, h), 1); st.position.set(S.bx, .02 + h / 2, S.bz + FEU.r + .43); } } }
     // Zünden anbieten: unsichtbare Fläche vor der Kamera trägt die Aufforderung (gleiches Aussehen wie jede Handlung)
     if (feuer_canIgnite()) { camera.getWorldDirection(_fcv); if (!interactables.includes(S.ignHit)) interact(S.ignHit, 'Das Öl anzünden', () => feuer_ignite()); S.ignHit.position.copy(camera.position).addScaledVector(_fcv, 1.1); S.ignHit.lookAt(camera.position);
       if (!S.said.feuer) { S.said.feuer = true; subtitle('Das Feuerzeug.', 1600, 'LUKE'); } }
@@ -767,11 +789,12 @@ WORLD_TICK.push((dt, t) => {
 // Nach der Sequenz: Peter liegt zwei Meter weiter im Öl und sieht Luke an, die Stablampe liegt zwischen ihnen (Licht vom Boden), „Das Öl anzünden“ mit unsichtbarem Timer.
 async function feuer_griff() { const S = feuer_S; if (S.griff || S.griffLauf) return; S.griffLauf = true; ch2.chase = 'griff'; ch2.caught++; Audio.chaseMusic(false); Audio.chaseLevel(0);
   const P = player.pos; player.yaw = -PI / 2; player.pitch = 0; vel.set(0, 0, 0);
-  const ax = P.x, az = Math.max(Z - 1.25, Math.min(Z + 1.25, P.z)), Lx = ax - (PZ.P ? 2.0 : 1.3), Lz = Math.max(Z - 1.1, Math.min(Z + 1.1, az));
+  const ax = P.x, az = Math.max(Z - 1.25, Math.min(Z + 1.25, P.z)); let Lx = ax - (PZ.P ? 2.0 : 1.3), Lz = Math.max(Z - 1.1, Math.min(Z + 1.1, az));
+  S.spillBodyX = undefined; S.k2aImp = false;
   if (Math.hypot(FEU.bx - (ax - .5), FEU.bz - (Z - 1.25)) > 2.2) { FEU.bx = ax - .5; FEU.bz = Z - 1.25; FEU.tip = 1; if (S.barrel) { S.barrel.position.set(FEU.bx, FEU.h / 2, FEU.bz); S.barrel.quaternion.identity(); S.barrel.rotation.y = .4; } if (S.bHit) S.bHit.position.set(FEU.bx, .55, FEU.bz); }
   if (typeof gate !== 'undefined' && !gate.userData.open && Math.abs(gate.position.x - ax) < 3) { gate.userData.open = true; tween(gate, { pos: gate.position.clone().setZ(gate.position.z + 3.2) }, .55); gate.userData.col.minX = gate.userData.col.maxX = -9999; Audio.slide(gate.position.x, Z); uninteract(gate); $('sideInfo').textContent = ''; }
   zombie.x = Lx; zombie.z = Lz; S.griffLauf = true;
-  if (!S.griffGesehen && typeof kino_play === 'function' && typeof KINO !== 'undefined' && KINO.k2a && typeof kino_S !== 'undefined' && kino_S.ready) { S.griffGesehen = true; try { await kino_play('k2a'); } catch (e) { console.warn('Kino k2a', e); } if (feuer_k2aTot()) return pz_griffTod(); }
+  if (!S.griffGesehen && typeof kino_play === 'function' && typeof KINO !== 'undefined' && KINO.k2a && typeof kino_S !== 'undefined' && kino_S.ready) { S.griffGesehen = true; try { await kino_play('k2a'); } catch (e) { console.warn('Kino k2a', e); } if (feuer_k2aTot()) return pz_griffTod(); if (S.k2aImp && zombie.g.visible) { Lx = zombie.x; Lz = zombie.z; player.pos.x = Lx + 1.9; player.pos.z = Math.max(Z - 1.2, Math.min(Z + 1.2, Lz - .25)); } }
   else if (PZ.P && typeof qte_start === 'function') { S.griffGesehen = true; state.talking = true; setScripted(() => true); const r = await pz_griffOhneKino(ax, az); setScripted(null); state.talking = false; if (r === 'tot') return pz_griffTod(); } // R-10: Wiederholung aus Lukes Augen
   else { S.griffGesehen = true; shake = Math.max(shake, .05); Audio.play('metalSlam', { gain: .5, rate: .6, x: ax - .5, y: .4, z: Z - 1, ref: 3 }); await fade(1, 250); feuer_knock(); await wait(900); fade(0, 800); }
   if (S.phase === 'idle') feuer_knock(); await wait(80); if (!S.spilled) { S.fell = true; zombie.x = Lx; zombie.z = Lz; feuer_spill(); }
@@ -801,7 +824,7 @@ function feuer_lampeTick() { const S = feuer_S, L = S.lampe; if (!L || typeof fl
 // Kamera Blick über die Schulter (QTE-Taste „zurueck“, Standard Q), automatischer Schulterblick beim Ausfall von hinten, Impulse bei knappen Fehlgriffen, Sichtfeld folgt.
 const PZ = { an: false, P: null, pg: null, ue: null, U: { pzT: { value: 0 }, pzOel: { value: 0 } }, snd: false, ki: null, plx: 0, plz: 0, flash0: false, lockClip: null, lockT: 0,
   cam: { zk: 0, side: 1, autoT: 0, autoN: 0, kick: 0, kickV: 0, dip: 0, dipV: 0, fovK: 0, fovSet: false, ausw: null }, herzT: 0, atemT: 2, zahnT: 4, wortT: 8, loco: '', spd: 0, lx: 0, lz: 0, ph: -1,
-  lay: { kopf: 0, kopfV: 0, tilt: 0, wand: 0, greif: 0, lean: 0, nick: 0, weg: 0, winden: 0, tuer: 0, greifP: new THREE.Vector3() }, k2a: null };
+  screamCd: 0, lay: { kopf: 0, kopfV: 0, tilt: 0, wand: 0, greif: 0, lean: 0, nick: 0, weg: 0, winden: 0, tuer: 0, greifP: new THREE.Vector3() }, k2a: null };
 const PZ_NOISE = `float pzH(vec3 p){ p = fract(p * .3183099 + .1); p *= 17.; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
 float pzN(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f); return mix(mix(mix(pzH(i), pzH(i + vec3(1,0,0)), f.x), mix(pzH(i + vec3(0,1,0)), pzH(i + vec3(1,1,0)), f.x), f.y), mix(mix(pzH(i + vec3(0,0,1)), pzH(i + vec3(1,0,1)), f.x), mix(pzH(i + vec3(0,1,1)), pzH(i + vec3(1,1,1)), f.x), f.y), f.z); }`;
 // ---------------------------------------------------------------- Laden (sobald Kapitel 2 läuft; ohne Figur bleibt alles beim alten Verfolger)
@@ -809,15 +832,78 @@ async function pz_laden() {
   if (PZ.an || typeof figuren_embody !== 'function' || typeof zombie === 'undefined') return; PZ.an = true;
   try {
     const pg = new THREE.Group(); pg.name = 'PeterHalter'; pg.rotation.y = PI / 2; zombie.g.add(pg); // Figur schaut nach +z, der Verfolger nach +x
-    const P = await figuren_embody(pg, 'peter', {}); if (!P || P.id !== 'peter') { zombie.g.remove(pg); console.warn('Peter: Figur fehlt – alter Verfolger'); return; }
+    let P = null; try { P = await pz_zmBau(pg); } catch (e) { console.warn('Zombie-Modell – Rückfall auf CC-Peter', e); P = null; }
+    if (!P) P = await figuren_embody(pg, 'peter', {}); if (!P || P.id !== 'peter') { zombie.g.remove(pg); console.warn('Peter: Figur fehlt – alter Verfolger'); return; }
     P.fixed = true; P.rig.legs = []; PZ.P = P; PZ.pg = pg; // keine Fuß-IK: Liegen, Knien und Fallen bleiben wie aufgenommen
     for (const c of zombie.g.children) if (c !== pg) c.visible = false;
     const old = typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.zombie : null; if (old && old.zm) old.zm.visible = false;
     PZ.ue = pz_ueMap(P); if (typeof innen_kapitel_S !== 'undefined') innen_kapitel_S.zombie = { zm: P.obj, mx: P.mx, b: PZ.ue, eigen: true, peter: P };
-    await pz_haut(P.obj); feuer_S.zmats = null; pz_mimik(); figuren_play(P, 'idle', true);
+    if (P.own) pz_zmHaut(P.obj); else await pz_haut(P.obj); feuer_S.zmats = null; if (!P.own) pz_mimik(); pz_play(P, 'idle', true);
     { const fe = window.__feuer; if (fe) fe.peter = PZ; } // Testzugriff (in der Veröffentlichung fehlt __feuer)
   } catch (e) { console.warn('Peter laden', e); }
 }
+// ---------------------------------------------------------------- Zombie-Modell „Number 7“ (Tony Flanagan, CC-BY 4.0, Fab): eigenes Mixamo-Skelett, 13 Clips – ersetzt den verformten CC-Menschen als Peter
+// Die Zustandsmaschine (pz_*) bleibt: Clips werden auf ihre Schlüssel abgebildet (idle, suchen, walk, run, stolpern, hug, scream, fall_vor). fall_vor ist ein umgetakteter „Dying“-Clip, damit
+// die Zeitmarken der Brand-/Sturz-Szenen (Stehen 1,15 · Sturzbeginn 1,9 · Knie 2,75 · Aufschlag 4,7 · Ende) weiter stimmen. Bei Fehlern lädt pz_laden den alten CC-Peter.
+const PZ_ZM = { dir: 'zombie_p7', file: 'zom_7.glb', scale: 1.08, DV: 5.6 };
+function pz_zmClip(src, o) {
+  let c = o.sub ? THREE.AnimationUtils.subclip(src, o.name, o.sub[0], o.sub[1], 30) : src.clone(); c.name = o.name;
+  if (o.map) { const K = o.map, f = t => { if (t <= K[0][1]) return K[0][0]; for (let i = 1; i < K.length; i++) if (t <= K[i][1]) return K[i - 1][0] + (t - K[i - 1][1]) / (K[i][1] - K[i - 1][1]) * (K[i][0] - K[i - 1][0]); return K[K.length - 1][0] + (t - K[K.length - 1][1]); };
+    for (const tr of c.tracks) { const T = tr.times; for (let i = 0; i < T.length; i++) T[i] = f(T[i]); } c.resetDuration(); }
+  const hp = c.tracks.find(t => /Hips\.position$/.test(t.name)); // Wurzelbewegung (Armature-cm, y = vorwärts) entfernen: der Körper bleibt an der Figurposition
+  if (hp && o.fix) { const V = hp.values, T = hp.times, n = T.length, y0 = V[1], y1 = V[(n - 1) * 3 + 1], t1 = T[n - 1] || 1;
+    for (let i = 0; i < n; i++) { const u = T[i] / t1; let sh = y0; if (o.fix === 'trend') sh = y0 + (y1 - y0) * u; else if (o.fix === 'fall') { const k = Math.max(0, Math.min(1, (T[i] - 1.9) / (4.7 - 1.9))); sh = y0 + 85 * k * k * (3 - 2 * k); } V[i * 3 + 1] -= sh; } }
+  return c;
+}
+async function pz_zmBau(pg) {
+  if (typeof msModel !== 'function' || typeof figuren_skc !== 'function' || typeof figuren_rig !== 'function') return null;
+  const src = await msModel(PZ_ZM.dir, PZ_ZM.file); if (!src || !src.animations || !src.animations.length) return null;
+  const sk = await figuren_skc(), obj = sk(src); obj.name = 'Person_peter_zm'; obj.scale.setScalar(PZ_ZM.scale); pg.add(obj);
+  const A = n => src.animations.find(a => a.name === n); if (!A('Idle') || !A('Walk') || !A('Run') || !A('Dying')) { pg.remove(obj); return null; }
+  const D = PZ_ZM.DV, mx = new THREE.AnimationMixer(obj), acts = {}, motion = {};
+  const def = {
+    idle: { c: 'Idle', fix: 'trend', loop: true }, suchen: { c: 'Idle', fix: 'trend', loop: true, ts: .8 },
+    walk: { c: 'Walk', fix: 'trend', loop: true, speed: .33, phaseL: .1, phaseR: .59, rm: 'lin' }, run: { c: 'Run', fix: 'trend', loop: true, speed: 2.9, phaseL: .4, phaseR: .8, rm: 'lin' },
+    stolpern: { c: 'Dying', fix: 'first', sub: [0, 26], loop: false }, scream: { c: 'Scream', fix: 'first', loop: false }, crawl: { c: 'Crawl', fix: 'trend', loop: true },
+    hug: { c: 'Neck_Bite', fix: 'first', sub: [36, 81], loop: 'pp', off: 1.2 },
+    fall_vor: { c: 'Dying', fix: 'fall', map: [[0, 0], [1.15, .3], [1.9, .75], [2.75, 1.45], [4.7, 2.35], [D, 3.33]], loop: false } };
+  for (const [k, d] of Object.entries(def)) { const cl = pz_zmClip(A(d.c), Object.assign({ name: k }, d)), a = mx.clipAction(cl); a.enabled = false; acts[k] = a; motion[k] = { loop: d.loop, speed: d.speed, phaseL: d.phaseL, phaseR: d.phaseR, rm: d.rm, off: d.off || 0, ts: d.ts || 1 }; }
+  acts.schritt = acts.walk; motion.schritt = motion.walk;
+  const rig = figuren_rig(obj, null); rig.legs = [];
+  return { id: 'peter', own: true, obj, mx, acts, cur: null, curK: null, g: pg, h: 1.97, motion, rig, mv: { vis: true, acc: 0, lookW: 0 }, look: null, lookW: 0, lk: { y: 0, p: 0 }, fixed: true };
+}
+// Haut: eigene Materialien (Klone) mit Ölnässe (pzOel: dunkler, glänzend, von unten nach oben) und leichter Verfinsterung; Blut/Geschwüre kommen aus der Textur
+function pz_zmHaut(root) {
+  root.traverse(m => { if (!m.isMesh) return; m.frustumCulled = false; m.castShadow = true; m.receiveShadow = true; m.userData.noCol = true;
+    const ms = [].concat(m.material).map(src => { const c = src.clone(); c.envMapIntensity = .5; c.side = THREE.FrontSide; c.roughness = Math.max(.55, c.roughness ?? .6);
+      c.onBeforeCompile = sh => { sh.uniforms.pzOel = PZ.U.pzOel;
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vPzP;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvPzP = position;');
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float pzOel; varying vec3 vPzP;\n' + PZ_NOISE)
+          .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+{ diffuseColor.rgb *= vec3(.9, .93, .9); float w = pzOel * smoothstep(.0, .8, (1.5 - vPzP.y * .8) + (pzN(vPzP * 7.) - .5) * .9); diffuseColor.rgb *= mix(1., .36, w); roughnessFactor = mix(roughnessFactor, .13, w); }`); };
+      c.customProgramCacheKey = () => 'pzzm'; c.needsUpdate = true; return c; });
+    m.material = Array.isArray(m.material) ? ms : ms[0]; });
+}
+// Eigenes Abspielen (wie figuren_play: weich überblenden, Einmal-Clips halten das letzte Bild, Ping-Pong für das Halten)
+function pz_play(P, k, first, o) { if (!P.own) return figuren_play(P, k, first, o);
+  const a = P.acts[k] || P.acts.idle; if (!a || a === P.cur) return; const m = P.motion[k] || {}, prev = P.cur, once = o && o.once !== undefined ? o.once : m.loop === false, fade = Math.max(.15, (o && o.fade) || .4);
+  a.reset(); a.setLoop(once ? THREE.LoopOnce : m.loop === 'pp' ? THREE.LoopPingPong : THREE.LoopRepeat, Infinity); a.clampWhenFinished = once; a.enabled = true; a.paused = false; a.timeScale = o && o.ts ? o.ts : m.ts || 1; a.setEffectiveWeight(1); a.play();
+  if (prev && !first) { for (const n in P.acts) { const b = P.acts[n]; if (b === a || !b.enabled || !b.isScheduled()) continue; const w = b.getEffectiveWeight(); if (w > .001) { b.stopFading(); b._scheduleFading(fade, w, 0); } else b.stop(); } a._scheduleFading(fade, 0, 1); }
+  else for (const n in P.acts) { const b = P.acts[n]; if (b !== a && b.isScheduled()) b.stop(); }
+  P.cur = a; P.curK = k; }
+function pz_look(P, t, w = 1) { if (!P) return; if (P.own) { P.look = t; P.lookW = t ? w : 0; } else figuren_lookAt(P, t, w); }
+function pz_mim(P, n, w, d) { if (P && !P.own && typeof figuren_mimik === 'function') return figuren_mimik(P, n, w, d); return false; }
+function pz_zmLoco(k, s) { const P = PZ.P, a = P.cur, m = P.motion[PZ.loco];
+  if (a && m && m.speed) a.timeScale = Math.max(k === 'walk' ? .7 : .6, Math.min(k === 'walk' ? 3.6 : 1.6, s / m.speed));
+  if (a && m && m.phaseL !== undefined && s > .1) { const u = (a.time / a.getClip().duration) % 1, u0 = PZ.ph; PZ.ph = u; if (u0 >= 0) for (const f of [m.phaseL, m.phaseR]) if ((u0 < f && u >= f) || (u0 > u && (f > u0 || f <= u))) {
+      if (!pz_ton('schritt', Math.min(1.1, .32 + s * .22), k === 'run' ? 1.06 : .96, false, .05)) Audio.stepAt(zombie.x, zombie.z, .5); if (k === 'walk' && f === m.phaseR && Math.random() < .6) pz_ton('schlurf', .6, .95, false, .05); } } else PZ.ph = -1; }
+// Blick: Kopf folgt dem Ziel (Kamera, Punkt, Objekt) begrenzt (±63° Gier, ±29° Neigung) – nach dem Mischer, vor der Zusatzschicht
+function pz_zmLook(dt) { const P = PZ.P, r = P.rig, L = P.lk; if (!r.head) return; let ty = 0, tp = 0; P.obj.getWorldQuaternion(_pqb);
+  if (P.look && P.lookW > 0) { const T = P.look === 'cam' ? camera.position : P.look.isObject3D ? P.look.getWorldPosition(_pv3) : P.look; r.head.getWorldPosition(_pv1); _pv2.copy(T).sub(_pv1); _pfw.set(0, 0, 1).applyQuaternion(_pqb);
+    let yaw = Math.atan2(_pv2.x, _pv2.z) - Math.atan2(_pfw.x, _pfw.z); yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw)); ty = Math.max(-1.1, Math.min(1.1, yaw)) * P.lookW; tp = Math.max(-.5, Math.min(.5, Math.atan2(_pv2.y, Math.hypot(_pv2.x, _pv2.z)))) * P.lookW; }
+  const k = 1 - Math.exp(-dt * 6); L.y += (ty - L.y) * k; L.p += (tp - L.p) * k;
+  if (Math.abs(L.y) > .005) { pz_bend(r.neck, _pup, L.y * .4); pz_bend(r.head, _pup, L.y * .6); }
+  if (Math.abs(L.p) > .005) { _pax.set(1, 0, 0).applyQuaternion(_pqb); pz_bend(r.head, _pax, -L.p * .7); } }
 // Knochennamen wie beim alten Modell (tod.js, Brand-Partikel, kino.js lesen sie) → echte Knochen der Figur
 function pz_ueMap(P) { const r = P.rig, f = re => { let o = null; P.obj.traverse(b => { if (!o && b.isBone && re.test(b.name.replace(/^.*[:|]/, '').replace(/^mixamorig/i, '').replace(/_\d+$/, ''))) o = b; }); return o; };
   return { pelvis: r.hips, spine_01: f(/^Spine$/i), spine_02: f(/^Spine1$/i), spine_03: r.chest || f(/^Spine2$/i), neck_01: r.neck, head: r.head, clavicle_l: r.lSh, clavicle_r: r.rSh, upperarm_l: r.lArm, upperarm_r: r.rArm,
@@ -908,6 +994,8 @@ function pz_ton(art, gain = 1, rate = 1, flat = false, y = 1.3) { const n = PZ_K
 // ---------------------------------------------------------------- Knochen-Schicht (nach dem Mischer, nur in Bildern, in denen figuren.js die Figur bewegt hat)
 const _pqa = new THREE.Quaternion(), _pqb = new THREE.Quaternion(), _pqc = new THREE.Quaternion(), _pqi = new THREE.Quaternion(), _pv1 = new THREE.Vector3(), _pv2 = new THREE.Vector3(), _pv3 = new THREE.Vector3(), _pv4 = new THREE.Vector3(), _pax = new THREE.Vector3(), _pfw = new THREE.Vector3(), _pup = new THREE.Vector3(0, 1, 0);
 function pz_knack() { if (!Audio.ctx) return; const n = 'wd_knochen_' + (1 + Math.floor(Math.random() * 6)); if (!Audio.buf || !Audio.buf[n]) return; Audio.play(n, { gain: .4, rate: rand(.8, 1.05), x: zombie.x, y: 1.5, z: zombie.z, ref: 2.5 }); }
+// Röcheln/Stöhnen des Zombies: vorhandene Aufnahmen (undead*, zombie1) tief und gedämpft, räumlich an Peter
+function pz_roehr(g = .5) { if (!Audio.ctx || !Audio.buf) return; const n = ['undead2', 'undead4', 'undead1', 'zombie1', 'undead3'].filter(k => Audio.buf[k]); if (!n.length) return; Audio.play(n[Math.floor(Math.random() * n.length)], { gain: g, rate: rand(.55, .75), lp: 1800, x: zombie.x, y: 1.4, z: zombie.z, ref: 3.5 }); }
 function pz_schrei() { if (!Audio.ctx || !Audio.buf || !Audio.buf.sc_scream) return; Audio.play('sc_scream', { gain: .5, rate: rand(.68, .78), x: zombie.x, y: 1.5, z: zombie.z, ref: 4 }); }
 function pz_bend(b, ax, a) { if (!b || !b.parent || !a) return; b.parent.getWorldQuaternion(_pqa); b.getWorldQuaternion(_pqb); _pqc.setFromAxisAngle(ax, a); b.quaternion.copy(_pqa.invert().multiply(_pqc).multiply(_pqb)); b.updateMatrixWorld(true); }
 function pz_ziel(b, kind, T, w) { if (!b || !kind || !b.parent || w <= .001) return; b.getWorldPosition(_pv1); kind.getWorldPosition(_pv2); _pv2.sub(_pv1).normalize(); _pv3.copy(T).sub(_pv1).normalize();
@@ -940,11 +1028,12 @@ function pz_schicht(dt, t) { const P = PZ.P, L = PZ.lay, r = P && P.rig; if (!r 
     pz_bend(r.lUp, _pax, -Math.max(0, a) * .45); pz_bend(r.rUp, _pax, -Math.max(0, c) * .45); pz_bend(r.lLeg, _pax, Math.max(0, a) * .7); pz_bend(r.rLeg, _pax, Math.max(0, c) * .7); }
 }
 // ---------------------------------------------------------------- Clips (Fortbewegung nach echtem Tempo; Einmal-Clips mit Sperre)
-function pz_clip(k, o = {}) { const P = PZ.P; if (!P || !P.acts[k]) return null; figuren_play(P, k, false, { fade: o.fade ?? .35, once: o.once, ts: o.ts }); const a = P.acts[k]; if (o.t !== undefined) a.time = o.t; if (o.ts !== undefined) a.timeScale = o.ts; if (o.lock) { PZ.lockClip = k; PZ.lockT = o.lock; } PZ.loco = k; return a; }
+function pz_clip(k, o = {}) { const P = PZ.P; if (!P || !P.acts[k]) return null; pz_play(P, k, false, { fade: o.fade ?? .35, once: o.once, ts: o.ts }); const a = P.acts[k]; if (o.t !== undefined) a.time = Math.max(0, o.t - ((P.motion && P.motion[k] && P.motion[k].off) || 0)); if (o.ts !== undefined) a.timeScale = o.ts; if (o.lock) { PZ.lockClip = k; PZ.lockT = o.lock; } PZ.loco = k; return a; }
 function pz_loco(dt) { const P = PZ.P; if (!P) return; const vx = (zombie.x - PZ.lx) / Math.max(dt, 1e-3), vz = (zombie.z - PZ.lz) / Math.max(dt, 1e-3); PZ.lx = zombie.x; PZ.lz = zombie.z;
   const v = Math.min(7, Math.hypot(vx, vz)); PZ.spd += (v - PZ.spd) * Math.min(1, dt * 6);
   if (PZ.lockT > 0) { PZ.lockT -= dt; if (PZ.lockT > 0) return; PZ.lockClip = null; }
-  const s = PZ.spd, cur = PZ.loco, K = PZ.ki; let k = s < .14 ? (K && (K.st === 'verdacht' || K.st === 'verloren') ? 'suchen' : 'idle') : s < (cur === 'walk' ? 1.05 : .85) ? 'walk' : s < (cur === 'run' ? 2.5 : 2.9) ? 'schritt' : 'run';
+  const s = PZ.spd, cur = PZ.loco, K = PZ.ki; if (P.own) { const k = s < .14 ? (K && (K.st === 'verdacht' || K.st === 'verloren') ? 'suchen' : 'idle') : s < (cur === 'run' ? 1.3 : 1.55) ? 'walk' : 'run'; if (k !== cur) pz_clip(k, { fade: k === 'run' || cur === 'run' ? .25 : .4 }); return pz_zmLoco(k, s); }
+  let k = s < .14 ? (K && (K.st === 'verdacht' || K.st === 'verloren') ? 'suchen' : 'idle') : s < (cur === 'walk' ? 1.05 : .85) ? 'walk' : s < (cur === 'run' ? 2.5 : 2.9) ? 'schritt' : 'run';
   if (k !== cur) pz_clip(k, { fade: k === 'run' || cur === 'run' ? .25 : .4 });
   const a = P.cur, m = P.motion && P.motion[PZ.loco]; if (a && m && m.rm === 'lin' && m.speed) a.timeScale = Math.max(.55, Math.min(k === 'walk' ? 1.9 : 1.6, s / m.speed));
   // Schritte genau beim Aufsetzen (Fußphasen aus den Bewegungsdaten)
@@ -1014,6 +1103,7 @@ function pz_ki(dt, t) {
     case 'verloren': { sp = 0; if (sieht || (hoert && d < 8)) { go('jagd'); break; } if (K.t > 4.2) go('lauern'); break; }
   }
   PZ.plx2 = P.x; PZ.plz2 = P.z;
+  if (PZ.P && PZ.P.own && sp > 0 && sp <= 1.6) sp *= .75; // das Zombie-Modell humpelt: Gehgeschwindigkeit passend zum Clip
   if (K.stun > 0) sp = Math.min(sp, K.stun > .6 ? 0 : .6);
   // ---- Bewegung, Blickrichtung (Körper dreht träge), Stolpern an Gerümpel
   const blocked = pz_geh(tx, tz, sp, dt);
@@ -1036,10 +1126,10 @@ function pz_stapel(K) { let best = null, bd = 6; for (const o of obstacles) { co
   return { x: Math.max(X + 47.5, Math.min(gate.position.x - .7, far)), z: Math.max(Z - 1.5, Math.min(Z + 1.5, wz)), art: 'stapel' }; }
 // Zustand wechselt: hörbar und sichtbar (fair lesbar)
 function pz_stimmung(st) { const P = PZ.P; if (!P) return;
-  if (st === 'verdacht') { pz_ton('zahn', .8, 1); figuren_mimik(P, 'zahn', .6); }
-  else if (st === 'suche') { figuren_mimik(P, 'zahn', .5); if (Math.random() < .5) pz_wort(); }
-  else if (st === 'jagd') { figuren_mimik(P, 'zahn', 1); pz_ton('atem', 1.1, .92); if (Math.random() < .5) pz_ton('lachen', .55, .95); if (PZ.ki && PZ.ki.t > 0) Audio.chaseMusic(true); }
-  else if (st === 'verloren') { figuren_mimik(P, 'zahn', .35); pz_ton('atem', .9, .82); pz_wort(true); } }
+  if (st === 'verdacht') { pz_ton('zahn', .8, 1); pz_mim(P, 'zahn', .6); }
+  else if (st === 'suche') { pz_mim(P, 'zahn', .5); if (Math.random() < .5) pz_wort(); }
+  else if (st === 'jagd') { pz_mim(P, 'zahn', 1); if (P.own && PZ.screamCd <= 0 && PZ.ki && Math.hypot(player.pos.x - zombie.x, player.pos.z - zombie.z) > 5.5) { PZ.screamCd = 40; pz_clip('scream', { once: true, lock: 2.4, fade: .2 }); PZ.ki.stun = Math.max(PZ.ki.stun, 2.1); pz_schrei(); } pz_ton('atem', 1.1, .92); if (Math.random() < .5) pz_ton('lachen', .55, .95); if (PZ.ki && PZ.ki.t > 0) Audio.chaseMusic(true); }
+  else if (st === 'verloren') { pz_mim(P, 'zahn', .35); pz_ton('atem', .9, .82); pz_wort(true); } }
 // Die gebrochene Stimme: fast Wörter („Luke …“, „raus …“) – Untertitel für Gehörlose; die Sprachausgabe (stimmen.js) übernimmt, sobald die Zeilen gebaut sind
 function pz_wort(raus) { const P = PZ.P; if (!P || PZ.wortT > 0) return; PZ.wortT = rand(9, 15); const tx = raus ? '„… raus …“' : '„… Lu… ke …“';
   try { subtitle(tx, 1700, 'PETER'); } catch (e) {} pz_ton('lachen', .32, .78); setTimeout(() => pz_ton('atem', .6, .86), 500); }
@@ -1086,7 +1176,7 @@ function pz_jagdSchicht(dt, t) { const K = PZ.ki, L = PZ.lay; if (!K || ch2.chas
   if (wandZ && Math.random() < dt * .25) Audio.play('scrape3', { gain: .1, rate: rand(1.4, 1.8), dur: .7, x: zombie.x, y: 1.2, z: Z + PZ.wandS * 1.9, ref: 2 }); // Fingernägel über Beton und Blech
   const gz = K.lunge > 0 || (K.st === 'jagd' && Math.hypot(player.pos.x - zombie.x, player.pos.z - zombie.z) < 2.2) ? 1 : 0; L.greif += (gz * .8 - L.greif) * (1 - Math.exp(-dt * 7)); if (gz) L.greifP.copy(camera.position).y -= .35;
   L.lean += ((K.lunge > 0 ? .55 : K.st === 'jagd' ? .22 : .12) - L.lean) * ke;
-  if (PZ.P) figuren_lookAt(PZ.P, K.st === 'jagd' ? 'cam' : null, .9); }
+  if (PZ.P) pz_look(PZ.P, K.st === 'jagd' ? 'cam' : null, .9); }
 // ---------------------------------------------------------------- QTE-Ketten (Kinosequenz k2a und Ersatz ohne Kino): Losreißen, dann gegen das Fass
 function pz_qte(o) { return new Promise(res => { if (typeof qte_start !== 'function') return res(true); qte_start(Object.assign({}, o, { onOk: h => { try { o.ok && o.ok(h); } catch (e) {} res(true); }, onFail: h => { try { o.nein && o.nein(h); } catch (e) {} res(false); } })); }); }
 const pz_shake = (a, d) => { if (typeof kino_shake === 'function' && typeof kino_S !== 'undefined' && kino_S.on) kino_shake(a, d); else shake = Math.max(shake, a); };
@@ -1101,38 +1191,47 @@ async function pz_qteLos() { let k0 = 0;
 async function pz_qteFass() { const at = () => _pv3.set(FEU.bx, .7, FEU.bz);
   for (let r = 0; r < 2; r++) {
     const ok = await pz_qte({ type: 'tippen', keys: 'aktion', duration: r ? 1.15 : 1.5, window: r ? [.55, .82] : [.5, .85], label: 'Gegen das Fass', at,
-      ok: () => { if (feuer_S.phase === 'idle') feuer_knock(); pz_shake(.06, .6); Audio.play('metalSlam', { gain: .7, rate: .62, x: FEU.bx, y: .4, z: FEU.bz, ref: 3 }); } });
+      ok: () => { if (feuer_S.phase === 'idle' && !(PZ.k2a && feuer_S.griffLauf)) feuer_knock(); pz_shake(.06, .6); Audio.play('metalSlam', { gain: .7, rate: .62, x: FEU.bx, y: .4, z: FEU.bz, ref: 3 }); } });
     if (ok) return 'ok';
     if (r === 0) { pz_shake(.05, .5); pz_ton('stoehn', .7, .9, true); try { subtitle('Ihr taumelt am Fass vorbei. Noch einmal!', 1800); } catch (e) {} await wait(450); } }
   return 'tot'; }
 // Kinosequenz k2a („Bruder.“, kino.js) ruft je Einstellung feuer_k2a(phase); feuer_k2aHalt hält eine Einstellung, solange ein QTE läuft
 function feuer_k2a(ph) { const P = PZ.P, A = typeof kino_S !== 'undefined' ? kino_S.k2a : null; if (!P) return false;
   const K = PZ.k2a || (PZ.k2a = { warte: false, tot: false, greifZ: 0, nah: 1, fall: false });
-  if (ph === 'nah') { Object.assign(K, { warte: false, tot: false, greifZ: 0, nah: 1, fall: false, aufschlag: false }); PZ.ki = null; pz_clip('idle', { fade: .2 }); figuren_mimik(P, 'zahn', 1); figuren_lookAt(P, 'cam', 1); pz_ton('atem', 1, .9); pz_ton('zahn', .6, 1); }
+  if (ph === 'nah') { Object.assign(K, { warte: false, tot: false, greifZ: 0, nah: 1, fall: false, aufschlag: false }); PZ.ki = null; pz_clip('idle', { fade: .2 }); pz_mim(P, 'zahn', 1); pz_look(P, 'cam', 1); pz_ton('atem', 1, .9); pz_ton('zahn', .6, 1); }
   else if (ph === 'haende') { K.greifZ = .95; K.nah = .8; pz_ton('stoff', .6, 1, true); }
   else if (ph === 'druecken') { K.nah = .55; K.greifZ = .7; pz_clip('hug', { t: 1.4, ts: .3, fade: .5 }); pz_ton('atem', 1.1, .85); K.warte = true; pz_qteLos().then(r => { K.warte = false; if (r === 'tot') K.tot = true; }); }
   else if (ph === 'fass') { K.greifZ = .25; K.warte = true; pz_qteFass().then(r => { K.warte = false; if (r === 'tot') K.tot = true; }); }
-  else if (ph === 'fall') { K.greifZ = 0; K.fall = true; if (A) { zombie.g.position.set(A.x - A.fx * 2.0, 0, A.z - A.fz * 2.0); zombie.g.rotation.set(0, Math.atan2(A.fx, A.fz) - PI / 2, 0); zombie.x = zombie.g.position.x; zombie.z = zombie.g.position.z; }
-    figuren_lookAt(P, null); pz_clip('fall_vor', { once: true, fade: .2, t: 1.9, ts: 1.55 }); PZ.U.pzOel.value = Math.max(PZ.U.pzOel.value, .3); pz_ton('atem', 1, 1.1); }
+  else if (ph === 'fall') { K.greifZ = 0; K.fall = true; K.ft = 0; K.knocked = false; K.imp = false; K.vx = 2.4; const S = feuer_S;
+    // Totale: Peter läuft von Westen durch den Gang auf die Kamera zu; das Fass am Nordrand kippt in seine linke Flanke (Aufprall nach ~0,75 s), er stürzt nach vorn ins auslaufende Öl
+    zombie.g.visible = true; zombie.x = FEU.bx - 1.8; zombie.z = Z + .02; zombie.g.position.set(zombie.x, 0, zombie.z); zombie.g.rotation.set(0, 0, 0); if (A) A.imp = true;
+    S.spillBodyX = FEU.bx + .35; pz_look(P, null); pz_clip('run', { fade: .12, ts: .83 }); PZ.U.pzOel.value = Math.max(PZ.U.pzOel.value, .05); pz_ton('atem', 1, 1.15); pz_ton('lachen', .5, .9); }
   return true; }
 function feuer_k2aHalt(sh, t) { if (PZ.k2a && PZ.k2a.warte && sh) sh._dur = Math.max(sh._dur, t + .08); }
 function feuer_k2aTot() { return !!(PZ.k2a && PZ.k2a.tot); }
 function pz_k2aTick(dt) { const K = PZ.k2a, L = PZ.lay, A = kino_S.k2a; if (!K || !A) return;
   L.greif += (K.greifZ - L.greif) * (1 - Math.exp(-dt * 3.2)); L.greifP.copy(camera.position); L.greifP.y -= .07; L.lean += (.2 - L.lean) * Math.min(1, dt * 3); L.kopf *= .9; L.tilt += (.12 - L.tilt) * Math.min(1, dt * 2);
   if (!K.fall && zombie.g.visible) { const d0 = Math.hypot(zombie.g.position.x - A.x, zombie.g.position.z - A.z), dn = d0 + (K.nah - d0) * Math.min(1, dt * 1.6); zombie.g.position.set(A.x - A.fx * dn, 0, A.z - A.fz * dn); }
-  if (K.fall) { PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * .3); const fv = PZ.P.acts.fall_vor; if (fv && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_knack(); pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .5, rate: .55, lp: 500, dur: 3, x: zombie.x, y: .1, z: zombie.z, ref: 2.5 }); Audio.play('waterFlow', { gain: .3, rate: .7, dur: .8, x: zombie.x + 1, y: .1, z: zombie.z, ref: 2 }); } } }
+  if (K.fall && K.vx === undefined) { PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * .3); const fv = PZ.P.acts.fall_vor; if (fv && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_knack(); pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .5, rate: .55, lp: 500, dur: 3, x: zombie.x, y: .1, z: zombie.z, ref: 2.5 }); } } // ohne Kino (Wiederholung)
+  else if (K.fall) { const S = feuer_S; K.ft = (K.ft || 0) + dt; PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * (K.imp ? .5 : .02));
+    if (!K.imp) { zombie.x += K.vx * dt; if (!K.knocked && K.ft > .35 && S.phase === 'idle') { K.knocked = true; feuer_knock(); } // Fassbewegung: feuer_barrelUpdate (tip)
+      if ((S.phase === 'tip' && S.bt > .4) || K.ft > 1.1) { K.imp = true; K.vx = 2.2; pz_clip('fall_vor', { once: true, fade: .1, t: 1.9, ts: 1.55 }); pz_look(PZ.P, null); pz_knack(); pz_ton('fall', 1, .9, false, .8); pz_ton('stoehn', .8, .95); pz_shake(.07, .6); PZ.cam.kickV = 1.4;
+        Audio.play('metalSlam', { gain: .95, rate: .62, x: zombie.x, y: .6, z: Z - .4, ref: 4 }); Audio.play('woodHit2', { gain: .5, rate: .55, x: zombie.x, y: .8, z: zombie.z, ref: 3 }); FEU_SND.clank(zombie.x, Z - .3, .9); } }
+    else { zombie.x += K.vx * dt; K.vx *= Math.exp(-dt * 4.2); }
+    zombie.g.position.set(zombie.x, 0, zombie.z); zombie.g.rotation.set(0, 0, 0);
+    const fv = PZ.P.acts.fall_vor; if (fv && K.imp && !K.aufschlag && fv.time > 4.7) { K.aufschlag = true; pz_knack(); pz_ton('fall', 1, 1, false, .2); Audio.play('waterFlow', { gain: .5, rate: .55, lp: 500, dur: 3, x: zombie.x, y: .1, z: zombie.z, ref: 2.5 }); Audio.play('waterFlow', { gain: .3, rate: .7, dur: .8, x: zombie.x + 1, y: .1, z: zombie.z, ref: 2 }); } } }
 // ---------------------------------------------------------------- Peter im Öl, im Feuer, sein letzter Griff zur Tür (Zustände aus feuer_zombieUpdate, Bewegung aus echten Clips)
 function pz_zsTick(dt, t) { const S = feuer_S, Q = S.zs, P = PZ.P, L = PZ.lay; if (!Q || !P || !zombie.g.visible) return; const fv = P.acts.fall_vor; if (!fv) return; const D = fv.getClip().duration, KN = 2.75;
   const halt = tm => { if (PZ.loco !== 'fall_vor') pz_clip('fall_vor', { once: true, fade: .5 }); fv.paused = false; fv.timeScale = 0; fv.time = Math.max(0, Math.min(D - .02, tm)); }, ez = k => k * k * (3 - 2 * k);
   L.greif *= .9; L.wand = 0; L.lean *= .9; L.kopf *= .92; L.tilt *= .95; if (S.spilled) PZ.U.pzOel.value = Math.min(1, PZ.U.pzOel.value + dt * .35);
   if (Q.st === 'fall') { if (PZ.loco !== 'fall_vor') pz_clip('fall_vor', { once: true, fade: .25, t: 1.9, ts: 1.55 }); if (!Q.aufschlag && fv.time > 4.7) { Q.aufschlag = true; pz_ton('fall', 1, 1, false, .2); } return; }
-  if (Q.st === 'down') { halt(D - .03 - (D - .03 - KN) * Math.min(1, (Q.sit || 0) / .6)); figuren_lookAt(P, 'cam', .75); figuren_mimik(P, 'zahn', .45); L.winden += ((Q.writhe || 0) * .3 - L.winden) * Math.min(1, dt * 3); return; }
-  if (Q.st === 'rise') { if (Q.r0 === undefined) Q.r0 = fv.time; const k = Math.min(1, Q.t / 1.8); halt(Q.r0 + (1.15 - Q.r0) * ez(k)); L.winden *= .9; figuren_lookAt(P, 'cam', 1); figuren_mimik(P, 'zahn', 1); return; }
-  if (Q.st === 'nick') { halt(D - .03); L.nick = (Q.nick || 0) * .8; L.weg = Q.weg || 0; figuren_lookAt(P, null); return; }
-  if (Q.st === 'burn') { const b = Q.t; figuren_mimik(P, 'brand', .9); L.nick *= .9;
+  if (Q.st === 'down') { halt(D - .03 - (D - .03 - KN) * Math.min(1, (Q.sit || 0) / .6)); pz_look(P, 'cam', .75); pz_mim(P, 'zahn', .45); L.winden += ((Q.writhe || 0) * .3 - L.winden) * Math.min(1, dt * 3); return; }
+  if (Q.st === 'rise') { if (Q.r0 === undefined) Q.r0 = fv.time; const k = Math.min(1, Q.t / 1.8); halt(Q.r0 + (1.15 - Q.r0) * ez(k)); L.winden *= .9; pz_look(P, 'cam', 1); pz_mim(P, 'zahn', 1); return; }
+  if (Q.st === 'nick') { halt(D - .03); L.nick = (Q.nick || 0) * .8; L.weg = Q.weg || 0; pz_look(P, null); return; }
+  if (Q.st === 'burn') { const b = Q.t; pz_mim(P, 'brand', .9); L.nick *= .9;
     if (b < 3) { halt(D - .03); L.winden += (Math.min(1, b) * .9 - L.winden) * Math.min(1, dt * 4); L.weg = Math.max(0, 1 - b / 2.5); }
     else if (b < 4.6) { const k = ez((b - 3) / 1.6); halt(D - .03 - (D - .03 - KN) * k); L.winden *= 1 - Math.min(1, dt * 2); L.weg = 0; if (!Q.auf) { Q.auf = true; pz_ton('atem', 1.2, .8); } }
-    else if (b < 6) { halt(KN); L.winden *= .9; L.tuer += (1 - L.tuer) * Math.min(1, dt * 3); L.greifP.set(X + 106, 1.25, Z); figuren_lookAt(P, L.greifP, 1); } // er greift an Luke vorbei zur Tür – er wollte raus
+    else if (b < 6) { halt(KN); L.winden *= .9; L.tuer += (1 - L.tuer) * Math.min(1, dt * 3); L.greifP.set(X + 106, 1.25, Z); pz_look(P, L.greifP, 1); } // er greift an Luke vorbei zur Tür – er wollte raus
     else if (Q.liegt) halt(D - .03);
     else { if (!Q.sturz) { Q.sturz = true; fv.timeScale = 1.55; fv.time = KN; pz_ton('atem', .9, .7); } L.tuer *= 1 - Math.min(1, dt * 3); if (!Q.thudP && fv.time > 4.7) { Q.thudP = true; TOD_SND.thud(.6); FEU_SND.collapse(Q.x + 1.2, Q.z); pz_ton('fall', 1, .85, false, .2); shake = Math.max(shake, .03); }
       if (fv.time >= D - .05) { fv.timeScale = 0; fv.time = D - .03; Q.liegt = true; } } } }
@@ -1144,7 +1243,7 @@ function pz_qteFeuerzeug() { const S = feuer_S; let fT = 0;
       if (k > .65) { pz_feuerzeugPos(_pv4); if (Math.random() < .7) feuer_emit(S.pc, _pv4.x, _pv4.y + .01, _pv4.z, 0, .12, 0, .22, .025, .05, 0, 0); } } }); }
 // Zweiter Griff ohne Kinosequenz (nach dem Tod, Wiederholung): Peter vor Luke, die Hände am Gesicht, dieselben QTEs aus Lukes Augen
 async function pz_griffOhneKino(ax, az) { const P = player.pos, L = PZ.lay; zombie.g.visible = true; zombie.g.position.set(ax - .62, 0, az); zombie.g.rotation.set(0, 0, 0); zombie.x = ax - .62; zombie.z = az;
-  player.yaw = PI / 2; player.pitch = -.05; PZ.k2a = { warte: true, tot: false, greifZ: .9, nah: .62, fall: false }; pz_clip('hug', { t: 1.4, ts: .3, fade: .3 }); figuren_mimik(PZ.P, 'zahn', 1); figuren_lookAt(PZ.P, 'cam', 1);
+  player.yaw = PI / 2; player.pitch = -.05; PZ.k2a = { warte: true, tot: false, greifZ: .9, nah: .62, fall: false }; pz_clip('hug', { t: 1.4, ts: .3, fade: .3 }); pz_mim(PZ.P, 'zahn', 1); pz_look(PZ.P, 'cam', 1);
   const t0 = performance.now(), hold = setInterval(() => { L.greif += (PZ.k2a.greifZ - L.greif) * .15; L.greifP.copy(camera.position); L.greifP.y -= .07; if (performance.now() - t0 > 20000) clearInterval(hold); }, 16);
   pz_ton('atem', 1.1, .9); await wait(500); try { subtitle('„Bruder.“', 1600, 'PETER'); } catch (e) {} await wait(700);
   let r = await pz_qteLos(); if (r === 'ok') { PZ.k2a.greifZ = .25; r = await pz_qteFass(); } clearInterval(hold); PZ.k2a.warte = false; L.greif = 0;
@@ -1154,8 +1253,9 @@ async function pz_griffOhneKino(ax, az) { const P = player.pos, L = PZ.lay; zomb
 function pz_tick(dt, t) {
   if (!PZ.an && ch2.on) pz_laden(); if (!PZ.P) return; PZ.U.pzT.value = t;
   if (ch2.on && Audio.ctx && Audio.ctx.state === 'running') pz_klangLaden();
+  PZ.screamCd -= dt; if (PZ.P.own && zombie.g.visible && ch2.chase === 'run' && (PZ.roehrT = (PZ.roehrT ?? 6) - dt) <= 0) { PZ.roehrT = rand(7, 13); pz_roehr(.45); } if (PZ.P.own && zombie.g.visible) { PZ.P.mx.update(dt); PZ.P.obj.updateMatrixWorld(true); pz_zmLook(dt); }
   const S = feuer_S, L = PZ.lay;
-  if (typeof tod_S !== 'undefined' && tod_S.dying) { L.greif = L.wand = L.lean = L.winden = L.tuer = L.kopf = L.tilt = 0; if (zombie.g.visible && PZ.loco !== 'idle' && !S.zs) pz_clip('idle', { fade: .3 }); figuren_lookAt(PZ.P, 'cam', 1); return; }
+  if (typeof tod_S !== 'undefined' && tod_S.dying) { L.greif = L.wand = L.lean = L.winden = L.tuer = L.kopf = L.tilt = 0; if (zombie.g.visible && PZ.loco !== 'idle' && !S.zs) pz_clip('idle', { fade: .3 }); pz_look(PZ.P, 'cam', 1); return; }
   if (typeof kino_S !== 'undefined' && kino_S.on && kino_S.id === 'k2a') pz_k2aTick(dt);
   else if (S.zs) pz_zsTick(dt, t);
   else if (ch2.chase === 'run' && PZ.ki) { pz_loco(dt); pz_jagdSchicht(dt, t); pz_klangTick(dt); }
@@ -1164,6 +1264,6 @@ function pz_tick(dt, t) {
 }
 function pz_reset() { PZ.ki = null; PZ.k2a = null; PZ.lockClip = null; PZ.lockT = 0; PZ.U.pzOel.value = 0; Object.assign(PZ.lay, { kopf: 0, tilt: 0, wand: 0, greif: 0, lean: 0, nick: 0, weg: 0, winden: 0, tuer: 0 });
   Object.assign(PZ.cam, { zk: 0, autoT: 0, autoN: 0, kick: 0, kickV: 0, dip: 0, dipV: 0, fovK: 0, ausw: null }); if (PZ.cam.fovSet) { camera.fov = fov; camera.updateProjectionMatrix(); PZ.cam.fovSet = false; }
-  if (typeof qte_aktiv === 'function' && qte_aktiv()) qte_ende(null); if (PZ.P) { figuren_lookAt(PZ.P, null); figuren_mimik(PZ.P, 'zahn', .6); pz_clip('idle', { fade: .2 }); } }
+  if (typeof qte_aktiv === 'function' && qte_aktiv()) qte_ende(null); if (PZ.P) { pz_look(PZ.P, null); pz_mim(PZ.P, 'zahn', .6); pz_clip('idle', { fade: .2 }); } }
 // Losreißen oder das Fass zweimal verfehlt: er hält fest, bis Luke keine Luft mehr bekommt (Tod, Speicherpunkt wie bisher)
 function pz_griffTod() { const S = feuer_S; S.griffLauf = false; S.griff = false; ch2.chase = 'run'; if (typeof todDie === 'function') todDie('zombie'); }

@@ -1113,12 +1113,15 @@ function kino_defK2() {
     { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * .52, 1.3, A.z - A.fz * .52); w.set(A.x - A.fx * 2, 1.2, A.z - A.fz * 2); }, dur: 3, fov: 80, hand: .4, film: { vig: 2.6, ca: .012, filter: 'brightness(.8)' },
       setup() { k2aLicht(.6); if (typeof feuer_k2a === 'function') feuer_k2a('druecken'); const A = S.k2a, b = kino_show('band', A.x - A.fx * .7, 1.28, A.z - A.fz * .7); b.lookAt(A.x, 1.28, A.z); b.scale.setScalar(.6); kino_herz(3, 46, .8); kino_brumm(.5, .8, 36); },
       tick(k, t, dt, sh) { if (typeof feuer_k2aHalt === 'function') feuer_k2aHalt(sh, t); const A = S.k2a, b = kino_S.obj.band, u = Math.min(1, t / 3); b.position.set(A.x - A.fx * (.7 - .12 * u), 1.34 - .14 * u, A.z - A.fz * (.7 - .12 * u)); }, teardown() { kino_hide('band'); kino_brumm(0, .3); } },
-    { path(e, t, v, w) { const A = S.k2a, j = kino_e(Math.min(1, t / .6)); v.set(A.x - A.fx * (.35 - 1.1 * j), 1.5 - .3 * j, A.z - A.fz * (.35 - 1.1 * j)); w.set(A.x - A.fx * 2.5, .5, A.z - A.fz * 2.5); }, dur: 2, fov: 68, hand: 1.5, shakes: [[0, .05, .9]], wenn: () => !(typeof feuer_k2aTot === 'function' && feuer_k2aTot()), tick(k, t, dt, sh) { if (typeof feuer_k2aHalt === 'function') feuer_k2aHalt(sh, t); },
-      setup() { kino_still(false, .3); kino_S.k2aArme = 0; const A = S.k2a, Zb = zg(); if (typeof feuer_k2a === 'function' && feuer_k2a('fass')) return; kino_zLangsam(false); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
+    { path(e, t, v, w) { const A = S.k2a, j = kino_e(Math.min(1, t / .8)), fb = typeof FEU !== 'undefined' ? FEU : null; v.set(A.x - A.fx * .35, 1.5 - .3 * j, A.z - A.fz * .35); if (fb) w.set(fb.bx, .62, fb.bz); else w.set(A.x - A.fx * 2.5, .5, A.z - A.fz * 2.5); }, dur: 2, fov: 62, fovTo: 52, hand: 1.2, shakes: [[0, .04, .8]], wenn: () => !(typeof feuer_k2aTot === 'function' && feuer_k2aTot()), tick(k, t, dt, sh) { if (typeof feuer_k2aHalt === 'function') feuer_k2aHalt(sh, t); },
+      setup() { kino_still(false, .3); kino_S.k2aArme = 0; const A = S.k2a; if (typeof feuer_k2a === 'function' && feuer_k2a('fass')) return; kino_zLangsam(false); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
         Audio.play('metalSlam', { gain: .5, rate: .6, x: A.x - A.fx * 1.5, y: .4, z: A.z - A.fz * 1.5, ref: 3 }); Audio.play('waterFlow', { gain: .15, rate: .6, dur: 1.6, x: A.x - A.fx * 1.8, y: .1, z: A.z - A.fz * 1.8, ref: 2 }); } },
-    { path(e, t, v, w) { const A = S.k2a; v.set(A.x - A.fx * 1.4 + A.fz * 1.35 * (1 - .3 * e), 1.0 - .4 * e, A.z - A.fz * 1.4 - A.fx * 1.35 * (1 - .3 * e)); w.set(A.x - A.fx * 2.0, .3, A.z - A.fz * 2.0); }, dur: 4.2, fov: 62, hand: .9, wenn: () => !(typeof feuer_k2aTot === 'function' && feuer_k2aTot()),
-      setup() { const A = S.k2a, Zb = zg(); if (typeof feuer_k2a === 'function' && feuer_k2a('fall')) {} else if (Zb) { Zb.g.position.set(A.x - A.fx * 1.3, .22, A.z - A.fz * 1.3); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) + PI / 2, PI / 2 * .95); }
-        kino_S.lit[0] = { p: kino_V(A.x + A.fx * .1, .12, A.z + A.fz * .1), c: 0xfff0d6, d: 5, i: 1.8 }; kino_cello([['C2', 2.6]], .2, .06, 400); } },
+    { path(e, t, v, w) { const A = S.k2a, F = typeof FEU !== 'undefined' && S.k2a.imp ? FEU : null; if (!F) { v.set(A.x - A.fx * 1.4 + A.fz * 1.35 * (1 - .3 * e), 1.0 - .4 * e, A.z - A.fz * 1.4 - A.fx * 1.35 * (1 - .3 * e)); w.set(A.x - A.fx * 2.0, .3, A.z - A.fz * 2.0); return; }
+        const u = kino_e(Math.min(1, t / 3.8)); v.set(F.bx + 3.3 - .9 * u, 1.05 - .6 * u, Z + .12); const z = typeof zombie !== 'undefined' ? zombie : null, px = z ? z.x : F.bx, pz = z ? z.z : Z;
+        w.set(F.bx - .5 * (1 - u) + (px - F.bx + .3) * u, .78 - .55 * u, Z - .12 + (pz - Z + .1) * u); }, dur: 4.6, fov: 52, fovTo: 46, hand: .8, shakes: [[.78, .09, .8], [1.9, .035, .5]], wenn: () => !(typeof feuer_k2aTot === 'function' && feuer_k2aTot()),
+      setup() { const A = S.k2a, Zb = zg(); if (typeof feuer_k2a === 'function' && feuer_k2a('fall')) { const F = FEU; kino_S.lit[0] = { p: kino_V(F.bx + 1.4, .14, Z + .3), c: 0xfff0d6, d: 6, i: 2.4 }; S.vl[1].position.set(F.bx - .3, 2.3, Z); S.vl[1].color.setHex(0x9fb2cc); S.vl[1].distance = 6; S.vl[1].intensity = 1.2; } else if (Zb) { Zb.g.position.set(A.x - A.fx * 1.3, .22, A.z - A.fz * 1.3); Zb.g.rotation.set(0, Math.atan2(A.fx, A.fz) + PI / 2, PI / 2 * .95);
+          kino_S.lit[0] = { p: kino_V(A.x + A.fx * .1, .12, A.z + A.fz * .1), c: 0xfff0d6, d: 5, i: 1.8 }; }
+        kino_cello([['C2', 3.2]], .6, .06, 400); } },
   ], { name: 'Bruder.', skipAfter: Infinity, nahtlos: true,
     start() { const P = player.pos, fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); S.k2a = { x: P.x, z: P.z, fx, fz, a0: Math.atan2(fz, fx) }; },
     done() { kino_zLangsam(false); kino_S.k2aArme = 0; } });
@@ -1425,11 +1428,11 @@ function kino_defProlog() {
   const mix = dt => { const C = W(); if (!C) return; const p = P(); C.fl = null; C.g.visible = true; C.g.position.set(p.x, p.y, p.z); C.g.rotation.set(0, Math.atan2(S.kp.dx, S.kp.dz), 0); if (C.mx) C.mx.update(dt); C.g.updateMatrixWorld(true); }; // er bleibt auf der Laterne
   kino_def('kp', [
     { from: nahe(.58, .03), to: nahe(.52, .02), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 5, fov: 30, roll: .05, rollTo: -.03, hand: .3, lens: { at: () => kopf(kino_S.a), r: .1, amt: .9 },
-      lines: [['<i>Finde Lucy. Finde heraus, was mit diesem Dorf geschehen ist.</i>', 'DER RABE', .6, 4200]],
+      lines: [['<i>Deine Aufgabe: Finde Lucy. Haus Nummer 7. Der Keller.</i>', 'DER RABE', .6, 4200]],
       setup() { kino_regen(.035, 2); if (typeof whiskey_play === 'function') whiskey_play('IdleLookAround', .3); kino_after(.6, () => { const p = W().g.position; Audio.whisper(p.x, p.y, p.z, 2); }); },
       tick(k, t, dt) { mix(dt); } },
     { from: nahe(.52, .02), to: nahe(.72, .04), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 4, fov: 30, hand: .15, lens: { at: () => kopf(kino_S.a), r: .12, amt: .8 },
-      lines: [['<i>Und finde heraus, wer du bist.</i>', 'DER RABE', .3, 3400]],
+      lines: [['<i>Finde heraus, was hier geschehen ist. Und wer du bist.</i>', 'DER RABE', .3, 3600]],
       setup() { if (typeof klang_S !== 'undefined' && klang_S.dreamG && Audio.ctx) { const g = klang_S.dreamG.gain, t = Audio.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(.12, t + 3); } kino_streicher('E3', 9, .022, .5, 800);
         kino_after(.3, () => { const p = W().g.position; Audio.whisper(p.x, p.y, p.z, 1.8); }); },
       tick(k, t, dt) { mix(dt); drehe(.25 * kino_e(Math.min(1, t / 2))); } }, // er senkt den Kopf, als lausche er nach hinten
