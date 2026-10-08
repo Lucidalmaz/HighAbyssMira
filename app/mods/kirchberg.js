@@ -370,7 +370,7 @@ async function kirchberg_kapTuer() { const S = kirchberg_S; if (kirchberg_offen(
   // Schreck Stufe 2 (`kapelle`): die Glocke schlägt einmal im Turm, dann einmal von drinnen, direkt hinter der Tür; das Kerzenlicht geht aus
   S.steps.glocke = 1; state.talking = true; Audio.knock(); await wait(1600);
   if (typeof ausbau_nord_bellToll === 'function') ausbau_nord_bellToll(); await wait(3600);
-  if (Audio.ctx) { const d = Audio.at(KB_KAP.x, 1.4, 79.6, 2); [[1, .5, 3], [2, .35, 2.2], [2.76, .18, 1.4]].forEach(([m, a, dur]) => { const o = Audio.osc('sine', 690 * m, 0, dur + .2); Audio.env(o, a * .35, .002, dur, 0, d); }); }
+  if (Audio.ctx && Audio.glocke && Audio.glocke(KB_KAP.x, 1.4, 79.6, 345, .55, 2)) {} /* echte Glocke (VSCO), gestimmt */ else if (Audio.ctx) { const d = Audio.at(KB_KAP.x, 1.4, 79.6, 2); [[1, .5, 3], [2, .35, 2.2], [2.76, .18, 1.4]].forEach(([m, a, dur]) => { const o = Audio.osc('sine', 690 * m, 0, dur + .2); Audio.env(o, a * .35, .002, dur, 0, d); }); }
   await wait(250); const L = S.kerzen, i0 = L.intensity; for (let k = 0; k < 8; k++) { L.intensity = i0 * (1 - k / 8) * (k % 2 ? .6 : 1); await wait(60); } L.intensity = 0;
   state.talking = false; if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {}
   setTimeout(() => { kirchberg_festCheck(); }, 500); }

@@ -59,6 +59,7 @@ function k5_box(x, y, z, o = {}) { // eine Runde der Spieluhr; tempo < 1 = langs
   return t0 + 1.2; }
 function k5_summen(x, y, z, v = .03) { // Lucys Lied, gesummt (eine Oktave tiefer, weich, mit Vibrato)
   const A = Audio; if (!A.ctx) return 12; const c = A.ctx, d = A.at(x, y, z, 2); let t = c.currentTime + .1;
+  if (A.stimmNote && A.buf.fx_summ_1) { let tt = 0; for (let i = 0; i < 12; i++) { const len = .42 + i * .025; A.stimmNote('summ', K5_MEL[i] / 2, tt + .1, len, v * 7, d); tt += len; } return tt + .4; } // echte Summ-Töne (freesound CC0)
   for (let i = 0; i < 12; i++) { const f = K5_MEL[i] / 2, len = .42 + i * .025, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter(); o.type = 'triangle'; o2.type = 'sine';
     o.frequency.value = f; o2.frequency.value = f * 2.002; lp.type = 'lowpass'; lp.frequency.value = 900; o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(d);
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .08); g.gain.setValueAtTime(v * .85, t + len * .8); g.gain.linearRampToValueAtTime(0, t + len + .05); o.start(t); o2.start(t); o.stop(t + len + .1); o2.stop(t + len + .1); t += len; }

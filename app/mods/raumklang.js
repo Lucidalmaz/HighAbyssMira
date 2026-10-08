@@ -178,7 +178,7 @@ Object.assign(Audio, {
     // Flügelschläge jetzt als echte Aufnahmen (Taube, Ente, Adler; AP Echte Klänge) – der Rauschblock-Ersatz entfällt. Fehlt die Datei: Stille.
     // Messung 08.10. (stehend, 45 s): Krähen landen/starten dauernd in Hörweite. Darum: > 26 m gar nicht, ferne (> 9 m) höchstens alle 6 s, nahe höchstens alle 0,8 s.
     flap(x, y, z, obj) { if (!this.ctx) return; const dd = Math.hypot(x - (this.lx ?? x), z - (this.lz ?? z)), tn = this.ctx.currentTime; if (dd > 26) return; if (tn - (this.flapT || -99) < (dd > 9 ? 6 : .8)) return;
-      const n = typeof kl_pick === 'function' ? kl_pick('fx_flug_', 4) : null; if (!n) return; this.flapT = tn;
+      const n = typeof kl_pick === 'function' ? ((Math.random() < .8 ? kl_pick('fx_rabe_fluegel_', 3) : kl_has('fx_flug_4') ? 'fx_flug_4' : null) || kl_pick('fx_flug_', 4)) : null; if (!n) return; this.flapT = tn; /* Rabenflügel (Aufnahme), selten der schwere Adler-Schlag als Landung */
       this.play(n, { gain: dd > 9 ? .5 : .65, vary: .07, varyGain: .2, ...(obj ? { obj, h: Math.max(0, y - (obj.position ? obj.position.y : obj.y || 0)), dauer: 1.2, ref: 3 } : { x, y, z, ref: 3 }) }); },
   }); }
 // Fernseher in Nr. 7: das Rauschen kommt aus dem Gerät (die Basis regelt nur noch an/aus)

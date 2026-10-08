@@ -132,7 +132,33 @@ def kauen():  # Kauen (Kap. 5, Tiere/Kinder): Bissen und Mahlen
     C = sorted(C, key=lambda t: -np.abs(t).max())[:3]
     for i in range(len(C)): out(f'fx_kauen_{i + 1}', C[i], -26, -4, 7000, 120, a=.005, r=.1)
 
-JOBS = {'flug': flug, 'feuer': feuer, 'zombie': zombie, 'oel': oel, 'funk': funk, 'taste': taste, 'relais': relais, 'katze': katze, 'krabbel': krabbel, 'tiere': tiere, 'husten': husten, 'kamera': kamera, 'nadel': nadel, 'kauen': kauen}
+def kuh():  # Kuh (Kap. 3): die drei kräftigsten Muhs aus der Stallaufnahme
+    A = mono(src('kuh')); S = seg(A, 12, -26, .5, 4.0, .3, .3, chain(HP(80), LP(2500)))
+    S = sorted(S, key=lambda t: -len(t))[:3]
+    for i, t in enumerate(S): out(f'fx_kuh_{i + 1}', t, -22, -3, 6000, 60, a=.02, r=.3)
+
+def rabe():  # Rabenflügel: tieffrequente Schläge aus der Aufnahme „Redwood Ravens … Wing Flaps“ (freesound CC0, 835857), ohne Rufe
+    x = mono(fsx('835857_2520418'))
+    for i, (a, b) in enumerate([(17.9, 19.3), (72.7, 74.0), (48.3, 49.7)]): out(f'fx_rabe_fluegel_{i + 1}', cut(x, a, b), -23, -3, 3800, 50, a=.03, r=.25)
+
+def klingel():  # Fahrradklingel: zwei kurze, ein langer Schlag (Whiskey, Post)
+    x = mono(fsx('383631_4067257')); S = seg(x, 6, -30, .05, 1.6, .15, .05)
+    t = S[0]  # ein Anschlag mit natürlichem Ausklingen; kurz = früh abgedämpft (Finger auf der Glocke), lang = voll
+    out('fx_klingel_kurz_1', t[:int(.42 * SR)], -22, -3, 14000, 400, a=.001, r=.12); out('fx_klingel_kurz_2', pitch(t[:int(.42 * SR)], 1.02), -22, -3, 14000, 400, a=.001, r=.12)
+    out('fx_klingel_lang', t, -22, -3, 14000, 400, a=.001, r=.3)
+
+def wolf():  # Wolfsheulen: die klarsten Heuler aus der Winterwald-Nacht
+    A = mono(src('wolf')); S = seg(A, 10, -32, 1.5, 9.0, .6, .6, chain(HP(150), LP(3000)))
+    S = sorted(S, key=lambda t: -len(t))[:3]
+    for i, t in enumerate(S): out(f'fx_wolf_{i + 1}', t, -23, -3, 4500, 120, a=.1, r=1.0)
+
+def stimme():  # Pfeifen und Summen: Einzeltöne echter Aufnahmen, auf feste Tonhöhen gestimmt (Sampler im Spiel: Audio.stimmNote)
+    w = mono(fsx('369296_6790631')); out('fx_pfeif_1', pitch(cut(w, 14.17, 15.3), 1318.51 / 1231), -24, -4, 6000, 500, a=.04, r=.15)  # E6
+    h = mono(fsx('727696_1690102'))
+    out('fx_summ_1', pitch(cut(h, 1.48, 2.15), 246.94 / 247), -24, -4, 3500, 120, a=.04, r=.12)  # B3
+    out('fx_summ_2', pitch(cut(h, .25, 1.15), 392.0 / 378), -24, -4, 3500, 150, a=.04, r=.15)  # G4
+
+JOBS = {'flug': flug, 'feuer': feuer, 'zombie': zombie, 'oel': oel, 'funk': funk, 'taste': taste, 'relais': relais, 'katze': katze, 'krabbel': krabbel, 'tiere': tiere, 'husten': husten, 'kamera': kamera, 'nadel': nadel, 'kauen': kauen, 'kuh': kuh, 'rabe': rabe, 'klingel': klingel, 'wolf': wolf, 'stimme': stimme}
 if __name__ == '__main__':
     for k in (sys.argv[1:] or JOBS):
         print('==', k)

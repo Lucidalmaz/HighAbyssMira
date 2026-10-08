@@ -422,6 +422,7 @@ function amt_klick(x, y, z) { try { Audio.play('switch2', { gain: .35, rate: ran
 function amt_kratzen(x, y, z, n = 3, v = 1) { for (let i = 0; i < n; i++) setTimeout(() => { try { Audio.play(Audio.pick('scrape2', 'scrape3'), { gain: .16 * v, rate: rand(.55, .75), dur: 1.3, x, y, z, ref: 2.5 }); } catch (e) {} }, i * 1700 + rand(0, 300)); }
 // Lucys Melodie, gesummt (keine Spieluhr darunter): Sinus mit Vibrato und weichen Formanten, ganz leise, aus der Tiefe
 function amt_summen(x, y, z, gain = .05, tempo = 1) { const A = Audio; if (!A.ctx) return; const c = A.ctx, t0 = c.currentTime + .1, d = A.at(x, y, z, 6), notes = [329.6, 293.7, 261.6, 246.9, 261.6, 293.7, 329.6, 329.6];
+  if (A.stimmNote && A.buf.fx_summ_1) { let tt = .1; notes.forEach((f, i) => { const len = (i === 4 || i === 7 ? 1.1 : .62) / tempo; A.stimmNote('summ', f, tt, len, gain * 4.5, d); tt += len; }); return; } // echte Summ-Töne (freesound CC0)
   try { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100; lp.connect(d); let t = t0;
     notes.forEach((f, i) => { const len = (i === 4 || i === 7 ? 1.1 : .62) / tempo; const o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), vib = c.createOscillator(), vg = c.createGain();
       o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f * 2.002; vib.frequency.value = 5.2; vg.gain.value = f * .006; vib.connect(vg); vg.connect(o.frequency); vg.connect(o2.frequency);

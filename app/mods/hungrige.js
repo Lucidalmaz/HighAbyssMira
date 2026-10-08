@@ -335,6 +335,7 @@ function hungrige_bass(an) { const A = Audio, S = hungrige_S; if (!A.ctx || type
 function hungrige_celesta() { const A = Audio; if (!A.ctx || typeof KI === 'undefined') return; const t = A.ctx.currentTime + .05; [659.3, 587.3, 523.3, 493.9, 523.3].forEach((f, i) => { try { KI.box(A.ctx, A.master, t + i * .62, f, .07); } catch (e) {} }); }
 // Story-Prüfung T-4: unter der Celesta summt eine Frauenstimme die fünf Töne mit, ohne Worte, aus der Richtung des Raben (Mira, nur ihr Klang)
 function hungrige_summen(x, y, z) { const A = Audio; if (!A.ctx || !A.at) return; const c = A.ctx, t0 = c.currentTime + .08, d = A.at(x, y, z, 9);
+  if (A.stimmNote && A.buf.fx_summ_1) { [329.6, 293.7, 261.6, 246.9, 261.6].forEach((f, i) => A.stimmNote('summ', f, .08 + i * .62, i === 4 ? 1.05 : .6, .24, d)); return; } // echte Summ-Töne (freesound CC0)
   try { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500; const bp = c.createBiquadFilter(); bp.type = 'peaking'; bp.frequency.value = 820; bp.Q.value = 1.4; bp.gain.value = 5; lp.connect(bp); bp.connect(d);
     [329.6, 293.7, 261.6, 246.9, 261.6].forEach((f, i) => { const t = t0 + i * .62, len = i === 4 ? 1.05 : .6, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), g2 = c.createGain(), vib = c.createOscillator(), vg = c.createGain();
       o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f * 2.003; vib.frequency.value = 4.8; vg.gain.value = f * .007; vib.connect(vg); vg.connect(o.frequency); vg.connect(o2.frequency);

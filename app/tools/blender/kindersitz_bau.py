@@ -189,8 +189,9 @@ base = taper(box(.39, .44, .12, loc=(0, -.02, .06), bev=.028, seg=4, name='geste
 for v in base.data.vertices:  # Kufen: Unterseite vorn und hinten leicht angehoben (Liegeverstellung)
   if v.co.z < .02: v.co.z += .012 * ((v.co.y + .02) / .22) ** 2
 unter = taper(box(.30, .30, .07, loc=(0, -.06, .14), bev=.02, seg=3, name='unterschale'), .06)
-rueck = box(.20, .028, .25, loc=(0, .168, .39), rot=(math.radians(-14), 0, 0), bev=.012, seg=3, name='rueckplatte')
-ribs = [box(.012, .02, .2, loc=(x, .186, .385), rot=(math.radians(-14), 0, 0), bev=.004, seg=2, name='rippe') for x in (-.05, 0, .05)]
+rueck = box(.22, .03, .27, loc=(0, .166, .40), rot=(math.radians(-14), 0, 0), bev=.022, seg=4, name='rueckplatte')
+ribs = [box(.15, .012, .016, loc=(0, .183, z), rot=(math.radians(-14), 0, 0), bev=.005, seg=2, name='rippe') for z in (.47, .495)]
+haken = [box(.03, .05, .06, loc=(sg * .2, .135, .43), rot=(math.radians(-14), 0, sg * .12), bev=.012, seg=3, name='gurtfuehrung') for sg in (-1, 1)]
 fuehr = []
 for sg in (-1, 1):
   hk = box(.03, .075, .022, loc=(sg * .192, -.13, .128), bev=.008, seg=3, name='gurtfuehrung'); fuehr.append(hk)
@@ -245,10 +246,10 @@ def stoff(v):
       def riss(u0, a0, ru, ra, sc):
         d = nb.n('ShaderNodeVectorMath', _operation='LENGTH', Vector=nb.n('ShaderNodeCombineXYZ', X=nb.math('DIVIDE', nb.math('SUBTRACT', qx, u0), ru), Y=nb.math('DIVIDE', nb.math('SUBTRACT', qy, a0), ra)).outputs[0]).outputs['Value']
         return nb.math('ADD', d, nb.math('MULTIPLY', nb.math('SUBTRACT', nb.noise(Q, sc, 3, .7), .5), .9))
-      rd = nb.math('MINIMUM', riss(-.07, A_CR - .1, .052, .028, 60), riss(.19, A_HW + .03, .03, .05, 70))
+      rd = nb.math('MINIMUM', riss(-.06, A_CR - .085, .06, .032, 60), riss(.17, A_HW + .04, .028, .055, 70))
       tear = nb.math('MULTIPLY', nb.mr(rd, .95, .9, 0, 1), C); fray = nb.math('MULTIPLY', nb.mr(nb.math('ABSOLUTE', nb.math('SUBTRACT', rd, .97)), .0, .07, 1, 0), C)
       pores = nb.vor(P, 1400); foam = nb.mix(nb.mr(pores, 0, .5, 0, 1), (.36, .26, .08), (.66, .52, .2)); foam = nb.mix(nb.mr(nb.noise(P, 40, 3), .4, .7), foam, (.4, .3, .12), 'MULTIPLY')
-      col = nb.mix(tear, col, foam); col = nb.mix(nb.math('MULTIPLY', fray, .75), col, (.05, .045, .04))
+      col = nb.mix(tear, col, foam); col = nb.mix(nb.math('MULTIPLY', fray, .9), col, (.035, .03, .025)); col = nb.mix(nb.math('MULTIPLY', nb.mr(rd, 1.0, 1.25, 1, 0), .5), col, (.09, .075, .06), 'MULTIPLY')
       hgt = nb.mix(tear, hgt, nb.math('SUBTRACT', nb.math('MULTIPLY', pores, .9), 1.4), kind='FLOAT'); rough = nb.mix(tear, rough, .97, kind='FLOAT')
     return dict(col=col, rough=rough, metal=0., height=hgt, hs=.35, hd=.0012)
   return b
@@ -261,9 +262,9 @@ def plastik(v, kind='shell'):
     pt = nb.mr(nb.geo('Pointiness'), .5, .56, 0, 1); sc = nb.mr(nb.noise(nb.vec(P, scale=(1, 1, 22), rot=(0, .4, .3)), 160, 2, .6), .62, .66, 0, 1)
     wearm = nb.math('MAXIMUM', nb.math('MULTIPLY', pt, nb.mr(nb.noise(P, 60, 3), .35, .6)), nb.math('MULTIPLY', sc, .7))
     col = nb.mix(nb.math('MULTIPLY', wearm, .55 * W + .15), col, nb.hsv(base, .5, .6, 2.6))
-    nz = nb.sep(nb.geo('Normal'))[2]; dust = nb.math('MULTIPLY', nb.mr(nz, .2, .95), nb.mr(nb.noise(P, 24, 4, .6), .3, .7, .25 * W, .8 * W))
-    col = nb.mix(dust, col, (.3, .28, .24))
-    if v == 'c' and kind == 'shell': col = nb.mix(nb.mr(nb.noise(nb.vec(P, scale=(1, 1, .15)), 14, 2), .5, .65, 0, .5), col, (.26, .25, .23))
+    nz = nb.sep(nb.geo('Normal'))[2]; dust = nb.math('MULTIPLY', nb.mr(nz, .45, .98), nb.mr(nb.noise(P, 45, 4, .6), .35, .75, .04 * W, .3 * W))
+    col = nb.mix(dust, col, (.26, .245, .22))
+    if v == 'c' and kind == 'shell': col = nb.mix(nb.mr(nb.noise(nb.vec(P, scale=(1, 1, .15)), 14, 2), .5, .65, 0, .22), col, (.2, .195, .185))
     rough = nb.mix(dust, nb.mix(wearm, nb.mr(grain, 0, 1, .42, .58), .7, kind='FLOAT'), .9, kind='FLOAT')
     if kind == 'knopf': rough = nb.mix(wearm, .38, .6, kind='FLOAT')
     return dict(col=col, rough=rough, metal=0., height=nb.math('ADD', nb.math('MULTIPLY', grain, .2), nb.math('MULTIPLY', sc, -.4)), hs=.2, hd=.0008)
@@ -292,16 +293,25 @@ def metall(v, brass=False):
     return dict(col=col, rough=rough, metal=nb.mr(tarn, 0, 1, 1, .55) if brass else nb.mr(tarn, 0, 1, 1, .7), height=scr, hs=.15, hd=.0004)
   return b
 
+def polster(v):
+  W = VAR[v]['wear']
+  def b(nb):
+    P = nb.coord('Object'); f = nb.noise(P, 700, 2, .6); base = (.032, .034, .038) if v != 'b' else (.05, .045, .04)
+    col = nb.mix(nb.mr(nb.noise(P, 120, 3), .3, .7), base, nb.hsv(base, .5, .8, 1.6)); nz = nb.sep(nb.geo('Normal'))[2]
+    col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .3, 1), .4 * W), col, (.25, .23, .2))
+    return dict(col=col, rough=nb.mr(f, 0, 1, .82, .95), metal=0., height=f, hs=.3, hd=.0008)
+  return b
+
 CATS = {'schale': 'shell', 'unterschale': 'shell', 'gestell': 'shell', 'rueckplatte': 'shell', 'rippe': 'shell', 'hebel': 'guide', 'gurtfuehrung': 'guide',
-        'bezug': 'stoff', 'keder': 'keder', 'gurtpolster': 'stoff', 'schultergurt': 'gurt', 'beckengurt': 'gurt', 'schrittgurt': 'gurt', 'versteller': 'gurt',
+        'bezug': 'stoff', 'keder': 'keder', 'gurtpolster': 'polster', 'schultergurt': 'gurt', 'beckengurt': 'gurt', 'schrittgurt': 'gurt', 'versteller': 'gurt',
         'schloss': 'schloss', 'knopf': 'knopf', 'zunge': 'metall', 'zungenkappe': 'schloss', 'messing': 'messing', 'niete': 'messing'}
 def matset(v):
   return {'shell': material('schale_' + v, plastik(v)), 'guide': material('fuehrung_' + v, plastik(v, 'guide')), 'stoff': material('stoff_' + v, stoff(v)),
           'keder': material('keder_' + v, plastik(v, 'schloss') if v != 'b' else plastik(v, 'guide')), 'gurt': material('gurt_' + v, gurt(v)),
           'schloss': material('schloss_' + v, plastik(v, 'schloss')), 'knopf': material('knopf_' + v, plastik(v, 'knopf')), 'metall': material('metall_' + v, metall(v)),
-          'messing': material('messing_' + v, metall(v, True))}
+          'messing': material('messing_' + v, metall(v, True)), 'polster': material('polster_' + v, polster(v))}
 MS = {v: matset(v) for v in 'abc'}
-ORDER = ['shell', 'guide', 'stoff', 'keder', 'gurt', 'schloss', 'knopf', 'metall', 'messing']
+ORDER = ['shell', 'guide', 'stoff', 'keder', 'gurt', 'schloss', 'knopf', 'metall', 'messing', 'polster']
 parts = [o for o in bpy.context.scene.objects if o.type == 'MESH']
 for o in parts:
   cat = CATS[o.name.split('.')[0]]; o.data.materials.clear()

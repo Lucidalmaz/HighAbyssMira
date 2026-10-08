@@ -548,7 +548,7 @@ function leben_deerTick(D, dt, live, ok) {
 }
 // ---- Wolf: selten. Steht am Waldrand und sieht dich an. Wer wegsieht, sieht ihn nicht wieder.
 function leben_howl(x, y, z) {
-  if (!Audio.ctx || !Audio.started) return; const ctx = Audio.ctx, t = ctx.currentTime, d = Audio.at(x, y, z, 28), f0 = rand(380, 430), dur = rand(3.4, 4.4);
+  if (!Audio.ctx || !Audio.started) return; if (Audio.wolf && Audio.wolf(x, y, z)) return; /* echtes Wolfsheulen (Sonniss) */ const ctx = Audio.ctx, t = ctx.currentTime, d = Audio.at(x, y, z, 28), f0 = rand(380, 430), dur = rand(3.4, 4.4);
   const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.14, t + .6); g.gain.setValueAtTime(.14, t + dur - 1); g.gain.linearRampToValueAtTime(0, t + dur); g.connect(d);
   const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1300; lp.connect(g);
   const vib = ctx.createOscillator(), vg = ctx.createGain(); vib.frequency.value = 5.3; vg.gain.value = 6; vib.connect(vg); vib.start(t); vib.stop(t + dur + .1);

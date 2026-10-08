@@ -12,7 +12,7 @@ const post_S = { ready: false, steps: {}, F: null, bike: null, ride: null, sz: '
 const POST_RAUM = { schuppen: { x: -1480, z: 1440 }, posten: { x: -1520, z: 1400 } };
 
 // ---------------------------------------------------------------------  Klang: Fahrradklingel zweimal kurz, einmal lang (Whiskey kann das)
-function post_klingel(x, y, z, g = 1) { const A = Audio; if (!A.ctx) return; const d = A.at(x, y, z, 4);
+function post_klingel(x, y, z, g = 1) { const A = Audio; if (!A.ctx) return; if (A.klingel && A.klingel(x, y, z, g)) return; /* echte Fahrradklingel */ const d = A.at(x, y, z, 4);
   [[0, .16], [.2, .16], [.55, .95]].forEach(([t0, dur]) => { for (const [f, a] of [[2093, .09], [2093 * 2.76, .025], [2093 * 5.4, .01]]) { const o = A.osc('sine', f, t0, dur + .2); A.env(o, a * g, .003, dur, t0, d); } }); }
 function post_zeile(t, ms, who) { const d = Math.max(ms || 0, 1300 + t.length * 50); subtitle(t, d + 250, who || 'GÜNTHER'); return wait(d); }
 
