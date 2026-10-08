@@ -265,7 +265,7 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
 //    Kinder über add/attach) taut den Zweig sofort auf und rechnet wie bisher. Bewegt sich ein Elternteil, wird der Zweig ebenfalls aufgetaut.
 //    Gleiche Matrizen wie vorher (nichts wird geschätzt); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
 const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 6,
-  units: [], cur: 0, tick: 0, chk: -1, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
+  units: [], cur: 0, tick: 0, chk: -1, tries: 0, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
 function mwf_moved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher __mc)
   if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
     if (c && c[0] === p.x && c[1] === p.y && c[2] === p.z && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w && c[7] === s.x && c[8] === s.y && c[9] === s.z) return false;
@@ -290,17 +290,20 @@ function mwf_upd(o, force) {
   return ch; }
 // Einfrieren versuchen: nur kleine Zweige ohne Bewegliches mit eigener Logik
 function mwf_try(o) {
-  let bad = false, n = 0; const inner = [];
-  o.traverse(x => { n++; if (x !== o && x.__frz) inner.push(x); if (x.isBone || x.isSkinnedMesh || x.isCamera || x.isLight || x.updateMatrixWorld !== MWF.base) bad = true; });
-  if (bad) { o.__mwNo = MWF.now + 20000; return; }
+  if (MWF.tries <= 0) return; MWF.tries--; // höchstens wenige je Bild (kein Ruckler, wenn nach dem Laden alles gleichzeitig still wird)
+  let n = 0; const inner = [], S = [o];
+  while (S.length) { const x = S.pop(); n++; if (x !== o && x.__frz) inner.push(x);
+    if (x.isBone || x.isSkinnedMesh || x.isCamera || x.isLight || x.isInstancedMesh || x.isBatchedMesh || x.updateMatrixWorld !== MWF.base || n > 4000) { o.__mwNo = MWF.now + (o === x && x.isInstancedMesh ? 1e12 : 20000); return; } // Instanzen: Hülle wäre teuer zu messen, Gewinn klein
+    const c = x.children; for (let i = 0; i < c.length; i++) S.push(c[i]); }
   const B = MWF.box.setFromObject(o); let x = o.matrixWorld.elements[12], y = o.matrixWorld.elements[13], z = o.matrixWorld.elements[14], r = 0;
   if (!B.isEmpty()) { B.getBoundingSphere(MWF.sp); x = MWF.sp.center.x; y = MWF.sp.center.y; z = MWF.sp.center.z; r = MWF.sp.radius; }
-  if (r > MWF.maxR) { o.__mwNo = MWF.now + 20000; return; } // zu groß: die Kinder werden einzeln eingefroren
+  if (r > MWF.maxR) { o.__mwNo = MWF.now + 60000; return; } // zu groß: die Kinder werden einzeln eingefroren
   for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
   MWF.base.call(o, true); o.traverse(mwf_moved); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen
   o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
 // Wache: ganzer Zweig (auch unsichtbare Teile) gegen die gespeicherten Werte; Änderung → markieren (die Basis-Logik rechnet im selben Bild nach)
-function mwf_verify(o) { let hit = false; const S = [o];
+function mwf_verify(o) { let hit = false; const S = MWF.stk || (MWF.stk = []); S.length = 0; S.push(o);
+  if (!o.children.length) { if (o.updateMatrixWorld !== MWF.base || o.isBone) return true; if (mwf_moved(o)) { o.matrixWorldNeedsUpdate = true; return true; } return false; }
   while (S.length) { const x = S.pop(); if (x.updateMatrixWorld !== MWF.base || x.isBone) { hit = true; continue; }
     if (mwf_moved(x)) { x.matrixWorldNeedsUpdate = true; hit = true; }
     const c = x.children; for (let i = 0; i < c.length; i++) S.push(c[i]); }
@@ -309,7 +312,7 @@ function mwf_check() {
   const U = MWF.units; if (!U.length) return;
   const e = camera.matrixWorld.elements, cx = e[12], cy = e[13], cz = e[14], px = player.pos.x, py = player.pos.y + 1, pz = player.pos.z, R = MWF.R;
   let w = 0, nodes = 0, near = 0;
-  for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; U[w++] = u; nodes += u.n;
+  for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; if (!u.o.parent) { u.o.__frz = false; continue; } U[w++] = u; nodes += u.n;
     const rr = R + u.r, dx = u.x - cx, dy = u.y - cy, dz = u.z - cz, qx = u.x - px, qy = u.y - py, qz = u.z - pz;
     if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
   U.length = w; MWF.n = w; MWF.nodes = nodes; MWF.nearN = near; if (!w) return;
@@ -326,9 +329,9 @@ function lst_freeze() {
     return r; };
   const s0 = scene.updateMatrixWorld;
   scene.updateMatrixWorld = function (force) {
-    if (force || !MWF.on) return s0.call(this, force);
+    if (force || !MWF.on || MWF.pause) return s0.call(this, force); // pause: Vergleichsmessung (Basis rechnet wie vorher; gemeinsamer Vergleichsspeicher hält alles stimmig)
     MWF.now = performance.now();
-    if (MWF.chk !== MWF.tick) { MWF.chk = MWF.tick; try { mwf_check(); } catch (e) { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; console.warn('Leistung: Einfrieren', e); return s0.call(this, force); } }
+    if (MWF.chk !== MWF.tick) { MWF.chk = MWF.tick; MWF.tries = 150; try { mwf_check(); } catch (e) { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; console.warn('Leistung: Einfrieren', e); return s0.call(this, force); } }
     if (mwf_moved(this) || this.matrixWorldNeedsUpdate) { this.matrixWorld.copy(this.matrix); this.matrixWorldNeedsUpdate = false; force = true; }
     const ch = this.children; for (let i = 0; i < ch.length; i++) { const c = ch[i];
       if (c.__frz) { if (force) { c.__frz = false; mwf_upd(c, true); } continue; }

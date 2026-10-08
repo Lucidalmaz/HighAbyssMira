@@ -20,3 +20,12 @@ kein Vorübersetzen, kein Textur-Vorabhochladen, kein Vorladen. Formen, Kollisio
 
 ## Speicher-Schalter (Normal)
 - `?noktxfree`: KTX-Texturdaten nach dem Hochladen NICHT freigeben (Vergleich). Zählung im Spiel: `window.__ktxf` (freed, mb, restores, fails).
+
+## Dauerinstanz (--live, ohne Neuladen pro Lauf)
+Das Spiel wird EINMAL geladen und bleibt offen; weitere Steps-Dateien laufen nacheinander im selben Fenster (Folgelauf = nur die Schrittzeit, Sekunden statt 60–140 s).
+- `bash /c/Users/GIGABYTE/_live.sh start <lite|normal|fast> [slot]` – startet (wartet auf Sperre; Lite: `.hamlock_lite<N>`, Normal/fast: `.hamlock` + Bau). Die Sperre bleibt, solange die Instanz lebt; **Leerlauf-Ende nach 20 min ohne Auftrag** (`HAM_LIVE_IDLE=<ms>` ändert das).
+- `_live.sh run <steps.json> [ausgabeordner]` – gleiches Steps-Format wie bisher (`name/js/wait/shot/heap/profile/trace`, zusätzlich `"timeout": ms` je Schritt, Standard 120 s; Fehler/Zeitlimit eines Schritts steht als `FEHLER …` im Ergebnis und bricht weder Lauf noch Instanz ab). Ergebnis: `_live/<instanz>/out/<dateiname>/` (steps.json, result.json mit nur den Logs dieses Laufs, Bilder), Kopie nach `ausgabeordner`; Eingabe wandert nach `done/`.
+- `_live.sh reload` – Seite neu laden (frischer Zustand, dauert wie die Ladezeit). `_live.sh stop` – beenden, Sperre frei. `_live.sh status` – Zustand aller Instanzen/Sperren. Mehrere Instanzen: `LIVE=lite2 bash _live.sh run …`.
+- Ohne Skript: JSON als `in/x.tmp` schreiben und in `x.json` umbenennen; `reload.cmd` / `quit.cmd` (leere Dateien) in `in/`.
+- **Der Spielzustand bleibt zwischen Dateien erhalten** (gewollt). Der Start-Schritt `s0` nur beim ersten Mal: Skripte setzen/prüfen `window.__s0done` und überspringen ihn sonst. Für reproduzierbare Läufe vorher `reload`.
+- Grenzen: hängt Schrittcode die Seite, blockiert er die Instanz bis zum Schritt-Zeitlimit (dann `stop`/`start`); Lite-Bilder bleiben grau; eine Live-Instanz hält Speicher/Sperre bis `stop` oder Leerlauf-Ende.

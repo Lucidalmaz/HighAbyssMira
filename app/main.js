@@ -118,11 +118,10 @@ app.whenReady().then(() => {
         const info = await win.webContents.executeJavaScript('JSON.stringify({ready: !!window.__ready, stage: window.__stage, log: window.__log, info: window.__info})').catch(e => String(e));
         if (argv('loadprof')) { try { const d = win.webContents.debugger; const { profile } = await d.sendCommand('Profiler.stop'); fs.writeFileSync(path.join(out, 'load.cpuprofile'), JSON.stringify(profile)); d.detach(); } catch (e) { log('PROF', String(e)); } } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
         if (argv('heapsample')) { try { const d = win.webContents.debugger; const { profile } = await d.sendCommand('HeapProfiler.getSamplingProfile'); fs.writeFileSync(path.join(out, 'heap.heapprofile'), JSON.stringify(profile)); await d.sendCommand('HeapProfiler.stopSampling'); d.detach(); } catch (e) { log('HEAP', String(e)); } } /* nur Selbsttest: --loadprof / --heapsample / Schritt „trace“ */
-        const stepsFile = argv('steps');
-        if (stepsFile) {
-          const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); const res = {};
+        const live = argv('live'); // Dauerinstanz (--live=ORDNER): Schrittdateien aus ORDNER/in nacheinander ohne Neuladen, siehe docs/gameplay/TESTEN.md
+        const runSteps = async (steps, res, out) => {
           for (const st of steps) {
-            try { res[st.name] = await win.webContents.executeJavaScript(st.js); } catch (e) { res[st.name] = 'FEHLER ' + e; }
+            try { const p = win.webContents.executeJavaScript(st.js); res[st.name] = live ? await Promise.race([p, new Promise((_, rej) => setTimeout(() => rej('Schritt-Zeitlimit ' + (st.timeout || 120000) + ' ms'), st.timeout || 120000))]) : await p; } catch (e) { res[st.name] = 'FEHLER ' + e; }
             // Werkzeug-Seiten (tools/forge.html) liefern Dateien als "FILES:" + JSON [{path, b64}] zurück
             if (typeof res[st.name] === 'string' && res[st.name].startsWith('FILES:')) {
               const list = JSON.parse(res[st.name].slice(6)); for (const f of list) { fs.mkdirSync(path.dirname(f.path), { recursive: true }); fs.writeFileSync(f.path, Buffer.from(f.b64, 'base64')); }
@@ -149,7 +148,10 @@ app.whenReady().then(() => {
             fs.writeFileSync(path.join(out, 'steps.json'), JSON.stringify(res, null, 1)); // Zwischenstand: bricht ein Lauf ab (Zeitlimit), bleiben die Ergebnisse bis hier
           }
           fs.writeFileSync(path.join(out, 'steps.json'), JSON.stringify(res, null, 1));
-        }
+        };
+        const stepsFile = argv('steps');
+        if (stepsFile) { const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8')); await runSteps(steps, {}, out); }
+        if (live) { await liveLoop(live, runSteps, logs, out, t0, info); return app.quit(); }
         await new Promise(r => setTimeout(r, 1500));
         const img = await win.webContents.capturePage();
         fs.writeFileSync(path.join(out, (argv('shot') || 'menu') + '.png'), img.toPNG());
@@ -159,4 +161,33 @@ app.whenReady().then(() => {
     }, 500);
   }
 });
+// Dauerinstanz für Tests (--live=ORDNER): beobachtet ORDNER/in/*.json, Ergebnisse nach ORDNER/out/<name>/, erledigte Dateien nach ORDNER/done/.
+// Befehle: Datei ORDNER/in/reload.cmd (Seite neu laden), quit.cmd (beenden); Leerlauf-Ende nach --idle=<ms> (Standard 20 min). Status: ORDNER/status.json.
+async function liveLoop(dir, runSteps, logs, out0, t0, info0) {
+  const win = BrowserWindow.getAllWindows()[0]; dir = path.resolve(dir); const inD = path.join(dir, 'in'), outD = path.join(dir, 'out'), doneD = path.join(dir, 'done');
+  for (const d of [inD, outD, doneD]) fs.mkdirSync(d, { recursive: true });
+  const idle = +argv('idle') || 20 * 60 * 1000; let last = Date.now(), state = 'bereit', runs = 0;
+  const status = extra => { try { fs.writeFileSync(path.join(dir, 'status.json'), JSON.stringify({ state, runs, pid: process.pid, idleSeconds: Math.round((Date.now() - last) / 1000), startSeconds: (Date.now() - t0) / 1000, ...extra })); } catch (e) {} };
+  const waitReady = async () => { const t = Date.now(); while (Date.now() - t < (+argv('readyTimeout') || 120000)) { let r = false; try { r = await win.webContents.executeJavaScript('!!window.__ready'); } catch (e) {} if (r) return true; await new Promise(r => setTimeout(r, 500)); } return false; };
+  fs.writeFileSync(path.join(out0, 'result.json'), JSON.stringify({ seconds: (Date.now() - t0) / 1000, info: info0, logs }, null, 1)); status();
+  for (;;) {
+    status(); await new Promise(r => setTimeout(r, 400));
+    if (Date.now() - last > idle) { state = 'Leerlauf-Ende'; status(); return; }
+    let files = []; try { files = fs.readdirSync(inD).filter(f => /\.(json|cmd)$/.test(f)).sort(); } catch (e) {}
+    if (!files.length) continue;
+    const f = files[0], src = path.join(inD, f), name = f.replace(/\.[^.]+$/, ''); last = Date.now();
+    if (f === 'quit.cmd') { try { fs.renameSync(src, path.join(doneD, f)); } catch (e) {} state = 'beendet'; status(); return; }
+    if (f.endsWith('.cmd')) { // reload.cmd
+      state = 'lädt neu'; status(); try { fs.renameSync(src, path.join(doneD, f)); } catch (e) {}
+      const t = Date.now(); win.webContents.reloadIgnoringCache(); await new Promise(r => setTimeout(r, 1500)); const ok = await waitReady();
+      fs.writeFileSync(path.join(dir, 'reload.json'), JSON.stringify({ ok, seconds: (Date.now() - t) / 1000 })); state = ok ? 'bereit' : 'Neuladen-Zeitlimit'; last = Date.now(); continue;
+    }
+    state = 'läuft: ' + f; status(); const t = Date.now(), logFrom = logs.length, out = path.join(outD, name), res = {};
+    fs.rmSync(out, { recursive: true, force: true }); fs.mkdirSync(out, { recursive: true });
+    let ok = true, err; try { const steps = JSON.parse(fs.readFileSync(src, 'utf8')); await runSteps(Array.isArray(steps) ? steps : steps.steps, res, out); } catch (e) { ok = false; err = String(e); }
+    try { fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ ok, error: err, seconds: (Date.now() - t) / 1000, logs: logs.slice(logFrom) }, null, 1)); } catch (e) {}
+    try { fs.renameSync(src, path.join(doneD, f)); } catch (e) { try { fs.unlinkSync(src); } catch (e2) {} }
+    runs++; state = 'bereit'; last = Date.now();
+  }
+}
 app.on('window-all-closed', () => app.quit());

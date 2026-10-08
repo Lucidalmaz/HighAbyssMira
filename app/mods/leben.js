@@ -87,7 +87,7 @@ WORLD_MODS.push(['Leben', async () => {
   try { S.skc = (await import('three/addons/utils/SkeletonUtils.js')).clone; } catch (e) { console.warn('leben: SkeletonUtils', e); }
   if (S.skc) await leben_loadModels();
   try { leben_crowSetup(); } catch (e) { console.warn('leben: Krähen', e); }
-  if (FAB.ok && S.skc) { try { leben_ratSetup(); } catch (e) { console.warn('leben: Ratten', e); } try { leben_batSetup(); } catch (e) { console.warn('leben: Fledermäuse', e); } }
+  if (FAB.ok && S.skc) { try { leben_ratSetup(); } catch (e) { console.warn('leben: Ratten', e); } try { for (const R of FAB.rats || []) leben_variiere(R.g.children[0], { gr: .12, hell: [.62, 1.18], warm: .1 }); for (const b of FAB.bats || []) leben_variiere(b.g.children[0], { hell: [.75, 1.1] }); } catch (e) {} try { leben_batSetup(); } catch (e) { console.warn('leben: Fledermäuse', e); } }
   if (S.skc) try { leben_beastSetup(); } catch (e) { console.warn('leben: Säugetiere', e); }
   try { leben_flySetup(); } catch (e) { console.warn('leben: Fliegen', e); }
   try { leben_mothSetup(); } catch (e) { console.warn('leben: Motten', e); }
@@ -116,6 +116,15 @@ WORLD_TICK.push((dt, t, indoor) => { if (leben_S.ok) leben_tick(dt, t, indoor); 
 function leben_shrink(root, px) { const done = new Set(); root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap']) {
     const t = m[k]; if (!t || !t.image || t.isCompressedTexture || done.has(t)) continue; done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue; // komprimierte (KTX2) sind schon klein genug
     const c = document.createElement('canvas'), f = px / Math.max(w, h); c.width = Math.round(w * f); c.height = Math.round(h * f); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); t.image = c; t.needsUpdate = true; } }); }
+// Jedes Tier ein Individuum (08.10.2026, Nutzer: „kein Tier genau gleich“): Materialklon je Tier (gleiches Shaderprogramm – nur der Farbwert
+// unterscheidet sich, keine neuen Programme), Helligkeit/Wärme leicht verschieden, Größe ±8 %. o: { gr, hell: [min, max], warm, ton: THREE.Color }
+function leben_variiere(root, o = {}) { if (!root) return root; const gr = o.gr != null ? o.gr : .08; if (gr) root.scale.multiplyScalar(1 + rand(-gr, gr));
+  const h = o.hell || [.84, 1.12], L = rand(h[0], h[1]), w = rand(-1, 1) * (o.warm != null ? o.warm : .05), col = new THREE.Color(L * (1 + w), L * (1 + w * .2), L * (1 - w));
+  if (o.ton) col.multiply(o.ton); const done = new Map();
+  root.traverse(m => { if (!m.isMesh || !m.material) return; const one = src => { if (done.has(src)) return done.get(src); if (!src.color) return src;
+      const c = src.clone(); c.color.multiply(col); if (src.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile; if (src.customProgramCacheKey) c.customProgramCacheKey = src.customProgramCacheKey; done.set(src, c); return c; };
+    m.material = Array.isArray(m.material) ? m.material.map(one) : one(m.material); });
+  return root; }
 async function leben_loadModels() {
   const S = leben_S; S.M = {};
   const load = async (k, key) => { try { const sc = await msModel(key, 'model.glb'); leben_shrink(sc, 1024); S.M[k] = { src: sc, clips: sc.animations || [] }; } catch (e) { console.warn('leben: Modell ' + key, e); } };
@@ -155,7 +164,8 @@ function leben_play(V, k, fade = .25, ts = 1, once = false) { const a = V.A[k]; 
 function leben_crowVis(g, yOff) {
   const S = leben_S, C = S.M.crow; if (!C) return null;
   for (const ch of g.children) ch.visible = false; // selbstgebaute Kugeln/Kisten aus
-  const m = S.skc(C.src); m.rotation.y = PI / 2; m.position.y = yOff; m.scale.setScalar(1.1 * rand(.92, 1.08)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); g.add(m);
+  const m = S.skc(C.src); m.rotation.y = PI / 2; m.position.y = yOff; const rabe = Math.random() < .15; m.scale.setScalar(1.1 * (rabe ? 1.22 : 1)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); g.add(m);
+  leben_variiere(m, rabe ? { hell: [.68, .8], warm: .02 } : { hell: [.85, 1.15], warm: .06 }); // 08.10.: Gefieder je Vogel, Kolkraben größer/dunkler
   const mx = new THREE.AnimationMixer(m), V = { m, mx, A: leben_anims(mx, C.clips), cur: null, next: rand(2, 7), mode: '', skip: false };
   leben_play(V, 'IdleLookAround', 0); mx.update(rand(0, 3)); return V;
 }
@@ -333,7 +343,7 @@ function leben_ratSetup() {
   const S = leben_S, R0 = FAB.rats[0]; if (!R0) return;
   const src = R0.g.children[0], clip = k => R0.acts[k].getClip();
   for (const reg of ['ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'nord', 'nord', 'nord', 'nord', 'ost', 'ost', 'ost', 'ost', 'ost', 'west', 'west', 'west', 'west', 'west']) {
-    const o = S.skc(src); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } });
+    const o = S.skc(src); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } }); leben_variiere(o, { gr: .12, hell: [.62, 1.18], warm: .1 }); // Fellton/Größe je Ratte
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Ratte', .6);
     const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(clip('idle')), sniff: mx.clipAction(clip('sniff')), walk: mx.clipAction(clip('walk')), run: mx.clipAction(clip('run')) };
     acts.idle.play(); mx.update(rand(0, 3));
@@ -432,7 +442,7 @@ function leben_ratChase() {
 // Wolf: selten, am Waldrand, sieht dich an. Schwein: auf dem Hof, wühlt und starrt.
 function leben_beast(key, s = 1) {
   const S = leben_S, B = S.M[key]; if (!B) return null;
-  const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } });
+  const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); leben_variiere(m, { hell: key === 'pig' ? [.8, 1.1] : [.82, 1.14], warm: .07 }); // Individuum
   const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Tier:' + key, 1.6);
   const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false };
   const first = Object.keys(V.A).find(k => /IdleBreathe/.test(k)) || Object.keys(V.A)[0]; if (first) leben_play(V, first, 0);
@@ -590,7 +600,7 @@ function leben_batSetup() {
   const S = leben_S, B0 = FAB.bats[0]; if (!B0) return;
   const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
   [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
-    const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; });
+    const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; }); leben_variiere(o, { hell: [.75, 1.1] });
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Fledermaus', .6);
     const mx = new THREE.AnimationMixer(o), a = mx.clipAction(clip); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
     S.bats.push({ g, mx, cx, cz, r, h, sp: rand(.5, .85) * (i % 2 ? 1 : -1), ph: rand(0, 6.28) }); });
@@ -806,6 +816,25 @@ function leben_tvVoice(dt, live) { // gedämpfte Stimmen aus dem Fernseher, nur 
 // =====================================================================  SPINNEN: Kreuzspinnen in den Netzen, eine seilt sich ab
 async function leben_spiderSetup() {
   const S = leben_S; if (!S.skc) return;
+  // 08.10.2026: eigene Kreuzspinne (Blender, spinnen.js → spn_neu): jede anders groß/gefärbt; Kopf des Modells zeigt nach −z → im Halter um 180° gedreht (+z = Kopf, wie bisher)
+  let make = null;
+  if (typeof spn_neu === 'function') try { await spn_art('kreuz');
+    make = async () => { const n = await spn_neu('kreuz', { spann: rand(.06, .08) }), g = new THREE.Group(); n.g.rotation.y = PI; g.add(n.g); g.userData.noCol = true; scene.add(g);
+      n.acts.idle.timeScale = .35; n.acts.idle.play(); n.acts.walk.timeScale = 1.4; n.mx.update(rand(0, 4)); return { g, mx: n.mx, acts: { idle: n.acts.idle, walk: n.acts.walk }, cur: n.acts.idle }; }; } catch (e) { console.warn('leben: Kreuzspinne (neu)', e); make = null; }
+  if (!make) make = await leben_spiderAlt(S); if (!make) return;
+  // Spinnweben aus dem Spiel (Häuser 7 und 1, Keller, Amt) – in gut der Hälfte sitzt jetzt eine Spinne
+  const rects = [[20.2, 31.8, -21.8, -12.2], [-55.8, -44.2, -21.8, -12.2], [B.x - 5, B.x + 5, B.z - 4, B.z + 4], [C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6], [C2.x + 36, C2.x + 46, C2.z - 5, C2.z + 5], [C2.x, C2.x + 18, C2.z - 2, C2.z + 2]];
+  const webs = []; scene.traverse(o => { if (o.isMesh && o.renderOrder === 2 && o.material && o.material.alphaTest === .12 && o.material.depthWrite === false && o.material.side === THREE.DoubleSide) webs.push(o); });
+  scene.updateMatrixWorld(true);
+  for (const w of webs) { if (Math.random() < .4 || S.webs.length >= 12) continue; const p = w.getWorldPosition(new THREE.Vector3()), R = rects.find(([a, b, c, d]) => p.x > a - .5 && p.x < b + .5 && p.z > c - .5 && p.z < d + .5); if (!R) continue;
+    const sp = await make(); sp.g.visible = false; sp.web = p; sp.R = R; sp.T = rand(3, 12); sp.walkT = 0; sp.off = new THREE.Vector2(); sp.scared = 0; S.webs.push(sp); } // Platz erst, wenn die Decken fest sind (leben_webPlace)
+  // Die, die sich abseilt
+  const d = await make(); d.g.visible = false; const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: .32, depthWrite: false })); line.frustumCulled = false; line.visible = false; line.userData.noCol = true; scene.add(line);
+  S.drop = Object.assign(d, { line, st: 'wait', T: rand(40, 80), x: 0, y: 0, z: 0, top: 0, low: 0, t: 0 });
+}
+// Bisheriges Fab-Modell (spider_cross) – nur noch Rückfall, falls die neuen Spinnen fehlen
+async function leben_spiderAlt(S) {
   const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
   const mgr = new THREE.LoadingManager(); mgr.setURLModifier(u => /\.(psd|png|jpe?g|tga|tif)$/i.test(u) && !u.startsWith('data:') ? MS_DATA_PNG : u);
   const src = await new FBXLoader(mgr).loadAsync('assets/spider_cross/model.fbx');
@@ -813,18 +842,8 @@ async function leben_spiderSetup() {
   const mat = new THREE.MeshStandardMaterial({ map: tx, roughness: .55, color: 0xc4b4a4 });
   src.traverse(m => { if (m.isMesh) { m.material = mat; m.castShadow = false; m.receiveShadow = false; } });
   src.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(src), sz = bb.getSize(new THREE.Vector3()); src.scale.multiplyScalar(.085 / Math.max(sz.x, sz.z, 1e-6));
-  const A = src.animations || [], idle = A.find(a => a.name === 'idle') || A[0], walk = A.find(a => a.name === 'walk') || idle; if (!idle) return;
-  const make = () => { const o = S.skc(src), g = new THREE.Group(); g.add(o); g.userData.noCol = true; scene.add(g); const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(idle), walk: mx.clipAction(walk) }; acts.idle.timeScale = .35; acts.idle.play(); mx.update(rand(0, 4)); return { g, mx, acts, cur: acts.idle }; };
-  // Spinnweben aus dem Spiel (Häuser 7 und 1, Keller, Amt) – in gut der Hälfte sitzt jetzt eine Spinne
-  const rects = [[20.2, 31.8, -21.8, -12.2], [-55.8, -44.2, -21.8, -12.2], [B.x - 5, B.x + 5, B.z - 4, B.z + 4], [C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6], [C2.x + 36, C2.x + 46, C2.z - 5, C2.z + 5], [C2.x, C2.x + 18, C2.z - 2, C2.z + 2]];
-  const webs = []; scene.traverse(o => { if (o.isMesh && o.renderOrder === 2 && o.material && o.material.alphaTest === .12 && o.material.depthWrite === false && o.material.side === THREE.DoubleSide) webs.push(o); });
-  scene.updateMatrixWorld(true);
-  for (const w of webs) { if (Math.random() < .4 || S.webs.length >= 12) continue; const p = w.getWorldPosition(new THREE.Vector3()), R = rects.find(([a, b, c, d]) => p.x > a - .5 && p.x < b + .5 && p.z > c - .5 && p.z < d + .5); if (!R) continue;
-    const sp = make(); sp.g.visible = false; sp.web = p; sp.R = R; sp.T = rand(3, 12); sp.walkT = 0; sp.off = new THREE.Vector2(); sp.scared = 0; S.webs.push(sp); } // Platz erst, wenn die Decken fest sind (leben_webPlace)
-  // Die, die sich abseilt
-  const d = make(); d.g.visible = false; const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
-  const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: .32, depthWrite: false })); line.frustumCulled = false; line.visible = false; line.userData.noCol = true; scene.add(line);
-  S.drop = Object.assign(d, { line, st: 'wait', T: rand(40, 80), x: 0, y: 0, z: 0, top: 0, low: 0, t: 0 });
+  const A = src.animations || [], idle = A.find(a => a.name === 'idle') || A[0], walk = A.find(a => a.name === 'walk') || idle; if (!idle) return null;
+  return async () => { const o = S.skc(src), g = new THREE.Group(); g.add(o); g.userData.noCol = true; scene.add(g); const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(idle), walk: mx.clipAction(walk) }; acts.idle.timeScale = .35; acts.idle.play(); mx.update(rand(0, 4)); return { g, mx, acts, cur: acts.idle }; };
 }
 // Unterste Decke über einem Punkt (echte Form)
 function leben_ceil(x, y, z) {

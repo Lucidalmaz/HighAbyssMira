@@ -788,11 +788,6 @@ renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.3;
 document.body.prepend(renderer.domElement);
-// 08.10.: Weichzeichner der Umgebungsspiegelung (PMREM) gleich zu Beginn übersetzen lassen – der Treiber übersetzt parallel, während die Welt entsteht.
-// Vorher entstanden diese Programme (Schleifen-Shader, unter D3D sehr langsam) erst beim ersten Gebrauch und wartend: Messing-Schlüssel (hervorhebung,
-// Umgebungsbild 256 px → Stufe 64) 9 s im Vorübersetzen, Fenster-Sonde (fassaden, 128) ~7 s nach dem Laden. Gleiche Quelle = gleiches Programm (three.js teilt es).
-if (!/nopmrem/.test(location.search)) try { const cam = new THREE.OrthographicCamera(); for (const size of [64, 128, 256]) { const pm = new THREE.PMREMGenerator(renderer); pm._setSize(size); const rt = pm._allocateTargets(); rt.dispose();
-    renderer.compile(new THREE.Mesh(pm._lodPlanes[0], pm._blurMaterial), cam); if (size === 64) { pm.compileEquirectangularShader(); pm.compileCubemapShader(); } } } catch (e) { console.warn('PMREM vorab', e); }
 // Komprimierte Texturen (app/tools/ktx.mjs → assets/ktx2.json): Grafikkarte bekommt BC7 statt unkomprimierter Bilder – ~4× weniger Grafikspeicher,
 // schnelleres Hochladen, gleiche Optik. Fehlt die Liste oder eine Datei, wird wie bisher das Original geladen. Kein Modul muss etwas davon wissen.
 const KTX = { loader: null, img: new Set(), mdl: new Set(), cache: new Map(), pending: [] };
@@ -8371,24 +8366,31 @@ function gruen_wind(mat, amt) {
 // variants[v] = [stufe0Teile, stufe1Teile, …]; o.d = Grenzabstände je Stufe
 function gruen_lodSet(name, variants, o = {}) { const S = { name, variants, d2: o.d.map(d => d * d), thin2: (o.thin ?? 1e4) ** 2, shadow: o.shadow || [], items: [], buckets: new Map(), meshes: [] }; gruen_S.lod.push(S); return S; }
 function gruen_lodAdd(S, v, x, y, z, ry, s, sy = s, tilt = 0, col = null, sxz = 1) {
-  const m = gruen_m4(x, y, z, ry, s * sxz, sy, s * sxz, rand(-tilt, tilt), rand(-tilt, tilt)), it = { v, x, z, e: Float32Array.from(m.elements), c: col || [1, 1, 1], thin: Math.random() < .5 };
+  const m = gruen_m4(x, y, z, ry, s * sxz, sy, s * sxz, rand(-tilt, tilt), rand(-tilt, tilt)), it = { v, x, z, e: Float32Array.from(m.elements), c: col || [1, 1, 1], thin: Math.random() < .5, s: Math.max(Math.abs(s * sxz), Math.abs(sy)) };
   S.items.push(it); const k = (Math.floor(x / 16) + 60) * 1000 + Math.floor(z / 16) + 60; let B = S.buckets.get(k); if (!B) S.buckets.set(k, B = []); B.push(it); return it; }
 function gruen_lodBuild(S) {
   const cnt = S.variants.map(() => 0); for (const it of S.items) cnt[it.v]++;
   S.meshes = S.variants.map((V, v) => V.map((parts, l) => parts.map(p => { const n = Math.max(1, cnt[v]), im = new THREE.InstancedMesh(p.geo, p.mat, n);
     im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); im.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(n * 3).fill(1), 3); im.instanceColor.setUsage(THREE.DynamicDrawUsage);
-    im.count = 0; im.visible = false; im.frustumCulled = false; im.castShadow = !!S.shadow[l]; im.receiveShadow = true; im.userData.noCol = true; gruen_add(im); return im; })));
+    im.count = 0; im.visible = false; im.castShadow = !!S.shadow[l]; im.receiveShadow = true; im.userData.noCol = true;
+    // 08.10. (Leistung): eigene, laufend nachgeführte Hüllkugel über die gerade belegten Instanzen → Sichtprüfung im Bild UND in jedem Schattenbild (Taschenlampe,
+    // Laternen): liegt alles einer Gruppe außerhalb, entfällt ihr Zeichenaufruf. Großzügig (Wind/Ausweichen +1,5 m) – nie fehlt eine sichtbare Pflanze.
+    // noCull: nicht in die Instanz-Auslese der Basis (sie würde die Instanzen umschreiben).
+    im.frustumCulled = true; im.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5); im.userData.noCull = true; if (!p.geo.boundingSphere) p.geo.computeBoundingSphere();
+    im.userData.gR = p.geo.boundingSphere.center.length() + p.geo.boundingSphere.radius; gruen_add(im); return im; })));
   gruen_S.stats[S.name] = S.items.length; }
 function gruen_lodRefresh(S, cx, cz, fx, fz) {
-  const n = S.meshes.map(L => L.map(() => 0)), D = S.d2, last = D[D.length - 1], r = Math.ceil(Math.sqrt(last) / 16), bx = Math.floor(cx / 16), bz = Math.floor(cz / 16);
+  const n = S.meshes.map(L => L.map(() => 0)), bb = S.meshes.map(L => L.map(() => [1e9, -1e9, 1e9, -1e9, 1e9, -1e9, 0])), D = S.d2, last = D[D.length - 1], r = Math.ceil(Math.sqrt(last) / 16), bx = Math.floor(cx / 16), bz = Math.floor(cz / 16);
   for (let i = bx - r; i <= bx + r; i++) for (let j = bz - r; j <= bz + r; j++) {
     const B = S.buckets.get((i + 60) * 1000 + j + 60); if (!B) continue;
     for (const it of B) { const dx = it.x - cx, dz = it.z - cz, d2 = dx * dx + dz * dz; if (d2 > last || (it.thin && d2 > S.thin2)) continue;
       if (d2 > 9 && dx * fx + dz * fz < -.42 * Math.sqrt(d2)) continue;                 // hinter der Kamera
       let l = 0; while (l < D.length - 1 && d2 > D[l]) l++; const L = S.meshes[it.v][l]; if (!L || !L.length) continue;
-      const k = n[it.v][l]++;
+      const k = n[it.v][l]++, q = bb[it.v][l], e = it.e, y = e[13];
+      if (it.x < q[0]) q[0] = it.x; if (it.x > q[1]) q[1] = it.x; if (y < q[2]) q[2] = y; if (y > q[3]) q[3] = y; if (it.z < q[4]) q[4] = it.z; if (it.z > q[5]) q[5] = it.z; if (it.s > q[6]) q[6] = it.s;
       for (const im of L) { im.instanceMatrix.array.set(it.e, k * 16); const ca = im.instanceColor.array; ca[k * 3] = it.c[0]; ca[k * 3 + 1] = it.c[1]; ca[k * 3 + 2] = it.c[2]; } } }
   S.meshes.forEach((L, v) => L.forEach((parts, l) => parts.forEach(im => { const c = n[v][l]; im.count = c; im.visible = c > 0; if (!c) return;
+    const q = bb[v][l], bs = im.boundingSphere; if (bs) { bs.center.set((q[0] + q[1]) / 2, (q[2] + q[3]) / 2, (q[4] + q[5]) / 2); bs.radius = Math.hypot(q[1] - q[0], q[3] - q[2], q[5] - q[4]) / 2 + q[6] * (im.userData.gR || 0) + 1.5; }
     im.instanceMatrix.clearUpdateRanges(); im.instanceMatrix.addUpdateRange(0, c * 16); im.instanceMatrix.needsUpdate = true;
     im.instanceColor.clearUpdateRanges(); im.instanceColor.addUpdateRange(0, c * 3); im.instanceColor.needsUpdate = true; })));
 }
@@ -11428,7 +11430,7 @@ WORLD_MODS.push(['Leben', async () => {
   try { S.skc = (await import('three/addons/utils/SkeletonUtils.js')).clone; } catch (e) { console.warn('leben: SkeletonUtils', e); }
   if (S.skc) await leben_loadModels();
   try { leben_crowSetup(); } catch (e) { console.warn('leben: Krähen', e); }
-  if (FAB.ok && S.skc) { try { leben_ratSetup(); } catch (e) { console.warn('leben: Ratten', e); } try { leben_batSetup(); } catch (e) { console.warn('leben: Fledermäuse', e); } }
+  if (FAB.ok && S.skc) { try { leben_ratSetup(); } catch (e) { console.warn('leben: Ratten', e); } try { for (const R of FAB.rats || []) leben_variiere(R.g.children[0], { gr: .12, hell: [.62, 1.18], warm: .1 }); for (const b of FAB.bats || []) leben_variiere(b.g.children[0], { hell: [.75, 1.1] }); } catch (e) {} try { leben_batSetup(); } catch (e) { console.warn('leben: Fledermäuse', e); } }
   if (S.skc) try { leben_beastSetup(); } catch (e) { console.warn('leben: Säugetiere', e); }
   try { leben_flySetup(); } catch (e) { console.warn('leben: Fliegen', e); }
   try { leben_mothSetup(); } catch (e) { console.warn('leben: Motten', e); }
@@ -11457,6 +11459,15 @@ WORLD_TICK.push((dt, t, indoor) => { if (leben_S.ok) leben_tick(dt, t, indoor); 
 function leben_shrink(root, px) { const done = new Set(); root.traverse(o => { if (!o.isMesh) return; for (const m of [].concat(o.material)) for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap', 'alphaMap']) {
     const t = m[k]; if (!t || !t.image || t.isCompressedTexture || done.has(t)) continue; done.add(t); const im = t.image, w = im.width, h = im.height; if (!w || !h || Math.max(w, h) <= px) continue; // komprimierte (KTX2) sind schon klein genug
     const c = document.createElement('canvas'), f = px / Math.max(w, h); c.width = Math.round(w * f); c.height = Math.round(h * f); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); t.image = c; t.needsUpdate = true; } }); }
+// Jedes Tier ein Individuum (08.10.2026, Nutzer: „kein Tier genau gleich“): Materialklon je Tier (gleiches Shaderprogramm – nur der Farbwert
+// unterscheidet sich, keine neuen Programme), Helligkeit/Wärme leicht verschieden, Größe ±8 %. o: { gr, hell: [min, max], warm, ton: THREE.Color }
+function leben_variiere(root, o = {}) { if (!root) return root; const gr = o.gr != null ? o.gr : .08; if (gr) root.scale.multiplyScalar(1 + rand(-gr, gr));
+  const h = o.hell || [.84, 1.12], L = rand(h[0], h[1]), w = rand(-1, 1) * (o.warm != null ? o.warm : .05), col = new THREE.Color(L * (1 + w), L * (1 + w * .2), L * (1 - w));
+  if (o.ton) col.multiply(o.ton); const done = new Map();
+  root.traverse(m => { if (!m.isMesh || !m.material) return; const one = src => { if (done.has(src)) return done.get(src); if (!src.color) return src;
+      const c = src.clone(); c.color.multiply(col); if (src.onBeforeCompile) c.onBeforeCompile = src.onBeforeCompile; if (src.customProgramCacheKey) c.customProgramCacheKey = src.customProgramCacheKey; done.set(src, c); return c; };
+    m.material = Array.isArray(m.material) ? m.material.map(one) : one(m.material); });
+  return root; }
 async function leben_loadModels() {
   const S = leben_S; S.M = {};
   const load = async (k, key) => { try { const sc = await msModel(key, 'model.glb'); leben_shrink(sc, 1024); S.M[k] = { src: sc, clips: sc.animations || [] }; } catch (e) { console.warn('leben: Modell ' + key, e); } };
@@ -11496,7 +11507,8 @@ function leben_play(V, k, fade = .25, ts = 1, once = false) { const a = V.A[k]; 
 function leben_crowVis(g, yOff) {
   const S = leben_S, C = S.M.crow; if (!C) return null;
   for (const ch of g.children) ch.visible = false; // selbstgebaute Kugeln/Kisten aus
-  const m = S.skc(C.src); m.rotation.y = PI / 2; m.position.y = yOff; m.scale.setScalar(1.1 * rand(.92, 1.08)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); g.add(m);
+  const m = S.skc(C.src); m.rotation.y = PI / 2; m.position.y = yOff; const rabe = Math.random() < .15; m.scale.setScalar(1.1 * (rabe ? 1.22 : 1)); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); g.add(m);
+  leben_variiere(m, rabe ? { hell: [.68, .8], warm: .02 } : { hell: [.85, 1.15], warm: .06 }); // 08.10.: Gefieder je Vogel, Kolkraben größer/dunkler
   const mx = new THREE.AnimationMixer(m), V = { m, mx, A: leben_anims(mx, C.clips), cur: null, next: rand(2, 7), mode: '', skip: false };
   leben_play(V, 'IdleLookAround', 0); mx.update(rand(0, 3)); return V;
 }
@@ -11674,7 +11686,7 @@ function leben_ratSetup() {
   const S = leben_S, R0 = FAB.rats[0]; if (!R0) return;
   const src = R0.g.children[0], clip = k => R0.acts[k].getClip();
   for (const reg of ['ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'ort', 'nord', 'nord', 'nord', 'nord', 'ost', 'ost', 'ost', 'ost', 'ost', 'west', 'west', 'west', 'west', 'west']) {
-    const o = S.skc(src); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } });
+    const o = S.skc(src); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } }); leben_variiere(o, { gr: .12, hell: [.62, 1.18], warm: .1 }); // Fellton/Größe je Ratte
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Ratte', .6);
     const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(clip('idle')), sniff: mx.clipAction(clip('sniff')), walk: mx.clipAction(clip('walk')), run: mx.clipAction(clip('run')) };
     acts.idle.play(); mx.update(rand(0, 3));
@@ -11773,7 +11785,7 @@ function leben_ratChase() {
 // Wolf: selten, am Waldrand, sieht dich an. Schwein: auf dem Hof, wühlt und starrt.
 function leben_beast(key, s = 1) {
   const S = leben_S, B = S.M[key]; if (!B) return null;
-  const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } });
+  const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); leben_variiere(m, { hell: key === 'pig' ? [.8, 1.1] : [.82, 1.14], warm: .07 }); // Individuum
   const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Tier:' + key, 1.6);
   const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false };
   const first = Object.keys(V.A).find(k => /IdleBreathe/.test(k)) || Object.keys(V.A)[0]; if (first) leben_play(V, first, 0);
@@ -11931,7 +11943,7 @@ function leben_batSetup() {
   const S = leben_S, B0 = FAB.bats[0]; if (!B0) return;
   const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
   [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
-    const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; });
+    const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; }); leben_variiere(o, { hell: [.75, 1.1] });
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Fledermaus', .6);
     const mx = new THREE.AnimationMixer(o), a = mx.clipAction(clip); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
     S.bats.push({ g, mx, cx, cz, r, h, sp: rand(.5, .85) * (i % 2 ? 1 : -1), ph: rand(0, 6.28) }); });
@@ -12147,6 +12159,25 @@ function leben_tvVoice(dt, live) { // gedämpfte Stimmen aus dem Fernseher, nur 
 // =====================================================================  SPINNEN: Kreuzspinnen in den Netzen, eine seilt sich ab
 async function leben_spiderSetup() {
   const S = leben_S; if (!S.skc) return;
+  // 08.10.2026: eigene Kreuzspinne (Blender, spinnen.js → spn_neu): jede anders groß/gefärbt; Kopf des Modells zeigt nach −z → im Halter um 180° gedreht (+z = Kopf, wie bisher)
+  let make = null;
+  if (typeof spn_neu === 'function') try { await spn_art('kreuz');
+    make = async () => { const n = await spn_neu('kreuz', { spann: rand(.06, .08) }), g = new THREE.Group(); n.g.rotation.y = PI; g.add(n.g); g.userData.noCol = true; scene.add(g);
+      n.acts.idle.timeScale = .35; n.acts.idle.play(); n.acts.walk.timeScale = 1.4; n.mx.update(rand(0, 4)); return { g, mx: n.mx, acts: { idle: n.acts.idle, walk: n.acts.walk }, cur: n.acts.idle }; }; } catch (e) { console.warn('leben: Kreuzspinne (neu)', e); make = null; }
+  if (!make) make = await leben_spiderAlt(S); if (!make) return;
+  // Spinnweben aus dem Spiel (Häuser 7 und 1, Keller, Amt) – in gut der Hälfte sitzt jetzt eine Spinne
+  const rects = [[20.2, 31.8, -21.8, -12.2], [-55.8, -44.2, -21.8, -12.2], [B.x - 5, B.x + 5, B.z - 4, B.z + 4], [C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6], [C2.x + 36, C2.x + 46, C2.z - 5, C2.z + 5], [C2.x, C2.x + 18, C2.z - 2, C2.z + 2]];
+  const webs = []; scene.traverse(o => { if (o.isMesh && o.renderOrder === 2 && o.material && o.material.alphaTest === .12 && o.material.depthWrite === false && o.material.side === THREE.DoubleSide) webs.push(o); });
+  scene.updateMatrixWorld(true);
+  for (const w of webs) { if (Math.random() < .4 || S.webs.length >= 12) continue; const p = w.getWorldPosition(new THREE.Vector3()), R = rects.find(([a, b, c, d]) => p.x > a - .5 && p.x < b + .5 && p.z > c - .5 && p.z < d + .5); if (!R) continue;
+    const sp = await make(); sp.g.visible = false; sp.web = p; sp.R = R; sp.T = rand(3, 12); sp.walkT = 0; sp.off = new THREE.Vector2(); sp.scared = 0; S.webs.push(sp); } // Platz erst, wenn die Decken fest sind (leben_webPlace)
+  // Die, die sich abseilt
+  const d = await make(); d.g.visible = false; const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: .32, depthWrite: false })); line.frustumCulled = false; line.visible = false; line.userData.noCol = true; scene.add(line);
+  S.drop = Object.assign(d, { line, st: 'wait', T: rand(40, 80), x: 0, y: 0, z: 0, top: 0, low: 0, t: 0 });
+}
+// Bisheriges Fab-Modell (spider_cross) – nur noch Rückfall, falls die neuen Spinnen fehlen
+async function leben_spiderAlt(S) {
   const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
   const mgr = new THREE.LoadingManager(); mgr.setURLModifier(u => /\.(psd|png|jpe?g|tga|tif)$/i.test(u) && !u.startsWith('data:') ? MS_DATA_PNG : u);
   const src = await new FBXLoader(mgr).loadAsync('assets/spider_cross/model.fbx');
@@ -12154,18 +12185,8 @@ async function leben_spiderSetup() {
   const mat = new THREE.MeshStandardMaterial({ map: tx, roughness: .55, color: 0xc4b4a4 });
   src.traverse(m => { if (m.isMesh) { m.material = mat; m.castShadow = false; m.receiveShadow = false; } });
   src.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(src), sz = bb.getSize(new THREE.Vector3()); src.scale.multiplyScalar(.085 / Math.max(sz.x, sz.z, 1e-6));
-  const A = src.animations || [], idle = A.find(a => a.name === 'idle') || A[0], walk = A.find(a => a.name === 'walk') || idle; if (!idle) return;
-  const make = () => { const o = S.skc(src), g = new THREE.Group(); g.add(o); g.userData.noCol = true; scene.add(g); const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(idle), walk: mx.clipAction(walk) }; acts.idle.timeScale = .35; acts.idle.play(); mx.update(rand(0, 4)); return { g, mx, acts, cur: acts.idle }; };
-  // Spinnweben aus dem Spiel (Häuser 7 und 1, Keller, Amt) – in gut der Hälfte sitzt jetzt eine Spinne
-  const rects = [[20.2, 31.8, -21.8, -12.2], [-55.8, -44.2, -21.8, -12.2], [B.x - 5, B.x + 5, B.z - 4, B.z + 4], [C2.x + 18, C2.x + 30, C2.z - 6, C2.z + 6], [C2.x + 36, C2.x + 46, C2.z - 5, C2.z + 5], [C2.x, C2.x + 18, C2.z - 2, C2.z + 2]];
-  const webs = []; scene.traverse(o => { if (o.isMesh && o.renderOrder === 2 && o.material && o.material.alphaTest === .12 && o.material.depthWrite === false && o.material.side === THREE.DoubleSide) webs.push(o); });
-  scene.updateMatrixWorld(true);
-  for (const w of webs) { if (Math.random() < .4 || S.webs.length >= 12) continue; const p = w.getWorldPosition(new THREE.Vector3()), R = rects.find(([a, b, c, d]) => p.x > a - .5 && p.x < b + .5 && p.z > c - .5 && p.z < d + .5); if (!R) continue;
-    const sp = make(); sp.g.visible = false; sp.web = p; sp.R = R; sp.T = rand(3, 12); sp.walkT = 0; sp.off = new THREE.Vector2(); sp.scared = 0; S.webs.push(sp); } // Platz erst, wenn die Decken fest sind (leben_webPlace)
-  // Die, die sich abseilt
-  const d = make(); d.g.visible = false; const lg = new THREE.BufferGeometry(); lg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
-  const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: 0xd0d0d0, transparent: true, opacity: .32, depthWrite: false })); line.frustumCulled = false; line.visible = false; line.userData.noCol = true; scene.add(line);
-  S.drop = Object.assign(d, { line, st: 'wait', T: rand(40, 80), x: 0, y: 0, z: 0, top: 0, low: 0, t: 0 });
+  const A = src.animations || [], idle = A.find(a => a.name === 'idle') || A[0], walk = A.find(a => a.name === 'walk') || idle; if (!idle) return null;
+  return async () => { const o = S.skc(src), g = new THREE.Group(); g.add(o); g.userData.noCol = true; scene.add(g); const mx = new THREE.AnimationMixer(o), acts = { idle: mx.clipAction(idle), walk: mx.clipAction(walk) }; acts.idle.timeScale = .35; acts.idle.play(); mx.update(rand(0, 4)); return { g, mx, acts, cur: acts.idle }; };
 }
 // Unterste Decke über einem Punkt (echte Form)
 function leben_ceil(x, y, z) {
@@ -16968,11 +16989,28 @@ async function figuren_load(id) {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
     const info = (await figuren_list()).find(x => x.id === id); if (!info) return FIGUREN_ERSATZ[id] ? figuren_load(FIGUREN_ERSATZ[id]) : null; // Q-6: neue Figur noch nicht gebaut → Stellvertreter
     const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
-    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
+    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_teileZus(g.scene); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
     return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
 }
+// LEISTUNG (08.10.): gleichartige Kleinteile einer Vorlage (Hildes Lesebrille: 15 Metallteile mit demselben Material) zu einem Netz zusammenfassen – ein Zeichenaufruf statt 15
+//   (plus Schatten). Nur undurchsichtig, ohne Formen (Morphs), gleiches Material, gleiche Eltern, gleiches Skelett (dieselben Knochen, gleiche Ruhe-Umkehrungen) und gleiche
+//   Bindematrix – dann rechnet das Skinning jeden Eckpunkt genau wie vorher (Bild gleich).
+function figuren_teileZus(root) { try {
+  const G = new Map(), eq = (a, b) => { for (let k = 0; k < 16; k++) if (Math.abs(a[k] - b[k]) > 1e-6) return false; return true; };
+  root.traverse(o => { if (!o.isSkinnedMesh || Array.isArray(o.material) || !o.material || o.material.transparent || o.material.alphaTest > 0 || !o.skeleton || !o.parent) return;
+    const ga = o.geometry; if (!ga || !ga.index || (ga.morphAttributes && Object.keys(ga.morphAttributes).length)) return;
+    const k = o.parent.uuid + '|' + o.material.uuid; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
+  for (const L of G.values()) { if (L.length < 3) continue; const a = L[0], sa = a.skeleton, attr = Object.keys(a.geometry.attributes).sort().join();
+    const ok = L.filter(o => { const s = o.skeleton; if (o.bindMode !== a.bindMode || s.bones.length !== sa.bones.length || Object.keys(o.geometry.attributes).sort().join() !== attr) return false;
+      for (let i = 0; i < s.bones.length; i++) if (s.bones[i] !== sa.bones[i] || !eq(s.boneInverses[i].elements, sa.boneInverses[i].elements)) return false;
+      return eq(o.bindMatrix.elements, a.bindMatrix.elements) && eq(o.matrix.elements, a.matrix.elements); });
+    if (ok.length < 3) continue; const geo = mergeGeometries(ok.map(o => o.geometry)); if (!geo) continue;
+    const m = new THREE.SkinnedMesh(geo, a.material); m.name = a.name + '_zus'; m.position.copy(a.position); m.quaternion.copy(a.quaternion); m.scale.copy(a.scale);
+    m.castShadow = a.castShadow; m.receiveShadow = a.receiveShadow; m.frustumCulled = a.frustumCulled; m.renderOrder = a.renderOrder; m.bind(sa, a.bindMatrix); m.bindMode = a.bindMode;
+    a.parent.add(m); for (const o of ok) o.parent.remove(o); }
+} catch (e) { console.warn('figuren Teile zusammenfassen', e); } }
 // Q-6: Stellvertreter, solange die neuen Figuren (forge.html/cast.json) nicht gebaut sind
 const FIGUREN_ERSATZ = { mira: 'dina_erw', voss: 'amt1', luke_erw: 'amt2', reuter: 'aydin' };
 async function figuren_skc() { if (!figuren_S.sk) figuren_S.sk = (await import('three/addons/utils/SkeletonUtils.js')).clone; return figuren_S.sk; }
@@ -17031,11 +17069,25 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
+  if (!ghost) Q.lod = figuren_lodBau(obj);
   g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden
   figuren_play(Q, clip || 'idle', true); mx.update(0);
   if (sit !== null) figuren_seat(Q, sit);
   return Q;
 }
+// LEISTUNG (08.10.): Gesichts-Innenteile der CC-Köpfe. Hornhaut, Tränenrand, Augenschatten, Zähne, Zunge und Augäpfel liegen im Kopf bzw. sind durchsichtige Hüllen –
+//   ihr Schatten fällt nie sichtbar, darum werfen sie keinen (spart je Figur bis 11 Zeichenaufrufe in jedem Taschenlampen-Schattenbild).
+//   Ab FIGUREN_LOD.fern m (25) werden Hornhaut, Tränenrand, Augenschatten, Zähne und Zunge nicht gezeichnet (Auge ≈ 1 Pixel, Mundraum im Nebel), unter FIGUREN_LOD.nah m (22) wieder (Hysterese, kein Flackern).
+//   Nur ganze Netze, deren Materialien alle dazugehören (zusammengeführte Netze bleiben unberührt); ausgeblendet über Ebene 0 (layers) statt visible – Module, die selbst Teile verstecken, bleiben unberührt.
+const FIGUREN_LOD = { on: true, fern: 25, nah: 22, n: 0 };
+const FIG_LODRE = /std_(cornea|tearline|eye_occlusion|upper_teeth|lower_teeth|tongue)/i, FIG_SHRE = /std_(cornea|tearline|eye_occlusion|upper_teeth|lower_teeth|tongue|eye_[lr]$)|eyelash/i;
+function figuren_lodBau(obj) { const L = { far: false, face: [] }; try {
+  obj.traverse(o => { if (!o.isMesh) return; const ms = [].concat(o.material); if (!ms.length || !ms.every(m => m && m.name)) return;
+    if (ms.every(m => FIG_SHRE.test(m.name))) o.castShadow = false;
+    if (ms.every(m => FIG_LODRE.test(m.name))) L.face.push(o); }); } catch (e) { console.warn('figuren LOD', e); }
+  return L.face.length ? L : null; }
+function figuren_lodSet(P, dist) { const L = P.lod, far = FIGUREN_LOD.on && (L.far ? dist > FIGUREN_LOD.nah : dist > FIGUREN_LOD.fern); if (far === L.far) return; L.far = far;
+  for (const o of L.face) { if (far) o.layers.disable(0); else o.layers.enable(0); } }
 // P2 Sperrliste: Clips, die nach Übertragung + Glättung (tools/mocap_glatt.mjs) noch Drehsprünge > 30 rad/s zeigen (tools/mocap_check.mjs), spielen einen sicheren Rückfall-Clip
 const FIGUREN_SPERRE = { '*': { gestik: 'talk', klopfen: 'idle', getup_floor: 'idle', walk_vorsicht: 'walk' },
   vegas: { schleichen: 'walk', turn_180: 'turn_l', sit_down: 'sit', stand_up: 'idle', getup: 'idle', aufheben: 'idle', window: 'idle2', window_lean: 'idle2', run_panik: 'run' } };
@@ -17169,7 +17221,7 @@ function figuren_rest(r) { for (const [o, q, p] of r.base) { o.quaternion.copy(q
 // Knoten mit Spuren in den Clips (einmal je Vorlage)
 function figuren_animSet(T) { if (!T.anim) { T.anim = new Set(); for (const k in T.clips) for (const t of T.clips[k].tracks) T.anim.add(t.name.slice(0, t.name.lastIndexOf('.'))); } return T.anim; }
 function figuren_mvNew() { return { init: false, yaw: 0, yawV: 0, spd: 0, spdV: 0, moving: false, run: false, turn: null, turnT: 0, turnY0: 0, turnD: 0, idleT: 4 + Math.random() * 8, once: false, clipT: 0, shot: null, then: null,
-  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: 0, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false, autoLook: null, spricht: 0 }; }
+  br: Math.random() * 6, exert: 0, hy: 0, hyV: 0, hp: 0, hpV: 0, ey: 0, eyV: 0, ep: 0, epV: 0, lookW: 0, lw: 0, lwV: 0, acc: Math.random() * .066, ikT: Math.random() * .1, gL: 0, gR: 0, oL: 0, oLV: 0, oR: 0, oRV: 0, drop: 0, dropV: 0, seatY: null, px: 0, pz: 0, vis: false, autoLook: null, spricht: 0 }; }
 // Kritisch gedämpfte Feder (implizit, stabil bei großen dt): s[k] Wert, s[kv] Geschwindigkeit
 function figuren_spr(s, k, kv, target, w, dt) { const f = 1 + 2 * dt * w, oo = w * w, hoo = dt * oo, hhoo = dt * hoo, di = 1 / (f + hhoo), x = s[k], v = s[kv]; s[k] = (f * x + dt * v + hhoo * target) * di; s[kv] = (v + hoo * (target - x)) * di; }
 const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
@@ -17206,7 +17258,7 @@ function figuren_tick(dt) {
   const cam = camera.position, w = M.v4; M.pm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); M.fr.setFromProjectionMatrix(M.pm);
   for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !g.visible || !g.parent) { if (P) P.mv.vis = false; continue; }
     const s = P.doll ? 1 : 1 / Math.max(1e-3, g.scale.x); if (Math.abs(P.obj.scale.x - s) > 1e-4) P.obj.scale.setScalar(s); // echte Körpergröße, egal wie die alte Gestalt skaliert war
-    w.setFromMatrixPosition(g.matrixWorld); const dx = w.x - cam.x, dz = w.z - cam.z, dist = Math.hypot(dx, dz); if (dist > 70) { P.last.copy(w); P.mv.vis = false; continue; }
+    w.setFromMatrixPosition(g.matrixWorld); const dx = w.x - cam.x, dz = w.z - cam.z, dist = Math.hypot(dx, dz); if (P.lod) figuren_lodSet(P, dist); if (dist > 70) { P.last.copy(w); P.mv.vis = false; continue; }
     const V = P.mv, wsc = P.doll ? g.getWorldScale(M.s).x : 1; M.n++;
     // Blickrichtung der Gruppe (Welt) und Tempo (kritisch gedämpft)
     g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(0, 0, 1).applyQuaternion(M.q); const gy = Math.atan2(M.v.x, M.v.z);
@@ -17600,7 +17652,7 @@ function figuren_handPose(hands, pose, w = 1, { seite = 'beide', t = 0, handgele
   return true; }
 function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt feste Besetzung
 WORLD_TICK.push(dt => figuren_tick(dt));
-window.__figuren = { S: figuren_S, MV: FIGUREN_MV, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
+window.__figuren = { S: figuren_S, MV: FIGUREN_MV, LOD: FIGUREN_LOD, lodAlle() { let n = 0; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.lod) continue; FIGUREN_MV.v.setFromMatrixPosition(g.matrixWorld); figuren_lodSet(P, Math.hypot(FIGUREN_MV.v.x - camera.position.x, FIGUREN_MV.v.z - camera.position.z)); if (P.lod.far) n += P.lod.face.length; } return (FIGUREN_LOD.n = n); }, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
 // =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; Gespräche aus Kap. 3, am Ende Kap. 1 „Schnalle zu“, AP-15)
 // Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
 // Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
@@ -37168,12 +37220,75 @@ function amt_akte06() { const S = amt_S; if (typeof files === 'undefined') retur
 //    Anzeige „Befall“/„Wucht“ unten. Mehr Befall = dunkleres Bild, Herzschlag, Atem, Farbsaum, Verzerrung (alles proportional und am Ende weg).
 //  · Ton: synthetisierter Spinnen-Lauf (Klickfolgen + Scharren, Schleife), räumlich über Spinnen in Luke-Nähe, Stoffrascheln beim Schütteln, Atem und Herzschlag nach Befall; nichts Lautes.
 //  · Licht: defekte Leuchtstoffröhre (Aussetzer, Dunkelphasen, kaltweiß) statt Regenbogenfarben.
+// 08.10.2026: alle Spinnen sind jetzt eigene Blender-Modelle in sechs Arten (SPN_ARTEN, unten): Schwarm/Bild = Hauswinkelspinne, große Schwarmspinnen gemischt
+//   (Riesenkrabbenspinne, Wolfsspinne, Nosferatu-Spinne, Hauswinkelspinne, Vogelspinne), Spinnenraum/Keller (FAB.spiders) ersetzt, Netze (leben.js) = Kreuzspinnen.
 // Testzugriff: __spinnen (am window).
 const SPN_V = new THREE.Vector3();
 const SPN_S = { ready: false, camActive: 0, heroN: 0, token: 0, active: false, pt: 0, acc: 0, camN: 36, cam: [], heroes: [], hud: null, charge: 0, power: 0, cool: 0, shT: 0, assistT: 0, load: 0, heartT: 0, breathT: 0, rustT: 0, fl: { t: 0, k: 1 },
   vig0: 1, ca0: .003, saved: false, kx: 0, ky: 0, lastKey: '', flip: 0, ext: .075, sndOn: false, snd: null, burstT: 0, hitSnd: 0 };
 const SPN_U = { uT: { value: 0 } };
 const spn_clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+// ---------------------------------------------------------------- Arten (08.10.2026, Nutzer: „keine Fixierung auf Vogelspinnen – gruselig, realistisch, Vielfalt, keine zwei gleich“)
+// Eigene Arbeit (Blender, app/tools/blender/spinnen_bau.py): sechs Arten mit Skelett (8 Beine × Coxa–Trochanter–Femur–Patella–Tibia–Metatarsus–Tarsus,
+// Taster, Cheliceren) und den Clips idle · walk · lauern · zucken; Texturen gebacken (Zeichnung, Chitin, Haarstriche), Haarkarten „haar“ (nur Nahmodell).
+// Dateien assets/ms/spinnen/<art>.glb (Nahmodell 11–13 k Dreiecke + Haar), <art>_lo.glb (≈ 4 k), winkel_xs.glb (Schwarm, ≈ 1,5 k).
+// spann: Beinspannweite im Spiel (m) · stride/cyc/cl: Gehzyklus aus dem Bau (Schrittlänge in Prosoma-Längen, Bilder bei 30 fps, Prosomalänge im Modell in m)
+const SPN_ARTEN = {
+  winkel:    { n: 'Hauswinkelspinne', spann: [.07, .1],   stride: 1.0, cyc: 18, cl: .008 },
+  nosferatu: { n: 'Nosferatu-Spinne', spann: [.05, .07],  stride: .75, cyc: 24, cl: .0075 },
+  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125 },
+  kreuz:     { n: 'Kreuzspinne',      spann: [.045, .06], stride: .6,  cyc: 26, cl: .0062 },
+  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095 },
+  vogel:     { n: 'Vogelspinne',      spann: [.16, .21],  stride: .6,  cyc: 34, cl: .024 } };
+const SPN_SRC = new Map(), SPN_HAAR = [];
+// Quelle einer Art laden (einmal): Skalierungs- und Glieder-Positionsspuren entfernen (Knochen-Skalierung bleibt frei für die Variation je Tier), Materialien aufbereiten
+function spn_art(art, res = '') { const key = art + (res ? '_' + res : ''); if (SPN_SRC.has(key)) return SPN_SRC.get(key);
+  const p = (async () => { const sc = await msModel('spinnen', key + '.glb'), clips = {};
+    for (const c of sc.animations || []) { c.tracks = c.tracks.filter(t => !/\.scale$/.test(t.name) && (!/\.position$/.test(t.name) || /^(body|abdomen)\./.test(t.name))); clips[c.name] = c; }
+    sc.traverse(o => { if (!o.isMesh) return; o.receiveShadow = false;
+      if (/^haar/.test(o.name)) { const m = o.material; m.alphaTest = .42; m.transparent = false; m.depthWrite = true; m.side = THREE.DoubleSide; m.userData.spnNeu = true; o.castShadow = false; }
+      else { o.material = spn_hautNeu(o.material); o.castShadow = true; } });
+    sc.updateMatrixWorld(true); const sz = new THREE.Box3().setFromObject(sc).getSize(new THREE.Vector3());
+    return { scene: sc, clips, ext: Math.max(sz.x, sz.z) || .1 }; })();
+  SPN_SRC.set(key, p); return p; }
+// Haut: die gebackenen Karten (Albedo, Normal, Rauheit) + Samtglanz der Behaarung, dünner Chitin-Klarlack, schwaches Eigenlicht aus der Albedo (im Dunkeln lesbar)
+function spn_hautNeu(src) { if (src.userData && src.userData.spnNeu) return src;
+  const m = new THREE.MeshPhysicalMaterial({ map: src.map, normalMap: src.normalMap, roughnessMap: src.roughnessMap, roughness: 1, metalness: 0,
+    sheen: .55, sheenRoughness: .5, sheenColor: new THREE.Color(.3, .26, .21), clearcoat: .14, clearcoatRoughness: .42,
+    emissive: new THREE.Color(.16, .13, .1), emissiveMap: src.map || null, emissiveIntensity: src.map ? .12 : 0 });
+  if (src.normalScale) m.normalScale.copy(src.normalScale); if (m.map) m.map.anisotropy = 8; m.name = src.name; m.userData.spnNeu = true; return m; }
+// Ein Tier: eigener Klon mit eigener Größe, Beinlänge, Hinterleib, Färbung, Tempo – keine zwei gleich. o: { spann, res, bauch, ton }
+async function spn_neu(art, o = {}) { const A = SPN_ARTEN[art], src = await spn_art(art, o.res || ''), { clone } = await import('three/addons/utils/SkeletonUtils.js');
+  const g = clone(src.scene), spann = o.spann || rand(A.spann[0], A.spann[1]), k = spann / src.ext; g.scale.setScalar(k); g.userData.noCol = true;
+  const B = {}; g.traverse(b => { if (b.isBone) B[b.name] = b; });
+  const lf = rand(.92, 1.1); for (const s of 'LR') for (let i = 1; i <= 4; i++) { const b = B[s + i + '_coxa']; if (b) b.scale.setScalar(lf * rand(.97, 1.03)); }
+  if (B.abdomen) B.abdomen.scale.setScalar(o.bauch || rand(.86, 1.22));
+  const v = o.ton || rand(.8, 1.16), col = new THREE.Color(v * rand(.95, 1.06), v * rand(.95, 1.04), v * rand(.9, 1.05)), mats = new Map(), haar = [];
+  g.traverse(m => { if (!m.isMesh) return; if (!mats.has(m.material)) { const c = m.material.clone(); c.color.multiply(col); mats.set(m.material, c); } m.material = mats.get(m.material); if (/^haar/.test(m.name)) haar.push(m); });
+  for (const h of haar) SPN_HAAR.push({ m: h, root: g });
+  const mx = new THREE.AnimationMixer(g), acts = {}; for (const n in src.clips) acts[n] = mx.clipAction(src.clips[n]);
+  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase
+  return { g, mx, acts, art, k, v1, spann }; }
+// Starre Pose für Instanzen (Schwarm, Bildschirm): Gehpose einbacken, Haut-Attribute entfernen, glatt schattieren (Normalen über Nähte gemittelt), auf ext normieren, Kopf → +X
+async function spn_starr(art, res, ext = .125) { const src = await spn_art(art, res), { clone } = await import('three/addons/utils/SkeletonUtils.js');
+  const cl = clone(src.scene), mx = new THREE.AnimationMixer(cl), clip = src.clips.walk || src.clips.idle; mx.clipAction(clip).play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
+  let sm = null; cl.traverse(o => { if (o.isSkinnedMesh && !/^haar/.test(o.name) && !sm) sm = o; }); if (!sm) return null; sm.skeleton.update();
+  const g = sm.geometry.clone(), pos = g.attributes.position, v = new THREE.Vector3(); for (let i = 0; i < pos.count; i++) { sm.getVertexPosition(i, v); pos.setXYZ(i, v.x, v.y, v.z); }
+  g.deleteAttribute('skinIndex'); g.deleteAttribute('skinWeight'); if (g.attributes.tangent) g.deleteAttribute('tangent');
+  { const BU = await import('three/addons/utils/BufferGeometryUtils.js'), p0 = new THREE.BufferGeometry(); p0.setAttribute('position', pos.clone()); if (g.index) p0.setIndex(g.index.clone());
+    const pm = BU.mergeVertices(p0, 1e-6); pm.computeVertexNormals(); const nm = new Map(), PP = pm.attributes.position, NN = pm.attributes.normal, key = (x, y, z) => Math.round(x * 1e6) + ',' + Math.round(y * 1e6) + ',' + Math.round(z * 1e6);
+    for (let i = 0; i < PP.count; i++) nm.set(key(PP.getX(i), PP.getY(i), PP.getZ(i)), i);
+    const n = new Float32Array(pos.count * 3); for (let i = 0; i < pos.count; i++) { const j = nm.get(key(pos.getX(i), pos.getY(i), pos.getZ(i))); if (j != null) { n[i * 3] = NN.getX(j); n[i * 3 + 1] = NN.getY(j); n[i * 3 + 2] = NN.getZ(j); } }
+    g.setAttribute('normal', new THREE.BufferAttribute(n, 3)); }
+  g.computeBoundingBox(); const bb = g.boundingBox, sz = bb.getSize(new THREE.Vector3()), k = ext / Math.max(sz.x, sz.z); g.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); g.scale(k, k, k); g.rotateY(-PI / 2); // Kopf (−z) → +X
+  g.computeBoundingBox(); g.computeBoundingSphere(); const mat = sm.material.clone(); mat.color.setRGB(1, 1, 1); return { geo: g, mat }; }
+// Die vier Spinnen der Basis (Spinnenraum Amt: Vogelspinne, Riesenkrabbenspinne, Wolfsspinne; Keller: Hauswinkelspinne) – statt des einen Fab-Modells
+async function spn_fabErsetzen() { if (typeof FAB === 'undefined' || !FAB.spiders || !FAB.spiders.length) return;
+  const plan = ['vogel', 'huntsman', 'wolf', 'winkel'], gr = { vogel: .2, huntsman: .17, wolf: .13, winkel: .1 };
+  for (let i = 0; i < FAB.spiders.length; i++) { const S = FAB.spiders[i], art = plan[i % plan.length], n = await spn_neu(art, { spann: gr[art] * rand(.9, 1.1) });
+    for (const c of [...S.g.children]) S.g.remove(c); S.g.add(n.g); try { S.mx.stopAllAction(); } catch (e) {}
+    S.mx = n.mx; S.acts = n.acts; S.acts.walk.timeScale = spn_clamp(.18 / n.v1, .4, 4); S.acts.idle.timeScale = rand(.8, 1.2); S.acts.idle.play(); S.mx.update(rand(0, 3)); S.cur = S.acts.idle; S.art = art; } }
 
 // ---------------------------------------------------------------- Beine im Vertex-Shader (Instanzen): Tetrapodengang, Hubbewegung, Körperwippen
 function spn_beine(mat, ext) {
@@ -37260,12 +37375,13 @@ function spn_schleudern(n) { const S = SPN_S, list = S.cam.filter(c => c.on && !
   for (const c of list) { if (k >= n) break; c.fl = .001; const a = Math.atan2(c.v, c.u) + rand(-.5, .5), v = rand(1.6, 3.4); c.fu = Math.cos(a) * v; c.fv = Math.sin(a) * v; c.spin = rand(-14, 14); k++; }
   return k; }
 
-// ---------------------------------------------------------------- Vogelspinnen (skelettanimiert)
-async function spn_helden() { const S = SPN_S; if (S.heroes.length || !FAB.spiders || !FAB.spiders.length) return;
-  const { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'), src = FAB.spiders[0].g.children[0], A = FAB.spiders[0].acts; if (!src || !A || !A.walk) return;
-  const clip = A.walk.getClip();
-  for (let i = 0; i < 14; i++) { const o = skClone(src); o.scale.setScalar(src.scale.x * rand(.9, 1.5)); o.position.copy(src.position); o.rotation.copy(src.rotation); const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Spinne(Held)', ein: .3, aus: .3, r: .5 }); } catch (e) {} 
-    const mx = new THREE.AnimationMixer(o), w = mx.clipAction(clip); w.timeScale = rand(1.5, 2.2); w.play(); mx.update(rand(0, 2)); S.heroes.push({ g, mx, on: false, x: 0, z: 0, dir: 0, sp: rand(.5, .9), t: 0 }); } }
+// ---------------------------------------------------------------- Große Spinnen im Schwarm (skelettanimiert): gemischte Arten, jede anders groß/gefärbt/schnell
+async function spn_helden() { const S = SPN_S; if (S.heroes.length) return;
+  const plan = ['huntsman', 'wolf', 'nosferatu', 'winkel', 'huntsman', 'vogel', 'wolf', 'nosferatu', 'winkel', 'huntsman', 'wolf', 'nosferatu', 'vogel', 'winkel'],
+    gr = { huntsman: [.15, .2], wolf: [.1, .14], nosferatu: [.08, .11], winkel: [.1, .13], vogel: [.17, .22] };
+  for (let i = 0; i < plan.length; i++) { const art = plan[i]; let n; try { n = await spn_neu(art, { spann: rand(...gr[art]) }); } catch (e) { console.warn('Spinnen: Art', art, e); continue; }
+    const g = new THREE.Group(); g.add(n.g); g.visible = false; g.userData.noCol = true; scene.add(g); try { auftritt_reg(g, { name: 'Spinne(Held)', ein: .3, aus: .3, r: .5 }); } catch (e) {}
+    const sp = Math.min(rand(.5, .9), n.v1 * 4.5), w = n.acts.walk; w.timeScale = sp / n.v1; w.play(); n.mx.update(rand(0, 2)); S.heroes.push({ g, mx: n.mx, on: false, x: 0, z: 0, dir: 0, sp, t: 0, art }); } }
 function spn_heldStart() { const S = SPN_S; let k = 0; for (const h of S.heroes) { h.on = true; h.g.visible = true; const side = Math.floor(rand(0, 4)); h.x = side === 0 ? X + 36.6 : side === 1 ? X + 45.4 : rand(X + 37, X + 45); h.z = side === 2 ? Z - 4.5 : side === 3 ? Z + 4.5 : rand(Z - 4.5, Z + 4.5); h.t = 1 + k++ * .6; h.g.position.set(h.x, 0, h.z); h.g.visible = false; } }
 function spn_heldUpdate(dt) { const S = SPN_S, P = player.pos; let n = 0;
   for (const h of S.heroes) { if (!h.on) continue; h.t -= dt; if (h.t > 0) { continue; } h.g.visible = true; n++;
@@ -37362,11 +37478,16 @@ function spn_haut(map, o = {}) { const S = SPN_S; if (map) map.anisotropy = Math
   const m = new THREE.MeshPhysicalMaterial({ map, color: o.color ?? 0xcabdae, roughness: .56, metalness: 0, sheen: 1, sheenRoughness: .36, sheenColor: new THREE.Color(.64, .58, .5), clearcoat: .24, clearcoatRoughness: .38, normalMap: spn_haarNormal(), normalScale: new THREE.Vector2(.8, .8) });
   if (map) { m.emissive = new THREE.Color(.2, .16, .12); m.emissiveMap = map; m.emissiveIntensity = o.eigen ?? .32; } return m; }
 function spn_allePflegen() { const S = SPN_S, tauscht = new Map(); // alle Spinnen im Spiel (Vogelspinnen in Räumen/Keller, Kreuzspinnen an Netzen, die abseilende) bekommen dieselbe Haut
-  const tausche = o => { if (!o.isMesh || !o.material || !o.material.map || o.material.isMeshPhysicalMaterial) return; const m = o.material; if (!tauscht.has(m)) tauscht.set(m, spn_haut(m.map, { color: m === (S.tarOrig) ? 0xcabdae : 0xc0b2a2 })); o.material = tauscht.get(m); };
+  const tausche = o => { if (!o.isMesh || !o.material || !o.material.map || o.material.isMeshPhysicalMaterial || (o.material.userData && o.material.userData.spnNeu)) return; /* neue Arten haben ihre Haut schon */ const m = o.material; if (!tauscht.has(m)) tauscht.set(m, spn_haut(m.map, { color: m === (S.tarOrig) ? 0xcabdae : 0xc0b2a2 })); o.material = tauscht.get(m); };
   if (typeof FAB !== 'undefined' && FAB.spiders) for (const sp of FAB.spiders) sp.g.traverse(tausche);
   if (typeof leben_S !== 'undefined') { for (const w of leben_S.webs || []) if (w.g) w.g.traverse(tausche); if (leben_S.drop && leben_S.drop.g) leben_S.drop.g.traverse(tausche); } }
 // Die echte Vogelspinne des Spiels (Fab, skelettanimiert im Spinnenraum/Keller) als starre Instanz-Geometrie: Skin entfernt, Eckpunkte verschweißt und glatt geschattet, Beine laufen im Shader.
-async function spn_modell() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
+// Neu (08.10.): Schwarm = Hauswinkelspinne „xs“ (≈ 1,5 k Dreiecke × 2400), Spinnen auf dem Bild = „lo“ (≈ 4 k, eigene Karten 512²)
+async function spn_modell() { const S = SPN_S;
+  try { const xs = await spn_starr('winkel', 'xs'), lo = await spn_starr('winkel', 'lo'); if (xs && lo) { spiders.geometry = xs.geo; spiders.material = xs.mat; S.camGeo = lo.geo; S.camMat = lo.mat; S.ext = .125; return true; } }
+  catch (e) { console.warn('Spinnen: neue Schwarmform', e); }
+  return spn_modellAlt(); }
+async function spn_modellAlt() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.length) return false; let sm = null; FAB.spiders[0].g.traverse(o => { if (o.isMesh && !sm) sm = o; }); if (!sm) return false;
   const BU = await import('three/addons/utils/BufferGeometryUtils.js'), { clone: skClone } = await import('three/addons/utils/SkeletonUtils.js'); let g = sm.geometry.clone();
   try { // Gehpose einbacken (Beine gebeugt statt gestreckt): Klon, Lauf-Animation auf einen Schritt gestellt, Eckpunkte per Skelett ausgelesen
     const root = FAB.spiders[0].g.children[0], cl = skClone(root), mx = new THREE.AnimationMixer(cl), clip = (FAB.spiders[0].acts.walk || FAB.spiders[0].acts.idle).getClip(); const a = mx.clipAction(clip); a.play(); mx.setTime(clip.duration * .27); cl.updateMatrixWorld(true);
@@ -37378,19 +37499,22 @@ async function spn_modell() { const S = SPN_S; if (!FAB.spiders || !FAB.spiders.
   S.tarOrig = m0; const mat = spn_haut(m0.map);
   spiders.geometry = g; spiders.material = mat; S.ext = ext; return true; }
 WORLD_MODS.push(['Spinnen', async () => { const S = SPN_S;
-  try { let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }
+  try { try { await Promise.all(Object.keys(SPN_ARTEN).map(a => spn_art(a))); await spn_fabErsetzen(); } catch (e) { console.warn('Spinnen: Arten', e); }
+    let ok = false; try { ok = await spn_modell(); } catch (e) { console.warn('Spinnen: Modell', e); }
     const g = spiders.geometry; g.computeBoundingBox(); const bb = g.boundingBox; if (!ok) S.ext = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z) || .075; spn_beine(spiders.material, S.ext); spiders.instanceMatrix.setUsage(THREE.DynamicDrawUsage); spiders.userData.noCol = true;
     { const c = new THREE.Color(); for (let i = 0; i < SPN; i++) { const v = .5 + Math.random() * .55; c.setRGB(v, v * (.92 + Math.random() * .1), v * (.86 + Math.random() * .12)); spiders.setColorAt(i, c); } spiders.instanceColor.needsUpdate = true; }
     S.qFlat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), PI / 2); S.qH = new THREE.Quaternion(); S.zAx = new THREE.Vector3(0, 0, 1);
-    const cm = spiders.material.clone(); cm.depthTest = false; cm.depthWrite = false; cm.transparent = true; if (cm.map) { cm.emissiveIntensity = .55; } spn_beine(cm, S.ext);
-    const M = S.camMesh = new THREE.InstancedMesh(g, cm, S.camN); M.frustumCulled = false; M.renderOrder = 1000; M.visible = false; M.userData.noCol = true; M.instanceMatrix.setUsage(THREE.DynamicDrawUsage); camera.add(M);
+    const cm = (S.camMat || spiders.material).clone(); cm.depthTest = false; cm.depthWrite = false; cm.transparent = true; if (cm.map) { cm.emissiveIntensity = S.camMat ? .3 : .55; } spn_beine(cm, S.ext);
+    const M = S.camMesh = new THREE.InstancedMesh(S.camGeo || g, cm, S.camN); M.frustumCulled = false; M.renderOrder = 1000; M.visible = false; M.userData.noCol = true; M.instanceMatrix.setUsage(THREE.DynamicDrawUsage); camera.add(M);
     for (let i = 0; i < S.camN; i++) { S.cam.push({ on: false }); const m = new THREE.Matrix4().makeScale(0, 0, 0); M.setMatrixAt(i, m); }
     try { spn_allePflegen(); } catch (e) { console.warn('Spinnen: Haut', e); }
     S.flip = 0; spn_eingabe(); S.ready = true; } catch (e) { console.warn('Spinnen: Aufbau', e); }
   try { TOD_RESET.push(() => { if (['lock', 'swarm', 'shake'].includes(ch2.spiderPhase)) spn_abbruch(); }); } catch (e) {}
-  window.__spinnen = { S, spiders, FAB, heldStart: () => spn_heldStart(), helden: () => spn_helden(), start: () => spiderEvent(), abbruch: () => spn_abbruch(), ende: () => spn_ende(), schleudern: n => spn_schleudern(n || 3), eingabe: v => { S.inp = (S.inp || 0) + v; }, flip: v => { S.flip = v; } }; // Testzugriff
+  window.__spinnen = { S, spiders, FAB, ARTEN: SPN_ARTEN, neu: (a, o) => spn_neu(a, o), haar: SPN_HAAR, heldStart: () => spn_heldStart(), helden: () => spn_helden(), start: () => spiderEvent(), abbruch: () => spn_abbruch(), ende: () => spn_ende(), schleudern: n => spn_schleudern(n || 3), eingabe: v => { S.inp = (S.inp || 0) + v; }, flip: v => { S.flip = v; } }; // Testzugriff
 }]);
-WORLD_TICK.push(() => { try { const S = SPN_S; if (S.ready && S.active && ch2.spiderPhase !== 'swarm' && ch2.spiderPhase !== 'shake' && ch2.spiderPhase !== 'lock') spn_aufraeumen(); } catch (e) {} });
+WORLD_TICK.push(() => { try { const S = SPN_S; if (S.ready && S.active && ch2.spiderPhase !== 'swarm' && ch2.spiderPhase !== 'shake' && ch2.spiderPhase !== 'lock') spn_aufraeumen(); } catch (e) {}
+  // Haarkarten nur in der Nähe (< 3,5 m): weiter weg sind sie kleiner als ein Bildpunkt und kosten nur Zeichenzeit
+  if ((SPN_S.hT = (SPN_S.hT | 0) + 1) % 8 === 0) { const c = camera.position; for (const h of SPN_HAAR) { h.root.getWorldPosition(SPN_V); const on = SPN_V.distanceToSquared(c) < 12.25; if (h.m.visible !== on) h.m.visible = on; } } });
 // =====================================================================  NATURSCHRECK (Modul „naturschreck“): leise Schreckmomente, wie sie die Welt von selbst hergibt
 // Nutzer 07.10.: „echte subtile Schreckmomente, die natürlich vorkommen – eine Spinne seilt sich vor dein Gesicht ab, ein plötzlicher lauter Donnerschlag, ein Tier huscht vorbei,
 // jemand steht plötzlich hinter dir … ohne dass es überladen, häufig oder generisch wirkt; nie zu oft wiederholt, nie zu zufällig.“
@@ -45061,9 +45185,48 @@ function lst_rigs() {
       if (o.isMesh && o.geometry && o.geometry.attributes.position) { const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); bb.union(tb.copy(g.boundingBox).applyMatrix4(o.matrixWorld)); } });
     const size = bb.isEmpty() ? 1 : bb.getBoundingSphere(sp).radius, R = glow ? RIGS.RG : THREE.MathUtils.clamp(size * 60, 48, RIGS.R); // 08.10. (Auftritt): Mindestweite 28 -> 48 m, sonst poppen kleine Tiere bei 36 % Sichtbarkeit weg
     RIGS.known.set(r, { R, size }); L.push({ r, R, size }); }
+  for (let i = 0; i < L.length; i++) lst_kHook(L[i].r);
   RIGS.list = L; LST.rigNext.clear();
   if (!LST.rigOk) { LST.rigOk = true; rigScan = () => {}; } // ab jetzt pflegt die Durchsicht die Liste
 }
+
+// 14) KNOCHEN NUR NACHRECHNEN, WENN SIE SICH BEWEGT HABEN (08.10.). Die Basis (Abschnitt 5) rechnet Weltmatrizen nur für Bewegtes nach – Knochen aber immer
+//    („bewegen sich fast immer“), und jedes Figurenteil (SkinnedMesh, bis 30 je Figur) kehrt seine Matrix jedes Bild um. Seit die Animationen ferner Figuren
+//    nur noch 30/15/5× je Sekunde laufen (figuren.js, Basis 6, Abschnitt 2), stehen deren Knochen in den Bildern dazwischen still. Jetzt gilt in jeder
+//    Skelett-Wurzel derselbe Vergleich wie für alles andere (Lage/Drehung/Größe gegen das letzte Bild), unbewegte Figurenteile behalten ihre Matrizen.
+//    Ergebnis Zahl für Zahl gleich (gleiche Eingaben → gleiche Matrizen); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
+//    Dazu (Skelett): die Knochen-Textur wird nur neu gefüllt und hochgeladen, wenn sich eine Knochen-Weltmatrix geändert hat.
+const LK = { on: LST_NEU, sk: LST_NEU, act: false, OBJ: THREE.Object3D.prototype.updateMatrixWorld, skip: 0, upd: 0 };
+function lst_kAuto() { const s0 = scene.updateMatrixWorld; scene.updateMatrixWorld = function (f) { if (f) return s0.call(this, f); LK.act = true; try { return s0.call(this, f); } finally { LK.act = false; } }; } // nur der automatische Aufruf beim Zeichnen
+function lst_kHook(r) { if (r.updateMatrixWorld === lst_kRoot) return; if (r.updateMatrixWorld !== LK.OBJ) return; r.updateMatrixWorld = lst_kRoot; } // nur Knoten mit der Standard-Logik (keine Kameras, keine Figurenteile mit eigener)
+function lst_kRoot(force) { if (!LK.act) return LK.OBJ.call(this, force); lst_kUpd(this, !!force, true); } // ausdrückliche Aufrufe der Spiel-Logik: Standard (rechnet alles)
+function lst_kMoved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher)
+  if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
+    if (c && c[0] === p.x && c[1] === p.y && c[2] === p.z && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w && c[7] === s.x && c[8] === s.y && c[9] === s.z) return false;
+    if (!c || c.length !== 10) c = o.__mc = new Float64Array(10);
+    c[0] = p.x; c[1] = p.y; c[2] = p.z; c[3] = q._x; c[4] = q._y; c[5] = q._z; c[6] = q._w; c[7] = s.x; c[8] = s.y; c[9] = s.z; o.updateMatrix(); return true; }
+  const e = o.matrix.elements; if (c && c.length === 16) { let same = true; for (let k = 0; k < 16; k++) if (c[k] !== e[k]) { same = false; break; } if (same) return false; }
+  if (!c || c.length !== 16) c = o.__mc = new Float64Array(16); c.set(e); return true; }
+function lst_kUpd(o, force, root) {
+  const um = o.updateMatrixWorld;
+  if (!root && um !== LK.OBJ && um !== lst_kRoot) { // eigene Logik (Figurenteile: Umkehrmatrix fürs Skinning, Kameras …)
+    if (!(LK.on && o.isSkinnedMesh) || force || o.matrixWorldNeedsUpdate || lst_kMoved(o)) { o.updateMatrixWorld(force); return; }
+    const ch = o.children; for (let i = 0; i < ch.length; i++) if (ch[i].matrixWorldAutoUpdate === true) lst_kUpd(ch[i], false, false); return; } // unbewegt: Weltmatrix und Umkehrung gelten weiter
+  if (o.isBone && !LK.on) { o.updateMatrix(); force = true; } else if (lst_kMoved(o)) force = true;
+  if (o.matrixWorldNeedsUpdate || force) { if (o.matrixWorldAutoUpdate) { if (o.parent) o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix); else o.matrixWorld.copy(o.matrix); } o.matrixWorldNeedsUpdate = false; force = true; }
+  const ch = o.children; if (!ch.length) return;
+  if (!o.visible) { o.__mwStale = true; return; } // unsichtbarer Zweig: wie Basis 5 (beim Wiedersichtbarwerden alles nach)
+  if (o.__mwStale) { o.__mwStale = false; force = true; }
+  for (let i = 0; i < ch.length; i++) { const c = ch[i]; if (c.matrixWorldAutoUpdate === true || force === true) lst_kUpd(c, force, false); } }
+{ const su = THREE.Skeleton.prototype.update;
+  THREE.Skeleton.prototype.update = function () { const B = this.bones, n = B.length;
+    if (LK.sk) { let c = this.__mwc;
+      if (c && c.length === n * 16) { let same = true; for (let i = 0; i < n && same; i++) { const b = B[i]; if (!b) continue; const e = b.matrixWorld.elements, o = i * 16; for (let k = 0; k < 16; k++) if (e[k] !== c[o + k]) { same = false; break; } }
+        if (same) { LK.skip++; return; } }
+      else c = this.__mwc = new Float64Array(n * 16);
+      for (let i = 0; i < n; i++) { const b = B[i]; if (b) { const e = b.matrixWorld.elements, o = i * 16; for (let k = 0; k < 16; k++) c[o + k] = e[k]; } } }
+    else this.__mwc = null;
+    LK.upd++; return su.call(this); }; }
 
 // 3) DUNKLE LICHTER WERFEN KEINEN SCHATTEN. three.js zeichnet das Schattenbild jedes Lichts mit Schatten in jedem Bild neu – auch wenn es gerade aus ist
 //    (Taschenlampe aus: Stärke 0, trotzdem ein voller Szenendurchgang je Bild). Lichter mit Stärke 0 werden für dieses Bild übersprungen; geht die Lampe an,
@@ -45192,8 +45355,91 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
     do await new Promise(r => requestAnimationFrame(r)); while (ECP.ruhig < .5 && !state.talking); }
 }
 
+// 15) STILLE ZWEIGE EINFRIEREN (08.10., Gras/Transparente/Matrizen-Agent). Die Basis (Abschnitt 5) vergleicht in jedem Bild Lage/Drehung/Größe JEDES sichtbaren
+//    Knotens mit dem letzten Bild (gemessen an der Kreuzung: moved/upd/updateMatrixWorld ≈ 15 % der Rechenzeit) – auch von Häusern, Zäunen, Möbeln, die nie
+//    bewegt werden. Jetzt: Ein Zweig (Hülle ≤ 20 m), in dem sich 4 s lang nichts bewegt hat und der keine Figur/Knochen/Kamera/Licht/eigene Matrix-Logik
+//    enthält, wird eingefroren – der Durchlauf überspringt ihn. Wache: Zweige bis 10 m um Kamera und Luke werden JEDES Bild vollständig geprüft (Türen,
+//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 6 Bildern; jede Änderung (auch unsichtbarer Teile oder neu angehängter
+//    Kinder über add/attach) taut den Zweig sofort auf und rechnet wie bisher. Bewegt sich ein Elternteil, wird der Zweig ebenfalls aufgetaut.
+//    Gleiche Matrizen wie vorher (nichts wird geschätzt); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
+const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 6,
+  units: [], cur: 0, tick: 0, chk: -1, tries: 0, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
+function mwf_moved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher __mc)
+  if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
+    if (c && c[0] === p.x && c[1] === p.y && c[2] === p.z && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w && c[7] === s.x && c[8] === s.y && c[9] === s.z) return false;
+    if (!c || c.length !== 10) c = o.__mc = new Float64Array(10);
+    c[0] = p.x; c[1] = p.y; c[2] = p.z; c[3] = q._x; c[4] = q._y; c[5] = q._z; c[6] = q._w; c[7] = s.x; c[8] = s.y; c[9] = s.z; o.updateMatrix(); return true; }
+  const e = o.matrix.elements; if (c && c.length === 16) { let same = true; for (let k = 0; k < 16; k++) if (c[k] !== e[k]) { same = false; break; } if (same) return false; }
+  if (!c || c.length !== 16) c = o.__mc = new Float64Array(16); c.set(e); return true; }
+// Durchlauf wie Basis 5; liefert true, wenn sich im Zweig etwas bewegt hat (oder er von oben mitbewegt wurde)
+function mwf_upd(o, force) {
+  if (o.updateMatrixWorld !== MWF.base) { o.updateMatrixWorld(force); o.__lm = MWF.now; return true; } // Kameras, Figuren, Skelett-Wurzeln: eigene Logik, gelten als bewegt
+  let ch = force;
+  if (o.isBone) { o.updateMatrix(); force = true; ch = true; } else if (mwf_moved(o)) { force = true; ch = true; }
+  if (o.matrixWorldNeedsUpdate || force) { if (o.matrixWorldAutoUpdate) o.matrixWorld.multiplyMatrices(o.parent.matrixWorld, o.matrix); o.matrixWorldNeedsUpdate = false; force = true; ch = true; }
+  const c = o.children;
+  if (c.length) {
+    if (!o.visible) o.__mwStale = true;
+    else { if (o.__mwStale) { o.__mwStale = false; force = true; ch = true; }
+      for (let i = 0; i < c.length; i++) { const k = c[i];
+        if (k.__frz) { if (force) { k.__frz = false; MWF.wake++; mwf_upd(k, true); ch = true; } continue; }
+        if (k.matrixWorldAutoUpdate === true || force === true) { if (mwf_upd(k, force)) ch = true; } } } }
+  if (ch || o.__lm === undefined) o.__lm = MWF.now; else if (MWF.now - o.__lm > MWF.still && !(o.__mwNo > MWF.now)) mwf_try(o);
+  return ch; }
+// Einfrieren versuchen: nur kleine Zweige ohne Bewegliches mit eigener Logik
+function mwf_try(o) {
+  if (MWF.tries <= 0) return; MWF.tries--; // höchstens wenige je Bild (kein Ruckler, wenn nach dem Laden alles gleichzeitig still wird)
+  let n = 0; const inner = [], S = [o];
+  while (S.length) { const x = S.pop(); n++; if (x !== o && x.__frz) inner.push(x);
+    if (x.isBone || x.isSkinnedMesh || x.isCamera || x.isLight || x.isInstancedMesh || x.isBatchedMesh || x.updateMatrixWorld !== MWF.base || n > 4000) { o.__mwNo = MWF.now + (o === x && x.isInstancedMesh ? 1e12 : 20000); return; } // Instanzen: Hülle wäre teuer zu messen, Gewinn klein
+    const c = x.children; for (let i = 0; i < c.length; i++) S.push(c[i]); }
+  const B = MWF.box.setFromObject(o); let x = o.matrixWorld.elements[12], y = o.matrixWorld.elements[13], z = o.matrixWorld.elements[14], r = 0;
+  if (!B.isEmpty()) { B.getBoundingSphere(MWF.sp); x = MWF.sp.center.x; y = MWF.sp.center.y; z = MWF.sp.center.z; r = MWF.sp.radius; }
+  if (r > MWF.maxR) { o.__mwNo = MWF.now + 60000; return; } // zu groß: die Kinder werden einzeln eingefroren
+  for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
+  MWF.base.call(o, true); o.traverse(mwf_moved); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen
+  o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
+// Wache: ganzer Zweig (auch unsichtbare Teile) gegen die gespeicherten Werte; Änderung → markieren (die Basis-Logik rechnet im selben Bild nach)
+function mwf_verify(o) { let hit = false; const S = MWF.stk || (MWF.stk = []); S.length = 0; S.push(o);
+  if (!o.children.length) { if (o.updateMatrixWorld !== MWF.base || o.isBone) return true; if (mwf_moved(o)) { o.matrixWorldNeedsUpdate = true; return true; } return false; }
+  while (S.length) { const x = S.pop(); if (x.updateMatrixWorld !== MWF.base || x.isBone) { hit = true; continue; }
+    if (mwf_moved(x)) { x.matrixWorldNeedsUpdate = true; hit = true; }
+    const c = x.children; for (let i = 0; i < c.length; i++) S.push(c[i]); }
+  return hit; }
+function mwf_check() {
+  const U = MWF.units; if (!U.length) return;
+  const e = camera.matrixWorld.elements, cx = e[12], cy = e[13], cz = e[14], px = player.pos.x, py = player.pos.y + 1, pz = player.pos.z, R = MWF.R;
+  let w = 0, nodes = 0, near = 0;
+  for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; if (!u.o.parent) { u.o.__frz = false; continue; } U[w++] = u; nodes += u.n;
+    const rr = R + u.r, dx = u.x - cx, dy = u.y - cy, dz = u.z - cz, qx = u.x - px, qy = u.y - py, qz = u.z - pz;
+    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+  U.length = w; MWF.n = w; MWF.nodes = nodes; MWF.nearN = near; if (!w) return;
+  // ferne Zweige reihum: alle in höchstens MWF.sweep Bildern
+  let budget = Math.ceil(nodes / MWF.sweep);
+  for (let k = 0; k < w && budget > 0; k++) { const u = U[MWF.cur++ % w]; if (u.nf === MWF.tick || !u.o.__frz) continue; budget -= u.n;
+    if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+function lst_freeze() {
+  if (!MWF.on) return;
+  // Neu angehängte Kinder: eingefrorenen Vorfahren sofort auftauen (sonst stünde das Kind bis zur nächsten Wache im Nullpunkt)
+  const add0 = THREE.Object3D.prototype.add;
+  THREE.Object3D.prototype.add = function (...a) { const r = add0.apply(this, a);
+    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].__frz) a[i].__frz = false; for (let p = this; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; break; } }
+    return r; };
+  const s0 = scene.updateMatrixWorld;
+  scene.updateMatrixWorld = function (force) {
+    if (force || !MWF.on || MWF.pause) return s0.call(this, force); // pause: Vergleichsmessung (Basis rechnet wie vorher; gemeinsamer Vergleichsspeicher hält alles stimmig)
+    MWF.now = performance.now();
+    if (MWF.chk !== MWF.tick) { MWF.chk = MWF.tick; MWF.tries = 150; try { mwf_check(); } catch (e) { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; console.warn('Leistung: Einfrieren', e); return s0.call(this, force); } }
+    if (mwf_moved(this) || this.matrixWorldNeedsUpdate) { this.matrixWorld.copy(this.matrix); this.matrixWorldNeedsUpdate = false; force = true; }
+    const ch = this.children; for (let i = 0; i < ch.length; i++) { const c = ch[i];
+      if (c.__frz) { if (force) { c.__frz = false; mwf_upd(c, true); } continue; }
+      if (c.matrixWorldAutoUpdate === true || force === true) mwf_upd(c, !!force); } };
+  MWF.off = () => { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; MWF.units.length = 0; }; // Vergleichsmessung
+  MWF.an = () => { MWF.on = true; };
+}
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -45206,7 +45452,8 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } try { lst_kAuto(); } catch (e) { LK.on = false; console.warn('Leistung: Knochen', e); } return; }
+  MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
   if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }
@@ -45927,6 +46174,7 @@ stage('Grafik vorbereiten'); await wait(60);
 if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.overrideMaterial) – nur wenige Programme, die entstehen im ersten Bild
   const all = [...scene.children, scarePlane].filter(o => !o.isLight), saved = new Map();
   all.forEach(o => { saved.set(o, o.visible); o.visible = true; }); lightsOff();
+  if (DEV) { const L = window.__lightsPre = []; scene.traverseVisible(o => { if (o.isLight) L.push(o); }); } // Messung: Lichter, für die vorübersetzt wird
   assignLampPool(); // gleiche Lichter wie im Spiel, sonst passen die Programme nicht und werden neu übersetzt
   renderer.setRenderTarget(composer.renderTarget1); // Programme für den Nachbearbeitungs-Puffer, nicht für den Bildschirm
   const t0 = performance.now(), prog = setInterval(() => stage('Grafik vorbereiten ' + Math.min(95, Math.round((performance.now() - t0) / 400)) + ' %'), 1000);

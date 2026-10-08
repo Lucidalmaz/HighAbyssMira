@@ -138,24 +138,31 @@ function gruen_wind(mat, amt) {
 // variants[v] = [stufe0Teile, stufe1Teile, …]; o.d = Grenzabstände je Stufe
 function gruen_lodSet(name, variants, o = {}) { const S = { name, variants, d2: o.d.map(d => d * d), thin2: (o.thin ?? 1e4) ** 2, shadow: o.shadow || [], items: [], buckets: new Map(), meshes: [] }; gruen_S.lod.push(S); return S; }
 function gruen_lodAdd(S, v, x, y, z, ry, s, sy = s, tilt = 0, col = null, sxz = 1) {
-  const m = gruen_m4(x, y, z, ry, s * sxz, sy, s * sxz, rand(-tilt, tilt), rand(-tilt, tilt)), it = { v, x, z, e: Float32Array.from(m.elements), c: col || [1, 1, 1], thin: Math.random() < .5 };
+  const m = gruen_m4(x, y, z, ry, s * sxz, sy, s * sxz, rand(-tilt, tilt), rand(-tilt, tilt)), it = { v, x, z, e: Float32Array.from(m.elements), c: col || [1, 1, 1], thin: Math.random() < .5, s: Math.max(Math.abs(s * sxz), Math.abs(sy)) };
   S.items.push(it); const k = (Math.floor(x / 16) + 60) * 1000 + Math.floor(z / 16) + 60; let B = S.buckets.get(k); if (!B) S.buckets.set(k, B = []); B.push(it); return it; }
 function gruen_lodBuild(S) {
   const cnt = S.variants.map(() => 0); for (const it of S.items) cnt[it.v]++;
   S.meshes = S.variants.map((V, v) => V.map((parts, l) => parts.map(p => { const n = Math.max(1, cnt[v]), im = new THREE.InstancedMesh(p.geo, p.mat, n);
     im.instanceMatrix.setUsage(THREE.DynamicDrawUsage); im.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(n * 3).fill(1), 3); im.instanceColor.setUsage(THREE.DynamicDrawUsage);
-    im.count = 0; im.visible = false; im.frustumCulled = false; im.castShadow = !!S.shadow[l]; im.receiveShadow = true; im.userData.noCol = true; gruen_add(im); return im; })));
+    im.count = 0; im.visible = false; im.castShadow = !!S.shadow[l]; im.receiveShadow = true; im.userData.noCol = true;
+    // 08.10. (Leistung): eigene, laufend nachgeführte Hüllkugel über die gerade belegten Instanzen → Sichtprüfung im Bild UND in jedem Schattenbild (Taschenlampe,
+    // Laternen): liegt alles einer Gruppe außerhalb, entfällt ihr Zeichenaufruf. Großzügig (Wind/Ausweichen +1,5 m) – nie fehlt eine sichtbare Pflanze.
+    // noCull: nicht in die Instanz-Auslese der Basis (sie würde die Instanzen umschreiben).
+    im.frustumCulled = true; im.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5); im.userData.noCull = true; if (!p.geo.boundingSphere) p.geo.computeBoundingSphere();
+    im.userData.gR = p.geo.boundingSphere.center.length() + p.geo.boundingSphere.radius; gruen_add(im); return im; })));
   gruen_S.stats[S.name] = S.items.length; }
 function gruen_lodRefresh(S, cx, cz, fx, fz) {
-  const n = S.meshes.map(L => L.map(() => 0)), D = S.d2, last = D[D.length - 1], r = Math.ceil(Math.sqrt(last) / 16), bx = Math.floor(cx / 16), bz = Math.floor(cz / 16);
+  const n = S.meshes.map(L => L.map(() => 0)), bb = S.meshes.map(L => L.map(() => [1e9, -1e9, 1e9, -1e9, 1e9, -1e9, 0])), D = S.d2, last = D[D.length - 1], r = Math.ceil(Math.sqrt(last) / 16), bx = Math.floor(cx / 16), bz = Math.floor(cz / 16);
   for (let i = bx - r; i <= bx + r; i++) for (let j = bz - r; j <= bz + r; j++) {
     const B = S.buckets.get((i + 60) * 1000 + j + 60); if (!B) continue;
     for (const it of B) { const dx = it.x - cx, dz = it.z - cz, d2 = dx * dx + dz * dz; if (d2 > last || (it.thin && d2 > S.thin2)) continue;
       if (d2 > 9 && dx * fx + dz * fz < -.42 * Math.sqrt(d2)) continue;                 // hinter der Kamera
       let l = 0; while (l < D.length - 1 && d2 > D[l]) l++; const L = S.meshes[it.v][l]; if (!L || !L.length) continue;
-      const k = n[it.v][l]++;
+      const k = n[it.v][l]++, q = bb[it.v][l], e = it.e, y = e[13];
+      if (it.x < q[0]) q[0] = it.x; if (it.x > q[1]) q[1] = it.x; if (y < q[2]) q[2] = y; if (y > q[3]) q[3] = y; if (it.z < q[4]) q[4] = it.z; if (it.z > q[5]) q[5] = it.z; if (it.s > q[6]) q[6] = it.s;
       for (const im of L) { im.instanceMatrix.array.set(it.e, k * 16); const ca = im.instanceColor.array; ca[k * 3] = it.c[0]; ca[k * 3 + 1] = it.c[1]; ca[k * 3 + 2] = it.c[2]; } } }
   S.meshes.forEach((L, v) => L.forEach((parts, l) => parts.forEach(im => { const c = n[v][l]; im.count = c; im.visible = c > 0; if (!c) return;
+    const q = bb[v][l], bs = im.boundingSphere; if (bs) { bs.center.set((q[0] + q[1]) / 2, (q[2] + q[3]) / 2, (q[4] + q[5]) / 2); bs.radius = Math.hypot(q[1] - q[0], q[3] - q[2], q[5] - q[4]) / 2 + q[6] * (im.userData.gR || 0) + 1.5; }
     im.instanceMatrix.clearUpdateRanges(); im.instanceMatrix.addUpdateRange(0, c * 16); im.instanceMatrix.needsUpdate = true;
     im.instanceColor.clearUpdateRanges(); im.instanceColor.addUpdateRange(0, c * 3); im.instanceColor.needsUpdate = true; })));
 }

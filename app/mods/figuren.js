@@ -18,11 +18,28 @@ async function figuren_load(id) {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
     const info = (await figuren_list()).find(x => x.id === id); if (!info) return FIGUREN_ERSATZ[id] ? figuren_load(FIGUREN_ERSATZ[id]) : null; // Q-6: neue Figur noch nicht gebaut → Stellvertreter
     const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
-    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
+    g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_teileZus(g.scene); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
     return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
 }
+// LEISTUNG (08.10.): gleichartige Kleinteile einer Vorlage (Hildes Lesebrille: 15 Metallteile mit demselben Material) zu einem Netz zusammenfassen – ein Zeichenaufruf statt 15
+//   (plus Schatten). Nur undurchsichtig, ohne Formen (Morphs), gleiches Material, gleiche Eltern, gleiches Skelett (dieselben Knochen, gleiche Ruhe-Umkehrungen) und gleiche
+//   Bindematrix – dann rechnet das Skinning jeden Eckpunkt genau wie vorher (Bild gleich).
+function figuren_teileZus(root) { try {
+  const G = new Map(), eq = (a, b) => { for (let k = 0; k < 16; k++) if (Math.abs(a[k] - b[k]) > 1e-6) return false; return true; };
+  root.traverse(o => { if (!o.isSkinnedMesh || Array.isArray(o.material) || !o.material || o.material.transparent || o.material.alphaTest > 0 || !o.skeleton || !o.parent) return;
+    const ga = o.geometry; if (!ga || !ga.index || (ga.morphAttributes && Object.keys(ga.morphAttributes).length)) return;
+    const k = o.parent.uuid + '|' + o.material.uuid; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
+  for (const L of G.values()) { if (L.length < 3) continue; const a = L[0], sa = a.skeleton, attr = Object.keys(a.geometry.attributes).sort().join();
+    const ok = L.filter(o => { const s = o.skeleton; if (o.bindMode !== a.bindMode || s.bones.length !== sa.bones.length || Object.keys(o.geometry.attributes).sort().join() !== attr) return false;
+      for (let i = 0; i < s.bones.length; i++) if (s.bones[i] !== sa.bones[i] || !eq(s.boneInverses[i].elements, sa.boneInverses[i].elements)) return false;
+      return eq(o.bindMatrix.elements, a.bindMatrix.elements) && eq(o.matrix.elements, a.matrix.elements); });
+    if (ok.length < 3) continue; const geo = mergeGeometries(ok.map(o => o.geometry)); if (!geo) continue;
+    const m = new THREE.SkinnedMesh(geo, a.material); m.name = a.name + '_zus'; m.position.copy(a.position); m.quaternion.copy(a.quaternion); m.scale.copy(a.scale);
+    m.castShadow = a.castShadow; m.receiveShadow = a.receiveShadow; m.frustumCulled = a.frustumCulled; m.renderOrder = a.renderOrder; m.bind(sa, a.bindMatrix); m.bindMode = a.bindMode;
+    a.parent.add(m); for (const o of ok) o.parent.remove(o); }
+} catch (e) { console.warn('figuren Teile zusammenfassen', e); } }
 // Q-6: Stellvertreter, solange die neuen Figuren (forge.html/cast.json) nicht gebaut sind
 const FIGUREN_ERSATZ = { mira: 'dina_erw', voss: 'amt1', luke_erw: 'amt2', reuter: 'aydin' };
 async function figuren_skc() { if (!figuren_S.sk) figuren_S.sk = (await import('three/addons/utils/SkeletonUtils.js')).clone; return figuren_S.sk; }
