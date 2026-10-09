@@ -51,8 +51,13 @@ const GEIST_FS = `
   float gExt = uF.z > 0. ? smoothstep(.8, 1.7, length(vWP.xz - uK.xz) / (.26 * uF.z / 1.7 + .04)) : 0.;
   float gTop = uF.z > 0. ? smoothstep(.88, 1.05, gH) : 0., gBot = uF.z > 0. ? 1. - smoothstep(0., .16, gH) : 0.;
   float gEro = clamp((gFr * .5 + gTop * .6) * (1. - gHd) + gExt * .45 + gBot * .75 + uE * .3, 0., 1.); // Gesicht: keine Schlieren
+  gEro *= mix(1., .4, step(.5, uMA)); // Haarkarten: weniger Zerfaserung (QA 09.10.: körniges Haar)
   float gWisp = 1. - gEro * (1. - smoothstep(.28, .74, gWn)) * .93;
-  float gAl = dot(diffuseColor.rgb, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * mix(.75, 1.35, gHd), 0., 1.); // Gesicht: Albedo mit mehr Kontrast (Augen, Brauen, Mund lesbar)
+  vec3 gAc = diffuseColor.rgb;
+#ifdef USE_MAP
+  if (uMA > .5) gAc = textureLod(map, vMapUv, 3.).rgb; // Haarkarten: Helligkeit aus gemittelter Textur (Einzelsträhnen-Körnung unterdrücken)
+#endif
+  float gAl = dot(gAc, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * mix(.75, 1.35, gHd), 0., 1.); // Gesicht: Albedo mit mehr Kontrast (Augen, Brauen, Mund lesbar)
   float gLit = dot(gl_FragColor.rgb, vec3(.299, .587, .114));
   vec3 gRim = mix(uCA, uCB, clamp(smoothstep(.2, .95, gFr) * .7 + clamp(gH, 0., 1.) * .3, 0., 1.));
   vec3 gCol = uCC * (.35 + 1.3 * gAl * (1. - uE)) * (.32 + .3 * (1. - gFr) + .18 * gHd) + gRim * gFr * (1.1 - .45 * gHd) + vec3(.95, .97, 1.) * gEmb * 1.4;

@@ -191,7 +191,11 @@ async function nr4_bau() {
   S.R = R; const g = R.g, x0 = R.x0, x1 = R.x1, z0 = R.z0, z1 = R.z1;
   // ---- Diele (x −6…0, z 0…5)
   { const gar = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (gar) put(gar, C.x - .36, 0, C.z + 4.25, PI, g); // R-6: Garderobe an der Innenwand (an der Westwand läuft die Treppe)
-    const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .8); if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); put(jacke, C.x - 1.5, 1.05, z1 - .2, PI, g); }
+    // QA 09.10.: die Jacke (Scan, liegend modelliert, lange Achse x) steckte waagerecht in der Wand → Kinderjacke (60 cm) hochkant über der Lehne eines Stuhls an der Südwand, Vorderseite zum Raum
+    { const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .6, 'x'), stuhl = await kirchberg_fbx('chair', chairSpec, .92);
+      if (stuhl) put(stuhl, C.x - 1.5, 0, z1 - .5, PI, g);
+      if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); const w = new THREE.Group(); w.add(jacke); jacke.rotation.z = PI / 2; w.updateMatrixWorld(true);
+        const bb = new THREE.Box3().setFromObject(w), c = bb.getCenter(new THREE.Vector3()); jacke.position.set(-c.x, -bb.max.y, -c.z); put(w, C.x - 1.5, .98, z1 - .62, -PI / 2, g); } }
     nr4_zettel('E-01', C.x - .075, 1.45, C.z + 3.3, -PI / 2, { parent: null }); // an der Garderobe
     nr4_zettel('E-05', C.x - 3 + .45, 2.12, z1 - .115, PI); nr4_zettel('E-14', C.x - 3 - .38, 1.58, z1 - .115, PI, { w: .12, h: .09 });
     { const sp = nr4_spion(); sp.position.set(C.x - 3 - .02, 1.55, z1 - .1); sp.rotation.y = PI; g.add(sp); } // Türspion (Messing, Fischauge) – Zettel E-14 hängt daneben

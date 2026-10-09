@@ -4893,12 +4893,12 @@ const ECHOES = [
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Nachbild · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
     lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, fällt irgendwohin in die Zeit.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
   { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Nachbild · Nimmerheim, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
-    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['Sie zählt sie ab, flüsternd. Bei sieben hört sie auf und sieht zu dir.', 4200]] }, // Fassung 3: alte Zeilen („Sieben für Papa“, „aus Papa gemacht“) abgeschafft – Wortlaut offen (Autor)
+    lines: [['Ein Mädchen hat Puppen in eine Reihe gestellt und steht still davor. Sieben.', 4000], ['Sie zählt sie ab, flüsternd. Bei sieben hört sie auf und sieht zu dir.', 4200]] }, // Fassung 3: alte Zeilen („Sieben für Papa“, „aus Papa gemacht“) abgeschafft – Wortlaut offen (Autor)
 ];
 const echoAnchors = [];
 function addEcho(E) {
   if (!ECHOES.includes(E)) ECHOES.push(E);
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0xaecdff, transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0x6f90e8, transparent: true, opacity: .4, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
   s.scale.setScalar(.45); s.position.set(...E.at); scene.add(s);
   const hit = box(.8, 1.4, .8, E.at[0], E.at[1], E.at[2], hidden, { cast: false });
   interact(hit, () => echoSeen.has(E.id) ? '' : 'Berühren', () => playEcho(E)); const a = { E, s, hit }; echoAnchors.push(a); return a;
@@ -4943,7 +4943,7 @@ async function playEcho(E) {
   story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
   questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
 }
-function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .35 + Math.sin(t * 2.2 + a.E.at[0]) * .2; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
+function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .24 + Math.sin(t * 2.2 + a.E.at[0]) * .12; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
 
 // =====================================================================  DIE GRAUE: bewegt sich nur, wenn du nicht hinsiehst (Kapitel 3, Straße)
 const grey = makeFigure(new THREE.MeshStandardMaterial({ color: 0x8e9196, roughness: .95 })); grey.scale.setScalar(.62); grey.visible = false;
@@ -5685,6 +5685,7 @@ function rigFarShow() { for (const r of RIGS.hid) r.visible = true; RIGS.hid.len
 //    gar nicht erst durchlaufen – vorher prüfte three.js jedes Einzelteil (Matrizen, Bild, Taschenlampen-Schatten). Sichtbar ändert sich nichts:
 //    Bilder, in denen Mond- oder Laternenschatten neu entstehen, zeichnen weiter alles; die Taschenlampe leuchtet nur ins Blickfeld.
 //    Gruppen mit Lichtern, Kameras, Instanzen, Figuren oder Dingen ohne Sichtprüfung werden nicht als Ganzes ausgeblendet, sondern ihre Teile einzeln betrachtet.
+const SHADOW_FREI = { on: false }; // leistung.js Abschnitt 17 schaltet ein
 const VCULL = { list: [], n: -1, t: 0, i: 0, fr: new THREE.Frustum(), m: new THREE.Matrix4(), v: new THREE.Vector3(), M: 4, box: new THREE.Box3(), sp: new THREE.Sphere() };
 function vcullBounds(E) { const o = E.o; VCULL.box.setFromObject(o); if (VCULL.box.isEmpty()) { E.r = -1; return; } VCULL.box.getBoundingSphere(VCULL.sp);
   o.updateWorldMatrix(true, false); E.c.copy(VCULL.sp.center).applyMatrix4(VCULL.m.copy(o.matrixWorld).invert()); E.r = VCULL.sp.radius / Math.max(1e-6, o.matrixWorld.getMaxScaleOnAxis()); }
@@ -5698,7 +5699,7 @@ function vcullBuild() {
   VCULL.list = list; VCULL.n = scene.children.length;
 }
 function vcullHide() {
-  if (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
+  const shUpd = moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate; if (shUpd && !SHADOW_FREI.on) return; // Schattenbild entsteht neu → alles mitnehmen (mit SHADOW_FREI: Hauptbild bleibt ausgelesen, leistung.js blendet die Teile nur für den Schattendurchlauf ein; Figuren bleiben dann sichtbar, ihre Knochen müssen aktuell sein)
   if (VCULL.n !== scene.children.length && performance.now() > VCULL.t) { VCULL.t = performance.now() + 5000; vcullBuild(); } // neu geladene Kapitel
   const L = VCULL.list; if (!L.length) return;
   for (let k = 0; k < 8; k++) { const E = L[VCULL.i++ % L.length]; if (E.o.visible) vcullBounds(E); } // Hüllen laufend auffrischen (Türen, verschobene Teile)
@@ -5706,7 +5707,7 @@ function vcullHide() {
   const out = (r) => { for (let j = 0; j < 6; j++) if (P[j].distanceToPoint(v) < -r) return true; return false; };
   for (const E of L) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
     v.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); if (out(E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M)) { o.visible = false; RIGS.hid.push(o); } }
-  for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
+  if (!shUpd) for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
 }
 // 8) Winzige Einzelteile nur fürs Zeichnen auslassen (wie 6/7: direkt nach dem Bild ist alles wieder da – Logik, Strahltests, Kollision merken nichts).
 //    Maß: Radius im Bild (echte Auflösung, echte Brennweite, Tiefe entlang der Blickachse) < DCULL.T Pixel – kleiner als ein Pixel, sieht niemand.
@@ -5723,7 +5724,7 @@ function dcullBuild() {
   DCULL.list = L; DCULL.n = scene.children.length;
 }
 function dcullHide() {
-  if (DCULL.off || moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
+  if (DCULL.off || ((moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) && !SHADOW_FREI.on)) return; // Schattenbild entsteht neu → alles mitnehmen (siehe vcullHide)
   if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); } // neu geladene Kapitel
   const L = DCULL.list, N = L.length; if (!N) return;
   for (let k = Math.min(N, 200); k > 0; k--) { const E = L[DCULL.i++ % N]; E.R = E.r * E.o.matrixWorld.getMaxScaleOnAxis(); } // Größe laufend auffrischen

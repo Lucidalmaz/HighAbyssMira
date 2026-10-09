@@ -28,21 +28,21 @@ SEGR = [.115, .10, .088, .082, .072, .054, .042]          # Grundradien je Glied
 PALPN = ['troch', 'femur', 'patella', 'tibia', 'tarsus']
 D = lambda **k: k
 SP = {
-  'nosferatu': D(id=0, cl=.0075, pro=(.40, .5, .20), abd=(.37, .60, .31), H=.40, abdz=.05, tilt=-.06, legs=(1.0, .95, .86, 1.07),
-    seg=(.30, .13, .98, .42, .82, .86, .42), thick=1.0, yaw=(36, 70, 108, 146), fem=(.85, .78, .72, .80), headnar=.30, ceph=.12,
+  'nosferatu': D(id=0, cl=.0075, pro=(.47, .52, .25), abd=(.47, .68, .40), H=.34, abdz=.05, tilt=-.06, legs=(1.0, .95, .86, 1.07),
+    seg=(.30, .13, .80, .40, .68, .72, .40), thick=1.35, yaw=(36, 70, 108, 146), fem=(.85, .78, .72, .80), headnar=.24, ceph=.14,
     hair=1.0, hairlen=.9, spines=1.0, eyes='zoropsis', palp=1.0, chel=1.0, shape='oval', cyc=24, stride=.75, lift=.32, hcol=(.26, .2, .14)),
-  'huntsman': D(id=1, cl=.0125, pro=(.48, .5, .14), abd=(.38, .56, .19), H=.30, abdz=.0, tilt=0, legs=(1.12, 1.22, 1.0, 1.06),
-    seg=(.30, .12, 1.45, .50, 1.42, 1.45, .55), thick=.85, yaw=(50, 76, 102, 126), fem=(.55, .5, .48, .5), headnar=.18, ceph=.05,
+  'huntsman': D(id=1, cl=.0125, pro=(.72, .64, .15), abd=(.58, .72, .17), H=.22, abdz=.0, tilt=0, legs=(1.12, 1.22, 1.0, 1.06),
+    seg=(.30, .12, 1.4, .50, 1.35, 1.32, .55), thick=1.5, yaw=(46, 72, 102, 130), fem=(.42, .38, .36, .4), headnar=.14, ceph=.04,
     hair=.7, hairlen=.6, spines=1.2, eyes='huntsman', palp=1.0, chel=.9, shape='flat', cyc=16, stride=1.5, lift=.4, hcol=(.2, .15, .1)),
-  'winkel': D(id=2, cl=.0080, pro=(.39, .5, .20), abd=(.37, .60, .32), H=.42, abdz=.06, tilt=-.08, legs=(1.05, .95, .88, 1.12),
-    seg=(.30, .13, 1.2, .45, 1.15, 1.4, .6), thick=.88, yaw=(36, 70, 108, 146), fem=(.9, .82, .75, .85), headnar=.32, ceph=.10,
+  'winkel': D(id=2, cl=.0080, pro=(.37, .52, .19), abd=(.34, .62, .31), H=.46, abdz=.06, tilt=-.08, legs=(1.12, .98, .90, 1.18),
+    seg=(.30, .13, 1.4, .5, 1.35, 1.6, .66), thick=.8, yaw=(36, 70, 108, 146), fem=(.9, .82, .75, .85), headnar=.32, ceph=.10,
     hair=1.0, hairlen=1.1, spines=1.3, eyes='agelenid', palp=1.0, chel=1.0, shape='oval', cyc=18, stride=1.0, lift=.35, hcol=(.15, .1, .065), spinn='long'),
-  'kreuz': D(id=3, cl=.0062, pro=(.38, .5, .22), abd=(.62, .72, .62), H=.48, abdz=.22, tilt=.22, legs=(1.10, 1.0, .74, .95),
-    seg=(.28, .12, 1.0, .42, .85, .85, .38), thick=.86, yaw=(30, 66, 110, 150), fem=(.95, .85, .8, .9), headnar=.35, ceph=.14,
+  'kreuz': D(id=3, cl=.0062, pro=(.36, .5, .21), abd=(.84, .88, .82), H=.50, abdz=.34, tilt=.30, legs=(1.10, 1.0, .74, .95),
+    seg=(.28, .12, .92, .40, .78, .78, .36), thick=.9, yaw=(30, 66, 110, 150), fem=(.95, .85, .8, .9), headnar=.35, ceph=.14,
     hair=.6, hairlen=.6, spines=1.5, eyes='araneus', palp=.9, chel=1.0, shape='globe', cyc=26, stride=.6, lift=.3, hcol=(.3, .2, .11)),
-  'wolf': D(id=4, cl=.0095, pro=(.38, .5, .27), abd=(.36, .55, .32), H=.44, abdz=.04, tilt=-.04, legs=(.95, .9, .86, 1.15),
-    seg=(.30, .13, .95, .42, .80, .95, .45), thick=1.05, yaw=(38, 70, 108, 146), fem=(.8, .74, .7, .78), headnar=.26, ceph=.22,
-    hair=1.1, hairlen=.8, spines=1.0, eyes='wolf', palp=1.0, chel=1.05, shape='oval', cyc=16, stride=.9, lift=.3, hcol=(.22, .17, .12)),
+  'wolf': D(id=4, cl=.0095, pro=(.47, .5, .31), abd=(.41, .58, .35), H=.29, abdz=.03, tilt=-.04, legs=(.95, .9, .86, 1.15),
+    seg=(.30, .13, .78, .40, .64, .78, .40), thick=1.55, yaw=(34, 66, 104, 144), fem=(.62, .56, .5, .56), headnar=.22, ceph=.22,
+    hair=2.0, hairlen=1.0, spines=1.0, eyes='wolf', palp=1.0, chel=1.05, shape='oval', cyc=16, stride=.9, lift=.3, hcol=(.22, .17, .12)),
   'vogel': D(id=5, cl=.024, pro=(.45, .5, .19), abd=(.48, .62, .44), H=.40, abdz=.04, tilt=-.02, legs=(1.0, .93, .86, 1.08),
     seg=(.32, .14, .95, .55, .75, .75, .45), thick=1.5, yaw=(32, 68, 110, 148), fem=(.75, .7, .66, .72), headnar=.15, ceph=.06,
     hair=2.2, hairlen=1.5, spines=0, eyes='tarantula', palp=1.25, chel=1.0, shape='oval', cyc=34, stride=.6, lift=.26, hcol=(.3, .16, .08), orth=1),
@@ -422,11 +422,11 @@ shader spinne(float part = 0, float leg = -1, float seg = -1, float segt = 0, fl
   float hair = (ip == 2 || ip == 3) ? hl : hb;
   color c = color(.3, .22, .15); float r = .5; float h = hair * .55 + n3 * .15;
   color pale = color(.5), dark = color(.05), mid = color(.2); float dk = 0; float hairy = .5;
-  if (SPID == 0) { pale = color(.20, .13, .07); dark = color(.032, .019, .011); mid = color(.09, .058, .033); hairy = .55; }
-  if (SPID == 1) { pale = color(.15, .105, .068); dark = color(.028, .019, .013); mid = color(.072, .05, .032); hairy = .5; }
-  if (SPID == 2) { pale = color(.115, .072, .04); dark = color(.022, .014, .009); mid = color(.058, .037, .021); hairy = .6; }
-  if (SPID == 3) { pale = color(.28, .14, .045); dark = color(.04, .02, .009); mid = color(.12, .06, .022); hairy = .35; }
-  if (SPID == 4) { pale = color(.15, .11, .075); dark = color(.022, .016, .012); mid = color(.065, .047, .033); hairy = .6; }
+  if (SPID == 0) { pale = color(.27, .15, .07); dark = color(.03, .017, .009); mid = color(.115, .06, .028); hairy = .55; }
+  if (SPID == 1) { pale = color(.23, .175, .11); dark = color(.04, .03, .02); mid = color(.1, .075, .05); hairy = .5; }
+  if (SPID == 2) { pale = color(.105, .064, .035); dark = color(.014, .009, .006); mid = color(.05, .03, .017); hairy = .6; }
+  if (SPID == 3) { pale = color(.36, .18, .05); dark = color(.05, .025, .01); mid = color(.16, .075, .03); hairy = .35; }
+  if (SPID == 4) { pale = color(.17, .13, .095); dark = color(.02, .015, .011); mid = color(.075, .055, .04); hairy = .6; }
   if (SPID == 5) { pale = color(.13, .048, .018); dark = color(.011, .009, .008); mid = color(.028, .021, .017); hairy = .7; }
   if (ip == 0) {               // ---- Prosoma
     float rr = sqrt(ux * ux + uy * uy); float ang = atan2(ux, uy + .18);
@@ -454,7 +454,7 @@ shader spinne(float part = 0, float leg = -1, float seg = -1, float segt = 0, fl
     } else {                  // Vogelspinne: fast schwarz, goldene Strahlen und Randhaare
       dk = clamp(1 - striae * .55 - smoothstep(.75, .95, rr) * .45, 0, 1);
     }
-    c = mix(pale * (.82 + .35 * n2), dark * (.75 + .5 * n2), dk); c = mix(c, mid * .8, under * .8);
+    c = mix(pale * (.82 + .35 * n2), dark * (.75 + .5 * n2), dk); c = mix(c, mid * .8, under * .8); if (SPID == 0) c = mix(c, color(.016, .012, .009) * (.8 + .5 * n2), .82);
     r = mix(.36, .5, dk) + hairy * .12; h = h * (.5 + hairy * .5) + n2 * .2;
   } else if (ip == 1) {        // ---- Hinterleib
     float top = smoothstep(-.35, .25, vz); float mot = n1 * .5 + .5;

@@ -20,7 +20,7 @@ const BW_KITS = {
   schirm: ['schirm', { file: 'model.fbx', size: .9, axis: 'max', aufrecht: true, spec: { '*': { color: 0x141414, rough: .42 } } }],
   brille: ['brille', { file: 'model.glb', size: .13, axis: 'max' }],
   ascher: ['kiffen/ascher', { file: 'model.glb', size: .12, axis: 'max' }], feuerzeug: ['w_lighter', { file: 'model.glb', size: .07, axis: 'max' }], kette: ['w_kette', { file: 'model.glb', size: .42, axis: 'max' }],
-  laterneP: ['w_papierlaterne', { file: 'model.fbx', size: .3, teil: /Dupli/, eins: true }],
+  laterneP: ['w_papierlaterne', { file: 'model.fbx', size: .3, teil: /Dupli/, eins: true, mat: x => { const f = y => { const c = y.clone(); c.emissive = new THREE.Color(0x1a1006); c.emissiveMap = null; c.emissiveIntensity = 1; c.color = new THREE.Color(0x9a8660); if (c.specular) c.specular.setHex(0x0c0c0c); c.shininess = 6; return c; }; return Array.isArray(x) ? x.map(f) : f(x); } }], // Papier nicht selbstleuchtend (QA 09.10.: weiße Kugeln in der Kapelle)
   eimer: ['trashcan', { size: .42 }], sack: ['trashbag', { size: .5 }], kanister: ['jerrycan', { size: .42 }],
   reifen: ['tires', { file: 'model.fbx', size: .75, axis: 'max', spec: BW_TIRES }],
   rahmen: ['frame_deco', { size: .42 }], rahmen2: ['frame_dmg', { size: .46 }],
@@ -39,7 +39,7 @@ function bw_kit(name) {
     root.updateMatrixWorld(true); const parts = [];
     root.traverse(m => { if (!m.isMesh || m.isSkinnedMesh) return; if (o.teil && !o.teil.test(m.name)) return; if (o.ohne && o.ohne.test(m.name)) return; if (o.eins && parts.length) return;
       parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
-    if (!parts.length) throw new Error('keine Teile');
+    if (!parts.length) throw new Error('keine Teile'); if (o.mat) parts.forEach(q => { q.mat = o.mat(q.mat); });
     const bb = new THREE.Box3(); parts.forEach(q => { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const pre = new THREE.Matrix4(), sz0 = bb.getSize(BW_V());
     if (o.aufrecht && Math.max(sz0.x, sz0.z) > sz0.y) pre.makeRotationFromEuler(new THREE.Euler(sz0.z > sz0.x ? PI / 2 : 0, 0, sz0.x >= sz0.z ? PI / 2 : 0));
