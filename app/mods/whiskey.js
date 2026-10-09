@@ -513,10 +513,14 @@ WORLD_MODS.push(['Whiskey', async () => {
 // ---------------------------------------------------------------- Takt
 const whiskey_q1 = new THREE.Quaternion(), whiskey_q2 = new THREE.Quaternion(), whiskey_q3 = new THREE.Quaternion(), whiskey_v1 = new THREE.Vector3(), whiskey_v2 = new THREE.Vector3(), whiskey_v3 = new THREE.Vector3();
 function whiskey_headApply(yaw, roll) { // Kopf um die Welt-Hochachse drehen (unabhängig von den Achsen des Knochens) und schief legen
-  const S = whiskey_S, h = S.head; if (!h || !h.parent) return; h.updateWorldMatrix(true, false); h.getWorldQuaternion(whiskey_q1); h.parent.getWorldQuaternion(whiskey_q2);
+  const S = whiskey_S, h = S.head; if (!h || !h.parent) return;
+  // Kein Aufaddieren: schreibt der Mixer den Kopfknochen in diesem Bild nicht neu (Clip ohne Kopfspur, pausiert, Rig übersprungen), steht noch unsere letzte Drehung darin → auf die Mixer-Pose zurücksetzen (sonst dreht sich der Kopf jedes Bild weiter = Disco-Kopf)
+  const HB = S.hb || (S.hb = { base: new THREE.Quaternion(), last: new THREE.Quaternion(), has: false });
+  if (HB.has && h.quaternion.angleTo(HB.last) < 1e-6) h.quaternion.copy(HB.base); else HB.base.copy(h.quaternion);
+  h.updateWorldMatrix(true, false); h.getWorldQuaternion(whiskey_q1); h.parent.getWorldQuaternion(whiskey_q2);
   whiskey_q3.setFromAxisAngle(whiskey_v1.set(0, 1, 0), yaw); whiskey_q1.premultiply(whiskey_q3);
   if (roll) { const a = S.g.rotation.y + yaw; whiskey_q3.setFromAxisAngle(whiskey_v1.set(Math.sin(a), 0, Math.cos(a)), roll); whiskey_q1.premultiply(whiskey_q3); }
-  h.quaternion.copy(whiskey_q2.invert().multiply(whiskey_q1)); }
+  h.quaternion.copy(whiskey_q2.invert().multiply(whiskey_q1)); HB.last.copy(h.quaternion); HB.has = true; }
 const whiskey_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 function whiskey_perchTick(dt, t) {
   const S = whiskey_S, g = S.g, P = player.pos, st = S.st, still = S.mood === 'still';

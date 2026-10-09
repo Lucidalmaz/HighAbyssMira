@@ -11991,6 +11991,7 @@ function leben_pigTick(Pg, dt, live) {
 // =====================================================================  FLEDERMÄUSE (Kapelle, Tankstelle, Schrott, Scheune, Gärten) + Jagd auf Motten
 function leben_batSetup() {
   const S = leben_S, B0 = FAB.bats[0]; if (!B0) return;
+  for (const b of FAB.bats) if (b.g.children[0]) b.g.children[0].rotation.y = -PI / 2; // 10.10.: Modell blickt entlang +X, die Flugbahn läuft entlang +Z (Fledermaeuse flogen seitwaerts); die Klone unten uebernehmen die Drehung
   const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
   [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
     const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; }); leben_variiere(o, { hell: [.75, 1.1] });
@@ -17411,7 +17412,15 @@ const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 function figuren_setW(o, pos, quat) { const M = FIGUREN_MV; M.m.copy(o.parent.matrixWorld); M.m.decompose(M.v5, M.q3, M.s); M.q3.invert();
   o.quaternion.copy(M.q3).multiply(quat); if (pos) { M.m.invert(); o.position.copy(pos).applyMatrix4(M.m); } o.updateMatrixWorld(true); }
 // Kette um einen Drehpunkt (Welt) drehen: jeder Knoten in list wird mitgeführt (flache Skelette), Kinder folgen von selbst
-function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; for (const b of list) { b.matrixWorld.decompose(M.p, M.q2, M.s); M.p.sub(pivot).applyQuaternion(q).add(pivot); M.q2.premultiply(q); figuren_setW(b, M.p, M.q2); } }
+const FIGUREN_RC = new WeakMap(); // Knochen → zuletzt von uns geschriebene und davor vom Mixer gesetzte Lage (nicht in userData: wird beim Klonen per JSON kopiert)
+function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; let rest = false;
+  // Kein Aufaddieren: hat der Mixer einen Knochen in diesem Bild nicht neu geschrieben (Clip ohne Spur, pausiert, Rig übersprungen), steht noch unsere letzte Lage darin → Mixer-Pose wiederherstellen, sonst dreht sich z. B. der Hundekopf jedes Bild weiter
+  for (const b of list) { const R = FIGUREN_RC.get(b) || (FIGUREN_RC.set(b, { bq: new THREE.Quaternion(), bp: new THREE.Vector3(), lq: new THREE.Quaternion(), lp: new THREE.Vector3(), hq: false, hp: false }), FIGUREN_RC.get(b));
+    if (R.hq && b.quaternion.angleTo(R.lq) < 1e-6) { b.quaternion.copy(R.bq); rest = true; } else { R.bq.copy(b.quaternion); R.hq = true; }
+    if (R.hp && b.position.distanceToSquared(R.lp) < 1e-12) { b.position.copy(R.bp); rest = true; } else { R.bp.copy(b.position); R.hp = true; } }
+  if (rest && list.length && list[0].parent) list[0].parent.updateWorldMatrix(true, true);
+  for (const b of list) { b.matrixWorld.decompose(M.p, M.q2, M.s); M.p.sub(pivot).applyQuaternion(q).add(pivot); M.q2.premultiply(q); figuren_setW(b, M.p, M.q2); }
+  for (const b of list) { const R = FIGUREN_RC.get(b); R.lq.copy(b.quaternion); R.lp.copy(b.position); } }
 // Bodenhöhe unter einem Fuß: Kisten-Kollision (Stufen, Kanten) und begehbare Flächen (solidGround: Treppen, Veranden). null = nichts Höheres/Tieferes gefunden
 function figuren_ground(x, y, z) { let g = -Infinity;
   for (const c of colliders) if (c.top > g && c.top <= y + .45 && c.top >= y - .5 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top;
@@ -18972,10 +18981,14 @@ WORLD_MODS.push(['Whiskey', async () => {
 // ---------------------------------------------------------------- Takt
 const whiskey_q1 = new THREE.Quaternion(), whiskey_q2 = new THREE.Quaternion(), whiskey_q3 = new THREE.Quaternion(), whiskey_v1 = new THREE.Vector3(), whiskey_v2 = new THREE.Vector3(), whiskey_v3 = new THREE.Vector3();
 function whiskey_headApply(yaw, roll) { // Kopf um die Welt-Hochachse drehen (unabhängig von den Achsen des Knochens) und schief legen
-  const S = whiskey_S, h = S.head; if (!h || !h.parent) return; h.updateWorldMatrix(true, false); h.getWorldQuaternion(whiskey_q1); h.parent.getWorldQuaternion(whiskey_q2);
+  const S = whiskey_S, h = S.head; if (!h || !h.parent) return;
+  // Kein Aufaddieren: schreibt der Mixer den Kopfknochen in diesem Bild nicht neu (Clip ohne Kopfspur, pausiert, Rig übersprungen), steht noch unsere letzte Drehung darin → auf die Mixer-Pose zurücksetzen (sonst dreht sich der Kopf jedes Bild weiter = Disco-Kopf)
+  const HB = S.hb || (S.hb = { base: new THREE.Quaternion(), last: new THREE.Quaternion(), has: false });
+  if (HB.has && h.quaternion.angleTo(HB.last) < 1e-6) h.quaternion.copy(HB.base); else HB.base.copy(h.quaternion);
+  h.updateWorldMatrix(true, false); h.getWorldQuaternion(whiskey_q1); h.parent.getWorldQuaternion(whiskey_q2);
   whiskey_q3.setFromAxisAngle(whiskey_v1.set(0, 1, 0), yaw); whiskey_q1.premultiply(whiskey_q3);
   if (roll) { const a = S.g.rotation.y + yaw; whiskey_q3.setFromAxisAngle(whiskey_v1.set(Math.sin(a), 0, Math.cos(a)), roll); whiskey_q1.premultiply(whiskey_q3); }
-  h.quaternion.copy(whiskey_q2.invert().multiply(whiskey_q1)); }
+  h.quaternion.copy(whiskey_q2.invert().multiply(whiskey_q1)); HB.last.copy(h.quaternion); HB.has = true; }
 const whiskey_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 function whiskey_perchTick(dt, t) {
   const S = whiskey_S, g = S.g, P = player.pos, st = S.st, still = S.mood === 'still';

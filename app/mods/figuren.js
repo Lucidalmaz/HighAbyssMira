@@ -282,7 +282,15 @@ const figuren_wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 function figuren_setW(o, pos, quat) { const M = FIGUREN_MV; M.m.copy(o.parent.matrixWorld); M.m.decompose(M.v5, M.q3, M.s); M.q3.invert();
   o.quaternion.copy(M.q3).multiply(quat); if (pos) { M.m.invert(); o.position.copy(pos).applyMatrix4(M.m); } o.updateMatrixWorld(true); }
 // Kette um einen Drehpunkt (Welt) drehen: jeder Knoten in list wird mitgeführt (flache Skelette), Kinder folgen von selbst
-function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; for (const b of list) { b.matrixWorld.decompose(M.p, M.q2, M.s); M.p.sub(pivot).applyQuaternion(q).add(pivot); M.q2.premultiply(q); figuren_setW(b, M.p, M.q2); } }
+const FIGUREN_RC = new WeakMap(); // Knochen → zuletzt von uns geschriebene und davor vom Mixer gesetzte Lage (nicht in userData: wird beim Klonen per JSON kopiert)
+function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; let rest = false;
+  // Kein Aufaddieren: hat der Mixer einen Knochen in diesem Bild nicht neu geschrieben (Clip ohne Spur, pausiert, Rig übersprungen), steht noch unsere letzte Lage darin → Mixer-Pose wiederherstellen, sonst dreht sich z. B. der Hundekopf jedes Bild weiter
+  for (const b of list) { const R = FIGUREN_RC.get(b) || (FIGUREN_RC.set(b, { bq: new THREE.Quaternion(), bp: new THREE.Vector3(), lq: new THREE.Quaternion(), lp: new THREE.Vector3(), hq: false, hp: false }), FIGUREN_RC.get(b));
+    if (R.hq && b.quaternion.angleTo(R.lq) < 1e-6) { b.quaternion.copy(R.bq); rest = true; } else { R.bq.copy(b.quaternion); R.hq = true; }
+    if (R.hp && b.position.distanceToSquared(R.lp) < 1e-12) { b.position.copy(R.bp); rest = true; } else { R.bp.copy(b.position); R.hp = true; } }
+  if (rest && list.length && list[0].parent) list[0].parent.updateWorldMatrix(true, true);
+  for (const b of list) { b.matrixWorld.decompose(M.p, M.q2, M.s); M.p.sub(pivot).applyQuaternion(q).add(pivot); M.q2.premultiply(q); figuren_setW(b, M.p, M.q2); }
+  for (const b of list) { const R = FIGUREN_RC.get(b); R.lq.copy(b.quaternion); R.lp.copy(b.position); } }
 // Bodenhöhe unter einem Fuß: Kisten-Kollision (Stufen, Kanten) und begehbare Flächen (solidGround: Treppen, Veranden). null = nichts Höheres/Tieferes gefunden
 function figuren_ground(x, y, z) { let g = -Infinity;
   for (const c of colliders) if (c.top > g && c.top <= y + .45 && c.top >= y - .5 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top;
