@@ -18,3 +18,13 @@ Quelle der Angaben: Fab-Listing-Daten im Browser-Bereich (nur Ansicht). Preis je
 | Tonband | (noch nicht ausgewertet) | – | Suche „tape recorder“/„reel to reel“ | – | – | offen |
 
 Empfehlung: Funkgerät = Elmer R95-C (Camille BARRAL), Tastenfeld = Keypad Door Lock (plaggy), Sicherungskasten = Weathered Electrical Panel, Notentriegelung = Fire Alarm Button oder Emergency Stop Button. Nicht geladen, nicht eingebaut, kein Eintrag in CREDITS.md.
+
+## Ergänzung 09.10. (Sprite-/Fahrzeug-Audit, `sprite_audit.md`) – nur Liste, nichts geladen
+| Bedarf | Suchbegriff (Quelle: Fab / Sketchfab-CC0, Lizenz vor Laden prüfen) | Grund |
+|---|---|---|
+| Limousine, 90er/2000er, verwittert (Foto-Scan) | „abandoned sedan scan“, „old car photogrammetry“ (Fab, Megascans) | `car_amsedan` ist ein Low-Poly-Modell mit 512er-Textur; wird fünfmal in der Hauptstraße verwendet |
+| Zweites Auto-Modell, Kombi/Kleinwagen | „hatchback scan“ (Fab) | Silhouetten-Variation der Hauptstraße (M-9) |
+| Bus (Linienbus/Kleinbus) | „old minibus“, „school bus scan“ (Fab) | `kapitel1.js:97` streckt einen Transporter auf 7,4 m |
+| Metall-/Emailleschild | „old metal sign“, „enamel sign“ (Fab, Megascans) | Canvas-Warnschild `gruen.js:598`, Tankstelle (M-13) |
+| Goldfisch / kleine Tiere im Glas | „goldfish“ (Fab) | Fisch-Sprite `ausbau_ost_west.js:627` |
+| Hufeisen | „horseshoe“ (Fab, Megascans) | Canvas-Hufeisen `kapitel1.js:120` |
