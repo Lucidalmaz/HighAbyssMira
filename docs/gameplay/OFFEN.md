@@ -17,6 +17,7 @@ In Arbeit (Agenten): Durchspieltest Kap. 1/3 und 4–6, Zombie-Szene Kap. 2 (Zom
 - Grafikspeicher Kap. 5/6 (Texturen gezielt kleiner, kapitelweise laden).
 - Welt-Abgleich-Rest, Durchschlag „Akte 08“ erst nach Umschlag (Nutzerentscheidung offen), Donner: erledigt 08.10. (−3 dB, 70–150 s) – im gebündelten Test hören. Ton: Inventar und offene synthetische Klänge in `klang_inventar.md`; neue Aufnahmen (Flügelschlag, Feuer, Zombie, Katze, Funk, Tasten …) ungehört, Pegel im Test prüfen.
 - Stimmen zurückgestellt (Smart App Control).
+- Rabe (09.10.): neues Modell `ms/rabe_whiskey` (Whiskey, Kino, zwei Raben am Bau) und `ms/rabe_kraehe` (Dorfkrähen), Rückfall `animal_crow`. Im gebündelten Test prüfen: Ring am Lauf (Größe), Schlüssel/Glanz im Schnabel, Zehen-Griff im Traum, Schnabel bei Krächzen/Nachahmung/Traumstimme, Flügel beim Landen (Deckfedern nicht abstehend), Augenkugeln hungrige.js. Vor Test/Release `npm run ktx` (neue Texturen sonst unkomprimiert).
 
 ## Später prüfen
 - Unreal-Fassung als zweites Projekt (Premium): erst nach der Testversion; Neubau der ~87 Module nötig, daher keine Beschleunigung für die aktuelle Arbeit.
