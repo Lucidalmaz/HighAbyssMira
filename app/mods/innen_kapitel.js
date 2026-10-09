@@ -184,7 +184,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     cabs.forEach(o => { const north = o.position.z < ZA, f = north ? 1 : -1, fz = o.position.z + f * .25, rq = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, north ? 0 : Math.PI, 0));
       for (let d = 0; d < 4; d++) { const y = .325 + d * .55; if (!north) gm.push(msM4(o.position.x, y - .025, fz - .006, 0)); if (o.position.x < XA + 20.5 && north && d === 0) continue;
         hm.push(msM4(o.position.x, y + .07, fz + f * .018, 0)); lm.push(new THREE.Matrix4().compose(new V(o.position.x, y + .17, fz + f * .004), rq, new V(1, 1, 1))); } });
-    [[hGeo, handleMat, hm, true], [lGeo, labelMat, lm, false], [gGeo, cabinetDark, gm, false]].forEach(([g, m, L, sh]) => { const im = new THREE.InstancedMesh(g, m, L.length); L.forEach((x, i) => im.setMatrixAt(i, x)); im.castShadow = sh; im.receiveShadow = true; im.computeBoundingSphere(); scene.add(im); });
+    [[hGeo, handleMat, hm, true], [lGeo, labelMat, lm, false], [gGeo, cabinetDark, gm, false]].forEach(([g, m, L, sh]) => { const im = new THREE.InstancedMesh(g, m, L.length); L.forEach((x, i) => im.setMatrixAt(i, x)); im.castShadow = sh; im.receiveShadow = true; im.computeBoundingSphere(); im.name = 'archiv_beschlag'; scene.add(im); }); // 09.10.: moebel.js ersetzt die Kästen durch ms/aktenschrank (Flügeltüren, eigener Griff) und blendet diese Schubladen-Beschläge dann aus
     { const h = new THREE.Mesh(hGeo, handleMat); h.position.set(0, .095, .258); archiveDrawer.add(h); const l = new THREE.Mesh(lGeo, labelMat); l.position.set(0, .195, .242); archiveDrawer.add(l); }
     // Tisch: zwei alte Werkbänke zusammengeschoben
     hide(find((o, c) => o.material === M.wood && near(c, XA + 24, .4, ZA, .05))[0]);

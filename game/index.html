@@ -11042,7 +11042,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     cabs.forEach(o => { const north = o.position.z < ZA, f = north ? 1 : -1, fz = o.position.z + f * .25, rq = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, north ? 0 : Math.PI, 0));
       for (let d = 0; d < 4; d++) { const y = .325 + d * .55; if (!north) gm.push(msM4(o.position.x, y - .025, fz - .006, 0)); if (o.position.x < XA + 20.5 && north && d === 0) continue;
         hm.push(msM4(o.position.x, y + .07, fz + f * .018, 0)); lm.push(new THREE.Matrix4().compose(new V(o.position.x, y + .17, fz + f * .004), rq, new V(1, 1, 1))); } });
-    [[hGeo, handleMat, hm, true], [lGeo, labelMat, lm, false], [gGeo, cabinetDark, gm, false]].forEach(([g, m, L, sh]) => { const im = new THREE.InstancedMesh(g, m, L.length); L.forEach((x, i) => im.setMatrixAt(i, x)); im.castShadow = sh; im.receiveShadow = true; im.computeBoundingSphere(); scene.add(im); });
+    [[hGeo, handleMat, hm, true], [lGeo, labelMat, lm, false], [gGeo, cabinetDark, gm, false]].forEach(([g, m, L, sh]) => { const im = new THREE.InstancedMesh(g, m, L.length); L.forEach((x, i) => im.setMatrixAt(i, x)); im.castShadow = sh; im.receiveShadow = true; im.computeBoundingSphere(); im.name = 'archiv_beschlag'; scene.add(im); }); // 09.10.: moebel.js ersetzt die Kästen durch ms/aktenschrank (Flügeltüren, eigener Griff) und blendet diese Schubladen-Beschläge dann aus
     { const h = new THREE.Mesh(hGeo, handleMat); h.position.set(0, .095, .258); archiveDrawer.add(h); const l = new THREE.Mesh(lGeo, labelMat); l.position.set(0, .195, .242); archiveDrawer.add(l); }
     // Tisch: zwei alte Werkbänke zusammengeschoben
     hide(find((o, c) => o.material === M.wood && near(c, XA + 24, .4, ZA, .05))[0]);
@@ -45086,6 +45086,8 @@ async function moebel_bau() {
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
     if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
     g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
+  // Archiv Kap. 2: die Metallschränke haben eigene Türen und Griffe – die in innen_kapitel.js auf die Kästen gesetzten Schubladengriffe/-schilder/-rillen würden davor schweben. Die Schublade archiveDrawer (Klickfläche, archiveDrawerRead) bleibt unverändert im ersten Schrank.
+  if (moebel_S.archiv) scene.traverse(o => { if (o.name === 'archiv_beschlag') o.visible = false; });
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff

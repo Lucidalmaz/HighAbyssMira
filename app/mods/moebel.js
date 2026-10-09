@@ -34,6 +34,8 @@ async function moebel_bau() {
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
     if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
     g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
+  // Archiv Kap. 2: die Metallschränke haben eigene Türen und Griffe – die in innen_kapitel.js auf die Kästen gesetzten Schubladengriffe/-schilder/-rillen würden davor schweben. Die Schublade archiveDrawer (Klickfläche, archiveDrawerRead) bleibt unverändert im ersten Schrank.
+  if (moebel_S.archiv) scene.traverse(o => { if (o.name === 'archiv_beschlag') o.visible = false; });
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff
