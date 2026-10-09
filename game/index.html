@@ -4896,12 +4896,12 @@ const ECHOES = [
   { id: 'echo_1975', at: [-25.4, 1.1, -9.2], title: 'Nachbild · Ahornstraße, Sommer 1975', figs: [E_(-27.5, -5, -PI / 2, 1.14), E_(-26.5, -5, -PI / 2, .56), E_(-25.6, -5, -PI / 2, .58), E_(-24.7, -5, -PI / 2, .55), E_(-23.8, -5, -PI / 2, .57)],
     lines: [['Eine Reihe Kinder, Hand in Hand. Vorneweg ein Mann in Eisen.', 3600], ['„Der Mann hat kalte Hände.“', 2600, 'LARS VEGAS, 9'], ['„Lass nicht los. Wer loslässt, fällt irgendwohin in die Zeit.“', 3600, 'DER MANN IN EISEN'], ['Das letzte Kind in der Reihe hält keine Hand. Es hat kein Gesicht.', 4000]] },
   { id: 'echo_mira', at: [C3.x + 12.5, 1, C3.z + 3.5], title: 'Nachbild · Nimmerheim, ohne Zeit', figs: [E_(C3.x + 13.5, C3.z + 3.6, -2, .6), E_(C3.x + 12.2, C3.z + 4.4, 0, .3), E_(C3.x + 12.8, C3.z + 4.6, 0, .3), E_(C3.x + 13.4, C3.z + 4.8, 0, .3), E_(C3.x + 14, C3.z + 4.6, 0, .3), E_(C3.x + 14.6, C3.z + 4.4, 0, .3), E_(C3.x + 15.2, C3.z + 4.2, 0, .3), E_(C3.x + 15.8, C3.z + 4, 0, .3)],
-    lines: [['Ein Mädchen sitzt auf dem Boden und stellt Puppen in eine Reihe. Sieben.', 4000], ['Sie zählt sie ab, flüsternd. Bei sieben hört sie auf und sieht zu dir.', 4200]] }, // Fassung 3: alte Zeilen („Sieben für Papa“, „aus Papa gemacht“) abgeschafft – Wortlaut offen (Autor)
+    lines: [['Ein Mädchen hat Puppen in eine Reihe gestellt und steht still davor. Sieben.', 4000], ['Sie zählt sie ab, flüsternd. Bei sieben hört sie auf und sieht zu dir.', 4200]] }, // Fassung 3: alte Zeilen („Sieben für Papa“, „aus Papa gemacht“) abgeschafft – Wortlaut offen (Autor)
 ];
 const echoAnchors = [];
 function addEcho(E) {
   if (!ECHOES.includes(E)) ECHOES.push(E);
-  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0xaecdff, transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0x6f90e8, transparent: true, opacity: .4, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
   s.scale.setScalar(.45); s.position.set(...E.at); scene.add(s);
   const hit = box(.8, 1.4, .8, E.at[0], E.at[1], E.at[2], hidden, { cast: false });
   interact(hit, () => echoSeen.has(E.id) ? '' : 'Berühren', () => playEcho(E)); const a = { E, s, hit }; echoAnchors.push(a); return a;
@@ -4946,7 +4946,7 @@ async function playEcho(E) {
   story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
   questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
 }
-function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .35 + Math.sin(t * 2.2 + a.E.at[0]) * .2; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
+function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .24 + Math.sin(t * 2.2 + a.E.at[0]) * .12; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
 
 // =====================================================================  DIE GRAUE: bewegt sich nur, wenn du nicht hinsiehst (Kapitel 3, Straße)
 const grey = makeFigure(new THREE.MeshStandardMaterial({ color: 0x8e9196, roughness: .95 })); grey.scale.setScalar(.62); grey.visible = false;
@@ -7848,9 +7848,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     // Jetzt: Handschuhfach sitzt vorn auf der Beifahrerseite (post.js), und um das Foto liegt eine großzügige unsichtbare Klickfläche (46 × 34 × 50 cm), durch Fenster/offene Tür anvisierbar.
     if (PHOTOS[1] && PHOTOS[1].mesh) { const pm = PHOTOS[1].mesh, ph = hitBox(.46, .34, .5, pm.position.x, pm.position.y + .12, pm.position.z, lenaCar); ph.userData.noCol = true;
       // Sichtbarkeit (Bündel 2: im Wagen grau, Foto nicht zu erkennen): 20 % größer, 1,5 cm über dem Sitz und zur Tür gekippt, stärker selbstleuchtend mit leichtem Glanz, dazu ein kleiner warmer Lichtschimmer (additiv, ohne Tiefe) – auffindbar auch ohne Taschenlampe
-      pm.scale.setScalar(1.25); pm.position.y += .015; pm.rotation.x -= .25; if (pm.material) { pm.material.emissiveIntensity = .55; pm.material.roughness = .32; pm.material.metalness = .05; }
-      { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0xffe2b0, transparent: true, opacity: .5, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); gl.scale.setScalar(.5); gl.position.copy(pm.position); gl.position.y += .09; gl.userData.noCol = true; lenaCar.add(gl); S.info.polaGlow = gl;
-        /* Schimmer pulsiert leicht und verschwindet, sobald das Foto genommen ist */ setInterval(() => { gl.visible = !story.photos.has(1); gl.material.opacity = .4 + .15 * Math.sin(performance.now() / 700); }, 120); }
+      pm.scale.setScalar(1.4); pm.position.y += .02; pm.rotation.x -= .3; if (pm.material) { pm.material.emissive && pm.material.emissive.setRGB(1, .93, .8); if (pm.material.map) pm.material.emissiveMap = pm.material.map; pm.material.emissiveIntensity = .9; pm.material.roughness = .32; pm.material.metalness = .05; }
+      { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: moteTex, color: 0xffe2b0, transparent: true, opacity: .5, depthWrite: false, blending: THREE.AdditiveBlending, fog: false })); gl.scale.setScalar(.8); gl.position.copy(pm.position); gl.position.y += .09; gl.userData.noCol = true; lenaCar.add(gl); S.info.polaGlow = gl;
+        /* Schimmer pulsiert leicht und verschwindet, sobald das Foto genommen ist */ setInterval(() => { gl.visible = !story.photos.has(1); gl.material.opacity = .65 + .2 * Math.sin(performance.now() / 700); }, 120); }
       pm.userData.label = 'Polaroid nehmen'; interact(ph, () => story.photos.has(1) ? '' : 'Polaroid nehmen', () => { if (story.photos.has(1)) return; pm.userData.action(); if (story.photos.has(1)) uninteract(ph); }); S.info.polaHit = ph; }
     S.info.seats = [seat(-.12, -.36), seat(.1, .36), seat(.9, 0)].map(v => +v.toFixed(2));
   }
@@ -14410,7 +14410,11 @@ async function nr4_bau() {
   S.R = R; const g = R.g, x0 = R.x0, x1 = R.x1, z0 = R.z0, z1 = R.z1;
   // ---- Diele (x −6…0, z 0…5)
   { const gar = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (gar) put(gar, C.x - .36, 0, C.z + 4.25, PI, g); // R-6: Garderobe an der Innenwand (an der Westwand läuft die Treppe)
-    const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .8); if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); put(jacke, C.x - 1.5, 1.05, z1 - .2, PI, g); }
+    // QA 09.10.: die Jacke (Scan, liegend modelliert, lange Achse x) steckte waagerecht in der Wand → Kinderjacke (60 cm) hochkant über der Lehne eines Stuhls an der Südwand, Vorderseite zum Raum
+    { const jacke = await kirchberg_fbx('w_jacke', { '*': { b: 'model.jpg', rough: .95, ds: true } }, .6, 'x'), stuhl = await kirchberg_fbx('chair', chairSpec, .92);
+      if (stuhl) put(stuhl, C.x - 1.5, 0, z1 - .5, PI, g);
+      if (jacke) { jacke.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .42, .36); } }); const w = new THREE.Group(); w.add(jacke); jacke.rotation.z = PI / 2; w.updateMatrixWorld(true);
+        const bb = new THREE.Box3().setFromObject(w), c = bb.getCenter(new THREE.Vector3()); jacke.position.set(-c.x, -bb.max.y, -c.z); put(w, C.x - 1.5, .98, z1 - .62, -PI / 2, g); } }
     nr4_zettel('E-01', C.x - .075, 1.45, C.z + 3.3, -PI / 2, { parent: null }); // an der Garderobe
     nr4_zettel('E-05', C.x - 3 + .45, 2.12, z1 - .115, PI); nr4_zettel('E-14', C.x - 3 - .38, 1.58, z1 - .115, PI, { w: .12, h: .09 });
     { const sp = nr4_spion(); sp.position.set(C.x - 3 - .02, 1.55, z1 - .1); sp.rotation.y = PI; g.add(sp); } // Türspion (Messing, Fischauge) – Zettel E-14 hängt daneben
@@ -27998,7 +28002,7 @@ async function neben3_kapelleBau() {
     kirchberg_decal(kirchberg_papier({ w: 300, h: 220, bg: '#efe8d4', tesa: true, flecken: 1, zeilen: [['Nur zu Gottesdiensten läuten!', 16, 60, 26], ['Nicht zum Spaß. Und NICHT', 16, 100, 26], ['drei und dreizehn.', 16, 136, 26, null, null, 0, 1], ['Das ist kein Witz. – G. R., Küsterin', 16, 190, 22]] }), .3, .22, x0 + .11, 1.5, sz + .55, PI / 2, { parent: g });
     KP.zettelHit = kirchberg_hit(.3, .4, .5, x0 + .25, 1.5, sz + .55, 'Zettel am Seil', () => neben3_giselaZettel()); kirchberg_an(KP.zettelHit, false);
     KP.seilHit = kirchberg_hit(.5, 1.8, .5, sx, 1.1, sz, () => neben3_st('kapelle').seil1 ? 'Am Seil ziehen' : 'Das Glockenseil', () => neben3_seil());
-    { const lat = await (async () => { const o = await msFBX('w_papierlaterne', 'model.fbx', {}); o.updateMatrixWorld(true); let one = null; o.traverse(m => { if (!one && m.isMesh && /Dupli/.test(m.name)) one = m; }); const c = (one || o).clone(true); c.position.set(0, 0, 0); c.rotation.set(0, 0, 0); msFit(c, .35, 'y'); return msGround(c); })().catch(() => null); if (lat) put(lat, xT - .3, 0, z1 - .4, .6); }
+    { const lat = await (async () => { const o = await msFBX('w_papierlaterne', 'model.fbx', {}); o.updateMatrixWorld(true); let one = null; o.traverse(m => { if (!one && m.isMesh && /Dupli/.test(m.name)) one = m; }); const c = (one || o).clone(true); c.position.set(0, 0, 0); c.rotation.set(0, 0, 0); msFit(c, .35, 'y'); c.traverse(m => { if (m.isMesh) { /* QA 09.10.: Papier der alten Laterne war pures Weiß (weiße Kugel) → gealtert, matt */ const f = y => { const k = y.clone(); k.emissive && k.emissive.setHex(0x1a1006); k.emissiveMap = null; k.color.setHex(0x9a8660); k.specular && k.specular.setHex(0x0c0c0c); return k; }; m.material = Array.isArray(m.material) ? m.material.map(f) : f(m.material); } }); return msGround(c); })().catch(() => null); if (lat) put(lat, xT - .3, 0, z1 - .4, .6); }
     await kirchberg_kram(g, [['stapel', x0 + .35, 0, zT + .35], ['zeitung', x0 + 1.2, 0, zT + .5, 1.2, .8]]); }
   // Kleinkram im Kirchenschiff: Gesangbücher auf den Bänken, Staub, Spinnweben (Q-8)
   await kirchberg_kram(g, [['buch', C.x - 1.4, .5, C.z + 2.2, .3], ['buch', C.x + 2, .5, C.z + .9, 1.1], ['buch', C.x - 2.1, .5, C.z - .45, 2.3], ['buch', C.x + 1.2, .5, C.z + 3.55, .8], ['teppich', C.x, 0, z0 + 1.6, 0, .9]]);
@@ -33003,7 +33007,8 @@ function kino_defK2() {
       setup() { k2aLicht(.6); if (typeof feuer_k2a === 'function') feuer_k2a('druecken'); const A = S.k2a, b = kino_show('band', A.x - A.fx * .7, 1.28, A.z - A.fz * .7); b.lookAt(A.x, 1.28, A.z); b.scale.setScalar(.6); kino_herz(3, 46, .8); kino_brumm(.5, .8, 36); },
       tick(k, t, dt, sh) { if (typeof feuer_k2aHalt === 'function') feuer_k2aHalt(sh, t); const A = S.k2a, b = kino_S.obj.band, u = Math.min(1, t / 3); b.position.set(A.x - A.fx * (.7 - .12 * u), 1.34 - .14 * u, A.z - A.fz * (.7 - .12 * u)); }, teardown() { kino_hide('band'); kino_brumm(0, .3); } },
     { path(e, t, v, w) { const A = S.k2a, j = kino_e(Math.min(1, t / .8)), fb = typeof FEU !== 'undefined' ? FEU : null; v.set(A.x - A.fx * .35, 1.5 - .3 * j, A.z - A.fz * .35); if (fb) w.set(fb.bx, .62, fb.bz); else w.set(A.x - A.fx * 2.5, .5, A.z - A.fz * 2.5); }, dur: 2, fov: 62, fovTo: 52, hand: 1.2, shakes: [[0, .04, .8]], wenn: () => !(typeof feuer_k2aTot === 'function' && feuer_k2aTot()), tick(k, t, dt, sh) { if (typeof feuer_k2aHalt === 'function') feuer_k2aHalt(sh, t); },
-      setup() { kino_still(false, .3); kino_S.k2aArme = 0; const A = S.k2a; if (typeof feuer_k2a === 'function' && feuer_k2a('fass')) return; kino_zLangsam(false); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
+      setup() { kino_still(false, .3); kino_S.k2aArme = 0; const A = S.k2a; { const F = typeof FEU !== 'undefined' ? FEU : null; if (F) { const dx = A.x - F.bx, dz = A.z - F.bz, dl = Math.hypot(dx, dz) || 1, ux = dx / dl, uz = dz / dl; /* QA 09.10.: Fass im dunklen Gang kaum zu sehen → warmes Streiflicht vorn, kaltes Gegenlicht aus dem Gang dahinter: Fass dunkelrot, Kontur lesbar */ kino_S.lit[0] = { p: kino_V(F.bx + ux * 1.1 - uz * .5, 1.35, F.bz + uz * 1.1 + ux * .5), c: 0xffb878, d: 7, i: 5.5 }; S.vl[1].position.set(F.bx - ux * 1.3, 1.7, F.bz - uz * 1.3); S.vl[1].color.setHex(0x9fb8e0); S.vl[1].distance = 8; S.vl[1].intensity = 3.2; } }
+        if (typeof feuer_k2a === 'function' && feuer_k2a('fass')) return; kino_zLangsam(false); if (typeof feuer_knock === 'function' && typeof FEU !== 'undefined' && Math.hypot(FEU.bx - A.x, FEU.bz - A.z) < 7) try { feuer_knock(); } catch (e) {}
         Audio.play('metalSlam', { gain: .5, rate: .6, x: A.x - A.fx * 1.5, y: .4, z: A.z - A.fz * 1.5, ref: 3 }); Audio.play('waterFlow', { gain: .15, rate: .6, dur: 1.6, x: A.x - A.fx * 1.8, y: .1, z: A.z - A.fz * 1.8, ref: 2 }); } },
     { path(e, t, v, w) { const A = S.k2a, F = typeof FEU !== 'undefined' && S.k2a.imp ? FEU : null; if (!F) { v.set(A.x - A.fx * 1.4 + A.fz * 1.35 * (1 - .3 * e), 1.0 - .4 * e, A.z - A.fz * 1.4 - A.fx * 1.35 * (1 - .3 * e)); w.set(A.x - A.fx * 2.0, .3, A.z - A.fz * 2.0); return; }
         const u = kino_e(Math.min(1, t / 3.8)); v.set(F.bx + 3.3 - .9 * u, 1.05 - .6 * u, Z + .12); const z = typeof zombie !== 'undefined' ? zombie : null, px = z ? z.x : F.bx, pz = z ? z.z : Z;
@@ -42893,7 +42898,7 @@ const BW_KITS = {
   schirm: ['schirm', { file: 'model.fbx', size: .9, axis: 'max', aufrecht: true, spec: { '*': { color: 0x141414, rough: .42 } } }],
   brille: ['brille', { file: 'model.glb', size: .13, axis: 'max' }],
   ascher: ['kiffen/ascher', { file: 'model.glb', size: .12, axis: 'max' }], feuerzeug: ['w_lighter', { file: 'model.glb', size: .07, axis: 'max' }], kette: ['w_kette', { file: 'model.glb', size: .42, axis: 'max' }],
-  laterneP: ['w_papierlaterne', { file: 'model.fbx', size: .3, teil: /Dupli/, eins: true }],
+  laterneP: ['w_papierlaterne', { file: 'model.fbx', size: .3, teil: /Dupli/, eins: true, mat: x => { const f = y => { const c = y.clone(); c.emissive = new THREE.Color(0x1a1006); c.emissiveMap = null; c.emissiveIntensity = 1; c.color = new THREE.Color(0x9a8660); if (c.specular) c.specular.setHex(0x0c0c0c); c.shininess = 6; return c; }; return Array.isArray(x) ? x.map(f) : f(x); } }], // Papier nicht selbstleuchtend (QA 09.10.: weiße Kugeln in der Kapelle)
   eimer: ['trashcan', { size: .42 }], sack: ['trashbag', { size: .5 }], kanister: ['jerrycan', { size: .42 }],
   reifen: ['tires', { file: 'model.fbx', size: .75, axis: 'max', spec: BW_TIRES }],
   rahmen: ['frame_deco', { size: .42 }], rahmen2: ['frame_dmg', { size: .46 }],
@@ -42912,7 +42917,7 @@ function bw_kit(name) {
     root.updateMatrixWorld(true); const parts = [];
     root.traverse(m => { if (!m.isMesh || m.isSkinnedMesh) return; if (o.teil && !o.teil.test(m.name)) return; if (o.ohne && o.ohne.test(m.name)) return; if (o.eins && parts.length) return;
       parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
-    if (!parts.length) throw new Error('keine Teile');
+    if (!parts.length) throw new Error('keine Teile'); if (o.mat) parts.forEach(q => { q.mat = o.mat(q.mat); });
     const bb = new THREE.Box3(); parts.forEach(q => { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const pre = new THREE.Matrix4(), sz0 = bb.getSize(BW_V());
     if (o.aufrecht && Math.max(sz0.x, sz0.z) > sz0.y) pre.makeRotationFromEuler(new THREE.Euler(sz0.z > sz0.x ? PI / 2 : 0, 0, sz0.x >= sz0.z ? PI / 2 : 0));
@@ -45644,8 +45649,13 @@ const GEIST_FS = `
   float gExt = uF.z > 0. ? smoothstep(.8, 1.7, length(vWP.xz - uK.xz) / (.26 * uF.z / 1.7 + .04)) : 0.;
   float gTop = uF.z > 0. ? smoothstep(.88, 1.05, gH) : 0., gBot = uF.z > 0. ? 1. - smoothstep(0., .16, gH) : 0.;
   float gEro = clamp((gFr * .5 + gTop * .6) * (1. - gHd) + gExt * .45 + gBot * .75 + uE * .3, 0., 1.); // Gesicht: keine Schlieren
+  gEro *= mix(1., .4, step(.5, uMA)); // Haarkarten: weniger Zerfaserung (QA 09.10.: körniges Haar)
   float gWisp = 1. - gEro * (1. - smoothstep(.28, .74, gWn)) * .93;
-  float gAl = dot(diffuseColor.rgb, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * mix(.75, 1.35, gHd), 0., 1.); // Gesicht: Albedo mit mehr Kontrast (Augen, Brauen, Mund lesbar)
+  vec3 gAc = diffuseColor.rgb;
+#ifdef USE_MAP
+  if (uMA > .5) gAc = textureLod(map, vMapUv, 3.).rgb; // Haarkarten: Helligkeit aus gemittelter Textur (Einzelsträhnen-Körnung unterdrücken)
+#endif
+  float gAl = dot(gAc, vec3(.299, .587, .114)); gAl = clamp(.5 + (sqrt(max(gAl, 0.)) - .55) * mix(.75, 1.35, gHd), 0., 1.); // Gesicht: Albedo mit mehr Kontrast (Augen, Brauen, Mund lesbar)
   float gLit = dot(gl_FragColor.rgb, vec3(.299, .587, .114));
   vec3 gRim = mix(uCA, uCB, clamp(smoothstep(.2, .95, gFr) * .7 + clamp(gH, 0., 1.) * .3, 0., 1.));
   vec3 gCol = uCC * (.35 + 1.3 * gAl * (1. - uE)) * (.32 + .3 * (1. - gFr) + .18 * gHd) + gRim * gFr * (1.1 - .45 * gHd) + vec3(.95, .97, 1.) * gEmb * 1.4;
@@ -46051,7 +46061,7 @@ const NEB = { cx: 1e9, cy: 0, cz: 1e9, msrc: null, mesh: [], j: 0, R: 0, hid: 0 
 function neb_buildMesh() { NEB.msrc = DCULL.list; NEB.mesh = DCULL.list.map(E => ({ o: E.o, D: E, far: false })); NEB.j = 0; }
 function neb_hide() {
   if (!LST.nebel || !scene.fog || !scene.fog.isFogExp2 || !(scene.fog.density > 0)) return;
-  if (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return;
+  if (!SHADOW_FREI.on && (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate)) return;
   if (skyMat.uniforms.flash && skyMat.uniforms.flash.value > .01) return;
   const R = Math.min(LST.nebelK / scene.fog.density, camera.far); if (R >= camera.far) return;
   if (NEB.msrc !== DCULL.list) neb_buildMesh();
@@ -46238,8 +46248,25 @@ function lst_freeze() {
   MWF.an = () => { MWF.on = true; };
 }
 
+// 17) SCHATTENBILD-FRAMES OHNE VOLLES HAUPTBILD (09.10.). Die Basis schaltete die Auslesen (Blickfeld, Kleinteile, Nebel) in jedem Bild ab, in dem ein Mond-, Lampen- oder
+//    Schlüssellicht-Schattenbild neu entsteht (beim Gehen alle ~0,45 s): der Schattendurchlauf geht selbst durch die Szene, ausgeblendete Teile würfen sonst keinen Schatten.
+//    Folge: das Hauptbild zeichnete in diesen Bildern alles (gemessen beim Gehen: Spitzen +60 ms, p95 69 ms). In three.js r170 steht die Liste des Hauptbilds aber schon,
+//    bevor shadowMap.render läuft (projectObject davor) – darum bleiben die Auslesen an, und die ausgeblendeten Teile (außer fernen Figuren, wie bisher) sind nur für den
+//    Schattendurchlauf wieder sichtbar. Figuren werden in diesen Bildern nicht vom Blickfeld ausgeblendet (aktuelle Knochen für ihren Schatten). Vergleich: ?noshfrei
+const SHB = [];
+function lst_schattenFrei() {
+  const sm = renderer.shadowMap, r1 = sm.render;
+  sm.render = function (lights, sc, cam) {
+    if (!SHADOW_FREI.on || sc !== scene || !this.autoUpdate) return r1.call(this, lights, sc, cam);
+    let need = false; for (let i = 0; i < lights.length; i++) { const s = lights[i].shadow; if (s && s.needsUpdate && !s.autoUpdate) { need = true; break; } }
+    const H = RIGS.hid; if (!need || !H.length) return r1.call(this, lights, sc, cam);
+    SHB.length = 0; for (let i = 0; i < H.length; i++) { const o = H[i]; if (!o.visible && !o.__far) { o.visible = true; SHB.push(o); } }
+    try { return r1.call(this, lights, sc, cam); } finally { for (let i = 0; i < SHB.length; i++) SHB[i].visible = false; SHB.length = 0; }
+  };
+}
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, LK, MWF, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, get SHF() { return SHADOW_FREI; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -46252,7 +46279,7 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
   MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
@@ -46408,6 +46435,7 @@ function rigFarShow() { for (const r of RIGS.hid) r.visible = true; RIGS.hid.len
 //    gar nicht erst durchlaufen – vorher prüfte three.js jedes Einzelteil (Matrizen, Bild, Taschenlampen-Schatten). Sichtbar ändert sich nichts:
 //    Bilder, in denen Mond- oder Laternenschatten neu entstehen, zeichnen weiter alles; die Taschenlampe leuchtet nur ins Blickfeld.
 //    Gruppen mit Lichtern, Kameras, Instanzen, Figuren oder Dingen ohne Sichtprüfung werden nicht als Ganzes ausgeblendet, sondern ihre Teile einzeln betrachtet.
+const SHADOW_FREI = { on: false }; // leistung.js Abschnitt 17 schaltet ein
 const VCULL = { list: [], n: -1, t: 0, i: 0, fr: new THREE.Frustum(), m: new THREE.Matrix4(), v: new THREE.Vector3(), M: 4, box: new THREE.Box3(), sp: new THREE.Sphere() };
 function vcullBounds(E) { const o = E.o; VCULL.box.setFromObject(o); if (VCULL.box.isEmpty()) { E.r = -1; return; } VCULL.box.getBoundingSphere(VCULL.sp);
   o.updateWorldMatrix(true, false); E.c.copy(VCULL.sp.center).applyMatrix4(VCULL.m.copy(o.matrixWorld).invert()); E.r = VCULL.sp.radius / Math.max(1e-6, o.matrixWorld.getMaxScaleOnAxis()); }
@@ -46421,7 +46449,7 @@ function vcullBuild() {
   VCULL.list = list; VCULL.n = scene.children.length;
 }
 function vcullHide() {
-  if (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
+  const shUpd = moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate; if (shUpd && !SHADOW_FREI.on) return; // Schattenbild entsteht neu → alles mitnehmen (mit SHADOW_FREI: Hauptbild bleibt ausgelesen, leistung.js blendet die Teile nur für den Schattendurchlauf ein; Figuren bleiben dann sichtbar, ihre Knochen müssen aktuell sein)
   if (VCULL.n !== scene.children.length && performance.now() > VCULL.t) { VCULL.t = performance.now() + 5000; vcullBuild(); } // neu geladene Kapitel
   const L = VCULL.list; if (!L.length) return;
   for (let k = 0; k < 8; k++) { const E = L[VCULL.i++ % L.length]; if (E.o.visible) vcullBounds(E); } // Hüllen laufend auffrischen (Türen, verschobene Teile)
@@ -46429,7 +46457,7 @@ function vcullHide() {
   const out = (r) => { for (let j = 0; j < 6; j++) if (P[j].distanceToPoint(v) < -r) return true; return false; };
   for (const E of L) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
     v.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); if (out(E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M)) { o.visible = false; RIGS.hid.push(o); } }
-  for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
+  if (!shUpd) for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
 }
 // 8) Winzige Einzelteile nur fürs Zeichnen auslassen (wie 6/7: direkt nach dem Bild ist alles wieder da – Logik, Strahltests, Kollision merken nichts).
 //    Maß: Radius im Bild (echte Auflösung, echte Brennweite, Tiefe entlang der Blickachse) < DCULL.T Pixel – kleiner als ein Pixel, sieht niemand.
@@ -46446,7 +46474,7 @@ function dcullBuild() {
   DCULL.list = L; DCULL.n = scene.children.length;
 }
 function dcullHide() {
-  if (DCULL.off || moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return; // Schattenbild entsteht neu → alles mitnehmen
+  if (DCULL.off || ((moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) && !SHADOW_FREI.on)) return; // Schattenbild entsteht neu → alles mitnehmen (siehe vcullHide)
   if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); } // neu geladene Kapitel
   const L = DCULL.list, N = L.length; if (!N) return;
   for (let k = Math.min(N, 200); k > 0; k--) { const E = L[DCULL.i++ % N]; E.R = E.r * E.o.matrixWorld.getMaxScaleOnAxis(); } // Größe laufend auffrischen

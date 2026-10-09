@@ -147,7 +147,7 @@ const NEB = { cx: 1e9, cy: 0, cz: 1e9, msrc: null, mesh: [], j: 0, R: 0, hid: 0 
 function neb_buildMesh() { NEB.msrc = DCULL.list; NEB.mesh = DCULL.list.map(E => ({ o: E.o, D: E, far: false })); NEB.j = 0; }
 function neb_hide() {
   if (!LST.nebel || !scene.fog || !scene.fog.isFogExp2 || !(scene.fog.density > 0)) return;
-  if (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) return;
+  if (!SHADOW_FREI.on && (moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate)) return;
   if (skyMat.uniforms.flash && skyMat.uniforms.flash.value > .01) return;
   const R = Math.min(LST.nebelK / scene.fog.density, camera.far); if (R >= camera.far) return;
   if (NEB.msrc !== DCULL.list) neb_buildMesh();
@@ -334,8 +334,25 @@ function lst_freeze() {
   MWF.an = () => { MWF.on = true; };
 }
 
+// 17) SCHATTENBILD-FRAMES OHNE VOLLES HAUPTBILD (09.10.). Die Basis schaltete die Auslesen (Blickfeld, Kleinteile, Nebel) in jedem Bild ab, in dem ein Mond-, Lampen- oder
+//    Schlüssellicht-Schattenbild neu entsteht (beim Gehen alle ~0,45 s): der Schattendurchlauf geht selbst durch die Szene, ausgeblendete Teile würfen sonst keinen Schatten.
+//    Folge: das Hauptbild zeichnete in diesen Bildern alles (gemessen beim Gehen: Spitzen +60 ms, p95 69 ms). In three.js r170 steht die Liste des Hauptbilds aber schon,
+//    bevor shadowMap.render läuft (projectObject davor) – darum bleiben die Auslesen an, und die ausgeblendeten Teile (außer fernen Figuren, wie bisher) sind nur für den
+//    Schattendurchlauf wieder sichtbar. Figuren werden in diesen Bildern nicht vom Blickfeld ausgeblendet (aktuelle Knochen für ihren Schatten). Vergleich: ?noshfrei
+const SHB = [];
+function lst_schattenFrei() {
+  const sm = renderer.shadowMap, r1 = sm.render;
+  sm.render = function (lights, sc, cam) {
+    if (!SHADOW_FREI.on || sc !== scene || !this.autoUpdate) return r1.call(this, lights, sc, cam);
+    let need = false; for (let i = 0; i < lights.length; i++) { const s = lights[i].shadow; if (s && s.needsUpdate && !s.autoUpdate) { need = true; break; } }
+    const H = RIGS.hid; if (!need || !H.length) return r1.call(this, lights, sc, cam);
+    SHB.length = 0; for (let i = 0; i < H.length; i++) { const o = H[i]; if (!o.visible && !o.__far) { o.visible = true; SHB.push(o); } }
+    try { return r1.call(this, lights, sc, cam); } finally { for (let i = 0; i < SHB.length; i++) SHB[i].visible = false; SHB.length = 0; }
+  };
+}
+
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, LK, MWF, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, get SHF() { return SHADOW_FREI; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -348,7 +365,7 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
   MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
