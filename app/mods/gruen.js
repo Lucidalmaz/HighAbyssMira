@@ -587,15 +587,9 @@ async function gruen_dustBarrierBau() {
   const A = el(); A.position.set(27.98, 0, 98.02); A.rotation.y = .012; scene.add(A);
   // rechtes Element an einem Drehpunkt am linken Ende: unten aufgebogen (Kinderlücke) und aufschwenken (Kapitel 6)
   const pivB = new T.Group(); pivB.position.set(29.95, 0, 97.88); scene.add(pivB); const B = el(); B.position.set(2.05, 0, 0); pivB.add(B);
-  // Blechschild, mit Draht ans linke Element gebunden
-  const tx = (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 320; const g = c.getContext('2d');
-    g.fillStyle = '#d8d2bf'; g.fillRect(0, 0, 512, 320); for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(${110 + rand(0, 50)},${60 + rand(0, 25)},25,${rand(.05, .3)})`; g.beginPath(); g.arc(rand(0, 512), rand(0, 320), rand(2, 16), 0, 7); g.fill(); }
-    g.strokeStyle = '#8a1c14'; g.lineWidth = 10; g.strokeRect(14, 14, 484, 292); g.fillStyle = '#1a1612'; g.textAlign = 'center'; g.font = 'bold 40px Arial'; g.fillText('FORBIDDEN DUSTWOODS', 256, 82); g.font = 'bold 34px Arial'; g.fillText('BETRETEN VERBOTEN', 256, 134); // Fassung 3: zweisprachig, das Auge halb abgekratzt
-    g.strokeStyle = 'rgba(26,22,18,.7)'; g.lineWidth = 3; g.beginPath(); g.ellipse(446, 262, 22, 11, 0, 0, 7); g.stroke(); g.fillStyle = 'rgba(26,22,18,.7)'; g.beginPath(); g.arc(446, 262, 4, 0, 7); g.fill(); g.fillStyle = '#d8d2bf'; for (let i = 0; i < 26; i++) g.fillRect(430 + rand(0, 30), 248 + rand(0, 26), rand(3, 9), 2);
-    g.font = '30px Arial'; g.fillText('Wildschaden', 256, 196); g.font = '24px Arial'; g.fillText('Gemeinde Lost Eyengless', 256, 244); g.fillText('13.07.1992', 256, 278);
-    for (const [x, y] of [[26, 26], [486, 26], [26, 294], [486, 294]]) { g.fillStyle = '#4a3a2c'; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); }
-    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; })();
-  const sign = new T.Mesh(new T.PlaneGeometry(.62, .39), new T.MeshStandardMaterial({ map: tx, roughness: .55, metalness: .45, side: T.DoubleSide })); sign.position.set(27.2, 1.02, 97.93); sign.rotation.set(.04, PI + .03, -.05); sign.castShadow = true; scene.add(sign);
+  // Emailleschild, mit Draht ans linke Element gebunden: Blender-Modell (ms/schild_warn, Schrift als Geometrie, schild_warn_bau.py), 09.10. statt Canvas-Blech
+  let sign = new T.Group(); try { sign = (await msModel('schild_warn', 'model.glb')).clone(true); sign.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); } catch (e) { console.warn('Warnschild', e); }
+  sign.position.set(27.2, 1.02, 97.93); sign.rotation.set(.04, PI + .03, -.05); scene.add(sign);
   const col = addCol(25.3, 34.9, 97.45, 98.5, 2.4, -1); // die Gitter sind 0,9 m hoch: nicht darüber steigen (vor Kapitel 6 endet hier die Welt)
   const hit = box(9.4, 1.4, .9, 30.1, .7, 97.95, hidden, { cast: false });
   const D = gruen_S.dustBarrier = { A, B, pivB, sign, hit, col, open: false, kid: false, k: 0,

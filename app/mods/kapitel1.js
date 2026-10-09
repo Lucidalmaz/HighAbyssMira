@@ -116,13 +116,10 @@ async function kapitel1_welt() {
   const blau = kapitel1_cnv(256, 256, (x, w, h) => { const c = 'rgba(70,120,215,.9)'; kapitel1_kreideStrich(x, [[40, 128], [196, 128]], 11, c); kapitel1_kreideStrich(x, [[152, 86], [200, 128], [152, 170]], 11, c);
     x.strokeStyle = c; x.lineWidth = 8; x.beginPath(); x.arc(84, 128, 20, 0, 7); x.stroke(); kapitel1_verwaschen(x, w, h, 90, [2, 6]); });
   K1.blau = kapitel1_pfeile(blau, [[27.2, -5.9, -1, .15], [20.5, -4.4, -1, 0], [13, -3.6, -1, .05], [4.5, -2.4, -1, .2], [-4.8, 1.5, -.3, 1], [-6.9, 9, 0, 1], [-7.5, 21, 0, 1], [-7.1, 34, .05, 1], [-5.2, 45.5, .3, 1], [1.5, 51.2, 1, .2]], .6);
-  // --- Hufeisen über jeder Haustür (Eisen ist frei) – eine Instanz je Tür
-  const huf = kapitel1_cnv(128, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; x.strokeStyle = '#3c2e24'; x.lineWidth = 20; x.beginPath(); x.arc(64, 58, 36, PI * .05, PI * .95, false); x.stroke();
-    x.strokeStyle = 'rgba(130,70,34,.9)'; x.lineWidth = 12; x.beginPath(); x.arc(64, 58, 36, PI * .08, PI * .92, false); x.stroke(); x.fillStyle = '#1a1410'; for (let i = 0; i < 6; i++) { const a = PI * (.16 + i * .136); x.beginPath(); x.arc(64 + Math.cos(a) * 36, 58 + Math.sin(a) * 36, 2.6, 0, 7); x.fill(); }
-    for (let i = 0; i < 60; i++) { x.fillStyle = `rgba(${150 + rand(0, 60) | 0},${70 + rand(0, 30) | 0},30,${rand(.1, .4)})`; x.fillRect(rand(20, 108), rand(20, 100), 2, 2); } });
+  // --- Hufeisen über jeder Haustür – eine Instanz je Tür
   const tueren = [[23, -12.15, 1], [-47, -12.15, 1]]; for (const h of houses) if (!h.hollow && h.x !== undefined) { const fz = h.z + h.facing * h.d / 2; tueren.push([h.doorX ?? h.x, fz + h.facing * .02, h.facing]); }
-  { const im = new THREE.InstancedMesh(new THREE.PlaneGeometry(.2, .2), new THREE.MeshStandardMaterial({ map: huf, transparent: true, alphaTest: .1, roughness: .55, metalness: .6, polygonOffset: true, polygonOffsetFactor: -2 }), tueren.length);
-    tueren.forEach(([x, z, f], i) => { kapitel1_o.position.set(x, 2.96, z + f * .065); kapitel1_o.rotation.set(0, f > 0 ? 0 : PI, rand(-.08, .08)); kapitel1_o.scale.setScalar(1); kapitel1_o.updateMatrix(); im.setMatrixAt(i, kapitel1_o.matrix); }); scene.add(im); }
+  try { const hp = await msBake('hufeisen', 'model.glb'); // Quixel „Old Horseshoe“ (Scan, 13 cm), Öffnung nach oben, auf dem Türrahmen; 09.10.: statt Canvas-Fläche
+    msInst(hp, tueren.map(([x, z, f]) => msM4(x, 2.96, z + f * .034, f > 0 ? 0 : PI, 1.2, 0, 0)), { shadow: false }).forEach(im => { im.userData.noCol = true; }); } catch (e) { console.warn('Hufeisen', e); }
   // --- Lunas Hüpfkästchen mit 17 Feldern (weiße Kreide, halb verwaschen) auf dem Gehweg an der Kreuzung
   { const t = kapitel1_cnv(256, 1024, (x, w, h) => { const fh = h / 18; for (let i = 0; i < 17; i++) { const y = h - (i + 1) * fh; kapitel1_kreideStrich(x, [[50, y], [206, y], [206, y + fh], [50, y + fh], [50, y]], 6); x.fillStyle = 'rgba(236,232,220,.8)'; x.font = '44px Caveat, cursive'; x.fillText(String(i + 1), 112 + rand(-8, 8), y + fh * .72); }
       kapitel1_kreideStrich(x, [[128, 18], [128, 48]], 6); x.beginPath(); x.arc(128, 18, 14, 0, 7); x.stroke(); kapitel1_verwaschen(x, w, h, 260, [3, 10]); });
