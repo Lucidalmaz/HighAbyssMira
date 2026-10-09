@@ -7762,7 +7762,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     Glass: { color: 0x0b1013, rough: .05, metal: .7, transparent: true }, Car_number: { b: 'Car_Number.jpg', rough: .6 },
     Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: lights ? 0xfff0d0 : 0 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: lights ? 0x500000 : 0 },
     Car_backLight: { color: 0x220505, rough: .25 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
-  const VAN = { 'Material #928': { n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } };
+  const VAN = { 'Material #928': { b: 'van_grau_d.jpg', n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } };
   const MB = { Mailbox: { b: 'MailboxAlbedo.jpg', n: 'MailboxNormal.jpg', r: 'MailboxRough.jpg', m: 'MailboxMetal.jpg', ao: 'MailboxAO.jpg' }, MailboxFlap: { b: 'MailboxFlapAlbedo.jpg', n: 'MailboxFlapNormal.jpg', r: 'MailboxFlapRough.jpg', m: 'MailboxFlapMetal.jpg', ao: 'MailboxFlapAO.jpg' },
     MailboxFlag: { b: 'MailboxFlagAlbedo.jpg', n: 'MailboxFlagNormal.jpg', r: 'MailboxFlagRough.jpg', m: 'MailboxFlagMetal.jpg' } };
   const RS = { '*': { b: 'road_sign_pack_MAT_RoadSign_BaseColor.jpg', n: 'road_sign_pack_MAT_RoadSign_Normal.jpg', r: 'road_sign_pack_MAT_RoadSign_Roughness.jpg', m: 'road_sign_pack_MAT_RoadSign_Metallic.jpg', ao: 'road_sign_pack_MAT_RoadSign_AO.jpg' } };
@@ -7775,7 +7775,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     safe(msBake('hydrant')), safe(msBake('trashcan')), safe(msBake('trashbag')), safe(msBake('curbs')), safe(msBake('asphalt_debris')), safe(msModel('barrier_ms')), safe(msBake('cone_ms')),
     safe(msFBX('toys_old', 'model.fbx', TOYS)), safe(MSL.gl.loadAsync('assets/manhole/model.gltf')),
     // Transporter ohne Firmenaufdruck: Lack neu (dunkelgrau), Fenster/Leuchten/Reifen/Grill bleiben aus dem Original
-    safe(recolor('vans/van_undamaged_d.jpg', 1024, (p, n) => {
+    safe(null && recolor('vans/van_undamaged_d.jpg', 1024, (p, n) => {
       const keepR = [[0, 0, 150, 165], [140, 0, 560, 150], [12, 712, 112, 885], [298, 298, 398, 462], [578, 728, 722, 1012], [748, 606, 988, 714], [705, 510, 745, 570], [995, 510, 1024, 570], [160, 105, 212, 195], [445, 1000, 500, 1024], [828, 735, 905, 1005], [700, 0, 1024, 482], [270, 235, 335, 305]];
       const inR = new Uint8Array(n * n), dark = new Uint8Array(n * n), tmp = new Uint8Array(n * n);
       for (const [x0, y0, x1, y1] of keepR) for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) inR[y * n + x] = 1;
@@ -7894,7 +7894,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   if (sBeige) { const g = new T.Group(); g.position.set(-49.5, 0, 3.1); g.rotation.y = PI; scene.add(g); g.add(fitSedan(sBeige, false, 'BH·AR 1992'));
     clickOn(g, 4.4, 1.3, 1.9, 'Auto', lockedTalk(['Abgeschlossen. Auf dem Armaturenbrett liegen sieben Kastanien in einer Reihe.', 'Die Motorhaube ist warm. Unter dem Wagen ist der Asphalt trocken – als wäre er eben erst gekommen.'], -49.5, 3.1)); }
   // ---- Transporter ohne Aufschrift vor der Telefonzelle – STORY-HOOK: Amt für Rückführung beobachtet die Straße
-  if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else if (vanTex) { mt.map = vanTex; mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
+  if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else { mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
     if (dmg) dmg.parent.remove(dmg); vanSrc.scale.setScalar(4.9 / 377.9); vanSrc.rotation.y = ryFor(1, 0); const g = msGround(vanSrc); msPlace(g, 14.6, 0, 3.25, 0); reg('cars', g);
     clickOn(g, 4.9, 1.8, 2.05, 'Transporter', lockedTalk(['Keine Aufschrift. Die hinteren Scheiben sind von innen abgeklebt. Drinnen summt etwas – dann nicht mehr.', 'An der Tür ein Aufkleber, halb abgekratzt: „…ückführung · Außenst…“', 'Du legst das Ohr ans Blech. Drinnen atmet jemand, ganz ruhig. Im selben Takt wie du.'], 14.6, 3.25)); if (typeof lwo_magnetschild === 'function') lwo_magnetschild(g); } // F3 AP-06: Magnetschild am Heck
   // ---- Überwucherter Sportwagen an der Sperre (seit 2009) – STORY-HOOK: wer 2009 wegwollte, kam bis hier
@@ -10413,9 +10413,14 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Küche (x 26.1…31.8, z −16.9…−12.2)
   hideAt(29, .89, -12.55, [5.6, .92, .7]); hideAt(29, 1.38, -12.55, [5.6, .05, .74]); hideAt(28.3, .8, -15, [1.2, .75, .8]); hideAt(27.4, .88, -15, [.45, .9, .45]); hideAt(29.2, .88, -15, [.45, .9, .45]);
   // Kühlschrank: kein Modell im Katalog → Emaille-Oberfläche (Scan) + Schmutz
+  // QA M-14: Kühlschrank als Blender-Modell (ms/kuehlschrank_nr7: Emaille-Korpus, Gefrierfachtür, Chromgriff, Alterung); Box + Canvas-/Scan-Emaille bleiben nur als Rückfall
+  let kuehlModell = null; try { kuehlModell = await msModel('kuehlschrank_nr7', 'model.glb').then(m => m.clone(true)); } catch (e) { kuehlModell = null; }
+  if (kuehlModell) { const fr = find(31.4, 1.43, -16.4, [.9, 2, .8])[0]; if (fr) hide(fr); kuehlModell.position.set(31.4, Y, -16.4); kuehlModell.rotation.y = -PI / 2; kuehlModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); G7.add(kuehlModell); }
+  else {
   { const fr = find(31.4, 1.43, -16.4, [.9, 2, .8])[0]; if (fr) { fr.material = new T.MeshStandardMaterial({ map: await tRep('wall_plaster/b.jpg', true, .5, 1), normalMap: await tRep('wall_plaster/n.jpg', false, .5, 1), color: 0xd4ccbb, roughness: .42, metalness: .05 }); fr.material.normalScale.set(.4, .4); } }
+  }
   await decal(G7, 'grime', .8, 1.2, 30.945, Y + .6, -16.35, '-x', PI, 0x6a5a48, .9);
-  { const hm = new T.MeshStandardMaterial({ color: 0xa8a8a0, metalness: 1, roughness: .38 }), h = new T.Mesh(new T.BoxGeometry(.035, .34, .03), hm); h.position.set(30.93, Y + 1.2, -16.07); h.castShadow = true; G7.add(h);
+  if (!kuehlModell) { const hm = new T.MeshStandardMaterial({ color: 0xa8a8a0, metalness: 1, roughness: .38 }), h = new T.Mesh(new T.BoxGeometry(.035, .34, .03), hm); h.position.set(30.93, Y + 1.2, -16.07); h.castShadow = true; G7.add(h);
     const sm = new T.Mesh(new T.PlaneGeometry(.8, .01), new T.MeshBasicMaterial({ color: 0x1a1814 })); sm.position.set(30.946, Y + 1.58, -16.4); sm.rotation.y = -PI / 2; G7.add(sm); }
   let cabW = 0;
   for (let i = 0; i < 4; i++) { const c = await lowerCab(0xd8cfb8, .3); const g = put(c, { minX: 26.12 + i * cabW, maxZ: -12.21, y: Y, ry: PI }, G7); if (!cabW) { const b = bbox(g); cabW = b.max.x - b.min.x; } }
@@ -10907,8 +10912,10 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // ------------------------------------------------------------------ Materialien
   const T = (p, srgb, rep) => msTex(p, srgb, rep);
   const steelMat = (tint, nrm = .35, metal = .12) => { const m = new THREE.MeshStandardMaterial({ map: T('corrugated/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('corrugated/orm.jpg'), color: tint, metalness: metal, roughness: 1 }); m.normalScale.set(nrm, nrm); return m; };
+  // QA M-6 (Notlösung): glatter, abgenutzter Lack für die Aktenschränke (Albedo aus rust_sheet aufgehellt, ms/lack_grau) statt Wellblech mit senkrechten Rippen
+  const lackMat = (tint, nrm = .1, metal = .1) => { const m = new THREE.MeshStandardMaterial({ map: T('lack_grau/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('rust_sheet/orm.jpg'), color: tint, metalness: metal, roughness: .85 }); m.normalScale.set(nrm, nrm); return m; };
   const rustMat = msSurfMat('rust_sheet', { tint: 0xd8cfc6 });
-  const cabinetMat = steelMat(0xa2a898), cabinetDark = steelMat(0x4a4e48, .2, .1), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
+  const cabinetMat = lackMat(0xc8cdc0), cabinetDark = lackMat(0x5a5e56, .08), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
   const decal = (key, tint, rough) => { const m = msSurfMat(key, { alpha: true, tint }); if (rough !== undefined) { m.roughnessMap = null; m.roughness = rough; } return m; };
   const bloodFresh = decal('blood_s2', 0xb8a4a4, .12), bloodDrops = decal('blood_s1', 0xb09a9a, .2), bloodSmear = decal('blood_hv', 0xa08888, .35);
   const bloodOld = decal('blood_s1', 0x6a4a40, .8), bloodOldS = decal('blood_s2', 0x5a3c34, .75);
@@ -11012,7 +11019,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     const cabs = find((o, c, s) => o.material === M.metal && c.x > 618 && c.x < 630 && Math.abs(s.y - 2.2) < .05 && Math.abs(s.x - 1) < .05);
     cabs.forEach(o => retex(o, cabinetMat, 1.1));
     find((o, c, s) => o.material === M.dark && c.x > 618 && c.x < 630 && s.y < .05).forEach(o => retex(o, cabinetDark, 1));
-    retex(archiveDrawer, steelMat(0x8f968a), 1.1);
+    retex(archiveDrawer, lackMat(0xb4bba8), 1.1);
     // Griffe, Namensschilder, Griffmulden (Instanzen); die unterste Schublade des ersten Schranks trägt ihre eigenen
     const hGeo = new THREE.BoxGeometry(.16, .025, .035), lGeo = new THREE.PlaneGeometry(.11, .05), gGeo = new THREE.BoxGeometry(.9, .02, .012);
     const handleMat = new THREE.MeshStandardMaterial({ color: 0x9a9a92, metalness: .9, roughness: .35 }), labelMat = new THREE.MeshStandardMaterial({ map: tex(cnv(128, (x, w) => { x.fillStyle = '#d8d0b8'; x.fillRect(0, 0, w, w); x.fillStyle = '#333'; for (let i = 0; i < 3; i++) x.fillRect(12, 30 + i * 30, rand(50, 100), 10); }), true), roughness: .9 });
@@ -11083,11 +11090,14 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     web(XA + 40.5, .55, ZA - 4.55, 0, .55); web(XA + 42.4, .5, ZA - 4.6, 0, .5);
     flat(soot, XA + 41, ZA, 4.5, 3.5, .3, .012); flat(bloodOldS, XA + 41.2, ZA - 3.2, .9, 1.5, 1.5, .014);
     // Peters Zelle (W2-P5, PK-D K2-4): Türschilder, tausendfach „ICH WEISS ES JETZT“, Strichliste seit 1992, Tafel (erst nach dem Schwarm lesbar), Fluchtplan
-    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; };
+    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }; // QA M-15: Schrift über echt_an (Druck-/Papierwirkung wie überall)
       const dMat = (c, r = .9, m = 0) => new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: r, metalness: m });
       const grime = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(10, 70)); g.addColorStop(0, `rgba(60,44,28,${R(a * .4, a)})`); g.addColorStop(1, 'rgba(60,44,28,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } };
       // Emailleschild (alt, abgeplatzt) und darunter ein jüngeres Schild, getippt, mit Klebeband
-      onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
+      // QA M-15: Emailleschild als Blender-Modell (ms/schild_pruefraum, Schrift als Geometrie); die Canvas-Fassung bleibt nur als Notfall, falls das Modell fehlt
+      const pruefSchild = await msModel('schild_pruefraum', 'model.glb').then(m => m.clone(true)).catch(() => null);
+      if (pruefSchild) { pruefSchild.position.set(XA + 35.84, 1.86, ZA - 1.38); pruefSchild.rotation.y = -Math.PI / 2; pruefSchild.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } }); scene.add(pruefSchild); }
+      else onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
         x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückläufer', w / 2, 126);
         for (let i = 0; i < 16; i++) { const px = R(0, w), py = i < 6 ? (i % 2 ? R(0, 16) : R(h - 16, h)) : R(0, h), r = R(3, 11); x.fillStyle = '#1b1a18'; x.beginPath(); x.ellipse(px, py, r, r * R(.6, 1), R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,70,30,.5)'; x.beginPath(); x.arc(px + R(-2, 2), py + r, r * .8, 0, 7); x.fill(); }
         grime(x, w, h, 10, .22); }), .4, .15), XA + 35.842, 1.86, ZA - 1.38, .5, .156, -Math.PI / 2);
@@ -13761,7 +13771,11 @@ async function kirchberg_innen() {
       kirchberg_hit(.5, .3, .4, C.x - 2.2, tischY + .1, C.z + .2, 'Kindergedeck', () => kirchberg_notiz('Ein Gedeck', 'Blechteller, Blechbecher, ein Stück Brot. Alles von damals.\nDas Brot ist frisch.')); }
     // Kühlschrank (Emaille-Scan) mit Dosenturm, Herd daneben (Kiste mit Scan-Oberfläche; kein Modell im Katalog)
     { const em = new T.MeshStandardMaterial({ map: msTex('wall_plaster/b.jpg', true), normalMap: msTex('wall_plaster/n.jpg'), color: 0xd8d0bc, roughness: .42, metalness: .05 }); em.normalScale.set(.35, .35);
-      box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g }); box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
+      // QA M-14: Blender-Kühlschrank (ms/kuehlschrank_alt) statt Box; die Box bleibt unsichtbar als Kollision, Rückfall ohne Modell = alte Box mit Griff
+      const kModell = await msModel('kuehlschrank_alt', 'model.glb').then(m => m.clone(true)).catch(() => null);
+      const kb = box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g });
+      if (kModell) { if (kb) kb.visible = false; kModell.position.set(x0 + .38, 0, z1 - 1.1); kModell.rotation.y = PI / 2; kModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kModell); }
+      else box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
       box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g });
       const dose = await kirchberg_mod('w_becher', 'model.glb', .1); if (dose) { const sorten = [0xb8342a, 0x2a5a9a, 0xd8b030, 0x3a8a4a, 0x8a3a8a, 0xe0e0d8, 0xc86a20]; for (let i = 0; i < 17; i++) { const d = dose.clone(true); d.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHex(sorten[i % 7]); m.material.metalness = .5; } });
         put(d, x0 + .3 + (i % 3) * .12 - .12 + ((i / 3 | 0) % 2) * .06, 1.52 + (i / 3 | 0) * .1, z1 - 1.1 + ((i % 2) - .5) * .12, i, g); } }
@@ -29284,7 +29298,7 @@ function neben4_marke() { const M = n4_st('marke'); if (M.fertig) return; M.fert
 // =====================================================================  7 · „Siebzehn Näpfe“ (Kap. 4): Keiner am Transporter, Gisela am Zaun
 const N4_VAN = [7.7, -4.25], N4_KIESEL = [4.85, -3.65];
 async function neben4_vanBau() { const O = neben4_S.o, g = new THREE.Group(); g.visible = false; scene.add(g); O.van = g;
-  try { const src = await msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }); const v = src.clone(true); msFit(v, 5, 'max');
+  try { const src = await msFBX('vans', 'model.fbx', { '*': { b: 'van_grau_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }); const v = src.clone(true); msFit(v, 5, 'max');
     v.traverse(m => { if (m.isMesh) { m.material = Array.isArray(m.material) ? m.material.map(x => x.clone()) : m.material.clone(); for (const mm of [].concat(m.material)) if (mm.color) mm.color.lerp(new THREE.Color(0xe4e2dc), .55); m.castShadow = true; m.receiveShadow = true; } });
     const vg = msGround(v); const b = new THREE.Box3().setFromObject(vg), s = b.getSize(new THREE.Vector3()); if (s.z > s.x) vg.rotation.y = PI / 2; vg.position.set(N4_VAN[0], 0, N4_VAN[1]); g.add(vg); vg.updateMatrixWorld(true);
     const bb = new THREE.Box3().setFromObject(vg); O.vanCol = addCol(bb.min.x, bb.max.x, bb.min.z, bb.max.z, bb.max.y, -1); n4_vanCol(false); } catch (e) { console.warn('neben4: Transporter', e); }
@@ -33728,7 +33742,7 @@ function kapitel1_decke(w = .62, l = .42, h = .085) { const T = THREE, g = new T
 
 // Geheimes Ende „Fahr heim“: der Bus (Transporter-Scan, auf Buslänge gestreckt) rollt im Nebel an die Haltestelle – zwei Scheinwerfer, Fahrer als dunkle Silhouette hinter der Scheibe, sonst leer
 async function kapitel1_busBau() { if (K1.bus) return K1.bus; const T = THREE; K1.bus = { g: new T.Group(), L: null, fertig: false }; K1.bus.g.visible = false; K1.bus.g.userData.noCol = true; scene.add(K1.bus.g);
-  try { const o = await msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } });
+  try { const o = await msFBX('vans', 'model.fbx', { '*': { b: 'van_grau_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } });
     msFit(o, 7.4, 'max'); const gg = msGround(o); gg.traverse(m => { if (m.isMesh) { m.castShadow = false; m.userData.noCol = true; } }); K1.bus.g.add(gg); const bb = new T.Box3().setFromObject(gg); K1.bus.bb = bb; K1.bus.lang = bb.max.x - bb.min.x > bb.max.z - bb.min.z ? 'x' : 'z'; } catch (e) { console.warn('kapitel1 Bus', e); }
   const glow = new T.SpriteMaterial({ map: kapitel1_cnv(64, 64, (x, w) => { const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,248,226,1)'); g.addColorStop(.25, 'rgba(255,236,190,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, w, w); }), color: 0xfff0d0, transparent: true, depthWrite: false, blending: T.AdditiveBlending });
   K1.bus.glow = []; for (let i = 0; i < 2; i++) { const s = new T.Sprite(glow); s.scale.setScalar(1.8); K1.bus.g.add(s); K1.bus.glow.push(s); }
@@ -36854,7 +36868,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
   const S = amt_S, X0 = C2.x, Z0 = C2.z, H = C2.h;
   try { await document.fonts.load('40px Caveat'); await document.fonts.load('30px "Special Elite"'); } catch (e) {}
   const surf = (key, tint, tile = 2, nrm = 1) => { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = tile; return m; };
-  const putz = surf('wall_plaster', 0xb1a996, 2), sockel = surf('wall_damaged', 0x6c786a, 2.4, .8), boden = surf('floor_worn', 0x80786a, 2.2), decke = surf('facade_concrete', 0x5f5c56, 2.5);
+  const putz = surf('wall_plaster', 0xb1a996, 1.1, .5), sockel = surf('wall_damaged', 0x6c786a, 1.3, .5), boden = surf('floor_worn', 0x80786a, 2.2), decke = surf('facade_concrete', 0x5f5c56, 2.5); // QA M-7: Putz/Sockel Kachel halbiert, Normalstärke .5 (vorher 2 m / 1 bzw. .8: grobe Schlieren im Lampenkegel)
   const linie = new THREE.MeshStandardMaterial({ color: 0x28302a, roughness: .6 }); boden.roughness = 1;
   const batch = new Batch();
   const face = (mat, x, y, z, w, h, ry, tile = 2, u0 = 0) => { const g = new THREE.PlaneGeometry(w, h), uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) * w + u0) / tile, (uv.getY(i) * h + y - h / 2) / tile); batch.add(g, mat, mtx(x, y, z, ry)); };
