@@ -226,7 +226,8 @@ function whiskey_moodTick(dt) {
     if (was === 'still') { if (S.cur) S.cur.timeScale = 1; S.sacT = 0; } }
 }
 // ---------------------------------------------------------------- Klauen (K1-6): dreimal ignoriert → das zuletzt Aufgehobene, an der nächsten Station wieder da
-const WHISKEY_NIE = new Set(['fibel', 'key', 'fuse', 'sicherung', 'zimmer7', 'villaschluessel', 'schluesselteile', 'feuerzeug', 'mamas_kerze', 'brechstange', 'drahtschneider', 'baumhausschluessel', 'autoschluessel', 'miras_ring', 'polaroid_kamera', 'buch', 'einwilligungen', 'lampe1', 'lampe2', 'lampe3', 'batterie', 'jonas_karte', 'nord_lantern', 'cleo_kreide']);
+const WHISKEY_NIE = new Set(['fibel', 'key', 'fuse', 'sicherung', 'zimmer7', 'villaschluessel', 'schluesselteile', 'feuerzeug', 'mamas_kerze', 'brechstange', 'drahtschneider', 'baumhausschluessel', 'autoschluessel', 'miras_ring', 'polaroid_kamera', 'buch', 'einwilligungen', 'lampe1', 'lampe2', 'lampe3', 'batterie', 'jonas_karte', 'nord_lantern', 'cleo_kreide',
+  /* QA: Gegenstände der Hauptketten dürfen nie geklaut werden (Rückgabe an der nächsten Station ist kein Ersatz, wenn die Aufgabe davor läuft) */ 'lucys_spieluhr', 'brot', 'n3_kapschluessel', 'n3_pfarrschluessel', 'n3_brecheisen', 'leiter_amt', 'spindschluessel', 'lampion', 'dienstnadel', 'haushaltsbuch', 'riegel_halb', 'ranzenriemen', 'schnalle_turm', 'seitenschneider', 'hildes_antworten', 'heidi_karte', 'umschlag7', 'wartenummer']);
 function whiskey_klau() {
   const S = whiskey_S; let what = null;
   if (typeof tausch_klaubar === 'function') what = tausch_klaubar(); // zuerst etwas Glänzendes aus der Tasche

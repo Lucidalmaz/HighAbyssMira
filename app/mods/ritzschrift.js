@@ -134,6 +134,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 // so entsteht das unregelmäßige Bild echter Handschrift. Gilt nur für Handschrift-Schriften; Druckschriften (Arial, Courier, Georgia) bleiben unberührt.
 { const P = CanvasRenderingContext2D.prototype, ft = P.fillText, st = P.strokeText, HAND = /Caveat|Comic Sans|Segoe Print|Gochi|Marker|Indie/i; let tief = false;
   const hand = (orig, kind) => function (text, x, y, maxW) {
+    if (!tief && typeof text === 'string' && text.trim()) try { const cv = this.canvas, L = cv.__txt = cv.__txt || []; if (L.length < 40 && !L.includes(text)) L.push(text); } catch (e) {} // QA: Text an der Ziel-Leinwand merken (echt_text zeichnet über eine Hilfsleinwand)
     if (ECHT.an > 0 && !tief && kind === 'fill' && typeof text === 'string' && !HAND.test(this.font)) { tief = true; try { if (echt_text(this, orig, text, x, y, maxW)) return; } catch (e) {} finally { tief = false; } } // gedruckte/gemalte Schrift auf Schildern und Zetteln: Farbband, Schablone, Abplatzer (echt_text)
     if (tief || maxW !== undefined || typeof text !== 'string' || text.length < 2 || !HAND.test(this.font)) return orig.call(this, text, x, y, maxW);
     const fm = /(\d+(?:\.\d+)?)px/.exec(this.font), sz = fm ? +fm[1] : 20; if (sz < 7) return orig.call(this, text, x, y);

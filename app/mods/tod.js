@@ -73,7 +73,7 @@ function tod_ch2Apply(p) {
   if (!p) return;
   if (p.r && p.r.length) { ch2.read = new Set(p.r); ch2.boardHint = p.r.length >= 3; }
   ch2.archiveSeen = true;
-  if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; }
+  if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; if (typeof archiveDrawerRead === 'function') interact(archiveDrawer, 'Schublade', archiveDrawerRead); /* QA K1/2: ohne das ließ sich das Protokoll nach dem Laden nicht mehr lesen */ }
   if (p.k) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); } // nur mit dem Hakenschlüssel aus Zimmer 7 – die gelöste Tafel allein gibt ihn nicht mehr
   if (p.p && !ch2.power) { ch2.power = true; ch2.coverOpen = true; ch2.fuses = ch2.fuses.map(() => true); try { fuseLedUpdate(); } catch (e) {} spiderDoorIn.locked = false; spiderDoorIn.lockedText = ''; c2Lights.forEach(L => { L.k = 1; }); }
   if (p.s && ch2.spiderPhase !== 'gone') { ch2.spiderPhase = 'gone'; spiderDoorOut.locked = false; cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478); }
@@ -377,19 +377,23 @@ function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Kör
       n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
   return n; }
 // Weg zum Freischiebe-Punkt frei? (Nutzer 08.10.: „außerhalb der Map / in Wänden gelandet“ – der nächste freie Punkt kann hinter einer Wand liegen; ab 0,45 m Abstand darf nichts Festes im Weg stehen)
-function tod_wegFrei(x0, y, z0, x1, z1) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < .45) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
+function tod_wegFrei(x0, y, z0, x1, z1, skip = .45) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < skip) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
 function tod_klemmTick(dt) {
   const K = TOD_KL;
   if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
+  K.ft = (K.ft || 0) + dt; if (K.ft > .25) { K.ft = 0; if (tod_blockiert(P.x, P.y, P.z, null, R * .8) === 0) { K.fx = P.x; K.fy = P.y; K.fz = P.z; } } // letzter Platz ohne Überlappung (4× je Sekunde)
   if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
   K.t += dt; if (K.t < 1.2) return; K.t = 0; const d = Math.hypot(P.x - K.x, P.z - K.z); K.x = P.x; K.z = P.z; if (d > .35) return;
   const info = []; const drin = tod_blockiert(P.x, P.y, P.z, info, R * .8); // steckt IN etwas (Überlappung)
   const nah = []; if (!drin) tod_blockiert(P.x, P.y, P.z, nah, R + .12); // oder steht dicht davor
   if (performance.now() > K.logT) { K.logT = performance.now() + 15000; console.warn('Klemmt: pos=' + [P.x, P.y, P.z].map(v => v.toFixed(2)).join(',') + ' kap=' + curChapter() + ' keller=' + state.inBasement + ' zone=' + state.zone + ' ' + (drin ? 'STECKT: ' + info.join(' | ') : 'davor: ' + (nah.join(' | ') || 'nichts gefunden (Bremsung?)'))); }
   if (!drin) return;
+  // QA 09.10.: tod_wegFrei prüft die ersten 0,45 m nicht (dort steckt man) – in einer dünnen Wand lag der erste freie Punkt so oft HINTER der Wand (durchgeschoben).
+  // Der Ausweg muss deshalb auch vom letzten überlappungsfreien Platz aus lückenlos erreichbar sein (= die Seite, von der man kam).
+  const ax = K.fx, az = K.fz, vorFrei = ax !== undefined && Math.hypot(P.x - ax, P.z - az) < 3.5 && Math.abs(P.y - K.fy) < 1;
   for (const r of [.5, .8, 1.1, 1.5, 2, 2.6, 3.2]) for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
-    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z }) && tod_wegFrei(P.x, P.y, P.z, x, z)) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
+    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z }) && tod_wegFrei(P.x, P.y, P.z, x, z) && (!vorFrei || tod_wegFrei(ax, P.y, az, x, z, 0))) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
 // Hinter der Südsperre (z < −46,4; Kollisionskisten rundum, kein Rückweg): wer dort landet (Hochziehen, Szene, älterer Spielstand), wird davor abgesetzt
 WORLD_TICK.push(() => { try { const P = player.pos;
   if (state.started && !menu.attract && !state.inBasement && !state.zone && !scripted && !mantle && P.z < -46.4 && P.z > -56 && Math.abs(P.x) < 20 && P.y < 3 && curChapter() < 7) { P.set(Math.max(-3.5, Math.min(3.5, P.x)), 0, -44.9); vel.set(0, 0, 0); console.warn('Klemmt: hinter der Südsperre zurückgesetzt'); } } catch (e) {} });

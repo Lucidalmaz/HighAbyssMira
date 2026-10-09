@@ -9,7 +9,7 @@
 const lucy3_S = { opening: false, openDone: false, tuned: false, greeted: false, asked: new Set(), allAsked: false, word: null, busy: false, tok: 0, log: [], luke: '',
   radioFails: 0, lampFails: 0, justinTold: false, win: null, car: { ok: false }, arrows: [], smoke: [], eng: null, hiss: null, k3: false, carIa: false, look1: false, look2: false,
   hand: null, handK: 0, handOn: false, signs: {}, signBusy: false, lampPrev: [], lights: [], hlMats: [], scopeA: 0, scopeB: 0, tine: 0, info: {} };
-MOD_SAVE.push(['lucy3', () => ({ tuned: lucy3_S.tuned, look1: lucy3_S.look1, look2: lucy3_S.look2 }), v => { lucy3_S.look1 = !!v.look1; lucy3_S.look2 = !!v.look2; }]);
+MOD_SAVE.push(['lucy3', () => ({ tuned: lucy3_S.tuned, look1: lucy3_S.look1, look2: lucy3_S.look2 }), v => { lucy3_S.look1 = !!v.look1; lucy3_S.look2 = !!v.look2; if (v.tuned) lucy3_S.tuned = true; }]); // tuned: nach dem Laden öffnet der Funkkasten direkt die Kanäle (Frequenz nicht erneut einstellen)
 const lucy3_sleep = ms => new Promise(r => setTimeout(r, ms));
 // Kapitel 3, Straße (nicht in Kap. 4–6, wo ch3.on weiter wahr ist)
 function lucy3_isK3() { if (!ch3.on || ch3.part !== 'town') return false; if (typeof kap === 'function') return kap() === 3; return !(typeof anwesen_S !== 'undefined' && anwesen_S.ch4); }
@@ -181,7 +181,7 @@ function lucy3_radioPuzzle() {
   if (S.sperreBis && performance.now() < S.sperreBis) return toast('Der Kasten ist zu. Das Rauschen dahinter lacht leise.', 2600); // nach einem Fehlschlag zehn Sekunden zu
   if (S.tuned) return lucy3_funk();
   const tok = ++S.tok; lucy3_radioOn();
-  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.</span></div>
+  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.<br><small>Mit Kuli darunter: „nicht auf das erste Rauschen hören“</small></span></div>
     <div class="dial"><canvas id="l3Dial" width="1480" height="244"></canvas></div>
     <div class="tune"><div class="eye"><canvas id="l3Eye" width="192" height="192"></canvas></div>
       <div class="knob"><div class="freq" id="l3F">14,00<small>MHz</small></div><input type="range" id="rF" min="3" max="32" step="0.01" value="14.00">
@@ -303,7 +303,7 @@ async function lucy3_send(c, tok) { const S = lucy3_S; if (S.busy || tok !== S.t
 // Das Wort laut ins Mikrofon sagen: dann ist es verbraucht – Kanal A sagt es ab jetzt auch (der einzige dauerhafte Fehler des Kapitels)
 async function lucy3_sagen(tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || !S.word) return; S.busy = true; const w = S.word;
   lucy3_lukeShow(`„${w.charAt(0) + w.slice(1).toLowerCase()}.“`); lucy3_log('A', '— ' + w + ' (laut)', 'q'); lucy3_log('B', '— ' + w + ' (laut)', 'q'); await lucy3_sleep(1200);
-  if (w === 'HASENBROT') { S.gesagt = true; S.scopeA = 1; lucy3_lamp('A', 'on'); lucy3_log('A', '„Hasenbrot.“', 'v'); lucy3_voice('a', 1.4); Audio.giggle(player.pos.x + .6, 1.5, player.pos.z); await lucy3_sleep(1800); S.scopeA = 0; lucy3_lamp('A', ''); }
+  if (w === 'HASENBROT') { S.gesagt = true; S.scopeA = 1; lucy3_lamp('A', 'on'); lucy3_log('A', '„Hasenbrot.“', 'v'); lucy3_voice('a', 1.4); Audio.giggle(player.pos.x + .6, 1.5, player.pos.z); await lucy3_sleep(1800); S.scopeA = 0; lucy3_lamp('A', ''); lucy3_lukeShow('„Jetzt kann sie es auch. Nur eine weiß, wo Lucy wirklich ist.“'); }
   if (tok === S.tok) S.busy = false; }
 async function lucy3_win(tok) { const S = lucy3_S; ch3.radio = true; state.talking = true;
   await lucy3_speak('B', '„Da bist du.“', tok);
@@ -366,7 +366,7 @@ function lucy3_pressSwitch(S) {
   if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Weiß über der Senke bleibt.');
   if (!ch3.met) return toast('Blechschild, Stadtwerke: LEUCHTE AUS / EIN · Nur für befugtes Personal · Schlüssel beim Amt.' + (S.n === 7 ? ' Darüber ein Zettel in Hildes Druckschrift: ZULETZT.' : ''), 5200);
   if (S.off) return toast('Der Hebel steht schon auf AUS.');
-  if (lucy3_S.flaring || lucy3_S.signBusy) return;
+  if (lucy3_S.flaring || lucy3_S.signBusy || lucy3_S.wrongBusy) return; // wrongBusy: in den 2,6 s nach einem falschen Hebel bleibt alles gesperrt (sonst laufen ch3.seq und Hebelzustand auseinander)
   if (!ch3.seq.length) lucy3_S.erster = S.n; // Wolters Folge (1, 3, 5, 7) scheitert schon am ersten Kasten
   S.off = true; S.L.mode = 'off'; ch3.seq.push(S.n); Audio.play('switch2', { gain: .6, x: S.m.position.x, y: .8, z: -5.5, ref: 2 }); Audio.flick();
   const ok = ch3.seq.every((n, i) => n === LAMP_ORDER[i]);
@@ -379,10 +379,10 @@ function lucy3_enger(n) { const S = lucy3_S; if (!S.nebel0) S.nebel0 = scene.fog
   setTimeout(() => { const P = player.pos, a = rand(0, 6.28); Audio.whisper(P.x + Math.sin(a) * 9, 1.2, P.z + Math.cos(a) * 9, 1.8); if (!S.zaehlt) { S.zaehlt = true; subtitle('„vier … drei …“', 2600, 'KINDERSTIMME'); } }, 4200); }
 pressSwitch = lucy3_pressSwitch;
 async function lucy3_wrongSwitch() {
-  const S = lucy3_S; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; shake = .03; glitchV = .6;
+  const S = lucy3_S; S.wrongBusy = true; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; shake = .03; glitchV = .6;
   lamps.forEach(L => { if (L.mode !== 'off' || switchBoxes.some(B => B.L === L)) L.mode = 'flicker'; }); // alle Laternen flammen gleichzeitig auf, Kinderlachen, die Hebel springen zurück
   Audio.giggle(player.pos.x + 4, 1.2, player.pos.z - 4); setTimeout(() => Audio.giggle(player.pos.x - 6, 1.2, player.pos.z + 3), 700);
-  await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse');
+  await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse'); S.wrongBusy = false;
   subtitle('Falsch. So hat sie sie nicht geholt.', 3400); await wait(3400);
   if (S.erster === 1 && !S.post && typeof kapitel3_S !== 'undefined' && kapitel3_S.ag09) { S.post = true; await say([['Wie die Post. Sehr witzig, Herr Wolter.', 3000, 'LUKE']]); }
   if (!ch3.radio) { jHint(); return; }

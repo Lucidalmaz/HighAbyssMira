@@ -258,7 +258,7 @@ function k6_zoneWechsel(vor, jetzt) {
   if (jetzt && K6.flasche === 1 && Math.hypot(vel.x, vel.z) > .8) k6_flascheKlirr(); // die Flasche klirrt in der Jacke, viel zu laut
 }
 // ---------------------------------------------------------------- Die Pfandflasche (Humor, Lärm, Hochsitz)
-function k6_flascheNehmen() { if (K6.flasche) return; K6.flasche = 1; K6.flascheT = 0; K6.flascheM.visible = false; uninteract(K6.flascheHit); if (!k6_has('pfandflasche')) story.items.push('pfandflasche'); Audio.play('glass1', { gain: .2, rate: 1.3 });
+function k6_flascheNehmen() { if (K6.flasche) return; K6.flasche = 1; K6.flascheT = 0; K6.flascheM.visible = false; uninteract(K6.flascheHit); if (!k6_has('pfandflasche')) addItem('pfandflasche'); Audio.play('glass1', { gain: .2, rate: 1.3 });
   k6_luke('Acht Cent. Wenn ich das überlebe, ist das mein Anfang.', 3200); }
 function k6_flascheKlirr() { if (K6.flasche !== 1) return; K6.flasche = 2; const P = player.pos; Audio.play('glass1', { gain: .55, rate: 1.1, x: P.x, y: 1, z: P.z }); k6_laerm(P.x, P.z, 45);
   setTimeout(() => { k6_luke('Viel zu laut.', 1800); toast('Du wickelst die Flasche in deine Mütze.', 2600); }, 900); }
@@ -276,7 +276,10 @@ function k6_beats(dt) {
     k6_standTick(dt);
     if (K6.sp.has('k6_hochsitz') && !K6.told.has('justin') && k6_near(40.5, 189.5, 6) && k6_frei()) k6_justinStimme();
     if (K6.sp.has('k6_hochsitz') && k6_near(65, 199.5, 26)) k6_falleStart(); }
-  else if (B === 'frass') { k6_ag20Tick(); if (!K6.told.has('anniFrass') && k6_near(10, 198.8, 5) && k6_frei()) { K6.told.add('anniFrass'); const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.x * 5, 1.2, P.z - f.z * 5, '„Du hast unterschrieben. Ist schon gut. Ich hab den Lampion gemocht.“', 'ANNI?', 4200, 'anni_3'); } }
+  else if (B === 'frass') { k6_ag20Tick();
+    /* QA: Hilfeleiter Fraßstelle – ohne das Dienstbuch (Seite 1) kommt der Hirsch nie; wer wegläuft, wird zurückgeschickt */
+    if (!hh('spuren')) { if (k6_near(1.5, 199.6, 8) && !K6.told.has('dbHint')) { K6.dbT = (K6.dbT || 0) + dt; if (K6.dbT > 30 && k6_frei()) { K6.told.add('dbHint'); k6_denk('dbHint', 'Neben dem Kadaver liegt etwas. Ein Heft, mit Dienstnummer. Das sehe ich mir an.'); } } }
+    else if (!hh('hirsch')) { K6.hiT = (K6.hiT || 0) + dt; if (K6.hiT > 75 && !k6_near(1.5, 199.6, 34) && !K6.told.has('hiHin')) { K6.told.add('hiHin'); k6_obj('Zurück zur Fraßstelle. Das Ding ist in der Nähe.'); } } if (!K6.told.has('anniFrass') && k6_near(10, 198.8, 5) && k6_frei()) { K6.told.add('anniFrass'); const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.x * 5, 1.2, P.z - f.z * 5, '„Du hast unterschrieben. Ist schon gut. Ich hab den Lampion gemocht.“', 'ANNI?', 4200, 'anni_3'); } }
   else if (B === 'wrack') { k6_routeTick(); if (!K6.lager && !K6.told.has('t3') && k6_near(80.5, 233, 34) && !k6_near(80.5, 233, 12) && k6_frei()) { K6.told.add('t3'); k6_anrufLucy(); }
     if (!K6.lager && k6_near(80.5, 233, 9)) { k6_cp('k6_lager', 'Jonas’ Lager', 78.6, 230.4, -.6); K6.lagerT += dt; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
       if ((W && W.flags && W.flags.has('k6_3')) || K6.lagerT > 45) k6_lagerFertig(); else if (K6.lagerT > 3 && !K6.told.has('lagerHin')) { K6.told.add('lagerHin'); k6_obj('Jonas’ Lager. Durchatmen. Whiskey sitzt auf der Zeltstange.'); } }
@@ -284,7 +287,8 @@ function k6_beats(dt) {
     if (K6.lager && k6_near(-10, 204.5, 16) && !K6.told.has('beobFlucht')) k6_beobFlucht();
     if (K6.lager && k6_near(-10, 204.5, 9)) { k6_cp('k6_wrack', 'SP6-5 · Das Wrack', -5.8, 203.2, 1.9); k6_obj('Hinter dem Wrack. Da, wo es still ist.'); k6_set('bau'); }
     if (!K6.lager && k6_near(-13.2, 206.8, 11) && !K6.told.has('bauZuFrueh') && k6_frei()) { K6.told.add('bauZuFrueh'); k6_denk('bauFrueh', 'Nicht da rein. Nicht jetzt. Nicht mit dem Ding im Rücken.'); } }
-  else if (B === 'bau') { if (typeof hungrige_S !== 'undefined' && hungrige_S.finale && !hungrige_S.cine) k6_epilog(); }
+  else if (B === 'bau') { if (typeof hungrige_S !== 'undefined' && hungrige_S.finale && !hungrige_S.cine) k6_epilog();
+    if (!hh('bau') && k6_near(-13.2, 206.8, 10) && !K6.told.has('bauHint')) { K6.bauT = (K6.bauT || 0) + dt; if (K6.bauT > 40 && k6_frei()) { K6.told.add('bauHint'); k6_denk('bauHint', 'Hofers letzte Seite. Sie muss hier irgendwo liegen, wo es am stillsten ist.'); } } }
   else if (B === 'epilog') k6_guide(dt);
 }
 // Absperrgitter: ab Kapitel 5 die Kinderlücke, in Kapitel 6 aufbiegen (E halten, wie das Gitter im Amt) – erst nach Wolter (AG-18)
@@ -332,14 +336,14 @@ async function k6_ag18() {
     await say([['Er weiß, welche Decke. Hast du das gehört? Er weiß, welche Decke.', 3600, 'LUKE']]);
   } catch (e) { console.warn('Kapitel6: AG-18', e); }
   finally { K6.ag18 = true; K6.ag18Busy = false; k6_ag18Tasche(false); }
-  if (K6.beat === 'gitter') k6_obj('Das Gitter aufbiegen. Der Junge ist darunter durch.');
+  if (K6.beat === 'gitter') k6_obj('Das Gitter aufbiegen: E halten, am Gitter. Der Junge ist darunter durch.');
 }
 function k6_ag18Sender(W) { const g = K6.props.sender || (K6.props.sender = new THREE.Mesh(new THREE.BoxGeometry(.05, .02, .034), new THREE.MeshStandardMaterial({ color: 0x5c5e61, roughness: .5, metalness: .7 }))); if (!g.parent) scene.add(g);
   g.position.set(W.g.position.x + .25, 1.28, W.g.position.z + .3); g.visible = true; setTimeout(() => { g.visible = false; }, 4500); }
 function k6_ag18Tasche(on) { const T = K6.props; if (on && !T.tasche) { const g = new THREE.Group(); const bag = new THREE.Mesh(new THREE.BoxGeometry(.42, .24, .2), new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: .9 })); bag.position.y = .12; g.add(bag);
     const roll = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .6, 14), new THREE.MeshStandardMaterial({ map: k6_netzTex(), color: 0x6a6258, roughness: .7, metalness: .5 })); roll.rotation.z = PI / 2; roll.position.set(-.55, .22, .1); g.add(roll);
     g.position.set(36.2, 0, 83.8); scene.add(g); T.tasche = g; T.taschenHit = box(.9, .6, .7, 36, .3, 83.9, hidden, { cast: false });
-    interact(T.taschenHit, () => K6.on && K6.schneiderFrei && !K6.schneider ? 'Den Seitenschneider einstecken' : '', () => { if (K6.schneider || !K6.schneiderFrei) return; K6.schneider = true; if (!k6_has('seitenschneider')) story.items.push('seitenschneider'); if (typeof lwo_ereignis === 'function') lwo_ereignis('seitenschneider');
+    interact(T.taschenHit, () => K6.on && K6.schneiderFrei && !K6.schneider ? 'Den Seitenschneider einstecken' : '', () => { if (K6.schneider || !K6.schneiderFrei) return; K6.schneider = true; if (!k6_has('seitenschneider')) addItem('seitenschneider'); if (typeof lwo_ereignis === 'function') lwo_ereignis('seitenschneider');
       Audio.play('keys2', { gain: .2, rate: 1.6 }); setTimeout(() => lwo_zeile('W', '„Den bekommen wir zurück, Herr Brandt.“'), 700); }); }
   if (T.tasche) T.tasche.visible = !!on; if (!on && T.taschenHit) uninteract(T.taschenHit); }
 function k6_whiskeyDeckel() { // K6-1: aufs Kombi-Dach, an der Antenne picken, den Deckel der Thermoskanne klauen, über das Gitter und zurück
@@ -416,7 +420,7 @@ function k6_segDist(x, z, a, b) { const vx = b[0] - a[0], vz = b[1] - a[1], L = 
 function k6_halten(x, z) { const P = player.pos, d = Math.hypot(P.x - x, P.z - z); if (d > .5) { P.x = x + (P.x - x) / d * .5; P.z = z + (P.z - z) / d * .5; vel.set(0, 0, 0); } }
 // Der Geschälte Wolf (R6-3 „Wo vorne war“): liegt wie tot; kommt nur näher, wenn Luke wegsieht oder die Lampe senkt; unter 2,5 m springt er. Mit Licht drauf: „Sender anhängen“.
 function k6_wolfTick(V, dt) { const F = K6.falle, p = V.g.position, d = hungrige_dist(V), f = leben_facing(p.x, p.y + .5, p.z), lit = hungrige_lit(V, 14, .95, .5);
-  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); k6_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile.'), 2600); } } }
+  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); k6_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile. Er kommt nur, wenn ich wegseh.'), 2600); } } }
   else if (F.wph === 'rise') { F.wt += dt; hungrige_facePlayer(V, dt * 1.5); if (F.wt > 1.9) { F.wph = 'stare'; leben_play(V, 'IdleAggressive', .3); k6_ton('knurr', p.x, .5, p.z, .45, () => Audio.growl(p.x, p.z, false)); } }
   else if (F.wph === 'geh') { F.wt = (F.wt || 0) - dt; if (F.wt < 0) { F.wt = .95; hungrige_nass(V, .3); } if (leben_beastMove(V, dt)) { F.wph = 'steht'; leben_play(V, 'IdleAggressive', .3); } } // geht in die Netze, wie gerufen
   else if (F.wph === 'stare') { hungrige_facePlayer(V, dt * 4); if (F.ph !== 'bereit') return;
@@ -500,7 +504,7 @@ function k6_ag20Aufbau() { K6.ag20Auf = true; k6_ag20Props(); if (typeof lwo_fig
 async function k6_ag20() { K6.told.add('ag20'); state.flashFail = Math.max(state.flashFail, .45); player.pitch = Math.max(player.pitch - .25, -.9); // er leuchtet – und senkt die Lampe sofort
   if (typeof lwo_szene === 'function') await lwo_szene('AG-20', { figuren: { funk: { x: K6_AG20.a[0], z: K6_AG20.a[1] } }, hook: async (tu) => { if (tu && tu.r && /Merkblatt/.test(tu.r)) { await k6_merkblatt(); return true; } return false; } });
   if (K6.tot2) setTimeout(() => k6_luke('Dreiundvierzig … nein. Drei-vier. Der ist alt. Der war damals schon dabei.', 3600), 800);
-  K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; if (K6.funkM) K6.funkM.visible = false; story.items.push('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
+  K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; if (K6.funkM) K6.funkM.visible = false; addItem('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
   K6.ketteHit = K6.ketteHit || box(.6, .4, .6, K6_AG20.a[0] - .6, .2, K6_AG20.a[1] + .5, hidden, { cast: false }); interact(K6.ketteHit, () => K6.on && !K6.kette ? 'Die Kettenrolle nehmen' : '', () => { if (K6.kette) return; K6.kette = true; if (K6.ketteM) K6.ketteM.visible = false; if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_kette'); Audio.play('keys3', { gain: .25, rate: .7 }); k6_luke('Eisen. Hilft nicht. Nehm ich trotzdem.', 2400); });
   k6_obj('Die Fraßstelle. Da vorn, wo das Blut endet.'); }
 // AP-24: Funkgerät am Hochsitz zurücklegen (+4 über lwo_ereignis 'funk_zurueck'); der Scan hängt danach am Pfosten (nachgeladen, kein Licht)
@@ -731,7 +735,7 @@ function k6_welt(laden) {
   state.zone = null; state.ending = false; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
   lamps.forEach(L => { L.mode = 'on'; L.dead = 0; }); if (typeof anwesen_S !== 'undefined') anwesen_S.ch4 = true;
   if (typeof feuer_items === 'function') feuer_items(); if (ITEMS.feuerzeug && !story.items.includes('feuerzeug')) story.items.push('feuerzeug'); // Peters Feuerzeug (Kapitel 2)
-  const kerze = Object.keys(ITEMS).find(k => /kerze/i.test(k)); if (kerze && !story.items.includes(kerze)) story.items.push(kerze); // Mamas Kerze (Kapitel 5, falls vorhanden)
+  if (!laden && ITEMS.mamas_kerze && !story.items.includes('mamas_kerze') && typeof k5 !== 'undefined' && (k5.f.kerze || story.lore.some(l => l.key === 'k5_schlafenszeit'))) story.items.push('mamas_kerze'); // Mamas Kerze: nur wer sie in Kapitel 5 wirklich hatte (QA B4: keine Suche mehr nach beliebigen Kerzen)
   if (!laden) { FLASH.charge = Math.max(FLASH.charge ?? 1, .9); FLASH.spare = Math.max(FLASH.spare || 0, 3); try { flashApply(); } catch (e) {} } // „die Lampe, drei Batterien“
   if (typeof sammeln_platz === 'function' && !K6.sb11Platz) { K6.sb11Platz = true; try { sammeln_platz('SB-11', { x: 14, y: 3.78, z: 179.41, ry: PI, stehend: true, ab: 6, label: 'Eine Seite, an einen Nagel gespießt' }); } catch (e) { console.warn('Kapitel6: SB-11', e); } }
   if (typeof katzen_kater5 === 'function' && !k6_ab('krumen')) try { katzen_kater5('gitter', { x: 30.4, z: 95.9, ry: 0, punkt: [26.6, .3, 99.2] }); } catch (e) {} // Hänschen: zwei Meter vor dem Gitter, keinen Schritt weiter

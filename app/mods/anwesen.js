@@ -210,7 +210,9 @@ async function chapter4Begin() {
 }
 async function startChapter4() { // Weiterspielen / Kapitel wählen
   $('subPanel').classList.remove('show'); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show');
-  chapter3Begin(); ch3.met = true; anwesen_S.ch4 = false; await chapter4Begin();
+  chapter3Begin(); ch3.met = true; anwesen_S.ch4 = false;
+  if (!story.items.includes('brechstange') && typeof addItem === 'function') addItem('brechstange'); // Kapitelwahl/Weiterspielen: Teil 04 (Kellerfenster-Gitter) braucht sie, sonst ist die Villa nie vollständig
+  await chapter4Begin();
 }
 async function anwesen_enterHall() {
   const S = anwesen_S, H = ANW_HALL; state.talking = true; Audio.play('ironDoor', { gain: .5, rate: .7 }); Audio.creak(.3);

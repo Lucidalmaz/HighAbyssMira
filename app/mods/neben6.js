@@ -220,7 +220,7 @@ function n6_loopTick(dt, P) {
   if (rep >= 0 && rep !== L.rep && ph - rep * N6_REP > .3) { L.rep = rep; if (typeof hungrige_stimme === 'function') hungrige_stimme(vx, 1.2, vz, '„Papa? Papa, ich bin’s.“', 'ANNI?', 2600, 'anni_loop'); // gleich betont, der Atemzug an derselben Stelle
     setTimeout(() => { if (N6_LOOP.tor === R && typeof kino_atem === 'function') kino_atem(.05, 1.1, vx, 1.2, vz); }, 3000);
     if (!N6.loopSaid && L.rep === 0) { N6.loopSaid = true; setTimeout(() => { n6_luke('Das ist ein Loop. Ich hab Hörbücher geschnitten, ich kenn einen Loop. Sie atmet an derselben Stelle.', 5200); n6_anniDesc('Die Stimme kommt immer wieder. Gleich betont, der Atemzug an derselben Stelle. Ein Loop.'); }, 3600); } }
-  if (naht && !L.naht) { L.rep = -1; if (N6.fails >= 2) { const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; if (W && W.g && W.g.visible && !W.fl && typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(R.x + R.dx * 10, 3, R.z + R.dz * 10), null); } } // Hilfe 3: Whiskey fliegt genau in der Pause los
+  if (naht && !L.naht) { L.rep = -1; if (N6.fails >= 1) { const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; if (W && W.g && W.g.visible && !W.fl && typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(R.x + R.dx * 10, 3, R.z + R.dz * 10), null); } } // Hilfe 3: Whiskey fliegt genau in der Pause los
   L.naht = naht;
   const s = (P.x - R.x) * R.dx + (P.z - R.z) * R.dz, lat = Math.abs((P.x - R.x) * R.dz - (P.z - R.z) * R.dx);
   if (L.prev < 0 && s >= 0 && lat < 7) { N6.gates[R.id] = naht ? 'ok' : 'fail'; L.tor = null; if (naht) n6_torOk(); else n6_torFail(P); }
@@ -230,8 +230,8 @@ function n6_torOk() { N6.oks++; if (N6.oks === 1 && typeof gedanke === 'function
 function n6_torFail(P) { // Satz 2 direkt am Ohr; die Zone lässt die Lampe drei Sekunden flackern
   N6.fails++; scareCount++; const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.z * .5, 1.65, P.z + f.x * .5, '„Papa? … Papa, ich bin gleich wieder da.“', 'ANNI?', 3200, 'anni_ohr');
   state.flashFail = Math.max(state.flashFail, 3); shake = Math.max(shake, .06); glitchV = Math.max(glitchV, .5); Audio.heart();
-  if (N6.fails === 1) setTimeout(() => n6_luke('Jeder Loop hat eine Naht. Da, wo er von vorn anfängt.', 3600), 3800);
-  else if (N6.fails >= 3) setTimeout(() => toast('Warte auf die Naht.', 3000), 3600);
+  if (N6.fails === 1) setTimeout(() => n6_luke('Jeder Loop hat eine Naht. Da, wo er von vorn anfängt. Beim nächsten wart ich auf die Pause.', 5200), 3800);
+  else if (N6.fails >= 2) setTimeout(() => toast('Warte auf die Naht: Erst in der Pause durch das Tor gehen.', 3600), 3600);
 }
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {

@@ -481,11 +481,13 @@ weiss_hildeAntwort = async function (k) { const S = weiss_S, f = WEISS_HILDE.fin
 drawClock = function () { const c = clockTex.image.getContext('2d'), w = 256, [h, m] = ch3.clock; c.clearRect(0, 0, w, w); c.fillStyle = '#f2efe6'; c.beginPath(); c.arc(w / 2, w / 2, 124, 0, 7); c.fill(); c.strokeStyle = '#222'; c.lineWidth = 6; c.stroke(); // keine Ziffern (UK 12)
   const hand = (a, l, wd) => { c.lineWidth = wd; c.beginPath(); c.moveTo(w / 2, w / 2); c.lineTo(w / 2 + Math.cos(a) * l, w / 2 + Math.sin(a) * l); c.stroke(); };
   hand(((h % 12) + m / 60) / 12 * PI * 2 - PI / 2, 56, 8); hand(m / 60 * PI * 2 - PI / 2, 88, 5); clockTex.needsUpdate = true; };
-// Fehlversuche an der Uhr zählen (die Basis setzt die Zeiger dann auf zwölf zurück): nach zwei Fehlern Justin
-{ const toast0 = toast; toast = function (t, ms) { if (typeof t === 'string' && t.startsWith('Die Zeiger springen zurück auf zwölf') && ch3.part === 'white') { WEISS_F3.uhrFehl++;
-      if (WEISS_F3.uhrFehl === 1) setTimeout(() => subtitle('Jede Uhr im Dorf ist heut Nacht bei derselben Minute stehen geblieben.', 4000, 'LUKE'), 3600);
-      if (WEISS_F3.uhrFehl === 2) setTimeout(() => { if (!state.talking) say([['„Die dritte Stunde. Dreizehn Atemzüge.“', 3400, JS]]); }, 3600); }
-    return toast0.apply(this, arguments); }; }
+// Fehlversuche an der Uhr zählen (die Basis setzt die Zeiger dann auf zwölf zurück): Hilfeleiter nach Zustand, nicht nach dem Toast-Text
+function weiss_uhrFehl() { const F = WEISS_F3; F.uhrFehl++;
+  if (F.uhrFehl === 1) setTimeout(() => subtitle('Jede Uhr im Dorf ist heut Nacht bei derselben Minute stehen geblieben.', 4000, 'LUKE'), 3600);
+  if (F.uhrFehl === 2) setTimeout(() => { if (!state.talking) say([['„Du hast sie doch schlagen hören, Junge.“', 3400, 'HILDE WENDT']]); }, 3600);
+  if (F.uhrFehl === 3) setTimeout(() => { if (!state.talking) say([['„Die dritte Stunde. Dreizehn Atemzüge.“', 3400, JS]]); }, 3600); }
+if (typeof clockPuzzle === 'function') clockPuzzle = (o => function () { const r = o.apply(this, arguments); try { const ok = $('puzzle').querySelector('#cOk'); if (ok && ch3.part === 'white') { const h0 = ok.onclick;
+      ok.onclick = function (e) { const [h, m] = ch3.clock, richtig = h === 3 && m === 13; const r2 = h0.apply(this, arguments); if (!richtig && !ch3.room2) weiss_uhrFehl(); return r2; }; } } catch (e) { console.warn('weiss Uhr', e); } return r; })(clockPuzzle);
 async function weiss_voss() { if (state.talking) return; state.talking = true;
   try { const kennt = typeof neben3_hat === 'function' && neben3_hat('k3_predigt');
     await say([['Ein Pfarrer. Grau wie die Kinder. Ich dachte, sie behält nur Kinder.', 3800, 'LUKE']]);
@@ -516,9 +518,9 @@ room3Scene = async function () {
   await say([['„Das ist die Nacht. Ich seh sie jedes Mal, wenn ich reinkomme. Sie ist immer gleich.“', 4400, JS],
     ['„Sie ging hinein, für Luna. Ich hatte ihre Hand. Der Riss kam, und er zog, und das Licht hat mir die Haut verbrannt.“', 5600, JS], ['„Sie hat losgelassen. Ich hielt, bis das Licht mir die Hand nahm.“', 4200, JS]]);
   state.talking = false; setC3('Am Rand der Wiese liegt ein Blatt im Reif.');
-  if (typeof sammeln_platz === 'function' && !(typeof sammeln_hatSB === 'function' && sammeln_hatSB(7))) try { sammeln_platz('SB-07', { x: X3 + 36.6, y: .03, z: Z3 - 1.4, ab: 3, label: 'Ein Blatt im Reif' }); } catch (e) { console.warn('SB-07', e); }
-  S.phase = 'sb07'; };
-function weiss_haendeAuftrag() { const S = weiss_S; if (S.phase !== 'sb07') return; S.phase = 'spuren'; setC3('Sieh dir die Hände an.');
+  if (typeof sammeln_platz === 'function' && !(typeof sammeln_hatSB === 'function' && sammeln_hatSB(7))) try { sammeln_platz('SB-07', { x: X3 + 36.6, y: .03, z: Z3 - 1.4, ab: 3, label: 'Ein Blatt im Reif' }); } catch (e) { console.warn('SB-07', e); S.sb07Fehl = true; }
+  S.phase = 'sb07'; if (S.sb07Fehl || typeof sammeln_platz !== 'function') weiss_haendeAuftrag(); }; // Absicherung: fehlt die lose Seite, geht es trotzdem mit den Händen weiter
+function weiss_haendeAuftrag() { const S = weiss_S; if (S.phase !== 'sb07') return; S.phase = 'spuren'; setC3('Sieh dir die Hände an. Wenn du es weißt: sag es Justin.');
   say([['„Sieh nicht auf sie. Sieh, wohin du willst.“', 3200, JS]]);
   const Sp = WEISS_F3.spots || {}; for (const [k, b] of Object.entries(Sp)) interact(b, () => (k === 'mira' && WEISS_F3.stellen.has('handschuh') && !WEISS_F3.stellen.has('ring')) ? 'Miras Hand noch einmal ansehen' : WEISS_STELLEN[k][0], () => weiss_stelle(k)); }
 async function weiss_stelle(k) { const S = weiss_S; if (S.phase !== 'spuren' || state.talking || ui.overlay) return;

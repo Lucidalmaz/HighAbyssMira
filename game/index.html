@@ -736,6 +736,7 @@
   setInterval(() => { if (window.__ready) return; const el = document.getElementById('goText'); const sec = ((performance.now() - window.__t0) / 1000) | 0; if (el && !el.textContent.startsWith('FEHLER')) el.textContent = 'LADE … ' + window.__stage.toUpperCase() + ' (' + sec + ' s)'; }, 500);
   addEventListener('unhandledrejection', e => showErr(String(e.reason && (e.reason.message || e.reason))));
 </script>
+<script>/* QA: Leinwand-Schrift merken (canvas.__txt) */ { const P = CanvasRenderingContext2D.prototype; for (const k of ['fillText', 'strokeText']) { const o = P[k]; P[k] = function (t, ...a) { try { const c = this.canvas; if (c && typeof t === 'string' && t.trim() && (c.__txt = c.__txt || []).length < 40 && !c.__txt.includes(t)) c.__txt.push(t); } catch (e) {} return o.call(this, t, ...a); }; } }</script>
 <script type="module">
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -2994,7 +2995,8 @@ function feelBreath(ex, per) { const A = Audio; if (!A.ctx || !A.noiseBuf) retur
 let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
 let camOverride = null; function setCamOverride(fn) { camOverride = fn; }
 const KEY_HOOKS = {}; // Welt-Module: KEY_HOOKS['KeyG'] = () => …
-function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
+const ITEM_DEFS = {}; // QA: Mod-Gegenstände werden mitgespeichert (saveGame → idefs), damit sie nach dem Laden im Inventar erscheinen
+function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; ITEM_DEFS[k] = { name: String(name), desc: String(desc), icon: icon || 'paper' }; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
 function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Achse
   if (state.zone === 'canal') return canalCollide(axis);
   let hit = false; const v = step;
@@ -3801,7 +3803,7 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest 2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält.\n\nStempel: <b>ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); })); // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', archiveDrawerRead);; // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
       else { Audio.beep(false); const n = ++ch2.archiveTries; // Fassung 3 (AP-16): kein Schaden, keine Zahl – der Nadeldrucker protokolliert; Hilfeleiter nach 2 / 4 / 6 Fehlern
         if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 SORTIERT FALSCH.'); else toast('Nichts passiert.', 2500);
@@ -3810,6 +3812,7 @@ interact(board, 'Ordnungstafel', () => {
         if (n >= 6) { let wi = -1, wd = 0; ch2.slots.forEach((s, i) => { const d = s ? Math.abs(ORDER.indexOf(s) - i) : 7; if (d > wd) { wd = d; wi = i; } }); ch2.boardGlow = wi; drawBoard(); box.querySelectorAll('.slots button').forEach((b, i) => b.style.boxShadow = i === wi ? '0 0 14px rgba(230,200,120,.9)' : ''); } } };
   });
 });
+function archiveDrawerRead() { return openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest 2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält.\n\nStempel: <b>ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }); } // als Funktion, damit tod.js sie nach dem Laden eines Spielstands wieder anbinden kann (QA K1/2)
 ch2.archiveTries = 0;
 const archiveDrawer = box(.86, .5, .48, X + 20, .3, Z - 5.6, M.dark);
 
@@ -5116,7 +5119,7 @@ function safeTick(dt) {
 }
 function saveGame(chapter) {
   try { const ch = chapter || curChapter();
-    const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
+    const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, idefs: Object.fromEntries(story.items.filter(k => ITEM_DEFS[k] || (ITEMS[k] && typeof ITEMS[k].name === 'string' && !ITEMS[k].key && k !== 'batterie' && k !== 'key' && k !== 'fuse')).map(k => [k, ITEM_DEFS[k] || { name: ITEMS[k].name, desc: String(ITEMS[k].desc || ''), icon: Object.keys(ICONS).find(i => i !== k && ICONS[i] === ICONS[k]) || 'paper' }])), myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
       main: story.main, obj: $('objText').textContent, at: SAFE.at && SAFE.at.ch === ch ? { ...SAFE.at } : null,
       st: Object.fromEntries(SAVE_STATE.filter(k => state[k] !== undefined).map(k => [k, state[k]])), doors: doors.map(D => [D.open ? 1 : 0, D.locked ? 1 : 0]),
       side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, q.steps ? { state: q.state, desc: q.desc, steps: q.steps } : { state: q.state, desc: q.desc }])),
@@ -5139,6 +5142,8 @@ function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
   // Ausrüstung: ältere Spielstände haben keine → Stufe nach Kapitel (Kap. 3 hat die LED-Lampe aus dem Amt)
   const f = d.flash || {}; FLASH.tier = Math.min(FLASH_TIERS.length - 1, Math.max(+f.tier || 0, d.chapter >= 3 ? 1 : 0)); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
+  for (const [k, v] of Object.entries(d.idefs || {})) if (!ITEMS[k] && v && typeof v.name === 'string') { ITEMS[k] = { name: v.name, desc: v.desc || '' }; ICONS[k] = ICONS[v.icon] || ICONS.paper; ITEM_DEFS[k] = v; }
+  for (const k of story.items) if (!ITEMS[k]) { ITEMS[k] = { name: k.replace(/_/g, ' '), desc: '' }; ICONS[k] = ICONS.paper; } // QA: ältere Spielstände ohne Definition → Notbezeichnung statt leerem Slot/TypeError
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
@@ -7184,8 +7189,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     openPuzzle(`<h3>GELDKASSETTE</h3><p>Vier Rädchen. Die Zahlen sind abgegriffen.</p><div class="row" id="owW">${v.map((d, i) => `<button data-i="${i}" style="font:28px Georgia;min-width:52px">${d}</button>`).join('')}</div><div class="row" style="margin-top:14px"><button id="owOk">ÖFFNEN</button></div><p class="small">Auf dem Deckel eingeritzt: <i>P. K.</i></p>`, bx => {
       bx.querySelectorAll('#owW button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; v[i] = (v[i] + 1) % 10; b.textContent = v[i]; Audio.flick(); });
       bx.querySelector('#owOk').onclick = e => { e.stopPropagation(); if (v.join('') === '0313') { closeOverlay(); Q.kasse = true; Audio.play('lockOpen', { gain: .6, x: 115.1, y: 1.1, z: 24.8, ref: 2 }); Audio.play('metalOpen', { gain: .4, rate: 1.4, delay: .3, x: 115.1, y: 1.1, z: 24.8, ref: 2 });
-          setTimeout(() => openNote('In der Geldkassette', 'Kein Geld. Nur ein Polaroid und ein gefalteter Zettel.\n\nAuf dem Foto: ein Junge an der Zapfsäule, einen roten Kanister in der Hand. Das Gesicht ist verwackelt. Hinten drauf:\n' + noteHand('„Luke B., 31.10.09 – 03:13. Hat mit diesem Foto bezahlt.\nEs ist ein Foto von ihm selbst. Blaue Augen.\nDer Junge, der seit August bei Marion wohnt, hat braune.“') + '\n\nDer Zettel:\n' + noteHand('Peter, wenn du das findest: Ich hab die Säulen abbauen lassen. Die kommen nachts und wollen tanken. Kinder tanken nicht. — Vater'), 'ow_kassette', () => sideDone('ow_kasse', 'Die Kassette war leer – bis auf ein Foto, das es nicht geben dürfte.')), 500); }
-        else { Audio.beep(false); toast('Das Schloss hält. Irgendwo hinter dir klingelt die Ladenglocke. Einmal.', 3200); Audio.bell(112, 25); } };
+          setTimeout(() => openNote('In der Geldkassette', 'Kein Geld. Nur ein Polaroid und ein gefalteter Zettel.\n\nAuf dem Foto: ein Junge an der Zapfsäule, einen roten Kanister in der Hand. Das Gesicht ist verwackelt. Hinten drauf:\n' + noteHand('„Luke B., 31.10.09 – 03:13. Hat mit diesem Foto bezahlt.\nEs ist ein Foto von ihm selbst. Blaue Augen.\nDer Junge, der seit August bei Marion wohnt, hat braune.“') + '\n\nDer Zettel:\n' + noteHand('Peter, wenn du das findest: Ich hab die Säulen abbauen lassen. Die kommen nachts und wollen tanken. Kinder tanken nicht. — Vater'), 'ow_kassette', () => { ausbau_ost_west_zapfCheck(); /* QA K1/2: schloss die Nebenaufgabe vorzeitig ab, obwohl noch vier der fünf Spuren fehlten */ }), 500); }
+        else { Audio.beep(false); Q.kw = (Q.kw || 0) + 1; toast(Q.kw >= 3 ? 'Das Schloss hält. Draußen am Leuchtschild hängen vier Ziffern. Und im Schaufenster ist ein Tag rot umkringelt.' : 'Das Schloss hält. Irgendwo hinter dir klingelt die Ladenglocke. Einmal.', Q.kw >= 3 ? 4600 : 3200); Audio.bell(112, 25); } };
     }); });
   // STORY-HOOK: Preistafel = Zahlencode 0-3-1-3
   hit(1, 3, 1, 99.2, 3.2, 8.2, 'Leuchtschild', () => { toast('TANKSTELLE KRANZ. Die Röhre summt. Auf der Preistafel hängen nur noch vier Ziffern: 0 … 3 … 1 … 3.', 5200); Audio.buzz(99.2, 4.5, 8.2); OW.signFlick = 2.5; });
@@ -7223,7 +7228,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     if (!kapAb(5)) return openNote('Ein Schlafplatz', 'Jemand hat hier geschlafen. Eine Decke, ein Stoffhase, ein heruntergebrannter Kerzenstumpen. Das Heu ist in der Mitte eingedrückt – so groß wie ein Kind.\n\nDas Heu ist noch warm.', 'ow_nest');
     if (!Q.heftSeen) { Q.heftSeen = true; openNote('Ein Schlafplatz', 'Jemand hat hier geschlafen. Eine Decke, ein Stoffhase, ein heruntergebrannter Kerzenstumpen. Das Heu ist in der Mitte eingedrückt – so groß wie ein Kind.\n\nUnter der Decke: ein Schulheft. Name ausgeradiert. Drei Seiten sind herausgerissen.\n\nDas Heu ist noch warm.', 'ow_nest', () => { sideStart('ow_heft'); story.side.ow_heft.desc = `Seiten gefunden: ${Q.pages.size} / 3. Bring sie zurück zum Schlafplatz im Stall.`; }); }
     else toast(Q.heftDone ? 'Der Hase liegt jetzt anders. Mit dem Gesicht zur Tür.' : 'Das Heft wartet. Drei Seiten fehlen.', 3600); });
-  hit(1.6, 2.2, 2.6, -123.5, 1.1, 14, 'Alter Schuppen', () => { if (kapAb(3) && !Q.pages.has('schuppen')) { toast('Zwischen Spaten und Säcken klemmt ein Blatt Papier.', 2800); setTimeout(() => owPage('schuppen'), 900); } else if (!story.items.includes('drahtschneider')) { addItem('drahtschneider'); Audio.play('metalHit1', { gain: .35, rate: 1.4, x: -123.5, y: 1, z: 14, ref: 2 }); toast('Zwischen den Spaten, an einem Nagel: ein Drahtschneider. Die Griffe sind mit Kinderpflastern umwickelt.', 4400); }
+  hit(1.6, 2.2, 2.6, -123.5, 1.1, 14, 'Alter Schuppen', () => { if (kapAb(3) && !Q.pages.has('schuppen')) { toast('Zwischen Spaten und Säcken klemmt ein Blatt Papier. Im Schuppen liegt noch mehr – sieh noch einmal hin.', 4200); setTimeout(() => owPage('schuppen'), 900); } else if (!story.items.includes('drahtschneider')) { addItem('drahtschneider'); Audio.play('metalHit1', { gain: .35, rate: 1.4, x: -123.5, y: 1, z: 14, ref: 2 }); toast('Zwischen den Spaten, an einem Nagel: ein Drahtschneider. Die Griffe sind mit Kinderpflastern umwickelt.', 4400); }
     else toast('Werkzeug, Säcke, ein Kinderspaten. Alles sauber aufgereiht, als würde gleich jemand wiederkommen.', 3800); });
   hit(4.6, 2.2, .6, -125, 1.1, 56.6, () => Q.pages.has('tor') || !kapAb(3) ? 'Eisentor' : 'Eisentor (Zettel)', () => { if (kapAb(3) && !Q.pages.has('tor')) { owPage('tor'); return; }
     if (OW.gateOpen) return toast('Das Tor steht offen. Der Kies dahinter ist unberührt – bis auf deine Spuren.', 3200);
@@ -7353,8 +7358,8 @@ function ausbau_ost_west_schalter(Q) { const OW = ausbau_ost_west_OW; kirchberg_
   openNote('Mikes Schichtbuch', '<span class="hand">10.7. – Nix los. Opa war da mit Pfand, einunddreißig Flaschen, will Batterien dafür. Hab gesagt, wir sind keine Bank.<br>11.7. – Wieder das Licht überm Wald. Opa sagt, nachts abschließen und nicht rausgucken.<br>12.7., nachts, kurz nach drei – Kind an Säule 3. Barfuß. Hat eine Laterne. Ruft meinen Namen.</span><br><span class="hand" style="transform:rotate(-3deg)">Sie hat bis siebzehn gezählt.</span>', 'ow_schichtbuch',
     () => { subtitle('Mike ist rausgegangen.', 2400, 'LUKE'); ausbau_ost_west_zapfCheck(); }); }
 function ausbau_ost_west_zapfCheck() { const Q = ausbau_ost_west_OW.Q; if (!Q) return; const z02 = typeof sammeln_hatZ === 'function' && sammeln_hatZ(2), sch = typeof post_S !== 'undefined' && post_S.steps.schuppen, pol = story.photos && story.photos.has(2);
-  const n = [Q.bon, Q.book, z02, sch, pol].filter(Boolean).length; kirchberg_desc('ow_kasse', `Bon, Schichtbuch, die Zeitung über der Kasse, das Polaroid an Säule 3, der Schuppen hinter der Tankstelle. (${n}/5)`);
-  if (n >= 5) kirchberg_fertig('ow_kasse', 'Kind an Säule 3. Barfuß. Hat eine Laterne. Mike ist rausgegangen.'); }
+  const n = [Q.bon, Q.book, z02, sch, pol, Q.kasse].filter(Boolean).length; kirchberg_desc('ow_kasse', `Bon, Schichtbuch, die Zeitung über der Kasse, das Polaroid an Säule 3, der Schuppen hinter der Tankstelle, die Geldkassette (Code: Leuchtschild). (${n}/6)`);
+  if (n >= 6) kirchberg_fertig('ow_kasse', 'Kind an Säule 3. Barfuß. Hat eine Laterne. Mike ist rausgegangen. Die Kassette war leer – bis auf ein Foto, das es nicht geben dürfte.'); }
 // ---- Brunnen (Kap. 1/2): hineinrufen, Antwort eine Sekunde zu spät
 async function ausbau_ost_west_brunnen() { if (state.talking) return; kirchberg_start('ow_laternen'); const OW = ausbau_ost_west_OW; state.talking = true;
   try { const a = await kirchberg_wahl(['„Hallo?“', '„Roxy?“', '„Lucy?“']); if (a < 0) return; const x = -108, z = 35.5;
@@ -7511,8 +7516,8 @@ function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f
     if (!S.start) { S.start = true; S.t = 0; kirchberg_desc('ow_kreise', 'Dina ist in der Scheune. Irgendwo im Heu.'); }
     if (flashOn) { if (d < 6 && !S.floh) { S.floh = true; Audio.play('stones1', { gain: .05, rate: 3.2, dur: .4, x, y: .3, z, ref: 2 }); K.dinaI = (K.dinaI + 1) % K.dinaVerst.length; } }
     else { S.floh = false; if ((S.next -= dt) < 0) { S.next = 5.2; ausbau_ost_west_summen(x, z, 1); } if (d < 1.3) ausbau_ost_west_dinaFund(); }
-    const h = S.t > 110 ? 5 : S.t > 90 ? 4 : S.t > 60 ? 2 : S.t > 30 ? 1 : 0; if (h > (S.hilfe || 0)) { S.hilfe = h;
-      if (h === 1) subtitle('Mit Lampe rennt sie weg.', 2600, 'LUKE'); else if (h === 2) subtitle('Ohne Lampe summt sie. Hört man, woher?', 3000, 'LUKE'); else if (h === 4) subtitle('„' + (d < 3 ? 'Wärmer.' : 'Kalt.') + '“', 1600, 'DINA'); else if (h === 5) { subtitle('„Hier. Du Trampel.“', 2000, 'DINA'); ausbau_ost_west_dinaFund(); } } }
+    const h = S.t > 110 ? 5 : S.t > 90 ? 4 : S.t > 75 ? 3 : S.t > 60 ? 2 : S.t > 30 ? 1 : 0; if (h > (S.hilfe || 0)) { S.hilfe = h;
+      if (h === 1) subtitle('Mit Lampe rennt sie weg.', 2600, 'LUKE'); else if (h === 2) subtitle('Ohne Lampe summt sie. Hört man, woher?', 3000, 'LUKE'); else if (h === 3) { const rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw); subtitle((((x - player.pos.x) * rx + (z - player.pos.z) * rz) > 0 ? 'Rechts von mir. ' : 'Links von mir. ') + (d < 4 ? 'Nah.' : 'Noch ein Stück.'), 2400, 'LUKE'); } else if (h === 4) subtitle('„' + (d < 3 ? 'Wärmer.' : 'Kalt.') + '“', 1600, 'DINA'); else if (h === 5) ausbau_ost_west_dinaFund(); } /* QA K1/2: Stufe 3 wurde nie vergeben; Stufe 5 sprach „Hier. Du Trampel.“ doppelt (dinaFund spricht es selbst) */ }
   if (K.dina && K.dina.g.visible && (kap() !== 1 || !ausbau_ost_west_inScheune() && Math.hypot(player.pos.x - K.dina.g.position.x, player.pos.z - K.dina.g.position.z) > 25)) { /* bleibt in der Scheune sitzen */ }
 }
 // AP-25 · „Das Heft im Heu“ (Kap. 1/3/5): gefundene Seiten und Heft-Stand speichern – sonst fehlen die Kap.-1-/3-Seiten in Kap. 5 und der Faden beginnt nach dem Laden neu
@@ -14193,12 +14198,12 @@ const POST_KARTEN = [['Kiel', 2010, 'Leuchtturm', 'Liebe Heidi, wir sind jetzt a
   ['Kassel', 2021, 'Herkules', 'Mein Zimmer hat Blick nach Süden. Warum Süden?'], ['Kassel', 2022, 'Wilhelmshöhe', ''], ['Bad Hersfeld', 2023, 'Stiftsruine', 'Die Laternen, sind die noch an?'], ['Kreisstadt', 2024, 'Marktplatz', 'Ich fahr jeden Tag an eurem Schild vorbei. Ich hab nicht angehalten.'],
   ['Kreisstadt', 2025, 'die Kreuzung, Sommer', ''], ['Kreisstadt, 23.10.', 2026, 'Kapelle St. Martin, Lost Eyengless', '']];
 function post_kartenOffen() { const S = post_S; kirchberg_start('k1_karten', { x: -51.5, z: 6.7 }); if (S.steps.karten) return toast('Siebzehn Karten, geordnet. Die Stempel kommen jedes Jahr ein Stück näher.', 3200);
-  const hat17 = S.steps.karte17, liste = POST_KARTEN.slice(0, hat17 ? 17 : 16).map((k, i) => ({ k, i })).sort(() => Math.random() - .5); let next = 0;
-  openPuzzle(`<h3>SIND SIE WIEDER DA?</h3><p>${hat17 ? 'Siebzehn' : 'Sechzehn'} Karten, alle an „Heidi W., 8 Jahre, Ahornstraße 2“. Leg sie nach dem Poststempel.</p><div id="pkK" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:680px"></div><p class="small" id="pkT">${hat17 ? '' : 'Eine fehlt. Im Kasten waren sechzehn.'}</p>`, bx => {
+  const hat17 = S.steps.karte17, ab = hat17 && S.steps.k16 ? 16 : 0, ende = hat17 ? 17 : 16, liste = POST_KARTEN.slice(ab, ende).map((k, i) => ({ k, i: i + ab })).sort(() => Math.random() - .5); let next = ab; // QA K1/2: sind die ersten sechzehn schon geordnet (k16), muss nur noch die siebzehnte einsortiert werden
+  openPuzzle(`<h3>SIND SIE WIEDER DA?</h3><p>${hat17 ? 'Siebzehn' : 'Sechzehn'} Karten, alle an „Heidi W., 8 Jahre, Ahornstraße 2“. Leg sie nach dem Poststempel, die älteste zuerst.</p><div id="pkK" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:680px"></div><p class="small" id="pkT">${hat17 ? (ab ? 'Sechzehn liegen schon geordnet. Nur die letzte fehlt noch.' : '') : 'Eine fehlt. Im Kasten waren sechzehn.'}</p>`, bx => {
     const K = bx.querySelector('#pkK'); for (const { k, i } of liste) { const b = document.createElement('button'); b.style.cssText = 'font:15px Georgia;padding:6px 8px;min-width:120px;background:#e8e0c8;color:#2a2418;border:1px solid #8a7a5a;transform:rotate(' + (Math.random() * 4 - 2).toFixed(1) + 'deg)';
-      b.innerHTML = `<b>${k[0]}</b><br><small>${k[2]}</small>`; b.onclick = e => { e.stopPropagation(); if (i !== next) { Audio.beep(false); b.animate([{ transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'none' }], 240); return; }
+      b.innerHTML = `<b>${k[0]}</b><br><small>${k[2]}</small><br><small>Stempel ${k[1]}</small>`; b.onclick = e => { e.stopPropagation(); if (i !== next) { Audio.beep(false); b.animate([{ transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'none' }], 240); return; }
         Audio.paper(); b.disabled = true; b.style.opacity = .45; b.innerHTML += `<br><span class="hand" style="font-size:15px">${k[3] || '–'}</span><br><small>${k[1]} · Sind sie wieder da?</small>`; next++;
-        if (next >= liste.length) { if (hat17) setTimeout(() => { closeOverlay(); post_kartenFertig(); }, 1400); else bx.querySelector('#pkT').textContent = 'Sechzehn geordnet. Eine fehlt noch. Die letzte liegt irgendwo draußen.'; } }; K.appendChild(b); } }); }
+        if (next >= ende) { if (hat17) setTimeout(() => { closeOverlay(); post_kartenFertig(); }, 1400); else { S.steps.k16 = 1; post_save(); bx.querySelector('#pkT').textContent = 'Sechzehn geordnet. Eine fehlt noch. Die letzte liegt irgendwo draußen.'; } } }; K.appendChild(b); } }); }
 async function post_kartenFertig() { const S = post_S; S.steps.karten = 1; await say([['Sie schreibt an sich selbst. An die mit acht.', 3000, 'LUKE']]); await wait(800); await say([['Und kommt jedes Jahr ein Stück näher und will’s nicht.', 3400, 'LUKE']]);
   // Schreck Stufe 2: die Schaukel bleibt am höchsten Punkt stehen, eine Sekunde, dann fällt sie zurück und schwingt nicht mehr
   if (typeof leben_S !== 'undefined' && typeof swing !== 'undefined' && swing.piv) { leben_S.swingHold = { t: 0, dur: 1.2, a: 1.05 }; setTimeout(() => { leben_S.swingHold = { t: 0, dur: 1e9, a: 0 }; Audio.play('woodSqueak2', { gain: .15, rate: .7, x: swing.x || -58.8, y: 2, z: swing.z || 10.2, ref: 2 }); }, 1500); }
@@ -15261,7 +15266,7 @@ WORLD_MODS.push(['Ausrüstung', async () => {
     'Zwischen den Hängeregistern, mit Klebeband umwickelt: eine alte Keramiksicherung. Auf dem Band, in Kinderschrift: „RAUM 7“.',
     'Hängeregister, alphabetisch. Bei „B“ fehlt ein Name. Nur der Reiter ist noch da.', () => addItem('sicherung'));
   { const orig = fuseOpenPanel; fuseOpenPanel = function (...a) {
-      if (!ch2.power && !S.fuseIn) { if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts.', 5200);
+      if (!ch2.power && !S.fuseIn && !(S.taken.has('c2_sicherung') && !story.items.includes('sicherung'))) { /* QA: nach dem Laden gilt eine entnommene, nicht mehr im Inventar liegende Sicherung als eingesetzt */ if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts.', 5200);
         S.fuseIn = true; story.items = story.items.filter(k => k !== 'sicherung'); Audio.play('switch1', { gain: .6, x: C2.x + 33, y: 1.5, z: C2.z + 7.8, ref: 2 }); toast('Du drehst die Sicherung ein. Irgendwo im Beton tickt ein Relais.', 3400); }
       return orig.apply(this, a); }; }
   // --- Villa-Gelände (hinter dem Tor, erst mit Drahtschneider): Kerzenkreis auf dem Kiesweg
@@ -16143,7 +16148,7 @@ async function album_weltBau() { const S = album_S; try {
 function album_weltSync() { const S = album_S; if (!S.welt) return; S.welt.visible = !S.hat; if (S.hat) uninteract(S.weltHit); else if (!interactables.includes(S.weltHit)) interactables.push(S.weltHit); }
 function album_nehmen() { const S = album_S; if (S.hat) return; S.hat = true; album_weltSync(); Audio.play && Audio.play('woodHit1', { gain: .15, rate: 1.4 }); album_ton('albLeder', { gain: .3 });
   const n = S.e.length; openNote('Ein Fotoalbum', 'Auf Hildes Stuhl am Fenster, als hätte sie es eben erst weggelegt. Leder, schwer, ein Riemen mit Druckknopf. Die Seiten sind leer – aber in jeder stecken schon Fotoecken, schwarz, sorgfältig eingeklebt. Seite um Seite.\n\nAls hätte jemand gewusst, dass es Bilder geben wird.' + (n ? '\n\n<span class="hand">Die Fotos aus der Jacke kommen hier rein. Ordentlich. Hilde hätte es so gewollt.</span>' : ''), 'album_nehmen',
-    () => { S.neu = S.e.map(e => e.id); toast(`[${album_tastenName(album_tasten.album)}] Fotoalbum`, 3200); if (!story.items.includes('fotoalbum')) story.items.push('fotoalbum'); }); }
+    () => { S.neu = S.e.map(e => e.id); toast(`[${album_tastenName(album_tasten.album)}] Fotoalbum`, 3200); if (!story.items.includes('fotoalbum')) addItem('fotoalbum'); }); }
 
 // ================================================================ Einstellungen: Tasten belegen (Album, Beutel)
 const ALBUM_BELEGT = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyR', 'KeyG', 'KeyC', 'KeyK', 'KeyL', 'KeyM', 'KeyV', 'KeyJ', 'KeyQ', 'Tab', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F3']);
@@ -18320,6 +18325,26 @@ const GEDANKEN_FADEN = [
   [/Amt über die Kinder|sieben Kinder von 2009/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
   [/Namen in die richtige Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
   [/Lösch die Laternen/, 'In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.'],
+  [/Das Tastenfeld will vier Ziffern/, 'Vier Ziffern. Welche Tasten sind abgegriffen? Und welcher Tag ist in Hildes Kalender eingekreist?'],
+  [/Lucy hinterlassen/, 'Lucy war hier unten. Etwas zum Anhören. Ein Kassettenrekorder, irgendwo bei der Zeichnungswand.'],
+  [/Der Strom ist weg, die Laternen/, 'Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht im Haus festsitzen.'],
+  [/Leg die Hand an die Zeichnungen/, 'Hilde hat auf die Wand gezeigt. Die Zeichnungen. Da hinten, wo es warm ist.'],
+  [/Finde das Zimmer/, 'Zimmer 7. Hildes Büro. Die Tür mit dem Emailleschild im Durchgang hinter dem Archiv.'],
+  [/Sicherungsraum und schalte den Strom/, 'Sechs Hebel. Wer schon leuchtet, bleibt in Ruhe.'],
+  [/auf dem Klavier nach/, 'Lucys Lied. E, D … den Rest hab ich schon gehört. Die Spieluhr. Die Stimme hinter der Kellertür.'],
+  [/Die Ordnungstafel im Archiv/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
+  [/Das Telefon an der Kreuzung klingelt/, 'Es klingelt und klingelt. Wer bei so einem Klingeln nicht rangeht, hat nie Kinder gehabt. Also los.'],
+  [/Hol Lucy zurück/, 'Irgendwer hat mir das Telefon hingestellt. Ich such jemanden, der mir sagt, wo man anfängt. Justin, vielleicht.'],
+  [/Der Funkkasten an der Kreuzung\. Welche Frequenz/, 'Der Tag, an dem sie kam. Hilde hat ihn aufgeschrieben. Und Tag und Monat sind zwei Zahlen. Kurzwelle kennt Kommas.'],
+  [/Laternen müssen aus/, 'Frau Wendt in Nr. 7 hat ihre Nächte aufgeschrieben. Kein Zeichen von ihr, bis ich bei ihr drin war.'],
+  [/Zu Justin\. An die Kreuzung/, 'Nicht stehen bleiben. Und wo Eisen ist, bin ich frei.'],
+  [/Nimm Justins Hand/, 'Er steht da und wartet. Ich lass nicht los. Das hat er gesagt.'],
+  [/Finde, was nicht in diese Nacht gehört/, 'Alles hier gab es an dem Abend, bevor er ging. Was fehlt in dem Bild? Oder: was kommt erst danach dazu?'],
+  [/Stell die Küchenuhr/, 'Wann haben sie mich geholt? Die Uhr in Omas Küche ging auf 3:13. Die Glocke hat dreizehnmal geschlagen.'],
+  [/Sieh dir die Hände an/, 'Wessen Hand ist aufgegangen? Miras Finger, Justins Handschuh, der Stiefel an der Kante. Und dann Justin sagen, was ich sehe.'],
+  [/Am Rand der Wiese liegt ein Blatt/, 'Im Reif liegt etwas Helles. Ein Blatt. Hinsehen kostet nichts.'],
+  [/Schließ die Tür auf/, 'Acht Teile, ein Schlüssel. Wer noch fehlt, steht in meiner Fibel. Und der Rabe weiß es auch.'],
+  [/Dir fehlen noch/, 'Ich such nach etwas Eisernem. Zwischen Laub, unter Steinen, hinter Gittern. Dazu brauch ich die Brechstange.'],
   [/Luke|Leiter/, 'Die Leiter. Nach oben. Nicht umdrehen.'],
   [/Lost Eyengless geschehen/, 'Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.'],
   [/./, 'Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.']];
@@ -18602,7 +18627,8 @@ function whiskey_moodTick(dt) {
     if (was === 'still') { if (S.cur) S.cur.timeScale = 1; S.sacT = 0; } }
 }
 // ---------------------------------------------------------------- Klauen (K1-6): dreimal ignoriert → das zuletzt Aufgehobene, an der nächsten Station wieder da
-const WHISKEY_NIE = new Set(['fibel', 'key', 'fuse', 'sicherung', 'zimmer7', 'villaschluessel', 'schluesselteile', 'feuerzeug', 'mamas_kerze', 'brechstange', 'drahtschneider', 'baumhausschluessel', 'autoschluessel', 'miras_ring', 'polaroid_kamera', 'buch', 'einwilligungen', 'lampe1', 'lampe2', 'lampe3', 'batterie', 'jonas_karte', 'nord_lantern', 'cleo_kreide']);
+const WHISKEY_NIE = new Set(['fibel', 'key', 'fuse', 'sicherung', 'zimmer7', 'villaschluessel', 'schluesselteile', 'feuerzeug', 'mamas_kerze', 'brechstange', 'drahtschneider', 'baumhausschluessel', 'autoschluessel', 'miras_ring', 'polaroid_kamera', 'buch', 'einwilligungen', 'lampe1', 'lampe2', 'lampe3', 'batterie', 'jonas_karte', 'nord_lantern', 'cleo_kreide',
+  /* QA: Gegenstände der Hauptketten dürfen nie geklaut werden (Rückgabe an der nächsten Station ist kein Ersatz, wenn die Aufgabe davor läuft) */ 'lucys_spieluhr', 'brot', 'n3_kapschluessel', 'n3_pfarrschluessel', 'n3_brecheisen', 'leiter_amt', 'spindschluessel', 'lampion', 'dienstnadel', 'haushaltsbuch', 'riegel_halb', 'ranzenriemen', 'schnalle_turm', 'seitenschneider', 'hildes_antworten', 'heidi_karte', 'umschlag7', 'wartenummer']);
 function whiskey_klau() {
   const S = whiskey_S; let what = null;
   if (typeof tausch_klaubar === 'function') what = tausch_klaubar(); // zuerst etwas Glänzendes aus der Tasche
@@ -19365,7 +19391,7 @@ function tausch_finde(F) { const S = tausch_S; if (S.funde.has(F.id)) return; if
 function tausch_drop(x, y, z, was, text) { const S = tausch_S; if (y === null || y === undefined) y = tausch_y(x, z); const D = { x, y, z, was, text, k: kap() }; S.drops.push(D); tausch_dropMake(D); }
 function tausch_dropMake(D) { const S = tausch_S; const G = tausch_glint(D.x, D.y, D.z, 'Etwas glänzt', () => tausch_dropNimm(D)); D.G = G; interactables.push(G.hit); G.on = true; G.sp.visible = true; S.dropG.push(D); }
 function tausch_dropNimm(D) { const S = tausch_S, w = D.was; if (w.ware && !tausch_platz('glanz', 1)) return tausch_voll('glanz'); if (w.bat && !tausch_platz('batterie', w.bat)) return tausch_voll('batterie'); S.drops = S.drops.filter(x => x !== D); S.dropG = S.dropG.filter(x => x !== D); uninteract(D.G.hit); D.G.sp.visible = false; D.G.on = false;
-  if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) story.items.push(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); if (typeof glanz_klang === 'function') glanz_klang(); else Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
+  if (w.ware) tausch_gib(w.ware, 1, true); if (w.item && !story.items.includes(w.item)) addItem(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); if (typeof glanz_klang === 'function') glanz_klang(); else Audio.play('keys1', { gain: .15, rate: 1.8, dur: .25 }); }
 // ---------------------------------------------------------------- Lampe, Streichholz, Kreide, Fernglas, Handwärmer
 function tausch_licht() { const S = tausch_S, L = S.L; return { an: !!(L && L.intensity > .05), x: L ? L.position.x : 0, y: L ? L.position.y : 0, z: L ? L.position.z : 0, r: S.match > 0 ? TAUSCH_LAMPE.holz.r : S.lampe ? TAUSCH_LAMPE[S.lampe].r : 0, art: S.match > 0 ? 'streichholz' : S.lampe }; }
 function tausch_feuer() { return story.items.includes('feuerzeug') || tausch_S.streich > 0; }
@@ -21121,7 +21147,9 @@ async function chapter4Begin() {
 }
 async function startChapter4() { // Weiterspielen / Kapitel wählen
   $('subPanel').classList.remove('show'); menu.attract = false; state.started = true; document.body.classList.remove('menu'); $('start').classList.remove('show');
-  chapter3Begin(); ch3.met = true; anwesen_S.ch4 = false; await chapter4Begin();
+  chapter3Begin(); ch3.met = true; anwesen_S.ch4 = false;
+  if (!story.items.includes('brechstange') && typeof addItem === 'function') addItem('brechstange'); // Kapitelwahl/Weiterspielen: Teil 04 (Kellerfenster-Gitter) braucht sie, sonst ist die Villa nie vollständig
+  await chapter4Begin();
 }
 async function anwesen_enterHall() {
   const S = anwesen_S, H = ANW_HALL; state.talking = true; Audio.play('ironDoor', { gain: .5, rate: .7 }); Audio.creak(.3);
@@ -22452,7 +22480,7 @@ async function villa_krHaupt(sel) { if (VILLA.hp) return; try { Audio.play('swit
   if (sel[4] === 'blau' && sel[5] === 'grau') { villa_setz('strom'); return villa_hoehepunktA(); }
   const n = VILLA.kastenFehl = (VILLA.kastenFehl || 0) + 1;
   if (n === 1) villa_gedanke('villa_r43a', 'Farbige Ringe. Die Sicherungen haben auch Farben. Die passen nicht überall.');
-  else if (n === 2) villa_gedanke('villa_r43b', 'Vier Schilder kann ich lesen. Zwei nicht. Aber ich weiß, welche Farben übrig sind.');
+  else if (n === 2) villa_gedanke('villa_r43b', 'Vier Schilder kann ich lesen. Zwei nicht – das müssen die hier unten sein. Und ich weiß, welche Farben dafür übrig sind.');
   else { toast('An der fünften und sechsten Fassung: drei frische Kratzer.', 3000); if (!villa_hat('h2')) { villa_setz('h2'); villa_beob('b_k4_h2', { pos: [-898.6, .02, 866.9] }); } } }
 // Höhepunkt A (Kern §12.1, Kinotabelle Teil A, ~46 s): nur Intensitäten vorhandener Lichter, Kamera weich zum Glas geführt
 async function villa_hoehepunktA() { const G = VILLA.glas, R = VILLA_R.kr; VILLA.hp = { t: 0, w: 0, ziel: new THREE.Vector3(-903.6, VILLA.o.tischY + .45, 868.8), nah: 0 }; villa_sperre(true); state.talking = true;
@@ -27974,7 +28002,7 @@ function neben3_gesangbuch() { const st = neben3_st('kapelle'), S = neben3_S; if
     if (neben3_justinDa(12) && S.kap) { justin.look = false; const P = S.kap.pult; jWalk(P.x + .15, P.z + 1.05, () => { justin.g.rotation.y = 0; S.summen = { t: 0 }; }); } }); }
 // Justin summt die ersten fünf Töne (E D C H C), so leise, dass der Untertitel nur „(summt)“ zeigt
 function neben3_summen() { if (!Audio.ctx) return; const g = justin.g.position, d = Audio.at(g.x, 1.6, g.z, 1.6); [659.3, 587.3, 523.3, 493.9, 523.3].forEach((f, k) => { const o = Audio.osc('triangle', f / 2, k * .62, .7); const lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; o.connect(lp); Audio.env(lp, .05, .08, .55, k * .62, d); }); subtitle('(summt)', 3400, JS); }
-function neben3_giselaZettel() { openNote('Zettel am Glockenseil', '<span class="hand">Nur zu Gottesdiensten läuten!\nNicht zum Spaß. Und NICHT drei und dreizehn.\nDas ist kein Witz. – G. R., Küsterin</span>', 'k3_glockenzettel'); }
+function neben3_giselaZettel() { openNote('Zettel am Glockenseil', '<span class="hand">Nur zu Gottesdiensten läuten!\nNicht zum Spaß. Und NICHT drei und dreizehn.\nDas ist kein Witz. – G. R., Küsterin\n\n<small>Darunter, kleiner: „Und nicht so hastig zwischen drei und dreizehn – aber auch nicht trödeln.“</small></span>', 'k3_glockenzettel'); }
 // Glockenseil: beim ersten Anfassen zieht es oben jemand einmal an (Schreck 2); danach 3 · Pause · 13 = Joker (einmal im Kapitel)
 async function neben3_seil() {
   const S = neben3_S, KP = S.kap, st = neben3_st('kapelle'); if (!KP || state.talking) return; if (neben3_frei()) neben3_start('k3_kapelle');
@@ -27982,12 +28010,13 @@ async function neben3_seil() {
   if (!st.seil1) { st.seil1 = 1; state.talking = true; KP.seil.zug = -.55; await wait(120); glocke(); shake = .02; await wait(4200); state.talking = false; kirchberg_an(KP.zettelHit, true); if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {} return; }
   if (!neben3_k3() || ch3.lampsOff) { KP.seil.zug = .35; return toast('Das Seil gibt nach. Oben rührt sich nichts.', 2600); }
   const t = performance.now() / 1000; KP.seil.zug = .38; glocke(); S.zuege = (S.zuege || []).filter(z => t - z < 40); S.zuege.push(t); S.zugPruef = 2.6; }
-function neben3_seilPruefen() { const S = neben3_S, z = S.zuege || []; S.zuege = []; if (z.length !== 16 || neben3_hat('glocke')) return;
-  const gaps = z.slice(1).map((v, i) => v - z[i]); const ok = gaps[2] > 1.6 && gaps.every((g, i) => i === 2 || g < 1.6); if (!ok) return;
+function neben3_seilPruefen() { const S = neben3_S, z = S.zuege || []; S.zuege = []; if (neben3_hat('glocke')) return; const lose = () => { if (z.length >= 4 && !state.talking) toast('Die Glocke hallt unruhig nach. Das war nicht der Rhythmus. Drei … dann Luft holen … dann dreizehn.', 3600); };
+  if (z.length !== 16) return lose();
+  const gaps = z.slice(1).map((v, i) => v - z[i]); const ok = gaps[2] > 1.6 && gaps.every((g, i) => i === 2 || g < 1.6); if (!ok) return lose();
   neben3_joker(); if (neben3_justinDa(20)) setTimeout(() => subtitle('„Wenn die Glocke so schlägt, bleibt sie stehen und hört hin. Wie ein Kind, das seinen Namen hört.“', 5200, JS), 2200); neben3_kapCheck(); }
 function neben3_kapCheck() { const st = neben3_st('kapelle'), q = story.side.k3_kapelle; if (!q || q.state === 'done') return;
   const n = [(st.ges || []).length >= 4, !!st.fuehrer, typeof sammeln_hatZ === 'function' && sammeln_hatZ(11), !!st.suehne, !!st.buch];
-  neben3_desc('k3_kapelle', `Fenster (${(st.ges || []).length}/8) · Kirchenführer · Sakristei · Gesangbuch · Glockenseil`);
+  neben3_desc('k3_kapelle', `Fenster (${Math.min(4, (st.ges || []).length)}/4) · Kirchenführer · Sakristei · Sühnebrief · Gesangbuch`);
   if (n.every(Boolean)) neben3_fertig('k3_kapelle', 'Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.'); neben3_merk('fenster'); }
 // Takt in der Kapelle: Fensterglühen (RH-6), Seil, Justin summt, Justin kommt mit hinein
 function neben3_kapTick(dt, t) {
@@ -28057,7 +28086,7 @@ async function neben3_pfarrBau() {
   return true; }
 function neben3_springer() { const st = neben3_st('predigt'); if (neben3_frei()) neben3_start('k3_predigt');
   openNote('Unter dem weißen Springer', '<i>Schach, Weiß am Zug. Unter dem weißen Springer ein gefalteter Zettel:</i>\n\n<span class="hand">Theo, ich bringe sie weg. Halt sie auf, oder halt mich nicht auf. Beides ist eine Antwort. B.</span>', 'k3_springer', () => { st.springer = 1; neben3_predigtDesc(); }); }
-function neben3_predigtDesc() { const st = neben3_st('predigt'); if (story.side.k3_predigt && story.side.k3_predigt.state === 'active') neben3_desc('k3_predigt', st.mappe ? (st.hilfe2 ? 'Zwölf Wörter. In welcher Reihenfolge?' : 'Zwölf Predigten, zwölf doppelt unterstrichene Wörter.') : 'Das Studierzimmer. Schach, Weiß am Zug. Die Predigtmappe.'); }
+function neben3_predigtDesc() { const st = neben3_st('predigt'); if (story.side.k3_predigt && story.side.k3_predigt.state === 'active') neben3_desc('k3_predigt', st.mappe ? (st.hilfe2 ? 'Zwölf Wörter. In welcher Reihenfolge?' : 'Zwölf Predigten. Und ein dreizehntes Blatt, fast leer. Gegen die Lampe halten?') : 'Das Studierzimmer. Schach, Weiß am Zug. Die Predigtmappe.'); }
 function neben3_mappe() {
   const S = neben3_S, st = neben3_st('predigt'); if (neben3_frei()) neben3_start('k3_predigt'); st.gelesen = st.gelesen || [];
   if (!st.mappe) { st.mappe = 1; st.mappeT = 0; if (Audio.ctx) { const d = Audio.at(KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2, 2); if (Audio.buf.kb_glocke_A4) [0, .55].forEach((t0, i) => Audio.play('kb_glocke_A4', { gain: .18, rate: i ? .63 : .75, delay: t0, dur: 2.5, dest: d })); else [0, .55].forEach((t0, i) => { const o = Audio.osc('square', i ? 1480 : 1760, t0, .05); Audio.env(o, .03, .001, .04, t0, d); }); Audio.creak(.12, KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2); } } // die Standuhr schwingt einmal an (Schreck 1)
@@ -31496,11 +31525,13 @@ weiss_hildeAntwort = async function (k) { const S = weiss_S, f = WEISS_HILDE.fin
 drawClock = function () { const c = clockTex.image.getContext('2d'), w = 256, [h, m] = ch3.clock; c.clearRect(0, 0, w, w); c.fillStyle = '#f2efe6'; c.beginPath(); c.arc(w / 2, w / 2, 124, 0, 7); c.fill(); c.strokeStyle = '#222'; c.lineWidth = 6; c.stroke(); // keine Ziffern (UK 12)
   const hand = (a, l, wd) => { c.lineWidth = wd; c.beginPath(); c.moveTo(w / 2, w / 2); c.lineTo(w / 2 + Math.cos(a) * l, w / 2 + Math.sin(a) * l); c.stroke(); };
   hand(((h % 12) + m / 60) / 12 * PI * 2 - PI / 2, 56, 8); hand(m / 60 * PI * 2 - PI / 2, 88, 5); clockTex.needsUpdate = true; };
-// Fehlversuche an der Uhr zählen (die Basis setzt die Zeiger dann auf zwölf zurück): nach zwei Fehlern Justin
-{ const toast0 = toast; toast = function (t, ms) { if (typeof t === 'string' && t.startsWith('Die Zeiger springen zurück auf zwölf') && ch3.part === 'white') { WEISS_F3.uhrFehl++;
-      if (WEISS_F3.uhrFehl === 1) setTimeout(() => subtitle('Jede Uhr im Dorf ist heut Nacht bei derselben Minute stehen geblieben.', 4000, 'LUKE'), 3600);
-      if (WEISS_F3.uhrFehl === 2) setTimeout(() => { if (!state.talking) say([['„Die dritte Stunde. Dreizehn Atemzüge.“', 3400, JS]]); }, 3600); }
-    return toast0.apply(this, arguments); }; }
+// Fehlversuche an der Uhr zählen (die Basis setzt die Zeiger dann auf zwölf zurück): Hilfeleiter nach Zustand, nicht nach dem Toast-Text
+function weiss_uhrFehl() { const F = WEISS_F3; F.uhrFehl++;
+  if (F.uhrFehl === 1) setTimeout(() => subtitle('Jede Uhr im Dorf ist heut Nacht bei derselben Minute stehen geblieben.', 4000, 'LUKE'), 3600);
+  if (F.uhrFehl === 2) setTimeout(() => { if (!state.talking) say([['„Du hast sie doch schlagen hören, Junge.“', 3400, 'HILDE WENDT']]); }, 3600);
+  if (F.uhrFehl === 3) setTimeout(() => { if (!state.talking) say([['„Die dritte Stunde. Dreizehn Atemzüge.“', 3400, JS]]); }, 3600); }
+if (typeof clockPuzzle === 'function') clockPuzzle = (o => function () { const r = o.apply(this, arguments); try { const ok = $('puzzle').querySelector('#cOk'); if (ok && ch3.part === 'white') { const h0 = ok.onclick;
+      ok.onclick = function (e) { const [h, m] = ch3.clock, richtig = h === 3 && m === 13; const r2 = h0.apply(this, arguments); if (!richtig && !ch3.room2) weiss_uhrFehl(); return r2; }; } } catch (e) { console.warn('weiss Uhr', e); } return r; })(clockPuzzle);
 async function weiss_voss() { if (state.talking) return; state.talking = true;
   try { const kennt = typeof neben3_hat === 'function' && neben3_hat('k3_predigt');
     await say([['Ein Pfarrer. Grau wie die Kinder. Ich dachte, sie behält nur Kinder.', 3800, 'LUKE']]);
@@ -31531,9 +31562,9 @@ room3Scene = async function () {
   await say([['„Das ist die Nacht. Ich seh sie jedes Mal, wenn ich reinkomme. Sie ist immer gleich.“', 4400, JS],
     ['„Sie ging hinein, für Luna. Ich hatte ihre Hand. Der Riss kam, und er zog, und das Licht hat mir die Haut verbrannt.“', 5600, JS], ['„Sie hat losgelassen. Ich hielt, bis das Licht mir die Hand nahm.“', 4200, JS]]);
   state.talking = false; setC3('Am Rand der Wiese liegt ein Blatt im Reif.');
-  if (typeof sammeln_platz === 'function' && !(typeof sammeln_hatSB === 'function' && sammeln_hatSB(7))) try { sammeln_platz('SB-07', { x: X3 + 36.6, y: .03, z: Z3 - 1.4, ab: 3, label: 'Ein Blatt im Reif' }); } catch (e) { console.warn('SB-07', e); }
-  S.phase = 'sb07'; };
-function weiss_haendeAuftrag() { const S = weiss_S; if (S.phase !== 'sb07') return; S.phase = 'spuren'; setC3('Sieh dir die Hände an.');
+  if (typeof sammeln_platz === 'function' && !(typeof sammeln_hatSB === 'function' && sammeln_hatSB(7))) try { sammeln_platz('SB-07', { x: X3 + 36.6, y: .03, z: Z3 - 1.4, ab: 3, label: 'Ein Blatt im Reif' }); } catch (e) { console.warn('SB-07', e); S.sb07Fehl = true; }
+  S.phase = 'sb07'; if (S.sb07Fehl || typeof sammeln_platz !== 'function') weiss_haendeAuftrag(); }; // Absicherung: fehlt die lose Seite, geht es trotzdem mit den Händen weiter
+function weiss_haendeAuftrag() { const S = weiss_S; if (S.phase !== 'sb07') return; S.phase = 'spuren'; setC3('Sieh dir die Hände an. Wenn du es weißt: sag es Justin.');
   say([['„Sieh nicht auf sie. Sieh, wohin du willst.“', 3200, JS]]);
   const Sp = WEISS_F3.spots || {}; for (const [k, b] of Object.entries(Sp)) interact(b, () => (k === 'mira' && WEISS_F3.stellen.has('handschuh') && !WEISS_F3.stellen.has('ring')) ? 'Miras Hand noch einmal ansehen' : WEISS_STELLEN[k][0], () => weiss_stelle(k)); }
 async function weiss_stelle(k) { const S = weiss_S; if (S.phase !== 'spuren' || state.talking || ui.overlay) return;
@@ -33886,7 +33917,8 @@ function kapitel1_kpPress(k) {
     if (n === 1) { kpSay('Falsch. Unter den Dielen kratzt etwas, von der Kellertreppe her.'); Audio.play('scrape2', { gain: .22, rate: .8, x: 30.2, y: .3, z: -21.2, ref: 2 }); setTimeout(() => { if (ui.overlay === 'keypad') subtitle('„Du kannst das, Großer.“', 2800, 'LUCY?'); }, 1500); K1.kp.blick = true; }
     else if (n === 2) { kpSay('Stille. Die Stimme ist weg.'); K1.stimmeAus = true; setTimeout(() => { subtitle('Es lauscht.', 2200, 'LUKE'); setTimeout(() => toast('Sie hat den Tag eingekreist, an dem es zurückkam. Tag und Monat.', 5200), 2600); }, 900); }
     else if (n === 3) { closeOverlay(); scareCellarDoor(); setTimeout(() => toast('Lies, was im Haus liegt. Der Kalender weiß den Tag.', 5200), 7000); return; }
-    else { kpSay(''); if (n === 5) kapitel1_whiskeyFenster(); }
+    else if (n === 4) kpSay('Der Kalender weiß den Tag. Erst der Tag, dann der Monat.');
+    else { kpSay(n === 5 ? 'Stille.' : 'Nur 0, 1 und 3 sind abgegriffen. Der eingekreiste Tag, dann der Monat.'); if (n === 5) kapitel1_whiskeyFenster(); }
   } else if (kpValue.length < 4) { kpValue += k; Audio.beep(true); }
   kpRender();
 }
@@ -33973,7 +34005,7 @@ function kapitel1_obenTick(dt) { if (!K1.f.has('oben') || !kapitel1_on()) return
   else if (K1.obenT > 150) startOutage(); }
 // Stromausfall (ersetzt die Basis): Lampe flackert und stirbt, Häuser dunkel, Brummen; dann werden die Laternen ausgeblasen, von Ost nach West, im Takt eines Kindes
 async function kapitel1_ausfall() {
-  if (state.outage) return; state.outage = true; K1.aus = { t: 0, q: [], ufo: null, hilde: false, ruf: false };
+  if (state.outage) return; state.outage = true; setMain(6); K1.aus = { t: 0, q: [], ufo: null, hilde: false, ruf: false };
   state.flashFail = 2.2; setTimeout(() => { K1.lampeTot = true; }, 2200);
   [livingLight, kitchenLight, tvLight, booth.light].forEach(l => l.userData.dead = true); shade.material.emissiveIntensity = 0; tube.material.emissiveIntensity = 0; tvScreen.material.emissiveIntensity = 0; houseLit.forEach(m => m.emissiveIntensity = 0);
   Audio.play('switch2', { gain: .3, rate: .6, x: 25, y: 1.5, z: -14, ref: 3 });
@@ -34081,7 +34113,7 @@ async function kapitel1_kellerEnde() { const V = K1.v; if (V.done) return; V.don
   fade(0, 1300); await wait(500); Audio.play('metalSlam', { gain: 1.3, rate: .8, x: B.x + 4.28, y: 3.6, z: B.z - .85, ref: 3 }); Audio.thump(B.x + 4.28, 3.6, B.z - .85); /* R-6: Kellertür oben am Podest */ shake = .09;
   setTimeout(() => Audio.hum(false), 2500); Audio.play('rumble', { gain: .3, rate: .5, lp: 220 }); state.talking = true; K1.wb = { t: 0 };
   await wait(3200); Audio.play('giggle', { gain: .2, rate: .78, offset: .2, dur: 1.8, x: B.x - .5, y: -4, z: B.z - 5, ref: 2, lp: 1300 });
-  await wait(2600); await say([['<i>Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.</i>', 5200, 'LUKE']]); state.talking = false;
+  await wait(2600); await say([['<i>Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.</i>', 5200, 'LUKE']]); state.talking = false; $('objText').textContent = trX('Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.');
   K1.wandHand = kapitel1_hit(3, 2, .4, B.x - .5, 1.3, B.z - 3.7); interact(K1.wandHand, 'Die Hand an die Wand legen', async () => { uninteract(K1.wandHand); toast('Sie ist warm.', 2600); await wait(2400); kapitel1_ende(); }); }
 function kapitel1_wbTick(dt) { const W = K1.wb; if (!W || !B.wallArt) return; W.t += dt; if (!W.s0) W.s0 = { s: B.wallArt.scale.clone(), z: B.wallArt.position.z }; const k = Math.min(1, W.t / 9), s = 1 + .03 * kapitel1_ease(k) + .004 * Math.sin(W.t * 1.7);
   B.wallArt.scale.set(W.s0.s.x * s, W.s0.s.y * s, W.s0.s.z); B.wallArt.position.z = W.s0.z + (s - 1) * .8; }
@@ -34132,6 +34164,7 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   // Texte/Aktionen der Basis im Hauptweg (Fassung 3)
   MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.';
   // F3 Verständlichkeit: jede Aufgabe sagt, warum (Lucys Anruf, Lucys Band, das, was die Treppe hoch ist)
+  MAIN[3] = 'Öffne die Kellertür. Das Tastenfeld will vier Ziffern.'; MAIN[6] = 'Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt.'; if (story.main === 3 || story.main === 6) $('objText').textContent = trX(MAIN[story.main]);
   MAIN[0] = 'Lucy hat angerufen: „Haus Nummer 7. Der Keller.“ Finde Haus Nr. 7.'; MAIN[2] = 'Durchsuche Haus Nr. 7. Lucy hat dir ein Band im Keller hinterlassen.';
   MAIN[5] = 'Irgendwas ist an dir vorbei die Treppe hoch. Hinterher.'; MAIN[8] = 'Hinter die Bilder, hat Hilde geschrien. Folge dem Gang hinter der Wand.'; if (story.main === 0 || story.main === 2 || story.main === 5) $('objText').textContent = trX(MAIN[story.main]);
   { const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (E) { E.title = 'Nachbild · Die Kreuzung'; E.lines = [['Warmer Asphalt. Sommernacht. Kinder, barfuß, in einer Reihe. Eine Männerstimme zählt: „… fünf, sechs, sieben. Sieben. Gott sei Dank.“', 5600], ['Eine Kinderstimme, ganz nah: „Acht.“', 3000], ['Am Nebelrand steht noch ein Junge. Er zählt nicht mit. Dann ist er weg.', 4200], ['Das Bild kommt zurück. Regen.', 2600]]; } }
@@ -34240,7 +34273,7 @@ function tod_ch2Apply(p) {
   if (!p) return;
   if (p.r && p.r.length) { ch2.read = new Set(p.r); ch2.boardHint = p.r.length >= 3; }
   ch2.archiveSeen = true;
-  if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; }
+  if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; if (typeof archiveDrawerRead === 'function') interact(archiveDrawer, 'Schublade', archiveDrawerRead); /* QA K1/2: ohne das ließ sich das Protokoll nach dem Laden nicht mehr lesen */ }
   if (p.k) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); } // nur mit dem Hakenschlüssel aus Zimmer 7 – die gelöste Tafel allein gibt ihn nicht mehr
   if (p.p && !ch2.power) { ch2.power = true; ch2.coverOpen = true; ch2.fuses = ch2.fuses.map(() => true); try { fuseLedUpdate(); } catch (e) {} spiderDoorIn.locked = false; spiderDoorIn.lockedText = ''; c2Lights.forEach(L => { L.k = 1; }); }
   if (p.s && ch2.spiderPhase !== 'gone') { ch2.spiderPhase = 'gone'; spiderDoorOut.locked = false; cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478); }
@@ -34544,19 +34577,23 @@ function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Kör
       n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
   return n; }
 // Weg zum Freischiebe-Punkt frei? (Nutzer 08.10.: „außerhalb der Map / in Wänden gelandet“ – der nächste freie Punkt kann hinter einer Wand liegen; ab 0,45 m Abstand darf nichts Festes im Weg stehen)
-function tod_wegFrei(x0, y, z0, x1, z1) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < .45) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
+function tod_wegFrei(x0, y, z0, x1, z1, skip = .45) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < skip) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
 function tod_klemmTick(dt) {
   const K = TOD_KL;
   if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
+  K.ft = (K.ft || 0) + dt; if (K.ft > .25) { K.ft = 0; if (tod_blockiert(P.x, P.y, P.z, null, R * .8) === 0) { K.fx = P.x; K.fy = P.y; K.fz = P.z; } } // letzter Platz ohne Überlappung (4× je Sekunde)
   if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
   K.t += dt; if (K.t < 1.2) return; K.t = 0; const d = Math.hypot(P.x - K.x, P.z - K.z); K.x = P.x; K.z = P.z; if (d > .35) return;
   const info = []; const drin = tod_blockiert(P.x, P.y, P.z, info, R * .8); // steckt IN etwas (Überlappung)
   const nah = []; if (!drin) tod_blockiert(P.x, P.y, P.z, nah, R + .12); // oder steht dicht davor
   if (performance.now() > K.logT) { K.logT = performance.now() + 15000; console.warn('Klemmt: pos=' + [P.x, P.y, P.z].map(v => v.toFixed(2)).join(',') + ' kap=' + curChapter() + ' keller=' + state.inBasement + ' zone=' + state.zone + ' ' + (drin ? 'STECKT: ' + info.join(' | ') : 'davor: ' + (nah.join(' | ') || 'nichts gefunden (Bremsung?)'))); }
   if (!drin) return;
+  // QA 09.10.: tod_wegFrei prüft die ersten 0,45 m nicht (dort steckt man) – in einer dünnen Wand lag der erste freie Punkt so oft HINTER der Wand (durchgeschoben).
+  // Der Ausweg muss deshalb auch vom letzten überlappungsfreien Platz aus lückenlos erreichbar sein (= die Seite, von der man kam).
+  const ax = K.fx, az = K.fz, vorFrei = ax !== undefined && Math.hypot(P.x - ax, P.z - az) < 3.5 && Math.abs(P.y - K.fy) < 1;
   for (const r of [.5, .8, 1.1, 1.5, 2, 2.6, 3.2]) for (let k = 0; k < 16; k++) { const a = k / 16 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
-    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z }) && tod_wegFrei(P.x, P.y, P.z, x, z)) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
+    if (tod_blockiert(x, P.y, z, null, R + .02) === 0 && spotOk({ x, y: P.y, z }) && tod_wegFrei(P.x, P.y, P.z, x, z) && (!vorFrei || tod_wegFrei(ax, P.y, az, x, z, 0))) { P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: freigeschoben um ' + r + ' m'); return; } } }
 // Hinter der Südsperre (z < −46,4; Kollisionskisten rundum, kein Rückweg): wer dort landet (Hochziehen, Szene, älterer Spielstand), wird davor abgesetzt
 WORLD_TICK.push(() => { try { const P = player.pos;
   if (state.started && !menu.attract && !state.inBasement && !state.zone && !scripted && !mantle && P.z < -46.4 && P.z > -56 && Math.abs(P.x) < 20 && P.y < 3 && curChapter() < 7) { P.set(Math.max(-3.5, Math.min(3.5, P.x)), 0, -44.9); vel.set(0, 0, 0); console.warn('Klemmt: hinter der Südsperre zurückgesetzt'); } } catch (e) {} });
@@ -36324,7 +36361,7 @@ modItem('leiter_amt', 'Leiter', 'Eine Holzleiter aus dem Sicherungsraum. Schwer,
 modItem('umschlag7', 'Brauner Umschlag', '„BfR · AST LE · DURCHSCHLAG · VERTRAULICH“. Aus dem Fach mit Akte 08. Ungeöffnet. Nicht jetzt.', 'paper');
 // F3 Verständlichkeit: die Aufgaben der Basis auf Ebene −2 sagen, warum (das Ziel ist Lucy) – exakte Ersetzung, alles andere bleibt wie gesetzt
 const AMT_ZIEL = { 'Folge dem Tunnel.': 'Folge dem Gang. Irgendwo hier unten ist Lucy.', 'Finde heraus, was das Amt über die Kinder wusste.': 'Die Akten der sieben Kinder von 2009. Lucys und deine sind dabei. Lies sie.',
-  'Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.': 'Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.', 'Der Messraum. Hier ist es passiert.': 'Da vorn liegt der Messraum. Von dort kommt Lucys Summen.', 'Der Messraum. Das Klavier.': 'Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach, was sie summt.' };
+  'Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.': 'Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.', 'Der Messraum. Hier ist es passiert.': 'Da vorn liegt der Messraum. Von dort kommt Lucys Summen.', 'Bring die Namen in die richtige Reihenfolge.': 'Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links.', 'Der Messraum. Das Klavier.': 'Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach, was sie summt.' };
 setC2Objective = (o => t => o(Object.prototype.hasOwnProperty.call(AMT_ZIEL, t) ? AMT_ZIEL[t] : t))(setC2Objective);
 
 // Matratze in Peters Zelle (Prüfraum 3): Eisenbett ist eine InstancedMesh (innen_kapitel) – feuer_bedSpot sucht nur normale Meshes und fällt dann auf den Boden zurück.
@@ -37324,7 +37361,7 @@ function amt_zahlenschloss() { const S = amt_S; amt_side('k2_kleid'); S.regTry =
     const ins = [...box.querySelectorAll('input')]; ins.forEach(i => { i.onkeydown = e => e.stopPropagation(); i.oninput = () => { i.value = i.value.replace(/\D/g, '').slice(0, 4); S.regEingabe = ins.map(q => q.value.padStart(4, '0')); }; }); setTimeout(() => ins[0].focus(), 50);
     box.querySelector('#rgOk').onclick = e => { e.stopPropagation(); const v = ins.map(q => q.value);
       if (v.join() === '1958,1975,1992,2009') { closeOverlay(); S.reg = true; S.tuer.reg.locked = false; Audio.play('lockOpen', { gain: .5, x: C2.x + 18, y: 1, z: C2.z - 4.6, ref: 2 }); toast('Das Schloss springt auf.', 2200); saveGame(2); return; }
-      Audio.beep(false); S.regTry++; if (S.regTry === 2) subtitle('Alle siebzehn Jahre. Von 2009 rückwärts.', 3400, 'LUKE'); if (S.regTry === 4) subtitle('Vier Plakate an der Bushaltestelle. Vier Jahre.', 3400, 'LUKE'); }; }); }
+      Audio.beep(false); S.regTry++; if (v.join() === '2009,1992,1975,1958') subtitle('Richtig gerechnet, falsch herum. Das älteste zuerst.', 3400, 'LUKE'); else if (S.regTry === 2) subtitle('Alle siebzehn Jahre. Von 2009 rückwärts. Und dann das älteste zuerst.', 4200, 'LUKE'); else if (S.regTry === 4) subtitle('Vier Felder, vier Jahre. 2009 minus 17, minus 17, minus 17. Das älteste links.', 4200, 'LUKE'); }; }); }
 // Die vier Hängemappen: Foto + Belegkarte + Rückseite; dann liegen sie nebeneinander auf dem Tisch
 const AMT_REG = [
   ['1958', 'Schwarzweiß, Zackenrand. Sieben Kinder mit Lampions vor der Kapelle. Am Rand ein blasses Mädchen im weißen Sommerkleid, barfuß. Ein kleiner Junge mit einem Kinderfahrrad, das zu groß für ihn ist. Ganz links, halb hinter dem Fotografen, ein Mann in grauem Mantel mit Hut.', 'Belegkarte: „Das Mädchen war wieder da. Auswahl so bestätigt. – T. S.“', 'Rückseite: „Rieke, Hans, 6 – Verbleib.“'],
@@ -38004,7 +38041,7 @@ window.__ns = { S: NS, M: NS_M, busch: ns_busch, run: id => { const m = NS_M.fin
 const lucy3_S = { opening: false, openDone: false, tuned: false, greeted: false, asked: new Set(), allAsked: false, word: null, busy: false, tok: 0, log: [], luke: '',
   radioFails: 0, lampFails: 0, justinTold: false, win: null, car: { ok: false }, arrows: [], smoke: [], eng: null, hiss: null, k3: false, carIa: false, look1: false, look2: false,
   hand: null, handK: 0, handOn: false, signs: {}, signBusy: false, lampPrev: [], lights: [], hlMats: [], scopeA: 0, scopeB: 0, tine: 0, info: {} };
-MOD_SAVE.push(['lucy3', () => ({ tuned: lucy3_S.tuned, look1: lucy3_S.look1, look2: lucy3_S.look2 }), v => { lucy3_S.look1 = !!v.look1; lucy3_S.look2 = !!v.look2; }]);
+MOD_SAVE.push(['lucy3', () => ({ tuned: lucy3_S.tuned, look1: lucy3_S.look1, look2: lucy3_S.look2 }), v => { lucy3_S.look1 = !!v.look1; lucy3_S.look2 = !!v.look2; if (v.tuned) lucy3_S.tuned = true; }]); // tuned: nach dem Laden öffnet der Funkkasten direkt die Kanäle (Frequenz nicht erneut einstellen)
 const lucy3_sleep = ms => new Promise(r => setTimeout(r, ms));
 // Kapitel 3, Straße (nicht in Kap. 4–6, wo ch3.on weiter wahr ist)
 function lucy3_isK3() { if (!ch3.on || ch3.part !== 'town') return false; if (typeof kap === 'function') return kap() === 3; return !(typeof anwesen_S !== 'undefined' && anwesen_S.ch4); }
@@ -38176,7 +38213,7 @@ function lucy3_radioPuzzle() {
   if (S.sperreBis && performance.now() < S.sperreBis) return toast('Der Kasten ist zu. Das Rauschen dahinter lacht leise.', 2600); // nach einem Fehlschlag zehn Sekunden zu
   if (S.tuned) return lucy3_funk();
   const tok = ++S.tok; lucy3_radioOn();
-  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.</span></div>
+  openPuzzle(`<div class="l3"><h3>FUNKKASTEN · BUNDESSTELLE FÜR RÜCKFÜHRUNG</h3><div><span class="sticker">Notfrequenz: siehe Dienstbuch H. Wendt.<br><small>Mit Kuli darunter: „nicht auf das erste Rauschen hören“</small></span></div>
     <div class="dial"><canvas id="l3Dial" width="1480" height="244"></canvas></div>
     <div class="tune"><div class="eye"><canvas id="l3Eye" width="192" height="192"></canvas></div>
       <div class="knob"><div class="freq" id="l3F">14,00<small>MHz</small></div><input type="range" id="rF" min="3" max="32" step="0.01" value="14.00">
@@ -38298,7 +38335,7 @@ async function lucy3_send(c, tok) { const S = lucy3_S; if (S.busy || tok !== S.t
 // Das Wort laut ins Mikrofon sagen: dann ist es verbraucht – Kanal A sagt es ab jetzt auch (der einzige dauerhafte Fehler des Kapitels)
 async function lucy3_sagen(tok) { const S = lucy3_S; if (S.busy || tok !== S.tok || !S.word) return; S.busy = true; const w = S.word;
   lucy3_lukeShow(`„${w.charAt(0) + w.slice(1).toLowerCase()}.“`); lucy3_log('A', '— ' + w + ' (laut)', 'q'); lucy3_log('B', '— ' + w + ' (laut)', 'q'); await lucy3_sleep(1200);
-  if (w === 'HASENBROT') { S.gesagt = true; S.scopeA = 1; lucy3_lamp('A', 'on'); lucy3_log('A', '„Hasenbrot.“', 'v'); lucy3_voice('a', 1.4); Audio.giggle(player.pos.x + .6, 1.5, player.pos.z); await lucy3_sleep(1800); S.scopeA = 0; lucy3_lamp('A', ''); }
+  if (w === 'HASENBROT') { S.gesagt = true; S.scopeA = 1; lucy3_lamp('A', 'on'); lucy3_log('A', '„Hasenbrot.“', 'v'); lucy3_voice('a', 1.4); Audio.giggle(player.pos.x + .6, 1.5, player.pos.z); await lucy3_sleep(1800); S.scopeA = 0; lucy3_lamp('A', ''); lucy3_lukeShow('„Jetzt kann sie es auch. Nur eine weiß, wo Lucy wirklich ist.“'); }
   if (tok === S.tok) S.busy = false; }
 async function lucy3_win(tok) { const S = lucy3_S; ch3.radio = true; state.talking = true;
   await lucy3_speak('B', '„Da bist du.“', tok);
@@ -38361,7 +38398,7 @@ function lucy3_pressSwitch(S) {
   if (ch3.lampsOff) return toast('Alle Laternen sind aus. Nur das Weiß über der Senke bleibt.');
   if (!ch3.met) return toast('Blechschild, Stadtwerke: LEUCHTE AUS / EIN · Nur für befugtes Personal · Schlüssel beim Amt.' + (S.n === 7 ? ' Darüber ein Zettel in Hildes Druckschrift: ZULETZT.' : ''), 5200);
   if (S.off) return toast('Der Hebel steht schon auf AUS.');
-  if (lucy3_S.flaring || lucy3_S.signBusy) return;
+  if (lucy3_S.flaring || lucy3_S.signBusy || lucy3_S.wrongBusy) return; // wrongBusy: in den 2,6 s nach einem falschen Hebel bleibt alles gesperrt (sonst laufen ch3.seq und Hebelzustand auseinander)
   if (!ch3.seq.length) lucy3_S.erster = S.n; // Wolters Folge (1, 3, 5, 7) scheitert schon am ersten Kasten
   S.off = true; S.L.mode = 'off'; ch3.seq.push(S.n); Audio.play('switch2', { gain: .6, x: S.m.position.x, y: .8, z: -5.5, ref: 2 }); Audio.flick();
   const ok = ch3.seq.every((n, i) => n === LAMP_ORDER[i]);
@@ -38374,10 +38411,10 @@ function lucy3_enger(n) { const S = lucy3_S; if (!S.nebel0) S.nebel0 = scene.fog
   setTimeout(() => { const P = player.pos, a = rand(0, 6.28); Audio.whisper(P.x + Math.sin(a) * 9, 1.2, P.z + Math.cos(a) * 9, 1.8); if (!S.zaehlt) { S.zaehlt = true; subtitle('„vier … drei …“', 2600, 'KINDERSTIMME'); } }, 4200); }
 pressSwitch = lucy3_pressSwitch;
 async function lucy3_wrongSwitch() {
-  const S = lucy3_S; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; shake = .03; glitchV = .6;
+  const S = lucy3_S; S.wrongBusy = true; S.lampFails++; ch3.lampFails = S.lampFails; ch3.seq = []; shake = .03; glitchV = .6;
   lamps.forEach(L => { if (L.mode !== 'off' || switchBoxes.some(B => B.L === L)) L.mode = 'flicker'; }); // alle Laternen flammen gleichzeitig auf, Kinderlachen, die Hebel springen zurück
   Audio.giggle(player.pos.x + 4, 1.2, player.pos.z - 4); setTimeout(() => Audio.giggle(player.pos.x - 6, 1.2, player.pos.z + 3), 700);
-  await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse');
+  await wait(2600); switchBoxes.forEach(B => { B.off = false; }); lamps.forEach(L => L.mode = 'pulse'); S.wrongBusy = false;
   subtitle('Falsch. So hat sie sie nicht geholt.', 3400); await wait(3400);
   if (S.erster === 1 && !S.post && typeof kapitel3_S !== 'undefined' && kapitel3_S.ag09) { S.post = true; await say([['Wie die Post. Sehr witzig, Herr Wolter.', 3000, 'LUKE']]); }
   if (!ch3.radio) { jHint(); return; }
@@ -38762,7 +38799,7 @@ function kapitel3_jagdTick(dt) {
 async function kapitel3_erwischt() { // keine Verletzung, kein Neustart: eine schon gelöschte Laterne geht wieder an, der Hebel steht wieder auf EIN
   const S = kapitel3_S, J = S.jagd; J.pause = 99; J.caught++; state.talking = true;
   try { const P = player.pos; Audio.whisper(P.x + .2, 1.5, P.z + .1, 1.2); shake = .02; glitchV = .5; await wait(500);
-    subtitle('„Du bist.“', 2400, 'KINDERSTIMME'); grey.visible = false; await wait(1300);
+    subtitle('„Du bist.“', 2400, 'KINDERSTIMME'); toast('Hinter dir geht eine Laterne wieder an. Der Hebel steht auf EIN.', 3200); grey.visible = false; await wait(1300);
     const n = ch3.seq.pop(); if (n !== undefined) { const B = switchBoxes.find(b => b.n === n); if (B) { B.off = false; B.L.mode = 'pulse';
         if (Audio.ctx) { const L = B.L; Audio.play('lighterClick', { gain: .08, rate: .5, x: L.wx, y: 5, z: L.wz, ref: 6 }); } } } // eine Kerze, die jemand anpustet – nur rückwärts
   } finally { state.talking = false; } J.pause = 7; kapitel3_graukindSetzen(30); }
@@ -38927,7 +38964,7 @@ WORLD_TICK.push((dt, t) => {
   if (!S.vegasKuh && ch3.cowSeen && !state.talking && Math.hypot(P.x + 28, P.z + 11) < 17 && typeof albers_whiskey === 'function') { S.vegasKuh = true; ch3.side.vegasKuh = true;
     albers_whiskey([['„Das ist Aydıns Kuh! Die Gescheckte! Ich hab’s gewusst. Die nehmen erst die Kühe, dann die Leute. Steht alles im Ordner. Seit ’58!“', 6400, 'VEGAS']]); }
   // UK 3: das Telefon klingelt, bis Luke abnimmt – wer sich entfernt, hört es leiser und dann, egal wo er steht, direkt neben sich
-  if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
+  if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; setC3('Das Telefon an der Kreuzung klingelt. Nimm ab.'); if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
     S.ringT -= dt; if (S.ringT < 0) { S.ringT = 3.2; const dB = Math.hypot(P.x - 8, P.z - 7.6); if (dB > 36) Audio.ring(.09); else Audio.ring(.09, 8, 1.9, 7.6); } }
   // UK 1: erster Blick zur Telefonzelle
   if (S.uk >= 1 && !S.gedZelle1 && !state.talking && !ui.overlay && P.distanceTo(_k3v2.set(8, 0, 7.6)) < 30 && kapitel3_siehtHin(8, 1.4, 7.6, .95)) { S.gedZelle1 = true; subtitle('Fünfzig Hertz. Immer noch. Kein Strom im ganzen Dorf, und die Zelle brummt.', 5200, 'LUKE'); }
@@ -39564,7 +39601,7 @@ function k5_merker() {
 
 // ---------------------------------------------------------------- Zustand je Takt (Neustart am Speicherpunkt, Laden, Tests)
 function k5_setup(beat, spring) {
-  const S = K5, b = k5_i(beat); k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
+  const S = K5, b = k5_i(beat); if (b <= k5_i('tisch')) { k5.f.schleifeRuf = false; k5.runde = 0; k5.f.spieluhrGesagt = false; k5.f.starrt = false; } /* QA: Tod am Tisch/in der Schleife und Laden setzen die Schleife zurück (sonst feuert sie nie wieder) */ k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
   if (k5.ownScript) { k5.ownScript = false; setScripted(null); setCamOverride(null); } if (!(typeof kino_busy === 'function' && kino_busy())) state.talking = false;
   const vis = (key, on) => { const o = S.g[key] || S.o[key]; if (o) o.visible = !!on; };
   const hits = (key, on) => { const h = S.hit[key]; if (!h) return; const i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); };
@@ -39705,6 +39742,7 @@ function k5_sp(id) { const E = K5_SP[id]; k5.sp = id; const p = K5_POS[E[1]];
   if (typeof todCheckpoint === 'function') todCheckpoint(id, E[2].replace(/^SP5-\d · /, ''), { x: p[0], y: p[1], z: p[2], yaw: p[3], respawn: async () => k5_wieder(id, false) }); else saveGame(5); }
 function k5_wieder(id, laden) { const E = K5_SP[id] || K5_SP.k5_veranda; k5.on = true; k5_welt(); if (E[4]) k5_uhr(E[4][0], E[4][1], false);
   if (id === 'k5_spieluhr' && !k5_hat('lucys_spieluhr')) k5_item('lucys_spieluhr', 'Lucys Spieluhr', 'Holz, der Deckel verzogen. Die Melodie leiert – aber sie ist Lucys.', 'paper');
+  if (['k5_spieluhr', 'k5_lucy', 'k5_stall', 'k5_friedhof'].includes(id) && !k5_hat('mamas_kerze') && !k5.f.kerze) k5_item('mamas_kerze', 'Mamas Kerze', 'Vom gedeckten Tisch. Nie angezündet. Das Wachs ist kälter als der Raum.', 'paper'); /* QA: Fallback, falls die Kerze fehlt */
   if (id === 'k5_stall' && !k5_hat('brot') && !k5.f.brotStall) k5_item('brot', 'Ein Kanten Brot', 'Von Papas Platz. Nicht angeschnitten.', 'paper');
   if (typeof $ === 'function') $('fade').style.background = '#000';
   k5_setup(E[0]); k5_platz(K5_POS[E[1]]); k5.sp = id;
@@ -39773,7 +39811,7 @@ async function k5_takt(beat, wieder) {
     if (typeof spannung_did === 'function') { try { spannung_did('k5_tisch', 'major'); } catch (e) {} }
     k5.summT = 1.5; k5.setzT = 15; k5.setzN = 0; k5.tischT = 0;
     state.talking = true; await k5_sag([['„Da bist du ja, Bruder.“', 2800, K5_W.H], ['„Setz dich. Ich hab gekocht.“', 3000, K5_W.H]]); state.talking = false; if (!ok()) return;
-    if (h) k5_clip(h, 'idle', false); k5_task('Vier Gedecke. Lucy hat gesagt: Iss nichts.'); return; }
+    if (h) k5_clip(h, 'idle', false); k5_task('Vier Gedecke. Lucy hat gesagt: Iss nichts. Hör hin, was unter ihrer Stimme läuft.'); return; }
   if (beat === 'spieluhr') { k5_task('Lucys Spieluhr. Das Kinderzimmer.'); k5.boxT = 0; return; }
   if (beat === 'heimweg') { // K5-11
     if (!wieder) { k5_sp('k5_spieluhr'); } k5_task('Bring Lucy die Spieluhr.'); k5.jagd = { an: false, t: 5, dur: 0, seenT: 0, ruf: false }; k5_lichter1(0);
@@ -39787,7 +39825,7 @@ async function k5_takt(beat, wieder) {
   if (beat === 'tappen') { k5_uhr(20, 35); k5_task('Hinterher.'); k5.tp = { i: 0, x: -137.6, z: -30.1, t: 0, st: 0, weit: 0 }; return; }
   if (beat === 'grab') { if (!wieder) k5_sp('k5_friedhof'); k5_task('Das Tappen hat aufgehört. Das Gedenkfeld.'); k5.gr = { t: 0, gesagt: false, hinw: 0, feuer: 0, zeugT: 0, gTimer: 0 };
     k5_zettel('B-K5-06', { pos: [-51.9, .03, 64.1] }); return; } // am Torpfosten
-  if (beat === 'zaun') { k5_task('Hinterher.'); return; }
+  if (beat === 'zaun') { k5_task('Hinterher. Der Junge ist zum Nordzaun gelaufen.'); return; }
 }
 
 // ---------------------------------------------------------------- K5-2 · Lucy am Fenster: Dialog mit Auswahl
@@ -39994,7 +40032,7 @@ async function k5_gedeck(k) {
   } finally { state.talking = false; }
 }
 function k5_setzen() {
-  if (!k5.on || k5.sitzt || state.talking || !(k5.beat === 'tisch' || k5.beat === 'schleife')) return;
+  if (!k5.on || k5.sitzt || state.talking) return; if (k5.beat === 'schleife') return toast('Der Stuhl bleibt leer. Nicht setzen. Weitergehen – und hinhören.', 3600); if (k5.beat !== 'tisch') return;
   const S = K5, cz = S.sitz.z, sx = S.sitz.x; k5.sitzt = true; k5.sitzT = 0; const tok = k5.tok;
   player.pos.set(sx, K5_Y, cz); player.yaw = S.sitz.yaw; player.pitch = -.25; vel.set(0, 0, 0);
   k5.ownScript = true; setScripted(() => k5.sitzt); setCamOverride((cam, dt) => { if (!k5.sitzt) return; cam.position.set(sx, K5_Y + 1.12, cz); });
@@ -40039,6 +40077,7 @@ function k5_schwelle() { // Versetzen ohne Schnitt: an die Tür Wohnzimmer → K
     if (S.o.dreipunkt) S.o.dreipunkt.visible = true; k5.radioT = 1e9; // ∴ von außen im Beschlag, die Tropfen laufen noch · Radio aus
     if (typeof beob_spur === 'function') { try { beob_spur('bonbon', { pos: [-51.2, K5_Y + .95, -11.9], nie: true }); } catch (e) {} } // Fensterbrett draußen: ein ausgelecktes Bonbonpapier (Spur S-07)
     k5_katerTakt('schleife');
+    if (typeof kamera_S !== 'undefined' && kamera_S.film <= 0 && typeof kamera_film === 'function') { kamera_film(1); k5_denk('Ein letzter Film steckt noch in der Kamera. Mama hat auch welche gehortet, unten in der Kommode.', 5200); } /* QA: nie ohne Film in Runde 3 */
     if (typeof kamera_S !== 'undefined' && kamera_S.film <= 0 && !k5.f.film) { K5.o.film.visible = true; k5_hitAn('film', -44.55, K5_Y + .8, -18.6); setTimeout(() => k5_denk('Kein Film. … Mama hat Filme gehortet. Die Kommode.'), 1500); } }
 }
 function k5_stuhlZumFenster(an) { const S = K5; if (S.kStuhl === undefined) { S.kStuhl = null; const G1 = scene.getObjectByName('io_nr1'), bb = new THREE.Box3();
@@ -40060,7 +40099,7 @@ async function k5_atemVerpasst() { // Fehlversuch: kalte Finger am Hals (A-26: k
   k5_atem(camera.position.x, camera.position.y - .1, camera.position.z, .2); shake = .03; glitchV = .35; if (typeof kino_abriss === 'function') { try { kino_abriss(.5); } catch (e) {} }
   subtitle('Kleine, kalte Finger an deinem Hals.', 2600); await wait(2400);
   subtitle('„Iss auf, Bruder.“', 2600, K5_W.H); await wait(2600); state.talking = false; if (!k5.on || k5.beat !== 'schleife') return;
-  if (k5.verpasst === 2) k5_denk('Nicht umdrehen und gucken. Umdrehen und abdrücken.', 5000);
+  if (k5.verpasst === 1) k5_denk('Etwas atmet hinter mir. Hildes Kamera – umdrehen und abdrücken.', 4600); if (k5.verpasst === 2) k5_denk('Nicht umdrehen und gucken. Umdrehen und abdrücken.', 5000);
   k5.atemT = 7; // Runde 3 beginnt neu
 }
 // Höhepunkt als Kinosequenz „Runde drei“ (Tabelle Kap. 5, 10–26 s): nach dem Polaroid Schnitt hinter Lukes Schulter, halbnah, ganz nah, Schwarz, Kerze
@@ -40180,7 +40219,7 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }
 async function k5_brotHin() {
   if (!(k5.beat === 'stall' || k5.beat === 'brot') || k5.f.brotStall) return;
-  if (!k5_hat('brot')) return toast('Ein Teller, sauber abgeleckt. Du hast nichts, was du darauflegen könntest.', 3200);
+  if (!k5_hat('brot')) return toast('Ein Teller, sauber abgeleckt. Du hast nichts, was du darauflegen könntest. Der Kanten Brot liegt noch auf Papas Platz in Nr. 1.', 4600);
   k5_weg('brot'); k5.f.brotStall = true; if (K5.stallBrot) { K5.stallBrot.visible = true; K5.stallBrotTeile.forEach(m => m.visible = true); }
   Audio.play('items2', { gain: .3 }) || Audio.paper();
   if (k5.beat !== 'stall') { k5.beat = 'stall'; k5_sp('k5_stall'); }
@@ -40514,7 +40553,7 @@ WORLD_TICK.push((dt, t) => {
   if ((b === 'brot' || b === 'stall') && P.x < -70 && k5.katzeLampe !== k5.lampAus) { k5.katzeLampe = k5.lampAus; const L = k5.lampAus; if (L) k5_kater('zurueck', { x: L.wx, z: L.wz, sek: 2.2 }); } // die Katze bleibt bei jeder Laterne stehen und sieht zurück
   if (b === 'stall' && !k5.f.sb10Satz && typeof sammeln_hatSB === 'function' && sammeln_hatSB(10) && !state.talking && !ui.overlay) { k5.f.sb10Satz = true; /* H-1: Einzeiler gestrichen, das Summen reicht */ }
   if (b === 'stall' && S.stallP && !k5.f.brettGesehen && k5_dist(S.stallP[0], S.stallP[1]) < 3 && k5_blick(S.stallP[0], .3, S.stallP[1]) > .85) { k5.f.brettGesehen = true; // Hilfeleiter (2): das Brett; wer Hildes Zählbuch behalten hat, bekommt ihre Randnotiz
-    if (k5_hat('zaehlbuch')) setTimeout(() => k5_denk('Hildes Zählbuch, am Rand: „Brot hin. Umdrehen. Der ist scheu wie eine Katze.“', 5600), 800); }
+    if (k5_hat('buch')) setTimeout(() => k5_denk('Hildes Zählbuch, am Rand: „Brot hin. Umdrehen. Der ist scheu wie eine Katze.“', 5600), 800); }
   if (b === 'stall' && k5.f.brotStall) { if (!state.talking && !k5_zu()) { k5.stT += dt;
       if (k5.stT > 20 && k5.hint < 1) { k5.hint = 1; k5_denk('Er kommt nicht, solange ich hinsehe. Sie sieht durch mich.', 5000); }
       if (k5.stT > 35 && k5.hint < 2) { k5.hint = 2; k5_qFrei(true, 'Q halten – Augen zu'); if (typeof augenzu_frei !== 'function') k5_tip('<kbd>Q</kbd> halten – Augen zu', 8000); if (story.lore.some(l => l.key === 'ow_heft')) setTimeout(() => k5_denk('„Wenn sie nicht hinsieht, darf ich runter in den Stall.“'), 9000); } }
@@ -41425,7 +41464,7 @@ function k6_zoneWechsel(vor, jetzt) {
   if (jetzt && K6.flasche === 1 && Math.hypot(vel.x, vel.z) > .8) k6_flascheKlirr(); // die Flasche klirrt in der Jacke, viel zu laut
 }
 // ---------------------------------------------------------------- Die Pfandflasche (Humor, Lärm, Hochsitz)
-function k6_flascheNehmen() { if (K6.flasche) return; K6.flasche = 1; K6.flascheT = 0; K6.flascheM.visible = false; uninteract(K6.flascheHit); if (!k6_has('pfandflasche')) story.items.push('pfandflasche'); Audio.play('glass1', { gain: .2, rate: 1.3 });
+function k6_flascheNehmen() { if (K6.flasche) return; K6.flasche = 1; K6.flascheT = 0; K6.flascheM.visible = false; uninteract(K6.flascheHit); if (!k6_has('pfandflasche')) addItem('pfandflasche'); Audio.play('glass1', { gain: .2, rate: 1.3 });
   k6_luke('Acht Cent. Wenn ich das überlebe, ist das mein Anfang.', 3200); }
 function k6_flascheKlirr() { if (K6.flasche !== 1) return; K6.flasche = 2; const P = player.pos; Audio.play('glass1', { gain: .55, rate: 1.1, x: P.x, y: 1, z: P.z }); k6_laerm(P.x, P.z, 45);
   setTimeout(() => { k6_luke('Viel zu laut.', 1800); toast('Du wickelst die Flasche in deine Mütze.', 2600); }, 900); }
@@ -41443,7 +41482,10 @@ function k6_beats(dt) {
     k6_standTick(dt);
     if (K6.sp.has('k6_hochsitz') && !K6.told.has('justin') && k6_near(40.5, 189.5, 6) && k6_frei()) k6_justinStimme();
     if (K6.sp.has('k6_hochsitz') && k6_near(65, 199.5, 26)) k6_falleStart(); }
-  else if (B === 'frass') { k6_ag20Tick(); if (!K6.told.has('anniFrass') && k6_near(10, 198.8, 5) && k6_frei()) { K6.told.add('anniFrass'); const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.x * 5, 1.2, P.z - f.z * 5, '„Du hast unterschrieben. Ist schon gut. Ich hab den Lampion gemocht.“', 'ANNI?', 4200, 'anni_3'); } }
+  else if (B === 'frass') { k6_ag20Tick();
+    /* QA: Hilfeleiter Fraßstelle – ohne das Dienstbuch (Seite 1) kommt der Hirsch nie; wer wegläuft, wird zurückgeschickt */
+    if (!hh('spuren')) { if (k6_near(1.5, 199.6, 8) && !K6.told.has('dbHint')) { K6.dbT = (K6.dbT || 0) + dt; if (K6.dbT > 30 && k6_frei()) { K6.told.add('dbHint'); k6_denk('dbHint', 'Neben dem Kadaver liegt etwas. Ein Heft, mit Dienstnummer. Das sehe ich mir an.'); } } }
+    else if (!hh('hirsch')) { K6.hiT = (K6.hiT || 0) + dt; if (K6.hiT > 75 && !k6_near(1.5, 199.6, 34) && !K6.told.has('hiHin')) { K6.told.add('hiHin'); k6_obj('Zurück zur Fraßstelle. Das Ding ist in der Nähe.'); } } if (!K6.told.has('anniFrass') && k6_near(10, 198.8, 5) && k6_frei()) { K6.told.add('anniFrass'); const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.x * 5, 1.2, P.z - f.z * 5, '„Du hast unterschrieben. Ist schon gut. Ich hab den Lampion gemocht.“', 'ANNI?', 4200, 'anni_3'); } }
   else if (B === 'wrack') { k6_routeTick(); if (!K6.lager && !K6.told.has('t3') && k6_near(80.5, 233, 34) && !k6_near(80.5, 233, 12) && k6_frei()) { K6.told.add('t3'); k6_anrufLucy(); }
     if (!K6.lager && k6_near(80.5, 233, 9)) { k6_cp('k6_lager', 'Jonas’ Lager', 78.6, 230.4, -.6); K6.lagerT += dt; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
       if ((W && W.flags && W.flags.has('k6_3')) || K6.lagerT > 45) k6_lagerFertig(); else if (K6.lagerT > 3 && !K6.told.has('lagerHin')) { K6.told.add('lagerHin'); k6_obj('Jonas’ Lager. Durchatmen. Whiskey sitzt auf der Zeltstange.'); } }
@@ -41451,7 +41493,8 @@ function k6_beats(dt) {
     if (K6.lager && k6_near(-10, 204.5, 16) && !K6.told.has('beobFlucht')) k6_beobFlucht();
     if (K6.lager && k6_near(-10, 204.5, 9)) { k6_cp('k6_wrack', 'SP6-5 · Das Wrack', -5.8, 203.2, 1.9); k6_obj('Hinter dem Wrack. Da, wo es still ist.'); k6_set('bau'); }
     if (!K6.lager && k6_near(-13.2, 206.8, 11) && !K6.told.has('bauZuFrueh') && k6_frei()) { K6.told.add('bauZuFrueh'); k6_denk('bauFrueh', 'Nicht da rein. Nicht jetzt. Nicht mit dem Ding im Rücken.'); } }
-  else if (B === 'bau') { if (typeof hungrige_S !== 'undefined' && hungrige_S.finale && !hungrige_S.cine) k6_epilog(); }
+  else if (B === 'bau') { if (typeof hungrige_S !== 'undefined' && hungrige_S.finale && !hungrige_S.cine) k6_epilog();
+    if (!hh('bau') && k6_near(-13.2, 206.8, 10) && !K6.told.has('bauHint')) { K6.bauT = (K6.bauT || 0) + dt; if (K6.bauT > 40 && k6_frei()) { K6.told.add('bauHint'); k6_denk('bauHint', 'Hofers letzte Seite. Sie muss hier irgendwo liegen, wo es am stillsten ist.'); } } }
   else if (B === 'epilog') k6_guide(dt);
 }
 // Absperrgitter: ab Kapitel 5 die Kinderlücke, in Kapitel 6 aufbiegen (E halten, wie das Gitter im Amt) – erst nach Wolter (AG-18)
@@ -41499,14 +41542,14 @@ async function k6_ag18() {
     await say([['Er weiß, welche Decke. Hast du das gehört? Er weiß, welche Decke.', 3600, 'LUKE']]);
   } catch (e) { console.warn('Kapitel6: AG-18', e); }
   finally { K6.ag18 = true; K6.ag18Busy = false; k6_ag18Tasche(false); }
-  if (K6.beat === 'gitter') k6_obj('Das Gitter aufbiegen. Der Junge ist darunter durch.');
+  if (K6.beat === 'gitter') k6_obj('Das Gitter aufbiegen: E halten, am Gitter. Der Junge ist darunter durch.');
 }
 function k6_ag18Sender(W) { const g = K6.props.sender || (K6.props.sender = new THREE.Mesh(new THREE.BoxGeometry(.05, .02, .034), new THREE.MeshStandardMaterial({ color: 0x5c5e61, roughness: .5, metalness: .7 }))); if (!g.parent) scene.add(g);
   g.position.set(W.g.position.x + .25, 1.28, W.g.position.z + .3); g.visible = true; setTimeout(() => { g.visible = false; }, 4500); }
 function k6_ag18Tasche(on) { const T = K6.props; if (on && !T.tasche) { const g = new THREE.Group(); const bag = new THREE.Mesh(new THREE.BoxGeometry(.42, .24, .2), new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: .9 })); bag.position.y = .12; g.add(bag);
     const roll = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .6, 14), new THREE.MeshStandardMaterial({ map: k6_netzTex(), color: 0x6a6258, roughness: .7, metalness: .5 })); roll.rotation.z = PI / 2; roll.position.set(-.55, .22, .1); g.add(roll);
     g.position.set(36.2, 0, 83.8); scene.add(g); T.tasche = g; T.taschenHit = box(.9, .6, .7, 36, .3, 83.9, hidden, { cast: false });
-    interact(T.taschenHit, () => K6.on && K6.schneiderFrei && !K6.schneider ? 'Den Seitenschneider einstecken' : '', () => { if (K6.schneider || !K6.schneiderFrei) return; K6.schneider = true; if (!k6_has('seitenschneider')) story.items.push('seitenschneider'); if (typeof lwo_ereignis === 'function') lwo_ereignis('seitenschneider');
+    interact(T.taschenHit, () => K6.on && K6.schneiderFrei && !K6.schneider ? 'Den Seitenschneider einstecken' : '', () => { if (K6.schneider || !K6.schneiderFrei) return; K6.schneider = true; if (!k6_has('seitenschneider')) addItem('seitenschneider'); if (typeof lwo_ereignis === 'function') lwo_ereignis('seitenschneider');
       Audio.play('keys2', { gain: .2, rate: 1.6 }); setTimeout(() => lwo_zeile('W', '„Den bekommen wir zurück, Herr Brandt.“'), 700); }); }
   if (T.tasche) T.tasche.visible = !!on; if (!on && T.taschenHit) uninteract(T.taschenHit); }
 function k6_whiskeyDeckel() { // K6-1: aufs Kombi-Dach, an der Antenne picken, den Deckel der Thermoskanne klauen, über das Gitter und zurück
@@ -41583,7 +41626,7 @@ function k6_segDist(x, z, a, b) { const vx = b[0] - a[0], vz = b[1] - a[1], L = 
 function k6_halten(x, z) { const P = player.pos, d = Math.hypot(P.x - x, P.z - z); if (d > .5) { P.x = x + (P.x - x) / d * .5; P.z = z + (P.z - z) / d * .5; vel.set(0, 0, 0); } }
 // Der Geschälte Wolf (R6-3 „Wo vorne war“): liegt wie tot; kommt nur näher, wenn Luke wegsieht oder die Lampe senkt; unter 2,5 m springt er. Mit Licht drauf: „Sender anhängen“.
 function k6_wolfTick(V, dt) { const F = K6.falle, p = V.g.position, d = hungrige_dist(V), f = leben_facing(p.x, p.y + .5, p.z), lit = hungrige_lit(V, 14, .95, .5);
-  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); k6_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile.'), 2600); } } }
+  if (F.wph === 'lie') { if (d < 5.2 && f > .55) { F.wph = 'rise'; F.wt = 0; leben_play(V, 'RestToGoBackUp', .1, 1, true); k6_ton('stoehn', p.x, .4, p.z, .5, () => Audio.groan(p.x, p.z, false)); if (!K6.told.has('wolfG')) { K6.told.add('wolfG'); setTimeout(() => k6_denk('wolf', 'Was hier im Wald wohnt, hat keine Eile. Er kommt nur, wenn ich wegseh.'), 2600); } } }
   else if (F.wph === 'rise') { F.wt += dt; hungrige_facePlayer(V, dt * 1.5); if (F.wt > 1.9) { F.wph = 'stare'; leben_play(V, 'IdleAggressive', .3); k6_ton('knurr', p.x, .5, p.z, .45, () => Audio.growl(p.x, p.z, false)); } }
   else if (F.wph === 'geh') { F.wt = (F.wt || 0) - dt; if (F.wt < 0) { F.wt = .95; hungrige_nass(V, .3); } if (leben_beastMove(V, dt)) { F.wph = 'steht'; leben_play(V, 'IdleAggressive', .3); } } // geht in die Netze, wie gerufen
   else if (F.wph === 'stare') { hungrige_facePlayer(V, dt * 4); if (F.ph !== 'bereit') return;
@@ -41667,7 +41710,7 @@ function k6_ag20Aufbau() { K6.ag20Auf = true; k6_ag20Props(); if (typeof lwo_fig
 async function k6_ag20() { K6.told.add('ag20'); state.flashFail = Math.max(state.flashFail, .45); player.pitch = Math.max(player.pitch - .25, -.9); // er leuchtet – und senkt die Lampe sofort
   if (typeof lwo_szene === 'function') await lwo_szene('AG-20', { figuren: { funk: { x: K6_AG20.a[0], z: K6_AG20.a[1] } }, hook: async (tu) => { if (tu && tu.r && /Merkblatt/.test(tu.r)) { await k6_merkblatt(); return true; } return false; } });
   if (K6.tot2) setTimeout(() => k6_luke('Dreiundvierzig … nein. Drei-vier. Der ist alt. Der war damals schon dabei.', 3600), 800);
-  K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; if (K6.funkM) K6.funkM.visible = false; story.items.push('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
+  K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; if (K6.funkM) K6.funkM.visible = false; addItem('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
   K6.ketteHit = K6.ketteHit || box(.6, .4, .6, K6_AG20.a[0] - .6, .2, K6_AG20.a[1] + .5, hidden, { cast: false }); interact(K6.ketteHit, () => K6.on && !K6.kette ? 'Die Kettenrolle nehmen' : '', () => { if (K6.kette) return; K6.kette = true; if (K6.ketteM) K6.ketteM.visible = false; if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_kette'); Audio.play('keys3', { gain: .25, rate: .7 }); k6_luke('Eisen. Hilft nicht. Nehm ich trotzdem.', 2400); });
   k6_obj('Die Fraßstelle. Da vorn, wo das Blut endet.'); }
 // AP-24: Funkgerät am Hochsitz zurücklegen (+4 über lwo_ereignis 'funk_zurueck'); der Scan hängt danach am Pfosten (nachgeladen, kein Licht)
@@ -41898,7 +41941,7 @@ function k6_welt(laden) {
   state.zone = null; state.ending = false; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
   lamps.forEach(L => { L.mode = 'on'; L.dead = 0; }); if (typeof anwesen_S !== 'undefined') anwesen_S.ch4 = true;
   if (typeof feuer_items === 'function') feuer_items(); if (ITEMS.feuerzeug && !story.items.includes('feuerzeug')) story.items.push('feuerzeug'); // Peters Feuerzeug (Kapitel 2)
-  const kerze = Object.keys(ITEMS).find(k => /kerze/i.test(k)); if (kerze && !story.items.includes(kerze)) story.items.push(kerze); // Mamas Kerze (Kapitel 5, falls vorhanden)
+  if (!laden && ITEMS.mamas_kerze && !story.items.includes('mamas_kerze') && typeof k5 !== 'undefined' && (k5.f.kerze || story.lore.some(l => l.key === 'k5_schlafenszeit'))) story.items.push('mamas_kerze'); // Mamas Kerze: nur wer sie in Kapitel 5 wirklich hatte (QA B4: keine Suche mehr nach beliebigen Kerzen)
   if (!laden) { FLASH.charge = Math.max(FLASH.charge ?? 1, .9); FLASH.spare = Math.max(FLASH.spare || 0, 3); try { flashApply(); } catch (e) {} } // „die Lampe, drei Batterien“
   if (typeof sammeln_platz === 'function' && !K6.sb11Platz) { K6.sb11Platz = true; try { sammeln_platz('SB-11', { x: 14, y: 3.78, z: 179.41, ry: PI, stehend: true, ab: 6, label: 'Eine Seite, an einen Nagel gespießt' }); } catch (e) { console.warn('Kapitel6: SB-11', e); } }
   if (typeof katzen_kater5 === 'function' && !k6_ab('krumen')) try { katzen_kater5('gitter', { x: 30.4, z: 95.9, ry: 0, punkt: [26.6, .3, 99.2] }); } catch (e) {} // Hänschen: zwei Meter vor dem Gitter, keinen Schritt weiter
@@ -42180,7 +42223,7 @@ function n6_loopTick(dt, P) {
   if (rep >= 0 && rep !== L.rep && ph - rep * N6_REP > .3) { L.rep = rep; if (typeof hungrige_stimme === 'function') hungrige_stimme(vx, 1.2, vz, '„Papa? Papa, ich bin’s.“', 'ANNI?', 2600, 'anni_loop'); // gleich betont, der Atemzug an derselben Stelle
     setTimeout(() => { if (N6_LOOP.tor === R && typeof kino_atem === 'function') kino_atem(.05, 1.1, vx, 1.2, vz); }, 3000);
     if (!N6.loopSaid && L.rep === 0) { N6.loopSaid = true; setTimeout(() => { n6_luke('Das ist ein Loop. Ich hab Hörbücher geschnitten, ich kenn einen Loop. Sie atmet an derselben Stelle.', 5200); n6_anniDesc('Die Stimme kommt immer wieder. Gleich betont, der Atemzug an derselben Stelle. Ein Loop.'); }, 3600); } }
-  if (naht && !L.naht) { L.rep = -1; if (N6.fails >= 2) { const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; if (W && W.g && W.g.visible && !W.fl && typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(R.x + R.dx * 10, 3, R.z + R.dz * 10), null); } } // Hilfe 3: Whiskey fliegt genau in der Pause los
+  if (naht && !L.naht) { L.rep = -1; if (N6.fails >= 1) { const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null; if (W && W.g && W.g.visible && !W.fl && typeof whiskey_fly === 'function') whiskey_fly(new THREE.Vector3(R.x + R.dx * 10, 3, R.z + R.dz * 10), null); } } // Hilfe 3: Whiskey fliegt genau in der Pause los
   L.naht = naht;
   const s = (P.x - R.x) * R.dx + (P.z - R.z) * R.dz, lat = Math.abs((P.x - R.x) * R.dz - (P.z - R.z) * R.dx);
   if (L.prev < 0 && s >= 0 && lat < 7) { N6.gates[R.id] = naht ? 'ok' : 'fail'; L.tor = null; if (naht) n6_torOk(); else n6_torFail(P); }
@@ -42190,8 +42233,8 @@ function n6_torOk() { N6.oks++; if (N6.oks === 1 && typeof gedanke === 'function
 function n6_torFail(P) { // Satz 2 direkt am Ohr; die Zone lässt die Lampe drei Sekunden flackern
   N6.fails++; scareCount++; const f = flatDir(); if (typeof hungrige_stimme === 'function') hungrige_stimme(P.x - f.z * .5, 1.65, P.z + f.x * .5, '„Papa? … Papa, ich bin gleich wieder da.“', 'ANNI?', 3200, 'anni_ohr');
   state.flashFail = Math.max(state.flashFail, 3); shake = Math.max(shake, .06); glitchV = Math.max(glitchV, .5); Audio.heart();
-  if (N6.fails === 1) setTimeout(() => n6_luke('Jeder Loop hat eine Naht. Da, wo er von vorn anfängt.', 3600), 3800);
-  else if (N6.fails >= 3) setTimeout(() => toast('Warte auf die Naht.', 3000), 3600);
+  if (N6.fails === 1) setTimeout(() => n6_luke('Jeder Loop hat eine Naht. Da, wo er von vorn anfängt. Beim nächsten wart ich auf die Pause.', 5200), 3800);
+  else if (N6.fails >= 2) setTimeout(() => toast('Warte auf die Naht: Erst in der Pause durch das Tor gehen.', 3600), 3600);
 }
 // ---------------------------------------------------------------- Takt
 WORLD_TICK.push((dt, t) => {
@@ -43886,6 +43929,7 @@ function ritz_blutMat(f, glanz = .9) { const T = new THREE.CanvasTexture(f.c); T
 // so entsteht das unregelmäßige Bild echter Handschrift. Gilt nur für Handschrift-Schriften; Druckschriften (Arial, Courier, Georgia) bleiben unberührt.
 { const P = CanvasRenderingContext2D.prototype, ft = P.fillText, st = P.strokeText, HAND = /Caveat|Comic Sans|Segoe Print|Gochi|Marker|Indie/i; let tief = false;
   const hand = (orig, kind) => function (text, x, y, maxW) {
+    if (!tief && typeof text === 'string' && text.trim()) try { const cv = this.canvas, L = cv.__txt = cv.__txt || []; if (L.length < 40 && !L.includes(text)) L.push(text); } catch (e) {} // QA: Text an der Ziel-Leinwand merken (echt_text zeichnet über eine Hilfsleinwand)
     if (ECHT.an > 0 && !tief && kind === 'fill' && typeof text === 'string' && !HAND.test(this.font)) { tief = true; try { if (echt_text(this, orig, text, x, y, maxW)) return; } catch (e) {} finally { tief = false; } } // gedruckte/gemalte Schrift auf Schildern und Zetteln: Farbband, Schablone, Abplatzer (echt_text)
     if (tief || maxW !== undefined || typeof text !== 'string' || text.length < 2 || !HAND.test(this.font)) return orig.call(this, text, x, y, maxW);
     const fm = /(\d+(?:\.\d+)?)px/.exec(this.font), sz = fm ? +fm[1] : 20; if (sz < 7) return orig.call(this, text, x, y);
@@ -46452,7 +46496,7 @@ const ITEMS = {
 };
 for (const T of FLASH_TIERS) ITEMS[T.key] = T;
 story.items = ['lampe1'];
-function addItem(key) { if (!story.items.includes(key)) { story.items.push(key); questPop('INVENTAR', ITEMS[key].name); } }
+function addItem(key) { if (!story.items.includes(key)) { story.items.push(key); questPop('INVENTAR', (ITEMS[key] || { name: key }).name); } }
 let jTab = 'aufgaben';
 function renderJournal() {
   const B = $('jBody');
@@ -46467,9 +46511,9 @@ function renderJournal() {
     if (ch3.on) { L.push(`</ul><h2 style="margin-top:18px">GEHEIMNISSE · ${ch3.myst.size} / 5</h2><ul>`); for (const [k, m] of Object.entries(MYST)) L.push(ch3.myst.has(k) ? `<li class="done">${m.title}</li>` : `<li>???<small>${m.hint}</small></li>`); }
     L.push('</ul></div></div>'); B.innerHTML = L.join('');
   } else if (jTab === 'inventar') {
-    const slots = []; for (let i = 0; i < 12; i++) { const k = story.items[i]; slots.push(k ? `<div class="slot has" data-k="${k}">${ICONS[k]}</div>` : '<div class="slot empty"></div>'); }
+    const slots = []; for (let i = 0, n = Math.max(12, Math.ceil(story.items.length / 6) * 6); i < n; i++) { const k = story.items[i]; slots.push(k ? `<div class="slot has" data-k="${k}">${ICONS[k] || ICONS.paper}</div>` : '<div class="slot empty"></div>'); }
     B.innerHTML = `<h2>INVENTAR</h2><div class="inv">${slots.join('')}</div><div id="invDesc"><b>—</b>Fahre mit der Maus über einen Gegenstand.</div>`;
-    B.querySelectorAll('.slot.has').forEach(el => el.onmouseenter = () => { const it = ITEMS[el.dataset.k]; $('invDesc').innerHTML = `<b>${it.name.toUpperCase()}</b>${it.desc}`; });
+    B.querySelectorAll('.slot.has').forEach(el => el.onmouseenter = () => { const it = ITEMS[el.dataset.k] || { name: el.dataset.k, desc: '' }; $('invDesc').innerHTML = `<b>${it.name.toUpperCase()}</b>${it.desc}`; });
   } else if (jTab === 'funde') {
     B.innerHTML = `<h2>FUNDE · ${story.lore.length}</h2><ul>${story.lore.map((l, i) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('') || '<li><small>Noch nichts gefunden.</small></li>'}</ul>`;
     B.querySelectorAll('.lore').forEach(el => el.onclick = e => { e.stopPropagation(); const l = story.lore[+el.dataset.i]; $('journal').classList.remove('show'); ui.overlay = null; openNote(l.title, l.html); });

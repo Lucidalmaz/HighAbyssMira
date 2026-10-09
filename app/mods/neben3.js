@@ -262,7 +262,7 @@ function neben3_gesangbuch() { const st = neben3_st('kapelle'), S = neben3_S; if
     if (neben3_justinDa(12) && S.kap) { justin.look = false; const P = S.kap.pult; jWalk(P.x + .15, P.z + 1.05, () => { justin.g.rotation.y = 0; S.summen = { t: 0 }; }); } }); }
 // Justin summt die ersten fünf Töne (E D C H C), so leise, dass der Untertitel nur „(summt)“ zeigt
 function neben3_summen() { if (!Audio.ctx) return; const g = justin.g.position, d = Audio.at(g.x, 1.6, g.z, 1.6); [659.3, 587.3, 523.3, 493.9, 523.3].forEach((f, k) => { const o = Audio.osc('triangle', f / 2, k * .62, .7); const lp = Audio.ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; o.connect(lp); Audio.env(lp, .05, .08, .55, k * .62, d); }); subtitle('(summt)', 3400, JS); }
-function neben3_giselaZettel() { openNote('Zettel am Glockenseil', '<span class="hand">Nur zu Gottesdiensten läuten!\nNicht zum Spaß. Und NICHT drei und dreizehn.\nDas ist kein Witz. – G. R., Küsterin</span>', 'k3_glockenzettel'); }
+function neben3_giselaZettel() { openNote('Zettel am Glockenseil', '<span class="hand">Nur zu Gottesdiensten läuten!\nNicht zum Spaß. Und NICHT drei und dreizehn.\nDas ist kein Witz. – G. R., Küsterin\n\n<small>Darunter, kleiner: „Und nicht so hastig zwischen drei und dreizehn – aber auch nicht trödeln.“</small></span>', 'k3_glockenzettel'); }
 // Glockenseil: beim ersten Anfassen zieht es oben jemand einmal an (Schreck 2); danach 3 · Pause · 13 = Joker (einmal im Kapitel)
 async function neben3_seil() {
   const S = neben3_S, KP = S.kap, st = neben3_st('kapelle'); if (!KP || state.talking) return; if (neben3_frei()) neben3_start('k3_kapelle');
@@ -270,12 +270,13 @@ async function neben3_seil() {
   if (!st.seil1) { st.seil1 = 1; state.talking = true; KP.seil.zug = -.55; await wait(120); glocke(); shake = .02; await wait(4200); state.talking = false; kirchberg_an(KP.zettelHit, true); if (typeof spannung_mark === 'function') try { spannung_mark('welt2'); } catch (e) {} return; }
   if (!neben3_k3() || ch3.lampsOff) { KP.seil.zug = .35; return toast('Das Seil gibt nach. Oben rührt sich nichts.', 2600); }
   const t = performance.now() / 1000; KP.seil.zug = .38; glocke(); S.zuege = (S.zuege || []).filter(z => t - z < 40); S.zuege.push(t); S.zugPruef = 2.6; }
-function neben3_seilPruefen() { const S = neben3_S, z = S.zuege || []; S.zuege = []; if (z.length !== 16 || neben3_hat('glocke')) return;
-  const gaps = z.slice(1).map((v, i) => v - z[i]); const ok = gaps[2] > 1.6 && gaps.every((g, i) => i === 2 || g < 1.6); if (!ok) return;
+function neben3_seilPruefen() { const S = neben3_S, z = S.zuege || []; S.zuege = []; if (neben3_hat('glocke')) return; const lose = () => { if (z.length >= 4 && !state.talking) toast('Die Glocke hallt unruhig nach. Das war nicht der Rhythmus. Drei … dann Luft holen … dann dreizehn.', 3600); };
+  if (z.length !== 16) return lose();
+  const gaps = z.slice(1).map((v, i) => v - z[i]); const ok = gaps[2] > 1.6 && gaps.every((g, i) => i === 2 || g < 1.6); if (!ok) return lose();
   neben3_joker(); if (neben3_justinDa(20)) setTimeout(() => subtitle('„Wenn die Glocke so schlägt, bleibt sie stehen und hört hin. Wie ein Kind, das seinen Namen hört.“', 5200, JS), 2200); neben3_kapCheck(); }
 function neben3_kapCheck() { const st = neben3_st('kapelle'), q = story.side.k3_kapelle; if (!q || q.state === 'done') return;
   const n = [(st.ges || []).length >= 4, !!st.fuehrer, typeof sammeln_hatZ === 'function' && sammeln_hatZ(11), !!st.suehne, !!st.buch];
-  neben3_desc('k3_kapelle', `Fenster (${(st.ges || []).length}/8) · Kirchenführer · Sakristei · Gesangbuch · Glockenseil`);
+  neben3_desc('k3_kapelle', `Fenster (${Math.min(4, (st.ges || []).length)}/4) · Kirchenführer · Sakristei · Sühnebrief · Gesangbuch`);
   if (n.every(Boolean)) neben3_fertig('k3_kapelle', 'Sie zählt bis siebzehn zu dem Lied, das ihre Mama ihr vorgesungen hat.'); neben3_merk('fenster'); }
 // Takt in der Kapelle: Fensterglühen (RH-6), Seil, Justin summt, Justin kommt mit hinein
 function neben3_kapTick(dt, t) {
@@ -345,7 +346,7 @@ async function neben3_pfarrBau() {
   return true; }
 function neben3_springer() { const st = neben3_st('predigt'); if (neben3_frei()) neben3_start('k3_predigt');
   openNote('Unter dem weißen Springer', '<i>Schach, Weiß am Zug. Unter dem weißen Springer ein gefalteter Zettel:</i>\n\n<span class="hand">Theo, ich bringe sie weg. Halt sie auf, oder halt mich nicht auf. Beides ist eine Antwort. B.</span>', 'k3_springer', () => { st.springer = 1; neben3_predigtDesc(); }); }
-function neben3_predigtDesc() { const st = neben3_st('predigt'); if (story.side.k3_predigt && story.side.k3_predigt.state === 'active') neben3_desc('k3_predigt', st.mappe ? (st.hilfe2 ? 'Zwölf Wörter. In welcher Reihenfolge?' : 'Zwölf Predigten, zwölf doppelt unterstrichene Wörter.') : 'Das Studierzimmer. Schach, Weiß am Zug. Die Predigtmappe.'); }
+function neben3_predigtDesc() { const st = neben3_st('predigt'); if (story.side.k3_predigt && story.side.k3_predigt.state === 'active') neben3_desc('k3_predigt', st.mappe ? (st.hilfe2 ? 'Zwölf Wörter. In welcher Reihenfolge?' : 'Zwölf Predigten. Und ein dreizehntes Blatt, fast leer. Gegen die Lampe halten?') : 'Das Studierzimmer. Schach, Weiß am Zug. Die Predigtmappe.'); }
 function neben3_mappe() {
   const S = neben3_S, st = neben3_st('predigt'); if (neben3_frei()) neben3_start('k3_predigt'); st.gelesen = st.gelesen || [];
   if (!st.mappe) { st.mappe = 1; st.mappeT = 0; if (Audio.ctx) { const d = Audio.at(KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2, 2); if (Audio.buf.kb_glocke_A4) [0, .55].forEach((t0, i) => Audio.play('kb_glocke_A4', { gain: .18, rate: i ? .63 : .75, delay: t0, dur: 2.5, dest: d })); else [0, .55].forEach((t0, i) => { const o = Audio.osc('square', i ? 1480 : 1760, t0, .05); Audio.env(o, .03, .001, .04, t0, d); }); Audio.creak(.12, KB_RAUM.pfarrhaus.x + 3.8, 1.4, KB_RAUM.pfarrhaus.z - 1.2); } } // die Standuhr schwingt einmal an (Schreck 1)

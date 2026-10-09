@@ -992,7 +992,7 @@ async function villa_krHaupt(sel) { if (VILLA.hp) return; try { Audio.play('swit
   if (sel[4] === 'blau' && sel[5] === 'grau') { villa_setz('strom'); return villa_hoehepunktA(); }
   const n = VILLA.kastenFehl = (VILLA.kastenFehl || 0) + 1;
   if (n === 1) villa_gedanke('villa_r43a', 'Farbige Ringe. Die Sicherungen haben auch Farben. Die passen nicht überall.');
-  else if (n === 2) villa_gedanke('villa_r43b', 'Vier Schilder kann ich lesen. Zwei nicht. Aber ich weiß, welche Farben übrig sind.');
+  else if (n === 2) villa_gedanke('villa_r43b', 'Vier Schilder kann ich lesen. Zwei nicht – das müssen die hier unten sein. Und ich weiß, welche Farben dafür übrig sind.');
   else { toast('An der fünften und sechsten Fassung: drei frische Kratzer.', 3000); if (!villa_hat('h2')) { villa_setz('h2'); villa_beob('b_k4_h2', { pos: [-898.6, .02, 866.9] }); } } }
 // Höhepunkt A (Kern §12.1, Kinotabelle Teil A, ~46 s): nur Intensitäten vorhandener Lichter, Kamera weich zum Glas geführt
 async function villa_hoehepunktA() { const G = VILLA.glas, R = VILLA_R.kr; VILLA.hp = { t: 0, w: 0, ziel: new THREE.Vector3(-903.6, VILLA.o.tischY + .45, 868.8), nah: 0 }; villa_sperre(true); state.talking = true;

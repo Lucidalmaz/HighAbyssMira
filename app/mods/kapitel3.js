@@ -191,7 +191,7 @@ function kapitel3_jagdTick(dt) {
 async function kapitel3_erwischt() { // keine Verletzung, kein Neustart: eine schon gelöschte Laterne geht wieder an, der Hebel steht wieder auf EIN
   const S = kapitel3_S, J = S.jagd; J.pause = 99; J.caught++; state.talking = true;
   try { const P = player.pos; Audio.whisper(P.x + .2, 1.5, P.z + .1, 1.2); shake = .02; glitchV = .5; await wait(500);
-    subtitle('„Du bist.“', 2400, 'KINDERSTIMME'); grey.visible = false; await wait(1300);
+    subtitle('„Du bist.“', 2400, 'KINDERSTIMME'); toast('Hinter dir geht eine Laterne wieder an. Der Hebel steht auf EIN.', 3200); grey.visible = false; await wait(1300);
     const n = ch3.seq.pop(); if (n !== undefined) { const B = switchBoxes.find(b => b.n === n); if (B) { B.off = false; B.L.mode = 'pulse';
         if (Audio.ctx) { const L = B.L; Audio.play('lighterClick', { gain: .08, rate: .5, x: L.wx, y: 5, z: L.wz, ref: 6 }); } } } // eine Kerze, die jemand anpustet – nur rückwärts
   } finally { state.talking = false; } J.pause = 7; kapitel3_graukindSetzen(30); }
@@ -356,7 +356,7 @@ WORLD_TICK.push((dt, t) => {
   if (!S.vegasKuh && ch3.cowSeen && !state.talking && Math.hypot(P.x + 28, P.z + 11) < 17 && typeof albers_whiskey === 'function') { S.vegasKuh = true; ch3.side.vegasKuh = true;
     albers_whiskey([['„Das ist Aydıns Kuh! Die Gescheckte! Ich hab’s gewusst. Die nehmen erst die Kühe, dann die Leute. Steht alles im Ordner. Seit ’58!“', 6400, 'VEGAS']]); }
   // UK 3: das Telefon klingelt, bis Luke abnimmt – wer sich entfernt, hört es leiser und dann, egal wo er steht, direkt neben sich
-  if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
+  if (!ch3.callDone && S.ringAb >= 0 && ch3.t > S.ringAb) { if (!S.ringStart) { S.ringStart = true; ch3.ringing = true; setC3('Das Telefon an der Kreuzung klingelt. Nimm ab.'); if (!state.talking) setTimeout(() => { if (!state.talking && !S.gedZelle) { S.gedZelle = true; subtitle('Die Zelle hat seit Jahren kein Kabel mehr. Vegas sagt, genau deshalb hört sie mit.', 4400, 'LUKE'); } }, 5000); }
     S.ringT -= dt; if (S.ringT < 0) { S.ringT = 3.2; const dB = Math.hypot(P.x - 8, P.z - 7.6); if (dB > 36) Audio.ring(.09); else Audio.ring(.09, 8, 1.9, 7.6); } }
   // UK 1: erster Blick zur Telefonzelle
   if (S.uk >= 1 && !S.gedZelle1 && !state.talking && !ui.overlay && P.distanceTo(_k3v2.set(8, 0, 7.6)) < 30 && kapitel3_siehtHin(8, 1.4, 7.6, .95)) { S.gedZelle1 = true; subtitle('Fünfzig Hertz. Immer noch. Kein Strom im ganzen Dorf, und die Zelle brummt.', 5200, 'LUKE'); }

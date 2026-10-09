@@ -405,7 +405,7 @@ function k5_merker() {
 
 // ---------------------------------------------------------------- Zustand je Takt (Neustart am Speicherpunkt, Laden, Tests)
 function k5_setup(beat, spring) {
-  const S = K5, b = k5_i(beat); k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
+  const S = K5, b = k5_i(beat); if (b <= k5_i('tisch')) { k5.f.schleifeRuf = false; k5.runde = 0; k5.f.spieluhrGesagt = false; k5.f.starrt = false; } /* QA: Tod am Tisch/in der Schleife und Laden setzen die Schleife zurück (sonst feuert sie nie wieder) */ k5.beat = beat; k5.bt = 0; k5.tok++; k5.sitzt = false; k5.atem = 0; k5.atemAn = false; k5_tip(''); if (K5.v.wahlFin) K5.v.wahlFin(-2);
   if (k5.ownScript) { k5.ownScript = false; setScripted(null); setCamOverride(null); } if (!(typeof kino_busy === 'function' && kino_busy())) state.talking = false;
   const vis = (key, on) => { const o = S.g[key] || S.o[key]; if (o) o.visible = !!on; };
   const hits = (key, on) => { const h = S.hit[key]; if (!h) return; const i = interactables.indexOf(h); if (on && i < 0) interactables.push(h); else if (!on && i >= 0) interactables.splice(i, 1); };
@@ -546,6 +546,7 @@ function k5_sp(id) { const E = K5_SP[id]; k5.sp = id; const p = K5_POS[E[1]];
   if (typeof todCheckpoint === 'function') todCheckpoint(id, E[2].replace(/^SP5-\d · /, ''), { x: p[0], y: p[1], z: p[2], yaw: p[3], respawn: async () => k5_wieder(id, false) }); else saveGame(5); }
 function k5_wieder(id, laden) { const E = K5_SP[id] || K5_SP.k5_veranda; k5.on = true; k5_welt(); if (E[4]) k5_uhr(E[4][0], E[4][1], false);
   if (id === 'k5_spieluhr' && !k5_hat('lucys_spieluhr')) k5_item('lucys_spieluhr', 'Lucys Spieluhr', 'Holz, der Deckel verzogen. Die Melodie leiert – aber sie ist Lucys.', 'paper');
+  if (['k5_spieluhr', 'k5_lucy', 'k5_stall', 'k5_friedhof'].includes(id) && !k5_hat('mamas_kerze') && !k5.f.kerze) k5_item('mamas_kerze', 'Mamas Kerze', 'Vom gedeckten Tisch. Nie angezündet. Das Wachs ist kälter als der Raum.', 'paper'); /* QA: Fallback, falls die Kerze fehlt */
   if (id === 'k5_stall' && !k5_hat('brot') && !k5.f.brotStall) k5_item('brot', 'Ein Kanten Brot', 'Von Papas Platz. Nicht angeschnitten.', 'paper');
   if (typeof $ === 'function') $('fade').style.background = '#000';
   k5_setup(E[0]); k5_platz(K5_POS[E[1]]); k5.sp = id;
@@ -614,7 +615,7 @@ async function k5_takt(beat, wieder) {
     if (typeof spannung_did === 'function') { try { spannung_did('k5_tisch', 'major'); } catch (e) {} }
     k5.summT = 1.5; k5.setzT = 15; k5.setzN = 0; k5.tischT = 0;
     state.talking = true; await k5_sag([['„Da bist du ja, Bruder.“', 2800, K5_W.H], ['„Setz dich. Ich hab gekocht.“', 3000, K5_W.H]]); state.talking = false; if (!ok()) return;
-    if (h) k5_clip(h, 'idle', false); k5_task('Vier Gedecke. Lucy hat gesagt: Iss nichts.'); return; }
+    if (h) k5_clip(h, 'idle', false); k5_task('Vier Gedecke. Lucy hat gesagt: Iss nichts. Hör hin, was unter ihrer Stimme läuft.'); return; }
   if (beat === 'spieluhr') { k5_task('Lucys Spieluhr. Das Kinderzimmer.'); k5.boxT = 0; return; }
   if (beat === 'heimweg') { // K5-11
     if (!wieder) { k5_sp('k5_spieluhr'); } k5_task('Bring Lucy die Spieluhr.'); k5.jagd = { an: false, t: 5, dur: 0, seenT: 0, ruf: false }; k5_lichter1(0);
@@ -628,7 +629,7 @@ async function k5_takt(beat, wieder) {
   if (beat === 'tappen') { k5_uhr(20, 35); k5_task('Hinterher.'); k5.tp = { i: 0, x: -137.6, z: -30.1, t: 0, st: 0, weit: 0 }; return; }
   if (beat === 'grab') { if (!wieder) k5_sp('k5_friedhof'); k5_task('Das Tappen hat aufgehört. Das Gedenkfeld.'); k5.gr = { t: 0, gesagt: false, hinw: 0, feuer: 0, zeugT: 0, gTimer: 0 };
     k5_zettel('B-K5-06', { pos: [-51.9, .03, 64.1] }); return; } // am Torpfosten
-  if (beat === 'zaun') { k5_task('Hinterher.'); return; }
+  if (beat === 'zaun') { k5_task('Hinterher. Der Junge ist zum Nordzaun gelaufen.'); return; }
 }
 
 // ---------------------------------------------------------------- K5-2 · Lucy am Fenster: Dialog mit Auswahl
@@ -835,7 +836,7 @@ async function k5_gedeck(k) {
   } finally { state.talking = false; }
 }
 function k5_setzen() {
-  if (!k5.on || k5.sitzt || state.talking || !(k5.beat === 'tisch' || k5.beat === 'schleife')) return;
+  if (!k5.on || k5.sitzt || state.talking) return; if (k5.beat === 'schleife') return toast('Der Stuhl bleibt leer. Nicht setzen. Weitergehen – und hinhören.', 3600); if (k5.beat !== 'tisch') return;
   const S = K5, cz = S.sitz.z, sx = S.sitz.x; k5.sitzt = true; k5.sitzT = 0; const tok = k5.tok;
   player.pos.set(sx, K5_Y, cz); player.yaw = S.sitz.yaw; player.pitch = -.25; vel.set(0, 0, 0);
   k5.ownScript = true; setScripted(() => k5.sitzt); setCamOverride((cam, dt) => { if (!k5.sitzt) return; cam.position.set(sx, K5_Y + 1.12, cz); });
@@ -880,6 +881,7 @@ function k5_schwelle() { // Versetzen ohne Schnitt: an die Tür Wohnzimmer → K
     if (S.o.dreipunkt) S.o.dreipunkt.visible = true; k5.radioT = 1e9; // ∴ von außen im Beschlag, die Tropfen laufen noch · Radio aus
     if (typeof beob_spur === 'function') { try { beob_spur('bonbon', { pos: [-51.2, K5_Y + .95, -11.9], nie: true }); } catch (e) {} } // Fensterbrett draußen: ein ausgelecktes Bonbonpapier (Spur S-07)
     k5_katerTakt('schleife');
+    if (typeof kamera_S !== 'undefined' && kamera_S.film <= 0 && typeof kamera_film === 'function') { kamera_film(1); k5_denk('Ein letzter Film steckt noch in der Kamera. Mama hat auch welche gehortet, unten in der Kommode.', 5200); } /* QA: nie ohne Film in Runde 3 */
     if (typeof kamera_S !== 'undefined' && kamera_S.film <= 0 && !k5.f.film) { K5.o.film.visible = true; k5_hitAn('film', -44.55, K5_Y + .8, -18.6); setTimeout(() => k5_denk('Kein Film. … Mama hat Filme gehortet. Die Kommode.'), 1500); } }
 }
 function k5_stuhlZumFenster(an) { const S = K5; if (S.kStuhl === undefined) { S.kStuhl = null; const G1 = scene.getObjectByName('io_nr1'), bb = new THREE.Box3();
@@ -901,7 +903,7 @@ async function k5_atemVerpasst() { // Fehlversuch: kalte Finger am Hals (A-26: k
   k5_atem(camera.position.x, camera.position.y - .1, camera.position.z, .2); shake = .03; glitchV = .35; if (typeof kino_abriss === 'function') { try { kino_abriss(.5); } catch (e) {} }
   subtitle('Kleine, kalte Finger an deinem Hals.', 2600); await wait(2400);
   subtitle('„Iss auf, Bruder.“', 2600, K5_W.H); await wait(2600); state.talking = false; if (!k5.on || k5.beat !== 'schleife') return;
-  if (k5.verpasst === 2) k5_denk('Nicht umdrehen und gucken. Umdrehen und abdrücken.', 5000);
+  if (k5.verpasst === 1) k5_denk('Etwas atmet hinter mir. Hildes Kamera – umdrehen und abdrücken.', 4600); if (k5.verpasst === 2) k5_denk('Nicht umdrehen und gucken. Umdrehen und abdrücken.', 5000);
   k5.atemT = 7; // Runde 3 beginnt neu
 }
 // Höhepunkt als Kinosequenz „Runde drei“ (Tabelle Kap. 5, 10–26 s): nach dem Polaroid Schnitt hinter Lukes Schulter, halbnah, ganz nah, Schwarz, Kerze
@@ -1021,7 +1023,7 @@ function k5_stallAufbau() { const S = K5, OW = typeof ausbau_ost_west_OW !== 'un
   S.stallTuer = d && d.barnDoor ? [d.barnDoor.x, d.barnDoor.z] : [-138.2, -30.1]; }
 async function k5_brotHin() {
   if (!(k5.beat === 'stall' || k5.beat === 'brot') || k5.f.brotStall) return;
-  if (!k5_hat('brot')) return toast('Ein Teller, sauber abgeleckt. Du hast nichts, was du darauflegen könntest.', 3200);
+  if (!k5_hat('brot')) return toast('Ein Teller, sauber abgeleckt. Du hast nichts, was du darauflegen könntest. Der Kanten Brot liegt noch auf Papas Platz in Nr. 1.', 4600);
   k5_weg('brot'); k5.f.brotStall = true; if (K5.stallBrot) { K5.stallBrot.visible = true; K5.stallBrotTeile.forEach(m => m.visible = true); }
   Audio.play('items2', { gain: .3 }) || Audio.paper();
   if (k5.beat !== 'stall') { k5.beat = 'stall'; k5_sp('k5_stall'); }
@@ -1355,7 +1357,7 @@ WORLD_TICK.push((dt, t) => {
   if ((b === 'brot' || b === 'stall') && P.x < -70 && k5.katzeLampe !== k5.lampAus) { k5.katzeLampe = k5.lampAus; const L = k5.lampAus; if (L) k5_kater('zurueck', { x: L.wx, z: L.wz, sek: 2.2 }); } // die Katze bleibt bei jeder Laterne stehen und sieht zurück
   if (b === 'stall' && !k5.f.sb10Satz && typeof sammeln_hatSB === 'function' && sammeln_hatSB(10) && !state.talking && !ui.overlay) { k5.f.sb10Satz = true; /* H-1: Einzeiler gestrichen, das Summen reicht */ }
   if (b === 'stall' && S.stallP && !k5.f.brettGesehen && k5_dist(S.stallP[0], S.stallP[1]) < 3 && k5_blick(S.stallP[0], .3, S.stallP[1]) > .85) { k5.f.brettGesehen = true; // Hilfeleiter (2): das Brett; wer Hildes Zählbuch behalten hat, bekommt ihre Randnotiz
-    if (k5_hat('zaehlbuch')) setTimeout(() => k5_denk('Hildes Zählbuch, am Rand: „Brot hin. Umdrehen. Der ist scheu wie eine Katze.“', 5600), 800); }
+    if (k5_hat('buch')) setTimeout(() => k5_denk('Hildes Zählbuch, am Rand: „Brot hin. Umdrehen. Der ist scheu wie eine Katze.“', 5600), 800); }
   if (b === 'stall' && k5.f.brotStall) { if (!state.talking && !k5_zu()) { k5.stT += dt;
       if (k5.stT > 20 && k5.hint < 1) { k5.hint = 1; k5_denk('Er kommt nicht, solange ich hinsehe. Sie sieht durch mich.', 5000); }
       if (k5.stT > 35 && k5.hint < 2) { k5.hint = 2; k5_qFrei(true, 'Q halten – Augen zu'); if (typeof augenzu_frei !== 'function') k5_tip('<kbd>Q</kbd> halten – Augen zu', 8000); if (story.lore.some(l => l.key === 'ow_heft')) setTimeout(() => k5_denk('„Wenn sie nicht hinsieht, darf ich runter in den Stall.“'), 9000); } }

@@ -341,7 +341,8 @@ function kapitel1_kpPress(k) {
     if (n === 1) { kpSay('Falsch. Unter den Dielen kratzt etwas, von der Kellertreppe her.'); Audio.play('scrape2', { gain: .22, rate: .8, x: 30.2, y: .3, z: -21.2, ref: 2 }); setTimeout(() => { if (ui.overlay === 'keypad') subtitle('„Du kannst das, Großer.“', 2800, 'LUCY?'); }, 1500); K1.kp.blick = true; }
     else if (n === 2) { kpSay('Stille. Die Stimme ist weg.'); K1.stimmeAus = true; setTimeout(() => { subtitle('Es lauscht.', 2200, 'LUKE'); setTimeout(() => toast('Sie hat den Tag eingekreist, an dem es zurückkam. Tag und Monat.', 5200), 2600); }, 900); }
     else if (n === 3) { closeOverlay(); scareCellarDoor(); setTimeout(() => toast('Lies, was im Haus liegt. Der Kalender weiß den Tag.', 5200), 7000); return; }
-    else { kpSay(''); if (n === 5) kapitel1_whiskeyFenster(); }
+    else if (n === 4) kpSay('Der Kalender weiß den Tag. Erst der Tag, dann der Monat.');
+    else { kpSay(n === 5 ? 'Stille.' : 'Nur 0, 1 und 3 sind abgegriffen. Der eingekreiste Tag, dann der Monat.'); if (n === 5) kapitel1_whiskeyFenster(); }
   } else if (kpValue.length < 4) { kpValue += k; Audio.beep(true); }
   kpRender();
 }
@@ -428,7 +429,7 @@ function kapitel1_obenTick(dt) { if (!K1.f.has('oben') || !kapitel1_on()) return
   else if (K1.obenT > 150) startOutage(); }
 // Stromausfall (ersetzt die Basis): Lampe flackert und stirbt, Häuser dunkel, Brummen; dann werden die Laternen ausgeblasen, von Ost nach West, im Takt eines Kindes
 async function kapitel1_ausfall() {
-  if (state.outage) return; state.outage = true; K1.aus = { t: 0, q: [], ufo: null, hilde: false, ruf: false };
+  if (state.outage) return; state.outage = true; setMain(6); K1.aus = { t: 0, q: [], ufo: null, hilde: false, ruf: false };
   state.flashFail = 2.2; setTimeout(() => { K1.lampeTot = true; }, 2200);
   [livingLight, kitchenLight, tvLight, booth.light].forEach(l => l.userData.dead = true); shade.material.emissiveIntensity = 0; tube.material.emissiveIntensity = 0; tvScreen.material.emissiveIntensity = 0; houseLit.forEach(m => m.emissiveIntensity = 0);
   Audio.play('switch2', { gain: .3, rate: .6, x: 25, y: 1.5, z: -14, ref: 3 });
@@ -536,7 +537,7 @@ async function kapitel1_kellerEnde() { const V = K1.v; if (V.done) return; V.don
   fade(0, 1300); await wait(500); Audio.play('metalSlam', { gain: 1.3, rate: .8, x: B.x + 4.28, y: 3.6, z: B.z - .85, ref: 3 }); Audio.thump(B.x + 4.28, 3.6, B.z - .85); /* R-6: Kellertür oben am Podest */ shake = .09;
   setTimeout(() => Audio.hum(false), 2500); Audio.play('rumble', { gain: .3, rate: .5, lp: 220 }); state.talking = true; K1.wb = { t: 0 };
   await wait(3200); Audio.play('giggle', { gain: .2, rate: .78, offset: .2, dur: 1.8, x: B.x - .5, y: -4, z: B.z - 5, ref: 2, lp: 1300 });
-  await wait(2600); await say([['<i>Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.</i>', 5200, 'LUKE']]); state.talking = false;
+  await wait(2600); await say([['<i>Unter der Erde sieht sie mich nicht. Hat Hilde geschrien. Hinter die Bilder. Lucy.</i>', 5200, 'LUKE']]); state.talking = false; $('objText').textContent = trX('Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.');
   K1.wandHand = kapitel1_hit(3, 2, .4, B.x - .5, 1.3, B.z - 3.7); interact(K1.wandHand, 'Die Hand an die Wand legen', async () => { uninteract(K1.wandHand); toast('Sie ist warm.', 2600); await wait(2400); kapitel1_ende(); }); }
 function kapitel1_wbTick(dt) { const W = K1.wb; if (!W || !B.wallArt) return; W.t += dt; if (!W.s0) W.s0 = { s: B.wallArt.scale.clone(), z: B.wallArt.position.z }; const k = Math.min(1, W.t / 9), s = 1 + .03 * kapitel1_ease(k) + .004 * Math.sin(W.t * 1.7);
   B.wallArt.scale.set(W.s0.s.x * s, W.s0.s.y * s, W.s0.s.z); B.wallArt.position.z = W.s0.z + (s - 1) * .8; }
@@ -587,6 +588,7 @@ WORLD_MODS.push(['Kapitel 1 (Hauptweg)', async () => {
   // Texte/Aktionen der Basis im Hauptweg (Fassung 3)
   MAIN[7] = 'Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.';
   // F3 Verständlichkeit: jede Aufgabe sagt, warum (Lucys Anruf, Lucys Band, das, was die Treppe hoch ist)
+  MAIN[3] = 'Öffne die Kellertür. Das Tastenfeld will vier Ziffern.'; MAIN[6] = 'Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt.'; if (story.main === 3 || story.main === 6) $('objText').textContent = trX(MAIN[story.main]);
   MAIN[0] = 'Lucy hat angerufen: „Haus Nummer 7. Der Keller.“ Finde Haus Nr. 7.'; MAIN[2] = 'Durchsuche Haus Nr. 7. Lucy hat dir ein Band im Keller hinterlassen.';
   MAIN[5] = 'Irgendwas ist an dir vorbei die Treppe hoch. Hinterher.'; MAIN[8] = 'Hinter die Bilder, hat Hilde geschrien. Folge dem Gang hinter der Wand.'; if (story.main === 0 || story.main === 2 || story.main === 5) $('objText').textContent = trX(MAIN[story.main]);
   { const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (E) { E.title = 'Nachbild · Die Kreuzung'; E.lines = [['Warmer Asphalt. Sommernacht. Kinder, barfuß, in einer Reihe. Eine Männerstimme zählt: „… fünf, sechs, sieben. Sieben. Gott sei Dank.“', 5600], ['Eine Kinderstimme, ganz nah: „Acht.“', 3000], ['Am Nebelrand steht noch ein Junge. Er zählt nicht mit. Dann ist er weg.', 4200], ['Das Bild kommt zurück. Regen.', 2600]]; } }

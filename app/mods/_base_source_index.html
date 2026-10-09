@@ -2992,7 +2992,8 @@ function feelBreath(ex, per) { const A = Audio; if (!A.ctx || !A.noiseBuf) retur
 let scripted = null; function setScripted(fn) { scripted = fn; vel.set(0, 0, 0); vy = 0; }
 let camOverride = null; function setCamOverride(fn) { camOverride = fn; }
 const KEY_HOOKS = {}; // Welt-Module: KEY_HOOKS['KeyG'] = () => …
-function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
+const ITEM_DEFS = {}; // QA: Mod-Gegenstände werden mitgespeichert (saveGame → idefs), damit sie nach dem Laden im Inventar erscheinen
+function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; ITEM_DEFS[k] = { name: String(name), desc: String(desc), icon: icon || 'paper' }; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
 function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Achse
   if (state.zone === 'canal') return canalCollide(axis);
   let hit = false; const v = step;
@@ -3799,7 +3800,7 @@ interact(board, 'Ordnungstafel', () => {
   openPuzzle(`<h3>REIHENFOLGE DER RÜCKFÜHRUNG</h3><p>Klick auf ein Feld, um den Namen zu wechseln.</p><div class="slots">${ch2.slots.map((s, i) => `<button data-i="${i}">${s || '·'}</button>`).join('')}</div><div class="row"><button id="pzOk">PRÜFEN</button></div>`, box => {
     box.querySelectorAll('.slots button').forEach(b => b.onclick = e => { e.stopPropagation(); const i = +b.dataset.i; const cur = NAMES.indexOf(ch2.slots[i]); ch2.slots[i] = NAMES[(cur + 1) % NAMES.length]; b.textContent = ch2.slots[i]; Audio.beep(true); drawBoard(); });
     box.querySelector('#pzOk').onclick = e => { e.stopPropagation();
-      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', () => openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest 2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält.\n\nStempel: <b>ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); })); // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
+      if (ch2.slots.join() === ORDER.join()) { ch2.archiveSolved = true; drawBoard(); closeOverlay(); Audio.chime(); Audio.slide(X + 20, Z - 5.6); archiveDrawer.position.z += .45; interact(archiveDrawer, 'Schublade', archiveDrawerRead);; // W2-P4: Schlüssel ZIMMER 7 + Erleichterung (zimmer7.js); ohne das Modul wie bisher
         toast('Ein Klicken. Die unterste Schublade des ersten Schranks springt auf.', 4500); }
       else { Audio.beep(false); const n = ++ch2.archiveTries; // Fassung 3 (AP-16): kein Schaden, keine Zahl – der Nadeldrucker protokolliert; Hilfeleiter nach 2 / 4 / 6 Fehlern
         if (typeof amt_druck === 'function') amt_druck('RÜCKLÄUFER 08 SORTIERT FALSCH.'); else toast('Nichts passiert.', 2500);
@@ -3808,6 +3809,7 @@ interact(board, 'Ordnungstafel', () => {
         if (n >= 6) { let wi = -1, wd = 0; ch2.slots.forEach((s, i) => { const d = s ? Math.abs(ORDER.indexOf(s) - i) : 7; if (d > wd) { wd = d; wi = i; } }); ch2.boardGlow = wi; drawBoard(); box.querySelectorAll('.slots button').forEach((b, i) => b.style.boxShadow = i === wi ? '0 0 14px rgba(230,200,120,.9)' : ''); } } };
   });
 });
+function archiveDrawerRead() { return openNote('Vermessungsprotokoll · Sommer 2009', 'Acht Stühle. Acht Gurte. Acht Protokolle.\n\nSieben Kinder wurden abgeholt. Sechs kamen zurück. Einer kam nie.\n\nDas achte Protokoll trägt keinen Namen. Nur eine Fotokopie: Sommerfest 2009. Rot umkringelt ein Mädchen im weißen Kleid, das deine Hand hält.\n\nStempel: <b>ERSCHEINUNGSFORM B ANWESEND · AUSWAHL BESTÄTIGT</b>.\n\nDaneben, mit Klammer: ein Schlüssel. <b>ZIMMER 7</b>.', 'protokoll', () => { if (typeof z7_protokoll === 'function') return z7_protokoll(); ch2.fuseKey = true; addItem('fuse'); setC2Objective('Finde den Sicherungsraum und schalte den Strom ein.'); }); } // als Funktion, damit tod.js sie nach dem Laden eines Spielstands wieder anbinden kann (QA K1/2)
 ch2.archiveTries = 0;
 const archiveDrawer = box(.86, .5, .48, X + 20, .3, Z - 5.6, M.dark);
 
@@ -5114,7 +5116,7 @@ function safeTick(dt) {
 }
 function saveGame(chapter) {
   try { const ch = chapter || curChapter();
-    const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
+    const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, idefs: Object.fromEntries(story.items.filter(k => ITEM_DEFS[k] || (ITEMS[k] && typeof ITEMS[k].name === 'string' && !ITEMS[k].key && k !== 'batterie' && k !== 'key' && k !== 'fuse')).map(k => [k, ITEM_DEFS[k] || { name: ITEMS[k].name, desc: String(ITEMS[k].desc || ''), icon: Object.keys(ICONS).find(i => i !== k && ICONS[i] === ICONS[k]) || 'paper' }])), myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
       main: story.main, obj: $('objText').textContent, at: SAFE.at && SAFE.at.ch === ch ? { ...SAFE.at } : null,
       st: Object.fromEntries(SAVE_STATE.filter(k => state[k] !== undefined).map(k => [k, state[k]])), doors: doors.map(D => [D.open ? 1 : 0, D.locked ? 1 : 0]),
       side: Object.fromEntries(Object.entries(story.side).map(([k, q]) => [k, q.steps ? { state: q.state, desc: q.desc, steps: q.steps } : { state: q.state, desc: q.desc }])),
@@ -5137,6 +5139,8 @@ function applySave(d) {
   story.lore = d.lore || []; story.photos = new Set(d.photos || []); story.items = d.items || [];
   // Ausrüstung: ältere Spielstände haben keine → Stufe nach Kapitel (Kap. 3 hat die LED-Lampe aus dem Amt)
   const f = d.flash || {}; FLASH.tier = Math.min(FLASH_TIERS.length - 1, Math.max(+f.tier || 0, d.chapter >= 3 ? 1 : 0)); FLASH.charge = f.charge ?? 1; FLASH.spare = f.spare ?? (d.chapter >= 2 ? 2 : 1); FLASH.lowTold = false; flashApply();
+  for (const [k, v] of Object.entries(d.idefs || {})) if (!ITEMS[k] && v && typeof v.name === 'string') { ITEMS[k] = { name: v.name, desc: v.desc || '' }; ICONS[k] = ICONS[v.icon] || ICONS.paper; ITEM_DEFS[k] = v; }
+  for (const k of story.items) if (!ITEMS[k]) { ITEMS[k] = { name: k.replace(/_/g, ' '), desc: '' }; ICONS[k] = ICONS.paper; } // QA: ältere Spielstände ohne Definition → Notbezeichnung statt leerem Slot/TypeError
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
@@ -5805,7 +5809,7 @@ const ITEMS = {
 };
 for (const T of FLASH_TIERS) ITEMS[T.key] = T;
 story.items = ['lampe1'];
-function addItem(key) { if (!story.items.includes(key)) { story.items.push(key); questPop('INVENTAR', ITEMS[key].name); } }
+function addItem(key) { if (!story.items.includes(key)) { story.items.push(key); questPop('INVENTAR', (ITEMS[key] || { name: key }).name); } }
 let jTab = 'aufgaben';
 function renderJournal() {
   const B = $('jBody');
@@ -5820,9 +5824,9 @@ function renderJournal() {
     if (ch3.on) { L.push(`</ul><h2 style="margin-top:18px">GEHEIMNISSE · ${ch3.myst.size} / 5</h2><ul>`); for (const [k, m] of Object.entries(MYST)) L.push(ch3.myst.has(k) ? `<li class="done">${m.title}</li>` : `<li>???<small>${m.hint}</small></li>`); }
     L.push('</ul></div></div>'); B.innerHTML = L.join('');
   } else if (jTab === 'inventar') {
-    const slots = []; for (let i = 0; i < 12; i++) { const k = story.items[i]; slots.push(k ? `<div class="slot has" data-k="${k}">${ICONS[k]}</div>` : '<div class="slot empty"></div>'); }
+    const slots = []; for (let i = 0, n = Math.max(12, Math.ceil(story.items.length / 6) * 6); i < n; i++) { const k = story.items[i]; slots.push(k ? `<div class="slot has" data-k="${k}">${ICONS[k] || ICONS.paper}</div>` : '<div class="slot empty"></div>'); }
     B.innerHTML = `<h2>INVENTAR</h2><div class="inv">${slots.join('')}</div><div id="invDesc"><b>—</b>Fahre mit der Maus über einen Gegenstand.</div>`;
-    B.querySelectorAll('.slot.has').forEach(el => el.onmouseenter = () => { const it = ITEMS[el.dataset.k]; $('invDesc').innerHTML = `<b>${it.name.toUpperCase()}</b>${it.desc}`; });
+    B.querySelectorAll('.slot.has').forEach(el => el.onmouseenter = () => { const it = ITEMS[el.dataset.k] || { name: el.dataset.k, desc: '' }; $('invDesc').innerHTML = `<b>${it.name.toUpperCase()}</b>${it.desc}`; });
   } else if (jTab === 'funde') {
     B.innerHTML = `<h2>FUNDE · ${story.lore.length}</h2><ul>${story.lore.map((l, i) => `<li class="lore" data-i="${i}">${l.title}</li>`).join('') || '<li><small>Noch nichts gefunden.</small></li>'}</ul>`;
     B.querySelectorAll('.lore').forEach(el => el.onclick = e => { e.stopPropagation(); const l = story.lore[+el.dataset.i]; $('journal').classList.remove('show'); ui.overlay = null; openNote(l.title, l.html); });

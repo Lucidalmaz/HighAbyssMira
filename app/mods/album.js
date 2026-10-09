@@ -580,7 +580,7 @@ async function album_weltBau() { const S = album_S; try {
 function album_weltSync() { const S = album_S; if (!S.welt) return; S.welt.visible = !S.hat; if (S.hat) uninteract(S.weltHit); else if (!interactables.includes(S.weltHit)) interactables.push(S.weltHit); }
 function album_nehmen() { const S = album_S; if (S.hat) return; S.hat = true; album_weltSync(); Audio.play && Audio.play('woodHit1', { gain: .15, rate: 1.4 }); album_ton('albLeder', { gain: .3 });
   const n = S.e.length; openNote('Ein Fotoalbum', 'Auf Hildes Stuhl am Fenster, als hätte sie es eben erst weggelegt. Leder, schwer, ein Riemen mit Druckknopf. Die Seiten sind leer – aber in jeder stecken schon Fotoecken, schwarz, sorgfältig eingeklebt. Seite um Seite.\n\nAls hätte jemand gewusst, dass es Bilder geben wird.' + (n ? '\n\n<span class="hand">Die Fotos aus der Jacke kommen hier rein. Ordentlich. Hilde hätte es so gewollt.</span>' : ''), 'album_nehmen',
-    () => { S.neu = S.e.map(e => e.id); toast(`[${album_tastenName(album_tasten.album)}] Fotoalbum`, 3200); if (!story.items.includes('fotoalbum')) story.items.push('fotoalbum'); }); }
+    () => { S.neu = S.e.map(e => e.id); toast(`[${album_tastenName(album_tasten.album)}] Fotoalbum`, 3200); if (!story.items.includes('fotoalbum')) addItem('fotoalbum'); }); }
 
 // ================================================================ Einstellungen: Tasten belegen (Album, Beutel)
 const ALBUM_BELEGT = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyR', 'KeyG', 'KeyC', 'KeyK', 'KeyL', 'KeyM', 'KeyV', 'KeyJ', 'KeyQ', 'Tab', 'Space', 'ShiftLeft', 'ShiftRight', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'F3']);
