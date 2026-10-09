@@ -601,6 +601,7 @@ function leben_pigTick(Pg, dt, live) {
 // =====================================================================  FLEDERMÄUSE (Kapelle, Tankstelle, Schrott, Scheune, Gärten) + Jagd auf Motten
 function leben_batSetup() {
   const S = leben_S, B0 = FAB.bats[0]; if (!B0) return;
+  for (const b of FAB.bats) if (b.g.children[0]) b.g.children[0].rotation.y = -PI / 2; // 10.10.: Modell blickt entlang +X, die Flugbahn läuft entlang +Z (Fledermaeuse flogen seitwaerts); die Klone unten uebernehmen die Drehung
   const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
   [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
     const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; }); leben_variiere(o, { hell: [.75, 1.1] });
