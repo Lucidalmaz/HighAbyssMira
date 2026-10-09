@@ -571,11 +571,16 @@ async function lwo_kombiLaden() {
   LWO.kombi = K; return K; }
 function lwo_kombi() { return LWO.kombi; }
 // Transporter vor der Telefonzelle (strasse.js, „Transporter ohne Aufschrift“): Magnetschild am Heck, abnehmbar, schief angesetzt
-function lwo_magnetschild(g, heck = -1) { g.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(g), sx = bb.max.x - bb.min.x, sz = bb.max.z - bb.min.z;
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(.66, .21), new THREE.MeshStandardMaterial({ map: lwo_texMagnet(), roughness: .6, metalness: .1, polygonOffset: true, polygonOffsetFactor: -2 }));
-  if (sx > sz) { m.position.set(heck < 0 ? bb.min.x - .012 : bb.max.x + .012, bb.min.y + 1.02, (bb.min.z + bb.max.z) / 2 + .3); m.rotation.y = heck < 0 ? -Math.PI / 2 : Math.PI / 2; }
-  else { m.position.set((bb.min.x + bb.max.x) / 2 + .3, bb.min.y + 1.02, heck < 0 ? bb.min.z - .012 : bb.max.z + .012); m.rotation.y = heck < 0 ? Math.PI : 0; }
-  m.rotation.z = .025; m.userData.noCol = true; scene.add(m); return m; }
+function lwo_magnetschild(g, heck = -1) { g.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(g), sx = bb.max.x - bb.min.x, sz = bb.max.z - bb.min.z, T = THREE;
+  // 09.10.: Magnetfolie als dünne Platte (3 mm, gerundete Ecken, Kantenfase) statt Fläche; per Strahl auf die Heckklappe gesetzt, kein Spalt, kein Z-Fighting
+  const W = .66, H = .21, r = .018, sh = new T.Shape(); sh.moveTo(-W / 2 + r, -H / 2); sh.lineTo(W / 2 - r, -H / 2); sh.quadraticCurveTo(W / 2, -H / 2, W / 2, -H / 2 + r); sh.lineTo(W / 2, H / 2 - r); sh.quadraticCurveTo(W / 2, H / 2, W / 2 - r, H / 2); sh.lineTo(-W / 2 + r, H / 2); sh.quadraticCurveTo(-W / 2, H / 2, -W / 2, H / 2 - r); sh.lineTo(-W / 2, -H / 2 + r); sh.quadraticCurveTo(-W / 2, -H / 2, -W / 2 + r, -H / 2);
+  const geo = new T.ExtrudeGeometry(sh, { depth: .002, bevelEnabled: true, bevelThickness: .0008, bevelSize: .0008, bevelSegments: 1, curveSegments: 4 }), P = geo.attributes.position, U = geo.attributes.uv; for (let i = 0; i < P.count; i++) U.setXY(i, P.getX(i) / W + .5, P.getY(i) / H + .5);
+  const m = new T.Mesh(geo, new T.MeshStandardMaterial({ map: lwo_texMagnet(), roughness: .5, metalness: .15 })); m.castShadow = false; m.receiveShadow = true;
+  const long = sx > sz, dir = long ? new T.Vector3(heck < 0 ? 1 : -1, 0, 0) : new T.Vector3(0, 0, heck < 0 ? 1 : -1), y = bb.min.y + 1.02, side = .3;
+  const o = long ? new T.Vector3(heck < 0 ? bb.min.x - 1 : bb.max.x + 1, y, (bb.min.z + bb.max.z) / 2 + side) : new T.Vector3((bb.min.x + bb.max.x) / 2 + side, y, heck < 0 ? bb.min.z - 1 : bb.max.z + 1);
+  const rc = new T.Raycaster(o, dir, 0, 3), hit = rc.intersectObject(g, true).find(h => { const mt = [].concat(h.object.material)[0]; return mt && !mt.transparent && h.object.visible; });
+  const p = hit ? hit.point : o.clone().addScaledVector(dir, 1 - .012); // Rückseite der Platte (z = 0) liegt auf dem Blech
+  m.position.copy(p).addScaledVector(dir, -.0005); m.rotation.y = long ? (heck < 0 ? -Math.PI / 2 : Math.PI / 2) : (heck < 0 ? Math.PI : 0); m.rotation.z = .025; m.userData.noCol = true; scene.add(m); return m; }
 function lwo_kombiZeigen(x, z, ry, { stand = false, innen = false, motor = false, hinten = false } = {}) { const K = LWO.kombi; if (!K) return null; LWO.ag01Aktiv = false; K.g.position.set(x, 0, z); K.g.rotation.y = ry; K.g.visible = true; K.path = null; K.sp = 0;
   lwo_kombiLicht({ stand, innen, hinten }); lwo_kombiMotor(motor); return K; }
 function lwo_kombiLicht({ stand = false, innen = false, hinten = stand } = {}) { const K = LWO.kombi; if (!K) return; K.stand = stand; for (const s of K.vorn) s.visible = stand; for (const s of K.hinten) s.visible = hinten; K.innen.visible = innen;
