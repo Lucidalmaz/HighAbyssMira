@@ -21,7 +21,7 @@ Material-Klone je Figur teilen das Programm (nur die Uniforms `uF`, `uK`, `uE` s
 | `uCA` | (0,20 · 0,38 · 0,86) | Randfarbe unten/außen (kalt, tief) |
 | `uCB` | (0,80 · 0,89 · 1,00) | Randfarbe oben/streifend (blass) |
 | `uCC` | (0,48 · 0,56 · 0,72) | Körper-Grundton (mit Albedo moduliert) |
-| Fresnel | `pow(1 − |N·V|, 2)` | Rand dicht, Körper durchscheinend: Deckung 0,10 (Mitte) … 0,50 (Rand) + 0,12 · Albedo |
+| Fresnel | `pow(1 − |N·V|, 2)` | Rand dicht, Körper durchscheinend: Deckung 0,06 (Mitte) … 0,30 (Rand) + 0,08 · Albedo (+0,1 im Gesicht) |
 | Innenstruktur | Albedo-Helligkeit, `0,5 + (√L − 0,55) · 0,6` | entsättigt, kontrastarm – Falten/Kleidung bleiben lesbar |
 | Szenenlicht | `× (1 + min(2,2 · L_licht, 1,4))` | Taschenlampe/Lampen hellen den Geist auf |
 | Auflösung (Schlieren) | Rauschen `vWP · (5,5; 1,35; 5,5)`, steigt mit 0,55/s | an Rand (0,5), Händen/Füßen (Abstand zur Körperachse, 0,45), Scheitel (0,6), Füßen/Boden (0,75); nie ganze Glieder (max. 93 %) |
@@ -32,6 +32,13 @@ Material-Klone je Figur teilen das Programm (nur die Uniforms `uF`, `uK`, `uE` s
 | Nachbild | Verzögerung `GEIST.L.lag` 0,12 s, Stärke 30 %, beim Stocken/Schleifensprung 58 % | |
 | Sättigungsausgleich | Chroma `/ uSat` | Geister behalten Farbe, die Umgebung wird blass |
 
+## Kopf und Gesicht (09.10., Befund Bündel 2: abgeschnittene Köpfe, fehlende Gesichter)
+- Kopfmaske je Figur (`uHd`: Kopfknochen + 7 cm, Radius 0,17 m · Größe/1,7, min. 0,75): im Kopf keine Rausch-Kante (Auf-/Abtritt blendet dort weich), keine Schlieren, Albedo-Kontrast 1,35 statt 0,75, Rand schwächer, Körperanteil stärker.
+- Augäpfel bleiben sichtbar (nur Hornhaut/Tränenrand/Augenschatten, Zähne, Zunge, Mundraum, Wimpern sind aus); die Tiefen-Zwillinge verhindern das Durchscheinen.
+- Ursache der abgeschnittenen Köpfe: beim flimmernden Ausblenden sprang der Modus zwischen Auftritt/Abgang – jetzt schaltet er nur bei 0 bzw. 1 um.
+- Nachbild: strenger Tiefentest (deckungsgleiche Flächen nicht doppelt), dunkelt nie ab (nur Licht).
+- Hintergrund-Abdunklung: Deckung jetzt 0,06 (Mitte) … 0,30 (Rand), max. 0,6.
+
 ## Animation
 - Zeitlupe je Figur 0,72–0,85 (Mischer-Tempo), **beim Gehen Tempo 1** (Schrittlänge = Weg, kein Gleiten).
 - Stocken 80–150 ms alle 4–9 s (nur im Stand), Schleifensprung (Clip-Zeit springt zurück) wird mit Flimmern + Nachbild verdeckt.
@@ -41,12 +48,12 @@ Material-Klone je Figur teilen das Programm (nur die Uniforms `uF`, `uK`, `uE` s
 ## Echo-Start/-Ende
 | Effekt | Wert |
 |---|---|
-| Entsättigung (`filmPass` → `gSat`) | 1 → 0,45 (1,2 s ein, 1,6 s aus) – ersetzt den CSS-Filter von `figuren_memoryLook` |
-| Bleichung/Korn (`gBl`) | 0 → 0,38 (Silberrest-Mischung, Korn × 1,5) |
-| Vignette | +0,55 auf den aktuellen Wert |
-| Farbsaum | Puls +0,016 (Start), +0,010 (Ende), klingt mit e^(−2,2 t) ab; Dauer +0,0015 |
-| Lampen | vorhandene virtuelle Lichter (`vlights`) < 14 m: leises Flackern 5–10 %, Aussetzer (flickDip) – am Anfang gehäuft; am Ende auf den Wert, den die Lampe selbst hat |
-| Lichtkegel | Stärke 0,06 (Staubschicht, kein Licht) |
+| Entsättigung (`filmPass` → `gSat`) | 1 → 0,6 (1,2 s ein, 1,6 s aus) – ersetzt den CSS-Filter von `figuren_memoryLook` |
+| Bleichung/Korn (`gBl`) | 0 → 0,14 (Silberrest-Mischung, Korn × 1,2) |
+| Vignette | +0,22 auf den aktuellen Wert |
+| Farbsaum | Puls +0,010 (Start), +0,005 (Ende), klingt mit e^(−2,2 t) ab; Dauer +0,0015 |
+| Lampen | vorhandene virtuelle Lichter (`vlights`) < 14 m: im Echo +22 % heller (Szene bleibt lesbar), leises Flackern 2–5 %, weiche Aussetzer auf 70–85 % (flickDip) – am Anfang gehäuft; am Ende auf den Wert, den die Lampe selbst hat |
+| Lichtkegel | Stärke 0,035 (Staubschicht, kein Licht) |
 | Ton | Herzschlag `pz_herz_*` (0,5, Tiefpass 420 Hz), Druck `fx_tief_2` (0,18, Rate 0,78), Flüsterschicht `fx_fluester_*` alle 2,4–4,8 s an einer der Figuren (räumlich → Hall über raumklang), Ende: Ausatmen `pz_atem_*` |
 
 ## Leistung
