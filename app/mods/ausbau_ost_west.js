@@ -120,10 +120,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const hatchWin = new T.Mesh(new T.BoxGeometry(1, .56, .03), glassK); hatchWin.position.set(115.1, 1.3, 25.02); K.add(hatchWin);
   wbox('rust_sheet', 1.1, .05, .34, 115.1, 1.03, 24.8, { p: K });
   { const d = fit(door1S.clone(true), 1.98); d.scale.x *= 1.05 / Math.max(.01, new T.Box3().setFromObject(d).getSize(new V3()).x); put(d, 113.35, 25.02, 0, 0, K); }
-  // Leuchtband über dem Kiosk (Schrift auf rostigem Blech)
-  const fasciaTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
-    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); })); // Blechschild: aufgemalte Schablonenschrift mit Abplatzern
-  const fascia = new T.Mesh(new T.PlaneGeometry(11.6, 1.08), new T.MeshStandardMaterial({ map: fasciaTx, emissive: 0xffffff, emissiveMap: fasciaTx, emissiveIntensity: .0, roughness: .6 })); fascia.position.set(112, 3.2, 24.84); K.add(fascia);
+  // Kioskband: Blender-Blechband (ms/schild_band, Schrift als Geometrie, schild_band_bau.py), QA M-13 – 09.10. statt Canvas-Schablone; Rückseite an der Wand
+  try { const fascia = (await msModel('schild_band', 'model.glb')).clone(true); fascia.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); fascia.position.set(112, 3.2, 24.84); K.add(fascia); } catch (e) { console.warn('Kioskband', e); }
   // Innen: Werkbank als Tresen, Regale, Kalender, Licht
   { const t = fit(metaltableS.clone(true), 3.2, 'x'); put(t, 110.3, 26, 0, 0, K); const s1 = fit(wardrobeS.clone(true), 1.95); put(s1, 108, 30.49, PI / 2, 0, K); const s2 = fit(wardrobeS.clone(true), 1.95); put(s2, 116.3, 30.49, PI / 2, 0, K);
     const tb = fit(trashS.clone(true), .7); put(tb, 117, 26.2, 1, 0, K); }

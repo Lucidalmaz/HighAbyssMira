@@ -168,7 +168,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Eigene Arbeit (Blender)
-- **Warnschild „FORBIDDEN DUSTWOODS“** (`game/assets/ms/schild_warn/model.glb`, `gruen.js`): Emailleschild als Blender-Modell, Schrift (Arial) als Geometrie, Rahmen, Abplatzer, Schrauben, halb abgekratztes Auge; `app/tools/blender/schild_warn_bau.py` (nach `schild_bau.py`). **Strichwände Nr. 9** (`fassaden.js`): jeder Strich echte Geometrie statt Canvas-Karte.
+- **Warnschild „FORBIDDEN DUSTWOODS“** (`game/assets/ms/schild_warn/model.glb`, `gruen.js`): Emailleschild als Blender-Modell, Schrift (Arial) als Geometrie, Rahmen, Abplatzer, Schrauben, halb abgekratztes Auge; `app/tools/blender/schild_warn_bau.py` (nach `schild_bau.py`). **Kioskband Tankstelle Kranz** (`game/assets/ms/schild_band/model.glb`, `ausbau_ost_west.js`; `schild_band_bau.py`): Blechband mit Schrift als Geometrie. **Strichwände Nr. 9** (`fassaden.js`): jeder Strich echte Geometrie statt Canvas-Karte.
 - **Kolkrabe Whiskey und Rabenkrähen** (`game/assets/ms/rabe_whiskey/model.glb`, `game/assets/ms/rabe_kraehe/model.glb`; Module `whiskey.js`, `traum.js`, `menue.js`, `kino.js`, `leben.js`, `hungrige.js`):
   Körper aus dem Museumsscan **„Common raven“** (Corvus corax, Krystyna-und-Włodzimierz-Tomek-Naturkundemuseum Ciężkowice, Inv. MP 040) – Wirtualne Muzea Małopolski, **CC0 1.0**,
   https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89 (Ast entfernt, reduziert, Farbe/Normalen gebacken und nachgedunkelt).

@@ -411,6 +411,12 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     for (let i = 0; i < 16; i++) dec((i % 2 ? 1 : -1) * rand(3.3, 3.7), rand(-44, -7), rand(.45, .7), rand(1.4, 2.4), rand(-.08, .08), .026 + i * .00002);
     for (const [x, z] of [[-37, 3.15], [36.5, 3.1], [-49.5, 3.1], [14.6, 3.25], [1.9, -37], [-2.25, -42.3], [-8.5, -13.05]]) dec(x + rand(-.4, .4), z + rand(-.1, .1), 2.6, 1.3, rand(-.2, .2), .028);
     const geo = new T.PlaneGeometry(1, 1); geo.rotateX(-PI / 2); reg('decals', msInst([{ geo, mat: dm }], list, { shadow: false })); }
+  { // QA M-9 (09.10.): Laub im Rinnstein – echte Laubnester (Scan „Leftover tree leaves“, ms/w_leftleaves) an der Bordsteinkante der Fahrbahn (Gosse z = ±3,45…3,8, Bordstein bei ±4,05); flach, ohne Kollision
+    try { const lp = await msBake('w_leftleaves', 'model.glb'); if (lp && lp.length) { const bb = new T.Box3(); for (const q of lp) { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); } const sz = bb.getSize(new T.Vector3()), k0 = 1 / Math.max(sz.x, sz.z), M4 = [];
+        const frei = (x, z) => ![[-37, 3.15], [36.5, 3.1], [-49.5, 3.1], [14.6, 3.25], [-74.9, 2.8]].some(([a, b]) => Math.abs(x - a) < 3 && Math.abs(z - b) < 1.7); // nicht unter die geparkten Autos
+        for (let i = 0, n = 0; i < 80 && n < 26; i++) { const s = i % 2 ? 1 : -1, x = rand(-76, 76), z = s * rand(3.5, 3.8); if (Math.abs(x) < 6.5 || !frei(x, z)) continue; // Kreuzung (Zebra, Kreide) bleibt frei
+          const k = k0 * rand(.5, 1.0); M4.push(msM4(x, .02 - bb.min.y * k, z, rand(0, 6.28), new T.Vector3(k, k * rand(.6, .9), k))); n++; }
+        chunkInst('leaves', lp.map(p => ({ geo: p.geo, mat: p.mat })), M4, 16, 42, { shadow: false }); S.info.laub = M4.length; } } catch (e) { warn(e); } }
   { // Bremsspuren vor Lucys Auto: sie hat voll gebremst, kurz vor der Sperre – STORY-HOOK
     const sk = canvasTex(128, 1024, (x, w, h) => { x.clearRect(0, 0, w, h); for (const cx of [12, 116]) for (let y = 0; y < h; y += 2) { const a = Math.min(1, y / h * 1.6) * (.5 + .5 * Math.random()) * .75; x.fillStyle = `rgba(8,8,8,${a})`; x.fillRect(cx - 9 + Math.sin(y * .01) * 2, y, 18, 2); } });
     const m = new T.Mesh(new T.PlaneGeometry(1.62, 11), new T.MeshStandardMaterial({ map: sk, transparent: true, depthWrite: false, roughness: .45, polygonOffset: true, polygonOffsetFactor: -3 }));
