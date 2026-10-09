@@ -6377,8 +6377,8 @@ stage('Erstes Bild fertig');
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
-    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true;
-    for (let i = 0; i < teile.length; i += 12) { const an = new Set(teile.slice(i, i + 12)); for (const c of teile) c.visible = an.has(c);
+    const teile = kids.filter(c => !mitLicht.has(c)), UPCH = +(/[?&]upch=(\d+)/.exec(location.search) || [])[1] || 36; renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true; // 09.10.: 36 statt 12 Gruppen je Hochlade-Bild (jedes Bild kostet Matrizen/Sortierung/Schattenpass/Transmission der ganzen Szene)
+    for (let i = 0; i < teile.length; i += UPCH) { const an = new Set(teile.slice(i, i + UPCH)); for (const c of teile) c.visible = an.has(c);
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null); LOAD_NORENDER.on = false;
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }

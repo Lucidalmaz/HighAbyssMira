@@ -45932,7 +45932,7 @@ window.__geister = { S: GEIST, REGIE: GEIST_REGIE, look: on => geister_look(on),
 //    noch versteckt sind, und übersetzt sie parallel (KHR_parallel_shader_compile); (b) taucht trotzdem etwas Unübersetztes im Bild auf, wird nur dieses
 //    Teil ausgelassen, bis sein Programm fertig ist (wenige Bilder), statt das ganze Spiel anzuhalten. Nur für die Spielszene; Nachbearbeitung/Schatten unberührt.
 const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7, 9 und 10 ab
-const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
+const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: 0, maxBusy: 3, nb: 2, per: 3, cdefer: LST_NEU && !/nocompdefer/.test(location.search), flushing: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
   root: null, R: renderer.properties };
 // Varianten-Merkmal eines gezeichneten Teils (die Merkmale, für die three.js ein eigenes Programm braucht)
 function lst_sig(o, g) { const ma = g.morphAttributes, mc = ma.position || ma.normal || ma.color;
@@ -45959,17 +45959,38 @@ function lst_seed() { scene.traverse(o => { if (!(o.isMesh || o.isPoints || o.is
     return r; }; }
 // Vorgemerktes parallel übersetzen (außerhalb des Bildes – compile() setzt den Render-Zustand zurück)
 function lst_flush() {
-  if (LST.busy) { if (performance.now() - LST.busyT > 30000) LST.busy = false; return; } // Sicherung: nie dauerhaft unsichtbar
+  if (LST.busy >= LST.maxBusy) { if (performance.now() - LST.busyT > 30000) LST.busy = 0; return; } // Sicherung: nie dauerhaft unsichtbar
   if (!LST.q.length) return;
-  const objs = LST.q.splice(0, 12); for (const o of objs) LST.qm.delete(o); // kleine Portionen: das Anlegen der Programme selbst kostet je Stück 1–5 ms
+  // 18) Portionsgröße nach gemessener Anlegezeit (09.10.): Ein neues Programm kostet auf dem Hauptfaden 20–30 ms (Shadertext zusammensetzen, 70 KB je Programm); 12 Teile mit neuen
+  //    Programmen auf einmal waren ein Standbild von 300–370 ms beim ersten Betreten von Nr. 7. Jetzt höchstens ~6 ms je Bild (1 Teil mit neuem Programm, viele mit schon vorhandenem),
+  //    dafür bis zu drei Portionen gleichzeitig bei der Grafikkarte in Arbeit (die Wartezeit steckt in der Grafikkarte, nicht im Bild).
+  const objs = LST.q.splice(0, LST.nb); for (const o of objs) LST.qm.delete(o);
   const root = LST.root || (LST.root = new THREE.Object3D()); root.traverse = cb => { for (const o of objs) cb(o); }; root.traverseVisible = () => {};
-  LST.busy = true; LST.busyT = performance.now(); const t0 = LST.busyT;
+  LST.busy++; LST.busyT = performance.now(); const t0 = LST.busyT;
   const done = () => { for (const o of objs) { const sig = o.__lsSig; for (const m of [].concat(o.material)) if (m) { lst_add(m, sig); if (m.__lsP) m.__lsP = 0; } }
-    LST.comp += objs.length; LST.compMs = performance.now() - t0; LST.busy = false; };
+    LST.comp += objs.length; LST.compMs = performance.now() - t0; LST.busy = Math.max(0, LST.busy - 1); };
   // Für den Nachbearbeitungs-Puffer übersetzen (wie der Gesamtdurchgang der Basis): für den Bildschirm wäre es eine andere Programm-Variante (Farbraum/Tonwert)
   const rt0 = renderer.getRenderTarget(); renderer.setRenderTarget(composer.renderTarget1);
-  try { _compileAsync0(root, camera, scene).then(done, e => { console.warn('Leistung: Vorübersetzen', e); done(); }); } catch (e) { console.warn('Leistung: Vorübersetzen', e); done(); } finally { renderer.setRenderTarget(rt0); }
+  LST.flushing = true;
+  try { _compileAsync0(root, camera, scene).then(done, e => { console.warn('Leistung: Vorübersetzen', e); done(); }); } catch (e) { console.warn('Leistung: Vorübersetzen', e); done(); } finally { LST.flushing = false; renderer.setRenderTarget(rt0); }
+  const per = (performance.now() - t0) / objs.length; LST.per = LST.per * .6 + per * .4; LST.nb = Math.max(1, Math.min(12, Math.floor(6 / Math.max(.4, LST.per)))); // Anlegezeit je Teil → nächste Portion
 }
+// 19) DIREKTES renderer.compile(gruppe, kamera, szene) NACH DEM LADEN NICHT BLOCKIEREN (09.10.). bewohnt.js übersetzt beim Bauen der Wohnungs-Deko (bw_bauen, beim Näherkommen) alle Programme
+//    der Gruppe auf einmal im selben Bild: 12 Programme = 250–370 ms Standbild beim ersten Betreten von Nr. 7 (gemessen; je Programm 20–30 ms Shadertext zusammensetzen). Die Shader-Wache
+//    übernimmt solche Teile jetzt selbst: sie kommen in die Warteschlange (wenige Millisekunden je Bild), bleiben bis zu ihrem fertigen Programm unsichtbar. compileAsync-Aufrufe der Module
+//    (Kino-Sets, Figuren …) laufen weiter wie vorher, weil sie auf das Ergebnis warten. Ausschalten zum Vergleich: ?nocompdefer
+function lst_queueTree(root) { let n = 0;
+  root.traverse(o => { if (!(o.isMesh || o.isPoints || o.isLine || o.isSprite) || !o.material || !o.geometry) return; const sig = lst_sig(o, o.geometry), m = o.material;
+    if (Array.isArray(m)) { for (let i = 0; i < m.length; i++) if (m[i] && !lst_known(m[i], sig)) { lst_check(o, m[i]); n++; } } else if (!lst_known(m, sig)) { lst_check(o, m); n++; } });
+  return n; }
+function lst_compileDefer() {
+  const cp = renderer.compile, ca = renderer.compileAsync; let inCA = 0;
+  renderer.compileAsync = function (s, c, t) { inCA++; try { return ca.call(this, s, c, t); } finally { inCA--; } };
+  renderer.compile = function (s, c, t) {
+    if (LST.cdefer && LST.on && !LST.flushing && !inCA && t === scene && s && s !== scene && s.traverse) { try { lst_queueTree(s); LST.deferN = (LST.deferN | 0) + 1; return new Set(); } catch (e) { console.warn('Leistung: Übersetzen verschoben', e); } }
+    return cp.call(this, s, c, t); };
+}
+
 // Hintergrund-Durchsicht: ~600 Knoten je Bild (auch Unsichtbares – genau das soll vorher fertig werden). Sammelt nebenbei die Figuren-Skelette (siehe 8).
 function lst_scan() {
   const S = LST.stack; if (!S.length) { if ((LST.scanT -= 1) > 0) return; LST.scanT = 20; S.push(scene); LST.rigNext.clear(); }
@@ -46291,7 +46312,7 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_compileDefer(); } catch (e) { LST.cdefer = false; console.warn('Leistung: Übersetzen verschieben', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
   MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
@@ -47127,8 +47148,8 @@ stage('Erstes Bild fertig');
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} }
     // In Häppchen rendern (je ~12 Gruppen, dazwischen eine Pause): das Fenster bleibt ansprechbar (kein „Spiel reagiert nicht“). Gruppen mit Lichtern bleiben immer an (Lichtzahl gleich → keine Neuübersetzung).
     const kids = scene.children.slice(), mitLicht = new Set(kids.filter(c => { let l = false; c.traverse(o => { if (o.isLight) l = true; }); return l; }));
-    const teile = kids.filter(c => !mitLicht.has(c)); renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true;
-    for (let i = 0; i < teile.length; i += 12) { const an = new Set(teile.slice(i, i + 12)); for (const c of teile) c.visible = an.has(c);
+    const teile = kids.filter(c => !mitLicht.has(c)), UPCH = +(/[?&]upch=(\d+)/.exec(location.search) || [])[1] || 36; renderer.setRenderTarget(composer.renderTarget1); LOAD_NORENDER.on = true; // 09.10.: 36 statt 12 Gruppen je Hochlade-Bild (jedes Bild kostet Matrizen/Sortierung/Schattenpass/Transmission der ganzen Szene)
+    for (let i = 0; i < teile.length; i += UPCH) { const an = new Set(teile.slice(i, i + UPCH)); for (const c of teile) c.visible = an.has(c);
       try { renderer.render(scene, camera); } catch (e) { console.warn('Hochladen', e); } stage('Texturen hochladen ' + Math.min(99, Math.round(i / teile.length * 100)) + ' %'); await wait(0); }
     renderer.setRenderTarget(null); LOAD_NORENDER.on = false;
     for (const [o, v, f, l] of keep) { o.visible = v; o.frustumCulled = f; o.layers.mask = l; }

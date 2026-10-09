@@ -124,3 +124,29 @@ Alles in `leistung.js`, ohne sichtbare Änderung.
   3. Weniger Lichter im Pool (18 → 10).
   4. Kleinere Standard-Shader (kalte Ladezeit).
 - **JS-Speicher:** 6,3 GB.
+
+## Nachtrag 09.10.2026 (Leistung/Ladezeit, Sonnet 5.5)
+
+Messweise: Dauerinstanz, A/B-Schalter zur Laufzeit abwechselnd (3 × 9 s Einschwingen + 6 s Messung je Ort und Zustand), 1584 × 861, Normalmodus, Leistungs-Einblendung an (in beiden Zuständen gleich).
+
+| Ort | vorher FPS (Ø ms / p95 / schlechtestes Bild) | nachher FPS (Ø ms / p95 / schlechtestes Bild) |
+|---|---|---|
+| Kreuzung | 32,2 (31,1 / 50,4 / 58) | 37,3 (26,8 / 33,1 / 40) |
+| Straße | 33,1 (30,2 / 49,4 / 72) | 38,8 (25,8 / 31,0 / 38) |
+| Nr. 7 innen | 32,6* (30,7 / 44,9 / 70) | 46,5 (21,5 / 25,3 / 34) |
+
+\* ein Ausreißer-Durchgang (21 FPS) im Zustand „vorher“; ohne ihn ≈ 44 FPS.
+Beim Gehen (4,5 m/s, 10 s, 3 Durchgänge): Ø 40,3 → 34,1 ms, p95 66 → 49 ms, Bilder > 80 ms je 10 s: 11,3 → 2,3.
+
+Maßnahmen (alle ohne sichtbare Änderung; Vergleichsschalter in Klammern):
+- **Kleinteil-Auslese mit Weltradius** (Basis `dcullBuild`; `__PX.DCULL.wr = false; __PX.DCULL.n = -1`): FBX-Modelle in cm (Skalierung 0,0025) hatten einen Formradius von 232 und fielen aus der Auslese. Zwei Gruppen „Simple Burlap Pin Effigy“ (je 152 Teile, 135–169 m entfernt, tief im Nebel) wurden jedes Bild gezeichnet: ≈ 300 von 950 Zeichenaufrufen. Kreuzung 952 → 706, Straße 1149 → 995, Nr. 7 534 → ≈ 390 Aufrufe.
+- **Leistung 17 – Schattenbild-Bilder ohne volles Hauptbild** (`?noshfrei`, `__leistung.SHF.on`): Die Basis schaltete in Bildern mit neuem Mond-/Lampen-/Schlüssellicht-Schattenbild alle Auslesen ab, das Hauptbild zeichnete dann alles (+60 ms, beim Gehen alle ~0,45 s). three.js r170 baut die Liste des Hauptbilds vor `shadowMap.render`; darum bleiben die Auslesen an, ausgeblendete Teile sind nur für den Schattendurchlauf wieder sichtbar (Figuren bleiben in diesen Bildern sichtbar, damit ihre Knochen stimmen). Geprüft: gleiche Menge gezeichneter Schattenwerfer (480 = 480).
+- **Leistung 18/19 – Shader-Wache** (`?nocompdefer`, `__leistung.S.cdefer`): Portionsgröße nach gemessener Anlegezeit (1 Teil mit neuem Programm je Bild statt 12), bis zu drei Portionen gleichzeitig bei der Grafikkarte; direktes `renderer.compile(gruppe, kamera, szene)` (bewohnt.js, `bw_bauen`: 12 Programme auf einmal) wird nach dem Laden in die Warteschlange der Wache umgeleitet. Erstes Betreten von Nr. 7: schlechtestes Bild 373 → 160 ms (die 250–370-ms-Standbilder sind weg; dafür mehr Bilder mit 50–100 ms in den ersten Sekunden).
+- **Ladezeit:** Hüllkugel der SkinnedMesh aus der Ruhepose (`?noskinsph`; 2990 Formen × 1,2 ms ≈ 3,7 s; auch die 50–100 ms je auftretender Figur entfallen), früher BVH für Strahlen gegen große Formen (`?nobvh`, Basis `BVH_EARLY`; 900 Strahlen 46,8 s → 8 ms; die BVH gehören ohnehin zu `buildSolids`, 14 Formen mit Gruppen/Mehrfachmaterial gegen die einfache Strahlprüfung verglichen: 0 Abweichungen), 36 statt 12 Gruppen je Hochlade-Bild (`?upch=12` zum Vergleich). Modulphase im Ladeprofil 91,6 → 80,7 s, „Erstes Bild → Schatten“ 24,0 → 20,8 s.
+
+Befunde ohne Änderung:
+- „(program)“ im CPU-Profil (13–19 %) ist nativer Zeitanteil der WebGL-Aufrufe (Fast-API-Aufrufe, ohne JS-Rahmen), kein Treiber-Stall. Der „Freeze 1 s nach Neues Spiel“ war ein Messartefakt des Profil-Starts (`Profiler.start` blockiert 0,5–0,9 s); ohne Profiler: `beginGame` 0 ms, kein Bild > 90 ms danach.
+- Die Grafikkarte ist nicht der Engpass (Zeitabfrage ≈ CPU-Einreichdauer; Viertel der Pixel: −15 %), die Last liegt im JS-Hauptthread (Zeichenaufrufe ≈ 40 %, Matrizen 11 %, projectObject 12 %, Auslesen 7 %).
+- Durchsichtige Zeichenaufrufe (168 mit 135 Materialien, meist Einzelflächen mit eigener Textur) und Laternen-Halos (5–6 Sprites) lassen sich nicht sinnvoll zusammenführen: Gewinn < 0,3 ms.
+- Knochen nur bei Bewegung neu rechnen (Leistung 16): kein Gewinn gemessen, verworfen.
+- Ladezeit schwankt stark mit der Rechnerlast (Texturen-Hochladen 17–97 s im selben Stand, Isolations-Messung 1 GB/s); Texturen früh hochladen bringt nichts, weil der Hauptfaden in der Modulphase ausgelastet ist.
