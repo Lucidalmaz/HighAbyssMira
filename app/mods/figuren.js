@@ -51,10 +51,7 @@ async function figuren_clone(F, height) {
 }
 // ---------- Erinnerungs-Material: Modul geister (geister.js, docs/gameplay/geister.md) – ein gemeinsamer Look für alle Geister. B: Uniform-Bündel je Figur (ohne: gemeinsames Bündel, Stärke FAB.ghostU)
 function figuren_ghostMat(src, B) { return geister_mat(src, B); }
-// Geist ohne Innenleben: additive Hülle zeigte Augäpfel, Gebiss und Mundraum durch den Kopf hindurch (Nutzer 02.10.: „durch die Augen und das Gebiss sieht es sehr komisch aus“).
-// Innenteile ausblenden; jede übrige Hülle bekommt einen Tiefen-Zwilling (gleiche Geometrie/Skelett/Morphs, schreibt nur Tiefe, nach allem Undurchsichtigen gezeichnet),
-// danach leuchtet nur die vorderste Fläche – kein Durchscheinen von Rückseiten, Zähnen oder Ärmel-Innenseiten.
-const FIG_INNEN = /eye|cornea|tear|occlusion|teeth|tooth|tongue|lash|gum|mouth_?inner|caruncle|iris|pupil|sclera/i;
+// Geist ohne Innenleben (Innenteile aus, Tiefen-Zwillinge – nur die vorderste Fläche leuchtet): geister.js, GEIST_INNEN
 function figuren_geistBau(obj, o) { return geister_bau(obj, o); } // Innenteile aus, Tiefen-Zwillinge, Geister-Shader, Anmeldung (geister.js)
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
 // ghost: Erinnerung · doll: mit der Gruppe skalieren (Puppen im Weißen) · clip: feste Bewegung · sit: Sitzhöhe (Weltlage y)

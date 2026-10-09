@@ -61,7 +61,7 @@ const GEIST_FS = `
   float gMA = uMA > .5 ? diffuseColor.a : 1.;
   float gL = dot(gCol, vec3(.299, .587, .114)); gCol = max(vec3(0.), gL + (gCol - gL) / max(uSat, .3));
   float gA = (mix(.06, .3, gFr) + .08 * gAl + .1 * gHd) * gWisp * (1. - uE) * gHf; // Nachbild (uE) dunkelt nie ab, nur Licht
-  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * gHf * .55, clamp(gA * gStr * gMA, 0., .6));
+  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * gHf * .48, clamp(gA * gStr * gMA, 0., .6));
   if (gl_FragColor.a + gl_FragColor.r + gl_FragColor.b < .004) discard;`;
 // ---------------------------------------------------------------- Uniform-Bündel je Figur (Material-Klone teilen das Programm)
 function geister_bundle(s) { return { s: s || null, uF: { value: new THREE.Vector4(1, 0, 0, Math.random() * 50) }, uK: { value: new THREE.Vector4(0, 0, 0, 1) }, uE: { value: 0 }, uHd: { value: new THREE.Vector4(0, 0, 0, 0) }, cache: new Map(), zc: new Map() }; }
@@ -255,7 +255,7 @@ function geister_echoTick(dt) { const X = GEIST.echo; if (!X) return; X.t += dt;
 // ---------------------------------------------------------------- Takt
 function geister_strTick(dt) { // Fortschritt je Stärke-Quelle: folgt dem Wert mit begrenzter Rate (Flimmer-Einbrüche bewegen die Auflösung kaum)
   for (const e of GEIST.list) { const u = geister_s(e.B); if (!GEIST.str.has(u)) GEIST.str.set(u, { p: 0, mode: 0 }); }
-  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5, p0 = T.p; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p >= .999) T.mode = 1; else if (T.p <= .001) T.mode = 0; void p0; } } // Modus nur an den Enden: Auftritt läuft bis 1, Abgang bis 0 – Einbrüche drehen die Richtung nie um
+  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p >= .999) T.mode = 1; else if (T.p <= .001) T.mode = 0; } } // Modus nur an den Enden: Auftritt läuft bis 1, Abgang bis 0 – Einbrüche drehen die Richtung nie um
 function geister_sichtbar(o) { for (let p = o, n = 0; p && n < 12; p = p.parent, n++) { if (!p.visible) return false; if (p === scene) return true; } return false; }
 function geister_tick(dt) { const t0 = performance.now(); GEIST.now = t0 / 1000; GEIST.t += dt;
   if (typeof FAB !== 'undefined') { if (!GEIST.fab && FAB.ok) geister_fab(); if (FAB.ghostU) GEIST.s0.value = FAB.ghostU.value; } // s0: Rückfall, falls ein Material vor FAB.ghostU übersetzt wurde

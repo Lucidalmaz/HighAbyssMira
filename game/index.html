@@ -17133,10 +17133,7 @@ async function figuren_clone(F, height) {
 }
 // ---------- Erinnerungs-Material: Modul geister (geister.js, docs/gameplay/geister.md) – ein gemeinsamer Look für alle Geister. B: Uniform-Bündel je Figur (ohne: gemeinsames Bündel, Stärke FAB.ghostU)
 function figuren_ghostMat(src, B) { return geister_mat(src, B); }
-// Geist ohne Innenleben: additive Hülle zeigte Augäpfel, Gebiss und Mundraum durch den Kopf hindurch (Nutzer 02.10.: „durch die Augen und das Gebiss sieht es sehr komisch aus“).
-// Innenteile ausblenden; jede übrige Hülle bekommt einen Tiefen-Zwilling (gleiche Geometrie/Skelett/Morphs, schreibt nur Tiefe, nach allem Undurchsichtigen gezeichnet),
-// danach leuchtet nur die vorderste Fläche – kein Durchscheinen von Rückseiten, Zähnen oder Ärmel-Innenseiten.
-const FIG_INNEN = /eye|cornea|tear|occlusion|teeth|tooth|tongue|lash|gum|mouth_?inner|caruncle|iris|pupil|sclera/i;
+// Geist ohne Innenleben (Innenteile aus, Tiefen-Zwillinge – nur die vorderste Fläche leuchtet): geister.js, GEIST_INNEN
 function figuren_geistBau(obj, o) { return geister_bau(obj, o); } // Innenteile aus, Tiefen-Zwillinge, Geister-Shader, Anmeldung (geister.js)
 // ---------- Person in eine vorhandene Gestalt (Gruppe) setzen: alte Teile (Kapseln, Puppe, gemaltes Gesicht) ausblenden
 // ghost: Erinnerung · doll: mit der Gruppe skalieren (Puppen im Weißen) · clip: feste Bewegung · sit: Sitzhöhe (Weltlage y)
@@ -44950,7 +44947,7 @@ async function moebel_bau() {
     g.position.set(cx, y0, cz); g.rotation.y = wd ? Math.atan2(-f[1], f[0]) : Math.atan2(f[0], f[1]); // dresser schaut nach +z, wardrobe nach +x → Drehung zur freien Seite
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
     if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
-    box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; } // Kollision des Kastens bleibt (gleiche Grundfläche)
+    g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff
@@ -45567,7 +45564,7 @@ const GEIST_FS = `
   float gMA = uMA > .5 ? diffuseColor.a : 1.;
   float gL = dot(gCol, vec3(.299, .587, .114)); gCol = max(vec3(0.), gL + (gCol - gL) / max(uSat, .3));
   float gA = (mix(.06, .3, gFr) + .08 * gAl + .1 * gHd) * gWisp * (1. - uE) * gHf; // Nachbild (uE) dunkelt nie ab, nur Licht
-  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * gHf * .55, clamp(gA * gStr * gMA, 0., .6));
+  gl_FragColor = vec4(gCol * gWisp * gStr * gMA * gHf * .48, clamp(gA * gStr * gMA, 0., .6));
   if (gl_FragColor.a + gl_FragColor.r + gl_FragColor.b < .004) discard;`;
 // ---------------------------------------------------------------- Uniform-Bündel je Figur (Material-Klone teilen das Programm)
 function geister_bundle(s) { return { s: s || null, uF: { value: new THREE.Vector4(1, 0, 0, Math.random() * 50) }, uK: { value: new THREE.Vector4(0, 0, 0, 1) }, uE: { value: 0 }, uHd: { value: new THREE.Vector4(0, 0, 0, 0) }, cache: new Map(), zc: new Map() }; }
@@ -45761,7 +45758,7 @@ function geister_echoTick(dt) { const X = GEIST.echo; if (!X) return; X.t += dt;
 // ---------------------------------------------------------------- Takt
 function geister_strTick(dt) { // Fortschritt je Stärke-Quelle: folgt dem Wert mit begrenzter Rate (Flimmer-Einbrüche bewegen die Auflösung kaum)
   for (const e of GEIST.list) { const u = geister_s(e.B); if (!GEIST.str.has(u)) GEIST.str.set(u, { p: 0, mode: 0 }); }
-  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5, p0 = T.p; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p >= .999) T.mode = 1; else if (T.p <= .001) T.mode = 0; void p0; } } // Modus nur an den Enden: Auftritt läuft bis 1, Abgang bis 0 – Einbrüche drehen die Richtung nie um
+  for (const [u, T] of GEIST.str) { const tg = Math.max(0, Math.min(1, u.value / .9)), r = dt / .5; T.p += Math.sign(tg - T.p) * Math.min(Math.abs(tg - T.p), r); if (T.p >= .999) T.mode = 1; else if (T.p <= .001) T.mode = 0; } } // Modus nur an den Enden: Auftritt läuft bis 1, Abgang bis 0 – Einbrüche drehen die Richtung nie um
 function geister_sichtbar(o) { for (let p = o, n = 0; p && n < 12; p = p.parent, n++) { if (!p.visible) return false; if (p === scene) return true; } return false; }
 function geister_tick(dt) { const t0 = performance.now(); GEIST.now = t0 / 1000; GEIST.t += dt;
   if (typeof FAB !== 'undefined') { if (!GEIST.fab && FAB.ok) geister_fab(); if (FAB.ghostU) GEIST.s0.value = FAB.ghostU.value; } // s0: Rückfall, falls ein Material vor FAB.ghostU übersetzt wurde
