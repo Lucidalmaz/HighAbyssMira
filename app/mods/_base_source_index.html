@@ -2909,7 +2909,7 @@ addEventListener('keydown', e => {
   if (ui.overlay === 'note' && (e.code === 'KeyE' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
   if (ui.overlay === 'journal' && (e.code === 'Tab' || e.code === 'KeyJ' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
   if (ui.overlay === 'puzzle') { if (e.code === 'Escape' && !e.repeat) closeOverlay(); return; }
-  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD') && !ui.paused) ch2.shake += 22;
+  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD') && !ui.paused) ch2.shake += 40; // 09.10.: 6 Tasten/s genügen (vorher 22: ~11/s nötig)
   if (ui.overlay === 'keypad') { if (e.repeat) return;
     if (/^Digit\d$/.test(e.code)) kpPress(e.code.slice(5)); else if (/^Numpad\d$/.test(e.code)) kpPress(e.code.slice(6));
     else if (e.code === 'Enter' || e.code === 'NumpadEnter') kpPress('OK'); else if (e.code === 'Backspace') kpPress('C'); else if (e.code === 'Escape') closeOverlay();
@@ -3916,7 +3916,7 @@ function spiderUpdate(dt, t) {
     spQ.setFromAxisAngle(spUp, Math.atan2(dx, dz)); spP.set(d.x, d.y + Math.abs(Math.sin(t * 25 + d.ph)) * .006, d.z); spM.compose(spP, spQ, spS); spiders.setMatrixAt(i, spM); }
   spiders.instanceMatrix.needsUpdate = true;
   if (ch2.spiderPhase === 'shake') {
-    ch2.shake = Math.max(0, ch2.shake - dt * 60); if (ch2.shake > 240) { ch2.shake -= 240; const kids = spiderLayer.children; for (let k = 0; k < 2 && kids.length; k++) { const el = kids[Math.floor(Math.random() * kids.length)]; if (el.classList.contains('off')) continue; const r = el.getBoundingClientRect(); el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.classList.add('off'); el.style.setProperty('--fx', rand(-1, 1) * innerWidth + 'px'); el.style.setProperty('--fy', rand(-1, 1) * innerHeight + 'px'); setTimeout(() => el.remove(), 500); ch2.removed++; Audio.flick(); } camera.rotation.z += (Math.random() - .5) * .08; }
+    ch2.shake = Math.max(0, ch2.shake - dt * 40); if (ch2.shake > 240) { ch2.shake -= 240; const kids = spiderLayer.children; for (let k = 0; k < 2 && kids.length; k++) { const el = kids[Math.floor(Math.random() * kids.length)]; if (el.classList.contains('off')) continue; const r = el.getBoundingClientRect(); el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.classList.add('off'); el.style.setProperty('--fx', rand(-1, 1) * innerWidth + 'px'); el.style.setProperty('--fy', rand(-1, 1) * innerHeight + 'px'); setTimeout(() => el.remove(), 500); ch2.removed++; Audio.flick(); } camera.rotation.z += (Math.random() - .5) * .08; }
     if (ch2.removed >= 40 && ch2.spawned >= SPN && !spiderLayer.querySelector('.sspider:not(.off)')) spidersGone();
   }
 }
