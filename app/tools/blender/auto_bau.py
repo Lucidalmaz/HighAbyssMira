@@ -55,6 +55,7 @@ if KIND == 'sedan':
         s.material.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = .72
     n = tris(o)
     if n > 3000: decimate(o, .55 if n < 8000 else .4)
+    elif n > 1200: decimate(o, .7 if p.startswith('generic-wheel') else .55)  # Räder, Wischer, Grill, Lampen: für ein Spiel mit mehreren Wagen gleichzeitig im Bild
 else:  # hatch
   for o in list(meshes):
     if o.material_slots and o.material_slots[0].material and o.material_slots[0].material.name.startswith('Concrete'): bpy.data.objects.remove(o, do_unlink=True)
