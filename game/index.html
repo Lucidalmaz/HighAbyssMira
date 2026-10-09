@@ -30152,7 +30152,7 @@ window.__raumklang = { RK, typ: RK_TYP, seg: (ax, ay, az, bx, by, bz) => { rk_gr
 // trocken mit Bandpass 300–3400 Hz und leichter Sättigung · Luna mit leiser Spieluhr darunter · gefressene Stimmen („?“) trocken, ohne Raum · Whiskey: Rabenmund.
 // Laden: Manifest beim Start (fetch), Dateien erst beim ersten Abspielen (fetch + decodeAudioData), say() lädt seine nächsten Zeilen vor. Kein base64.
 // Mund: Hüllkurve der laufenden Stimme → stimmen_pegel() / figuren_mund(stimme, pegel), falls das Figuren-Modul ihn anbietet.
-const ST = { man: null, wer: {}, buf: {}, lade: {}, cur: [], pend: null, pos: null, posT: -9, env: 0, stimme: '', ana: null, tmp: null, fehl: 0 };
+const ST = { man: null, wer: {}, buf: {}, lade: {}, cur: [], pend: null, pos: null, posT: -9, env: 0, stimme: '', ana: null, tmp: null, fehl: 0, bad: {} };
 const ST_PFAD = 'assets/stimmen/';
 const st_norm = t => String(t == null ? '' : t).replace(/<[^>]*>/g, '').replace(/[„“”"‚‘»«]/g, '').replace(/\s+/g, ' ').trim();
 const st_an = () => { try { return settings.stimmen !== false; } catch (e) { return true; } };
@@ -30160,15 +30160,19 @@ const st_vol = () => { try { return settings.stimmenVol ?? 1; } catch (e) { retu
 const ST_FUNK = /FUNK|TELEFON|MAILBOX|BAND|RADIO|ANRUF|LAUTSPRECHER|AMTSSTIMME|KANAL|MHz/i;
 
 function st_ladeManifest() { if (ST.man || ST.manP) return ST.manP;
-  return ST.manP = fetch(ST_PFAD + 'manifest.json').then(r => r.ok ? r.json() : null).then(m => { if (m && m.z) { ST.man = m; ST.wer = m.wer || {}; } return ST.man; }).catch(() => null); }
+  return ST.manP = fetch(ST_PFAD + 'manifest.json').then(r => r.ok ? r.json() : null).then(m => { if (m && m.z && typeof m.z === 'object' && Object.keys(m.z).length) { m.t = m.t && typeof m.t === 'object' ? m.t : {}; m.k = m.k && typeof m.k === 'object' ? m.k : {}; ST.man = m; ST.wer = m.wer || {}; } return ST.man; }).catch(() => null); }
 function st_lade(id) { const Z = ST.man && ST.man.z[id]; if (!Z || !Audio.ctx) return Promise.resolve(null); if (ST.buf[id]) return Promise.resolve(ST.buf[id]); if (ST.lade[id]) return ST.lade[id];
   return ST.lade[id] = fetch(ST_PFAD + Z[0]).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); }).then(ab => Audio.ctx.decodeAudioData(ab))
-    .then(b => { ST.buf[id] = b; return b; }).catch(e => { ST.fehl++; console.warn('Stimme fehlt: ' + id, e && e.message); return null; }); }
+    .then(b => { ST.buf[id] = b; st_kuerze(); return b; }).catch(e => { ST.fehl++; ST.bad[id] = 1; console.warn('Stimme fehlt: ' + id, e && e.message); return null; }).finally(() => { delete ST.lade[id]; }); }
+// Speicher: höchstens ST_MAXBUF dekodierte Zeilen (je ~0,3–0,6 MB); die ältesten, die gerade nicht laufen, fallen heraus und werden bei Bedarf neu geladen
+const ST_MAXBUF = 40;
+function st_kuerze() { const ids = Object.keys(ST.buf); if (ids.length <= ST_MAXBUF) return; const lauf = new Set(ST.cur.map(h => h.id).concat((ST.halt || []).map(x => x.h.id)));
+  for (const id of ids) { if (Object.keys(ST.buf).length <= ST_MAXBUF) break; if (!lauf.has(id)) delete ST.buf[id]; } }
 // Zeile → IDs (gestapelte Wendigo-Zeilen liefern mehrere). who entscheidet, wenn derselbe Text mehrfach besetzt ist.
-function st_finde(t, who) { const M = ST.man; if (!M) return null; const L = M.t[st_norm(t)]; if (!L || !L.length) return null;
+function st_finde(t, who) { const M = ST.man; if (!M) return null; const L = (M.t[st_norm(t)] || []).filter(i => M.z[i]); if (!L.length) return null;
   const s = ST.wer[who] || ST.wer[st_norm(who)]; if (s && s.includes('+')) { const ids = s.split('+').map(v => L.find(i => M.z[i][2] === v)).filter(Boolean); return ids.length ? ids : null; }
   const id = s ? L.find(i => M.z[i][2] === s) : who ? null : L[0]; return id ? [id] : null; } // unbekannter Sprecher → stumm (keine fremde Stimme)
-function stimmen_dauer(t, who) { if (!st_an()) return 0; const ids = st_finde(t, who); return ids ? Math.max(...ids.map(i => ST.man.z[i][1])) : 0; }
+function stimmen_dauer(t, who) { try { if (!st_an()) return 0; const ids = st_finde(t, who); const d = ids ? Math.max(0, ...ids.filter(i => !ST.bad[i]).map(i => +ST.man.z[i][1] || 0)) : 0; return d > 0 && d < 60 ? d : 0; } catch (e) { return 0; } }
 function stimmen_pegel() { return ST.env; }
 function stimmen_sprecher() { return ST.cur.length ? ST.stimme : ''; }
 
@@ -30241,12 +30245,14 @@ function stimmen_spielen(key, pos) { if (!ST.man || !st_an()) return false; cons
 
 // ---------------------------------------------------------------- Einbindung
 // Basis: subtitle() reiht ein, subShow() zeigt wirklich an → die Stimme hängt an subShow (spricht, wenn die Zeile erscheint)
-if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subShow);
+if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { try { const m0 = ms === undefined ? 4000 : ms, v = m0 ? stimmen_dauer(t, who) : 0; if (v && m0 < v * 1000 + 350) arguments[1] = v * 1000 + 350; } catch (e) {} const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subShow);
 else subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
 // say(): wartet, bis die Stimme ausgesprochen hat (Lesezeit bleibt Mindestdauer); lädt die Zeilen des Blocks vor
 say = async function (lines) { try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
   SAY_C.all = false;
-  for (const l of lines) { if (SAY_C.all) break; const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t))), v = who === 'LUKE' ? 0 : stimmen_dauer(t, who), d = v ? Math.max(d0, v * 1000 + 350) : d0; subtitle(t, d + 250, who); await say_warte(d); }
+  for (const l of lines) { if (SAY_C.all) break; const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t)));
+    let v = who === 'LUKE' ? 0 : stimmen_dauer(t, who); if (v) { try { const ids = st_finde(t, who); if (!(await Promise.all(ids.map(st_lade))).some(Boolean)) v = 0; } catch (e) { v = 0; } } // Aufnahme nicht ladbar → kein Warten auf eine Stimme, die nicht kommt
+    const d = v ? Math.max(d0, v * 1000 + 350) : d0; subtitle(t, d + 250, who); await say_warte(d); }
   say_hinweis(false); };
 // Dialog steuern (Nutzer 08.10.2026): Klick/Enter = nächste Zeile sofort, X = den ganzen Block überspringen. Das Spiel läuft dabei weiter (siehe Tastenbehandlung der Basis: freeTalk).
 const SAY_C = { cur: null, all: false };

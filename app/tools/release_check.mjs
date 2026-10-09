@@ -55,3 +55,31 @@ for (const r of [...listed.images].map(x => [x, '.ktx2']).concat([...listed.mode
 console.log(`KTX-Prüfung: ${ok} aktuell, ${skipped.length} ohne KTX erlaubt (Maße/keine Texturen), ${bad.length} fehlen oder veraltet.`);
 if (process.argv.includes('--list') && skipped.length) console.log('Ohne KTX erlaubt:\n  ' + skipped.join('\n  '));
 if (bad.length) { console.error('Nicht bereit für die Veröffentlichung – node tools/ktx.mjs ausführen:\n  ' + bad.slice(0, 200).join('\n  ') + (bad.length > 200 ? `\n  … und ${bad.length - 200} weitere` : '')); process.exit(1); }
+
+// Sprachausgabe (X-1): game/assets/stimmen ist optional (fehlt der Ordner, läuft das Spiel mit Untertiteln). Ist er da, muss er stimmig sein:
+// manifest.json gültig, jede Datei aus z vorhanden und Ogg, keine verwaisten .opus, Verweise in t/k/wer zeigen auf bekannte Zeilen, Gesamtgröße <= 150 MB.
+{ const SD = path.join(ASSETS, 'stimmen'), mf = path.join(SD, 'manifest.json');
+  if (!fs.existsSync(SD)) console.log('Stimmen: Ordner assets/stimmen fehlt – Veröffentlichung ohne Sprachausgabe (nur Untertitel).');
+  else {
+    const err = []; let man = null, bytes = 0, n = 0;
+    try { man = JSON.parse(fs.readFileSync(mf, 'utf8')); } catch (e) { err.push('manifest.json fehlt oder ist kein gültiges JSON (' + e.message + ')'); }
+    if (man) {
+      if (!man.z || typeof man.z !== 'object' || !man.t || typeof man.t !== 'object') err.push('manifest.json ohne z/t');
+      else {
+        const files = new Set();
+        for (const [id, v] of Object.entries(man.z)) { n++; files.add(v[0]); const f = path.join(SD, v[0]);
+          if (!fs.existsSync(f)) { err.push(id + ': Datei fehlt (' + v[0] + ')'); continue; }
+          const st = fs.statSync(f); bytes += st.size; const fd = fs.openSync(f, 'r'), h = Buffer.alloc(4); fs.readSync(fd, h, 0, 4, 0); fs.closeSync(fd);
+          if (st.size < 200 || h.toString('latin1') !== 'OggS') err.push(id + ': keine gültige Ogg-Datei (' + v[0] + ')');
+          if (!(v[1] > 0.1 && v[1] < 60)) err.push(id + ': unplausible Dauer ' + v[1]); }
+        for (const f of fs.readdirSync(SD)) if (/\.opus$/i.test(f) && !files.has(f)) err.push('verwaiste Datei ' + f);
+        for (const [t, ids] of Object.entries(man.t)) for (const i of ids) if (!man.z[i]) err.push('t "' + t.slice(0, 30) + '": unbekannte ID ' + i);
+        for (const [k, v] of Object.entries(man.k || {})) for (const i of [].concat(v)) if (!man.z[i]) err.push('k ' + k + ': unbekannte ID ' + i);
+        const figuren = new Set(Object.values(man.z).map(v => v[2]));
+        for (const [w, s] of Object.entries(man.wer || {})) for (const f of String(s).split('+')) if (f && !figuren.has(f)) { /* Figur ohne Aufnahme: erlaubt (bleibt stumm) */ }
+      }
+      if (bytes > 150e6) err.push(`Stimmen ${(bytes / 1e6).toFixed(0)} MB > 150 MB`);
+    }
+    console.log(`Stimmen: ${n} Zeilen, ${(bytes / 1e6).toFixed(1)} MB, ${err.length} Fehler.`);
+    if (err.length) { console.error('Stimmen nicht bereit:\n  ' + err.slice(0, 100).join('\n  ')); process.exit(1); }
+  } }
