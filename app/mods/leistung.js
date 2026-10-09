@@ -92,6 +92,12 @@ function lst_mixer() {
     return mu.call(this, dt); };
 }
 function lst_markOut() { LST_FR++; const h = RIGS.hid; for (let i = 0; i < h.length; i++) h[i].__lstOut = LST_FR; }
+// 10.10.: KNOCHEN-UEBERLAGERUNG OHNE AUFADDIEREN. Kopf-/Kiefer-/Blick-Ueberlagerungen setzen ihre Drehung nach dem Mixer auf die Mixer-Pose. Schreibt der Mixer den Knochen in einem Bild
+//    nicht neu (Mixer uebersprungen, pausiert), stuende noch die letzte Ueberlagerung darin und die naechste kaeme obendrauf (Disco-Kopf). anim_ueber(bone, fn): erst auf die Mixer-Pose zurueck, dann fn(bone).
+const ANIM_OV = new WeakMap();
+function anim_ueber(b, fn) { if (!b) return; let s = ANIM_OV.get(b); if (!s) { s = { base: new THREE.Quaternion(), last: new THREE.Quaternion(), has: false }; ANIM_OV.set(b, s); }
+  if (s.has && b.quaternion.angleTo(s.last) < 1e-6) b.quaternion.copy(s.base); else s.base.copy(b.quaternion);
+  fn(b); s.last.copy(b.quaternion); s.has = true; }
 
 // 8) SKELETT-LISTE OHNE RUCKLER. Die Basis sammelte alle ~5 s die Figuren-Skelette mit einem Durchlauf über die ganze Szene (46 000 Objekte) und maß jede neue
 //    Figur mit Box3.setFromObject – bei Figuren mit Skelett rechnet three.js dafür jeden Eckpunkt durch alle Knochen (100 000 Punkte je Figur; gemessen 7 % der

@@ -539,7 +539,7 @@ function beob_rigAnim(dt, lit, o = {}) { const S = beob_S, V = S.V; if (!V || !V
   if (V.spiegel && !lit) tx = Math.max(-.5, Math.min(.5, -(player.pitch || 0) * .7)); // spiegelt Lukes Kopfhaltung: guckt Luke hoch, guckt er hoch
   if (o.kx !== undefined) { tx = o.kx; tz = 0; ty = 0; }
   beob_feder(H, 'z', tz, hart ? 560 : 36, hart ? .42 : .9, dt); beob_feder(H, 'y', ty, lit ? 260 : hart ? 560 : 36, lit ? .6 : hart ? .45 : .9, dt); beob_feder(H, 'x', tx, hart ? 400 : 50, .8, dt);
-  const zit = V.starr > 0 ? .0012 : .0026; V.e.set(H.rotation.x + Math.sin(V.t * 29) * zit, H.rotation.y + Math.sin(V.t * 23 + 1) * zit, H.rotation.z + Math.sin(V.t * 37 + 2) * zit * .8, 'YXZ'); B.kopf.quaternion.multiply(V.q.setFromEuler(V.e));
+  const zit = V.starr > 0 ? .0012 : .0026; V.e.set(H.rotation.x + Math.sin(V.t * 29) * zit, H.rotation.y + Math.sin(V.t * 23 + 1) * zit, H.rotation.z + Math.sin(V.t * 37 + 2) * zit * .8, 'YXZ'); anim_ueber(B.kopf, kb => kb.quaternion.multiply(V.q.setFromEuler(V.e)));
   // Körper dreht sich zu Luke: kurze Ausholbewegung, dann schnell mit Nachschwingen, der Kopf hängt nach (nur im Stand)
   if (!o.lauf) { const want = Math.atan2(P.x - p.x, P.z - p.z); let dif = want - V.g.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
     if (Math.abs(dif) > .6 && V.byT <= 0 && !V.dreh && !/^spaehen/.test(V.curName || '')) V.byT = .14;
@@ -556,7 +556,7 @@ function beob_rigAnim(dt, lit, o = {}) { const S = beob_S, V = S.V; if (!V || !V
   for (const s of ['L', 'R']) { const F = V.fu[s], sg = s === 'L' ? 1 : -1, steif = 1 + V.horch * 3, k = 70 * steif, z = .25 + .3 * V.horch;
     const zx = -V.horch * .5 + Math.sin(V.t * 2.3 + sg) * .06 + Math.sin(V.t * 5.1) * .02, zz = sg * (V.horch * .25 + Math.sin(V.t * 1.7 + sg * 2) * .05);
     F.vx += (k * (zx - F.x) - 2 * z * Math.sqrt(k) * F.vx + dvy * 6) * dt; F.vz += (k * (zz - F.z) - 2 * z * Math.sqrt(k) * F.vz - dvx * 4) * dt; F.x += F.vx * dt; F.z += F.vz * dt;
-    for (const [n, w] of [['fuehler1', .45], ['fuehler2', .7], ['fuehler3', 1]]) { const b = B[n + s]; if (b) b.quaternion.multiply(V.q.setFromEuler(V.e.set(F.x * w, 0, F.z * w))); } }
+    for (const [n, w] of [['fuehler1', .45], ['fuehler2', .7], ['fuehler3', 1]]) { const b = B[n + s]; if (b) anim_ueber(b, bb => bb.quaternion.multiply(V.q.setFromEuler(V.e.set(F.x * w, 0, F.z * w)))); } }
   // Finger: tasten und zittern (nie ganz still – außer erstarrt)
   V.fing += dt; for (const s of ['L', 'R']) for (let i = 1; i <= 3; i++) { const b = B['fingerB' + i + s]; if (b) b.rotateZ((Math.sin(V.fing * (3.1 + i) + i * 2 + (s === 'L' ? 0 : 1.7)) * .06 + Math.sin(V.t * 31 + i) * .01) * (s === 'L' ? -1 : 1) * at); } }
 // Gehen auf einem Weg: Gangart nach Tempo (trippeln / auf allen vieren), Abspieltempo = Wegtempo, Schritte hörbar beim Aufsetzen

@@ -137,8 +137,8 @@ function kr_dtTick(dt) { const D = typeof hungrige_S !== 'undefined' ? hungrige_
   // Kopf dreht ohne Hals zu Luke – in Rasten (≈ 20°), nicht beim Sturm
   if (K.head && want !== 'sturm' && want !== 'aufstieg') { const cam = camera.position, yaw = Math.atan2(cam.x - p.x, cam.z - p.z) - D.g.rotation.y; let d = Math.atan2(Math.sin(yaw), Math.cos(yaw)); d = THREE.MathUtils.clamp(d, -1.4, 1.4);
     const r = Math.round(d / .35) * .35; if (Math.abs(r - K.hy) > .01) { K.hy = r; if (D.g.visible && Math.hypot(cam.x - p.x, cam.z - p.z) < 14) kr_ton('knochen', p.x, 2.2, p.z, .25, null, { obj: D.g, h: 2.2 }); }
-    K.head.parent.updateWorldMatrix(true, false); K.head.updateWorldMatrix(false, false); K.head.getWorldQuaternion(KR.Q2); K.Q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, K.hy); KR.Q2.premultiply(K.Q);
-    K.head.parent.getWorldQuaternion(KR.Q3).invert(); K.head.quaternion.copy(KR.Q3.multiply(KR.Q2)); } }
+    anim_ueber(K.head, () => { K.head.parent.updateWorldMatrix(true, false); K.head.updateWorldMatrix(false, false); K.head.getWorldQuaternion(KR.Q2); K.Q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, K.hy); KR.Q2.premultiply(K.Q);
+    K.head.parent.getWorldQuaternion(KR.Q3).invert(); K.head.quaternion.copy(KR.Q3.multiply(KR.Q2)); }); } }
 // Geschälte (Wolf, Reh): Abspieltempo = Wegtempo, Atem hörbar, Reh lahmt hinten links
 function kr_tierTick(dt) { for (const V of KR.live) { if (!V.g.visible) { V.lp.copy(V.g.position); continue; } const p = V.g.position, cam = camera.position, dc = Math.hypot(p.x - cam.x, p.z - cam.z);
   const d = Math.hypot(p.x - V.lp.x, p.z - V.lp.z) / Math.max(dt, 1e-3); V.lp.copy(p); V.v += (Math.min(d, 10) - V.v) * Math.min(1, dt * 5);

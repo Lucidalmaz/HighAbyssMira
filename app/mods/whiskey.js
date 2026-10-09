@@ -102,9 +102,9 @@ function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood ==
 const whiskey_qj = new THREE.Quaternion();
 function whiskey_schnabel(dauer = .3, weit = .45, nach = 0) { const S = whiskey_S; if (!S.jawAx) return; (S.kQ = S.kQ || []).push({ t: -nach, d: dauer, w: weit }); if (S.kQ.length > 48) S.kQ.shift(); }
 function whiskey_sprechen(ms) { const n = Math.min(40, Math.max(1, Math.round(ms / 240))); for (let i = 0; i < n; i++) whiskey_schnabel(rand(.12, .2), rand(.16, .36), i * .24 + rand(0, .05)); }
-function whiskey_kiefer(dt) { const S = whiskey_S, Q = S.kQ; if (!S.jaw || !S.jawAx || !Q || !Q.length) return; let a = 0;
+function whiskey_kiefer(dt) { const S = whiskey_S, Q = S.kQ; if (!S.jaw || !S.jawAx || !Q) return; let a = 0;
   for (let i = Q.length - 1; i >= 0; i--) { const q = Q[i]; q.t += dt; if (q.t >= q.d) { Q.splice(i, 1); continue; } if (q.t > 0) a = Math.max(a, q.w * Math.sin(PI * q.t / q.d)); }
-  if (a > 0) S.jaw.quaternion.multiply(whiskey_qj.setFromAxisAngle(S.jawAx, a)); }
+  anim_ueber(S.jaw, jb => { if (a > 0) jb.quaternion.multiply(whiskey_qj.setFromAxisAngle(S.jawAx, a)); }); } // 10.10.: nie auf die letzte Ueberlagerung addieren
 function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil > .5) || (typeof SP !== 'undefined' && SP.silent > .5); } // Stille-Zonen (Kap. 6): Whiskey stumm
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
@@ -492,7 +492,7 @@ WORLD_MODS.push(['Whiskey', async () => {
     // 08.10.: eigener Kolkrabe (Museumsscan CC0 + gebaute Federn/Beine/Augen, tools/blender/rabe_bau*.py) auf dem Skelett der alten Krähe – gleiche Knochen und Clips; Rückfall: altes Modell
     let src; try { src = await msModel('rabe_whiskey', 'model.glb'); S.neu = true; } catch (e) { console.warn('Whiskey: neues Rabenmodell fehlt – altes Modell', e); src = await msModel('animal_crow', 'model.glb'); S.neu = false; }
     const sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src);
-    m.rotation.y = PI / 2; // das Modell schaut entlang +X: wie die Dorfkrähen (leben.js) drehen, damit der Kopf in Flugrichtung zeigt
+    m.rotation.y = 0; // 10.10.: Modell blickt entlang +Z (gemessen Kopf-Becken, wie die Gruppe atan2(dx,dz)); vorher PI/2 = Rabe flog 90 Grad seitwaerts
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
       o.material = [].concat(o.material).map(x => { const c = x.clone(); if (!S.neu) { c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.5); c.roughness = .42; } if ('sheen' in c) { c.sheen = S.neu ? .3 : .35; c.sheenColor = new THREE.Color(0x3a4a7a); } return c; }); if (o.material.length === 1) o.material = o.material[0]; } // blauer Schimmer im Licht (neu: Farbe/Rauheit aus dem Atlas)
       if (o.isBone && /(^|-)Head$/.test(o.name)) S.head = o;
