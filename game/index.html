@@ -749,7 +749,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 // Figuren: Die Hüllkugel einer SkinnedMesh wird einmal in der Pose beim ersten Sichttest berechnet. Bewegt die Animation Glieder weiter weg
 // (Mocap, Sitzen, Strecken, Kopf weit gedreht), fielen Körperteile aus dem Sichttest und verschwanden. Darum großzügig aufweiten (Skelett-Reichweite).
-{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere; THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { cbs.call(this); if (this.boundingSphere) this.boundingSphere.radius = this.boundingSphere.radius * 1.6 + 1.2; }; }
+{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere, fast = !/noskinsph/.test(location.search); // 09.10. (Ladezeit/Spitzen): three.js rechnet die Hülle einer SkinnedMesh über JEDEN Eckpunkt durch alle Knochen (gemessen 3–5 s beim Laden, 50–100 ms je auftretender Figur); hier genügt die Hülle der Ruhepose (wird ohnehin ×1,6 + 1,2 m aufgeweitet)
+  THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { const g = this.geometry; if (fast && g) { if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere) { if (!this.boundingSphere) this.boundingSphere = new THREE.Sphere(); this.boundingSphere.copy(g.boundingSphere); } else cbs.call(this); } else cbs.call(this);
+    if (this.boundingSphere) this.boundingSphere.radius = this.boundingSphere.radius * 1.6 + 1.2; }; THREE.SkinnedMesh.prototype.computeBoundingSphere.__orig = cbs; }
+// 09.10. (Ladezeit): Strahlen gegen große Formen (Boden-/Höhenmessungen der Module, Scans in ausbau_nord: gemessen 6–8 s beim Laden, jeder Strahl prüft alle Dreiecke) bekommen beim ersten Treffer der Hüllkugel einen BVH
+// (three-mesh-bvh, dasselbe, das buildSolids später für alles baut; die Form wird dort wiederverwendet). Gleiche Treffer, nur schneller. Testschalter: ?nobvh
+const BVH_EARLY = { m: null, n: 0, ms: 0 };
+if (!/nobvh/.test(location.search)) { import('three-mesh-bvh').then(m => { BVH_EARLY.m = m; }).catch(() => {});
+  const r0 = THREE.Mesh.prototype.raycast, sph = new THREE.Sphere();
+  THREE.Mesh.prototype.raycast = function (rc, hits) { const g = this.geometry, B = BVH_EARLY.m;
+    if (B && g && !g.boundsTree && !g.__noBvh && !this.isSkinnedMesh && !this.isInstancedMesh && g.attributes.position && g.attributes.position.count > 6000 && this.material !== undefined) {
+      if (!g.boundingSphere) g.computeBoundingSphere(); sph.copy(g.boundingSphere).applyMatrix4(this.matrixWorld); if (!rc.ray.intersectsSphere(sph)) return;
+      const t0 = performance.now(); try { g.boundsTree = new B.MeshBVH(g); BVH_EARLY.n++; } catch (e) { g.__noBvh = 1; } BVH_EARLY.ms += performance.now() - t0; }
+    return g && g.boundsTree && B ? B.acceleratedRaycast.call(this, rc, hits) : r0.call(this, rc, hits); }; }
 
 const PI = Math.PI;
 const rand = (a, b) => a + Math.random() * (b - a);
@@ -46266,7 +46278,7 @@ function lst_schattenFrei() {
 }
 
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, LK, MWF, get SHF() { return SHADOW_FREI; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },

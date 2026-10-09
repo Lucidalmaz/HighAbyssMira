@@ -748,7 +748,19 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
 // Figuren: Die Hüllkugel einer SkinnedMesh wird einmal in der Pose beim ersten Sichttest berechnet. Bewegt die Animation Glieder weiter weg
 // (Mocap, Sitzen, Strecken, Kopf weit gedreht), fielen Körperteile aus dem Sichttest und verschwanden. Darum großzügig aufweiten (Skelett-Reichweite).
-{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere; THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { cbs.call(this); if (this.boundingSphere) this.boundingSphere.radius = this.boundingSphere.radius * 1.6 + 1.2; }; }
+{ const cbs = THREE.SkinnedMesh.prototype.computeBoundingSphere, fast = !/noskinsph/.test(location.search); // 09.10. (Ladezeit/Spitzen): three.js rechnet die Hülle einer SkinnedMesh über JEDEN Eckpunkt durch alle Knochen (gemessen 3–5 s beim Laden, 50–100 ms je auftretender Figur); hier genügt die Hülle der Ruhepose (wird ohnehin ×1,6 + 1,2 m aufgeweitet)
+  THREE.SkinnedMesh.prototype.computeBoundingSphere = function () { const g = this.geometry; if (fast && g) { if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere) { if (!this.boundingSphere) this.boundingSphere = new THREE.Sphere(); this.boundingSphere.copy(g.boundingSphere); } else cbs.call(this); } else cbs.call(this);
+    if (this.boundingSphere) this.boundingSphere.radius = this.boundingSphere.radius * 1.6 + 1.2; }; THREE.SkinnedMesh.prototype.computeBoundingSphere.__orig = cbs; }
+// 09.10. (Ladezeit): Strahlen gegen große Formen (Boden-/Höhenmessungen der Module, Scans in ausbau_nord: gemessen 6–8 s beim Laden, jeder Strahl prüft alle Dreiecke) bekommen beim ersten Treffer der Hüllkugel einen BVH
+// (three-mesh-bvh, dasselbe, das buildSolids später für alles baut; die Form wird dort wiederverwendet). Gleiche Treffer, nur schneller. Testschalter: ?nobvh
+const BVH_EARLY = { m: null, n: 0, ms: 0 };
+if (!/nobvh/.test(location.search)) { import('three-mesh-bvh').then(m => { BVH_EARLY.m = m; }).catch(() => {});
+  const r0 = THREE.Mesh.prototype.raycast, sph = new THREE.Sphere();
+  THREE.Mesh.prototype.raycast = function (rc, hits) { const g = this.geometry, B = BVH_EARLY.m;
+    if (B && g && !g.boundsTree && !g.__noBvh && !this.isSkinnedMesh && !this.isInstancedMesh && g.attributes.position && g.attributes.position.count > 6000 && this.material !== undefined) {
+      if (!g.boundingSphere) g.computeBoundingSphere(); sph.copy(g.boundingSphere).applyMatrix4(this.matrixWorld); if (!rc.ray.intersectsSphere(sph)) return;
+      const t0 = performance.now(); try { g.boundsTree = new B.MeshBVH(g); BVH_EARLY.n++; } catch (e) { g.__noBvh = 1; } BVH_EARLY.ms += performance.now() - t0; }
+    return g && g.boundsTree && B ? B.acceleratedRaycast.call(this, rc, hits) : r0.call(this, rc, hits); }; }
 
 const PI = Math.PI;
 const rand = (a, b) => a + Math.random() * (b - a);
