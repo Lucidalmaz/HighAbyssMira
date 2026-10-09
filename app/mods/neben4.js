@@ -446,7 +446,7 @@ function neben4_marke() { const M = n4_st('marke'); if (M.fertig) return; M.fert
 // =====================================================================  7 · „Siebzehn Näpfe“ (Kap. 4): Keiner am Transporter, Gisela am Zaun
 const N4_VAN = [7.7, -4.25], N4_KIESEL = [4.85, -3.65];
 async function neben4_vanBau() { const O = neben4_S.o, g = new THREE.Group(); g.visible = false; scene.add(g); O.van = g;
-  try { const src = await msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }); const v = src.clone(true); msFit(v, 5, 'max');
+  try { const src = await msFBX('vans', 'model.fbx', { '*': { b: 'van_grau_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }); const v = src.clone(true); msFit(v, 5, 'max');
     v.traverse(m => { if (m.isMesh) { m.material = Array.isArray(m.material) ? m.material.map(x => x.clone()) : m.material.clone(); for (const mm of [].concat(m.material)) if (mm.color) mm.color.lerp(new THREE.Color(0xe4e2dc), .55); m.castShadow = true; m.receiveShadow = true; } });
     const vg = msGround(v); const b = new THREE.Box3().setFromObject(vg), s = b.getSize(new THREE.Vector3()); if (s.z > s.x) vg.rotation.y = PI / 2; vg.position.set(N4_VAN[0], 0, N4_VAN[1]); g.add(vg); vg.updateMatrixWorld(true);
     const bb = new THREE.Box3().setFromObject(vg); O.vanCol = addCol(bb.min.x, bb.max.x, bb.min.z, bb.max.z, bb.max.y, -1); n4_vanCol(false); } catch (e) { console.warn('neben4: Transporter', e); }
