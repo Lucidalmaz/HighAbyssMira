@@ -1,0 +1,2007 @@
+{
+ "items": [
+  {
+   "Name": "ITEM_alufolie",
+   "key": "alufolie",
+   "name": "Alufolie",
+   "beschreibung": "Von Frau Aydıns Mutter. Zurückbringen.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 672,
+     "funktion": "ausbau_ost_west_dinaFund"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 672,
+     "funktion": "ausbau_ost_west_dinaFund"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_alupaeckchen",
+   "key": "alupaeckchen",
+   "name": "Päckchen in Alufolie",
+   "beschreibung": "Für Dina. Warm. „Die Alufolie bringst du zurück, die ist von meiner Mutter.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 660,
+     "funktion": "ausbau_ost_west_aydin"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 660,
+     "funktion": "ausbau_ost_west_aydin"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_autoschluessel",
+   "key": "autoschluessel",
+   "name": "Autoschlüssel",
+   "beschreibung": "Dein Leihwagen am Ortsschild. Ein bisschen Rabenspucke am Anhänger.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 271,
+     "funktion": "whiskey_w03"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 271,
+     "funktion": "whiskey_w03"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_batterie",
+   "key": "batterie",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5818,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": true,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_baumhausschluessel",
+   "key": "baumhausschluessel",
+   "name": "Kleiner Messingschlüssel",
+   "beschreibung": "Von Whiskey, gegen etwas Glänzendes getauscht. In den Bart ist ein „C“ gefeilt.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 490,
+     "funktion": "whiskey_klick"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 401,
+     "funktion": "whiskey_kanonVegas"
+    },
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 448,
+     "funktion": "whiskey_kanonBaumhaus"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_bergungsfunk",
+   "key": "bergungsfunk",
+   "name": "Funkgerät der Bergung",
+   "beschreibung": "Vom toten Blechmann. Es rauscht, als würde jemand zuhören.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 168,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 507,
+     "funktion": "k6_ag20",
+     "beat": "frass"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_boerek",
+   "key": "boerek",
+   "name": "Börek",
+   "beschreibung": "Eine Tupperdose von Frau Aydın, „für den Weg“. Noch warm.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 27,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_brecheisen",
+   "key": "brecheisen",
+   "name": "Ein Brecheisen",
+   "beschreibung": "Aus dem Kofferraum des Schrottautos an der Tankstelle. Rostig, aber gerade.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 26,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_brechstange",
+   "key": "brechstange",
+   "name": "Brechstange",
+   "beschreibung": "Schwer, am Ende verbogen. Jemand hat damit schon einmal etwas aufgehebelt – an der Spitze klebt Kalk.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5820,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 214,
+     "funktion": "startChapter4"
+    },
+    {
+     "datei": "app/mods/ausruestung.js",
+     "zeile": 29,
+     "funktion": "ausruestung_spot"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_brief_edda",
+   "key": "brief_edda",
+   "name": "Edda Brands Brief",
+   "beschreibung": "Ein vergilbter Umschlag an eine Hamburger Zeitung, Dezember 2012. „Unzustellbar – zurück.“ Günther hat ihn vierzehn Jahre getragen.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 28,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_buch",
+   "key": "buch",
+   "name": "Hilde Wendts Zählbuch",
+   "beschreibung": "Jede Nacht seit 2009: gezählte Kinder auf der Kreuzung. Immer acht. Zuletzt: neun.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5816,
+     "konstante": "ITEMS"
+    },
+    {
+     "datei": "app/mods/kapitel3.js",
+     "zeile": 291,
+     "funktion": "kapitel3_hufeisen"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 4338,
+     "funktion": "readBook"
+    },
+    {
+     "datei": "app/mods/kapitel3.js",
+     "zeile": 139,
+     "funktion": "kapitel3_zaehlbuch"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_cleo_dose",
+   "key": "cleo_dose",
+   "name": "Keksdose mit acht Kronkorken",
+   "beschreibung": "Sieben tragen Filzstift-Buchstaben: R, H, M, D, L, L, Z. Der achte ist leer.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/cleo.js",
+     "zeile": 18,
+     "funktion": "cleo_start"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/cleo.js",
+     "zeile": 89,
+     "funktion": "cleo_chest"
+    },
+    {
+     "datei": "app/mods/cleo.js",
+     "zeile": 91,
+     "funktion": "cleo_chest"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_cleo_kreide",
+   "key": "cleo_kreide",
+   "name": "Weiße Kreide",
+   "beschreibung": "Ein Stück Kreide, mit Klebeband umwickelt. Auf dem Band, in Kinderschrift: C.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/cleo.js",
+     "zeile": 17,
+     "funktion": "cleo_start"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/cleo.js",
+     "zeile": 91,
+     "funktion": "cleo_chest"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_collar",
+   "key": "collar",
+   "name": "Brunos Halsband",
+   "beschreibung": "Rotes Leder, Messingmarke. Lag am Rand des Aschekreises. Herr Vegas (Nr. 3) wartet darauf.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5813,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 2832,
+     "funktion": "checkHome"
+    },
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 168,
+     "funktion": "albers_k1Halsband"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_da10",
+   "key": "da10",
+   "name": "DA 10",
+   "beschreibung": "Dienstanweisung von 2012, graues Papier: „Zutritt zu Archivräumen … ausschließlich mit Dienstnadel. Die Nadel bleibt am Mann.“ Darunter Seiler: „Meine behalte ich.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 772,
+     "funktion": "villa_da10"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 772,
+     "funktion": "villa_da10"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_dienstnadel",
+   "key": "dienstnadel",
+   "name": "Seilers Dienstnadel",
+   "beschreibung": "Silber, das Auge darauf. In ein Taschentuch mit Monogramm T. S. gewickelt. Die Nadel bleibt am Mann.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 809,
+     "funktion": "villa_bett"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 809,
+     "funktion": "villa_bett"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_dina_zeichnung",
+   "key": "dina_zeichnung",
+   "name": "Dinas Zeichnung",
+   "beschreibung": "Sieben Kreise mit Flamme und Stiel. Vier durchgestrichen.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 683,
+     "funktion": "ausbau_ost_west_dinaFund"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 683,
+     "funktion": "ausbau_ost_west_dinaFund"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_drahtschneider",
+   "key": "drahtschneider",
+   "name": "Drahtschneider",
+   "beschreibung": "Rote Griffe, die Schneiden stumpf, aber es reicht für Maschendraht und dünne Ketten.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5819,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 425,
+     "funktion": ""
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_einwilligungen",
+   "key": "einwilligungen",
+   "name": "Einwilligungen 2009",
+   "beschreibung": "„Einwilligungen 2009 – vollständig“. Aushang aus Zimmer 7.{…}{…}",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 33,
+     "funktion": "Z7_AUSHANG_HTML"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 83,
+     "funktion": "z7_takeAushang"
+    }
+   ],
+   "dynamisch": true,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_euro_bruno",
+   "key": "euro_bruno",
+   "name": "Eine Euromünze",
+   "beschreibung": "Pfandgeld. Ehrlich verdient. Von Bruno.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 160,
+     "funktion": "albers_k1Klopfen"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 160,
+     "funktion": "albers_k1Klopfen"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_feuerzeug",
+   "key": "feuerzeug",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/feuer.js",
+     "zeile": 291,
+     "funktion": "feuer_hazePass"
+    },
+    {
+     "datei": "app/mods/feuer.js",
+     "zeile": 432,
+     "funktion": "feuer_takeLighter"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_fibel",
+   "key": "fibel",
+   "name": "Abenteuerfibel",
+   "beschreibung": "Dein dickes Kinderheft mit Wachstuch-Einband, ein Aufkleber vom Kinderarzt drauf: ABENTEUERFIBEL – LUKE, JONAS, ZAYN – GEHEIM!! Früher standen eure Abenteuer darin. Jetzt schreibt es weiter: jede Aufgabe, jeder Fund. [Tab]",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/traum.js",
+     "zeile": 56,
+     "funktion": "traum_einband"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/traum.js",
+     "zeile": 312,
+     "funktion": "traum_awake"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3,
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_fotoalbum",
+   "key": "fotoalbum",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/album.js",
+     "zeile": 583,
+     "funktion": "album_nehmen"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_fuse",
+   "key": "fuse",
+   "name": "Schlüssel Sicherungsraum",
+   "beschreibung": "Lag mit einer Klammer am achten Protokoll.",
+   "icon": "fuse",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5815,
+     "konstante": "ITEMS"
+    },
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 34,
+     "funktion": "Z7_AUSHANG_HTML"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 3824,
+     "funktion": "archiveDrawerRead"
+    },
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 74,
+     "funktion": "z7_takeKey"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_futterdose",
+   "key": "futterdose",
+   "name": "Katzenfutterdose",
+   "beschreibung": "Rind in Soße. Der Deckel glänzt.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kirchberg.js",
+     "zeile": 294,
+     "funktion": "kirchberg_naepfeFinale"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/kirchberg.js",
+     "zeile": 294,
+     "funktion": "kirchberg_naepfeFinale"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_geh_lichtstein",
+   "key": "geh_lichtstein",
+   "name": "Ein Lichtstein",
+   "beschreibung": "Ein kleiner Stein, warm wie eine Hand. Hart, matt, grauweiß. Innen Adern, die im Dunkeln leuchten.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/geheimnisse.js",
+     "zeile": 42,
+     "funktion": "geheimnisse_plate"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/geheimnisse.js",
+     "zeile": 114,
+     "funktion": "geheimnisse_takeStone"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_haushaltsbuch",
+   "key": "haushaltsbuch",
+   "name": "Oma Ernas Haushaltsbuch",
+   "beschreibung": "Grünes Kassenbuch, Stoffrücken – dasselbe Modell wie Hildes Zählbuch. Jeden Donnerstag: Kassler. „Donnerstag Amt.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 252,
+     "funktion": "neben4_haushaltsbuch"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 512,
+     "funktion": "n4_kanneTick"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 252,
+     "funktion": "neben4_haushaltsbuch"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_heidi_karte",
+   "key": "heidi_karte",
+   "name": "Heidis Postkarte",
+   "beschreibung": "An Lucy. „Ich bin jetzt ein Dorf näher.“ Ein Gasthof im Nachbardorf, eine Telefonnummer.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 25,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_heino",
+   "key": "heino",
+   "name": "Heino-Kassette",
+   "beschreibung": "Glitzernde Hülle. Hildes Schrift: „Nicht von mir.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/nr4.js",
+     "zeile": 245,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/nr4.js",
+     "zeile": 245,
+     "funktion": ""
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_hildes_antworten",
+   "key": "hildes_antworten",
+   "name": "Hildes Antworten",
+   "beschreibung": "Drei Umschläge an Jonas Wendt, Hamburg. Adressiert, frankiert, nie abgeschickt.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 24,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_jonas_karte",
+   "key": "jonas_karte",
+   "name": "Jonas’ Karte",
+   "beschreibung": "Mit Kuli auf Karopapier: der Wald, die Wege, fünf Kreuze. Am Weiher: „ENDE“.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/tiefwald.js",
+     "zeile": 366,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/tiefwald.js",
+     "zeile": 506,
+     "funktion": "tief_lager"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_jonas_messer",
+   "key": "jonas_messer",
+   "name": "Jonas’ Taschenmesser",
+   "beschreibung": "Rostig, zugeklappt. In den Griff geritzt: JONAS W.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/wald.js",
+     "zeile": 118,
+     "funktion": "chunk"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/wald.js",
+     "zeile": 196,
+     "funktion": "wald_pupFrei"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_kaugummipapier",
+   "key": "kaugummipapier",
+   "name": "Kaugummipapier",
+   "beschreibung": "Lucid Mint. Innen ein Kreis, darin ein offenes Auge über einer Flamme.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/lwo.js",
+     "zeile": 923,
+     "funktion": "lwo_ag09"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/lwo.js",
+     "zeile": 923,
+     "funktion": "lwo_ag09"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_key",
+   "key": "key",
+   "name": "Schlüssel zu Nr. 7",
+   "beschreibung": "An einem roten Band. Lucy hat ihn im Briefkasten hinterlassen – für den Fall, dass sie nicht zurückkommt.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5812,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 2739,
+     "funktion": "photoWayUpdate"
+    },
+    {
+     "datei": "app/mods/kapitel1.js",
+     "zeile": 277,
+     "funktion": "kapitel1_briefkasten"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_kf_grinder",
+   "key": "kf_grinder",
+   "name": "Grinder",
+   "beschreibung": "Alu, schwarz, vier Teile. Lag seit 2016 in meiner Schublade. Das Gewinde knirscht wie früher.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kiffen.js",
+     "zeile": 25,
+     "konstante": "KF_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_kf_knolle",
+   "key": "kf_knolle",
+   "name": "Knolle",
+   "beschreibung": "Ein Knöllchen im Tütchen, dazu ein Zettel: „Für schlechte Nächte. R.“",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kiffen.js",
+     "zeile": 27,
+     "konstante": "KF_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_kf_papes",
+   "key": "kf_papes",
+   "name": "Blättchen",
+   "beschreibung": "Lange Blättchen, zweiunddreißig Stück. Zwei fehlen. Die hab ich mit sechzehn für Einkaufszettel benutzt. Angeblich.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kiffen.js",
+     "zeile": 26,
+     "konstante": "KF_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_kf_tips",
+   "key": "kf_tips",
+   "name": "Pappdeckel",
+   "beschreibung": "Der Deckel einer Streichholzschachtel. Vegas sagt, daraus werden Tips. Vegas sagt viel.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kiffen.js",
+     "zeile": 28,
+     "konstante": "KF_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_lampion",
+   "key": "lampion",
+   "name": "Annis Lampion",
+   "beschreibung": "Pergamentpapier, eine Sonne aus Buntpapier, ein Blechkerzenhalter ohne Kerze. Hofer hat ihn siebzehn Jahre in seinem Spind aufbewahrt.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 54,
+     "funktion": "n6_pellHtml"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 197,
+     "funktion": "n6_spind"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_leiter_amt",
+   "key": "leiter_amt",
+   "name": "Leiter",
+   "beschreibung": "Eine Holzleiter aus dem Sicherungsraum. Schwer, und sie klappert bei jedem Schritt.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 37,
+     "funktion": "amt_trust"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 998,
+     "funktion": "amt_leiterNehmen"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_lucy_zigaretten",
+   "key": "lucy_zigaretten",
+   "name": "Lucys Zigaretten",
+   "beschreibung": "Drei fehlen. Menthol. Sie hat mal gesagt, sie hört auf.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/post.js",
+     "zeile": 264,
+     "funktion": "post_handschuhfach"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/post.js",
+     "zeile": 264,
+     "funktion": "post_handschuhfach"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_lwo_kuli",
+   "key": "lwo_kuli",
+   "name": "Kugelschreiber mit Auge",
+   "beschreibung": "Grau, ein Auge auf dem Clip. Lag auf Giselas Fensterbrett. Whiskey wollte ihn nur gegen den Dosendeckel hergeben.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 361,
+     "funktion": "whiskey_kanonGisela"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 361,
+     "funktion": "whiskey_kanonGisela"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_miras_ring",
+   "key": "miras_ring",
+   "name": "Miras Ring",
+   "beschreibung": "Ein halber Mond. Whiskey hat ihn gebracht. Er passt in meine Narbe, als wär die Narbe dafür gemacht. Sie ist dafür gemacht.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 1113,
+     "funktion": "villa_w11Akte"
+    },
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 414,
+     "funktion": "whiskey_w11"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/villa.js",
+     "zeile": 1113,
+     "funktion": "villa_w11Akte"
+    },
+    {
+     "datei": "app/mods/whiskey.js",
+     "zeile": 414,
+     "funktion": "whiskey_w11"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_murmel",
+   "key": "murmel",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/beobachter.js",
+     "zeile": 258,
+     "funktion": "beob_drop"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_n3_brecheisen",
+   "key": "n3_brecheisen",
+   "name": "Brecheisen",
+   "beschreibung": "Aus dem Vorbau des Pfarrhauses. Rostig, schwer.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 339,
+     "funktion": "neben3_pfarrBau"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 339,
+     "funktion": "neben3_pfarrBau"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_glocke",
+   "key": "n3_glocke",
+   "name": "Die Glocke",
+   "beschreibung": "Drei, Pause, dreizehn. Einmal in dieser Nacht.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 84,
+     "funktion": "neben3_joker"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 84,
+     "funktion": "neben3_joker"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_kapschluessel",
+   "key": "n3_kapschluessel",
+   "name": "Kapellenschlüssel",
+   "beschreibung": "Ein großer Eisenschlüssel mit Kordel. Kapellentür und das Gitter der Martinsnische.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 202,
+     "funktion": "albers_k3Umschlag"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 202,
+     "funktion": "albers_k3Umschlag"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_n3_kassette_band",
+   "key": "n3_kassette_band",
+   "name": "Kassette „Außenkamera“",
+   "beschreibung": "„NICHT ÜBERSPIELEN“, darunter das Auge.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 662,
+     "funktion": "neben3_band"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 662,
+     "funktion": "neben3_band"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_kassette_peter",
+   "key": "n3_kassette_peter",
+   "name": "Kassette „Peter“",
+   "beschreibung": "Etikett „MARION · FÜR K-1“, „K-1“ mit Kuli durchgestrichen, darüber in Omas Schrift „PETER“.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 427,
+     "funktion": "neben3_rekorder"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 427,
+     "funktion": "neben3_rekorder"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_lieferschein",
+   "key": "n3_lieferschein",
+   "name": "Lieferschein",
+   "beschreibung": "BfR · AST 7 → AST 3 · LAGUNE. „Absender siehe Empfänger.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 571,
+     "funktion": "neben3_kiste"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 571,
+     "funktion": "neben3_kiste"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_ordner",
+   "key": "n3_ordner",
+   "name": "Vegas’ Ordner",
+   "beschreibung": "„DIE WAHRHEIT · BAND 3 · NICHT ANFASSEN“, mit Alufolie beklebt. In drei Stapeln durch den Kettenspalt.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 209,
+     "funktion": "albers_k3Ordner"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 209,
+     "funktion": "albers_k3Ordner"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_n3_pfarrschluessel",
+   "key": "n3_pfarrschluessel",
+   "name": "Pfarrhausschlüssel",
+   "beschreibung": "Messing, Korkanhänger: „PFARRHAUS – NICHT DER KAPELLE“.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 495,
+     "funktion": "luna"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 495,
+     "funktion": "luna"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_n3_schuh",
+   "key": "n3_schuh",
+   "name": "Kinderschuh, rechts",
+   "beschreibung": "Größe 33, rechts, Klettverschluss. Nur einer.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 585,
+     "funktion": "neben3_heimBau"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 585,
+     "funktion": "neben3_heimBau"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_nord_baer",
+   "key": "nord_baer",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_nord.js",
+     "zeile": 902,
+     "funktion": "ausbau_nord_teddy"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_nord_lantern",
+   "key": "nord_lantern",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_nord.js",
+     "zeile": 874,
+     "funktion": "ausbau_nord_takeLantern"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_ow_seiten",
+   "key": "ow_seiten",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausbau_ost_west.js",
+     "zeile": 566,
+     "funktion": "ausbau_ost_west_seite1"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_pell_kassette",
+   "key": "pell_kassette",
+   "name": "Kassette „Come home, W.“",
+   "beschreibung": "Pells Band aus dem Rekorder im Wrack. Jonas hat draufgeschrieben: NICHT NACHTS ANHÖREN.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 55,
+     "funktion": "n6_pellHtml"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 175,
+     "funktion": "n6_band"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_pfandflasche",
+   "key": "pfandflasche",
+   "name": "Pfandflasche",
+   "beschreibung": "Bier, acht Cent. „Wenn ich das überlebe, ist das mein Anfang.“",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 166,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 261,
+     "funktion": "k6_flascheNehmen",
+     "beat": "epilog"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_phone",
+   "key": "phone",
+   "name": "Lucys Handy",
+   "beschreibung": "3 % Akku. Die letzte Nachricht an dich hat dich nie erreicht.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5814,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 2841,
+     "funktion": "checkHome"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_plombe",
+   "key": "plombe",
+   "name": "Plombe aus Blech",
+   "beschreibung": "Vom Pflock der Schlinge. Das Auge über der Flamme. „AST 7 · Köder W · nicht entfernen“.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/wald.js",
+     "zeile": 119,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/wald.js",
+     "zeile": 196,
+     "funktion": "wald_pupFrei"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_polaroid_kamera",
+   "key": "polaroid_kamera",
+   "name": "Hildes Kamera",
+   "beschreibung": "{…}",
+   "icon": "polaroid",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kamera.js",
+     "zeile": 14,
+     "funktion": "kamera_item"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/kamera.js",
+     "zeile": 16,
+     "funktion": "kamera_frei"
+    }
+   ],
+   "dynamisch": true
+  },
+  {
+   "Name": "ITEM_predigtmappe",
+   "key": "predigtmappe",
+   "name": "Predigtmappe",
+   "beschreibung": "Schwarzes Leder, Aufkleber einer Konfirmandenfreizeit. Zwölf Predigten, ein dreizehntes Blatt.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 364,
+     "funktion": "neben3_mappe"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben3.js",
+     "zeile": 364,
+     "funktion": "neben3_mappe"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "ITEM_rechnung_durchschlag",
+   "key": "rechnung_durchschlag",
+   "name": "Durchschlag der Steinmetzrechnung",
+   "beschreibung": "Kühnle, Rechnung Nr. 26-114. „Grabstelle Brandt, L.“ Auf Maas’ Durchschlag ein zweiter Kuli: „Bar bezahlt. Handschuhe anbehalten.“",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben5.js",
+     "zeile": 29,
+     "konstante": "N5_ITEMS"
+    }
+   ],
+   "vergebenIn": [],
+   "dynamisch": false,
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "ITEM_ring_hufeisen",
+   "key": "ring_hufeisen",
+   "name": "Schlüsselring mit Hufeisen",
+   "beschreibung": "Eisern. Von Vegas. „Nimm das Hufeisen nie ab.“",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 160,
+     "funktion": "albers_k1Klopfen"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/albers.js",
+     "zeile": 160,
+     "funktion": "albers_k1Klopfen"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_schluesselteile",
+   "key": "schluesselteile",
+   "name": "Schlüsselteile",
+   "beschreibung": "Geschmiedete Teile eines großen Schlüssels, gestempelt 01–08. Gefunden: {…} / 8.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 20,
+     "funktion": "anwesen_give"
+    },
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 102,
+     "funktion": "anwesen_wrap"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 20,
+     "funktion": "anwesen_give"
+    },
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 102,
+     "funktion": "anwesen_wrap"
+    }
+   ],
+   "dynamisch": true,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_seitenschneider",
+   "key": "seitenschneider",
+   "name": "Seitenschneider",
+   "beschreibung": "Aus der Werkzeugtasche der Bergung. Schneidet Draht.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 167,
+     "funktion": ""
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/kapitel6.js",
+     "zeile": 346,
+     "funktion": "k6_ag18Tasche",
+     "beat": "epilog"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_sender",
+   "key": "sender",
+   "name": "",
+   "beschreibung": "",
+   "icon": "",
+   "definiertIn": [],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/lwo.js",
+     "zeile": 710,
+     "funktion": "lwo_senderAnsehen"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_sicherung",
+   "key": "sicherung",
+   "name": "Keramiksicherung",
+   "beschreibung": "Alt, 25 A, mit Klebeband umwickelt. Auf dem Band: „RAUM 7“.",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5821,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/ausruestung.js",
+     "zeile": 44,
+     "funktion": "ausruestung_spot"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_spindschluessel",
+   "key": "spindschluessel",
+   "name": "Schlüsselbund „3“",
+   "beschreibung": "Zwei kleine Schlüssel an einem Ring. Ein Blechanhänger mit einer 3 und dem Auge.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 53,
+     "funktion": "n6_pellHtml"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben6.js",
+     "zeile": 183,
+     "funktion": "n6_schluessel"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "ITEM_tape",
+   "key": "tape",
+   "name": "Lucys Tonband",
+   "beschreibung": "„Wir waren beide weg. Du auch.“",
+   "icon": "",
+   "definiertIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 5817,
+     "konstante": "ITEMS"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/_base_source_index.html",
+     "zeile": 2782,
+     "funktion": "doorAction"
+    },
+    {
+     "datei": "app/mods/kapitel1.js",
+     "zeile": 396,
+     "funktion": "kapitel1_band"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_thermos_bfr",
+   "key": "thermos_bfr",
+   "name": "Günthers Thermoskanne",
+   "beschreibung": "Grau, zerbeult, Aufkleber „BfR – Wir bringen Sie heim“. Kaffee, noch warm. Tauschgut für den Raben oder ein Kaffee für Vegas.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 356,
+     "funktion": "n4_zusammenbruch"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 513,
+     "funktion": "n4_kanneTick"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 356,
+     "funktion": "n4_zusammenbruch"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_thermoskanne",
+   "key": "thermoskanne",
+   "name": "Thermoskanne",
+   "beschreibung": "Wolters Thermoskanne. Noch warm. Riecht nach Pfefferminz und Blech.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/lwo.js",
+     "zeile": 926,
+     "funktion": "lwo_ag09"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 488,
+     "funktion": "n4_kanneTick"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 491,
+     "funktion": "n4_kanneTick"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 511,
+     "funktion": "n4_kanneTick"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/lwo.js",
+     "zeile": 926,
+     "funktion": "lwo_ag09"
+    }
+   ],
+   "dynamisch": true
+  },
+  {
+   "Name": "ITEM_tonband_ast",
+   "key": "tonband_ast",
+   "name": "Tonband · Kanal 3",
+   "beschreibung": "„Kanal 3 · alle AST · 1992“. Funkfetzen aus neun Außenstellen. Eine Stimme sagt auf Deutsch „danke“.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 423,
+     "funktion": "n4_weltFertig"
+    },
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 513,
+     "funktion": "n4_kanneTick"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/neben4.js",
+     "zeile": 423,
+     "funktion": "n4_weltFertig"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_umschlag7",
+   "key": "umschlag7",
+   "name": "Brauner Umschlag",
+   "beschreibung": "„BfR · AST LE · DURCHSCHLAG · VERTRAULICH“. Aus dem Fach mit Akte 08. Ungeöffnet. Nicht jetzt.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 38,
+     "funktion": "amt_trust"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 1111,
+     "funktion": "amt_akte08"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_villaschluessel",
+   "key": "villaschluessel",
+   "name": "Schlüssel der Villa Seiler",
+   "beschreibung": "Aus acht Teilen gepresst. Schwer, noch warm. Der Bart hat sieben Zähne und eine Lücke.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 166,
+     "funktion": "anwesen_press"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/anwesen.js",
+     "zeile": 167,
+     "funktion": "anwesen_press"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "ITEM_wartenummer",
+   "key": "wartenummer",
+   "name": "Wartenummer 8",
+   "beschreibung": "Aus dem Nummernautomaten im Tunnel. Eine 8, schwarz auf Pappe. Wird nie aufgerufen.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 36,
+     "funktion": "amt_trust"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/amt.js",
+     "zeile": 949,
+     "funktion": "amt_nummer"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    2
+   ]
+  },
+  {
+   "Name": "ITEM_zayn_kamera",
+   "key": "zayn_kamera",
+   "name": "Zayns Kinderkamera",
+   "beschreibung": "Eine kleine Kamera aus buntem Plastik. Sechs Fotos, alle vom alten Spielplatz.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/zayn.js",
+     "zeile": 21,
+     "funktion": "zayn_stage"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/zayn.js",
+     "zeile": 73,
+     "funktion": "zayn_bag"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_zayn_kassette",
+   "key": "zayn_kassette",
+   "name": "Kassette „FÜR JONAS UND LUKE“",
+   "beschreibung": "Kinderschrift auf dem Etikett: FÜR JONAS UND LUKE · NICHT ÜBERSPIELEN. Zayn hat sie im Sommer 2009 aufgenommen.",
+   "icon": "paper",
+   "definiertIn": [
+    {
+     "datei": "app/mods/zayn.js",
+     "zeile": 22,
+     "funktion": "zayn_stage"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/zayn.js",
+     "zeile": 181,
+     "funktion": "zayn_kassette"
+    }
+   ],
+   "dynamisch": false
+  },
+  {
+   "Name": "ITEM_zimmer7",
+   "key": "zimmer7",
+   "name": "Schlüssel „ZIMMER 7“",
+   "beschreibung": "Lag mit einer Klammer am achten Protokoll. Am Ring ein Pappschild, Schreibmaschine: ZIMMER 7.",
+   "icon": "key",
+   "definiertIn": [
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 32,
+     "funktion": "Z7_AUSHANG_HTML"
+    }
+   ],
+   "vergebenIn": [
+    {
+     "datei": "app/mods/zimmer7.js",
+     "zeile": 54,
+     "funktion": "z7_protokoll"
+    }
+   ],
+   "dynamisch": false,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  }
+ ],
+ "ungeklaert": [
+  {
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3008,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(k, name, desc, icon)"
+  },
+  {
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 373,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(k); };\r\n\r\n  // ================================================================= ENTDECKBARES · OST\r\n  // STORY-"
+  },
+  {
+   "datei": "app/mods/justin.js",
+   "zeile": 498,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(G[0], G[1], G[2], 'paper')"
+  },
+  {
+   "datei": "app/mods/justin.js",
+   "zeile": 502,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(G[0]); ch3.gift = G[0]; await gb;\r\n  await justin_sprich(c + 'geschenk', { frei: false }); if (JUSTIN_BANK[c + '"
+  },
+  {
+   "datei": "app/mods/justin.js",
+   "zeile": 506,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(F[0], F[1], F[2], 'paper')"
+  },
+  {
+   "datei": "app/mods/justin.js",
+   "zeile": 506,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(F[0]); await justin_sprich('rhFlicken', { frei: false }); }\r\n  else await say(JUSTIN_BANK.rhNein);\r\n  try { if ("
+  },
+  {
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 36,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(k, name, desc, icon)"
+  },
+  {
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 36,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(k); } catch (e) { story.items.push(k); } } }\r\nfunction k5_weg(k) { story.items = story.items.filter(x => x !== k"
+  },
+  {
+   "datei": "app/mods/kiffen.js",
+   "zeile": 57,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(key); }\r\n\r\n// ================================================================ Klänge (einmal beim Laden synthet"
+  },
+  {
+   "datei": "app/mods/neben5.js",
+   "zeile": 51,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(k, I[0], I[1], 'paper')"
+  },
+  {
+   "datei": "app/mods/neben5.js",
+   "zeile": 51,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(k); }\nfunction n5_weg(k) { story.items = story.items.filter(x => x !== k); }\nfunction n5_boden(x, z) { try { con"
+  },
+  {
+   "datei": "app/mods/neben5.js",
+   "zeile": 484,
+   "hinweis": "modItem mit dynamischem Schlüssel",
+   "quelltext": "modItem(k, n, d, 'paper')"
+  },
+  {
+   "datei": "app/mods/tausch.js",
+   "zeile": 381,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(w.item); if (w.bat) addBattery(w.bat); toast(D.text || 'Aufgehoben.', 3800); if (typeof glanz_klang === 'functio"
+  },
+  {
+   "datei": "app/mods/ziele.js",
+   "zeile": 231,
+   "hinweis": "addItem dynamisch",
+   "quelltext": "addItem(k), fibel: () => { jTab = 'jetzt'; renderJournal(); openOverlay('journal'); }, zu: () => closeOverlay(), chase: "
+  }
+ ]
+}

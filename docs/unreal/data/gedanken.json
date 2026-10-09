@@ -1,0 +1,3132 @@
+[
+ {
+  "Name": "THT_akte_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/akte.js",
+  "zeile": 52,
+  "funktion": "akte_lesen",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_akte_002",
+  "art": "gedanke",
+  "gedankeId": "akte_umschlag7",
+  "text": "Derselbe Kopf wie auf dem Umschlag aus dem Amt. Den hab ich nie aufgemacht.",
+  "datei": "app/mods/akte.js",
+  "zeile": 58,
+  "funktion": "akte_umschlag7",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_akte_003",
+  "art": "gedanke",
+  "gedankeId": "akte_ganz",
+  "text": "Sie ist nie angekommen. Dann muss ich es sein.",
+  "datei": "app/mods/akte.js",
+  "zeile": 63,
+  "funktion": "akte_fertig",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_amt_001",
+  "art": "gedanke",
+  "gedankeId": "amt_janluke",
+  "text": "Das war kein Schnitt mehr. Das hat er nie gesagt.",
+  "datei": "app/mods/amt.js",
+  "zeile": 970,
+  "funktion": "amt_notstrom",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_amt_002",
+  "art": "gedanke",
+  "gedankeId": "amt_max8",
+  "text": "Max. 8 Blatt. Acht. Natürlich acht.",
+  "datei": "app/mods/amt.js",
+  "zeile": 1035,
+  "funktion": "amt_vernichterFertig",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_amt_003",
+  "art": "gedanke",
+  "gedankeId": "amt_geschnitten",
+  "text": "Das ist geschnitten. Jedes Wort aus einem anderen Raum. Wer klebt so was zusammen?",
+  "datei": "app/mods/amt.js",
+  "zeile": 1169,
+  "funktion": "amt_regieTick",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_amt_004",
+  "art": "gedanke",
+  "gedankeId": "amt_nr8",
+  "text": "Nummer 8. Ha. Ha. Ha.",
+  "datei": "app/mods/amt.js",
+  "zeile": 1238,
+  "funktion": "amt_akte06",
+  "kapitelModul": [
+   2
+  ]
+ },
+ {
+  "Name": "THT_anwesen_001",
+  "art": "gedanke",
+  "gedankeId": "anw_erstes",
+  "text": "Ein Stempel. Turm über Abgrund. Derselbe wie auf dem Blech … Und die Villa hat acht Schlösser. Das ist kein Zufall.",
+  "datei": "app/mods/anwesen.js",
+  "zeile": 25,
+  "funktion": "anwesen_give",
+  "kapitelModul": [
+   4
+  ]
+ },
+ {
+  "Name": "THT_anwesen_002",
+  "art": "gedanke",
+  "gedankeId": "ch4_start",
+  "text": "Es ist vorbei. Oder? … Die Villa. Acht Schlösser. Ich will wissen, was Seiler da drin versteckt hat.",
+  "datei": "app/mods/anwesen.js",
+  "zeile": 207,
+  "funktion": "chapter4Begin",
+  "kapitelModul": [
+   4
+  ]
+ },
+ {
+  "Name": "THT_anwesen_003",
+  "art": "gedanke",
+  "gedankeId": "k4_rauch",
+  "text": "Rauch. Von ganz unten. Der Gang brennt noch.",
+  "datei": "app/mods/anwesen.js",
+  "zeile": 498,
+  "funktion": "anwesen_smokeTick",
+  "kapitelModul": [
+   4
+  ]
+ },
+ {
+  "Name": "THT_ausbau_nord_001",
+  "art": "regex_text",
+  "trifftAufgabe": "/VarC$/",
+  "text": "{…}",
+  "datei": "app/mods/ausbau_nord.js",
+  "zeile": 774,
+  "kapitelModul": [
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_ausbau_nord_002",
+  "art": "gedanke",
+  "gedankeId": "nord_peter_heim",
+  "text": "Onkel Peter. Ich hab dich heimgeschickt. Mit Mamas Feuerzeug.",
+  "datei": "app/mods/ausbau_nord.js",
+  "zeile": 851,
+  "funktion": "ausbau_nord_peter",
+  "kapitelModul": [
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_ausbau_nord_003",
+  "art": "gedanke",
+  "gedankeId": "nord_paragraf4",
+  "text": "Paragraf vier. Am Tag der Übergabe ein Gedenkstein. Sie haben uns begraben, bevor sie uns hergegeben haben.",
+  "datei": "app/mods/ausbau_nord.js",
+  "zeile": 939,
+  "funktion": "ausbau_nord_tick",
+  "kapitelModul": [
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_beobachter_001",
+  "art": "gedanke",
+  "gedankeId": "beob_1",
+  "text": "Druckbuchstaben. Bleistift. Und dieses Zeichen: drei Punkte. … Wer schreibt so? Und woher weiß er das?",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 225,
+  "funktion": "beob_firstThought"
+ },
+ {
+  "Name": "THT_beobachter_002",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 230,
+  "funktion": "beob_readSpot"
+ },
+ {
+  "Name": "THT_beobachter_003",
+  "art": "gedanke",
+  "gedankeId": "beob_final",
+  "text": "Der Neunte. Hilde hat neun gezählt, und keiner hat ihr geglaubt. … Er war die ganze Zeit da. Und er will, dass ich es weiß.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 258,
+  "funktion": "beob_drop"
+ },
+ {
+  "Name": "THT_beobachter_004",
+  "art": "gedanke",
+  "gedankeId": "beob_hinter",
+  "text": "Papier. Direkt hinter mir. … Da lag eben noch nichts.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 270,
+  "funktion": "beob_drop"
+ },
+ {
+  "Name": "THT_beobachter_005",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 274,
+  "funktion": "beob_nachLesen"
+ },
+ {
+  "Name": "THT_beobachter_006",
+  "art": "gedanke",
+  "gedankeId": "beob_bleistift",
+  "text": "Er schreibt. Ich hör ihn schreiben. Über mich. Sehr gut. Rezension.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 370,
+  "funktion": "beob_sound"
+ },
+ {
+  "Name": "THT_beobachter_007",
+  "art": "gedanke",
+  "gedankeId": "beob_sehen",
+  "text": "Da war was. Klein. Weiß. Große Augen. … Und jetzt ist es weg. Als hätte es gewusst, dass ich hinsehe.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 472,
+  "funktion": "beob_vanish"
+ },
+ {
+  "Name": "THT_beobachter_008",
+  "art": "gedanke",
+  "gedankeId": "beob_system",
+  "text": "Okay. Wir haben ein System. Ich guck hin, du bist weg. Ich guck weg, du bist da. Das ist wie mit meinem Vermieter.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 473,
+  "funktion": "beob_vanish"
+ },
+ {
+  "Name": "THT_beobachter_009",
+  "art": "gedanke",
+  "gedankeId": "beob_hallo",
+  "text": "Ja. Hallo. Ich weiß.",
+  "datei": "app/mods/beobachter.js",
+  "zeile": 692,
+  "funktion": "beob_spurTick"
+ },
+ {
+  "Name": "THT_cleo_001",
+  "art": "gedanke",
+  "gedankeId": "cleo_stein",
+  "text": "C. Wie in Lucys Tagebuch. Jemand hat sie nicht vergessen. Jemand hat sie ausgekratzt.",
+  "datei": "app/mods/cleo.js",
+  "zeile": 65,
+  "funktion": "cleo_stone"
+ },
+ {
+  "Name": "THT_cleo_002",
+  "art": "gedanke",
+  "gedankeId": "cleo_akte",
+  "text": "Eine für sieben. Irgendwer hat sich selbst geschickt – für uns.",
+  "datei": "app/mods/cleo.js",
+  "zeile": 73,
+  "funktion": "cleo_akte"
+ },
+ {
+  "Name": "THT_cleo_003",
+  "art": "gedanke",
+  "gedankeId": "cleo_regel",
+  "text": "Eine für sieben. Mira ist für die eine noch mal rein. Cleo ist für alle sieben rein. Und keiner weiß ihren Namen.",
+  "datei": "app/mods/cleo.js",
+  "zeile": 96,
+  "funktion": "cleo_chest"
+ },
+ {
+  "Name": "THT_cleo_004",
+  "art": "gedanke",
+  "gedankeId": "cleo_nach",
+  "text": "Lucy hat sie nie vergessen. Siebzehn Jahre lang, jeden Tag ein C. … Jetzt vergesse ich sie auch nicht mehr.",
+  "datei": "app/mods/cleo.js",
+  "zeile": 120,
+  "funktion": "cleo_end"
+ },
+ {
+  "Name": "THT_cleo_005",
+  "art": "gedanke",
+  "gedankeId": "cleo_kreis",
+  "text": "Bilder frisst er. Buchstaben nicht.",
+  "datei": "app/mods/cleo.js",
+  "zeile": 136,
+  "funktion": "cleo_kreis"
+ },
+ {
+  "Name": "THT_entdecker_001",
+  "art": "gedanke",
+  "gedankeId": "kerbe_1",
+  "text": "Kreidestriche. Wie beim Verstecken, wenn einer zählt. … Da sind bestimmt noch mehr.",
+  "datei": "app/mods/entdecker.js",
+  "zeile": 57,
+  "funktion": "entd_kerbe"
+ },
+ {
+  "Name": "THT_entdecker_002",
+  "art": "gedanke",
+  "gedankeId": "kerbe_8",
+  "text": "‚Durchs Gesicht.‘ … Okay. Weiter.",
+  "datei": "app/mods/entdecker.js",
+  "zeile": 58,
+  "funktion": "entd_kerbe"
+ },
+ {
+  "Name": "THT_entdecker_003",
+  "art": "gedanke",
+  "gedankeId": "kerbe_alle",
+  "text": "Siebzehn. Sie zählt nicht, um zu suchen. Sie zählt, damit sich alle rechtzeitig verstecken können.",
+  "datei": "app/mods/entdecker.js",
+  "zeile": 66,
+  "funktion": "entd_reimFertig"
+ },
+ {
+  "Name": "THT_entdecker_004",
+  "art": "gedanke",
+  "gedankeId": "entd_2009",
+  "text": "Die kalte Hand. Das war kein Traum. Das war Eisen. Das war er.",
+  "datei": "app/mods/entdecker.js",
+  "zeile": 70,
+  "funktion": "entd_erinnerung"
+ },
+ {
+  "Name": "THT_feuer_001",
+  "art": "gedanke",
+  "gedankeId": "feuer_fass",
+  "text": "Wenn das umkippt, schwimmt der ganze Gang.",
+  "datei": "app/mods/feuer.js",
+  "zeile": 440,
+  "funktion": "feuer_barrelAct"
+ },
+ {
+  "Name": "THT_feuer_002",
+  "art": "gedanke",
+  "gedankeId": "feuer_glanz",
+  "text": "Da, auf der Matratze. Da glänzt was.",
+  "datei": "app/mods/feuer.js",
+  "zeile": 733,
+  "funktion": "feuer_reset"
+ },
+ {
+  "Name": "THT_fotos_001",
+  "art": "gedanke",
+  "gedankeId": "fotos_1",
+  "text": "Das sind keine Zeichnungen. Das ist eine Ermittlung. Datum, Ort, Quelle – jemand hat das alles gesehen, sortiert und niemandem gezeigt.",
+  "datei": "app/mods/fotos.js",
+  "zeile": 60,
+  "funktion": "fotos_open"
+ },
+ {
+  "Name": "THT_gedanken_001",
+  "art": "tabelle",
+  "gedankeId": "k1_lucy1",
+  "text": "Lucy. Ich sammel hier Katzen, und du bist irgendwo im Dunkeln.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 8,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_gedanken_002",
+  "art": "tabelle",
+  "gedankeId": "k1_lucy2",
+  "text": "Elf Anrufe. Und jetzt lauf ich durch dein Dorf und guck in fremde Briefkästen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 8,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_gedanken_003",
+  "art": "tabelle",
+  "gedankeId": "k1_lucy3",
+  "text": "Wenn sie jetzt anruft, geh ich ran. Beim ersten Klingeln.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 9,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_gedanken_004",
+  "art": "tabelle",
+  "gedankeId": "k1_lucy4",
+  "text": "Du hättest längst einen Plan. Mit Zettel und blauen Pfeilen. Ich hab eine Taschenlampe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 9,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_gedanken_005",
+  "art": "tabelle",
+  "gedankeId": "k1_lucy5",
+  "text": "„Großer, du trödelst.“ Ja. Ich weiß.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 9,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_gedanken_006",
+  "art": "tabelle",
+  "gedankeId": "A-01",
+  "anlass": "",
+  "text": "Puls auf hundertachtzig. Wenn das ein Podcast wär, würd ich den Atem rausschneiden. Geht nicht. Ist meiner.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 18,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_007",
+  "art": "tabelle",
+  "gedankeId": "A-02",
+  "anlass": "",
+  "text": "Ich hab geschrien. Gut, dass keiner mitschneidet. … Hoffentlich schneidet keiner mit.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 19,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_008",
+  "art": "tabelle",
+  "gedankeId": "A-03",
+  "anlass": "k3kuh",
+  "text": "Eine Kuh. Vom Himmel. Wenn ich das auf der Arbeit erzähl, krieg ich endlich Urlaub.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 20,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_009",
+  "art": "tabelle",
+  "gedankeId": "A-04",
+  "anlass": "",
+  "text": "Ich hab mir nicht in die Hose gemacht. Das halt ich fest. Das ist heute mein Erfolg.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 21,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_010",
+  "art": "tabelle",
+  "gedankeId": "A-05",
+  "anlass": "",
+  "text": "Wenn’s knallt, nicht an den Reglern drehen. Warten, bis der Pegel runtergeht. Pegel geht runter. Pegel geht … runter.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 22,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_011",
+  "art": "tabelle",
+  "gedankeId": "A-06",
+  "anlass": "",
+  "text": "Lucy, das war kein Quieken. Das war ein Warnruf.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 23,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_012",
+  "art": "tabelle",
+  "gedankeId": "A-07",
+  "anlass": "",
+  "text": "Ich sag einfach Wörter. Toastbrot. Kabeltrommel. Kassler.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 24,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_013",
+  "art": "tabelle",
+  "gedankeId": "A-08",
+  "anlass": "",
+  "text": "Das war ein Gesicht, und ich hab ‚Entschuldigung‘ gesagt. Ich hab mich bei einem Gesicht entschuldigt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 25,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_014",
+  "art": "tabelle",
+  "gedankeId": "A-09",
+  "anlass": "",
+  "text": "Ich brauch einen Kaffee. Oma hätte gesagt: Kind, du brauchst Kassler.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 26,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_015",
+  "art": "tabelle",
+  "gedankeId": "A-10",
+  "anlass": "",
+  "text": "Zwei Hände, zwei Füße, eine Taschenlampe. Alles dran. Inventur abgeschlossen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 27,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_016",
+  "art": "tabelle",
+  "gedankeId": "A-11",
+  "anlass": "",
+  "text": "Wenn das vorbei ist, zieh ich in eine Stadt mit Straßenbahn. Straßenbahnen haben Fahrpläne. Da kommt nichts aus dem Himmel.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 28,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_017",
+  "art": "tabelle",
+  "gedankeId": "A-12",
+  "anlass": "beob",
+  "text": "Wer da hinten raschelt: Ich hab dich gehört. Du bist nicht leise. Du bist nur klein.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 29,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_018",
+  "art": "tabelle",
+  "gedankeId": "A-13",
+  "anlass": "",
+  "text": "Mein Tinnitus hat gerade gekündigt. Der will hier auch nicht sein.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 30,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_019",
+  "art": "tabelle",
+  "gedankeId": "A-14",
+  "anlass": "",
+  "text": "Notiz an mich: Nachtschicht im Studio ist gar nicht so schlimm. Da fällt nur selten was vom Himmel.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 31,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_020",
+  "art": "tabelle",
+  "gedankeId": "A-15",
+  "anlass": "whiskey",
+  "text": "Du. Hast. Mich. … Ja, putz dich nur. Du hast gewonnen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 32,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_021",
+  "art": "tabelle",
+  "gedankeId": "A-16",
+  "anlass": "lampe",
+  "text": "Die Lampe hat’s überlebt. Wenigstens einer von uns ist robust gebaut.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 33,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_022",
+  "art": "tabelle",
+  "gedankeId": "A-17",
+  "anlass": "k3blinzeln",
+  "text": "Blinzeln ist ab jetzt verboten. Trockene Augen als Lebensstil.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 34,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_023",
+  "art": "tabelle",
+  "gedankeId": "A-18",
+  "anlass": "",
+  "text": "Oma hätte gesagt: Kind, das war der Wind. Oma, der Wind hat keinen Mund.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 35,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_024",
+  "art": "tabelle",
+  "gedankeId": "A-19",
+  "anlass": "",
+  "text": "Liste der Dinge, die heute Nacht noch passieren dürfen: keine.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 36,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_025",
+  "art": "tabelle",
+  "gedankeId": "A-20",
+  "anlass": "polaroid",
+  "text": "Ab jetzt nur noch Tonaufnahmen. Da kann man wenigstens nichts sehen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 37,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_026",
+  "art": "tabelle",
+  "gedankeId": "A-21",
+  "anlass": "",
+  "text": "Ich hab ‚Mama‘ gerufen. Ich bin sechsundzwanzig. War mir egal.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 38,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_027",
+  "art": "tabelle",
+  "gedankeId": "A-22",
+  "anlass": "",
+  "text": "Lauf, hat mein Körper gesagt. Nächstes Mal hör ich auf ihn. Der hat das bessere Gefühl für so was.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 39,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_028",
+  "art": "tabelle",
+  "gedankeId": "A-23",
+  "anlass": "stillezone",
+  "text": "Ich hab ‚Hallo‘ gesagt, und der Wald hat es behalten. Unhöflich.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 40,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_029",
+  "art": "tabelle",
+  "gedankeId": "A-24",
+  "anlass": "",
+  "text": "Gute Nachricht: keine Angst mehr vor Spinnen. Schlechte Nachricht: Ich hab jetzt Vergleiche.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 41,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_030",
+  "art": "tabelle",
+  "gedankeId": "A-25",
+  "anlass": "patachon",
+  "text": "Ihr zwei könnt auch mal klopfen. Wie normale Leute. Die klopfen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 42,
+  "funktion": "gedanke"
+ },
+ {
+  "Name": "THT_gedanken_031",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 47,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_032",
+  "art": "tabelle",
+  "gedankeId": "U-01",
+  "anlass": "zu",
+  "text": "Zu. Das Dorf hat mehr Schlüssel als Einwohner.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 56,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_033",
+  "art": "tabelle",
+  "gedankeId": "U-02",
+  "anlass": "knarrt",
+  "text": "Im Studio heißt das ‚Atmo Altbau, Take drei‘. Hier heißt es wahrscheinlich ‚lauf‘.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 57,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_034",
+  "art": "tabelle",
+  "gedankeId": "U-05",
+  "anlass": "keller7",
+  "text": "‚Keller bleibt zu.‘ Steht jetzt an drei Stellen. Irgendwann glaub ich’s.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 59,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_035",
+  "art": "tabelle",
+  "gedankeId": "U-06",
+  "anlass": "stahl",
+  "text": "Brandschutztür, grau, Wirtschaftswunder. Dahinter Akten oder Albträume. Meistens beides.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 60,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_036",
+  "art": "tabelle",
+  "gedankeId": "U-07",
+  "anlass": "klingelschild",
+  "text": "Nur ein Tesastreifen, wo mal ein Name war.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 61,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_037",
+  "art": "tabelle",
+  "gedankeId": "U-08",
+  "anlass": "briefschlitz",
+  "text": "Wenn da jetzt Finger rauskommen, zieh ich weg. Diesmal richtig.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 62,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_038",
+  "art": "tabelle",
+  "gedankeId": "U-04",
+  "anlass": "haustuer",
+  "text": "Offen nach oben, damit das Glück nicht rausfällt. Oder damit was anderes nicht reinkommt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 65,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_039",
+  "art": "tabelle",
+  "gedankeId": "U-73",
+  "anlass": "frisch",
+  "text": "Das hängt nicht aus Tradition. Das hängt aus Angst.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 66,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_040",
+  "art": "tabelle",
+  "gedankeId": "U-09",
+  "anlass": "summt",
+  "text": "Einziger Strom im Haus, und er verschwendet ihn an ein halbes Glas Gurken.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 70,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_041",
+  "art": "tabelle",
+  "gedankeId": "U-10",
+  "anlass": "offen",
+  "text": "Milch von letzter Woche. Oma hätte gesagt: Kind, zumachen. Ich mach zu.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 71,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_042",
+  "art": "tabelle",
+  "gedankeId": "U-13",
+  "anlass": "spuele",
+  "text": "Ein Teller, eine Gabel, ein Glas. So sieht allein wohnen aus. Kenn ich.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 76,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_043",
+  "art": "tabelle",
+  "gedankeId": "U-14",
+  "anlass": "an",
+  "text": "Brummt auf fünfzig Hertz, wie jede Laterne. Nur brummt die in meine Richtung.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 79,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_044",
+  "art": "tabelle",
+  "gedankeId": "U-16",
+  "anlass": "flackert",
+  "text": "Die flackert im Takt. Eins, zwei, drei … Ich zähl nicht mit. Hab ich mir versprochen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 81,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_045",
+  "art": "tabelle",
+  "gedankeId": "U-17",
+  "anlass": "kreide",
+  "text": "Haben wir als Kinder gespielt. Ich hab nie gefragt, frei wovon.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 82,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_046",
+  "art": "tabelle",
+  "gedankeId": "U-18",
+  "anlass": "papier",
+  "text": "Sonne drauf, Mond drauf, Kerze nie angezündet. Das Laternenfest fällt ja aus. Aus Sicherheitsgründen. Welche Sicherheit, steht nicht drauf.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 83,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_047",
+  "art": "tabelle",
+  "gedankeId": "U-20",
+  "anlass": "kombi",
+  "text": "Innen nichts, nicht mal ein Kaugummipapier. So aufgeräumt ist nur, wer was verbirgt oder einen Dienstwagen fährt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 88,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_048",
+  "art": "tabelle",
+  "gedankeId": "U-23",
+  "anlass": "traktor",
+  "text": "Baujahr: als Traktoren noch Gesichter hatten. Der guckt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 91,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_049",
+  "art": "tabelle",
+  "gedankeId": "U-25",
+  "anlass": "postrad",
+  "text": "Klingel wie ein Rabe. Wer baut so eine Klingel? Wer will so eine?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 93,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_050",
+  "art": "tabelle",
+  "gedankeId": "U-27",
+  "anlass": "tier",
+  "text": "Pferd. Oder Hund. Oder Tisch. Mit Liebe gemalt und mit zu wenig Beinen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 97,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_051",
+  "art": "tabelle",
+  "gedankeId": "U-29",
+  "anlass": "kreise",
+  "text": "Kreise ineinander. Dina hat früher so gemalt. Ich dachte, das sind Schnecken.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 101,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_052",
+  "art": "tabelle",
+  "gedankeId": "U-30",
+  "anlass": "pfeil",
+  "text": "Lucys Pfeil. Den hat sie auf jede Hausaufgabe gemalt, die sie von mir abgeschrieben hat.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 102,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_053",
+  "art": "tabelle",
+  "gedankeId": "U-31",
+  "anlass": "suehne",
+  "text": "So schief wie ein Betrunkener nach der Kirmes. Und frische Blumen davor.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 105,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_054",
+  "art": "tabelle",
+  "gedankeId": "U-32",
+  "anlass": "kerze",
+  "text": "Kein Mensch weit und breit. Entweder ist das Dorf sehr fromm, oder jemand weiß, dass ich komme.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 106,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_055",
+  "art": "tabelle",
+  "gedankeId": "U-35",
+  "anlass": "foto",
+  "text": "Kerze neu, Foto alt. Jemand hat jeden Tag eine neue hingestellt. Jahrelang.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 113,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_056",
+  "art": "tabelle",
+  "gedankeId": "U-36",
+  "anlass": "kreuzwort",
+  "text": "‚Anderes Wort für verschwunden, acht Buchstaben.‘ Keiner hat’s ausgefüllt. Ich auch nicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 116,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_057",
+  "art": "tabelle",
+  "gedankeId": "U-43",
+  "anlass": "laternenbote",
+  "text": "Die Kaninchenzüchter kriegen einen Namen. Das hier kriegt zwei Buchstaben.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 117,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_058",
+  "art": "tabelle",
+  "gedankeId": "U-38",
+  "anlass": "geschwaerzt",
+  "text": "Mehr Schwarz als Text. Da hatte einer was gegen Buchstaben.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 121,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_059",
+  "art": "tabelle",
+  "gedankeId": "U-40",
+  "anlass": "kartei",
+  "text": "Unter B: Brandt. Ich zieh die nicht raus. … Na gut.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 123,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_060",
+  "art": "tabelle",
+  "gedankeId": "U-42",
+  "anlass": "kaffee",
+  "text": "Irgendwer hat ganz normal Kaffee getrunken, während er das geschrieben hat. Das ist das Schlimmste daran.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 125,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_061",
+  "art": "tabelle",
+  "gedankeId": "U-44",
+  "anlass": "voll",
+  "text": "Werbung, Werbung, Laternenbote. Jemand wohnt hier nicht mehr und kriegt trotzdem Angebote für Fensterputzer.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 128,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_062",
+  "art": "tabelle",
+  "gedankeId": "U-45",
+  "anlass": "bruno",
+  "text": "Klingt nach dreißig Kilo und null Humor.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 131,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_063",
+  "art": "tabelle",
+  "gedankeId": "U-47",
+  "anlass": "kauz",
+  "text": "Das ist echt. Das ist ein Kauz. Ich halt mich jetzt an dem Kauz fest.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 133,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_064",
+  "art": "tabelle",
+  "gedankeId": "U-48",
+  "anlass": "fuchs",
+  "text": "Rote Augen im Lampenlicht, dann weg. Der hat’s richtig gemacht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 134,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_065",
+  "art": "tabelle",
+  "gedankeId": "U-49",
+  "anlass": "maus",
+  "text": "Katzenarbeit. Sauber abgelegt, wie ein Geschenk. Danke, glaub ich.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 135,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_066",
+  "art": "tabelle",
+  "gedankeId": "U-52",
+  "anlass": "rabe",
+  "text": "Noch ein Rabe. Nein. Er guckt beleidigt. Das ist er.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 138,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_067",
+  "art": "tabelle",
+  "gedankeId": "U-53",
+  "anlass": "napf",
+  "text": "ANNI. Die Katze heißt wie ein Kind. Warum heißt die Katze wie ein Kind?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 139,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_068",
+  "art": "tabelle",
+  "gedankeId": "U-54",
+  "anlass": "katzenhaare",
+  "text": "Ich bin jetzt offiziell adoptiert.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 140,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_069",
+  "art": "tabelle",
+  "gedankeId": "U-56",
+  "anlass": "fahrrad",
+  "text": "Alles Rost, nur die Klingel glänzt. Irgendwer putzt nur die Klingel.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 144,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_070",
+  "art": "tabelle",
+  "gedankeId": "U-58",
+  "anlass": "nagel",
+  "text": "Tetanus hab ich, glaub ich. Die Impfung. Hoffentlich die Impfung.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 146,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_071",
+  "art": "tabelle",
+  "gedankeId": "U-59",
+  "anlass": "eimer",
+  "text": "Man sieht durch den Boden. Hier heißt das wahrscheinlich noch gut.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 147,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_072",
+  "art": "tabelle",
+  "gedankeId": "U-60",
+  "anlass": "villator",
+  "text": "Acht Schlösser. Mein Studio hat eins, und da steht Technik für ein Einfamilienhaus drin.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 148,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_073",
+  "art": "tabelle",
+  "gedankeId": "U-61",
+  "anlass": "revox",
+  "text": "Dieselbe wie im alten Studio. Wenn ich hier sterbe, dann wenigstens neben guter Technik.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 151,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_074",
+  "art": "tabelle",
+  "gedankeId": "U-68",
+  "anlass": "fernbedienung",
+  "text": "Oma-Technik. Wie neu. Der Fernseher ist seit Jahren kaputt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 152,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_075",
+  "art": "tabelle",
+  "gedankeId": "U-69",
+  "anlass": "radio",
+  "text": "Rauschen hat Farben. Rosa, weiß, braun. Das hier ist grau.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 153,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_076",
+  "art": "tabelle",
+  "gedankeId": "U-70",
+  "anlass": "tonband",
+  "text": "Gerissen und mit Tesa geflickt. Wer das geflickt hat, wollte es unbedingt noch mal hören.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 154,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_077",
+  "art": "tabelle",
+  "gedankeId": "U-72",
+  "anlass": "telefon",
+  "text": "Mein Klingelton. Das Original. Ich hab den bei Oma aufgenommen, da war ich fünfzehn.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 156,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_078",
+  "art": "tabelle",
+  "gedankeId": "U-62",
+  "anlass": "netz",
+  "text": "Ein Kronleuchter für jemanden mit sehr wenig Budget.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 159,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_079",
+  "art": "tabelle",
+  "gedankeId": "U-63",
+  "anlass": "gross",
+  "text": "Ich hab keine Angst vor Spinnen. Hatte ich nie. … Wer hatte eigentlich Angst vor Spinnen? Einer von uns.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 160,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_080",
+  "art": "tabelle",
+  "gedankeId": "U-64",
+  "anlass": "tuerrahmen",
+  "text": "Die Spinne baut neu und guckt mich an, als wär ich’s gewesen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 161,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_081",
+  "art": "tabelle",
+  "gedankeId": "U-65",
+  "anlass": "gefunden",
+  "text": "Das Beste, was einem nachts passieren kann, außer Sonnenaufgang.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 164,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_082",
+  "art": "tabelle",
+  "gedankeId": "U-67",
+  "anlass": "leer",
+  "text": "Die Art Mensch, die auch leere Milchtüten zurück in den Kühlschrank stellt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 166,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_083",
+  "art": "tabelle",
+  "gedankeId": "U-76",
+  "anlass": "kaugummi",
+  "text": "Pfefferminz. Und ein Auge über einer Flamme. Wer druckt ein Auge auf Kaugummi?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 169,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_084",
+  "art": "tabelle",
+  "gedankeId": "U-77",
+  "anlass": "kuli",
+  "text": "Werbekuli. Wie von der Messe. Nur gibt’s die Messe nicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 170,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_085",
+  "art": "tabelle",
+  "gedankeId": "U-79",
+  "anlass": "absperrband",
+  "text": "Riecht nicht nach Gas. Riecht nach Nebel und Kreide.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 172,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_086",
+  "art": "tabelle",
+  "gedankeId": "U-80",
+  "anlass": "aushang",
+  "text": "Sprechstunde donnerstags. Die Behörde ist aufgelöst. Die Sprechstunde nicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 173,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_087",
+  "art": "tabelle",
+  "gedankeId": "U-81",
+  "anlass": "thermos",
+  "text": "Tee. Wer trinkt um diese Zeit draußen Tee?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 174,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_088",
+  "art": "tabelle",
+  "gedankeId": "U-82",
+  "anlass": "kiste",
+  "text": "Das Dorf-Sparbuch. Mit Glück ein Döner.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 177,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_089",
+  "art": "tabelle",
+  "gedankeId": "U-83",
+  "anlass": "fensterbank",
+  "text": "Kein Deko, hätte Oma gesagt. Ich stimm zu, Oma.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 178,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_090",
+  "art": "tabelle",
+  "gedankeId": "U-84",
+  "anlass": "automat",
+  "text": "‚Außer Betrieb‘, handgeschrieben, vor drei Jahren. Hier wird Pfand noch in Würde gehortet.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 179,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_091",
+  "art": "tabelle",
+  "gedankeId": "U-86",
+  "anlass": "plakat",
+  "text": "Hat keiner abgenommen. Die Band hieß ‚Lampenfieber‘. Na klar.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 183,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_092",
+  "art": "tabelle",
+  "gedankeId": "U-87",
+  "anlass": "alufolie",
+  "text": "Glänzende Seite nach außen. Er hat sich Gedanken gemacht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 184,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_093",
+  "art": "tabelle",
+  "gedankeId": "U-89",
+  "anlass": "0313",
+  "text": "Wieder. Die Uhren in diesem Dorf haben sich abgesprochen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 188,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_094",
+  "art": "tabelle",
+  "gedankeId": "U-90",
+  "anlass": "pendel",
+  "text": "Das bin ich. Das ist mein Puls. Auch nicht besser.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 189,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_095",
+  "art": "tabelle",
+  "gedankeId": "U-91",
+  "anlass": "",
+  "text": "Sieht müde aus. Dem würd ich nichts leihen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 192,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_096",
+  "art": "tabelle",
+  "gedankeId": "U-93",
+  "anlass": "kind",
+  "text": "So machen Kinder ihre Betten nie. So machen Erwachsene, die warten.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 196,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_097",
+  "art": "tabelle",
+  "gedankeId": "U-95",
+  "anlass": "teddy",
+  "text": "Rote Wolle. Überall rote Wolle in diesem Dorf.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 200,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_098",
+  "art": "tabelle",
+  "gedankeId": "U-96",
+  "anlass": "dino",
+  "text": "Aufkleber vom Kinderarzt: ‚Tapfer gewesen!‘ Du auch, Dino.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 201,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_099",
+  "art": "tabelle",
+  "gedankeId": "U-98",
+  "anlass": "gruppe",
+  "text": "Sieben Kinder mit Lampions. Am Rand ein Mann mit Hut, unscharf. Auf jedem Foto hier steht einer am Rand.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 205,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_100",
+  "art": "tabelle",
+  "gedankeId": "U-99",
+  "anlass": "gully",
+  "text": "Da unten rauscht Wasser. Und da ist Licht. Unter einem Gully ist kein Licht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 208,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_101",
+  "art": "tabelle",
+  "gedankeId": "U-102",
+  "anlass": "hochsitz",
+  "text": "Nie verstanden, warum man auf einer Leiter wartet, bis was vorbeikommt. Jetzt schon.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 211,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_102",
+  "art": "tabelle",
+  "gedankeId": "KZ-01",
+  "anlass": "",
+  "text": "Hallo, Kollege. Nachtschicht? Ich auch. Wir reden nicht drüber.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 216,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_103",
+  "art": "tabelle",
+  "gedankeId": "KZ-02",
+  "anlass": "ecke",
+  "text": "Du guckst in die Ecke. Ich guck jetzt auch in die Ecke. Da ist nichts. Oder? Sag was.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 217,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_104",
+  "art": "tabelle",
+  "gedankeId": "KZ-03",
+  "anlass": "",
+  "text": "Nein, ich hab kein Futter. Ich hab eine Taschenlampe und Probleme. Such dir was aus.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 218,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_105",
+  "art": "tabelle",
+  "gedankeId": "KZ-04",
+  "anlass": "keiner",
+  "text": "Du heißt Keiner. Wenn mich jemand fragt, was ich hier mache: Ich such Keiner.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 219,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_106",
+  "art": "tabelle",
+  "gedankeId": "KZ-05",
+  "anlass": "lucy",
+  "text": "Ja. Das passt. Das passt leider sehr gut.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 220,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_107",
+  "art": "tabelle",
+  "gedankeId": "KZ-07",
+  "anlass": "tragen",
+  "text": "Ich trag dich jetzt. Keine Panik. Ich hab auch Panik, wir teilen uns die.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 222,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_108",
+  "art": "tabelle",
+  "gedankeId": "KZ-08",
+  "anlass": "",
+  "text": "Siebzehn Katzen. Ich kenn Leute mit weniger Freunden. Mich zum Beispiel.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 223,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_109",
+  "art": "tabelle",
+  "gedankeId": "KZ-11",
+  "anlass": "maus",
+  "text": "Danke. Ich leg sie … da hin. Nicht, weil ich sie nicht mag.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 226,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_110",
+  "art": "tabelle",
+  "gedankeId": "KZ-12",
+  "anlass": "schnurren",
+  "text": "Schnurren liegt bei fünfundzwanzig Hertz. Tiefste Stimme im Raum. Und die einzige, die mich beruhigt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 227,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_111",
+  "art": "tabelle",
+  "gedankeId": "KZ-13",
+  "anlass": "herd",
+  "text": "Nicht auf die Herdplatte. Die ist aus. Es geht ums Prinzip.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 228,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_112",
+  "art": "tabelle",
+  "gedankeId": "KZ-14",
+  "anlass": "whiskey",
+  "text": "Den nicht. Das ist ein Rabe mit Anwalt. Der frisst eher dich.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 229,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_113",
+  "art": "tabelle",
+  "gedankeId": "KZ-15",
+  "anlass": "zaun",
+  "text": "Wenn du den Kleinen hinterm Zaun siehst, sag ihm, ich hab keine Angst. Und guck mich nicht so an.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 230,
+  "funktion": "gedanken_atem"
+ },
+ {
+  "Name": "THT_gedanken_114",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 240,
+  "funktion": "gedanken_blick"
+ },
+ {
+  "Name": "THT_gedanken_115",
+  "art": "faden",
+  "trifftAufgabe": "/Finde Haus Nr\\. 7/",
+  "text": "Nr. 7. Hilde Wendts Haus. Die Straße entlang … ich erkenne es, wenn ich davorstehe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 280
+ },
+ {
+  "Name": "THT_gedanken_116",
+  "art": "faden",
+  "trifftAufgabe": "/Weg in Haus Nr\\. 7/",
+  "text": "Lucy hat Schlüssel immer irgendwo versteckt, wo man nicht sucht. Was hat sie mir vor der Tür hinterlassen?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 281
+ },
+ {
+  "Name": "THT_gedanken_117",
+  "art": "faden",
+  "trifftAufgabe": "/Durchsuche Haus Nr\\. 7/",
+  "text": "Irgendwo hier muss es einen Hinweis geben. Zettel, Kalender, alles, was Hilde aufgeschrieben hat.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 282
+ },
+ {
+  "Name": "THT_gedanken_118",
+  "art": "faden",
+  "trifftAufgabe": "/Kellertür/",
+  "text": "Vier Ziffern. Welche Tasten sind abgegriffen? Und was hat Hilde in ihrem Kalender angestrichen?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 283
+ },
+ {
+  "Name": "THT_gedanken_119",
+  "art": "faden",
+  "trifftAufgabe": "/Lucy hinterlassen/",
+  "text": "Lucy war hier unten. Sie hat etwas für mich liegen lassen. Etwas zum Anhören.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 284
+ },
+ {
+  "Name": "THT_gedanken_120",
+  "art": "faden",
+  "trifftAufgabe": "/Keller von Nr\\. 7/",
+  "text": "Die Wand mit den Zeichnungen. Mit bloßen Händen geht das nicht. Oben war doch eine Werkbank.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 285
+ },
+ {
+  "Name": "THT_gedanken_121",
+  "art": "faden",
+  "trifftAufgabe": "/unter der Erde sieht sie dich nicht/",
+  "text": "Im Schatten bleiben. Hecken, Mülltonnen, die Veranda von Vegas. Und dem Vogel nach.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 286
+ },
+ {
+  "Name": "THT_gedanken_122",
+  "art": "faden",
+  "trifftAufgabe": "/die Treppe hoch\\. Hinterher/",
+  "text": "Die Haustür. Vorhin war die zu.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 287
+ },
+ {
+  "Name": "THT_gedanken_123",
+  "art": "faden",
+  "trifftAufgabe": "/Gang hinter der Wand|Folge dem Tunnel|Folge dem Gang/",
+  "text": "Nur ein Weg. Also geh ihn, Luke.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 288
+ },
+ {
+  "Name": "THT_gedanken_124",
+  "art": "faden",
+  "trifftAufgabe": "/Amt über die Kinder|sieben Kinder von 2009/",
+  "text": "Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 289
+ },
+ {
+  "Name": "THT_gedanken_125",
+  "art": "faden",
+  "trifftAufgabe": "/Namen in die richtige Reihenfolge/",
+  "text": "Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 290
+ },
+ {
+  "Name": "THT_gedanken_126",
+  "art": "faden",
+  "trifftAufgabe": "/Lösch die Laternen/",
+  "text": "In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 291
+ },
+ {
+  "Name": "THT_gedanken_127",
+  "art": "faden",
+  "trifftAufgabe": "/Hildes Kamera\\. Nr\\. 7|Mach ein Foto von Lucy/",
+  "text": "Die Kamera heben – C –, auf Lucys Fenster in Nr. 3 halten und abdrücken. Sie bleibt stehen, solange ich sie ansehe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 292
+ },
+ {
+  "Name": "THT_gedanken_128",
+  "art": "faden",
+  "trifftAufgabe": "/Vier Gedecke|Lucys Spieluhr\\. Das Kinderzimmer/",
+  "text": "Nicht essen. Die Spieluhr läuft im Kinderzimmer, hinten durch die Küche. Und wenn danach alles wieder wie vorher ist: nicht stehen bleiben, weitergehen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 293
+ },
+ {
+  "Name": "THT_gedanken_129",
+  "art": "faden",
+  "trifftAufgabe": "/Bring Lucy die Spieluhr/",
+  "text": "Lucy steht an der Kreuzung. Die Graue hinter mir nie lange aus den Augen lassen – im Lampenlicht zerfällt sie.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 294
+ },
+ {
+  "Name": "THT_gedanken_130",
+  "art": "faden",
+  "trifftAufgabe": "/^Brot\\. /",
+  "text": "Papas Platz in Nr. 1 – der Kanten Brot liegt noch da. Dann den Westweg hinunter zum Stall.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 295
+ },
+ {
+  "Name": "THT_gedanken_131",
+  "art": "faden",
+  "trifftAufgabe": "/Das Brot\\. Auf den Teller/",
+  "text": "Der Teller steht im Stall hinten bei den Paletten. Brot hinlegen und ihn nicht ansehen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 296
+ },
+ {
+  "Name": "THT_gedanken_132",
+  "art": "faden",
+  "trifftAufgabe": "/^Warten\\.$/",
+  "text": "Er kommt nicht, solange ich hinsehe. Q halten: Augen zu, und bleiben.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 297
+ },
+ {
+  "Name": "THT_gedanken_133",
+  "art": "faden",
+  "trifftAufgabe": "/Das Gedenkfeld/",
+  "text": "Mamas Platz am Tisch. Mamas Kerze und Peters Feuerzeug – sie pustet jedes Licht aus, nur dieses nicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 298
+ },
+ {
+  "Name": "THT_gedanken_134",
+  "art": "faden",
+  "trifftAufgabe": "/Nordzaun/",
+  "text": "Der Junge ist zum Nordzaun gelaufen, hinter dem Spielplatz. Ihm nach, bis zum Gitter.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 299
+ },
+ {
+  "Name": "THT_gedanken_135",
+  "art": "faden",
+  "trifftAufgabe": "/Das Gitter aufbiegen/",
+  "text": "Zum Gitter, E halten, bis es nachgibt. Der Junge ist darunter durch.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 300
+ },
+ {
+  "Name": "THT_gedanken_136",
+  "art": "faden",
+  "trifftAufgabe": "/Folge den Brotkrumen|Zayns Hütte/",
+  "text": "Hildes Brot. Er hat es zerbröselt, Krume für Krume nach Norden. Ihr nach, zur Hütte hinten links.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 301
+ },
+ {
+  "Name": "THT_gedanken_137",
+  "art": "faden",
+  "trifftAufgabe": "/eingedrückten Zaun|rote Wolle/",
+  "text": "Die Wolle spannt sich von Baum zu Baum, südöstlich, tiefer in den Wald. Irgendwo an ihr steht ein Hochsitz.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 302
+ },
+ {
+  "Name": "THT_gedanken_138",
+  "art": "faden",
+  "trifftAufgabe": "/Der Hochsitz\\. Hinauf/",
+  "text": "An der Leiter E drücken, um hinaufzusteigen. Oben steckt eine Seite an einem Nagel.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 303
+ },
+ {
+  "Name": "THT_gedanken_139",
+  "art": "faden",
+  "trifftAufgabe": "/Wolle führt weiter|Stell dich in die Mitte|Der Bus\\. Irgendwas/",
+  "text": "Der Bus steht östlich im Wald. Nicht den Draht am Boden berühren – in die Mitte, neben den Bus, wenn sie es so wollen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 304
+ },
+ {
+  "Name": "THT_gedanken_140",
+  "art": "faden",
+  "trifftAufgabe": "/Warten\\. In der Mitte/",
+  "text": "Stehen bleiben. Lampe oben lassen. Der Wolf kommt nur näher, wenn ich wegsehe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 305
+ },
+ {
+  "Name": "THT_gedanken_141",
+  "art": "faden",
+  "trifftAufgabe": "/Atmen\\. Nur atmen/",
+  "text": "E drücken, immer wieder. Oder mit Jonas’ Messer, E halten.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 306
+ },
+ {
+  "Name": "THT_gedanken_142",
+  "art": "faden",
+  "trifftAufgabe": "/Fraßstelle/",
+  "text": "Neben dem Kadaver liegt ein Heft mit einer Dienstnummer. Lesen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 307
+ },
+ {
+  "Name": "THT_gedanken_143",
+  "art": "faden",
+  "trifftAufgabe": "/Das Ding ist hier|Weg vom Bau/",
+  "text": "Lampe oben lassen. Nicht rennen. Und nicht wegsehen, wenn es näher kommt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 308
+ },
+ {
+  "Name": "THT_gedanken_144",
+  "art": "faden",
+  "trifftAufgabe": "/Jonas’ Lager|Kleine nackte Füße/",
+  "text": "Den kleinen Füßen nach, Richtung Westen. Das Ding bleibt weg, solange die Lampe oben ist.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 309
+ },
+ {
+  "Name": "THT_gedanken_145",
+  "art": "faden",
+  "trifftAufgabe": "/Hinter dem Wrack/",
+  "text": "Hofers letzte Seite liegt am Bau. Wenn die Lampe stirbt: E für die Batterie, dann E für das Feuerzeug.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 310
+ },
+ {
+  "Name": "THT_gedanken_146",
+  "art": "faden",
+  "trifftAufgabe": "/Whiskey fliegt voraus|Oben sitzt jemand/",
+  "text": "Whiskey wartet, wenn ich zurückfalle. Ihm nach, zum Hochsitz. Oben: Q halten, nicht hinsehen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 311
+ },
+ {
+  "Name": "THT_gedanken_147",
+  "art": "faden",
+  "trifftAufgabe": "/Das Tastenfeld will vier Ziffern/",
+  "text": "Vier Ziffern. Welche Tasten sind abgegriffen? Und welcher Tag ist in Hildes Kalender eingekreist?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 312
+ },
+ {
+  "Name": "THT_gedanken_148",
+  "art": "faden",
+  "trifftAufgabe": "/Lucy hinterlassen/",
+  "text": "Lucy war hier unten. Etwas zum Anhören. Ein Kassettenrekorder, irgendwo bei der Zeichnungswand.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 313
+ },
+ {
+  "Name": "THT_gedanken_149",
+  "art": "faden",
+  "trifftAufgabe": "/Der Strom ist weg, die Laternen/",
+  "text": "Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht im Haus festsitzen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 314
+ },
+ {
+  "Name": "THT_gedanken_150",
+  "art": "faden",
+  "trifftAufgabe": "/Leg die Hand an die Zeichnungen/",
+  "text": "Hilde hat auf die Wand gezeigt. Die Zeichnungen. Da hinten, wo es warm ist.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 315
+ },
+ {
+  "Name": "THT_gedanken_151",
+  "art": "faden",
+  "trifftAufgabe": "/Finde das Zimmer/",
+  "text": "Zimmer 7. Hildes Büro. Die Tür mit dem Emailleschild im Durchgang hinter dem Archiv.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 316
+ },
+ {
+  "Name": "THT_gedanken_152",
+  "art": "faden",
+  "trifftAufgabe": "/Sicherungsraum und schalte den Strom/",
+  "text": "Sechs Hebel. Wer schon leuchtet, bleibt in Ruhe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 317
+ },
+ {
+  "Name": "THT_gedanken_153",
+  "art": "faden",
+  "trifftAufgabe": "/auf dem Klavier nach/",
+  "text": "Lucys Lied. E, D … den Rest hab ich schon gehört. Die Spieluhr. Die Stimme hinter der Kellertür.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 318
+ },
+ {
+  "Name": "THT_gedanken_154",
+  "art": "faden",
+  "trifftAufgabe": "/Die Ordnungstafel im Archiv/",
+  "text": "Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 319
+ },
+ {
+  "Name": "THT_gedanken_155",
+  "art": "faden",
+  "trifftAufgabe": "/Das Telefon an der Kreuzung klingelt/",
+  "text": "Es klingelt und klingelt. Wer bei so einem Klingeln nicht rangeht, hat nie Kinder gehabt. Also los.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 320
+ },
+ {
+  "Name": "THT_gedanken_156",
+  "art": "faden",
+  "trifftAufgabe": "/Hol Lucy zurück/",
+  "text": "Irgendwer hat mir das Telefon hingestellt. Ich such jemanden, der mir sagt, wo man anfängt. Justin, vielleicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 321
+ },
+ {
+  "Name": "THT_gedanken_157",
+  "art": "faden",
+  "trifftAufgabe": "/Der Funkkasten an der Kreuzung\\. Welche Frequenz/",
+  "text": "Der Tag, an dem sie kam. Hilde hat ihn aufgeschrieben. Und Tag und Monat sind zwei Zahlen. Kurzwelle kennt Kommas.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 322
+ },
+ {
+  "Name": "THT_gedanken_158",
+  "art": "faden",
+  "trifftAufgabe": "/Laternen müssen aus/",
+  "text": "Frau Wendt in Nr. 7 hat ihre Nächte aufgeschrieben. Kein Zeichen von ihr, bis ich bei ihr drin war.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 323
+ },
+ {
+  "Name": "THT_gedanken_159",
+  "art": "faden",
+  "trifftAufgabe": "/Zu Justin\\. An die Kreuzung/",
+  "text": "Nicht stehen bleiben. Und wo Eisen ist, bin ich frei.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 324
+ },
+ {
+  "Name": "THT_gedanken_160",
+  "art": "faden",
+  "trifftAufgabe": "/Nimm Justins Hand/",
+  "text": "Er steht da und wartet. Ich lass nicht los. Das hat er gesagt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 325
+ },
+ {
+  "Name": "THT_gedanken_161",
+  "art": "faden",
+  "trifftAufgabe": "/Finde, was nicht in diese Nacht gehört/",
+  "text": "Alles hier gab es an dem Abend, bevor er ging. Was fehlt in dem Bild? Oder: was kommt erst danach dazu?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 326
+ },
+ {
+  "Name": "THT_gedanken_162",
+  "art": "faden",
+  "trifftAufgabe": "/Stell die Küchenuhr/",
+  "text": "Wann haben sie mich geholt? Die Uhr in Omas Küche ging auf 3:13. Die Glocke hat dreizehnmal geschlagen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 327
+ },
+ {
+  "Name": "THT_gedanken_163",
+  "art": "regex_text",
+  "trifftAufgabe": "/Sieh dir die Hände an/",
+  "text": "Wessen Hand ist aufgegangen? Miras Finger, Justins Handschuh, der Stiefel an der Kante. Und dann Justin sagen, was ich sehe.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 328
+ },
+ {
+  "Name": "THT_gedanken_164",
+  "art": "regex_text",
+  "trifftAufgabe": "/Am Rand der Wiese liegt ein Blatt/",
+  "text": "Im Reif liegt etwas Helles. Ein Blatt. Hinsehen kostet nichts.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 329
+ },
+ {
+  "Name": "THT_gedanken_165",
+  "art": "regex_text",
+  "trifftAufgabe": "/Schließ die Tür auf/",
+  "text": "Acht Teile, ein Schlüssel. Wer noch fehlt, steht in meiner Fibel. Und der Rabe weiß es auch.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 330
+ },
+ {
+  "Name": "THT_gedanken_166",
+  "art": "regex_text",
+  "trifftAufgabe": "/Dir fehlen noch/",
+  "text": "Ich such nach etwas Eisernem. Zwischen Laub, unter Steinen, hinter Gittern. Dazu brauch ich die Brechstange.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 331
+ },
+ {
+  "Name": "THT_gedanken_167",
+  "art": "regex_text",
+  "trifftAufgabe": "/Luke|Leiter/",
+  "text": "Die Leiter. Nach oben. Nicht umdrehen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 332
+ },
+ {
+  "Name": "THT_gedanken_168",
+  "art": "regex_text",
+  "trifftAufgabe": "/Lost Eyengless geschehen/",
+  "text": "Irgendwer muss wach sein. Der alte Vegas in Nr. 3 hat früher nie geschlafen.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 333
+ },
+ {
+  "Name": "THT_gedanken_169",
+  "art": "regex_text",
+  "trifftAufgabe": "/./",
+  "text": "Was hab ich übersehen? In der Fibel steht, was ich weiß. Tab.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 334
+ },
+ {
+  "Name": "THT_gedanken_170",
+  "art": "gedanke",
+  "gedankeId": "kuh",
+  "text": "Eine Kuh. Vom Himmel. Ich sollte schreien. Warum bin ich so ruhig? … Warum fühlt sich das an, als hätte ich das schon mal gesehen?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 340,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_171",
+  "art": "gedanke",
+  "gedankeId": "funk",
+  "text": "Eine Stimme vom Amt. Aus einem Kasten, der seit 2012 tot sein müsste. … Und sie weiß, dass ich es weiß.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 342,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_172",
+  "art": "gedanke",
+  "gedankeId": "laternen",
+  "text": "Alle Laternen aus. Der alte Vegas hatte recht. Und wenn er damit recht hatte …",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 343,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_173",
+  "art": "gedanke",
+  "gedankeId": "weiss",
+  "text": "Weiß. Kein Oben, kein Unten. Und irgendwo zählt ein Kind.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 344,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_174",
+  "art": "gedanke",
+  "gedankeId": "kanal",
+  "text": "Eine Stadt unter Lost Eyengless. Das gehört nicht hierher. Oder ich gehöre nicht hierher.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 345,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_175",
+  "art": "gedanke",
+  "gedankeId": "keller",
+  "text": "Ein Keller, den Lucy kannte und ich nicht. Wie viel von ihr kenne ich eigentlich?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 346,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_176",
+  "art": "gedanke",
+  "gedankeId": "spinnen",
+  "text": "Raus aus meinem Kopf. Das war nicht echt. … Es hat sich echt angefühlt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 347,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_177",
+  "art": "gedanke",
+  "gedankeId": "gefangen",
+  "text": "Er hat mich nicht gebissen. Er hat mich festgehalten. Wie jemanden, den man lange vermisst hat.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 348,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_178",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 349,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_179",
+  "art": "gedanke",
+  "gedankeId": "nachhall_1",
+  "text": "Die Narbe in der Hand. Sie hat gebrannt, sobald ich den Ort angefasst hab. … Als würde sich die Hand erinnern, nicht ich.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 351,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_180",
+  "art": "gedanke",
+  "gedankeId": "nachhall_2",
+  "text": "Vegas hat an der Kreuzung nichts gesehen. Hilde hat gezählt, aber nie gesehen. Nur ich seh diese Bilder. Warum ich?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 352,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_181",
+  "art": "gedanke",
+  "gedankeId": "tuer",
+  "text": "Die Tür hat keine Klinke. Nicht von dieser Seite. Wer baut so was? Jemand, der nicht will, dass man zurückkommt.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 353,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_182",
+  "art": "gedanke",
+  "gedankeId": "ch2_lucy",
+  "text": "Hilde hat „Lucy“ geschrien. Nicht wie einen Namen. Wie einen Ort. Wenn Lucy irgendwo ist, dann hier unten.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 354,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_183",
+  "art": "gedanke",
+  "gedankeId": "lena_tank",
+  "text": "Lucy war da drin. „Weißt du es jetzt?“ … Ja. Und ich wünschte, ich wüsste es nicht.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 358,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_184",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 366,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_185",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 368,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_186",
+  "art": "gedanke",
+  "gedankeId": "brechstange",
+  "text": "Kalk an der Spitze. Frisch. Jemand hat hier vor kurzem etwas aufgebrochen. Oder zugemauert.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 369,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_187",
+  "art": "gedanke",
+  "gedankeId": "drahtschneider",
+  "text": "Kinderpflaster auf den Griffen. Wer lässt so was in einem Schuppen liegen? Für wen?",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 370,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_188",
+  "art": "gedanke",
+  "gedankeId": "akku_leer",
+  "text": "Nein. Nein, nein, nein. Nicht jetzt. Nicht hier im Dunkeln.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 371,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_189",
+  "art": "gedanke",
+  "gedankeId": "albers1",
+  "text": "Ein alter Mann, der Stimmen in Laternen hört. … Aber sie haben wirklich geatmet.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 372,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_190",
+  "art": "gedanke",
+  "gedankeId": "albers5",
+  "text": "Blau. Meine Augen waren blau. Er irrt sich. Er muss sich irren.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 373,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_191",
+  "art": "gedanke",
+  "gedankeId": "vegas_wer",
+  "text": "Herr Vegas, Nr. 3. Hatte schon damals Alufolie hinterm Fenster und hat uns mit dem Gartenschlauch vom Rasen gejagt. Und er ist wach.",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 375,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_gedanken_192",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/gedanken.js",
+  "zeile": 378,
+  "funktion": "gedanken_umsehen"
+ },
+ {
+  "Name": "THT_hervorhebung_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/hervorhebung.js",
+  "zeile": 169,
+  "funktion": "nb_wissen"
+ },
+ {
+  "Name": "THT_hungrige_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/hungrige.js",
+  "zeile": 47,
+  "funktion": "hungrige_done",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_hungrige_002",
+  "art": "gedanke",
+  "gedankeId": "hungrige_villa",
+  "text": "Wie das Fenster in der Villa. Und die Stimme war die aus der Villa.",
+  "datei": "app/mods/hungrige.js",
+  "zeile": 435,
+  "funktion": "",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_hungrige_003",
+  "art": "gedanke",
+  "gedankeId": "hungrige_finale",
+  "text": "„Er gehörte meiner Frau.“ Hat der Ritter gesagt. Und das Ding weiß das auch.",
+  "datei": "app/mods/hungrige.js",
+  "zeile": 445,
+  "funktion": "",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_kapitel1_001",
+  "art": "gedanke",
+  "gedankeId": "ort_nr9",
+  "text": "Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.",
+  "datei": "app/mods/kapitel1.js",
+  "zeile": 146,
+  "funktion": "kapitel1_welt",
+  "kapitelModul": [
+   1
+  ]
+ },
+ {
+  "Name": "THT_kapitel1_002",
+  "art": "gedanke",
+  "gedankeId": "k1_narbe",
+  "text": "Die Narbe. Fahrradunfall, hat Mama gesagt. Ich weiß nicht mal, welches Fahrrad.",
+  "datei": "app/mods/kapitel1.js",
+  "zeile": 271,
+  "funktion": "kapitel1_nachbild",
+  "kapitelModul": [
+   1
+  ]
+ },
+ {
+  "Name": "THT_kapitel1_003",
+  "art": "gedanke",
+  "gedankeId": "k1_hilde",
+  "text": "Das war Frau Wendt. Hilde. Sie hat mir in die Hand geguckt wie in einen Ausweis. „Nicht du.“ Wen hat sie denn erwartet?",
+  "datei": "app/mods/kapitel1.js",
+  "zeile": 319,
+  "funktion": "kapitel1_nichtDu",
+  "kapitelModul": [
+   1
+  ]
+ },
+ {
+  "Name": "THT_kapitel1_004",
+  "art": "gedanke",
+  "gedankeId": "k1_kp40",
+  "text": "Vier Ziffern. Welche Tasten sind abgegriffen? Und was hat Hilde in ihrem Kalender angestrichen?",
+  "datei": "app/mods/kapitel1.js",
+  "zeile": 364,
+  "funktion": "kapitel1_kpTick",
+  "kapitelModul": [
+   1
+  ]
+ },
+ {
+  "Name": "THT_kapitel1_005",
+  "art": "gedanke",
+  "gedankeId": "k1_spieluhr",
+  "text": "Da läuft was unter ihrer Stimme. Eine Spieluhr? Lucy hatte so eine. … Sie hat „Großer“ gesagt. Nur Lucy sagt Großer.",
+  "datei": "app/mods/kapitel1.js",
+  "zeile": 373,
+  "funktion": "kapitel1_stimme",
+  "kapitelModul": [
+   1
+  ]
+ },
+ {
+  "Name": "THT_kapitel6_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/kapitel6.js",
+  "zeile": 35,
+  "funktion": "k6_denk",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_kiffen_001",
+  "art": "gedanke",
+  "gedankeId": "kf_danach",
+  "text": "Fünf Minuten. Alles ist leiser. Das Brummen nicht.",
+  "datei": "app/mods/kiffen.js",
+  "zeile": 647,
+  "funktion": "kiffen_szene",
+  "kapitelModul": [
+   1,
+   4
+  ]
+ },
+ {
+  "Name": "THT_kiffen_002",
+  "art": "gedanke",
+  "gedankeId": "kf_bereit",
+  "text": "Alles da. Vegas’ Veranda. Da sieht mich keiner. Außer Vegas. Und dem Vogel.",
+  "datei": "app/mods/kiffen.js",
+  "zeile": 685,
+  "funktion": "kf_gefunden",
+  "kapitelModul": [
+   1,
+   4
+  ]
+ },
+ {
+  "Name": "THT_kirchberg_001",
+  "art": "gedanke",
+  "gedankeId": "kb_keiner",
+  "text": "Ich bin hergekommen, um meine Schwester zu suchen, und mein erster Auftrag ist ein Kater namens Keiner. Läuft.",
+  "datei": "app/mods/kirchberg.js",
+  "zeile": 251,
+  "funktion": "kirchberg_klopfen",
+  "kapitelModul": [
+   5
+  ]
+ },
+ {
+  "Name": "THT_leben_001",
+  "art": "gedanke",
+  "gedankeId": "k1_fuenfvoreins",
+  "text": "Fünf vor eins. Seit einer Ewigkeit fünf vor eins.",
+  "datei": "app/mods/leben.js",
+  "zeile": 1007,
+  "funktion": "leben_clockTick"
+ },
+ {
+  "Name": "THT_lucy3_001",
+  "art": "gedanke",
+  "gedankeId": "c3_lucyweg",
+  "text": "Der Tank war leer. Die Luke stand offen, und oben hat es geatmet. Was immer da oben ist, es hat jetzt Lucy.",
+  "datei": "app/mods/lucy3.js",
+  "zeile": 139,
+  "funktion": "lucy3_opening",
+  "kapitelModul": [
+   3
+  ]
+ },
+ {
+  "Name": "THT_lucy3_002",
+  "art": "gedanke",
+  "gedankeId": "lucy3_hasen",
+  "text": "Unser Wort. Nie laut gesagt. Nur an Scheiben geschrieben.",
+  "datei": "app/mods/lucy3.js",
+  "zeile": 478,
+  "funktion": "lucy3_lookLow",
+  "kapitelModul": [
+   3
+  ]
+ },
+ {
+  "Name": "THT_naturschreck_001",
+  "art": "gedanke",
+  "gedankeId": "ns_spinne",
+  "text": "Direkt vor meinem Gesicht. Hat sie eben noch an der Decke gesessen?",
+  "datei": "app/mods/naturschreck.js",
+  "zeile": 58,
+  "funktion": "ns_schreck"
+ },
+ {
+  "Name": "THT_naturschreck_002",
+  "art": "gedanke",
+  "gedankeId": "ns_netz",
+  "text": "Spinnweben. Lange hat hier keiner mehr gelüftet. Oder: jemand hat sich Mühe gegeben, dass es so aussieht.",
+  "datei": "app/mods/naturschreck.js",
+  "zeile": 86,
+  "funktion": "ns_netz"
+ },
+ {
+  "Name": "THT_naturschreck_003",
+  "art": "gedanke",
+  "gedankeId": "ns_dose",
+  "text": "Eine Katze. Bestimmt eine Katze.",
+  "datei": "app/mods/naturschreck.js",
+  "zeile": 104,
+  "funktion": "ns_dose"
+ },
+ {
+  "Name": "THT_neben4_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/neben4.js",
+  "zeile": 43,
+  "funktion": "n4_gedanke",
+  "kapitelModul": [
+   4
+  ]
+ },
+ {
+  "Name": "THT_neben5_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/neben5.js",
+  "zeile": 47,
+  "funktion": "n5_gedanke",
+  "kapitelModul": [
+   5
+  ]
+ },
+ {
+  "Name": "THT_neben6_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/neben6.js",
+  "zeile": 127,
+  "funktion": "n6_pellLesen",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_neben6_002",
+  "art": "gedanke",
+  "gedankeId": "n6_erfuellt",
+  "text": "„Erfüllt.“ Sie haben ihm den Wald ausgewischt wie eine Tafel, und Wolter hat es abgehakt.",
+  "datei": "app/mods/neben6.js",
+  "zeile": 138,
+  "funktion": "n6_pellStand",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_neben6_003",
+  "art": "gedanke",
+  "gedankeId": "n6_ohio",
+  "text": "Should have stayed in Ohio. … Ja. Hättest du.",
+  "datei": "app/mods/neben6.js",
+  "zeile": 153,
+  "funktion": "n6_rekorder",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_neben6_004",
+  "art": "gedanke",
+  "gedankeId": "n6_schluessel",
+  "text": "Eine Drei und das Auge. Irgendwo hier draußen gibt’s einen Spind mit einer Drei.",
+  "datei": "app/mods/neben6.js",
+  "zeile": 187,
+  "funktion": "n6_schluessel",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_neben6_005",
+  "art": "gedanke",
+  "gedankeId": "n6_naht",
+  "text": "In der Naht vorbei. Da, wo er von vorn anfängt, hört er nichts.",
+  "datei": "app/mods/neben6.js",
+  "zeile": 229,
+  "funktion": "n6_torOk",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_sammeln_001",
+  "art": "tabelle",
+  "gedankeId": "R-ochs",
+  "text": "Bewegt sich nur, wenn man nicht hinguckt.",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 128,
+  "funktion": ""
+ },
+ {
+  "Name": "THT_sammeln_002",
+  "art": "gedanke",
+  "gedankeId": "sam_du",
+  "text": "Die Fibel. Da stimmt was nicht mehr, auf meiner Seite.",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 140,
+  "funktion": "sammeln_fibel"
+ },
+ {
+  "Name": "THT_sammeln_003",
+  "art": "gedanke",
+  "gedankeId": "sam_lose",
+  "text": "Gebetbuchseiten. Handschrift. Wer schreibt so was und lässt es liegen?",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 253,
+  "funktion": "sammeln_sb"
+ },
+ {
+  "Name": "THT_sammeln_004",
+  "art": "gedanke",
+  "gedankeId": "sam_sb10",
+  "text": "Das ist Lucys Spieluhr.",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 254,
+  "funktion": "sammeln_sb"
+ },
+ {
+  "Name": "THT_sammeln_005",
+  "art": "gedanke",
+  "gedankeId": "sam_schatz",
+  "text": "Lucy. Du hast deinen Zahn nie wiedergekriegt. Jetzt schon.",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 362,
+  "funktion": "sammeln_schatz"
+ },
+ {
+  "Name": "THT_sammeln_006",
+  "art": "gedanke",
+  "gedankeId": "sam_blau",
+  "text": "Blau. Jonas war farbenblind. Glaub ich.",
+  "datei": "app/mods/sammeln.js",
+  "zeile": 441,
+  "funktion": "sammeln_rDu"
+ },
+ {
+  "Name": "THT_schrecken_001",
+  "art": "gedanke",
+  "gedankeId": "schreck_fuchs",
+  "text": "Nur ein Fuchs. … Nur ein Fuchs. Füchse klingen so. Sagt man.",
+  "datei": "app/mods/schrecken.js",
+  "zeile": 40,
+  "funktion": "schreck_mark"
+ },
+ {
+  "Name": "THT_spannung_001",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Hinter dir: Schritte auf dem Beton/",
+  "text": "Schritte hinter dir · Lachen",
+  "datei": "app/mods/spannung.js",
+  "zeile": 65
+ },
+ {
+  "Name": "THT_spannung_002",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Hinter dir: nackte Füße/",
+  "text": "nackte Füße auf Asphalt, viele, hinter dir",
+  "datei": "app/mods/spannung.js",
+  "zeile": 65
+ },
+ {
+  "Name": "THT_spannung_003",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Irgendwo hinter dir: ein Kichern/",
+  "text": "Kichern, leise, hinter dir",
+  "datei": "app/mods/spannung.js",
+  "zeile": 66
+ },
+ {
+  "Name": "THT_spannung_004",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Das Kichern entfernt sich/",
+  "text": "Kichern, entfernt sich",
+  "datei": "app/mods/spannung.js",
+  "zeile": 66
+ },
+ {
+  "Name": "THT_spannung_005",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Kleine, kalte Finger an deinem Hals/",
+  "text": "Berührung am Hals",
+  "datei": "app/mods/spannung.js",
+  "zeile": 66
+ },
+ {
+  "Name": "THT_spannung_006",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Hinter dir: ein Platschen/",
+  "text": "Platschen · nasse Schritte hinter dir",
+  "datei": "app/mods/spannung.js",
+  "zeile": 67
+ },
+ {
+  "Name": "THT_spannung_007",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Draußen, vor der Stalltür: ein Kichern/",
+  "text": "Kichern vor der Stalltür · kleine Schritte",
+  "datei": "app/mods/spannung.js",
+  "zeile": 67
+ },
+ {
+  "Name": "THT_spannung_008",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Zwei Atemzüge\\. Dann ein dritter/",
+  "text": "Atmen · ein dritter Atemzug",
+  "datei": "app/mods/spannung.js",
+  "zeile": 68
+ },
+ {
+  "Name": "THT_spannung_009",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Hinter dir\\. Ein Atem\\./",
+  "text": "Atem hinter dir",
+  "datei": "app/mods/spannung.js",
+  "zeile": 68
+ },
+ {
+  "Name": "THT_spannung_010",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Sie sucht\\. Wie beim Verstecken/",
+  "text": "kleine Schritte, suchend",
+  "datei": "app/mods/spannung.js",
+  "zeile": 68
+ },
+ {
+  "Name": "THT_spannung_011",
+  "art": "regex_text",
+  "trifftAufgabe": "/^Sie spielt\\. Sie will nicht/",
+  "text": "{…}",
+  "datei": "app/mods/spannung.js",
+  "zeile": 69
+ },
+ {
+  "Name": "THT_tiefwald_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 404,
+  "funktion": "tief_zettel",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_002",
+  "art": "gedanke",
+  "gedankeId": "tief_fb",
+  "text": "Seiler hat es selbst unterschrieben. Sieben verschwunden, sechs zurück. „Offen: 1“ – als wäre Zayn eine Zahl, die nicht aufgeht.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 418,
+  "funktion": "tief_fahrtenbuch",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_003",
+  "art": "gedanke",
+  "gedankeId": "tief_stand",
+  "text": "Da hinten. Ein Licht über dem Wasser. Jonas hatte recht.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 433,
+  "funktion": "tief_obenAngekommen",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_004",
+  "art": "gedanke",
+  "gedankeId": "tief_achter",
+  "text": "08 · L. Seit 2013 hängt er hier. Für einen, der noch wächst. … Warum denk ich sofort an mich?",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 463,
+  "funktion": "tief_achter",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_005",
+  "art": "gedanke",
+  "gedankeId": "tief_weiher",
+  "text": "Jonas hat nie erfahren, ob jemand zieht. … „Vielleicht wird man vergessen, wenn sie anfangen, ohne einen weiterzuleben.“ Er hat nicht vergessen. Er hat nur aufgehört.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 485,
+  "funktion": "tief_weiher",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_006",
+  "art": "gedanke",
+  "gedankeId": "tief_wrack",
+  "text": "Die Frau mit der Laterne. „Sie kommt noch.“ Genau das steht auf dem ältesten Stein am Kirchberg. … Wer?",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 500,
+  "funktion": "tief_wrack",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_007",
+  "art": "gedanke",
+  "gedankeId": "tief_lager",
+  "text": "Er hat hier geschlafen. Allein, mitten im Wald, mit dreizehn. Und ich hab ihn nie gefragt, wie es ihm geht.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 507,
+  "funktion": "tief_lager",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_008",
+  "art": "gedanke",
+  "gedankeId": "tief_rein",
+  "text": "Hier waren wir nie. Nicht mal wir. … Die Wolle führt tiefer rein.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 531,
+  "funktion": "tief_figurWeg",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_009",
+  "art": "gedanke",
+  "gedankeId": "tief_wolf",
+  "text": "Die Wölfe. Sie kommen nicht näher. … Erkennen sie mich? Wegen des Welpen?",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 555,
+  "funktion": "tief_figurWeg",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_010",
+  "art": "gedanke",
+  "gedankeId": "tief_biss",
+  "text": "Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 566,
+  "funktion": "tief_figurWeg",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_011",
+  "art": "gedanke",
+  "gedankeId": "tief_keiler",
+  "text": "Das war knapp. Einen halben Meter. … Die Stelle am Bus ist jetzt frei.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 578,
+  "funktion": "tief_figurWeg",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_tiefwald_012",
+  "art": "gedanke",
+  "gedankeId": "tief_knoten",
+  "text": "Hier ist die Wolle nachgeknotet. Frisch. Ein kleiner Knoten, zweimal rum. So knotet ein Kind.",
+  "datei": "app/mods/tiefwald.js",
+  "zeile": 583,
+  "funktion": "tief_figurWeg",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_traum_001",
+  "art": "gedanke",
+  "gedankeId": "traum_lucy",
+  "text": "Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren. Und dann hab ich den ganzen Tag im Auto gepennt. Am Ortsschild. Super.",
+  "datei": "app/mods/traum.js",
+  "zeile": 319,
+  "funktion": "traum_awake",
+  "kapitelModul": [
+   3,
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_traum_002",
+  "art": "gedanke",
+  "gedankeId": "traum_elf",
+  "text": "Meine Zwillingsschwester. Am 23. hat sie mich elfmal angerufen. Elfmal weggedrückt, ich war ja beschäftigt. Diesmal fahr ich nicht ohne sie.",
+  "datei": "app/mods/traum.js",
+  "zeile": 321,
+  "funktion": "traum_awake",
+  "kapitelModul": [
+   3,
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_traum_003",
+  "art": "gedanke",
+  "gedankeId": "traum_kum",
+  "text": "„Kum, Wîse.“ Hat der Rabe im Traum gesagt, mit einer Frauenstimme. Klingt uralt: „kum“ wie „komm“. Und Wîse … ein Name. Vielleicht „der Weise“.",
+  "datei": "app/mods/traum.js",
+  "zeile": 322,
+  "funktion": "traum_awake",
+  "kapitelModul": [
+   3,
+   5,
+   6
+  ]
+ },
+ {
+  "Name": "THT_verstecke_001",
+  "art": "gedanke",
+  "gedankeId": "vst_1",
+  "text": "Ein Kinderversteck. Lucy und ich hatten auch welche. Wo Erwachsene nie hinsehen: ganz unten und ganz oben.",
+  "datei": "app/mods/verstecke.js",
+  "zeile": 63,
+  "funktion": "vst_nimm"
+ },
+ {
+  "Name": "THT_verstecke_002",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "Da unten glänzt was. Da passt nur rein, wer sich klein macht. (Strg oder C: ducken)",
+  "datei": "app/mods/verstecke.js",
+  "zeile": 71,
+  "funktion": "vst_tipps"
+ },
+ {
+  "Name": "THT_villa_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/villa.js",
+  "zeile": 114,
+  "funktion": "villa_gedanke",
+  "kapitelModul": [
+   4
+  ]
+ },
+ {
+  "Name": "THT_visionen_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/visionen.js",
+  "zeile": 114,
+  "funktion": "visionen_end"
+ },
+ {
+  "Name": "THT_wald_001",
+  "art": "gedanke",
+  "gedankeId": "wald_jonas",
+  "text": "Jonas hat ihn gesucht. Hier draußen, allein. Und ich hab zwei Häuser weiter gewohnt und nie gefragt, wo er nachmittags hingeht.",
+  "datei": "app/mods/wald.js",
+  "zeile": 204,
+  "funktion": "wald_pupFrei",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_wald_002",
+  "art": "gedanke",
+  "gedankeId": "wald_warnung",
+  "text": "Er hat nicht zugebissen. Er hätte gekonnt. … Das war eine Warnung. Nicht rennen.",
+  "datei": "app/mods/wald.js",
+  "zeile": 208,
+  "funktion": "wald_warnsprung",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_wald_003",
+  "art": "gedanke",
+  "gedankeId": "wald_fake",
+  "text": "Die Herde ist gerannt. Das eine nicht. … Was stehen bleibt, wenn alle rennen, hat Hunger.",
+  "datei": "app/mods/wald.js",
+  "zeile": 224,
+  "funktion": "wald_fakeFund",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_wald_004",
+  "art": "gedanke",
+  "gedankeId": "wald_baum",
+  "text": "Ein Baumhaus. Oben eine Kiste mit einem Schloss. … Hier hat mal jemand gespielt, als hier noch keiner Angst hatte.",
+  "datei": "app/mods/wald.js",
+  "zeile": 229,
+  "funktion": "wald_hirschFertig",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_wald_005",
+  "art": "gedanke",
+  "gedankeId": "wald_rein",
+  "text": "Forbidden Dustwoods. Hier durfte keiner rein. Wir sind trotzdem rein. Jeden Sommer.",
+  "datei": "app/mods/wald.js",
+  "zeile": 240,
+  "funktion": "wald_hirschFertig",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_wald_006",
+  "art": "gedanke",
+  "gedankeId": "wald_hirsch",
+  "text": "Er hat keine Angst. Er wartet, dass ich mitkomme.",
+  "datei": "app/mods/wald.js",
+  "zeile": 262,
+  "funktion": "wald_hirschFertig",
+  "kapitelModul": [
+   6
+  ]
+ },
+ {
+  "Name": "THT_zayn_001",
+  "art": "gedanke",
+  "gedankeId": "zayn_folge",
+  "text": "Die Dustwoods. Hinter dem Spielplatz. Da durfte keiner rein. Zayn schon gar nicht.",
+  "datei": "app/mods/zayn.js",
+  "zeile": 140,
+  "funktion": "zayn_solved"
+ },
+ {
+  "Name": "THT_zayn_002",
+  "art": "gedanke",
+  "gedankeId": "zayn_ich",
+  "text": "Ich weiß noch, wie sich das angefühlt hat. Ich weiß nur nicht mehr, ob ich das war.",
+  "datei": "app/mods/zayn.js",
+  "zeile": 161,
+  "funktion": "zayn_drawing"
+ },
+ {
+  "Name": "THT_zayn_003",
+  "art": "gedanke",
+  "gedankeId": "zayn_nach",
+  "text": "Ich suche Lucy, als gäbe es niemanden sonst. Aber Zayn war auch jemandes kleiner Bruder. Hilde hat siebzehn Jahre lang jede Nacht gezählt. Und Jonas hat allein im Wald gesucht.",
+  "datei": "app/mods/zayn.js",
+  "zeile": 187,
+  "funktion": "zayn_last"
+ },
+ {
+  "Name": "THT_zayn_004",
+  "art": "gedanke",
+  "gedankeId": "zayn_gitter",
+  "text": "Die Dustwoods. Zu. Irgendwann geh ich da rein. Nicht heute.",
+  "datei": "app/mods/zayn.js",
+  "zeile": 206,
+  "funktion": "zayn_sperre"
+ },
+ {
+  "Name": "THT_zayn_005",
+  "art": "gedanke",
+  "gedankeId": "zayn_huette",
+  "text": "Kerzenwachs. Frisch. Hier war jemand. Vor Kurzem.",
+  "datei": "app/mods/zayn.js",
+  "zeile": 208,
+  "funktion": "zayn_sperre"
+ },
+ {
+  "Name": "THT_zeichen_001",
+  "art": "gedanke",
+  "gedankeId": "(dynamisch)",
+  "text": "{…}",
+  "datei": "app/mods/zeichen.js",
+  "zeile": 529,
+  "funktion": "zeichen_gedanke"
+ },
+ {
+  "Name": "THT_ziele_001",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/^Finde Haus Nr\\. 7/",
+  "text": "Lucy ist weg, und die Kreidepfeile auf dem Asphalt laufen alle in eine Richtung: zu Hilde Wendt.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 25
+ },
+ {
+  "Name": "THT_ziele_002",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Weg in Haus Nr\\. 7/",
+  "text": "Drinnen brennt Licht, aber keiner macht auf. Lucy hat früher immer was im Briefkasten versteckt.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 26
+ },
+ {
+  "Name": "THT_ziele_003",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Durchsuche Haus Nr\\. 7/",
+  "text": "Der Schlüssel hing an Lucys Panda. Sie war hier. Irgendwas in diesem Haus weiß, wohin sie wollte.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 27
+ },
+ {
+  "Name": "THT_ziele_004",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Öffne die Kellertür/",
+  "text": "KELLER BLEIBT ZU, steht am Kühlschrank. Und die kleinen Fußspuren hören genau an dieser Tür auf.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 28
+ },
+ {
+  "Name": "THT_ziele_005",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/was Lucy hinterlassen hat/",
+  "text": "Wenn Lucy hier unten war, hat sie was liegen lassen. Sie hat immer was liegen lassen.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 29
+ },
+ {
+  "Name": "THT_ziele_006",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/^Geh wieder nach oben/",
+  "text": "Was auch immer da auf dem Band war: Hier unten bleib ich keine Sekunde länger als nötig.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 30
+ },
+ {
+  "Name": "THT_ziele_007",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Versteck dich vor dem Licht/",
+  "text": "Das Licht da draußen sucht jemanden. Unter der Erde findet es keinen. Hoffe ich.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 31
+ },
+ {
+  "Name": "THT_ziele_008",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Wand mit den Zeichnungen klang hohl/",
+  "text": "Wer malt Kinderbilder auf eine Wand, hinter der ein Gang ist?",
+  "datei": "app/mods/ziele.js",
+  "zeile": 32
+ },
+ {
+  "Name": "THT_ziele_009",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Folge dem Gang hinter der Wand|Hinter die Bilder/",
+  "text": "Hilde hat „Lucy“ geschrien und auf die Wand gezeigt. Wenn Lucy irgendwo ist, dann da hinten.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 33
+ },
+ {
+  "Name": "THT_ziele_010",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Sicherungsraum/",
+  "text": "Ohne Strom bleibt die Stahltür zu. Und ohne die Tür komm ich hier nicht weiter.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 34
+ },
+ {
+  "Name": "THT_ziele_011",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/ZIMMER 7\\. Finde das Zimmer/",
+  "text": "Ein Schlüssel mit derselben Nummer wie Hildes Haus. An Zufälle glaub ich hier unten nicht mehr.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 35
+ },
+ {
+  "Name": "THT_ziele_012",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Lies die achte Akte/",
+  "text": "Sieben Kinder, sieben Akten. Und eine achte. Ich muss wissen, wer das ist.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 36
+ },
+ {
+  "Name": "THT_ziele_013",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Finde heraus, was mit Lost Eyengless geschehen ist/",
+  "text": "Die Uhren stehen auf 03:13, das ganze Dorf hält die Luft an. Und Lucy ist irgendwo da draußen.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 37
+ },
+ {
+  "Name": "THT_ziele_014",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Funkkasten an der Kreuzung/",
+  "text": "Hilde hat eine Frequenz in ihr Zählbuch geschrieben. Vielleicht redet da jemand, der mehr weiß als ich.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 38
+ },
+ {
+  "Name": "THT_ziele_015",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Lösch die Laternen/",
+  "text": "Die Laternen sind ihre Augen. Wenn ich sie richtig ausmache, sieht sie mich nicht kommen.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 39
+ },
+ {
+  "Name": "THT_ziele_016",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Justin steht an der Kreuzung|^Zu Justin/",
+  "text": "Der Mann in der Rüstung ist der Einzige hier, der keine Angst vor dem Licht hat.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 40
+ },
+ {
+  "Name": "THT_ziele_017",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/^Geh Justin nach/",
+  "text": "Er kennt den Weg. Ich nicht.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 41
+ },
+ {
+  "Name": "THT_ziele_018",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Villa Seiler\\. (Schließ|Sieh)/",
+  "text": "Was das Amt all die Jahre vertuscht hat, liegt in Seilers Villa. Irgendwo in diesen Räumen.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 42
+ },
+ {
+  "Name": "THT_ziele_019",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Nr\\. 1\\. Wer deckt da den Tisch/",
+  "text": "Nr. 1 ist unser Haus. Mamas Haus. Da wohnt keiner mehr, und trotzdem klappert Geschirr.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 43
+ },
+ {
+  "Name": "THT_ziele_020",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Bring Lucy die Spieluhr/",
+  "text": "Die Spieluhr hat sie früher immer runtergeholt. Vielleicht erinnert sie sich daran, wer sie ist.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 44
+ },
+ {
+  "Name": "THT_ziele_021",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Hildes Kamera\\. Nr\\. 7/",
+  "text": "Hilde hat die Sieben fotografiert. Wenn jemand wusste, worauf man das Ding richten muss, dann sie.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 45
+ },
+ {
+  "Name": "THT_ziele_022",
+  "art": "ziel_warum",
+  "trifftAufgabe": "/Whiskey fliegt voraus/",
+  "text": "Der Rabe hat mich schon oft beklaut. Verlaufen lassen hat er mich noch nie.",
+  "datei": "app/mods/ziele.js",
+  "zeile": 46
+ },
+ {
+  "Name": "THT_zimmer7_001",
+  "art": "gedanke",
+  "gedankeId": "z7_hand",
+  "text": "Sie hat den Kaktus gegossen und ihren Sohn gezogen. Beides mit derselben Hand.",
+  "datei": "app/mods/zimmer7.js",
+  "zeile": 349,
+  "funktion": "",
+  "kapitelModul": [
+   1,
+   2
+  ]
+ },
+ {
+  "Name": "THT_zimmer7_002",
+  "art": "gedanke",
+  "gedankeId": "z7_glueck",
+  "text": "{…}",
+  "datei": "app/mods/zimmer7.js",
+  "zeile": 353,
+  "funktion": "",
+  "kapitelModul": [
+   1,
+   2
+  ]
+ }
+]

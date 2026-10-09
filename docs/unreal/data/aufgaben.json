@@ -1,0 +1,2656 @@
+{
+ "aufgaben": [
+  {
+   "Name": "TASK_base_base_source_index_html_001",
+   "art": "liste:MAIN",
+   "index": 0,
+   "text": "Finde Haus Nr. 7.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_002",
+   "art": "liste:MAIN",
+   "index": 1,
+   "text": "Finde einen Weg in Haus Nr. 7.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_003",
+   "art": "liste:MAIN",
+   "index": 2,
+   "text": "Durchsuche Haus Nr. 7.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_004",
+   "art": "liste:MAIN",
+   "index": 3,
+   "text": "Öffne die Kellertür.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_005",
+   "art": "liste:MAIN",
+   "index": 4,
+   "text": "Finde heraus, was Lucy hinterlassen hat.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_006",
+   "art": "liste:MAIN",
+   "index": 5,
+   "text": "Geh wieder nach oben.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_007",
+   "art": "liste:MAIN",
+   "index": 6,
+   "text": "Raus aus dem Haus. Sofort.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_008",
+   "art": "liste:MAIN",
+   "index": 7,
+   "text": "Zurück in den Keller von Nr. 7. Die Wand mit den Zeichnungen klang hohl.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_009",
+   "art": "liste:MAIN",
+   "index": 8,
+   "text": "Folge dem Gang hinter der Wand.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2600,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_010",
+   "art": "setMain",
+   "mainIndex": 0,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2613,
+   "text": "MAIN[0]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_011",
+   "art": "sideStart",
+   "nebenaufgabe": "seven",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2683,
+   "funktion": "chalkArrow",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_012",
+   "art": "sideDone",
+   "nebenaufgabe": "seven",
+   "text": "Alle sieben Fotos gefunden.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2685,
+   "funktion": "chalkArrow",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_013",
+   "art": "setMain",
+   "mainIndex": 1,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2739,
+   "text": "MAIN[1]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_014",
+   "art": "sideStart",
+   "nebenaufgabe": "seven",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2742,
+   "funktion": "photoWayUpdate",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_015",
+   "art": "sideStart",
+   "nebenaufgabe": "call",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2743,
+   "funktion": "photoWayUpdate",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_016",
+   "art": "setMain",
+   "mainIndex": 2,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2761,
+   "text": "MAIN[2]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_017",
+   "art": "setMain",
+   "mainIndex": 3,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2767,
+   "text": "MAIN[3]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_018",
+   "art": "setMain",
+   "mainIndex": 3,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2772,
+   "text": "MAIN[3]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_019",
+   "art": "setMain",
+   "mainIndex": 5,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2782,
+   "text": "MAIN[5]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_020",
+   "art": "sideStart",
+   "nebenaufgabe": "home",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2791,
+   "funktion": "doorAction",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_021",
+   "art": "sideDone",
+   "nebenaufgabe": "home",
+   "text": "Lucys Tagebuch und Mamas Brief gefunden.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2809,
+   "funktion": "checkHome",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_022",
+   "art": "sideStart",
+   "nebenaufgabe": "bruno",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2818,
+   "funktion": "checkHome",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_023",
+   "art": "sideDone",
+   "nebenaufgabe": "bruno",
+   "text": "Vegas hat das Halsband bekommen. Und sieben Kinder gezählt.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2825,
+   "funktion": "checkHome",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_024",
+   "art": "sideDone",
+   "nebenaufgabe": "car",
+   "text": "Lucys Handy gefunden.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2841,
+   "funktion": "checkHome",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_025",
+   "art": "sideDone",
+   "nebenaufgabe": "call",
+   "text": "Jemand hat dich mit deiner eigenen Stimme gewarnt.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2851,
+   "funktion": "handset",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_026",
+   "art": "setMain",
+   "mainIndex": 4,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2861,
+   "text": "MAIN[4]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_027",
+   "art": "setMain",
+   "mainIndex": 6,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2873,
+   "text": "MAIN[6]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_028",
+   "art": "setMain",
+   "mainIndex": 7,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2891,
+   "text": "MAIN[7]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_029",
+   "art": "setMain",
+   "mainIndex": 7,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2893,
+   "text": "MAIN[7]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_030",
+   "art": "sideStart",
+   "nebenaufgabe": "home",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2980,
+   "funktion": "beginGame",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_031",
+   "text": "Finde den Sicherungsraum und schalte den Strom ein.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3824,
+   "funktion": "archiveDrawerRead",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_032",
+   "text": "Weiter nach Osten. Die Stahltür sollte sich jetzt öffnen lassen.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3865,
+   "funktion": "powerOn",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_033",
+   "text": "Die Tür ist zu.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3896,
+   "funktion": "spiderEvent",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_034",
+   "text": "SCHÜTTEL SIE AB — Maus wild bewegen, A/D hämmern",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3901,
+   "funktion": "spiderEvent",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_035",
+   "text": "Die östliche Stahltür ist frei. Geh weiter.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3929,
+   "funktion": "spidersGone",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_036",
+   "text": "Weg hier. Nach Osten.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3958,
+   "funktion": "startChase",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_037",
+   "text": "Der Messraum. Hier ist es passiert.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 3990,
+   "funktion": "chaseUpdate",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_038",
+   "text": "Lies die achte Akte.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4028,
+   "funktion": "safeOpens",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_039",
+   "text": "Lucy.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4046,
+   "funktion": "finale",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_040",
+   "text": "Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4087,
+   "funktion": "finale",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_041",
+   "art": "liste:C2_MAIN",
+   "index": 0,
+   "text": "Folge dem Tunnel.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4099,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_042",
+   "art": "liste:C2_MAIN",
+   "index": 1,
+   "text": "Finde heraus, was das Amt über die Kinder wusste.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4099,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_043",
+   "art": "liste:C2_MAIN",
+   "index": 2,
+   "text": "Bring die Namen in die richtige Reihenfolge.",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4099,
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_044",
+   "text": "Der Messraum. Das Klavier.",
+   "art": "setC2Objective",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4129,
+   "funktion": "ch2Update",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_045",
+   "text": "Lösch die Laternen vor den Häusern – in der Reihenfolge, in der sie die Kinder geholt hat.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4238,
+   "funktion": "broadcast",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_046",
+   "text": "LAUF zur Kreuzung. Zu Justin.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4269,
+   "funktion": "lampsOut",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_047",
+   "text": "Der Funkkasten an der Kreuzung. Welche Frequenz?",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4338,
+   "funktion": "readBook",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_048",
+   "text": "Geh weiter. Tiefer nach Nimmerheim.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4409,
+   "funktion": "room1Answer",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_049",
+   "text": "Stell die Küchenuhr auf die Zeit, zu der man dich gebracht hat.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4452,
+   "funktion": "hildeTalks",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_050",
+   "text": "Der Hohe Abgrund. Geh hinein.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4460,
+   "funktion": "room2Solved",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_051",
+   "text": "Geh Justin nach.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4524,
+   "funktion": "enterWhite",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_052",
+   "text": "Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4528,
+   "funktion": "c3WhiteUpdate",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_053",
+   "text": "Finde heraus, was mit Lost Eyengless geschehen ist.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4660,
+   "funktion": "chapter3Opening",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_054",
+   "text": "Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück.",
+   "art": "setC3",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 5055,
+   "funktion": "enterCanal",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_055",
+   "art": "setMain",
+   "mainIndex": 1,
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 6180,
+   "text": "MAIN[1]"
+  },
+  {
+   "Name": "TASK_base_base_source_index_html_056",
+   "art": "sideStart",
+   "nebenaufgabe": "car",
+   "text": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 6183,
+   "funktion": "",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_akte_001",
+   "art": "sideStart",
+   "nebenaufgabe": "akte",
+   "text": "",
+   "datei": "app/mods/akte.js",
+   "zeile": 47,
+   "funktion": "akte_lesen",
+   "kapitelModul": [
+    2
+   ]
+  },
+  {
+   "Name": "TASK_akte_002",
+   "art": "sideDone",
+   "nebenaufgabe": "akte",
+   "text": "Alle zehn Durchschläge. Edda Brand ist nie in Hamburg angekommen.",
+   "datei": "app/mods/akte.js",
+   "zeile": 62,
+   "funktion": "akte_fertig",
+   "kapitelModul": [
+    2
+   ]
+  },
+  {
+   "Name": "TASK_albers_001",
+   "art": "sideDone",
+   "nebenaufgabe": "albers_spinn",
+   "text": "",
+   "datei": "app/mods/albers.js",
+   "zeile": 50,
+   "funktion": "albers_claimCheck"
+  },
+  {
+   "Name": "TASK_albers_002",
+   "art": "sideStart",
+   "nebenaufgabe": "albers_spinn",
+   "text": "",
+   "datei": "app/mods/albers.js",
+   "zeile": 61,
+   "funktion": "albers_talk"
+  },
+  {
+   "Name": "TASK_albers_003",
+   "art": "sideStart",
+   "nebenaufgabe": "albers_spinn",
+   "text": "",
+   "datei": "app/mods/albers.js",
+   "zeile": 142,
+   "funktion": "albers_vHappen"
+  },
+  {
+   "Name": "TASK_anwesen_001",
+   "art": "sideStart",
+   "nebenaufgabe": "anw_teile",
+   "text": "",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 22,
+   "funktion": "anwesen_give",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_002",
+   "art": "sideDone",
+   "nebenaufgabe": "anw_teile",
+   "text": "Acht Teile, ein Schlüssel. Die Tür der Villa wartet.",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 168,
+   "funktion": "anwesen_press",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_003",
+   "text": "Die Villa Seiler. Schließ die Tür auf.",
+   "art": "setC3",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 168,
+   "funktion": "anwesen_press",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_004",
+   "text": "Die Villa Seiler. Sieh dich um.",
+   "art": "setC3",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 178,
+   "funktion": "anwesen_press",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_005",
+   "art": "sideStart",
+   "nebenaufgabe": "anw_teile",
+   "text": "",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 187,
+   "funktion": "anwesen_door",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_006",
+   "text": "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.",
+   "art": "setC3",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 206,
+   "funktion": "chapter4Begin",
+   "kapitelModul": [
+    4
+   ],
+   "dynamisch": true,
+   "varianten": [
+    "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.",
+    "Die Villa Seiler. Dir fehlen noch {…} Schlüsselteile – frag den Raben."
+   ]
+  },
+  {
+   "Name": "TASK_anwesen_007",
+   "text": "Die Villa Seiler. Sieh dich um.",
+   "art": "setC3",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 223,
+   "funktion": "anwesen_enterHall",
+   "kapitelModul": [
+    4
+   ]
+  },
+  {
+   "Name": "TASK_ausbau_nord_001",
+   "art": "sideDone",
+   "nebenaufgabe": "nord_baer",
+   "text": "Bärli sitzt auf der Bank, Gesicht zur Straße. Er bleibt.",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 910,
+   "funktion": "ausbau_nord_bench",
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "TASK_ausbau_nord_002",
+   "art": "sideDone",
+   "nebenaufgabe": "nord_names",
+   "text": "Sieben Namen, acht Steine. Ein achtes Licht auf nacktem Boden. Da fehlt eins.",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 1016,
+   "funktion": "ausbau_nord_fehltCheck",
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "TASK_ausbau_nord_003",
+   "art": "sideDone",
+   "nebenaufgabe": "nord_plakat",
+   "text": "Achtundfünfzig. Fünfundsiebzig. Zweiundneunzig. Zweitausendneun. Siebzehn.",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 1128,
+   "funktion": "ausbau_nord_plakatCheck",
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "TASK_ausbau_nord_004",
+   "art": "sideDone",
+   "nebenaufgabe": "nord_strich",
+   "text": "Ein Bleistiftstrich ohne Namen, abseits der sieben. Nur „6.8.09“.",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 1140,
+   "funktion": "ausbau_nord_strichCheck",
+   "kapitelModul": [
+    5,
+    6
+   ]
+  },
+  {
+   "Name": "TASK_ausbau_ost_west_001",
+   "art": "sideDone",
+   "nebenaufgabe": "ow_kanister",
+   "text": "Zurückgebracht. Die Fußabdrücke führten zur Sperre.",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 396,
+   "funktion": ""
+  },
+  {
+   "Name": "TASK_ausbau_ost_west_002",
+   "art": "sideStart",
+   "nebenaufgabe": "ow_kanister",
+   "text": "",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 399,
+   "funktion": ""
+  },
+  {
+   "Name": "TASK_ausbau_ost_west_003",
+   "art": "sideStart",
+   "nebenaufgabe": "ow_heft",
+   "text": "",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 416,
+   "funktion": ""
+  },
+  {
+   "Name": "TASK_ausbau_ost_west_004",
+   "art": "sideDone",
+   "nebenaufgabe": "ow_heft",
+   "text": "Ein Brief an eine Mutter. Unterschrieben mit L.",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 421,
+   "funktion": ""
+  },
+  {
+   "Name": "TASK_ausbau_ost_west_005",
+   "art": "sideStart",
+   "nebenaufgabe": "ow_heft",
+   "text": "",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 423,
+   "funktion": ""
+  },
+  {
+   "Name": "TASK_beobachter_001",
+   "art": "sideStart",
+   "nebenaufgabe": "beobachter",
+   "text": "",
+   "datei": "app/mods/beobachter.js",
+   "zeile": 207,
+   "funktion": "beob_side"
+  },
+  {
+   "Name": "TASK_beobachter_002",
+   "art": "sideDone",
+   "nebenaufgabe": "beobachter",
+   "text": "Dreizehn Orte. Er war an jedem vor dir.",
+   "datei": "app/mods/beobachter.js",
+   "zeile": 258,
+   "funktion": "beob_drop"
+  },
+  {
+   "Name": "TASK_cleo_001",
+   "art": "sideStart",
+   "nebenaufgabe": "cleo",
+   "text": "",
+   "datei": "app/mods/cleo.js",
+   "zeile": 13,
+   "funktion": "cleo_start"
+  },
+  {
+   "Name": "TASK_cleo_002",
+   "art": "sideDone",
+   "nebenaufgabe": "cleo",
+   "text": "Ihr Name steht auf dem Stein: CLEO.",
+   "datei": "app/mods/cleo.js",
+   "zeile": 119,
+   "funktion": "cleo_end"
+  },
+  {
+   "Name": "TASK_cleo_003",
+   "art": "sideDone",
+   "nebenaufgabe": "cleo",
+   "text": "Ihr Name steht auf dem achten Stein im Kreis: CLEO.",
+   "datei": "app/mods/cleo.js",
+   "zeile": 135,
+   "funktion": "cleo_kreis"
+  },
+  {
+   "Name": "TASK_feuer_001",
+   "text": "Das Öl anzünden – schnell! (E)",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 376,
+   "funktion": "feuer_hurry"
+  },
+  {
+   "Name": "TASK_feuer_002",
+   "text": "Raus hier! Der Rauch … Die Brandschutztür hat eine Notentriegelung.",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 623,
+   "funktion": "feuer_escapeStart"
+  },
+  {
+   "Name": "TASK_feuer_003",
+   "text": "Durch die Tür!",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 655,
+   "funktion": "feuer_escapeUpdate"
+  },
+  {
+   "Name": "TASK_feuer_004",
+   "text": "Der Messraum. Hier ist es passiert.",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 672,
+   "funktion": "feuer_escaped"
+  },
+  {
+   "Name": "TASK_feuer_005",
+   "text": "Raus hier. Die Stahltür im Osten.",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 687,
+   "funktion": "feuer_cellDoor"
+  },
+  {
+   "Name": "TASK_feuer_006",
+   "text": "Die Matratze. Da glänzt was.",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 688,
+   "funktion": "feuer_cellDoor"
+  },
+  {
+   "Name": "TASK_feuer_007",
+   "text": "Die östliche Stahltür ist frei. Geh weiter.",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 691,
+   "funktion": "feuer_cellDoor"
+  },
+  {
+   "Name": "TASK_feuer_008",
+   "text": "Peter ins Öl locken und anzünden – oder die Notentriegelung ziehen",
+   "art": "setC2Objective",
+   "datei": "app/mods/feuer.js",
+   "zeile": 749,
+   "funktion": "feuer_reset"
+  },
+  {
+   "Name": "TASK_geheimnisse_001",
+   "art": "sideStart",
+   "nebenaufgabe": "geh_steine",
+   "text": "",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 114,
+   "funktion": "geheimnisse_takeStone"
+  },
+  {
+   "Name": "TASK_geheimnisse_002",
+   "art": "sideDone",
+   "nebenaufgabe": "geh_steine",
+   "text": "Sieben Steine, sieben Zahlen.",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 120,
+   "funktion": "geheimnisse_takeStone"
+  },
+  {
+   "Name": "TASK_geheimnisse_003",
+   "art": "sideStart",
+   "nebenaufgabe": "geh_wrack",
+   "text": "",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 151,
+   "funktion": "geheimnisse_wreck"
+  },
+  {
+   "Name": "TASK_geheimnisse_004",
+   "art": "sideDone",
+   "nebenaufgabe": "geh_wrack",
+   "text": "Alle fünf Teile gefunden.",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 153,
+   "funktion": "geheimnisse_wreck"
+  },
+  {
+   "Name": "TASK_geheimnisse_005",
+   "art": "sideStart",
+   "nebenaufgabe": "geh_totem",
+   "text": "",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 171,
+   "funktion": "geheimnisse_totem"
+  },
+  {
+   "Name": "TASK_geheimnisse_006",
+   "art": "sideDone",
+   "nebenaufgabe": "geh_totem",
+   "text": "Alle vier gefunden. Auf der Rückseite: Kreide.",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 177,
+   "funktion": "geheimnisse_totem"
+  },
+  {
+   "Name": "TASK_geheimnisse_007",
+   "art": "sideStart",
+   "nebenaufgabe": "geh_steine",
+   "text": "",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 177,
+   "funktion": "geheimnisse_totem"
+  },
+  {
+   "Name": "TASK_hungrige_001",
+   "art": "sideStart",
+   "nebenaufgabe": "hungrige",
+   "text": "",
+   "datei": "app/mods/hungrige.js",
+   "zeile": 46,
+   "funktion": "hungrige_done",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_hungrige_002",
+   "art": "sideDone",
+   "nebenaufgabe": "hungrige",
+   "text": "Der Wendigo hat sich gezeigt, und Whiskey hat ihn vertrieben.",
+   "datei": "app/mods/hungrige.js",
+   "zeile": 330,
+   "funktion": "hungrige_finaleSkip",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_hungrige_003",
+   "art": "sideDone",
+   "nebenaufgabe": "hungrige",
+   "text": "Der Wendigo hat sich gezeigt, und Whiskey hat ihn vertrieben.",
+   "datei": "app/mods/hungrige.js",
+   "zeile": 444,
+   "funktion": "",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_justin_001",
+   "text": "Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los.",
+   "art": "setC3",
+   "datei": "app/mods/justin.js",
+   "zeile": 437,
+   "funktion": "justin_ankunft",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel1_001",
+   "art": "setMain",
+   "mainIndex": 1,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 277,
+   "text": "MAIN[1]"
+  },
+  {
+   "Name": "TASK_kapitel1_002",
+   "art": "sideStart",
+   "nebenaufgabe": "seven",
+   "text": "",
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 281,
+   "funktion": "kapitel1_briefkasten",
+   "kapitelModul": [
+    1
+   ]
+  },
+  {
+   "Name": "TASK_kapitel1_003",
+   "art": "sideStart",
+   "nebenaufgabe": "call",
+   "text": "",
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 281,
+   "funktion": "kapitel1_briefkasten",
+   "kapitelModul": [
+    1
+   ]
+  },
+  {
+   "Name": "TASK_kapitel1_004",
+   "art": "setMain",
+   "mainIndex": 4,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 379,
+   "text": "MAIN[4]"
+  },
+  {
+   "Name": "TASK_kapitel1_005",
+   "art": "setMain",
+   "mainIndex": 5,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 396,
+   "text": "MAIN[5]"
+  },
+  {
+   "Name": "TASK_kapitel1_006",
+   "art": "setMain",
+   "mainIndex": 5,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 416,
+   "text": "MAIN[5]"
+  },
+  {
+   "Name": "TASK_kapitel1_007",
+   "art": "setMain",
+   "mainIndex": 6,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 432,
+   "text": "MAIN[6]"
+  },
+  {
+   "Name": "TASK_kapitel1_008",
+   "art": "setMain",
+   "mainIndex": 7,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 482,
+   "text": "MAIN[7]"
+  },
+  {
+   "Name": "TASK_kapitel1_009",
+   "art": "setMain",
+   "mainIndex": 8,
+   "datei": "app/mods/kapitel1.js",
+   "zeile": 554,
+   "text": "MAIN[8]"
+  },
+  {
+   "Name": "TASK_kapitel3_001",
+   "art": "konstante:KAPITEL3_ZIEL_LATERNEN",
+   "text": "Die Laternen müssen aus, dann muss sie herunter. Wie, steht bei Frau Wendt in Nr. 7 – und der Funkkasten an der Kreuzung spricht noch.",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 15,
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel3_002",
+   "text": "Der Funkkasten an der Kreuzung. Welche Frequenz?",
+   "art": "setC3",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 146,
+   "funktion": "kapitel3_zaehlbuch",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel3_003",
+   "text": "Zu Justin. An die Kreuzung.",
+   "art": "setC3",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 214,
+   "funktion": "kapitel3_lampsOut",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel3_004",
+   "text": "Nimm Justins Hand.",
+   "art": "setC3",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 253,
+   "funktion": "kapitel3_handAnbieten",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel3_005",
+   "text": "Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.",
+   "art": "setC3",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 345,
+   "funktion": "kapitel3_fortsetzen",
+   "kapitelModul": [
+    3
+   ],
+   "dynamisch": true,
+   "varianten": [
+    "Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.",
+    "Das Telefon an der Kreuzung klingelt."
+   ]
+  },
+  {
+   "Name": "TASK_kapitel3_006",
+   "text": "Das Telefon an der Kreuzung klingelt. Nimm ab.",
+   "art": "setC3",
+   "datei": "app/mods/kapitel3.js",
+   "zeile": 359,
+   "funktion": "kapitel3_fortsetzen",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_001",
+   "text": "Lucy schläft bei Vegas. Warte auf der Veranda.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 559,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ],
+   "beat": "ende"
+  },
+  {
+   "Name": "TASK_kapitel5_002",
+   "text": "Lucy. Am Fenster.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 593,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_003",
+   "text": "Hildes Kamera. Nr. 7, Wohnzimmer.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 595,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_004",
+   "text": "Mach ein Foto von Lucy.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 596,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_005",
+   "text": "Nr. 1. Wer deckt da den Tisch?",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 604,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_006",
+   "text": "Nr. 1. Wer deckt da den Tisch?",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 607,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_007",
+   "text": "Vier Gedecke. Lucy hat gesagt: Iss nichts. Hör hin, was unter ihrer Stimme läuft.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 618,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_008",
+   "text": "Lucys Spieluhr. Das Kinderzimmer.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 619,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_009",
+   "text": "Bring Lucy die Spieluhr.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 621,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_010",
+   "text": "Die Telefonzelle klingelt.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 623,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_011",
+   "text": "Brot. Der Stall am Hof. Guck ihn nicht an.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 624,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ],
+   "dynamisch": true,
+   "varianten": [
+    "Brot. Der Stall am Hof. Guck ihn nicht an.",
+    "Brot. Der Kanten von Papas Platz in Nr. 1. Dann der Stall am Hof."
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_012",
+   "text": "Warten.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 625,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ],
+   "dynamisch": true,
+   "varianten": [
+    "Warten.",
+    "Das Brot. Auf den Teller. Und ihn nicht ansehen."
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_013",
+   "text": "Hinterher.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 629,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_014",
+   "text": "Das Tappen hat aufgehört. Das Gedenkfeld.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 630,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_015",
+   "text": "Hinterher. Der Junge ist zum Nordzaun gelaufen.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 632,
+   "funktion": "k5_takt",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_016",
+   "art": "sideStart",
+   "nebenaufgabe": "k5_jonas",
+   "text": "",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 689,
+   "funktion": "k5_briefe",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_017",
+   "text": "Nr. 1. Wer deckt da den Tisch?",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 774,
+   "funktion": "k5_gisela",
+   "kapitelModul": [
+    5
+   ],
+   "beat": "tisch"
+  },
+  {
+   "Name": "TASK_kapitel5_018",
+   "text": "Warten.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 1030,
+   "funktion": "k5_brotHin",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel5_019",
+   "text": "Lucys Spieluhr. Das Kinderzimmer.",
+   "art": "k5_task",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 1335,
+   "funktion": "k5_ende",
+   "kapitelModul": [
+    5
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_001",
+   "text": "Die Spur ist weg. Zayns Hütte liegt hinten links.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 186,
+   "funktion": "k6_nachKraehe",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_002",
+   "text": "Weg vom Bau. Whiskey fliegt nach Osten – zu Jonas’ Lager.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 190,
+   "funktion": "k6_hungrigeDone",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "wrack"
+  },
+  {
+   "Name": "TASK_kapitel6_003",
+   "text": "Das Ding ist hier. Irgendwo.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 192,
+   "funktion": "k6_seite",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "wrack"
+  },
+  {
+   "Name": "TASK_kapitel6_004",
+   "text": "Zayns Hütte.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 269,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "epilog"
+  },
+  {
+   "Name": "TASK_kapitel6_005",
+   "text": "Die kleinen Hände führen hinaus. Zum eingedrückten Zaun.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 271,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "huette"
+  },
+  {
+   "Name": "TASK_kapitel6_006",
+   "text": "Die rote Wolle. Und kleine Hände im Moos: Er folgt ihr auch.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 272,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "zaun"
+  },
+  {
+   "Name": "TASK_kapitel6_007",
+   "text": "Der Hochsitz. Hinauf.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 275,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "faden"
+  },
+  {
+   "Name": "TASK_kapitel6_008",
+   "text": "Zurück zur Fraßstelle. Das Ding ist in der Nähe.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 282,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "faden"
+  },
+  {
+   "Name": "TASK_kapitel6_009",
+   "text": "Jonas’ Lager. Durchatmen. Whiskey sitzt auf der Zeltstange.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 285,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "faden"
+  },
+  {
+   "Name": "TASK_kapitel6_010",
+   "text": "Hinter dem Wrack. Da, wo es still ist.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 288,
+   "funktion": "k6_beats",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "faden"
+  },
+  {
+   "Name": "TASK_kapitel6_011",
+   "text": "Folge den Brotkrumen.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 303,
+   "funktion": "k6_gitter",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "krumen"
+  },
+  {
+   "Name": "TASK_kapitel6_012",
+   "text": "Das Gitter aufbiegen: E halten, am Gitter. Der Junge ist darunter durch.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 339,
+   "funktion": "k6_ag18",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "epilog"
+  },
+  {
+   "Name": "TASK_kapitel6_013",
+   "text": "Die Wolle führt weiter. Zum alten Bus.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 377,
+   "funktion": "k6_standTick",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_014",
+   "text": "Der Bus. Irgendwas stimmt hier nicht.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 401,
+   "funktion": "k6_falleStart",
+   "kapitelModul": [
+    6
+   ],
+   "dynamisch": true,
+   "varianten": [
+    "Der Bus. Irgendwas stimmt hier nicht.",
+    "Stell dich in die Mitte, neben den Bus. Sagt der Blechmann mit der Hand."
+   ],
+   "beat": "falle"
+  },
+  {
+   "Name": "TASK_kapitel6_015",
+   "text": "Warten. In der Mitte neben dem Bus bleiben.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 436,
+   "funktion": "k6_falleWarten",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_016",
+   "text": "Atmen. Nur atmen.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 473,
+   "funktion": "k6_netzAufLuke",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_017",
+   "text": "Der Blutspur nach. Zur Fraßstelle.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 488,
+   "funktion": "k6_falleEnde",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_018",
+   "text": "Die Fraßstelle. Da vorn, wo das Blut endet.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 509,
+   "funktion": "k6_ag20",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "frass"
+  },
+  {
+   "Name": "TASK_kapitel6_019",
+   "text": "Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 530,
+   "funktion": "k6_lagerFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_kapitel6_020",
+   "text": "Whiskey fliegt voraus. Folge ihm.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 597,
+   "funktion": "k6_epilog",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "epilog"
+  },
+  {
+   "Name": "TASK_kapitel6_021",
+   "text": "Der Hochsitz.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 601,
+   "funktion": "k6_epilog",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "epilog"
+  },
+  {
+   "Name": "TASK_kapitel6_022",
+   "text": "Der Hochsitz. Oben sitzt jemand.",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 609,
+   "funktion": "k6_guide",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "hochsitz"
+  },
+  {
+   "Name": "TASK_kapitel6_023",
+   "text": "Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?",
+   "art": "k6_obj",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 758,
+   "funktion": "startChapter6",
+   "kapitelModul": [
+    6
+   ],
+   "beat": "krumen"
+  },
+  {
+   "Name": "TASK_kiffen_001",
+   "art": "sideDone",
+   "nebenaufgabe": "kf_fuenf",
+   "text": "Fünf Minuten auf Vegas’ Veranda. Es waren eher zwölf.",
+   "datei": "app/mods/kiffen.js",
+   "zeile": 645,
+   "funktion": "kiffen_szene",
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "TASK_kiffen_002",
+   "art": "sideStart",
+   "nebenaufgabe": "kf_fuenf",
+   "text": "",
+   "datei": "app/mods/kiffen.js",
+   "zeile": 681,
+   "funktion": "kiffen_start",
+   "kapitelModul": [
+    1,
+    4
+   ]
+  },
+  {
+   "Name": "TASK_lucy3_001",
+   "text": "Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.",
+   "art": "setC3",
+   "datei": "app/mods/lucy3.js",
+   "zeile": 126,
+   "funktion": "lucy3_opening",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_lucy3_002",
+   "text": "Lösch die Laternen vor den Häusern, in der Reihenfolge, in der sie die Kinder geholt hat.",
+   "art": "setC3",
+   "datei": "app/mods/lucy3.js",
+   "zeile": 323,
+   "funktion": "lucy3_win",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_lwo_001",
+   "text": "Die Männer sind weg. Weiter in den Messraum.",
+   "art": "setC2Objective",
+   "datei": "app/mods/lwo.js",
+   "zeile": 865,
+   "funktion": "kette"
+  },
+  {
+   "Name": "TASK_neben6_001",
+   "art": "sideStart",
+   "nebenaufgabe": "pell",
+   "text": "",
+   "datei": "app/mods/neben6.js",
+   "zeile": 131,
+   "funktion": "n6_pellStand",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_neben6_002",
+   "art": "sideDone",
+   "nebenaufgabe": "pell",
+   "text": "Alle neun Seiten von Pells Heft. „Erfüllt.“",
+   "datei": "app/mods/neben6.js",
+   "zeile": 138,
+   "funktion": "n6_pellStand",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_neben6_003",
+   "art": "sideStart",
+   "nebenaufgabe": "anni",
+   "text": "",
+   "datei": "app/mods/neben6.js",
+   "zeile": 181,
+   "funktion": "n6_anniDesc",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_neben6_004",
+   "art": "sideDone",
+   "nebenaufgabe": "anni",
+   "text": "Drei Sätze. Er hat von jedem nur das, was der Wirt im Kopf hatte.",
+   "datei": "app/mods/neben6.js",
+   "zeile": 210,
+   "funktion": "n6_anniFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_neben6_005",
+   "art": "sideStart",
+   "nebenaufgabe": "anni",
+   "text": "",
+   "datei": "app/mods/neben6.js",
+   "zeile": 247,
+   "funktion": "n6_torFail",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_spinnen_001",
+   "text": "SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern",
+   "art": "setC2Objective",
+   "datei": "app/mods/spinnen.js",
+   "zeile": 217,
+   "funktion": "spn_update"
+  },
+  {
+   "Name": "TASK_spinnen_002",
+   "text": "Die Tür ist zu.",
+   "art": "setC2Objective",
+   "datei": "app/mods/spinnen.js",
+   "zeile": 252,
+   "funktion": "spn_event"
+  },
+  {
+   "Name": "TASK_spinnen_003",
+   "text": "Sie kommen. Halt durch.",
+   "art": "setC2Objective",
+   "datei": "app/mods/spinnen.js",
+   "zeile": 260,
+   "funktion": "spn_event"
+  },
+  {
+   "Name": "TASK_tiefwald_001",
+   "art": "sideStart",
+   "nebenaufgabe": "tief_faden",
+   "text": "",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 397,
+   "funktion": "tief_zettel",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_tiefwald_002",
+   "art": "sideStart",
+   "nebenaufgabe": "tief_rotte",
+   "text": "",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 440,
+   "funktion": "tief_dig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_tiefwald_003",
+   "art": "sideDone",
+   "nebenaufgabe": "tief_rotte",
+   "text": "Jonas’ Vorrat: zwei Batterien in Hildes Zeitungsseite. Und eine dritte, mit drei Kratzern. Jemand hat dazugelegt.",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 451,
+   "funktion": "tief_digFund",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_tiefwald_004",
+   "art": "sideDone",
+   "nebenaufgabe": "tief_faden",
+   "text": "Am Weiher endet die Wolle. Jonas hat vierzig Mal gesucht. Und jemand hat gezogen.",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 484,
+   "funktion": "tief_weiher",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_tiefwald_005",
+   "art": "sideStart",
+   "nebenaufgabe": "tief_faden",
+   "text": "",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 531,
+   "funktion": "tief_figurWeg",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_tiefwald_006",
+   "art": "sideStart",
+   "nebenaufgabe": "tief_rotte",
+   "text": "",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 573,
+   "funktion": "tief_figurWeg",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_uebergang_001",
+   "art": "setMain",
+   "mainIndex": 8,
+   "datei": "app/mods/uebergang.js",
+   "zeile": 52,
+   "text": "MAIN[8]"
+  },
+  {
+   "Name": "TASK_uebergang_002",
+   "text": "Die Stablampe.",
+   "art": "setC2Objective",
+   "datei": "app/mods/uebergang.js",
+   "zeile": 156,
+   "funktion": "uebergang3_nachAbspann",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_uebergang_003",
+   "text": "Die Leiter hinauf.",
+   "art": "setC2Objective",
+   "datei": "app/mods/uebergang.js",
+   "zeile": 158,
+   "funktion": "uebergang3_nachAbspann",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_uebergang_004",
+   "text": "Klettern. E halten.",
+   "art": "setC2Objective",
+   "datei": "app/mods/uebergang.js",
+   "zeile": 163,
+   "funktion": "uebergang3_climb",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_uebergang_005",
+   "text": "Den Deckel aufstemmen. E halten.",
+   "art": "setC2Objective",
+   "datei": "app/mods/uebergang.js",
+   "zeile": 173,
+   "funktion": "uebergang3_climb",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_verstecke_001",
+   "art": "sideStart",
+   "nebenaufgabe": "verstecke",
+   "text": "",
+   "datei": "app/mods/verstecke.js",
+   "zeile": 62,
+   "funktion": "vst_nimm"
+  },
+  {
+   "Name": "TASK_verstecke_002",
+   "art": "sideDone",
+   "nebenaufgabe": "verstecke",
+   "text": "Alle Verstecke gefunden.",
+   "datei": "app/mods/verstecke.js",
+   "zeile": 64,
+   "funktion": "vst_nimm"
+  },
+  {
+   "Name": "TASK_wald_001",
+   "art": "sideStart",
+   "nebenaufgabe": "wald_welpe",
+   "text": "",
+   "datei": "app/mods/wald.js",
+   "zeile": 169,
+   "funktion": "wald_pup",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_002",
+   "art": "sideDone",
+   "nebenaufgabe": "wald_welpe",
+   "text": "Der Welpe ist frei. Im Draht: Jonas’ Taschenmesser. Am Pflock: eine Plombe vom Amt – „Köder W“.",
+   "datei": "app/mods/wald.js",
+   "zeile": 197,
+   "funktion": "wald_pupFrei",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_003",
+   "art": "sideDone",
+   "nebenaufgabe": "wald_hirsch",
+   "text": "Der Hirsch hat dich zum großen Baum geführt. Oben hängt ein Baumhaus. Fibel-Regel: „Was wegläuft, ist echt.“",
+   "datei": "app/mods/wald.js",
+   "zeile": 228,
+   "funktion": "wald_hirschFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_004",
+   "art": "sideStart",
+   "nebenaufgabe": "wald_hirsch",
+   "text": "",
+   "datei": "app/mods/wald.js",
+   "zeile": 250,
+   "funktion": "wald_hirschFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_005",
+   "art": "sideStart",
+   "nebenaufgabe": "wald_hirsch",
+   "text": "",
+   "datei": "app/mods/wald.js",
+   "zeile": 257,
+   "funktion": "wald_hirschFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_006",
+   "art": "sideStart",
+   "nebenaufgabe": "wald_hirsch",
+   "text": "",
+   "datei": "app/mods/wald.js",
+   "zeile": 260,
+   "funktion": "wald_hirschFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_wald_007",
+   "art": "sideStart",
+   "nebenaufgabe": "wald_welpe",
+   "text": "",
+   "datei": "app/mods/wald.js",
+   "zeile": 284,
+   "funktion": "wald_hirschFertig",
+   "kapitelModul": [
+    6
+   ]
+  },
+  {
+   "Name": "TASK_weiss_001",
+   "text": "Stell die Küchenuhr auf die Zeit, zu der man dich gebracht hat.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 230,
+   "funktion": "weiss_hildeEnde",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_002",
+   "text": "Der Hohe Abgrund. Geh hinein.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 236,
+   "funktion": "weiss_hildeEnde",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_003",
+   "text": "Eine Erinnerung lügt. Sieh genau hin.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 252,
+   "funktion": "weiss_hildeEnde",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_004",
+   "text": "Geh Justin nach.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 450,
+   "funktion": "weiss_r1Sehen",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_005",
+   "text": "Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 454,
+   "funktion": "weiss_r1Sehen",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_006",
+   "text": "Geh weiter.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 458,
+   "funktion": "weiss_r1Sehen",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_007",
+   "text": "Der letzte Raum.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 506,
+   "funktion": "weiss_voss",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_008",
+   "text": "Am Rand der Wiese liegt ein Blatt im Reif.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 520,
+   "funktion": "weiss_voss",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_weiss_009",
+   "text": "Sieh dir die Hände an. Wenn du es weißt: sag es Justin.",
+   "art": "setC3",
+   "datei": "app/mods/weiss.js",
+   "zeile": 523,
+   "funktion": "weiss_haendeAuftrag",
+   "kapitelModul": [
+    3
+   ]
+  },
+  {
+   "Name": "TASK_zayn_001",
+   "art": "sideStart",
+   "nebenaufgabe": "zayn",
+   "text": "",
+   "datei": "app/mods/zayn.js",
+   "zeile": 17,
+   "funktion": "zayn_stage"
+  },
+  {
+   "Name": "TASK_zayn_002",
+   "art": "sideDone",
+   "nebenaufgabe": "zayn",
+   "text": "Hast du dich an mich erinnert?",
+   "datei": "app/mods/zayn.js",
+   "zeile": 186,
+   "funktion": "zayn_last"
+  },
+  {
+   "Name": "TASK_ziele_001",
+   "art": "liste:ZIELE_UI",
+   "index": 0,
+   "text": "ui_ziel_1",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_002",
+   "art": "liste:ZIELE_UI",
+   "index": 1,
+   "text": "ui_ziel_2",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_003",
+   "art": "liste:ZIELE_UI",
+   "index": 2,
+   "text": "ui_neben_1",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_004",
+   "art": "liste:ZIELE_UI",
+   "index": 3,
+   "text": "ui_neben_2",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_005",
+   "art": "liste:ZIELE_UI",
+   "index": 4,
+   "text": "ui_fort",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_006",
+   "art": "liste:ZIELE_UI",
+   "index": 5,
+   "text": "ui_erledigt",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_007",
+   "art": "liste:ZIELE_UI",
+   "index": 6,
+   "text": "ui_verpasst",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_008",
+   "art": "liste:ZIELE_UI",
+   "index": 7,
+   "text": "ui_fibel_1",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_009",
+   "art": "liste:ZIELE_UI",
+   "index": 8,
+   "text": "ui_fibel_2",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_010",
+   "art": "liste:ZIELE_UI",
+   "index": 9,
+   "text": "ui_karte",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_011",
+   "art": "liste:ZIELE_UI",
+   "index": 10,
+   "text": "ui_speichern",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_ziele_012",
+   "art": "liste:ZIELE_UI",
+   "index": 11,
+   "text": "ui_tasche",
+   "datei": "app/mods/ziele.js",
+   "zeile": 62
+  },
+  {
+   "Name": "TASK_zimmer7_001",
+   "text": "Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.",
+   "art": "setC2Objective",
+   "datei": "app/mods/zimmer7.js",
+   "zeile": 54,
+   "funktion": "z7_protokoll",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_zimmer7_002",
+   "text": "Ohne Strom geht die Stahltür im Osten nicht auf. Finde den Sicherungsraum und schalte den Strom ein.",
+   "art": "setC2Objective",
+   "datei": "app/mods/zimmer7.js",
+   "zeile": 78,
+   "funktion": "z7_takeKey",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  },
+  {
+   "Name": "TASK_zimmer7_003",
+   "text": "Ein Schlüssel aus der Schublade: ZIMMER 7. Finde das Zimmer.",
+   "art": "setC2Objective",
+   "datei": "app/mods/zimmer7.js",
+   "zeile": 102,
+   "funktion": "z7_syncAushang",
+   "kapitelModul": [
+    1,
+    2
+   ]
+  }
+ ],
+ "nebenaufgaben": [
+  {
+   "Name": "SIDE_home",
+   "id": "home",
+   "titel": "Das alte Zuhause",
+   "beschreibung": "Euer Elternhaus, Nr. 1. Mama hat es nie verkauft.",
+   "start": "hidden",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2602
+  },
+  {
+   "Name": "SIDE_bruno",
+   "id": "bruno",
+   "titel": "Bruno",
+   "beschreibung": "Herr Vegas (Nr. 3) vermisst seinen Hund. Er lief zum abgebrannten Haus Nr. 5.",
+   "start": "hidden",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2602
+  },
+  {
+   "Name": "SIDE_car",
+   "id": "car",
+   "titel": "Lucys Auto",
+   "beschreibung": "Lucys Wagen steht mit offener Tür an der Straßensperre.",
+   "start": "hidden",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2602
+  },
+  {
+   "Name": "SIDE_seven",
+   "id": "seven",
+   "titel": "Die Sieben",
+   "beschreibung": "Sieben Kerzen, sieben Polaroids. Folge den Kreidepfeilen.",
+   "start": "hidden",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2602
+  },
+  {
+   "Name": "SIDE_call",
+   "id": "call",
+   "titel": "Der Anruf",
+   "beschreibung": "Das Telefon an der Kreuzung klingelt.",
+   "start": "hidden",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 2602
+  },
+  {
+   "Name": "SIDE_akte",
+   "id": "akte",
+   "titel": "Wo Erwachsene nicht hinsehen",
+   "beschreibung": "Jemand aus dem Amt hat Durchschläge versteckt. Es muss noch mehr davon geben.",
+   "start": "hidden",
+   "datei": "app/mods/akte.js",
+   "zeile": 40
+  },
+  {
+   "Name": "SIDE_albers_spinn",
+   "id": "albers_spinn",
+   "titel": "Das Schlimmste am Rechthaben",
+   "beschreibung": "Der alte Vegas erzählt Dinge, die keiner glaubt.",
+   "start": "hidden",
+   "datei": "app/mods/albers.js",
+   "zeile": 70
+  },
+  {
+   "Name": "SIDE_anw_teile",
+   "id": "anw_teile",
+   "titel": "Acht Schlösser",
+   "beschreibung": "Die Tür der Villa Seiler hat acht Schlüssellöcher.",
+   "start": "hidden",
+   "datei": "app/mods/anwesen.js",
+   "zeile": 40
+  },
+  {
+   "Name": "SIDE_nord_names",
+   "id": "nord_names",
+   "titel": "Da fehlt eins",
+   "beschreibung": "Der Friedhof. Alle Grablichter aus, nur die Laterne der Madonna brennt. Das Gedenkfeld: sieben Namen. (0/7)",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 790
+  },
+  {
+   "Name": "SIDE_nord_baer",
+   "id": "nord_baer",
+   "titel": "Ochs am Berg",
+   "beschreibung": "Auf der Spielplatzbank: „BÄRLI IST WEG!! … Bitte setzt ihn wieder auf die Bank, sonst findet er nicht heim.“",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 792
+  },
+  {
+   "Name": "SIDE_ow_kasse",
+   "id": "ow_kasse",
+   "titel": "Die Geldkassette",
+   "beschreibung": "Im Nachtschalter der Tankstelle Kranz steht eine Kassette mit Zahlenschloss.",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 368
+  },
+  {
+   "Name": "SIDE_ow_kanister",
+   "id": "ow_kanister",
+   "titel": "Kinder tanken nicht",
+   "beschreibung": "Der letzte Kunde der Tankstelle hat einen roten Kanister nie zurückgebracht.",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 369
+  },
+  {
+   "Name": "SIDE_ow_heft",
+   "id": "ow_heft",
+   "titel": "Das Heft im Heu",
+   "beschreibung": "Im Pferdestall hat ein Kind geschlafen. Aus seinem Heft fehlen drei Seiten.",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 370
+  },
+  {
+   "Name": "SIDE_ow_laternen",
+   "id": "ow_laternen",
+   "titel": "Drei Laternen",
+   "beschreibung": "In der Laube liegt ein Zettel: Drei Laternen sollen brennen, „damit sie heimfinden“.",
+   "start": "hidden",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 371
+  },
+  {
+   "Name": "SIDE_beobachter",
+   "id": "beobachter",
+   "titel": "Der Neunte",
+   "beschreibung": "",
+   "start": "hidden",
+   "datei": "app/mods/beobachter.js",
+   "zeile": 207
+  },
+  {
+   "Name": "SIDE_cleo",
+   "id": "cleo",
+   "titel": "Eine für sieben",
+   "beschreibung": "In Lucys Tagebuch steht immer wieder ein einzelner Buchstabe: C.",
+   "start": "hidden",
+   "datei": "app/mods/cleo.js",
+   "zeile": 16
+  },
+  {
+   "Name": "SIDE_geh_steine",
+   "id": "geh_steine",
+   "titel": "Warm wie eine Hand",
+   "beschreibung": "Kleine Steine, die im Dunkeln glimmen. Mach das Licht aus.",
+   "start": "hidden",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 41
+  },
+  {
+   "Name": "SIDE_geh_wrack",
+   "id": "geh_wrack",
+   "titel": "Blech vom Himmel",
+   "beschreibung": "Verbogene Metallteile, dort wo das Licht war.",
+   "start": "hidden",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 43
+  },
+  {
+   "Name": "SIDE_geh_totem",
+   "id": "geh_totem",
+   "titel": "Die Zählgestelle",
+   "beschreibung": "Jemand hat an den Rändern von Lost Eyengless etwas aufgestellt.",
+   "start": "hidden",
+   "datei": "app/mods/geheimnisse.js",
+   "zeile": 44
+  },
+  {
+   "Name": "SIDE_hungrige",
+   "id": "hungrige",
+   "titel": "Der Hungrige",
+   "beschreibung": "",
+   "start": "hidden",
+   "datei": "app/mods/hungrige.js",
+   "zeile": 45
+  },
+  {
+   "Name": "SIDE_kf_fuenf",
+   "id": "kf_fuenf",
+   "titel": "Fünf Minuten",
+   "beschreibung": "Grinder, Blättchen, etwas zum Drehen, Tips.",
+   "start": "hidden",
+   "datei": "app/mods/kiffen.js",
+   "zeile": 782
+  },
+  {
+   "Name": "SIDE_anni",
+   "id": "anni",
+   "titel": "Papa, ich bin’s",
+   "beschreibung": "Eine Stimme im Wald. Ein Mädchen. Sie ruft nach ihrem Papa. Whiskey sieht nicht hin.",
+   "start": "hidden",
+   "datei": "app/mods/neben6.js",
+   "zeile": 51
+  },
+  {
+   "Name": "SIDE_pell",
+   "id": "pell",
+   "titel": "Mit jedem Bissen",
+   "beschreibung": "Karierte Seiten mit Kaffeeringen, gestempelt „W“.",
+   "start": "hidden",
+   "datei": "app/mods/neben6.js",
+   "zeile": 52
+  },
+  {
+   "Name": "SIDE_tief_faden",
+   "id": "tief_faden",
+   "titel": "Vierzig Mal",
+   "beschreibung": "Hinter Zayns Hütte ist der Zaun eingedrückt. Zwischen den Bäumen dahinter: rote Wolle, von Stamm zu Stamm gespannt.",
+   "start": "hidden",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 364
+  },
+  {
+   "Name": "SIDE_tief_rotte",
+   "id": "tief_rotte",
+   "titel": "Vorrat. Nicht anfassen.",
+   "beschreibung": "Am alten Bus wühlen Wildschweine im Boden. Irgendetwas haben sie gerochen.",
+   "start": "hidden",
+   "datei": "app/mods/tiefwald.js",
+   "zeile": 365
+  },
+  {
+   "Name": "SIDE_wald_welpe",
+   "id": "wald_welpe",
+   "titel": "Nicht rennen, Lampe an",
+   "beschreibung": "Irgendwo im Osten der Dustwoods jault etwas. Hoch, dünn, verzweifelt.",
+   "start": "hidden",
+   "datei": "app/mods/wald.js",
+   "zeile": 116
+  },
+  {
+   "Name": "SIDE_wald_hirsch",
+   "id": "wald_hirsch",
+   "titel": "Was wegläuft, ist echt",
+   "beschreibung": "Auf einer Lichtung grasen Rehe. Sie fliehen vor Licht und schnellen Schritten.",
+   "start": "hidden",
+   "datei": "app/mods/wald.js",
+   "zeile": 117
+  },
+  {
+   "Name": "SIDE_zayn",
+   "id": "zayn",
+   "titel": "Hast du dich an mich erinnert?",
+   "beschreibung": "Ein kleiner Rucksack mit einem Namen.",
+   "start": "hidden",
+   "datei": "app/mods/zayn.js",
+   "zeile": 20
+  },
+  {
+   "Name": "SIDE_chronik",
+   "id": "chronik",
+   "titel": "Die Chronik von 1312",
+   "beschreibung": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4141
+  },
+  {
+   "Name": "SIDE_brief",
+   "id": "brief",
+   "titel": "Mamas letzter Brief",
+   "beschreibung": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4142
+  },
+  {
+   "Name": "SIDE_buch",
+   "id": "buch",
+   "titel": "Hilde Wendts Zählbuch",
+   "beschreibung": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4143
+  },
+  {
+   "Name": "SIDE_stimme",
+   "id": "stimme",
+   "titel": "Die Stimme am Telefon",
+   "beschreibung": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4144
+  },
+  {
+   "Name": "SIDE_albers",
+   "id": "albers",
+   "titel": "Vegas, 1975",
+   "beschreibung": "",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4145
+  }
+ ]
+}

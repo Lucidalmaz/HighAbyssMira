@@ -1,0 +1,1618 @@
+{
+ "wurzel": "game/assets",
+ "ordner": [
+  {
+   "ordner": "ms",
+   "bytes": 3454319156,
+   "dateien": 1664,
+   "typen": {
+    ".glb": 242,
+    ".jpg": 529,
+    ".ktx2": 616,
+    ".json": 13,
+    ".bin": 52,
+    ".gltf": 52,
+    ".fbx": 63,
+    ".png": 97
+   },
+   "unterordner": [
+    {
+     "name": "wendigo",
+     "bytes": 200619652,
+     "dateien": 14
+    },
+    {
+     "name": "barn_horse",
+     "bytes": 97147554,
+     "dateien": 80
+    },
+    {
+     "name": "shed_old",
+     "bytes": 78291933,
+     "dateien": 21
+    },
+    {
+     "name": "shed_util",
+     "bytes": 73155197,
+     "dateien": 33
+    },
+    {
+     "name": "poles_wood",
+     "bytes": 72826956,
+     "dateien": 5
+    },
+    {
+     "name": "spindle",
+     "bytes": 58280410,
+     "dateien": 13
+    },
+    {
+     "name": "radio",
+     "bytes": 56709422,
+     "dateien": 27
+    },
+    {
+     "name": "car_rusty",
+     "bytes": 46817760,
+     "dateien": 2
+    },
+    {
+     "name": "elderberry",
+     "bytes": 46595105,
+     "dateien": 13
+    },
+    {
+     "name": "raspberry",
+     "bytes": 46108448,
+     "dateien": 13
+    },
+    {
+     "name": "chapel",
+     "bytes": 45891382,
+     "dateien": 11
+    },
+    {
+     "name": "beutel3",
+     "bytes": 38160758,
+     "dateien": 4
+    },
+    {
+     "name": "wildgrass2",
+     "bytes": 38148833,
+     "dateien": 13
+    },
+    {
+     "name": "spinnen",
+     "bytes": 36985156,
+     "dateien": 16
+    },
+    {
+     "name": "wildgrass1",
+     "bytes": 36841552,
+     "dateien": 13
+    },
+    {
+     "name": "deadtree3",
+     "bytes": 36444598,
+     "dateien": 9
+    },
+    {
+     "name": "shed_garden",
+     "bytes": 35066604,
+     "dateien": 2
+    },
+    {
+     "name": "deadtree1",
+     "bytes": 34830914,
+     "dateien": 9
+    },
+    {
+     "name": "gas_retro",
+     "bytes": 33250299,
+     "dateien": 3
+    },
+    {
+     "name": "sofa",
+     "bytes": 32554058,
+     "dateien": 9
+    },
+    {
+     "name": "ivy_ms",
+     "bytes": 29261051,
+     "dateien": 13
+    },
+    {
+     "name": "w_birke",
+     "bytes": 28785785,
+     "dateien": 6
+    },
+    {
+     "name": "bicycle",
+     "bytes": 28695586,
+     "dateien": 11
+    },
+    {
+     "name": "streetlamp_old",
+     "bytes": 28654220,
+     "dateien": 1
+    },
+    {
+     "name": "weeds",
+     "bytes": 28484677,
+     "dateien": 13
+    },
+    {
+     "name": "ladyfern",
+     "bytes": 28476629,
+     "dateien": 13
+    },
+    {
+     "name": "tractor",
+     "bytes": 27627784,
+     "dateien": 2
+    },
+    {
+     "name": "w_moretrees",
+     "bytes": 27548984,
+     "dateien": 2
+    },
+    {
+     "name": "graffiti_echt",
+     "bytes": 27534582,
+     "dateien": 24
+    },
+    {
+     "name": "animal_wolf",
+     "bytes": 27207840,
+     "dateien": 2
+    },
+    {
+     "name": "busstop2",
+     "bytes": 27087028,
+     "dateien": 2
+    },
+    {
+     "name": "car_dutch",
+     "bytes": 26908564,
+     "dateien": 2
+    },
+    {
+     "name": "beechfern",
+     "bytes": 26621906,
+     "dateien": 13
+    },
+    {
+     "name": "bed_elec",
+     "bytes": 26375612,
+     "dateien": 9
+    },
+    {
+     "name": "animal_deerstag",
+     "bytes": 26130300,
+     "dateien": 2
+    },
+    {
+     "name": "kiffen",
+     "bytes": 25596209,
+     "dateien": 32
+    },
+    {
+     "name": "hospbed",
+     "bytes": 25340648,
+     "dateien": 23
+    },
+    {
+     "name": "teddy_scan",
+     "bytes": 25026660,
+     "dateien": 2
+    },
+    {
+     "name": "animal_fox",
+     "bytes": 23682452,
+     "dateien": 2
+    },
+    {
+     "name": "car_burned",
+     "bytes": 23429928,
+     "dateien": 21
+    },
+    {
+     "name": "fencepost",
+     "bytes": 23427863,
+     "dateien": 9
+    },
+    {
+     "name": "aktenschrank",
+     "bytes": 22885908,
+     "dateien": 10
+    },
+    {
+     "name": "animal_pig",
+     "bytes": 22737132,
+     "dateien": 2
+    },
+    {
+     "name": "tires",
+     "bytes": 22160563,
+     "dateien": 9
+    },
+    {
+     "name": "grave_weathered",
+     "bytes": 22108276,
+     "dateien": 2
+    },
+    {
+     "name": "animal_crow",
+     "bytes": 22064976,
+     "dateien": 2
+    },
+    {
+     "name": "w_leftleaves",
+     "bytes": 21939516,
+     "dateien": 2
+    },
+    {
+     "name": "animal_deerdoe",
+     "bytes": 21882652,
+     "dateien": 2
+    },
+    {
+     "name": "w_bushes2",
+     "bytes": 21646272,
+     "dateien": 2
+    },
+    {
+     "name": "rabe_whiskey",
+     "bytes": 21569272,
+     "dateien": 2
+    },
+    {
+     "name": "wallclock",
+     "bytes": 21325868,
+     "dateien": 21
+    },
+    {
+     "name": "w_leaves",
+     "bytes": 21264448,
+     "dateien": 2
+    },
+    {
+     "name": "beobachter",
+     "bytes": 20620185,
+     "dateien": 7
+    },
+    {
+     "name": "hydrant",
+     "bytes": 20392664,
+     "dateien": 9
+    },
+    {
+     "name": "drygrass",
+     "bytes": 20368136,
+     "dateien": 13
+    },
+    {
+     "name": "stonewall1",
+     "bytes": 20356832,
+     "dateien": 11
+    },
+    {
+     "name": "stonewall2",
+     "bytes": 19888397,
+     "dateien": 11
+    },
+    {
+     "name": "lantern1",
+     "bytes": 19747017,
+     "dateien": 25
+    },
+    {
+     "name": "w_ivytrunk",
+     "bytes": 19195852,
+     "dateien": 2
+    },
+    {
+     "name": "grave_coll",
+     "bytes": 18655864,
+     "dateien": 43
+    },
+    {
+     "name": "pole_old",
+     "bytes": 18523071,
+     "dateien": 9
+    },
+    {
+     "name": "doll",
+     "bytes": 18477216,
+     "dateien": 27
+    },
+    {
+     "name": "w_mosspatch",
+     "bytes": 18268048,
+     "dateien": 2
+    },
+    {
+     "name": "floorlamp",
+     "bytes": 18219888,
+     "dateien": 9
+    },
+    {
+     "name": "trashcan",
+     "bytes": 17635024,
+     "dateien": 9
+    },
+    {
+     "name": "lawn1",
+     "bytes": 17616896,
+     "dateien": 6
+    },
+    {
+     "name": "frame_dmg",
+     "bytes": 17458668,
+     "dateien": 9
+    },
+    {
+     "name": "asphalt_debris",
+     "bytes": 17457632,
+     "dateien": 9
+    },
+    {
+     "name": "grave2",
+     "bytes": 17419563,
+     "dateien": 11
+    },
+    {
+     "name": "ironfence_ms",
+     "bytes": 17309423,
+     "dateien": 9
+    },
+    {
+     "name": "jerrycan",
+     "bytes": 17150970,
+     "dateien": 9
+    },
+    {
+     "name": "wheelbarrow_ms",
+     "bytes": 17034721,
+     "dateien": 9
+    },
+    {
+     "name": "pallets_ms",
+     "bytes": 17005472,
+     "dateien": 9
+    },
+    {
+     "name": "bolete",
+     "bytes": 16852412,
+     "dateien": 9
+    },
+    {
+     "name": "door1",
+     "bytes": 16540189,
+     "dateien": 9
+    },
+    {
+     "name": "parksign",
+     "bytes": 16493858,
+     "dateien": 9
+    },
+    {
+     "name": "grave1",
+     "bytes": 16384740,
+     "dateien": 9
+    },
+    {
+     "name": "gravel",
+     "bytes": 16318909,
+     "dateien": 6
+    },
+    {
+     "name": "window",
+     "bytes": 16318016,
+     "dateien": 9
+    },
+    {
+     "name": "pavement",
+     "bytes": 16251202,
+     "dateien": 6
+    },
+    {
+     "name": "frame_deco",
+     "bytes": 16203676,
+     "dateien": 9
+    },
+    {
+     "name": "pallet_ms",
+     "bytes": 15895669,
+     "dateien": 9
+    },
+    {
+     "name": "metaltable",
+     "bytes": 15870310,
+     "dateien": 9
+    },
+    {
+     "name": "wet_asphalt",
+     "bytes": 15652563,
+     "dateien": 6
+    },
+    {
+     "name": "scarecrow",
+     "bytes": 15468525,
+     "dateien": 17
+    },
+    {
+     "name": "haybale",
+     "bytes": 15285746,
+     "dateien": 9
+    },
+    {
+     "name": "door2",
+     "bytes": 15167462,
+     "dateien": 9
+    },
+    {
+     "name": "asphalt_road2",
+     "bytes": 15108613,
+     "dateien": 6
+    },
+    {
+     "name": "bark",
+     "bytes": 15066712,
+     "dateien": 6
+    },
+    {
+     "name": "road_asphalt",
+     "bytes": 14893579,
+     "dateien": 6
+    },
+    {
+     "name": "cone_ms",
+     "bytes": 14774563,
+     "dateien": 9
+    },
+    {
+     "name": "rust_sheet",
+     "bytes": 14531332,
+     "dateien": 6
+    },
+    {
+     "name": "candles",
+     "bytes": 14459613,
+     "dateien": 21
+    },
+    {
+     "name": "floor_worn",
+     "bytes": 14047596,
+     "dateien": 6
+    },
+    {
+     "name": "haende",
+     "bytes": 13914168,
+     "dateien": 4
+    },
+    {
+     "name": "wardrobe",
+     "bytes": 13863489,
+     "dateien": 9
+    },
+    {
+     "name": "mailbox2",
+     "bytes": 13633992,
+     "dateien": 9
+    },
+    {
+     "name": "floor_wood",
+     "bytes": 13630907,
+     "dateien": 6
+    },
+    {
+     "name": "barrier_ms",
+     "bytes": 13471956,
+     "dateien": 9
+    },
+    {
+     "name": "shelf",
+     "bytes": 13440190,
+     "dateien": 9
+    },
+    {
+     "name": "w_barrel",
+     "bytes": 13315064,
+     "dateien": 2
+    },
+    {
+     "name": "sidewalk_tiles",
+     "bytes": 13288560,
+     "dateien": 6
+    },
+    {
+     "name": "giraffe",
+     "bytes": 13091374,
+     "dateien": 9
+    },
+    {
+     "name": "curbs",
+     "bytes": 12948144,
+     "dateien": 9
+    },
+    {
+     "name": "wall_damaged",
+     "bytes": 12944134,
+     "dateien": 6
+    },
+    {
+     "name": "kindersitz",
+     "bytes": 12781648,
+     "dateien": 2
+    },
+    {
+     "name": "picnic",
+     "bytes": 12728492,
+     "dateien": 2
+    },
+    {
+     "name": "garagedoor",
+     "bytes": 12299298,
+     "dateien": 6
+    },
+    {
+     "name": "w_alarm",
+     "bytes": 12194739,
+     "dateien": 11
+    },
+    {
+     "name": "corrugated",
+     "bytes": 12168433,
+     "dateien": 6
+    },
+    {
+     "name": "zombie_p7",
+     "bytes": 11804068,
+     "dateien": 2
+    },
+    {
+     "name": "beutel2",
+     "bytes": 11795915,
+     "dateien": 4
+    },
+    {
+     "name": "bus_innen",
+     "bytes": 11708064,
+     "dateien": 2
+    },
+    {
+     "name": "facade_brick",
+     "bytes": 11707934,
+     "dateien": 6
+    },
+    {
+     "name": "planks_painted",
+     "bytes": 11526146,
+     "dateien": 6
+    },
+    {
+     "name": "wall_plaster",
+     "bytes": 11298411,
+     "dateien": 6
+    },
+    {
+     "name": "wallpaper_fabric",
+     "bytes": 11244898,
+     "dateien": 6
+    },
+    {
+     "name": "dresser",
+     "bytes": 11143872,
+     "dateien": 41
+    },
+    {
+     "name": "wallpaper_deco",
+     "bytes": 11062018,
+     "dateien": 6
+    },
+    {
+     "name": "car_junk",
+     "bytes": 11052445,
+     "dateien": 7
+    },
+    {
+     "name": "mailbox_cc0",
+     "bytes": 10856106,
+     "dateien": 31
+    },
+    {
+     "name": "w_funk",
+     "bytes": 10808600,
+     "dateien": 2
+    },
+    {
+     "name": "fence_garden",
+     "bytes": 10300626,
+     "dateien": 11
+    },
+    {
+     "name": "rekorder",
+     "bytes": 10170396,
+     "dateien": 2
+    },
+    {
+     "name": "busstop1",
+     "bytes": 10102784,
+     "dateien": 2
+    },
+    {
+     "name": "w_ivyplane",
+     "bytes": 9968680,
+     "dateien": 2
+    },
+    {
+     "name": "rabe_kraehe",
+     "bytes": 9957996,
+     "dateien": 2
+    },
+    {
+     "name": "trashbag",
+     "bytes": 9704862,
+     "dateien": 9
+    },
+    {
+     "name": "w_brot",
+     "bytes": 9052444,
+     "dateien": 2
+    },
+    {
+     "name": "roundabout",
+     "bytes": 8971570,
+     "dateien": 11
+    },
+    {
+     "name": "tomb_cc0",
+     "bytes": 8769891,
+     "dateien": 13
+    },
+    {
+     "name": "katze",
+     "bytes": 8651708,
+     "dateien": 2
+    },
+    {
+     "name": "crt",
+     "bytes": 8640500,
+     "dateien": 2
+    },
+    {
+     "name": "slide",
+     "bytes": 8455648,
+     "dateien": 11
+    },
+    {
+     "name": "facade_concrete",
+     "bytes": 8430907,
+     "dateien": 6
+    },
+    {
+     "name": "w_grasspack",
+     "bytes": 8259388,
+     "dateien": 2
+    },
+    {
+     "name": "chapel_flooded",
+     "bytes": 8090180,
+     "dateien": 15
+    },
+    {
+     "name": "wrack_innen",
+     "bytes": 7838164,
+     "dateien": 2
+    },
+    {
+     "name": "madre",
+     "bytes": 7837549,
+     "dateien": 9
+    },
+    {
+     "name": "wall_brick",
+     "bytes": 7829485,
+     "dateien": 6
+    },
+    {
+     "name": "curtain_sheer",
+     "bytes": 7778338,
+     "dateien": 9
+    },
+    {
+     "name": "geschirr",
+     "bytes": 7661264,
+     "dateien": 15
+    },
+    {
+     "name": "vans",
+     "bytes": 7629028,
+     "dateien": 19
+    },
+    {
+     "name": "messer",
+     "bytes": 7473052,
+     "dateien": 9
+    },
+    {
+     "name": "parkbench",
+     "bytes": 7458524,
+     "dateien": 2
+    },
+    {
+     "name": "w_papierlaterne",
+     "bytes": 7417148,
+     "dateien": 1
+    },
+    {
+     "name": "bed_funk",
+     "bytes": 7213962,
+     "dateien": 7
+    },
+    {
+     "name": "wallpaper_old",
+     "bytes": 7172360,
+     "dateien": 6
+    },
+    {
+     "name": "grime",
+     "bytes": 7170908,
+     "dateien": 6
+    },
+    {
+     "name": "mirror",
+     "bytes": 7141280,
+     "dateien": 9
+    },
+    {
+     "name": "album",
+     "bytes": 7124484,
+     "dateien": 5
+    },
+    {
+     "name": "dumpster",
+     "bytes": 7026153,
+     "dateien": 5
+    },
+    {
+     "name": "w_branches",
+     "bytes": 6867332,
+     "dateien": 2
+    },
+    {
+     "name": "roadsigns",
+     "bytes": 6845085,
+     "dateien": 13
+    },
+    {
+     "name": "cross_concil",
+     "bytes": 6736643,
+     "dateien": 7
+    },
+    {
+     "name": "w_kamera",
+     "bytes": 6497784,
+     "dateien": 2
+    },
+    {
+     "name": "w_clover",
+     "bytes": 6412228,
+     "dateien": 2
+    },
+    {
+     "name": "ironfence_cc0",
+     "bytes": 6302565,
+     "dateien": 13
+    },
+    {
+     "name": "curtain_retro",
+     "bytes": 6271989,
+     "dateien": 9
+    },
+    {
+     "name": "w_mossstick",
+     "bytes": 5982904,
+     "dateien": 2
+    },
+    {
+     "name": "chair",
+     "bytes": 5980740,
+     "dateien": 11
+    },
+    {
+     "name": "w_thermos",
+     "bytes": 5873980,
+     "dateien": 2
+    },
+    {
+     "name": "w_mossrocks",
+     "bytes": 5730924,
+     "dateien": 2
+    },
+    {
+     "name": "barn_old",
+     "bytes": 5459660,
+     "dateien": 1
+    },
+    {
+     "name": "crib",
+     "bytes": 5201456,
+     "dateien": 1
+    },
+    {
+     "name": "teddy_retro",
+     "bytes": 5176697,
+     "dateien": 7
+    },
+    {
+     "name": "w_pinetrunk",
+     "bytes": 5113496,
+     "dateien": 2
+    },
+    {
+     "name": "oel",
+     "bytes": 4916520,
+     "dateien": 6
+    },
+    {
+     "name": "w_blech",
+     "bytes": 4834168,
+     "dateien": 2
+    },
+    {
+     "name": "w_oldpine",
+     "bytes": 4825440,
+     "dateien": 2
+    },
+    {
+     "name": "w_schwert",
+     "bytes": 4766456,
+     "dateien": 2
+    },
+    {
+     "name": "blood_hv",
+     "bytes": 4680072,
+     "dateien": 6
+    },
+    {
+     "name": "toys_old",
+     "bytes": 4564724,
+     "dateien": 9
+    },
+    {
+     "name": "w_pineb",
+     "bytes": 4455932,
+     "dateien": 2
+    },
+    {
+     "name": "teddy_ripped",
+     "bytes": 4426096,
+     "dateien": 1
+    },
+    {
+     "name": "w_buch",
+     "bytes": 4370908,
+     "dateien": 2
+    },
+    {
+     "name": "bed_keypad",
+     "bytes": 4126833,
+     "dateien": 14
+    },
+    {
+     "name": "w_becher",
+     "bytes": 3576940,
+     "dateien": 2
+    },
+    {
+     "name": "car_amsedan",
+     "bytes": 3437816,
+     "dateien": 18
+    },
+    {
+     "name": "pinsel",
+     "bytes": 3403574,
+     "dateien": 9
+    },
+    {
+     "name": "w_lighter",
+     "bytes": 3074588,
+     "dateien": 2
+    },
+    {
+     "name": "hund",
+     "bytes": 3064700,
+     "dateien": 2
+    },
+    {
+     "name": "w_tasse",
+     "bytes": 3017312,
+     "dateien": 2
+    },
+    {
+     "name": "w_spieluhr",
+     "bytes": 2787052,
+     "dateien": 2
+    },
+    {
+     "name": "lbook",
+     "bytes": 2753715,
+     "dateien": 9
+    },
+    {
+     "name": "blood_s1",
+     "bytes": 2654277,
+     "dateien": 6
+    },
+    {
+     "name": "cross_field",
+     "bytes": 2586620,
+     "dateien": 1
+    },
+    {
+     "name": "blood_s2",
+     "bytes": 2576957,
+     "dateien": 6
+    },
+    {
+     "name": "lantern2",
+     "bytes": 2282672,
+     "dateien": 1
+    },
+    {
+     "name": "w_jacke",
+     "bytes": 2197659,
+     "dateien": 3
+    },
+    {
+     "name": "w_mossytrunk",
+     "bytes": 2057892,
+     "dateien": 2
+    },
+    {
+     "name": "fence_white",
+     "bytes": 2004432,
+     "dateien": 1
+    },
+    {
+     "name": "gas_signs",
+     "bytes": 1786736,
+     "dateien": 7
+    },
+    {
+     "name": "w_stumprot",
+     "bytes": 1428180,
+     "dateien": 2
+    },
+    {
+     "name": "blood_hs",
+     "bytes": 1396602,
+     "dateien": 6
+    },
+    {
+     "name": "mansion",
+     "bytes": 1362108,
+     "dateien": 1
+    },
+    {
+     "name": "brille",
+     "bytes": 1349380,
+     "dateien": 2
+    },
+    {
+     "name": "w_mushefx",
+     "bytes": 1293148,
+     "dateien": 2
+    },
+    {
+     "name": "beutel1",
+     "bytes": 1123897,
+     "dateien": 4
+    },
+    {
+     "name": "w_teller",
+     "bytes": 1046280,
+     "dateien": 2
+    },
+    {
+     "name": "w_kette",
+     "bytes": 1009148,
+     "dateien": 1
+    },
+    {
+     "name": "w_urne",
+     "bytes": 908404,
+     "dateien": 1
+    },
+    {
+     "name": "wheelbarrow_old",
+     "bytes": 811724,
+     "dateien": 1
+    },
+    {
+     "name": "riss",
+     "bytes": 768457,
+     "dateien": 4
+    },
+    {
+     "name": "papier",
+     "bytes": 721039,
+     "dateien": 3
+    },
+    {
+     "name": "w_grassgame",
+     "bytes": 606744,
+     "dateien": 2
+    },
+    {
+     "name": "w_telefon",
+     "bytes": 475276,
+     "dateien": 1
+    },
+    {
+     "name": "well",
+     "bytes": 238972,
+     "dateien": 1
+    },
+    {
+     "name": "schirm",
+     "bytes": 115596,
+     "dateien": 1
+    },
+    {
+     "name": "fence_dirty",
+     "bytes": 107568,
+     "dateien": 1
+    },
+    {
+     "name": "w_besteck",
+     "bytes": 89904,
+     "dateien": 1
+    },
+    {
+     "name": "cross_hang",
+     "bytes": 77004,
+     "dateien": 1
+    },
+    {
+     "name": "spuren",
+     "bytes": 43349,
+     "dateien": 2
+    },
+    {
+     "name": "tomb_wndy",
+     "bytes": 37852,
+     "dateien": 1
+    }
+   ]
+  },
+  {
+   "ordner": "chars",
+   "bytes": 2146459925,
+   "dateien": 85,
+   "typen": {
+    ".glb": 72,
+    ".json": 13
+   },
+   "unterordner": [
+    {
+     "name": "vegas",
+     "bytes": 107576735,
+     "dateien": 3
+    },
+    {
+     "name": "luke",
+     "bytes": 84441768,
+     "dateien": 2
+    },
+    {
+     "name": "luke_echt",
+     "bytes": 84373708,
+     "dateien": 2
+    },
+    {
+     "name": "guenther",
+     "bytes": 76642972,
+     "dateien": 2
+    },
+    {
+     "name": "mike",
+     "bytes": 72537534,
+     "dateien": 3
+    },
+    {
+     "name": "amt1",
+     "bytes": 72320792,
+     "dateien": 2
+    },
+    {
+     "name": "blechmann",
+     "bytes": 68530148,
+     "dateien": 2
+    },
+    {
+     "name": "gezaehlt_j",
+     "bytes": 68498044,
+     "dateien": 2
+    },
+    {
+     "name": "zayn",
+     "bytes": 67693699,
+     "dateien": 3
+    },
+    {
+     "name": "nachsorge11",
+     "bytes": 67282996,
+     "dateien": 2
+    },
+    {
+     "name": "polizist",
+     "bytes": 67173944,
+     "dateien": 2
+    },
+    {
+     "name": "voss",
+     "bytes": 66968724,
+     "dateien": 2
+    },
+    {
+     "name": "wolter",
+     "bytes": 65808600,
+     "dateien": 2
+    },
+    {
+     "name": "nachsorge12",
+     "bytes": 61992664,
+     "dateien": 2
+    },
+    {
+     "name": "mira",
+     "bytes": 60597028,
+     "dateien": 2
+    },
+    {
+     "name": "dina_erw",
+     "bytes": 60200132,
+     "dateien": 2
+    },
+    {
+     "name": "mama",
+     "bytes": 58356752,
+     "dateien": 2
+    },
+    {
+     "name": "heidi",
+     "bytes": 56697840,
+     "dateien": 3
+    },
+    {
+     "name": "reuter",
+     "bytes": 55820288,
+     "dateien": 2
+    },
+    {
+     "name": "roxy",
+     "bytes": 55606571,
+     "dateien": 3
+    },
+    {
+     "name": "lucy",
+     "bytes": 54371465,
+     "dateien": 3
+    },
+    {
+     "name": "cleo",
+     "bytes": 54061680,
+     "dateien": 2
+    },
+    {
+     "name": "hilde",
+     "bytes": 54012498,
+     "dateien": 3
+    },
+    {
+     "name": "dina",
+     "bytes": 52862861,
+     "dateien": 3
+    },
+    {
+     "name": "gezaehlt_m",
+     "bytes": 52100926,
+     "dateien": 3
+    },
+    {
+     "name": "lorenz",
+     "bytes": 51277328,
+     "dateien": 2
+    },
+    {
+     "name": "amt2",
+     "bytes": 51063024,
+     "dateien": 2
+    },
+    {
+     "name": "luke_erw",
+     "bytes": 50627512,
+     "dateien": 2
+    },
+    {
+     "name": "gisela",
+     "bytes": 49386968,
+     "dateien": 2
+    },
+    {
+     "name": "hilde_tot",
+     "bytes": 47907264,
+     "dateien": 2
+    },
+    {
+     "name": "lucy_erw",
+     "bytes": 46540743,
+     "dateien": 3
+    },
+    {
+     "name": "peter",
+     "bytes": 46313840,
+     "dateien": 2
+    },
+    {
+     "name": "kleine",
+     "bytes": 45072084,
+     "dateien": 2
+    },
+    {
+     "name": "aydin",
+     "bytes": 44787760,
+     "dateien": 2
+    },
+    {
+     "name": "graue",
+     "bytes": 43183644,
+     "dateien": 2
+    },
+    {
+     "name": "justin",
+     "bytes": 23741374,
+     "dateien": 3
+    }
+   ]
+  },
+  {
+   "ordner": "canal",
+   "bytes": 406610373,
+   "dateien": 4,
+   "typen": {
+    ".json": 2,
+    ".glb": 2
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "ue",
+   "bytes": 138698328,
+   "dateien": 42,
+   "typen": {
+    ".json": 16,
+    ".glb": 26
+   },
+   "unterordner": [
+    {
+     "name": "chars",
+     "bytes": 99689370,
+     "dateien": 14
+    },
+    {
+     "name": "lichtstein",
+     "bytes": 18039693,
+     "dateien": 3
+    },
+    {
+     "name": "lampe1",
+     "bytes": 8389472,
+     "dateien": 3
+    },
+    {
+     "name": "sicherung",
+     "bytes": 6312954,
+     "dateien": 3
+    },
+    {
+     "name": "lampe2",
+     "bytes": 3741946,
+     "dateien": 3
+    },
+    {
+     "name": "lampe3",
+     "bytes": 1198413,
+     "dateien": 2
+    },
+    {
+     "name": "totem",
+     "bytes": 580774,
+     "dateien": 2
+    },
+    {
+     "name": "batterie",
+     "bytes": 267431,
+     "dateien": 2
+    },
+    {
+     "name": "leiter",
+     "bytes": 230593,
+     "dateien": 2
+    },
+    {
+     "name": "drahtschneider",
+     "bytes": 117967,
+     "dateien": 2
+    },
+    {
+     "name": "wrack",
+     "bytes": 67297,
+     "dateien": 2
+    },
+    {
+     "name": "schluesselteil",
+     "bytes": 49948,
+     "dateien": 2
+    },
+    {
+     "name": "brechstange",
+     "bytes": 12470,
+     "dateien": 2
+    }
+   ]
+  },
+  {
+   "ordner": "deadshrubs",
+   "bytes": 31064040,
+   "dateien": 11,
+   "typen": {
+    ".gltf": 1,
+    ".glb": 1,
+    ".png": 1,
+    ".ktx2": 4,
+    ".jpg": 3,
+    ".bin": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "rat",
+   "bytes": 22701260,
+   "dateien": 2,
+   "typen": {
+    ".glb": 2
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "gore",
+   "bytes": 17403590,
+   "dateien": 40,
+   "typen": {
+    ".fbx": 2,
+    ".jpg": 14,
+    ".ktx2": 17,
+    ".gltf": 1,
+    ".glb": 1,
+    ".json": 1,
+    ".bin": 1,
+    ".png": 3
+   },
+   "unterordner": [
+    {
+     "name": "ribs",
+     "bytes": 8943645,
+     "dateien": 10
+    }
+   ]
+  },
+  {
+   "ordner": "boulder",
+   "bytes": 12047461,
+   "dateien": 13,
+   "typen": {
+    ".gltf": 1,
+    ".glb": 1,
+    ".jpg": 5,
+    ".ktx2": 5,
+    ".bin": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "manhole",
+   "bytes": 10413333,
+   "dateien": 11,
+   "typen": {
+    ".gltf": 1,
+    ".glb": 1,
+    ".jpg": 4,
+    ".ktx2": 4,
+    ".bin": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "bench",
+   "bytes": 8527029,
+   "dateien": 11,
+   "typen": {
+    ".gltf": 1,
+    ".glb": 1,
+    ".jpg": 4,
+    ".ktx2": 4,
+    ".bin": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "swings",
+   "bytes": 7448706,
+   "dateien": 9,
+   "typen": {
+    ".jpg": 4,
+    ".ktx2": 4,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "fotos",
+   "bytes": 6197904,
+   "dateien": 14,
+   "typen": {
+    ".jpg": 7,
+    ".ktx2": 7
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "leaves",
+   "bytes": 5345355,
+   "dateien": 6,
+   "typen": {
+    ".jpg": 3,
+    ".ktx2": 3
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "forestfloor",
+   "bytes": 5153742,
+   "dateien": 6,
+   "typen": {
+    ".jpg": 3,
+    ".ktx2": 3
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "cow",
+   "bytes": 3565812,
+   "dateien": 2,
+   "typen": {
+    ".glb": 2
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "lamp",
+   "bytes": 3104848,
+   "dateien": 7,
+   "typen": {
+    ".jpg": 3,
+    ".ktx2": 3,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "spider_tarantula",
+   "bytes": 3027543,
+   "dateien": 3,
+   "typen": {
+    ".jpg": 1,
+    ".ktx2": 1,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "polaroid",
+   "bytes": 2851350,
+   "dateien": 14,
+   "typen": {
+    ".jpg": 7,
+    ".ktx2": 7
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "spider_cross",
+   "bytes": 2193159,
+   "dateien": 3,
+   "typen": {
+    ".jpg": 1,
+    ".ktx2": 1,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "spider_little",
+   "bytes": 2166868,
+   "dateien": 3,
+   "typen": {
+    ".jpg": 1,
+    ".ktx2": 1,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "bat",
+   "bytes": 2163631,
+   "dateien": 5,
+   "typen": {
+    ".jpg": 2,
+    ".ktx2": 2,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "fly",
+   "bytes": 2134704,
+   "dateien": 5,
+   "typen": {
+    ".jpg": 2,
+    ".ktx2": 2,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "ghost",
+   "bytes": 2009408,
+   "dateien": 1,
+   "typen": {
+    ".glb": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "cobwebs",
+   "bytes": 892767,
+   "dateien": 3,
+   "typen": {
+    ".png": 1,
+    ".ktx2": 1,
+    ".fbx": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "anim",
+   "bytes": 326128,
+   "dateien": 1,
+   "typen": {
+    ".json": 1
+   },
+   "unterordner": []
+  },
+  {
+   "ordner": "stimmen",
+   "bytes": 2034,
+   "dateien": 1,
+   "typen": {
+    ".json": 1
+   },
+   "unterordner": []
+  }
+ ],
+ "summeBytes": 6296828454
+}

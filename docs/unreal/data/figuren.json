@@ -1,0 +1,4522 @@
+{
+ "chars": [
+  {
+   "Name": "CHAR_zayn",
+   "id": "zayn",
+   "name": "Zayn Wendt (7)",
+   "hoehe": 1.22,
+   "clips": 30,
+   "tris": 94153,
+   "hautfarbe": "#e6c0a4"
+  },
+  {
+   "Name": "CHAR_roxy",
+   "id": "roxy",
+   "name": "Roxy Reuter (8)",
+   "hoehe": 1.3,
+   "clips": 30,
+   "tris": 84472,
+   "hautfarbe": "#efcbb2"
+  },
+  {
+   "Name": "CHAR_lucy",
+   "id": "lucy",
+   "name": "Lucy Brandt (9)",
+   "hoehe": 1.36,
+   "clips": 30,
+   "tris": 92215,
+   "hautfarbe": "#ecc6aa"
+  },
+  {
+   "Name": "CHAR_luke",
+   "id": "luke",
+   "name": "Luke (die Kopie, 9)",
+   "hoehe": 1.36,
+   "clips": 30,
+   "tris": 106811,
+   "hautfarbe": "#eac4a8"
+  },
+  {
+   "Name": "CHAR_luke_echt",
+   "id": "luke_echt",
+   "name": "der echte Luke (9)",
+   "hoehe": 1.36,
+   "clips": 30,
+   "tris": 101723,
+   "hautfarbe": "#eac4a8"
+  },
+  {
+   "Name": "CHAR_heidi",
+   "id": "heidi",
+   "name": "Heidi Winter (8)",
+   "hoehe": 1.3,
+   "clips": 30,
+   "tris": 96419,
+   "hautfarbe": "#f0d0bc"
+  },
+  {
+   "Name": "CHAR_dina",
+   "id": "dina",
+   "name": "Dina Aydın (9)",
+   "hoehe": 1.34,
+   "clips": 30,
+   "tris": 92215,
+   "hautfarbe": "#c89a7c"
+  },
+  {
+   "Name": "CHAR_mike",
+   "id": "mike",
+   "name": "Mike Kessler (10)",
+   "hoehe": 1.44,
+   "clips": 30,
+   "tris": 84474,
+   "hautfarbe": "#f0ccb4"
+  },
+  {
+   "Name": "CHAR_cleo",
+   "id": "cleo",
+   "name": "Cleo (8)",
+   "hoehe": 1.3,
+   "clips": 30,
+   "tris": 92215,
+   "hautfarbe": "#f2d2c0"
+  },
+  {
+   "Name": "CHAR_kleine",
+   "id": "kleine",
+   "name": "die Kleine (7)",
+   "hoehe": 1.18,
+   "clips": 30,
+   "tris": 92083,
+   "hautfarbe": "#f4e2d8"
+  },
+  {
+   "Name": "CHAR_graue",
+   "id": "graue",
+   "name": "die Graue (die Kleine, ohne Mund)",
+   "hoehe": 1.18,
+   "clips": 37,
+   "tris": 92083,
+   "hautfarbe": "#8e9398"
+  },
+  {
+   "Name": "CHAR_gezaehlt_j",
+   "id": "gezaehlt_j",
+   "name": "ein Gezählter (Junge)",
+   "hoehe": 1.3,
+   "clips": 37,
+   "tris": 76143,
+   "hautfarbe": "#9a9ea2"
+  },
+  {
+   "Name": "CHAR_gezaehlt_m",
+   "id": "gezaehlt_m",
+   "name": "eine Gezählte (Mädchen)",
+   "hoehe": 1.26,
+   "clips": 37,
+   "tris": 78297,
+   "hautfarbe": "#9a9ea2"
+  },
+  {
+   "Name": "CHAR_mama",
+   "id": "mama",
+   "name": "Marion Brandt (42)",
+   "hoehe": 1.68,
+   "clips": 62,
+   "tris": 53267,
+   "hautfarbe": "#e6c2a8"
+  },
+  {
+   "Name": "CHAR_hilde",
+   "id": "hilde",
+   "name": "Hilde Wendt (60, sieht aus wie 80)",
+   "hoehe": 1.6,
+   "clips": 64,
+   "tris": 69945,
+   "hautfarbe": "#e2bba6"
+  },
+  {
+   "Name": "CHAR_hilde_tot",
+   "id": "hilde_tot",
+   "name": "Hilde (wächsern, Schreck)",
+   "hoehe": 1.6,
+   "clips": 71,
+   "tris": 31636,
+   "hautfarbe": "#c4c8c0"
+  },
+  {
+   "Name": "CHAR_lucy_erw",
+   "id": "lucy_erw",
+   "name": "Lucy Brandt (26)",
+   "hoehe": 1.68,
+   "clips": 62,
+   "tris": 59977,
+   "hautfarbe": "#ecc6aa"
+  },
+  {
+   "Name": "CHAR_vegas",
+   "id": "vegas",
+   "name": "Lars Vegas (60)",
+   "hoehe": 1.76,
+   "clips": 64,
+   "tris": 39099,
+   "hautfarbe": "#d4ae96"
+  },
+  {
+   "Name": "CHAR_amt1",
+   "id": "amt1",
+   "name": "Mann vom Amt (1)",
+   "hoehe": 1.84,
+   "clips": 62,
+   "tris": 27469,
+   "hautfarbe": "#dcb49c"
+  },
+  {
+   "Name": "CHAR_amt2",
+   "id": "amt2",
+   "name": "Mann vom Amt (2)",
+   "hoehe": 1.8,
+   "clips": 62,
+   "tris": 19670,
+   "hautfarbe": "#e0baa2"
+  },
+  {
+   "Name": "CHAR_lorenz",
+   "id": "lorenz",
+   "name": "Daniel Lorenz (42)",
+   "hoehe": 1.8,
+   "clips": 62,
+   "tris": 53871,
+   "hautfarbe": "#e2bca4"
+  },
+  {
+   "Name": "CHAR_aydin",
+   "id": "aydin",
+   "name": "Frau Aydın",
+   "hoehe": 1.64,
+   "clips": 62,
+   "tris": 55401,
+   "hautfarbe": "#c89e80"
+  },
+  {
+   "Name": "CHAR_dina_erw",
+   "id": "dina_erw",
+   "name": "Dina Aydın (26)",
+   "hoehe": 1.66,
+   "clips": 62,
+   "tris": 58581,
+   "hautfarbe": "#c89a7c"
+  },
+  {
+   "Name": "CHAR_polizist",
+   "id": "polizist",
+   "name": "Gefreiter Hofer",
+   "hoehe": 1.8,
+   "clips": 69,
+   "tris": 33973,
+   "hautfarbe": "#e4bea6"
+  },
+  {
+   "Name": "CHAR_wolter",
+   "id": "wolter",
+   "name": "Heinrich Wolter (LWO, Nachsorger)",
+   "hoehe": 1.8,
+   "clips": 62,
+   "tris": 27285,
+   "hautfarbe": "#c8ae9a"
+  },
+  {
+   "Name": "CHAR_nachsorge11",
+   "id": "nachsorge11",
+   "name": "Nachsorge 11 (der Lange)",
+   "hoehe": 1.92,
+   "clips": 62,
+   "tris": 27279,
+   "hautfarbe": "#d0ae98"
+  },
+  {
+   "Name": "CHAR_nachsorge12",
+   "id": "nachsorge12",
+   "name": "Nachsorge 12 (der Kurze)",
+   "hoehe": 1.62,
+   "clips": 62,
+   "tris": 26071,
+   "hautfarbe": "#d8a28c"
+  },
+  {
+   "Name": "CHAR_gisela",
+   "id": "gisela",
+   "name": "Gisela Rieke (78)",
+   "hoehe": 1.55,
+   "clips": 64,
+   "tris": 60715,
+   "hautfarbe": "#e2c0ac"
+  },
+  {
+   "Name": "CHAR_guenther",
+   "id": "guenther",
+   "name": "Günther Maas (61)",
+   "hoehe": 1.88,
+   "clips": 62,
+   "tris": 68521,
+   "hautfarbe": "#dcb09a"
+  },
+  {
+   "Name": "CHAR_mira",
+   "id": "mira",
+   "name": "Mira (1312, Nachbild/Porträt)",
+   "hoehe": 1.66,
+   "clips": 62,
+   "tris": 100270,
+   "hautfarbe": "#ebcab4"
+  },
+  {
+   "Name": "CHAR_voss",
+   "id": "voss",
+   "name": "Pfarrer Bernhard Voss (Behaltener)",
+   "hoehe": 1.8,
+   "clips": 64,
+   "tris": 53421,
+   "hautfarbe": "#d8b8a4"
+  },
+  {
+   "Name": "CHAR_luke_erw",
+   "id": "luke_erw",
+   "name": "Luke (26, nur von hinten)",
+   "hoehe": 1.8,
+   "clips": 62,
+   "tris": 53871,
+   "hautfarbe": "#e6c2a8"
+  },
+  {
+   "Name": "CHAR_reuter",
+   "id": "reuter",
+   "name": "Frau Reuter (Roxys Mutter)",
+   "hoehe": 1.66,
+   "clips": 62,
+   "tris": 30638,
+   "hautfarbe": "#ecc8b0"
+  },
+  {
+   "Name": "CHAR_peter",
+   "id": "peter",
+   "name": "Peter Kranz (der Zahn-Mann, K-1)",
+   "hoehe": 1.97,
+   "clips": 20,
+   "tris": 52723,
+   "hautfarbe": "#b9b3ab"
+  },
+  {
+   "Name": "CHAR_blechmann",
+   "id": "blechmann",
+   "name": "Blechmann (Bergung B 2/7)",
+   "hoehe": 1.86,
+   "clips": 3,
+   "tris": 12159
+  }
+ ],
+ "cast": {
+  "_info": "Besetzung für app/tools/forge.html (F.buildCast). Pfade relativ zu forge.html. Quellen: HAM_FabDownloads (Fab, kostenlos). look = gebackene Farben für CC-Figuren (NoEdge), hsl = Umfärben fertiger Texturen (Tony Flanagan).",
+  "src": {
+   "J": "../../../HAM_FabDownloads/v5/x/kind_junge/fbx Clean.fbx",
+   "M": "../../../HAM_FabDownloads/v5/x/kind_maedchen/fbx file clean.fbx",
+   "G": "../../../HAM_FabDownloads/v6/x/k_girl2__fbx_clean/fbx Clean.fbx",
+   "C": "../../../HAM_FabDownloads/v6/x/k_child__fbx_clean/fbx Clean.fbx",
+   "OPT": "../../../HAM_FabDownloads/v6/x/k_opt__fbx_clean/fbx Clean.fbx",
+   "FN": "../../../HAM_FabDownloads/v6/x/f_noedge__fbx_clean/fbx clean.fbx",
+   "FHQ": "../../../HAM_FabDownloads/v6/x/f_noedgehq__fbx_clean/fbx Clean.fbx",
+   "MN": "../../../HAM_FabDownloads/v6/x/m_noedge__fbx_clean/fbx Clean.fbx",
+   "yellow": "../../../HAM_FabDownloads/v6/f_yellow__girl_in_yellow_animated.glb",
+   "ow7": "../../../HAM_FabDownloads/v6/f_ow7__office_worker_7_animated.glb",
+   "ow6": "../../../HAM_FabDownloads/v6/f_ow6__office_worker_6_animated.glb",
+   "rusw": "../../../HAM_FabDownloads/v6/f_rusw__russian_girl_west_animated.glb",
+   "farmer": "../../../HAM_FabDownloads/v6/m_farmer__dirt_farmer_rigged.glb",
+   "doctor": "../../../HAM_FabDownloads/v6/m_doctor__the_doctortorturer_animated.glb",
+   "spy": "../../../HAM_FabDownloads/v6/m_spy__1940s_spy_animated.glb",
+   "ow3": "../../../HAM_FabDownloads/v6/m_ow3__office_worker_3_animated.glb",
+   "cop": "../../../HAM_FabDownloads/v6/m_cop__undercover_cop_animated.glb",
+   "mallcop": "../../../HAM_FabDownloads/v6/m_mallcop__mall_cop_animated.glb",
+   "win1": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_01_Stand_Idle_Turn_L180_IP.fbx",
+   "win2": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_02_Stand_Idle_Bend_Fwd_Turn_L180_IP.fbx",
+   "win4": "../../../HAM_FabDownloads/v6/x/a_window__lookwindow01_fbx/Animations/MC_Look_Window_04_Stand_Idle_Knock_Wave_Turn_L180_IP.fbx",
+   "HB": "../../../HAM_FabDownloads/v6/x/h_beard__fbx_clean/fbx Clean.fbx",
+   "HB2": "../../../HAM_FabDownloads/v6/x/h_beard2__fbx_fome/fbx Fome.fbx",
+   "HBUN": "../../../HAM_FabDownloads/v6/x/h_bunbang__fbx_file/fbx file.fbx",
+   "HLONG": "../../../HAM_FabDownloads/v6/x/h_long__fbx/fbx/fbx file hair 7.fbx",
+   "BRILLE": "../../../HAM_FabDownloads/v16_requisiten/brille.glb",
+   "MREAL": "../../../HAM_FabDownloads/v18_figuren/x/mann_real_fbx/fbx file.fbx",
+   "HFRAU": "../../../HAM_FabDownloads/v18_figuren/x/haar_frau_fbx/Hair 1.fbx"
+  },
+  "anims": {
+   "kid_m": {
+    "idle": [
+     "spy",
+     "Idle"
+    ],
+    "walk": [
+     "spy",
+     "Walking"
+    ],
+    "look": [
+     "spy",
+     "Look Around"
+    ],
+    "nervous": [
+     "spy",
+     "Nervously Look Around"
+    ]
+   },
+   "kid_f": {
+    "idle": [
+     "yellow",
+     "Idle"
+    ],
+    "walk": [
+     "rusw",
+     "walking"
+    ],
+    "look": [
+     "spy",
+     "Look Around"
+    ],
+    "nervous": [
+     "spy",
+     "Nervously Look Around"
+    ]
+   },
+   "man": {
+    "idle": [
+     "cop",
+     "Breathing Idle"
+    ],
+    "walk": [
+     "spy",
+     "Walking"
+    ],
+    "look": [
+     "spy",
+     "Look Around"
+    ],
+    "nervous": [
+     "spy",
+     "Nervously Look Around"
+    ],
+    "phone": [
+     "cop",
+     "Talking On A Cell Phone"
+    ]
+   },
+   "woman": {
+    "idle": [
+     "ow7",
+     "idle"
+    ],
+    "walk": [
+     "yellow",
+     "Walking"
+    ],
+    "look": [
+     "spy",
+     "Look Around"
+    ],
+    "nervous": [
+     "spy",
+     "Nervously Look Around"
+    ],
+    "window": [
+     "win1",
+     0
+    ],
+    "window_lean": [
+     "win2",
+     0
+    ],
+    "window_knock": [
+     "win4",
+     0
+    ]
+   }
+  },
+  "mocap": {
+   "_info": "AP-MOCAP: Motion-Capture-Saetze (tools/mocap_bake.mjs, Kern tools/mocap.mjs, Doku story/audit/F3_stand_mocap.md). Pfade relativ zu tools/. rm = lin (Fortbewegung: auf der Stelle + Tempo) | fix (Drift weg, Schwanken bleibt) | keep (Wurzelweg bleibt) | turn (Drehung/Weg als Kurve); loop (Standard ja); trim [t0,t1]; clip (Name/Index).",
+   "src": {
+    "m_idle": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_neutral.fbx",
+    "m_idle2": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_relaxed_weight_shift.fbx",
+    "m_alert": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_alert.fbx",
+    "m_lookaround": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/idle_looking_around.fbx",
+    "m_walk": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_forward.fbx",
+    "m_walk_c": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_cautious.fbx",
+    "m_walk_t": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_tired.fbx",
+    "m_walk_b": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/walk_backward.fbx",
+    "m_tiptoe": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/tiptoe_walk.fbx",
+    "m_jog": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_jog.fbx",
+    "m_panic": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_panic.fbx",
+    "m_sprint": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/run_sprint.fbx",
+    "m_stop": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/stop_from_run.fbx",
+    "m_t180": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_180.fbx",
+    "m_tl90": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_left_90.fbx",
+    "m_tr90": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/turn_right_90.fbx",
+    "m_crouch": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crouch_idle.fbx",
+    "m_crouchwalk": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crouch_walk_forward.fbx",
+    "m_stairs_up": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/climb_stairs_up.fbx",
+    "m_stairs_dn": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/climb_stairs_down.fbx",
+    "m_wall": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/back_to_wall.fbx",
+    "m_stumble": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/stumble_recover.fbx",
+    "m_stepover": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/step_over_obstacle.fbx",
+    "m_crawl": "../../../HAM_FabDownloads/v15_mocap/x/loco/Animations/crawl_forward.fbx",
+    "i_exhaust": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/exhausted_heavy_breathing.fbx",
+    "i_knees": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/hands_on_knees_exhausted.fbx",
+    "i_leanwall": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/lean_on_wall_rest.fbx",
+    "i_panic": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/panic_look_around.fbx",
+    "i_ears": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/cover_ears.fbx",
+    "i_sob": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/sob_crying.fbx",
+    "i_fetal": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/curl_up_fetal.fbx",
+    "i_sway": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/barely_stand_swaying.fbx",
+    "i_collapse": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/collapse_to_knees.fbx",
+    "i_cane": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/hobble_with_cane.fbx",
+    "i_limp": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/limp_walk_left_leg.fbx",
+    "i_rise": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/revive_slowly_rise.fbx",
+    "i_gasp": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/revive_gasp_awake.fbx",
+    "i_dizzy": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/stagger_dizzy.fbx",
+    "i_cough": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/cough_fit.fbx",
+    "p_limp": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/limp_walk_right_leg.fbx",
+    "p_fallb": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/death_fall_backward.fbx",
+    "p_fallf": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/death_fall_forward.fbx",
+    "p_side": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/death_collapse_sideways.fbx",
+    "p_knees": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/death_on_knees.fbx",
+    "p_drag": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/drag_self_forward.fbx",
+    "p_neck": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/neck_stiff_turn.fbx",
+    "p_clutch": "../../../HAM_FabDownloads/v15_mocap/x/injured/Animations/walk_clutching_side.fbx",
+    "e_arms": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/arms_crossed_defiant.fbx",
+    "e_shrug": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/shrug_i_dont_know.fbx",
+    "e_think": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/think_chin_stroke.fbx",
+    "e_talk": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/talk_animate_hands.fbx",
+    "e_facepalm": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/facepalm.fbx",
+    "e_scared": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/shrink_away_scared.fbx",
+    "e_slump": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/slump_defeated.fbx",
+    "e_wait": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/hold_up_wait.fbx",
+    "e_explain": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/explain_wide_gesture.fbx",
+    "e_laugh": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/laugh_body.fbx",
+    "a_talk": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_002_talking normal.fbx",
+    "a_angry": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_003_taking_angry_01.fbx",
+    "a_listen": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_01_004_Listing.fbx",
+    "a_sit": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_02_001_Sit_Idle.fbx",
+    "a_sittalk": "../../../HAM_FabDownloads/v15_mocap/x/acting/Realistic Acting Animation Mocap Pack (9 Animations)/07_02_002_talking_normal_01.fbx",
+    "mo_jog": "../../../HAM_FabDownloads/v15_mocap/x/mobility/Character Mobility Animation Mocap Pack (10 Animations)/01_02_006_jogging.fbx",
+    "mo_t180": "../../../HAM_FabDownloads/v15_mocap/x/mobility/Character Mobility Animation Mocap Pack (10 Animations)/01_01_003_180 turn walk.fbx",
+    "mv_tr90": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_001_turn_R_90.fbx",
+    "mv_tl90": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_002_turn_L_90.fbx",
+    "mv_t180": "../../../HAM_FabDownloads/v15_mocap/x/movement/Movement & Mobility Animations – 10 Mocap Pack/01_05_003_turn_L_180.fbx",
+    "d_sit": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_idle_upright.fbx",
+    "d_sit2": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_idle_slouched.fbx",
+    "d_sitdown": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/sit_down_chair.fbx",
+    "d_standup": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/stand_up_from_chair.fbx",
+    "d_phone": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/check_phone_standing.fbx",
+    "d_nod": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/nod_yes.fbx",
+    "d_no": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/shake_head_no.fbx",
+    "d_wave": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/wave_hello.fbx",
+    "d_knock": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/knock_on_door.fbx",
+    "d_getupfloor": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/get_up_from_floor.fbx",
+    "d_pickup": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/pick_up_object_floor.fbx",
+    "d_drink": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/drink_from_cup.fbx",
+    "d_hug": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/hug_greeting.fbx",
+    "d_carry": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/carry_box_two_hands.fbx",
+    "d_pickt": "../../../HAM_FabDownloads/v6/x/a_daily__motifect_daily_life_complete_v1_0_fbx/Animations/pick_up_object_table.fbx",
+    "e_coverface": "../../../HAM_FabDownloads/v15_mocap/x/emotes/Animations/cover_face_embarrassed.fbx",
+    "w_look1": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_01_Stand_Idle_Turn_L180_IP.fbx",
+    "w_look2": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_02_Stand_Idle_Bend_Fwd_Turn_L180_IP.fbx",
+    "w_look4": "../../../HAM_FabDownloads/v15_mocap/x/window/Animations/MC_Look_Window_04_Stand_Idle_Knock_Wave_Turn_L180_IP.fbx",
+    "u_getup": "../../../HAM_FabDownloads/v15_mocap/x/getup2/source/AnimUE4_GettingUp_UP.FBX",
+    "u_getdown": "../../../HAM_FabDownloads/v15_mocap/x/getup1/source/AnimUE4_GettingUp_DOWN.FBX",
+    "u_smoke": "../../../HAM_FabDownloads/v15_mocap/x/smoke/source/Anim_UE4_Smoking_01.fbx",
+    "s_conv": "../../../HAM_FabDownloads/v15_mocap/conv.fbx",
+    "s_convsit": "../../../HAM_FabDownloads/v15_mocap/convsit.fbx",
+    "s_disap": "../../../HAM_FabDownloads/v15_mocap/disap.fbx",
+    "s_strange": "../../../HAM_FabDownloads/v15_mocap/strange.fbx",
+    "s_lying": "../../../HAM_FabDownloads/v15_mocap/lying.fbx",
+    "s_dying": "../../../HAM_FabDownloads/v15_mocap/dying.fbx",
+    "s_kneeldead": "../../../HAM_FabDownloads/v15_mocap/kneeldead.fbx",
+    "s_runhell": "../../../HAM_FabDownloads/v15_mocap/runhell.fbx",
+    "s_backward": "../../../HAM_FabDownloads/v15_mocap/backward.fbx",
+    "n_gaze": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/24motion_Gaze_Man_t01_60fps.fbx",
+    "n_turnnb": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/24motion_TurnNeighbornood_Man_t02_60fps.fbx",
+    "n_carry": "../../../HAM_FabDownloads/v15_mocap/x/npcset/free_motionset_1_60fps/Carryheavyluggage_M1_07_t02_60fps.fbx",
+    "h_shibuya": "../../../HAM_FabDownloads/v6/a_idle__24shibuya_stand3_youngman_loop_hik_60fps.fbx",
+    "z_idle": "../../../HAM_FabDownloads/v15_mocap/x/zidle/SK_Mannequin_Zombie_Idle_01.FBX",
+    "z_idle2": "../../../HAM_FabDownloads/v15_mocap/x/zidle/SK_Mannequin_Zombie_Idle_02.FBX",
+    "z_idle3": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Idle.FBX",
+    "z_walk": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Walk.FBX",
+    "z_run": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Run.FBX",
+    "z_attack": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Attack.FBX",
+    "z_crawl": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Crawl.FBX",
+    "z_death": "../../../HAM_FabDownloads/v15_mocap/x/zombie/Zombies_Uefn_Manny/Animations/FN_Manny_Zombie_Death.FBX"
+   },
+   "sets": {
+    "adult": {
+     "idle": [
+      "m_idle",
+      {
+       "rm": "fix"
+      }
+     ],
+     "idle2": [
+      "m_idle2",
+      {
+       "rm": "fix"
+      }
+     ],
+     "idle3": [
+      "a_listen",
+      {
+       "rm": "fix"
+      }
+     ],
+     "look": [
+      "m_lookaround",
+      {
+       "rm": "fix"
+      }
+     ],
+     "nervous": [
+      "i_panic",
+      {
+       "rm": "fix"
+      }
+     ],
+     "alert": [
+      "m_alert",
+      {
+       "rm": "fix"
+      }
+     ],
+     "walk": [
+      "m_walk",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_vorsicht": [
+      "m_walk_c",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_muede": [
+      "m_walk_t",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_zurueck": [
+      "m_walk_b",
+      {
+       "rm": "lin"
+      }
+     ],
+     "schleichen": [
+      "m_tiptoe",
+      {
+       "rm": "lin"
+      }
+     ],
+     "run": [
+      "m_jog",
+      {
+       "rm": "lin"
+      }
+     ],
+     "run_panik": [
+      "m_panic",
+      {
+       "rm": "lin"
+      }
+     ],
+     "turn_l": [
+      "m_tl90",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "turn_r": [
+      "m_tr90",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "turn_180": [
+      "m_t180",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "fear": [
+      "e_scared",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "ohren_zu": [
+      "i_ears",
+      {
+       "rm": "fix"
+      }
+     ],
+     "crouch": [
+      "m_crouch",
+      {
+       "rm": "fix"
+      }
+     ],
+     "talk": [
+      "a_talk",
+      {
+       "rm": "fix"
+      }
+     ],
+     "talk_wut": [
+      "a_angry",
+      {
+       "rm": "fix"
+      }
+     ],
+     "listen": [
+      "a_listen",
+      {
+       "rm": "fix"
+      }
+     ],
+     "gestik": [
+      "e_talk",
+      {
+       "rm": "fix"
+      }
+     ],
+     "erklaeren": [
+      "e_explain",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "sit": [
+      "d_sit",
+      {
+       "rm": "fix"
+      }
+     ],
+     "sit2": [
+      "d_sit2",
+      {
+       "rm": "fix"
+      }
+     ],
+     "sit_talk": [
+      "a_sittalk",
+      {
+       "rm": "fix"
+      }
+     ],
+     "sit_down": [
+      "d_sitdown",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "stand_up": [
+      "d_standup",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "getup": [
+      "u_getup",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "getup_floor": [
+      "d_getupfloor",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "lean_wall": [
+      "i_leanwall",
+      {
+       "rm": "fix"
+      }
+     ],
+     "wand_ruecken": [
+      "m_wall",
+      {
+       "rm": "fix"
+      }
+     ],
+     "phone": [
+      "d_phone",
+      {
+       "rm": "fix"
+      }
+     ],
+     "nick": [
+      "d_nod",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "kopfschuetteln": [
+      "d_no",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "winken": [
+      "d_wave",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "klopfen": [
+      "d_knock",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "aufheben": [
+      "d_pickup",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "trinken": [
+      "d_drink",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "hug": [
+      "d_hug",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "arme_verschraenkt": [
+      "e_arms",
+      {
+       "rm": "fix"
+      }
+     ],
+     "schulterzucken": [
+      "e_shrug",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "nachdenken": [
+      "e_think",
+      {
+       "rm": "fix"
+      }
+     ],
+     "facepalm": [
+      "e_facepalm",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "warten": [
+      "e_wait",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "erschoepft": [
+      "i_exhaust",
+      {
+       "rm": "fix"
+      }
+     ],
+     "haende_knie": [
+      "i_knees",
+      {
+       "rm": "fix"
+      }
+     ],
+     "weinen": [
+      "i_sob",
+      {
+       "rm": "fix"
+      }
+     ],
+     "schwanken": [
+      "i_sway",
+      {
+       "rm": "fix"
+      }
+     ],
+     "zusammenbruch": [
+      "i_collapse",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "window": [
+      "w_look1",
+      {
+       "rm": "fix"
+      }
+     ],
+     "window_lean": [
+      "w_look2",
+      {
+       "rm": "fix"
+      }
+     ],
+     "window_knock": [
+      "w_look4",
+      {
+       "rm": "fix"
+      }
+     ],
+     "stairs_up": [
+      "m_stairs_up",
+      {
+       "rm": "lin"
+      }
+     ],
+     "stairs_down": [
+      "m_stairs_dn",
+      {
+       "rm": "lin"
+      }
+     ],
+     "tragen": [
+      "d_carry",
+      {
+       "rm": "lin"
+      }
+     ],
+     "greifen": [
+      "d_pickt",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "augen_zu": [
+      "e_coverface",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "liegen": [
+      "s_lying",
+      {
+       "rm": "fix",
+       "up": "y"
+      }
+     ],
+     "zusammenrollen": [
+      "i_fetal",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "zusammensacken": [
+      "e_slump",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ]
+    },
+    "kid": {
+     "idle": [
+      "m_idle",
+      {
+       "rm": "fix"
+      }
+     ],
+     "idle2": [
+      "m_idle2",
+      {
+       "rm": "fix"
+      }
+     ],
+     "idle3": [
+      "a_listen",
+      {
+       "rm": "fix"
+      }
+     ],
+     "look": [
+      "m_lookaround",
+      {
+       "rm": "fix"
+      }
+     ],
+     "nervous": [
+      "i_panic",
+      {
+       "rm": "fix"
+      }
+     ],
+     "alert": [
+      "m_alert",
+      {
+       "rm": "fix"
+      }
+     ],
+     "walk": [
+      "m_walk",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_vorsicht": [
+      "m_walk_c",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_muede": [
+      "m_walk_t",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_zurueck": [
+      "m_walk_b",
+      {
+       "rm": "lin"
+      }
+     ],
+     "schleichen": [
+      "m_tiptoe",
+      {
+       "rm": "lin"
+      }
+     ],
+     "run": [
+      "m_jog",
+      {
+       "rm": "lin"
+      }
+     ],
+     "run_panik": [
+      "m_panic",
+      {
+       "rm": "lin"
+      }
+     ],
+     "turn_l": [
+      "m_tl90",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "turn_r": [
+      "m_tr90",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "turn_180": [
+      "m_t180",
+      {
+       "rm": "turn",
+       "loop": false
+      }
+     ],
+     "fear": [
+      "e_scared",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "ohren_zu": [
+      "i_ears",
+      {
+       "rm": "fix"
+      }
+     ],
+     "crouch": [
+      "m_crouch",
+      {
+       "rm": "fix"
+      }
+     ],
+     "talk": [
+      "a_talk",
+      {
+       "rm": "fix"
+      }
+     ],
+     "listen": [
+      "a_listen",
+      {
+       "rm": "fix"
+      }
+     ],
+     "sit": [
+      "d_sit",
+      {
+       "rm": "fix"
+      }
+     ],
+     "weinen": [
+      "i_sob",
+      {
+       "rm": "fix"
+      }
+     ],
+     "winken": [
+      "d_wave",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "getup_floor": [
+      "d_getupfloor",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "schulterzucken": [
+      "e_shrug",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "augen_zu": [
+      "e_coverface",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "liegen": [
+      "s_lying",
+      {
+       "rm": "fix",
+       "up": "y"
+      }
+     ],
+     "zusammenrollen": [
+      "i_fetal",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "greifen": [
+      "d_pickt",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ]
+    },
+    "old": {
+     "walk": [
+      "m_walk_t",
+      {
+       "rm": "lin"
+      }
+     ],
+     "walk_stock": [
+      "i_cane",
+      {
+       "rm": "lin"
+      }
+     ],
+     "husten": [
+      "i_cough",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ]
+    },
+    "zombie": {
+     "z_idle": [
+      "z_idle",
+      {
+       "rm": "fix"
+      }
+     ],
+     "z_idle2": [
+      "z_idle2",
+      {
+       "rm": "fix"
+      }
+     ],
+     "z_walk": [
+      "z_walk",
+      {
+       "rm": "lin"
+      }
+     ],
+     "z_run": [
+      "z_run",
+      {
+       "rm": "lin"
+      }
+     ],
+     "z_attack": [
+      "z_attack",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ],
+     "z_crawl": [
+      "z_crawl",
+      {
+       "rm": "lin"
+      }
+     ],
+     "z_death": [
+      "z_death",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ]
+    },
+    "peter": {
+     "idle": [
+      "i_sway",
+      {
+       "rm": "fix"
+      }
+     ],
+     "idle2": [
+      "z_idle",
+      {
+       "rm": "fix"
+      }
+     ],
+     "walk": [
+      "p_limp",
+      {
+       "rm": "lin"
+      }
+     ],
+     "run": [
+      "z_run",
+      {
+       "rm": "lin"
+      }
+     ],
+     "stolpern": [
+      "m_stumble",
+      {
+       "rm": "lin",
+       "loop": false
+      }
+     ],
+     "fall_rueck": [
+      "p_fallb",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "fall_vor": [
+      "p_fallf",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "fall_seite": [
+      "p_side",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "knie_tod": [
+      "p_knees",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "kriechen": [
+      "p_drag",
+      {
+       "rm": "lin"
+      }
+     ],
+     "aufrichten": [
+      "i_rise",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "liegen": [
+      "s_lying",
+      {
+       "rm": "fix",
+       "up": "y"
+      }
+     ],
+     "zusammenrollen": [
+      "i_fetal",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "hug": [
+      "d_hug",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "packen": [
+      "z_attack",
+      {
+       "rm": "fix",
+       "loop": false
+      }
+     ],
+     "wand": [
+      "i_leanwall",
+      {
+       "rm": "fix"
+      }
+     ],
+     "suchen": [
+      "p_neck",
+      {
+       "rm": "fix"
+      }
+     ],
+     "gehen": [
+      "p_clutch",
+      {
+       "rm": "lin"
+      }
+     ],
+     "schritt": [
+      "m_walk",
+      {
+       "rm": "lin"
+      }
+     ],
+     "taumeln": [
+      "i_dizzy",
+      {
+       "rm": "fix"
+      }
+     ]
+    },
+    "justin": {
+     "idle": [
+      "m_idle",
+      {
+       "rm": "fix"
+      }
+     ],
+     "walk": [
+      "m_walk",
+      {
+       "rm": "lin"
+      }
+     ],
+     "talk": [
+      "a_talk",
+      {
+       "rm": "fix"
+      }
+     ],
+     "draw": [
+      "d_pickt",
+      {
+       "rm": "keep",
+       "loop": false
+      }
+     ]
+    }
+   },
+   "figs": {
+    "peter": [
+     "peter"
+    ],
+    "zayn": [
+     "kid"
+    ],
+    "roxy": [
+     "kid"
+    ],
+    "lucy": [
+     "kid"
+    ],
+    "luke": [
+     "kid"
+    ],
+    "luke_echt": [
+     "kid"
+    ],
+    "heidi": [
+     "kid"
+    ],
+    "dina": [
+     "kid"
+    ],
+    "mike": [
+     "kid"
+    ],
+    "cleo": [
+     "kid"
+    ],
+    "kleine": [
+     "kid"
+    ],
+    "graue": [
+     "kid",
+     "zombie"
+    ],
+    "gezaehlt_j": [
+     "kid",
+     "zombie"
+    ],
+    "gezaehlt_m": [
+     "kid",
+     "zombie"
+    ],
+    "mama": [
+     "adult"
+    ],
+    "hilde": [
+     "adult",
+     "old"
+    ],
+    "hilde_tot": [
+     "adult",
+     "old",
+     "zombie"
+    ],
+    "lucy_erw": [
+     "adult"
+    ],
+    "vegas": [
+     "adult",
+     "old"
+    ],
+    "amt1": [
+     "adult"
+    ],
+    "amt2": [
+     "adult"
+    ],
+    "lorenz": [
+     "adult"
+    ],
+    "aydin": [
+     "adult"
+    ],
+    "dina_erw": [
+     "adult"
+    ],
+    "polizist": [
+     "adult",
+     "zombie"
+    ],
+    "wolter": [
+     "adult"
+    ],
+    "nachsorge11": [
+     "adult"
+    ],
+    "nachsorge12": [
+     "adult"
+    ],
+    "gisela": [
+     "adult",
+     "old"
+    ],
+    "guenther": [
+     "adult"
+    ],
+    "mira": [
+     "adult"
+    ],
+    "voss": [
+     "adult",
+     "old"
+    ],
+    "luke_erw": [
+     "adult"
+    ],
+    "reuter": [
+     "adult"
+    ],
+    "justin": [
+     "justin"
+    ]
+   }
+  },
+  "cast": [
+   {
+    "id": "zayn",
+    "name": "Zayn Wendt (7)",
+    "base": "C",
+    "height": 1.22,
+    "anims": "kid_m",
+    "eye": "#5a3a22",
+    "look": {
+     "skin": "#e6c0a4",
+     "lips": "#b8746c",
+     "brow": "#3a2618",
+     "hair": "#3a2618",
+     "hairTip": "#4e3420",
+     "blush": 0.14,
+     "seed": 11,
+     "cloth": [
+      [
+       "T_shirts",
+       "#a8453a",
+       {
+        "wear": 0.55
+       }
+      ],
+      [
+       "Lincoln",
+       "#6b6450"
+      ],
+      [
+       "Basketball",
+       "#c8c8c0"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "roxy",
+    "name": "Roxy Reuter (8)",
+    "base": "G",
+    "height": 1.3,
+    "anims": "kid_f",
+    "eye": "#4a6a3a",
+    "look": {
+     "skin": "#efcbb2",
+     "lips": "#c07a74",
+     "brow": "#2a1a12",
+     "hair": "#2a1a12",
+     "hairTip": "#3e2a1c",
+     "blush": 0.12,
+     "seed": 21,
+     "cloth": [
+      [
+       "T_shirts",
+       "#2e2e34",
+       {
+        "col2": "#b8b098",
+        "stripes": 22
+       }
+      ],
+      [
+       "Lincoln",
+       "#4a5a78"
+      ],
+      [
+       "Basketball",
+       "#8a2a2a"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "lucy",
+    "name": "Lucy Brandt (9)",
+    "base": "M",
+    "height": 1.36,
+    "anims": "kid_f",
+    "eye": "#5a3a22",
+    "look": {
+     "skin": "#ecc6aa",
+     "lips": "#c47c76",
+     "brow": "#4a2e1c",
+     "hair": "#5a3620",
+     "hairTip": "#7a5030",
+     "blush": 0.15,
+     "seed": 31,
+     "cloth": [
+      [
+       "top",
+       "#e8e0c8"
+      ],
+      [
+       "pants",
+       "#7a8ea8"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "luke",
+    "name": "Luke (die Kopie, 9)",
+    "base": "J",
+    "height": 1.36,
+    "anims": "kid_m",
+    "eye": "#5a3a22",
+    "hairFrom": [
+     "OPT",
+     {
+      "scale": 0.93,
+      "dy": -0.02,
+      "keepOwn": true
+     }
+    ],
+    "hide": [
+     "Bracelet",
+     "NeckLace"
+    ],
+    "look": {
+     "skin": "#eac4a8",
+     "lips": "#be7872",
+     "brow": "#4a3020",
+     "hair": "#4a3222",
+     "hairTip": "#5a4030",
+     "blush": 0.12,
+     "seed": 42,
+     "cloth": [
+      [
+       "MainShirt",
+       "#5a6a7a",
+       {
+        "wear": 0.35
+       }
+      ],
+      [
+       "MainShorts",
+       "#3a3a3a"
+      ],
+      [
+       "Shoes",
+       "#b8b8b0"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "luke_echt",
+    "name": "der echte Luke (9)",
+    "base": "J",
+    "height": 1.36,
+    "anims": "kid_m",
+    "eye": "#6a9ad0",
+    "hairFrom": [
+     "OPT",
+     {
+      "scale": 0.93,
+      "dy": -0.02,
+      "keepOwn": true
+     }
+    ],
+    "hide": [
+     "Shoes",
+     "Bracelet",
+     "NeckLace"
+    ],
+    "look": {
+     "skin": "#eac4a8",
+     "lips": "#be7872",
+     "brow": "#5a3a24",
+     "hair": "#6a4a30",
+     "hairTip": "#8a6a44",
+     "blush": 0.12,
+     "seed": 41,
+     "cloth": [
+      [
+       "MainShirt",
+       "#a8bcd8",
+       {
+        "col2": "#e8eef4",
+        "stripes": 26,
+        "wear": 0.2
+       }
+      ],
+      [
+       "MainShorts",
+       "#a8bcd8",
+       {
+        "col2": "#e8eef4",
+        "stripes": 26,
+        "wear": 0.2
+       }
+      ]
+     ]
+    }
+   },
+   {
+    "id": "heidi",
+    "name": "Heidi Winter (8)",
+    "base": "G",
+    "height": 1.3,
+    "anims": "kid_f",
+    "eye": "#6a8ab0",
+    "hairFrom": [
+     "M",
+     {
+      "scale": 1
+     }
+    ],
+    "look": {
+     "skin": "#f0d0bc",
+     "lips": "#c8847e",
+     "brow": "#a8844e",
+     "hair": "#c8a870",
+     "hairTip": "#dcc08a",
+     "blush": 0.16,
+     "freckles": 0.8,
+     "seed": 51,
+     "cloth": [
+      [
+       "T_shirts",
+       "#d88a8a"
+      ],
+      [
+       "Lincoln",
+       "#3a4a6a"
+      ],
+      [
+       "Basketball",
+       "#e0e0e0"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "dina",
+    "name": "Dina Aydın (9)",
+    "base": "M",
+    "height": 1.34,
+    "anims": "kid_f",
+    "eye": "#3a2616",
+    "look": {
+     "skin": "#c89a7c",
+     "lips": "#a86a60",
+     "brow": "#16100c",
+     "hair": "#16100c",
+     "hairTip": "#221812",
+     "blush": 0.1,
+     "seed": 61,
+     "cloth": [
+      [
+       "top",
+       "#b83a3a"
+      ],
+      [
+       "pants",
+       "#2a2e36"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "mike",
+    "name": "Mike Kessler (10)",
+    "base": "C",
+    "height": 1.44,
+    "anims": "kid_m",
+    "eye": "#7a8a6a",
+    "hairFrom": [
+     "G",
+     {
+      "scale": 1
+     }
+    ],
+    "look": {
+     "skin": "#f0ccb4",
+     "lips": "#c07e78",
+     "brow": "#8a6038",
+     "hair": "#a87848",
+     "hairTip": "#b88a58",
+     "blush": 0.14,
+     "freckles": 0.5,
+     "seed": 71,
+     "cloth": [
+      [
+       "T_shirts",
+       "#2a4a7a"
+      ],
+      [
+       "Lincoln",
+       "#6a6a6a"
+      ],
+      [
+       "Basketball",
+       "#e0e0e0"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "cleo",
+    "name": "Cleo (8)",
+    "base": "M",
+    "height": 1.3,
+    "anims": "kid_f",
+    "eye": "#5a7a4a",
+    "look": {
+     "skin": "#f2d2c0",
+     "lips": "#c8847e",
+     "brow": "#7a3a20",
+     "hair": "#8a3018",
+     "hairTip": "#a8401e",
+     "blush": 0.18,
+     "freckles": 1,
+     "seed": 81,
+     "cloth": [
+      [
+       "top",
+       "#6a8ab0"
+      ],
+      [
+       "pants",
+       "#e0dcd0"
+      ]
+     ]
+    }
+   },
+   {
+    "id": "kleine",
+    "name": "die Kleine (7)",
+    "base": "G",
+    "height": 1.18,
+    "anims": "kid_f",
+    "eye": "#7a8898",
+    "hairFrom": [
+     "FN",
+     {
+      "scale": 0.97
+     }
+    ],
+    "hide": [
+     "Basketball"
+    ],
+    "look": {
+     "skin": "#f4e2d8",
+     "lips": "#c89a96",
+     "brow": "#b8ac98",
+     "hair": "#d8d0c0",
+     "hairTip": "#e8e2d4",
+     "blush": 0.05,
+     "seed": 91,
+     "cloth": [
+      [
+       "T_shirts",
+       "#f4f2ec",
+       {
+        "wear": 0.15
+       }
+      ],
+      [
+       "Lincoln",
+       "#f4f2ec",
+       {
+        "wear": 0.15
+       }
+      ]
+     ]
+    }
+   },
+   {
+    "id": "graue",
+    "name": "die Graue (die Kleine, ohne Mund)",
+    "base": "G",
+    "height": 1.18,
+    "anims": "kid_f",
+    "eye": "#050505",
+    "eyeAmt": 1,
+    "hairFrom": [
+     "FN",
+     {
+      "scale": 0.97
+     }
+    ],
+    "hide": [
+     "Basketball"
+    ],
+    "look": {
+     "skin": "#8e9398",
+     "lips": "#8e9398",
+     "brow": "#8e9398",
+     "hair": "#6e6a66",
+     "hairTip": "#8a8680",
+     "blush": 0,
+     "age": 0.6,
+     "seed": 92,
+     "cloth": [
+      [
+       "T_shirts",
+       "#c8c4bc",
+       {
+        "wear": 0.8
+       }
+      ],
+      [
+       "Lincoln",
+       "#c8c4bc",
+       {
+        "wear": 0.8
+       }
+      ]
+     ]
+    },
+    "eyeAll": true
+   },
+   {
+    "id": "gezaehlt_j",
+    "name": "ein Gezählter (Junge)",
+    "base": "J",
+    "height": 1.3,
+    "anims": "kid_m",
+    "eye": "#101010",
+    "eyeAmt": 0.9,
+    "hide": [
+     "Shoes",
+     "Bracelet",
+     "NeckLace"
+    ],
+    "look": {
+     "skin": "#9a9ea2",
+     "lips": "#8a8e92",
+     "brow": "#6a6a6a",
+     "hair": "#4a4844",
+     "blush": 0,
+     "age": 0.7,
+     "seed": 93,
+     "cloth": [
+      [
+       "MainShirt",
+       "#8a8a86",
+       {
+        "wear": 0.9
+       }
+      ],
+      [
+       "MainShorts",
+       "#6a6a68",
+       {
+        "wear": 0.9
+       }
+      ]
+     ]
+    }
+   },
+   {
+    "id": "gezaehlt_m",
+    "name": "eine Gezählte (Mädchen)",
+    "base": "M",
+    "height": 1.26,
+    "anims": "kid_f",
+    "eye": "#101010",
+    "eyeAmt": 0.9,
+    "hide": [
+     "sandals"
+    ],
+    "look": {
+     "skin": "#9a9ea2",
+     "lips": "#8a8e92",
+     "brow": "#6a6a6a",
+     "hair": "#5a5650",
+     "blush": 0,
+     "age": 0.7,
+     "seed": 94,
+     "cloth": [
+      [
+       "top",
+       "#9a9894",
+       {
+        "wear": 0.9
+       }
+      ],
+      [
+       "pants",
+       "#6a6a68",
+       {
+        "wear": 0.9
+       }
+      ]
+     ]
+    }
+   },
+   {
+    "id": "mama",
+    "name": "Marion Brandt (42)",
+    "base": "ow7",
+    "height": 1.68,
+    "anims": "woman",
+    "head": {
+     "src": "FHQ",
+     "look": {
+      "skin": "#e6c2a8",
+      "lips": "#b8766e",
+      "brow": "#3a2618",
+      "hair": "#4a2e1c",
+      "hairTip": "#6a4a30",
+      "blush": 0.12,
+      "age": 0.3,
+      "wrinkles": 0.25,
+      "seed": 101
+     },
+     "eye": "#5a3a22"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "h": -80,
+       "s": 0.55,
+       "l": 1.1
+      }
+     ],
+     [
+      "shoes",
+      {
+       "s": 0.3,
+       "l": 0.5
+      }
+     ]
+    ]
+   },
+   {
+    "id": "hilde",
+    "name": "Hilde Wendt (60, sieht aus wie 80)",
+    "base": "yellow",
+    "height": 1.6,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "hairFrom": [
+      "FHQ",
+      {}
+     ],
+     "hide": [],
+     "look": {
+      "skin": "#e2bba6",
+      "lips": "#b88a86",
+      "brow": "#d8d4cc",
+      "hair": "#e4e0da",
+      "hairTip": "#f2f0ea",
+      "grey": 0.6,
+      "blush": 0.07,
+      "age": 1,
+      "wrinkles": 1,
+      "seed": 5
+     },
+     "eye": "#8a96a0",
+     "swap": {
+      "boxMode": true,
+      "boxRe": "^Head$"
+     }
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$",
+     "^material$"
+    ],
+    "hsl": [
+     [
+      "^Bottom$|material_8",
+      {
+       "s": 0.12,
+       "l": 1.18
+      }
+     ],
+     [
+      "Footwear",
+      {
+       "s": 0.2,
+       "l": 0.6
+      }
+     ]
+    ],
+    "props": [
+     {
+      "src": "BRILLE",
+      "width": 2.1,
+      "dz": 0.45,
+      "dy": -0.32,
+      "tilt": 0.12,
+      "name": "Lesebrille",
+      "hide": [
+       "Fingerprints"
+      ]
+     }
+    ]
+   },
+   {
+    "id": "hilde_tot",
+    "name": "Hilde (wächsern, Schreck)",
+    "base": "yellow",
+    "height": 1.6,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "hairFrom": [
+      "HLONG",
+      {
+       "alpha": "../../../HAM_FabDownloads/v6/x/h_long__fbx/hair7_opacity.png"
+      }
+     ],
+     "look": {
+      "skin": "#c4c8c0",
+      "lips": "#8a8e88",
+      "brow": "#b8bcb8",
+      "hair": "#e8e6e0",
+      "hairTip": "#f4f3ef",
+      "grey": 0.9,
+      "blush": 0,
+      "age": 1,
+      "wrinkles": 1,
+      "seed": 6
+     },
+     "eye": "#e0e4e0",
+     "eyeAmt": 1,
+     "swap": {
+      "boxMode": true,
+      "boxRe": "^Head$"
+     }
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$",
+     "^material$"
+    ],
+    "hsl": [
+     [
+      "^Bottom$|material_8",
+      {
+       "s": 0.1,
+       "mix": "#e4e0d6",
+       "mixAmt": 0.86
+      }
+     ]
+    ],
+    "hide": [
+     "Footwear"
+    ]
+   },
+   {
+    "id": "lucy_erw",
+    "name": "Lucy Brandt (26)",
+    "base": "ow6",
+    "height": 1.68,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "look": {
+      "skin": "#ecc6aa",
+      "lips": "#c07a74",
+      "brow": "#4a2e1c",
+      "hair": "#5a3620",
+      "hairTip": "#7a5030",
+      "blush": 0.14,
+      "seed": 111
+     },
+     "eye": "#5a3a22"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [],
+    "restClip": "T-pose",
+    "hide": [
+     "CHAIR",
+     "STEEL",
+     "Floor",
+     "Wood",
+     "chair",
+     "Table",
+     "mouse"
+    ]
+   },
+   {
+    "id": "vegas",
+    "name": "Lars Vegas (60)",
+    "base": "farmer",
+    "height": 1.76,
+    "anims": "man",
+    "head": {
+     "src": "MREAL",
+     "hide": [
+      "Buzz_Cut"
+     ],
+     "look": {
+      "real": true,
+      "tint": "#f4e6dc",
+      "skin": "#d4ae96",
+      "hair": "#c8c4be",
+      "hairTip": "#dedad4",
+      "grey": 0.6,
+      "age": 0.75,
+      "seed": 8
+     },
+     "eye": "#6a7a8a",
+     "swap": {
+      "keep": "^material$"
+     },
+     "morphFrom": "MN"
+    },
+    "hideAfter": [
+     "Moustache"
+    ]
+   },
+   {
+    "id": "amt1",
+    "name": "Mann vom Amt (1)",
+    "base": "doctor",
+    "height": 1.84,
+    "anims": "man",
+    "head": {
+     "src": "MN",
+     "hide": [
+      "Hair6",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#dcb49c",
+      "lips": "#a8726a",
+      "brow": "#3a2a20",
+      "hair": "#3a2a20",
+      "blush": 0.08,
+      "age": 0.4,
+      "wrinkles": 0.35,
+      "stubble": 0.45,
+      "seed": 121
+     },
+     "eye": "#4a3a2a",
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ]
+   },
+   {
+    "id": "amt2",
+    "name": "Mann vom Amt (2)",
+    "base": "spy",
+    "height": 1.8,
+    "anims": "man",
+    "head": {
+     "src": "OPT",
+     "hide": [
+      "Middle_Wavy",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#e0baa2",
+      "lips": "#ae7870",
+      "brow": "#2a2018",
+      "hair": "#2a2018",
+      "blush": 0.06,
+      "age": 0.5,
+      "wrinkles": 0.45,
+      "stubble": 0.55,
+      "seed": 131
+     },
+     "eye": "#3a3a3a",
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ]
+   },
+   {
+    "id": "lorenz",
+    "name": "Daniel Lorenz (42)",
+    "base": "ow3",
+    "height": 1.8,
+    "anims": "man",
+    "hide": [
+     "STEEL",
+     "Wood"
+    ],
+    "head": {
+     "src": "MN",
+     "look": {
+      "skin": "#e2bca4",
+      "lips": "#ac746c",
+      "brow": "#5a4030",
+      "hair": "#5a4030",
+      "hairTip": "#6a5040",
+      "blush": 0.08,
+      "age": 0.35,
+      "wrinkles": 0.3,
+      "stubble": 0.6,
+      "seed": 141
+     },
+     "eye": "#5a6a7a"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^body$",
+      {
+       "h": -30,
+       "s": 0.55,
+       "l": 0.9
+      }
+     ]
+    ]
+   },
+   {
+    "id": "aydin",
+    "name": "Frau Aydın",
+    "base": "rusw",
+    "height": 1.64,
+    "anims": "woman",
+    "head": {
+     "src": "FHQ",
+     "look": {
+      "skin": "#c89e80",
+      "lips": "#9a6258",
+      "brow": "#1a1210",
+      "hair": "#1a1210",
+      "hairTip": "#2a1e18",
+      "blush": 0.08,
+      "age": 0.45,
+      "wrinkles": 0.4,
+      "seed": 151
+     },
+     "eye": "#2a1a10"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$|^bottom$|^shoes$",
+      {
+       "s": 0.06,
+       "l": 0.55
+      }
+     ]
+    ]
+   },
+   {
+    "id": "dina_erw",
+    "name": "Dina Aydın (26)",
+    "base": "ow7",
+    "height": 1.66,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "look": {
+      "skin": "#c89a7c",
+      "lips": "#a06a60",
+      "brow": "#16100c",
+      "hair": "#16100c",
+      "hairTip": "#221812",
+      "blush": 0.06,
+      "age": 0.15,
+      "seed": 161
+     },
+     "eye": "#3a2616"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "s": 0.15,
+       "l": 0.6
+      }
+     ],
+     [
+      "shoes",
+      {
+       "s": 0.3,
+       "l": 0.5
+      }
+     ]
+    ]
+   },
+   {
+    "id": "polizist",
+    "name": "Gefreiter Hofer",
+    "base": "mallcop",
+    "height": 1.8,
+    "anims": "man",
+    "head": {
+     "src": "MN",
+     "hide": [
+      "Hair6",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#e4bea6",
+      "lips": "#ae766e",
+      "brow": "#6a5040",
+      "hair": "#6a5040",
+      "blush": 0.1,
+      "age": 0.3,
+      "wrinkles": 0.25,
+      "stubble": 0.4,
+      "seed": 171
+     },
+     "eye": "#5a6a5a",
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ]
+   },
+   {
+    "id": "wolter",
+    "name": "Heinrich Wolter (LWO, Nachsorger)",
+    "base": "doctor",
+    "height": 1.8,
+    "anims": "man",
+    "hide": [
+     "Case"
+    ],
+    "head": {
+     "src": "MN",
+     "hide": [
+      "Hair6",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#c8ae9a",
+      "lips": "#a0827c",
+      "brow": "#77736e",
+      "hair": "#77746f",
+      "scalp": 1,
+      "scalpC": "#7d7a75",
+      "blush": 0.02,
+      "age": 0.5,
+      "wrinkles": 0.5,
+      "stubble": 0.05,
+      "seed": 311
+     },
+     "eye": "#9aa2a6",
+     "eyeAmt": 0.7,
+     "bodySkin": false,
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ],
+    "hsl": [
+     [
+      "^Body$",
+      {
+       "s": 0.1,
+       "mix": "#5b5957",
+       "mixAmt": 0.88
+      }
+     ],
+     [
+      "^Bottom$",
+      {
+       "s": 0.1,
+       "mix": "#6a6b6c",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^material$",
+      {
+       "s": 0.1,
+       "mix": "#8a8883",
+       "mixAmt": 0.88
+      }
+     ],
+     [
+      "^material_5$",
+      {
+       "s": 0.1,
+       "l": 1.25,
+       "mix": "#6d6c68",
+       "mixAmt": 0.9
+      }
+     ],
+     [
+      "^Shoes$",
+      {
+       "s": 0.2,
+       "l": 0.55
+      }
+     ]
+    ]
+   },
+   {
+    "id": "nachsorge11",
+    "name": "Nachsorge 11 (der Lange)",
+    "base": "doctor",
+    "height": 1.92,
+    "anims": "man",
+    "hide": [
+     "Case"
+    ],
+    "head": {
+     "src": "OPT",
+     "hide": [
+      "Middle_Wavy",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#d0ae98",
+      "lips": "#a47a72",
+      "brow": "#8a847e",
+      "hair": "#8e8a84",
+      "scalp": 0.8,
+      "scalpC": "#8f8b85",
+      "blush": 0.06,
+      "age": 0.62,
+      "wrinkles": 0.55,
+      "stubble": 0.12,
+      "seed": 321
+     },
+     "eye": "#6a7884",
+     "bodySkin": false,
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ],
+    "hsl": [
+     [
+      "^Body$",
+      {
+       "s": 0.5,
+       "mix": "#d2b4a0",
+       "mixAmt": 0.55
+      }
+     ],
+     [
+      "^Bottom$",
+      {
+       "s": 0.1,
+       "mix": "#72716c",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^material$",
+      {
+       "s": 0.1,
+       "mix": "#5b5955",
+       "mixAmt": 0.88
+      }
+     ],
+     [
+      "^material_5$",
+      {
+       "s": 0.2,
+       "l": 1.2,
+       "mix": "#79736a",
+       "mixAmt": 0.88
+      }
+     ],
+     [
+      "^Shoes$",
+      {
+       "s": 0.2,
+       "l": 0.6
+      }
+     ]
+    ]
+   },
+   {
+    "id": "nachsorge12",
+    "name": "Nachsorge 12 (der Kurze)",
+    "base": "doctor",
+    "height": 1.62,
+    "anims": "man",
+    "hide": [
+     "Case",
+     "^material$"
+    ],
+    "head": {
+     "src": "MN",
+     "hide": [
+      "Hair6",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#d8a28c",
+      "lips": "#a06a62",
+      "brow": "#6e6862",
+      "hair": "#6e6862",
+      "grey": 0.4,
+      "blush": 0.42,
+      "age": 0.8,
+      "wrinkles": 0.6,
+      "stubble": 0.28,
+      "browW": 1.45,
+      "seed": 331
+     },
+     "eye": "#4a4036",
+     "bodySkin": false,
+     "swap": {
+      "keep": "^material$"
+     }
+    },
+    "hideAfter": [
+     "Eyewear"
+    ],
+    "hsl": [
+     [
+      "^Body$",
+      {
+       "s": 0.5,
+       "mix": "#cf9a84",
+       "mixAmt": 0.55
+      }
+     ],
+     [
+      "^Bottom$",
+      {
+       "s": 0.1,
+       "mix": "#6c6964",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^material$",
+      {
+       "s": 0.15,
+       "mix": "#7a6e60",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^material_5$",
+      {
+       "s": 0.15,
+       "l": 1.2,
+       "mix": "#605b53",
+       "mixAmt": 0.9
+      }
+     ],
+     [
+      "^Shoes$",
+      {
+       "s": 0.2,
+       "l": 0.55
+      }
+     ]
+    ]
+   },
+   {
+    "id": "gisela",
+    "name": "Gisela Rieke (78)",
+    "base": "rusw",
+    "height": 1.55,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "look": {
+      "skin": "#e2c0ac",
+      "lips": "#ad8680",
+      "brow": "#d8d4ce",
+      "hair": "#ecebe6",
+      "hairTip": "#f6f5f1",
+      "grey": 0.9,
+      "blush": 0.24,
+      "age": 1,
+      "wrinkles": 1,
+      "seed": 781
+     },
+     "eye": "#6a7480",
+     "swap": {
+      "boxMode": true,
+      "boxRe": "^Head$"
+     }
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "s": 0.35,
+       "mix": "#4a5670",
+       "mixAmt": 0.82
+      }
+     ],
+     [
+      "^bottom$",
+      {
+       "s": 0.3,
+       "mix": "#33363e",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^shoes$",
+      {
+       "s": 0.4,
+       "mix": "#2c3b2b",
+       "mixAmt": 0.9
+      }
+     ]
+    ]
+   },
+   {
+    "id": "guenther",
+    "name": "Günther Maas (61)",
+    "base": "mallcop",
+    "height": 1.88,
+    "anims": "man",
+    "head": {
+     "src": "HB2",
+     "hide": [
+      "Chin_Curtain",
+      "Stubble_Neck",
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#dcb09a",
+      "lips": "#a4766e",
+      "brow": "#8a7a62",
+      "hair": "#8e7e66",
+      "hairTip": "#a89878",
+      "grey": 0.6,
+      "blush": 0.22,
+      "age": 0.75,
+      "wrinkles": 0.7,
+      "stubble": 0.35,
+      "seed": 791
+     },
+     "eye": "#6a7458",
+     "swap": {},
+     "morphFrom": "MN"
+    },
+    "hideAfter": [
+     "^material$"
+    ],
+    "hsl": [
+     [
+      "^Body$",
+      {
+       "s": 0.7,
+       "mix": "#b89630",
+       "mixAmt": 0.7
+      }
+     ],
+     [
+      "^Bottom$",
+      {
+       "s": 0.2,
+       "mix": "#34363c",
+       "mixAmt": 0.8
+      }
+     ],
+     [
+      "^material_5$",
+      {
+       "s": 0.7,
+       "mix": "#b89630",
+       "mixAmt": 0.7
+      }
+     ]
+    ]
+   },
+   {
+    "id": "mira",
+    "name": "Mira (1312, Nachbild/Porträt)",
+    "base": "yellow",
+    "height": 1.66,
+    "anims": "woman",
+    "head": {
+     "src": "FHQ",
+     "curls": {
+      "obj": "../../../HAM_FabDownloads/v14_extras/locken04/x/04 Curly Hairs Brown/Curly Hairs Brown.obj",
+      "dir": "../../../HAM_FabDownloads/v14_extras/locken04/x/04 Curly Hairs Brown/Curly Hairs Brown/",
+      "thin": 0.45
+     },
+     "look": {
+      "skin": "#ebcab4",
+      "lips": "#b26c66",
+      "brow": "#2a1610",
+      "hair": "#2e160d",
+      "hairTip": "#3a1b10",
+      "hairSheen": "#a32218",
+      "blush": 0.12,
+      "age": 0.25,
+      "wrinkles": 0.08,
+      "seed": 1312
+     },
+     "eye": "#4a3020",
+     "swap": {
+      "boxMode": true,
+      "boxRe": "^Head$"
+     }
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$",
+     "^material$"
+    ],
+    "hsl": [
+     [
+      "^Bottom$|material_8",
+      {
+       "s": 0.4,
+       "mix": "#2b1c1f",
+       "mixAmt": 0.9
+      }
+     ],
+     [
+      "Footwear",
+      {
+       "s": 0.2,
+       "mix": "#1c1612",
+       "mixAmt": 0.9
+      }
+     ]
+    ]
+   },
+   {
+    "id": "voss",
+    "name": "Pfarrer Bernhard Voss (Behaltener)",
+    "base": "doctor",
+    "height": 1.8,
+    "anims": "man",
+    "hide": [
+     "Case",
+     "^material$"
+    ],
+    "head": {
+     "src": "MN",
+     "look": {
+      "skin": "#d8b8a4",
+      "lips": "#a07a74",
+      "brow": "#7a746e",
+      "hair": "#8a8680",
+      "hairTip": "#a8a49e",
+      "grey": 0.5,
+      "blush": 0.1,
+      "age": 0.6,
+      "wrinkles": 0.55,
+      "stubble": 0.12,
+      "seed": 1992
+     },
+     "eye": "#5a6a78",
+     "bodySkin": false,
+     "swap": {}
+    },
+    "hideAfter": [
+     "Eyewear"
+    ],
+    "hsl": [
+     [
+      "^Body$",
+      {
+       "s": 0.1,
+       "mix": "#17171a",
+       "mixAmt": 0.93
+      }
+     ],
+     [
+      "^Bottom$",
+      {
+       "s": 0.1,
+       "mix": "#141417",
+       "mixAmt": 0.9
+      }
+     ],
+     [
+      "^material_5$",
+      {
+       "s": 0.1,
+       "mix": "#1a1a1d",
+       "mixAmt": 0.92
+      }
+     ],
+     [
+      "^Shoes$",
+      {
+       "s": 0.2,
+       "l": 0.45
+      }
+     ]
+    ]
+   },
+   {
+    "id": "luke_erw",
+    "name": "Luke (26, nur von hinten)",
+    "base": "ow3",
+    "height": 1.8,
+    "anims": "man",
+    "hide": [
+     "STEEL",
+     "Wood"
+    ],
+    "head": {
+     "src": "MN",
+     "look": {
+      "skin": "#e6c2a8",
+      "lips": "#ae766e",
+      "brow": "#3a2618",
+      "hair": "#3a2618",
+      "hairTip": "#4a3220",
+      "blush": 0.08,
+      "age": 0.2,
+      "wrinkles": 0.15,
+      "stubble": 0.5,
+      "seed": 2609
+     },
+     "eye": "#5a3a22"
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "s": 0.3,
+       "mix": "#2d3033",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^bottom$",
+      {
+       "s": 0.4,
+       "mix": "#2a2f3a",
+       "mixAmt": 0.8
+      }
+     ]
+    ]
+   },
+   {
+    "id": "reuter",
+    "name": "Frau Reuter (Roxys Mutter)",
+    "base": "ow7",
+    "height": 1.66,
+    "anims": "woman",
+    "head": {
+     "src": "FN",
+     "look": {
+      "skin": "#ecc8b0",
+      "lips": "#b07870",
+      "brow": "#2a1a12",
+      "hair": "#2a1a12",
+      "hairTip": "#3e2a1c",
+      "blush": 0.1,
+      "age": 0.4,
+      "wrinkles": 0.35,
+      "seed": 505
+     },
+     "eye": "#4a6a3a",
+     "hairFrom": [
+      "HFRAU",
+      {}
+     ]
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "s": 0.35,
+       "mix": "#4a3a40",
+       "mixAmt": 0.8
+      }
+     ],
+     [
+      "shoes",
+      {
+       "s": 0.3,
+       "l": 0.5
+      }
+     ]
+    ]
+   },
+   {
+    "id": "peter",
+    "name": "Peter Kranz (der Zahn-Mann, K-1)",
+    "base": "ow3",
+    "height": 1.97,
+    "anims": "man",
+    "hide": [
+     "STEEL",
+     "Wood"
+    ],
+    "head": {
+     "src": "MN",
+     "hide": [
+      "Scalp"
+     ],
+     "look": {
+      "skin": "#b9b3ab",
+      "lips": "#8a7c78",
+      "brow": "#6e6a66",
+      "hair": "#4e4a45",
+      "scalp": 0.9,
+      "scalpC": "#8b8681",
+      "blush": 0,
+      "age": 0.78,
+      "wrinkles": 0.72,
+      "stubble": 0.3,
+      "seed": 1975
+     },
+     "eye": "#4a3022",
+     "eyeAmt": 0.85
+    },
+    "hideAfter": [
+     "^Head$",
+     "^Hair$",
+     "^head$",
+     "^hair$",
+     "^Teeth$",
+     "^teeth$",
+     "Glasses",
+     "glasses",
+     "Eyewear",
+     "^eyes$",
+     "^Eyes$"
+    ],
+    "hsl": [
+     [
+      "^material$",
+      {
+       "s": 0.12,
+       "l": 1.15,
+       "mix": "#a9b4ab",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^bottom$",
+      {
+       "s": 0.12,
+       "l": 1.1,
+       "mix": "#9ea8a1",
+       "mixAmt": 0.85
+      }
+     ],
+     [
+      "^shoes$",
+      {
+       "s": 0.1,
+       "l": 0.75,
+       "mix": "#77746e",
+       "mixAmt": 0.7
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ "stimmenBesetzung": [
+  {
+   "Name": "VOICE_luke",
+   "id": "luke",
+   "name": "Luke Brandt",
+   "info": "26, Tontechniker, Nachtschicht. Leise, trocken, halbe Sätze, Humor als Selbstschutz.",
+   "design": "A German man in his mid-twenties with a soft, slightly husky baritone voice. He speaks quietly and dryly, close to the microphone, in a tired, understated, sarcastic way, like a sound engineer talking to himself at four in the morning. Natural, unpolished, not theatrical.",
+   "seed": 1101,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_lucy",
+   "id": "lucy",
+   "name": "Lucy Brandt",
+   "info": "26, Zwillingsschwester. Frech, herrisch, warm; sagt „Großer“ und „heim“. Wird bei Angst bestimmend, nie weinerlich.",
+   "design": "A German woman in her mid-twenties with a warm, clear, confident mid-range voice with a slight rasp. She sounds cheeky, bossy and affectionate like a big sister, quick and direct, never whiny.",
+   "seed": 2202,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_luna",
+   "id": "luna",
+   "name": "DAS KIND / Luna",
+   "info": "Graukind, 714 Jahre, für immer sieben. Hell, zählt, summt, kichert, schreit nie. Ungeduldig und einsam, nicht böse.",
+   "design": "A seven-year-old little girl with a very high, bright, thin and slightly breathy child's voice. She speaks slowly and sing-song, innocent but eerie, with a faint giggle in her tone. Clearly a small child, not an adult woman.",
+   "seed": 3303,
+   "post": {
+    "f0_ziel": 330,
+    "formant": 1.04
+   },
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_luke_echt",
+   "id": "luke_echt",
+   "name": "Der echte Luke",
+   "info": "Für immer neun, gestreifter Schlafanzug. Kurz, ernst, Wörter von 2009. Keine Spieluhr.",
+   "design": "A nine-year-old German boy with a high-pitched, unbroken child's voice like a boy soprano, clearly a little child before puberty, not a teenager. He speaks short, serious and earnest, a little shy, softly.",
+   "seed": 4414,
+   "post": {
+    "f0_ziel": 270,
+    "formant": 1.06
+   },
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_justin",
+   "id": "justin",
+   "name": "Justin vom Hohen Abgrund",
+   "info": "Ritter von 1312. Ruhig, knapp, wenige alte Wörter, klingt alt; trockener Humor über die Neuzeit.",
+   "design": "An old German knight with a deep, calm, weathered and slightly rough bass voice that sounds centuries old. He speaks slowly, sparingly and with quiet dignity, dry and grave, with long pauses.",
+   "seed": 5505,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_hilde",
+   "id": "hilde",
+   "name": "Hilde Wendt",
+   "info": "60, wirkt wie 80. Wenig Worte, Befehle, „Junge“. Trocken bis knochig. Zählt immer.",
+   "design": "An elderly German woman who sounds about eighty, with a dry, thin, brittle and slightly shaky voice. She speaks in short, curt commands, flat and exhausted, like a strict retired clerk.",
+   "seed": 6606,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_vegas",
+   "id": "vegas",
+   "name": "Lars Vegas",
+   "info": "60, Verschwörungs-Onkel mit Alufolie. Grummelig, nuschelnd, „Junge“; komisch, darunter traurig.",
+   "design": "A gruff German man around sixty with a rough, gravelly, slightly nasal voice. He grumbles and mumbles, talks fast and conspiratorially through a door gap, grumpy but funny, with a working-class village tone.",
+   "seed": 7707,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_wolter",
+   "id": "wolter",
+   "name": "Heinrich Wolter",
+   "info": "LWO. Weich, höflich, im Passiv, tröstend lügend, leise drohend. Nie laut. „Das ist bedauerlich.“",
+   "design": "A German man in his late forties with a soft, smooth, gentle and very polite tenor voice. He speaks slowly, quietly and precisely like a courteous old-fashioned civil servant, calm and soothing but subtly menacing. Never raises his voice.",
+   "seed": 8808,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_nachsorge11",
+   "id": "nachsorge11",
+   "name": "Nachsorge 11 (der Lange)",
+   "info": "Lang, dünn, redet. Hoch, sachlich, freundlich, Kanzleideutsch, norddeutsch, „ne?“.",
+   "design": "A tall thin German official in his early fifties with a rather high, nasal, friendly and matter-of-fact voice, northern German accent. Bureaucratic small talk, chatty and polite, with an undertone of threat.",
+   "seed": 9119,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_nachsorge12",
+   "id": "nachsorge12",
+   "name": "Nachsorge 12 (der Kurze)",
+   "info": "Kurz, breit, schreibt. Tief, brummig, sächsisch gefärbt, wenige Worte, liest langsam vor.",
+   "design": "A short, stout German man around sixty with a thick, throaty, wheezy low voice, hoarse from decades of smoking, slightly slurred and nasal, not sonorous. He speaks very slowly and flatly, word by word, as if reading aloud from a notepad while chewing.",
+   "seed": 1212,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_gisela",
+   "id": "gisela",
+   "name": "Gisela Rieke",
+   "info": "78, siebzehn Katzen. Schnell, schlagfertig, raucherstimmig, allein mit Humor.",
+   "design": "An old German woman in her late seventies with a raspy, smoky, lively voice. She talks fast, quick-witted and sharp-tongued, with dry humor.",
+   "seed": 1313,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_guenther",
+   "id": "guenther",
+   "name": "Günther Maas",
+   "info": "61, Postbote, Zuträger des Amts. Redet zu viel und zu schnell, nervös; bricht später ehrlich zusammen.",
+   "design": "A nervous German man in his early sixties with a slightly high, jittery and breathless voice. He talks too much and too fast, stumbling over words, overly friendly and anxious.",
+   "seed": 1414,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_mama",
+   "id": "mama",
+   "name": "Mama (Marion Brandt), Nachbild",
+   "info": "1967–2011. Warm, praktisch, müde. Nur Briefe und Nachbilder; summt das Wiegenlied.",
+   "design": "A German woman in her early forties with a warm, soft, gentle alto voice, a little tired, motherly and caring, practical and kind.",
+   "seed": 1515,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_peter",
+   "id": "peter",
+   "name": "Peter Kranz / Zahn-Mann",
+   "info": "K-1. Ein Wort: „Bruder.“ – mit einem Mund, der dafür nicht gemacht ist; warm und falsch.",
+   "design": "A German man around sixty with a strained, wet, breathy and hoarse voice, as if speaking through a mouth full of teeth. Slow, warm but wrong, unsettling.",
+   "seed": 1616,
+   "post": {
+    "pitch": -1,
+    "formant": 0.95
+   },
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_lautsprecher",
+   "id": "lautsprecher",
+   "name": "Lautsprecher / Amt",
+   "info": "Anlage der Außenstelle. Sauberes Band (Wolter), Brandalarm-Automat – und DAS KIND spielt Büro.",
+   "design": "A neutral, clear and polite German announcement voice of a middle-aged woman, like an automated public address system in an old government building, even and emotionless.",
+   "seed": 1717,
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_hofer",
+   "id": "hofer",
+   "name": "Hofer / Wendigo (Hofer)",
+   "info": "Gefreiter Hofer, Wirt des Wendigo. Hungrig, gebrochen; spricht mit gefressenen Stimmen.",
+   "design": "A German soldier in his forties with a hollow, hoarse, exhausted and starving voice, deep and rough, as if his throat is raw.",
+   "seed": 1818,
+   "post": {
+    "pitch": -1
+   },
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_anni",
+   "id": "anni",
+   "name": "Wendigo (Anni-Stimme)",
+   "info": "Anni Hofer, für immer neun – die gefressene Stimme aus dem Wald.",
+   "design": "A nine-year-old German girl from the 1970s with a soft, calm, slightly lower and husky girl's voice, polite and gentle, speaking clearly and slowly, a little sad. Clearly a child, but calmer and darker than a small sing-song girl.",
+   "seed": 1919,
+   "post": {
+    "f0_ziel": 290,
+    "formant": 1.05
+   },
+   "zeilenProben": 3
+  },
+  {
+   "Name": "VOICE_pell",
+   "id": "pell",
+   "name": "Wendigo (Pell-Stimme)",
+   "info": "Dr. Raymond Pell, Amerikaner, gab dem Projekt den Namen. Englisch.",
+   "design": "An American scientist in his fifties with a dry, clinical, slightly nasal baritone voice, calm and detached.",
+   "seed": 2020,
+   "zeilenProben": 1
+  },
+  {
+   "Name": "VOICE_voss",
+   "id": "voss",
+   "name": "Pfarrer Bernhard Voss (Nachbild)",
+   "info": "Bis 1992. Nur ein optionales Nachbild im Kapellenkeller. Trockener Zorn, gefasst.",
+   "design": "A German Catholic priest in his sixties with a bright, clear and resonant tenor voice, crisp precise articulation, measured and stern like a man who preached for decades, with controlled dry anger beneath the calm. Not a deep bass.",
+   "seed": 2121,
+   "zeilenProben": 2
+  },
+  {
+   "Name": "VOICE_funk_blechmann",
+   "id": "funk_blechmann",
+   "name": "Funk: Blechmann",
+   "info": "Bergungstrupp, Atemfilter, Funk.",
+   "design": "A German male soldier with a hard, clipped, commanding voice, speaking in short radio reports.",
+   "seed": 2222,
+   "zeilenProben": 1
+  },
+  {
+   "Name": "VOICE_radio",
+   "id": "radio",
+   "name": "Radio-Moderator",
+   "info": "Sender, den es seit Jahren nicht mehr gibt.",
+   "design": "A German late-night radio host with a smooth, warm, velvety baritone voice, slow and intimate, a little old-fashioned.",
+   "seed": 2323,
+   "zeilenProben": 1
+  },
+  {
+   "Name": "VOICE_kuehn",
+   "id": "kuehn",
+   "name": "Polizeiobermeister Kühn (Mailbox)",
+   "info": "Dorfpolizist, nur Stimme, Mailbox.",
+   "design": "A German village policeman in his fifties with an awkward, mumbling, slightly southern German voice, chewing gum, uncomfortable.",
+   "seed": 2424,
+   "zeilenProben": 1
+  },
+  {
+   "Name": "VOICE_mira",
+   "id": "mira",
+   "name": "Mira (Stimme im Traum, durch den Raben; Frauenstimme in der Villa)",
+   "info": "Die Frau von 1312, deren Rabe Whiskey war. Spricht im Traum durch den Raben, ruhig, sehr weit weg und ganz nah. 'Kum, Wîse.'",
+   "design": "A woman in her thirties with a low, warm, soft and slightly husky alto voice that sounds very far away and very close at the same time, intimate and calm, breathy, old-fashioned and timeless, gentle but sad, like someone whispering from another century. Not a child, not old.",
+   "seed": 2525,
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_dina",
+   "id": "dina",
+   "name": "Dina Aydın",
+   "info": "2009 vom Hof geholt, heute Mitte zwanzig, Augenbinde, Klinik. Knapp, schroff, misstrauisch.",
+   "design": "A German woman in her mid-twenties with a low, flat, husky and guarded voice, blunt and curt, speaking in very short sentences, tired and tense, a little hoarse, never warm or bubbly.",
+   "seed": 2626,
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_aydin",
+   "id": "aydin",
+   "name": "Frau Aydın (Dinas Mutter)",
+   "info": "Türkisch-deutsche Bäuerin um die sechzig, herzlich, laut, fürsorglich ('oğlum'), Sorge um Dina.",
+   "design": "A German woman of Turkish heritage around sixty with a warm, full-bodied and slightly rough alto voice, motherly, caring and firm, worried underneath. Standard German with at most a very faint, barely noticeable accent.",
+   "seed": 2727,
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_heidi",
+   "id": "heidi",
+   "name": "Heidi Winter",
+   "info": "8 im Jahr 2009, Familie weggezogen, heute Mitte zwanzig. Leise, zögernd, verletzt.",
+   "design": "A German woman in her mid-twenties with a soft, thin, hesitant and shy voice, quiet and slightly breathy, nervous, speaking slowly as if remembering something painful.",
+   "seed": 2828,
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_zayn",
+   "id": "zayn",
+   "name": "Zayn Wendt",
+   "info": "Für immer sieben, 2009 verlost, nie zurück. Ernst, einsam, hat gewartet.",
+   "design": "A small German boy about eight or nine with a quiet, soft, slightly hollow child's voice, shy and fearful but curious, speaking slowly and softly. Clearly a little boy.",
+   "seed": 2929,
+   "post": {
+    "f0_ziel": 300,
+    "formant": 1.04
+   },
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_jonas",
+   "id": "jonas",
+   "name": "Jonas Wendt",
+   "info": "Lukes bester Freund als Kind, heute Ende zwanzig in Hamburg; spricht jeden Sonntag auf Hildes Anrufbeantworter.",
+   "design": "A German man in his late twenties with a warm, slightly rough, low-key baritone voice, speaking on the phone to an answering machine, tired, patient and a little sad, friendly.",
+   "seed": 3030,
+   "zeilenProben": 0
+  },
+  {
+   "Name": "VOICE_seiler",
+   "id": "seiler",
+   "name": "Dr. Theodor Seiler",
+   "info": "Der Vermesser (1934-2019), Arzt, Gründer der Außenstelle. Leise Autorität, gebildet.",
+   "design": "An elderly German doctor in his seventies with a thin, precise, cultivated and slightly trembling tenor voice, calm quiet authority, soft-spoken and dry.",
+   "seed": 3131,
+   "zeilenProben": 0
+  }
+ ],
+ "sprecherZuStimme": {
+  "DU": "luke",
+  "DEINE STIMME?": "luke",
+  "LUKE (FUNK)": "luke",
+  "LUCY": "lucy",
+  "LUCY?": "lucy",
+  "LUCYS STIMME?": "lucy",
+  "LUCY · FUNK": "lucy",
+  "LUCY · IM TANK": "lucy",
+  "L. (22.10.)": "lucy",
+  "LUNA": "luna",
+  "DAS KIND": "luna",
+  "KINDERSTIMME": "luna",
+  "EINE MÄDCHENSTIMME": "luna",
+  "ECHTER LUKE": "luke_echt",
+  "DER ECHTE LUKE": "luke_echt",
+  "JUSTIN": "justin",
+  "JUSTINS STIMME?": "justin",
+  "HILDE WENDT": "hilde",
+  "HILDE": "hilde",
+  "FRAU WENDT": "hilde",
+  "VEGAS": "vegas",
+  "LARS VEGAS": "vegas",
+  "LARS VEGAS (HINTER DER TÜR)": "vegas",
+  "WOLTER": "wolter",
+  "HEINRICH WOLTER": "wolter",
+  "NACHSORGE 11": "nachsorge11",
+  "NACHSORGE 12": "nachsorge12",
+  "GISELA": "gisela",
+  "GÜNTHER": "guenther",
+  "GÜNTHER MAAS": "guenther",
+  "MAMA": "mama",
+  "MARION": "mama",
+  "MAMA (BAND)": "mama",
+  "PETER": "peter",
+  "ZAHN-MANN": "peter",
+  "LAUTSPRECHER": "lautsprecher",
+  "HOFER": "hofer",
+  "HOFER?": "hofer",
+  "ANNI": "anni",
+  "ANNI?": "anni",
+  "PELL": "pell",
+  "PELL?": "pell",
+  "PELL (BAND)": "pell",
+  "PELLS STIMME?": "pell",
+  "HOFER? · PELL? · ANNI?": "hofer+pell+anni",
+  "VOSS": "voss",
+  "PFARRER VOSS": "voss",
+  "FUNK": "funk_blechmann",
+  "BLECHMANN": "funk_blechmann",
+  "RADIO": "radio",
+  "KÜHN · MAILBOX": "kuehn",
+  "KÜHN": "kuehn",
+  "DER LANGE": "nachsorge11",
+  "DER KURZE": "nachsorge12",
+  "DER MANN IM MANTEL": "wolter",
+  "MANN VOM AMT": "wolter",
+  "MANN VOM AMT?": "wolter",
+  "LUCY · TONBAND": "lucy",
+  "LUCYS STIMME": "lucy",
+  "LUCY · KANAL B": "lucy",
+  "HERR VEGAS · HINTER DER TÜR": "vegas",
+  "VEGAS, 2009": "vegas",
+  "LARS VEGAS (DRINNEN, LEISE)": "vegas",
+  "HILDE WENDT, 2009": "hilde",
+  "FUNK · 31,10 MHz": "funk_blechmann",
+  "AMTSSTIMME": "lautsprecher",
+  "AUTORADIO": "radio",
+  "JUSTIN · RITTER VOM HOHEN ABGRUND": "justin",
+  "DER MANN IN EISEN": "justin",
+  "???": "luna",
+  "ANRUF": "luke_echt",
+  "WHISKEY (MIT VEGAS’ STIMME)": "vegas",
+  "WHISKEY (MIT DEINER STIMME)": "luke",
+  "WHISKEY (MIT WOLTERS STIMME)": "wolter",
+  "WHISKEY (MIT HILDES STIMME)": "hilde",
+  "WHISKEY (EINE FRAUENSTIMME)": "mira",
+  "DER RABE": "mira",
+  "?": "mira",
+  "DINA": "dina",
+  "FRAU AYDIN": "aydin",
+  "FRAU AYDIN (IM SCHLAF, GANZ LEISE)": "aydin",
+  "HEIDI": "heidi",
+  "ZAYN": "zayn",
+  "JONAS": "jonas",
+  "SEILER": "seiler"
+ },
+ "echoBesetzung": [
+  {
+   "echo": "echo_kreuzung",
+   "titel": "Nachbild · Die Kreuzung, 5. August 2009",
+   "figuren": 8
+  },
+  {
+   "echo": "echo_kueche",
+   "titel": "Nachbild · Küche Nr. 7, Oktober 2009",
+   "figuren": 3
+  },
+  {
+   "echo": "echo_kinderzimmer",
+   "titel": "Nachbild · Kinderzimmer Nr. 1, August 2009",
+   "figuren": 2
+  },
+  {
+   "echo": "echo_brand",
+   "titel": "Nachbild · Haus Nr. 5, Dezember 2009",
+   "figuren": 1
+  },
+  {
+   "echo": "echo_messraum",
+   "titel": "Nachbild · Messraum, Sommer 2009",
+   "figuren": 7
+  },
+  {
+   "echo": "echo_1975",
+   "titel": "Nachbild · Ahornstraße, Sommer 1975",
+   "figuren": 5
+  },
+  {
+   "echo": "echo_mira",
+   "titel": "Nachbild · Nimmerheim, ohne Zeit",
+   "figuren": 8
+  },
+  {
+   "echo": "echo_kanal_ritter",
+   "titel": "Nachbild am Wasser",
+   "figuren": 1
+  },
+  {
+   "echo": "echo_kanal_laterne",
+   "titel": "Nachbild · Laternenfest",
+   "figuren": 3
+  },
+  {
+   "echo": "echo_nord_grab",
+   "titel": "Nachbild · Friedhof am Kirchberg, 1. November 2026",
+   "figuren": 3
+  },
+  {
+   "echo": "echo_roxy_juni",
+   "titel": "Nachbild · Schrebergärten, Juni 2026",
+   "figuren": 1
+  },
+  {
+   "echo": "echo_k3_klar",
+   "titel": "Nachbild · Sommerfest 2009",
+   "figuren": 3
+  },
+  {
+   "echo": "echo_k3_treppe6",
+   "titel": "Nachbild · Treppe von Nr. 6, Sommer 1975",
+   "figuren": 5
+  },
+  {
+   "echo": "echo_zimmer7",
+   "titel": "Nachbild · Zimmer 7, Sommer 2009",
+   "figuren": 2
+  }
+ ],
+ "erwachseneHinweise": [],
+ "stimmenExtras": [
+  {
+   "id": "luna_geliehen",
+   "voice": "lucy",
+   "text": "Komm nach Hause, Luke.",
+   "mood": "Soft, slightly too sweet and slow, as if someone is imitating her. Calm, coaxing."
+  },
+  {
+   "id": "wendigo_hunger_anni",
+   "voice": "anni",
+   "text": "Hunger.",
+   "mood": "Soft hungry whisper, distant."
+  },
+  {
+   "id": "wendigo_hunger_pell",
+   "voice": "pell",
+   "text": "Hunger.",
+   "mood": "Low, clinical whisper.",
+   "lang": "English"
+  },
+  {
+   "id": "aussprache_ohne",
+   "voice": "lucy",
+   "text": "Lost Eyengless. Der Rabe heißt Wîse. Luna. Nimmerheim. Die LWO. Der Wendigo. Das Wort heißt HASENBROT.",
+   "mood": "Calm and clear.",
+   "ohne_lexikon": true
+  },
+  {
+   "id": "aussprache_mit",
+   "voice": "lucy",
+   "text": "Lost Eyengless. Der Rabe heißt Wîse. Luna. Nimmerheim. Die LWO. Der Wendigo. Das Wort heißt HASENBROT.",
+   "mood": "Calm and clear."
+  },
+  {
+   "id": "aussprache_v1",
+   "voice": "lucy",
+   "text": "Willkommen in Lost Aiengless. Der Rabe heißt Wihse. Die LWO kommt donnerstags.",
+   "mood": "Calm and clear.",
+   "ohne_lexikon": true
+  },
+  {
+   "id": "aussprache_v2",
+   "voice": "lucy",
+   "text": "Willkommen in Lost Eiängless. Der Rabe heißt Wiese. Die L-W-O kommt donnerstags.",
+   "mood": "Calm and clear.",
+   "ohne_lexikon": true
+  }
+ ],
+ "figurenJsKopf": [
+  "=====================================================================  FIGUREN (Modul „figuren“): jede Person hat ihr eigenes Aussehen",
+  "Quelle: app/tools/forge.html + cast.json (Figuren-Werkstatt) → game/assets/chars/<id>/model.glb, Liste game/assets/chars/chars.json",
+  "  Kinder 2009: zayn roxy lucy luke luke_echt heidi dina mike cleo graukind (Asset-Ordner „kleine“) · Erwachsene: mama hilde lucy_erw vegas amt1 amt2 aydin dina_erw polizist (Lorenz gestrichen, Fassung 3)",
+  "  Schreckgestalten: graue (das Graukind ohne Mund), hilde_tot, gezaehlt_j/_m (die Behaltenen) · Justin: vorhandenes Paladin-Modell",
+  "NACHBILDER (Fassung 3, Kern §2) – warum Luke sie sieht: Wo das Lichtschiff jemanden nimmt oder zurückgibt, brennt sich ein Bild ein.",
+  "  Sehen kann es nur, wer lange in Nimmerheim war oder aus so jemandem gemacht ist – Luke ist aus Justins Hand gemacht; beim Berühren brennt die halbrunde Narbe."
+ ],
+ "zeilenJeSprecher": [
+  {
+   "sprecher": "LUKE",
+   "stimme": "",
+   "zeilen": 426
+  },
+  {
+   "sprecher": "DAS KIND",
+   "stimme": "luna",
+   "zeilen": 34
+  },
+  {
+   "sprecher": "GISELA",
+   "stimme": "gisela",
+   "zeilen": 24
+  },
+  {
+   "sprecher": "ECHTER LUKE",
+   "stimme": "luke_echt",
+   "zeilen": 23
+  },
+  {
+   "sprecher": "LARS VEGAS",
+   "stimme": "vegas",
+   "zeilen": 21
+  },
+  {
+   "sprecher": "GÜNTHER",
+   "stimme": "guenther",
+   "zeilen": 20
+  },
+  {
+   "sprecher": "LUCY",
+   "stimme": "lucy",
+   "zeilen": 18
+  },
+  {
+   "sprecher": "FRAU AYDIN",
+   "stimme": "aydin",
+   "zeilen": 18
+  },
+  {
+   "sprecher": "DER RABE",
+   "stimme": "mira",
+   "zeilen": 18
+  },
+  {
+   "sprecher": "LUNA",
+   "stimme": "luna",
+   "zeilen": 16
+  },
+  {
+   "sprecher": "VEGAS",
+   "stimme": "vegas",
+   "zeilen": 15
+  },
+  {
+   "sprecher": "LUCY · IM TANK",
+   "stimme": "lucy",
+   "zeilen": 14
+  },
+  {
+   "sprecher": "DINA",
+   "stimme": "dina",
+   "zeilen": 14
+  },
+  {
+   "sprecher": "HILDE WENDT",
+   "stimme": "hilde",
+   "zeilen": 13
+  },
+  {
+   "sprecher": "LUCY · TONBAND",
+   "stimme": "lucy",
+   "zeilen": 12
+  },
+  {
+   "sprecher": "HERR VEGAS · HINTER DER TÜR",
+   "stimme": "vegas",
+   "zeilen": 11
+  },
+  {
+   "sprecher": "HEIDI",
+   "stimme": "heidi",
+   "zeilen": 8
+  },
+  {
+   "sprecher": "KINDERSTIMME",
+   "stimme": "luna",
+   "zeilen": 7
+  },
+  {
+   "sprecher": "JUSTIN",
+   "stimme": "justin",
+   "zeilen": 6
+  },
+  {
+   "sprecher": "HILDE",
+   "stimme": "hilde",
+   "zeilen": 6
+  },
+  {
+   "sprecher": "KOMBINIEREN",
+   "stimme": "",
+   "zeilen": 5
+  },
+  {
+   "sprecher": "LUCY?",
+   "stimme": "lucy",
+   "zeilen": 5
+  },
+  {
+   "sprecher": "WOLTER",
+   "stimme": "wolter",
+   "zeilen": 5
+  },
+  {
+   "sprecher": "LAUTSPRECHER",
+   "stimme": "lautsprecher",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "DU",
+   "stimme": "luke",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "LUCYS STIMME",
+   "stimme": "lucy",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "NACHBILD · 2009",
+   "stimme": "",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "ANNI",
+   "stimme": "anni",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "TONBAND",
+   "stimme": "",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "NACHBILD",
+   "stimme": "",
+   "zeilen": 4
+  },
+  {
+   "sprecher": "VEGAS, 2009",
+   "stimme": "vegas",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "MANN VOM AMT",
+   "stimme": "wolter",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "PETER",
+   "stimme": "peter",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "RADIO",
+   "stimme": "radio",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "HOFER?",
+   "stimme": "hofer",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "LUCY · KANAL B",
+   "stimme": "lucy",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "NACHSORGE 11",
+   "stimme": "nachsorge11",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "ZAYN",
+   "stimme": "zayn",
+   "zeilen": 3
+  },
+  {
+   "sprecher": "AUTORADIO",
+   "stimme": "radio",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "STIMME",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "MAMA",
+   "stimme": "mama",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "ROXY, 8",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "SEILER",
+   "stimme": "seiler",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "KIND",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "JUNGE",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "TAFEL",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "MANN VOM AMT?",
+   "stimme": "wolter",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "UNTERSUCHEN",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "FUNK · 31,10 MHz",
+   "stimme": "funk_blechmann",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "WHISKEY",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "LUCYS STIMME?",
+   "stimme": "lucy",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "ANNI?",
+   "stimme": "anni",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "JONAS",
+   "stimme": "jonas",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "ARBEITER",
+   "stimme": "",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "PELL (BAND)",
+   "stimme": "pell",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "PELLS STIMME?",
+   "stimme": "pell",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "KÜHN · MAILBOX",
+   "stimme": "kuehn",
+   "zeilen": 2
+  },
+  {
+   "sprecher": "ALLE TEXTE",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "SICHERN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EIN MÄDCHEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "LARS VEGAS, 9",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "DER MANN IN EISEN",
+   "stimme": "justin",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "LARS VEGAS (DRINNEN, LEISE)",
+   "stimme": "vegas",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "TOF",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "ROXY",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "HEBEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "AUFSCHLAGEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "IN DIE LAMPE",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EINE ABLEGEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EINS ABLEGEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "NACHFÜLLEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "KNICKEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "CLEO",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "ZYKLUS 2009",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "BLEIBT ZU.",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "NACHSORGE 12 (FUNK)",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "NACHSORGE 11 (FUNK)",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "FUNK",
+   "stimme": "funk_blechmann",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "DEINE STIMME?",
+   "stimme": "luke",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EINE FRAUENSTIMME",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "KEINER",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "VEIT",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "AMTSSTIMME",
+   "stimme": "lautsprecher",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "HASENBROT",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "FRAU REUTER, 2009",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "HILDE WENDT, 2009",
+   "stimme": "hilde",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "LUCY · FUNK",
+   "stimme": "lucy",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "MARION",
+   "stimme": "mama",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "FRAU AYDIN (IM SCHLAF, GANZ LEISE)",
+   "stimme": "aydin",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EINE MÄDCHENSTIMME",
+   "stimme": "luna",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "CHEF (AM TELEFON)",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "KLICK · ÜBERSPRINGEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "W · GEHEN",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "DREIPUNKT",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "NACHSORGE 12",
+   "stimme": "nachsorge12",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "MAMA (BAND)",
+   "stimme": "mama",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "EINE MÄNNERSTIMME IM NEBEL",
+   "stimme": "",
+   "zeilen": 1
+  },
+  {
+   "sprecher": "MESS",
+   "stimme": "",
+   "zeilen": 1
+  }
+ ],
+ "geisterDoku": {
+  "datei": "docs/gameplay/geister.md",
+  "titel": "Geister – gemeinsamer Look (Modul `geister`, Stand 08.10.2026)",
+  "abschnitte": [
+   {
+    "ebene": 1,
+    "titel": "(Einleitung)",
+    "zeile": 1,
+    "text": [
+     "# Geister – gemeinsamer Look (Modul `geister`, Stand 08.10.2026)",
+     "Alle Geister im Spiel laufen über **app/mods/geister.js**: Echos (`ECHO_CAST`), Nachbilder an Orten (`figuren_person`: cleo, visionen, zayn; kapitel3 Nachbild 2009, lucy3, kapitel5 Mama/Laterne), weiss.js (`weiss_ghostify`), die Mannequin-Geister der Basis (`FAB.figs`).",
+     "`figuren_ghostMat` / `figuren_geistBau` / `figuren_memoryLook` (figuren.js) rufen nur noch `geister_mat` / `geister_bau` / `geister_look` auf. Reihenfolge in tools/assemble.js: `auftritt, geister, leistung`.",
+     "kino.js hat keine Geister-Figuren (nur eigene Graufilter für Rückblenden) – dort war nichts umzustellen."
+    ],
+    "tabellen": []
+   },
+   {
+    "ebene": 2,
+    "titel": "Aufbau je Figur",
+    "zeile": 7,
+    "text": [
+     "Material-Klone je Figur teilen das Programm (nur die Uniforms `uF`, `uK`, `uE` sind je Figur). Keine neuen Lichter."
+    ],
+    "tabellen": [
+     {
+      "kopf": [
+       "Teil",
+       "Was",
+       "Kosten"
+      ],
+      "zeilen": [
+       [
+        "Geister-Hülle",
+        "MeshStandard + `onBeforeCompile`, Programmschlüssel **`geist5`** (ein Programm je three.js-Variante: Karte/Alphatest/Seite/Morph), vormultiplizierte Mischung (`One, OneMinusSrcAlpha`)",
+        "wie bisher (gleiche Hüllen)"
+       ],
+       [
+        "Tiefen-Zwilling",
+        "MeshBasic, nur Tiefe, Schlüssel **`geistZ5`**, gleiches Wabern/Auflösen",
+        "wie bisher"
+       ],
+       [
+        "Nachbild",
+        "Kopie der 3 größten Skin-Hüllen, Knochen 0,12 s zurück (Ringpuffer, 16 Bilder); nur < 14 m, höchstens 6 Figuren, nicht bei eingefrorenen",
+        "≤ 18 Zeichenaufrufe"
+       ],
+       [
+        "Effekte",
+        "EIN instanzierter Zeichenaufruf für alle: je Figur (8 nächste) Kontaktschatten, 5 Bodennebel, 36 Glimmer",
+        "1 Aufruf, 336 Quads"
+       ],
+       [
+        "Lichtkegel",
+        "ein offener Kegel über dem Echo (nur während Echos)",
+        "1 Aufruf"
+       ]
+      ],
+      "zeilenObjekte": [
+       {
+        "Teil": "Geister-Hülle",
+        "Was": "MeshStandard + `onBeforeCompile`, Programmschlüssel **`geist5`** (ein Programm je three.js-Variante: Karte/Alphatest/Seite/Morph), vormultiplizierte Mischung (`One, OneMinusSrcAlpha`)",
+        "Kosten": "wie bisher (gleiche Hüllen)"
+       },
+       {
+        "Teil": "Tiefen-Zwilling",
+        "Was": "MeshBasic, nur Tiefe, Schlüssel **`geistZ5`**, gleiches Wabern/Auflösen",
+        "Kosten": "wie bisher"
+       },
+       {
+        "Teil": "Nachbild",
+        "Was": "Kopie der 3 größten Skin-Hüllen, Knochen 0,12 s zurück (Ringpuffer, 16 Bilder); nur < 14 m, höchstens 6 Figuren, nicht bei eingefrorenen",
+        "Kosten": "≤ 18 Zeichenaufrufe"
+       },
+       {
+        "Teil": "Effekte",
+        "Was": "EIN instanzierter Zeichenaufruf für alle: je Figur (8 nächste) Kontaktschatten, 5 Bodennebel, 36 Glimmer",
+        "Kosten": "1 Aufruf, 336 Quads"
+       },
+       {
+        "Teil": "Lichtkegel",
+        "Was": "ein offener Kegel über dem Echo (nur während Echos)",
+        "Kosten": "1 Aufruf"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ebene": 2,
+    "titel": "Look-Parameter (`GEIST.G`, `GEIST.L`, Shader-Konstanten)",
+    "zeile": 18,
+    "text": [],
+    "tabellen": [
+     {
+      "kopf": [
+       "Parameter",
+       "Wert",
+       "Wirkung"
+      ],
+      "zeilen": [
+       [
+        "`uCA`",
+        "(0,20 · 0,38 · 0,86)",
+        "Randfarbe unten/außen (kalt, tief)"
+       ],
+       [
+        "`uCB`",
+        "(0,80 · 0,89 · 1,00)",
+        "Randfarbe oben/streifend (blass)"
+       ],
+       [
+        "`uCC`",
+        "(0,48 · 0,56 · 0,72)",
+        "Körper-Grundton (mit Albedo moduliert)"
+       ],
+       [
+        "Fresnel",
+        "`pow(1 −",
+        "N·V",
+        ", 2)`",
+        "Rand dicht, Körper durchscheinend: Deckung 0,06 (Mitte) … 0,30 (Rand) + 0,08 · Albedo (+0,1 im Gesicht)"
+       ],
+       [
+        "Innenstruktur",
+        "Albedo-Helligkeit, `0,5 + (√L − 0,55) · 0,6`",
+        "entsättigt, kontrastarm – Falten/Kleidung bleiben lesbar"
+       ],
+       [
+        "Szenenlicht",
+        "`× (1 + min(2,2 · L_licht, 1,4))`",
+        "Taschenlampe/Lampen hellen den Geist auf"
+       ],
+       [
+        "Auflösung (Schlieren)",
+        "Rauschen `vWP · (5,5; 1,35; 5,5)`, steigt mit 0,55/s",
+        "an Rand (0,5), Händen/Füßen (Abstand zur Körperachse, 0,45), Scheitel (0,6), Füßen/Boden (0,75); nie ganze Glieder (max. 93 %)"
+       ],
+       [
+        "Auftritt/Abgang",
+        "Front `p · 1,6 − 0,3` (Höhe 0…1), Rausch-Rand ±0,15, Glutkante 0,07",
+        "von unten nach oben; `p` folgt der Stärke mit max. 2/s (Flimmer-Einbrüche bewegen die Front kaum), Sichtbarwerden: 1,1 s"
+       ],
+       [
+        "Helligkeit",
+        "`min(uGhost / 0,45, 1)`, über 1: `1 + (uGhost − 1) · 0,3`",
+        "Ausblenden zeigt erst die Auflösung, dann das Dunkelwerden"
+       ],
+       [
+        "Wabern `uWav`",
+        "0,011 m · Höhe/1,7",
+        "Wellen 4,2/9,1 rad/m, unten (Saum) 100 %, oben 30 %; Schweben ±4 mm"
+       ],
+       [
+        "Flimmern",
+        "0,94…1,0 (1,7 rad/s), Einbruch auf 0,55–0,8 für 60–140 ms alle 2,5–7 s",
+        ""
+       ],
+       [
+        "Nachbild",
+        "Verzögerung `GEIST.L.lag` 0,12 s, Stärke 30 %, beim Stocken/Schleifensprung 58 %",
+        ""
+       ],
+       [
+        "Sättigungsausgleich",
+        "Chroma `/ uSat`",
+        "Geister behalten Farbe, die Umgebung wird blass"
+       ]
+      ],
+      "zeilenObjekte": [
+       {
+        "Parameter": "`uCA`",
+        "Wert": "(0,20 · 0,38 · 0,86)",
+        "Wirkung": "Randfarbe unten/außen (kalt, tief)"
+       },
+       {
+        "Parameter": "`uCB`",
+        "Wert": "(0,80 · 0,89 · 1,00)",
+        "Wirkung": "Randfarbe oben/streifend (blass)"
+       },
+       {
+        "Parameter": "`uCC`",
+        "Wert": "(0,48 · 0,56 · 0,72)",
+        "Wirkung": "Körper-Grundton (mit Albedo moduliert)"
+       },
+       {
+        "Parameter": "Fresnel",
+        "Wert": "`pow(1 −",
+        "Wirkung": "N·V"
+       },
+       {
+        "Parameter": "Innenstruktur",
+        "Wert": "Albedo-Helligkeit, `0,5 + (√L − 0,55) · 0,6`",
+        "Wirkung": "entsättigt, kontrastarm – Falten/Kleidung bleiben lesbar"
+       },
+       {
+        "Parameter": "Szenenlicht",
+        "Wert": "`× (1 + min(2,2 · L_licht, 1,4))`",
+        "Wirkung": "Taschenlampe/Lampen hellen den Geist auf"
+       },
+       {
+        "Parameter": "Auflösung (Schlieren)",
+        "Wert": "Rauschen `vWP · (5,5; 1,35; 5,5)`, steigt mit 0,55/s",
+        "Wirkung": "an Rand (0,5), Händen/Füßen (Abstand zur Körperachse, 0,45), Scheitel (0,6), Füßen/Boden (0,75); nie ganze Glieder (max. 93 %)"
+       },
+       {
+        "Parameter": "Auftritt/Abgang",
+        "Wert": "Front `p · 1,6 − 0,3` (Höhe 0…1), Rausch-Rand ±0,15, Glutkante 0,07",
+        "Wirkung": "von unten nach oben; `p` folgt der Stärke mit max. 2/s (Flimmer-Einbrüche bewegen die Front kaum), Sichtbarwerden: 1,1 s"
+       },
+       {
+        "Parameter": "Helligkeit",
+        "Wert": "`min(uGhost / 0,45, 1)`, über 1: `1 + (uGhost − 1) · 0,3`",
+        "Wirkung": "Ausblenden zeigt erst die Auflösung, dann das Dunkelwerden"
+       },
+       {
+        "Parameter": "Wabern `uWav`",
+        "Wert": "0,011 m · Höhe/1,7",
+        "Wirkung": "Wellen 4,2/9,1 rad/m, unten (Saum) 100 %, oben 30 %; Schweben ±4 mm"
+       },
+       {
+        "Parameter": "Flimmern",
+        "Wert": "0,94…1,0 (1,7 rad/s), Einbruch auf 0,55–0,8 für 60–140 ms alle 2,5–7 s",
+        "Wirkung": ""
+       },
+       {
+        "Parameter": "Nachbild",
+        "Wert": "Verzögerung `GEIST.L.lag` 0,12 s, Stärke 30 %, beim Stocken/Schleifensprung 58 %",
+        "Wirkung": ""
+       },
+       {
+        "Parameter": "Sättigungsausgleich",
+        "Wert": "Chroma `/ uSat`",
+        "Wirkung": "Geister behalten Farbe, die Umgebung wird blass"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ebene": 2,
+    "titel": "Kopf und Gesicht (09.10., Befund Bündel 2: abgeschnittene Köpfe, fehlende Gesichter)",
+    "zeile": 35,
+    "text": [
+     "- Kopfmaske je Figur (`uHd`: Kopfknochen + 7 cm, Radius 0,17 m · Größe/1,7, min. 0,75): im Kopf keine Rausch-Kante (Auf-/Abtritt blendet dort weich), keine Schlieren, Albedo-Kontrast 1,35 statt 0,75, Rand schwächer, Körperanteil stärker.",
+     "- Augäpfel bleiben sichtbar (nur Hornhaut/Tränenrand/Augenschatten, Zähne, Zunge, Mundraum, Wimpern sind aus); die Tiefen-Zwillinge verhindern das Durchscheinen.",
+     "- Ursache der abgeschnittenen Köpfe: beim flimmernden Ausblenden sprang der Modus zwischen Auftritt/Abgang – jetzt schaltet er nur bei 0 bzw. 1 um.",
+     "- Nachbild: strenger Tiefentest (deckungsgleiche Flächen nicht doppelt), dunkelt nie ab (nur Licht).",
+     "- Hintergrund-Abdunklung: Deckung jetzt 0,06 (Mitte) … 0,30 (Rand), max. 0,6."
+    ],
+    "tabellen": []
+   },
+   {
+    "ebene": 2,
+    "titel": "Animation",
+    "zeile": 42,
+    "text": [
+     "- Zeitlupe je Figur 0,72–0,85 (Mischer-Tempo), **beim Gehen Tempo 1** (Schrittlänge = Weg, kein Gleiten).",
+     "- Stocken 80–150 ms alle 4–9 s (nur im Stand), Schleifensprung (Clip-Zeit springt zurück) wird mit Flimmern + Nachbild verdeckt.",
+     "- Echo-Regie `GEIST_REGIE` (geister.js): Ruhe-Clip je Figur (Sitz-Clips nur, wenn die Figur sitzend platziert ist – sonst `idle2`), Sprecher (Untertitel-Name) → `talk`/`erklaeren`/`sit_talk` für die Zeilendauer, die anderen sehen zum Sprecher (Kopf-/Blickfeder aus figuren.js), `blick`: Figur, zu der alle sehen (Kinder → Vegas), `cam`: Figur sieht zu Luke („zu dir“). „???“-Zeilen flüstern direkt am Ohr.",
+     "- Atmung, Blick, Fuß-IK: unverändert aus figuren.js."
+    ],
+    "tabellen": []
+   },
+   {
+    "ebene": 2,
+    "titel": "Echo-Start/-Ende",
+    "zeile": 48,
+    "text": [],
+    "tabellen": [
+     {
+      "kopf": [
+       "Effekt",
+       "Wert"
+      ],
+      "zeilen": [
+       [
+        "Entsättigung (`filmPass` → `gSat`)",
+        "1 → 0,6 (1,2 s ein, 1,6 s aus) – ersetzt den CSS-Filter von `figuren_memoryLook`"
+       ],
+       [
+        "Bleichung/Korn (`gBl`)",
+        "0 → 0,14 (Silberrest-Mischung, Korn × 1,2)"
+       ],
+       [
+        "Vignette",
+        "+0,22 auf den aktuellen Wert"
+       ],
+       [
+        "Farbsaum",
+        "Puls +0,010 (Start), +0,005 (Ende), klingt mit e^(−2,2 t) ab; Dauer +0,0015"
+       ],
+       [
+        "Lampen",
+        "vorhandene virtuelle Lichter (`vlights`) < 14 m: im Echo +22 % heller (Szene bleibt lesbar), leises Flackern 2–5 %, weiche Aussetzer auf 70–85 % (flickDip) – am Anfang gehäuft; am Ende auf den Wert, den die Lampe selbst hat"
+       ],
+       [
+        "Lichtkegel",
+        "Stärke 0,035 (Staubschicht, kein Licht)"
+       ],
+       [
+        "Ton",
+        "Herzschlag `pz_herz_*` (0,5, Tiefpass 420 Hz), Druck `fx_tief_2` (0,18, Rate 0,78), Flüsterschicht `fx_fluester_*` alle 2,4–4,8 s an einer der Figuren (räumlich → Hall über raumklang), Ende: Ausatmen `pz_atem_*`"
+       ]
+      ],
+      "zeilenObjekte": [
+       {
+        "Effekt": "Entsättigung (`filmPass` → `gSat`)",
+        "Wert": "1 → 0,6 (1,2 s ein, 1,6 s aus) – ersetzt den CSS-Filter von `figuren_memoryLook`"
+       },
+       {
+        "Effekt": "Bleichung/Korn (`gBl`)",
+        "Wert": "0 → 0,14 (Silberrest-Mischung, Korn × 1,2)"
+       },
+       {
+        "Effekt": "Vignette",
+        "Wert": "+0,22 auf den aktuellen Wert"
+       },
+       {
+        "Effekt": "Farbsaum",
+        "Wert": "Puls +0,010 (Start), +0,005 (Ende), klingt mit e^(−2,2 t) ab; Dauer +0,0015"
+       },
+       {
+        "Effekt": "Lampen",
+        "Wert": "vorhandene virtuelle Lichter (`vlights`) < 14 m: im Echo +22 % heller (Szene bleibt lesbar), leises Flackern 2–5 %, weiche Aussetzer auf 70–85 % (flickDip) – am Anfang gehäuft; am Ende auf den Wert, den die Lampe selbst hat"
+       },
+       {
+        "Effekt": "Lichtkegel",
+        "Wert": "Stärke 0,035 (Staubschicht, kein Licht)"
+       },
+       {
+        "Effekt": "Ton",
+        "Wert": "Herzschlag `pz_herz_*` (0,5, Tiefpass 420 Hz), Druck `fx_tief_2` (0,18, Rate 0,78), Flüsterschicht `fx_fluester_*` alle 2,4–4,8 s an einer der Figuren (räumlich → Hall über raumklang), Ende: Ausatmen `pz_atem_*`"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ebene": 2,
+    "titel": "Leistung",
+    "zeile": 59,
+    "text": [
+     "Ziel ≤ 1,5 ms Zusatz bei 6 Geistern im Bild. Takt `__geister.S.ms` (CPU), Prüfschritt `g_gang_fps6` / `g_kreuz_fps` misst mit/ohne."
+    ],
+    "tabellen": []
+   },
+   {
+    "ebene": 2,
+    "titel": "Test",
+    "zeile": 62,
+    "text": [
+     "Steps-Datei `C:\\Users\\GIGABYTE\\_visual\\geister.json` (ohne s0, für die Dauerinstanz `_live.sh start normal` → `_live.sh run _visual/geister.json`).",
+     "Testzugriff `window.__geister`: `stat()`, `echo(id)` (Nachbild erneut abspielen), `halt(0…0,32)` (Echo-Stärke festhalten), `look(on)`, `S` (alle Parameter, live änderbar: `S.G.uWav.value`, `S.L.lag` …)."
+    ],
+    "tabellen": []
+   }
+  ]
+ }
+}

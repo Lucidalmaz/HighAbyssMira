@@ -1,0 +1,3570 @@
+{
+ "raetselTabellen": [
+  {
+   "Name": "PUZ_k12_1_1",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.1",
+   "raetsel": "Briefkasten Nr. 7 → Schlüssel",
+   "loesung": "`kapitel1_briefkasten`: Briefkasten klicken → `state.hasKey`, `door7.locked=false`, `setMain(1)`, Schlüssel + Zettel",
+   "hinweise": "MAIN[0] „Finde Haus Nr. 7“; ZIELE_WARUM („Lucy hat früher immer was im Briefkasten versteckt“); verschlossene Tür: „Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.“; Faden „Weg in Haus Nr. 7“; Whiskey pickt am Briefkasten",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_2",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.2",
+   "raetsel": "Haustür",
+   "loesung": "`doorAction`: offen sobald `locked=false`; Öffnen → `setMain(2)`",
+   "hinweise": "MAIN[2] „Durchsuche Haus Nr. 7 …Band im Keller“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_3",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.3",
+   "raetsel": "Kühlschrankzettel / Kalender → Hinweis auf 3110",
+   "loesung": "Zettel „31.10.“ → `setMain(3)`; Kalender „31. dick eingekreist“",
+   "hinweise": "Zettel (31.10.), Kalender, Polaroid (31.10.), Faden „Durchsuche …“ nennt Kalender",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_4",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.4",
+   "raetsel": "**Tastenfeld Kellertür 3110**",
+   "loesung": "`kapitel1_kpPress`: Eingabe `3110` (Tag 31, Monat 10)",
+   "hinweise": "Beim Öffnen: „Drei Tasten abgegriffen: 0, 1 und 3“. Fehler 1: Kratzen + Lucy-Stimme + Blick zum Kalender; Fehler 2: „Tag und Monat“; Fehler 3: Schreck + „Lies, was im Haus liegt. Der Kalender weiß den Tag.“; 40 s Gedanke; Whiskey-Fenster bei Fehler 5. **Lücke:** ab Fehler 4 war die Meldung leer (`kpSay('')`); die alte Basishilfe „Erst der Tag, dann der Monat“ fiel weg. MAIN[3] „Öffne die Kellertür.“ sagte nicht, dass es ein Ziffernschloss ist",
+   "bewertung": "unklar → behoben",
+   "verbesserung": "**Umgesetzt (kapitel1.js):** Fehler 4: „Der Kalender weiß den Tag. Erst der Tag, dann der Monat.“; Fehler 5: „Stille.“; ab 6: „Nur 0, 1 und 3 sind abgegriffen. Der eingekreiste Tag, dann der Monat.“; MAIN[3] = „Öffne die Kellertür. Das Tastenfeld will vier Ziffern.“"
+  },
+  {
+   "Name": "PUZ_k12_1_5",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.5",
+   "raetsel": "Keller: Zettel, Rekorder, Band",
+   "loesung": "`kapitel1_band`: 1. Klick Zettel am Rekorder, 2. Klick „Kassette abspielen“ (Band läuft, bei Stillstand 1,2 s weiter) → „… danke, Luke …“ → `heardTape`, `setMain(5)`",
+   "hinweise": "MAIN[4] „Finde heraus, was Lucy hinterlassen hat“; Zettel „Erst hören, dann heim“ an Rekorder und Wand; Interaktionsname wechselt „Zettel am Rekorder“ → „Kassette abspielen“; Treppe vorher: „Noch nicht. Lucy wollte, dass du hier etwas findest.“; Faden („Lucy hinterlassen“)",
+   "bewertung": "OK",
+   "verbesserung": "Faden-Text konkreter (siehe unten)"
+  },
+  {
+   "Name": "PUZ_k12_1_6",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.6",
+   "raetsel": "Treppe nach oben",
+   "loesung": "`kapitel1_treppe` → `leaveBasement` nur mit `heardTape`",
+   "hinweise": "MAIN[5] „…die Treppe hoch. Hinterher.“; Faden „Die Haustür. Vorhin war die zu.“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_7",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.7",
+   "raetsel": "Stromausfall",
+   "loesung": "startet nach 150 s oder 14 m vor Nr. 7 (`kapitel1_ausfall`); Hilde/UFO-Kino läuft von selbst",
+   "hinweise": "**Defekt (Aufgabenzeile):** `kapitel1_ausfall` ersetzt die Basisfunktion und rief `setMain(6)` nicht auf → während des Ausfalls blieb „Hinterher“ stehen",
+   "bewertung": "defekt → behoben",
+   "verbesserung": "**Umgesetzt:** `setMain(6)` in `kapitel1_ausfall`; `MAIN[6]` = „Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt.“"
+  },
+  {
+   "Name": "PUZ_k12_1_8",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.8",
+   "raetsel": "Versteck vor dem Lichtkegel",
+   "loesung": "`kapitel1_versteck`: Deckung (Hecken, Tonnen, Veranda, Bäume …) oder Keller; erwischt = gehoben + fallen gelassen, kein Tod; Ziel erreicht, wenn Luke die Kellertür/Treppe erreicht",
+   "hinweise": "MAIN[7] „Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.“; Vegas ruft von der Veranda; Whiskey wartet auf Deckungen; Faden „Hecken, Mülltonnen, Veranda“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_9",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.9",
+   "raetsel": "Kellerende: Hand an die Wand",
+   "loesung": "`kapitel1_kellerEnde` → Interaktion „Die Hand an die Wand legen“ → `kapitel1_ende`",
+   "hinweise": "Zeile „Hinter die Bilder. Lucy.“; **Lücke:** Aufgabenzeile blieb „Versteck dich vor dem Licht“ (veraltet), Wand ist zugleich Zeichnungswand (zwei Interaktionen)",
+   "bewertung": "unklar → behoben",
+   "verbesserung": "**Umgesetzt:** nach der Zeile Ziel „Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.“ (setMain(8) überschreibt danach)"
+  },
+  {
+   "Name": "PUZ_k12_1_10",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.10",
+   "raetsel": "Geheimes Ende „Fahr heim“",
+   "loesung": "nur vor dem Tonband",
+   "hinweise": "Haltestelle „Auf den ersten Bus warten“",
+   "bewertung": "OK (optional)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_1_11",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.11",
+   "raetsel": "Nebenaufgabe „Sind sie wieder da?“ (Karten, Nr. 2)",
+   "loesung": "16 Karten nach Poststempel ordnen, 17. im Gras",
+   "hinweise": "Poststempel (Jahr) war **nicht sichtbar**, Orte doppelt (Kiel ×2, Göttingen ×2, Kassel ×2, Kreisstadt ×3) → nur Raten; nach Fund der 17. musste alles neu geordnet werden",
+   "bewertung": "unklar → behoben",
+   "verbesserung": "**Umgesetzt (post.js):** Knopf zeigt „Stempel 20xx“; Text „… die älteste zuerst“; Stand der ersten 16 wird gemerkt (`steps.k16`), 17. wird einzeln einsortiert"
+  },
+  {
+   "Name": "PUZ_k12_1_12",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.12",
+   "raetsel": "Nebenaufgabe Dina/Scheune (Kap. 1)",
+   "loesung": "Lampe aus, dem Summen folgen",
+   "hinweise": "Hilfestufen 1–5; Stufe 3 wurde nie vergeben, Stufe 5 sprach „Hier. Du Trampel.“ doppelt",
+   "bewertung": "unklar → behoben",
+   "verbesserung": "**Umgesetzt (ausbau_ost_west.js):** Stufe 3 (ab 75 s: „Links/Rechts von mir. Nah.“), Doppelzeile entfernt"
+  },
+  {
+   "Name": "PUZ_k12_1_13",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 1",
+   "nummer": "1.13",
+   "raetsel": "Nebenaufgabe Geldkassette (Tankstelle)",
+   "loesung": "Code 0313 (Leuchtschild)",
+   "hinweise": "Leuchtschild + Schaufenster-Kalender; **sideDone beim Öffnen**, obwohl die Aufgabe „(n/5)“ Spuren verlangt → vorzeitiger Abschluss; kein Hinweis bei Fehlversuchen",
+   "bewertung": "defekt (Logik) → behoben",
+   "verbesserung": "**Umgesetzt:** Abschluss erst bei 6/6 (inkl. Kassette), Hinweis ab 3 Fehlversuchen"
+  },
+  {
+   "Name": "PUZ_k12_2_1",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.1",
+   "raetsel": "Gang hinter der Wand → Amt-Tunnel",
+   "loesung": "Kapitelwechsel durch Gehen (`uebergang.js`), Tür fällt zu",
+   "hinweise": "MAIN[8], C2_MAIN[0] „Folge dem Gang. Irgendwo hier unten ist Lucy.“, Zeile „Hinter dir fällt die Tür ins Schloss“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_2",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.2",
+   "raetsel": "Archiv: sieben Akten + **Ordnungstafel**",
+   "loesung": "Reihenfolge Roxy, Lucy, Mike, Dina, Heidi, Luke, Zayn (Rückführungszeit aus den Akten)",
+   "hinweise": "Aufgabe nach 3 gelesenen Akten: „Bring die Namen in die richtige Reihenfolge.“; Tafel: „Wer zuerst kam, steht links“; Fehler: Nadeldrucker, ab 2/4/6 Hilfe (Zeile, Band, leuchtendes Feld). Akte 01 nennt „erste Rückkehr“ (löst Roxy/Lucy-Mehrdeutigkeit)",
+   "bewertung": "OK (Aufgabentext war zu knapp)",
+   "verbesserung": "**Umgesetzt (amt.js, AMT_ZIEL):** „Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links.“"
+  },
+  {
+   "Name": "PUZ_k12_2_3",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.3",
+   "raetsel": "Schublade → Schlüssel ZIMMER 7",
+   "loesung": "Nach Lösung Schublade klicken, Protokoll schließen → `z7_protokoll`",
+   "hinweise": "Toast „Die unterste Schublade … springt auf“, Aufgabe „Ein Schlüssel aus der Schublade: ZIMMER 7“. **Softlock-Verdacht Laden:** nach Speichern (Zahlenschloss `saveGame(2)`, Beobachter) wurde die Schublade nach „Weiterspielen“ nicht neu verdrahtet. Korrektur der Vorab-Meldung: der Schlüssel selbst kommt über `zimmer7.js` (CH2_BEGIN) wieder; verloren ging nur das Protokoll (Story-Text, Lore) und die Schublade war tot",
+   "bewertung": "unklar → behoben",
+   "verbesserung": "**Umgesetzt:** Callback als Funktion `archiveDrawerRead()` (Basis), `tod_ch2Apply` registriert sie bei geladener gelöster Tafel neu"
+  },
+  {
+   "Name": "PUZ_k12_2_4",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.4",
+   "raetsel": "Zimmer 7 → Schlüssel SICHERUNG",
+   "loesung": "Tür mit Schlüssel, Schlüssel am Haken nehmen",
+   "hinweise": "Schild „ZIMMER 7 · H. WENDT“, Band „Zimmer sieben ist heute geschlossen“; Haken-Interaktion „Schlüssel am Haken“; danach Aufgabe „Ohne Strom … Sicherungsraum“; falscher Schlüssel am Sicherungsraum erklärt sich („auf seinem Schild steht ZIMMER 7“)",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_5",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.5",
+   "raetsel": "Sicherungsraum / Sicherungskasten (6 Hebel)",
+   "loesung": "Hebel 2-3-4-5 einschalten (1 und 6 leuchten schon); leuchtender Hebel wird bestraft (laut, Nachbarn fallen)",
+   "hinweise": "Kreide „Fang nie mit dem an, der schon leuchtet“; Zeilen nach 6/15 Umschaltungen, nach 30 Reset mit leuchtendem Hinweis; Funk AG-06 vorher",
+   "bewertung": "OK",
+   "verbesserung": "Faden-Eintrag (siehe unten)"
+  },
+  {
+   "Name": "PUZ_k12_2_6",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.6",
+   "raetsel": "Spinnenraum (Schüttel-QTE)",
+   "loesung": "Maus wild / A-D hämmern",
+   "hinweise": "Aufgabe „SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern“, HUD, Barrierefreiheit `settings.qte`",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_7",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.7",
+   "raetsel": "Prüfraum 3: Feuerzeug (Pflicht für die Osttür)",
+   "loesung": "Matratze in Peters Zelle, Feuerzeug nehmen → Riegel springt",
+   "hinweise": "Tür: „Der Riegel sitzt“; nach 20 s Aufgabe „Die Matratze. Da glänzt was.“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_8",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.8",
+   "raetsel": "Flucht vor Peter: Fass, Öl, Feuerzeug, Notschalter",
+   "loesung": "QTE Losreißen → Fass (E) → Peter liegt im Öl → „Das Öl anzünden“ (E) → Brandalarm, Notentriegelung E halten; Rückweg ohne Kampf nach 90 s",
+   "hinweise": "Aufgaben „Das Öl anzünden – schnell! (E)“, Fehlschlagtexte („Zu nah am Öl“, „Du stehst selbst im Öl“), nach 10 s „Das Öl liegt noch da. Das Feuerzeug auch.“, nach 90 s Alarm-Rückfall, rote Leuchte",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_9",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.9",
+   "raetsel": "AG-06 / AG-07 (Schleichen, Atem anhalten)",
+   "loesung": "AG-07: Lampe aus, still stehen hinter den Schränken, bei Nähe LEERTASTE halten",
+   "hinweise": "HUD-Hinweise „Lampe aus. Still. Hinter die Schränke.“ und „LEERTASTE Atem anhalten“, Neustart ohne Tod",
+   "bewertung": "OK",
+   "verbesserung": "Lauf bestätigt später"
+  },
+  {
+   "Name": "PUZ_k12_2_10",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.10",
+   "raetsel": "Messraum: **Klavier E D C H C**",
+   "loesung": "5 Töne; Lucy summt und beschlägt die richtigen Tasten (nach 3 Fehlern langsamer, nach 6 bleibt Beschlag)",
+   "hinweise": "Aufgabe „Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach …“; Notenblatt „E D ? ? ?“; Spieluhr in Kap. 1 (Tastenfeld)",
+   "bewertung": "OK",
+   "verbesserung": "Faden-Eintrag (siehe unten)"
+  },
+  {
+   "Name": "PUZ_k12_2_11",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.11",
+   "raetsel": "Akte 08 (Fach springt auf)",
+   "loesung": "Fach nach dem letzten Ton, Akte klicken",
+   "hinweise": "Zeile „Beim letzten Ton springt ein Aktenfach …“, Aufgabe „Lies die achte Akte.“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_12",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.12",
+   "raetsel": "Lucy im Tank / Finale / Gully",
+   "loesung": "Dialog, Kino, Aufstieg (E halten)",
+   "hinweise": "Aufgaben „Lucy.“, „Die Leiter hinauf.“, „Klettern. E halten.“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k12_2_13",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.13",
+   "raetsel": "Nebenaufgabe Hängeregistratur-Zahlenschloss („Alle siebzehn“)",
+   "loesung": "1958 · 1975 · 1992 · 2009 (aufsteigend, je +17)",
+   "hinweise": "Kreide „Alle siebzehn.“; Hinweise nach 2 und 4 Fehlern. **Fehler:** „Von 2009 rückwärts“ verleitete zur absteigenden Reihenfolge (2009, 1992 …)",
+   "bewertung": "defekt (Hinweis irreführend) → behoben",
+   "verbesserung": "**Umgesetzt (amt.js):** Fehler 2: „Alle siebzehn Jahre. Von 2009 rückwärts. Und dann das älteste zuerst.“; Fehler 4: „Vier Felder, vier Jahre. 2009 minus 17, minus 17, minus 17. Das älteste links.“; exakte Gegenreihenfolge → „Richtig gerechnet, falsch herum. Das älteste zuerst.“"
+  },
+  {
+   "Name": "PUZ_k12_2_14",
+   "quelle": "docs/gameplay/qa_raetsel_k12.md",
+   "abschnitt": "Kapitel 2",
+   "nummer": "2.14",
+   "raetsel": "Nebenaufgaben Kantine, Gründung (Leiter), Kühlregal, Modell, Vernichter, Bogen",
+   "loesung": "siehe amt.js",
+   "hinweise": "Gründung: „Zu hoch. Irgendwo muss eine Leiter sein.“; Kühlregal: „Ohne Strom rührt sich nichts“",
+   "bewertung": "OK (Stichprobe)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_1",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "1",
+   "raetsel": "Aufwachen",
+   "loesung": "W drücken (aufrappeln)",
+   "hinweise": "Toast „W – aufstehen“ nach 6 s",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_2",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "2",
+   "raetsel": "Telefon an der Kreuzung",
+   "loesung": "Klingelt 25 s nach der 3. Kuh-Stelle bzw. 60 s nach Kuh-Ende; Hörer abnehmen, E = Auflegen-Versuch",
+   "hinweise": "Klingeln mit Distanz-Lautstärke, Gedanke „Die Zelle hat seit Jahren kein Kabel…“",
+   "bewertung": "war unklar: Aufgabenzeile blieb „Hol Lucy zurück…“",
+   "verbesserung": "UMGESETZT: bei Klingelbeginn `setC3('Das Telefon an der Kreuzung klingelt. Nimm ab.')` (kapitel3.js)"
+  },
+  {
+   "Name": "PUZ_k34_3",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "3",
+   "raetsel": "Kuh untersuchen (3 Stellen)",
+   "loesung": "Ohr, Kopf, Flanke anklicken; Polaroid bei Flanke; Fluch-Gag beim 3.",
+   "hinweise": "Beschriftung „Kuh untersuchen · …“",
+   "bewertung": "OK (optional, kein Blocker)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_4",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "4",
+   "raetsel": "Funkkasten 31,10 MHz",
+   "loesung": "Zählbuch in Nr. 7 („Notfunk auf dem Tag, an dem SIE kam“, „Ende Oktober“) + Radios in Kap. 1 mit Skala 31,10; Regler auf 31,10 (Toleranz 0,06), HINHÖREN",
+   "hinweise": "Aufgabe „Der Funkkasten… Welche Frequenz?“, Rückmeldung nah/fern, magisches Auge, nach 55 s Luke-Gedanke, Justin-Hilfe",
+   "bewertung": "OK",
+   "verbesserung": "UMGESETZT V1: Aufkleber um Kuli-Zeile „nicht auf das erste Rauschen hören“ ergänzt (lucy3.js:184)"
+  },
+  {
+   "Name": "PUZ_k34_5",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "5",
+   "raetsel": "Kanal A/B, HASENBROT",
+   "loesung": "Frage 3 „Sag unser Wort“ (A: „Hasen…“), Heckscheibe unten „HASEN…“; HASENBROT in den Staub schreiben, an KANAL B senden",
+   "hinweise": "Frage-Antworten, Heckscheibe, Luke-Gedanke nach allen Fragen, Fehlschlag: Lachen + Sperre 10 s, Whiskey-Striche (nach 2. Fehler/180 s), Zettel B-K3-H2 (3. Fehler), Justin-Satz",
+   "bewertung": "OK; Randfall: Wort laut gesagt ohne Frage „Wo bist du?“ führte zu Fehlschlägen ohne Text",
+   "verbesserung": "UMGESETZT V6: nach lautem Sagen Luke-Zeile „Jetzt kann sie es auch. Nur eine weiß, wo Lucy wirklich ist.“ (lucy3.js). Zustand `tuned` wird gespeichert/geladen (B2)"
+  },
+  {
+   "Name": "PUZ_k34_6",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "6",
+   "raetsel": "Laternenfolge 5-3-1-7",
+   "loesung": "Hebel an Kasten Nr. 5, 3, 1, 7",
+   "hinweise": "Zählbuch (Juni vor 5, Juli vor 3, Okt vor 1), Zettel „ZULETZT.“ an Kasten 7, Lucy-Funk, Fehlversuch 1 „Juni, Juli, Oktober…“, 3 „Hilde… als Letzte“, ab 4 Justin",
+   "bewertung": "OK",
+   "verbesserung": "UMGESETZT B1: Hebel in den 2,6 s nach falschem Hebel gesperrt (`wrongBusy`), sonst Zustandsabweichung ch3.seq/Hebel"
+  },
+  {
+   "Name": "PUZ_k34_7",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "7",
+   "raetsel": "Graukind-Jagd (Ochs am Berg, Freimal)",
+   "loesung": "Hinsehen = es steht; Eisen anfassen = 3 s sicher; weiterlaufen",
+   "hinweise": "Justin-Satz „Eisen ist frei“ (justin.js blechmaenner), Fibel R-K3d, Whiskey-Warnung auf Dach Nr. 1",
+   "bewertung": "unklar für Spieler ohne Justin-Gespräch; Rückmeldung nach Fang war nur „Du bist.“",
+   "verbesserung": "UMGESETZT V7: Toast „Hinter dir geht eine Laterne wieder an. Der Hebel steht auf EIN.“ nach dem Fang"
+  },
+  {
+   "Name": "PUZ_k34_8",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "8",
+   "raetsel": "Behaltene / Lichtsäule",
+   "loesung": "Zu Justin an die Kreuzung laufen, Eisen = sicher, dann Hand nehmen",
+   "hinweise": "Aufgabe „Zu Justin. An die Kreuzung.“, Justin-Ruf, nach 9 s Whiskey „Kum!“",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_9",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "9",
+   "raetsel": "Nimmerheim Raum 1",
+   "loesung": "Karte (Gegenstand, der in dieser Nacht nicht existierte) wählen",
+   "hinweise": "Aufgabe „Finde, was nicht in diese Nacht gehört…“, ab 2. Fehler Justin, 3. Fehler Kamera dreht sich zur Karte, 4. Luke-Gedanke",
+   "bewertung": "OK",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_10",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "10",
+   "raetsel": "Nimmerheim Raum 2 (Hilde, Küchenuhr 3:13)",
+   "loesung": "Hilde-Fragen, Uhr auf 3:13",
+   "hinweise": "Uhr überall im Spiel auf 3:13 (Kap. 1, Endkarte Kap. 2), Hilde-Satz, Aufgabe, Fehlversuch-Leiter",
+   "bewertung": "war defekt-anfällig: Hilfeleiter hing am deutschen Toast-Text",
+   "verbesserung": "UMGESETZT B3: Zählung über Zustand (clockPuzzle-Hülle), V2: Fehler 2 = Hilde „Du hast sie doch schlagen hören, Junge.“, Fehler 3 = Justin „Die dritte Stunde…“ (weiss.js)"
+  },
+  {
+   "Name": "PUZ_k34_11",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "11",
+   "raetsel": "Raum 3 (Hände, „Wessen Hand ist aufgegangen?“)",
+   "loesung": "Blatt SB-07 aufheben, 3+ Stellen ansehen, Tafel: JUSTINS",
+   "hinweise": "Aufgabe, Justin „Sieh, wohin du willst“, Fehlwahl-Leiter (Whiskey, Kamera, Luke)",
+   "bewertung": "war unklar: Tafel öffnet nur einmal selbst, Wiederöffnen nur über Justin; SB-07-Absturz = Hänger",
+   "verbesserung": "UMGESETZT V5: Aufgabenzeile „Sieh dir die Hände an. Wenn du es weißt: sag es Justin.“; Absicherung: scheitert `sammeln_platz`, geht es direkt mit den Händen weiter"
+  },
+  {
+   "Name": "PUZ_k34_12",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "12",
+   "raetsel": "Wahl A/B/C",
+   "loesung": "Entscheidung am Ende",
+   "hinweise": "Justin-Frage „Was will sie?“",
+   "bewertung": "OK (Wahl, kein Rätsel)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_1_2",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "1",
+   "raetsel": "Kapelle (Fenster, Kirchenführer, Sakristei, Sühnebrief, Gesangbuch)",
+   "loesung": "alle 5 Punkte",
+   "hinweise": "Fibel-Aufgabenzeile nannte „Fenster x/8“ und „Glockenseil“ statt Sühnebrief (B5)",
+   "bewertung": "war unklar",
+   "verbesserung": "UMGESETZT V4: `Fenster (n/4) · Kirchenführer · Sakristei · Sühnebrief · Gesangbuch` (neben3.js)"
+  },
+  {
+   "Name": "PUZ_k34_2_2",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "2",
+   "raetsel": "Glocken-Joker",
+   "loesung": "Seil 16x: 3 · Pause · 13",
+   "hinweise": "enges Zeitfenster, kein Feedback bei verworfenem Zähler",
+   "bewertung": "unklar",
+   "verbesserung": "UMGESETZT: Toast bei misslungenem Rhythmus; V9: Glockenzettel um Rhythmus-Hinweis ergänzt (neben3.js)"
+  },
+  {
+   "Name": "PUZ_k34_3_2",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "3",
+   "raetsel": "Predigtmappe (Pfarrhaus)",
+   "loesung": "12 Wörter in Reihenfolge",
+   "hinweise": "Zeile nach Mappe-Fund",
+   "bewertung": "unklar",
+   "verbesserung": "UMGESETZT V3: „Zwölf Predigten. Und ein dreizehntes Blatt, fast leer. Gegen die Lampe halten?“"
+  },
+  {
+   "Name": "PUZ_k34_4_2",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 3",
+   "nummer": "4",
+   "raetsel": "Register, RH, Peters Zimmer, Gully/Atlantschiss, Gisela",
+   "loesung": "–",
+   "hinweise": "nicht vertieft geprüft (Koordination: lösbar)",
+   "bewertung": "OK (nicht vertieft)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k34_1_3",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 4 (nach Koordinationsbefund: alle lösbar; nicht Zeile für Zeile geprüft)",
+   "nummer": "1",
+   "raetsel": "Aufräumkommando, Vegas klopfen, Nr. 3, Nr. 9 (Ringbuch/Kameraloch/Dienstplan)",
+   "loesung": "Aufgabenzeile über `villa_ziel()`, Gedanken `villa_nr9…`",
+   "hinweise": "OK",
+   "bewertung": "–",
+   "verbesserung": ""
+  },
+  {
+   "Name": "PUZ_k34_2_3",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 4 (nach Koordinationsbefund: alle lösbar; nicht Zeile für Zeile geprüft)",
+   "nummer": "2",
+   "raetsel": "Prägepresse / 8 Schlüsselteile / Villa-Tür",
+   "loesung": "Teil 04 (Kellerfenster) braucht Brechstange; bei Kapitelwahl/Weiterspielen ohne Inventar sonst gesperrt (B4)",
+   "hinweise": "war defekt (Sackgasse möglich)",
+   "bewertung": "UMGESETZT: `startChapter4` gibt die Brechstange, wenn sie fehlt (anwesen.js)",
+   "verbesserung": ""
+  },
+  {
+   "Name": "PUZ_k34_3_3",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 4 (nach Koordinationsbefund: alle lösbar; nicht Zeile für Zeile geprüft)",
+   "nummer": "3",
+   "raetsel": "Halle, Arbeitszimmer, Aktenschrank „1958“, Krankenbett/Nachbild, Anrichte, Obergeschoss, Schleichen AG-13, Zelle Ost, AG-14 Wolter, W-11 Ring, Noten/Porträt, Treppe, Kino k4",
+   "loesung": "Hilfe-Gedanken `villa_r41a/b`, Checkpoints `todCheckpoint`",
+   "hinweise": "OK",
+   "bewertung": "–",
+   "verbesserung": ""
+  },
+  {
+   "Name": "PUZ_k34_4_3",
+   "quelle": "docs/gameplay/qa_raetsel_k34.md",
+   "abschnitt": "Kapitel 4 (nach Koordinationsbefund: alle lösbar; nicht Zeile für Zeile geprüft)",
+   "nummer": "4",
+   "raetsel": "Sicherungskasten Villa / Höhepunkt A",
+   "loesung": "Farbkombination, Fehlversuch-Gedanken",
+   "hinweise": "unklar (Hinweis „Zwei nicht“ mehrdeutig)",
+   "bewertung": "UMGESETZT V8: `villa_r43b` = „Vier Schilder kann ich lesen. Zwei nicht – das müssen die hier unten sein. Und ich weiß, welche Farben dafür übrig sind.“ (villa.js)",
+   "verbesserung": ""
+  },
+  {
+   "Name": "PUZ_k56_5_1",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.1",
+   "raetsel": "Kamera finden (Nr. 7)",
+   "loesung": "Kamera am Esstisch/Wohnzimmer Nr. 7 nehmen",
+   "hinweise": "Aufgabe `Hildes Kamera. Nr. 7, Wohnzimmer.`",
+   "bewertung": "–",
+   "verbesserung": "nur Fallback-Gedanke"
+  },
+  {
+   "Name": "PUZ_k56_5_2",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.2",
+   "raetsel": "Foto 1 von Lucy am Fenster",
+   "loesung": "`C` heben, auf Lucys Fenster (< 16 m, Blick > 0,9) halten, abdrücken",
+   "hinweise": "Aufgabe `Mach ein Foto von Lucy.`, Kreispfeil am Fenster, Kamera-Tip (`C`) beim Nehmen",
+   "bewertung": "Foto ohne Ziel zählt nicht, kein Hinweis, warum",
+   "verbesserung": "**fehlt** (Fallback „Was hab ich übersehen“ hilft nicht)"
+  },
+  {
+   "Name": "PUZ_k56_5_3",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.3",
+   "raetsel": "Gisela / Hänschen",
+   "loesung": "Automatisch, sobald Luke ≤ 5,5 m ans Gartentor kommt",
+   "hinweise": "Aufgabe `Nr. 1. Wer deckt da den Tisch?`",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_5_4",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.4",
+   "raetsel": "Haustür / Küche",
+   "loesung": "In Nr. 1 in die Küche gehen",
+   "hinweise": "Aufgabe, Licht in der Küche, Radio",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_5_5",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.5",
+   "raetsel": "Tisch + Schleife (3 Runden)",
+   "loesung": "Nicht essen; zur Kinderzimmer-Tür hinten gehen, 3× zurückgesetzt; in Runde 3 Atem hinter dir: umdrehen + Foto (`C`, Klick, 6 s)",
+   "hinweise": "Aufgabe `Vier Gedecke. Lucy hat gesagt: Iss nichts.` (+ neu: `Hör hin, was unter ihrer Stimme läuft.`), nach 8 s `Lucys Spieluhr. Das Kinderzimmer.`, Familienfoto-Toasts je Runde, Runde 2 Mama-Nachbild + Gedanke zur Kamera, Runde 3 Tip `C Kamera`",
+   "bewertung": "Verfehlt: kalte Finger, „Iss auf, Bruder“, Atem neu in 7 s; Gedanke ab 1. Fehlversuch (**neu**)",
+   "verbesserung": "Gedanke nach 2. Fehlversuch, davor nichts"
+  },
+  {
+   "Name": "PUZ_k56_5_6",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.6",
+   "raetsel": "Film für Runde 3",
+   "loesung": "Filmpack: Besteckschublade Nr. 7, Laube Parz. 7, Kommode Nr. 1, Kranz (Friedhof)",
+   "hinweise": "Toast/Notiz beim Fund",
+   "bewertung": "Kamera meldet „kein Film“",
+   "verbesserung": "Gedanke `Kein Film … Kommode` nur wenn Kommodenfilm noch nicht genommen"
+  },
+  {
+   "Name": "PUZ_k56_5_7",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.7",
+   "raetsel": "Spieluhr nehmen",
+   "loesung": "Im Kinderzimmer die Spieluhr aufheben (Hit auf `musicBox`)",
+   "hinweise": "Aufgabe `Lucys Spieluhr. Das Kinderzimmer.`, Melodie laut hörbar im Haus",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_5_8",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.8",
+   "raetsel": "Heimweg / Graukind",
+   "loesung": "Spieluhr zu Lucy an die Kreuzung; Graukind jagt nur Ungesehene, zerfällt im Licht",
+   "hinweise": "Aufgabe `Bring Lucy die Spieluhr.`, Vegas ruft „zur Kreuzung“, Kichern, Laternen flackern",
+   "bewertung": "Gefangen: Teleport zurück zu Nr. 1 (kein Tod)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_5_9",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.9",
+   "raetsel": "Lucy / Telefonzelle",
+   "loesung": "Lucy `Spieluhr geben`, dann Hörer abnehmen",
+   "hinweise": "Aufgabe `Die Telefonzelle klingelt.`, Klingeln hörbar ≤ 42 m",
+   "bewertung": "Vor `anruf`: Toast `Nur Rauschen.`",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_5_10",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.10",
+   "raetsel": "Stall / Teller / Brot",
+   "loesung": "Kanten Brot von Papas Platz in Nr. 1 (nach Spieluhr), im Stall auf den Teller legen, dann `Q` halten (Augen zu)",
+   "hinweise": "Aufgabe `Brot. Der Kanten von Papas Platz in Nr. 1…`, Teller-Toast (**neu:** nennt jetzt Papas Platz), nach 20 s „Er kommt nicht, solange ich hinsehe“, nach 35 s `Q halten – Augen zu`",
+   "bewertung": "Augen zu unterbrochen: `Weg. Er kommt wieder, wenn du nicht guckst.` (wiederholbar)",
+   "verbesserung": "2 Stufen (20/35 s)"
+  },
+  {
+   "Name": "PUZ_k56_5_11",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.11",
+   "raetsel": "Dem Tappen nach",
+   "loesung": "Fußspuren/Geräusch folgen bis zum Plakat an der Laterne, Plakat lesen",
+   "hinweise": "Aufgabe `Hinterher.`, `Die Füße. Irgendwo vor mir.` bei > 26 m, Plakat-Hinweis nach 14 s",
+   "bewertung": "–",
+   "verbesserung": "14 s am Ende"
+  },
+  {
+   "Name": "PUZ_k56_5_12",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.12",
+   "raetsel": "Friedhof / Kerze",
+   "loesung": "Mamas Kerze (vom Tisch) + Peters Feuerzeug: zuerst Feuerzeug (stirbt: „Pust.“), dann „Mamas Kerze anzünden“ an Luna",
+   "hinweise": "Aufgabe `Das Tappen hat aufgehört. Das Gedenkfeld.`, 15 s `‚Mamas Platz.‘`, 30 s Tip `E Mamas Kerze anzünden`, 60 s Beobachter-Zettel H1",
+   "bewertung": "Kein Tod: Behaltene führen zurück ans Tor",
+   "verbesserung": "3 Stufen"
+  },
+  {
+   "Name": "PUZ_k56_5_13",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+   "nummer": "5.13",
+   "raetsel": "Zaun / Gitter",
+   "loesung": "Dem Jungen (Luke) bis zum Nordzaun folgen, Gitter ansehen",
+   "hinweise": "Aufgabe `Hinterher.` → **neu** `Hinterher. Der Junge ist zum Nordzaun gelaufen.`",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_1",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.1",
+   "raetsel": "Gitter aufbiegen",
+   "loesung": "Nach Wolter (AG-18) am Gitter `E` 1,6 s halten",
+   "hinweise": "Aufgabe `Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?`, danach (**neu**) `Das Gitter aufbiegen: E halten, am Gitter…`; Balken über `sideInfo`",
+   "bewertung": "Vor AG-18: Luke sagt „Gleich. Erst will ich wissen…“",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_2",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.2",
+   "raetsel": "Brotkrumen / Krähe",
+   "loesung": "Krumen folgen; Krähe frisst Spur → „Zayns Hütte liegt hinten links“; sonst Hütte per Nähe (58, 149,5, r 13)",
+   "hinweise": "Aufgabe `Folge den Brotkrumen.`, Krähe-Szene, Luke-Zeile",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_3",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.3",
+   "raetsel": "Zayns Hütte",
+   "loesung": "In die Hütte (Rect) gehen",
+   "hinweise": "Aufgabe `Zayns Hütte.`; nach 5 s `Die kleinen Hände führen hinaus. Zum eingedrückten Zaun.`",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_4",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.4",
+   "raetsel": "Zaunlücke",
+   "loesung": "Durch die Lücke (42, 156)",
+   "hinweise": "Aufgabe wie oben, Handabdrücke im Moos",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_5",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.5",
+   "raetsel": "Rote Wolle → Hochsitz (SB-11)",
+   "loesung": "Wolle bis zum Hochsitz folgen (liegt auf Pfad 1: 19",
+   "hinweise": "176,5), optional hinaufsteigen",
+   "bewertung": "Aufgabe `Der Hochsitz. Hinauf.` (nur bei Nähe 7 m!)",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_6",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.6",
+   "raetsel": "Bus-Falle (AG-19)",
+   "loesung": "Weg „mit“: in die Mitte neben den Bus (61,2",
+   "hinweise": "196,9, 0,6 s), 22–40 s warten (nicht gehen, Lampe oben); Weg „ab“: Draht meiden, sonst Netz: `E` 12× / Messer halten",
+   "bewertung": "Aufgabe `Stell dich in die Mitte, neben den Bus. Sagt der Blechmann mit der Hand.`, **neu** `Warten. In der Mitte neben dem Bus bleiben.`; Funk",
+   "verbesserung": "Netz: Hinweis `E`; Wolf springt: Neustart am Bus + Gedanke „Er kommt, wenn ich wegseh. Lampe oben lassen.“"
+  },
+  {
+   "Name": "PUZ_k56_6_7",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.7",
+   "raetsel": "Bus-Innenraum / Spind (N6-7, optional)",
+   "loesung": "Schlüsselbund „3“ am Hochsitz-Fuß, Spind hinter Fahrersitz, Lampion",
+   "hinweise": "Hint-Marker (`hintAdd`), Luke-Gedanke",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_8",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.8",
+   "raetsel": "AG-20 toter Blechmann",
+   "loesung": "Bei 5,5 m ausgelöst (auto), Funkgerät/Kettenrolle optional",
+   "hinweise": "Aufgabe `Die Fraßstelle. Da vorn, wo das Blut endet.`",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_9",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.9",
+   "raetsel": "Fraßstelle (Dienstbuch Seite 1)",
+   "loesung": "Beim Kadaver (1,5",
+   "hinweise": "199,6) das Heft „Eine Seite aus einem Dienstbuch“ lesen",
+   "bewertung": "Aufgabe wie 6.8; **neu:** nach 30 s in 8 m Nähe Gedanke „Neben dem Kadaver liegt etwas. Ein Heft…“",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_10",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.10",
+   "raetsel": "Hirsch-Verfolgung / Flucht",
+   "loesung": "Event startet automatisch (< 34 m um die Fraßstelle); danach Whiskey fliegt zum Lager, ihm folgen",
+   "hinweise": "Aufgabe `Das Ding ist hier. Irgendwo.` → `Weg vom Bau. Whiskey fliegt nach Osten – zu Jonas’ Lager.`",
+   "bewertung": "Tod durch Hirschding (A-20): Checkpoint, Nachbild „gefressen“",
+   "verbesserung": "**neu:** nach 75 s außerhalb 34 m: `Zurück zur Fraßstelle. Das Ding ist in der Nähe.`"
+  },
+  {
+   "Name": "PUZ_k56_6_11",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.11",
+   "raetsel": "Jonas’ Lager",
+   "loesung": "Dorthin laufen; fertig nach Whiskey-Flag `k6_3` oder 45 s",
+   "hinweise": "Aufgabe, Whiskey-Route",
+   "bewertung": "Anruf „Lucy“: Wegdrücken/Rangehen, beides ok",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_12",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.12",
+   "raetsel": "Kinderspur",
+   "loesung": "Kinderfüße (Decals) Richtung Westen zum Wrack",
+   "hinweise": "Aufgabe `Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.`",
+   "bewertung": "Jagd-Tod möglich: Lampe oben lassen (Merkblatt W)",
+   "verbesserung": "`bauFrueh`-Gedanke, wenn Bau zu früh"
+  },
+  {
+   "Name": "PUZ_k56_6_13",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.13",
+   "raetsel": "Wrack / Handschuhfach",
+   "loesung": "Hinter dem Wrack (−10",
+   "hinweise": "204,5, r 9) → Beat `bau`; Handschuhfach optional",
+   "bewertung": "Aufgabe `Hinter dem Wrack. Da, wo es still ist.`",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_14",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.14",
+   "raetsel": "Bau / Finale (Seite 6, R6-5, Lampe stirbt)",
+   "loesung": "Seite 6 am Bau lesen → Finale; „Welcher ist Whiskey?“: `E` auf den Raben, den man ansieht (6 s); Lampe stirbt: `E` Batterie, `E` Feuerzeug (je ≤ 60 s)",
+   "hinweise": "Hinweis-Leiste `E …`; **neu:** nach 40 s Nähe Gedanke „Hofers letzte Seite. Sie muss hier irgendwo liegen…“",
+   "bewertung": "Falsch/keine Wahl: Szene läuft weiter (kein Tod)",
+   "verbesserung": "**neu**"
+  },
+  {
+   "Name": "PUZ_k56_6_15",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.15",
+   "raetsel": "Whiskey-Führung (`k6_guide`, Epilog)",
+   "loesung": "Whiskey fliegt Wegpunkte `K6_WEG` zum Hochsitz; Luke folgt",
+   "hinweise": "Aufgabe `Whiskey fliegt voraus. Folge ihm.` → `Der Hochsitz. Oben sitzt jemand.`; „Whiskey wartet auf dich“ alle 20 s",
+   "bewertung": "–",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_16",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.16",
+   "raetsel": "Hochsitz oben (Augen zu, SB-12, Wahl)",
+   "loesung": "Hinaufsteigen (`E`), `Q` halten, Zahlen wählen",
+   "hinweise": "`augenzu_frei`-Hinweis `Q halten – Augen zu`, Notausstieg nach 30 s",
+   "bewertung": "Q nicht gehalten: wartet max. 30 s, dann weiter",
+   "verbesserung": "–"
+  },
+  {
+   "Name": "PUZ_k56_6_17",
+   "quelle": "docs/gameplay/qa_raetsel_k56.md",
+   "abschnitt": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+   "nummer": "6.17",
+   "raetsel": "Endkarten K5/K6",
+   "loesung": "`Weiter`/`Zum Titel`",
+   "hinweise": "Button",
+   "bewertung": "–",
+   "verbesserung": "–"
+  }
+ ],
+ "quellen": [
+  {
+   "datei": "docs/gameplay/qa_raetsel_k12.md",
+   "titel": "QA Rätsel und Pflicht-Hürden · Kapitel 1 und 2 (reine Code-/Textanalyse, 09.10.2026)",
+   "abschnitte": [
+    {
+     "ebene": 1,
+     "titel": "(Einleitung)",
+     "zeile": 1,
+     "text": [
+      "# QA Rätsel und Pflicht-Hürden · Kapitel 1 und 2 (reine Code-/Textanalyse, 09.10.2026)",
+      "Methode: Quelltext gelesen (kapitel1.js, amt.js, zimmer7.js, feuer.js, qte.js, akte.js, tod.js, post.js, ausbau_ost_west.js, uebergang.js, lwo.js AG-07, Basis `_base_source_index.html`, gedanken.js, ziele.js). Keine Spielläufe. Bewertung: OK = lösbar und verständlich · unklar = lösbar, aber Hinweis schwach/irreführend · defekt = Fehler/Softlock.",
+      "Legende „Hilfe“: Aufgabenzeile (`MAIN[n]` / `setC2Objective`), `ZIELE_WARUM` (ziele.js), `GEDANKEN_FADEN` (Stufe „Hilfe“ 1, nach `GEDANKEN.stuck` s Stillstand an derselben Aufgabe)."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 1",
+     "zeile": 6,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "#",
+        "Rätsel / Hürde",
+        "Lösung / Schrittfolge (Code)",
+        "Hinweise (wo/wann)",
+        "Bewertung",
+        "Verbesserung"
+       ],
+       "zeilen": [
+        [
+         "1.1",
+         "Briefkasten Nr. 7 → Schlüssel",
+         "`kapitel1_briefkasten`: Briefkasten klicken → `state.hasKey`, `door7.locked=false`, `setMain(1)`, Schlüssel + Zettel",
+         "MAIN[0] „Finde Haus Nr. 7“; ZIELE_WARUM („Lucy hat früher immer was im Briefkasten versteckt“); verschlossene Tür: „Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.“; Faden „Weg in Haus Nr. 7“; Whiskey pickt am Briefkasten",
+         "OK",
+         "–"
+        ],
+        [
+         "1.2",
+         "Haustür",
+         "`doorAction`: offen sobald `locked=false`; Öffnen → `setMain(2)`",
+         "MAIN[2] „Durchsuche Haus Nr. 7 …Band im Keller“",
+         "OK",
+         "–"
+        ],
+        [
+         "1.3",
+         "Kühlschrankzettel / Kalender → Hinweis auf 3110",
+         "Zettel „31.10.“ → `setMain(3)`; Kalender „31. dick eingekreist“",
+         "Zettel (31.10.), Kalender, Polaroid (31.10.), Faden „Durchsuche …“ nennt Kalender",
+         "OK",
+         "–"
+        ],
+        [
+         "1.4",
+         "**Tastenfeld Kellertür 3110**",
+         "`kapitel1_kpPress`: Eingabe `3110` (Tag 31, Monat 10)",
+         "Beim Öffnen: „Drei Tasten abgegriffen: 0, 1 und 3“. Fehler 1: Kratzen + Lucy-Stimme + Blick zum Kalender; Fehler 2: „Tag und Monat“; Fehler 3: Schreck + „Lies, was im Haus liegt. Der Kalender weiß den Tag.“; 40 s Gedanke; Whiskey-Fenster bei Fehler 5. **Lücke:** ab Fehler 4 war die Meldung leer (`kpSay('')`); die alte Basishilfe „Erst der Tag, dann der Monat“ fiel weg. MAIN[3] „Öffne die Kellertür.“ sagte nicht, dass es ein Ziffernschloss ist",
+         "unklar → behoben",
+         "**Umgesetzt (kapitel1.js):** Fehler 4: „Der Kalender weiß den Tag. Erst der Tag, dann der Monat.“; Fehler 5: „Stille.“; ab 6: „Nur 0, 1 und 3 sind abgegriffen. Der eingekreiste Tag, dann der Monat.“; MAIN[3] = „Öffne die Kellertür. Das Tastenfeld will vier Ziffern.“"
+        ],
+        [
+         "1.5",
+         "Keller: Zettel, Rekorder, Band",
+         "`kapitel1_band`: 1. Klick Zettel am Rekorder, 2. Klick „Kassette abspielen“ (Band läuft, bei Stillstand 1,2 s weiter) → „… danke, Luke …“ → `heardTape`, `setMain(5)`",
+         "MAIN[4] „Finde heraus, was Lucy hinterlassen hat“; Zettel „Erst hören, dann heim“ an Rekorder und Wand; Interaktionsname wechselt „Zettel am Rekorder“ → „Kassette abspielen“; Treppe vorher: „Noch nicht. Lucy wollte, dass du hier etwas findest.“; Faden („Lucy hinterlassen“)",
+         "OK",
+         "Faden-Text konkreter (siehe unten)"
+        ],
+        [
+         "1.6",
+         "Treppe nach oben",
+         "`kapitel1_treppe` → `leaveBasement` nur mit `heardTape`",
+         "MAIN[5] „…die Treppe hoch. Hinterher.“; Faden „Die Haustür. Vorhin war die zu.“",
+         "OK",
+         "–"
+        ],
+        [
+         "1.7",
+         "Stromausfall",
+         "startet nach 150 s oder 14 m vor Nr. 7 (`kapitel1_ausfall`); Hilde/UFO-Kino läuft von selbst",
+         "**Defekt (Aufgabenzeile):** `kapitel1_ausfall` ersetzt die Basisfunktion und rief `setMain(6)` nicht auf → während des Ausfalls blieb „Hinterher“ stehen",
+         "defekt → behoben",
+         "**Umgesetzt:** `setMain(6)` in `kapitel1_ausfall`; `MAIN[6]` = „Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt.“"
+        ],
+        [
+         "1.8",
+         "Versteck vor dem Lichtkegel",
+         "`kapitel1_versteck`: Deckung (Hecken, Tonnen, Veranda, Bäume …) oder Keller; erwischt = gehoben + fallen gelassen, kein Tod; Ziel erreicht, wenn Luke die Kellertür/Treppe erreicht",
+         "MAIN[7] „Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.“; Vegas ruft von der Veranda; Whiskey wartet auf Deckungen; Faden „Hecken, Mülltonnen, Veranda“",
+         "OK",
+         "–"
+        ],
+        [
+         "1.9",
+         "Kellerende: Hand an die Wand",
+         "`kapitel1_kellerEnde` → Interaktion „Die Hand an die Wand legen“ → `kapitel1_ende`",
+         "Zeile „Hinter die Bilder. Lucy.“; **Lücke:** Aufgabenzeile blieb „Versteck dich vor dem Licht“ (veraltet), Wand ist zugleich Zeichnungswand (zwei Interaktionen)",
+         "unklar → behoben",
+         "**Umgesetzt:** nach der Zeile Ziel „Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.“ (setMain(8) überschreibt danach)"
+        ],
+        [
+         "1.10",
+         "Geheimes Ende „Fahr heim“",
+         "nur vor dem Tonband",
+         "Haltestelle „Auf den ersten Bus warten“",
+         "OK (optional)",
+         "–"
+        ],
+        [
+         "1.11",
+         "Nebenaufgabe „Sind sie wieder da?“ (Karten, Nr. 2)",
+         "16 Karten nach Poststempel ordnen, 17. im Gras",
+         "Poststempel (Jahr) war **nicht sichtbar**, Orte doppelt (Kiel ×2, Göttingen ×2, Kassel ×2, Kreisstadt ×3) → nur Raten; nach Fund der 17. musste alles neu geordnet werden",
+         "unklar → behoben",
+         "**Umgesetzt (post.js):** Knopf zeigt „Stempel 20xx“; Text „… die älteste zuerst“; Stand der ersten 16 wird gemerkt (`steps.k16`), 17. wird einzeln einsortiert"
+        ],
+        [
+         "1.12",
+         "Nebenaufgabe Dina/Scheune (Kap. 1)",
+         "Lampe aus, dem Summen folgen",
+         "Hilfestufen 1–5; Stufe 3 wurde nie vergeben, Stufe 5 sprach „Hier. Du Trampel.“ doppelt",
+         "unklar → behoben",
+         "**Umgesetzt (ausbau_ost_west.js):** Stufe 3 (ab 75 s: „Links/Rechts von mir. Nah.“), Doppelzeile entfernt"
+        ],
+        [
+         "1.13",
+         "Nebenaufgabe Geldkassette (Tankstelle)",
+         "Code 0313 (Leuchtschild)",
+         "Leuchtschild + Schaufenster-Kalender; **sideDone beim Öffnen**, obwohl die Aufgabe „(n/5)“ Spuren verlangt → vorzeitiger Abschluss; kein Hinweis bei Fehlversuchen",
+         "defekt (Logik) → behoben",
+         "**Umgesetzt:** Abschluss erst bei 6/6 (inkl. Kassette), Hinweis ab 3 Fehlversuchen"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "#": "1.1",
+         "Rätsel / Hürde": "Briefkasten Nr. 7 → Schlüssel",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_briefkasten`: Briefkasten klicken → `state.hasKey`, `door7.locked=false`, `setMain(1)`, Schlüssel + Zettel",
+         "Hinweise (wo/wann)": "MAIN[0] „Finde Haus Nr. 7“; ZIELE_WARUM („Lucy hat früher immer was im Briefkasten versteckt“); verschlossene Tür: „Abgeschlossen. Lucy hat den Schlüssel sicher irgendwo versteckt. Irgendwo in der Nähe.“; Faden „Weg in Haus Nr. 7“; Whiskey pickt am Briefkasten",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.2",
+         "Rätsel / Hürde": "Haustür",
+         "Lösung / Schrittfolge (Code)": "`doorAction`: offen sobald `locked=false`; Öffnen → `setMain(2)`",
+         "Hinweise (wo/wann)": "MAIN[2] „Durchsuche Haus Nr. 7 …Band im Keller“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.3",
+         "Rätsel / Hürde": "Kühlschrankzettel / Kalender → Hinweis auf 3110",
+         "Lösung / Schrittfolge (Code)": "Zettel „31.10.“ → `setMain(3)`; Kalender „31. dick eingekreist“",
+         "Hinweise (wo/wann)": "Zettel (31.10.), Kalender, Polaroid (31.10.), Faden „Durchsuche …“ nennt Kalender",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.4",
+         "Rätsel / Hürde": "**Tastenfeld Kellertür 3110**",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_kpPress`: Eingabe `3110` (Tag 31, Monat 10)",
+         "Hinweise (wo/wann)": "Beim Öffnen: „Drei Tasten abgegriffen: 0, 1 und 3“. Fehler 1: Kratzen + Lucy-Stimme + Blick zum Kalender; Fehler 2: „Tag und Monat“; Fehler 3: Schreck + „Lies, was im Haus liegt. Der Kalender weiß den Tag.“; 40 s Gedanke; Whiskey-Fenster bei Fehler 5. **Lücke:** ab Fehler 4 war die Meldung leer (`kpSay('')`); die alte Basishilfe „Erst der Tag, dann der Monat“ fiel weg. MAIN[3] „Öffne die Kellertür.“ sagte nicht, dass es ein Ziffernschloss ist",
+         "Bewertung": "unklar → behoben",
+         "Verbesserung": "**Umgesetzt (kapitel1.js):** Fehler 4: „Der Kalender weiß den Tag. Erst der Tag, dann der Monat.“; Fehler 5: „Stille.“; ab 6: „Nur 0, 1 und 3 sind abgegriffen. Der eingekreiste Tag, dann der Monat.“; MAIN[3] = „Öffne die Kellertür. Das Tastenfeld will vier Ziffern.“"
+        },
+        {
+         "#": "1.5",
+         "Rätsel / Hürde": "Keller: Zettel, Rekorder, Band",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_band`: 1. Klick Zettel am Rekorder, 2. Klick „Kassette abspielen“ (Band läuft, bei Stillstand 1,2 s weiter) → „… danke, Luke …“ → `heardTape`, `setMain(5)`",
+         "Hinweise (wo/wann)": "MAIN[4] „Finde heraus, was Lucy hinterlassen hat“; Zettel „Erst hören, dann heim“ an Rekorder und Wand; Interaktionsname wechselt „Zettel am Rekorder“ → „Kassette abspielen“; Treppe vorher: „Noch nicht. Lucy wollte, dass du hier etwas findest.“; Faden („Lucy hinterlassen“)",
+         "Bewertung": "OK",
+         "Verbesserung": "Faden-Text konkreter (siehe unten)"
+        },
+        {
+         "#": "1.6",
+         "Rätsel / Hürde": "Treppe nach oben",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_treppe` → `leaveBasement` nur mit `heardTape`",
+         "Hinweise (wo/wann)": "MAIN[5] „…die Treppe hoch. Hinterher.“; Faden „Die Haustür. Vorhin war die zu.“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.7",
+         "Rätsel / Hürde": "Stromausfall",
+         "Lösung / Schrittfolge (Code)": "startet nach 150 s oder 14 m vor Nr. 7 (`kapitel1_ausfall`); Hilde/UFO-Kino läuft von selbst",
+         "Hinweise (wo/wann)": "**Defekt (Aufgabenzeile):** `kapitel1_ausfall` ersetzt die Basisfunktion und rief `setMain(6)` nicht auf → während des Ausfalls blieb „Hinterher“ stehen",
+         "Bewertung": "defekt → behoben",
+         "Verbesserung": "**Umgesetzt:** `setMain(6)` in `kapitel1_ausfall`; `MAIN[6]` = „Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt.“"
+        },
+        {
+         "#": "1.8",
+         "Rätsel / Hürde": "Versteck vor dem Lichtkegel",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_versteck`: Deckung (Hecken, Tonnen, Veranda, Bäume …) oder Keller; erwischt = gehoben + fallen gelassen, kein Tod; Ziel erreicht, wenn Luke die Kellertür/Treppe erreicht",
+         "Hinweise (wo/wann)": "MAIN[7] „Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.“; Vegas ruft von der Veranda; Whiskey wartet auf Deckungen; Faden „Hecken, Mülltonnen, Veranda“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.9",
+         "Rätsel / Hürde": "Kellerende: Hand an die Wand",
+         "Lösung / Schrittfolge (Code)": "`kapitel1_kellerEnde` → Interaktion „Die Hand an die Wand legen“ → `kapitel1_ende`",
+         "Hinweise (wo/wann)": "Zeile „Hinter die Bilder. Lucy.“; **Lücke:** Aufgabenzeile blieb „Versteck dich vor dem Licht“ (veraltet), Wand ist zugleich Zeichnungswand (zwei Interaktionen)",
+         "Bewertung": "unklar → behoben",
+         "Verbesserung": "**Umgesetzt:** nach der Zeile Ziel „Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.“ (setMain(8) überschreibt danach)"
+        },
+        {
+         "#": "1.10",
+         "Rätsel / Hürde": "Geheimes Ende „Fahr heim“",
+         "Lösung / Schrittfolge (Code)": "nur vor dem Tonband",
+         "Hinweise (wo/wann)": "Haltestelle „Auf den ersten Bus warten“",
+         "Bewertung": "OK (optional)",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "1.11",
+         "Rätsel / Hürde": "Nebenaufgabe „Sind sie wieder da?“ (Karten, Nr. 2)",
+         "Lösung / Schrittfolge (Code)": "16 Karten nach Poststempel ordnen, 17. im Gras",
+         "Hinweise (wo/wann)": "Poststempel (Jahr) war **nicht sichtbar**, Orte doppelt (Kiel ×2, Göttingen ×2, Kassel ×2, Kreisstadt ×3) → nur Raten; nach Fund der 17. musste alles neu geordnet werden",
+         "Bewertung": "unklar → behoben",
+         "Verbesserung": "**Umgesetzt (post.js):** Knopf zeigt „Stempel 20xx“; Text „… die älteste zuerst“; Stand der ersten 16 wird gemerkt (`steps.k16`), 17. wird einzeln einsortiert"
+        },
+        {
+         "#": "1.12",
+         "Rätsel / Hürde": "Nebenaufgabe Dina/Scheune (Kap. 1)",
+         "Lösung / Schrittfolge (Code)": "Lampe aus, dem Summen folgen",
+         "Hinweise (wo/wann)": "Hilfestufen 1–5; Stufe 3 wurde nie vergeben, Stufe 5 sprach „Hier. Du Trampel.“ doppelt",
+         "Bewertung": "unklar → behoben",
+         "Verbesserung": "**Umgesetzt (ausbau_ost_west.js):** Stufe 3 (ab 75 s: „Links/Rechts von mir. Nah.“), Doppelzeile entfernt"
+        },
+        {
+         "#": "1.13",
+         "Rätsel / Hürde": "Nebenaufgabe Geldkassette (Tankstelle)",
+         "Lösung / Schrittfolge (Code)": "Code 0313 (Leuchtschild)",
+         "Hinweise (wo/wann)": "Leuchtschild + Schaufenster-Kalender; **sideDone beim Öffnen**, obwohl die Aufgabe „(n/5)“ Spuren verlangt → vorzeitiger Abschluss; kein Hinweis bei Fehlversuchen",
+         "Bewertung": "defekt (Logik) → behoben",
+         "Verbesserung": "**Umgesetzt:** Abschluss erst bei 6/6 (inkl. Kassette), Hinweis ab 3 Fehlversuchen"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 2",
+     "zeile": 24,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "#",
+        "Rätsel / Hürde",
+        "Lösung / Schrittfolge (Code)",
+        "Hinweise",
+        "Bewertung",
+        "Verbesserung"
+       ],
+       "zeilen": [
+        [
+         "2.1",
+         "Gang hinter der Wand → Amt-Tunnel",
+         "Kapitelwechsel durch Gehen (`uebergang.js`), Tür fällt zu",
+         "MAIN[8], C2_MAIN[0] „Folge dem Gang. Irgendwo hier unten ist Lucy.“, Zeile „Hinter dir fällt die Tür ins Schloss“",
+         "OK",
+         "–"
+        ],
+        [
+         "2.2",
+         "Archiv: sieben Akten + **Ordnungstafel**",
+         "Reihenfolge Roxy, Lucy, Mike, Dina, Heidi, Luke, Zayn (Rückführungszeit aus den Akten)",
+         "Aufgabe nach 3 gelesenen Akten: „Bring die Namen in die richtige Reihenfolge.“; Tafel: „Wer zuerst kam, steht links“; Fehler: Nadeldrucker, ab 2/4/6 Hilfe (Zeile, Band, leuchtendes Feld). Akte 01 nennt „erste Rückkehr“ (löst Roxy/Lucy-Mehrdeutigkeit)",
+         "OK (Aufgabentext war zu knapp)",
+         "**Umgesetzt (amt.js, AMT_ZIEL):** „Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links.“"
+        ],
+        [
+         "2.3",
+         "Schublade → Schlüssel ZIMMER 7",
+         "Nach Lösung Schublade klicken, Protokoll schließen → `z7_protokoll`",
+         "Toast „Die unterste Schublade … springt auf“, Aufgabe „Ein Schlüssel aus der Schublade: ZIMMER 7“. **Softlock-Verdacht Laden:** nach Speichern (Zahlenschloss `saveGame(2)`, Beobachter) wurde die Schublade nach „Weiterspielen“ nicht neu verdrahtet. Korrektur der Vorab-Meldung: der Schlüssel selbst kommt über `zimmer7.js` (CH2_BEGIN) wieder; verloren ging nur das Protokoll (Story-Text, Lore) und die Schublade war tot",
+         "unklar → behoben",
+         "**Umgesetzt:** Callback als Funktion `archiveDrawerRead()` (Basis), `tod_ch2Apply` registriert sie bei geladener gelöster Tafel neu"
+        ],
+        [
+         "2.4",
+         "Zimmer 7 → Schlüssel SICHERUNG",
+         "Tür mit Schlüssel, Schlüssel am Haken nehmen",
+         "Schild „ZIMMER 7 · H. WENDT“, Band „Zimmer sieben ist heute geschlossen“; Haken-Interaktion „Schlüssel am Haken“; danach Aufgabe „Ohne Strom … Sicherungsraum“; falscher Schlüssel am Sicherungsraum erklärt sich („auf seinem Schild steht ZIMMER 7“)",
+         "OK",
+         "–"
+        ],
+        [
+         "2.5",
+         "Sicherungsraum / Sicherungskasten (6 Hebel)",
+         "Hebel 2-3-4-5 einschalten (1 und 6 leuchten schon); leuchtender Hebel wird bestraft (laut, Nachbarn fallen)",
+         "Kreide „Fang nie mit dem an, der schon leuchtet“; Zeilen nach 6/15 Umschaltungen, nach 30 Reset mit leuchtendem Hinweis; Funk AG-06 vorher",
+         "OK",
+         "Faden-Eintrag (siehe unten)"
+        ],
+        [
+         "2.6",
+         "Spinnenraum (Schüttel-QTE)",
+         "Maus wild / A-D hämmern",
+         "Aufgabe „SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern“, HUD, Barrierefreiheit `settings.qte`",
+         "OK",
+         "–"
+        ],
+        [
+         "2.7",
+         "Prüfraum 3: Feuerzeug (Pflicht für die Osttür)",
+         "Matratze in Peters Zelle, Feuerzeug nehmen → Riegel springt",
+         "Tür: „Der Riegel sitzt“; nach 20 s Aufgabe „Die Matratze. Da glänzt was.“",
+         "OK",
+         "–"
+        ],
+        [
+         "2.8",
+         "Flucht vor Peter: Fass, Öl, Feuerzeug, Notschalter",
+         "QTE Losreißen → Fass (E) → Peter liegt im Öl → „Das Öl anzünden“ (E) → Brandalarm, Notentriegelung E halten; Rückweg ohne Kampf nach 90 s",
+         "Aufgaben „Das Öl anzünden – schnell! (E)“, Fehlschlagtexte („Zu nah am Öl“, „Du stehst selbst im Öl“), nach 10 s „Das Öl liegt noch da. Das Feuerzeug auch.“, nach 90 s Alarm-Rückfall, rote Leuchte",
+         "OK",
+         "–"
+        ],
+        [
+         "2.9",
+         "AG-06 / AG-07 (Schleichen, Atem anhalten)",
+         "AG-07: Lampe aus, still stehen hinter den Schränken, bei Nähe LEERTASTE halten",
+         "HUD-Hinweise „Lampe aus. Still. Hinter die Schränke.“ und „LEERTASTE Atem anhalten“, Neustart ohne Tod",
+         "OK",
+         "Lauf bestätigt später"
+        ],
+        [
+         "2.10",
+         "Messraum: **Klavier E D C H C**",
+         "5 Töne; Lucy summt und beschlägt die richtigen Tasten (nach 3 Fehlern langsamer, nach 6 bleibt Beschlag)",
+         "Aufgabe „Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach …“; Notenblatt „E D ? ? ?“; Spieluhr in Kap. 1 (Tastenfeld)",
+         "OK",
+         "Faden-Eintrag (siehe unten)"
+        ],
+        [
+         "2.11",
+         "Akte 08 (Fach springt auf)",
+         "Fach nach dem letzten Ton, Akte klicken",
+         "Zeile „Beim letzten Ton springt ein Aktenfach …“, Aufgabe „Lies die achte Akte.“",
+         "OK",
+         "–"
+        ],
+        [
+         "2.12",
+         "Lucy im Tank / Finale / Gully",
+         "Dialog, Kino, Aufstieg (E halten)",
+         "Aufgaben „Lucy.“, „Die Leiter hinauf.“, „Klettern. E halten.“",
+         "OK",
+         "–"
+        ],
+        [
+         "2.13",
+         "Nebenaufgabe Hängeregistratur-Zahlenschloss („Alle siebzehn“)",
+         "1958 · 1975 · 1992 · 2009 (aufsteigend, je +17)",
+         "Kreide „Alle siebzehn.“; Hinweise nach 2 und 4 Fehlern. **Fehler:** „Von 2009 rückwärts“ verleitete zur absteigenden Reihenfolge (2009, 1992 …)",
+         "defekt (Hinweis irreführend) → behoben",
+         "**Umgesetzt (amt.js):** Fehler 2: „Alle siebzehn Jahre. Von 2009 rückwärts. Und dann das älteste zuerst.“; Fehler 4: „Vier Felder, vier Jahre. 2009 minus 17, minus 17, minus 17. Das älteste links.“; exakte Gegenreihenfolge → „Richtig gerechnet, falsch herum. Das älteste zuerst.“"
+        ],
+        [
+         "2.14",
+         "Nebenaufgaben Kantine, Gründung (Leiter), Kühlregal, Modell, Vernichter, Bogen",
+         "siehe amt.js",
+         "Gründung: „Zu hoch. Irgendwo muss eine Leiter sein.“; Kühlregal: „Ohne Strom rührt sich nichts“",
+         "OK (Stichprobe)",
+         "–"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "#": "2.1",
+         "Rätsel / Hürde": "Gang hinter der Wand → Amt-Tunnel",
+         "Lösung / Schrittfolge (Code)": "Kapitelwechsel durch Gehen (`uebergang.js`), Tür fällt zu",
+         "Hinweise": "MAIN[8], C2_MAIN[0] „Folge dem Gang. Irgendwo hier unten ist Lucy.“, Zeile „Hinter dir fällt die Tür ins Schloss“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.2",
+         "Rätsel / Hürde": "Archiv: sieben Akten + **Ordnungstafel**",
+         "Lösung / Schrittfolge (Code)": "Reihenfolge Roxy, Lucy, Mike, Dina, Heidi, Luke, Zayn (Rückführungszeit aus den Akten)",
+         "Hinweise": "Aufgabe nach 3 gelesenen Akten: „Bring die Namen in die richtige Reihenfolge.“; Tafel: „Wer zuerst kam, steht links“; Fehler: Nadeldrucker, ab 2/4/6 Hilfe (Zeile, Band, leuchtendes Feld). Akte 01 nennt „erste Rückkehr“ (löst Roxy/Lucy-Mehrdeutigkeit)",
+         "Bewertung": "OK (Aufgabentext war zu knapp)",
+         "Verbesserung": "**Umgesetzt (amt.js, AMT_ZIEL):** „Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links.“"
+        },
+        {
+         "#": "2.3",
+         "Rätsel / Hürde": "Schublade → Schlüssel ZIMMER 7",
+         "Lösung / Schrittfolge (Code)": "Nach Lösung Schublade klicken, Protokoll schließen → `z7_protokoll`",
+         "Hinweise": "Toast „Die unterste Schublade … springt auf“, Aufgabe „Ein Schlüssel aus der Schublade: ZIMMER 7“. **Softlock-Verdacht Laden:** nach Speichern (Zahlenschloss `saveGame(2)`, Beobachter) wurde die Schublade nach „Weiterspielen“ nicht neu verdrahtet. Korrektur der Vorab-Meldung: der Schlüssel selbst kommt über `zimmer7.js` (CH2_BEGIN) wieder; verloren ging nur das Protokoll (Story-Text, Lore) und die Schublade war tot",
+         "Bewertung": "unklar → behoben",
+         "Verbesserung": "**Umgesetzt:** Callback als Funktion `archiveDrawerRead()` (Basis), `tod_ch2Apply` registriert sie bei geladener gelöster Tafel neu"
+        },
+        {
+         "#": "2.4",
+         "Rätsel / Hürde": "Zimmer 7 → Schlüssel SICHERUNG",
+         "Lösung / Schrittfolge (Code)": "Tür mit Schlüssel, Schlüssel am Haken nehmen",
+         "Hinweise": "Schild „ZIMMER 7 · H. WENDT“, Band „Zimmer sieben ist heute geschlossen“; Haken-Interaktion „Schlüssel am Haken“; danach Aufgabe „Ohne Strom … Sicherungsraum“; falscher Schlüssel am Sicherungsraum erklärt sich („auf seinem Schild steht ZIMMER 7“)",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.5",
+         "Rätsel / Hürde": "Sicherungsraum / Sicherungskasten (6 Hebel)",
+         "Lösung / Schrittfolge (Code)": "Hebel 2-3-4-5 einschalten (1 und 6 leuchten schon); leuchtender Hebel wird bestraft (laut, Nachbarn fallen)",
+         "Hinweise": "Kreide „Fang nie mit dem an, der schon leuchtet“; Zeilen nach 6/15 Umschaltungen, nach 30 Reset mit leuchtendem Hinweis; Funk AG-06 vorher",
+         "Bewertung": "OK",
+         "Verbesserung": "Faden-Eintrag (siehe unten)"
+        },
+        {
+         "#": "2.6",
+         "Rätsel / Hürde": "Spinnenraum (Schüttel-QTE)",
+         "Lösung / Schrittfolge (Code)": "Maus wild / A-D hämmern",
+         "Hinweise": "Aufgabe „SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern“, HUD, Barrierefreiheit `settings.qte`",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.7",
+         "Rätsel / Hürde": "Prüfraum 3: Feuerzeug (Pflicht für die Osttür)",
+         "Lösung / Schrittfolge (Code)": "Matratze in Peters Zelle, Feuerzeug nehmen → Riegel springt",
+         "Hinweise": "Tür: „Der Riegel sitzt“; nach 20 s Aufgabe „Die Matratze. Da glänzt was.“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.8",
+         "Rätsel / Hürde": "Flucht vor Peter: Fass, Öl, Feuerzeug, Notschalter",
+         "Lösung / Schrittfolge (Code)": "QTE Losreißen → Fass (E) → Peter liegt im Öl → „Das Öl anzünden“ (E) → Brandalarm, Notentriegelung E halten; Rückweg ohne Kampf nach 90 s",
+         "Hinweise": "Aufgaben „Das Öl anzünden – schnell! (E)“, Fehlschlagtexte („Zu nah am Öl“, „Du stehst selbst im Öl“), nach 10 s „Das Öl liegt noch da. Das Feuerzeug auch.“, nach 90 s Alarm-Rückfall, rote Leuchte",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.9",
+         "Rätsel / Hürde": "AG-06 / AG-07 (Schleichen, Atem anhalten)",
+         "Lösung / Schrittfolge (Code)": "AG-07: Lampe aus, still stehen hinter den Schränken, bei Nähe LEERTASTE halten",
+         "Hinweise": "HUD-Hinweise „Lampe aus. Still. Hinter die Schränke.“ und „LEERTASTE Atem anhalten“, Neustart ohne Tod",
+         "Bewertung": "OK",
+         "Verbesserung": "Lauf bestätigt später"
+        },
+        {
+         "#": "2.10",
+         "Rätsel / Hürde": "Messraum: **Klavier E D C H C**",
+         "Lösung / Schrittfolge (Code)": "5 Töne; Lucy summt und beschlägt die richtigen Tasten (nach 3 Fehlern langsamer, nach 6 bleibt Beschlag)",
+         "Hinweise": "Aufgabe „Lucy ist im Tank. Sie summt. Spiel auf dem Klavier nach …“; Notenblatt „E D ? ? ?“; Spieluhr in Kap. 1 (Tastenfeld)",
+         "Bewertung": "OK",
+         "Verbesserung": "Faden-Eintrag (siehe unten)"
+        },
+        {
+         "#": "2.11",
+         "Rätsel / Hürde": "Akte 08 (Fach springt auf)",
+         "Lösung / Schrittfolge (Code)": "Fach nach dem letzten Ton, Akte klicken",
+         "Hinweise": "Zeile „Beim letzten Ton springt ein Aktenfach …“, Aufgabe „Lies die achte Akte.“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.12",
+         "Rätsel / Hürde": "Lucy im Tank / Finale / Gully",
+         "Lösung / Schrittfolge (Code)": "Dialog, Kino, Aufstieg (E halten)",
+         "Hinweise": "Aufgaben „Lucy.“, „Die Leiter hinauf.“, „Klettern. E halten.“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "#": "2.13",
+         "Rätsel / Hürde": "Nebenaufgabe Hängeregistratur-Zahlenschloss („Alle siebzehn“)",
+         "Lösung / Schrittfolge (Code)": "1958 · 1975 · 1992 · 2009 (aufsteigend, je +17)",
+         "Hinweise": "Kreide „Alle siebzehn.“; Hinweise nach 2 und 4 Fehlern. **Fehler:** „Von 2009 rückwärts“ verleitete zur absteigenden Reihenfolge (2009, 1992 …)",
+         "Bewertung": "defekt (Hinweis irreführend) → behoben",
+         "Verbesserung": "**Umgesetzt (amt.js):** Fehler 2: „Alle siebzehn Jahre. Von 2009 rückwärts. Und dann das älteste zuerst.“; Fehler 4: „Vier Felder, vier Jahre. 2009 minus 17, minus 17, minus 17. Das älteste links.“; exakte Gegenreihenfolge → „Richtig gerechnet, falsch herum. Das älteste zuerst.“"
+        },
+        {
+         "#": "2.14",
+         "Rätsel / Hürde": "Nebenaufgaben Kantine, Gründung (Leiter), Kühlregal, Modell, Vernichter, Bogen",
+         "Lösung / Schrittfolge (Code)": "siehe amt.js",
+         "Hinweise": "Gründung: „Zu hoch. Irgendwo muss eine Leiter sein.“; Kühlregal: „Ohne Strom rührt sich nichts“",
+         "Bewertung": "OK (Stichprobe)",
+         "Verbesserung": "–"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Sackgassen / Softlocks (Befund)",
+     "zeile": 43,
+     "text": [
+      "- Keine harte Sackgasse in Kap. 1 gefunden: Die Haustür nach dem Keller wird per Tick geöffnet (Kommentar im Code), Treppe ist während des Versteckens bewusst zugenagelt, `vTick` löst das Keller-Ende selbst aus.",
+      "- Kap. 2: Zimmer-7-Kette überlebt Laden (siehe 2.3). Sicherungsraum-Schlüssel nach Laden: zimmer7.js stellt `fuseKey` nur wieder her, wenn er genommen war; sonst muss Luke nochmal zu Zimmer 7 (gewollt, Aufgabentext passt).",
+      "- Offen, nicht geändert: Faden-Eintrag `Keller von Nr. 7` (Hinweis „Werkbank“) bezieht sich auf die Alt-Aufgabe MAIN[7] und wird nie mehr getroffen. Auch das Toast in uebergang.js („Oben im Hauswirtschaftsraum steht eine Werkbank“) ist unerreichbar (Kap. 1 öffnet die Wand selbst)."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Vorschläge GEDANKEN_FADEN (gedanken.js, geteilt – hier nur vorgeschlagen)",
+     "zeile": 48,
+     "text": [
+      "Einfügen vor `[/Luke|Leiter/ …]`, damit nichts abgefangen wird (Muster: Regex gegen den Text der Aufgabenzeile). Reihenfolge innerhalb der neuen Einträge egal.",
+      "```js",
+      "  [/Das Tastenfeld will vier Ziffern/, 'Vier Ziffern. Welche Tasten sind abgegriffen? Und welcher Tag ist in Hildes Kalender eingekreist?'],  // ersetzt/ergänzt /Kellertür/ (MAIN[3] enthält „Kellertür“, Eintrag bleibt gültig)",
+      "  [/Lucy hinterlassen/, 'Lucy war hier unten. Etwas zum Anhören. Ein Kassettenrekorder, irgendwo bei der Zeichnungswand.'],  // schärft den vorhandenen Eintrag",
+      "  [/Der Strom ist weg, die Laternen/, 'Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht im Haus festsitzen.'],  // MAIN[6]",
+      "  [/Leg die Hand an die Zeichnungen/, 'Hilde hat auf die Wand gezeigt. Die Zeichnungen. Da hinten, wo es warm ist.'],",
+      "  [/Finde das Zimmer/, 'Zimmer 7. Hildes Büro. Die Tür mit dem Emailleschild im Durchgang hinter dem Archiv.'],",
+      "  [/Sicherungsraum und schalte den Strom/, 'Sechs Hebel. Wer schon leuchtet, bleibt in Ruhe.'],",
+      "  [/auf dem Klavier nach/, 'Lucys Lied. E, D … den Rest hab ich schon gehört. Die Spieluhr. Die Stimme hinter der Kellertür.'],  // Achtung: nicht /Das Klavier/ – die angezeigte Aufgabe lautet „Spiel auf dem Klavier nach …“ (AMT_ZIEL)",
+      "  [/Die Ordnungstafel im Archiv/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],  // ersetzt /Namen in die richtige Reihenfolge/ (Satz bleibt in der Aufgabe erhalten)",
+      "```",
+      "Hinweis: `/Luke|Leiter/` fängt jede Aufgabe mit „Luke“ ab (z. B. künftige Texte mit dem Namen) – den Eintrag zu `/Die Leiter hinauf|Klettern/` schärfen."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Umgesetzte Änderungen (Dateien)",
+     "zeile": 63,
+     "text": [
+      "- `app/mods/kapitel1.js`: MAIN[3] und MAIN[6]; `setMain(6)` im Stromausfall; Tastenfeld-Meldungen ab Fehler 4; Ziel im Keller-Ende.",
+      "- `app/mods/amt.js`: Zahlenschloss-Hinweise (inkl. Erkennung der Gegenreihenfolge); AMT_ZIEL für die Ordnungstafel.",
+      "- `app/mods/_base_source_index.html` und `app/mods/tod.js`: `archiveDrawerRead()` ausgelagert und nach Laden neu angebunden.",
+      "- `app/mods/post.js`: Stempel sichtbar, 17. Karte einzeln.",
+      "- `app/mods/ausbau_ost_west.js`: Dina Hilfestufe 3, Doppelzeile; Geldkassette Abschlusslogik und Hinweis.",
+      "- `node --check` für alle geänderten Module ok, `tools/assemble.js` läuft durch (game/index.html neu gebaut)."
+     ],
+     "tabellen": []
+    }
+   ]
+  },
+  {
+   "datei": "docs/gameplay/qa_raetsel_k34.md",
+   "titel": "QA Rätsel Kapitel 3 und 4 (nur Code-/Textanalyse, Stand 09.10.2026)",
+   "abschnitte": [
+    {
+     "ebene": 1,
+     "titel": "(Einleitung)",
+     "zeile": 1,
+     "text": [
+      "# QA Rätsel Kapitel 3 und 4 (nur Code-/Textanalyse, Stand 09.10.2026)",
+      "Methode: statische Analyse von kapitel3.js, lucy3.js, weiss.js, neben3.js, anwesen.js, villa.js, kirchberg.js, gedanken.js (GEDANKEN_FADEN, Festhänge-Schwelle 150 s) und Basis (`_base_source_index.html`). Keine Spielläufe. Kap. 4 (villa.js/anwesen.js) wurde nach den Befunden der Koordination und stichprobenartig im Code geprüft, nicht Zeile für Zeile.",
+      "Bewertung: OK = lösbar + verständlich · unklar = lösbar, Hinweis dünn/spät · defekt = Sackgasse/Fehlverhalten."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 3",
+     "zeile": 6,
+     "text": [
+      "Nebenaufgaben Kap. 3"
+     ],
+     "tabellen": [
+      {
+       "kopf": [
+        "Rätsel",
+        "Lösung / Schrittfolge",
+        "Hinweise im Spiel (wo/wann)",
+        "Bewertung",
+        "Verbesserung"
+       ],
+       "zeilen": [
+        [
+         "Aufwachen",
+         "W drücken (aufrappeln)",
+         "Toast „W – aufstehen“ nach 6 s",
+         "OK",
+         "–"
+        ],
+        [
+         "Telefon an der Kreuzung",
+         "Klingelt 25 s nach der 3. Kuh-Stelle bzw. 60 s nach Kuh-Ende; Hörer abnehmen, E = Auflegen-Versuch",
+         "Klingeln mit Distanz-Lautstärke, Gedanke „Die Zelle hat seit Jahren kein Kabel…“",
+         "war unklar: Aufgabenzeile blieb „Hol Lucy zurück…“",
+         "UMGESETZT: bei Klingelbeginn `setC3('Das Telefon an der Kreuzung klingelt. Nimm ab.')` (kapitel3.js)"
+        ],
+        [
+         "Kuh untersuchen (3 Stellen)",
+         "Ohr, Kopf, Flanke anklicken; Polaroid bei Flanke; Fluch-Gag beim 3.",
+         "Beschriftung „Kuh untersuchen · …“",
+         "OK (optional, kein Blocker)",
+         "–"
+        ],
+        [
+         "Funkkasten 31,10 MHz",
+         "Zählbuch in Nr. 7 („Notfunk auf dem Tag, an dem SIE kam“, „Ende Oktober“) + Radios in Kap. 1 mit Skala 31,10; Regler auf 31,10 (Toleranz 0,06), HINHÖREN",
+         "Aufgabe „Der Funkkasten… Welche Frequenz?“, Rückmeldung nah/fern, magisches Auge, nach 55 s Luke-Gedanke, Justin-Hilfe",
+         "OK",
+         "UMGESETZT V1: Aufkleber um Kuli-Zeile „nicht auf das erste Rauschen hören“ ergänzt (lucy3.js:184)"
+        ],
+        [
+         "Kanal A/B, HASENBROT",
+         "Frage 3 „Sag unser Wort“ (A: „Hasen…“), Heckscheibe unten „HASEN…“; HASENBROT in den Staub schreiben, an KANAL B senden",
+         "Frage-Antworten, Heckscheibe, Luke-Gedanke nach allen Fragen, Fehlschlag: Lachen + Sperre 10 s, Whiskey-Striche (nach 2. Fehler/180 s), Zettel B-K3-H2 (3. Fehler), Justin-Satz",
+         "OK; Randfall: Wort laut gesagt ohne Frage „Wo bist du?“ führte zu Fehlschlägen ohne Text",
+         "UMGESETZT V6: nach lautem Sagen Luke-Zeile „Jetzt kann sie es auch. Nur eine weiß, wo Lucy wirklich ist.“ (lucy3.js). Zustand `tuned` wird gespeichert/geladen (B2)"
+        ],
+        [
+         "Laternenfolge 5-3-1-7",
+         "Hebel an Kasten Nr. 5, 3, 1, 7",
+         "Zählbuch (Juni vor 5, Juli vor 3, Okt vor 1), Zettel „ZULETZT.“ an Kasten 7, Lucy-Funk, Fehlversuch 1 „Juni, Juli, Oktober…“, 3 „Hilde… als Letzte“, ab 4 Justin",
+         "OK",
+         "UMGESETZT B1: Hebel in den 2,6 s nach falschem Hebel gesperrt (`wrongBusy`), sonst Zustandsabweichung ch3.seq/Hebel"
+        ],
+        [
+         "Graukind-Jagd (Ochs am Berg, Freimal)",
+         "Hinsehen = es steht; Eisen anfassen = 3 s sicher; weiterlaufen",
+         "Justin-Satz „Eisen ist frei“ (justin.js blechmaenner), Fibel R-K3d, Whiskey-Warnung auf Dach Nr. 1",
+         "unklar für Spieler ohne Justin-Gespräch; Rückmeldung nach Fang war nur „Du bist.“",
+         "UMGESETZT V7: Toast „Hinter dir geht eine Laterne wieder an. Der Hebel steht auf EIN.“ nach dem Fang"
+        ],
+        [
+         "Behaltene / Lichtsäule",
+         "Zu Justin an die Kreuzung laufen, Eisen = sicher, dann Hand nehmen",
+         "Aufgabe „Zu Justin. An die Kreuzung.“, Justin-Ruf, nach 9 s Whiskey „Kum!“",
+         "OK",
+         "–"
+        ],
+        [
+         "Nimmerheim Raum 1",
+         "Karte (Gegenstand, der in dieser Nacht nicht existierte) wählen",
+         "Aufgabe „Finde, was nicht in diese Nacht gehört…“, ab 2. Fehler Justin, 3. Fehler Kamera dreht sich zur Karte, 4. Luke-Gedanke",
+         "OK",
+         "–"
+        ],
+        [
+         "Nimmerheim Raum 2 (Hilde, Küchenuhr 3:13)",
+         "Hilde-Fragen, Uhr auf 3:13",
+         "Uhr überall im Spiel auf 3:13 (Kap. 1, Endkarte Kap. 2), Hilde-Satz, Aufgabe, Fehlversuch-Leiter",
+         "war defekt-anfällig: Hilfeleiter hing am deutschen Toast-Text",
+         "UMGESETZT B3: Zählung über Zustand (clockPuzzle-Hülle), V2: Fehler 2 = Hilde „Du hast sie doch schlagen hören, Junge.“, Fehler 3 = Justin „Die dritte Stunde…“ (weiss.js)"
+        ],
+        [
+         "Raum 3 (Hände, „Wessen Hand ist aufgegangen?“)",
+         "Blatt SB-07 aufheben, 3+ Stellen ansehen, Tafel: JUSTINS",
+         "Aufgabe, Justin „Sieh, wohin du willst“, Fehlwahl-Leiter (Whiskey, Kamera, Luke)",
+         "war unklar: Tafel öffnet nur einmal selbst, Wiederöffnen nur über Justin; SB-07-Absturz = Hänger",
+         "UMGESETZT V5: Aufgabenzeile „Sieh dir die Hände an. Wenn du es weißt: sag es Justin.“; Absicherung: scheitert `sammeln_platz`, geht es direkt mit den Händen weiter"
+        ],
+        [
+         "Wahl A/B/C",
+         "Entscheidung am Ende",
+         "Justin-Frage „Was will sie?“",
+         "OK (Wahl, kein Rätsel)",
+         "–"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Rätsel": "Aufwachen",
+         "Lösung / Schrittfolge": "W drücken (aufrappeln)",
+         "Hinweise im Spiel (wo/wann)": "Toast „W – aufstehen“ nach 6 s",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "Rätsel": "Telefon an der Kreuzung",
+         "Lösung / Schrittfolge": "Klingelt 25 s nach der 3. Kuh-Stelle bzw. 60 s nach Kuh-Ende; Hörer abnehmen, E = Auflegen-Versuch",
+         "Hinweise im Spiel (wo/wann)": "Klingeln mit Distanz-Lautstärke, Gedanke „Die Zelle hat seit Jahren kein Kabel…“",
+         "Bewertung": "war unklar: Aufgabenzeile blieb „Hol Lucy zurück…“",
+         "Verbesserung": "UMGESETZT: bei Klingelbeginn `setC3('Das Telefon an der Kreuzung klingelt. Nimm ab.')` (kapitel3.js)"
+        },
+        {
+         "Rätsel": "Kuh untersuchen (3 Stellen)",
+         "Lösung / Schrittfolge": "Ohr, Kopf, Flanke anklicken; Polaroid bei Flanke; Fluch-Gag beim 3.",
+         "Hinweise im Spiel (wo/wann)": "Beschriftung „Kuh untersuchen · …“",
+         "Bewertung": "OK (optional, kein Blocker)",
+         "Verbesserung": "–"
+        },
+        {
+         "Rätsel": "Funkkasten 31,10 MHz",
+         "Lösung / Schrittfolge": "Zählbuch in Nr. 7 („Notfunk auf dem Tag, an dem SIE kam“, „Ende Oktober“) + Radios in Kap. 1 mit Skala 31,10; Regler auf 31,10 (Toleranz 0,06), HINHÖREN",
+         "Hinweise im Spiel (wo/wann)": "Aufgabe „Der Funkkasten… Welche Frequenz?“, Rückmeldung nah/fern, magisches Auge, nach 55 s Luke-Gedanke, Justin-Hilfe",
+         "Bewertung": "OK",
+         "Verbesserung": "UMGESETZT V1: Aufkleber um Kuli-Zeile „nicht auf das erste Rauschen hören“ ergänzt (lucy3.js:184)"
+        },
+        {
+         "Rätsel": "Kanal A/B, HASENBROT",
+         "Lösung / Schrittfolge": "Frage 3 „Sag unser Wort“ (A: „Hasen…“), Heckscheibe unten „HASEN…“; HASENBROT in den Staub schreiben, an KANAL B senden",
+         "Hinweise im Spiel (wo/wann)": "Frage-Antworten, Heckscheibe, Luke-Gedanke nach allen Fragen, Fehlschlag: Lachen + Sperre 10 s, Whiskey-Striche (nach 2. Fehler/180 s), Zettel B-K3-H2 (3. Fehler), Justin-Satz",
+         "Bewertung": "OK; Randfall: Wort laut gesagt ohne Frage „Wo bist du?“ führte zu Fehlschlägen ohne Text",
+         "Verbesserung": "UMGESETZT V6: nach lautem Sagen Luke-Zeile „Jetzt kann sie es auch. Nur eine weiß, wo Lucy wirklich ist.“ (lucy3.js). Zustand `tuned` wird gespeichert/geladen (B2)"
+        },
+        {
+         "Rätsel": "Laternenfolge 5-3-1-7",
+         "Lösung / Schrittfolge": "Hebel an Kasten Nr. 5, 3, 1, 7",
+         "Hinweise im Spiel (wo/wann)": "Zählbuch (Juni vor 5, Juli vor 3, Okt vor 1), Zettel „ZULETZT.“ an Kasten 7, Lucy-Funk, Fehlversuch 1 „Juni, Juli, Oktober…“, 3 „Hilde… als Letzte“, ab 4 Justin",
+         "Bewertung": "OK",
+         "Verbesserung": "UMGESETZT B1: Hebel in den 2,6 s nach falschem Hebel gesperrt (`wrongBusy`), sonst Zustandsabweichung ch3.seq/Hebel"
+        },
+        {
+         "Rätsel": "Graukind-Jagd (Ochs am Berg, Freimal)",
+         "Lösung / Schrittfolge": "Hinsehen = es steht; Eisen anfassen = 3 s sicher; weiterlaufen",
+         "Hinweise im Spiel (wo/wann)": "Justin-Satz „Eisen ist frei“ (justin.js blechmaenner), Fibel R-K3d, Whiskey-Warnung auf Dach Nr. 1",
+         "Bewertung": "unklar für Spieler ohne Justin-Gespräch; Rückmeldung nach Fang war nur „Du bist.“",
+         "Verbesserung": "UMGESETZT V7: Toast „Hinter dir geht eine Laterne wieder an. Der Hebel steht auf EIN.“ nach dem Fang"
+        },
+        {
+         "Rätsel": "Behaltene / Lichtsäule",
+         "Lösung / Schrittfolge": "Zu Justin an die Kreuzung laufen, Eisen = sicher, dann Hand nehmen",
+         "Hinweise im Spiel (wo/wann)": "Aufgabe „Zu Justin. An die Kreuzung.“, Justin-Ruf, nach 9 s Whiskey „Kum!“",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "Rätsel": "Nimmerheim Raum 1",
+         "Lösung / Schrittfolge": "Karte (Gegenstand, der in dieser Nacht nicht existierte) wählen",
+         "Hinweise im Spiel (wo/wann)": "Aufgabe „Finde, was nicht in diese Nacht gehört…“, ab 2. Fehler Justin, 3. Fehler Kamera dreht sich zur Karte, 4. Luke-Gedanke",
+         "Bewertung": "OK",
+         "Verbesserung": "–"
+        },
+        {
+         "Rätsel": "Nimmerheim Raum 2 (Hilde, Küchenuhr 3:13)",
+         "Lösung / Schrittfolge": "Hilde-Fragen, Uhr auf 3:13",
+         "Hinweise im Spiel (wo/wann)": "Uhr überall im Spiel auf 3:13 (Kap. 1, Endkarte Kap. 2), Hilde-Satz, Aufgabe, Fehlversuch-Leiter",
+         "Bewertung": "war defekt-anfällig: Hilfeleiter hing am deutschen Toast-Text",
+         "Verbesserung": "UMGESETZT B3: Zählung über Zustand (clockPuzzle-Hülle), V2: Fehler 2 = Hilde „Du hast sie doch schlagen hören, Junge.“, Fehler 3 = Justin „Die dritte Stunde…“ (weiss.js)"
+        },
+        {
+         "Rätsel": "Raum 3 (Hände, „Wessen Hand ist aufgegangen?“)",
+         "Lösung / Schrittfolge": "Blatt SB-07 aufheben, 3+ Stellen ansehen, Tafel: JUSTINS",
+         "Hinweise im Spiel (wo/wann)": "Aufgabe, Justin „Sieh, wohin du willst“, Fehlwahl-Leiter (Whiskey, Kamera, Luke)",
+         "Bewertung": "war unklar: Tafel öffnet nur einmal selbst, Wiederöffnen nur über Justin; SB-07-Absturz = Hänger",
+         "Verbesserung": "UMGESETZT V5: Aufgabenzeile „Sieh dir die Hände an. Wenn du es weißt: sag es Justin.“; Absicherung: scheitert `sammeln_platz`, geht es direkt mit den Händen weiter"
+        },
+        {
+         "Rätsel": "Wahl A/B/C",
+         "Lösung / Schrittfolge": "Entscheidung am Ende",
+         "Hinweise im Spiel (wo/wann)": "Justin-Frage „Was will sie?“",
+         "Bewertung": "OK (Wahl, kein Rätsel)",
+         "Verbesserung": "–"
+        }
+       ]
+      },
+      {
+       "kopf": [
+        "Rätsel",
+        "Lösung",
+        "Befund",
+        "Bewertung",
+        "Verbesserung"
+       ],
+       "zeilen": [
+        [
+         "Kapelle (Fenster, Kirchenführer, Sakristei, Sühnebrief, Gesangbuch)",
+         "alle 5 Punkte",
+         "Fibel-Aufgabenzeile nannte „Fenster x/8“ und „Glockenseil“ statt Sühnebrief (B5)",
+         "war unklar",
+         "UMGESETZT V4: `Fenster (n/4) · Kirchenführer · Sakristei · Sühnebrief · Gesangbuch` (neben3.js)"
+        ],
+        [
+         "Glocken-Joker",
+         "Seil 16x: 3 · Pause · 13",
+         "enges Zeitfenster, kein Feedback bei verworfenem Zähler",
+         "unklar",
+         "UMGESETZT: Toast bei misslungenem Rhythmus; V9: Glockenzettel um Rhythmus-Hinweis ergänzt (neben3.js)"
+        ],
+        [
+         "Predigtmappe (Pfarrhaus)",
+         "12 Wörter in Reihenfolge",
+         "Zeile nach Mappe-Fund",
+         "unklar",
+         "UMGESETZT V3: „Zwölf Predigten. Und ein dreizehntes Blatt, fast leer. Gegen die Lampe halten?“"
+        ],
+        [
+         "Register, RH, Peters Zimmer, Gully/Atlantschiss, Gisela",
+         "–",
+         "nicht vertieft geprüft (Koordination: lösbar)",
+         "OK (nicht vertieft)",
+         "–"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Rätsel": "Kapelle (Fenster, Kirchenführer, Sakristei, Sühnebrief, Gesangbuch)",
+         "Lösung": "alle 5 Punkte",
+         "Befund": "Fibel-Aufgabenzeile nannte „Fenster x/8“ und „Glockenseil“ statt Sühnebrief (B5)",
+         "Bewertung": "war unklar",
+         "Verbesserung": "UMGESETZT V4: `Fenster (n/4) · Kirchenführer · Sakristei · Sühnebrief · Gesangbuch` (neben3.js)"
+        },
+        {
+         "Rätsel": "Glocken-Joker",
+         "Lösung": "Seil 16x: 3 · Pause · 13",
+         "Befund": "enges Zeitfenster, kein Feedback bei verworfenem Zähler",
+         "Bewertung": "unklar",
+         "Verbesserung": "UMGESETZT: Toast bei misslungenem Rhythmus; V9: Glockenzettel um Rhythmus-Hinweis ergänzt (neben3.js)"
+        },
+        {
+         "Rätsel": "Predigtmappe (Pfarrhaus)",
+         "Lösung": "12 Wörter in Reihenfolge",
+         "Befund": "Zeile nach Mappe-Fund",
+         "Bewertung": "unklar",
+         "Verbesserung": "UMGESETZT V3: „Zwölf Predigten. Und ein dreizehntes Blatt, fast leer. Gegen die Lampe halten?“"
+        },
+        {
+         "Rätsel": "Register, RH, Peters Zimmer, Gully/Atlantschiss, Gisela",
+         "Lösung": "–",
+         "Befund": "nicht vertieft geprüft (Koordination: lösbar)",
+         "Bewertung": "OK (nicht vertieft)",
+         "Verbesserung": "–"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 4 (nach Koordinationsbefund: alle lösbar; nicht Zeile für Zeile geprüft)",
+     "zeile": 32,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "Rätsel",
+        "Befund",
+        "Bewertung",
+        "Änderung"
+       ],
+       "zeilen": [
+        [
+         "Aufräumkommando, Vegas klopfen, Nr. 3, Nr. 9 (Ringbuch/Kameraloch/Dienstplan)",
+         "Aufgabenzeile über `villa_ziel()`, Gedanken `villa_nr9…`",
+         "OK",
+         "–"
+        ],
+        [
+         "Prägepresse / 8 Schlüsselteile / Villa-Tür",
+         "Teil 04 (Kellerfenster) braucht Brechstange; bei Kapitelwahl/Weiterspielen ohne Inventar sonst gesperrt (B4)",
+         "war defekt (Sackgasse möglich)",
+         "UMGESETZT: `startChapter4` gibt die Brechstange, wenn sie fehlt (anwesen.js)"
+        ],
+        [
+         "Halle, Arbeitszimmer, Aktenschrank „1958“, Krankenbett/Nachbild, Anrichte, Obergeschoss, Schleichen AG-13, Zelle Ost, AG-14 Wolter, W-11 Ring, Noten/Porträt, Treppe, Kino k4",
+         "Hilfe-Gedanken `villa_r41a/b`, Checkpoints `todCheckpoint`",
+         "OK",
+         "–"
+        ],
+        [
+         "Sicherungskasten Villa / Höhepunkt A",
+         "Farbkombination, Fehlversuch-Gedanken",
+         "unklar (Hinweis „Zwei nicht“ mehrdeutig)",
+         "UMGESETZT V8: `villa_r43b` = „Vier Schilder kann ich lesen. Zwei nicht – das müssen die hier unten sein. Und ich weiß, welche Farben dafür übrig sind.“ (villa.js)"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Rätsel": "Aufräumkommando, Vegas klopfen, Nr. 3, Nr. 9 (Ringbuch/Kameraloch/Dienstplan)",
+         "Befund": "Aufgabenzeile über `villa_ziel()`, Gedanken `villa_nr9…`",
+         "Bewertung": "OK",
+         "Änderung": "–"
+        },
+        {
+         "Rätsel": "Prägepresse / 8 Schlüsselteile / Villa-Tür",
+         "Befund": "Teil 04 (Kellerfenster) braucht Brechstange; bei Kapitelwahl/Weiterspielen ohne Inventar sonst gesperrt (B4)",
+         "Bewertung": "war defekt (Sackgasse möglich)",
+         "Änderung": "UMGESETZT: `startChapter4` gibt die Brechstange, wenn sie fehlt (anwesen.js)"
+        },
+        {
+         "Rätsel": "Halle, Arbeitszimmer, Aktenschrank „1958“, Krankenbett/Nachbild, Anrichte, Obergeschoss, Schleichen AG-13, Zelle Ost, AG-14 Wolter, W-11 Ring, Noten/Porträt, Treppe, Kino k4",
+         "Befund": "Hilfe-Gedanken `villa_r41a/b`, Checkpoints `todCheckpoint`",
+         "Bewertung": "OK",
+         "Änderung": "–"
+        },
+        {
+         "Rätsel": "Sicherungskasten Villa / Höhepunkt A",
+         "Befund": "Farbkombination, Fehlversuch-Gedanken",
+         "Bewertung": "unklar (Hinweis „Zwei nicht“ mehrdeutig)",
+         "Änderung": "UMGESETZT V8: `villa_r43b` = „Vier Schilder kann ich lesen. Zwei nicht – das müssen die hier unten sein. Und ich weiß, welche Farben dafür übrig sind.“ (villa.js)"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Vorschläge GEDANKEN_FADEN (nicht umgesetzt, in gedanken.js einzufügen, vor `[/./, …]`)",
+     "zeile": 41,
+     "text": [
+      "Hinweis: Treffer ist der erste passende Eintrag; `/Luke|Leiter/` (Z. 292) würde jede Aufgabenzeile mit „Luke“ abfangen. Die neuen stehen ohne „Luke“/„Leiter“.",
+      "```js",
+      "  [/Das Telefon an der Kreuzung klingelt/, 'Es klingelt und klingelt. Wer bei so einem Klingeln nicht rangeht, hat nie Kinder gehabt. Also los.'],",
+      "  [/Hol Lucy zurück/, 'Irgendwer hat mir das Telefon hingestellt. Ich such jemanden, der mir sagt, wo man anfängt. Justin, vielleicht.'],",
+      "  [/Der Funkkasten an der Kreuzung\\. Welche Frequenz/, 'Der Tag, an dem sie kam. Hilde hat ihn aufgeschrieben. Und Tag und Monat sind zwei Zahlen. Kurzwelle kennt Kommas.'],",
+      "  [/Laternen müssen aus/, 'Frau Wendt in Nr. 7 hat ihre Nächte aufgeschrieben. Kein Zeichen von ihr, bis ich bei ihr drin war.'],",
+      "  [/Lösch die Laternen/, 'Roxy zuerst, dann Mike, dann ich. Hilde kommt zuletzt. Welche Hausnummern waren das?'],",
+      "  [/Zu Justin\\. An die Kreuzung/, 'Nicht stehen bleiben. Und wo Eisen ist, bin ich frei.'],",
+      "  [/Nimm Justins Hand/, 'Er steht da und wartet. Ich lass nicht los. Das hat er gesagt.'],",
+      "  [/Finde, was nicht in diese Nacht gehört/, 'Alles hier gab es an dem Abend, bevor er ging. Was fehlt in dem Bild? Oder: was kommt erst danach dazu?'],",
+      "  [/Stell die Küchenuhr/, 'Wann haben sie mich geholt? Die Uhr in Kap. 1 ging auf 3:13. Die Glocke hat dreizehnmal geschlagen.'],",
+      "  [/Sieh dir die Hände an/, 'Wessen Hand ist aufgegangen? Miras Finger, Justins Handschuh, der Stiefel an der Kante. Und dann Justin sagen, was ich sehe.'],",
+      "  [/Am Rand der Wiese liegt ein Blatt/, 'Im Reif liegt etwas Helles. Ein Blatt. Hinsehen kostet nichts.'],",
+      "  [/Schließ die Tür auf/, 'Acht Teile, ein Schlüssel. Wer noch fehlt, steht in meiner Fibel. Und der Rabe weiß es auch.'],",
+      "  [/Dir fehlen noch/, 'Ich such nach etwas Eisernem. Zwischen Laub, unter Steinen, hinter Gittern. Dazu brauch ich die Brechstange.'],",
+      "```",
+      "Anmerkung zu Zeilen, die schon vorhanden sind und passen sollten: `/Lösch die Laternen/` besteht bereits (Z. 291)."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Weitere offene Punkte (nicht umgesetzt)",
+     "zeile": 63,
+     "text": [
+      "- Kapitel 4: vertiefte Zeile-für-Zeile-Prüfung von villa.js (1216 Zeilen) steht aus; die Laufzeit-Inventur sollte Aktenschrank „1958“, Dienstplan und Sicherungskasten-Farbfolge bestätigen.",
+      "- Kap. 3 Funkkasten: der Monat der Frequenz („31,10“) ergibt sich nur aus „Ende Oktober“ + Kap.-1-Radios; ein expliziter „31.10.“-Satz im Zählbuch-Text (kapitel3.js:141) würde das absichern (Story-Text, nicht angefasst)."
+     ],
+     "tabellen": []
+    }
+   ]
+  },
+  {
+   "datei": "docs/gameplay/qa_raetsel_k56.md",
+   "titel": "QA Rätsel Kapitel 5–6 (nur Code-/Textanalyse, 09.10.2026)",
+   "abschnitte": [
+    {
+     "ebene": 1,
+     "titel": "(Einleitung)",
+     "zeile": 1,
+     "text": [
+      "# QA Rätsel Kapitel 5–6 (nur Code-/Textanalyse, 09.10.2026)",
+      "Geprüft: `kapitel5.js`, `neben5.js`, `kapitel6.js`, `neben6.js`, `tiefwald.js`, `wald.js`, `hungrige.js` (+ Hilfeleiter `gedanken.js` nur gelesen).",
+      "Bewertung: **OK** = lösbar, ausreichend erklärt · **unklar** = lösbar, aber Spieler könnte hängen · **defekt** = Softlock/Fehler (behoben, wenn „behoben“ steht).",
+      "„Hilfe nach Zeit“ = `GEDANKEN_FADEN` (gedanken.js, 150 s gleiche Aufgabenzeile) bzw. eigene Zeitschwellen im Modul. Keine Spielläufe; Aussagen sind Codelesung."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 5 – „Iss auf, Bruder“ (13 Rätsel/Hürden)",
+     "zeile": 7,
+     "text": [
+      "Optional (Neben5): Jonas-Briefe, Laube, Zapfinsel, Heidi, Dina, Maas – alles kein Pflichtpfad. Fensterzeiten bewusst begrenzt (`N5_ZU`); verpassbar ohne Folgen für den Hauptweg."
+     ],
+     "tabellen": [
+      {
+       "kopf": [
+        "#",
+        "Rätsel / Hürde",
+        "Lösung",
+        "Hinweise im Spiel (WO / WANN)",
+        "Fehlschlag-Rückmeldung",
+        "Hilfe nach Zeit",
+        "Sackgasse / Softlock",
+        "Bewertung"
+       ],
+       "zeilen": [
+        [
+         "5.1",
+         "Kamera finden (Nr. 7)",
+         "Kamera am Esstisch/Wohnzimmer Nr. 7 nehmen",
+         "Aufgabe `Hildes Kamera. Nr. 7, Wohnzimmer.`",
+         "–",
+         "nur Fallback-Gedanke",
+         "keine",
+         "OK"
+        ],
+        [
+         "5.2",
+         "Foto 1 von Lucy am Fenster",
+         "`C` heben, auf Lucys Fenster (< 16 m, Blick > 0,9) halten, abdrücken",
+         "Aufgabe `Mach ein Foto von Lucy.`, Kreispfeil am Fenster, Kamera-Tip (`C`) beim Nehmen",
+         "Foto ohne Ziel zählt nicht, kein Hinweis, warum",
+         "**fehlt** (Fallback „Was hab ich übersehen“ hilft nicht)",
+         "Film: 3 Bilder; wer sie verknipst, hatte kein Bild für Runde 3 (siehe 5.6)",
+         "unklar → Vorschlag GEDANKEN_FADEN"
+        ],
+        [
+         "5.3",
+         "Gisela / Hänschen",
+         "Automatisch, sobald Luke ≤ 5,5 m ans Gartentor kommt",
+         "Aufgabe `Nr. 1. Wer deckt da den Tisch?`",
+         "–",
+         "–",
+         "Haustür-Beat `tuer` braucht `f.gisela`",
+         "OK"
+        ],
+        [
+         "5.4",
+         "Haustür / Küche",
+         "In Nr. 1 in die Küche gehen",
+         "Aufgabe, Licht in der Küche, Radio",
+         "–",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "5.5",
+         "Tisch + Schleife (3 Runden)",
+         "Nicht essen; zur Kinderzimmer-Tür hinten gehen, 3× zurückgesetzt; in Runde 3 Atem hinter dir: umdrehen + Foto (`C`, Klick, 6 s)",
+         "Aufgabe `Vier Gedecke. Lucy hat gesagt: Iss nichts.` (+ neu: `Hör hin, was unter ihrer Stimme läuft.`), nach 8 s `Lucys Spieluhr. Das Kinderzimmer.`, Familienfoto-Toasts je Runde, Runde 2 Mama-Nachbild + Gedanke zur Kamera, Runde 3 Tip `C Kamera`",
+         "Verfehlt: kalte Finger, „Iss auf, Bruder“, Atem neu in 7 s; Gedanke ab 1. Fehlversuch (**neu**)",
+         "Gedanke nach 2. Fehlversuch, davor nichts",
+         "**harter Softlock (behoben):** Tod am Tisch/in der Schleife (E essen) oder Laden in der Schleife → `k5.f.schleifeRuf` blieb true, `k5.runde` blieb stehen → Schleife feuerte nie wieder, Kapitel hing. Fix: `k5_setup` setzt für Beats ≤ `tisch` Schleife zurück. Zusätzlich Setzen im Beat `schleife` gesperrt (Toast statt Tod).",
+         "**defekt (behoben)**, Verständlichkeit unklar"
+        ],
+        [
+         "5.6",
+         "Film für Runde 3",
+         "Filmpack: Besteckschublade Nr. 7, Laube Parz. 7, Kommode Nr. 1, Kranz (Friedhof)",
+         "Toast/Notiz beim Fund",
+         "Kamera meldet „kein Film“",
+         "Gedanke `Kein Film … Kommode` nur wenn Kommodenfilm noch nicht genommen",
+         "Film = 0, Kommodenfilm schon genommen → Runde 3 unlösbar. **behoben:** bei 0 Film in Runde 3 wird 1 Film nachgelegt",
+         "**defekt (behoben)**"
+        ],
+        [
+         "5.7",
+         "Spieluhr nehmen",
+         "Im Kinderzimmer die Spieluhr aufheben (Hit auf `musicBox`)",
+         "Aufgabe `Lucys Spieluhr. Das Kinderzimmer.`, Melodie laut hörbar im Haus",
+         "–",
+         "–",
+         "Spieluhr-Fallback beim Respawn vorhanden",
+         "OK"
+        ],
+        [
+         "5.8",
+         "Heimweg / Graukind",
+         "Spieluhr zu Lucy an die Kreuzung; Graukind jagt nur Ungesehene, zerfällt im Licht",
+         "Aufgabe `Bring Lucy die Spieluhr.`, Vegas ruft „zur Kreuzung“, Kichern, Laternen flackern",
+         "Gefangen: Teleport zurück zu Nr. 1 (kein Tod)",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "5.9",
+         "Lucy / Telefonzelle",
+         "Lucy `Spieluhr geben`, dann Hörer abnehmen",
+         "Aufgabe `Die Telefonzelle klingelt.`, Klingeln hörbar ≤ 42 m",
+         "Vor `anruf`: Toast `Nur Rauschen.`",
+         "–",
+         "Beat `anrufLaeuft` ohne Rückfall bei Abbruch (Tod unwahrscheinlich)",
+         "OK"
+        ],
+        [
+         "5.10",
+         "Stall / Teller / Brot",
+         "Kanten Brot von Papas Platz in Nr. 1 (nach Spieluhr), im Stall auf den Teller legen, dann `Q` halten (Augen zu)",
+         "Aufgabe `Brot. Der Kanten von Papas Platz in Nr. 1…`, Teller-Toast (**neu:** nennt jetzt Papas Platz), nach 20 s „Er kommt nicht, solange ich hinsehe“, nach 35 s `Q halten – Augen zu`",
+         "Augen zu unterbrochen: `Weg. Er kommt wieder, wenn du nicht guckst.` (wiederholbar)",
+         "2 Stufen (20/35 s)",
+         "Brot fehlt → Fallback beim Respawn am Stall; Whiskey klaute Kettenitems (behoben, siehe qa_items)",
+         "OK"
+        ],
+        [
+         "5.11",
+         "Dem Tappen nach",
+         "Fußspuren/Geräusch folgen bis zum Plakat an der Laterne, Plakat lesen",
+         "Aufgabe `Hinterher.`, `Die Füße. Irgendwo vor mir.` bei > 26 m, Plakat-Hinweis nach 14 s",
+         "–",
+         "14 s am Ende",
+         "keine",
+         "OK"
+        ],
+        [
+         "5.12",
+         "Friedhof / Kerze",
+         "Mamas Kerze (vom Tisch) + Peters Feuerzeug: zuerst Feuerzeug (stirbt: „Pust.“), dann „Mamas Kerze anzünden“ an Luna",
+         "Aufgabe `Das Tappen hat aufgehört. Das Gedenkfeld.`, 15 s `‚Mamas Platz.‘`, 30 s Tip `E Mamas Kerze anzünden`, 60 s Beobachter-Zettel H1",
+         "Kein Tod: Behaltene führen zurück ans Tor",
+         "3 Stufen",
+         "Kerze fehlt (Ladepfad) → **behoben:** Fallback in `k5_wieder` (spieluhr, lucy, stall, friedhof); Feuerzeug-Fallback war vorhanden (`k5_welt`)",
+         "OK (behoben)"
+        ],
+        [
+         "5.13",
+         "Zaun / Gitter",
+         "Dem Jungen (Luke) bis zum Nordzaun folgen, Gitter ansehen",
+         "Aufgabe `Hinterher.` → **neu** `Hinterher. Der Junge ist zum Nordzaun gelaufen.`",
+         "–",
+         "–",
+         "keine",
+         "OK (verbessert)"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "#": "5.1",
+         "Rätsel / Hürde": "Kamera finden (Nr. 7)",
+         "Lösung": "Kamera am Esstisch/Wohnzimmer Nr. 7 nehmen",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Hildes Kamera. Nr. 7, Wohnzimmer.`",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "nur Fallback-Gedanke",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.2",
+         "Rätsel / Hürde": "Foto 1 von Lucy am Fenster",
+         "Lösung": "`C` heben, auf Lucys Fenster (< 16 m, Blick > 0,9) halten, abdrücken",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Mach ein Foto von Lucy.`, Kreispfeil am Fenster, Kamera-Tip (`C`) beim Nehmen",
+         "Fehlschlag-Rückmeldung": "Foto ohne Ziel zählt nicht, kein Hinweis, warum",
+         "Hilfe nach Zeit": "**fehlt** (Fallback „Was hab ich übersehen“ hilft nicht)",
+         "Sackgasse / Softlock": "Film: 3 Bilder; wer sie verknipst, hatte kein Bild für Runde 3 (siehe 5.6)",
+         "Bewertung": "unklar → Vorschlag GEDANKEN_FADEN"
+        },
+        {
+         "#": "5.3",
+         "Rätsel / Hürde": "Gisela / Hänschen",
+         "Lösung": "Automatisch, sobald Luke ≤ 5,5 m ans Gartentor kommt",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Nr. 1. Wer deckt da den Tisch?`",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Haustür-Beat `tuer` braucht `f.gisela`",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.4",
+         "Rätsel / Hürde": "Haustür / Küche",
+         "Lösung": "In Nr. 1 in die Küche gehen",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe, Licht in der Küche, Radio",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.5",
+         "Rätsel / Hürde": "Tisch + Schleife (3 Runden)",
+         "Lösung": "Nicht essen; zur Kinderzimmer-Tür hinten gehen, 3× zurückgesetzt; in Runde 3 Atem hinter dir: umdrehen + Foto (`C`, Klick, 6 s)",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Vier Gedecke. Lucy hat gesagt: Iss nichts.` (+ neu: `Hör hin, was unter ihrer Stimme läuft.`), nach 8 s `Lucys Spieluhr. Das Kinderzimmer.`, Familienfoto-Toasts je Runde, Runde 2 Mama-Nachbild + Gedanke zur Kamera, Runde 3 Tip `C Kamera`",
+         "Fehlschlag-Rückmeldung": "Verfehlt: kalte Finger, „Iss auf, Bruder“, Atem neu in 7 s; Gedanke ab 1. Fehlversuch (**neu**)",
+         "Hilfe nach Zeit": "Gedanke nach 2. Fehlversuch, davor nichts",
+         "Sackgasse / Softlock": "**harter Softlock (behoben):** Tod am Tisch/in der Schleife (E essen) oder Laden in der Schleife → `k5.f.schleifeRuf` blieb true, `k5.runde` blieb stehen → Schleife feuerte nie wieder, Kapitel hing. Fix: `k5_setup` setzt für Beats ≤ `tisch` Schleife zurück. Zusätzlich Setzen im Beat `schleife` gesperrt (Toast statt Tod).",
+         "Bewertung": "**defekt (behoben)**, Verständlichkeit unklar"
+        },
+        {
+         "#": "5.6",
+         "Rätsel / Hürde": "Film für Runde 3",
+         "Lösung": "Filmpack: Besteckschublade Nr. 7, Laube Parz. 7, Kommode Nr. 1, Kranz (Friedhof)",
+         "Hinweise im Spiel (WO / WANN)": "Toast/Notiz beim Fund",
+         "Fehlschlag-Rückmeldung": "Kamera meldet „kein Film“",
+         "Hilfe nach Zeit": "Gedanke `Kein Film … Kommode` nur wenn Kommodenfilm noch nicht genommen",
+         "Sackgasse / Softlock": "Film = 0, Kommodenfilm schon genommen → Runde 3 unlösbar. **behoben:** bei 0 Film in Runde 3 wird 1 Film nachgelegt",
+         "Bewertung": "**defekt (behoben)**"
+        },
+        {
+         "#": "5.7",
+         "Rätsel / Hürde": "Spieluhr nehmen",
+         "Lösung": "Im Kinderzimmer die Spieluhr aufheben (Hit auf `musicBox`)",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Lucys Spieluhr. Das Kinderzimmer.`, Melodie laut hörbar im Haus",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Spieluhr-Fallback beim Respawn vorhanden",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.8",
+         "Rätsel / Hürde": "Heimweg / Graukind",
+         "Lösung": "Spieluhr zu Lucy an die Kreuzung; Graukind jagt nur Ungesehene, zerfällt im Licht",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Bring Lucy die Spieluhr.`, Vegas ruft „zur Kreuzung“, Kichern, Laternen flackern",
+         "Fehlschlag-Rückmeldung": "Gefangen: Teleport zurück zu Nr. 1 (kein Tod)",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.9",
+         "Rätsel / Hürde": "Lucy / Telefonzelle",
+         "Lösung": "Lucy `Spieluhr geben`, dann Hörer abnehmen",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Die Telefonzelle klingelt.`, Klingeln hörbar ≤ 42 m",
+         "Fehlschlag-Rückmeldung": "Vor `anruf`: Toast `Nur Rauschen.`",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Beat `anrufLaeuft` ohne Rückfall bei Abbruch (Tod unwahrscheinlich)",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.10",
+         "Rätsel / Hürde": "Stall / Teller / Brot",
+         "Lösung": "Kanten Brot von Papas Platz in Nr. 1 (nach Spieluhr), im Stall auf den Teller legen, dann `Q` halten (Augen zu)",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Brot. Der Kanten von Papas Platz in Nr. 1…`, Teller-Toast (**neu:** nennt jetzt Papas Platz), nach 20 s „Er kommt nicht, solange ich hinsehe“, nach 35 s `Q halten – Augen zu`",
+         "Fehlschlag-Rückmeldung": "Augen zu unterbrochen: `Weg. Er kommt wieder, wenn du nicht guckst.` (wiederholbar)",
+         "Hilfe nach Zeit": "2 Stufen (20/35 s)",
+         "Sackgasse / Softlock": "Brot fehlt → Fallback beim Respawn am Stall; Whiskey klaute Kettenitems (behoben, siehe qa_items)",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.11",
+         "Rätsel / Hürde": "Dem Tappen nach",
+         "Lösung": "Fußspuren/Geräusch folgen bis zum Plakat an der Laterne, Plakat lesen",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Hinterher.`, `Die Füße. Irgendwo vor mir.` bei > 26 m, Plakat-Hinweis nach 14 s",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "14 s am Ende",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "5.12",
+         "Rätsel / Hürde": "Friedhof / Kerze",
+         "Lösung": "Mamas Kerze (vom Tisch) + Peters Feuerzeug: zuerst Feuerzeug (stirbt: „Pust.“), dann „Mamas Kerze anzünden“ an Luna",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Das Tappen hat aufgehört. Das Gedenkfeld.`, 15 s `‚Mamas Platz.‘`, 30 s Tip `E Mamas Kerze anzünden`, 60 s Beobachter-Zettel H1",
+         "Fehlschlag-Rückmeldung": "Kein Tod: Behaltene führen zurück ans Tor",
+         "Hilfe nach Zeit": "3 Stufen",
+         "Sackgasse / Softlock": "Kerze fehlt (Ladepfad) → **behoben:** Fallback in `k5_wieder` (spieluhr, lucy, stall, friedhof); Feuerzeug-Fallback war vorhanden (`k5_welt`)",
+         "Bewertung": "OK (behoben)"
+        },
+        {
+         "#": "5.13",
+         "Rätsel / Hürde": "Zaun / Gitter",
+         "Lösung": "Dem Jungen (Luke) bis zum Nordzaun folgen, Gitter ansehen",
+         "Hinweise im Spiel (WO / WANN)": "Aufgabe `Hinterher.` → **neu** `Hinterher. Der Junge ist zum Nordzaun gelaufen.`",
+         "Fehlschlag-Rückmeldung": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK (verbessert)"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Kapitel 6 – „Wendigo“ (15 Rätsel/Hürden)",
+     "zeile": 27,
+     "text": [
+      "Optionale Rätsel Kap. 6: R6-2 Welpe (Drahtschneider/Seitenschneider, Drahtschneider kommt aus Schuppen Kap. 3: zweiter Klick – Hinweis **ergänzt**), R6-4 Annis Schleife, Pell-Seiten, Spind. R6-4: jedes Tor wird endgültig entschieden, Fehlschlag kostet nur Schreck (kein Tod, kein Verlust) → kein Softlock; Hilfen jetzt ab dem 1. Fehlschlag (Whiskey fliegt in der Pause los) bzw. 2. (Toast)."
+     ],
+     "tabellen": [
+      {
+       "kopf": [
+        "#",
+        "Rätsel / Hürde",
+        "Lösung",
+        "Hinweise im Spiel",
+        "Fehlschlag",
+        "Hilfe nach Zeit",
+        "Sackgasse / Softlock",
+        "Bewertung"
+       ],
+       "zeilen": [
+        [
+         "6.1",
+         "Gitter aufbiegen",
+         "Nach Wolter (AG-18) am Gitter `E` 1,6 s halten",
+         "Aufgabe `Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?`, danach (**neu**) `Das Gitter aufbiegen: E halten, am Gitter…`; Balken über `sideInfo`",
+         "Vor AG-18: Luke sagt „Gleich. Erst will ich wissen…“",
+         "–",
+         "AG-18 ist skriptgesteuert (lwo_szene hängt nie, `finally` setzt `ag18`)",
+         "OK (verbessert)"
+        ],
+        [
+         "6.2",
+         "Brotkrumen / Krähe",
+         "Krumen folgen; Krähe frisst Spur → „Zayns Hütte liegt hinten links“; sonst Hütte per Nähe (58, 149,5, r 13)",
+         "Aufgabe `Folge den Brotkrumen.`, Krähe-Szene, Luke-Zeile",
+         "–",
+         "–",
+         "Weg zur Hütte auch ohne Krähe",
+         "OK"
+        ],
+        [
+         "6.3",
+         "Zayns Hütte",
+         "In die Hütte (Rect) gehen",
+         "Aufgabe `Zayns Hütte.`; nach 5 s `Die kleinen Hände führen hinaus. Zum eingedrückten Zaun.`",
+         "–",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.4",
+         "Zaunlücke",
+         "Durch die Lücke (42, 156)",
+         "Aufgabe wie oben, Handabdrücke im Moos",
+         "–",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.5",
+         "Rote Wolle → Hochsitz (SB-11)",
+         "Wolle bis zum Hochsitz folgen (liegt auf Pfad 1: 19",
+         "176,5), optional hinaufsteigen",
+         "Aufgabe `Der Hochsitz. Hinauf.` (nur bei Nähe 7 m!)",
+         "–",
+         "`busFrueh`-Gedanke nur wenn schon am Bus",
+         "Hochsitz-Checkpoint `k6_hochsitz` ist Voraussetzung der Falle; Wolle führt daran vorbei (5 m)",
+         "unklar (Aufgabenzeile erst nahe am Hochsitz) → Vorschlag"
+        ],
+        [
+         "6.6",
+         "Bus-Falle (AG-19)",
+         "Weg „mit“: in die Mitte neben den Bus (61,2",
+         "196,9, 0,6 s), 22–40 s warten (nicht gehen, Lampe oben); Weg „ab“: Draht meiden, sonst Netz: `E` 12× / Messer halten",
+         "Aufgabe `Stell dich in die Mitte, neben den Bus. Sagt der Blechmann mit der Hand.`, **neu** `Warten. In der Mitte neben dem Bus bleiben.`; Funk",
+         "Netz: Hinweis `E`; Wolf springt: Neustart am Bus + Gedanke „Er kommt, wenn ich wegseh. Lampe oben lassen.“",
+         "`k6_denk('wolf')` (**ergänzt:** „Er kommt nur, wenn ich wegseh.“)",
+         "Tod während Falle → `k6_falleReset`, Beat zurück `faden`, startet beim Nähern neu: kein Softlock",
+         "OK"
+        ],
+        [
+         "6.7",
+         "Bus-Innenraum / Spind (N6-7, optional)",
+         "Schlüsselbund „3“ am Hochsitz-Fuß, Spind hinter Fahrersitz, Lampion",
+         "Hint-Marker (`hintAdd`), Luke-Gedanke",
+         "–",
+         "–",
+         "Whiskey durfte Schlüssel/Lampion stehlen → in `WHISKEY_NIE` aufgenommen",
+         "OK"
+        ],
+        [
+         "6.8",
+         "AG-20 toter Blechmann",
+         "Bei 5,5 m ausgelöst (auto), Funkgerät/Kettenrolle optional",
+         "Aufgabe `Die Fraßstelle. Da vorn, wo das Blut endet.`",
+         "–",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.9",
+         "Fraßstelle (Dienstbuch Seite 1)",
+         "Beim Kadaver (1,5",
+         "199,6) das Heft „Eine Seite aus einem Dienstbuch“ lesen",
+         "Aufgabe wie 6.8; **neu:** nach 30 s in 8 m Nähe Gedanke „Neben dem Kadaver liegt etwas. Ein Heft…“",
+         "–",
+         "**neu**",
+         "Ohne Seite 1 kommt der Hirsch nie, kein Fortschritt (vorher keine Hilfe)",
+         "unklar → behoben (Hilfe)"
+        ],
+        [
+         "6.10",
+         "Hirsch-Verfolgung / Flucht",
+         "Event startet automatisch (< 34 m um die Fraßstelle); danach Whiskey fliegt zum Lager, ihm folgen",
+         "Aufgabe `Das Ding ist hier. Irgendwo.` → `Weg vom Bau. Whiskey fliegt nach Osten – zu Jonas’ Lager.`",
+         "Tod durch Hirschding (A-20): Checkpoint, Nachbild „gefressen“",
+         "**neu:** nach 75 s außerhalb 34 m: `Zurück zur Fraßstelle. Das Ding ist in der Nähe.`",
+         "Wer vor Event weglief, kam nicht mehr in die Zone",
+         "unklar → behoben"
+        ],
+        [
+         "6.11",
+         "Jonas’ Lager",
+         "Dorthin laufen; fertig nach Whiskey-Flag `k6_3` oder 45 s",
+         "Aufgabe, Whiskey-Route",
+         "Anruf „Lucy“: Wegdrücken/Rangehen, beides ok",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.12",
+         "Kinderspur",
+         "Kinderfüße (Decals) Richtung Westen zum Wrack",
+         "Aufgabe `Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.`",
+         "Jagd-Tod möglich: Lampe oben lassen (Merkblatt W)",
+         "`bauFrueh`-Gedanke, wenn Bau zu früh",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.13",
+         "Wrack / Handschuhfach",
+         "Hinter dem Wrack (−10",
+         "204,5, r 9) → Beat `bau`; Handschuhfach optional",
+         "Aufgabe `Hinter dem Wrack. Da, wo es still ist.`",
+         "–",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.14",
+         "Bau / Finale (Seite 6, R6-5, Lampe stirbt)",
+         "Seite 6 am Bau lesen → Finale; „Welcher ist Whiskey?“: `E` auf den Raben, den man ansieht (6 s); Lampe stirbt: `E` Batterie, `E` Feuerzeug (je ≤ 60 s)",
+         "Hinweis-Leiste `E …`; **neu:** nach 40 s Nähe Gedanke „Hofers letzte Seite. Sie muss hier irgendwo liegen…“",
+         "Falsch/keine Wahl: Szene läuft weiter (kein Tod)",
+         "**neu**",
+         "Timeouts alle auflösend; Finale-Skip bei Fehler",
+         "OK (verbessert)"
+        ],
+        [
+         "6.15",
+         "Whiskey-Führung (`k6_guide`, Epilog)",
+         "Whiskey fliegt Wegpunkte `K6_WEG` zum Hochsitz; Luke folgt",
+         "Aufgabe `Whiskey fliegt voraus. Folge ihm.` → `Der Hochsitz. Oben sitzt jemand.`; „Whiskey wartet auf dich“ alle 20 s",
+         "–",
+         "–",
+         "Ging der Ankunfts-Rückruf von `whiskey_fly` verloren (Beat blieb `epilog`), startete das Ende nie → **behoben** (`k6_oben` akzeptiert `epilog` nach letztem Wegpunkt)",
+         "defekt (behoben)"
+        ],
+        [
+         "6.16",
+         "Hochsitz oben (Augen zu, SB-12, Wahl)",
+         "Hinaufsteigen (`E`), `Q` halten, Zahlen wählen",
+         "`augenzu_frei`-Hinweis `Q halten – Augen zu`, Notausstieg nach 30 s",
+         "Q nicht gehalten: wartet max. 30 s, dann weiter",
+         "–",
+         "keine",
+         "OK"
+        ],
+        [
+         "6.17",
+         "Endkarten K5/K6",
+         "`Weiter`/`Zum Titel`",
+         "Button",
+         "–",
+         "–",
+         "K5→`startChapter6` Fallback `location.reload`",
+         "OK"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "#": "6.1",
+         "Rätsel / Hürde": "Gitter aufbiegen",
+         "Lösung": "Nach Wolter (AG-18) am Gitter `E` 1,6 s halten",
+         "Hinweise im Spiel": "Aufgabe `Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?`, danach (**neu**) `Das Gitter aufbiegen: E halten, am Gitter…`; Balken über `sideInfo`",
+         "Fehlschlag": "Vor AG-18: Luke sagt „Gleich. Erst will ich wissen…“",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "AG-18 ist skriptgesteuert (lwo_szene hängt nie, `finally` setzt `ag18`)",
+         "Bewertung": "OK (verbessert)"
+        },
+        {
+         "#": "6.2",
+         "Rätsel / Hürde": "Brotkrumen / Krähe",
+         "Lösung": "Krumen folgen; Krähe frisst Spur → „Zayns Hütte liegt hinten links“; sonst Hütte per Nähe (58, 149,5, r 13)",
+         "Hinweise im Spiel": "Aufgabe `Folge den Brotkrumen.`, Krähe-Szene, Luke-Zeile",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Weg zur Hütte auch ohne Krähe",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.3",
+         "Rätsel / Hürde": "Zayns Hütte",
+         "Lösung": "In die Hütte (Rect) gehen",
+         "Hinweise im Spiel": "Aufgabe `Zayns Hütte.`; nach 5 s `Die kleinen Hände führen hinaus. Zum eingedrückten Zaun.`",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.4",
+         "Rätsel / Hürde": "Zaunlücke",
+         "Lösung": "Durch die Lücke (42, 156)",
+         "Hinweise im Spiel": "Aufgabe wie oben, Handabdrücke im Moos",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.5",
+         "Rätsel / Hürde": "Rote Wolle → Hochsitz (SB-11)",
+         "Lösung": "Wolle bis zum Hochsitz folgen (liegt auf Pfad 1: 19",
+         "Hinweise im Spiel": "176,5), optional hinaufsteigen",
+         "Fehlschlag": "Aufgabe `Der Hochsitz. Hinauf.` (nur bei Nähe 7 m!)",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "`busFrueh`-Gedanke nur wenn schon am Bus",
+         "Bewertung": "Hochsitz-Checkpoint `k6_hochsitz` ist Voraussetzung der Falle; Wolle führt daran vorbei (5 m)"
+        },
+        {
+         "#": "6.6",
+         "Rätsel / Hürde": "Bus-Falle (AG-19)",
+         "Lösung": "Weg „mit“: in die Mitte neben den Bus (61,2",
+         "Hinweise im Spiel": "196,9, 0,6 s), 22–40 s warten (nicht gehen, Lampe oben); Weg „ab“: Draht meiden, sonst Netz: `E` 12× / Messer halten",
+         "Fehlschlag": "Aufgabe `Stell dich in die Mitte, neben den Bus. Sagt der Blechmann mit der Hand.`, **neu** `Warten. In der Mitte neben dem Bus bleiben.`; Funk",
+         "Hilfe nach Zeit": "Netz: Hinweis `E`; Wolf springt: Neustart am Bus + Gedanke „Er kommt, wenn ich wegseh. Lampe oben lassen.“",
+         "Sackgasse / Softlock": "`k6_denk('wolf')` (**ergänzt:** „Er kommt nur, wenn ich wegseh.“)",
+         "Bewertung": "Tod während Falle → `k6_falleReset`, Beat zurück `faden`, startet beim Nähern neu: kein Softlock"
+        },
+        {
+         "#": "6.7",
+         "Rätsel / Hürde": "Bus-Innenraum / Spind (N6-7, optional)",
+         "Lösung": "Schlüsselbund „3“ am Hochsitz-Fuß, Spind hinter Fahrersitz, Lampion",
+         "Hinweise im Spiel": "Hint-Marker (`hintAdd`), Luke-Gedanke",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Whiskey durfte Schlüssel/Lampion stehlen → in `WHISKEY_NIE` aufgenommen",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.8",
+         "Rätsel / Hürde": "AG-20 toter Blechmann",
+         "Lösung": "Bei 5,5 m ausgelöst (auto), Funkgerät/Kettenrolle optional",
+         "Hinweise im Spiel": "Aufgabe `Die Fraßstelle. Da vorn, wo das Blut endet.`",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.9",
+         "Rätsel / Hürde": "Fraßstelle (Dienstbuch Seite 1)",
+         "Lösung": "Beim Kadaver (1,5",
+         "Hinweise im Spiel": "199,6) das Heft „Eine Seite aus einem Dienstbuch“ lesen",
+         "Fehlschlag": "Aufgabe wie 6.8; **neu:** nach 30 s in 8 m Nähe Gedanke „Neben dem Kadaver liegt etwas. Ein Heft…“",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "**neu**",
+         "Bewertung": "Ohne Seite 1 kommt der Hirsch nie, kein Fortschritt (vorher keine Hilfe)"
+        },
+        {
+         "#": "6.10",
+         "Rätsel / Hürde": "Hirsch-Verfolgung / Flucht",
+         "Lösung": "Event startet automatisch (< 34 m um die Fraßstelle); danach Whiskey fliegt zum Lager, ihm folgen",
+         "Hinweise im Spiel": "Aufgabe `Das Ding ist hier. Irgendwo.` → `Weg vom Bau. Whiskey fliegt nach Osten – zu Jonas’ Lager.`",
+         "Fehlschlag": "Tod durch Hirschding (A-20): Checkpoint, Nachbild „gefressen“",
+         "Hilfe nach Zeit": "**neu:** nach 75 s außerhalb 34 m: `Zurück zur Fraßstelle. Das Ding ist in der Nähe.`",
+         "Sackgasse / Softlock": "Wer vor Event weglief, kam nicht mehr in die Zone",
+         "Bewertung": "unklar → behoben"
+        },
+        {
+         "#": "6.11",
+         "Rätsel / Hürde": "Jonas’ Lager",
+         "Lösung": "Dorthin laufen; fertig nach Whiskey-Flag `k6_3` oder 45 s",
+         "Hinweise im Spiel": "Aufgabe, Whiskey-Route",
+         "Fehlschlag": "Anruf „Lucy“: Wegdrücken/Rangehen, beides ok",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.12",
+         "Rätsel / Hürde": "Kinderspur",
+         "Lösung": "Kinderfüße (Decals) Richtung Westen zum Wrack",
+         "Hinweise im Spiel": "Aufgabe `Kleine nackte Füße im Laub, Richtung Westen. Zum Wrack.`",
+         "Fehlschlag": "Jagd-Tod möglich: Lampe oben lassen (Merkblatt W)",
+         "Hilfe nach Zeit": "`bauFrueh`-Gedanke, wenn Bau zu früh",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.13",
+         "Rätsel / Hürde": "Wrack / Handschuhfach",
+         "Lösung": "Hinter dem Wrack (−10",
+         "Hinweise im Spiel": "204,5, r 9) → Beat `bau`; Handschuhfach optional",
+         "Fehlschlag": "Aufgabe `Hinter dem Wrack. Da, wo es still ist.`",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "–",
+         "Bewertung": "keine"
+        },
+        {
+         "#": "6.14",
+         "Rätsel / Hürde": "Bau / Finale (Seite 6, R6-5, Lampe stirbt)",
+         "Lösung": "Seite 6 am Bau lesen → Finale; „Welcher ist Whiskey?“: `E` auf den Raben, den man ansieht (6 s); Lampe stirbt: `E` Batterie, `E` Feuerzeug (je ≤ 60 s)",
+         "Hinweise im Spiel": "Hinweis-Leiste `E …`; **neu:** nach 40 s Nähe Gedanke „Hofers letzte Seite. Sie muss hier irgendwo liegen…“",
+         "Fehlschlag": "Falsch/keine Wahl: Szene läuft weiter (kein Tod)",
+         "Hilfe nach Zeit": "**neu**",
+         "Sackgasse / Softlock": "Timeouts alle auflösend; Finale-Skip bei Fehler",
+         "Bewertung": "OK (verbessert)"
+        },
+        {
+         "#": "6.15",
+         "Rätsel / Hürde": "Whiskey-Führung (`k6_guide`, Epilog)",
+         "Lösung": "Whiskey fliegt Wegpunkte `K6_WEG` zum Hochsitz; Luke folgt",
+         "Hinweise im Spiel": "Aufgabe `Whiskey fliegt voraus. Folge ihm.` → `Der Hochsitz. Oben sitzt jemand.`; „Whiskey wartet auf dich“ alle 20 s",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "Ging der Ankunfts-Rückruf von `whiskey_fly` verloren (Beat blieb `epilog`), startete das Ende nie → **behoben** (`k6_oben` akzeptiert `epilog` nach letztem Wegpunkt)",
+         "Bewertung": "defekt (behoben)"
+        },
+        {
+         "#": "6.16",
+         "Rätsel / Hürde": "Hochsitz oben (Augen zu, SB-12, Wahl)",
+         "Lösung": "Hinaufsteigen (`E`), `Q` halten, Zahlen wählen",
+         "Hinweise im Spiel": "`augenzu_frei`-Hinweis `Q halten – Augen zu`, Notausstieg nach 30 s",
+         "Fehlschlag": "Q nicht gehalten: wartet max. 30 s, dann weiter",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "keine",
+         "Bewertung": "OK"
+        },
+        {
+         "#": "6.17",
+         "Rätsel / Hürde": "Endkarten K5/K6",
+         "Lösung": "`Weiter`/`Zum Titel`",
+         "Hinweise im Spiel": "Button",
+         "Fehlschlag": "–",
+         "Hilfe nach Zeit": "–",
+         "Sackgasse / Softlock": "K5→`startChapter6` Fallback `location.reload`",
+         "Bewertung": "OK"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Verständlichkeit – größte Schwachstellen (in Reihenfolge)",
+     "zeile": 51,
+     "text": [
+      "1. Kap. 5.5 Schleife: das Muster (Kinderzimmer → zurückgesetzt → dritte Runde → Atem → Foto) bleibt ohne Vorwissen schwer; Aufgabenzeile und Gedanke nach 1. Fehlversuch jetzt vorhanden.",
+      "2. Kap. 5.2 Foto 1: keine zeitliche Hilfe.",
+      "3. Kap. 6.5 Hochsitz: Aufgabenzeile erst bei Nähe.",
+      "4. Kap. 6.9/6.10: Dienstbuch-Hinweis fehlte komplett (jetzt vorhanden)."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Umgesetzte Änderungen (Dateien)",
+     "zeile": 58,
+     "text": [
+      "- `app/mods/kapitel5.js`: Schleifen-Reset in `k5_setup` (Softlock), `k5_setzen` nur im Beat `tisch` (Toast in `schleife`), Film-Nachlage in Runde 3, Kerzen-Fallback in `k5_wieder`, Aufgabenzeile `Vier Gedecke … Hör hin, was unter ihrer Stimme läuft.`, Teller-Toast mit Brot-Hinweis, Aufgabe `zaun`, Gedanke nach 1. verpasstem Atem, totes Item `zaehlbuch` → `buch`.",
+      "- `app/mods/kapitel6.js`: Gitter-Aufgabe mit „E halten“, Hilfeleiter Fraßstelle/Hirsch/Bau, `Warten.`-Aufgabe der Falle eindeutig, Wolf-Gedanke ergänzt, Hochsitz-Start auch aus `epilog`, Mamas Kerze nur wenn aus Kap. 5 vorhanden (keine `/kerze/`-Suche mehr), `addItem` statt `story.items.push` (Pfandflasche, Seitenschneider, Funkgerät).",
+      "- `app/mods/neben6.js`: Annis-Schleife-Hilfen ab Fehlschlag 1/2, Text „Beim nächsten wart ich auf die Pause.“",
+      "- `app/mods/ausbau_ost_west.js`: Schuppen-Toast „Im Schuppen liegt noch mehr“.",
+      "- Items/Basis (Details in `qa_items.md`): `_base_source_index.html`, `whiskey.js`, `ausruestung.js`, `tausch.js`, `album.js`."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Vorschläge GEDANKEN_FADEN (gedanken.js, **nicht geändert**) – vor `[/./, …]` einfügen",
+     "zeile": 66,
+     "text": [
+      "Reihenfolge beachten (erste Übereinstimmung gewinnt; bestehende Zeile `/Luke|Leiter/` steht davor – keiner dieser Texte enthält „Luke“/„Leiter“).",
+      "```js",
+      "  // Kapitel 5",
+      "  [/Hildes Kamera\\. Nr\\. 7|Mach ein Foto von Lucy/, 'Die Kamera heben – C –, auf Lucys Fenster in Nr. 3 halten und abdrücken. Sie bleibt stehen, solange ich sie ansehe.'],",
+      "  [/Vier Gedecke|Lucys Spieluhr\\. Das Kinderzimmer/, 'Nicht essen. Die Spieluhr läuft im Kinderzimmer, hinten durch die Küche. Und wenn danach alles wieder wie vorher ist: nicht stehen bleiben, weitergehen.'],",
+      "  [/Bring Lucy die Spieluhr/, 'Lucy steht an der Kreuzung. Die Graue hinter mir nie lange aus den Augen lassen – im Lampenlicht zerfällt sie.'],",
+      "  [/^Brot\\. /, 'Papas Platz in Nr. 1 – der Kanten Brot liegt noch da. Dann den Westweg hinunter zum Stall.'],",
+      "  [/Das Brot\\. Auf den Teller/, 'Der Teller steht im Stall hinten bei den Paletten. Brot hinlegen und ihn nicht ansehen.'],",
+      "  [/^Warten\\.$/, 'Er kommt nicht, solange ich hinsehe. Q halten: Augen zu, und bleiben.'],",
+      "  [/Das Gedenkfeld/, 'Mamas Platz am Tisch. Mamas Kerze und Peters Feuerzeug – sie pustet jedes Licht aus, nur dieses nicht.'],",
+      "  [/Nordzaun/, 'Der Junge ist zum Nordzaun gelaufen, hinter dem Spielplatz. Ihm nach, bis zum Gitter.'],",
+      "  // Kapitel 6",
+      "  [/Das Gitter aufbiegen/, 'Zum Gitter, E halten, bis es nachgibt. Der Junge ist darunter durch.'],",
+      "  [/Folge den Brotkrumen|Zayns Hütte/, 'Hildes Brot. Er hat es zerbröselt, Krume für Krume nach Norden. Ihr nach, zur Hütte hinten links.'],",
+      "  [/eingedrückten Zaun|rote Wolle/, 'Die Wolle spannt sich von Baum zu Baum, südöstlich, tiefer in den Wald. Irgendwo an ihr steht ein Hochsitz.'],",
+      "  [/Der Hochsitz\\. Hinauf/, 'An der Leiter E drücken, um hinaufzusteigen. Oben steckt eine Seite an einem Nagel.'],",
+      "  [/Wolle führt weiter|Stell dich in die Mitte|Der Bus\\. Irgendwas/, 'Der Bus steht östlich im Wald. Nicht den Draht am Boden berühren – in die Mitte, neben den Bus, wenn sie es so wollen.'],",
+      "  [/Warten\\. In der Mitte/, 'Stehen bleiben. Lampe oben lassen. Der Wolf kommt nur näher, wenn ich wegsehe.'],",
+      "  [/Atmen\\. Nur atmen/, 'E drücken, immer wieder. Oder mit Jonas’ Messer, E halten.'],",
+      "  [/Fraßstelle/, 'Neben dem Kadaver liegt ein Heft mit einer Dienstnummer. Lesen.'],",
+      "  [/Das Ding ist hier|Weg vom Bau/, 'Lampe oben lassen. Nicht rennen. Und nicht wegsehen, wenn es näher kommt.'],",
+      "  [/Jonas’ Lager|Kleine nackte Füße/, 'Den kleinen Füßen nach, Richtung Westen. Das Ding bleibt weg, solange die Lampe oben ist.'],",
+      "  [/Hinter dem Wrack/, 'Hofers letzte Seite liegt am Bau. Wenn die Lampe stirbt: E für die Batterie, dann E für das Feuerzeug.'],",
+      "  [/Whiskey fliegt voraus|Oben sitzt jemand/, 'Whiskey wartet, wenn ich zurückfalle. Ihm nach, zum Hochsitz. Oben: Q halten, nicht hinsehen.'],",
+      "```"
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Offen / nicht prüfbar ohne Lauf",
+     "zeile": 95,
+     "text": [
+      "- Tatsächliche Klickbarkeit von „Eine Seite aus einem Dienstbuch“ (Fraßstelle) und der Wolle-Pfad-Dichte: Laufzeit-Inventur.",
+      "- Ob `whiskey_fly` bei belegtem `W.fl` den Rückruf ausführt (Epilog-Callback) – durch Fallback abgesichert.",
+      "- Kap. 5.9 `anrufLaeuft`: Tod/Abbruch im Gespräch hat keinen Rückfall (unwahrscheinlich)."
+     ],
+     "tabellen": []
+    }
+   ]
+  },
+  {
+   "datei": "docs/gameplay/qa_items.md",
+   "titel": "QA Item-/Sammel-Kette (alle Kapitel, 09.10.2026) – statische Analyse",
+   "abschnitte": [
+    {
+     "ebene": 1,
+     "titel": "(Einleitung)",
+     "zeile": 1,
+     "text": [
+      "# QA Item-/Sammel-Kette (alle Kapitel, 09.10.2026) – statische Analyse",
+      "Grundlage: `docs/gameplay/qa_inventar.md` (Abschnitt Sammel-Quellen: 81 `addItem`, 69 `modItem`, 7 `mystFound`, 28 `beobachter_zettel`, 10 `beob_drop`, 32 `sammeln_fibel`, 2 `lore`) plus Querlesung der Verwendungsstellen (`story.items.includes`, `k5_hat`, `k6_has`, `hasItem`). Rund 90 Gegenstands-Schlüssel. Laufzeitteil (tatsächliche Klickbarkeit) steht aus.",
+      "Kapitel 5/6 sind im Detail geprüft (Code gelesen), Kapitel 1–4 über Schlüsselsuche + Stichproben der Verwendungsstellen (anwesen, amt, ausruestung, kapitel3-Gaben, whiskey). **Pflicht** = ohne den Gegenstand/Vorgang geht der Hauptweg nicht weiter. **VERPASSBAR** = nur in einem Zeitfenster aufnehmbar.",
+      "Schwere: **H** = harter Softlock (Hauptweg), **M** = Gegenstand/Fortschritt geht verloren oder wird unsichtbar, **N** = kosmetisch/optional."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Systemische Befunde und Fixes",
+     "zeile": 8,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "ID",
+        "Schwere",
+        "Befund",
+        "Fix"
+       ],
+       "zeilen": [
+        [
+         "B1",
+         "M",
+         "Mod-Gegenstände (`modItem`) werden beim Laden nicht neu registriert: `story.items` enthält den Schlüssel, `ITEMS[k]`/`ICONS[k]` fehlen → leerer Slot, `TypeError` beim Hover (`it.name`), `beutel.js` überspringt. Betroffen u. a. `villaschluessel`, `schluesselteile`, `dienstnadel`, `da10`, `miras_ring`, `n3_*`, `euro_bruno`, `kaugummipapier`, `mamas_kerze`, `brot`, `lucys_spieluhr`, Justin-Gaben, `ow_*`, `lucy_zigaretten`, `autoschluessel`.",
+         "**behoben** in `_base_source_index.html`: `ITEM_DEFS` (jedes `modItem` merkt sich Name/Beschreibung/Symbol), `saveGame` schreibt `idefs` für alle Inventar-Items (auch solche, die nur `ITEMS[k]=…` setzen), `applySave` stellt sie wieder her; ältere Spielstände: Notbezeichnung (Schlüsselname mit Leerzeichen statt Unterstrich) und `ICONS.paper`. `addItem` und `renderJournal` fallen bei fehlendem Eintrag nicht mehr um."
+        ],
+        [
+         "B2",
+         "N",
+         "`ICONS.murmel`/`ICONS.sender` fehlen.",
+         "**behoben** durch den `ICONS[k] \\",
+         "\\",
+         "ICONS.paper`-Fallback in `renderJournal`."
+        ],
+        [
+         "B3",
+         "N",
+         "Inventar zeigt nur 12 Slots; weitere Items unsichtbar.",
+         "**behoben:** Slots = max(12, Aufrunden auf Vielfache von 6), Buch scrollt (`max-height 84vh; overflow:auto`)."
+        ],
+        [
+         "R1",
+         "M",
+         "Whiskeys Klau-Mechanik (`WHISKEY_NIE`) kann Kettenitems nehmen; Rückgabe erst „an der nächsten Station“ → mitten in einer Aufgabe fehlt der Gegenstand (z. B. `lucys_spieluhr`, `brot`, `spindschluessel`).",
+         "**behoben** (`whiskey.js`): in die Sperrliste aufgenommen: `lucys_spieluhr, brot, n3_kapschluessel, n3_pfarrschluessel, n3_brecheisen, leiter_amt, spindschluessel, lampion, dienstnadel, haushaltsbuch, riegel_halb, ranzenriemen, schnalle_turm, seitenschneider, hildes_antworten, heidi_karte, umschlag7, wartenummer`."
+        ],
+        [
+         "R2",
+         "M",
+         "Kap. 2: `fuseIn` (Sicherung eingesetzt) wird nicht gespeichert; Sicherung ist aus dem Inventar, `taken` hat `c2_sicherung` → nach Laden: Steckplatz leer, Sicherung weg, Strom kommt nie (wenn noch nicht `ch2.power`).",
+         "**behoben** (`ausruestung.js`): entnommen + nicht im Inventar zählt als eingesetzt."
+        ],
+        [
+         "R3",
+         "M",
+         "Kap. 5: Mamas Kerze fehlt am Grab (Ladepfad); `kapitel5.js` gibt sie nur in der Heimkehrerin-Szene.",
+         "**behoben:** `k5_wieder` gibt sie bei Spieluhr/Lucy/Stall/Friedhof nach, wenn sie fehlt und nicht schon angezündet."
+        ],
+        [
+         "R5",
+         "N",
+         "Kap. 3 Schuppen (`ausbau_ost_west.js`): erster Klick liefert nur die Heftseite, der Drahtschneider kommt erst beim zweiten – kein Hinweis.",
+         "**behoben:** Toast „Im Schuppen liegt noch mehr – sieh noch einmal hin.“"
+        ],
+        [
+         "R6",
+         "–",
+         "Kap. 4 ohne Brechstange: war schon abgedeckt (`anwesen.js:214` gibt sie bei `chapter4Begin`).",
+         "–"
+        ],
+        [
+         "B4",
+         "N",
+         "`kapitel6.js` `k6_welt`: suchte `/kerze/` in `ITEMS` und gab beliebig die erste passende Kerze, unabhängig von Kapitel 5.",
+         "**behoben:** nur `mamas_kerze`, nur wenn Kap. 5 sie wirklich hatte (`k5.f.kerze` oder Lore `k5_schlafenszeit`), nur beim Neustart, nicht beim Laden."
+        ],
+        [
+         "B5",
+         "N",
+         "Tote Schlüssel: `kapitel5.js` `'zaehlbuch'` (richtig: `buch`); `kapitel3.js:267` `'riegel'`; `'lesebrille'` (tausch.js, nie vergeben); `'heini'` (kapitel6, wird über `polaroid_heini`/Lore abgedeckt).",
+         "`zaehlbuch` → `buch` **behoben**. `'riegel'` bewusst **nicht** auf `riegel_halb` geändert (sonst würde die Kap.-5-Einlösung des Geschenks B zerstört; der tote Schlüssel schützt sie) – Zeile ist funktionslos, kann gelöscht werden. `lesebrille`/`heini` offen/harmlos."
+        ],
+        [
+         "B7",
+         "N",
+         "`story.items.push` ohne Popup (`kapitel6.js` Pfandflasche/Seitenschneider/Funkgerät, `tausch.js`, `album.js`).",
+         "**behoben:** `addItem`. Verbleibend (nicht angefasst): Whiskey-Rückgabe, `feuer.js:711/715` (Feuerzeug beim Laden, absichtlich still)."
+        ],
+        [
+         "K5",
+         "H",
+         "Kap. 5 Schleife: Softlock nach Tod/Laden in der Schleife (siehe `qa_raetsel_k56.md` 5.5).",
+         "**behoben** (`kapitel5.js`)."
+        ],
+        [
+         "K5-F",
+         "M",
+         "Kap. 5 Runde 3 ohne Film (3 Bilder Startbestand, frei verknipsbar).",
+         "**behoben:** wird 1 Film nachgelegt."
+        ],
+        [
+         "K6-E",
+         "H",
+         "Kap. 6 Epilog: ging der Rückruf von `whiskey_fly` verloren, startete das Ende nie.",
+         "**behoben** (`k6_oben`)."
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "ID": "B1",
+         "Schwere": "M",
+         "Befund": "Mod-Gegenstände (`modItem`) werden beim Laden nicht neu registriert: `story.items` enthält den Schlüssel, `ITEMS[k]`/`ICONS[k]` fehlen → leerer Slot, `TypeError` beim Hover (`it.name`), `beutel.js` überspringt. Betroffen u. a. `villaschluessel`, `schluesselteile`, `dienstnadel`, `da10`, `miras_ring`, `n3_*`, `euro_bruno`, `kaugummipapier`, `mamas_kerze`, `brot`, `lucys_spieluhr`, Justin-Gaben, `ow_*`, `lucy_zigaretten`, `autoschluessel`.",
+         "Fix": "**behoben** in `_base_source_index.html`: `ITEM_DEFS` (jedes `modItem` merkt sich Name/Beschreibung/Symbol), `saveGame` schreibt `idefs` für alle Inventar-Items (auch solche, die nur `ITEMS[k]=…` setzen), `applySave` stellt sie wieder her; ältere Spielstände: Notbezeichnung (Schlüsselname mit Leerzeichen statt Unterstrich) und `ICONS.paper`. `addItem` und `renderJournal` fallen bei fehlendem Eintrag nicht mehr um."
+        },
+        {
+         "ID": "B2",
+         "Schwere": "N",
+         "Befund": "`ICONS.murmel`/`ICONS.sender` fehlen.",
+         "Fix": "**behoben** durch den `ICONS[k] \\"
+        },
+        {
+         "ID": "B3",
+         "Schwere": "N",
+         "Befund": "Inventar zeigt nur 12 Slots; weitere Items unsichtbar.",
+         "Fix": "**behoben:** Slots = max(12, Aufrunden auf Vielfache von 6), Buch scrollt (`max-height 84vh; overflow:auto`)."
+        },
+        {
+         "ID": "R1",
+         "Schwere": "M",
+         "Befund": "Whiskeys Klau-Mechanik (`WHISKEY_NIE`) kann Kettenitems nehmen; Rückgabe erst „an der nächsten Station“ → mitten in einer Aufgabe fehlt der Gegenstand (z. B. `lucys_spieluhr`, `brot`, `spindschluessel`).",
+         "Fix": "**behoben** (`whiskey.js`): in die Sperrliste aufgenommen: `lucys_spieluhr, brot, n3_kapschluessel, n3_pfarrschluessel, n3_brecheisen, leiter_amt, spindschluessel, lampion, dienstnadel, haushaltsbuch, riegel_halb, ranzenriemen, schnalle_turm, seitenschneider, hildes_antworten, heidi_karte, umschlag7, wartenummer`."
+        },
+        {
+         "ID": "R2",
+         "Schwere": "M",
+         "Befund": "Kap. 2: `fuseIn` (Sicherung eingesetzt) wird nicht gespeichert; Sicherung ist aus dem Inventar, `taken` hat `c2_sicherung` → nach Laden: Steckplatz leer, Sicherung weg, Strom kommt nie (wenn noch nicht `ch2.power`).",
+         "Fix": "**behoben** (`ausruestung.js`): entnommen + nicht im Inventar zählt als eingesetzt."
+        },
+        {
+         "ID": "R3",
+         "Schwere": "M",
+         "Befund": "Kap. 5: Mamas Kerze fehlt am Grab (Ladepfad); `kapitel5.js` gibt sie nur in der Heimkehrerin-Szene.",
+         "Fix": "**behoben:** `k5_wieder` gibt sie bei Spieluhr/Lucy/Stall/Friedhof nach, wenn sie fehlt und nicht schon angezündet."
+        },
+        {
+         "ID": "R5",
+         "Schwere": "N",
+         "Befund": "Kap. 3 Schuppen (`ausbau_ost_west.js`): erster Klick liefert nur die Heftseite, der Drahtschneider kommt erst beim zweiten – kein Hinweis.",
+         "Fix": "**behoben:** Toast „Im Schuppen liegt noch mehr – sieh noch einmal hin.“"
+        },
+        {
+         "ID": "R6",
+         "Schwere": "–",
+         "Befund": "Kap. 4 ohne Brechstange: war schon abgedeckt (`anwesen.js:214` gibt sie bei `chapter4Begin`).",
+         "Fix": "–"
+        },
+        {
+         "ID": "B4",
+         "Schwere": "N",
+         "Befund": "`kapitel6.js` `k6_welt`: suchte `/kerze/` in `ITEMS` und gab beliebig die erste passende Kerze, unabhängig von Kapitel 5.",
+         "Fix": "**behoben:** nur `mamas_kerze`, nur wenn Kap. 5 sie wirklich hatte (`k5.f.kerze` oder Lore `k5_schlafenszeit`), nur beim Neustart, nicht beim Laden."
+        },
+        {
+         "ID": "B5",
+         "Schwere": "N",
+         "Befund": "Tote Schlüssel: `kapitel5.js` `'zaehlbuch'` (richtig: `buch`); `kapitel3.js:267` `'riegel'`; `'lesebrille'` (tausch.js, nie vergeben); `'heini'` (kapitel6, wird über `polaroid_heini`/Lore abgedeckt).",
+         "Fix": "`zaehlbuch` → `buch` **behoben**. `'riegel'` bewusst **nicht** auf `riegel_halb` geändert (sonst würde die Kap.-5-Einlösung des Geschenks B zerstört; der tote Schlüssel schützt sie) – Zeile ist funktionslos, kann gelöscht werden. `lesebrille`/`heini` offen/harmlos."
+        },
+        {
+         "ID": "B7",
+         "Schwere": "N",
+         "Befund": "`story.items.push` ohne Popup (`kapitel6.js` Pfandflasche/Seitenschneider/Funkgerät, `tausch.js`, `album.js`).",
+         "Fix": "**behoben:** `addItem`. Verbleibend (nicht angefasst): Whiskey-Rückgabe, `feuer.js:711/715` (Feuerzeug beim Laden, absichtlich still)."
+        },
+        {
+         "ID": "K5",
+         "Schwere": "H",
+         "Befund": "Kap. 5 Schleife: Softlock nach Tod/Laden in der Schleife (siehe `qa_raetsel_k56.md` 5.5).",
+         "Fix": "**behoben** (`kapitel5.js`)."
+        },
+        {
+         "ID": "K5-F",
+         "Schwere": "M",
+         "Befund": "Kap. 5 Runde 3 ohne Film (3 Bilder Startbestand, frei verknipsbar).",
+         "Fix": "**behoben:** wird 1 Film nachgelegt."
+        },
+        {
+         "ID": "K6-E",
+         "Schwere": "H",
+         "Befund": "Kap. 6 Epilog: ging der Rückruf von `whiskey_fly` verloren, startete das Ende nie.",
+         "Fix": "**behoben** (`k6_oben`)."
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Kette je Kapitel",
+     "zeile": 27,
+     "text": [
+      "Legende: Q = Quelle (Ort/Bedingung), V = Verwendung, P/O = Pflicht/optional, ⚠ = verpassbar/Risiko."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 1",
+     "zeile": 31,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "Item",
+        "Q",
+        "V",
+        "P/O",
+        "Hinweis"
+       ],
+       "zeilen": [
+        [
+         "`key` (Schlüssel Nr. 7)",
+         "Briefkasten Nr. 7 (`state.hasKey`), kiffen/kapitel1 Alternativen",
+         "Haustür Nr. 7",
+         "P",
+         "Tür prüft `state.hasKey`, nicht das Item – Item nur Anzeige"
+        ],
+        [
+         "`tape` (Lucys Tonband)",
+         "Kassette im Keller (kapitel1 `band`)",
+         "Keller → Kapitelende",
+         "P",
+         ""
+        ],
+        [
+         "`collar` (Brunos Halsband)",
+         "Aschekreis",
+         "Vegas (Albers)",
+         "O",
+         ""
+        ],
+        [
+         "`phone`",
+         "Auto (`lore phone`)",
+         "Fibel",
+         "O",
+         ""
+        ],
+        [
+         "`ring_hufeisen`, `euro_bruno`",
+         "Albers (k1Klopfen)",
+         "Fibel/Tausch",
+         "O",
+         ""
+        ],
+        [
+         "`autoschluessel`",
+         "Whiskey-Tausch",
+         "Kap. 1 Auto",
+         "O (Fahrt)",
+         "`kapitel1.js:559/600` prüft, Fahrt = Endbild"
+        ],
+        [
+         "`lucy_zigaretten`",
+         "Handschuhfach (post)",
+         "`post.js:97`",
+         "O",
+         ""
+        ],
+        [
+         "`futterdose`",
+         "Kirchberg Näpfe-Finale",
+         "–",
+         "O",
+         ""
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Item": "`key` (Schlüssel Nr. 7)",
+         "Q": "Briefkasten Nr. 7 (`state.hasKey`), kiffen/kapitel1 Alternativen",
+         "V": "Haustür Nr. 7",
+         "P/O": "P",
+         "Hinweis": "Tür prüft `state.hasKey`, nicht das Item – Item nur Anzeige"
+        },
+        {
+         "Item": "`tape` (Lucys Tonband)",
+         "Q": "Kassette im Keller (kapitel1 `band`)",
+         "V": "Keller → Kapitelende",
+         "P/O": "P",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`collar` (Brunos Halsband)",
+         "Q": "Aschekreis",
+         "V": "Vegas (Albers)",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`phone`",
+         "Q": "Auto (`lore phone`)",
+         "V": "Fibel",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`ring_hufeisen`, `euro_bruno`",
+         "Q": "Albers (k1Klopfen)",
+         "V": "Fibel/Tausch",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`autoschluessel`",
+         "Q": "Whiskey-Tausch",
+         "V": "Kap. 1 Auto",
+         "P/O": "O (Fahrt)",
+         "Hinweis": "`kapitel1.js:559/600` prüft, Fahrt = Endbild"
+        },
+        {
+         "Item": "`lucy_zigaretten`",
+         "Q": "Handschuhfach (post)",
+         "V": "`post.js:97`",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`futterdose`",
+         "Q": "Kirchberg Näpfe-Finale",
+         "V": "–",
+         "P/O": "O",
+         "Hinweis": ""
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 2",
+     "zeile": 43,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "`fuse` / `sicherung`",
+        "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`",
+        "Sicherungsraum / Kasten",
+        "P",
+        "⚠ R2 behoben"
+       ],
+       "zeilen": [
+        [
+         "`zimmer7`, `einwilligungen`",
+         "Zimmer 7 / Aushang",
+         "Aktenraum, Lösch-Reihenfolge Laternen (Kap. 3)",
+         "P/O",
+         "`einwilligungen` ist Rätselgrundlage (Gedanken-Hinweis nennt sie) – bleibt nach Aufnahme im Inventar/Lore"
+        ],
+        [
+         "`leiter_amt`",
+         "Sicherungsraum",
+         "Archivschrank „Gründung“",
+         "O",
+         "in Sperrliste"
+        ],
+        [
+         "`wartenummer`, `umschlag7`",
+         "Nummernautomat, Akte 08-Fach",
+         "Fibel/Akte",
+         "O / P-Story",
+         ""
+        ],
+        [
+         "`brechstange`",
+         "Werkbank Nr. 7 (Hauswirtschaftsraum)",
+         "Wand Kap. 1→2 (`uebergang.js:47`), Kellerfenster Kap. 4",
+         "P",
+         "⚠ Fallback `chapter4Begin`; für Wand Kap. 1: Hinweis „Oben… Werkbank“ vorhanden"
+        ],
+        [
+         "`drahtschneider`",
+         "Schuppen Parz. (ow)",
+         "Tor, Vogelscheuche, Welpe",
+         "P (Tor wird in Kap. 4 automatisch geöffnet)",
+         "⚠ ohne ihn fehlt Teil 02 – Whiskeys Nest gleicht aus; ow-Hinweis ergänzt"
+        ],
+        [
+         "`batterie`",
+         "Werkbank, Tankstelle (3×)",
+         "Taschenlampe",
+         "P-weich",
+         ""
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "`fuse` / `sicherung`": "`zimmer7`, `einwilligungen`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Zimmer 7 / Aushang",
+         "Sicherungsraum / Kasten": "Aktenraum, Lösch-Reihenfolge Laternen (Kap. 3)",
+         "P": "P/O",
+         "⚠ R2 behoben": "`einwilligungen` ist Rätselgrundlage (Gedanken-Hinweis nennt sie) – bleibt nach Aufnahme im Inventar/Lore"
+        },
+        {
+         "`fuse` / `sicherung`": "`leiter_amt`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Sicherungsraum",
+         "Sicherungsraum / Kasten": "Archivschrank „Gründung“",
+         "P": "O",
+         "⚠ R2 behoben": "in Sperrliste"
+        },
+        {
+         "`fuse` / `sicherung`": "`wartenummer`, `umschlag7`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Nummernautomat, Akte 08-Fach",
+         "Sicherungsraum / Kasten": "Fibel/Akte",
+         "P": "O / P-Story",
+         "⚠ R2 behoben": ""
+        },
+        {
+         "`fuse` / `sicherung`": "`brechstange`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Werkbank Nr. 7 (Hauswirtschaftsraum)",
+         "Sicherungsraum / Kasten": "Wand Kap. 1→2 (`uebergang.js:47`), Kellerfenster Kap. 4",
+         "P": "P",
+         "⚠ R2 behoben": "⚠ Fallback `chapter4Begin`; für Wand Kap. 1: Hinweis „Oben… Werkbank“ vorhanden"
+        },
+        {
+         "`fuse` / `sicherung`": "`drahtschneider`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Schuppen Parz. (ow)",
+         "Sicherungsraum / Kasten": "Tor, Vogelscheuche, Welpe",
+         "P": "P (Tor wird in Kap. 4 automatisch geöffnet)",
+         "⚠ R2 behoben": "⚠ ohne ihn fehlt Teil 02 – Whiskeys Nest gleicht aus; ow-Hinweis ergänzt"
+        },
+        {
+         "`fuse` / `sicherung`": "`batterie`",
+         "Z7-Aushang `fuse` (Pflicht, Haken Zimmer 7) / Archiv-Aktenschrank `c2_sicherung`": "Werkbank, Tankstelle (3×)",
+         "Sicherungsraum / Kasten": "Taschenlampe",
+         "P": "P-weich",
+         "⚠ R2 behoben": ""
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 3",
+     "zeile": 52,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "`buch` (Zählbuch)",
+        "Kap.-3-Szene `kapitel3_zaehlbuch`",
+        "Albers/Weiss, Kap. 5 Brett-Randnotiz",
+        "O",
+        ""
+       ],
+       "zeilen": [
+        [
+         "`n3_*` (Glocke, Brecheisen, Pfarr-/Kapellenschlüssel, Ordner, Lieferschein, Schuh, Kassetten, Predigtmappe)",
+         "Nebenaufgaben (neben3/albers)",
+         "Kapelle/Pfarrhaus",
+         "O",
+         "Kettenitems `n3_kapschluessel`, `n3_pfarrschluessel`, `n3_brecheisen` jetzt diebstahlsicher"
+        ],
+        [
+         "`kaugummipapier`, `thermoskanne`",
+         "lwo-Haken (Wolter)",
+         "Albers (Tausch), Villa",
+         "O",
+         ""
+        ],
+        [
+         "Justin-Gaben `ranzenriemen`/`riegel_halb`/`schnalle_turm`",
+         "Justin (Wahl A/B/C, einmal)",
+         "Kap. 5: Riemen bei Gisela (Beat `licht`), Riegel auf Nr. 7 (Beats `kamera`–`foto1`), Schnalle im Stall-Fundament (Beats `brot`–`stall`)",
+         "O (Einlösung)",
+         "⚠ **VERPASSBAR** (Zeitfenster je Beat); Hauptweg läuft ohne; Verlust = nur Lore-Zeile"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "`buch` (Zählbuch)": "`n3_*` (Glocke, Brecheisen, Pfarr-/Kapellenschlüssel, Ordner, Lieferschein, Schuh, Kassetten, Predigtmappe)",
+         "Kap.-3-Szene `kapitel3_zaehlbuch`": "Nebenaufgaben (neben3/albers)",
+         "Albers/Weiss, Kap. 5 Brett-Randnotiz": "Kapelle/Pfarrhaus",
+         "O": "O",
+         "": "Kettenitems `n3_kapschluessel`, `n3_pfarrschluessel`, `n3_brecheisen` jetzt diebstahlsicher"
+        },
+        {
+         "`buch` (Zählbuch)": "`kaugummipapier`, `thermoskanne`",
+         "Kap.-3-Szene `kapitel3_zaehlbuch`": "lwo-Haken (Wolter)",
+         "Albers/Weiss, Kap. 5 Brett-Randnotiz": "Albers (Tausch), Villa",
+         "O": "O",
+         "": ""
+        },
+        {
+         "`buch` (Zählbuch)": "Justin-Gaben `ranzenriemen`/`riegel_halb`/`schnalle_turm`",
+         "Kap.-3-Szene `kapitel3_zaehlbuch`": "Justin (Wahl A/B/C, einmal)",
+         "Albers/Weiss, Kap. 5 Brett-Randnotiz": "Kap. 5: Riemen bei Gisela (Beat `licht`), Riegel auf Nr. 7 (Beats `kamera`–`foto1`), Schnalle im Stall-Fundament (Beats `brot`–`stall`)",
+         "O": "O (Einlösung)",
+         "": "⚠ **VERPASSBAR** (Zeitfenster je Beat); Hauptweg läuft ohne; Verlust = nur Lore-Zeile"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 4",
+     "zeile": 58,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "`haushaltsbuch`, `thermos_bfr`, `tonband_ast`, `thermoskanne`",
+        "neben4",
+        "Fibel, Kap. 6 teils",
+        "O",
+        ""
+       ],
+       "zeilen": [
+        [
+         "`schluesselteile` (acht Teile) → `villaschluessel`",
+         "Nest/Brunnen/Vogelscheuche/…; Whiskeys Nest gleicht fehlende Teile aus (außer Teil 04: Kellerfenster, Brechstange)",
+         "Presse → Villa-Tür",
+         "P",
+         "gut abgesichert"
+        ],
+        [
+         "`dienstnadel`, `da10`, `miras_ring`",
+         "Villa (Bett, Dienstanweisung, W11-Akte) / Whiskey-Gabe (Ring)",
+         "Kap. 5 „Ring passt in Narbe“ (Story), Villa",
+         "O/P-Story",
+         "`miras_ring` doppelt vergeben (villa:1106 + whiskey:413) – `addItem` dedupliziert"
+        ],
+        [
+         "`zayn_kamera`, `zayn_kassette`, `cleo_*`, `geh_lichtstein`, `nord_*`",
+         "zayn/cleo/geheimnisse/ausbau_nord",
+         "Fibel-Reiter, Baumhaus",
+         "O",
+         "`baumhausschluessel` (Whiskey) = P für Cleo-Baumhaus-Nebenzweig"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "`haushaltsbuch`, `thermos_bfr`, `tonband_ast`, `thermoskanne`": "`schluesselteile` (acht Teile) → `villaschluessel`",
+         "neben4": "Nest/Brunnen/Vogelscheuche/…; Whiskeys Nest gleicht fehlende Teile aus (außer Teil 04: Kellerfenster, Brechstange)",
+         "Fibel, Kap. 6 teils": "Presse → Villa-Tür",
+         "O": "P",
+         "": "gut abgesichert"
+        },
+        {
+         "`haushaltsbuch`, `thermos_bfr`, `tonband_ast`, `thermoskanne`": "`dienstnadel`, `da10`, `miras_ring`",
+         "neben4": "Villa (Bett, Dienstanweisung, W11-Akte) / Whiskey-Gabe (Ring)",
+         "Fibel, Kap. 6 teils": "Kap. 5 „Ring passt in Narbe“ (Story), Villa",
+         "O": "O/P-Story",
+         "": "`miras_ring` doppelt vergeben (villa:1106 + whiskey:413) – `addItem` dedupliziert"
+        },
+        {
+         "`haushaltsbuch`, `thermos_bfr`, `tonband_ast`, `thermoskanne`": "`zayn_kamera`, `zayn_kassette`, `cleo_*`, `geh_lichtstein`, `nord_*`",
+         "neben4": "zayn/cleo/geheimnisse/ausbau_nord",
+         "Fibel, Kap. 6 teils": "Fibel-Reiter, Baumhaus",
+         "O": "O",
+         "": "`baumhausschluessel` (Whiskey) = P für Cleo-Baumhaus-Nebenzweig"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 5",
+     "zeile": 64,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "Item",
+        "Q",
+        "V",
+        "P/O",
+        "Hinweis"
+       ],
+       "zeilen": [
+        [
+         "`polaroid_kamera`",
+         "Nr. 7 Wohnzimmer",
+         "Fotos 1/2, Friedhof-Blitz",
+         "P",
+         ""
+        ],
+        [
+         "Filmpacks (Zähler, kein Item): Besteck, Laube, Kommode, Kranz",
+         "siehe Rätselliste",
+         "Kamera",
+         "P-weich",
+         "⚠ 0 Film in Runde 3 → Notfilm (behoben)"
+        ],
+        [
+         "`mamas_kerze`",
+         "Tisch (nach der Heimkehrerin)",
+         "Friedhof-Anzünden",
+         "**P**",
+         "⚠ Fallback `k5_wieder` (behoben); in Sperrliste"
+        ],
+        [
+         "`feuerzeug`",
+         "Kap. 2 (Peter) / Fallback `k5_welt`",
+         "Friedhof, Kap. 6 Bau",
+         "**P**",
+         "⚠ `feuer.js` Quelle; Fallback in Kap. 5 und 6 vorhanden"
+        ],
+        [
+         "`lucys_spieluhr`",
+         "Kinderzimmer",
+         "Lucy an Kreuzung",
+         "**P**",
+         "⚠ Fallback am SP `k5_spieluhr`"
+        ],
+        [
+         "`brot`",
+         "Papas Platz, ab Beat `spieluhr`",
+         "Stallteller",
+         "**P**",
+         "⚠ Fallback am SP `k5_stall`; **VERPASSBAR?** Nein: bleibt greifbar bis `stall`; Hinweis jetzt im Teller-Toast"
+        ],
+        [
+         "`heidis_karten`",
+         "Tisch Runde 1 (nur Schleife)",
+         "Lore",
+         "O",
+         "⚠ **VERPASSBAR** (nur Runde 1–`stall`, einmalig)"
+        ],
+        [
+         "`rechnung_kuehnle`, `polaroid_heini`",
+         "Grabhügel / Foto Grete",
+         "Fibel/Kap. 6 AG-18",
+         "O",
+         ""
+        ],
+        [
+         "`riegel_halb`/`ranzenriemen`/`schnalle_turm`",
+         "Kap. 3 Justin",
+         "siehe Kap. 3",
+         "O",
+         ""
+        ],
+        [
+         "Neben5: `hildes_antworten`, `heidi_karte`, `brecheisen`, `boerek`, `brief_edda`, `rechnung_durchschlag`",
+         "Neben5",
+         "Briefkasten, Telefonzelle, Schuppen",
+         "O",
+         "`boerek` wird nach 16 s im Beat `tappen` gefuttert (zeitgebunden, optional)"
+        ],
+        [
+         "`n5` Lore `k5_*` (Foto 1, Küchenfenster, Heimkehrerin, Handtausch, Mama, Riemen, Riegel, Schnalle, Cleo, Rechnung, Plakat, Heini)",
+         "Szenen",
+         "Fibel „Funde“",
+         "O",
+         "meist einmalig und an Beat gebunden"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Item": "`polaroid_kamera`",
+         "Q": "Nr. 7 Wohnzimmer",
+         "V": "Fotos 1/2, Friedhof-Blitz",
+         "P/O": "P",
+         "Hinweis": ""
+        },
+        {
+         "Item": "Filmpacks (Zähler, kein Item): Besteck, Laube, Kommode, Kranz",
+         "Q": "siehe Rätselliste",
+         "V": "Kamera",
+         "P/O": "P-weich",
+         "Hinweis": "⚠ 0 Film in Runde 3 → Notfilm (behoben)"
+        },
+        {
+         "Item": "`mamas_kerze`",
+         "Q": "Tisch (nach der Heimkehrerin)",
+         "V": "Friedhof-Anzünden",
+         "P/O": "**P**",
+         "Hinweis": "⚠ Fallback `k5_wieder` (behoben); in Sperrliste"
+        },
+        {
+         "Item": "`feuerzeug`",
+         "Q": "Kap. 2 (Peter) / Fallback `k5_welt`",
+         "V": "Friedhof, Kap. 6 Bau",
+         "P/O": "**P**",
+         "Hinweis": "⚠ `feuer.js` Quelle; Fallback in Kap. 5 und 6 vorhanden"
+        },
+        {
+         "Item": "`lucys_spieluhr`",
+         "Q": "Kinderzimmer",
+         "V": "Lucy an Kreuzung",
+         "P/O": "**P**",
+         "Hinweis": "⚠ Fallback am SP `k5_spieluhr`"
+        },
+        {
+         "Item": "`brot`",
+         "Q": "Papas Platz, ab Beat `spieluhr`",
+         "V": "Stallteller",
+         "P/O": "**P**",
+         "Hinweis": "⚠ Fallback am SP `k5_stall`; **VERPASSBAR?** Nein: bleibt greifbar bis `stall`; Hinweis jetzt im Teller-Toast"
+        },
+        {
+         "Item": "`heidis_karten`",
+         "Q": "Tisch Runde 1 (nur Schleife)",
+         "V": "Lore",
+         "P/O": "O",
+         "Hinweis": "⚠ **VERPASSBAR** (nur Runde 1–`stall`, einmalig)"
+        },
+        {
+         "Item": "`rechnung_kuehnle`, `polaroid_heini`",
+         "Q": "Grabhügel / Foto Grete",
+         "V": "Fibel/Kap. 6 AG-18",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`riegel_halb`/`ranzenriemen`/`schnalle_turm`",
+         "Q": "Kap. 3 Justin",
+         "V": "siehe Kap. 3",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "Neben5: `hildes_antworten`, `heidi_karte`, `brecheisen`, `boerek`, `brief_edda`, `rechnung_durchschlag`",
+         "Q": "Neben5",
+         "V": "Briefkasten, Telefonzelle, Schuppen",
+         "P/O": "O",
+         "Hinweis": "`boerek` wird nach 16 s im Beat `tappen` gefuttert (zeitgebunden, optional)"
+        },
+        {
+         "Item": "`n5` Lore `k5_*` (Foto 1, Küchenfenster, Heimkehrerin, Handtausch, Mama, Riemen, Riegel, Schnalle, Cleo, Rechnung, Plakat, Heini)",
+         "Q": "Szenen",
+         "V": "Fibel „Funde“",
+         "P/O": "O",
+         "Hinweis": "meist einmalig und an Beat gebunden"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 3,
+     "titel": "Kapitel 6",
+     "zeile": 79,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "Item",
+        "Q",
+        "V",
+        "P/O",
+        "Hinweis"
+       ],
+       "zeilen": [
+        [
+         "`feuerzeug`, Lampe, Batterien (3)",
+         "Kap. 2 / Start (`FLASH.spare ≥ 3`)",
+         "Finale `k6_lampeStirbt`",
+         "P",
+         "Finale bleibt auch ohne Feuerzeug-Item lösbar (Hinweis-Leiste greift nicht auf das Item zu)"
+        ],
+        [
+         "`pfandflasche`",
+         "Waldweg (Hütte)",
+         "Humor/Lärm (Hochsitz, Whiskey wirft sie)",
+         "O",
+         "wird absichtlich zerstört (`flasche = 3`)"
+        ],
+        [
+         "`seitenschneider`",
+         "Wolter-Tasche (AG-18, Option)",
+         "Welpe (Gitter braucht ihn nicht)",
+         "O",
+         "⚠ Nur bei Dialogoption (`schneiderFrei`); Welpe geht auch mit Drahtschneider"
+        ],
+        [
+         "`bergungsfunk`",
+         "Leiche (AG-20)",
+         "Hochsitz zurücklegen",
+         "O",
+         "Fibel-Punkte"
+        ],
+        [
+         "`jonas_messer`, `plombe`, `jonas_karte`",
+         "Welpe frei; Lager",
+         "Netz (Messer), Karte",
+         "O",
+         "`wald_welpe`-Lore genügt für „Messer“ im Netz"
+        ],
+        [
+         "`spindschluessel` → `lampion`; `pell_kassette`",
+         "Hochsitz-Fuß; Spind im Bus; Wrack-Handschuhfach",
+         "Hungrige-Stimme „Anni 5“, Fibel",
+         "O",
+         "Whiskey-sicher gemacht"
+        ],
+        [
+         "`murmel`",
+         "Beobachter-Finale (13 Zettel)",
+         "–",
+         "O",
+         ""
+        ],
+        [
+         "`sender`",
+         "AG-09 (Kap. 3), K6 V-11",
+         "Variante A/B/C → Falle",
+         "O",
+         "`ICONS.sender` fehlte (behoben via Fallback)"
+        ],
+        [
+         "Dienstbuch-Seiten 1–6, Pell-Seiten 1–9",
+         "Kap. 6 Orte",
+         "Fortschritt Seite 1/6 **P**, Rest O",
+         "**Seite 1 und 6 = P**",
+         "Hilfen ergänzt (siehe Rätseldoku)"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Item": "`feuerzeug`, Lampe, Batterien (3)",
+         "Q": "Kap. 2 / Start (`FLASH.spare ≥ 3`)",
+         "V": "Finale `k6_lampeStirbt`",
+         "P/O": "P",
+         "Hinweis": "Finale bleibt auch ohne Feuerzeug-Item lösbar (Hinweis-Leiste greift nicht auf das Item zu)"
+        },
+        {
+         "Item": "`pfandflasche`",
+         "Q": "Waldweg (Hütte)",
+         "V": "Humor/Lärm (Hochsitz, Whiskey wirft sie)",
+         "P/O": "O",
+         "Hinweis": "wird absichtlich zerstört (`flasche = 3`)"
+        },
+        {
+         "Item": "`seitenschneider`",
+         "Q": "Wolter-Tasche (AG-18, Option)",
+         "V": "Welpe (Gitter braucht ihn nicht)",
+         "P/O": "O",
+         "Hinweis": "⚠ Nur bei Dialogoption (`schneiderFrei`); Welpe geht auch mit Drahtschneider"
+        },
+        {
+         "Item": "`bergungsfunk`",
+         "Q": "Leiche (AG-20)",
+         "V": "Hochsitz zurücklegen",
+         "P/O": "O",
+         "Hinweis": "Fibel-Punkte"
+        },
+        {
+         "Item": "`jonas_messer`, `plombe`, `jonas_karte`",
+         "Q": "Welpe frei; Lager",
+         "V": "Netz (Messer), Karte",
+         "P/O": "O",
+         "Hinweis": "`wald_welpe`-Lore genügt für „Messer“ im Netz"
+        },
+        {
+         "Item": "`spindschluessel` → `lampion`; `pell_kassette`",
+         "Q": "Hochsitz-Fuß; Spind im Bus; Wrack-Handschuhfach",
+         "V": "Hungrige-Stimme „Anni 5“, Fibel",
+         "P/O": "O",
+         "Hinweis": "Whiskey-sicher gemacht"
+        },
+        {
+         "Item": "`murmel`",
+         "Q": "Beobachter-Finale (13 Zettel)",
+         "V": "–",
+         "P/O": "O",
+         "Hinweis": ""
+        },
+        {
+         "Item": "`sender`",
+         "Q": "AG-09 (Kap. 3), K6 V-11",
+         "V": "Variante A/B/C → Falle",
+         "P/O": "O",
+         "Hinweis": "`ICONS.sender` fehlte (behoben via Fallback)"
+        },
+        {
+         "Item": "Dienstbuch-Seiten 1–6, Pell-Seiten 1–9",
+         "Q": "Kap. 6 Orte",
+         "V": "Fortschritt Seite 1/6 **P**, Rest O",
+         "P/O": "**Seite 1 und 6 = P**",
+         "Hinweis": "Hilfen ergänzt (siehe Rätseldoku)"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Verpassbare / zeitgebundene Gegenstände (Zusammenfassung)",
+     "zeile": 92,
+     "text": [],
+     "tabellen": [
+      {
+       "kopf": [
+        "Item/Fund",
+        "Fenster",
+        "Hauptweg betroffen?",
+        "Maßnahme"
+       ],
+       "zeilen": [
+        [
+         "Riemen / halber Riegel / Schnalle (Justin-Geschenke)",
+         "Beat-gebunden Kap. 5",
+         "nein",
+         "akzeptiert (Lore „Einlösungen“ optional); bei Wunsch: Einlösung nachholbar machen (nicht umgesetzt – Story)"
+        ],
+        [
+         "Heidis Karten",
+         "Schleife Runde 1 bis `stall`",
+         "nein",
+         "akzeptiert"
+        ],
+        [
+         "Börek füttern",
+         "Beat `tappen`, 16 s",
+         "nein",
+         "akzeptiert"
+        ],
+        [
+         "Filmpacks",
+         "Kommode nur ab Runde 2, Besteck nur Beat `kamera`–`foto1`",
+         "**ja** (Foto Runde 3)",
+         "Notfilm in Runde 3 (umgesetzt)"
+        ],
+        [
+         "Brot",
+         "ab `spieluhr` bis Stall",
+         "**ja**",
+         "Fallback beim Respawn + Hinweis im Teller-Toast"
+        ],
+        [
+         "Mamas Kerze",
+         "Tisch bis Heimkehrerin",
+         "**ja**",
+         "Fallback in `k5_wieder`"
+        ],
+        [
+         "Feuerzeug / Öl nach Peter",
+         "Kap. 2 Quelle; später nur gelesen, nie verbraucht",
+         "**ja** (Kap. 5/6)",
+         "`k5_welt` und `k6_welt` geben es zurück (bestehend); Öl existiert nicht als Item"
+        ],
+        [
+         "Fibel-Einträge an Ereignissen (`R-K5c` Kerze, `R-K6` Anni 1, `D-11` Zwei Lukes, `J-15` Weiher)",
+         "Ereignis-gebunden",
+         "nein",
+         "siehe `sammeln_fibel`; `R-K6` hängt an Verlassen der ersten Stille-Zone (Beat `faden`), `D-11` an Wahl „Kommst du mit heim?“"
+        ],
+        [
+         "Beobachter-Zettel `b_k6_0x`",
+         "Positionsgebunden, einmal",
+         "nein",
+         "optional (13 Zettel → `murmel`)"
+        ]
+       ],
+       "zeilenObjekte": [
+        {
+         "Item/Fund": "Riemen / halber Riegel / Schnalle (Justin-Geschenke)",
+         "Fenster": "Beat-gebunden Kap. 5",
+         "Hauptweg betroffen?": "nein",
+         "Maßnahme": "akzeptiert (Lore „Einlösungen“ optional); bei Wunsch: Einlösung nachholbar machen (nicht umgesetzt – Story)"
+        },
+        {
+         "Item/Fund": "Heidis Karten",
+         "Fenster": "Schleife Runde 1 bis `stall`",
+         "Hauptweg betroffen?": "nein",
+         "Maßnahme": "akzeptiert"
+        },
+        {
+         "Item/Fund": "Börek füttern",
+         "Fenster": "Beat `tappen`, 16 s",
+         "Hauptweg betroffen?": "nein",
+         "Maßnahme": "akzeptiert"
+        },
+        {
+         "Item/Fund": "Filmpacks",
+         "Fenster": "Kommode nur ab Runde 2, Besteck nur Beat `kamera`–`foto1`",
+         "Hauptweg betroffen?": "**ja** (Foto Runde 3)",
+         "Maßnahme": "Notfilm in Runde 3 (umgesetzt)"
+        },
+        {
+         "Item/Fund": "Brot",
+         "Fenster": "ab `spieluhr` bis Stall",
+         "Hauptweg betroffen?": "**ja**",
+         "Maßnahme": "Fallback beim Respawn + Hinweis im Teller-Toast"
+        },
+        {
+         "Item/Fund": "Mamas Kerze",
+         "Fenster": "Tisch bis Heimkehrerin",
+         "Hauptweg betroffen?": "**ja**",
+         "Maßnahme": "Fallback in `k5_wieder`"
+        },
+        {
+         "Item/Fund": "Feuerzeug / Öl nach Peter",
+         "Fenster": "Kap. 2 Quelle; später nur gelesen, nie verbraucht",
+         "Hauptweg betroffen?": "**ja** (Kap. 5/6)",
+         "Maßnahme": "`k5_welt` und `k6_welt` geben es zurück (bestehend); Öl existiert nicht als Item"
+        },
+        {
+         "Item/Fund": "Fibel-Einträge an Ereignissen (`R-K5c` Kerze, `R-K6` Anni 1, `D-11` Zwei Lukes, `J-15` Weiher)",
+         "Fenster": "Ereignis-gebunden",
+         "Hauptweg betroffen?": "nein",
+         "Maßnahme": "siehe `sammeln_fibel`; `R-K6` hängt an Verlassen der ersten Stille-Zone (Beat `faden`), `D-11` an Wahl „Kommst du mit heim?“"
+        },
+        {
+         "Item/Fund": "Beobachter-Zettel `b_k6_0x`",
+         "Fenster": "Positionsgebunden, einmal",
+         "Hauptweg betroffen?": "nein",
+         "Maßnahme": "optional (13 Zettel → `murmel`)"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "ebene": 2,
+     "titel": "Anzeige in Inventar/Fibel",
+     "zeile": 106,
+     "text": [
+      "- Inventar: nach Fix alle Items sichtbar (scrollbar), Name/Beschreibung stets vorhanden, Symbol Fallback Papier. Batterie-Anzahl bleibt dynamisch.",
+      "- Fibel/„Funde“: `story.lore` wird gespeichert; `k5_lore`/`k6`-Einträge bleiben nach Laden erhalten. `pell_projekt` und `hungrige_seite_6` ändern Titel zur Laufzeit (`Projekt W` → `Projekt WENDIGO`).",
+      "- Offene Punkte für den Laufzeit-Lite-Lauf: `beutel.js` `BEUTEL_FUNDE` (2 Einträge) und Slot-Rendering nach Laden; Hover-Text in `renderJournal`."
+     ],
+     "tabellen": []
+    },
+    {
+     "ebene": 2,
+     "titel": "Vorschläge GEDANKEN_FADEN (Item-Kette)",
+     "zeile": 112,
+     "text": [
+      "Zusätzlich zu `qa_raetsel_k56.md` – Aufgabentexte, an denen ein fehlendes Item hängt:",
+      "```js",
+      "  [/Brot\\. Der Kanten von Papas Platz/, 'Papas Platz am Tisch in Nr. 1 – dort liegt der Kanten Brot, nicht angeschnitten. Mitnehmen, dann zum Stall.'],",
+      "  [/Mamas Platz/, 'Mamas Platz am Tisch: Kerze und Feder. Die Kerze hab ich noch. Peters Feuerzeug auch.'],",
+      "  [/Schließ die Tür auf|Die Villa Seiler/, 'Acht Schlüsselteile, eine Presse im Garten. Was fehlt, hat vielleicht der Vogel in seinem Nest.'],",
+      "```"
+     ],
+     "tabellen": []
+    }
+   ]
+  }
+ ]
+}

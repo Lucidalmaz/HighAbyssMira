@@ -1,0 +1,973 @@
+{
+ "abschnitte": [
+  {
+   "titel": "(Einleitung)",
+   "ebene": 1,
+   "text": [
+    "# Credits · Lizenzierte Inhalte",
+    "High Abyss Mira verwendet ausschließlich lizenzierte Modelle, Texturen und Bewegungsaufnahmen, bezogen über **Fab** (Epic Games) bzw. **Quixel Megascans**. Inhalte unter **CC-BY 4.0** werden hier mit Urheber genannt (Stand 29.09.2026, geprüft auf den Fab-Seiten)."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "CC-BY 4.0 (Namensnennung)",
+   "ebene": 2,
+   "text": [
+    "Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werke wurden für das Spiel verändert (verkleinert, umgefärbt, zugeschnitten, kombiniert, Bewegungen übertragen)."
+   ],
+   "zeilen": [
+    {
+     "Werk": "Girl In Yellow – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Hilde Wendt, Hilde „Nicht du“ (Nachthemd), Mira",
+     "Fab": "https://www.fab.com/listings/76a51eb9-ee53-4764-a9e4-1f14359fc425"
+    },
+    {
+     "Werk": "Girl In Orange – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Vorlage Frauenfiguren",
+     "Fab": "https://www.fab.com/listings/d0633943-f7f9-46c1-97da-7e2c6862966f"
+    },
+    {
+     "Werk": "Office Worker 3 – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Daniel Lorenz, Luke (26, von hinten)",
+     "Fab": "https://www.fab.com/listings/007f9793-e57c-47dd-9ee0-0829a57bf1e4"
+    },
+    {
+     "Werk": "Office Worker 6 – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Lucy (erwachsen)",
+     "Fab": "https://www.fab.com/listings/c16b3db0-90ab-4e8d-b390-50a98403c651"
+    },
+    {
+     "Werk": "Office Worker 7 – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Mama, Dina (erwachsen), Frau Reuter",
+     "Fab": "https://www.fab.com/listings/15d304a9-e259-4f12-b95e-553e0b7b4609"
+    },
+    {
+     "Werk": "Russian Girl (West) – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Frau Aydın, Gisela Rieke (Stiefel als Gummistiefel)",
+     "Fab": "https://www.fab.com/listings/9f85315b-b39d-4169-8b10-1642a6264b93"
+    },
+    {
+     "Werk": "Undercover Cop – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Bewegungen (Erwachsene)",
+     "Fab": "https://www.fab.com/listings/c464d3ca-9d0c-48c9-9d1d-bf2edf0996fb"
+    },
+    {
+     "Werk": "Mall Cop – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Gefreiter Hofer",
+     "Fab": "https://www.fab.com/listings/c83c5052-990e-4ceb-a1e9-93dfc15f4ae6"
+    },
+    {
+     "Werk": "1940s Spy – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Mann vom Amt (2), Bewegungen",
+     "Fab": "https://www.fab.com/listings/705b573b-2eae-40fd-8373-06f3c6cf9450"
+    },
+    {
+     "Werk": "The Doctor/Torturer – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Mann vom Amt (1), Pfarrer Voss (Mantel schwarz als Talar)",
+     "Fab": "https://www.fab.com/listings/032542ba-fb0d-48f4-89f2-a804a7fcd33c"
+    },
+    {
+     "Werk": "Dirt Farmer – Rigged",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Körper Lars Vegas",
+     "Fab": "https://www.fab.com/listings/5af7af37-2c8a-4447-9444-8c9c83cd4872"
+    },
+    {
+     "Werk": "Deer Thing",
+     "Urheber": "Shedmon",
+     "Verwendung im Spiel": "wahre Gestalt des Wendigo (Hirschding) – eigenes Skelett und eigene Bewegungen (AP Q-1)",
+     "Fab": "https://www.fab.com/listings/a520a7ec-83f1-4f28-b446-d5dc1370a6e4"
+    },
+    {
+     "Werk": "Grimhound (rigged dog homunculus)",
+     "Urheber": "DM-913",
+     "Verwendung im Spiel": "der Geschälte Wolf (Modell, Skelett; eigene Bewegungen)",
+     "Fab": "https://www.fab.com/listings/fa911d4e-6994-4bf4-8bcd-c356002b36c2"
+    },
+    {
+     "Werk": "Muscle Tissue",
+     "Urheber": "clacydarch",
+     "Verwendung im Spiel": "Muskelfasern, Sehnen und Knochenhaut der Geschälten (Texturausschnitte)",
+     "Fab": "https://www.fab.com/listings/38b9c25b-80db-4606-a0f8-bb2bb947143a"
+    },
+    {
+     "Werk": "Cute Alien Pet – Stylized 3D Character",
+     "Urheber": "MissTxxT",
+     "Verwendung im Spiel": "der Beobachter: Netz umgeformt (Hals, Rumpf, Glieder, Finger, Zehen), Oberlider aus den eigenen Augen, eigenes Skelett, eigene Clips, Wachshaut als Shader (R-21, `tools/beobachter_bau.mjs` → `ms/beobachter/beobachter_rig.glb`; das alte `model.glb` bleibt Rückfall)",
+     "Fab": "https://www.fab.com/listings/345850ce-54aa-4029-8c7f-e9305a8fbaa9"
+    },
+    {
+     "Werk": "Free High-Quality Male (NoEdge, `v18_figuren/mann_hq_tex`)",
+     "Urheber": "NoEdge",
+     "Verwendung im Spiel": "Beobachter: Poren/Fältchen-Relief (`ms/beobachter/haut.png`, Höhe aus `Std_Skin_Arm_MicroN` integriert)",
+     "Fab": "Fab (Download 01.10.2026) – Listing-Adresse nachtragen"
+    },
+    {
+     "Werk": "Human Kidney Anatomy",
+     "Urheber": "clacydarch",
+     "Verwendung im Spiel": "Organ im Kuh-Sturz / Fraßstellen",
+     "Fab": "https://www.fab.com/listings/3dff700e-9bbf-4d9d-babf-5328d263b512"
+    },
+    {
+     "Werk": "Rusty and Oil Stained Oil Barrel",
+     "Urheber": "Sunbox Games",
+     "Verwendung im Spiel": "Ölfass im Langen Gang, Jonas' Blechdose",
+     "Fab": "https://www.fab.com/listings/fe9d49ab-2e76-416d-87ee-6f506a63d1de"
+    },
+    {
+     "Werk": "Vintage Lighter",
+     "Urheber": "LR-Scans",
+     "Verwendung im Spiel": "Peters Feuerzeug",
+     "Fab": "https://www.fab.com/listings/de2ec1d3-31f8-45bc-85b1-e1996daa6685"
+    },
+    {
+     "Werk": "Zombie Number 7 – Animated (Mixamo-Skelett, 13 Clips; `game/assets/ms/zombie_p7/zom_7.glb`, unverändert, 1k-Texturen)",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Peter (Zombie) im langen Gang: Jagd, Sturz, Brand; Clips umgetaktet, Wurzelbewegung entfernt, Ölnässe per Shader",
+     "Fab": "Fab (v20_zombie, Download 08.10.2026) – Listing-Adresse nachtragen"
+    },
+    {
+     "Werk": "Fire Alarm Button (`game/assets/ms/w_alarm/`: model.fbx + Texturen BaseColor/Normal_GL/Roughness/Opacity)",
+     "Urheber": "Thorrian",
+     "Verwendung im Spiel": "Notentriegelung der Brandschutztür (Handmelder „BREAK GLASS · PRESS HERE · FIRE“)",
+     "Fab": "https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4"
+    },
+    {
+     "Werk": "CC0 – Keypad Door Lock (`game/assets/ms/bed_keypad/`: model.fbx + Albedo/Normal/Rough/Metal/Emissiv, auf 2k/1k verkleinert, Tasten 2·4–9 verstaubt, Tastenblock als Bild im Eingabefenster; trotz „CC0“ im Titel auf Fab als CC-BY geführt)",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Tastenfeld der Kellertür (Kap. 1), Rückmeldung über die Emission-Textur (grüne/rote Leuchte)",
+     "Fab": "Fab-Link nachtragen (Download 09.10.2026, `HAM_FabDownloads/v30_bedienung/keypad`)"
+    },
+    {
+     "Werk": "Mid-Poly Cassette Player – Retro Audio Device (`game/assets/ms/rekorder/model.glb`, aus `Volume_Wheel_LOD0.glb`, unverändert)",
+     "Urheber": "Ryptimal Games",
+     "Verwendung im Spiel": "Kassettenrekorder im Keller unter Nr. 7 (Kap. 1), statt Röhrenradio-Näherung",
+     "Fab": "https://www.fab.com/listings/ddc5291c-9d3b-4ab2-a0f7-b8953b4ff977 (CC-BY, Download 08.10.2026, `HAM_FabDownloads/v31_ergaenzung/rekorder`)"
+    },
+    {
+     "Werk": "Pocket Knife (`game/assets/ms/messer/`: model.fbx + Texturen auf 1k verkleinert)",
+     "Urheber": "Gerardo Justel",
+     "Verwendung im Spiel": "Jonas’ Taschenmesser in der Drahtschlinge (Wald)",
+     "Fab": "https://www.fab.com/listings/37b0c173-c6e3-40c3-972b-d4e04944d896 (CC-BY, Download 08.10.2026, `HAM_FabDownloads/v31_ergaenzung/messer`)"
+    },
+    {
+     "Werk": "SM_ Pine_b_04",
+     "Urheber": "Big bubble",
+     "Verwendung im Spiel": "Kiefern im Wald",
+     "Fab": "https://www.fab.com/listings/612c4f3e-e147-4d68-8f35-82f38047da80"
+    },
+    {
+     "Werk": "More Realistic Trees Free!",
+     "Urheber": "Nicholas 3D",
+     "Verwendung im Spiel": "Laubbäume",
+     "Fab": "https://www.fab.com/listings/d9a40b15-46e7-41f9-ac46-99b487ddea60"
+    },
+    {
+     "Werk": "Realistic Trees Pack of 2 Free",
+     "Urheber": "Nicholas 3D",
+     "Verwendung im Spiel": "Büsche/Unterholz",
+     "Fab": "https://www.fab.com/listings/b988606a-788e-4032-abf4-f50fccada472"
+    },
+    {
+     "Werk": "Old Pine Trunk",
+     "Urheber": "Drakery",
+     "Verwendung im Spiel": "alte Kiefernstrünke",
+     "Fab": "https://www.fab.com/listings/6d9f6fe1-10cb-4374-bbc3-ff1dd40753f9"
+    },
+    {
+     "Werk": "Rotting Tree Stump",
+     "Urheber": "Ewan Lejkowski",
+     "Verwendung im Spiel": "faulende Stümpfe (Wald; auch gefällte Bäume in Gärten, Hof, Ortsrand – bewuchs.js)",
+     "Fab": "https://www.fab.com/listings/5255f495-cbfd-4494-813e-4ff656b8b38f"
+    },
+    {
+     "Werk": "Mossy Tree trunk with mushroom on slope",
+     "Urheber": "Indy Sarlet",
+     "Verwendung im Spiel": "bemooste Stümpfe",
+     "Fab": "https://www.fab.com/listings/0f7b1966-a54a-4499-991f-c80b37a95655"
+    },
+    {
+     "Werk": "Moss covered rock pile",
+     "Urheber": "Lassi Kaukonen",
+     "Verwendung im Spiel": "Moosfelsen",
+     "Fab": "https://www.fab.com/listings/e1d7c88a-308e-4e74-ae56-4fbe505c15b3"
+    },
+    {
+     "Werk": "Ivy trunk",
+     "Urheber": "matousekfoto",
+     "Verwendung im Spiel": "efeubewachsene Stämme",
+     "Fab": "https://www.fab.com/listings/50853ca7-f030-4f8b-b1a2-6306c01ebda2"
+    },
+    {
+     "Werk": "Leftover tree leaves",
+     "Urheber": "matousekfoto",
+     "Verwendung im Spiel": "Laubhaufen",
+     "Fab": "https://www.fab.com/listings/f29c8bd6-ccdc-48cf-b31a-b4485d16ab16"
+    },
+    {
+     "Werk": "Pine Tree Fallen Trunk Scan 02",
+     "Urheber": "PersScans",
+     "Verwendung im Spiel": "umgestürzte Stämme",
+     "Fab": "https://www.fab.com/listings/4709d691-a4a4-4ed1-a375-6fbcfc89d5da"
+    },
+    {
+     "Werk": "Collection of Forest Branches",
+     "Urheber": "Arkify3d",
+     "Verwendung im Spiel": "Äste",
+     "Fab": "https://www.fab.com/listings/eea4b561-1772-4101-8747-f463ed5a3980"
+    },
+    {
+     "Werk": "Autumn Leaves [free]",
+     "Urheber": "Zygomir",
+     "Verwendung im Spiel": "Laub; einzelne Blätter daraus fallen und wehen (umwelt.js)",
+     "Fab": "https://www.fab.com/listings/ffd37eae-82d8-4741-b4a1-5ca6bcc1b600"
+    },
+    {
+     "Werk": "Moss patch",
+     "Urheber": "Zygomir",
+     "Verwendung im Spiel": "Moos",
+     "Fab": "https://www.fab.com/listings/4ba0b744-ca34-4412-92cc-2e2a285aab70"
+    },
+    {
+     "Werk": "Stick in moss",
+     "Urheber": "Zygomir",
+     "Verwendung im Spiel": "Moos mit Ast",
+     "Fab": "https://www.fab.com/listings/35b327a2-390c-4ac5-b4a8-76607243caf4"
+    },
+    {
+     "Werk": "Clovers - Plants / Foliage",
+     "Urheber": "Studio-Lab",
+     "Verwendung im Spiel": "Klee",
+     "Fab": "https://www.fab.com/listings/e69e7a66-4010-4836-80d3-af71dd347a3f"
+    },
+    {
+     "Werk": "Realistic Grass Pack For Games Free!",
+     "Urheber": "Nicholas 3D",
+     "Verwendung im Spiel": "Grasbüschel",
+     "Fab": "https://www.fab.com/listings/de42da54-9196-4832-870d-577549132888"
+    },
+    {
+     "Werk": "Game ready grass",
+     "Urheber": "Charlie catling",
+     "Verwendung im Spiel": "hohes Gras",
+     "Fab": "https://www.fab.com/listings/ce4a3934-00e7-4343-8553-8667d4c4bd1c"
+    },
+    {
+     "Werk": "Ivy Plane",
+     "Urheber": "Nicholas 3D",
+     "Verwendung im Spiel": "Efeu an Stämmen",
+     "Fab": "https://www.fab.com/listings/f33b8606-9ad8-4b5b-9329-314886e562a3"
+    },
+    {
+     "Werk": "Mushroom Photoscan LOWPOLY",
+     "Urheber": "EFX",
+     "Verwendung im Spiel": "Pilze",
+     "Fab": "https://www.fab.com/listings/4f057f0e-b69f-46ed-9225-c69e8d1452f3"
+    },
+    {
+     "Werk": "Pocket Camera",
+     "Urheber": "Gerardo Justel",
+     "Verwendung im Spiel": "Kamera (Kapitel 5)",
+     "Fab": "https://www.fab.com/listings/363c899a-b76d-4f2b-b7d9-a8afb2032e9a"
+    },
+    {
+     "Werk": "Ceramic Plate Set",
+     "Urheber": "Samuel Partridge",
+     "Verwendung im Spiel": "Teller (gedeckter Tisch)",
+     "Fab": "https://www.fab.com/listings/4122911c-f66c-4c99-9e18-6bc1fc59e991"
+    },
+    {
+     "Werk": "England Tea Cup",
+     "Urheber": "Chung the Artist",
+     "Verwendung im Spiel": "Tasse",
+     "Fab": "https://www.fab.com/listings/3256d8e6-f324-40b9-9953-feb437261800"
+    },
+    {
+     "Werk": "Wooden Cup",
+     "Urheber": "Shedmon",
+     "Verwendung im Spiel": "Becher",
+     "Fab": "https://www.fab.com/listings/da1c21eb-8fce-46b7-acd2-ee322a97e88b"
+    },
+    {
+     "Werk": "Bread group - 3 Photoscaned breads",
+     "Urheber": "Gamewarming",
+     "Verwendung im Spiel": "Brot",
+     "Fab": "https://www.fab.com/listings/36193699-4fcb-492b-a5f5-07d011f17f5e"
+    },
+    {
+     "Werk": "Old Pot",
+     "Urheber": "Brigyon",
+     "Verwendung im Spiel": "Losurne",
+     "Fab": "https://www.fab.com/listings/a057a374-bbc6-4652-916d-762b82cda389"
+    },
+    {
+     "Werk": "Medieval_long_sword",
+     "Urheber": "strmcat",
+     "Verwendung im Spiel": "Justins Schwert",
+     "Fab": "https://www.fab.com/listings/68508587-1da7-4027-99a4-9d16923a815b"
+    },
+    {
+     "Werk": "Birch Trunk",
+     "Urheber": "Arhidrona",
+     "Verwendung im Spiel": "Birke am Anger",
+     "Fab": "https://www.fab.com/listings/5599cb13-01bb-4077-95aa-8204a206e0ef"
+    },
+    {
+     "Werk": "Metal cutlery",
+     "Urheber": "Okayest",
+     "Verwendung im Spiel": "Besteck",
+     "Fab": "https://www.fab.com/listings/4220f68e-91dd-4614-8b73-b4260f5118d5"
+    },
+    {
+     "Werk": "Chinese lantern",
+     "Urheber": "lennajd",
+     "Verwendung im Spiel": "Papierlaterne",
+     "Fab": "https://www.fab.com/listings/26361467-9883-47d3-ac86-0db2824df6c0"
+    },
+    {
+     "Werk": "Retro woolen sweater",
+     "Urheber": "matousekfoto",
+     "Verwendung im Spiel": "Strickjacke (Zimmer 7)",
+     "Fab": "https://www.fab.com/listings/be87fbdc-f36d-4c2d-b0d4-935a2e034686"
+    },
+    {
+     "Werk": "Metal Rose Jewelry Trinket Box Low Poly",
+     "Urheber": "Jordan F (JordanFry3D)",
+     "Verwendung im Spiel": "Spieluhr (Kapitel 5)",
+     "Fab": "https://www.fab.com/listings/b70659f6-2d7c-4042-b57b-0ecf1ca750c0"
+    },
+    {
+     "Werk": "antiradiation suit - ozk",
+     "Urheber": "sanyaork",
+     "Verwendung im Spiel": "Grundlage der Blechmänner (Bergungstrupp der LWO)",
+     "Fab": "https://www.fab.com/listings/503fca96-5374-4fe5-8f0a-03395f58ecb3"
+    },
+    {
+     "Werk": "Cat long haired",
+     "Urheber": "Sean4297",
+     "Verwendung im Spiel": "Katzen im Dorf (Gisela Rieke), Kater in Kapitel 5",
+     "Fab": "https://www.fab.com/listings/b3513111-6dc1-4345-9706-201c8f37b832"
+    },
+    {
+     "Werk": "Leather Pouch 3D Model",
+     "Urheber": "MissTxxT",
+     "Verwendung im Spiel": "Beutel Stufe 1 (Gürteltasche)",
+     "Fab": "https://www.fab.com/listings/772a26db-14d0-4328-897d-3d900b40fe14"
+    },
+    {
+     "Werk": "Backpack Scan – Xtrem Old Model",
+     "Urheber": "SebastianBA",
+     "Verwendung im Spiel": "Beutel Stufe 2 (alter Rucksack)",
+     "Fab": "https://www.fab.com/listings/27632e45-c4f2-4051-8fbe-108fcd52f5fa"
+    },
+    {
+     "Werk": "Backpack for a wandering wizard",
+     "Urheber": "a9908244",
+     "Verwendung im Spiel": "Beutel Stufe 3 (großer Rucksack)",
+     "Fab": "https://www.fab.com/listings/9973d782-cad6-451c-bc4c-b407f209b9c3"
+    },
+    {
+     "Werk": "Leather Book",
+     "Urheber": "Smoggybeard",
+     "Verwendung im Spiel": "Fotoalbum (Einband); Bücher, Bibel, Gesangbücher in den Innenräumen (`ms/lbook`, bewohnt.js)",
+     "Fab": "https://www.fab.com/listings/4621cc30-1631-4559-9c06-cb43695ba563"
+    },
+    {
+     "Werk": "Detective_Hands – Animated",
+     "Urheber": "Tony Flanagan",
+     "Verwendung im Spiel": "Lukes Hände (Ich-Perspektive: Beutel, Album, Joint drehen)",
+     "Fab": "https://www.fab.com/listings/dcf1de96-a033-48a9-85d5-2ec57d283f2b"
+    },
+    {
+     "Werk": "Curly Hairs Brown 04",
+     "Urheber": "MotionstudioArts",
+     "Verwendung im Spiel": "Locken (Justin, Mira)",
+     "Fab": "https://www.fab.com/listings/9b5adf05-17b0-45ee-ab34-f0148eff18f2"
+    },
+    {
+     "Werk": "Small Brown Curly Hairs 05",
+     "Urheber": "MotionstudioArts",
+     "Verwendung im Spiel": "Locken (Justin, Mira)",
+     "Fab": "https://www.fab.com/listings/8782f229-9111-4690-bee5-c6ddb1511277"
+    },
+    {
+     "Werk": "Vintage desk lamp",
+     "Urheber": "dusan.lamos",
+     "Verwendung im Spiel": "Schreibtischlampe (Zimmer 7)",
+     "Fab": "https://www.fab.com/listings/382415ac-049e-463a-8ce6-1798d62b955c"
+    },
+    {
+     "Werk": "Dirty white blanket",
+     "Urheber": "Axonite",
+     "Verwendung im Spiel": "Kinderdecke (Zayns Hütte)",
+     "Fab": "https://www.fab.com/listings/240a6cfa-86da-468a-8f4a-e424d856c714"
+    },
+    {
+     "Werk": "Realistic Eye Models (High&Low Poly)",
+     "Urheber": "Leo3DCG",
+     "Verwendung im Spiel": "Augen der Figuren; Beobachter: Iris-Fasern (`ms/beobachter/auge.jpg`, stark abgedunkelt) und Äderchen der Lederhaut als Adernmaske (`ms/beobachter/haut.png` Grün)",
+     "Fab": "https://www.fab.com/listings/798994c9-c118-43b3-ac34-12b251c08821"
+    },
+    {
+     "Werk": "Eyelashes",
+     "Urheber": "kuroru0",
+     "Verwendung im Spiel": "Wimpern der Figuren",
+     "Fab": "https://www.fab.com/listings/64d912d8-42b2-4c7a-8d4b-d3b61252bfdf"
+    },
+    {
+     "Werk": "Animation - Smoking 01 (Rokoko-Mocap mit Fingern)",
+     "Urheber": "Klian",
+     "Verwendung im Spiel": "Rauchbewegung (Joint-Szene, Figuren)",
+     "Fab": "https://www.fab.com/listings/dda0061d-676f-45aa-b130-cb0e6ea29c19"
+    },
+    {
+     "Werk": "Animation - Getting Up 01",
+     "Urheber": "Klian",
+     "Verwendung im Spiel": "Aufstehen vom Boden",
+     "Fab": "https://www.fab.com/listings/69dae222-05e9-4065-9030-45887986cdec"
+    },
+    {
+     "Werk": "Animation - Getting Up 02",
+     "Urheber": "Klian",
+     "Verwendung im Spiel": "Aufstehen vom Boden",
+     "Fab": "https://www.fab.com/listings/c2aa23c5-0bea-4a9c-9586-2a5215f2b466"
+    },
+    {
+     "Werk": "Black Vintage Umbrella",
+     "Urheber": "Sandeep89tsk",
+     "Verwendung im Spiel": "Regenschirm (Wolter); Schirme an den Türen (`ms/schirm`, bewohnt.js)",
+     "Fab": "https://www.fab.com/listings/303d5b77-27a5-4a3e-b640-315a0d004a11"
+    },
+    {
+     "Werk": "rusty chain",
+     "Urheber": "mraw",
+     "Verwendung im Spiel": "Kettenrolle, Kette an der Luke",
+     "Fab": "https://www.fab.com/listings/3332277f-8ae2-43e8-840b-32710ed1360d"
+    },
+    {
+     "Werk": "Walkie Talkie - Raw Scan",
+     "Urheber": "Waffle1434",
+     "Verwendung im Spiel": "Funkgerät",
+     "Fab": "https://www.fab.com/listings/3f573f91-7923-4f2a-9059-e45635372342"
+    },
+    {
+     "Werk": "Emergency Radio",
+     "Urheber": "Gerardo Justel",
+     "Verwendung im Spiel": "Radio",
+     "Fab": "https://www.fab.com/listings/15d244fc-dbe2-4829-861d-7e64ca89b094"
+    },
+    {
+     "Werk": "Large pack of classic buttons",
+     "Urheber": "TijerinArt",
+     "Verwendung im Spiel": "Knöpfe (Tausch, Sammeln)",
+     "Fab": "https://www.fab.com/listings/6effe77a-9616-48cc-a06a-01d728998b5d"
+    },
+    {
+     "Werk": "Robin Nest",
+     "Urheber": "Unreality3D",
+     "Verwendung im Spiel": "Vogelnest",
+     "Fab": "https://www.fab.com/listings/d16e5418-64dd-480d-9afb-5d7a246a1663"
+    },
+    {
+     "Werk": "Metal Round Glasses",
+     "Urheber": "Rikokenz",
+     "Verwendung im Spiel": "Lesebrille (Hilde); Voss’ Lesebrille im Pfarrhaus (`ms/brille`, bewohnt.js)",
+     "Fab": "https://www.fab.com/listings/45e917fe-fae5-46a6-a9c0-406045e9f33f"
+    },
+    {
+     "Werk": "CC0 – UFO",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Lichtschiff (Rumpf-Vorlage)",
+     "Fab": "https://www.fab.com/listings/e67cbb9e-08dc-43b6-a9a4-83d4ccddbdd7"
+    },
+    {
+     "Werk": "Free Rigged 3D Girl Character Game Animation Ready",
+     "Urheber": "NoEdge",
+     "Verwendung im Spiel": "Körper Roxy, Heidi, das Graukind, die Kleinen; Teile von Mike",
+     "Fab": "https://www.fab.com/listings/267cc2ba-6baa-4f23-b87b-97c9d97079cb"
+    },
+    {
+     "Werk": "Street Lamp",
+     "Urheber": "Krayton Gaming",
+     "Verwendung im Spiel": "Straßenlaternen (`assets/lamp`)",
+     "Fab": "https://www.fab.com/listings/c31f59e9-6239-421d-9f1c-2b462450a682"
+    },
+    {
+     "Werk": "Old Swings",
+     "Urheber": "crow",
+     "Verwendung im Spiel": "Schaukeln (`assets/swings`)",
+     "Fab": "https://www.fab.com/listings/083beb63-c939-4096-86fd-ace051475419"
+    },
+    {
+     "Werk": "Bat",
+     "Urheber": "matisosanimation",
+     "Verwendung im Spiel": "Fledermäuse (`assets/bat`)",
+     "Fab": "https://www.fab.com/listings/1d102cf3-e42b-4cdd-a0a0-6c68d3c0b1ee"
+    },
+    {
+     "Werk": "Realistic Fly",
+     "Urheber": "Aaron Bravo",
+     "Verwendung im Spiel": "Fliegen (`assets/fly`)",
+     "Fab": "https://www.fab.com/listings/dabfa596-ce97-493b-bdc9-3985d3453e9d"
+    },
+    {
+     "Werk": "Black Rat (Free download)",
+     "Urheber": "Nestaeric",
+     "Verwendung im Spiel": "Ratten (`assets/rat`)",
+     "Fab": "https://www.fab.com/listings/3d8f4ca8-b9cf-4d82-a2b7-69882a0c8815"
+    },
+    {
+     "Werk": "Spiders – characters with animations",
+     "Urheber": "Mixall",
+     "Verwendung im Spiel": "Spinnen (`assets/spider_*`)",
+     "Fab": "https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2"
+    },
+    {
+     "Werk": "CC0 – Raw Meat 4",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Fleisch (`assets/gore/meat`)",
+     "Fab": "https://www.fab.com/listings/7ae3d759-a963-43e4-855d-ce034d489d77"
+    },
+    {
+     "Werk": "Cursed Doll no.02",
+     "Urheber": "mami@horse-water",
+     "Verwendung im Spiel": "Puppe (`ms/doll`)",
+     "Fab": "https://www.fab.com/listings/92750694-e6a5-470d-bb34-3ac87b53f4b2"
+    },
+    {
+     "Werk": "Old hospital bed (PBR/GR)",
+     "Urheber": "tris",
+     "Verwendung im Spiel": "Eisenbetten (`ms/hospbed`)",
+     "Fab": "https://www.fab.com/listings/00bb5399-f41f-43b0-92a9-7dca59e92389"
+    },
+    {
+     "Werk": "Vintage Sofa",
+     "Urheber": "Zillious",
+     "Verwendung im Spiel": "Sofas (`ms/sofa`)",
+     "Fab": "https://www.fab.com/listings/9d015485-02d9-420c-a1de-e1dd61377f9d"
+    },
+    {
+     "Werk": "Wardrobe",
+     "Urheber": "Shedmon",
+     "Verwendung im Spiel": "Kleiderschränke (`ms/wardrobe`)",
+     "Fab": "https://www.fab.com/listings/a35ccbb8-02b1-4a71-9f5e-4c859eaeb320"
+    },
+    {
+     "Werk": "Old Dresser 01",
+     "Urheber": "ClearMeshStudio",
+     "Verwendung im Spiel": "Kommoden/Vitrinen (`ms/dresser`)",
+     "Fab": "https://www.fab.com/listings/7910d8e6-99f1-4d43-9f1d-b2e994ccc418"
+    },
+    {
+     "Werk": "Worn Victorian Mirror",
+     "Urheber": "MOJackal",
+     "Verwendung im Spiel": "Spiegel (`ms/mirror`)",
+     "Fab": "https://www.fab.com/listings/0e902d60-2e97-4f68-9ec4-d6d49576b6a2"
+    },
+    {
+     "Werk": "Vintage Abandoned Car – Dutch License Plate",
+     "Urheber": "Cygnos",
+     "Verwendung im Spiel": "Autowrack (`ms/car_dutch`)",
+     "Fab": "https://www.fab.com/listings/c180aa30-f3e6-43fd-9872-0f4d5eed25bd"
+    },
+    {
+     "Werk": "Abandoned & junk Car",
+     "Urheber": "PLEXUS GAME ASSETS",
+     "Verwendung im Spiel": "Schrottauto (`ms/car_junk`)",
+     "Fab": "https://www.fab.com/listings/ee5cffe5-c01f-4129-b56b-70871730b5de"
+    },
+    {
+     "Werk": "Old Abandoned Rusty Cars",
+     "Urheber": "OlegVerenko",
+     "Verwendung im Spiel": "rostige Autowracks (`ms/car_rusty`)",
+     "Fab": "https://www.fab.com/listings/ed740921-9f30-4444-8c8e-c55db80c7304"
+    },
+    {
+     "Werk": "Retro Patterned Curtain",
+     "Urheber": "Farkas Interactive",
+     "Verwendung im Spiel": "gemusterte Vorhänge (`ms/curtain_retro`)",
+     "Fab": "https://www.fab.com/listings/61f7402e-36ac-401a-bb88-544fdb88b65c"
+    },
+    {
+     "Werk": "Transparent curtain",
+     "Urheber": "Barnus Model's",
+     "Verwendung im Spiel": "Gardinen (`ms/curtain_sheer`)",
+     "Fab": "https://www.fab.com/listings/cbc35d7d-7a1a-4c34-a834-8aae398f0211"
+    },
+    {
+     "Werk": "Garden Fences (Wood)",
+     "Urheber": "Koceila HAID",
+     "Verwendung im Spiel": "Gartenzäune (`ms/fence_garden`)",
+     "Fab": "https://www.fab.com/listings/9264aeeb-278a-4687-9a91-891cc72a6622"
+    },
+    {
+     "Werk": "CC0 – Mailbox",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Briefkästen (`ms/mailbox_cc0`)",
+     "Fab": "https://www.fab.com/listings/749e751f-cfa9-4259-85ba-74aeb6248988"
+    },
+    {
+     "Werk": "Wood Utility Poles",
+     "Urheber": "Eleanie",
+     "Verwendung im Spiel": "Strommasten (`ms/poles_wood`)",
+     "Fab": "https://www.fab.com/listings/f9234209-1878-478e-928e-56e043b341d0"
+    },
+    {
+     "Werk": "Road Sign Pack (Free)",
+     "Urheber": "Awlok.dev",
+     "Verwendung im Spiel": "Verkehrsschilder (`ms/roadsigns`)",
+     "Fab": "https://www.fab.com/listings/5ade29f1-c0b2-4565-a740-4eceeba3c829"
+    },
+    {
+     "Werk": "Gas Station Signs",
+     "Urheber": "commonspence",
+     "Verwendung im Spiel": "Tankstellenschilder (`ms/gas_signs`)",
+     "Fab": "https://www.fab.com/listings/15423edd-fd02-479f-bfc6-1d76d65dc011"
+    },
+    {
+     "Werk": "Red Graffiti Wall Scan",
+     "Urheber": "commonspence",
+     "Verwendung im Spiel": "echte Sprühfarbe/Tags als Graffiti-Schichten (`ms/graffiti_echt`)",
+     "Fab": "https://www.fab.com/listings/75db7a3e-ea68-409b-bf20-b504e4c5c810"
+    },
+    {
+     "Werk": "Graffitis en apeadero",
+     "Urheber": "Punttulanbro",
+     "Verwendung im Spiel": "echte Graffiti-Motive (Elefant, Bubble-Letters) in den Graffiti-Wänden (`ms/graffiti_echt`)",
+     "Fab": "https://www.fab.com/listings/25e3bcb8-cfa3-4493-ab60-f65a4521fe7a"
+    },
+    {
+     "Werk": "Dirty Papers (Megascans, Fab Standard)",
+     "Urheber": "Quixel",
+     "Verwendung im Spiel": "echte Papierfaser und Knitter für alle Zettel, Akten und Briefe (`ms/papier`)",
+     "Fab": "https://www.fab.com/listings/9092365a-4b22-4e11-8280-d9b969dbac8b"
+    },
+    {
+     "Werk": "Concrete Crack (Megascans, Fab Standard)",
+     "Urheber": "Quixel",
+     "Verwendung im Spiel": "echte Betonrisse um den Einschlag (`ms/riss`)",
+     "Fab": "https://www.fab.com/listings/3c36623d-b765-4e40-bff9-b23e3909359f"
+    },
+    {
+     "Werk": "Scratches (Megascans-Pinsel, Fab Standard)",
+     "Urheber": "Quixel",
+     "Verwendung im Spiel": "Riefen in den Krallenspuren des Beobachters (`ms/spuren`)",
+     "Fab": "https://www.fab.com/listings/dfc68558-0a70-423d-a50e-e19a3c5114b5"
+    },
+    {
+     "Werk": "Simple Old Shed",
+     "Urheber": "Jimbogies",
+     "Verwendung im Spiel": "alter Schuppen (`ms/shed_old`)",
+     "Fab": "https://www.fab.com/listings/df46b840-269f-4a5c-99b4-cee389e80ebb"
+    },
+    {
+     "Werk": "Backyard Utility Shed",
+     "Urheber": "Jimbogies",
+     "Verwendung im Spiel": "Geräteschuppen (`ms/shed_util`)",
+     "Fab": "https://www.fab.com/listings/7a40ef73-c76a-48b0-8953-73aaaf098165"
+    },
+    {
+     "Werk": "Wooden Garden Shed",
+     "Urheber": "KenVeel",
+     "Verwendung im Spiel": "Gartenhaus (`ms/shed_garden`)",
+     "Fab": "https://www.fab.com/listings/b8424660-c244-43ca-bffe-77a9e4441c94"
+    },
+    {
+     "Werk": "Park Bench With Backrest",
+     "Urheber": "KenVeel",
+     "Verwendung im Spiel": "Parkbänke (`ms/parkbench`)",
+     "Fab": "https://www.fab.com/listings/f4efa2e3-bb9f-40a5-95b6-076d849d1990"
+    },
+    {
+     "Werk": "Scarecrow",
+     "Urheber": "Glowbox3D",
+     "Verwendung im Spiel": "Vogelscheuche (`ms/scarecrow`)",
+     "Fab": "https://www.fab.com/listings/6ff113b2-f6bd-408e-878b-df43eda62ee1"
+    },
+    {
+     "Werk": "Red Tractor",
+     "Urheber": "Chrix",
+     "Verwendung im Spiel": "Traktor (`ms/tractor`)",
+     "Fab": "https://www.fab.com/listings/dc5a5431-6342-47fc-b6c8-921d84817c16"
+    },
+    {
+     "Werk": "Rustic Wooden Picnic Table",
+     "Urheber": "TDR Store",
+     "Verwendung im Spiel": "Picknicktisch (`ms/picnic`)",
+     "Fab": "https://www.fab.com/listings/d1b42faa-08ef-4eb6-8c67-d8a80b6a9667"
+    },
+    {
+     "Werk": "Countryside chapel dataset",
+     "Urheber": "matousekfoto",
+     "Verwendung im Spiel": "Kapelle (`ms/chapel`)",
+     "Fab": "https://www.fab.com/listings/2b49b974-9a05-40ed-964e-4abe07a61d4f"
+    },
+    {
+     "Werk": "Urban Bus Stop Shelter",
+     "Urheber": "AshenCut",
+     "Verwendung im Spiel": "Bushaltestelle (`ms/busstop1`)",
+     "Fab": "https://www.fab.com/listings/bc19a34f-d66d-43d0-bfd2-2388b6fb3a79"
+    },
+    {
+     "Werk": "Vintage Bicycle 3D Model",
+     "Urheber": "patrickgoud807",
+     "Verwendung im Spiel": "Fahrräder (`ms/bicycle`)",
+     "Fab": "https://www.fab.com/listings/d719c927-f804-473a-9039-8c782388bc66"
+    },
+    {
+     "Werk": "Grave Stone Collection",
+     "Urheber": "Kigha",
+     "Verwendung im Spiel": "Grabsteine (`ms/grave_coll`)",
+     "Fab": "https://www.fab.com/listings/e7a027b6-357f-4fd1-bf9b-4dfd0689c185"
+    },
+    {
+     "Werk": "CC0 – Tombstone",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Grabstein (`ms/tomb_cc0`)",
+     "Fab": "https://www.fab.com/listings/f6886363-e53b-492e-8b70-bd84fc01dfc8"
+    },
+    {
+     "Werk": "CC0 – Iron Fence",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Eisenzaun (`ms/ironfence_cc0`)",
+     "Fab": "https://www.fab.com/listings/df234cee-0ec5-457f-9bc9-05a5cd84fb20"
+    },
+    {
+     "Werk": "Old Playground Slide",
+     "Urheber": "crow",
+     "Verwendung im Spiel": "Rutsche (`ms/slide`)",
+     "Fab": "https://www.fab.com/listings/f8b35f17-6bad-4164-b6dc-ac85216e43fa"
+    },
+    {
+     "Werk": "Old Roundabout / Merry-go-round",
+     "Urheber": "crow",
+     "Verwendung im Spiel": "Karussell (`ms/roundabout`)",
+     "Fab": "https://www.fab.com/listings/c36776d1-4173-4c61-9c41-509555661c6d"
+    },
+    {
+     "Werk": "4 Candles pack: new and used versions",
+     "Urheber": "LOLIPOP",
+     "Verwendung im Spiel": "Kerzen (`ms/candles`)",
+     "Fab": "https://www.fab.com/listings/fe27ae0c-feb9-4867-8b29-99c4cba87a04"
+    },
+    {
+     "Werk": "Tactical Flashlight",
+     "Urheber": "crow",
+     "Verwendung im Spiel": "Taschenlampe Stufe 1 (`ue/lampe1`)",
+     "Fab": "https://www.fab.com/listings/e458eeda-2893-45b9-a946-a031ea395d96"
+    },
+    {
+     "Werk": "Flashlight",
+     "Urheber": "Studio Nychta",
+     "Verwendung im Spiel": "Taschenlampe Stufe 2 (`ue/lampe2`)",
+     "Fab": "https://www.fab.com/listings/bd9c7183-a4d2-40ce-9c68-8c4756cad05d"
+    },
+    {
+     "Werk": "Oil Lantern",
+     "Urheber": "Houdini",
+     "Verwendung im Spiel": "Öllampe (`ue/lampe3`)",
+     "Fab": "https://www.fab.com/listings/e8ef5546-054d-4cda-b742-172c1ea8c0f7"
+    },
+    {
+     "Werk": "CC0 – Crowbar",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Brechstange (`ue/brechstange`)",
+     "Fab": "https://www.fab.com/listings/4419aba1-109f-4aad-b773-94b0687483ae"
+    },
+    {
+     "Werk": "Old Rusty Key",
+     "Urheber": "Alex Krush",
+     "Verwendung im Spiel": "Schlüsselteil (`ue/schluesselteil`)",
+     "Fab": "https://www.fab.com/listings/33f9b4a3-a495-4db7-aeb0-69d9f93fa907"
+    },
+    {
+     "Werk": "Electronic Fuse",
+     "Urheber": "Zillious",
+     "Verwendung im Spiel": "Sicherung (`ue/sicherung`)",
+     "Fab": "https://www.fab.com/listings/c5f4cd09-4a65-4d26-8989-238706280827"
+    },
+    {
+     "Werk": "Simple Burlap Pin Effigy",
+     "Urheber": "Get Dead Entertainment",
+     "Verwendung im Spiel": "Strohpuppe (`ue/totem`)",
+     "Fab": "https://www.fab.com/listings/7a313e99-1a7e-4279-84e0-ffdd3773a471"
+    }
+   ]
+  },
+  {
+   "titel": "Sketchfab (CC-BY 4.0, Ausnahme für Kiffer-Requisiten, vom Nutzer freigegeben)",
+   "ebene": 2,
+   "text": [],
+   "zeilen": [
+    {
+     "Werk": "Cannabis Sativa plant",
+     "Urheber": "zbrojmistrz",
+     "Verwendung im Spiel": "Hanfpflanze in der Blechdose",
+     "Sketchfab": "https://sketchfab.com/3d-models/ea31a5768c06457ea2fd67c3eb3458b8"
+    },
+    {
+     "Werk": "Flowering cannabis plant in a pot",
+     "Urheber": "tafelynx",
+     "Verwendung im Spiel": "Hanfpflanze im Tontopf",
+     "Sketchfab": "https://sketchfab.com/3d-models/ede22e7628ad4d9ea9283e0f6e6266b2"
+    },
+    {
+     "Werk": "Herb Grinder",
+     "Urheber": "shanti.rize",
+     "Verwendung im Spiel": "Grinder",
+     "Sketchfab": "https://sketchfab.com/3d-models/5b4d477f40044ef5a95d0e3288518a2d"
+    },
+    {
+     "Werk": "Cannabis Joints",
+     "Urheber": "3D_Crackhouse",
+     "Verwendung im Spiel": "Joints",
+     "Sketchfab": "https://sketchfab.com/3d-models/00b86fecb88f4e5aa9a3f492dfae8448"
+    },
+    {
+     "Werk": "Glass Bong",
+     "Urheber": "i.deal3d",
+     "Verwendung im Spiel": "Bong",
+     "Sketchfab": "https://sketchfab.com/3d-models/d5aa347cc49c41e4b7d5f25c56343a9d"
+    },
+    {
+     "Werk": "Cannabis Bud",
+     "Urheber": "mriexinger",
+     "Verwendung im Spiel": "Knolle",
+     "Sketchfab": "https://sketchfab.com/3d-models/2e7d1b77d5044d8cada3973cac9f387e"
+    },
+    {
+     "Werk": "Small Weed Bag",
+     "Urheber": "3D_Crackhouse",
+     "Verwendung im Spiel": "Tütchen",
+     "Sketchfab": "https://sketchfab.com/3d-models/b8eea348207c40d9a277d6bf9226a6e4"
+    },
+    {
+     "Werk": "OCB Slim Pack",
+     "Urheber": "Obridje",
+     "Verwendung im Spiel": "Papes (ohne Markenaufdruck umgefärbt)",
+     "Sketchfab": "https://sketchfab.com/3d-models/9979c7b6fa824caa874c6a0078a31628"
+    },
+    {
+     "Werk": "CC0 – Ashtray",
+     "Urheber": "plaggy",
+     "Verwendung im Spiel": "Aschenbecher",
+     "Sketchfab": "https://sketchfab.com/3d-models/313192b7abae47ffa82e4ba24e947f70"
+    }
+   ]
+  },
+  {
+   "titel": "Fab-Standardlizenz (Personal/Professional) – keine Namensnennung nötig, der Vollständigkeit halber",
+   "ebene": 2,
+   "text": [
+    "- **NoEdge** – Kinder- und Erwachsenenköpfe/-körper („Realistic 3D Child Character“, „Free Rigged 3D Girl/Boy Character“ u. a.), ihre Gesichtsformen (Blinzeln, Blick, Mimik, Mund – für alle Figuren, Bart-Köpfe per Übertragung), „Female Long Straight Hair“ (hair 7: offenes Haar von Hilde „Nicht du“) · „Realistic Man Base Mesh“ (Hautfoto/Kopf Lars Vegas, https://www.fab.com/listings/e04094c0-6e2c-4b16-ae25-b1034a7e34d3) · „Hair 1“ Pferdeschwanz (Frau Reuter, https://www.fab.com/listings/ccf05853-a1c2-4016-9ba7-b102ffeda112) · männlicher NoEdge-Körper als grauer Schemen für Echos/Fenster-Silhouetten/Kokon (`assets/ghost/ghost.glb`, ersetzt Epics „Quinn“)",
+    "- **Motifect** – Daily Life, Locomotion, Emotes & Social, Injured & Exhausted Motion Packs · **Animpacks** – Look Through Window Animation Pack",
+    "- Motion-Capture: **Mocap.in** (Realistic Acting, Character Mobility, Movement & Mobility) · **Animation Shopee** (Serious conversation, Conversation While sit, Sits on stool and Drinks, Lying on the floor, Run like hell, Dying, Disappointed, Doing something strange, hung onto something, kneel down and dead, Walks backward, cheering up someone) · **Toei Zukun Laboratory** (Standing Idle Motion, Free Motion Set) · **nikoff** (Dead Bodies Sitting & Lying Poses) · **Teddy Goldstien** (UEFN Manny Zombie) · **BTM productions** (Zombie Idle x2) · **DZTFIX KATSU** (Dynamic Falling & Rolling)",
+    "- **NoEdge** – Männerfrisur mit Bart (Justin) · **Sousinho Games** – Old rusty desk lamp · **LC-scanning** – Frühstücksteller mit Speck (Scan) · **Quixel Megascans** – Old Roman Coin",
+    "- **Guy in a Poncho** – Old Book (Dienstbuch), Camping Dinnerware (Blechbecher; Blechgeschirr in Küchen und Kantine, `ms/geschirr`, bewohnt.js) · **Louey** – Rusty Canister and Thermos · **Toshi Timo** – 8-Panel Beret (Schiebermütze) · **DTry** – Military Radio (Funkgerät mit Hörer) · **styloo** – Dog (Bruno) · **Mohit Akundi** – Realistic Rubywear Eyeglasses · **truth-n-carbon** – Flying Saucer · **styloo** – Cow · **Quixel Megascans** – Gebäude, Straßen, Vegetation, Bäume, Zäune, Möbel, Decals (Blut, Schmutz), Laternen, Animal Skull, Fleisch/Rippen",
+    "- **Quixel Megascans** (Bewuchs Ort/Wald, R-11, `bewuchs.js`, Download 01.10.2026 `HAM_FabDownloads/v19_vegetation`) – Lady Fern (`ms/ladyfern`), Beech Fern (`ms/beechfern`), English Ivy (`ms/ivy_ms`), Dry Grass (`ms/drygrass`), Curbside Weeds (`ms/weeds`), Bolete Mushrooms (`ms/bolete`); dazu wiederverwendet: Wild Grass, Raspberry, Elderberry, European Spindle, Dead Tree (`ms/deadtree1`), Boulder"
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Eigene Arbeit (Blender)",
+   "ebene": 2,
+   "text": [
+    "- **Kolkrabe Whiskey und Rabenkrähen** (`game/assets/ms/rabe_whiskey/model.glb`, `game/assets/ms/rabe_kraehe/model.glb`; Module `whiskey.js`, `traum.js`, `menue.js`, `kino.js`, `leben.js`, `hungrige.js`):",
+    "  Körper aus dem Museumsscan **„Common raven“** (Corvus corax, Krystyna-und-Włodzimierz-Tomek-Naturkundemuseum Ciężkowice, Inv. MP 040) – Wirtualne Muzea Małopolski, **CC0 1.0**,",
+    "  https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89 (Ast entfernt, reduziert, Farbe/Normalen gebacken und nachgedunkelt).",
+    "  Eigene Arbeit in Blender 4.5 (`app/tools/blender/rabe_bau1_koerper.py`, `rabe_bau2_backen.py`, `rabe_bau3_rig.py`, `rabe_federn.py`, `rabe_atlas.py`, `app/tools/rabe_glb.mjs`): Federkleid aus einzelnen Federn",
+    "  (Hand-/Armschwingen, Schirmfedern, Decken, Daumenfittich, Steuerfedern, Schwanzdecken, Federhose), Läufe mit Hornschilden, Zehen und Krallen, Augen; Feder-, Schuppen- und Augentexturen rechnerisch erzeugt.",
+    "  Skelett und Clips: PROTOFACTOR Animal Variety Pack (`animal_crow`, Fab), unverändert übernommen, dazu der Clip „Caw“ (Krächzen)."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Heruntergeladen, derzeit nicht im Spiel",
+   "ebene": 2,
+   "text": [
+    "Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monster; Insectoid Monster (DM-913), False Bear (Cherryvania), Realistic PBR Monster (Prit Patel) – angesehen für die Wendigo-Formen, nicht genommen."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Ton: Musik, Klangbetten, Geräusche (`game/audio/*.ogg`, gebaut mit `app/tools/klang_bau.py`)",
+   "ebene": 2,
+   "text": [
+    "**VSCO 2 Community Edition** – Versilian Studios (Sam Gossner, Simon Dalzell/Ivy Audio u. a.), **CC0 1.0**, github.com/sgossner/VSCO-2-CE.",
+    "Upright Piano, Posaune und Horn (Feuer-Musik), Cello-/Bratschen-/Geigen-Sektion, Solo-Kontrabass, Harfe, Glockenspiel (als Spieluhr), Röhrenglocken, Pauken, große Trommel, gestrichenes Becken, Gong –",
+    "alle Musikstücke (`mu_*`, `cue_*`, `mb_spieluhr`, `pn_*`), Stinger (`st_*`), die Instrumentenbank (`kb_*`) und Teile der Schreckklänge (`sc_*`).",
+    "**Sonniss – GDC Game Audio Bundles 2017, 2018, 2019** (sonniss.com/gameaudiogdc) – lizenzfrei, kommerzielle Nutzung erlaubt, **keine Namensnennung nötig** (hier der Vollständigkeit halber);",
+    "nur als Teil des Spiels weitergegeben, nicht als einzelne Dateien. Ausgeschnitten, gefiltert, zu Schleifen verarbeitet:",
+    "- Donner (zehn Aufnahmen, `app/tools/klang_donner.py`): Soundrangers – Thunder · Pole Position – Thunder & Rain · InspectorJ – 44.1 General Library · Invisible – Storm, gale and thunderstorm (alle Sonniss GDC Game Audio Bundles, lizenzfrei)"
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Sprachausgabe (`game/assets/stimmen/*.opus`, Modul `stimmen.js`, Werkzeuge in `C:\\Users\\GIGABYTE\\HAM_Stimmen\\`)",
+   "ebene": 2,
+   "text": [
+    "Alle Stimmen sind **synthetisch und lokal erzeugt** – keine Aufnahme und kein Klon einer echten Person. Jede Figur hat eine einzige, aus einer Textbeschreibung entworfene Referenzstimme.",
+    "- **Qwen3-TTS** (Alibaba Qwen Team): `Qwen3-TTS-12Hz-1.7B-VoiceDesign`, `Qwen3-TTS-12Hz-1.7B-Base`, `Qwen3-TTS-Tokenizer-12Hz`, Paket `qwen-tts` – **Apache-2.0** (github.com/QwenLM/Qwen3-TTS). Die erzeugten Audios unterliegen keinen Lizenzauflagen; die Modelle selbst werden nicht mitgeliefert.",
+    "- Qualitätsprüfung (nur Werkzeug, nicht im Spiel): **UTMOSv2** (sarulab-speech, **MIT**) · faster-whisper / Whisper small (SYSTRAN / OpenAI, **MIT**) · pyworld (**MIT**)."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Werkzeuge",
+   "ebene": 2,
+   "text": [
+    "three.js (MIT), three-mesh-bvh (MIT), gltfpack/meshoptimizer (MIT), KTX-Software (Apache 2.0), Electron (MIT)."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Schriften (`app/vendor/fonts`)",
+   "ebene": 2,
+   "text": [
+    "Caveat (Impallari Type, SIL Open Font License 1.1) · Cormorant Garamond (Christian Thalmann, SIL Open Font License 1.1) · Special Elite (Astigmatic, Apache License 2.0) – über Google Fonts."
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Schriften (app/vendor/fonts) – vollständige Liste mit Lizenzdateien",
+   "ebene": 3,
+   "text": [
+    "Alle lokal gebündelt (nur Teilmengen `latin` + `latin-ext`, Quelle Google Fonts); Lizenztexte liegen im selben Ordner.",
+    "- Caveat – Impallari Type – SIL OFL 1.1 – `LICENSE-Caveat-OFL.txt`",
+    "- Cormorant Garamond – Christian Thalmann – SIL OFL 1.1 – `LICENSE-CormorantGaramond-OFL.txt`",
+    "- Special Elite – Astigmatic – Apache 2.0 – `LICENSE-SpecialElite-Apache.txt`",
+    "- IM Fell English – Igino Marini – SIL OFL 1.1 – `LICENSE-IMFellEnglish-OFL.txt`",
+    "- IM Fell English SC – Igino Marini – SIL OFL 1.1 – `LICENSE-IMFellEnglishSC-OFL.txt`"
+   ],
+   "zeilen": []
+  },
+  {
+   "titel": "Fab-Listing-Links (Nachtrag 08.10.2026)",
+   "ebene": 3,
+   "text": [
+    "- Military Radio – Game Ready (Camille BARRAL): https://www.fab.com/listings/61defbfb-f21e-4601-ae96-0eb25832cb68",
+    "- CC0 – Keypad Door Lock (plaggy, CC-BY): https://www.fab.com/listings/0addf94d-c016-4679-abfb-5a5a3142fba9",
+    "- Electrical Boxes (Quixel Megascans): https://www.fab.com/listings/ff612f42-a707-4412-96b3-7f09748952c3",
+    "- Fire Alarm Button (Thorrian, CC-BY): https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4"
+   ],
+   "zeilen": [
+    {
+     "Hand Print, Hand Smear, Blood Drops, Wipe Marks, Paint Brush, Spray Paint, Moisture Stain (Megascans-Pinsel/Decals, Fab Standard, kostenlos)": "Scratches (Brush, 1k), Oil Stain (Decal, 1k)",
+     "Quixel": "Quixel",
+     "Handabdrücke, Wachsmal-/Kreidekorn, Farbspritzer, Wasserränder (`ms/pinsel`, `ms/blood_hs`)": "echte Kratzer (`ms/pinsel/kratz`), Ölfleck (`ms/oel`, noch ungenutzt)",
+     "https://www.fab.com/listings/87643d9d-e086-4d2b-a3ff-b544517a90ac · c7c2c077-6765-4e8a-97f5-fc7222bb5c75 · 50d8f6bf-b3b7-4bbd-968d-9126f46ff693 · 977f8e52-24be-4146-b5de-8a2c4b607cf2 · f6b481de-9496-4fcb-b20c-3cf9eed1415c · e0e36d8b-902c-4644-baa5-236a4b9a4f69 · 5f3bb985-79a8-4c59-b1ca-38af759aca0b": "https://www.fab.com/listings/dfc68558-0a70-423d-a50e-e19a3c5114b5 · 4b57dc17-0bdd-40d2-85b2-84fef6eedd0c"
+    }
+   ]
+  }
+ ]
+}

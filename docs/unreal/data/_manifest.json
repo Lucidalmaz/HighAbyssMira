@@ -1,0 +1,82 @@
+{
+ "erzeugt": "2026-10-09T11:21:29.400Z",
+ "fehler": [],
+ "zahlen": {
+  "dialoge": {
+   "zeilen": 1665,
+   "mitSprecher": 870,
+   "ohneSprecher_erzaehlung": 795,
+   "sprecher": 98,
+   "dateien": 51
+  },
+  "aufgaben": {
+   "aufgabenzeilen": 217,
+   "nebenaufgaben": 33,
+   "mainListen": 12
+  },
+  "gedanken": {
+   "gesamt": 325,
+   "faeden": 48,
+   "zielWarum": 22
+  },
+  "items": {
+   "gesamt": 79,
+   "mitName": 71,
+   "mitVergabe": 68,
+   "ungeklaert": 14
+  },
+  "raetsel": {
+   "raetselZeilen": 77,
+   "mdAbschnitte": 30
+  },
+  "orte": {
+   "konstanten": 30,
+   "haeuser": 7,
+   "echos": 14,
+   "kartenblaetter": 4
+  },
+  "figuren": {
+   "chars": 35,
+   "stimmen": 29,
+   "echos": 14,
+   "sprecherLabels": 85
+  },
+  "kapitel": {
+   "module": 91,
+   "beatListen": 2,
+   "beatsGesamt": 35,
+   "storyUeberschriften": 678
+  },
+  "audio": {
+   "dateien": 352,
+   "bytes": 25490765,
+   "gruppen": {
+    "amb": 27,
+    "cue": 3,
+    "fx": 154,
+    "kb": 23,
+    "sonst": 1,
+    "manifest": 1,
+    "mb": 1,
+    "mu": 16,
+    "pk": 19,
+    "pn": 7,
+    "pz": 30,
+    "sc": 6,
+    "st": 5,
+    "ui": 18,
+    "wd": 34,
+    "zb": 7
+   },
+   "inventarTabellenZeilen": 45
+  },
+  "credits": {
+   "abschnitte": 12,
+   "zeilen": 141
+  },
+  "assets": {
+   "ordner": 26,
+   "gb": 6.3
+  }
+ }
+}

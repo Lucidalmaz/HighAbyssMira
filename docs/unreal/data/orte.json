@@ -1,0 +1,1686 @@
+{
+ "konstanten": [
+  {
+   "Name": "LOC_houses",
+   "konstante": "houses",
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 1385,
+   "wert": [
+    {
+     "n": 1,
+     "hollow": true
+    },
+    {
+     "n": 3,
+     "x": -28,
+     "z": -17,
+     "facing": 1,
+     "w": 10,
+     "d": 9,
+     "tint": 8227448,
+     "lit": [
+      1,
+      5
+     ],
+     "porch": true,
+     "porchLight": true
+    },
+    {
+     "n": 9,
+     "x": 50,
+     "z": -17,
+     "facing": 1,
+     "w": 11,
+     "d": 9,
+     "tint": 9210502,
+     "lit": [],
+     "chimney": true,
+     "garage": 1,
+     "boarded": [
+      0,
+      1
+     ]
+    },
+    {
+     "n": 2,
+     "x": -50,
+     "z": 17,
+     "facing": -1,
+     "w": 11,
+     "d": 9,
+     "brick": true,
+     "lit": [
+      0
+     ],
+     "chimney": true
+    },
+    {
+     "n": 4,
+     "x": -28,
+     "z": 17,
+     "facing": -1,
+     "w": 10,
+     "d": 9,
+     "tint": 10129020,
+     "lit": [],
+     "garage": -1
+    },
+    {
+     "n": 6,
+     "x": 22,
+     "z": 17,
+     "facing": -1,
+     "w": 11,
+     "d": 9,
+     "tint": 7305866,
+     "lit": [
+      3
+     ],
+     "floors": 1,
+     "H": 3.4
+    },
+    {
+     "n": 8,
+     "x": 46,
+     "z": 17,
+     "facing": -1,
+     "w": 10,
+     "d": 9,
+     "brick": true,
+     "lit": [
+      1,
+      3
+     ],
+     "porch": true,
+     "porchLight": true
+    }
+   ]
+  },
+  {
+   "Name": "LOC_AMT",
+   "konstante": "AMT",
+   "datei": "app/mods/amt.js",
+   "zeile": 14,
+   "wert": {
+    "x": 600,
+    "z": -2600,
+    "h": 2.5
+   }
+  },
+  {
+   "Name": "LOC_BEOB_ORTE",
+   "konstante": "BEOB_ORTE",
+   "datei": "app/mods/beobachter.js",
+   "zeile": 183,
+   "wert": [
+    {
+     "id": "kreuzung",
+     "kenn": "B-O1",
+     "name": "Kreuzung",
+     "x": 3.5,
+     "z": 3.2,
+     "text": "HIER STEHEN SIE NACHTS BARFUSS. ACHT. DIE FRAU AUS DER SIEBEN HAT SIE JEDE NACHT GEZÄHLT.\nALS DU NEU WARST WARST DU EINER DAVON. DER RITTER HATTE DICH AN DER HAND.\nDU HAST NICHT GEWEINT. ER SCHON."
+    },
+    {
+     "id": "briefkasten",
+     "kenn": "B-O4",
+     "name": "Briefkasten Nr. 7",
+     "x": 28.4,
+     "z": -5.9,
+     "bonus": 2,
+     "text": "DU HAST REINGEGUCKT. WIE SIE. ZWEI FÜR DEINE LAMPE.\nNICHT ALLES WAS IN DIESEN KASTEN GEHT KOMMT AN.\nDER MANN MIT DEM FAHRRAD NIMMT MANCHES WIEDER MIT. ICH HAB GESEHEN WOHIN. HINTER DIE TANKSTELLE."
+    },
+    {
+     "id": "kapelle",
+     "kenn": "B-O5",
+     "name": "Kirchberg",
+     "x": -4.5,
+     "z": 45.5,
+     "text": "DIE GLOCKE SCHLÄGT DREI UND DANN DREIZEHN.\nFRÜHER STAND HIER EINE KAPELLE AUS HOLZ. DIE HAT IN DER NACHT AUCH DREI GESCHLAGEN.\nICH HAB SIE GEHÖRT UND GEDACHT DA RUFT EIN TIER.\nES WAR EIN TIER DAS RUFT. NUR AUS METALL."
+    },
+    {
+     "id": "friedhof",
+     "kenn": "B-O6",
+     "name": "Gedenkfeld",
+     "x": -47.6,
+     "z": 71.6,
+     "bonus": 1,
+     "text": "DER STEIN MIT DER ACHT. DA LIEGT EINER DEN KEINER HABEN WOLLTE.\nSEINE MUTTER HAT IHN DREI JAHRE GEBADET UND HANS GENANNT. ER HAT SICH DRAN GEWÖHNT.\nICH WAR AUF SEINER BEERDIGUNG. HINTER DER HECKE. SONST WAREN NUR ZWEI MÄNNER DA."
+    },
+    {
+     "id": "tankstelle",
+     "kenn": "B-O8",
+     "name": "Tankstelle",
+     "x": 109.5,
+     "z": 20,
+     "bonus": 1,
+     "text": "HIER GIBT ES DIE BONBONS DIE KALT SCHMECKEN.\nMIKE HAT SIE GEKLAUT. ICH AUCH. ER HAT MIR JEDEN ABEND EINS AUF DIE ZAPFSÄULE GELEGT.\nER HAT NIE GEFRAGT FÜR WEN. JETZT IST ER WEG UND DIE BONBONS SIND NOCH DA.\nDAS IST FALSCH RUM."
+    },
+    {
+     "id": "sperre",
+     "kenn": "B-O9",
+     "name": "Straßensperre",
+     "x": 145.5,
+     "z": 2.5,
+     "text": "DIE WEISSEN AUTOS SIND NICHT KAPUTT. SIE WARTEN.\nDU BIST HIER EINMAL WEGGEFAHREN. ICH HAB DICH NICHT AUFGEHALTEN. ICH HALTE NIE EINEN AUF.\nWER HIER RAUS WILL MUSS WISSEN WOHIN. WEISST DU ES"
+    },
+    {
+     "id": "hof",
+     "kenn": "B-O11",
+     "name": "Hof",
+     "x": -127,
+     "z": -26,
+     "rh": "RH-11",
+     "text": "HIER HAT ER GEWOHNT. DER IN DER GRAUEN HAUT. DAMALS WAR ALLES AUS HOLZ UND ES ROCH NACH BROT.\nIM WINTER DANACH HAT ER JEDE NACHT AM RAND IM SCHNEE GESESSEN.\nWIR AUCH. AUF DER ANDEREN SEITE. WIR HABEN GEWARTET BIS ER UNS ANGUCKT.\nER TRÄGT DAS HAUS. DAS HAUS SIEHT SICH SELBST NICHT.",
+     "luke": "Das Haus. So nennt er das Schiff. Er trägt das Schiff."
+    },
+    {
+     "id": "villa",
+     "kenn": "B-O12",
+     "name": "Villa Seiler",
+     "x": -111,
+     "z": 60.5,
+     "bonus": 1,
+     "text": "ACHT SCHLÖSSER AUS EISEN. DER DOKTOR WUSSTE DASS ICH DA NICHT DURCHKOMME.\nER HAT MICH EINMAL FOTOGRAFIERT. NACHTS. DAS BILD HAT LÄNGER ALS EINE SEKUNDE GEBRAUCHT.\nDRAUF WAR NUR EIN BAUM. ER HAT ES VERBRANNT UND EIN ANDERES IN DIE ZEITUNG GEGEBEN.\nICH HAB DEN REST."
+    },
+    {
+     "id": "hochsitz",
+     "kenn": "B-O15",
+     "name": "Hochsitz",
+     "x": 16.2,
+     "z": 176.2,
+     "bonus": 2,
+     "text": "DU HAST ES GEFUNDEN. ZWEI FÜR DEINE LAMPE.\nOBEN SITZT MANCHMAL EINER IM SCHLAFANZUG UND GUCKT ZU EUREN LICHTERN.\nICH SETZ MICH NICHT DAZU. ER WÜRDE MICH ANGUCKEN UND DANN WÄR ICH WEG.\nER GUCKT GERN HIN. WIE DU."
+    },
+    {
+     "id": "bus",
+     "kenn": "B-O16",
+     "name": "Amtsbus",
+     "x": 60.8,
+     "z": 196.2,
+     "bonus": 2,
+     "text": "SIEBEN SITZE FÜR KINDER. EINEN HAB ICH MIR GENOMMEN ALS KEINER HINSAH.\nUNTER MEINEM SITZ STEHT WAS ICH EINGEMACHT HAB. GUCKEN DARFST DU. NICHT AUFMACHEN.\nDIE SCHWEINE HABEN AUF DEIN GESCHENK AUFGEPASST."
+    },
+    {
+     "id": "steinkreis",
+     "kenn": "B-O17",
+     "name": "Steinkreis",
+     "x": 15,
+     "z": 231.2,
+     "text": "DIE STEINE SIND ÄLTER ALS EUER DORF. WER SIE HINGESTELLT HAT WOLLTE WIEDERKOMMEN.\nDER ACHTE STÖCKCHENMANN HÄNGT TIEFER. DEN HAB ICH NICHT GEMACHT. ICH WEISS ABER FÜR WEN.\nUNTER DEM GROSSEN STEIN SCHLÄFT MEINE SCHWESTER. NICHT GRABEN.",
+     "zwei": "DIE STEINE SIND ÄLTER ALS EUER DORF. WER SIE HINGESTELLT HAT WOLLTE WIEDERKOMMEN.\nDER ACHTE STÖCKCHENMANN HÄNGT TIEFER. DEN HAB ICH NICHT GEMACHT. ICH WEISS ABER FÜR WEN.\nUNTER DEM GROSSEN STEIN SCHLAFEN ZWEI. WEGEN DIR. NICHT GRABEN."
+    },
+    {
+     "id": "wrack",
+     "kenn": "B-O18",
+     "name": "Autowrack",
+     "x": -6.2,
+     "z": 201.5,
+     "bonus": 1,
+     "text": "HINTER DEM WRACK WOHNT WAS FRISST.\nFRÜHER HAT ES HINTER UNS AUFGERÄUMT. JETZT GEHÖRT ES KEINEM.\nES HAT ANGST VOR DEM VOGEL. VOR MIR NICHT. DENK DRÜBER NACH."
+    },
+    {
+     "id": "weiher",
+     "kenn": "B-O19",
+     "name": "Weiher",
+     "x": 43,
+     "z": 245.4,
+     "text": "DER WEIHER HAT KEINEN GRUND. ICH HAB ES GEPRÜFT. MIT EINEM SEHR LANGEN STOCK.\nJONAS HAT DAS ENDE DER WOLLE REINGEHÄNGT. JEMAND HAT DRAN GEZOGEN.\nNICHT ICH. ICH ZIEH NIE AN WAS."
+    }
+   ]
+  },
+  {
+   "Name": "LOC_BW_RAEUME",
+   "konstante": "BW_RAEUME",
+   "datei": "app/mods/bewohnt.js",
+   "zeile": 213,
+   "wert": [
+    {
+     "id": "nr7",
+     "name": "Nr. 7 (Hilde Wendt)",
+     "y0": 0,
+     "h": 2.76
+    },
+    {
+     "id": "keller7",
+     "name": "Keller Nr. 7",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "nr1",
+     "name": "Nr. 1 (Elternhaus)",
+     "y0": 0,
+     "h": 2.76
+    },
+    {
+     "id": "nr4",
+     "name": "Nr. 4 Erdgeschoss",
+     "y0": 0,
+     "h": 2.75
+    },
+    {
+     "id": "nr4_og",
+     "name": "Nr. 4 oben",
+     "y0": 0,
+     "h": 2.6
+    },
+    {
+     "id": "nr4_keller",
+     "name": "Nr. 4 Keller",
+     "y0": 0,
+     "h": 2.3
+    },
+    {
+     "id": "gisela",
+     "name": "Giselas Haus",
+     "y0": 0,
+     "h": 2.55
+    },
+    {
+     "id": "pfarrhaus",
+     "name": "Pfarrhaus",
+     "y0": 0,
+     "h": 2.8
+    },
+    {
+     "id": "kapelle",
+     "name": "Kapelle innen",
+     "y0": 0,
+     "h": 6
+    },
+    {
+     "id": "schuppen",
+     "name": "Günthers Schuppen",
+     "y0": 0,
+     "h": 2.7
+    },
+    {
+     "id": "posten",
+     "name": "Nr. 9 Posten",
+     "y0": 0,
+     "h": 2.6
+    },
+    {
+     "id": "nr3",
+     "name": "Nr. 3 (Vegas)",
+     "y0": 0,
+     "h": 2.6
+    },
+    {
+     "id": "amt_tunnel",
+     "name": "Amt · Tunnel/Wartebereich",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_archiv",
+     "name": "Amt · Archiv",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_kantine",
+     "name": "Amt · Kantine",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_registratur",
+     "name": "Amt · Hängeregistratur",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_sicherung",
+     "name": "Amt · Sicherungsraum",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_planung",
+     "name": "Amt · Planungsraum",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_pruef",
+     "name": "Amt · Prüfraum 3",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "amt_gang",
+     "name": "Amt · Langer Gang",
+     "y0": 0,
+     "h": 2.5
+    },
+    {
+     "id": "zimmer7",
+     "name": "Amt · Zimmer 7",
+     "y0": 0,
+     "h": 2.5
+    }
+   ]
+  },
+  {
+   "Name": "LOC_GEDANKEN_ORTE",
+   "konstante": "GEDANKEN_ORTE",
+   "datei": "app/mods/gedanken.js",
+   "zeile": 266,
+   "wert": [
+    [
+     "ort_friedhof",
+     -75,
+     -30,
+     66,
+     95,
+     null,
+     "Kindergräber. Ich les die Namen nicht. Noch nicht."
+    ],
+    [
+     "ort_kapelle",
+     -80,
+     60,
+     40,
+     66,
+     null,
+     "Die Kapelle. Als Kind hab ich mich nie reingetraut. Jetzt weiß ich nicht mehr, warum."
+    ],
+    [
+     "ort_tankstelle",
+     97,
+     128,
+     4,
+     31,
+     null,
+     "Tankstelle Kranz. Opas Tankstelle. Hier hab ich mit Lucy Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?"
+    ],
+    [
+     "ort_garten",
+     -140,
+     -90,
+     8,
+     45,
+     null,
+     "Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen."
+    ],
+    [
+     "ort_hof",
+     -150,
+     -110,
+     -45,
+     -10,
+     null,
+     "Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?"
+    ],
+    [
+     "ort_villa",
+     -145,
+     -105,
+     58,
+     90,
+     null,
+     "Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht."
+    ],
+    [
+     "ort_sperre",
+     138,
+     158,
+     -20,
+     20,
+     null,
+     "Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft."
+    ],
+    [
+     "ort_nr9",
+     44,
+     56,
+     -12.4,
+     -9.5,
+     null,
+     "Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7."
+    ],
+    [
+     "k1_hotelflur",
+     -50,
+     -36,
+     -8,
+     8,
+     null,
+     "Lost Eyengless. Hier bist du groß geworden. Warum fühlt sich das an wie ein Hotelflur?"
+    ],
+    [
+     "ort_nr7",
+     17,
+     36,
+     -11,
+     3,
+     null,
+     "Nr. 7. Frau Wendt. Jonas’ Mutter – bei denen hab ich als Kind öfter gegessen als zu Hause. Was will Lucy in ihrem Keller?"
+    ]
+   ]
+  },
+  {
+   "Name": "LOC_K5_POS",
+   "konstante": "K5_POS",
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 18,
+   "wert": {
+    "veranda": [
+     -27.2,
+     0,
+     -10.55,
+     3.141592653589793
+    ],
+    "nr7": [
+     23.6,
+     0.43,
+     -14.6,
+     -1.5707963267948966
+    ],
+    "tuer": [
+     -47,
+     0,
+     -9.4,
+     0
+    ],
+    "kinder": [
+     -53.2,
+     0.43,
+     -19.4,
+     3.141592653589793
+    ],
+    "kreuz": [
+     1.8,
+     0,
+     3.2,
+     -2.4
+    ],
+    "stall": [
+     -135.6,
+     0,
+     -30.1,
+     1.5707963267948966
+    ],
+    "tor": [
+     -52.5,
+     0,
+     64.6,
+     3.141592653589793
+    ]
+   }
+  },
+  {
+   "Name": "LOC_K6_BUS",
+   "konstante": "K6_BUS",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 29,
+   "wert": {
+    "mitte": [
+     61.2,
+     196.9
+    ],
+    "draht": [
+     [
+      55.2,
+      193.6
+     ],
+     [
+      56.4,
+      197.9
+     ]
+    ],
+    "netz": [
+     [
+      60.8,
+      197.6
+     ],
+     [
+      63.4,
+      195.2
+     ]
+    ],
+    "b": [
+     [
+      57,
+      201.2,
+      2.4
+     ],
+     [
+      66.5,
+      192.6,
+      -0.6
+     ],
+     [
+      69.6,
+      203,
+      3.9
+     ],
+     [
+      59.5,
+      205.2,
+      3.3
+     ]
+    ],
+    "wolf": [
+     63.8,
+     202.2
+    ]
+   }
+  },
+  {
+   "Name": "LOC_K6_ZONEN",
+   "konstante": "K6_ZONEN",
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 228,
+   "wert": [
+    {
+     "id": "frei",
+     "x": 35.5,
+     "z": 166.5,
+     "r": 6,
+     "soft": 5
+    },
+    {
+     "id": "justin",
+     "x": 40.5,
+     "z": 189.5,
+     "r": 7,
+     "soft": 5
+    },
+    {
+     "id": "hochsitz",
+     "x": 14,
+     "z": 178.5,
+     "r": 15,
+     "soft": 6
+    },
+    {
+     "id": "bus",
+     "x": 65,
+     "z": 199.5,
+     "r": 15,
+     "soft": 6
+    },
+    {
+     "id": "frass",
+     "x": 1.5,
+     "z": 199.6,
+     "r": 25,
+     "soft": 6
+    },
+    {
+     "id": "bau",
+     "x": -13.2,
+     "z": 206.8,
+     "r": 30,
+     "soft": 6
+    }
+   ]
+  },
+  {
+   "Name": "LOC_KARTE_BL",
+   "konstante": "KARTE_BL",
+   "datei": "app/mods/karte.js",
+   "zeile": 13,
+   "wert": [
+    {
+     "id": "dorf",
+     "titel": "LOST EYENGLESS",
+     "x0": -166,
+     "x1": 174,
+     "z0": -60,
+     "z1": 106,
+     "s": 7.5,
+     "zelle": 3,
+     "r": 16,
+     "ab": 1
+    },
+    {
+     "id": "amt",
+     "titel": "EBENE −2",
+     "x0": 572,
+     "x1": 738,
+     "z0": -2626,
+     "z1": -2574,
+     "s": 15,
+     "zelle": 1.5,
+     "r": 7,
+     "ab": 2
+    },
+    {
+     "id": "villa",
+     "titel": "VILLA SEILER",
+     "x0": -945,
+     "x1": -855,
+     "z0": 855,
+     "z1": 945,
+     "s": 26,
+     "zelle": 1,
+     "r": 6,
+     "ab": 4
+    },
+    {
+     "id": "wald",
+     "titel": "FORBIDDEN DUSTWOODS",
+     "x0": -64,
+     "x1": 134,
+     "z0": 96,
+     "z1": 292,
+     "s": 12,
+     "zelle": 3,
+     "r": 11,
+     "ab": 6
+    }
+   ]
+  },
+  {
+   "Name": "LOC_KARTE_LEER",
+   "konstante": "KARTE_LEER",
+   "datei": "app/mods/karte.js",
+   "zeile": 19,
+   "wert": [
+    {
+     "x": 1.5,
+     "z": 199.6,
+     "r": 9
+    },
+    {
+     "x": -13.2,
+     "z": 206.8,
+     "r": 11
+    }
+   ]
+  },
+  {
+   "Name": "LOC_KF_ORT",
+   "konstante": "KF_ORT",
+   "datei": "app/mods/kiffen.js",
+   "zeile": 358,
+   "wert": {}
+  },
+  {
+   "Name": "LOC_KF_ORTE",
+   "konstante": "KF_ORTE",
+   "datei": "app/mods/kiffen.js",
+   "zeile": 694,
+   "wert": {
+    "grinder": {
+     "at": [
+      -27.42,
+      null,
+      12.22
+     ],
+     "ry": 0
+    },
+    "papes": {
+     "at": [
+      -27.3,
+      null,
+      12.02
+     ],
+     "ry": 1.9
+    },
+    "knolle": {
+     "at": [
+      -109.9,
+      0,
+      24.05
+     ],
+     "ry": 1.2,
+     "hit": [
+      0.6,
+      0.5,
+      0.6
+     ]
+    },
+    "tips": {
+     "tuer": true
+    }
+   }
+  },
+  {
+   "Name": "LOC_KB_RAUM",
+   "konstante": "KB_RAUM",
+   "datei": "app/mods/kirchberg.js",
+   "zeile": 16,
+   "wert": {
+    "gisela": {
+     "x": -1440,
+     "z": 1400
+    },
+    "pfarrhaus": {
+     "x": -1440,
+     "z": 1440
+    },
+    "kapelle": {
+     "x": -1480,
+     "z": 1400
+    }
+   }
+  },
+  {
+   "Name": "LOC_KL_ORT_GRUPPEN",
+   "konstante": "KL_ORT_GRUPPEN",
+   "datei": "app/mods/klang.js",
+   "zeile": 84,
+   "wert": {
+    "wald": [
+     "wolf",
+     "stimme"
+    ],
+    "friedhof": [
+     "wolf"
+    ],
+    "ort": [
+     "stimme"
+    ],
+    "amt": [
+     "feuer",
+     "zombie",
+     "oel",
+     "funk",
+     "krabbel"
+    ],
+    "keller": [
+     "funk",
+     "krabbel"
+    ]
+   }
+  },
+  {
+   "Name": "LOC_NEBEN3_ORTE",
+   "konstante": "NEBEN3_ORTE",
+   "datei": "app/mods/neben3.js",
+   "zeile": 546,
+   "wert": []
+  },
+  {
+   "Name": "LOC_NR4_ORT",
+   "konstante": "NR4_ORT",
+   "datei": "app/mods/nr4.js",
+   "zeile": 39,
+   "wert": {
+    "E-01": "Garderobe",
+    "E-02": "Küchentisch",
+    "E-03": "Pfandkisten",
+    "E-04": "Kühlschranktür",
+    "E-05": "Haustür, unter dem Hufeisen",
+    "E-06": "Am Telefon",
+    "E-07": "Fensterbank, wo der Küchenwecker stand",
+    "E-08": "Couchtisch",
+    "E-09": "Wandkalender",
+    "E-10": "Peters Zimmertür",
+    "E-11": "Keksdosen im Schrank",
+    "E-12": "Wohnzimmerfenster",
+    "E-13": "Schuhregal",
+    "E-14": "Türspion",
+    "E-15": "Spülbecken",
+    "E-16": "Schublade, unter Trauerkarten",
+    "E-17": "Badezimmerspiegel",
+    "E-18": "Haushaltsbuch",
+    "E-19": "Flurkommode",
+    "E-20": "Nähkasten",
+    "herd": "Herd",
+    "kassetten": "Kassettenregal",
+    "album": "Im Album, zwischen den Peter-Fotos",
+    "t_pfand": "Kellertreppe",
+    "t_kuehl": "Kühlschrank, innen",
+    "t_zaehl": "Nachttisch oben"
+   }
+  },
+  {
+   "Name": "LOC_POST_RAUM",
+   "konstante": "POST_RAUM",
+   "datei": "app/mods/post.js",
+   "zeile": 12,
+   "wert": {
+    "schuppen": {
+     "x": -1480,
+     "z": 1440
+    },
+    "posten": {
+     "x": -1520,
+     "z": 1400
+    }
+   }
+  },
+  {
+   "Name": "LOC_SCHRECK_ORTE",
+   "konstante": "SCHRECK_ORTE",
+   "datei": "app/mods/schrecken.js",
+   "zeile": 23,
+   "wert": [
+    {
+     "id": "friedhof",
+     "x": -48.6,
+     "z": 73.5,
+     "r": 13
+    },
+    {
+     "id": "kapelle",
+     "x": -52.5,
+     "z": 83.5,
+     "r": 9
+    },
+    {
+     "id": "spielplatz",
+     "x": 31.5,
+     "z": 72,
+     "r": 10
+    },
+    {
+     "id": "garten",
+     "x": -115,
+     "z": 26,
+     "r": 16
+    },
+    {
+     "id": "baumhaus",
+     "x": -22,
+     "z": 138,
+     "r": 10
+    },
+    {
+     "id": "fuchsbau",
+     "x": 74,
+     "z": 129.5,
+     "r": 8
+    },
+    {
+     "id": "villa_garten",
+     "x": -125,
+     "z": 52,
+     "r": 10
+    }
+   ]
+  },
+  {
+   "Name": "LOC_TRAUM_BOOK",
+   "konstante": "TRAUM_BOOK",
+   "datei": "app/mods/traum.js",
+   "zeile": 24,
+   "wert": {
+    "x": 0.1,
+    "z": 0.2
+   }
+  },
+  {
+   "Name": "LOC_VILLA_R",
+   "konstante": "VILLA_R",
+   "datei": "app/mods/villa.js",
+   "zeile": 17,
+   "wert": {
+    "az": {
+     "x0": -921,
+     "x1": -913,
+     "z0": 896,
+     "z1": 904,
+     "h": 3.4,
+     "amb": 0.42,
+     "name": "Arbeitszimmer"
+    },
+    "an": {
+     "x0": -891,
+     "x1": -885,
+     "z0": 897,
+     "z1": 903,
+     "h": 3.2,
+     "amb": 0.36,
+     "name": "Anrichte"
+    },
+    "og": {
+     "x0": -908,
+     "x1": -886,
+     "z0": 927,
+     "z1": 933,
+     "h": 3,
+     "amb": 0.36,
+     "name": "Obergeschoss"
+    },
+    "kr": {
+     "x0": -908,
+     "x1": -888,
+     "z0": 866,
+     "z1": 872,
+     "h": 3,
+     "amb": 0.012,
+     "name": "Keller"
+    },
+    "nr3": {
+     "x0": -985,
+     "x1": -977,
+     "z0": 855,
+     "z1": 861,
+     "h": 2.6,
+     "amb": 0.45,
+     "name": "Nr. 3"
+    },
+    "nr9": {
+     "x0": -985,
+     "x1": -975,
+     "z0": 895,
+     "z1": 901,
+     "h": 2.6,
+     "amb": 0.2,
+     "name": "Nr. 9"
+    }
+   }
+  },
+  {
+   "Name": "LOC_VILLA_TUER",
+   "konstante": "VILLA_TUER",
+   "datei": "app/mods/villa.js",
+   "zeile": 25,
+   "wert": {
+    "az": [
+     -914.2,
+     898,
+     1.5707963267948966
+    ],
+    "an": [
+     -889.8,
+     900,
+     -1.5707963267948966
+    ],
+    "og": [
+     -896,
+     928.3,
+     3.141592653589793
+    ],
+    "kr": [
+     -906.6,
+     869,
+     -1.5707963267948966
+    ],
+    "nr3": [
+     -981,
+     859.8,
+     0
+    ],
+    "nr9": [
+     -983.8,
+     896.2,
+     3.141592653589793
+    ],
+    "halleW": [
+     -905.8,
+     897.6,
+     -1.5707963267948966
+    ],
+    "halleO": [
+     -894.2,
+     900,
+     1.5707963267948966
+    ],
+    "anOben": [
+     -887.6,
+     901.6,
+     1.5707963267948966
+    ],
+    "anUnten": [
+     -889.4,
+     898.3,
+     3.141592653589793
+    ]
+   }
+  },
+  {
+   "Name": "LOC_VILLA_SPEC",
+   "konstante": "VILLA_SPEC",
+   "datei": "app/mods/villa.js",
+   "zeile": 93,
+   "wert": {
+    "chair": {
+     "chair": {
+      "b": "chair_Albedo.jpg",
+      "n": "chair_Normal.jpg",
+      "r": "chair_Roughness.jpg",
+      "ao": "chair_AO.jpg",
+      "color": 9076856
+     }
+    },
+    "sofa": {
+     "Sofa": {
+      "b": "Sofa_BaseColor.jpg",
+      "n": "Sofa_Normal.jpg",
+      "r": "Sofa_Roughness.jpg",
+      "color": 8022626
+     }
+    },
+    "bed": {
+     "blanket": {
+      "b": "blanket_color.jpg",
+      "n": "blanket_nrm.jpg",
+      "r": "blanket_rough.jpg",
+      "ds": 1,
+      "color": 9077368
+     },
+     "mattress": {
+      "b": "mattress_color.jpg",
+      "n": "mattress_nrm.jpg",
+      "r": "mattresss_rough.jpg",
+      "color": 11051156
+     },
+     "bed": {
+      "b": "bed_color.jpg",
+      "n": "bed_nrm.jpg",
+      "r": "bed_Rough.jpg",
+      "m": "bed_metalic.jpg"
+     }
+    }
+   }
+  },
+  {
+   "Name": "LOC_VILLA_BAU",
+   "konstante": "VILLA_BAU",
+   "datei": "app/mods/villa.js",
+   "zeile": 333,
+   "wert": {}
+  },
+  {
+   "Name": "LOC_VILLA_CREW",
+   "konstante": "VILLA_CREW",
+   "datei": "app/mods/villa.js",
+   "zeile": 604,
+   "wert": {
+    "b1": {
+     "at": [
+      2.35,
+      -3.75
+     ],
+     "ry": 0.12,
+     "schrubb": true,
+     "eimer": [
+      3.25,
+      -4.25
+     ],
+     "phi": 0
+    },
+    "b2": {
+     "at": [
+      22.2,
+      -9.4
+     ],
+     "ry": 3.141592653589793,
+     "weg": [
+      [
+       21.4,
+       -9.6
+      ],
+      [
+       23.6,
+       -9.3
+      ],
+      [
+       25.6,
+       -9.6
+      ]
+     ]
+    },
+    "b3": {
+     "at": [
+      4.55,
+      -3.65
+     ],
+     "ry": -0.12,
+     "schrubb": true,
+     "eimer": [
+      5.3,
+      -4.05
+     ],
+     "phi": 2.1
+    }
+   }
+  },
+  {
+   "Name": "LOC_VILLA_KREIDE",
+   "konstante": "VILLA_KREIDE",
+   "datei": "app/mods/villa.js",
+   "zeile": 605,
+   "wert": {
+    "x": 3,
+    "z": -2.3,
+    "w": 4.6
+   }
+  },
+  {
+   "Name": "LOC_VILLA_PELL",
+   "konstante": "VILLA_PELL",
+   "datei": "app/mods/villa.js",
+   "zeile": 878,
+   "wert": [
+    "<b>Eintrag 1 · Zelle W, Station Nord</b>\nProbe W seit heute in der Baracke. Kein Kopf, keine Augen, Gewicht schwankt (!) zwischen 40 und 70 Kilo, je nachdem, wann man wiegt. Steht auf wie ein Hirsch, wenn man es anleuchtet, legt sich hin, wenn man das Licht ausmacht.\nTrupp 3 nennt es „den Sack“. My grandmother would call this a wendigo. Ich schreibe es hier hin, damit es keiner ernst nimmt.\nSeiler will Ergebnisse bis zum Herbst. Ich will erst mal wissen, was es isst.",
+    "<b>Eintrag 2 · Was es isst</b>\nEs frisst kein Fleisch. Es hat drei Tage neben dem Kadaver gelegen und ihn nicht angerührt. Dann hat es die Hirschhaut genommen und sich hineingelegt wie in einen Schlafsack.\nEs frisst das, was Seiler „Belichtung“ nennt: die Bilder, die nach einer Öffnung an den Orten hängen. Wir haben es an den Rand der Senke gebracht, und es hat gefressen. Danach war der Rand leer. Seiler konnte dort nichts mehr sehen. Er war sehr still auf dem Rückweg.\nWenn das Objekt von diesen Bildern lebt, haben wir hier die Waffe. Starve it.",
+    "<b>Eintrag 4 · Freiwilliger</b>\nHofer hat unterschrieben. Ich habe ihm dreimal gesagt, dass es keinen Rückweg gibt, den wir kennen. Er hat gesagt, er kennt auch keinen, seit siebzehn Jahren nicht. Seiler hat gegengezeichnet, ohne aufzusehen.\nAb dem 2. Juli: Wirt 2, human. Zelle W, Neonring, Tür nur von außen. Hofer nimmt sein Dienstbuch mit. Ich habe es erlaubt. Es soll ihm die Nächte kürzer machen.\nIch schlafe seit einer Woche in der Baracke. Man hört es atmen durch die Wand. Zwei Atemzüge, dann ein dritter, der nicht dazugehört."
+   ]
+  },
+  {
+   "Name": "LOC_VILLA_VERSTECK",
+   "konstante": "VILLA_VERSTECK",
+   "datei": "app/mods/villa.js",
+   "zeile": 897,
+   "wert": {
+    "schrank": {
+     "p": [
+      -907.3,
+      929.2
+     ],
+     "yaw": -1.5707963267948966,
+     "text": "Im Schrank. Durch die Lamellen."
+    },
+    "vorhang": {
+     "p": [
+      -903.4,
+      927.45
+     ],
+     "yaw": 3.141592653589793,
+     "text": "Hinter dem Vorhang."
+    },
+    "bett": {
+     "p": [
+      -887.2,
+      930.8
+     ],
+     "yaw": 1.5707963267948966,
+     "text": "Unter dem Bett.",
+     "tief": true
+    }
+   }
+  },
+  {
+   "Name": "LOC_WALD",
+   "konstante": "WALD",
+   "datei": "app/mods/wald.js",
+   "zeile": 10,
+   "wert": {
+    "x0": -40,
+    "x1": 110,
+    "z0": 99,
+    "z1": 156,
+    "hut": {
+     "x": 58,
+     "z": 149.5
+    },
+    "tree": {
+     "x": -22,
+     "z": 141
+    },
+    "den": {
+     "x": 74,
+     "z": 129.5
+    },
+    "wolf": {
+     "x": 96,
+     "z": 146.5
+    },
+    "clear": {
+     "x": 4,
+     "z": 113,
+     "r": 8
+    },
+    "fake": {
+     "x": -3.5,
+     "z": 126.6
+    },
+    "nord": {
+     "x": 22.6,
+     "z": 102.8
+    }
+   }
+  },
+  {
+   "Name": "LOC_WHISKEY_ORTE",
+   "konstante": "WHISKEY_ORTE",
+   "datei": "app/mods/whiskey.js",
+   "zeile": 17,
+   "wert": {
+    "gisela": null,
+    "kombi": null
+   }
+  },
+  {
+   "Name": "LOC_ZEICHEN_ORTE",
+   "konstante": "ZEICHEN_ORTE",
+   "datei": "app/mods/zeichen.js",
+   "zeile": 16,
+   "wert": {
+    "ort": {
+     "x": 10,
+     "z": -4,
+     "r": 105
+    },
+    "kirchberg": {
+     "x": -20,
+     "z": 68,
+     "r": 72
+    },
+    "gaerten": {
+     "x": -115,
+     "z": 25,
+     "r": 46
+    },
+    "hof": {
+     "x": -128,
+     "z": -24,
+     "r": 44
+    },
+    "villa": {
+     "x": -108,
+     "z": 60,
+     "r": 36
+    },
+    "tunnel": {
+     "x": 609,
+     "z": -2600,
+     "r": 34
+    },
+    "kanal": {
+     "kanal": true
+    },
+    "wald": {
+     "x": 18,
+     "z": 126,
+     "r": 70,
+     "k": 6
+    },
+    "tief": {
+     "x": 18,
+     "z": 180,
+     "r": 50,
+     "k": 6
+    }
+   }
+  }
+ ],
+ "haeuser": [
+  {
+   "Name": "HOUSE_Nr1",
+   "nummer": 1,
+   "hohl": true,
+   "ziegel": false,
+   "veranda": false
+  },
+  {
+   "Name": "HOUSE_Nr3",
+   "nummer": 3,
+   "x": -28,
+   "z": -17,
+   "breite": 10,
+   "tiefe": 9,
+   "ausrichtung": 1,
+   "hohl": false,
+   "ziegel": false,
+   "veranda": true
+  },
+  {
+   "Name": "HOUSE_Nr9",
+   "nummer": 9,
+   "x": 50,
+   "z": -17,
+   "breite": 11,
+   "tiefe": 9,
+   "ausrichtung": 1,
+   "hohl": false,
+   "ziegel": false,
+   "veranda": false,
+   "garage": 1
+  },
+  {
+   "Name": "HOUSE_Nr2",
+   "nummer": 2,
+   "x": -50,
+   "z": 17,
+   "breite": 11,
+   "tiefe": 9,
+   "ausrichtung": -1,
+   "hohl": false,
+   "ziegel": true,
+   "veranda": false
+  },
+  {
+   "Name": "HOUSE_Nr4",
+   "nummer": 4,
+   "x": -28,
+   "z": 17,
+   "breite": 10,
+   "tiefe": 9,
+   "ausrichtung": -1,
+   "hohl": false,
+   "ziegel": false,
+   "veranda": false,
+   "garage": -1
+  },
+  {
+   "Name": "HOUSE_Nr6",
+   "nummer": 6,
+   "x": 22,
+   "z": 17,
+   "breite": 11,
+   "tiefe": 9,
+   "ausrichtung": -1,
+   "hohl": false,
+   "ziegel": false,
+   "veranda": false
+  },
+  {
+   "Name": "HOUSE_Nr8",
+   "nummer": 8,
+   "x": 46,
+   "z": 17,
+   "breite": 10,
+   "tiefe": 9,
+   "ausrichtung": -1,
+   "hohl": false,
+   "ziegel": true,
+   "veranda": true
+  }
+ ],
+ "echos": [
+  {
+   "Name": "ECHO_kreuzung",
+   "id": "echo_kreuzung",
+   "titel": "Nachbild · Die Kreuzung, 5. August 2009",
+   "position": [
+    2.5,
+    1.1,
+    -2.5
+   ],
+   "positionQuelltext": "[2.5, 1.1, -2.5]",
+   "figurenAnzahl": 8,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0153",
+    "DLG_base_base_source_index_html_0154"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4894
+  },
+  {
+   "Name": "ECHO_kueche",
+   "id": "echo_kueche",
+   "titel": "Nachbild · Küche Nr. 7, Oktober 2009",
+   "position": [
+    28.8,
+    1.1,
+    -16.2
+   ],
+   "positionQuelltext": "[28.8, Y + 1.1, -16.2]",
+   "figurenAnzahl": 3,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0155",
+    "DLG_base_base_source_index_html_0156",
+    "DLG_base_base_source_index_html_0157",
+    "DLG_base_base_source_index_html_0158"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4896
+  },
+  {
+   "Name": "ECHO_kinderzimmer",
+   "id": "echo_kinderzimmer",
+   "titel": "Nachbild · Kinderzimmer Nr. 1, August 2009",
+   "position": [
+    -52,
+    1,
+    -20
+   ],
+   "positionQuelltext": "[-52, Y + 1, -20]",
+   "figurenAnzahl": 2,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0159",
+    "DLG_base_base_source_index_html_0160"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4898
+  },
+  {
+   "Name": "ECHO_brand",
+   "id": "echo_brand",
+   "titel": "Nachbild · Haus Nr. 5, Dezember 2009",
+   "position": [
+    -13,
+    1,
+    -10.2
+   ],
+   "positionQuelltext": "[-13, 1, -10.2]",
+   "figurenAnzahl": 1,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0161",
+    "DLG_base_base_source_index_html_0162"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4900
+  },
+  {
+   "Name": "ECHO_messraum",
+   "id": "echo_messraum",
+   "titel": "Nachbild · Messraum, Sommer 2009",
+   "position": [
+    715.8,
+    1.2,
+    -2597.6
+   ],
+   "positionQuelltext": "[C2.x + 115.8, 1.2, C2.z + 2.4]",
+   "figurenAnzahl": 7,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0163",
+    "DLG_base_base_source_index_html_0164"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4903
+  },
+  {
+   "Name": "ECHO_1975",
+   "id": "echo_1975",
+   "titel": "Nachbild · Ahornstraße, Sommer 1975",
+   "position": [
+    -25.4,
+    1.1,
+    -9.2
+   ],
+   "positionQuelltext": "[-25.4, 1.1, -9.2]",
+   "figurenAnzahl": 5,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0165",
+    "DLG_base_base_source_index_html_0166"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4905
+  },
+  {
+   "Name": "ECHO_mira",
+   "id": "echo_mira",
+   "titel": "Nachbild · Nimmerheim, ohne Zeit",
+   "position": [
+    -587.5,
+    1,
+    -2596.5
+   ],
+   "positionQuelltext": "[C3.x + 12.5, 1, C3.z + 3.5]",
+   "figurenAnzahl": 8,
+   "dialogZeilen": [],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 4907
+  },
+  {
+   "Name": "ECHO_kanal_ritter",
+   "id": "echo_kanal_ritter",
+   "titel": "Nachbild am Wasser",
+   "position": [
+    null,
+    null,
+    null
+   ],
+   "positionQuelltext": "[e1.x, e1.y + 1.1, e1.z]",
+   "figurenAnzahl": 1,
+   "dialogZeilen": [],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 5044
+  },
+  {
+   "Name": "ECHO_kanal_laterne",
+   "id": "echo_kanal_laterne",
+   "titel": "Nachbild · Laternenfest",
+   "position": [
+    null,
+    null,
+    null
+   ],
+   "positionQuelltext": "[e2.x, e2.y + 1, e2.z]",
+   "figurenAnzahl": 3,
+   "dialogZeilen": [
+    "DLG_base_base_source_index_html_0170",
+    "DLG_base_base_source_index_html_0171",
+    "DLG_base_base_source_index_html_0172"
+   ],
+   "datei": "app/mods/_base_source_index.html",
+   "zeile": 5046
+  },
+  {
+   "Name": "ECHO_nord_grab",
+   "id": "echo_nord_grab",
+   "titel": "Nachbild · Friedhof am Kirchberg, 1. November 2026",
+   "position": null,
+   "positionQuelltext": "[N.pit.x - .2, 1.1, N.pit.z - 1.6]",
+   "figurenAnzahl": 3,
+   "dialogZeilen": [
+    "DLG_ausbau_nord_0003",
+    "DLG_ausbau_nord_0004"
+   ],
+   "datei": "app/mods/ausbau_nord.js",
+   "zeile": 841
+  },
+  {
+   "Name": "ECHO_roxy_juni",
+   "id": "echo_roxy_juni",
+   "titel": "Nachbild · Schrebergärten, Juni 2026",
+   "position": [
+    -114.2,
+    1.1,
+    29.2
+   ],
+   "positionQuelltext": "[-114.2, 1.1, 29.2]",
+   "figurenAnzahl": 1,
+   "dialogZeilen": [
+    "DLG_ausbau_ost_west_0022"
+   ],
+   "datei": "app/mods/ausbau_ost_west.js",
+   "zeile": 638
+  },
+  {
+   "Name": "ECHO_k3_klar",
+   "id": "echo_k3_klar",
+   "titel": "Nachbild · Sommerfest 2009",
+   "position": [
+    33,
+    1.1,
+    69.4
+   ],
+   "positionQuelltext": "[33, 1.1, 69.4]",
+   "figurenAnzahl": 3,
+   "dialogZeilen": [],
+   "datei": "app/mods/neben3.js",
+   "zeile": 600
+  },
+  {
+   "Name": "ECHO_k3_treppe6",
+   "id": "echo_k3_treppe6",
+   "titel": "Nachbild · Treppe von Nr. 6, Sommer 1975",
+   "position": [
+    22,
+    1.1,
+    12.2
+   ],
+   "positionQuelltext": "[22, 1.1, 12.2]",
+   "figurenAnzahl": 5,
+   "dialogZeilen": [],
+   "datei": "app/mods/neben3.js",
+   "zeile": 731
+  },
+  {
+   "Name": "ECHO_zimmer7",
+   "id": "echo_zimmer7",
+   "titel": "Nachbild · Zimmer 7, Sommer 2009",
+   "position": [
+    633.15,
+    1.02,
+    -2606.85
+   ],
+   "positionQuelltext": "[C2.x + 33.15, 1.02, C2.z - 6.85]",
+   "figurenAnzahl": 2,
+   "dialogZeilen": [
+    "DLG_zimmer7_0001",
+    "DLG_zimmer7_0002"
+   ],
+   "datei": "app/mods/zimmer7.js",
+   "zeile": 26
+  }
+ ],
+ "kartenblaetter": [
+  {
+   "id": "dorf",
+   "titel": "LOST EYENGLESS",
+   "x0": -166,
+   "x1": 174,
+   "z0": -60,
+   "z1": 106,
+   "s": 7.5,
+   "zelle": 3,
+   "r": 16,
+   "ab": 1
+  },
+  {
+   "id": "amt",
+   "titel": "EBENE −2",
+   "x0": 572,
+   "x1": 738,
+   "z0": -2626,
+   "z1": -2574,
+   "s": 15,
+   "zelle": 1.5,
+   "r": 7,
+   "ab": 2
+  },
+  {
+   "id": "villa",
+   "titel": "VILLA SEILER",
+   "x0": -945,
+   "x1": -855,
+   "z0": 855,
+   "z1": 945,
+   "s": 26,
+   "zelle": 1,
+   "r": 6,
+   "ab": 4
+  },
+  {
+   "id": "wald",
+   "titel": "FORBIDDEN DUSTWOODS",
+   "x0": -64,
+   "x1": 134,
+   "z0": 96,
+   "z1": 292,
+   "s": 12,
+   "zelle": 3,
+   "r": 11,
+   "ab": 6
+  }
+ ],
+ "kapitelUrsprung": {
+  "C2": {
+   "x": 600,
+   "z": -2600,
+   "h": 2.5
+  },
+  "C3": {
+   "x": -600,
+   "z": -2600,
+   "h": 3.4
+  },
+  "C4": {
+   "x": 0,
+   "z": 2600
+  }
+ }
+}

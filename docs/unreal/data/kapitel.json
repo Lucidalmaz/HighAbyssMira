@@ -1,0 +1,5010 @@
+{
+ "module": [
+  {
+   "modul": "_base_source_index.html",
+   "datei": "app/mods/_base_source_index.html",
+   "bytes": 742998,
+   "zeilen": 6410,
+   "kopf": [],
+   "kapitelHinweis": [
+    1,
+    2
+   ]
+  },
+  {
+   "modul": "akte",
+   "datei": "app/mods/akte.js",
+   "bytes": 16009,
+   "zeilen": 73,
+   "kopf": [
+    "AKTE (Modul „akte“): Die Akte Abgrund – die Durchschläge der Whistleblowerin",
+    "Dr. Edda Brand, 1994–2012 Ärztin der Außenstelle Lost Eyengless der Bundesstelle für Rückführung (BfR, im Ort „das Amt“), hat vor der Auflösung",
+    "zehn Durchschläge versteckt – dort, wo Kinder spielen und Erwachsene nicht hinsehen. Sie erzählen, was die Regierung geheim hält:",
+    "den Vertrag von 1958, die gefälschte UFO-Schlagzeile, die Bergungen nicht menschlicher Wesen in den Zyklusnächten, die Rückläufer (Kopien),",
+    "Peter Kranz und die Versuchsreihe K (der Zahn-Mann aus Kapitel 2), die Sperre von 2009, Akte 08 – und das Ende 2012.",
+    "Nebenstory zum Erkunden (Nebenaufgabe „Die Akte Abgrund“); jeder Durchschlag ist ein Fund, alle zehn geben die ganze Geschichte und eine Belohnung."
+   ],
+   "kapitelHinweis": [
+    2
+   ]
+  },
+  {
+   "modul": "albers",
+   "datei": "app/mods/albers.js",
+   "bytes": 35625,
+   "zeilen": 235,
+   "kopf": [
+    "VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; Gespräche aus Kap. 3, am Ende Kap. 1 „Schnalle zu“, AP-15)",
+    "Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.",
+    "Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den",
+    "Fortschritt; jede seiner Behauptungen wird später im Spiel belegt (Nebenaufgabe „Das Schlimmste am Rechthaben“ hakt sie ab).",
+    "Unreal-Modell „alter_mann“ (unreal/Export_Figuren.bat): dann steht er sichtbar im Türspalt. Ohne Modell: nur Licht, Schatten und Stimme – keine Ersatzpuppe.",
+    "Gespräche: Bedingung → höchstens drei Sätze (danach ist wieder der Spieler dran)"
+   ]
+  },
+  {
+   "modul": "album",
+   "datei": "app/mods/album.js",
+   "bytes": 95162,
+   "zeilen": 642,
+   "kopf": [
+    "ALBUM (Modul „album“, Zusatzwunsch X-5): Lukes Fotoalbum – echte Seiten zum Blättern, Fotos zum Herausnehmen und Umdrehen",
+    "Einband: Fab „Leather Book“ (Smoggybeard, CC-BY) → game/assets/ms/album/model.glb (tools/_x5_assets.mjs: in Metern, an der halben Dicke in Deckel- und",
+    "Rückenhälfte geschnitten). Die Seiten sind eigene, gebogene Flächen mit Kartonpapier (Canvas beim Laden), Fotoecken, eingeklebten Abzügen und Lukes",
+    "Bleistiftschrift. Geblättert wird mit einer echten Seite, die sich beim Umschlagen wölbt (Eckpunkte je Bild neu, Ecke läuft vor).",
+    "Quellen, die von selbst eingesammelt werden: die sieben Polaroids (Basis PHOTOS/story.photos), die Abzüge der Indizienwände (fotos.js, sobald gesehen),",
+    "Zayns Kinderkamera (zayn.js, sobald gelöst), Hildes Kamera in Kap. 5 (kamera.js; das eine Kreuzungsbild mit dem Neunten blendet ihn nach 1 s aus, 02 D6).",
+    "Weitere Fotos (Grete, Porträt, „HEINI“, Hildes Laube …) heften spätere Module mit album_abheften(id, { bild, serie, art, notiz, datum, hinten }) ab.",
+    "Leere Plätze sind nur Fotoecken – keine Zahl, keine Gesamtzahl."
+   ]
+  },
+  {
+   "modul": "amt",
+   "datei": "app/mods/amt.js",
+   "bytes": 206221,
+   "zeilen": 1239,
+   "kopf": [
+    "AMT (Modul „amt“, Fassung 3 · AP-16): Kapitel 2 „Das achte Kind“ – Ebene −2 der Bundesstelle für Rückführung",
+    "Quelle: story_final.md Kapitel 2 (Unterkapitel 1–9, Nebenaufgaben, Rätsel, Schreckbudget, Umsetzungsnotizen), LWO-Dossier 5.3/5.4/5.5/5.12 (Wortlaute).",
+    "Dieses Modul baut, was die Basis und innen_kapitel nicht haben, und führt die Regie der Ebene:",
+    "• Nadeldrucker (amt_druck): druckt Luke live mit, oben rechts immer „ZÄHLSCHLUSS 03:13“; ab dem Funk auch K-1 (A-05); der letzte Druck kommt aus dem Messraum.",
+    "• Lautsprecher (amt_band): Wolters Bandschleife (AG-05) mit hörbaren Schnitten, darunter leise die Spieluhr; Speicherzettel 5.12 am Kasten.",
+    "• Tunnel: Schild der Bundesstelle mit dem Auge über der Flamme, Dienstanweisung, Bahnhofsuhr, Nummernautomat („Wartenummer 8“), Kinderhandabdrücke, das Summen.",
+    "• Neue Räume (Wände, Böden, Einrichtung aus Scans): Kantine und Hängeregistratur (Türen in der Archiv-Westwand), Planungsraum (hinter dem Sicherungsraum),",
+    "Vorraum des Messraums (Trennwand, Aktenschränke für AG-07). Messraum: Stuhlkreis (innen_kapitel), Stuhl 8, Uhr über der Tür, Kette, Notbeleuchtung."
+   ],
+   "kapitelHinweis": [
+    2
+   ]
+  },
+  {
+   "modul": "anwesen",
+   "datei": "app/mods/anwesen.js",
+   "bytes": 81542,
+   "zeilen": 552,
+   "kopf": [
+    "ANWESEN (Modul „anwesen“): Die Villa Seiler – acht Schlüsselteile, die Prägepresse, Kapitel 4",
+    "Die Villa (Mansion-Scan aus dem Unreal/Fab-Paket, Modul ausbau_ost_west) ist von Anfang an sichtbar und erreichbar, aber verschlossen:",
+    "Die Tür hat acht Schlüssellöcher. Dr. Theodor Seiler, der 1958 das Amt gründete und 2019 allein in dieser Villa starb, hat die acht Teile",
+    "dort versteckt, wo sich die Kinder früher versteckt haben (gestempelt 01–08 wie die acht Akten). Kapitel 1 und 3 (Ort), Kapitel 2 (Amt), Kapitel 3 (Vegas, Whiskey).",
+    "Die Prägepresse im Garten setzt sie zusammen – aber nur mit Strom, und der ist seit dem Licht die ganze Nacht weg. Er kommt am Morgen zurück: Kapitel 4.",
+    "Verpasste Teile hat in Kapitel 4 der Rabe Whiskey in seinem Nest gesammelt (nie blockierend)."
+   ],
+   "kapitelHinweis": [
+    4
+   ]
+  },
+  {
+   "modul": "auftritt",
+   "datei": "app/mods/auftritt.js",
+   "bytes": 15140,
+   "zeilen": 167,
+   "kopf": [
+    "AUFTRITT / ABGANG (Modul „auftritt“, 08.10.2026)",
+    "Gemeinsamer Hilfsbaustein: alles, was ins Bild kommt und wieder geht (Rabe, Krähen, Fledermäuse, Katzen, Ratten, Figuren, Kreaturen, Erscheinungen,",
+    "UFO …), taucht nie sichtbar auf oder verschwindet nie sichtbar. Zwei Schichten:",
+    "1) auftritt_reg(g, opts): macht die Sichtbarkeit einer Wurzelgruppe „weich“. Wer g.visible = true/false setzt, bekommt – nur wenn die Gruppe gerade",
+    "im Bild (Blickfeld + vor der Nebelgrenze) ist – eine Überblendung (Dither-Fade über alphaHash, ohne Sortier-/Z-Flackern, Schatten faden mit);",
+    "außerhalb des Bildes schaltet es sofort (wie bisher). Die Module müssen nichts ändern. Zusätzlich fängt ein Sprung-Wächter Positionssprünge",
+    "einer sichtbaren Gruppe ab (blendet am neuen Ort neu ein, statt zu springen).",
+    "2) Flug-/Wegpunkt-Bausteine: auftritt_fernpunkt (Anflugpunkt außer Sicht), auftritt_abgangsziel (Abflugpunkt hinter der Nebelgrenze),"
+   ]
+  },
+  {
+   "modul": "augenzu",
+   "datei": "app/mods/augenzu.js",
+   "bytes": 6971,
+   "zeilen": 66,
+   "kopf": [
+    "AUGEN ZU (Modul „augenzu“, W2-P5): Taste Q halten – das Bild wird schwarz, der Ton bleibt",
+    "Kanon, Regel 4: Wer die Augen zu hat, den sieht sie nicht. Ausnahme: ihre eigenen Kinder, sobald sie wissen, was sie sind.",
+    "Eingeführt im Finale von Kapitel 2 (dort versagt es: „Ich seh ja durch dich.“), nützlich in Kapitel 5 (Stall) und Kapitel 6 (Hochsitz).",
+    "Schnittstelle (produktion_welle2.md §1.3):",
+    "augenzu_frei(opts)  → schaltet Q für eine Szene frei. opts: { wirkt: true|false, hinweis: 'Q halten – Augen zu', onZu(), onAuf(sekunden) }",
+    "wirkt:false (Kap. 2): Q schließt die Augen wie sonst – aber es schützt nicht; unter den Lidern bleibt ein graues Schimmern (sie sieht durch ihn).",
+    "augenzu_sperre()    → Q wieder ohne Wirkung (offene Augen gehen auf, Hinweis verschwindet)",
+    "augenzu_zu()        → true, solange Q gehalten wird und die Szene frei ist"
+   ]
+  },
+  {
+   "modul": "ausbau_nord",
+   "datei": "app/mods/ausbau_nord.js",
+   "bytes": 160925,
+   "zeilen": 1148,
+   "kopf": [
+    "AUSBAU NORD · DER KIRCHBERG",
+    "Kirchweg-Gasse (x ≈ −7) vom Ortskern hinauf zur Straße „Am Kirchberg“ (z ≈ 60). Nördlich der Straße: Kapelle mit Friedhof",
+    "(Westen) und Spielplatz (Osten), südlich: Bushaltestelle und vier Häuser. Drei Nebenaufgaben, leise Schreckmomente.",
+    "Alles Sichtbare sind Scans/Modelle aus assets/ms (Flächen = Scan-Oberflächen). Koordinaten: siehe mods/ausbau_nord_report.md"
+   ],
+   "kapitelHinweis": [
+    5,
+    6
+   ]
+  },
+  {
+   "modul": "ausbau_ost_west",
+   "datei": "app/mods/ausbau_ost_west.js",
+   "bytes": 147257,
+   "zeilen": 877,
+   "kopf": [
+    "AUSBAU OST/WEST (Bereich ausbau_ost_west)",
+    "OST „Landstraße“: Straße nach Osten, verlassene Tankstelle Kranz, Schrottplatz mit Wendehammer, Straßensperre bei x≈146.",
+    "WEST „Schrebergärten & Hof“: Schotterweg, Kleingartenanlage, Hof mit begehbarem Pferdestall, Remise, Bauernhaus, die alte Villa (−125, 70).",
+    "Alles aus Scans/Modellen der Bibliothek; Flächen/Wände mit Megascans-Oberflächen. Gruppen werden auf Entfernung ausgeblendet (Leistung)."
+   ]
+  },
+  {
+   "modul": "ausruestung",
+   "datei": "app/mods/ausruestung.js",
+   "bytes": 7076,
+   "zeilen": 60,
+   "kopf": [
+    "AUSRÜSTUNG (Modul „ausruestung“)",
+    "Fundorte für Batterien, Werkzeuge und Taschenlampen-Stufen an echten Möbeln/Orten der Welt (nichts Selbstgebautes sichtbar:",
+    "gefunden wird durch Durchsuchen von Werkbank, Tresen, Regal; der Rest sind Scan-Modelle). Lampenlogik/Akku: Grundspiel (FLASH).",
+    "Wo später Unreal-Modelle aus unreal/Export_Requisiten.bat vorliegen (assets/ue/<rolle>/model.glb), liegen sie sichtbar am Fundort.",
+    "Werkzeug-Einsätze: Drahtschneider → Villentor (ausbau_ost_west) · Brechstange → Zeichnungswand Keller Nr. 7 (Übergang Kap. 2).",
+    "Unreal-Export (optional): lädt assets/ue/<rolle>/model.glb, sonst null",
+    "Durchsuchbare Stelle: unsichtbare Klickfläche an einem echten Möbel; einmalig, danach nur noch Beschreibung"
+   ]
+  },
+  {
+   "modul": "bedienung",
+   "datei": "app/mods/bedienung.js",
+   "bytes": 19265,
+   "zeilen": 139,
+   "kopf": [
+    "BEDIENUNG (Modul „bedienung“, Auftrag 08.10.2026; 09.10.: echte Modelle statt prozeduralem Baukasten)",
+    "Geräte, die der Spieler anfasst – jetzt aus echten Scans/Modellen (Texturen ≤ 2k, KTX2 über tools/ktx.mjs; Quellen siehe CREDITS.md):",
+    "Tastenfeld Kellertür (Kap. 1)   Keypad Door Lock (plaggy, CC-BY)      assets/ms/bed_keypad/  – Eingabe im Overlay #keypad (Tafel aus den Texturen des Modells), LED-Rückmeldung über Emission",
+    "Sicherungskasten (Kap. 2)       Quixel Megascans „Electrical Boxes“    assets/ms/bed_elec/    – Verteilertafel als Wandgerät; sechs Kipphebel (nur Hebel, keine Schilder) folgen ch2.fuses",
+    "Funkgerät (Kap. 3)              Military Radio (Camille Barral)        assets/ms/bed_funk/    – auf dem Funkkasten; Abstimmen/Rätsel bleiben im Overlay (lucy3.js)",
+    "Notentriegelung (Kap. 2): baut feuer.js selbst; sie nimmt ihre Metallteile aus BED.mat('stahl'/'messing'/'bakelit').",
+    "Grundsatz: nur DARSTELLUNG und Bedienkomfort – Codes, Reihenfolgen, Logik und Rätsel-Hinweise der Module bleiben unberührt. Keine generierten Schilder/Schriften.",
+    "Normalkarte aus Höhenkarte (Rot-Kanal), Sobel, OpenGL-Konvention"
+   ]
+  },
+  {
+   "modul": "beobachter",
+   "datei": "app/mods/beobachter.js",
+   "bytes": 135199,
+   "zeilen": 878,
+   "kopf": [
+    "DER NEUNTE (Modul „beobachter“, Fassung 3 · AP-07)",
+    "Kanon: story_final.md Kern §7 und Dossier „Der Beobachter (∴)“ (82); 5.2 „Beobachter je Kapitel“. Wer er ist, sagt erst Kapitel 7 – hier steht nur, was er tut.",
+    "Er spricht nie, unterschreibt immer mit ∴ (der Ein-Punkt ist Kapitel 7 vorbehalten: BEOB_SIG1 wird vor Kap. 7 nie benutzt).",
+    "Modi je Kapitel (beob_mode):",
+    "Kap. 1 „klang“: nie sichtbar · selten zu hören (20–40 s, nie näher als 12 m) · Spuren · zwei Zettel nur per Skript (B-K1-01 Auto, B-K1-02 Kellertür).",
+    "Kap. 2 „decke“: über der Decke (Kratzen 2 m über Luke und voraus, Klopfen 3-Pause-3, Tropfen hinter ihm) · genau eine Fast-Sichtung (0,8 s, Lüftungsklappe).",
+    "ab Kap. 3 „voll“: Verstecksystem (steht nie frei, ein Drittel sichtbar hinter Deckung am Bildrand), peekGap [20, 45], Ein-Sekunden-Regel (BEOB.seenMax),",
+    "mutiger bei Stillstand/Lampe aus, Atmen (höchstens zweimal je Kapitel), Papier/Bleistift/Bonbon, Stille-Regel (45 s), Stille-Fenster (A-29), Gewöhnungsschutz (5.7)."
+   ]
+  },
+  {
+   "modul": "beutel",
+   "datei": "app/mods/beutel.js",
+   "bytes": 50632,
+   "zeilen": 332,
+   "kopf": [
+    "BEUTEL (Modul „beutel“, Zusatzwunsch X-5): Lukes Beutel in drei Stufen – Fächer, Stapel, Untersuchen, Benutzen, Kombinieren",
+    "Stufe 1 Gürteltasche (Fab „Leather Pouch“, MissTxxT, CC-BY; von Anfang an) · Stufe 2 alter Rucksack (Fab „Backpack Scan“, SebastianBA, CC-BY; Schrottplatz,",
+    "abseits des Hauptwegs, Kap. 1/3/4/5) · Stufe 3 Wanderrucksack (Fab „Backpack for a wandering wizard“, a9908244, CC-BY; Hof im Westen an der Remise, Kap. 4/5). Aufbereitet mit tools/_x5_assets.mjs.",
+    "Kapazität gilt nur für Verbrauchsgüter und Tauschwaren (Batterien, Streichhölzer, Kreide, Lampenöl, Handwärmer, Glänzendes, Tauschgeräte).",
+    "Story-Gegenstände stecken in der Jacke und zählen nie – keine Sackgassen. Voller Beutel: nichts geht verloren – der Fund bleibt liegen bzw. Luke legt den Rest",
+    "sichtbar ab (tausch_drop, glänzt, gespeichert), dazu ein Vorschlag (Whiskey tauscht Glänzendes, [I] ablegen). Beim Anvisieren eines Funds: „passt / passt nicht“.",
+    "Ansicht: Bühne aus album.js (eigenes Licht beim Laden, Welt weich und dunkler, Blick senkt sich) – das Modell kommt von der Hüfte bzw. vom Rücken nach vorn,",
+    "die Tasche klappt auf (Klappe per Eckpunkt-Gewichten), der Rucksack geht mit Reißverschluss auf; rechts das Innenfach mit den Fächern."
+   ]
+  },
+  {
+   "modul": "bewohnt",
+   "datei": "app/mods/bewohnt.js",
+   "bytes": 66149,
+   "zeilen": 501,
+   "kopf": [
+    "BEWOHNT (Modul „bewohnt“, Q-8 „Bewohnt“-Prüfung, F3_extras.md / Premium-Auftrag Punkt 6)",
+    "Jeder Innenraum der Kapitel 1–5 bekommt, was seine Bewohner zurückgelassen haben: Kleinkram, Textilien, Bücher, Geschirr, Bilder, Kabel, Flecken, Spinnweben.",
+    "Jedes Stück hat einen Grund (Kommentar je Zeile, Übersicht in app/story/audit/F3_stand_innen.md). Nur Scan-Modelle (Fab/Megascans) und Papier-Abziehbilder.",
+    "Technik: Aufbau erst beim Näherkommen/Betreten (einmal je Raum), Stücke als Instanzen je Modellteil, Abziehbilder/Kabel/Spinnweben zu einem Mesh je Material",
+    "zusammengefasst; Platz wird per Strahl geprüft (freier Boden, ebene Ablage, Wand dahinter). Keine Stücke auf/vor Klickflächen (Kasten- und Sichtstrahl-Prüfung),",
+    "nichts in Türen. Keine Lichter zur Laufzeit: nur die Stärke vorhandener Lichter/der Hemisphäre (LICHT_HAKEN) ändert sich.",
+    "Modelle: [Schlüssel, { file, size, axis, spec, teil (Teil-Name), eins (nur erster Teil), aufrecht (längste Achse senkrecht) }]"
+   ]
+  },
+  {
+   "modul": "bewuchs",
+   "datei": "app/mods/bewuchs.js",
+   "bytes": 42566,
+   "zeilen": 329,
+   "kopf": [
+    "BEWUCHS (Modul „bewuchs“, R-11): Außenwelt und Wald dichter, lebendiger – jede Pflanze mit Grund",
+    "Nutzer 01.10.2026: „mehr pflanzen und natürliche umgebungs elemente … viele stellen wirken noch sehr leer … der wald kann deutlich mehr wald elemente und bäume vertragen“.",
+    "ORT (Kap. 1–5, beim Laden): Unkraut im Rinnstein, in Pflasterfugen, am Mauer- und Zaunfuß und im Mittelstreifen alter Kieseinfahrten · Trockengras an Weg-, Zaun- und",
+    "Mauerrändern · Farne an schattigen Nordwänden und in feuchten Ecken · Efeu an Mauern, Schuppen und Hausecken (verlassene Häuser bis zur Traufe), auf Gräbern und am",
+    "Boden verwilderter Gärten, Ranken an Zäunen · Büsche an Hausecken · nasses Laub in Windecken · Pilze in feuchten Winkeln · Moos auf Treppenstufen · Stümpfe gefällter Bäume.",
+    "Gründe: Vernachlässigung (BEWUCHS_VERWAHRLOST), Feuchte/Schatten (Nordseite, Ecken, Waldnähe), Jahreszeit (Oktober/November: Farne bräunen, Gras ist trocken, Laub liegt).",
+    "WALD (Kap. 6, erst wenn der Wald frei ist – lädt dann nach): mehr Bäume in mehreren Größen (Jungwuchs, Kiefern, Laubbäume, tote Stämme stehend und liegend),",
+    "Farnkolonien, Himbeer-/Holunderdickicht, Stümpfe, Pilze, Laub an den Wegrändern, Felsen, Mondlicht durch Lücken im Kronendach (nur über Lichtung, Steinkreis, Weiher)."
+   ]
+  },
+  {
+   "modul": "blick",
+   "datei": "app/mods/blick.js",
+   "bytes": 6890,
+   "zeilen": 56,
+   "kopf": [
+    "BLICK (Modul „blick“, Nutzer-Rückmeldung 02.10.2026): man schaut immer dorthin, wo etwas passiert",
+    "Nutzer: „viele Schreckmomente und story-relevante Szenen verpasst man, wenn man nicht weiß, wohin man schauen soll … baue ein System ein, dass man immer richtig schaut.“",
+    "Grundsatz (RE Village / The Last of Us II / Alan Wake 2): Blicklenkung ist ein Angebot, kein Zwang. Die Kamera dreht sich weich zum Ereignis (Ease-in/out, nie ruckartig,",
+    "Nick höchstens 0,55 rad), die Maus gewinnt IMMER: sobald der Spieler selbst dreht, bricht die Lenkung ab und ruht 3 s. Nie in Filmszenen, QTE, Notizen, Skript-Bewegung,",
+    "bei Jagd/Flucht (da schaut man ohnehin) und nie, wenn das Ziel schon im Blickfeld ist. Einstellung „Hilfe“ (settings.hilfe): 0 aus · 1 sanft (Standard) · 2 deutlich (schneller, auch Ziele).",
+    "Auslöser (ohne dass andere Module etwas wissen müssen):",
+    "· Wesen taucht auf (Kindschatten, Graukind, Peter, Echo-Figuren, Figuren der Basis, Justin) und ist < 32 m entfernt, aber nicht im Blick → weicher Schwenk.",
+    "· UFO erscheint (state.ufoOn) → Blick nach oben zum Licht."
+   ]
+  },
+  {
+   "modul": "cleo",
+   "datei": "app/mods/cleo.js",
+   "bytes": 21306,
+   "zeilen": 142,
+   "kopf": [
+    "CLEO (Modul „cleo“): Eine für sieben (Fassung 3; früher „Die Vergessene“)",
+    "Cleo, 8, wohnte im Birkenweg. Zu ihrem Geburtstag am 25. Juli 2009 kam niemand außer Lucy. Drei Tage später, als die Sieben geholt wurden,",
+    "ging sie freiwillig mit ins Licht: „Eine für sieben. Dann dürfen alle heim.“ (Spiegel von Mira 1312: „ich für sechs“).",
+    "Kinderregel des Lichts: „Geschenkt ist geschenkt, wiederholen ist gestohlen.“ Wer sich verschenkt, gehört dem Kind im Licht ganz – mit Namen und Erinnerung.",
+    "Darum erinnert sich niemand an Cleo, nicht einmal ihre Eltern. Nur Lucy hat sie jeden Tag in ihr Tagebuch geschrieben: „C.“",
+    "Spuren: Kap. 1 – Lucys Tagebuch, die Lücke im Gruppenfoto, der weiß gekratzte achte Stein am Gedenkfeld · Kap. 2 – die Akte ohne Nummer („FREIWILLIG“)",
+    "Kap. 3 – Whiskey tauscht den Baumhausschlüssel, das Baumhaus in den Forbidden Dustwoods · Ende: Luke schreibt ihren Namen mit Kreide auf den Stein. Er „stiehlt“ ihn zurück.",
+    "AP-24 (N6-3): im Baumhaus nasse Kinderfinger-Abdrücke, die Keksdose mit acht Kronkorken (R, H, M, D, L, L, Z, einer leer); das Ende liegt am Steinkreis im tiefen Wald:"
+   ]
+  },
+  {
+   "modul": "entdecker",
+   "datei": "app/mods/entdecker.js",
+   "bytes": 12028,
+   "zeilen": 90,
+   "kopf": [
+    "ENTDECKER (Modul „entdecker“): Wer genau hinsieht, wird belohnt",
+    "1) Die 17 Kerben: Kreidestriche an Laternenmasten in der ganzen Stadt (und eine am Hochsitz im tiefen Wald). Jede Kerbe gibt die nächste Zeile",
+    "eines Abzählreims – die Kleine zählt bis siebzehn. Alle 17: der ganze Reim und zwei Batterien.",
+    "2) Entdecker-Stufen nach Anzahl der Funde (alles in der Abenteuerfibel unter FUNDE): spürbare Belohnungen – Batterien, längerer Akku,",
+    "schnellerer Kinderblick, weiterer Lichtkegel, eine Erinnerung an die Nacht 2009, ein Satz auf der letzten Seite der Fibel.",
+    "Fortschritt steht in der Abenteuerfibel (FUNDE) – mit der nächsten Belohnung, damit man weiß, wofür man sucht."
+   ]
+  },
+  {
+   "modul": "fassaden",
+   "datei": "app/mods/fassaden.js",
+   "bytes": 101432,
+   "zeilen": 1015,
+   "kopf": [
+    "FASSADEN (Modul „fassaden“)",
+    "Alle Hausaußenseiten (HOUSES, auch neue aus dem Ausbau) + die begehbaren Häuser Nr. 7 und Nr. 1:",
+    "Scan-Planken / Putz / Klinker mit Schmutz- und Wasserlauf-Shader, Teerpappe-Dächer mit Moos, Wellblech,",
+    "Scan-Fenster mit Innenraum-Illusion (Zimmer hinter der Scheibe, Taschenlampe leuchtet hinein), Vorhänge,",
+    "Silhouetten (aus dem echten Mannequin-Modell gerendert), Scan-Türen, Rolltore, Veranden, Schornsteine,",
+    "Regenrinnen + Fallrohre, Emaille-Hausnummern, Kellerfenster, kleine Entdeckungen.",
+    "---- Innenraum-Illusion („interior mapping“): ein Zimmer hinter jeder Scheibe, ohne Geometrie",
+    "R-12: nie ein leeres Zimmer. Jedes Zimmer hat ein Motiv (Wohnzimmer, Küche, Schlafzimmer, Kinderzimmer, Flur) aus zwei Möbel-Karten,"
+   ]
+  },
+  {
+   "modul": "feuer",
+   "datei": "app/mods/feuer.js",
+   "bytes": 184282,
+   "zeilen": 1298,
+   "kopf": [
+    "FEUER (Modul „feuer“): Das Ölfass im langen Gang, Onkel Peter brennt, Flucht vor dem Rauch",
+    "Kanon: Der Zahn-Mann ist Peter Kranz – Mamas Bruder, die Kopie von 1975, seit 1992 auf Ebene −2 eingesperrt. Er jagt nicht aus Bosheit, er sucht den Ausgang.",
+    "Ablauf:",
+    "1) Im Prüfraum (= Peters Zelle, PK-D K2-4) liegt auf der Matratze sein Feuerzeug: Messing, „P. K.“, Rückseite „Für Peter. Damit du im Dunkeln nicht allein bist. – M.“",
+    "(Marion, Lukes Mutter). Das Feuerzeug ist Pflicht: die östliche Stahltür (spiderDoorOut) entriegelt erst, wenn Luke es genommen hat; 20 s nach dem Schwarm",
+    "wird „Die Matratze. Da glänzt was.“ zur Aufgabe.",
+    "2) Die Brandschutztür zum Messraum (chaseDoor) ist von Anfang an zu: „Notentriegelung nur bei Brandalarm“. Einen Weg ohne Feuer gibt es nicht.",
+    "Am Ende des langen Gangs steht ein Fass Heizöl. Während der Jagd: E → Luke wirft sich dagegen, es kippt und rollt (Drehung um die eigene Achse,"
+   ]
+  },
+  {
+   "modul": "fibeltour",
+   "datei": "app/mods/fibeltour.js",
+   "bytes": 21685,
+   "zeilen": 133,
+   "kopf": [
+    "FIBEL-TOUR (Modul „fibeltour“, 08.10.2026)",
+    "Geführte Tour beim Aufwachen (traum.js ruft fibeltour_start() nach „Die Fibel steckt drin“): Luke schlägt die nasse Fibel auf und geht sie Seite für Seite durch –",
+    "Aufgaben · Inventar · Funde · Fotos · Ränder · Karte. Gezeigt wird die ECHTE Fibel-Oberfläche (renderJournal, echte Reiter und Seiten, keine nachgemalten Grafiken):",
+    "Ein Fenster im Dunkel (SVG-Maske) hebt Reiter und Seite hervor, ein Filzstift-Kringel umkreist sie, darunter schreibt Luke je einen Satz auf ein Zettelblatt",
+    "(echter Papierscan aus der Basis [papierScan], Heftlinien, Wasserflecken, gerissene Kanten; Schrift „Kalam“/„Caveat“ mit zufälligem Versatz je Buchstabe).",
+    "Enter / Klick / Leertaste = weiter (beim Schreiben: erst fertig schreiben), Pfeil links = zurück, X oder Esc = alles überspringen. Danach steht die Tour als Fund",
+    "„So funktioniert die Fibel“ in der Fibel (Tab). Das große „Ränder“-Fenster (hervorhebung.js, hl_karte) wird hier als Seite der Fibel gezeigt und poppt danach nicht mehr auf.",
+    "Testzugriff: __fibeltour (S, start, ende)."
+   ]
+  },
+  {
+   "modul": "figuren",
+   "datei": "app/mods/figuren.js",
+   "bytes": 103546,
+   "zeilen": 712,
+   "kopf": [
+    "FIGUREN (Modul „figuren“): jede Person hat ihr eigenes Aussehen",
+    "Quelle: app/tools/forge.html + cast.json (Figuren-Werkstatt) → game/assets/chars/<id>/model.glb, Liste game/assets/chars/chars.json",
+    "Kinder 2009: zayn roxy lucy luke luke_echt heidi dina mike cleo graukind (Asset-Ordner „kleine“) · Erwachsene: mama hilde lucy_erw vegas amt1 amt2 aydin dina_erw polizist (Lorenz gestrichen, Fassung 3)",
+    "Schreckgestalten: graue (das Graukind ohne Mund), hilde_tot, gezaehlt_j/_m (die Behaltenen) · Justin: vorhandenes Paladin-Modell",
+    "NACHBILDER (Fassung 3, Kern §2) – warum Luke sie sieht: Wo das Lichtschiff jemanden nimmt oder zurückgibt, brennt sich ein Bild ein.",
+    "Sehen kann es nur, wer lange in Nimmerheim war oder aus so jemandem gemacht ist – Luke ist aus Justins Hand gemacht; beim Berühren brennt die halbrunde Narbe.",
+    "Darstellung deshalb bewusst schemenhaft: kaltes Leuchten, Filmflackern, Ränder lösen sich auf, das Bild wird blass – Erinnerung, kein Mensch aus Fleisch."
+   ]
+  },
+  {
+   "modul": "fotos",
+   "datei": "app/mods/fotos.js",
+   "bytes": 13943,
+   "zeilen": 81,
+   "kopf": [
+    "FOTOS (Modul „fotos“): Indizienwände statt Kinderzeichnungen",
+    "Die „UFO-Bilder“ im Keller von Nr. 7 und im Kinderzimmer von Nr. 1 sind Fotos aus dem Spiel selbst (mit der Spielwelt und den echten Figuren",
+    "aufgenommen: C:\\Users\\GIGABYTE\\_fotos.js → game/assets/fotos/*.jpg), dokumentarisch aufgezogen wie eine Ermittlungswand: Stecknadeln, Karteikarten",
+    "mit Datum/Ort/Quelle (Schreibmaschine), handschriftliche Anmerkungen, rote Fäden zu einer Mittelkarte.",
+    "Keller: Hildes Wand – sie hat jede Zyklusnacht fotografiert und gezählt; Mittelkarte „03:13 · ALLE SIEBEN“, darunter ihre rote Schrift.",
+    "Nr. 1:  Lucys Pinnwand von 2026 – was sie im Amt fand und was sie selbst wusste; Mittelkarte „LUKE = ?“.",
+    "„Foto genau ansehen“ (E) zeigt die Vergrößerung als Aktenkarte (Beweis-Nr., Datum, Ort, Quelle, Anmerkung) und Lukes Beobachtung: jedes Foto",
+    "enthält einen Hinweis. Die Wandflächen bleiben dieselben Objekte (uebergang.js zerschneidet die Kellerwand in Stücke) – nur die Textur wird getauscht."
+   ]
+  },
+  {
+   "modul": "gedanken",
+   "datei": "app/mods/gedanken.js",
+   "bytes": 38236,
+   "zeilen": 386,
+   "kopf": [
+    "GEDANKEN (Modul „gedanken“): Lukes Stimme",
+    "Kurze Selbstgespräche, die das Seltsame beim Namen nennen, hinterfragen und fühlen – damit Luke auf das Krasse reagiert und die Geschichte",
+    "verständlicher und persönlicher wird. Regeln gegen Nerven: jeder Gedanke nur einmal, nie während Dialogen/Notizen/anderen Untertiteln,",
+    "Mindestabstand GEDANKEN.gap Sekunden. Hängt lange an einer Aufgabe fest, denkt Luke über den nächsten Schritt nach (Hinweis ohne Textwand).",
+    "H-6: Lucy-Gedanken in Kapitel 1 (der Reihe nach, je einer etwa alle zwanzig Minuten Erkundung)"
+   ]
+  },
+  {
+   "modul": "geheimnisse",
+   "datei": "app/mods/geheimnisse.js",
+   "bytes": 26694,
+   "zeilen": 197,
+   "kopf": [
+    "GEHEIMNISSE (Modul „geheimnisse“): Spielsachen des Kindes im Licht – drei Sammelreihen, die sich gegenseitig verraten",
+    "· 7 Lichtsteine: Kiesel (Felsen-Scan) mit glimmenden Adern. NUR sichtbar, wenn die Taschenlampe aus ist – das Kind versteckt sich vor dem Licht.",
+    "Jeder flüstert eine Zahl (das Kind zählt). Fassung 3 (AP-18, Kap. 3 Nebenaufgabe 14 „Warm wie eine Hand“): nur in Kap. 3 ab UK 5 bis zur vierten Laterne",
+    "(neben3_offen); Splitter der Schiffshaut. RH-10: Stein in der Tasche + Justin < 5 m → leiser Summton (Audio, kein Licht) und vier Zeilen. Der vierte Stein",
+    "flüstert direkt hinter Luke; Whiskey schnappt sich einmal einen glimmenden Stein und lässt ihn fallen, sobald die Lampe angeht. Ein Stein bleibt im Inventar.",
+    "· 5 Wrackteile: verbogenes Rostblech (Scan-Oberfläche) mit eingedrückten Kinderhänden. Zusammen: das Wappen vom Hohen Abgrund.",
+    "· 4 Zähl-Totems (Holzmast-Scan, Teddy-Scan, Kerzen) an den Welträndern: drehen sich zu dir, wenn du wegsiehst (Regel des Graukinds).",
+    "Alle vier: Kreide-Hinweise, wo die Lichtsteine liegen."
+   ]
+  },
+  {
+   "modul": "geister",
+   "datei": "app/mods/geister.js",
+   "bytes": 39668,
+   "zeilen": 317,
+   "kopf": [
+    "GEISTER (Modul „geister“, 08.10.2026): EIN gemeinsamer Look für alle Erinnerungen",
+    "Nutzer 08.10.: „Die Geister sollen alle sehr hochwertig und detailreich aussehen wie in einem Triple-A-Game – Aussehen, Animation, Effekte.“",
+    "Ersetzt die flache additive Hülle (figuren_ghostMat/figuren_geistBau delegieren hierher). Alle Geister im Spiel laufen hier durch:",
+    "Echos (ECHO_CAST), Nachbilder an Orten (figuren_person: cleo, visionen, zayn; kapitel3 NB, lucy3, kapitel5), weiss.js (weiss_ghostify), die Mannequin-Geister der Basis (FAB.figs).",
+    "Bausteine (Parameter: docs/gameplay/geister.md):",
+    "· Shader (EIN Programm „geist5“, onBeforeCompile auf MeshStandard; Klone je Figur teilen das Programm, nur die Uniforms sind je Figur):",
+    "Fresnel-Rand mit Farbverlauf (unten kalt-tief, oben blass), Dichte-Näherung (Kanten dicht, Körper durchscheinend, Hintergrund wird leicht abgedunkelt =",
+    "vormultiplizierte Mischung statt rein additiv), Innenstruktur aus der echten Albedo (entsättigt, kontrastarm – Falten/Kleidung bleiben lesbar), Licht der Szene"
+   ]
+  },
+  {
+   "modul": "grafik",
+   "datei": "app/mods/grafik.js",
+   "bytes": 21883,
+   "zeilen": 230,
+   "kopf": [
+    "GRAFIK (Modul „grafik“, Nutzer-Rückmeldung R-14 vom 01.10.2026, dazu Q-10)",
+    "„Die komplette Grafik wirkt noch so glatt und generiert“ – zentraler Material- und Bildpass, ein Ort für alles:",
+    "1) OBERFLÄCHEN (alle MeshStandard-/MeshPhysicalMaterial, über THREE.ShaderChunk statt je Material → keine neuen Shader-Varianten):",
+    "Mikrostruktur (Detail-Normalen triplanar in Weltkoordinaten, nur nah), Rauheit schwankt (Fett, Abrieb), großflächige Farbschwankung",
+    "(bricht Kachelmuster), Schmutz in Vertiefungen (AO-Karte der Scans), abgestoßene Kanten, zweite gedrehte Abtastung großer Kachelflächen,",
+    "draußen Nässe (Oberseiten dunkel und glänzend, Laufspuren an Wänden, Spritzwasser am Sockel). Ausgenommen: Figuren (Skinning),",
+    "Durchsichtiges, Laub-Karten (nur Nässe). Die Böden aus gruen.js sind schon nass (eigene Pfützen) → Define HAM_BODEN, nur Detail.",
+    "Ohne zusätzliche Texturen (prozedurales Rauschen): sonst lagen Materialien mit vielen Karten + Schattenkarten über 16 Textur-Einheiten (Shader-Fehler)."
+   ]
+  },
+  {
+   "modul": "griff",
+   "datei": "app/mods/griff.js",
+   "bytes": 13649,
+   "zeilen": 109,
+   "kopf": [
+    "GRIFF (Modul „griff“, R-5): Ich-Hände greifen um Dinge herum, nie hindurch",
+    "Gemeinsamer Korrektur-Durchgang für alle Ich-Hände (Detective Hands): Beutel/Album (album.js), Joint-Szene (kiffen.js), Kater tragen (kapitel5.js).",
+    "Ablauf je Hand, NACH dem Posen (Knochen B = { fore, hand, f[5][3], bindF[5][3] } wie in album_hand/kf_applyHand/k5_hand):",
+    "1. Handfläche und Unterarm: liegen Handwurzel, Fingergrundgelenke oder Unterarm in einer Kollisionsform, wird der ganze Arm entlang der",
+    "Flächennormalen herausgeschoben (Formen, die diese Hand selbst hält – halt: 'L'|'R' –, schieben nicht: die Requisite hängt an der Hand).",
+    "2. Finger-IK gegen die Formen: jeder Finger wird als Ganzes geöffnet (Beugung skaliert zur Bindepose hin), bis Glieder und Kuppe außerhalb",
+    "liegen (Haut ~4–9 mm); mit anlegen schließt er stattdessen bis zur Berührung (echter Griff um das Objekt, höchstens +35 % Beugung).",
+    "Formen (je Objekt einfach gehalten): Kasten { art: 'kasten', o, m?, min, max } · Zylinder { art: 'zyl', o, m?, c, r, h } (Achse lokal y)"
+   ]
+  },
+  {
+   "modul": "gruen",
+   "datei": "app/mods/gruen.js",
+   "bytes": 75831,
+   "zeilen": 647,
+   "kopf": [
+    "GRÜN (Modul „gruen“): Böden, Pflanzen, Zäune, Grenzwald",
+    "Fotografierte Böden (nasser Asphalt mit Flickstellen, Pfützen und Regenringen, Gehwegplatten mit Moos, verwilderter Rasen,",
+    "Waldboden, Kies, Laub), gescannte Gräser und Sträucher statt gemalter Halme und Kugel-Hecken, Holzzäune und Gartentore als",
+    "Modelle, Weidezaun und dichter toter Wald an der neuen Außengrenze (x −158…158, z −53…98).",
+    "offene Gebiete (Ortskern + Erweiterungen der anderen Teams) – dort kein Wald, nur Wiese/Wildwuchs als Grundlage",
+    "---- kleine Helfer"
+   ]
+  },
+  {
+   "modul": "hervorhebung",
+   "datei": "app/mods/hervorhebung.js",
+   "bytes": 42245,
+   "zeilen": 286,
+   "kopf": [
+    "HERVORHEBUNG (Modul „hervorhebung“, Nutzer-Rückmeldung R-1/R-2 vom 01.10.2026)",
+    "R-1: leuchtende Kontur um interaktive Objekte, eine Farbe je Kategorie – weiche, leicht pulsierende Aura entlang der Silhouette mit feinem Schimmer (Rauschen/Partikel),",
+    "nie harte Neonlinie. Technik: Masken-Pass direkt nach dem RenderPass (Silhouetten der Kandidaten in einen halb aufgelösten Puffer; verdeckte Teile per Tiefenvergleich",
+    "mit der Szenentiefe verworfen) + Kantenpass nach dem OutputPass (Aura außen, feiner Rand innen). Kandidaten aus IA.list der Basis (Interaktion): höchstens 6 innerhalb 8 m",
+    "+ das angesehene. Deutlich in Reichweite/beim Hinsehen, sehr dezent auf mittlere Distanz; aus in Jagd, Kino, Dialog, Menüs. Einstellung settings.hl: 2 stark · 1 dezent · 0 aus.",
+    "Legende: beim ersten Sichten Fibel-Eintrag „Ränder“ (Lukes Ton).",
+    "R-2: Glanz-Gegenstände (Whiskeys Schnabel, Tauschware am Boden): echtes Metallmodell (Fab „OldKey“), polierter Messing mit scharfem Glanzlicht (Umgebungsbild),",
+    "weiche runde Glitzerpunkte, die beim Drehen/Bewegen aufblitzen, leiser Schein, kristalliner Fundklang aus den Spieluhr-Aufnahmen (VSCO 2, kein Oszillator)."
+   ]
+  },
+  {
+   "modul": "hungrige",
+   "datei": "app/mods/hungrige.js",
+   "bytes": 87433,
+   "zeilen": 512,
+   "kopf": [
+    "DER HUNGRIGE (Modul „hungrige“): der Gestaltwandler in den Forbidden Dustwoods",
+    "Kanon (story_final.md, „Der Hungrige“): In der Zyklusnacht 1992 holte Bergungstrupp 3 etwas aus der Senke, das sich hinstellte wie ein Hirsch.",
+    "Es frisst den Nachhall – die Abdrücke, die das Licht hinterlässt (Lukes Erinnerungen) – und trägt die Tiere, die es gefressen hat, als Haut. Falsch:",
+    "der Kopf sitzt nie richtig. Es lernt Stimmen aus den Abdrücken (Lucy, Seiler, Hofer) und kam 1992 mit Hofers Gesicht zurück. Es hasst Licht, und es",
+    "fürchtet den Raben, der zu Mira gehört.",
+    "Ablauf (jede Begegnung nur einmal, wird gespeichert): erst Tiere, die nicht stimmen (Reh rückwärts, Krähe mit Lucys Wort, Fuchs mit verdrehtem Kopf),",
+    "dann die Fraßstelle mit Hofers Dienstbuch, Hirsch-Angriff, Heulen, das zu Funk wird, die Silhouette im tiefen Wald, Hofer selbst – und am Bau",
+    "hinter dem Autowrack die Enthüllung: zwei Whiskeys, einer davon falsch. Der echte vertreibt ihn (Kapitel 6 · „Der Hungrige“)."
+   ],
+   "kapitelHinweis": [
+    6
+   ]
+  },
+  {
+   "modul": "innen_kapitel",
+   "datei": "app/mods/innen_kapitel.js",
+   "bytes": 79645,
+   "zeilen": 540,
+   "kopf": [
+    "WELT-MODUL · innen_kapitel",
+    "Kapitel 2 (Amt für Rückführung, Ebene −2), Kapitel 3 („Das Weiße“) und der Gully-Einstieg zur versunkenen Stadt.",
+    "Selbstgebaute Möbel/Requisiten werden versteckt (samt Kisten-Hitbox) und durch Scan-Modelle ersetzt;",
+    "Wände/Stahlflächen bekommen Megascans-Oberflächen; Blut, Schleifspuren, Nässe, Akten, Kinderzeichnungen erzählen.",
+    "Alle Rätsel-Objekte (Akten, Ordnungstafel, Schublade, Sicherungskasten, Klavier, Uhr, Karte, Abgrund) bleiben dieselben Meshes."
+   ],
+   "kapitelHinweis": [
+    2,
+    3
+   ]
+  },
+  {
+   "modul": "innen_ort",
+   "datei": "app/mods/innen_ort.js",
+   "bytes": 85477,
+   "zeilen": 631,
+   "kopf": [
+    "INNENRÄUME ORT (Modul innen_ort)",
+    "Haus Nr. 7 (Hilde Wendt), Haus Nr. 1 (Elternhaus) und der Keller unter Nr. 7:",
+    "gebaute Möbel-Kisten → Scan-Modelle (Sofa, Stühle, Eisenbetten, Küchenbuffet, Regale, Röhrenfernseher, Stehlampe,",
+    "Pendeluhr auf 03:13, Röhrenradio, Bilderrahmen, viktorianischer Spiegel, Kinderbett, Puppe, Spielzeug, Kerzen, Vorhänge,",
+    "Fenster, Werkbank, Müllsäcke …). Alle Story-Objekte (Zeitung, Kalender, Kühlschrankzettel, Fotos + Kerzen, Spieluhr,",
+    "Schublade, Kleiderschrank, Fotoalbum, Kellertür, Tastenfeld, Tonband) bleiben funktionsfähig und an plausibler Stelle.",
+    "Jeder Raum bekommt Entdeckbares. Stellen für die überarbeitete Story sind mit „STORY-HOOK“ markiert."
+   ]
+  },
+  {
+   "modul": "justin",
+   "datei": "app/mods/justin.js",
+   "bytes": 93040,
+   "zeilen": 691,
+   "kopf": [
+    "WELT-MODUL · justin (AP-12, Fassung 3) – Justin vom Hohen Abgrund",
+    "Quelle: story_final.md, Justin-Dossier (81) §1.11 Aussehen, §3 Dialogbank Kap. 3, Entscheidungen 02 B1–B9, Kap. 3 UK 4/13/14, Whiskey-Dossier (83) §6.",
+    "Figur: das Paladin-Modell (game/justin.js) bleibt. Hier bekommt es",
+    "· Material „Schiffshaut“: mattgrau wie nasser Schiefer, unter der Taschenlampe perlmuttfarben (Irisieren), keine Nieten-/Goldfarbe, 700 Jahre feiner",
+    "Kratzer; die Nähte werden bei Antwort A heller (justin_brustZerren). Kein Schild (steht in 81 §1.11 nicht). Kerbe in der Klinge, zwei Finger breit.",
+    "· Flicken aus mehreren Jahrhunderten: Ranzenriemen „H. R.“ am linken Unterarm, verchromte Gürtelschnalle mit dem Turm, Bindfaden/Draht, Stundenbuch",
+    "in der Ledertasche am Gürtel (Scan w_buch) mit Gummiband, schwarze Rabenfeder im Helmband (W-06).",
+    "· Gesicht unter dem Helm: vorhandener Kopf des Modells (braune Augen) + braune Locken (Haarkarten, MotionstudioArts „Small Curl Hairs Brown“)"
+   ],
+   "kapitelHinweis": [
+    3
+   ]
+  },
+  {
+   "modul": "kamera",
+   "datei": "app/mods/kamera.js",
+   "bytes": 16048,
+   "zeilen": 145,
+   "kopf": [
+    "KAMERA (Modul „kamera“, W2-P9): Hildes Polaroid-Kamera – nur Kapitel 5",
+    "„Die Kamera lügt nicht. Menschen schon. – H.“  Taste C hebt die Kamera (Sucher), Klick löst aus: Blitz, das Bild wird EINMAL im Blitz-Moment",
+    "in eine kleine Textur gerendert (400 × 300, Technik wie zayn_takePhotos), das Polaroid schiebt sich heraus und entwickelt sich in 4 s in der Hand.",
+    "Schnittstelle (produktion_welle2.md §1.4):",
+    "kamera_frei(n)   → Kamera mit n Bildern ins Inventar ('polaroid_kamera'), Taste C",
+    "kamera_film(+n)  → Film nachlegen",
+    "kamera_ziel(fn)  → fn(camera) → { vorFoto(), nachFoto(), text, sperre?: 'weggedreht' } für die aktuelle Blickrichtung oder null",
+    "zusätzlich (optional): beimHeben() – beim Heben der Kamera; nachEntwickeln(url) – wenn das Bild fertig ist; stempel – Text am Rand"
+   ]
+  },
+  {
+   "modul": "kapitel",
+   "datei": "app/mods/kapitel.js",
+   "bytes": 13023,
+   "zeilen": 95,
+   "kopf": [
+    "KAPITEL (Modul „kapitel“, W2-P0 · F3 AP-01): eine Quelle für die Kapitelnummer 1…7",
+    "Schnittstelle für alle Module (produktion_welle2.md §1.1):",
+    "kap()          → 1…7 (ab 5 aus KAP.n, sonst aus den Merkern der Basis; curChapter() der Basis ist nur noch ein Wrapper)   kapAb(n) → kap() >= n",
+    "Kapitel 7 („∴“) ist gesperrt (KAP_GESPERRT): kapStart(7) tut nichts, das Menü zeigt „Fortsetzung folgt“.",
+    "KAP_BEGIN[n]   → Funktionen beim Start von Kapitel n (auch beim Weiterspielen). Kap. 5/6: über kapStart(n); Kap. 1–4: einmal nach dem",
+    "setChapter(n) der Basis (verzögert bis zum Ende des laufenden Aufrufs – Kapitel 4 baut vorher Kapitel 3 auf, dann zählt nur 4)",
+    "KAP_END[n]     → Funktionen beim Ende von Kapitel n (über kapEnde(n))",
+    "kapStart(n)    → KAP.n = n, setChapter(n), saveFlag('ch'+n), saveGame(n) (nicht während „Weiterspielen“ lädt), KAP_BEGIN[n]"
+   ]
+  },
+  {
+   "modul": "kapitel1",
+   "datei": "app/mods/kapitel1.js",
+   "bytes": 106579,
+   "zeilen": 625,
+   "kopf": [
+    "KAPITEL 1 · „KELLER BLEIBT ZU“ (Modul „kapitel1“, Fassung 3 · AP-14): der Hauptweg",
+    "Unterkapitel 1–7 nach story_final.md (Kapitel 1): Ortsschild/Gestalt am Ostende/Nachbild an der Kreuzung · Nr. 9 von außen (AG-02 baut lwo.js) ·",
+    "Nr. 7 („Der Sessel ist noch warm“, „Nicht du“) · Kellertür (3110, Fehlversuche, Hilfeleiter) · Keller („LUKE, 9“, Polaroid auf dem Gurtstuhl,",
+    "Tonband, „… danke, Luke …“) · „Von Ost nach West“ (Stromausfall, Laternen werden ausgeblasen, 1,4 s, Luftholen, Nr. 7 zuletzt) ·",
+    "„Ich seh dich gleich …“ (Verstecken vor dem Kegel mit Deckungsvolumen, A-03 steigender Preis) · Stahltür zu → Abspann k1 (kino.js) → Endkarte",
+    "(Zählerzeile: kino.js/sammeln.js) + lwo_kapitelende(1) → Kapitel 2 hinter der Wand · geheimes Ende „Fahr heim“ (nur vor dem Tonband).",
+    "Alles Weitere der Welt (Nebenaufgaben, Katzen, Beobachter, Whiskey, LWO, Kino) über deren Funktionen – immer mit typeof.",
+    "Technik: Basis-Funktionen werden hier umhüllt/ersetzt (startOutage, leaveBasement, enterBasement, ending, scareWendtKitchen, scareCellarDoor, kpPress)"
+   ],
+   "kapitelHinweis": [
+    1
+   ]
+  },
+  {
+   "modul": "kapitel3",
+   "datei": "app/mods/kapitel3.js",
+   "bytes": 64930,
+   "zeilen": 445,
+   "kopf": [
+    "KAPITEL 3 · „Ich komme“ – Hauptweg auf der Straße (Modul „kapitel3“, AP-17, Fassung 3)",
+    "Quelle: story_final.md, Kapitel 3 (Unterkapitel 1–10), Umsetzungsnotizen; Q-9 (A-10 Kein Draußen sichtbar, A-12 Stille nach der Kuh, A-25 keine erzählenden Angst-Untertitel,",
+    "A-26 kein Schrei bei Luna/Graukind/Behaltenen). Wortlaute unverändert aus der Bibel.",
+    "Ablauf hier: UK 2 (Kuh untersuchen, Polaroid „Sieben und ein halber“, Vegas durch die Tür) · UK 3 (Telefon, Regel 6) · UK 4 (Auslöser für Justin nach dem Anruf)",
+    "· UK 5 („Kein Draußen“ an Ost- und Südsperre, AG-09 an der Haltestelle) · UK 6 (Zählbuch, Nachbild 2009 mit der neunten Gestalt) · UK 8 (Graukind jagt „Ochs am Berg“,",
+    "Freimal, Augen zu aus ihren Augen, AG-10, Whiskey still auf dem Dach von Nr. 1) · UK 9 (AG-08, zweiter Riegel, grauer Kasten, Hufeisen) · UK 10 (die Behaltenen,",
+    "Eisen ist Freimal, Lichtsäule, B-K3-08, die Hand) · Weiterspielen mitten im Kapitel (Speicherstand „kapitel3“).",
+    "Intro/Funk/Laternenkästen: lucy3.js · Nimmerheim: weiss.js · Justin: justin.js (AP-12) · Agentenszenen: lwo.js (AG-08/09/10)."
+   ],
+   "kapitelHinweis": [
+    3
+   ]
+  },
+  {
+   "modul": "kapitel5",
+   "datei": "app/mods/kapitel5.js",
+   "bytes": 214038,
+   "zeilen": 1509,
+   "kopf": [
+    "KAPITEL 5 (Modul „kapitel5“, Fassung 3 · AP-21): „Iss auf, Bruder“ (Hauptweg, UK 1–14)",
+    "Donnerstag, 5. November 2026, 18:10 bis 23:40. Nur vorhandene Umgebungen: Veranda und Fenster von Nr. 3, Nr. 7, Nr. 1 innen, Kreuzung,",
+    "Westweg, Hof/Stall, Schrebergärten, Kirchweg, Kirchberg (Gedenkfeld, offenes Grab), Nordzaun-Lücke. Texte wortgleich aus story_final.md (Fassung 3, Kapitel 5).",
+    "Fassung 3: AG-15 (lwo_szene), Gisela + Hänschen (katzen_kater5, Tragen mit den Detective-Händen), Schleife mit Heidis Karten/A-19, Kinosequenz „Runde drei“",
+    "(setCamOverride), Kichern aus allen Laternen (02 H4), A-17 (Lucy schwebt), AG-17 am Kirchweg, V-09/V-10, Friedhof mit Grete/Voss/AG-16 und A-18 (Blitz),",
+    "Einlösungen der Kap.-3-Geschenke (Riemen bei Gisela, Riegel auf Hildes Küchentisch, Schnalle im Fundamentstein), B-K5-01 … 07 + H1 über beobachter_zettel.",
+    "Aufbau: alles (Figuren, Requisiten, Lichter mit Intensität 0, Decals, Flammen-Sprites) wird BEIM LADEN angelegt und versteckt;",
+    "im Spiel werden nur Sichtbarkeit (ohne Lichter), Positionen und Intensitäten geändert. Kein Laden, keine Lichter, keine Allokationen im Takt."
+   ],
+   "kapitelHinweis": [
+    5
+   ]
+  },
+  {
+   "modul": "kapitel6",
+   "datei": "app/mods/kapitel6.js",
+   "bytes": 128998,
+   "zeilen": 798,
+   "kopf": [
+    "KAPITEL 6 · WENDIGO (Modul „kapitel6“, Fassung 3 · AP-23; Grundgerüst aus W2-P11, angepasst)",
+    "Quelle: story_final.md „Kapitel 6 · Wendigo“ (UK 1–9, Höhepunkt „Zwei Raben“, Abspann „Gleich wieder da“), Wendigo-Dossier 1.4–1.12, F3_extras Q-9 A-20 bis A-23.",
+    "Freitag, 6. November 2026, kurz nach zwei bis zum Morgengrauen. Keine 03:13: um drei schlägt die Glocke dreimal (leben.js, Kapitel-6-Uhr) und hört auf.",
+    "Ablauf (K6.beat): gitter (AG-18 Wolter, Sender A/B/C, drei Wege; Gitter aufbiegen, SP6-1) → krumen (Reh, Krähe frisst die Spur, Fuchs) → huette (SP6-2)",
+    "→ zaun (eingedrückter Nordzaun) → faden (erste Stille-Zone, Anni; V-11; Hochsitz SP6-3: SB-11, Seite 2, B-K6-05, Pfandflasche; Justins Stimme ohne Schaben)",
+    "→ falle (AG-19 am Amtsbus, drei Ausgänge, Sabotage „Wo vorne war“) → frass (SP6-4; AG-20 toter Blechmann, Merkblatt W; Fraßstelle, Seite 1 → „Wendigo“; Hirsch)",
+    "→ wrack (A-20 die Jagd: Flucht zu Jonas’ Lager, Lager-SP, A-23 Hufe über Kinderfüßen, Silhouette, Hofer; Wrack SP6-5, Beobachter flieht, Handschuhfach)",
+    "→ bau (Seite 6, Höhepunkt in hungrige.js) → epilog (Whiskey fliegt voraus, der Wald hat wieder ein Echo) → hochsitz → oben (Augen zu, SB-12, „Luna.“) → Abspann → Endkarte."
+   ],
+   "kapitelHinweis": [
+    6
+   ]
+  },
+  {
+   "modul": "karte",
+   "datei": "app/mods/karte.js",
+   "bytes": 63396,
+   "zeilen": 426,
+   "kopf": [
+    "KARTE (Modul „karte“, Fassung 3 · Zusatzwunsch X-2, mit AP-11 abgestimmt): Fibel-Reiter „KARTE“",
+    "Lukes Bleistiftkarte auf Karopapier, aus den echten Weltdaten gezeichnet (HOUSES, Bodenflächen, feste Körper aus SOL, Laternen, Waldwege),",
+    "einmal je Blatt und Kapitel beim ersten Öffnen (nie im Tick). Nebel des Unbekannten: Besuchsraster je Blatt im Spielstand, Abtastung 2× pro Sekunde.",
+    "Blätter: Dorf · Ebene −2 (ab Kap. 2) · Villa (ab Kap. 4, sobald ein Modul „villa“ steht; Grenzen mit karte_blatt('villa', {x0,x1,z0,z1}) setzbar) · Wald (Kap. 6).",
+    "Nützlich: Lukes Position (Bleistiftpfeil) · Nadeln für bekannte offene Nebenaufgaben (Ort, an dem Luke davon erfuhr, oder q.karte = {x, z}) ·",
+    "eigene Markierungen mit Notiz (Klick) · Ziel ein-/ausblendbar (settings.karteZiel) · Taste M öffnet die Karte.",
+    "Gruselschicht (nur, was Luke gesehen hat): Lucys blaue Kreispfeile (Kap. 1, Weg Briefkasten Nr. 7 → Kirchweg → Haltestelle) · Hildes rote Kerzen an",
+    "gefundenen Polaroids · Lunas weiße Kreide „ICH KOMME“ quer übers Dorf (erscheint von selbst ab Kap. 3) · ∴ an gefundenen Beobachter-Zetteln ·"
+   ]
+  },
+  {
+   "modul": "katzen",
+   "datei": "app/mods/katzen.js",
+   "bytes": 83671,
+   "zeilen": 623,
+   "kopf": [
+    "KATZEN (Modul „katzen“, AP-09 Fassung 3, Überarbeitung 08.10.: Fell, Augen, Individuen): Giselas siebzehn Katzen und der Kater Hänschen",
+    "Ein Tiermodell (Fab „Cat long haired“, Sean4297, CC-BY; aufbereitet in game/assets/ms/katze/model.glb: 56 statt 972 Knochen, Gehzyklus + eigene Posen). Aufbau der Datei: tools/katzen_fell.mjs",
+    "(größerer Kopf/Hals, ~6 k Dreiecke Haarkarten `haar` je Körperregion mit Atlas aus tools/katzen_strands.py, Schnurrhaare `bart`, Augen 12 % größer). Farbe/Muster aus EINER Shader-Funktion für Haut und",
+    "Haarkarten (Maske in der roughnessMap: Detail · weiße Partien · rosa Haut): Makrele, klassisch, Flecken, Siam-Abzeichen, Smoke (helle Unterwolle), Schildpatt/Dreifarbig/Kuh, Narben, verklebtes Fell;",
+    "Augen im Shader (Schlitzpupille, Iris, trübe Augen je Seite); Haarlänge je Katze (kLen), Proportionen je Katze (bau). Halsband im Fell + Namensschild (Filzstift) als Decal.",
+    "Keine Lichter: die Augen leuchten über Emission (Tapetum) und eine Reflexkarte (Textur der eyePairs), wenn die Lampe trifft.",
+    "Regeln (Dossier „Wie die Katzen den Beobachter zeigen“): 1 Starren (Kopf + Ohren auf den Beobachter < 15 m, Kopf folgt Sprüngen mit 0,5 s, kein",
+    "Blinzeln) · 2 Folgen (nicht sitzende Katzen trotten 2–3 m hinter seiner Spur) · 3 Fauchen (Beobachter < 4 m von hinten an Luke; ab Kap. 3 bei"
+   ]
+  },
+  {
+   "modul": "kiffen",
+   "datei": "app/mods/kiffen.js",
+   "bytes": 130009,
+   "zeilen": 836,
+   "kopf": [
+    "KIFFEN (Modul „kiffen“, Zusatzwunsch X-6): Kiffer-Welt, Aufgabe „Fünf Minuten“ und die Joint-Szene auf Vegas' Veranda",
+    "Nutzerwunsch (F3_extras.md X-6): Utensilien in der Welt (Pflanzen, Bong, Papes, Feuerzeuge, Poster, Sticker) mit Lukes trockenen Kommentaren; nach belastenden",
+    "Flashbacks sammelt Luke Grinder, Knolle, Papes und Tips und dreht sich auf Vegas' Veranda einen Joint – jeder Handgriff vom Spieler ausgelöst.",
+    "Kanon: Anfang Kapitel 4 (Morgen nach der Nacht von Kap. 1–3). Nur Erwachsene (Luke 26, Mike 27, Roxy 25, Vegas). Kein Werturteil, kein Spielvorteil außer",
+    "kurzer Ruhe (Angst/Herzschlag der Regie auf 0). Luke nie von vorn: die Kamera zeigt nur seine Hände. Whiskey macht nur nach (Husten), wach kein Satz.",
+    "Modelle (CC-BY, CREDITS.md; aufbereitet mit tools/_x6_assets.mjs): assets/ms/haende (Detective Hands, Tony Flanagan: nur Unterarme/Hände, Skelett ab Unterarm),",
+    "assets/ms/kiffen/{grinder (in Deckel/Körper geschnitten), knolle, papes (Aufdruck neutral), joints, ascher, bong, tuetchen, pflanze, papier}; Peters Feuerzeug = w_lighter.",
+    "Selbst gezeichnet (erlaubt: Decals/Partikel/Papier): Poster und Sticker (Canvas), das Blättchen beim Drehen und der Pappstreifen (verformbare Papierflächen wie im Album),"
+   ],
+   "kapitelHinweis": [
+    1,
+    4
+   ]
+  },
+  {
+   "modul": "kino",
+   "datei": "app/mods/kino.js",
+   "bytes": 253333,
+   "zeilen": 1596,
+   "kopf": [
+    "KINO (Modul „kino“): Kinosequenzen nach Fassung 3 (story_final.md, Abschnitt 5.5 „Kinosequenzen“, AP-10)",
+    "Schnittstelle:",
+    "kino_play(id, opts?) → Promise, löst nach Ende/Überspringen auf. opts: { aufblenden: ms, nahtlos: true (ohne Schwarzblende beginnen), antwort: 'A'|'B'|'C', ... }",
+    "kino_def(id, shots, meta?) · kino_busy() · kino_karte(zeilen, opts?) → Promise (Endkarte Schreibmaschine, Zeile für Zeile je 2 s, auch außerhalb einer Sequenz)",
+    "kino_preload(set) · kino_blinzeln(dauer) · Testzugriff window.__kino: (play, def, seek, hold, skip, cam, free, info, fps)",
+    "meta: { name, skipAfter (Standard 3 s; Infinity = nicht überspringbar), nahtlos, offen (endet ohne Schwarz, Kamera bleibt beim Spieler), uebergabe (Blickrichtung",
+    "der letzten Einstellung wird die des Spielers), done(skipped), start(opts) }",
+    "Einstellung (Daten): { dur, from, to, via, look, lookTo, lookVia, ease, fov, fovTo, roll, rollTo, hand, breathe, follow, frei, blick, blickT, shakes, lens, env, film,"
+   ]
+  },
+  {
+   "modul": "kirchberg",
+   "datei": "app/mods/kirchberg.js",
+   "bytes": 120084,
+   "zeilen": 778,
+   "kopf": [
+    "KIRCHBERG (Modul „kirchberg“, AP-15 Fassung 3)",
+    "Gisela Rieke, Am Kirchberg 3 (N-01/N-02): Haus 15 aus ausbau_nord.js, Küchenfenster, Napfbrett (18 Näpfe, 17 Namen), rotes Kinderrad von 1958,",
+    "Nebenaufgabe 9 „Siebzehn Näpfe“ (vier Katzen einsammeln – Katzen aus katzen.js, AP-09; kleiner Tausch Kuli ↔ Dosendeckel mit Whiskey, AP-08).",
+    "Pfarrhaus, Am Kirchberg 1 (N-05, Nebenaufgabe 11 „Laternenfest fällt aus“): Licht im Studierzimmer, Rad mit Kindersitz, Gemeindebrief, Aushang,",
+    "Liederzettel, Kapellenfenster (acht Felder, von außen nur Umrisse), Martinsnische hinter dem Gitter, Glocke von drinnen (Schreck Stufe 2).",
+    "Innenräume (je eigener Raum weit außerhalb, Überblendung wie anwesen_enterHall): Giselas Küche/Stube, Pfarrhaus-Studierzimmer, Kapelle innen –",
+    "eingerichtet und bewohnt, gesperrt bis Kap. 3 (Giselas Tür, Pfarrhaus, Kapellengitter; AP-18 schließt auf: kirchberg_oeffne(id)).",
+    "Außerdem: gemeinsame Werkzeuge für post.js und nr4.js (Papier-Texturen, Abziehbilder, Modelle setzen, Innenraum-Bau, Betreten/Verlassen,"
+   ],
+   "kapitelHinweis": [
+    5
+   ]
+  },
+  {
+   "modul": "klang",
+   "datei": "app/mods/klang.js",
+   "bytes": 79263,
+   "zeilen": 517,
+   "kopf": [
+    "KLANG (Modul „klang“): Klangbetten je Ort, Musik, Einzelgeräusche – aus echten Aufnahmen",
+    "Quellen (CREDITS.md): Sonniss GDC Game Audio Bundles (lizenzfrei), VSCO 2 Community Edition (CC0, Instrumente), die CC0-Aufnahmen aus sounds.js.",
+    "Dateien: game/audio/*.ogg (Opus), gebaut von app/tools/klang_bau.py + klang_bau2.py – erst bei Bedarf geladen (fetch + decodeAudioData), nichts steckt im HTML.",
+    "Grundsätze: jedes Geräusch hat eine Quelle und einen Grund · Stille ist Gestaltungsmittel · Musik nur, wo sie einen Moment trägt (Fund, Verlust, Jagd, Kapitelende),",
+    "dazwischen lange Pausen · Leitmotiv ist Lucys Spieluhr (E – D – C – H – C): mal Spieluhr, mal Klavier, mal Streicher.",
+    "Klangbetten je Ort (Regen auf Asphalt, Rinnstein, Dachtraufe, ferner Wind, Stromleitung · Raumton, Küchenuhr, Regen hinter dem Fenster · Keller: Tropfen, Luftzug ·",
+    "Amt: Lüftung, Tunnel, Brummen · Wald: Regen auf Laub · Nimmerheim: luftige Fläche) werden weich überblendet und laufen über hushG (Regie: plötzliche Stille).",
+    "Alle Umgebungsereignisse fragen vorher die Regie (Modul spannung): Budget je Minute, Abstand je Familie, Stille nach Schrecken."
+   ]
+  },
+  {
+   "modul": "kreaturen",
+   "datei": "app/mods/kreaturen.js",
+   "bytes": 27749,
+   "zeilen": 178,
+   "kopf": [
+    "KREATUREN (Q-1, CLAUDE.md §19–§22): Fleisch, Skelette, Bewegung und Laute der Wendigo-Formen",
+    "Was hier lebt (nur Aussehen, Bewegung, Ton – die Begegnungs- und Questlogik bleibt in hungrige.js / kapitel6.js):",
+    "· kr_fleischMat / kr_haut: gemeinsame Designsprache aller Geschälten – Muskelfasern (Fab „Muscle Tissue“, clacydarch, CC-BY) dreiplanar, Sehnen, Adern,",
+    "nasse Oberfläche (Rauheit wechselt fleckig), Blut dunkler in den Falten, Licht dringt rötlich um die Kanten (Wrap-Beleuchtung als Subsurface-Anmutung),",
+    "eingesunkene Rippen, durchstoßende Wirbel, eine asymmetrische Wunde mit Knochen darin.",
+    "· kr_hirschding: die wahre Gestalt mit echtem Skelett und eigenen Clips (tools/kreaturen.mjs: aufrecht auf zwei Hinterläufen, „zwei Tritte je Schritt“, Sturm auf allen vieren,",
+    "Rückwärtsflucht mit falsch knickenden Sprunggelenken, Arm vors Gesicht, Aufstieg aus dem Haufen, Schrei, Packen). Kein Atem – nur Zucken. Kopf dreht ohne Hals, in Rasten.",
+    "· kr_wolf: der Geschälte Wolf („Grimhound“, DM-913, CC-BY) mit Clips unter den alten Namen (Rest, RestToGoBackUp, IdleAggressive, Walk, Run, JumpBite, Death …) – er atmet schwer und nass, lahmt vorn rechts."
+   ]
+  },
+  {
+   "modul": "laternen",
+   "datei": "app/mods/laternen.js",
+   "bytes": 6378,
+   "zeilen": 42,
+   "kopf": [
+    "LATERNEN (Modul „laternen“): Birne, Lichtkegel und Lichtpool sitzen am ECHTEN Kopf der Laternen",
+    "Nutzer 07.10.: „die Lampen sehen oben aus wie eine schwebende Platte, auf der der Rabe sitzt – alles soll geschlossen und natürlich aussehen“.",
+    "Ursache: lamp() (Basis) setzt die Birne 1,7 m vom Mast weg; das Scan-Modell der Laterne (assets/lamp) hat aber einen viel kürzeren Ausleger. Die leuchtende Birnenplatte,",
+    "der Kegel und der Lichtpool hingen deshalb frei in der Luft neben dem Kopf. Hier wird nach dem Einsetzen des Modells die Lage aus dessen Hüllkörper gemessen:",
+    "Birne direkt unter den Leuchtenkopf (flach an die Unterseite), Kegel, Pool und Lichtpunkt (wx/wz, tx/tz) folgen. Gilt für alle Laternen (Ort, Ost/West, spätere).",
+    "Messung am echten Scan-Kopf (Eckpunkte in Weltlage): Kopf = höchste 0,9 m am äußersten Ende des Auslegers. Die leuchtende Scheibe sitzt vollständig INNERHALB der Schale",
+    "(60 % der Innenmaße), bündig mit der Unterkante (knapp darüber), Halo nur als weicher Sprite darunter. Gilt für Ausrichtung gerade/schräg, Ort und Ost/West."
+   ]
+  },
+  {
+   "modul": "leben",
+   "datei": "app/mods/leben.js",
+   "bytes": 118850,
+   "zeilen": 1096,
+   "kopf": [
+    "LEBEN (Modul „leben“)",
+    "Tiere, die aufeinander und auf dich reagieren · Fenster, hinter denen jemand wohnt · Wind · ferne Geräusche · Unerklärliches.",
+    "Nur Verhalten und Ereignisse – keine Requisiten. Alles hängt an WORLD_TICK: Zeitgeber statt Dauerschleifen, keine Speicheranforderungen pro Bild.",
+    "Tiere: echte, gerigte Modelle (Krähe, Fuchs, Reh, Wolf, Schwein aus assets/ms/animal_*, Ratten/Fledermäuse/Fliegen/Spinnen aus den Fab-Assets). Die selbstgebauten Krähen des Spiels sind nur noch unsichtbares Gerüst.",
+    "---------------------------------------------------------------- Hilfen"
+   ]
+  },
+  {
+   "modul": "leistung",
+   "datei": "app/mods/leistung.js",
+   "bytes": 44620,
+   "zeilen": 395,
+   "kopf": [
+    "LEISTUNG (Modul „leistung“, Schluss-Leistungsprüfung 01.10.2026)",
+    "Ganz zuletzt in der Modul-Reihenfolge: wirkt auf das, was alle anderen Module gebaut haben. Ändert nichts am Aussehen.",
+    "1) SHADER NIE IM LAUFENDEN BILD ÜBERSETZEN. Was erst im Spiel entsteht (Bewohnt-Deko beim Näherkommen, Figuren beim ersten Auftritt), brauchte neue",
+    "Shader-Programme – three.js übersetzt sie im Bild, in dem sie zum ersten Mal gezeichnet werden, und wartet darauf (gemessen: Nr. 7 betreten 7,4 s Standbild,",
+    "Zayn 4 × 0,3–0,55 s). Jetzt: (a) eine Hintergrund-Durchsicht der Szene (wenige hundert Knoten je Bild) findet neue Material-/Varianten-Paare, solange sie",
+    "noch versteckt sind, und übersetzt sie parallel (KHR_parallel_shader_compile); (b) taucht trotzdem etwas Unübersetztes im Bild auf, wird nur dieses",
+    "Teil ausgelassen, bis sein Programm fertig ist (wenige Bilder), statt das ganze Spiel anzuhalten. Nur für die Spielszene; Nachbearbeitung/Schatten unberührt.",
+    "Varianten-Merkmal eines gezeichneten Teils (die Merkmale, für die three.js ein eigenes Programm braucht)"
+   ]
+  },
+  {
+   "modul": "lucy3",
+   "datei": "app/mods/lucy3.js",
+   "bytes": 76982,
+   "zeilen": 577,
+   "kopf": [
+    "LUCY 3 (Modul „lucy3“, Paket W2-P6): Kapitel 3 · Straße",
+    "Lucy ist in Kapitel 3 halb hier: ihr Auto an der Südsperre läuft (Leerlauf, Abgas, Radio rauscht), auf der beschlagenen Heckscheibe steht von innen",
+    "GROSSER, darunter halb weggewischt HASEN…; blaue Kreispfeile (ihr Zeichen) führen zum Funkkasten. Dort antworten ZWEI Lucys (Kanal A/B) –",
+    "nur das nie ausgesprochene Wort (in den Staub geschrieben) an die echte löst. Die Laternenfolge sagt niemand mehr vor: Lucy nennt die Regel,",
+    "Zählbuch + Einwilligungen liefern die Daten. Jede richtig gelöschte Laterne zeigt 3 s den Nachhall der Unterschrift an diesem Haus.",
+    "Texte wortgleich aus story_final.md, Produktionsplan PK-C K3-1 … K3-5.",
+    "Basisfunktionen werden hier NEU ZUGEWIESEN (oberste Ebene, also vor gedanken.js' Umhüllung in WORLD_MODS → deren Gedanken bleiben erhalten):",
+    "chapter3Opening, radioPuzzle, broadcast, pressSwitch, wrongSwitch. justinArrives bekommt in WORLD_MODS (nach gedanken) eine Sperre während des Intros."
+   ],
+   "kapitelHinweis": [
+    3
+   ]
+  },
+  {
+   "modul": "lwo",
+   "datei": "app/mods/lwo.js",
+   "bytes": 141131,
+   "zeilen": 960,
+   "kopf": [
+    "LWO (Modul „lwo“, Fassung 3 · AP-05 Vertrauen · AP-06 Figuren, Kombi, Sender)",
+    "Quelle: story_final.md „Die Lucid World Organization – Dossier“ (80) §2 Aussehen, §3 Vertrauen/AG-V/Kapitelende/Drohungen, §4 Dialogbänke AG-01…AG-21, §5.6 Funk;",
+    "Umsetzung AP-05/AP-06, Systeme 5.1. Alle Zeilen wortgleich aus der Bibel (LWO_AG, LWO_V, LWO_ENDE, LWO_DROHUNG, LWO_FUNK).",
+    "SCHNITTSTELLE (für die Kapitel-APs; alle Namen mit Präfix lwo_)",
+    "Vertrauen (verborgen, nie als Zahl sichtbar):  story.lwo = lwo_S = { trust 0–100 (Start 50), seen {}, sender 'none'|'kept'|'thrown', auftrag1, auftrag2 }",
+    "lwo_trust(delta, key)   einmalig je Schlüssel (key ohne → jedes Mal), geklemmt 0–100; true, wenn verbucht",
+    "lwo_ereignis(key)       Wert aus LWO_WERT (Tabelle 5.1) verbuchen – Schlüssel und Aufrufer stehen in der Tabelle",
+    "lwo_stufe()             'hoch' (≥ 70) | 'mittel' (30–69) | 'miserabel' (< 30)"
+   ]
+  },
+  {
+   "modul": "menue",
+   "datei": "app/mods/menue.js",
+   "bytes": 41044,
+   "zeilen": 323,
+   "kopf": [
+    "MENÜ-BÜHNE (Modul „menue“, R-20): das Hauptmenü als Visitenkarte des Spiels",
+    "Hinter dem Menü läuft die ohnehin geladene Welt (kein eigenes Laden, keine Lichter): fünf Motive, langsame traumhafte Fahrt, Schnitt über Schwarz –",
+    "Ahornstraße/Nr. 7 · Laterne mit Fibel und Whiskey · Ortstafel hinter beschlagener Scheibe (∴ mit dem Finger) · Kapelle · Waldrand im Nebel.",
+    "Leise Ereignisse: Kreidestriche (Fünfergruppen) entstehen von selbst, die Hausnummer zeigt kurz „17“, Whiskey landet auf der Laterne und dreht den Kopf",
+    "zur Kamera, die Laterne geht aus – danach führen nasse Abdrücke zur Fibel. 60 s ohne Eingabe: die Kamera geht auf Nr. 7 zu, die Tür steht einen Spalt offen.",
+    "Fortschritt (Spielstand, ohne Vorgriff): nach Kapitel 1 Ortstafel „210“ und die Katze wartet vor der Tür von Nr. 7; ab Kapitel 3 steht der Neunte < 1 s am Lichtrand.",
+    "Oberfläche (CSS in der Basis): Kreide-Titel (bröckelt, Kratzer, Wasserflimmern, selten ∴), Bleistift-Unterstreichung, Polaroid-Kapitel, Notizheft, Mitwirkende.",
+    "Regentropfen auf der Scheibe: oberflaeche.js (#obRegen). Schnittstelle: menu.cam (Basis attractUpdate) · MZ · mz_credits(an)."
+   ]
+  },
+  {
+   "modul": "moebel",
+   "datei": "app/mods/moebel.js",
+   "bytes": 5453,
+   "zeilen": 40,
+   "kopf": [
+    "MÖBEL (Modul „moebel“, Nutzer-Rückmeldung 02.10.2026: „viele Schränke haben keine sichtbare Tür“)",
+    "Im Grundspiel stehen noch nackte Kästen als Schränke (Archiv im Amt, Kommode Nr. 1, Villa). Sie werden ausgeblendet (Kollision bleibt) und durch die gescannten",
+    "Möbel ersetzt: Kleiderschrank (Fab „wardrobe“: Türen, Griffe, Sockel) bzw. Kommode („dresser“: Schubladen). Größe aus dem Kasten (Höhe genau, Breite/Tiefe ±12 %),",
+    "Vorderseite zur freien Seite (dort, wo im Raum Platz ist). Kühlschrank Nr. 7 bleibt vorerst (das Fab-Modell „Fridge - Refrigerator - Freezer“ liegt offen auf dem Rücken – unbrauchbar)."
+   ]
+  },
+  {
+   "modul": "naturschreck",
+   "datei": "app/mods/naturschreck.js",
+   "bytes": 24070,
+   "zeilen": 175,
+   "kopf": [
+    "NATURSCHRECK (Modul „naturschreck“): leise Schreckmomente, wie sie die Welt von selbst hergibt",
+    "Nutzer 07.10.: „echte subtile Schreckmomente, die natürlich vorkommen – eine Spinne seilt sich vor dein Gesicht ab, ein plötzlicher lauter Donnerschlag, ein Tier huscht vorbei,",
+    "jemand steht plötzlich hinter dir … ohne dass es überladen, häufig oder generisch wirkt; nie zu oft wiederholt, nie zu zufällig.“",
+    "Regeln (damit es natürlich bleibt):",
+    "· nur in ruhigen Momenten (Stress niedrig, keine Verfolgung, kein Gespräch, kein Film, keine Atempause, nicht nach einem Höhepunkt) – sonst zählt die Uhr nicht weiter;",
+    "· frühestens ~6 Minuten nach dem Start, danach alle 5–9 Minuten ruhiger Spielzeit höchstens einer, nie derselbe wie die letzten zwei;",
+    "· jeder Moment hat eigene Bedingungen des Ortes (Spinne nur drinnen unter einer Decke, Vogel nur an einem echten Busch, Donner nur bei Sturm-Himmel …);",
+    "· alles läuft durch die Regie (spannung_can/spannung_did): Mindestabstand je Familie, Gewöhnung, Kapitel-Dichte."
+   ]
+  },
+  {
+   "modul": "neben3",
+   "datei": "app/mods/neben3.js",
+   "bytes": 190575,
+   "zeilen": 1051,
+   "kopf": [
+    "NEBEN3 (Modul „neben3“, Fassung 3 · AP-18): Kapitel 3 · Nebenaufgaben und Rüstungs-Hinweise",
+    "Kanon: story_final.md „Kapitel 3 · ‚Ich komme‘ – Nebenaufgaben und offene Welt“ (31) und AP-18. Wortlaute unverändert aus der Bibel.",
+    "Dieses Modul: Register der 20 Nebenaufgaben (Fibel-Namen), Zeitfenster (ab UK 5 bis zur vierten Laterne), Abschluss mit der vierten Laterne",
+    "(weiter laufen nur „Siebzehn Näpfe“, „Hast du dich an mich erinnert?“, „Eine für sieben“, „Hinter deinen Füßen“), Rüstungs-Hinweise (RH, Zähler",
+    "ch3.armorHints über justin_rh), Glocken-Joker (ch3.bell) und die Aufgaben an Orten, die AP-15 gebaut hat (Kapelle innen, Pfarrhaus, Martinsnische,",
+    "Giselas Küche, Peters Zimmer in Nr. 4) sowie „Hinter deinen Füßen“ (Beobachter-API).",
+    "Schnittstelle für die anderen Kap.-3-Dateien (albers, ausbau_nord, ausbau_ost_west, strasse, zayn, cleo, whiskey, geheimnisse, remise; alles mit typeof prüfen):",
+    "neben3_frei()              → true zwischen UK 5 und der vierten Laterne (Kapitel 3, Straße oder Atlantschiss). Auslöser davor dürfen vorbereiten, zählen aber erst dann."
+   ],
+   "kapitelHinweis": [
+    3
+   ]
+  },
+  {
+   "modul": "neben4",
+   "datei": "app/mods/neben4.js",
+   "bytes": 86821,
+   "zeilen": 518,
+   "kopf": [
+    "NEBEN4 (Modul „neben4“, Fassung 3 · AP-20): Kapitel 4 · Nebenaufgaben",
+    "Kanon: story_final.md Kapitel 4 „Nebenaufgaben“ (Wortlaute), Dossier Neue Figuren („Unzustellbar“ mit allen Briefen, „Siebzehn Näpfe“ Kap. 4,",
+    "„Der Kreisel, der nicht umfällt“), LWO-Dossier Z-10, Beobachter-Dossier 82 5.9 (B-K4-N4…N6), 02 C2/F2/F3/I3.",
+    "Acht Aufgaben (Fibel-Namen) – jede sagt in der Fibel, WARUM Luke das tut (premium_auftrag „Story“):",
+    "Gasleck (Kerzen vor Nr. 7, Band −4 je Verstoß, Blechkiste/Whiskey K4-2, Mülltüte hinter der Tonne von Nr. 9, zurückstecken, Kreide)",
+    "Kassler, vier achtzig (Nr. 4, Haushaltsbuch → Gegenstand 'haushaltsbuch' = AG-12 Weg 2, villa.js bietet ihn dann selbst an)",
+    "Unzustellbar (Günther an Nr. 1, Wege a/b/c; a/b: Schuppen mit Fächern, B-K4-N6, Zusammenbruch; c: Schuppen zu, weiter in Kap. 5 „Der gelbe Kasten“)",
+    "Der Kreisel, der nicht umfällt (Teedose in Heinrichs Zimmer, villa.js ruft neben4_teedose; Foto −5 über AG-14, läuft in Kap. 5 weiter)"
+   ],
+   "kapitelHinweis": [
+    4
+   ]
+  },
+  {
+   "modul": "neben5",
+   "datei": "app/mods/neben5.js",
+   "bytes": 77900,
+   "zeilen": 503,
+   "kopf": [
+    "NEBEN5 (Modul „neben5“, Fassung 3 · AP-22): Kapitel 5 · Nebenaufgaben",
+    "Kanon: story_final.md Kapitel 5 „Nebenaufgaben“ (Wortlaute), „Wer was wann weiß“ (Kern-Regeln 7–9), Beobachter-Dossier 82 (B-K5-N1), 02 C2/D6/F3/F9/F12.",
+    "Sechs Aufgaben (Fibel-Namen) – jede sagt in der Fibel, WARUM Luke das tut:",
+    "Ich bin trotzdem dran (k5_jonas: Jonas’ Briefe → Hildes Antworten im Nachttisch Nr. 7 → Kasten, Fahne hoch, Whiskey und die Briefmarke)",
+    "Zuletzt neun (k5_laube: Hildes Laube Parzelle 7 → zwei Filme, Schuhkarton „Nächte“ → Kreuzungsfoto mit dem Neunten, Z.beob = true, einziger Film-Beweis)",
+    "Kinder tanken nicht (ow_kanister, Titel aus ausbau_ost_west: Zapfinsel fotografieren → k5.f.kanisterFoto, letzte Seite im Kassenbuch)",
+    "Ein Dorf näher (k5_heidi: Postkarte auf Vegas’ Fensterbrett → Telefonzelle → Rückruf → Karte zu Lucy)",
+    "Ist sie’s? (k5_dina: Frau Aydın am Fenster des Bauernhauses → Dina in der Remise ohne Binde → Foto ans Fenster, Börek)"
+   ],
+   "kapitelHinweis": [
+    5
+   ]
+  },
+  {
+   "modul": "neben6",
+   "datei": "app/mods/neben6.js",
+   "bytes": 39910,
+   "zeilen": 254,
+   "kopf": [
+    "NEBEN6 (Modul „neben6“, Fassung 3 · AP-24): Kapitel 6 · Nebenaufgaben N6-7 und N6-8",
+    "Quelle: story_final.md Kap. 6 „Nebenaufgaben“ (N6-7 „Papa, ich bin’s“, N6-8 „Mit jedem Bissen“), Rätsel R6-4 „Annis Schleife“, Wendigo-Dossier 1.10 („Pells Heft“).",
+    "Keine ist Pflicht; beide liegen am Hauptweg von kapitel6.js und benutzen dessen Stille-Zonen, Speicherstand und Wahl-Einblendung (k6_wahl).",
+    "N6-7 · Warum: Eine Mädchenstimme ruft im stillen Wald nach ihrem Papa. Wer ihr nachgeht, findet heraus, wessen Kind das ist (Hofers Dienstbuch), öffnet mit dem",
+    "Schlüsselbund „3“ vom Hochsitz Hofers Spind im Amtsbus und hält Annis Lampion in der Hand – mit ihm im Gepäck spricht das Ding vor der Silhouette mit beiden Stimmen.",
+    "R6-4: In drei Stille-Zonen am Weg (vor dem Hochsitz, zwischen Hochsitz und Bus, zwischen Bus und Fraßstelle) läuft Annis Satz als Schleife aus der Richtung,",
+    "in die der Weg führt. Wer ihr folgt, geht in den Satz hinein (Stufe 2: direkt am Ohr, drei Sekunden flackert die Lampe). Wer die Naht abwartet (zehn Sekunden Pause),",
+    "geht ungehört vorbei. Hilfen: Lukes Loop-Satz · „Jeder Loop hat eine Naht“ · Whiskey fliegt genau in der Pause los · „Warte auf die Naht.“ (kein Tod)."
+   ],
+   "kapitelHinweis": [
+    6
+   ]
+  },
+  {
+   "modul": "nr4",
+   "datei": "app/mods/nr4.js",
+   "bytes": 77408,
+   "zeilen": 433,
+   "kopf": [
+    "NR. 4 (Modul „nr4“, AP-15 Fassung 3): Oma Ernas Haus, Haus Kranz, Lukes Jugendzuhause",
+    "Nebenaufgabe 5 „Für den Fall, dass du kommst“: Grundriss von Nr. 1 gespiegelt (Diele, Stube, Küche, Peters Zimmer – abgeschlossen bis Kap. 3),",
+    "oben Lukes altes Jugendzimmer (Poster von 2016, dahinter die Papes; Grinder in der Schreibtischschublade – X-6, Fundorte für kiffen.js) mit Bad,",
+    "Keller mit Oma Ernas Pfandkisten („Pfanddomino“, Slapstick S-09). Zettel E-01 … E-20 + drei Zettel nur hier + drei Tonproben (Wortlaut 85).",
+    "Alles abgedeckt (Laken über den Möbeln), nur die Zettel nicht; riecht nach Mottenkugeln und Kaffee. Whiskey: Mikrowellen-Pling am Küchenfenster,",
+    "Küchenwecker beim Gehen (einmal). Außerdem die Ergänzungen in Nr. 1 für „Flocke“ (Hundenapf, fünf Becher, blaues Kinderrad, Kinderkiste mit Jonas' Regelseite,",
+    "U-Heft, Kinderschuh) – innen_ort.js bleibt unberührt, die Dinge werden hier dazugestellt.",
+    "Räume liegen weit außerhalb der Welt (Überblendung an der Haustür wie anwesen_enterHall); Werkzeuge aus kirchberg.js (kirchberg_raum, _rein, _raus, _papier …)."
+   ],
+   "kapitelHinweis": [
+    4
+   ]
+  },
+  {
+   "modul": "oberflaeche",
+   "datei": "app/mods/oberflaeche.js",
+   "bytes": 29601,
+   "zeilen": 230,
+   "kopf": [
+    "OBERFLÄCHE (Modul „oberflaeche“, R-14 + Q-3 + Schriften-Wunsch vom 01.10.2026)",
+    "Nur Aussehen und Übergänge – keine IDs, keine Handler der Basis werden angefasst.",
+    "1) SCHRIFTEN je Funktion (alle lokal in app/vendor/fonts, SIL OFL bzw. Apache 2.0, mit ä ö ü ß; Konzept: docs/gameplay/visual_identity.md § 9):",
+    "Titel/Menü IM Fell English (SC) · Fließtext/Fibel Cormorant Garamond · Untertitel/HUD/Hinweise Alegreya Sans (SC) · Lukes Gedanken Kalam ·",
+    "Erwachsenen-Handschrift Caveat · Lucy/Luna und Kinder Gochi Hand · Beobachter/Kreide Covered By Your Grace · Schreibmaschine (Amt, LWO, BfR) Special Elite ·",
+    "Formulare/Geräte Courier Prime · das Fremde (Lichtschiff, das Weiße, ∴) Julius Sans One. CSS-Variablen --f-*; Klasse .ob-fremd für fremde Schrift.",
+    "2) PAPIER je Quelle: Notizen bekommen data-src (brief · amt · druck · lucy · kind · beob · postit · handy) aus Titel/Inhalt; echte Papierstruktur",
+    "(Fasern, Stockflecken, Wasserränder, Kaffeering, Falze, Lochung, Linien/Karos, Schiefertafel) einmal beim Laden auf Canvas erzeugt;"
+   ]
+  },
+  {
+   "modul": "post",
+   "datei": "app/mods/post.js",
+   "bytes": 68173,
+   "zeilen": 361,
+   "kopf": [
+    "POST (Modul „post“, AP-15 Fassung 3): Günther Maas, der Postbote (N-03/N-04)",
+    "Kap. 1, Nebenaufgabe 16 „Empfänger unbekannt verzogen“: kurz nach Mitternacht zwischen Kirchweg und Ortskern, Klingel zweimal kurz, einmal lang,",
+    "gelbe Regenjacke, ohne Licht; bremst und rollt drei Meter zu weit, steigt nicht ab; Whiskey klingelt aus der falschen Richtung, die Posttasche kippt,",
+    "der Brief an Lucy (J. W., Hamburg) – „Unzustellbar. Empfänger unbekannt verzogen.“; Zigaretten für schlechte Zeiten; Telefonat am Zaun von Nr. 9,",
+    "Meldezettel in den Kasten, nach Osten. Figur aus der Werkstatt (chars/guenther), Postrad = Fahrrad-Scan: Räder drehen sich mit der Fahrt (Speichen",
+    "aus dem Scan herausgelöst), Treten aus der Hüfte mit weichen Übergängen, Kopf folgt Luke, Atmung – kein Gleiten.",
+    "Sein Schuppen hinter der Tankstelle (shedUtilS 99,6 / −26,5, AP-15): Schild REIFEN – KRANZ, Vorhängeschloss mit Auge, Werbeprospekte nach Jahren gebündelt,",
+    "Neonröhre in den Ritzen, flackert, wenn jemand davorsteht; innen (Kap. 4/5) Obstkisten-Regale mit Straßen-Fächern, Postsäcke nach Jahren, Kalender 2012."
+   ],
+   "kapitelHinweis": [
+    5
+   ]
+  },
+  {
+   "modul": "qte",
+   "datei": "app/mods/qte.js",
+   "bytes": 17751,
+   "zeilen": 137,
+   "kopf": [
+    "QTE (Modul „qte“): Quick-Time-Events – klein, wiederverwendbar, im Bild verankert (R-10)",
+    "Vorbild Until Dawn / Resident Evil: wenige, gut gesetzte Momente; ein schmaler Ring mit Tastenkappe sitzt am Ort der Handlung (Hand, Fass, Feuerzeug), kein Neon.",
+    "API",
+    "qte_start({ type, keys, duration, need, window, label, at, onOk, onFail, onTick }) → Griff { cancel(), aktiv, ok }",
+    "type  'tippen'   einmal im richtigen Moment: der äußere Ring zieht sich zusammen, getroffen wird im Zielring (window = [a, b] als Anteil der Dauer)",
+    "'haemmern' schnell wiederholen (need Anschläge, der Druck lässt nach)",
+    "'folge'    Tastenfolge (keys = [...], je Taste duration / Anzahl)",
+    "'halten'   Taste halten und die Maus ruhig lassen („Nicht bewegen“), duration = Haltezeit; zu viel Bewegung oder Loslassen → Fehlschlag"
+   ]
+  },
+  {
+   "modul": "raumklang",
+   "datei": "app/mods/raumklang.js",
+   "bytes": 28056,
+   "zeilen": 203,
+   "kopf": [
+    "RAUMKLANG (Modul „raumklang“, R-19): jeder Ton kommt von seiner Quelle",
+    "Vorbilder: RE2/RE7/Village, The Last of Us Part II, Alien: Isolation. Ersetzt Audio.at/Audio.play der Basis (gleiche Aufrufe, gleiche Rückgaben).",
+    "Jede Welt-Quelle: Panner (HRTF nah/wichtig, sonst Equal-Power) → Tiefpass (Luft + Verdeckung) → Pegel (Verdeckung) → Welt-Bus (Hall des Hörer-Raums)",
+    "[+ Hall des Quell-Raums, wenn der ein anderer ist: das Haus klingt nach Haus, auch wenn Luke draußen steht].",
+    "Entfernung: inverse Kurve (≈ 1/r) je Typ – leise (Rascheln: 1 m, fällt schneller), normal, laut (Telefon), sehr_laut (Glocke, Donner).",
+    "Verdeckung: Strecke Hörer→Quelle gegen die Kollisionsboxen (Wände, geschlossene Türen, Autos – offene Türen sind keine Box). Ist sie zu, wird ein Weg",
+    "um die nächste Ecke/Türkante gesucht (Beugung): der Ton kommt dann von dort, weiter und dumpfer – Schritte im Gang „kommen um die Ecke“.",
+    "Bewegte Quellen (obj: Object3D oder Vektor) folgen jedes Bild ohne Allokation; Doppler nur auf Wunsch (schnelle Quellen). Stimmenbudget mit Vorrang:"
+   ]
+  },
+  {
+   "modul": "regen",
+   "datei": "app/mods/regen.js",
+   "bytes": 32234,
+   "zeilen": 293,
+   "kopf": [
+    "REGEN (Modul „regen“, R-24): Dauerregen nach Alan Wake 2 / RDR2 / TLOU2 / RE Village – und billig, weil er immer da ist",
+    "Ersetzt den CPU-Nieselregen der Basis (rain: 2600 Linien, jedes Bild 2600 Lagen auf der CPU gerechnet und hochgeladen). rain.m ist jetzt das neue Netz",
+    "(gleiche Schalter für die anderen Module: visible, material.opacity = Schauer aus leben.js, scale ≈ 0 im Traum).",
+    "· Schlieren: 10 000 Tropfen in zwei Tiefenschichten – nah (24 × 24 × 12 m) einzeln, fern (72 × 72 × 20 m) als Schleier – in EINEM Zeichenaufruf.",
+    "Lage nur aus der Zeit im Shader: Fallgeschwindigkeit je Tropfengröße 4,2–7,5 m/s, seitlich der Luftweg des Windes (WIND.fx/fz, derselbe wie Laub und",
+    "Sprühregen in umwelt.js), leichte Verwirbelung, um die Kamera gefaltet. Keine CPU-Arbeit je Tropfen, keine Allokation.",
+    "Bewegungsunschärfe: Schlierenlänge = Relativgeschwindigkeit (Tropfen − Kamera) × Belichtung → wer rennt, dem schlägt der Regen schräg entgegen;",
+    "Breite nie unter ~1 Pixel, die Helligkeit wird dafür verdünnt (ferne Tropfen werden zum Schleier statt zu flimmern)."
+   ]
+  },
+  {
+   "modul": "ritzschrift",
+   "datei": "app/mods/ritzschrift.js",
+   "bytes": 38307,
+   "zeilen": 239,
+   "kopf": [
+    "RITZSCHRIFT (Modul „ritzschrift“): von Hand geritzte, gekreidete, geschmierte Schrift auf Wänden und Tafeln",
+    "Nutzer 02.10./07.10.: „generierte Schrift … alles realistisch, Wandschrift zu generiert und abgeschnitten“. Keine Computerschrift: jeder Buchstabe ist ein Strichzug aus",
+    "Stützpunkten (Druckbuchstaben), der bei jedem Zeichnen anders ausfällt – Neigung, Größe, Grundlinie, Handzittern, wechselnder Druck, Aussetzer, doppelte Spuren.",
+    "Stile: 'ritz' (Fingernagel/Löffelstiel im Putz: dunkle Rille + helle Kante + Höhenrelief), 'kreide' (Tafelkreide, körnig), 'blut' (dick, glänzend, mit Tropfen).",
+    "Zeichnet auf zwei Leinwände: C = Farbe (mit Alpha, wird als Abziehbild über die Wand gelegt), B = Höhenrelief (grau 128 = eben; optional, für bumpMap).",
+    "Schnittstelle: ritz_flaeche(w, h, { text, zeilen, seed, stil, dichte, min, max }) → { c, b } · ritz_zeile(C, B, text, x, y, größe, { stil, alpha }) → Breite · ritz_breite(text, größe)",
+    "ritz_strich(C, B, [[x, y], …], größe, stil, alpha) · ritz_tex(c, b) → Material-Parameter (map, bumpMap) für Abziehbilder."
+   ]
+  },
+  {
+   "modul": "sammeln",
+   "datei": "app/mods/sammeln.js",
+   "bytes": 90036,
+   "zeilen": 602,
+   "kopf": [
+    "SAMMELN (Modul „sammeln“, Fassung 3 · AP-11): Sammelsysteme und Fibel-Reiter",
+    "Stundenbuch SB-01…12 (Justin-Dossier §4, Kern §15.1) · „Der Laternenbote“ Z-01…11 (LWO-Dossier §5.2) · Fibel-Reiter „LOSE SEITEN“/„STUNDENBUCH“,",
+    "„LATERNENBOTE“, „DAMALS“ (85 §5), „DAS BIST DU“ (85 §9), „SPIELREGELN“ (85 §5, „Lunas Spielregeln“); Kap.-1-Endkarte „Lose Seiten __ / 3“.",
+    "Schnittstelle für die Kapitel-APs (alles über typeof prüfen):",
+    "sammeln_sb(nr)            → Seite SB-nr aufheben (Notizfenster mit der Seite als Bild) · sammeln_hatSB(nr)",
+    "sammeln_z(nr)             → Zeitung Z-nr aufheben (Zeitungsausschnitt) · sammeln_hatZ(nr)",
+    "sammeln_platz(id, o)      → Fundstück in die Welt legen: id 'SB-04' | 'Z-05', o = { x, y, z, ry, wand: true (an die nächste Wand), ab: Kapitel, label }",
+    "(ein schon gelegtes Stück mit derselben id wird verschoben – z. B. SB-01 zu Justins Lager, sobald AP-15 es baut)"
+   ]
+  },
+  {
+   "modul": "schrecken",
+   "datei": "app/mods/schrecken.js",
+   "bytes": 13562,
+   "zeilen": 97,
+   "kopf": [
+    "SCHRECKEN (Modul „schrecken“): Schreckmomente in der ganzen erweiterten Welt",
+    "Der Regisseur des Grundspiels arbeitet nur auf der Hauptstraße (|x| < 76, |z| < 30). Dieses Modul bespielt alles andere:",
+    "feste, einmalige Momente an Orten (Friedhof, Spielplatz, Kapelle, Schrebergärten, vorderer Wald, Villa-Garten) und seltene Zufallsmomente",
+    "(Laternenmann, Schritte hinter dir, Gestalt zwischen den Bäumen, Flüstern). Nie zwei kurz nacheinander (≥ 75 s), nie in Gesprächen, Filmszenen oder Verfolgungen.",
+    "Der tiefe Wald (Modul tiefwald) hat eigene Momente und ist hier ausgenommen."
+   ]
+  },
+  {
+   "modul": "spannung",
+   "datei": "app/mods/spannung.js",
+   "bytes": 35671,
+   "zeilen": 321,
+   "kopf": [
+    "SPANNUNG (Modul „spannung“): die Regie über alle Geräusch- und Schreck-Planer",
+    "Kein Planer löst mehr auf eigene Faust aus. Vorher: spannung_ask(Familie, Klasse) – oder spannung_can(...) prüfen und nach Erfolg spannung_did(...) melden.",
+    "Klassen: amb (Umgebung: Tiere, Holz, Wasser, Rohre …) · fear (Angst-Flüstern) · minor (Unerklärliches: Schritte, Kichern, Ketten, Stille …) · major (Gestalten, feste Schreckmomente).",
+    "Regeln: Budget je Minute nach Ort und Spannung (je höher die Spannung, desto stiller die Natur) · Mindestabstand je Familie (Gedächtnis, nie dieselbe Familie",
+    "zweimal hintereinander) · Pflicht-Ruhe nach jedem Höhepunkt (Schreckklang/großer Stinger) · in Gesprächen/Filmszenen nichts · Aufmerksamkeit: nichts „hinter dir“",
+    "kurz nach einem Schreck · plötzliche Stille (spannung_hush) hält alle Planer an und senkt Regen/Wind auf 0,2 · stille Zonen an Fraßstelle und Bau der Hungrigen",
+    "(25 m): alles verstummt bis auf hohen Wind in den Kronen, kein Nachhall – „der Wald hat kein Echo“.",
+    "AP-26 (Fassung 3, „Umsetzung“ 5.6; 85 §10/§11; Grusel-Vergleich 5.1–5.9, A-25/A-26/A-28, Q-9):"
+   ]
+  },
+  {
+   "modul": "spinnen",
+   "datei": "app/mods/spinnen.js",
+   "bytes": 39725,
+   "zeilen": 299,
+   "kopf": [
+    "SPINNEN (Modul „spinnen“, Nutzer-Rückmeldung 07.10.2026: Spinnenraum im Amt, Kapitel 2)",
+    "„Die Spinnen sehen scheiße aus, bessere Animation, Sound, Wackel- und Farbeffekte, das Abschüttelsystem muss funktionieren, logisch und spaßig sein – und das Spiel geht nicht mehr weiter.“",
+    "Ursache des Stillstands (Basis, alt): Der Wechsel in die Schüttelphase kam, bevor alle 2400 Spinnen erschienen waren (ab da wurde nicht mehr nachgespawnt), die Endbedingung verlangte aber",
+    "ch2.spawned >= SPN → nie erfüllt; das Lampenflackern setzte glitchV jedes Bild neu → Verzerrung blieb für immer. Mausschütteln zählte nur mit Zeigersperre.",
+    "Neu:",
+    "· Ablauf mit Sicherungen: Spawnen läuft in beiden Phasen weiter; Ende = alles gespawnt UND keine Spinne am Boden UND keine auf dem Bild; Selbsthilfe nach 40 s, hartes Ende nach 75 s;",
+    "Rettung/Abbruch (spn_abbruch) setzt alles zurück; Bild-, Ton- und Lichtzustand werden am Ende immer sauber zurückgesetzt.",
+    "· Schwarm: das Spinnenmodell des Spiels (Fab) mit Beinen im Vertex-Shader (Tetrapodengang, Körperwippen), Pausen/Ruckeln/Wellenlinien, Blickrichtung = Laufrichtung, Wände/Decke → Boden,"
+   ]
+  },
+  {
+   "modul": "stimmen",
+   "datei": "app/mods/stimmen.js",
+   "bytes": 19481,
+   "zeilen": 145,
+   "kopf": [
+    "STIMMEN (Modul „stimmen“, X-1 Sprachausgabe)",
+    "Zu jeder gesprochenen Zeile die vorab erzeugte Aufnahme (Qwen3-TTS, eine feste Referenzstimme je Figur): game/assets/stimmen/<id>.opus, −16 LUFS.",
+    "Zuordnung über den Text: subtitle(t, ms, who) → Normtext (ohne Tags/Anführungszeichen) → Manifest (Text → Zeilen, Anzeigename → Stimme). Untertitel bleiben.",
+    "Gedanken (Sprecher 'LUKE') und Erzählung (ohne Sprecher) bleiben stumm; 'DU' = Luke spricht. Zeilen ohne gute Aufnahme fehlen im Manifest → nur Untertitel.",
+    "Hook stimmen_spielen(key, pos): Traum, Wendigo-Stimmen, Pell-Band, Whiskey-Nachahmung geben Ort/Schlüssel; Rückgabe true = Stimme läuft (Rückfall-Klang entfällt).",
+    "Wege: in der Welt räumlich (Audio.at → Welt-Bus mit Raumhall aus klang/Basis) · ohne Ort mittig über den Welt-Bus (Raumhall) · Funk/Telefon/Band/Mailbox",
+    "trocken mit Bandpass 300–3400 Hz und leichter Sättigung · Luna mit leiser Spieluhr darunter · gefressene Stimmen („?“) trocken, ohne Raum · Whiskey: Rabenmund.",
+    "Laden: Manifest beim Start (fetch), Dateien erst beim ersten Abspielen (fetch + decodeAudioData), say() lädt seine nächsten Zeilen vor. Kein base64."
+   ]
+  },
+  {
+   "modul": "strasse",
+   "datei": "app/mods/strasse.js",
+   "bytes": 87300,
+   "zeilen": 563,
+   "kopf": [
+    "MODUL „strasse“ – Ortskern-Straßenraum",
+    "Ersetzt alle selbstgebauten Straßenobjekte im Ortskern durch Scans/Modelle aus der Bibliothek und füllt die Straße mit Entdeckbarem:",
+    "Autos (inkl. Lucys Auto mit echter Tür, Geisterauto), Briefkästen (inkl. mailbox7 mit Klappe + Schlüssel), Holzmasten + Leitungen + Hausanschlüsse,",
+    "Ortstafel, Verkehrsschilder, Absperrung, Telefonzelle, Hydranten, Mülltonnen/-säcke, Bordsteine, Straßenschutt/-schmutz, Kanaldeckel,",
+    "Vermisstenzettel an Laternen und Masten, Post in den Briefkästen, liegengelassenes Spielzeug."
+   ]
+  },
+  {
+   "modul": "tausch",
+   "datei": "app/mods/tausch.js",
+   "bytes": 83869,
+   "zeilen": 501,
+   "kopf": [
+    "TAUSCH (Modul „tausch“, Fassung 3 AP-08 + Nutzerwunsch Q-9): Glänzendes sammeln, mit Whiskey tauschen",
+    "Fundsachen („Glänzendes“) liegen vor allem abseits des Hauptwegs: ein Lichtfunke im Laub, der im Lampenkegel aufblitzt (TAUSCH_FUNDE, je Kapitel neu).",
+    "Whiskey tauscht wortlos (Gesten, Nachahmungen, Stimmung whiskey_S.mood): handel −1, eitel ±0, beleidigt +1, still = kein Handel. Nie unter der Erde,",
+    "nie in Nimmerheim, nach W-13 (Miras Licht) gar nicht mehr. Das Angebot wächst mit den Kapiteln: erst Batterien, Streichhölzer, Kreide – dann Öllampe,",
+    "Lampenöl, Fernglas, Sturmlaterne, Handwärmer. Jede Ware wirkt im vorhandenen System (Taschenlampe FLASH, Angst fear, Graukind pustet aus, Stille-Zonen).",
+    "Die Kanon-Tauschgeschäfte (W-03 Autoschlüssel ↔ Einkaufswagenchip, Giselas Kuli ↔ Dosendeckel, Messingschlüssel ↔ Batterie/Thermosdeckel …) laufen über",
+    "tausch_kanon() im selben Blatt. Licht: EIN virtuelles Licht (VLight), beim Laden mit Intensität 0 angelegt – zur Laufzeit wird nichts angelegt.",
+    "Ressourcen-Regel (Q-9): Hauptweg knapp und gerade ausreichend, Erkunden immer belohnt (TAUSCH_FUNDE mit main: false tragen die meisten Batterien)."
+   ]
+  },
+  {
+   "modul": "teststand",
+   "datei": "app/mods/teststand.js",
+   "bytes": 2601,
+   "zeilen": 26,
+   "kopf": [
+    "TESTSTAND (Modul „teststand“): Endpunkt einer spielbaren Zwischenversion",
+    "Nur aktiv, wenn beim Zusammenbau HAM_TESTSTAND=<letztes Kapitel> gesetzt ist (assemble.js schreibt dann window.HAM_TESTSTAND).",
+    "Sobald das Spiel ein Kapitel danach beginnen will (setChapter der Basis, auch über kapStart), erscheint statt dessen die Endtafel",
+    "„Ende der Testversion“; der Knopf lädt das Spiel neu (Titelbild). Ohne HAM_TESTSTAND tut das Modul nichts."
+   ]
+  },
+  {
+   "modul": "tiefwald",
+   "datei": "app/mods/tiefwald.js",
+   "bytes": 102609,
+   "zeilen": 623,
+   "kopf": [
+    "TIEFWALD (Modul „tiefwald“): Der tiefe Wald hinter den Forbidden Dustwoods",
+    "Hinter Zayns Hütte ist der alte Nordzaun eingedrückt (x 39,6…44,4). Dahinter wird der Wald immer dichter und dunkler (x −22…92, z 156…266):",
+    "Nebel und Mondlicht hängen an der Tiefe (ENV_DARK), Totholz, umgestürzte Stämme, Gestrüpp, Laub, Nebelschwaden, fallende Blätter, Augen im Dunkeln.",
+    "Roter Faden: Jonas hat von 2009 bis 2016 vierzig Mal nach seinem Bruder Zayn gesucht und dabei die rote Wolle seiner Mutter von Baum zu Baum gespannt.",
+    "Fünf Zettel: Zaunlücke · Hochsitz · Amtsbus · Steinkreis · Weiher (Nebenaufgabe N6-5 „Vierzig Mal“; AP-24: Kerben am Leiterholm, Landeplatz-Andeutung mit Messplakette,",
+    "Blechschild „Probe T“ am Steg, Wahl festhalten/loslassen, „Für Samstag.“).",
+    "Außerdem: Wolfsrudel am Steinkreis (friedlich, wenn der Welpe befreit ist), Wildschweinrotte am Bus (N6-6 „Vorrat. Nicht anfassen.“: Graben mit E halten, Z-06, drei Batterien),",
+    "Autowrack, Jonas' Lager (Karte + Batterie), eine Schaukel, die nicht stillhält, zwei Rehe. Schreckmomente: siehe tief_* unten."
+   ],
+   "kapitelHinweis": [
+    6
+   ]
+  },
+  {
+   "modul": "tod",
+   "datei": "app/mods/tod.js",
+   "bytes": 47259,
+   "zeilen": 401,
+   "kopf": [
+    "TOD (Modul „tod“): Sterben, Speicherpunkte, Wiederkehr",
+    "Wo das Spiel tödlich ist, stirbt Luke sichtbar und hörbar – kein Schnitt ins Schwarze, sondern ein Körper, der nachgibt:",
+    "zombie     – der Zahn-Mann (Peter Kranz) nimmt Lukes Gesicht in beide Hände, sagt „Bruder.“ und hält fest, bis Luke erstickt (kein Biss, kein Blut).",
+    "rauch      – Rauchvergiftung: die Knie geben nach, die Kamera kippt seitlich auf den Boden, das Bild läuft zu.",
+    "gezaehlte  – die Gezählten (Kapitel 3): viele kleine Hände ziehen dich nach hinten hinunter.",
+    "Danach der Todesbildschirm im Stil des Spiels (verkohltes Holz, Messing, getrocknetes Blut) und „Vom letzten Speicherpunkt fortsetzen“.",
+    "Speicherpunkte: Kapitelanfänge, vor dem langen Gang, Flucht vor dem Rauch (Modul feuer), Messraum, vor den Gezählten.",
+    "Jeder Speicherpunkt schreibt auch den Spielstand (saveGame) – in Kapitel 2 samt Fortschritt im Amt, damit „Weiterspielen“ dort weitermacht."
+   ]
+  },
+  {
+   "modul": "traum",
+   "datei": "app/mods/traum.js",
+   "bytes": 56900,
+   "zeilen": 361,
+   "kopf": [
+    "TRAUM (Modul „traum“): Prolog „Du hast lange geschlafen“ (Fassung 3, AP-13 mit A-01)",
+    "Luke ist nach Lucys Anruf („Haus Nummer 7. Der Keller.“) die ganze Nacht durchgefahren und am Ortsschild im Auto eingeschlafen. Der Prolog ist sein Traum:",
+    "die Ahornstraße im weißen Nebel, leer, ohne Laut; irgendwo zählt ein Kind. A-01: Nach der Fahrt aus dem Nebel geht der Spieler selbst, sehr langsam (1,1 m/s,",
+    "kein Rennen), auf die Kreuzung zu – die Laterne kommt nicht näher (Kamera-Offset „zieht die Kreuzung mit“, Gegenzoom hält die Laterne gleich groß),",
+    "das Zählen wird mit jedem Schritt lauter, immer hinter ihm. Nach 25–35 s landet der Rabe; ab da wie geschrieben: nur der Rabe spricht (Miras Worte),",
+    "er gibt die Abenteuerfibel zurück; Höhepunkt „Kum, Wîse“ (kino.js, 22 s, Kindergesicht 1,2 s). Aufwachen im Regen am Ortsschild, Autotür hinter ihm offen,",
+    "Innenlicht an (strasse.js), die Fibel nass in der Jacke. Stimmen: Hook stimmen_spielen (X-1), bis dahin gehauchte Formant-Stimme.",
+    "08.10.2026 (Nutzerentscheidung: Traum bleibt, wird besser): Rabe spätestens ~11 s nach Traumbeginn (kurze Einführung 3,8 s, dann Gehen 2–3,5 s, Anflug 4,8 s),"
+   ],
+   "kapitelHinweis": [
+    3,
+    5,
+    6
+   ]
+  },
+  {
+   "modul": "uebergang",
+   "datei": "app/mods/uebergang.js",
+   "bytes": 25499,
+   "zeilen": 207,
+   "kopf": [
+    "ÜBERGANG (Modul „uebergang“): Kapitel 1 → 2 ohne Schnitt",
+    "Hinter der Zeichnungswand im Keller von Nr. 7 (Südwand z = 296) liegt ein Versorgungsgang. Mit der Brechstange bricht Luke die Wand auf",
+    "und läuft hinunter ins Amt. Technik: zwei baugleiche Gangstücke K1 (am Keller) und K2 (am Amtstunnel, Westtür bei x = 600).",
+    "In der Mitte des geraden Stücks wird der Spieler unbemerkt von K1 nach K2 versetzt (und zurück, falls er umkehrt): Knicke an beiden",
+    "Enden verhindern, dass man weiter als bis zum baugleichen Teil sieht. Betritt er den Amtstunnel, beginnt Kapitel 2 und die Stahltür",
+    "fällt hinter ihm zu. Relative Maße (m): gerades Stück x 0…12, Knick A (Norden, zum Keller) bei x 0, Knick B (Süden) bei x 12."
+   ],
+   "kapitelHinweis": [
+    1,
+    2
+   ]
+  },
+  {
+   "modul": "umwelt",
+   "datei": "app/mods/umwelt.js",
+   "bytes": 45593,
+   "zeilen": 365,
+   "kopf": [
+    "UMWELT (Modul „umwelt“, R-7/R-8): Umgebungsphysik und Luft",
+    "Alles hängt am EINEN Windzustand der Basis (WIND, gust, windStoss; Pflanzen über windVert) – derselbe, den klang.js hört:",
+    "· Schaukeln: Pendel (Kette/Seil, Länge aus dem Modell), Anstoßen durch Luke (Stoß entlang der Schwingrichtung: Luke ist schwer, der Sitz leicht),",
+    "Ausschwingen mit Dämpfung, der Wind drückt mit; die Kette klirrt beim Stoß und quietscht an den Umkehrpunkten. Die Antriebe der Geschichte",
+    "(Reifenschaukel Nr. 2, Spielplatz, Waldschaukel) pumpen nur Energie nach – sie schwingen weiter von allein, bleiben aber anstoßbar.",
+    "Neu: das Schaukelgerüst im Vorgarten von Nr. 2 (bisher starr) – Sitze samt Ketten aus dem Scan gelöst.",
+    "· Blätter: einzelne Blätter aus dem Laub-Scan (w_leaves, Zygomir), instanziert, Bahn ganz im Vertex-Shader (Fall, Pendeln, Taumeln, Luftweg",
+    "WIND.fx/fz); sie landen, liegen, rutschen in kräftigen Böen weiter (WIND.gx/gz) und verblassen. Nur nahe Luke. Quellen: Laubbäume, Hecken,"
+   ]
+  },
+  {
+   "modul": "verstecke",
+   "datei": "app/mods/verstecke.js",
+   "bytes": 10869,
+   "zeilen": 81,
+   "kopf": [
+    "VERSTECKE (Modul „verstecke“, Nutzer-Rückmeldung 02.10.2026)",
+    "Nutzer: „Ducken und Hochziehen sollen in der Spielwelt echte Vorteile, Events, Quests und Fundorte haben.“",
+    "Nebenaufgabe „Verstecke der Sieben“: Die sieben Kinder von 2009 hatten Verstecke, an die nur Kinder kamen –",
+    "· unten (unter Autos, Bänken, Verandaböden): nur geduckt erreichbar (Strg / C) → Glänzendes für Whiskey;",
+    "· oben (Schuppen-, Garagen-, Autodächer, Mauerkronen): nur durch Hochziehen (Leertaste an der Kante) → Batterien.",
+    "Orte werden einmal aus der echten Geometrie gesucht (Kollisionskästen + echte Formen): „unten“ = über dem Boden 0,3–0,95 m Deckung;",
+    "„oben“ = Fläche 1,05–1,6 m über einem begehbaren Nachbarpunkt, eben, frei, mit Kopffreiheit. Gleichmäßig verteilt, nie an Türen/Klickstellen.",
+    "Alle acht: der Kinderblick (G) lädt schneller nach (visionen.js, VISION_RECHARGE 75 → 45 s). Fibel-Seite „Verstecke der Sieben“."
+   ]
+  },
+  {
+   "modul": "villa",
+   "datei": "app/mods/villa.js",
+   "bytes": 200104,
+   "zeilen": 1224,
+   "kopf": [
+    "VILLA (Modul „villa“, Fassung 3 · AP-19): Kapitel 4 „Sehen, Bergen, Schweigen“ – Hauptweg UK 1–13",
+    "Quelle: story_final.md Kapitel 4 (Unterkapitel 1–13, Kinosequenz, Fundstücke, Rätsel R4-1…R4-3, Ende), LWO-Dossier 80 §5.5/5.7–5.11, Dossier 84 (K-Akten, Pells Heft).",
+    "Die Halle der Villa baut anwesen.js (ANW_HALL, x −900 | z 900). Dieses Modul baut die übrigen Innenräume als eigene Räume daneben (Überblendung wie",
+    "anwesen_enterHall) – und zwar ERST beim ersten Betreten (Ladezeit): Arbeitszimmer (az), Anrichte mit Dienstboten-/Kellertür (an), Obergeschoss Ost mit Archiv und",
+    "Heinrichs Zimmer (og), Keller mit Kühlraum, Schleuse und Zelle Ost (kr), dazu Vegas' Stube in Nr. 3 (nr3) und den Beobachtungsposten Nr. 9 (nr9).",
+    "Alles hängt an einer Gruppe (VILLA.g), die nur sichtbar ist, solange Luke in einem dieser Räume steht. Lichter: 18 VLights beim Laden mit Intensität 0,",
+    "beim Bau nur umgesetzt (keine Lichter zur Laufzeit); Kühlraum-Röhren nur über die Intensität. Möbel nur aus Scans (game/assets/ms), Papier/Schilder als Decals.",
+    "Kapitelablauf (UK): 1 Straße/Aufräumkommando (AG-11, Z-09, B-K4-01, „Fünf Minuten“) · 2 Nr. 3 Lucy/Speck · 3 AG-12 Auftrag 1 (drei Wege) · 4 Nr. 9 Posten"
+   ],
+   "kapitelHinweis": [
+    4
+   ]
+  },
+  {
+   "modul": "visionen",
+   "datei": "app/mods/visionen.js",
+   "bytes": 19488,
+   "zeilen": 151,
+   "kopf": [
+    "VISIONEN (Modul „visionen“): Hinweis-System aus Totems und Lichtsteinen",
+    "· HINTS: gemeinsames Register offener Fundorte (Echos, Polaroids, Geheimnisse, Werkzeug, Story-Orte). Andere Module tragen sich mit hintAdd() ein.",
+    "· Totem-Visionen: Wer ein Zählgestell berührt, sieht für ein paar Sekunden durch fremde Augen – einen Ort, der später wichtig wird.",
+    "Welche Vision kommt, hängt vom Spielstand ab (die wichtigste noch offene, die noch nicht gezeigt wurde). Danach: „Deutung“ (Säule zum nächsten Ziel).",
+    "· Kinderblick (Taste G): Die gesammelten Lichtsteine hochhalten. Für einige Sekunden sieht Luke wie ein Kind: Lichtsäulen durch Wände",
+    "an allem, was hier noch zu finden ist; Gefahr (die Graue) leuchtet rot. Ladungen = Anzahl Steine, laden langsam nach.",
+    "--- Lichtsäule: durch Wände sichtbar (depthTest aus), von unten nach oben ausblendend, pulsierend"
+   ]
+  },
+  {
+   "modul": "wald",
+   "datei": "app/mods/wald.js",
+   "bytes": 48221,
+   "zeilen": 305,
+   "kopf": [
+    "WALD (Modul „wald“): Forbidden Dustwoods – der Wald hinter dem Spielplatz",
+    "Nördlich des Spielplatzes (x −40…110, z 99…156). Eingang: Lücke im Nordzaun bei x 26–34 (gruen.js lässt dort den Zaun weg).",
+    "Dicht, tot, lebendig: Totholz-Scans in Blöcken (≤ 1000 Instanzen je Block → echte Kollision), Unterholz (weich: bremst, raschelt), Findlinge, Laub.",
+    "Grenze: Weidezaun + Dickicht (sichtbar, keine unsichtbaren Wände). Wege sind freigeschlagen und mit Laub/Schlamm markiert.",
+    "Tiere (echte, gerigte Modelle aus leben.js): Rehe und ein Hirsch auf der Lichtung · ein Fuchs mit einem Kinderschuh · Wölfe und ein Welpe in einer Drahtschlinge.",
+    "Orte: Zayns Hütte (Modul zayn) · Cleos Baumhaus (Modul cleo) · das Waldschild. Aufgaben (AP-24): N6-2 „Nicht rennen, Lampe an“ (Schlinge, R6-2), N6-1 „Was wegläuft, ist echt“ (Lichtung, falsches Reh).",
+    "N6-1: leise → Knack → „… Meistens.“; der Hirsch führt zum Baumhaus; wer die Lampe anmacht, sieht die Herde fliehen – eine Hirschkuh bleibt (angehaltene Kauanimation), kommt beim Senken näher, ist beim dritten Heben weg.",
+    "N6-2: Wölfe weichen vor Licht an den Rand des Kegels; Rennen löst den Warnsprung aus; Schneiden = E halten, Lampe starr, beide Wölfe im Kegel; danach Jonas’ Messer + Plombe „AST 7 · Köder W“."
+   ],
+   "kapitelHinweis": [
+    6
+   ]
+  },
+  {
+   "modul": "waldleben",
+   "datei": "app/mods/waldleben.js",
+   "bytes": 24474,
+   "zeilen": 197,
+   "kopf": [
+    "WALDLEBEN (Modul „waldleben“): der Wald ist bewachsen, bewegt sich und klingt",
+    "Forbidden Dustwoods (WALD) und tiefer Wald (TIEF) bekommen zwischen den toten Bäumen lebendes Grün und Bodenleben, alles echte Scans (Fab, CC-BY,",
+    "siehe CREDITS.md): Kiefern (Big bubble), Laubbäume und Büsche (Nicholas 3D), alte Kiefernstrünke (Drakery), bemooste und faulende Stümpfe",
+    "(Indy Sarlet, Ewan Lejkowski), Moosfelsen (Lassi Kaukonen), efeubewachsene und umgestürzte Stämme (matousekfoto, PersScans), Äste (Arkify3d),",
+    "Laub (Zygomir, matousekfoto), Moos (Zygomir), Klee (Studio-Lab), Gras (Nicholas 3D, Charlie catling), Pilze (EFX).",
+    "Verhalten: Wind lässt Gras, Büsche und Kronen schwingen (Böen stärker, synchron zum Windgeräusch), Pflanzen weichen dem Spieler aus, Büsche",
+    "bremsen und rascheln (Grundspiel: weiche Körper). Klang: Windbett in den Kronen, Laubrascheln, Zweige, fallende Äste, Kiefernzapfen,",
+    "kleine Tiere im Unterholz, Flügelschlag, Tropfen, Käuzchen, Rehe, fernes Heulen (Novembernacht: keine Grillen, keine Frösche)."
+   ]
+  },
+  {
+   "modul": "weiss",
+   "datei": "app/mods/weiss.js",
+   "bytes": 96818,
+   "zeilen": 665,
+   "kopf": [
+    "WELT-MODUL · weiss (Paket W2-P7) – Kapitel 3 · Das Weiße & Ende C",
+    "Texte wortgleich aus story_final.md, „Produktionsplan Kapitel 1–6“, PK-C K3-6 … K3-10 (T7 in PK-G).",
+    "Raum 1: Schrank an der Nordwand, ein Spalt offen – wer näher als 3 m ist, hört ein Kind atmen; sieht Luke hinein, ist es still (leer).",
+    "Raum 2: hildeTalks als Auswahl, room2Solved ohne Geständnis.",
+    "Raum 3, Teil 1 „Die Nacht von 1312“: bereifte Wiese, Birken (Scan w_birke/lod.glb), stehende Flammen (Sprites), sieben Nachhall-Kinder mit",
+    "lantern2, Nachhall-Klon des Ritters, Spuren (Decals) · fünf Stellen · „Was lügt?“ · Geständnis · Lore c3_1312.",
+    "Raum 3, Teil 2 „Der Hohe Abgrund“: Weißblende, Stühle, flackernde Lucy, die große Papierlaterne (nur Emissive), acht Schläge (je eine Handlung),",
+    "Blitze durch Lukes Augen, Helm-Szene von hinten mit Spiegelung im Visier, Zusatzzeilen, Justins Angebot · Wahl A/B/C · Ende C."
+   ],
+   "kapitelHinweis": [
+    3
+   ]
+  },
+  {
+   "modul": "whiskey",
+   "datei": "app/mods/whiskey.js",
+   "bytes": 89586,
+   "zeilen": 613,
+   "kopf": [
+    "WHISKEY (Modul „whiskey“, Fassung 3 AP-08): Miras Rabe Wîse, der Luke durch alle sechs Kapitel begleitet",
+    "Echtes, gerigtes Modell (animal_crow), dunkler und größer als die Dorfkrähen, fast weiße Augen, am LINKEN Fuß ein eiserner Ring (Turm über Abgrund).",
+    "Wach spricht er NIE einen Satz: nur Geräusche, Nachahmungen (whiskey_mimic, vorhandene Aufnahmen, leicht verstimmt, Tiefpass) und die drei alten",
+    "Wörter „Kum!“, „Such!“ und einmal „Luna.“ (Dossier 83). Er geht nie unter die Erde. Nach W-13 (Miras Licht) kein Tausch, keine Nachahmung außer „Bedauerlich.“.",
+    "Vier Gänge (S.mood): eitel (putzt sich) · beleidigt (klaut, dreht den Rücken zu, teurer) · handel (Kopf schief, Blick auf die Jackentasche) · still (Grusel-Signal).",
+    "Stationen (WHISKEY_ST): when() = aktiv, done() = erledigt; die letzte aktive gilt (kapitel6.js und anwesen.js nutzen dieselbe Liste).",
+    "Tausch: Anbieten-Menü und Glänzendes liegen im Modul „tausch“ (tausch.js, direkt danach in ORDER); hier nur, was der Rabe tut.",
+    "Schnittstelle für Kapitel-APs (ohne eigenen Bau): whiskey_ort(id, x, z, y) · whiskey_blick(x, y, z, s) · whiskey_mimic(key) · whiskey_gag() ·"
+   ]
+  },
+  {
+   "modul": "zayn",
+   "datei": "app/mods/zayn.js",
+   "bytes": 32326,
+   "zeilen": 216,
+   "kopf": [
+    "ZAYN (Modul „zayn“): Nebenquest N6-4 „Hast du dich an mich erinnert?“ (Fassung 3; der Satz „Versprochen ist versprochen“ bleibt im Spiel)",
+    "AP-24: in Kapitel 6 beginnt die Spur auch ohne Rucksack (Murmel am ersten Pfad); Brause-Schulden; im Radio „Das ist Band.“ und die Kassette FÜR JONAS UND LUKE (Samen Kap. 7).",
+    "Zayn Wendt, 7 (2009) – Hildes Jüngster, der kleine Bruder von Jonas, Lukes bestem Freund. Er kam 2009 als Einziger nie zurück.",
+    "1) Nr. 7, ab Kapitel 3 verlassen: ein kleiner Rucksack, Anhänger „ZAYN“.  2) Darin eine Kinderkamera: sechs Fotos vom alten Spielplatz,",
+    "auf jedem fehlt ein Detail, auf jedem steht Zayn einen Schritt näher am Wald → Reihenfolge finden. Letztes Bild: nur der Waldrand, „Er wollte, dass ich ihm folge.“",
+    "3) Spur durch die Forbidden Dustwoods: Murmel, Schuh (der Fuchs trägt ihn), Kreide, Süßigkeitenverpackung – Dinge aus Lukes eigener Kindheit.",
+    "4) Die Hütte: Kinderzeichnungen („Versprochen ist versprochen.“), die Erinnerung an das Versprechen, das alte Radio mit Zayns Stimme.",
+    "5) Auf dem Boden die letzte Zeichnung – Zayn hat sich selbst herausgemalt. Keine Antwortmöglichkeit. Die Quest endet einfach."
+   ]
+  },
+  {
+   "modul": "zeichen",
+   "datei": "app/mods/zeichen.js",
+   "bytes": 84633,
+   "zeilen": 578,
+   "kopf": [
+    "ZEICHEN (Modul „zeichen“, X-7): mysteriöse Symbole und Zeichen in der Welt",
+    "Nutzerwunsch X-7 (F3_extras.md): nur kanonfeste Zeichen als Graffiti, Kreide, Ritzungen in Rinde/Stein/Holz/Putz und Brandzeichen – im Ort, am Kirchberg, in den",
+    "Schrebergärten, am Hof, an der Villenmauer, im Tunnel zum Amt, in der Kanalstadt (Außenstelle 3) und ab Kap. 6 im Wald. Jedes Zeichen hat eine Bedeutung (Spalte „was“).",
+    "∴ nur als Drei-Punkt (nie Ein-Punkt vor Kap. 7) · „LWO“ fällt in keinem Text (nur das Auge) · keine neuen Weltfakten, keine Auflösung.",
+    "Sichtbarkeit (Spalte s): 0 immer · 1 nur im Streiflicht der Taschenlampe (Kegel trifft flach auf; die Ritzung hat echte Tiefe über die Normal-Map)",
+    "· 2 nur im Blitz der Kamera (Kap. 5, kamera.js – das Zeichen ist nur im Polaroid zu sehen) · 3 Kreide: frisch ab Kapitel k[0], verblasst je Kapitel (× 0,55), der Blitz zeigt sie ganz",
+    "neu: true → die Kreide erscheint, während Luke wegsieht (Lunas „ICH KOMME“ und das Kind mit der Laterne, Kap. 3).",
+    "Technik: EIN Canvas-Atlas (2048², Farbe + Alpha; Höhen-Canvas → Normal-Map je Zelle), EIN Material; je Bereich EIN Mesh (ein Zeichenaufruf, Puffer vorab angelegt);"
+   ]
+  },
+  {
+   "modul": "ziele",
+   "datei": "app/mods/ziele.js",
+   "bytes": 33885,
+   "zeilen": 250,
+   "kopf": [
+    "ZIELE (Modul „ziele“, Nutzer-Rückmeldung R-17 vom 01.10.2026): Aufgaben, Ziel-Anzeige, „Was jetzt?“, Klänge",
+    "Nutzer: „… ein gut verständliches und sinnvolles System, damit man immer weiß, was zu tun ist und nichts im Trubel des Schreckens übersieht oder vergisst“.",
+    "Vorbilder: Resident Evil (Ziel kurz einblenden, Akten/Karte), Alan Wake 2 (Fallwand: was offen ist), The Last of Us II, Until Dawn (ruhig, diegetisch).",
+    "Baut auf dem Vorhandenen auf, ersetzt nichts:",
+    "· questPop (Basis) bekommt Arten mit eigenem Aussehen und Klang: neben · fort · erledigt · verpasst · fund · fibel · karte · kapitel – erkannt am Kennwort.",
+    "Neue Nebenaufgabe/Fortsetzung/Erledigt zeigen darunter in Lukes Handschrift, worum es geht (Text der Aufgabe aus story.side).",
+    "· Warteschlange: Einblendungen überschreiben sich nie mehr; in Jagd, Kino, QTE, Sterben, bei offener Notiz/Fibel/Pause warten sie und kommen danach der Reihe nach.",
+    "Was während Jagd/Schreck eingesteckt wurde, kommt danach gesammelt: „DU HAST EINGESTECKT“ (+ Griff an die Jackentasche)."
+   ]
+  },
+  {
+   "modul": "zimmer7",
+   "datei": "app/mods/zimmer7.js",
+   "bytes": 51323,
+   "zeilen": 362,
+   "kopf": [
+    "WELT-MODUL · zimmer7 (W2-P4, PK-D K2-2/K2-3)",
+    "Zimmer 7 im Amt (Ebene −2): Hilde Wendts Büro südlich des Durchgangs, x 630–636, z −2608…−2602 (X + 30…36, Z − 8…Z − 2).",
+    "Schlüsselkette: Ordnungstafel → Schublade (Vermessungsprotokoll, Schlüssel ZIMMER 7, Erleichterung) → Zimmer 7 (Schlüssel an Hildes Haken) → Sicherungsraum.",
+    "Einrichtung nur aus Scan-Modellen (Stahlschreibtisch, Stuhl, Kommode, Aktenschrank, Rahmen, Stehlampe als Tischleuchte, Losurne, Dienstbuch, Tasse, Strickjacke);",
+    "Wände/Boden mit Megascans-Oberflächen (Putz, Ölsockel, abgetretener Boden); Papiere, Aushang, Stadtplan, Kalender, Schlüsselbrett als Canvas-Decals.",
+    "Licht: nur die Schreibtischlampe (VLight, beim Laden mit Intensität 0, hochgesetzt bei Kapitel-2-Beginn) + gemeinsames Schatten-Hauptlicht (KEY.list), solange man im Raum ist.",
+    "---------------------------------------------------------------- Texte (wortgleich PK-D K2-3)"
+   ],
+   "kapitelHinweis": [
+    1,
+    2
+   ]
+  }
+ ],
+ "beats": {
+  "K5_BEATS": {
+   "datei": "app/mods/kapitel5.js",
+   "zeile": 11,
+   "beats": [
+    "aus",
+    "intro",
+    "veranda",
+    "fenster",
+    "kamera",
+    "foto1",
+    "licht",
+    "tuer",
+    "tisch",
+    "schleife",
+    "foto2",
+    "spieluhr",
+    "heimweg",
+    "lucy",
+    "anruf",
+    "brot",
+    "stall",
+    "augenauf",
+    "tappen",
+    "grab",
+    "zaun",
+    "ende"
+   ]
+  },
+  "K6_BEATS": {
+   "datei": "app/mods/kapitel6.js",
+   "zeile": 24,
+   "beats": [
+    "gitter",
+    "krumen",
+    "huette",
+    "zaun",
+    "faden",
+    "falle",
+    "frass",
+    "wrack",
+    "bau",
+    "epilog",
+    "hochsitz",
+    "oben",
+    "ende"
+   ]
+  }
+ },
+ "kapitelModule": {
+  "1": [
+   "kapitel1",
+   "zimmer7",
+   "kiffen",
+   "albers",
+   "cleo",
+   "uebergang"
+  ],
+  "2": [
+   "amt",
+   "akte",
+   "innen_kapitel",
+   "feuer",
+   "lwo"
+  ],
+  "3": [
+   "kapitel3",
+   "justin",
+   "weiss",
+   "neben3",
+   "lucy3",
+   "innen_kapitel"
+  ],
+  "4": [
+   "anwesen",
+   "villa",
+   "neben4",
+   "nr4"
+  ],
+  "5": [
+   "kapitel5",
+   "neben5",
+   "kirchberg",
+   "post",
+   "ausbau_nord"
+  ],
+  "6": [
+   "kapitel6",
+   "wald",
+   "tiefwald",
+   "neben6",
+   "hungrige"
+  ]
+ },
+ "storyGliederung": [
+  {
+   "ebene": 1,
+   "titel": "High Abyss Mira – Story-Bibel, Fassung 3",
+   "zeile": 1
+  },
+  {
+   "ebene": 2,
+   "titel": "Für Claude Code: So setzt du dieses Dokument um",
+   "zeile": 7
+  },
+  {
+   "ebene": 2,
+   "titel": "Für den Autor: Was in dieser Fassung anders ist",
+   "zeile": 17
+  },
+  {
+   "ebene": 2,
+   "titel": "Inhalt",
+   "zeile": 41
+  },
+  {
+   "ebene": 2,
+   "titel": "Die Wahrheit – verbindlicher Kern (Fassung 3, nach dem Autoren-Interview vom 29.09.2026)",
+   "zeile": 68
+  },
+  {
+   "ebene": 3,
+   "titel": "0. Wünsche und Entscheidungen des Autors (stehen über allem)",
+   "zeile": 74
+  },
+  {
+   "ebene": 3,
+   "titel": "1. Die Geschichte in einer Minute (so muss sie jeder Spieler am Ende von Kapitel 6 nacherzählen können)",
+   "zeile": 120
+  },
+  {
+   "ebene": 3,
+   "titel": "2. Begriffe (Glossar) – jeder Begriff hat eine Herkunft",
+   "zeile": 134
+  },
+  {
+   "ebene": 3,
+   "titel": "3. Die Nacht von 1312",
+   "zeile": 164
+  },
+  {
+   "ebene": 3,
+   "titel": "4. Das Lichtschiff, Nimmerheim und die Zeit (so erklärt es Justin, in kleinen Happen)",
+   "zeile": 184
+  },
+  {
+   "ebene": 3,
+   "titel": "5. Lunas Spielregeln",
+   "zeile": 198
+  },
+  {
+   "ebene": 3,
+   "titel": "6. Die Lucid World Organization (LWO)",
+   "zeile": 221
+  },
+  {
+   "ebene": 3,
+   "titel": "6.1 Was sie ist und was sie glaubt",
+   "zeile": 223
+  },
+  {
+   "ebene": 3,
+   "titel": "6.2 Was die LWO in Lost Eyengless tut",
+   "zeile": 230
+  },
+  {
+   "ebene": 3,
+   "titel": "6.3 Die Liste – warum das Dorf seine Kinder hergegeben hat",
+   "zeile": 238
+  },
+  {
+   "ebene": 3,
+   "titel": "6.4 Die Experimente",
+   "zeile": 243
+  },
+  {
+   "ebene": 3,
+   "titel": "6.5 Die Leute der LWO",
+   "zeile": 251
+  },
+  {
+   "ebene": 3,
+   "titel": "6.6 Die LWO im Spielverlauf und das Vertrauen",
+   "zeile": 261
+  },
+  {
+   "ebene": 3,
+   "titel": "7. Der Beobachter (∴)",
+   "zeile": 278
+  },
+  {
+   "ebene": 3,
+   "titel": "8. Whiskey (Wîse)",
+   "zeile": 299
+  },
+  {
+   "ebene": 3,
+   "titel": "9. Justin – Figur, Stimme, Bogen",
+   "zeile": 311
+  },
+  {
+   "ebene": 3,
+   "titel": "10. Figuren",
+   "zeile": 321
+  },
+  {
+   "ebene": 3,
+   "titel": "10.1 Bestehende Figuren – was wahr ist",
+   "zeile": 323
+  },
+  {
+   "ebene": 3,
+   "titel": "10.2 Neue Figuren (Autor-Entscheidung)",
+   "zeile": 337
+  },
+  {
+   "ebene": 3,
+   "titel": "11. Wendungen und Aha-Momente",
+   "zeile": 350
+  },
+  {
+   "ebene": 3,
+   "titel": "12. Kapitelplan",
+   "zeile": 389
+  },
+  {
+   "ebene": 3,
+   "titel": "12.1 Extreme Höhepunkte (je Kapitel einer, als Kinosequenz ausgearbeitet: Kamera, Schnitt, Licht, Ton, Stille, Musik, Timing)",
+   "zeile": 410
+  },
+  {
+   "ebene": 3,
+   "titel": "13. Schreibregeln (für jeden Text im Spiel)",
+   "zeile": 423
+  },
+  {
+   "ebene": 3,
+   "titel": "14. Namen für Kapitel, Unterkapitel und Nebenaufgaben (Pflicht, Autor-Wunsch)",
+   "zeile": 490
+  },
+  {
+   "ebene": 3,
+   "titel": "15. Verteilungsplan (damit Kapitel und Dossiers zusammenpassen)",
+   "zeile": 508
+  },
+  {
+   "ebene": 3,
+   "titel": "15.1 Justins Stundenbuch (12 Seiten, Kennung SB-xx)",
+   "zeile": 512
+  },
+  {
+   "ebene": 3,
+   "titel": "15.2 LWO-Begegnungen (Kennung AG-xx)",
+   "zeile": 529
+  },
+  {
+   "ebene": 3,
+   "titel": "15.3 Zeitungsartikel (Kennung Z-xx), Lokalblatt „Der Laternenbote“ (seit 1890)",
+   "zeile": 555
+  },
+  {
+   "ebene": 3,
+   "titel": "15.4 Whiskey (Kennung W-xx), Mindestauftritte",
+   "zeile": 571
+  },
+  {
+   "ebene": 3,
+   "titel": "15.5 Der Beobachter (Kennung B-xx)",
+   "zeile": 574
+  },
+  {
+   "ebene": 3,
+   "titel": "15.6 Neue Figuren (Kennung N-xx)",
+   "zeile": 577
+  },
+  {
+   "ebene": 2,
+   "titel": "Entscheidungen zu den offenen Abstimmungen (verbindlich, gehen allen Kapitel- und Dossier-Texten vor)",
+   "zeile": 591
+  },
+  {
+   "ebene": 3,
+   "titel": "A. Form und Kennungen",
+   "zeile": 595
+  },
+  {
+   "ebene": 3,
+   "titel": "B. Justin",
+   "zeile": 602
+  },
+  {
+   "ebene": 3,
+   "titel": "C. LWO",
+   "zeile": 613
+  },
+  {
+   "ebene": 3,
+   "titel": "D. Beobachter",
+   "zeile": 628
+  },
+  {
+   "ebene": 3,
+   "titel": "E. Whiskey",
+   "zeile": 637
+  },
+  {
+   "ebene": 3,
+   "titel": "F. Neue Figuren, Nebengeschichten",
+   "zeile": 645
+  },
+  {
+   "ebene": 3,
+   "titel": "G. Lieder",
+   "zeile": 659
+  },
+  {
+   "ebene": 3,
+   "titel": "H. Kapitelübergreifend",
+   "zeile": 665
+  },
+  {
+   "ebene": 3,
+   "titel": "I. Nachträge",
+   "zeile": 673
+  },
+  {
+   "ebene": 2,
+   "titel": "Prolog · „Du hast lange geschlafen“",
+   "zeile": 680
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 682
+  },
+  {
+   "ebene": 3,
+   "titel": "Ablauf des Traums (Einstellungen wie in `traum.js`, Texte neu)",
+   "zeile": 692
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz (Prolog): „Kum, Wîse“",
+   "zeile": 705
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen Prolog",
+   "zeile": 717
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 1 · „Keller bleibt zu“",
+   "zeile": 726
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 728
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 739
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Einwohner 214“",
+   "zeile": 741
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Sind Sie von hier?“ (AG-02)",
+   "zeile": 759
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Der Sessel ist noch warm“",
+   "zeile": 770
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Egal mit welcher Stimme“",
+   "zeile": 788
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „LUKE, 9“",
+   "zeile": 802
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Von Ost nach West“",
+   "zeile": 825
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Ich seh dich gleich …“",
+   "zeile": 835
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz: „Du hast sie rausgelassen“",
+   "zeile": 843
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben (Liste für den zweiten Autor; Ausarbeitung in 11_kap1_neben.md)",
+   "zeile": 859
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen (Hauptweg, vollständige Texte)",
+   "zeile": 891
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 957
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 968
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 994
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 1006
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 1019
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 1034
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 1066
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 1105
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 1123
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 1137
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 1 · „Keller bleibt zu“ – Nebenaufgaben und offene Welt",
+   "zeile": 1144
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 1178
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Flocke“",
+   "zeile": 1180
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Schnalle zu“ (W-01, W-02, W-04b, V-01 bis V-06)",
+   "zeile": 1235
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Sieben Kerzen“",
+   "zeile": 1250
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Da unten ist nicht Lucy“",
+   "zeile": 1270
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Für den Fall, dass du kommst“ (E-01 bis E-20)",
+   "zeile": 1281
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Sind sie wieder da?“",
+   "zeile": 1297
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Butterbrotpapier“ (N-03, LWO 5.8)",
+   "zeile": 1326
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Elf Anrufe“ (AG-01, AG-03, Z-04, B-K1-01)",
+   "zeile": 1350
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Siebzehn Näpfe“ (N-01, K1-7)",
+   "zeile": 1367
+  },
+  {
+   "ebene": 4,
+   "titel": "10 · „Da fehlt eins“",
+   "zeile": 1388
+  },
+  {
+   "ebene": 4,
+   "titel": "11 · „Laternenfest fällt aus“ (SB-02, N-05)",
+   "zeile": 1402
+  },
+  {
+   "ebene": 4,
+   "titel": "12 · „Ochs am Berg“",
+   "zeile": 1420
+  },
+  {
+   "ebene": 4,
+   "titel": "13 · „Hinter dem ältesten Plakat“ (SB-03)",
+   "zeile": 1429
+  },
+  {
+   "ebene": 4,
+   "titel": "14 · „Der Strich ohne Namen“ (AG-04) · **seit der Story-Prüfung (H-6) eine Nebenaufgabe von Kapitel 4**",
+   "zeile": 1440
+  },
+  {
+   "ebene": 4,
+   "titel": "15 · „Zapfsäule 3“ (Z-02, N-03)",
+   "zeile": 1450
+  },
+  {
+   "ebene": 4,
+   "titel": "16 · „Empfänger unbekannt verzogen“ (N-03)",
+   "zeile": 1464
+  },
+  {
+   "ebene": 4,
+   "titel": "17 · „Acht Kindersitze“ · **seit der Story-Prüfung (H-6) eine Nebenaufgabe von Kapitel 3**",
+   "zeile": 1478
+  },
+  {
+   "ebene": 4,
+   "titel": "18 · „Wildschaden, 1992“ (Z-03)",
+   "zeile": 1492
+  },
+  {
+   "ebene": 4,
+   "titel": "19 · „Die Kreise sind von unten“ (W-04, SB-01)",
+   "zeile": 1499
+  },
+  {
+   "ebene": 4,
+   "titel": "20 · „Da oben war es warm“",
+   "zeile": 1515
+  },
+  {
+   "ebene": 4,
+   "titel": "21 · „Das winkende Fenster“ · **seit der Story-Prüfung (H-6) eine Nebenaufgabe von Kapitel 3**",
+   "zeile": 1528
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitelübergreifend, Beginn in Kapitel 1",
+   "zeile": 1534
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen in der offenen Welt",
+   "zeile": 1543
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckmomente in der offenen Welt",
+   "zeile": 1555
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in der offenen Welt",
+   "zeile": 1568
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in der offenen Welt",
+   "zeile": 1573
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen",
+   "zeile": 1582
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 1614
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 1628
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 1643
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 2 · „Das achte Kind“",
+   "zeile": 1652
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 1654
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 1668
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Bitte nicht gucken“",
+   "zeile": 1670
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Das bin nicht ich“",
+   "zeile": 1686
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Das Los ist das Los“",
+   "zeile": 1700
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Fang nie mit dem an, der schon leuchtet“",
+   "zeile": 1717
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Ich weiß es jetzt“",
+   "zeile": 1732
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Damit du im Dunkeln nicht allein bist“",
+   "zeile": 1749
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Wolter will ihn heil“",
+   "zeile": 1768
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Solange die Luke zu ist“",
+   "zeile": 1785
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Das war jetzt neu“",
+   "zeile": 1809
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz",
+   "zeile": 1823
+  },
+  {
+   "ebene": 4,
+   "titel": "Teil A · „Bruder.“ (langer Gang, 16 s)",
+   "zeile": 1827
+  },
+  {
+   "ebene": 4,
+   "titel": "Teil B · „Das Gesicht im Glas“ (Messraum, 31 s, ab Lucys letzter Frage)",
+   "zeile": 1842
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 1862
+  },
+  {
+   "ebene": 4,
+   "titel": "„Dasselbe Kleid“ (Hängeregistratur)",
+   "zeile": 1864
+  },
+  {
+   "ebene": 4,
+   "titel": "„Gott steh Lost Eyengless bei“ (Kantine)",
+   "zeile": 1877
+  },
+  {
+   "ebene": 4,
+   "titel": "„Ich habe nicht gefragt, wen“ (Gründungsakte 1958)",
+   "zeile": 1888
+  },
+  {
+   "ebene": 4,
+   "titel": "„Eins zu siebenundachtzig“ (Modelldorf im Planungsraum)",
+   "zeile": 1902
+  },
+  {
+   "ebene": 4,
+   "titel": "„Er würde mit jedem mitgehen“ (Vermessungsbogen des Originals)",
+   "zeile": 1910
+  },
+  {
+   "ebene": 4,
+   "titel": "„Einmachen“ (LWO-Kühlregal)",
+   "zeile": 1917
+  },
+  {
+   "ebene": 4,
+   "titel": "„Nicht füttern“ (Bestandslisten-Fetzen)",
+   "zeile": 1924
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen (Hauptweg)",
+   "zeile": 1933
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 1985
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 1996
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 2028
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 2034
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 2044
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 2065
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 2090
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 2121
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 2142
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 2159
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 3 · „Ich komme“",
+   "zeile": 2167
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 2169
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 2183
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „… siebzehn. Ich komme!“",
+   "zeile": 2185
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Blinde Kuh“",
+   "zeile": 2214
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Du hast mich freigeschlagen“",
+   "zeile": 2236
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Wîse, du alter Dieb“",
+   "zeile": 2267
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Kein Draußen“",
+   "zeile": 2318
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Es sind immer acht“",
+   "zeile": 2354
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Schreib’s“",
+   "zeile": 2385
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Vor unseren Häusern“",
+   "zeile": 2430
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Ketten am Rand“",
+   "zeile": 2462
+  },
+  {
+   "ebene": 4,
+   "titel": "10 · „Eisen ist frei“",
+   "zeile": 2484
+  },
+  {
+   "ebene": 4,
+   "titel": "11 · „Was gehört nicht in diese Nacht?“",
+   "zeile": 2516
+  },
+  {
+   "ebene": 4,
+   "titel": "12 · „Zähl für mich weiter“",
+   "zeile": 2543
+  },
+  {
+   "ebene": 4,
+   "titel": "13 · „Sie hat losgelassen“",
+   "zeile": 2576
+  },
+  {
+   "ebene": 4,
+   "titel": "14 · „Ich hatte kein anderes Fenster“",
+   "zeile": 2634
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz",
+   "zeile": 2696
+  },
+  {
+   "ebene": 4,
+   "titel": "Teil 1 · „Blinde Kuh“ (Unterkapitel 2, 24 Sekunden)",
+   "zeile": 2700
+  },
+  {
+   "ebene": 4,
+   "titel": "Teil 2 · „Blinzeln“ (Unterkapitel 14, 38 Sekunden)",
+   "zeile": 2718
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 2742
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen",
+   "zeile": 2790
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 2855
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 2895
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 2924
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 2942
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 2978
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 3017
+  },
+  {
+   "ebene": 4,
+   "titel": "Abspann-Kinosequenz · „Wie jeden Morgen“ (60 s, überspringbar nach 3 s)",
+   "zeile": 3021
+  },
+  {
+   "ebene": 4,
+   "titel": "Endkarte",
+   "zeile": 3042
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 3071
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 3106
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 3135
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 3152
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 3 · „Ich komme“ – Nebenaufgaben und offene Welt",
+   "zeile": 3158
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 3160
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 3171
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Rot eingekreist“",
+   "zeile": 3173
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Zähl bis siebzehn, Augen zu“",
+   "zeile": 3218
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Die dreizehnte Predigt“ (N-06)",
+   "zeile": 3293
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Dürfen Ritter weinen?“",
+   "zeile": 3332
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Ich hol sie selbst“",
+   "zeile": 3367
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Bitte lächeln, Sie werden gefilmt“",
+   "zeile": 3393
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Heimgehen“",
+   "zeile": 3423
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Klar!“",
+   "zeile": 3445
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Außenstelle 3“",
+   "zeile": 3466
+  },
+  {
+   "ebene": 4,
+   "titel": "10 · „Leg sie auf den Ort“",
+   "zeile": 3509
+  },
+  {
+   "ebene": 4,
+   "titel": "11 · „Der Bus um 03:13“",
+   "zeile": 3531
+  },
+  {
+   "ebene": 4,
+   "titel": "12 · „Hast du dich an mich erinnert?“",
+   "zeile": 3550
+  },
+  {
+   "ebene": 4,
+   "titel": "13 · „Eine für sieben“",
+   "zeile": 3572
+  },
+  {
+   "ebene": 4,
+   "titel": "14 · „Warm wie eine Hand“",
+   "zeile": 3595
+  },
+  {
+   "ebene": 4,
+   "titel": "15 · „Ja.“",
+   "zeile": 3619
+  },
+  {
+   "ebene": 4,
+   "titel": "16 · „Schläft wie ein Stein“",
+   "zeile": 3637
+  },
+  {
+   "ebene": 4,
+   "titel": "17 · „Damit keiner fehlt“",
+   "zeile": 3655
+  },
+  {
+   "ebene": 4,
+   "titel": "18 · „Siebzehn Näpfe“ (Fortsetzung, N-02)",
+   "zeile": 3678
+  },
+  {
+   "ebene": 4,
+   "titel": "19 · „Hinter deinen Füßen“",
+   "zeile": 3710
+  },
+  {
+   "ebene": 4,
+   "titel": "20 · „Zweiundvierzig Kerben“",
+   "zeile": 3732
+  },
+  {
+   "ebene": 3,
+   "titel": "Rüstungs-Hinweise",
+   "zeile": 3756
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen",
+   "zeile": 3778
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 3810
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel (Nebenaufgaben)",
+   "zeile": 3839
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel (Nebenaufgaben)",
+   "zeile": 3853
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel (Nebenaufgaben)",
+   "zeile": 3879
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 3908
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 3931
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 3951
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 4 · „Sehen, Bergen, Schweigen“",
+   "zeile": 3960
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 3962
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 3984
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Alle wohlauf“",
+   "zeile": 3986
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Speck ist Speck“",
+   "zeile": 4011
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Wir sind die, die nachts aufbleiben“",
+   "zeile": 4065
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Das Amt kommt donnerstags“",
+   "zeile": 4113
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Sieben Zähne und eine Lücke“",
+   "zeile": 4162
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Wer sie findet, hat hingesehen“",
+   "zeile": 4193
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Asservat 7/58“",
+   "zeile": 4220
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Eigentum der Bundesstelle“",
+   "zeile": 4250
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Stullen?“",
+   "zeile": 4280
+  },
+  {
+   "ebene": 4,
+   "titel": "10 · „Nicht öffnen“",
+   "zeile": 4329
+  },
+  {
+   "ebene": 4,
+   "titel": "11 · „Das ist bedauerlich“",
+   "zeile": 4374
+  },
+  {
+   "ebene": 4,
+   "titel": "12 · „Das war kein Fahrrad“",
+   "zeile": 4456
+  },
+  {
+   "ebene": 4,
+   "titel": "13 · „Noch nicht, Luke. Aber bald.“",
+   "zeile": 4476
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz",
+   "zeile": 4494
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 4544
+  },
+  {
+   "ebene": 4,
+   "titel": "„Gasleck“",
+   "zeile": 4548
+  },
+  {
+   "ebene": 4,
+   "titel": "„Kassler, vier achtzig“",
+   "zeile": 4558
+  },
+  {
+   "ebene": 4,
+   "titel": "„Unzustellbar“ (N-04, Günther Maas)",
+   "zeile": 4565
+  },
+  {
+   "ebene": 4,
+   "titel": "„Der Kreisel, der nicht umfällt“ (N-08, Grete Wolter)",
+   "zeile": 4571
+  },
+  {
+   "ebene": 4,
+   "titel": "„Aus aller Welt“",
+   "zeile": 4578
+  },
+  {
+   "ebene": 4,
+   "titel": "„Papas Marke“ (Whiskey, K4-4)",
+   "zeile": 4581
+  },
+  {
+   "ebene": 4,
+   "titel": "„Siebzehn Näpfe“ (Abschnitt Kapitel 4, N-02)",
+   "zeile": 4584
+  },
+  {
+   "ebene": 4,
+   "titel": "„Dieselbe Kanne“",
+   "zeile": 4587
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen",
+   "zeile": 4592
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 4638
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 4653
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 4683
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 4702
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 4732
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 4746
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 4779
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 4805
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 4825
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 4847
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 5 · „Iss auf, Bruder“",
+   "zeile": 4857
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 4859
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 4881
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Flocke ist seit Jahren tot“",
+   "zeile": 4883
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Innen ein Fenster offen“",
+   "zeile": 4917
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Die Kamera lügt nicht“",
+   "zeile": 4937
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Eine kleine graue Hand“",
+   "zeile": 4958
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „HASENBROT“",
+   "zeile": 5014
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Vier Gedecke“",
+   "zeile": 5030
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Setz dich doch“ (die Schleife)",
+   "zeile": 5051
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Sie ist raus! Barfuß!“",
+   "zeile": 5065
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Beide Hälften“",
+   "zeile": 5076
+  },
+  {
+   "ebene": 4,
+   "titel": "10 · „Augen zu“",
+   "zeile": 5111
+  },
+  {
+   "ebene": 4,
+   "titel": "11 · „Augen auf, Bruder“",
+   "zeile": 5149
+  },
+  {
+   "ebene": 4,
+   "titel": "12 · „Dem Tappen nach“",
+   "zeile": 5164
+  },
+  {
+   "ebene": 4,
+   "titel": "13 · „Schlafenszeit“",
+   "zeile": 5177
+  },
+  {
+   "ebene": 4,
+   "titel": "14 · „Nicht mal von meinem Namen“",
+   "zeile": 5217
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz: „Runde drei“",
+   "zeile": 5234
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 5255
+  },
+  {
+   "ebene": 4,
+   "titel": "„Ich bin trotzdem dran“ (Jonas’ Briefe)",
+   "zeile": 5257
+  },
+  {
+   "ebene": 4,
+   "titel": "„Zuletzt neun“ (Hildes Laube)",
+   "zeile": 5272
+  },
+  {
+   "ebene": 4,
+   "titel": "„Kinder tanken nicht“ (der Benzin-Junge)",
+   "zeile": 5279
+  },
+  {
+   "ebene": 4,
+   "titel": "„Ein Dorf näher“ (Heidi)",
+   "zeile": 5286
+  },
+  {
+   "ebene": 4,
+   "titel": "„Ist sie’s?“ (Frau Aydın)",
+   "zeile": 5294
+  },
+  {
+   "ebene": 4,
+   "titel": "„Der gelbe Kasten“ (Günther Maas, Fortsetzung)",
+   "zeile": 5299
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen (Hauptweg)",
+   "zeile": 5311
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 5333
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 5347
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 5353
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren",
+   "zeile": 5368
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 5395
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 5413
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 5436
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 5470
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 5493
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 5511
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 6 · „Wendigo“",
+   "zeile": 5518
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 5520
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 5542
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Wildschaden“",
+   "zeile": 5544
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Ein Reh geht nicht rückwärts“",
+   "zeile": 5600
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Der Wald hat kein Echo“",
+   "zeile": 5623
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Hinten, wo der Wald aufhört“",
+   "zeile": 5641
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Sieben Kindersitze“",
+   "zeile": 5670
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Ich hab Hunger, Junge“",
+   "zeile": 5694
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Sie kommt noch“",
+   "zeile": 5728
+  },
+  {
+   "ebene": 4,
+   "titel": "8 · „Der linke atmet nicht“",
+   "zeile": 5744
+  },
+  {
+   "ebene": 4,
+   "titel": "9 · „Die ist warm“ (Epilog auf dem Hochsitz)",
+   "zeile": 5761
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz · „Zwei Raben“",
+   "zeile": 5793
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 5833
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-1 · „Was wegläuft, ist echt“ (alt: „Die Lichtung“, `wald.js`)",
+   "zeile": 5837
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-2 · „Nicht rennen, Lampe an“ (alt: „Die Schlinge“, `wald.js`)",
+   "zeile": 5853
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-3 · „Eine für sieben“ (alt: „Die Vergessene“, `cleo.js`)",
+   "zeile": 5870
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-4 · „Hast du dich an mich erinnert?“ (alt: „Versprochen ist versprochen“, `zayn.js`)",
+   "zeile": 5894
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-5 · „Vierzig Mal“ (alt: „Der rote Faden“, `tiefwald.js`)",
+   "zeile": 5911
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-6 · „Vorrat. Nicht anfassen.“ (alt: „Die Rotte“, `tiefwald.js`)",
+   "zeile": 5936
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-7 · „Papa, ich bin’s“ (N-07, Anni Hofer)",
+   "zeile": 5952
+  },
+  {
+   "ebene": 4,
+   "titel": "N6-8 · „Mit jedem Bissen“ (Pells Heft und Pells Band)",
+   "zeile": 5974
+  },
+  {
+   "ebene": 4,
+   "titel": "Der Fibel-Faden des Wendigo (`hungrige.js`, neun Stufen)",
+   "zeile": 6003
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen",
+   "zeile": 6009
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 6081
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 6118
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 6156
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 6177
+  },
+  {
+   "ebene": 4,
+   "titel": "LWO (Stufe „Jagd“, Kern §6.6)",
+   "zeile": 6179
+  },
+  {
+   "ebene": 4,
+   "titel": "Whiskey (W-13 bis W-15)",
+   "zeile": 6195
+  },
+  {
+   "ebene": 4,
+   "titel": "Der Beobachter",
+   "zeile": 6203
+  },
+  {
+   "ebene": 4,
+   "titel": "Neue Figuren",
+   "zeile": 6224
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 6234
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 6256
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 6287
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 6321
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 6343
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 6363
+  },
+  {
+   "ebene": 2,
+   "titel": "Kapitel 7 · „∴“ – Ausblick (nicht bauen)",
+   "zeile": 6370
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 6374
+  },
+  {
+   "ebene": 3,
+   "titel": "Unterkapitel",
+   "zeile": 6386
+  },
+  {
+   "ebene": 4,
+   "titel": "1 · „Eine Hand am Rand“",
+   "zeile": 6388
+  },
+  {
+   "ebene": 4,
+   "titel": "2 · „Einen Tag zu früh“",
+   "zeile": 6395
+  },
+  {
+   "ebene": 4,
+   "titel": "3 · „Länger als eine Sekunde“",
+   "zeile": 6407
+  },
+  {
+   "ebene": 4,
+   "titel": "4 · „Angelehnt“",
+   "zeile": 6433
+  },
+  {
+   "ebene": 4,
+   "titel": "5 · „Dreizehn Atemzüge“",
+   "zeile": 6439
+  },
+  {
+   "ebene": 4,
+   "titel": "6 · „Gefunden!“",
+   "zeile": 6457
+  },
+  {
+   "ebene": 4,
+   "titel": "7 · „Ihr seid unser Gestern“",
+   "zeile": 6476
+  },
+  {
+   "ebene": 3,
+   "titel": "Der Höhepunkt als Kinosequenz",
+   "zeile": 6489
+  },
+  {
+   "ebene": 3,
+   "titel": "Nebenaufgaben",
+   "zeile": 6510
+  },
+  {
+   "ebene": 3,
+   "titel": "Fundstücke und Notizen (Hauptweg)",
+   "zeile": 6520
+  },
+  {
+   "ebene": 3,
+   "titel": "Rätsel",
+   "zeile": 6528
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget",
+   "zeile": 6532
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Kapitel",
+   "zeile": 6545
+  },
+  {
+   "ebene": 3,
+   "titel": "LWO / Whiskey / Beobachter / neue Figuren in diesem Kapitel",
+   "zeile": 6551
+  },
+  {
+   "ebene": 3,
+   "titel": "Enthüllungen und Verdrahtung",
+   "zeile": 6558
+  },
+  {
+   "ebene": 3,
+   "titel": "Ende",
+   "zeile": 6571
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Kapitel",
+   "zeile": 6581
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 6594
+  },
+  {
+   "ebene": 2,
+   "titel": "Mira – die ganze Spur",
+   "zeile": 6607
+  },
+  {
+   "ebene": 3,
+   "titel": "Wer sie ist (verbindlich, aus Kern §3, §8, Entscheidungen 5 und 11)",
+   "zeile": 6609
+  },
+  {
+   "ebene": 3,
+   "titel": "Ihr Zeichen",
+   "zeile": 6621
+  },
+  {
+   "ebene": 3,
+   "titel": "Ihr Wiegenlied",
+   "zeile": 6625
+  },
+  {
+   "ebene": 3,
+   "titel": "Ihre Spuren in jedem Kapitel",
+   "zeile": 6654
+  },
+  {
+   "ebene": 3,
+   "titel": "Die Spiegelung: Mira ↔ Cleo ↔ Marion",
+   "zeile": 6682
+  },
+  {
+   "ebene": 3,
+   "titel": "Fragen, die bis Kapitel 6 beantwortet sein müssen (mit Kapitel)",
+   "zeile": 6691
+  },
+  {
+   "ebene": 3,
+   "titel": "Offene Fragen, die das Spiel bewusst offen lässt (auch nach Kapitel 7)",
+   "zeile": 6706
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 6715
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 6733
+  },
+  {
+   "ebene": 2,
+   "titel": "Die Lucid World Organization – Dossier",
+   "zeile": 6739
+  },
+  {
+   "ebene": 3,
+   "titel": "1 · Was die LWO ist",
+   "zeile": 6745
+  },
+  {
+   "ebene": 4,
+   "titel": "1.1 Geschichte in fünf Schritten (so, wie sie sich selbst erzählt, und so, wie es war)",
+   "zeile": 6747
+  },
+  {
+   "ebene": 4,
+   "titel": "1.2 Zeichen, Leitspruch, Sprache",
+   "zeile": 6759
+  },
+  {
+   "ebene": 4,
+   "titel": "1.3 Ihr Weltbild: der Irrtum, der sich anfühlt wie Pflicht",
+   "zeile": 6766
+  },
+  {
+   "ebene": 4,
+   "titel": "1.4 Tarnung: die BfR, „das Amt“",
+   "zeile": 6781
+  },
+  {
+   "ebene": 4,
+   "titel": "1.5 Außenstellen (Weltkarte in der Villa, Funkfetzen, Kistenaufschriften, Z-10)",
+   "zeile": 6789
+  },
+  {
+   "ebene": 4,
+   "titel": "1.6 Was Außenstelle 7 tut (die sechs Aufgaben, Kern §6.2)",
+   "zeile": 6807
+  },
+  {
+   "ebene": 4,
+   "titel": "1.7 Versuchsreihe K",
+   "zeile": 6816
+  },
+  {
+   "ebene": 4,
+   "titel": "1.8 Projekt WENDIGO",
+   "zeile": 6824
+  },
+  {
+   "ebene": 4,
+   "titel": "1.9 Objekt DREIPUNKT",
+   "zeile": 6828
+  },
+  {
+   "ebene": 4,
+   "titel": "1.10 Das Porträt",
+   "zeile": 6832
+  },
+  {
+   "ebene": 3,
+   "titel": "2 · Die Leute der LWO (mit Aussehen für die Figurenmodelle)",
+   "zeile": 6838
+  },
+  {
+   "ebene": 4,
+   "titel": "2.1 Heinrich Wolter, der Nachsorger",
+   "zeile": 6840
+  },
+  {
+   "ebene": 4,
+   "titel": "2.2 Die Nachsorge: „Pat und Patachon“ (Nachsorge 11 und Nachsorge 12)",
+   "zeile": 6852
+  },
+  {
+   "ebene": 4,
+   "titel": "2.3 Die Blechmänner (Bergung)",
+   "zeile": 6862
+  },
+  {
+   "ebene": 4,
+   "titel": "2.4 Polizeiobermeister Kühn (nur Stimme)",
+   "zeile": 6866
+  },
+  {
+   "ebene": 4,
+   "titel": "2.5 Dr. Theodor Seiler (1934–2019)",
+   "zeile": 6870
+  },
+  {
+   "ebene": 4,
+   "titel": "2.6 Dr. Edda Brand (Ärztin, 1994–2012)",
+   "zeile": 6874
+  },
+  {
+   "ebene": 4,
+   "titel": "2.7 Gefreiter Hofer",
+   "zeile": 6878
+  },
+  {
+   "ebene": 4,
+   "titel": "2.8 Dr. Raymond Pell",
+   "zeile": 6882
+  },
+  {
+   "ebene": 4,
+   "titel": "2.9 Günther Maas, der Zuträger (61)",
+   "zeile": 6886
+  },
+  {
+   "ebene": 3,
+   "titel": "3 · Das Vertrauenssystem (Kern §6.6, spielfertig)",
+   "zeile": 6892
+  },
+  {
+   "ebene": 4,
+   "titel": "3.1 Ereignisse, die den Wert ändern (vollständige Tabelle, maßgeblich 02 C2 und die Kapitel)",
+   "zeile": 6896
+  },
+  {
+   "ebene": 4,
+   "titel": "3.2 Die drei Stufen",
+   "zeile": 6962
+  },
+  {
+   "ebene": 4,
+   "titel": "3.3 Zufallsbegegnungen AG-V (mit vollständigen Zeilen)",
+   "zeile": 6968
+  },
+  {
+   "ebene": 4,
+   "titel": "3.4 Das eine Detail am Kapitelende (je Stufe; Wortlaut der Kapitel)",
+   "zeile": 6994
+  },
+  {
+   "ebene": 4,
+   "titel": "3.5 Drohungen, die nie leer bleiben",
+   "zeile": 7005
+  },
+  {
+   "ebene": 3,
+   "titel": "4 · Dialog-Bänke AG-01 bis AG-21",
+   "zeile": 7022
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-01 · Kap. 1 · Südsperre, neben Lucys Auto · der Kombi",
+   "zeile": 7026
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-02 · Kap. 1 · Laterne vor Nr. 9 · Pat und Patachon",
+   "zeile": 7030
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-03 · Kap. 1 · Lucys Handy · Mailbox · Kühn",
+   "zeile": 7045
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-04 · Kap. 1 · Kirchweg-Gasse · Aushang",
+   "zeile": 7050
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-05 · Kap. 2 · Lautsprecher im Amt · Wolters Stimme auf Band",
+   "zeile": 7054
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-06 · Kap. 2 · Sicherungsraum · Funkgerät",
+   "zeile": 7063
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-07 · Kap. 2 · nach der Rauchflucht · hinter den Aktenschränken (Wortlaut: Kap. 2, Unterkapitel 7 „Wolter will ihn heil“)",
+   "zeile": 7070
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-08 · Kap. 3 · Rand des Abgrunds · die Reihe",
+   "zeile": 7083
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-09 · Kap. 3 · Bushaltestelle am Westende · grauer Kombi · Heinrich Wolter (erste Begegnung)",
+   "zeile": 7087
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-10 · Kap. 3 · Nebel am Ostende · der Blechmann, der ein Ritter ist",
+   "zeile": 7112
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-11 · Kap. 4 · ganze Ahornstraße · Aufräumkommando",
+   "zeile": 7116
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-12 · Kap. 4 · Nr. 3 (Vegas) · Pat und Patachon · Auftrag 1: „Kassler, vier achtzig“ (Wortlaut: Kap. 4, Unterkapitel 4)",
+   "zeile": 7125
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-13 · Kap. 4 · Villa, Obergeschoss, Archiv · Schleichen (Wortlaut: Kap. 4, Unterkapitel 9)",
+   "zeile": 7148
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-14 · Kap. 4 · Villa, Halle · Wolter · die Konfrontation (Wortlaut: Kap. 4, Unterkapitel 11)",
+   "zeile": 7163
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-15 · Kap. 5 · grauer Kombi vor Nr. 1 · Pat und Patachon (Wortlaut: Kap. 5, Unterkapitel 4)",
+   "zeile": 7187
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-16 · Kap. 5 · Friedhof · offenes Grab · Steinmetzrechnung",
+   "zeile": 7202
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-17 · Kap. 5 · Kirchweg · Vermisstenplakat",
+   "zeile": 7206
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-18 · Kap. 6 · Absperrgitter Nordzaun · Wolter · Auftrag 2: „Köder bleibt“ (Wortlaut: Kap. 6, Unterkapitel 1)",
+   "zeile": 7210
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-19 · Kap. 6 · Amtsbus · die Falle (Setpiece, Kap. 6, Unterkapitel 5)",
+   "zeile": 7234
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-20 · Kap. 6 · Weg zur Fraßstelle · der tote Blechmann (Kap. 6, Unterkapitel 6)",
+   "zeile": 7243
+  },
+  {
+   "ebene": 4,
+   "titel": "AG-21 · Kap. 6 · Abspann/Endkarte · Nachsorge 12",
+   "zeile": 7254
+  },
+  {
+   "ebene": 3,
+   "titel": "5 · Alle Dokumente als Spieltext",
+   "zeile": 7260
+  },
+  {
+   "ebene": 4,
+   "titel": "5.1 Die Akte Abgrund: zehn Durchschläge der Dr. Edda Brand (neu, auf den Kern gebracht)",
+   "zeile": 7262
+  },
+  {
+   "ebene": 4,
+   "titel": "5.2 „Der Laternenbote“ · Z-01 bis Z-11",
+   "zeile": 7328
+  },
+  {
+   "ebene": 4,
+   "titel": "5.3 Die Einwilligung (Formblatt 8, mit § 4)",
+   "zeile": 7381
+  },
+  {
+   "ebene": 4,
+   "titel": "5.4 Aushänge",
+   "zeile": 7395
+  },
+  {
+   "ebene": 4,
+   "titel": "5.5 Dienstanweisungen (Kap. 2 Amt, Kap. 4 Villa; je auf grauem Papier, Fußzeile SEHEN · BERGEN · SCHWEIGEN)",
+   "zeile": 7404
+  },
+  {
+   "ebene": 4,
+   "titel": "5.6 Funksprüche (Sammlung, Kanal 3; verzerrt, mit Rauschen; Anker für alle Kapitel)",
+   "zeile": 7413
+  },
+  {
+   "ebene": 4,
+   "titel": "5.7 Die Bestandsliste Außenstelle 7 (Kap. 4, Villa-Archiv, zwei Blätter; Fetzen in Kap. 2 und 6)",
+   "zeile": 7417
+  },
+  {
+   "ebene": 4,
+   "titel": "5.8 Beobachtungsprotokoll aus Nr. 9 (Kap. 4; in Kap. 1 ist Nr. 9 nur durchs Fenster zu sehen, 02 C10; Ordner am Fenster neben dem Objektiv)",
+   "zeile": 7435
+  },
+  {
+   "ebene": 4,
+   "titel": "5.9 Wolters Akte „Subjekt EISEN“ (Kap. 4, Villa, Arbeitszimmer; darin SB-09)",
+   "zeile": 7452
+  },
+  {
+   "ebene": 4,
+   "titel": "5.10 K-Akten (Kap. 2 Messraum / Kap. 4 Villa)",
+   "zeile": 7461
+  },
+  {
+   "ebene": 4,
+   "titel": "5.11 Das Beobachtungsblatt DREIPUNKT (Kap. 4, Kühlraum, an den Gläsern)",
+   "zeile": 7467
+  },
+  {
+   "ebene": 4,
+   "titel": "5.12 Der Speicherzettel im Amt (AG-05-Ergänzung, Kap. 2, Lautsprecherraum)",
+   "zeile": 7471
+  },
+  {
+   "ebene": 4,
+   "titel": "5.13 Die Steinmetzrechnung (AG-16, Kap. 5, Friedhof; Durchschlag bei Maas)",
+   "zeile": 7475
+  },
+  {
+   "ebene": 4,
+   "titel": "5.14 Das Vermisstenplakat (AG-17, Kap. 5, Kirchweg)",
+   "zeile": 7486
+  },
+  {
+   "ebene": 3,
+   "titel": "6 · LWO in der Welt: alle Stellen mit Zeichen, Kürzel oder Gegenstand",
+   "zeile": 7492
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Dossier",
+   "zeile": 7554
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 7567
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 7582
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 7599
+  },
+  {
+   "ebene": 2,
+   "titel": "Justin vom Hohen Abgrund – Dossier",
+   "zeile": 7605
+  },
+  {
+   "ebene": 3,
+   "titel": "1. Die Figur",
+   "zeile": 7611
+  },
+  {
+   "ebene": 4,
+   "titel": "1.1 Herkunft: ein kleiner Hof, ein Turm, ein Zeichen",
+   "zeile": 7613
+  },
+  {
+   "ebene": 4,
+   "titel": "1.2 Brescia",
+   "zeile": 7619
+  },
+  {
+   "ebene": 4,
+   "titel": "1.3 Mira",
+   "zeile": 7629
+  },
+  {
+   "ebene": 4,
+   "titel": "1.4 Luna",
+   "zeile": 7635
+  },
+  {
+   "ebene": 4,
+   "titel": "1.5 Wîse",
+   "zeile": 7639
+  },
+  {
+   "ebene": 4,
+   "titel": "1.6 Der Martinsabend",
+   "zeile": 7643
+  },
+  {
+   "ebene": 4,
+   "titel": "1.7 Die Nacht",
+   "zeile": 7647
+  },
+  {
+   "ebene": 4,
+   "titel": "1.8 Das Loslassen und die Lüge",
+   "zeile": 7653
+  },
+  {
+   "ebene": 4,
+   "titel": "1.9 Winter 1313: die drei Kleinen und der stumme Schmied",
+   "zeile": 7661
+  },
+  {
+   "ebene": 4,
+   "titel": "1.10 Die 714 Jahre",
+   "zeile": 7671
+  },
+  {
+   "ebene": 4,
+   "titel": "1.11 Aussehen für das Modell",
+   "zeile": 7677
+  },
+  {
+   "ebene": 3,
+   "titel": "2. Stimmführer",
+   "zeile": 7695
+  },
+  {
+   "ebene": 4,
+   "titel": "2.1 Wie er spricht",
+   "zeile": 7697
+  },
+  {
+   "ebene": 4,
+   "titel": "2.2 Beispielzeilen",
+   "zeile": 7703
+  },
+  {
+   "ebene": 3,
+   "titel": "3. Dialogbank Kapitel 3",
+   "zeile": 7758
+  },
+  {
+   "ebene": 4,
+   "titel": "3.1 Ankunft (ersetzt `justinArrives`, Anker „Das Weiße spuckt mich aus“; im Kapitel Unterkapitel 4 „Wîse, du alter Dieb“)",
+   "zeile": 7762
+  },
+  {
+   "ebene": 4,
+   "titel": "3.2 Das Lichtschiff (Happen in Unterkapitel 4, jeder an einen Blick gebunden: zur Senke, auf Whiskey, auf die Laternen, auf die Kuh)",
+   "zeile": 7780
+  },
+  {
+   "ebene": 4,
+   "titel": "3.3 Nimmerheim (Auslöser: Luke fragt: „Wo ist Lucy?“, an der ersten gelöschten Laterne)",
+   "zeile": 7789
+  },
+  {
+   "ebene": 4,
+   "titel": "3.4 Zeit und Zeitsprünge (Auslöser: Luke: „Siebenhundert Jahre. Du siehst aus wie vierzig.“, nach der zweiten Laterne)",
+   "zeile": 7794
+  },
+  {
+   "ebene": 4,
+   "titel": "3.5 Der Riss (Auslöser: Luke sieht Justins linke Handfläche, an der Kreuzung, wenn Justin den Hörer hält)",
+   "zeile": 7805
+  },
+  {
+   "ebene": 4,
+   "titel": "3.6 Die Rüstung (Auslöser: Luke klopft gegen Justins Brustplatte oder fragt „Was ist das für ein Metall?“)",
+   "zeile": 7815
+  },
+  {
+   "ebene": 4,
+   "titel": "3.7 Die offenen Nächte (Auslöser: die Kapellenglocke schlägt drei, Pause, dreizehn; Luke bleibt stehen)",
+   "zeile": 7832
+  },
+  {
+   "ebene": 4,
+   "titel": "3.8 Luna (Auslöser: Luke: „Deine Tochter. Die im Keller. Das war sie?“, nach der dritten Laterne)",
+   "zeile": 7838
+  },
+  {
+   "ebene": 4,
+   "titel": "3.9 Mira (Auslöser: Luke: „Und deine Frau?“, vor dem Einstieg in Nimmerheim, am Gully oder am Rand)",
+   "zeile": 7850
+  },
+  {
+   "ebene": 4,
+   "titel": "3.10 Whiskey (Wîse), in steigender Deutlichkeit",
+   "zeile": 7856
+  },
+  {
+   "ebene": 4,
+   "titel": "3.11 Seine Fassung von 1312 (ersetzt `room2Solved`, Anker „Anno 1312 fiel das Weiße“; im Kapitel Unterkapitel 13 „Sie hat losgelassen“)",
+   "zeile": 7882
+  },
+  {
+   "ebene": 4,
+   "titel": "3.12 Raum 3, erster Teil: die Lüge und wie er sie zugibt",
+   "zeile": 7900
+  },
+  {
+   "ebene": 4,
+   "titel": "3.13 Der Hohe Abgrund und das Geständnis (im Kapitel Unterkapitel 14 „Ich hatte kein anderes Fenster“)",
+   "zeile": 7918
+  },
+  {
+   "ebene": 4,
+   "titel": "3.14 Die Wahl (Kern §12, drei Antworten; 02 B1)",
+   "zeile": 7935
+  },
+  {
+   "ebene": 4,
+   "titel": "3.15 Letzte Worte und Geschenk je Antwort (02 B3)",
+   "zeile": 7953
+  },
+  {
+   "ebene": 3,
+   "titel": "4. Das Stundenbuch: SB-01 bis SB-12",
+   "zeile": 7969
+  },
+  {
+   "ebene": 3,
+   "titel": "5. Die 42 offenen Nächte (nur für Autoren, je eine Zeile)",
+   "zeile": 8082
+  },
+  {
+   "ebene": 3,
+   "titel": "6. Justin vor Kapitel 3",
+   "zeile": 8131
+  },
+  {
+   "ebene": 4,
+   "titel": "6.1 Kapitel 1",
+   "zeile": 8137
+  },
+  {
+   "ebene": 4,
+   "titel": "6.2 Kapitel 2",
+   "zeile": 8148
+  },
+  {
+   "ebene": 3,
+   "titel": "7. Justin nach Kapitel 3",
+   "zeile": 8158
+  },
+  {
+   "ebene": 4,
+   "titel": "7.1 Kapitel 4 (Villa Seiler, Tag)",
+   "zeile": 8160
+  },
+  {
+   "ebene": 4,
+   "titel": "7.2 Kapitel 5 (Hof, Stall, Friedhof)",
+   "zeile": 8174
+  },
+  {
+   "ebene": 4,
+   "titel": "7.3 Kapitel 6 (Dustwoods, tiefer Wald)",
+   "zeile": 8184
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Dossier",
+   "zeile": 8193
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 8206
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 8221
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 8237
+  },
+  {
+   "ebene": 2,
+   "titel": "Der Beobachter (∴) – Dossier",
+   "zeile": 8244
+  },
+  {
+   "ebene": 3,
+   "titel": "1. Wahrheit (nur für Schreibende, nichts davon steht vor Kapitel 7 im Klartext im Spiel)",
+   "zeile": 8248
+  },
+  {
+   "ebene": 3,
+   "titel": "2. Aussehen",
+   "zeile": 8264
+  },
+  {
+   "ebene": 3,
+   "titel": "3. Verhalten für die Umsetzung",
+   "zeile": 8272
+  },
+  {
+   "ebene": 4,
+   "titel": "3.1 Die Ein-Sekunden-Regel",
+   "zeile": 8274
+  },
+  {
+   "ebene": 4,
+   "titel": "3.2 Verstecksystem (ab Kapitel 3 durchgehend)",
+   "zeile": 8288
+  },
+  {
+   "ebene": 4,
+   "titel": "3.3 Geräuschsystem",
+   "zeile": 8305
+  },
+  {
+   "ebene": 4,
+   "titel": "3.4 In Innenräumen",
+   "zeile": 8321
+  },
+  {
+   "ebene": 3,
+   "titel": "4. Spurenkatalog",
+   "zeile": 8329
+  },
+  {
+   "ebene": 3,
+   "titel": "5. Die Zettel",
+   "zeile": 8367
+  },
+  {
+   "ebene": 4,
+   "titel": "5.1 Kapitel 1 (nur Spuren und zwei Zettel; er ist nie zu sehen)",
+   "zeile": 8390
+  },
+  {
+   "ebene": 4,
+   "titel": "5.2 Kapitel 2 · Amt, Ebene −2 (sechs feste Zettel, zwei Hilfe-Zettel, ein Zusatz; eine Fast-Sichtung)",
+   "zeile": 8412
+  },
+  {
+   "ebene": 4,
+   "titel": "5.3 Kapitel 3 · offene Nacht (acht Zettel, drei Hilfe-Zettel)",
+   "zeile": 8484
+  },
+  {
+   "ebene": 4,
+   "titel": "5.4 Kapitel 4 · bei Tag (sieben Zettel, zwei bedingte, zwei Hilfe-Zettel; dazu fünf Nebenaufgaben-Zettel in 5.9)",
+   "zeile": 8573
+  },
+  {
+   "ebene": 4,
+   "titel": "5.5 Kapitel 5 · Vater-Mutter-Kind (sechs Zettel, ein Hilfe-Zettel; der Nebenaufgaben-Zettel ist B-K4-N6)",
+   "zeile": 8666
+  },
+  {
+   "ebene": 4,
+   "titel": "5.6 Kapitel 6 · Wald ohne Echo (sieben Zettel, einer bedingt; B-K6-03 gestrichen, B-K6-08 neu)",
+   "zeile": 8687
+  },
+  {
+   "ebene": 4,
+   "titel": "5.7 Die dreizehn Orts-Zettel („Der Neunte“, Entdecker-Belohnung)",
+   "zeile": 8757
+  },
+  {
+   "ebene": 4,
+   "titel": "5.8 Der letzte Zettel („Dreizehn Orte“) und die Murmel",
+   "zeile": 8870
+  },
+  {
+   "ebene": 4,
+   "titel": "5.9 Zettel aus Nebenaufgaben (B-K‹Kap›-N‹n›) und der freie Zusatz",
+   "zeile": 8881
+  },
+  {
+   "ebene": 4,
+   "titel": "5.10 Reserve (nicht platziert)",
+   "zeile": 8897
+  },
+  {
+   "ebene": 3,
+   "titel": "6. Sichtungen",
+   "zeile": 8906
+  },
+  {
+   "ebene": 3,
+   "titel": "7. Beziehungen",
+   "zeile": 8928
+  },
+  {
+   "ebene": 3,
+   "titel": "8. Was er sammelt und warum",
+   "zeile": 8950
+  },
+  {
+   "ebene": 3,
+   "titel": "9. Die Auflösung in Kapitel 7 (Entwurf, abgestimmt mit „Kapitel 7 · ∴“)",
+   "zeile": 8971
+  },
+  {
+   "ebene": 3,
+   "titel": "10. Namen in diesem Dossier",
+   "zeile": 9001
+  },
+  {
+   "ebene": 3,
+   "titel": "11. Umsetzungsnotizen",
+   "zeile": 9018
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 9035
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 9055
+  },
+  {
+   "ebene": 2,
+   "titel": "Whiskey (Wîse) – Dossier",
+   "zeile": 9063
+  },
+  {
+   "ebene": 3,
+   "titel": "1 · Wahrheit, Aussehen, Können, Grenzen",
+   "zeile": 9069
+  },
+  {
+   "ebene": 3,
+   "titel": "2 · Persönlichkeit und die kleinen Charakterszenen",
+   "zeile": 9096
+  },
+  {
+   "ebene": 4,
+   "titel": "Prolog",
+   "zeile": 9109
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 1",
+   "zeile": 9113
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 2",
+   "zeile": 9135
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 3",
+   "zeile": 9141
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 4",
+   "zeile": 9161
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 5",
+   "zeile": 9177
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 6",
+   "zeile": 9193
+  },
+  {
+   "ebene": 3,
+   "titel": "3 · Geräuschbank und die Traum-Sätze",
+   "zeile": 9211
+  },
+  {
+   "ebene": 3,
+   "titel": "4 · Hilfesystem: Wenn Luke festhängt",
+   "zeile": 9256
+  },
+  {
+   "ebene": 3,
+   "titel": "5 · Die Auftritte W-01 bis W-15",
+   "zeile": 9293
+  },
+  {
+   "ebene": 3,
+   "titel": "6 · Die Treppe: Justin kennt Whiskey",
+   "zeile": 9342
+  },
+  {
+   "ebene": 3,
+   "titel": "7 · Miras Licht und die anderen",
+   "zeile": 9366
+  },
+  {
+   "ebene": 3,
+   "titel": "8 · Abgleich mit `whiskey.js`",
+   "zeile": 9382
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Dossier",
+   "zeile": 9413
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 9435
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 9452
+  },
+  {
+   "ebene": 2,
+   "titel": "Projekt WENDIGO und Versuchsreihe K – Dossier",
+   "zeile": 9458
+  },
+  {
+   "ebene": 3,
+   "titel": "Teil 1 · Projekt WENDIGO",
+   "zeile": 9468
+  },
+  {
+   "ebene": 4,
+   "titel": "1.1 Was Probe W war",
+   "zeile": 9470
+  },
+  {
+   "ebene": 4,
+   "titel": "1.2 Dr. Raymond Pell",
+   "zeile": 9480
+  },
+  {
+   "ebene": 4,
+   "titel": "1.3 Gefreiter Hofer",
+   "zeile": 9490
+  },
+  {
+   "ebene": 4,
+   "titel": "1.4 Der Ausbruch (Nacht zum 13. Juli 1992)",
+   "zeile": 9502
+  },
+  {
+   "ebene": 4,
+   "titel": "1.5 Was der Wendigo seitdem tut",
+   "zeile": 9512
+  },
+  {
+   "ebene": 4,
+   "titel": "1.6 Warum er Luke will",
+   "zeile": 9519
+  },
+  {
+   "ebene": 4,
+   "titel": "1.7 Wovor er Angst hat",
+   "zeile": 9525
+  },
+  {
+   "ebene": 4,
+   "titel": "1.8 Seine wahre Gestalt",
+   "zeile": 9530
+  },
+  {
+   "ebene": 4,
+   "titel": "1.9 Warum er gegen Luna nie gewirkt hat",
+   "zeile": 9534
+  },
+  {
+   "ebene": 3,
+   "titel": "1.10 Dokumente (Spieltext)",
+   "zeile": 9540
+  },
+  {
+   "ebene": 4,
+   "titel": "Pells Laborjournal · „Pells Heft“",
+   "zeile": 9542
+  },
+  {
+   "ebene": 4,
+   "titel": "Hofers Dienstbuch (Abgleich mit hungrige.js und Neufassung)",
+   "zeile": 9596
+  },
+  {
+   "ebene": 4,
+   "titel": "Annis Stimme (N-07)",
+   "zeile": 9655
+  },
+  {
+   "ebene": 4,
+   "titel": "Funkprotokolle (31,10 MHz)",
+   "zeile": 9668
+  },
+  {
+   "ebene": 4,
+   "titel": "Bergungsbericht (LWO-Dokument, Villa oder Amt)",
+   "zeile": 9694
+  },
+  {
+   "ebene": 4,
+   "titel": "Merkblatt W (Brusttasche des toten Blechmanns, AG-20)",
+   "zeile": 9703
+  },
+  {
+   "ebene": 3,
+   "titel": "1.11 Abgleich mit den neun Stufen in hungrige.js",
+   "zeile": 9709
+  },
+  {
+   "ebene": 4,
+   "titel": "1.12 Die Falle der LWO (AG-19) aus Sicht des Wendigo",
+   "zeile": 9736
+  },
+  {
+   "ebene": 3,
+   "titel": "Teil 2 · Versuchsreihe K",
+   "zeile": 9751
+  },
+  {
+   "ebene": 4,
+   "titel": "2.1 Was die LWO wollte",
+   "zeile": 9753
+  },
+  {
+   "ebene": 4,
+   "titel": "2.2 K-2 · der namenlose Junge von 1958 (die Reihe fängt mit der Zwei an)",
+   "zeile": 9757
+  },
+  {
+   "ebene": 4,
+   "titel": "2.3 K-1 · Peter Kranz",
+   "zeile": 9767
+  },
+  {
+   "ebene": 4,
+   "titel": "2.4 K-3 · Luke, die vorbereitete Zelle",
+   "zeile": 9783
+  },
+  {
+   "ebene": 3,
+   "titel": "2.5 Dokumente (Spieltext)",
+   "zeile": 9793
+  },
+  {
+   "ebene": 4,
+   "titel": "Akte K-1 · Kranz, P. (Villa, Kapitel 4, Archiv; Karteikarte in Kapitel 2, Prüfraum 3)",
+   "zeile": 9797
+  },
+  {
+   "ebene": 4,
+   "titel": "Akte K-2 · Rückläufer 08/58 (Villa, Kapitel 4, Archiv)",
+   "zeile": 9807
+  },
+  {
+   "ebene": 4,
+   "titel": "Akte K-3 · Brandt, L. (Villa, Kapitel 4, Archiv; angeheftet Wolters Beiblatt aus dem LWO-Dossier 80, 5.10, darunter klein: „Grete.“)",
+   "zeile": 9820
+  },
+  {
+   "ebene": 4,
+   "titel": "Pflegerberichte (Ebene −2, Kapitel 2, Pflegerraum; drei Zettel, je ≤ 5 Zeilen)",
+   "zeile": 9829
+  },
+  {
+   "ebene": 4,
+   "titel": "Peters Kratzschrift (Prüfraum 3, Wände; Decal, vorhanden nach Kern K2-4)",
+   "zeile": 9848
+  },
+  {
+   "ebene": 4,
+   "titel": "Das Feuerzeug „– M.“",
+   "zeile": 9854
+  },
+  {
+   "ebene": 3,
+   "titel": "Teil 3 · Verbindung zum Beobachter",
+   "zeile": 9860
+  },
+  {
+   "ebene": 3,
+   "titel": "Schreckbudget (Vorschlag für die Fundstücke; Kapitel-Autoren fügen ein)",
+   "zeile": 9870
+  },
+  {
+   "ebene": 3,
+   "titel": "Humor in diesem Dossier",
+   "zeile": 9877
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Dossier",
+   "zeile": 9881
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 9899
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 9912
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 9926
+  },
+  {
+   "ebene": 2,
+   "titel": "Stimmen, Humor und Lieder",
+   "zeile": 9932
+  },
+  {
+   "ebene": 3,
+   "titel": "1 · Stimmführer",
+   "zeile": 9938
+  },
+  {
+   "ebene": 4,
+   "titel": "Luke Brandt (26, Tontechniker, Nachtschicht)",
+   "zeile": 9940
+  },
+  {
+   "ebene": 4,
+   "titel": "Lucy Brandt (26, Zwillingsschwester)",
+   "zeile": 9955
+  },
+  {
+   "ebene": 4,
+   "titel": "Lars Vegas (60, Nr. 3, Hund Bruno)",
+   "zeile": 9968
+  },
+  {
+   "ebene": 4,
+   "titel": "Hilde Wendt (60, sieht aus wie 80, Nr. 7)",
+   "zeile": 9981
+  },
+  {
+   "ebene": 4,
+   "titel": "Oma Erna Kranz (1934–2020, Nr. 4, nur auf Zetteln)",
+   "zeile": 9993
+  },
+  {
+   "ebene": 4,
+   "titel": "Jonas Wendt (als Kind in der Fibel, als Erwachsener in Briefen)",
+   "zeile": 9999
+  },
+  {
+   "ebene": 4,
+   "titel": "Mama, Marion Brandt, geb. Kranz (1967–2011, verschollen; Briefe, Nachbilder)",
+   "zeile": 10010
+  },
+  {
+   "ebene": 4,
+   "titel": "Der echte Luke (für immer neun, blaue Augen, gestreifter Schlafanzug)",
+   "zeile": 10021
+  },
+  {
+   "ebene": 4,
+   "titel": "Luna, das Graukind (714 Jahre, für immer sieben)",
+   "zeile": 10031
+  },
+  {
+   "ebene": 4,
+   "titel": "Dina Aydın (26, Scheune im Westen, Augenbinde)",
+   "zeile": 10044
+  },
+  {
+   "ebene": 4,
+   "titel": "Frau Aydın (Nr. 8, Dinas Mutter, am Fenster)",
+   "zeile": 10055
+  },
+  {
+   "ebene": 4,
+   "titel": "Heidi Winter (Nr. 2; nur Postkarten, jedes Jahr eine)",
+   "zeile": 10066
+  },
+  {
+   "ebene": 4,
+   "titel": "Gisela Rieke (78, Am Kirchberg 3, siebzehn Katzen)",
+   "zeile": 10072
+  },
+  {
+   "ebene": 4,
+   "titel": "Günther Maas (61, Postbote, Schuppen hinter der Tankstelle)",
+   "zeile": 10085
+  },
+  {
+   "ebene": 4,
+   "titel": "Pfarrer Bernhard Voss (bis 1992; nur Predigtnotizen und ein Nachbild)",
+   "zeile": 10097
+  },
+  {
+   "ebene": 4,
+   "titel": "Justin vom Hohen Abgrund (kurz; Stimme und Bogen im Kern §9)",
+   "zeile": 10105
+  },
+  {
+   "ebene": 4,
+   "titel": "Pat und Patachon, Nachsorge 11 und 12 (kurz; Kern §6.5)",
+   "zeile": 10111
+  },
+  {
+   "ebene": 4,
+   "titel": "Heinrich Wolter (kurz; Kern §6.5)",
+   "zeile": 10117
+  },
+  {
+   "ebene": 3,
+   "titel": "2 · Lukes Untersuchungszeilen",
+   "zeile": 10122
+  },
+  {
+   "ebene": 3,
+   "titel": "3 · Vegas durch die Tür (13 Monologe)",
+   "zeile": 10279
+  },
+  {
+   "ebene": 3,
+   "titel": "4 · Oma Ernas Zettel in Nr. 4 (Nebenaufgabe „Für den Fall, dass du kommst“)",
+   "zeile": 10335
+  },
+  {
+   "ebene": 3,
+   "titel": "5 · Jonas’ Einträge in der Abenteuerfibel",
+   "zeile": 10361
+  },
+  {
+   "ebene": 3,
+   "titel": "6 · Der Abzählreim „Siebzehn und noch eins“ (17 Kerben)",
+   "zeile": 10405
+  },
+  {
+   "ebene": 3,
+   "titel": "7 · Miras Wiegenlied",
+   "zeile": 10430
+  },
+  {
+   "ebene": 3,
+   "titel": "8 · Das Laternenlied „Rabimmel, rabammel“",
+   "zeile": 10476
+  },
+  {
+   "ebene": 3,
+   "titel": "9 · Lukes Du-Seite in der Fibel („DAS BIST DU“)",
+   "zeile": 10504
+  },
+  {
+   "ebene": 3,
+   "titel": "10 · Atempausen (25 Gedanken nach großen Schrecken)",
+   "zeile": 10537
+  },
+  {
+   "ebene": 3,
+   "titel": "11 · Slapstick (10 kleine Szenen)",
+   "zeile": 10567
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Teil",
+   "zeile": 10601
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 10619
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 10632
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 10651
+  },
+  {
+   "ebene": 2,
+   "titel": "Die neuen Figuren – Dossier",
+   "zeile": 10657
+  },
+  {
+   "ebene": 3,
+   "titel": "Auf einen Blick",
+   "zeile": 10661
+  },
+  {
+   "ebene": 3,
+   "titel": "Gisela Rieke – die Katzenfrau vom Kirchberg",
+   "zeile": 10673
+  },
+  {
+   "ebene": 4,
+   "titel": "Lebenslauf",
+   "zeile": 10675
+  },
+  {
+   "ebene": 4,
+   "titel": "Aussehen und Requisiten (Figurenmodell)",
+   "zeile": 10691
+  },
+  {
+   "ebene": 4,
+   "titel": "Stimmführer",
+   "zeile": 10700
+  },
+  {
+   "ebene": 4,
+   "titel": "Nebenaufgabe „Siebzehn Näpfe“",
+   "zeile": 10723
+  },
+  {
+   "ebene": 3,
+   "titel": "Günther Maas – der Postbote",
+   "zeile": 10812
+  },
+  {
+   "ebene": 4,
+   "titel": "Lebenslauf",
+   "zeile": 10814
+  },
+  {
+   "ebene": 4,
+   "titel": "Aussehen und Requisiten (Figurenmodell)",
+   "zeile": 10828
+  },
+  {
+   "ebene": 4,
+   "titel": "Stimmführer",
+   "zeile": 10835
+  },
+  {
+   "ebene": 4,
+   "titel": "Nebenaufgabe „Unzustellbar“",
+   "zeile": 10860
+  },
+  {
+   "ebene": 3,
+   "titel": "Pfarrer Bernhard Voss – der Mann aus Papier",
+   "zeile": 10957
+  },
+  {
+   "ebene": 4,
+   "titel": "Lebenslauf",
+   "zeile": 10959
+  },
+  {
+   "ebene": 4,
+   "titel": "Aussehen und Requisiten (als erwachsener Behaltener, vorhandenes Modell)",
+   "zeile": 10975
+  },
+  {
+   "ebene": 4,
+   "titel": "Stimme (nur schriftlich)",
+   "zeile": 10983
+  },
+  {
+   "ebene": 4,
+   "titel": "Nebenaufgabe „Die dreizehnte Predigt“",
+   "zeile": 11001
+  },
+  {
+   "ebene": 3,
+   "titel": "Anni Hofer – die Stimme, die dem Wald gehört",
+   "zeile": 11069
+  },
+  {
+   "ebene": 4,
+   "titel": "Lebenslauf",
+   "zeile": 11071
+  },
+  {
+   "ebene": 4,
+   "titel": "Aussehen (Behaltenen-Kind)",
+   "zeile": 11083
+  },
+  {
+   "ebene": 4,
+   "titel": "Stimme (aus dem Wald, Kap. 6; feste Sätze nach 84, Auslöser nach 60)",
+   "zeile": 11087
+  },
+  {
+   "ebene": 4,
+   "titel": "Nebenaufgabe „Papa, ich bin’s“",
+   "zeile": 11100
+  },
+  {
+   "ebene": 3,
+   "titel": "Grete Wolter – das Mädchen mit dem Kreisel",
+   "zeile": 11131
+  },
+  {
+   "ebene": 4,
+   "titel": "Lebenslauf",
+   "zeile": 11133
+  },
+  {
+   "ebene": 4,
+   "titel": "Aussehen (Behaltenen-Kind, kleiner skaliert)",
+   "zeile": 11145
+  },
+  {
+   "ebene": 4,
+   "titel": "Stimme (drei Blicke)",
+   "zeile": 11149
+  },
+  {
+   "ebene": 4,
+   "titel": "Nebenaufgabe „Der Kreisel, der nicht umfällt“",
+   "zeile": 11157
+  },
+  {
+   "ebene": 3,
+   "titel": "Wie die Katzen den Beobachter zeigen (Regeln für die Umsetzung)",
+   "zeile": 11186
+  },
+  {
+   "ebene": 3,
+   "titel": "Verdrahtungen mit anderen Figuren",
+   "zeile": 11202
+  },
+  {
+   "ebene": 3,
+   "titel": "Namen in diesem Dossier",
+   "zeile": 11213
+  },
+  {
+   "ebene": 3,
+   "titel": "Umsetzungsnotizen",
+   "zeile": 11234
+  },
+  {
+   "ebene": 3,
+   "titel": "Abstimmungen (erledigt)",
+   "zeile": 11255
+  },
+  {
+   "ebene": 3,
+   "titel": "Noch offen für den Autor",
+   "zeile": 11273
+  },
+  {
+   "ebene": 2,
+   "titel": "Namensverzeichnis",
+   "zeile": 11281
+  },
+  {
+   "ebene": 3,
+   "titel": "1. Kapitel",
+   "zeile": 11285
+  },
+  {
+   "ebene": 3,
+   "titel": "2. Unterkapitel",
+   "zeile": 11298
+  },
+  {
+   "ebene": 4,
+   "titel": "Prolog",
+   "zeile": 11300
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 1 · „Keller bleibt zu“",
+   "zeile": 11306
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 2 · „Das achte Kind“",
+   "zeile": 11320
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 3 · „Ich komme“",
+   "zeile": 11336
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 4 · „Sehen, Bergen, Schweigen“",
+   "zeile": 11359
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 5 · „Iss auf, Bruder“",
+   "zeile": 11378
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 6 · „Wendigo“",
+   "zeile": 11399
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 7 · „∴“ (nicht bauen)",
+   "zeile": 11416
+  },
+  {
+   "ebene": 3,
+   "titel": "3. Nebenaufgaben",
+   "zeile": 11428
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 1 (Ausarbeitung in 11_kap1_neben.md)",
+   "zeile": 11430
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 2",
+   "zeile": 11460
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 3 (Ausarbeitung in 31_kap3_neben.md; spielbar zwischen UK 5 und der vierten Laterne)",
+   "zeile": 11472
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 4",
+   "zeile": 11497
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 5",
+   "zeile": 11510
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 6",
+   "zeile": 11521
+  },
+  {
+   "ebene": 4,
+   "titel": "Kapitel 7",
+   "zeile": 11535
+  },
+  {
+   "ebene": 3,
+   "titel": "4. Figuren",
+   "zeile": 11539
+  },
+  {
+   "ebene": 3,
+   "titel": "5. Orte und Begriffe",
+   "zeile": 11595
+  },
+  {
+   "ebene": 3,
+   "titel": "6. Konflikte",
+   "zeile": 11658
+  },
+  {
+   "ebene": 2,
+   "titel": "Umsetzung für Claude Code",
+   "zeile": 11678
+  },
+  {
+   "ebene": 3,
+   "titel": "Lies zuerst",
+   "zeile": 11682
+  },
+  {
+   "ebene": 3,
+   "titel": "Arbeitspakete",
+   "zeile": 11697
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-01 · Kapitelzähler, Titel, Menü",
+   "zeile": 11701
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-02 · Begriffs-Ersetzungen",
+   "zeile": 11708
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-03 · Speicherstand",
+   "zeile": 11713
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-04 · Weltuhr, Glocke",
+   "zeile": 11718
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-05 · Vertrauen der LWO",
+   "zeile": 11723
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-06 · LWO-Figuren, Kombi, Sender",
+   "zeile": 11728
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-07 · Beobachter-System",
+   "zeile": 11733
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-08 · Whiskey",
+   "zeile": 11738
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-09 · Katzen",
+   "zeile": 11743
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-10 · Kino-Modul",
+   "zeile": 11748
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-11 · Sammelsysteme",
+   "zeile": 11753
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-12 · Justin",
+   "zeile": 11758
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-13 · Prolog „Du hast lange geschlafen“",
+   "zeile": 11763
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-14 · Kapitel 1 „Keller bleibt zu“ (Hauptweg)",
+   "zeile": 11768
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-15 · Kapitel 1 · Nebenaufgaben und offene Welt",
+   "zeile": 11774
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-16 · Kapitel 2 „Das achte Kind“",
+   "zeile": 11781
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-17 · Kapitel 3 „Ich komme“ (Hauptweg)",
+   "zeile": 11789
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-18 · Kapitel 3 · Nebenaufgaben und Rüstungs-Hinweise",
+   "zeile": 11796
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-19 · Kapitel 4 „Sehen, Bergen, Schweigen“ (Hauptweg)",
+   "zeile": 11801
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-20 · Kapitel 4 · Nebenaufgaben",
+   "zeile": 11808
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-21 · Kapitel 5 „Iss auf, Bruder“ (Hauptweg)",
+   "zeile": 11812
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-22 · Kapitel 5 · Nebenaufgaben",
+   "zeile": 11820
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-23 · Kapitel 6 „Wendigo“ (Hauptweg)",
+   "zeile": 11824
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-24 · Kapitel 6 · Nebenaufgaben und Fibel-Faden",
+   "zeile": 11831
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-25 · Fäden über mehrere Kapitel",
+   "zeile": 11836
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-26 · Schreckbudget, Atempausen, Stimmen",
+   "zeile": 11839
+  },
+  {
+   "ebene": 4,
+   "titel": "AP-27 · Kapitel 7 · Vorbereitung (nicht bauen)",
+   "zeile": 11843
+  },
+  {
+   "ebene": 3,
+   "titel": "Code-Stellen mit alter Wahrheit",
+   "zeile": 11847
+  },
+  {
+   "ebene": 3,
+   "titel": "Neue Assets und Skins",
+   "zeile": 11960
+  },
+  {
+   "ebene": 3,
+   "titel": "Systeme",
+   "zeile": 11981
+  },
+  {
+   "ebene": 4,
+   "titel": "5.1 Vertrauen der LWO",
+   "zeile": 11985
+  },
+  {
+   "ebene": 4,
+   "titel": "5.2 Beobachter je Kapitel",
+   "zeile": 12012
+  },
+  {
+   "ebene": 4,
+   "titel": "5.3 Whiskey-Stationen",
+   "zeile": 12025
+  },
+  {
+   "ebene": 4,
+   "titel": "5.4 Sammelsysteme",
+   "zeile": 12050
+  },
+  {
+   "ebene": 4,
+   "titel": "5.5 Kinosequenzen",
+   "zeile": 12057
+  },
+  {
+   "ebene": 4,
+   "titel": "5.6 Schreckbudget",
+   "zeile": 12071
+  },
+  {
+   "ebene": 3,
+   "titel": "Test-Checkliste",
+   "zeile": 12085
+  }
+ ],
+ "kapitelStartEnde": [
+  {
+   "art": "KAP_END",
+   "kapitel": 6,
+   "datei": "app/mods/kapitel.js",
+   "zeile": 53
+  },
+  {
+   "art": "KAP_END",
+   "kapitel": 4,
+   "datei": "app/mods/neben4.js",
+   "zeile": 506
+  },
+  {
+   "art": "KAP_BEGIN",
+   "kapitel": 5,
+   "datei": "app/mods/neben4.js",
+   "zeile": 507
+  },
+  {
+   "art": "KAP_END",
+   "kapitel": 5,
+   "datei": "app/mods/neben5.js",
+   "zeile": 493
+  },
+  {
+   "art": "KAP_BEGIN",
+   "kapitel": 4,
+   "datei": "app/mods/villa.js",
+   "zeile": 1182
+  }
+ ]
+}
