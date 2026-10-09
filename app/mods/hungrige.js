@@ -283,7 +283,7 @@ const HUNGRIGE_NACKT = {
         if (still && d < 9) { if (!this.halt) { this.halt = true; leben_play(V, 'IdleLookAround', .35); if (V.cur) V.cur.timeScale = .35; } if (this.tw) this.tw.k = 1 + .35 * Math.sin(this.t * 1.3); }
         else { if (this.halt) { this.halt = false; leben_play(V, 'Walk', .35, .55); } if (this.tw) this.tw.k = 1; V.tx = player.pos.x; V.tz = player.pos.z; leben_beastMove(V, dt, false); this.hT -= dt; if (this.hT < 0) { this.hT = 1.1; hungrige_nass(V, .28); } }
         if (hungrige_lit(V, 18, .96, .9)) this.lit += dt; else this.lit = Math.max(0, this.lit - dt);
-        if (this.lit > 1.3 || d < 2.4) { this.ph = 'run'; V.sp = 8; const P = player.pos, dx = p.x - P.x, dz = p.z - P.z, L = Math.hypot(dx, dz) || 1; V.tx = p.x + dx / L * 50; V.tz = p.z + dz / L * 50; leben_play(V, 'Run', .15); Audio.grunt(p.x, p.z, true, V.g); this.hT = 0; scareCount++; if (d < 2.4) { shake = .06; glitchV = .5; } } }
+        if (this.lit > 1.3 || d < 2.4 || this.t > 90) { this.ph = 'run'; V.sp = 8; const P = player.pos, dx = p.x - P.x, dz = p.z - P.z, L = Math.hypot(dx, dz) || 1; V.tx = p.x + dx / L * 50; V.tz = p.z + dz / L * 50; leben_play(V, 'Run', .15); Audio.grunt(p.x, p.z, true, V.g); this.hT = 0; scareCount++; if (d < 2.4) { shake = .06; glitchV = .5; } } }
       else { leben_beastMove(V, dt); this.hT -= dt; if (this.hT < 0) { this.hT = .2; hungrige_nass(V, .35); } if (d > 40 || this.t > 60) return false; }
       hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('nackt_reh', 'Kein Fell. Nur Fleisch, als wär es gerade erst angezogen worden.'); setTimeout(() => { if (!state.talking) subtitle('Geschält. Vegas hat das gesagt. Wie ’ne Kartoffel.', 3200, 'LUKE'); }, 3600); } },
