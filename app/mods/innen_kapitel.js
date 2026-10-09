@@ -247,11 +247,14 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     web(XA + 40.5, .55, ZA - 4.55, 0, .55); web(XA + 42.4, .5, ZA - 4.6, 0, .5);
     flat(soot, XA + 41, ZA, 4.5, 3.5, .3, .012); flat(bloodOldS, XA + 41.2, ZA - 3.2, .9, 1.5, 1.5, .014);
     // Peters Zelle (W2-P5, PK-D K2-4): Türschilder, tausendfach „ICH WEISS ES JETZT“, Strichliste seit 1992, Tafel (erst nach dem Schwarm lesbar), Fluchtplan
-    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; };
+    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }; // QA M-15: Schrift über echt_an (Druck-/Papierwirkung wie überall)
       const dMat = (c, r = .9, m = 0) => new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: r, metalness: m });
       const grime = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(10, 70)); g.addColorStop(0, `rgba(60,44,28,${R(a * .4, a)})`); g.addColorStop(1, 'rgba(60,44,28,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } };
       // Emailleschild (alt, abgeplatzt) und darunter ein jüngeres Schild, getippt, mit Klebeband
-      onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
+      // QA M-15: Emailleschild als Blender-Modell (ms/schild_pruefraum, Schrift als Geometrie); die Canvas-Fassung bleibt nur als Notfall, falls das Modell fehlt
+      const pruefSchild = await msModel('schild_pruefraum', 'model.glb').then(m => m.clone(true)).catch(() => null);
+      if (pruefSchild) { pruefSchild.position.set(XA + 35.84, 1.86, ZA - 1.38); pruefSchild.rotation.y = -Math.PI / 2; pruefSchild.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } }); scene.add(pruefSchild); }
+      else onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
         x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückläufer', w / 2, 126);
         for (let i = 0; i < 16; i++) { const px = R(0, w), py = i < 6 ? (i % 2 ? R(0, 16) : R(h - 16, h)) : R(0, h), r = R(3, 11); x.fillStyle = '#1b1a18'; x.beginPath(); x.ellipse(px, py, r, r * R(.6, 1), R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,70,30,.5)'; x.beginPath(); x.arc(px + R(-2, 2), py + r, r * .8, 0, 7); x.fill(); }
         grime(x, w, h, 10, .22); }), .4, .15), XA + 35.842, 1.86, ZA - 1.38, .5, .156, -Math.PI / 2);
