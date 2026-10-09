@@ -262,7 +262,7 @@ function figuren_rig(obj, anim) { const r = {}, desc = (b, a) => { for (let p = 
   // Kopf: Blickrichtung/Oben im Kopfknochen-Raum und Ruhe-Lage Kopf gegen Brustkorb (Sicherheitsnetz); Figur schaut in der Ruhe nach +z
   obj.updateMatrixWorld(true); const q0 = new THREE.Quaternion(), qo = new THREE.Quaternion(), tv = new THREE.Vector3(), ts = new THREE.Vector3(); obj.matrixWorld.decompose(tv, qo, ts); qo.invert();
   const wq = b => { const q = new THREE.Quaternion(); b.matrixWorld.decompose(tv, q, ts); return q.premultiply(qo); };
-  if (r.legs.length === 2) { const mi = obj.matrixWorld.clone().invert(); r.ankle = Math.min(...r.legs.map(L => L[2].getWorldPosition(tv).applyMatrix4(mi).y)); } // Knöchelhöhe über dem Boden (Ruhe, Figurraum)
+  if (r.legs.length === 2) { obj.updateWorldMatrix(true, true); /* 09.10.: ohne das war matrixWorld veraltet → in Obergeschossen (y .43) Knöchelhöhe +0,43 → Sitzende hoben die Füße 0,4 m in die Luft */ const mi = obj.matrixWorld.clone().invert(); r.ankle = Math.min(...r.legs.map(L => L[2].getWorldPosition(tv).applyMatrix4(mi).y)); } // Knöchelhöhe über dem Boden (Ruhe, Figurraum)
   if (r.chest) r.cF = new THREE.Vector3(0, 0, 1).applyQuaternion(wq(r.chest).invert()); // Brustkorb-Blickrichtung im Knochenraum (Blick-Grenze relativ zum Oberkörper)
   if (r.head) { q0.copy(wq(r.head)).invert(); r.hF = new THREE.Vector3(0, 0, 1).applyQuaternion(q0); r.hU = new THREE.Vector3(0, 1, 0).applyQuaternion(q0); if (r.chest) r.hcRest = wq(r.chest).invert().multiply(wq(r.head)); }
   return r; }

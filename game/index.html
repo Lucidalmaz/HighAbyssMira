@@ -17357,7 +17357,7 @@ function figuren_rig(obj, anim) { const r = {}, desc = (b, a) => { for (let p = 
   // Kopf: Blickrichtung/Oben im Kopfknochen-Raum und Ruhe-Lage Kopf gegen Brustkorb (Sicherheitsnetz); Figur schaut in der Ruhe nach +z
   obj.updateMatrixWorld(true); const q0 = new THREE.Quaternion(), qo = new THREE.Quaternion(), tv = new THREE.Vector3(), ts = new THREE.Vector3(); obj.matrixWorld.decompose(tv, qo, ts); qo.invert();
   const wq = b => { const q = new THREE.Quaternion(); b.matrixWorld.decompose(tv, q, ts); return q.premultiply(qo); };
-  if (r.legs.length === 2) { const mi = obj.matrixWorld.clone().invert(); r.ankle = Math.min(...r.legs.map(L => L[2].getWorldPosition(tv).applyMatrix4(mi).y)); } // Knöchelhöhe über dem Boden (Ruhe, Figurraum)
+  if (r.legs.length === 2) { obj.updateWorldMatrix(true, true); /* 09.10.: ohne das war matrixWorld veraltet → in Obergeschossen (y .43) Knöchelhöhe +0,43 → Sitzende hoben die Füße 0,4 m in die Luft */ const mi = obj.matrixWorld.clone().invert(); r.ankle = Math.min(...r.legs.map(L => L[2].getWorldPosition(tv).applyMatrix4(mi).y)); } // Knöchelhöhe über dem Boden (Ruhe, Figurraum)
   if (r.chest) r.cF = new THREE.Vector3(0, 0, 1).applyQuaternion(wq(r.chest).invert()); // Brustkorb-Blickrichtung im Knochenraum (Blick-Grenze relativ zum Oberkörper)
   if (r.head) { q0.copy(wq(r.head)).invert(); r.hF = new THREE.Vector3(0, 0, 1).applyQuaternion(q0); r.hU = new THREE.Vector3(0, 1, 0).applyQuaternion(q0); if (r.chest) r.hcRest = wq(r.chest).invert().multiply(wq(r.head)); }
   return r; }
@@ -41573,7 +41573,7 @@ async function k6_v11() { K6.v11 = true; state.talking = true;
   } finally { state.talking = false; } }
 // ---------------------------------------------------------------- UK 4 · Hochsitz: SB-11, B-K6-05, Anni unter der Plattform, die Pfandflasche
 function k6_oben() { // tiefwald.js: oben auf dem Hochsitz angekommen
-  if (!K6.on) return false; if (K6.beat === 'hochsitz' && !K6.epiBusy) { k6_hochsitz(); return true; }
+  if (!K6.on) return false; if ((K6.beat === 'hochsitz' || (K6.beat === 'epilog' && K6.gi > K6_WEG.length)) && !K6.epiBusy) { k6_hochsitz(); return true; } /* QA: ging Whiskeys Ankunfts-Rückruf verloren, startet das Ende trotzdem beim Hinaufsteigen */
   if (K6.beat === 'faden' && !K6.told.has('oben1')) { K6.told.add('oben1'); if (typeof beobachter_zettel === 'function') try { beobachter_zettel('b_k6_05', { pos: [TIEF.stand.x + .55, 3.13, TIEF.stand.z + .62] }); } catch (e) {}
     setTimeout(() => { if (player.pos.y > 2 && typeof hungrige_stimme === 'function') hungrige_stimme(TIEF.stand.x + .4, .4, TIEF.stand.z + .2, '„Papa? … Papa, ich bin gleich wieder da.“', 'ANNI?', 3200, 'anni_2'); }, 11000); }
   return false;
@@ -41639,7 +41639,7 @@ async function k6_wolfSprung(V) { K6.sprungT = 1; leben_play(V, 'JumpBite', .05,
   await k6_wait(500); $('fade').style.transition = 'opacity .25s'; $('fade').style.background = '#000'; $('fade').style.opacity = 1; await k6_wait(1600); // Luke fällt, Schwarzbild, Neustart vor der Lichtung am Bus
   const F = K6.falle; if (F && F.wolf) { const [x, z] = K6_BUS.wolf; F.wolf.g.position.set(x, F.wolf.g.position.y, z); F.wph = 'lie'; leben_play(F.wolf, 'Rest', .2); F.away = 0; }
   player.pos.set(49.5, 0, 192.4); player.yaw = -2.1; vel.set(0, 0, 0); K6.sprungT = 0; $('fade').style.transition = 'opacity 1.4s'; $('fade').style.opacity = 0; k6_denk('sprung', 'Er kommt, wenn ich wegseh. Lampe oben lassen. Merk dir das, Idiot.'); }
-async function k6_falleWarten() { const F = K6.falle; if (F.ph !== 'bereit') return; F.ph = 'warten'; F.t = 0; F.dauer = K6.sender === 'jacke' ? 40 : 22; k6_obj('Warten.'); k6_hinweis('');
+async function k6_falleWarten() { const F = K6.falle; if (F.ph !== 'bereit') return; F.ph = 'warten'; F.t = 0; F.dauer = K6.sender === 'jacke' ? 40 : 22; k6_obj('Warten. In der Mitte neben dem Bus bleiben.'); k6_hinweis('');
   if (K6.sender === 'jacke') { K6.senderBlink = true; } // die winzige rote Lampe an der Kante blinkt
   for (const B of F.b) lwo_lampe(B, false); if (typeof lwo_funk === 'function') lwo_funk('„Köder in Position. Netz eins scharf.“', { x: 57, z: 201 });
   setTimeout(() => { if (F.ph === 'warten' && typeof lwo_funk === 'function') lwo_funk('„Da ist was. Da ist was Großes.“', { x: 66.5, z: 192.6 }); }, (F.dauer - 8) * 1000); }
