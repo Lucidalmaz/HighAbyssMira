@@ -2912,7 +2912,7 @@ addEventListener('keydown', e => {
   if (ui.overlay === 'note' && (e.code === 'KeyE' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
   if (ui.overlay === 'journal' && (e.code === 'Tab' || e.code === 'KeyJ' || e.code === 'Escape')) { if (!e.repeat) closeOverlay(); return; }
   if (ui.overlay === 'puzzle') { if (e.code === 'Escape' && !e.repeat) closeOverlay(); return; }
-  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD') && !ui.paused) ch2.shake += 22;
+  if (ch2.spiderPhase === 'shake' && (e.code === 'KeyA' || e.code === 'KeyD') && !ui.paused) ch2.shake += 40; // 09.10.: 6 Tasten/s genügen (vorher 22: ~11/s nötig)
   if (ui.overlay === 'keypad') { if (e.repeat) return;
     if (/^Digit\d$/.test(e.code)) kpPress(e.code.slice(5)); else if (/^Numpad\d$/.test(e.code)) kpPress(e.code.slice(6));
     else if (e.code === 'Enter' || e.code === 'NumpadEnter') kpPress('OK'); else if (e.code === 'Backspace') kpPress('C'); else if (e.code === 'Escape') closeOverlay();
@@ -3919,7 +3919,7 @@ function spiderUpdate(dt, t) {
     spQ.setFromAxisAngle(spUp, Math.atan2(dx, dz)); spP.set(d.x, d.y + Math.abs(Math.sin(t * 25 + d.ph)) * .006, d.z); spM.compose(spP, spQ, spS); spiders.setMatrixAt(i, spM); }
   spiders.instanceMatrix.needsUpdate = true;
   if (ch2.spiderPhase === 'shake') {
-    ch2.shake = Math.max(0, ch2.shake - dt * 60); if (ch2.shake > 240) { ch2.shake -= 240; const kids = spiderLayer.children; for (let k = 0; k < 2 && kids.length; k++) { const el = kids[Math.floor(Math.random() * kids.length)]; if (el.classList.contains('off')) continue; const r = el.getBoundingClientRect(); el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.classList.add('off'); el.style.setProperty('--fx', rand(-1, 1) * innerWidth + 'px'); el.style.setProperty('--fy', rand(-1, 1) * innerHeight + 'px'); setTimeout(() => el.remove(), 500); ch2.removed++; Audio.flick(); } camera.rotation.z += (Math.random() - .5) * .08; }
+    ch2.shake = Math.max(0, ch2.shake - dt * 40); if (ch2.shake > 240) { ch2.shake -= 240; const kids = spiderLayer.children; for (let k = 0; k < 2 && kids.length; k++) { const el = kids[Math.floor(Math.random() * kids.length)]; if (el.classList.contains('off')) continue; const r = el.getBoundingClientRect(); el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.classList.add('off'); el.style.setProperty('--fx', rand(-1, 1) * innerWidth + 'px'); el.style.setProperty('--fy', rand(-1, 1) * innerHeight + 'px'); setTimeout(() => el.remove(), 500); ch2.removed++; Audio.flick(); } camera.rotation.z += (Math.random() - .5) * .08; }
     if (ch2.removed >= 40 && ch2.spawned >= SPN && !spiderLayer.querySelector('.sspider:not(.off)')) spidersGone();
   }
 }
@@ -15402,7 +15402,7 @@ WORLD_TICK.push((dt, t) => {
 // daneben Lucys; ein Tropfen fällt an ihm vorbei. Oben: Gullydeckel von unten (E halten). Kopf raus, Whiskey sitzt am Rand: „SCHEISSE!“ – „Scheiße!“ – „… Das war jetzt neu.“
 // Luke kniet neben dem Gully, die Hände auf dem Deckel; die Kapellenglocke schlägt drei, Pause, dann der erste der dreizehn → Endkarte unter den Schlägen → beim
 // dreizehnten Schlag Kapitel 3 (chapter3Begin + chapter3Opening). Technik: in der Mitte des Schachts unbemerkt in den baugleichen Schacht unter der Kreuzung versetzt.
-const uebergang3_S = { SH: { x: C2.x + 118, z: C2.z + 7.3 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: .46, open: false, lampTaken: false, phase: '', glocke: false, done: false };
+const uebergang3_S = { SH: { x: C2.x + 118, z: C2.z + 7.3 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: .85, open: false, lampTaken: false, phase: '', glocke: false, done: false };
 function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
   const S = uebergang3_S, H = S.H, w = 1.2, t = .2, y = y0 + H / 2, b = (sx, sz, x, z) => box(sx, H, sz, x, y, z, M.wall, { collide: true });
   b(w + 2 * t, t, cx, cz - w / 2 - t / 2); b(w + 2 * t, t, cx, cz + w / 2 + t / 2); b(t, w, cx - w / 2 - t / 2, cz); b(t, w, cx + w / 2 + t / 2, cz);
@@ -21544,6 +21544,9 @@ function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; cons
   else if (!F.winkt) { F.t += dt; if (F.t > .8) { F.winkt = true; F.t = 0; if (F.wechsel) { F.wechsel = false; F.i = 1; anwesen_f3Setze(1); } } }
   else F.t += dt;
   const ziel = F.winkt ? Math.sin(t * 1.6) * .38 : 0; F.hand.rotation.z = F.hand.rotation.z * .9 + ziel * .1; F.handM.material.opacity = .82 * (F.winkt ? 1 : .55); }
+
+// QA Kap. 4: Trennornament oben lief bei der langen Karte mit "BISHER" durch die erste Textzeile
+try { const st = document.createElement('style'); st.textContent = '#introSeq:has(#intro > p:first-child[style*="8b7f68"])::before { display: none; }'; document.head.appendChild(st); } catch (e) {}
 // =====================================================================  VILLA (Modul „villa“, Fassung 3 · AP-19): Kapitel 4 „Sehen, Bergen, Schweigen“ – Hauptweg UK 1–13
 // Quelle: story_final.md Kapitel 4 (Unterkapitel 1–13, Kinosequenz, Fundstücke, Rätsel R4-1…R4-3, Ende), LWO-Dossier 80 §5.5/5.7–5.11, Dossier 84 (K-Akten, Pells Heft).
 // Die Halle der Villa baut anwesen.js (ANW_HALL, x −900 | z 900). Dieses Modul baut die übrigen Innenräume als eigene Räume daneben (Überblendung wie
@@ -31554,7 +31557,7 @@ async function weiss_f3Bau(N, A, CX, CZ) {
   // Stellen der Deduktion (unsichtbare Flächen, erst mit SB-07 ansprechbar)
   const J = S.jPos || new V(CX + 2.8, 0, CZ + .9), M = WEISS_F3.mira ? WEISS_F3.mira.position : J, L = WEISS_F3.luna ? WEISS_F3.luna.position : new V(CX - 2.4, 0, CZ), Ri = WEISS_F3.riss ? WEISS_F3.riss.position : M;
   const mk = (w, h, d, x, y, z) => { const b = box(w, h, d, x, y, z, hidden, { cast: false }); b.userData.noCol = true; return b; };
-  WEISS_F3.spots = { mira: mk(.6, .9, .6, (M.x + J.x) / 2, .95, (M.z + J.z) / 2 + .15), handschuh: mk(.45, .6, .45, (M.x + J.x) / 2 + .2, 1.05, (M.z + J.z) / 2 - .25), luna: mk(.8, 1.2, .8, L.x, .6, L.z),
+  WEISS_F3.spots = { mira: mk(.5, .9, .4, (M.x + J.x) / 2, .95, (M.z + J.z) / 2 + .2), handschuh: mk(.45, .6, .3, (M.x + J.x) / 2 + .2, 1.05, (M.z + J.z) / 2 - .3), luna: mk(.8, 1.2, .8, L.x, .6, L.z),
     riss: mk(.5, 2, .5, Ri.x, 1, Ri.z), stiefel: mk(.6, .4, .6, J.x - .25, .2, J.z) };
 }
 function weiss_r1Sehen(k, it) { it.seen = true; openNote(it.name, it.text, null, () => {
@@ -33647,7 +33650,7 @@ BED.funk = async function () { if (BED.funkB || typeof radioBox === 'undefined')
   scene.traverse(m => { if (m.isMesh && m.geometry.type === 'PlaneGeometry' && Math.abs(m.position.x - p.x) < .05 && Math.abs(m.position.y - .75) < .05 && Math.abs(m.position.z - (p.z + .21)) < .03) m.visible = false; });
   msFit(o, .30, 'max'); o.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(o), c = bb.getCenter(new THREE.Vector3()); o.position.set(-c.x, -bb.min.y, -c.z); g.add(o); bed_pos(g, o);
   g.position.set(p.x, p.y - .55 + .01, p.z); g.rotation.y = BED.funkRy ?? 0; // steht auf dem Boden am Rand der Kreuzung; der Quader des Amts bleibt nur als unsichtbare Klickfläche (auf Gerätgröße geschrumpft)
-  radioBox.material.visible = false; radioBox.castShadow = false; radioBox.scale.set(.6, .3 / 1.1, .5); radioBox.position.y = .17; scene.add(g); BED.funkB.g = g;
+  radioBox.material.visible = false; if (typeof radioLed !== 'undefined') radioLed.visible = false; /* QA Kap. 3: die rote/gruene LED des alten Quaders schwebte 0,6 m ueber dem 30-cm-Geraet */ radioBox.castShadow = false; radioBox.scale.set(.6, .3 / 1.1, .5); radioBox.position.y = .17; scene.add(g); BED.funkB.g = g;
   radioBox.userData.label = () => (typeof ch3 !== 'undefined' && ch3.radio) ? 'Funkgerät (Rauschen)' : 'Funkgerät abstimmen'; radioBox.userData.hlObj = g; };
 WORLD_TICK.push(() => { if (!BED.funkB && !BED._funkTry && typeof radioBox !== 'undefined' && typeof camera !== 'undefined' && camera.position.distanceTo(radioBox.position) < 24) { BED._funkTry = true; BED.funk().catch(e => { BED.funkB = null; console.warn('Bedienung: Funkgerät', e); }); } });
 
@@ -38867,6 +38870,7 @@ function kapitel3_jagdTick(dt) {
   if (!e) J.freiAn = false; if (J.frei > 0) J.frei -= dt;
   const safe = J.frei > 0 || S.starr > 0 || kapitel3_frost(), seen = kapitel3_siehtHin(grey.position.x, .9, grey.position.z, .8) && d < 45;
   grey.rotation.y = Math.atan2(dx, dz);
+  if (!J.hinweis && !seen && !safe && d < 22 && !J.caught) { J.hinweis = true; toast('Das Kind kommt näher, sobald du wegsiehst. Sieh es an – oder fass Eisen an: einen Laternenpfahl.', 5200); }
   if (seen) { J.seen += dt; grey.rotation.z = flashOn && d < 16 ? .22 : .1; } // steht still, den Kopf schief wie ein Kind, das wartet
   else if (safe) { grey.position.y = Math.abs(Math.sin(ch3.t * 7)) * .035; grey.rotation.z = 0; } // wippt ungeduldig auf den Zehen
   else { grey.rotation.z = 0; grey.position.y = 0; const sp = d > 14 ? 4.6 : 3.1; grey.position.x += dx / d * sp * dt; grey.position.z += dz / d * sp * dt;
@@ -38933,7 +38937,7 @@ async function kapitel3_behSicher() {
   if (typeof beobachter_zettel === 'function') try { const P = player.pos; beobachter_zettel('B-K3-08', { pos: [P.x, 0, P.z] }); beobachter_zettel('B-K3-08b', { pos: [P.x + .45, 0, P.z + .3] }); } catch (e) {}
   S.kette = true; kapitel3_speichern(); kapitel3_handAnbieten(); }
 function kapitel3_handAnbieten() { const S = kapitel3_S; S.handT = 0; S.kum = S.kum || false;
-  if (!S.handHit) { S.handHit = box(.9, 1.6, .9, 0, .8, 0, hidden, { cast: false, parent: justin.g }); S.handHit.userData.noCol = true; }
+  if (!S.handHit) { S.handHit = box(1.14, 1.6, 1.14, 0, .8, 0, hidden, { cast: false, parent: justin.g }); S.handHit.userData.noCol = true; }
   interact(S.handHit, 'Justins Hand nehmen', () => kapitel3_handNehmen()); setC3('Nimm Justins Hand.'); S.handWarte = true; }
 async function kapitel3_handNehmen() { const S = kapitel3_S; if (!S.handWarte || state.talking) return; S.handWarte = false; uninteract(S.handHit);
   subtitle('Der Panzerhandschuh ist warm. Was er nicht sein dürfte.', 3400); await wait(2400);
