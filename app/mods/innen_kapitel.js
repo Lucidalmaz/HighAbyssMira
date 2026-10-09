@@ -69,8 +69,10 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // ------------------------------------------------------------------ Materialien
   const T = (p, srgb, rep) => msTex(p, srgb, rep);
   const steelMat = (tint, nrm = .35, metal = .12) => { const m = new THREE.MeshStandardMaterial({ map: T('corrugated/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('corrugated/orm.jpg'), color: tint, metalness: metal, roughness: 1 }); m.normalScale.set(nrm, nrm); return m; };
+  // QA M-6 (Notlösung): glatter, abgenutzter Lack für die Aktenschränke (Albedo aus rust_sheet aufgehellt, ms/lack_grau) statt Wellblech mit senkrechten Rippen
+  const lackMat = (tint, nrm = .1, metal = .1) => { const m = new THREE.MeshStandardMaterial({ map: T('lack_grau/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('rust_sheet/orm.jpg'), color: tint, metalness: metal, roughness: .85 }); m.normalScale.set(nrm, nrm); return m; };
   const rustMat = msSurfMat('rust_sheet', { tint: 0xd8cfc6 });
-  const cabinetMat = steelMat(0xa2a898), cabinetDark = steelMat(0x4a4e48, .2, .1), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
+  const cabinetMat = lackMat(0xc8cdc0), cabinetDark = lackMat(0x5a5e56, .08), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
   const decal = (key, tint, rough) => { const m = msSurfMat(key, { alpha: true, tint }); if (rough !== undefined) { m.roughnessMap = null; m.roughness = rough; } return m; };
   const bloodFresh = decal('blood_s2', 0xb8a4a4, .12), bloodDrops = decal('blood_s1', 0xb09a9a, .2), bloodSmear = decal('blood_hv', 0xa08888, .35);
   const bloodOld = decal('blood_s1', 0x6a4a40, .8), bloodOldS = decal('blood_s2', 0x5a3c34, .75);
@@ -174,7 +176,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     const cabs = find((o, c, s) => o.material === M.metal && c.x > 618 && c.x < 630 && Math.abs(s.y - 2.2) < .05 && Math.abs(s.x - 1) < .05);
     cabs.forEach(o => retex(o, cabinetMat, 1.1));
     find((o, c, s) => o.material === M.dark && c.x > 618 && c.x < 630 && s.y < .05).forEach(o => retex(o, cabinetDark, 1));
-    retex(archiveDrawer, steelMat(0x8f968a), 1.1);
+    retex(archiveDrawer, lackMat(0xb4bba8), 1.1);
     // Griffe, Namensschilder, Griffmulden (Instanzen); die unterste Schublade des ersten Schranks trägt ihre eigenen
     const hGeo = new THREE.BoxGeometry(.16, .025, .035), lGeo = new THREE.PlaneGeometry(.11, .05), gGeo = new THREE.BoxGeometry(.9, .02, .012);
     const handleMat = new THREE.MeshStandardMaterial({ color: 0x9a9a92, metalness: .9, roughness: .35 }), labelMat = new THREE.MeshStandardMaterial({ map: tex(cnv(128, (x, w) => { x.fillStyle = '#d8d0b8'; x.fillRect(0, 0, w, w); x.fillStyle = '#333'; for (let i = 0; i < 3; i++) x.fillRect(12, 30 + i * 30, rand(50, 100), 10); }), true), roughness: .9 });
