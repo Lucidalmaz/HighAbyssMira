@@ -56,7 +56,10 @@ def feder(L, Hh, art, seed):
     dd = (d - s0 * L) ; m = (np.abs(dd) < dw) & (np.sign(t) == side) & (rel > RNG.uniform(.25, .7))
     gaps[m] = 1
   edge = 1 - rel + (ns - .5) * .08 + (barb - .5) * .05
-  alpha = np.clip(edge * 14, 0, 1) * (1 - gaps)
+  alpha = np.clip(edge * 9, 0, 1) * (1 - gaps)
+  # Federrand: zur Spitze und zum Rand hin reißen die Äste auseinander (Fahnenrand aufgelöst, Alpha)
+  fray = np.clip((s - .8) / .2, 0, 1) * np.clip((rel - .35) / .65, 0, 1) * (barb > .55)
+  alpha = alpha * (1 - .85 * fray) * (1 - .5 * np.clip((rel - .85) / .15, 0, 1) * (barb > .4))
   # Kiel/Schaft
   shaftW = (.045 if art != 'deck' else .035) * (1 - .6 * s) + .006
   shaft = np.clip(1 - np.abs(t) / shaftW, 0, 1)
@@ -67,16 +70,17 @@ def feder(L, Hh, art, seed):
   fluff = RNG.random(s.shape) ** 2
   alpha = np.where(down > 0, np.maximum(alpha * (1 - down * .7), (fluff > .55) * (rel < 1.15) * down), alpha)
   # Farbe (sRGB 0..1): fast schwarz, Äste minimal heller, Schaft am Grund grau, Daunen grau
-  lum = .042 + .012 * barb + .008 * (ns - .5) - .012 * rel
+  fed = .8 + .4 * np.random.default_rng(seed).random()                          # jede Feder etwas anders dunkel
+  lum = (.046 + .022 * barb + .012 * (ns - .5) - .014 * rel) * fed * (1 - .25 * np.clip((s - .5) / .5, 0, 1) * rel)  # Äste klarer abgesetzt, Fahnenrand dunkler
   lum = lum + shaft * (.05 * (1 - s) + .012) + down * .07
   lum = np.clip(lum, .02, .3)
-  rgb = np.stack([lum * .93, lum * .96, lum * 1.06], -1)
+  rgb = np.stack([lum * .86, lum * .9, lum * 1.2], -1)  # blau-violetter Schiller im Schwarz
   # Normalen: Wölbung zum Rand, Äste als Rillen, Schaft als Grat
   hgt = .6 * (1 - rel ** 2).clip(0) + .07 * barb + .8 * shaft
   gy, gx = np.gradient(hgt)
   nx_ = -gx * 1.3; ny_ = gy * 1.3; nz_ = np.ones_like(nx_)  # Äste nur als feine Rillen (zu stark = graues Glitzern)
   nl = np.sqrt(nx_ ** 2 + ny_ ** 2 + nz_ ** 2); nrm = np.stack([nx_ / nl, ny_ / nl, nz_ / nl], -1)
-  rough = np.clip(.76 - .06 * barb - .08 * shaft + .12 * down, .5, .92)
+  rough = np.clip(.84 - .05 * barb - .08 * shaft + .1 * down, .6, .95)
   ao = np.clip(.75 + .25 * (1 - rel) - .3 * down, .3, 1)
   return np.concatenate([rgb, alpha[..., None]], -1), nrm, rough, ao
 
