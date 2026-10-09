@@ -86,7 +86,7 @@ WORLD_TICK.push((dt, t) => {
 // daneben Lucys; ein Tropfen fällt an ihm vorbei. Oben: Gullydeckel von unten (E halten). Kopf raus, Whiskey sitzt am Rand: „SCHEISSE!“ – „Scheiße!“ – „… Das war jetzt neu.“
 // Luke kniet neben dem Gully, die Hände auf dem Deckel; die Kapellenglocke schlägt drei, Pause, dann der erste der dreizehn → Endkarte unter den Schlägen → beim
 // dreizehnten Schlag Kapitel 3 (chapter3Begin + chapter3Opening). Technik: in der Mitte des Schachts unbemerkt in den baugleichen Schacht unter der Kreuzung versetzt.
-const uebergang3_S = { SH: { x: C2.x + 118, z: C2.z + 7.3 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: .46, open: false, lampTaken: false, phase: '', glocke: false, done: false };
+const uebergang3_S = { SH: { x: C2.x + 118, z: C2.z + 7.3 }, TOWN: { x: 9, z: -1.3 }, H: 14, C2Y: 2.5, TR: 9.5, speed: .85, open: false, lampTaken: false, phase: '', glocke: false, done: false };
 function uebergang3_shaft(cx, cz, y0, M, ladderMat) {
   const S = uebergang3_S, H = S.H, w = 1.2, t = .2, y = y0 + H / 2, b = (sx, sz, x, z) => box(sx, H, sz, x, y, z, M.wall, { collide: true });
   b(w + 2 * t, t, cx, cz - w / 2 - t / 2); b(w + 2 * t, t, cx, cz + w / 2 + t / 2); b(t, w, cx - w / 2 - t / 2, cz); b(t, w, cx + w / 2 + t / 2, cz);
