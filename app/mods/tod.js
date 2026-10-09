@@ -334,7 +334,7 @@ function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns');
   box.querySelectorAll('button').forEach(x => x.onclick = e => { e.stopPropagation(); box.style.display = 'none'; tod_zurueck(x.dataset.z); }); }
 const TOD_FEST = { t: 0, x: 0, z: 0, hinweis: 0 };
 function tod_festTick(dt) {
-  if (!state.started || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { TOD_FEST.t = 0; return; }
+  if (!state.started || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking || +document.getElementById('fade').style.opacity > .3) { TOD_FEST.t = 0; return; } // nicht in der Schwarzblende (Kapitelwechsel)
   const P = player.pos; if (P.y < -25 && !state.zone) { tod_zurueck('schritt'); return; } // unter die Welt gefallen
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown;
   if (!will) { TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; return; }

@@ -71,7 +71,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   const TOYS = { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg', ao: 'T_Toys_ORM.jpg', rough: .75 } };
   const L = await Promise.all([
     safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'hatch.glb')), // 09.10.: Fab-Limousine (Generic Sedan Car, MMCWorks) und Kompaktwagen (Compact Hatchback, RCC Design), je Wagen eigene Klone (Farbe/Licht)
-    safe(msModel('car_dutch', 'model.glb')), safe(msModel('car_rusty', 'model.glb')), safe(msFBX('car_burned', 'model.fbx', BURN)), safe(msModel('van_neu', 'model.glb')), // 09.10.: Transporter neu (Fab PostVan, 3D SHOP, CC-BY; Form übernommen, Lack/Normal/ORM neu, van_bau.py)
+    safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_rusty', 'model.glb')), safe(msFBX('car_burned', 'model.fbx', BURN)), safe(msModel('van_neu', 'model.glb')), // 09.10.: Transporter neu (Fab PostVan, 3D SHOP, CC-BY; Form übernommen, Lack/Normal/ORM neu, van_bau.py)
     safe(msFBX('mailbox_cc0', 'model.fbx', MB)), safe(msFBX('poles_wood', 'wood_pole_03.fbx', {})), safe(msFBX('roadsigns', 'model.fbx', RS)), safe(msModel('parksign')),
     safe(msBake('hydrant')), safe(msBake('trashcan')), safe(msBake('trashbag')), safe(msBake('curbs')), safe(msBake('asphalt_debris')), safe(msModel('barrier_ms')), safe(msBake('cone_ms')),
     safe(msFBX('toys_old', 'model.fbx', TOYS)), safe(MSL.gl.loadAsync('assets/manhole/model.gltf')),
@@ -109,7 +109,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   ]);
   let [sLena, sGhost, sRed, sBeige, dutchSrc, rustySrc, burnSrc, vanSrc, mbSrc, poleSrc, rsSrc, parkSrc, hydParts, canParts, bagParts, curbParts, debParts, barSrc, coneParts, toySrc, manholeG, vanTex, hydTex, parkTex] = L;
   S.info.loaded = L.map(v => v ? 1 : 0).join('');
-  sLena = sLena && strasse_autoKlon(sLena, 0x4f5f68, true); sGhost = sGhost && strasse_autoKlon(sGhost, 0x121416, true); sRed = sRed && strasse_autoKlon(sRed, 0x4a1a16, false); sBeige = sBeige && strasse_autoKlon(sBeige, 0xb8ab8a, false);
+  sLena = sLena && strasse_autoKlon(sLena, 0x4f5f68, true); sGhost = sGhost && strasse_autoKlon(sGhost, 0x121416, true); sRed = sRed && strasse_autoKlon(sRed, 0x4a1a16, false); sBeige = sBeige && strasse_autoKlon(sBeige, 0xb8ab8a, false); dutchSrc = dutchSrc && strasse_autoKlon(dutchSrc, 0x5f666e, false);
 
   // =====================================================================  AUTOS
   // Selbstgebaute Karosserie ausblenden (Gruppe, Lichter, Tür-Klickfläche, Telefon, Foto bleiben erhalten)
@@ -173,24 +173,8 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   // ---- Geisterauto (fährt einmal durch den Ort): fast schwarz, Scheinwerfer an
   if (sGhost) { stripCar(ghostCar); ghostCar.add(fitSedan(sGhost, true, 'BH·J 1312')); } // STORY-HOOK: Kennzeichen 1312
   // ---- Geparkte Autos: alle auf der Nordspur (Südspur = Bahn des Geisterautos bei z = −2), Front in Fahrtrichtung (+x)
-  if (dutchSrc) { // verlassener Oldtimer (Scan) – das mitgescannte Pflasterstück wird rund um das Auto weggeschnitten
-    stripCar(parkedA); parkedA.rotation.y = PI; parkedA.position.set(-37, 0, 3.15);
-    dutchSrc.updateMatrixWorld(true); let dm = null; dutchSrc.traverse(o => { if (o.isMesh) dm = o; });
-    const geo = toF32(dm.geometry.clone()); geo.applyMatrix4(dm.matrixWorld);
-    const pos = geo.attributes.position, fb = new T.Box3(), v = new T.Vector3();
-    { const xs = [], zs = []; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); if (y > .6 && y < 1.2) { xs.push(pos.getX(i)); zs.push(pos.getZ(i)); } } xs.sort((a, b) => a - b); zs.sort((a, b) => a - b);
-      const q = (a, f) => a[Math.min(a.length - 1, Math.floor(a.length * f))]; fb.min.set(q(xs, .004), 0, q(zs, .004)); fb.max.set(q(xs, .996), 2, q(zs, .996)); }
-    const idx = geo.index ? geo.index.array : Array.from({ length: pos.count }, (_, i) => i), keep = [], gy = [];
-    for (let t = 0; t < idx.length; t += 3) { const a = idx[t], b = idx[t + 1], c = idx[t + 2];
-      const cx = (pos.getX(a) + pos.getX(b) + pos.getX(c)) / 3, cz = (pos.getZ(a) + pos.getZ(b) + pos.getZ(c)) / 3, my = Math.max(pos.getY(a), pos.getY(b), pos.getY(c));
-      const inside = cx > fb.min.x + .02 && cx < fb.max.x - .02 && cz > fb.min.z + .02 && cz < fb.max.z - .02, under = cx > fb.min.x + .15 && cx < fb.max.x - .15 && cz > fb.min.z + .25 && cz < fb.max.z - .25;
-      if (my < .06 && !under) { gy.push(my); continue; } if (!inside && my < .95) continue; keep.push(a, b, c); }
-    geo.setIndex(keep); geo.computeBoundingBox(); geo.computeBoundingSphere();
-    const mat = dm.material; if (mat.color) mat.color.multiplyScalar(.8);
-    const m = new T.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true;
-    gy.sort((a, b) => a - b); const g0 = gy.length ? gy[gy.length >> 1] : 0, c = fb.getCenter(new T.Vector3());
-    m.position.set(-c.x, .024 - g0, -c.z); const w = new T.Group(); w.add(m); w.rotation.y = -PI / 2; parkedA.add(w); reg('cars', w);
-    S.info.dutch = fb.getSize(new T.Vector3()).toArray().map(v => +v.toFixed(2)).concat([+g0.toFixed(3), keep.length / 3, idx.length / 3]);
+  if (dutchSrc) { // verlassene Limousine (09.10.: der Foto-Scan car_dutch war verformt – ersetzt durch den Sedan-Klon wie die anderen Wagen, staubiges Graublau, Reifen/Felgen aus dem Modell)
+    stripCar(parkedA); parkedA.rotation.y = PI; parkedA.position.set(-37, 0, 3.15); parkedA.add(fitSedan(dutchSrc, false, 'BH·KM 1987'));
     reTalk(parkedA, ['Abgeschlossen. Auf dem Fahrersitz: Laub. Als stünde er seit Jahren hier.', 'Moos wächst auf dem Dach. Hinter der Scheibe: ein Parkschein vom 5. August 2009.']);
   }
   if (sRed) { stripCar(parkedB); parkedB.rotation.y = PI; parkedB.position.set(36.5, 0, 3.1); parkedB.add(fitSedan(sRed, false, 'BH·HW 713'));
