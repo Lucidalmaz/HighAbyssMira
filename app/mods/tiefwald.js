@@ -262,7 +262,7 @@ WORLD_MODS.push(['Der tiefe Wald', async () => {
     note(H.x, 1.1, H.z - 1.8, () => player.pos.y > 1.5 ? '' : 'Hochsitz hinaufsteigen', () => tief_climb(true), 1, 2.2, .5);
     note(H.x, y + .7, H.z - .6, () => player.pos.y > 1.5 ? 'Hinuntersteigen' : '', () => tief_climb(false), 1.4, .8, .5); S.standY = y; }
   // --- 3) Der Amtsbus: überwuchert, eingesunken, mitten im Wald ohne Weg
-  try { const van = await msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1, color: 0x8a8478 } });
+  try { const van = await msFBX('vans', 'model.fbx', { '*': { b: 'van_grau_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1, color: 0xb8b4aa } });
     tief_vanOeffnen(van); // nur ein Wagen (der Scan enthält zwei), Heck- und Frontscheibe fehlen: man sieht in den Laderaum und ins Fahrerhaus
     const o = msGround(msFit(van, 5.3, 'max')); o.position.set(TIEF.bus.x, -.18, TIEF.bus.z); o.rotation.set(0, .5, .05); msPlace(o, TIEF.bus.x, -.18, TIEF.bus.z, .5); o.rotation.z = .05; S.busG = o; o.updateMatrixWorld(true);
     try { // Welt-Abgleich: Windschutzscheibe fehlt im Scan → eingesetzte Glasscheibe (staubig, grünlich, nur leicht durchsichtig); die Heckscheibe bleibt zerschlagen (Blick auf die Sitze)

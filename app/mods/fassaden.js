@@ -865,12 +865,18 @@ async function fassaden_atlas() {
   } catch (e) { console.warn('Fassaden-Karte gedeckt', e); }
   // 6 Strichwände (Nr. 9: „An jeder Wand Striche, in Fünfergruppen. Tausende. Die letzte Gruppe hat nur drei“): Rückwand-Karte; die Seitenwände lesen dieselbe Karte (Shader)
   try {
-    const c = document.createElement('canvas'); c.width = 1024; c.height = 800; const x = c.getContext('2d'); let sd = 9; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, cols = 24, rows = 17, list = [];
-    x.lineCap = 'round'; for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) if (rnd() >= .22) list.push([q, r]);
+    // 09.10.: statt 1024×800-Canvas (3 px/cm, körnig) echte Geometrie: jeder Strich ein schmaler, leicht verjüngter Streifen (Ritzspur), scharf bei jeder Nähe; gleiche Anordnung wie zuvor
+    let sd = 9; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, cols = 24, rows = 17, list = [], K = 3.2 / 1024, P = [], C = [];
+    for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) if (rnd() >= .22) list.push([q, r]);
+    const strich = (x0, y0, x1, y1, w, a) => { const X0 = x0 * K - 1.6, Y0 = 2.5 - y0 * K, X1 = x1 * K - 1.6, Y1 = 2.5 - y1 * K, dx = X1 - X0, dy = Y1 - Y0, L = Math.hypot(dx, dy) || 1, nx = -dy / L * w / 2, ny = dx / L * w / 2, t = .55, m = a;
+      const ax = X0 + dx * .15, ay = Y0 + dy * .15, bx = X0 + dx * .85, by = Y0 + dy * .85, z = .004; // Sechseck: spitze Enden, Mitte voll breit
+      P.push(X0, Y0, z, ax - nx, ay - ny, z, ax + nx, ay + ny, z,  ax - nx, ay - ny, z, bx - nx, by - ny, z, ax + nx, ay + ny, z,  ax + nx, ay + ny, z, bx - nx, by - ny, z, bx + nx, by + ny, z,  bx - nx, by - ny, z, X1, Y1, z, bx + nx, by + ny, z);
+      for (let j = 0; j < 12; j++) C.push(.07, .06, .05, (j === 0 || j === 10 ? m * t : m)); };
     list.forEach(([q, r], idx) => { const gx = 22 + q * 41.5 + (rnd() - .5) * 5, gy = 70 + r * 40.5 + (rnd() - .5) * 5, isLast = idx === list.length - 1, k = isLast ? 3 : 4, al = .45 + rnd() * .45;   // die letzte Gruppe hat nur drei
-      x.strokeStyle = `rgba(24,20,16,${al})`; x.lineWidth = 1.8 + rnd() * 1.2; for (let i = 0; i < k; i++) { x.beginPath(); x.moveTo(gx + i * 7.5 + (rnd() - .5) * 1.5, gy + (rnd() - .5) * 3); x.lineTo(gx + i * 7.5 + (rnd() - .5) * 3, gy + 29 + (rnd() - .5) * 4); x.stroke(); }
-      if (!isLast) { x.beginPath(); x.moveTo(gx - 4, gy + 24 + (rnd() - .5) * 3); x.lineTo(gx + 33, gy + 4 + (rnd() - .5) * 3); x.stroke(); } });
-    const tx = new T.CanvasTexture(c); tx.colorSpace = T.SRGBColorSpace; tx.anisotropy = 4; const q = new T.Mesh(new T.PlaneGeometry(3.2, 2.5), new T.MeshBasicMaterial({ map: tx, transparent: true })); q.position.set(0, 1.25, 0); cells[6].add(q);
+      const lw = (1.8 + rnd() * 1.2) * K * 1.5; for (let i = 0; i < k; i++) strich(gx + i * 7.5 + (rnd() - .5) * 1.5, gy + (rnd() - .5) * 3, gx + i * 7.5 + (rnd() - .5) * 3, gy + 29 + (rnd() - .5) * 4, lw, al);
+      if (!isLast) strich(gx - 4, gy + 24 + (rnd() - .5) * 3, gx + 33, gy + 4 + (rnd() - .5) * 3, lw, al); });
+    const sg = new T.BufferGeometry(); sg.setAttribute('position', new T.Float32BufferAttribute(P, 3)); sg.setAttribute('color', new T.Float32BufferAttribute(C, 4)); sg.computeVertexNormals(); sg.computeBoundingSphere();
+    const q = new T.Mesh(sg, new T.MeshStandardMaterial({ vertexColors: true, transparent: true, roughness: .9, metalness: 0, side: T.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })); q.userData.noCol = true; cells[6].add(q);
     S.log.push('Karte Strichwände');
   } catch (e) { console.warn('Fassaden-Karte Strichwände', e); }
   // 7 Keller (Nr. 8: „Unten brennt eine Kerze. Daneben ein Kinderstuhl. Er ist zur Wand gedreht“): niedriger Stuhl mit dem Rücken zum Fenster, Kerze auf dem Boden

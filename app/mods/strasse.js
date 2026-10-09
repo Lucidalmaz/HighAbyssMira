@@ -64,10 +64,6 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   const grain = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '60,48,30' : '255,250,235'},${rand(0, a)})`; x.fillRect(rand(0, w), rand(0, h), rand(1, 3), rand(1, 3)); } };
 
   // ---------- Laden (parallel)
-  const SED = (paint, lights) => ({ Car_base_color: { b: 'Car_color.jpg', color: paint, rough: .38, metal: .55 }, Car_detail: { b: 'Car_details.jpg', rough: .8, metal: .1 },
-    Glass: { color: 0x0b1013, rough: .05, metal: .7, transparent: true }, Car_number: { b: 'Car_Number.jpg', rough: .6 },
-    Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: lights ? 0xfff0d0 : 0 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: lights ? 0x500000 : 0 },
-    Car_backLight: { color: 0x220505, rough: .25 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
   const VAN = { 'Material #928': { b: 'van_grau_d.jpg', n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } };
   const MB = { Mailbox: { b: 'MailboxAlbedo.jpg', n: 'MailboxNormal.jpg', r: 'MailboxRough.jpg', m: 'MailboxMetal.jpg', ao: 'MailboxAO.jpg' }, MailboxFlap: { b: 'MailboxFlapAlbedo.jpg', n: 'MailboxFlapNormal.jpg', r: 'MailboxFlapRough.jpg', m: 'MailboxFlapMetal.jpg', ao: 'MailboxFlapAO.jpg' },
     MailboxFlag: { b: 'MailboxFlagAlbedo.jpg', n: 'MailboxFlagNormal.jpg', r: 'MailboxFlagRough.jpg', m: 'MailboxFlagMetal.jpg' } };
@@ -75,7 +71,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   const BURN = { 'Material #26': { b: 'burnedsedan_d.jpg', n: 'burnedsedan_normal.jpg', r: 'burnedsedan_rough.jpg', m: 'burnedsedan_m.jpg', ao: 'burnedsedan_ao.jpg' }, 'Material #25': { color: 0x222222 } };
   const TOYS = { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg', ao: 'T_Toys_ORM.jpg', rough: .75 } };
   const L = await Promise.all([
-    safe(msFBX('car_amsedan', 'Car.fbx', SED(0x4f5f68, true))), safe(msFBX('car_amsedan', 'Car.fbx', SED(0x121416, true))), safe(msFBX('car_amsedan', 'Car.fbx', SED(0x3f1512, false))), safe(msFBX('car_amsedan', 'Car.fbx', SED(0x5e5c4a, false))),
+    safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'sedan.glb')), safe(msModel('car_neu', 'hatch.glb')), // 09.10.: Fab-Limousine (Generic Sedan Car, MMCWorks) und Kompaktwagen (Compact Hatchback, RCC Design), je Wagen eigene Klone (Farbe/Licht)
     safe(msModel('car_dutch', 'model.glb')), safe(msModel('car_rusty', 'model.glb')), safe(msFBX('car_burned', 'model.fbx', BURN)), safe(msFBX('vans', 'model.fbx', VAN)),
     safe(msFBX('mailbox_cc0', 'model.fbx', MB)), safe(msFBX('poles_wood', 'wood_pole_03.fbx', {})), safe(msFBX('roadsigns', 'model.fbx', RS)), safe(msModel('parksign')),
     safe(msBake('hydrant')), safe(msBake('trashcan')), safe(msBake('trashbag')), safe(msBake('curbs')), safe(msBake('asphalt_debris')), safe(msModel('barrier_ms')), safe(msBake('cone_ms')),
@@ -112,8 +108,9 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       x.globalAlpha = .35; x.globalCompositeOperation = 'multiply'; x.drawImage(im, 1250, 700, 675, 675, 1250, 700, 675, 675); x.drawImage(im, 52, 380, 675, 675, 52, 380, 675, 675); x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
       const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.flipY = false; t.anisotropy = 8; return t; })()),
   ]);
-  const [sLena, sGhost, sRed, sBeige, dutchSrc, rustySrc, burnSrc, vanSrc, mbSrc, poleSrc, rsSrc, parkSrc, hydParts, canParts, bagParts, curbParts, debParts, barSrc, coneParts, toySrc, manholeG, vanTex, hydTex, parkTex] = L;
+  let [sLena, sGhost, sRed, sBeige, dutchSrc, rustySrc, burnSrc, vanSrc, mbSrc, poleSrc, rsSrc, parkSrc, hydParts, canParts, bagParts, curbParts, debParts, barSrc, coneParts, toySrc, manholeG, vanTex, hydTex, parkTex] = L;
   S.info.loaded = L.map(v => v ? 1 : 0).join('');
+  sLena = sLena && strasse_autoKlon(sLena, 0x4f5f68, true); sGhost = sGhost && strasse_autoKlon(sGhost, 0x121416, true); sRed = sRed && strasse_autoKlon(sRed, 0x4a1a16, false); sBeige = sBeige && strasse_autoKlon(sBeige, 0xb8ab8a, false);
 
   // =====================================================================  AUTOS
   // Selbstgebaute Karosserie ausblenden (Gruppe, Lichter, Tür-Klickfläche, Telefon, Foto bleiben erhalten)
@@ -131,14 +128,16 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   const plateTex = txt => echt_an(() => canvasTex(512, 512, (x, w, h) => { x.fillStyle = '#d6d4cc'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .15); x.fillStyle = '#1d3f9a'; x.fillRect(22, 196, 52, 120); x.fillStyle = '#e0c040'; x.beginPath(); x.arc(48, 232, 12, 0, 7); x.fill();
     x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('D', 48, 298); x.fillStyle = '#111'; x.font = 'bold 118px Arial'; x.fillText(txt, 292, 300);
     x.strokeStyle = '#111'; x.lineWidth = 6; x.strokeRect(14, 186, 484, 140); }), 'sauber'); // Metallschild: Schrift bleibt sauber (Prägung/Emaille, keine Papierwirkung)
-  function fitSedan(o, lights, plate) {
+  function fitSedan(o, lights, plate, len = 4.6) { // o: Klon aus strasse_autoKlon (Modell-Front +z, links +x, Meter); Front wird lokal −x
     o.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true;
-      for (const mt of [].concat(m.material)) { if (mt.name === 'Glass') { mt.opacity = .84; }
-        if (mt.name === 'Car_base_color' && !mt.userData.w) { mt.userData.w = 1; weather(mt, { amt: .38, lowAmt: .6, low: .62, scale: .9 }); }
-        if (mt.name === 'Car_number' && plate && !mt.userData.p) { mt.userData.p = 1; mt.map = plateTex(plate); mt.needsUpdate = true; }
-        if (mt.name === 'Car_detail' && !mt.userData.w) { mt.userData.w = 1; weather(mt, { amt: .3, lowAmt: .55, low: .45, scale: .55 }); }
+      for (const mt of [].concat(m.material)) { if (!mt.userData.w && (mt.name === 'Car_base_color' || mt.name === 'HATCHBACK_1988' || mt.name === 'HATCHBACK_1988_0')) { mt.userData.w = 1; weather(mt, { amt: .38, lowAmt: .6, low: .62, scale: .9 }); }
         if (lights && mt.name === 'Car_LightForward') mt.emissiveIntensity = 3.5; if (lights && mt.name === 'Car_stopLight') mt.emissiveIntensity = 1.4; } });
-    o.scale.setScalar(4.55 / 212.53); o.rotation.y = -PI / 2; return reg('cars', msGround(o));
+    o.updateMatrixWorld(true);
+    if (plate && !o.userData.hatch) { // Kennzeichen vorn und hinten: Metallschild, per Strahl auf die Stoßfänger gesetzt (Modellraum, Meter)
+      for (const [z0, dir, y] of [[-3.6, 1, .64], [3.6, -1, .47]]) { rc.set(V3(0, y, z0), V3(0, 0, dir)); rc.far = 3; const h = rc.intersectObject(o, true).find(q => { const mt = [].concat(q.object.material)[0]; return shown(q.object) && mt && !mt.transparent; });
+        if (!h) continue; const pt = plateTex(plate); pt.repeat.set(.945, .273); pt.offset.set(.027, .363);
+        const pm = new T.Mesh(new T.PlaneGeometry(.52, .14), new T.MeshStandardMaterial({ map: pt, roughness: .45, metalness: .35 })); pm.position.set(0, y, h.point.z - dir * .01); pm.rotation.y = dir > 0 ? PI : 0; pm.userData.noCol = true; pm.castShadow = false; pm.receiveShadow = true; o.add(pm); } }
+    o.scale.setScalar(len / new T.Box3().setFromObject(o).getSize(new T.Vector3()).z); o.rotation.y = -PI / 2; return reg('cars', msGround(o));
   }
   const clickOn = (g, w, h, d, label, fn) => interact(hitBox(w, h, d, 0, h / 2 + .1, 0, g), label, fn);
   const lockedTalk = (lines, x, z) => { let k = 0; return () => { Audio.play('metalHit2', { gain: .3, rate: 1.3, x, y: .8, z, ref: 2 }); toast(lines[k++ % lines.length], 4600); }; };
@@ -197,7 +196,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   }
   if (sRed) { stripCar(parkedB); parkedB.rotation.y = PI; parkedB.position.set(36.5, 0, 3.1); parkedB.add(fitSedan(sRed, false, 'BH·HW 713'));
     reTalk(parkedB, ['Abgeschlossen. Innen beschlagen. Jemand hat darin geatmet.', 'Auf dem Rücksitz: ein Kindersitz. Der Gurt ist geschlossen. Niemand sitzt darin.']); }
-  if (sBeige) { const g = new T.Group(); g.position.set(-49.5, 0, 3.1); g.rotation.y = PI; scene.add(g); g.add(fitSedan(sBeige, false, 'BH·AR 1992'));
+  if (sBeige) { const g = new T.Group(); g.position.set(-49.5, 0, 3.1); g.rotation.y = PI; scene.add(g); g.add(fitSedan(sBeige, false, null, 4.05));
     clickOn(g, 4.4, 1.3, 1.9, 'Auto', lockedTalk(['Abgeschlossen. Auf dem Armaturenbrett liegen sieben Kastanien in einer Reihe.', 'Die Motorhaube ist warm. Unter dem Wagen ist der Asphalt trocken – als wäre er eben erst gekommen.'], -49.5, 3.1)); }
   // ---- Transporter ohne Aufschrift vor der Telefonzelle – STORY-HOOK: Amt für Rückführung beobachtet die Straße
   if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else { mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
@@ -213,7 +212,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     msFit(burnSrc, 4.4, 'z'); burnSrc.rotation.y = ryFor(-1, 0) + .14; const g = msGround(burnSrc); msPlace(g, -8.5, 0, -13.05, 0); reg('cars', g);
     clickOn(g, 4.6, 1.3, 2.2, 'Ausgebranntes Auto', lockedTalk(['Ausgebrannt bis aufs Blech. Auf dem Rücksitz: das Gestell eines Kindersitzes.', 'Die Asche im Fußraum ist weich und warm. Darin: der Abdruck einer kleinen Hand.'], -8.5, -13.05)); }
   // ---- Lukes Leihwagen am Ortsschild (F3 AP-13, Prolog): Fahrertür sperrangelweit offen, Innenlicht an, Warnsummen – bis Whiskey den Schlüssel hergibt (W-03 → strasse_autoZu)
-  { const sLuke = await safe(msFBX('car_amsedan', 'Car.fbx', SED(0x8f9597, false)));
+  { const sLuke = await safe(msModel('car_neu', 'sedan.glb').then(s => strasse_autoKlon(s, 0x8f9597, false)));
     if (sLuke) { const g = new T.Group(); g.position.set(-74.9, 0, 2.8); g.rotation.y = PI - .08; scene.add(g); g.add(fitSedan(sLuke, false)); g.updateMatrixWorld(true); // Front +x (Fahrtrichtung Ort), schräg angehalten
       let door = null; sLuke.traverse(m => { if (m.isMesh && m.name === 'CDoor_FL') door = m; });
       if (door) { const inv = g.matrixWorld.clone().invert(), bb = new T.Box3().setFromObject(door).applyMatrix4(inv);
@@ -412,6 +411,12 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     for (let i = 0; i < 16; i++) dec((i % 2 ? 1 : -1) * rand(3.3, 3.7), rand(-44, -7), rand(.45, .7), rand(1.4, 2.4), rand(-.08, .08), .026 + i * .00002);
     for (const [x, z] of [[-37, 3.15], [36.5, 3.1], [-49.5, 3.1], [14.6, 3.25], [1.9, -37], [-2.25, -42.3], [-8.5, -13.05]]) dec(x + rand(-.4, .4), z + rand(-.1, .1), 2.6, 1.3, rand(-.2, .2), .028);
     const geo = new T.PlaneGeometry(1, 1); geo.rotateX(-PI / 2); reg('decals', msInst([{ geo, mat: dm }], list, { shadow: false })); }
+  { // QA M-9 (09.10.): Laub im Rinnstein – echte Laubnester (Scan „Leftover tree leaves“, ms/w_leftleaves) an der Bordsteinkante der Fahrbahn (Gosse z = ±3,45…3,8, Bordstein bei ±4,05); flach, ohne Kollision
+    try { const lp = await msBake('w_leftleaves', 'model.glb'); if (lp && lp.length) { const bb = new T.Box3(); for (const q of lp) { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); } const sz = bb.getSize(new T.Vector3()), k0 = 1 / Math.max(sz.x, sz.z), M4 = [];
+        const frei = (x, z) => ![[-37, 3.15], [36.5, 3.1], [-49.5, 3.1], [14.6, 3.25], [-74.9, 2.8]].some(([a, b]) => Math.abs(x - a) < 3 && Math.abs(z - b) < 1.7); // nicht unter die geparkten Autos
+        for (let i = 0, n = 0; i < 80 && n < 26; i++) { const s = i % 2 ? 1 : -1, x = rand(-76, 76), z = s * rand(3.5, 3.8); if (Math.abs(x) < 6.5 || !frei(x, z)) continue; // Kreuzung (Zebra, Kreide) bleibt frei
+          const k = k0 * rand(.5, 1.0); M4.push(msM4(x, .02 - bb.min.y * k, z, rand(0, 6.28), new T.Vector3(k, k * rand(.6, .9), k))); n++; }
+        chunkInst('leaves', lp.map(p => ({ geo: p.geo, mat: p.mat })), M4, 16, 42, { shadow: false }); S.info.laub = M4.length; } } catch (e) { warn(e); } }
   { // Bremsspuren vor Lucys Auto: sie hat voll gebremst, kurz vor der Sperre – STORY-HOOK
     const sk = canvasTex(128, 1024, (x, w, h) => { x.clearRect(0, 0, w, h); for (const cx of [12, 116]) for (let y = 0; y < h; y += 2) { const a = Math.min(1, y / h * 1.6) * (.5 + .5 * Math.random()) * .75; x.fillStyle = `rgba(8,8,8,${a})`; x.fillRect(cx - 9 + Math.sin(y * .01) * 2, y, 18, 2); } });
     const m = new T.Mesh(new T.PlaneGeometry(1.62, 11), new T.MeshStandardMaterial({ map: sk, transparent: true, depthWrite: false, roughness: .45, polygonOffset: true, polygonOffsetFactor: -3 }));
@@ -514,6 +519,20 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       (S.far = S.far || []).push({ c: new T.Vector3(0, 0, 0), d: 110, ims }); S.info.laub = spots.length; S.haufen = { par, ims, flat: new Float32Array(par.length), M: new T.Matrix4() }; } } catch (e) { warn(e); }
 }]);
 // Laub-Haufen: Kanten des Scans weich ausblenden (stochastisch, ohne Sortierung). Nutzer 07.10./08.10.: harte Ränder. Der Scan hat runden Umriss – Blende daher radial und leicht verwellt, nicht an der Hüllquader-Kante (die den Kreis nur in vier Punkten berührt).
+// 09.10. Fahrzeug-Klon (Fab: car_neu/sedan.glb = „Generic Sedan Car“ MMCWorks, hatch.glb = „Compact Hatchback“ RCC Design, beide CC-BY): eigene Materialien je Wagen (Lackfarbe, Leuchten)
+function strasse_autoKlon(src, paint, lights) {
+  const o = src.clone(true); o.userData.hatch = !!src.userData.hatch;
+  o.traverse(m => { if (!m.isMesh) return; if (/^HATCHBACK/.test([].concat(m.material)[0].name)) o.userData.hatch = true;
+    const mats = [].concat(m.material).map(mt => { const c = mt.clone();
+      if (c.name === 'Car_base_color') c.color.setHex(paint);
+      else if (c.name === 'HATCHBACK_1988' || c.name === 'HATCHBACK_1988_0') { c.color.setHex(paint); c.metalness = .3; c.roughness = Math.max(c.roughness, .42); }
+      if (c.name === 'Car_LightForward') { c.emissive.setHex(0xfff0d0); c.emissiveIntensity = lights ? 3.5 : 0; }
+      if (c.name === 'Car_stopLight') { c.emissive.setHex(0xff2010); c.emissiveIntensity = lights ? 1.4 : 0; }
+      if (/^Glass_ext|GLASS$/.test(c.name)) c.depthWrite = false;
+      return c; });
+    m.material = Array.isArray(m.material) ? mats : mats[0]; });
+  return o;
+}
 function strasse_laubKante(mt, bmin, bmax) {
   mt.alphaHash = true; const lo = new THREE.Vector2(bmin.x, bmin.z), hi = new THREE.Vector2(bmax.x, bmax.z);
   mt.onBeforeCompile = sh => { sh.uniforms.lbMin = { value: lo }; sh.uniforms.lbMax = { value: hi };

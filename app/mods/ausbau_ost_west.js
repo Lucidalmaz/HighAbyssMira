@@ -87,7 +87,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     msFBX('lantern1', 'model.fbx', { lantern: { b: 'lantern_and_bulb_lantern_BaseColor.1001.png', n: 'lantern_and_bulb_lantern_Normal.1001.jpg', r: 'lantern_and_bulb_lantern_Roughness.1001.jpg', m: 'lantern_and_bulb_lantern_Metallic.1001.jpg' }, buln: { b: 'lantern_and_bulb_buln_BaseColor.1001.png', rough: .2 } }),
     msFBX('candles', 'model.fbx', { Candles_new: { b: 'Candles_new_BaseColor.jpg', n: 'Candles_new_Normal.jpg', r: 'Candles_new_Roughness.jpg' }, Used_candles: { b: 'Used_candles_BaseColor.jpg', n: 'Used_candles_Normal.jpg', r: 'Used_candles_Roughness.jpg' }, Extra_for_candles: { b: 'Extra_for_candles_BaseColor.jpg', r: 'Extra_for_candles_Roughness.jpg' } }),
     msFBX('toys_old', 'model.fbx', { '*': { b: 'T_Toys_BaseColor.jpg', n: 'T_Toys_Normal.jpg' } }),
-    msFBX('vans', 'model.fbx', { '*': { b: 'van_damaged_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }),
+    msFBX('vans', 'model.fbx', { '*': { b: 'van_grau_d.jpg', n: 'van_damaged_n.jpg', r: 'van_damaged_roughness.jpg', m: 'van_damaged_metallic.jpg', rough: 1 } }),
     msModel('stonewall1'), msModel('ironfence_ms'), msFBX('poles_wood', 'wood_pole_03.fbx'), msModel('asphalt_debris'), msModel('metaltable'), msModel('shelf'), msModel('wardrobe'), msModel('door1'), msModel('trashbag'),
   ]);
   stage('Ausbau Ost/West: Aufbau');
@@ -120,10 +120,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const hatchWin = new T.Mesh(new T.BoxGeometry(1, .56, .03), glassK); hatchWin.position.set(115.1, 1.3, 25.02); K.add(hatchWin);
   wbox('rust_sheet', 1.1, .05, .34, 115.1, 1.03, 24.8, { p: K });
   { const d = fit(door1S.clone(true), 1.98); d.scale.x *= 1.05 / Math.max(.01, new T.Box3().setFromObject(d).getSize(new V3()).x); put(d, 113.35, 25.02, 0, 0, K); }
-  // Leuchtband über dem Kiosk (Schrift auf rostigem Blech)
-  const fasciaTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
-    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); })); // Blechschild: aufgemalte Schablonenschrift mit Abplatzern
-  const fascia = new T.Mesh(new T.PlaneGeometry(11.6, 1.08), new T.MeshStandardMaterial({ map: fasciaTx, emissive: 0xffffff, emissiveMap: fasciaTx, emissiveIntensity: .0, roughness: .6 })); fascia.position.set(112, 3.2, 24.84); K.add(fascia);
+  // Kioskband: Blender-Blechband (ms/schild_band, Schrift als Geometrie, schild_band_bau.py), QA M-13 – 09.10. statt Canvas-Schablone; Rückseite an der Wand
+  try { const fascia = (await msModel('schild_band', 'model.glb')).clone(true); fascia.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); fascia.position.set(112, 3.2, 24.84); K.add(fascia); } catch (e) { console.warn('Kioskband', e); }
   // Innen: Werkbank als Tresen, Regale, Kalender, Licht
   { const t = fit(metaltableS.clone(true), 3.2, 'x'); put(t, 110.3, 26, 0, 0, K); const s1 = fit(wardrobeS.clone(true), 1.95); put(s1, 108, 30.49, PI / 2, 0, K); const s2 = fit(wardrobeS.clone(true), 1.95); put(s2, 116.3, 30.49, PI / 2, 0, K);
     const tb = fit(trashS.clone(true), .7); put(tb, 117, 26.2, 1, 0, K); }
@@ -624,7 +622,9 @@ async function ausbau_ost_west_f3(OW, c) {
     // Goldfischglas (Glas + Wasser, der Fisch als kleines Leuchtbild): „Du heißt jetzt Fisch.“
     const glas = new T.Mesh(new T.SphereGeometry(.13, 20, 14), new T.MeshStandardMaterial({ color: 0xd8e8e0, roughness: .05, metalness: 0, transparent: true, opacity: .22, depthWrite: false })); glas.position.set(lx - .6, .95, lz - .8); glas.userData.noCol = true; scene.add(glas);
     const wasser = new T.Mesh(new T.SphereGeometry(.12, 20, 10, 0, PI * 2, PI * .35, PI * .65), new T.MeshStandardMaterial({ color: 0x5a7a70, roughness: .1, transparent: true, opacity: .35, depthWrite: false })); wasser.position.copy(glas.position); wasser.userData.noCol = true; scene.add(wasser);
-    const fisch = new T.Sprite(new T.SpriteMaterial({ map: kirchberg_tex(kirchberg_cnv(64, 32, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#e8781c'; x.beginPath(); x.ellipse(28, 16, 18, 8, 0, 0, 7); x.fill(); x.beginPath(); x.moveTo(44, 16); x.lineTo(60, 6); x.lineTo(60, 26); x.fill(); x.fillStyle = '#111'; x.beginPath(); x.arc(18, 14, 2, 0, 7); x.fill(); })), transparent: true, depthWrite: false })); fisch.scale.set(.05, .025, 1); fisch.position.copy(glas.position); scene.add(fisch); OW.f3.fisch = { s: fisch, c: glas.position.clone(), a: 0, zu: 0 };
+    // Goldfisch: Fab „gold fish“ (Karolina Renkiewicz, CC-BY), auf 6 cm; schwimmt im Glas (Tick unten)
+    let fisch = new T.Group(); try { fisch = (await msModel('fisch', 'model.glb')).clone(true); fisch.traverse(q => { if (q.isMesh) { q.castShadow = false; q.userData.noCol = true; q.material = [].concat(q.material).map(x => { const m = x.clone(); if (m.transparent) m.depthWrite = false; return m; }); if (q.material.length === 1) q.material = q.material[0]; } }); } catch (e) { console.warn('Goldfisch', e); }
+    fisch.position.copy(glas.position); scene.add(fisch); OW.f3.fisch = { s: fisch, c: glas.position.clone(), a: 0, zu: 0 };
     c.hit(.4, .4, .4, lx - .6, .95, lz - .8, 'Goldfischglas', () => { OW.f3.fischGesehen = true; subtitle('Wer füttert den?', 2000, 'LUKE'); setTimeout(() => subtitle('Du heißt jetzt Fisch. Das ist wenigstens ehrlich.', 3200, 'LUKE'), 2600); kirchberg_start('ow_laternen', { x: lx, z: lz }); });
     // Hildes Beete an Parzelle 7: Kinderportionen, Namensstöcke ZAYN, ROXY, MIKE; das Beet LUCY frisch gegossen
     const px = -119.6, pz = 38.2; const beet = boden_weichMat(c.sm('../forestfloor', 0x3e3226), .5); for (let i = 0; i < 4; i++) { const bg = boden_weich(new T.PlaneGeometry(.8, 2.2), .8, 2.2), b = new T.Mesh(bg, beet); b.rotation.x = -PI / 2; b.position.set(px + i * 1.05, .024, pz); b.userData.noCol = true; scene.add(b); // Erde, Ränder fransen aus (kein hartes Quadrat)
@@ -704,7 +704,7 @@ function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f
   if (K.sitzeG) { const an = !(typeof kirchberg_ab === 'function' && !kirchberg_ab('ow_transp')); if (K.sitzeG.visible !== an) K.sitzeG.visible = an; } // Kindersitze im ersten Transporter ab „Sieben Kindersitze“
   if (K.klopfT > 0) { K.klopfT -= dt; if (K.klopfT <= 0) { const n = K.klopfN; K.klopfN = 0; ausbau_ost_west_antwort(n); ausbau_ost_west_transpCheck(); } }
   // Goldfisch schwimmt zur Glaswand, wenn Luke kommt
-  if (K.fisch) { const F = K.fisch, d = Math.hypot(player.pos.x - F.c.x, player.pos.z - F.c.z); F.a += dt * (d < 2.5 ? .4 : 1.1); const r = d < 2.5 ? .02 : .07; F.s.position.set(F.c.x + Math.cos(F.a) * r, F.c.y - .01 + Math.sin(t * 1.3) * .015, F.c.z + Math.sin(F.a) * r); }
+  if (K.fisch) { const F = K.fisch, d = Math.hypot(player.pos.x - F.c.x, player.pos.z - F.c.z); F.a += dt * (d < 2.5 ? .4 : 1.1); const r = d < 2.5 ? .02 : .07; F.s.position.set(F.c.x + Math.cos(F.a) * r, F.c.y - .01 + Math.sin(t * 1.3) * .015, F.c.z + Math.sin(F.a) * r); F.s.rotation.y = -F.a - Math.PI / 2; }
   // Dina: Rätsel „Laterne, Laterne“ – nur Kap. 1, nach Frau Aydın; mit Lampe flieht sie ins Heu, ohne Lampe summt sie (räumlich, lauter beim Näherkommen)
   if (kap() === 1 && K.aydin && !K.dinaGefunden && ausbau_ost_west_inScheune() && !state.talking) { const S = K.summ; S.t += dt; const [x, z] = K.dinaVerst[K.dinaI], d = Math.hypot(player.pos.x - x, player.pos.z - z);
     if (!S.start) { S.start = true; S.t = 0; kirchberg_desc('ow_kreise', 'Dina ist in der Scheune. Irgendwo im Heu.'); }

@@ -30,6 +30,9 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | CC0 – Keypad Door Lock (`game/assets/ms/bed_keypad/`: model.fbx + Albedo/Normal/Rough/Metal/Emissiv, auf 2k/1k verkleinert, Tasten 2·4–9 verstaubt, Tastenblock als Bild im Eingabefenster; trotz „CC0“ im Titel auf Fab als CC-BY geführt) | plaggy | Tastenfeld der Kellertür (Kap. 1), Rückmeldung über die Emission-Textur (grüne/rote Leuchte) | Fab-Link nachtragen (Download 09.10.2026, `HAM_FabDownloads/v30_bedienung/keypad`) |
 | Mid-Poly Cassette Player – Retro Audio Device (`game/assets/ms/rekorder/model.glb`, aus `Volume_Wheel_LOD0.glb`, unverändert) | Ryptimal Games | Kassettenrekorder im Keller unter Nr. 7 (Kap. 1), statt Röhrenradio-Näherung | https://www.fab.com/listings/ddc5291c-9d3b-4ab2-a0f7-b8953b4ff977 (CC-BY, Download 08.10.2026, `HAM_FabDownloads/v31_ergaenzung/rekorder`) |
 | Pocket Knife (`game/assets/ms/messer/`: model.fbx + Texturen auf 1k verkleinert) | Gerardo Justel | Jonas’ Taschenmesser in der Drahtschlinge (Wald) | https://www.fab.com/listings/37b0c173-c6e3-40c3-972b-d4e04944d896 (CC-BY, Download 08.10.2026, `HAM_FabDownloads/v31_ergaenzung/messer`) |
+| Generic Sedan Car (`game/assets/ms/car_neu/sedan.glb`: Motor/Fahrwerk entfernt, Fahrertür als eigenes Teil, Lack als Spielmaterial, ausgedünnt auf 61 000 Dreiecke, Texturen 1k; Kennzeichen als Metallschild-Fläche ergänzt; `app/tools/blender/auto_bau.py`) | MMCWorks | Limousinen der Hauptstraße (Lucys Auto, Geisterauto, geparkte Wagen, Lukes Leihwagen, Kombi im Lagerhaus) | https://www.fab.com/listings/427e19dd-ca86-47cd-b1b2-0b0fd01d8853 (CC-BY, Download 09.10.2026, `HAM_FabDownloads/v33_autos`) |
+| Compact Hatchback (`game/assets/ms/car_neu/hatch.glb`: Betonplatte entfernt, gedreht, 1k-Texturen; `auto_bau.py`) | RCC Design | geparkter Kleinwagen an der Hauptstraße | https://www.fab.com/listings/580b0425-f3b6-401f-b0c1-7a67cf9eada0 (CC-BY, Download 09.10.2026) |
+| gold fish (`game/assets/ms/fisch/model.glb`: auf 6 cm skaliert, Kopf nach +x, Texturen 1k; `app/tools/blender/fisch_hufeisen_bau.py`) | Karolina Renkiewicz | Goldfisch im Glas in Roxys Laube (statt Canvas-Sprite) | https://www.fab.com/listings/fdcd7f03-1244-4e68-8e24-3ef776bfc929 (CC-BY, Download 09.10.2026, `HAM_FabDownloads/v33_autos`) |
 | SM_ Pine_b_04 | Big bubble | Kiefern im Wald | https://www.fab.com/listings/612c4f3e-e147-4d68-8f35-82f38047da80 |
 | More Realistic Trees Free! | Nicholas 3D | Laubbäume | https://www.fab.com/listings/d9a40b15-46e7-41f9-ac46-99b487ddea60 |
 | Realistic Trees Pack of 2 Free | Nicholas 3D | Büsche/Unterholz | https://www.fab.com/listings/b988606a-788e-4032-abf4-f50fccada472 |
@@ -101,7 +104,8 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 | Worn Victorian Mirror | MOJackal | Spiegel (`ms/mirror`) | https://www.fab.com/listings/0e902d60-2e97-4f68-9ec4-d6d49576b6a2 |
 | Vintage Abandoned Car – Dutch License Plate | Cygnos | Autowrack (`ms/car_dutch`) | https://www.fab.com/listings/c180aa30-f3e6-43fd-9872-0f4d5eed25bd |
 | Abandoned & junk Car | PLEXUS GAME ASSETS | Schrottauto (`ms/car_junk`) | https://www.fab.com/listings/ee5cffe5-c01f-4129-b56b-70871730b5de |
-| Old Abandoned Rusty Cars | OlegVerenko | rostige Autowracks (`ms/car_rusty`) | https://www.fab.com/listings/ed740921-9f30-4444-8c8e-c55db80c7304 |
+| Old Abandoned Rusty Cars | OlegVerenko | rostige Autowracks (`ms/car_rusty`; 09.10.: nur Coupé samt Efeu behalten, auf 59 000 Dreiecke ausgedünnt, `rusty_duenn.py`) | https://www.fab.com/listings/ed740921-9f30-4444-8c8e-c55db80c7304 |
+| Old Horseshoe (Megascans, Fab Standard, Professional-Angebot 0 geprüft) | Quixel Megascans | Hufeisen über den Haustüren (`ms/hufeisen`, Mid-LOD, aufgerichtet, 1k) | https://www.fab.com/listings/7140a7c6-0f0c-4449-87e5-31546c327a36 |
 | Retro Patterned Curtain | Farkas Interactive | gemusterte Vorhänge (`ms/curtain_retro`) | https://www.fab.com/listings/61f7402e-36ac-401a-bb88-544fdb88b65c |
 | Transparent curtain | Barnus Model's | Gardinen (`ms/curtain_sheer`) | https://www.fab.com/listings/cbc35d7d-7a1a-4c34-a834-8aae398f0211 |
 | Garden Fences (Wood) | Koceila HAID | Gartenzäune (`ms/fence_garden`) | https://www.fab.com/listings/9264aeeb-278a-4687-9a91-891cc72a6622 |
@@ -164,6 +168,7 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Eigene Arbeit (Blender)
+- **Warnschild „FORBIDDEN DUSTWOODS“** (`game/assets/ms/schild_warn/model.glb`, `gruen.js`): Emailleschild als Blender-Modell, Schrift (Arial) als Geometrie, Rahmen, Abplatzer, Schrauben, halb abgekratztes Auge; `app/tools/blender/schild_warn_bau.py` (nach `schild_bau.py`). **Kioskband Tankstelle Kranz** (`game/assets/ms/schild_band/model.glb`, `ausbau_ost_west.js`; `schild_band_bau.py`): Blechband mit Schrift als Geometrie. **Strichwände Nr. 9** (`fassaden.js`): jeder Strich echte Geometrie statt Canvas-Karte.
 - **Kolkrabe Whiskey und Rabenkrähen** (`game/assets/ms/rabe_whiskey/model.glb`, `game/assets/ms/rabe_kraehe/model.glb`; Module `whiskey.js`, `traum.js`, `menue.js`, `kino.js`, `leben.js`, `hungrige.js`):
   Körper aus dem Museumsscan **„Common raven“** (Corvus corax, Krystyna-und-Włodzimierz-Tomek-Naturkundemuseum Ciężkowice, Inv. MP 040) – Wirtualne Muzea Małopolski, **CC0 1.0**,
   https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89 (Ast entfernt, reduziert, Farbe/Normalen gebacken und nachgedunkelt).

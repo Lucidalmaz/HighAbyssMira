@@ -61,3 +61,6 @@ Canvas-Texturen (zur Laufzeit erzeugt) unter 512 px auf Flächen über 1 m: kein
 3. Limousinen `car_amsedan`: offen, braucht neues Modell (Download).
 4. `car_rusty` Leistung: im Spiel messen, decimieren.
 5. Canvas-Gegenstände/Schilder: Fisch, Hufeisen, Warnschild ersetzen (je S bis M).
+
+## E. Stand 09.10. (Zweig kunst-2)
+Erledigt: Limousinen `car_amsedan` durch Fab-Limousine und -Kleinwagen ersetzt (`ms/car_neu`), `car_rusty` auf 59 000 Dreiecke, Transporter in `tiefwald.js`/`ausbau_ost_west.js` auf graue Textur, Fisch-Sprite, Canvas-Hufeisen, Canvas-Warnschild, Strichwand-Plane, Kioskband Tankstelle. Offen: Silhouetten-Flächen (`silTex`, `faceTexes`), Bremsspur (`strasse.js` 128×1024), Telefonzettel, Magnet/Foto in `kapitel1.js`, Bus-Scan für das geheime Ende. Details: `qa_art_befund.md`, Abschnitt „Stand Kunst-2“.
