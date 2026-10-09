@@ -15316,7 +15316,7 @@ WORLD_MODS.push(['Ausrüstung', async () => {
     'Zwischen den Hängeregistern, mit Klebeband umwickelt: eine alte Keramiksicherung. Auf dem Band, in Kinderschrift: „RAUM 7“.',
     'Hängeregister, alphabetisch. Bei „B“ fehlt ein Name. Nur der Reiter ist noch da.', () => addItem('sicherung'));
   { const orig = fuseOpenPanel; fuseOpenPanel = function (...a) {
-      if (!ch2.power && !S.fuseIn && !(S.taken.has('c2_sicherung') && !story.items.includes('sicherung'))) { /* QA: nach dem Laden gilt eine entnommene, nicht mehr im Inventar liegende Sicherung als eingesetzt */ if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts.', 5200);
+      if (!ch2.power && !S.fuseIn && !(S.taken.has('c2_sicherung') && !story.items.includes('sicherung'))) { /* QA: nach dem Laden gilt eine entnommene, nicht mehr im Inventar liegende Sicherung als eingesetzt */ if (!story.items.includes('sicherung')) { try { setC2Objective('Dem Sicherungskasten fehlt die Hauptsicherung (Keramik, 25 A). Such Ersatz im Archiv, in den Aktenschränken.'); } catch (e) {} } if (!story.items.includes('sicherung')) return toast('Sechs Kreise, sechs Hebel – und ein leerer Steckplatz für die Hauptsicherung. 25 Ampere, Keramik. Ohne sie rührt sich nichts. Ersatz liegt bestimmt im Archiv, bei den Aktenschränken.', 6200);
         S.fuseIn = true; story.items = story.items.filter(k => k !== 'sicherung'); Audio.play('switch1', { gain: .6, x: C2.x + 33, y: 1.5, z: C2.z + 7.8, ref: 2 }); toast('Du drehst die Sicherung ein. Irgendwo im Beton tickt ein Relais.', 3400); }
       return orig.apply(this, a); }; }
   // --- Villa-Gelände (hinter dem Tor, erst mit Drahtschneider): Kerzenkreis auf dem Kiesweg
@@ -24190,7 +24190,7 @@ const HUNGRIGE_NACKT = {
         if (still && d < 9) { if (!this.halt) { this.halt = true; leben_play(V, 'IdleLookAround', .35); if (V.cur) V.cur.timeScale = .35; } if (this.tw) this.tw.k = 1 + .35 * Math.sin(this.t * 1.3); }
         else { if (this.halt) { this.halt = false; leben_play(V, 'Walk', .35, .55); } if (this.tw) this.tw.k = 1; V.tx = player.pos.x; V.tz = player.pos.z; leben_beastMove(V, dt, false); this.hT -= dt; if (this.hT < 0) { this.hT = 1.1; hungrige_nass(V, .28); } }
         if (hungrige_lit(V, 18, .96, .9)) this.lit += dt; else this.lit = Math.max(0, this.lit - dt);
-        if (this.lit > 1.3 || d < 2.4) { this.ph = 'run'; V.sp = 8; const P = player.pos, dx = p.x - P.x, dz = p.z - P.z, L = Math.hypot(dx, dz) || 1; V.tx = p.x + dx / L * 50; V.tz = p.z + dz / L * 50; leben_play(V, 'Run', .15); Audio.grunt(p.x, p.z, true, V.g); this.hT = 0; scareCount++; if (d < 2.4) { shake = .06; glitchV = .5; } } }
+        if (this.lit > 1.3 || d < 2.4 || this.t > 90) { this.ph = 'run'; V.sp = 8; const P = player.pos, dx = p.x - P.x, dz = p.z - P.z, L = Math.hypot(dx, dz) || 1; V.tx = p.x + dx / L * 50; V.tz = p.z + dz / L * 50; leben_play(V, 'Run', .15); Audio.grunt(p.x, p.z, true, V.g); this.hT = 0; scareCount++; if (d < 2.4) { shake = .06; glitchV = .5; } } }
       else { leben_beastMove(V, dt); this.hT -= dt; if (this.hT < 0) { this.hT = .2; hungrige_nass(V, .35); } if (d > 40 || this.t > 60) return false; }
       hungrige_applyTwist(V); return true; },
     end() { hungrige_off(this.V); hungrige_done('nackt_reh', 'Kein Fell. Nur Fleisch, als wär es gerade erst angezogen worden.'); setTimeout(() => { if (!state.talking) subtitle('Geschält. Vegas hat das gesagt. Wie ’ne Kartoffel.', 3200, 'LUKE'); }, 3600); } },
@@ -34620,7 +34620,7 @@ function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns');
   box.querySelectorAll('button').forEach(x => x.onclick = e => { e.stopPropagation(); box.style.display = 'none'; tod_zurueck(x.dataset.z); }); }
 const TOD_FEST = { t: 0, x: 0, z: 0, hinweis: 0 };
 function tod_festTick(dt) {
-  if (!state.started || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { TOD_FEST.t = 0; return; }
+  if (!state.started || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking || +document.getElementById('fade').style.opacity > .3) { TOD_FEST.t = 0; return; } // nicht in der Schwarzblende (Kapitelwechsel)
   const P = player.pos; if (P.y < -25 && !state.zone) { tod_zurueck('schritt'); return; } // unter die Welt gefallen
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown;
   if (!will) { TOD_FEST.t = 0; TOD_FEST.x = P.x; TOD_FEST.z = P.z; return; }
