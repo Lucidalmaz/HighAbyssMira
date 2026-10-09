@@ -5719,8 +5719,8 @@ function dcullMat(m) { return m && (m.isMeshStandardMaterial || m.isMeshLambertM
 function dcullBuild() {
   const L = [];
   scene.traverse(o => { if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || o.isBatchedMesh || o.frustumCulled === false || o.userData.noCull || o.onBeforeRender !== DCULL.obr || !o.geometry || !o.geometry.attributes.position) return;
-    const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const s = g.boundingSphere; if (!s || !(s.radius > 0) || s.radius > 25) return;
-    L.push({ o, e: o.matrixWorld.elements, x: s.center.x, y: s.center.y, z: s.center.z, r: s.radius, R: s.radius * o.matrixWorld.getMaxScaleOnAxis() }); });
+    const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const s = g.boundingSphere; if (!s || !(s.radius > 0)) return; const R0 = s.radius * o.matrixWorld.getMaxScaleOnAxis(); if ((DCULL.wr === false ? s.radius : R0) > 25) return; // 09.10.: Weltradius statt Formradius (FBX-Modelle in cm mit Skalierung .01: Formradius 232 → bisher nie in der Auslese; zwei Vogelscheuchen-Gruppen mit 300 Zeichenaufrufen hinter dem Nebel wurden jedes Bild gezeichnet)
+    L.push({ o, e: o.matrixWorld.elements, x: s.center.x, y: s.center.y, z: s.center.z, r: s.radius, R: R0 }); });
   DCULL.list = L; DCULL.n = scene.children.length;
 }
 function dcullHide() {
