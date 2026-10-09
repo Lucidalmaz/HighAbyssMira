@@ -286,8 +286,8 @@ async function nr4_bau() {
   await kirchberg_kram(g, [['teppich', C.x + 3.5, 0, C.z - 2.6, .2, .8], ['stapel', C.x + .2, 1.42, C.z - 2.2], ['glas', C.x + .2, 1.42, C.z - 1.7]]);
 
   // ================= Oben: Lukes altes Jugendzimmer (5 × 4 m) + Bad (2,2 × 4 m)
-  { const O = C.og, R2 = kirchberg_raum({ id: 'nr4_og', x: O.x, z: O.z, w: 7.2, d: 4, h: 2.45, wand: 'wallpaper_fabric', wandTint: 0x7c8a8e, boden: 'floor_wood', bodenTint: 0x6a5240,
-      waende: [['z', O.x + 1.4, O.z - 2, O.z + 2, [{ at: O.z + 1.2, w: .95 }]]], rein: { x: O.x - 2.9, z: O.z + 1.2, yaw: -PI / 2 } });
+  { const O = C.og, R2 = kirchberg_raum({ id: 'nr4_og', x: O.x, z: O.z, w: 7.2, d: 4, h: 2.6 /* QA-Kollision 09.10.: 2,45 → 2,6 (Sprung: Kamera in der Decke) */, wand: 'wallpaper_fabric', wandTint: 0x7c8a8e, boden: 'floor_wood', bodenTint: 0x6a5240,
+      waende: [['z', O.x + 1.4, O.z - 2, O.z + 2, [{ at: O.z + 1.2, w: .95 }]]], rein: { x: O.x - 2.9, z: O.z + .8, yaw: -PI / 2 } }); // QA-Kollision 09.10.: z+.8 statt +1,2 (Schrank rückte nach West)
     S.R2 = R2; const g2 = R2.g, a0 = R2.x0, a1 = R2.x1, b0 = R2.z0, b1 = R2.z1;
     // Treppengeländer oben (nach unten)
     // R-6: Tür zum Treppenhaus (die Treppe kommt im Schacht an der Westwand herauf) statt drei Brettern flach auf dem Dielenboden
@@ -300,7 +300,7 @@ async function nr4_bau() {
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;
     { const c = await kirchberg_fbx('chair', chairSpec, .9); if (c) put(c, O.x - .1, 0, b0 + 1.05, PI + .3, g2); }
     { const tv = await kirchberg_mod('crt', 'model.glb', .36); if (tv) put(tv, O.x + .45, ly, b0 + .35, -PI / 2 - .2, g2); /* QA 09.10.: crt-Bildschirm bei +x → zum Stuhl */ const r = await kirchberg_mod('radio', 'model.gltf', .28, 'max'); if (r) { r.traverse(m => { if (m.name === 'tubes') m.visible = false; }); put(r, O.x - .75, ly, b0 + .32, .15, g2); } }
-    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x + .4, 0, b1 - .3, PI / 2, g2); } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
+    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x - .6, 0, b1 - .3, PI / 2, g2); /* QA-Kollision 09.10.: war O.x+.4 = blockierte die Wandöffnung zum Bad (z+1,2) */ } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
     { const sl = await kirchberg_mod('floorlamp', 'model.gltf', 1.45); if (sl) put(sl, O.x + 1.05, 0, b0 + .35, 0, g2); } kirchberg_licht(R2, 0xffc890, 1, 5, O.x + 1.0, 1.35, b0 + .45);
     await fenster(R2, a0 + 1.1, b0 + .11, 0, 1.45, 'sheer');
     // Poster „Die Nebelkrähen – 2016“ (kiffen.js) über dem Schreibtisch; Aufkleber am Schrank und am Fensterrahmen
@@ -320,15 +320,15 @@ async function nr4_bau() {
     await kirchberg_kram(g2, [['teppich', O.x - 1.2, 0, O.z + .3, .3, .9], ['stapel', O.x - .6, ly, b0 + .5], ['tasse', O.x + .1, ly, b0 + .45], ['zeitung', a0 + 2.4, 0, b1 - .6, .8, .8], ['stapel', a0 + .3, 0, b1 - .3], ['glas', a0 + .36, .51, b1 - 1.75]]); spinnweben(R2, [[a1 - .2, 2.3, b0 + .2, -PI / 4, .5]]); }
 
   // ================= Keller (6 × 5 m, 2,3 m): Pfandkisten, Regale mit Einmachgläsern, Tonprobe, „Pfanddomino“
-  { const K = C.keller, R3 = kirchberg_raum({ id: 'nr4_keller', x: K.x, z: K.z, w: 6, d: 5, h: 2.3, wand: 'wall_damaged', wandTint: 0x8a8478, wandTile: 2, boden: 'wet_asphalt', bodenTint: 0x6a6660, decke: 'wall_plaster', rein: { x: K.x - 2.35, z: K.z - 1.3, yaw: 0 } }); // R-6: Ankunft am Fuß der Kellertreppe
+  { const K = C.keller, R3 = kirchberg_raum({ id: 'nr4_keller', x: K.x, z: K.z, w: 6, d: 5, h: 2.3, wand: 'wall_damaged', wandTint: 0x8a8478, wandTile: 2, boden: 'wet_asphalt', bodenTint: 0x6a6660, decke: 'wall_plaster', rein: { x: K.x - 1.05, z: K.z - .6, yaw: -PI / 2 } }); // R-6: Ankunft am Fuß der Kellertreppe; QA-Kollision 09.10.: neben der Treppe, Blick quer durch den Raum (vorher 1,1 m gegen Wand, Stapel in 0,75 m)
     S.R3 = R3; const g3 = R3.g, c0 = R3.x0, c1 = R3.x1, d0 = R3.z0, d1 = R3.z1;
     // R-6: Kellertreppe mit Wangen, Geländer und Durchbruch (vorher fünf frei schwebende Bretter mit 42 cm Steigung bis unter die Decke); oben die Tür zur Diele
     { const st = kirchberg_mat('planks_painted', 0x4a3a2c, 1); kirchberg_treppe({ par: g3, x0: c0 + .1, x1: c0 + 1.2, zA: d1 - 3.35, zB: d1 - .85, y0: 0, y1: R3.H + .2, n: 10, podest: .75, offen: 'x1',
       mat: st, matWange: kirchberg_mat('planks_painted', 0x2e241c, 1), decke: R3.decke, loch: [c0 + .1, c0 + 1.25, d1 - 3.1, d1 - .1], schachtH: 2.4, schachtMat: R3.wm });
       const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, c0 + .65, R3.H + .2, d1 - .115, PI, g3); }
     kirchberg_hit(1, 2, .8, c0 + .65, 1, d1 - 3.0, 'Kellertreppe hinauf', () => nr4_wechsel('eg'));
-    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.2 + i * 1.6, PI, g3); }
-    const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 1.6 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
+    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.7 + i * 1.6, PI, g3); } /* QA-Kollision 09.10.: −0,5 m, Regale bündig an der Nordwand (Engstelle Regal/Wand) */
+    const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 2.1 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
     // Pfandkisten (fehlendes Modell „Getränkekiste mit Pfandflaschen“ → Paletten-Scan mit Kanistern als Rückfall)
     { const p = await kirchberg_mod('pallet_ms', 'model.gltf', 1.1, 'max'); if (p) put(p, K.x - .6, 0, d0 + .7, .1, g3);
       const pt = p ? kirchberg_top(p, K.x - .6, d0 + .7, 1, .14) : .14, geo = nr4_flascheGeo(), grn = nr4_flaschenMat(0x4a7a42), brn = nr4_flaschenMat(0x6a3c18); S.flaschen = [];

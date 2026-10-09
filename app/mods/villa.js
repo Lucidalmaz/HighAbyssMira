@@ -82,11 +82,14 @@ function villa_raum(R, wand, boden, decke) { const w = R.x1 - R.x0, d = R.z1 - R
   plane(w, d, cx, .01, cz, boden, -PI / 2, 0, VILLA.g); villa_box(w + .4, .2, d + .4, cx, R.h + .1, cz, decke, { cast: false });
   villa_wand('x', R.z0, R.x0, R.x1, R.h, wand); villa_wand('x', R.z1, R.x0, R.x1, R.h, wand); villa_wand('z', R.x0, R.z0, R.z1, R.h, wand); villa_wand('z', R.x1, R.z0, R.z1, R.h, wand);
   indoorRects.push({ x0: R.x0, x1: R.x1, zb: R.z0, zf: R.z1, y: 0 }); }
+// QA-Kollision 09.10.: Möbel aus Scans (am Boden stehend) sind fest – wie alles Sichtbare der Außenwelt (SOL, an der Mesh-Form). Frei bleiben Türen (sitzen in der festen Wand), Rahmen und alles, was höher als 30 cm über dem Boden steht (Teller, Funkgeräte, Bilder auf Möbeln/Wänden); Schrank und Bett im Obergeschoss (Verstecke) sind nur während des Versteckens frei (villa_versteckFrei).
+const VILLA_FREI = new Set(['door1', 'door2', 'frame_deco', 'frame_dmg']);
+function villa_fest(o, key, y) { if (y >= .3 || VILLA_FREI.has(key) || typeof solidAdd !== 'function' || typeof SOL === 'undefined' || !SOL.items.length) return; try { solidAdd(o); } catch (e) { console.warn('Villa Kollision ' + key, e); } }
 // Scan-Modell in die Gruppe: size/axis wie msFit, y = Unterkante
 async function villa_put(key, file, size, axis, x, z, ry, y = 0) { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry;
-  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
+  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); villa_fest(o, key, y); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
 async function villa_fbx(key, spec, size, axis, x, z, ry, y = 0, sc = null) { try { const m = await msFBX(key, 'model.fbx', spec); if (sc) m.scale.set(...sc); else msFit(m, size, axis); const o = msGround(m); o.position.set(x, y, z); o.rotation.y = ry;
-  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
+  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); villa_fest(o, key, y); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
 const VILLA_SPEC = {
   chair: { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg', color: 0x8a8078 } },
   sofa: { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x7a6a62 } },
@@ -343,7 +346,7 @@ VILLA_BAU.nr3 = async R => {
   await villa_put('crt', 'model.glb', .42, 'y', R.x0 + .5, 855.6, -.5, 0); // QA 09.10.: Fab „crt“ hat den Bildschirm bei +x (nicht +z) – Drehung um −PI/2 korrigiert, sonst Bildschirm seitlich/zur Wand (Blick schräg in den Raum)
   { const rt = await villa_put('metaltable', 'model.gltf', .78, 'y', R.x1 - .45, 859.4, PI / 2); if (rt) { rt.scale.x *= .2; rt.scale.z *= .75; } }
   await villa_put('radio', 'model.gltf', .42, 'max', R.x1 - .4, 859.4, -PI / 2, .78);
-  await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .5, 860.3, .3);
+  await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .3, 860.62, .3); /* QA-Kollision 09.10.: bündig in die Ecke (vorher Engstelle Lampe/Wand) */
   await villa_put('w_teller', 'model.glb', .24, 'max', R.x1 - 1.3, 859.6, 0, .47);
   await villa_put('w_tasse', 'model.glb', .1, 'max', -983.3, 857.6, 0, .02);
   await villa_put('frame_deco', 'model.gltf', .5, 'y', R.x1 - .06, 858.6, -PI / 2, 1.5);
@@ -409,7 +412,7 @@ VILLA_BAU.az = async R => {
   villa_hit(.4, 2.2, 1.2, R.x1 - .25, 1.1, 898, 'In die Halle', () => villa_geh('halle', { p: VILLA_TUER.halleW }));
   // Bücherwand (Nordwand): drei Regale
   // QA 09.10.: „shelf“ ist ein Wandbrett (0,85 × 0,23 m, Rückplatte −z) – es lag hier auf dem Boden, 0,2 m vor der Wand. Bücherwand = offene Holzregale („wardrobe“, Vorderseite +x → PI/2 = Blick nach −z), Rücken an der Wand (Innenfläche z1 − 0,1)
-  for (const x of [-919.6, -917.8, -916]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
+  for (const x of [-920.05, -918.25, -916.45]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
   // Schreibtisch mit Lampe, Stuhl; Foto mit Nadel
   { const t = await villa_put('metaltable', 'model.gltf', .8, 'y', -917, 899.2, 0); if (t) { t.scale.x *= .8; } }
   VILLA.o.azStuhl = await villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', -917, 898.3, .1);
@@ -497,7 +500,7 @@ VILLA_BAU.og = async R => {
   villa_decal(villa_cv(256, 256, (c, w, h) => { c.fillStyle = '#4a3a2e'; c.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 7) { c.fillStyle = `rgba(0,0,0,${.15 + Math.random() * .15})`; c.fillRect(x, 0, 3, h); } }), 1.3, 2.3, -903.4, 1.25, R.z0 + .14, 0, 0);
   villa_licht(-899.4, 1.5, 930.3, 0xffd8a0, .9, 6); VILLA.o.ogLicht = villa_licht(-900, 2.7, 930, 0xffe8c8, 0, 9);
   // Heinrichs Zimmer: schmales Bett, Heizung (5), Mantelhaken ohne Mantel, Teedose, beschlagene Scheibe mit ∴
-  await villa_fbx('hospbed', VILLA_SPEC.bed, 0, 'y', -887.2, 930.8, PI / 2, 0, [.008, .008, -.008]);
+  VILLA.o.bett = await villa_fbx('hospbed', VILLA_SPEC.bed, 0, 'y', -887.2, 930.8, PI / 2, 0, [.008, .008, -.008]);
   VILLA.o.teedose = await villa_put('w_blech', 'model.glb', .12, 'max', -888.4, 932.5, .3, .62);
   await villa_fbx('dresser', VILLA_SPEC.hutch, .62, 'y', -888.4, 932.5, PI).catch?.(() => null);
   await villa_ogZimmer(R);
@@ -908,13 +911,15 @@ function villa_atemHinweis(t, bars) { const el = villa_atemUI(); el.querySelecto
 addEventListener('keydown', e => { const A = VILLA.ag13; if (!A || !A.versteck || e.code !== 'Space') return; e.preventDefault(); e.stopImmediatePropagation(); A.halten = true; if (typeof keys !== 'undefined') keys.Space = false; }, true);
 addEventListener('keyup', e => { const A = VILLA.ag13; if (A && e.code === 'Space') A.halten = false; }, true);
 addEventListener('keydown', e => { const A = VILLA.ag13; if (!A || !A.versteck || e.code !== 'KeyE' || e.repeat || ui.overlay) return; e.preventDefault(); e.stopImmediatePropagation(); villa_rauskommen(); }, true);
+// QA-Kollision 09.10.: Schrank/Bett sind fest (villa_fest), nur solange Luke darin versteckt ist, ohne Kollision (Position liegt im Möbel); danach schiebt ihn die Körper-Kollision heraus
+function villa_versteckFrei(art) { const O = VILLA.o; for (const [k, w] of [['schrank', O.schrank], ['schrank', O.schrank2], ['bett', O.bett]]) if (w) w.userData.noCol = k === art; }
 async function villa_verstecken(art) { const A = VILLA.ag13;
   if (!A) { if (art === 'schrank') return toast('Ein Garderobenschrank. Mäntel, die nach Mottenkugeln riechen. Genug Platz für einen Erwachsenen, wenn er die Luft anhält.', 4200); if (art === 'bett') return villa_ogBettText(); return toast('Ein schwerer Vorhang vor dem Fenster. Er reicht bis auf den Boden.', 3000); }
-  if (A.versteck === art) return villa_rauskommen(); const V = VILLA_VERSTECK[art]; A.versteck = art; A.vpos = V.p; player.pos.set(V.p[0], 0, V.p[1]); player.yaw = V.yaw; player.pitch = V.tief ? -.05 : 0; vel.set(0, 0, 0); camY = V.tief ? .45 : 1.6; flashOn = false;
+  if (A.versteck === art) return villa_rauskommen(); const V = VILLA_VERSTECK[art]; A.versteck = art; villa_versteckFrei(art); A.vpos = V.p; player.pos.set(V.p[0], 0, V.p[1]); player.yaw = V.yaw; player.pitch = V.tief ? -.05 : 0; vel.set(0, 0, 0); camY = V.tief ? .45 : 1.6; flashOn = false;
   villa_sperre(true); villa_atemUI(); VILLA.lamEl.className = art === 'schrank' ? 'show' : art === 'bett' ? 'show bett' : 'show vorhang';
   try { Audio.play(art === 'schrank' ? 'doorCreak' : 'paper1', { gain: .25, rate: 1.3, dur: .6 }); } catch (e) {}
   villa_atemHinweis('<b>LEERTASTE</b>Atem anhalten · <b>E</b> raus', true); }
-function villa_rauskommen() { const A = VILLA.ag13; if (!A || !A.versteck) return; A.versteck = null; flashOn = true; VILLA.lamEl && VILLA.lamEl.classList.remove('show'); villa_sperre(false); camY = 1.65; villa_atemHinweis(A.phase === 'drin' ? 'Versteck dich.' : '', false); }
+function villa_rauskommen() { const A = VILLA.ag13; if (!A || !A.versteck) return; A.versteck = null; villa_versteckFrei(null); flashOn = true; VILLA.lamEl && VILLA.lamEl.classList.remove('show'); villa_sperre(false); camY = 1.65; villa_atemHinweis(A.phase === 'drin' ? 'Versteck dich.' : '', false); }
 function villa_ogBettText() { toast(villa_hat('n4') ? 'Ein schmales Bett, das nie benutzt aussieht. Darunter ist gerade genug Platz.' : 'Ein schmales Bett, das nie benutzt aussieht. Auf dem Kopfkissen liegt etwas Gefaltetes.', 3400); if (!villa_hat('n4')) { villa_setz('n4'); villa_beob('b_k4_n4', { pos: [-886.8, .62, 931.2] }); } villa_setz('heinrich'); villa_ag13Check(); }
 async function villa_ag13() {
   const N11 = lwo_figur('n11'), N12 = lwo_figur('n12'), B = lwo_figur('b0'); if (!N11 || !N12 || !B) { villa_setz('ag13'); villa_ziel(); return; }

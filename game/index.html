@@ -14000,14 +14000,14 @@ async function post_schuppenAussen() { const S = post_S, x = 101.05, z = -26.5; 
     kirchberg_start('ow_kasse'); openNote('Günthers Schuppen', 'Wellblech, ein Schild REIFEN – KRANZ, ein Vorhängeschloss mit eingeprägtem Auge. Vor der Tür Werbeprospekte, nach Jahren gebündelt.\n\nDurch die Ritzen: Postsäcke, ein Kalender, eine Neonröhre.', 'post_schuppen', () => { post_S.steps.schuppen = 1; if (typeof ausbau_ost_west_zapfCheck === 'function') ausbau_ost_west_zapfCheck(); }); });
 }
 async function post_schuppenInnen() { const C = POST_RAUM.schuppen, S = post_S;
-  const R = kirchberg_raum({ id: 'schuppen', x: C.x, z: C.z, w: 5, d: 4, h: 2.5, wand: 'corrugated', wandTint: 0x8a8a80, wandTile: 1.5, boden: 'pavement', bodenTint: 0x6a6660, decke: 'rust_sheet', tuer: [C.x + 1.5, C.z + 1.95, PI], tuerWand: 'n', rein: { x: C.x + 1.5, z: C.z + 1.1, yaw: 0 }, raus: { x: 102.4, z: -26.5, yaw: -PI / 2 }, rausLabel: 'Hinaus' });
+  const R = kirchberg_raum({ id: 'schuppen', x: C.x, z: C.z, w: 5, d: 4, h: 2.7 /* QA-Kollision 09.10.: 2,5 → 2,7: Sprung stieß mit der Kamera in die Decke */, wand: 'corrugated', wandTint: 0x8a8a80, wandTile: 1.5, boden: 'pavement', bodenTint: 0x6a6660, decke: 'rust_sheet', tuer: [C.x + 1.5, C.z + 1.95, PI], tuerWand: 'n', rein: { x: C.x + .5, z: C.z + 1.2, yaw: 0 } /* QA-Kollision 09.10.: nicht neben die Postsäcke (vorher 0,6 m bis zum Sack) */, raus: { x: 102.4, z: -26.5, yaw: -PI / 2 }, rausLabel: 'Hinaus' });
   const g = R.g, pl = kirchberg_mat('planks_painted', 0x8a7458, .8), x0 = R.x0, x1 = R.x1, z0 = R.z0;
   // Obstkisten-Regale (Latten mit Holz-Scan), beschriftet mit Straßen und Hausnummern
   const kiste = (x, y, z, label) => { const w = .5, h = .3, d = .36; box(w, .02, d, x, y + .01, z, pl, { parent: g, cast: true }); box(.02, h, d, x - w / 2, y + h / 2, z, pl, { parent: g }); box(.02, h, d, x + w / 2, y + h / 2, z, pl, { parent: g }); box(w, h * .6, .02, x, y + h * .3, z + d / 2, pl, { parent: g }); box(w, h, .02, x, y + h / 2, z - d / 2, pl, { parent: g });
     kirchberg_decal(kirchberg_papier({ w: 256, h: 80, bg: '#e8e0c8', zeilen: [[label, 16, 56, 40, '#1a1a1a', '"Caveat", cursive', 0]] }), .3, .09, x, y + .2, z + d / 2 + .012, 0, { parent: g }); };
   ['AHORN 1', 'AHORN 2', 'AHORN 3', 'AHORN 4', 'AHORN 5', 'AHORN 7', 'HOF', 'ZEITUNG / POLIZEI / LANDTAG'].forEach((l, i) => kiste(x0 + .45 + (i % 4) * .56, .02 + (i / 4 | 0) * .42 + (i === 7 ? .84 : 0), z0 + .3, l));
   // Postsäcke nach Jahr (Müllsack-Scan in Sackleinen-Farbe), Kalender von 2012 (Dezember), Hocker mit Zeitungsstapel, Kaffeemaschine (Radio-Scan als Ersatz)
-  const sack = await kirchberg_mod('trashbag', 'model.gltf', .7); if (sack) for (let i = 0; i < 5; i++) { const s2 = sack.clone(true); s2.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .43, .32); m.material.roughness = .95; } }); kirchberg_setze(s2, x1 - .5 - (i % 2) * .5, 0, C.z - .8 + (i / 2 | 0) * .55, kirchberg_r(0, 6), g); }
+  const sack = await kirchberg_mod('trashbag', 'model.gltf', .7); if (sack) for (let i = 0; i < 5; i++) { const s2 = sack.clone(true); s2.scale.y *= .62; /* QA-Kollision 09.10.: flachere Säcke – auf den hohen Säcken stieß die Kamera an die 2,5-m-Decke */ s2.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.5, .43, .32); m.material.roughness = .95; } }); kirchberg_setze(s2, x1 - .5 - (i % 2) * .5, 0, C.z - .8 + (i / 2 | 0) * .55, kirchberg_r(0, 6), g); }
   kirchberg_decal(kirchberg_papier({ w: 300, h: 420, bg: '#f0ece2', zeilen: [['DEZEMBER 2012', 30, 56, 32, '#8a1a14', 'Georgia, serif', 0]], fn: (x) => { x.strokeStyle = '#999'; for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) x.strokeRect(24 + c * 36, 90 + r * 48, 36, 48); } }), .3, .42, x1 - .105, 1.5, C.z + .9, -PI / 2, { parent: g });
   const ch = await kirchberg_fbx('chair', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }, .6); if (ch) kirchberg_setze(ch, C.x - .6, 0, C.z + .7, .5, g);
   const bu = await kirchberg_mod('w_buch', 'model.glb', .32, 'max'); if (bu) for (let i = 0; i < 5; i++) { const b = bu.clone(true); b.scale.y *= .6; kirchberg_setze(b, C.x - .6, .6 + i * .03, C.z + .7, kirchberg_r(-.2, .2), g); }
@@ -14020,10 +14020,10 @@ async function post_schuppenInnen() { const C = POST_RAUM.schuppen, S = post_S;
 }
 // ---------------------------------------------------------------------  Nr. 9 „Butterbrotpapier“: nur durchs Fenster (02 C10)
 async function post_postenBau() { const C = POST_RAUM.posten, S = post_S, T = THREE;
-  const R = kirchberg_raum({ id: 'posten', x: C.x, z: C.z, w: 4.2, d: 3.6, h: 2.6, wand: 'wallpaper_old', wandTint: 0x8a8272, boden: 'floor_worn', bodenTint: 0x6a5e50, rein: { x: C.x, z: C.z + 1.6, yaw: 0 } });
+  const R = kirchberg_raum({ id: 'posten', x: C.x, z: C.z, w: 4.2, d: 3.6, h: 2.6, wand: 'wallpaper_old', wandTint: 0x8a8272, boden: 'floor_worn', bodenTint: 0x6a5e50, rein: { x: C.x - .3, z: C.z + 1.25, yaw: 0 } }); /* QA-Kollision 09.10.: vorher z+1,6 = in der Südwand (0 m frei) */
   const g = R.g, x0 = R.x0, x1 = R.x1, z0 = R.z0;
   const k = await kirchberg_mod('w_kamera', 'model.glb', .16, 'max'); if (k) kirchberg_setze(k, C.x + 1.2, 1.35, z0 + .5, PI * .8, g); // Stativ-Kamera (Stativ: Stehlampen-Fuß)
-  const st = await kirchberg_mod('floorlamp', 'model.gltf', 1.35); if (st) { st.traverse(m => { if (m.isMesh && /shade|lamp/i.test(m.name)) m.visible = false; }); kirchberg_setze(st, C.x + 1.2, 0, z0 + .5, 0, g); }
+  const st = await kirchberg_mod('floorlamp', 'model.gltf', 1.35); if (st) { st.traverse(m => { if (m.isMesh && /shade|lamp/i.test(m.name)) m.visible = false; }); kirchberg_setze(st, C.x + 1.2, 0, z0 + .3, 0, g); /* QA-Kollision 09.10.: bündig an die Wand (Engstelle zwischen Lampe und Wand) */ }
   const ch = await kirchberg_fbx('chair', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }, .85); if (ch) kirchberg_setze(ch, C.x + .4, 0, C.z - .2, PI * .9, g);
   const ti = await kirchberg_mod('metaltable', 'model.gltf', 0); if (ti) { ti.scale.set(.28, .8, .5); kirchberg_setze(ti, C.x - .6, 0, z0 + .45, 0, g); }
   const ty = .78; const rk = await kirchberg_mod('radio', 'model.gltf', .3, 'max'); if (rk) { rk.traverse(m => { if (m.name === 'tubes') m.visible = false; }); kirchberg_setze(rk, C.x - .95, ty, z0 + .42, .2, g); }
@@ -14505,8 +14505,8 @@ async function nr4_bau() {
   await kirchberg_kram(g, [['teppich', C.x + 3.5, 0, C.z - 2.6, .2, .8], ['stapel', C.x + .2, 1.42, C.z - 2.2], ['glas', C.x + .2, 1.42, C.z - 1.7]]);
 
   // ================= Oben: Lukes altes Jugendzimmer (5 × 4 m) + Bad (2,2 × 4 m)
-  { const O = C.og, R2 = kirchberg_raum({ id: 'nr4_og', x: O.x, z: O.z, w: 7.2, d: 4, h: 2.45, wand: 'wallpaper_fabric', wandTint: 0x7c8a8e, boden: 'floor_wood', bodenTint: 0x6a5240,
-      waende: [['z', O.x + 1.4, O.z - 2, O.z + 2, [{ at: O.z + 1.2, w: .95 }]]], rein: { x: O.x - 2.9, z: O.z + 1.2, yaw: -PI / 2 } });
+  { const O = C.og, R2 = kirchberg_raum({ id: 'nr4_og', x: O.x, z: O.z, w: 7.2, d: 4, h: 2.6 /* QA-Kollision 09.10.: 2,45 → 2,6 (Sprung: Kamera in der Decke) */, wand: 'wallpaper_fabric', wandTint: 0x7c8a8e, boden: 'floor_wood', bodenTint: 0x6a5240,
+      waende: [['z', O.x + 1.4, O.z - 2, O.z + 2, [{ at: O.z + 1.2, w: .95 }]]], rein: { x: O.x - 2.9, z: O.z + .8, yaw: -PI / 2 } }); // QA-Kollision 09.10.: z+.8 statt +1,2 (Schrank rückte nach West)
     S.R2 = R2; const g2 = R2.g, a0 = R2.x0, a1 = R2.x1, b0 = R2.z0, b1 = R2.z1;
     // Treppengeländer oben (nach unten)
     // R-6: Tür zum Treppenhaus (die Treppe kommt im Schacht an der Westwand herauf) statt drei Brettern flach auf dem Dielenboden
@@ -14519,7 +14519,7 @@ async function nr4_bau() {
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;
     { const c = await kirchberg_fbx('chair', chairSpec, .9); if (c) put(c, O.x - .1, 0, b0 + 1.05, PI + .3, g2); }
     { const tv = await kirchberg_mod('crt', 'model.glb', .36); if (tv) put(tv, O.x + .45, ly, b0 + .35, -PI / 2 - .2, g2); /* QA 09.10.: crt-Bildschirm bei +x → zum Stuhl */ const r = await kirchberg_mod('radio', 'model.gltf', .28, 'max'); if (r) { r.traverse(m => { if (m.name === 'tubes') m.visible = false; }); put(r, O.x - .75, ly, b0 + .32, .15, g2); } }
-    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x + .4, 0, b1 - .3, PI / 2, g2); } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
+    { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x - .6, 0, b1 - .3, PI / 2, g2); /* QA-Kollision 09.10.: war O.x+.4 = blockierte die Wandöffnung zum Bad (z+1,2) */ } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
     { const sl = await kirchberg_mod('floorlamp', 'model.gltf', 1.45); if (sl) put(sl, O.x + 1.05, 0, b0 + .35, 0, g2); } kirchberg_licht(R2, 0xffc890, 1, 5, O.x + 1.0, 1.35, b0 + .45);
     await fenster(R2, a0 + 1.1, b0 + .11, 0, 1.45, 'sheer');
     // Poster „Die Nebelkrähen – 2016“ (kiffen.js) über dem Schreibtisch; Aufkleber am Schrank und am Fensterrahmen
@@ -14539,15 +14539,15 @@ async function nr4_bau() {
     await kirchberg_kram(g2, [['teppich', O.x - 1.2, 0, O.z + .3, .3, .9], ['stapel', O.x - .6, ly, b0 + .5], ['tasse', O.x + .1, ly, b0 + .45], ['zeitung', a0 + 2.4, 0, b1 - .6, .8, .8], ['stapel', a0 + .3, 0, b1 - .3], ['glas', a0 + .36, .51, b1 - 1.75]]); spinnweben(R2, [[a1 - .2, 2.3, b0 + .2, -PI / 4, .5]]); }
 
   // ================= Keller (6 × 5 m, 2,3 m): Pfandkisten, Regale mit Einmachgläsern, Tonprobe, „Pfanddomino“
-  { const K = C.keller, R3 = kirchberg_raum({ id: 'nr4_keller', x: K.x, z: K.z, w: 6, d: 5, h: 2.3, wand: 'wall_damaged', wandTint: 0x8a8478, wandTile: 2, boden: 'wet_asphalt', bodenTint: 0x6a6660, decke: 'wall_plaster', rein: { x: K.x - 2.35, z: K.z - 1.3, yaw: 0 } }); // R-6: Ankunft am Fuß der Kellertreppe
+  { const K = C.keller, R3 = kirchberg_raum({ id: 'nr4_keller', x: K.x, z: K.z, w: 6, d: 5, h: 2.3, wand: 'wall_damaged', wandTint: 0x8a8478, wandTile: 2, boden: 'wet_asphalt', bodenTint: 0x6a6660, decke: 'wall_plaster', rein: { x: K.x - 1.05, z: K.z - .6, yaw: -PI / 2 } }); // R-6: Ankunft am Fuß der Kellertreppe; QA-Kollision 09.10.: neben der Treppe, Blick quer durch den Raum (vorher 1,1 m gegen Wand, Stapel in 0,75 m)
     S.R3 = R3; const g3 = R3.g, c0 = R3.x0, c1 = R3.x1, d0 = R3.z0, d1 = R3.z1;
     // R-6: Kellertreppe mit Wangen, Geländer und Durchbruch (vorher fünf frei schwebende Bretter mit 42 cm Steigung bis unter die Decke); oben die Tür zur Diele
     { const st = kirchberg_mat('planks_painted', 0x4a3a2c, 1); kirchberg_treppe({ par: g3, x0: c0 + .1, x1: c0 + 1.2, zA: d1 - 3.35, zB: d1 - .85, y0: 0, y1: R3.H + .2, n: 10, podest: .75, offen: 'x1',
       mat: st, matWange: kirchberg_mat('planks_painted', 0x2e241c, 1), decke: R3.decke, loch: [c0 + .1, c0 + 1.25, d1 - 3.1, d1 - .1], schachtH: 2.4, schachtMat: R3.wm });
       const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, c0 + .65, R3.H + .2, d1 - .115, PI, g3); }
     kirchberg_hit(1, 2, .8, c0 + .65, 1, d1 - 3.0, 'Kellertreppe hinauf', () => nr4_wechsel('eg'));
-    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.2 + i * 1.6, PI, g3); }
-    const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 1.6 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
+    for (let i = 0; i < 2; i++) { const s = await kirchberg_mod('wardrobe', 'model.gltf', 1.9); if (s) put(s, c1 - .3, 0, K.z - 1.7 + i * 1.6, PI, g3); } /* QA-Kollision 09.10.: −0,5 m, Regale bündig an der Nordwand (Engstelle Regal/Wand) */
+    const glas = await kirchberg_mod('w_becher', 'model.glb', .12); if (glas) for (let i = 0; i < 18; i++) { const b = glas.clone(true); b.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(.08 + (i % 4) * .05, .5, .35); } }); put(b, c1 - .3, .45 + (i % 3) * .45, K.z - 2.1 + (i / 3 | 0) * .28, kirchberg_r(0, 6), g3); }
     // Pfandkisten (fehlendes Modell „Getränkekiste mit Pfandflaschen“ → Paletten-Scan mit Kanistern als Rückfall)
     { const p = await kirchberg_mod('pallet_ms', 'model.gltf', 1.1, 'max'); if (p) put(p, K.x - .6, 0, d0 + .7, .1, g3);
       const pt = p ? kirchberg_top(p, K.x - .6, d0 + .7, 1, .14) : .14, geo = nr4_flascheGeo(), grn = nr4_flaschenMat(0x4a7a42), brn = nr4_flaschenMat(0x6a3c18); S.flaschen = [];
@@ -16291,7 +16291,7 @@ WORLD_MODS.push(['Geheimnisse', async () => {
       else { const pc = pole.clone(true); pc.rotation.x = -PI / 2; const p = msGround(msFit(pc, 1.9, 'y')); // QA 09.10.: „pole_old“ liegt im Modell (4,7 m entlang z) – aufrichten, sonst 50 m langer Balken am Boden g.add(p); const b = msGround(msFit(bear.clone(true), .34, 'max')); b.position.set(0, 1.18, .07); b.rotation.x = -.25; g.add(b);
         for (let k = 0; k < 3; k++) { const cc = msGround(msFit(cs.clone(true), .16, 'y')); cc.position.set(Math.cos(k * 2.1) * .35, 0, Math.sin(k * 2.1) * .35); g.add(cc); } }
       try { geheimnisse_gestell(g, wood); } catch (e) { console.warn('Geheimnisse: Gestell', e); }
-      g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true;
+      g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); /* QA-Kollision 09.10.: Zählgestell ist fest (vorher noCol = man lief hindurch) */
       const l = new VLight(0xffa860, .6, 3.5, 2); l.position.set(x, .4, z); scene.add(l);
       const hit = box(.8, 1.9, .8, x, .95, z, hidden, { cast: false }), key = 'geh_totem_' + i; S.totems.push({ g, key, i, seen: true, turned: 0, l, flare: 0, nah: false });
       interact(hit, () => geheimnisse_has(key) ? 'Zählgestell berühren' : 'Zählgestell berühren', () => geheimnisse_totem(i, key));
@@ -21193,10 +21193,10 @@ async function anwesen_buildHall() {
   indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 });
   // Treppe nach oben (eingebrochen): Stufen, auf halber Höhe zersplittert
   for (let k = 0; k < 9; k++) box(3, .2, .42, H.x, .1 + k * .2, z1 - 3.6 + k * .38, dark, { collide: k < 3 });
-  box(3.4, 1.2, .5, H.x, .6, z1 - 3.9, hidden, { collide: true, cast: false });
+  // QA-Kollision 09.10.: unsichtbare Sperrkiste (3,4 × 1,2 m) vor der ersten Stufe entfernt – die Stufen selbst sind fest, oben hält die Galerie auf
   for (let k = 0; k < 5; k++) { const b = box(.14, .14, 2.6, H.x + rand(-1.2, 1.2), 1.9 + rand(-.3, .3), z1 - 2.2 + rand(-.5, .5), dark); b.rotation.set(rand(-.5, .5), rand(-1, 1), rand(-.6, .6)); }
   const put = async (key, file, size, axis, x, z, ry, y = 0) => { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry; o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); return o; } catch (e) { console.warn('Halle ' + key, e); return null; } };
-  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .44, H.z - 2.5, 0); await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
+  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .44, H.z - 4.4, 0); /* QA-Kollision 09.10.: stand bei z−2,5 direkt vor der Westtür zum Arbeitszimmer (897,6) */ await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
   await put('floorlamp', 'model.gltf', 1.7, 'y', x0 + .7, z1 - 1, .4); await put('floorlamp', 'model.gltf', 1.7, 'y', x1 - .7, z0 + 1.2, -.4);
   const shelfO = await put('shelf', 'model.gltf', 1.2, 'x', x1 - .3, H.z - 3.2, -PI / 2, 1.45); await put('radio', 'model.gltf', .45, 'max', x1 - 1.4, z0 + 2.4, -PI / 2, .78);
   // Schreibtisch: gescannter Metalltisch statt Kiste
@@ -21590,11 +21590,14 @@ function villa_raum(R, wand, boden, decke) { const w = R.x1 - R.x0, d = R.z1 - R
   plane(w, d, cx, .01, cz, boden, -PI / 2, 0, VILLA.g); villa_box(w + .4, .2, d + .4, cx, R.h + .1, cz, decke, { cast: false });
   villa_wand('x', R.z0, R.x0, R.x1, R.h, wand); villa_wand('x', R.z1, R.x0, R.x1, R.h, wand); villa_wand('z', R.x0, R.z0, R.z1, R.h, wand); villa_wand('z', R.x1, R.z0, R.z1, R.h, wand);
   indoorRects.push({ x0: R.x0, x1: R.x1, zb: R.z0, zf: R.z1, y: 0 }); }
+// QA-Kollision 09.10.: Möbel aus Scans (am Boden stehend) sind fest – wie alles Sichtbare der Außenwelt (SOL, an der Mesh-Form). Frei bleiben Türen (sitzen in der festen Wand), Rahmen und alles, was höher als 30 cm über dem Boden steht (Teller, Funkgeräte, Bilder auf Möbeln/Wänden); Schrank und Bett im Obergeschoss (Verstecke) sind nur während des Versteckens frei (villa_versteckFrei).
+const VILLA_FREI = new Set(['door1', 'door2', 'frame_deco', 'frame_dmg']);
+function villa_fest(o, key, y) { if (y >= .3 || VILLA_FREI.has(key) || typeof solidAdd !== 'function' || typeof SOL === 'undefined' || !SOL.items.length) return; try { solidAdd(o); } catch (e) { console.warn('Villa Kollision ' + key, e); } }
 // Scan-Modell in die Gruppe: size/axis wie msFit, y = Unterkante
 async function villa_put(key, file, size, axis, x, z, ry, y = 0) { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry;
-  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
+  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); villa_fest(o, key, y); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
 async function villa_fbx(key, spec, size, axis, x, z, ry, y = 0, sc = null) { try { const m = await msFBX(key, 'model.fbx', spec); if (sc) m.scale.set(...sc); else msFit(m, size, axis); const o = msGround(m); o.position.set(x, y, z); o.rotation.y = ry;
-  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
+  o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); VILLA.g.add(o); villa_fest(o, key, y); return o; } catch (e) { console.warn('Villa ' + key, e); return null; } }
 const VILLA_SPEC = {
   chair: { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg', color: 0x8a8078 } },
   sofa: { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x7a6a62 } },
@@ -21851,7 +21854,7 @@ VILLA_BAU.nr3 = async R => {
   await villa_put('crt', 'model.glb', .42, 'y', R.x0 + .5, 855.6, -.5, 0); // QA 09.10.: Fab „crt“ hat den Bildschirm bei +x (nicht +z) – Drehung um −PI/2 korrigiert, sonst Bildschirm seitlich/zur Wand (Blick schräg in den Raum)
   { const rt = await villa_put('metaltable', 'model.gltf', .78, 'y', R.x1 - .45, 859.4, PI / 2); if (rt) { rt.scale.x *= .2; rt.scale.z *= .75; } }
   await villa_put('radio', 'model.gltf', .42, 'max', R.x1 - .4, 859.4, -PI / 2, .78);
-  await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .5, 860.3, .3);
+  await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .3, 860.62, .3); /* QA-Kollision 09.10.: bündig in die Ecke (vorher Engstelle Lampe/Wand) */
   await villa_put('w_teller', 'model.glb', .24, 'max', R.x1 - 1.3, 859.6, 0, .47);
   await villa_put('w_tasse', 'model.glb', .1, 'max', -983.3, 857.6, 0, .02);
   await villa_put('frame_deco', 'model.gltf', .5, 'y', R.x1 - .06, 858.6, -PI / 2, 1.5);
@@ -21917,7 +21920,7 @@ VILLA_BAU.az = async R => {
   villa_hit(.4, 2.2, 1.2, R.x1 - .25, 1.1, 898, 'In die Halle', () => villa_geh('halle', { p: VILLA_TUER.halleW }));
   // Bücherwand (Nordwand): drei Regale
   // QA 09.10.: „shelf“ ist ein Wandbrett (0,85 × 0,23 m, Rückplatte −z) – es lag hier auf dem Boden, 0,2 m vor der Wand. Bücherwand = offene Holzregale („wardrobe“, Vorderseite +x → PI/2 = Blick nach −z), Rücken an der Wand (Innenfläche z1 − 0,1)
-  for (const x of [-919.6, -917.8, -916]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
+  for (const x of [-920.05, -918.25, -916.45]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
   // Schreibtisch mit Lampe, Stuhl; Foto mit Nadel
   { const t = await villa_put('metaltable', 'model.gltf', .8, 'y', -917, 899.2, 0); if (t) { t.scale.x *= .8; } }
   VILLA.o.azStuhl = await villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', -917, 898.3, .1);
@@ -22005,7 +22008,7 @@ VILLA_BAU.og = async R => {
   villa_decal(villa_cv(256, 256, (c, w, h) => { c.fillStyle = '#4a3a2e'; c.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 7) { c.fillStyle = `rgba(0,0,0,${.15 + Math.random() * .15})`; c.fillRect(x, 0, 3, h); } }), 1.3, 2.3, -903.4, 1.25, R.z0 + .14, 0, 0);
   villa_licht(-899.4, 1.5, 930.3, 0xffd8a0, .9, 6); VILLA.o.ogLicht = villa_licht(-900, 2.7, 930, 0xffe8c8, 0, 9);
   // Heinrichs Zimmer: schmales Bett, Heizung (5), Mantelhaken ohne Mantel, Teedose, beschlagene Scheibe mit ∴
-  await villa_fbx('hospbed', VILLA_SPEC.bed, 0, 'y', -887.2, 930.8, PI / 2, 0, [.008, .008, -.008]);
+  VILLA.o.bett = await villa_fbx('hospbed', VILLA_SPEC.bed, 0, 'y', -887.2, 930.8, PI / 2, 0, [.008, .008, -.008]);
   VILLA.o.teedose = await villa_put('w_blech', 'model.glb', .12, 'max', -888.4, 932.5, .3, .62);
   await villa_fbx('dresser', VILLA_SPEC.hutch, .62, 'y', -888.4, 932.5, PI).catch?.(() => null);
   await villa_ogZimmer(R);
@@ -22416,13 +22419,15 @@ function villa_atemHinweis(t, bars) { const el = villa_atemUI(); el.querySelecto
 addEventListener('keydown', e => { const A = VILLA.ag13; if (!A || !A.versteck || e.code !== 'Space') return; e.preventDefault(); e.stopImmediatePropagation(); A.halten = true; if (typeof keys !== 'undefined') keys.Space = false; }, true);
 addEventListener('keyup', e => { const A = VILLA.ag13; if (A && e.code === 'Space') A.halten = false; }, true);
 addEventListener('keydown', e => { const A = VILLA.ag13; if (!A || !A.versteck || e.code !== 'KeyE' || e.repeat || ui.overlay) return; e.preventDefault(); e.stopImmediatePropagation(); villa_rauskommen(); }, true);
+// QA-Kollision 09.10.: Schrank/Bett sind fest (villa_fest), nur solange Luke darin versteckt ist, ohne Kollision (Position liegt im Möbel); danach schiebt ihn die Körper-Kollision heraus
+function villa_versteckFrei(art) { const O = VILLA.o; for (const [k, w] of [['schrank', O.schrank], ['schrank', O.schrank2], ['bett', O.bett]]) if (w) w.userData.noCol = k === art; }
 async function villa_verstecken(art) { const A = VILLA.ag13;
   if (!A) { if (art === 'schrank') return toast('Ein Garderobenschrank. Mäntel, die nach Mottenkugeln riechen. Genug Platz für einen Erwachsenen, wenn er die Luft anhält.', 4200); if (art === 'bett') return villa_ogBettText(); return toast('Ein schwerer Vorhang vor dem Fenster. Er reicht bis auf den Boden.', 3000); }
-  if (A.versteck === art) return villa_rauskommen(); const V = VILLA_VERSTECK[art]; A.versteck = art; A.vpos = V.p; player.pos.set(V.p[0], 0, V.p[1]); player.yaw = V.yaw; player.pitch = V.tief ? -.05 : 0; vel.set(0, 0, 0); camY = V.tief ? .45 : 1.6; flashOn = false;
+  if (A.versteck === art) return villa_rauskommen(); const V = VILLA_VERSTECK[art]; A.versteck = art; villa_versteckFrei(art); A.vpos = V.p; player.pos.set(V.p[0], 0, V.p[1]); player.yaw = V.yaw; player.pitch = V.tief ? -.05 : 0; vel.set(0, 0, 0); camY = V.tief ? .45 : 1.6; flashOn = false;
   villa_sperre(true); villa_atemUI(); VILLA.lamEl.className = art === 'schrank' ? 'show' : art === 'bett' ? 'show bett' : 'show vorhang';
   try { Audio.play(art === 'schrank' ? 'doorCreak' : 'paper1', { gain: .25, rate: 1.3, dur: .6 }); } catch (e) {}
   villa_atemHinweis('<b>LEERTASTE</b>Atem anhalten · <b>E</b> raus', true); }
-function villa_rauskommen() { const A = VILLA.ag13; if (!A || !A.versteck) return; A.versteck = null; flashOn = true; VILLA.lamEl && VILLA.lamEl.classList.remove('show'); villa_sperre(false); camY = 1.65; villa_atemHinweis(A.phase === 'drin' ? 'Versteck dich.' : '', false); }
+function villa_rauskommen() { const A = VILLA.ag13; if (!A || !A.versteck) return; A.versteck = null; villa_versteckFrei(null); flashOn = true; VILLA.lamEl && VILLA.lamEl.classList.remove('show'); villa_sperre(false); camY = 1.65; villa_atemHinweis(A.phase === 'drin' ? 'Versteck dich.' : '', false); }
 function villa_ogBettText() { toast(villa_hat('n4') ? 'Ein schmales Bett, das nie benutzt aussieht. Darunter ist gerade genug Platz.' : 'Ein schmales Bett, das nie benutzt aussieht. Auf dem Kopfkissen liegt etwas Gefaltetes.', 3400); if (!villa_hat('n4')) { villa_setz('n4'); villa_beob('b_k4_n4', { pos: [-886.8, .62, 931.2] }); } villa_setz('heinrich'); villa_ag13Check(); }
 async function villa_ag13() {
   const N11 = lwo_figur('n11'), N12 = lwo_figur('n12'), B = lwo_figur('b0'); if (!N11 || !N12 || !B) { villa_setz('ag13'); villa_ziel(); return; }
@@ -33748,7 +33753,7 @@ async function kapitel1_welt() {
   // --- Nr. 7: Teller mit dem angebissenen Butterbrot auf der Sofalehne, Dienstmarke + Kugelschreiber in der Schale am Küchentisch
   try { const brot = await msModel('w_brot', 'model.glb'), tel = await msModel('w_teller', 'model.glb');
     // Sessel neben dem Sofa (Sofa-Scan auf Sesselbreite gestaucht, brauner Bezug): davor der Teller mit dem angebissenen Brot auf dem Sitz, über der Lehne die zusammengelegte Wolldecke
-    let SX = 22.4, SZ = -16.15; try { const ses = await msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x86725c } }); msFit(ses, 2.0, 'x'); ses.scale.x *= .52; const sg = msGround(ses); sg.updateMatrixWorld(true);
+    let SX = 21.7 /* QA-Kollision 09.10.: war 22.4 = halb vor der Wandöffnung (23, −17) */, SZ = -16.15; try { const ses = await msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x86725c } }); msFit(ses, 2.0, 'x'); ses.scale.x *= .52; const sg = msGround(ses); sg.updateMatrixWorld(true);
       const sb = new THREE.Box3().setFromObject(sg), sd = sb.max.z - sb.min.z; sg.name = 'k1_sessel'; sg.position.set(SX, Y, -16.87 + sd / 2); sg.rotation.y = .06; sg.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); scene.add(sg); sg.updateMatrixWorld(true); K1.sessel = sg;
       const bb = new THREE.Box3().setFromObject(sg), dk = kapitel1_decke(); dk.position.set(SX + .04, bb.max.y + .03, -16.87 + .2); dk.rotation.set(-.2, .1, .02); scene.add(dk); K1.decke = dk; SZ = -16.87 + sd * .55; } catch (e) { console.warn('kapitel1 Sessel', e); }
     const ys = kapitel1_topY('k1_sessel', SX, SZ, Y + 1.4, Y + .5); const t1 = msGround(msFit(tel.clone(true), .2, 'max')); msPlace(t1, SX, ys + .003, SZ, .4); const b1 = msGround(msFit(brot.clone(true), .12, 'max')); msPlace(b1, SX - .02, ys + .02, SZ + .01, 1.2); K1.brot = [t1, b1];
@@ -33760,7 +33765,7 @@ async function kapitel1_welt() {
     interact(kapitel1_hit(.3, .12, .3, 28.38, ym, -14.86), 'Schale', () => { toast('In der Obstschale: Hildes alte Dienstmarke. „BfR · Verwaltung · 03“. Daneben ein Kugelschreiber.', 4800);
       if (kapitel1_lore('zeichen_1', 'Zeichen · 1', '<span class="hand">Kugelschreiber, Nr. 7, Obstschale. Auf dem Clip, winzig: ein Auge über einer Flamme, in einem Kreis.</span>')) questPop('ABENTEUERFIBEL', 'Zeichen'); }); }
   // Sessel: leer und warm; Decke, Butterbrot
-  interact(kapitel1_hit(1.0, .9, .85, 22.4, Y + .5, -16.4), 'Sessel', () => { if (!K1.f.has('sessel')) { K1.f.add('sessel'); toast('Leer. Und warm. Auf der Lehne eine zusammengelegte Wolldecke, ein Butterbrot mit einem Bissen raus.', 5200); setTimeout(() => { if (!state.talking) kapitel1_zeile('<i>Sie war eben noch hier.</i>', 2600, 'LUKE'); }, 5400); } else toast('Das Polster ist noch warm.', 2600); });
+  interact(kapitel1_hit(1.0, .9, .85, 21.7, Y + .5, -16.4), 'Sessel', () => { if (!K1.f.has('sessel')) { K1.f.add('sessel'); toast('Leer. Und warm. Auf der Lehne eine zusammengelegte Wolldecke, ein Butterbrot mit einem Bissen raus.', 5200); setTimeout(() => { if (!state.talking) kapitel1_zeile('<i>Sie war eben noch hier.</i>', 2600, 'LUKE'); }, 5400); } else toast('Das Polster ist noch warm.', 2600); });
   // Kühlschrank: Magnet vom Kaninchenzüchterverein und das Foto „Laternenfest 2008“
   { const im = new Image(); im.src = 'assets/polaroid/zayn.jpg'; await new Promise(r => { im.onload = r; im.onerror = r; setTimeout(r, 2500); });
     const foto = kapitel1_cnv(256, 300, (x, w, h) => { x.fillStyle = '#efe7d4'; x.fillRect(0, 0, w, h); if (im.width) { x.filter = 'sepia(.55) saturate(.7) contrast(.9) brightness(.95)'; x.drawImage(im, 14, 14, w - 28, 230); x.filter = 'none'; } else { x.fillStyle = '#6a6252'; x.fillRect(14, 14, w - 28, 230); }
@@ -43148,7 +43153,7 @@ const BW_RAEUME = [
       c.netz(x1 - .2, 2.6, z0 + .2, -PI / 4, .55);
     }, nachher: () => bw_lampen('nr4') },
   // Nr. 4 oben: Lukes Jugendzimmer (2016) und Bad
-  { id: 'nr4_og', name: 'Nr. 4 oben', r: () => bw_kbRect('nr4_og'), y0: 0, h: 2.45, tueren: () => [[NR4.og.x - 2.9, NR4.og.z + 1.2, .9], [NR4.og.x + 1.4, NR4.og.z + 1.2, .7]],
+  { id: 'nr4_og', name: 'Nr. 4 oben', r: () => bw_kbRect('nr4_og'), y0: 0, h: 2.6, tueren: () => [[NR4.og.x - 2.9, NR4.og.z + 1.2, .9], [NR4.og.x + 1.4, NR4.og.z + 1.2, .7]],
     vorab: P => !!(typeof kirchberg_S !== 'undefined' && kirchberg_S.inRaum && kirchberg_S.inRaum.startsWith('nr4')), aktiv: () => bw_kbIn('nr4_og'),
     async bau(c) { const O = NR4.og, a0 = c.r.x0, a1 = c.r.x1, b0 = c.r.z0, b1 = c.r.z1;
       await c.stapel('buch', a0 + 2.1, b1 - .45, 4, { r: .4, cols: ['#c83a2a', '#1a1a1a', '#e0d8c0', '#2a5a9a'] }); // Comics und Schulbücher, nie abgeholt
@@ -43208,7 +43213,7 @@ const BW_RAEUME = [
       for (const [x, z, ry] of [[x0 + .2, z0 + .2, PI / 4], [x1 - .2, z1 - .2, -PI * .75], [x0 + .2, z1 - .2, PI * .75]]) c.netz(x, 5.4, z, ry, 1.1);
     }, nachher: () => bw_lampen('kapelle') },
   // ================= Günthers Schuppen hinter der Tankstelle (Postbote Günther Maas, gelbe Regenjacke, „Zigaretten für schlechte Zeiten“)
-  { id: 'schuppen', name: 'Günthers Schuppen', r: () => bw_kbRect('schuppen'), y0: 0, h: 2.5, tueren: () => bw_kbTuer('schuppen'),
+  { id: 'schuppen', name: 'Günthers Schuppen', r: () => bw_kbRect('schuppen'), y0: 0, h: 2.7, tueren: () => bw_kbTuer('schuppen'),
     vorab: P => bw_kbIn('schuppen') || bw_nah(P, 102.4, -26.5, 12), aktiv: () => bw_kbIn('schuppen'),
     async bau(c) { const C = POST_RAUM.schuppen, x0 = c.r.x0, x1 = c.r.x1, z0 = c.r.z0;
       await c.w('jacke', 'W', C.z + .9, 1.35, { col: 0xe0b830, r: .5 }); // die zweite gelbe Regenjacke

@@ -236,10 +236,10 @@ async function anwesen_buildHall() {
   indoorRects.push({ x0, x1, zb: z0, zf: z1, y: 0 });
   // Treppe nach oben (eingebrochen): Stufen, auf halber Höhe zersplittert
   for (let k = 0; k < 9; k++) box(3, .2, .42, H.x, .1 + k * .2, z1 - 3.6 + k * .38, dark, { collide: k < 3 });
-  box(3.4, 1.2, .5, H.x, .6, z1 - 3.9, hidden, { collide: true, cast: false });
+  // QA-Kollision 09.10.: unsichtbare Sperrkiste (3,4 × 1,2 m) vor der ersten Stufe entfernt – die Stufen selbst sind fest, oben hält die Galerie auf
   for (let k = 0; k < 5; k++) { const b = box(.14, .14, 2.6, H.x + rand(-1.2, 1.2), 1.9 + rand(-.3, .3), z1 - 2.2 + rand(-.5, .5), dark); b.rotation.set(rand(-.5, .5), rand(-1, 1), rand(-.6, .6)); }
   const put = async (key, file, size, axis, x, z, ry, y = 0) => { try { const m = await msModel(key, file); const o = msGround(msFit(m.clone(true), size, axis)); o.position.set(x, y, z); o.rotation.y = ry; o.traverse(q => { if (q.isMesh) { q.castShadow = true; q.receiveShadow = true; } }); scene.add(o); return o; } catch (e) { console.warn('Halle ' + key, e); return null; } };
-  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .44, H.z - 2.5, 0); await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
+  await put('wardrobe', 'model.gltf', 2.2, 'y', x0 + .44, H.z - 4.4, 0); /* QA-Kollision 09.10.: stand bei z−2,5 direkt vor der Westtür zum Arbeitszimmer (897,6) */ await put('wallclock', 'model.gltf', .9, 'y', x1 - .25, H.z + 1, -PI / 2, 1.5);
   await put('floorlamp', 'model.gltf', 1.7, 'y', x0 + .7, z1 - 1, .4); await put('floorlamp', 'model.gltf', 1.7, 'y', x1 - .7, z0 + 1.2, -.4);
   const shelfO = await put('shelf', 'model.gltf', 1.2, 'x', x1 - .3, H.z - 3.2, -PI / 2, 1.45); await put('radio', 'model.gltf', .45, 'max', x1 - 1.4, z0 + 2.4, -PI / 2, .78);
   // Schreibtisch: gescannter Metalltisch statt Kiste

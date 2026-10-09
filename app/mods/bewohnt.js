@@ -288,7 +288,7 @@ const BW_RAEUME = [
       c.netz(x1 - .2, 2.6, z0 + .2, -PI / 4, .55);
     }, nachher: () => bw_lampen('nr4') },
   // Nr. 4 oben: Lukes Jugendzimmer (2016) und Bad
-  { id: 'nr4_og', name: 'Nr. 4 oben', r: () => bw_kbRect('nr4_og'), y0: 0, h: 2.45, tueren: () => [[NR4.og.x - 2.9, NR4.og.z + 1.2, .9], [NR4.og.x + 1.4, NR4.og.z + 1.2, .7]],
+  { id: 'nr4_og', name: 'Nr. 4 oben', r: () => bw_kbRect('nr4_og'), y0: 0, h: 2.6, tueren: () => [[NR4.og.x - 2.9, NR4.og.z + 1.2, .9], [NR4.og.x + 1.4, NR4.og.z + 1.2, .7]],
     vorab: P => !!(typeof kirchberg_S !== 'undefined' && kirchberg_S.inRaum && kirchberg_S.inRaum.startsWith('nr4')), aktiv: () => bw_kbIn('nr4_og'),
     async bau(c) { const O = NR4.og, a0 = c.r.x0, a1 = c.r.x1, b0 = c.r.z0, b1 = c.r.z1;
       await c.stapel('buch', a0 + 2.1, b1 - .45, 4, { r: .4, cols: ['#c83a2a', '#1a1a1a', '#e0d8c0', '#2a5a9a'] }); // Comics und Schulbücher, nie abgeholt
@@ -348,7 +348,7 @@ const BW_RAEUME = [
       for (const [x, z, ry] of [[x0 + .2, z0 + .2, PI / 4], [x1 - .2, z1 - .2, -PI * .75], [x0 + .2, z1 - .2, PI * .75]]) c.netz(x, 5.4, z, ry, 1.1);
     }, nachher: () => bw_lampen('kapelle') },
   // ================= Günthers Schuppen hinter der Tankstelle (Postbote Günther Maas, gelbe Regenjacke, „Zigaretten für schlechte Zeiten“)
-  { id: 'schuppen', name: 'Günthers Schuppen', r: () => bw_kbRect('schuppen'), y0: 0, h: 2.5, tueren: () => bw_kbTuer('schuppen'),
+  { id: 'schuppen', name: 'Günthers Schuppen', r: () => bw_kbRect('schuppen'), y0: 0, h: 2.7, tueren: () => bw_kbTuer('schuppen'),
     vorab: P => bw_kbIn('schuppen') || bw_nah(P, 102.4, -26.5, 12), aktiv: () => bw_kbIn('schuppen'),
     async bau(c) { const C = POST_RAUM.schuppen, x0 = c.r.x0, x1 = c.r.x1, z0 = c.r.z0;
       await c.w('jacke', 'W', C.z + .9, 1.35, { col: 0xe0b830, r: .5 }); // die zweite gelbe Regenjacke
