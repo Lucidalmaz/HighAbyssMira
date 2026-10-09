@@ -18325,6 +18325,26 @@ const GEDANKEN_FADEN = [
   [/Amt über die Kinder|sieben Kinder von 2009/, 'Akten. Irgendwer hier hat alles aufgeschrieben. Die Wahrheit steht bestimmt in einer Schublade.'],
   [/Namen in die richtige Reihenfolge/, 'Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten. Lies sie nochmal.'],
   [/Lösch die Laternen/, 'In ihrer Reihenfolge. Hilde hat aufgeschrieben, wann. Und die Einwilligungen sagen, wer zuerst unterschrieben hat.'],
+  [/Hildes Kamera\. Nr\. 7|Mach ein Foto von Lucy/, 'Die Kamera heben – C –, auf Lucys Fenster in Nr. 3 halten und abdrücken. Sie bleibt stehen, solange ich sie ansehe.'],
+  [/Vier Gedecke|Lucys Spieluhr\. Das Kinderzimmer/, 'Nicht essen. Die Spieluhr läuft im Kinderzimmer, hinten durch die Küche. Und wenn danach alles wieder wie vorher ist: nicht stehen bleiben, weitergehen.'],
+  [/Bring Lucy die Spieluhr/, 'Lucy steht an der Kreuzung. Die Graue hinter mir nie lange aus den Augen lassen – im Lampenlicht zerfällt sie.'],
+  [/^Brot\. /, 'Papas Platz in Nr. 1 – der Kanten Brot liegt noch da. Dann den Westweg hinunter zum Stall.'],
+  [/Das Brot\. Auf den Teller/, 'Der Teller steht im Stall hinten bei den Paletten. Brot hinlegen und ihn nicht ansehen.'],
+  [/^Warten\.$/, 'Er kommt nicht, solange ich hinsehe. Q halten: Augen zu, und bleiben.'],
+  [/Das Gedenkfeld/, 'Mamas Platz am Tisch. Mamas Kerze und Peters Feuerzeug – sie pustet jedes Licht aus, nur dieses nicht.'],
+  [/Nordzaun/, 'Der Junge ist zum Nordzaun gelaufen, hinter dem Spielplatz. Ihm nach, bis zum Gitter.'],
+  [/Das Gitter aufbiegen/, 'Zum Gitter, E halten, bis es nachgibt. Der Junge ist darunter durch.'],
+  [/Folge den Brotkrumen|Zayns Hütte/, 'Hildes Brot. Er hat es zerbröselt, Krume für Krume nach Norden. Ihr nach, zur Hütte hinten links.'],
+  [/eingedrückten Zaun|rote Wolle/, 'Die Wolle spannt sich von Baum zu Baum, südöstlich, tiefer in den Wald. Irgendwo an ihr steht ein Hochsitz.'],
+  [/Der Hochsitz\. Hinauf/, 'An der Leiter E drücken, um hinaufzusteigen. Oben steckt eine Seite an einem Nagel.'],
+  [/Wolle führt weiter|Stell dich in die Mitte|Der Bus\. Irgendwas/, 'Der Bus steht östlich im Wald. Nicht den Draht am Boden berühren – in die Mitte, neben den Bus, wenn sie es so wollen.'],
+  [/Warten\. In der Mitte/, 'Stehen bleiben. Lampe oben lassen. Der Wolf kommt nur näher, wenn ich wegsehe.'],
+  [/Atmen\. Nur atmen/, 'E drücken, immer wieder. Oder mit Jonas’ Messer, E halten.'],
+  [/Fraßstelle/, 'Neben dem Kadaver liegt ein Heft mit einer Dienstnummer. Lesen.'],
+  [/Das Ding ist hier|Weg vom Bau/, 'Lampe oben lassen. Nicht rennen. Und nicht wegsehen, wenn es näher kommt.'],
+  [/Jonas’ Lager|Kleine nackte Füße/, 'Den kleinen Füßen nach, Richtung Westen. Das Ding bleibt weg, solange die Lampe oben ist.'],
+  [/Hinter dem Wrack/, 'Hofers letzte Seite liegt am Bau. Wenn die Lampe stirbt: E für die Batterie, dann E für das Feuerzeug.'],
+  [/Whiskey fliegt voraus|Oben sitzt jemand/, 'Whiskey wartet, wenn ich zurückfalle. Ihm nach, zum Hochsitz. Oben: Q halten, nicht hinsehen.'],
   [/Das Tastenfeld will vier Ziffern/, 'Vier Ziffern. Welche Tasten sind abgegriffen? Und welcher Tag ist in Hildes Kalender eingekreist?'],
   [/Lucy hinterlassen/, 'Lucy war hier unten. Etwas zum Anhören. Ein Kassettenrekorder, irgendwo bei der Zeichnungswand.'],
   [/Der Strom ist weg, die Laternen/, 'Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht im Haus festsitzen.'],
@@ -21896,7 +21916,8 @@ VILLA_BAU.az = async R => {
   await villa_put('door2', 'model.gltf', 2.15, 'y', R.x1 - .06, 898, -PI / 2);
   villa_hit(.4, 2.2, 1.2, R.x1 - .25, 1.1, 898, 'In die Halle', () => villa_geh('halle', { p: VILLA_TUER.halleW }));
   // Bücherwand (Nordwand): drei Regale
-  for (const x of [-919.6, -917.8, -916]) await villa_put('shelf', 'model.gltf', 1.6, 'x', x, R.z1 - .3, PI, 0);
+  // QA 09.10.: „shelf“ ist ein Wandbrett (0,85 × 0,23 m, Rückplatte −z) – es lag hier auf dem Boden, 0,2 m vor der Wand. Bücherwand = offene Holzregale („wardrobe“, Vorderseite +x → PI/2 = Blick nach −z), Rücken an der Wand (Innenfläche z1 − 0,1)
+  for (const x of [-919.6, -917.8, -916]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
   // Schreibtisch mit Lampe, Stuhl; Foto mit Nadel
   { const t = await villa_put('metaltable', 'model.gltf', .8, 'y', -917, 899.2, 0); if (t) { t.scale.x *= .8; } }
   VILLA.o.azStuhl = await villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', -917, 898.3, .1);
@@ -22023,7 +22044,8 @@ VILLA_BAU.kr = async R => {
   villa_decal(villa_cv(256, 64, (c, w, h) => { c.fillStyle = '#e8e4d8'; c.fillRect(0, 0, w, h); c.fillStyle = '#1a1a1a'; c.font = 'bold 30px "Courier New"'; c.fillText('ZELLENGANG', 26, 42); }), .5, .12, -898.08, 2.05, 870.2, 0, -PI / 2);
   // Stahltisch mit den Gläsern, Regale, Abfluss, Lüftungsfenster
   { const t = await villa_put('metaltable', 'model.gltf', .86, 'y', -903.6, 869, PI / 2); VILLA.o.tischY = t ? new T.Box3().setFromObject(t).max.y : .86; }
-  for (const [x, z, ry] of [[-907.5, 867.2, PI / 2], [-907.5, 870.6, PI / 2], [-901, 871.6, PI]]) await villa_put('shelf', 'model.gltf', 1.4, 'x', x, z, ry, 0);
+  // QA 09.10.: Wandbretter (Rückplatte −z, 0,31 m tief) hingen nicht, sondern lagen auf dem Boden 0,25–0,35 m vor der Wand → je zwei Bretter übereinander, Rückplatte an der Wand-Innenfläche (x0 + 0,1 bzw. z1 − 0,1)
+  for (const [x, z, ry] of [[-908 + .1 + .157, 867.2, PI / 2], [-908 + .1 + .157, 870.6, PI / 2], [-901, 872 - .1 - .157, PI]]) for (const y of [1.0, 1.55]) await villa_put('shelf', 'model.gltf', 1.4, 'x', x, z, ry, y);
   villa_decal(villa_cv(64, 64, (c, w, h) => { c.fillStyle = '#2a2c2c'; c.beginPath(); c.arc(32, 32, 26, 0, 7); c.fill(); c.strokeStyle = '#7a7e7e'; c.lineWidth = 3; for (let i = -18; i <= 18; i += 6) { c.beginPath(); c.moveTo(14, 32 + i); c.lineTo(50, 32 + i); c.stroke(); } }), .28, .28, -902, .015, 867.6, -PI / 2, 0, { alpha: true });
   villa_decal(villa_cv(128, 64, (c, w, h) => { c.fillStyle = '#1a1c1c'; c.fillRect(0, 0, w, h); c.strokeStyle = '#6a6e6e'; c.lineWidth = 6; c.strokeRect(3, 3, w - 6, h - 6); }), .6, .3, -904.5, 2.55, R.z0 + .12, 0, 0);
   // Gläser: transparente Zylinder, in ∴-1 gekrümmt das Beobachter-Modell, trüb überlagert
@@ -36988,7 +37010,7 @@ async function amt_bauKantine(S, K) {
     x.fillStyle = '#e9e1c8'; x.save(); x.translate(30, 132); x.rotate(.05); x.fillRect(0, 0, 210, 100); x.restore(); x.fillStyle = '#2b2b2b'; x.font = '19px Caveat'; x.fillText('Der Joghurt war von 2009.', 38, 166); x.fillText('Das war Bergung. – N. 11', 38, 196); x.fillStyle = '#c33'; x.beginPath(); x.arc(120, 20, 7, 0, 7); x.fill(); x.beginPath(); x.arc(130, 138, 7, 0, 7); x.fill(); });
   S.kzMesh = amt_flaeche(amt_decal(kz), xi0 + .66, 1.3, Z0 + 7.2, .26, .26, PI / 2);
   amt_hit(xi0 + .6, 1.3, Z0 + 7.2, .2, .35, .35, 'Zettel am Kühlschrank', () => amt_note('Zwei Zettel am Kühlschrank', '<span class="hand">„Wer meinen Joghurt nimmt, wird rückgeführt. – N. 12“</span>\n\nDarunter:\n<span class="hand">„Der Joghurt war von 2009. Das war Bergung. – N. 11“</span>', 'kuehlschrank'));
-  const rg = amt_put(K.kRegal, 0, Z0 + 2.9, { ry: PI / 2, s: 1.4, minX: xi0 + .02 }); const ry1 = (K.kRegal ? amt_top(K.kRegal, rg, xi0 + .16, Z0 + 2.9, 1.8) : 0) || .9;
+  const rg = amt_put(K.kRegal, 0, Z0 + 2.9, { ry: PI / 2, s: 1.4, minX: xi0 + .02, y: .72 }); // QA 09.10.: Wandbrett (Rückplatte −z → PI/2: an der Westwand) lag auf dem Boden (y 0, Kaffeemaschine auf 0,27 m) – jetzt Brett auf ≈ 1 m; Kaffeemaschine/Dose folgen über amt_top const ry1 = (K.kRegal ? amt_top(K.kRegal, rg, xi0 + .16, Z0 + 2.9, 1.8) : 0) || .9;
   { const km = amtp_kaffee(); km.position.set(xi0 + .21, ry1, Z0 + 2.62); km.rotation.y = PI / 2; scene.add(km); S.kaffeeGrp = km; S.kaffeeDisp = km.userData.disp;   // Filterkaffeemaschine mit Warmhalteplatte und Kanne
     const kd = amtp_dose(); kd.position.set(xi0 + .17, ry1, Z0 + 3.36); kd.rotation.y = .3; scene.add(kd); S.kassenDose = kd; }                                              // Blechdose KAFFEEKASSE
   amt_put(K.kThermos, xi0 + .17, Z0 + 2.88, { ry: .6, y: ry1 }); amt_put(K.kBlech, xi0 + .18, Z0 + 3.08, { ry: 1.1, y: ry1 }); amt_put(K.kBecher, xi0 + .15, Z0 + 3.22, { ry: 2, y: ry1 });
@@ -37017,7 +37039,7 @@ async function amt_bauKantine(S, K) {
   amt_hit(X0 + 16.2, 1.6, zi1 - .1, .3, .4, .2, 'Wandkalender', () => amt_note('Wandkalender', 'März 2012. Weiter wurde nicht geblättert. Der letzte Tag ist eingekreist:\n\n<span class="hand">„Umzug Kühlung → Villa S.“</span>', 'kalender2012'));
   if (typeof sammeln_platz === 'function') try { sammeln_platz('Z-05', { x: X0 + 13.3, y: ty + .05, z: Z0 + 4.55, ab: 2, label: 'Zeitung mit Kaffeerand' }); } catch (e) { console.warn('amt Z-05', e); }
   // Schublade unter dem Tisch: Erkundung wird belohnt (Batterie, Glänzendes)
-  { const kb = await amt_kit('w_besteck', 'model.glb', .2, 'max'); amt_put(kb, X0 + 10.42, Z0 + 4.88, { y: ty + .004, ry: .5 });   // Besteck, Serviette mit Lippenstift, Batterie mit Gummi am Löffel
+  { const kb = await amt_kit('w_besteck', 'model.glb', .2, 'max'); amt_put(kb, X0 + 10.42, Z0 + 4.88, { y: ty + .004, ry: .5, rx: -PI / 2 }); // QA 09.10.: Modell steht (0,46 m hoch) – Besteck liegt flach   // Besteck, Serviette mit Lippenstift, Batterie mit Gummi am Löffel
     amt_boden(amt_decal(amt_cv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.save(); x.translate(64, 64); x.rotate(.2); x.fillStyle = '#ece8dc'; x.fillRect(-52, -52, 104, 104); x.strokeStyle = 'rgba(0,0,0,.12)'; x.strokeRect(-52, -52, 104, 104); x.beginPath(); x.moveTo(-52, 0); x.lineTo(52, 0); x.moveTo(0, -52); x.lineTo(0, 52); x.stroke();
       x.fillStyle = 'rgba(165,28,44,.7)'; x.beginPath(); x.moveTo(-24, 30); x.quadraticCurveTo(-8, 14, 0, 22); x.quadraticCurveTo(8, 14, 24, 30); x.quadraticCurveTo(8, 46, 0, 40); x.quadraticCurveTo(-8, 46, -24, 30); x.fill(); x.restore(); })), X0 + 10.18, Z0 + 4.62, .2, .2, .3, ty + .002);
     S.kschubBatt = K.kBatt ? amt_einzel(K.kBatt, X0 + 10.5, ty + .017, Z0 + 4.8, { ry: .5, rz: PI / 2, noCol: true }) : null; }
@@ -42851,7 +42873,7 @@ const BW_KITS = {
   buch: ['w_buch', { file: 'model.glb', size: .22, axis: 'max' }], ordner: ['w_buch', { file: 'model.glb', size: .32, axis: 'max' }],
   buchL: ['lbook', { file: 'model.fbx', size: .23, axis: 'max', spec: { '*': { b: 'b.jpg', n: 'n.jpg', r: 'r.jpg', ao: 'ao.jpg' } } }],
   tasse: ['w_tasse', { file: 'model.glb', size: .09 }], becher: ['w_becher', { file: 'model.glb', size: .1 }], teller: ['w_teller', { file: 'model.glb', size: .22, axis: 'max' }],
-  besteck: ['w_besteck', { file: 'model.glb', size: .19, axis: 'max' }], brot: ['w_brot', { file: 'model.glb', size: .1, axis: 'max' }], thermos: ['w_thermos', { file: 'model.glb', size: .3 }],
+  besteck: ['w_besteck', { file: 'model.glb', size: .19, axis: 'max', liegend: true }], brot: ['w_brot', { file: 'model.glb', size: .1, axis: 'max' }], thermos: ['w_thermos', { file: 'model.glb', size: .3 }],
   gTasse: ['geschirr', { size: .08, teil: /^cup/ }], gTeller: ['geschirr', { size: .25, axis: 'max', teil: /^plate/ }], gKanne: ['geschirr', { size: .27, teil: /^coffee_flask/ }],
   gLoeffel: ['geschirr', { size: .17, axis: 'max', teil: /^spoon/ }], gGabel: ['geschirr', { size: .17, axis: 'max', teil: /^fork/ }],
   jacke: ['w_jacke', { file: 'model.fbx', size: .82, spec: { '*': { b: 'model.jpg', rough: .95, ds: true } } }],
@@ -42881,6 +42903,7 @@ function bw_kit(name) {
     const bb = new THREE.Box3(); parts.forEach(q => { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const pre = new THREE.Matrix4(), sz0 = bb.getSize(BW_V());
     if (o.aufrecht && Math.max(sz0.x, sz0.z) > sz0.y) pre.makeRotationFromEuler(new THREE.Euler(sz0.z > sz0.x ? PI / 2 : 0, 0, sz0.x >= sz0.z ? PI / 2 : 0));
+    if (o.liegend && sz0.y > Math.max(sz0.x, sz0.z)) pre.makeRotationX(-PI / 2); // QA 09.10.: stehend modelliert (Besteck 0,46 m hoch, 3,6 cm tief) → flach auf die Fläche legen
     bb.makeEmpty(); parts.forEach(q => { q.geo.applyMatrix4(pre); q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const sz = bb.getSize(BW_V()), s = (o.size || 1) / (o.axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[o.axis || 'y']);
     const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));

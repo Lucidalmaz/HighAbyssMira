@@ -13,7 +13,7 @@ const BW_KITS = {
   buch: ['w_buch', { file: 'model.glb', size: .22, axis: 'max' }], ordner: ['w_buch', { file: 'model.glb', size: .32, axis: 'max' }],
   buchL: ['lbook', { file: 'model.fbx', size: .23, axis: 'max', spec: { '*': { b: 'b.jpg', n: 'n.jpg', r: 'r.jpg', ao: 'ao.jpg' } } }],
   tasse: ['w_tasse', { file: 'model.glb', size: .09 }], becher: ['w_becher', { file: 'model.glb', size: .1 }], teller: ['w_teller', { file: 'model.glb', size: .22, axis: 'max' }],
-  besteck: ['w_besteck', { file: 'model.glb', size: .19, axis: 'max' }], brot: ['w_brot', { file: 'model.glb', size: .1, axis: 'max' }], thermos: ['w_thermos', { file: 'model.glb', size: .3 }],
+  besteck: ['w_besteck', { file: 'model.glb', size: .19, axis: 'max', liegend: true }], brot: ['w_brot', { file: 'model.glb', size: .1, axis: 'max' }], thermos: ['w_thermos', { file: 'model.glb', size: .3 }],
   gTasse: ['geschirr', { size: .08, teil: /^cup/ }], gTeller: ['geschirr', { size: .25, axis: 'max', teil: /^plate/ }], gKanne: ['geschirr', { size: .27, teil: /^coffee_flask/ }],
   gLoeffel: ['geschirr', { size: .17, axis: 'max', teil: /^spoon/ }], gGabel: ['geschirr', { size: .17, axis: 'max', teil: /^fork/ }],
   jacke: ['w_jacke', { file: 'model.fbx', size: .82, spec: { '*': { b: 'model.jpg', rough: .95, ds: true } } }],
@@ -43,6 +43,7 @@ function bw_kit(name) {
     const bb = new THREE.Box3(); parts.forEach(q => { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const pre = new THREE.Matrix4(), sz0 = bb.getSize(BW_V());
     if (o.aufrecht && Math.max(sz0.x, sz0.z) > sz0.y) pre.makeRotationFromEuler(new THREE.Euler(sz0.z > sz0.x ? PI / 2 : 0, 0, sz0.x >= sz0.z ? PI / 2 : 0));
+    if (o.liegend && sz0.y > Math.max(sz0.x, sz0.z)) pre.makeRotationX(-PI / 2); // QA 09.10.: stehend modelliert (Besteck 0,46 m hoch, 3,6 cm tief) → flach auf die Fläche legen
     bb.makeEmpty(); parts.forEach(q => { q.geo.applyMatrix4(pre); q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const sz = bb.getSize(BW_V()), s = (o.size || 1) / (o.axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[o.axis || 'y']);
     const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));

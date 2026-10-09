@@ -408,7 +408,8 @@ VILLA_BAU.az = async R => {
   await villa_put('door2', 'model.gltf', 2.15, 'y', R.x1 - .06, 898, -PI / 2);
   villa_hit(.4, 2.2, 1.2, R.x1 - .25, 1.1, 898, 'In die Halle', () => villa_geh('halle', { p: VILLA_TUER.halleW }));
   // Bücherwand (Nordwand): drei Regale
-  for (const x of [-919.6, -917.8, -916]) await villa_put('shelf', 'model.gltf', 1.6, 'x', x, R.z1 - .3, PI, 0);
+  // QA 09.10.: „shelf“ ist ein Wandbrett (0,85 × 0,23 m, Rückplatte −z) – es lag hier auf dem Boden, 0,2 m vor der Wand. Bücherwand = offene Holzregale („wardrobe“, Vorderseite +x → PI/2 = Blick nach −z), Rücken an der Wand (Innenfläche z1 − 0,1)
+  for (const x of [-919.6, -917.8, -916]) await villa_put('wardrobe', 'model.gltf', 2.1, 'y', x, R.z1 - .1 - .285, PI / 2, 0);
   // Schreibtisch mit Lampe, Stuhl; Foto mit Nadel
   { const t = await villa_put('metaltable', 'model.gltf', .8, 'y', -917, 899.2, 0); if (t) { t.scale.x *= .8; } }
   VILLA.o.azStuhl = await villa_fbx('chair', VILLA_SPEC.chair, .92, 'y', -917, 898.3, .1);
@@ -535,7 +536,8 @@ VILLA_BAU.kr = async R => {
   villa_decal(villa_cv(256, 64, (c, w, h) => { c.fillStyle = '#e8e4d8'; c.fillRect(0, 0, w, h); c.fillStyle = '#1a1a1a'; c.font = 'bold 30px "Courier New"'; c.fillText('ZELLENGANG', 26, 42); }), .5, .12, -898.08, 2.05, 870.2, 0, -PI / 2);
   // Stahltisch mit den Gläsern, Regale, Abfluss, Lüftungsfenster
   { const t = await villa_put('metaltable', 'model.gltf', .86, 'y', -903.6, 869, PI / 2); VILLA.o.tischY = t ? new T.Box3().setFromObject(t).max.y : .86; }
-  for (const [x, z, ry] of [[-907.5, 867.2, PI / 2], [-907.5, 870.6, PI / 2], [-901, 871.6, PI]]) await villa_put('shelf', 'model.gltf', 1.4, 'x', x, z, ry, 0);
+  // QA 09.10.: Wandbretter (Rückplatte −z, 0,31 m tief) hingen nicht, sondern lagen auf dem Boden 0,25–0,35 m vor der Wand → je zwei Bretter übereinander, Rückplatte an der Wand-Innenfläche (x0 + 0,1 bzw. z1 − 0,1)
+  for (const [x, z, ry] of [[-908 + .1 + .157, 867.2, PI / 2], [-908 + .1 + .157, 870.6, PI / 2], [-901, 872 - .1 - .157, PI]]) for (const y of [1.0, 1.55]) await villa_put('shelf', 'model.gltf', 1.4, 'x', x, z, ry, y);
   villa_decal(villa_cv(64, 64, (c, w, h) => { c.fillStyle = '#2a2c2c'; c.beginPath(); c.arc(32, 32, 26, 0, 7); c.fill(); c.strokeStyle = '#7a7e7e'; c.lineWidth = 3; for (let i = -18; i <= 18; i += 6) { c.beginPath(); c.moveTo(14, 32 + i); c.lineTo(50, 32 + i); c.stroke(); } }), .28, .28, -902, .015, 867.6, -PI / 2, 0, { alpha: true });
   villa_decal(villa_cv(128, 64, (c, w, h) => { c.fillStyle = '#1a1c1c'; c.fillRect(0, 0, w, h); c.strokeStyle = '#6a6e6e'; c.lineWidth = 6; c.strokeRect(3, 3, w - 6, h - 6); }), .6, .3, -904.5, 2.55, R.z0 + .12, 0, 0);
   // Gläser: transparente Zylinder, in ∴-1 gekrümmt das Beobachter-Modell, trüb überlagert
