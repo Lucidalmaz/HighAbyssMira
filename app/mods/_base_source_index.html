@@ -5463,7 +5463,7 @@ async function msBake(key, file) { const s = await msModel(key, file); s.updateM
 // FBX mit losen Texturen. spec: { Materialname | '*': { b, n, r, m, ao, a, color, rough, metal, ds, emissive } } – Pfade relativ zu assets/ms/<key>/
 async function msFBX(key, file = 'model.fbx', spec = {}) {
   if (!MSL.fbx) { const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js'); const mgr = new THREE.LoadingManager(); mgr.setURLModifier(u => /\.(png|jpe?g|tga|bmp|tiff?|psd|dds)$/i.test(u) && !u.startsWith('data:') ? MS_DATA_PNG : u); MSL.fbx = new FBXLoader(mgr); }
-  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k);
+  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k); if (!src.__nrm) { src.__nrm = 1; src.traverse(m => { if (m.isMesh && m.geometry && !m.geometry.attributes.normal) m.geometry.computeVertexNormals(); }); } // 09.10.: FBX ohne Normalen (w_jacke) wurde schwarz gezeichnet
   const o = src.clone(true); o.animations = src.animations; const mk = new Map(), dir = key + '/';
   o.traverse(m => { if (!m.isMesh) return; const mats = [].concat(m.material).map(mt => { const s = spec[mt.name] || spec['*']; if (!s) return mt; const id = (mt.name || '*') + JSON.stringify(s); if (mk.has(id)) return mk.get(id);
       const nm = new THREE.MeshStandardMaterial({ name: mt.name, color: s.color ?? 0xffffff, roughness: s.rough ?? 1, metalness: s.metal ?? (s.m ? 1 : 0), side: s.ds ? THREE.DoubleSide : THREE.FrontSide,
@@ -6322,6 +6322,10 @@ if (!LITE) { // ?lite zeichnet alles mit einem einzigen Material (scene.override
       if (m.uniforms) for (const k in m.uniforms) { const v = m.uniforms[k] && m.uniforms[k].value; if (v && v.isTexture) texs.add(v); } } });
     for (const t of texs) { try { renderer.initTexture(t); } catch (e) {} } } catch (e) { console.warn('Texturen vorab', e); }
   try { await Promise.race([compiling, wait(120000)]); } catch (e) { console.warn('Shader', e); }
+  // 09.10. Freeze nach Spielstart (1-2 s): abgeschaltete Nachbearbeitungs-Passes (Glueh-/Kino-/Album-Linse ...) uebersetzten erst beim ersten Einschalten blockierend. Hier je einmal in einen Mini-Puffer zeichnen (gleiche Ausgabe-Farbraum-Variante wie im Bild).
+  try { const rtM = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType }), scM = new THREE.Scene(), ocM = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), qM = new THREE.Mesh(new THREE.PlaneGeometry(2, 2)), rt0M = renderer.getRenderTarget(); scM.add(qM); renderer.setRenderTarget(rtM);
+    for (const p of composer.passes) { const m = p.material || (p.fsQuad && p.fsQuad.material); if (m && m.isShaderMaterial && p.enabled === false) { qM.material = m; try { renderer.render(scM, ocM); } catch (e) {} } }
+    renderer.setRenderTarget(rt0M); rtM.dispose(); } catch (e) { console.warn('Pass-Programme', e); }
   // Jetzt die Umgebungsbilder umwandeln (PMREM-Programme sind fertig → kein Standbild) und ihre Materialien nachübersetzen (parallel, wenige Programme)
   try { for (const [m, e] of envDefer) { m.envMap = e; if (e.isRenderTargetTexture) e.needsPMREMUpdate = true; }
     const objs = [...new Set(envDefer.map(([m]) => envObj.get(m)).filter(Boolean))];

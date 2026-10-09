@@ -223,6 +223,10 @@ WORLD_MODS.push(['Figuren', async () => {
   const seatK = ['roxy', 'lucy', 'mike', 'dina', 'heidi', 'zayn', 'luke'];
   for (let i = 0; i < kids.length; i++) { kids[i].k.updateMatrixWorld(true); await E(kids[i].k, seatK[i % seatK.length], { sit: .52 }); }
   hilde.updateMatrixWorld(true); await E(hilde, 'hilde', { sit: .48 });
+  // 09.10. Freeze nach Spielstart (1,8 s Standbild): Figuren, die erst im Spiel auftreten (z. B. Amt-Echo), bekamen ihre alphaHash-Überblend-Programme (auftritt.js) erst beim ersten Zeigen.
+  // Hier je nicht eingesetzter Figur ein ausgeblendeter Probekörper mit denselben Klon-Materialien; compileAsync wird in der Ladephase vorgemerkt (COMPILE_LATER) und im Gesamtdurchgang übersetzt.
+  try { const sk = await figuren_skc(), done = new Set([...figuren_S.embodied].map(g => g.userData.person && g.userData.person.id));
+    for (const x of L) { if (done.has(x.id) || x.id === 'justin') continue; const T = await figuren_load(x.id); if (!T || !T.scene) continue; const h = new THREE.Group(), o = sk(T.scene); h.add(o); auftritt_prep({ g: h, mats: [] }); renderer.compileAsync(h, camera, scene); done.add(x.id); } } catch (e) { console.warn('Figuren: Vorübersetzen', e); }
 }]);
 // =====================================================================  BEWEGUNGSSCHICHT (AP-MOCAP, Q-10/Q-11): Mocap-Clips + prozedurale Schicht darüber
 // Doku: app/story/audit/F3_stand_mocap.md. Pro Figur (P = g.userData.person):

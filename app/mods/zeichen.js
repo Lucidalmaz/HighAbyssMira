@@ -569,6 +569,7 @@ WORLD_MODS.push(['Zeichen', async () => {
   try { zeichen_wandMauer(); } catch (e) { console.warn('Zeichen: Wandbild-Mauer', e); }
   // Neues Versteck, auf das das Wandbild zeigt (Laterne am linken Friedhofspfeiler); alles andere zeigt auf vorhandene Fundorte
   try { if (typeof TAUSCH_FUNDE !== 'undefined' && !TAUSCH_FUNDE.some(f => f.id === 'x7_tor')) TAUSCH_FUNDE.push({ id: 'x7_tor', k: [1, 5], at: [-55.3, 66.2], w: ['ring'], bat: 1, t: 'Am Fuß des Torpfeilers, unter einem losen Stein: ein Ring aus dem Kaugummiautomaten. Und eine Batterie, in Wachstuch eingeschlagen.' }); } catch (e) {}
+  try { renderer.compileAsync(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), S.mat), camera, scene); for (const b of Object.values(S.bilder)) renderer.compileAsync(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), b.mat), camera, scene); } catch (e) {} // 09.10.: Zeichen-Programme im Vorübersetzen (vorher erst beim Spielstart: Standbild)
   S.ready = true;
   window.__zeichen = { S, ZU, tab: ZEICHEN_TAB, blitz: on => { S.testBlitz = !!on; }, zeig: id => { S.neu.add(id); zeichen_showSync(); }, wand: () => zeichen_wandBau(), nazca: () => zeichen_nazcaBau(), bau: () => zeichen_bereiche(),
     info: () => Object.values(S.B).map(B => ({ id: B.id, n: B.list.length, offen: B.list.filter(d => !d.ok).map(d => d.id + ':' + (d.tries || 0)), ok: B.list.filter(d => d.ok).map(d => d.id + '@' + d.P.toArray().map(v => v.toFixed(2)).join(',')) })).concat([{ warn: S.warn }]) }; // Testzugriff

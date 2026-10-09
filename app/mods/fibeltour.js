@@ -29,7 +29,8 @@ function fibeltour_raender() {
   try { const l = story.lore.find(x => x.key === 'hervorhebung'); const B = $('jBody'); if (!l || !B) return;
     B.innerHTML = `<h2>RÄNDER</h2><div class="ftNote">${l.html}</div>`; } catch (e) { console.warn('Fibel-Tour: Ränder', e); } }
 function fibeltour_css() { if (document.getElementById('fibeltourCss')) return; const s = document.createElement('style'); s.id = 'fibeltourCss';
-  s.textContent = `  #journal.ftZu .book { animation: ftZu .5s ease-in forwards !important; } @keyframes ftZu { to { opacity: 0; transform: translateY(24px) scale(.97) rotate(.8deg); } }
+  s.textContent = `  body.ftOn #journal .book { max-height: max(340px, calc(100vh - 280px)) !important; } body.ftOn #jBody { max-height: max(264px, calc(100vh - 356px)) !important; } /* 09.10.: Zettel unter dem Buch passt immer ins Fenster (auch bei 861 px Höhe, Seite Inventar) */
+  #journal.ftZu .book { animation: ftZu .5s ease-in forwards !important; } @keyframes ftZu { to { opacity: 0; transform: translateY(24px) scale(.97) rotate(.8deg); } }
   @keyframes ftSeite { from { opacity: 0; transform: translateX(18px) rotate(.25deg); } to { opacity: 1; transform: none; } } #jBody.ftSeite { animation: ftSeite .45s cubic-bezier(.2,.8,.2,1); }
   #jBody .ftNote { white-space: pre-wrap; font: 400 clamp(15px, 1.95vh, 20px)/1.55 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #2a2016; }
   #jBody .ftNote .hand { font-family: var(--f-hand, Caveat, cursive); font-size: clamp(19px, 2.6vh, 26px); line-height: 1.3; color: #1e2b5c; } #jBody .ftNote small { opacity: .7; }
@@ -80,7 +81,9 @@ function fibeltour_layout() { const card = document.getElementById('ftCard'), bk
   let r = bk.getBoundingClientRect(), chrome = r.height - jb.getBoundingClientRect().height; const maxBook = Math.max(260, vh - ch - gap - 2 * rand0);
   if (r.height > maxBook) { jb.style.maxHeight = Math.max(160, maxBook - chrome) + 'px'; r = bk.getBoundingClientRect(); }
   const free = vh - r.bottom - gap - ch; let up = 0; if (free < 0) up = Math.min(-free, Math.max(0, r.top - rand0)); else up = Math.min(Math.max(0, r.top - rand0), 0);
-  bk.style.translate = `0 ${-up}px`; r = bk.getBoundingClientRect(); card.style.top = Math.max(r.bottom + gap, Math.min(vh - ch + 40, r.bottom + gap)) + 'px'; }
+  bk.style.translate = `0 ${-up}px`; r = bk.getBoundingClientRect();
+  for (let k = 0; k < 3; k++) { const over = r.bottom + gap + ch - 40 - vh; if (over <= 2) break; /* 09.10.: Zettel ragte unten aus dem Fenster (Seite „Inventar“): Buchtext-Fenster um den Überstand kürzen */ const cur = jb.getBoundingClientRect().height; jb.style.maxHeight = Math.max(160, cur - over - 4) + 'px'; r = bk.getBoundingClientRect(); }
+  card.style.top = Math.max(r.bottom + gap, Math.min(vh - ch + 40, r.bottom + gap)) + 'px'; }
 function fibeltour_fenster(st) { try { fibeltour_layout(); } catch (e) {} const S = FIBT, hole = (el, pad) => { if (!el) return null; const r = el.getBoundingClientRect(); return r.width ? { x: r.left - pad, y: r.top - pad, w: r.width + 2 * pad, h: r.height + 2 * pad } : null; };
   const e = st.el && st.el(), b = st.btn && st.btn(); S.tgt = { h1: hole(e, 6), h2: hole(b, 3) };
   for (const id of ['h1', 'h2']) { const h = S.holes[id], t = S.tgt[id]; if (t && !h.v) h.v = { x: t.x + t.w / 2, y: t.y + t.h / 2, w: 0, h: 0 }; if (!t) { S.tgt[id] = { x: h.v ? h.v.x : 0, y: h.v ? h.v.y : 0, w: 0, h: 0 }; if (!h.v) h.v = { x: 0, y: 0, w: 0, h: 0 }; } }
@@ -100,7 +103,7 @@ function fibeltour_zeige(i, erst) { const S = FIBT; if (!S.on) return; i = Math.
     pap.style.clipPath = fibeltour_kante(); pap.querySelector('.ftSeiteNr').textContent = `SEITE ${i + 1} VON ${S.steps.length}`; pap.querySelector('.ftTitel').textContent = st.titel;
     pap.querySelector('.ftPunkte').innerHTML = S.steps.map((s, j) => `<span class="${j === i ? 'on' : j < i ? 'ok' : ''}"></span>`).join('');
     pap.querySelector('.ftHinweis').textContent = i === S.steps.length - 1 ? 'ENTER · FERTIG     TAB · FIBEL JEDERZEIT' : 'ENTER · WEITER     X · ÜBERSPRINGEN';
-    setTimeout(() => { if (!S.on || S.i !== i) return; fibeltour_fenster(st); card.classList.add('on'); fibeltour_schreibe(st.text); }, 80); }, (st.warte || 130) + (neu ? 60 : 0)); }
+    setTimeout(() => { if (!S.on || S.i !== i) return; fibeltour_schreibe(st.text); fibeltour_fenster(st); card.classList.add('on'); }, 80); /* 09.10.: erst Text einsetzen, dann messen (vorher stand noch der Text der Vorseite im Zettel) */ }, (st.warte || 130) + (neu ? 60 : 0)); }
 function fibeltour_weiter() { const S = FIBT; if (!S.on) return; if (fibeltour_fertigSchreiben()) return; if (S.i >= S.steps.length - 1) return fibeltour_ende(false); fibeltour_zeige(S.i + 1); }
 function fibeltour_zurueck() { const S = FIBT; if (!S.on || S.i <= 0) return; fibeltour_zeige(S.i - 1); }
 function fibeltour_ende(skip) { const S = FIBT; if (!S.on) return; S.on = false; S.fertig = !skip; clearInterval(S.typeIv); cancelAnimationFrame(S.raf);
