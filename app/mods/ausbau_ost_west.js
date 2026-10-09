@@ -27,7 +27,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const wbox = (key, w, h, d, x, y, z, o = {}) => { const g = new T.BoxGeometry(w, h, d); worldUV(g, w, h, d, o.tile ?? 2);
     const m = new T.Mesh(g, o.mat || sm(key, o.tint ?? 0xffffff, o.nrm ?? 1)); m.position.set(x, y, z); if (o.ry) m.rotation.y = o.ry; m.castShadow = o.cast !== false; m.receiveShadow = true; par(x, z, o.p).add(m); return m; };
   const hit = (w, h, d, x, y, z, label, action) => { const m = box(w, h, d, x, y, z, hidden, { cast: false }); interact(m, label, action); return m; };
-  const canvasTex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; };
+  const canvasTex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const draw = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(draw); else draw(); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; }; // QA-Art 09.10.: Schrift auf Schildern/Zetteln mit Farbband/Druck/Schablone (ritzschrift) statt glatter Arial
   const decal = (tx, w, h, x, y, z, ry = 0, rx = 0, o = {}) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ map: tx, transparent: true, alphaTest: .05, roughness: .9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, ...(o.mat || {}) }));
     m.rotation.set(rx, ry, 0, 'YXZ'); m.position.set(x, y, z); m.renderOrder = 1; par(x, z, o.p).add(m); return m; };
   const glow = (color, size, x, y, z, p) => { const s = new T.Sprite(new T.SpriteMaterial({ map: poolTex, color, transparent: true, depthWrite: false, blending: T.AdditiveBlending, fog: true })); s.scale.set(size, size, 1); s.position.set(x, y, z); par(x, z, p).add(s); return s; };
@@ -121,8 +121,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   wbox('rust_sheet', 1.1, .05, .34, 115.1, 1.03, 24.8, { p: K });
   { const d = fit(door1S.clone(true), 1.98); d.scale.x *= 1.05 / Math.max(.01, new T.Box3().setFromObject(d).getSize(new V3()).x); put(d, 113.35, 25.02, 0, 0, K); }
   // Leuchtband über dem Kiosk (Schrift auf rostigem Blech)
-  const fasciaTx = canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
-    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); });
+  const fasciaTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
+    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); })); // Blechschild: aufgemalte Schablonenschrift mit Abplatzern
   const fascia = new T.Mesh(new T.PlaneGeometry(11.6, 1.08), new T.MeshStandardMaterial({ map: fasciaTx, emissive: 0xffffff, emissiveMap: fasciaTx, emissiveIntensity: .0, roughness: .6 })); fascia.position.set(112, 3.2, 24.84); K.add(fascia);
   // Innen: Werkbank als Tresen, Regale, Kalender, Licht
   { const t = fit(metaltableS.clone(true), 3.2, 'x'); put(t, 110.3, 26, 0, 0, K); const s1 = fit(wardrobeS.clone(true), 1.95); put(s1, 108, 30.49, PI / 2, 0, K); const s2 = fit(wardrobeS.clone(true), 1.95); put(s2, 116.3, 30.49, PI / 2, 0, K);
@@ -170,6 +170,10 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const canopyLights = [vlight(0xdcecff, 2.2, 11, 107, 4, 15), vlight(0xdcecff, 2.2, 11, 115, 4, 15)];
   const canopyPools = [pool(0xcfe4ff, 11, 107, 15, .22, K), pool(0xcfe4ff, 11, 115, 15, .22, K)];
   for (const [x, z, r] of [[106.5, 17.6, .3], [115.6, 12.3, 2.1]]) { const j = jerryS.clone(true); put(j, x, z, r, .22, K); }
+  // QA-Art 09.10.: der Platz unter dem Tankdach war bis auf zwei Kanister leer – abgesperrte Zapfinseln (Leitkegel, umgekippter Kegel), ein Reifenstapel am Kiosk, Müllsäcke an der Säule; alles vorhandene Scan-Modelle, nichts auf den Laufwegen
+  try { msInst(coneP, [msM4(107, .22, 12.95, .4, 1), msM4(107.15, .22, 17.05, 1.3, 1), msM4(115, .22, 17.0, 2.2, 1), msM4(114.3, .17, 18.2, .9, 1, 0, 1.52)]).forEach(im => K.add(im));
+    put(fit(tiresS.clone(true), 1.5, 'max'), 104.6, 23.4, 2.6, 0, K); put(fit(trashS.clone(true), .62), 115.6, 15.9, 1.2, .22, K); put(fit(trashS.clone(true), .5), 116.0, 15.3, 3.1, 0, K);
+    put(fit(palletS.clone(true), .14), 119.3, 19.4, .35, 0, K); } catch (e) { console.warn('QA-Art Tankstelle', e); }
   // Altes Leuchtschild an der Straße: eigener Aufdruck auf dem gescannten Blech
   const signImg = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/ms/gas_signs/OldGasStationSign.jpg'; });
   const signTx = canvasTex(1024, 512, (c, w, h) => { if (signImg) c.drawImage(signImg, 0, 0, w, h); else { c.fillStyle = '#ccc'; c.fillRect(0, 0, w, h); }
@@ -202,7 +206,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     const d = fit(dumpS.clone(true), 1.3); put(d, 137.6, -29.8, PI / 2 + .1, 0, J); const pp = palletsS.clone(true); put(pp, 119, -30.6, .4, 0, J);
     for (let i = 0; i < 4; i++) { const p = palletS.clone(true); put(p, 137.2 + rand(-.1, .1), -10.6, rand(-.2, .2), i * .145, J); } }
   { const s = fit(shedUtilS.clone(true), 2.8); put(s, 99.6, -26.5, PI / 2, 0, J); }
-  const plateTx = canvasTex(512, 128, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(20,12,6,${rand(.1, .4)})`; c.fillRect(0, rand(0, h), w, rand(1, 4)); } c.fillStyle = '#e6dcc4'; c.font = 'bold 54px Arial'; c.textAlign = 'center'; c.fillText('SCHROTT · KRANZ', w / 2, 84); });
+  const plateTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(512, 128, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(20,12,6,${rand(.1, .4)})`; c.fillRect(0, rand(0, h), w, rand(1, 4)); } c.fillStyle = '#e6dcc4'; c.font = 'bold 54px Arial'; c.textAlign = 'center'; c.fillText('SCHROTT · KRANZ', w / 2, 84); })); // aufgemalt (Schablone)
   decal(plateTx, 2, .5, 101.05, 2.4, -26.5, PI / 2, 0, { p: J });
   // Roter Kanister (Nebenaufgabe) neben dem Schrottauto
   const redCan = jerryS.clone(true); redCan.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(redCan, 133.6, -10.2, 1.1, 0, J); redCan.rotation.z = 1.45; redCan.position.y = .17;

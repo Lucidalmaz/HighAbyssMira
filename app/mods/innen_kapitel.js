@@ -125,7 +125,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     kit({ fbx: 'chair', spec: { '*': { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } } }, .93),
     kit({ fbx: 'hospbed', spec: { blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: true }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg' }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } } }, 1.95, 'z'),
     kit({ fbx: 'dresser', spec: { 'Wood-1': { b: 'T_Wood-1_BaseColor.jpg', n: 'T_Wood-1_Normal.jpg', r: 'T_Wood-1_Roughness.jpg', ao: 'T_Wood-1_Ao.jpg' }, 'Wood-2': { b: 'T_Wood-2_BaseColor.jpg', n: 'T_Wood-2_Normal.jpg', r: 'T_Wood-2_Roughness.jpg', ao: 'T_Wood-2_Ao.jpg' }, 'Wood-3': { b: 'T_Wood-3_BaseColor.jpg', n: 'T_Wood-3_Normal.jpg', r: 'T_Wood-3_Roughness.jpg', ao: 'T_Wood-3_Ao.jpg' }, Metal: { b: 'T_Metal_BaseColor.jpg', n: 'T_Metal_Normal.jpg', r: 'T_Metal_Roughness.jpg', m: 'T_Metal_Metallic.jpg' } } }, 2.0),
-    kit({ fbx: 'crib', spec: { '*': { color: 0xeeece6, rough: .6 } } }, 1.25, 'x')]);
+    kit({ fbx: 'crib', spec: { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xe8e2d6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xd8d0c0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } } }, 1.25, 'x')]); // QA-Art 09.10.: weißes Kinderbett war einfarbig (Plastik) – jetzt abgegriffener Lack-Scan wie Zayns Bett in Nr. 7
   for (const K of [kBag, kCan, kCrt, kRadio, kFrameD, kFrameG, kShelf]) K.noShadow = true;
   const BED = new V(.7, 1, 1); // Eisenbett schmaler (Einzelbett)
   // Fürs Weiße: gleiche Formen, hell und leicht überstrahlt
@@ -229,8 +229,9 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   find((o) => o.material && o.material.transparent && o.material.alphaTest === .12 && o.material.color && o.material.color.getHex() === 0xd8d4c8).forEach(o => { if (!webGeos.includes(o.geometry)) webGeos.push(o.geometry); cobMat = o.material; });
   function web(x, y, z, ry, s = 1, rz = 0, rx = 0) { if (!cobMat) return; const m = new THREE.Mesh(webGeos[Math.floor(R(0, webGeos.length))], cobMat); m.scale.setScalar(.0105 * s); m.position.set(x, y, z); m.rotation.set(rx, ry, rz, 'YXZ'); m.renderOrder = 2; scene.add(m); return m; }
   // Netz an der Kante Wand/Decke (Wand bei z = wz bzw. x = wx; dir = Richtung in den Raum)
-  const edgeWeb = (x, wz, dir, s = .85, h = C2.h) => web(x, h - .22, wz + dir * .2, dir > 0 ? 0 : Math.PI, s, R(-.25, .25), -Math.PI / 4);
-  const edgeWebX = (wx, z, dir, s = .85, h = C2.h) => web(wx + dir * .2, h - .22, z, dir > 0 ? Math.PI / 2 : -Math.PI / 2, s, R(-.25, .25), -Math.PI / 4);
+  // QA-Art 09.10.: Kantennetze standen als gleich hohe Reihe im festen Abstand – jetzt Höhe, Abstand zur Wand, Neigung und Größe je Netz verschieden, gut ein Fünftel fällt aus (rand statt R: der reproduzierbare Zufall der Räume bleibt unverändert)
+  const edgeWeb = (x, wz, dir, s = .85, h = C2.h) => { const rz = R(-.25, .25); if (Math.random() < .22) return; return web(x + rand(-.5, .5), h - rand(.14, .42), wz + dir * rand(.12, .3), (dir > 0 ? 0 : Math.PI) + rand(-.2, .2), s * rand(.75, 1.2), rz, -Math.PI / 4 + rand(-.25, .2)); };
+  const edgeWebX = (wx, z, dir, s = .85, h = C2.h) => { const rz = R(-.25, .25); if (Math.random() < .22) return; return web(wx + dir * rand(.12, .3), h - rand(.14, .42), z + rand(-.5, .5), (dir > 0 ? Math.PI / 2 : -Math.PI / 2) + rand(-.2, .2), s * rand(.75, 1.2), rz, -Math.PI / 4 + rand(-.25, .2)); };
   {
     find((o, c) => o.material && o.material.isMeshBasicMaterial && o.material.transparent && o.material.map && c.x > 636 && c.x < 646 && c.y > 1).forEach(hide); // gezeichnete Netze
     { const fl = find((o, c) => o.material === M.ash && c.x > 636 && c.x < 646)[0]; if (fl) fl.material = msSurfMat('wall_damaged', { tint: 0x55514a, rep: 5 }); } // Boden: Beton-Scan statt Rauschen

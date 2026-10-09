@@ -238,10 +238,10 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
 //    Knotens mit dem letzten Bild (gemessen an der Kreuzung: moved/upd/updateMatrixWorld ≈ 15 % der Rechenzeit) – auch von Häusern, Zäunen, Möbeln, die nie
 //    bewegt werden. Jetzt: Ein Zweig (Hülle ≤ 20 m), in dem sich 4 s lang nichts bewegt hat und der keine Figur/Knochen/Kamera/Licht/eigene Matrix-Logik
 //    enthält, wird eingefroren – der Durchlauf überspringt ihn. Wache: Zweige bis 10 m um Kamera und Luke werden JEDES Bild vollständig geprüft (Türen,
-//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 6 Bildern; jede Änderung (auch unsichtbarer Teile oder neu angehängter
+//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 10 Bildern (Drehungen melden sich sofort selbst); jede Änderung (auch unsichtbarer Teile oder neu angehängter
 //    Kinder über add/attach) taut den Zweig sofort auf und rechnet wie bisher. Bewegt sich ein Elternteil, wird der Zweig ebenfalls aufgetaut.
 //    Gleiche Matrizen wie vorher (nichts wird geschätzt); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
-const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 6,
+const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 10,
   units: [], cur: 0, tick: 0, chk: -1, tries: 0, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
 function mwf_moved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher __mc)
   if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
@@ -263,7 +263,7 @@ function mwf_upd(o, force) {
     if (!o.visible) o.__mwStale = true;
     else { if (o.__mwStale) { o.__mwStale = false; force = true; ch = true; }
       for (let i = 0; i < c.length; i++) { const k = c[i];
-        if (k.__frz) { if (force) { k.__frz = false; MWF.wake++; mwf_upd(k, true); ch = true; } continue; }
+        if (k.__frz) { if (force) { mwf_wake(k); mwf_upd(k, true); ch = true; } continue; }
         if (k.matrixWorldAutoUpdate === true || force === true) { if (mwf_upd(k, force)) ch = true; } } } }
   if (ch || o.__lm === undefined) o.__lm = MWF.now; else if (MWF.now - o.__lm > MWF.still && !(o.__mwNo > MWF.now)) mwf_try(o);
   return ch; }
@@ -283,9 +283,13 @@ function mwf_try(o) {
   if (r > MWF.maxR) { o.__mwNo = MWF.now + 60000; return; } // zu groß: die Kinder werden einzeln eingefroren
   for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
   MWF.base.call(o, true); o.traverse(mwf_prime); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen, Drehungen melden lassen
-  o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
+  o.__frz = true; o.__frzT = MWF.now; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
 // Drehungen (Türen, Klappen, Schilder …) melden sich selbst: three.js ruft bei jeder Änderung von rotation/quaternion einen Rückruf je Objekt → Zweig im selben Bild auftauen
-function mwf_poke(x) { for (let p = x; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; return; } }
+function mwf_poke(x) { const c = x.__mc, q = x.quaternion; // jedes Bild gleich gesetzte Drehung (lookAt, rotation.y = …) zählt nicht
+  if (c && c.length === 10 && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w) return;
+  for (let p = x; p; p = p.parent) if (p.__frz) { mwf_wake(p); return; } }
+// Auftauen; wer kurz nach dem Einfrieren wieder aufwacht, wird 30 s lang nicht neu eingefroren (spart das wiederholte Einfrieren)
+function mwf_wake(o) { o.__frz = false; o.__lm = MWF.now; MWF.wake++; if (MWF.now - (o.__frzT || 0) < 10000) o.__mwNo = MWF.now + 30000; }
 function mwf_prime(x) { mwf_moved(x); if (x.__mwHook) return; x.__mwHook = true;
   const r = x.rotation, q = x.quaternion, r0 = r._onChangeCallback, q0 = q._onChangeCallback;
   if (typeof r0 === 'function') r._onChange(function () { r0.apply(this, arguments); mwf_poke(x); });
@@ -303,18 +307,18 @@ function mwf_check() {
   let w = 0, nodes = 0, near = 0;
   for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; if (!u.o.parent) { u.o.__frz = false; continue; } U[w++] = u; nodes += u.n;
     const rr = R + u.r, dx = u.x - cx, dy = u.y - cy, dz = u.z - cz, qx = u.x - px, qy = u.y - py, qz = u.z - pz;
-    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) mwf_wake(u.o); } }
   U.length = w; MWF.n = w; MWF.nodes = nodes; MWF.nearN = near; if (!w) return;
   // ferne Zweige reihum: alle in höchstens MWF.sweep Bildern
   let budget = Math.ceil(nodes / MWF.sweep);
   for (let k = 0; k < w && budget > 0; k++) { const u = U[MWF.cur++ % w]; if (u.nf === MWF.tick || !u.o.__frz) continue; budget -= u.n;
-    if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+    if (mwf_verify(u.o)) mwf_wake(u.o); } }
 function lst_freeze() {
   if (!MWF.on) return;
   // Neu angehängte Kinder: eingefrorenen Vorfahren sofort auftauen (sonst stünde das Kind bis zur nächsten Wache im Nullpunkt)
   const add0 = THREE.Object3D.prototype.add;
   THREE.Object3D.prototype.add = function (...a) { const r = add0.apply(this, a);
-    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].isObject3D) { a[i].__frz = false; a[i].matrixWorldNeedsUpdate = true; } /* neuer Elternteil → Weltmatrix prüfen */ for (let p = this; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; break; } }
+    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].isObject3D) { a[i].__frz = false; a[i].matrixWorldNeedsUpdate = true; } /* neuer Elternteil → Weltmatrix prüfen */ for (let p = this; p; p = p.parent) if (p.__frz) { mwf_wake(p); break; } }
     return r; };
   const s0 = scene.updateMatrixWorld;
   scene.updateMatrixWorld = function (force) {

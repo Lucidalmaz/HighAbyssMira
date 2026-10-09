@@ -61,7 +61,7 @@ function neben4_kapEnde() { for (const k of Object.keys(NEBEN4)) { const q = sto
 function neben4_kap5() { const q = story.side.k5_kasten; if (neben4_postWeg() === 'c' && q && q.state === 'hidden') n4_start('k5_kasten', NEBEN4_K5.k5_kasten[1], { x: 100.5, z: -26.5 }); } // AP-25: nur beim ersten Start – Weiterspielen in Kap. 5 setzt den Fortschritt nicht zurück
 
 // ---------------------------------------------------------------------  Bilder: eigene kleine Bühne (außerhalb der Welt) und Abzüge
-function n4_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (fn) fn(c.getContext('2d'), w, h); return c; }
+function n4_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (fn) { const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); } return c; } // QA-Art 09.10.: Absperrband/Zettel mit Druckbild
 function n4_laden(src) { return new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; }); }
 function n4_studio() { const S = neben4_S; if (S.studio) return S.studio; const T = THREE, W = 360, H = 360;
   const sc = new T.Scene(); sc.add(new T.HemisphereLight(0xc8d0e0, 0x302820, .45)); const blitz = new T.DirectionalLight(0xfff2dc, 3); sc.add(blitz, blitz.target);

@@ -6828,7 +6828,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const wbox = (key, w, h, d, x, y, z, o = {}) => { const g = new T.BoxGeometry(w, h, d); worldUV(g, w, h, d, o.tile ?? 2);
     const m = new T.Mesh(g, o.mat || sm(key, o.tint ?? 0xffffff, o.nrm ?? 1)); m.position.set(x, y, z); if (o.ry) m.rotation.y = o.ry; m.castShadow = o.cast !== false; m.receiveShadow = true; par(x, z, o.p).add(m); return m; };
   const hit = (w, h, d, x, y, z, label, action) => { const m = box(w, h, d, x, y, z, hidden, { cast: false }); interact(m, label, action); return m; };
-  const canvasTex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; };
+  const canvasTex = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const draw = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(draw); else draw(); const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t; }; // QA-Art 09.10.: Schrift auf Schildern/Zetteln mit Farbband/Druck/Schablone (ritzschrift) statt glatter Arial
   const decal = (tx, w, h, x, y, z, ry = 0, rx = 0, o = {}) => { const m = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshStandardMaterial({ map: tx, transparent: true, alphaTest: .05, roughness: .9, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, ...(o.mat || {}) }));
     m.rotation.set(rx, ry, 0, 'YXZ'); m.position.set(x, y, z); m.renderOrder = 1; par(x, z, o.p).add(m); return m; };
   const glow = (color, size, x, y, z, p) => { const s = new T.Sprite(new T.SpriteMaterial({ map: poolTex, color, transparent: true, depthWrite: false, blending: T.AdditiveBlending, fog: true })); s.scale.set(size, size, 1); s.position.set(x, y, z); par(x, z, p).add(s); return s; };
@@ -6922,8 +6922,8 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   wbox('rust_sheet', 1.1, .05, .34, 115.1, 1.03, 24.8, { p: K });
   { const d = fit(door1S.clone(true), 1.98); d.scale.x *= 1.05 / Math.max(.01, new T.Box3().setFromObject(d).getSize(new V3()).x); put(d, 113.35, 25.02, 0, 0, K); }
   // Leuchtband über dem Kiosk (Schrift auf rostigem Blech)
-  const fasciaTx = canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
-    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); });
+  const fasciaTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(1024, 96, (c, w, h) => { c.fillStyle = '#d9d2c2'; c.fillRect(0, 0, w, h); for (let i = 0; i < 90; i++) { c.fillStyle = `rgba(${90 + rand(0, 40)},${50 + rand(0, 20)},20,${rand(.05, .25)})`; c.fillRect(rand(0, w), rand(0, h), rand(4, 60), rand(20, h)); }
+    c.fillStyle = '#8a1c14'; c.font = 'bold 58px Arial'; c.textAlign = 'center'; c.fillText('TANKSTELLE  KRANZ  ·  KFZ', w / 2, 68); c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(0, h - 8, w, 8); })); // Blechschild: aufgemalte Schablonenschrift mit Abplatzern
   const fascia = new T.Mesh(new T.PlaneGeometry(11.6, 1.08), new T.MeshStandardMaterial({ map: fasciaTx, emissive: 0xffffff, emissiveMap: fasciaTx, emissiveIntensity: .0, roughness: .6 })); fascia.position.set(112, 3.2, 24.84); K.add(fascia);
   // Innen: Werkbank als Tresen, Regale, Kalender, Licht
   { const t = fit(metaltableS.clone(true), 3.2, 'x'); put(t, 110.3, 26, 0, 0, K); const s1 = fit(wardrobeS.clone(true), 1.95); put(s1, 108, 30.49, PI / 2, 0, K); const s2 = fit(wardrobeS.clone(true), 1.95); put(s2, 116.3, 30.49, PI / 2, 0, K);
@@ -6971,6 +6971,10 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   const canopyLights = [vlight(0xdcecff, 2.2, 11, 107, 4, 15), vlight(0xdcecff, 2.2, 11, 115, 4, 15)];
   const canopyPools = [pool(0xcfe4ff, 11, 107, 15, .22, K), pool(0xcfe4ff, 11, 115, 15, .22, K)];
   for (const [x, z, r] of [[106.5, 17.6, .3], [115.6, 12.3, 2.1]]) { const j = jerryS.clone(true); put(j, x, z, r, .22, K); }
+  // QA-Art 09.10.: der Platz unter dem Tankdach war bis auf zwei Kanister leer – abgesperrte Zapfinseln (Leitkegel, umgekippter Kegel), ein Reifenstapel am Kiosk, Müllsäcke an der Säule; alles vorhandene Scan-Modelle, nichts auf den Laufwegen
+  try { msInst(coneP, [msM4(107, .22, 12.95, .4, 1), msM4(107.15, .22, 17.05, 1.3, 1), msM4(115, .22, 17.0, 2.2, 1), msM4(114.3, .17, 18.2, .9, 1, 0, 1.52)]).forEach(im => K.add(im));
+    put(fit(tiresS.clone(true), 1.5, 'max'), 104.6, 23.4, 2.6, 0, K); put(fit(trashS.clone(true), .62), 115.6, 15.9, 1.2, .22, K); put(fit(trashS.clone(true), .5), 116.0, 15.3, 3.1, 0, K);
+    put(fit(palletS.clone(true), .14), 119.3, 19.4, .35, 0, K); } catch (e) { console.warn('QA-Art Tankstelle', e); }
   // Altes Leuchtschild an der Straße: eigener Aufdruck auf dem gescannten Blech
   const signImg = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = 'assets/ms/gas_signs/OldGasStationSign.jpg'; });
   const signTx = canvasTex(1024, 512, (c, w, h) => { if (signImg) c.drawImage(signImg, 0, 0, w, h); else { c.fillStyle = '#ccc'; c.fillRect(0, 0, w, h); }
@@ -7003,7 +7007,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     const d = fit(dumpS.clone(true), 1.3); put(d, 137.6, -29.8, PI / 2 + .1, 0, J); const pp = palletsS.clone(true); put(pp, 119, -30.6, .4, 0, J);
     for (let i = 0; i < 4; i++) { const p = palletS.clone(true); put(p, 137.2 + rand(-.1, .1), -10.6, rand(-.2, .2), i * .145, J); } }
   { const s = fit(shedUtilS.clone(true), 2.8); put(s, 99.6, -26.5, PI / 2, 0, J); }
-  const plateTx = canvasTex(512, 128, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(20,12,6,${rand(.1, .4)})`; c.fillRect(0, rand(0, h), w, rand(1, 4)); } c.fillStyle = '#e6dcc4'; c.font = 'bold 54px Arial'; c.textAlign = 'center'; c.fillText('SCHROTT · KRANZ', w / 2, 84); });
+  const plateTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(512, 128, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(20,12,6,${rand(.1, .4)})`; c.fillRect(0, rand(0, h), w, rand(1, 4)); } c.fillStyle = '#e6dcc4'; c.font = 'bold 54px Arial'; c.textAlign = 'center'; c.fillText('SCHROTT · KRANZ', w / 2, 84); })); // aufgemalt (Schablone)
   decal(plateTx, 2, .5, 101.05, 2.4, -26.5, PI / 2, 0, { p: J });
   // Roter Kanister (Nebenaufgabe) neben dem Schrottauto
   const redCan = jerryS.clone(true); redCan.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(redCan, 133.6, -10.2, 1.1, 0, J); redCan.rotation.z = 1.45; redCan.position.y = .17;
@@ -10336,7 +10340,10 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   for (const i of [3, 4, 5, 6]) { const C = PHOTOS[i] && PHOTOS[i].candle; if (!C || !C.g) continue; C.g.children.forEach(ch => { if (ch.isMesh && ch.geometry.type === 'CylinderGeometry') ch.visible = false; });
     const cm = part(candleSrc, 'Candle_large_small_used_low', .01); if (!cm) continue; cm.rotation.y = rand(0, 6); C.g.add(cm); const h = cm.geometry.boundingBox.max.y; C.flame.position.y = h + .03; C.light.position.y = h + .09; }
   const cobSrc = pool.map(e => e.m).find(m => m.material && m.material.transparent && m.material.map && m.material.color && m.material.color.getHex() === 0xd8d4c8 && m.geometry.type === 'BufferGeometry');
-  const web = (par, x, y, z, ry, s = 1) => { if (!cobSrc) return; const w = cobSrc.clone(); w.position.set(x, y, z); w.rotation.set(0, ry, rand(-.3, .3)); w.scale.setScalar(.0105 * s); par.add(w); };
+  // QA-Art 09.10.: alle Netze waren Klone EINER Netzform, immer genau im 45°-Winkel in der Ecke – jetzt jede Form des Fab-Sets, Lage/Größe/Neigung je Netz leicht anders, manche Ecken bleiben frei
+  const cobGeos = []; if (cobSrc) scene.traverse(o => { if (o.isMesh && o.material === cobSrc.material && !cobGeos.includes(o.geometry)) cobGeos.push(o.geometry); });
+  const web = (par, x, y, z, ry, s = 1) => { if (!cobSrc || (s < .9 && Math.random() < .2)) return; const w = cobSrc.clone(); if (cobGeos.length > 1) w.geometry = cobGeos[Math.floor(rand(0, cobGeos.length))];
+    w.position.set(x + rand(-.06, .06), y - rand(0, .18), z + rand(-.06, .06)); w.rotation.set(rand(-.12, .12), ry + rand(-.22, .22), rand(-.35, .35)); w.scale.setScalar(.0105 * s * rand(.8, 1.15)); par.add(w); };
 
   // =====================================================================  HAUS NR. 7 – HILDE WENDT
   // ---------- Wohnzimmer (x 20.2…25.9, z −16.9…−12.2)
@@ -10939,7 +10946,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     kit({ fbx: 'chair', spec: { '*': { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } } }, .93),
     kit({ fbx: 'hospbed', spec: { blanket: { b: 'blanket_color.jpg', n: 'blanket_nrm.jpg', r: 'blanket_rough.jpg', ds: true }, mattress: { b: 'mattress_color.jpg', n: 'mattress_nrm.jpg', r: 'mattresss_rough.jpg' }, bed: { b: 'bed_color.jpg', n: 'bed_nrm.jpg', r: 'bed_Rough.jpg', m: 'bed_metalic.jpg' } } }, 1.95, 'z'),
     kit({ fbx: 'dresser', spec: { 'Wood-1': { b: 'T_Wood-1_BaseColor.jpg', n: 'T_Wood-1_Normal.jpg', r: 'T_Wood-1_Roughness.jpg', ao: 'T_Wood-1_Ao.jpg' }, 'Wood-2': { b: 'T_Wood-2_BaseColor.jpg', n: 'T_Wood-2_Normal.jpg', r: 'T_Wood-2_Roughness.jpg', ao: 'T_Wood-2_Ao.jpg' }, 'Wood-3': { b: 'T_Wood-3_BaseColor.jpg', n: 'T_Wood-3_Normal.jpg', r: 'T_Wood-3_Roughness.jpg', ao: 'T_Wood-3_Ao.jpg' }, Metal: { b: 'T_Metal_BaseColor.jpg', n: 'T_Metal_Normal.jpg', r: 'T_Metal_Roughness.jpg', m: 'T_Metal_Metallic.jpg' } } }, 2.0),
-    kit({ fbx: 'crib', spec: { '*': { color: 0xeeece6, rough: .6 } } }, 1.25, 'x')]);
+    kit({ fbx: 'crib', spec: { 'Material #2142147589': { b: '../planks_painted/b.jpg', n: '../planks_painted/n.jpg', r: '../planks_painted/orm.jpg', color: 0xe8e2d6 }, 'Material #2142147590': { b: '../hospbed/mattress_color.jpg', n: '../hospbed/mattress_nrm.jpg', color: 0xd8d0c0 }, 'Material #2142147602': { color: 0x2a2826, rough: .6 } } }, 1.25, 'x')]); // QA-Art 09.10.: weißes Kinderbett war einfarbig (Plastik) – jetzt abgegriffener Lack-Scan wie Zayns Bett in Nr. 7
   for (const K of [kBag, kCan, kCrt, kRadio, kFrameD, kFrameG, kShelf]) K.noShadow = true;
   const BED = new V(.7, 1, 1); // Eisenbett schmaler (Einzelbett)
   // Fürs Weiße: gleiche Formen, hell und leicht überstrahlt
@@ -11043,8 +11050,9 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   find((o) => o.material && o.material.transparent && o.material.alphaTest === .12 && o.material.color && o.material.color.getHex() === 0xd8d4c8).forEach(o => { if (!webGeos.includes(o.geometry)) webGeos.push(o.geometry); cobMat = o.material; });
   function web(x, y, z, ry, s = 1, rz = 0, rx = 0) { if (!cobMat) return; const m = new THREE.Mesh(webGeos[Math.floor(R(0, webGeos.length))], cobMat); m.scale.setScalar(.0105 * s); m.position.set(x, y, z); m.rotation.set(rx, ry, rz, 'YXZ'); m.renderOrder = 2; scene.add(m); return m; }
   // Netz an der Kante Wand/Decke (Wand bei z = wz bzw. x = wx; dir = Richtung in den Raum)
-  const edgeWeb = (x, wz, dir, s = .85, h = C2.h) => web(x, h - .22, wz + dir * .2, dir > 0 ? 0 : Math.PI, s, R(-.25, .25), -Math.PI / 4);
-  const edgeWebX = (wx, z, dir, s = .85, h = C2.h) => web(wx + dir * .2, h - .22, z, dir > 0 ? Math.PI / 2 : -Math.PI / 2, s, R(-.25, .25), -Math.PI / 4);
+  // QA-Art 09.10.: Kantennetze standen als gleich hohe Reihe im festen Abstand – jetzt Höhe, Abstand zur Wand, Neigung und Größe je Netz verschieden, gut ein Fünftel fällt aus (rand statt R: der reproduzierbare Zufall der Räume bleibt unverändert)
+  const edgeWeb = (x, wz, dir, s = .85, h = C2.h) => { const rz = R(-.25, .25); if (Math.random() < .22) return; return web(x + rand(-.5, .5), h - rand(.14, .42), wz + dir * rand(.12, .3), (dir > 0 ? 0 : Math.PI) + rand(-.2, .2), s * rand(.75, 1.2), rz, -Math.PI / 4 + rand(-.25, .2)); };
+  const edgeWebX = (wx, z, dir, s = .85, h = C2.h) => { const rz = R(-.25, .25); if (Math.random() < .22) return; return web(wx + dir * rand(.12, .3), h - rand(.14, .42), z + rand(-.5, .5), (dir > 0 ? Math.PI / 2 : -Math.PI / 2) + rand(-.2, .2), s * rand(.75, 1.2), rz, -Math.PI / 4 + rand(-.25, .2)); };
   {
     find((o, c) => o.material && o.material.isMeshBasicMaterial && o.material.transparent && o.material.map && c.x > 636 && c.x < 646 && c.y > 1).forEach(hide); // gezeichnete Netze
     { const fl = find((o, c) => o.material === M.ash && c.x > 636 && c.x < 646)[0]; if (fl) fl.material = msSurfMat('wall_damaged', { tint: 0x55514a, rep: 5 }); } // Boden: Beton-Scan statt Rauschen
@@ -20022,7 +20030,7 @@ async function kiffen_klangBau() {
 }
 
 // ================================================================ Texturen (Canvas, beim Laden)
-function kf_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function kf_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); return c; } // QA-Art 09.10.: Plakate/Schachteln mit Druckbild (Papierzahn, Tintenhof) statt glatter Schrift
 function kf_rnd(seed) { let s = seed >>> 0 || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 // Gebrauchsspuren über ein Poster: Knicke, Sonnenbleiche, Klebeband, Reißzwecken, Wasserflecken, eingerissene Ecken
 function kf_patina(x, w, h, r, o = {}) {
@@ -23047,7 +23055,8 @@ function tief_vanOeffnen(van) { const T = THREE; van.updateMatrixWorld(true); co
 function tief_vanFenster(wrap, heck = true, front = false) { const T = THREE, r = wrap.children[0]; if (!r) return; wrap.updateMatrixWorld(true); const inv = new T.Matrix4().copy(r.matrixWorld).invert(), M = new T.Matrix4(), v = new T.Vector3();
   const inWin = (x, y, z) => (heck && Math.abs(x) < 55.5 && y > 91.5 && y < 133.5 && z < -165) || (front && Math.abs(x) < 57 && y > 93.5 && y < 133 && z > 90 && z < 145);
   r.traverse(m => { if (!m.isMesh) return; const g = m.geometry, P = g.attributes.position; if (g.index || P.count % 3) return; M.multiplyMatrices(inv, m.matrixWorld); const keep = [];
-    for (let i = 0; i < P.count; i += 3) { let all = true; for (let k = 0; k < 3; k++) { v.fromBufferAttribute(P, i + k).applyMatrix4(M); if (!inWin(v.x, v.y, v.z)) { all = false; break; } } if (!all) keep.push(i); }
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity; for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(M); x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); } const cx = (x0 + x1) / 2, cy = y0 - .79; // Object016 liegt im Scan seitlich versetzt (und 1,8 Einheiten höher)
+    for (let i = 0; i < P.count; i += 3) { let all = true; for (let k = 0; k < 3; k++) { v.fromBufferAttribute(P, i + k).applyMatrix4(M); if (!inWin(v.x - cx, v.y - cy, v.z)) { all = false; break; } } if (!all) keep.push(i); }
     if (keep.length * 3 === P.count) return;
     const ng = new T.BufferGeometry(); for (const name of Object.keys(g.attributes)) { const A = g.attributes[name], arr = new A.array.constructor(keep.length * 3 * A.itemSize); keep.forEach((i, j) => { for (let k = 0; k < 3 * A.itemSize; k++) arr[j * 3 * A.itemSize + k] = A.array[i * A.itemSize + k]; }); ng.setAttribute(name, new T.BufferAttribute(arr, A.itemSize, A.normalized)); }
     m.geometry = ng; m.material = [].concat(m.material).map(mt => { const c = mt.clone(); c.side = T.DoubleSide; return c; }); if (m.material.length === 1) m.material = m.material[0]; }); }
@@ -24838,7 +24847,7 @@ function lwo_filterAtem(x, y, z) { const A = Audio, c = A.ctx; if (!c) return; c
     n.connect(bp); bp.connect(g); g.connect(d); n.stop(t + t0 + len + .1); } }
 
 // =====================================================================  KOMBI (grau, Magnetschild, kein Kennzeichen – „Es ist keine dran.“)
-function lwo_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function lwo_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); /* QA-Art 09.10.: Aufdrucke mit Druckbild */ const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 // Das Zeichen: Kreis, offenes Auge über einer kleinen Flamme (akte_auge aus akte.js, sonst eigene Zeichnung)
 function lwo_auge(c, x, y, r, col) { if (typeof akte_auge === 'function') return akte_auge(c, x, y, r, col); c.save(); c.strokeStyle = c.fillStyle = col; c.lineWidth = Math.max(1.5, r * .12); c.beginPath(); c.arc(x, y, r * 1.35, 0, 7); c.stroke();
   c.beginPath(); c.moveTo(x - r, y); c.quadraticCurveTo(x, y - r * .8, x + r, y); c.quadraticCurveTo(x, y + r * .8, x - r, y); c.stroke(); c.beginPath(); c.arc(x, y, r * .3, 0, 7); c.fill(); c.restore(); }
@@ -28813,7 +28822,7 @@ function neben4_kapEnde() { for (const k of Object.keys(NEBEN4)) { const q = sto
 function neben4_kap5() { const q = story.side.k5_kasten; if (neben4_postWeg() === 'c' && q && q.state === 'hidden') n4_start('k5_kasten', NEBEN4_K5.k5_kasten[1], { x: 100.5, z: -26.5 }); } // AP-25: nur beim ersten Start – Weiterspielen in Kap. 5 setzt den Fortschritt nicht zurück
 
 // ---------------------------------------------------------------------  Bilder: eigene kleine Bühne (außerhalb der Welt) und Abzüge
-function n4_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (fn) fn(c.getContext('2d'), w, h); return c; }
+function n4_cv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; if (fn) { const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); } return c; } // QA-Art 09.10.: Absperrband/Zettel mit Druckbild
 function n4_laden(src) { return new Promise(r => { const im = new Image(); im.onload = () => r(im); im.onerror = () => r(null); im.src = src; }); }
 function n4_studio() { const S = neben4_S; if (S.studio) return S.studio; const T = THREE, W = 360, H = 360;
   const sc = new T.Scene(); sc.add(new T.HemisphereLight(0xc8d0e0, 0x302820, .45)); const blitz = new T.DirectionalLight(0xfff2dc, 3); sc.add(blitz, blitz.target);
@@ -33785,12 +33794,13 @@ function kapitel1_wandTex() {
   ];
   return kapitel1_cnv(2048, 1024, (x, w, h) => { x.clearRect(0, 0, w, h); const farben = ['30,50,150', '150,30,30', '30,110,50', '110,60,30', '30,30,30'];
     for (let i = 0; i < 58; i++) { const px = rand(20, w - 170), py = rand(16, h * .66), pw = rand(118, 168), ph = rand(128, 168);
-      x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.translate(-pw / 2, -ph / 2); papierScan(x, pw, ph, `hsl(${rand(38, 52)},${rand(10, 28)}%,${rand(70, 86)}%)`, { dreck: rand(.18, .5) }); // echtes Papier (Faserscan + Altersflecken) statt flacher Farbe
+      x.save(); x.translate(px + pw / 2, py + ph / 2); x.rotate(rand(-.16, .16)); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-pw / 2 + 4, -ph / 2 + 5, pw, ph); x.translate(-pw / 2, -ph / 2); papierScan(x, pw, ph, `hsl(${rand(36, 52)},${rand(10, 30)}%,${rand(62, 80)}%)`, { dreck: rand(.25, .6) }); /* QA-Art 09.10.: Papier etwas gealterter/dunkler – im Lampenkegel war die Wand ein weißer Block */ // echtes Papier (Faserscan + Altersflecken) statt flacher Farbe
       { const eg = x.createLinearGradient(0, 0, pw, ph); eg.addColorStop(0, 'rgba(255,250,235,.10)'); eg.addColorStop(.5, 'rgba(0,0,0,0)'); eg.addColorStop(1, 'rgba(60,40,20,.14)'); x.fillStyle = eg; x.fillRect(0, 0, pw, ph); x.strokeStyle = 'rgba(80,60,40,.22)'; x.lineWidth = 1.2; x.strokeRect(.6, .6, pw - 1.2, ph - 1.2); } // Papierkanten dunkeln, Licht von links oben
       if (rand(0, 1) < .5) { x.save(); x.beginPath(); x.rect(0, 0, pw, ph); x.clip(); echt_fleck(x, rand(0, pw), rand(0, ph), pw * rand(.5, 1.1), 'rgb(112,86,50)', rand(.1, .26), rand(0, 6.28)); x.restore(); } // Wasserflecken aus dem Feuchtescan
-      motiv[i % motiv.length](x, pw, ph);
-      kapitel1_kritzel(x, pw * .88, ph * .5, 8, 22, W('125,125,130', .5), 9); // grauer Fleck am Bildrand, weggerubbelt
-      echt_wachsText(x, 'LUKE, 9', pw - 62, ph - 9, `${rand(13, 17) | 0}px "Comic Sans MS", Caveat, cursive`, W(farben[i % farben.length], .85), rand(-.08, .06)); // Wachsstift-Unterschrift mit Korn
+      { const sk = rand(.72, 1.04), sp = rand(0, 1) < .35; x.save(); x.translate(pw / 2 + rand(-12, 12), ph / 2 + rand(-10, 8)); x.rotate(rand(-.12, .12)); x.scale(sp ? -sk : sk, sk); x.translate(-pw / 2, -ph / 2); // QA-Art 09.10.: vier Motive auf 58 Blättern – je Blatt anders gesetzt (Größe, Lage, Neigung, gespiegelt), damit keine Kopien in Reihe entstehen
+        motiv[i % motiv.length](x, pw, ph); x.restore(); }
+      if (rand(0, 1) < .6) kapitel1_kritzel(x, pw * rand(.8, .92), ph * rand(.35, .65), 8, rand(14, 24), W('125,125,130', .5), 9); // grauer Fleck am Bildrand, weggerubbelt (nicht auf jedem Blatt)
+      { const sx = rand(0, 1) < .8 ? pw - rand(56, 70) : rand(8, 20), sy = ph - rand(6, 14); echt_wachsText(x, 'LUKE, 9', sx, sy, `${rand(12, 18) | 0}px "Comic Sans MS", Caveat, cursive`, W(farben[(i * 3 + (rand(0, 2) | 0)) % farben.length], rand(.7, .9)), rand(-.12, .08)); } // Wachsstift-Unterschrift mit Korn, Lage/Größe/Farbe je Blatt verschieden
       x.fillStyle = '#a9a9a9'; x.beginPath(); x.arc(pw / 2 + rand(-4, 4), 6, 3.5, 0, 7); x.fill(); x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(pw / 2 - 1, 8, 3, 3); x.restore(); }
     // Hildes Satz („SIE NEHMEN NUR DIE …“) steht jetzt als echte Blutschrift auf einer eigenen Ebene (kapitel1_blutSchrift)
     x.save(); x.translate(1700, 990); x.rotate(-.1); x.fillStyle = 'rgba(40,60,150,.7)'; x.font = '19px "Comic Sans MS", Caveat, cursive'; x.fillText('REGEL: WER GEFUNDEN', 0, 0); x.fillText('WIRD MUSS ZÄLEN', 8, 22); x.restore(); });
@@ -41201,7 +41211,7 @@ function k6_cp(id, label, x, z, yaw) { if (K6.sp.has(id)) return; K6.sp.add(id);
   if (typeof todCheckpoint === 'function') todCheckpoint(id, label, { x: K6.cp.x, y: 0, z: K6.cp.z, yaw: K6.cp.yaw, respawn: async () => k6_wiederkehr() }); else saveGame(6); }
 function k6_wiederkehr() { const C = K6.cp; if (C) { player.pos.set(C.x, 0, C.z); player.yaw = C.yaw; } k6_jagdReset(25); if (K6.falleAn && !K6.falleFertig) k6_falleReset(); K6.lampDead = false; flashOn = true; }
 // ---------------------------------------------------------------- Texturen für Spuren (Decals, beim Laden gezeichnet)
-function k6_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function k6_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); /* QA-Art 09.10.: Schrift mit Druck-/Farbbandbild */ const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 function k6_blot(g, x, y, rx, ry, a, col) { const gr = g.createRadialGradient(x, y, 0, x, y, Math.max(rx, ry)); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(.72, `rgba(${col},${a * .8})`); gr.addColorStop(1, `rgba(${col},0)`);
   g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rx, 0, 7); g.fill(); g.restore(); }
 // kleiner nackter Fuß (links; rechts = gespiegelt): Ferse, Außenkante, Ballen, fünf Zehen – nasse Erde, ausgefranst
@@ -46052,10 +46062,10 @@ async function lst_echoLaden(E) { const cast = FIGUREN_ECHO[E.id];
 //    Knotens mit dem letzten Bild (gemessen an der Kreuzung: moved/upd/updateMatrixWorld ≈ 15 % der Rechenzeit) – auch von Häusern, Zäunen, Möbeln, die nie
 //    bewegt werden. Jetzt: Ein Zweig (Hülle ≤ 20 m), in dem sich 4 s lang nichts bewegt hat und der keine Figur/Knochen/Kamera/Licht/eigene Matrix-Logik
 //    enthält, wird eingefroren – der Durchlauf überspringt ihn. Wache: Zweige bis 10 m um Kamera und Luke werden JEDES Bild vollständig geprüft (Türen,
-//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 6 Bildern; jede Änderung (auch unsichtbarer Teile oder neu angehängter
+//    Schubladen, Schreckmomente: im selben Bild), alle übrigen reihum in höchstens 10 Bildern (Drehungen melden sich sofort selbst); jede Änderung (auch unsichtbarer Teile oder neu angehängter
 //    Kinder über add/attach) taut den Zweig sofort auf und rechnet wie bisher. Bewegt sich ein Elternteil, wird der Zweig ebenfalls aufgetaut.
 //    Gleiche Matrizen wie vorher (nichts wird geschätzt); ausdrückliche updateMatrixWorld(true)-Aufrufe rechnen weiter alles.
-const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 6,
+const MWF = { on: LST_NEU && !/nofreeze/.test(location.search), base: THREE.Object3D.prototype.updateMatrixWorld, now: 0, still: 4000, R: 10, maxR: 20, sweep: 10,
   units: [], cur: 0, tick: 0, chk: -1, tries: 0, box: new THREE.Box3(), sp: new THREE.Sphere(), n: 0, wake: 0, frz: 0, nodes: 0, nearN: 0 };
 function mwf_moved(o) { let c = o.__mc; // wie moved() der Basis (gleicher Zwischenspeicher __mc)
   if (o.matrixAutoUpdate) { const p = o.position, q = o.quaternion, s = o.scale;
@@ -46077,7 +46087,7 @@ function mwf_upd(o, force) {
     if (!o.visible) o.__mwStale = true;
     else { if (o.__mwStale) { o.__mwStale = false; force = true; ch = true; }
       for (let i = 0; i < c.length; i++) { const k = c[i];
-        if (k.__frz) { if (force) { k.__frz = false; MWF.wake++; mwf_upd(k, true); ch = true; } continue; }
+        if (k.__frz) { if (force) { mwf_wake(k); mwf_upd(k, true); ch = true; } continue; }
         if (k.matrixWorldAutoUpdate === true || force === true) { if (mwf_upd(k, force)) ch = true; } } } }
   if (ch || o.__lm === undefined) o.__lm = MWF.now; else if (MWF.now - o.__lm > MWF.still && !(o.__mwNo > MWF.now)) mwf_try(o);
   return ch; }
@@ -46097,9 +46107,13 @@ function mwf_try(o) {
   if (r > MWF.maxR) { o.__mwNo = MWF.now + 60000; return; } // zu groß: die Kinder werden einzeln eingefroren
   for (const k of inner) k.__frz = false; // aufgehen im größeren Zweig
   MWF.base.call(o, true); o.traverse(mwf_prime); // alles (auch Unsichtbares) einmal exakt nachrechnen, Vergleichswerte anlegen, Drehungen melden lassen
-  o.__frz = true; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
+  o.__frz = true; o.__frzT = MWF.now; const U = { o, x, y, z, r, n }; o.__frzU = U; MWF.units.push(U); MWF.frz++; }
 // Drehungen (Türen, Klappen, Schilder …) melden sich selbst: three.js ruft bei jeder Änderung von rotation/quaternion einen Rückruf je Objekt → Zweig im selben Bild auftauen
-function mwf_poke(x) { for (let p = x; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; return; } }
+function mwf_poke(x) { const c = x.__mc, q = x.quaternion; // jedes Bild gleich gesetzte Drehung (lookAt, rotation.y = …) zählt nicht
+  if (c && c.length === 10 && c[3] === q._x && c[4] === q._y && c[5] === q._z && c[6] === q._w) return;
+  for (let p = x; p; p = p.parent) if (p.__frz) { mwf_wake(p); return; } }
+// Auftauen; wer kurz nach dem Einfrieren wieder aufwacht, wird 30 s lang nicht neu eingefroren (spart das wiederholte Einfrieren)
+function mwf_wake(o) { o.__frz = false; o.__lm = MWF.now; MWF.wake++; if (MWF.now - (o.__frzT || 0) < 10000) o.__mwNo = MWF.now + 30000; }
 function mwf_prime(x) { mwf_moved(x); if (x.__mwHook) return; x.__mwHook = true;
   const r = x.rotation, q = x.quaternion, r0 = r._onChangeCallback, q0 = q._onChangeCallback;
   if (typeof r0 === 'function') r._onChange(function () { r0.apply(this, arguments); mwf_poke(x); });
@@ -46117,18 +46131,18 @@ function mwf_check() {
   let w = 0, nodes = 0, near = 0;
   for (let i = 0; i < U.length; i++) { const u = U[i]; if (!u.o.__frz || u.o.__frzU !== u) continue; if (!u.o.parent) { u.o.__frz = false; continue; } U[w++] = u; nodes += u.n;
     const rr = R + u.r, dx = u.x - cx, dy = u.y - cy, dz = u.z - cz, qx = u.x - px, qy = u.y - py, qz = u.z - pz;
-    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+    if (dx * dx + dy * dy + dz * dz < rr * rr || qx * qx + qy * qy + qz * qz < rr * rr) { near++; u.nf = MWF.tick; if (mwf_verify(u.o)) mwf_wake(u.o); } }
   U.length = w; MWF.n = w; MWF.nodes = nodes; MWF.nearN = near; if (!w) return;
   // ferne Zweige reihum: alle in höchstens MWF.sweep Bildern
   let budget = Math.ceil(nodes / MWF.sweep);
   for (let k = 0; k < w && budget > 0; k++) { const u = U[MWF.cur++ % w]; if (u.nf === MWF.tick || !u.o.__frz) continue; budget -= u.n;
-    if (mwf_verify(u.o)) { u.o.__frz = false; u.o.__lm = MWF.now; MWF.wake++; } } }
+    if (mwf_verify(u.o)) mwf_wake(u.o); } }
 function lst_freeze() {
   if (!MWF.on) return;
   // Neu angehängte Kinder: eingefrorenen Vorfahren sofort auftauen (sonst stünde das Kind bis zur nächsten Wache im Nullpunkt)
   const add0 = THREE.Object3D.prototype.add;
   THREE.Object3D.prototype.add = function (...a) { const r = add0.apply(this, a);
-    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].isObject3D) { a[i].__frz = false; a[i].matrixWorldNeedsUpdate = true; } /* neuer Elternteil → Weltmatrix prüfen */ for (let p = this; p; p = p.parent) if (p.__frz) { p.__frz = false; p.__lm = MWF.now; MWF.wake++; break; } }
+    if (MWF.on) { for (let i = 0; i < a.length; i++) if (a[i] && a[i].isObject3D) { a[i].__frz = false; a[i].matrixWorldNeedsUpdate = true; } /* neuer Elternteil → Weltmatrix prüfen */ for (let p = this; p; p = p.parent) if (p.__frz) { mwf_wake(p); break; } }
     return r; };
   const s0 = scene.updateMatrixWorld;
   scene.updateMatrixWorld = function (force) {

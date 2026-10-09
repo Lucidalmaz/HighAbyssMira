@@ -104,7 +104,7 @@ async function kiffen_klangBau() {
 }
 
 // ================================================================ Texturen (Canvas, beim Laden)
-function kf_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; }
+function kf_cnv(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); return c; } // QA-Art 09.10.: Plakate/Schachteln mit Druckbild (Papierzahn, Tintenhof) statt glatter Schrift
 function kf_rnd(seed) { let s = seed >>> 0 || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 // Gebrauchsspuren über ein Poster: Knicke, Sonnenbleiche, Klebeband, Reißzwecken, Wasserflecken, eingerissene Ecken
 function kf_patina(x, w, h, r, o = {}) {

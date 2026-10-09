@@ -538,7 +538,7 @@ function lwo_filterAtem(x, y, z) { const A = Audio, c = A.ctx; if (!c) return; c
     n.connect(bp); bp.connect(g); g.connect(d); n.stop(t + t0 + len + .1); } }
 
 // =====================================================================  KOMBI (grau, Magnetschild, kein Kennzeichen – „Es ist keine dran.“)
-function lwo_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function lwo_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); /* QA-Art 09.10.: Aufdrucke mit Druckbild */ const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 // Das Zeichen: Kreis, offenes Auge über einer kleinen Flamme (akte_auge aus akte.js, sonst eigene Zeichnung)
 function lwo_auge(c, x, y, r, col) { if (typeof akte_auge === 'function') return akte_auge(c, x, y, r, col); c.save(); c.strokeStyle = c.fillStyle = col; c.lineWidth = Math.max(1.5, r * .12); c.beginPath(); c.arc(x, y, r * 1.35, 0, 7); c.stroke();
   c.beginPath(); c.moveTo(x - r, y); c.quadraticCurveTo(x, y - r * .8, x + r, y); c.quadraticCurveTo(x, y + r * .8, x - r, y); c.stroke(); c.beginPath(); c.arc(x, y, r * .3, 0, 7); c.fill(); c.restore(); }

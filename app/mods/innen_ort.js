@@ -149,7 +149,10 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   for (const i of [3, 4, 5, 6]) { const C = PHOTOS[i] && PHOTOS[i].candle; if (!C || !C.g) continue; C.g.children.forEach(ch => { if (ch.isMesh && ch.geometry.type === 'CylinderGeometry') ch.visible = false; });
     const cm = part(candleSrc, 'Candle_large_small_used_low', .01); if (!cm) continue; cm.rotation.y = rand(0, 6); C.g.add(cm); const h = cm.geometry.boundingBox.max.y; C.flame.position.y = h + .03; C.light.position.y = h + .09; }
   const cobSrc = pool.map(e => e.m).find(m => m.material && m.material.transparent && m.material.map && m.material.color && m.material.color.getHex() === 0xd8d4c8 && m.geometry.type === 'BufferGeometry');
-  const web = (par, x, y, z, ry, s = 1) => { if (!cobSrc) return; const w = cobSrc.clone(); w.position.set(x, y, z); w.rotation.set(0, ry, rand(-.3, .3)); w.scale.setScalar(.0105 * s); par.add(w); };
+  // QA-Art 09.10.: alle Netze waren Klone EINER Netzform, immer genau im 45°-Winkel in der Ecke – jetzt jede Form des Fab-Sets, Lage/Größe/Neigung je Netz leicht anders, manche Ecken bleiben frei
+  const cobGeos = []; if (cobSrc) scene.traverse(o => { if (o.isMesh && o.material === cobSrc.material && !cobGeos.includes(o.geometry)) cobGeos.push(o.geometry); });
+  const web = (par, x, y, z, ry, s = 1) => { if (!cobSrc || (s < .9 && Math.random() < .2)) return; const w = cobSrc.clone(); if (cobGeos.length > 1) w.geometry = cobGeos[Math.floor(rand(0, cobGeos.length))];
+    w.position.set(x + rand(-.06, .06), y - rand(0, .18), z + rand(-.06, .06)); w.rotation.set(rand(-.12, .12), ry + rand(-.22, .22), rand(-.35, .35)); w.scale.setScalar(.0105 * s * rand(.8, 1.15)); par.add(w); };
 
   // =====================================================================  HAUS NR. 7 – HILDE WENDT
   // ---------- Wohnzimmer (x 20.2…25.9, z −16.9…−12.2)

@@ -44,7 +44,7 @@ function k6_cp(id, label, x, z, yaw) { if (K6.sp.has(id)) return; K6.sp.add(id);
   if (typeof todCheckpoint === 'function') todCheckpoint(id, label, { x: K6.cp.x, y: 0, z: K6.cp.z, yaw: K6.cp.yaw, respawn: async () => k6_wiederkehr() }); else saveGame(6); }
 function k6_wiederkehr() { const C = K6.cp; if (C) { player.pos.set(C.x, 0, C.z); player.yaw = C.yaw; } k6_jagdReset(25); if (K6.falleAn && !K6.falleFertig) k6_falleReset(); K6.lampDead = false; flashOn = true; }
 // ---------------------------------------------------------------- Texturen für Spuren (Decals, beim Laden gezeichnet)
-function k6_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
+function k6_tex(w, h, fn) { const c = document.createElement('canvas'); c.width = w; c.height = h; const d = () => fn(c.getContext('2d'), w, h); if (typeof echt_an === 'function') echt_an(d); else d(); /* QA-Art 09.10.: Schrift mit Druck-/Farbbandbild */ const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; }
 function k6_blot(g, x, y, rx, ry, a, col) { const gr = g.createRadialGradient(x, y, 0, x, y, Math.max(rx, ry)); gr.addColorStop(0, `rgba(${col},${a})`); gr.addColorStop(.72, `rgba(${col},${a * .8})`); gr.addColorStop(1, `rgba(${col},0)`);
   g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y); g.fillStyle = gr; g.beginPath(); g.arc(x, y, rx, 0, 7); g.fill(); g.restore(); }
 // kleiner nackter Fuß (links; rechts = gespiegelt): Ferse, Außenkante, Ballen, fünf Zehen – nasse Erde, ausgefranst
