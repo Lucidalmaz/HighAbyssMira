@@ -205,9 +205,14 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   // ---------- Küche (x 26.1…31.8, z −16.9…−12.2)
   hideAt(29, .89, -12.55, [5.6, .92, .7]); hideAt(29, 1.38, -12.55, [5.6, .05, .74]); hideAt(28.3, .8, -15, [1.2, .75, .8]); hideAt(27.4, .88, -15, [.45, .9, .45]); hideAt(29.2, .88, -15, [.45, .9, .45]);
   // Kühlschrank: kein Modell im Katalog → Emaille-Oberfläche (Scan) + Schmutz
+  // QA M-14: Kühlschrank als Blender-Modell (ms/kuehlschrank_nr7: Emaille-Korpus, Gefrierfachtür, Chromgriff, Alterung); Box + Canvas-/Scan-Emaille bleiben nur als Rückfall
+  let kuehlModell = null; try { kuehlModell = await msModel('kuehlschrank_nr7', 'model.glb').then(m => m.clone(true)); } catch (e) { kuehlModell = null; }
+  if (kuehlModell) { const fr = find(31.4, 1.43, -16.4, [.9, 2, .8])[0]; if (fr) hide(fr); kuehlModell.position.set(31.4, Y, -16.4); kuehlModell.rotation.y = -PI / 2; kuehlModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); G7.add(kuehlModell); }
+  else {
   { const fr = find(31.4, 1.43, -16.4, [.9, 2, .8])[0]; if (fr) { fr.material = new T.MeshStandardMaterial({ map: await tRep('wall_plaster/b.jpg', true, .5, 1), normalMap: await tRep('wall_plaster/n.jpg', false, .5, 1), color: 0xd4ccbb, roughness: .42, metalness: .05 }); fr.material.normalScale.set(.4, .4); } }
+  }
   await decal(G7, 'grime', .8, 1.2, 30.945, Y + .6, -16.35, '-x', PI, 0x6a5a48, .9);
-  { const hm = new T.MeshStandardMaterial({ color: 0xa8a8a0, metalness: 1, roughness: .38 }), h = new T.Mesh(new T.BoxGeometry(.035, .34, .03), hm); h.position.set(30.93, Y + 1.2, -16.07); h.castShadow = true; G7.add(h);
+  if (!kuehlModell) { const hm = new T.MeshStandardMaterial({ color: 0xa8a8a0, metalness: 1, roughness: .38 }), h = new T.Mesh(new T.BoxGeometry(.035, .34, .03), hm); h.position.set(30.93, Y + 1.2, -16.07); h.castShadow = true; G7.add(h);
     const sm = new T.Mesh(new T.PlaneGeometry(.8, .01), new T.MeshBasicMaterial({ color: 0x1a1814 })); sm.position.set(30.946, Y + 1.58, -16.4); sm.rotation.y = -PI / 2; G7.add(sm); }
   let cabW = 0;
   for (let i = 0; i < 4; i++) { const c = await lowerCab(0xd8cfb8, .3); const g = put(c, { minX: 26.12 + i * cabW, maxZ: -12.21, y: Y, ry: PI }, G7); if (!cabW) { const b = bbox(g); cabW = b.max.x - b.min.x; } }
