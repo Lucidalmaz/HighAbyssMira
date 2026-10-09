@@ -33,7 +33,7 @@ async function moebel_bau() {
     g.position.set(cx, y0, cz); g.rotation.y = wd ? Math.atan2(-f[1], f[0]) : Math.atan2(f[0], f[1]); // dresser schaut nach +z, wardrobe nach +x → Drehung zur freien Seite
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); scene.add(g);
     if (key === 'kuehlschrank' && typeof fridgeNote !== 'undefined') { g.updateMatrixWorld(true); const fb = new THREE.Box3().setFromObject(g); fridgeNote.position.x = fb.min.x - .006; } // Zettel liegt auf der echten Tür
-    box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; } // Kollision des Kastens bleibt (gleiche Grundfläche)
+    g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff

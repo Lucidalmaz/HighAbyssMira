@@ -247,9 +247,9 @@ function geister_echoTick(dt) { const X = GEIST.echo; if (!X) return; X.t += dt;
   if (!X.aus && (X.whT -= dt) < 0) { X.whT = rand(2.4, 4.8); geister_fluester(false); }
   if (X.blickT > 0 && (X.blickT -= dt) <= 0) { const R = GEIST_REGIE[X.E.id]; geister_blick(R && R.blick !== undefined ? R.blick : -1, .4); }
   if (X.aus) X.ausT += dt;
-  // Lampen: leises Flackern, am Anfang ein Aufbäumen; am Ende zurück auf den Wert, den die Lampe selbst hat
+  // Lampen: im Echo etwas heller (Szene bleibt lesbar), leises Flackern, weiche Aussetzer – am Anfang gehäuft; am Ende zurück auf den Wert, den die Lampe selbst hat
   for (let i = 0; i < GEIST.lamps.length; i++) { const o = GEIST.lamps[i], L = o.L; if (L.intensity !== o.set) o.base = L.intensity;
-    const dip = flickDip(o.d, .25 + 3 * X.surge, dt, .07), f = dip ? .7 + .15 * Math.random() : 1.22 - (.02 + .025 * Math.sin(GEIST.t * 13 + i * 2.1)); // heller statt dunkler: Szene bleibt lesbar L.intensity = o.base * (1 - (1 - f) * k); o.set = L.intensity; }
+    const dip = flickDip(o.d, .25 + 3 * X.surge, dt, .07), f = dip ? .7 + .15 * Math.random() : 1.22 - (.02 + .025 * Math.sin(GEIST.t * 13 + i * 2.1)); L.intensity = o.base * (1 - (1 - f) * k); o.set = L.intensity; }
   if (GEIST.kegel) GEIST.kegel.material.uniforms.uStr.value = GEIST.L.kegel * k * (.85 + .15 * Math.sin(GEIST.t * .7));
   if (X.aus && k <= .001) { for (const o of GEIST.lamps) if (o.L.intensity === o.set) o.L.intensity = o.base; GEIST.lamps.length = 0; if (GEIST.kegel) { GEIST.kegel.material.uniforms.uStr.value = 0; GEIST.kegel.position.y = -999; } GEIST.echo = null; } }
 // ---------------------------------------------------------------- Takt

@@ -136,12 +136,12 @@ async function wald_beasts() {
     const pole = box(.06, .7, .06, WALD.wolf.x + .5, .35, WALD.wolf.z + .1, M.wood, { collide: false });
     { const T = THREE, g = S.snareItems = new T.Group(), sx = WALD.wolf.x, sz = WALD.wolf.z; g.userData.noCol = true; // Jonas’ Taschenmesser steckt im Draht, die Plombe hängt mit Draht am Pflock – beides weg, sobald die Schlinge offen ist
       const wood = new T.MeshStandardMaterial({ color: 0x4a2a1e, roughness: .7 }), brass = new T.MeshStandardMaterial({ color: 0x8a6a34, roughness: .4, metalness: .85 }), rust = new T.MeshStandardMaterial({ color: 0x5a4636, roughness: .55, metalness: .7 });
-      const kn = new T.Group(); const h = new T.Mesh(new T.BoxGeometry(.092, .013, .021), wood); kn.add(h); for (const sg of [-1, 1]) { const c = new T.Mesh(new T.BoxGeometry(.008, .0145, .0225), brass); c.position.x = sg * .0475; kn.add(c); }
+      const kn = new T.Group(); S.messer = kn; const h = new T.Mesh(new T.BoxGeometry(.092, .013, .021), wood); kn.add(h); for (const sg of [-1, 1]) { const c = new T.Mesh(new T.BoxGeometry(.008, .0145, .0225), brass); c.position.x = sg * .0475; kn.add(c); }
       const bl = new T.Mesh(new T.BoxGeometry(.088, .004, .016), rust); bl.position.set(0, -.0085, 0); kn.add(bl); const lo = new T.Mesh(new T.TorusGeometry(.0065, .0016, 5, 10), brass); lo.position.x = -.054; kn.add(lo);
       kn.position.set(sx + .25 + .02, .15, sz + .17); kn.rotation.set(.25, .5, .9); kn.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kn);
       msFBX('messer', 'model.fbx', { '*': { b: 'b.jpg', n: 'n.jpg', r: 'r.jpg', m: 'm.jpg', rough: 1, color: 0xa89a8a } }).then(km => { // echtes Klappmesser (Fab, Gerardo Justel, CC-BY), rostig getönt; ersetzt den Kistenbau
         msFit(km, .095, 'max'); km.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(km), c = bb.getCenter(new T.Vector3()); km.position.sub(c); const w = new T.Group(); w.add(km); km.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } });
-        while (kn.children.length) kn.remove(kn.children[0]); kn.add(w); }).catch(e => console.warn('Wald: Klappmesser-Modell', e));
+        while (kn.children.length) kn.remove(kn.children[0]); kn.add(w); S.messerGeladen = true; const sz = new T.Box3().setFromObject(kn).getSize(new T.Vector3()); S.messerMass = [sz.x, sz.y, sz.z].map(v => +v.toFixed(3)); }).catch(e => console.warn('Wald: Klappmesser-Modell', e));
       const pl = new T.Mesh(new T.PlaneGeometry(.042, .03), new T.MeshStandardMaterial({ roughness: .4, metalness: .6, side: T.DoubleSide, map: tex(cnv(64, (c, w) => { c.fillStyle = '#9a9d9b'; c.fillRect(0, 0, w, w); c.fillStyle = 'rgba(70,40,20,.3)'; for (let i = 0; i < 10; i++) c.fillRect(rand(0, w), rand(0, w), rand(2, 10), rand(2, 6)); if (typeof akte_auge === 'function') akte_auge(c, 32, 32, 12, 'rgba(25,25,25,.9)'); }), true) }));
       pl.position.set(sx + .5 - .035, .46, sz + .1 - .02); pl.rotation.set(.1, .6, 0); g.add(pl);
       const wr = new T.Mesh(new T.TorusGeometry(.036, .0022, 5, 14), new T.MeshStandardMaterial({ color: 0x8a8a86, roughness: .4, metalness: .9 })); wr.rotation.x = PI / 2; wr.position.set(sx + .5, .5, sz + .1); g.add(wr);
@@ -300,4 +300,5 @@ function wald_dropShoe() {
   if (typeof zayn_shoeDropped === 'function') zayn_shoeDropped(S.shoe);
   if (!S.told.has('schuhEcht')) { S.told.add('schuhEcht'); setTimeout(() => { if (!state.talking) subtitle('Er rennt. Gut. Ein echter.', 2400, 'LUKE'); }, 700); } // N6-4 (wer N6-1 kennt, versteht)
 }
-window.__wald = { S: wald_S, W: WALD, paths: WALD_PATHS, fake: () => wald_fakeAn(), frei: () => wald_pupFrei() }; // Testzugriff
+window.__near = (x, y, z, d = .7) => { const P = player.pos; P.set(x - d * .8, 0, z - d * .6); player.pitch = 0; const c = camera.position; player.yaw = Math.atan2(-(x - P.x), -(z - P.z)); player.pitch = Math.atan2(y - (P.y + 1.6), Math.hypot(x - P.x, z - P.z)); }; // Testhilfe: nah vor einen Punkt stellen und hinsehen (Kleinteile)
+window.__wald = { S: wald_S, messerPos: () => { const v = new THREE.Vector3(); wald_S.messer && wald_S.messer.getWorldPosition(v); return v.toArray(); }, W: WALD, paths: WALD_PATHS, fake: () => wald_fakeAn(), frei: () => wald_pupFrei() }; // Testzugriff
