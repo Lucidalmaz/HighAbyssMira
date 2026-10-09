@@ -249,7 +249,7 @@ async function kapitel3_behSicher() {
   if (typeof beobachter_zettel === 'function') try { const P = player.pos; beobachter_zettel('B-K3-08', { pos: [P.x, 0, P.z] }); beobachter_zettel('B-K3-08b', { pos: [P.x + .45, 0, P.z + .3] }); } catch (e) {}
   S.kette = true; kapitel3_speichern(); kapitel3_handAnbieten(); }
 function kapitel3_handAnbieten() { const S = kapitel3_S; S.handT = 0; S.kum = S.kum || false;
-  if (!S.handHit) { S.handHit = box(.9, 1.6, .9, 0, .8, 0, hidden, { cast: false, parent: justin.g }); S.handHit.userData.noCol = true; }
+  if (!S.handHit) { S.handHit = box(1.14, 1.6, 1.14, 0, .8, 0, hidden, { cast: false, parent: justin.g }); S.handHit.userData.noCol = true; }
   interact(S.handHit, 'Justins Hand nehmen', () => kapitel3_handNehmen()); setC3('Nimm Justins Hand.'); S.handWarte = true; }
 async function kapitel3_handNehmen() { const S = kapitel3_S; if (!S.handWarte || state.talking) return; S.handWarte = false; uninteract(S.handHit);
   subtitle('Der Panzerhandschuh ist warm. Was er nicht sein dürfte.', 3400); await wait(2400);
