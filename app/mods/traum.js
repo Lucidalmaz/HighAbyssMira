@@ -180,8 +180,9 @@ function traum_anflug(dt) { const S = traum_S, W = S.crow, g = W.g, tf = S.tf, D
     g.position.copy(_trP); tf.z0 = g.rotation.z;
     while (tf.bi < tf.beats.length && t >= tf.beats[tf.bi][0]) { traum_fluegel(g.position, tf.beats[tf.bi][1]); tf.bi++; }
     if (!tf.caw1 && tf.sec > .25) { tf.caw1 = true; traum_rabenruf(g.position, .5, 2200); } if (!tf.caw2 && t > .5) { tf.caw2 = true; traum_rabenruf(g.position, .55); }
-    if (tf.stage === 0 && t > .3) { tf.stage = 1; whiskey_play('Glide', .5); }
-    if (tf.stage === 1 && t >= .68) { tf.stage = 2; const cd = W.A.Landing ? W.A.Landing.getClip().duration : 1; whiskey_play('Landing', .15, true, Math.max(.55, Math.min(1.3, cd / 1.5))); }
+    if (tf.stage === 0 && t > .24) { tf.stage = 1; whiskey_play('Glide', .5); } // kurzes Gleiten zwischen den Schlägen (vorher: ab 0,3 bis zur Landung nur Gleiten = kein Flügelschlag zu sehen)
+    if (tf.stage === 1 && t > .42) { tf.stage = 3; whiskey_play('Fly', .25); } // danach wieder echter Flügelschlag bis zum Bremsen
+    if ((tf.stage === 1 || tf.stage === 3) && t >= .68) { tf.stage = 2; const cd = W.A.Landing ? W.A.Landing.getClip().duration : 1; whiskey_play('Landing', .15, true, Math.max(.55, Math.min(1.3, cd / 1.5))); }
     D.toe = .6 * traum_sm(.92, 1, t);
     if (t >= 1) { tf.touch = { t: 0, w: 0 }; traum_krallen(g.position); } }
   else { const k = tf.touch, e = k.t += dt, L = tf.L; g.position.set(L.x, L.y - .045 * Math.sin(Math.min(1, e / .5) * PI), L.z); // Aufsetzen: kurz in die Knie
