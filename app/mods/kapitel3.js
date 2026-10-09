@@ -183,6 +183,7 @@ function kapitel3_jagdTick(dt) {
   if (!e) J.freiAn = false; if (J.frei > 0) J.frei -= dt;
   const safe = J.frei > 0 || S.starr > 0 || kapitel3_frost(), seen = kapitel3_siehtHin(grey.position.x, .9, grey.position.z, .8) && d < 45;
   grey.rotation.y = Math.atan2(dx, dz);
+  if (!J.hinweis && !seen && !safe && d < 22 && !J.caught) { J.hinweis = true; toast('Das Kind kommt näher, sobald du wegsiehst. Sieh es an – oder fass Eisen an: einen Laternenpfahl.', 5200); }
   if (seen) { J.seen += dt; grey.rotation.z = flashOn && d < 16 ? .22 : .1; } // steht still, den Kopf schief wie ein Kind, das wartet
   else if (safe) { grey.position.y = Math.abs(Math.sin(ch3.t * 7)) * .035; grey.rotation.z = 0; } // wippt ungeduldig auf den Zehen
   else { grey.rotation.z = 0; grey.position.y = 0; const sp = d > 14 ? 4.6 : 3.1; grey.position.x += dx / d * sp * dt; grey.position.z += dz / d * sp * dt;

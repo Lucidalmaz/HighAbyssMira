@@ -433,7 +433,7 @@ async function weiss_f3Bau(N, A, CX, CZ) {
   // Stellen der Deduktion (unsichtbare Flächen, erst mit SB-07 ansprechbar)
   const J = S.jPos || new V(CX + 2.8, 0, CZ + .9), M = WEISS_F3.mira ? WEISS_F3.mira.position : J, L = WEISS_F3.luna ? WEISS_F3.luna.position : new V(CX - 2.4, 0, CZ), Ri = WEISS_F3.riss ? WEISS_F3.riss.position : M;
   const mk = (w, h, d, x, y, z) => { const b = box(w, h, d, x, y, z, hidden, { cast: false }); b.userData.noCol = true; return b; };
-  WEISS_F3.spots = { mira: mk(.6, .9, .6, (M.x + J.x) / 2, .95, (M.z + J.z) / 2 + .15), handschuh: mk(.45, .6, .45, (M.x + J.x) / 2 + .2, 1.05, (M.z + J.z) / 2 - .25), luna: mk(.8, 1.2, .8, L.x, .6, L.z),
+  WEISS_F3.spots = { mira: mk(.5, .9, .4, (M.x + J.x) / 2, .95, (M.z + J.z) / 2 + .2), handschuh: mk(.45, .6, .3, (M.x + J.x) / 2 + .2, 1.05, (M.z + J.z) / 2 - .3), luna: mk(.8, 1.2, .8, L.x, .6, L.z),
     riss: mk(.5, 2, .5, Ri.x, 1, Ri.z), stiefel: mk(.6, .4, .6, J.x - .25, .2, J.z) };
 }
 function weiss_r1Sehen(k, it) { it.seen = true; openNote(it.name, it.text, null, () => {

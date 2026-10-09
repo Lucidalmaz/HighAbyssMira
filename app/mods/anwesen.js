@@ -549,3 +549,6 @@ function anwesen_f3Tick(dt, t) { const F = anwesen_F3; if (!F.hand) return; cons
   else if (!F.winkt) { F.t += dt; if (F.t > .8) { F.winkt = true; F.t = 0; if (F.wechsel) { F.wechsel = false; F.i = 1; anwesen_f3Setze(1); } } }
   else F.t += dt;
   const ziel = F.winkt ? Math.sin(t * 1.6) * .38 : 0; F.hand.rotation.z = F.hand.rotation.z * .9 + ziel * .1; F.handM.material.opacity = .82 * (F.winkt ? 1 : .55); }
+
+// QA Kap. 4: Trennornament oben lief bei der langen Karte mit "BISHER" durch die erste Textzeile
+try { const st = document.createElement('style'); st.textContent = '#introSeq:has(#intro > p:first-child[style*="8b7f68"])::before { display: none; }'; document.head.appendChild(st); } catch (e) {}
