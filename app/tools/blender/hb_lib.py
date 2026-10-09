@@ -111,6 +111,7 @@ def smooth(o, ang=35):
 def tris(objs):
   n = 0
   for o in objs:
+    if o.type != 'MESH': continue
     for p in o.data.polygons: n += len(p.vertices) - 2
   return n
 
@@ -222,7 +223,8 @@ def bake(o, res, kinds=('col', 'rough', 'metal', 'normal', 'ao'), samples=None, 
   bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
   R = {}
   for k in kinds:
-    img = bpy.data.images.new('bk_' + k, res, res, alpha=False, float_buffer=(k in ('normal', 'ao', 'rough', 'metal')))
+    r = res // 2 if (k == 'ao' and res > 1024) else res  # AO halb so groß backen (weich, spart Minuten), danach hochrechnen
+    img = bpy.data.images.new('bk_' + k, r, r, alpha=False, float_buffer=(k in ('normal', 'ao', 'rough', 'metal')))
     img.colorspace_settings.name = 'sRGB' if k == 'col' else 'Non-Color'
     _target([o], img)
     if k in ('col', 'rough', 'metal'):
@@ -230,16 +232,23 @@ def bake(o, res, kinds=('col', 'rough', 'metal', 'normal', 'ao'), samples=None, 
     elif k == 'normal':
       _route([o], None); scn.cycles.samples = samples or 4; bpy.ops.object.bake(type='NORMAL', normal_space='TANGENT')
     elif k == 'ao':
-      _route([o], None); scn.cycles.samples = 48; scn.world.light_settings.distance = ao_dist; bpy.ops.object.bake(type='AO')
-    R[k] = np.array(img.pixels[:], dtype=np.float32).reshape(res, res, 4); log('gebacken', o.name, k, res)
+      _route([o], None); scn.cycles.samples = 32; scn.world.light_settings.distance = ao_dist; bpy.ops.object.bake(type='AO')
+    R[k] = np.array(img.pixels[:], dtype=np.float32).reshape(r, r, 4); log('gebacken', o.name, k, r)
+    if r != res: R[k] = R[k].repeat(res // r, 0).repeat(res // r, 1)
     bpy.data.images.remove(img)
   _route([o], None); return R
 
-def save_img(name, arr, path, srgb=True):
+def save_img(name, arr, path, srgb=True, jpg=True):
+  # gebackene Karten als JPEG (Export „AUTO“ übernimmt das Format; PNG nur für Bilder mit Alpha)
   h, w = arr.shape[:2]; img = bpy.data.images.new(name, w, h, alpha=False); img.colorspace_settings.name = 'sRGB' if srgb else 'Non-Color'
   a = np.clip(arr, 0, 1).astype(np.float32)
   if a.shape[2] == 3: a = np.concatenate([a, np.ones((h, w, 1), np.float32)], 2)
-  img.pixels[:] = a.ravel(); img.filepath_raw = path; img.file_format = 'PNG'; img.save(); img.reload(); return img
+  img.pixels[:] = a.ravel()
+  if jpg: path = os.path.splitext(path)[0] + '.jpg'
+  img.filepath_raw = path; img.file_format = 'JPEG' if jpg else 'PNG'
+  try: img.save(quality=93)
+  except TypeError: img.save()
+  img.reload(); return img
 
 def final_material(name, alb, orm, nrm, alpha=None):
   # glTF-taugliches Material: Basisfarbe, ORM (G Rauheit, B Metall), Normal
@@ -251,8 +260,16 @@ def final_material(name, alb, orm, nrm, alpha=None):
   tn = nt.nodes.new('ShaderNodeTexImage'); tn.image = nrm; nrm.colorspace_settings.name = 'Non-Color'; nm = nt.nodes.new('ShaderNodeNormalMap'); nt.links.new(tn.outputs[0], nm.inputs['Color']); nt.links.new(nm.outputs[0], bs.inputs['Normal'])
   return m
 
-def compose(R, ao_k=.65, ao_gamma=1.0):
-  ao = R['ao'][:, :, :1] ** ao_gamma if 'ao' in R else 1
+def blur(a, r=2, it=2):
+  # einfacher Kastenfilter (trennbar), entrauscht die gebackene AO-Karte
+  for _ in range(it):
+    for ax in (0, 1):
+      c = np.cumsum(np.pad(a, [(r + 1, r) if k == ax else (0, 0) for k in range(a.ndim)], mode='edge'), axis=ax)
+      a = (np.take(c, range(2 * r + 1, c.shape[ax]), axis=ax) - np.take(c, range(0, c.shape[ax] - 2 * r - 1), axis=ax)) / (2 * r + 1)
+  return a
+
+def compose(R, ao_k=.65, ao_gamma=1.0, ao_blur=2):
+  ao = (blur(R['ao'][:, :, :1], ao_blur) if ao_blur else R['ao'][:, :, :1]) ** ao_gamma if 'ao' in R else 1
   alb = R['col'][:, :, :3] * (1 - ao_k + ao_k * ao)
   orm = np.concatenate([np.ones_like(R['rough'][:, :, :1]), R['rough'][:, :, :1], R['metal'][:, :, :1]], 2)
   return alb, orm, R['normal'][:, :, :3]
@@ -267,7 +284,7 @@ def export(path, objs):
   for o in objs: o.select_set(True)
   bpy.context.view_layer.objects.active = objs[0]
   kw = dict(filepath=path, export_format='GLB', use_selection=True, export_apply=True, export_yup=True, export_texcoords=True, export_normals=True, export_tangents=False,
-            export_materials='EXPORT', export_image_format='JPEG', export_jpeg_quality=90, export_animations=False, export_extras=False)
+            export_materials='EXPORT', export_image_format='AUTO', export_animations=False, export_extras=False)
   try: bpy.ops.export_scene.gltf(**kw)
   except TypeError:
     kw.pop('export_jpeg_quality', None); bpy.ops.export_scene.gltf(**kw)

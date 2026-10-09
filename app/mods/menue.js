@@ -104,7 +104,7 @@ function mz_latTick(dt, t) {
     if (!W.landed) { const u = Math.min(1, W.t / 3.4), q = 1 - (1 - u) * (1 - u), a = W.from, c = W.ctrl, b = W.to; const px = g.position.x, pz = g.position.z;
       g.position.set((1 - q) * (1 - q) * a.x + 2 * (1 - q) * q * c.x + q * q * b.x, (1 - q) * (1 - q) * a.y + 2 * (1 - q) * q * c.y + q * q * b.y, (1 - q) * (1 - q) * a.z + 2 * (1 - q) * q * c.z + q * q * b.z);
       if (u < .97) g.rotation.y = Math.atan2(g.position.x - px, g.position.z - pz); g.rotation.x = u < .8 ? -.12 : 0;
-      if (u >= 1) { W.landed = true; W.lt = 0; whiskey_play(W.idle, .35); W.face = Math.atan2(cam.x - g.position.x, cam.z - g.position.z) + 1.35; mz_play('crow1', { gain: .32, rate: .78, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5, delay: .5 }); if (typeof whiskey_schnabel === 'function') whiskey_schnabel(.34, .5, .5); } }
+      if (u >= 1) { W.landed = true; W.lt = 0; whiskey_play(W.idle, .35); W.face = Math.atan2(cam.x - g.position.x, cam.z - g.position.z) + 1.35; mz_play('crow1', { gain: .32, rate: .78, x: g.position.x, y: g.position.y, z: g.position.z, ref: 5, delay: .5 }); if (typeof whiskey_schnabel === 'function') whiskey_schnabel(.34, .38, .5); } }
     else if (t > 25.5) { // Abgang: Flügelschlag, steigt auf und verschwindet im Nebel (erst unsichtbar, wenn weit weg – dann Schnitt)
       if (!W.left) { W.left = { u: 0, a: g.position.clone(), d: new THREE.Vector3(g.position.x - cam.x, 0, g.position.z - cam.z).normalize() }; whiskey_play(W.fly, .1); try { Audio.flap(g.position.x, g.position.y, g.position.z); } catch (e) {} }
       const L = W.left; L.u = Math.min(1, L.u + dt / 4.2); const q = L.u * L.u; g.position.set(L.a.x + L.d.x * 70 * q, L.a.y + 16 * q + 1.2 * L.u, L.a.z + L.d.z * 70 * q);

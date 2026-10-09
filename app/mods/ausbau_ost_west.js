@@ -133,7 +133,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
       g.translate(-(b.min.x + b.max.x) / 2, -b.min.y, -(b.min.z + b.max.z) / 2); g.scale(s, s, s); g.computeBoundingBox(); g.computeBoundingSphere(); return shade(new T.Mesh(g, m.material)); };
     const counter = K.children.find(o => Math.abs(o.position.x - 110.3) < .01 && Math.abs(o.position.z - 26) < .01), shelves = K.children.filter(o => Math.abs(o.position.z - 30.49) < .01 && (Math.abs(o.position.x - 108) < .01 || Math.abs(o.position.x - 116.3) < .01));
     const ch = await msFBX('chair', 'model.fbx', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }); put(fit(ch, .92), 110.9, 27.0, PI + .35, 0, K);
-    if (counter) { const ty = topAt(counter, 109.2, 26, 1.5); if (ty) { const tv = fit((await msModel('crt', 'model.glb')).clone(true), .36); put(tv, 109.2, 26.02, PI + .25, ty, K); } }
+    if (counter) { const ty = topAt(counter, 109.2, 26, 1.5); if (ty) { const tv = fit((await msModel('crt', 'model.glb')).clone(true), .36); put(tv, 109.2, 26.02, PI / 2 + .25, ty, K); /* QA 09.10.: crt-Bildschirm bei +x – vorher zur Seitenwand */ } }
     for (const sh of shelves) { const x0 = sh.position.x, lv = [.9, 1.5, 2.1].map(f => topAt(sh, x0, 30.45, f)).filter((y, i, a) => y !== null && a.indexOf(y) === i).sort((a, b) => a - b);
       if (!lv.length) continue; const low = lv[0], mid = lv[1] ?? low, top = lv[2] ?? mid;
       if (x0 < 112) { put(fit(jerryS.clone(true), .42), x0 - .4, 30.35, .2, low, K); put(fit(jerryS.clone(true), .4), x0 + .35, 30.3, -.25, low, K);

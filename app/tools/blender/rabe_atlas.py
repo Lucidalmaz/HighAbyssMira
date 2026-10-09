@@ -14,12 +14,12 @@ for uvs, r in reg:
 beak = np.array(mk).astype(np.float32)[..., None] / 255
 # Farbe: Helligkeit stauchen (Gefieder fast schwarz), Muster behalten, Sättigung weg, kühler Stich
 lum = col.mean(-1, keepdims=True); sat = col - lum
-L = np.clip(lum, 0, 1) ** 1.25 * .40 + .006
+L = np.clip(lum, 0, 1) ** 1.3 * .30 + .005
 out = L + sat * .35
 out = out * np.array([.95, .98, 1.07], np.float32)
 outB = (np.clip(lum, 0, 1) ** 1.1 * .42 + .01) * np.array([.98, .98, 1.02], np.float32) + sat * .2  # Schnabel: schwarzgrau, Hornstruktur sichtbar
 out = out * (1 - beak) + outB * beak
-rough = .56 * (1 - beak[..., 0]) + .34 * beak[..., 0]
+rough = .72 * (1 - beak[..., 0]) + .4 * beak[..., 0]
 rgba = np.concatenate([np.clip(out, 0, 1), np.ones(out.shape[:2] + (1,), np.float32)], -1)
 orm = np.stack([np.ones(rough.shape), rough, np.zeros(rough.shape)], -1)
 # Streifen oben (¼)
@@ -30,5 +30,8 @@ h = PX // 4; assert fc.shape[1] == PX and fc.shape[0] == h, (fc.shape, PX)
 rgba[:h] = fc; nrm[:h] = fn; orm[:h] = fo
 Image.fromarray((rgba * 255 + .5).astype(np.uint8), 'RGBA').save(W + f'atlas_{V}_farbe.png')
 Image.fromarray((nrm * 255 + .5).astype(np.uint8), 'RGB').save(W + f'atlas_{V}_normal.png')
-Image.fromarray((np.clip(orm, 0, 1) * 255 + .5).astype(np.uint8), 'RGB').save(W + f'atlas_{V}_orm.png')
+# Alpha des ORM = Glanzstärke (KHR_materials_specular liest .a): Körper voll, Federkarten gedämpft (die flachen Karten spiegeln sonst wie Platten), Schuppen/Auge voll
+spec = np.ones(orm.shape[:2], np.float32); spec[:h] = .55; spec[3 * h // 4:h, int(PX * (3 * (1 - 1 / 16) / 4)):] = 1.
+orm4 = np.concatenate([np.clip(orm, 0, 1), spec[..., None]], -1)
+Image.fromarray((orm4 * 255 + .5).astype(np.uint8), 'RGBA').save(W + f'atlas_{V}_orm.png')
 print('ATLAS', V, PX, 'Schnabelanteil', round(float(beak.mean()), 4))

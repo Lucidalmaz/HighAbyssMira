@@ -233,7 +233,7 @@ async function nr4_bau() {
     const bat = await kirchberg_mod('../ue/batterie', 'model.glb', .05, 'max'); if (bat) for (let i = 0; i < 3; i++) { const b = bat.clone(true); const a = i / 3 * PI * 2; b.rotation.z = PI / 2; put(b, C.x + 3.1 + Math.cos(a) * .045, cy + .008, C.z + 3.05 + Math.sin(a) * .045, a + PI / 2, g); }
     { const fb = await kirchberg_mod('radio', 'model.gltf', .17, 'max'); if (fb) { fb.traverse(m => { if (m.name === 'tubes') m.visible = false; if (m.isMesh) { m.material = m.material.clone(); m.material.color.setRGB(.12, .12, .12); m.material.roughness = .2; } }); fb.scale.y *= .3; put(fb, C.x + 3.45, cy, C.z + 2.95, .4, g); } }
     nr4_zettel('E-08', C.x + 3.35, cy + .003, C.z + 3.15, 0, { liegt: true });
-    const tv = await kirchberg_mod('crt', 'model.glb', .5); if (tv) put(tv, C.x + 3.2, .48, C.z + .45, 0, g); { const k = await kirchberg_fbx('dresser', hutchSpec(0x6a5a48), .48); if (k) put(k, C.x + 3.2, 0, C.z + .4, 0, g); }
+    const tv = await kirchberg_mod('crt', 'model.glb', .5); if (tv) put(tv, C.x + 3.2, .48, C.z + .45, -PI / 2, g); /* QA 09.10.: Bildschirm des Fab-„crt“ liegt bei +x → −PI/2 = Blick zum Sofa */ { const k = await kirchberg_fbx('dresser', hutchSpec(0x6a5a48), .48); if (k) put(k, C.x + 3.2, 0, C.z + .4, 0, g); }
     // Kassettenregal (Wandbord mit Kassetten-Stapeln als Bücher-Scan) + Heino-Kassette (Tauschgut)
     { const sh = await kirchberg_mod('shelf', 'model.gltf', 1.1, 'x'); if (sh) put(sh, x1 - .15, 1.2, C.z + 1.6, -PI / 2, g);
       const kas = await kirchberg_mod('w_buch', 'model.glb', .11, 'max'); if (kas) for (let i = 0; i < 16; i++) { const k = kas.clone(true); k.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHSL(i * .13 % 1, .35, .35); } }); k.rotation.z = PI / 2; put(k, x1 - .18, 1.25 + (i > 7 ? .01 : 0), C.z + 1.15 + (i % 8) * .12, 0, g); }
@@ -299,7 +299,7 @@ async function nr4_bau() {
     const tisch = await kirchberg_mod('metaltable', 'model.gltf', 0); if (tisch) { tisch.scale.set(.36, .78, .6); S.lt = put(tisch, O.x - .2, 0, b0 + .42, 0, g2); }
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;
     { const c = await kirchberg_fbx('chair', chairSpec, .9); if (c) put(c, O.x - .1, 0, b0 + 1.05, PI + .3, g2); }
-    { const tv = await kirchberg_mod('crt', 'model.glb', .36); if (tv) put(tv, O.x + .45, ly, b0 + .35, -.2, g2); const r = await kirchberg_mod('radio', 'model.gltf', .28, 'max'); if (r) { r.traverse(m => { if (m.name === 'tubes') m.visible = false; }); put(r, O.x - .75, ly, b0 + .32, .15, g2); } }
+    { const tv = await kirchberg_mod('crt', 'model.glb', .36); if (tv) put(tv, O.x + .45, ly, b0 + .35, -PI / 2 - .2, g2); /* QA 09.10.: crt-Bildschirm bei +x → zum Stuhl */ const r = await kirchberg_mod('radio', 'model.gltf', .28, 'max'); if (r) { r.traverse(m => { if (m.name === 'tubes') m.visible = false; }); put(r, O.x - .75, ly, b0 + .32, .15, g2); } }
     { const sch = await kirchberg_mod('wardrobe', 'model.gltf', 1.85); if (sch) put(sch, O.x + .4, 0, b1 - .3, PI / 2, g2); } // Fab „wardrobe“: Vorderseite +x, Breite entlang z → PI/2 = breit an der Nordwand (vorher PI: 1,5 m quer in der Tür zum Bad)
     { const sl = await kirchberg_mod('floorlamp', 'model.gltf', 1.45); if (sl) put(sl, O.x + 1.05, 0, b0 + .35, 0, g2); } kirchberg_licht(R2, 0xffc890, 1, 5, O.x + 1.0, 1.35, b0 + .45);
     await fenster(R2, a0 + 1.1, b0 + .11, 0, 1.45, 'sheer');

@@ -164,9 +164,22 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Eigene Arbeit (Blender)
+- **Kolkrabe Whiskey und Rabenkrähen** (`game/assets/ms/rabe_whiskey/model.glb`, `game/assets/ms/rabe_kraehe/model.glb`; Module `whiskey.js`, `traum.js`, `menue.js`, `kino.js`, `leben.js`, `hungrige.js`):
+  Körper aus dem Museumsscan **„Common raven“** (Corvus corax, Krystyna-und-Włodzimierz-Tomek-Naturkundemuseum Ciężkowice, Inv. MP 040) – Wirtualne Muzea Małopolski, **CC0 1.0**,
+  https://sketchfab.com/3d-models/common-raven-ec9c0ac738fd4495af334ea2092e8d89 (Ast entfernt, reduziert, Farbe/Normalen gebacken und nachgedunkelt).
+  Eigene Arbeit in Blender 4.5 (`app/tools/blender/rabe_bau1_koerper.py`, `rabe_bau2_backen.py`, `rabe_bau3_rig.py`, `rabe_federn.py`, `rabe_atlas.py`, `app/tools/rabe_glb.mjs`): Federkleid aus einzelnen Federn
+  (Hand-/Armschwingen, Schirmfedern, Decken, Daumenfittich, Steuerfedern, Schwanzdecken, Federhose), Läufe mit Hornschilden, Zehen und Krallen, Augen; Feder-, Schuppen- und Augentexturen rechnerisch erzeugt.
+  Skelett und Clips: PROTOFACTOR Animal Variety Pack (`animal_crow`, Fab), unverändert übernommen, dazu der Clip „Caw“ (Krächzen).
 - **Spinnen** (`game/assets/ms/spinnen/*.glb`, Modul `spinnen.js`, Netze in `leben.js`) – eigene Arbeit, prozedural in Blender 4.5 gebaut (`app/tools/blender/spinnen_bau.py`):
   Nosferatu-Spinne (Zoropsis spinimana), Riesenkrabbenspinne (Sparassidae), Hauswinkelspinne (Eratigena atrica), Gartenkreuzspinne (Araneus diadematus), Wolfsspinne (Lycosidae), Vogelspinne (Theraphosidae);
   Skelett, Gangarten (Tetrapodengang über IK gebacken), Texturen (Zeichnung/Chitin/Haarstriche aus einem OSL-Muster gebacken) und Haarkarten. Ersetzen im Spiel die Fab-Spinnen (spider_tarantula, spider_little, spider_cross – Dateien liegen als Rückfall noch bei).
+- **Kindersitze** (`game/assets/ms/kindersitz/model.glb`, Module `tiefwald.js` Kap. 6 Bus und `ausbau_ost_west.js` Kap. 1 Transporter) – eigene Arbeit, in Blender 4.5 gebaut (`app/tools/blender/kindersitz_bau.py`, Werkzeuge `hb_lib.py`):
+  Schalensitz ECE Gruppe 1 nach dem Vorbild der Sitze von 1992–2009 (Schale mit Seitenwangen, gepolsterter Bezug mit Keder, Fünfpunktgurt, Schloss, Zentralversteller, Untergestell, Messingschild),
+  drei Varianten (Marine mit Konfetti, Karo ausgeblichen, grau verschlissen mit Riss); Texturen aus prozeduralen PBR-Shadern gebacken. Fotos von Wikimedia Commons nur als Formvorlage angesehen, nicht verwendet.
+- **Bus-Innenraum** (`game/assets/ms/bus_innen/model.glb`, `app/tools/blender/bus_innen_bau.py`) – eigene Arbeit: Innenausbau des Fahrdienstbusses (Gummiboden, Verkleidung, Dachhimmel, Leuchtstoffleisten,
+  Haltestangen, Sitzschienen, Gurtschlösser, Fahrersitze, Armaturenbrett, Lenkrad, Fahrtenbuch-Halter), per Strahl an die Hülle des Scans `vans` angepasst.
+- **Wrack-Innenraum** (`game/assets/ms/wrack_innen/model.glb`, `app/tools/blender/wrack_innen_bau.py`) – eigene Arbeit: eingedrücktes Armaturenbrett, offenes Handschuhfach, verbogenes Lenkrad,
+  gerissene Sitze, Teppich mit Laub, Scherben, gesprungene Windschutzscheibe, Türverkleidung – passend zum Coupé aus `car_rusty` (OlegVerenko).
 
 ## Heruntergeladen, derzeit nicht im Spiel
 Rigged Animated Ghost, Alien Character, Alien Creature, Spectral Guardian, Monster; Insectoid Monster (DM-913), False Bear (Cherryvania), Realistic PBR Monster (Prit Patel) – angesehen für die Wendigo-Formen, nicht genommen.

@@ -340,7 +340,7 @@ VILLA_BAU.nr3 = async R => {
   await ch(R.x0 + 2.6, 856.6, -PI / 2 - .4); await ch(R.x1 - 1.3, 859.6, PI + .3);
   const kom = await villa_fbx('dresser', VILLA_SPEC.hutch, 1.25, 'y', R.x1 - .35, 857.2, -PI / 2);
   for (let i = 0; i < 3; i++) await villa_put('w_funk', 'model.glb', .21, 'max', R.x1 - .33, 857.2 + (i - 1) * .22, -PI / 2 + (i - 1) * .2, kom ? new T.Box3().setFromObject(kom).max.y - .01 : 1.2);
-  await villa_put('crt', 'model.glb', .42, 'y', R.x0 + .5, 855.6, PI / 2 + .5, 0);
+  await villa_put('crt', 'model.glb', .42, 'y', R.x0 + .5, 855.6, -.5, 0); // QA 09.10.: Fab „crt“ hat den Bildschirm bei +x (nicht +z) – Drehung um −PI/2 korrigiert, sonst Bildschirm seitlich/zur Wand (Blick schräg in den Raum)
   { const rt = await villa_put('metaltable', 'model.gltf', .78, 'y', R.x1 - .45, 859.4, PI / 2); if (rt) { rt.scale.x *= .2; rt.scale.z *= .75; } }
   await villa_put('radio', 'model.gltf', .42, 'max', R.x1 - .4, 859.4, -PI / 2, .78);
   await villa_put('floorlamp', 'model.gltf', 1.6, 'y', R.x0 + .5, 860.3, .3);

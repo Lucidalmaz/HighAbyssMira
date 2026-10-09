@@ -678,7 +678,7 @@ async function kirchberg_innen() {
       kirchberg_hit(.3, .8, .8, x0 + .2, 1.8, C.z + .4, 'Uhr', () => toast('Drei Uhr dreizehn. Alle Uhren im Haus. Das Pendel schwingt.', 3000)); }
     // Stube (rechts): Sofa, Sessel, Fernseher, Stehlampe, Bilder, Katzenkörbe
     const sofa = await kirchberg_fbx('sofa', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x7a8a6a } }, 2.0, 'x'); if (sofa) put(sofa, C.x + 3, 0, z0 + .55, 0, g);
-    const tv = await kirchberg_mod('crt', 'model.glb', .52); if (tv) put(tv, C.x + 3, .45, z1 - .45, PI, g);
+    const tv = await kirchberg_mod('crt', 'model.glb', .52); if (tv) put(tv, C.x + 3, .45, z1 - .45, PI / 2, g); // QA 09.10.: Fab „crt“ hat den Bildschirm bei +x (nicht +z) – Drehung um −PI/2 korrigiert, sonst Bildschirm seitlich/zur Wand (Blick zum Sofa)
     { const k = await kirchberg_fbx('dresser', hutchSpec(0x9a8a70), .45); if (k) put(k, C.x + 3, 0, z1 - .42, PI, g); }
     const sl = await kirchberg_mod('floorlamp', 'model.gltf', 1.6); if (sl) put(sl, x1 - .45, 0, z0 + .45, 0, g);
     kirchberg_licht(R, 0xffb870, 1.2, 6, x1 - .45, 1.5, z0 + .5); kirchberg_licht(R, 0xffc080, 1.4, 6.5, C.x - 2.2, 2.2, C.z - .2); // Stehlampe, Küchenlampe (40 W)

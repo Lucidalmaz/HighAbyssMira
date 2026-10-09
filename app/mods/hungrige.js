@@ -308,7 +308,7 @@ function hungrige_raven(mirror) { const neu = typeof leben_S !== 'undefined' && 
   if (typeof whiskey_ring === 'function') try { whiskey_ring(V.m, false); } catch (e) {} // AP-08: eiserner Ring am linken Lauf – beim gespiegelten Nachbild sitzt er dadurch rechts
   try { const head = hungrige_bone(V.m, /(^|-)Head$/), wing = hungrige_bone(V.m, /^WingLeftC$/), spine = hungrige_bone(V.m, /(^|-)Spine$/);
     const eyeM = mirror ? new THREE.MeshStandardMaterial({ color: 0x040404, roughness: .08, metalness: .2 }) : new THREE.MeshStandardMaterial({ color: 0xdedbd0, roughness: .12, emissive: 0xdfe9ff, emissiveIntensity: .12 });
-    if (head) for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(.0048, 10, 8), eyeM); e.position.set(.021, s * .0122, .005); e.castShadow = false; head.add(e); }
+    if (head) for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(neu ? .0046 : .0048, 10, 8), eyeM); if (neu) e.position.set(.0134, s * .019, -.0097); else e.position.set(.021, s * .0122, .005); e.castShadow = false; head.add(e); } // neu: Augenmitte des eigenen Raben (aus dem Modell gemessen)
     if (wing) { const f = new THREE.Mesh(new THREE.PlaneGeometry(.075, .013), new THREE.MeshStandardMaterial({ color: 0x0b0b0d, roughness: .5, side: THREE.DoubleSide })); f.position.set(.03, 0, .01); f.rotation.set(0, .5, .45); wing.add(f); } // die abstehende Feder
     V.look = { eyeM, spine, s0: spine ? spine.scale.clone() : null }; } catch (e) { console.warn('Hungrige: Rabe', e); }
   if (mirror) V.g.scale.x = -1; return V; }

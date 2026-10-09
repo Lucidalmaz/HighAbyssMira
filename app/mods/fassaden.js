@@ -840,7 +840,7 @@ async function fassaden_atlas() {
   // put: Größe (size/axis), Unterkante y, Mitte x, Tiefe z, Drehung ry → in Feld (col, row)
   const put = (o, col, row, x, y, z = 0, ry = 0, size = 0, axis = 'y') => { if (!o) return null; if (size) msFit(o, size, axis); const g = msGround(o); g.rotation.y = ry; g.position.set(x, y, z); cells[row * 8 + col].add(g); return g; };
   // 0 Wohnzimmer: Regal, Fernseher auf der Anrichte, Bild, Uhr – davor das Sofa (Rücken zum Fenster) und die Stehlampe
-  put(shelfW, 0, 0, -1.05, 0, -.3, -PI / 2, 1.95); put(cab1, 0, 0, .45, 0, -.3); put(crt, 0, 0, .45, .62, -.25, 0, .42); put(frX, 0, 0, .45, 1.32, -.5, 0, .5, 'max'); put(clock, 0, 0, 1.3, 1.5, -.5, 0, .5, 'y');
+  put(shelfW, 0, 0, -1.05, 0, -.3, -PI / 2, 1.95); put(cab1, 0, 0, .45, 0, -.3); put(crt, 0, 0, .45, .62, -.25, -PI / 2, .42); /* QA 09.10.: crt-Bildschirm bei +x → zum Fenster */ put(frX, 0, 0, .45, 1.32, -.5, 0, .5, 'max'); put(clock, 0, 0, 1.3, 1.5, -.5, 0, .5, 'y');
   if (mirror) mirror.rotation.x = -PI / 2;
   put(sofa, 0, 1, -.2, 0, 0, PI, 2.0, 'x'); put(lamp, 0, 1, 1.3, 0, 0, 0, 1.62);
   // 1 Küche: Buffet, Unterschrank mit Radio, Uhr – davor Tisch und zwei Stühle

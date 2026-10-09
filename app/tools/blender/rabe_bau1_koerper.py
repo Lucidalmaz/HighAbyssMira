@@ -32,11 +32,12 @@ for v in bm.verts:
   y = v.co.y
   if y < -.08: k = min(1, (-.08 - y) / .08); k = k * k * (3 - 2 * k); v.co.x += .017 * k
 bm.to_mesh(me); bm.free()
-bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-bpy.ops.mesh.fill_holes(sides=0)
-bpy.ops.mesh.select_all(action='DESELECT'); bpy.ops.mesh.select_non_manifold(); bpy.ops.mesh.delete(type='VERT')
-bpy.ops.mesh.select_all(action='SELECT'); bpy.ops.mesh.fill_holes(sides=0)
-bpy.ops.object.mode_set(mode='OBJECT')
+# erst kaputte Ränder weg, dann Löcher schließen; neue Flächen (hinten angehängt) bekommen alt = 0 → eigene UV-Inseln
+bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='DESELECT'); bpy.ops.mesh.select_non_manifold(extend=False, use_wire=True, use_boundary=False, use_multi_face=True, use_non_contiguous=True, use_verts=True)
+bpy.ops.mesh.delete(type='VERT'); bpy.ops.object.mode_set(mode='OBJECT')
+n0 = len(me.polygons)
+bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT'); bpy.ops.mesh.fill_holes(sides=0); bpy.ops.object.mode_set(mode='OBJECT')
+alt = me.attributes.new('alt', 'INT', 'FACE'); alt.data.foreach_set('value', [1 if i < n0 else 0 for i in range(len(me.polygons))])
 print('INFO hoch', len(me.vertices), len(me.polygons))
 
 # ---- Bereiche markieren (vor der Umrechnung, Scan-Koordinaten): Unterschnabel, Oberschnabel, Kehle
@@ -62,26 +63,47 @@ for n, p in (('L', Vector((.0406, -.191, .558))), ('R', Vector((-.040, -.19, .56
 ob['M_scan'] = [list(r) for r in M]
 
 # ---- Reduzierte Fassungen
+# Atlas-UV am hohen Netz: Scan-Inseln (alte UV) nach u 0..0,92 / v 0..0,745, gefüllte Löcher eigene Inseln rechts daneben
+sc = me.uv_layers[0]; at = me.uv_layers.new(name='atlas')  # Scan-UV behält ihren Namen (der Bildknoten des Imports verweist darauf); me.uv_layers.active = at
+n = len(at.data); arr = np.zeros(n * 2, np.float32); sc.data.foreach_get('uv', arr); arr = arr.reshape(-1, 2)
+arr[:, 0] = np.clip(arr[:, 0], 0, 1) * .92; arr[:, 1] = np.clip(arr[:, 1], 0, 1) * .745; at.data.foreach_set('uv', arr.ravel())
+av = np.zeros(len(me.polygons), np.int32); me.attributes['alt'].data.foreach_get('value', av)
+for p, f in zip(me.polygons, av): p.select = not f
+print('INFO gefüllte Flächen', int((av == 0).sum()))
+bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_mode(type='FACE')
+bpy.ops.uv.smart_project(angle_limit=math.radians(70), island_margin=.02, area_weight=0.0, correct_aspect=True, scale_to_bounds=True)
+bpy.ops.object.mode_set(mode='OBJECT')
+at = me.uv_layers['atlas']; arr = np.zeros(len(at.data) * 2, np.float32); at.data.foreach_get('uv', arr); arr = arr.reshape(-1, 2)
+lv = np.zeros(len(me.loops), np.int32); fl = np.zeros(len(me.loops), np.int32)
+for p, f in zip(me.polygons, av):
+  if not f: fl[p.loop_start:p.loop_start + p.loop_total] = 1
+arr[fl == 1, 0] = .93 + arr[fl == 1, 0] * .065; arr[fl == 1, 1] = arr[fl == 1, 1] * .745
+at.data.foreach_set('uv', arr.ravel()); me.uv_layers.active = at
+for l in me.uv_layers: l.active_render = (l.name != 'atlas')
 def reduziert(name, tris):
   bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True); bpy.context.view_layer.objects.active = ob
   bpy.ops.object.duplicate(); lo = bpy.context.view_layer.objects.active; lo.name = name
   md = lo.modifiers.new('dec', 'DECIMATE'); md.ratio = tris / len(lo.data.polygons); md.use_collapse_triangulate = True
-  md.vertex_group_factor = 1.0
   bpy.ops.object.modifier_apply(modifier='dec')
-  # UV neu: Inseln in den Körperbereich (u 0..1, v 0..0,75) des Atlas
-  bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-  bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=.004, area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
-  bpy.ops.object.mode_set(mode='OBJECT')
-  uv = lo.data.uv_layers.active.data; n = len(uv); arr = np.zeros(n * 2, np.float32); uv.foreach_get('uv', arr); arr = arr.reshape(-1, 2)
-  mn, mx = arr.min(0), arr.max(0); arr = (arr - mn) / (mx - mn); arr[:, 1] *= .745; uv.foreach_set('uv', arr.ravel())
+  for l in [l for l in lo.data.uv_layers if l.name != 'atlas']: lo.data.uv_layers.remove(l)
+  lo.data.uv_layers.active = lo.data.uv_layers['atlas']; lo.data.uv_layers['atlas'].active_render = True
+  # Inseln dichter packen (der Scan-Atlas lässt viel frei) – im bisherigen Rahmen u 0..1, v 0..0,745
   bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT'); bpy.ops.uv.select_all(action='SELECT')
-  try: bpy.ops.uv.pack_islands(udim_source='ORIGINAL_AABB', rotate=True, margin=.003, shape_method='CONCAVE')
-  except TypeError: bpy.ops.uv.pack_islands(rotate=True, margin=.003)
+  try: bpy.ops.uv.pack_islands(udim_source='ORIGINAL_AABB', rotate=True, margin=.0015, shape_method='CONCAVE')
+  except Exception as e: print('INFO packen', e)
   bpy.ops.object.mode_set(mode='OBJECT')
-  uv.foreach_get('uv', arr.ravel()); print('INFO', name, len(lo.data.polygons), 'uv', arr.reshape(-1, 2).min(0).round(3), arr.reshape(-1, 2).max(0).round(3))
+  # Zerfaserte Federbüschel (Bart, Nacken) werden beim Reduzieren zu Zacken: Netz glätten (Volumen bleibt), Schnabel ausgenommen – die Details kommen über die gebackenen Normalen zurück
+  keep = lo.vertex_groups.new(name='GLATT')
+  ids_b = set()
+  for g in ('OBERSCHNABEL', 'JAW'):
+    gi = lo.vertex_groups[g].index
+    for v in lo.data.vertices:
+      if any(x.group == gi and x.weight > .2 for x in v.groups): ids_b.add(v.index)
+  keep.add([v.index for v in lo.data.vertices if v.index not in ids_b], 1.0, 'REPLACE')
+  sm = lo.modifiers.new('glatt', 'LAPLACIANSMOOTH'); sm.lambda_factor = .6; sm.iterations = 4; sm.use_volume_preserve = True; sm.vertex_group = 'GLATT'
+  bpy.ops.object.modifier_apply(modifier='glatt'); lo.vertex_groups.remove(lo.vertex_groups['GLATT'])
+  print('INFO', name, len(lo.data.polygons))
   return lo
-for o in [o for o in bpy.data.objects if o.type == 'MESH']: o.data.uv_layers.active_index = 0
-# alte UV des Scans behalten (zum Backen), die neuen bekommen eigene Ebene
 reduziert('whiskey', 26000); reduziert('kraehe', 4300)
 bpy.ops.wm.save_as_mainfile(filepath=W + 'koerper.blend')
 print('INFO fertig')

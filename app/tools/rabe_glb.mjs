@@ -32,24 +32,25 @@ const oi = prim.getIndices(); prim.setIndices(acc('indices', nv < 65536 ? new Ui
 // Material
 const mat = prim.getMaterial(); const img = (f, mime) => doc.createTexture(path.basename(f)).setImage(fs.readFileSync(f)).setMimeType(mime);
 const tF = img(FARBE, 'image/png'), tN = img(NORMAL, 'image/png'), tO = img(ORM, 'image/png');
-// winzige weiße Glanzkarte (die alte Datei hatte eine; ohne sie entstünde eine neue Shadervariante)
-const weiss = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVR4nGP8////fwY8gAmf5PBRAAAbbgQMid1tCwAAAABJRU5ErkJggg==', 'base64');
-const tS = doc.createTexture('glanz').setImage(weiss).setMimeType('image/png');
+// Glanzkarte = Alpha der ORM-Textur (gleiche Textur, kein zusätzlicher Speicher; ohne Glanzkarte entstünde eine neue Shadervariante)
 mat.setBaseColorTexture(tF).setBaseColorFactor([1, 1, 1, 1]).setNormalTexture(tN).setMetallicRoughnessTexture(tO).setOcclusionTexture(tO)
   .setMetallicFactor(1).setRoughnessFactor(1).setAlphaMode('MASK').setAlphaCutoff(.42).setDoubleSided(false).setName('M_Rabe');
 let sp = mat.getExtension('KHR_materials_specular'); if (!sp) { sp = doc.createExtension(KHRMaterialsSpecular).createSpecular(); mat.setExtension('KHR_materials_specular', sp); }
-sp.setSpecularTexture(tS).setSpecularFactor(1).setSpecularColorFactor([.8, .86, 1.0]); // blauvioletter Federglanz in den Lichtern
+sp.setSpecularTexture(tO).setSpecularFactor(1).setSpecularColorFactor([.8, .86, 1.0]); // blauvioletter Federglanz in den Lichtern
 // Kiefer: Öffnungsachse aus dem Clip EatSomething (stärkste Drehung gegen die Ruhe), als extras am Knochen
 const qmul = (a, b) => [a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1], a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0], a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3], a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]];
 const qinv = a => [-a[0], -a[1], -a[2], a[3]], qaa = (ax, an) => { const s = Math.sin(an / 2); return [ax[0] * s, ax[1] * s, ax[2] * s, Math.cos(an / 2)]; };
 const node = n => R.listNodes().find(x => x.getName() === n);
 const jaw = node('CROW_-Queue-de-cheval-1'), neck = node('CROW_-Neck'), head = node('CROW_-Head');
 const anim = n => R.listAnimations().find(a => a.getName() === n);
-function delta(an, nd) { // größte Drehung des Knotens im Clip gegen seine Ruhe → [Achse, Winkel, Zeit]
-  const ch = anim(an).listChannels().find(c => c.getTargetNode() === nd && c.getTargetPath() === 'rotation'); const s = ch.getSampler(), T = s.getInput().getArray(), Q = s.getOutput().getArray(), q0 = nd.getRotation();
+const key0 = (an, nd) => { const ch = anim(an).listChannels().find(c => c.getTargetNode() === nd && c.getTargetPath() === 'rotation'); const Q = ch.getSampler().getOutput().getArray(); return [Q[0], Q[1], Q[2], Q[3]]; };
+const axang = d => { const w = Math.min(1, Math.abs(d[3])), an_ = 2 * Math.acos(w), s_ = Math.sqrt(1 - w * w) || 1, sg = d[3] < 0 ? -1 : 1; return [[d[0] / s_ * sg, d[1] / s_ * sg, d[2] / s_ * sg], an_]; };
+function delta(an, nd) { // größte Drehung des Knotens im Clip gegen die Grundhaltung (IdleLookAround, Bild 0) → [Achse, Winkel, Zeit]
+  const ch = anim(an).listChannels().find(c => c.getTargetNode() === nd && c.getTargetPath() === 'rotation'); const s = ch.getSampler(), T = s.getInput().getArray(), Q = s.getOutput().getArray(), q0 = key0('ANIM_Crow_IdleLookAround', nd);
   let best = [null, 0, 0]; for (let k = 0; k < T.length; k++) { const q = [Q[k * 4], Q[k * 4 + 1], Q[k * 4 + 2], Q[k * 4 + 3]], d = qmul(qinv(q0), q); const w = Math.min(1, Math.abs(d[3])), an_ = 2 * Math.acos(w);
     if (an_ > best[1]) { const s_ = Math.sqrt(1 - w * w) || 1, sg = d[3] < 0 ? -1 : 1; best = [[d[0] / s_ * sg, d[1] / s_ * sg, d[2] / s_ * sg], an_, T[k]]; } } return best; }
-const [jax, jan] = delta('ANIM_Crow_EatSomething', jaw); jaw.setExtras({ ...(jaw.getExtras() || {}), oeffnen: jax.map(x => +x.toFixed(5)), oeffnenMax: +jan.toFixed(3) });
+// Kiefer: in allen Clips ~39° gegen die Ruhe = geschlossen; Öffnen = Richtung Ruhelage (EatSomething geht bis 8°)
+const [jax, jan] = axang(qmul(qinv(key0('ANIM_Crow_IdleLookAround', jaw)), jaw.getRotation())); jaw.setExtras({ ...(jaw.getExtras() || {}), oeffnen: jax.map(x => +x.toFixed(5)), oeffnenMax: +jan.toFixed(3) });
 console.log('Kiefer-Achse', jax.map(x => x.toFixed(3)), 'max', (jan * 57.3).toFixed(1) + '°');
 const [nax, nan] = delta('ANIM_Crow_EatSomething', neck), [hax, han] = delta('ANIM_Crow_EatSomething', head);
 // Clip „Caw“: Grundhaltung = IdleLookAround bei t=0 (alle Kanäle), dazu Kiefer auf/zu (3 Rufe) und Verbeugung bei jedem Ruf
@@ -62,7 +63,7 @@ if (!anim('ANIM_Crow_Caw')) {
     const nd = ch.getTargetNode(), p = ch.getTargetPath(), sm = ch.getSampler(), O = sm.getOutput().getArray(), n = p === 'rotation' ? 4 : 3, v0 = Array.from(O.slice(0, n));
     const out = new Float32Array(N * n);
     for (let k = 0; k < N; k++) { let v = v0;
-      if (p === 'rotation' && nd === jaw) v = qmul(v0, qaa(jax, .62 * ruf(T[k])));
+      if (p === 'rotation' && nd === jaw) v = qmul(v0, qaa(jax, .45 * ruf(T[k])));
       else if (p === 'rotation' && nd === neck) v = qmul(v0, qaa(nax, nan * .28 * bow(T[k])));
       else if (p === 'rotation' && nd === head) v = qmul(v0, qaa(hax, -han * .12 * bow(T[k])));
       out.set(v, k * n); }

@@ -312,7 +312,7 @@ WORLD_MODS.push(['Zimmer 7', async () => {
   try { addEcho(Z7_ECHO); } catch (e) { console.warn('zimmer7 Echo', e); }
 
   // --- Fassung 3 (AP-16): Monitor mit Post-it, Telefon, der Kaktus auf der „Fensterbank ohne Fenster“, Ordner „2009“ im Aktenschrank (sechs Formblätter 8)
-  try { const crt = msFit((await msModel('crt', 'model.glb')).clone(true), .36, 'x'); const g = norm(crt, { s: .36, axis: 'x' }); onDesk(g, DX + .17, DZ + .24, PI + .15);
+  try { const crt = msFit((await msModel('crt', 'model.glb')).clone(true), .36, 'x'); const g = norm(crt, { s: .36, axis: 'x' }); onDesk(g, DX + .17, DZ + .24, PI / 2 + .15); /* QA 09.10.: crt-Bildschirm bei +x → zum Stuhl (Süden) */
     const pi = cv(128, 128, (c, w) => { c.clearRect(0, 0, w, w); c.fillStyle = '#ecd96c'; c.fillRect(6, 6, w - 12, w - 12); c.fillStyle = 'rgba(0,0,0,.08)'; c.fillRect(6, w - 22, w - 12, 16); c.fillStyle = '#1f2a55'; c.font = '19px Caveat'; ['Do Amt.', 'Fr zählen.', 'So NICHT', 'rangehen (Jonas).'].forEach((t, i) => c.fillText(t, 12, 30 + i * 24)); });
     const gb = new THREE.Box3().setFromObject(g); const pm = new THREE.Mesh(new THREE.PlaneGeometry(.075, .075), decalMat(pi, .9)); pm.position.set(gb.max.x - .03, gb.max.y - .09, gb.min.z - .002); pm.rotation.set(0, PI, .05); pm.userData.noCol = true; scene.add(pm);
     hit(gb.max.x - .03, gb.max.y - .09, gb.min.z - .05, .12, .12, .1, 'Post-it am Monitor', () => openNote('Post-it am Monitor', '<span class="hand">„Do Amt. Fr zählen. So NICHT rangehen (Jonas).“</span>', 'z7_postit', () => { setTimeout(() => subtitle('„Do Amt. Fr zählen. So nicht rangehen. Jonas.“', 3600, 'LUKE'), 500); }));

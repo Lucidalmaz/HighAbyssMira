@@ -20,7 +20,9 @@ AUGE = {'L': Vector(hoch['auge_L']), 'R': Vector(hoch['auge_R'])}
 for o in list(bpy.data.objects):
   if o is not body: bpy.data.objects.remove(o, do_unlink=True)
 bpy.ops.import_scene.gltf(filepath=ALT, bone_heuristic='BLENDER')
-arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE'); old = next(o for o in bpy.data.objects if o.type == 'MESH' and o is not body)
+arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE'); old = next(o for o in bpy.data.objects if o.type == 'MESH' and o is not body and o.parent == arm)
+for o in list(bpy.data.objects):
+  if o.type == 'MESH' and o not in (body, old): bpy.data.objects.remove(o, do_unlink=True)  # Knochenform-Kugel des Importers
 arm.animation_data.action = None
 for t in arm.animation_data.nla_tracks: t.mute = True
 BN = [b.name for b in arm.data.bones]
@@ -30,8 +32,14 @@ RB = {b.name: arm.matrix_world @ b.head_local for b in arm.data.bones}  # Ruhela
 
 # ---------------------------------------------------------------- 1. Pose (Kopf gesenkt) und altes Netz darin
 for pb in arm.pose.bones: pb.matrix_basis = Matrix()
+# Bezugspose = Grundhaltung der Clips (IdleLookAround, Bild 0): Kopf, Kiefer (in allen Clips 39° gegen die Ruhe!) und Flügel stehen dort anders als in der Ruhelage.
+# Der Scan wird als diese Haltung gelesen und in die Ruhelage zurückgerechnet → in den Clips sitzt er wieder genau so (Schnabel zu, Flügel angelegt).
+arm.animation_data.action = bpy.data.actions['ANIM_Crow_IdleLookAround']; bpy.context.scene.frame_set(0)
 bpy.context.view_layer.update()
-NICK = math.radians(20)
+BASIS = {pb.name: pb.matrix_basis.copy() for pb in arm.pose.bones}; arm.animation_data.action = None
+for pb in arm.pose.bones: pb.matrix_basis = BASIS[pb.name]
+bpy.context.view_layer.update()
+NICK = math.radians(float(a[3]) if len(a) > 3 else 0.)  # zusätzliche Kopfneigung (Grad)
 pbh = arm.pose.bones[HEAD]; h0 = pbh.head.copy()
 pbh.matrix = Matrix.Translation(h0) @ Matrix.Rotation(NICK, 4, 'X') @ Matrix.Translation(-h0) @ pbh.matrix
 bpy.context.view_layer.update()
@@ -47,7 +55,7 @@ WING = lambda n: n.startswith('Wing') or n.endswith(('-UpperArm', '-Forearm', '-
 TAIL = lambda n: n.startswith('CrowTail')
 LEG = lambda n: any(n.endswith(s) for s in ('-HorseLink', '-Foot')) or '-Toe' in n
 rumpf = [t for t in TRI if not any(WING(dom(i)) or TAIL(dom(i)) or LEG(dom(i)) for i in t)]
-karten_f = [t for t in TRI if all(WING(dom(i)) or dom(i).endswith('-Clavicle') for i in t)]
+karten_f = [t for t in TRI if sum(WING(dom(i)) for i in t) >= 2 and not any(TAIL(dom(i)) or LEG(dom(i)) or dom(i).endswith(('-Head', '-Neck')) for i in t)]
 karten_t = [t for t in TRI if all(TAIL(dom(i)) or dom(i).endswith('-Pelvis') for i in t) and sum(TAIL(dom(i)) for i in t) >= 2]
 print('INFO alt: rumpf', len(rumpf), 'flügel', len(karten_f), 'schwanz', len(karten_t))
 def bvh(P, tris): return BVHTree.FromPolygons([tuple(P[i]) for i in range(len(P))], tris, all_triangles=True)
@@ -77,7 +85,9 @@ for v in body.data.vertices:
     if gJ and g.group == gJ.index: j = g.weight
     if gU and g.group == gU.index: u = g.weight
   if u > 0: w = {HEAD: 1.0}
-  if j > 0: w = {k: x * (1 - j) for k, x in w.items()}; w[JAW] = w.get(JAW, 0) + j; w.pop(HEAD, None) if j >= .999 else None
+  q = w.pop(JAW, 0)  # die alte Krähe hängt die ganze Kehle an den Kiefer → hier nur der Unterschnabel
+  if q: w[HEAD] = w.get(HEAD, 0) + q
+  if j > 0: w = {k: x * (1 - j) for k, x in w.items()}; w[JAW] = j
   if not w: w = {bone('-Spine'): 1}
   BW.append(norm4(w))
 
@@ -91,6 +101,7 @@ def unpose(p, w):
   return M.inverted_safe() @ p
 for v, w in zip(body.data.vertices, BW): v.co = body.matrix_world.inverted() @ unpose(body.matrix_world @ v.co, w)
 body.data.update()
+arm.animation_data.action = None
 for pb in arm.pose.bones: pb.matrix_basis = Matrix()
 bpy.context.view_layer.update()
 # Augen in Ruhelage (am Kopf)
@@ -128,22 +139,58 @@ def add_quads(grid, uvs, weights, flip=False):
 P_r = P_rest; T_f = bvh(P_r, karten_f); T_t = bvh(P_r, karten_t)
 def flaeche(tree, p):  # Höhe/Normale der alten Karte unter p
   loc, nrm, fi, d = tree.find_nearest(p); return loc, nrm
+import random
+RND = random.Random(17 if not KR else 23)
+WF = None  # Gewichtsfunktion der gebauten Federn (Flügelkoordinaten bzw. Schwanzwinkel) – ohne: aus den alten Karten
+def _flach(v): return Vector((v.x, v.y, 0))
+def _seg(p, a_, b_):
+  ab = b_ - a_; t = max(0., min(1., (p - a_).dot(ab) / (ab.length_squared or 1e-12))); return t, a_ + ab * t
+def _poly(p, pts, bones, scharf=None):
+  best = None
+  for k in range(len(pts) - 1):
+    t, q = _seg(p, pts[k], pts[k + 1]); d = (p - q).length
+    if best is None or d < best[0]: best = (d, k, t, q)
+  d, k, t, q = best; w = {}
+  if scharf:  # Knochen gehört zum Abschnitt, Übergang nur nahe den Gelenken
+    o = scharf[k]; w[o] = 1.
+    if t > .85 and k + 1 < len(scharf): x = (t - .85) / .15 * .5; w[o] -= x; w[scharf[k + 1]] = w.get(scharf[k + 1], 0) + x
+    if t < .15 and k > 0: x = (.15 - t) / .15 * .5; w[o] -= x; w[scharf[k - 1]] = w.get(scharf[k - 1], 0) + x
+  else:
+    w[bones[k]] = w.get(bones[k], 0) + 1 - t; w[bones[k + 1]] = w.get(bones[k + 1], 0) + t
+  return q, w, d
+def flgw(sx):
+  # Flügelkoordinaten: Knochenlinie (Oberarm/Unterarm/Hand) → Hinterkante (Kontrollknochen D…H) bzw. Vorderkante (A…C), linear nach relativer Lage
+  nm = (lambda n: n.replace('Left', 'Right').replace('-L-', '-R-')) if sx < 0 else (lambda n: n)
+  B = lambda n: _flach(RB[nm(n)])
+  Pb = [B('CROW_-L-UpperArm'), B('CROW_-L-Forearm'), B('CROW_-L-Hand'), B('WingLeftC')]; Ob = [nm('CROW_-L-UpperArm'), nm('CROW_-L-Forearm'), nm('CROW_-L-Hand')]
+  Pt = [B('WingLeftD'), B('WingLeftE'), B('WingLeftF'), B('WingLeftG'), B('WingLeftH')]; Bt = [nm('WingLeft' + c) for c in 'DEFGH']
+  Pl = [B('CROW_-L-UpperArm'), B('WingLeftA'), B('WingLeftB'), B('WingLeftC')]; Bl = [nm('CROW_-L-UpperArm')] + [nm('WingLeft' + c) for c in 'ABC']
+  def wf(p):
+    p = _flach(p); b, wb, db = _poly(p, Pb, None, Ob)
+    hinten = p.y >= b.y - 1e-6
+    q, wq, dq = _poly(p, Pt if hinten else Pl, Bt if hinten else Bl)
+    f = db / (db + dq + 1e-9); f = f * f * (3 - 2 * f) * .85 + f * .15
+    w = {k: x * (1 - f) for k, x in wb.items()}
+    for k, x in wq.items(): w[k] = w.get(k, 0) + x * f
+    return norm4(w)
+  return wf
 def feder(base, tip, width, kind, up, tree, tris, layer, seg=6, across=3, droop=.05, camber=.1, twist=0., side=1, two=False, lift=0.):
   """Eine Feder als gewölbtes Band von base nach tip. up = Flächennormale (oben). side: Richtung der Außenfahne (+1 = links/Spitze)."""
   d = tip - base; L = d.length; dn = d / L
   lat = dn.cross(up).normalized() * side  # zeigt zur Außenfahne
   grid, uvs, wts = [], [], []
+  roll = RND.uniform(-.13, .13); dr = RND.uniform(.7, 1.3)  # jede Feder etwas anders gedreht/gebogen (sonst wirkt der Flügel wie eine glatte Platte)
   for i in range(seg + 1):
     s = i / seg; row, ruv, rw = [], [], []
-    tw = Matrix.Rotation(twist * s, 3, dn)
+    tw = Matrix.Rotation(twist * s + roll * s, 3, dn)
     for j in range(across):
       t = -1 + 2 * j / (across - 1)
       off = (lat * (-t) * width / 2)  # t=-1 → Außenfahne (lat)
       off = tw @ off
-      h = up * (layer + lift * (1 - s) + camber * width * (1 - t * t) - droop * L * s * s)
+      h = up * (layer + lift * (1 - s) + camber * width * (1 - t * t) - droop * dr * L * s * s)
       p = base + dn * (L * s) + off + h
       row.append(p); ruv.append(uvr(kind, s, t))
-      rw.append(norm4(mix(P_r, tris, tree, p - h)))
+      rw.append(WF(p - h) if WF else norm4(mix(P_r, tris, tree, p - h)))
     grid.append(row); uvs.append(ruv); wts.append(rw)
   add_quads(grid, uvs, wts, flip=side > 0)
   if two:  # Unterseite (eigene, umgedrehte Fläche, minimal darunter)
@@ -152,6 +199,7 @@ def feder(base, tip, width, kind, up, tree, tris, layer, seg=6, across=3, droop=
 # ---------------------------------------------------------------- 4. Flügel (links gebaut, rechts gespiegelt durch eigene Gewichte)
 def lerp(a_, b_, t): return a_ + (b_ - a_) * t
 def wing(sx):
+  global WF; WF = flgw(sx)
   def B(n):
     q = RB[n.replace('Left', 'Right').replace('-L-', '-R-')] if sx < 0 else RB[n]; return q
   SH, EL, WR = B('CROW_-L-UpperArm'), B('CROW_-L-Forearm'), B('CROW_-L-Hand')
@@ -165,52 +213,71 @@ def wing(sx):
   for i in range(10):
     base = lerp(WR, C_, i / 9 * .92) + (C_ - WR).normalized() * 0 ; tip = tips[i]
     up = up_at(lerp(base, tip, .4)); w = (.036 if i < 6 else .032) * (1 - .1 * (i > 7))
-    feder(base, tip, w, 'hand', up, T_f, karten_f, layer=.0006 * (10 - i), seg=seg_r, droop=.035, camber=.08, twist=math.radians(-6 * i / 9) * sx, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, w, 'hand', up, T_f, karten_f, layer=.0003 * (10 - i), seg=seg_r, droop=.035, camber=.08, twist=math.radians(-6 * i / 9) * sx, side=1 if sx > 0 else -1, two=True)
   # Armschwingen S1..S11 (S1 am Handgelenk) + 3 Schirmfedern
   for j in range(11):
     base = lerp(WR, EL, j / 10); tip = lerp(F_, E_, j / 10) + Vector((0, .006 * math.sin(j), 0))
-    feder(base, tip, .042, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.007 + .0006 * j, seg=seg_r, droop=.02, camber=.1, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, .042, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0034 + .0003 * j, seg=seg_r, droop=.02, camber=.1, side=1 if sx > 0 else -1, two=True)
   for k, (bt, tt) in enumerate(((.2, .25), (.5, .62), (.8, 1.0))):
     base = lerp(EL, SH, bt); tip = lerp(E_, D_, tt)
-    feder(base, tip, .044, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.015 + .0008 * k, seg=seg_r, droop=.02, camber=.12, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, .044, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0068 + .0004 * k, seg=seg_r, droop=.02, camber=.12, side=1 if sx > 0 else -1, two=True)
   # Decken: große Armdecken, Handdecken, mittlere, kleine; Daumenfittich
   segc = 2 if KR else 3
   for j in range(14 if not KR else 7):
     t = j / (13 if not KR else 6); base = lerp(WR, SH, t * .95) + Vector((0, -.006, 0)); tipr = lerp(lerp(F_, D_, t * 1.0), base, .58)
-    feder(base, tipr, .03, 'deck%d' % (j % 3), up_at(base), T_f, karten_f, layer=.022 + .0004 * j, seg=segc, droop=.0, camber=.12, side=1 if sx > 0 else -1)
+    feder(base, tipr, .03, 'deck%d' % (j % 3), up_at(base), T_f, karten_f, layer=.0085 + .0002 * j, seg=segc, droop=.0, camber=.12, side=1 if sx > 0 else -1)
   for i in range(10 if not KR else 5):
     t = i / (9 if not KR else 4); base = lerp(WR, C_, t * .8); tip = lerp(base, tips[min(9, int(t * 9))], .32)
-    feder(base, tip, .026, 'deck%d' % (i % 3), up_at(base), T_f, karten_f, layer=.02 + .0005 * (10 - i), seg=segc, droop=.0, camber=.1, side=1 if sx > 0 else -1)
+    feder(base, tip, .026, 'deck%d' % (i % 3), up_at(base), T_f, karten_f, layer=.0080 + .0002 * (10 - i), seg=segc, droop=.0, camber=.1, side=1 if sx > 0 else -1)
   if not KR:
     for j in range(10):
       t = j / 9; base = lerp(lerp(WR, A_, .3), SH, t) + Vector((0, -.012, 0)); tip = base + (lerp(F_, D_, t) - base).normalized() * .045
-      feder(base, tip, .024, 'deck%d' % ((j + 1) % 3), up_at(base), T_f, karten_f, layer=.028 + .0004 * j, seg=2, droop=0, camber=.12, side=1 if sx > 0 else -1)
+      feder(base, tip, .024, 'deck%d' % ((j + 1) % 3), up_at(base), T_f, karten_f, layer=.0110 + .0002 * j, seg=2, droop=0, camber=.12, side=1 if sx > 0 else -1)
     lead = [SH, A_, B_, C_]
     for j in range(12):
       t = j / 11 * 2.6; i0 = min(2, int(t)); p = lerp(lead[i0], lead[i0 + 1], t - i0) + Vector((0, .004, 0)); dirn = (lerp(E_, F_, j / 11) - p).normalized()
-      feder(p, p + dirn * .03, .018, 'deck%d' % (j % 3), up_at(p), T_f, karten_f, layer=.033 + .0003 * j, seg=2, droop=0, camber=.14, side=1 if sx > 0 else -1)
+      feder(p, p + dirn * .03, .018, 'deck%d' % (j % 3), up_at(p), T_f, karten_f, layer=.0128 + .0002 * j, seg=2, droop=0, camber=.14, side=1 if sx > 0 else -1)
     for k in range(3):
       p = lerp(B_, WR, .2 + .15 * k); dirn = (lerp(C_, H_, .3) - p).normalized()
-      feder(p, p + dirn * (.05 - .01 * k), .014, 'deck%d' % k, up_at(p), T_f, karten_f, layer=.036 + .0005 * k, seg=2, droop=.0, camber=.1, side=1 if sx > 0 else -1)
+      feder(p, p + dirn * (.05 - .01 * k), .014, 'deck%d' % k, up_at(p), T_f, karten_f, layer=.0136 + .0003 * k, seg=2, droop=.0, camber=.1, side=1 if sx > 0 else -1)
 for sx in (1, -1): wing(sx)
+WF = None
 
 # ---------------------------------------------------------------- Schwanz: 12 Steuerfedern (Kolkrabe keilförmig, Krähe gerade), Decken
 TB = [RB[n] for n in BN if n.startswith('CrowTail')]; tb = sum(TB, Vector()) / len(TB)
 up = Vector((0, 0, 1))
 kt = [t for t in karten_t]; ys = [P_r[i].y for t in kt for i in t]; ytip = max(ys)
+TW = []  # (Winkel der alten Karte, Knochen)
+for n in BN:
+  if not n.startswith('CrowTail'): continue
+  ps_ = [P_r[i] for i in range(len(P_r)) if dom(i) == n]
+  if not ps_: continue
+  c_ = sum(ps_, Vector()) / len(ps_) - RB[n]; TW.append((math.atan2(c_.x, c_.y), n))
+TW.sort(); print('INFO Schwanzknochen', [(round(math.degrees(a_)), n[-6:]) for a_, n in TW])
+def schw(phi, rest=0.):
+  if phi <= TW[0][0]: w = {TW[0][1]: 1.}
+  elif phi >= TW[-1][0]: w = {TW[-1][1]: 1.}
+  else:
+    k = max(i for i in range(len(TW)) if TW[i][0] <= phi); a0, n0 = TW[k]; a1, n1 = TW[k + 1]; t = (phi - a0) / ((a1 - a0) or 1); w = {n0: 1 - t}; w[n1] = w.get(n1, 0) + t
+  if rest: w = {k: x * (1 - rest) for k, x in w.items()}; w[bone('-Pelvis')] = rest
+  return norm4(w)
 Lc = ytip - tb.y - .005
 for i in range(12):
   f = (i - 5.5) / 5.5; ang = math.radians(26) * f
   L = Lc * (1 - (.04 if KR else .2) * abs(f) ** 1.3)
   base = tb + Vector((.012 * f, -.012, .004)); dirn = Vector((math.sin(ang), math.cos(ang), -.03)).normalized()
+  WF = (lambda ph: (lambda p: schw(ph)))(math.atan2(dirn.x, dirn.y))
   feder(base, base + dirn * L, .046, 'schwanz', up, T_t, karten_t, layer=.0007 * (6 - abs(i - 5.5)), seg=3 if KR else 5, droop=-.01, camber=.07, side=1 if f > 0 else -1, two=True)
 for i in range(6 if not KR else 3):
   f = (i - (2.5 if not KR else 1)) / (2.5 if not KR else 1); base = tb + Vector((.012 * f, -.03, .018)); tip = base + Vector((.02 * f, .085, -.012))
+  WF = (lambda ph: (lambda p: schw(ph, .5)))(math.atan2((tip - base).x, (tip - base).y))
   feder(base, tip, .034, 'deck%d' % (i % 3), up, T_t, karten_t, layer=.006, seg=2, droop=.05, camber=.15, side=1 if f > 0 else -1)
 for i in range(4 if not KR else 2):
   f = (i - 1.5) / 1.5 if not KR else (i - .5) / .5; base = tb + Vector((.01 * f, -.025, -.012)); tip = base + Vector((.012 * f, .07, .006))
+  WF = (lambda ph: (lambda p: schw(ph, .6)))(math.atan2((tip - base).x, (tip - base).y))
   feder(base, tip, .03, 'deck%d' % (i % 3), -up, T_t, karten_t, layer=.0, seg=2, droop=.0, camber=.1, side=-1 if f > 0 else 1)
 
+WF = None
 # ---------------------------------------------------------------- 5. Beine und Augen
 def tube(pts, radii, wts, kind, u_rng, sides, flat=1.0, fwd=Vector((0, -1, 0))):
   """Röhre entlang pts (Ringe), Querschnitt elliptisch (flat <1: flacher), UV: u entlang, v um den Umfang (0,5 = vorn)."""
@@ -237,6 +304,14 @@ def leg(sd):
   wts = [{nm('Calf'): 1}] * 2 + [W1(nm('Calf'), nm('HorseLink'), .5)] + [{nm('HorseLink'): 1}] * 3 + [W1(nm('HorseLink'), nm('Foot'), .5), {nm('Foot'): 1}]
   rad = [.0062, .0055, .0046, .0042, .0039, .0037, .0036, .0038]
   tube(pts, rad, wts, 'schuppen', (.0, .55), sides, flat=.78)
+  global WF; WF = (lambda b_: (lambda p: {b_: 1.}))(nm('Calf'))
+  # Federhose: kleine Deckfedern rund um den Unterschenkel, nach unten bis knapp über die Ferse
+  dl = (heel - knee).normalized(); fw = Vector((0, -1, 0))
+  for k in range(4 if KR else 8):
+    ang = 2 * math.pi * k / (4 if KR else 8) + .3; f0 = (fw - dl * fw.dot(dl)).normalized(); s0 = dl.cross(f0)
+    out = (f0 * math.cos(ang) + s0 * math.sin(ang)).normalized(); b0 = knee + out * .006 + dl * (-.004)
+    feder(b0, heel + out * .0075 + dl * .002, .017, 'deck%d' % (k % 3), out, None, None, layer=0., seg=2, droop=0, camber=.12, side=1)
+  WF = None
   # Zehen: drei vorn (gefächert) an der Kette Toe0→Toe01→Toe02, Hinterzehe an Toe1→Toe11→Toe12
   front = [RB[nm('Toe0')], RB[nm('Toe01')], RB[nm('Toe02')]]; back = [RB[nm('Toe1')], RB[nm('Toe11')], RB[nm('Toe12')]]
   bn_f = [nm('Toe0'), nm('Toe01'), nm('Toe02')]; bn_b = [nm('Toe1'), nm('Toe11'), nm('Toe12')]
@@ -297,6 +372,14 @@ for p in body.data.polygons:
   beak = all(BW[i].get(HEAD, 0) > .99 and body.data.vertices[i].co.y < RB[HEAD].y - .03 for i in p.vertices) or all(BW[i].get(JAW, 0) > .9 for i in p.vertices)
   reg.append([[tuple(uvd[li].uv) for li in p.loop_indices], 1 if beak else 0])
 json.dump(reg, open(W + V + '_bereiche.json', 'w'))
+# Schnabelspalt: Flächen zwischen Ober- und Unterschnabel dehnen sich beim Öffnen → als dunkles Mundinneres färben (UV auf die dunkle Ecke der Augenzelle)
+mund = uvr('auge', .03, -.97); nm_ = 0
+for p in body.data.polygons:
+  jw = [BW[i].get(JAW, 0) for i in p.vertices]
+  if max(jw) > .55 and min(jw) < .45 and all(body.data.vertices[i].co.y < RB[HEAD].y - .015 for i in p.vertices):
+    for li in p.loop_indices: uvd[li].uv = mund
+    nm_ += 1
+print('INFO Mundflächen', nm_)
 for o in (body, gb):
   for p in o.data.polygons: p.use_smooth = True
 bpy.ops.object.select_all(action='DESELECT'); body.select_set(True); gb.select_set(True); bpy.context.view_layer.objects.active = body

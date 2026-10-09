@@ -898,7 +898,7 @@ async function amt_bauVorraum(S, K) {
   S.versteck = { x0: X0 + 106.2, x1: X0 + 109.8, z0: Z0 + 5.65, z1: Z0 + 7.8 };
   [X0 + 107, X0 + 108.1].forEach((x, i) => K.amt_archivPlatz(x, 0, { ry: 0, minZ: Z0 - 7.83 }, i + 1));
   const vt = amt_put(K.kTisch, X0 + 108.9, Z0 - 5.9, { ry: PI / 2, s: .45 }); const vty = K.kTisch ? amt_top(K.kTisch, vt, X0 + 108.9, Z0 - 5.9) : .76;
-  amt_put(K.kRoehre, X0 + 108.9, Z0 - 6.2, { ry: PI / 2, y: vty }); amt_put(K.kStuhl, X0 + 108.3, Z0 - 5.3, { ry: 1.6 }); amt_put(K.kSack, X0 + 106.6, 0, { ry: .4, s: .8, minZ: Z0 - 7.8 });
+  amt_put(K.kRoehre, X0 + 108.9, Z0 - 6.2, { ry: PI + .4, y: vty }); /* QA 09.10.: crt-Bildschirm bei +x → zum Stuhl (vorher seitlich) */ amt_put(K.kStuhl, X0 + 108.3, Z0 - 5.3, { ry: 1.6 }); amt_put(K.kSack, X0 + 106.6, 0, { ry: .4, s: .8, minZ: Z0 - 7.8 });
   // Butterbrotpapier (Atempause nach AG-07), sauber gefaltet, vor dem Schrank
   const bb = amt_cv(128, 128, (x, w) => { x.clearRect(0, 0, w, w); x.fillStyle = 'rgba(236,232,214,.92)'; x.beginPath(); x.moveTo(10, 30); x.lineTo(110, 18); x.lineTo(118, 100); x.lineTo(20, 112); x.fill(); x.strokeStyle = 'rgba(160,150,120,.6)'; x.lineWidth = 2; x.beginPath(); x.moveTo(12, 70); x.lineTo(116, 60); x.stroke(); x.fillStyle = 'rgba(200,170,80,.25)'; x.beginPath(); x.arc(70, 40, 16, 0, 7); x.fill(); });
   S.butterbrot = amt_boden(amt_decal(bb), X0 + 108.3, Z0 + 4.55, .16, .16, .7); S.butterbrot.visible = false;

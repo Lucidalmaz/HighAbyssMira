@@ -67,16 +67,16 @@ def feder(L, Hh, art, seed):
   fluff = RNG.random(s.shape) ** 2
   alpha = np.where(down > 0, np.maximum(alpha * (1 - down * .7), (fluff > .55) * (rel < 1.15) * down), alpha)
   # Farbe (sRGB 0..1): fast schwarz, Äste minimal heller, Schaft am Grund grau, Daunen grau
-  lum = .055 + .018 * barb + .01 * (ns - .5) - .015 * rel
+  lum = .042 + .012 * barb + .008 * (ns - .5) - .012 * rel
   lum = lum + shaft * (.05 * (1 - s) + .012) + down * .07
   lum = np.clip(lum, .02, .3)
   rgb = np.stack([lum * .93, lum * .96, lum * 1.06], -1)
   # Normalen: Wölbung zum Rand, Äste als Rillen, Schaft als Grat
-  hgt = .6 * (1 - rel ** 2).clip(0) + .25 * barb + 1.2 * shaft
+  hgt = .6 * (1 - rel ** 2).clip(0) + .07 * barb + .8 * shaft
   gy, gx = np.gradient(hgt)
-  nx_ = -gx * 2.2; ny_ = -gy * 2.2; nz_ = np.ones_like(nx_)
+  nx_ = -gx * 1.3; ny_ = gy * 1.3; nz_ = np.ones_like(nx_)  # Äste nur als feine Rillen (zu stark = graues Glitzern)
   nl = np.sqrt(nx_ ** 2 + ny_ ** 2 + nz_ ** 2); nrm = np.stack([nx_ / nl, ny_ / nl, nz_ / nl], -1)
-  rough = np.clip(.5 - .08 * barb - .1 * shaft + .2 * down, .3, .85)
+  rough = np.clip(.76 - .06 * barb - .08 * shaft + .12 * down, .5, .92)
   ao = np.clip(.75 + .25 * (1 - rel) - .3 * down, .3, 1)
   return np.concatenate([rgb, alpha[..., None]], -1), nrm, rough, ao
 
@@ -84,10 +84,10 @@ def auge(n, hell):
   """Auge: Iris (dunkelbraun bzw. milchig für Whiskey), Pupille, feuchter Glanz kommt aus der Rauheit (0,04)."""
   y, x = np.mgrid[-1:1:n * 1j, -1:1:n * 1j]; r = np.sqrt(x * x + y * y); a = np.arctan2(y, x)
   fib = .5 + .5 * np.sin(a * 60 + noise1(n, 3, 3)[None, :] * 8)
-  if hell: iris = np.stack([.62 + .05 * fib, .63 + .05 * fib, .64 + .06 * fib], -1); pup = .2
+  if hell: iris = np.stack([.44 + .06 * fib, .46 + .06 * fib, .49 + .07 * fib], -1) * (1 - .35 * np.clip((r - .55) / .35, 0, 1))[..., None]; pup = .09  # Whiskey: milchig-graues Auge (Story: „fast weiß“), nicht kreideweiß
   else: iris = np.stack([.09 + .03 * fib, .055 + .02 * fib, .035 + .012 * fib], -1); pup = .015
   rgb = np.where((r < .32)[..., None], pup, iris)
-  rgb = np.where((r > .92)[..., None], .03, rgb)
+  rgb = np.where((r > .86)[..., None], .025, rgb)
   if hell: rgb = rgb * (1 - .25 * np.clip((r - .5) / .4, 0, 1))[..., None]
   nrm = np.zeros(r.shape + (3,)); nrm[..., 2] = 1
   return np.concatenate([np.clip(rgb, 0, 1), np.ones(r.shape + (1,))], -1), nrm, np.full(r.shape, .04), np.ones(r.shape)
@@ -106,7 +106,7 @@ def schuppen(L, Hh):
   lum = (.085 - .04 * rill + .01 * np.sin(u * 40)) * (1 - claw) + .03 * claw
   rgb = np.stack([lum, lum * .99, lum * 1.03], -1)
   hgt = (1 - rill) * .8 * (1 - claw) + claw * .9
-  gy, gx = np.gradient(hgt); nx_, ny_ = -gx * 3, -gy * 3; nz_ = np.ones_like(nx_); nl = np.sqrt(nx_ ** 2 + ny_ ** 2 + 1)
+  gy, gx = np.gradient(hgt); nx_, ny_ = -gx * 3, gy * 3; nz_ = np.ones_like(nx_); nl = np.sqrt(nx_ ** 2 + ny_ ** 2 + 1)
   nrm = np.stack([nx_ / nl, ny_ / nl, nz_ / nl], -1)
   rough = (.5 + .15 * rill) * (1 - claw) + .28 * claw
   ao = 1 - .35 * rill * (1 - claw)

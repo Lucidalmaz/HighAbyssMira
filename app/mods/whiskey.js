@@ -97,7 +97,7 @@ function whiskey_perch(x, z) {
 function whiskey_play(k, fade = .25, once = false, ts = 1) { const S = whiskey_S, a = S.A[k]; if (!a) return; a.timeScale = ts; if (a === S.cur) return; a.reset();
   if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else { a.setLoop(THREE.LoopRepeat, Infinity); if (/^Idle|^Eat/.test(k)) { a.time = Math.random() * a.getClip().duration; a.timeScale = ts * rand(.88, 1.12); } } a.fadeIn(fade).play(); if (S.cur) S.cur.fadeOut(fade); S.cur = a; } // Q-1: keine identischen Schleifen
 function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood === 'still' || S.tired || whiskey_stumm()) return; Audio.play(Math.random() < .75 ? 'crow1' : 'crow2', { gain: o.gain ?? .7, rate: .78, vary: .06, obj: g, doppler: true, ref: 5 });
-  whiskey_schnabel(.34, .5); if (S.mode === 'perch' && S.A.Caw && !S.turn && Math.random() < .6) { whiskey_play('Caw', .12, true, rand(.95, 1.1)); S.idleT = Math.max(S.idleT, 1.8); } } // 08.10.: Schnabel auf beim Ruf, im Sitzen Verbeugung (Clip „Caw“)
+  whiskey_schnabel(.34, .38); if (S.mode === 'perch' && S.A.Caw && !S.turn && Math.random() < .6) { whiskey_play('Caw', .12, true, rand(.95, 1.1)); S.idleT = Math.max(S.idleT, 1.8); } } // 08.10.: Schnabel auf beim Ruf, im Sitzen Verbeugung (Clip „Caw“)
 // Schnabel auf/zu (Krächzen, Nachahmungen, Traumstimme): Kieferknochen nach dem Mixer um die im Modell hinterlegte Achse drehen (whiskey_kiefer, je Bild einmal nach mx.update)
 const whiskey_qj = new THREE.Quaternion();
 function whiskey_schnabel(dauer = .3, weit = .45, nach = 0) { const S = whiskey_S; if (!S.jawAx) return; (S.kQ = S.kQ || []).push({ t: -nach, d: dauer, w: weit }); if (S.kQ.length > 48) S.kQ.shift(); }

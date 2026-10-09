@@ -79,7 +79,7 @@ WORLD_MODS.push(['Geheimnisse', async () => {
     GEHEIM_TOTEMS.forEach(([x, z], i) => {
       const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
       if (ueTotem) g.add(ueTotem.clone(true));
-      else { const p = msGround(msFit(pole.clone(true), 1.9, 'y')); g.add(p); const b = msGround(msFit(bear.clone(true), .34, 'max')); b.position.set(0, 1.18, .07); b.rotation.x = -.25; g.add(b);
+      else { const pc = pole.clone(true); pc.rotation.x = -PI / 2; const p = msGround(msFit(pc, 1.9, 'y')); // QA 09.10.: „pole_old“ liegt im Modell (4,7 m entlang z) – aufrichten, sonst 50 m langer Balken am Boden g.add(p); const b = msGround(msFit(bear.clone(true), .34, 'max')); b.position.set(0, 1.18, .07); b.rotation.x = -.25; g.add(b);
         for (let k = 0; k < 3; k++) { const cc = msGround(msFit(cs.clone(true), .16, 'y')); cc.position.set(Math.cos(k * 2.1) * .35, 0, Math.sin(k * 2.1) * .35); g.add(cc); } }
       try { geheimnisse_gestell(g, wood); } catch (e) { console.warn('Geheimnisse: Gestell', e); }
       g.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.userData.noCol = true;

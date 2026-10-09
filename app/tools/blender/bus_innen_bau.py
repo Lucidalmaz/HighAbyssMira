@@ -67,12 +67,12 @@ for x in HX:
   row = []
   for y in HY:
     p, nn = hit(G(x, y, -1.6), G(0, 0, -1))
-    if p is None: p = G(x, y, -2.42)
+    if p is None or -p.y > -2.2: p = G(x, y, -9.)  # kein Treffer an der Hecktür (Ecke/Dachrundung): später entfernen
     row.append(p + G(0, 0, .03))
   HP.append(row)
-HP = smooth_grid(HP, 2)
+HP = smooth_grid(HP, 0)
 bm = grid(HP); bm.normal_update()
-win = [f for f in bm.faces if all(abs(v.co.x) < .675 and 1.30 < v.co.z < 1.82 for v in f.verts)]
+win = [f for f in bm.faces if all(abs(v.co.x) < .675 and 1.30 < v.co.z < 1.82 for v in f.verts) or any(v.co.y > 5 for v in f.verts)]
 bmesh.ops.delete(bm, geom=win, context='FACES'); bm.faces.ensure_lookup_table()
 if bm.faces[0].normal.y > 0: bmesh.ops.reverse_faces(bm, faces=bm.faces)
 heck = obj_bm(bm, 'heckwand')
@@ -156,7 +156,7 @@ for i in range(9):
   row = []
   for j in range(7):
     x = -.62 + .34 * j / 6; z = -2.0 + .42 * i / 8; p, _ = hit(G(x, 1.4, z), G(0, 1, 0)); y = (p.z if p else 1.9) - .04
-    sag = .22 * (i / 8) ** 1.6 * (.6 + .4 * math.sin(j * .9)); row.append(G(x - sag * .15, y - sag, z + sag * .2))
+    sag = .22 * (i / 8) ** 1.6 * (.6 + .4 * math.sin(j * .9)); wr = .018 * math.sin(j * 2.6 + i * .7) * (i / 8); row.append(G(x - sag * .15 + wr, y - sag + wr * .5, z + sag * .2))
   lp.append(row)
 bm = grid(lp); bm.normal_update(); bm.faces.ensure_lookup_table()
 if bm.faces[0].normal.z > 0: bmesh.ops.reverse_faces(bm, faces=bm.faces)
@@ -192,7 +192,7 @@ dash.append(box(.18, .02, .05, loc=G(.0, 1.02, 1.572), rot=(math.radians(12), 0,
 for vx in (-.75, -.22, .22, .75): dash.append(box(.12, .015, .04, loc=G(vx, 1.15, 1.575), rot=(math.radians(12), 0, 0), bev=.006, seg=1, name='schlitz'))  # Düsen
 # Lenkrad: Kranz, zwei Speichen, Nabe, Säule, Schalthebel
 LC = G(.45, 1.08, 1.33); ax = G(0, .64, -.77).normalized()  # Radachse (zum Fahrer geneigt)
-side = G(1, 0, 0); up = ax.cross(side).normalized()
+side = G(1, 0, 0); up = side.cross(ax).normalized()
 kranz = [LC + (side * math.cos(t) + up * math.sin(t)) * .2 for t in [i / 40 * 2 * math.pi for i in range(40)]]
 lenk = [obj_bm(tube(kranz, .015, 10, ups=[ax] * 40, closed=True), 'lenkrad')]
 for t in (math.radians(200), math.radians(-20)):
@@ -228,26 +228,26 @@ def wand_m(nb):  # Hartfaser mit Kunststoff-Folie (grau-beige), Plattenstöße m
   P = nb.coord('Object'); x, y, z = nb.sep(P)
   seam = nb.mr(nb.math('ABSOLUTE', nb.math('SUBTRACT', nb.math('FRACT', nb.math('DIVIDE', nb.math('ADD', y, 2.3), .6)), .5)), .47, .485, 0, 1)
   scr = nb.math('MULTIPLY', nb.mr(nb.math('FRACT', nb.math('DIVIDE', nb.math('ADD', y, 2.3), .6)), .02, .03, 1, 0), nb.mr(nb.math('ABSOLUTE', nb.math('SUBTRACT', nb.math('FRACT', nb.math('DIVIDE', z, .3)), .5)), .44, .46, 0, 1))
-  grain = nb.noise(P, 400, 3, .6); base = nb.mix(nb.mr(grain, .3, .7), (.30, .285, .255), (.36, .345, .31))
+  grain = nb.noise(P, 400, 3, .6); base = nb.mix(nb.mr(grain, .2, .8), (.175, .165, .145), (.195, .185, .16))
   hgt = nb.mr(z, .58, 1.86, 0, 1); low = nb.mr(z, .58, .9, 1, 0)
   streak = nb.math('MULTIPLY', nb.mr(nb.noise(nb.vec(P, scale=(2, 2, .08)), 20, 4, .7), .55, .7, 0, 1), nb.mr(z, 1.9, 1.0, 1, .1))
-  col = nb.mix(nb.math('MULTIPLY', streak, .7), base, (.16, .13, .09), 'MULTIPLY')
+  col = nb.mix(nb.math('MULTIPLY', streak, .8), base, (.3, .24, .16), 'MULTIPLY')
   col = nb.mix(nb.math('MULTIPLY', low, nb.mr(nb.noise(P, 8, 4), .3, .7, .3, .9)), col, (.09, .075, .055))
-  col = nb.mix(nb.mr(nb.noise(nb.vec(P, scale=(1, 1, 18), rot=(0, .2, 0)), 90, 2), .63, .67, 0, .6), col, (.5, .48, .44))
-  col = nb.mix(seam, col, (.42, .43, .44)); col = nb.mix(scr, col, (.05, .05, .05))
-  mold = nb.math('MULTIPLY', nb.mr(nb.vor(P, 90), 0, .25, 1, 0), nb.mr(nb.noise(P, 5, 3), .55, .62))
-  col = nb.mix(mold, col, (.04, .05, .035))
+  col = nb.mix(nb.mr(nb.noise(nb.vec(P, scale=(1, 1, 18), rot=(0, .2, 0)), 60, 2), .71, .74, 0, .3), col, (.3, .29, .27))
+  col = nb.mix(seam, col, (.26, .265, .27)); col = nb.mix(scr, col, (.05, .05, .05))
+  mold = nb.math('MULTIPLY', nb.mr(nb.vor(P, 70), 0, .14, 1, 0), nb.mr(nb.noise(P, 5, 3), .6, .66))
+  col = nb.mix(nb.math('MULTIPLY', mold, .7), col, (.05, .06, .04))
   return dict(col=col, rough=nb.mix(seam, nb.mr(grain, 0, 1, .55, .75), .35, kind='FLOAT'), metal=nb.math('MULTIPLY', seam, .9), height=nb.math('ADD', nb.math('MULTIPLY', seam, 1.5), nb.math('MULTIPLY', grain, .1)), hs=.6, hd=.002)
 def himmel_m(nb):  # perforierter Kunstleder-Himmel, vergilbt, Wasserränder
   P = nb.coord('Object'); x, y, z = nb.sep(P)
   perf = nb.mr(nb.vor(nb.vec(P, scale=(1, 1, 1)), 160, rand=0.), .0, .12, 1, 0); grain = nb.noise(P, 300, 2)
-  col = nb.mix(nb.mr(grain, .3, .7), (.40, .385, .345), (.46, .445, .40)); col = nb.mix(nb.math('MULTIPLY', perf, .6), col, (.15, .14, .12))
-  st = nb.noise(nb.vec(P, loc=(2, 1, 0)), 3, 4, .6); col = nb.mix(nb.mr(st, .55, .57, 0, .7), col, (.22, .17, .1)); col = nb.mix(nb.mr(st, .57, .75, 0, .45), col, (.33, .27, .17))
+  col = nb.mix(nb.mr(grain, .3, .7), (.25, .235, .2), (.29, .275, .24)); col = nb.mix(nb.math('MULTIPLY', perf, .6), col, (.1, .09, .075))
+  st = nb.noise(nb.vec(P, loc=(2, 1, 0)), 3, 4, .6); ring = nb.math('MULTIPLY', nb.mr(st, .55, .565, 0, 1), nb.mr(st, .565, .59, 1, 0)); col = nb.mix(nb.math('MULTIPLY', ring, .3), col, (.16, .12, .07)); col = nb.mix(nb.mr(st, .57, .8, 0, .3), col, (.27, .22, .14))
   col = nb.mix(nb.math('MULTIPLY', nb.mr(nb.vor(P, 70), 0, .2, 1, 0), nb.mr(nb.noise(P, 4, 3), .6, .66)), col, (.03, .035, .025))
   return dict(col=col, rough=.8, metal=0., height=nb.math('ADD', nb.math('MULTIPLY', perf, -1), nb.math('MULTIPLY', grain, .2)), hs=.4, hd=.0015)
 def lack_m(nb, base=(.10, .11, .12)):  # lackiertes Blech mit Rost an Kanten
   P = nb.coord('Object'); pt = nb.mr(nb.geo('Pointiness'), .5, .58, 0, 1); n = nb.noise(P, 18, 5, .65)
-  rust = nb.math('MAXIMUM', nb.math('MULTIPLY', pt, nb.mr(n, .35, .6)), nb.mr(n, .68, .72))
+  rust = nb.math('MAXIMUM', nb.math('MULTIPLY', nb.mr(nb.geo('Pointiness'), .55, .62, 0, 1), nb.mr(n, .5, .65, 0, .7)), nb.mr(n, .74, .78))
   rc = nb.mix(nb.noise(P, 120, 3), (.16, .06, .02), (.32, .14, .05)); col = nb.mix(nb.mr(nb.noise(P, 200, 2), .3, .7), base, nb.hsv(base, .5, 1, 1.3)); col = nb.mix(rust, col, rc)
   nz = nb.sep(nb.geo('Normal'))[2]; col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .4, 1), nb.mr(nb.noise(P, 30, 3), .3, .7, .1, .55)), col, (.2, .18, .15))
   return dict(col=col, rough=nb.mix(rust, .45, .85, kind='FLOAT'), metal=nb.mix(rust, .25, 0., kind='FLOAT'), height=nb.math('MULTIPLY', rust, .6), hs=.4, hd=.0015)
@@ -263,9 +263,9 @@ def chrom_m(nb):
   return dict(col=col, rough=nb.mix(nb.mr(n, .45, .7), .18, .55, kind='FLOAT'), metal=nb.mix(pit, 1., .4, kind='FLOAT'), height=pit, hs=.3, hd=.0006)
 def vinyl_m(nb, base=(.045, .04, .035)):  # genarbtes Kunstleder (Sitze, Armaturenbrett) mit Rissen, Ausbleichen, Schaumstoff in Rissen
   P = nb.coord('Object'); grain = nb.vor(P, 900); crack = nb.mr(nb.vor(nb.vec(P, scale=(1, 1, 1)), 22, 'Distance', 'DISTANCE_TO_EDGE'), .0, .006, 1, 0)
-  cm = nb.math('MULTIPLY', crack, nb.mr(nb.noise(P, 6, 3), .5, .62)); nz = nb.sep(nb.geo('Normal'))[2]
-  col = nb.mix(nb.mr(grain, 0, .5), base, nb.hsv(base, .5, 1, 1.5)); col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .2, 1), .5), col, nb.hsv(base, .5, .5, 2.4))
-  col = nb.mix(cm, col, (.48, .38, .2)); col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .3, 1), nb.mr(nb.noise(P, 40, 4), .35, .7, .05, .5)), col, (.25, .22, .18))
+  cm = nb.math('MULTIPLY', crack, nb.mr(nb.noise(P, 6, 3), .56, .66)); nz = nb.sep(nb.geo('Normal'))[2]
+  col = nb.mix(nb.mr(grain, 0, .5), base, nb.hsv(base, .5, 1, 1.4)); col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .2, 1), .35), col, nb.hsv(base, .5, .6, 1.8))
+  col = nb.mix(nb.math('MULTIPLY', cm, .8), col, (.36, .28, .14)); col = nb.mix(nb.math('MULTIPLY', nb.mr(nz, .45, 1), nb.mr(nb.noise(P, 40, 4), .4, .75, .02, .22)), col, (.2, .18, .14))
   return dict(col=col, rough=nb.mix(cm, nb.mr(grain, 0, .5, .45, .6), .9, kind='FLOAT'), metal=0., height=nb.math('SUBTRACT', nb.math('MULTIPLY', grain, .3), nb.math('MULTIPLY', cm, 1.2)), hs=.4, hd=.0012)
 def kunst_m(nb, base=(.03, .03, .032)):
   P = nb.coord('Object'); g = nb.noise(P, 800, 2); pt = nb.mr(nb.geo('Pointiness'), .5, .56, 0, 1); nz = nb.sep(nb.geo('Normal'))[2]
@@ -279,7 +279,7 @@ def ziffer_m(nb):  # Zifferblatt: schwarz, weiße Striche im Kreis (keine Ziffer
   col = nb.mix(nb.math('MULTIPLY', tick, .8), (.02, .02, .02), (.65, .62, .5)); col = nb.mix(nb.mr(nb.noise(P, 60, 3), .5, .7, 0, .5), col, (.2, .19, .17))
   return dict(col=col, rough=.35, metal=0.)
 def opal_m(nb):
-  P = nb.coord('Object'); col = nb.mix(nb.mr(nb.noise(P, 20, 4), .4, .7), (.62, .6, .52), (.5, .45, .32))
+  P = nb.coord('Object'); col = nb.mix(nb.mr(nb.noise(P, 20, 4), .4, .7), (.42, .4, .34), (.33, .29, .2))
   col = nb.mix(nb.math('MULTIPLY', nb.mr(nb.vor(P, 40), 0, .06, 1, 0), nb.mr(nb.noise(P, 8, 2), .5, .6)), col, (.03, .03, .02))
   return dict(col=col, rough=.45, metal=0.)
 def gurt_m(nb):
@@ -291,7 +291,7 @@ def stahl_m(nb): return lack_m(nb, (.06, .065, .07))
 def haube_m(nb): return vinyl_m(nb, (.05, .045, .04))
 MATS = {'boden': material('gummi', gummi_m), 'verkleidung': material('wand', wand_m), 'heckwand': material('wand2', wand_m), 'tuer': material('tuer', lambda nb: vinyl_m(nb, (.13, .12, .105))),
         'himmel': material('himmel', himmel_m), 'radkasten': material('radkasten', lambda nb: lack_m(nb, (.07, .075, .08))), 'stahl': material('stahl', stahl_m), 'alu': material('alu', alu_m),
-        'chrom': material('chrom', chrom_m), 'polster': material('polster', lambda nb: vinyl_m(nb, (.06, .052, .045))), 'armatur': material('armatur', lambda nb: vinyl_m(nb, (.035, .033, .032))),
+        'chrom': material('chrom', chrom_m), 'polster': material('polster', lambda nb: vinyl_m(nb, (.038, .032, .027))), 'armatur': material('armatur', lambda nb: vinyl_m(nb, (.035, .033, .032))),
         'kunststoff': material('kunststoff', kunst_m), 'ziffer': material('ziffer', ziffer_m), 'opal': material('opal', opal_m), 'gurt': material('gurt', gurt_m), 'knopf': material('knopf', rot_m),
         'blech': material('blech', blech_m), 'schlitz': material('schlitz', lambda nb: kunst_m(nb, (.01, .01, .01))), 'lenkrad': material('lenkrad', lambda nb: kunst_m(nb, (.022, .02, .02))),
         'gummi': material('fgummi', lambda nb: kunst_m(nb, (.012, .012, .012)))}
