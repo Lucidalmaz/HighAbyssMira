@@ -473,7 +473,7 @@ WORLD_MODS.push(['Amt Ebene −2', async () => {
   const S = amt_S, X0 = C2.x, Z0 = C2.z, H = C2.h;
   try { await document.fonts.load('40px Caveat'); await document.fonts.load('30px "Special Elite"'); } catch (e) {}
   const surf = (key, tint, tile = 2, nrm = 1) => { const m = msSurfMat(key, { tint, nrm }); m.userData.tile = tile; return m; };
-  const putz = surf('wall_plaster', 0xb1a996, 2), sockel = surf('wall_damaged', 0x6c786a, 2.4, .8), boden = surf('floor_worn', 0x80786a, 2.2), decke = surf('facade_concrete', 0x5f5c56, 2.5);
+  const putz = surf('wall_plaster', 0xb1a996, 1.1, .5), sockel = surf('wall_damaged', 0x6c786a, 1.3, .5), boden = surf('floor_worn', 0x80786a, 2.2), decke = surf('facade_concrete', 0x5f5c56, 2.5); // QA M-7: Putz/Sockel Kachel halbiert, Normalstärke .5 (vorher 2 m / 1 bzw. .8: grobe Schlieren im Lampenkegel)
   const linie = new THREE.MeshStandardMaterial({ color: 0x28302a, roughness: .6 }); boden.roughness = 1;
   const batch = new Batch();
   const face = (mat, x, y, z, w, h, ry, tile = 2, u0 = 0) => { const g = new THREE.PlaneGeometry(w, h), uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) * w + u0) / tile, (uv.getY(i) * h + y - h / 2) / tile); batch.add(g, mat, mtx(x, y, z, ry)); };

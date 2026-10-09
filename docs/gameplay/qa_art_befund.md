@@ -82,3 +82,12 @@ Prüfung: `node --check` für alle acht Dateien bestanden, `assemble.js` hat geb
 
 ## Für den Bildlauf (sobald ein Fenster frei ist)
 Schritte je Ort mit Totale, Nahblick (Lampe an) und Seitenblick. Vorrang haben die Orte ohne Bild: Nr. 9, Anwesen, Zimmer 7, Kanal/Atlantschiss, Hütten, Bus/Wrack. Danach die Wiederholung der umgesetzten Stellen U-1 bis U-7 (Kellerwand total und nah; Spinnenraum total; Nr. 7 Wohnzimmerecke; Tankstelle total und Kiosk-Band nah; Kiffen-Plakate).
+
+## Stand Kunst-Restpunkte (09.10., Zweig kunst-restpunkte, nur Blender-Vorschau, nicht im Spiel gesehen)
+| Nr. | Stand | Was geändert wurde | Im Spiel zu prüfen |
+|---|---|---|---|
+| M-6 | Notlösung erledigt | `innen_kapitel.js`: Aktenschränke und Schublade im Archiv mit `lackMat` (neue Textur `ms/lack_grau/b.jpg`, aus `rust_sheet` aufgehellt, Normalstärke .1) statt Wellblech `steelMat`. Die Ersetzung durch `ms/aktenschrank/*.glb` ist nicht gemacht (Klickfläche der Schublade hängt am Korpus; ohne Spiellauf zu riskant) | Archiv ohne senkrechte Rippen und Wellenspiegelung, Lack grau-grün, Schublade klickbar |
+| M-7 | erledigt (ohne Sockelleiste) | `amt.js` Z. 476: Putz-Kachel 2 m auf 1,1 m, Sockel 2,4 auf 1,3 m, Normalstärke Putz 1 auf 0,5, Sockel 0,8 auf 0,5 | Lampenkegel an den Amt-Wänden ohne 1-m-Schlieren; Putz nicht zu körnig |
+| M-14 | erledigt | Zwei neue Blender-Modelle `ms/kuehlschrank_nr7` (0,8×2,0×0,9 m) und `ms/kuehlschrank_alt` (0,62×1,52×0,62 m), Skript `app/tools/blender/kuehlschrank_bau.py`; eingebunden in `innen_ort.js` (Nr. 7, ersetzt Box und alten Griff) und `kirchberg.js` (Giselas Küche, Box bleibt unsichtbar als Kollision) | Ausrichtung (Front zum Raum), Griffseite, Dosenturm bündig auf 1,52 m, Grime-Decal nicht im Korpus |
+| M-15 | Schild erledigt | `ms/schild_pruefraum` (Blender: Emaille, Schrift als Geometrie), `app/tools/blender/schild_bau.py`; `innen_kapitel.js` setzt es statt der Canvas-Fläche, `pc()` läuft jetzt über `echt_an` (Fluchtplan, Tafel, Zettel) | Schild an der Tür von Prüfraum 3 (x = XA+35,84) mit der Front zum Gang, Fluchtplan-Text lesbar |
+| M-9, M-10, M-11, M-12, M-13 | offen | brauchen Spiellauf zum Prüfen (Platzierung, Kollision) oder Downloads (M-10 Buntglas, M-13 Blechschilder) | siehe `download_kandidaten.md` |

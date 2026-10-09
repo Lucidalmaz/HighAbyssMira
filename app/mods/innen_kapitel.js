@@ -69,8 +69,10 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
   // ------------------------------------------------------------------ Materialien
   const T = (p, srgb, rep) => msTex(p, srgb, rep);
   const steelMat = (tint, nrm = .35, metal = .12) => { const m = new THREE.MeshStandardMaterial({ map: T('corrugated/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('corrugated/orm.jpg'), color: tint, metalness: metal, roughness: 1 }); m.normalScale.set(nrm, nrm); return m; };
+  // QA M-6 (Notlösung): glatter, abgenutzter Lack für die Aktenschränke (Albedo aus rust_sheet aufgehellt, ms/lack_grau) statt Wellblech mit senkrechten Rippen
+  const lackMat = (tint, nrm = .1, metal = .1) => { const m = new THREE.MeshStandardMaterial({ map: T('lack_grau/b.jpg', true), normalMap: T('rust_sheet/n.jpg'), roughnessMap: T('rust_sheet/orm.jpg'), color: tint, metalness: metal, roughness: .85 }); m.normalScale.set(nrm, nrm); return m; };
   const rustMat = msSurfMat('rust_sheet', { tint: 0xd8cfc6 });
-  const cabinetMat = steelMat(0xa2a898), cabinetDark = steelMat(0x4a4e48, .2, .1), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
+  const cabinetMat = lackMat(0xc8cdc0), cabinetDark = lackMat(0x5a5e56, .08), panelMat = steelMat(0xb0b4aa, .25, .15), machineMat = steelMat(0x7f877b, .3, .15);
   const decal = (key, tint, rough) => { const m = msSurfMat(key, { alpha: true, tint }); if (rough !== undefined) { m.roughnessMap = null; m.roughness = rough; } return m; };
   const bloodFresh = decal('blood_s2', 0xb8a4a4, .12), bloodDrops = decal('blood_s1', 0xb09a9a, .2), bloodSmear = decal('blood_hv', 0xa08888, .35);
   const bloodOld = decal('blood_s1', 0x6a4a40, .8), bloodOldS = decal('blood_s2', 0x5a3c34, .75);
@@ -174,7 +176,7 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     const cabs = find((o, c, s) => o.material === M.metal && c.x > 618 && c.x < 630 && Math.abs(s.y - 2.2) < .05 && Math.abs(s.x - 1) < .05);
     cabs.forEach(o => retex(o, cabinetMat, 1.1));
     find((o, c, s) => o.material === M.dark && c.x > 618 && c.x < 630 && s.y < .05).forEach(o => retex(o, cabinetDark, 1));
-    retex(archiveDrawer, steelMat(0x8f968a), 1.1);
+    retex(archiveDrawer, lackMat(0xb4bba8), 1.1);
     // Griffe, Namensschilder, Griffmulden (Instanzen); die unterste Schublade des ersten Schranks trägt ihre eigenen
     const hGeo = new THREE.BoxGeometry(.16, .025, .035), lGeo = new THREE.PlaneGeometry(.11, .05), gGeo = new THREE.BoxGeometry(.9, .02, .012);
     const handleMat = new THREE.MeshStandardMaterial({ color: 0x9a9a92, metalness: .9, roughness: .35 }), labelMat = new THREE.MeshStandardMaterial({ map: tex(cnv(128, (x, w) => { x.fillStyle = '#d8d0b8'; x.fillRect(0, 0, w, w); x.fillStyle = '#333'; for (let i = 0; i < 3; i++) x.fillRect(12, 30 + i * 30, rand(50, 100), 10); }), true), roughness: .9 });
@@ -245,11 +247,14 @@ WORLD_MODS.push(['Innenräume Kapitel 2 und 3', async () => {
     web(XA + 40.5, .55, ZA - 4.55, 0, .55); web(XA + 42.4, .5, ZA - 4.6, 0, .5);
     flat(soot, XA + 41, ZA, 4.5, 3.5, .3, .012); flat(bloodOldS, XA + 41.2, ZA - 3.2, .9, 1.5, 1.5, .014);
     // Peters Zelle (W2-P5, PK-D K2-4): Türschilder, tausendfach „ICH WEISS ES JETZT“, Strichliste seit 1992, Tafel (erst nach dem Schwarm lesbar), Fluchtplan
-    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); return c; };
+    { const rs0 = rs, pc = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; echt_an(() => fn(c.getContext('2d'), w, h)); return c; }; // QA M-15: Schrift über echt_an (Druck-/Papierwirkung wie überall)
       const dMat = (c, r = .9, m = 0) => new THREE.MeshStandardMaterial({ map: tex(c, true), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, roughness: r, metalness: m });
       const grime = (x, w, h, n, a) => { for (let i = 0; i < n; i++) { const g = x.createRadialGradient(R(0, w), R(0, h), 0, R(0, w), R(0, h), R(10, 70)); g.addColorStop(0, `rgba(60,44,28,${R(a * .4, a)})`); g.addColorStop(1, 'rgba(60,44,28,0)'); x.fillStyle = g; x.fillRect(0, 0, w, h); } };
       // Emailleschild (alt, abgeplatzt) und darunter ein jüngeres Schild, getippt, mit Klebeband
-      onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
+      // QA M-15: Emailleschild als Blender-Modell (ms/schild_pruefraum, Schrift als Geometrie); die Canvas-Fassung bleibt nur als Notfall, falls das Modell fehlt
+      const pruefSchild = await msModel('schild_pruefraum', 'model.glb').then(m => m.clone(true)).catch(() => null);
+      if (pruefSchild) { pruefSchild.position.set(XA + 35.84, 1.86, ZA - 1.38); pruefSchild.rotation.y = -Math.PI / 2; pruefSchild.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; } }); scene.add(pruefSchild); }
+      else onWall(dMat(pc(512, 160, (x, w, h) => { x.fillStyle = '#ddd6c4'; x.fillRect(0, 0, w, h); x.strokeStyle = '#2a2d2c'; x.lineWidth = 7; x.strokeRect(12, 12, w - 24, h - 24);
         x.fillStyle = '#232625'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('PRÜFRAUM 3', w / 2, 84); x.font = '25px Arial'; x.fillText('Unterscheidung Original / Rückläufer', w / 2, 126);
         for (let i = 0; i < 16; i++) { const px = R(0, w), py = i < 6 ? (i % 2 ? R(0, 16) : R(h - 16, h)) : R(0, h), r = R(3, 11); x.fillStyle = '#1b1a18'; x.beginPath(); x.ellipse(px, py, r, r * R(.6, 1), R(0, 3), 0, 7); x.fill(); x.fillStyle = 'rgba(120,70,30,.5)'; x.beginPath(); x.arc(px + R(-2, 2), py + r, r * .8, 0, 7); x.fill(); }
         grime(x, w, h, 10, .22); }), .4, .15), XA + 35.842, 1.86, ZA - 1.38, .5, .156, -Math.PI / 2);

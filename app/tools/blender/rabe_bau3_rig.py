@@ -141,6 +141,7 @@ def flaeche(tree, p):  # Höhe/Normale der alten Karte unter p
   loc, nrm, fi, d = tree.find_nearest(p); return loc, nrm
 import random
 RND = random.Random(17 if not KR else 23)
+LAY = 1.  # Höhenstaffel der Federlagen (Flügel: größer, damit die Federn sichtbar übereinander liegen)
 WF = None  # Gewichtsfunktion der gebauten Federn (Flügelkoordinaten bzw. Schwanzwinkel) – ohne: aus den alten Karten
 def _flach(v): return Vector((v.x, v.y, 0))
 def _seg(p, a_, b_):
@@ -179,7 +180,7 @@ def feder(base, tip, width, kind, up, tree, tris, layer, seg=6, across=3, droop=
   d = tip - base; L = d.length; dn = d / L
   lat = dn.cross(up).normalized() * side  # zeigt zur Außenfahne
   grid, uvs, wts = [], [], []
-  roll = RND.uniform(-.13, .13); dr = RND.uniform(.7, 1.3)  # jede Feder etwas anders gedreht/gebogen (sonst wirkt der Flügel wie eine glatte Platte)
+  roll = RND.uniform(-.15, .15); dr = RND.uniform(.7, 1.3)  # jede Feder etwas anders gedreht/gebogen (sonst wirkt der Flügel wie eine glatte Platte)
   for i in range(seg + 1):
     s = i / seg; row, ruv, rw = [], [], []
     tw = Matrix.Rotation(twist * s + roll * s, 3, dn)
@@ -187,7 +188,7 @@ def feder(base, tip, width, kind, up, tree, tris, layer, seg=6, across=3, droop=
       t = -1 + 2 * j / (across - 1)
       off = (lat * (-t) * width / 2)  # t=-1 → Außenfahne (lat)
       off = tw @ off
-      h = up * (layer + lift * (1 - s) + camber * width * (1 - t * t) - droop * dr * L * s * s)
+      h = up * (layer * LAY + lift * (1 - s) + camber * width * (1 - t * t) - droop * dr * L * s * s)
       p = base + dn * (L * s) + off + h
       row.append(p); ruv.append(uvr(kind, s, t))
       rw.append(WF(p - h) if WF else norm4(mix(P_r, tris, tree, p - h)))
@@ -199,7 +200,7 @@ def feder(base, tip, width, kind, up, tree, tris, layer, seg=6, across=3, droop=
 # ---------------------------------------------------------------- 4. Flügel (links gebaut, rechts gespiegelt durch eigene Gewichte)
 def lerp(a_, b_, t): return a_ + (b_ - a_) * t
 def wing(sx):
-  global WF; WF = flgw(sx)
+  global WF, LAY; WF = flgw(sx); LAY = 2.0
   def B(n):
     q = RB[n.replace('Left', 'Right').replace('-L-', '-R-')] if sx < 0 else RB[n]; return q
   SH, EL, WR = B('CROW_-L-UpperArm'), B('CROW_-L-Forearm'), B('CROW_-L-Hand')
@@ -207,20 +208,20 @@ def wing(sx):
   D_, E_, F_, G_, H_ = B('WingLeftD'), B('WingLeftE'), B('WingLeftF'), B('WingLeftG'), B('WingLeftH')
   def up_at(p):
     loc, n = flaeche(T_f, p); n = n if n.z > 0 else -n; return n.normalized()
-  seg_r = 3 if KR else 6; acr = 3
+  seg_r = 4 if KR else 8; acr = 3
   # Handschwingen P1..P10 (P10 außen): proximale liegen oben
   tips = [lerp(F_, G_, .25), lerp(F_, G_, .45), lerp(F_, G_, .65), lerp(F_, G_, .85), lerp(G_, H_, .2), lerp(G_, H_, .45), lerp(G_, H_, .72), H_, lerp(H_, C_, .14), lerp(H_, C_, .3)]
   for i in range(10):
     base = lerp(WR, C_, i / 9 * .92) + (C_ - WR).normalized() * 0 ; tip = tips[i]
     up = up_at(lerp(base, tip, .4)); w = (.036 if i < 6 else .032) * (1 - .1 * (i > 7))
-    feder(base, tip, w, 'hand', up, T_f, karten_f, layer=.0003 * (10 - i), seg=seg_r, droop=.035, camber=.08, twist=math.radians(-6 * i / 9) * sx, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, w, 'hand', up, T_f, karten_f, layer=.0003 * (10 - i), seg=seg_r, droop=.03 - .12 * i / 9, camber=.13, twist=math.radians(-9 * i / 9) * sx, side=1 if sx > 0 else -1, two=True)
   # Armschwingen S1..S11 (S1 am Handgelenk) + 3 Schirmfedern
   for j in range(11):
     base = lerp(WR, EL, j / 10); tip = lerp(F_, E_, j / 10) + Vector((0, .006 * math.sin(j), 0))
-    feder(base, tip, .042, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0034 + .0003 * j, seg=seg_r, droop=.02, camber=.1, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, .042, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0034 + .0003 * j, seg=seg_r, droop=.045, camber=.14, side=1 if sx > 0 else -1, two=True)
   for k, (bt, tt) in enumerate(((.2, .25), (.5, .62), (.8, 1.0))):
     base = lerp(EL, SH, bt); tip = lerp(E_, D_, tt)
-    feder(base, tip, .044, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0068 + .0004 * k, seg=seg_r, droop=.02, camber=.12, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, .044, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0068 + .0004 * k, seg=seg_r, droop=.04, camber=.15, side=1 if sx > 0 else -1, two=True)
   # Decken: große Armdecken, Handdecken, mittlere, kleine; Daumenfittich
   segc = 2 if KR else 3
   for j in range(14 if not KR else 7):
@@ -241,7 +242,7 @@ def wing(sx):
       p = lerp(B_, WR, .2 + .15 * k); dirn = (lerp(C_, H_, .3) - p).normalized()
       feder(p, p + dirn * (.05 - .01 * k), .014, 'deck%d' % k, up_at(p), T_f, karten_f, layer=.0136 + .0003 * k, seg=2, droop=.0, camber=.1, side=1 if sx > 0 else -1)
 for sx in (1, -1): wing(sx)
-WF = None
+WF = None; LAY = 1.
 
 # ---------------------------------------------------------------- Schwanz: 12 Steuerfedern (Kolkrabe keilförmig, Krähe gerade), Decken
 TB = [RB[n] for n in BN if n.startswith('CrowTail')]; tb = sum(TB, Vector()) / len(TB)

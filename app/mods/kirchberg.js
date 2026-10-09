@@ -667,7 +667,11 @@ async function kirchberg_innen() {
       kirchberg_hit(.5, .3, .4, C.x - 2.2, tischY + .1, C.z + .2, 'Kindergedeck', () => kirchberg_notiz('Ein Gedeck', 'Blechteller, Blechbecher, ein Stück Brot. Alles von damals.\nDas Brot ist frisch.')); }
     // Kühlschrank (Emaille-Scan) mit Dosenturm, Herd daneben (Kiste mit Scan-Oberfläche; kein Modell im Katalog)
     { const em = new T.MeshStandardMaterial({ map: msTex('wall_plaster/b.jpg', true), normalMap: msTex('wall_plaster/n.jpg'), color: 0xd8d0bc, roughness: .42, metalness: .05 }); em.normalScale.set(.35, .35);
-      box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g }); box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
+      // QA M-14: Blender-Kühlschrank (ms/kuehlschrank_alt) statt Box; die Box bleibt unsichtbar als Kollision, Rückfall ohne Modell = alte Box mit Griff
+      const kModell = await msModel('kuehlschrank_alt', 'model.glb').then(m => m.clone(true)).catch(() => null);
+      const kb = box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g });
+      if (kModell) { if (kb) kb.visible = false; kModell.position.set(x0 + .38, 0, z1 - 1.1); kModell.rotation.y = PI / 2; kModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kModell); }
+      else box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
       box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g });
       const dose = await kirchberg_mod('w_becher', 'model.glb', .1); if (dose) { const sorten = [0xb8342a, 0x2a5a9a, 0xd8b030, 0x3a8a4a, 0x8a3a8a, 0xe0e0d8, 0xc86a20]; for (let i = 0; i < 17; i++) { const d = dose.clone(true); d.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHex(sorten[i % 7]); m.material.metalness = .5; } });
         put(d, x0 + .3 + (i % 3) * .12 - .12 + ((i / 3 | 0) % 2) * .06, 1.52 + (i / 3 | 0) * .1, z1 - 1.1 + ((i % 2) - .5) * .12, i, g); } }

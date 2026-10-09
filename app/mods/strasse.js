@@ -68,7 +68,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     Glass: { color: 0x0b1013, rough: .05, metal: .7, transparent: true }, Car_number: { b: 'Car_Number.jpg', rough: .6 },
     Car_LightForward: { color: 0xcfcfc8, rough: .15, emissive: lights ? 0xfff0d0 : 0 }, Car_stopLight: { color: 0x4a0606, rough: .25, emissive: lights ? 0x500000 : 0 },
     Car_backLight: { color: 0x220505, rough: .25 }, Car_Turnlight_L: { color: 0x5a3208, rough: .3 }, Car_Turnlight_R: { color: 0x5a3208, rough: .3 }, '*': { color: 0x1c1c1c, rough: .7 } });
-  const VAN = { 'Material #928': { n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } };
+  const VAN = { 'Material #928': { b: 'van_grau_d.jpg', n: 'van_undamaged_n.jpg', r: 'van_undamaged_roughness.jpg', m: 'van_undamaged_metallic.jpg', ao: 'van_AO.jpg' }, 'Material #925': { color: 0x333333 } };
   const MB = { Mailbox: { b: 'MailboxAlbedo.jpg', n: 'MailboxNormal.jpg', r: 'MailboxRough.jpg', m: 'MailboxMetal.jpg', ao: 'MailboxAO.jpg' }, MailboxFlap: { b: 'MailboxFlapAlbedo.jpg', n: 'MailboxFlapNormal.jpg', r: 'MailboxFlapRough.jpg', m: 'MailboxFlapMetal.jpg', ao: 'MailboxFlapAO.jpg' },
     MailboxFlag: { b: 'MailboxFlagAlbedo.jpg', n: 'MailboxFlagNormal.jpg', r: 'MailboxFlagRough.jpg', m: 'MailboxFlagMetal.jpg' } };
   const RS = { '*': { b: 'road_sign_pack_MAT_RoadSign_BaseColor.jpg', n: 'road_sign_pack_MAT_RoadSign_Normal.jpg', r: 'road_sign_pack_MAT_RoadSign_Roughness.jpg', m: 'road_sign_pack_MAT_RoadSign_Metallic.jpg', ao: 'road_sign_pack_MAT_RoadSign_AO.jpg' } };
@@ -81,7 +81,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     safe(msBake('hydrant')), safe(msBake('trashcan')), safe(msBake('trashbag')), safe(msBake('curbs')), safe(msBake('asphalt_debris')), safe(msModel('barrier_ms')), safe(msBake('cone_ms')),
     safe(msFBX('toys_old', 'model.fbx', TOYS)), safe(MSL.gl.loadAsync('assets/manhole/model.gltf')),
     // Transporter ohne Firmenaufdruck: Lack neu (dunkelgrau), Fenster/Leuchten/Reifen/Grill bleiben aus dem Original
-    safe(recolor('vans/van_undamaged_d.jpg', 1024, (p, n) => {
+    safe(null && recolor('vans/van_undamaged_d.jpg', 1024, (p, n) => {
       const keepR = [[0, 0, 150, 165], [140, 0, 560, 150], [12, 712, 112, 885], [298, 298, 398, 462], [578, 728, 722, 1012], [748, 606, 988, 714], [705, 510, 745, 570], [995, 510, 1024, 570], [160, 105, 212, 195], [445, 1000, 500, 1024], [828, 735, 905, 1005], [700, 0, 1024, 482], [270, 235, 335, 305]];
       const inR = new Uint8Array(n * n), dark = new Uint8Array(n * n), tmp = new Uint8Array(n * n);
       for (const [x0, y0, x1, y1] of keepR) for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) inR[y * n + x] = 1;
@@ -200,7 +200,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   if (sBeige) { const g = new T.Group(); g.position.set(-49.5, 0, 3.1); g.rotation.y = PI; scene.add(g); g.add(fitSedan(sBeige, false, 'BH·AR 1992'));
     clickOn(g, 4.4, 1.3, 1.9, 'Auto', lockedTalk(['Abgeschlossen. Auf dem Armaturenbrett liegen sieben Kastanien in einer Reihe.', 'Die Motorhaube ist warm. Unter dem Wagen ist der Asphalt trocken – als wäre er eben erst gekommen.'], -49.5, 3.1)); }
   // ---- Transporter ohne Aufschrift vor der Telefonzelle – STORY-HOOK: Amt für Rückführung beobachtet die Straße
-  if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else if (vanTex) { mt.map = vanTex; mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
+  if (vanSrc) { let dmg = null; vanSrc.traverse(m => { if (!m.isMesh) return; const mt = [].concat(m.material)[0]; if (/925/.test(mt.name)) dmg = m; else { mt.needsUpdate = true; weather(mt, { amt: .4, lowAmt: .6, low: .7, scale: .45 }); } });
     if (dmg) dmg.parent.remove(dmg); vanSrc.scale.setScalar(4.9 / 377.9); vanSrc.rotation.y = ryFor(1, 0); const g = msGround(vanSrc); msPlace(g, 14.6, 0, 3.25, 0); reg('cars', g);
     clickOn(g, 4.9, 1.8, 2.05, 'Transporter', lockedTalk(['Keine Aufschrift. Die hinteren Scheiben sind von innen abgeklebt. Drinnen summt etwas – dann nicht mehr.', 'An der Tür ein Aufkleber, halb abgekratzt: „…ückführung · Außenst…“', 'Du legst das Ohr ans Blech. Drinnen atmet jemand, ganz ruhig. Im selben Takt wie du.'], 14.6, 3.25)); if (typeof lwo_magnetschild === 'function') lwo_magnetschild(g); } // F3 AP-06: Magnetschild am Heck
   // ---- Überwucherter Sportwagen an der Sperre (seit 2009) – STORY-HOOK: wer 2009 wegwollte, kam bis hier
