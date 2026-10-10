@@ -260,3 +260,18 @@ Alle lokal gebündelt (nur Teilmengen `latin` + `latin-ext`, Quelle Google Fonts
 - Fire Alarm Button (Thorrian, CC-BY): https://www.fab.com/listings/991d908f-d632-4010-921c-2870013be0e4
 | Hand Print, Hand Smear, Blood Drops, Wipe Marks, Paint Brush, Spray Paint, Moisture Stain (Megascans-Pinsel/Decals, Fab Standard, kostenlos) | Quixel | Handabdrücke, Wachsmal-/Kreidekorn, Farbspritzer, Wasserränder (`ms/pinsel`, `ms/blood_hs`) | https://www.fab.com/listings/87643d9d-e086-4d2b-a3ff-b544517a90ac · c7c2c077-6765-4e8a-97f5-fc7222bb5c75 · 50d8f6bf-b3b7-4bbd-968d-9126f46ff693 · 977f8e52-24be-4146-b5de-8a2c4b607cf2 · f6b481de-9496-4fcb-b20c-3cf9eed1415c · e0e36d8b-902c-4644-baa5-236a4b9a4f69 · 5f3bb985-79a8-4c59-b1ca-38af759aca0b |
 | Scratches (Brush, 1k), Oil Stain (Decal, 1k) | Quixel | echte Kratzer (`ms/pinsel/kratz`), Ölfleck (`ms/oel`, noch ungenutzt) | https://www.fab.com/listings/dfc68558-0a70-423d-a50e-e19a3c5114b5 · 4b57dc17-0bdd-40d2-85b2-84fef6eedd0c |
+
+### Inventar-Gegenstände (10.10.2026) – Poly Haven, Lizenz CC0 (kommerziell nutzbar, keine Namensnennung nötig; hier freiwillig genannt)
+Modelle von https://polyhaven.com , aufbereitet mit `app/tools/ph_pack.mjs` und `app/tools/item_opt.mjs` (Texturen ≤ 1024 px, Dreiecke begrenzt):
+- Portable Cassette Player (Mateusz Sadek) – https://polyhaven.com/a/portable_cassette_player – Kassette
+- Cassette Player (Oday Abuzaeed) – https://polyhaven.com/a/cassette_player – Tonbandgerät
+- Postcard Set 01 (James Ray Cock, Jurita Burger) – https://polyhaven.com/a/postcard_set_01 – Postkarte
+- Binder Notebook (DaDrood) – https://polyhaven.com/a/binder_notebook – Ordner/Mappe
+- Office Notepads (Ulan Cabanilla) – https://polyhaven.com/a/office_notepads – Notizblock, Blatt
+- Cigarette Pack (Ulrich Büch) – https://polyhaven.com/a/cigarette_pack – Zigarettenschachtel
+- Pliers (PierreB3D) – https://polyhaven.com/a/pliers – Seitenschneider
+- Wine Bottles 01 (Rico Cilliers, Jurita Burger) – https://polyhaven.com/a/wine_bottles_01 – Pfandflasche
+- Can Rusted (Rahul Chaudhary) – https://polyhaven.com/a/can_rusted – Katzenfutterdose
+- Oil Tin (Niklas) – https://polyhaven.com/a/oil_tin – Keksdose
+- Stationery Supplies (Mateusz Sadek) – https://polyhaven.com/a/stationery_supplies – Kugelschreiber
+Eigenbau (Blender 4.5, `app/tools/blender/item_bau.py`, ohne Schrift/Aufkleber): Umschlag, Brief, Zettel, Fahrkarte, Münze, Murmel, Ring, Glocke, Kreide, Halsband, Handy, Autoschlüssel, Folie, Plombe, Kronkorken, Riemen, Riegel, Schnalle, Dienstnadel, Sofortbild, Grinder, Blättchen, Knolle, Filter, Kinderschuh.
