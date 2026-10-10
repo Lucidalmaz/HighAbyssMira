@@ -17,12 +17,17 @@ async function figuren_load(id) {
   const p = (async () => { try {
     if (id === 'justin') { if (!justin.model || !justin.mixer) return null; const clips = {}; for (const [k, a] of Object.entries(justin.acts)) clips[k] = a.getClip(); return { scene: justin.model, clips, height: 1.94, yaw: 0 }; }
     const info = (await figuren_list()).find(x => x.id === id); if (!info) return FIGUREN_ERSATZ[id] ? figuren_load(FIGUREN_ERSATZ[id]) : null; // Q-6: neue Figur noch nicht gebaut → Stellvertreter
-    const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) clips[a.name] = a;
+    const g = await MSL.gl.loadAsync('assets/chars/' + id + '/model.glb'); const clips = {}; for (const a of g.animations) { clips[a.name] = a; figuren_entzacken(a); }
     g.scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } }); figuren_teileZus(g.scene); figuren_q6Mat(g.scene, info.skin, id); // Q-6: Haut, Augen, Haare (info.skin: Hautton, ersetzt die schwarze Unterwäsche der Körpertextur)
     return { scene: g.scene, clips, height: info.height, yaw: 0, motion: g.scene.userData.motion || (g.scene.children[0] && g.scene.children[0].userData.motion) || {} }; // motion: Clip-Daten aus tools/mocap_bake.mjs (Tempo, Schleife, Fußphase, Drehung)
   } catch (e) { console.warn('Figur ' + id, e); return null; } })();
   figuren_S.cache.set(id, p); return p;
 }
+// 10.10.: Einzelbild-Ausreisser der Mocap-Aufnahmen (Unterarm springt fuer ein Bild um > 22 Grad und zurueck: walk_vorsicht 1,4 s, hug 4,0 s) glaetten – Schluessel durch die Mitte der Nachbarn ersetzen
+function figuren_entzacken(clip) { const qa = new THREE.Quaternion(), qb = new THREE.Quaternion(), qc = new THREE.Quaternion(), ang = (x, y) => 2 * Math.acos(Math.min(1, Math.abs(x.dot(y)))) * 57.29578;
+  for (const tr of clip.tracks) { if (!(tr instanceof THREE.QuaternionKeyframeTrack) || /Finger|Thumb|Toe|Eye|Jaw|Teeth|Tongue|Brow|Lid/i.test(tr.name)) continue; const v = tr.values, n = v.length / 4; if (n < 4) continue;
+    for (let i = 1; i < n - 1; i++) { qa.fromArray(v, (i - 1) * 4); qb.fromArray(v, i * 4); qc.fromArray(v, (i + 1) * 4); const d1 = ang(qa, qb), d2 = ang(qb, qc), m = Math.min(d1, d2); if (m > 22 && ang(qa, qc) < .4 * m) { qa.slerp(qc, (tr.times[i] - tr.times[i - 1]) / Math.max(1e-6, tr.times[i + 1] - tr.times[i - 1])).toArray(v, i * 4); FIGUREN_ENTZACKT.n++; } } } }
+const FIGUREN_ENTZACKT = { n: 0 };
 // LEISTUNG (08.10.): gleichartige Kleinteile einer Vorlage (Hildes Lesebrille: 15 Metallteile mit demselben Material) zu einem Netz zusammenfassen – ein Zeichenaufruf statt 15
 //   (plus Schatten). Nur undurchsichtig, ohne Formen (Morphs), gleiches Material, gleiche Eltern, gleiches Skelett (dieselben Knochen, gleiche Ruhe-Umkehrungen) und gleiche
 //   Bindematrix – dann rechnet das Skinning jeden Eckpunkt genau wie vorher (Bild gleich).
