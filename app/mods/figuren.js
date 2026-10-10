@@ -68,6 +68,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
+  { const nk = { amt1: .82 }[id]; if (nk && Q.rig.neck && Q.rig.head) { Q.rig.neck.scale.set(nk, 1, nk); Q.rig.head.scale.set(1 / nk, 1, 1 / nk); } } // 10.10.: Hals der Amt-Figur ueberlappte Kragen und Krawatte (Wulst am Kinn) - Hals schlanker, Kopf gegenskaliert (im Bild geprueft)
   if (!ghost) Q.lod = figuren_lodBau(obj);
   if (ghost) geister_person(Q); // Geister: Eintrag mit der Person verbinden (Regie, Zeitlupe, Nachbild)
   g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden

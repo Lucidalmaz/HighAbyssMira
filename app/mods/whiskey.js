@@ -499,6 +499,10 @@ WORLD_MODS.push(['Whiskey', async () => {
       if (o.isBone && /Queue-de-cheval-1$/.test(o.name)) { S.jaw = o; const ax = o.userData && o.userData.oeffnen; if (ax) S.jawAx = new THREE.Vector3(ax[0], ax[1], ax[2]).normalize(); } }); // Unterschnabel (Kiefer, Öffnungsachse aus dem Modell)
     const inner = new THREE.Group(); inner.add(m); inner.scale.setScalar(S.base); S.m = inner;
     const g = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(inner); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g; try { auftritt_reg(g, { name: 'Whiskey', r: 1.2 }); } catch (e) {}
+    // 10.10.: IdleLookAround dreht den Kopf bis 110 Grad gegen den Koerper (gemessen) + Blick-Ueberlagerung = echter Blick nach hinten ohne Koerper. Amplitude von Kopf/Hals auf 62 % (einmalig, Clip ist geteilt)
+    for (const c of src.animations || []) { if (c.userData && c.userData.hwSkaliert) continue; if (!/IdleLookAround$/.test(c.name)) continue; c.userData = c.userData || {}; c.userData.hwSkaliert = true;
+      for (const t of c.tracks) { if (!/(Head|Neck)[^.]*\.quaternion$/i.test(t.name) || t.values.length < 8) continue; const v = t.values, q0 = new THREE.Quaternion(v[0], v[1], v[2], v[3]), q = new THREE.Quaternion();
+        for (let i = 0; i < v.length; i += 4) { q.set(v[i], v[i + 1], v[i + 2], v[i + 3]); const s = q0.clone().slerp(q, .62); v[i] = s.x; v[i + 1] = s.y; v[i + 2] = s.z; v[i + 3] = s.w; } } }
     S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) { if (/_RM$/.test(c.name)) continue; S.A[c.name.replace(/^.*\|/, '').replace(/^ANIM_[A-Za-z]+_/, '')] = S.mx.clipAction(c); }
     S.ringM = whiskey_ring(m, false);
     const beak = new THREE.Sprite(new THREE.SpriteMaterial({ map: whiskey_beakTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .9 })); beak.scale.setScalar(.09); beak.visible = false; scene.add(beak); S.beak = beak;

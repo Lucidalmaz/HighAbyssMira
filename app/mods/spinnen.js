@@ -29,15 +29,16 @@ const spn_clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const SPN_ARTEN = {
   winkel:    { n: 'Hauswinkelspinne', spann: [.07, .1],   stride: 1.0, cyc: 18, cl: .008 },
   nosferatu: { n: 'Nosferatu-Spinne', spann: [.05, .07],  stride: .75, cyc: 24, cl: .0075 },
-  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125 },
+  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125, gang: 'winkel', gangF: .55 }, // 10.10.: eigener Gehclip rutschte >= 68 % -> Gang der Hauswinkelspinne (gleiches Skelett), Stuetzfuss-Schlupf 15 %
   kreuz:     { n: 'Kreuzspinne',      spann: [.045, .06], stride: .6,  cyc: 26, cl: .0062 },
-  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095 },
+  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095, gang: 'kreuz', gangF: .55 }, // dito: Gang der Kreuzspinne, Schlupf 9 %
   vogel:     { n: 'Vogelspinne',      spann: [.16, .21],  stride: .6,  cyc: 34, cl: .024 } };
 const SPN_SRC = new Map(), SPN_HAAR = [];
 // Quelle einer Art laden (einmal): Skalierungs- und Glieder-Positionsspuren entfernen (Knochen-Skalierung bleibt frei für die Variation je Tier), Materialien aufbereiten
 function spn_art(art, res = '') { const key = art + (res ? '_' + res : ''); if (SPN_SRC.has(key)) return SPN_SRC.get(key);
   const p = (async () => { const sc = await msModel('spinnen', key + '.glb'), clips = {};
     for (const c of sc.animations || []) { c.tracks = c.tracks.filter(t => !/\.scale$/.test(t.name) && (!/\.position$/.test(t.name) || /^(body|abdomen)\./.test(t.name))); clips[c.name] = c; }
+    { const G = SPN_ARTEN[art] && SPN_ARTEN[art].gang; if (G) { try { const d = await spn_art(G, res); if (d.clips.walk) clips.walk = d.clips.walk; } catch (e) { console.warn('Spinnen: Spenderclip', e); } } }
     sc.traverse(o => { if (!o.isMesh) return; o.receiveShadow = false;
       if (/^haar/.test(o.name)) { const m = o.material; m.alphaTest = .42; m.transparent = false; m.depthWrite = true; m.side = THREE.DoubleSide; m.userData.spnNeu = true; o.castShadow = false; }
       else { o.material = spn_hautNeu(o.material); o.castShadow = true; } });
@@ -60,7 +61,7 @@ async function spn_neu(art, o = {}) { const A = SPN_ARTEN[art], src = await spn_
   g.traverse(m => { if (!m.isMesh) return; if (!mats.has(m.material)) { const c = m.material.clone(); c.color.multiply(col); mats.set(m.material, c); } m.material = mats.get(m.material); if (/^haar/.test(m.name)) haar.push(m); });
   for (const h of haar) SPN_HAAR.push({ m: h, root: g });
   const mx = new THREE.AnimationMixer(g), acts = {}; for (const n in src.clips) acts[n] = mx.clipAction(src.clips[n]);
-  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase
+  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30) * (A.gangF || 1); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase (gangF: Spenderclip, gemessen)
   return { g, mx, acts, art, k, v1, spann }; }
 // Starre Pose für Instanzen (Schwarm, Bildschirm): Gehpose einbacken, Haut-Attribute entfernen, glatt schattieren (Normalen über Nähte gemittelt), auf ext normieren, Kopf → +X
 async function spn_starr(art, res, ext = .125) { const src = await spn_art(art, res), { clone } = await import('three/addons/utils/SkeletonUtils.js');
