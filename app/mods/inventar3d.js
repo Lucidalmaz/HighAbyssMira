@@ -5,7 +5,7 @@
 //     Selbstdrehung im Leerlauf, weiches Dreipunktlicht + Umgebungsbild; Name, Kategorie, Fundort (Kapitel · Ort), Beschreibung, BENUTZEN, KOMBINIEREN
 //   · Aufheben: eigene Darstellung (Gegenstand dreht sich groß vor dem Bild, Glanzring, Name, fliegt zur Fibel) – anders als in der Welt
 // Modelle: INV3D_MODELLE (key → Verzeichnis unter assets/ms) · Regeln INV3D_REGELN (Name/Symbol → Modell) · ohne Modell: Notiz-/Kartenfläche mit Fotostapel (siehe item_katalog.md)
-// Schnittstelle: inv3d_icon(key) → Promise<dataURL|null> · inv3d_pickup(key) · window.__inv3d (Test) · speichert Fundorte (MOD_SAVE „inventar3d“)
+// Schnittstelle: inv3d_icon(key) → Promise<dataURL|null> · inv3d_pickup(key) · Testzugriff __inv3d · speichert Fundorte (MOD_SAVE „inventar3d“)
 const INV3D = { r: null, scene: null, cam: null, env: null, holder: null, cur: null, curKey: null, cache: new Map(), icon: new Map(), iconWait: new Map(), found: {}, seen: new Set(),
   filt: 'alle', sort: 'neu', combine: null, sel: null, yaw: .6, pitch: .18, zoom: 1, vyaw: 0, idle: 0, raf: 0, view: null, ctx: null, drag: null, known: null, chkT: 0, lastClose: 0, pick: null, css: false, w: 0, h: 0 };
 
@@ -280,7 +280,7 @@ function inv3d_tasten(e) { if (!(ui.overlay === 'journal' && jTab === 'inventar'
   const L = B.querySelector('.iv-list'), cols = Math.max(1, Math.round(L.clientWidth / (els[0].getBoundingClientRect().width + 9)));
   i += e.code === 'ArrowUp' ? -cols : e.code === 'ArrowDown' ? cols : dx; i = Math.max(0, Math.min(els.length - 1, i)); e.preventDefault(); e.stopPropagation();
   els[i].click(); els[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-try { window.removeEventListener('keydown', window.__inv3dK, true); } catch (e) {} window.__inv3dK = inv3d_tasten; window.addEventListener('keydown', inv3d_tasten, true);
+try { window.removeEventListener('keydown', window.inv3d_keyfn, true); } catch (e) {} window.inv3d_keyfn = inv3d_tasten; window.addEventListener('keydown', inv3d_tasten, true);
 
 // ---------------------------------------------------------------- Benutzen / Kombinieren
 const INV3D_KOMBI = { 'batterie+lampe1': 'bat', 'batterie+lampe2': 'bat', 'batterie+lampe3': 'bat' };
@@ -331,11 +331,20 @@ async function inv3d_welt() {
     m.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } }); g.children.filter(c => c !== collar && c.isMesh).forEach(c => g.remove(c)); g.add(m); } catch (e) { console.warn('inv3d: Halsband', e); }
 }
 setTimeout(inv3d_welt, 2500);
+// Handy im Wagen (Basis: schwarzer Quader mit blauem Leuchten): echtes Telefon, Schirm leicht bläulich (3 % Akku)
+async function inv3d_weltHandy() {
+  try { if (typeof lenaPhone === 'undefined' || lenaPhone.userData.inv3d) return; lenaPhone.userData.inv3d = 1;
+    const m = await inv3d_lade('phone'); if (!m) return; const s = .15 / 1.6; m.scale.setScalar(s);
+    m.traverse(c => { if (c.isMesh) { c.castShadow = false; c.receiveShadow = true; if (c.material && /Glas/i.test(c.material.name || '')) { c.material.emissive = new THREE.Color(0x14233a); c.material.emissiveIntensity = .5; } } });
+    lenaPhone.material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }); lenaPhone.add(m); m.position.set(0, 0, 0); } catch (e) { console.warn('inv3d: Handy', e); }
+}
+setTimeout(inv3d_weltHandy, 3000);
+
 
 // ---------------------------------------------------------------- Einhängen
-window.__inv3dO = window.__inv3dO || { rj: renderJournal, ai: addItem }; // Testhilfe: erneutes Einspielen des Moduls umhüllt das Original, nicht die Vorfassung
-renderJournal = (o => () => { if (jTab !== 'inventar') { cancelAnimationFrame(INV3D.raf); INV3D.raf = 0; return o(); } o(); try { inv3d_render(); } catch (e) { console.warn('inv3d', e); } })(window.__inv3dO.rj);
-addItem = (o => key => { const had = story.items.includes(key); o(key); try { if (!had && story.items.includes(key)) inv3d_wache(); } catch (e) {} })(window.__inv3dO.ai);
-try { clearInterval(window.__inv3dT); } catch (e) {} window.__inv3dT = setInterval(() => { try { if (typeof story !== 'undefined' && story.items) inv3d_wache(); } catch (e) {} }, 500);
+window.inv3d_orig = window.inv3d_orig || { rj: renderJournal, ai: addItem }; // Testhilfe: erneutes Einspielen des Moduls umhüllt das Original, nicht die Vorfassung
+renderJournal = (o => () => { if (jTab !== 'inventar') { cancelAnimationFrame(INV3D.raf); INV3D.raf = 0; return o(); } o(); try { inv3d_render(); } catch (e) { console.warn('inv3d', e); } })(window.inv3d_orig.rj);
+addItem = (o => key => { const had = story.items.includes(key); o(key); try { if (!had && story.items.includes(key)) inv3d_wache(); } catch (e) {} })(window.inv3d_orig.ai);
+try { clearInterval(window.inv3d_timer); } catch (e) {} window.inv3d_timer = setInterval(() => { try { if (typeof story !== 'undefined' && story.items) inv3d_wache(); } catch (e) {} }, 500);
 MOD_SAVE.push(['inventar3d', () => ({ found: INV3D.found, seen: [...INV3D.seen].slice(-200) }), v => { if (v && v.found) INV3D.found = v.found; if (v && Array.isArray(v.seen)) v.seen.forEach(k => INV3D.seen.add(k)); }]);
 window.__inv3d = { I: INV3D, kat: inv3d_kat, modell: inv3d_modell, lade: inv3d_lade, icon: inv3d_icon, pickup: inv3d_pickup, render: inv3d_render, reg: INV3D_MODELLE, item: INV3D_ITEM, regeln: INV3D_REGELN, info: inv3d_info, start: inv3d_start, zeige: inv3d_zeige, bild: inv3d_bild };
