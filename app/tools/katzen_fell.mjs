@@ -54,7 +54,7 @@ const PAR = {
   hals: { L: [.030, .045], w: [.016, .022], l0: .3, l1: .75, g: .5, d: 4600 }, brust: { L: [.035, .05], w: [.017, .024], l0: .3, l1: .8, g: .8, d: 4600 },
   rumpf: { L: [.028, .042], w: [.016, .022], l0: .28, l1: .7, g: .6, d: 4800 }, schenkel: { L: [.032, .05], w: [.016, .022], l0: .3, l1: .75, g: 1.0, d: 4600 },
   bein: { L: [.014, .022], w: [.010, .014], l0: .2, l1: .5, g: .2, d: 6000 }, pfote: { L: [.005, .009], w: [.006, .009], l0: .15, l1: .35, g: 0, d: 2600 },
-  schwanz: { L: [.040, .060], w: [.014, .020], l0: .35, l1: .65, g: .3, d: 5400 } };
+  schwanz: { L: [.045, .068], w: [.016, .024], l0: .6, l1: 1.0, g: .12, d: 22000 } };
 const grav = [0, -1, 0];
 function flowDir(reg, p, n, i) {
   let f;
@@ -84,7 +84,7 @@ for (let t = 0; t < nT; t++) {
     const best = u >= v && u >= w ? a : v >= w ? b : c; const tu = uv[best * 2], tv = uv[best * 2 + 1];
     { const nk = jpos[jIdx('neck')], n2 = jpos[jIdx('neck2')], cc = V.add(nk, V.mul(V.sub(n2, nk), .45)), ax = V.norm(V.sub(n2, nk)), q = V.sub(p, cc), al = V.dot(q, ax); if (Math.abs(al) < .0075 && V.len(V.sub(q, V.mul(ax, al))) < .075) continue; } // Halsband: kein Fell darüber
     if (isPink(tu, tv)) continue; // Nase, Ballen, Innenohr (Flaum folgt separat)
-    let pr = reg, L = R(...par.L), W = R(...par.w);
+    let pr = reg, L = R(...par.L), W = R(...par.w) * (+process.env.WSKAL || 1);
     // Augen und Nase aussparen
     if (reg === 'kopf' && p[2] > headP[2] + .02 && p[1] < Math.min(eyeC[0][1], eyeC[1][1]) - .02) continue; // Kinn/Maul: kein Fell (sonst „Papierschnipsel“)
     if (reg === 'hals' && nn[1] < -.3) L *= .6;
@@ -128,8 +128,8 @@ console.log('Dreiecke Haarkarten:', Ix.length / 3, 'Eckpunkte:', Pa.length / 3);
 const hm = haarN.getMesh(), hp = hm.listPrimitives()[0];
 const mkAcc = (type, arr, ct) => doc.createAccessor().setType(type).setArray(arr).setBuffer(root.listBuffers()[0]);
 hp.getAttribute('POSITION').setArray(new Float32Array(Pa)); hp.getAttribute('NORMAL').setArray(new Float32Array(Na)); hp.getAttribute('TEXCOORD_0').setArray(new Float32Array(U0));
-hp.getAttribute('JOINTS_0').setArray(new Uint16Array(Ja)); hp.getAttribute('WEIGHTS_0').setArray(new Float32Array(Wa)); hp.getIndices().setArray(new Uint16Array(Ix));
-if (Pa.length / 3 > 65000) throw new Error('zu viele Eckpunkte für 16 Bit');
+hp.getAttribute('JOINTS_0').setArray(new Uint16Array(Ja)); hp.getAttribute('WEIGHTS_0').setArray(new Float32Array(Wa)); hp.getIndices().setArray(new Uint32Array(Ix));
+if (Pa.length / 3 > 400000) throw new Error('zu viele Eckpunkte');
 hp.setAttribute('TEXCOORD_1', mkAcc('VEC2', new Float32Array(U1))); hp.setAttribute('_ROOT', mkAcc('VEC3', new Float32Array(Ra))); hp.setAttribute('_CARD', mkAcc('VEC2', new Float32Array(Ca)));
 haarN.setSkin(skin); // dieselbe Haut (gleiche Knochenreihenfolge) wie das Fell
 const hmat = hp.getMaterial(); { const nt = hmat.getNormalTexture(), bt = hmat.getBaseColorTexture(); hmat.setNormalTexture(null); const at = doc.createTexture('haar_atlas').setImage(new Uint8Array(fs.readFileSync(process.env.ATLAS || 'C:/Users/GIGABYTE/HAM_Blender/katzen/strands.png'))).setMimeType('image/png'); hmat.setBaseColorTexture(at); if (nt) nt.dispose(); if (bt) bt.dispose(); }
