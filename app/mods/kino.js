@@ -1575,7 +1575,7 @@ function kino_villaFenster() { const S = kino_S; if (S.vlit === undefined) { S.v
   const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, vb = OW && OW.vbb; if (!vb) return { x: -125, y: 8.05, z: 66.2 };
   return { x: vb.min.x + (vb.max.x - vb.min.x) * .28, y: vb.min.y + 6.1, z: vb.min.z - .06 }; }
 // Justins Helm (eigenes Teil am Skelett): abnehmen/aufsetzen
-function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
+function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && o.name !== 'helm_schale' && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
   for (const m of S.helm) m.visible = on; return S.helm.length; }
 // Augen: für einen Atemzug nur Weiß
 function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) return; if (!P.eyes) { P.eyes = []; for (const [m] of P.mats) { const mats = [].concat(m.material); mats.forEach(x => { if (x && /eye|auge|cornea|iris/i.test((x.name || '') + ' ' + m.name)) P.eyes.push(x); }); } }

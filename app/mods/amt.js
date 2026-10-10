@@ -1236,3 +1236,9 @@ function amt_akte06() { const S = amt_S; if (typeof files === 'undefined') retur
       if (S.bogen) return; S.bogen = true; amt_sideDone('k2_bogen', 'Das Original hatte Angst vor Spinnen. Hund: Flocke. „Er würde mit jedem mitgehen, der fragt.“');
       setTimeout(() => say([['Klar. Hab ich auch mal gesagt. Zu einer Stelle in der Stadt, die Nachtschicht hieß.', 4600, 'LUKE']]), 700);
       if (S.nr) setTimeout(() => gedanke('amt_nr8', 'Nummer 8. Ha. Ha. Ha.', 0, 2), 26000); })); }); }
+// 10.10.: Lucy im Tank (Nutzerbefund: stand steif in Kleidung am Boden). Jetzt: Arme verschraenkt (Mocap-Clip), schwebt ueber dem Tankboden, atmet in langsamem Auf und Ab,
+// leichte Vorneigung und Pendeln wie im Wasser. P.fixed haelt die Fortbewegungs-Steuerung fern; Positionswerte je Bild (die Basis setzt y = .3 + sin(t*.8)*.05 davor).
+WORLD_TICK.push((dt, t) => { try { if (typeof lenaFig === 'undefined' || !lenaFig.visible) return; const P = lenaFig.userData && lenaFig.userData.person; if (!P || !P.acts || !P.acts.arme_verschraenkt) return;
+  if (!lenaFig.userData.tankPose) { lenaFig.userData.tankPose = 1; P.fixed = true; figuren_play(P, 'arme_verschraenkt', true, { once: false }); if (P.cur) P.cur.timeScale = .55; }
+  const s = Math.sin(t * .5); lenaFig.position.y = .3 + .52 + s * .07; lenaFig.rotation.x = .05 + Math.sin(t * .37) * .025; lenaFig.rotation.z = Math.sin(t * .29 + 1) * .035;
+} catch (e) { if (!amt_S.tankErr) { amt_S.tankErr = 1; console.warn('Amt: Lucy im Tank', e); } } });

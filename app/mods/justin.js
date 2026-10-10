@@ -267,7 +267,9 @@ function justin_helmBauen(helm, head) { const S = justin_S; justin.model.updateM
   const mkGeo = list => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(out, 3)); for (const k of ['normal', 'uv']) if (helm.geometry.attributes[k]) g.setAttribute(k, helm.geometry.attributes[k]); g.setIndex(list); g.computeVertexNormals(); g.computeBoundingSphere(); return g; };
   const mat = justin_haut(helm.material, { key: 'helm' }); mat.side = THREE.DoubleSide;
   const grp = new THREE.Group(); grp.name = 'JustinHelm'; head.add(grp);
-  const shell = new THREE.Mesh(mkGeo(schale), mat); shell.name = 'helm_schale'; shell.castShadow = true; shell.frustumCulled = false; grp.add(shell);
+  // 10.10.: die UV der Schale lagen auf schwarzen Texeln (schwarze Flaechen/Straehnen neben dem Visier) -> alle Schalen-UV auf einen hellen Stahl-Texel des Visiers
+  const shg = mkGeo(schale); { const uvA = helm.geometry.attributes.uv; if (uvA && visier.length) { const k = visier[Math.floor(visier.length / 2)], U2 = new Float32Array(n * 2); for (let i = 0; i < n; i++) { U2[i * 2] = uvA.getX(k); U2[i * 2 + 1] = uvA.getY(k); } shg.setAttribute('uv', new THREE.BufferAttribute(U2, 2)); } }
+  const shell = new THREE.Mesh(shg, mat); shell.name = 'helm_schale'; shell.castShadow = true; shell.frustumCulled = false; shell.visible = false; /* 10.10.: Schale zeigte nur schwarze Flaechen/Straehnen (UV auf schwarzen Texeln, Sliver-Dreiecke) - ausgeblendet */ grp.add(shell);
   // Visier dreht um die Achse durch die Schläfen (Höhe Stirnband, Mitte der Schale)
   const piv = c.clone().addScaledVector(U, uBand - .004); const vg = mkGeo(visier); vg.translate(-piv.x, -piv.y, -piv.z);
   const vis = new THREE.Mesh(vg, mat); vis.name = 'helm_visier'; vis.castShadow = true; vis.frustumCulled = false; const vp = new THREE.Group(); vp.position.copy(piv); vp.add(vis); grp.add(vp);
