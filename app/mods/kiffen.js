@@ -322,8 +322,7 @@ function kf_flashBilder() { const W = 1024, H = 576, R = kf_rnd(1975);
       x.fillStyle = '#000'; x.fillRect(0, H * .7, W, H * .3); for (let i = 0; i < 40; i++) { x.strokeStyle = `rgba(220,225,240,${R() * .25})`; x.beginPath(); const yy = H * (.72 + R() * .26); x.moveTo(R() * W, yy); x.lineTo(R() * W, yy + 1); x.stroke(); } });
   const grau = kf_cnv(W, H, (x) => { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const tg = x.createLinearGradient(0, 0, W, 0); tg.addColorStop(0, 'rgba(120,150,150,.15)'); tg.addColorStop(.5, 'rgba(170,200,195,.45)'); tg.addColorStop(1, 'rgba(120,150,150,.15)');
       x.fillStyle = tg; x.fillRect(W * .22, H * .05, W * .56, H * .9); x.strokeStyle = 'rgba(210,220,220,.7)'; x.lineWidth = 6; x.strokeRect(W * .22, H * .05, W * .56, H * .9);
-      const fi = typeof faceTexes !== 'undefined' && faceTexes.grey && faceTexes.grey.image; if (fi) { x.save(); x.globalAlpha = .95; x.filter = 'grayscale(1) contrast(1.4) brightness(1.2)'; x.drawImage(fi, W * .36, H * .16, W * .28, H * .6); x.restore(); }
-      else { x.fillStyle = '#9a9c9e'; x.beginPath(); x.ellipse(W / 2, H * .45, 110, 150, 0, 0, 7); x.fill(); x.fillStyle = '#000'; for (const s of [-1, 1]) { x.beginPath(); x.ellipse(W / 2 + s * 42, H * .4, 18, 24, 0, 0, 7); x.fill(); } }
+      // 10.10.: kein gemaltes graues Gesicht mehr (flaches Nachbild) – nur der Tank: Glas, Blasen, Licht von hinten
       for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(230,240,240,${R() * .6})`; x.lineWidth = 1.5; x.beginPath(); x.arc(W * (.25 + R() * .5), H * R(), 2 + R() * 7, 0, 7); x.stroke(); }
       for (let i = 0; i < 7; i++) { x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = 14; x.beginPath(); const xx = W * (.26 + R() * .48); x.moveTo(xx, H * .05); x.lineTo(xx - 40, H * .95); x.stroke(); } });
   // Nachbild-Anmutung: weich, doppelt belichtet, Korn – nie scharf wie ein Foto

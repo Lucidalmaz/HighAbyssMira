@@ -78,11 +78,9 @@ function ns_netzBild() {
   for (let i = 0; i < 70; i++) { x.fillStyle = `rgba(210,208,196,${rand(.1, .45)})`; x.beginPath(); x.arc(rand(0, W), rand(0, H), rand(.8, 2.4), 0, 6.28); x.fill(); } // Staubflocken
   return NS.webImg = cv.toDataURL('image/png'); }
 function ns_netz() {
-  const el = document.createElement('div'); el.style.cssText = 'position:fixed;inset:-4%;z-index:34;pointer-events:none;opacity:0;background-size:cover;background-position:center;transition:opacity .09s ease-out,transform 2.6s ease-in;filter:blur(.6px) drop-shadow(0 0 2px rgba(0,0,0,.4))';
-  el.style.backgroundImage = `url(${ns_netzBild()})`; el.style.transform = `rotate(${rand(-14, 14)}deg) scale(${rand(1.05, 1.3)})`; document.body.appendChild(el);
-  requestAnimationFrame(() => { el.style.opacity = '.7'; }); shake = Math.max(shake, .008); FEEL.dipV += .22;
+  // 10.10.: kein flaches Netz-Overlay vor dem Bild mehr (Nutzer: keine Overlays) – nur Stoffgeräusch, Zucken und Gedanke
+  shake = Math.max(shake, .012); FEEL.dipV += .22;
   if (Audio.ctx) { try { Audio.play('cloth1', { gain: .22, rate: rand(1.2, 1.5), hp: 900 }); } catch (e) {} const A = Audio, n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; n.connect(hp); A.env(hp, .045, .01, .3); n.stop(A.ctx.currentTime + .6); }
-  setTimeout(() => { el.style.transition = 'opacity 2.3s ease-in, transform 2.6s ease-in'; el.style.opacity = '0'; el.style.transform += ' translateY(6%)'; }, 1100 + rand(0, 500)); setTimeout(() => el.remove(), 4300);
   if (!NS.n.netzG && typeof gedanke === 'function' && Math.random() < .5) { NS.n.netzG = 1; setTimeout(() => gedanke('ns_netz', 'Spinnweben. Lange hat hier keiner mehr gelüftet. Oder: jemand hat sich Mühe gegeben, dass es so aussieht.', 5200, 2), 2400); }
 }
 // ---------------------------------------------------------------- Vogel bricht aus dem Busch

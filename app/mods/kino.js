@@ -410,7 +410,10 @@ function kino_mundlosGeo(H, EL, ER) { const T = THREE, ar = g => { const a = g.a
   if (N0) { g.computeVertexNormals(); const N = g.attributes.normal; for (let i = 0; i < hn; i++) { const w = m[i]; v.set(N0.getX(i) + (N.getX(i) - N0.getX(i)) * w, N0.getY(i) + (N.getY(i) - N0.getY(i)) * w, N0.getZ(i) + (N.getZ(i) - N0.getZ(i)) * w).normalize(); N0.setXYZ(i, v.x, v.y, v.z); } g.setAttribute('normal', N0); }
   g.setAttribute('aMask', new T.BufferAttribute(m, 1)); return g; }
 // Kopf bauen (einmal beim Laden, aus dem Graukind-Klon des Kinos). Rückgabe: Gruppe (unsichtbar, in kino_S.obj.grauKopf)
-function kino_grauKopfBau() { const S = kino_S, P = S.fig.graukind, T = THREE; if (!P) return null;
+// 10.10. (Nutzer): keine eingeschnittenen/flachen grauen Gesichter – der Kopf wird nicht mehr gebaut; die Erscheinungen stehen als Luke-Gedanke + Fibel-Eintrag (kino_gkNotiz)
+function kino_gkNotiz(art) { try { const S = kino_S; S.gkN = S.gkN || {}; if (S.gkN[art]) return; S.gkN[art] = 1; const T = { tank: ['Hinter dem Glas, im Wasser: etwas Helles, rund. Kein Mund. Dann nur noch Blasen.', 'k2_tankgesicht', 'Das Gesicht im Tank', 'Hinter dem Beschlag ein helles Rund ohne Mund. Es war nie ganz da. Ich weiß nur: Es hat mich angesehen. Das Glas war kalt auf meiner Seite.'], rabe: ['Ein Kindergesicht auf dem Hals des Raben. Ich sehe es nicht an. Ich weiß, wessen es ist.', 'k_rabengesicht', 'Das Gesicht am Raben', 'Für einen Atemzug trug der Rabe das Gesicht des grauen Kindes. Als ich blinzelte, war es ein Vogel. Wie immer.'] }[art]; if (!T) return;
+    if (typeof subtitle === 'function') subtitle('<i>' + T[0] + '</i>', 3800, 'LUKE'); if (typeof story !== 'undefined' && story.lore && !story.lore.some(l => l.key === T[1])) story.lore.push({ key: T[1], title: T[2], html: '<span class="hand">' + T[3] + '</span>' }); } catch (e) {} }
+function kino_grauKopfBau() { const S = kino_S, P = S.fig.graukind, T = THREE; if (!P || true) return null;
   P.g.updateMatrixWorld(true); const src = {}; P.obj.traverse(o => { if (o.isMesh && o.material && !Array.isArray(o.material) && !src[o.material.name]) src[o.material.name] = o; });
   const H = src.Std_Skin_Head, EL = src.Std_Eye_L, ER = src.Std_Eye_R; if (!H || !EL || !ER) { console.warn('Kino: grauer Kopf – Teile fehlen'); return null; }
   const inv = new T.Matrix4().copy(P.obj.matrixWorld).invert(), v = new T.Vector3();
@@ -1019,7 +1022,7 @@ function kino_defK2() {
   const glas = (v, d) => { const c = camera.position; let dx = TK.x - c.x, dz = TK.z - c.z; const n = Math.hypot(dx, dz) || 1; dx /= n; dz /= n; return v.set(TK.x - dx * d, Math.min(1.75, Math.max(1.1, c.y)), TK.z - dz * d); };
   const tubes = () => (typeof c2Lights !== 'undefined' ? c2Lights.filter(L => L.tube && L.tube.position.x > X + 105 && L.tube.position.x < X + 123 && Math.abs(L.tube.position.z - Z) < 9) : []).sort((a, b) => a.tube.position.x - b.tube.position.x);
   // R-9: das graue Gesicht im Tank – kommt aus dem Wasser, presst sich ans Glas (platt, heller), atmet (Druck und Blasen), wo der Mund wäre, wölbt sich die Haut
-  const tankKopf = dt => { const G = S.obj.grauKopf; if (!G) return; const t = S.T - (S.gkT0 || 0), u = kino_e(Math.min(1, t / .62)), atem = Math.sin(t * 1.9 - 1.2), p = S.gkP || (S.gkP = kino_V(0, 0, 0));
+  const tankKopf = dt => { const G = S.obj.grauKopf; if (!G) { kino_gkNotiz('tank'); return; } const t = S.T - (S.gkT0 || 0), u = kino_e(Math.min(1, t / .62)), atem = Math.sin(t * 1.9 - 1.2), p = S.gkP || (S.gkP = kino_V(0, 0, 0));
     const dGlas = .885, d = .45 + (dGlas - .014 - .45) * u + (u >= 1 ? .003 * atem : 0); glas(p, d); kino_gkZeig(p, camera.position, 1, true); G.rotateZ(.035 * Math.sin(t * .7)); G.rotateX(-.04 + .015 * Math.sin(t * 1.1));
     KINO_GK.uPlane.value = u >= .98 ? dGlas - d : 1; KINO_GK.uMund.value = kino_ramp(t, 1.1, 2.6) * (.6 + .4 * Math.sin(t * 3.1));
     const b = S.obj.beschlag; if (b) { b.visible = u > .9; glas(b.position, dGlas + .012); b.lookAt(camera.position); b.position.y -= .01; b.material.opacity = kino_cl((t - .7) / .8, 0, 1) * (.55 + .25 * Math.max(0, -atem)); }
@@ -1453,7 +1456,7 @@ function kino_defProlog() {
       tick(k, t, dt) { mix(dt); drehe(.25 + .8 * kino_e(Math.min(1, t / 1.6))); } }, // weg von Luke, zur Laterne hin
     { from: nahe(.72, .04), to: nahe(.72, .04), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 1.2, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .14, amt: .7 }, // 12,0–13,2 · Sprung: das Kindergesicht
       setup() { Audio.thump(P().x, P().y, P().z); kino_sub(.35); KINO_GK.uPlane.value = 1; KINO_GK.uMund.value = 0; S.kpF = kino_V(0, 0, 0); }, // R-9: echter Kopf des Graukinds, kindgroß verkleinert auf dem Rabenhals; kein Haar
-      tick(k, t, dt) { mix(dt); const p = S.kpF; kopf(p); camera.getWorldDirection(kino_d); p.addScaledVector(kino_d, -.012); p.y -= .03; const G = kino_gkZeig(p, camera.position, .5, false); if (G) G.rotateZ(-.06 + .03 * Math.sin(t * 2));
+      tick(k, t, dt) { mix(dt); const p = S.kpF; kopf(p); camera.getWorldDirection(kino_d); p.addScaledVector(kino_d, -.012); p.y -= .03; const G = kino_gkZeig(p, camera.position, .5, false); if (G) G.rotateZ(-.06 + .03 * Math.sin(t * 2)); else kino_gkNotiz('rabe');
         KINO_GK.uMund.value = .5 + .5 * Math.sin(t * 4.2); kino_S.lit[0] = kino_S.litKP || (kino_S.litKP = { p: kino_V(0, 0, 0), c: 0xe4ecf8, d: 2.5, i: 0 }); kino_S.litKP.p.copy(p).add(kino_V(0, -.35, 0)).addScaledVector(kino_d, -.15); kino_S.litKP.i = .45; /* schwach, von unten aus dem Laternenglas */ },
       teardown() { kino_hide('grauKopf'); KINO_GK.uMund.value = 0; } },
     { from: nahe(.72, .04), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9)', filterT: 2.5 },
@@ -1593,3 +1596,7 @@ window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, b
   info: () => ({ fenster: kino_villaFenster(), zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, helm: kino_helm(true), lens: !!kino_S.lens, ready: kino_S.ready,
     clips: Object.fromEntries(Object.entries(kino_S.fig).map(([k, P]) => [k, Object.keys(P.acts)])), bones: Object.fromEntries(Object.entries(kino_S.fig).map(([k, P]) => [k, Object.keys(P.bones).length])) }),
   mats: key => { const P = kino_S.fig[key]; return P ? P.mats.map(([m]) => m.name + ':' + [].concat(m.material).map(x => x.name).join('/')) : null; } };
+
+// 10.10. (Nutzer): das flache graue Gesicht am Tank (Basis: Fläche tankFace mit Gesichts-Textur, ohne Tiefentest durch das Glas) entfällt – es erscheint nur noch als Luke-Gedanke + Fibel-Eintrag
+try { tankFace.material.visible = false; } catch (e) {}
+try { scareTankFace = (o => async function () { try { kino_gkNotiz('tank'); } catch (e) {} return o.apply(this, arguments); })(scareTankFace); } catch (e) {}

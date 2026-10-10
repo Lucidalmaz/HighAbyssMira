@@ -20963,8 +20963,7 @@ function kf_flashBilder() { const W = 1024, H = 576, R = kf_rnd(1975);
       x.fillStyle = '#000'; x.fillRect(0, H * .7, W, H * .3); for (let i = 0; i < 40; i++) { x.strokeStyle = `rgba(220,225,240,${R() * .25})`; x.beginPath(); const yy = H * (.72 + R() * .26); x.moveTo(R() * W, yy); x.lineTo(R() * W, yy + 1); x.stroke(); } });
   const grau = kf_cnv(W, H, (x) => { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const tg = x.createLinearGradient(0, 0, W, 0); tg.addColorStop(0, 'rgba(120,150,150,.15)'); tg.addColorStop(.5, 'rgba(170,200,195,.45)'); tg.addColorStop(1, 'rgba(120,150,150,.15)');
       x.fillStyle = tg; x.fillRect(W * .22, H * .05, W * .56, H * .9); x.strokeStyle = 'rgba(210,220,220,.7)'; x.lineWidth = 6; x.strokeRect(W * .22, H * .05, W * .56, H * .9);
-      const fi = typeof faceTexes !== 'undefined' && faceTexes.grey && faceTexes.grey.image; if (fi) { x.save(); x.globalAlpha = .95; x.filter = 'grayscale(1) contrast(1.4) brightness(1.2)'; x.drawImage(fi, W * .36, H * .16, W * .28, H * .6); x.restore(); }
-      else { x.fillStyle = '#9a9c9e'; x.beginPath(); x.ellipse(W / 2, H * .45, 110, 150, 0, 0, 7); x.fill(); x.fillStyle = '#000'; for (const s of [-1, 1]) { x.beginPath(); x.ellipse(W / 2 + s * 42, H * .4, 18, 24, 0, 0, 7); x.fill(); } }
+      // 10.10.: kein gemaltes graues Gesicht mehr (flaches Nachbild) – nur der Tank: Glas, Blasen, Licht von hinten
       for (let i = 0; i < 70; i++) { x.strokeStyle = `rgba(230,240,240,${R() * .6})`; x.lineWidth = 1.5; x.beginPath(); x.arc(W * (.25 + R() * .5), H * R(), 2 + R() * 7, 0, 7); x.stroke(); }
       for (let i = 0; i < 7; i++) { x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = 14; x.beginPath(); const xx = W * (.26 + R() * .48); x.moveTo(xx, H * .05); x.lineTo(xx - 40, H * .95); x.stroke(); } });
   // Nachbild-Anmutung: weich, doppelt belichtet, Korn – nie scharf wie ein Foto
@@ -32966,7 +32965,10 @@ function kino_mundlosGeo(H, EL, ER) { const T = THREE, ar = g => { const a = g.a
   if (N0) { g.computeVertexNormals(); const N = g.attributes.normal; for (let i = 0; i < hn; i++) { const w = m[i]; v.set(N0.getX(i) + (N.getX(i) - N0.getX(i)) * w, N0.getY(i) + (N.getY(i) - N0.getY(i)) * w, N0.getZ(i) + (N.getZ(i) - N0.getZ(i)) * w).normalize(); N0.setXYZ(i, v.x, v.y, v.z); } g.setAttribute('normal', N0); }
   g.setAttribute('aMask', new T.BufferAttribute(m, 1)); return g; }
 // Kopf bauen (einmal beim Laden, aus dem Graukind-Klon des Kinos). Rückgabe: Gruppe (unsichtbar, in kino_S.obj.grauKopf)
-function kino_grauKopfBau() { const S = kino_S, P = S.fig.graukind, T = THREE; if (!P) return null;
+// 10.10. (Nutzer): keine eingeschnittenen/flachen grauen Gesichter – der Kopf wird nicht mehr gebaut; die Erscheinungen stehen als Luke-Gedanke + Fibel-Eintrag (kino_gkNotiz)
+function kino_gkNotiz(art) { try { const S = kino_S; S.gkN = S.gkN || {}; if (S.gkN[art]) return; S.gkN[art] = 1; const T = { tank: ['Hinter dem Glas, im Wasser: etwas Helles, rund. Kein Mund. Dann nur noch Blasen.', 'k2_tankgesicht', 'Das Gesicht im Tank', 'Hinter dem Beschlag ein helles Rund ohne Mund. Es war nie ganz da. Ich weiß nur: Es hat mich angesehen. Das Glas war kalt auf meiner Seite.'], rabe: ['Ein Kindergesicht auf dem Hals des Raben. Ich sehe es nicht an. Ich weiß, wessen es ist.', 'k_rabengesicht', 'Das Gesicht am Raben', 'Für einen Atemzug trug der Rabe das Gesicht des grauen Kindes. Als ich blinzelte, war es ein Vogel. Wie immer.'] }[art]; if (!T) return;
+    if (typeof subtitle === 'function') subtitle('<i>' + T[0] + '</i>', 3800, 'LUKE'); if (typeof story !== 'undefined' && story.lore && !story.lore.some(l => l.key === T[1])) story.lore.push({ key: T[1], title: T[2], html: '<span class="hand">' + T[3] + '</span>' }); } catch (e) {} }
+function kino_grauKopfBau() { const S = kino_S, P = S.fig.graukind, T = THREE; if (!P || true) return null;
   P.g.updateMatrixWorld(true); const src = {}; P.obj.traverse(o => { if (o.isMesh && o.material && !Array.isArray(o.material) && !src[o.material.name]) src[o.material.name] = o; });
   const H = src.Std_Skin_Head, EL = src.Std_Eye_L, ER = src.Std_Eye_R; if (!H || !EL || !ER) { console.warn('Kino: grauer Kopf – Teile fehlen'); return null; }
   const inv = new T.Matrix4().copy(P.obj.matrixWorld).invert(), v = new T.Vector3();
@@ -33575,7 +33577,7 @@ function kino_defK2() {
   const glas = (v, d) => { const c = camera.position; let dx = TK.x - c.x, dz = TK.z - c.z; const n = Math.hypot(dx, dz) || 1; dx /= n; dz /= n; return v.set(TK.x - dx * d, Math.min(1.75, Math.max(1.1, c.y)), TK.z - dz * d); };
   const tubes = () => (typeof c2Lights !== 'undefined' ? c2Lights.filter(L => L.tube && L.tube.position.x > X + 105 && L.tube.position.x < X + 123 && Math.abs(L.tube.position.z - Z) < 9) : []).sort((a, b) => a.tube.position.x - b.tube.position.x);
   // R-9: das graue Gesicht im Tank – kommt aus dem Wasser, presst sich ans Glas (platt, heller), atmet (Druck und Blasen), wo der Mund wäre, wölbt sich die Haut
-  const tankKopf = dt => { const G = S.obj.grauKopf; if (!G) return; const t = S.T - (S.gkT0 || 0), u = kino_e(Math.min(1, t / .62)), atem = Math.sin(t * 1.9 - 1.2), p = S.gkP || (S.gkP = kino_V(0, 0, 0));
+  const tankKopf = dt => { const G = S.obj.grauKopf; if (!G) { kino_gkNotiz('tank'); return; } const t = S.T - (S.gkT0 || 0), u = kino_e(Math.min(1, t / .62)), atem = Math.sin(t * 1.9 - 1.2), p = S.gkP || (S.gkP = kino_V(0, 0, 0));
     const dGlas = .885, d = .45 + (dGlas - .014 - .45) * u + (u >= 1 ? .003 * atem : 0); glas(p, d); kino_gkZeig(p, camera.position, 1, true); G.rotateZ(.035 * Math.sin(t * .7)); G.rotateX(-.04 + .015 * Math.sin(t * 1.1));
     KINO_GK.uPlane.value = u >= .98 ? dGlas - d : 1; KINO_GK.uMund.value = kino_ramp(t, 1.1, 2.6) * (.6 + .4 * Math.sin(t * 3.1));
     const b = S.obj.beschlag; if (b) { b.visible = u > .9; glas(b.position, dGlas + .012); b.lookAt(camera.position); b.position.y -= .01; b.material.opacity = kino_cl((t - .7) / .8, 0, 1) * (.55 + .25 * Math.max(0, -atem)); }
@@ -34009,7 +34011,7 @@ function kino_defProlog() {
       tick(k, t, dt) { mix(dt); drehe(.25 + .8 * kino_e(Math.min(1, t / 1.6))); } }, // weg von Luke, zur Laterne hin
     { from: nahe(.72, .04), to: nahe(.72, .04), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 1.2, fov: 30, hand: .05, lens: { at: () => kopf(kino_S.a), r: .14, amt: .7 }, // 12,0–13,2 · Sprung: das Kindergesicht
       setup() { Audio.thump(P().x, P().y, P().z); kino_sub(.35); KINO_GK.uPlane.value = 1; KINO_GK.uMund.value = 0; S.kpF = kino_V(0, 0, 0); }, // R-9: echter Kopf des Graukinds, kindgroß verkleinert auf dem Rabenhals; kein Haar
-      tick(k, t, dt) { mix(dt); const p = S.kpF; kopf(p); camera.getWorldDirection(kino_d); p.addScaledVector(kino_d, -.012); p.y -= .03; const G = kino_gkZeig(p, camera.position, .5, false); if (G) G.rotateZ(-.06 + .03 * Math.sin(t * 2));
+      tick(k, t, dt) { mix(dt); const p = S.kpF; kopf(p); camera.getWorldDirection(kino_d); p.addScaledVector(kino_d, -.012); p.y -= .03; const G = kino_gkZeig(p, camera.position, .5, false); if (G) G.rotateZ(-.06 + .03 * Math.sin(t * 2)); else kino_gkNotiz('rabe');
         KINO_GK.uMund.value = .5 + .5 * Math.sin(t * 4.2); kino_S.lit[0] = kino_S.litKP || (kino_S.litKP = { p: kino_V(0, 0, 0), c: 0xe4ecf8, d: 2.5, i: 0 }); kino_S.litKP.p.copy(p).add(kino_V(0, -.35, 0)).addScaledVector(kino_d, -.15); kino_S.litKP.i = .45; /* schwach, von unten aus dem Laternenglas */ },
       teardown() { kino_hide('grauKopf'); KINO_GK.uMund.value = 0; } },
     { from: nahe(.72, .04), to: nahe(1.1, .15), look: () => kopf(kino_V(0, 0, 0)).toArray(), dur: 3.8, fov: 30, fovTo: 36, hand: .3, ease: 'soft', film: { vig: 1.8, filter: 'grayscale(.6) brightness(1.1) contrast(.9)', filterT: 2.5 },
@@ -34149,6 +34151,10 @@ window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, b
   info: () => ({ fenster: kino_villaFenster(), zus: !!kino_S.zus, schild: kino_S.schild, loadT: kino_S.loadT, figs: Object.keys(kino_S.fig), objs: Object.keys(kino_S.obj), rabe: !!kino_S.rabe, helm: kino_helm(true), lens: !!kino_S.lens, ready: kino_S.ready,
     clips: Object.fromEntries(Object.entries(kino_S.fig).map(([k, P]) => [k, Object.keys(P.acts)])), bones: Object.fromEntries(Object.entries(kino_S.fig).map(([k, P]) => [k, Object.keys(P.bones).length])) }),
   mats: key => { const P = kino_S.fig[key]; return P ? P.mats.map(([m]) => m.name + ':' + [].concat(m.material).map(x => x.name).join('/')) : null; } };
+
+// 10.10. (Nutzer): das flache graue Gesicht am Tank (Basis: Fläche tankFace mit Gesichts-Textur, ohne Tiefentest durch das Glas) entfällt – es erscheint nur noch als Luke-Gedanke + Fibel-Eintrag
+try { tankFace.material.visible = false; } catch (e) {}
+try { scareTankFace = (o => async function () { try { kino_gkNotiz('tank'); } catch (e) {} return o.apply(this, arguments); })(scareTankFace); } catch (e) {}
 // =====================================================================  BEDIENUNG (Modul „bedienung“, Auftrag 08.10.2026; 09.10.: echte Modelle statt prozeduralem Baukasten)
 // Geräte, die der Spieler anfasst – jetzt aus echten Scans/Modellen (Texturen ≤ 2k, KTX2 über tools/ktx.mjs; Quellen siehe CREDITS.md):
 //   Tastenfeld Kellertür (Kap. 1)   Keypad Door Lock (plaggy, CC-BY)      assets/ms/bed_keypad/  – Eingabe im Overlay #keypad (Tafel aus den Texturen des Modells), LED-Rückmeldung über Emission
@@ -34582,12 +34588,12 @@ function kapitel1_tvTick(dt) { const T = K1.tv; if (tvLight.userData.dead || K1.
   if (!T.cv) { T.cv = document.createElement('canvas'); T.cv.width = 256; T.cv.height = 192; T.cx = T.cv.getContext('2d'); T.tx = new THREE.CanvasTexture(T.cv); T.tx.colorSpace = tvTex.colorSpace; T.map0 = tvScreen.material.emissiveMap; tvScreen.material.emissiveMap = T.tx; tvScreen.material.needsUpdate = true;
     if (typeof kino_tvTon === 'function') kino_tvTon(tvScreen.position); }
   T.ft += dt; const t = T.ft, x = T.cx, W = 256, H = 192;
-  if (t < 1.05 && typeof kino_tvGesicht === 'function') { const k = t < .35 ? (t / .35) * (t / .35) : t < .9 ? 1 : Math.max(0, 1 - (t - .9) / .15); kino_tvGesicht(x, W, H, t, k); tvLight.intensity = 1.1 + 1.4 * k; }
+  if (t < 1.05 && typeof kino_tvGesicht === 'function') { const k = t < .35 ? (t / .35) * (t / .35) : t < .9 ? 1 : Math.max(0, 1 - (t - .9) / .15); kino_tvGesicht(x, W, H, t, 0); tvLight.intensity = 1.1 + 1.4 * k; } // 10.10.: kein gerendertes Porträt mehr im Bildschirm (Nutzer: keine flachen Gesichter) – nur Schnee, Zeilenzittern, Aufhellung; die Erscheinung steht als Luke-Gedanke + Fibel-Eintrag
   else if (t < 1.85) { const im = x.createImageData(W, H); for (let i = 0; i < im.data.length; i += 4) { const v = Math.random() * 200; im.data[i] = im.data[i + 1] = v * .92; im.data[i + 2] = v; im.data[i + 3] = 255; } x.putImageData(im, 0, 0);
     if (t > 1.15) { x.save(); x.translate(128 + rand(-1, 1), 104); x.rotate(-.04); x.font = 'bold 34px Caveat, "Comic Sans MS", cursive'; x.textAlign = 'center'; x.lineJoin = 'round';
       x.strokeStyle = 'rgba(20,20,22,.85)'; x.lineWidth = 9; x.strokeText('HALLO LUKE', 0, 0); x.fillStyle = 'rgba(244,241,230,.95)'; x.fillText('HALLO LUKE', 0, 0);
       x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 160; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-100, 100), rand(-28, 6), rand(1, 3), 1); } x.restore(); } tvLight.intensity = 1.6; }
-  else { tvScreen.material.emissiveMap = T.map0; tvScreen.material.needsUpdate = true; K1.f.add('tv'); state.tvSeen = true; setTimeout(() => kapitel1_zeile('Netzbrummen, fünfzig Hertz. Sauber. Wenigstens der Strom funktioniert hier noch.', 4200, 'LUKE'), 1600); return; }
+  else { tvScreen.material.emissiveMap = T.map0; tvScreen.material.needsUpdate = true; K1.f.add('tv'); state.tvSeen = true; kapitel1_lore('k1_tv_gesicht', 'Im Schnee des Fernsehers', '<span class="hand">Im Schnee, einen Atemzug lang: ein helles Oval. Kein Mund. Ich habe nicht lange genug hingesehen, um es sicher zu wissen. Dann stand da mein Name, in Kinderkreide.</span>'); setTimeout(() => kapitel1_zeile('Ein helles Oval im Schnee. Kein Mund. Ich hab nicht lang genug hingesehen. Oder nicht lang genug hinsehen dürfen.', 4400, 'LUKE'), 400); setTimeout(() => kapitel1_zeile('Netzbrummen, fünfzig Hertz. Sauber. Wenigstens der Strom funktioniert hier noch.', 4200, 'LUKE'), 1600); return; }
   T.tx.needsUpdate = true; }
 // „Nicht du“: Hilde packt das linke Handgelenk, dreht die Handfläche unter die Küchenlampe, sieht hin, sieht ihm ins Gesicht
 async function kapitel1_nichtDu() {
@@ -38673,11 +38679,9 @@ function ns_netzBild() {
   for (let i = 0; i < 70; i++) { x.fillStyle = `rgba(210,208,196,${rand(.1, .45)})`; x.beginPath(); x.arc(rand(0, W), rand(0, H), rand(.8, 2.4), 0, 6.28); x.fill(); } // Staubflocken
   return NS.webImg = cv.toDataURL('image/png'); }
 function ns_netz() {
-  const el = document.createElement('div'); el.style.cssText = 'position:fixed;inset:-4%;z-index:34;pointer-events:none;opacity:0;background-size:cover;background-position:center;transition:opacity .09s ease-out,transform 2.6s ease-in;filter:blur(.6px) drop-shadow(0 0 2px rgba(0,0,0,.4))';
-  el.style.backgroundImage = `url(${ns_netzBild()})`; el.style.transform = `rotate(${rand(-14, 14)}deg) scale(${rand(1.05, 1.3)})`; document.body.appendChild(el);
-  requestAnimationFrame(() => { el.style.opacity = '.7'; }); shake = Math.max(shake, .008); FEEL.dipV += .22;
+  // 10.10.: kein flaches Netz-Overlay vor dem Bild mehr (Nutzer: keine Overlays) – nur Stoffgeräusch, Zucken und Gedanke
+  shake = Math.max(shake, .012); FEEL.dipV += .22;
   if (Audio.ctx) { try { Audio.play('cloth1', { gain: .22, rate: rand(1.2, 1.5), hp: 900 }); } catch (e) {} const A = Audio, n = A.noise(false), hp = A.ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3200; n.connect(hp); A.env(hp, .045, .01, .3); n.stop(A.ctx.currentTime + .6); }
-  setTimeout(() => { el.style.transition = 'opacity 2.3s ease-in, transform 2.6s ease-in'; el.style.opacity = '0'; el.style.transform += ' translateY(6%)'; }, 1100 + rand(0, 500)); setTimeout(() => el.remove(), 4300);
   if (!NS.n.netzG && typeof gedanke === 'function' && Math.random() < .5) { NS.n.netzG = 1; setTimeout(() => gedanke('ns_netz', 'Spinnweben. Lange hat hier keiner mehr gelüftet. Oder: jemand hat sich Mühe gegeben, dass es so aussieht.', 5200, 2), 2400); }
 }
 // ---------------------------------------------------------------- Vogel bricht aus dem Busch
