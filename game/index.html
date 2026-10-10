@@ -2464,7 +2464,8 @@ function subtitle(t, ms = 4000, who = '') { const n = subNow(); if (subMin - n >
   subShow(t, ms, who); }
 function subNext() { subQH = null; const a = subQ.shift(); if (!a) return; subShow(...a); if (subQ.length) subQH = gtAfter(Math.max(0, subMin - subNow()), subNext); }
 function subShow(t, ms = 4000, who = '') { t = trX(t); who = trX(who); if (ms) ms = Math.max(ms, readMs(t)); subMin = subNow() + 1400 + plainLen(t) * 60; const el = $('subtitle'); el.classList.toggle('thought', !!who && who === trX('LUKE')); el.innerHTML = (who ? `<span class="who">${who === trX('DU') ? trX('LUKE') : who}</span>` : '') + t; el.style.opacity = 1; gtCancel(subT); subT = ms ? gtAfter(ms, () => el.style.opacity = 0) : null; } // Spielzeit: bleibt bei Pause stehen wie say()
-async function say(lines) { for (const l of lines) { const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await wait(d); } }
+var TXW = { res: null, alle: false }; // Text weiter (textweiter.js)
+async function say(lines) { TXW.alle = false; for (const l of lines) { if (TXW.alle) break; const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await new Promise(res => { TXW.res = res; wait(d).then(() => { if (TXW.res === res) TXW.res = null; res(); }); }); } TXW.alle = false; }
 function fade(to, ms = 1500) { const f = $('fade'); f.style.transition = `opacity ${ms}ms`; f.style.opacity = to; return wait(ms); }
 function questPop(kind, text) { $('qpKind').textContent = trX(kind); $('qpText').textContent = trX(text); const el = $('questPop'); el.classList.add('show'); clearTimeout(popT); popT = setTimeout(() => el.classList.remove('show'), Math.max(4500, readMs(text, 2200, 55))); Audio.chime('quest'); }
 function lockPointer() { const el = renderer.domElement, quiet = r => { if (r && r.catch) r.catch(() => {}); }; // ohne Nutzergeste lehnt der Browser ab – dann sperrt der nächste Klick
@@ -45903,6 +45904,26 @@ window.__schweben = { index: schweben_index, decStats: () => SCHW.decStats, deca
   pruefen: rect => schweben_pass(rect, { apply: false }) };
 // Außenwelt: Decals einmal nach dem Laden (Straße, Kreide, Blut, Zettel) – verzögert
 setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 25000);
+// =====================================================================  TEXT WEITER / ÜBERSPRINGEN (Nutzer 10.10.2026: „Texte lassen sich teils nicht weiterklicken/überspringen“)
+// Untertitel und Gedanken (subtitle/say) laufen sonst starr nach Lesezeit. Jetzt:
+//   · Enter, Leertaste im Gespräch ausgenommen: Enter oder linke Maustaste auf der Textzeile → nächste Zeile sofort (aktuelle Zeile ausblenden, Warteschlange weiter)
+//   · X → alle wartenden Zeilen verwerfen und die laufende say()-Folge sofort beenden
+// Gilt nur, solange ein Untertitel sichtbar ist und kein Overlay (Notiz, Keypad, Menü, Pause) offen ist. Bewegen, Lampe, E bleiben unberührt (freeTalk).
+// TXW und say() mit überspringbarem Warten: textweiter_patch.py (Basis)
+function textweiter_overlay() { try { return !!(ui && ui.overlay) || !!document.querySelector('.overlay.show:not(#start)') || document.body.classList.contains('menu') || (state && (state.paused || state.dead)); } catch (e) { return false; } }
+function textweiter_sichtbar() { const el = document.getElementById('subtitle'); return !!el && parseFloat(el.style.opacity || '0') > .05 && el.textContent.trim().length > 0; }
+function textweiter(alle) {
+  if (!textweiter_sichtbar() || textweiter_overlay()) return false;
+  const el = document.getElementById('subtitle');
+  gtCancel(subT); subT = null; el.style.opacity = 0;
+  if (alle) { TXW.alle = true; subQ.length = 0; if (subQH) { gtCancel(subQH); subQH = null; } }
+  const r = TXW.res; TXW.res = null; if (r) r();
+  subMin = 0; if (subQ.length && !subQH) subQH = gtAfter(0, subNext);
+  return true;
+}
+window.addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Enter' || e.code === 'NumpadEnter') { if (textweiter(false)) e.preventDefault(); } else if (e.code === 'KeyX') textweiter(true); }, true);
+window.addEventListener('mousedown', e => { if (e.button === 0 && document.pointerLockElement === null && textweiter_sichtbar() && e.target && e.target.id === 'subtitle') textweiter(false); }, true);
+window.__textweiter = { skip: textweiter, say: l => say(l), sichtbar: textweiter_sichtbar };
 // =====================================================================  BEWEGUNG & HITBOXEN (Nutzer 10.10.2026, Folgeauftrag 7)
 // „Beim Draufspringen lande ich in Autos/Bussen und stecke fest“ – Ursache (Messung bewegung_audit.md): Fahrzeuge waren nur Netz-Kollision (SOL). Unterboden, Fenster (Glas ist nie fest) und Innenraum
 // sind hohl: man lief unter das Auto, fiel durch die Scheiben in den Innenraum, und Hochziehen setzte auf Dachkanten, die nur ein Netz waren.
