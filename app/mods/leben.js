@@ -465,7 +465,7 @@ function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenh
 const LEBEN_NAT = { fox: { Walk: .46, Run: 2.54 }, deer: { Walk: 1.08, Run: 5.61 }, wolf: { Walk: .93, Run: 4.3 }, pig: { Walk: 1.01, Run: 6.48 }, stag: { Walk: 1.2, Run: 6.12 } };
 function leben_beastSync(V, dt) { const p = V.g.position; if (V.__lx === undefined) { V.__lx = p.x; V.__lz = p.z; V.__v = 0; return; }
   const v = Math.hypot(p.x - V.__lx, p.z - V.__lz) / Math.max(dt, 1e-3); V.__lx = p.x; V.__lz = p.z; V.__v += (Math.min(v, 12) - V.__v) * Math.min(1, dt * 8);
-  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return; if (c === V.A.Walk || c === V.A.Run) { const n = (c === V.A.Run ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) c.timeScale = Math.max(.5, Math.min(1.7, V.__v / n)); } }
+  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return; if (c === V.A.Walk || c === V.A.Run) { const n = (c === V.A.Run ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) c.timeScale = Math.max(.5, Math.min(2.3, V.__v / n)); } }
 function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) { leben_beastSync(V, dt); V.mx.update(dt); } }
 function leben_openSpot(dMin, dMax, clear, behind) { // freier Platz in einem Ring um den Spieler (für Reh und Wolf)
   const P = player.pos;

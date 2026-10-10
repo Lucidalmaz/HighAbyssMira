@@ -11836,7 +11836,7 @@ function leben_beast(key, s = 1) {
   const S = leben_S, B = S.M[key]; if (!B) return null;
   const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); leben_variiere(m, { hell: key === 'pig' ? [.8, 1.1] : [.82, 1.14], warm: .07 }); // Individuum
   const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Tier:' + key, 1.6);
-  const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false };
+  const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false, nat: LEBEN_NAT[key] };
   const first = Object.keys(V.A).find(k => /IdleBreathe/.test(k)) || Object.keys(V.A)[0]; if (first) leben_play(V, first, 0);
   return V;
 }
@@ -11851,7 +11851,12 @@ function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenh
   V.gy -= dt; if (V.gy < 0) { V.gy = .2; const sg = solidGround(p.x, p.y + .1, p.z); V.ty = sg > -1 ? Math.max(0, sg) : 0; } p.y += (V.ty - p.y) * Math.min(1, dt * 8);
   return dd < .15;
 }
-function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) V.mx.update(dt); }
+// 10.10.: Abspieltempo = Wegtempo (kein Fussgleiten): natuerliche Geschwindigkeit der Walk/Run-Clips (m/s bei Modellmass 1, aus den _RM-Clips gemessen)
+const LEBEN_NAT = { fox: { Walk: .46, Run: 2.54 }, deer: { Walk: 1.08, Run: 5.61 }, wolf: { Walk: .93, Run: 4.3 }, pig: { Walk: 1.01, Run: 6.48 }, stag: { Walk: 1.2, Run: 6.12 } };
+function leben_beastSync(V, dt) { const p = V.g.position; if (V.__lx === undefined) { V.__lx = p.x; V.__lz = p.z; V.__v = 0; return; }
+  const v = Math.hypot(p.x - V.__lx, p.z - V.__lz) / Math.max(dt, 1e-3); V.__lx = p.x; V.__lz = p.z; V.__v += (Math.min(v, 12) - V.__v) * Math.min(1, dt * 8);
+  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return; if (c === V.A.Walk || c === V.A.Run) { const n = (c === V.A.Run ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) c.timeScale = Math.max(.5, Math.min(2.3, V.__v / n)); } }
+function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) { leben_beastSync(V, dt); V.mx.update(dt); } }
 function leben_openSpot(dMin, dMax, clear, behind) { // freier Platz in einem Ring um den Spieler (für Reh und Wolf)
   const P = player.pos;
   for (let k = 0; k < 24; k++) { const a = rand(0, 6.28), d = rand(dMin, dMax), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d;
@@ -11891,7 +11896,7 @@ function leben_foxTick(F, dt, live) {
     case 'look': F.g.rotation.y = leben_ang(F.g.rotation.y, Math.atan2(-dx, -dz), Math.min(1, dt * 8)); F.t -= dt;
       if (F.t < 0) { let best = null, bs = -9; for (const s of L) { const sx = s.x - p.x, sz = s.z - p.z, sd = Math.hypot(sx, sz); if (sd < 12 || sd > 32) continue; const sc = (sx * dx + sz * dz) / (sd * (d || 1)) + rand(0, .3); if (sc > bs && leben_pathR(p.x, p.z, s.x, s.z, .3, .2)) { bs = sc; best = s; } }
         if (best) { F.tx = best.x; F.tz = best.z; } else { F.tx = p.x + dx / (d || 1) * 20; F.tz = p.z + dz / (d || 1) * 20; }
-        F.st = 'flee'; F.sp = 5.2; leben_play(F, 'Run', .15, 1.05); leben_scare(p.x, p.z, 5); } break;
+        F.st = 'flee'; F.sp = 4.3; leben_play(F, 'Run', .15, 1.05); leben_scare(p.x, p.z, 5); } break;
     case 'flee': if (leben_beastMove(F, dt)) { F.st = 'roam'; F.t = rand(4, 9); leben_play(F, 'IdleLookAround', .3); }
       if (!F.rsT || (F.rsT -= dt) < 0) { F.rsT = .3; if (d < 18) Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .12, rate: rand(1.5, 1.9), x: p.x, y: .1, z: p.z, ref: 1.5 }); } break;
     case 'roam': F.t -= dt; if (F.t < 0 && L && S.pathBudget > 0) { S.pathBudget--; for (let k = 0; k < 4; k++) { const s = L[Math.floor(Math.random() * L.length)], sd = Math.hypot(s.x - p.x, s.z - p.z); if (sd < 5 || sd > 22 || !leben_pathR(p.x, p.z, s.x, s.z, .3, .2)) continue;
@@ -12950,8 +12955,8 @@ function katzen_tick(dt, t, indoor) {
     k.fadeT -= dt;
     if (vis && inFront && k.acc >= step) { // ruhende Pose (sitzen, liegen …) nach dem Überblenden: Mischer sparen, nur die überlagerten Knochen zurücksetzen
       const ob = k.ob; if (KATZEN_STATIC.has(k.curK) && k.fadeT <= 0 && k.cached) { for (let i = 0; i < ob.length; i++) ob[i].quaternion.copy(k.baseQ[i]); }
-      else { k.mx.update(k.acc); for (let i = 0; i < ob.length; i++) k.baseQ[i].copy(ob[i].quaternion); k.cached = true; }
-      k.acc = 0; if (k.lod < 2) katzen_overlay(k, dt, t, d); }
+      else { k.mx.update(k.acc); const ol = k.ovLast; /* 10.10.: schrieb der Mixer den Knochen nicht neu, steht noch unsere letzte Ueberlagerung darin -> auf die gemerkte Mixer-Pose zurueck (sonst Kopf dreht sich Bild fuer Bild weiter) */ for (let i = 0; i < ob.length; i++) { const q = ob[i].quaternion; if (ol && ol[i] && k.cached && q.angleTo(ol[i]) < 1e-7) q.copy(k.baseQ[i]); else k.baseQ[i].copy(q); } k.cached = true; }
+      k.acc = 0; if (k.lod < 2 && !(k.fadeT > 0)) { k.ovW = Math.min(1, (k.ovW || 0) + dt * 3.5); katzen_overlay(k, dt, t, d); const ol = k.ovLast || (k.ovLast = ob.map(() => new THREE.Quaternion())); for (let i = 0; i < ob.length; i++) { const q = ob[i].quaternion; if (k.ovW < 1) { const c0 = katzen_Q[0].copy(q); q.copy(k.baseQ[i]).slerp(c0, k.ovW); } const a = q.angleTo(k.baseQ[i]); if (a > 1.3) { const c0 = katzen_Q[0].copy(q); q.copy(k.baseQ[i]).slerp(c0, 1.3 / a); } /* 10.10.: Ueberlagerung nie > 75 Grad von der Mixer-Pose (Kopf-Kreisel) */ ol[i].copy(q); } } else { k.ovLast = null; if (k.fadeT > 0) k.ovW = 0; } }
     katzen_eyes(k, dt, d, lampOn, cam);
   }
   const ms = performance.now() - t0; S.prof.acc += ms; S.prof.n++; if (ms > S.prof.max) S.prof.max = ms;
@@ -16707,7 +16712,9 @@ function justin_helmBauen(helm, head) { const S = justin_S; justin.model.updateM
   const mkGeo = list => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(out, 3)); for (const k of ['normal', 'uv']) if (helm.geometry.attributes[k]) g.setAttribute(k, helm.geometry.attributes[k]); g.setIndex(list); g.computeVertexNormals(); g.computeBoundingSphere(); return g; };
   const mat = justin_haut(helm.material, { key: 'helm' }); mat.side = THREE.DoubleSide;
   const grp = new THREE.Group(); grp.name = 'JustinHelm'; head.add(grp);
-  const shell = new THREE.Mesh(mkGeo(schale), mat); shell.name = 'helm_schale'; shell.castShadow = true; shell.frustumCulled = false; grp.add(shell);
+  // 10.10.: die UV der Schale lagen auf schwarzen Texeln (schwarze Flaechen/Straehnen neben dem Visier) -> alle Schalen-UV auf einen hellen Stahl-Texel des Visiers
+  const shg = mkGeo(schale); { const uvA = helm.geometry.attributes.uv; if (uvA && visier.length) { const k = visier[Math.floor(visier.length / 2)], U2 = new Float32Array(n * 2); for (let i = 0; i < n; i++) { U2[i * 2] = uvA.getX(k); U2[i * 2 + 1] = uvA.getY(k); } shg.setAttribute('uv', new THREE.BufferAttribute(U2, 2)); } }
+  const shell = new THREE.Mesh(shg, mat); shell.name = 'helm_schale'; shell.castShadow = true; shell.frustumCulled = false; shell.visible = false; /* 10.10.: Schale zeigte nur schwarze Flaechen/Straehnen (UV auf schwarzen Texeln, Sliver-Dreiecke) - ausgeblendet */ grp.add(shell);
   // Visier dreht um die Achse durch die Schläfen (Höhe Stirnband, Mitte der Schale)
   const piv = c.clone().addScaledVector(U, uBand - .004); const vg = mkGeo(visier); vg.translate(-piv.x, -piv.y, -piv.z);
   const vis = new THREE.Mesh(vg, mat); vis.name = 'helm_visier'; vis.castShadow = true; vis.frustumCulled = false; const vp = new THREE.Group(); vp.position.copy(piv); vp.add(vis); grp.add(vp);
@@ -17519,8 +17526,16 @@ function figuren_idleKey(P) { if (P.gait) return figuren_locoClip(P, 'idle'); re
 // Atmung: Brustkorb hebt sich um die Querachse (Schultern, Arme, Kopf folgen), Hals gleicht aus – nach Laufen schneller und tiefer
 function figuren_breath(P, V, dt) { const r = P.rig; if (!r.chest || !r.chestChain) return; const M = FIGUREN_MV, kid = (P.h || 1.6) < 1.5;
   V.br += dt * (kid ? 1.9 : 1.55) * (1 + V.exert * 1.4); const a = (Math.sin(V.br) * .5 + .5) * (.012 + V.exert * .02);
-  P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.q.setFromAxisAngle(M.v, -a); r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.q);
-  if (r.neckChain) { M.q.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.q); } }
+  // 10.10.: Mikro-Schicht (Nutzer: Menschen wirken mechanisch): im Stand langsame Gewichtsverlagerung (Oberkoerper rollt/dreht minimal, nie in der Bewegung), Kopf mit leisem Rauschen (Gier, Nicken);
+  // Phase je Person. Je Kette EIN Aufruf von figuren_rotChain (Mehrfachaufrufe setzen sich gegenseitig auf die Mixer-Pose zurueck): Drehungen werden vorher zu einer Quaternion multipliziert.
+  const t = figuren_S.T.value, ph = P.__mph || (P.__mph = Math.random() * 100), calm = 1 - Math.min(1, V.exert * 1.5);
+  P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.v3.set(0, 0, 1).applyQuaternion(M.q);
+  M.qa.setFromAxisAngle(M.v, -a);
+  if (!V.moving && !P.sit) { const sw = (Math.sin(t * .27 + ph) + Math.sin(t * .113 + ph * 1.7) * .8) * .55; M.qb.setFromAxisAngle(M.v3, sw * .02 * calm); M.qa.premultiply(M.qb); M.qb.setFromAxisAngle(M.up, Math.sin(t * .19 + ph * .6) * .018 * calm); M.qa.premultiply(M.qb); }
+  r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.qa);
+  if (r.neckChain) { M.qa.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.qa); }
+  if (r.headChain && r.head && r.headChain !== r.neckChain) { const hn = Math.sin(t * .83 + ph) * .5 + Math.sin(t * 1.9 + ph * 2.3) * .3 + Math.sin(t * .31 + ph * .4) * .6; M.qa.setFromAxisAngle(M.up, hn * .022);
+    M.qb.setFromAxisAngle(M.v, Math.sin(t * .67 + ph * 1.3) * .014 + Math.sin(t * .21 + ph) * .01); M.qa.premultiply(M.qb); r.head.getWorldPosition(M.v2); figuren_rotChain(r.headChain, M.v2, M.qa); } }
 // Blick: Ziel in Kopfhöhe; Augen schnell (≤ 25°), Kopf/Hals langsam (Hals + Kopf ≤ 60° seitlich, 35° hoch/runter); hinter der Figur: nicht hinsehen
 function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) return; let T = P.look || V.autoLook, want = P.look ? V.lookW : V.autoLook ? .85 : 0;
   if (T === 'cam' || T === 'auto') { M.T.copy(camera.position); if (T === 'auto') { r.head.getWorldPosition(M.v); if (M.v.distanceTo(M.T) > 5) want = 0; } }
@@ -18570,9 +18585,9 @@ function whiskey_caw(o = {}) { const S = whiskey_S, g = S.g; if (!g || S.mood ==
 const whiskey_qj = new THREE.Quaternion();
 function whiskey_schnabel(dauer = .3, weit = .45, nach = 0) { const S = whiskey_S; if (!S.jawAx) return; (S.kQ = S.kQ || []).push({ t: -nach, d: dauer, w: weit }); if (S.kQ.length > 48) S.kQ.shift(); }
 function whiskey_sprechen(ms) { const n = Math.min(40, Math.max(1, Math.round(ms / 240))); for (let i = 0; i < n; i++) whiskey_schnabel(rand(.12, .2), rand(.16, .36), i * .24 + rand(0, .05)); }
-function whiskey_kiefer(dt) { const S = whiskey_S, Q = S.kQ; if (!S.jaw || !S.jawAx || !Q || !Q.length) return; let a = 0;
+function whiskey_kiefer(dt) { const S = whiskey_S, Q = S.kQ; if (!S.jaw || !S.jawAx || !Q) return; let a = 0;
   for (let i = Q.length - 1; i >= 0; i--) { const q = Q[i]; q.t += dt; if (q.t >= q.d) { Q.splice(i, 1); continue; } if (q.t > 0) a = Math.max(a, q.w * Math.sin(PI * q.t / q.d)); }
-  if (a > 0) S.jaw.quaternion.multiply(whiskey_qj.setFromAxisAngle(S.jawAx, a)); }
+  anim_ueber(S.jaw, jb => { if (a > 0) jb.quaternion.multiply(whiskey_qj.setFromAxisAngle(S.jawAx, a)); }); } // 10.10.: nie auf die letzte Ueberlagerung addieren
 function whiskey_stumm() { return (typeof K6 !== 'undefined' && K6.on && K6.sil > .5) || (typeof SP !== 'undefined' && SP.silent > .5); } // Stille-Zonen (Kap. 6): Whiskey stumm
 // Flug: Bogen (quadratische Bézierkurve), schnell ab, langsam an (Landen mit Abbremsen), Körper neigt sich mit
 function whiskey_fly(to, then) {
@@ -18960,7 +18975,7 @@ WORLD_MODS.push(['Whiskey', async () => {
     // 08.10.: eigener Kolkrabe (Museumsscan CC0 + gebaute Federn/Beine/Augen, tools/blender/rabe_bau*.py) auf dem Skelett der alten Krähe – gleiche Knochen und Clips; Rückfall: altes Modell
     let src; try { src = await msModel('rabe_whiskey', 'model.glb'); S.neu = true; } catch (e) { console.warn('Whiskey: neues Rabenmodell fehlt – altes Modell', e); src = await msModel('animal_crow', 'model.glb'); S.neu = false; }
     const sk = (await import('three/addons/utils/SkeletonUtils.js')).clone, m = sk(src);
-    m.rotation.y = PI / 2; // das Modell schaut entlang +X: wie die Dorfkrähen (leben.js) drehen, damit der Kopf in Flugrichtung zeigt
+    m.rotation.y = 0; // 10.10.: Modell blickt entlang +Z (gemessen Kopf-Becken, wie die Gruppe atan2(dx,dz)); vorher PI/2 = Rabe flog 90 Grad seitwaerts
     m.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false;
       o.material = [].concat(o.material).map(x => { const c = x.clone(); if (!S.neu) { c.color = (c.color || new THREE.Color(1, 1, 1)).clone().multiplyScalar(.5); c.roughness = .42; } if ('sheen' in c) { c.sheen = S.neu ? .3 : .35; c.sheenColor = new THREE.Color(0x3a4a7a); } return c; }); if (o.material.length === 1) o.material = o.material[0]; } // blauer Schimmer im Licht (neu: Farbe/Rauheit aus dem Atlas)
       if (o.isBone && /(^|-)Head$/.test(o.name)) S.head = o;
@@ -25919,7 +25934,7 @@ function beob_rigAnim(dt, lit, o = {}) { const S = beob_S, V = S.V; if (!V || !V
   if (V.spiegel && !lit) tx = Math.max(-.5, Math.min(.5, -(player.pitch || 0) * .7)); // spiegelt Lukes Kopfhaltung: guckt Luke hoch, guckt er hoch
   if (o.kx !== undefined) { tx = o.kx; tz = 0; ty = 0; }
   beob_feder(H, 'z', tz, hart ? 560 : 36, hart ? .42 : .9, dt); beob_feder(H, 'y', ty, lit ? 260 : hart ? 560 : 36, lit ? .6 : hart ? .45 : .9, dt); beob_feder(H, 'x', tx, hart ? 400 : 50, .8, dt);
-  const zit = V.starr > 0 ? .0012 : .0026; V.e.set(H.rotation.x + Math.sin(V.t * 29) * zit, H.rotation.y + Math.sin(V.t * 23 + 1) * zit, H.rotation.z + Math.sin(V.t * 37 + 2) * zit * .8, 'YXZ'); B.kopf.quaternion.multiply(V.q.setFromEuler(V.e));
+  const zit = V.starr > 0 ? .0012 : .0026; V.e.set(H.rotation.x + Math.sin(V.t * 29) * zit, H.rotation.y + Math.sin(V.t * 23 + 1) * zit, H.rotation.z + Math.sin(V.t * 37 + 2) * zit * .8, 'YXZ'); anim_ueber(B.kopf, kb => kb.quaternion.multiply(V.q.setFromEuler(V.e)));
   // Körper dreht sich zu Luke: kurze Ausholbewegung, dann schnell mit Nachschwingen, der Kopf hängt nach (nur im Stand)
   if (!o.lauf) { const want = Math.atan2(P.x - p.x, P.z - p.z); let dif = want - V.g.rotation.y; dif = Math.atan2(Math.sin(dif), Math.cos(dif));
     if (Math.abs(dif) > .6 && V.byT <= 0 && !V.dreh && !/^spaehen/.test(V.curName || '')) V.byT = .14;
@@ -25936,7 +25951,7 @@ function beob_rigAnim(dt, lit, o = {}) { const S = beob_S, V = S.V; if (!V || !V
   for (const s of ['L', 'R']) { const F = V.fu[s], sg = s === 'L' ? 1 : -1, steif = 1 + V.horch * 3, k = 70 * steif, z = .25 + .3 * V.horch;
     const zx = -V.horch * .5 + Math.sin(V.t * 2.3 + sg) * .06 + Math.sin(V.t * 5.1) * .02, zz = sg * (V.horch * .25 + Math.sin(V.t * 1.7 + sg * 2) * .05);
     F.vx += (k * (zx - F.x) - 2 * z * Math.sqrt(k) * F.vx + dvy * 6) * dt; F.vz += (k * (zz - F.z) - 2 * z * Math.sqrt(k) * F.vz - dvx * 4) * dt; F.x += F.vx * dt; F.z += F.vz * dt;
-    for (const [n, w] of [['fuehler1', .45], ['fuehler2', .7], ['fuehler3', 1]]) { const b = B[n + s]; if (b) b.quaternion.multiply(V.q.setFromEuler(V.e.set(F.x * w, 0, F.z * w))); } }
+    for (const [n, w] of [['fuehler1', .45], ['fuehler2', .7], ['fuehler3', 1]]) { const b = B[n + s]; if (b) anim_ueber(b, bb => bb.quaternion.multiply(V.q.setFromEuler(V.e.set(F.x * w, 0, F.z * w)))); } }
   // Finger: tasten und zittern (nie ganz still – außer erstarrt)
   V.fing += dt; for (const s of ['L', 'R']) for (let i = 1; i <= 3; i++) { const b = B['fingerB' + i + s]; if (b) b.rotateZ((Math.sin(V.fing * (3.1 + i) + i * 2 + (s === 'L' ? 0 : 1.7)) * .06 + Math.sin(V.t * 31 + i) * .01) * (s === 'L' ? -1 : 1) * at); } }
 // Gehen auf einem Weg: Gangart nach Tempo (trippeln / auf allen vieren), Abspieltempo = Wegtempo, Schritte hörbar beim Aufsetzen
@@ -33513,7 +33528,7 @@ function kino_villaFenster() { const S = kino_S; if (S.vlit === undefined) { S.v
   const OW = typeof ausbau_ost_west_OW !== 'undefined' ? ausbau_ost_west_OW : null, vb = OW && OW.vbb; if (!vb) return { x: -125, y: 8.05, z: 66.2 };
   return { x: vb.min.x + (vb.max.x - vb.min.x) * .28, y: vb.min.y + 6.1, z: vb.min.z - .06 }; }
 // Justins Helm (eigenes Teil am Skelett): abnehmen/aufsetzen
-function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
+function kino_helm(on) { const S = kino_S; if (!justin || !justin.model) return null; if (!S.helm) { S.helm = []; justin.model.traverse(o => { if (o.isMesh && o.name !== 'helm_schale' && /helm|helmet/i.test(o.name + ' ' + (o.material && o.material.name || ''))) S.helm.push(o); }); }
   for (const m of S.helm) m.visible = on; return S.helm.length; }
 // Augen: für einen Atemzug nur Weiß
 function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) return; if (!P.eyes) { P.eyes = []; for (const [m] of P.mats) { const mats = [].concat(m.material); mats.forEach(x => { if (x && /eye|auge|cornea|iris/i.test((x.name || '') + ' ' + m.name)) P.eyes.push(x); }); } }
@@ -37651,6 +37666,12 @@ function amt_akte06() { const S = amt_S; if (typeof files === 'undefined') retur
       if (S.bogen) return; S.bogen = true; amt_sideDone('k2_bogen', 'Das Original hatte Angst vor Spinnen. Hund: Flocke. „Er würde mit jedem mitgehen, der fragt.“');
       setTimeout(() => say([['Klar. Hab ich auch mal gesagt. Zu einer Stelle in der Stadt, die Nachtschicht hieß.', 4600, 'LUKE']]), 700);
       if (S.nr) setTimeout(() => gedanke('amt_nr8', 'Nummer 8. Ha. Ha. Ha.', 0, 2), 26000); })); }); }
+// 10.10.: Lucy im Tank (Nutzerbefund: stand steif in Kleidung am Boden). Jetzt: Arme verschraenkt (Mocap-Clip), schwebt ueber dem Tankboden, atmet in langsamem Auf und Ab,
+// leichte Vorneigung und Pendeln wie im Wasser. P.fixed haelt die Fortbewegungs-Steuerung fern; Positionswerte je Bild (die Basis setzt y = .3 + sin(t*.8)*.05 davor).
+WORLD_TICK.push((dt, t) => { try { if (typeof lenaFig === 'undefined' || !lenaFig.visible) return; const P = lenaFig.userData && lenaFig.userData.person; if (!P || !P.acts || !P.acts.arme_verschraenkt) return;
+  if (!lenaFig.userData.tankPose) { lenaFig.userData.tankPose = 1; P.fixed = true; figuren_play(P, 'arme_verschraenkt', true, { once: false }); if (P.cur) P.cur.timeScale = .55; }
+  const s = Math.sin(t * .5); lenaFig.position.y = .3 + .52 + s * .07; lenaFig.rotation.x = .05 + Math.sin(t * .37) * .025; lenaFig.rotation.z = Math.sin(t * .29 + 1) * .035;
+} catch (e) { if (!amt_S.tankErr) { amt_S.tankErr = 1; console.warn('Amt: Lucy im Tank', e); } } });
 // =====================================================================  SPINNEN (Modul „spinnen“, Nutzer-Rückmeldung 07.10.2026: Spinnenraum im Amt, Kapitel 2)
 // „Die Spinnen sehen scheiße aus, bessere Animation, Sound, Wackel- und Farbeffekte, das Abschüttelsystem muss funktionieren, logisch und spaßig sein – und das Spiel geht nicht mehr weiter.“
 // Ursache des Stillstands (Basis, alt): Der Wechsel in die Schüttelphase kam, bevor alle 2400 Spinnen erschienen waren (ab da wurde nicht mehr nachgespawnt), die Endbedingung verlangte aber
@@ -42487,8 +42508,8 @@ function kr_dtTick(dt) { const D = typeof hungrige_S !== 'undefined' ? hungrige_
   // Kopf dreht ohne Hals zu Luke – in Rasten (≈ 20°), nicht beim Sturm
   if (K.head && want !== 'sturm' && want !== 'aufstieg') { const cam = camera.position, yaw = Math.atan2(cam.x - p.x, cam.z - p.z) - D.g.rotation.y; let d = Math.atan2(Math.sin(yaw), Math.cos(yaw)); d = THREE.MathUtils.clamp(d, -1.4, 1.4);
     const r = Math.round(d / .35) * .35; if (Math.abs(r - K.hy) > .01) { K.hy = r; if (D.g.visible && Math.hypot(cam.x - p.x, cam.z - p.z) < 14) kr_ton('knochen', p.x, 2.2, p.z, .25, null, { obj: D.g, h: 2.2 }); }
-    K.head.parent.updateWorldMatrix(true, false); K.head.updateWorldMatrix(false, false); K.head.getWorldQuaternion(KR.Q2); K.Q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, K.hy); KR.Q2.premultiply(K.Q);
-    K.head.parent.getWorldQuaternion(KR.Q3).invert(); K.head.quaternion.copy(KR.Q3.multiply(KR.Q2)); } }
+    anim_ueber(K.head, () => { K.head.parent.updateWorldMatrix(true, false); K.head.updateWorldMatrix(false, false); K.head.getWorldQuaternion(KR.Q2); K.Q.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, K.hy); KR.Q2.premultiply(K.Q);
+    K.head.parent.getWorldQuaternion(KR.Q3).invert(); K.head.quaternion.copy(KR.Q3.multiply(KR.Q2)); }); } }
 // Geschälte (Wolf, Reh): Abspieltempo = Wegtempo, Atem hörbar, Reh lahmt hinten links
 function kr_tierTick(dt) { for (const V of KR.live) { if (!V.g.visible) { V.lp.copy(V.g.position); continue; } const p = V.g.position, cam = camera.position, dc = Math.hypot(p.x - cam.x, p.z - cam.z);
   const d = Math.hypot(p.x - V.lp.x, p.z - V.lp.z) / Math.max(dt, 1e-3); V.lp.copy(p); V.v += (Math.min(d, 10) - V.v) * Math.min(1, dt * 5);
@@ -46062,6 +46083,12 @@ function lst_mixer() {
     return mu.call(this, dt); };
 }
 function lst_markOut() { LST_FR++; const h = RIGS.hid; for (let i = 0; i < h.length; i++) h[i].__lstOut = LST_FR; }
+// 10.10.: KNOCHEN-UEBERLAGERUNG OHNE AUFADDIEREN. Kopf-/Kiefer-/Blick-Ueberlagerungen setzen ihre Drehung nach dem Mixer auf die Mixer-Pose. Schreibt der Mixer den Knochen in einem Bild
+//    nicht neu (Mixer uebersprungen, pausiert), stuende noch die letzte Ueberlagerung darin und die naechste kaeme obendrauf (Disco-Kopf). anim_ueber(bone, fn): erst auf die Mixer-Pose zurueck, dann fn(bone).
+const ANIM_OV = new WeakMap();
+function anim_ueber(b, fn) { if (!b) return; let s = ANIM_OV.get(b); if (!s) { s = { base: new THREE.Quaternion(), last: new THREE.Quaternion(), has: false }; ANIM_OV.set(b, s); }
+  if (s.has && b.quaternion.angleTo(s.last) < 1e-6) b.quaternion.copy(s.base); else s.base.copy(b.quaternion);
+  fn(b); s.last.copy(b.quaternion); s.has = true; }
 
 // 8) SKELETT-LISTE OHNE RUCKLER. Die Basis sammelte alle ~5 s die Figuren-Skelette mit einem Durchlauf über die ganze Szene (46 000 Objekte) und maß jede neue
 //    Figur mit Box3.setFromObject – bei Figuren mit Skelett rechnet three.js dafür jeden Eckpunkt durch alle Knochen (100 000 Punkte je Figur; gemessen 7 % der
