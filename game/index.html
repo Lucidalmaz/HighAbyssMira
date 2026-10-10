@@ -19587,6 +19587,7 @@ setTimeout(inv3d_weltHandy, 3000);
 // Aufheben-Szene beim Laden vorwärmen (Umgebungsbild, Puffer, Programme der Batterie): das erste Aufheben beim Spielstart war ein 0,5–0,9 s-Standbild (10.10., Gate-Messung)
 async function inv3d_warm() { try { const I = INV3D; if (I.pick || I.warmed) return; I.warmed = 1; const g = await inv3d_lade('batterie'); if (!g) return; inv3d_start(480, 480); inv3d_zeige(g); await inv3d_vorab(); if (!I.pick && I.cur === g) inv3d_zeige(null); } catch (e) { console.warn('inv3d: Vorwärmen', e); } }
 setTimeout(inv3d_warm, 4000);
+setTimeout(() => { for (const k of ['sender']) inv3d_lade(k).catch(() => {}); }, 6000); // Modelle mit langem Parsen (Sender 503 ms beim ersten Aufheben) beim Laden in den Cache
 
 
 // ---------------------------------------------------------------- Einhängen
@@ -47373,6 +47374,97 @@ if (!VRAM.off) { let tk = 0, st0 = -1; setInterval(() => { try { if (!window.__r
     if (tk === 3 || (st0 >= 0 && (d === 15 || (d > 15 && d % 40 === 0)))) vram_dedupLauf(); } catch (e) {} }, 1000); }
 window.__vramDedup = vram_dedupLauf;
 window.__vram = VRAM;
+
+// =====================================================================  RESIDENZ-MANAGER (10.10.2026)
+// Gemessen: Verborgene Gruppen (Innenräume io_*, Regionen ow_*, geparkte Figuren/Kino-Klone, 2 874 Wurzeln) halten 2,4 GB Grafikspeicher (Texturen 1,7 GB, Geometrie 0,7 GB), obwohl sie
+// nicht gezeichnet werden (das Laden lädt alles hoch, damit nichts im Spiel hochgeladen werden muss).
+// Regeln (auf Sicherheit gebaut, nie „schwarze“ Texturen):
+//  · Nur Wurzeln, die ≥ 20 s ununterbrochen verborgen sind (oberster Knoten mit visible = false) UND entweder „geparkt“ (Ursprung/unter der Erde) oder > 120 m (Innenräume 80 m) entfernt.
+//  · Es werden nur Texturen/Geometrien freigegeben, die kein SICHTBARER Knoten benutzt. Die CPU-Daten der KTX-Texturen werden vorher wiederhergestellt und ANGEHEFTET (s.__kpin,
+//    ktxSweep gibt sie nicht frei): wird eine Textur doch gebraucht, lädt three.js sie beim ersten Zeichnen synchron aus den CPU-Daten hoch (Ruckler, nie schwarz).
+//  · Wiederherstellen: (a) Annäherung unter 80 m (Innenräume 45 m): Texturen nacheinander (4 je Durchgang) hochladen; (b) Sichtbarwerden der Wurzel (visible-Zugriffsfunktion):
+//    sofort synchron hochladen, bevor das Bild gezeichnet wird.
+// STAND: nur mit ?resi aktiv (Versuch, standardmäßig AUS): Messung Plateau nach 4 min: Grafikspeicher −0,4…−0,5 GB (nur Geometrie; mit ?resitex zusätzlich Texturen −0,5 GB bei +1,4 GB RAM),
+// aber Bildzeit +6…18 ms (p95 Straße 42 → 60 ms: Durchläufe über 46 000 Knoten) und Einblend-Ruckler. Fazit in docs/gameplay/leistung_1010.md §4. Zahlen: window.__resi
+const RESI = { texModus: /[?&]resitex/.test(location.search), off: !/[?&]resi/.test(location.search) || (typeof LITE !== 'undefined' && LITE), roots: new Map(), ev: 0, evTex: 0, evGeo: 0, rest: 0, restTex: 0, hitchMs: 0, q: [], log: [] };
+const RESI_PARK = r => (r.rad < 3 && Math.abs(r.x) < 3 && Math.abs(r.z) < 3) || r.y < -20;
+function resi_info(root) {
+  const bs = new THREE.Box3(), b = new THREE.Box3(), v = new THREE.Vector3(); let n = 0; root.updateWorldMatrix(true, true);
+  root.traverse(o => { if (!o.geometry || n > 400) return; n++; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); if (o.geometry.boundingBox) { b.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); bs.union(b); } });
+  if (bs.isEmpty()) { root.getWorldPosition(v); bs.setFromCenterAndSize(v, new THREE.Vector3(1, 1, 1)); }
+  const c = bs.getCenter(new THREE.Vector3()), s = bs.getSize(new THREE.Vector3());
+  return { x: c.x, y: c.y, z: c.z, rad: Math.max(s.x, s.z) / 2, box: bs.clone() };
+}
+function resi_dist(box, p) { const dx = Math.max(box.min.x - p.x, 0, p.x - box.max.x), dz = Math.max(box.min.z - p.z, 0, p.z - box.max.z); return Math.hypot(dx, dz); }
+function resi_istTex(t) { return t && t.isTexture && !t.isRenderTargetTexture && !t.isCubeTexture && !t.isVideoTexture && !t.isDataTexture && !t.isCanvasTexture && !t.isDepthTexture; }
+function resi_res(root) { // Ressourcen eines Teilbaums: KTX-/Bildtexturen und Geometrien
+  const T = new Set(), Ge = new Set();
+  root.traverse(o => { if (o.geometry) Ge.add(o.geometry);
+    for (const m of [].concat(o.material || [])) { if (!m) continue; for (const k in m) { const t = m[k]; if (resi_istTex(t)) T.add(t); } if (m.uniforms) for (const k in m.uniforms) { const t = m.uniforms[k] && m.uniforms[k].value; if (resi_istTex(t)) T.add(t); } } });
+  return { T, Ge };
+}
+function resi_gebraucht() { // Ressourcen sichtbarer Knoten
+  const T = new Set(), Ge = new Set();
+  scene.traverseVisible(o => { if (o.geometry) Ge.add(o.geometry);
+    for (const m of [].concat(o.material || [])) { if (!m) continue; for (const k in m) { const t = m[k]; if (t && t.isTexture) T.add(t); } if (m.uniforms) for (const k in m.uniforms) { const t = m.uniforms[k] && m.uniforms[k].value; if (t && t.isTexture) T.add(t); } } });
+  return { T, Ge };
+}
+function resi_unpin(t) { const s = t.source; if (s && s.__kpin) { s.__kpin = false; return true; } return false; }
+function resi_restoreSync(root, why) { // alle freigegebenen Texturen des Teilbaums sofort wieder hochladen
+  const E = RESI.roots.get(root); if (!E || (E.state !== 'ev' && E.state !== 'prefetch')) return; const t0 = performance.now(); let n = 0;
+  for (const t of E.tex) { try { renderer.initTexture(t); n++; } catch (e) {} resi_unpin(t); }
+  E.tex = []; E.state = 'res'; E.hid = 0; RESI.rest++; RESI.restTex += n; const ms = performance.now() - t0; RESI.hitchMs = Math.max(RESI.hitchMs, ms);
+  if (RESI.log.length < 60) RESI.log.push([why, E.name, n, Math.round(ms)]);
+}
+function resi_zugriff(root) { // visible-Zugriffsfunktion: Sichtbarwerden löst die Wiederherstellung VOR dem Zeichnen aus
+  if (root.__resiAcc) return; let v = root.visible; root.__resiAcc = true;
+  Object.defineProperty(root, 'visible', { configurable: true, enumerable: true, get() { return v; }, set(x) { if (x && !v) { const E = RESI.roots.get(root); if (E && (E.state === 'ev' || E.state === 'prefetch')) resi_restoreSync(root, 'sichtbar'); } v = x; } });
+}
+function resi_entladen(root, E, tex, geo) {
+  let nt = 0, ng = 0; E.tex = []; E.geo = [];
+  for (const t of tex) { try { t.dispose(); E.tex.push(t); nt++; } catch (e) {} }
+  for (const g of geo) { try { g.dispose(); E.geo.push(g); ng++; } catch (e) {} }
+  E.state = 'ev'; RESI.ev++; RESI.evTex += nt; RESI.evGeo += ng; resi_zugriff(root);
+  if (RESI.log.length < 60) RESI.log.push(['entladen', E.name, nt, ng]);
+}
+function* resi_gen() {
+  const P = player.pos; let n = 0;
+  const found = [], walk = o => { for (const c of o.children) { if (!c.visible) found.push(c); else if (c.children.length) walk(c); } }; walk(scene); yield;
+  const now = performance.now(), seen = new Set();
+  for (const r of found) { seen.add(r); let E = RESI.roots.get(r); if (!E) { E = { state: 'res', hid: now, tex: [], geo: [], info: null, name: r.name || '' }; RESI.roots.set(r, E); } else if (!E.hid) E.hid = now; if (++n % 60 === 0) yield; }
+  for (const [r, E] of RESI.roots) { if (!seen.has(r) && E.state === 'res') E.hid = 0; }
+  // Prefetch: entladene Wurzeln in Reichweite zurückholen
+  for (const [r, E] of RESI.roots) { if (E.state !== 'ev' || !E.info) continue; const rad = /^io_/.test(E.name) ? 45 : 80;
+    if (!RESI_PARK(E.info) && resi_dist(E.info.box, P) < rad) { E.state = 'prefetch'; RESI.q.push(r); } }
+  // Entladen: je Durchgang bis zu 12 Wurzeln, die am weitesten weg bzw. geparkt sind
+  const cand = [];
+  for (const [r, E] of RESI.roots) { if (E.state !== 'res' || !E.hid || now - E.hid < 20000 || E.bad) continue; if (!E.info) { E.info = resi_info(r); yield; }
+    const park = RESI_PARK(E.info), rad = /^io_/.test(E.name) ? 80 : 120, d = resi_dist(E.info.box, P);
+    if (park || d > rad) cand.push([d, r, E]); }
+  if (cand.length) { cand.sort((a, b) => b[0] - a[0]); yield; const used = resi_gebraucht(); yield;
+    for (const [d, r, E] of cand.slice(0, 12)) { const res = resi_res(r);
+      const tex = RESI.texModus ? [...res.T].filter(t => !used.T.has(t)) : [], geo = [...res.Ge].filter(g => !used.Ge.has(g)); // Texturen nur im Versuchsmodus (RESI.texModus): +1,4 GB RAM für −0,5 GB VRAM gemessen
+      if (!tex.length && !geo.length) { E.bad = true; yield; continue; }
+      let need = 0; for (const t of tex) { const s = t.source; if (t.isCompressedTexture && s && s.__kre) { s.__kpin = true; if (s.__kfree) { need++; if (!s.__kbusy && KTXF.busy < 3) ktxRestore(s); } } }
+      if (need) { E.state = 'warte'; E.wait = { tex, geo, t0: performance.now() }; } else resi_entladen(r, E, tex, geo);
+      yield; } }
+  // Wartende: sind die CPU-Daten wieder da?
+  for (const [r, E] of RESI.roots) { if (E.state !== 'warte') continue; const W = E.wait; let ok = true;
+    for (const t of W.tex) { const s = t.source; if (t.isCompressedTexture && s && s.__kfree) { ok = false; if (!s.__kbusy && KTXF.busy < 3) ktxRestore(s); } }
+    if (ok) { E.wait = null; resi_entladen(r, E, W.tex, W.geo); }
+    else if (performance.now() - W.t0 > 90000) { for (const t of W.tex) resi_unpin(t); E.state = 'res'; E.bad = true; E.wait = null; }
+    yield; }
+  // Prefetch-Warteschlange: 4 Texturen je Durchgang
+  if (RESI.q.length) { const r = RESI.q[0], E = RESI.roots.get(r);
+    if (!E || E.state !== 'prefetch') RESI.q.shift();
+    else { for (let i = 0; i < 4 && E.tex.length; i++) { const t = E.tex.pop(); try { renderer.initTexture(t); RESI.restTex++; } catch (e) {} resi_unpin(t); }
+      if (!E.tex.length) { E.state = 'res'; E.hid = 0; RESI.rest++; RESI.q.shift(); } } }
+}
+if (!RESI.off) { let it = null, last = 0;
+  setInterval(() => { try { if (!window.__ready || !state.started || state.paused) return; if (!it) { if (performance.now() - last < 600) return; it = resi_gen(); }
+      const t0 = performance.now(); while (performance.now() - t0 < 3) { if (it.next().done) { it = null; last = performance.now(); break; } } }
+    catch (e) { it = null; if (!RESI.err) { RESI.err = String(e); console.warn('Residenz', e); } } }, 33); }
+window.__resi = RESI;
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 // FRÜH-ÜBERSETZEN (Ladezeit 08.10.2026): Die Grafikkarte übersetzt Programme in eigenen Fäden, während die Module auf dem Hauptfaden weiterbauen. Die Lichterzahl des
 // ersten Bildes ist erst am Ende bekannt – darum übersetzen wir gegen eine Stellvertreter-Szene mit genau so vielen Lichtern je Art wie im ersten Bild des letzten Laufs

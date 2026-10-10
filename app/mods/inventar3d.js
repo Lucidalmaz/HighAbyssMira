@@ -356,6 +356,7 @@ setTimeout(inv3d_weltHandy, 3000);
 // Aufheben-Szene beim Laden vorwärmen (Umgebungsbild, Puffer, Programme der Batterie): das erste Aufheben beim Spielstart war ein 0,5–0,9 s-Standbild (10.10., Gate-Messung)
 async function inv3d_warm() { try { const I = INV3D; if (I.pick || I.warmed) return; I.warmed = 1; const g = await inv3d_lade('batterie'); if (!g) return; inv3d_start(480, 480); inv3d_zeige(g); await inv3d_vorab(); if (!I.pick && I.cur === g) inv3d_zeige(null); } catch (e) { console.warn('inv3d: Vorwärmen', e); } }
 setTimeout(inv3d_warm, 4000);
+setTimeout(() => { for (const k of ['sender']) inv3d_lade(k).catch(() => {}); }, 6000); // Modelle mit langem Parsen (Sender 503 ms beim ersten Aufheben) beim Laden in den Cache
 
 
 // ---------------------------------------------------------------- Einhängen

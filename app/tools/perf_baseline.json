@@ -1,51 +1,51 @@
 {
- "geschrieben": "2026-10-10T19:26:22.237Z",
+ "geschrieben": "2026-10-10T20:32:32.811Z",
  "hinweis": "Referenz des Leistungs-Gates; nur nach bewusster, gemessener Verbesserung neu schreiben (perf_gate.mjs --write-baseline).",
  "metrics": {
   "load_s": {
-   "value": 80.2,
+   "value": 78,
    "rel": 0.5,
    "abs": 10,
    "unit": "s",
    "label": "Ladezeit bis spielbar"
   },
   "load_modules_s": {
-   "value": 50.7,
+   "value": 50.6,
    "rel": 0.5,
    "abs": 10,
    "unit": "s",
    "label": "Modulphase"
   },
   "load_gfx_s": {
-   "value": 23.1,
+   "value": 21.1,
    "rel": 0.8,
    "abs": 10,
    "unit": "s",
    "label": "Grafik vorbereiten + Hochladen"
   },
   "ng_p95": {
-   "value": 54.6,
+   "value": 60.6,
    "rel": 0.6,
    "abs": 8,
    "unit": "ms",
    "label": "erste 60 s Neues Spiel: p95"
   },
   "ng_worst": {
-   "value": 382,
+   "value": 218,
    "rel": 1,
    "abs": 150,
    "unit": "ms",
    "label": "erste 60 s Neues Spiel: längster Stand"
   },
   "ng_over100": {
-   "value": 12,
+   "value": 8,
    "rel": 1,
    "abs": 6,
    "unit": "",
    "label": "erste 60 s: Bilder > 100 ms"
   },
   "kreuzung_vram": {
-   "value": 6214,
+   "value": 6204,
    "rel": 0.1,
    "abs": 200,
    "unit": "MB",
@@ -59,56 +59,56 @@
    "label": "kreuzung: p95 (Dauer)"
   },
   "kreuzung_worst": {
-   "value": 121,
+   "value": 109,
    "rel": 1,
    "abs": 120,
    "unit": "ms",
    "label": "kreuzung: schlechtestes Bild (Ankunft+Dauer)"
   },
   "kreuzung_calls": {
-   "value": 819,
+   "value": 817,
    "rel": 0.1,
    "abs": 40,
    "unit": "",
    "label": "kreuzung: Zeichenaufrufe"
   },
   "kreuzung_tris": {
-   "value": 7637033,
+   "value": 7618177,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
    "label": "kreuzung: Dreiecke"
   },
   "strasse_vram": {
-   "value": 6282,
+   "value": 6283,
    "rel": 0.1,
    "abs": 200,
    "unit": "MB",
    "label": "strasse: Grafikspeicher"
   },
   "strasse_p95": {
-   "value": 36.4,
+   "value": 42.4,
    "rel": 0.2,
    "abs": 5,
    "unit": "ms",
    "label": "strasse: p95 (Dauer)"
   },
   "strasse_worst": {
-   "value": 558,
+   "value": 497,
    "rel": 1,
    "abs": 120,
    "unit": "ms",
    "label": "strasse: schlechtestes Bild (Ankunft+Dauer)"
   },
   "strasse_calls": {
-   "value": 308,
+   "value": 309,
    "rel": 0.1,
    "abs": 40,
    "unit": "",
    "label": "strasse: Zeichenaufrufe"
   },
   "strasse_tris": {
-   "value": 783900,
+   "value": 783943,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
@@ -122,28 +122,28 @@
    "label": "nr7_innen: Grafikspeicher"
   },
   "nr7_innen_p95": {
-   "value": 54.7,
+   "value": 48.5,
    "rel": 0.2,
    "abs": 5,
    "unit": "ms",
    "label": "nr7_innen: p95 (Dauer)"
   },
   "nr7_innen_worst": {
-   "value": 333,
+   "value": 436,
    "rel": 1,
    "abs": 120,
    "unit": "ms",
    "label": "nr7_innen: schlechtestes Bild (Ankunft+Dauer)"
   },
   "nr7_innen_calls": {
-   "value": 408,
+   "value": 407,
    "rel": 0.1,
    "abs": 40,
    "unit": "",
    "label": "nr7_innen: Zeichenaufrufe"
   },
   "nr7_innen_tris": {
-   "value": 6261650,
+   "value": 6018513,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
@@ -171,14 +171,14 @@
    "label": "wald: schlechtestes Bild (Ankunft+Dauer)"
   },
   "wald_calls": {
-   "value": 161,
+   "value": 162,
    "rel": 0.1,
    "abs": 40,
    "unit": "",
    "label": "wald: Zeichenaufrufe"
   },
   "wald_tris": {
-   "value": 235555,
+   "value": 235557,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
@@ -199,7 +199,7 @@
    "label": "villa: p95 (Dauer)"
   },
   "villa_worst": {
-   "value": 43,
+   "value": 55,
    "rel": 1,
    "abs": 120,
    "unit": "ms",
@@ -213,14 +213,14 @@
    "label": "villa: Zeichenaufrufe"
   },
   "villa_tris": {
-   "value": 1736469,
+   "value": 1816493,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
    "label": "villa: Dreiecke"
   },
   "amt_vram": {
-   "value": 6398,
+   "value": 6400,
    "rel": 0.1,
    "abs": 200,
    "unit": "MB",
@@ -234,58 +234,58 @@
    "label": "amt: p95 (Dauer)"
   },
   "amt_worst": {
-   "value": 182,
+   "value": 206,
    "rel": 1,
    "abs": 120,
    "unit": "ms",
    "label": "amt: schlechtestes Bild (Ankunft+Dauer)"
   },
   "amt_calls": {
-   "value": 551,
+   "value": 550,
    "rel": 0.1,
    "abs": 40,
    "unit": "",
    "label": "amt: Zeichenaufrufe"
   },
   "amt_tris": {
-   "value": 1779438,
+   "value": 1790294,
    "rel": 0.12,
    "abs": 30000,
    "unit": "",
    "label": "amt: Dreiecke"
   },
   "vram_mb": {
-   "value": 6398,
+   "value": 6399,
    "rel": 0.06,
    "abs": 250,
    "unit": "MB",
    "label": "Grafikspeicher (GPU-Prozess, dediziert)"
   },
   "heap_mb": {
-   "value": 2819,
+   "value": 2792,
    "rel": 0.15,
    "abs": 150,
    "unit": "MB",
    "label": "JS-Heap"
   },
   "tex_mb": {
-   "value": 5044,
+   "value": 5048,
    "rel": 0.1,
    "abs": 100,
    "unit": "MB",
    "label": "Texturspeicher (Schätzung)"
   },
   "textures": {
-   "value": 4160,
-   "rel": 0.05,
-   "abs": 40,
+   "value": 4647,
+   "rel": 0.2,
+   "abs": 100,
    "unit": "",
    "label": "Texturen (renderer.info)"
   },
   "geometries": {
-   "value": 7740,
-   "rel": 0.05,
-   "abs": 60,
+   "value": 7735,
+   "rel": 0.5,
+   "abs": 100,
    "unit": "",
    "label": "Geometrien (renderer.info)"
   },

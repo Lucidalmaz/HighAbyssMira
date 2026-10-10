@@ -109,3 +109,58 @@ Beweglichkeit während Texten: `freeTalk` der Basis (Spieler bewegt sich, wenn `
 
 `node app/tools/perf_gate.mjs` (Dauerinstanz `normal`, lädt neu, misst, vergleicht gegen `app/tools/perf_baseline.json`, Exit 1 bei Überschreitung). Doku in `docs/gameplay/TESTEN.md`,
 Budget-Regeln in `docs/gameplay/performance_budget.md`. Referenz = Lauf vom 10.10.2026 (Ladezeit 80 s, Kreuzung p95 36,4 ms, 6,4 GB).
+
+## 7. Nachtrag 10.10. (zweiter Durchgang, Abnahme-Forderung)
+
+### 7.1 Ursachen-Klärung Start und Straße (per Messung)
+* **Die „12 Figuren-Programme beim Spielstart“ entstehen nicht beim Spielstart**, sondern ~2 s nach „Fertig“, solange das Menü steht (Programmprotokoll `__proglog.later`: 12 Einträge
+  bei 79,8–81,6 s Seitenzeit, Spielstart bei ~88 s). Das Gate startet das Spiel jetzt wie im Betrieb erst 8 s nach „Fertig“. Echte Spielstart-Programme: 4–7 (ff_fenster, Uhrglas, Röhren),
+  schlechtester Stand 200–240 ms (Aufheben/Schatten), nicht < 100 ms: **nicht erreicht**.
+* **Straße, Ankunft**: neue Programme sind die Haut-Nebenteile des Mädchen-Klons `gezaehlt_m` (Std_Tearline_R/L, Std_Eye_Occlusion_R/L). Programmschlüssel-Vergleich gegen die
+  vorübersetzten Varianten: `numPointLights` 0 → 1 und `morphTargetsCount` 0 → 26/27 (Klone mit Morph-Zielen). Versuche: (a) Start-Nachbild beim Laden besetzen, (b) Kamera/Lampen-Pool
+  für die Lade-Schattenbilder an die Startposition, (c) alle Skelett-Materialien ohne Programm unsichtbar übersetzen → alle ohne Wirkung (Programm war schon vorhanden, nur die
+  Variante fehlt), deshalb verworfen. Ursache bleibt die Zahl der Punktlichter im Programmschlüssel; Lösung wäre, jede Figurenart unter beiden Lichtzuständen zu übersetzen (≈ +60
+  Programme, +5 s Ladezeit) – nicht umgesetzt. Worst-Case-Test: Teleport ohne Annäherung (das Gate); beim Gehen übersetzt die Nachbild-Vorladung (leistung.js §10).
+
+### 7.2 Residenz-Manager für verborgene Gruppen (umgesetzt, gemessen, standardmäßig AUS)
+`vram.js`, `?resi` (Geometrie) / `?resi&resitex` (zusätzlich Texturen). Verborgene Wurzeln (≥ 20 s unsichtbar, geparkt oder > 120 m/80 m entfernt), Geometrie wird freigegeben und beim
+Sichtbarwerden von three.js neu hochgeladen; Texturen: CPU-Daten werden vorher wiederhergestellt und angeheftet (keine schwarzen Texturen möglich), Wiederherstellung per
+`visible`-Zugriffsfunktion vor dem Zeichnen und per Annäherung (Vorladen).
+| Modus | Grafikspeicher nach 4 min | Arbeitsspeicher | Bildzeit |
+|---|---|---|---|
+| aus (Standard) | 6 390 MB | 5,0 GB | Referenz |
+| `?resi` (Geometrie) | 5 920 MB (−0,47 GB) | unverändert | Straße p95 42 → 60 ms (Durchläufe über 46 000 Knoten), Nr. 7 Ankunft 570 ms |
+| `?resi&resitex` | 5 920 MB (−0,47 GB, 658 Texturen) | +1,4 GB (angeheftete Daten) | wie oben |
+Ergebnis: Der Zugewinn ist klein, weil nahezu alle verborgenen Gruppen in einem 100-m-Kern um die Kreuzung liegen (5,1 GB von 5,2 GB Texturen, 1,5 GB von 1,9 GB Geometrie liegen < 100 m
+vom Ursprung) – 824 von 1 650 verborgenen Wurzeln teilen ihre Ressourcen mit sichtbaren Knoten. Die 2,4 GB aus dem Versuch „alles Verborgene freigeben“ sind nur zu holen, wenn man auch
+Verborgenes in Reichweite freigibt, und das erzeugt beim Betreten jedes Hauses 50–150 ms Hochladestände. **Grafikspeicher ≤ 3 GB ist damit nachweislich nicht ohne sichtbaren
+Qualitätsverlust oder Umbau (Streaming sichtbarer Gebäude nach Abstand, Texturen auf 1 K) erreichbar**; Ergebnis: Normalbetrieb 6,2–6,4 GB, `?vram=lean` 5,7 GB.
+
+### 7.3 Ladezeit
+CPU-Profil des Ladens (87,7 s): größter Einzelposten war die Decal-Prüfung (behoben, −18 s). Der Rest: GPU/Treiber (Grafik vorbereiten 13 s, Hochladen 9 s, `(program)` 11 s nativ),
+Texturupload 6,5 s, Rest verteilt auf ~700 Bauer (kein Eintrag > 2 s: `buildSolids` 1,8 s, `msFind` 1,8 s, `echt_an` 2,0 s …). Kapitel 4–6 (kapitel5/6, neben5/6, kreaturen) kosten
+zusammen < 4 s; faul laden würde ≤ 4 s sparen und hätte Spielstand-/Reihenfolgerisiken (WORLD_MODS-Reihenfolge, MOD_SAVE). **≤ 60 s sind damit nicht erreichbar, ohne den
+Weltaufbau zu cachen (vorberechnete Geometrie) oder in Worker zu verlagern.** Stand: 69–83 s warm (vorher 90–97 s).
+
+### 7.4 Kino-Übergänge (Einzelmessung, Dauerinstanz, Kapitel-1-Zustand, jeweils nach 9–10 s abgebrochen)
+| Szene | erstes Bild nach Aufruf | längste Schwarzphase | Schwarz gesamt (in 9,5 s) | Bemerkung |
+|---|---|---|---|---|
+| k1h | 45 ms | 892 ms | 892 ms | nahtlos, Karte am Anfang (Gestaltung) |
+| k1 | 1 423 ms | 1 104 ms | 1 361 ms | Blende 0,45 s + 0,47 s + Start(); Erstkarte |
+| k2b | 80 ms | 992 ms | 992 ms | Karte |
+| k2 | 250 ms | 3 061 ms | 4 087 ms | Titelkarten (gestaltet, überspringbar nach 0,8 s) |
+| k2a | 77 ms | 842 ms | 842 ms | Karte |
+| k3kuh | 4 691 ms | 4 665 ms | 6 303 ms | **Satz „k3“ kalt geladen** (nur im Test aus Kapitel 1; im Kapitel 3 lädt `kino_persist` ihn vorher) |
+| k3 / k3blinzeln / kp / k4 / k5 | 16–656 ms | 0–424 ms | 0–424 ms | |
+| k6 | – | – | – | Szene nicht als Kino-Definition vorhanden (anderer Mechanismus) |
+Die Schwarzphasen in den Szenen sind gestaltete Karten/Schnitte mit Text (überspringbar). Das Warten auf Ladevorgänge ist auf ≤ 0,5 s Blende + `D.start` begrenzt; k3 ist nur kalt langsam.
+
+### 7.5 Weitere Punkte
+* **Sender-Modell (503 ms Parsen)**: wird beim Laden in den Item-Cache geholt (`inventar3d.js`).
+* **Kapitel-3-Gespräche** (Hilde, Justin, Raum 1–3): setzen nur `state.talking`, nicht `scripted` → `freeTalk` greift, Spieler beweglich und Enter/X wirken. `setScripted(() => true)` gibt es nur
+  bei der Lena-Begegnung (Kap. 2, Basis) und der Kapitel-5-Kinoszene (`kapitel5.js:920`); beide sind Kamera-/Szenenfahrten und bleiben festgesetzt, überspringbar mit Enter/X.
+* **Gate**: Neukompilierungen: Schwelle = Referenz + 15 (Wert 38 → Grenze 53); realistischer Festwert, Ziel 0 offen (7.1). `p95`-Toleranz +14 ms (vsync-Stufen 16,7/33/50 ms springen).
+  Texturen/Geometrien (`renderer.info`) schwanken ±500 je nach Dedup-Durchgang: Toleranz 20 %/50 %.
+* **Release-Rauchtest** (`_pg/smoke.mjs`: Release-EXE starten, per DevTools-Port warten): Seite „bereit“ nach 85–107 s, „Neues Spiel“ → Helligkeitsdialog → Traum-Intro (`cine`, Untertitel „DER RABE …“).
+* **Gate-Lauf grün** (Referenz 20:36, Endstand): Ladezeit 75–79 s, alle Messpunkte innerhalb der Toleranz. Ein Lauf direkt nach einem Release-Bau war rot (Neuladen 242 s, Straße 1 558 ms):
+  kalter GPU-Shader-Cache, nicht Code; der Folgelauf war grün. Bei rotem Ladezeit-Wert immer ein zweites Mal laufen lassen (steht in TESTEN.md).
