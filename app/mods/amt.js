@@ -548,14 +548,9 @@ async function amt_bauTunnel(S, K) {
   S.uhrMin = 1 * 60 + 4; amt_uhrStellen();
   // Nummernautomat (Südwand): Knopf, Schlitz; daneben drei parallele Kratzer in Kinderhöhe (Beobachter)
   const nx = X0 + 15.4, nz = zS + .025;
-  const auto = amt_cv(256, 400, (x, w, h) => { amt_rs = 77; const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, '#6f746e'); g.addColorStop(.5, '#8d928b'); g.addColorStop(1, '#5d625c'); x.fillStyle = g; x.fillRect(8, 8, w - 16, h - 16);
-    x.strokeStyle = '#2b2e2a'; x.lineWidth = 6; x.strokeRect(8, 8, w - 16, h - 16); x.fillStyle = '#e8e2cd'; x.fillRect(30, 40, w - 60, 90); x.fillStyle = '#1b1a18'; x.textAlign = 'center'; x.font = 'bold 22px Arial'; x.fillText('Bitte ziehen Sie', w / 2, 76); x.fillText('eine Nummer', w / 2, 106);
-    x.fillStyle = '#b3261a'; x.beginPath(); x.arc(w / 2, 200, 34, 0, 7); x.fill(); x.fillStyle = 'rgba(255,255,255,.25)'; x.beginPath(); x.arc(w / 2 - 10, 190, 12, 0, 7); x.fill();
-    x.fillStyle = '#141414'; x.fillRect(58, 270, w - 116, 16); x.fillStyle = '#e8e2cd'; x.fillRect(64, 272, w - 128, 6); amt_auge(x, w / 2, 350, 18, '#262824');
-    for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(40,30,20,${amt_R(.05, .2)})`; x.fillRect(amt_R(8, w - 8), amt_R(8, h - 8), amt_R(1, 3), amt_R(1, 5)); } });
-  amt_flaeche(amt_decal(auto, { rough: .5, metal: .4 }), nx, 1.28, nz, .26, .41, 0);
-  const zettel = amt_cv(128, 64, (x, w, h) => { amt_rs = 79; amt_papier(x, w, h, { bg: '#e2dccc', flecken: 1 }); x.fillStyle = '#121212'; x.textAlign = 'center'; x.font = 'bold 44px Arial'; x.fillText('8', w / 2, 50); });
-  S.nrZettel = amt_flaeche(amt_decal(zettel), nx, 1.02, nz + .03, .07, .035, 0, 0, -.35); S.nrZettel.visible = false;
+  // 10.10.: echtes Modell statt aufgeklebter Canvas-Zeichnung (Blender: tools/blender/nummernspender_bau.py): Rückplatte, Gehäuse mit Fasen, Papierrolle im Fenster, Emailschild mit erhabener Schrift, Chrom-Rand, roter Knopf, Ausgabemulde mit Abrisskante, Kabel/Abzweigdose
+  { const kN = await amt_kit('nummernspender', 'nummernspender.glb', .55, 'y'); if (kN) { kN.shadow = false; amt_put(kN, nx, zS, { ry: 0, y: 1.08, minZ: zS }); } }
+  { const kZ = await amt_kit('nummernspender', 'wartenummer_karte.glb', .075, 'y'); if (kZ) { const g = amt_einzel(kZ, nx, 1.02, zS + .078, { rx: -.12, noCol: true, cast: false }); g.visible = false; S.nrZettel = g; } } // Pappkarte als Modell (Ziffer erhaben), hängt aus dem Schlitz
   const krz = amt_cv(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; for (let i = 0; i < 3; i++) { x.strokeStyle = 'rgba(28,26,22,.55)'; x.lineWidth = 3.4; x.beginPath(); x.moveTo(60 + i * 26, 18); x.quadraticCurveTo(70 + i * 26, 64, 64 + i * 26, 112); x.stroke(); x.strokeStyle = 'rgba(210,205,190,.45)'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(62 + i * 26, 20); x.quadraticCurveTo(72 + i * 26, 64, 66 + i * 26, 110); x.stroke(); } });
   amt_flaeche(amt_decal(krz), nx + .42, .72, nz + .003, .24, .12, 0);
   amt_hit(nx, 1.2, nz + .1, .32, .5, .2, () => amt_S.nr ? 'Nummernautomat' : 'Eine Nummer ziehen', () => amt_nummer());
@@ -642,7 +637,8 @@ async function amt_bauArchiv(S, K) {
   const kal = amt_cv(300, 420, (x, w, h) => { amt_rs = 89; amt_papier(x, w, h, { bg: '#e4dfd0' }); x.fillStyle = '#51624a'; x.fillRect(0, 0, w, 150); x.fillStyle = '#1d1c1a'; x.font = 'bold 30px Georgia'; x.fillText('MÄRZ 2012', 60, 196); x.font = '15px Georgia'; for (let d = 1; d <= 31; d++) { const k = d + 3, px = 22 + (k % 7) * 38, py = 240 + Math.floor(k / 7) * 32; x.fillText(String(d), px, py); } });
   amt_flaeche(amt_decal(kal), X0 + 25.8, 1.62, Z0 + 5.845, .26, .36, PI);
   const stapel = amt_decal(amt_cv(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); amt_rs = 90; for (let i = 0; i < 9; i++) { x.fillStyle = ['#d9d0b8', '#cfc6ae', '#e3dcc6', '#b89a6a'][i % 4]; x.fillRect(amt_R(0, 20), h - 14 - i * 12, w - amt_R(10, 50), 11); } }));
-  for (let i = 0; i < 5; i++) amt_flaeche(stapel, X0 + 20 + i * 2, 2.28, Z0 - 5.33, .7, .16, 0);
+  { const kSt = await amt_kit('aktenstapel', 'aktenstapel.glb', .7, 'x'); // 10.10.: echte Aktenstapel (Blender) statt flacher Canvas-Streifen auf den Schränken
+    if (kSt) { kSt.shadow = false; for (let i = 0; i < 4; i++) amt_put(kSt, X0 + 20 + i * 2, Z0 - 5.6, { ry: (i % 2 ? .05 : -.04), y: 2.2 }); } else for (let i = 0; i < 5; i++) amt_flaeche(stapel, X0 + 20 + i * 2, 2.28, Z0 - 5.33, .7, .16, 0); }
   amt_rauchmelder(X0 + 24, Z0 - 3);
 }
 

@@ -10525,6 +10525,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const sheetMat = new T.MeshStandardMaterial({ map: await tRep('curtain_sheer/DefaultMaterial_Base_color.png', true, 1.4, 1.4), normalMap: M.cloth.normalMap, color: 0xc4beb2, roughness: 1, side: T.DoubleSide });
   const sheets = [find(-44.7, .85, -15.2, [1.07, .87, 2.46])[0], find(-48.7, .92, -16.2, [1.27, 1.02, 1.27])[0], find(-46.8, 1.05, -16.55, [1.57, 1.27, .67])[0]];
   sheets.forEach(m => { if (m) m.material = sheetMat; }); ghost.material = sheetMat; // die Laken-Gestalt sieht aus wie die Tücher
+  // 10.10.: statt der verbeulten Boxen echte Tücher (Cloth-Simulation über Sofa, Sessel, Kommode; Blender: tools/blender/laken_bau.py)
+  try { const lg = await msModel('laken', 'laken.glb'), pick = n => { let r = null; lg.traverse(o => { if (o.isMesh && o.name === n) r = o; }); return r; };
+    ['laken_sofa', 'laken_sessel', 'laken_kommode'].forEach((n, i) => { const p = pick(n), m = sheets[i]; if (p && m) { if (m.geometry.dispose) m.geometry.dispose(); m.geometry = p.geometry.clone(); m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere(); m.userData.laken = true; m.castShadow = true; m.receiveShadow = true; } }); } catch (e) { console.warn('Tücher-Modell', e); }
   const moveSheet = (m, nx, nz) => { if (!m) return; const ox = m.position.x, oz = m.position.z, c = colliders.find(c => nr((c.minX + c.maxX) / 2, ox, .03) && nr((c.minZ + c.maxZ) / 2, oz, .03) && c.top > 50);
     if (c) { c.minX += nx - ox; c.maxX += nx - ox; c.minZ += nz - oz; c.maxZ += nz - oz; } m.position.x = nx; m.position.z = nz; };
   moveSheet(sheets[2], -48.55, -16.55); moveSheet(sheets[1], -49.15, -15.45); // vorher stand der Schrank genau vor der Tür (x −47)
@@ -10548,7 +10551,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   hideAt(-53, .8, -14.8, [1.4, .75, .9]); hideAt(-54, .88, -14.8, [.45, .9, .45]); hideAt(-52, .88, -14.8, [.45, .9, .45]); hideAt(-53.4, .89, -12.55, [3.8, .92, .65]);
   { let w = 0; for (let i = 0; i < 2; i++) { const g = put(await lowerCab(0xffffff, 1), { minX: -55.78 + i * w, maxZ: -12.21, y: Y, ry: PI }, G1); if (!w) { const b = bbox(g); w = b.max.x - b.min.x; } } }
   const cupMat = await surf('planks_painted', { rx: .4, ry: .35, tint: 0x8fa4b4 });
-  [find(-54.4, 2.28, -12.85, [.8, .7, .3])[0], find(-54.39, 2.28, -12.69, [.78, .68, .03])[0]].forEach(m => { if (m) m.material = cupMat; });
+  { const hb = [find(-54.4, 2.28, -12.85, [.8, .7, .3])[0], find(-54.39, 2.28, -12.69, [.78, .68, .03])[0]]; hb.forEach(m => { if (m) m.material = cupMat; });
+    // 10.10.: Hängeschrank als Modell (Blender: tools/blender/haengeschrank_bau.py), Rückseite an der Wand (die Box hing 0,5 m davor in der Luft)
+    try { const hs = (await msModel('haengeschrank', 'haengeschrank.glb')).clone(true); put(hs, { x: -54.4, maxZ: -12.21, y: Y + 1.52, ry: PI }, G1); hb.forEach(m => { if (m) m.visible = false; }); } catch (e) { console.warn('Hängeschrank', e); } }
   PHOTOS[5].candle.g.position.y = Y + .92;
   const gHutch = put(await hutch(0xffffff, 1, 2.2), { minX: -55.79, z: -15.6, y: Y, ry: PI / 2 }, G1);
   { const b = bbox(gHutch), hot = new T.Mesh(new T.BoxGeometry(.4, .5, 1.1), hidden); hot.position.set(b.max.x - .25, Y + 1.25, (b.min.z + b.max.z) / 2); G1.add(hot);
@@ -10602,6 +10607,11 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
       const sh = bu_kinderschuh(0x3a5ca8), sy = surfY(gWr, b.min.x + .14, -20.2, b.min.y + .8, Y + .02); sh.position.set(b.min.x + .13, sy + .004, -20.1); sh.rotation.y = -PI / 2 + .3; G1.add(sh); } catch (e) { console.warn('Basis-Umsetzung Mäntel', e); }
     for (const [dz, col] of [[.36, 0x5a4a44]]) { const c = await FBX('curtain_sheer', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', ds: 1, flipN: true, color: col } });
       c.scale.set(.0042, .0082, .006); put(c, { x: b.min.x + .27, z: -20.45 + dz, top: b.max.y - .07, ry: PI / 2 + rand(-.15, .15) }, G1); } }
+  // 10.10.: Garderobe am Haken – die drei aus Zylindern/Kapseln gebauten Mäntel durch echte Jacken-Scans ersetzen (Haken und Brett bleiben)
+  try { const alt = []; scene.traverse(g => { if (g.isGroup && g.children.length === 12 && Math.abs(g.position.x + 44.26) < .03 && Math.abs(g.position.y - 2.22) < .05 && g.position.z < -19.8 && g.position.z > -20.8) alt.push(g); });
+    if (alt.length) { const seen = new Set(); alt.forEach(g => { g.visible = false; });
+      const zs = [-20.57, -20.29, -20.01], cols = [0x9fb2ae, 0xa89878, 0x7d9482];
+      for (let i = 0; i < 3; i++) { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true, color: cols[i] } }); msFit(o, .98 - i * .03, 'y'); put(o, { x: -44.36, z: zs[i], top: 2.21, ry: -PI / 2 + (i - 1) * .08 }, G1); } } } catch (e) { console.warn('Garderobe Jacken', e); }
   // Viktorianischer Spiegel
   const mir = await FBX('mirror', { 'Mirror Border': { b: 'Gold_MIrror_Diffuse.png', n: 'Gold_Mirror_Normal.jpg', r: 'Gold_Mirror_Roughness.png', metal: 1, color: 0xc8b890 }, Mirror: { r: 'Mirror_Roughness.png', metal: 1, rough: .08, color: 0x9aa2aa } });
   mir.rotation.x = -PI / 2; msFit(mir, .84, 'max'); const gMir = put(mir, { maxX: -44.21, z: -20.35, yc: Y + 1.6, ry: -PI / 2 }, G1); gMir.traverse(m => { if (m.isMesh) m.castShadow = false; });
@@ -13796,7 +13806,9 @@ async function kirchberg_innen() {
       const kb = box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g });
       if (kModell) { if (kb) kb.visible = false; kModell.position.set(x0 + .38, 0, z1 - 1.1); kModell.rotation.y = PI / 2; kModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kModell); }
       else box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
-      box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g });
+      { const hb = box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g }); // 10.10.: Küchenherd als Blender-Modell (ms/herd, tools/blender/herd_bau.py); die Box bleibt unsichtbar als Kollision
+        const hm = await msModel('herd', 'herd.glb').then(m => m.clone(true)).catch(() => null);
+        if (hm && hb) { hb.visible = false; hm.position.set(x0 + .38, 0, z1 - 1.9); hm.rotation.y = PI / 2; hm.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(hm); } }
       const dose = await kirchberg_mod('w_becher', 'model.glb', .1); if (dose) { const sorten = [0xb8342a, 0x2a5a9a, 0xd8b030, 0x3a8a4a, 0x8a3a8a, 0xe0e0d8, 0xc86a20]; for (let i = 0; i < 17; i++) { const d = dose.clone(true); d.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHex(sorten[i % 7]); m.material.metalness = .5; } });
         put(d, x0 + .3 + (i % 3) * .12 - .12 + ((i / 3 | 0) % 2) * .06, 1.52 + (i / 3 | 0) * .1, z1 - 1.1 + ((i % 2) - .5) * .12, i, g); } }
       kirchberg_hit(.7, 2.1, .7, x0 + .38, 1, z1 - 1.1, 'Kühlschrank', () => kirchberg_notiz('Ein Turm aus Dosen', 'Auf dem Kühlschrank: siebzehn Katzenfutterdosen, siebzehn verschiedene Sorten. Jede mit einem Etikett, Kuli:\nANNI. ZAYN. GRETE. KEINER. HÄNSCHEN. LUNA …')); }
@@ -13817,7 +13829,7 @@ async function kirchberg_innen() {
       kirchberg_decal(b, .32, .4, C.x + 2.9, 1.55, z0 + .115, 0, { parent: g }); kirchberg_hit(.4, .5, .3, C.x + 2.9, 1.55, z0 + .25, 'Foto über dem Sofa', () => kirchberg_notiz('Ein Foto', 'Ein kleiner Junge auf einem roten Rad mit Stützrädern. Er lacht mit offenem Mund.\n\nHinten, Bleistift: Hans, 6 · 1958.')); }
     await fenster(R, C.x - 2.2, z0 + .11, 0); await fenster(R, C.x + 3, z1 - .11, PI);
     await schmutz(R, 1.6, 1, C.x - 3.6, 2.54, C.z + 2, 0, PI / 2);
-    await kirchberg_kram(g, [['teppich', C.x + 3, 0, C.z - 1.6, .1, 1], ['zeitung', C.x - 2.5, tischY, C.z - .45, .3, .6], ['tasse', C.x - 1.9, tischY, C.z - .5], ['stapel', x1 - .4, 0, C.z + 2.9], ['stapel', C.x + 1.4, 0, z0 + .4], ['glas', x0 + .4, .92, z1 - 1.9], ['teddy', C.x + 2.2, .48, z0 + .5, .4, .8]]); await schmutz(R, 1.2, .7, x0 + .2, .5, C.z - 2.5, PI / 2); await schmutz(R, 2, 1.2, C.x + 3, .004, C.z + .5, 0, -PI / 2, 0x5a4a38, .5);
+    await kirchberg_kram(g, [['teppich', C.x + 3, 0, C.z - 1.6, .1, 1], ['zeitung', C.x - 2.5, tischY, C.z - .45, .3, .6], ['tasse', C.x - 1.9, tischY, C.z - .5], ['stapel', x1 - .4, 0, C.z + 2.9], ['stapel', C.x + 1.4, 0, z0 + .4], ['glas', x0 + .4, .865, z1 - 1.9], ['teddy', C.x + 2.2, .48, z0 + .5, .4, .8]]); await schmutz(R, 1.2, .7, x0 + .2, .5, C.z - 2.5, PI / 2); await schmutz(R, 2, 1.2, C.x + 3, .004, C.z + .5, 0, -PI / 2, 0x5a4a38, .5);
     S.raeume.gisela.ok = true; }
 
   // ================= Pfarrhaus: Studierzimmer (8 × 6 m), Schreibtisch mit Predigtmappe, Regale, 40-W-Birne, Glastür zum Flur
@@ -37606,14 +37618,9 @@ async function amt_bauTunnel(S, K) {
   S.uhrMin = 1 * 60 + 4; amt_uhrStellen();
   // Nummernautomat (Südwand): Knopf, Schlitz; daneben drei parallele Kratzer in Kinderhöhe (Beobachter)
   const nx = X0 + 15.4, nz = zS + .025;
-  const auto = amt_cv(256, 400, (x, w, h) => { amt_rs = 77; const g = x.createLinearGradient(0, 0, w, 0); g.addColorStop(0, '#6f746e'); g.addColorStop(.5, '#8d928b'); g.addColorStop(1, '#5d625c'); x.fillStyle = g; x.fillRect(8, 8, w - 16, h - 16);
-    x.strokeStyle = '#2b2e2a'; x.lineWidth = 6; x.strokeRect(8, 8, w - 16, h - 16); x.fillStyle = '#e8e2cd'; x.fillRect(30, 40, w - 60, 90); x.fillStyle = '#1b1a18'; x.textAlign = 'center'; x.font = 'bold 22px Arial'; x.fillText('Bitte ziehen Sie', w / 2, 76); x.fillText('eine Nummer', w / 2, 106);
-    x.fillStyle = '#b3261a'; x.beginPath(); x.arc(w / 2, 200, 34, 0, 7); x.fill(); x.fillStyle = 'rgba(255,255,255,.25)'; x.beginPath(); x.arc(w / 2 - 10, 190, 12, 0, 7); x.fill();
-    x.fillStyle = '#141414'; x.fillRect(58, 270, w - 116, 16); x.fillStyle = '#e8e2cd'; x.fillRect(64, 272, w - 128, 6); amt_auge(x, w / 2, 350, 18, '#262824');
-    for (let i = 0; i < 400; i++) { x.fillStyle = `rgba(40,30,20,${amt_R(.05, .2)})`; x.fillRect(amt_R(8, w - 8), amt_R(8, h - 8), amt_R(1, 3), amt_R(1, 5)); } });
-  amt_flaeche(amt_decal(auto, { rough: .5, metal: .4 }), nx, 1.28, nz, .26, .41, 0);
-  const zettel = amt_cv(128, 64, (x, w, h) => { amt_rs = 79; amt_papier(x, w, h, { bg: '#e2dccc', flecken: 1 }); x.fillStyle = '#121212'; x.textAlign = 'center'; x.font = 'bold 44px Arial'; x.fillText('8', w / 2, 50); });
-  S.nrZettel = amt_flaeche(amt_decal(zettel), nx, 1.02, nz + .03, .07, .035, 0, 0, -.35); S.nrZettel.visible = false;
+  // 10.10.: echtes Modell statt aufgeklebter Canvas-Zeichnung (Blender: tools/blender/nummernspender_bau.py): Rückplatte, Gehäuse mit Fasen, Papierrolle im Fenster, Emailschild mit erhabener Schrift, Chrom-Rand, roter Knopf, Ausgabemulde mit Abrisskante, Kabel/Abzweigdose
+  { const kN = await amt_kit('nummernspender', 'nummernspender.glb', .55, 'y'); if (kN) { kN.shadow = false; amt_put(kN, nx, zS, { ry: 0, y: 1.08, minZ: zS }); } }
+  { const kZ = await amt_kit('nummernspender', 'wartenummer_karte.glb', .075, 'y'); if (kZ) { const g = amt_einzel(kZ, nx, 1.02, zS + .078, { rx: -.12, noCol: true, cast: false }); g.visible = false; S.nrZettel = g; } } // Pappkarte als Modell (Ziffer erhaben), hängt aus dem Schlitz
   const krz = amt_cv(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); x.lineCap = 'round'; for (let i = 0; i < 3; i++) { x.strokeStyle = 'rgba(28,26,22,.55)'; x.lineWidth = 3.4; x.beginPath(); x.moveTo(60 + i * 26, 18); x.quadraticCurveTo(70 + i * 26, 64, 64 + i * 26, 112); x.stroke(); x.strokeStyle = 'rgba(210,205,190,.45)'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(62 + i * 26, 20); x.quadraticCurveTo(72 + i * 26, 64, 66 + i * 26, 110); x.stroke(); } });
   amt_flaeche(amt_decal(krz), nx + .42, .72, nz + .003, .24, .12, 0);
   amt_hit(nx, 1.2, nz + .1, .32, .5, .2, () => amt_S.nr ? 'Nummernautomat' : 'Eine Nummer ziehen', () => amt_nummer());
@@ -37700,7 +37707,8 @@ async function amt_bauArchiv(S, K) {
   const kal = amt_cv(300, 420, (x, w, h) => { amt_rs = 89; amt_papier(x, w, h, { bg: '#e4dfd0' }); x.fillStyle = '#51624a'; x.fillRect(0, 0, w, 150); x.fillStyle = '#1d1c1a'; x.font = 'bold 30px Georgia'; x.fillText('MÄRZ 2012', 60, 196); x.font = '15px Georgia'; for (let d = 1; d <= 31; d++) { const k = d + 3, px = 22 + (k % 7) * 38, py = 240 + Math.floor(k / 7) * 32; x.fillText(String(d), px, py); } });
   amt_flaeche(amt_decal(kal), X0 + 25.8, 1.62, Z0 + 5.845, .26, .36, PI);
   const stapel = amt_decal(amt_cv(256, 128, (x, w, h) => { x.clearRect(0, 0, w, h); amt_rs = 90; for (let i = 0; i < 9; i++) { x.fillStyle = ['#d9d0b8', '#cfc6ae', '#e3dcc6', '#b89a6a'][i % 4]; x.fillRect(amt_R(0, 20), h - 14 - i * 12, w - amt_R(10, 50), 11); } }));
-  for (let i = 0; i < 5; i++) amt_flaeche(stapel, X0 + 20 + i * 2, 2.28, Z0 - 5.33, .7, .16, 0);
+  { const kSt = await amt_kit('aktenstapel', 'aktenstapel.glb', .7, 'x'); // 10.10.: echte Aktenstapel (Blender) statt flacher Canvas-Streifen auf den Schränken
+    if (kSt) { kSt.shadow = false; for (let i = 0; i < 4; i++) amt_put(kSt, X0 + 20 + i * 2, Z0 - 5.6, { ry: (i % 2 ? .05 : -.04), y: 2.2 }); } else for (let i = 0; i < 5; i++) amt_flaeche(stapel, X0 + 20 + i * 2, 2.28, Z0 - 5.33, .7, .16, 0); }
   amt_rauchmelder(X0 + 24, Z0 - 3);
 }
 
@@ -40185,7 +40193,7 @@ WORLD_MODS.push(['Kapitel 5', async () => {
     const plz = alongX ? [[tisch.max.x + .34, tz, -PI / 2, 'N'], [S.sitz.x, tisch.min.z - .36, 0, 'S']] : [[tx, tisch.max.z + .32, PI, 'N'], [tx, tisch.min.z - .32, 0, 'S']];
     for (const [x, z, ry, k] of plz) { const c = await msFBX('chair', 'model.fbx', spec); msFit(c, .92, 'y'); const g = put(c, x, K5_Y, z, ry); g.userData.noCol = false; S.o['stuhl' + k] = g; } } catch (e) { console.warn('Kapitel 5: Stühle', e); }
   // Laken → Möbel (Sofa, Anrichte), damit nichts schwebt (der Teddy sitzt dann auf dem Sofa)
-  S.laken = msFind((m, b) => m.geometry && m.geometry.type === 'BoxGeometry' && m.geometry.parameters.widthSegments === 10 && b.min.x > -50.5 && b.max.x < -43.5 && b.min.z > -17.2 && b.max.z < -12);
+  S.laken = msFind((m, b) => m.geometry && (m.userData.laken || (m.geometry.type === 'BoxGeometry' && m.geometry.parameters.widthSegments === 10)) && b.min.x > -50.5 && b.max.x < -43.5 && b.min.z > -17.2 && b.max.z < -12);
   try { const so = await msFBX('sofa', 'model.fbx', { Sofa: { b: 'Sofa_BaseColor.jpg', n: 'Sofa_Normal.jpg', r: 'Sofa_Roughness.jpg', color: 0x9a8a7c } }); msFit(so, 2.0, 'x'); S.o.sofa = put(so, -44.72, K5_Y, -15.2, -PI / 2); S.o.sofa.userData.noCol = false;
     const W_ = k => ({ b: `T_${k}_BaseColor.jpg`, n: `T_${k}_Normal.jpg`, r: `T_${k}_Roughness.jpg` }); const dr = await msFBX('dresser', 'model.fbx', { 'Wood-1': W_('Wood-1'), 'Wood-2': W_('Wood-2'), 'Wood-3': W_('Wood-3'), Metal: { ...W_('Metal'), m: 'T_Metal_Metallic.jpg' } }); msFit(dr, 1.0, 'y'); S.o.anrichte = put(dr, -48.55, K5_Y, -16.6, 0); S.o.anrichte.userData.noCol = false;
     const ch = await msFBX('chair', 'model.fbx', { chair: { b: 'chair_Albedo.jpg', n: 'chair_Normal.jpg', r: 'chair_Roughness.jpg', ao: 'chair_AO.jpg' } }); msFit(ch, .92, 'y'); S.o.sessel = put(ch, -49.15, K5_Y, -15.45, PI / 2 + .5); S.o.sessel.userData.noCol = false;
@@ -45734,7 +45742,8 @@ async function moebel_bau() {
     B.setFromObject(box_); B.getSize(sz); const alongX = sz.x >= sz.z, cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, y0 = B.min.y;
     // Vorderseite: die Seite mit mehr freiem Raum davor
     const frei = (dx, dz) => { let n = 0; for (let k = 1; k <= 6; k++) if (typeof mantleFree === 'function' ? mantleFree(cx + dx * (k * .25 + (alongX ? sz.z : sz.x) / 2), cz + dz * (k * .25 + (alongX ? sz.z : sz.x) / 2), y0) : true) n++; else break; return n; };
-    const sides = alongX ? [[0, 1], [0, -1]] : [[1, 0], [-1, 0]], f = frei(...sides[0]) >= frei(...sides[1]) ? sides[0] : sides[1];
+    const sides = alongX ? [[0, 1], [0, -1]] : [[1, 0], [-1, 0]]; let f = frei(...sides[0]) >= frei(...sides[1]) ? sides[0] : sides[1];
+    if (key0 === 'archiv') f = cz < C2.z ? [0, 1] : [0, -1];
     const m = src.clone(true), g = new THREE.Group(); g.add(m); m.updateMatrixWorld(true); const mb = new THREE.Box3().setFromObject(m), ms = mb.getSize(new THREE.Vector3());
     // Achsen der Modelle (gemessen): Fab „wardrobe“ ist entlang z breit (1,52 m) und nur 0,5 m tief, Vorderseite +x; „dresser“ ist entlang x breit, Vorderseite +z.
     // Vorher galt für beide „breit entlang x, schaut nach +z“: die Schränke im Archiv standen quer zur Wand (Seitenansicht, 1,5 m tief in den Gang).
@@ -45747,6 +45756,8 @@ async function moebel_bau() {
     g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
   // Archiv Kap. 2: die Metallschränke haben eigene Türen und Griffe – die in innen_kapitel.js auf die Kästen gesetzten Schubladengriffe/-schilder/-rillen würden davor schweben. Die Schublade archiveDrawer (Klickfläche, archiveDrawerRead) bleibt unverändert im ersten Schrank.
   if (moebel_S.archiv) scene.traverse(o => { if (o.name === 'archiv_beschlag') o.visible = false; });
+  // 10.10.: dunkle Schubladenfugen der alten Kästen (0,9 × 0,02 × 0,5) ragten durch die Türen der Metallschränke
+  if (moebel_S.archiv) { const wp = new THREE.Vector3(); scene.traverse(o => { const gp = o.isMesh && o.visible && o.geometry && o.geometry.type === 'BoxGeometry' && o.geometry.parameters; if (!gp || Math.abs(gp.width - .9) > .03 || gp.height > .04 || Math.abs(gp.depth - .5) > .03) return; o.getWorldPosition(wp); if (wp.x > C2.x + 17 && wp.x < C2.x + 31 && Math.abs(wp.z - C2.z) > 4) o.visible = false; }); }
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff

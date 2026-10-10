@@ -23,7 +23,8 @@ async function moebel_bau() {
     B.setFromObject(box_); B.getSize(sz); const alongX = sz.x >= sz.z, cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, y0 = B.min.y;
     // Vorderseite: die Seite mit mehr freiem Raum davor
     const frei = (dx, dz) => { let n = 0; for (let k = 1; k <= 6; k++) if (typeof mantleFree === 'function' ? mantleFree(cx + dx * (k * .25 + (alongX ? sz.z : sz.x) / 2), cz + dz * (k * .25 + (alongX ? sz.z : sz.x) / 2), y0) : true) n++; else break; return n; };
-    const sides = alongX ? [[0, 1], [0, -1]] : [[1, 0], [-1, 0]], f = frei(...sides[0]) >= frei(...sides[1]) ? sides[0] : sides[1];
+    const sides = alongX ? [[0, 1], [0, -1]] : [[1, 0], [-1, 0]]; let f = frei(...sides[0]) >= frei(...sides[1]) ? sides[0] : sides[1];
+    if (key0 === 'archiv') f = cz < C2.z ? [0, 1] : [0, -1];
     const m = src.clone(true), g = new THREE.Group(); g.add(m); m.updateMatrixWorld(true); const mb = new THREE.Box3().setFromObject(m), ms = mb.getSize(new THREE.Vector3());
     // Achsen der Modelle (gemessen): Fab „wardrobe“ ist entlang z breit (1,52 m) und nur 0,5 m tief, Vorderseite +x; „dresser“ ist entlang x breit, Vorderseite +z.
     // Vorher galt für beide „breit entlang x, schaut nach +z“: die Schränke im Archiv standen quer zur Wand (Seitenansicht, 1,5 m tief in den Gang).
@@ -36,6 +37,8 @@ async function moebel_bau() {
     g.name = 'moebel_' + key0 + '_' + moebel_S.n; box_.visible = false; moebel_S.weg.push(box_); moebel_S.n++; moebel_S[key] = g; (moebel_S.liste = moebel_S.liste || []).push({ name: g.name, x: cx, z: cz, ry: g.rotation.y, w: sz.x, h: sz.y, d: sz.z }); } // Kollision des Kastens bleibt (gleiche Grundfläche)
   // Archiv Kap. 2: die Metallschränke haben eigene Türen und Griffe – die in innen_kapitel.js auf die Kästen gesetzten Schubladengriffe/-schilder/-rillen würden davor schweben. Die Schublade archiveDrawer (Klickfläche, archiveDrawerRead) bleibt unverändert im ersten Schrank.
   if (moebel_S.archiv) scene.traverse(o => { if (o.name === 'archiv_beschlag') o.visible = false; });
+  // 10.10.: dunkle Schubladenfugen der alten Kästen (0,9 × 0,02 × 0,5) ragten durch die Türen der Metallschränke
+  if (moebel_S.archiv) { const wp = new THREE.Vector3(); scene.traverse(o => { const gp = o.isMesh && o.visible && o.geometry && o.geometry.type === 'BoxGeometry' && o.geometry.parameters; if (!gp || Math.abs(gp.width - .9) > .03 || gp.height > .04 || Math.abs(gp.depth - .5) > .03) return; o.getWorldPosition(wp); if (wp.x > C2.x + 17 && wp.x < C2.x + 31 && Math.abs(wp.z - C2.z) > 4) o.visible = false; }); }
 }
 WORLD_MODS.push(['Möbel', async () => { try { await moebel_bau(); } catch (e) { console.warn('Möbel', e); } }]);
 window.__moebel = { S: moebel_S }; // Testzugriff

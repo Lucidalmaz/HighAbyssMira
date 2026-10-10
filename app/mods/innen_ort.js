@@ -308,6 +308,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const sheetMat = new T.MeshStandardMaterial({ map: await tRep('curtain_sheer/DefaultMaterial_Base_color.png', true, 1.4, 1.4), normalMap: M.cloth.normalMap, color: 0xc4beb2, roughness: 1, side: T.DoubleSide });
   const sheets = [find(-44.7, .85, -15.2, [1.07, .87, 2.46])[0], find(-48.7, .92, -16.2, [1.27, 1.02, 1.27])[0], find(-46.8, 1.05, -16.55, [1.57, 1.27, .67])[0]];
   sheets.forEach(m => { if (m) m.material = sheetMat; }); ghost.material = sheetMat; // die Laken-Gestalt sieht aus wie die Tücher
+  // 10.10.: statt der verbeulten Boxen echte Tücher (Cloth-Simulation über Sofa, Sessel, Kommode; Blender: tools/blender/laken_bau.py)
+  try { const lg = await msModel('laken', 'laken.glb'), pick = n => { let r = null; lg.traverse(o => { if (o.isMesh && o.name === n) r = o; }); return r; };
+    ['laken_sofa', 'laken_sessel', 'laken_kommode'].forEach((n, i) => { const p = pick(n), m = sheets[i]; if (p && m) { if (m.geometry.dispose) m.geometry.dispose(); m.geometry = p.geometry.clone(); m.geometry.computeBoundingBox(); m.geometry.computeBoundingSphere(); m.userData.laken = true; m.castShadow = true; m.receiveShadow = true; } }); } catch (e) { console.warn('Tücher-Modell', e); }
   const moveSheet = (m, nx, nz) => { if (!m) return; const ox = m.position.x, oz = m.position.z, c = colliders.find(c => nr((c.minX + c.maxX) / 2, ox, .03) && nr((c.minZ + c.maxZ) / 2, oz, .03) && c.top > 50);
     if (c) { c.minX += nx - ox; c.maxX += nx - ox; c.minZ += nz - oz; c.maxZ += nz - oz; } m.position.x = nx; m.position.z = nz; };
   moveSheet(sheets[2], -48.55, -16.55); moveSheet(sheets[1], -49.15, -15.45); // vorher stand der Schrank genau vor der Tür (x −47)
@@ -331,7 +334,9 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   hideAt(-53, .8, -14.8, [1.4, .75, .9]); hideAt(-54, .88, -14.8, [.45, .9, .45]); hideAt(-52, .88, -14.8, [.45, .9, .45]); hideAt(-53.4, .89, -12.55, [3.8, .92, .65]);
   { let w = 0; for (let i = 0; i < 2; i++) { const g = put(await lowerCab(0xffffff, 1), { minX: -55.78 + i * w, maxZ: -12.21, y: Y, ry: PI }, G1); if (!w) { const b = bbox(g); w = b.max.x - b.min.x; } } }
   const cupMat = await surf('planks_painted', { rx: .4, ry: .35, tint: 0x8fa4b4 });
-  [find(-54.4, 2.28, -12.85, [.8, .7, .3])[0], find(-54.39, 2.28, -12.69, [.78, .68, .03])[0]].forEach(m => { if (m) m.material = cupMat; });
+  { const hb = [find(-54.4, 2.28, -12.85, [.8, .7, .3])[0], find(-54.39, 2.28, -12.69, [.78, .68, .03])[0]]; hb.forEach(m => { if (m) m.material = cupMat; });
+    // 10.10.: Hängeschrank als Modell (Blender: tools/blender/haengeschrank_bau.py), Rückseite an der Wand (die Box hing 0,5 m davor in der Luft)
+    try { const hs = (await msModel('haengeschrank', 'haengeschrank.glb')).clone(true); put(hs, { x: -54.4, maxZ: -12.21, y: Y + 1.52, ry: PI }, G1); hb.forEach(m => { if (m) m.visible = false; }); } catch (e) { console.warn('Hängeschrank', e); } }
   PHOTOS[5].candle.g.position.y = Y + .92;
   const gHutch = put(await hutch(0xffffff, 1, 2.2), { minX: -55.79, z: -15.6, y: Y, ry: PI / 2 }, G1);
   { const b = bbox(gHutch), hot = new T.Mesh(new T.BoxGeometry(.4, .5, 1.1), hidden); hot.position.set(b.max.x - .25, Y + 1.25, (b.min.z + b.max.z) / 2); G1.add(hot);
@@ -385,6 +390,11 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
       const sh = bu_kinderschuh(0x3a5ca8), sy = surfY(gWr, b.min.x + .14, -20.2, b.min.y + .8, Y + .02); sh.position.set(b.min.x + .13, sy + .004, -20.1); sh.rotation.y = -PI / 2 + .3; G1.add(sh); } catch (e) { console.warn('Basis-Umsetzung Mäntel', e); }
     for (const [dz, col] of [[.36, 0x5a4a44]]) { const c = await FBX('curtain_sheer', { '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', ds: 1, flipN: true, color: col } });
       c.scale.set(.0042, .0082, .006); put(c, { x: b.min.x + .27, z: -20.45 + dz, top: b.max.y - .07, ry: PI / 2 + rand(-.15, .15) }, G1); } }
+  // 10.10.: Garderobe am Haken – die drei aus Zylindern/Kapseln gebauten Mäntel durch echte Jacken-Scans ersetzen (Haken und Brett bleiben)
+  try { const alt = []; scene.traverse(g => { if (g.isGroup && g.children.length === 12 && Math.abs(g.position.x + 44.26) < .03 && Math.abs(g.position.y - 2.22) < .05 && g.position.z < -19.8 && g.position.z > -20.8) alt.push(g); });
+    if (alt.length) { const seen = new Set(); alt.forEach(g => { g.visible = false; });
+      const zs = [-20.57, -20.29, -20.01], cols = [0x9fb2ae, 0xa89878, 0x7d9482];
+      for (let i = 0; i < 3; i++) { const o = await msFBX('w_jacke', 'model.fbx', { '*': { b: 'model.jpg', rough: .95, ds: true, color: cols[i] } }); msFit(o, .98 - i * .03, 'y'); put(o, { x: -44.36, z: zs[i], top: 2.21, ry: -PI / 2 + (i - 1) * .08 }, G1); } } } catch (e) { console.warn('Garderobe Jacken', e); }
   // Viktorianischer Spiegel
   const mir = await FBX('mirror', { 'Mirror Border': { b: 'Gold_MIrror_Diffuse.png', n: 'Gold_Mirror_Normal.jpg', r: 'Gold_Mirror_Roughness.png', metal: 1, color: 0xc8b890 }, Mirror: { r: 'Mirror_Roughness.png', metal: 1, rough: .08, color: 0x9aa2aa } });
   mir.rotation.x = -PI / 2; msFit(mir, .84, 'max'); const gMir = put(mir, { maxX: -44.21, z: -20.35, yc: Y + 1.6, ry: -PI / 2 }, G1); gMir.traverse(m => { if (m.isMesh) m.castShadow = false; });

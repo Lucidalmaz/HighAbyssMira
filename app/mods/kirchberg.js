@@ -672,7 +672,9 @@ async function kirchberg_innen() {
       const kb = box(.62, 1.52, .62, x0 + .38, .76, z1 - 1.1, em, { collide: true, parent: g });
       if (kModell) { if (kb) kb.visible = false; kModell.position.set(x0 + .38, 0, z1 - 1.1); kModell.rotation.y = PI / 2; kModell.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(kModell); }
       else box(.03, .3, .03, x0 + .71, 1.1, z1 - .9, new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 }), { parent: g });
-      box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g });
+      { const hb = box(.62, .88, .6, x0 + .38, .44, z1 - 1.9, em, { collide: true, parent: g }); // 10.10.: Küchenherd als Blender-Modell (ms/herd, tools/blender/herd_bau.py); die Box bleibt unsichtbar als Kollision
+        const hm = await msModel('herd', 'herd.glb').then(m => m.clone(true)).catch(() => null);
+        if (hm && hb) { hb.visible = false; hm.position.set(x0 + .38, 0, z1 - 1.9); hm.rotation.y = PI / 2; hm.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); g.add(hm); } }
       const dose = await kirchberg_mod('w_becher', 'model.glb', .1); if (dose) { const sorten = [0xb8342a, 0x2a5a9a, 0xd8b030, 0x3a8a4a, 0x8a3a8a, 0xe0e0d8, 0xc86a20]; for (let i = 0; i < 17; i++) { const d = dose.clone(true); d.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.setHex(sorten[i % 7]); m.material.metalness = .5; } });
         put(d, x0 + .3 + (i % 3) * .12 - .12 + ((i / 3 | 0) % 2) * .06, 1.52 + (i / 3 | 0) * .1, z1 - 1.1 + ((i % 2) - .5) * .12, i, g); } }
       kirchberg_hit(.7, 2.1, .7, x0 + .38, 1, z1 - 1.1, 'Kühlschrank', () => kirchberg_notiz('Ein Turm aus Dosen', 'Auf dem Kühlschrank: siebzehn Katzenfutterdosen, siebzehn verschiedene Sorten. Jede mit einem Etikett, Kuli:\nANNI. ZAYN. GRETE. KEINER. HÄNSCHEN. LUNA …')); }
@@ -693,7 +695,7 @@ async function kirchberg_innen() {
       kirchberg_decal(b, .32, .4, C.x + 2.9, 1.55, z0 + .115, 0, { parent: g }); kirchberg_hit(.4, .5, .3, C.x + 2.9, 1.55, z0 + .25, 'Foto über dem Sofa', () => kirchberg_notiz('Ein Foto', 'Ein kleiner Junge auf einem roten Rad mit Stützrädern. Er lacht mit offenem Mund.\n\nHinten, Bleistift: Hans, 6 · 1958.')); }
     await fenster(R, C.x - 2.2, z0 + .11, 0); await fenster(R, C.x + 3, z1 - .11, PI);
     await schmutz(R, 1.6, 1, C.x - 3.6, 2.54, C.z + 2, 0, PI / 2);
-    await kirchberg_kram(g, [['teppich', C.x + 3, 0, C.z - 1.6, .1, 1], ['zeitung', C.x - 2.5, tischY, C.z - .45, .3, .6], ['tasse', C.x - 1.9, tischY, C.z - .5], ['stapel', x1 - .4, 0, C.z + 2.9], ['stapel', C.x + 1.4, 0, z0 + .4], ['glas', x0 + .4, .92, z1 - 1.9], ['teddy', C.x + 2.2, .48, z0 + .5, .4, .8]]); await schmutz(R, 1.2, .7, x0 + .2, .5, C.z - 2.5, PI / 2); await schmutz(R, 2, 1.2, C.x + 3, .004, C.z + .5, 0, -PI / 2, 0x5a4a38, .5);
+    await kirchberg_kram(g, [['teppich', C.x + 3, 0, C.z - 1.6, .1, 1], ['zeitung', C.x - 2.5, tischY, C.z - .45, .3, .6], ['tasse', C.x - 1.9, tischY, C.z - .5], ['stapel', x1 - .4, 0, C.z + 2.9], ['stapel', C.x + 1.4, 0, z0 + .4], ['glas', x0 + .4, .865, z1 - 1.9], ['teddy', C.x + 2.2, .48, z0 + .5, .4, .8]]); await schmutz(R, 1.2, .7, x0 + .2, .5, C.z - 2.5, PI / 2); await schmutz(R, 2, 1.2, C.x + 3, .004, C.z + .5, 0, -PI / 2, 0x5a4a38, .5);
     S.raeume.gisela.ok = true; }
 
   // ================= Pfarrhaus: Studierzimmer (8 × 6 m), Schreibtisch mit Predigtmappe, Regale, 40-W-Birne, Glastür zum Flur
