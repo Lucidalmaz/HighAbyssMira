@@ -57,6 +57,15 @@ const INV3D_ITEM = {
   ranzenriemen: 'riemen', riegel_halb: 'riegel', schnalle_turm: 'schnalle', lwo_kuli: 'kuli',
   // Vorräte / Sonstiges
   thermoskanne: 'thermos', thermos_bfr: 'thermos', pfandflasche: 'flasche', futterdose: 'dose', lucy_zigaretten: 'zigaretten', kf_grinder: 'grinder', kf_papes: 'papes', kf_knolle: 'knolle', kf_tips: 'tips' };
+// Abwandlungen je Gegenstand (gleiches Modell, anderer Werkstoff/Größe): color = Grundfarbe (bei Texturen Tönung), metal, rough, s = Größenfaktor
+const INV3D_VAR = {
+  zimmer7: { s: .92 }, fuse: { color: 0x8f949a, metal: 1, rough: .35, s: .85 }, baumhausschluessel: { color: 0xd0aa52, s: .68 }, spindschluessel: { color: 0xb9bcc0, metal: 1, rough: .3 },
+  n3_kapschluessel: { color: 0x4a4540, metal: .9, rough: .55, s: 1.12 }, n3_pfarrschluessel: { color: 0x5a4a3c, metal: .9, rough: .5, s: 1.05 }, villaschluessel: { color: 0x7a5a30, metal: .9, rough: .4, s: 1.15 },
+  schluesselteile: { color: 0x6b4a32, metal: .8, rough: .7, s: .8 }, dienstnadel: {},
+  n3_kassette_band: { color: 0x9fb0c8 }, pell_kassette: { color: 0xc8a0a0 }, heino: { color: 0xb8c8a0 }, zayn_kassette: { color: 0xe0c070 },
+  einwilligungen: { color: 0xeeeeee }, da10: { color: 0xd8d0b8 }, n3_lieferschein: { color: 0xe6e0c0 }, rechnung_durchschlag: { color: 0xc8e0d8 }, rechnung_kuehnle: { color: 0xe8dcc8 }, dina_zeichnung: { color: 0xf4f0e4 }, ow_seiten: { color: 0xc9c0a0 },
+  thermos_bfr: { color: 0x9fb09a }, nord_baer: { color: 0x9aa0b0 }, sender: { s: .6 }, jonas_karte: { color: 0xdcd0b0 }, heidis_karten: { color: 0xe8e0d8 }, nord_fahrkarte: { color: 0xd8e0c8 }, wartenummer: { color: 0xe8c8a0 },
+  alupaeckchen: { s: 1.1 }, kaugummipapier: { s: .55 } };
 const INV3D_REGELN = [[/schl(ü|u|ue)ssel|key/i, 'schluessel'], [/lampe|taschenlampe|stablampe/i, 'lampe2'], [/kerze/i, 'kerze'], [/laterne|lampion/i, 'laterne'], [/brille/i, 'brille'], [/teddy|b(ä|ae)r/i, 'teddy'],
   [/thermos/i, 'thermos'], [/kanister/i, 'jerrycan'], [/kassette|tonband/i, 'kassette'], [/brief|umschlag/i, 'umschlag'], [/karte/i, 'postkarte'], [/zettel|seite|blatt|notiz|akte|protokoll|rechnung|liste/i, 'zettel'], [/foto|polaroid|bild/i, 'polaroid']];
 const INV3D_KAT = [['alle', 'ALLE'], ['schluessel', 'SCHLÜSSEL'], ['werkzeug', 'WERKZEUG'], ['licht', 'LICHT & GERÄT'], ['papier', 'PAPIER & AKTEN'], ['ton', 'TON & FOTO'], ['persoenlich', 'ERINNERUNG'], ['sonst', 'SONSTIGES']];
@@ -80,10 +89,14 @@ function inv3d_info(k) { const it = ITEMS[k] || { name: k, desc: '' }; let name 
 // ---------------------------------------------------------------- Modellwahl
 function inv3d_modell(k) {
   if (INV3D_MODELLE[k]) return INV3D_MODELLE[k]; // Testzugriff: Modell-Id direkt
-  const id = INV3D_ITEM[k]; if (id) return INV3D_MODELLE[id] || null;
-  const n = inv3d_info(k).name.toLowerCase(), t = k + ' ' + n;
-  for (const [re, m] of INV3D_REGELN) if (re.test(t)) return INV3D_MODELLE[m] || null;
-  return null;
+  let m = null; const id = INV3D_ITEM[k];
+  if (id) m = INV3D_MODELLE[id] || null;
+  else { const n = inv3d_info(k).name.toLowerCase(), t = k + ' ' + n; for (const [re, mid] of INV3D_REGELN) if (re.test(t)) { m = INV3D_MODELLE[mid] || null; break; } }
+  const v = m && INV3D_VAR[k]; if (!v || !Object.keys(v).length) return m;
+  if (!inv3d_modell.cache) inv3d_modell.cache = new Map(); let r = inv3d_modell.cache.get(k); if (r && r.base === m) return r;
+  const ov = {}; for (const f of ['color', 'metal', 'rough']) if (v[f] != null) ov[f] = v[f];
+  r = Object.assign({}, m, { base: m, s: (m.s || 1) * (v.s || 1), vk: k, mat: Object.keys(ov).length ? Object.assign({}, m.mat, { '*': Object.assign({}, m.mat && m.mat['*'], ov) }) : m.mat });
+  inv3d_modell.cache.set(k, r); return r;
 }
 // ---------------------------------------------------------------- Renderer (nur bei offenem Inventar / Aufheben)
 function inv3d_env(r) {
@@ -119,7 +132,7 @@ function inv3d_stop() { const I = INV3D; cancelAnimationFrame(I.raf); I.raf = 0;
 // Modell laden → normalisiert (Mitte im Ursprung, größte Ausdehnung 1,6) in eine Gruppe
 async function inv3d_lade(k) {
   const I = INV3D, m = inv3d_modell(k); if (!m) return null;
-  const ck = m.d + '/' + (m.f || 'model.glb') + '|' + (m.pick || '') + '|' + (m.rx || 0) + '|' + (m.ry || 0) + '|' + (m.rz || 0);
+  const ck = m.d + '/' + (m.f || 'model.glb') + '|' + (m.pick || '') + '|' + (m.vk || '') + '|' + (m.rx || 0) + '|' + (m.ry || 0) + '|' + (m.rz || 0);
   if (I.cache.has(ck)) return I.cache.get(ck).then(g => g && g.clone(true));
   const p = (async () => {
     try { const src = m.fbx ? await msFBX(m.d, m.f || 'model.fbx', m.fbx) : await msModel(m.d, m.f || 'model.glb'); const o = src.clone(true), g = new THREE.Group(), pivot = new THREE.Group();

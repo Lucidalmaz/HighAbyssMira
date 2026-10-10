@@ -14,7 +14,9 @@ Modul `app/mods/inventar3d.js` (in `assemble.js` direkt vor `tausch`, damit Beut
 - Fundorte: `INV3D.found[key] = { ch, ort, t }` (Ort = nächster Kartenname aus `karte_orte`), gespeichert über `MOD_SAVE 'inventar3d'`.
 - Wache: erkennt neue Schlüssel in `story.items` (auch `story.items.push` ohne `addItem`), mehr als 2 auf einmal (Laden) = still.
 - Modelle: `INV3D_MODELLE` (Id → Verzeichnis, Materialüberschreibung `mat`, `pick` = Teilmenge, `pit` = Anfangsneigung), `INV3D_ITEM` (Schlüssel → Id), `INV3D_REGELN` (Name → Id). Katalog: `docs/gameplay/item_katalog.md`.
-- Weltmodell Halsband (Basis-Torus) wird ersetzt (`inv3d_welt`).
+- Abwandlungen je Gegenstand (`INV3D_VAR`): gleiches Modell, anderer Werkstoff/Größe/Tönung (Schlüssel, Kassetten, Papiere, Thermoskannen).
+- Weltmodelle: Halsband (Basis-Torus) und Lucys Handy (Basis-Quader) werden ersetzt (`inv3d_welt`, `inv3d_weltHandy`); die übrigen Fundstücke der Kapitel nutzen bereits echte Modelle aus früheren Modulen.
+- Aufheben-Stau: höchstens 3 wartende Darstellungen, der Rest kommt still ins Inventar (Massenvergabe/Laden).
 
 ## Modell-Pipeline
 1. Poly Haven (CC0, API ohne Anmeldung): `HAM_FabDownloads/ph/dl.py <id> …` → `node tools/ph_pack.mjs <Quelle> <id>` → `game/assets/ms/ph_<id>/model.glb`.
