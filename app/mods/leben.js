@@ -446,7 +446,7 @@ function leben_beast(key, s = 1) {
   const S = leben_S, B = S.M[key]; if (!B) return null;
   const m = S.skc(B.src); m.scale.setScalar(s); m.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = true; } }); leben_variiere(m, { hell: key === 'pig' ? [.8, 1.1] : [.82, 1.14], warm: .07 }); // Individuum
   const g = new THREE.Group(); g.add(m); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Tier:' + key, 1.6);
-  const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false };
+  const mx = new THREE.AnimationMixer(m), V = { g, m, mx, A: leben_anims(mx, B.clips), cur: null, st: 'off', t: 0, tx: 0, tz: 0, sp: 0, gy: 0, ty: 0, skip: false, nat: LEBEN_NAT[key] };
   const first = Object.keys(V.A).find(k => /IdleBreathe/.test(k)) || Object.keys(V.A)[0]; if (first) leben_play(V, first, 0);
   return V;
 }
@@ -461,7 +461,12 @@ function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenh
   V.gy -= dt; if (V.gy < 0) { V.gy = .2; const sg = solidGround(p.x, p.y + .1, p.z); V.ty = sg > -1 ? Math.max(0, sg) : 0; } p.y += (V.ty - p.y) * Math.min(1, dt * 8);
   return dd < .15;
 }
-function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) V.mx.update(dt); }
+// 10.10.: Abspieltempo = Wegtempo (kein Fussgleiten): natuerliche Geschwindigkeit der Walk/Run-Clips (m/s bei Modellmass 1, aus den _RM-Clips gemessen)
+const LEBEN_NAT = { fox: { Walk: .46, Run: 2.54 }, deer: { Walk: 1.08, Run: 5.61 }, wolf: { Walk: .93, Run: 4.3 }, pig: { Walk: 1.01, Run: 6.48 }, stag: { Walk: 1.2, Run: 6.12 } };
+function leben_beastSync(V, dt) { const p = V.g.position; if (V.__lx === undefined) { V.__lx = p.x; V.__lz = p.z; V.__v = 0; return; }
+  const v = Math.hypot(p.x - V.__lx, p.z - V.__lz) / Math.max(dt, 1e-3); V.__lx = p.x; V.__lz = p.z; V.__v += (Math.min(v, 12) - V.__v) * Math.min(1, dt * 8);
+  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return; if (c === V.A.Walk || c === V.A.Run) { const n = (c === V.A.Run ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) c.timeScale = Math.max(.5, Math.min(1.7, V.__v / n)); } }
+function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) { leben_beastSync(V, dt); V.mx.update(dt); } }
 function leben_openSpot(dMin, dMax, clear, behind) { // freier Platz in einem Ring um den Spieler (für Reh und Wolf)
   const P = player.pos;
   for (let k = 0; k < 24; k++) { const a = rand(0, 6.28), d = rand(dMin, dMax), x = P.x + Math.cos(a) * d, z = P.z + Math.sin(a) * d;
@@ -501,7 +506,7 @@ function leben_foxTick(F, dt, live) {
     case 'look': F.g.rotation.y = leben_ang(F.g.rotation.y, Math.atan2(-dx, -dz), Math.min(1, dt * 8)); F.t -= dt;
       if (F.t < 0) { let best = null, bs = -9; for (const s of L) { const sx = s.x - p.x, sz = s.z - p.z, sd = Math.hypot(sx, sz); if (sd < 12 || sd > 32) continue; const sc = (sx * dx + sz * dz) / (sd * (d || 1)) + rand(0, .3); if (sc > bs && leben_pathR(p.x, p.z, s.x, s.z, .3, .2)) { bs = sc; best = s; } }
         if (best) { F.tx = best.x; F.tz = best.z; } else { F.tx = p.x + dx / (d || 1) * 20; F.tz = p.z + dz / (d || 1) * 20; }
-        F.st = 'flee'; F.sp = 5.2; leben_play(F, 'Run', .15, 1.05); leben_scare(p.x, p.z, 5); } break;
+        F.st = 'flee'; F.sp = 4.3; leben_play(F, 'Run', .15, 1.05); leben_scare(p.x, p.z, 5); } break;
     case 'flee': if (leben_beastMove(F, dt)) { F.st = 'roam'; F.t = rand(4, 9); leben_play(F, 'IdleLookAround', .3); }
       if (!F.rsT || (F.rsT -= dt) < 0) { F.rsT = .3; if (d < 18) Audio.play(Audio.pick('stepG1', 'stepG2', 'stepG3'), { gain: .12, rate: rand(1.5, 1.9), x: p.x, y: .1, z: p.z, ref: 1.5 }); } break;
     case 'roam': F.t -= dt; if (F.t < 0 && L && S.pathBudget > 0) { S.pathBudget--; for (let k = 0; k < 4; k++) { const s = L[Math.floor(Math.random() * L.length)], sd = Math.hypot(s.x - p.x, s.z - p.z); if (sd < 5 || sd > 22 || !leben_pathR(p.x, p.z, s.x, s.z, .3, .2)) continue;

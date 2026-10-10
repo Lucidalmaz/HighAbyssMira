@@ -84,7 +84,7 @@ for (let t = 0; t < nT; t++) {
     const best = u >= v && u >= w ? a : v >= w ? b : c; const tu = uv[best * 2], tv = uv[best * 2 + 1];
     { const nk = jpos[jIdx('neck')], n2 = jpos[jIdx('neck2')], cc = V.add(nk, V.mul(V.sub(n2, nk), .45)), ax = V.norm(V.sub(n2, nk)), q = V.sub(p, cc), al = V.dot(q, ax); if (Math.abs(al) < .0075 && V.len(V.sub(q, V.mul(ax, al))) < .075) continue; } // Halsband: kein Fell darüber
     if (isPink(tu, tv)) continue; // Nase, Ballen, Innenohr (Flaum folgt separat)
-    let pr = reg, L = R(...par.L), W = R(...par.w) * (+process.env.WSKAL || 1);
+    let pr = reg, L = R(...par.L), W = R(...par.w) * (+process.env.WSKAL || 1) * (reg === 'schwanz' ? 2.1 : 1); if (reg === 'schwanz') L *= 1.25; // Schwanz: breitere/laengere Karten = buschig
     // Augen und Nase aussparen
     if (reg === 'kopf' && p[2] > headP[2] + .02 && p[1] < Math.min(eyeC[0][1], eyeC[1][1]) - .02) continue; // Kinn/Maul: kein Fell (sonst „Papierschnipsel“)
     if (reg === 'hals' && nn[1] < -.3) L *= .6;
