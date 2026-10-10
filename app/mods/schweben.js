@@ -6,8 +6,8 @@
 // Auflage bleiben unberührt (kein „Fallenlassen auf den Boden“, wenn der Tisch nur nicht erkannt wurde).
 // Prüfung/Messung: __schweben.pruefen() (Entwicklungsfassung) liefert je Einheit Lücke/Auflage; Protokoll in __schweben.log.
 const SCHW = { log: [], done: new Set(), keys: new Map(), seen: new Set(), n: 0, t: 0, stats: { geprueft: 0, gesenkt: 0 } };
-const SCHW_STEHT = /^(w_buch|lbook|album|w_teller|w_becher|w_tasse|w_besteck|w_blech|w_thermos|w_telefon|w_kamera|w_brot|w_urne|w_funk|w_lighter|w_kette|w_spieluhr|w_alarm|geschirr|radio|crt|rekorder|messer|jerrycan|trashbag|teddy|doll|toys_old|brille|candles|kiffen|it_)/;
-const SCHW_HAENGT = /(frame|clock|mirror|schild|lantern|lamp|curtain|window|door|cross_hang|polaroid|foto|papier|zettel|poster)/i;
+const SCHW_STEHT = /^(w_buch|lbook|album|w_teller|w_becher|w_tasse|w_besteck|w_blech|w_thermos|w_telefon|w_kamera|w_brot|w_urne|w_funk|w_lighter|w_kette|w_spieluhr|w_alarm|w_jacke|w_schwert|w_papierlaterne|geschirr|radio|crt|rekorder|messer|jerrycan|trashbag|teddy|doll|toys_old|brille|candles|kiffen|it_|haybale|pallet|album|beutel|ph_|shed_|giraffe|mirror)/;
+const SCHW_HAENGT = /(frame|clock|schild|lantern|lamp|curtain|window|door|cross_hang|polaroid|foto|papier|zettel|poster|mirror|w_papierlaterne|w_schwert)/i;
 function schweben_index() {
   for (const [k, p] of MSL.cache) { if (SCHW.seen.has(k) || !p || typeof p.then !== 'function') continue; SCHW.seen.add(k);
     p.then(s => { if (!s || !s.traverse) return; const key = k.replace(/^fbx:/, '').split('/')[0]; s.traverse(m => { if (m.isMesh && m.geometry) SCHW.keys.set(m.geometry.uuid, key); }); }).catch(() => {}); }
@@ -19,18 +19,18 @@ function schweben_cache() { const out = []; scene.traverse(m => { if (!m.isMesh 
     const b = new THREE.Box3().copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld); if (b.max.x - b.min.x > 60 || b.max.z - b.min.z > 60) return; out.push({ m, b }); }); return out; }
 // Kandidaten: sichtbare Meshes in der Nähe (Quader-Vorauswahl), Strahl mit beiden Seiten
 function schweben_stuetze(obj, B, own, xs) {
-  const ymin = B.min.y; let best = -Infinity, von = '', typ = '';
+  const ymin = B.min.y; let best = -Infinity, von = '', typ = '', sk = '';
   const cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, sx = (B.max.x - B.min.x) / 4, sz = (B.max.z - B.min.z) / 4;
   const pts = xs || [[cx, cz], [cx - sx, cz - sz], [cx + sx, cz - sz], [cx - sx, cz + sz], [cx + sx, cz + sz]];
   if (!SCHW.cache) SCHW.cache = schweben_cache();
   const cands = [];
-  for (const c of SCHW.cache) { if (own.has(c.m)) continue; if (c.b) { if (c.b.max.x < B.min.x - .05 || c.b.min.x > B.max.x + .05 || c.b.max.z < B.min.z - .05 || c.b.min.z > B.max.z + .05 || c.b.max.y > ymin + .13 || c.b.max.y < ymin - .6) continue; } cands.push([c.m, c.b ? c.b.max.y : null]); }
+  for (const c of SCHW.cache) { if (own.has(c.m)) continue; if (c.b) { if (c.b.max.x < B.min.x - .05 || c.b.min.x > B.max.x + .05 || c.b.max.z < B.min.z - .05 || c.b.min.z > B.max.z + .05 || c.b.min.y > ymin + .13 || c.b.max.y < ymin - .6) continue; } cands.push([c.m, c.b ? c.b.max.y : null]); }
   const sides = new Map(); const restore = () => { for (const [mt, sd] of sides) mt.side = sd; };
   try {
     for (const [m, top] of cands) { for (const mt of [].concat(m.material)) if (mt && !sides.has(mt)) { sides.set(mt, mt.side); mt.side = THREE.DoubleSide; }
-      for (const [x, z] of pts) { _sRay.set(_sV.set(x, ymin + .12, z), _sDown); _sRay.far = 1.5; const hs = _sRay.intersectObject(m, false); for (const h of hs) { if (h.instanceId !== undefined && h.object.isInstancedMesh && own.has(h.object)) continue; if (h.point.y <= ymin + .125 && h.point.y > best) { best = h.point.y; von = m.name || m.geometry.type; typ = m.geometry.type; } } } }
+      for (const [x, z] of pts) { _sRay.set(_sV.set(x, ymin + .12, z), _sDown); _sRay.far = 1.5; const hs = _sRay.intersectObject(m, false); for (const h of hs) { if (h.instanceId !== undefined && h.object.isInstancedMesh && own.has(h.object)) continue; if (h.point.y <= ymin + .125 && h.point.y > best) { best = h.point.y; von = m.name || m.geometry.type; typ = m.geometry.type; sk = SCHW.keys.get(m.geometry.uuid) || ''; } } } }
   } finally { restore(); }
-  return { y: best, von, typ };
+  return { y: best, von, typ, stuetzKey: sk };
 }
 // auf_flaeche(obj[, x, z], { apply = true, maxGap = .4 }) → { gap, y, von, gesenkt }: setzt die Unterkante von obj auf die Fläche darunter.
 function auf_flaeche(obj, x, z, o = {}) {
@@ -52,13 +52,53 @@ function schweben_einheiten(rect) {
     if (used.has(r)) return; used.add(r); out.push({ root: r, key: k }); });
   return out;
 }
+// Auflageflächen (Quader-Oberseiten) aller Meshes und aller Instanzen – für „daneben gestellt“-Funde
+function schweben_flaechen() { const out = [], M = new THREE.Matrix4(), Bx = new THREE.Box3();
+  scene.traverse(m => { if (!m.isMesh || !m.visible || m.isSkinnedMesh || !m.geometry) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false || (mt.transparent && mt.opacity < .05)) return; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    const add = b => { const sx = b.max.x - b.min.x, sz = b.max.z - b.min.z; if (sx < .12 || sz < .12 || sx > 6 || sz > 6 || b.max.y < .12) return; out.push({ m, x0: b.min.x, x1: b.max.x, z0: b.min.z, z1: b.max.z, y1: b.max.y, y0: b.min.y }); };
+    if (m.isInstancedMesh) { for (let i = 0; i < m.count; i++) { m.getMatrixAt(i, M); add(Bx.copy(m.geometry.boundingBox).applyMatrix4(M).applyMatrix4(m.matrixWorld)); } }
+    else add(Bx.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); });
+  return out; }
+function schweben_waende() { const out = [], Bx = new THREE.Box3(); scene.traverse(m => { if (!m.isMesh || m.isInstancedMesh || !m.visible || !m.geometry) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false) return; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); Bx.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);
+    const sx = Bx.max.x - Bx.min.x, sy = Bx.max.y - Bx.min.y, sz = Bx.max.z - Bx.min.z; if (sy >= 1.5 && (Math.min(sx, sz) <= .7 || sx > 3 && sz > 3 && false) && Math.max(sx, sz) >= 1.2) out.push({ x0: Bx.min.x, x1: Bx.max.x, z0: Bx.min.z, z1: Bx.max.z, y0: Bx.min.y, y1: Bx.max.y }); });
+  return out; }
+function schweben_amWand(B, Wd, ab = .18) { for (const w of Wd) { if (B.max.y < w.y0 || B.min.y > w.y1) continue; const dx = Math.max(w.x0 - B.max.x, 0, B.min.x - w.x1), dz = Math.max(w.z0 - B.max.z, 0, B.min.z - w.z1); if (Math.hypot(dx, dz) <= ab) return true; } return false; }
+function schweben_pruefe(u, S, Wd) {
+  const own = new Set(), B = schweben_box(u.root, own); if (B.isEmpty() || !isFinite(B.min.y)) return null;
+  const ymin = B.min.y, cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, hx = (B.max.x - B.min.x) / 2, hz = (B.max.z - B.min.z) / 2;
+  const r = schweben_stuetze(u.root, B, own, null);
+  if (!isFinite(r.y)) { const R = (typeof indoorRects !== 'undefined') ? indoorRects.find(q => cx > q.x0 && cx < q.x1 && cz > q.zb && cz < q.zf) : null; r.y = R ? R.y : 0; r.typ = 'Boden'; }
+  const gap = ymin - r.y;
+  const haengt = Wd ? schweben_amWand(B, Wd) : false;
+  const base = { key: u.key, p: [+cx.toFixed(2), +ymin.toFixed(2), +cz.toFixed(2)], gap: gap === null ? null : +gap.toFixed(3), typ: r.typ || '' };
+  if (gap !== null && gap <= .08 && gap >= -.05) return { ...base, k: 'gut' };
+  if (gap !== null && gap < -.05) return { ...base, k: (haengt || (r.stuetzKey && SCHW_STEHT.test(r.stuetzKey))) ? (haengt ? 'haengt' : 'gut') : 'steckt', von: r.stuetzKey || '', dy: -gap };
+  // seitlich neben einer Auflage? (Oberseite auf Höhe der Unterkante, waagerecht ≤ 70 cm entfernt)
+  let best = null;
+  for (const s of S) { if (own.has(s.m)) continue; if (s.y1 < ymin - .14 || s.y1 > ymin + .05) continue; if (s.y0 > ymin + .02) continue;
+    const dxr = Math.max(s.x0 - cx, 0, cx - s.x1), dzr = Math.max(s.z0 - cz, 0, cz - s.z1), d = Math.hypot(dxr, dzr); if (d > .7) continue; if (!best || d < best.d) best = { s, d }; }
+  if (best && best.d <= .02) return { ...base, k: 'gut', von: 'Rahmen' };
+  if (haengt) return { ...base, k: 'haengt' };
+  if (best && best.d > .6) return { ...base, k: 'ungeklaert', abstand: +best.d.toFixed(2) };
+  if (best) { const s = best.s, ax = Math.min(hx * .5, (s.x1 - s.x0) / 2), az = Math.min(hz * .5, (s.z1 - s.z0) / 2);
+    const nx = Math.min(Math.max(cx, s.x0 + ax), s.x1 - ax), nz = Math.min(Math.max(cz, s.z0 + az), s.z1 - az);
+    return { ...base, k: 'neben', dx: nx - cx, dz: nz - cz, dy: s.y1 - ymin, abstand: +best.d.toFixed(2) }; }
+  if (gap !== null && gap <= .15) return { ...base, k: 'schwebt', dy: -gap };
+  return { ...base, k: 'ungeklaert' };
+}
+function schweben_verschiebe(root, dx, dy, dz) { root.updateWorldMatrix(true, false); const w0 = new THREE.Vector3().setFromMatrixPosition(root.matrixWorld), w1 = w0.clone().add(new THREE.Vector3(dx, dy, dz));
+  if (root.parent) { const l0 = root.parent.worldToLocal(w0.clone()), l1 = root.parent.worldToLocal(w1.clone()); root.position.add(l1.sub(l0)); } else root.position.add(new THREE.Vector3(dx, dy, dz)); root.updateMatrixWorld(true); }
 function schweben_pass(rect, opt = {}) {
-  const res = { geprueft: 0, gesenkt: 0, gaps: [] }; SCHW.cache = schweben_cache();
-  for (const u of schweben_einheiten(rect)) { const r = auf_flaeche(u.root, undefined, undefined, { apply: false, keepCache: true }); res.geprueft++; if (!r || r.gap === null) continue;
-    res.gaps.push([u.key, +r.gap.toFixed(3), r.typ]);
-    const bodenartig = /^(Plane|Circle|Ring|Shape)/.test(r.typ);   // Boden/Platte: nur kleine Lücken (< 10 cm) korrigieren – größere Lücken sind meist ein nicht erkannter Tisch
-    if (opt.apply !== false && r.gap >= .03 && (bodenartig ? r.gap <= .1 : r.gap <= .12)) { const b0 = schweben_box(u.root).min.y; auf_flaeche(u.root, undefined, undefined, { apply: true, maxGap: .12, keepCache: true }); SCHW.cache = schweben_cache(); res.gesenkt++; SCHW.log.push([u.key, +r.gap.toFixed(3), r.von, +b0.toFixed(2)]); } }
-  SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt; return res;
+  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(), Wd = schweben_waende(); SCHW.cache = schweben_cache();
+  for (const u of schweben_einheiten(rect)) { const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
+    if (opt.apply === false || r.k === 'gut' || r.k === 'haengt' || r.k === 'ungeklaert') continue;
+    const innen = (typeof indoorRects !== 'undefined') && indoorRects.some(q => r.p[0] > q.x0 && r.p[0] < q.x1 && r.p[2] > q.zb && r.p[2] < q.zf);
+    if (!innen && (r.k === 'neben' || (r.k === 'schwebt' && /^(Plane|Circle|Boden|Ring|Shape)/.test(r.typ)))) continue; // draußen: Bordstein/Sockel/Platten sind keine Meshes mit Kollision → keine Eingriffe ohne echte Auflage
+    const dx = r.dx || 0, dz = r.dz || 0; let dy = r.dy || 0; dy = Math.max(-.2, Math.min(.2, dy));
+    if (r.k === 'steckt' && (dy > .12 || (Math.abs(r.p[0]) < 3 && Math.abs(r.p[2]) < 3) || r.p[1] < -1)) continue; // geparkte Dinge am Ursprung/unter der Welt nicht anfassen
+    schweben_verschiebe(u.root, dx, dy, dz); SCHW.log.push([u.key, r.k, +dx.toFixed(2), +dy.toFixed(2), +dz.toFixed(2), r.p]); if (r.k === 'neben') res.versetzt++; else if (r.k === 'steckt') res.gehoben++; else res.gesenkt++;
+    SCHW.cache = schweben_cache(); }
+  SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt + res.versetzt + res.gehoben; return res;
 }
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor

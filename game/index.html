@@ -5471,14 +5471,14 @@ function msSurfMat(key, { tint = 0xffffff, rep = 1, alpha = false, nrm = 1 } = {
   const m = new THREE.MeshStandardMaterial({ map: msTex(key + (alpha ? '/b.png' : '/b.jpg'), true, rep), normalMap: msTex(key + '/n.jpg', false, rep), roughnessMap: msTex(key + '/orm.jpg', false, rep), aoMap: msTex(key + '/orm.jpg', false, rep), color: tint, roughness: 1 });
   m.normalScale.set(nrm, nrm); if (alpha) { m.transparent = true; m.alphaTest = .05; m.depthWrite = false; m.polygonOffset = true; m.polygonOffsetFactor = -4; } return m; }
 // glTF/GLB laden (gecacht). Rückgabe: Szene – vor dem Platzieren immer .clone() verwenden
-function msModel(key, file = 'model.gltf') { const k = key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.gl.loadAsync('assets/ms/' + k).then(g => { g.scene.animations = g.animations; return g.scene; })); return MSL.cache.get(k); }
+function msModel(key, file = 'model.gltf') { const k = key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.gl.loadAsync('assets/ms/' + k).then(g => { g.scene.animations = g.animations; g.scene.userData.msKey = k; return g.scene; })); return MSL.cache.get(k); } // msKey: Quelle des Modells (Klone erben es) – bewegung.js erkennt daran Fahrzeuge
 // Geometrien mit eingebackener Knoten-Transformation (für InstancedMesh)
 async function msBake(key, file) { const s = await msModel(key, file); s.updateMatrixWorld(true); const parts = [];
   s.traverse(o => { if (o.isMesh && !o.isSkinnedMesh) parts.push({ geo: o.geometry.clone().applyMatrix4(o.matrixWorld), mat: o.material, name: o.name }); }); return parts; }
 // FBX mit losen Texturen. spec: { Materialname | '*': { b, n, r, m, ao, a, color, rough, metal, ds, emissive } } – Pfade relativ zu assets/ms/<key>/
 async function msFBX(key, file = 'model.fbx', spec = {}) {
   if (!MSL.fbx) { const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js'); const mgr = new THREE.LoadingManager(); mgr.setURLModifier(u => /\.(png|jpe?g|tga|bmp|tiff?|psd|dds)$/i.test(u) && !u.startsWith('data:') ? MS_DATA_PNG : u); MSL.fbx = new FBXLoader(mgr); }
-  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k); if (!src.__nrm) { src.__nrm = 1; src.traverse(m => { if (m.isMesh && m.geometry && !m.geometry.attributes.normal) m.geometry.computeVertexNormals(); }); } // 09.10.: FBX ohne Normalen (w_jacke) wurde schwarz gezeichnet
+  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k); src.userData.msKey = key + '/' + file; if (!src.__nrm) { src.__nrm = 1; src.traverse(m => { if (m.isMesh && m.geometry && !m.geometry.attributes.normal) m.geometry.computeVertexNormals(); }); } // 09.10.: FBX ohne Normalen (w_jacke) wurde schwarz gezeichnet
   const o = src.clone(true); o.animations = src.animations; const mk = new Map(), dir = key + '/';
   o.traverse(m => { if (!m.isMesh) return; const mats = [].concat(m.material).map(mt => { const s = spec[mt.name] || spec['*']; if (!s) return mt; const id = (mt.name || '*') + JSON.stringify(s); if (mk.has(id)) return mk.get(id);
       const nm = new THREE.MeshStandardMaterial({ name: mt.name, color: s.color ?? 0xffffff, roughness: s.rough ?? 1, metalness: s.metal ?? (s.m ? 1 : 0), side: s.ds ? THREE.DoubleSide : THREE.FrontSide,
@@ -45767,10 +45767,10 @@ window.__moebel = { S: moebel_S }; // Testzugriff
 // schweben_pass(): läuft einmal je betretenem Raum (WORLD_TICK) über alle kleinen Standrequisiten (Bücher, Geschirr, Radios, Fernseher, Teddys …) und senkt, was
 // sicher schwebt (Fläche 3–12 cm darunter gefunden), auf diese Fläche ab. Hängende Dinge (Bilder, Lampen, Uhren, Schilder, Laternen) und alles ohne gefundene
 // Auflage bleiben unberührt (kein „Fallenlassen auf den Boden“, wenn der Tisch nur nicht erkannt wurde).
-// Prüfung/Messung: window.__schweben.pruefen() liefert je Einheit Lücke/Auflage; Protokoll in __schweben.log.
+// Prüfung/Messung: __schweben.pruefen() (Entwicklungsfassung) liefert je Einheit Lücke/Auflage; Protokoll in __schweben.log.
 const SCHW = { log: [], done: new Set(), keys: new Map(), seen: new Set(), n: 0, t: 0, stats: { geprueft: 0, gesenkt: 0 } };
-const SCHW_STEHT = /^(w_buch|lbook|album|w_teller|w_becher|w_tasse|w_besteck|w_blech|w_thermos|w_telefon|w_kamera|w_brot|w_urne|w_funk|w_lighter|w_kette|w_spieluhr|w_alarm|geschirr|radio|crt|rekorder|messer|jerrycan|trashbag|teddy|doll|toys_old|brille|candles|kiffen|it_)/;
-const SCHW_HAENGT = /(frame|clock|mirror|schild|lantern|lamp|curtain|window|door|cross_hang|polaroid|foto|papier|zettel|poster)/i;
+const SCHW_STEHT = /^(w_buch|lbook|album|w_teller|w_becher|w_tasse|w_besteck|w_blech|w_thermos|w_telefon|w_kamera|w_brot|w_urne|w_funk|w_lighter|w_kette|w_spieluhr|w_alarm|w_jacke|w_schwert|w_papierlaterne|geschirr|radio|crt|rekorder|messer|jerrycan|trashbag|teddy|doll|toys_old|brille|candles|kiffen|it_|haybale|pallet|album|beutel|ph_|shed_|giraffe|mirror)/;
+const SCHW_HAENGT = /(frame|clock|schild|lantern|lamp|curtain|window|door|cross_hang|polaroid|foto|papier|zettel|poster|mirror|w_papierlaterne|w_schwert)/i;
 function schweben_index() {
   for (const [k, p] of MSL.cache) { if (SCHW.seen.has(k) || !p || typeof p.then !== 'function') continue; SCHW.seen.add(k);
     p.then(s => { if (!s || !s.traverse) return; const key = k.replace(/^fbx:/, '').split('/')[0]; s.traverse(m => { if (m.isMesh && m.geometry) SCHW.keys.set(m.geometry.uuid, key); }); }).catch(() => {}); }
@@ -45782,18 +45782,18 @@ function schweben_cache() { const out = []; scene.traverse(m => { if (!m.isMesh 
     const b = new THREE.Box3().copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld); if (b.max.x - b.min.x > 60 || b.max.z - b.min.z > 60) return; out.push({ m, b }); }); return out; }
 // Kandidaten: sichtbare Meshes in der Nähe (Quader-Vorauswahl), Strahl mit beiden Seiten
 function schweben_stuetze(obj, B, own, xs) {
-  const ymin = B.min.y; let best = -Infinity, von = '', typ = '';
+  const ymin = B.min.y; let best = -Infinity, von = '', typ = '', sk = '';
   const cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, sx = (B.max.x - B.min.x) / 4, sz = (B.max.z - B.min.z) / 4;
   const pts = xs || [[cx, cz], [cx - sx, cz - sz], [cx + sx, cz - sz], [cx - sx, cz + sz], [cx + sx, cz + sz]];
   if (!SCHW.cache) SCHW.cache = schweben_cache();
   const cands = [];
-  for (const c of SCHW.cache) { if (own.has(c.m)) continue; if (c.b) { if (c.b.max.x < B.min.x - .05 || c.b.min.x > B.max.x + .05 || c.b.max.z < B.min.z - .05 || c.b.min.z > B.max.z + .05 || c.b.max.y > ymin + .13 || c.b.max.y < ymin - .6) continue; } cands.push([c.m, c.b ? c.b.max.y : null]); }
+  for (const c of SCHW.cache) { if (own.has(c.m)) continue; if (c.b) { if (c.b.max.x < B.min.x - .05 || c.b.min.x > B.max.x + .05 || c.b.max.z < B.min.z - .05 || c.b.min.z > B.max.z + .05 || c.b.min.y > ymin + .13 || c.b.max.y < ymin - .6) continue; } cands.push([c.m, c.b ? c.b.max.y : null]); }
   const sides = new Map(); const restore = () => { for (const [mt, sd] of sides) mt.side = sd; };
   try {
     for (const [m, top] of cands) { for (const mt of [].concat(m.material)) if (mt && !sides.has(mt)) { sides.set(mt, mt.side); mt.side = THREE.DoubleSide; }
-      for (const [x, z] of pts) { _sRay.set(_sV.set(x, ymin + .12, z), _sDown); _sRay.far = 1.5; const hs = _sRay.intersectObject(m, false); for (const h of hs) { if (h.instanceId !== undefined && h.object.isInstancedMesh && own.has(h.object)) continue; if (h.point.y <= ymin + .125 && h.point.y > best) { best = h.point.y; von = m.name || m.geometry.type; typ = m.geometry.type; } } } }
+      for (const [x, z] of pts) { _sRay.set(_sV.set(x, ymin + .12, z), _sDown); _sRay.far = 1.5; const hs = _sRay.intersectObject(m, false); for (const h of hs) { if (h.instanceId !== undefined && h.object.isInstancedMesh && own.has(h.object)) continue; if (h.point.y <= ymin + .125 && h.point.y > best) { best = h.point.y; von = m.name || m.geometry.type; typ = m.geometry.type; sk = SCHW.keys.get(m.geometry.uuid) || ''; } } } }
   } finally { restore(); }
-  return { y: best, von, typ };
+  return { y: best, von, typ, stuetzKey: sk };
 }
 // auf_flaeche(obj[, x, z], { apply = true, maxGap = .4 }) → { gap, y, von, gesenkt }: setzt die Unterkante von obj auf die Fläche darunter.
 function auf_flaeche(obj, x, z, o = {}) {
@@ -45815,13 +45815,53 @@ function schweben_einheiten(rect) {
     if (used.has(r)) return; used.add(r); out.push({ root: r, key: k }); });
   return out;
 }
+// Auflageflächen (Quader-Oberseiten) aller Meshes und aller Instanzen – für „daneben gestellt“-Funde
+function schweben_flaechen() { const out = [], M = new THREE.Matrix4(), Bx = new THREE.Box3();
+  scene.traverse(m => { if (!m.isMesh || !m.visible || m.isSkinnedMesh || !m.geometry) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false || (mt.transparent && mt.opacity < .05)) return; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    const add = b => { const sx = b.max.x - b.min.x, sz = b.max.z - b.min.z; if (sx < .12 || sz < .12 || sx > 6 || sz > 6 || b.max.y < .12) return; out.push({ m, x0: b.min.x, x1: b.max.x, z0: b.min.z, z1: b.max.z, y1: b.max.y, y0: b.min.y }); };
+    if (m.isInstancedMesh) { for (let i = 0; i < m.count; i++) { m.getMatrixAt(i, M); add(Bx.copy(m.geometry.boundingBox).applyMatrix4(M).applyMatrix4(m.matrixWorld)); } }
+    else add(Bx.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld)); });
+  return out; }
+function schweben_waende() { const out = [], Bx = new THREE.Box3(); scene.traverse(m => { if (!m.isMesh || m.isInstancedMesh || !m.visible || !m.geometry) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false) return; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); Bx.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);
+    const sx = Bx.max.x - Bx.min.x, sy = Bx.max.y - Bx.min.y, sz = Bx.max.z - Bx.min.z; if (sy >= 1.5 && (Math.min(sx, sz) <= .7 || sx > 3 && sz > 3 && false) && Math.max(sx, sz) >= 1.2) out.push({ x0: Bx.min.x, x1: Bx.max.x, z0: Bx.min.z, z1: Bx.max.z, y0: Bx.min.y, y1: Bx.max.y }); });
+  return out; }
+function schweben_amWand(B, Wd, ab = .18) { for (const w of Wd) { if (B.max.y < w.y0 || B.min.y > w.y1) continue; const dx = Math.max(w.x0 - B.max.x, 0, B.min.x - w.x1), dz = Math.max(w.z0 - B.max.z, 0, B.min.z - w.z1); if (Math.hypot(dx, dz) <= ab) return true; } return false; }
+function schweben_pruefe(u, S, Wd) {
+  const own = new Set(), B = schweben_box(u.root, own); if (B.isEmpty() || !isFinite(B.min.y)) return null;
+  const ymin = B.min.y, cx = (B.min.x + B.max.x) / 2, cz = (B.min.z + B.max.z) / 2, hx = (B.max.x - B.min.x) / 2, hz = (B.max.z - B.min.z) / 2;
+  const r = schweben_stuetze(u.root, B, own, null);
+  if (!isFinite(r.y)) { const R = (typeof indoorRects !== 'undefined') ? indoorRects.find(q => cx > q.x0 && cx < q.x1 && cz > q.zb && cz < q.zf) : null; r.y = R ? R.y : 0; r.typ = 'Boden'; }
+  const gap = ymin - r.y;
+  const haengt = Wd ? schweben_amWand(B, Wd) : false;
+  const base = { key: u.key, p: [+cx.toFixed(2), +ymin.toFixed(2), +cz.toFixed(2)], gap: gap === null ? null : +gap.toFixed(3), typ: r.typ || '' };
+  if (gap !== null && gap <= .08 && gap >= -.05) return { ...base, k: 'gut' };
+  if (gap !== null && gap < -.05) return { ...base, k: (haengt || (r.stuetzKey && SCHW_STEHT.test(r.stuetzKey))) ? (haengt ? 'haengt' : 'gut') : 'steckt', von: r.stuetzKey || '', dy: -gap };
+  // seitlich neben einer Auflage? (Oberseite auf Höhe der Unterkante, waagerecht ≤ 70 cm entfernt)
+  let best = null;
+  for (const s of S) { if (own.has(s.m)) continue; if (s.y1 < ymin - .14 || s.y1 > ymin + .05) continue; if (s.y0 > ymin + .02) continue;
+    const dxr = Math.max(s.x0 - cx, 0, cx - s.x1), dzr = Math.max(s.z0 - cz, 0, cz - s.z1), d = Math.hypot(dxr, dzr); if (d > .7) continue; if (!best || d < best.d) best = { s, d }; }
+  if (best && best.d <= .02) return { ...base, k: 'gut', von: 'Rahmen' };
+  if (haengt) return { ...base, k: 'haengt' };
+  if (best && best.d > .6) return { ...base, k: 'ungeklaert', abstand: +best.d.toFixed(2) };
+  if (best) { const s = best.s, ax = Math.min(hx * .5, (s.x1 - s.x0) / 2), az = Math.min(hz * .5, (s.z1 - s.z0) / 2);
+    const nx = Math.min(Math.max(cx, s.x0 + ax), s.x1 - ax), nz = Math.min(Math.max(cz, s.z0 + az), s.z1 - az);
+    return { ...base, k: 'neben', dx: nx - cx, dz: nz - cz, dy: s.y1 - ymin, abstand: +best.d.toFixed(2) }; }
+  if (gap !== null && gap <= .15) return { ...base, k: 'schwebt', dy: -gap };
+  return { ...base, k: 'ungeklaert' };
+}
+function schweben_verschiebe(root, dx, dy, dz) { root.updateWorldMatrix(true, false); const w0 = new THREE.Vector3().setFromMatrixPosition(root.matrixWorld), w1 = w0.clone().add(new THREE.Vector3(dx, dy, dz));
+  if (root.parent) { const l0 = root.parent.worldToLocal(w0.clone()), l1 = root.parent.worldToLocal(w1.clone()); root.position.add(l1.sub(l0)); } else root.position.add(new THREE.Vector3(dx, dy, dz)); root.updateMatrixWorld(true); }
 function schweben_pass(rect, opt = {}) {
-  const res = { geprueft: 0, gesenkt: 0, gaps: [] }; SCHW.cache = schweben_cache();
-  for (const u of schweben_einheiten(rect)) { const r = auf_flaeche(u.root, undefined, undefined, { apply: false, keepCache: true }); res.geprueft++; if (!r || r.gap === null) continue;
-    res.gaps.push([u.key, +r.gap.toFixed(3), r.typ]);
-    const bodenartig = /^(Plane|Circle|Ring|Shape)/.test(r.typ);   // Boden/Platte: nur kleine Lücken (< 10 cm) korrigieren – größere Lücken sind meist ein nicht erkannter Tisch
-    if (opt.apply !== false && r.gap >= .03 && (bodenartig ? r.gap <= .1 : r.gap <= .12)) { const b0 = schweben_box(u.root).min.y; auf_flaeche(u.root, undefined, undefined, { apply: true, maxGap: .12, keepCache: true }); SCHW.cache = schweben_cache(); res.gesenkt++; SCHW.log.push([u.key, +r.gap.toFixed(3), r.von, +b0.toFixed(2)]); } }
-  SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt; return res;
+  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(), Wd = schweben_waende(); SCHW.cache = schweben_cache();
+  for (const u of schweben_einheiten(rect)) { const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
+    if (opt.apply === false || r.k === 'gut' || r.k === 'haengt' || r.k === 'ungeklaert') continue;
+    const innen = (typeof indoorRects !== 'undefined') && indoorRects.some(q => r.p[0] > q.x0 && r.p[0] < q.x1 && r.p[2] > q.zb && r.p[2] < q.zf);
+    if (!innen && (r.k === 'neben' || (r.k === 'schwebt' && /^(Plane|Circle|Boden|Ring|Shape)/.test(r.typ)))) continue; // draußen: Bordstein/Sockel/Platten sind keine Meshes mit Kollision → keine Eingriffe ohne echte Auflage
+    const dx = r.dx || 0, dz = r.dz || 0; let dy = r.dy || 0; dy = Math.max(-.2, Math.min(.2, dy));
+    if (r.k === 'steckt' && (dy > .12 || (Math.abs(r.p[0]) < 3 && Math.abs(r.p[2]) < 3) || r.p[1] < -1)) continue; // geparkte Dinge am Ursprung/unter der Welt nicht anfassen
+    schweben_verschiebe(u.root, dx, dy, dz); SCHW.log.push([u.key, r.k, +dx.toFixed(2), +dy.toFixed(2), +dz.toFixed(2), r.p]); if (r.k === 'neben') res.versetzt++; else if (r.k === 'steckt') res.gehoben++; else res.gesenkt++;
+    SCHW.cache = schweben_cache(); }
+  SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt + res.versetzt + res.gehoben; return res;
 }
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor
@@ -45866,6 +45906,86 @@ window.__schweben = { index: schweben_index, decStats: () => SCHW.decStats, deca
   pruefen: rect => schweben_pass(rect, { apply: false }) };
 // Außenwelt: Decals einmal nach dem Laden (Straße, Kreide, Blut, Zettel) – verzögert
 setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 25000);
+// =====================================================================  BEWEGUNG & HITBOXEN (Nutzer 10.10.2026, Folgeauftrag 7)
+// „Beim Draufspringen lande ich in Autos/Bussen und stecke fest“ – Ursache (Messung bewegung_audit.md): Fahrzeuge waren nur Netz-Kollision (SOL). Unterboden, Fenster (Glas ist nie fest) und Innenraum
+// sind hohl: man lief unter das Auto, fiel durch die Scheiben in den Innenraum, und Hochziehen setzte auf Dachkanten, die nur ein Netz waren.
+// Jetzt: jedes Fahrzeug (Quelle car_*, van_*, vans, tractor – Basis markiert sie über userData.msKey) bekommt eine vollflächige Höhenfeld-Hitbox: von oben je 15-cm-Zelle ein Strahl auf das echte Netz,
+// die Zellen werden zu Kollisionskisten (AABB mit Oberkante = echte Dach-/Hauben-Höhe, Unterkante = Boden) zusammengefasst. Das Netz selbst zählt dann nicht mehr (noCol) – kein Hohlraum, nichts zum Hineinfallen,
+// Dach/Haube/Kofferraum begehbar (Stufen ≤ 10 cm), Scheibenschräge wie eine Rampe. Bewegte/ein- und ausgeblendete Fahrzeuge werden nachgeführt (Verschiebung) bzw. neu gebaut (Drehung).
+const BEWG = { veh: [], pend: [], t: 0, n: 0, log: [], rx: /^(car_neu|car_rusty|car_burned|car_dutch|car_amsedan|van_neu|vans\/|tractor)/, maxLen: 9.5, cell: .15, err: 0 };
+{ const T = THREE, add = T.Object3D.prototype.add;
+  T.Object3D.prototype.add = function () { const r = add.apply(this, arguments);
+    for (let i = 0; i < arguments.length; i++) { const c = arguments[i]; if (c && c.userData && c.userData.msKey && BEWG.rx.test(c.userData.msKey) && !c.userData.__fzg) { c.userData.__fzg = 1; BEWG.pend.push({ o: c, age: 0 }); } }
+    return r; }; }
+const _bgR = new THREE.Vector3(), _bgD = new THREE.Vector3(), _bgRay = new THREE.Ray(), _bgInv = new THREE.Matrix4();
+function bewegung_sichtbar(o) { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; }
+function bewegung_imSzene(o) { for (let p = o; p; p = p.parent) if (p === scene) return true; return false; }
+function bewegung_noColVorfahr(o) { for (let p = o.parent; p; p = p.parent) if (p.userData && p.userData.noCol) return true; return false; }
+// Netze, die zur Hülle gehören (sichtbar, deckend oder Glas, keine Innenausbau-/Aufkleber-Teile)
+function bewegung_netze(root) { const out = []; root.updateMatrixWorld(true);
+  root.traverse(m => { if (!m.isMesh || m.isSkinnedMesh || !m.geometry || !m.geometry.attributes.position) return; for (let p = m; p && p !== root.parent; p = p.parent) if (!p.visible || (p.userData && p.userData.noCol)) return;
+    const mt = Array.isArray(m.material) ? m.material[0] : m.material; if (!mt || mt === hidden || mt.visible === false || mt.colorWrite === false || (mt.opacity !== undefined && mt.opacity < .05)) return;
+    if (mt.blending === THREE.AdditiveBlending) return; const g = m.geometry; if (g.attributes.position.count < 6) return; if (!g.boundingBox) g.computeBoundingBox();
+    const bb = g.boundingBox.clone().applyMatrix4(m.matrixWorld), s = bb.getSize(new THREE.Vector3()); if (Math.max(s.x, s.z) < .12 || s.y < .05) return; out.push({ m, bb }); });
+  return out; }
+// Höhenfeld: je Zelle (Mitte) der höchste Treffer von oben
+function bewegung_hoehenfeld(root) { const L = bewegung_netze(root); if (!L.length) return null; const B = new THREE.Box3(); for (const l of L) B.union(l.bb);
+  const sz = B.getSize(new THREE.Vector3()); if (Math.max(sz.x, sz.z) > BEWG.maxLen || sz.x * sz.z > 40 || sz.y < .5) return { zu_gross: sz.toArray() };
+  const cs = BEWG.cell, nx = Math.ceil(sz.x / cs), nz = Math.ceil(sz.z / cs); if (nx * nz > 4000) return { zu_gross: sz.toArray() };
+  for (const l of L) { const g = l.m.geometry; if (!g.boundsTree && g.computeBoundsTree) { try { g.computeBoundsTree(); } catch (e) {} } l.inv = l.m.matrixWorld.clone().invert(); }
+  const H = new Float32Array(nx * nz).fill(-1e9), x0 = B.min.x, z0 = B.min.z, yTop = B.max.y + .5; let hits = 0;
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const x = x0 + (i + .5) * cs, z = z0 + (j + .5) * cs; let best = -1e9;
+    for (const l of L) { const b = l.bb; if (x < b.min.x || x > b.max.x || z < b.min.z || z > b.max.z) continue; const g = l.m.geometry; if (!g.boundsTree) continue;
+      _bgR.set(x, yTop, z).applyMatrix4(l.inv); _bgD.set(0, -1, 0).transformDirection(l.inv); _bgRay.set(_bgR, _bgD);
+      const h = g.boundsTree.raycastFirst(_bgRay, THREE.DoubleSide); if (!h) continue; _bgR.copy(h.point).applyMatrix4(l.m.matrixWorld); if (_bgR.y > best) best = _bgR.y; }
+    if (best > -1e8) { H[j * nx + i] = best; hits++; } }
+  return { H, nx, nz, x0, z0, cs, base: B.min.y, top: B.max.y, hits }; }
+// Zellen → Kisten: Spitzen (einzelne Antennen/Spiegel) kappen, Höhen auf 10 cm runden, in Läufen und dann in Blöcken zusammenfassen
+function bewegung_kisten(F, ex) { const { H, nx, nz, x0, z0, cs, base } = F; const Q = new Float32Array(nx * nz).fill(-1);
+  const at = (i, j) => (i < 0 || j < 0 || i >= nx || j >= nz) ? -1e9 : H[j * nx + i];
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { let h = H[j * nx + i]; if (h < -1e8) continue;
+    // Spitzen: höher als alle vier Nachbarn um > 25 cm und höchstens 2 Zellen breit → auf den Nachbarwert kappen
+    const n = [at(i - 1, j), at(i + 1, j), at(i, j - 1), at(i, j + 1)]; const mx = Math.max(...n); if (h - mx > .25) h = Math.max(mx, base + .3);
+    const t = Math.round((h - base) / .1) * .1; if (t < .3) continue; Q[j * nx + i] = t; }
+  // Läufe entlang x
+  const runs = []; for (let j = 0; j < nz; j++) { let i = 0; while (i < nx) { const t = Q[j * nx + i]; if (t < 0) { i++; continue; } let k = i + 1; while (k < nx && Math.abs(Q[j * nx + k] - t) < .001) k++; runs.push({ i0: i, i1: k, j0: j, j1: j + 1, t }); i = k; } }
+  // Blöcke: Läufe mit gleichem x-Bereich und gleicher Höhe in aufeinanderfolgenden Reihen verschmelzen
+  const open = new Map(), done = []; let lastJ = -1;
+  for (const r of runs.sort((a, b) => a.j0 - b.j0 || a.i0 - b.i0)) { const key = r.i0 + ',' + r.i1 + ',' + r.t.toFixed(2), o = open.get(key);
+    if (o && o.j1 === r.j0) { o.j1 = r.j1; } else { if (o) done.push(o); open.set(key, { ...r }); } }
+  for (const o of open.values()) done.push(o);
+  return done.map(b => ({ minX: x0 + b.i0 * cs, maxX: x0 + b.i1 * cs, minZ: z0 + b.j0 * cs, maxZ: z0 + b.j1 * cs, top: base + b.t, base: base - .05 })); }
+function bewegung_bauen(rec) { const o = rec.o; const F = bewegung_hoehenfeld(o);
+  for (const c of rec.cols) { const i = colliders.indexOf(c); if (i >= 0) colliders.splice(i, 1); } rec.cols = [];
+  if (!F || F.zu_gross) { rec.info = F ? 'zu groß ' + F.zu_gross.map(v => v.toFixed(1)).join('×') : 'keine Netze'; rec.skip = true; return; }
+  const boxes = bewegung_kisten(F); for (const b of boxes) { b.fzg = rec.id; colliders.push(b); rec.cols.push(b); }
+  rec.skip = false; rec.info = boxes.length + ' Kisten, Höhe ' + (F.top - F.base).toFixed(2) + ' m'; rec.hf = { nx: F.nx, nz: F.nz, hits: F.hits };
+  o.userData.noCol = true; // das Netz zählt nicht mehr (hohl: Unterboden, Scheiben, Innenraum)
+  rec.me = new Float32Array(o.matrixWorld.elements); rec.vis = true; }
+function bewegung_aktiv(rec, on) { if (rec.on === on) return; rec.on = on; for (const c of rec.cols) { if (on) { c.minX = c.__x0; c.maxX = c.__x1; } else { c.__x0 = c.minX; c.__x1 = c.maxX; c.minX = c.maxX = -9999; } } }
+function bewegung_ueberlappt(rec) { const P = player.pos; for (const c of rec.cols) { if (c.minX < -9000) continue; if (c.top <= P.y + .36 || c.base >= P.y + 1.7) continue; if (P.x + R > c.minX && P.x - R < c.maxX && P.z + R > c.minZ && P.z - R < c.maxZ) return true; } return false; }
+let bewegung_id = 0;
+function bewegung_tick(dt) {
+  if (!SOL.items.length) return;
+  BEWG.t += dt;
+  for (let k = BEWG.pend.length - 1; k >= 0; k--) { const p = BEWG.pend[k]; p.age += dt; if (p.age < .6) continue; if (!bewegung_imSzene(p.o)) { if (p.age > 120) BEWG.pend.splice(k, 1); continue; }
+    BEWG.pend.splice(k, 1); if (bewegung_noColVorfahr(p.o) || p.o.userData.noCol) continue;
+    const rec = { id: ++bewegung_id, o: p.o, key: p.o.userData.msKey, cols: [], on: true, vis: false, t0: BEWG.t }; BEWG.veh.push(rec); rec.sicht = bewegung_sichtbar(p.o); if (rec.sicht) { try { bewegung_bauen(rec); } catch (e) { rec.info = 'Fehler ' + e.message; BEWG.err++; } } else rec.info = 'unsichtbar (noch nicht gebaut)'; }
+  for (const rec of BEWG.veh) { const o = rec.o; if (rec.skip && rec.sicht === bewegung_sichtbar(o)) continue; const s = bewegung_sichtbar(o);
+    if (!s) { if (rec.cols.length) bewegung_aktiv(rec, false); rec.sicht = false; continue; }
+    if (!rec.sicht || !rec.cols.length) { rec.sicht = true; o.userData.noCol = false; try { bewegung_bauen(rec); bewegung_aktiv(rec, true); } catch (e) { rec.info = 'Fehler ' + e.message; BEWG.err++; } continue; }
+    // Pose geändert?
+    const e = o.matrixWorld.elements, m = rec.me; let rot = false, tr = false; for (let i = 0; i < 12; i++) if (Math.abs(e[i] - m[i]) > 1e-4) { rot = true; break; } for (let i = 12; i < 15; i++) if (Math.abs(e[i] - m[i]) > 1e-4) tr = true;
+    if (rot || (tr && Math.abs(e[13] - m[13]) > .02)) { if (BEWG.t - (rec.rt || 0) > .4) { rec.rt = BEWG.t; o.userData.noCol = false; try { bewegung_bauen(rec); bewegung_aktiv(rec, true); } catch (er) { rec.info = 'Fehler ' + er.message; } } }
+    else if (tr) { const dx = e[12] - m[12], dz = e[14] - m[14]; for (const c of rec.cols) { c.minX += dx; c.maxX += dx; c.minZ += dz; c.maxZ += dz; if (c.__x0 !== undefined) { c.__x0 += dx; c.__x1 += dx; } } rec.me.set(e);
+      if (bewegung_ueberlappt(rec)) { // fährt in den Spieler: seitlich aus der Kiste schieben (nie hinein)
+        const P = player.pos; let best = null; for (const c of rec.cols) { if (c.top <= P.y + .36 || c.base >= P.y + 1.7) continue; if (!(P.x + R > c.minX && P.x - R < c.maxX && P.z + R > c.minZ && P.z - R < c.maxZ)) continue;
+          for (const [ax, v] of [['x', c.minX - R - .02], ['x', c.maxX + R + .02], ['z', c.minZ - R - .02], ['z', c.maxZ + R + .02]]) { const d = Math.abs(v - P[ax]); if (!best || d < best.d) best = { ax, v, d }; } }
+        if (best) P[best.ax] = best.v; } }
+  }
+}
+WORLD_TICK.push(dt => { try { bewegung_tick(dt); } catch (e) { if (!BEWG.errT) { BEWG.errT = 1; console.warn('bewegung', e); } } });
+window.__bewg = { BEWG, rebuild: () => { for (const r of BEWG.veh) { r.o.userData.noCol = false; bewegung_bauen(r); } }, info: () => BEWG.veh.map(r => ({ id: r.id, key: r.key, info: r.info, cols: r.cols.length, on: r.on, sicht: r.sicht, pos: r.o.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(1)) })) };
 // =====================================================================  BLICK (Modul „blick“, Nutzer-Rückmeldung 02.10.2026): man schaut immer dorthin, wo etwas passiert
 // Nutzer: „viele Schreckmomente und story-relevante Szenen verpasst man, wenn man nicht weiß, wohin man schauen soll … baue ein System ein, dass man immer richtig schaut.“
 // Grundsatz (RE Village / The Last of Us II / Alan Wake 2): Blicklenkung ist ein Angebot, kein Zwang. Die Kamera dreht sich weich zum Ereignis (Ease-in/out, nie ruckartig,
