@@ -82,3 +82,6 @@ Nutzer: Die Räume haben nicht genug Detail. Alle Räume noch einmal durchchecke
 
 ### Klarstellung Folgeauftrag 9 (Nutzer 10.10.): Notenskala deutsch
 Bewertung in deutschen SCHULNOTEN: 1 = sehr gut, 2 = gut, 3 = befriedigend, 4 = ausreichend, 5 = mangelhaft, 6 = ungenügend. ZIEL: JEDER Raum mindestens Note 2 (besser 1); alles schlechter wird nachgebessert. (Die im Folgeauftrag 9 genannte Skala '1–5, ≥ 4 gut' gilt NICHT mehr.) Tabelle raum_abnahme.md mit Schulnote vorher/nachher.
+
+### Gesamtmaßstab (Nutzer 10.10.: 'bei allem 1')
+Nicht nur Räume: bei ALLEM (Räume, Modelle, Figuren, Tiere, Animationen, Texte, UI/Inventar, Story-Führung, Bewegung/Hitboxen, Ladezeiten/Flüssigkeit) ist das Ziel Schulnote 1 (sehr gut). Note 2 ist die absolute Untergrenze, alles darunter wird nicht abgenommen. Jede Abnahmetabelle führt eine Schulnote je Punkt (vorher/nachher) mit Bildbeleg; Punkte mit Note ≥ 3 gelten als offen.
