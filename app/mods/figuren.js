@@ -389,8 +389,16 @@ function figuren_idleKey(P) { if (P.gait) return figuren_locoClip(P, 'idle'); re
 // Atmung: Brustkorb hebt sich um die Querachse (Schultern, Arme, Kopf folgen), Hals gleicht aus – nach Laufen schneller und tiefer
 function figuren_breath(P, V, dt) { const r = P.rig; if (!r.chest || !r.chestChain) return; const M = FIGUREN_MV, kid = (P.h || 1.6) < 1.5;
   V.br += dt * (kid ? 1.9 : 1.55) * (1 + V.exert * 1.4); const a = (Math.sin(V.br) * .5 + .5) * (.012 + V.exert * .02);
-  P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.q.setFromAxisAngle(M.v, -a); r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.q);
-  if (r.neckChain) { M.q.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.q); } }
+  // 10.10.: Mikro-Schicht (Nutzer: Menschen wirken mechanisch): im Stand langsame Gewichtsverlagerung (Oberkoerper rollt/dreht minimal, nie in der Bewegung), Kopf mit leisem Rauschen (Gier, Nicken);
+  // Phase je Person. Je Kette EIN Aufruf von figuren_rotChain (Mehrfachaufrufe setzen sich gegenseitig auf die Mixer-Pose zurueck): Drehungen werden vorher zu einer Quaternion multipliziert.
+  const t = figuren_S.T.value, ph = P.__mph || (P.__mph = Math.random() * 100), calm = 1 - Math.min(1, V.exert * 1.5);
+  P.g.matrixWorld.decompose(M.p, M.q, M.s); M.v.set(1, 0, 0).applyQuaternion(M.q); M.v3.set(0, 0, 1).applyQuaternion(M.q);
+  M.qa.setFromAxisAngle(M.v, -a);
+  if (!V.moving && !P.sit) { const sw = (Math.sin(t * .27 + ph) + Math.sin(t * .113 + ph * 1.7) * .8) * .55; M.qb.setFromAxisAngle(M.v3, sw * .02 * calm); M.qa.premultiply(M.qb); M.qb.setFromAxisAngle(M.up, Math.sin(t * .19 + ph * .6) * .018 * calm); M.qa.premultiply(M.qb); }
+  r.chest.getWorldPosition(M.v2); figuren_rotChain(r.chestChain, M.v2, M.qa);
+  if (r.neckChain) { M.qa.setFromAxisAngle(M.v, a * .7); r.neck.getWorldPosition(M.v2); figuren_rotChain(r.neckChain, M.v2, M.qa); }
+  if (r.headChain && r.head && r.headChain !== r.neckChain) { const hn = Math.sin(t * .83 + ph) * .5 + Math.sin(t * 1.9 + ph * 2.3) * .3 + Math.sin(t * .31 + ph * .4) * .6; M.qa.setFromAxisAngle(M.up, hn * .022);
+    M.qb.setFromAxisAngle(M.v, Math.sin(t * .67 + ph * 1.3) * .014 + Math.sin(t * .21 + ph) * .01); M.qa.premultiply(M.qb); r.head.getWorldPosition(M.v2); figuren_rotChain(r.headChain, M.v2, M.qa); } }
 // Blick: Ziel in Kopfhöhe; Augen schnell (≤ 25°), Kopf/Hals langsam (Hals + Kopf ≤ 60° seitlich, 35° hoch/runter); hinter der Figur: nicht hinsehen
 function figuren_look(P, V, dt) { const r = P.rig, M = FIGUREN_MV; if (!r.head) return; let T = P.look || V.autoLook, want = P.look ? V.lookW : V.autoLook ? .85 : 0;
   if (T === 'cam' || T === 'auto') { M.T.copy(camera.position); if (T === 'auto') { r.head.getWorldPosition(M.v); if (M.v.distanceTo(M.T) > 5) want = 0; } }
