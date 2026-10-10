@@ -10,6 +10,8 @@ ARGS = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 OUT = ARGS[0] if ARGS else os.path.abspath('.')
 ONLY = set(ARGS[1:])
 rng = np.random.default_rng(7)
+try: open(os.path.join(OUT, 'item_bau_log.txt'), 'a', encoding='utf8').write('Lauf ' + ' '.join(ARGS) + '\n')
+except Exception: pass
 
 def reset():
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -454,11 +456,295 @@ def build_schuh():
         uv_box(q, .2); set_mat(q, m_); bpy.context.view_layer.objects.active = q; bpy.ops.object.shade_smooth()
     export('schuh')
 
+# ---------------------------------------------------------------- 10.10.: ueberarbeitete/neue Modelle (Nutzerliste Punkt 8)
+def _alpha_blend(m, a):
+    nt = m.node_tree; bs = nt.nodes['Principled BSDF']; bs.inputs['Alpha'].default_value = a
+    for attr, val in (('blend_method', 'BLEND'), ('surface_render_method', 'BLENDED'), ('use_backface_culling', False)):
+        try: setattr(m, attr, val)
+        except Exception: pass
+
+def build_murmel():
+    """Glasmurmel (17 mm): aussen klares Glas (Glanz, niedrige Rauheit, Alpha), innen milchweisser Kern mit gedrehten Farbbaendern (Spirale)"""
+    reset(); R = .0085
+    core = prim_sphere('kern', R * .88, seg=96, rings=48); bpy.ops.object.shade_smooth()
+    W, H = 1024, 512
+    uu, vv = np.meshgrid(np.linspace(0, 1, W), np.linspace(0, 1, H))
+    ph = 2 * np.pi * (3 * uu + 1.3 * vv)
+    s1 = np.sin(ph); s2 = np.sin(ph + 2.1); s3 = np.sin(ph * 2 + .7 + 3 * noise(W, H, 6, 2))
+    b1 = np.clip((s1 - .55) * 3.2, 0, 1); b2 = np.clip((s2 - .72) * 4, 0, 1); b3 = np.clip((s3 - .86) * 6, 0, 1) * .5
+    n = noise(W, H, 12, 4)
+    milk = np.array([.93, .92, .88]); blue = np.array([.52, .64, .78]); warm = np.array([.92, .80, .58]); deep = np.array([.34, .46, .66])
+    col = milk[None, None, :] * (.94 + .1 * (n[..., None] - .5))
+    col = col * (1 - b1[..., None]) + blue[None, None, :] * b1[..., None]
+    col = col * (1 - b2[..., None]) + warm[None, None, :] * b2[..., None]
+    col = col * (1 - b3[..., None]) + deep[None, None, :] * b3[..., None]
+    img = make_image('murmel_kern', col)
+    mk = mat('Murmelkern', (.9, .9, .88), .22, 0, img, None)
+    bpy.context.view_layer.objects.active = core
+    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT'); bpy.ops.uv.sphere_project(direction='VIEW_ON_EQUATOR', align='POLAR_ZX'); bpy.ops.object.mode_set(mode='OBJECT')
+    set_mat(core, mk)
+    glass = prim_sphere('glas', R, seg=96, rings=48); bpy.ops.object.shade_smooth()
+    mg = mat('Murmelglas', (.97, .98, 1.0), .03, 0); _alpha_blend(mg, .16)
+    try: mg.node_tree.nodes['Principled BSDF'].inputs['IOR'].default_value = 1.52
+    except Exception: pass
+    set_mat(glass, mg); export('murmel')
+
+def build_schuh():
+    """Kinderschuh (Klettverschluss, Groesse 33, rechts): Textil-Obermaterial dunkelblau, weisse Zwischensohle + graue Profilsohle, Zehenkappe, Kragenpolster (Rohr am Oeffnungsrand), Einlegesohle, Klettriemen, Schlaufe"""
+    reset()
+    L = .205; X0 = -.098; WMAX = .0385; ZS = .019   # Sohlenhoehe
+    tab = [(0, 0.0), (.02, .50), (.07, .66), (.18, .68), (.33, .62), (.50, .78), (.66, .96), (.78, 1.0), (.88, .93), (.95, .74), (.99, .42), (1.0, 0.0)]
+    def wfun(t): return float(np.interp(t, [a for a, b in tab], [b for a, b in tab])) * WMAX
+    def zfun(t): return .0 if t < .72 else .011 * ((t - .72) / .28) ** 2
+    HT = ([0, .06, .12, .25, .42, .55, .70, .85, 1.0], [.050, .077, .084, .080, .066, .056, .043, .036, .020])
+    def hfun(t): return float(np.interp(t, HT[0], HT[1]))
+    NT, NS = 72, 26
+    def limf(t): return float(np.interp(t, [0, .05, .10, .30, .43, .46], [.0, .55, 1.14, 1.0, .30, .0]))
+    def pt(t, a, scale=1.0, dz=0.0, ex=None):
+        ex = ex if ex is not None else (.62 if t > .5 else .75)
+        return (X0 + t * L, wfun(t) * scale * math.cos(a), ZS + zfun(t) + dz + hfun(t) * (max(0.0, math.sin(a)) ** ex))
+    def outline(h, grow):
+        out = []; M = 80
+        for k in range(M):
+            a = 2 * math.pi * k / M; t = min(max(.5 + .5 * math.cos(a), 0), 1)
+            out.append((X0 + t * L, math.sin(a) * (wfun(t) + grow), h + zfun(t)))
+        return out
+    def prism(name, lo, hi, grow, bev):
+        bm = bmesh.new(); A = outline(lo, grow); B = outline(hi, grow); M = len(A)
+        va = [bm.verts.new(p) for p in A]; vb = [bm.verts.new(p) for p in B]
+        for i in range(M): bm.faces.new((va[i], va[(i + 1) % M], vb[(i + 1) % M], vb[i]))
+        bm.faces.new(va[::-1]); bm.faces.new(vb); bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free(); o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o)
+        bpy.context.view_layer.objects.active = o; o.select_set(True); add_bevel(o, bev, 3); return o
+    mid = prism('zwischensohle', .006, ZS, .0042, .0032); out_ = prism('laufsohle', 0.0, .007, .0036, .0026)
+    ins = prism('einlage', ZS - .0015, ZS + .0008, -.0022, .0006)
+    # Obermaterial: links/rechts getrennte Spalten, Oeffnungskante geglaettet (nicht rasterfoermig)
+    bm = bmesh.new(); rows = []
+    for j in range(NT + 1):
+        t = j / NT; lim = limf(t)
+        left = [bm.verts.new(pt(t, (math.pi / 2 - lim) * i / NS)) for i in range(NS + 1)]
+        right = [bm.verts.new(pt(t, (math.pi / 2 + lim) + (math.pi / 2 - lim) * i / NS)) for i in range(NS + 1)]
+        rows.append((left, right, lim))
+    for j in range(NT):
+        for s in (0, 1):
+            for i in range(NS):
+                bm.faces.new((rows[j][s][i], rows[j][s][i + 1], rows[j + 1][s][i + 1], rows[j + 1][s][i]))
+        if rows[j][2] < .02 and rows[j + 1][2] < .02:
+            bm.faces.new((rows[j][0][NS], rows[j][1][0], rows[j + 1][1][0], rows[j + 1][0][NS]))
+    try: bm.faces.new(list(rows[0][0]) + list(rows[0][1]))
+    except Exception: pass
+    try: bm.faces.new((list(rows[-1][0]) + list(rows[-1][1]))[::-1])
+    except Exception: pass
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    me = bpy.data.meshes.new('schaft'); bm.to_mesh(me); bm.free(); up = bpy.data.objects.new('schaft', me); bpy.context.scene.collection.objects.link(up)
+    bpy.context.view_layer.objects.active = up; up.select_set(True)
+    sm = up.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0034; sm.offset = 1; bpy.ops.object.modifier_apply(modifier='s'); add_bevel(up, .0010, 2)
+    # Zehenkappe (Gummi, weiss)
+    bm = bmesh.new(); rr = []
+    for j in range(int(NT * .82), NT + 1):
+        t = j / NT; rr.append([bm.verts.new(pt(t, math.pi * i / NS, 1.03, .0014)) for i in range(NS + 1)])
+    for j in range(len(rr) - 1):
+        for i in range(NS): bm.faces.new((rr[j][i], rr[j][i + 1], rr[j + 1][i + 1], rr[j + 1][i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    me = bpy.data.meshes.new('kappe'); bm.to_mesh(me); bm.free(); kap = bpy.data.objects.new('kappe', me); bpy.context.scene.collection.objects.link(kap)
+    bpy.context.view_layer.objects.active = kap; kap.select_set(True)
+    sm = kap.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0026; sm.offset = 1; bpy.ops.object.modifier_apply(modifier='s'); add_bevel(kap, .001, 2)
+    # Kragenpolster: Rohr (Kurve mit Bevel) entlang der Oeffnungskante
+    lf = []; rg = []
+    for j in range(0, NT + 1):
+        t = j / NT; lim = limf(t)
+        if t > .46: break
+        if lim > .02 or t < .06:
+            lf.append(pt(t, math.pi / 2 - lim, 1.0, .0006)); rg.append(pt(t, math.pi / 2 + lim, 1.0, .0006))
+    loop = lf + rg[::-1]
+    cu = bpy.data.curves.new('kragen', 'CURVE'); cu.dimensions = '3D'; cu.bevel_depth = .0052; cu.bevel_resolution = 4; cu.use_fill_caps = True
+    sp = cu.splines.new('POLY'); sp.points.add(len(loop) - 1)
+    for k, p in enumerate(loop): sp.points[k].co = (p[0], p[1], p[2], 1)
+    sp.use_cyclic_u = True
+    kr = bpy.data.objects.new('kragen', cu); bpy.context.scene.collection.objects.link(kr)
+    bpy.context.view_layer.objects.active = kr; kr.select_set(True); bpy.ops.object.convert(target='MESH'); kr = bpy.context.active_object
+    # Klettriemen quer ueber den Spann
+    t = .36
+    bm = bmesh.new(); STR = .022; NSS = 30; r2 = []
+    for k in range(2):
+        tt = t + (k - .5) * STR / L; row = []
+        for i in range(NSS + 1):
+            a = math.pi * (.04 + .92 * i / NSS); row.append(bm.verts.new(pt(tt, a, 1.0, .0042, .66)))
+        r2.append(row)
+    for i in range(NSS): bm.faces.new((r2[0][i], r2[0][i + 1], r2[1][i + 1], r2[1][i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    me = bpy.data.meshes.new('riemen'); bm.to_mesh(me); bm.free(); rm = bpy.data.objects.new('riemen', me); bpy.context.scene.collection.objects.link(rm)
+    bpy.context.view_layer.objects.active = rm; rm.select_set(True)
+    sm = rm.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0024; sm.offset = 1; bpy.ops.object.modifier_apply(modifier='s'); add_bevel(rm, .0008, 2)
+    ps = prim_cube('schlaufe', (.008, .016, .030), (X0 + .004, 0, ZS + .0845)); add_bevel(ps, .002, 2)
+    # Materialien
+    n1 = noise(512, 512, 90, 2); n2 = noise(512, 512, 24, 3)
+    wea = (np.sin(np.arange(512)[None, :] * .9) * .5 + .5) * .5 + (np.sin(np.arange(512)[:, None] * .9) * .5 + .5) * .5
+    tex = .72 + .22 * (wea * .6 + n1 * .4 - .5) + .1 * (n2 - .5)
+    nt = make_image('sh_tex', np.stack([.12 * tex * 1.5, .20 * tex * 1.5, .42 * tex * 1.5], -1)); nn = make_image('sh_n', normal_from_height(wea * .6 + n1 * .4, 5.0), False)
+    textile = mat('Textil', (.15, .22, .45), .88, 0, nt, nn)
+    tread = np.zeros((512, 512), np.float32)
+    for k in range(0, 512, 32): tread[:, k:k + 14] = 1
+    for k in range(0, 512, 48): tread[k:k + 20, :] = np.maximum(tread[k:k + 20, :], .6)
+    ng = make_image('sh_tread_n', normal_from_height(tread + .15 * noise(512, 512, 40, 2), 4.0), False)
+    tw, nw = tex_paper('sh_w', (.88, .88, .86), stain=.6, fibre=.3)
+    pairs = [(mid, mat('Zwischensohle', (.9, .9, .88), .6, 0, tw, nw)), (out_, mat('Laufsohle', (.30, .30, .31), .85, 0, None, ng)), (ins, mat('Einlage', (.78, .74, .66), .9, 0, tw, nw)),
+             (up, textile), (kap, mat('Kappe', (.92, .92, .9), .5, 0, tw, nw)), (kr, mat('Polster', (.20, .28, .50), .95, 0, nt, nn)), (rm, mat('Klett', (.74, .74, .76), .92, 0, None, nn)), (ps, mat('Schlaufe', (.15, .22, .45), .9, 0, nt, nn))]
+    for q, m_ in pairs:
+        uv_box(q, .25); set_mat(q, m_); bpy.context.view_layer.objects.active = q; bpy.ops.object.shade_smooth()
+    export('schuh')
+
+def build_lampion():
+    """Papierlampion (Harmonika-Laterne, 22 cm): gefalteter Papierkoerper, Holzkappen, Drahtbuegel; Papier warm durchscheinend (Emission)"""
+    reset(); R = .105; H = .095; N = 18; SEG = 96
+    bm = bmesh.new(); rows = []
+    NZ = N * 8
+    for j in range(NZ + 1):
+        z = -H + 2 * H * j / NZ; u = z / H; base = (max(0.0, 1 - u * u)) ** .45
+        fold = 1 - .085 * abs(math.sin(math.pi * (j / NZ) * N))
+        r = max(R * base * fold, .0215)
+        rows.append([bm.verts.new((r * math.cos(2 * math.pi * k / SEG), r * math.sin(2 * math.pi * k / SEG), z)) for k in range(SEG)])
+    for j in range(NZ):
+        for k in range(SEG): bm.faces.new((rows[j][k], rows[j][(k + 1) % SEG], rows[j + 1][(k + 1) % SEG], rows[j + 1][k]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    me = bpy.data.meshes.new('papier'); bm.to_mesh(me); bm.free(); body = bpy.data.objects.new('papier', me); bpy.context.scene.collection.objects.link(body)
+    bpy.context.view_layer.objects.active = body; body.select_set(True)
+    sm = body.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0006; bpy.ops.object.modifier_apply(modifier='s'); bpy.ops.object.shade_smooth()
+    c1 = prim_cyl('kappeo', .028, .008, loc=(0, 0, H + .003), seg=40); c2 = prim_cyl('kappeu', .026, .008, loc=(0, 0, -H - .003), seg=40)
+    for c in (c1, c2): add_bevel(c, .0015, 2)
+    bu = prim_torus('buegel', .07, .0012, loc=(0, 0, H + .004), rot=(math.radians(90), 0, 0), ms=48, mi=10)
+    bmm = bmesh.new(); bmm.from_mesh(bu.data); lo = [v for v in bmm.verts if v.co.z < 0.0]; bmesh.ops.delete(bmm, geom=lo, context='VERTS'); bmm.to_mesh(bu.data); bmm.free()
+    tp, npp = tex_paper('lp', (.95, .94, .90), stain=.4, fibre=1.6)
+    pm = mat('LampionPapier', (.86, .20, .13), .85, 0, tp, npp)
+    try:
+        nt_ = pm.node_tree; bs = nt_.nodes['Principled BSDF']; tn = [n for n in nt_.nodes if n.type == 'TEX_IMAGE'][0]
+        mx = nt_.nodes.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.blend_type = 'MULTIPLY'; mx.inputs['Factor'].default_value = 1.0
+        mx.inputs['B'].default_value = (.90, .16, .09, 1)
+        nt_.links.new(tn.outputs['Color'], mx.inputs['A']); nt_.links.new(mx.outputs['Result'], bs.inputs['Base Color'])
+        bs.inputs['Emission Color'].default_value = (.95, .22, .08, 1); bs.inputs['Emission Strength'].default_value = .18
+    except Exception as e: print('Lampion-Farbe', e)
+    tw, nw = tex_paper('lw', (.55, .40, .26), stain=1.0, fibre=1.8)
+    for q, m_ in ((body, pm), (c1, mat('Holz', (.55, .4, .26), .6, 0, tw, nw)), (c2, mat('Holz2', (.5, .36, .22), .6, 0, tw, nw)), (bu, mat('Draht', (.35, .35, .36), .4, .9))):
+        uv_box(q, .25); set_mat(q, m_); bpy.context.view_layer.objects.active = q; bpy.ops.object.shade_smooth()
+    export('lampion')
+
+def build_blatt():
+    """Zettel: A5-Blatt, Querwoelbung, Wellen, Knickfalte quer, aufgebogene Ecke, Papierfaser"""
+    reset(); bpy.ops.mesh.primitive_grid_add(x_subdivisions=28, y_subdivisions=40, size=1); o = bpy.context.active_object; o.name = 'blatt'
+    HW, HH = .074, .105; o.scale = (HW * 2, HH * 2, 1); bpy.ops.object.transform_apply(scale=True)
+    rs = np.random.default_rng(5); ph = rs.random(6) * 6.28
+    for v in o.data.vertices:
+        x, y = v.co.x / HW, v.co.y / HH
+        z = .006 * (1 - x * x) * .7
+        z += .0035 * math.sin(y * 4.2 + ph[0]) * (.5 + .5 * x * x)
+        z += .0020 * math.sin(x * 7.0 + y * 2.0 + ph[1])
+        z += (.010 * max(0.0, (x + y) - 1.15) ** 1.6)
+        z -= .0035 * max(0.0, 1 - abs(y - .15) * 14)
+        z += .0008 * (rs.random() - .5)
+        v.co.z = z
+        v.co.x += .004 * math.sin(y * 3 + ph[2]) * abs(x); v.co.y -= .003 * x * x * (1 - abs(y))
+    sol = o.modifiers.new('s', 'SOLIDIFY'); sol.thickness = .00035; bpy.ops.object.modifier_apply(modifier='s'); bpy.ops.object.shade_smooth()
+    base, nrm = tex_paper('bl', (.89, .85, .74), stain=1.0, fibre=1.2); uv_box(o, .28)
+    finish(o, mat('Blatt', (.89, .85, .74), .92, 0, base, nrm)); o.rotation_euler = (math.radians(90), 0, 0); bpy.ops.object.transform_apply(rotation=True)
+    export('blatt')
+
+def build_brief():
+    """Brief: A4 in Drittel gefaltet (9,9 x 21 cm), drei Lagen leicht verdreht und gewoelbt, Falzkanten sichtbar"""
+    reset(); HW, HH = .0495, .105; objs = []
+    for i in range(3):
+        bpy.ops.mesh.primitive_grid_add(x_subdivisions=12, y_subdivisions=24, size=1); o = bpy.context.active_object; o.name = 'lage%d' % i
+        o.scale = (HW * 2 * (1 - .006 * i), HH * 2 * (1 - .004 * i), 1); bpy.ops.object.transform_apply(scale=True)
+        rs = np.random.default_rng(10 + i)
+        for v in o.data.vertices:
+            x, y = v.co.x / HW, v.co.y / HH
+            v.co.z = .0016 * i + .0022 * (1 - x * x) * (1 - .3 * y * y) + .0008 * math.sin(y * 5 + i * 2) + (rs.random() - .5) * .0004
+        o.rotation_euler = (0, 0, math.radians((i - 1) * 1.6)); o.location = ((i - 1) * .0012, (i - 1) * .0016, 0)
+        sl = o.modifiers.new('s', 'SOLIDIFY'); sl.thickness = .00045; bpy.context.view_layer.objects.active = o; bpy.ops.object.modifier_apply(modifier='s'); objs.append(o)
+    o = join(objs, 'brief'); bpy.ops.object.shade_smooth(); uv_box(o, .24)
+    base, nrm = tex_paper('br', (.88, .82, .66), stain=1.1, fibre=1.2); finish(o, mat('Brief', (.87, .81, .64), .93, 0, base, nrm))
+    o.rotation_euler = (math.radians(90), 0, 0); bpy.ops.object.transform_apply(rotation=True); export('brief')
+
+def build_umschlag():
+    """Briefumschlag (22 x 11 cm): Papierfuellung woelbt den Koerper, Klappe mit Spitze abgesetzt, Papierfaser"""
+    reset(); HW, HH = .11, .055
+    def sheet(name, sx, sy, fn, thick=.0004, nx=24, ny=12):
+        bpy.ops.mesh.primitive_grid_add(x_subdivisions=nx, y_subdivisions=ny, size=1); o = bpy.context.active_object; o.name = name; o.scale = (sx * 2, sy * 2, 1); bpy.ops.object.transform_apply(scale=True)
+        for v in o.data.vertices: v.co.z = fn(v.co.x / sx, v.co.y / sy)
+        s = o.modifiers.new('s', 'SOLIDIFY'); s.thickness = thick; bpy.context.view_layer.objects.active = o; bpy.ops.object.modifier_apply(modifier='s'); return o
+    back = sheet('hinten', HW, HH, lambda x, y: .0010 * (1 - x * x) * (1 - y * y))
+    front = sheet('vorn', HW * .995, HH * .99, lambda x, y: .0028 + .0065 * max(0.0, 1 - x * x) ** .8 * max(0.0, 1 - y * y) ** .8 + .0007 * math.sin(x * 9 + y * 3))
+    bm = bmesh.new(); a = (-HW, HH, 0); b = (HW, HH, 0); c = (0, -.006, 0)
+    ng = 14; verts = {}
+    for j in range(ng + 1):
+        for i in range(j + 1):
+            t = j / ng; ax = a[0] + (c[0] - a[0]) * t; bx = b[0] + (c[0] - b[0]) * t; y = a[1] + (c[1] - a[1]) * t
+            x = ax + (bx - ax) * (i / j if j else .5)
+            verts[(j, i)] = bm.verts.new((x, y, .0100 * (1 - (x / HW) ** 2) * (1 - t * .6) * .7 + .0034 + .0016 * t))
+    for j in range(ng):
+        for i in range(j + 1):
+            bm.faces.new((verts[(j, i)], verts[(j + 1, i)], verts[(j + 1, i + 1)]))
+            if i < j: bm.faces.new((verts[(j, i)], verts[(j + 1, i + 1)], verts[(j, i + 1)]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    me = bpy.data.meshes.new('klappe'); bm.to_mesh(me); bm.free(); kl = bpy.data.objects.new('klappe', me); bpy.context.scene.collection.objects.link(kl)
+    bpy.context.view_layer.objects.active = kl; kl.select_set(True); s = kl.modifiers.new('s', 'SOLIDIFY'); s.thickness = .0004; bpy.ops.object.modifier_apply(modifier='s')
+    o = join([back, front, kl], 'umschlag'); bpy.ops.object.shade_smooth(); uv_box(o, .3)
+    base, nrm = tex_paper('um', (.70, .54, .34), stain=1.0, fibre=1.5); finish(o, mat('Umschlag', (.72, .56, .36), .92, 0, base, nrm))
+    o.rotation_euler = (math.radians(90), 0, 0); bpy.ops.object.transform_apply(rotation=True); export('umschlag')
+
+def build_akte():
+    """Aktenmappe (Manila, 24 x 32 cm, 2,2 cm Fuellung): Deckel, Rueckdeckel, Falz, Blattstapel mit vorstehenden Blaettern, Reiter"""
+    reset(); W, D, Hh = .24, .32, .022
+    cov = prim_cube('deckel', (W, D, .0018), (0, 0, Hh)); add_bevel(cov, .0006, 1)
+    bk = prim_cube('rueck', (W, D, .0018), (0, 0, 0)); add_bevel(bk, .0006, 1)
+    sp = prim_cube('rueckfalz', (.004, D, Hh), (-W / 2, 0, Hh / 2)); add_bevel(sp, .0012, 2)
+    stack = prim_cube('stapel', (W * .96, D * .95, Hh * .78), (.003, .0, Hh / 2 - .0006)); add_bevel(stack, .0006, 1)
+    ex = []
+    rs = np.random.default_rng(31)
+    for i in range(5):
+        s = prim_cube('b%d' % i, (W * .94, D * (.95 + .02 * rs.random()), .0006), (.006 + .004 * rs.random(), -.002 + .02 * rs.random(), .004 + .0030 * i + Hh * .06)); s.rotation_euler = (0, 0, math.radians((rs.random() - .5) * 4)); ex.append(s)
+    tab = prim_cube('reiter', (.07, .018, .0012), (.04, D / 2 + .008, Hh)); add_bevel(tab, .0005, 1)
+    tm, nm = tex_paper('akte', (.78, .62, .40), stain=1.2, fibre=1.4); ts, ns = tex_paper('akte_s', (.93, .92, .89), stain=.6, fibre=.8)
+    cm = mat('Manila', (.78, .63, .42), .85, 0, tm, nm); sm_ = mat('Papierstapel', (.92, .91, .88), .9, 0, ts, ns)
+    for q in (cov, bk, sp, tab): uv_box(q, .4); set_mat(q, cm)
+    for q in [stack] + ex: uv_box(q, .4); set_mat(q, sm_)
+    export('akte')
+
+def build_rucksack():
+    """alter Rucksack (Segeltuch, olivgruen, 28 x 20 x 45 cm): Hauptfach, Deckelklappe mit Lederriemen und Schnallen, Vordertasche, zwei Tragegurte, Haltegriff"""
+    reset()
+    def rbox(name, sx, sy, sz, loc, bev=.02, seg=6):
+        o = prim_cube(name, (sx, sy, sz), loc); add_bevel(o, bev, seg); return o
+    body = rbox('korpus', .28, .20, .40, (0, 0, .22), .045, 6)
+    for v in body.data.vertices:
+        v.co.y *= 1.0 + .10 * math.cos(v.co.z * 5.0) * (1 if v.co.y > 0 else .5)
+        v.co.x *= 1.0 - .06 * max(0, v.co.z - .18) * 3
+    flap = rbox('klappe', .272, .214, .052, (0, .004, .435), .018, 4); flap.rotation_euler = (math.radians(-6), 0, 0)
+    tasche = rbox('tasche', .20, .060, .20, (0, -.125, .15), .028, 5)
+    seitl = rbox('seitl', .05, .08, .18, (-.150, 0, .14), .02, 4); seitr = rbox('seitr', .05, .08, .18, (.150, 0, .14), .02, 4)
+    gurt1 = rbox('gurt1', .045, .020, .40, (-.075, .106, .22), .006, 2); gurt2 = rbox('gurt2', .045, .020, .40, (.075, .106, .22), .006, 2)
+    griff = rbox('griff', .09, .022, .028, (0, 0, .475), .008, 3)
+    riem1 = rbox('riemen1', .030, .008, .14, (-.07, -.108, .37), .003, 2); riem2 = rbox('riemen2', .030, .008, .14, (.07, -.108, .37), .003, 2)
+    sch1 = rbox('schnalle1', .030, .010, .026, (-.07, -.112, .30), .004, 2); sch2 = rbox('schnalle2', .030, .010, .026, (.07, -.112, .30), .004, 2)
+    cvs, ncv = tex_paper('canvas', (.34, .38, .22), stain=1.0, fibre=1.4, size=512)
+    wv = (np.sin(np.arange(512)[None, :] * 1.6) * .5 + .5) * .5 + (np.sin(np.arange(512)[:, None] * 1.6) * .5 + .5) * .5
+    ncv = make_image('canvas_n', normal_from_height(wv * .5 + noise(512, 512, 30, 2) * .5, 4.0), False)
+    lt, nl = tex_leather('rl', (.30, .17, .09)); mt, rm = tex_metal('rm', (.62, .58, .45), .8)
+    cm = mat('Segeltuch', (.34, .38, .24), .93, 0, cvs, ncv); lm = mat('Leder', (.32, .18, .10), .55, 0, lt, nl); mm = mat('Messing', (.7, .62, .4), .35, .9, mt, None, rm)
+    for q in (body, flap, tasche, seitl, seitr): uv_box(q, .4); set_mat(q, cm)
+    for q in (gurt1, gurt2, griff, riem1, riem2): uv_box(q, .3); set_mat(q, lm)
+    for q in (sch1, sch2): uv_box(q, .1); set_mat(q, mm)
+    for o in bpy.context.scene.objects:
+        if o.type == 'MESH': bpy.context.view_layer.objects.active = o; o.select_set(True); bpy.ops.object.shade_smooth()
+    export('rucksack')
+
+
 BUILD = [build_umschlag, build_brief, build_blatt, build_fahrkarte, build_muenze, build_murmel, build_ring, build_glocke, build_kreide, build_halsband, build_handy, build_autoschluessel,
-         build_folie, build_plombe, build_kronkorken, build_riemen, build_riegel, build_schnalle, build_dienstnadel, build_polaroid, build_grinder, build_papes, build_knolle, build_tips, build_schuh]
+         build_folie, build_plombe, build_kronkorken, build_riemen, build_riegel, build_schnalle, build_dienstnadel, build_polaroid, build_grinder, build_papes, build_knolle, build_tips, build_schuh, build_lampion, build_akte, build_rucksack]
 for fn in BUILD:
     nm = fn.__name__[6:]
     if ONLY and nm not in ONLY: continue
     try: fn()
     except Exception as e:
         import traceback; print('FEHLER', nm, e); traceback.print_exc()
+        try: open(os.path.join(OUT, 'item_bau_log.txt'), 'a', encoding='utf8').write('FEHLER ' + nm + ': ' + traceback.format_exc() + '\n')
+        except Exception: pass

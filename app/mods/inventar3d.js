@@ -34,7 +34,7 @@ const INV3D_MODELLE = {
   ring: { d: 'it_ring', pit: .5 }, glocke: { d: 'it_glocke' }, kreide: { d: 'it_kreide', pit: .4 }, halsband: { d: 'it_halsband', pit: .6 }, handy: { d: 'it_handy', pit: .55 }, autoschluessel: { d: 'it_autoschluessel', pit: .5 },
   folie: { d: 'it_folie' }, plombe: { d: 'it_plombe', pit: .4 }, kronkorken: { d: 'it_kronkorken', pit: .5 }, riemen: { d: 'it_riemen', pit: .5 }, riegel: { d: 'it_riegel', pit: .3 }, schnalle: { d: 'it_schnalle', pit: .5 },
   dienstnadel: { d: 'it_dienstnadel', pit: .4 }, polaroid: { d: 'it_polaroid', pit: .3 }, grinder: { d: 'it_grinder', pit: .5 }, papes: { d: 'it_papes', pit: .5 }, knolle: { d: 'it_knolle' }, tips: { d: 'it_tips', pit: .4 }, schuh: { d: 'it_schuh', pit: .3 },
-  lampion: { d: 'w_papierlaterne', mat: { '*': { color: 0xe6d3a0, rough: .9 } }, pick: /^GeoCables005\|Object_0002\|Dupli\|4$/, fbx: {} },
+  lampion: { d: 'it_lampion', pit: .15 }, akte: { d: 'it_akte', pit: .5 }, rucksack: { d: 'it_rucksack', pit: .15 },
 };
 // Gegenstand → Modell-Id (ausdrücklich), danach Regeln nach Name (erste passende gewinnt)
 const INV3D_ITEM = {
