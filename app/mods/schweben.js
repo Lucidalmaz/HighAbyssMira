@@ -141,7 +141,7 @@ WORLD_TICK.push((dt, t, indoor) => { SCHW.t += dt; if (SCHW.t < 1.5) return; SCH
     const id = Math.round(R.x0) + ',' + Math.round(R.zb); if (SCHW.done.has(id)) return;
     SCHW.done.add(id); setTimeout(() => { try { const rr = { x0: R.x0, x1: R.x1, z0: R.zb, z1: R.zf }; schweben_pass(rr, { apply: true }); schweben_decals(rr); } catch (e) { console.warn('schweben', e); } }, 2500); } catch (e) {} });
 setInterval(schweben_index, 4000); // Modell→Schlüssel-Zuordnung laufend nachführen (Modelle laden asynchron)
-window.__schweben = { index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
+window.__schweben = { decalKand: schweben_decalKand, istDecal: schweben_istDecal, index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
   pruefen: rect => schweben_pass(rect, { apply: false }) };
 // Außenwelt: Decals einmal nach dem Laden (Straße, Kreide, Blut, Zettel) – verzögert
 (function wartenAufBereit() { if (!window.__ready) return setTimeout(wartenAufBereit, 1000); setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 3000); })(); // erst nach dem Laden (vorher lief die Prüfung nach 25 s mitten im Ladevorgang)

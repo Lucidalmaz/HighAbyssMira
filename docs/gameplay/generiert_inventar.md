@@ -19,7 +19,7 @@ Methode: (a) statisch: Suche nach Box-/Cylinder-/Plane-Zusammenbauten und Canvas
 Voodoo-/Strohpuppen (Fab-Modell "Burlap Pin Effigy"), Telefonzelle, Zaehlerkaesten (aussen), Pfandkisten, Schuppenkisten mit Etiketten, Treppen Nr. 4/Keller (Boxstufen mit Handlauf), Deckenbalken, Villa-Dachstuhl, Planungstisch Amt, Archivschublade (Interaktion), Tank (Glas).
 
 ## Offen / nicht ersetzt (ehrlich)
-- Kuehlschrank Nr. 4 (Kueche): aus Platten gebaute Emaille-Box mit schwenkender Tuer und Innenfaechern (Interaktion "Wecker") - nicht ersetzt.
+- (erledigt 10.10.) Kuehlschrank Nr. 4 und Treppen Nr. 4 sind Modelle.
 - Gisela: weisse Kommode neben dem Herd (Box 0,62 x 0,88 x 0,6) bleibt.
 - Treppen aus Boxstufen (Nr. 4, Kellertreppen): nicht durch Modell ersetzt.
 - Canvas-Beschriftungen (Zettel, Schilder, Zeichnungen): grob 400 Stellen in amt.js, kirchberg.js, innen_*.js, ausbau_*.js - als Papier-/Schildflaechen belassen, nicht neu gebaut.
