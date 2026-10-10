@@ -213,15 +213,22 @@ def wing(sx):
   tips = [lerp(F_, G_, .25), lerp(F_, G_, .45), lerp(F_, G_, .65), lerp(F_, G_, .85), lerp(G_, H_, .2), lerp(G_, H_, .45), lerp(G_, H_, .72), H_, lerp(H_, C_, .14), lerp(H_, C_, .3)]
   for i in range(10):
     base = lerp(WR, C_, i / 9 * .92) + (C_ - WR).normalized() * 0 ; tip = tips[i]
-    up = up_at(lerp(base, tip, .4)); w = (.036 if i < 6 else .032) * (1 - .1 * (i > 7))
+    up = up_at(lerp(base, tip, .4)); w = (.046 if i < 6 else .042) * (1 - .08 * (i > 7))  # 10.10.: breiter (+28 %): Federn ueberlappen, keine Luecken im Faecher
     feder(base, tip, w, 'hand', up, T_f, karten_f, layer=.0003 * (10 - i), seg=seg_r, droop=.03 - .12 * i / 9, camber=.13, twist=math.radians(-9 * i / 9) * sx, side=1 if sx > 0 else -1, two=True)
   # Armschwingen S1..S11 (S1 am Handgelenk) + 3 Schirmfedern
   for j in range(11):
     base = lerp(WR, EL, j / 10); tip = lerp(F_, E_, j / 10) + Vector((0, .006 * math.sin(j), 0))
-    feder(base, tip, .042, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0034 + .0003 * j, seg=seg_r, droop=.045, camber=.14, side=1 if sx > 0 else -1, two=True)
+    feder(base, tip, .054, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0034 + .0003 * j, seg=seg_r, droop=.045, camber=.14, side=1 if sx > 0 else -1, two=True)
   for k, (bt, tt) in enumerate(((.2, .25), (.5, .62), (.8, 1.0))):
     base = lerp(EL, SH, bt); tip = lerp(E_, D_, tt)
     feder(base, tip, .044, 'arm', up_at(lerp(base, tip, .4)), T_f, karten_f, layer=.0068 + .0004 * k, seg=seg_r, droop=.04, camber=.15, side=1 if sx > 0 else -1, two=True)
+  # 10.10.: gestaffelte Deckfederlagen ohne Luecken: je Armschwinge eine grosse Armdecke (45 % der Laenge), je Handschwinge eine Handdecke (35 %)
+  for j in range(11 if not KR else 6):
+    jj = j if not KR else j * 2; base = lerp(WR, EL, jj / 10) + Vector((0, -.004, 0)); tip = lerp(base, lerp(F_, E_, jj / 10), .46)
+    feder(base, tip, .05, 'arm', up_at(base), T_f, karten_f, layer=.0052 + .0002 * j, seg=3 if not KR else 2, droop=.02, camber=.13, side=1 if sx > 0 else -1)
+  for i in range(10 if not KR else 6):
+    ii = i if not KR else int(i * 9 / 5); base = lerp(WR, C_, ii / 9 * .92); tip = lerp(base, tips[ii], .36)
+    feder(base, tip, .044, 'hand', up_at(base), T_f, karten_f, layer=.0046 + .0002 * i, seg=3 if not KR else 2, droop=.0, camber=.12, side=1 if sx > 0 else -1)
   # Decken: große Armdecken, Handdecken, mittlere, kleine; Daumenfittich
   segc = 2 if KR else 3
   for j in range(14 if not KR else 7):
