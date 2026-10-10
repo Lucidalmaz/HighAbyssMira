@@ -20,3 +20,19 @@ Messung: `__MW.rec` (Kopf-Becken-Vektor gegen Bewegungsrichtung, Kopf-Yaw relati
 | Menschen | - | 0-0,09 | keins | Walk-timeScale = Tempo (figuren_loco) | Gesichter im Foto sauber (Kinder, Mira, Mama, Hilde, Gisela, Graukind); amt1: Hals ueberlappte Kragen/Krawatte (Wulst) -> Hals x0,82, Krawatte/Kragen frei (Foto); amt2 unveraendert (duenn, ok) | Mikro-Schicht neu (Gewichtsverlagerung, Kopfrauschen); amt1 behoben eb91565, kein Neu-Modellieren (Blender startet in dieser Umgebung nicht, Exit 0xC0E90002) |
 | Justin | - | 0 | - | - | schwarze Helmschale ausgeblendet | behoben 642b63b |
 | Lucy im Tank | - | - | - | - | Arme verschraenkt, schwebt, atmet | behoben 642b63b |
+
+## 3. Durchgang (10.10.2026 abends) - Belege im Bild/Messung
+
+Bilder: `docs/gameplay/fotos_1010/`. Messwerkzeuge: `C:/Users/GIGABYTE/_anim/` (flk_lib.js/flk_tour.js Flacker-Recorder, beastnat.js/gait.js Wild-Gangart, seam.js/pops.js Mocap-Naht und Ausreisser, cap_lib.js/seq_tpl.js Bewegungs-Kontaktboegen, mkrb.py Raben-Vergleich).
+
+| Punkt | Messung / Bild | Ergebnis | Commit |
+|---|---|---|---|
+| Rabenfluegel (Whiskey, Kraehe) | Vorher (0ccf7e7) / Nachher (Endwerte 6fd1536) im Spiellicht: Fly vorn/seitlich/oben/unten, Glide, Sitz, Landung (`rabe_*_vorher_nachher.png`, `rabe_fluegel_detail.png`) | Fingerfedern an den Spitzen mit Aufbiegung, Faecher dichter, Gefieder dunkler/violetter; Spitzenaufbiegung im Frontalbild sichtbar | 6fd1536 (Modell), Belege hier |
+| Flackern Geister/Echos/Menschen Kap. 2-6 | 8 s Ruhe + Tour zu 8 Figuren je Kapitel: Sichtbarkeits-Toggles/s je Figur/Geist/Auftritt + Staerke-Einbrueche | Sichtbarkeits-Toggles: 0 (alle Kapitel). Einbrueche der Geist-Staerke (Flimmern auf 0,5-0,7 fuer 60-140 ms): 14 je 8 s bei 9 Geistern, nachher 0 (weiches, flaches Atmen 0,86-0,94 ueber 220-400 ms, Intervall 6-14 s) | b9a09a0 |
+| Amt-Figur 2 | Forge-Bilder + Spielbild (`amt2_neu.png`) | Spy-Cartoon (duenn, grob, Riesenhaende) durch Buerosachbearbeiter ersetzt (ow3-Koerper, MN-Kopf, Brille, dunkle Strickjacke, 70 k Dreiecke wie die anderen Erwachsenen) | 787b014 |
+| Brennender Zombie Kap. 2 | Brandszene per Testhooks (Peter faellt, Oel, Feuerzeug, QTE-Autopilot): 6 Bilder (`zombie_brennt.png`) | Flammen am Koerper (Emitter an Wirbelsaeule/Armen/Beinen/Kopf) sichtbar, Verkohlung 0 bis 1 in 9 s, Flammenwand + Rauch; Zustandskette burn/escape laeuft | kein Mangel |
+| Menschen-Animationen | Kontaktboegen idle/walk/talk/greifen/sit/alert fuer lucy_erw und zayn (`anim_*.png`); Mocap-Pruefung 4 Figuren x 62 Clips | Gehen/Stehen/Sitzen/Sprechen/Greifen ohne Spruenge sichtbar; Naht der Schleifen-Clips <= 1 Grad; zwei Einzelbild-Ausreisser (Unterarm 23-24 Grad: walk_vorsicht 1,4 s, hug 4,0 s) beim Laden geglaettet | 787b014 |
+| Wild-Gleiten | `gait.js`: je Art und Tempo 0,4-9,5 m/s (Gangart, timeScale, Gleiten = v / (natuerliches Tempo x timeScale) - 1) | 0 % Gleiten bei allen Tempi (Fuchs 17 % erst bei 9,5 m/s, im Spiel nie erreicht); Ursache vorher: Walk-Clip bei Rueckzugs-/Fluchtbefehl mit 5,5 m/s (nur 2,3-faches Abspieltempo erlaubt), RunBite nicht gekoppelt, Gangart nur vom Modul gewaehlt | b9a09a0 |
+| Fenster-Gestalten Kap. 1 (Nutzer) | `fenster_vorher_nachher.png`, `fenster_ereignis_3d.png` aus 2,2/3/6/12 m | flache Silhouette (Kopf mitten im Fenster, durch die Scheibe) ersetzt durch echten 3D-Koerper hinter dem Glas (Portal-Zeichnung), Brustung verdeckt den Rumpf, Atmen und Blick zur Kamera | 6edbc9b |
+| Graues Gesicht (Nutzer) | Fernseher Nr. 7 ohne Portraet (Luke-Gedanke + Fibel `k1_tv_gesicht`), Tank-Gesicht/Rabenhals-Kopf/Nachbild-Leinwand/Netz-Overlay entfernt | keine flachen/eingeschnittenen Gesichter mehr | 83c1f17 |
+| Soak | 90 s, 5 Tierarten mit wechselnden Tempi (Kap. 6) | Heap +16 MB, 0 Fehler/Warnungen | - |

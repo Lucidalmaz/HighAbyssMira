@@ -115,3 +115,15 @@ Gesamt: 95 Schlüssel, davon mit Modell: 95.
 
 - Fab-Downloads waren in der Browser-Pane nicht freigegeben (Navigation zu fab.com verweigert); stattdessen Poly Haven (CC0, API ohne Anmeldung) und Blender-Eigenbau.
 - Weltmodelle je Fundstelle (Phase 2): pro Kapitel Fundstücke auf `it_*`-Modelle umstellen, inkl. Liegeausrichtung.
+
+## Weltmodelle (Stand 10.10.2026 abends) - Modul `weltitems.js`
+
+Regelbasiert (`WELT_REGELN`: Beschriftung der Klickflaeche, Gegenstand/Modell, laengste Kante in m, Lage `lie`/`stand`/`hang`). Bei Annaeherung (<= 30 m) entsteht das Modell an der Klickflaeche: stabilste Lage (kleinste Hoehe), Auflage per `solidGround`, deterministische Drehung, Klickbox auf Modellgroesse + Rand zugeschnitten, alte Platzhalter-Platten aus der Anzeige genommen (Ebene 7; ihr Sichtbarkeitszustand steuert das Modell), Kennzeichnung ueber `userData.hlObj` (hervorhebung.js).
+
+Gesehen im Spiel (Bild `weltitems.png`): Fahrkarte, Postkarten, Polaroid/Foto, Laterne (liegend), Batterien (3), Funkgeraet, Akten (7), Zettel, Leiter; Kapitel 6: Heftseiten, Murmel, Kreide, Pfandflasche (erscheinen, sobald die Klickflaeche aktiv ist).
+Behaelter-Funde (Briefkasten, Handschuhfach, Schublade, Aktenschrank): kein Weltmodell, das Modell zeigt die Aufheben-Darstellung beim Herausnehmen.
+Bereits echte Weltmodelle der Kapitel bleiben (Teddy, Brecheisen, Kerze, Feuerzeug, Halsband/Handy per inventar3d).
+
+Neue/ueberarbeitete Modelle (Blender, `app/tools/blender/item_bau.py`, Vorschau `modelle_blender_*.png`): Murmel (Glaskugel mit milchigem Kern und Farbspiralen), Kinderschuh (Klettverschluss-Sneaker: Textil, Zwischen-/Laufsohle mit Profil, Zehenkappe, Kragenpolster, Klettriemen, Schlaufe), Lampion (Harmonika-Papierlaterne, rot, Holzkappen, Drahtbuegel), Zettel/Brief/Umschlag (Woelbung, Knickfalte, aufgebogene Ecke, Lagen), Aktenmappe (2,2 cm), Rucksack.
+
+Ketten-/Inventarpruefung (Laufzeit): alle 95 Schluessel haben Modell + Symbol (0 Fehler); Aufheben-Darstellung + Speichern/Laden (Fundorte, Items) fuer 8 Stichproben ok; reale Aufnahme per Taste E (Erreichbarkeit per Strahl): collar, nord_baer, ow_seiten, drahtschneider, ow_streich, lucy_zigaretten, heino, brechstange, sicherung, schluesselteile (Stuhl 8), fuse (Haken), leiter_amt ok; in der Probe nicht aufgenommen: Polaroid im Auto (der Strahl trifft zuerst Tuer/Nachbild-Ausloeser), wartenummer (Bedingung), Sand/Regal/Jonas' Lager (Kapitel-Zustand noetig).

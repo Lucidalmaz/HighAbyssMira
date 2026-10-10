@@ -28,3 +28,8 @@ Modul `app/mods/inventar3d.js` (in `assemble.js` direkt vor `tausch`, damit Beut
 - Weltmodelle der übrigen Fundstellen (jede Kapitel-Mod baut ihre eigenen; viele nutzen schon echte Modelle, die Basisformen anderer noch nicht).
 - Kinderschuh ist eine einfache Form (kein Scan); Murmel/Papiere sind schlicht, aber ohne Schrift.
 - Fab-Download war in der Browser-Pane nicht freigegeben; weitere hochwertige Modelle (Schlüsselbund, Kassette „echt“, Kinderschuh) bei Gelegenheit nachladen.
+
+## Nachtrag 10.10.2026 abends
+- Weltmodelle: neues Modul `weltitems.js` (siehe item_katalog.md); in `assemble.js` nach `inventar3d`.
+- Neue Modell-Ids: `akte`, `rucksack`, `lampion` (jetzt Blender `it_lampion`, Farbe im Material); ueberarbeitet: `murmel`, `schuh`, `zettel`/`brief`/`umschlag`.
+- Offen: Fab-Downloads (Browser nicht freigegeben); Kinderschuh und Rucksack sind Eigenbau (kein Scan).
