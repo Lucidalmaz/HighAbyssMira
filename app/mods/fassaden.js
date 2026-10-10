@@ -484,7 +484,7 @@ async function fassaden_build() {
       const Sx = W.x + nx * off, Sz = W.z + nz * off;
       const B = m4(Sx, W.y, Sz, W.ry);
       const at = (x, y, z, sx = 1, sy = sx, sz = sx, rz = 0) => B.clone().multiply(m4(x, y, z, 0, sx, sy, sz, 0, rz));
-      const winRec = { house: hd, k, g, x: Sx, y: W.y, z: Sz, ry: W.ry, lit: isLit, boarded: isB };
+      const winRec = { house: hd, k, g, x: Sx, y: W.y, z: Sz, ry: W.ry, lit: isLit, boarded: isB, pw: wwd - .16, ph: wh - .1 };
       S.windows.push(winRec);
       // Silhouetten-Position des Spiels (Erscheinung am Fenster) hinter das neue Glas legen
       if (sh) { if (sh.light === 1) for (const q of litWindows) if (q.g === g) { q.x = Sx + nx * .012; q.y = W.y; q.z = Sz + nz * .012; q.ry = W.ry; } }
@@ -987,7 +987,13 @@ function fassaden_tick(dt, t, indoor) {
     if (F.target > .5 && look) { F.seen += dt; if (F.seen > 1.6) { F.target = 0; F.gone = rand(40, 80); Audio.whisper(wp.x, 1.7, wp.z, 1.4); } } else F.seen = Math.max(0, F.seen - dt * .5);
     if (F.target < .5) { F.gone -= dt; if (F.gone < 0 && (d > 22 || fwd.dot(wp.clone().sub(cam).normalize()) < .2)) F.target = 1; }
     F.vis += (F.target - F.vis) * Math.min(1, dt * (F.target > F.vis ? .6 : 2.2));
-    const u = F.hd.room && F.hd.room.uniforms.uFigVis.value; if (u) u.setComponent(F.slot, F.vis);
+    // 10.10.: statt der flachen Schatten-Maske im Scheinzimmer ein echter 3D-Körper hinter dem Glas (fensterfigur.js); die Maske bleibt nur als Rückfall, falls die Figur nicht ladbar ist
+    if (typeof ff_neu === 'function' && !F.ff3 && !F.ffFail && d < 26 && F.win.pw) {
+      const W = F.win, nx = Math.sin(W.ry), nz = Math.cos(W.ry), id = ({ 3: 'gezaehlt_m', 5: 'mama', 7: 'hilde', 8: 'gezaehlt_j' })[F.n] || ['hilde', 'aydin', 'mama'][F.slot % 3];
+      F.ff3 = ff_neu(W.g, W.x + nx * .058, W.y, W.z + nz * .058, W.ry, W.pw, W.ph, id, { warm: !!W.lit, tief: id === 'gezaehlt_j' ? .45 : .55 }); if (!F.ff3) F.ffFail = true; else F.hd.detail.push(F.ff3.quad); }
+    if (F.ff3 && F.ff3.fail) { F.ffFail = true; F.ff3.ziel = 0; F.ff3 = null; }
+    if (F.ff3) F.ff3.ziel = F.vis;
+    const u = F.hd.room && F.hd.room.uniforms.uFigVis.value; if (u) u.setComponent(F.slot, F.ff3 ? 0 : F.vis);
   }
   // Zuckender Vorhang
   const T = S.twitch; if (T) { T.cool -= dt;

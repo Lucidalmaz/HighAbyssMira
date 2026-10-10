@@ -9383,7 +9383,7 @@ async function fassaden_build() {
       const Sx = W.x + nx * off, Sz = W.z + nz * off;
       const B = m4(Sx, W.y, Sz, W.ry);
       const at = (x, y, z, sx = 1, sy = sx, sz = sx, rz = 0) => B.clone().multiply(m4(x, y, z, 0, sx, sy, sz, 0, rz));
-      const winRec = { house: hd, k, g, x: Sx, y: W.y, z: Sz, ry: W.ry, lit: isLit, boarded: isB };
+      const winRec = { house: hd, k, g, x: Sx, y: W.y, z: Sz, ry: W.ry, lit: isLit, boarded: isB, pw: wwd - .16, ph: wh - .1 };
       S.windows.push(winRec);
       // Silhouetten-Position des Spiels (Erscheinung am Fenster) hinter das neue Glas legen
       if (sh) { if (sh.light === 1) for (const q of litWindows) if (q.g === g) { q.x = Sx + nx * .012; q.y = W.y; q.z = Sz + nz * .012; q.ry = W.ry; } }
@@ -9886,7 +9886,13 @@ function fassaden_tick(dt, t, indoor) {
     if (F.target > .5 && look) { F.seen += dt; if (F.seen > 1.6) { F.target = 0; F.gone = rand(40, 80); Audio.whisper(wp.x, 1.7, wp.z, 1.4); } } else F.seen = Math.max(0, F.seen - dt * .5);
     if (F.target < .5) { F.gone -= dt; if (F.gone < 0 && (d > 22 || fwd.dot(wp.clone().sub(cam).normalize()) < .2)) F.target = 1; }
     F.vis += (F.target - F.vis) * Math.min(1, dt * (F.target > F.vis ? .6 : 2.2));
-    const u = F.hd.room && F.hd.room.uniforms.uFigVis.value; if (u) u.setComponent(F.slot, F.vis);
+    // 10.10.: statt der flachen Schatten-Maske im Scheinzimmer ein echter 3D-Körper hinter dem Glas (fensterfigur.js); die Maske bleibt nur als Rückfall, falls die Figur nicht ladbar ist
+    if (typeof ff_neu === 'function' && !F.ff3 && !F.ffFail && d < 26 && F.win.pw) {
+      const W = F.win, nx = Math.sin(W.ry), nz = Math.cos(W.ry), id = ({ 3: 'gezaehlt_m', 5: 'mama', 7: 'hilde', 8: 'gezaehlt_j' })[F.n] || ['hilde', 'aydin', 'mama'][F.slot % 3];
+      F.ff3 = ff_neu(W.g, W.x + nx * .058, W.y, W.z + nz * .058, W.ry, W.pw, W.ph, id, { warm: !!W.lit, tief: id === 'gezaehlt_j' ? .45 : .55 }); if (!F.ff3) F.ffFail = true; else F.hd.detail.push(F.ff3.quad); }
+    if (F.ff3 && F.ff3.fail) { F.ffFail = true; F.ff3.ziel = 0; F.ff3 = null; }
+    if (F.ff3) F.ff3.ziel = F.vis;
+    const u = F.hd.room && F.hd.room.uniforms.uFigVis.value; if (u) u.setComponent(F.slot, F.ff3 ? 0 : F.vis);
   }
   // Zuckender Vorhang
   const T = S.twitch; if (T) { T.cool -= dt;
@@ -17873,6 +17879,107 @@ function figuren_sync() {} // früher: Umschalten Kind/Erwachsener – jetzt fes
 WORLD_TICK.push(dt => figuren_tick(dt));
 window.__figuren = { S: figuren_S, MV: FIGUREN_MV, LOD: FIGUREN_LOD, lodAlle() { let n = 0; for (const g of figuren_S.embodied) { const P = g.userData.person; if (!P || !P.lod) continue; FIGUREN_MV.v.setFromMatrixPosition(g.matrixWorld); figuren_lodSet(P, Math.hypot(FIGUREN_MV.v.x - camera.position.x, FIGUREN_MV.v.z - camera.position.z)); if (P.lod.far) n += P.lod.face.length; } return (FIGUREN_LOD.n = n); }, embody: figuren_embody, load: figuren_load, play: figuren_play, act: figuren_do, lookAt: figuren_lookAt, mimik: figuren_mimik, sprich: figuren_sprich, mund: figuren_mund, gesicht: figuren_gesicht, hund: figuren_hund, hunde: FIGUREN_HUNDE, stalker: () => stalker, show: async (id, x, z, ry = 0, ghost = false, o = {}) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g); await figuren_embody(g, id, { ghost, ...o }); return g; } }; // Testzugang (Selbsttest)
 window.__echo = { figs: echoFigs, cast: ECHO_CAST, FE: FIGUREN_ECHO, scan: figuren_scan, sitzAn: figuren_sitzAn, get SK() { return typeof innen_kapitel_S !== 'undefined' ? innen_kapitel_S.stuhlKreis : null; } }; // Testzugang Nachbilder (Prüfskript _echo)
+// =====================================================================  FENSTERFIGUR (Modul „fensterfigur“, Nutzerauftrag 10.10.2026, Höchste Priorität A)
+// Frau/Gestalt am Fenster (Kapitel 1, Nr. 3/5/7/8 u. a.): bisher eine flache, verwaschene Silhouette (Basis: Fläche „silhouette“, fassaden.js: Schatten-Maske im Scheinzimmer),
+// die als Kopf mitten im Fenster schwebte und durch die Scheibe ragte. Jetzt: ein echter, vollständiger 3D-Körper (Menschenmodell aus figuren.js) steht im Zimmer HINTER dem Glas.
+// Technik (wie ein Spiegel/Portal, kein Loch in der Wand nötig): die Figur lebt in einer eigenen kleinen Szene, steht dort an ihrer Weltposition (0,5 m hinter der Wand, Füße auf Zimmerboden,
+// Körper unterhalb der Brüstung von der Wand verdeckt), und wird mit der Spielkamera in einen Zielpuffer gezeichnet. Eine Fläche genau in der Scheibenebene zeigt diesen Puffer
+// bildschirmgenau – es entsteht also genau das Stück Figur, das durch die Öffnung sichtbar ist (Parallaxe, Tiefe, Selbstverdeckung, Nebel, Verdeckung durch Vordergrund bleiben richtig;
+// Gardine und Glas liegen davor). Atmen und Kopfdrehung kommen aus figuren.js (Mikro-Schicht, Blick zur Kamera).
+// Schnittstelle: ff_neu(parent, lx, ly, lz, ry, pw, ph, id, opt) → rec { fade, ziel, quad, fig }. Aufrufer: fassaden.js (S.figs), Basis-Ereignis „window“ (silhouette).
+// Testzugriff: __fenster (FF, neu).
+const FF = { scene: null, rt: null, hemi: null, key: null, warm: null, mat0: null, recs: [], n: 0, ms: 0, tmpV: new THREE.Vector3(), tmpV2: new THREE.Vector3(), cc: new THREE.Color(), sz: new THREE.Vector2(), sil: null, err: 0 };
+function ff_init() {
+  if (FF.scene) return true;
+  try {
+    FF.scene = new THREE.Scene();
+    FF.hemi = new THREE.HemisphereLight(0x8c9fc4, 0x2a2420, .55); FF.key = new THREE.DirectionalLight(0xc8d4ff, .35); FF.key.position.set(0, 3, 6); FF.warm = new THREE.PointLight(0xffb070, 0, 5, 2);
+    FF.scene.add(FF.hemi, FF.key, FF.key.target, FF.warm);
+    renderer.getDrawingBufferSize(FF.sz);
+    FF.rt = new THREE.WebGLRenderTarget(Math.max(64, FF.sz.x >> 1), Math.max(64, FF.sz.y >> 1), { type: THREE.HalfFloatType, samples: 2, depthBuffer: true });
+    return true;
+  } catch (e) { console.warn('Fensterfigur: Init', e); FF.scene = null; return false; }
+}
+const FF_VS = `varying vec4 vClip;\n#include <fog_pars_vertex>\nvoid main(){ vec4 mvPosition = modelViewMatrix * vec4(position, 1.); gl_Position = projectionMatrix * mvPosition; vClip = gl_Position;\n#include <fog_vertex>\n}`;
+const FF_FS = `uniform sampler2D tFig; uniform float uFade; varying vec4 vClip;\n#include <fog_pars_fragment>\nvoid main(){ vec2 uv = vClip.xy / vClip.w * .5 + .5; vec4 c = texture2D(tFig, uv); c *= uFade;\n#ifdef USE_FOG\n float ff = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth); c.rgb = mix(c.rgb, fogColor * c.a, ff);\n#endif\n gl_FragColor = c; }`;
+function ff_mat(rec) {
+  const m = new THREE.ShaderMaterial({ uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { tFig: { value: FF.rt.texture }, uFade: { value: 0 } }]), vertexShader: FF_VS, fragmentShader: FF_FS,
+    transparent: true, depthWrite: false, fog: true, premultipliedAlpha: true, side: THREE.DoubleSide, name: 'ff_fenster' });
+  m.uniforms.tFig.value = FF.rt.texture; // (UniformsUtils.merge klont keine Zielpuffer-Texturen: Wert dort null)
+  m.blending = THREE.CustomBlending; m.blendSrc = THREE.OneFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor; m.blendSrcAlpha = THREE.OneFactor; m.blendDstAlpha = THREE.OneMinusSrcAlphaFactor;
+  return m;
+}
+// parent: Gruppe (Haus); (lx, ly, lz) Mitte der Scheibe in parent, ry Blickrichtung nach außen (parent-lokal); pw × ph Öffnung; id Figur; opt: { warm, boden, tief }
+function ff_neu(parent, lx, ly, lz, ry, pw, ph, id, opt = {}) {
+  if (!ff_init()) return null;
+  const rec = { parent, lx, ly, lz, ry, pw, ph, id, fade: 0, ziel: 0, fig: null, wrap: null, quad: null, warm: opt.warm ? 1 : 0, boden: opt.boden ?? (ly - ph / 2 - .75), tief: opt.tief ?? .55, busy: false, alive: true, P: null };
+  const q = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), ff_mat(rec)); q.position.set(lx, ly, lz); q.rotation.y = ry; q.renderOrder = 0; q.userData.noCol = true; q.frustumCulled = true; q.castShadow = q.receiveShadow = false;
+  q.onBeforeRender = (r, sc, cam) => { try { ff_zeichne(rec, r, cam); } catch (e) { if (!FF.err) { FF.err = 1; console.warn('Fensterfigur: Zeichnen', e); } } };
+  parent.add(q); rec.quad = q; FF.recs.push(rec);
+  // Figur in der eigenen Szene (an der Weltposition hinter der Wand)
+  (async () => {
+    try {
+      parent.updateWorldMatrix(true, false); const nx = Math.sin(ry), nz = Math.cos(ry);
+      const wp = new THREE.Vector3(lx - nx * rec.tief, rec.boden, lz - nz * rec.tief); parent.localToWorld(wp);
+      const dir = new THREE.Vector3(nx, 0, nz).transformDirection(parent.matrixWorld); const wy = Math.atan2(dir.x, dir.z);
+      const wrap = new THREE.Group(); wrap.position.copy(wp); wrap.rotation.y = wy; wrap.visible = false; FF.scene.add(wrap);
+      const g = new THREE.Group(); wrap.add(g);
+      const P = await figuren_embody(g, id, {}); if (!P) { FF.scene.remove(wrap); rec.fail = true; return; }
+      // von hinten beleuchtetes Zimmer: Figur dunkler, nie voll ausgeleuchtet
+      g.traverse(o => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = o.receiveShadow = false; [].concat(o.material).forEach(m => { if (m && m.color) m.color.multiplyScalar(opt.dunkel ?? .72); }); } });
+      P.look = 'cam'; if (P.mv) P.mv.autoLook = null; rec.P = P; rec.fig = g; rec.wrap = wrap;
+      try { figuren_lookAt(P, 'cam', .65); } catch (e) {}
+    } catch (e) { rec.fail = true; console.warn('Fensterfigur: Figur', id, e); }
+  })();
+  return rec;
+}
+function ff_zeichne(rec, r, cam) {
+  rec.calls = (rec.calls || 0) + 1; if (!rec.wrap || rec.fade < .01 || FF.drawing) return; FF.drawing = true; rec.draws = (rec.draws || 0) + 1;
+  const sz = r.getDrawingBufferSize(FF.sz); const tw = Math.max(64, Math.round(sz.x * .6)), th = Math.max(64, Math.round(sz.y * .6)); if (FF.rt.width !== tw || FF.rt.height !== th) FF.rt.setSize(tw, th);
+  // nur diese Figur zeigen, warmes Rücklicht je nach Fenster
+  for (const o of FF.recs) if (o.wrap) o.wrap.visible = (o === rec);
+  rec.wrap.updateWorldMatrix(true, true);
+  FF.warm.intensity = rec.warm ? 2.2 : 0; FF.warm.position.copy(rec.wrap.position); FF.warm.position.y += 1.7; FF.tmpV.set(0, 0, -1.1).applyAxisAngle(THREE.Object3D.DEFAULT_UP, rec.wrap.rotation.y); FF.warm.position.add(FF.tmpV);
+  FF.key.position.set(cam.position.x, cam.position.y + 1, cam.position.z); FF.key.target.position.copy(rec.wrap.position);
+  const rt0 = r.getRenderTarget(), ac = r.autoClear, ca = r.getClearAlpha(), sm = r.shadowMap.autoUpdate; r.getClearColor(FF.cc);
+  const xr = r.xr.enabled; r.xr.enabled = false; r.shadowMap.autoUpdate = false;
+  try { r.setRenderTarget(FF.rt); r.setClearColor(0x000000, 0); r.autoClear = true; r.clear(); r.render(FF.scene, cam); }
+  finally { r.setRenderTarget(rt0); r.setClearColor(FF.cc, ca); r.autoClear = ac; r.shadowMap.autoUpdate = sm; r.xr.enabled = xr; for (const o of FF.recs) if (o.wrap) o.wrap.visible = false; FF.drawing = false; }
+}
+// Takt: Blende, Sichtbarkeit nach Entfernung
+function ff_tick(dt) {
+  const t0 = performance.now(), cam = camera.position;
+  for (const rec of FF.recs) { if (!rec.quad) continue;
+    rec.fade += (rec.ziel - rec.fade) * Math.min(1, dt * (rec.ziel > rec.fade ? .9 : 2.5));
+    rec.quad.material.uniforms.uFade.value = rec.fade; rec.quad.visible = rec.fade > .01 && !!rec.wrap;
+    if (rec.wrap) { rec.quad.getWorldPosition(FF.tmpV2); rec.dist = Math.hypot(FF.tmpV2.x - cam.x, FF.tmpV2.z - cam.z); }
+    // Höhe einmal nachführen: Kopfmitte etwas über der Scheibenmitte (Brüstung verdeckt Rumpf und Beine, Kopf und Schultern stehen im Ausschnitt)
+    if (rec.P && rec.wrap && !rec.hAdj && (rec.wait = (rec.wait || 0) + dt) > 1.2) { const hd = rec.P.rig && rec.P.rig.head;
+      if (hd) { rec.wrap.updateWorldMatrix(true, true); hd.getWorldPosition(FF.tmpV); const want = FF.tmpV2.y + rec.ph * (rec.kopf ?? .12); const dy = Math.max(-.9, Math.min(.9, want - FF.tmpV.y)); rec.wrap.position.y += dy; rec.hAdj = 1; } else rec.hAdj = 1; }
+  }
+  FF.ms = performance.now() - t0;
+}
+WORLD_TICK.push(dt => { try { ff_tick(Math.min(dt, .1)); } catch (e) { if (!FF.err2) { FF.err2 = 1; console.warn('Fensterfigur: Takt', e); } } });
+// ---------------------------------------------------------------- Basis-Ereignis „window“: die flache Silhouette (Plane, unscharfer Kopf + Rumpf) durch die Figur ersetzen
+{ try { silhouette.material.visible = false; } catch (e) {}
+  const WID = ['aydin', 'hilde', 'mama'];
+  WORLD_TICK.push(dt => { try {
+    const S = typeof silhouette !== 'undefined' ? silhouette : null; if (!S) return;
+    const aktiv = S.visible && S.parent;
+    if (aktiv && !FF.sil) { // Ereignis hat begonnen: Scheibe und Öffnung bestimmen
+      const par = S.parent, n = new THREE.Vector3(Math.sin(S.rotation.y), 0, Math.cos(S.rotation.y)); const c = S.position.clone().addScaledVector(n, -.035); c.y += .12;
+      let pw = .86, ph = 1.5, gl = c.clone().addScaledVector(n, .058);
+      if (typeof fassaden_S !== 'undefined' && fassaden_S.windows) { let best = null, bd = .6; for (const w of fassaden_S.windows) { if (w.g !== par || !w.pw) continue; const d = Math.hypot(w.x - c.x, w.y - c.y, w.z - c.z); if (d < bd) { bd = d; best = w; } }
+        if (best) { pw = best.pw; ph = best.ph; gl.set(best.x, best.y, best.z).addScaledVector(new THREE.Vector3(Math.sin(best.ry), 0, Math.cos(best.ry)), .058); } }
+      const id = WID[Math.abs(Math.round(c.x * 3 + c.z * 5)) % WID.length];
+      FF.sil = ff_neu(par, gl.x, gl.y, gl.z, S.rotation.y, pw, ph, id, { warm: true }); if (FF.sil) FF.sil.vonBasis = true;
+    }
+    if (FF.sil && FF.sil.vonBasis) { const rec = FF.sil;
+      if (aktiv) rec.ziel = Math.max(0, Math.min(1, S.material.opacity / .92)); else { rec.ziel = 0; if (rec.fade < .02) { FF.recs.splice(FF.recs.indexOf(rec), 1); rec.quad.parent && rec.quad.parent.remove(rec.quad); if (rec.wrap) FF.scene.remove(rec.wrap); rec.alive = false; FF.sil = null; } }
+    }
+  } catch (e) { if (!FF.err3) { FF.err3 = 1; console.warn('Fensterfigur: Ereignis', e); } } });
+}
+window.__fenster = { FF, neu: ff_neu };
 // =====================================================================  VEGAS (Modul „albers“): Lars Vegas, Nr. 3 (Fassung 3: Kap. 1, 3, 4, 5; Gespräche aus Kap. 3, am Ende Kap. 1 „Schnalle zu“, AP-15)
 // Der Einzige, der in dieser Nacht wach ist. Grummelig, misstrauisch, verbarrikadiert – er wirkt wie ein Verschwörungsspinner.
 // Er öffnet die Tür nur einen Spalt (Kette vor), Lampenlicht fällt heraus, hinter ihm knurrt Bruno. Fünf Gespräche, freigeschaltet durch den
@@ -19515,7 +19622,11 @@ const WELT_REGELN = [
   [/Mamas Kerze|Kerze nehmen/i, 'mamas_kerze', .17, 'stand'],
   [/Handy nehmen|Handy aufheben/i, 'phone', .13, 'lie'],
   [/Schlüssel (nehmen|aufheben)|Schlüsselbund/i, 'key', .1, 'lie'],
-  [/Teddy aufheben|Teddy nehmen/i, 'teddy', .3, 'stand', { nurPlatte: true }],
+  [/^Hofers Dienstbuch$/i, 'buch', .2, 'lie'],
+  [/^Jonas.? Blechdose$/i, 'blechdose', .15, 'stand'],
+  [/Lichtstein/i, 'geh_lichtstein', .06, 'lie'],
+  [/Kassette (mitnehmen|aufheben)/i, 'n3_kassette_band', .11, 'lie'],
+  [/Teddy aufheben|Teddy nehmen/i, 'teddy', .3, 'stand'],
 ];
 const WELT_PRIM = /^(Plane|Box|Cylinder|Sphere|Torus|Lathe|Circle|Capsule)Geometry$/;
 function welt_label(m) { let l = m.userData.label; try { if (typeof l === 'function') l = l(); } catch (e) { l = ''; } return String(l == null ? '' : l).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); }
@@ -35106,22 +35217,41 @@ function tod_umwelt(x, z) {
 // Pause → „FESTGESTECKT?“: ein paar Schritte zurück (letzter sicherer Ort der Basis, SAFE.at, jede Sekunde gemerkt, wenn nichts läuft) · letzter Speicherpunkt · Kapitelanfang.
 // Ohne Tod, ohne Strafe; Verfolgungen/Szenen werden wie beim Wiederkehren zurückgesetzt (TOD_RESET, Art 'zurueck'). Automatisch: unter die Welt gefallen → zurück zum sicheren Ort;
 // 6 s lang Laufen ohne Fortschritt → Hinweis auf die Pause-Hilfe.
+// Spur der letzten sicheren Plätze (immer, auch im Keller/Amt/Kanal – SAFE.at in der Basis pausiert dort, dann fiel 'Schritte zurück' auf Speicherpunkt/Kapitelanfang mit Szenen-Reset)
+const TOD_SPUR = []; let tod_spurT = 0;
+function tod_spurTick(dt) { if ((tod_spurT -= dt) > 0) return; tod_spurT = .4;
+  if (!state.started || scripted || camOverride || mantle || !grounded || ui.overlay || state.blackout || tod_S.dying || tod_S.zurueck) return;
+  const P = player.pos; if (!spotOk(P)) return; const l = TOD_SPUR[TOD_SPUR.length - 1];
+  if (l && Math.hypot(P.x - l.x, P.z - l.z) < .5 && Math.abs(P.y - l.y) < .3) return;
+  TOD_SPUR.push({ x: P.x, y: P.y, z: P.z, yaw: player.yaw, ch: curChapter() }); if (TOD_SPUR.length > 30) TOD_SPUR.shift(); }
+function tod_schrittZiel() { const P = player.pos, ch = curChapter();
+  for (let i = TOD_SPUR.length - 1; i >= 0; i--) { const s = TOD_SPUR[i]; if (s.ch === ch && Math.hypot(s.x - P.x, s.z - P.z) >= 2.5 && Math.abs(s.y - P.y) < 1.2 && spotOk(s)) return s; }
+  const ok = c => { if (!spotOk(c)) return false; if (typeof solidGround === 'function') { try { const g = solidGround(c.x, c.y + .05, c.z); if (Number.isFinite(g) && Math.abs(g - c.y) < .5) return true; } catch (e) {} } return Math.abs(c.y) < .6 || state.inBasement; };
+  for (const r of [2, 3, 4.5, 6]) for (let k = 0; k < 16; k++) { const a = player.yaw + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 8); // hinten (entgegen der Blickrichtung), abwechselnd links/rechts davon
+    const c = { x: P.x + Math.sin(a) * r, y: P.y, z: P.z + Math.cos(a) * r, yaw: player.yaw }; if (ok(c)) return c; }
+  return null; }
 async function tod_zurueck(ziel) {
-  const S = tod_S; if (S.dying || S.respawning || S.zurueck) return; S.zurueck = true;
+  const S = tod_S; if (S.dying || S.respawning) return; if (S.zurueck && performance.now() - (S.zurueckT || 0) < 8000) return; S.zurueck = true; S.zurueckT = performance.now();
+  try {
   try { $('pause').classList.remove('show'); ui.paused = false; closeAllOverlays(); } catch (e) {}
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
   try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
   const ch = curChapter(); let cp = null;
   const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
-  if (ziel === 'schritt' && imKeller) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 }; // Fuß der Kellertreppe
-  else if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+  if (ziel === 'schritt') {
+    const z = imKeller ? { x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 } : tod_schrittZiel(); // Fuß der Kellertreppe im Keller, sonst letzter sicherer Platz bzw. freier Platz hinter dir
+    if (z) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: z.x, y: z.y, z: z.z, yaw: z.yaw };
+    else if (SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+    else { toast('Hier ist kein sicherer Platz in der Nähe. Wähle „Zum letzten Speicherpunkt“.', 4200); return; } // nie stillschweigend zum Kapitelanfang springen / Szenen zurücksetzen
+  }
   if (!cp && ziel !== 'start' && S.cp && (!S.cp.chapter || S.cp.chapter === ch)) cp = S.cp;
   if (!cp) { const sp = chSpawn(ch); cp = { id: 'start', label: 'Kapitel ' + ch + ' · ' + chTitle(ch), x: sp.x, y: sp.y, z: sp.z, yaw: sp.yaw }; }
   if (cp.id !== 'schritt') for (const f of TOD_RESET) { try { f(cp.id, 'zurueck'); } catch (e) { console.warn('Rettung', e); } }
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Rettung', e); } } else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
   tod_umwelt(player.pos.x, player.pos.z);
   player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true; vy = 0; stairBusy = false; state.blackout = false;
-  try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt'); S.zurueck = false;
+  try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt');
+  } catch (e) { console.warn('Rettung', e); } finally { S.zurueck = false; try { if (+$('fade').style.opacity > .3) fade(0, 700); } catch (e) {} } // nie hängen bleiben (vorher: Ausnahme → S.zurueck für immer true = Funktion tot)
 }
 function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns'); if (!P || document.getElementById('pRettung')) return;
   const b = document.createElement('button'); b.id = 'pRettung'; b.textContent = 'FESTGESTECKT?'; const j = document.getElementById('pJournal'); P.insertBefore(b, j ? j.nextSibling : null);
@@ -35158,7 +35288,7 @@ WORLD_TICK.push((dt) => {
   } catch (e) { if (!tod_S.err) { tod_S.err = true; console.warn('Tod-Tick', e); } }
 });
 
-WORLD_TICK.push(dt => { try { tod_festTick(dt); } catch (e) {} });
+WORLD_TICK.push(dt => { try { tod_spurTick(dt); } catch (e) {} try { tod_festTick(dt); } catch (e) {} });
 // ---------------------------------------------------------------- Klemmt: Ursache ins Protokoll, Freischieben aus Kollisionskörpern
 // Nutzer 02.10./07.10.: „überall unsichtbare Wände“. Läuft Luke 1,2 s gegen etwas und kommt keinen Schritt weiter, wird (1) das blockierende Objekt mit Namen ins Protokoll geschrieben
 // (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.

@@ -38,7 +38,11 @@ const WELT_REGELN = [
   [/Mamas Kerze|Kerze nehmen/i, 'mamas_kerze', .17, 'stand'],
   [/Handy nehmen|Handy aufheben/i, 'phone', .13, 'lie'],
   [/Schlüssel (nehmen|aufheben)|Schlüsselbund/i, 'key', .1, 'lie'],
-  [/Teddy aufheben|Teddy nehmen/i, 'teddy', .3, 'stand', { nurPlatte: true }],
+  [/^Hofers Dienstbuch$/i, 'buch', .2, 'lie'],
+  [/^Jonas.? Blechdose$/i, 'blechdose', .15, 'stand'],
+  [/Lichtstein/i, 'geh_lichtstein', .06, 'lie'],
+  [/Kassette (mitnehmen|aufheben)/i, 'n3_kassette_band', .11, 'lie'],
+  [/Teddy aufheben|Teddy nehmen/i, 'teddy', .3, 'stand'],
 ];
 const WELT_PRIM = /^(Plane|Box|Cylinder|Sphere|Torus|Lathe|Circle|Capsule)Geometry$/;
 function welt_label(m) { let l = m.userData.label; try { if (typeof l === 'function') l = l(); } catch (e) { l = ''; } return String(l == null ? '' : l).replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(); }
