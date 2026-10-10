@@ -160,7 +160,7 @@ function leben_ready() {
 // =====================================================================  KRÄHEN (echtes, gerigtes Modell „animal_crow“: 17 Animationen)
 // Die Krähen des Spiels (makeCrow, Kugeln und Kisten) bleiben als unsichtbares Gerüst – ihr Flug- und Sitzverhalten lenkt jetzt das echte Modell.
 function leben_anims(mx, clips) { const A = {}; for (const c of clips) { if (/_RM$/.test(c.name)) continue; A[c.name.replace(/^ANIM_[A-Za-z]+_/, '')] = mx.clipAction(c); } return A; }
-function leben_play(V, k, fade = .25, ts = 1, once = false) { const a = V.A[k]; if (!a) return; a.timeScale = ts; if (a === V.cur) return;
+function leben_play(V, k, fade = .25, ts = 1, once = false) { if (V.nat && (k === 'Walk' || k === 'Run') && V.sp > .3) k = leben_gait(V, V.sp, k); const a = V.A[k]; if (!a) return; a.timeScale = ts; if (a === V.cur) return;
   a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(fade).play(); if (V.cur) V.cur.fadeOut(fade); V.cur = a; }
 function leben_crowVis(g, yOff) {
   const S = leben_S, C = S.M.crow; if (!C) return null;
@@ -463,9 +463,14 @@ function leben_beastMove(V, dt, face = true) { // gerade auf das Ziel zu; Bodenh
 }
 // 10.10.: Abspieltempo = Wegtempo (kein Fussgleiten): natuerliche Geschwindigkeit der Walk/Run-Clips (m/s bei Modellmass 1, aus den _RM-Clips gemessen)
 const LEBEN_NAT = { fox: { Walk: .46, Run: 2.54 }, deer: { Walk: 1.08, Run: 5.61 }, wolf: { Walk: .93, Run: 4.3 }, pig: { Walk: 1.01, Run: 6.48 }, stag: { Walk: 1.2, Run: 6.12 } };
+// Gangart nach Wegtempo (10.10.): Walk bis zur geometrischen Mitte der natuerlichen Tempi, darueber Run (mit 12 % Hysterese) – sonst lief der Walk-Clip bei 5 m/s (Rueckzug/Fluchtbefehl ohne neuen Clip) mit 2,3-fachem Abspieltempo und der Koerper glitt
+function leben_gait(V, sp, k) { const N = V.nat, A = V.A; if (!N || !A || !A.Walk || !A.Run) return k; const s = V.m.scale.x || 1, mid = Math.sqrt(N.Walk * N.Run) * s, was = V.__gait || k; const g = sp > mid * (was === 'Run' ? .88 : 1.12) ? 'Run' : 'Walk'; V.__gait = g; return g; }
 function leben_beastSync(V, dt) { const p = V.g.position; if (V.__lx === undefined) { V.__lx = p.x; V.__lz = p.z; V.__v = 0; return; }
-  const v = Math.hypot(p.x - V.__lx, p.z - V.__lz) / Math.max(dt, 1e-3); V.__lx = p.x; V.__lz = p.z; V.__v += (Math.min(v, 12) - V.__v) * Math.min(1, dt * 8);
-  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return; if (c === V.A.Walk || c === V.A.Run) { const n = (c === V.A.Run ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) c.timeScale = Math.max(.5, Math.min(2.3, V.__v / n)); } }
+  const v = Math.hypot(p.x - V.__lx, p.z - V.__lz) / Math.max(dt, 1e-3); V.__lx = p.x; V.__lz = p.z; V.__v += (Math.min(v, 14) - V.__v) * Math.min(1, dt * 14);
+  const c = V.cur, N = V.nat; if (!c || !N || !V.A) return;
+  const isG = c === V.A.Walk || c === V.A.Run || c === V.A.RunBite; if (!isG) return;
+  if (V.sp > .3 && V.__v > .25 && (c === V.A.Walk || c === V.A.Run)) { const want = leben_gait(V, Math.max(V.__v, V.sp * .8), c === V.A.Run ? 'Run' : 'Walk'); if (V.A[want] && V.A[want] !== c) { const a = V.A[want]; a.reset(); a.fadeIn(.25).play(); c.fadeOut(.25); V.cur = a; } }
+  const cc = V.cur, n = (cc === V.A.Run || cc === V.A.RunBite ? N.Run : N.Walk) * (V.m.scale.x || 1); if (n > 0) cc.timeScale = Math.max(.35, Math.min(3, V.__v / n)); }
 function leben_beastUpd(V, dt, far = 60) { const cam = camera.position, dx = V.g.position.x - cam.x, dz = V.g.position.z - cam.z; if (dx * dx + dz * dz < far * far) { leben_beastSync(V, dt); V.mx.update(dt); } }
 function leben_openSpot(dMin, dMax, clear, behind) { // freier Platz in einem Ring um den Spieler (für Reh und Wolf)
   const P = player.pos;

@@ -17,7 +17,7 @@
 // Testzugriff: __geister (S, stat(), echo(id), look(on), show(...)).
 const GEIST = {
   G: { uT: figuren_S.T, uSat: { value: 1 }, uBl: { value: 0 }, uWav: { value: .011 }, uCA: { value: new THREE.Color(.20, .38, .86) }, uCB: { value: new THREE.Color(.80, .89, 1.0) }, uCC: { value: new THREE.Color(.48, .56, .72) } },
-  L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [2.5, 7], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .035, satEcho: .6, blEcho: .14, vigEcho: .22, caPuls: .008 },
+  L: { lag: .12, slow: [.72, .85], stock: [4, 9], stockMs: [.08, .15], flick: [6, 14], nbNah: 14, nbN: 3, nbMax: 6, fxR: 35, kegel: .035, satEcho: .6, blEcho: .14, vigEcho: .22, caPuls: .008 },
   list: [], str: new Map(), s0: { value: 0 }, now: 0, t: 0, ms: 0, fx: null, kegel: null, echo: null, look: { k: 0, want: 0, ca: 0, vig: null, caU: null }, lamps: [],
   slots: [], v: new THREE.Vector3(), q: new THREE.Quaternion(), sv: new THREE.Vector3(), n: { vis: 0, nb: 0, fx: 0 }, snd: false, wrap: 0, stock: 0,
 };
@@ -277,14 +277,14 @@ function geister_tick(dt) { const t0 = performance.now(); GEIST.now = t0 / 1000;
     e.H = e.P ? (e.P.h || 1.6) * Math.hypot(oe[4], oe[5], oe[6]) : (e.h || 1.75) * Math.hypot(me[4], me[5], me[6]);
     const T = M.str.get(geister_s(e.B)) || { p: 1, mode: 0 }, p = Math.min(e.loc, T.p), mode = e.loc < 1 && e.loc < T.p ? 0 : T.mode;
     // Flimmern: langsames Atmen der Helligkeit, seltene Einbrüche
-    if ((e.flT -= dt) < 0) { e.flT = rand(GEIST.L.flick[0], GEIST.L.flick[1]); e.dip = rand(.06, .14); e.dipK = rand(.55, .8); }
+    if ((e.flT -= dt) < 0) { e.flT = rand(GEIST.L.flick[0], GEIST.L.flick[1]); e.dip = rand(.22, .4); e.dipK = rand(.86, .94); } // 10.10.: Flimmern = weiches, flaches Atmen (vorher harte Einbrüche auf .55–.8 für .06–.14 s = sichtbares Flackern)
     if (e.dip > 0) e.dip -= dt; e.boost = Math.max(0, e.boost - dt * 2.5);
-    e.fl = (e.dip > 0 ? e.dipK : 1) * (.94 + .06 * Math.sin(M.t * 1.7 + e.B.uF.value.w));
+    e.fS = e.fS === undefined ? 1 : e.fS + ((e.dip > 0 ? e.dipK : 1) - e.fS) * Math.min(1, dt * 5); e.fl = e.fS * (.96 + .04 * Math.sin(M.t * 1.7 + e.B.uF.value.w));
     // Zeit: Zeitlupe, Stocken, Schleifensprung verdecken; beim Gehen Tempo 1 (Schrittlänge passt zum Weg – kein Gleiten)
     const P = e.P; if (P && P.mx) { const mv = P.mv && (P.mv.moving || P.mv.spd > .15);
       if (e.frz > 0) e.frz -= dt; else if (!mv && (e.st -= dt) < 0) { e.st = rand(GEIST.L.stock[0], GEIST.L.stock[1]); e.frz = rand(GEIST.L.stockMs[0], GEIST.L.stockMs[1]); e.boost = .5; M.stock++; }
       P.mx.timeScale = mv ? 1 : e.frz > 0 ? 0 : e.slow;
-      const a = P.cur; if (a && a.loop === THREE.LoopRepeat) { if (a.time < e.lt - .25) { e.dip = .12; e.dipK = .6; e.boost = .6; M.wrap++; } e.lt = a.time; }
+      const a = P.cur; if (a && a.loop === THREE.LoopRepeat) { if (a.time < e.lt - .25) { e.dip = .3; e.dipK = .86; e.boost = .6; M.wrap++; } e.lt = a.time; }
       if (e.talkT > 0 && (e.talkT -= dt) <= 0 && e.base && P.curK !== e.base) figuren_play(P, e.base, false, { fade: .6 }); }
     const B = e.B; if (P && P.rig && P.rig.head) { P.rig.head.getWorldPosition(M.v); const kk = Math.max(e.H / 1.7, .75); B.uHd.value.set(M.v.x, M.v.y + .07 * kk, M.v.z, .17 * kk); } else B.uHd.value.w = 0;
     B.uF.value.x = p; B.uF.value.y = fy; B.uF.value.z = e.H; B.uK.value.set(cx, mode, cz, e.fl);
