@@ -464,8 +464,8 @@ function katzen_tick(dt, t, indoor) {
     k.fadeT -= dt;
     if (vis && inFront && k.acc >= step) { // ruhende Pose (sitzen, liegen …) nach dem Überblenden: Mischer sparen, nur die überlagerten Knochen zurücksetzen
       const ob = k.ob; if (KATZEN_STATIC.has(k.curK) && k.fadeT <= 0 && k.cached) { for (let i = 0; i < ob.length; i++) ob[i].quaternion.copy(k.baseQ[i]); }
-      else { k.mx.update(k.acc); for (let i = 0; i < ob.length; i++) k.baseQ[i].copy(ob[i].quaternion); k.cached = true; }
-      k.acc = 0; if (k.lod < 2) katzen_overlay(k, dt, t, d); }
+      else { k.mx.update(k.acc); const ol = k.ovLast; /* 10.10.: schrieb der Mixer den Knochen nicht neu, steht noch unsere letzte Ueberlagerung darin -> auf die gemerkte Mixer-Pose zurueck (sonst Kopf dreht sich Bild fuer Bild weiter) */ for (let i = 0; i < ob.length; i++) { const q = ob[i].quaternion; if (ol && ol[i] && k.cached && q.angleTo(ol[i]) < 1e-7) q.copy(k.baseQ[i]); else k.baseQ[i].copy(q); } k.cached = true; }
+      k.acc = 0; if (k.lod < 2 && !(k.fadeT > 0)) { k.ovW = Math.min(1, (k.ovW || 0) + dt * 3.5); katzen_overlay(k, dt, t, d); const ol = k.ovLast || (k.ovLast = ob.map(() => new THREE.Quaternion())); for (let i = 0; i < ob.length; i++) { const q = ob[i].quaternion; if (k.ovW < 1) { const c0 = katzen_Q[0].copy(q); q.copy(k.baseQ[i]).slerp(c0, k.ovW); } const a = q.angleTo(k.baseQ[i]); if (a > 1.3) { const c0 = katzen_Q[0].copy(q); q.copy(k.baseQ[i]).slerp(c0, 1.3 / a); } /* 10.10.: Ueberlagerung nie > 75 Grad von der Mixer-Pose (Kopf-Kreisel) */ ol[i].copy(q); } } else { k.ovLast = null; if (k.fadeT > 0) k.ovW = 0; } }
     katzen_eyes(k, dt, d, lampOn, cam);
   }
   const ms = performance.now() - t0; S.prof.acc += ms; S.prof.n++; if (ms > S.prof.max) S.prof.max = ms;
