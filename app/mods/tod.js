@@ -307,22 +307,41 @@ function tod_umwelt(x, z) {
 // Pause → „FESTGESTECKT?“: ein paar Schritte zurück (letzter sicherer Ort der Basis, SAFE.at, jede Sekunde gemerkt, wenn nichts läuft) · letzter Speicherpunkt · Kapitelanfang.
 // Ohne Tod, ohne Strafe; Verfolgungen/Szenen werden wie beim Wiederkehren zurückgesetzt (TOD_RESET, Art 'zurueck'). Automatisch: unter die Welt gefallen → zurück zum sicheren Ort;
 // 6 s lang Laufen ohne Fortschritt → Hinweis auf die Pause-Hilfe.
+// Spur der letzten sicheren Plätze (immer, auch im Keller/Amt/Kanal – SAFE.at in der Basis pausiert dort, dann fiel 'Schritte zurück' auf Speicherpunkt/Kapitelanfang mit Szenen-Reset)
+const TOD_SPUR = []; let tod_spurT = 0;
+function tod_spurTick(dt) { if ((tod_spurT -= dt) > 0) return; tod_spurT = .4;
+  if (!state.started || scripted || camOverride || mantle || !grounded || ui.overlay || state.blackout || tod_S.dying || tod_S.zurueck) return;
+  const P = player.pos; if (!spotOk(P)) return; const l = TOD_SPUR[TOD_SPUR.length - 1];
+  if (l && Math.hypot(P.x - l.x, P.z - l.z) < .5 && Math.abs(P.y - l.y) < .3) return;
+  TOD_SPUR.push({ x: P.x, y: P.y, z: P.z, yaw: player.yaw, ch: curChapter() }); if (TOD_SPUR.length > 30) TOD_SPUR.shift(); }
+function tod_schrittZiel() { const P = player.pos, ch = curChapter();
+  for (let i = TOD_SPUR.length - 1; i >= 0; i--) { const s = TOD_SPUR[i]; if (s.ch === ch && Math.hypot(s.x - P.x, s.z - P.z) >= 2.5 && Math.abs(s.y - P.y) < 1.2 && spotOk(s)) return s; }
+  const ok = c => { if (!spotOk(c)) return false; if (typeof solidGround === 'function') { try { const g = solidGround(c.x, c.y + .05, c.z); if (Number.isFinite(g) && Math.abs(g - c.y) < .5) return true; } catch (e) {} } return Math.abs(c.y) < .6 || state.inBasement; };
+  for (const r of [2, 3, 4.5, 6]) for (let k = 0; k < 16; k++) { const a = player.yaw + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 8); // hinten (entgegen der Blickrichtung), abwechselnd links/rechts davon
+    const c = { x: P.x + Math.sin(a) * r, y: P.y, z: P.z + Math.cos(a) * r, yaw: player.yaw }; if (ok(c)) return c; }
+  return null; }
 async function tod_zurueck(ziel) {
-  const S = tod_S; if (S.dying || S.respawning || S.zurueck) return; S.zurueck = true;
+  const S = tod_S; if (S.dying || S.respawning) return; if (S.zurueck && performance.now() - (S.zurueckT || 0) < 8000) return; S.zurueck = true; S.zurueckT = performance.now();
+  try {
   try { $('pause').classList.remove('show'); ui.paused = false; closeAllOverlays(); } catch (e) {}
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
   try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
   const ch = curChapter(); let cp = null;
   const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
-  if (ziel === 'schritt' && imKeller) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 }; // Fuß der Kellertreppe
-  else if (ziel === 'schritt' && SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+  if (ziel === 'schritt') {
+    const z = imKeller ? { x: B.x + 4.28, y: 0, z: B.z + 3.45, yaw: 1.0 } : tod_schrittZiel(); // Fuß der Kellertreppe im Keller, sonst letzter sicherer Platz bzw. freier Platz hinter dir
+    if (z) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: z.x, y: z.y, z: z.z, yaw: z.yaw };
+    else if (SAFE.at && SAFE.at.ch === ch && spotOk(SAFE.at)) cp = { id: 'schritt', label: 'Ein paar Schritte zurück', x: SAFE.at.x, y: SAFE.at.y, z: SAFE.at.z, yaw: SAFE.at.yaw };
+    else { toast('Hier ist kein sicherer Platz in der Nähe. Wähle „Zum letzten Speicherpunkt“.', 4200); return; } // nie stillschweigend zum Kapitelanfang springen / Szenen zurücksetzen
+  }
   if (!cp && ziel !== 'start' && S.cp && (!S.cp.chapter || S.cp.chapter === ch)) cp = S.cp;
   if (!cp) { const sp = chSpawn(ch); cp = { id: 'start', label: 'Kapitel ' + ch + ' · ' + chTitle(ch), x: sp.x, y: sp.y, z: sp.z, yaw: sp.yaw }; }
   if (cp.id !== 'schritt') for (const f of TOD_RESET) { try { f(cp.id, 'zurueck'); } catch (e) { console.warn('Rettung', e); } }
   if (cp.respawn) { try { await cp.respawn(); } catch (e) { console.warn('Rettung', e); } } else { player.pos.set(cp.x, cp.y, cp.z); player.yaw = cp.yaw; }
   tod_umwelt(player.pos.x, player.pos.z);
   player.pitch = 0; vel.set(0, 0, 0); camY = player.pos.y + 1.65; state.talking = false; grounded = true; vy = 0; stairBusy = false; state.blackout = false;
-  try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt'); S.zurueck = false;
+  try { lockPointer(); } catch (e) {} await wait(250); fade(0, 900); todCpShow(cp.label || 'Speicherpunkt');
+  } catch (e) { console.warn('Rettung', e); } finally { S.zurueck = false; try { if (+$('fade').style.opacity > .3) fade(0, 700); } catch (e) {} } // nie hängen bleiben (vorher: Ausnahme → S.zurueck für immer true = Funktion tot)
 }
 function tod_rettungMenue() { const P = document.querySelector('#pause .pbtns'); if (!P || document.getElementById('pRettung')) return;
   const b = document.createElement('button'); b.id = 'pRettung'; b.textContent = 'FESTGESTECKT?'; const j = document.getElementById('pJournal'); P.insertBefore(b, j ? j.nextSibling : null);
@@ -359,7 +378,7 @@ WORLD_TICK.push((dt) => {
   } catch (e) { if (!tod_S.err) { tod_S.err = true; console.warn('Tod-Tick', e); } }
 });
 
-WORLD_TICK.push(dt => { try { tod_festTick(dt); } catch (e) {} });
+WORLD_TICK.push(dt => { try { tod_spurTick(dt); } catch (e) {} try { tod_festTick(dt); } catch (e) {} });
 // ---------------------------------------------------------------- Klemmt: Ursache ins Protokoll, Freischieben aus Kollisionskörpern
 // Nutzer 02.10./07.10.: „überall unsichtbare Wände“. Läuft Luke 1,2 s gegen etwas und kommt keinen Schritt weiter, wird (1) das blockierende Objekt mit Namen ins Protokoll geschrieben
 // (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.
