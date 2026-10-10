@@ -197,13 +197,10 @@ def build_muenze():
     export('muenze')
 
 def build_murmel():
-    """milchweisse Glasmurmel mit zarter Wolke"""
+    """milchweisse Glasmurmel: glatt, schwach durchscheinend"""
     reset(); o = prim_sphere('murmel', .0085, seg=64, rings=32); bpy.ops.object.shade_smooth()
-    base = make_image('mu', np.stack([np.clip(.86 + .1 * noise(256, 256, 3, 3), 0, 1)] * 3, -1) * np.array([1, .99, .95]))
-    m = mat('Glas', (.92, .92, .9), .08, 0, base, None); bs = m.node_tree.nodes['Principled BSDF']
-    try: bs.inputs['Coat Weight'].default_value = .6; bs.inputs['Coat Roughness'].default_value = .05
-    except Exception: pass
-    o.data.uv_layers.new(name='UV'); uv_box(o, .02); set_mat(o, m); export('murmel')
+    m = mat('Glas', (.93, .93, .90), .16, 0)
+    set_mat(o, m); export('murmel')
 
 def build_ring():
     """schlichter Ring, Gold, leicht abgetragen"""
@@ -441,18 +438,19 @@ def build_schuh():
     sol = loft('sohle', [(-.080, .022, .000, 0, 1), (-.070, .029, .004, 0, 1), (-.040, .030, .008, 0, 1), (0, .027, .008, 0, 1), (.040, .030, .008, 0, 1), (.070, .029, .005, 0, 1), (.082, .018, .000, 0, 1)])
     sol.scale = (1, 1, 1); add_bevel(sol, .0015, 2)
     # Obermaterial: Ferse hoch, Spann niedrig, Kappe gerundet
-    up = loft('schaft', [(-.078, .019, .020, .008, .8), (-.072, .026, .042, .008, .75), (-.050, .028, .056, .008, .7), (-.020, .027, .048, .008, .75), (.010, .026, .036, .008, .8), (.040, .027, .030, .008, .9), (.066, .025, .026, .008, 1.0), (.080, .015, .015, .008, 1.1)])
-    # Oeffnung am Knoechel: Zylinder abziehen
-    ou = prim_cyl('oeffnung', .020, .05, (-.047, 0, .080), seg=40); ou.scale = (1.5, .95, 1); bpy.ops.object.transform_apply(scale=True)
-    boolean(up, ou)
-    sm = up.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0025; sm.offset = -1; bpy.context.view_layer.objects.active = up; bpy.ops.object.modifier_apply(modifier='s')
-    add_bevel(up, .0012, 2)
+    up = loft('schaft', [(-.078, .018, .026, .008, .8), (-.072, .026, .050, .008, .7), (-.050, .029, .064, .008, .65), (-.020, .027, .046, .008, .7), (.010, .024, .033, .008, .8), (.040, .024, .030, .008, .9), (.064, .021, .025, .008, 1.0), (.078, .013, .013, .008, 1.1)])
+    # Oeffnung am Knoechel: Flaechen im Bereich entfernen, dann Wandstaerke
+    bm = bmesh.new(); bm.from_mesh(up.data)
+    dele = [f for f in bm.faces if ((f.calc_center_median().x + .050) / .032) ** 2 + (f.calc_center_median().y / .021) ** 2 < 1 and f.calc_center_median().z > .045]
+    bmesh.ops.delete(bm, geom=dele, context='FACES'); bm.to_mesh(up.data); bm.free()
+    sm = up.modifiers.new('s', 'SOLIDIFY'); sm.thickness = .0028; sm.offset = -1; bpy.context.view_layer.objects.active = up; bpy.ops.object.modifier_apply(modifier='s')
+    add_bevel(up, .001, 2)
     # Zunge
     zu = prim_cube('zunge', (.016, .026, .0035), (-.010, 0, .043)); zu.rotation_euler = (0, math.radians(-30), 0); add_bevel(zu, .0012, 2)
     # Sohlenrand-Absatz (Ferse)
     ab = prim_cube('absatz', (.024, .046, .008), (-.066, 0, .0)); add_bevel(ab, .003, 2)
     tl, nl = tex_leather('sh', (.40, .26, .15)); tg, ng = tex_leather('sg', (.10, .10, .10))
-    for q, m_ in ((up, mat('Leder', (.42, .28, .16), .55, 0, tl, nl)), (zu, mat('Leder2', (.44, .30, .18), .55, 0, tl, nl)), (sol, mat('Gummi', (.1, .1, .1), .8, 0, tg, ng)), (ab, mat('Gummi2', (.1, .1, .1), .8, 0, tg, ng))):
+    for q, m_ in ((up, mat('Leder', (.42, .28, .16), .5, 0, tl, None)), (zu, mat('Leder2', (.44, .30, .18), .5, 0, tl, None)), (sol, mat('Gummi', (.1, .1, .1), .8, 0, tg, ng)), (ab, mat('Gummi2', (.1, .1, .1), .8, 0, tg, ng))):
         uv_box(q, .2); set_mat(q, m_); bpy.context.view_layer.objects.active = q; bpy.ops.object.shade_smooth()
     export('schuh')
 

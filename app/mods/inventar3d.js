@@ -34,7 +34,7 @@ const INV3D_MODELLE = {
   ring: { d: 'it_ring', pit: .5 }, glocke: { d: 'it_glocke' }, kreide: { d: 'it_kreide', pit: .4 }, halsband: { d: 'it_halsband', pit: .6 }, handy: { d: 'it_handy', pit: .55 }, autoschluessel: { d: 'it_autoschluessel', pit: .5 },
   folie: { d: 'it_folie' }, plombe: { d: 'it_plombe', pit: .4 }, kronkorken: { d: 'it_kronkorken', pit: .5 }, riemen: { d: 'it_riemen', pit: .5 }, riegel: { d: 'it_riegel', pit: .3 }, schnalle: { d: 'it_schnalle', pit: .5 },
   dienstnadel: { d: 'it_dienstnadel', pit: .4 }, polaroid: { d: 'it_polaroid', pit: .3 }, grinder: { d: 'it_grinder', pit: .5 }, papes: { d: 'it_papes', pit: .5 }, knolle: { d: 'it_knolle' }, tips: { d: 'it_tips', pit: .4 }, schuh: { d: 'it_schuh', pit: .3 },
-  lampion: { d: 'w_papierlaterne', pick: /^GeoCables005\|Object_0002\|Dupli\|4$/, fbx: {} },
+  lampion: { d: 'w_papierlaterne', mat: { '*': { color: 0xe6d3a0, rough: .9 } }, pick: /^GeoCables005\|Object_0002\|Dupli\|4$/, fbx: {} },
 };
 // Gegenstand → Modell-Id (ausdrücklich), danach Regeln nach Name (erste passende gewinnt)
 const INV3D_ITEM = {
@@ -148,7 +148,8 @@ function inv3d_bild(into, yaw, pitch, zoom) { const I = INV3D; if (!I.scene || !
     for (let y = 0; y < h; y++) { const so = (h - 1 - y) * w * 4, dof = y * w * 4; for (let i = 0; i < w * 4; i += 4) { const a = buf[so + i + 3]; if (a === 255 || a === 0) { d[dof + i] = buf[so + i]; d[dof + i + 1] = buf[so + i + 1]; d[dof + i + 2] = buf[so + i + 2]; d[dof + i + 3] = a; }
         else { const k = 255 / a; d[dof + i] = Math.min(255, buf[so + i] * k); d[dof + i + 1] = Math.min(255, buf[so + i + 1] * k); d[dof + i + 2] = Math.min(255, buf[so + i + 2] * k); d[dof + i + 3] = a; } } }
     if (into.width === w && into.height === h) into.getContext('2d').putImageData(I.img, 0, 0);
-    else { if (!I.tmp) { I.tmp = document.createElement('canvas'); I.tmp.width = w; I.tmp.height = h; } I.tmp.getContext('2d').putImageData(I.img, 0, 0); const x = into.getContext('2d'); x.clearRect(0, 0, into.width, into.height); x.drawImage(I.tmp, 0, 0, into.width, into.height); }
+    else { if (!I.tmp) { I.tmp = document.createElement('canvas'); I.tmp.width = w; I.tmp.height = h; } I.tmp.getContext('2d').putImageData(I.img, 0, 0); const x = into.getContext('2d'), ar = into.width / into.height; let sw = w, sh = h, sx = 0, sy = 0;
+      if (w / h > ar) { sw = h * ar; sx = (w - sw) / 2; } else { sh = w / ar; sy = (h - sh) / 2; } x.clearRect(0, 0, into.width, into.height); x.drawImage(I.tmp, sx, sy, sw, sh, 0, 0, into.width, into.height); }
     return true; }).catch(() => { I.busy = false; return false; });
 }
 
@@ -157,8 +158,9 @@ function inv3d_icon(k) {
   const I = INV3D; if (I.icon.has(k)) return Promise.resolve(I.icon.get(k)); if (I.iconWait.has(k)) return I.iconWait.get(k);
   const p = (async () => { try { const g = await inv3d_lade(k); if (!g) { I.icon.set(k, null); return null; }
       const st = inv3d_start(I.w || 256, I.h || 256); if (!I.rt1) inv3d_start(256, 256); const keep = I.cur; inv3d_zeige(g);
-      const c = document.createElement('canvas'); c.width = c.height = 128; let ok = false; for (let i = 0; i < 40 && !ok; i++) { ok = await inv3d_bild(c, .55, (inv3d_modell(k) || {}).pit || .22, 1.45); if (!ok) await new Promise(r => setTimeout(r, 16)); }
-      const u = ok ? c.toDataURL('image/png') : null; I.icon.set(k, u); inv3d_zeige(keep || null); return u; }
+      const c = document.createElement('canvas'); c.width = c.height = 128; let ok = false;
+      for (let i = 0; i < 150 && !ok; i++) { if (I.cur !== g) inv3d_zeige(g); ok = await inv3d_bild(c, .55, (inv3d_modell(k) || {}).pit || .22, 1.45); if (!ok) { if (i > 100) I.busy = false; await new Promise(r => setTimeout(r, 16)); } }
+      const u = ok ? c.toDataURL('image/png') : null; if (u) I.icon.set(k, u); if (I.cur === g) inv3d_zeige(keep || null); return u; }
     catch (e) { I.icon.set(k, null); return null; } finally { I.iconWait.delete(k); } })();
   I.iconWait.set(k, p); return p;
 }
@@ -270,6 +272,15 @@ function inv3d_steuerung() { const I = INV3D, v = I.view; if (!v) return;
   v.onwheel = e => { e.preventDefault(); e.stopPropagation(); I.zoom = Math.max(.6, Math.min(2.6, I.zoom * Math.exp(-e.deltaY * .0012))); I.idle = 0; };
   v.ondblclick = e => { e.stopPropagation(); I.yaw = .6; I.pitch = I.pit || .18; I.zoom = 1; I.vyaw = 0; I.idle = 0; Audio.paper(); }; }
 
+// Pfeiltasten wählen im Inventar (wie Maus: Detail wechselt, Liste scrollt mit)
+function inv3d_tasten(e) { if (!(ui.overlay === 'journal' && jTab === 'inventar') || !INV3D.view || !INV3D.view.isConnected) return;
+  const dx = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: 0, ArrowDown: 0 }[e.code]; if (dx === undefined) return;
+  const B = $('jBody'), els = [...B.querySelectorAll('.iv-it')]; if (!els.length) return; let i = Math.max(0, els.findIndex(x => x.classList.contains('sel')));
+  const L = B.querySelector('.iv-list'), cols = Math.max(1, Math.round(L.clientWidth / (els[0].getBoundingClientRect().width + 9)));
+  i += e.code === 'ArrowUp' ? -cols : e.code === 'ArrowDown' ? cols : dx; i = Math.max(0, Math.min(els.length - 1, i)); e.preventDefault(); e.stopPropagation();
+  els[i].click(); els[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+try { window.removeEventListener('keydown', window.__inv3dK, true); } catch (e) {} window.__inv3dK = inv3d_tasten; window.addEventListener('keydown', inv3d_tasten, true);
+
 // ---------------------------------------------------------------- Benutzen / Kombinieren
 const INV3D_KOMBI = { 'batterie+lampe1': 'bat', 'batterie+lampe2': 'bat', 'batterie+lampe3': 'bat' };
 function inv3d_kombi(a, b) { const key = [a, b].sort().join('+'), r = INV3D_KOMBI[key] || INV3D_KOMBI[b + '+' + a];
@@ -295,7 +306,7 @@ async function inv3d_pickup(k) {
     const cv = el.querySelector('canvas'), nm = inv3d_info(k).name; el.querySelector('.nm span').textContent = nm; inv3d_start(480, 480);
     inv3d_zeige(g); I.curKey = k; I.pick.t0 = performance.now(); const T = 3.1; const kat = inv3d_kat(k), pit = (inv3d_modell(k) || {}).pit || .22;
     try { if (kat === 'papier') Audio.paper(); else if (kat === 'schluessel') Audio.play('keys2', { gain: .16, rate: 1.5, dur: .25 }); else Audio.play('keys1', { gain: .14, rate: 1.1, dur: .2 }); } catch (e) {}
-    await new Promise(res => { const f = now => { const t = (now - I.pick.t0) / 1000; if (t >= T || !I.scene || I.curKey !== k) { res(); return; }
+    await new Promise(res => { const f = now => { const t = (now - I.pick.t0) / 1000; if (t >= T || !I.scene || I.curKey !== k || (ui.overlay && t > .15)) { res(); return; }
         const inn = Math.min(1, t / .5), out = t > 2.4 ? Math.min(1, (t - 2.4) / .7) : 0, ease = x => x * x * (3 - 2 * x), ei = 1 - Math.pow(1 - inn, 3), eo = ease(out);
         const sc = (.4 + .6 * ei) * (1 - .86 * eo), dx = innerWidth * .06 * eo, dy = -(1 - ei) * -26 - 250 * eo;
         el.style.opacity = String(Math.min(ei * 1.3, 1) * (1 - Math.max(0, out - .5) / .5)); el.style.transform = `translate(${dx}px, ${dy}px) scale(${sc})`;
@@ -310,6 +321,15 @@ function inv3d_wache() { const I = INV3D; if (!I.known) { I.known = new Set(stor
   const n = new Set(story.items); const echt = neu.length && neu.length <= 2 && state && state.started;
   for (const k of neu) { I.found[k] = I.found[k] && I.found[k].t ? I.found[k] : { ch: inv3d_kapNr(), ort: echt ? inv3d_ort() : '', t: Date.now() }; }
   I.known = n; if (echt) { for (const k of neu) { setTimeout(() => inv3d_pickup(k).catch(() => {}), 350); } } }
+
+// ---------------------------------------------------------------- Weltmodelle (statt Platzhalterformen der Basis)
+// Halsband (Basis baut Torus + Scheibe): echtes Lederhalsband mit Messingmarke, liegend auf dem Aschekreis
+async function inv3d_welt() {
+  try { if (typeof collar === 'undefined' || !collar.parent || collar.parent.userData.inv3d) return; const g = collar.parent; g.userData.inv3d = 1;
+    const m = await inv3d_lade('collar'); if (!m) return; const size = .2, s = size / 1.6; m.scale.setScalar(s); m.position.set(0, -g.position.y + (m.userData.h || 0.3) * s / 2 + .004, 0);
+    m.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } }); g.children.filter(c => c !== collar && c.isMesh).forEach(c => g.remove(c)); g.add(m); } catch (e) { console.warn('inv3d: Halsband', e); }
+}
+setTimeout(inv3d_welt, 2500);
 
 // ---------------------------------------------------------------- Einhängen
 window.__inv3dO = window.__inv3dO || { rj: renderJournal, ai: addItem }; // Testhilfe: erneutes Einspielen des Moduls umhüllt das Original, nicht die Vorfassung
