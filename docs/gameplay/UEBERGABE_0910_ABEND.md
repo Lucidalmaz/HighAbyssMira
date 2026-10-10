@@ -85,3 +85,6 @@ Bewertung in deutschen SCHULNOTEN: 1 = sehr gut, 2 = gut, 3 = befriedigend, 4 = 
 
 ### Gesamtmaßstab (Nutzer 10.10.: 'bei allem 1')
 Nicht nur Räume: bei ALLEM (Räume, Modelle, Figuren, Tiere, Animationen, Texte, UI/Inventar, Story-Führung, Bewegung/Hitboxen, Ladezeiten/Flüssigkeit) ist das Ziel Schulnote 1 (sehr gut). Note 2 ist die absolute Untergrenze, alles darunter wird nicht abgenommen. Jede Abnahmetabelle führt eine Schulnote je Punkt (vorher/nachher) mit Bildbeleg; Punkte mit Note ≥ 3 gelten als offen.
+
+### KORREKTUR Gesamtmaßstab (Nutzer 10.10.; ersetzt 'bei allem 1' und die Note-3-Regel oben)
+('Die 1 war ein Ausrufezeichen'.) Verbindlicher Maßstab: bei allem mindestens Schulnote 2. Bei Dingen im Hintergrund, die nicht prägnant sind (selten/kurz im Blick, weit weg, unscheinbare Nebenobjekte), ist auch eine 3 akzeptabel; insgesamt soll alles Richtung 2 laufen. Prägnante Dinge (Hauptfiguren, Wendigo, Hauptrequisiten, Haupträume, Inventar, Story-Führung, Bewegung) müssen mindestens 2 sein, Note 1 ist das Ziel dort, wo es mit vertretbarem Aufwand geht. Punkte mit Note ≥ 4 gelten als offen; Note 3 nur für Unprägnantes erlaubt. Tabellen führen weiter Schulnote vorher/nachher mit Bildbeleg und markieren je Punkt 'prägnant ja/nein'.
