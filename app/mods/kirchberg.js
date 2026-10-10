@@ -81,7 +81,9 @@ function kirchberg_raum(def) {
 // wird sie um den Durchbruch neu in Stücken gebaut (decke: das alte Deckenmesh, wird ausgeblendet) und darüber ein Treppenschacht mit Deckel gesetzt.
 // begehbar: jede Stufe ist eine Kollisionsstufe (Stufenhöhe < 0,36 m), Geländer und Schacht halten; sonst nur die ersten zwei Stufen, der Rest sperrt (Klickfläche führt weiter).
 function kirchberg_treppe(o) { const T = THREE, par = o.par || scene, s = Math.sign(o.zB - o.zA), n = o.n, rise = (o.y1 - o.y0) / (n + 1), run = Math.abs(o.zB - o.zA) / n, w = o.x1 - o.x0, xm = (o.x0 + o.x1) / 2, mat = o.mat, wm = o.matWange || mat;
-  const B = (bw, bh, bd, x, y, z, m, rx) => { const b = box(bw, bh, bd, x, y, z, m, { parent: par }); if (rx) b.rotation.x = rx; return b; };
+  const vis = [], B = (bw, bh, bd, x, y, z, m, rx) => { const b = box(bw, bh, bd, x, y, z, m, { parent: par }); if (rx) b.rotation.x = rx; vis.push(b); return b; };
+  // 10.10.: o.modell = Blender-Treppe (tools/blender/treppe_bau.py) statt der Boxstufen; Kollision (addCol/Kisten) unverändert, die Boxen bleiben unsichtbar als Hitbox
+  const modellLaden = () => { if (!o.modell) return; msModel('treppe', o.modell + '.glb').then(sc => { const m = sc.clone(true); m.position.set(xm, o.y0, o.zA); m.traverse(q => { if (q.isMesh) { q.castShadow = q.receiveShadow = true; q.userData.noCol = true; } }); par.add(m); vis.forEach(b => { b.visible = false; }); }).catch(e => console.warn('Treppe-Modell', e)); };
   for (let i = 1; i <= n; i++) { const y = o.y0 + i * rise, za = o.zA + s * (i - 1) * run, zb = o.zA + s * i * run, zc = (za + zb) / 2;
     B(w - .1, .045, run + .025, xm, y - .0225, zc - s * .0125, mat); B(w - .1, rise - .045, .025, xm, y - .045 - (rise - .045) / 2, za + s * .0125, mat); // Trittstufe (mit Überstand), Setzstufe
     if (o.begehbar || i <= 2) addCol(o.x0, o.x1, Math.min(za, zb), Math.max(za, zb), y); }
@@ -96,6 +98,7 @@ function kirchberg_treppe(o) { const T = THREE, par = o.par || scene, s = Math.s
     B(.05, .06, Lh, xg, (yf + yEnd) / 2 + hl, (zf + zEnd) / 2, gm, Math.atan2(yEnd - yf, Math.abs(zEnd - zf)) * -s);
     const k = Math.max(2, Math.round(Math.abs(zEnd - zf) / .45)); for (let j = 1; j < k; j++) { const zz = zf + (zEnd - zf) * j / k, yy = yf + (yEnd - yf) * j / k; B(.025, hl, .025, xg, yy + hl / 2, zz, gm); }
     if (o.begehbar) { const dx = o.offen === 'x0' ? -.1 : .1; addCol(xg + dx - .05, xg + dx + .05, Math.min(o.zA, o.zB), Math.max(o.zA, o.zB), 99); } } // Geländerkiste 10 cm nach außen: die ganze Stufenbreite ist begehbar (vorher blockierte die Randspur)
+  modellLaden();
   // Deckendurchbruch + Schacht
   if (o.loch && o.decke) { const D = o.decke; D.updateMatrixWorld(true); const bb = new T.Box3().setFromObject(D), dm = D.material, [lx0, lx1, lz0, lz1] = o.loch, yc = (bb.min.y + bb.max.y) / 2, h = bb.max.y - bb.min.y;
     msHide ? msHide(D) : (D.visible = false); const P = (x0, x1, z0, z1) => { if (x1 - x0 > .01 && z1 - z0 > .01) box(x1 - x0, h, z1 - z0, (x0 + x1) / 2, yc, (z0 + z1) / 2, dm, { cast: false, parent: par }); };

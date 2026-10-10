@@ -122,22 +122,16 @@ function nr4_kinderschuh() { const T = THREE, g = new T.Group(), sohle = new T.M
 
 
 // Kühlschrank (Emaille): Korpus aus Platten, Innenraum mit Glasböden und Gemüsefach, Tür an der rechten Seite angeschlagen (schwenkt zu Luke), Griff links, Zettel hängen an der Tür. Auf dem Gemüsefach: der Küchenwecker, 3:13.
-function nr4_kuehlschrank(g, cx, cz, em0) { const T = THREE, S = nr4_S, W = .66, D = .64, H = 1.62, wd = .02, tuerD = .045, hz = cz + D / 2 - tuerD / 2;
+async function nr4_kuehlschrank(g, cx, cz, em0) { const T = THREE, S = nr4_S, W = .66, D = .64, H = 1.62, wd = .02, tuerD = .045, hz = cz + D / 2 - tuerD / 2;
   const em = new T.MeshStandardMaterial({ color: 0xe6e3d6, roughness: .3, metalness: .12, map: kirchberg_tex(kirchberg_cnv(128, 128, (x, w) => { x.fillStyle = '#f0ede2'; x.fillRect(0, 0, w, w); for (let i = 0; i < 700; i++) { x.fillStyle = `rgba(${kirchberg_r() < .5 ? '120,100,60' : '255,255,255'},${kirchberg_r() * .12})`; x.fillRect(kirchberg_r() * w, kirchberg_r() * w, 2, 3); } })) }); // weißer, vergilbter Emailleschrank
   const innen = new T.MeshStandardMaterial({ color: 0xe4e2d8, roughness: .5 }), glas = new T.MeshStandardMaterial({ color: 0xcfe0e0, transparent: true, opacity: .35, roughness: .1 }), chrom = new T.MeshStandardMaterial({ color: 0xaaa8a0, metalness: 1, roughness: .35 });
   const p = (w, h, d, x, y, z, m) => { const q = new T.Mesh(new T.BoxGeometry(w, h, d), m); q.position.set(x, y, z); q.castShadow = q.receiveShadow = true; q.userData.noCol = true; g.add(q); return q; };
-  p(wd, H, D - tuerD, cx - W / 2 + wd / 2, H / 2, cz - tuerD / 2, em); p(wd, H, D - tuerD, cx + W / 2 - wd / 2, H / 2, cz - tuerD / 2, em); p(W, H, wd, cx, H / 2, cz - D / 2 + wd / 2, em); p(W, wd, D - tuerD, cx, H - wd / 2, cz - tuerD / 2, em); p(W, wd, D - tuerD, cx, wd / 2, cz - tuerD / 2, em);
-  const iw = W - 2 * wd, id = D - tuerD - wd; p(iw, H - 2 * wd, .004, cx, H / 2, cz - D / 2 + wd + .002, innen);                                              // Innenrückwand
-  for (const y of [.62, .95, 1.28]) p(iw - .02, .006, id - .03, cx, y, cz - tuerD / 2 - .004, glas);                                                            // Glasböden
-  const fach = p(iw - .04, .17, id - .06, cx, .13, cz - tuerD / 2 - .006, new T.MeshStandardMaterial({ color: 0xd8e6e0, transparent: true, opacity: .55, roughness: .15 })); // Gemüsefach (milchiger Kunststoff)
-  for (const y of [.2, .24]) p(iw - .08, .004, id - .1, cx, .035 + (y - .2) * 0, cz - tuerD / 2 - .006, innen);
-  const wecker = nr4_weckerBau(); wecker.position.set(cx - .06, .218, cz - tuerD / 2 + .02); wecker.rotation.y = -.35; wecker.scale.setScalar(1.04); g.add(wecker); S.wecker = wecker; // Zifferblatt zur Tür hin, 3:13
+  const wecker = nr4_weckerBau(); wecker.position.set(cx - .06, .308, cz - tuerD / 2 + .02); wecker.rotation.y = -.35; wecker.scale.setScalar(1.04); g.add(wecker); S.wecker = wecker; // Zifferblatt zur Tür hin, 3:13
   // Tür: Drehpunkt rechts; Platte, Innenseite mit Fächern (Eierhalter, Flaschenhalter als Bügel), Griff links
   const piv = new T.Group(); piv.position.set(cx + W / 2, 0, hz); g.add(piv); S.kTuer = piv;
-  const tp = new T.Mesh(new T.BoxGeometry(W, H, tuerD), em); tp.position.set(-W / 2, H / 2, 0); tp.castShadow = tp.receiveShadow = true; tp.userData.noCol = true; piv.add(tp);
-  for (const y of [.5, .85, 1.2]) { const b = new T.Mesh(new T.BoxGeometry(W - .08, .02, .06), glas); b.position.set(-W / 2, y, -tuerD / 2 - .028); b.userData.noCol = true; piv.add(b); const bg = new T.Mesh(new T.BoxGeometry(W - .08, .06, .004), glas); bg.position.set(-W / 2, y + .03, -tuerD / 2 - .057); bg.userData.noCol = true; piv.add(bg); }
-  const gr = new T.Mesh(new T.BoxGeometry(.03, .34, .03), chrom); gr.position.set(-W + .06, 1.12, tuerD / 2 + .015); gr.userData.noCol = true; piv.add(gr); S.kGriff = gr;
-  for (const y of [.97, 1.27]) { const st = new T.Mesh(new T.BoxGeometry(.02, .03, .03), chrom); st.position.set(-W + .06, y, tuerD / 2 + .008); piv.add(st); }
+  // 10.10.: Blender-Modell (tools/blender/kuehlschrank_tuer_bau.py): Korpus mit Innenfächern/Dichtung + Tür mit Scharnierachse (Ursprung) – schwenkt wie vorher
+  try { const sc0 = (await msModel('kuehlschrank_tuer', 'kuehlschrank_tuer.glb')).clone(true); let kor = null, tuer = null; sc0.traverse(o => { if (o.name === 'korpus') kor = o; if (o.name === 'tuer') tuer = o; });
+    if (kor && tuer) { sc0.updateMatrixWorld(true); kor.removeFromParent(); tuer.removeFromParent(); kor.position.add(new T.Vector3(cx, 0, cz)); kor.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = m.receiveShadow = true; } }); g.add(kor); tuer.position.set(0, 0, 0); tuer.traverse(m => { m.userData.noCol = true; if (m.isMesh) { m.castShadow = m.receiveShadow = true; } }); piv.add(tuer); } } catch (e) { console.warn('Kühlschrank-Modell', e); }
   // Zettel auf der Tür (Koordinaten im Drehpunkt-System)
   nr4_zettel('E-04', -.33, 1.32, tuerD / 2 + .003, 0, { w: .13, h: .1, parent: piv }); nr4_zettel('t_kuehl', -.18, 1.05, tuerD / 2 + .003, 0, { w: .12, h: .09, parent: piv });
   box(W, H, D, cx, H / 2, cz, hidden, { collide: true, cast: false, parent: g }); // Kollision wie vorher: ein Block (Tür schwenkt ohne eigene Kollision)
@@ -220,7 +214,7 @@ async function nr4_bau() {
     // Treppe nach oben (Stufen aus Dielenholz) und Kellertür
     // R-6: ganzer Lauf bis ins Obergeschoss (14 Stufen à 19,7 cm, steile Altbautreppe, Antritt mit 0,9 m Platz vor der Wand; vorher endeten 6 Stufen auf 1,08 m im Raum), Deckendurchbruch mit Treppenschacht, Geländer zur Diele.
     // Die ersten zwei Stufen sind begehbar, danach führt die Klickfläche „Treppe nach oben“ (Ortswechsel) weiter.
-    const stufe = kirchberg_mat('floor_wood', 0x5a4636, .8); kirchberg_treppe({ par: g, x0: x0 + .1, x1: x0 + 1.2, zA: C.z + .94, zB: C.z + 4.3, y0: 0, y1: R.H + .2, n: 14, podest: .6, offen: 'x1',
+    const stufe = kirchberg_mat('floor_wood', 0x5a4636, .8); kirchberg_treppe({ par: g, x0: x0 + .1, x1: x0 + 1.2, zA: C.z + .94, zB: C.z + 4.3, y0: 0, y1: R.H + .2, n: 14, podest: .6, offen: 'x1', modell: 'treppe_nr4_og',
       mat: stufe, matWange: kirchberg_mat('planks_painted', 0x3a2c22, 1), decke: R.decke, loch: [x0 + .1, x0 + 1.25, C.z + 1.8, z1 - .1], schachtH: 2.4, schachtMat: R.wm });
     S.treppeHit = kirchberg_hit(1, 1.6, 1.8, x0 + .75, 1, C.z + 1.3, 'Treppe nach oben', () => nr4_wechsel('og'));
     { const d = await kirchberg_mod('door1', 'model.gltf', 2.0); if (d) put(d, C.x - 1.6, 0, C.z + .115, 0, g); nr4_zettel('t_pfand', C.x - 1.6, 1.5, C.z + .15, 0, { w: .12, h: .09 });
@@ -260,7 +254,7 @@ async function nr4_bau() {
   { let cabW = 0; for (let i = 0; i < 4; i++) { const c = await kirchberg_fbx('dresser', hutchSpec(0xd8cfb8), .9); if (!c) continue; const gg = put(c, x0 + .6 + i * (cabW || .9), 0, z0 + .38, 0, g); if (!cabW) { const b = new T.Box3().setFromObject(gg); cabW = b.max.x - b.min.x; } }
     const topY = .92;
     const em = new T.MeshStandardMaterial({ map: msTex('wall_plaster/b.jpg', true), normalMap: msTex('wall_plaster/n.jpg'), color: 0xdcd4c2, roughness: .4, metalness: .05 }); em.normalScale.set(.3, .3);
-    nr4_kuehlschrank(g, C.x - .45, z0 + .45, em);
+    await nr4_kuehlschrank(g, C.x - .45, z0 + .45, em);
     nr4_zettel('E-07', x0 + .6 + 1.4, 1.52, z0 + .115, 0, { w: .13, h: .1 }); // Fensterbank beim Wecker
     await fenster(R, x0 + 2, z0 + .11, 0, 1.6, 'sheer');
     nr4_zettel('herd', x0 + .65, topY + .2, z0 + .66, 0, { liegt: false, w: .12, h: .09 }); nr4_zettel('E-15', x0 + 2.4, topY + .3, z0 + .12, 0, { w: .13, h: .1 });
@@ -327,7 +321,7 @@ async function nr4_bau() {
   { const K = C.keller, R3 = kirchberg_raum({ id: 'nr4_keller', x: K.x, z: K.z, w: 6, d: 5, h: 2.3, wand: 'wall_damaged', wandTint: 0x8a8478, wandTile: 2, boden: 'wet_asphalt', bodenTint: 0x6a6660, decke: 'wall_plaster', rein: { x: K.x - 1.05, z: K.z - .6, yaw: -PI / 2 } }); // R-6: Ankunft am Fuß der Kellertreppe; QA-Kollision 09.10.: neben der Treppe, Blick quer durch den Raum (vorher 1,1 m gegen Wand, Stapel in 0,75 m)
     S.R3 = R3; const g3 = R3.g, c0 = R3.x0, c1 = R3.x1, d0 = R3.z0, d1 = R3.z1;
     // R-6: Kellertreppe mit Wangen, Geländer und Durchbruch (vorher fünf frei schwebende Bretter mit 42 cm Steigung bis unter die Decke); oben die Tür zur Diele
-    { const st = kirchberg_mat('planks_painted', 0x4a3a2c, 1); kirchberg_treppe({ par: g3, x0: c0 + .1, x1: c0 + 1.2, zA: d1 - 3.35, zB: d1 - .85, y0: 0, y1: R3.H + .2, n: 10, podest: .75, offen: 'x1',
+    { const st = kirchberg_mat('planks_painted', 0x4a3a2c, 1); kirchberg_treppe({ par: g3, x0: c0 + .1, x1: c0 + 1.2, zA: d1 - 3.35, zB: d1 - .85, y0: 0, y1: R3.H + .2, n: 10, podest: .75, offen: 'x1', modell: 'treppe_nr4_keller',
       mat: st, matWange: kirchberg_mat('planks_painted', 0x2e241c, 1), decke: R3.decke, loch: [c0 + .1, c0 + 1.25, d1 - 3.1, d1 - .1], schachtH: 2.4, schachtMat: R3.wm });
       const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, c0 + .65, R3.H + .2, d1 - .115, PI, g3); }
     kirchberg_hit(1, 2, .8, c0 + .65, 1, d1 - 3.0, 'Kellertreppe hinauf', () => nr4_wechsel('eg'));
