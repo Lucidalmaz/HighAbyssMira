@@ -88,3 +88,9 @@ Nicht nur Räume: bei ALLEM (Räume, Modelle, Figuren, Tiere, Animationen, Texte
 
 ### KORREKTUR Gesamtmaßstab (Nutzer 10.10.; ersetzt 'bei allem 1' und die Note-3-Regel oben)
 ('Die 1 war ein Ausrufezeichen'.) Verbindlicher Maßstab: bei allem mindestens Schulnote 2. Bei Dingen im Hintergrund, die nicht prägnant sind (selten/kurz im Blick, weit weg, unscheinbare Nebenobjekte), ist auch eine 3 akzeptabel; insgesamt soll alles Richtung 2 laufen. Prägnante Dinge (Hauptfiguren, Wendigo, Hauptrequisiten, Haupträume, Inventar, Story-Führung, Bewegung) müssen mindestens 2 sein, Note 1 ist das Ziel dort, wo es mit vertretbarem Aufwand geht. Punkte mit Note ≥ 4 gelten als offen; Note 3 nur für Unprägnantes erlaubt. Tabellen führen weiter Schulnote vorher/nachher mit Bildbeleg und markieren je Punkt 'prägnant ja/nein'.
+
+## VERBINDLICH für jeden weiteren Block (Nutzer 10.10.: „es darf danach nicht wieder schlechter werden, kein neues Flüssigkeits-Update nötig“): Leistungs-Gate
+Requisiten, Räume, Wendigo, Items, Modelle und jeder andere Block müssen **vor Commit/Release** `node app/tools/perf_gate.mjs` bestehen (Dauerinstanz, Doku in TESTEN.md, Budget-Regeln in
+`docs/gameplay/performance_budget.md`, Stand und offene Punkte in `docs/gameplay/leistung_1010.md`). Rotes Gate = nicht committen; Ursache beheben oder die Referenz mit Begründung neu schreiben.
+Stand 10.10.2026: Ladezeit 69–80 s (vorher 90–97), erste 60 s nach „Neues Spiel“ längster Stand 200–236 ms (vorher 988 ms), Grafikspeicher 6,2–6,4 GB (vorher 7,1), Kino-Blende ≤ 0,45 s mit
+paralleler Vorladung, Texte: Enter/Klick/X auch für Toasts, Pop-ups, Notizen, Karten. NICHT erreicht: 60 FPS, Grafikspeicher ≤ 3 GB, Neukompilierungen nach Start = 0 (siehe leistung_1010.md §3/§4).

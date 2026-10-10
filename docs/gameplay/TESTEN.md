@@ -29,3 +29,14 @@ Das Spiel wird EINMAL geladen und bleibt offen; weitere Steps-Dateien laufen nac
 - Ohne Skript: JSON als `in/x.tmp` schreiben und in `x.json` umbenennen; `reload.cmd` / `quit.cmd` (leere Dateien) in `in/`.
 - **Der Spielzustand bleibt zwischen Dateien erhalten** (gewollt). Der Start-Schritt `s0` nur beim ersten Mal: Skripte setzen/prüfen `window.__s0done` und überspringen ihn sonst. Für reproduzierbare Läufe vorher `reload`.
 - Grenzen: hängt Schrittcode die Seite, blockiert er die Instanz bis zum Schritt-Zeitlimit (dann `stop`/`start`); Lite-Bilder bleiben grau; eine Live-Instanz hält Speicher/Sperre bis `stop` oder Leerlauf-Ende.
+
+## Leistungs-Gate (10.10.2026, Pflicht vor jedem Commit/Release eines Inhaltsblocks)
+`node app/tools/perf_gate.mjs` misst gegen die laufende Dauerinstanz (`_live.sh start normal`, danach nichts anderes im Fenster tun) und vergleicht mit `app/tools/perf_baseline.json`:
+Ladezeit bis spielbar (aus `__log`), Modul- und Grafikphase, erste 60 s nach „Neues Spiel“ (p95, längster Stand, Bilder > 100 ms), je 6 feste Messpunkte (Kreuzung, Straße, Nr. 7 innen, Wald,
+Villa, Amt: p95 nach 6 s, schlechtestes Bild in Ankunft + Dauer, Zeichenaufrufe, Dreiecke, Grafikspeicher), JS-Heap, Texturspeicher-Schätzung, Texturen/Geometrien (renderer.info), Programmzahl,
+Shader-Neukompilierungen nach Spielstart. Ausgabe als Tabelle ok/FEHLER, Exit-Code 1 bei Überschreitung.
+* `--no-reload` (ohne Neuladen), `--cold` (Shader-/GPU-Cache des Testprofils leeren, kalte Ladezeit), `--start` (Instanz starten, falls keine läuft), `--write-baseline` (Referenz neu schreiben –
+  nur nach bewusster, gemessener Verbesserung und mit Begründung im Commit). Rohdaten des letzten Laufs: `app/tools/perf_last.json`.
+* Toleranzen (rel/abs) stehen in `perf_gate.mjs` (`TOL`); die Ladezeit streut mit dem GPU-Shader-Cache (72–95 s warm, bis 250 s nach Shader-Änderungen) – bei rotem Wert erst ein zweites Mal laufen lassen.
+* Budget-Regeln für neue Assets: `docs/gameplay/performance_budget.md`; Ergebnisse und offene Punkte: `docs/gameplay/leistung_1010.md`.
+* Laufzeit ≈ 7 Minuten (Neuladen 80–125 s, Neues Spiel 60 s, 6 Punkte × 12 s, Auswertung).

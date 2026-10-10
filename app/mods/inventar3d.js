@@ -125,9 +125,10 @@ function inv3d_start(w, h) {
     I.cam.aspect = w / h; I.cam.updateProjectionMatrix(); I.buf = new Uint8Array(w * h * 4); I.img = new ImageData(w, h); I.tmp = null; }
   return I;
 }
-function inv3d_stop() { const I = INV3D; cancelAnimationFrame(I.raf); I.raf = 0; I.lastClose = performance.now();
-  setTimeout(() => { if (INV3D.raf || INV3D.pick || performance.now() - INV3D.lastClose < 7000 || !INV3D.scene) return; try { const I = INV3D; I.env && I.env.dispose(); if (I.rt1) { I.rt1.dispose(); I.rt2.dispose(); } I.out && I.out.dispose(); } catch (e) {}
-    const I = INV3D; I.rt1 = I.rt2 = I.scene = I.holder = I.cur = I.curKey = I.env = I.out = null; I.w = I.h = 0; }, 8000); }
+// 10.10. Szene, Umgebungsbild (PMREM ~130 ms) und Puffer bleiben stehen (klein): jedes Aufheben nach > 8 s baute sie vorher neu = Standbild; die Programme der Szene bleiben ebenfalls übersetzt.
+function inv3d_stop() { const I = INV3D; cancelAnimationFrame(I.raf); I.raf = 0; I.lastClose = performance.now(); }
+// Programme des gezeigten Modells vorab parallel übersetzen (compileAsync), sonst blockiert das erste Zeichnen im Bild (gemessen 0,5–0,9 s beim ersten Aufheben der Batterie)
+async function inv3d_vorab() { const I = INV3D; try { if (I.scene && I.cam && renderer.compileAsync) await Promise.race([renderer.compileAsync(I.scene, I.cam), new Promise(r => setTimeout(r, 2500))]); } catch (e) {} }
 
 // Modell laden → normalisiert (Mitte im Ursprung, größte Ausdehnung 1,6) in eine Gruppe
 async function inv3d_lade(k) {
@@ -170,7 +171,7 @@ function inv3d_bild(into, yaw, pitch, zoom) { const I = INV3D; if (!I.scene || !
 function inv3d_icon(k) {
   const I = INV3D; if (I.icon.has(k)) return Promise.resolve(I.icon.get(k)); if (I.iconWait.has(k)) return I.iconWait.get(k);
   const p = (async () => { try { const g = await inv3d_lade(k); if (!g) { I.icon.set(k, null); return null; }
-      const st = inv3d_start(I.w || 256, I.h || 256); if (!I.rt1) inv3d_start(256, 256); const keep = I.cur; inv3d_zeige(g);
+      const st = inv3d_start(I.w || 256, I.h || 256); if (!I.rt1) inv3d_start(256, 256); const keep = I.cur; inv3d_zeige(g); await inv3d_vorab();
       const c = document.createElement('canvas'); c.width = c.height = 128; let ok = false;
       for (let i = 0; i < 150 && !ok; i++) { if (I.cur !== g) inv3d_zeige(g); ok = await inv3d_bild(c, .55, (inv3d_modell(k) || {}).pit || .22, 1.45); if (!ok) { if (i > 100) I.busy = false; await new Promise(r => setTimeout(r, 16)); } }
       const u = ok ? c.toDataURL('image/png') : null; if (u) I.icon.set(k, u); if (I.cur === g) inv3d_zeige(keep || null); return u; }
@@ -318,7 +319,7 @@ async function inv3d_pickup(k) {
     const g = await inv3d_lade(k); if (!g) return;
     let el = $('inv3dPick'); if (!el) { el = document.createElement('div'); el.id = 'inv3dPick'; el.innerHTML = '<canvas width="480" height="480"></canvas><div class="nm"><small>AUFGENOMMEN</small><span></span></div>'; document.body.appendChild(el); }
     const cv = el.querySelector('canvas'), nm = inv3d_info(k).name; el.querySelector('.nm span').textContent = nm; inv3d_start(480, 480);
-    inv3d_zeige(g); I.curKey = k; I.pick.t0 = performance.now(); const T = 3.1; const kat = inv3d_kat(k), pit = (inv3d_modell(k) || {}).pit || .22;
+    inv3d_zeige(g); I.curKey = k; await inv3d_vorab(); I.pick.t0 = performance.now(); const T = 3.1; const kat = inv3d_kat(k), pit = (inv3d_modell(k) || {}).pit || .22;
     try { if (kat === 'papier') Audio.paper(); else if (kat === 'schluessel') Audio.play('keys2', { gain: .16, rate: 1.5, dur: .25 }); else Audio.play('keys1', { gain: .14, rate: 1.1, dur: .2 }); } catch (e) {}
     await new Promise(res => { const f = now => { const t = (now - I.pick.t0) / 1000; if (t >= T || !I.scene || I.curKey !== k || (ui.overlay && t > .15)) { res(); return; }
         const inn = Math.min(1, t / .5), out = t > 2.4 ? Math.min(1, (t - 2.4) / .7) : 0, ease = x => x * x * (3 - 2 * x), ei = 1 - Math.pow(1 - inn, 3), eo = ease(out);
@@ -352,6 +353,9 @@ async function inv3d_weltHandy() {
     lenaPhone.material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }); lenaPhone.add(m); m.position.set(0, 0, 0); } catch (e) { console.warn('inv3d: Handy', e); }
 }
 setTimeout(inv3d_weltHandy, 3000);
+// Aufheben-Szene beim Laden vorwärmen (Umgebungsbild, Puffer, Programme der Batterie): das erste Aufheben beim Spielstart war ein 0,5–0,9 s-Standbild (10.10., Gate-Messung)
+async function inv3d_warm() { try { const I = INV3D; if (I.pick || I.warmed) return; I.warmed = 1; const g = await inv3d_lade('batterie'); if (!g) return; inv3d_start(480, 480); inv3d_zeige(g); await inv3d_vorab(); if (!I.pick && I.cur === g) inv3d_zeige(null); } catch (e) { console.warn('inv3d: Vorwärmen', e); } }
+setTimeout(inv3d_warm, 4000);
 
 
 // ---------------------------------------------------------------- Einhängen

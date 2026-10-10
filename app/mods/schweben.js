@@ -103,7 +103,7 @@ function schweben_pass(rect, opt = {}) {
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor
 // schwebend). Dazu Texturqualität: Anisotropie 8, Mipmaps, polygonOffset gegen Flimmern. Liefert { art, gap, zu } für die Audit-Tabelle.
-const _dq = new THREE.Quaternion(), _dp = new THREE.Vector3(), _ds = new THREE.Vector3(), _dn = new THREE.Vector3(), _dRay = new THREE.Raycaster();
+const _dBs = new THREE.Sphere(), _dq = new THREE.Quaternion(), _dp = new THREE.Vector3(), _ds = new THREE.Vector3(), _dn = new THREE.Vector3(), _dRay = new THREE.Raycaster();
 function schweben_istDecal(m) { if (!m.isMesh || m.isInstancedMesh || m.isSkinnedMesh || !m.visible || !m.geometry) return false; const t = m.geometry.type; if (t !== 'PlaneGeometry' && t !== 'CircleGeometry') return false; const mt = [].concat(m.material)[0]; return !!(mt && mt.map && mt.visible !== false); }
 function schweben_decalKand() { const c = []; scene.traverse(m => { if (!m.isMesh || m.isSkinnedMesh || !m.visible || !m.geometry || schweben_istDecal(m)) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false || (mt.transparent && mt.opacity < .5) || mt.depthWrite === false) return; if (m.userData && m.userData.noCol && m.geometry.type === 'PlaneGeometry') return; c.push(m); }); return c; }
 function decal_auf_flaeche(m, cands, o = {}) {
@@ -116,7 +116,9 @@ function decal_auf_flaeche(m, cands, o = {}) {
   const sides = new Map(); for (const c of o.sides || []) sides.set(c, 1);
   const org = floor ? _dp.clone().add(new THREE.Vector3(0, .3, 0)) : _dp.clone().addScaledVector(_dn, .15), dir = floor ? new THREE.Vector3(0, -1, 0) : _dn.clone().negate();
   _dRay.set(org, dir); _dRay.far = floor ? .8 : .5; let hit = null;
-  for (const c of cands) { if (c === m) continue; const mats = [].concat(c.material), sv = mats.map(q => q.side); mats.forEach(q => { q.side = THREE.DoubleSide; });
+  for (const c of cands) { if (c === m) continue;
+    if (!c.isInstancedMesh) { const g = c.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere) { _dBs.copy(g.boundingSphere).applyMatrix4(c.matrixWorld); if (_dBs.distanceToPoint(org) > _dRay.far + .1) continue; } } // 10.10.: Kugel-Vorprüfung (vorher alle Formen je Decal = 22 s Ladezeit)
+    const mats = [].concat(c.material), sv = mats.map(q => q.side); mats.forEach(q => { q.side = THREE.DoubleSide; });
     const hs = _dRay.intersectObject(c, false); mats.forEach((q, i) => { q.side = sv[i]; }); for (const x of hs) { if (!hit || x.distance < hit.distance) hit = x; } }
   if (!hit) return { art: floor ? 'Boden' : 'Wand', gap: null, w, h };
   const goal = hit.point.clone().addScaledVector(floor ? new THREE.Vector3(0, 1, 0) : _dn, floor ? .006 : .004);
@@ -142,4 +144,4 @@ setInterval(schweben_index, 4000); // Modell→Schlüssel-Zuordnung laufend nach
 window.__schweben = { index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
   pruefen: rect => schweben_pass(rect, { apply: false }) };
 // Außenwelt: Decals einmal nach dem Laden (Straße, Kreide, Blut, Zettel) – verzögert
-setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 25000);
+(function wartenAufBereit() { if (!window.__ready) return setTimeout(wartenAufBereit, 1000); setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 3000); })(); // erst nach dem Laden (vorher lief die Prüfung nach 25 s mitten im Ladevorgang)

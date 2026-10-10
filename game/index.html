@@ -19356,9 +19356,10 @@ function inv3d_start(w, h) {
     I.cam.aspect = w / h; I.cam.updateProjectionMatrix(); I.buf = new Uint8Array(w * h * 4); I.img = new ImageData(w, h); I.tmp = null; }
   return I;
 }
-function inv3d_stop() { const I = INV3D; cancelAnimationFrame(I.raf); I.raf = 0; I.lastClose = performance.now();
-  setTimeout(() => { if (INV3D.raf || INV3D.pick || performance.now() - INV3D.lastClose < 7000 || !INV3D.scene) return; try { const I = INV3D; I.env && I.env.dispose(); if (I.rt1) { I.rt1.dispose(); I.rt2.dispose(); } I.out && I.out.dispose(); } catch (e) {}
-    const I = INV3D; I.rt1 = I.rt2 = I.scene = I.holder = I.cur = I.curKey = I.env = I.out = null; I.w = I.h = 0; }, 8000); }
+// 10.10. Szene, Umgebungsbild (PMREM ~130 ms) und Puffer bleiben stehen (klein): jedes Aufheben nach > 8 s baute sie vorher neu = Standbild; die Programme der Szene bleiben ebenfalls übersetzt.
+function inv3d_stop() { const I = INV3D; cancelAnimationFrame(I.raf); I.raf = 0; I.lastClose = performance.now(); }
+// Programme des gezeigten Modells vorab parallel übersetzen (compileAsync), sonst blockiert das erste Zeichnen im Bild (gemessen 0,5–0,9 s beim ersten Aufheben der Batterie)
+async function inv3d_vorab() { const I = INV3D; try { if (I.scene && I.cam && renderer.compileAsync) await Promise.race([renderer.compileAsync(I.scene, I.cam), new Promise(r => setTimeout(r, 2500))]); } catch (e) {} }
 
 // Modell laden → normalisiert (Mitte im Ursprung, größte Ausdehnung 1,6) in eine Gruppe
 async function inv3d_lade(k) {
@@ -19401,7 +19402,7 @@ function inv3d_bild(into, yaw, pitch, zoom) { const I = INV3D; if (!I.scene || !
 function inv3d_icon(k) {
   const I = INV3D; if (I.icon.has(k)) return Promise.resolve(I.icon.get(k)); if (I.iconWait.has(k)) return I.iconWait.get(k);
   const p = (async () => { try { const g = await inv3d_lade(k); if (!g) { I.icon.set(k, null); return null; }
-      const st = inv3d_start(I.w || 256, I.h || 256); if (!I.rt1) inv3d_start(256, 256); const keep = I.cur; inv3d_zeige(g);
+      const st = inv3d_start(I.w || 256, I.h || 256); if (!I.rt1) inv3d_start(256, 256); const keep = I.cur; inv3d_zeige(g); await inv3d_vorab();
       const c = document.createElement('canvas'); c.width = c.height = 128; let ok = false;
       for (let i = 0; i < 150 && !ok; i++) { if (I.cur !== g) inv3d_zeige(g); ok = await inv3d_bild(c, .55, (inv3d_modell(k) || {}).pit || .22, 1.45); if (!ok) { if (i > 100) I.busy = false; await new Promise(r => setTimeout(r, 16)); } }
       const u = ok ? c.toDataURL('image/png') : null; if (u) I.icon.set(k, u); if (I.cur === g) inv3d_zeige(keep || null); return u; }
@@ -19549,7 +19550,7 @@ async function inv3d_pickup(k) {
     const g = await inv3d_lade(k); if (!g) return;
     let el = $('inv3dPick'); if (!el) { el = document.createElement('div'); el.id = 'inv3dPick'; el.innerHTML = '<canvas width="480" height="480"></canvas><div class="nm"><small>AUFGENOMMEN</small><span></span></div>'; document.body.appendChild(el); }
     const cv = el.querySelector('canvas'), nm = inv3d_info(k).name; el.querySelector('.nm span').textContent = nm; inv3d_start(480, 480);
-    inv3d_zeige(g); I.curKey = k; I.pick.t0 = performance.now(); const T = 3.1; const kat = inv3d_kat(k), pit = (inv3d_modell(k) || {}).pit || .22;
+    inv3d_zeige(g); I.curKey = k; await inv3d_vorab(); I.pick.t0 = performance.now(); const T = 3.1; const kat = inv3d_kat(k), pit = (inv3d_modell(k) || {}).pit || .22;
     try { if (kat === 'papier') Audio.paper(); else if (kat === 'schluessel') Audio.play('keys2', { gain: .16, rate: 1.5, dur: .25 }); else Audio.play('keys1', { gain: .14, rate: 1.1, dur: .2 }); } catch (e) {}
     await new Promise(res => { const f = now => { const t = (now - I.pick.t0) / 1000; if (t >= T || !I.scene || I.curKey !== k || (ui.overlay && t > .15)) { res(); return; }
         const inn = Math.min(1, t / .5), out = t > 2.4 ? Math.min(1, (t - 2.4) / .7) : 0, ease = x => x * x * (3 - 2 * x), ei = 1 - Math.pow(1 - inn, 3), eo = ease(out);
@@ -19583,6 +19584,9 @@ async function inv3d_weltHandy() {
     lenaPhone.material = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false }); lenaPhone.add(m); m.position.set(0, 0, 0); } catch (e) { console.warn('inv3d: Handy', e); }
 }
 setTimeout(inv3d_weltHandy, 3000);
+// Aufheben-Szene beim Laden vorwärmen (Umgebungsbild, Puffer, Programme der Batterie): das erste Aufheben beim Spielstart war ein 0,5–0,9 s-Standbild (10.10., Gate-Messung)
+async function inv3d_warm() { try { const I = INV3D; if (I.pick || I.warmed) return; I.warmed = 1; const g = await inv3d_lade('batterie'); if (!g) return; inv3d_start(480, 480); inv3d_zeige(g); await inv3d_vorab(); if (!I.pick && I.cur === g) inv3d_zeige(null); } catch (e) { console.warn('inv3d: Vorwärmen', e); } }
+setTimeout(inv3d_warm, 4000);
 
 
 // ---------------------------------------------------------------- Einhängen
@@ -32631,12 +32635,12 @@ function kino_card(lines) { const c = $('kinoCard'); if (kino_S.tw) { kino_S.tw.
     if (l.stempel) kino_stempel(); p.innerHTML = txt.replace(/</g, '&lt;') + (i === L.length - 1 ? '<i class="cur"></i>' : ''); }, at * 1000); });
   return .6 + L.length * 2 + 2.6; }
 // Endkarte außerhalb einer Sequenz (z. B. Kapitel 2 am Gully unter den Glockenschlägen): Schwarz, Karte, Promise nach Ende
-async function kino_karte(lines, opts = {}) { kino_css(); const fd = $('fade'); fd.style.transition = 'opacity .6s'; fd.style.background = '#000'; fd.style.opacity = 1; document.body.classList.add('cine');
+async function kino_karte(lines, opts = {}) { kino_css(); const fd = $('fade'); fd.style.transition = 'opacity .45s'; fd.style.background = '#000'; fd.style.opacity = 1; document.body.classList.add('cine');
   const d = kino_card(lines), t0 = performance.now(); let skip = false;
   // Überspringen (Klick, Leertaste, Enter, Esc) nach 3 s – Karten waren bisher nicht überspringbar (schwarzer Bildschirm mit „KLICK · ÜBERSPRINGEN“)
-  const on = e => { if (e.type === 'keydown' ? !['Space', 'Enter', 'Escape', 'NumpadEnter'].includes(e.code) : e.button !== 0) return; if (e.type === 'keydown') { e.preventDefault(); e.stopPropagation(); } if (performance.now() - t0 >= 3000) skip = true; };
+  const on = e => { if (e.type === 'keydown' ? !['Space', 'Enter', 'Escape', 'NumpadEnter', 'KeyX'].includes(e.code) : e.button !== 0) return; if (e.type === 'keydown') { e.preventDefault(); e.stopPropagation(); } if (performance.now() - t0 >= 800) skip = true; };
   addEventListener('keydown', on, true); addEventListener('pointerdown', on, true);
-  try { const end = t0 + (opts.dauer || d) * 1000; while (!skip && performance.now() < end) await wait(60); kino_card(null); await wait(skip ? 250 : 900); }
+  try { const end = t0 + (opts.dauer || d) * 1000; while (!skip && performance.now() < end) await wait(60); kino_card(null); await wait(skip ? 200 : 500); }
   finally { removeEventListener('keydown', on, true); removeEventListener('pointerdown', on, true); }
   if (!opts.bleiben) document.body.classList.remove('cine'); }
 // Zeitgeber in Kinozeit (steht bei Pause still, verfällt beim Schnitt nicht – nur beim Ende)
@@ -33189,12 +33193,14 @@ async function kino_play(id, opts = {}) {
     fadeBg: fd.style.background || '#000', world: A.world ? A.world.gain.value : 1, bed: A.bedTrim ? A.bedTrim.gain.value : .5, rain: A.rain ? A.rain.gain.value : 0, master: A.master ? A.master.gain.value : 1, sub: $('subtitle').style.opacity, glitch: glitchV, flashOn };
   if (A.mus && A.ctx) { const g = A.mus.duck.gain, t = A.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + 1.6); } // adaptive Musik weicht
   state.talking = true; setScripted(() => true); glitchV = 0; shake = 0;
-  S.onKey = e => { if (!S.on) return; if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape') { e.preventDefault(); if (e.code === 'Escape') e.stopPropagation(); kino_skip(); } };
+  S.onKey = e => { if (!S.on) return; if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape' || e.code === 'KeyX') { e.preventDefault(); if (e.code === 'Escape') e.stopPropagation(); kino_skip(); } };
   S.onClick = e => { if (!S.on || e.button !== 0) return; kino_skip(); };
   addEventListener('keydown', S.onKey, true); addEventListener('pointerdown', S.onClick, true);
   document.body.classList.add('cine', 'kino'); document.body.classList.toggle('kinoNoSkip', D.skipAfter > 0); $('traumSkip') && ($('traumSkip').style.display = D.skipAfter === Infinity ? 'none' : '');
-  if (!nahtlos) { if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .7s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(750); } else fd.style.background = '#000'; }
-  if (KINO_SET_OF[id]) await kino_preload(KINO_SET_OF[id]);
+  // 10.10. Blende ≤ 0,5 s; der Figurensatz lädt PARALLEL zur Blende (vorher: erst 0,75 s schwarz, dann schwarz auf das Laden warten)
+  const vor = KINO_SET_OF[id] ? kino_preload(KINO_SET_OF[id]) : null;
+  if (!nahtlos) { if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .45s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(470); } else fd.style.background = '#000'; }
+  if (vor) await vor;
   if (D.start) { try { await D.start(opts); } catch (e) { console.warn('Kino: Start', e); } }
   if (!nahtlos) $('subtitle').style.opacity = 0; S.prevCam = camOverride; setCamOverride(kino_cam);
   const done = new Promise(r => { S.res = r; });
@@ -45864,7 +45870,7 @@ function schweben_pass(rect, opt = {}) {
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor
 // schwebend). Dazu Texturqualität: Anisotropie 8, Mipmaps, polygonOffset gegen Flimmern. Liefert { art, gap, zu } für die Audit-Tabelle.
-const _dq = new THREE.Quaternion(), _dp = new THREE.Vector3(), _ds = new THREE.Vector3(), _dn = new THREE.Vector3(), _dRay = new THREE.Raycaster();
+const _dBs = new THREE.Sphere(), _dq = new THREE.Quaternion(), _dp = new THREE.Vector3(), _ds = new THREE.Vector3(), _dn = new THREE.Vector3(), _dRay = new THREE.Raycaster();
 function schweben_istDecal(m) { if (!m.isMesh || m.isInstancedMesh || m.isSkinnedMesh || !m.visible || !m.geometry) return false; const t = m.geometry.type; if (t !== 'PlaneGeometry' && t !== 'CircleGeometry') return false; const mt = [].concat(m.material)[0]; return !!(mt && mt.map && mt.visible !== false); }
 function schweben_decalKand() { const c = []; scene.traverse(m => { if (!m.isMesh || m.isSkinnedMesh || !m.visible || !m.geometry || schweben_istDecal(m)) return; const mt = [].concat(m.material)[0]; if (!mt || mt.visible === false || (mt.transparent && mt.opacity < .5) || mt.depthWrite === false) return; if (m.userData && m.userData.noCol && m.geometry.type === 'PlaneGeometry') return; c.push(m); }); return c; }
 function decal_auf_flaeche(m, cands, o = {}) {
@@ -45877,7 +45883,9 @@ function decal_auf_flaeche(m, cands, o = {}) {
   const sides = new Map(); for (const c of o.sides || []) sides.set(c, 1);
   const org = floor ? _dp.clone().add(new THREE.Vector3(0, .3, 0)) : _dp.clone().addScaledVector(_dn, .15), dir = floor ? new THREE.Vector3(0, -1, 0) : _dn.clone().negate();
   _dRay.set(org, dir); _dRay.far = floor ? .8 : .5; let hit = null;
-  for (const c of cands) { if (c === m) continue; const mats = [].concat(c.material), sv = mats.map(q => q.side); mats.forEach(q => { q.side = THREE.DoubleSide; });
+  for (const c of cands) { if (c === m) continue;
+    if (!c.isInstancedMesh) { const g = c.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); if (g.boundingSphere) { _dBs.copy(g.boundingSphere).applyMatrix4(c.matrixWorld); if (_dBs.distanceToPoint(org) > _dRay.far + .1) continue; } } // 10.10.: Kugel-Vorprüfung (vorher alle Formen je Decal = 22 s Ladezeit)
+    const mats = [].concat(c.material), sv = mats.map(q => q.side); mats.forEach(q => { q.side = THREE.DoubleSide; });
     const hs = _dRay.intersectObject(c, false); mats.forEach((q, i) => { q.side = sv[i]; }); for (const x of hs) { if (!hit || x.distance < hit.distance) hit = x; } }
   if (!hit) return { art: floor ? 'Boden' : 'Wand', gap: null, w, h };
   const goal = hit.point.clone().addScaledVector(floor ? new THREE.Vector3(0, 1, 0) : _dn, floor ? .006 : .004);
@@ -45903,7 +45911,7 @@ setInterval(schweben_index, 4000); // Modell→Schlüssel-Zuordnung laufend nach
 window.__schweben = { index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
   pruefen: rect => schweben_pass(rect, { apply: false }) };
 // Außenwelt: Decals einmal nach dem Laden (Straße, Kreide, Blut, Zettel) – verzögert
-setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 25000);
+(function wartenAufBereit() { if (!window.__ready) return setTimeout(wartenAufBereit, 1000); setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schweben decals', e); } }, 3000); })(); // erst nach dem Laden (vorher lief die Prüfung nach 25 s mitten im Ladevorgang)
 // =====================================================================  TEXT WEITER / ÜBERSPRINGEN (Nutzer 10.10.2026: „Texte lassen sich teils nicht weiterklicken/überspringen“)
 // Untertitel und Gedanken (subtitle/say) laufen sonst starr nach Lesezeit. Jetzt:
 //   · Enter, Leertaste im Gespräch ausgenommen: Enter oder linke Maustaste auf der Textzeile → nächste Zeile sofort (aktuelle Zeile ausblenden, Warteschlange weiter)
@@ -45912,8 +45920,13 @@ setTimeout(() => { try { schweben_decals(null); } catch (e) { console.warn('schw
 // TXW und say() mit überspringbarem Warten: textweiter_patch.py (Basis)
 function textweiter_overlay() { try { return !!(ui && ui.overlay) || !!document.querySelector('.overlay.show:not(#start)') || document.body.classList.contains('menu') || (state && (state.paused || state.dead)); } catch (e) { return false; } }
 function textweiter_sichtbar() { const el = document.getElementById('subtitle'); return !!el && parseFloat(el.style.opacity || '0') > .05 && el.textContent.trim().length > 0; }
+// 10.10. Toasts (Hinweise) und Aufgaben-Pop-ups: Enter/Klick blendet sie aus, X zusammen mit der Untertitel-Folge
+function textweiter_andere() { let did = false; try { const t = document.getElementById('toast'); if (t && parseFloat(t.style.opacity || '0') > .05) { clearTimeout(toastT); t.style.opacity = 0; did = true; }
+    const q = document.getElementById('questPop'); if (q && q.classList.contains('show')) { clearTimeout(popT); q.classList.remove('show'); did = true; } } catch (e) {} return did; }
 function textweiter(alle) {
-  if (!textweiter_sichtbar() || textweiter_overlay()) return false;
+  if (textweiter_overlay()) return false;
+  if (!textweiter_sichtbar()) return textweiter_andere();
+  if (alle) textweiter_andere();
   const el = document.getElementById('subtitle');
   gtCancel(subT); subT = null; el.style.opacity = 0;
   if (alle) { TXW.alle = true; subQ.length = 0; if (subQH) { gtCancel(subQH); subQH = null; } }
@@ -45921,8 +45934,13 @@ function textweiter(alle) {
   subMin = 0; if (subQ.length && !subQH) subQH = gtAfter(0, subNext);
   return true;
 }
-window.addEventListener('keydown', e => { if (e.repeat) return; if (e.code === 'Enter' || e.code === 'NumpadEnter') { if (textweiter(false)) e.preventDefault(); } else if (e.code === 'KeyX') textweiter(true); }, true);
-window.addEventListener('mousedown', e => { if (e.button === 0 && document.pointerLockElement === null && textweiter_sichtbar() && e.target && e.target.id === 'subtitle') textweiter(false); }, true);
+window.addEventListener('keydown', e => { if (e.repeat) return;
+  // Notizen, Briefe, Akten (Overlay „note“): Enter, Leertaste und X schließen wie E/Esc
+  if (typeof ui !== 'undefined' && ui.overlay === 'note' && (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Space' || e.code === 'KeyX')) { e.preventDefault(); e.stopPropagation(); closeOverlay(); return; }
+  if (e.code === 'Enter' || e.code === 'NumpadEnter') { if (textweiter(false)) e.preventDefault(); } else if (e.code === 'KeyX') textweiter(true); }, true);
+window.addEventListener('mousedown', e => { if (e.button !== 0) return; const gesperrt = document.pointerLockElement !== null;
+  if (!gesperrt && textweiter_sichtbar() && e.target && e.target.id === 'subtitle') textweiter(false);
+  else if (gesperrt && state && state.started && !(typeof kino_S !== 'undefined' && kino_S.on)) textweiter(false); }, true); // im Spiel (Maus gefangen): Klick = nächste Zeile / Hinweis weg
 window.__textweiter = { skip: textweiter, say: l => say(l), sichtbar: textweiter_sichtbar };
 // =====================================================================  BEWEGUNG & HITBOXEN (Nutzer 10.10.2026, Folgeauftrag 7)
 // „Beim Draufspringen lande ich in Autos/Bussen und stecke fest“ – Ursache (Messung bewegung_audit.md): Fahrzeuge waren nur Netz-Kollision (SOL). Unterboden, Fenster (Glas ist nie fest) und Innenraum
@@ -46071,7 +46089,8 @@ const VST = { orte: [], found: new Set(), such: null, fertig: false, tipp: new S
 MOD_SAVE.push(['verstecke', () => [...VST.found], v => { if (Array.isArray(v)) v.forEach(k => VST.found.add(k)); }]);
 const VST_ZONE = { x0: -76, x1: 76, z0: -34, z1: 34 }; // Ortskern Kapitel 1–5 (Straßen, Gärten, Höfe)
 function vst_belegt(x, z) { // Türen, Klickstellen, Häuser innen: dort nichts verstecken
-  for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(new THREE.Vector3()) : m.position; if (Math.hypot(p.x - x, p.z - z) < 2.2) return true; }
+  if (VST.ip) { for (const q of VST.ip) if (Math.hypot(q[0] - x, q[1] - z) < 2.2) return true; } // 10.10.: Weltpositionen einmal je Suche (vorher je Zelle neu: 240-ms-Standbilder nach 15 s)
+  else for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(new THREE.Vector3()) : m.position; if (Math.hypot(p.x - x, p.z - z) < 2.2) return true; }
   return indoorRects.some(r => inRect(r, x, z, .5)); }
 function vst_unten(x, z) { if (!mantleFree(x + 1.1, z, 0) && !mantleFree(x - 1.1, z, 0) && !mantleFree(x, z + 1.1, 0) && !mantleFree(x, z - 1.1, 0)) return null;
   const c = headCeiling(x, .05, z); if (!(c > .3 && c < .95)) return null; return { y: .02, decke: c }; }
@@ -46097,13 +46116,15 @@ function vst_pruef(O) {
   for (let a = 0; a < 8; a++) { const gx = O.x + Math.sin(a * .785) * 2.4, gz = O.z + Math.cos(a * .785) * 2.4, g = mantleGround(gx, gz, 0); if (t - g > .45 && t - g < 1.65 && mantleFree(gx, gz, g)) return { ...O, y: t }; }
   return null; }
 function* vst_sucher() { const R = [];
+  { const P = new THREE.Vector3(); VST.ip = []; for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(P) : m.position; VST.ip.push([p.x, p.z]); } yield; }
   for (const O of VST_WAHL) { const q = vst_pruef(O); if (q) R.push(q); yield; }
   const fehlt = { unten: 4 - R.filter(o => o.art === 'unten').length, oben: 4 - R.filter(o => o.art === 'oben').length };
   if (fehlt.unten > 0 || fehlt.oben > 0) { const U = [], O2 = []; let n = 0;
-    for (let x = VST_ZONE.x0; x <= VST_ZONE.x1; x += 1.3) for (let z = VST_ZONE.z0; z <= VST_ZONE.z1; z += 1.3) { if (++n % 120 === 0) yield;
+    for (let x = VST_ZONE.x0; x <= VST_ZONE.x1; x += 1.3) for (let z = VST_ZONE.z0; z <= VST_ZONE.z1; z += 1.3) { if (++n % 6 === 0) yield;
       if (vst_belegt(x, z)) continue; if (fehlt.unten > 0) { const u = vst_unten(x, z); if (u) U.push({ x, z, hx: x, hz: z, ...u, art: 'unten' }); } if (fehlt.oben > 0) { const o = vst_oben(x, z); if (o) O2.push({ x, z, ...o, art: 'oben' }); } }
     const wahl = (L, k) => { const Q = []; for (const p of L) { if (Q.length >= k) break; if ([...R, ...Q].every(q => Math.hypot(q.x - p.x, q.z - p.z) > 18)) Q.push(p); } return Q; };
     R.push(...wahl(U, fehlt.unten), ...wahl(O2, fehlt.oben)); }
+  VST.ip = null;
   VST.orte = R.map((p, i) => ({ ...p, key: 'vst_' + p.art + '_' + Math.round(p.x) + '_' + Math.round(p.z), i })); }
 async function vst_bau() {
   let batt = null; try { batt = await msModel('../ue/batterie', 'model.glb'); } catch (e) {}
@@ -47270,6 +47291,88 @@ WORLD_TICK.push(dt => {
   lst_scan(); lst_flush();
   if (LST.echo) { try { lst_echoVor(dt); } catch (e) { LST.echo = false; console.warn('Leistung: Nachbilder', e); } }
 });
+// =====================================================================  VRAM-DIÄT (Modul „vram“, 10.10.2026, Leistungs-Block)
+// Gemessen (Normalbetrieb, Kreuzung): GPU-Prozess 7,1 GB dediziert; 2 134 KTX-Texturen ≈ 5,2 GB (davon 393 × 2048² tiling + 221 × 2048² mit Texeldichte > 6 000 px/m).
+// Die obersten Mip-Stufen sind dort nie sichtbar: ein Kleinteil (0,3 m) mit 2048²-Textur hat 6 800 Texel/m, der Bildschirm löst bei 1 m Abstand ~880 px/m auf.
+// Hier wird je KTX-Quelle die NIEDRIGSTE Texeldichte über alle Besitzer-Formen bestimmt (Texturbreite × UV-Spannweite × Wiederholung / größte Weltausdehnung der Form; bei
+// Instanzen mit der größten Instanz-Skalierung) und die oberste(n) Mip-Stufe(n) entfernt, solange danach auch der am dünnsten belegte Besitzer noch ≥ 1 500 px/m hat
+// (höchstens 2 Stufen, mindestens 256 px). Figuren (Skelett): Grenze doppelt so hoch (Nahaufnahmen im Kino). ?vram=lean: Grenze 700 px/m (Sparmodus für parallele GPU-Last).
+// Nicht angefasst: Batches, ShaderMaterial-Uniforms, Texturen, die schon auf der Grafikkarte liegen, Canvas-Texturen (werden zur Laufzeit neu gezeichnet).
+// Läuft ganz zuletzt (nach leistung) und vor „Grafik vorbereiten“ – die Texturen sind dann noch nicht hochgeladen. Die CPU-Daten der entfernten Stufen werden sofort freigegeben.
+// Wiederherstellen (ktxRestore der Basis) schreibt in dieselben Mip-Objekte – die Zählung stimmt, weil nur das Feld mipmaps der Textur gekürzt wird, nicht s.__kmips.
+// Aus: ?novram    Zahlen: window.__vram
+const VRAM = { off: /[?&]novram/.test(location.search), dedupN: 0, dedupMB: 0, dedupMs: 0, passes: 0, cut: 0, ntex: 0, savedMB: 0, hist: {}, T: /[?&]vram=lean/.test(location.search) ? 700 : 1500, ms: 0 };
+
+// ---- Geometrie-Dedup: gemessen 5 715 Geometrien mit exakt gleichem Inhalt (≈ 1,0 GB; davon InstancedMesh-Gruppen gleicher Pflanzen/Steine/Kleinteile mit je eigenem geometry.clone() ≈ 0,8 GB JS-Heap;
+// die Grafikkarte hält sie nur, wenn sie schon gezeichnet wurden). Gleicher Inhalt (alle Attribute, Index, Gruppen, Zeichenbereich) → eine gemeinsame Geometrie. Ausgenommen: Skelett-Formen, Morph-Ziele,
+// Batches, Instanz-Attribute, verschachtelte Puffer, dynamische Puffer (zur Laufzeit beschrieben).
+function vram_geoSig(g) {
+  if (!g.attributes || !g.attributes.position || !g.attributes.position.array || g.isInstancedBufferGeometry) return null;
+  if (g.morphAttributes && Object.keys(g.morphAttributes).length) return null; if (g.userData && Object.keys(g.userData).length) return null;
+  let sig = ''; const names = Object.keys(g.attributes).sort();
+  for (const n of names) { const a = g.attributes[n]; if (!a.array || a.isInterleavedBufferAttribute || a.isInstancedBufferAttribute || a.usage !== 35044) return null; sig += n + ':' + a.itemSize + ':' + a.count + ':' + (a.normalized ? 1 : 0) + ':' + a.array.constructor.name + ';'; }
+  if (g.index) sig += 'i' + g.index.count + ':' + g.index.array.constructor.name; sig += 'g' + JSON.stringify(g.groups) + 'd' + g.drawRange.start + ':' + g.drawRange.count;
+  return sig; }
+function vram_hash(a) { let h = 2166136261 | 0; const n = a.byteLength >> 2; if (!(a.byteOffset & 3) && !(a.byteLength & 3)) { const u = new Uint32Array(a.buffer, a.byteOffset, n); for (let i = 0; i < n; i++) h = Math.imul(h ^ u[i], 16777619); }
+  else { const u = new Uint8Array(a.buffer, a.byteOffset, a.byteLength); for (let i = 0; i < u.length; i++) h = Math.imul(h ^ u[i], 16777619); } return h >>> 0; }
+function vram_gleich(a, b) { if (a.byteLength !== b.byteLength) return false; if (a.constructor !== b.constructor) return false; for (let i = 0, n = a.length; i < n; i++) if (a[i] !== b[i]) return false; return true; }
+const VRAM_KEEP = new Map();
+function* vram_dedupGen() { // inkrementell (≈ 3 ms je Zeitscheibe), mit gemeinsamem Merkzettel VRAM_KEEP über mehrere Durchgänge
+  const t0 = performance.now(); let ersetzt = 0, mb = 0, last = performance.now(); const owner = new Map();
+  // Nur Geometrien, die ausschließlich von InstancedMesh benutzt werden: Instanz-Prototypen sind statisch. Normale Meshes (Flammen, Stoff, Dampf …) schreiben ihre Puffer zur Laufzeit
+  // um (needsUpdate), ohne die Nutzungsart zu ändern – ihre gleichen Anfangswerte dürfen nicht zusammenfallen.
+  const dyn = new Set();
+  scene.traverse(o => { const g = o.geometry; if (!g || o.isSkinnedMesh || o.isBatchedMesh || o.isLine || o.isPoints) return; if (!o.isInstancedMesh) { dyn.add(g); return; } if (!owner.has(g)) owner.set(g, []); owner.get(g).push(o); });
+  for (const g of dyn) owner.delete(g);
+  yield;
+  for (const [g, objs] of owner) { if (performance.now() - last > 3) { yield; last = performance.now(); } if (g.__vdup || g.__vkeep) continue;
+    const sig = vram_geoSig(g); if (!sig) continue; let h = vram_hash(g.attributes.position.array); if (g.index) h = (h ^ vram_hash(g.index.array)) >>> 0; const key = sig + '#' + h;
+    const c = VRAM_KEEP.get(key); if (!c) { VRAM_KEEP.set(key, g); g.__vkeep = true; continue; }
+    if (c === g) continue; let ok = true; for (const n of Object.keys(g.attributes)) { if (!vram_gleich(g.attributes[n].array, c.attributes[n].array)) { ok = false; break; } } if (ok && g.index && !vram_gleich(g.index.array, c.index.array)) ok = false;
+    if (!ok) continue;
+    let b = 0; for (const n in g.attributes) b += g.attributes[n].array.byteLength; if (g.index) b += g.index.array.byteLength;
+    for (const o of objs) o.geometry = c; try { g.dispose(); } catch (e) {} g.__vdup = true; ersetzt++; mb += b / 1048576; }
+  VRAM.dedupN += ersetzt; VRAM.dedupMB += Math.round(mb); VRAM.dedupMs += Math.round(performance.now() - t0); VRAM.passes++;
+}
+function vram_dedupSync() { const it = vram_dedupGen(); while (!it.next().done); }
+function vram_dedupLauf() { // Durchgang über mehrere Bilder verteilt
+  if (VRAM.lauf) return; const it = vram_dedupGen(); VRAM.lauf = true; const f = () => { let r; try { r = it.next(); } catch (e) { VRAM.lauf = false; console.warn('VRAM-Dedup', e); return; } if (r.done) { VRAM.lauf = false; return; } requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function vram_diet() {
+  const t0 = performance.now(), v3 = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), sz = new THREE.Vector3(), GE = new Map(), SRC = new Map();
+  const geoInfo = g => { let e = GE.get(g); if (e) return e; e = { u: 1, bb: null };
+    try { if (!g.boundingBox) g.computeBoundingBox(); e.bb = g.boundingBox; const uv = g.attributes && g.attributes.uv;
+      if (uv && uv.array && uv.count) { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; const A = uv.array, st = uv.itemSize || 2, step = Math.max(1, Math.floor(uv.count / 20000));
+        for (let i = 0; i < uv.count; i += step) { const x = A[i * st], y = A[i * st + 1]; if (x < a) a = x; if (x > b) b = x; if (y < c) c = y; if (y > d) d = y; }
+        e.u = Math.max(.05, Math.min(64, Math.max(b - a, d - c))); } } catch (er) {} GE.set(g, e); return e; };
+  scene.updateMatrixWorld(true);
+  scene.traverse(o => {
+    if (!o.isMesh || !o.geometry || !o.material || o.isBatchedMesh) return; const haut = !!o.isSkinnedMesh;
+    const ge = geoInfo(o.geometry); if (!ge.bb) return; o.matrixWorld.decompose(v3, q, sc); ge.bb.getSize(sz); let smax = Math.max(Math.abs(sc.x), Math.abs(sc.y), Math.abs(sc.z));
+    if (o.isInstancedMesh && o.instanceMatrix && o.instanceMatrix.array) { const A = o.instanceMatrix.array; let m = 0; for (let i = 0; i < o.count; i++) { const k = i * 16; m = Math.max(m, Math.hypot(A[k], A[k + 1], A[k + 2]), Math.hypot(A[k + 4], A[k + 5], A[k + 6]), Math.hypot(A[k + 8], A[k + 9], A[k + 10])); } smax *= m || 1; }
+    const L = Math.max(.02, Math.max(sz.x, sz.y, sz.z) * smax);
+    for (const m of [].concat(o.material)) { if (!m) continue;
+      for (const k in m) { const t = m[k]; if (!(t && t.isTexture && t.isCompressedTexture && t.mipmaps && t.mipmaps.length > 1)) continue;
+        const s = t.source; if (!s) continue; let e = SRC.get(s); if (!e) { e = { minD: 1e9, frei: false, tex: new Set(), w: t.mipmaps[0].width || 0 }; SRC.set(s, e); } e.tex.add(t);
+        const rep = t.repeat ? Math.max(Math.abs(t.repeat.x), Math.abs(t.repeat.y), 1e-3) : 1; const dd = e.w * ge.u * rep / L; e.minD = Math.min(e.minD, haut ? dd / 2 : dd); }
+      if (m.isShaderMaterial) for (const k in m.uniforms || {}) { const t = m.uniforms[k] && m.uniforms[k].value; if (t && t.isTexture && t.source) { const e = SRC.get(t.source) || { minD: 1e9, tex: new Set(), w: 0 }; e.frei = true; SRC.set(t.source, e); } } } });
+  const R = renderer.properties; let mbSaved = 0;
+  for (const [s, e] of SRC) {
+    if (e.frei || !e.w || e.minD >= 1e9) { VRAM.hist.frei = (VRAM.hist.frei || 0) + 1; continue; }
+    if (s.__kcut !== undefined) continue; try { const P = R.get(s); if (P && P.__version !== undefined) continue; } catch (er) {} // schon hochgeladen → in Ruhe lassen
+    let n = 0, d = e.minD; while (n < 2 && d / 2 >= VRAM.T && (e.w >> (n + 1)) >= 256) { n++; d /= 2; }
+    s.__kcut = n; VRAM.hist[e.w + '/' + n] = (VRAM.hist[e.w + '/' + n] || 0) + 1; if (!n) continue;
+    for (const t of e.tex) { if (!t.mipmaps || t.mipmaps.length <= n + 1) continue; for (let i = 0; i < n; i++) { const m = t.mipmaps[i]; if (m && m.data) { mbSaved += m.data.byteLength; m.data = null; } } t.mipmaps = t.mipmaps.slice(n);
+      const im = s.data; if (im && typeof im === 'object') { im.width = t.mipmaps[0].width; im.height = t.mipmaps[0].height; } }
+    VRAM.cut++;
+  }
+  VRAM.ntex = SRC.size; VRAM.savedMB = Math.round(mbSaved / 1048576); VRAM.ms = Math.round(performance.now() - t0);
+}
+WORLD_MODS.push(['VRAM-Diät', async () => { if (VRAM.off || (typeof LITE !== 'undefined' && LITE)) return; try { vram_dedupSync(); } catch (e) { console.warn('VRAM-Dedup', e); } try { vram_diet(); } catch (e) { console.warn('VRAM-Diät', e); } }]);
+// Geometrien, die erst nach dem Laden entstehen (Zusammenfassen/Instanzen/Deko): weitere Durchgänge nach „Fertig“, beim Spielstart und danach alle 40 s (je Durchgang verteilt)
+if (!VRAM.off) { let tk = 0, st0 = -1; setInterval(() => { try { if (!window.__ready) return; tk++; if (state.started && st0 < 0) st0 = tk; const d = tk - st0;
+    if (tk === 3 || (st0 >= 0 && (d === 15 || (d > 15 && d % 40 === 0)))) vram_dedupLauf(); } catch (e) {} }, 1000); }
+window.__vramDedup = vram_dedupLauf;
+window.__vram = VRAM;
 // @@WELT-MODULE@@ (Module werden oberhalb dieser Zeile eingefügt)
 // FRÜH-ÜBERSETZEN (Ladezeit 08.10.2026): Die Grafikkarte übersetzt Programme in eigenen Fäden, während die Module auf dem Hauptfaden weiterbauen. Die Lichterzahl des
 // ersten Bildes ist erst am Ende bekannt – darum übersetzen wir gegen eine Stellvertreter-Szene mit genau so vielen Lichtern je Art wie im ersten Bild des letzten Laufs

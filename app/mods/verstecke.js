@@ -10,7 +10,8 @@ const VST = { orte: [], found: new Set(), such: null, fertig: false, tipp: new S
 MOD_SAVE.push(['verstecke', () => [...VST.found], v => { if (Array.isArray(v)) v.forEach(k => VST.found.add(k)); }]);
 const VST_ZONE = { x0: -76, x1: 76, z0: -34, z1: 34 }; // Ortskern Kapitel 1–5 (Straßen, Gärten, Höfe)
 function vst_belegt(x, z) { // Türen, Klickstellen, Häuser innen: dort nichts verstecken
-  for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(new THREE.Vector3()) : m.position; if (Math.hypot(p.x - x, p.z - z) < 2.2) return true; }
+  if (VST.ip) { for (const q of VST.ip) if (Math.hypot(q[0] - x, q[1] - z) < 2.2) return true; } // 10.10.: Weltpositionen einmal je Suche (vorher je Zelle neu: 240-ms-Standbilder nach 15 s)
+  else for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(new THREE.Vector3()) : m.position; if (Math.hypot(p.x - x, p.z - z) < 2.2) return true; }
   return indoorRects.some(r => inRect(r, x, z, .5)); }
 function vst_unten(x, z) { if (!mantleFree(x + 1.1, z, 0) && !mantleFree(x - 1.1, z, 0) && !mantleFree(x, z + 1.1, 0) && !mantleFree(x, z - 1.1, 0)) return null;
   const c = headCeiling(x, .05, z); if (!(c > .3 && c < .95)) return null; return { y: .02, decke: c }; }
@@ -36,13 +37,15 @@ function vst_pruef(O) {
   for (let a = 0; a < 8; a++) { const gx = O.x + Math.sin(a * .785) * 2.4, gz = O.z + Math.cos(a * .785) * 2.4, g = mantleGround(gx, gz, 0); if (t - g > .45 && t - g < 1.65 && mantleFree(gx, gz, g)) return { ...O, y: t }; }
   return null; }
 function* vst_sucher() { const R = [];
+  { const P = new THREE.Vector3(); VST.ip = []; for (const m of interactables) { if (!m || !m.position) continue; const p = m.getWorldPosition ? m.getWorldPosition(P) : m.position; VST.ip.push([p.x, p.z]); } yield; }
   for (const O of VST_WAHL) { const q = vst_pruef(O); if (q) R.push(q); yield; }
   const fehlt = { unten: 4 - R.filter(o => o.art === 'unten').length, oben: 4 - R.filter(o => o.art === 'oben').length };
   if (fehlt.unten > 0 || fehlt.oben > 0) { const U = [], O2 = []; let n = 0;
-    for (let x = VST_ZONE.x0; x <= VST_ZONE.x1; x += 1.3) for (let z = VST_ZONE.z0; z <= VST_ZONE.z1; z += 1.3) { if (++n % 120 === 0) yield;
+    for (let x = VST_ZONE.x0; x <= VST_ZONE.x1; x += 1.3) for (let z = VST_ZONE.z0; z <= VST_ZONE.z1; z += 1.3) { if (++n % 6 === 0) yield;
       if (vst_belegt(x, z)) continue; if (fehlt.unten > 0) { const u = vst_unten(x, z); if (u) U.push({ x, z, hx: x, hz: z, ...u, art: 'unten' }); } if (fehlt.oben > 0) { const o = vst_oben(x, z); if (o) O2.push({ x, z, ...o, art: 'oben' }); } }
     const wahl = (L, k) => { const Q = []; for (const p of L) { if (Q.length >= k) break; if ([...R, ...Q].every(q => Math.hypot(q.x - p.x, q.z - p.z) > 18)) Q.push(p); } return Q; };
     R.push(...wahl(U, fehlt.unten), ...wahl(O2, fehlt.oben)); }
+  VST.ip = null;
   VST.orte = R.map((p, i) => ({ ...p, key: 'vst_' + p.art + '_' + Math.round(p.x) + '_' + Math.round(p.z), i })); }
 async function vst_bau() {
   let batt = null; try { batt = await msModel('../ue/batterie', 'model.glb'); } catch (e) {}

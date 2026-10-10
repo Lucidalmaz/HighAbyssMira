@@ -66,12 +66,12 @@ function kino_card(lines) { const c = $('kinoCard'); if (kino_S.tw) { kino_S.tw.
     if (l.stempel) kino_stempel(); p.innerHTML = txt.replace(/</g, '&lt;') + (i === L.length - 1 ? '<i class="cur"></i>' : ''); }, at * 1000); });
   return .6 + L.length * 2 + 2.6; }
 // Endkarte außerhalb einer Sequenz (z. B. Kapitel 2 am Gully unter den Glockenschlägen): Schwarz, Karte, Promise nach Ende
-async function kino_karte(lines, opts = {}) { kino_css(); const fd = $('fade'); fd.style.transition = 'opacity .6s'; fd.style.background = '#000'; fd.style.opacity = 1; document.body.classList.add('cine');
+async function kino_karte(lines, opts = {}) { kino_css(); const fd = $('fade'); fd.style.transition = 'opacity .45s'; fd.style.background = '#000'; fd.style.opacity = 1; document.body.classList.add('cine');
   const d = kino_card(lines), t0 = performance.now(); let skip = false;
   // Überspringen (Klick, Leertaste, Enter, Esc) nach 3 s – Karten waren bisher nicht überspringbar (schwarzer Bildschirm mit „KLICK · ÜBERSPRINGEN“)
-  const on = e => { if (e.type === 'keydown' ? !['Space', 'Enter', 'Escape', 'NumpadEnter'].includes(e.code) : e.button !== 0) return; if (e.type === 'keydown') { e.preventDefault(); e.stopPropagation(); } if (performance.now() - t0 >= 3000) skip = true; };
+  const on = e => { if (e.type === 'keydown' ? !['Space', 'Enter', 'Escape', 'NumpadEnter', 'KeyX'].includes(e.code) : e.button !== 0) return; if (e.type === 'keydown') { e.preventDefault(); e.stopPropagation(); } if (performance.now() - t0 >= 800) skip = true; };
   addEventListener('keydown', on, true); addEventListener('pointerdown', on, true);
-  try { const end = t0 + (opts.dauer || d) * 1000; while (!skip && performance.now() < end) await wait(60); kino_card(null); await wait(skip ? 250 : 900); }
+  try { const end = t0 + (opts.dauer || d) * 1000; while (!skip && performance.now() < end) await wait(60); kino_card(null); await wait(skip ? 200 : 500); }
   finally { removeEventListener('keydown', on, true); removeEventListener('pointerdown', on, true); }
   if (!opts.bleiben) document.body.classList.remove('cine'); }
 // Zeitgeber in Kinozeit (steht bei Pause still, verfällt beim Schnitt nicht – nur beim Ende)
@@ -624,12 +624,14 @@ async function kino_play(id, opts = {}) {
     fadeBg: fd.style.background || '#000', world: A.world ? A.world.gain.value : 1, bed: A.bedTrim ? A.bedTrim.gain.value : .5, rain: A.rain ? A.rain.gain.value : 0, master: A.master ? A.master.gain.value : 1, sub: $('subtitle').style.opacity, glitch: glitchV, flashOn };
   if (A.mus && A.ctx) { const g = A.mus.duck.gain, t = A.ctx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + 1.6); } // adaptive Musik weicht
   state.talking = true; setScripted(() => true); glitchV = 0; shake = 0;
-  S.onKey = e => { if (!S.on) return; if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape') { e.preventDefault(); if (e.code === 'Escape') e.stopPropagation(); kino_skip(); } };
+  S.onKey = e => { if (!S.on) return; if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'Escape' || e.code === 'KeyX') { e.preventDefault(); if (e.code === 'Escape') e.stopPropagation(); kino_skip(); } };
   S.onClick = e => { if (!S.on || e.button !== 0) return; kino_skip(); };
   addEventListener('keydown', S.onKey, true); addEventListener('pointerdown', S.onClick, true);
   document.body.classList.add('cine', 'kino'); document.body.classList.toggle('kinoNoSkip', D.skipAfter > 0); $('traumSkip') && ($('traumSkip').style.display = D.skipAfter === Infinity ? 'none' : '');
-  if (!nahtlos) { if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .7s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(750); } else fd.style.background = '#000'; }
-  if (KINO_SET_OF[id]) await kino_preload(KINO_SET_OF[id]);
+  // 10.10. Blende ≤ 0,5 s; der Figurensatz lädt PARALLEL zur Blende (vorher: erst 0,75 s schwarz, dann schwarz auf das Laden warten)
+  const vor = KINO_SET_OF[id] ? kino_preload(KINO_SET_OF[id]) : null;
+  if (!nahtlos) { if (+fd.style.opacity < .99) { fd.style.transition = 'opacity .45s'; fd.style.background = '#000'; fd.style.opacity = 1; await wait(470); } else fd.style.background = '#000'; }
+  if (vor) await vor;
   if (D.start) { try { await D.start(opts); } catch (e) { console.warn('Kino: Start', e); } }
   if (!nahtlos) $('subtitle').style.opacity = 0; S.prevCam = camOverride; setCamOverride(kino_cam);
   const done = new Promise(r => { S.res = r; });
