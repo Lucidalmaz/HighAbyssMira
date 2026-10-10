@@ -17205,6 +17205,7 @@ async function figuren_embody(g, id, { ghost = false, doll = false, clip = null,
   g.add(obj); g.userData.noCol = true;
   const mx = new THREE.AnimationMixer(obj), acts = {}; for (const [k, c] of Object.entries(T.clips)) acts[k] = mx.clipAction(c);
   const Q = { id, obj, mx, acts, cur: null, curK: null, ghost, doll, hide, last: new THREE.Vector3().setFromMatrixPosition(g.matrixWorld), fixed: !!clip, sit: false, g, h: T.height || 1.6, motion: T.motion || {}, gait, rig: figuren_rig(obj, figuren_animSet(T)), mv: figuren_mvNew(), look: null, bad: figuren_sperre(id), face: figuren_faceRig(obj, id) };
+  { const nk = { amt1: .82 }[id]; if (nk && Q.rig.neck && Q.rig.head) { Q.rig.neck.scale.set(nk, 1, nk); Q.rig.head.scale.set(1 / nk, 1, 1 / nk); } } // 10.10.: Hals der Amt-Figur ueberlappte Kragen und Krawatte (Wulst am Kinn) - Hals schlanker, Kopf gegenskaliert (im Bild geprueft)
   if (!ghost) Q.lod = figuren_lodBau(obj);
   if (ghost) geister_person(Q); // Geister: Eintrag mit der Person verbinden (Regie, Zeitlupe, Nachbild)
   g.userData.person = Q; figuren_S.embodied.add(g); if (!ghost) { try { auftritt_neu(g, { name: 'Figur_' + id, ein: .7, aus: .7, r: 1.3 }); } catch (e) { console.warn('Auftritt: Figur', e); } } // 08.10.: weiches Ein-/Ausblenden
@@ -18982,6 +18983,10 @@ WORLD_MODS.push(['Whiskey', async () => {
       if (o.isBone && /Queue-de-cheval-1$/.test(o.name)) { S.jaw = o; const ax = o.userData && o.userData.oeffnen; if (ax) S.jawAx = new THREE.Vector3(ax[0], ax[1], ax[2]).normalize(); } }); // Unterschnabel (Kiefer, Öffnungsachse aus dem Modell)
     const inner = new THREE.Group(); inner.add(m); inner.scale.setScalar(S.base); S.m = inner;
     const g = new THREE.Group(); g.rotation.order = 'YXZ'; g.add(inner); g.visible = false; g.userData.noCol = true; scene.add(g); S.g = g; try { auftritt_reg(g, { name: 'Whiskey', r: 1.2 }); } catch (e) {}
+    // 10.10.: IdleLookAround dreht den Kopf bis 110 Grad gegen den Koerper (gemessen) + Blick-Ueberlagerung = echter Blick nach hinten ohne Koerper. Amplitude von Kopf/Hals auf 62 % (einmalig, Clip ist geteilt)
+    for (const c of src.animations || []) { if (c.userData && c.userData.hwSkaliert) continue; if (!/IdleLookAround$/.test(c.name)) continue; c.userData = c.userData || {}; c.userData.hwSkaliert = true;
+      for (const t of c.tracks) { if (!/(Head|Neck)[^.]*\.quaternion$/i.test(t.name) || t.values.length < 8) continue; const v = t.values, q0 = new THREE.Quaternion(v[0], v[1], v[2], v[3]), q = new THREE.Quaternion();
+        for (let i = 0; i < v.length; i += 4) { q.set(v[i], v[i + 1], v[i + 2], v[i + 3]); const s = q0.clone().slerp(q, .62); v[i] = s.x; v[i + 1] = s.y; v[i + 2] = s.z; v[i + 3] = s.w; } } }
     S.mx = new THREE.AnimationMixer(m); for (const c of src.animations || []) { if (/_RM$/.test(c.name)) continue; S.A[c.name.replace(/^.*\|/, '').replace(/^ANIM_[A-Za-z]+_/, '')] = S.mx.clipAction(c); }
     S.ringM = whiskey_ring(m, false);
     const beak = new THREE.Sprite(new THREE.SpriteMaterial({ map: whiskey_beakTex(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .9 })); beak.scale.setScalar(.09); beak.visible = false; scene.add(beak); S.beak = beak;
@@ -37703,15 +37708,16 @@ const spn_clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const SPN_ARTEN = {
   winkel:    { n: 'Hauswinkelspinne', spann: [.07, .1],   stride: 1.0, cyc: 18, cl: .008 },
   nosferatu: { n: 'Nosferatu-Spinne', spann: [.05, .07],  stride: .75, cyc: 24, cl: .0075 },
-  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125 },
+  huntsman:  { n: 'Riesenkrabbenspinne', spann: [.12, .17], stride: 1.5, cyc: 16, cl: .0125, gang: 'winkel', gangF: .55 }, // 10.10.: eigener Gehclip rutschte >= 68 % -> Gang der Hauswinkelspinne (gleiches Skelett), Stuetzfuss-Schlupf 15 %
   kreuz:     { n: 'Kreuzspinne',      spann: [.045, .06], stride: .6,  cyc: 26, cl: .0062 },
-  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095 },
+  wolf:      { n: 'Wolfsspinne',      spann: [.06, .085], stride: .9,  cyc: 16, cl: .0095, gang: 'kreuz', gangF: .55 }, // dito: Gang der Kreuzspinne, Schlupf 9 %
   vogel:     { n: 'Vogelspinne',      spann: [.16, .21],  stride: .6,  cyc: 34, cl: .024 } };
 const SPN_SRC = new Map(), SPN_HAAR = [];
 // Quelle einer Art laden (einmal): Skalierungs- und Glieder-Positionsspuren entfernen (Knochen-Skalierung bleibt frei für die Variation je Tier), Materialien aufbereiten
 function spn_art(art, res = '') { const key = art + (res ? '_' + res : ''); if (SPN_SRC.has(key)) return SPN_SRC.get(key);
   const p = (async () => { const sc = await msModel('spinnen', key + '.glb'), clips = {};
     for (const c of sc.animations || []) { c.tracks = c.tracks.filter(t => !/\.scale$/.test(t.name) && (!/\.position$/.test(t.name) || /^(body|abdomen)\./.test(t.name))); clips[c.name] = c; }
+    { const G = SPN_ARTEN[art] && SPN_ARTEN[art].gang; if (G) { try { const d = await spn_art(G, res); if (d.clips.walk) clips.walk = d.clips.walk; } catch (e) { console.warn('Spinnen: Spenderclip', e); } } }
     sc.traverse(o => { if (!o.isMesh) return; o.receiveShadow = false;
       if (/^haar/.test(o.name)) { const m = o.material; m.alphaTest = .42; m.transparent = false; m.depthWrite = true; m.side = THREE.DoubleSide; m.userData.spnNeu = true; o.castShadow = false; }
       else { o.material = spn_hautNeu(o.material); o.castShadow = true; } });
@@ -37734,7 +37740,7 @@ async function spn_neu(art, o = {}) { const A = SPN_ARTEN[art], src = await spn_
   g.traverse(m => { if (!m.isMesh) return; if (!mats.has(m.material)) { const c = m.material.clone(); c.color.multiply(col); mats.set(m.material, c); } m.material = mats.get(m.material); if (/^haar/.test(m.name)) haar.push(m); });
   for (const h of haar) SPN_HAAR.push({ m: h, root: g });
   const mx = new THREE.AnimationMixer(g), acts = {}; for (const n in src.clips) acts[n] = mx.clipAction(src.clips[n]);
-  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase
+  const v1 = A.stride * A.cl * k / (.55 * A.cyc / 30) * (A.gangF || 1); // Körpergeschwindigkeit (m/s) bei timeScale 1, Füße stehen in der Stützphase (gangF: Spenderclip, gemessen)
   return { g, mx, acts, art, k, v1, spann }; }
 // Starre Pose für Instanzen (Schwarm, Bildschirm): Gehpose einbacken, Haut-Attribute entfernen, glatt schattieren (Normalen über Nähte gemittelt), auf ext normieren, Kopf → +X
 async function spn_starr(art, res, ext = .125) { const src = await spn_art(art, res), { clone } = await import('three/addons/utils/SkeletonUtils.js');
