@@ -4,7 +4,7 @@
 // schweben_pass(): läuft einmal je betretenem Raum (WORLD_TICK) über alle kleinen Standrequisiten (Bücher, Geschirr, Radios, Fernseher, Teddys …) und senkt, was
 // sicher schwebt (Fläche 3–12 cm darunter gefunden), auf diese Fläche ab. Hängende Dinge (Bilder, Lampen, Uhren, Schilder, Laternen) und alles ohne gefundene
 // Auflage bleiben unberührt (kein „Fallenlassen auf den Boden“, wenn der Tisch nur nicht erkannt wurde).
-// Prüfung/Messung: window.__schweben.pruefen() liefert je Einheit Lücke/Auflage; Protokoll in __schweben.log.
+// Prüfung/Messung: __schweben.pruefen() (Entwicklungsfassung) liefert je Einheit Lücke/Auflage; Protokoll in __schweben.log.
 const SCHW = { log: [], done: new Set(), keys: new Map(), seen: new Set(), n: 0, t: 0, stats: { geprueft: 0, gesenkt: 0 } };
 const SCHW_STEHT = /^(w_buch|lbook|album|w_teller|w_becher|w_tasse|w_besteck|w_blech|w_thermos|w_telefon|w_kamera|w_brot|w_urne|w_funk|w_lighter|w_kette|w_spieluhr|w_alarm|geschirr|radio|crt|rekorder|messer|jerrycan|trashbag|teddy|doll|toys_old|brille|candles|kiffen|it_)/;
 const SCHW_HAENGT = /(frame|clock|mirror|schild|lantern|lamp|curtain|window|door|cross_hang|polaroid|foto|papier|zettel|poster)/i;
