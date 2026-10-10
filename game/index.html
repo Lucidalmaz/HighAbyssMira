@@ -19319,7 +19319,7 @@ function inv3d_sortiert() {
   return L;
 }
 function inv3d_render() {
-  const I = INV3D, B = $('jBody'); if (!B) return; inv3d_css(); cancelAnimationFrame(I.raf); I.raf = 0;
+  const I = INV3D, B = $('jBody'); if (!B) return; I.queue = []; inv3d_css(); cancelAnimationFrame(I.raf); I.raf = 0;
   for (const k of story.items) if (ITEMS[k] && !I.found[k]) I.found[k] = I.found[k] || { ch: 0 }; // vor dem Einbau gefundene: Fundort unbekannt
   const list = inv3d_sortiert(), total = story.items.filter(k => ITEMS[k]).length; if (!list.includes(I.sel)) I.sel = list[0] || null;
   const cats = INV3D_KAT.filter(([c]) => c === 'alle' || story.items.some(k => ITEMS[k] && inv3d_kat(k) === c));
@@ -19339,7 +19339,8 @@ function inv3d_render() {
   act.querySelector('[data-a=mix]').onclick = e => { e.stopPropagation(); I.combine = I.combine ? null : I.sel; Audio.paper(); B.querySelectorAll('.iv-it').forEach(x => x.classList.toggle('kmb', !!I.combine && x.dataset.k !== I.combine)); inv3d_detail(); };
   inv3d_steuerung(); inv3d_detail(true); inv3d_symbole(list);
 }
-async function inv3d_symbole(list) { const I = INV3D; for (const k of list) { if (I.icon.has(k) || !inv3d_modell(k)) continue; if (!(ui.overlay === 'journal' && jTab === 'inventar')) return;
+async function inv3d_symbole(list) { const I = INV3D; list.slice(0, 6).forEach(k => { if (inv3d_modell(k)) inv3d_lade(k).catch(() => {}); }); // Modelle schon parallel laden, gezeichnet wird nacheinander
+  for (let n = 0; n < list.length; n++) { const k = list[n]; if (n + 5 < list.length && inv3d_modell(list[n + 5]) && !I.icon.has(list[n + 5])) inv3d_lade(list[n + 5]).catch(() => {}); if (I.icon.has(k) || !inv3d_modell(k)) continue; if (!(ui.overlay === 'journal' && jTab === 'inventar')) return;
     const u = await inv3d_icon(k); if (u) { const el = $('jBody').querySelector(`.iv-it[data-k="${k}"]`); if (el) { const svg = el.querySelector('svg'); if (svg) { const im = document.createElement('img'); im.src = u; svg.replaceWith(im); } } }
     await new Promise(r => setTimeout(r, 20)); } }
 let inv3d_detailTok = 0;
@@ -19401,7 +19402,7 @@ function inv3d_use(k) { if (!k) return; const kat = inv3d_kat(k);
 
 // ---------------------------------------------------------------- Aufheben (eigene Darstellung)
 async function inv3d_pickup(k) {
-  const I = INV3D; if (!ITEMS[k]) return; if (I.pick) { if (!I.queue) I.queue = []; if (!I.queue.includes(k)) I.queue.push(k); return; }
+  const I = INV3D; if (!ITEMS[k]) return; if (I.pick) { if (!I.queue) I.queue = []; if (!I.queue.includes(k) && I.queue.length < 3) I.queue.push(k); return; } // Stau (Massenvergabe/Laden): höchstens 3 warten, der Rest kommt still ins Inventar
   if (typeof kino_S !== 'undefined' && kino_S.on) return; if (ui.overlay === 'journal') return;
   I.pick = { t0: performance.now(), k }; inv3d_css();
   try {
