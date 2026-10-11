@@ -20,3 +20,7 @@ Werkzeuge ausserhalb des Repos: C:\Users\GIGABYTE\_gen (mk.js, gen_init.js, qa_a
 - Drei schwarze Staebe Keller Nr. 7, Kantinentisch/Nr. 4 Kuechenzeile Auflagen (Werkzeug erkennt sie als "haengt").
 - Schulnoten-Tabellen je Punkt (vorher/nachher, praegnant ja/nein) noch nicht in gate_1010.md; Villa-Raeume nicht jede Ecke gesichtet.
 - Release nicht neu gebaut (Stand Release = Commit b96f3b0, ohne Kuehlschrank/Treppen/Text weiter).
+
+## Stand 11.10.2026 (Folgeauftrag 6)
+Erledigt: Zustandsaudit + Korrekturen (Echos, Polaroids, Kapitelwechsel-Aufräumen, Vorgeschichte bei Kapitelwahl, Wetter/Zeit, Villa, Kap. 3/6-Flags …), Item-Ketten per E, Schrift (3 Gruppen). Siehe `zustand_audit.md`, `item_ketten_lauf.md`, `schrift_audit_1110.md`.
+Verbleibend (begründet): Klavier-Rätsel Messraum nach Laden erneut lösbar; „DAS LICHT“ (Amt) im Bild nicht auffindbar; Kap. 6 Interaktions-Sweep im Dauerprozess abgebrochen (GPU-Kontext).
