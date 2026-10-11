@@ -40,13 +40,15 @@ function bw_kit(name) {
     root.traverse(m => { if (!m.isMesh || m.isSkinnedMesh) return; if (o.teil && !o.teil.test(m.name)) return; if (o.ohne && o.ohne.test(m.name)) return; if (o.eins && parts.length) return;
       parts.push({ geo: m.geometry.clone().applyMatrix4(m.matrixWorld), mat: m.material }); });
     if (!parts.length) throw new Error('keine Teile'); if (o.mat) parts.forEach(q => { q.mat = o.mat(q.mat); });
+    // Glas mit Transmission (KHR_materials_transmission) löst in three einen zweiten Durchlauf der ganzen Szene aus (+400 Zeichenaufrufe je sichtbarem Stück): einfaches Alpha-Glas
+    { const gl = m => { if (!m || !(m.transmission > 0)) return m; const c = m.clone(); c.transmission = 0; c.thickness = 0; c.transparent = true; c.opacity = Math.min(.35, c.opacity ?? 1); c.depthWrite = false; c.roughness = Math.min(c.roughness ?? .1, .15); return c; }; parts.forEach(q => { q.mat = Array.isArray(q.mat) ? q.mat.map(gl) : gl(q.mat); }); }
     const bb = new THREE.Box3(); parts.forEach(q => { q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
     const pre = new THREE.Matrix4(), sz0 = bb.getSize(BW_V());
     if (o.aufrecht && Math.max(sz0.x, sz0.z) > sz0.y) pre.makeRotationFromEuler(new THREE.Euler(sz0.z > sz0.x ? PI / 2 : 0, 0, sz0.x >= sz0.z ? PI / 2 : 0));
     if (o.liegend && sz0.y > Math.max(sz0.x, sz0.z)) pre.makeRotationX(-PI / 2); // QA 09.10.: stehend modelliert (Besteck 0,46 m hoch, 3,6 cm tief) → flach auf die Fläche legen
     bb.makeEmpty(); parts.forEach(q => { q.geo.applyMatrix4(pre); q.geo.computeBoundingBox(); bb.union(q.geo.boundingBox); });
-    const sz = bb.getSize(BW_V()), s = (o.size || 1) / (o.axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[o.axis || 'y']);
-    const mt = new THREE.Matrix4().makeScale(s, s, s).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));
+    const sz = bb.getSize(BW_V()), s = (o.size || 1) / (o.axis === 'max' ? Math.max(sz.x, sz.y, sz.z) : sz[o.axis || 'y']), sv = o.dims ? BW_V(o.dims[0] / sz.x, o.dims[1] / sz.y, o.dims[2] / sz.z) : BW_V(s, s, s); // dims: Zielmaße [x, y, z] in m (ungleichmäßig, Raum-Detail)
+    const mt = new THREE.Matrix4().makeScale(sv.x, sv.y, sv.z).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2));
     const lb = new THREE.Box3(); parts.forEach(q => { q.geo.applyMatrix4(mt); q.geo.computeBoundingBox(); q.geo.computeBoundingSphere(); lb.union(q.geo.boundingBox); });
     return { name, parts, lb, sz: lb.getSize(BW_V()) };
   } catch (e) { console.warn('bewohnt: Modell ' + name, e); bw_S.fehlt.add(name); return null; } })();
@@ -104,7 +106,7 @@ async function bw_bauen(D) {
     if (!stapel) for (const q of recs) if (q.bb.intersectsBox(k)) return 'deko'; return ''; };
   const fuss = b => { const ix = (b.max.x - b.min.x) * .18, iz = (b.max.z - b.min.z) * .18, cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2; return [[cx, cz], [b.min.x + ix, b.min.z + iz], [b.max.x - ix, b.min.z + iz], [b.min.x + ix, b.max.z - iz], [b.max.x - ix, b.max.z - iz]]; };
   const spirale = (rr, n = Math.max(14, rr * rr * 40 | 0)) => { const a = [[0, 0]]; for (let i = 1; i <= n; i++) { const d = rr * Math.sqrt(i / n), w = i * 2.39996; a.push([Math.cos(w) * d, Math.sin(w) * d]); } return a; };
-  const add = (K, pl, o, grund) => { const q = { K, m: pl.m, bb: pl.bb, col: o.col != null ? new THREE.Color(o.col) : null, fest: o.fest ?? (grund === 'boden' && K.sz.y > .35), grund, sagt: o.warum || '' }; recs.push(q); LOG.ok++; return q; };
+  const add = (K, pl, o, grund) => { const q = { K, m: pl.m, bb: pl.bb, col: o.col != null ? new THREE.Color(o.col) : null, fest: o.fest ?? (grund === 'boden' && K.sz.y > .35), grund, sagt: o.warum || '', rd: !!o.rd }; recs.push(q); LOG.ok++; return q; };
   const nein = (name, why) => { LOG.weg.push(name + ':' + why); return null; };
   const hoch = () => Math.min(y0 + H - .06, y0 + 2.35);
   const c = {
@@ -183,19 +185,20 @@ async function bw_bauen(D) {
       if (!treffer.length) continue; const ein = ray.intersectBox(kb, hitV) ? hitV.distanceTo(e) : L; if (sicht(e, dir, ein) < ein - .05) continue; // ohnehin verdeckt
       for (const q of treffer) { q.weg = true; LOG.los++; LOG.weg.push(q.K.name + ':sicht'); } } }
   // Instanzen je Modell (fest/lose getrennt), lose Flächen je Material zu einem Mesh
-  const gruppen = new Map(); for (const q of recs) { if (q.weg) continue; const k = q.K.name + (q.fest ? '|f' : ''); if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push(q); }
-  const gFest = new THREE.Group(), gLos = new THREE.Group(); gLos.userData.noCol = true; g.add(gFest, gLos); const weiss = new THREE.Color(1, 1, 1);
-  for (const list of gruppen.values()) { const K = list[0].K, farbig = list.some(q => q.col), fest = list[0].fest;
+  const gruppen = new Map(); for (const q of recs) { if (q.weg) continue; const k = q.K.name + (q.fest ? '|f' : '') + (q.rd ? '|rd' : ''); if (!gruppen.has(k)) gruppen.set(k, []); gruppen.get(k).push(q); }
+  const gFest = new THREE.Group(), gLos = new THREE.Group(), gRdF = new THREE.Group(), gRdL = new THREE.Group(); gLos.userData.noCol = true; gRdL.userData.noCol = true; g.add(gFest, gLos, gRdF, gRdL); const weiss = new THREE.Color(1, 1, 1); // gRdF/gRdL: Raum-Detail (raumdetail.js), nur in der Nähe sichtbar
+  for (const list of gruppen.values()) { const K = list[0].K, farbig = list.some(q => q.col), fest = list[0].fest, rd = list[0].rd;
     for (const p of K.parts) { const im = new THREE.InstancedMesh(p.geo, p.mat, list.length); list.forEach((q, i) => { im.setMatrixAt(i, q.m); if (farbig) im.setColorAt(i, q.col || weiss); });
-      im.castShadow = fest || K.sz.y > .3; im.receiveShadow = true; im.computeBoundingSphere(); im.computeBoundingBox(); im.userData.bw = 1; (fest ? gFest : gLos).add(im); } }
+      im.castShadow = rd ? K.sz.y > .8 : (fest || K.sz.y > .3); im.receiveShadow = true; im.computeBoundingSphere(); im.computeBoundingBox(); im.userData.bw = 1; (rd ? (fest ? gRdF : gRdL) : fest ? gFest : gLos).add(im); } }
   { const nach = new Map(); for (const p of lose) { p.updateMatrixWorld(true); const k = p.material.uuid; if (!nach.has(k)) nach.set(k, { mat: p.material, geos: [] }); const gg = (p.geometry.index ? p.geometry.toNonIndexed() : p.geometry.clone()).applyMatrix4(p.matrixWorld);
       for (const a of Object.keys(gg.attributes)) if (!['position', 'normal', 'uv'].includes(a)) gg.deleteAttribute(a); if (!gg.attributes.uv) continue; nach.get(k).geos.push(gg); }
     for (const { mat, geos } of nach.values()) { const geo = geos.length > 1 ? mergeGeometries(geos) : geos[0]; if (!geo) continue; geo.computeBoundingSphere(); const me = new THREE.Mesh(geo, mat); me.receiveShadow = true; me.renderOrder = 1; me.userData.bw = 1; gLos.add(me); } }
   g.traverse(o => { o.userData.bw = 1; }); g.updateMatrixWorld(true);
   if (gFest.children.length && typeof solidAdd === 'function') try { solidAdd(gFest); } catch (e) { console.warn('bewohnt: Kollision ' + D.id, e); }
+  if (gRdF.children.length && typeof solidAdd === 'function') try { solidAdd(gRdF); } catch (e) { console.warn('bewohnt: Kollision Raum-Detail ' + D.id, e); }
   try { g.visible = true; renderer.compile(g, camera, scene); } catch (e) {} g.visible = false;
   if (D.nachher) try { D.nachher(); } catch (e) { console.warn('bewohnt: nachher ' + D.id, e); }
-  LOG.ms = Math.round(performance.now() - t0); LOG.inst = gFest.children.length + gLos.children.length; const E = { D, g }; S.gebaut.set(D.id, E); S.liste.push(E);
+  LOG.ms = Math.round(performance.now() - t0); LOG.inst = gFest.children.length + gLos.children.length; const E = { D, g, rd: [gRdF, gRdL] }; S.gebaut.set(D.id, E); S.liste.push(E);
   console.log('[bewohnt] ' + D.id + ': ' + LOG.ok + ' Stücke, ' + LOG.weg.length + ' verworfen, ' + LOG.inst + ' Zeichenaufrufe, ' + LOG.ms + ' ms'); }
 function bw_fleckMat(key, tint, op) { const k = 'f|' + key + tint + op; if (bw_S.pap[k]) return bw_S.pap[k]; const m = msSurfMat(key, { alpha: true, tint }); m.opacity = op; m.depthWrite = false; m.polygonOffsetFactor = -4; return bw_S.pap[k] = m; }
 function bw_kabelMat() { return bw_S.pap.kabel || (bw_S.pap.kabel = (() => { const m = msSurfMat('rust_sheet', { tint: 0x1a1a1a, nrm: .3 }); m.roughness = .55; m.aoMap = null; return m; })()); }

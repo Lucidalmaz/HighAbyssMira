@@ -275,3 +275,71 @@ Modelle von https://polyhaven.com , aufbereitet mit `app/tools/ph_pack.mjs` und 
 - Oil Tin (Niklas) – https://polyhaven.com/a/oil_tin – Keksdose
 - Stationery Supplies (Mateusz Sadek) – https://polyhaven.com/a/stationery_supplies – Kugelschreiber
 Eigenbau (Blender 4.5, `app/tools/blender/item_bau.py`, ohne Schrift/Aufkleber): Umschlag, Brief, Zettel, Fahrkarte, Münze, Murmel, Ring, Glocke, Kreide, Halsband, Handy, Autoschlüssel, Folie, Plombe, Kronkorken, Riemen, Riegel, Schnalle, Dienstnadel, Sofortbild, Grinder, Blättchen, Knolle, Filter, Kinderschuh.
+
+### Raum-Detail (11.10.2026, Folgeauftrag 9) – Poly Haven, Lizenz CC0 (kommerziell nutzbar, keine Namensnennung nötig; hier freiwillig genannt)
+Modelle von https://polyhaven.com, aufbereitet mit `app/tools/raum_opt.mjs` (Dreiecke ≤ 6 000 bzw. 12 000, Texturen ≤ 512/1024 px); Ablage `game/assets/ms/rd_<id>/model.glb`.
+
+- Arm Chair 01 (Kirill Sannikov) – https://polyhaven.com/a/ArmChair_01
+- Cash Register 01 (Joe Seabuhr) – https://polyhaven.com/a/CashRegister_01
+- Rockingchair 01 (Jorge Camacho) – https://polyhaven.com/a/Rockingchair_01
+- School Desk 01 (Ethan Place) – https://polyhaven.com/a/SchoolDesk_01
+- Alarm Clock 01 (Yann Kervran, James Ray Cock) – https://polyhaven.com/a/alarm_clock_01
+- Antique Ceramic Vase 01 (James Ray Cock) – https://polyhaven.com/a/antique_ceramic_vase_01
+- Barrel Stove (MP) – https://polyhaven.com/a/barrel_stove
+- Boombox (Thomas Paul Mouilleron) – https://polyhaven.com/a/boombox
+- Cardboard Box 01 (Rahul Chaudhary) – https://polyhaven.com/a/cardboard_box_01
+- Ceramic Vase 01 (James Ray Cock) – https://polyhaven.com/a/ceramic_vase_01
+- Ceramic Vase 02 (James Ray Cock) – https://polyhaven.com/a/ceramic_vase_02
+- Dining Chair 02 (James Ray Cock) – https://polyhaven.com/a/dining_chair_02
+- Fancy Picture Frame 01 (Rob Tuytel, Rico Cilliers) – https://polyhaven.com/a/fancy_picture_frame_01
+- Hand Truck (Mutanzom3D) – https://polyhaven.com/a/hand_truck
+- Industrial Storage Cart (Jule Bielitz) – https://polyhaven.com/a/industrial_storage_cart
+- Industrial Wall Lamp (Kuutti Siitonen) – https://polyhaven.com/a/industrial_wall_lamp
+- Korean Fire Extinguisher 01 (UM JOORIN) – https://polyhaven.com/a/korean_fire_extinguisher_01
+- Medical Box (Ulan Cabanilla) – https://polyhaven.com/a/medical_box
+- Metal Jerrycan Green (Ulan Cabanilla) – https://polyhaven.com/a/metal_jerrycan_green
+- Metal Office Desk (Ulan Cabanilla) – https://polyhaven.com/a/metal_office_desk
+- Metal Stool 01 (Ulan Cabanilla) – https://polyhaven.com/a/metal_stool_01
+- Metal Tool Chest (Yann Kervran, John Hutcheson) – https://polyhaven.com/a/metal_tool_chest
+- Old Tyre (MP) – https://polyhaven.com/a/old_tyre
+- Painted Wooden Stool (Kirill Sannikov) – https://polyhaven.com/a/painted_wooden_stool
+- Plastic Broom (L) – https://polyhaven.com/a/plastic_broom
+- Portable Generator (James Ray Cock) – https://polyhaven.com/a/portable_generator
+- Potted Plant 04 (James Ray Cock) – https://polyhaven.com/a/potted_plant_04
+- Power Box 01 (Rico Cilliers, Yann Kervran) – https://polyhaven.com/a/power_box_01
+- Retro Multimeter (elli moeller) – https://polyhaven.com/a/retro_multimeter
+- Round Wooden Table 01 (Ulan Cabanilla) – https://polyhaven.com/a/round_wooden_table_01
+- Rubber Boots (L) – https://polyhaven.com/a/rubber_boots
+- Security Camera 01 (Alexander Otterbeck, Yann Kervran) – https://polyhaven.com/a/security_camera_01
+- Side Table 01 (James Ray Cock) – https://polyhaven.com/a/side_table_01
+- Standing Chalkboard 01 (ParzivalCG) – https://polyhaven.com/a/standing_chalkboard_01
+- Standing Picture Frame 01 (James Ray Cock) – https://polyhaven.com/a/standing_picture_frame_01
+- Standing Picture Frame 02 (James Ray Cock) – https://polyhaven.com/a/standing_picture_frame_02
+- Steel Frame Shelves 01 (James Ray Cock) – https://polyhaven.com/a/steel_frame_shelves_01
+- Tea Set 01 (James Ray Cock, Rico Cilliers, Jurita Burger) – https://polyhaven.com/a/tea_set_01
+- Utility Box 01 (James Ray Cock) – https://polyhaven.com/a/utility_box_01
+- Vintage Electric Kettle (SV Garip) – https://polyhaven.com/a/vintage_electric_kettle
+- Vintage Grandfather Clock 01 (Yann Kervran, James Ray Cock) – https://polyhaven.com/a/vintage_grandfather_clock_01
+- Vintage Oil Lamp (Monsta3D) – https://polyhaven.com/a/vintage_oil_lamp
+- Vintage Spacecraft Instrument (Michał Wiśniewski) – https://polyhaven.com/a/vintage_spacecraft_instrument
+- Vintage Suitcase (Maximilian Schuster) – https://polyhaven.com/a/vintage_suitcase
+- Vintage Wooden Drawer 01 (James Ray Cock) – https://polyhaven.com/a/vintage_wooden_drawer_01
+- Wall Clock (PierreB3D) – https://polyhaven.com/a/wall_clock
+- Wheelchair 01 (Garreth Dean) – https://polyhaven.com/a/wheelchair_01
+- Wicker Basket 01 (Kuutti Siitonen) – https://polyhaven.com/a/wicker_basket_01
+- Wooden Broom (Balen) – https://polyhaven.com/a/wooden_broom
+- Wooden Bucket 01 (James Ray Cock) – https://polyhaven.com/a/wooden_bucket_01
+- Wooden Candlestick (Josh Dean) – https://polyhaven.com/a/wooden_candlestick
+- Wooden Crate 01 (James Ray Cock) – https://polyhaven.com/a/wooden_crate_01
+- Wooden Stool 01 (Kuutti Siitonen) – https://polyhaven.com/a/wooden_stool_01
+- Worn Metal Rack (Luca B) – https://polyhaven.com/a/worn_metal_rack
+
+Oberflächen (Texturen b/n/orm, 1k) von https://polyhaven.com, CC0; Ablage `game/assets/ms/rdt_<id>/`:
+
+- Dirty Carpet (Rohit Seervi) – https://polyhaven.com/a/dirty_carpet
+- Interior Tiles (Charlotte Baglioni) – https://polyhaven.com/a/interior_tiles
+- Linoleum Brown (Rob Tuytel) – https://polyhaven.com/a/linoleum_brown
+- Old Linoleum Flooring 01 (Charlotte Baglioni) – https://polyhaven.com/a/old_linoleum_flooring_01
+- Old Wooden Floor 02 (Charlotte Baglioni, Jenelle van Heerden) – https://polyhaven.com/a/old_wooden_floor_02
+- Plank Flooring 03 (Jenelle van Heerden, Matterfield) – https://polyhaven.com/a/plank_flooring_03
+- Wood Floor Worn (Dimitrios Savva) – https://polyhaven.com/a/wood_floor_worn
