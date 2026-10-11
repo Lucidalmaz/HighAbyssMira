@@ -23,20 +23,20 @@ Neues Modul `app/mods/interaktion.js` (+ `interaktion_patch.py`): hängt sich an
 
 ## 2. Inventar nach Typ (Kap. 1–6, je Fläche gemessen)
 
-Gemessen wurden **58** Klickflächen mit mechanischem Typ (nach Beschriftung + Lage dedupliziert). Davon bewegen jetzt 49 ein Bauteil sichtbar, 6 haben kein trennbares Bauteil (Klickfläche über einem Gesamtnetz oder einer Wand).
+Gemessen wurden **57** Klickflächen mit mechanischem Typ (nach Beschriftung + Lage dedupliziert). Davon bewegen jetzt 49 ein Bauteil sichtbar, 5 haben kein trennbares Bauteil (Klickfläche über einem Gesamtnetz oder einer Wand).
 Vorher (Modul abgeschaltet, Kap. 1, dieselben Flächen): 43 Flächen ausgelöst; bei 4 davon bewegte sich irgendetwas im 5-m-Umkreis (Figurenknochen, Raben, Teleport beim Gullydeckel) – das angeklickte Bauteil selbst bewegte sich bei **keiner**.
 
 | Verhalten | Flächen | Beispiele | mit Ton | größter Winkel |
 |---|---|---|---|---|
-| Verschlossene Tür/Tor: Klinke rüttelt | 20 | Stahltür (verriegelt), Garagentor, Kellertür, An Vegas’ Tür klopfen | 20 | 2° |
+| Verschlossene Tür/Tor: Klinke rüttelt | 21 | Stahltür (verriegelt), Garagentor, Kellertür, An Vegas’ Tür klopfen | 21 | 2° |
 | Deckel/Klappdeckel: kippt um die Hinterkante | 10 | Gullydeckel, Müllcontainer, Kofferraum, Pfandkisten | 10 | 74° |
 | Fahrzeug ohne Tür-Teil: Karosserie wippt | 8 | Ausgebranntes Auto, Schrottauto, Erster Transporter, Auto | 8 | – |
-| Durchgangstür (Raumwechsel): schwingt auf | 7 | Hinaus, Stalltür, Hinaus in den Vorgarten, Hinaus auf den Friedhof | 7 | 80° |
-| Schublade: gleitet 30 cm | 3 | Unterste Schublade, Hängeregistratur (Zahlenschlos, Kommodenschublade | 3 | 2° |
+| Durchgangstür (Raumwechsel): schwingt auf | 6 | Hinaus, Hinaus in den Vorgarten, Hinaus auf den Friedhof, Hinaus (Haustür) | 6 | 80° |
+| Schublade: gleitet 30 cm | 3 | Kommodenschublade, Unterste Schublade, Hängeregistratur (Zahlenschlos | 3 | 2° |
 | Fahrzeug ohne Teil | 2 | Transporter, Zweiter Transporter (es klopft | 2 | – |
 | Fahrzeug: Autotür rüttelt am Scharnier | 2 | Autotür | 2 | 1° |
 | Klappe: kippt | 2 | Handschuhfach | 2 | 80° |
-| Schublade ohne trennbares Bauteil | 2 | Kommodenschublade, Registraturschrank durchsuchen | 2 | – |
+| Schublade ohne trennbares Bauteil | 1 | Registraturschrank durchsuchen | 1 | – |
 | Deckel/Kiste ohne trennbares Bauteil | 1 | Blechkiste des Kommandos | 1 | – |
 | Tür/Tor ohne trennbares Bauteil im Modell | 1 | Die Tür der Villa aufschließen | 1 | – |
 
@@ -47,9 +47,9 @@ prägnant: ja = Hauptrequisite/Haupttür/Fahrzeug in Story oder erster Minute, n
 | Objekt (Typ) | prägnant | bewegt vorher | bewegt nachher | Kollision folgt | Ton | Zustand gespeichert | Prompt wechselt | Note vorher | Note nachher | Beleg |
 |---|---|---|---|---|---|---|---|---|---|---|
 | Schwenktüren der Basis (`makeDoor`, 5 in Kap. 1 + Amt) – Tür öffnen/schließen | ja | ja (89°) | ja (89°) | Kiste schaltet: zu 1.2/1.2/1.2/1.2 m gesperrt, offen durchgelaufen | ja | ja (`doors` im Spielstand) | ja | 2 | 1 | door_k1.json (4 Durchgangstüren), ia_k1.json |
-| Durchgangstüren (Hinaus, Kellertür Nr. 4, Friedhof, Vorgarten) – 7 Flächen | ja | nein (Überblendung ohne Tür) | ja (80°, vom Spieler weg) | Netz folgt | ja | nein (Tür fällt zu) | nein (Beschriftung bleibt „Hinaus“) | 4 | 2 | iap_final.json (rot 80,2°, weg −0,8) |
-| Verschlossene Türen/Tore (Stahltür, Klopfen, Ladentür, Schuppen, Garagentor, Hintertür …) – 20 Flächen mit Bauteil | ja | nein (nur Text/Ton) | ja (Klinke rüttelt ±3°) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_final.json (rot 1,9°) |
-| Türen/Tore, deren Blatt im Gesamtnetz steckt (Kapellentür, Stalltür, Eisentor, Garagentor, Hintertür, Schuppen) – 8 Flächen | ja | nein (Ton + Text) | ja: Blatt per Laufzeit-Trennung herausgelöst, **rüttelt** (Story: abgeschlossen) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_k*.json (ctl dreh:tuer, rot 1,9°); Kapellentür: Blatt per Region (-53,8…-52,8 / 81,1) aus der Scan-Wand getrennt |
+| Durchgangstüren (Hinaus, Kellertür Nr. 4, Friedhof, Vorgarten) – 6 Flächen | ja | nein (Überblendung ohne Tür) | ja (80°, vom Spieler weg) | Netz folgt | ja | nein (Tür fällt zu) | nein (Beschriftung bleibt „Hinaus“) | 4 | 2 | iap_final.json (rot 80,2°, weg −0,8) |
+| Verschlossene Türen/Tore (Stahltür, Klopfen, Ladentür, Schuppen, Garagentor, Hintertür …) – 21 Flächen mit Bauteil | ja | nein (nur Text/Ton) | ja (Klinke rüttelt ±3°) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_final.json (rot 1,9°) |
+| Türen/Tore, deren Blatt im Gesamtnetz steckt (Kapellentür, Stalltür, Eisentor, Garagentor, Hintertür, Schuppen) – 9 Flächen | ja | nein (Ton + Text) | ja: Blatt per Laufzeit-Trennung herausgelöst, **rüttelt** (Story: abgeschlossen) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_k*.json (ctl dreh:tuer, rot 1,9°); Kapellentür: Blatt per Region (-53,8…-52,8 / 81,1) aus der Scan-Wand getrennt |
 | Villa-Tür (Eisenplatte mit acht Schlüssellöchern, Kap. 4) – 1 Flächen ohne Blatt | ja | nein | nein (Platte ist eine Textur-Decke, Wechsel per Überblendung) | n. a. | ja | n. a. | n. a. | 4 | 3 | Platte ohne Türblatt (`anwesen.js`): öffnet erst durch Szenenwechsel `anwesen_enterHall`; Wippen nur an der Wurzel |
 | Autos/Transporter/Wracks (Klick „Auto“ …) – 12 Flächen | ja | nein | ja (Wippen/Türrütteln) | Hitbox bleibt | ja | n. a. | n. a. | 4 | 2 | iap_final.json |
 | Autotür Lukes Leihwagen (strasse.js, Innenlicht + Warnsummen) | ja | ja (69°) | ja (69°, Innenlicht) | Netz folgt | ja (`carDoor`, Summen) | aus Story-Schlüssel abgeleitet | ja | 2 | 2 | ia_k1.json |
@@ -66,7 +66,7 @@ prägnant: ja = Hauptrequisite/Haupttür/Fahrzeug in Story oder erster Minute, n
 | Kühlschrank Nr. 4 (Modell mit Tür) | nein | ja (100°) | ja | Netz | ja | nein | ja | 2 | 2 | ia_k1.json (Commit 6cad8a5) |
 | Geräte: Funkgerät (Funkkasten), Radio, Rekorder, Fernseher | ja | nein (Ton/Licht/Text) | ja: Drehknöpfe drehen sich (Funkgerät 2 Regler, Radio 2 Regler), Taste drückt ein (2–23 mm), Antenne/Klappe wo im Netz getrennt vorhanden | n. a. | ja (`switch1`) | ja (Rätselzustände wie vorher) | z. T. | 4 | 2 (Funkgerät/Radio) · 3 (Fernseher: Röhrenkörper ohne Bedienteile) | device_test.json; Overlay des Funkkastens: shots5_out/auf1 |
 
-Bildpaare zu/auf (Kontaktbögen, `docs/gameplay/belege_interaktion/`): Müllcontainer (Deckel hebt ab), Funkgerät (Bedien-Overlay), Gartentor, Stalltür (Blatt gibt die Öffnung frei), Gullydeckel (steht auf, Schacht darunter).
+Bildpaare zu/auf (Kontaktbögen, `docs/gameplay/belege_interaktion/`): Müllcontainer (Deckel hebt ab), Funkgerät (Bedien-Overlay), Gartentor, Stalltür (rüttelt, daneben gibt die Wand den Blick frei), Gullydeckel (steht auf, Schacht darunter).
 
 ## 4. Probleme, die beim Bauen auftraten (und gelöst wurden)
 

@@ -13,7 +13,7 @@ def real(r): return [t for t in r.get('top', []) if not CREA.search(t[2]) and (t
 
 # --- typisierte Klickflächen (nach dem Umbau, je Fläche gemessen), eindeutig nach Beschriftung + Lage
 seen = {}
-for src in ['iap_final.json'] + ['iap_k%d.json' % k for k in range(1, 7)]:
+for src in ['iap_k%d.json' % k for k in range(1, 7)]:
     d = J(src)
     if not d: continue
     for r in d:
@@ -128,6 +128,8 @@ w('| Briefkästen (8) | nein | ja (83–115°) | ja | n. a. | ja | **neu: ja** (
 w('| Schrank (Weiss-Raum, „Den Schrank öffnen“) | ja | ja (86°) | ja | Netz | ja (`doorCreak`) | ja | ja | 2 | 2 | ia_k1.json |')
 w('| Kühlschrank Nr. 4 (Modell mit Tür) | nein | ja (100°) | ja | Netz | ja | nein | ja | 2 | 2 | ia_k1.json (Commit 6cad8a5) |')
 w('| Geräte: Funkgerät (Funkkasten), Radio, Rekorder, Fernseher | ja | nein (Ton/Licht/Text) | ja: Drehknöpfe drehen sich (Funkgerät 2 Regler, Radio 2 Regler), Taste drückt ein (2–23 mm), Antenne/Klappe wo im Netz getrennt vorhanden | n. a. | ja (`switch1`) | ja (Rätselzustände wie vorher) | z. T. | 4 | 2 (Funkgerät/Radio) · 3 (Fernseher: Röhrenkörper ohne Bedienteile) | device_test.json; Overlay des Funkkastens: shots5_out/auf1 |')
+w('')
+w('Bildpaare zu/auf (Kontaktbögen, `docs/gameplay/belege_interaktion/`): Müllcontainer (Deckel hebt ab), Funkgerät (Bedien-Overlay), Gartentor, Stalltür (rüttelt, daneben gibt die Wand den Blick frei), Gullydeckel (steht auf, Schacht darunter).')
 w('')
 w('## 4. Probleme, die beim Bauen auftraten (und gelöst wurden)')
 w('')
