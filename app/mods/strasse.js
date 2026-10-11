@@ -247,6 +247,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       for (const s of [-1, 1]) { const w = new T.Mesh(new T.ConeGeometry(.0017, .0065, 6), new T.MeshStandardMaterial({ color: 0xcfc4a4, roughness: .6 })); w.position.set(s * .0024, -.0006, 0); w.rotation.z = s * .2; zahn.add(w); }
       zahn.rotation.set(PI / 2 - .3, .8, .5); zahn.position.set(.012, floorY + .008, fbb.min.z - .105); zahn.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); g.add(zahn); }
     const st = { open: false }, wx = g.position.x, wz = g.position.z;
+    (S.mbSt = S.mbSt || []).push({ st, piv, k: wx.toFixed(1) + ',' + wz.toFixed(1) }); // Zustand für den Spielstand (interaktion.js, Schlüssel 'tore')
     interact(hit, () => st.open ? 'Briefkasten schließen' : 'Briefkasten öffnen (' + (def.who || 'Nachbar') + ')', () => {
       st.open = !st.open; tween(piv, { rx: st.open ? 1.45 : 0 }, st.open ? .45 : .3); Audio.play(st.open ? 'metalOpen' : 'metalClose', { gain: .3, rate: 1.4, x: wx, y: 1.1, z: wz, ref: 2 });
       if (!st.open) return;

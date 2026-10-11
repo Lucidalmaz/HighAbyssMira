@@ -100,3 +100,9 @@ Nutzer: 'Wenn du ein Auto aufmachst oder eine Tür aufmachst, dass die Tür dann
 
 ### Rest aus Folgeauftrag 6 (für das Abschluss-Gate, 11.10.)
 Nicht belegt/offen aus dem Zustandslauf: Kap.-6-Interaktions-Sweep (WebGL-Kontextverlust nach 15+ Neuladungen im Dauerprozess; frischen Prozess nutzen), Kap. 2/3/6 ohne Rück-Teleport getestet, Klavier-Rätsel safeOpen/lenaMet nicht gespeichert (erneut lösbar; ggf. speichern + Fach direkt offen setzen), 'DAS LICHT' (Amt, Langer Gang) nicht im Bild, nur per Code geprüft: Kanister-Wiederherstellung (ow), Nord-Glocke/Bus, Kirchberg-Raum nach Laden, Puppe (innen_ort), Weltuhr Kap. 6, Villa-F3-Merker; doors[] nur in Kap. 1 angewandt. Kalter Start im frischen Profil bis 'bereit' 481 s (Shader-Cache): im Architektur-Block (Ladezeit) adressieren.
+
+
+### Erledigt 11.10.2026 (Folgeauftrag 7 und 10)
+Bewegung/Hitboxen: `docs/gameplay/bewegung_audit.md` (Fahrzeug-Hitboxen repariert: NaN-Kisten, 99-m-Kiste Lukes Wagen, Raumklang-Indizes; Hohlraum-Füller, Freischieben aus Fahrzeugen, Hocken 0,9 m, Kriechen ab 0,7 m, Hochziehen bis 2,4 m, Kantenrutsch; 0 Fallen in 8 Gebieten).
+Interaktions-Physik: `docs/gameplay/interaktion_audit.md` (Modul `app/mods/interaktion.js`: Durchgangstüren schwingen auf, verschlossene Türen/Autos rütteln, Deckel/Schubladen mit Teil bewegen sich, Gartentore/Briefkästen im Spielstand).
+Offen mit Ursache: Möbel/Tore ohne trennbares Bauteil (Schubladen, Kofferraum, Handschuhfach, Stalltür, Eisentor, Kapellentür, Villa-Tür) – Blender-Nacharbeit je Modell; Geräteknöpfe in einem Netz verschmolzen.

@@ -40,3 +40,11 @@ Shader-Neukompilierungen nach Spielstart. Ausgabe als Tabelle ok/FEHLER, Exit-Co
 * Toleranzen (rel/abs) stehen in `perf_gate.mjs` (`TOL`); die Ladezeit streut mit dem GPU-Shader-Cache (72–95 s warm, bis 250 s nach Shader-Änderungen) – bei rotem Wert erst ein zweites Mal laufen lassen.
 * Budget-Regeln für neue Assets: `docs/gameplay/performance_budget.md`; Ergebnisse und offene Punkte: `docs/gameplay/leistung_1010.md`.
 * Laufzeit ≈ 7 Minuten (Neuladen 80–125 s, Neues Spiel 60 s, 6 Punkte × 12 s, Auswertung).
+
+
+## Bewegungs- und Interaktions-Tests (11.10.2026, Folgeauftrag 7 + 10)
+Werkzeuge in `app/tools/qa_bewegung/` (Spielseite: `window.__BW` aus `lib.js`; Ergebnisse als JSON über „FILES:“). Aufbau und Ergebnisse: `docs/gameplay/bewegung_audit.md`, `docs/gameplay/interaktion_audit.md`.
+* Steps bauen: `node mk.js <name> <kap 1–6> lib.js <test>.js …` (erster Schritt startet das Kapitel in einer frischen Seite; danach `bash _live.sh run <name>.json`). Kapitelwechsel in einer bereits gestarteten Seite funktioniert nicht zuverlässig → vorher `_live.sh reload`.
+* `veh_all.js` (alle Fahrzeuge: 8 Richtungen Sprung/Hochziehen), `obj_test.js` (Requisiten/Netze, Stichprobe `max`), `synth.js` (Hochziehen-Höhen, Kante), `crawl.js` (Kriechen), `freischieben.js` (aus Fahrzeug schieben),
+  `falle2.js` (Flutfüllung vorwärts/rückwärts), `door_test.js`, `aircontrol.js`; Interaktion: `ia_inv.js` (Vollmessung), `iap_test.js` (je Klickfläche), `ia_shots.js` (Bildpaare zu/auf).
+* Stolpersteine: Tests rufen `update()` ohne Rendern auf – nach Änderungen an Türen/Netzen `scene.updateMatrixWorld(true)`; Kollisionskisten nie aus `colliders` löschen (nur `minX = maxX = -9999`), `raumklang.js` hält Indizes.

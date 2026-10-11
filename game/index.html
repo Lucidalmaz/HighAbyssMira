@@ -2990,8 +2990,10 @@ function stepSurface(indoor) { const k = typeof klang_surface === 'function' ? k
 let camY = 1.65, fov = 72, vy = 0, grounded = true, mantle = null, jumpQueued = false;
 // Ducken (Nutzer 02.10.): Strg halten oder C umschalten. Augenhöhe 1,65 → 1,03 m, Körper 1,7 → 1,15 m (unter Tischen, Ästen, Rohren durch), halbes Tempo, kein Sprint.
 // Aufstehen nur mit Platz über dem Kopf (sonst bleibt man unten); Space aus der Hocke richtet auf.
-let crouchK = 0, crouchZiel = false;
-const bodyH = () => 1.7 - .55 * crouchK;
+let crouchK = 0, crouchZiel = false, crawlK = 0;
+const bodyH = () => 1.7 - .8 * crouchK - .25 * crawlK; // Stand 1,7 · Hocke 0,9 · Kriechen 0,65 (Öffnungen ab 0,7 m)
+const PROBES_STAND = [.62, 1.05, 1.5, 1.72]; // Knie, Hüfte, Brust, Kopf
+function bodyProbes() { const H = bodyH(); if (H >= 1.65) return PROBES_STAND; const t = H - .3; return t > .55 ? [Math.min(.45, t - .15), t] : [t]; } // Kugel r = R: Oberkante der obersten Probe = Körperhöhe
 function crouchKann() { return headCeiling(player.pos.x, player.pos.y + .5, player.pos.z) - player.pos.y >= HEAD_CLEAR - .02; }
 addEventListener('keydown', e => { if (e.code !== 'KeyC' || e.repeat || ui.overlay || !state.started) return; if (typeof kamera_S !== 'undefined' && kamera_S.frei) return; if (crouchZiel && !crouchKann()) return; crouchZiel = !crouchZiel; });
 // Körpergefühl (Premium-Auftrag „Spielfigur/Kamera“): Federn für Laufen, Augenhöhe, Nachschwingen, Landen und Blick. Konstanten in FEELC, Zustand in FEEL (keine Allokationen im Takt).
@@ -3030,7 +3032,7 @@ function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Ac
 // Höchste begehbare Kante unter dem Spieler (Boden, Kisten, Mauern, Möbel)
 function groundAt(base) {
   if (state.zone === 'canal') { const g = canalGroundY(player.pos.x, player.pos.y, player.pos.z); return g === null ? player.pos.y : g; }
-  let g = base; const px = player.pos.x, pz = player.pos.z, r = R * .7;
+  let g = base; const px = player.pos.x, pz = player.pos.z, r = R * .45;
   for (const c of colliders) if (c.top > g && c.top <= player.pos.y + .36 && px + r > c.minX && px - r < c.maxX && pz + r > c.minZ && pz - r < c.maxZ) g = c.top;
   const sg = solidGround(px, player.pos.y, pz); if (sg > g) g = sg;
   return g;
@@ -3103,7 +3105,7 @@ function updateInteract() {
   if (performance.now() > IA.t || IA.n !== interactables.length * 100003 + occluders.length) iaNear();
   const hit = ray.intersectObjects(IA.list, false)[0];
   target = hit && hit.object.userData.action ? hit.object : null;
-  if (target && !ui.overlay) { const l = target.userData.label; $('prompt').style.display = 'block'; $('promptText').textContent = trX(typeof l === 'function' ? l() : l); $('crosshair').classList.add('on'); }
+  if (target && !ui.overlay) { let l = target.userData.label; if (target.userData.iapAnz) { const a = target.userData.iapAnz(); if (a) l = a; } $('prompt').style.display = 'block'; $('promptText').textContent = trX(typeof l === 'function' ? l() : l); $('crosshair').classList.add('on'); }
   else { $('prompt').style.display = 'none'; $('crosshair').classList.remove('on'); }
 }
 
@@ -5385,7 +5387,7 @@ function solidPush() {
     for (const it of list) {
       const bb = it.bb; if (P.x + R < bb.min.x || P.x - R > bb.max.x || P.z + R < bb.min.z || P.z - R > bb.max.z || P.y + 1.8 < bb.min.y || P.y + .37 > bb.max.y) continue;
       if (!solidLive(it)) continue;
-      for (const h of [.62, 1.05, 1.5, 1.72]) { // Knie, Hüfte, Brust, Kopf (Kopf: nicht in Hängeschränke/Balken/Dachschrägen laufen)
+      for (const h of bodyProbes()) { // Knie, Hüfte, Brust, Kopf (Kopf: nicht in Hängeschränke/Balken/Dachschrägen laufen); geduckt/kriechend: niedriger
         const cy = P.y + h; if (cy + R < it.bb.min.y || cy - R > it.bb.max.y) continue;
         _sp.set(P.x, cy, P.z).applyMatrix4(it.inv);
         const r = it.o.geometry.boundsTree.closestPointToPoint(_sp, _stgt, 0, R / it.sc); if (!r) continue;
@@ -7977,6 +7979,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       for (const s of [-1, 1]) { const w = new T.Mesh(new T.ConeGeometry(.0017, .0065, 6), new T.MeshStandardMaterial({ color: 0xcfc4a4, roughness: .6 })); w.position.set(s * .0024, -.0006, 0); w.rotation.z = s * .2; zahn.add(w); }
       zahn.rotation.set(PI / 2 - .3, .8, .5); zahn.position.set(.012, floorY + .008, fbb.min.z - .105); zahn.traverse(m => { if (m.isMesh) { m.castShadow = true; m.userData.noCol = true; } }); g.add(zahn); }
     const st = { open: false }, wx = g.position.x, wz = g.position.z;
+    (S.mbSt = S.mbSt || []).push({ st, piv, k: wx.toFixed(1) + ',' + wz.toFixed(1) }); // Zustand für den Spielstand (interaktion.js, Schlüssel 'tore')
     interact(hit, () => st.open ? 'Briefkasten schließen' : 'Briefkasten öffnen (' + (def.who || 'Nachbar') + ')', () => {
       st.open = !st.open; tween(piv, { rx: st.open ? 1.45 : 0 }, st.open ? .45 : .3); Audio.play(st.open ? 'metalOpen' : 'metalClose', { gain: .3, rate: 1.4, x: wx, y: 1.1, z: wz, ref: 2 });
       if (!st.open) return;
@@ -35307,7 +35310,7 @@ async function tod_zurueck(ziel) {
   try {
   try { $('pause').classList.remove('show'); ui.paused = false; closeAllOverlays(); } catch (e) {}
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
-  try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
+  try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; crawlK = 0; } catch (e) {}
   const ch = curChapter(); let cp = null;
   const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
   if (ziel === 'schritt') {
@@ -35366,22 +35369,32 @@ WORLD_TICK.push(dt => { try { tod_spurTick(dt); } catch (e) {} try { tod_festTic
 // (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.
 const TOD_KL = { t: 0, x: 0, z: 0, logT: 0, a: new THREE.Vector3(), b: new THREE.Vector3(), c: new THREE.Vector3(), g: {} };
 const tod_nm = o => { const a = []; for (let p = o, i = 0; p && i < 4; p = p.parent, i++) a.push(p.name || p.type); return a.join('<'); };
-function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen
+function tod_blockiert(x, y, z, out, rr = R, ohneFuell = false) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen; ohneFuell: Füllkisten (Fahrzeuge, Fässer) zählen nicht
   let n = 0; const H = typeof bodyH === 'function' ? bodyH() : 1.7;
-  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H) continue;
+  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H || (ohneFuell && (c.fzg || c.hohl))) continue;
     if (x + rr > c.minX && x - rr < c.maxX && z + rr > c.minZ && z - rr < c.maxZ) { n++; if (out && out.length < 6) out.push('Kiste[' + [c.minX, c.maxX, c.minZ, c.maxZ].map(v => v.toFixed(1)).join(',') + '|' + c.base + '…' + c.top + ']'); } }
   const A = TOD_KL.a, Bv = TOD_KL.b, C = TOD_KL.c;
   for (const it of solidNear(x, z)) { const bb = it.bb; if (it.soft || x + rr < bb.min.x || x - rr > bb.max.x || z + rr < bb.min.z || z - rr > bb.max.z || y + 1.8 < bb.min.y || y + .37 > bb.max.y || !solidLive(it)) continue;
-    for (const h of [.62, 1.05, 1.5, 1.72]) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
+    for (const h of (typeof bodyProbes === 'function' ? bodyProbes() : [.62, 1.05, 1.5, 1.72])) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
       A.set(x, cy, z).applyMatrix4(it.inv); const r = it.o.geometry.boundsTree.closestPointToPoint(A, TOD_KL.g, 0, rr / it.sc); if (!r) continue;
       Bv.copy(r.point).applyMatrix4(it.mw); if (Bv.y < y + .37 || Bv.distanceTo(C.set(x, cy, z)) >= rr) continue;
       n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
   return n; }
 // Weg zum Freischiebe-Punkt frei? (Nutzer 08.10.: „außerhalb der Map / in Wänden gelandet“ – der nächste freie Punkt kann hinter einer Wand liegen; ab 0,45 m Abstand darf nichts Festes im Weg stehen)
 function tod_wegFrei(x0, y, z0, x1, z1, skip = .45) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < skip) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
+// Steckt der Körper im Volumen eines Fahrzeugs/Fasses (Füllkisten aus bewegung.js: fzg/hohl)? Dann nach 0,5 s – auch ohne Eingabe – zum nächsten freien Platz außen schieben (nie hinein);
+// der Weg darf durch die Füllkisten führen (man steckt ja darin), aber nicht durch Wände. Folgeauftrag 7 (11.10.): Messung freischieben.json – vorher blieb man im Wagen stecken.
+function tod_fuellDrin(P) { const H = typeof bodyH === 'function' ? bodyH() : 1.7, r = R * .8; for (const c of colliders) { if (!(c.fzg || c.hohl) || c.minX < -9000 || c.top <= P.y + .36 || c.base >= P.y + H) continue; if (P.x + r > c.minX && P.x - r < c.maxX && P.z + r > c.minZ && P.z - r < c.maxZ) return true; } return false; }
+function tod_fuellRaus(P) {
+  for (let r = .3; r <= 3.6; r += .15) for (let k = 0; k < 24; k++) { const a = k / 24 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
+    if (tod_blockiert(x, P.y, z, null, R + .02) !== 0 || !spotOk({ x, y: P.y, z })) continue;
+    let ok = true; for (let d = .2; d < r && ok; d += .15) if (tod_blockiert(P.x + (x - P.x) * d / r, P.y, P.z + (z - P.z) * d / r, null, R * .8, true) > 0) ok = false; if (!ok) continue;
+    P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: aus Fahrzeug/Fass geschoben um ' + r.toFixed(2) + ' m'); return true; }
+  return false; }
 function tod_klemmTick(dt) {
   const K = TOD_KL;
-  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
+  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; K.vt = 0; return; }
+  { const P0 = player.pos; if (tod_fuellDrin(P0)) { K.vt = (K.vt || 0) + dt; if (K.vt > .5) { K.vt = 0; tod_fuellRaus(P0); } } else K.vt = 0; }
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
   K.ft = (K.ft || 0) + dt; if (K.ft > .25) { K.ft = 0; if (tod_blockiert(P.x, P.y, P.z, null, R * .8) === 0) { K.fx = P.x; K.fy = P.y; K.fz = P.z; } } // letzter Platz ohne Überlappung (4× je Sekunde)
   if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
@@ -46056,12 +46069,15 @@ function bewegung_kisten(F, ex) { const { H, nx, nz, x0, z0, cs, base } = F; con
   for (const o of open.values()) done.push(o);
   return done.map(b => ({ minX: x0 + b.i0 * cs, maxX: x0 + b.i1 * cs, minZ: z0 + b.j0 * cs, maxZ: z0 + b.j1 * cs, top: base + b.t, base: base - .05 })); }
 function bewegung_bauen(rec) { const o = rec.o; const F = bewegung_hoehenfeld(o);
-  for (const c of rec.cols) { const i = colliders.indexOf(c); if (i >= 0) colliders.splice(i, 1); } rec.cols = [];
+  rec.pool = (rec.pool || []).concat(rec.cols); for (const c of rec.cols) { c.minX = c.maxX = -9999; c.__tot = 1; } rec.cols = []; // nie aus colliders löschen (raumklang.js hält Indizes) – abschalten wie die Türen, Kisten wiederverwenden (sonst wächst colliders bei jedem Neubau)
   if (!F || F.zu_gross) { rec.info = F ? 'zu groß ' + F.zu_gross.map(v => v.toFixed(1)).join('×') : 'keine Netze'; rec.skip = true; return; }
-  const boxes = bewegung_kisten(F); for (const b of boxes) { b.fzg = rec.id; colliders.push(b); rec.cols.push(b); }
+  const boxes = bewegung_kisten(F); for (const b of boxes) { b.fzg = rec.id; const c = rec.pool.pop(); if (c) { Object.assign(c, b); delete c.__tot; delete c.__x0; delete c.__x1; rec.cols.push(c); } else { colliders.push(b); rec.cols.push(b); } }
+  // Alte Ersatz-Kiste des Wagens (addCol ohne Höhe = 99 m, z. B. Lukes Leihwagen): Kiste liegt im Umriss des Fahrzeugs → entfernen, sonst Wand bis zum Himmel (nicht begehbar, Hochziehen unmöglich)
+  { const ex = F.x0 - .6, ez = F.z0 - .6, fx = F.x0 + F.nx * F.cs + .6, fz = F.z0 + F.nz * F.cs + .6;
+    for (let i = colliders.length - 1; i >= 0; i--) { const c = colliders[i]; if (c.fzg || c.minX < -9000 || c.top - c.base < 4 || c.minX < ex || c.maxX > fx || c.minZ < ez || c.maxZ > fz || c.maxX - c.minX < 1.2 || c.maxZ - c.minZ < 1.2) continue; c.minX = c.maxX = -9999; c.__tot = 1; } }
   rec.skip = false; rec.info = boxes.length + ' Kisten, Höhe ' + (F.top - F.base).toFixed(2) + ' m'; rec.hf = { nx: F.nx, nz: F.nz, hits: F.hits };
   o.userData.noCol = true; // das Netz zählt nicht mehr (hohl: Unterboden, Scheiben, Innenraum)
-  rec.me = new Float32Array(o.matrixWorld.elements); rec.vis = true; }
+  rec.me = new Float32Array(o.matrixWorld.elements); rec.vis = true; rec.on = true; } // frische Kisten sind aktiv (war rec.on false, machte bewegung_aktiv(true) minX = undefined = NaN → Fahrzeug ohne Kollision)
 function bewegung_aktiv(rec, on) { if (rec.on === on) return; rec.on = on; for (const c of rec.cols) { if (on) { c.minX = c.__x0; c.maxX = c.__x1; } else { c.__x0 = c.minX; c.__x1 = c.maxX; c.minX = c.maxX = -9999; } } }
 function bewegung_ueberlappt(rec) { const P = player.pos; for (const c of rec.cols) { if (c.minX < -9000) continue; if (c.top <= P.y + .36 || c.base >= P.y + 1.7) continue; if (P.x + R > c.minX && P.x - R < c.maxX && P.z + R > c.minZ && P.z - R < c.maxZ) return true; } return false; }
 let bewegung_id = 0;
@@ -46086,6 +46102,202 @@ function bewegung_tick(dt) {
 }
 WORLD_TICK.push(dt => { try { bewegung_tick(dt); } catch (e) { if (!BEWG.errT) { BEWG.errT = 1; console.warn('bewegung', e); } } });
 window.__bewg = { BEWG, rebuild: () => { for (const r of BEWG.veh) { r.o.userData.noCol = false; bewegung_bauen(r); } }, info: () => BEWG.veh.map(r => ({ id: r.id, key: r.key, info: r.info, cols: r.cols.length, on: r.on, sicht: r.sicht, pos: r.o.getWorldPosition(new THREE.Vector3()).toArray().map(v => +v.toFixed(1)) })) };
+
+// =====================================================================  VOLUMEN FÜLLEN (Folgeauftrag 7: „keine Hohlräume, nirgends reinfallen, nirgends hineingebacken“)
+// Ursache (Messung bewegung_audit.md): Netz-Kollision arbeitet an der OBERFLÄCHE. Steht der Körper (r = 0,3 m) ganz im Inneren eines geschlossenen Netzes (Fass, Kiste, Tonne: Wand ≥ 0,3 m entfernt),
+// ist kein Treffer da – Sprung/Hochziehen „drüber“ landete IM Fass, und das Freischieben fand keine Überlappung. Lösung: kleine, wasserdichte Netze (Grundfläche ≤ 2,4 m, Höhe 0,35–2,2 m)
+// werden von oben mit 8-cm-Strahlen durchlaufen (alle Treffer; Front-/Rückseite → feste Abschnitte, Hohlräume im Inneren bleiben frei). Nur Zellen, in denen die Körpermitte ganz im Festen steht
+// (Nachbarn im Abstand 0,32 m – bei Netzen ≤ 1,5 m 0,16 m – fest auf Höhe knapp unter der Oberkante), werden zu Kollisionskisten bis zur echten Oberkante. Man steht auf dem Fass/der Kiste und kann nicht hinein.
+const HOHL = { i: 0, cur: 0, pend: [], recs: [], t: 0, n: 0, geprueft: 0, err: 0, cache: new WeakMap() };
+const _hR = new THREE.Vector3(), _hD = new THREE.Vector3(), _hRay = new THREE.Ray();
+function hohl_geschlossen(g) { // wasserdicht = jede Kante gehört zu genau 2 Dreiecken (Eckpunkte nach Lage zusammengefasst)
+  let c = HOHL.cache.get(g); if (c !== undefined) return c; c = false;
+  try { const P = g.attributes.position, I = g.index, n = I ? I.count : P.count; if (n / 3 <= 5000 && n >= 12) { const vid = new Map(), id = k => { const q = Math.round(P.getX(k) * 2e4) + ',' + Math.round(P.getY(k) * 2e4) + ',' + Math.round(P.getZ(k) * 2e4); let v = vid.get(q); if (v === undefined) vid.set(q, v = vid.size); return v; };
+      const E = new Map(); let ok = true; for (let t = 0; t < n; t += 3) { const a = id(I ? I.getX(t) : t), b = id(I ? I.getX(t + 1) : t + 1), d = id(I ? I.getX(t + 2) : t + 2);
+        for (const [u, v] of [[a, b], [b, d], [d, a]]) { if (u === v) continue; const k = u < v ? u * 4194304 + v : v * 4194304 + u; E.set(k, (E.get(k) || 0) + 1); } }
+      for (const v of E.values()) if (v & 1) { ok = false; break; } c = ok; } } catch (e) {}
+  HOHL.cache.set(g, c); return c; }
+function hohl_kandidat(it) { // billige Vorauswahl: Größe, Dreiecke, kein Fahrzeug
+  if (it.soft || it.hohlDone) return false; const bb = it.bb, g = it.o.geometry; if (!g || !g.boundsTree) return false;
+  const sx = bb.max.x - bb.min.x, sz = bb.max.z - bb.min.z, sy = bb.max.y - bb.min.y;
+  if (sx < .3 || sz < .3 || sx > 2.4 || sz > 2.4 || sy < .35 || sy > 2.2) return false;
+  if (it.o.userData && it.o.userData.msKey && BEWG.rx.test(it.o.userData.msKey)) return false;
+  const tri = (g.index ? g.index.count : g.attributes.position.count) / 3; return tri <= 5000 && tri >= 12; } // teure Prüfung nur für niedrig aufgelöste Netze (Leistungs-Gate: ein 20-k-Netz kostete 100 ms in einem Bild)
+function hohl_pruefen(it) {
+  if (!hohl_kandidat(it)) { it.hohlDone = true; return; } it.hohlDone = true; const bb = it.bb, g = it.o.geometry;
+  const sx = bb.max.x - bb.min.x, sz = bb.max.z - bb.min.z;
+  if (!hohl_geschlossen(g)) return;
+  const cs = Math.max(sx, sz) <= 1.5 ? .08 : .12, nx = Math.ceil(sx / cs), nz = Math.ceil(sz / cs), top = bb.max.y + .3, sgn = it.mw.determinant() < 0 ? -1 : 1;
+  _hD.set(0, -1, 0).transformDirection(it.inv); const IV = new Array(nx * nz); let any = 0;
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { _hR.set(bb.min.x + (i + .5) * cs, top, bb.min.z + (j + .5) * cs).applyMatrix4(it.inv); _hRay.set(_hR, _hD);
+    const hs = g.boundsTree.raycast(_hRay, THREE.DoubleSide); if (!hs || !hs.length) continue; hs.sort((a, b) => a.distance - b.distance); const iv = []; let y0 = null;
+    for (const h of hs) { const d = h.face.normal.x * _hRay.direction.x + h.face.normal.y * _hRay.direction.y + h.face.normal.z * _hRay.direction.z; _hR.copy(h.point).applyMatrix4(it.mw);
+      if (d * sgn < 0) { if (y0 === null) y0 = _hR.y; } else if (y0 !== null) { if (y0 - _hR.y > .02) iv.push([_hR.y, y0]); y0 = null; } }
+    if (iv.length) { IV[j * nx + i] = iv; any++; } }
+  if (any < 9) return;
+  const has = (i, j, y) => { if (i < 0 || j < 0 || i >= nx || j >= nz) return false; const iv = IV[j * nx + i]; if (!iv) return false; for (const v of iv) if (y > v[0] && y < v[1]) return true; return false; };
+  const r = Math.round((Math.max(sx, sz) <= 1.5 ? .16 : .32) / cs), dirs = [[r, 0], [-r, 0], [0, r], [0, -r], [r * .7, r * .7], [-r * .7, r * .7], [r * .7, -r * .7], [-r * .7, -r * .7]].map(a => [Math.round(a[0]), Math.round(a[1])]);
+  const groups = new Map(); let nTief = 0;
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) { const iv = IV[j * nx + i]; if (!iv) continue;
+    for (const v of iv) { const ys = v[1] - Math.min(.15, (v[1] - v[0]) * .5); let deep = true; for (const [a, b] of dirs) if (!has(i + a, j + b, ys)) { deep = false; break; }
+      if (!deep) continue; nTief++; const t = Math.floor(v[1] / .1) * .1, b = Math.floor(v[0] / .2) * .2, key = t.toFixed(2) + '|' + b.toFixed(2); let L = groups.get(key); if (!L) groups.set(key, L = { t, b: Math.min(v[0], b), c: new Set() }); else L.b = Math.min(L.b, v[0]); L.c.add(j * nx + i); } }
+  if (nTief < 4) return;
+  const boxes = [];
+  for (const L of groups.values()) { if (L.c.size < 3) continue; const used = new Set(), ks = [...L.c].sort((a, b) => a - b);
+    for (const k0 of ks) { if (used.has(k0)) continue; const j = Math.floor(k0 / nx), i0 = k0 % nx; let i1 = i0; while (L.c.has(j * nx + i1 + 1) && !used.has(j * nx + i1 + 1) && (i1 + 1) % nx !== 0) i1++;
+      let j1 = j; for (;;) { let all = true; for (let i = i0; i <= i1; i++) if (!L.c.has((j1 + 1) * nx + i) || used.has((j1 + 1) * nx + i)) { all = false; break; } if (!all) break; j1++; }
+      for (let jj = j; jj <= j1; jj++) for (let i = i0; i <= i1; i++) used.add(jj * nx + i);
+      boxes.push({ minX: bb.min.x + i0 * cs, maxX: bb.min.x + (i1 + 1) * cs, minZ: bb.min.z + j * cs, maxZ: bb.min.z + (j1 + 1) * cs, top: L.t, base: L.b - .02, hohl: 1 }); } }
+  if (!boxes.length) return;
+  const rec = { it, boxes, on: false, me: new Float32Array(it.mw.elements) }; HOHL.recs.push(rec); HOHL.n += boxes.length;
+  const live = solidLive(it); if (live) hohl_an(rec, true);
+}
+function hohl_an(rec, on) { if (rec.on === on) return; rec.on = on; for (const b of rec.boxes) { if (on) { if (b.__x0 === undefined) { b.__x0 = b.minX; b.__x1 = b.maxX; colliders.push(b); } else { b.minX = b.__x0; b.maxX = b.__x1; } } else if (b.__x0 !== undefined) { b.minX = b.maxX = -9999; } } } // append-only wie die Türen
+function hohl_tick(dt) {
+  if (!SOL.items.length || typeof solidLive !== 'function') return;
+  const P = player.pos, t1 = performance.now() + 1.5, A = HOHL.pend; let n = 0; HOHL.cool = (HOHL.cool || 0) - dt;
+  while (HOHL.i < SOL.items.length && n++ < 3000) A.push(SOL.items[HOHL.i++]); // neue Netze einreihen
+  for (let q = 0; q < 700 && A.length && performance.now() < t1; q++) { if (HOHL.cur >= A.length) HOHL.cur = 0; const it = A[HOHL.cur];
+    if (it.hohlDone) { A[HOHL.cur] = A[A.length - 1]; A.pop(); continue; }
+    const b = it.bb, dx = (b.min.x + b.max.x) / 2 - P.x, dz = (b.min.z + b.max.z) / 2 - P.z;
+    if (dx * dx + dz * dz > 625) { HOHL.cur++; continue; } // nur im Umkreis von 25 m um den Spieler
+    if (!hohl_kandidat(it)) { it.hohlDone = true; HOHL.geprueft++; A[HOHL.cur] = A[A.length - 1]; A.pop(); continue; }
+    if (!HOHL.fast && (HOHL.cool > 0 || dt > .034)) break; // höchstens ein Netz je 60 ms, nicht bei langsamen Bildern (HOHL.fast = Testschalter)
+    { const t = performance.now(); try { hohl_pruefen(it); } catch (e) { HOHL.err++; } const ms = performance.now() - t; HOHL.cool = ms > 8 ? .25 : .06; HOHL.ms = Math.max(HOHL.ms || 0, ms); }
+    it.hohlDone = true; HOHL.geprueft++; A[HOHL.cur] = A[A.length - 1]; A.pop(); }
+  HOHL.t += dt; if (HOHL.t < .6) return; HOHL.t = 0;
+  for (let k = HOHL.recs.length - 1; k >= 0; k--) { const r = HOHL.recs[k]; let live = false; try { live = solidLive(r.it); } catch (e) {}
+    let moved = false; for (let q = 0; q < 16; q++) if (Math.abs(r.it.me[q] - r.me[q]) > 1e-3) { moved = true; break; }
+    if (moved) { hohl_an(r, false); HOHL.recs.splice(k, 1); r.it.hohlDone = false; r.it.hohlRe = (r.it.hohlRe || 0) + 1; if (r.it.hohlRe < 3) { try { hohl_pruefen(r.it); } catch (e) {} } continue; }
+    hohl_an(r, live); }
+}
+WORLD_TICK.push(dt => { try { hohl_tick(dt); } catch (e) { if (!HOHL.errT) { HOHL.errT = 1; console.warn('hohl', e); } } });
+window.__hohl = HOHL;
+// =====================================================================  INTERAKTIONS-PHYSIK (Nutzer 11.10.2026, Folgeauftrag 10)
+// „Wenn du ein Auto aufmachst oder eine Tür aufmachst, dass die Tür dann auch aufgeht und sich bewegt … alles, was du anfasst, soll sich wirklich bewegen.“
+// Messung (docs/gameplay/interaktion_audit.md): die meisten Klickflächen sind unsichtbare Kästen über dem Modell und lösen nur Text, Ton oder Notiz aus – das Teil darunter (Schublade, Deckel, Tür, Autotür)
+// bleibt stehen. Dieses Modul hängt sich an jede Klickfläche eines mechanischen Typs, die noch keine eigene Bewegung hat (Beschriftung „öffnen/schließen“ = Modul animiert selbst),
+// sucht das echte Bauteil darunter (dünne Front/Platte/Türblatt, Autotür nach Name) und bewegt es an einem Drehpunkt (Tür, Klappe, Deckel) bzw. Gleitweg (Schublade) mit weicher Kurve.
+//   · Schublade: gleitet 30 cm zum Spieler (Tiefe ≈ 60–80 %), E erneut = schließen (ohne Text/Fund zu wiederholen), Zustand wird gespeichert.
+//   · Deckel/Klappe: kippt um die Hinterkante bzw. Unterkante 75–80°. Tür ohne „öffnen“ in der Beschriftung (verschlossen): rüttelt an der Klinke, Autotür ebenso (Scharnier am Vorderrand).
+//   · Durchgangstür (Hinaus, Treppe, Kellertür …): schwingt 80° auf, Original-Aktion (Überblendung/Teleport) folgt nach 0,3 s, danach fällt die Tür leise wieder zu.
+//   · Kollision folgt: bewegte Netze werden von der Netz-Kollision (SOL, solidLive) pro Bild neu vermessen; Animationen ticken nur, solange sie laufen (keine Dauerlast).
+// Was kein Bauteil findet (Klickfläche über einem Gesamtnetz, z. B. Hauswand), bleibt unverändert und steht im Audit als „kein Teil“.
+const IAP = { ctl: new Map(), act: [], idx: null, idxT: -99, idxX: 0, idxZ: 0, seen: new WeakSet(), scanT: 0, pend: [], stat: { attach: 0, miss: 0, press: 0 } };
+const IAP_V = new THREE.Vector3(), IAP_V2 = new THREE.Vector3(), IAP_B = new THREE.Box3();
+function iap_label(h) { let l = h.userData.label; try { if (typeof l === 'function') l = l(); } catch (e) { l = ''; } return String(l == null ? '' : l); }
+function iap_typ(l) { const s = l.toLowerCase();
+  if (/öffnen|schließen|schliessen|aufmachen|zumachen|aufschieben|aufstellen/.test(s)) return null; // Modul animiert selbst
+  if (/zettel|foto|polaroid|akte |notiz|brief|lesen|ansehen|\bkarte\b|plakat|schild|tafel|grab|stein|kreuz|aushang|code|funk|radio|telefon|spion|fahrkarte|kalender|uhr\b|frage|leuchten|sehen|schauen|durchsuchen|untersuchen/.test(s)) return null;
+  if (/schublade|kommode|registratur|besteck/.test(s)) return 'schublade';
+  if (/kofferraum|deckel|truhe|geldkassette|kinderkiste|zigarrenkiste|karteikasten|gully|container|kiste/.test(s)) return 'deckel';
+  if (/handschuhfach|klappe/.test(s)) return 'klappe';
+  if (/^auto$|autotür|ausgebranntes auto|überwachsenes auto|schrottauto|^transporter|erster transporter|wrack/.test(s)) return 'auto';
+  if (/(^|[^a-zäöüß])(haus|keller|hinter|vorder|west|ost|nord|süd|seiten|neben|stall|schuppen|kapellen|laden|stahl|garagen|eisen|garten|zimmer|küchen|bad|gitter|metall|brand|schiebe|innen|außen|bunker|villa)?\s?(tür|tuer|tor)\b|^hinaus|^hinein(?!sehen)/.test(s)) return 'tuer';
+  return null; }
+// Netz-Verzeichnis (4-m-Zellen): sichtbare Netze mit Weltquader; alle 25 s neu (Räume entstehen später)
+function iap_index() { // nur Netze im Umkreis von 18 m um den Spieler (Ursprung der Netze): kein Ruckler beim ersten E
+  const t = performance.now(), P = player.pos; if (IAP.idx && t - IAP.idxT < 25000 && Math.hypot(P.x - IAP.idxX, P.z - IAP.idxZ) < 6) return IAP.idx; IAP.idxT = t; IAP.idxX = P.x; IAP.idxZ = P.z;
+  const G = new Map(); scene.updateMatrixWorld(true);
+  scene.traverse(o => { if (!o.isMesh || o.isSkinnedMesh || o.isInstancedMesh || !o.geometry || !o.geometry.attributes.position) return; const e = o.matrixWorld.elements; if (Math.abs(e[12] - P.x) > 18 || Math.abs(e[14] - P.z) > 18) return;
+    if (o.geometry.attributes.position.count > 250000) return;
+    for (let p = o; p; p = p.parent) if (!p.visible) return; const m = Array.isArray(o.material) ? o.material[0] : o.material; if (!m || m === hidden || m.visible === false || m.colorWrite === false || (m.opacity !== undefined && m.opacity < .05)) return;
+    if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const b = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld), s = b.getSize(new THREE.Vector3()); if (Math.max(s.x, s.y, s.z) > 6) return;
+    const rec = { o, b, s, n: ((o.name || '') + ' ' + ((o.parent && o.parent.name) || '')).trim() };
+    for (let i = Math.floor(b.min.x / 4); i <= Math.floor(b.max.x / 4); i++) for (let j = Math.floor(b.min.z / 4); j <= Math.floor(b.max.z / 4); j++) { const k = i + ',' + j; let L = G.get(k); if (!L) G.set(k, L = []); L.push(rec); } });
+  IAP.idx = G; return G; }
+function iap_nah(b, m) { const G = iap_index(), out = new Set();
+  for (let i = Math.floor((b.min.x - m) / 4); i <= Math.floor((b.max.x + m) / 4); i++) for (let j = Math.floor((b.min.z - m) / 4); j <= Math.floor((b.max.z + m) / 4); j++) { const L = G.get(i + ',' + j); if (L) for (const r of L) out.add(r); }
+  return out; }
+// Bauteil unter der Klickfläche finden (Typ-Form + Überdeckung); null = kein Teil
+function iap_teil(h, typ) {
+  const hb = IAP_B.setFromObject(h).clone(); if (hb.isEmpty()) return null; const hc = hb.getCenter(new THREE.Vector3()), ex = hb.clone().expandByScalar(.14), pp = player.pos; let best = null;
+  for (const r of iap_nah(ex, .25)) {
+    const b = r.b, s = r.s, cen = b.getCenter(IAP_V2);
+    const sh = Math.max(s.x, s.z), st = Math.min(s.x, s.z); let ok = false, score = 0;
+    // Klickfläche liegt auf dem Teil (Mitte der Klickfläche im Teil, 12 cm Toleranz) – außer Autotür: Teil liegt in der (großen) Klickfläche
+    const auf = hc.x > b.min.x - .3 && hc.x < b.max.x + .3 && hc.y > b.min.y - .15 && hc.y < b.max.y + .15 && hc.z > b.min.z - .3 && hc.z < b.max.z + .3;
+    if (typ === 'tuer') { ok = auf && st < .25 && ((s.y > 1.5 && s.y < 2.7 && sh > .5 && sh < 1.7) || (s.y > 1.8 && s.y < 3.1 && sh > 2.4 && sh < 4.4)); score = -s.x * s.y * s.z; } // Tür oder Garagentor (3–4 m)
+    else if (typ === 'schublade') { ok = auf && s.y > .04 && s.y < .5 && sh > .22 && sh < 1.4 && st > .02 && st < .75; score = -s.x * s.y * s.z; }
+    else if (typ === 'deckel') { ok = auf && s.y < .3 && s.x > .22 && s.z > .22 && s.x < 2 && s.z < 2; score = -Math.abs(cen.y - hb.max.y); }
+    else if (typ === 'klappe') { ok = auf && st < .1 && sh > .12 && sh < .8 && s.y > .08 && s.y < .8; score = -s.x * s.y * s.z; }
+    else if (typ === 'auto') { ok = ex.containsPoint(cen) && /door-(front|rear)|cdoor/i.test(r.n) && !/interior|glass|trim|window/i.test(r.n); score = -Math.hypot(cen.x - pp.x, cen.z - pp.z); }
+    if (!ok) continue; if (!best || score > best.sc) best = { r, sc: score }; }
+  return best ? best.r : null; }
+// Steuerung anlegen: Drehpunkt (pivot) an Kante, Teil hineinhängen (Weltlage bleibt)
+function iap_wurzel(h) { // größtes Netz in der Klickfläche → oberste Gruppe unter der Szene (Fahrzeug), nie ein Sammelknoten
+  const hb = IAP_B.setFromObject(h).clone().expandByScalar(.2); let best = null;
+  for (const r of iap_nah(hb, .2)) { const c = r.b.getCenter(IAP_V2); if (!hb.containsPoint(c)) continue; const v = r.s.x * r.s.y * r.s.z; if (!best || v > best.v) best = { o: r.o, v }; }
+  if (!best) return null; let n = best.o; while (n.parent && n.parent !== scene && n.parent.children.length < 40) n = n.parent; if (n === scene) return null;
+  const sz = IAP_B.setFromObject(n).getSize(new THREE.Vector3()); if (Math.max(sz.x, sz.z) > 7.5 || sz.y > 4) return null; return n; } // zu groß = Gebäude: nie das ganze Haus bewegen
+function iap_anlegen(h, typ, spieler) {
+  const rec = iap_teil(h, typ);
+  if (!rec && (typ === 'auto' || typ === 'tuer')) { const w = iap_wurzel(h); if (w) { const C = { h, typ, part: w, open: false, k: 0, ziel: 0, dur: .5, ang: 0, mode: 'wippen', rattle: 0, key: '', passage: false, rz: w.rotation.z, rx: w.rotation.x, ry: w.rotation.y, ax: 'z' };
+      const wp = h.getWorldPosition(new THREE.Vector3()); C.key = iap_label(h) + '|' + wp.x.toFixed(1) + '|' + wp.y.toFixed(1) + '|' + wp.z.toFixed(1); IAP.ctl.set(h, C); IAP.stat.attach++; return C; } }
+  if (!rec) { IAP.stat.miss++; return null; } const part = rec.o, b = rec.b, par = part.parent; if (!par) return null;
+  const C = { h, typ, part, open: false, k: 0, ziel: 0, dur: .5, ang: 0, ax: 'y', dist: 0, dir: new THREE.Vector3(), mode: 'dreh', rattle: 0, key: '', passage: false };
+  const cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2, thinX = rec.s.x < rec.s.z; // dünne Achse = Normale der Front/Platte
+  const px = spieler.x, pz = spieler.z; let hx = cx, hz = cz, hy = b.min.y;
+  if (typ === 'schublade') { const ax = Math.abs(px - cx) >= Math.abs(pz - cz); C.mode = 'gleit'; C.dir.set(ax ? (Math.sign(px - cx) || 1) : 0, 0, ax ? 0 : (Math.sign(pz - cz) || 1)); const dm = ax ? rec.s.x : rec.s.z; C.dist = Math.min(.34, dm > .38 ? dm * .7 : .3); C.dur = .42; }
+  else if (typ === 'tuer' || typ === 'auto') { // senkrechte Achse; Scharnier: Auto = Vorderrand, Tür = Rand rechts vom Spieler; Freikante weg vom Spieler (Tür) bzw. nach außen (Auto)
+    const side = thinX ? (px - cx >= 0 ? 1 : -1) : (pz - cz >= 0 ? 1 : -1); let endMax;
+    if (typ === 'auto') { const f = IAP_V.set(0, 0, 1).transformDirection(par.matrixWorld); endMax = (thinX ? f.z : f.x) >= 0; } else endMax = thinX ? side < 0 : side > 0;
+    hx = thinX ? cx : (endMax ? b.max.x : b.min.x); hz = thinX ? (endMax ? b.max.z : b.min.z) : cz; const r = endMax ? -1 : 1; // Freikante liegt relativ zum Scharnier bei r
+    const want = typ === 'auto' ? side : -side; // gewünschte Seite der Freikante entlang der Normalen
+    C.ang = -(thinX ? -want * r : want * r) * (typ === 'auto' ? 1.15 : 1.4); C.dur = typ === 'auto' ? .55 : .5; // Vorzeichen per Messung (weg < 0 = Freikante weicht vom Spieler)
+    const q = String(h.userData.iapA0 || ''); // Durchgangstür = Original-Aktion wechselt den Raum (Kirchberg-/Nr.-4-Räume, Keller, Versetzen), nicht bloß Text
+    C.passage = typ === 'tuer' && (/^(hinaus|hinein)(?!sehen)/i.test(iap_label(h)) || /kirchberg_(rein|raus|betreten)|nr4_wechsel|enterBasement|leaveBasement|raumWechsel|villa_(rein|raus|betreten)|uebergang/i.test(q)); }
+  else if (typ === 'deckel') { const useX = Math.abs(px - cx) > Math.abs(pz - cz); // Spieler steht eher in x: Hinterkante = gegenüberliegende x-Kante, Achse z
+    hx = useX ? (px > cx ? b.min.x : b.max.x) : cx; hz = useX ? cz : (pz > cz ? b.min.z : b.max.z); hy = b.max.y - .01; C.ax = useX ? 'z' : 'x'; C.dur = .5;
+    C.ang = useX ? (px > cx ? 1 : -1) * 1.3 : (pz > cz ? -1 : 1) * 1.3; }
+  else if (typ === 'klappe') { const useX = Math.abs(px - cx) > Math.abs(pz - cz); hx = useX ? (px > cx ? b.max.x : b.min.x) : cx; hz = useX ? cz : (pz > cz ? b.max.z : b.min.z); hy = b.min.y; C.ax = useX ? 'z' : 'x'; C.dur = .4;
+    C.ang = useX ? (px > cx ? -1 : 1) * 1.4 : (pz > cz ? 1 : -1) * 1.4; }
+  const piv = new THREE.Group(); piv.name = 'iap_pivot'; par.add(piv); par.updateMatrixWorld(true);
+  if (C.mode === 'dreh') { IAP_V.set(hx, hy, hz); par.worldToLocal(IAP_V); piv.position.copy(IAP_V); }
+  piv.updateMatrixWorld(true); piv.attach(part); C.piv = piv; C.p0 = piv.position.clone();
+  if (C.mode === 'gleit') { const o = par.getWorldPosition(new THREE.Vector3()), t = o.clone().add(C.dir); par.worldToLocal(o); par.worldToLocal(t); C.ldir = t.sub(o).normalize(); }
+  const wp = h.getWorldPosition(new THREE.Vector3()); C.key = iap_label(h) + '|' + wp.x.toFixed(1) + '|' + wp.y.toFixed(1) + '|' + wp.z.toFixed(1);
+  IAP.ctl.set(h, C); IAP.stat.attach++; return C; }
+function iap_setze(C, k) { if (C.mode === 'wippen') return; if (C.mode === 'dreh') C.piv.rotation[C.ax] = C.ang * k; else C.piv.position.copy(C.p0).addScaledVector(C.ldir, C.dist * k); }
+const iap_ease = x => x * x * (3 - 2 * x);
+function iap_start(C, auf) { C.ziel = auf ? 1 : 0; C.open = !!auf; if (!IAP.act.includes(C)) IAP.act.push(C); }
+function iap_rattle(C) { C.rattle = 1; C.rt = 0; if (!IAP.act.includes(C)) IAP.act.push(C); }
+function iap_tick(dt) {
+  for (let i = IAP.act.length - 1; i >= 0; i--) { const C = IAP.act[i]; let fertig = true;
+    if (C.rattle && C.mode === 'wippen') { C.rt += dt; const k = C.rt / 1.1; if (k >= 1) { C.rattle = 0; C.part.rotation.z = C.rz; C.part.rotation.x = C.rx; C.part.rotation.y = C.ry ?? C.part.rotation.y; } else { fertig = false; const a = Math.sin(k * Math.PI * 6) * Math.exp(-k * 3.5); if (C.typ === 'tuer') C.part.rotation.y = C.ry + a * .03; else { C.part.rotation.z = C.rz + a * .014; C.part.rotation.x = C.rx + a * .006; } } }
+    else if (C.rattle) { C.rt += dt; const k = C.rt / .55; if (k >= 1) { C.rattle = 0; iap_setze(C, iap_ease(C.k)); } else { fertig = false; C.piv.rotation[C.ax] = Math.sin(k * Math.PI * 5) * Math.exp(-k * 3.2) * .05 * Math.sign(C.ang || 1) * (C.typ === 'auto' ? .6 : 1); } }
+    if (!C.rattle) { const d = C.ziel - C.k; if (Math.abs(d) > 1e-4) { const st = dt / C.dur; C.k = d > 0 ? Math.min(C.ziel, C.k + st) : Math.max(C.ziel, C.k - st * 1.15); iap_setze(C, iap_ease(C.k)); fertig = Math.abs(C.ziel - C.k) < 1e-4; if (fertig) { C.k = C.ziel; iap_setze(C, C.ziel); } }
+      else if (C.passage && C.open) { C.stayT = (C.stayT || 0) + dt; if (C.stayT > 2.2) { C.stayT = 0; iap_start(C, false); fertig = false; } else fertig = false; } }
+    if (fertig && !C.rattle) IAP.act.splice(i, 1); } }
+function iap_snd(h, n, o = {}) { try { const p = h.getWorldPosition(IAP_V2); Audio.play(n, Object.assign({ gain: .5, x: p.x, y: p.y, z: p.z, ref: 2 }, o)); } catch (e) {} }
+// E auf eine Klickfläche: Bewegung auslösen. Rückgabe false = Original-Aktion nicht ausführen (Schließen); 'spaet' = nach der Schwenkzeit ausführen
+function iap_press(h) {
+  const typ = h.userData.iap; if (!typ) return true; let C = IAP.ctl.get(h); if (C === undefined) { C = iap_anlegen(h, typ, player.pos); if (!C) IAP.ctl.set(h, null); }
+  if (!C) { if (typ === 'tuer' || typ === 'auto') { try { FEEL.dipV += .22; shake = Math.max(shake, .008); iap_snd(h, 'doorCreak', { gain: .3, rate: 1.1 }); } catch (e) {} } return true; } IAP.stat.press++; // kein Bauteil: Griff-Ruck an der Kamera + Ton
+  if (C.typ === 'tuer' && C.passage) { if (!C.open) { iap_start(C, true); iap_snd(h, 'doorOpen', { gain: .5 }); return 'spaet'; } return true; }
+  if (C.typ === 'tuer' || C.typ === 'auto') { iap_rattle(C); iap_snd(h, C.typ === 'auto' ? 'metalHit2' : 'doorCreak', { gain: .35, rate: 1.15 }); return true; }
+  if (C.open) { iap_start(C, false); iap_snd(h, C.typ === 'schublade' ? 'woodClose1' : (C.typ === 'deckel' ? 'woodClose2' : 'metalClose'), { gain: .45 }); return false; } // schließen: Text/Fund nicht wiederholen
+  iap_start(C, true); iap_snd(h, C.typ === 'schublade' ? 'woodSqueak1' : (C.typ === 'deckel' ? 'woodSqueak2' : 'metalOpen'), { gain: .45 }); return true; }
+function iap_haengen() { // neue Klickflächen verdrahten (nur Typen, die eine Bewegung bekommen können)
+  if (window.__iapAus) return; // Testschalter: ohne Interaktionsbewegung messen (Vorher-Werte)
+  for (const h of interactables) { if (!h || IAP.seen.has(h) || !h.userData || typeof h.userData.action !== 'function') continue; IAP.seen.add(h); const typ = iap_typ(iap_label(h)); if (!typ) continue;
+    const a0 = h.userData.action, l0 = h.userData.label; h.userData.iap = typ; h.userData.iapA0 = a0; h.userData.iapL0 = l0;
+    h.userData.action = function () { let go = true; try { go = iap_press(h); } catch (e) { console.warn('iap', e); } if (go === 'spaet') { const a = arguments, t = this; setTimeout(() => { try { a0.apply(t, a); } catch (e) { console.error('Aktion ' + iap_label(h), e); } }, 300); return; } if (go) return a0.apply(this, arguments); };
+    if (typ !== 'tuer' && typ !== 'auto') h.userData.iapAnz = function () { const C = IAP.ctl.get(h); return C && C.open ? 'Schließen' : null; }; } }
+WORLD_TICK.push(dt => { try { if (IAP.act.length) iap_tick(dt); IAP.scanT -= dt; if (IAP.scanT <= 0) { IAP.scanT = 1.5; iap_haengen(); } } catch (e) { if (!IAP.errT) { IAP.errT = 1; console.warn('interaktion', e); } } });
+// Spielstand: offene Schubladen/Deckel/Klappen (Schlüssel = Beschriftung + Lage der Klickfläche); beim Laden verzögert angewendet, sobald die Klickfläche existiert
+MOD_SAVE.push(['iap', () => { try { const o = []; for (const C of IAP.ctl.values()) if (C && C.open && C.typ !== 'tuer' && C.typ !== 'auto') o.push(C.key); return o; } catch (e) { return null; } },
+  v => { if (Array.isArray(v)) IAP.pend = v.slice(); }]);
+WORLD_TICK.push(dt => { if (!IAP.pend.length) return; IAP.pendT = (IAP.pendT || 0) - dt; if (IAP.pendT > 0) return; IAP.pendT = 2;
+  for (const h of interactables) { if (!IAP.pend.length) break; const typ = h.userData && h.userData.iap; if (!typ) continue; const wp = h.getWorldPosition(IAP_V2); if (Math.abs(wp.x - player.pos.x) > 14 || Math.abs(wp.z - player.pos.z) > 14) continue; const key = iap_label(h) + '|' + wp.x.toFixed(1) + '|' + wp.y.toFixed(1) + '|' + wp.z.toFixed(1);
+    const i = IAP.pend.indexOf(key); if (i < 0) continue; IAP.pend.splice(i, 1); let C = IAP.ctl.get(h); if (C === undefined) { C = iap_anlegen(h, typ, player.pos); IAP.ctl.set(h, C || null); } if (C) { C.open = true; C.ziel = 1; C.k = 1; iap_setze(C, 1); } } });
+IAP.aus = () => { window.__iapAus = true; for (const h of interactables) { const u = h.userData; if (u && u.iapA0) { u.action = u.iapA0; delete u.iapA0; delete u.iapAnz; } } }; // Testschalter: Vorher-Zustand (ohne Interaktionsbewegung)
+IAP.f = { teil: iap_teil, nah: iap_nah, typ: iap_typ, index: iap_index };
+// Spielstand: Gartentore (gates der Basis) und Briefkästen (strasse.js) – vorher nach dem Laden wieder zu
+MOD_SAVE.push(['tore', () => { try { return { g: gates.map(g => g.open ? 1 : 0), m: (typeof strasse_S !== 'undefined' && strasse_S.mbSt ? strasse_S.mbSt.filter(q => q.st.open).map(q => q.k) : []) }; } catch (e) { return null; } },
+  v => { try { if (!v) return; (v.g || []).forEach((o, i) => { const g = gates[i]; if (!g || !!o === g.open) return; g.open = !!o; g.piv.rotation.y = g.open ? -1.45 * g.facing : 0; if (g.open) g.col.minX = g.col.maxX = -9999; else Object.assign(g.col, g.saved); });
+      if (typeof strasse_S !== 'undefined' && strasse_S.mbSt) for (const q of strasse_S.mbSt) if ((v.m || []).includes(q.k)) { q.st.open = true; q.piv.rotation.x = 1.45; } } catch (e) {} }]);
+window.__iap = IAP;
 // =====================================================================  BLICK (Modul „blick“, Nutzer-Rückmeldung 02.10.2026): man schaut immer dorthin, wo etwas passiert
 // Nutzer: „viele Schreckmomente und story-relevante Szenen verpasst man, wenn man nicht weiß, wohin man schauen soll … baue ein System ein, dass man immer richtig schaut.“
 // Grundsatz (RE Village / The Last of Us II / Alan Wake 2): Blicklenkung ist ein Angebot, kein Zwang. Die Kamera dreht sich weich zum Ereignis (Ease-in/out, nie ruckartig,
@@ -48067,7 +48279,7 @@ function update(dt, t) {
   wish.set(0, 0, 0);
   if (canMove) {
     const f = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0), s = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0);
-    if (f || s) { const sp = (run && crouchK < .3 ? 5 : 2.6) * (f < 0 ? FC.back : 1) * (1 - .5 * crouchK), len = Math.hypot(f, s);
+    if (f || s) { const sp = (run && crouchK < .3 ? 5 : 2.6) * (f < 0 ? FC.back : 1) * (1 - .5 * crouchK - .3 * crawlK), len = Math.hypot(f, s);
       wish.set((-Math.sin(player.yaw) * f + Math.cos(player.yaw) * s) / len * sp, 0, (-Math.cos(player.yaw) * f - Math.sin(player.yaw) * s) / len * sp); }
   }
   if (vel.x === 0 && vel.z === 0 && F.vv > .05) F.ax = F.az = 0; // von außen angehalten (Teleport, Szene, Leiter): keine Restbeschleunigung
@@ -48104,7 +48316,7 @@ function update(dt, t) {
   if (!mantle && !scripted) {
     if (jumpQueued && canMove && grounded && crouchK > .3) { if (crouchKann()) crouchZiel = false; } // aus der Hocke: Space richtet auf
     else if (jumpQueued && canMove && grounded) { const m = mantleTarget(); if (m) mantleStart(m); else { vy = 5.6; grounded = false; Audio.play(Audio.pick('stepG1', 'stepC3'), { gain: .35, rate: 1.1 }); } }
-    if (!grounded && vy < 2 && (keys.KeyW || keys.ArrowUp)) { const m = mantleTarget(); if (m && m.top - player.pos.y < 1.2) mantleStart(m); }
+    if (!grounded && vy < 2 && (keys.KeyW || keys.ArrowUp)) { const m = mantleTarget(); if (m && m.top - player.pos.y < 1.45) mantleStart(m); }
     if (!mantle) {
       vy -= 15 * dt; player.pos.y += vy * dt;
       if (vy > 0) { const cy = headCeiling(player.pos.x, player.pos.y + 1, player.pos.z); // Kopfstoß: nie durch Decken springen
@@ -48122,8 +48334,12 @@ function update(dt, t) {
   { let gy = player.pos.y; // Treppe aufwärts: Boden 0,16 s voraus abtasten → die Augenhöhe steigt wie auf einer Rampe statt Stufe für Stufe (abwärts: Feder + kleiner Dip)
     if (grounded && !scripted && !mantle && F.vv > .4) { const ox = player.pos.x, oz = player.pos.z; player.pos.x += vel.x * FC.look; player.pos.z += vel.z * FC.look; const ra = indoorRect(), ga = groundAt(ra ? ra.y : 0); player.pos.x = ox; player.pos.z = oz; if (ga > gy && ga - gy < FC.lookMax) gy = ga; }
     if (grounded && !F.ext && Math.abs(gy - F.gy) < FC.lookMax) { const m = Math.max(FC.rampV, F.vv * .9) * dt; F.gy += Math.max(-m, Math.min(m, gy - F.gy)); gy = F.gy; } else F.gy = gy; // Bodenhöhe als Rampe (begrenzte Steiggeschwindigkeit) → kein Ruck am Stufenbeginn
-    { const want = (keys.ControlLeft || keys.ControlRight || crouchZiel) && canMove !== false && !mantle; const tgt = want || (crouchK > .05 && !crouchKann()) ? 1 : 0; crouchK += (tgt - crouchK) * Math.min(1, dt * (tgt ? 9 : 7)); if (crouchK < .002) crouchK = 0; }
-    const eye = gy + 1.65 - .62 * crouchK; if (camY !== F.camW) { F.ext = true; F.camV = 0; }
+    { const want = (keys.ControlLeft || keys.ControlRight || crouchZiel) && canMove !== false && !mantle; const tgt = want || (crouchK > .05 && !crouchKann()) ? 1 : 0; crouchK += (tgt - crouchK) * Math.min(1, dt * (tgt ? 9 : 7)); if (crouchK < .002) crouchK = 0;
+      { let tc = 0; if (crouchK > .6 && grounded && !mantle && !scripted) { const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw); let cl = Infinity;
+          for (const d of [0, .3, .6]) cl = Math.min(cl, headCeiling(player.pos.x + fx * d, player.pos.y + .2, player.pos.z + fz * d) - player.pos.y);
+          tc = cl < (crawlK > .5 ? 1.0 : .96) ? 1 : 0; }
+        crawlK += (tc - crawlK) * Math.min(1, dt * 8); if (crawlK < .002) crawlK = 0; } }
+    const eye = gy + 1.65 - .8 * crouchK - .3 * crawlK; if (camY !== F.camW) { F.ext = true; F.camV = 0; }
     feelSpring(camY - eye, F.camV, F.ext ? FC.camWext : (F.air > .25 || vy > .5) ? FC.camWair : FC.camW, dt); camY = eye + F.sx; F.camV = F.sv;
     if (F.ext) { if (Math.abs(camY - eye) < .02) F.ext = false; } else if (Math.abs(camY - eye) > FC.camMax) { camY = eye + (camY > eye ? FC.camMax : -FC.camMax); F.camV = 0; } }
   // Körper-Nachschwingen (unterkritisch): Kopf läuft beim Bremsen leicht vor und pendelt zurück, beim Anlaufen bleibt er kurz zurück; Lande-Dip
