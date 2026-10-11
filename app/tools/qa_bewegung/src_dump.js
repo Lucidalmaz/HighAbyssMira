@@ -1,0 +1,3 @@
+(() => { const B = window.__BW; const ev = (window.__k6 || window.__villa).ev; const IA = ev('interactables'); const out = []; const seen = new Set();
+  for (const h of IA) { const u = h.userData; if (!u || u.iap !== 'tuer') continue; let l = u.iapL0 !== undefined ? u.iapL0 : u.label; try { if (typeof l === 'function') l = l(); } catch (e) { l = '?'; } const f = u.iapA0 || u.action; const src = String(f).replace(/\s+/g, ' '); const k = l + src.slice(0, 60); if (seen.has(k)) continue; seen.add(k); out.push([String(l).slice(0, 30), src.slice(0, 230)]); }
+  return B.dump('C:/Users/GIGABYTE/_qa_bew/out/src_dump.json', out); })()

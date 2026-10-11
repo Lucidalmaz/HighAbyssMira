@@ -327,7 +327,7 @@ async function tod_zurueck(ziel) {
   try {
   try { $('pause').classList.remove('show'); ui.paused = false; closeAllOverlays(); } catch (e) {}
   $('fade').style.transition = 'opacity 350ms'; $('fade').style.opacity = 1; await wait(400);
-  try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; } catch (e) {}
+  try { setCamOverride(null); setScripted(null); mantle = null; vy = 0; crouchZiel = false; crawlK = 0; } catch (e) {}
   const ch = curChapter(); let cp = null;
   const imKeller = Math.abs(player.pos.x - B.x) < 20 && Math.abs(player.pos.z - B.z) < 20 && state.inBasement;
   if (ziel === 'schritt') {
@@ -386,22 +386,32 @@ WORLD_TICK.push(dt => { try { tod_spurTick(dt); } catch (e) {} try { tod_festTic
 // (log.txt, „Klemmt: …“ – so sehen wir beim nächsten Test, was es war) und (2) bei echter Überlappung (steckt IN einer Kiste/einem Netz, z. B. nach Tür, Szene oder Hochziehen) zum nächsten freien Punkt geschoben.
 const TOD_KL = { t: 0, x: 0, z: 0, logT: 0, a: new THREE.Vector3(), b: new THREE.Vector3(), c: new THREE.Vector3(), g: {} };
 const tod_nm = o => { const a = []; for (let p = o, i = 0; p && i < 4; p = p.parent, i++) a.push(p.name || p.type); return a.join('<'); };
-function tod_blockiert(x, y, z, out, rr = R) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen
+function tod_blockiert(x, y, z, out, rr = R, ohneFuell = false) { // Anzahl der Dinge, die den Körper (Radius rr) an dieser Stelle berühren; out: Beschreibungen; ohneFuell: Füllkisten (Fahrzeuge, Fässer) zählen nicht
   let n = 0; const H = typeof bodyH === 'function' ? bodyH() : 1.7;
-  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H) continue;
+  for (const c of colliders) { if (c.top <= y + .36 || c.base >= y + H || (ohneFuell && (c.fzg || c.hohl))) continue;
     if (x + rr > c.minX && x - rr < c.maxX && z + rr > c.minZ && z - rr < c.maxZ) { n++; if (out && out.length < 6) out.push('Kiste[' + [c.minX, c.maxX, c.minZ, c.maxZ].map(v => v.toFixed(1)).join(',') + '|' + c.base + '…' + c.top + ']'); } }
   const A = TOD_KL.a, Bv = TOD_KL.b, C = TOD_KL.c;
   for (const it of solidNear(x, z)) { const bb = it.bb; if (it.soft || x + rr < bb.min.x || x - rr > bb.max.x || z + rr < bb.min.z || z - rr > bb.max.z || y + 1.8 < bb.min.y || y + .37 > bb.max.y || !solidLive(it)) continue;
-    for (const h of [.62, 1.05, 1.5, 1.72]) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
+    for (const h of (typeof bodyProbes === 'function' ? bodyProbes() : [.62, 1.05, 1.5, 1.72])) { const cy = y + h; if (cy + rr < bb.min.y || cy - rr > bb.max.y) continue;
       A.set(x, cy, z).applyMatrix4(it.inv); const r = it.o.geometry.boundsTree.closestPointToPoint(A, TOD_KL.g, 0, rr / it.sc); if (!r) continue;
       Bv.copy(r.point).applyMatrix4(it.mw); if (Bv.y < y + .37 || Bv.distanceTo(C.set(x, cy, z)) >= rr) continue;
       n++; if (out && out.length < 6) { const m = Array.isArray(it.o.material) ? it.o.material[0] : it.o.material; out.push('Netz ' + tod_nm(it.o) + (it.inst ? '[Inst]' : '') + ' h' + h + ' deckkraft=' + (m ? m.opacity : '?') + ' ebene=' + it.o.layers.mask); } break; } }
   return n; }
 // Weg zum Freischiebe-Punkt frei? (Nutzer 08.10.: „außerhalb der Map / in Wänden gelandet“ – der nächste freie Punkt kann hinter einer Wand liegen; ab 0,45 m Abstand darf nichts Festes im Weg stehen)
 function tod_wegFrei(x0, y, z0, x1, z1, skip = .45) { const L = Math.hypot(x1 - x0, z1 - z0), n = Math.max(1, Math.ceil(L / .15)); for (let i = 1; i < n; i++) { const k = i / n; if (k * L < skip) continue; if (tod_blockiert(x0 + (x1 - x0) * k, y, z0 + (z1 - z0) * k, null, R * .8) > 0) return false; } return true; }
+// Steckt der Körper im Volumen eines Fahrzeugs/Fasses (Füllkisten aus bewegung.js: fzg/hohl)? Dann nach 0,5 s – auch ohne Eingabe – zum nächsten freien Platz außen schieben (nie hinein);
+// der Weg darf durch die Füllkisten führen (man steckt ja darin), aber nicht durch Wände. Folgeauftrag 7 (11.10.): Messung freischieben.json – vorher blieb man im Wagen stecken.
+function tod_fuellDrin(P) { const H = typeof bodyH === 'function' ? bodyH() : 1.7, r = R * .8; for (const c of colliders) { if (!(c.fzg || c.hohl) || c.minX < -9000 || c.top <= P.y + .36 || c.base >= P.y + H) continue; if (P.x + r > c.minX && P.x - r < c.maxX && P.z + r > c.minZ && P.z - r < c.maxZ) return true; } return false; }
+function tod_fuellRaus(P) {
+  for (let r = .3; r <= 3.6; r += .15) for (let k = 0; k < 24; k++) { const a = k / 24 * PI * 2, x = P.x + Math.cos(a) * r, z = P.z + Math.sin(a) * r;
+    if (tod_blockiert(x, P.y, z, null, R + .02) !== 0 || !spotOk({ x, y: P.y, z })) continue;
+    let ok = true; for (let d = .2; d < r && ok; d += .15) if (tod_blockiert(P.x + (x - P.x) * d / r, P.y, P.z + (z - P.z) * d / r, null, R * .8, true) > 0) ok = false; if (!ok) continue;
+    P.x = x; P.z = z; vel.set(0, 0, 0); console.warn('Klemmt: aus Fahrzeug/Fass geschoben um ' + r.toFixed(2) + ' m'); return true; }
+  return false; }
 function tod_klemmTick(dt) {
   const K = TOD_KL;
-  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; return; }
+  if (!state.started || menu.attract || tod_S.dying || tod_S.zurueck || scripted || camOverride || mantle || ui.overlay || state.talking) { K.t = 0; K.vt = 0; return; }
+  { const P0 = player.pos; if (tod_fuellDrin(P0)) { K.vt = (K.vt || 0) + dt; if (K.vt > .5) { K.vt = 0; tod_fuellRaus(P0); } } else K.vt = 0; }
   const will = keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight; const P = player.pos;
   K.ft = (K.ft || 0) + dt; if (K.ft > .25) { K.ft = 0; if (tod_blockiert(P.x, P.y, P.z, null, R * .8) === 0) { K.fx = P.x; K.fy = P.y; K.fz = P.z; } } // letzter Platz ohne Überlappung (4× je Sekunde)
   if (!will) { K.t = 0; K.x = P.x; K.z = P.z; return; }
