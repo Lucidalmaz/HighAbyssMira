@@ -324,7 +324,11 @@ WORLD_MODS.push(['Kapitel 3 · Hauptweg Straße (AP-17)', async () => {
 }]);
 // Weiterspielen: den Stand der Nacht wiederherstellen (Speicherpunkte: Kreuzung, nach dem Anruf, Justin, Zählbuch, Kanal B, nach jeder Laterne, „Die Kette“)
 function kapitel3_fortsetzen(d, at) {
-  const S = kapitel3_S, v = S.laden; if (!v || !ch3.on || (typeof kap === 'function' && kap() !== 3)) return; S.resumed = true; S.laden = null;
+  const S = kapitel3_S, v = S.laden;
+  if (v && ch3.on && typeof kap === 'function' && kap() > 3) { // Kapitel 4+: Welt ist Kapitel 4, aber die Kapitel-3-Flags bleiben erhalten (sonst schreibt der nächste Speicherstand sie als false zurück)
+    S.laden = null; S.uk = Math.max(S.uk || 1, +v.uk || 1); (v.kuh || []).forEach(k => S.kuh.add(k)); S.ag09 = !!v.ag09; S.ag10 = !!v.ag10; S.ag08 = !!v.ag08; S.buch = !!v.buch; S.nb09 = !!v.nb09; S.riegel = !!v.riegel; S.huf = !!v.huf; S.vegasKuh = !!v.vegasKuh; S.kette = !!v.kette;
+    ch3.callDone = !!v.call; ch3.met = ch3.met || !!v.met; ch3.radio = !!v.radio; ch3.cowSeen = !!v.cow; ch3.seq = Array.isArray(v.seq) ? v.seq.filter(n => [5, 3, 1, 7].includes(n)) : []; return; }
+  if (!v || !ch3.on || (typeof kap === 'function' && kap() !== 3)) return; S.resumed = true; S.laden = null;
   S.uk = Math.max(1, +v.uk || 1); (v.kuh || []).forEach(k => S.kuh.add(k)); S.draussen = +v.draussen || 0; S.ag09 = !!v.ag09; S.ag10 = !!v.ag10; S.ag08 = !!v.ag08; S.buch = !!v.buch; S.nb09 = !!v.nb09; S.riegel = !!v.riegel; S.huf = !!v.huf; S.vegasKuh = !!v.vegasKuh;
   if (typeof lucy3_S !== 'undefined') { lucy3_S.openDone = true; lucy3_S.opening = false; }
   lamps.forEach(L => { L.mode = 'pulse'; L.dead = 0; });

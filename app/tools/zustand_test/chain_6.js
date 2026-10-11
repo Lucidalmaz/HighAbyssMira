@@ -1,0 +1,1 @@
+window.__CHAIN=[["pfandflasche", "Eine Pfandflasche", null, null, 3], ["!", "window.__k6.ag20()", 25000], ["bergungsfunk", "Das Funkger.t nehmen", null, null, 3], ["!", "K6.schneiderFrei=true; K6.ag18=true; k6_ag18Tasche(true)", 1500], ["seitenschneider", "Den Seitenschneider einstecken", null, null, 3]];

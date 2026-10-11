@@ -264,13 +264,13 @@ const GEDANKEN_ECHO = {
   echo_1975: 'Vegas. Als Kind. An der Hand vom Mann in Eisen. Der alte Mann hat es die ganze Zeit gewusst.' }; // Fassung 3: echo_mira („aus Papa gemacht“) abgeschafft, neuer Wortlaut offen (Autor)
 // Erste Eindrücke an Orten: [id, x0, x1, z0, z1, Bedingung, Text]
 const GEDANKEN_ORTE = [
-  ['ort_friedhof', -75, -30, 66, 95, () => true, 'Kindergräber. Ich les die Namen nicht. Noch nicht.'],
-  ['ort_kapelle', -80, 60, 40, 66, () => true, 'Die Kapelle. Als Kind hab ich mich nie reingetraut. Jetzt weiß ich nicht mehr, warum.'],
-  ['ort_tankstelle', 97, 128, 4, 31, () => true, 'Tankstelle Kranz. Opas Tankstelle. Hier hab ich mit Lucy Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?'],
-  ['ort_garten', -140, -90, 8, 45, () => true, 'Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen.'],
-  ['ort_hof', -150, -110, -45, -10, () => true, 'Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?'],
-  ['ort_villa', -145, -105, 58, 90, () => true, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
-  ['ort_sperre', 138, 158, -20, 20, () => true, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.'],
+  ['ort_friedhof', -75, -30, 66, 95, () => typeof kap !== 'function' || kap() <= 3, 'Kindergräber. Ich les die Namen nicht. Noch nicht.'],
+  ['ort_kapelle', -80, 60, 40, 66, () => typeof kap !== 'function' || kap() <= 3, 'Die Kapelle. Als Kind hab ich mich nie reingetraut. Jetzt weiß ich nicht mehr, warum.'],
+  ['ort_tankstelle', 97, 128, 4, 31, () => typeof kap !== 'function' || kap() <= 3, 'Tankstelle Kranz. Opas Tankstelle. Hier hab ich mit Lucy Eis gekauft. Glaub ich. Warum ist die Erinnerung so … dünn?'],
+  ['ort_garten', -140, -90, 8, 45, () => typeof kap !== 'function' || kap() <= 3, 'Hildes Parzelle. Sie hat Gemüse gezogen. Für Kinder, die nicht mehr zum Essen kamen.'],
+  ['ort_hof', -150, -110, -45, -10, () => typeof kap !== 'function' || kap() <= 3, 'Der Hof. Dina hat hier gewohnt. Dina … wie sah Dina eigentlich aus?'],
+  ['ort_villa', -145, -105, 58, 90, () => typeof kap !== 'function' || kap() <= 4, 'Das Tor war immer zu. Ich war nie hier. Und trotzdem weiß ich, wo der Weg langgeht.'],
+  ['ort_sperre', 138, 158, -20, 20, () => typeof kap !== 'function' || kap() <= 3, 'Gesperrt. Ausgebrannte Autos. Als hätte jemand versucht, rauszufahren. Und es nicht geschafft.'],
   ['ort_nr9', 44, 56, -12.4, -9.5, () => typeof kap !== 'function' || kap() === 1, 'Ein Glas hinter den Brettern. Es zeigt auf Nr. 7. Nicht auf die Straße. Auf Nr. 7.'], // Kap. 1 (AP-14): das rote Glimmen im Astloch von Nr. 9; Wortlaut offen (Autor)
   // F3 Verständlichkeit, Kap. 1: das Dorf und Nr. 7 beim ersten Hinkommen (Kern §10.1: Hilde = Mutter von Jonas, Lukes bestem Freund)
   ['k1_hotelflur', -50, -36, -8, 8, () => (typeof kap !== 'function' || kap() === 1) && story.main <= 1, 'Lost Eyengless. Hier bist du groß geworden. Warum fühlt sich das an wie ein Hotelflur?'],

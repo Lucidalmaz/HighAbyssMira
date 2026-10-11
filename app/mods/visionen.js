@@ -58,7 +58,7 @@ const VISIONS = [
     shots: [{ from: [26, 2.4, -2.5], to: [26, 2.1, -6.5], look: [26, 2.6, -15], dur: 4.2, text: 'Nr. 7. Hildes Haus. Das Licht im Hauswirtschaftsraum geht an. Niemand drin.' },
       { from: [24.5, 1.9, -19.5], to: [25.8, 1.7, -20.2], look: [26.5, 1.05, -20.7], dur: 4.4, text: 'Ihre Werkbank. Unter dem Tuch: Eisen. Schwer genug für eine Wand.', inside: true },
       { from: [B.x - 1, 1.55, B.z - 1], to: [B.x - 1.6, 1.4, B.z - 2.4], look: [B.x - 2, 1.2, B.z - 4], dur: 4, text: 'Die Kinderzeichnungen im Keller. Dahinter klingt die Wand hohl.', inside: true }] },
-  { id: 'anwesen', title: 'Die Villa Seiler', open: () => !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
+  { id: 'anwesen', title: 'Die Villa Seiler', open: () => kap() <= 4 && !(typeof anwesen_S !== 'undefined' && anwesen_S.open),
     shots: [{ from: [-125, 1.8, 47], to: [-125, 2.6, 53], look: [-125, 6.5, 70], dur: 4.6, text: 'Das Anwesen. Oben brennt das eine Fenster. Es hat immer gebrannt.' },
       { from: [-122.6, 1.8, 57.8], to: [-124.3, 1.7, 59.6], look: [-125, 1.6, 61.4], dur: 4.8, text: 'Die Tür hat kein Schlüsselloch. Sie hat acht. Acht Teile eines Schlüssels – versteckt, wo Kinder sich verstecken.' },
       { from: [-110, 5.5, 57.5], to: [-113.5, 7.5, 55.5], look: [-125, 4, 66], dur: 4, text: 'Einer unter der Erde. Einer im Wasser. Einer ganz oben. Und eine Maschine, die sie wieder zusammenfügt.' }] },
@@ -68,10 +68,10 @@ const VISIONS = [
   { id: 'wald', title: 'Er wollte, dass ich ihm folge', open: () => !story.lore.some(l => l.key === 'zayn_ende'),
     shots: [{ from: [31, 2.1, 79], to: [31, 2, 86], look: [30, 1.4, 100], dur: 5.2, text: 'Der Spielplatz. Die Schaukel bewegt sich. Kein Wind.', fig: { at: [30, 93], to: [30, 99.5], rot: 0, s: .6 } },
       { from: [30.5, 1.5, 92], to: [30.2, 1.4, 94.5], look: [30, 1, 100], dur: 4.4, text: 'Er dreht sich um. Er winkt nicht. Er wartet nur. Dahinter: der Wald, in den keiner durfte.', fig: { at: [30, 100], rot: PI, s: .6 } }] },
-  { id: 'rabe', title: 'Etwas, das warm ist', open: () => ch3.on && typeof whiskey_S !== 'undefined' && !whiskey_S.trade,
+  { id: 'rabe', title: 'Etwas, das warm ist', open: () => ch3.on && kap() >= 3 && kap() <= 4 && typeof whiskey_S !== 'undefined' && !whiskey_S.trade,
     shots: [{ from: [-27, 2.2, -2.5], to: [-27.1, 2, -6.8], look: [-27.2, 1.9, -11.2], dur: 4.8, text: 'Der Rabe auf Vegas’ Geländer. Er legt den Kopf schief. Zwischen seinen Füßen: ein Schlüssel.' },
       { from: [-26, 1.6, -9.5], to: [-26.6, 1.6, -10.3], look: [-27.2, 1.7, -11.2], dur: 3.8, text: 'Er will tauschen. Etwas, das warm ist und leuchtet.' }] },
-  { id: 'steine', title: 'Sieben, die im Dunkeln zählen', open: () => visionen_stones() < 7,
+  { id: 'steine', title: 'Sieben, die im Dunkeln zählen', open: () => kap() <= 4 && visionen_stones() < 7,
     shots: [{ from: [-12.2, 1.5, -13.4], to: [-12.2, .9, -11.2], look: [-12.2, 0, -9.4], dur: 4.8, text: 'Mach das Licht aus. Dann siehst du uns. Wir zählen. Wir leuchten, wenn du uns hältst.', dark: true }] }];
 function visionen_totem(i) {
   const S = visionen_S; if (S.V || state.talking || state.ending) return false;

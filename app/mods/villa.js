@@ -598,7 +598,7 @@ VILLA_BAU.kr = async R => {
 // =====================================================================  UK 1 · „Alle wohlauf“ – Straße bei Tag, Aufräumkommando (AG-11), Zeitung, „Fünf Minuten“
 function villa_kapStart() { if (!villa_kap4()) return; if (!villa_S.uk) villa_S.uk = 1; if (typeof kiffen_S !== 'undefined') kiffen_S.auto = false; villa_ziel(); }
 // nach dem Klick auf die Intro-Tafel (anwesen.js chapter4Begin)
-function villa_nachIntro() { villa_ziel(); setTimeout(() => { try { if (typeof kiffen_start === 'function' && villa_kap4() && !state.talking) kiffen_start(); } catch (e) { console.warn('Villa: Fünf Minuten', e); } }, 6500);
+function villa_nachIntro() { villa_ziel(); if (villa_hat('nachintro')) return; villa_setz('nachintro'); /* Einmal: nicht nach jedem Laden „Fünf Minuten“/Funk neu */ setTimeout(() => { try { if (typeof kiffen_start === 'function' && villa_kap4() && !state.talking) kiffen_start(); } catch (e) { console.warn('Villa: Fünf Minuten', e); } }, 6500);
   setTimeout(() => { if (villa_kap4() && !villa_hat('funk_vier') && typeof lwo_funk === 'function') { villa_setz('funk_vier'); lwo_funk('„Vier ist sauber.“', { x: 9, z: -1.3 }); } }, 21000); }
 // Aufräumkommando: b1 und b3 schrubben mit langen Bürsten die Kreide („ICH KOMME“) von der Kreuzung, je ein Eimer mit grauem Seifenwasser daneben; b2 geht seinen Weg zwischen den Kerzen
 const VILLA_CREW = { b1: { at: [2.35, -3.75], ry: .12, schrubb: true, eimer: [3.25, -4.25], phi: 0 }, b2: { at: [22.2, -9.4], ry: PI, weg: [[21.4, -9.6], [23.6, -9.3], [25.6, -9.6]] }, b3: { at: [4.55, -3.65], ry: -.12, schrubb: true, eimer: [5.3, -4.05], phi: 2.1 } };

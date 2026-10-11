@@ -128,7 +128,8 @@ function post_telefonTick(dt) { const S = post_S, R = S.ride, F = S.F; if (S.sz 
 // ---------------------------------------------------------------------  Schuppen (außen, Kap. 1: zu) + innen (Kap. 4/5)
 async function post_schuppenAussen() { const S = post_S, x = 101.05, z = -26.5; // Vorderseite (+x) des Geräteschuppens
   const schild = kirchberg_papier({ w: 512, h: 128, bg: '#6a5a44', flecken: 5, zeilen: [['REIFEN – KRANZ', 70, 86, 64, '#e6dcc4', 'bold Arial', 0]] });
-  kirchberg_decal(schild, 2, .5, x + .012, 2.4, z, PI / 2, { rough: .8 });
+  kirchberg_decal(schild, 2, .5, x + .045, 2.4, z, PI / 2, { rough: .8 }); // 4,5 cm vor dem Blech (vorher bündig = flimmerte/verschwand) – ersetzt das alte „SCHROTT · KRANZ“ an derselben Stelle
+  try { if (ausbau_ost_west_OW.schrottSchild) ausbau_ost_west_OW.schrottSchild.visible = false; } catch (e) {}
   const schloss = kirchberg_tex(kirchberg_cnv(128, 160, (c, w, h) => { c.clearRect(0, 0, w, h); c.strokeStyle = '#8a8478'; c.lineWidth = 12; c.beginPath(); c.arc(w / 2, 50, 28, PI, 0); c.lineTo(w / 2 + 28, 70); c.moveTo(w / 2 - 28, 50); c.lineTo(w / 2 - 28, 70); c.stroke();
     const g = c.createLinearGradient(0, 70, 0, 150); g.addColorStop(0, '#9a8a60'); g.addColorStop(1, '#5a4a30'); c.fillStyle = g; c.fillRect(20, 70, w - 40, 80); c.strokeStyle = '#3a2e1c'; c.lineWidth = 3; c.beginPath(); c.ellipse(w / 2, 104, 16, 8, 0, 0, 7); c.stroke(); c.fillStyle = '#3a2e1c'; c.beginPath(); c.arc(w / 2, 104, 3.5, 0, 7); c.fill(); c.fillRect(w / 2 - 2, 122, 4, 16); }));
   kirchberg_decal(schloss, .1, .125, x + .015, 1.1, z + .45, PI / 2, { alpha: true, rough: .4 });
@@ -311,7 +312,7 @@ WORLD_TICK.push((dt, t) => { const S = post_S; if (!S.ready) return; S.t += dt;
   if (S.ride) { post_rideTick(dt); post_telefonTick(dt); }
   if ((S.chk = (S.chk || 0) - dt) < 0) { S.chk = .5; if (S.ride && S.F && post_bereit()) post_szene(); }
   post_papierTick(dt); post_objektivTick(dt); post_schattenTick(dt, t);
-  if (S.autoWart && typeof lenaCar !== 'undefined') { const d = Math.hypot(player.pos.x - lenaCar.position.x, player.pos.z - lenaCar.position.z); if (d < 3.4) S.autoT += dt; if (S.autoT > 25 && !state.talking && !ui.overlay) { S.autoWart = false; post_autoSchreck(); } }
+  if (S.autoWart && kap() === 1 && typeof lenaCar !== 'undefined') { const d = Math.hypot(player.pos.x - lenaCar.position.x, player.pos.z - lenaCar.position.z); if (d < 3.4) S.autoT += dt; if (S.autoT > 25 && !state.talking && !ui.overlay) { S.autoWart = false; post_autoSchreck(); } }
   // Neonröhre im Schuppen flackert, wenn jemand vor der Tür steht (Beobachter-Regel; Luke zählt auch)
   if (S.roehre) { const d = Math.hypot(player.pos.x - 101.6, player.pos.z + 26.5); const soll = d < 3.2 ? (Math.random() < .12 ? 0 : .9 + Math.random() * .5) : 0; S.roehre.emissiveIntensity += (soll - S.roehre.emissiveIntensity) * Math.min(1, dt * (soll ? 18 : 6)); }
   if (S.led) S.led.material.opacity = .6 + Math.sin(t * 2.2) * .35;

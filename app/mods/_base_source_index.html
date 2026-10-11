@@ -2723,7 +2723,7 @@ box(.78, .68, .03, -.39, 0, 0, M.paint, { parent: cupDoor });
 for (let i = 0; i < 8; i++) { const cup = new THREE.Mesh(new THREE.CylinderGeometry(.035, .03, .08, 10), new THREE.MeshStandardMaterial({ color: [0xc04040, 0x4060c0, 0x40a050, 0xe0c040, 0xc06090, 0x60b0c0, 0xe08040, 0xd8d8d8][i], roughness: .4 })); cup.position.set(-.32 + (i % 4) * .2, -.25 + Math.floor(i / 4) * .32, -.05); cupboard.add(cup); }
 function photoWayUpdate(dt, t) {
   const P = player.pos;
-  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; if (i === 1 && curChapter() !== 1) return; const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
+  PHOTOS.forEach((p, i) => { if (p.wayDone || story.photos.has(i)) return; if (curChapter() !== 1) return; /* Weg-Ereignisse der Fotos gehören zu Kapitel 1 – später nicht mehr */ const [zx, zz, r] = p.zone; if ((i === 6) !== state.inBasement) return;
     if (Math.hypot(P.x - zx, P.z - zz) < r) { p.wayDone = true; photoWay[i](); } });
   if (kidShadow.visible) { state.kidShadowT += dt; kidShadow.lookAt(P.x, 0, P.z); tmp.copy(kidShadow.position).add(new THREE.Vector3(0, .9, 0)).sub(camera.position); const d = tmp.length(); tmp.normalize();
     if ((flashOn && fwd.dot(tmp) > .96 && d < 12) || d < 2.2 || state.kidShadowT > 25) { kidShadow.visible = false; Audio.flap(kidShadow.position.x, 1, kidShadow.position.z); for (let i = 0; i < 3; i++) setTimeout(() => Audio.stepAt(P.x + rand(-1, 1), P.z + rand(-1, 1), .25), 300 + i * 260); } }
@@ -3692,7 +3692,7 @@ function lifeUpdate(dt, t, indoor, rect) {
     if (ghostCar.position.x < -100) { dir.carState = null; ghostCar.position.set(0, -800, 0); Audio.engine(false); }
   }
   // Regie: zufällige Ereignisse
-  if (state.started && !state.outage && !state.talking && !ui.overlay && !state.ch2) {
+  if (state.started && !state.outage && !state.talking && !ui.overlay && !state.ch2 && curChapter() <= 1) { // Zufallsregie der Basis nur in Kapitel 1 (später führt spannung.js)
     dir.t -= dt; if (dir.t < 0) { if (nat.calm > 0) dir.t = 3; else { dir.t = rand(26, 50); runEvent(indoor); nat.calm = Math.max(nat.calm, 10); } }
     dir.lightT -= dt; if (dir.lightT < 0) { dir.lightT = rand(70, 150); lightning(); } // seltener (07.10.: Donner störte; 08.10.: 70–150 s)
   }
@@ -4952,8 +4952,8 @@ async function playEcho(E) {
   await say(E.lines);
   for (let k = 20; k >= 0; k--) { echoMat.opacity = k / 20 * .32 * (Math.random() < .3 ? .3 : 1); await wait(45); }
   echoFigs.forEach(F => F.visible = false); if (E.id === 'echo_brand') brandFeuer(false); state.talking = false; if (ECHO_CAST.end) ECHO_CAST.end(E);
-  story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
-  questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(ch3.on ? 3 : ch2.on ? 2 : 1);
+  if (!story.lore.some(l => l.key === E.id)) story.lore.push({ key: E.id, title: E.title, html: E.lines.map(l => (l[2] ? `<b>${l[2]}:</b> ` : '') + l[0]).join('\n') });
+  questPop('NACHBILD', E.title.replace(/^(Nachbild|Echo) · /, '')); if (typeof saveGame === 'function') saveGame(curChapter());
 }
 function echoUpdate(dt, t) { for (const a of echoAnchors) if (a.s.visible) { a.s.material.opacity = .24 + Math.sin(t * 2.2 + a.E.at[0]) * .12; a.s.position.y = a.E.at[1] + Math.sin(t * 1.3 + a.E.at[2]) * .08; } }
 
@@ -5102,8 +5102,8 @@ const solved = new Set();
 // Zustand der Welt-Module im Spielstand: MOD_SAVE.push([name, () => daten, daten => wiederherstellen])
 const MOD_SAVE = [];
 // Kapitel 3 kapitelübergreifend (Fassung 3, AP-03): Rüstungs-Hinweise, Antwort der Wahl (bis AP-17 aus ch3.choice), Geschenk, Glocken-Joker, Nebenaufgaben
-MOD_SAVE.push(['ch3', () => ({ armorHints: [...ch3.armorHints], answer: ch3.answer || ch3.choice || null, gift: ch3.gift, bell: ch3.bell, side: ch3.side }),
-  v => { ch3.armorHints = new Set(Array.isArray(v.armorHints) ? v.armorHints : []); ch3.answer = ['A', 'B', 'C'].includes(v.answer) ? v.answer : null; ch3.gift = v.gift || null; ch3.bell = !!v.bell; ch3.side = v.side && typeof v.side === 'object' ? v.side : {}; }]);
+MOD_SAVE.push(['ch3', () => ({ armorHints: [...ch3.armorHints], answer: ch3.answer || ch3.choice || null, gift: ch3.gift, bell: ch3.bell, side: ch3.side, said: ch3.said ? [...ch3.said] : [] }),
+  v => { ch3.armorHints = new Set(Array.isArray(v.armorHints) ? v.armorHints : []); ch3.answer = ['A', 'B', 'C'].includes(v.answer) ? v.answer : null; ch3.gift = v.gift || null; ch3.bell = !!v.bell; ch3.side = v.side && typeof v.side === 'object' ? v.side : {}; if (Array.isArray(v.said) && ch3.said) v.said.forEach(k => ch3.said.add(k)); }]);
 let ENV_DARK = 0; // 0…1: Module (z. B. der tiefe Wald) dunkeln Himmels- und Mondlicht ab
 // Einzige Quelle für das Kapitel: story.chapter (setChapter). Ältere Module leiten es noch aus ihren Merkern ab – das Größere gilt.
 function setChapter(n) { story.chapter = n; }
@@ -5127,6 +5127,7 @@ function safeTick(dt) {
   const a = SAFE.at || (SAFE.at = {}); a.x = player.pos.x; a.y = player.pos.y; a.z = player.pos.z; a.yaw = player.yaw; a.ch = curChapter();
 }
 function saveGame(chapter) {
+  if (typeof ZUST !== 'undefined' && ZUST.geladen) return; // Spielstand wird gerade eingelesen/aufgebaut: nichts überschreiben (Ort und Modulstände gehen sonst verloren)
   try { const ch = chapter || curChapter();
     const d = { v: SAVE_V, chapter: ch, t: Date.now(), lore: story.lore, photos: [...story.photos], items: story.items, idefs: Object.fromEntries(story.items.filter(k => ITEM_DEFS[k] || (ITEMS[k] && typeof ITEMS[k].name === 'string' && !ITEMS[k].key && k !== 'batterie' && k !== 'key' && k !== 'fuse')).map(k => [k, ITEM_DEFS[k] || { name: ITEMS[k].name, desc: String(ITEMS[k].desc || ''), icon: Object.keys(ICONS).find(i => i !== k && ICONS[i] === ICONS[k]) || 'paper' }])), myst: [...ch3.myst], solved: [...solved], flash: { tier: FLASH.tier, charge: FLASH.charge, spare: FLASH.spare },
       main: story.main, obj: $('objText').textContent, at: SAFE.at && SAFE.at.ch === ch ? { ...SAFE.at } : null,
@@ -5156,6 +5157,11 @@ function applySave(d) {
   story.items = story.items.filter(k => !/^lampe\d$/.test(k)); story.items.unshift(FLASH_TIERS[FLASH.tier].key); if (FLASH.spare && !story.items.includes('batterie')) story.items.push('batterie');
   for (const [k, v] of Object.entries(d.side || {})) if (story.side[k]) Object.assign(story.side[k], v);
   (d.myst || []).forEach(m => ch3.myst.add(m)); (d.solved || []).forEach(s => solved.add(s));
+  // Zustand der Welt: schon aufgehobene Polaroids und gesehene Nachbilder bleiben weg (kein zweites Aufheben, keine Wiederholung)
+  if (d.st) for (const k of SAVE_STATE) if (k in d.st && k !== 'inBasement' && k !== 'outage' && d.st[k] !== undefined) state[k] = d.st[k]; // Kapitel-1-Merker auch ab Kapitel 2 (sonst werden sie beim nächsten Speichern als false zurückgeschrieben)
+  try { for (const i of story.photos) { const p = PHOTOS[i]; if (!p || !p.mesh) continue; p.mesh.visible = false; uninteract(p.mesh);
+      if (p.candle) { p.candle.on = false; if (p.candle.flame) p.candle.flame.visible = false; if (p.candle.light) p.candle.light.intensity = 0; if (p.candle.pool) p.candle.pool.visible = false; } } } catch (e) { console.warn('Polaroids laden', e); }
+  try { for (const l of story.lore) if (/^echo_/.test(l.key)) { echoSeen.add(l.key); const A = echoAnchors.find(a => a.E.id === l.key); if (A) { A.s.visible = false; uninteract(A.hit); } } } catch (e) { console.warn('Nachbilder laden', e); }
   for (const [k, , set] of MOD_SAVE) if (d.mods && d.mods[k] != null) try { set(d.mods[k]); } catch (e) { console.warn('Spielstand ' + k, e); }
   updateSideInfo();
 }
@@ -5202,7 +5208,7 @@ async function chapterStart(ch, d) {
 }
 function resumeSpot(d) { const a = d && d.at; return a && a.ch === d.chapter && Number.isFinite(a.yaw) && spotOk(a) ? a : null; }
 function placeAt(a) { player.pos.set(a.x, a.y, a.z); player.yaw = a.yaw; player.pitch = 0; vel.set(0, 0, 0); camY = a.y + 1.65; SAFE.at = { x: a.x, y: a.y, z: a.z, yaw: a.yaw, ch: curChapter() }; }
-function resumeHooks(d, at) { for (const f of CH_RESUME) { try { f(d, at); } catch (e) { console.error('Weiterspielen', e); } } updateSideInfo(); }
+function resumeHooks(d, at) { for (const f of CH_RESUME) { try { f(d, at); } catch (e) { console.error('Weiterspielen', e); } } updateSideInfo(); if (typeof ZUST !== 'undefined') ZUST.geladen = false; }
 // Kapitel mit Titelkarte: Ort sofort setzen (die Karte verdeckt ihn), beim Klick statt der Kapiteleröffnung die gespeicherte Aufgabe
 function resumeAfterIntro(d, place) {
   const at = place ? resumeSpot(d) : null; if (at) placeAt(at);
@@ -5252,7 +5258,7 @@ function renderCases(B) {
   B.innerHTML = '<h2>FALLWAND</h2><div class="cases">' + vis.map(c => { const ks = Object.keys(c.clues), got = ks.filter(loreHas);
     return `<div class="case ${solved.has(c.id) ? 'solved' : ''}"><div class="cq">${c.q}</div><ul>${ks.map(k => loreHas(k) ? `<li class="done">${c.clues[k]}</li>` : '<li class="miss">— fehlt —</li>').join('')}</ul>` +
       (solved.has(c.id) ? `<p class="ca">${c.a}</p>` : got.length >= Math.min(ks.length, 3) ? `<button data-c="${c.id}">SCHLUSSFOLGERN</button>` : `<small>${got.length} / ${Math.min(ks.length, 3)} Hinweise nötig</small>`) + '</div>'; }).join('') + '</div>';
-  B.querySelectorAll('button[data-c]').forEach(b => b.onclick = e => { e.stopPropagation(); solved.add(b.dataset.c); Audio.stinger(false); setTimeout(() => Audio.chime(), 350); glitchV = .5; renderCases(B); saveGame(ch3.on ? 3 : ch2.on ? 2 : 1); });
+  B.querySelectorAll('button[data-c]').forEach(b => b.onclick = e => { e.stopPropagation(); solved.add(b.dataset.c); Audio.stinger(false); setTimeout(() => Audio.chime(), 350); glitchV = .5; renderCases(B); saveGame(curChapter()); });
 }
 
 // ---- Angst: Dunkelheit, Verfolgung und Nähe zu Gestalten zehren an den Nerven

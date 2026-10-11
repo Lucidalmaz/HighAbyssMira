@@ -504,9 +504,13 @@ function k6_ag20Aufbau() { K6.ag20Auf = true; k6_ag20Props(); if (typeof lwo_fig
 async function k6_ag20() { K6.told.add('ag20'); state.flashFail = Math.max(state.flashFail, .45); player.pitch = Math.max(player.pitch - .25, -.9); // er leuchtet – und senkt die Lampe sofort
   if (typeof lwo_szene === 'function') await lwo_szene('AG-20', { figuren: { funk: { x: K6_AG20.a[0], z: K6_AG20.a[1] } }, hook: async (tu) => { if (tu && tu.r && /Merkblatt/.test(tu.r)) { await k6_merkblatt(); return true; } return false; } });
   if (K6.tot2) setTimeout(() => k6_luke('Dreiundvierzig … nein. Drei-vier. Der ist alt. Der war damals schon dabei.', 3600), 800);
+  k6_ag20Beute();
+  k6_obj('Die Fraßstelle. Da vorn, wo das Blut endet.'); }
+// Beute (Funkgerät, Kettenrolle): eigene Funktion, damit sie nach dem Laden wieder entsteht
+function k6_ag20Beute() {
   K6.funkHit = K6.funkHit || box(.5, .5, .5, K6_AG20.a[0] + .35, .5, K6_AG20.a[1] + .2, hidden, { cast: false }); interact(K6.funkHit, () => K6.on && !K6.funk ? 'Das Funkgerät nehmen' : '', () => { if (K6.funk) return; K6.funk = true; if (K6.funkM) K6.funkM.visible = false; addItem('bergungsfunk'); if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_funk'); Audio.play('static', { gain: .06, dur: .8, hp: 400 }); });
   K6.ketteHit = K6.ketteHit || box(.6, .4, .6, K6_AG20.a[0] - .6, .2, K6_AG20.a[1] + .5, hidden, { cast: false }); interact(K6.ketteHit, () => K6.on && !K6.kette ? 'Die Kettenrolle nehmen' : '', () => { if (K6.kette) return; K6.kette = true; if (K6.ketteM) K6.ketteM.visible = false; if (typeof lwo_ereignis === 'function') lwo_ereignis('ag20_kette'); Audio.play('keys3', { gain: .25, rate: .7 }); k6_luke('Eisen. Hilft nicht. Nehm ich trotzdem.', 2400); });
-  k6_obj('Die Fraßstelle. Da vorn, wo das Blut endet.'); }
+}
 // AP-24: Funkgerät am Hochsitz zurücklegen (+4 über lwo_ereignis 'funk_zurueck'); der Scan hängt danach am Pfosten (nachgeladen, kein Licht)
 function k6_funkZurueck() { if (!K6.on || !k6_has('bergungsfunk') || K6.told.has('funkZurueck')) return; K6.told.add('funkZurueck'); story.items = story.items.filter(k => k !== 'bergungsfunk');
   if (typeof lwo_ereignis === 'function') lwo_ereignis('funk_zurueck'); Audio.play('static', { gain: .05, dur: .5, hp: 400 }); k6_funkModell(); k6_luke('Für die Nachsorge. Die holen es sich. Die holen sich alles.', 3200); if (typeof saveGame === 'function') saveGame(6); }
@@ -717,6 +721,7 @@ async function k6_ende() {
   try { saveGame(6); } catch (e) {}
   if (typeof kino_play === 'function') { if (K6.boy) K6.boy.g.visible = false; try { k6_kinoDef(); if (typeof kino_preload === 'function') await kino_preload('k6'); await kino_play('k6'); } catch (e) { console.error('Kino k6', e); } } else { $('fade').style.background = '#000'; await fade(1, 1200); await k6_wait(1500); }
   if (typeof kapEnde === 'function') { try { kapEnde(6); } catch (e) { console.error('kapEnde(6)', e); } }
+  try { saveGame(6); } catch (e) {} // nach kapEnde: KAP.done und Kapitel-7-Merker gehören in den Stand
   const ec = $('endcard'); state.ending = true; state.talking = false;
   ec.querySelector('h1').textContent = 'KAPITEL 6 · WENDIGO · ENDE'; // Fassung 3, wortgleich
   ec.querySelector('p').innerHTML = 'Er ist nicht tot. Er weiß jetzt, wem der Rabe gehört.<br>Auf dem Hochsitz schläft ein Junge in deiner Jacke. Du hast ihn nicht angesehen.<br>Der Rabe ist nach Westen geflogen.<br>Einer fehlt noch. Du.<br>Am Samstag kommt Jonas.'; // Story-Prüfung W-3
@@ -734,6 +739,7 @@ function k6_welt(laden) {
   ch3.met = true; ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; if (!ch3.choice) ch3.choice = 'B'; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
   state.zone = null; state.ending = false; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
   lamps.forEach(L => { L.mode = 'on'; L.dead = 0; }); if (typeof anwesen_S !== 'undefined') anwesen_S.ch4 = true;
+  if (!laden && ITEMS.baumhausschluessel && !story.items.includes('baumhausschluessel')) story.items.push('baumhausschluessel'); // Kapitelwahl: Cleos Baumhaus braucht ihn (kommt sonst aus dem Tausch in Kapitel 3)
   if (typeof feuer_items === 'function') feuer_items(); if (ITEMS.feuerzeug && !story.items.includes('feuerzeug')) story.items.push('feuerzeug'); // Peters Feuerzeug (Kapitel 2)
   if (!laden && ITEMS.mamas_kerze && !story.items.includes('mamas_kerze') && typeof k5 !== 'undefined' && (k5.f.kerze || story.lore.some(l => l.key === 'k5_schlafenszeit'))) story.items.push('mamas_kerze'); // Mamas Kerze: nur wer sie in Kapitel 5 wirklich hatte (QA B4: keine Suche mehr nach beliebigen Kerzen)
   if (!laden) { FLASH.charge = Math.max(FLASH.charge ?? 1, .9); FLASH.spare = Math.max(FLASH.spare || 0, 3); try { flashApply(); } catch (e) {} } // „die Lampe, drei Batterien“
@@ -769,13 +775,16 @@ function k6_resumeWelt() {
   if (K6.beat === 'falle' && !K6.falleFertig) { K6.falleAn = false; K6.beat = 'faden'; } // die Falle beginnt beim nächsten Nähern neu
   if (K6.lager && K6.kindF) { K6.kindF.visible = true; K6.hufe.visible = true; } if (K6.falleFertig) K6.liste.visible = true;
   if (story.lwo) story.lwo.ag18 = K6.weg; if (K6.told.has('funkZurueck')) k6_funkModell(); // AP-24
+  if (K6.told.has('ag20')) { try { k6_ag20Props(); k6_ag20Beute(); } catch (e) { console.warn('Kapitel6: Beute laden', e); } } // Funkgerät/Kettenrolle liegen nach dem Laden wieder da (wenn nicht genommen)
+  if (K6.ag18 && K6.schneiderFrei && !K6.schneider) { try { k6_ag18Tasche(true); } catch (e) {} }
+  if (typeof leben_uhr === 'function') { try { if (k6_ab('epilog')) leben_uhr(4, 50, false); else if (k6_ab('falle')) leben_uhr(3, 0, false); } catch (e) {} } // Weltuhr passend zum Beat (nicht 02:10)
   if (k6_ab('epilog')) { k6_boy(true); if (typeof WL !== 'undefined') WL.morgen = true; if (typeof whiskey_S !== 'undefined' && whiskey_S.g) { const TS = TIEF.stand; whiskey_S.fl = null; whiskey_S.mode = 'perch'; whiskey_S.g.visible = true; whiskey_S.g.position.set(TS.x + .95, 4.02, TS.z); } }
 }
 MOD_SAVE.push(['kapitel6', () => ({ on: K6.on, beat: K6.beat, sp: [...K6.sp], told: [...K6.told], eaten: K6.eaten, gone: K6.krumen.map((c, i) => c.gone ? i : -1).filter(i => i >= 0),
-    weg: K6.weg, variante: K6.variante, sender: K6.sender, v11: K6.v11, flasche: K6.flasche, ag18: K6.ag18, falleFertig: K6.falleFertig, falleWeg: K6.falleWeg, tote: K6.tote, lager: K6.lager, rief: K6.rief, cp: K6.cp, batFall: K6.batFall, batDa: K6.batDa, kills: K6J.kills }),
+    weg: K6.weg, variante: K6.variante, sender: K6.sender, v11: K6.v11, flasche: K6.flasche, ag18: K6.ag18, falleFertig: K6.falleFertig, falleWeg: K6.falleWeg, tote: K6.tote, lager: K6.lager, rief: K6.rief, cp: K6.cp, batFall: K6.batFall, batDa: K6.batDa, kills: K6J.kills, funk: !!K6.funk, kette: !!K6.kette, schneider: !!K6.schneider, schneiderFrei: !!K6.schneiderFrei }),
   v => { K6.on = false; K6.beat = v.beat || ''; K6.sp = new Set(v.sp || []); K6.told = new Set(v.told || []); K6.eaten = !!v.eaten; (v.gone || []).forEach(i => { if (K6.krumen[i]) K6.krumen[i].gone = true; }); K6.lampDead = false;
     K6.weg = v.weg || null; K6.variante = v.variante || 'B'; K6.sender = v.sender || 'jacke'; K6.v11 = !!v.v11; K6.flasche = +v.flasche || 0; K6.ag18 = !!v.ag18 || k6_ab('krumen'); K6.falleFertig = !!v.falleFertig; K6.falleWeg = v.falleWeg || null; K6.falleAn = K6.falleFertig;
-    K6.tote = +v.tote || 1; K6.lager = !!v.lager; K6.rief = !!v.rief; K6.cp = v.cp || null; K6.batFall = !!v.batFall; K6.batDa = !!v.batDa; K6J.kills = +v.kills || 0; K6.jagdSeg = K6.lager ? 2 : 1; }]);
+    K6.tote = +v.tote || 1; K6.lager = !!v.lager; K6.rief = !!v.rief; K6.cp = v.cp || null; K6.batFall = !!v.batFall; K6.batDa = !!v.batDa; K6J.kills = +v.kills || 0; K6.jagdSeg = K6.lager ? 2 : 1; K6.funk = !!v.funk; K6.kette = !!v.kette; K6.schneider = !!v.schneider; K6.schneiderFrei = !!v.schneiderFrei; }]);
 if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { if (d.chapter !== 6 || !K6.on) return; const C = K6.cp;
   if (k6_ab('epilog')) { const TS = TIEF.stand; player.pos.set(TS.x, 0, TS.z - 4); player.yaw = PI; } else if (C && K6.beat !== 'gitter') { player.pos.set(C.x, 0, C.z); player.yaw = C.yaw; } // am letzten Speicherpunkt, Blick in die richtige Richtung
   if (K6.cp && typeof todCheckpoint === 'function') todCheckpoint(K6.cp.id, 'Weiter', { x: K6.cp.x, y: 0, z: K6.cp.z, yaw: K6.cp.yaw, respawn: async () => k6_wiederkehr(), quiet: true });

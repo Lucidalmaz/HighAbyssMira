@@ -1022,6 +1022,10 @@ function leben_clockTick(dt, c1, c3, live) {
     else if (!(K.q > 0) && live && S.zone === 'town') { const n = K.pend; K.pend = 0; leben_bellSeq(n, -1, n === 13 ? .7 : .65, false, n === 13); console.log('[uhr] ' + (K.h % 24) + ':00 · ' + n + ' Schläge'); } }
   leben_bellRun(performance.now());
 }
+// Spielstand 'leben': Weltuhr (Tageszeit) und Schauer (Wetter) – vorher nach jedem Laden auf Kapitelstart/Zufall zurück
+MOD_SAVE.push(['leben', () => { const K = leben_S.clk, W = leben_S.wx; return { kap: K.kap, min: K.min, h: K.h, c3: !!K.c3, wx: { T: W.T, on: !!W.on, t: W.t || 0, dur: W.dur || 0 } }; },
+  v => { if (!v || typeof v !== 'object') return; const K = leben_S.clk, W = leben_S.wx; if (Number.isFinite(v.min) && v.min >= 0 && v.kap) { K.kap = v.kap; K.min = v.min; K.h = Number.isFinite(v.h) ? v.h : Math.floor(v.min / 60); K.pend = 0; K.c3 = !!v.c3; }
+    if (v.wx) { if (Number.isFinite(v.wx.T)) W.T = v.wx.T; W.on = !!v.wx.on; W.t = v.wx.t || 0; W.dur = v.wx.dur || 0; } }]);
 window.__uhr = { S: leben_S.clk, T: LEBEN_UHR, uhr: (hh, mm, s) => leben_uhr(hh, mm, s), bell3plus13: () => leben_bell3plus13(), kap: leben_uhrKap }; // Testzugriff
 
 // =====================================================================  FERNE GERÄUSCHE & UNERKLÄRLICHES (selten, nie gleichzeitig, nie in Dialogen)

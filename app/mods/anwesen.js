@@ -42,7 +42,7 @@ WORLD_MODS.push(['Anwesen', async () => {
   const rust = msSurfMat('rust_sheet', { tint: 0x7a6a5e }); rust.metalness = .55; rust.roughness = .75;
   const iron = new T.MeshStandardMaterial({ color: 0x2a2826, roughness: .5, metalness: .85 });
   const ue = await ausruestung_ue('schluesselteil', .16), partMesh = () => ue ? ue.clone(true) : anwesen_partMesh(rust);
-  const reg = (i, x, y, z) => { if (typeof hintAdd === 'function') hintAdd({ id: 'anw_teil_' + i, x, y, z, kind: 'teil', near: 14, open: () => !anwesen_has(i) }); };
+  const reg = (i, x, y, z) => { if (typeof hintAdd === 'function') hintAdd({ id: 'anw_teil_' + i, x, y, z, kind: 'teil', near: 14, open: () => kap() <= 4 && !anwesen_has(i) }); };
   // --- 01 Brunnen (Schrebergärten): der Kiesel schlägt nie auf. Wer wiederkommt, zieht die Kette hoch.
   anwesen_wrap('Brunnen', -108, 35.5, (m, orig) => { let first = true;
     m.userData.label = () => anwesen_has(0) ? 'Brunnen' : first ? 'Brunnen' : 'Brunnen · Kette hochziehen';
@@ -170,8 +170,8 @@ function anwesen_press() {
 }
 applySave = (o => d => { o(d); const S = anwesen_S; S.key = story.items.includes('villaschluessel'); try { anwesen_sockets(); } catch (e) {} })(applySave);
 // Spielstand Kapitel 4: Tür offen, Halle betreten, gesehene Dinge. Weiterspielen in der Halle setzt dort fort; das Ende an der Treppe lässt sich erneut auslösen (nie Sackgasse)
-MOD_SAVE.push(['anwesen', () => ({ open: !!anwesen_S.open, inHall: !!anwesen_S.inHall, hallDone: !!anwesen_S.hallDone, seen: [...anwesen_S.seen], knocked: !!anwesen_S.knocked }),
-  v => { const S = anwesen_S; S.open = !!v.open; S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; }]);
+MOD_SAVE.push(['anwesen', () => ({ open: !!anwesen_S.open, inHall: !!anwesen_S.inHall, hallDone: !!anwesen_S.hallDone, seen: [...anwesen_S.seen], knocked: !!anwesen_S.knocked, nestPick: !!anwesen_S.nestPick, f3: Object.fromEntries(['mal', 'schloesser', 'kasten', 'laut', 'start'].map(k => [k, anwesen_F3[k] || 0])) }),
+  v => { const S = anwesen_S; S.open = !!v.open; S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; S.nestPick = !!v.nestPick; if (v.f3) for (const k of ['mal', 'schloesser', 'kasten', 'laut', 'start']) if (v.f3[k] !== undefined) anwesen_F3[k] = typeof anwesen_F3[k] === 'boolean' ? !!v.f3[k] : v.f3[k]; }]);
 if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { // nach dem Platzieren beim Weiterspielen
   const S = anwesen_S, H = ANW_HALL; if (d.chapter !== 4) { S.pendingHall = false; return; } // nur Kapitel 4 (ab Kapitel 5 nie zurück in die Halle)
   const inHall = at && Math.abs(at.x - H.x) < H.w && Math.abs(at.z - H.z) < H.d;
@@ -191,12 +191,12 @@ function anwesen_door() {
 // ---- Kapitel 4
 const C4_INTRO = '<p class="on" style="font-family:Georgia;font-size:12px;letter-spacing:.4em;color:#c9a36a;margin-bottom:22px">KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN</p><p class="on">Donnerstag, 5. November. Der Morgen nach dem Licht.</p><p class="on">Der Strom ist zurück. Die Laternen sind aus. Die Zeitung ist schon da.</p><p class="on">Lucy liegt bei Vegas auf dem Sofa und friert.</p><p class="on">Auf der Ahornstraße schrubben Männer die Kreide weg.</p><p class="on">Und am Westrand steht die Villa Seiler. Oben brennt noch immer das eine Fenster.</p><p class="on" style="font-family:Georgia;font-size:11px;letter-spacing:.35em;color:#8b7f68;margin-top:30px">KLICKEN ZUM WEITERSPIELEN</p>';
 async function chapter4Begin() {
-  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); if (typeof villa_neu === 'function') villa_neu(); setChapter(4);
+  const S = anwesen_S; if (S.ch4) return; S.ch4 = true; saveFlag('ch4'); if (typeof villa_neu === 'function' && !ZUST.geladen) villa_neu(); /* beim Weiterspielen steht der Villa-Stand schon (applySave) */ setChapter(4);
   $('endcard').classList.remove('show'); ui.overlay = null; document.body.classList.remove('ov'); state.ending = false; state.talking = false;
   ch3.part = 'town'; ch3.lampsOff = true; ch3.chase = 'done'; ch3.met = true; ch3.gullyHint = true; hunt.on = false; grey.visible = false; if (justin && justin.g) justin.g.visible = false;
   state.zone = null; try { canalAtmo(false); } catch (e) {} Audio.hum(false); Audio.chaseMusic(false); Audio.setArea(false, false);
   lamps.forEach(L => { L.mode = 'off'; L.dead = 0; }); // Morgen: die Laternen sind aus (PK-H)
-  if (typeof leben_uhr === 'function') { try { leben_uhr(7, 40); } catch (e) { console.warn('Anwesen: Weltuhr', e); } } // Weltuhr Kap. 4: Start 07:40 (PK-G G-1)
+  if (typeof leben_uhr === 'function' && !ZUST.geladen) { try { leben_uhr(7, 40); } catch (e) { console.warn('Anwesen: Weltuhr', e); } } // Weltuhr Kap. 4: Start 07:40 (PK-G G-1)
   { const OW = ausbau_ost_west_OW; if (!OW.gateOpen && OW.gate) { OW.gateOpen = true; if (OW.chain) OW.chain.visible = false; msHide(OW.gate); // wie im Tor-Code: Flügel an einem Scharnier, offen
     const pv = new THREE.Group(); pv.position.set(-127.3, 0, 57); pv.userData.noCol = true; const leaf = OW.gate.clone(true); leaf.visible = true; leaf.position.set(2.3, 0, 0); leaf.rotation.set(0, 0, 0); pv.add(leaf); pv.rotation.y = -1.2; OW.gate.parent.add(pv); } }
   player.pos.set(.8, 0, 1.6); player.yaw = PI / 2 + .6; player.pitch = .05; vel.set(0, 0, 0); camY = player.pos.y + 1.65; flashOn = true;

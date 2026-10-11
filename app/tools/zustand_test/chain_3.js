@@ -1,0 +1,1 @@
+window.__CHAIN=[["n3_brecheisen", "Brecheisen", -57.4, 49.9, 3], ["lampe3", "Ladeger.t durchsuchen", 116.3, 30, 3], ["drahtschneider", "Alter Schuppen", -123.5, 14, 3], ["drahtschneider", "Alter Schuppen", -123.5, 14, 3], ["buch", "Z.hlbuch lesen", 21.4, -13.1, 3]];

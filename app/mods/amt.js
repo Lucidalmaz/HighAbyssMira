@@ -15,8 +15,8 @@ const AMT = { x: C2.x, z: C2.z, h: C2.h };
 const amt_S = { ready: false, t: 0, said: {}, q: [], druckT: 0, druckZ: [], band: false, bandQ: [], k1: { t: 150, n: 0 }, nr: false, tuer: {}, kits: [], alt: {}, uhrT: 0, schritt: {}, luke: 0 };
 // Spielstand: Fortschritt dieses Moduls (Basis-Flags der Ebene speichert tod.js über tod_ch2Snap)
 const AMT_SAVE = ['akte06', 'batt', 'klavierFehl', 'danke', 'nr', 'ag06', 'ag07', 'reg', 'regFotos', 'regDreh', 'kantine', 'brett', 'kasse', 'leiter', 'leiterSteht', 'gruendung', 'vernichter', 'modell', 'modellN', 'kuehl', 'bogen', 'stuhl8', 'bogenFlocke', 'akte8', 'tankHand', 'lucyDa', 'umschlag'];
-MOD_SAVE.push(['amt', () => { const o = {}; for (const k of AMT_SAVE) if (amt_S[k] !== undefined) o[k] = amt_S[k]; o.druck = amt_S.druckZ.slice(-14); return o; },
-  v => { if (!v || typeof v !== 'object') return; for (const k of AMT_SAVE) if (v[k] !== undefined) amt_S[k] = v[k]; if (Array.isArray(v.druck)) amt_S.druckZ = v.druck.slice(-14); amt_S.geladen = true; }]);
+MOD_SAVE.push(['amt', () => { const o = {}; for (const k of AMT_SAVE) if (amt_S[k] !== undefined) o[k] = amt_S[k]; o.druck = amt_S.druckZ.slice(-14); const pr = m => Object.fromEntries(Object.entries(m || {}).filter(([, x]) => ['boolean', 'number', 'string'].includes(typeof x))); o.said = pr(amt_S.said); o.schritt = pr(amt_S.schritt); return o; },
+  v => { if (!v || typeof v !== 'object') return; for (const k of AMT_SAVE) if (v[k] !== undefined) amt_S[k] = v[k]; if (Array.isArray(v.druck)) amt_S.druckZ = v.druck.slice(-14); if (v.said && typeof v.said === 'object') Object.assign(amt_S.said, v.said); if (v.schritt && typeof v.schritt === 'object') Object.assign(amt_S.schritt, v.schritt); if (v.ag06) ch2.ag06 = true; amt_S.geladen = true; }]);
 
 // ---------------------------------------------------------------- Nebenaufgaben (vor dem Laden anlegen, damit der Spielstand sie findet)
 const AMT_SIDE = {

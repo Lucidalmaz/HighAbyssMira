@@ -99,7 +99,11 @@ function ausbau_nord_items() {
   ICONS.nord_baer = '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="4"/><circle cx="7.8" cy="5.4" r="1.7"/><circle cx="16.2" cy="5.4" r="1.7"/><ellipse cx="12" cy="17.5" rx="5" ry="4.3"/></svg>';
 }
 function ausbau_nord_dropItem(k) { const i = story.items.indexOf(k); if (i >= 0) story.items.splice(i, 1); }
-function ausbau_nord_save() { try { const N = ausbau_nord; localStorage.setItem('ham_nord', JSON.stringify({ names: [...N.names], lights: [...N.lights], bear: N.bear, lq: N.lq ? N.lq.state : 'hidden', ochs: N.ochs ? N.ochs.n : 0, plakat: N.plakat || 0, namesDone: !!N.namesDone })); } catch (e) {} }
+function ausbau_nord_snap() { const N = ausbau_nord; return { names: [...N.names], lights: [...N.lights], bear: N.bear, lq: N.lq ? N.lq.state : 'hidden', ochs: N.ochs ? N.ochs.n : 0, plakat: N.plakat || 0, namesDone: !!N.namesDone, bell: !!N.bell, echo: !!N.echo, bus: !!(N.bus && N.bus.phase === 'done') }; }
+function ausbau_nord_save() { try { localStorage.setItem('ham_nord', JSON.stringify(ausbau_nord_snap())); } catch (e) {} }
+// Spielstand-Schlüssel 'nord' (UX 10.10.: der Stand hing nur an localStorage und war damit nicht an den Spielstand gebunden; Glocke, Licht-Bus und Nachbild wiederholten sich)
+MOD_SAVE.push(['nord', () => { try { return ausbau_nord_snap(); } catch (e) { return null; } },
+  v => { if (!v || typeof v !== 'object') return; const N = ausbau_nord; N.sv = v; N.bell = N.bell || !!v.bell; N.echo = N.echo || !!v.echo; if (v.bus && N.bus) N.bus.phase = 'done'; }]);
 // Papier/Schild als Textur-Ebene (Decal) – Text wird auf Leinwand gemalt
 function ausbau_nord_paper(w, h, draw, px = 512) {
   const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * h / w); echt_an(() => draw(c.getContext('2d'), c.width, c.height));
@@ -999,7 +1003,7 @@ function ausbau_nord_busTick(dt, P, free) {
 function ausbau_nord_restore() {
   const N = ausbau_nord; if (N.touched) return;
   if (!['nord_names', 'nord_baer', 'nord_plakat', 'nord_strich'].some(k => story.side[k] && story.side[k].state !== 'hidden')) return;
-  let d = null; try { d = JSON.parse(localStorage.getItem('ham_nord') || 'null'); } catch (e) {} if (!d) return;
+  let d = N.sv || null; if (!d) { try { d = JSON.parse(localStorage.getItem('ham_nord') || 'null'); } catch (e) {} } if (!d) return; // Spielstand zuerst, localStorage nur für alte Stände
   (d.names || []).forEach(i => N.names.add(i));
   if (d.lq && N.lq) N.lq.state = d.lq; N.namesDone = !!d.namesDone; N.plakat = d.plakat || 0; if (N.plakat) ausbau_nord_plakatAb(true); if (N.ochs && d.ochs) N.ochs.n = d.ochs;
   if (N.lq.state !== 'hidden') (d.lights || []).forEach(i => { const C = N.cand.find(c => c.kid === i); if (C) { ausbau_nord_setFlame(C, true); N.lights.add(i); uninteract(C.hit); } });

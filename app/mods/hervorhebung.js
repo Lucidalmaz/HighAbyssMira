@@ -22,7 +22,7 @@ const HL_TEXT = [['aus', /sprechen|streicheln|hand nehmen|berühren|^whiskey|^ju
 const HL = { ready: false, slots: [], scene: null, rt: null, glow: null, mask: null, uD: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uNF: { value: new THREE.Vector2(.05, 110) }, uUseD: { value: 0 },
   t: 0, chk: 0, aktiv: 0, cand: new Array(64).fill(null), dist: new Float32Array(64), look: new Uint8Array(64), fwd: new THREE.Vector3(), v: new THREE.Vector3(), s: new THREE.Sphere(), b: new THREE.Box3(),
   cc: new THREE.Color(), near: [], nearBig: [], sc: { stack: [], out: [], big: [] }, items: null, itemsT: 0, resolveN: 0, legende: false, ms: 0, benutzt: new Set(), karte: null };
-MOD_SAVE.push(['hervorhebung', () => [...HL.benutzt].slice(-600), v => { if (Array.isArray(v)) v.forEach(k => HL.benutzt.add(k)); }]);
+MOD_SAVE.push(['hervorhebung', () => [...HL.benutzt].slice(-1500), v => { if (Array.isArray(v)) v.forEach(k => HL.benutzt.add(k)); }]);
 const GLZ = { liftT: 0, rc: null, hits: [], proto: null, laden: null, mat: null, tex: null, halo: null, list: [], v: new THREE.Vector3() };
 
 // ---------------------------------------------------------------- Kategorie und sichtbares Objekt

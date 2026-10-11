@@ -205,7 +205,7 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
     for (let i = 0; i < 4; i++) { const p = palletS.clone(true); put(p, 137.2 + rand(-.1, .1), -10.6, rand(-.2, .2), i * .145, J); } }
   { const s = fit(shedUtilS.clone(true), 2.8); put(s, 99.6, -26.5, PI / 2, 0, J); }
   const plateTx = (typeof echt_an === 'function' ? f => echt_an(f, 'schablone') : f => f())(() => canvasTex(512, 128, (c, w, h) => { c.fillStyle = '#6a5a44'; c.fillRect(0, 0, w, h); for (let i = 0; i < 40; i++) { c.fillStyle = `rgba(20,12,6,${rand(.1, .4)})`; c.fillRect(0, rand(0, h), w, rand(1, 4)); } c.fillStyle = '#e6dcc4'; c.font = 'bold 54px Arial'; c.textAlign = 'center'; c.fillText('SCHROTT · KRANZ', w / 2, 84); })); // aufgemalt (Schablone)
-  decal(plateTx, 2, .5, 101.05, 2.4, -26.5, PI / 2, 0, { p: J });
+  OW.schrottSchild = decal(plateTx, 2, .5, 101.05, 2.4, -26.5, PI / 2, 0, { p: J }); // post.js legt „REIFEN – KRANZ“ an dieselbe Stelle und blendet dieses aus
   // Roter Kanister (Nebenaufgabe) neben dem Schrottauto
   const redCan = jerryS.clone(true); redCan.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(redCan, 133.6, -10.2, 1.1, 0, J); redCan.rotation.z = 1.45; redCan.position.y = .17;
 
@@ -389,10 +389,12 @@ WORLD_MODS.push(['Ausbau Ost/West', async () => {
   hit(5, 1.6, .4, 109.9, 1.75, 24.75, 'Schaufenster', () => toast(['Drinnen: Regale mit Kanistern, Grablichtern und Spielzeug, ein Kalender. Oktober 2009. Der 31. ist rot umkringelt.', 'Auf dem Tresen stehen acht Pappbecher. Einer ist umgefallen.', 'Im Staub am Fenster: kleine Handabdrücke. Von innen.'][Math.floor(rand(0, 3))], 4200));
   hit(1.2, 2.2, .5, 113.35, 1.1, 24.7, 'Ladentür', () => { Audio.play('metalHit2', { gain: .3, rate: 1.2, x: 113, y: 1, z: 25, ref: 2 }); toast('Abgeschlossen. An der Tür hängt ein Schild: „Komme gleich wieder.“ Der Staub darauf ist fingerdick.', 4000); });
   for (const x of [107, 115]) hit(1.4, .6, 4.4, x, .4, 15, () => Q.kanisterHave && !Q.kanisterDone ? 'Kanister abstellen' : 'Zapfinsel', () => {
-    if (Q.kanisterHave && !Q.kanisterDone) { Q.kanisterDone = true; story.items = story.items.filter(k => k !== 'ow_kanister'); const j = jerryS.clone(true); j.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(j, x + .2, 14.2, .4, .22, K);
+    if (Q.kanisterHave && !Q.kanisterDone) { Q.kanisterDone = true; Q.kanisterX = x; story.items = story.items.filter(k => k !== 'ow_kanister'); const j = jerryS.clone(true); j.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(j, x + .2, 14.2, .4, .22, K);
       Audio.play('metalHit1', { gain: .4, x, y: .3, z: 15, ref: 2 }); OW.canopyDie = 3.5; setTimeout(() => { Audio.giggle(x - 2, 1, 11); subtitle('Aus dem Kanister tropft es. Kein Benzin. Wasser. Kalt, wie aus einem Brunnen.', 4800); OW.footsteps = { x: x, z: 13, t: 0 }; }, 1800);
       setTimeout(() => { story.lore.push({ key: 'ow_kanister', title: 'Der rote Kanister', html: 'Du hast den Kanister zurückgebracht. Aus ihm tropfte Wasser, kein Benzin. Kleine nasse Fußabdrücke führten von der Zapfinsel nach Osten – zur Sperre.' }); sideDone('ow_kanister', 'Zurückgebracht. Die Fußabdrücke führten zur Sperre.'); }, 4500); return; }
     toast('Vier abgeschnittene Bolzen, wo die Säulen standen. Jemand hat Kreidestriche daneben gemacht: acht Stück.', 4200); });
+  OW.kanisterRestore = () => { if (!(Q.kanisterHave || Q.kanisterDone)) return; redCan.visible = false; // nach dem Laden: Kanister weder doppelt in der Welt noch erneut aufnehmbar/lieferbar
+    if (Q.kanisterDone && !OW.kanisterGestellt) { OW.kanisterGestellt = true; const x = Q.kanisterX || 107, j = jerryS.clone(true); j.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.color.set(0xd84030); } }); put(j, x + .2, 14.2, .4, .22, K); } };
   hit(.7, .6, .6, 133.6, .3, -10.2, 'Roter Kanister', () => { if (Q.kanisterHave) return; Q.kanisterHave = true; redCan.visible = false; item('ow_kanister', 'Roter Kanister', 'Aus dem Schrott der Tankstelle Kranz. Innen schwappt etwas. Auf dem Griff, eingeritzt: LUKE.');
     subtitle('Der Kanister ist nicht leer. Auf dem Griff, eingeritzt: LUKE.', 4200); if (story.side.ow_kanister.state === 'hidden' && kapAb(5)) sideStart('ow_kanister'); story.side.ow_kanister.desc = 'Bring den roten Kanister zurück zur Zapfinsel der Tankstelle.'; });
   hit(2.1, 1.4, 1.3, 120.4, .7, 28.2, 'Müllcontainer', () => { Audio.play('metalOpen', { gain: .35, rate: .9, x: 120, y: 1, z: 28, ref: 2 }); toast('Im Container: Kinderschuhe. Sieben Paar, ordentlich nebeneinander. Und ein einzelner.', 4200); });
@@ -715,8 +717,8 @@ function ausbau_ost_west_f3Tick(dt, t) { const OW = ausbau_ost_west_OW, K = OW.f
   if (K.dina && K.dina.g.visible && (kap() !== 1 || !ausbau_ost_west_inScheune() && Math.hypot(player.pos.x - K.dina.g.position.x, player.pos.z - K.dina.g.position.z) > 25)) { /* bleibt in der Scheune sitzen */ }
 }
 // AP-25 · „Das Heft im Heu“ (Kap. 1/3/5): gefundene Seiten und Heft-Stand speichern – sonst fehlen die Kap.-1-/3-Seiten in Kap. 5 und der Faden beginnt nach dem Laden neu
-MOD_SAVE.push(['ow_heft', () => { const Q = ausbau_ost_west_OW.Q; return Q ? { pages: [...Q.pages], seen: !!Q.heftSeen, done: !!Q.heftDone, jacke: !!Q.jacket } : null; },
-  v => { const Q = ausbau_ost_west_OW.Q; if (!v || !Q) return; (v.pages || []).forEach(p => Q.pages.add(p)); Q.heftSeen = !!v.seen; Q.heftDone = !!v.done; Q.jacket = !!v.jacke; }]);
+MOD_SAVE.push(['ow_heft', () => { const Q = ausbau_ost_west_OW.Q; return Q ? { pages: [...Q.pages], seen: !!Q.heftSeen, done: !!Q.heftDone, jacke: !!Q.jacket, kh: !!Q.kanisterHave, kd: !!Q.kanisterDone, kx: Q.kanisterX || 0 } : null; },
+  v => { const Q = ausbau_ost_west_OW.Q; if (!v || !Q) return; (v.pages || []).forEach(p => Q.pages.add(p)); Q.heftSeen = !!v.seen; Q.heftDone = !!v.done; Q.jacket = !!v.jacke; Q.kanisterHave = !!v.kh; Q.kanisterDone = !!v.kd; Q.kanisterX = +v.kx || 0; try { if (ausbau_ost_west_OW.kanisterRestore) ausbau_ost_west_OW.kanisterRestore(); } catch (e) {} }]);
 
 // =====================================================================  Basis-Umsetzung „Text gegen Welt“ – Ost (Tankstelle, Sperre, Schrottplatz) · docs/gameplay/abgleich/basis_umsetzung.md
 // Was die Texte der Orte behaupten, ist sichtbar: Geldkassette, acht Pappbecher, Handabdrücke am Fenster, „Komme gleich wieder“, Bolzen + Kreidestriche, Reifenzählung, Verkehrsschild

@@ -615,6 +615,7 @@ function kino_polaBack(text) { const c = document.createElement('canvas'); c.wid
 // ---------------------------------------------------------------- Abspielen
 async function kino_play(id, opts = {}) {
   const S = kino_S, D = KINO[id]; if (!D) { console.warn('Kino: unbekannte Sequenz ' + id); return; } if (S.on) { console.warn('Kino: läuft schon (' + S.id + ')'); return; }
+  try { if (typeof KAP_SAVE !== 'undefined' && KAP_SAVE.kino) { const sn = KAP_SAVE.kino.seen || (KAP_SAVE.kino.seen = []); if (!sn.includes(id)) sn.push(id); } } catch (e) {} // gesehene Sequenzen im Spielstand (Schlüssel 'kino')
   kino_css(); $('subtitle').style.opacity = 0; if (typeof toastT !== 'undefined') { clearTimeout(toastT); $('toast').style.opacity = 0; } S.on = true; S.id = id; S.def = D; S.opts = opts; S.i = -1; S.sh = null; S.t = 0; S.T = 0; S.skip = false; S.ending = false;
   S.ev.length = 0; S.act.length = 0; S.lit.length = 0; S.flash = null; S.pose.ok = false; S.shk.length = 0; S.lampFx.length = 0; S.wOk = false; S.hold = false; S.fps.n = 0; S.fps.t = 0; S.fps.min = 999; S.fps.lo = 0;
   const A = Audio, fd = $('fade'), cv = renderer.domElement, nahtlos = opts.nahtlos ?? D.nahtlos;

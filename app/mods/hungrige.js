@@ -18,8 +18,8 @@ const HUNGRIGE_FOLGE = ['reh', 'kraehe', 'fuchs', 'wolf_funk', 'hirsch', 'blick'
 //   Hirsch: stürmt, steht auf einen Meter, Kopf dreht ohne Hals · Hirschding (wahre Gestalt, kapitel6.js: Jagd): aufrecht, ruckend wie ein Film mit fehlenden Bildern, zwei Tritte je Schritt,
 //   Knochenknacken, trägt die Stille mit sich · Hofer: Mensch, Körper steht, Kopf dreht sich, drei Stimmen aus einem Mund · der falsche Rabe: spiegelverkehrt, stumme Flügel, kein Atem, schwarze Augen.
 const hungrige_S = { ready: false, stage: 0, done: new Set(), ev: null, cool: 30, flesh: null, none: null, dt: null, cine: null, look: null, nackt: {}, fix: {}, finale: false, tries: 0, told: new Set(), epilog: false, ravA: null, ravB: null, pages: {} };
-MOD_SAVE.push(['hungrige', () => ({ stage: hungrige_S.stage, done: [...hungrige_S.done], finale: hungrige_S.finale, epilog: hungrige_S.epilog }), // epilog: Kapitel 6 ganz zu Ende (Beobachter „d_zugesehen“ liest es)
-  v => { const S = hungrige_S; S.stage = v.stage || 0; (v.done || []).forEach(k => S.done.add(k)); S.finale = !!v.finale; S.epilog = !!v.epilog;
+MOD_SAVE.push(['hungrige', () => ({ stage: hungrige_S.stage, done: [...hungrige_S.done], finale: hungrige_S.finale, epilog: hungrige_S.epilog, told: hungrige_S.told ? [...hungrige_S.told] : [] }), // epilog: Kapitel 6 ganz zu Ende (Beobachter „d_zugesehen“ liest es)
+  v => { const S = hungrige_S; S.stage = v.stage || 0; (v.done || []).forEach(k => S.done.add(k)); S.finale = !!v.finale; S.epilog = !!v.epilog; if (Array.isArray(v.told)) v.told.forEach(k => S.told.add(k));
     const alt = story.lore.find(l => l.key === 'hungrige_seite_2' && /letzte Seite/.test(l.title)); if (alt) alt.key = 'hungrige_seite_6'; // Spielstand vor Fassung 3: die letzte Seite hieß Seite 2
     if (S.done.size && story.side.hungrige) { story.side.hungrige.state = S.finale ? 'done' : (S.done.has('fuchs') ? 'active' : 'hidden'); hungrige_desc(); } }]);
 const hungrige_has = k => hungrige_S.done.has(k);

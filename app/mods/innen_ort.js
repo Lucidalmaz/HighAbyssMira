@@ -6,6 +6,9 @@
 // Schublade, Kleiderschrank, Fotoalbum, Kellertür, Tastenfeld, Tonband) bleiben funktionsfähig und an plausibler Stelle.
 // Jeder Raum bekommt Entdeckbares. Stellen für die überarbeitete Story sind mit „STORY-HOOK“ markiert.
 const innen_ort_S = { ready: false };
+// Puppe (Nr. 7): Stufe und gesprochene Zeilen im Spielstand – kein erneutes „Die Puppe sitzt jetzt auf dem Bett“ nach dem Laden
+MOD_SAVE.push(['innen_ort', () => { const D = innen_ort_S.doll; return D ? { stage: D.stage, said: D.said } : (innen_ort_S.dollSv || null); },
+  v => { if (!v || typeof v !== 'object') return; innen_ort_S.dollSv = v; const D = innen_ort_S.doll; if (D) { D.stage = +v.stage || 0; D.said = v.said && typeof v.said === 'object' ? v.said : {}; try { D.place(D.stage); } catch (e) {} } }]);
 WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
   const S = innen_ort_S, T = THREE, V = (x = 0, y = 0, z = 0) => new T.Vector3(x, y, z);
   const t0 = performance.now();
@@ -564,7 +567,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
     root.scale.setScalar(.56 / 297); const holder = new T.Group(); holder.add(root); G7.add(holder); holder.userData.noCol = true; holder.userData.ioDyn = true;
     const bedTop = surfY(gBed7, 21.3, -21.25, Y + 1.3);
     const spots = [[24.9, cribTop, -21.4, -.4], [21.25, bedTop, -21.3, .37], [22.66, Y, -17.42, .15]];
-    const D = S.doll = { holder, head, spots, stage: 0, seen: 0, seenPos: 0, away: false, moved: false, lastYaw: 0, creak: 0, said: {} };
+    const D = S.doll = { holder, head, spots, stage: 0, seen: 0, seenPos: 0, away: false, moved: false, lastYaw: 0, creak: 0, said: {} }; setTimeout(() => { const v = S.dollSv; if (v && !D.stage) { D.stage = +v.stage || 0; D.said = v.said && typeof v.said === 'object' ? v.said : {}; if (D.place && D.stage) D.place(D.stage); } }, 3000);
     D.place = i => { const [x, y, z, ry] = spots[i]; holder.position.set(x, y, z); holder.rotation.y = ry; head.rotation.set(0, 0, 0); };
     D.place(0);
     if (bodyMesh) interact(bodyMesh, 'Puppe', () => toast('Porzellan, kalt und feucht. Am Handgelenk ein Namensband aus dem Krankenhaus: „Wendt, Zayn“. Das Messer in ihrer Hand ist echt.', 5800)); } // STORY-HOOK: Zayn / die Puppe
@@ -606,7 +609,7 @@ WORLD_MODS.push(['Innenräume (Nr. 7, Nr. 1, Keller)', async () => {
       else { if (D.moved && dist < 7) { D.moved = false; if (D.creak <= 0) { D.creak = 6; Audio.play('woodSqueak1', { gain: .14, rate: 1.9, x: hp.x, y: hp.y + .4, z: hp.z, ref: 1.5 }); } }
         if (dist < 6) D.seen += dt; }
       D.creak -= dt;
-      if (D.seen > 1.2 && !inRoom && !inView && D.stage < 2 && dist > 3) { D.stage++; D.place(D.stage); D.seen = 0; D.away = true; }
+      if (D.seen > 1.2 && !inRoom && !inView && D.stage < 2 && dist > 3 && (typeof kap !== 'function' || kap() === 1)) { D.stage++; D.place(D.stage); D.seen = 0; D.away = true; }
       if (D.away && inView && dist < 7) { D.away = false; if (!D.said[D.stage]) { D.said[D.stage] = 1; subtitle(D.stage === 1 ? '<i>Die Puppe sitzt jetzt auf dem Bett. Eben lag sie noch im Kinderbett.</i>' : '<i>Sie steht in der Tür. Und sieht dir nach.</i>', 4200); Audio.stinger(false); } }
     }
   };

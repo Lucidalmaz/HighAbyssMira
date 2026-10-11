@@ -562,6 +562,7 @@ async function k5_takt(beat, wieder) {
     // Vertrauen miserabel und AG-14 „Ihre Schwester ist bei Herrn Vegas“ (Drohung): der Kombi steht mit Standlicht vor Nr. 3
     const vorNr3 = k5_lwo() === 'miserabel' && typeof lwo_S !== 'undefined' && lwo_S.seen && lwo_S.seen['dr:ag14'] !== undefined;
     if (vorNr3 && typeof lwo_kombiZeigen === 'function') { k5.f.kombiNr3 = true; lwo_kombiZeigen(-27.5, -2.1, -PI / 2, { stand: true }); }
+    if (wieder) { await wait(2500); if (!ok()) return; k5.f.kiesel = false; k5_setup('fenster', true); return; } // nach dem Laden: Veranda-Gespräch nicht noch einmal
     let t = 0; state.talking = true; k5.ownScript = true; setScripted(dt => { t += dt; return t < 4.2; });
     setCamOverride((cam) => { const k = Math.min(1, Math.max(0, (t - 3) / 1.2)); cam.position.y = player.pos.y + 1.22 + .43 * (k * k * (3 - 2 * k)); if (t > 4.3) { setCamOverride(null); k5.ownScript = false; } });
     for (let i = 0; i < 4; i++) setTimeout(() => Audio.drip(-26.2, 2.6, -10.9), 600 + i * rand(700, 1300));

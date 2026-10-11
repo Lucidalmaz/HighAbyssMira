@@ -767,7 +767,8 @@ function kirchberg_kapitel() { const S = kirchberg_S;
 WORLD_TICK.push((dt, t) => {
   const S = kirchberg_S; if (!S.ready) return; S.t += dt;
   if (!S.figTry && typeof LWO !== 'undefined' && LWO.ready) { S.figTry = true; kirchberg_figuren(); }
-  if (S.nachLaden && state.started) { S.nachLaden = false; kirchberg_kapitel(); if (S.steps.liste && !S.kuli) kirchberg_kuliZeigen(false); }
+  if (S.nachLaden && state.started) { S.nachLaden = false; kirchberg_kapitel();
+    if (S.inRaum) { const R = S.raeume[S.inRaum]; if (R) { S.back = S.back || { x: R.def.raus.x, z: R.def.raus.z, yaw: R.def.raus.yaw }; if (R.def.onRein) try { R.def.onRein(); } catch (e) { console.warn(e); } } else S.inRaum = null; } if (S.steps.liste && !S.kuli) kirchberg_kuliZeigen(false); }
   // Gisela am Küchenfenster: lehnt sich heraus, wenn das Fenster offen ist; Blick auf Luke; Fensterlicht weich
   const F = S.F.gisela, auf = !!S.fAuf; S.fk = (S.fk || 0) + ((auf ? 1 : 0) - (S.fk || 0)) * Math.min(1, dt * 2.5);
   if (S.fLicht) S.fLicht.intensity = .25 + S.fk * 1.1; if (S.fluegel) { S.fluegel.visible = S.fk > .02; S.fluegel.rotation.y = S.fk * 1.25; }

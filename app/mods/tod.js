@@ -79,7 +79,9 @@ function tod_ch2Apply(p) {
   if (p.s && ch2.spiderPhase !== 'gone') { ch2.spiderPhase = 'gone'; spiderDoorOut.locked = false; cocoon.scale.set(1, .6, 1); cocoon.material.color.set(0x8a8478); }
   if (p.c) { ch2.chase = 'done'; chaseDoor.shut = true; chaseDoor.set(false); chaseDoor.locked = true; ch2.tankSeen = false; }
 }
-MOD_SAVE.push(['tod', () => ({ cp: tod_S.persistCp || null, ch2: ch2.on ? tod_ch2Snap() : null, deaths: tod_S.deaths }), v => { tod_S.deaths = v.deaths || 0; tod_S.pending = v.cp ? v : null; if (tod_S.pending) { const d0 = loadSave(); tod_S.pending.obj = d0 && d0.chapter === 2 ? d0.obj : null; } }]); /* obj: Ziel aus dem Spielstand, bevor chapter2Begin() neu speichert */
+MOD_SAVE.push(['tod', () => ({ cp: tod_S.persistCp || null, ch2: ch2.on ? tod_ch2Snap() : null, deaths: tod_S.deaths }), v => { tod_S.deaths = v.deaths || 0; tod_S.persistCp = v.cp || null; /* sonst schreibt der nächste Stand cp:null */ tod_S.pending = v.cp ? v : null; if (tod_S.pending) { const d0 = loadSave(); tod_S.pending.obj = d0 && d0.chapter === 2 ? d0.obj : null; } }]); /* obj: Ziel aus dem Spielstand, bevor chapter2Begin() neu speichert */
+// Weiterspielen ab Kapitel 3: der gespeicherte Punkt ist die Wiederkehr nach dem Tod (nicht der Kapitelanfang)
+if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { const c = tod_S.persistCp; if (c && d && d.chapter >= 3 && c.chapter === d.chapter && !tod_S.cp) tod_S.cp = { ...c, respawn: null, persist: true }; });
 // Weiterspielen in Kapitel 2: nach dem Kapitelstart den Fortschritt im Amt wiederherstellen und an den Speicherpunkt gehen
 CH2_BEGIN.push(() => {
   const v = tod_S.pending; tod_S.pending = null;
@@ -372,7 +374,7 @@ WORLD_TICK.push((dt) => {
     if (ch2.on && !sn.k2 && P.x > X - 5) { sn.k2 = true; todCheckpoint('kapitel2', 'Speicherpunkt Amt'); }
     if (ch2.on && !sn.gang && ch2.spiderPhase === 'gone' && ch2.chase === 'idle' && P.x > X + 46.3 && P.x < X + 50 && Math.abs(P.z - Z) < 2) { sn.gang = true; todCheckpoint('gang', 'Der lange Gang', { x: X + 47.5, y: 0, z: Z, yaw: -PI / 2 }); }
     if (ch2.on && !sn.mess && ch2.chase === 'done' && P.x > X + 107.2 && P.x < X + 122) { sn.mess = true; todCheckpoint('messraum', 'Der Messraum', { x: X + 108.2, y: 0, z: Z, yaw: -PI / 2 }); }
-    if (ch3.on && !sn.k3) { sn.k3 = true; sn.k2 = sn.gang = sn.mess = true; todCheckpoint('kapitel3', 'Kapitel 3 · Ich komme'); }
+    if (ch3.on && !sn.k3) { sn.k3 = true; sn.k2 = sn.gang = sn.mess = true; if (typeof kap !== 'function' || kap() === 3) todCheckpoint('kapitel3', 'Kapitel 3 · Ich komme'); /* ab Kap. 4 (ch3.on bleibt true) kein „Speicherpunkt Kapitel 3“ mehr */ }
     if (ch3.on && ch3.chase === 'run' && !sn.c3) { sn.c3 = true;
       todCheckpoint('gezaehlte', 'Die Behaltenen', { x: 29, y: 0, z: -4.6, yaw: PI / 2, persist: false, respawn: async () => { player.pos.set(29, 0, -4.6); player.yaw = PI / 2; gtAfter(2600, () => { if (ch3.chase === 'caught') startC3Chase(); }); subtitle('Renn. Nicht stehen bleiben. Zum Licht.', 3600); } }); }
   } catch (e) { if (!tod_S.err) { tod_S.err = true; console.warn('Tod-Tick', e); } }

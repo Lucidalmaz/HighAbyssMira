@@ -512,7 +512,7 @@ WORLD_TICK.push((dt, t) => {
   const S = innen_kapitel_S; if (!S.ok) return; S.t += dt; const P = player.pos;
   // Gully: warmes Licht und Dunst aus den Schlitzen, sobald Justin da ist (Kapitel 3, Straße)
   const G = S.gully; if (G) {
-    const want = ch3.on && ch3.part === 'town' && ch3.met ? 1 : 0; G.k += (want - G.k) * Math.min(1, dt * .8);
+    const want = ch3.on && ch3.part === 'town' && ch3.met && kap() === 3 ? 1 : 0; G.k += (want - G.k) * Math.min(1, dt * .8);
     const on = G.k > .01 && Math.abs(P.x - 9) < 40 && Math.abs(P.z + 1.3) < 40; G.glow.visible = G.steam.visible = on;
     const fl = .82 + Math.sin(t * 2.3) * .08 + Math.sin(t * 7.1) * .05; G.light.intensity = on ? 2.2 * G.k * fl : 0; G.glow.material.opacity = .7 * G.k * fl;
     if (on) { const p = G.pos; for (let i = 0; i < G.vel.length; i++) { const v = G.vel[i]; v[3] += dt; const a = v[3] % 3.2; p[i * 3] = 9 + v[0] * a * 3 + Math.sin(t + i) * .05; p[i * 3 + 1] = .05 + v[1] * a; p[i * 3 + 2] = -1.3 + v[2] * a * 3; }

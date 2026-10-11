@@ -151,6 +151,7 @@ async function wald_beasts() {
   S.beasts = [...S.deer, ...(S.fox ? [S.fox] : []), ...S.wolves, ...(S.pup ? [S.pup] : [])];
 }
 // Kinderschuh (klein, Stoff und Gummi) – gehört zu Zayns Spur
+MOD_SAVE.push(['wald', () => ({ told: wald_S.told ? [...wald_S.told] : [] }), v => { if (v && Array.isArray(v.told) && wald_S.told) v.told.forEach(k => wald_S.told.add(k)); }]); // einmalige Zeilen/Toasts nach dem Laden nicht erneut
 applySave = (o => d => { o(d); const S = wald_S, has = k => story.lore.some(l => l.key === k);
   if (has('wald_welpe') && S.pup) { S.pup.st = 'gone'; S.pup.g.visible = false; }
   if (has('zayn_spur_schuh') && S.shoe) S.shoe.removeFromParent(); if (has('wald_fake') || has('wald_hirsch')) wald_fakeWeg(); })(applySave);

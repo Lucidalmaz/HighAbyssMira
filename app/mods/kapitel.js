@@ -25,12 +25,35 @@ function kapStart(n) {
   if (n >= KAP_GESPERRT) return; // Kapitel 7 ist noch nicht gebaut
   KAP.n = n; setChapter(n); saveFlag('ch' + n);
   if (!KAP.laden) saveGame(n); // beim Weiterspielen steht der Spielstand schon – nicht mit dem Kapitelanfang überschreiben
-  KAP.begun = n; kap_run(KAP_BEGIN, n, 'Kapitelbeginn');
+  KAP.begun = n; zustand_vorgeschichte(n); kap_run(KAP_BEGIN, n, 'Kapitelbeginn');
 }
 function kapEnde(n) { saveFlag('ch' + (n + 1)); KAP.done = Math.max(KAP.done || 0, n); kap_run(KAP_END, n, 'Kapitelende'); }
 // Kapitel 1–4 setzen ihr Kapitel in der Basis über setChapter(n) → KAP_BEGIN dort einmal je Wechsel nachziehen
-setChapter = (o => n => { o(n); if (KAP.pend) return; KAP.pend = true;
-  setTimeout(() => { KAP.pend = false; const k = kap(); if (k <= 4 && k !== KAP.begun) { KAP.begun = k; kap_run(KAP_BEGIN, k, 'Kapitelbeginn'); } }, 0); })(setChapter);
+// ---- ZUSTAND (Nutzer 10.10.2026, AAA-Zustand): Kapitelwechsel räumt Warteschlangen auf; Kapitelwahl/Teleport/Laden setzt die Vorgeschichte (zustand.js)
+//   ZUST.begun   → Kapitel, die in diesem Spielstand wirklich begonnen wurden (gespeichert, Schlüssel 'zustand')
+//   ZUST.erl[k]  → Funktionen, die den Stand „Kapitel k ist erledigt“ herstellen (nur für Kapitel, die nie begonnen wurden: Kapitelwahl/Sprung) – füllt zustand.js
+//   ZUST.geladen → ein Spielstand wurde eingelesen (Kapitelstarter dürfen dann Modul-Zustände nicht zurücksetzen)
+var ZUST = { geladen: false, begun: new Set(), erl: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }, last: 0 };
+function zustand_aufraeumen() { // Warteschlangen früherer Kapitel leeren: Untertitel, Toast, Gedanken, wartende Notizen
+  try { if (typeof subQ !== 'undefined') { subQ.length = 0; subMin = 0; if (subQH) { try { gtCancel(subQH); } catch (e) {} subQH = null; } } } catch (e) {}
+  try { if (typeof gedanken_S !== 'undefined') gedanken_S.q.length = 0; } catch (e) {}
+  try { if (typeof ui !== 'undefined' && ui.noteQ) ui.noteQ.length = 0; } catch (e) {}
+  try { if (typeof ziele_S !== 'undefined') { ziele_S.q.length = 0; ziele_S.hold.length = 0; } } catch (e) {}
+  try { if (typeof INV3D !== 'undefined' && INV3D.queue) INV3D.queue.length = 0; } catch (e) {}
+  try { if (typeof st_stop === 'function') st_stop(.2); } catch (e) {}
+  try { const t = document.getElementById('toast'), s = document.getElementById('subtitle'); if (t) t.style.opacity = 0; if (s) s.style.opacity = 0; } catch (e) {}
+}
+function zustand_vorgeschichte(n) { // Kapitel n beginnt: alles vor n, das nie gespielt wurde, gilt als erledigt (wie erspielt)
+  for (let k = 1; k < n; k++) { if (ZUST.begun.has(k)) continue; for (const f of ZUST.erl[k] || []) { try { f(n); } catch (e) { console.warn('Vorgeschichte ' + k, e); } } ZUST.begun.add(k); }
+  ZUST.begun.add(n); ZUST.last = n;
+}
+MOD_SAVE.push(['zustand', () => ({ begun: [...ZUST.begun], last: ZUST.last }), v => { ZUST.begun = new Set((v && v.begun) || []); ZUST.last = (v && v.last) || 0; }]);
+applySave = (o => function (d) { ZUST.geladen = true; setTimeout(() => { ZUST.geladen = false; }, 120000); /* Sicherung: nie dauerhaft sperren */ const r = o.apply(this, arguments);
+  if (!(d && d.mods && d.mods.zustand)) { ZUST.begun = new Set(); for (let k = 1; k <= Math.min(6, (d && d.chapter) || 1); k++) ZUST.begun.add(k); } // älterer Spielstand: bis zum gespeicherten Kapitel gespielt
+  return r; })(applySave);
+chapterStart = (o => function (ch, d) { if (!d) ZUST.geladen = false; /* frischer Kapitelstart (z. B. Kapitel 1 zu Ende → Kapitel 2): kein Laden mehr */ return o.apply(this, arguments); })(chapterStart);
+setChapter = (o => n => { const vor = story.chapter; o(n); if (n !== vor) zustand_aufraeumen(); if (KAP.pend) return; KAP.pend = true;
+  setTimeout(() => { KAP.pend = false; const k = kap(); if (k <= 4 && k !== KAP.begun) { KAP.begun = k; zustand_vorgeschichte(k); kap_run(KAP_BEGIN, k, 'Kapitelbeginn'); } }, 0); })(setChapter);
 // ---- AP-27 · Kapitel 7 („∴“) vorbereitet, NICHT gebaut (Bibel: Kapitel 7 · Ausblick, Umsetzungsnotizen; 02 I1). Bis Kapitel 7 gebaut wird, bleibt alles hier ungenutzt.
 //   kap() kennt 7, kapStart(7) tut nichts (KAP_GESPERRT), das Menü zeigt „Fortsetzung folgt“ · KAP7.gebaut = false.
 //   KAP7.sig1: die Unterschrift mit einem Punkt (dieselbe hält beobachter.js als BEOB_SIG1) – vor Kapitel 7 nirgends benutzt.

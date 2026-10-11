@@ -10,7 +10,7 @@
 const K1 = { f: new Set(), T: 0, ready: false, deco: [], cov: [], v: { on: false, done: false, n: 0, exp: 0, sp: { x: 0, z: 0, vx: 0, vz: 0 }, tgt: { x: 0, z: 0 }, tT: 0, last: null, spd: 3.4, limp: 0,
   lift: null, grace: 0, vegas: false, aeff: false, wz: -1 }, aus: null, hum: null, tv: { t: 0, fr: 0 }, lampe: null, kp: { t: 0, blick: false }, band: null, heim: false, a04: { n: 0, t: 120 } };
 const kapitel1_v3 = new THREE.Vector3(), kapitel1_v3b = new THREE.Vector3(), kapitel1_q = new THREE.Quaternion(), kapitel1_o = new THREE.Object3D();
-MOD_SAVE.push(['kapitel1', () => ({ f: [...K1.f], n: K1.v.n }), v => { if (v && Array.isArray(v.f)) v.f.forEach(x => K1.f.add(x)); if (v && +v.n) K1.v.n = +v.n; }]);
+MOD_SAVE.push(['kapitel1', () => ({ f: [...K1.f], n: K1.v.n }), v => { if (v && Array.isArray(v.f)) v.f.forEach(x => K1.f.add(x)); if (v && +v.n) K1.v.n = +v.n; if (K1.obenT === undefined || !Number.isFinite(K1.obenT)) K1.obenT = 0; }]);
 function kapitel1_on() { return state.started && !menu.attract && !state.ch1Done && !(typeof ch2 !== 'undefined' && ch2.on) && (typeof kap !== 'function' || kap() === 1); }
 function kapitel1_lore(key, title, html) { if (story.lore.some(l => l.key === key)) return false; story.lore.push({ key, title, html }); return true; }
 function kapitel1_d(x, z) { return Math.hypot(player.pos.x - x, player.pos.z - z); }
@@ -302,6 +302,7 @@ function kapitel1_tvTick(dt) { const T = K1.tv; if (tvLight.userData.dead || K1.
   T.tx.needsUpdate = true; }
 // „Nicht du“: Hilde packt das linke Handgelenk, dreht die Handfläche unter die Küchenlampe, sieht hin, sieht ihm ins Gesicht
 async function kapitel1_nichtDu() {
+  if (typeof kap === 'function' && kap() !== 1) return; // nur Kapitel 1 (später kein „Nicht du“ mehr, kein Rückfall des Spielstands auf Kapitel 1)
   scareCount++; setFace(stalker, 'wendt'); const P = player.pos; K1.f.add('nichtdu');
   const from = stalker.position.clone(), to = inFront(.5, Y).clone(); let t = 0; const dur = 1.05;
   while (t < dur) { await wait(16); t += .016; const k = t / dur, e = k * k * (3 - 2 * k); stalker.position.lerpVectors(from, to, e); stalker.position.y = Y + Math.sin(k * PI * 2) * .012; stalker.lookAt(P.x, Y, P.z); }
@@ -316,7 +317,7 @@ async function kapitel1_nichtDu() {
   if (typeof gedanke === 'function') gedanke('k1_hilde', 'Das war Frau Wendt. Hilde. Sie hat mir in die Hand geguckt wie in einen Ausweis. „Nicht du.“ Wen hat sie denn erwartet?', 16000, 2); // F3 Verständlichkeit: wer war das, welche Frage bleibt
   // Lukes Taschenlampe liegt jetzt auf dem Boden und leuchtet genau auf das Tastenfeld
   K1.lampe = { x: 29.9, y: Y + .06, z: -20.3 }; K1.lampeHit = kapitel1_hit(.45, .2, .45, 29.9, Y + .1, -20.3); interact(K1.lampeHit, 'Taschenlampe aufheben', () => { K1.lampe = null; uninteract(K1.lampeHit); flashOn = true; Audio.play('switch1', { gain: .35 }); });
-  flashOn = true; try { saveGame(1); } catch (e) {} if (typeof todCpShow === 'function') todCpShow('Der Sessel ist noch warm');
+  flashOn = true; try { saveGame(curChapter()); } catch (e) {} if (typeof todCpShow === 'function') todCpShow('Der Sessel ist noch warm');
 }
 const kapitel1_ease = k => k * k * (3 - 2 * k);
 function kapitel1_fussspuren() { if (K1.fuss) { K1.fuss.visible = true; return; } const t = kapitel1_cnv(64, 128, (x, w, h) => { x.fillStyle = 'rgba(46,56,30,.55)'; if (!echt_fuss(x, 32, 64, 108, 'rgb(46,56,30)', .6, false)) { x.beginPath(); x.ellipse(32, 80, 13, 30, 0, 0, 7); x.fill(); for (let i = 0; i < 5; i++) { x.beginPath(); x.arc(20 + i * 6, 42 - Math.abs(2 - i) * 3, 4, 0, 7); x.fill(); } } // echter Abdruck aus Farbspritzern
@@ -375,7 +376,7 @@ async function kapitel1_enterBasement() {
   if (stairBusy || state.inBasement) return; stairBusy = true;
   try { Audio.creak(undefined, 30, 1.2, -21.8); await fade(1, 900); state.inBasement = true; setMain(4);
     player.pos.set(B.x + 4.28, 0, B.z + 3.45); player.yaw = 1.0; /* R-6: am Fuß der Kellertreppe */ player.pitch = -.1; vel.set(0, 0, 0); camY = 1.65; await wait(400); } finally { stairBusy = false; } fade(0, 1600);
-  if (!K1.f.has('sommer')) { K1.f.add('sommer'); setTimeout(() => kapitel1_zeile('Beton. Und … Sommer? Es riecht nach Sommer.', 3600, 'LUKE'), 900); try { saveGame(1); } catch (e) {} setTimeout(() => { if (typeof todCpShow === 'function') todCpShow('LUKE, 9'); }, 1200); }
+  if (!K1.f.has('sommer')) { K1.f.add('sommer'); setTimeout(() => kapitel1_zeile('Beton. Und … Sommer? Es riecht nach Sommer.', 3600, 'LUKE'), 900); try { saveGame(curChapter()); } catch (e) {} setTimeout(() => { if (typeof todCpShow === 'function') todCpShow('LUKE, 9'); }, 1200); }
 }
 function kapitel1_wand() { if (!K1.f.has('wand')) { K1.f.add('wand'); kapitel1_zeile('Ich hab nie gemalt. Ich hab nicht mal in der Schule gemalt.', 3800, 'LUKE');
     if (kapitel1_lore('werbinich_1', 'Wer bin ich? · 1', '<span class="hand">Ich hab nie gemalt. Auf jeder Zeichnung steht mein Name.</span>')) questPop('ABENTEUERFIBEL', 'Wer bin ich?'); return; }

@@ -1,0 +1,1 @@
+window.__CHAIN=[["schluesselteile", "Aufgew.hlter Sand", 24.3, 74.2, 3], ["zayn_kamera", "Kleiner Rucksack", 24.4, -13.4, 3], ["kf_knolle", "Unter dem Blumentopf", -109.9, 24.1, 3], ["kf_grinder", "Schreibtischschublade", -1400.5, 1424.4, 3], ["kf_tips", "K.chenschublade", -978.9, 855.9, 3]];

@@ -7,7 +7,7 @@
 //   „oben“ = Fläche 1,05–1,6 m über einem begehbaren Nachbarpunkt, eben, frei, mit Kopffreiheit. Gleichmäßig verteilt, nie an Türen/Klickstellen.
 // Alle acht: der Kinderblick (G) lädt schneller nach (visionen.js, VISION_RECHARGE 75 → 45 s). Fibel-Seite „Verstecke der Sieben“.
 const VST = { orte: [], found: new Set(), such: null, fertig: false, tipp: new Set(), batt: null };
-MOD_SAVE.push(['verstecke', () => [...VST.found], v => { if (Array.isArray(v)) v.forEach(k => VST.found.add(k)); }]);
+MOD_SAVE.push(['verstecke', () => [...VST.found], v => { if (Array.isArray(v)) { v.forEach(k => VST.found.add(k)); if (v.length >= 8) { VST.fertig = true; try { VISION_RECHARGE = 45; } catch (e) {} } } }]);
 const VST_ZONE = { x0: -76, x1: 76, z0: -34, z1: 34 }; // Ortskern Kapitel 1–5 (Straßen, Gärten, Höfe)
 function vst_belegt(x, z) { // Türen, Klickstellen, Häuser innen: dort nichts verstecken
   if (VST.ip) { for (const q of VST.ip) if (Math.hypot(q[0] - x, q[1] - z) < 2.2) return true; } // 10.10.: Weltpositionen einmal je Suche (vorher je Zelle neu: 240-ms-Standbilder nach 15 s)

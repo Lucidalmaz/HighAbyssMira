@@ -1,0 +1,1 @@
+window.__CHAIN=[["einwilligungen", "Aushang", 631.3, -2602.2, 3], ["fuse", "Schl.ssel am Haken", 634.5, -2602.2, 3], ["sicherung", "Aktenschrank durchsuchen", 628, -2605.2, 3], ["leiter_amt", "Leiter nehmen", 635.5, -2593.3, 3], ["wartenummer", "Eine Nummer ziehen", 615.4, -2601.8, 3], ["feuerzeug", "^Feuerzeug$", 642.9, -2603.6, 3]];

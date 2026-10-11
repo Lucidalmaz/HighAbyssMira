@@ -125,7 +125,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
   // Limousine (car_amsedan) für eine car()-Gruppe (Front = lokal −x); Lack mit Laufspuren und Spritzschmutz, Glas dunkel
   // Deutsche Kennzeichen (Kfz-Schild „BH …“), Platzierung wie im Original-Atlas (Schrift mittig)
   const plateTex = txt => echt_an(() => canvasTex(512, 512, (x, w, h) => { x.fillStyle = '#d6d4cc'; x.fillRect(0, 0, w, h); grain(x, w, h, 900, .15); x.fillStyle = '#1d3f9a'; x.fillRect(22, 196, 52, 120); x.fillStyle = '#e0c040'; x.beginPath(); x.arc(48, 232, 12, 0, 7); x.fill();
-    x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('D', 48, 298); x.fillStyle = '#111'; x.font = 'bold 118px Arial'; x.fillText(txt, 292, 300);
+    x.fillStyle = '#fff'; x.font = 'bold 30px Arial'; x.textAlign = 'center'; x.fillText('D', 48, 298); x.fillStyle = '#111'; { let fs = 118; x.font = 'bold ' + fs + 'px Arial'; while (x.measureText(txt).width > 410 && fs > 40) { fs -= 4; x.font = 'bold ' + fs + 'px Arial'; } } /* Kennzeichen passt ins Feld */ x.fillText(txt, 292, 300);
     x.strokeStyle = '#111'; x.lineWidth = 6; x.strokeRect(14, 186, 484, 140); }), 'sauber'); // Metallschild: Schrift bleibt sauber (Prägung/Emaille, keine Papierwirkung)
   function fitSedan(o, lights, plate, len = 4.6) { // o: Klon aus strasse_autoKlon (Modell-Front +z, links +x, Meter); Front wird lokal −x
     o.traverse(m => { if (!m.isMesh) return; m.castShadow = true; m.receiveShadow = true;
@@ -305,7 +305,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     const plateMat = front => weather(new T.MeshStandardMaterial({ roughness: .5, metalness: .2, map: echt_an(() => canvasTex(1024, 560, (x, w, h) => {
       x.fillStyle = '#e3b21f'; x.fillRect(0, 0, w, h); grain(x, w, h, 5000, .18); x.fillStyle = '#111';
       x.lineWidth = 16; x.strokeStyle = '#111'; x.beginPath(); x.roundRect(22, 22, w - 44, h - 44, 30); x.stroke();
-      x.textAlign = 'center'; x.font = 'bold 150px Arial'; x.fillText('Lost Eyengless', w / 2, front ? 250 : 300);
+      x.textAlign = 'center'; { let fs = 150; x.font = 'bold ' + fs + 'px Arial'; while (x.measureText('Lost Eyengless').width > w - 150 && fs > 60) { fs -= 4; x.font = 'bold ' + fs + 'px Arial'; } } /* Schrift passt in den Rahmen (Messung statt fester Größe) */ x.fillText('Lost Eyengless', w / 2, front ? 250 : 300);
       if (front) { x.font = 'bold 60px Arial'; x.fillText('Landkreis Hohen Abgrund', w / 2, 370); } else { x.strokeStyle = '#b3160f'; x.lineWidth = 58; x.beginPath(); x.moveTo(60, h - 70); x.lineTo(w - 60, 70); x.stroke(); }
     }), 'sauber') }), { amt: .22, lowAmt: 0, scale: .8 });
     const back = new T.MeshStandardMaterial({ color: 0x8a8c88, roughness: .6, metalness: .6 });
@@ -314,7 +314,7 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
       x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h); grain(x, w, h, 2000, .2); x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('Einwohner 214', w / 2, 128);
       x.strokeStyle = 'rgba(150,10,10,.9)'; x.lineWidth = 9; x.beginPath(); x.moveTo(248, 112); x.lineTo(470, 96); x.stroke(); x.fillStyle = 'rgba(150,10,10,.9)'; x.font = '64px Caveat'; x.fillText('211', 430, 196); x.strokeStyle = 'rgba(55,55,58,.75)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(482, 150); x.lineTo(476, 171); x.lineTo(489, 197); x.stroke(); }) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);
     zus.position.set(-72.28, 1.47, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
-    const pole = signGeo('Road_Sign_03', true); if (pole) for (const dz of [-.52, .52]) { const m = new T.Mesh(pole.geo, pole.mat); m.position.set(-72.34, 2.4 - pole.top, 6.3 + dz); m.castShadow = true; scene.add(m); }
+    const pole = signGeo('Road_Sign_03', true); if (pole) for (const dz of [-.52, .52]) { const m = new T.Mesh(pole.geo, pole.mat); m.position.set(-72.2, 2.4 - pole.top, 6.3 + dz); /* hinter der Tafel (vorher davor: verdeckten „L“ und „s“ des Ortsnamens) */ m.castShadow = true; scene.add(m); }
     for (const o of [plate, zus]) interact(o, 'Ortstafel', () => toast(state.ch1Done || (typeof kap === 'function' && kap() >= 2) ? 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.' : 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben ein frischer Bleistiftstrich. Als hätte jemand schon angesetzt, die Zahl noch einmal zu ändern.', 5200)); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
   // Gemeinde-Schild (Scan eines Parkschilds, Blech neu beschriftet) am Gehweg nahe der Kirchweg-Gasse – STORY-HOOK: die Gemeinde weiß Bescheid
   if (parkSrc && parkTex) { const o = parkSrc.clone(true); o.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.map = parkTex; m.material.needsUpdate = true; } }); const g = msGround(o); msPlace(g, -12.6, 0, 5.62, PI);
